@@ -221,11 +221,10 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 	gchar c;
 	GString *filter_string_fwd;
 	gchar *filter_prepend;
-	sip_calls_info_t *tmp_sipinfo;
-	isup_calls_info_t *tmp_isupinfo;
-	h323_calls_info_t *tmp_h323info;
-	h245_address_t *h245_add = NULL;
+	gboolean isFirst = TRUE;
 	GList* list;
+
+	graph_analysis_item_t *gai;
 
 	if (selected_call_fwd==NULL)
 		return;
@@ -242,51 +241,23 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 	}
 		
 	filter_string_fwd = g_string_new(filter_prepend);
-	switch(selected_call_fwd->protocol){
-		case VOIP_SIP:
-			tmp_sipinfo = selected_call_fwd->prot_info;
-			g_string_sprintfa(filter_string_fwd,
-			   "(sip.Call-ID == \"%s\") ",
-			   tmp_sipinfo->call_identifier 
-			   );
-			gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), filter_string_fwd->str);
-			break;
-		case VOIP_ISUP:
-			tmp_isupinfo = selected_call_fwd->prot_info;
-			g_string_sprintfa(filter_string_fwd,
-			   "(isup.cic == %i and frame.number >=%i and frame.number<=%i and mtp3.network_indicator == %i and ((mtp3.dpc == %i) and (mtp3.opc == %i)) or((mtp3.dpc == %i) and (mtp3.opc == %i))) ",
-			   tmp_isupinfo->cic,selected_call_fwd->first_frame_num,
-			   selected_call_fwd->last_frame_num, 
-			   tmp_isupinfo->ni, tmp_isupinfo->dpc, tmp_isupinfo->opc, 
-			   tmp_isupinfo->opc, tmp_isupinfo->dpc
-			   );
-			gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), filter_string_fwd->str);
-			break;
-		case VOIP_H323:
-			tmp_h323info = selected_call_fwd->prot_info;
-			g_string_sprintfa(filter_string_fwd,
-			   "((h225.guid == %x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x:%x || q931.call_ref == %x:%x || q931.call_ref == %x:%x) ",
-			   (guint8)tmp_h323info->guid[0], (guint8)tmp_h323info->guid[1], (guint8)tmp_h323info->guid[2],
-			   (guint8)tmp_h323info->guid[3], (guint8)tmp_h323info->guid[4], (guint8)tmp_h323info->guid[5], (guint8)tmp_h323info->guid[6],
-			   (guint8)tmp_h323info->guid[7], (guint8)tmp_h323info->guid[8], (guint8)tmp_h323info->guid[9], (guint8)tmp_h323info->guid[10],
-			   (guint8)tmp_h323info->guid[11], (guint8)tmp_h323info->guid[12], (guint8)tmp_h323info->guid[13], (guint8)tmp_h323info->guid[14],
-			   (guint8)tmp_h323info->guid[15], (guint8)(tmp_h323info->q931_crv & 0xff), (guint8)((tmp_h323info->q931_crv & 0xff00)>>8)
-			   , (guint8)(tmp_h323info->q931_crv2 & 0xff), (guint8)((tmp_h323info->q931_crv2 & 0xff00)>>8));
-
-			list = g_list_first(tmp_h323info->h245_list);
-			while (list)
-			{
-				h245_add=list->data;
-				g_string_sprintfa(filter_string_fwd,
-					" || (ip.addr == %s && tcp.port == %d && h245) ", 
-					ip_to_str((guint8 *)&(h245_add->h245_address)), h245_add->h245_port);
-				list = g_list_next(list);
-			}
-			g_string_sprintfa(filter_string_fwd, ") ");
-			gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), filter_string_fwd->str);
-			break;
-
+	
+	/* look in the Graph and get all the frame_num for this call */
+	g_string_sprintfa(filter_string_fwd, " (");
+	list = g_list_first(voip_calls_get_info()->graph_analysis->list);
+	while (list)
+	{
+		gai = list->data;
+		if (gai->conv_num == selected_call_fwd->call_num){
+			g_string_sprintfa(filter_string_fwd,"%sframe.number == %d", isFirst?"":" or ", gai->frame_num );
+			isFirst = FALSE;
+		}		
+		list = g_list_next (list);
 	}
+	g_string_sprintfa(filter_string_fwd, ") ");
+
+	gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), filter_string_fwd->str);
+
 	g_string_free(filter_string_fwd, TRUE);
 }
 

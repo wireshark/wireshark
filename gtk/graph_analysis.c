@@ -662,12 +662,18 @@ static gint scroll_event(GtkWidget *widget, GdkEventButton *event _U_)
 	/* Up scroll */
 	if (event->state == 0){
 		if (user_data->dlg.first_item == 0) return TRUE;
-		user_data->dlg.first_item--;
+		if (user_data->dlg.first_item < 3) 
+			user_data->dlg.first_item = 0;
+		else
+			user_data->dlg.first_item -= 3;
 		
-		/* Down scroll */
+	/* Down scroll */
 	} else {
 		if ((user_data->dlg.first_item+user_data->dlg.v_scrollbar_adjustment->page_size+1 == user_data->num_items)) return TRUE;
-		user_data->dlg.first_item++;
+		if ((user_data->dlg.first_item+user_data->dlg.v_scrollbar_adjustment->page_size+1) > (user_data->num_items-3)) 
+			user_data->dlg.first_item = user_data->num_items-(guint32)user_data->dlg.v_scrollbar_adjustment->page_size-1;
+		else
+			user_data->dlg.first_item += 3;
 	}
 	dialog_graph_redraw(user_data);
 	
