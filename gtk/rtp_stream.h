@@ -30,6 +30,7 @@
 
 #include <glib.h>
 #include <stdio.h>
+#include <epan/address.h>
 
 /** @file
  *  ??? 
@@ -55,9 +56,9 @@ typedef rtp_sample_t* rtp_sample_p;
 
 /* defines an rtp stream */
 typedef struct _rtp_stream_info {
-	guint32 src_addr;
+	address src_addr;
 	guint16 src_port;
-	guint32 dest_addr;
+	address dest_addr;
 	guint16 dest_port;
 	guint32 ssrc;
 	guint8  pt;
@@ -98,6 +99,7 @@ typedef struct _rtpstream_tapinfo {
 	gboolean is_registered; /* if the tap listener is currently registered or not */
 } rtpstream_tapinfo_t;
 
+gchar* address_to_str_w_none(address *addr);
 
 /****************************************************************************/
 /* INTERFACE */

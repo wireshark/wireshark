@@ -33,6 +33,7 @@
 #define RTP_ANALYSIS_H_INCLUDED
 
 #include <glib.h>
+#include <epan/address.h>
 
 /** @file
  *  ??? 
@@ -40,16 +41,17 @@
  */
 
 void rtp_analysis(
-		guint32 ip_src_fwd,  /* network-order IPv4 address */
+		address *ip_src_fwd,
 		guint16 port_src_fwd,
-		guint32 ip_dst_fwd,  /* network-order IPv4 address */
+		address *ip_dst_fwd,
 		guint16 port_dst_fwd,
 		guint32 ssrc_fwd,
-		guint32 ip_src_rev,  /* network-order IPv4 address */
+		address *ip_src_rev,
 		guint16 port_src_rev,
-		guint32 ip_dst_rev,  /* network-order IPv4 address */
+		address *ip_dst_rev,
 		guint16 port_dst_rev,
 		guint32 ssrc_rev
 		);
+
 
 #endif /*RTP_ANALYSIS_H_INCLUDED*/

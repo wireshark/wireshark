@@ -274,12 +274,12 @@ typedef struct _tap_rtp_stat_t {
 	guint16 bw_start_index;
 	guint16 bw_index;
 	guint32 total_bytes;
-	double delay;
+	double delta;
 	double jitter;
 	double diff;
 	double time;
 	double start_time;
-	double max_delay;
+	double max_delta;
 	guint32 max_nr;
 	guint16 start_seq_nr;
 	guint16 stop_seq_nr;
@@ -320,14 +320,14 @@ struct _info_direction {
 * and structures for both directions */
 typedef struct _user_data_t {
 	/* tap associated data*/
-	guint32 ip_src_fwd;
+	address ip_src_fwd;
 	guint16 port_src_fwd;
-	guint32 ip_dst_fwd;
+	address ip_dst_fwd;
 	guint16 port_dst_fwd;
 	guint32 ssrc_fwd;
-	guint32 ip_src_rev;
+	address ip_src_rev;
 	guint16 port_src_rev;
-	guint32 ip_dst_rev;
+	address ip_dst_rev;
 	guint16 port_dst_rev;
 	guint32 ssrc_rev;
 
@@ -351,7 +351,7 @@ typedef struct _user_data_t {
 static gchar *titles[9] =  {
 	"Packet",
 	"Sequence",
-	"Delay (ms)",
+	"Delta (ms)",
 	"Jitter (ms)",
 	"IP BW (kbps)",
 	"Marker",
@@ -374,6 +374,8 @@ static void enable_graph(dialog_graph_graph_t *dgg)
 
 static void dialog_graph_reset(user_data_t* user_data);
 
+
+
 /****************************************************************************/
 /* TAP FUNCTIONS */
 
@@ -385,10 +387,10 @@ rtp_reset(void *user_data_arg)
 	user_data_t *user_data = user_data_arg;
 	user_data->forward.statinfo.first_packet = TRUE;
 	user_data->reversed.statinfo.first_packet = TRUE;
-	user_data->forward.statinfo.max_delay = 0;
-	user_data->reversed.statinfo.max_delay = 0;
-	user_data->forward.statinfo.delay = 0;
-	user_data->reversed.statinfo.delay = 0;
+	user_data->forward.statinfo.max_delta = 0;
+	user_data->reversed.statinfo.max_delta = 0;
+	user_data->forward.statinfo.delta = 0;
+	user_data->reversed.statinfo.delta = 0;
         user_data->forward.statinfo.diff = 0;
         user_data->reversed.statinfo.diff = 0;
 	user_data->forward.statinfo.jitter = 0;
@@ -526,7 +528,7 @@ static void rtp_draw(void *prs _U_)
 
 /* forward declarations */
 static void add_to_clist(GtkCList *clist, guint32 number, guint16 seq_num,
-                         double delay, double jitter, double bandwidth, gchar *status, gboolean marker,
+                         double delta, double jitter, double bandwidth, gchar *status, gboolean marker,
                          gchar *timeStr, guint32 pkt_len, GdkColor *color);
 
 static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
@@ -619,7 +621,7 @@ static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	current_time = (double)pinfo->fd->rel_secs + (double) pinfo->fd->rel_usecs/1000000;
 	current_diff = fabs (current_time - (statinfo->time) - ((double)(rtpinfo->info_timestamp)-(double)(statinfo->timestamp))/clock_rate);
 	current_jitter = statinfo->jitter + ( current_diff - statinfo->jitter)/16;
-	statinfo->delay = current_time-(statinfo->time);
+	statinfo->delta = current_time-(statinfo->time);
 	statinfo->jitter = current_jitter;
 	statinfo->diff = current_diff;
 
@@ -642,7 +644,7 @@ static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	if (statinfo->first_packet) {
 		statinfo->start_seq_nr = rtpinfo->info_seq_num;
 		statinfo->start_time = current_time;
-		statinfo->delay = 0;
+		statinfo->delta = 0;
 		statinfo->jitter = 0;
 		statinfo->diff = 0;
 		statinfo->flags |= STAT_FLAG_FIRST;
@@ -658,9 +660,9 @@ static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		&& !(statinfo->flags & STAT_FLAG_MARKER)
 		&& !(statinfo->flags & STAT_FLAG_PT_CN)
 		&& !(statinfo->flags & STAT_FLAG_FOLLOW_PT_CN)) {
-		/* include it in maximum delay calculation */
-		if (statinfo->delay > statinfo->max_delay) {
-			statinfo->max_delay = statinfo->delay;
+		/* include it in maximum delta calculation */
+		if (statinfo->delta > statinfo->max_delta) {
+			statinfo->max_delta = statinfo->delta;
 			statinfo->max_nr = pinfo->fd->num;
 		}
 	}
@@ -815,7 +817,7 @@ static int rtp_packet_add_info(GtkCList *clist,
 	else {
 		add_to_clist(clist,
 			pinfo->fd->num, rtpinfo->info_seq_num,
-			statinfo->delay*1000,
+			statinfo->delta*1000,
 			statinfo->jitter*1000,
 			statinfo->bandwidth,
 			status,
@@ -1081,16 +1083,16 @@ static void on_graph_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	user_data->series_rev.yvalue = -0.5;
 
 	g_snprintf(title1, 80, "Forward: %s:%u to %s:%u (SSRC=%u)",
-		ip_to_str((ip_addr_p)&(user_data->ip_src_fwd)),
+		address_to_str_w_none(&(user_data->ip_src_fwd)), 
 		user_data->port_src_fwd,
-		ip_to_str((ip_addr_p)&(user_data->ip_dst_fwd)),
+		address_to_str_w_none(&(user_data->ip_dst_fwd)),
 		user_data->port_dst_fwd,
 		user_data->ssrc_fwd);
 
 	g_snprintf(title2, 80, "Reverse: %s:%u to %s:%u (SSRC=%u)",
-		ip_to_str((ip_addr_p)&(user_data->ip_src_rev)),
+		address_to_str_w_none(&(user_data->ip_src_rev)),
 		user_data->port_src_rev,
-		ip_to_str((ip_addr_p)&(user_data->ip_dst_rev)),
+		address_to_str_w_none(&(user_data->ip_dst_rev)),
 		user_data->port_dst_rev,
 		user_data->ssrc_rev);
 
@@ -1109,13 +1111,13 @@ static void dialog_graph_set_title(user_data_t* user_data)
 		return;
 	}
 	title = g_strdup_printf("RTP Graph Analysis Forward: %s:%u to %s:%u   Reverse: %s:%u to %s:%u",
-			ip_to_str((ip_addr_p)&(user_data->ip_src_fwd)),
+			address_to_str_w_none(&(user_data->ip_src_fwd)),
 			user_data->port_src_fwd,
-			ip_to_str((ip_addr_p)&(user_data->ip_dst_fwd)),
+			address_to_str_w_none(&(user_data->ip_dst_fwd)),
 			user_data->port_dst_fwd,
-			ip_to_str((ip_addr_p)&(user_data->ip_src_rev)),
+			address_to_str_w_none(&(user_data->ip_src_rev)),
 			user_data->port_src_rev,
-			ip_to_str((ip_addr_p)&(user_data->ip_dst_rev)),
+			address_to_str_w_none(&(user_data->ip_dst_rev)),
 			user_data->port_dst_rev);
 
 	gtk_window_set_title(GTK_WINDOW(user_data->dlg.dialog_graph.window), title);
@@ -1148,18 +1150,18 @@ static void dialog_graph_reset(user_data_t* user_data)
 		if (i<2){
        			g_snprintf(user_data->dlg.dialog_graph.graph[i].title, 100, "%s: %s:%u to %s:%u (SSRC=%u)",
 			graph_descr[i],
-                	ip_to_str((ip_addr_p)&(user_data->ip_src_fwd)),
+                	address_to_str_w_none(&(user_data->ip_src_fwd)),
                 	user_data->port_src_fwd,
-                	ip_to_str((ip_addr_p)&(user_data->ip_dst_fwd)),
+                	address_to_str_w_none(&(user_data->ip_dst_fwd)),
                 	user_data->port_dst_fwd,
                 	user_data->ssrc_fwd);
 		/* it is reverse */
 		} else {
 			g_snprintf(user_data->dlg.dialog_graph.graph[i].title, 100, "%s: %s:%u to %s:%u (SSRC=%u)",
 			graph_descr[i],
-                	ip_to_str((ip_addr_p)&(user_data->ip_src_rev)),
+                	address_to_str_w_none(&(user_data->ip_src_rev)),
                 	user_data->port_src_rev,
-                	ip_to_str((ip_addr_p)&(user_data->ip_dst_rev)),
+                	address_to_str_w_none(&(user_data->ip_dst_rev)),
                 	user_data->port_dst_rev,
                 	user_data->ssrc_rev);
 		}
@@ -2152,6 +2154,7 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	gchar filter_text[256];
 	dfilter_t *sfcode;
 	GString *error_string;
+	gchar ip_version[3];
 
 	/* try to compile the filter. */
 	strcpy(filter_text,"rtp && ip");
@@ -2160,17 +2163,56 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 		return;
 	}
 
-	g_snprintf(filter_text,sizeof(filter_text),
-        "rtp && (( ip.src==%s && udp.srcport==%u && ip.dst==%s && udp.dstport==%u ) || ( ip.src==%s && udp.srcport==%u && ip.dst==%s && udp.dstport==%u ))",
-		ip_to_str((ip_addr_p)&(user_data->ip_src_fwd)),
-		user_data->port_src_fwd,
-		ip_to_str((ip_addr_p)&(user_data->ip_dst_fwd)),
-		user_data->port_dst_fwd,
-		ip_to_str((ip_addr_p)&(user_data->ip_src_rev)),
-		user_data->port_src_rev,
-		ip_to_str((ip_addr_p)&(user_data->ip_dst_rev)),
-		user_data->port_dst_rev
-		);
+	if (user_data->ip_src_fwd.type==AT_IPv6){
+		strcpy(ip_version,"v6");
+	}
+	else{
+		strcpy(ip_version,"");
+	}
+
+
+	if (user_data->ip_src_fwd.type!=AT_NONE){
+		if (user_data->ip_src_rev.type!=AT_NONE){
+			g_snprintf(filter_text,sizeof(filter_text),
+				"rtp && (( ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u ) || ( ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u ))",
+				ip_version,
+				address_to_str_w_none(&(user_data->ip_src_fwd)),
+				user_data->port_src_fwd,
+				ip_version,
+				address_to_str_w_none(&(user_data->ip_dst_fwd)),
+				user_data->port_dst_fwd,
+				ip_version,
+				address_to_str_w_none(&(user_data->ip_src_rev)),
+				user_data->port_src_rev,
+				ip_version,
+				address_to_str_w_none(&(user_data->ip_dst_rev)),
+				user_data->port_dst_rev
+				);
+		}
+		else{
+			g_snprintf(filter_text,sizeof(filter_text),
+				"rtp && (ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u )",
+				ip_version,
+				address_to_str_w_none(&(user_data->ip_src_fwd)),
+				user_data->port_src_fwd,
+				ip_version,
+				address_to_str_w_none(&(user_data->ip_dst_fwd)),
+				user_data->port_dst_fwd
+				);
+			}
+	}
+	else{
+		g_snprintf(filter_text,sizeof(filter_text),
+			"rtp && ( ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u )",
+			ip_version,
+			address_to_str_w_none(&(user_data->ip_src_rev)),
+			user_data->port_src_rev,
+			ip_version,
+			address_to_str_w_none(&(user_data->ip_dst_rev)),
+			user_data->port_dst_rev
+			);
+	}		
+	
 	/* remove tap listener */
 	protect_thread_critical_region();
 	remove_tap_listener(user_data);
@@ -2945,19 +2987,19 @@ static void draw_stat(user_data_t *user_data)
                 r_perc = 0;
         } 
 		
-	g_snprintf(label_max, 199, "Max delay = %f sec at packet no. %u \n"
+	g_snprintf(label_max, 199, "Max delta = %f sec at packet no. %u \n"
 		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d (%.2f%%)"
 		"   Sequence errors = %u",
-		user_data->forward.statinfo.max_delay, user_data->forward.statinfo.max_nr,
+		user_data->forward.statinfo.max_delta, user_data->forward.statinfo.max_nr,
 		user_data->forward.statinfo.total_nr,
 		f_expected, f_lost, f_perc, user_data->forward.statinfo.sequence);
 
 	gtk_label_set_text(GTK_LABEL(user_data->dlg.label_stats_fwd), label_max);
 
-	g_snprintf(label_max, 199, "Max delay = %f sec at packet no. %u \n"
+	g_snprintf(label_max, 199, "Max delta = %f sec at packet no. %u \n"
 		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d (%.2f%%)"
 		"   Sequence errors = %u",
-		user_data->reversed.statinfo.max_delay, user_data->reversed.statinfo.max_nr,
+		user_data->reversed.statinfo.max_delta, user_data->reversed.statinfo.max_nr,
 		user_data->reversed.statinfo.total_nr,
 		r_expected, r_lost, r_perc, user_data->reversed.statinfo.sequence);
 
@@ -2971,7 +3013,7 @@ static void draw_stat(user_data_t *user_data)
 /****************************************************************************/
 /* append a line to clist */
 static void add_to_clist(GtkCList *clist, guint32 number, guint16 seq_num,
-                         double delay, double jitter, double bandwidth, gchar *status, gboolean marker,
+                         double delta, double jitter, double bandwidth, gchar *status, gboolean marker,
                          gchar *timeStr, guint32 pkt_len, GdkColor *color)
 {
 	guint added_row;
@@ -2990,7 +3032,7 @@ static void add_to_clist(GtkCList *clist, guint32 number, guint16 seq_num,
 
 	g_snprintf(field[0], 20, "%u", number);
 	g_snprintf(field[1], 20, "%u", seq_num);
-	g_snprintf(field[2], 20, "%.2f", delay);
+	g_snprintf(field[2], 20, "%.2f", delta);
 	g_snprintf(field[3], 20, "%.2f", jitter);
 	g_snprintf(field[4], 20, "%.2f", bandwidth);
 	g_snprintf(field[5], 20, "%s", marker? "SET" : "");
@@ -3195,7 +3237,6 @@ void create_rtp_dialog(user_data_t* user_data)
 	column_arrows *col_arrows_fwd;
 	column_arrows *col_arrows_rev;
 	
-
 	window = window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: RTP Stream Analysis");
 	gtk_window_set_default_size(GTK_WINDOW(window), 700, 400);
 
@@ -3206,15 +3247,16 @@ void create_rtp_dialog(user_data_t* user_data)
 	gtk_widget_show(main_vb);
 
 	/* Notebooks... */
-	strcpy(str_ip_src, ip_to_str((ip_addr_p)&user_data->ip_src_fwd));
-	strcpy(str_ip_dst, ip_to_str((ip_addr_p)&user_data->ip_dst_fwd));
+	strcpy(str_ip_src, address_to_str_w_none(&(user_data->ip_src_fwd)));
+	strcpy(str_ip_dst, address_to_str_w_none(&(user_data->ip_dst_fwd)));
 
 	g_snprintf(label_forward, 149, 
 		"Analysing stream from  %s port %u  to  %s port %u   SSRC = %u", 
 		str_ip_src, user_data->port_src_fwd, str_ip_dst, user_data->port_dst_fwd, user_data->ssrc_fwd);
 
-	strcpy(str_ip_src, ip_to_str((ip_addr_p)&user_data->ip_src_rev));
-	strcpy(str_ip_dst, ip_to_str((ip_addr_p)&user_data->ip_dst_rev));
+
+	strcpy(str_ip_src, address_to_str_w_none(&(user_data->ip_src_rev)));
+	strcpy(str_ip_dst, address_to_str_w_none(&(user_data->ip_dst_rev)));
 
 	g_snprintf(label_reverse, 149,
 		"Analysing stream from  %s port %u  to  %s port %u   SSRC = %u", 
@@ -3278,7 +3320,7 @@ void create_rtp_dialog(user_data_t* user_data)
 	label = gtk_label_new("     Future    ");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_help, label);
 	frame = gtk_frame_new("");
-	text = gtk_label_new("\n\nMaybe some more statistics: delay and jitter distribution,...");
+	text = gtk_label_new("\n\nMaybe some more statistics: delta and jitter distribution,...");
 	gtk_label_set_justify(GTK_LABEL(text), GTK_JUSTIFY_LEFT);
 	gtk_container_add(GTK_CONTAINER(frame), text);
 	gtk_container_set_border_width(GTK_CONTAINER(frame), 20);
@@ -3433,14 +3475,14 @@ void unprotect_thread_critical_region(void);
 /****************************************************************************/
 /* XXX only handles RTP over IPv4, should add IPv6 support */
 void rtp_analysis(
-		guint32 ip_src_fwd,
+		address *ip_src_fwd,
 		guint16 port_src_fwd,
-		guint32 ip_dst_fwd,
+		address *ip_dst_fwd,
 		guint16 port_dst_fwd,
 		guint32 ssrc_fwd,
-		guint32 ip_src_rev,
+		address *ip_src_rev,
 		guint16 port_src_rev,
-		guint32 ip_dst_rev,
+		address *ip_dst_rev,
 		guint16 port_dst_rev,
 		guint32 ssrc_rev
 		)
@@ -3454,19 +3496,21 @@ void rtp_analysis(
         	{0,     0x0000, 0xffff, 0x0000},
         	{0,     0x0000, 0x0000, 0xffff}
 	};
+
 	/* init */
 	user_data = g_malloc(sizeof(user_data_t));
 
-	user_data->ip_src_fwd = ip_src_fwd;
+	COPY_ADDRESS(&(user_data->ip_src_fwd), ip_src_fwd);
 	user_data->port_src_fwd = port_src_fwd;
-	user_data->ip_dst_fwd = ip_dst_fwd;
+	COPY_ADDRESS(&(user_data->ip_dst_fwd), ip_dst_fwd);
 	user_data->port_dst_fwd = port_dst_fwd;
 	user_data->ssrc_fwd = ssrc_fwd;
-	user_data->ip_src_rev = ip_src_rev;
+	COPY_ADDRESS(&(user_data->ip_src_rev), ip_src_rev);
 	user_data->port_src_rev = port_src_rev;
-	user_data->ip_dst_rev = ip_dst_rev;
+	COPY_ADDRESS(&(user_data->ip_dst_rev), ip_dst_rev);
 	user_data->port_dst_rev = port_dst_rev;
 	user_data->ssrc_rev = ssrc_rev;
+
 
 	/* file names for storing sound data */
 	/*XXX: check for errors*/
@@ -3526,14 +3570,14 @@ void rtp_analysis(
 /* entry point from main menu */
 void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_) 
 {
-	guint32 ip_src_fwd;
+	address ip_src_fwd;
 	guint16 port_src_fwd;
-	guint32 ip_dst_fwd;
+	address ip_dst_fwd;
 	guint16 port_dst_fwd;
 	guint32 ssrc_fwd = 0;
-	guint32 ip_src_rev;
+	address ip_src_rev;
 	guint16 port_src_rev;
-	guint32 ip_dst_rev;
+	address ip_dst_rev;
 	guint16 port_dst_rev;
 	guint32 ssrc_rev = 0;
 	unsigned int version_fwd;
@@ -3552,7 +3596,7 @@ void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	guint nfound;
 
 	/* Try to compile the filter. */
-	strcpy(filter_text,"rtp && ip");
+	strcpy(filter_text,"rtp && (ip || ipv6)");
 	if (!dfilter_compile(filter_text, &sfcode)) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, dfilter_error_msg);
 		return;
@@ -3587,14 +3631,14 @@ void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	}
 
 	/* ok, it is a RTP frame, so let's get the ip and port values */
-	g_memmove(&ip_src_fwd, edt->pi.src.data, 4);
-	g_memmove(&ip_dst_fwd, edt->pi.dst.data, 4);
+	COPY_ADDRESS(&(ip_src_fwd), &(edt->pi.src))
+	COPY_ADDRESS(&(ip_dst_fwd), &(edt->pi.dst))
 	port_src_fwd = edt->pi.srcport;
 	port_dst_fwd = edt->pi.destport;
 
 	/* assume the inverse ip/port combination for the reverse direction */
-	g_memmove(&ip_src_rev, edt->pi.dst.data, 4);
-	g_memmove(&ip_dst_rev, edt->pi.src.data, 4);
+	COPY_ADDRESS(&(ip_src_rev), &(edt->pi.dst))
+	COPY_ADDRESS(&(ip_dst_rev), &(edt->pi.src))
 	port_src_rev = edt->pi.destport;
 	port_dst_rev = edt->pi.srcport;
 
@@ -3620,17 +3664,17 @@ void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	while (strinfo_list)
 	{
 		strinfo = (rtp_stream_info_t*)(strinfo_list->data);
-		if (strinfo->src_addr==ip_src_fwd
+		if (ADDRESSES_EQUAL(&(strinfo->src_addr),&(ip_src_fwd))
 			&& strinfo->src_port==port_src_fwd
-			&& strinfo->dest_addr==ip_dst_fwd
+			&& ADDRESSES_EQUAL(&(strinfo->dest_addr),&(ip_dst_fwd))
 			&& strinfo->dest_port==port_dst_fwd)
 		{
 			filtered_list = g_list_prepend(filtered_list, strinfo);
 		}
 
-		if (strinfo->src_addr==ip_src_rev
+		if (ADDRESSES_EQUAL(&(strinfo->src_addr),&(ip_src_rev))
 			&& strinfo->src_port==port_src_rev
-			&& strinfo->dest_addr==ip_dst_rev
+			&& ADDRESSES_EQUAL(&(strinfo->dest_addr),&(ip_dst_rev))
 			&& strinfo->dest_port==port_dst_rev)
 		{
 			++nfound;
@@ -3649,14 +3693,14 @@ void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	}
 	else {
 		rtp_analysis(
-			ip_src_fwd,
+			&ip_src_fwd,
 			port_src_fwd,
-			ip_dst_fwd,
+			&ip_dst_fwd,
 			port_dst_fwd,
 			ssrc_fwd,
-			ip_src_rev,
+			&ip_src_rev,
 			port_src_rev,
-			ip_dst_rev,
+			&ip_dst_rev,
 			port_dst_rev,
 			ssrc_rev
 			);

@@ -38,6 +38,7 @@
 #include "register.h"
 #include <epan/dissectors/packet-rtp.h>
 
+
 #include "alert_box.h"
 #include "simple_dialog.h"
 
@@ -52,6 +53,16 @@
 #include <string.h>
 
 
+gchar* address_to_str_w_none(address *addr){
+	
+	if(addr->type==AT_NONE){
+		return "NONE";
+	}
+	else{
+		return(address_to_str(addr));
+	}
+}
+	
 /****************************************************************************/
 /* the one and only global rtpstream_tapinfo_t structure */
 static rtpstream_tapinfo_t the_tapinfo_struct =
@@ -69,9 +80,9 @@ gint rtp_stream_info_cmp(gconstpointer aa, gconstpointer bb)
 		return 0;
 	if (a==NULL || b==NULL)
 		return 1;
-	if ((a->src_addr == b->src_addr)
+	if (ADDRESSES_EQUAL(&(a->src_addr), &(b->src_addr))
 		&& (a->src_port == b->src_port)
-		&& (a->dest_addr == b->dest_addr)
+		&& ADDRESSES_EQUAL(&(a->dest_addr), &(b->dest_addr))
 		&& (a->dest_port == b->dest_port)
 		&& (a->ssrc == b->ssrc))
 		return 0;
@@ -149,12 +160,12 @@ static void rtp_write_header(rtp_stream_info_t *strinfo, FILE *file)
 	guint16 padding;       /* 2 padding bytes */
 	
 	fprintf(file, "#!rtpplay%s %s/%u\n", RTPFILE_VERSION,
-		ip_to_str((guint8*) &strinfo->dest_addr),
+		address_to_str_w_none(&(strinfo->dest_addr)),
 		strinfo->dest_port);
 
 	start_sec = g_htonl(strinfo->start_sec);
 	start_usec = g_htonl(strinfo->start_usec);
-	source = strinfo->src_addr; /* already is in network order */
+	source = *(strinfo->src_addr.data); /* rtpdump only accepts guint32 as source, will be fake for IPv6 */
 	port = g_htons(strinfo->src_port);
 	padding = 0;
 
@@ -191,13 +202,12 @@ int rtpstream_packet(rtpstream_tapinfo_t *tapinfo _U_, packet_info *pinfo, epan_
 	rtp_stream_info_t tmp_strinfo;
 	rtp_stream_info_t *strinfo = NULL;
 	GList* list;
-
 	rtp_sample_t sample;
 
 	/* gather infos on the stream this packet is part of */
-	g_memmove(&(tmp_strinfo.src_addr), pinfo->src.data, 4);
+	COPY_ADDRESS(&(tmp_strinfo.src_addr), &(pinfo->src));
 	tmp_strinfo.src_port = pinfo->srcport;
-	g_memmove(&(tmp_strinfo.dest_addr), pinfo->dst.data, 4);
+	COPY_ADDRESS(&(tmp_strinfo.dest_addr), &(pinfo->dst));
 	tmp_strinfo.dest_port = pinfo->destport;
 	tmp_strinfo.ssrc = rtpinfo->info_sync_src;
 	tmp_strinfo.pt = rtpinfo->info_payload_type;
@@ -250,6 +260,7 @@ int rtpstream_packet(rtpstream_tapinfo_t *tapinfo _U_, packet_info *pinfo, epan_
 		}
 	}
 	else if (tapinfo->mode == TAP_MARK) {
+
 		if (rtp_stream_info_cmp(&tmp_strinfo, tapinfo->filter_stream_fwd)==0
 			|| rtp_stream_info_cmp(&tmp_strinfo, tapinfo->filter_stream_rev)==0)
 		{

@@ -47,6 +47,8 @@
 
 #include "rtp_pt.h"
 
+#include <epan/address.h>
+
 #include <string.h>
 
 
@@ -90,9 +92,9 @@ static void add_to_clist(rtp_stream_info_t* strinfo)
 	data[6]=&field[6][0];
 	data[7]=&field[7][0];
 
-	g_snprintf(field[0], 20, "%s", ip_to_str((const guint8*)&(strinfo->src_addr)));
+	g_snprintf(field[0], 20, "%s", address_to_str_w_none(&(strinfo->src_addr)));
 	g_snprintf(field[1], 20, "%u", strinfo->src_port);
-	g_snprintf(field[2], 20, "%s", ip_to_str((const guint8*)&(strinfo->dest_addr)));
+	g_snprintf(field[2], 20, "%s", address_to_str_w_none(&(strinfo->dest_addr)));
 	g_snprintf(field[3], 20, "%u", strinfo->dest_port);
 	g_snprintf(field[4], 20, "%u", strinfo->ssrc);
 	g_snprintf(field[5], 30, "%s", val_to_str(strinfo->pt, rtp_payload_type_vals,
@@ -194,9 +196,9 @@ gint rtp_stream_info_cmp_reverse(gconstpointer aa, gconstpointer bb)
 
 	if (a==NULL || b==NULL)
 		return 1;
-	if ((a->src_addr == b->dest_addr)
+	if ((ADDRESSES_EQUAL(&(a->src_addr), &(b->dest_addr)))
 		&& (a->src_port == b->dest_port)
-		&& (a->dest_addr == b->src_addr)
+		&& (ADDRESSES_EQUAL(&(a->dest_addr), &(b->src_addr)))
 		&& (a->dest_port == b->src_port))
 		return 0;
 	else
@@ -330,17 +332,26 @@ rtpstream_on_filter                    (GtkButton       *button _U_,
 	gchar *filter_string = NULL;
 	gchar *filter_string_fwd = NULL;
 	gchar *filter_string_rev = NULL;
+	gchar ip_version[3];
 
 	if (selected_stream_fwd==NULL && selected_stream_rev==NULL)
 		return;
 
 	if (selected_stream_fwd)
 	{
+		if (selected_stream_fwd->src_addr.type==AT_IPv6){
+			strcpy(ip_version,"v6");
+		}		
+		else{
+			strcpy(ip_version,"");
+		}
 		filter_string_fwd = g_strdup_printf(
-			"(ip.src==%s && udp.srcport==%u && ip.dst==%s && udp.dstport==%u && rtp.ssrc==%u)",
-			ip_to_str((const guint8*)&(selected_stream_fwd->src_addr)),
+			"(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u && rtp.ssrc==%u)",
+			ip_version,
+			address_to_str_w_none(&(selected_stream_fwd->src_addr)),
 			selected_stream_fwd->src_port,
-			ip_to_str((const guint8*)&(selected_stream_fwd->dest_addr)),
+			ip_version,
+			address_to_str_w_none(&(selected_stream_fwd->dest_addr)),
 			selected_stream_fwd->dest_port,
 			selected_stream_fwd->ssrc);
         filter_string = filter_string_fwd;
@@ -348,14 +359,23 @@ rtpstream_on_filter                    (GtkButton       *button _U_,
 
 	if (selected_stream_rev)
 	{
+		if (selected_stream_fwd->src_addr.type==AT_IPv6){
+			strcpy(ip_version,"v6");
+		}		
+		else{
+			strcpy(ip_version,"");
+		}
 		filter_string_rev = g_strdup_printf(
-			"(ip.src==%s && udp.srcport==%u && ip.dst==%s && udp.dstport==%u && rtp.ssrc==%u)",
-			ip_to_str((const guint8*)&(selected_stream_rev->src_addr)),
+			"(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u && rtp.ssrc==%u)",
+			ip_version,
+			address_to_str_w_none(&(selected_stream_rev->src_addr)),
 			selected_stream_rev->src_port,
-			ip_to_str((const guint8*)&(selected_stream_rev->dest_addr)),
+			ip_version,
+			address_to_str_w_none(&(selected_stream_rev->dest_addr)),
 			selected_stream_rev->dest_port,
 			selected_stream_rev->ssrc);
-        filter_string = filter_string_rev;
+
+		filter_string = filter_string_rev;
 
 	    if (selected_stream_fwd)
 	    {
@@ -379,43 +399,48 @@ rtpstream_on_filter                    (GtkButton       *button _U_,
 static void
 rtpstream_on_analyse                   (GtkButton       *button _U_,
                                         gpointer         user_data _U_)
-{
-	guint32 ip_src_fwd = 0;
+{ 
+	address ip_src_fwd;
 	guint16 port_src_fwd = 0;
-	guint32 ip_dst_fwd = 0;
+	address ip_dst_fwd;
 	guint16 port_dst_fwd = 0;
 	guint32 ssrc_fwd = 0;
-	guint32 ip_src_rev = 0;
+	address ip_src_rev;
 	guint16 port_src_rev = 0;
-	guint32 ip_dst_rev = 0;
+	address ip_dst_rev;
 	guint16 port_dst_rev = 0;
 	guint32 ssrc_rev = 0;
-
+	
+	SET_ADDRESS(&ip_src_fwd,AT_NONE,0,NULL);
+	SET_ADDRESS(&ip_dst_fwd,AT_NONE,0,NULL);
+	SET_ADDRESS(&ip_src_rev,AT_NONE,0,NULL);
+	SET_ADDRESS(&ip_dst_rev,AT_NONE,0,NULL);
+	
 	if (selected_stream_fwd) {
-		ip_src_fwd = selected_stream_fwd->src_addr;
+		COPY_ADDRESS(&(ip_src_fwd), &(selected_stream_fwd->src_addr));
 		port_src_fwd = selected_stream_fwd->src_port;
-		ip_dst_fwd = selected_stream_fwd->dest_addr;
+		COPY_ADDRESS(&(ip_dst_fwd), &(selected_stream_fwd->dest_addr));
 		port_dst_fwd = selected_stream_fwd->dest_port;
 		ssrc_fwd = selected_stream_fwd->ssrc;
 	}
 
 	if (selected_stream_rev) {
-		ip_src_rev = selected_stream_rev->src_addr;
+		COPY_ADDRESS(&(ip_src_rev), &(selected_stream_rev->src_addr));
 		port_src_rev = selected_stream_rev->src_port;
-		ip_dst_rev = selected_stream_rev->dest_addr;
+		COPY_ADDRESS(&(ip_dst_rev), &(selected_stream_rev->dest_addr));
 		port_dst_rev = selected_stream_rev->dest_port;
 		ssrc_rev = selected_stream_rev->ssrc;
 	}
 
 	rtp_analysis(
-		ip_src_fwd,
+		&ip_src_fwd,
 		port_src_fwd,
-		ip_dst_fwd,
+		&ip_dst_fwd,
 		port_dst_fwd,
 		ssrc_fwd,
-		ip_src_rev,
+		&ip_src_rev,
 		port_src_rev,
-		ip_dst_rev,
+		&ip_dst_rev,
 		port_dst_rev,
 		ssrc_rev
 		);
@@ -438,9 +463,9 @@ rtpstream_on_select_row(GtkCList *clist,
 	if (event==NULL || event->state & GDK_SHIFT_MASK) {
 		selected_stream_rev = gtk_clist_get_row_data(GTK_CLIST(clist), row);
 		g_snprintf(label_text, 80, "Reverse: %s:%u -> %s:%u, SSRC=%u",
-			ip_to_str((ip_addr_p)&selected_stream_rev->src_addr),
+			address_to_str_w_none(&(selected_stream_rev->src_addr)),
 			selected_stream_rev->src_port,
-			ip_to_str((ip_addr_p)&selected_stream_rev->dest_addr),
+			address_to_str_w_none(&(selected_stream_rev->dest_addr)),
 			selected_stream_rev->dest_port,
 			selected_stream_rev->ssrc
 		);
@@ -449,9 +474,9 @@ rtpstream_on_select_row(GtkCList *clist,
 	else {
 		selected_stream_fwd = gtk_clist_get_row_data(GTK_CLIST(clist), row);
 		g_snprintf(label_text, 80, "Forward: %s:%u -> %s:%u, SSRC=%u",
-			ip_to_str((ip_addr_p)&selected_stream_fwd->src_addr),
+			address_to_str_w_none(&(selected_stream_fwd->src_addr)),
 			selected_stream_fwd->src_port,
-			ip_to_str((ip_addr_p)&selected_stream_fwd->dest_addr),
+			address_to_str_w_none(&(selected_stream_fwd->dest_addr)),
 			selected_stream_fwd->dest_port,
 			selected_stream_fwd->ssrc
 		);
