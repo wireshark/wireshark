@@ -1773,7 +1773,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	type = tvb_get_guint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_nt_ace_type, tvb, offset, 1, type);
 	offset += 1;
-
+          
 	/* flags */
 	offset = dissect_nt_v2_ace_flags(tvb, offset, tree, &flags);
 
@@ -1814,6 +1814,7 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset = offset;
+    int pre_ace_offset;
 	guint8  revision;
 	guint32 num_aces;
 
@@ -1824,9 +1825,9 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	/* revision */
-	revision = tvb_get_guint8(tvb, offset);
+    revision = tvb_get_letohs(tvb, offset);
 	proto_tree_add_uint(tree, hf_nt_acl_revision,
-		tvb, offset, 1, revision);
+		tvb, offset, 2, revision);
 	offset += 2;
 
 	switch(revision){
@@ -1842,10 +1843,12 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			      tvb, offset, 4, num_aces);
 	  offset += 4;
 
-	  while(num_aces--){
-	    offset=dissect_nt_v2_ace(
-		    tvb, offset, pinfo, tree, drep, ami);
-	  }
+      while(num_aces--){
+          pre_ace_offset = offset;
+          offset=dissect_nt_v2_ace(tvb, offset, pinfo, tree, drep, ami);
+          if (pre_ace_offset == offset) 
+              break;
+      }
 	}
 
 	proto_item_set_len(item, offset-old_offset);
@@ -1959,7 +1962,7 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	guint8 revision;
+	guint16 revision;
 	int old_offset = offset;
 	guint32 owner_sid_offset;
 	guint32 group_sid_offset;
@@ -1973,13 +1976,10 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	/* revision */
-	revision = tvb_get_guint8(tvb, offset);
+	revision = tvb_get_letohs(tvb, offset);
 	proto_tree_add_uint(tree, hf_nt_sec_desc_revision,
-		tvb, offset, 1, revision);
-	offset += 1;
-
-	/* next byte should be zero, for now just ignore it */
-	offset += 1;
+		tvb, offset, 2, revision);
+	offset += 2;
 
 
 	switch(revision){
@@ -2054,7 +2054,7 @@ proto_do_register_windows_common(int proto_smb)
 		/* Security descriptors */
 
 		{ &hf_nt_sec_desc_revision,
-		  { "Revision", "nt.sec_desc.revision", FT_UINT8, BASE_DEC,
+		  { "Revision", "nt.sec_desc.revision", FT_UINT16, BASE_DEC,
 		    NULL, 0, "Version of NT Security Descriptor structure", HFILL }},
 
 		{ &hf_nt_sec_desc_type_owner_defaulted,
@@ -2124,7 +2124,7 @@ proto_do_register_windows_common(int proto_smb)
 		    NULL, 0, "Number of authorities for this SID", HFILL }},
 
 		{ &hf_nt_acl_revision,
-		  { "Revision", "nt.acl.revision", FT_UINT8, BASE_DEC,
+		  { "Revision", "nt.acl.revision", FT_UINT16, BASE_DEC,
 		    NULL, 0, "Version of NT ACL structure", HFILL }},
 
 		/* ACLs */
