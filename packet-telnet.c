@@ -2,7 +2,7 @@
  * Routines for Telnet packet dissection; see RFC 854 and RFC 855
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.42 2004/02/02 11:07:29 sahlberg Exp $
+ * $Id: packet-telnet.c,v 1.43 2004/02/03 11:40:41 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,7 +24,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
+/* Telnet authentication options as per     RFC2941
+ * Kerberos v5 telnet authentication as per RFC2942
+ */
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -35,6 +37,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include "packet-kerberos.h"
 
 static int proto_telnet = -1;
 static int hf_telnet_auth_cmd = -1;
@@ -44,10 +47,10 @@ static int hf_telnet_auth_mod_who = -1;
 static int hf_telnet_auth_mod_how = -1;
 static int hf_telnet_auth_mod_cred_fwd = -1;
 static int hf_telnet_auth_mod_enc = -1;
+static int hf_telnet_auth_krb5_type = -1;
 
 static gint ett_telnet = -1;
 static gint ett_telnet_subopt = -1;
-static gint ett_telnet_auth_subopt = -1;
 static gint ett_status_subopt = -1;
 static gint ett_rcte_subopt = -1;
 static gint ett_olw_subopt = -1;
@@ -124,12 +127,12 @@ typedef struct tn_opt {
   gint  *subtree_index;		/* pointer to subtree index for option */
   tn_opt_len_type len_type;	/* type of option length field */
   int	optlen;			/* value length should be (minimum if VARIABLE) */
-  void	(*dissect)(const char *, tvbuff_t *, int, int, proto_tree *);
+  void	(*dissect)(packet_info *pinfo, const char *, tvbuff_t *, int, int, proto_tree *);
 				/* routine to dissect option */
 } tn_opt;
 
 static void
-dissect_string_subopt(const char *optname, tvbuff_t *tvb, int offset, int len,
+dissect_string_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tvb, int offset, int len,
                       proto_tree *tree)
 {
   guint8 cmd;
@@ -167,7 +170,7 @@ dissect_string_subopt(const char *optname, tvbuff_t *tvb, int offset, int len,
 }
 
 static void
-dissect_outmark_subopt(const char *optname _U_, tvbuff_t *tvb, int offset,
+dissect_outmark_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset,
                        int len, proto_tree *tree)
 {
   guint8 cmd;
@@ -229,7 +232,7 @@ dissect_outmark_subopt(const char *optname _U_, tvbuff_t *tvb, int offset,
 }
 
 static void
-dissect_htstops_subopt(const char *optname, tvbuff_t *tvb, int offset, int len,
+dissect_htstops_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tvb, int offset, int len,
                        proto_tree *tree)
 {
   guint8 cmd;
@@ -294,7 +297,7 @@ dissect_htstops_subopt(const char *optname, tvbuff_t *tvb, int offset, int len,
 }
 
 static void
-dissect_naws_subopt(const char *optname _U_, tvbuff_t *tvb, int offset,
+dissect_naws_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset,
                     int len _U_, proto_tree *tree)
 {
   proto_tree_add_text(tree, tvb, offset, 2, "Width: %u",
@@ -323,7 +326,7 @@ dissect_naws_subopt(const char *optname _U_, tvbuff_t *tvb, int offset,
 /* END RFC-2217 (COM Port Control) Definitions */
 
 static void
-dissect_comport_subopt(const char *optname, tvbuff_t *tvb, int offset, int len,
+dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tvb, int offset, int len,
                        proto_tree *tree)
 {static const char *datasizes[] = {
     "Request",
@@ -580,7 +583,7 @@ static const value_string rfc_opt_vals[] = {
 };
 
 static void
-dissect_rfc_subopt(const char *optname _U_, tvbuff_t *tvb, int offset,
+dissect_rfc_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset,
                    int len _U_, proto_tree *tree)
 {
   guint8 cmd;
@@ -657,46 +660,156 @@ static const value_string auth_mod_enc[] = {
 	{ TN_AM_RESERVED,	"Reserved" },
 	{ 0, NULL }
 };
+#define TN_KRB5_TYPE_AUTH		0
+#define TN_KRB5_TYPE_REJECT		1
+#define TN_KRB5_TYPE_ACCEPT		2
+#define TN_KRB5_TYPE_RESPONSE		3
+#define TN_KRB5_TYPE_FORWARD		4
+#define TN_KRB5_TYPE_FORWARD_ACCEPT	5
+#define TN_KRB5_TYPE_FORWARD_REJECT	6
+static const value_string auth_krb5_types[] = {
+	{ TN_KRB5_TYPE_AUTH,		"Auth" },
+	{ TN_KRB5_TYPE_REJECT,		"Reject" },
+	{ TN_KRB5_TYPE_ACCEPT,		"Accept" },
+	{ TN_KRB5_TYPE_RESPONSE,	"Response" },
+	{ TN_KRB5_TYPE_FORWARD,		"Forward" },
+	{ TN_KRB5_TYPE_FORWARD_ACCEPT,	"Forward Accept" },
+	{ TN_KRB5_TYPE_FORWARD_REJECT,	"Forward Reject" },
+	{ 0, NULL }
+};
 static void
-dissect_authentication_subopt(const char *optname _U_, tvbuff_t *tvb, int offset, int len, proto_tree *tree)
+dissect_authentication_type_pair(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	guint8 acmd, type, mod;
-	proto_item *item;
-	proto_tree *send_tree;
+	guint8 type, mod;
+
+	type=tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_telnet_auth_type, tvb, offset, 1, type);
+
+	mod=tvb_get_guint8(tvb, offset+1);
+	proto_tree_add_uint(tree, hf_telnet_auth_mod_enc, tvb, offset+1, 1, mod);
+	proto_tree_add_boolean(tree, hf_telnet_auth_mod_cred_fwd, tvb, offset+1, 1, mod);
+	proto_tree_add_boolean(tree, hf_telnet_auth_mod_how, tvb, offset+1, 1, mod);
+	proto_tree_add_boolean(tree, hf_telnet_auth_mod_who, tvb, offset+1, 1, mod);
+}
+
+static tvbuff_t *
+unescape_and_tvbuffify_telnet_option(packet_info *pinfo, tvbuff_t *tvb, int offset, int len)
+{
+	tvbuff_t *krb5_tvb;
+	guint8 *buf, *spos, *dpos;
+	int skip, l;
+
+	/* no kerberos blobs are ever >10kb ? (arbitrary limit) */
+	/* XXX we never g_free() this one.  This is done automagically
+	   when the parent tvb is destroyed?
+        */
+	g_assert(len<10240);
+	buf=g_malloc(len);
+	spos=tvb_get_ptr(tvb, offset, len);
+	dpos=buf;
+	skip=0;
+	l=len;
+	while(l>0){
+		if((spos[0]==0xff) && (spos[1]==0xff)){
+			skip++;
+			l-=2;
+			*(dpos++)=0xff;
+			spos+=2;
+			continue;
+		}
+		*(dpos++)=*(spos++);
+		l--;
+	}
+	krb5_tvb = tvb_new_real_data(buf, len-skip, len-skip); 
+	tvb_set_child_real_data_tvbuff(tvb, krb5_tvb);
+	add_new_data_source(pinfo, krb5_tvb, "Unpacked Telnet Uption");
+
+	return krb5_tvb;
+}
+
+
+/* as per RFC2942 */
+static void
+dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, int len, proto_tree *tree, guint8 acmd)
+{
+	tvbuff_t *krb5_tvb;
+	guint8 krb5_cmd;
+
+	dissect_authentication_type_pair(pinfo, tvb, offset, tree);
+	offset+=2;
+	len-=2;
+
+
+	krb5_cmd=tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_telnet_auth_krb5_type, tvb, offset, 1, krb5_cmd);
+	offset++;
+	len--;
+
+
+	/* IAC SB AUTHENTICATION IS <authentication-type-pair> AUTH <Kerberos V5 KRB_AP_REQ message> IAC SE */
+	if((acmd==TN_AC_IS)&&(krb5_cmd==TN_KRB5_TYPE_AUTH)){
+		krb5_tvb=unescape_and_tvbuffify_telnet_option(pinfo, tvb, offset, len);
+		dissect_kerberos_main(krb5_tvb, pinfo, tree, FALSE);
+	}
+
+
+
+	/* IAC SB AUTHENTICATION REPLY <authentication-type-pair> ACCEPT IAC SE */
+	/* nothing more to dissect */
+
+
+
+	/* IAC SB AUTHENTICATION REPLY <authentication-type-pair> REJECT <optional reason for rejection> IAC SE*/
+/*qqq*/
+
+
+	/* IAC SB AUTHENTICATION REPLY <authentication-type-pair> RESPONSE <KRB_AP_REP message> IAC SE */
+	if((acmd==TN_AC_REPLY)&&(krb5_cmd==TN_KRB5_TYPE_RESPONSE)){
+		krb5_tvb=unescape_and_tvbuffify_telnet_option(pinfo, tvb, offset, len);
+		dissect_kerberos_main(krb5_tvb, pinfo, tree, FALSE);
+	}
+
+
+	/* IAC SB AUTHENTICATION <authentication-type-pair> FORWARD <KRB_CRED message> IAC SE */
+	/* XXX unclear what this one looks like */
+
+
+	/* IAC SB AUTHENTICATION <authentication-type-pair> FORWARD_ACCEPT IAC SE */
+	/* nothing more to dissect */
+
+
+
+	/* IAC SB AUTHENTICATION <authentication-type-pair> FORWARD_REJECT */
+	/* nothing more to dissect */
+}
+
+static void
+dissect_authentication_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t *tvb, int offset, int len, proto_tree *tree)
+{
+	guint8 acmd;
 	char name[256];
 
+/* XXX here we should really split it up in a conversation struct keeping
+       track of what method we actually use and not just assume it is always
+       kerberos v5
+*/
 	acmd=tvb_get_guint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_telnet_auth_cmd, tvb, offset, 1, acmd);
 	offset++;
 	len--;
 
 	switch(acmd){
+	case TN_AC_REPLY:
 	case TN_AC_IS:
+		/* XXX here we shouldnt just assume it is krb5 */
+		dissect_krb5_authentication_data(pinfo, tvb, offset, len, tree, acmd);
 		break;
 	case TN_AC_SEND:
 		while(len>0){
-			item=NULL;
-			send_tree=NULL;
-			type=tvb_get_guint8(tvb, offset);
-				item=proto_tree_add_uint(tree, hf_telnet_auth_type, tvb, offset, 1, type);
-			if(tree){			
-				send_tree = proto_item_add_subtree(item, ett_telnet_auth_subopt);
-			}
-			offset++;
-			len--;
-
-
-			mod=tvb_get_guint8(tvb, offset);
-			proto_tree_add_uint(send_tree, hf_telnet_auth_mod_enc, tvb, offset, 1, mod);
-			proto_tree_add_boolean(send_tree, hf_telnet_auth_mod_cred_fwd, tvb, offset, 1, mod);
-			proto_tree_add_boolean(send_tree, hf_telnet_auth_mod_how, tvb, offset, 1, mod);
-			proto_tree_add_boolean(send_tree, hf_telnet_auth_mod_who, tvb, offset, 1, mod);
-			/*xxx*/
-			offset++;
-			len--;
+			dissect_authentication_type_pair(pinfo, tvb, offset, tree);
+			offset+=2;
+			len-=2;
 		}
-		break;
-	case TN_AC_REPLY:
 		break;
 	case TN_AC_NAME:
 		if(len<255){
@@ -1032,7 +1145,7 @@ static tn_opt options[] = {
 #define	NOPTIONS	(sizeof options / sizeof options[0])
 
 static int
-telnet_sub_option(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
+telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
 {
   proto_tree *ti, *option_tree;
   int offset = start_offset;
@@ -1042,7 +1155,7 @@ telnet_sub_option(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
   gint ett;
   int iac_offset;
   guint len;
-  void (*dissect)(const char *, tvbuff_t *, int, int, proto_tree *);
+  void (*dissect)(packet_info *, const char *, tvbuff_t *, int, int, proto_tree *);
   gint cur_offset;
   gboolean iac_found;
 
@@ -1132,7 +1245,7 @@ telnet_sub_option(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
     /* Now dissect the suboption parameters. */
     if (dissect != NULL) {
       /* We have a dissector for this suboption's parameters; call it. */
-      (*dissect)(opt, tvb, start_offset, subneg_len, option_tree);
+      (*dissect)(pinfo, opt, tvb, start_offset, subneg_len, option_tree);
     } else {
       /* We don't have a dissector for them; just show them as data. */
       proto_tree_add_text(option_tree, tvb, start_offset, subneg_len,
@@ -1164,7 +1277,7 @@ telnet_will_wont_do_dont(proto_tree *telnet_tree, tvbuff_t *tvb,
 }
 
 static int
-telnet_command(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
+telnet_command(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
 {
   int offset = start_offset;
   guchar optcode;
@@ -1245,7 +1358,7 @@ telnet_command(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
     break;
 
   case TN_SB:
-    offset = telnet_sub_option(telnet_tree, tvb, start_offset);
+    offset = telnet_sub_option(pinfo, telnet_tree, tvb, start_offset);
     break;
 
   case TN_WILL:
@@ -1377,7 +1490,7 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      /*
 	       * Now interpret the command.
 	       */
-	      offset = telnet_command(telnet_tree, tvb, iac_offset);
+	      offset = telnet_command(pinfo, telnet_tree, tvb, iac_offset);
 	    }
 	    else {
 	      /*
@@ -1417,12 +1530,14 @@ proto_register_telnet(void)
        	{ &hf_telnet_auth_mod_enc,
 		{ "Encrypt", "telnet.auth.mod.enc", FT_UINT8, BASE_DEC,
 		  VALS(auth_mod_enc), 0x14, "Modifier: How to enable Encryption", HFILL }},
+       	{ &hf_telnet_auth_krb5_type,
+		{ "Command", "telnet.auth.krb5.cmd", FT_UINT8, BASE_DEC,
+		  VALS(auth_krb5_types), 0, "Krb5 Authentication sub-command", HFILL }},
 		
         };
 	static gint *ett[] = {
 		&ett_telnet,
 		&ett_telnet_subopt,
-		&ett_telnet_auth_subopt,
 		&ett_status_subopt,
 		&ett_rcte_subopt,
 		&ett_olw_subopt,
