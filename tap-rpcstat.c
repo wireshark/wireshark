@@ -1,7 +1,7 @@
 /* tap-rpcstat.c
  * rpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-rpcstat.c,v 1.7 2003/04/23 03:50:59 guy Exp $
+ * $Id: tap-rpcstat.c,v 1.8 2003/04/23 08:20:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -285,7 +285,7 @@ rpcstat_init(char *optarg)
 	int program, version;
 	int pos=0;
 	char *filter=NULL;
-
+	GString *error_string;
 
 	if(sscanf(optarg,"rpc,rtt,%d,%d,%n",&program,&version,&pos)==2){
 		if(pos){
@@ -343,13 +343,16 @@ rpcstat_init(char *optarg)
  *
  */
 
-	if(register_tap_listener("rpc", rs, filter, rpcstat_reset, rpcstat_packet, rpcstat_draw)){
+	error_string=register_tap_listener("rpc", rs, filter, rpcstat_reset, rpcstat_packet, rpcstat_draw);
+	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 		g_free(rs->procedures);
 		g_free(rs->filter);
 		g_free(rs);
 
-		fprintf(stderr,"tethereal: rpcstat_init() failed to attach to tap.\n");
+		fprintf(stderr, "tethereal: Couldn't register rpc,rtt tap: %s\n",
+		    error_string->str);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 }

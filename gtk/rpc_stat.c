@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.8 2003/04/23 05:37:23 guy Exp $
+ * $Id: rpc_stat.c,v 1.9 2003/04/23 08:20:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -283,6 +283,7 @@ gtk_rpcstat_init(char *optarg)
 	GtkWidget *tmp;
 	int program, version, pos;
 	char *filter=NULL;
+	GString *error_string;
 
 	pos=0;
 	if(sscanf(optarg,"rpc,rtt,%d,%d,%n",&program,&version,&pos)==2){
@@ -397,11 +398,10 @@ gtk_rpcstat_init(char *optarg)
 
 	gtk_widget_show(rs->table);
 
-	if(register_tap_listener("rpc", rs, filter, (void*)rpcstat_reset, (void*)rpcstat_packet, (void*)rpcstat_draw)){
-		char str[256];
-		/* error, we failed to attach to the tap. clean up */
-		snprintf(str,255,"Could not attach to tap using filter:%s",filter?filter:"");
-		simple_dialog(ESD_TYPE_WARN, NULL, str);
+	error_string=register_tap_listener("rpc", rs, filter, (void*)rpcstat_reset, (void*)rpcstat_packet, (void*)rpcstat_draw);
+	if(error_string){
+		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
+		g_string_free(error_string, TRUE);
 		g_free(rs->procedures);
 		g_free(rs);
 		return;

@@ -1,7 +1,7 @@
 /* tap-dcerpcstat.c
  * dcerpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-dcerpcstat.c,v 1.4 2003/04/23 03:50:59 guy Exp $
+ * $Id: tap-dcerpcstat.c,v 1.5 2003/04/23 08:20:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -197,6 +197,7 @@ dcerpcstat_init(char *optarg)
 	int major, minor;
 	int pos=0;
         char *filter=NULL;
+        GString *error_string;
     
 	if(sscanf(optarg,"dcerpc,rtt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d%n", &d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,&major,&minor,&pos)==13){
 		uuid.Data1=d1;
@@ -263,13 +264,16 @@ dcerpcstat_init(char *optarg)
 		rs->procedures[i].tot.nsecs=0;
 	}
 
-	if(register_tap_listener("dcerpc", rs, filter, NULL, dcerpcstat_packet, dcerpcstat_draw)){
+	error_string=register_tap_listener("dcerpc", rs, filter, NULL, dcerpcstat_packet, dcerpcstat_draw);
+	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 		g_free(rs->procedures);
 		g_free(rs->filter);
 		g_free(rs);
 
-		fprintf(stderr,"tethereal: dcerpcstat_init() failed to attach to tap.\n");
+		fprintf(stderr, "tethereal: Couldn't register dcerpc,rtt tap: %s\n",
+		    error_string->str);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 }

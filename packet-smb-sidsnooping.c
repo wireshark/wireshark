@@ -2,7 +2,7 @@
  * Routines for snooping SID to name mappings
  * Copyright 2003, Ronnie Sahlberg
  *
- * $Id: packet-smb-sidsnooping.c,v 1.2 2003/03/25 19:52:56 guy Exp $
+ * $Id: packet-smb-sidsnooping.c,v 1.3 2003/04/23 08:20:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -162,6 +162,7 @@ static void
 sid_snooping_init(void)
 {
 	header_field_info *hfi;
+	GString *error_string;
 
 	if(lsa_QueryInfoPolicy_l3_reply_flag){
 		remove_tap_listener(lsa_QueryInfoPolicy_l3_reply_flag);
@@ -209,10 +210,13 @@ sid_snooping_init(void)
 
 
 
-	if(register_tap_listener("dcerpc", lsa_QueryInfoPolicy_l3_reply, "dcerpc.pkt_type==2 and lsa.opnum==7 and lsa.info.level==3 and lsa.domain and smb.sid", NULL, lsa_QueryInfoPolicy_l3_reply, NULL)){
+	error_string=register_tap_listener("dcerpc", lsa_QueryInfoPolicy_l3_reply, "dcerpc.pkt_type==2 and lsa.opnum==7 and lsa.info.level==3 and lsa.domain and smb.sid", NULL, lsa_QueryInfoPolicy_l3_reply, NULL);
+	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 
-		fprintf(stderr,"tethereal: proto_reg_handoff_smb_sidsnooping()/lsa_QueryInfoPolicy_l3_reply failed to attach to tap.\n");
+		fprintf(stderr, "tethereal: Couldn't register proto_reg_handoff_smb_sidsnooping()/lsa_QueryInfoPolicy_l3_reply tap: %s\n",
+		    error_string->str);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 	lsa_QueryInfoPolicy_l3_reply_flag=lsa_QueryInfoPolicy_l3_reply;

@@ -1,7 +1,7 @@
 /* tap-iousers.c
  * iostat   2003 Ronnie Sahlberg
  *
- * $Id: tap-iousers.c,v 1.5 2003/04/23 03:50:59 guy Exp $
+ * $Id: tap-iousers.c,v 1.6 2003/04/23 08:20:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -383,6 +383,7 @@ iousers_init(char *optarg)
 	char *tap_type;
 	static int (*packet_func)(io_users_t *, packet_info *, epan_dissect_t *, void *);
 	io_users_t *iu=NULL;
+	GString *error_string;
 
 	if(!strncmp(optarg,"io,users,eth",12)){
 		if(optarg[12]==','){
@@ -445,12 +446,15 @@ iousers_init(char *optarg)
 		iu->filter=NULL;
 	}
 
-	if(register_tap_listener(tap_type, iu, filter, NULL, (void*)packet_func, (void*)iousers_draw)){
+	error_string=register_tap_listener(tap_type, iu, filter, NULL, (void*)packet_func, (void*)iousers_draw);
+	if(error_string){
 		if(iu->items){
 			g_free(iu->items);
 		}
 		g_free(iu);
-		fprintf(stderr,"tethereal: iousers_init() failed to attach tap\n");
+		fprintf(stderr, "tethereal: Couldn't register io,users tap: %s\n",
+		    error_string->str);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 

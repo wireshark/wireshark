@@ -1,7 +1,7 @@
 /*
  * tap_rtp.c
  *
- * $Id: tap_rtp.c,v 1.9 2003/04/23 03:51:03 guy Exp $
+ * $Id: tap_rtp.c,v 1.10 2003/04/23 08:20:06 guy Exp $
  *
  * RTP analysing addition for ethereal
  *
@@ -1621,6 +1621,7 @@ static void rtp_analyse_cb(GtkWidget *w _U_, gpointer data _U_)
   gint err;
   gboolean frame_matched;
   frame_data *fdata;
+  GString *error_string;
 
   /* There's already a "Display Options" dialog box; reactivate it. */
   if (rtp_w != NULL) {
@@ -1694,9 +1695,11 @@ static void rtp_analyse_cb(GtkWidget *w _U_, gpointer data _U_)
 	  edt->pi.srcport
 	  );
 /* XXX compiler warning:passing arg 5 of `register_tap_listener' from incompatible pointer type */
-  if(register_tap_listener("rtp", rs, filter_text, rtp_reset, rtp_packet, rtp_draw)){
-	printf("ethereal: rtp_init() failed to attach the tap.\n");
+  error_string = register_tap_listener("rtp", rs, filter_text, rtp_reset, rtp_packet, rtp_draw);
+  if (error_string != NULL) {
+	simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
 	/* XXX is this enough or do I have to free anything else? */
+	g_string_free(error_string, TRUE);
 	g_free(rs);
 	exit(1);
   }

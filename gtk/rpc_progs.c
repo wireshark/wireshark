@@ -1,7 +1,7 @@
 /* rpc_progs.c
  * rpc_progs   2002 Ronnie Sahlberg
  *
- * $Id: rpc_progs.c,v 1.8 2003/04/23 05:37:23 guy Exp $
+ * $Id: rpc_progs.c,v 1.9 2003/04/23 08:20:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,7 @@
 #endif
 
 #include <gtk/gtk.h>
+#include "menu.h"
 #include "epan/packet_info.h"
 #include "tap.h"
 #include "../register.h"
@@ -320,6 +321,7 @@ gtk_rpcprogs_init(char *optarg _U_)
 	GtkWidget *vbox;
 	GtkWidget *stat_label;
 	GtkWidget *tmp;
+	GString *error_string;
 
 	if(win){
 		gdk_window_raise(win->window);
@@ -377,8 +379,11 @@ gtk_rpcprogs_init(char *optarg _U_)
 	
 	gtk_widget_show(table);
 
-	if(register_tap_listener("rpc", win, NULL, (void*)rpcprogs_reset, (void*)rpcprogs_packet, (void*)rpcprogs_draw)){
-		fprintf(stderr, "ethereal: gtk_rpcprogs_init() failed to register tap\n");
+	error_string=register_tap_listener("rpc", win, NULL, (void*)rpcprogs_reset, (void*)rpcprogs_packet, (void*)rpcprogs_draw);
+	if(error_string){
+		fprintf(stderr, "ethereal: Couldn't register rpc,programs tap: %s\n",
+		    error_string->str);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 

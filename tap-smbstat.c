@@ -1,7 +1,7 @@
 /* tap-smbstat.c
  * smbstat   2003 Ronnie Sahlberg
  *
- * $Id: tap-smbstat.c,v 1.2 2003/04/23 03:50:59 guy Exp $
+ * $Id: tap-smbstat.c,v 1.3 2003/04/23 08:20:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -247,7 +247,7 @@ smbstat_init(char *optarg)
 	smbstat_t *ss;
 	guint32 i;
 	char *filter=NULL;
-
+	GString *error_string;
 
 	if(!strncmp(optarg,"smb,rtt,",8)){
 		filter=optarg+8;
@@ -281,12 +281,15 @@ smbstat_init(char *optarg)
 		ss->trans2[i].tot.nsecs=0;
 	}
 
-	if(register_tap_listener("smb", ss, filter, NULL, smbstat_packet, smbstat_draw)){
+	error_string=register_tap_listener("smb", ss, filter, NULL, smbstat_packet, smbstat_draw);
+	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 		g_free(ss->filter);
 		g_free(ss);
 
-		fprintf(stderr,"tethereal: smbstat_init() failed to attach to tap.\n");
+		fprintf(stderr, "tethereal: Couldn't register smb,rtt tap: %s\n",
+		    error_string->str);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 }

@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.5 2003/04/23 05:37:22 guy Exp $
+ * $Id: dcerpc_stat.c,v 1.6 2003/04/23 08:20:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,8 +22,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* This module provides rpc call/reply RTT statistics to tethereal.
- * It is only used by tethereal and not ethereal
+/* This module provides rpc call/reply RTT statistics to ethereal,
+ * and displays them graphically.
+ * It is only used by ethereal and not tethereal
  *
  * It serves as an example on how to use the tap api.
  */
@@ -262,8 +263,9 @@ gtk_dcerpcstat_init(char *optarg)
 	int major, minor;
 	int pos=0;
         char *filter=NULL;
+        GString *error_string;
 
-	if(sscanf(optarg,"dcerpc,rtt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d%n", &d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,&major,&minor,&pos)==13){
+	if(sscanf(optarg,"dcerpc,rtt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d,%n", &d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,&major,&minor,&pos)==13){
 		uuid.Data1=d1;
 		uuid.Data2=d2;
 		uuid.Data3=d3;
@@ -281,7 +283,7 @@ gtk_dcerpcstat_init(char *optarg)
 			filter=NULL;
 		}
 	} else {
-		fprintf(stderr, "tethereal: invalid \"-z dcerpc,rtt,<uuid>,<major version>.<minor version>[,<filter>]\" argument\n");
+		fprintf(stderr, "ethereal: invalid \"-z dcerpc,rtt,<uuid>,<major version>.<minor version>[,<filter>]\" argument\n");
 		exit(1);
 	}
 
@@ -290,7 +292,7 @@ gtk_dcerpcstat_init(char *optarg)
 	rs->prog=dcerpc_get_proto_name(&uuid, (minor<<8)|(major&0xff) );
 	if(!rs->prog){
 		g_free(rs);
-		fprintf(stderr,"tethereal: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%d.%d not supported\n",uuid.Data1,uuid.Data2,uuid.Data3,uuid.Data4[0],uuid.Data4[1],uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],uuid.Data4[5],uuid.Data4[6],uuid.Data4[7],major,minor);
+		fprintf(stderr,"ethereal: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%d.%d not supported\n",uuid.Data1,uuid.Data2,uuid.Data3,uuid.Data4[0],uuid.Data4[1],uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],uuid.Data4[5],uuid.Data4[6],uuid.Data4[7],major,minor);
 		exit(1);
 	}
 	procs=dcerpc_get_proto_sub_dissector(&uuid, (minor<<8)|(major&0xff) );
@@ -402,11 +404,11 @@ gtk_dcerpcstat_init(char *optarg)
 	gtk_widget_show(rs->table);
 
 
-	if(register_tap_listener("dcerpc", rs, filter, (void*)dcerpcstat_reset, (void*)dcerpcstat_packet, (void*)dcerpcstat_draw)){
-		char str[256];
+	error_string=register_tap_listener("dcerpc", rs, filter, (void*)dcerpcstat_reset, (void*)dcerpcstat_packet, (void*)dcerpcstat_draw);
+	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
-		snprintf(str,255,"Could not attach to tap using filter:%s",filter?filter:"");
-		simple_dialog(ESD_TYPE_WARN, NULL, str);
+		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
+		g_string_free(error_string, TRUE);
 		g_free(rs->procedures);
 		g_free(rs);
 		return;

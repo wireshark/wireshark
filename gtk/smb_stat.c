@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.4 2003/04/23 05:37:23 guy Exp $
+ * $Id: smb_stat.c,v 1.5 2003/04/23 08:20:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -376,6 +376,7 @@ gtk_smbstat_init(char *optarg)
 	GtkWidget *stat_label;
 	GtkWidget *filter_label;
 	char filter_string[256];
+	GString *error_string;
 
 	if(!strncmp(optarg,"smb,rtt,",8)){
 		filter=optarg+8;
@@ -472,11 +473,10 @@ gtk_smbstat_init(char *optarg)
 
 	gtk_widget_show(ss->table);
 
-	if(register_tap_listener("smb", ss, filter, smbstat_reset, smbstat_packet, smbstat_draw)){
-		char str[256];
-		/* error, we failed to attach to the tap. clean up */
-		snprintf(str,255,"Could not attach to tap using filter:%s\nMaybe the filter string is invalid?",filter?filter:"");
-		simple_dialog(ESD_TYPE_WARN, NULL, str);
+	error_string=register_tap_listener("smb", ss, filter, smbstat_reset, smbstat_packet, smbstat_draw);
+	if(error_string){
+		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
+		g_string_free(error_string, TRUE);
 		g_free(ss->filter);
 		g_free(ss);
 		return;

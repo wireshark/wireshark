@@ -1,7 +1,7 @@
 /* tap-protohierstat.c
  * protohierstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-protohierstat.c,v 1.2 2003/04/23 03:50:59 guy Exp $
+ * $Id: tap-protohierstat.c,v 1.3 2003/04/23 08:20:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -171,6 +171,7 @@ protohierstat_init(char *optarg)
 	phs_t *rs;
 	int pos=0;
 	char *filter=NULL;
+	GString *error_string;
 
 	if(!strcmp("io,phs",optarg)){
 		filter="frame";
@@ -198,12 +199,15 @@ protohierstat_init(char *optarg)
 		rs->filter=NULL;
 	}
 
-	if(register_tap_listener("frame", rs, filter, NULL, protohierstat_packet, protohierstat_draw)){
+	error_string=register_tap_listener("frame", rs, filter, NULL, protohierstat_packet, protohierstat_draw);
+	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 		g_free(rs->filter);
 		g_free(rs);
 
-		fprintf(stderr,"tethereal: protohierstat_init() failed to attach to tap.\n");
+		fprintf(stderr, "tethereal: Couldn't register io,phs tap: %s\n",
+		    error_string->str);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 }

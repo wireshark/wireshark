@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.289 2003/04/23 03:51:03 guy Exp $
+ * $Id: main.c,v 1.290 2003/04/23 08:20:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1504,7 +1504,7 @@ main(int argc, char *argv[])
       else if (strcmp(argv[2], "protocols") == 0)
         proto_registrar_dump_protocols();
       else {
-        fprintf(stderr, "tethereal: Invalid \"%s\" option for -G flag\n",
+        fprintf(stderr, "ethereal: Invalid \"%s\" option for -G flag\n",
                 argv[2]);
         exit(1);
       }

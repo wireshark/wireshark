@@ -1,7 +1,7 @@
 /* tap-rpcprogs.c
  * rpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-rpcprogs.c,v 1.4 2003/04/23 03:50:59 guy Exp $
+ * $Id: tap-rpcprogs.c,v 1.5 2003/04/23 08:20:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -222,13 +222,18 @@ rpcprogs_draw(void *dummy _U_)
 static void
 rpcprogs_init(char *optarg _U_)
 {
+	GString *error_string;
+
 	if(already_enabled){
 		return;
 	}
 	already_enabled=1;
 
-	if(register_tap_listener("rpc", NULL, NULL, NULL, rpcprogs_packet, rpcprogs_draw)){
-		fprintf(stderr,"tethereal: rpcprogs_init() failed to attach to tap.\n");
+	error_string=register_tap_listener("rpc", NULL, NULL, NULL, rpcprogs_packet, rpcprogs_draw);
+	if(error_string){
+		fprintf(stderr,"tethereal: Couldn't register rpc,programs tap: %s\n",
+		    error_string->str);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 }

@@ -1,7 +1,7 @@
 /* tap-protocolinfo.c
  * protohierstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-protocolinfo.c,v 1.2 2003/04/23 03:50:59 guy Exp $
+ * $Id: tap-protocolinfo.c,v 1.3 2003/04/23 08:20:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,6 +77,7 @@ protocolinfo_init(char *optarg)
 	char *field=NULL;
 	char *filter=NULL;
 	header_field_info *hfi;
+	GString *error_string;
 
 	if(!strncmp("proto,colinfo,",optarg,14)){
 		filter=optarg+14;
@@ -106,14 +107,17 @@ protocolinfo_init(char *optarg)
 		rs->filter=NULL;
 	}
 
-	if(register_tap_listener("frame", rs, rs->filter, NULL, protocolinfo_packet, NULL)){
-		/* error, we failed to attach to the tap. clean up */
+	error_string=register_tap_listener("frame", rs, rs->filter, NULL, protocolinfo_packet, NULL);
+	if(error_string){
+		/* error, we failed to attach to the tap. complain and clean up */
+		fprintf(stderr, "tethereal: Couldn't register proto,colinfo tap: %s\n",
+		    error_string->str);
+		g_string_free(error_string, TRUE);
 		if(rs->filter){
 			g_free(rs->filter);
 		}
 		g_free(rs);
 
-		fprintf(stderr,"tethereal: protocolinfo_init() failed to attach to tap.\n");
 		exit(1);
 	}
 }

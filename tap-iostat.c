@@ -1,7 +1,7 @@
 /* tap-iostat.c
  * iostat   2002 Ronnie Sahlberg
  *
- * $Id: tap-iostat.c,v 1.5 2003/04/23 03:50:59 guy Exp $
+ * $Id: tap-iostat.c,v 1.6 2003/04/23 08:20:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -220,6 +220,8 @@ iostat_draw(io_stat_item_t *mit)
 static void
 register_io_tap(io_stat_t *io, int i, char *filter)
 {
+	GString *error_string;
+
 	io->items[i].prev=&io->items[i];
 	io->items[i].next=NULL;
 	io->items[i].parent=io;
@@ -228,10 +230,13 @@ register_io_tap(io_stat_t *io, int i, char *filter)
 	io->items[i].bytes=0;
 	io->filters[i]=filter;
 
-	if(register_tap_listener("frame", &io->items[i], filter, NULL, (void*)iostat_packet, i?NULL:(void*)iostat_draw)){
+	error_string=register_tap_listener("frame", &io->items[i], filter, NULL, (void*)iostat_packet, i?NULL:(void*)iostat_draw);
+	if(error_string){
 		g_free(io->items);
 		g_free(io);
-		fprintf(stderr,"tethereal: iostat_init() failed to attach tap\n");
+		fprintf(stderr, "tethereal: Couldn't register io,stat tap: %s\n",
+		    error_string->str);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 }

@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.20 2003/04/23 05:37:22 guy Exp $
+ * $Id: io_stat.c,v 1.21 2003/04/23 08:20:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 
 #include <gtk/gtk.h>
 #include "gtkglobals.h"
+#include "menu.h"
 #include "epan/epan_dissect.h"
 #include "epan/packet_info.h"
 #include "../tap.h"
@@ -824,6 +825,7 @@ gtk_iostat_init(char *optarg _U_)
 		{0,	0x0000,	0x0000,	0xffff},
 		{0,	0xffff,	0x5000,	0xffff}
 	};
+	GString *error_string;
 
 	io=g_malloc(sizeof(io_stat_t));
 	io->needs_redraw=1;
@@ -871,7 +873,11 @@ gtk_iostat_init(char *optarg _U_)
 		io->graphs[i].filter_bt=NULL;
 	}
 
-	if(register_tap_listener("frame", &io->graphs[0], NULL, gtk_iostat_reset, gtk_iostat_packet, gtk_iostat_draw)){
+	error_string=register_tap_listener("frame", &io->graphs[0], NULL, gtk_iostat_reset, gtk_iostat_packet, gtk_iostat_draw);
+	if(error_string){
+		fprintf(stderr, "ethereal: Can't attach io_stat tap: %s\n",
+		    error_string->str);
+		g_string_free(error_string, TRUE);
 		g_free(io->graphs[0].counts);
 		io->graphs[0].counts=NULL;
 		io->graphs[0].display=0;

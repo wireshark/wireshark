@@ -1,7 +1,7 @@
 /* tap-mgcpstat.c
  * mgcpstat   2003 Lars Roland
  *
- * $Id: tap-mgcpstat.c,v 1.5 2003/04/23 03:50:59 guy Exp $
+ * $Id: tap-mgcpstat.c,v 1.6 2003/04/23 08:20:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -186,7 +186,7 @@ mgcpstat_init(char *optarg)
 	mgcpstat_t *ms;
 	int i;
 	char *filter=NULL;
-
+	GString *error_string;
 
 	if(!strncmp(optarg,"mgcp,rtd,",9)){
 		filter=optarg+9;
@@ -216,12 +216,15 @@ mgcpstat_init(char *optarg)
 	ms->req_dup_num=0;
 	ms->rsp_dup_num=0;
 
-	if(register_tap_listener("mgcp", ms, filter, NULL, mgcpstat_packet, mgcpstat_draw)){
+	error_string=register_tap_listener("mgcp", ms, filter, NULL, mgcpstat_packet, mgcpstat_draw);
+	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 		g_free(ms->filter);
 		g_free(ms);
 
-		fprintf(stderr,"tethereal: mgcpstat_init() failed to attach to tap.\n");
+		fprintf(stderr, "tethereal: Couldn't register mgcp,rtd tap: %s\n",
+		    error_string->str);
+		g_string_free(error_string, TRUE);
 		exit(1);
 	}
 }

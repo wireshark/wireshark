@@ -1,7 +1,7 @@
 /* tap.c
  * packet tap interface   2002 Ronnie Sahlberg
  *
- * $Id: tap.c,v 1.8 2002/11/28 20:28:28 guy Exp $
+ * $Id: tap.c,v 1.9 2003/04/23 08:20:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -335,29 +335,35 @@ find_tap_id(char *name)
 
 /* this function attaches the tap_listener to the named tap.
  * function returns :
- *  0: ok.
- * !0: error
-*/
-int
+ *     NULL: ok.
+ * non-NULL: error, return value points to GString containing error
+ *           message.
+ */
+GString *
 register_tap_listener(char *tapname, void *tapdata, char *fstring, tap_reset_cb reset, tap_packet_cb packet, tap_draw_cb draw)
 {
 	tap_listener_t *tl;
 	int tap_id;
+	GString *error_string;
 
 	tap_id=find_tap_id(tapname);
 	if(!tap_id){
-		fprintf(stderr, "tap not found\n");
-		exit(10);
+		error_string = g_string_new("");
+		g_string_sprintf(error_string, "Tap %s not found", tapname);
+		return error_string;
 	}
 
 	tl=g_malloc(sizeof(tap_listener_t));
 	tl->code=NULL;
 	tl->needs_redraw=1;
 	if(fstring){
-		if(!dfilter_compile(fstring ,&tl->code)){
+		if(!dfilter_compile(fstring, &tl->code)){
+			error_string = g_string_new("");
+			g_string_sprintf(error_string,
+			    "Filter \"%s\" is invalid - %s",
+			    fstring, dfilter_error_msg);
 			g_free(tl);
-			fprintf(stderr,"register_tap_listener(): %s\n", dfilter_error_msg);
-			return 1;
+			return error_string;
 		} else {
 			num_tap_filters++;
 		}
@@ -372,7 +378,7 @@ register_tap_listener(char *tapname, void *tapdata, char *fstring, tap_reset_cb 
 
 	tap_listener_queue=tl;
 
-	return 0;
+	return NULL;
 }
 
 /* this function removes a tap listener

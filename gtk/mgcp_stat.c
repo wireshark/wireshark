@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.3 2003/04/23 05:37:22 guy Exp $
+ * $Id: mgcp_stat.c,v 1.4 2003/04/23 08:20:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,7 @@
 
 #include <gtk/gtk.h>
 #include <string.h>
+#include "menu.h"
 #include "../epan/packet_info.h"
 #include "../tap.h"
 #include "../epan/value_string.h"
@@ -278,6 +279,7 @@ gtk_mgcpstat_init(char *optarg)
 	GtkWidget *stat_label;
 	GtkWidget *filter_label;
 	char filter_string[256];
+	GString *error_string;
 
 	if(!strncmp(optarg,"mgcp,rtd,",9)){
 		filter=optarg+9;
@@ -324,11 +326,10 @@ gtk_mgcpstat_init(char *optarg)
 
 	gtk_widget_show(ms->table);
 
-	if(register_tap_listener("mgcp", ms, filter, mgcpstat_reset, mgcpstat_packet, mgcpstat_draw)){
-		char str[256];
-		/* error, we failed to attach to the tap. clean up */
-		snprintf(str,255,"Could not attach to tap using filter:%s",filter?filter:"");
-		simple_dialog(ESD_TYPE_WARN, NULL, str);
+	error_string=register_tap_listener("mgcp", ms, filter, mgcpstat_reset, mgcpstat_packet, mgcpstat_draw);
+	if(error_string){
+		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
+		g_string_free(error_string, TRUE);
 		g_free(ms->filter);
 		g_free(ms);
 		return;
