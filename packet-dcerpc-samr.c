@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.33 2002/04/22 00:09:21 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.34 2002/04/22 02:04:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1285,20 +1285,6 @@ samr_dissect_query_information_alias_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-samr_dissect_query_information_alias_reply(tvbuff_t *tvb, int offset, 
-					   packet_info *pinfo, 
-					   proto_tree *tree, char *drep)
-{
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "QueryAliasInfo response");
-
-        offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_samr_rc, NULL);
-
-	return offset;
-}
-
-static int
 samr_dissect_ALIAS_INFO_1 (tvbuff_t *tvb, int offset, 
                              packet_info *pinfo, proto_tree *tree,
                              char *drep)
@@ -1361,6 +1347,24 @@ samr_dissect_ALIAS_INFO_ptr(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_ALIAS_INFO, NDR_POINTER_UNIQUE,
 			"ALIAS_INFO", -1, 0);
+	return offset;
+}
+
+static int
+samr_dissect_query_information_alias_reply(tvbuff_t *tvb, int offset, 
+					   packet_info *pinfo, 
+					   proto_tree *tree, char *drep)
+{
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, "QueryAliasInfo response");
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			samr_dissect_ALIAS_INFO_ptr, NDR_POINTER_REF,
+			"", -1, 0);
+
+        offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_samr_rc, NULL);
+
 	return offset;
 }
 
