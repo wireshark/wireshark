@@ -83,6 +83,67 @@ static const value_string vals_status_code[] = {
 };
 
 
+static const gchar* st_str_reqs = "HTTP Requests by Server";
+static const gchar* st_str_reqs_by_srv_addr = "HTTP Requests by Server Address";
+static const gchar* st_str_reqs_by_http_host = "HTTP Requests by HTTP Host";
+static const gchar* st_str_resps_by_srv_addr = "HTTP Responses by Server Address";
+
+static int st_node_reqs = -1;
+static int st_node_reqs_by_srv_addr = -1;
+static int st_node_reqs_by_http_host = -1;
+static int st_node_resps_by_srv_addr = -1;
+
+static void http_reqs_stats_tree_init(stats_tree* st) {
+	st_node_reqs = create_node(st, st_str_reqs, 0, TRUE);
+	st_node_reqs_by_srv_addr = create_node(st, st_str_reqs_by_srv_addr, st_node_reqs, TRUE);
+	st_node_reqs_by_http_host = create_node(st, st_str_reqs_by_http_host, st_node_reqs, TRUE);
+	st_node_resps_by_srv_addr = create_node(st, st_str_resps_by_srv_addr, 0, TRUE);
+}
+
+static int http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p) {
+	const http_info_value_t* v = p;
+	int reqs_by_this_host;
+	int reqs_by_this_addr;
+	int resps_by_this_addr;
+	int i = v->response_code;
+	static gchar ip_str[256];
+	
+	
+	if (v->request_method) {
+		g_snprintf(ip_str,sizeof(ip_str),"%s",address_to_str(&pinfo->dst));
+
+		tick_stat_node(st, st_str_reqs, 0, FALSE);
+		tick_stat_node(st, st_node_reqs_by_srv_addr, st_node_reqs, TRUE);
+		tick_stat_node(st, st_node_reqs_by_http_host, st_node_reqs, TRUE);
+		reqs_by_this_addr = tick_stat_node(st, ip_str, st_node_reqs_by_srv_addr, TRUE);
+		
+		if (v->http_host) {
+			reqs_by_this_host = tick_stat_node(st, v->http_host, st_node_reqs_by_http_host, TRUE);
+			tick_stat_node(st, ip_str, reqs_by_this_host, FALSE);
+			
+			tick_stat_node(st, v->http_host, reqs_by_this_addr, FALSE);
+		}
+		
+		return 1;
+		
+	} else if (i != 0) {
+		g_snprintf(ip_str,sizeof(ip_str),"%s",address_to_str(&pinfo->src));
+		
+		tick_stat_node(st, st_str_resps_by_srv_addr, 0, FALSE);
+		resps_by_this_addr = tick_stat_node(st, ip_str, st_node_resps_by_srv_addr, TRUE);
+
+		if ( (i>100)&&(i<400) ) {
+			tick_stat_node(st, "OK", resps_by_this_addr, FALSE);
+		} else {
+			tick_stat_node(st, "KO", resps_by_this_addr, FALSE);
+		}
+
+		return 1;
+	}
+	
+	return 0;
+}
+
 
 static int st_node_requests_by_host = -1;
 static const guint8* st_str_requests_by_host = "HTTP requests by HTTP Host";
@@ -197,5 +258,6 @@ static int http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_d
 extern void register_http_stat_trees(void) {
 	register_stats_tree("http","http","HTTP Tree/General", http_stats_tree_packet, http_stats_tree_init );
 	register_stats_tree("http","http_req","HTTP Tree/Requests", http_req_stats_tree_packet, http_req_stats_tree_init );
+	register_stats_tree("http","http_srv","HTTP Tree/Servers",http_reqs_stats_tree_packet,http_reqs_stats_tree_init);
 }
 
