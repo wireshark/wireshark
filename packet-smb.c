@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.115 2001/09/27 22:48:46 guy Exp $
+ * $Id: packet-smb.c,v 1.116 2001/09/28 08:01:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -524,7 +524,7 @@ smb_init_protocol(void)
 				     smb_packet_init_count * sizeof(struct smb_continuation_val), G_ALLOC_AND_FREE);
 }
 
-static void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, proto_tree *, struct smb_info si, int, int, int);
+static void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, proto_tree *, struct smb_info si, int, int);
 
 static const value_string smb_cmd_vals[] = {
   { 0x00, "SMBcreatedirectory" },
@@ -1046,7 +1046,7 @@ char *SMB_names[256] = {
 };
 
 void 
-dissect_unknown_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_unknown_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 {
 
   if (tree) {
@@ -1175,16 +1175,19 @@ unicode_to_str(const guint8 *us, int *us_lenp) {
   return cur;
 }
 
+/* Get a null terminated string, which is Unicode if "is_unicode" is true
+   and ASCII (OEM character set) otherwise.
+   XXX - for now, we just handle the ISO 8859-1 subset of Unicode. */
 static const gchar *
-get_unicode_or_ascii_string(const u_char *pd, int *offsetp, gboolean is_unicode,
-    int *len)
+get_unicode_or_ascii_string(const u_char *pd, int *offsetp, int SMB_offset,
+    gboolean is_unicode, int *len)
 {
   int offset = *offsetp;
   const gchar *string;
   int string_len;
 
   if (is_unicode) {
-    if (offset % 2) {
+    if ((offset - SMB_offset) % 2) {
       /*
        * XXX - this should be an offset relative to the beginning of the SMB,
        * not an offset relative to the beginning of the frame; if the stuff
@@ -1218,7 +1221,7 @@ static const value_string buffer_format_vals[] = {
  */
 
 void
-dissect_flush_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_flush_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -1296,7 +1299,7 @@ dissect_flush_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree 
 }
 
 void
-dissect_get_disk_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_get_disk_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -1430,7 +1433,7 @@ dissect_get_disk_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 }
 
 void
-dissect_set_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_set_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   proto_tree    *Attributes_tree;
@@ -1605,7 +1608,7 @@ dissect_set_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 
     /* Build display for: File Name */
 
-    FileName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+    FileName = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
     if (tree) {
 
@@ -1647,7 +1650,7 @@ dissect_set_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 }
 
 void
-dissect_write_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_write_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -1813,7 +1816,7 @@ dissect_write_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree 
 }
 
 void
-dissect_read_mpx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *arent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_read_mpx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *arent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -2062,7 +2065,7 @@ dissect_read_mpx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *a
 }
 
 void
-dissect_delete_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *paernt, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_delete_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *paernt, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -2126,7 +2129,7 @@ dissect_delete_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     /* Build display for: File Name */
 
-    FileName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+    FileName = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
     if (tree) {
 
@@ -2168,7 +2171,7 @@ dissect_delete_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 }
 
 void
-dissect_query_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_query_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   proto_tree    *Attributes_tree;
@@ -2382,7 +2385,7 @@ dissect_query_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 }
 
 void
-dissect_treecon_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_treecon_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -2440,7 +2443,7 @@ dissect_treecon_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
     /* Build display for: Share Path */
 
-    SharePath = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+    SharePath = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
     if (tree) {
 
@@ -2515,9 +2518,25 @@ dissect_treecon_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
     }
 
-    if (errcode != 0) return;
-
     offset += 1; /* Skip Word Count (WCT) */
+
+    if (WordCount == 0) {
+
+      /* Build display for: Byte Count (BCC) */
+
+      ByteCount = GSHORT(pd, offset);
+
+      if (tree) {
+
+	proto_tree_add_text(tree, NullTVB, offset, 2, "Byte Count (BCC): %u", ByteCount);
+
+      }
+
+      offset += 2; /* Skip Byte Count (BCC) */
+
+      return;
+
+    }
 
     /* Build display for: Max Buffer Size */
 
@@ -2561,7 +2580,7 @@ dissect_treecon_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
 /* Generated by build-dissect.pl Vesion 0.6 27-Jun-1999, ACT */
 void
-dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   proto_tree    *Capabilities_tree;
@@ -2988,7 +3007,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
         /* Build display for: Native OS */
 
-        NativeOS = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+        NativeOS = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
         if (tree) {
 
@@ -3000,7 +3019,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
         /* Build display for: Native LanMan Type */
 
-        NativeLanManType = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+        NativeLanManType = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
         if (tree) {
 
@@ -3012,7 +3031,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
         /* Build display for: Primary Domain */
 
-        PrimaryDomain = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+        PrimaryDomain = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
         if (tree) {
 
@@ -3237,7 +3256,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
 	/* Build display for: Account Name */
 
-	AccountName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+	AccountName = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
 	if (tree) {
 
@@ -3255,7 +3274,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 	 * ASCII and the account name is empty.  Another bug?
 	 */
 
-	PrimaryDomain = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+	PrimaryDomain = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
 	if (tree) {
 
@@ -3267,7 +3286,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
 	/* Build display for: Native OS */
 
-	NativeOS = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+	NativeOS = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
 	if (tree) {
 
@@ -3287,7 +3306,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 	 * because the bug didn't appear to get fixed until NT 5.0....
 	 */
 
-	NativeLanManType = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+	NativeLanManType = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
 	if (tree) {
 
@@ -3325,7 +3344,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset, errcode);
+      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset);
 
     }
 
@@ -3416,7 +3435,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
         /* Build display for: NativeOS */
 
-        NativeOS = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+        NativeOS = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
         if (tree) {
 
@@ -3428,7 +3447,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
         /* Build display for: NativeLanMan */
 
-        NativeLanMan = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+        NativeLanMan = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
         if (tree) {
 
@@ -3440,7 +3459,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
         /* Build display for: PrimaryDomain */
 
-        PrimaryDomain = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+        PrimaryDomain = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
         if (tree) {
 
@@ -3555,7 +3574,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
 	/* Build display for: NativeOS */
 
-	NativeOS = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+	NativeOS = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
 	if (tree) {
 
@@ -3567,7 +3586,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
 	/* Build display for: NativeLanMan */
 
-	NativeLanMan = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+	NativeLanMan = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
 	if (tree) {
 
@@ -3605,7 +3624,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset, errcode);
+      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset);
 
     }
 
@@ -3614,7 +3633,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 }
 
 void
-dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8      wct, andxcmd = 0xFF;
@@ -3743,7 +3762,7 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     offset += passwdlen;
 
-    str = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+    str = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
     if (tree) {
 
@@ -3831,7 +3850,7 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     offset += strlen(str) + 1;
 
-    str = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+    str = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
     if (tree) {
 
@@ -3851,12 +3870,12 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
   if (andxcmd != 0xFF) /* Process that next command ... ??? */
 
-    (dissect[andxcmd])(pd, SMB_offset + andxoffs, fd, parent, tree, si, max_data - offset, SMB_offset, errcode);
+    (dissect[andxcmd])(pd, SMB_offset + andxoffs, fd, parent, tree, si, max_data - offset, SMB_offset);
 
 }
 
 void 
-dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 {
   guint8        wct, enckeylen;
   guint16       bcc, mode, rawmode, dialect;
@@ -3887,9 +3906,25 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
   }
 
-  if (!si.request && errcode != 0) return;  /* No more info ... */
-
   offset += 1; 
+
+  if (!si.request && wct == 0) {
+
+    /* Build display for: Byte Count (BCC) */
+
+   bcc = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_text(tree, NullTVB, offset, 2, "Byte Count (BCC): %u", bcc);
+
+    }
+
+    offset += 2; /* Skip Byte Count (BCC) */
+
+    return;
+
+  }
 
   /* Now decode the various formats ... */
 
@@ -4398,7 +4433,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 }
 
 void
-dissect_deletedir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_deletedir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -4450,7 +4485,7 @@ dissect_deletedir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     /* Build display for: Directory Name */
 
-    DirectoryName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+    DirectoryName = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
     if (tree) {
 
@@ -4492,7 +4527,7 @@ dissect_deletedir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_createdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_createdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -4544,7 +4579,7 @@ dissect_createdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     /* Build display for: Directory Name */
 
-    DirectoryName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+    DirectoryName = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
     if (tree) {
 
@@ -4587,7 +4622,7 @@ dissect_createdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
 
 void
-dissect_checkdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_checkdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -4639,7 +4674,7 @@ dissect_checkdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
 
     /* Build display for: Directory Name */
 
-    DirectoryName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+    DirectoryName = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
     if (tree) {
 
@@ -4681,7 +4716,7 @@ dissect_checkdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
 }
 
 void
-dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   static const value_string OpenFunction_0x10[] = {
@@ -5019,7 +5054,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     /* Build display for: File Name */
 
-    FileName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+    FileName = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
     if (tree) {
 
@@ -5032,7 +5067,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset, errcode);
+      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset);
 
     }
 
@@ -5260,7 +5295,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset, errcode);
+      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset);
 
     }
 
@@ -5269,7 +5304,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_write_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_write_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   proto_tree    *WriteMode_tree;
@@ -5639,7 +5674,7 @@ dissect_write_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_tdis_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_tdis_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -5704,7 +5739,7 @@ dissect_tdis_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *paren
 }
 
 void
-dissect_move_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_move_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   static const value_string Flags_0x03[] = {
@@ -5840,7 +5875,7 @@ dissect_move_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *paren
 
     /* Build display for: Error File Name */
 
-    ErrorFileName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+    ErrorFileName = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
     if (tree) {
 
@@ -5855,7 +5890,7 @@ dissect_move_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *paren
 }
 
 void
-dissect_rename_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_rename_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -5922,7 +5957,7 @@ dissect_rename_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     /* Build display for: Old File Name */
 
-    OldFileName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+    OldFileName = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
     if (tree) {
 
@@ -5948,7 +5983,7 @@ dissect_rename_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     /* Build display for: New File Name */
 
-    NewFileName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+    NewFileName = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
     if (tree) {
 
@@ -5990,7 +6025,7 @@ dissect_rename_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 }
 
 void
-dissect_open_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_open_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   static const value_string Mode_0x03[] = {
@@ -6079,7 +6114,7 @@ dissect_open_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_
 
     /* Build display for: Identifier String */
 
-    IdentifierString = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+    IdentifierString = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
     if (tree) {
 
@@ -6133,7 +6168,7 @@ dissect_open_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_
 }
 
 void
-dissect_close_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_close_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -6211,7 +6246,7 @@ dissect_close_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto
 }
 
 void
-dissect_read_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_read_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -6453,7 +6488,7 @@ dissect_read_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
 }
 
 void
-dissect_read_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_read_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -6626,7 +6661,7 @@ dissect_read_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset, errcode);
+      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset);
 
     }
 
@@ -6781,7 +6816,7 @@ dissect_read_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset, errcode);
+      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset);
 
     }
 
@@ -6790,7 +6825,7 @@ dissect_read_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_logoff_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_logoff_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -6865,7 +6900,7 @@ dissect_logoff_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset, errcode);
+      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset);
 
     }
 
@@ -6935,7 +6970,7 @@ dissect_logoff_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset, errcode);
+      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset);
 
     }
 
@@ -6944,7 +6979,7 @@ dissect_logoff_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 }
 
 void
-dissect_seek_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_seek_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   static const value_string Mode_0x03[] = {
@@ -7071,7 +7106,7 @@ dissect_seek_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_write_and_unlock_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_write_and_unlock_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -7228,7 +7263,7 @@ dissect_write_and_unlock_smb(const u_char *pd, int offset, frame_data *fd, proto
 }
 
 void
-dissect_set_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_set_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -7384,7 +7419,7 @@ dissect_set_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_lock_bytes_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_lock_bytes_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -7488,7 +7523,7 @@ dissect_lock_bytes_smb(const u_char *pd, int offset, frame_data *fd, proto_tree 
 }
 
 void
-dissect_get_print_queue_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_get_print_queue_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -7637,7 +7672,7 @@ dissect_get_print_queue_smb(const u_char *pd, int offset, frame_data *fd, proto_
 }
 
 void
-dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   proto_tree    *LockType_tree;
@@ -7804,7 +7839,7 @@ dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset, errcode);
+      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset);
 
     }
 
@@ -7879,7 +7914,7 @@ dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset, errcode);
+      (dissect[AndXCommand])(pd, SMB_offset + AndXOffset, fd, parent, tree, si, max_data, SMB_offset);
 
     }
 
@@ -7888,7 +7923,7 @@ dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
 }
 
 void
-dissect_unlock_bytes_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_unlock_bytes_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -7992,7 +8027,7 @@ dissect_unlock_bytes_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
 }
 
 void
-dissect_create_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_create_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   proto_tree    *Attributes_tree;
@@ -8086,7 +8121,7 @@ dissect_create_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     /* Build display for: File Name */
 
-    FileName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+    FileName = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
     if (tree) {
 
@@ -8144,7 +8179,7 @@ dissect_create_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 }
 
 void
-dissect_search_dir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_search_dir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -8227,7 +8262,7 @@ dissect_search_dir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree 
 
     /* Build display for: File Name */
 
-    FileName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+    FileName = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
     if (tree) {
 
@@ -8337,7 +8372,7 @@ dissect_search_dir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree 
 }
 
 void
-dissect_create_temporary_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_create_temporary_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -8430,7 +8465,7 @@ dissect_create_temporary_file_smb(const u_char *pd, int offset, frame_data *fd, 
 
     /* Build display for: Directory Name */
 
-    DirectoryName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+    DirectoryName = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
     if (tree) {
 
@@ -8499,7 +8534,7 @@ dissect_create_temporary_file_smb(const u_char *pd, int offset, frame_data *fd, 
 
     /* Build display for: File Name */
 
-    FileName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+    FileName = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
     if (tree) {
 
@@ -8514,7 +8549,7 @@ dissect_create_temporary_file_smb(const u_char *pd, int offset, frame_data *fd, 
 }
 
 void
-dissect_close_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_close_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -8618,7 +8653,7 @@ dissect_close_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pare
 }
 
 void
-dissect_write_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_write_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -8724,7 +8759,7 @@ dissect_write_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto
 }
 
 void
-dissect_lock_and_read_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_lock_and_read_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -8937,7 +8972,7 @@ dissect_lock_and_read_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 }
 
 void
-dissect_process_exit_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_process_exit_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -9002,7 +9037,7 @@ dissect_process_exit_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
 }
 
 void
-dissect_get_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_get_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   proto_tree    *Attributes_tree;
@@ -9065,7 +9100,7 @@ dissect_get_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 
     /* Build display for: File Name */
 
-    FileName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &string_len);
+    FileName = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &string_len);
 
     if (tree) {
 
@@ -9232,7 +9267,7 @@ dissect_get_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 }
 
 void
-dissect_read_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_read_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -9445,7 +9480,7 @@ dissect_read_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_write_mpx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_write_mpx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   proto_tree    *WriteMode_tree;
@@ -9653,7 +9688,7 @@ dissect_write_mpx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_find_close2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_find_close2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   guint8        WordCount;
@@ -9751,7 +9786,7 @@ static const value_string trans2_cmd_vals[] = {
 };
 
 void
-dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode)
+dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
 
 {
   proto_tree    *Flags_tree;
@@ -10466,7 +10501,7 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 static void 
 dissect_transact_params(const u_char *pd, int offset, frame_data *fd,
     proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data,
-    int SMB_offset, int errcode, int DataOffset, int DataCount,
+    int SMB_offset, int DataOffset, int DataCount,
     int ParameterOffset, int ParameterCount, int SetupAreaOffset,
     int SetupCount, const char *TransactName)
 {
@@ -10630,8 +10665,7 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd,
 void
 dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
 		     proto_tree *parent, proto_tree *tree,
-		     struct smb_info si, int max_data, int SMB_offset,
-		     int errcode)
+		     struct smb_info si, int max_data, int SMB_offset)
 {
   proto_tree    *Flags_tree;
   proto_item    *ti;
@@ -10947,7 +10981,7 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
 
     /* Build display for: Transact Name */
 
-    TransactName = get_unicode_or_ascii_string(pd, &offset, si.unicode, &TNlen);
+    TransactName = get_unicode_or_ascii_string(pd, &offset, SMB_offset, si.unicode, &TNlen);
 
     if (!fd->flags.visited) {
       /*
@@ -10992,7 +11026,7 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
     /* Let's see if we can decode this */
 
     dissect_transact_params(pd, offset, fd, parent, tree, si, max_data,
-			    SMB_offset, errcode, DataOffset, DataCount,
+			    SMB_offset, DataOffset, DataCount,
 			    ParameterOffset, ParameterCount,
 			    SetupAreaOffset, SetupCount, TransactName);
 
@@ -11053,7 +11087,7 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
          which it's a reply, if we have that information. */
       if (request_val != NULL) {
 	dissect_transact_params(pd, offset, fd, parent, tree, si, max_data,
-				SMB_offset, errcode, -1, -1, -1, -1, -1, -1,
+				SMB_offset, -1, -1, -1, -1, -1, -1,
 	  			request_val -> last_transact_command);
       }
 
@@ -11272,7 +11306,7 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
 					          TotalDataCount, DataCount,
 					          &TransactName);
     dissect_transact_params(pd, offset, fd, parent, tree, si, max_data,
-			    SMB_offset, errcode, DataOffset, DataCount,
+			    SMB_offset, DataOffset, DataCount,
 			    ParameterOffset, ParameterCount,
 			    SetupAreaOffset, SetupCount, TransactName);
 
@@ -11284,7 +11318,7 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
 
 
 
-static void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, proto_tree *, struct smb_info, int, int, int) = {
+static void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, proto_tree *, struct smb_info, int, int) = {
 
   dissect_createdir_smb,    /* unknown SMB 0x00 */
   dissect_deletedir_smb,    /* unknown SMB 0x01 */
@@ -12451,11 +12485,9 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	if (check_col(fd, COL_PROTOCOL))
 		col_set_str(fd, COL_PROTOCOL, "SMB");
 
-	/* Hmmm, poor coding here ... Also, should check the type */
-
 	if (check_col(fd, COL_INFO)) {
 
-	  col_add_fstr(fd, COL_INFO, "%s %s", decode_smb_name(cmd), (pi.match_port == pi.destport)? "Request" : "Response");
+	  col_add_fstr(fd, COL_INFO, "%s", decode_smb_name(cmd));
 
 	}
 
@@ -12487,15 +12519,19 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	offset += 1;
 
-	/* Handle error code */
+	/* Get flags2; we need it to know whether the error code is
+	   an NT error code or a DOS error code. */
 
 	if (!BYTES_ARE_IN_FRAME(SMB_offset + 10, 2))
 	  return;
 
-	if (GSHORT(pd, SMB_offset + 10) & 0x4000) {
+	flags2 = GSHORT(pd, SMB_offset + 10);
+
+	/* Handle error code */
+
+	if (flags2 & 0x4000) {
 
 	    /* handle NT 32 bit error code */
-	    errcode = 0;	/* better than a random number */
 	    status = GWORD(pd, offset); 
 
 	    if (tree) {
@@ -12558,6 +12594,12 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	flags = pd[offset];
 	si.request = !(flags&SMB_FLAGS_DIRN);
 
+	if (check_col(fd, COL_INFO)) {
+
+	  col_append_fstr(fd, COL_INFO, " %s", si.request ? "Request" : "Response");
+
+	}
+
 	if (tree) {
 
 	  tf = proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 1, "Flags: 0x%02x", flags);
@@ -12596,10 +12638,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	offset += 1;
 
-	if (!BYTES_ARE_IN_FRAME(offset, 2))
-	  return;
-
-	flags2 = GSHORT(pd, offset);
+	/* Now put flags2 into the tree */
 
 	if (tree) {
 
@@ -12742,7 +12781,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	/* Now vector through the table to dissect them */
 
 	(dissect[cmd])(pd, offset, fd, tree, smb_tree, si, max_data,
-		       SMB_offset, errcode);
+		       SMB_offset);
 }
 
 /*** External routines called during the registration process */
