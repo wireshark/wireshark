@@ -49,7 +49,7 @@ ethereal-tmp.pod: $(srcdir)/ethereal.pod $(top_srcdir)/AUTHORS-SHORT-FORMAT
 	$(POD2HTML)                    \
 	--title="tethereal - The Ethereal Network Analyzer $(VERSION)" \
 	--noindex                                 \
-	tethereal.pod > ../tethereal.html
+	$(srcdir)/tethereal.pod > ../tethereal.html
 
 ../ethereal-filter.4: ethereal-filter.pod ../config.h
 	$(POD2MAN)                     \
@@ -77,7 +77,7 @@ ethereal-filter.pod: ethereal-filter.pod.template  ../tethereal
 	$(POD2HTML)                     \
 	--title="capinfos - The Ethereal Network Analyzer $(VERSION)" \
 	--noindex                                 \
-	capinfos.pod > ../capinfos.html
+	$(srcdir)/capinfos.pod > ../capinfos.html
 
 ../editcap.1: editcap.pod ../config.h
 	$(POD2MAN)                      \
@@ -89,7 +89,7 @@ ethereal-filter.pod: ethereal-filter.pod.template  ../tethereal
 	$(POD2HTML)                     \
 	--title="editcap - The Ethereal Network Analyzer $(VERSION)" \
 	--noindex                                 \
-	editcap.pod > ../editcap.html
+	$(srcdir)/editcap.pod > ../editcap.html
 
 ../idl2eth.1: idl2eth.pod ../config.h
 	$(POD2MAN)                      \
@@ -101,7 +101,7 @@ ethereal-filter.pod: ethereal-filter.pod.template  ../tethereal
 	$(POD2HTML)                     \
 	--title="idl2eth - The Ethereal Network Analyzer $(VERSION)" \
 	--noindex                                 \
-	idl2eth.pod > ../idl2eth.html
+	$(srcdir)/idl2eth.pod > ../idl2eth.html
 
 ../mergecap.1: mergecap.pod ../config.h
 	$(POD2MAN)                      \
@@ -113,7 +113,7 @@ ethereal-filter.pod: ethereal-filter.pod.template  ../tethereal
 	$(POD2HTML)                     \
 	--title="mergecap - The Ethereal Network Analyzer $(VERSION)" \
 	--noindex                                 \
-	mergecap.pod > ../mergecap.html
+	$(srcdir)/mergecap.pod > ../mergecap.html
 
 ../text2pcap.1: text2pcap.pod ../config.h
 	$(POD2MAN)                      \
@@ -125,7 +125,7 @@ ethereal-filter.pod: ethereal-filter.pod.template  ../tethereal
 	$(POD2HTML)                     \
 	--title="text2pcap - The Ethereal Network Analyzer $(VERSION)" \
 	--noindex                                 \
-	text2pcap.pod > ../text2pcap.html
+	$(srcdir)/text2pcap.pod > ../text2pcap.html
 
 CLEANFILES =		\
 	ethereal-filter.pod \
