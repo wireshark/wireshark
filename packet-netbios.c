@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.15 2000/02/15 21:02:40 gram Exp $
+ * $Id: packet-netbios.c,v 1.16 2000/02/16 00:44:45 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -106,9 +106,9 @@ static const value_string name_type_vals[] = {
 	{0x03,	"Messenger service/Main name"},
 	{0x05,	"Forwarded name"},
 	{0x06,	"RAS Server service"},
-	{0x1b,	"PDC Domain name"},
-	{0x1c,	"BDC Domain name"},
-	{0x1d,	"Master Browser backup"},
+	{0x1b,	"Domain Master Browser"},
+	{0x1c,	"Domain Controllers"},
+	{0x1d,	"Local Master Browser"},
 	{0x1e,	"Browser Election Service"},
 	{0x1f,	"Net DDE Service"},
 	{0x20,	"Server service"},
