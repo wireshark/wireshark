@@ -1,7 +1,7 @@
 /* print_mswin.c
  * Printing support for MSWindows
  *
- * $$
+ * $Id: print_mswin.c,v 1.5 2002/09/09 20:16:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,6 +27,7 @@
  */
 
 #include <string.h>
+#include <stdio.h>
 
 #include "windows.h"
 
@@ -38,8 +39,6 @@ BOOL CALLBACK abort_proc( HDC hDC, int Error );
 HDC get_printer_dc(void);
 void init_doc_struct( DOCINFO* di, char* docname);
 void print_file( char* file_name, HDC hdc);
-
-
 
 void print_mswin(char *file_name)
 
