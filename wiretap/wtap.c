@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.93 2004/03/30 19:37:31 guy Exp $
+ * $Id: wtap.c,v 1.94 2004/06/07 20:28:51 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -248,6 +248,9 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_APPLE_IP_OVER_IEEE1394 */
 	{ "Apple IP-over-IEEE 1394", "ap1394" },
+
+	/* WTAP_ENCAP_BACNET_MS_TP */
+	{ "BACnet MS/TP", "bacnet-ms-tp" },
 };
 
 /* Name that should be somewhat descriptive. */

@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.119 2004/03/23 01:02:41 guy Exp $
+ * $Id: libpcap.c,v 1.120 2004/06/07 20:28:50 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -332,6 +332,8 @@ static const struct {
 	 * 164 is reserved for Juniper-private chassis-internal
 	 * meta-information such as QoS profiles, etc..
 	 */
+
+	{ 165,		WTAP_ENCAP_BACNET_MS_TP },
 
 	/*
 	 * To repeat:
