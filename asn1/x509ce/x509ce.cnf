@@ -100,7 +100,10 @@ SkipCerts                 B "2.5.29.54" "id-ce-inhibitAnyPolicy"
 #.TYPE_RENAME
 
 #.FIELD_RENAME
-
+CRLReferral/issuer	crlr_issuer
+CertificatePairExactAssertion/issuedToThisCAAssertion	cpea_issuedToThisCAAssertion
+CertificatePairExactAssertion/issuedByThisCAAssertion	cpea_issuedByThisCAAssertion
+	
 #.FN_BODY PolicyQualifierId
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
                                          hf_x509ce_object_identifier_id, object_identifier_id);

@@ -137,7 +137,7 @@ static int hf_x509ce_cRLNumber = -1;              /* CRLNumber */
 static int hf_x509ce_baseThisUpdate = -1;         /* GeneralizedTime */
 static int hf_x509ce_StatusReferrals_item = -1;   /* StatusReferral */
 static int hf_x509ce_cRLReferral = -1;            /* CRLReferral */
-static int hf_x509ce_issuer = -1;                 /* GeneralName */
+static int hf_x509ce_crlr_issuer = -1;            /* GeneralName */
 static int hf_x509ce_location = -1;               /* GeneralName */
 static int hf_x509ce_deltaRefInfo = -1;           /* DeltaRefInfo */
 static int hf_x509ce_cRLScope = -1;               /* CRLScopeSyntax */
@@ -158,7 +158,7 @@ static int hf_x509ce_containsUserAttributeCerts = -1;  /* BOOLEAN */
 static int hf_x509ce_containsAACerts = -1;        /* BOOLEAN */
 static int hf_x509ce_containsSOAPublicKeyCerts = -1;  /* BOOLEAN */
 static int hf_x509ce_serialNumber = -1;           /* CertificateSerialNumber */
-static int hf_x509ce_issuer1 = -1;                /* Name */
+static int hf_x509ce_issuer = -1;                 /* Name */
 static int hf_x509ce_subjectKeyIdentifier = -1;   /* SubjectKeyIdentifier */
 static int hf_x509ce_authorityKeyIdentifier = -1;  /* AuthorityKeyIdentifier */
 static int hf_x509ce_privateKeyValid = -1;        /* GeneralizedTime */
@@ -172,10 +172,10 @@ static int hf_x509ce_nameConstraints = -1;        /* NameConstraintsSyntax */
 static int hf_x509ce_builtinNameForm = -1;        /* T_builtinNameForm */
 static int hf_x509ce_otherNameForm = -1;          /* OBJECT_IDENTIFIER */
 static int hf_x509ce_CertPolicySet_item = -1;     /* CertPolicyId */
-static int hf_x509ce_issuedToThisCAAssertion = -1;  /* CertificateExactAssertion */
-static int hf_x509ce_issuedByThisCAAssertion = -1;  /* CertificateExactAssertion */
-static int hf_x509ce_issuedToThisCAAssertion1 = -1;  /* CertificateAssertion */
-static int hf_x509ce_issuedByThisCAAssertion1 = -1;  /* CertificateAssertion */
+static int hf_x509ce_cpea_issuedToThisCAAssertion = -1;  /* CertificateExactAssertion */
+static int hf_x509ce_cpea_issuedByThisCAAssertion = -1;  /* CertificateExactAssertion */
+static int hf_x509ce_issuedToThisCAAssertion = -1;  /* CertificateAssertion */
+static int hf_x509ce_issuedByThisCAAssertion = -1;  /* CertificateAssertion */
 static int hf_x509ce_minCRLNumber = -1;           /* CRLNumber */
 static int hf_x509ce_maxCRLNumber = -1;           /* CRLNumber */
 static int hf_x509ce_reasonFlags = -1;            /* ReasonFlags */
@@ -291,11 +291,11 @@ static int dissect_serialNumber(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 static int dissect_serialNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509af_CertificateSerialNumber(TRUE, tvb, offset, pinfo, tree, hf_x509ce_serialNumber);
 }
-static int dissect_issuer1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509if_Name(FALSE, tvb, offset, pinfo, tree, hf_x509ce_issuer1);
+static int dissect_issuer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_Name(FALSE, tvb, offset, pinfo, tree, hf_x509ce_issuer);
 }
-static int dissect_issuer1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509if_Name(TRUE, tvb, offset, pinfo, tree, hf_x509ce_issuer1);
+static int dissect_issuer_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_Name(TRUE, tvb, offset, pinfo, tree, hf_x509ce_issuer);
 }
 static int dissect_pathToName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_Name(TRUE, tvb, offset, pinfo, tree, hf_x509ce_pathToName);
@@ -428,8 +428,8 @@ static int dissect_base(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 static int dissect_authorityName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509ce_GeneralName(TRUE, tvb, offset, pinfo, tree, hf_x509ce_authorityName);
 }
-static int dissect_issuer_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509ce_GeneralName(TRUE, tvb, offset, pinfo, tree, hf_x509ce_issuer);
+static int dissect_crlr_issuer_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_GeneralName(TRUE, tvb, offset, pinfo, tree, hf_x509ce_crlr_issuer);
 }
 static int dissect_location_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509ce_GeneralName(TRUE, tvb, offset, pinfo, tree, hf_x509ce_location);
@@ -1132,7 +1132,7 @@ static int dissect_deltaRefInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 }
 
 static const ber_sequence_t CRLReferral_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_issuer_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_crlr_issuer_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_location_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_deltaRefInfo_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cRLScope },
@@ -1275,7 +1275,7 @@ dissect_x509ce_BaseCRLNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
 static const ber_sequence_t CertificateExactAssertion_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serialNumber },
-  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_issuer1 },
+  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_issuer },
   { 0, 0, 0, NULL }
 };
 
@@ -1286,11 +1286,11 @@ dissect_x509ce_CertificateExactAssertion(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_issuedToThisCAAssertion_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509ce_CertificateExactAssertion(TRUE, tvb, offset, pinfo, tree, hf_x509ce_issuedToThisCAAssertion);
+static int dissect_cpea_issuedToThisCAAssertion_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_CertificateExactAssertion(TRUE, tvb, offset, pinfo, tree, hf_x509ce_cpea_issuedToThisCAAssertion);
 }
-static int dissect_issuedByThisCAAssertion_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509ce_CertificateExactAssertion(TRUE, tvb, offset, pinfo, tree, hf_x509ce_issuedByThisCAAssertion);
+static int dissect_cpea_issuedByThisCAAssertion_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_CertificateExactAssertion(TRUE, tvb, offset, pinfo, tree, hf_x509ce_cpea_issuedByThisCAAssertion);
 }
 
 
@@ -1358,7 +1358,7 @@ static int dissect_policy_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static const ber_sequence_t CertificateAssertion_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serialNumber_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_issuer1_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_issuer_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_subjectKeyIdentifier_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authorityKeyIdentifier_impl },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_privateKeyValid_impl },
@@ -1379,16 +1379,16 @@ dissect_x509ce_CertificateAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 
   return offset;
 }
-static int dissect_issuedToThisCAAssertion1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509ce_CertificateAssertion(TRUE, tvb, offset, pinfo, tree, hf_x509ce_issuedToThisCAAssertion1);
+static int dissect_issuedToThisCAAssertion_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_CertificateAssertion(TRUE, tvb, offset, pinfo, tree, hf_x509ce_issuedToThisCAAssertion);
 }
-static int dissect_issuedByThisCAAssertion1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509ce_CertificateAssertion(TRUE, tvb, offset, pinfo, tree, hf_x509ce_issuedByThisCAAssertion1);
+static int dissect_issuedByThisCAAssertion_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_CertificateAssertion(TRUE, tvb, offset, pinfo, tree, hf_x509ce_issuedByThisCAAssertion);
 }
 
 static const ber_sequence_t CertificatePairExactAssertion_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_issuedToThisCAAssertion_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_issuedByThisCAAssertion_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cpea_issuedToThisCAAssertion_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cpea_issuedByThisCAAssertion_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -1401,8 +1401,8 @@ dissect_x509ce_CertificatePairExactAssertion(gboolean implicit_tag _U_, tvbuff_t
 }
 
 static const ber_sequence_t CertificatePairAssertion_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_issuedToThisCAAssertion1_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_issuedByThisCAAssertion1_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_issuedToThisCAAssertion_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_issuedByThisCAAssertion_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -1415,7 +1415,7 @@ dissect_x509ce_CertificatePairAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb
 }
 
 static const ber_sequence_t CertificateListExactAssertion_sequence[] = {
-  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_issuer1 },
+  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_issuer },
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_distributionPoint },
   { 0, 0, 0, NULL }
 };
@@ -1429,7 +1429,7 @@ dissect_x509ce_CertificateListExactAssertion(gboolean implicit_tag _U_, tvbuff_t
 }
 
 static const ber_sequence_t CertificateListAssertion_sequence[] = {
-  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_issuer1 },
+  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_issuer },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_minCRLNumber_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_maxCRLNumber_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_reasonFlags },
@@ -1883,7 +1883,7 @@ void proto_register_x509ce(void) {
       { "cRLReferral", "x509ce.cRLReferral",
         FT_NONE, BASE_NONE, NULL, 0,
         "StatusReferral/cRLReferral", HFILL }},
-    { &hf_x509ce_issuer,
+    { &hf_x509ce_crlr_issuer,
       { "issuer", "x509ce.issuer",
         FT_UINT32, BASE_DEC, VALS(GeneralName_vals), 0,
         "CRLReferral/issuer", HFILL }},
@@ -1967,7 +1967,7 @@ void proto_register_x509ce(void) {
       { "serialNumber", "x509ce.serialNumber",
         FT_INT32, BASE_DEC, NULL, 0,
         "", HFILL }},
-    { &hf_x509ce_issuer1,
+    { &hf_x509ce_issuer,
       { "issuer", "x509ce.issuer",
         FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
         "", HFILL }},
@@ -2023,19 +2023,19 @@ void proto_register_x509ce(void) {
       { "Item", "x509ce.CertPolicySet_item",
         FT_STRING, BASE_NONE, NULL, 0,
         "CertPolicySet/_item", HFILL }},
-    { &hf_x509ce_issuedToThisCAAssertion,
+    { &hf_x509ce_cpea_issuedToThisCAAssertion,
       { "issuedToThisCAAssertion", "x509ce.issuedToThisCAAssertion",
         FT_NONE, BASE_NONE, NULL, 0,
         "CertificatePairExactAssertion/issuedToThisCAAssertion", HFILL }},
-    { &hf_x509ce_issuedByThisCAAssertion,
+    { &hf_x509ce_cpea_issuedByThisCAAssertion,
       { "issuedByThisCAAssertion", "x509ce.issuedByThisCAAssertion",
         FT_NONE, BASE_NONE, NULL, 0,
         "CertificatePairExactAssertion/issuedByThisCAAssertion", HFILL }},
-    { &hf_x509ce_issuedToThisCAAssertion1,
+    { &hf_x509ce_issuedToThisCAAssertion,
       { "issuedToThisCAAssertion", "x509ce.issuedToThisCAAssertion",
         FT_NONE, BASE_NONE, NULL, 0,
         "CertificatePairAssertion/issuedToThisCAAssertion", HFILL }},
-    { &hf_x509ce_issuedByThisCAAssertion1,
+    { &hf_x509ce_issuedByThisCAAssertion,
       { "issuedByThisCAAssertion", "x509ce.issuedByThisCAAssertion",
         FT_NONE, BASE_NONE, NULL, 0,
         "CertificatePairAssertion/issuedByThisCAAssertion", HFILL }},
