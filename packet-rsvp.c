@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.62 2002/04/25 06:34:42 guy Exp $
+ * $Id: packet-rsvp.c,v 1.63 2002/05/16 20:11:32 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,6 +95,7 @@ static gint ett_rsvp_flowspec_subtree = -1;
 static gint ett_rsvp_adspec = -1;
 static gint ett_rsvp_adspec_subtree = -1;
 static gint ett_rsvp_integrity = -1;
+static gint ett_rsvp_integrity_flags = -1;
 static gint ett_rsvp_dclass = -1;
 static gint ett_rsvp_lsp_tunnel_if_id = -1;
 static gint ett_rsvp_policy = -1;
@@ -110,6 +111,8 @@ static gint ett_rsvp_record_route_subobj = -1;
 static gint ett_rsvp_hop_subobj = -1;
 static gint ett_rsvp_admin_status = -1;
 static gint ett_rsvp_admin_status_flags = -1;
+static gint ett_rsvp_gen_uni = -1;
+static gint ett_rsvp_gen_uni_subobj = -1;
 static gint ett_rsvp_unknown_class = -1;
 
 
@@ -194,6 +197,7 @@ enum rsvp_classes {
     RSVP_CLASS_ADMIN_STATUS,
 
     RSVP_CLASS_SESSION_ATTRIBUTE = 207,
+    RSVP_CLASS_GENERALIZED_UNI,
     RSVP_CLASS_DCLASS = 225,
     RSVP_CLASS_LSP_TUNNEL_IF_ID = 227,
 };
@@ -234,6 +238,7 @@ static value_string rsvp_class_vals[] = {
     {RSVP_CLASS_LSP_TUNNEL_IF_ID, "LSP-TUNNEL INTERFACE-ID object"},
     {RSVP_CLASS_NOTIFY_REQUEST, "NOTIFY-REQUEST object"},
     {RSVP_CLASS_ADMIN_STATUS, "ADMIN-STATUS object"},
+    {RSVP_CLASS_GENERALIZED_UNI, "GENERALIZED-UNI object"},
     {0, NULL}
 };
 
@@ -302,6 +307,16 @@ static value_string style_vals[] = {
     { RSVP_FF, "Fixed Filter" },
     { RSVP_SE, "Shared-Explicit" },
     { 0,       NULL }
+};
+
+enum {
+    RSVP_SESSION_TYPE_IPV4 = 1,
+    RSVP_SESSION_TYPE_IPV6,
+
+    RSVP_SESSION_TYPE_IPV4_LSP = 7,
+    RSVP_SESSION_TYPE_IPV6_LSP,
+
+    RSVP_SESSION_TYPE_IPV4_UNI = 9,
 };
 
 /*
@@ -449,6 +464,37 @@ static const value_string gmpls_gpid_str[] = {
     { 0, NULL },
 };
 
+static const value_string gmpls_sonet_signal_type_str[] = {
+    { 1, "VT1.5 SPE / VC-11"},
+    { 2, "VT2 SPE / VC-12"}, 
+    { 3, "VT3 SPE"},
+    { 4, "VT6 SPE / VC-2"},
+    { 5, "STS-1 SPE / VC-3"},
+    { 6, "STS-3c SPE / VC-4"},
+    { 7, "STS-1 / STM-0"},
+    { 8, "STS-3 / STM-1"},
+    { 9, "STS-12 / STM-4"},
+    {10, "STS-48 / STM-16"},
+    {11, "STS-192 / STM-64"},
+    {12, "STS-768 / STM-256"},
+
+    /* Extended non-SONET signal types */
+    {13, "VTG / TUG-2"},
+    {14, "TUG-3"},
+    {15, "STSG-3 / AUG-1"},
+    {16, "STSG-12  / AUG-4"},
+    {17, "STSG-48  / AUG-16"},
+    {18, "STSG-192 / AUG-64"},
+    {19, "STSG-768 / AUG-256"},
+};
+
+static const value_string ouni_guni_diversity_str[] = {
+    {1, "Node Diverse"},
+    {2, "Link Diverse"},
+    {3, "Shared-Risk Link Group Diverse"},
+    {4, "Shared Path"},
+};
+
 /* -------------------- Stuff for MPLS/TE objects -------------------- */
 
 static const value_string proto_vals[] = { {IP_PROTO_ICMP, "ICMP"},
@@ -522,6 +568,7 @@ enum rsvp_filter_keys {
     RSVPF_LSP_TUNNEL_IF_ID,
     RSVPF_NOTIFY_REQUEST,
     RSVPF_ADMIN_STATUS,
+    RSVPF_GENERALIZED_UNI,
     RSVPF_UNKNOWN_OBJ, 
 
     /* Session object */
@@ -732,6 +779,10 @@ static hf_register_info rsvpf_info[] = {
      { "NOTIFY REQUEST", "rsvp.notify_request", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
+    {&rsvp_filter[RSVPF_GENERALIZED_UNI], 
+     { "GENERALIZED UNI", "rsvp.generalized_uni", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
     {&rsvp_filter[RSVPF_UNKNOWN_OBJ], 
      { "Unknown object", "rsvp.obj_unknown", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
@@ -811,11 +862,14 @@ static inline int rsvp_class_to_filter_num(int classnum)
 	return RSVPF_SUGGESTED_LABEL + (classnum - RSVP_CLASS_SUGGESTED_LABEL);
 
     case RSVP_CLASS_NOTIFY_REQUEST :
+	return RSVPF_NOTIFY_REQUEST;
     case RSVP_CLASS_ADMIN_STATUS :
-	return RSVPF_NOTIFY_REQUEST + (classnum - RSVP_CLASS_NOTIFY_REQUEST);
+	return RSVPF_ADMIN_STATUS;
 
     case RSVP_CLASS_SESSION_ATTRIBUTE :
 	return RSVPF_SESSION_ATTRIBUTE;
+    case RSVP_CLASS_GENERALIZED_UNI :
+	return RSVPF_GENERALIZED_UNI;
     case RSVP_CLASS_DCLASS :
 	return RSVPF_DCLASS;
     case RSVP_CLASS_LSP_TUNNEL_IF_ID :
@@ -861,17 +915,23 @@ static char *summary_session (tvbuff_t *tvb, int offset)
     static char buf[80];
 
     switch(tvb_get_guint8(tvb, offset+3)) {
-    case 1:
+    case RSVP_SESSION_TYPE_IPV4:
 	snprintf(buf, 80, "SESSION: IPv4, Destination %s, Protocol %d, Port %d. ", 
 		 ip_to_str(tvb_get_ptr(tvb, offset+4, 4)), 
 		 tvb_get_guint8(tvb, offset+8),
 		 tvb_get_ntohs(tvb, offset+10));
 	break;
-    case 7:
+    case RSVP_SESSION_TYPE_IPV4_LSP:
 	snprintf(buf, 80, "SESSION: IPv4-LSP, Destination %s, Tunnel ID %d, Ext ID %0x. ", 
 		 ip_to_str(tvb_get_ptr(tvb, offset+4, 4)), 
 		 tvb_get_ntohs(tvb, offset+10),
 		 tvb_get_ntohl(tvb, offset+12));
+	break;
+    case RSVP_SESSION_TYPE_IPV4_UNI:
+	snprintf(buf, 80, "SESSION: IPv4-UNI, Destination %s, Tunnel ID %d, Ext Address %s. ", 
+		 ip_to_str(tvb_get_ptr(tvb, offset+4, 4)), 
+		 tvb_get_ntohs(tvb, offset+10),
+		 ip_to_str(tvb_get_ptr(tvb, offset+12, 4)));
 	break;
     default:
 	snprintf(buf, 80, "SESSION: Type %d. ", tvb_get_guint8(tvb, offset+3));
@@ -908,25 +968,2590 @@ static char *summary_template (tvbuff_t *tvb, int offset)
     return buf;
 }
 
+/*------------------------------------------------------------------------------
+ * SESSION
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_session (proto_tree *ti, tvbuff_t *tvb, 
+		      int offset, int obj_length,
+		      int class, int type, 
+		      char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_session);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    proto_item_set_text(ti, summary_session(tvb, offset));
+    
+    switch(type) {
+    case RSVP_SESSION_TYPE_IPV4:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
+			    "C-type: 1 - IPv4");
+	proto_tree_add_item(rsvp_object_tree,
+			    rsvp_filter[RSVPF_SESSION_IP],
+			    tvb, offset2, 4, FALSE);
+	
+	proto_tree_add_item(rsvp_object_tree,
+			    rsvp_filter[RSVPF_SESSION_PROTO], tvb, 
+			    offset2+4, 1, FALSE);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+5, 1,
+			    "Flags: %x",
+			    tvb_get_guint8(tvb, offset2+5));
+	proto_tree_add_item(rsvp_object_tree,
+			    rsvp_filter[RSVPF_SESSION_PORT], tvb, 
+			    offset2+6, 2, FALSE);
+	break;
+	
+    case RSVP_SESSION_TYPE_IPV6:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 2 - IPv6");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 16,
+			    "Destination address: %s", 
+			    ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+16, 1,
+			    "Protocol: %u",
+			    tvb_get_guint8(tvb, offset2+16));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+17, 1,
+			    "Flags: %x",
+			    tvb_get_guint8(tvb, offset2+17));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+18, 2,
+			    "Destination port: %u", 
+			    tvb_get_ntohs(tvb, offset2+18));
+	break;
+	
+    case RSVP_SESSION_TYPE_IPV4_LSP: 
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 7 - IPv4 LSP");
+	proto_tree_add_item(rsvp_object_tree,
+			    rsvp_filter[RSVPF_SESSION_IP],
+			    tvb, offset2, 4, FALSE);
+	
+	proto_tree_add_item(rsvp_object_tree,
+			    rsvp_filter[RSVPF_SESSION_TUNNEL_ID],
+			    tvb, offset2+6, 2, FALSE);
+	
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 4, 
+			    "Extended Tunnel ID: %u (%s)",
+			    tvb_get_ntohl(tvb, offset2+8),
+			    ip_to_str(tvb_get_ptr(tvb, offset2+8, 4)));
+	proto_tree_add_item_hidden(rsvp_object_tree,
+				   rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
+				   tvb, offset2+8, 4, FALSE);
+	break;
+
+    case RSVP_SESSION_TYPE_IPV4_UNI: 
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 9 - IPv4 UNI");
+	proto_tree_add_item(rsvp_object_tree,
+			    rsvp_filter[RSVPF_SESSION_IP],
+			    tvb, offset2, 4, FALSE);
+
+	proto_tree_add_item(rsvp_object_tree,
+			    rsvp_filter[RSVPF_SESSION_TUNNEL_ID],
+			    tvb, offset2+6, 2, FALSE);
+
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 4, 
+			    "Extended IPv4 Address: %s",
+			    ip_to_str(tvb_get_ptr(tvb, offset2+8, 4)));
+	proto_tree_add_item_hidden(rsvp_object_tree,
+				   rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
+				   tvb, offset2+8, 4, FALSE);
+	break;
+
+    default: 
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length-4,
+			    "Data (%d bytes)", obj_length-4);
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * HOP
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_hop (proto_tree *ti, tvbuff_t *tvb, 
+		  int offset, int obj_length,
+		  int class, int type, 
+		  char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+    proto_tree *rsvp_hop_subtree, *ti2;
+
+    rsvp_object_tree= proto_item_add_subtree(ti, ett_rsvp_hop);
+
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    switch(type) {
+    case 1:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 1 - IPv4");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4, 
+			    "Neighbor address: %s", 
+			    ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
+			    "Logical interface: %u", 
+			    tvb_get_ntohl(tvb, offset2+4));
+	proto_item_set_text(ti, "HOP: IPv4, %s", 
+			    ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
+	break;
+
+    case 2:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 2 - IPv6");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 16,
+			    "Neighbor address: %s", 
+			    ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+16, 4,
+			    "Logical interface: 0x%08x", 
+			    tvb_get_ntohl(tvb, offset2+16));
+	break;
+		
+    case 3: {
+	guint16   tlv_off;
+	guint16   tlv_type;
+	guint16   tlv_len;
+	char     *ifindex_name;
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 3 - IPv4 Out-Of-Band");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4, 
+			    "Neighbor address: %s", 
+			    ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
+			    "Logical interface: %u", 
+			    tvb_get_ntohl(tvb, offset2+4));
+
+	proto_item_set_text(ti, "HOP: Out-of-band. Control IPv4: %s. ", 
+			    ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
+
+	for (tlv_off = 0; tlv_off < obj_length - 12; ) {
+	    tlv_type = tvb_get_ntohs(tvb, offset2+8+tlv_off);
+	    tlv_len = tvb_get_ntohs(tvb, offset2+8+tlv_off+2);
+	    switch(tlv_type) {
+	    case 1: 
+		ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+					  offset2+8+tlv_off, 8,
+					  "IPv4 TLV - %s",
+					  ip_to_str(tvb_get_ptr(tvb, offset2+8+tlv_off+4, 4)));
+		rsvp_hop_subtree = 
+		    proto_item_add_subtree(ti2, ett_rsvp_hop_subobj); 
+		proto_tree_add_text(rsvp_hop_subtree, tvb, offset2+8+tlv_off, 2,
+				    "Type: 1 (IPv4)");
+		proto_tree_add_text(rsvp_hop_subtree, tvb, offset2+8+tlv_off+2, 2,
+				    "Length: %u",
+				    tvb_get_ntohs(tvb, offset2+8+tlv_off+2));
+		proto_tree_add_text(rsvp_hop_subtree, tvb, offset2+8+tlv_off+4, 4, 
+				    "IPv4 address: %s", 
+				    ip_to_str(tvb_get_ptr(tvb, offset2+8+tlv_off+4, 4)));
+		proto_item_append_text(ti, "Data IPv4: %s. ", 
+				    ip_to_str(tvb_get_ptr(tvb, offset2+8+tlv_off+4, 4)));
+		break;
+
+	    case 3: 
+		ifindex_name = "";
+		goto hop_ifindex;
+	    case 4:
+		ifindex_name = " Forward";
+		goto hop_ifindex;
+	    case 5:
+		ifindex_name = " Reverse";
+	    hop_ifindex:
+		ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+					  offset2+8+tlv_off, 12,
+					  "Interface-Index%s TLV - %s, %d",
+					  ifindex_name,
+					  ip_to_str(tvb_get_ptr(tvb, offset2+8+tlv_off+4, 4)),
+					  tvb_get_ntohl(tvb, offset2+8+tlv_off+8));
+		rsvp_hop_subtree = 
+		    proto_item_add_subtree(ti2, ett_rsvp_hop_subobj); 
+		proto_tree_add_text(rsvp_hop_subtree, tvb, offset2+8+tlv_off, 2,
+				    "Type: %d (Interface Index%s)", tlv_type, ifindex_name);
+		proto_tree_add_text(rsvp_hop_subtree, tvb, offset2+8+tlv_off+2, 2,
+				    "Length: %u",
+				    tvb_get_ntohs(tvb, offset2+8+tlv_off+2));
+		proto_tree_add_text(rsvp_hop_subtree, tvb, offset2+8+tlv_off+4, 4, 
+				    "IPv4 address: %s", 
+				    ip_to_str(tvb_get_ptr(tvb, offset2+8+tlv_off+4, 4)));
+		proto_tree_add_text(rsvp_hop_subtree, tvb, offset2+8+tlv_off+8, 4, 
+				    "Interface-ID: %d", 
+				    tvb_get_ntohl(tvb, offset2+8+tlv_off+8));
+		proto_item_append_text(ti, "Data If-Index%s: %s, %d. ", ifindex_name, 
+				    ip_to_str(tvb_get_ptr(tvb, offset2+8+tlv_off+4, 4)), 
+				    tvb_get_ntohl(tvb, offset2+8+tlv_off+8));
+		break;
+
+	    default:
+		proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
+				    "Logical interface: %u", 
+				    tvb_get_ntohl(tvb, offset2+4));
+	    }
+	    tlv_off += tlv_len;
+	}
+	break;
+    }
+
+    default:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
+			    "Data (%d bytes)", obj_length - 4);
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * TIME VALUES
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_time_values (proto_tree *ti, tvbuff_t *tvb, 
+			  int offset, int obj_length,
+			  int class, int type, 
+			  char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_time_values);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    switch(type) {
+    case 1:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 1");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4, 
+			    "Refresh interval: %u ms (%u seconds)",
+			    tvb_get_ntohl(tvb, offset2),
+			    tvb_get_ntohl(tvb, offset2)/1000);
+	proto_item_set_text(ti, "TIME VALUES: %d ms", 
+			    tvb_get_ntohl(tvb, offset2));
+	break;
+
+    default: 
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
+			    "Data (%d bytes)", obj_length - 4);
+	break;
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * ERROR 
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_error (proto_tree *ti, tvbuff_t *tvb, 
+		    int offset, int obj_length,
+		    int class, int type, 
+		    char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_error);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    switch(type) {
+    case 1: {
+	guint8 error_code;
+
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 1 - IPv4");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4, 
+			    "Error node: %s",
+			    ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 1,
+			    "Flags: 0x%02x",
+			    tvb_get_guint8(tvb, offset2+4));
+	error_code = tvb_get_guint8(tvb, offset2+5);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+5, 1,
+			    "Error code: %u - %s", error_code,
+			    val_to_str(error_code, rsvp_error_vals, "Unknown (%d)"));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+6, 2,
+			    "Error value: %u",
+			    tvb_get_ntohs(tvb, offset2+6));
+	proto_item_set_text(ti, "ERROR: IPv4, Error code: %s, Value: %d, Error Node: %s", 
+			    val_to_str(error_code, rsvp_error_vals, "Unknown (%d)"),
+			    tvb_get_ntohs(tvb, offset2+6),
+			    ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
+	break;
+    }
+
+    case 2: {
+	guint8 error_code;
+
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 2 - IPv6");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 16,
+			    "Error node: %s",
+			    ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+16, 1,
+			    "Flags: 0x%02x",
+			    tvb_get_guint8(tvb, offset2+16));
+	error_code = tvb_get_guint8(tvb, offset2+17);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+17, 1,
+			    "Error code: %u - %s", error_code,
+			    val_to_str(error_code, rsvp_error_vals, "Unknown"));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+18, 2,
+			    "Error value: %u",
+			    tvb_get_ntohs(tvb, offset2+18));
+	break;
+    }
+		
+    default:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
+			    "Data (%d bytes)", obj_length - 4);
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * SCOPE
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_scope (proto_tree *ti, tvbuff_t *tvb, 
+		    int offset, int obj_length,
+		    int class, int type, 
+		    char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+    int mylen;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_scope);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    mylen = obj_length - 4;
+    switch(type) {
+    case 1: {
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 1 - IPv4");
+	while (mylen > 0) {
+	    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4, 
+				"IPv4 Address: %s",
+				ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
+	    offset2 += 4;
+	    mylen -= 4;
+	}
+	break;
+    }
+
+    case 2: {
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 2 - IPv6");
+	while (mylen > 0) {
+	    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 16, 
+				"IPv6 Address: %s",
+				ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+	    offset2 += 16;
+	    mylen -= 16;
+	}
+	break;
+    }
+		
+    default: 
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
+			    "Data (%d bytes)", mylen);
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * STYLE
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_style (proto_tree *ti, tvbuff_t *tvb, 
+		    int offset, int obj_length,
+		    int class, int type, 
+		    char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_style);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    switch(type) {
+    case 1: {
+	guint32 style;
+
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 1");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
+			    "Flags: 0x%02x",
+			    tvb_get_guint8(tvb, offset2));
+	style = tvb_get_ntoh24(tvb, offset2+1);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+1,
+			    3, "Style: 0x%06X - %s", style,
+			    val_to_str(style, style_vals, "Unknown"));
+	proto_item_set_text(ti, "STYLE: %s (%d)", 
+			    val_to_str(style, style_vals, "Unknown"),
+			    style);
+	break;
+    }
+
+    default: 
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
+			    "Data (%d bytes)", obj_length - 4);
+	break;
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * CONFIRM
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_confirm (proto_tree *ti, tvbuff_t *tvb, 
+		      int offset, int obj_length,
+		      int class, int type, 
+		      char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_confirm);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    switch(type) {
+    case 1: {
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 1 - IPv4");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4, 
+			    "Receiver address: %s", 
+			    ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
+	proto_item_set_text(ti, "CONFIRM: Receiver %s", 
+			    ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
+	break;
+    }
+
+    case 2: {
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 2 - IPv6");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 16, 
+			    "Receiver address: %s", 
+			    ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+	break;
+    }
+
+    default:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
+			    "Data (%d bytes)", obj_length - 4);
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * SENDER TEMPLATE and FILTERSPEC
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_template_filter (proto_tree *ti, tvbuff_t *tvb, 
+			      int offset, int obj_length,
+			      int class, int type, 
+			      char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+
+    switch(class) {
+    case RSVP_CLASS_SENDER_TEMPLATE :
+	rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_sender_template);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			    "Length: %u", obj_length);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			    "Class number: %u - %s", 
+			    class, type_str);
+	break;
+
+    default:
+    case RSVP_CLASS_FILTER_SPEC :
+	rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_filter_spec);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			    "Length: %u", obj_length);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			    "Class number: %u - %s", 
+			    class, type_str);
+	break;
+    }
+
+     proto_item_set_text(ti, summary_template(tvb, offset));
+     switch(type) {
+     case 1: 
+	 proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			     "C-type: 1 - IPv4");
+	 proto_tree_add_item(rsvp_object_tree,
+			     rsvp_filter[RSVPF_SENDER_IP],
+			     tvb, offset2, 4, FALSE);
+	 proto_tree_add_item(rsvp_object_tree,
+			     rsvp_filter[RSVPF_SENDER_PORT],
+			     tvb, offset2+6, 2, FALSE);
+	 break;
+
+     case 2: 
+	 proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			     "C-type: 2 - IPv6");
+	 proto_tree_add_text(rsvp_object_tree, tvb, offset2, 16, 
+			     "Source address: %s", 
+			     ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+	 proto_tree_add_text(rsvp_object_tree, tvb, offset2+18, 2,
+			     "Source port: %u",
+			     tvb_get_ntohs(tvb, offset2+18));
+	 break;
+		
+     case 7: 
+	 proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			     "C-type: 7 - IPv4 LSP");
+	 proto_tree_add_item(rsvp_object_tree,
+			     rsvp_filter[RSVPF_SENDER_IP],
+			     tvb, offset2, 4, FALSE);
+	 proto_tree_add_item(rsvp_object_tree,
+			     rsvp_filter[RSVPF_SENDER_LSP_ID],
+			     tvb, offset2+6, 2, FALSE);
+	 break;
+
+     default: 
+	 proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			     "C-type: Unknown (%u)",
+			     type);
+	 proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
+			     "Data (%d bytes)", obj_length - 4);
+     }
+}
+
+/*------------------------------------------------------------------------------
+ * SENDER TSPEC
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_tspec (proto_tree *ti, tvbuff_t *tvb, 
+		    int offset, int obj_length,
+		    int class, int type, 
+		    char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+    int mylen;
+    proto_tree *tspec_tree, *ti2;
+    guint8 signal_type;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_sender_tspec);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    mylen = obj_length - 4;
+
+    switch(type) {
+    case 2: 
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 1 - Integrated Services");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1, 
+			    "Message format version: %u", 
+			    tvb_get_guint8(tvb, offset2)>>4);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2, 
+			    "Data length: %u words, not including header", 
+			    tvb_get_ntohs(tvb, offset2+2));
+	
+	mylen -= 4;
+	offset2 += 4;
+	
+	proto_item_set_text(ti, "SENDER TSPEC: IntServ: ");
+	
+	while (mylen > 0) {
+	    guint8 service_num;
+	    guint8 param_id;
+	    guint16 param_len;
+	    guint16 param_len_processed;
+	    guint16 length;
+	    
+	    service_num = tvb_get_guint8(tvb, offset2);
+	    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1, 
+				"Service header: %u - %s", 
+				service_num,
+				val_to_str(service_num, qos_vals, "Unknown"));
+	    length = tvb_get_ntohs(tvb, offset2+2);
+	    proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2, 
+				"Length of service %u data: %u words, " 
+				"not including header", 
+				service_num, length);
+	    
+	    mylen -= 4;
+	    offset2 += 4;
+	    
+	    /* Process all known service headers as a set of parameters */
+	    param_len_processed = 0;
+	    while (param_len_processed < length) {
+		param_id = tvb_get_guint8(tvb, offset2);
+		param_len = tvb_get_ntohs(tvb, offset2+2) + 1;
+		switch(param_id) {
+		case 127: 
+		    /* Token Bucket */
+		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+					      offset2, param_len*4, 
+					      "Token Bucket TSpec: ");
+		    tspec_tree = proto_item_add_subtree(ti2, ett_rsvp_sender_tspec_subtree);
+
+		    proto_tree_add_text(tspec_tree, tvb, offset2, 1, 
+					"Parameter %u - %s", 
+					param_id,
+					val_to_str(param_id, svc_vals, "Unknown"));
+		    proto_tree_add_text(tspec_tree, tvb, offset2+1, 1,
+					"Parameter %u flags: 0x%02x",
+					param_id,
+					tvb_get_guint8(tvb, offset2+1));
+		    proto_tree_add_text(tspec_tree, tvb, offset2+2, 2,
+					"Parameter %u data length: %u words, " 
+					"not including header",
+					param_id,
+					tvb_get_ntohs(tvb, offset2+2));
+		    proto_tree_add_text(tspec_tree, tvb, offset2+4, 4,
+					"Token bucket rate: %.10g", 
+					tvb_get_ntohieee_float(tvb, offset2+4));
+		    proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+					"Token bucket size: %.10g", 
+					tvb_get_ntohieee_float(tvb, offset2+8));
+		    proto_tree_add_text(tspec_tree, tvb, offset2+12, 4,
+					"Peak data rate: %.10g", 
+					tvb_get_ntohieee_float(tvb, offset2+12));
+		    proto_tree_add_text(tspec_tree, tvb, offset2+16, 4,
+					"Minimum policed unit [m]: %u", 
+					tvb_get_ntohl(tvb, offset2+16));
+		    proto_tree_add_text(tspec_tree, tvb, offset2+20, 4,
+					"Maximum packet size [M]: %u", 
+					tvb_get_ntohl(tvb, offset2+20));
+		    proto_item_append_text(ti, "Token Bucket, %.10g bytes/sec. ", 
+					   tvb_get_ntohieee_float(tvb, offset2+4));
+		    proto_item_append_text(ti2, "Rate=%.10g Burst=%.10g Peak=%.10g m=%u M=%u", 
+					   tvb_get_ntohieee_float(tvb, offset2+4),
+					   tvb_get_ntohieee_float(tvb, offset2+8),
+					   tvb_get_ntohieee_float(tvb, offset2+12),
+					   tvb_get_ntohl(tvb, offset2+16),
+					   tvb_get_ntohl(tvb, offset2+20));
+		    break;
+
+		case 128:
+		    /* Null Service (RFC2997) */
+		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+					      offset2, param_len*4, 
+					      "Null Service TSpec: ");
+		    tspec_tree = proto_item_add_subtree(ti2, ett_rsvp_sender_tspec_subtree);
+				
+		    proto_tree_add_text(tspec_tree, tvb, offset2, 1, 
+					"Parameter %u - %s", 
+					param_id,
+					val_to_str(param_id, svc_vals, "Unknown"));
+		    proto_tree_add_text(tspec_tree, tvb, offset2+1, 1,
+					"Parameter %u flags: %x", 
+					param_id,
+					tvb_get_guint8(tvb, offset2+1));
+		    proto_tree_add_text(tspec_tree, tvb, offset2+2, 2,
+					"Parameter %u data length: %u words, " 
+					"not including header",
+					param_id,
+					tvb_get_ntohs(tvb, offset2+2));
+		    proto_tree_add_text(tspec_tree, tvb, offset2+4, 4,
+					"Maximum packet size [M]: %u", 
+					tvb_get_ntohl(tvb, offset2+4));
+		    proto_item_append_text(ti, "Null Service. M=%u", 
+					   tvb_get_ntohl(tvb, offset2+4));
+		    proto_item_append_text(ti2, "Max pkt size=%u", 
+					   tvb_get_ntohl(tvb, offset2+4));
+		    break;
+
+		case 126:
+		    /* Compression hint (RFC3006) */
+		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+					      offset2, param_len*4, 
+					      "Compression Hint: ");
+		    tspec_tree = proto_item_add_subtree(ti2, ett_rsvp_sender_tspec_subtree);
+				
+		    proto_tree_add_text(tspec_tree, tvb, offset2, 1, 
+					"Parameter %u - %s", 
+					param_id,
+					val_to_str(param_id, svc_vals, "Unknown"));
+		    proto_tree_add_text(tspec_tree, tvb, offset2+1, 1,
+					"Parameter %u flags: %x", 
+					param_id,
+					tvb_get_guint8(tvb, offset2+1));
+		    proto_tree_add_text(tspec_tree, tvb, offset2+2, 2,
+					"Parameter %u data length: %u words, " 
+					"not including header",
+					param_id,
+					tvb_get_ntohs(tvb, offset2+2));
+		    proto_tree_add_text(tspec_tree, tvb, offset2+4, 4,
+					"Hint: %u", 
+					tvb_get_ntohl(tvb, offset2+4));
+		    proto_tree_add_text(tspec_tree, tvb, offset2+4, 4,
+					"Compression Factor: %u", 
+					tvb_get_ntohl(tvb, offset2+8));
+		    proto_item_append_text(ti, "Compression Hint. Hint=%u, Factor=%u", 
+					   tvb_get_ntohl(tvb, offset2+4),
+					   tvb_get_ntohl(tvb, offset2+8));
+		    proto_item_append_text(ti2, "Hint=%u, Factor=%u", 
+					   tvb_get_ntohl(tvb, offset2+4),
+					   tvb_get_ntohl(tvb, offset2+8));
+		    break;
+
+		default: 
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, param_len*4, 
+					"Unknown parameter %d, %d words", 
+					param_id, param_len);
+		    break;
+		}
+		param_len_processed += param_len;
+		offset2 += param_len*4;
+	    }
+	    mylen -= length*4;
+	}
+	break;
+
+    case 4: /* SONET/SDH Tspec */
+	proto_item_set_text(ti, "SENDER TSPEC: SONET/SDH: ");
+	
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 4 - SONET/SDH");
+	signal_type = tvb_get_guint8(tvb, offset2);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1, 
+			    "Signal Type: %d - %s", signal_type,
+			    val_to_str(signal_type, 
+				       gmpls_sonet_signal_type_str, "Unknown"));
+	ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+1, 1, 
+			    "Requested Concatenation (RCC): %d", tvb_get_guint8(tvb, offset2+1));
+	tspec_tree = proto_item_add_subtree(ti2, ett_rsvp_sender_tspec_subtree);
+	proto_tree_add_text(tspec_tree, tvb, offset2+1, 1,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+1), 0x01, 8, 
+						    "Standard contiguous concatenation", 
+						    "No standard contiguous concatenation"));
+	proto_tree_add_text(tspec_tree, tvb, offset2+1, 1,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+1), 0x02, 8, 
+						    "Arbitrary contiguous concatenation", 
+						    "No arbitrary contiguous concatenation"));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2, 
+			    "Number of Contiguous Components (NCC): %d", tvb_get_ntohs(tvb, offset2+2));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 2, 
+			    "Number of Virtual Components (NVC): %d", tvb_get_ntohs(tvb, offset2+4));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+6, 2, 
+			    "Multiplier (MT): %d", tvb_get_ntohs(tvb, offset2+6));
+	ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 4, 
+				  "Transparency (T): 0x%0x", tvb_get_ntohl(tvb, offset2+8));
+	tspec_tree = proto_item_add_subtree(ti2, ett_rsvp_sender_tspec_subtree);
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_ntohl(tvb, offset2+8), 0x0001, 32, 
+						    "Section/Regenerator Section layer transparency", 
+						    "No Section/Regenerator Section layer transparency"));
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0002, 32, 
+						    "Line/Multiplex Section layer transparency", 
+						    "No Line/Multiplex Section layer transparency"));
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0004, 32, 
+						    "J0 transparency", 
+						    "No J0 transparency"));
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0008, 32, 
+						    "SOH/RSOH DCC transparency", 
+						    "No SOH/RSOH DCC transparency"));
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0010, 32, 
+						    "LOH/MSOH DCC transparency", 
+						    "No LOH/MSOH DCC transparency"));
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0020, 32, 
+						    "LOH/MSOH Extended DCC transparency", 
+						    "No LOH/MSOH Extended DCC transparency"));
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0040, 32, 
+						    "K1/K2 transparency", 
+						    "No K1/K2 transparency"));
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0080, 32, 
+						    "E1 transparency", 
+						    "No E1 transparency"));
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0100, 32, 
+						    "F1 transparency", 
+						    "No F1 transparency"));
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0200, 32, 
+						    "E2 transparency", 
+						    "No E2 transparency"));
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0400, 32, 
+						    "B1 transparency", 
+						    "No B1 transparency"));
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0800, 32, 
+						    "B2 transparency", 
+						    "No B2 transparency"));
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x1000, 32, 
+						    "M0 transparency", 
+						    "No M0 transparency"));
+	proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x2000, 32, 
+						    "M1 transparency", 
+						    "No M1 transparency"));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+12, 4, 
+			    "Profile (P): %d", tvb_get_ntohl(tvb, offset2+12));
+
+	proto_item_append_text(ti, "Signal [%s], RCC %d, NCC %d, NVC %d, MT %d, Transparency %d, Profile %d", 
+			       val_to_str(signal_type, gmpls_sonet_signal_type_str, "Unknown"),
+			       tvb_get_guint8(tvb, offset2+1), tvb_get_ntohs(tvb, offset2+2),
+			       tvb_get_ntohs(tvb, offset2+4), tvb_get_ntohs(tvb, offset2+6),
+			       tvb_get_ntohl(tvb, offset2+8), tvb_get_ntohl(tvb, offset2+12));
+	break;
+	
+    default: /* Unknown TSpec */
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
+			    "Data (%d bytes)", obj_length - 4);
+	break;
+	
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * FLOWSPEC
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_flowspec (proto_tree *ti, tvbuff_t *tvb, 
+		       int offset, int obj_length,
+		       int class, int type, 
+		       char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+    int mylen, signal_type;
+    proto_tree *flowspec_tree, *ti2;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_flowspec);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			"C-type: %u", type);
+    mylen = obj_length - 4;
+
+    switch(type) {
+
+    case 2:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1, 
+			    "Message format version: %u", 
+			    tvb_get_guint8(tvb, offset2)>>4);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2, 
+			    "Data length: %u words, not including header", 
+			    tvb_get_ntohs(tvb, offset2+2));
+
+	proto_item_set_text(ti, "FLOWSPEC: ");
+
+	mylen -= 4;
+	offset2+= 4;
+	while (mylen > 0) {
+	    guint8 service_num;
+	    guint16 length;
+	    guint8 param_id;
+	    guint16 param_len;
+	    guint16 param_len_processed;
+
+	    service_num = tvb_get_guint8(tvb, offset2);
+	    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1, 
+				"Service header: %u - %s", 
+				service_num,
+				val_to_str(service_num, intsrv_services_str, "Unknown"));
+	    length = tvb_get_ntohs(tvb, offset2+2);
+	    proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2, 
+				"Length of service %u data: %u words, " 
+				"not including header", 
+				service_num,
+				length);
+
+	    mylen -= 4;
+	    offset2 += 4;
+
+	    proto_item_append_text(ti, "%s: ", 
+				   val_to_str(service_num, intsrv_services_str, 
+					      "Unknown (%d)"));
+
+	    /* Process all known service headers as a set of parameters */
+	    param_len_processed = 0;
+	    while (param_len_processed < length) {
+		param_id = tvb_get_guint8(tvb, offset2);
+		param_len = tvb_get_ntohs(tvb, offset2+2) + 1;
+		switch(param_id) {
+		case 127: 
+		    /* Token Bucket */
+		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+					      offset2, param_len*4, 
+					      "Token Bucket: ");
+		    flowspec_tree = proto_item_add_subtree(ti2, ett_rsvp_flowspec_subtree);
+
+		    proto_tree_add_text(flowspec_tree, tvb, offset2, 1, 
+					"Parameter %u - %s", 
+					param_id,
+					val_to_str(param_id, svc_vals, "Unknown"));
+		    proto_tree_add_text(flowspec_tree, tvb, offset2+1, 1,
+					"Parameter %u flags: 0x%02x",
+					param_id,
+					tvb_get_guint8(tvb, offset2+1));
+		    proto_tree_add_text(flowspec_tree, tvb, offset2+2, 2,
+					"Parameter %u data length: %u words, " 
+					"not including header",
+					param_id,
+					tvb_get_ntohs(tvb, offset2+2));
+		    proto_tree_add_text(flowspec_tree, tvb, offset2+4, 4,
+					"Token bucket rate: %.10g", 
+					tvb_get_ntohieee_float(tvb, offset2+4));
+		    proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+					"Token bucket size: %.10g", 
+					tvb_get_ntohieee_float(tvb, offset2+8));
+		    proto_tree_add_text(flowspec_tree, tvb, offset2+12, 4,
+					"Peak data rate: %.10g", 
+					tvb_get_ntohieee_float(tvb, offset2+12));
+		    proto_tree_add_text(flowspec_tree, tvb, offset2+16, 4,
+					"Minimum policed unit [m]: %u", 
+					tvb_get_ntohl(tvb, offset2+16));
+		    proto_tree_add_text(flowspec_tree, tvb, offset2+20, 4,
+					"Maximum packet size [M]: %u", 
+					tvb_get_ntohl(tvb, offset2+20));
+		    proto_item_append_text(ti, "Token Bucket, %.10g bytes/sec. ", 
+					   tvb_get_ntohieee_float(tvb, offset2+4));
+		    proto_item_append_text(ti2, "Rate=%.10g Burst=%.10g Peak=%.10g m=%u M=%u", 
+					   tvb_get_ntohieee_float(tvb, offset2+4),
+					   tvb_get_ntohieee_float(tvb, offset2+8),
+					   tvb_get_ntohieee_float(tvb, offset2+12),
+					   tvb_get_ntohl(tvb, offset2+16),
+					   tvb_get_ntohl(tvb, offset2+20));
+		    break;
+
+		case 130:
+		    /* Guaranteed-rate RSpec */
+		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+					      offset2, param_len*4, 
+					      "Guaranteed-Rate RSpec: ");
+		    flowspec_tree = proto_item_add_subtree(ti2, ett_rsvp_flowspec_subtree);
+		    proto_tree_add_text(flowspec_tree, tvb, offset2, 1,
+					"Parameter %u - %s", 
+					param_id,
+					val_to_str(param_id, svc_vals, "Unknown"));
+		    proto_tree_add_text(flowspec_tree, tvb, offset2+1, 1, 
+					"Parameter %u flags: %x", 
+					param_id,
+					tvb_get_guint8(tvb, offset2+1));
+		    proto_tree_add_text(flowspec_tree, tvb, offset2+2, 2,
+					"Parameter %u data length: %u words, " 
+					"not including header",
+					param_id,
+					tvb_get_ntohs(tvb, offset2+2));
+			    
+		    proto_tree_add_text(flowspec_tree, tvb, offset2+4, 4,
+					"Rate: %.10g", 
+					tvb_get_ntohieee_float(tvb, offset2+4));
+		    proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+					"Slack term: %u", 
+					tvb_get_ntohl(tvb, offset2+8));
+		    proto_item_append_text(ti, "RSpec, %.10g bytes/sec. ", 
+					   tvb_get_ntohieee_float(tvb, offset2+4));
+		    proto_item_append_text(ti2, "R=%.10g, s=%u", 
+					   tvb_get_ntohieee_float(tvb, offset2+4),
+					   tvb_get_ntohl(tvb, offset2+8));
+		    break;
+
+		case 128:
+		    /* Null Service (RFC2997) */
+		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+					      offset2, param_len*4, 
+					      "Null Service Flowspec: ");
+		    flowspec_tree = proto_item_add_subtree(ti2, ett_rsvp_flowspec_subtree);
+				
+		    proto_tree_add_text(flowspec_tree, tvb, offset2, 1, 
+					"Parameter %u - %s", 
+					param_id,
+					val_to_str(param_id, svc_vals, "Unknown"));
+		    proto_tree_add_text(flowspec_tree, tvb, offset2+1, 1,
+					"Parameter %u flags: %x", 
+					param_id,
+					tvb_get_guint8(tvb, offset2+1));
+		    proto_tree_add_text(flowspec_tree, tvb, offset2+2, 2,
+					"Parameter %u data length: %u words, " 
+					"not including header",
+					param_id,
+					tvb_get_ntohs(tvb, offset2+2));
+		    proto_tree_add_text(flowspec_tree, tvb, offset2+4, 4,
+					"Maximum packet size [M]: %u", 
+					tvb_get_ntohl(tvb, offset2+4));
+		    proto_item_append_text(ti, "Null Service. M=%u", 
+					   tvb_get_ntohl(tvb, offset2+4));
+		    proto_item_append_text(ti2, "Max pkt size=%u", 
+					   tvb_get_ntohl(tvb, offset2+4));
+		    break;
+
+		default: 
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, param_len*4, 
+					"Unknown parameter %d, %d words", 
+					param_id, param_len);
+		    break;
+		}
+		param_len_processed += param_len;
+		offset2 += param_len * 4;
+	    }
+
+	    /* offset2 += length*4; */
+	    mylen -= length*4;
+	}
+	break;
+
+    case 4:
+	proto_item_set_text(ti, "FLOWSPEC: SONET/SDH: ");
+	
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 4 - SONET/SDH");
+	signal_type = tvb_get_guint8(tvb, offset2);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1, 
+			    "Signal Type: %d - %s", signal_type, 
+			    val_to_str(signal_type, 
+				       gmpls_sonet_signal_type_str, "Unknown"));
+	ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+1, 1, 
+				  "Requested Concatenation (RCC): %d", tvb_get_guint8(tvb, offset2+1));
+	flowspec_tree = proto_item_add_subtree(ti2, ett_rsvp_flowspec_subtree);
+	proto_tree_add_text(flowspec_tree, tvb, offset2+1, 1,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+1), 0x01, 8, 
+						    "Standard contiguous concatenation", 
+						    "No standard contiguous concatenation"));
+	proto_tree_add_text(flowspec_tree, tvb, offset2+1, 1,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+1), 0x02, 8, 
+						    "Arbitrary contiguous concatenation", 
+						    "No arbitrary contiguous concatenation"));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2, 
+			    "Number of Contiguous Components (NCC): %d", tvb_get_ntohs(tvb, offset2+2));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 2, 
+			    "Number of Virtual Components (NVC): %d", tvb_get_ntohs(tvb, offset2+4));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+6, 2, 
+			    "Multiplier (MT): %d", tvb_get_ntohs(tvb, offset2+6));
+	ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 4, 
+				  "Transparency (T): 0x%0x", tvb_get_ntohl(tvb, offset2+8));
+	flowspec_tree = proto_item_add_subtree(ti2, ett_rsvp_flowspec_subtree);
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_ntohl(tvb, offset2+8), 0x0001, 32, 
+						    "Section/Regenerator Section layer transparency", 
+						    "No Section/Regenerator Section layer transparency"));
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0002, 32, 
+						    "Line/Multiplex Section layer transparency", 
+						    "No Line/Multiplex Section layer transparency"));
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0004, 32, 
+						    "J0 transparency", 
+						    "No J0 transparency"));
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0008, 32, 
+						    "SOH/RSOH DCC transparency", 
+						    "No SOH/RSOH DCC transparency"));
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0010, 32, 
+						    "LOH/MSOH DCC transparency", 
+						    "No LOH/MSOH DCC transparency"));
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0020, 32, 
+						    "LOH/MSOH Extended DCC transparency", 
+						    "No LOH/MSOH Extended DCC transparency"));
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0040, 32, 
+						    "K1/K2 transparency", 
+						    "No K1/K2 transparency"));
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0080, 32, 
+						    "E1 transparency", 
+						    "No E1 transparency"));
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0100, 32, 
+						    "F1 transparency", 
+						    "No F1 transparency"));
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0200, 32, 
+						    "E2 transparency", 
+						    "No E2 transparency"));
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0400, 32, 
+						    "B1 transparency", 
+						    "No B1 transparency"));
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x0800, 32, 
+						    "B2 transparency", 
+						    "No B2 transparency"));
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x1000, 32, 
+						    "M0 transparency", 
+						    "No M0 transparency"));
+	proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
+			    decode_boolean_bitfield(tvb_get_guint8(tvb, offset2+8), 0x2000, 32, 
+						    "M1 transparency", 
+						    "No M1 transparency"));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+12, 4, 
+			    "Profile (P): %d", tvb_get_ntohl(tvb, offset2+12));
+
+	proto_item_append_text(ti, "Signal [%s], RCC %d, NCC %d, NVC %d, MT %d, Transparency %d, Profile %d", 
+			       val_to_str(signal_type, gmpls_sonet_signal_type_str, "Unknown"),
+			       tvb_get_guint8(tvb, offset2+1), tvb_get_ntohs(tvb, offset2+2),
+			       tvb_get_ntohs(tvb, offset2+4), tvb_get_ntohs(tvb, offset2+6),
+			       tvb_get_ntohl(tvb, offset2+8), tvb_get_ntohl(tvb, offset2+12));
+	break;
+	
+    default:
+    }
+
+
+}
+
+/*------------------------------------------------------------------------------
+ * ADSPEC
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_adspec (proto_tree *ti, tvbuff_t *tvb, 
+		     int offset, int obj_length,
+		     int class, int type, 
+		     char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+    int mylen, i;
+    proto_tree *adspec_tree;    
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_adspec);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			"C-type: %u", type);
+    mylen = obj_length - 4;
+
+    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
+			"Message format version: %u", 
+			tvb_get_guint8(tvb, offset2)>>4);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2,
+			"Data length: %u words, not including header", 
+			tvb_get_ntohs(tvb, offset2+2));
+    mylen -= 4;
+    offset2 += 4;
+    while (mylen > 0) {
+	guint8 service_num;
+	guint8 break_bit;
+	guint16 length;
+	char *str;
+
+	service_num = tvb_get_guint8(tvb, offset2);
+	str = val_to_str(service_num, intsrv_services_str, "Unknown");
+	break_bit = tvb_get_guint8(tvb, offset2+1);
+	length = tvb_get_ntohs(tvb, offset2+2);
+	ti = proto_tree_add_text(rsvp_object_tree, tvb, offset2, 
+				 (length+1)*4,
+				 str);
+	adspec_tree = proto_item_add_subtree(ti,
+					     ett_rsvp_adspec_subtree);
+	proto_tree_add_text(adspec_tree, tvb, offset2, 1,
+			    "Service header %u - %s",
+			    service_num, str);
+	proto_tree_add_text(adspec_tree, tvb, offset2+1, 1,
+			    (break_bit&0x80)?
+			    "Break bit set":"Break bit not set");
+	proto_tree_add_text(adspec_tree, tvb, offset2+2, 2, 
+			    "Data length: %u words, not including header", 
+			    length);
+	mylen -= 4;
+	offset2 += 4;
+	i = length*4;
+	while (i > 0) {
+	    guint8 id;
+	    guint16 phdr_length;
+
+	    id = tvb_get_guint8(tvb, offset2);
+	    phdr_length = tvb_get_ntohs(tvb, offset2+2);
+	    str = match_strval(id, adspec_params);
+	    if (str) {
+		switch(id) {
+		case 4:
+		case 8:
+		case 10:
+		case 133:
+		case 134:
+		case 135:
+		case 136:
+		    /* 32-bit unsigned integer */
+		    proto_tree_add_text(adspec_tree, tvb, offset2,
+					(phdr_length+1)<<2,
+					"%s - %u (type %u, length %u)",
+					str,
+					tvb_get_ntohl(tvb, offset2+4),
+					id, phdr_length);
+		    break;
+				
+		case 6:
+		    /* IEEE float */
+		    proto_tree_add_text(adspec_tree, tvb, offset2,
+					(phdr_length+1)<<2,
+					"%s - %.10g (type %u, length %u)",
+					str,
+					tvb_get_ntohieee_float(tvb, offset2+4),
+					id, phdr_length);
+		    break;
+		default: 
+		    proto_tree_add_text(adspec_tree, tvb, offset2, 
+					(phdr_length+1)<<2,
+					"%s (type %u, length %u)",
+					str,
+					id, phdr_length);
+		}
+	    } else {
+		proto_tree_add_text(adspec_tree, tvb, offset2, 
+				    (phdr_length+1)<<2,
+				    "Unknown (type %u, length %u)",
+				    id, phdr_length);
+	    }
+	    offset2 += (phdr_length+1)<<2;
+	    i -= (phdr_length+1)<<2;
+	    mylen -= (phdr_length+1)<<2;
+	}
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * INTEGRITY
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_integrity (proto_tree *ti, tvbuff_t *tvb, 
+			int offset, int obj_length,
+			int class, int type, 
+			char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+    proto_tree *ti2, *rsvp_integ_flags_tree;
+    int flags;
+    guint64 sequence_number;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_integrity);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			"C-type: %u", type);
+    flags = tvb_get_guint8(tvb, offset2);
+    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1, 
+			      "Flags: 0x%02x", flags);
+    rsvp_integ_flags_tree = proto_item_add_subtree(ti2, ett_rsvp_integrity_flags);
+    proto_tree_add_text(rsvp_integ_flags_tree, tvb, offset2, 1,
+	decode_boolean_bitfield(flags, 0x01, 8, "Handshake capable", "Handshake not capable"));
+    proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 6, 
+			"Key Identifier: %s", tvb_bytes_to_str(tvb, offset2+2, 6));
+    sequence_number = tvb_get_ntohl(tvb, offset2+8);
+    sequence_number <<= 32;
+    sequence_number = tvb_get_ntohl(tvb, offset2+12);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 8, 
+			"Sequence Number: %llu", sequence_number);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset2+16, obj_length - 20, 
+			"Hash: %s", tvb_bytes_to_str(tvb, offset2+16, obj_length - 20));
+}
+
+/*------------------------------------------------------------------------------
+ * POLICY
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_policy (proto_tree *ti, tvbuff_t *tvb, 
+		     int offset, int obj_length,
+		     int class, int type, 
+		     char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_policy);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			"C-type: %u", type);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
+			"Data (%d bytes)", obj_length - 4);
+}
+
+/*------------------------------------------------------------------------------
+ * LABEL_REQUEST
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_label_request (proto_tree *ti, tvbuff_t *tvb, 
+			    int offset, int obj_length,
+			    int class, int type, 
+			    char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_label_request);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    switch(type) {
+    case 1: {
+	unsigned short l3pid = tvb_get_ntohs(tvb, offset2+2);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 1");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2,
+			    "L3PID: %s (0x%04x)",
+			    val_to_str(l3pid, etype_vals, "Unknown"),
+			    l3pid);
+	proto_item_set_text(ti, "LABEL REQUEST: %s (0x%04x)",
+			    val_to_str(l3pid, etype_vals, "Unknown"),
+			    l3pid);
+	break;
+    }
+
+    case 4: {
+	unsigned short l3pid = tvb_get_ntohs(tvb, offset2+2);
+	unsigned char  lsp_enc = tvb_get_guint8(tvb,offset2);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 4 (Generalized Label Request)");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
+			    "LSP Encoding Type: %s",
+			    val_to_str(lsp_enc, gmpls_lsp_enc_str, "Unknown (%d)"));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+1, 1,
+			    "Switching Type: %s",
+			    val_to_str(tvb_get_guint8(tvb,offset2+1), 
+				       gmpls_switching_type_str, "Unknown (%d)"));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2,
+			    "G-PID: %s (0x%0x)",
+			    val_to_str(l3pid, gmpls_gpid_str, 
+				       val_to_str(l3pid, etype_vals, 
+						  "Unknown G-PID(0x%04x)")),
+			    l3pid);
+	proto_item_set_text(ti, "LABEL REQUEST: Generalized: LSP Encoding=%s, "
+			    "Switching Type=%s, G-PID=%s ",
+			    val_to_str(lsp_enc, gmpls_lsp_enc_str, "Unknown (%d)"),
+			    val_to_str(tvb_get_guint8(tvb,offset2+1), 
+				       gmpls_switching_type_str, "Unknown (%d)"),
+			    val_to_str(l3pid, gmpls_gpid_str, 
+				       val_to_str(l3pid, etype_vals, 
+						  "Unknown (0x%04x)")));
+	break;
+    }
+
+    default: {
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
+			    "Data (%d bytes)", obj_length - 4);
+	break;
+    }
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * LABEL
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_label (proto_tree *ti, tvbuff_t *tvb, 
+		    int offset, int obj_length,
+		    int class, int type, 
+		    char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+    int mylen, i;
+    char *name;
+
+    name = (class==RSVP_CLASS_SUGGESTED_LABEL ? "SUGGESTED LABEL":
+	    (class==RSVP_CLASS_UPSTREAM_LABEL ? "UPSTREAM LABEL":
+	     "LABEL"));
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_label);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    mylen = obj_length - 4;
+    switch(type) {
+    case 1: 
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 1 (Packet Label)");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4,
+			    "Label: %u", 
+			    tvb_get_ntohl(tvb, offset2));
+	proto_item_set_text(ti, "%s: %d", name,
+			    tvb_get_ntohl(tvb, offset2));
+	break;
+
+    case 2: 
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 2 (Generalized Label)");
+	proto_item_set_text(ti, "%s: Generalized: ", name);
+	for (i = 0; i < mylen; i += 4) {
+	    proto_tree_add_text(rsvp_object_tree, tvb, offset2+i, 4,
+				"Generalized Label: %u", 
+				tvb_get_ntohl(tvb, offset2+i));
+	    if (i < 16) {
+		proto_item_append_text(ti, "%d%s", 
+				       tvb_get_ntohl(tvb, offset2+i),
+				       i+4<mylen?", ":"");
+	    } else if (i == 16) {
+		proto_item_append_text(ti, "...");
+	    }			    
+	}
+	break;
+
+    default: 
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
+			    "Data (%d bytes)", mylen);
+	break;
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * SESSION ATTRIBUTE
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_session_attribute (proto_tree *ti, tvbuff_t *tvb, 
+				int offset, int obj_length,
+				int class, int type, 
+				char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+    guint8 flags;
+    guint8 name_len;
+    proto_tree *ti2, *rsvp_sa_flags_tree;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_session_attribute);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    switch(type) {
+    case 7:
+
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 7 - IPv4 LSP");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
+			    "Setup priority: %u",
+			    tvb_get_guint8(tvb, offset2));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+1, 1,
+			    "Hold priority: %u",
+			    tvb_get_guint8(tvb, offset2+1));
+	flags = tvb_get_guint8(tvb, offset2+2);
+	ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 1,
+				  "Flags: 0x%02x", flags);
+	rsvp_sa_flags_tree = proto_item_add_subtree(ti2, 
+						    ett_rsvp_session_attribute_flags);
+	proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1,
+			    decode_boolean_bitfield(flags, 0x01, 8,
+						    "Local protection desired",
+						    "Local protection not desired"));
+	proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1,
+			    decode_boolean_bitfield(flags, 0x02, 8,
+						    "Merging permitted",
+						    "Merging not permitted"));
+	proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1,
+			    decode_boolean_bitfield(flags, 0x04, 8,
+						    "Ingress node may reroute",
+						    "Ingress node may not reroute"));
+		    
+	name_len = tvb_get_guint8(tvb, offset2+3);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+3, 1,
+			    "Name length: %u", name_len);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, name_len,
+			    "Name: %.*s",
+			    name_len,
+			    tvb_get_ptr(tvb, offset2+4, name_len));
+
+	proto_item_set_text(ti, "SESSION ATTRIBUTE: SetupPrio %d, HoldPrio %d, %s%s%s [%s]",
+			    tvb_get_guint8(tvb, offset2), 
+			    tvb_get_guint8(tvb, offset2+1),
+			    flags &0x01 ? "Local Protection, " : "",
+			    flags &0x02 ? "Merging, " : "",
+			    flags &0x04 ? "May Reroute, " : "",
+			    name_len ? (char*)tvb_format_text(tvb, offset2+4, name_len) : "");
+	break;
+
+    default: 
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
+			    "Data (%d bytes)", obj_length - 4);
+	break;
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * EXPLICIT ROUTE OBJECT
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_explicit_route (proto_tree *ti, tvbuff_t *tvb, 
+			     int offset, int obj_length,
+			     int class, int type, 
+			     char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+    int mylen, i, j, k, l;
+    proto_tree *ti2, *rsvp_ero_subtree;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_explicit_route);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    mylen = obj_length - 4;
+    switch(type) {
+    case 1: {
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 1");
+	proto_item_set_text(ti, "EXPLICIT ROUTE: ");
+	for (i=1, l = 0; l < mylen; i++) {
+	    j = tvb_get_guint8(tvb, offset2+l) & 0x7f;
+	    switch(j) {
+	    case 1: /* IPv4 */
+		k = tvb_get_guint8(tvb, offset2+l) & 0x80;
+		ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+					  offset2+l, 8,
+					  "IPv4 Subobject - %s, %s",
+					  ip_to_str(tvb_get_ptr(tvb, offset2+l+2, 4)),
+					  k ? "Loose" : "Strict");
+		rsvp_ero_subtree = 
+		    proto_item_add_subtree(ti2, ett_rsvp_explicit_route_subobj); 
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
+				    k ? "Loose Hop " : "Strict Hop");
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
+				    "Type: 1 (IPv4)");
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
+				    "Length: %u",
+				    tvb_get_guint8(tvb, offset2+l+1));
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+2, 4,
+				    "IPv4 hop: %s",
+				    ip_to_str(tvb_get_ptr(tvb, offset2+l+2, 4)));
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+6, 1, 
+				    "Prefix length: %u",
+				    tvb_get_guint8(tvb, offset2+l+6));
+		if (i < 4) {
+		    proto_item_append_text(ti, "IPv4 %s%s", 
+					   ip_to_str(tvb_get_ptr(tvb, offset2+l+2, 4)),
+					   k ? " [L]":"");
+		}
+
+		break;
+
+	    case 2: /* IPv6 */
+		ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+					  offset2+l, 20,
+					  "IPv6 Subobject");
+		rsvp_ero_subtree = 
+		    proto_item_add_subtree(ti2, ett_rsvp_explicit_route_subobj); 
+		k = tvb_get_guint8(tvb, offset2+l) & 0x80;
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
+				    k ? "Loose Hop " : "Strict Hop");
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
+				    "Type: 2 (IPv6)");
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
+				    "Length: %u",
+				    tvb_get_guint8(tvb, offset2+l+1));
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+2, 16,
+				    "IPv6 hop: %s",
+				    ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2+l+2, 16)));
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+18, 1,
+				    "Prefix length: %u",
+				    tvb_get_guint8(tvb, offset2+l+6));
+		if (i < 4) {
+		    proto_item_append_text(ti, "IPv6 [...]%s", k ? " [L]":"");
+		}
+
+		break;
+
+	    case 3: /* Label */
+		k = tvb_get_guint8(tvb, offset2+l) & 0x80;
+		ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+					  offset2+l, 8,
+					  "Label Subobject - %d, %s",
+					  tvb_get_ntohl(tvb, offset2+l+4), 
+					  k ? "Loose" : "Strict");
+		rsvp_ero_subtree = 
+		    proto_item_add_subtree(ti2, ett_rsvp_record_route_subobj); 
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
+				    k ? "Loose Hop " : "Strict Hop");
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
+				    "Type: 3 (Label)");
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
+				    "Length: %u",
+				    tvb_get_guint8(tvb, offset2+l+1));
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+2, 1,
+				    "Flags: %0x", 
+				    tvb_get_guint8(tvb, offset2+l+2));
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+3, 1,
+				    "C-Type: %u",
+				    tvb_get_guint8(tvb, offset2+l+3));
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+4, 4,
+				    "Label: %d",
+				    tvb_get_ntohl(tvb, offset2+l+4));
+		if (i < 4) {
+		    proto_item_append_text(ti, "Label %d%s", 
+					   tvb_get_ntohl(tvb, offset2+l+4), 
+					   k ? " [L]":"");
+		}
+		break;
+
+	    case 4: /* Unnumbered Interface-ID */
+		k = tvb_get_guint8(tvb, offset2+l) & 0x80;
+		ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+					  offset2+l, 8,
+					  "Unnumbered Interface-ID - %s, %d, %s",
+					  ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)),
+					  tvb_get_ntohl(tvb, offset2+l+8), 
+					  k ? "Loose" : "Strict");
+		rsvp_ero_subtree = 
+		    proto_item_add_subtree(ti2, ett_rsvp_explicit_route_subobj); 
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
+				    k ? "Loose Hop " : "Strict Hop");
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
+				    "Type: 4 (Unnumbered Interface-ID)");
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
+				    "Length: %u",
+				    tvb_get_guint8(tvb, offset2+l+1));
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+4, 4,
+				    "Router-ID: %s",
+				    ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)));
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+8, 4,
+				    "Interface-ID: %d",
+				    tvb_get_ntohl(tvb, offset2+l+8));
+		if (i < 4) {
+		    proto_item_append_text(ti, "Unnum %s/%d%s", 
+					   ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)),
+					   tvb_get_ntohl(tvb, offset2+l+8),
+					   k ? " [L]":"");
+		}
+
+		break;
+
+	    case 32: /* AS */
+		k = tvb_get_ntohs(tvb, offset2+l+2);
+		ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+					  offset2+l, 4,
+					  "Autonomous System %u",
+					  k);
+		rsvp_ero_subtree = 
+		    proto_item_add_subtree(ti2, ett_rsvp_explicit_route_subobj); 
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
+				    "Type: 32 (Autonomous System Number)");
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
+				    "Length: %u",
+				    tvb_get_guint8(tvb, offset2+l+1));
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+2, 2,
+				    "Autonomous System %u", k);
+		if (i < 4) {
+		    proto_item_append_text(ti, "AS %d", 
+					   tvb_get_ntohs(tvb, offset2+l+2));
+		}
+
+		break;
+
+	    case 64: /* Path Term */
+		k = tvb_get_guint8(tvb, offset2+l) & 0x80;
+		ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
+					  offset2+l, 4,
+					  "LSP Path Termination");
+		rsvp_ero_subtree = 
+		    proto_item_add_subtree(ti2, ett_rsvp_explicit_route_subobj); 
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
+				    k ? "Loose Hop " : "Strict Hop");
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
+				    "Type: 64 (MPLS LSP Path Termination)");
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
+				    "Length: %u",
+				    tvb_get_guint8(tvb, offset2+l+1));
+		if (i < 4) {
+		    proto_item_append_text(ti, "Path Term");
+		}
+		break;
+
+	    default: /* Unknown subobject */
+		k = tvb_get_guint8(tvb, offset2+l) & 0x80;
+		ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+					  offset2+l,
+					  tvb_get_guint8(tvb, offset2+l+1),
+					  "Unknown subobject: %d", j);
+		rsvp_ero_subtree = 
+		    proto_item_add_subtree(ti2, ett_rsvp_explicit_route_subobj); 
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
+				    k ? "Loose Hop " : "Strict Hop");
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
+				    "Type: %u (Unknown)", j);
+		proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
+				    "Length: %u",
+				    tvb_get_guint8(tvb, offset2+l+1));
+
+	    }
+
+	    l += tvb_get_guint8(tvb, offset2+l+1);
+	    if (l < mylen) {
+		if (i < 4)
+		    proto_item_append_text(ti, ", ");
+		else if (i==4)
+		    proto_item_append_text(ti, "...");
+	    }
+	}
+	break;
+    }
+    default:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
+			    "Data (%d bytes)", mylen);
+	break;
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * RECORD ROUTE OBJECT
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_record_route (proto_tree *ti, tvbuff_t *tvb, 
+			   int offset, int obj_length,
+			   int class, int type, 
+			   char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+    int mylen, i, j, l;
+    proto_tree *ti2, *rsvp_rro_subtree;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_record_route);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    proto_item_set_text(ti, "RECORD ROUTE: ");
+    mylen = obj_length - 4;
+    switch(type) {
+    case 1: {
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 1");
+	for (i=1, l = 0; l < mylen; i++) {
+	    j = tvb_get_guint8(tvb, offset2+l);
+	    switch(j) {
+	    case 1: /* IPv4 */
+		ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+					  offset2+l, 8,
+					  "IPv4 Subobject - %s",
+					  ip_to_str(tvb_get_ptr(tvb, offset2+l+2, 4)));
+		rsvp_rro_subtree = 
+		    proto_item_add_subtree(ti2, ett_rsvp_record_route_subobj); 
+		proto_tree_add_text(rsvp_rro_subtree, tvb, offset2+l, 1,
+				    "Type: 1 (IPv4)");
+		proto_tree_add_text(rsvp_rro_subtree, tvb, offset2+l+1, 1,
+				    "Length: %u",
+				    tvb_get_guint8(tvb, offset2+l+1));
+		proto_tree_add_text(rsvp_rro_subtree, tvb, offset2+l+2, 4,
+				    "IPv4 hop: %s",
+				    ip_to_str(tvb_get_ptr(tvb, offset2+l+2, 4)));
+		proto_tree_add_text(rsvp_rro_subtree, tvb, offset2+l+6, 1,
+				    "Prefix length: %u",
+				    tvb_get_guint8(tvb, offset2+l+6));
+		if (i < 4) {
+		    proto_item_append_text(ti, "IPv4 %s", 
+					   ip_to_str(tvb_get_ptr(tvb, offset2+l+2, 4)));
+		}
+
+		break;
+
+	    case 2: /* IPv6 */
+		ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+					  offset2+l, 20,
+					  "IPv6 Subobject");
+		rsvp_rro_subtree = 
+		    proto_item_add_subtree(ti2, ett_rsvp_record_route_subobj); 
+		proto_tree_add_text(rsvp_rro_subtree, tvb, offset2+l, 1,
+				    "Type: 2 (IPv6)");
+		proto_tree_add_text(rsvp_rro_subtree, tvb, offset2+l+1, 1,
+				    "Length: %u",
+				    tvb_get_guint8(tvb, offset2+l+1));
+		proto_tree_add_text(rsvp_rro_subtree, tvb, offset2+l+2, 16,
+				    "IPv6 hop: %s",
+				    ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2+l+2, 16)));
+		proto_tree_add_text(rsvp_rro_subtree, tvb, offset2+l+18, 1,
+				    "Prefix length: %u",
+				    tvb_get_guint8(tvb, offset2+l+6));
+		if (i < 4) {
+		    proto_item_append_text(ti, "IPv6 [...]");
+		}
+		break;
+
+	    case 3: /* Label */
+		ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+					  offset2+l, 8,
+					  "Label Subobject - %d",
+					  tvb_get_ntohl(tvb, offset2+l+4));
+		rsvp_rro_subtree = 
+		    proto_item_add_subtree(ti2, ett_rsvp_record_route_subobj); 
+		proto_tree_add_text(rsvp_rro_subtree, tvb, offset2+l, 1,
+				    "Type: 3 (Label)");
+		proto_tree_add_text(rsvp_rro_subtree, tvb, offset2+l+1, 1,
+				    "Length: %u",
+				    tvb_get_guint8(tvb, offset2+l+1));
+		proto_tree_add_text(rsvp_rro_subtree, tvb, offset2+l+2, 1,
+				    "Flags: %0x", 
+				    tvb_get_guint8(tvb, offset2+l+2));
+		proto_tree_add_text(rsvp_rro_subtree, tvb, offset2+l+3, 1,
+				    "C-Type: %u",
+				    tvb_get_guint8(tvb, offset2+l+3));
+		proto_tree_add_text(rsvp_rro_subtree, tvb, offset2+l+4, 4,
+				    "Label: %d",
+				    tvb_get_ntohl(tvb, offset2+l+4));
+		if (i < 4) {
+		    proto_item_append_text(ti, "Label %d", 
+					   tvb_get_ntohl(tvb, offset2+l+4));
+		}
+		break;
+
+	    case 4: /* Unnumbered Interface-ID */
+		ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+					  offset2+l, 8,
+					  "Unnumbered Interface-ID - %s, %d",
+					  ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)),
+					  tvb_get_ntohl(tvb, offset2+l+8));
+		rsvp_rro_subtree = 
+		    proto_item_add_subtree(ti2, ett_rsvp_record_route_subobj); 
+		proto_tree_add_text(rsvp_rro_subtree, tvb, offset2+l, 1,
+				    "Type: 4 (Unnumbered Interface-ID)");
+		proto_tree_add_text(rsvp_rro_subtree, tvb, offset2+l+1, 1,
+				    "Length: %u",
+				    tvb_get_guint8(tvb, offset2+l+1));
+		proto_tree_add_text(rsvp_rro_subtree, tvb, offset2+l+1, 1,
+				    "Flags: %u",
+				    tvb_get_guint8(tvb, offset2+l+2));
+		proto_tree_add_text(rsvp_rro_subtree, tvb, offset2+l+4, 4,
+				    "Router-ID: %s",
+				    ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)));
+		proto_tree_add_text(rsvp_rro_subtree, tvb, offset2+l+8, 4,
+				    "Interface-ID: %d",
+				    tvb_get_ntohl(tvb, offset2+l+8));
+		if (i < 4) {
+		    proto_item_append_text(ti, "Unnum %s/%d", 
+					   ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)),
+					   tvb_get_ntohl(tvb, offset2+l+8));
+		}
+		break;
+
+	    default: /* Unknown subobject */
+		ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+					  offset2+l,
+					  tvb_get_guint8(tvb, offset2+l+1),
+					  "Unknown subobject: %u",
+					  j);
+		rsvp_rro_subtree = 
+		    proto_item_add_subtree(ti2, ett_rsvp_record_route_subobj); 
+		proto_tree_add_text(rsvp_rro_subtree, tvb, offset2+l, 1,
+				    "Type: %u (Unknown)", j);
+		proto_tree_add_text(rsvp_rro_subtree, tvb, offset2+l+1, 1,
+				    "Length: %u",
+				    tvb_get_guint8(tvb, offset2+l+1));
+
+	    }
+
+	    l += tvb_get_guint8(tvb, offset2+l+1);
+	    if (l < mylen) {
+		if (i < 4)
+		    proto_item_append_text(ti, ", ");
+		else if (i==4)
+		    proto_item_append_text(ti, "...");
+	    }
+	}
+	break;
+    }
+		
+    default: {
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
+			    "Data (%d bytes)", mylen);
+	break;
+    }
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * MESSAGE ID
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_message_id (proto_tree *ti, tvbuff_t *tvb, 
+			 int offset, int obj_length,
+			 int class, int type, 
+			 char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_policy);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    switch(type) {
+    case 1: 
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 1");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+4, 1,
+			    "Flags: %d", tvb_get_guint8(tvb, offset+4));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+5, 3,
+			    "Epoch: %d", tvb_get_ntoh24(tvb, offset+5));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+8, 4,
+			    "Message-ID: %d", tvb_get_ntohl(tvb, offset+8));
+	proto_item_set_text(ti, "MESSAGE-ID: %d %s", 
+			    tvb_get_ntohl(tvb, offset+8), 
+			    tvb_get_guint8(tvb, offset+4) & 1 ? "(Ack Desired)" : "");
+	break;
+
+    default:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
+			    "Data (%d bytes)", obj_length - 4);
+	break;
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * MESSAGE ID ACK
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_message_id_ack (proto_tree *ti, tvbuff_t *tvb, 
+			     int offset, int obj_length,
+			     int class, int type, 
+			     char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_policy);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    switch(type) {
+    case 1: 
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 1");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+4, 1,
+			    "Flags: %d", tvb_get_guint8(tvb, offset+4));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+5, 3,
+			    "Epoch: %d", tvb_get_ntoh24(tvb, offset+5));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+8, 4,
+			    "Message-ID: %d", tvb_get_ntohl(tvb, offset+8));
+	proto_item_set_text(ti, "MESSAGE-ID ACK: %d", tvb_get_ntohl(tvb, offset+8));
+	break;
+
+    case 2: 
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 2");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+4, 1,
+			    "Flags: %d", tvb_get_guint8(tvb, offset+4));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+5, 3,
+			    "Epoch: %d", tvb_get_ntoh24(tvb, offset+5));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+8, 4,
+			    "Message-ID: %d", tvb_get_ntohl(tvb, offset+8));
+	proto_item_set_text(ti, "MESSAGE-ID NACK: %d", tvb_get_ntohl(tvb, offset+8));
+	break;
+
+    default:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
+			    "Data (%d bytes)", obj_length - 4);
+	break;
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * MESSAGE ID LIST
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_message_id_list (proto_tree *ti, tvbuff_t *tvb, 
+			      int offset, int obj_length,
+			      int class, int type, 
+			      char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+    int mylen;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_policy);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    switch(type) {
+    case 1: 
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 1");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+4, 1,
+			    "Flags: %d", tvb_get_guint8(tvb, offset+4));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+5, 3,
+			    "Epoch: %d", tvb_get_ntoh24(tvb, offset+5));
+	for (mylen = 8; mylen < obj_length; mylen += 4)
+	    proto_tree_add_text(rsvp_object_tree, tvb, offset+mylen, 4,
+				"Message-ID: %d", tvb_get_ntohl(tvb, offset+mylen));
+	proto_item_set_text(ti, "MESSAGE-ID LIST: %d IDs", 
+			    (obj_length - 8)/4);
+	break;
+
+    default:
+	mylen = obj_length - 4;
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
+			    "Data (%d bytes)", obj_length - 4);
+	break;
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * HELLO
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_hello (proto_tree *ti, tvbuff_t *tvb, 
+		    int offset, int obj_length,
+		    int class, int type, 
+		    char *type_str)
+{
+    proto_tree *rsvp_object_tree;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_hello_obj);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);        
+    switch(type) {
+    case 1:
+    case 2:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-Type: 1 - HELLO %s object",
+			    type==1 ? "REQUEST" : "ACK");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+4, 4,
+			    "Source Instance: 0x%x",tvb_get_ntohl(tvb, offset+4));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+8, 4,
+			    "Destination Instance: 0x%x",tvb_get_ntohl(tvb, offset+8));
+	break;
+    default: 
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-Type: %d - UNKNOWN", type);
+	break;
+    };
+}
+
+/*------------------------------------------------------------------------------
+ * DCLASS
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_dclass (proto_tree *ti, tvbuff_t *tvb, 
+		     int offset, int obj_length,
+		     int class, int type, 
+		     char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+    int mylen;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_dclass);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    proto_item_set_text(ti, "DCLASS: ");
+    switch(type) {
+    case 1: 
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 1");
+	for (mylen = 4; mylen < obj_length; mylen += 4) {
+	    proto_tree_add_text(rsvp_object_tree, tvb, offset+mylen+3, 1,
+				"DSCP: %s", 
+				val_to_str(tvb_get_guint8(tvb, offset+mylen+3),
+					   dscp_vals, "Unknown (%d)"));
+	    proto_item_append_text(ti, "%d%s", 
+				   tvb_get_guint8(tvb, offset+mylen+3)>>2,
+				   mylen==obj_length-4 ? "":
+				   mylen<16 ? ", ":
+				   mylen==16 ? ", ..." : "");
+	}
+	break;
+
+    default:
+	mylen = obj_length - 4;
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
+			    "Data (%d bytes)", mylen);
+	break;
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * ADMINISTRATIVE STATUS
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_admin_status (proto_tree *ti, tvbuff_t *tvb, 
+			   int offset, int obj_length,
+			   int class, int type, 
+			   char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+    proto_tree *ti2, *rsvp_admin_subtree;
+    int mylen;
+    guint32 status;
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_admin_status);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    proto_item_set_text(ti, "ADMIN STATUS: ");
+    switch(type) {
+    case 1: 
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 1");
+	status = tvb_get_ntohl(tvb, offset2);
+	ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4,
+				  "Admin Status: 0x%08x", status);
+	rsvp_admin_subtree = 
+	    proto_item_add_subtree(ti2, ett_rsvp_admin_status_flags); 
+	proto_tree_add_text(rsvp_admin_subtree, tvb, offset2, 4,
+			    decode_boolean_bitfield(status, 0x80000000, 32,
+						    "R: Reflect",
+						    "R: Do not reflect"));
+	proto_tree_add_text(rsvp_admin_subtree, tvb, offset2, 4,
+			    decode_boolean_bitfield(status, 0x04, 32,
+						    "T: Testing",
+						    "T: "));
+	proto_tree_add_text(rsvp_admin_subtree, tvb, offset2, 4,
+			    decode_boolean_bitfield(status, 0x02, 32,
+						    "A: Administratively Down",
+						    "A: "));
+	proto_tree_add_text(rsvp_admin_subtree, tvb, offset2, 4,
+			    decode_boolean_bitfield(status, 0x01, 32,
+						    "D: Delete In Progress",
+						    "D: "));
+	proto_item_set_text(ti, "ADMIN-STATUS: %s %s %s %s", 
+			    (status & (1<<31)) ? "Reflect" : "",
+			    (status & (1<<2))  ? "Testing" : "",
+			    (status & (1<<1))  ? "Admin-Down" : "",
+			    (status & (1<<0))  ? "Deleting" : "");
+	break;
+
+    default:
+	mylen = obj_length - 4;
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
+			    "Data (%d bytes)", obj_length - 4);
+	break;
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * LSP TUNNEL INTERFACE ID
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_lsp_tunnel_if_id (proto_tree *ti, tvbuff_t *tvb, 
+			       int offset, int obj_length,
+			       int class, int type, 
+			       char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_lsp_tunnel_if_id);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    proto_item_set_text(ti, "LSP INTERFACE-ID: ");
+    switch(type) {
+    case 1: 
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 1 - IPv4");
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4, 
+			    "Router ID: %s",
+			    ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
+			    "Interface ID: %u", tvb_get_ntohl(tvb, offset2+4));
+	proto_item_set_text(ti, "LSP INTERFACE-ID: IPv4, Router-ID %s, Interface-ID %d", 
+			    ip_to_str(tvb_get_ptr(tvb, offset2, 4)),
+			    tvb_get_ntohl(tvb, offset2+4));
+	break;
+
+    default:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
+			    "Data (%d bytes)", obj_length - 4);
+	break;
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * GENERALIZED UNI
+ *------------------------------------------------------------------------------*/
+static void 
+dissect_rsvp_gen_uni (proto_tree *ti, tvbuff_t *tvb, 
+		      int offset, int obj_length,
+		      int class, int type, 
+		      char *type_str)
+{
+    int offset2 = offset + 4;
+    proto_tree *rsvp_object_tree;
+    int mylen, i, j, k, l, m;
+    proto_tree *ti2, *rsvp_gen_uni_subtree;
+    int s_len, s_class, s_type;
+
+    rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_gen_uni);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			"Length: %u", obj_length);
+    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+			"Class number: %u - %s", 
+			class, type_str);
+    proto_item_set_text(ti, "GENERALIZED UNI: ");
+
+    mylen = obj_length - 4;
+    switch(type) {
+    case 1: {
+	char *c;
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: 1");
+	for (i=1, l = 0; l < mylen; i++) {
+	    j = tvb_get_guint8(tvb, offset2+l+2);
+	    switch(j) {
+	    case 1: 
+	    case 2: /* We do source and destination TNA together */
+		c = (j==1) ? "Source" : "Destination";
+		k = tvb_get_guint8(tvb, offset2+l+3);
+		switch(k) {
+		case 1:
+		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+					      offset2+l, 8,
+					      "%s IPv4 TNA - %s", c, 
+					      ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)));
+		    rsvp_gen_uni_subtree = 
+			proto_item_add_subtree(ti2, ett_rsvp_gen_uni_subobj); 
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+2, 1,
+					"Class: %d (%s)", j, c);
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+3, 1,
+					"Type: 1 (IPv4)");
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l, 2,
+					"Length: %u",
+					tvb_get_ntohs(tvb, offset2+l));
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+4, 4,
+					"IPv4 hop: %s",
+					ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)));
+		    if (i < 4) {
+			proto_item_append_text(ti, "%s IPv4 %s", c,
+					       ip_to_str(tvb_get_ptr(tvb, offset2+l+2, 4)));
+		    }
+		    break;
+
+		case 2:
+		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+					      offset2+l, 20,
+					      "%s IPv6 TNA", c);
+		    rsvp_gen_uni_subtree = 
+			proto_item_add_subtree(ti2, ett_rsvp_gen_uni_subobj); 
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+2, 1,
+					"Class: %d (%s)", j, c);
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+3, 1,
+					"Type: 2 (IPv6)");
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l, 2,
+					"Length: %u",
+					tvb_get_ntohs(tvb, offset2+l));
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+4, 4,
+					"Data");
+		    if (i < 4) {
+			proto_item_append_text(ti, "%s IPv6", c);
+		    }
+		    break;
+
+		case 3:
+		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+					      offset2+l, tvb_get_ntohs(tvb, offset2+l),
+					      "%s NSAP TNA", c);
+		    rsvp_gen_uni_subtree = 
+			proto_item_add_subtree(ti2, ett_rsvp_gen_uni_subobj); 
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+2, 1,
+					"Class: %d (%s)", j, c);
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+3, 1,
+					"Type: 3 (NSAP)");
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l, 2,
+					"Length: %u",
+					tvb_get_ntohs(tvb, offset2+l));
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+4, 
+					tvb_get_ntohs(tvb, offset2+l)-4,
+					"Data");
+		    if (i < 4) {
+			proto_item_append_text(ti, "%s NSAP", c);
+		    }
+		    break;
+
+		default:
+		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+					      offset2+l, tvb_get_ntohs(tvb, offset2+l),
+					      "%s UNKNOWN TNA", c);
+		    rsvp_gen_uni_subtree = 
+			proto_item_add_subtree(ti2, ett_rsvp_gen_uni_subobj); 
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+2, 1,
+					"Class: %d (%s)", j, c);
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+3, 1,
+					"Type: %d (UNKNOWN)", j);
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l, 2,
+					"Length: %u",
+					tvb_get_ntohs(tvb, offset2+l));
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+4, 
+					tvb_get_ntohs(tvb, offset2+l)-4,
+					"Data");
+		    if (i < 4) {
+			proto_item_append_text(ti, "%s UNKNOWN", c);
+		    }
+		    break;
+		}
+		break;
+
+	    case 3: /* Diversity subobject */
+		k = tvb_get_guint8(tvb, offset2+l+3);
+		switch(k) {
+		default:
+		case 1:
+		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+					      offset2+l, tvb_get_ntohs(tvb, offset2+l),
+					      "Diversity Subobject");
+		    rsvp_gen_uni_subtree = 
+			proto_item_add_subtree(ti2, ett_rsvp_gen_uni_subobj); 
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+2, 1,
+					"Class: %d (Diversity)", j);
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+3, 1,
+					"Type: %d", tvb_get_guint8(tvb, offset2+l+3));
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l, 2,
+					"Length: %u",
+					tvb_get_ntohs(tvb, offset2+l));
+		    m = tvb_get_guint8(tvb, offset2+l+4) >> 4;
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+4, 1, 
+					"Diversity: %d - %s", m, 
+					val_to_str(m, ouni_guni_diversity_str, "Unknown"));
+		    s_len = tvb_get_ntohs(tvb, offset2+l+8);
+		    s_class = tvb_get_guint8(tvb, offset2+l+10);
+		    s_type = tvb_get_guint8(tvb, offset2+l+11);
+		    ti2 = proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+8, 
+					      s_len, "Session");
+		    dissect_rsvp_session(ti2, tvb, offset2+l+8, s_len, s_class, s_type, 
+					 val_to_str(s_class, rsvp_class_vals, "Unknown"));
+		    offset2 += s_len;
+		    s_len = tvb_get_ntohs(tvb, offset2+l+8);
+		    s_class = tvb_get_guint8(tvb, offset2+l+10);
+		    s_type = tvb_get_guint8(tvb, offset2+l+11);
+		    ti2 = proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+8, 
+					      s_len, "Template");
+		    dissect_rsvp_template_filter(ti2, tvb, offset2+l+8, s_len, s_class, s_type, 
+						 val_to_str(s_class, rsvp_class_vals, "Unknown"));
+
+		    if (i < 4) {
+			proto_item_append_text(ti, "Diversity");
+		    }
+		    break;
+
+		}
+		break;
+
+	    case 4: /* Egress Label */
+		k = tvb_get_guint8(tvb, offset2+l+3);
+		switch(k) {
+		default:
+		case 1:
+		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+					      offset2+l, tvb_get_ntohs(tvb, offset2+l),
+					      "Egress Label Subobject");
+		    rsvp_gen_uni_subtree = 
+			proto_item_add_subtree(ti2, ett_rsvp_gen_uni_subobj); 
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+2, 1,
+					"Class: %d (Egress Label)", j);
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+3, 1,
+					"Type: %d", tvb_get_guint8(tvb, offset2+l+3));
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l, 2,
+					"Length: %u",
+					tvb_get_ntohs(tvb, offset2+l));
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+4, 1,
+					"Direction: %s",
+					decode_boolean_bitfield(
+					    tvb_get_guint8(tvb, offset2+l+4), 0x80, 8,
+					    "U: 1 - Upstream label/port ID",
+					    "U: 0 - Downstream label/port ID"));
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+7, 1,
+					"Label type: %u", tvb_get_guint8(tvb, offset2+l+7));
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+8, 4,
+					"Logical Port ID: %u", tvb_get_ntohl(tvb, offset2+l+8));
+		    proto_item_append_text(ti2, ": %s, Label type %d, Port ID %d, Label ",
+					   tvb_get_guint8(tvb, offset2+l+4) & 0x80 ? 
+					   "Upstream" : "Downstream", 
+					   tvb_get_guint8(tvb, offset2+l+7), 
+					   tvb_get_ntohl(tvb, offset2+l+8));
+		    for (j=12; j < tvb_get_ntohs(tvb, offset2+l); j+=4) {
+			proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+8, 4,
+					    "Label: %u", tvb_get_ntohl(tvb, offset2+l+j));
+			proto_item_append_text(ti2, "%u ", tvb_get_ntohl(tvb, offset2+l+j));
+		    }
+		    if (i < 4) {
+			proto_item_append_text(ti, "Egress Label");
+		    }
+		    break;
+		}
+		break;
+
+	    case 5: /* Service Level */
+		k = tvb_get_guint8(tvb, offset2+l+3);
+		switch(k) {
+		default:
+		case 1:
+		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+					      offset2+l, tvb_get_ntohs(tvb, offset2+l),
+					      "Service Level Subobject");
+		    rsvp_gen_uni_subtree = 
+			proto_item_add_subtree(ti2, ett_rsvp_gen_uni_subobj); 
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+2, 1,
+					"Class: %d (Egress Label)", j);
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+3, 1,
+					"Type: %d", tvb_get_guint8(tvb, offset2+l+3));
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l, 2,
+					"Length: %u",
+					tvb_get_ntohs(tvb, offset2+l));
+		    proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+4, 1,
+					"Service Level: %u", tvb_get_guint8(tvb, offset2+l+4));
+		    proto_item_append_text(ti2, ": %u", tvb_get_guint8(tvb, offset2+l+4));
+		    if (i < 4) {
+			proto_item_append_text(ti, "Service Level %d", tvb_get_guint8(tvb, offset2+l+4));
+		    }
+		    break;
+		}
+		break;
+
+	    default: /* Unknown subobject */
+		ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
+					  offset2+l,
+					  tvb_get_ntohs(tvb, offset2+l),
+					  "Unknown subobject: %u",
+					  j);
+		rsvp_gen_uni_subtree = 
+		    proto_item_add_subtree(ti2, ett_rsvp_record_route_subobj); 
+		proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l, 1,
+				    "Type: %u (Unknown)", j);
+		proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+1, 1,
+				    "Length: %u",
+				    tvb_get_guint8(tvb, offset2+l+1));
+
+	    }
+
+	    l += tvb_get_guint8(tvb, offset2+l+1);
+	    if (l < mylen) {
+		if (i < 4)
+		    proto_item_append_text(ti, ", ");
+		else if (i==4)
+		    proto_item_append_text(ti, "...");
+	    }
+	}
+	break;
+    }
+		
+    default:
+	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+			    "C-type: Unknown (%u)",
+			    type);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
+			    "Data (%d bytes)", mylen);
+	break;
+    }
+}
+
+/*------------------------------------------------------------------------------
+ * The main loop
+ *------------------------------------------------------------------------------*/
 static void 
 dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
 {
     int offset = 0;
-    proto_tree *rsvp_tree = NULL, *ti, *ti2; 
+    proto_tree *rsvp_tree = NULL, *ti; 
     proto_tree *rsvp_header_tree;
     proto_tree *rsvp_object_tree;
-    proto_tree *rsvp_sa_flags_tree;
-    proto_tree *rsvp_ero_subtree;
-    proto_tree *rsvp_admin_subtree;
-    proto_tree *rsvp_hop_subtree;
     guint8 ver_flags;
     guint8 message_type;
     guint16 cksum, computed_cksum;
     vec_t cksum_vec[1];
-    int i, j, k, l, len;
+    int len;
     int msg_length;
     int obj_length;
-    int mylen;
     int offset2;
     int session_off, tempfilt_off;
 
@@ -1003,12 +3628,12 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	while (len < msg_length) {
 	    guint8 class;	
 	    guint8 type;
-	    char *object_type;
+	    char *type_str;
 
 	    obj_length = tvb_get_ntohs(tvb, offset);
 	    class = tvb_get_guint8(tvb, offset+2);
 	    type = tvb_get_guint8(tvb, offset+3);
-	    object_type = val_to_str(class, rsvp_class_vals, "Unknown");
+	    type_str = val_to_str(class, rsvp_class_vals, "Unknown");
 	    proto_tree_add_uint_hidden(rsvp_tree, rsvp_filter[RSVPF_OBJECT], tvb, 
 					    offset, obj_length, class);
 	    ti = proto_tree_add_item(rsvp_tree, rsvp_filter[rsvp_class_to_filter_num(class)],
@@ -1018,1791 +3643,124 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    switch(class) {
 
-	    case RSVP_CLASS_SESSION : 		
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_session);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		mylen = obj_length - 4;
-		proto_item_set_text(ti, summary_session(tvb, offset));
-
-		switch(type) {
-		case 1: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
-					"C-type: 1 - IPv4");
-		    proto_tree_add_item(rsvp_object_tree,
-		    			rsvp_filter[RSVPF_SESSION_IP],
-		    			tvb, offset2, 4, FALSE);
-
-		    proto_tree_add_item(rsvp_object_tree,
-					rsvp_filter[RSVPF_SESSION_PROTO], tvb, 
-					offset2+4, 1, FALSE);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+5, 1,
-					"Flags: %x",
-					tvb_get_guint8(tvb, offset2+5));
-		    proto_tree_add_item(rsvp_object_tree,
-					rsvp_filter[RSVPF_SESSION_PORT], tvb, 
-					offset2+6, 2, FALSE);
-		    break;
-		}
-
-		case 2: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 2 - IPv6");
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 16,
-					"Destination address: %s", 
-					ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+16, 1,
-					"Protocol: %u",
-					tvb_get_guint8(tvb, offset2+16));
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+17, 1,
-					"Flags: %x",
-					tvb_get_guint8(tvb, offset2+17));
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+18, 2,
-					"Destination port: %u", 
-					tvb_get_ntohs(tvb, offset2+18));
-		    break;
-		}
-		
-		case 7: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 7 - IPv4 LSP");
-		    proto_tree_add_item(rsvp_object_tree,
-					rsvp_filter[RSVPF_SESSION_IP],
-					tvb, offset2, 4, FALSE);
-
-		    proto_tree_add_item(rsvp_object_tree,
-					rsvp_filter[RSVPF_SESSION_TUNNEL_ID],
-					tvb, offset2+6, 2, FALSE);
-
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 4, 
-					"Extended Tunnel ID: %u (%s)",
-					tvb_get_ntohl(tvb, offset2+8),
-					ip_to_str(tvb_get_ptr(tvb, offset2+8, 4)));
-		    proto_tree_add_item_hidden(rsvp_object_tree,
-		    			rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
-		    			tvb, offset2+8, 4, FALSE);
-		    break;
-		}
-
-		default: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: Unknown (%u)",
-					type);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
-		}
-		}
+	    case RSVP_CLASS_SESSION:
+		dissect_rsvp_session(ti, tvb, offset, obj_length, class, type, type_str);
 		break;
 		
-	    case RSVP_CLASS_HOP :		
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_hop);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		mylen = obj_length - 4;
-		switch(type) {
-		case 1: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 1 - IPv4");
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4, 
-					"Neighbor address: %s", 
-					ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
-					"Logical interface: %u", 
-					tvb_get_ntohl(tvb, offset2+4));
-                    proto_item_set_text(ti, "HOP: IPv4, %s", 
-                                        ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
-		    break;
-		}
-
-		case 2: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 2 - IPv6");
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 16,
-					"Neighbor address: %s", 
-					ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+16, 4,
-					"Logical interface: 0x%08x", 
-					tvb_get_ntohl(tvb, offset2+16));
-		    break;
-		}
-		
-		case 3: {
-		    guint16   tlv_off;
-		    guint16   tlv_type;
-		    guint16   tlv_len;
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 3 - IPv4 Out-Of-Band");
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4, 
-					"Neighbor address: %s", 
-					ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
-					"Logical interface: %u", 
-					tvb_get_ntohl(tvb, offset2+4));
-
-		    for (tlv_off = 0; tlv_off < mylen - 8; ) {
-			tlv_type = tvb_get_ntohs(tvb, offset2+8+tlv_off);
-			tlv_len = tvb_get_ntohs(tvb, offset2+8+tlv_off+2);
-			switch(tlv_type) {
-			case 1: 
-			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
-						      offset2+8+tlv_off, 8,
-						      "IPv4 TLV - %s",
-						      ip_to_str(tvb_get_ptr(tvb, offset2+8+tlv_off+4, 4)));
-			    rsvp_hop_subtree = 
-				proto_item_add_subtree(ti2, ett_rsvp_hop_subobj); 
-			    proto_tree_add_text(rsvp_hop_subtree, tvb, offset2+8+tlv_off, 2,
-						"Type: 1 (IPv4)");
-			    proto_tree_add_text(rsvp_hop_subtree, tvb, offset2+8+tlv_off+2, 2,
-						"Length: %u",
-						tvb_get_ntohs(tvb, offset2+8+tlv_off+2));
-			    proto_tree_add_text(rsvp_hop_subtree, tvb, offset2+8+tlv_off+4, 4, 
-						"IPv4 address: %s", 
-						ip_to_str(tvb_get_ptr(tvb, offset2+8+tlv_off+4, 4)));
-			    proto_item_set_text(ti, "HOP: Out-of-band. Control IPv4: %s. Data IPv4: %s", 
-						ip_to_str(tvb_get_ptr(tvb, offset2, 4)), 
-						ip_to_str(tvb_get_ptr(tvb, offset2+8+tlv_off+4, 4)));
-			    break;
-
-			case 3: 
-			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
-						      offset2+8+tlv_off, 12,
-						      "Interface-Index TLV - %s, %d",
-						      ip_to_str(tvb_get_ptr(tvb, offset2+8+tlv_off+4, 4)),
-						      tvb_get_ntohl(tvb, offset2+8+tlv_off+8));
-			    rsvp_hop_subtree = 
-				proto_item_add_subtree(ti2, ett_rsvp_hop_subobj); 
-			    proto_tree_add_text(rsvp_hop_subtree, tvb, offset2+8+tlv_off, 2,
-						"Type: 3 (Interface Index)");
-			    proto_tree_add_text(rsvp_hop_subtree, tvb, offset2+8+tlv_off+2, 2,
-						"Length: %u",
-						tvb_get_ntohs(tvb, offset2+8+tlv_off+2));
-			    proto_tree_add_text(rsvp_hop_subtree, tvb, offset2+8+tlv_off+4, 4, 
-						"IPv4 address: %s", 
-						ip_to_str(tvb_get_ptr(tvb, offset2+8+tlv_off+4, 4)));
-			    proto_tree_add_text(rsvp_hop_subtree, tvb, offset2+8+tlv_off+8, 4, 
-						"Interface-ID: %d", 
-						tvb_get_ntohl(tvb, offset2+8+tlv_off+8));
-			    proto_item_set_text(ti, "HOP: Out-of-band. Control IPv4: %s. Data If-Index: %s, %d", 
-						ip_to_str(tvb_get_ptr(tvb, offset2, 4)), 
-						ip_to_str(tvb_get_ptr(tvb, offset2+8+tlv_off+4, 4)), 
-						tvb_get_ntohl(tvb, offset2+8+tlv_off+8));
-			    break;
-
-			default:
-			    proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
-						"Logical interface: %u", 
-						tvb_get_ntohl(tvb, offset2+4));
-			}
-			tlv_off += tlv_len;
-		    }
-		    break;
-		}
-
-		default: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: Unknown (%u)",
-					type);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
-		}
-		}
+	    case RSVP_CLASS_HOP:
+		dissect_rsvp_hop(ti, tvb, offset, obj_length, class, type, type_str);
 		break;
 		
-	    case RSVP_CLASS_TIME_VALUES : 
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_time_values);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		mylen = obj_length - 4;
-		switch(type) {
-		case 1: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 1");
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4, 
-					"Refresh interval: %u ms (%u seconds)",
-					tvb_get_ntohl(tvb, offset2),
-					tvb_get_ntohl(tvb, offset2)/1000);
-                    proto_item_set_text(ti, "TIME VALUES: %d ms", 
-                                        tvb_get_ntohl(tvb, offset2));
-		    break;
-		}
-
-		default: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: Unknown (%u)",
-					type);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
-		    break;
-		}
-		}
+	    case RSVP_CLASS_TIME_VALUES:
+		dissect_rsvp_time_values(ti, tvb, offset, obj_length, class, type, type_str);
 		break;
 
-	    case RSVP_CLASS_ERROR :
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_error);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		mylen = obj_length - 4;
-		switch(type) {
-		case 1: {
-		    guint8 error_code;
+	    case RSVP_CLASS_ERROR:
+		dissect_rsvp_error(ti, tvb, offset, obj_length, class, type, type_str);
+		break;
 
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 1 - IPv4");
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4, 
-					"Error node: %s",
-					ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 1,
-					"Flags: 0x%02x",
-					tvb_get_guint8(tvb, offset2+4));
-		    error_code = tvb_get_guint8(tvb, offset2+5);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+5, 1,
-					"Error code: %u - %s", error_code,
-					val_to_str(error_code, rsvp_error_vals, "Unknown (%d)"));
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+6, 2,
-					"Error value: %u",
-					tvb_get_ntohs(tvb, offset2+6));
-                    proto_item_set_text(ti, "ERROR: IPv4, Error code: %s, Value: %d, Error Node: %s", 
-                                        val_to_str(error_code, rsvp_error_vals, "Unknown (%d)"),
-                                        tvb_get_ntohs(tvb, offset2+6),
-                                        ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
-		    break;
-		}
-
-		case 2: {
-		    guint8 error_code;
-
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 2 - IPv6");
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 16,
-					"Error node: %s",
-					ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+16, 1,
-					"Flags: 0x%02x",
-					tvb_get_guint8(tvb, offset2+16));
-		    error_code = tvb_get_guint8(tvb, offset2+17);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+17, 1,
-					"Error code: %u - %s", error_code,
-					val_to_str(error_code, rsvp_error_vals, "Unknown"));
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+18, 2,
-					"Error value: %u",
-					tvb_get_ntohs(tvb, offset2+18));
-		    break;
-		}
-		
-		default: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: Unknown (%u)",
-					type);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
-		}
-		}
+	    case RSVP_CLASS_SCOPE:
+		dissect_rsvp_scope(ti, tvb, offset, obj_length, class, type, type_str);
 		break;
 		
-
-	    case RSVP_CLASS_SCOPE : 
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_scope);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		mylen = obj_length - 4;
-		switch(type) {
-		case 1: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 1 - IPv4");
-		    while (mylen > 0) {
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4, 
-					    "IPv4 Address: %s",
-					    ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
-			offset2 += 4;
-			mylen -= 4;
-		    }
-		    break;
-		}
-
-		case 2: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 2 - IPv6");
-		    while (mylen > 0) {
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2, 16, 
-					    "IPv6 Address: %s",
-					    ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
-			offset2 += 16;
-			mylen -= 16;
-		    }
-		    break;
-		}
-		
-		default: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: Unknown (%u)",
-					type);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
-		}
-		}
-		break;
-		
-	    case RSVP_CLASS_STYLE : 
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_style);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		mylen = obj_length - 4;
-		switch(type) {
-		case 1: {
-		    guint32 style;
-
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 1");
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
-					"Flags: 0x%02x",
-					tvb_get_guint8(tvb, offset2));
-		    style = tvb_get_ntoh24(tvb, offset2+1);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+1,
-                                        3, "Style: 0x%06X - %s", style,
-                                        val_to_str(style, style_vals, "Unknown"));
-                    proto_item_set_text(ti, "STYLE: %s (%d)", 
-                                        val_to_str(style, style_vals, "Unknown"),
-                                        style);
-		    break;
-		}
-
-		default: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: Unknown (%u)",
-					type);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
-		    break;
-		}
-		}
+	    case RSVP_CLASS_STYLE:
+		dissect_rsvp_style(ti, tvb, offset, obj_length, class, type, type_str);
 		break;
 	    
-	    case RSVP_CLASS_CONFIRM :		
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_confirm);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		mylen = obj_length - 4;
-		switch(type) {
-		case 1: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 1 - IPv4");
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4, 
-					"Receiver address: %s", 
-					ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
-		    proto_item_set_text(ti, "CONFIRM: Receiver %s", 
-					ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
-		    break;
-		}
-
-		case 2: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 2 - IPv6");
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 16, 
-					"Receiver address: %s", 
-					ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
-		    break;
-		}
-
-		default: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: Unknown (%u)",
-					type);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
-		}
-		}
+	    case RSVP_CLASS_CONFIRM:
+		dissect_rsvp_confirm(ti, tvb, offset, obj_length, class, type, type_str);
 		break;
 
-	    case RSVP_CLASS_SENDER_TEMPLATE :
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_sender_template);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		goto common_template;
-	    case RSVP_CLASS_FILTER_SPEC :
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_filter_spec);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-	    common_template:
-		mylen = obj_length - 4;
-		proto_item_set_text(ti, summary_template(tvb, offset));
-		switch(type) {
-		case 1: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 1 - IPv4");
-		    proto_tree_add_item(rsvp_object_tree,
-					rsvp_filter[RSVPF_SENDER_IP],
-					tvb, offset2, 4, FALSE);
-		    proto_tree_add_item(rsvp_object_tree,
-					rsvp_filter[RSVPF_SENDER_PORT],
-					tvb, offset2+6, 2, FALSE);
-		    break;
-		}
-
-		case 2: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 2 - IPv6");
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 16, 
-					"Source address: %s", 
-					ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+18, 2,
-					"Source port: %u",
-					tvb_get_ntohs(tvb, offset2+18));
-		    break;
-		}
-		
-		case 7: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 7 - IPv4 LSP");
-		    proto_tree_add_item(rsvp_object_tree,
-					rsvp_filter[RSVPF_SENDER_IP],
-					tvb, offset2, 4, FALSE);
-		    proto_tree_add_item(rsvp_object_tree,
-					rsvp_filter[RSVPF_SENDER_LSP_ID],
-		    			tvb, offset2+6, 2, FALSE);
-		    break;
-		}
-
-		default: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: Unknown (%u)",
-					type);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
-		}
-		}
+	    case RSVP_CLASS_SENDER_TEMPLATE:
+	    case RSVP_CLASS_FILTER_SPEC:
+		dissect_rsvp_template_filter(ti, tvb, offset, obj_length, class, type, type_str);
 		break;
 
-	    case RSVP_CLASS_SENDER_TSPEC : {
-		proto_tree *tspec_tree;
-
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_sender_tspec);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		mylen = obj_length - 4;
-
-		proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1, 
-				    "Message format version: %u", 
-				    tvb_get_guint8(tvb, offset2)>>4);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2, 
-				    "Data length: %u words, not including header", 
-				    tvb_get_ntohs(tvb, offset2+2));
-
-		mylen -= 4;
-		offset2 += 4;
-
-		proto_item_set_text(ti, "SENDER TSPEC: ");
-
-		while (mylen > 0) {
-		    guint8 service_num;
-		    guint8 param_id;
-		    guint16 param_len;
-		    guint16 param_len_processed;
-		    guint16 length;
-
-		    service_num = tvb_get_guint8(tvb, offset2);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1, 
-					"Service header: %u - %s", 
-					service_num,
-					val_to_str(service_num, qos_vals, "Unknown"));
-		    length = tvb_get_ntohs(tvb, offset2+2);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2, 
-					"Length of service %u data: %u words, " 
-					"not including header", 
-					service_num, length);
-
-		    mylen -= 4;
-		    offset2 += 4;
-
-		    /* Process all known service headers as a set of parameters */
-		    param_len_processed = 0;
-		    while (param_len_processed < length) {
-			param_id = tvb_get_guint8(tvb, offset2);
-			param_len = tvb_get_ntohs(tvb, offset2+2) + 1;
-			switch(param_id) {
-			case 127: 
-			    /* Token Bucket */
-			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
-						      offset2, param_len*4, 
-						      "Token Bucket TSpec: ");
-			    tspec_tree = proto_item_add_subtree(ti2, ett_rsvp_sender_tspec_subtree);
-
-			    proto_tree_add_text(tspec_tree, tvb, offset2, 1, 
-						"Parameter %u - %s", 
-						param_id,
-						val_to_str(param_id, svc_vals, "Unknown"));
-			    proto_tree_add_text(tspec_tree, tvb, offset2+1, 1,
-						"Parameter %u flags: 0x%02x",
-						param_id,
-						tvb_get_guint8(tvb, offset2+1));
-			    proto_tree_add_text(tspec_tree, tvb, offset2+2, 2,
-						"Parameter %u data length: %u words, " 
-						"not including header",
-						param_id,
-						tvb_get_ntohs(tvb, offset2+2));
-			    proto_tree_add_text(tspec_tree, tvb, offset2+4, 4,
-						"Token bucket rate: %.10g", 
-						tvb_get_ntohieee_float(tvb, offset2+4));
-			    proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
-						"Token bucket size: %.10g", 
-						tvb_get_ntohieee_float(tvb, offset2+8));
-			    proto_tree_add_text(tspec_tree, tvb, offset2+12, 4,
-						"Peak data rate: %.10g", 
-						tvb_get_ntohieee_float(tvb, offset2+12));
-			    proto_tree_add_text(tspec_tree, tvb, offset2+16, 4,
-						"Minimum policed unit [m]: %u", 
-						tvb_get_ntohl(tvb, offset2+16));
-			    proto_tree_add_text(tspec_tree, tvb, offset2+20, 4,
-						"Maximum packet size [M]: %u", 
-						tvb_get_ntohl(tvb, offset2+20));
-			    proto_item_append_text(ti, "Token Bucket, %.10g bytes/sec. ", 
-						   tvb_get_ntohieee_float(tvb, offset2+4));
-			    proto_item_append_text(ti2, "Rate=%.10g Burst=%.10g Peak=%.10g m=%u M=%u", 
-						   tvb_get_ntohieee_float(tvb, offset2+4),
-						   tvb_get_ntohieee_float(tvb, offset2+8),
-						   tvb_get_ntohieee_float(tvb, offset2+12),
-						   tvb_get_ntohl(tvb, offset2+16),
-						   tvb_get_ntohl(tvb, offset2+20));
-			    break;
-
-			case 128:
-			    /* Null Service (RFC2997) */
-			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
-						      offset2, param_len*4, 
-						      "Null Service TSpec: ");
-			    tspec_tree = proto_item_add_subtree(ti2, ett_rsvp_sender_tspec_subtree);
-				
-			    proto_tree_add_text(tspec_tree, tvb, offset2, 1, 
-						"Parameter %u - %s", 
-						param_id,
-						val_to_str(param_id, svc_vals, "Unknown"));
-			    proto_tree_add_text(tspec_tree, tvb, offset2+1, 1,
-						"Parameter %u flags: %x", 
-						param_id,
-						tvb_get_guint8(tvb, offset2+1));
-			    proto_tree_add_text(tspec_tree, tvb, offset2+2, 2,
-						"Parameter %u data length: %u words, " 
-						"not including header",
-						param_id,
-						tvb_get_ntohs(tvb, offset2+2));
-			    proto_tree_add_text(tspec_tree, tvb, offset2+4, 4,
-						"Maximum packet size [M]: %u", 
-						tvb_get_ntohl(tvb, offset2+4));
-			    proto_item_append_text(ti, "Null Service. M=%u", 
-						   tvb_get_ntohl(tvb, offset2+4));
-			    proto_item_append_text(ti2, "Max pkt size=%u", 
-						   tvb_get_ntohl(tvb, offset2+4));
-			    break;
-
-			case 126:
-			    /* Compression hint (RFC3006) */
-			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
-						      offset2, param_len*4, 
-						      "Compression Hint: ");
-			    tspec_tree = proto_item_add_subtree(ti2, ett_rsvp_sender_tspec_subtree);
-				
-			    proto_tree_add_text(tspec_tree, tvb, offset2, 1, 
-						"Parameter %u - %s", 
-						param_id,
-						val_to_str(param_id, svc_vals, "Unknown"));
-			    proto_tree_add_text(tspec_tree, tvb, offset2+1, 1,
-						"Parameter %u flags: %x", 
-						param_id,
-						tvb_get_guint8(tvb, offset2+1));
-			    proto_tree_add_text(tspec_tree, tvb, offset2+2, 2,
-						"Parameter %u data length: %u words, " 
-						"not including header",
-						param_id,
-						tvb_get_ntohs(tvb, offset2+2));
-			    proto_tree_add_text(tspec_tree, tvb, offset2+4, 4,
-						"Hint: %u", 
-						tvb_get_ntohl(tvb, offset2+4));
-			    proto_tree_add_text(tspec_tree, tvb, offset2+4, 4,
-						"Compression Factor: %u", 
-						tvb_get_ntohl(tvb, offset2+8));
-			    proto_item_append_text(ti, "Compression Hint. Hint=%u, Factor=%u", 
-						   tvb_get_ntohl(tvb, offset2+4),
-						   tvb_get_ntohl(tvb, offset2+8));
-			    proto_item_append_text(ti2, "Hint=%u, Factor=%u", 
-						   tvb_get_ntohl(tvb, offset2+4),
-						   tvb_get_ntohl(tvb, offset2+8));
-			    break;
-
-			default: 
-			    proto_tree_add_text(rsvp_object_tree, tvb, offset2, param_len*4, 
-						"Unknown parameter %d, %d words", 
-						param_id, param_len);
-			    break;
-			}
-			param_len_processed += param_len;
-			offset2 += param_len*4;
-		    }
-		    /* offset2 += length*4;  */
-		    mylen -= length*4;
-		}
+	    case RSVP_CLASS_SENDER_TSPEC:
+		dissect_rsvp_tspec(ti, tvb, offset, obj_length, class, type, type_str);
 		break;
-	    }
 
-	    case RSVP_CLASS_FLOWSPEC : {
-		proto_tree *flowspec_tree;
-
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_flowspec);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		mylen = obj_length - 4;
-
-		proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1, 
-				    "Message format version: %u", 
-				    tvb_get_guint8(tvb, offset2)>>4);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2, 
-				    "Data length: %u words, not including header", 
-				    tvb_get_ntohs(tvb, offset2+2));
-
-		proto_item_set_text(ti, "FLOWSPEC: ");
-
-		mylen -= 4;
-		offset2+= 4;
-		while (mylen > 0) {
-		    guint8 service_num;
-		    guint16 length;
-		    guint8 param_id;
-		    guint16 param_len;
-		    guint16 param_len_processed;
-
-		    service_num = tvb_get_guint8(tvb, offset2);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1, 
-					"Service header: %u - %s", 
-					service_num,
-					val_to_str(service_num, intsrv_services_str, "Unknown"));
-		    length = tvb_get_ntohs(tvb, offset2+2);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2, 
-					"Length of service %u data: %u words, " 
-					"not including header", 
-					service_num,
-					length);
-
-		    mylen -= 4;
-		    offset2 += 4;
-
-		    proto_item_append_text(ti, "%s: ", 
-					   val_to_str(service_num, intsrv_services_str, 
-						      "Unknown (%d)"));
-
-		    /* Process all known service headers as a set of parameters */
-		    param_len_processed = 0;
-		    while (param_len_processed < length) {
-			param_id = tvb_get_guint8(tvb, offset2);
-			param_len = tvb_get_ntohs(tvb, offset2+2) + 1;
-			switch(param_id) {
-			case 127: 
-			    /* Token Bucket */
-			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
-						      offset2, param_len*4, 
-						      "Token Bucket: ");
-			    flowspec_tree = proto_item_add_subtree(ti2, ett_rsvp_flowspec_subtree);
-
-			    proto_tree_add_text(flowspec_tree, tvb, offset2, 1, 
-						"Parameter %u - %s", 
-						param_id,
-						val_to_str(param_id, svc_vals, "Unknown"));
-			    proto_tree_add_text(flowspec_tree, tvb, offset2+1, 1,
-						"Parameter %u flags: 0x%02x",
-						param_id,
-						tvb_get_guint8(tvb, offset2+1));
-			    proto_tree_add_text(flowspec_tree, tvb, offset2+2, 2,
-						"Parameter %u data length: %u words, " 
-						"not including header",
-						param_id,
-						tvb_get_ntohs(tvb, offset2+2));
-			    proto_tree_add_text(flowspec_tree, tvb, offset2+4, 4,
-						"Token bucket rate: %.10g", 
-						tvb_get_ntohieee_float(tvb, offset2+4));
-			    proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
-						"Token bucket size: %.10g", 
-						tvb_get_ntohieee_float(tvb, offset2+8));
-			    proto_tree_add_text(flowspec_tree, tvb, offset2+12, 4,
-						"Peak data rate: %.10g", 
-						tvb_get_ntohieee_float(tvb, offset2+12));
-			    proto_tree_add_text(flowspec_tree, tvb, offset2+16, 4,
-						"Minimum policed unit [m]: %u", 
-						tvb_get_ntohl(tvb, offset2+16));
-			    proto_tree_add_text(flowspec_tree, tvb, offset2+20, 4,
-						"Maximum packet size [M]: %u", 
-						tvb_get_ntohl(tvb, offset2+20));
-			    proto_item_append_text(ti, "Token Bucket, %.10g bytes/sec. ", 
-						   tvb_get_ntohieee_float(tvb, offset2+4));
-			    proto_item_append_text(ti2, "Rate=%.10g Burst=%.10g Peak=%.10g m=%u M=%u", 
-						   tvb_get_ntohieee_float(tvb, offset2+4),
-						   tvb_get_ntohieee_float(tvb, offset2+8),
-						   tvb_get_ntohieee_float(tvb, offset2+12),
-						   tvb_get_ntohl(tvb, offset2+16),
-						   tvb_get_ntohl(tvb, offset2+20));
-			    break;
-
-			case 130:
-			    /* Guaranteed-rate RSpec */
-			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
-						      offset2, param_len*4, 
-						      "Guaranteed-Rate RSpec: ");
-			    flowspec_tree = proto_item_add_subtree(ti2, ett_rsvp_flowspec_subtree);
-			    proto_tree_add_text(flowspec_tree, tvb, offset2, 1,
-						"Parameter %u - %s", 
-						param_id,
-						val_to_str(param_id, svc_vals, "Unknown"));
-			    proto_tree_add_text(flowspec_tree, tvb, offset2+1, 1, 
-						"Parameter %u flags: %x", 
-						param_id,
-						tvb_get_guint8(tvb, offset2+1));
-			    proto_tree_add_text(flowspec_tree, tvb, offset2+2, 2,
-						"Parameter %u data length: %u words, " 
-						"not including header",
-						param_id,
-						tvb_get_ntohs(tvb, offset2+2));
-			    
-			    proto_tree_add_text(flowspec_tree, tvb, offset2+4, 4,
-						"Rate: %.10g", 
-						tvb_get_ntohieee_float(tvb, offset2+4));
-			    proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
-						"Slack term: %u", 
-						tvb_get_ntohl(tvb, offset2+8));
-			    proto_item_append_text(ti, "RSpec, %.10g bytes/sec. ", 
-						   tvb_get_ntohieee_float(tvb, offset2+4));
-			    proto_item_append_text(ti2, "R=%.10g, s=%u", 
-						   tvb_get_ntohieee_float(tvb, offset2+4),
-						   tvb_get_ntohl(tvb, offset2+8));
-			    break;
-
-			case 128:
-			    /* Null Service (RFC2997) */
-			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
-						      offset2, param_len*4, 
-						      "Null Service Flowspec: ");
-			    flowspec_tree = proto_item_add_subtree(ti2, ett_rsvp_flowspec_subtree);
-				
-			    proto_tree_add_text(flowspec_tree, tvb, offset2, 1, 
-						"Parameter %u - %s", 
-						param_id,
-						val_to_str(param_id, svc_vals, "Unknown"));
-			    proto_tree_add_text(flowspec_tree, tvb, offset2+1, 1,
-						"Parameter %u flags: %x", 
-						param_id,
-						tvb_get_guint8(tvb, offset2+1));
-			    proto_tree_add_text(flowspec_tree, tvb, offset2+2, 2,
-						"Parameter %u data length: %u words, " 
-						"not including header",
-						param_id,
-						tvb_get_ntohs(tvb, offset2+2));
-			    proto_tree_add_text(flowspec_tree, tvb, offset2+4, 4,
-						"Maximum packet size [M]: %u", 
-						tvb_get_ntohl(tvb, offset2+4));
-			    proto_item_append_text(ti, "Null Service. M=%u", 
-						   tvb_get_ntohl(tvb, offset2+4));
-			    proto_item_append_text(ti2, "Max pkt size=%u", 
-						   tvb_get_ntohl(tvb, offset2+4));
-			    break;
-
-			default: 
-			    proto_tree_add_text(rsvp_object_tree, tvb, offset2, param_len*4, 
-						"Unknown parameter %d, %d words", 
-						param_id, param_len);
-			    break;
-			}
-			param_len_processed += param_len;
-			offset2 += param_len * 4;
-		    }
-
-		    /* offset2 += length*4; */
-		    mylen -= length*4;
-		}
+	    case RSVP_CLASS_FLOWSPEC:
+		dissect_rsvp_flowspec(ti, tvb, offset, obj_length, class, type, type_str);
 		break;
-	    }
 
-	    case RSVP_CLASS_ADSPEC : {
-		proto_tree *adspec_tree;
-
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_adspec);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		mylen = obj_length - 4;
-
-		proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
-				    "Message format version: %u", 
-				    tvb_get_guint8(tvb, offset2)>>4);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2,
-				    "Data length: %u words, not including header", 
-				    tvb_get_ntohs(tvb, offset2+2));
-		mylen -= 4;
-		offset2 += 4;
-		while (mylen > 0) {
-		    guint8 service_num;
-		    guint8 break_bit;
-		    guint16 length;
-		    char *str;
-
-		    service_num = tvb_get_guint8(tvb, offset2);
-		    str = val_to_str(service_num, intsrv_services_str, "Unknown");
-		    break_bit = tvb_get_guint8(tvb, offset2+1);
-		    length = tvb_get_ntohs(tvb, offset2+2);
-		    ti = proto_tree_add_text(rsvp_object_tree, tvb, offset2, 
-					     (length+1)*4,
-					     str);
-		    adspec_tree = proto_item_add_subtree(ti,
-							 ett_rsvp_adspec_subtree);
-		    proto_tree_add_text(adspec_tree, tvb, offset2, 1,
-					"Service header %u - %s",
-					service_num, str);
-		    proto_tree_add_text(adspec_tree, tvb, offset2+1, 1,
-					(break_bit&0x80)?
-					"Break bit set":"Break bit not set");
-		    proto_tree_add_text(adspec_tree, tvb, offset2+2, 2, 
-					"Data length: %u words, not including header", 
-					length);
-		    mylen -= 4;
-		    offset2 += 4;
-		    i = length*4;
-		    while (i > 0) {
-		    	guint8 id;
-		    	guint16 phdr_length;
-
-			id = tvb_get_guint8(tvb, offset2);
-			phdr_length = tvb_get_ntohs(tvb, offset2+2);
-			str = match_strval(id, adspec_params);
-			if (str) {
-			    switch(id) {
-			    case 4:
-			    case 8:
-			    case 10:
-			    case 133:
-			    case 134:
-			    case 135:
-			    case 136:
-				/* 32-bit unsigned integer */
-				proto_tree_add_text(adspec_tree, tvb, offset2,
-						    (phdr_length+1)<<2,
-						    "%s - %u (type %u, length %u)",
-						    str,
-						    tvb_get_ntohl(tvb, offset2+4),
-						    id, phdr_length);
-				break;
-				
-			    case 6:
-				/* IEEE float */
-				proto_tree_add_text(adspec_tree, tvb, offset2,
-						    (phdr_length+1)<<2,
-						    "%s - %.10g (type %u, length %u)",
-						    str,
-						    tvb_get_ntohieee_float(tvb, offset2+4),
-						    id, phdr_length);
-				break;
-			    default: 
-				proto_tree_add_text(adspec_tree, tvb, offset2, 
-						    (phdr_length+1)<<2,
-						    "%s (type %u, length %u)",
-						    str,
-						    id, phdr_length);
-			    }
-			} else {
-			    proto_tree_add_text(adspec_tree, tvb, offset2, 
-						(phdr_length+1)<<2,
-						"Unknown (type %u, length %u)",
-						id, phdr_length);
-			}
-			offset2 += (phdr_length+1)<<2;
-			i -= (phdr_length+1)<<2;
-			mylen -= (phdr_length+1)<<2;
-		    }
-		}
+	    case RSVP_CLASS_ADSPEC:
+		dissect_rsvp_adspec(ti, tvb, offset, obj_length, class, type, type_str);
 		break;
-	    }
 
-	    case RSVP_CLASS_INTEGRITY :
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_integrity);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		goto default_class;
+	    case RSVP_CLASS_INTEGRITY:
+		dissect_rsvp_integrity(ti, tvb, offset, obj_length, class, type, type_str);
+		break;
 
-	    case RSVP_CLASS_POLICY :
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_policy);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		goto default_class;
+	    case RSVP_CLASS_POLICY:
+		dissect_rsvp_policy(ti, tvb, offset, obj_length, class, type, type_str);
+		break;
 
-	    case RSVP_CLASS_LABEL_REQUEST : 
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_label_request);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		mylen = obj_length - 4;
-		switch(type) {
-		case 1: {
-		    unsigned short l3pid = tvb_get_ntohs(tvb, offset2+2);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 1");
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2,
-					"L3PID: %s (0x%04x)",
-					val_to_str(l3pid, etype_vals, "Unknown"),
-					l3pid);
-                    proto_item_set_text(ti, "LABEL REQUEST: %s (0x%04x)",
-					val_to_str(l3pid, etype_vals, "Unknown"),
-					l3pid);
-		    break;
-		}
-
-		case 4: {
-		    unsigned short l3pid = tvb_get_ntohs(tvb, offset2+2);
-		    unsigned char  lsp_enc = tvb_get_guint8(tvb,offset2);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 4 (Generalized Label Request)");
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
-					"LSP Encoding Type: %s",
-					val_to_str(lsp_enc, gmpls_lsp_enc_str, "Unknown (%d)"));
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+1, 1,
-					"Switching Type: %s",
-					val_to_str(tvb_get_guint8(tvb,offset2+1), 
-						   gmpls_switching_type_str, "Unknown (%d)"));
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2,
-					"G-PID: %s (0x%0x)",
-					val_to_str(l3pid, gmpls_gpid_str, 
-						   val_to_str(l3pid, etype_vals, 
-							      "Unknown G-PID(0x%04x)")),
-					l3pid);
-                    proto_item_set_text(ti, "LABEL REQUEST: Generalized: LSP Encoding=%s, "
-					"Switching Type=%s, G-PID=%s ",
-					val_to_str(lsp_enc, gmpls_lsp_enc_str, "Unknown (%d)"),
-					val_to_str(tvb_get_guint8(tvb,offset2+1), 
-						   gmpls_switching_type_str, "Unknown (%d)"),
-					val_to_str(l3pid, gmpls_gpid_str, 
-						   val_to_str(l3pid, etype_vals, 
-							      "Unknown (0x%04x)")));
-		    break;
-		}
-
-		default: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: Unknown (%u)",
-					type);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
-		    break;
-		}
-		}
+	    case RSVP_CLASS_LABEL_REQUEST:
+		dissect_rsvp_label_request(ti, tvb, offset, obj_length, class, type, type_str);
 		break;
 	    
-	    case RSVP_CLASS_UPSTREAM_LABEL : 
-	    case RSVP_CLASS_SUGGESTED_LABEL : 
-	    case RSVP_CLASS_LABEL : {
-		char *name;
-		name = (class==RSVP_CLASS_SUGGESTED_LABEL ? "SUGGESTED LABEL" : 
-			(class==RSVP_CLASS_UPSTREAM_LABEL ? "UPSTREAM LABEL" :
-			 "LABEL"));
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_label);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		mylen = obj_length - 4;
-		switch(type) {
-		case 1: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 1 (Packet Label)");
-                    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4,
-                                        "Label: %u", 
-                                        tvb_get_ntohl(tvb, offset2));
-                    proto_item_set_text(ti, "%s: %d", name,
-                                        tvb_get_ntohl(tvb, offset2));
-		    break;
-		}
-
-		case 2: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 2 (Generalized Label)");
-                    proto_item_set_text(ti, "%s: Generalized: ", name);
-		    for (i = 0; i < mylen; i += 4) {
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+i, 4,
-					    "Generalized Label: %u", 
-					    tvb_get_ntohl(tvb, offset2+i));
-			if (i < 16) {
-			    proto_item_append_text(ti, "%d%s", 
-						   tvb_get_ntohl(tvb, offset2+i),
-						   i+4<mylen?", ":"");
-			} else if (i == 16) {
-			    proto_item_append_text(ti, "...");
-			}			    
-		    }
-		    break;
-		}
-
-		default: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: Unknown (%u)",
-					type);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
-		    break;
-		}
-		}
-		break;
-	    }
-	    
-	    case RSVP_CLASS_SESSION_ATTRIBUTE : 
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_session_attribute);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		mylen = obj_length - 4;
-		switch(type) {
-		case 7: {
-		    guint8 flags;
-		    guint8 name_len;
-
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 7 - IPv4 LSP");
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
-					"Setup priority: %u",
-					tvb_get_guint8(tvb, offset2));
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+1, 1,
-					"Hold priority: %u",
-					tvb_get_guint8(tvb, offset2+1));
-		    flags = tvb_get_guint8(tvb, offset2+2);
-		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 1,
-					      "Flags: 0x%02x", flags);
-		    rsvp_sa_flags_tree = proto_item_add_subtree(ti2, 
-								ett_rsvp_session_attribute_flags);
-		    proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1,
-					decode_boolean_bitfield(flags, 0x01, 8,
-					    "Local protection desired",
-					    "Local protection not desired"));
-		    proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1,
-					decode_boolean_bitfield(flags, 0x02, 8,
-					    "Merging permitted",
-					    "Merging not permitted"));
-		    proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1,
-					decode_boolean_bitfield(flags, 0x04, 8,
-					    "Ingress node may reroute",
-					    "Ingress node may not reroute"));
-		    
-		    name_len = tvb_get_guint8(tvb, offset2+3);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+3, 1,
-					"Name length: %u", name_len);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, name_len,
-					"Name: %.*s",
-					name_len,
-					tvb_get_ptr(tvb, offset2+4, name_len));
-
-		    proto_item_set_text(ti, "SESSION ATTRIBUTE: SetupPrio %d, HoldPrio %d, %s%s%s [%s]",
-					tvb_get_guint8(tvb, offset2), 
-					tvb_get_guint8(tvb, offset2+1),
-					flags &0x01 ? "Local Protection, " : "",
-					flags &0x02 ? "Merging, " : "",
-					flags &0x04 ? "May Reroute, " : "",
-					name_len ? (char*)tvb_format_text(tvb, offset2+4, name_len) : "");
-		    break;
-		}
-
-		default: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: Unknown (%u)",
-					type);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
-		    break;
-		}
-		}
-		break;
-
-	    case RSVP_CLASS_EXPLICIT_ROUTE : 
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_explicit_route);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		mylen = obj_length - 4;
-		switch(type) {
-		case 1: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 1");
-		    proto_item_set_text(ti, "EXPLICIT ROUTE: ");
-		    for (i=1, l = 0; l < mylen; i++) {
-			j = tvb_get_guint8(tvb, offset2+l) & 0x7f;
-			switch(j) {
-			case 1: /* IPv4 */
-			    k = tvb_get_guint8(tvb, offset2+l) & 0x80;
-			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
-						      offset2+l, 8,
-						      "IPv4 Subobject - %s, %s",
-						      ip_to_str(tvb_get_ptr(tvb, offset2+l+2, 4)),
-						      k ? "Loose" : "Strict");
-			    rsvp_ero_subtree = 
-				proto_item_add_subtree(ti2, ett_rsvp_explicit_route_subobj); 
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
-						k ? "Loose Hop " : "Strict Hop");
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
-						"Type: 1 (IPv4)");
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
-						"Length: %u",
-						tvb_get_guint8(tvb, offset2+l+1));
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+2, 4,
-						"IPv4 hop: %s",
-						ip_to_str(tvb_get_ptr(tvb, offset2+l+2, 4)));
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+6, 1, 
-						"Prefix length: %u",
-						tvb_get_guint8(tvb, offset2+l+6));
-			    if (i < 4) {
-				proto_item_append_text(ti, "IPv4 %s%s", 
-						       ip_to_str(tvb_get_ptr(tvb, offset2+l+2, 4)),
-						       k ? " [L]":"");
-			    }
-
-			    break;
-
-			case 2: /* IPv6 */
-			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
-						      offset2+l, 20,
-						      "IPv6 Subobject");
-			    rsvp_ero_subtree = 
-				proto_item_add_subtree(ti2, ett_rsvp_explicit_route_subobj); 
-			    k = tvb_get_guint8(tvb, offset2+l) & 0x80;
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
-						k ? "Loose Hop " : "Strict Hop");
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
-						"Type: 2 (IPv6)");
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
-						"Length: %u",
-						tvb_get_guint8(tvb, offset2+l+1));
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+2, 16,
-						"IPv6 hop: %s",
-						ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2+l+2, 16)));
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+18, 1,
-						"Prefix length: %u",
-						tvb_get_guint8(tvb, offset2+l+6));
-			    if (i < 4) {
-				proto_item_append_text(ti, "IPv6 [...]%s", k ? " [L]":"");
-			    }
-
-			    break;
-
-			case 3: /* Label */
-			    k = tvb_get_guint8(tvb, offset2+l) & 0x80;
-			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
-						      offset2+l, 8,
-						      "Label Subobject - %d, %s",
-						      tvb_get_ntohl(tvb, offset2+l+4), 
-						      k ? "Loose" : "Strict");
-			    rsvp_ero_subtree = 
-				proto_item_add_subtree(ti2, ett_rsvp_record_route_subobj); 
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
-						k ? "Loose Hop " : "Strict Hop");
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
-						"Type: 3 (Label)");
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
-						"Length: %u",
-						tvb_get_guint8(tvb, offset2+l+1));
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+2, 1,
-						"Flags: %0x", 
-						tvb_get_guint8(tvb, offset2+l+2));
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+3, 1,
-						"C-Type: %u",
-						tvb_get_guint8(tvb, offset2+l+3));
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+4, 4,
-						"Label: %d",
-						tvb_get_ntohl(tvb, offset2+l+4));
-			    if (i < 4) {
-				proto_item_append_text(ti, "Label %d%s", 
-						       tvb_get_ntohl(tvb, offset2+l+4), 
-						       k ? " [L]":"");
-			    }
-			    break;
-
-			case 4: /* Unnumbered Interface-ID */
-			    k = tvb_get_guint8(tvb, offset2+l) & 0x80;
-			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
-						      offset2+l, 8,
-						      "Unnumbered Interface-ID - %s, %d, %s",
-						      ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)),
-						      tvb_get_ntohl(tvb, offset2+l+8), 
-						      k ? "Loose" : "Strict");
-			    rsvp_ero_subtree = 
-				proto_item_add_subtree(ti2, ett_rsvp_explicit_route_subobj); 
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
-						k ? "Loose Hop " : "Strict Hop");
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
-						"Type: 4 (Unnumbered Interface-ID)");
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
-						"Length: %u",
-						tvb_get_guint8(tvb, offset2+l+1));
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+4, 4,
-						"Router-ID: %s",
-						ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)));
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+8, 4,
-						"Interface-ID: %d",
-						tvb_get_ntohl(tvb, offset2+l+8));
-			    if (i < 4) {
-				proto_item_append_text(ti, "Unnum %s/%d%s", 
-						       ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)),
-						       tvb_get_ntohl(tvb, offset2+l+8),
-						       k ? " [L]":"");
-			    }
-
-			    break;
-
-			case 32: /* AS */
-			    k = tvb_get_ntohs(tvb, offset2+l+2);
-			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
-						      offset2+l, 4,
-						      "Autonomous System %u",
-						      k);
-			    rsvp_ero_subtree = 
-				proto_item_add_subtree(ti2, ett_rsvp_explicit_route_subobj); 
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
-						"Type: 32 (Autonomous System Number)");
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
-						"Length: %u",
-						tvb_get_guint8(tvb, offset2+l+1));
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+2, 2,
-						"Autonomous System %u", k);
-			    if (i < 4) {
-				proto_item_append_text(ti, "AS %d", 
-						       tvb_get_ntohs(tvb, offset2+l+2));
-			    }
-
-			    break;
-
-			case 64: /* Path Term */
-			    k = tvb_get_guint8(tvb, offset2+l) & 0x80;
-			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
-						      offset2+l, 4,
-						      "LSP Path Termination");
-			    rsvp_ero_subtree = 
-				proto_item_add_subtree(ti2, ett_rsvp_explicit_route_subobj); 
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
-						k ? "Loose Hop " : "Strict Hop");
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
-						"Type: 64 (MPLS LSP Path Termination)");
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
-						"Length: %u",
-						tvb_get_guint8(tvb, offset2+l+1));
-			    if (i < 4) {
-				proto_item_append_text(ti, "Path Term");
-			    }
-			    break;
-
-			default: /* Unknown subobject */
-			    k = tvb_get_guint8(tvb, offset2+l) & 0x80;
-			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
-						      offset2+l,
-						      tvb_get_guint8(tvb, offset2+l+1),
-						      "Unknown subobject: %d", j);
-			    rsvp_ero_subtree = 
-				proto_item_add_subtree(ti2, ett_rsvp_explicit_route_subobj); 
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
-						k ? "Loose Hop " : "Strict Hop");
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
-						"Type: %u (Unknown)", j);
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
-						"Length: %u",
-						tvb_get_guint8(tvb, offset2+l+1));
-
-			}
-
-			l += tvb_get_guint8(tvb, offset2+l+1);
-			if (l < mylen) {
-			    if (i < 4)
-				proto_item_append_text(ti, ", ");
-			    else if (i==4)
-				proto_item_append_text(ti, "...");
-			}
-		    }
-		    break;
-		}
-		default: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: Unknown (%u)",
-					type);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
-		    break;
-		}
-		}
+	    case RSVP_CLASS_UPSTREAM_LABEL:
+	    case RSVP_CLASS_SUGGESTED_LABEL:
+	    case RSVP_CLASS_LABEL:
+		dissect_rsvp_label(ti, tvb, offset, obj_length, class, type, type_str);
 		break;
 	    
+	    case RSVP_CLASS_SESSION_ATTRIBUTE:
+		dissect_rsvp_session_attribute(ti, tvb, offset, obj_length, class, type, type_str);
+		break;
 
-	    case RSVP_CLASS_RECORD_ROUTE : 
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_record_route);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		proto_item_set_text(ti, "RECORD ROUTE: ");
-		mylen = obj_length - 4;
-		switch(type) {
-		case 1: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 1");
-		    for (i=1, l = 0; l < mylen; i++) {
-			j = tvb_get_guint8(tvb, offset2+l);
-			switch(j) {
-			case 1: /* IPv4 */
-			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
-						      offset2+l, 8,
-						      "IPv4 Subobject - %s",
-						      ip_to_str(tvb_get_ptr(tvb, offset2+l+2, 4)));
-			    rsvp_ero_subtree = 
-				proto_item_add_subtree(ti2, ett_rsvp_record_route_subobj); 
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
-						"Type: 1 (IPv4)");
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
-						"Length: %u",
-						tvb_get_guint8(tvb, offset2+l+1));
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+2, 4,
-						"IPv4 hop: %s",
-						ip_to_str(tvb_get_ptr(tvb, offset2+l+2, 4)));
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+6, 1,
-						"Prefix length: %u",
-						tvb_get_guint8(tvb, offset2+l+6));
-			    if (i < 4) {
-				proto_item_append_text(ti, "IPv4 %s", 
-						       ip_to_str(tvb_get_ptr(tvb, offset2+l+2, 4)));
-			    }
+	    case RSVP_CLASS_EXPLICIT_ROUTE:
+		dissect_rsvp_explicit_route(ti, tvb, offset, obj_length, class, type, type_str);
+		break;
 
-			    break;
-
-			case 2: /* IPv6 */
-			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
-						      offset2+l, 20,
-						      "IPv6 Subobject");
-			    rsvp_ero_subtree = 
-				proto_item_add_subtree(ti2, ett_rsvp_record_route_subobj); 
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
-						"Type: 2 (IPv6)");
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
-						"Length: %u",
-						tvb_get_guint8(tvb, offset2+l+1));
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+2, 16,
-						"IPv6 hop: %s",
-						ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset2+l+2, 16)));
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+18, 1,
-						"Prefix length: %u",
-						tvb_get_guint8(tvb, offset2+l+6));
-			    if (i < 4) {
-				proto_item_append_text(ti, "IPv6 [...]");
-			    }
-			    break;
-
-			case 3: /* Label */
-			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
-						      offset2+l, 8,
-						      "Label Subobject - %d",
-						      tvb_get_ntohl(tvb, offset2+l+4));
-			    rsvp_ero_subtree = 
-				proto_item_add_subtree(ti2, ett_rsvp_record_route_subobj); 
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
-						"Type: 3 (Label)");
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
-						"Length: %u",
-						tvb_get_guint8(tvb, offset2+l+1));
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+2, 1,
-						"Flags: %0x", 
-						tvb_get_guint8(tvb, offset2+l+2));
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+3, 1,
-						"C-Type: %u",
-						tvb_get_guint8(tvb, offset2+l+3));
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+4, 4,
-						"Label: %d",
-						tvb_get_ntohl(tvb, offset2+l+4));
-			    if (i < 4) {
-				proto_item_append_text(ti, "Label %d", 
-						       tvb_get_ntohl(tvb, offset2+l+4));
-			    }
-			    break;
-
-			case 4: /* Unnumbered Interface-ID */
-			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
-						      offset2+l, 8,
-						      "Unnumbered Interface-ID - %s, %d",
-						      ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)),
-						      tvb_get_ntohl(tvb, offset2+l+8));
-			    rsvp_ero_subtree = 
-				proto_item_add_subtree(ti2, ett_rsvp_record_route_subobj); 
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
-						"Type: 4 (Unnumbered Interface-ID)");
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
-						"Length: %u",
-						tvb_get_guint8(tvb, offset2+l+1));
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
-						"Flags: %u",
-						tvb_get_guint8(tvb, offset2+l+2));
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+4, 4,
-						"Router-ID: %s",
-						ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)));
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+8, 4,
-						"Interface-ID: %d",
-						tvb_get_ntohl(tvb, offset2+l+8));
-			    if (i < 4) {
-				proto_item_append_text(ti, "Unnum %s/%d", 
-						       ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)),
-						       tvb_get_ntohl(tvb, offset2+l+8));
-			    }
-			    break;
-
-			default: /* Unknown subobject */
-			    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, 
-						      offset2+l,
-						      tvb_get_guint8(tvb, offset2+l+1),
-						      "Unknown subobject: %u",
-						      j);
-			    rsvp_ero_subtree = 
-				proto_item_add_subtree(ti2, ett_rsvp_record_route_subobj); 
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l, 1,
-						"Type: %u (Unknown)", j);
-			    proto_tree_add_text(rsvp_ero_subtree, tvb, offset2+l+1, 1,
-						"Length: %u",
-						tvb_get_guint8(tvb, offset2+l+1));
-
-			}
-
-			l += tvb_get_guint8(tvb, offset2+l+1);
-			if (l < mylen) {
-			    if (i < 4)
-				proto_item_append_text(ti, ", ");
-			    else if (i==4)
-				proto_item_append_text(ti, "...");
-			}
-		    }
-		    break;
-		}
-		
-		default: {
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: Unknown (%u)",
-					type);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
-		    break;
-		}
-		}
+	    case RSVP_CLASS_RECORD_ROUTE:
+		dissect_rsvp_record_route(ti, tvb, offset, obj_length, class, type, type_str);
 		break;
 	    
-	    case RSVP_CLASS_MESSAGE_ID :
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_policy);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-                switch(type) {
-                case 1: 
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 1");
-                    proto_tree_add_text(rsvp_object_tree, tvb, offset+4, 1,
-                                        "Flags: %d", tvb_get_guint8(tvb, offset+4));
-                    proto_tree_add_text(rsvp_object_tree, tvb, offset+5, 3,
-                                        "Epoch: %d", tvb_get_ntoh24(tvb, offset+5));
-                    proto_tree_add_text(rsvp_object_tree, tvb, offset+8, 4,
-                                        "Message-ID: %d", tvb_get_ntohl(tvb, offset+8));
-                    proto_item_set_text(ti, "MESSAGE-ID: %d %s", 
-                                        tvb_get_ntohl(tvb, offset+8), 
-                                        tvb_get_guint8(tvb, offset+4) & 1 ? "(Ack Desired)" : "");
-                    break;
-
-                default:
-                    mylen = obj_length - 4;
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: Unknown (%u)",
-					type);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
-		    break;
-                }
+	    case RSVP_CLASS_MESSAGE_ID:
+		dissect_rsvp_message_id(ti, tvb, offset, obj_length, class, type, type_str);
                 break;
 
-	    case RSVP_CLASS_MESSAGE_ID_ACK :
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_policy);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-                switch(type) {
-                case 1: 
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 1");
-                    proto_tree_add_text(rsvp_object_tree, tvb, offset+4, 1,
-                                        "Flags: %d", tvb_get_guint8(tvb, offset+4));
-                    proto_tree_add_text(rsvp_object_tree, tvb, offset+5, 3,
-                                        "Epoch: %d", tvb_get_ntoh24(tvb, offset+5));
-                    proto_tree_add_text(rsvp_object_tree, tvb, offset+8, 4,
-                                        "Message-ID: %d", tvb_get_ntohl(tvb, offset+8));
-                    proto_item_set_text(ti, "MESSAGE-ID ACK: %d", tvb_get_ntohl(tvb, offset+8));
-                    break;
-
-                case 2: 
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 2");
-                    proto_tree_add_text(rsvp_object_tree, tvb, offset+4, 1,
-                                        "Flags: %d", tvb_get_guint8(tvb, offset+4));
-                    proto_tree_add_text(rsvp_object_tree, tvb, offset+5, 3,
-                                        "Epoch: %d", tvb_get_ntoh24(tvb, offset+5));
-                    proto_tree_add_text(rsvp_object_tree, tvb, offset+8, 4,
-                                        "Message-ID: %d", tvb_get_ntohl(tvb, offset+8));
-                    proto_item_set_text(ti, "MESSAGE-ID NACK: %d", tvb_get_ntohl(tvb, offset+8));
-                    break;
-
-                default:
-                    mylen = obj_length - 4;
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: Unknown (%u)",
-					type);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
-		    break;
-                }
+	    case RSVP_CLASS_MESSAGE_ID_ACK:
+		dissect_rsvp_message_id_ack(ti, tvb, offset, obj_length, class, type, type_str);
                 break;
 
-	    case RSVP_CLASS_MESSAGE_ID_LIST :
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_policy);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-                switch(type) {
-                case 1: 
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 1");
-                    proto_tree_add_text(rsvp_object_tree, tvb, offset+4, 1,
-                                        "Flags: %d", tvb_get_guint8(tvb, offset+4));
-                    proto_tree_add_text(rsvp_object_tree, tvb, offset+5, 3,
-                                        "Epoch: %d", tvb_get_ntoh24(tvb, offset+5));
-                    for (mylen = 8; mylen < obj_length; mylen += 4)
-                        proto_tree_add_text(rsvp_object_tree, tvb, offset+mylen, 4,
-                                            "Message-ID: %d", tvb_get_ntohl(tvb, offset+mylen));
-                    proto_item_set_text(ti, "MESSAGE-ID LIST: %d IDs", 
-                                        (obj_length - 8)/4);
-                    break;
-
-                default:
-                    mylen = obj_length - 4;
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: Unknown (%u)",
-					type);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
-		    break;
-                }
+	    case RSVP_CLASS_MESSAGE_ID_LIST:
+		dissect_rsvp_message_id_list(ti, tvb, offset, obj_length, class, type, type_str);
                 break;
 
 	    case RSVP_CLASS_HELLO:
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_hello_obj);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);        
-		switch(type) {
-		    case 1:
-		      proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-Type: 1 - HELLO REQUEST object");
-		      break;
-		    case 2:
-		      proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-Type: 2 - HELLO ACK object");
-		      break;
-		};
-
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+4, 4,
-				    "Source Instance: 0x%x",tvb_get_ntohl(tvb, offset+4));
-   
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+8, 4,
-				    "Destination Instance: 0x%x",tvb_get_ntohl(tvb, offset+8));
-   
+		dissect_rsvp_hello(ti, tvb, offset, obj_length, class, type, type_str);
 		break;
 
 	    case RSVP_CLASS_DCLASS:
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_dclass);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		proto_item_set_text(ti, "DCLASS: ");
-                switch(type) {
-                case 1: 
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 1");
-                    for (mylen = 4; mylen < obj_length; mylen += 4) {
-                        proto_tree_add_text(rsvp_object_tree, tvb, offset+mylen+3, 1,
-                                            "DSCP: %s", 
-					    val_to_str(tvb_get_guint8(tvb, offset+mylen+3),
-						       dscp_vals, "Unknown (%d)"));
-			proto_item_append_text(ti, "%d%s", 
-					       tvb_get_guint8(tvb, offset+mylen+3)>>2,
-					       mylen==obj_length-4 ? "" : 
-					       mylen<16 ? ", " : 
-					       mylen==16 ? ", ..." : "");
-		    }
-                    break;
-
-                default:
-                    mylen = obj_length - 4;
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: Unknown (%u)",
-					type);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
-		    break;
-                }
+		dissect_rsvp_dclass(ti, tvb, offset, obj_length, class, type, type_str);
                 break;
 
-	    case RSVP_CLASS_ADMIN_STATUS: {
-		guint32 status;
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_admin_status);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		proto_item_set_text(ti, "ADMIN STATUS: ");
-                switch(type) {
-                case 1: 
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 1");
-		    status = tvb_get_ntohl(tvb, offset2);
-		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4,
-					      "Admin Status: 0x%08x", status);
-		    rsvp_admin_subtree = 
-			proto_item_add_subtree(ti2, ett_rsvp_admin_status_flags); 
-		    proto_tree_add_text(rsvp_admin_subtree, tvb, offset2, 1,
-					(status & (1<<31)) ? 
-					"R: 1. Reflect" : 
-					"R: 0. Do not reflect");
-		    proto_tree_add_text(rsvp_admin_subtree, tvb, offset2+3, 1,
-					(status & (1<<2)) ? 
-					"T: 1. Testing" : 
-					"T: 0. ");
-		    proto_tree_add_text(rsvp_admin_subtree, tvb, offset2+3, 1,
-					(status & (1<<1)) ? 
-					"A: 1. Administratively down" : 
-					"A: 0. ");
-		    proto_tree_add_text(rsvp_admin_subtree, tvb, offset2+3, 1,
-					(status & 1) ? 
-					"D: 1. Deletion in progress" : 
-					"D: 0. ");
-                    proto_item_set_text(ti, "ADMIN-STATUS: %s %s %s %s", 
-					(status & (1<<31)) ? "Reflect" : "",
-					(status & (1<<2))  ? "Testing" : "",
-					(status & (1<<1))  ? "Admin-Down" : "",
-					(status & (1<<0))  ? "Deleting" : "");
-		    break;
-
-                default:
-                    mylen = obj_length - 4;
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: Unknown (%u)",
-					type);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
-		    break;
-                }
-	    }
+	    case RSVP_CLASS_ADMIN_STATUS: 
+		dissect_rsvp_admin_status(ti, tvb, offset, obj_length, class, type, type_str);
                 break;
 
 	    case RSVP_CLASS_LSP_TUNNEL_IF_ID:
-		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_lsp_tunnel_if_id);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				    "Length: %u", obj_length);
-		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
-				    "Class number: %u - %s", 
-				    class, object_type);
-		proto_item_set_text(ti, "LSP INTERFACE-ID: ");
-                switch(type) {
-                case 1: 
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: 1 - IPv4");
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4, 
-					"Router ID: %s",
-					ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
-					"Interface ID: %u", tvb_get_ntohl(tvb, offset2+4));
-                    proto_item_set_text(ti, "LSP INTERFACE-ID: IPv4, Router-ID %s, Interface-ID %d", 
-                                        ip_to_str(tvb_get_ptr(tvb, offset2, 4)),
-					tvb_get_ntohl(tvb, offset2+4));
-		    break;
-
-                default:
-                    mylen = obj_length - 4;
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
-					"C-type: Unknown (%u)",
-					type);
-		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
-					"Data (%d bytes)", mylen);
-		    break;
-                }
+		dissect_rsvp_lsp_tunnel_if_id(ti, tvb, offset, obj_length, class, type, type_str);
                 break;
 
-	    default :
+	    case RSVP_CLASS_GENERALIZED_UNI: 
+		dissect_rsvp_gen_uni(ti, tvb, offset, obj_length, class, type, type_str);
+		break;
+
+	    case RSVP_CLASS_NULL:
+	    default:
 		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_unknown_class);
 		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
 				    "Length: %u", obj_length);
 		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
 				    "Class number: %u - %s", 
-				    class, object_type);
-	    default_class:
-		mylen = obj_length - 4;
-		proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
-				    "Data (%d bytes)", mylen);
+				    class, type_str);
+		proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
+				    "Data (%d bytes)", obj_length - 4);
 		break;
-
-	    case RSVP_CLASS_NULL :
-		break;
-
 	    }  
 	    
 	    offset += obj_length;
@@ -2834,6 +3792,7 @@ proto_register_rsvp(void)
 		&ett_rsvp_adspec,
 		&ett_rsvp_adspec_subtree,
 		&ett_rsvp_integrity,
+		&ett_rsvp_integrity_flags,
 		&ett_rsvp_policy,
 		&ett_rsvp_label,
 		&ett_rsvp_label_request,
@@ -2848,6 +3807,8 @@ proto_register_rsvp(void)
 		&ett_rsvp_lsp_tunnel_if_id,
 		&ett_rsvp_admin_status,
 		&ett_rsvp_admin_status_flags,
+		&ett_rsvp_gen_uni,
+		&ett_rsvp_gen_uni_subobj,
 		&ett_rsvp_unknown_class,
 	};
 
