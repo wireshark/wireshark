@@ -219,6 +219,14 @@ ethereal -i eth0 -k
 	      </para>
 	    </listitem>
 	  </varlistentry>
+	  <varlistentry><term><command>IP address</command></term>
+	    <listitem>
+	      <para>
+		  The IP address(es) of the selected interface. If no address could 
+		  be resolved from the system, "unknown" will be shown.
+	      </para>
+	    </listitem>
+	  </varlistentry>
 	  <varlistentry><term><command>Link-layer header type</command></term>
 	    <listitem>
 	      <para>
