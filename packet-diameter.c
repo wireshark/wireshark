@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.67 2004/04/17 03:02:01 guy Exp $
+ * $Id: packet-diameter.c,v 1.68 2004/04/25 10:40:42 etxrab Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -229,6 +229,9 @@ static gboolean gbl_diameter_desegment = TRUE;
 
 /* Allow zero as a valid application ID */
 static gboolean allow_zero_as_app_id = FALSE;
+
+/* Supress console output at unknown AVP:s,Flags etc */
+static gboolean suppress_console_output = TRUE;
 
 #define DICT_FN  "diameter/dictionary.xml"
 static gchar *gbl_diameterDictionary;
@@ -863,10 +866,12 @@ diameter_command_to_str(guint32 commandCode, guint32 vendorId)
 	}
   }
 
-  g_warning("Diameter: Unable to find name for command code 0x%08x, Vendor \"%u\"!",
+  if ( suppress_console_output == FALSE )
+	  g_warning("Diameter: Unable to find name for command code 0x%08x, Vendor \"%u\"!",
 			commandCode, vendorId);
   snprintf(buffer, sizeof(buffer),
 		   "Cmd-0x%08x", commandCode);
+  
   return buffer;
 }/*diameter_command_to_str */
 
@@ -917,7 +922,8 @@ diameter_avp_get_type(guint32 avpCode, guint32 vendorId){
   }
 
   /* If we don't find it, assume it's data */
-  g_warning("Diameter: Unable to find type for avpCode %u, Vendor %u!", avpCode,
+  if ( suppress_console_output == FALSE )
+	  g_warning("Diameter: Unable to find type for avpCode %u, Vendor %u!", avpCode,
 			vendorId);
   return DIAMETER_OCTET_STRING;
 } /* diameter_avp_get_type */
@@ -951,8 +957,8 @@ diameter_avp_get_name(guint32 avpCode, guint32 vendorId)
 	  }
 	}
   }
-
-  g_warning("Diameter: Unable to find name for AVP 0x%08x, Vendor %u!",
+  if ( suppress_console_output == FALSE )
+	  g_warning("Diameter: Unable to find name for AVP 0x%08x, Vendor %u!",
 			avpCode, vendorId);
 
   /* If we don't find it, build a name string */
@@ -1112,17 +1118,19 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Short packet.  Should have at LEAST one avp */
   if (pktLength < MIN_DIAMETER_SIZE) {
-	g_warning("Diameter: Packet too short: %u bytes less than min size (%lu bytes))",
+	  if ( suppress_console_output == FALSE )
+		  g_warning("Diameter: Packet too short: %u bytes less than min size (%lu bytes))",
 			  pktLength, (unsigned long)MIN_DIAMETER_SIZE);
-	BadPacket = TRUE;
+	  BadPacket = TRUE;
   }
 
   /* And, check our reserved flags/version */
   if ((flags & DIAM_FLAGS_RESERVED) ||
 	  (version != 1)) {
-	g_warning("Diameter: Bad packet: Bad Flags(0x%x) or Version(%u)",
+	  if ( suppress_console_output == FALSE )
+		  g_warning("Diameter: Bad packet: Bad Flags(0x%x) or Version(%u)",
 			  flags, version);
-	BadPacket = TRUE;
+	  BadPacket = TRUE;
   }
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -1361,9 +1369,10 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 
 	/* Check for short packet */
 	if (packetLength < (long)MIN_AVP_SIZE) {
-	  g_warning("Diameter: AVP Payload too short: %d bytes less than min size (%ld bytes))",
+		if ( suppress_console_output == FALSE )
+			g_warning("Diameter: AVP Payload too short: %d bytes less than min size (%ld bytes))",
 				packetLength, (long)MIN_AVP_SIZE);
-	  BadPacket = TRUE;
+		BadPacket = TRUE;
 	  /* Don't even bother trying to parse a short packet. */
 	  return;
 	}
@@ -1417,16 +1426,18 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 	/* Check for bad length */
 	if (avpLength < MIN_AVP_SIZE ||
 		((long)avpLength > packetLength)) {
-	  g_warning("Diameter: AVP payload size invalid: avp_length: %ld bytes,  "
+		if ( suppress_console_output == FALSE )
+			g_warning("Diameter: AVP payload size invalid: avp_length: %ld bytes,  "
 				"min: %ld bytes,    packetLen: %d",
 				(long)avpLength, (long)MIN_AVP_SIZE,
 				packetLength);
-	  BadPacket = TRUE;
+		BadPacket = TRUE;
 	}
 
 	/* Check for bad flags */
 	if (flags & AVP_FLAGS_RESERVED) {
-	  g_warning("Diameter: Invalid AVP: Reserved bit set.  flags = 0x%x,"
+		if ( suppress_console_output == FALSE )
+			g_warning("Diameter: Invalid AVP: Reserved bit set.  flags = 0x%x,"
 				" resFl=0x%x",
 				flags, AVP_FLAGS_RESERVED);
 	  /* For now, don't set bad packet, since I'm accidentally setting a wrong bit 
@@ -1446,9 +1457,10 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 
 	/* Check for out of bounds */
 	if (packetLength < 0) {
-	  g_warning("Diameter: Bad AVP: Bad new length (%d bytes) ",
+		if ( suppress_console_output == FALSE )
+			g_warning("Diameter: Bad AVP: Bad new length (%d bytes) ",
 				packetLength);
-	  BadPacket = TRUE;
+		BadPacket = TRUE;
 	}
 
 	/* Make avp Name & type */
@@ -1939,6 +1951,13 @@ proto_register_diameter(void)
 			"If set, the value 0 (zero) can be used as a valid "
 			"application ID. This is used in experimental cases.",
 			&allow_zero_as_app_id);
+	/* Register some preferences we no longer support, so we can report
+	   them as obsolete rather than just illegal. */
+	/* Supress console output or not */
+	prefs_register_bool_preference(diameter_module, "suppress_console_output",
+			"Suppress console output for unknown AVP:s Flags etc.",
+			"If console output for errors should be suppressed or not",
+			&suppress_console_output);
 	/* Register some preferences we no longer support, so we can report
 	   them as obsolete rather than just illegal. */
 	prefs_register_obsolete_preference(diameter_module, "udp.port");
