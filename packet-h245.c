@@ -7,7 +7,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h245.c,v 1.43 2004/01/09 00:56:03 guy Exp $
+ * $Id: packet-h245.c,v 1.44 2004/01/10 13:49:52 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -13925,12 +13925,12 @@ dissect_h245_nonCollapsing_sequence_of(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 
-static int
-dissect_h245_secondary_REE_sequence_of(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
 /* XXX */
 static int dissect_h245_RedundancyEncodingElement(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
+static int
+dissect_h245_secondary_REE_sequence_of(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
 	offset=dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_h245_secondary_REE, ett_h245_secondary_REE, dissect_h245_RedundancyEncodingElement );
 	return offset;
 }
@@ -13938,12 +13938,12 @@ static int dissect_h245_RedundancyEncodingElement(tvbuff_t *tvb, int offset, pac
 
 
 
-static int
-dissect_h245_elements_MPSE_sequence_of(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
 /* XXX */
 static int dissect_h245_MultiplePayloadStreamElement(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
+static int
+dissect_h245_elements_MPSE_sequence_of(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
 	offset=dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_h245_elements_MPSE, ett_h245_elements_MPSE, dissect_h245_MultiplePayloadStreamElement );
 	return offset;
 }
@@ -13951,12 +13951,12 @@ static int dissect_h245_MultiplePayloadStreamElement(tvbuff_t *tvb, int offset, 
 
 
 
-static int
-dissect_h245_secondary_REDTME_sequence_of(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
 /* XXX */
 static int dissect_h245_RedundancyEncodingDTModeElement(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
+static int
+dissect_h245_secondary_REDTME_sequence_of(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
 	offset=dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_h245_secondary_REDTME, ett_h245_secondary_REDTME, dissect_h245_RedundancyEncodingDTModeElement );
 	return offset;
 }
@@ -13964,12 +13964,12 @@ static int dissect_h245_RedundancyEncodingDTModeElement(tvbuff_t *tvb, int offse
 
 
 
-static int
-dissect_h245_elements_MPSEM_sequence_of(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
 /* XXX*/
 static int dissect_h245_MultiplePayloadStreamElementMode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
+static int
+dissect_h245_elements_MPSEM_sequence_of(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
 	offset=dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_h245_elements_MPSEM, ett_h245_elements_MPSEM, dissect_h245_MultiplePayloadStreamElementMode );
 	return offset;
 }
