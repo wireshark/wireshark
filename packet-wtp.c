@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.19 2001/09/11 14:36:31 guy Exp $
+ * $Id: packet-wtp.c,v 1.20 2001/10/07 08:37:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -148,6 +148,7 @@ static int proto_wtp 							= HF_EMPTY;
 
 /* These fields used by fixed part of header */
 static int hf_wtp_header_fixed_part 			= HF_EMPTY;
+static int hf_wtp_header_sub_pdu_size 			= HF_EMPTY;
 static int hf_wtp_header_flag_continue 			= HF_EMPTY;
 static int hf_wtp_header_pdu_type 				= HF_EMPTY;
 static int hf_wtp_header_flag_Trailer 			= HF_EMPTY;
@@ -210,7 +211,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Set up structures we will need to add the protocol subtree and manage it */
 	proto_item *ti;
-	proto_tree *wtp_tree;
+	proto_tree *wtp_tree = NULL;
 	proto_tree *wtp_header_fixed;
 	
 	char pdut;
@@ -224,11 +225,38 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	fprintf( stderr, "dissect_wtp: (Entering) Frame data at %p\n", fdata ); 
 	fprintf( stderr, "dissect_wtp: tvb length is %d\n", tvb_reported_length( tvb ) ); 
 #endif
-	if (check_col(fdata, COL_INFO)) {
-		col_clear(fdata, COL_INFO);
-	};
-    
 	b0 = tvb_get_guint8 (tvb, offCur + 0);
+	/* Discover Concatenated PDUs */
+	if (b0 == 0) {
+		if (tree) {
+			wtp_tree = proto_tree_add_item(tree, proto_wtp, tvb, offCur, 1, bo_little_endian);
+		}
+		offCur = 1;
+		i = 1;
+		while (offCur < (int) tvb_reported_length (tvb)) {
+			b0 = tvb_get_guint8 (tvb, offCur + 0);
+			if (b0 & 0x80) {
+				vHeader = 2;
+				cbHeader = ((b0 & 0x7f) << 8) |
+							tvb_get_guint8 (tvb, offCur + 1);
+			} else {
+				vHeader = 1;
+				cbHeader = b0;
+			}
+		    if (tree) {
+				proto_tree_add_item(wtp_tree, hf_wtp_header_sub_pdu_size, tvb, offCur, vHeader, bo_big_endian);
+			}
+			if (i > 1 && check_col(fdata, COL_INFO)) {
+				col_append_str (fdata, COL_INFO, ", ");
+			}
+			wsp_tvb = tvb_new_subset(tvb,
+				offCur + vHeader, -1, cbHeader);
+			dissect_wtp_common (wsp_tvb, pinfo, wtp_tree);
+			offCur += vHeader + cbHeader;
+			i++;
+		}
+		return;
+	}
 	fCon = b0 & 0x80;
 	fRID = retransmission_indicator( b0 );
 	pdut = pdu_type( b0 );
@@ -288,11 +316,12 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* This field shows up as the "Info" column in the display; you should make
    it, if possible, summarize what's in the packet, so that a user looking
    at the list of packets can tell what type of packet it is. */
-	if (check_col(fdata, COL_INFO)) {
+	if (check_col(fdata, COL_INFO) &&
+		tvb_reported_length (tvb) <= cbHeader + vHeader) {
 #ifdef DEBUG
 		fprintf( stderr, "dissect_wtp: (6) About to set info_col header to %s\n", szInfo );
 #endif
-		col_add_str(fdata, COL_INFO, szInfo );
+		col_append_str(fdata, COL_INFO, szInfo );
 	};
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
@@ -457,6 +486,9 @@ dissect_wtp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "WTP+WSP" );
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_clear(pinfo->fd, COL_INFO);
+	}
 
 	dissect_wtp_common(tvb, pinfo, tree);
 }
@@ -475,6 +507,9 @@ dissect_wtp_fromwap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "WTLS+WTP+WSP" );
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_clear(pinfo->fd, COL_INFO);
+	}
 
 	dissect_wtp_common(tvb, pinfo, tree);
 }
@@ -519,6 +554,13 @@ proto_register_wtp(void)
 				"wtp.header_fixed_part",
 				FT_BYTES, BASE_HEX, NULL, 0x0,          
 				"Fixed part of the header", HFILL
+			}
+		},
+		{ &hf_wtp_header_sub_pdu_size,
+			{ 	"Sub PDU size",           
+				"wtp.sub_pdu_size",
+				FT_BYTES, BASE_HEX, NULL, 0x0,
+				"Size of Sub-PDU", HFILL
 			}
 		},
 		{ &hf_wtp_header_flag_continue,

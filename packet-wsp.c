@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.38 2001/09/28 18:59:30 guy Exp $
+ * $Id: packet-wsp.c,v 1.39 2001/10/07 08:37:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -225,6 +225,7 @@ static const value_string vals_status[] = {
 	{ 0x33, "See Other" },
 	{ 0x34, "Not Modified" },
 	{ 0x35, "Use Proxy" },
+	{ 0x37, "Temporary Redirect" },
 
 	{ 0x40, "Bad Request" },
 	{ 0x41, "Unauthorised" },
@@ -242,6 +243,8 @@ static const value_string vals_status[] = {
 	{ 0x4D, "Request Entity Too Large" },
 	{ 0x4E, "Request-URI Too Large" },
 	{ 0x4F, "Unsupported Media Type" },
+	{ 0x50, "Requested Range Not Satisfiable" },
+	{ 0x51, "Expectation Failed" },
 
 	{ 0x60, "Internal Server Error" },
 	{ 0x61, "Not Implemented" },
@@ -323,6 +326,10 @@ static const value_string vals_status[] = {
 #define FN_SET_COOKIE		0x41
 #define FN_COOKIE		0x42
 #define FN_ENCODING_VERSION	0x43
+#define FN_PROFILE_WARNING14	0x44	/* encoding version 1.4 */
+#define FN_CONTENT_DISPOSITION14	0x45	/* encoding version 1.4 */
+#define FN_X_WAP_SECURITY	0x46
+#define FN_CACHE_CONTROL14	0x47	/* encoding version 1.4 */
 
 static const value_string vals_field_names[] = {
 	{ FN_ACCEPT,               "Accept" },
@@ -393,6 +400,10 @@ static const value_string vals_field_names[] = {
 	{ FN_SET_COOKIE,           "Set-Cookie" },
 	{ FN_COOKIE,               "Cookie" },
 	{ FN_ENCODING_VERSION,     "Encoding-Version" },
+	{ FN_PROFILE_WARNING,      "Profile-Warning (encoding 1.4)" },
+	{ FN_CONTENT_DISPOSITION14,"Content-Disposition (encoding 1.4)" },
+	{ FN_X_WAP_SECURITY,       "X-WAP-Security" },
+	{ FN_CACHE_CONTROL14,      "Cache-Control (encoding 1.4)" },
 	{ 0,                       NULL }
 };	
 
@@ -721,7 +732,7 @@ typedef enum {
 
 static heur_dissector_list_t heur_subdissector_list;
 
-static void add_uri (proto_tree *, tvbuff_t *, guint, guint);
+static void add_uri (proto_tree *, frame_data *, tvbuff_t *, guint, guint);
 static void add_headers (proto_tree *, tvbuff_t *);
 static int add_well_known_header (proto_tree *, tvbuff_t *, int, guint8);
 static int add_unknown_header (proto_tree *, tvbuff_t *, int, guint8);
@@ -987,12 +998,6 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    it, if possible, summarize what's in the packet, so that a user looking
    at the list of packets can tell what type of packet it is. */
     
-	/* Clear the Info column before we fetch anything from the packet */
-	if (check_col(fdata, COL_INFO))
-	{
-		col_clear(fdata, COL_INFO);
-	}
-
 	/* Connection-less mode has a TID first */
 	if (is_connectionless)
 	{
@@ -1005,7 +1010,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* Develop the string to put in the Info column */
 	if (check_col(fdata, COL_INFO))
 	{
-		col_add_fstr(fdata, COL_INFO, "WSP %s",
+		col_append_fstr(fdata, COL_INFO, "WSP %s",
 			val_to_str (pdut, vals_pdu_type, "Unknown PDU type (0x%02x)"));
 	};
 
@@ -1128,12 +1133,12 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			break;
 
 		case GET:
-			if (tree) {
-				count = 0;	/* Initialise count */
+			count = 0;	/* Initialise count */
 				/* Length of URI and size of URILen field */
-				value = tvb_get_guintvar (tvb, offset, &count);
-				nextOffset = offset + count;
-				add_uri (wsp_tree, tvb, offset, nextOffset);
+			value = tvb_get_guintvar (tvb, offset, &count);
+			nextOffset = offset + count;
+			add_uri (wsp_tree, fdata, tvb, offset, nextOffset);
+			if (tree) {
 				offset += (value+count); /* VERIFY */
 				tmp_tvb = tvb_new_subset (tvb, offset, -1, -1);
 				add_headers (wsp_tree, tmp_tvb);
@@ -1149,8 +1154,8 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			headersLength = tvb_get_guintvar (tvb, headerStart, &count);
 			offset = headerStart + count;
 
+			add_uri (wsp_tree, fdata, tvb, uriStart, offset);
 			if (tree) {
-				add_uri (wsp_tree, tvb, uriStart, offset);
 				offset += uriLength;
 
 				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,headersLength);
@@ -1280,6 +1285,8 @@ dissect_wsp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "WSP" );
+	if (check_col(pinfo->fd, COL_INFO))
+		col_clear(pinfo->fd, COL_INFO);
 
 	dissect_wsp_common(tvb, pinfo, tree, dissect_wsp_fromudp, TRUE);
 }
@@ -1309,35 +1316,35 @@ dissect_wsp_fromwap_cl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * XXX - what about WTLS->WSP?
 	 */
+	if (check_col(pinfo->fd, COL_INFO))
+	{
+		col_clear(pinfo->fd, COL_INFO);
+	}
 	dissect_wsp_common(tvb, pinfo, tree, dissect_wtp_fromudp, TRUE);
 }
 
 static void
-add_uri (proto_tree *tree, tvbuff_t *tvb, guint URILenOffset, guint URIOffset)
+add_uri (proto_tree *tree, frame_data *fdata, tvbuff_t *tvb, guint URILenOffset, guint URIOffset)
 {
 	proto_item *ti;
-	guint8 terminator = 0;
 	char *newBuffer;
 
 	guint count = 0;
 	guint uriLen = tvb_get_guintvar (tvb, URILenOffset, &count);
 
-	ti = proto_tree_add_uint (tree, hf_wsp_header_uri_len,tvb,URILenOffset,count,uriLen);
+	if (tree)
+		ti = proto_tree_add_uint (tree, hf_wsp_header_uri_len,tvb,URILenOffset,count,uriLen);
 
-	/* If string doesn't end with a 0x00, we need to add one to be on the safe side */
-	terminator = tvb_get_guint8 (tvb, URIOffset+uriLen-1);
-	if (terminator != 0)
-	{
-		newBuffer = g_malloc (uriLen+1);
-		strncpy (newBuffer, tvb_get_ptr (tvb, URIOffset, uriLen), uriLen);
-		newBuffer[uriLen] = 0;
-		ti = proto_tree_add_string (tree, hf_wsp_header_uri,tvb,URIOffset,uriLen,newBuffer);
-		g_free (newBuffer);
-	}
-	else
-	{
-		ti = proto_tree_add_item (tree, hf_wsp_header_uri,tvb,URIOffset,uriLen,bo_little_endian);
-	}
+	newBuffer = g_malloc (uriLen+2);
+	newBuffer[0] = ' ';  /* This is for COL_INFO */
+	strncpy (newBuffer+1, tvb_get_ptr (tvb, URIOffset, uriLen), uriLen);
+	newBuffer[uriLen+1] = 0;
+	if (tree)
+		ti = proto_tree_add_string (tree, hf_wsp_header_uri,tvb,URIOffset,uriLen,newBuffer+1);
+	if (check_col(fdata, COL_INFO)) {
+		col_append_str(fdata, COL_INFO, newBuffer);
+	};
+	g_free (newBuffer);
 }
 
 static void
@@ -2584,7 +2591,7 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
 			case 0x06 : /* Header Code Pages */ 
 				offsetStr = offset;
 				offset++;
-				add_capability_vals(tvb, TRUE,
+				add_capability_vals(tvb, (type == CONNECT),
 				    offsetStr, length, capabilitiesStart,
 				    valString, sizeof valString);
 				proto_tree_add_string(wsp_capabilities, hf_wsp_capabilities_header_code_pages, tvb, capabilitiesStart, length+1, valString);

@@ -1160,6 +1160,7 @@ B<http://www.ethereal.com>.
   Endoh Akira              <endoh[AT]netmarks.co.jp>
   Graeme Hewson            <graeme.hewson[AT]oracle.com>
   Pasi Eronen              <pasi.eronen[at]nixu.com>
+  Georg von Zezschwitz     <gvz[AT]2scale.net>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
