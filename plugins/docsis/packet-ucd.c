@@ -2,7 +2,7 @@
  * Routines for UCD Message dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-ucd.c,v 1.5 2003/05/28 14:52:53 gerald Exp $
+ * $Id: packet-ucd.c,v 1.6 2003/09/09 06:59:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,6 +80,8 @@ static int hf_docsis_ucd_upstream_chid = -1;
 static int hf_docsis_ucd_config_ch_cnt = -1;
 static int hf_docsis_ucd_mini_slot_size = -1;
 static int hf_docsis_ucd_down_chid = -1;
+static int hf_docsis_ucd_type = -1;
+static int hf_docsis_ucd_length = -1;
 static int hf_docsis_ucd_symbol_rate = -1;
 static int hf_docsis_ucd_frequency = -1;
 static int hf_docsis_ucd_preamble_pat = -1;
@@ -99,7 +101,7 @@ static int hf_docsis_burst_scrambler_onoff = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_docsis_ucd = -1;
-static gint ett_burst_descr = -1;
+static gint ett_tlv = -1;
 
 static const value_string channel_tlv_vals[] = {
   {UCD_SYMBOL_RATE, "Symbol Rate"},
@@ -152,10 +154,10 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   guint16 pos, endtlvpos;
   guint8 type, length;
   guint8 tlvlen, tlvtype;
-  proto_tree *burst_descr_tree;
-  proto_item *it;
   proto_tree *ucd_tree;
   proto_item *ucd_item;
+  proto_tree *tlv_tree;
+  proto_item *tlv_item;
   guint16 len;
   guint8 upchid, symrate;
 
@@ -195,15 +197,27 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       pos = 4;
       while (pos < len)
 	{
-	  type = tvb_get_guint8 (tvb, pos++);
-	  length = tvb_get_guint8 (tvb, pos++);
+	  type = tvb_get_guint8 (tvb, pos);
+	  tlv_item = proto_tree_add_text (ucd_tree, tvb, pos, -1,
+					  "%s",
+					  val_to_str(type, channel_tlv_vals,
+						     "Unknown TLV (%u)"));  
+	  tlv_tree = proto_item_add_subtree (tlv_item, ett_tlv);
+	  proto_tree_add_uint (tlv_tree, hf_docsis_ucd_type,
+			       tvb, pos, 1, type);
+	  pos++;
+	  length = tvb_get_guint8 (tvb, pos);
+	  proto_tree_add_uint (tlv_tree, hf_docsis_ucd_length,
+			       tvb, pos, 1, length);
+	  pos++;
+	  proto_item_set_len(tlv_item, length + 2);
 	  switch (type)
 	    {
 	    case UCD_SYMBOL_RATE:
 	      if (length == 1)
 		{
 		  symrate = tvb_get_guint8 (tvb, pos);
-		  proto_tree_add_uint (ucd_tree, hf_docsis_ucd_symbol_rate,
+		  proto_tree_add_uint (tlv_tree, hf_docsis_ucd_symbol_rate,
 				       tvb, pos, length, symrate * 160);
 		}
 	      else
@@ -215,7 +229,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	    case UCD_FREQUENCY:
 	      if (length == 4)
 		{
-		  proto_tree_add_item (ucd_tree, hf_docsis_ucd_frequency, tvb,
+		  proto_tree_add_item (tlv_tree, hf_docsis_ucd_frequency, tvb,
 				       pos, length, FALSE);
 		  pos = pos + length;
 		}
@@ -225,17 +239,12 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		}
 	      break;
 	    case UCD_PREAMBLE:
-	      proto_tree_add_item (ucd_tree, hf_docsis_ucd_preamble_pat, tvb,
+	      proto_tree_add_item (tlv_tree, hf_docsis_ucd_preamble_pat, tvb,
 				   pos, length, FALSE);
 	      pos = pos + length;
 	      break;
 	    case UCD_BURST_DESCR:
-	      it =
-		proto_tree_add_text (ucd_tree, tvb, pos, length,
-				     "4 Burst Descriptor (Length = %u)",
-				     length);
-	      burst_descr_tree = proto_item_add_subtree (it, ett_burst_descr);
-	      proto_tree_add_item (burst_descr_tree, hf_docsis_ucd_iuc, tvb,
+	      proto_tree_add_item (tlv_tree, hf_docsis_ucd_iuc, tvb,
 				   pos++, 1, FALSE);
 	      endtlvpos = pos + length - 1;
 	      while (pos < endtlvpos)
@@ -247,7 +256,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		    case UCD_MODULATION:
 		      if (tlvlen == 1)
 			{
-			  proto_tree_add_item (burst_descr_tree,
+			  proto_tree_add_item (tlv_tree,
 					       hf_docsis_burst_mod_type, tvb,
 					       pos, tlvlen, FALSE);
 			}
@@ -259,7 +268,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		    case UCD_DIFF_ENCODING:
 		      if (tlvlen == 1)
 			{
-			  proto_tree_add_item (burst_descr_tree,
+			  proto_tree_add_item (tlv_tree,
 					       hf_docsis_burst_diff_encoding,
 					       tvb, pos, tlvlen, FALSE);
 			}
@@ -271,7 +280,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		    case UCD_PREAMBLE_LEN:
 		      if (tlvlen == 2)
 			{
-			  proto_tree_add_item (burst_descr_tree,
+			  proto_tree_add_item (tlv_tree,
 					       hf_docsis_burst_preamble_len,
 					       tvb, pos, tlvlen, FALSE);
 			}
@@ -283,7 +292,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		    case UCD_PREAMBLE_VAL_OFF:
 		      if (tlvlen == 2)
 			{
-			  proto_tree_add_item (burst_descr_tree,
+			  proto_tree_add_item (tlv_tree,
 					       hf_docsis_burst_preamble_val_off,
 					       tvb, pos, tlvlen, FALSE);
 			}
@@ -295,7 +304,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		    case UCD_FEC:
 		      if (tlvlen == 1)
 			{
-			  proto_tree_add_item (burst_descr_tree,
+			  proto_tree_add_item (tlv_tree,
 					       hf_docsis_burst_fec, tvb, pos,
 					       tlvlen, FALSE);
 			}
@@ -307,7 +316,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		    case UCD_FEC_CODEWORD:
 		      if (tlvlen == 1)
 			{
-			  proto_tree_add_item (burst_descr_tree,
+			  proto_tree_add_item (tlv_tree,
 					       hf_docsis_burst_fec_codeword,
 					       tvb, pos, tlvlen, FALSE);
 			}
@@ -319,7 +328,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		    case UCD_SCRAMBLER_SEED:
 		      if (tlvlen == 2)
 			{
-			  proto_tree_add_item (burst_descr_tree,
+			  proto_tree_add_item (tlv_tree,
 					       hf_docsis_burst_scrambler_seed,
 					       tvb, pos, tlvlen, FALSE);
 			}
@@ -331,7 +340,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		    case UCD_MAX_BURST:
 		      if (tlvlen == 1)
 			{
-			  proto_tree_add_item (burst_descr_tree,
+			  proto_tree_add_item (tlv_tree,
 					       hf_docsis_burst_max_burst, tvb,
 					       pos, tlvlen, FALSE);
 			}
@@ -343,7 +352,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		    case UCD_GUARD_TIME:
 		      if (tlvlen == 1)
 			{
-			  proto_tree_add_item (burst_descr_tree,
+			  proto_tree_add_item (tlv_tree,
 					       hf_docsis_burst_guard_time,
 					       tvb, pos, tlvlen, FALSE);
 			}
@@ -355,7 +364,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		    case UCD_LAST_CW_LEN:
 		      if (tlvlen == 1)
 			{
-			  proto_tree_add_item (burst_descr_tree,
+			  proto_tree_add_item (tlv_tree,
 					       hf_docsis_burst_last_cw_len,
 					       tvb, pos, tlvlen, FALSE);
 			}
@@ -367,7 +376,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		    case UCD_SCRAMBLER_ONOFF:
 		      if (tlvlen == 1)
 			{
-			  proto_tree_add_item (burst_descr_tree,
+			  proto_tree_add_item (tlv_tree,
 					       hf_docsis_burst_scrambler_onoff,
 					       tvb, pos, tlvlen, FALSE);
 			}
@@ -419,18 +428,28 @@ proto_register_docsis_ucd (void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Management Message", HFILL}
      },
+    {&hf_docsis_ucd_type,
+     {"TLV Type", "docsis.ucd.type",
+      FT_UINT8, BASE_DEC, VALS(channel_tlv_vals), 0x0,
+      "Channel TLV type", HFILL}
+     },
+    {&hf_docsis_ucd_length,
+     {"TLV Length", "docsis.ucd.length",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Channel TLV length", HFILL}
+     },
     {&hf_docsis_ucd_symbol_rate,
-     {"1 Symbol Rate (ksym/sec)", "docsis.ucd.symrate",
+     {"Symbol Rate (ksym/sec)", "docsis.ucd.symrate",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Symbol Rate", HFILL}
      },
     {&hf_docsis_ucd_frequency,
-     {"2 Frequency (Hz)", "docsis.ucd.freq",
+     {"Frequency (Hz)", "docsis.ucd.freq",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       "Upstream Center Frequency", HFILL}
      },
     {&hf_docsis_ucd_preamble_pat,
-     {"3 Preamble Pattern", "docsis.ucd.preamble",
+     {"Preamble Pattern", "docsis.ucd.preamble",
       FT_BYTES, BASE_HEX, NULL, 0x0,
       "Preamble Superstring", HFILL}
      },
@@ -499,7 +518,7 @@ proto_register_docsis_ucd (void)
 /* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_docsis_ucd,
-    &ett_burst_descr,
+    &ett_tlv,
   };
 
 /* Register the protocol name and description */
