@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.198 2003/07/11 09:30:49 guy Exp $
+ * $Id: packet-tcp.c,v 1.199 2003/07/16 00:04:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1012,7 +1012,7 @@ tcp_analyze_seq_init(void)
 		tcp_rel_seq_table = NULL;
 	}
 	if( tcp_pdu_tracking_table ){
-		g_hash_table_foreach_remove(tcp_rel_seq_table,
+		g_hash_table_foreach_remove(tcp_pdu_tracking_table,
 			free_all_acked, NULL);
 		g_hash_table_destroy(tcp_pdu_tracking_table);
 		tcp_pdu_tracking_table = NULL;
