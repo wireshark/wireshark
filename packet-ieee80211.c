@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.68 2002/06/19 17:57:23 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.69 2002/06/22 10:24:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2554,7 +2554,7 @@ static int wep_decrypt(guint8 *buf, guint32 len, int key_override) {
 static void init_wepkeys(void) {
   char *tmp, *tmp2;
   guint8 *tmp3;
-  uint i, j;
+  guint i, j;
 
 #ifdef USE_ENV
   guint8 buf[128];
