@@ -3,7 +3,7 @@
  * (From IEEE Draft P802.1X/D11; is there a later draft, or a
  * final standard?  If so, check it.)
  *
- * $Id: packet-eapol.c,v 1.8 2002/02/22 23:05:16 guy Exp $
+ * $Id: packet-eapol.c,v 1.9 2002/03/11 08:47:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -160,7 +160,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       key_index_tree = proto_item_add_subtree(ti, ett_eapol_key_index);
       proto_tree_add_boolean(eapol_tree, hf_eapol_keydes_key_index_keytype,
 			     tvb, offset, 1, key_index);
-      proto_tree_add_boolean(eapol_tree, hf_eapol_keydes_key_index_indexnum,
+      proto_tree_add_uint(eapol_tree, hf_eapol_keydes_key_index_indexnum,
 			     tvb, offset, 1, key_index);
       offset += 1;
       proto_tree_add_item(eapol_tree, hf_eapol_keydes_key_signature, tvb,
