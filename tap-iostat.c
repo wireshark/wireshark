@@ -1,7 +1,7 @@
 /* tap-iostat.c
  * iostat   2002 Ronnie Sahlberg
  *
- * $Id: tap-iostat.c,v 1.8 2003/04/29 08:47:20 sahlberg Exp $
+ * $Id: tap-iostat.c,v 1.9 2003/12/02 21:15:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -118,7 +118,7 @@ iostat_packet(io_stat_item_t *mit, packet_info *pinfo, epan_dissect_t *edt _U_, 
 		gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
 		if(gp){
 			for(i=0;i<gp->len;i++){
-				it->counter+=fvalue_get_integer(((field_info *)gp->pdata[i])->value);
+				it->counter+=fvalue_get_integer(&((field_info *)gp->pdata[i])->value);
 			}
 		}
 		break;
@@ -136,7 +136,7 @@ iostat_packet(io_stat_item_t *mit, packet_info *pinfo, epan_dissect_t *edt _U_, 
 				case FT_UINT16:
 				case FT_UINT24:
 				case FT_UINT32:
-					val=fvalue_get_integer(((field_info *)gp->pdata[i])->value);
+					val=fvalue_get_integer(&((field_info *)gp->pdata[i])->value);
 					if((it->frames==1)&&(i==0)){
 						it->counter=val;
 					} else if(val<it->counter){
@@ -147,7 +147,7 @@ iostat_packet(io_stat_item_t *mit, packet_info *pinfo, epan_dissect_t *edt _U_, 
 				case FT_INT16:
 				case FT_INT24:
 				case FT_INT32:
-					val=fvalue_get_integer(((field_info *)gp->pdata[i])->value);
+					val=fvalue_get_integer(&((field_info *)gp->pdata[i])->value);
 					if((it->frames==1)&&(i==0)){
 						it->counter=val;
 					} else if((gint32)val<(gint32)(it->counter)){
@@ -155,7 +155,7 @@ iostat_packet(io_stat_item_t *mit, packet_info *pinfo, epan_dissect_t *edt _U_, 
 					}				
 					break;
 				case FT_RELATIVE_TIME:
-					new_time=fvalue_get(((field_info *)gp->pdata[i])->value);
+					new_time=fvalue_get(&((field_info *)gp->pdata[i])->value);
 					val=new_time->secs*1000+new_time->nsecs/1000000;
 					if((it->frames==1)&&(i==0)){
 						it->counter=val;
@@ -181,7 +181,7 @@ iostat_packet(io_stat_item_t *mit, packet_info *pinfo, epan_dissect_t *edt _U_, 
 				case FT_UINT16:
 				case FT_UINT24:
 				case FT_UINT32:
-					val=fvalue_get_integer(((field_info *)gp->pdata[i])->value);
+					val=fvalue_get_integer(&((field_info *)gp->pdata[i])->value);
 					if((it->frames==1)&&(i==0)){
 						it->counter=val;
 					} else if(val>it->counter){
@@ -192,7 +192,7 @@ iostat_packet(io_stat_item_t *mit, packet_info *pinfo, epan_dissect_t *edt _U_, 
 				case FT_INT16:
 				case FT_INT24:
 				case FT_INT32:
-					val=fvalue_get_integer(((field_info *)gp->pdata[i])->value);
+					val=fvalue_get_integer(&((field_info *)gp->pdata[i])->value);
 					if((it->frames==1)&&(i==0)){
 						it->counter=val;
 					} else if((gint32)val>(gint32)(it->counter)){
@@ -200,7 +200,7 @@ iostat_packet(io_stat_item_t *mit, packet_info *pinfo, epan_dissect_t *edt _U_, 
 					}				
 					break;
 				case FT_RELATIVE_TIME:
-					new_time=fvalue_get(((field_info *)gp->pdata[i])->value);
+					new_time=fvalue_get(&((field_info *)gp->pdata[i])->value);
 					val=new_time->secs*1000+new_time->nsecs/1000000;
 					if((it->frames==1)&&(i==0)){
 						it->counter=val;
@@ -231,11 +231,11 @@ iostat_packet(io_stat_item_t *mit, packet_info *pinfo, epan_dissect_t *edt _U_, 
 				case FT_INT16:
 				case FT_INT24:
 				case FT_INT32:
-					val=fvalue_get_integer(((field_info *)gp->pdata[i])->value);
+					val=fvalue_get_integer(&((field_info *)gp->pdata[i])->value);
 					it->counter+=val;
 					break;
 				case FT_RELATIVE_TIME:
-					new_time=fvalue_get(((field_info *)gp->pdata[i])->value);
+					new_time=fvalue_get(&((field_info *)gp->pdata[i])->value);
 					val=new_time->secs*1000+new_time->nsecs/1000000;
 					it->counter+=val;
 					break;

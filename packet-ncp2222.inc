@@ -11,7 +11,7 @@
  * Portions Copyright (c) Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp2222.inc,v 1.66 2003/11/24 22:11:53 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.67 2003/12/02 21:15:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -915,14 +915,14 @@ ncp_record_find(guint8 func, guint8 subfunc)
 guint
 get_item_value(proto_item *item)
 {
-	return fvalue_get_integer(PITEM_FINFO(item)->value);
+	return fvalue_get_integer(&PITEM_FINFO(item)->value);
 }
 
 
 char *
 get_item_string(proto_item *item)
 {
-	return fvalue_get(PITEM_FINFO(item)->value);
+	return fvalue_get(&PITEM_FINFO(item)->value);
 }
 
 char *
@@ -4604,7 +4604,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                 if (info_type != 0) {    /* Is this  a string or not? */
                                        
                                         if (info_type == 1) {   /* Is this bytes? */
-                                                byte_string = bytes_to_str(fvalue_get(finfo->value), fvalue_length(finfo->value));
+                                                byte_string = bytes_to_str(fvalue_get(&finfo->value), fvalue_length(&finfo->value));
                                                 col_append_fstr(pinfo->cinfo, COL_INFO,
               		               	                (const gchar*) ncp_rec->req_info_str->first_string,
                                        	                byte_string);
@@ -4612,7 +4612,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                         else
                                         {
                                                 if (info_type == 2) {   /* Is this a String? */
-                                                        uni_to_string(fvalue_get(finfo->value), fvalue_length(finfo->value), non_uni_string);
+                                                        uni_to_string(fvalue_get(&finfo->value), fvalue_length(&finfo->value), non_uni_string);
                                                         col_append_fstr(pinfo->cinfo, COL_INFO,
                       		               	                (const gchar*) ncp_rec->req_info_str->first_string,
                                               	                non_uni_string);
@@ -4621,7 +4621,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                                 {
                                                         col_append_fstr(pinfo->cinfo, COL_INFO,
                       		               	                (const gchar*) ncp_rec->req_info_str->first_string,
-                                               	                fvalue_get(finfo->value));
+                                               	                fvalue_get(&finfo->value));
                                                 }
                                         }
                                 }
@@ -4629,7 +4629,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                 {
             			        col_append_fstr(pinfo->cinfo, COL_INFO,
                 			        (const gchar*) ncp_rec->req_info_str->first_string,
-        		        	        fvalue_get_integer(finfo->value));
+        		        	        fvalue_get_integer(&finfo->value));
                                 }
                         }
 			if (len > 1) {
@@ -4641,7 +4641,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                         if (info_type != 0) {    /* Is this  a string or not? */
                                               if (info_type == 1) 
                                               {   /* Is this bytes? */
-                                                byte_string = bytes_to_str(fvalue_get(finfo->value), fvalue_length(finfo->value));
+                                                byte_string = bytes_to_str(fvalue_get(&finfo->value), fvalue_length(&finfo->value));
                                                 col_append_fstr(pinfo->cinfo, COL_INFO,
               		               	                (const gchar*) ncp_rec->req_info_str->repeat_string,
                                        	                byte_string);
@@ -4649,7 +4649,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                               else
                                               {
                                                         if (info_type == 2) {   /* Is this a String? */
-                                                                uni_to_string(fvalue_get(finfo->value), fvalue_length(finfo->value), non_uni_string);
+                                                                uni_to_string(fvalue_get(&finfo->value), fvalue_length(&finfo->value), non_uni_string);
                                                                 col_append_fstr(pinfo->cinfo, COL_INFO,
                               		               	                (const gchar*) ncp_rec->req_info_str->repeat_string,
                                                        	                non_uni_string);
@@ -4658,7 +4658,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                                         {
                                                                 col_append_fstr(pinfo->cinfo, COL_INFO,
                               		               	                (const gchar*) ncp_rec->req_info_str->repeat_string,
-                                                       	                fvalue_get(finfo->value));
+                                                       	                fvalue_get(&finfo->value));
                                                         }
                                               }
                                         }
@@ -4666,7 +4666,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                         {
                     			        col_append_fstr(pinfo->cinfo, COL_INFO,
                         			        (const gchar*) ncp_rec->req_info_str->repeat_string,
-                		        	        fvalue_get_integer(finfo->value));
+                		        	        fvalue_get_integer(&finfo->value));
                                         }
                                 }
 			}

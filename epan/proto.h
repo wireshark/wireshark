@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.48 2003/11/26 12:22:22 sahlberg Exp $
+ * $Id: proto.h,v 1.49 2003/12/02 21:15:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -123,8 +123,8 @@ typedef struct field_info {
 	gint				tree_type; /* ETT_* */
 	item_label_t			*rep; /* string for GUI tree */
 	int				visible;
-	fvalue_t			*value;
 	tvbuff_t			*ds_tvb;  /* data source tvbuff */
+	fvalue_t			value;
 } field_info;
 
 /* One of these exists for the entire protocol tree. Each proto_node

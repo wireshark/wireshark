@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.333 2003/11/28 00:13:08 ulfl Exp $
+ * $Id: main.c,v 1.334 2003/12/02 21:15:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -275,7 +275,7 @@ goto_framenum_cb(GtkWidget *w _U_, gpointer data _U_)
 	hfinfo = cfile.finfo_selected->ptr_u.hfinfo;
 	g_assert(hfinfo);
 	if (hfinfo->type == FT_FRAMENUM) {
-	    framenum = fvalue_get_integer(cfile.finfo_selected->value);
+	    framenum = fvalue_get_integer(&cfile.finfo_selected->value);
 	    if (framenum != 0)
 		goto_frame(&cfile, framenum);
 	}

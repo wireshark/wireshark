@@ -2,7 +2,7 @@
  * Routines for snooping SID to name mappings
  * Copyright 2003, Ronnie Sahlberg
  *
- * $Id: packet-smb-sidsnooping.c,v 1.9 2003/06/09 10:08:05 sahlberg Exp $
+ * $Id: packet-smb-sidsnooping.c,v 1.10 2003/12/02 21:15:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -128,7 +128,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, vo
 		return 0;
 	}
 	fi=gp->pdata[0];
-	info_level=fi->value->value.integer;
+	info_level=fi->value.value.integer;
 
 	if(info_level!=1){
 		return 0;
@@ -153,7 +153,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, vo
 		}
 		if(!old_ctx){
 			old_ctx=g_mem_chunk_alloc(ctx_handle_chunk);
-			memcpy(old_ctx, fi->value->value.bytes->data, 20);
+			memcpy(old_ctx, fi->value.value.bytes->data, 20);
 		}
 		g_hash_table_insert(ctx_handle_table, (gpointer)pinfo->fd->num, old_ctx);
 
@@ -210,9 +210,9 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, vo
 		fi_name=gp_names->pdata[num_rids-1];
 		strncpy(sid_name, sid, len);
 		sid_name[len++]='-';
-		len+=sprintf(sid_name+len,"%d",fi_rid->value->value.integer);
+		len+=sprintf(sid_name+len,"%d",fi_rid->value.value.integer);
 		sid_name[len]=0;
-		add_sid_name_mapping(sid_name, fi_name->value->value.string);
+		add_sid_name_mapping(sid_name, fi_name->value.value.string);
 	}
 	return 1;
 }
@@ -237,7 +237,7 @@ lsa_policy_information(void *dummy _U_, packet_info *pinfo _U_, epan_dissect_t *
 		return 0;
 	}
 	fi=gp->pdata[0];
-	info_level=fi->value->value.integer;
+	info_level=fi->value.value.integer;
 
 	switch(info_level){
 	case 3:
@@ -248,14 +248,14 @@ lsa_policy_information(void *dummy _U_, packet_info *pinfo _U_, epan_dissect_t *
 			return 0;
 		}
 		fi=gp->pdata[0];
-		domain=fi->value->value.string;
+		domain=fi->value.value.string;
 
 		gp=proto_get_finfo_ptr_array(edt->tree, hf_lsa_domain_sid);
 		if(!gp || gp->len!=1){
 			return 0;
 		}
 		fi=gp->pdata[0];
-		sid=fi->value->value.string;
+		sid=fi->value.value.string;
 
 		add_sid_name_mapping(sid, domain);
 		break;

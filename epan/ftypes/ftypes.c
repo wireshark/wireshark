@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes.c,v 1.15 2003/12/02 09:47:23 sahlberg Exp $
+ * $Id: ftypes.c,v 1.16 2003/12/02 21:15:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -204,6 +204,21 @@ fvalue_new(ftenum_t ftype)
 	}
 
 	return fv;
+}
+
+void 
+fvalue_init(fvalue_t *fv, ftenum_t ftype)
+{
+	ftype_t			*ft;
+	FvalueNewFunc		new_value;
+
+	FTYPE_LOOKUP(ftype, ft);
+	fv->ptr_u.ftype = ft;
+
+	new_value = ft->new_value;
+	if (new_value) {
+		new_value(fv);
+	}
 }
 
 fvalue_t*

@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.47 2003/10/27 23:12:53 guy Exp $
+ * $Id: io_stat.c,v 1.48 2003/12/02 21:15:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -290,7 +290,7 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, void *dummy 
 			case FT_INT16:
 			case FT_INT24:
 			case FT_INT32:
-				new_int=fvalue_get_integer(((field_info *)gp->pdata[i])->value);
+				new_int=fvalue_get_integer(&((field_info *)gp->pdata[i])->value);
 
 				if((new_int>it->int_max)||(it->frames==0)){
 					it->int_max=new_int;
@@ -301,7 +301,7 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, void *dummy 
 				it->int_tot+=new_int;
 				break;
 			case FT_RELATIVE_TIME:
-				new_time=fvalue_get(((field_info *)gp->pdata[0])->value);
+				new_time=fvalue_get(&((field_info *)gp->pdata[0])->value);
 
 				switch(git->calc_type){
 #ifdef G_HAVE_UINT64

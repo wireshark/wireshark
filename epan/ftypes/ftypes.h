@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.22 2003/12/02 09:47:23 sahlberg Exp $
+ * $Id: ftypes.h,v 1.23 2003/12/02 21:15:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -208,16 +208,24 @@ struct _ftype_t {
 fvalue_t*
 fvalue_new(ftenum_t ftype);
 
+void
+fvalue_init(fvalue_t *fv, ftenum_t ftype);
+
 
 /* Free all memory used by an fvalue_t */
 extern fvalue_t *fvalue_free_list;
-#define FVALUE_FREE(fv)						\
+#define FVALUE_CLEANUP(fv)					\
 	{							\
 		register FvalueFreeFunc	free_value;		\
-		free_value = fv->ptr_u.ftype->free_value;	\
+		free_value = (fv)->ptr_u.ftype->free_value;	\
 		if (free_value) {				\
-			free_value(fv);				\
+			free_value((fv));			\
 		}						\
+	}
+
+#define FVALUE_FREE(fv)						\
+	{							\
+		FVALUE_CLEANUP(fv)				\
 		SLAB_FREE(fv, fv->ptr_u.next, fvalue_free_list);\
 	}
 

@@ -1,5 +1,5 @@
 /*
- * $Id: dfvm.c,v 1.11 2003/11/25 13:20:35 sahlberg Exp $
+ * $Id: dfvm.c,v 1.12 2003/12/02 21:15:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -224,7 +224,7 @@ read_tree(dfilter_t *df, proto_tree *tree, header_field_info *hfinfo, int reg)
 		len = finfos->len;
 		for (i = 0; i < len; i++) {
 			finfo = g_ptr_array_index(finfos, i);
-			fvalues = g_list_prepend(fvalues, finfo->value);
+			fvalues = g_list_prepend(fvalues, &finfo->value);
 		}
 
 		hfinfo = hfinfo->same_name_next;
