@@ -365,13 +365,14 @@ You may not need to include all the headers listed in the skeleton
 below, and you may need to include additional headers.  For example, the
 code inside
 
-	#ifdef NEED_SNPRINTF_H
+	#ifdef HAVE_LIBPCRE
 
 		...
 
 	#endif
 
-is needed only if you are using the "snprintf()" function.
+is needed only if you are using a function from libpcre, e.g. the
+"pcre_compile()" function.
 
 The "$Id$"
 in the comment will be updated by CVS when the file is
@@ -423,10 +424,6 @@ CVS repository (checked in).
 #include <string.h>
 
 #include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 #include <epan/packet.h>
 
