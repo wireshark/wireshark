@@ -1,7 +1,7 @@
 /* capture_info_dlg.c
  * Routines for packet capture info dialog
  *
- * $Id: capture_info_dlg.c,v 1.11 2004/01/21 21:19:32 ulfl Exp $
+ * $Id: capture_info_dlg.c,v 1.12 2004/02/21 12:58:42 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,14 +70,14 @@ pct(gint num, gint denom) {
 
 /* stop button (or ESC key) was pressed */
 static void
-capture_info_stop_cb(GtkWidget *w _U_, gpointer data) {
-  capture_ui_stop_callback(data);
+capture_info_stop_cb(GtkWidget *w _U_, gpointer data _U_) {
+  capture_stop();
 }
 
 
 static void
-capture_info_delete_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data) {
-  capture_ui_stop_callback(data);
+capture_info_delete_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data _U_) {
+  capture_stop();
 }
 
 
@@ -209,9 +209,9 @@ capture_info    *cinfo)
   stop_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_STOP);
   gtk_widget_grab_default(stop_bt);
   SIGNAL_CONNECT(stop_bt, "clicked", capture_info_stop_cb,
-                 cinfo->callback_data);
+                 NULL);
   SIGNAL_CONNECT(info->cap_w, "delete_event", capture_info_delete_cb,
-                 cinfo->callback_data);
+                 NULL);
 
   /* Catch the "key_press_event" signal in the window, so that we can catch
      the ESC key being pressed and act as if the "Stop" button had

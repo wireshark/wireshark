@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.38 2003/11/15 08:47:28 ulfl Exp $
+ * $Id: capture.h,v 1.39 2004/02/21 12:58:41 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -100,10 +100,6 @@ capture_info    *cinfo);
 /* destroy the capture info dialog again */
 extern void capture_info_destroy(
 capture_info    *cinfo);
-
-/* ui calls this, when user wants to stop capturing */
-extern void capture_ui_stop_callback(
-gpointer 		callback_data);
 
 
 #endif /* HAVE_LIBPCAP */

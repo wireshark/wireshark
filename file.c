@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.363 2004/02/21 02:15:05 guy Exp $
+ * $Id: file.c,v 1.364 2004/02/21 12:58:41 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,7 +70,6 @@
 #include "file.h"
 #include "menu.h"
 #include "util.h"
-#include "report_err.h"
 #include "alert_box.h"
 #include "simple_dialog.h"
 #include "progress_dlg.h"
@@ -669,14 +668,6 @@ cf_finish_tail(capture_file *cf, int *err)
        XXX - pop up a dialog box? */
     return (READ_ERROR);
   } else {
-    if(cf->count == 0) {
-      simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
-      "%sNo packets captured!%s\n\n"
-      "As no data was captured, closing the %scapture file!",
-      simple_dialog_primary_start(), simple_dialog_primary_end(),
-      (cf->is_tempfile) ? "temporary " : "");
-      cf_close(cf);
-    }
     return (READ_SUCCESS);
   }
 }
@@ -3027,7 +3018,10 @@ copy_binary_file(char *from_filename, char *to_filename)
     }
   }
   if (nread < 0) {
-    report_read_failure(from_filename, errno);
+    err = errno;
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		  "An error occurred while reading from the file \"%s\": %s.",
+		  from_filename, strerror(err));
     close(from_fd);
     close(to_fd);
     goto done;
