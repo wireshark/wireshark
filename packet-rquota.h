@@ -1,6 +1,6 @@
 /* packet-rquota.h
  *
- * $Id: packet-rquota.h,v 1.1 2001/02/27 19:40:58 guy Exp $
+ * $Id: packet-rquota.h,v 1.2 2001/04/21 08:00:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,7 +25,9 @@
 #ifndef PACKET_RQUOTA_H
 #define PACKET_RQUOTA_H
 
-#define RQUOTAPROC_NULL 0
+#define RQUOTAPROC_NULL 		0
+#define RQUOTAPROC_GETQUOTA		1
+#define RQUOTAPROC_GETACTIVEQUOTA	2
 
 #define RQUOTA_PROGRAM 100011
 
