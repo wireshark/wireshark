@@ -3,7 +3,7 @@
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  * Copyright 2003, Michael Shuldman
  *
- * $Id: packet-x11.c,v 1.57 2004/03/23 18:03:28 guy Exp $
+ * $Id: packet-x11.c,v 1.58 2004/04/17 03:38:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -175,14 +175,15 @@ static gint ett_x11_segment = -1;
 static gint ett_x11_list_of_string8 = -1;
 static gint ett_x11_list_of_text_item = -1;
 static gint ett_x11_text_item = -1;
-static gint ett_x11_gc_value_mask = -1;
-static gint ett_x11_event_mask = -1;
-static gint ett_x11_do_not_propagate_mask = -1;
+static gint ett_x11_gc_value_mask = -1;		/* XXX - unused */
+static gint ett_x11_event_mask = -1;		/* XXX - unused */
+static gint ett_x11_do_not_propagate_mask = -1;	/* XXX - unused */
 static gint ett_x11_set_of_key_mask = -1;
-static gint ett_x11_pointer_event_mask = -1;
-static gint ett_x11_window_value_mask = -1;
-static gint ett_x11_configure_window_mask = -1;
-static gint ett_x11_keyboard_value_mask = -1;
+static gint ett_x11_pointer_event_mask = -1;	/* XXX - unused */
+static gint ett_x11_window_value_mask = -1;	/* XXX - unused */
+static gint ett_x11_configure_window_mask = -1;	/* XXX - unused */
+static gint ett_x11_keyboard_value_mask = -1;	/* XXX - unused */
+static gint ett_x11_same_screen_focus = -1;
 
 /* desegmentation of X11 messages */
 static gboolean x11_desegment = TRUE;
@@ -2384,7 +2385,6 @@ static void setOfKeyButMask(tvbuff_t *tvb, int *offsetp, proto_tree *t,
       }
       *offsetp += 2;
 }
-
 
 static void setOfPointerEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 			      gboolean little_endian)
@@ -4892,6 +4892,28 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
+same_screen_focus(tvbuff_t *tvb, int *offsetp, proto_tree *t)
+{
+      proto_item *ti;
+      guint32 bitmask_value;
+      int bitmask_offset;
+      int bitmask_size;
+      proto_tree *bitmask_tree;
+
+      bitmask_value = VALUE8(tvb, *offsetp);
+      bitmask_offset = *offsetp;
+      bitmask_size = 1;
+
+      ti = proto_tree_add_uint(t, hf_x11_same_screen_focus_mask, tvb, *offsetp, 1,
+						 bitmask_value);
+      bitmask_tree = proto_item_add_subtree(ti, ett_x11_same_screen_focus);
+      FLAG(same_screen_focus, focus);
+      FLAG(same_screen_focus, same_screen);
+
+      *offsetp += 1;
+}
+
+static void
 dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  const char *volatile sep, x11_conv_data_t *volatile state,
 		  gboolean little_endian)
@@ -4966,7 +4988,7 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			CARD16(event_sequencenumber);
 			EVENTCONTENTS_COMMON();
 			ENUM8(grab_mode);
-			CARD8(same_screen);
+			same_screen_focus(tvb, offsetp, t);
 			break;
 
 		case FocusIn:
@@ -5325,6 +5347,7 @@ void proto_register_x11(void)
 	    &ett_x11_window_value_mask,
 	    &ett_x11_configure_window_mask,
 	    &ett_x11_keyboard_value_mask,
+	    &ett_x11_same_screen_focus,
       };
       module_t *x11_module;
 

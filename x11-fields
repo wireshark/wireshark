@@ -3,7 +3,7 @@
 #
 # Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
 #
-# $Id: x11-fields,v 1.13 2004/03/23 07:40:23 guy Exp $
+# $Id: x11-fields,v 1.14 2004/04/17 03:38:09 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -423,6 +423,9 @@ root-y	UINT16	DEC	root y
 rootwindow	UINT32	HEX	rootwindow
 
 same-screen	BOOLEAN	NONE	same screen
+same-screen-focus-mask	UINT8	HEX
+	focus			BOOLEAN	8	0x01
+	same-screen		BOOLEAN	8	0x02
 success		UINT8	DEC	success
 save-set-mode	UINT8	DEC	VALS(insert_delete)
 save-under	BOOLEAN	NONE
