@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.4 2001/07/12 21:02:06 guy Exp $
+# $Id: Makefile.nmake,v 1.5 2003/03/26 20:17:42 guy Exp $
 #
 
 include ..\config.nmake
@@ -7,27 +7,27 @@ include ..\config.nmake
 ALL_RC=ethereal.rc tethereal.rc editcap.rc text2pcap.rc mergecap.rc
 all : $(ALL_RC)
 
-ethereal.rc	: ethereal.rc.in
+ethereal.rc   : ethereal.rc.in ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
 		< ethereal.rc.in > $@
 
-tethereal.rc	: tethereal.rc.in
+tethereal.rc  : tethereal.rc.in ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
 		< tethereal.rc.in > $@
 
-editcap.rc	: editcap.rc.in
+editcap.rc    : editcap.rc.in ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
 		< editcap.rc.in > $@
 
-mergecap.rc	: mergecap.rc.in
+mergecap.rc   : mergecap.rc.in ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
 		< mergecap.rc.in > $@
 
-text2pcap.rc	: text2pcap.rc.in
+text2pcap.rc  : text2pcap.rc.in ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
 		< text2pcap.rc.in > $@
