@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.88 2001/09/23 21:55:21 guy Exp $
+ * $Id: wtap.h,v 1.89 2001/10/04 08:30:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -270,7 +270,7 @@ struct wtap_pkthdr {
 };
 
 typedef void (*wtap_handler)(u_char*, const struct wtap_pkthdr*,
-		int, union wtap_pseudo_header *pseudo_header, const u_char *);
+		long, union wtap_pseudo_header *pseudo_header, const u_char *);
 
 struct wtap;
 struct Buffer;
@@ -296,7 +296,7 @@ gboolean wtap_loop(wtap *wth, int, wtap_handler, u_char*, int *err);
 /* Returns TRUE if read was successful. FALSE if failure. data_offset is
  * set the the offset in the file where the data for the read packet is
  * located. */
-gboolean wtap_read(wtap *wth, int *err, int *data_offset);
+gboolean wtap_read(wtap *wth, int *err, long *data_offset);
 
 struct wtap_pkthdr *wtap_phdr(wtap *wth);
 union wtap_pseudo_header *wtap_pseudoheader(wtap *wth);
@@ -318,9 +318,9 @@ int wtap_short_string_to_encap(const char *short_name);
 const char *wtap_strerror(int err);
 void wtap_sequential_close(wtap *wth);
 void wtap_close(wtap *wth);
-int wtap_seek_read (wtap *wth, int seek_off,
+int wtap_seek_read (wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len);
-int wtap_def_seek_read (wtap *wth, int seek_off,
+int wtap_def_seek_read (wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len);
 
 gboolean wtap_dump_can_open(int filetype);

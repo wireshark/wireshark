@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.91 2001/09/05 05:03:47 guy Exp $
+ * $Id: tethereal.c,v 1.92 2001/10/04 08:30:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -133,10 +133,10 @@ typedef struct {
 } cb_args_t;
 
 static int load_cap_file(capture_file *, int);
-static void wtap_dispatch_cb_write(u_char *, const struct wtap_pkthdr *, int,
+static void wtap_dispatch_cb_write(u_char *, const struct wtap_pkthdr *, long,
     union wtap_pseudo_header *, const u_char *);
 static void show_capture_file_io_error(const char *, int, gboolean);
-static void wtap_dispatch_cb_print(u_char *, const struct wtap_pkthdr *, int,
+static void wtap_dispatch_cb_print(u_char *, const struct wtap_pkthdr *, long,
     union wtap_pseudo_header *, const u_char *);
 
 packet_info  pi;
@@ -974,7 +974,7 @@ out:
 static void
 fill_in_fdata(frame_data *fdata, capture_file *cf,
 	const struct wtap_pkthdr *phdr,
-	const union wtap_pseudo_header *pseudo_header, int offset)
+	const union wtap_pseudo_header *pseudo_header, long offset)
 {
   int i;
 
@@ -1050,8 +1050,8 @@ clear_fdata(frame_data *fdata)
 }
 
 static void
-wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr, int offset,
-  union wtap_pseudo_header *pseudo_header, const u_char *buf)
+wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr,
+  long offset, union wtap_pseudo_header *pseudo_header, const u_char *buf)
 {
   cb_args_t    *args = (cb_args_t *) user;
   capture_file *cf = args->cf;
@@ -1147,8 +1147,8 @@ show_capture_file_io_error(const char *fname, int err, gboolean is_close)
 }
 
 static void
-wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr, int offset,
-  union wtap_pseudo_header *pseudo_header, const u_char *buf)
+wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
+  long offset, union wtap_pseudo_header *pseudo_header, const u_char *buf)
 {
   cb_args_t    *args = (cb_args_t *) user;
   capture_file *cf = args->cf;

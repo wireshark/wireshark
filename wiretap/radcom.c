@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.29 2001/03/10 06:33:58 guy Exp $
+ * $Id: radcom.c,v 1.30 2001/10/04 08:30:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -67,8 +67,8 @@ struct radcomrec_hdr {
 	char	xxw[9];		/* unknown */
 };
 
-static gboolean radcom_read(wtap *wth, int *err, int *data_offset);
-static int radcom_seek_read(wtap *wth, int seek_off,
+static gboolean radcom_read(wtap *wth, int *err, long *data_offset);
+static int radcom_seek_read(wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, u_char *pd, int length);
 static int radcom_read_rec_header(FILE_T fh, struct radcomrec_hdr *hdr,
 	int *err);
@@ -219,7 +219,7 @@ read_error:
 }
 
 /* Read the next packet */
-static gboolean radcom_read(wtap *wth, int *err, int *data_offset)
+static gboolean radcom_read(wtap *wth, int *err, long *data_offset)
 {
 	int	ret;
 	struct radcomrec_hdr hdr;
@@ -287,7 +287,7 @@ static gboolean radcom_read(wtap *wth, int *err, int *data_offset)
 }
 
 static int
-radcom_seek_read(wtap *wth, int seek_off,
+radcom_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int length)
 {
 	int	ret;

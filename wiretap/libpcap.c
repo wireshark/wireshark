@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.50 2001/08/25 03:18:48 guy Exp $
+ * $Id: libpcap.c,v 1.51 2001/10/04 08:30:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -47,7 +47,7 @@ typedef enum {
 } libpcap_try_t;
 static libpcap_try_t libpcap_try(wtap *wth, int *err);
 
-static gboolean libpcap_read(wtap *wth, int *err, int *data_offset);
+static gboolean libpcap_read(wtap *wth, int *err, long *data_offset);
 static int libpcap_read_header(wtap *wth, int *err,
     struct pcaprec_ss990915_hdr *hdr, gboolean silent);
 static void adjust_header(wtap *wth, struct pcaprec_hdr *hdr);
@@ -705,7 +705,7 @@ static libpcap_try_t libpcap_try(wtap *wth, int *err)
 }
 
 /* Read the next packet */
-static gboolean libpcap_read(wtap *wth, int *err, int *data_offset)
+static gboolean libpcap_read(wtap *wth, int *err, long *data_offset)
 {
 	struct pcaprec_ss990915_hdr hdr;
 	guint packet_size;

@@ -1,6 +1,6 @@
 /* i4btrace.c
  *
- * $Id: i4btrace.c,v 1.14 2001/03/10 06:33:57 guy Exp $
+ * $Id: i4btrace.c,v 1.15 2001/10/04 08:30:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>
@@ -32,8 +32,8 @@
 #include "buffer.h"
 #include "i4b_trace.h"
 
-static gboolean i4btrace_read(wtap *wth, int *err, int *data_offset);
-static int i4btrace_seek_read(wtap *wth, int seek_off,
+static gboolean i4btrace_read(wtap *wth, int *err, long *data_offset);
+static int i4btrace_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int length);
 static int i4b_read_rec_header(FILE_T fh, i4b_trace_hdr_t *hdr, int *err);
 static void i4b_byte_swap_header(wtap *wth, i4b_trace_hdr_t *hdr);
@@ -112,7 +112,7 @@ int i4btrace_open(wtap *wth, int *err)
 #define V120SABME	"\010\001\177"
 
 /* Read the next packet */
-static gboolean i4btrace_read(wtap *wth, int *err, int *data_offset)
+static gboolean i4btrace_read(wtap *wth, int *err, long *data_offset)
 {
 	int	ret;
 	i4b_trace_hdr_t hdr;
@@ -219,7 +219,7 @@ static gboolean i4btrace_read(wtap *wth, int *err, int *data_offset)
 }
 
 static int
-i4btrace_seek_read(wtap *wth, int seek_off,
+i4btrace_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int length)
 {
 	int	ret;

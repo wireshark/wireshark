@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.40 2001/08/25 03:18:48 guy Exp $
+ * $Id: netxray.c,v 1.41 2001/10/04 08:30:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -101,7 +101,7 @@ struct netxrayrec_2_x_hdr {
 	guint32	xxx[7];		/* unknown */
 };
 
-static gboolean netxray_read(wtap *wth, int *err, int *data_offset);
+static gboolean netxray_read(wtap *wth, int *err, long *data_offset);
 static void netxray_close(wtap *wth);
 static gboolean netxray_dump_1_1(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
@@ -231,7 +231,7 @@ int netxray_open(wtap *wth, int *err)
 }
 
 /* Read the next packet */
-static gboolean netxray_read(wtap *wth, int *err, int *data_offset)
+static gboolean netxray_read(wtap *wth, int *err, long *data_offset)
 {
 	guint32	packet_size;
 	int	bytes_read;

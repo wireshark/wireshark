@@ -1,6 +1,6 @@
 /* csids.c
  *
- * $Id: csids.c,v 1.7 2001/07/13 00:55:58 guy Exp $
+ * $Id: csids.c,v 1.8 2001/10/04 08:30:35 guy Exp $
  *
  * Copyright (c) 2000 by Mike Hall <mlh@io.com>
  * Copyright (c) 2000 by Cisco Systems
@@ -44,8 +44,8 @@
  *
  */
 
-static gboolean csids_read(wtap *wth, int *err, int *data_offset);
-static int csids_seek_read(wtap *wth, int seek_off,
+static gboolean csids_read(wtap *wth, int *err, long *data_offset);
+static int csids_seek_read(wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len);
 
 struct csids_header {
@@ -138,7 +138,7 @@ int csids_open(wtap *wth, int *err)
 }
 
 /* Find the next packet and parse it; called from wtap_loop(). */
-static gboolean csids_read(wtap *wth, int *err, int *data_offset)
+static gboolean csids_read(wtap *wth, int *err, long *data_offset)
 {
   guint8 *buf;
   int bytesRead = 0;
@@ -194,7 +194,7 @@ static gboolean csids_read(wtap *wth, int *err, int *data_offset)
 /* Used to read packets in random-access fashion */
 static int
 csids_seek_read (wtap *wth,
-		 int seek_off,
+		 long seek_off,
 		 union wtap_pseudo_header *pseudo_header,
 		 guint8 *pd,
 		 int len)

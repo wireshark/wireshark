@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.36 2001/08/25 03:18:48 guy Exp $
+ * $Id: snoop.c,v 1.37 2001/10/04 08:30:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -56,8 +56,8 @@ struct snooprec_hdr {
 	guint32	ts_usec;	/* timestamp microseconds */
 };
 
-static gboolean snoop_read(wtap *wth, int *err, int *data_offset);
-static int snoop_seek_read(wtap *wth, int seek_off,
+static gboolean snoop_read(wtap *wth, int *err, long *data_offset);
+static int snoop_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int length);
 static int snoop_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
@@ -294,7 +294,7 @@ int snoop_open(wtap *wth, int *err)
 }
 
 /* Read the next packet */
-static gboolean snoop_read(wtap *wth, int *err, int *data_offset)
+static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 {
 	guint32 rec_size;
 	guint32	packet_size;
@@ -403,7 +403,7 @@ static gboolean snoop_read(wtap *wth, int *err, int *data_offset)
 }
 
 static int
-snoop_seek_read(wtap *wth, int seek_off,
+snoop_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int length)
 {
 	int	ret;

@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.40 2001/08/25 03:18:48 guy Exp $
+ * $Id: netmon.c,v 1.41 2001/10/04 08:30:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -93,7 +93,7 @@ struct netmonrec_2_x_hdr {
 	guint32	incl_len;	/* number of octets captured in file */
 };
 
-static gboolean netmon_read(wtap *wth, int *err, int *data_offset);
+static gboolean netmon_read(wtap *wth, int *err, long *data_offset);
 static void netmon_close(wtap *wth);
 static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
@@ -276,7 +276,7 @@ int netmon_open(wtap *wth, int *err)
 }
 
 /* Read the next packet */
-static gboolean netmon_read(wtap *wth, int *err, int *data_offset)
+static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 {
 	netmon_t *netmon = wth->capture.netmon;
 	guint32	packet_size = 0;

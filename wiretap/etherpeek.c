@@ -2,7 +2,7 @@
  * Routines for opening etherpeek files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.4 2001/07/13 00:55:58 guy Exp $
+ * $Id: etherpeek.c,v 1.5 2001/10/04 08:30:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -112,8 +112,8 @@ static const etherpeek_encap_lookup_t etherpeek_encap[] = {
 #define NUM_ETHERPEEK_ENCAPS \
 	(sizeof (etherpeek_encap) / sizeof (etherpeek_encap[0]))
 
-static gboolean etherpeek_read_m7(wtap *wth, int *err, int *data_offset);
-static gboolean etherpeek_read_m56(wtap *wth, int *err, int *data_offset);
+static gboolean etherpeek_read_m7(wtap *wth, int *err, long *data_offset);
+static gboolean etherpeek_read_m56(wtap *wth, int *err, long *data_offset);
 
 int etherpeek_open(wtap *wth, int *err)
 {
@@ -206,7 +206,7 @@ int etherpeek_open(wtap *wth, int *err)
 	return 1;
 }
 
-static gboolean etherpeek_read_m7(wtap *wth, int *err, int *data_offset)
+static gboolean etherpeek_read_m7(wtap *wth, int *err, long *data_offset)
 {
 	etherpeek_m7_packet_t ep_pkt;
 	double  t;
@@ -262,7 +262,7 @@ static gboolean etherpeek_read_m7(wtap *wth, int *err, int *data_offset)
 	return TRUE;
 }
 
-static gboolean etherpeek_read_m56(wtap *wth, int *err, int *data_offset)
+static gboolean etherpeek_read_m56(wtap *wth, int *err, long *data_offset)
 {
 	etherpeek_m56_packet_t ep_pkt;
 	unsigned int i;

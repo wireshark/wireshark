@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.24 2001/07/13 00:55:57 guy Exp $
+ * $Id: ascend.c,v 1.25 2001/10/04 08:30:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -99,8 +99,8 @@ static const char ascend_w2magic[] = { 'W', 'D', '_', 'D', 'I', 'A', 'L', 'O', '
 #define ASCEND_W1_SIZE (sizeof ascend_w1magic / sizeof ascend_w1magic[0])
 #define ASCEND_W2_SIZE (sizeof ascend_w2magic / sizeof ascend_w2magic[0])
 
-static gboolean ascend_read(wtap *wth, int *err, int *data_offset);
-static int ascend_seek_read (wtap *wth, int seek_off,
+static gboolean ascend_read(wtap *wth, int *err, long *data_offset);
+static int ascend_seek_read (wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len);
 static void ascend_close(wtap *wth);
 
@@ -113,9 +113,10 @@ static void ascend_close(wtap *wth);
    at which the seek pointer should be set before this routine is called
    to find the packet *after* the packet it finds. */
 /* XXX - Handle I/O errors. */
-static int ascend_seek(wtap *wth, int max_seek)
+static long ascend_seek(wtap *wth, int max_seek)
 {
-  int byte, bytes_read = 0, date_off = -1, cur_off, packet_off;
+  int byte, bytes_read = 0;
+  long date_off = -1, cur_off, packet_off;
   unsigned int r_level = 0, x_level = 0, w1_level = 0, w2_level = 0;
 
   while (((byte = file_getc(wth->fh)) != EOF) && bytes_read < max_seek) {
@@ -201,7 +202,7 @@ found:
 /* XXX - return -1 on I/O error and actually do something with 'err'. */
 int ascend_open(wtap *wth, int *err)
 {
-  int offset;
+  long offset;
   struct stat statbuf;
 
   /* We haven't yet allocated a data structure for our private stuff;
@@ -243,9 +244,9 @@ int ascend_open(wtap *wth, int *err)
 }
 
 /* Read the next packet; called from wtap_loop(). */
-static gboolean ascend_read(wtap *wth, int *err, int *data_offset)
+static gboolean ascend_read(wtap *wth, int *err, long *data_offset)
 {
-  int offset;
+  long offset;
   guint8 *buf = buffer_start_ptr(wth->frame_buffer);
   ascend_pkthdr header;
 
@@ -296,7 +297,7 @@ static gboolean ascend_read(wtap *wth, int *err, int *data_offset)
   return TRUE;
 }
 
-static int ascend_seek_read (wtap *wth, int seek_off,
+static int ascend_seek_read (wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len)
 {
   file_seek(wth->random_fh, seek_off, SEEK_SET);

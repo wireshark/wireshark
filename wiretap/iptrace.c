@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.33 2001/03/10 06:33:57 guy Exp $
+ * $Id: iptrace.c,v 1.34 2001/10/04 08:30:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -31,12 +31,12 @@
 #include "buffer.h"
 #include "iptrace.h"
 
-static gboolean iptrace_read_1_0(wtap *wth, int *err, int *data_offset);
-static int iptrace_seek_read_1_0(wtap *wth, int seek_off,
+static gboolean iptrace_read_1_0(wtap *wth, int *err, long *data_offset);
+static int iptrace_seek_read_1_0(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size);
 
-static gboolean iptrace_read_2_0(wtap *wth, int *err, int *data_offset);
-static int iptrace_seek_read_2_0(wtap *wth, int seek_off,
+static gboolean iptrace_read_2_0(wtap *wth, int *err, long *data_offset);
+static int iptrace_seek_read_2_0(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size);
 
 static int iptrace_read_rec_header(FILE_T fh, guint8 *header, int header_len,
@@ -96,7 +96,7 @@ typedef struct {
 } iptrace_1_0_phdr;
 
 /* Read the next packet */
-static gboolean iptrace_read_1_0(wtap *wth, int *err, int *data_offset)
+static gboolean iptrace_read_1_0(wtap *wth, int *err, long *data_offset)
 {
 	int			ret;
 	guint32			packet_size;
@@ -161,7 +161,7 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, int *data_offset)
 	return TRUE;
 }
 
-static int iptrace_seek_read_1_0(wtap *wth, int seek_off,
+static int iptrace_seek_read_1_0(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size)
 {
 	int			ret;
@@ -204,7 +204,7 @@ typedef struct {
 } iptrace_2_0_phdr;
 
 /* Read the next packet */
-static gboolean iptrace_read_2_0(wtap *wth, int *err, int *data_offset)
+static gboolean iptrace_read_2_0(wtap *wth, int *err, long *data_offset)
 {
 	int			ret;
 	guint32			packet_size;
@@ -273,7 +273,7 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, int *data_offset)
 	return TRUE;
 }
 
-static int iptrace_seek_read_2_0(wtap *wth, int seek_off,
+static int iptrace_seek_read_2_0(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size)
 {
 	int			ret;

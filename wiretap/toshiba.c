@@ -1,6 +1,6 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.15 2001/03/10 06:33:58 guy Exp $
+ * $Id: toshiba.c,v 1.16 2001/10/04 08:30:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -104,8 +104,8 @@ static const char toshiba_hdr_magic[]  =
 static const char toshiba_rec_magic[]  = { '[', 'N', 'o', '.' };
 #define TOSHIBA_REC_MAGIC_SIZE  (sizeof toshiba_rec_magic  / sizeof toshiba_rec_magic[0])
 
-static gboolean toshiba_read(wtap *wth, int *err, int *data_offset);
-static int toshiba_seek_read(wtap *wth, int seek_off,
+static gboolean toshiba_read(wtap *wth, int *err, long *data_offset);
+static int toshiba_seek_read(wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len);
 static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf, int byte_offset);
 static int parse_toshiba_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err);
@@ -115,7 +115,7 @@ static int parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
 /* Seeks to the beginning of the next packet, and returns the
    byte offset.  Returns -1 on failure. */
 /* XXX - Handle I/O errors. */
-static int toshiba_seek_next_packet(wtap *wth)
+static long toshiba_seek_next_packet(wtap *wth)
 {
   int byte;
   int level = 0;
@@ -198,9 +198,9 @@ int toshiba_open(wtap *wth, int *err)
 }
 
 /* Find the next packet and parse it; called from wtap_loop(). */
-static gboolean toshiba_read(wtap *wth, int *err, int *data_offset)
+static gboolean toshiba_read(wtap *wth, int *err, long *data_offset)
 {
-	int	offset = 0;
+	long	offset;
 	guint8	*buf;
 	int	pkt_len;
 
@@ -229,8 +229,8 @@ static gboolean toshiba_read(wtap *wth, int *err, int *data_offset)
 
 /* Used to read packets in random-access fashion */
 static int
-toshiba_seek_read (wtap *wth, int seek_off, union wtap_pseudo_header *pseudo_header,
-	guint8 *pd, int len)
+toshiba_seek_read (wtap *wth, long seek_off,
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len)
 {
 	int	pkt_len;
 	int	err;

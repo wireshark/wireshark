@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.67 2001/07/13 00:55:58 guy Exp $
+ * $Id: file.c,v 1.68 2001/10/04 08:30:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -111,7 +111,7 @@ static int (*open_routines[])(wtap *, int *) = {
 
 #define	N_FILE_TYPES	(sizeof open_routines / sizeof open_routines[0])
 
-int wtap_def_seek_read(wtap *wth, int seek_off,
+int wtap_def_seek_read(wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len)
 {
 	file_seek(wth->random_fh, seek_off, SEEK_SET);

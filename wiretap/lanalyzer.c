@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.28 2001/04/16 22:06:34 guy Exp $
+ * $Id: lanalyzer.c,v 1.29 2001/10/04 08:30:35 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -47,7 +47,7 @@
 #define BOARD_325		226	/* LANalyzer 325 (Ethernet) */
 #define BOARD_325TR		227	/* LANalyzer 325TR (Token-ring) */
 
-static gboolean lanalyzer_read(wtap *wth, int *err, int *data_offset);
+static gboolean lanalyzer_read(wtap *wth, int *err, long *data_offset);
 static void lanalyzer_close(wtap *wth);
 
 int lanalyzer_open(wtap *wth, int *err)
@@ -193,7 +193,7 @@ int lanalyzer_open(wtap *wth, int *err)
 #define DESCRIPTOR_LEN	32
 
 /* Read the next packet */
-static gboolean lanalyzer_read(wtap *wth, int *err, int *data_offset)
+static gboolean lanalyzer_read(wtap *wth, int *err, long *data_offset)
 {
 	int		packet_size = 0;
 	int		bytes_read;

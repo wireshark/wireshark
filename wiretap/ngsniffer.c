@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.66 2001/08/25 03:18:48 guy Exp $
+ * $Id: ngsniffer.c,v 1.67 2001/10/04 08:30:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -285,8 +285,8 @@ struct frame6_rec {
 static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 1.0, 0.1 };
 
 static int skip_header_records(wtap *wth, int *err, gint16 version);
-static gboolean ngsniffer_read(wtap *wth, int *err, int *data_offset);
-static int ngsniffer_seek_read(wtap *wth, int seek_off,
+static gboolean ngsniffer_read(wtap *wth, int *err, long *data_offset);
+static int ngsniffer_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size);
 static int ngsniffer_read_rec_header(wtap *wth, gboolean is_random,
     guint16 *typep, guint16 *lengthp, int *err);
@@ -645,7 +645,7 @@ skip_header_records(wtap *wth, int *err, gint16 version)
 }
 
 /* Read the next packet */
-static gboolean ngsniffer_read(wtap *wth, int *err, int *data_offset)
+static gboolean ngsniffer_read(wtap *wth, int *err, long *data_offset)
 {
 	int	ret;
 	guint16	type, length;
@@ -858,7 +858,7 @@ found:
 	return TRUE;
 }
 
-static int ngsniffer_seek_read(wtap *wth, int seek_off,
+static int ngsniffer_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size)
 {
 	int	ret;

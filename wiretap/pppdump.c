@@ -1,6 +1,6 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.8 2001/03/10 06:33:58 guy Exp $
+ * $Id: pppdump.c,v 1.9 2001/10/04 08:30:36 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  * 
@@ -93,8 +93,8 @@ typedef enum {
 	DIRECTION_RECV
 } direction_enum;
 
-static gboolean pppdump_read(wtap *wth, int *err, int *data_offset);
-static int pppdump_seek_read(wtap *wth, int seek_off,
+static gboolean pppdump_read(wtap *wth, int *err, long *data_offset);
+static int pppdump_seek_read(wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len);
 
 typedef struct {
@@ -222,7 +222,7 @@ pppdump_open(wtap *wth, int *err)
 
 /* Find the next packet and parse it; called from wtap_loop(). */
 static gboolean
-pppdump_read(wtap *wth, int *err, int *data_offset)
+pppdump_read(wtap *wth, int *err, long *data_offset)
 {
 	gboolean	retval;
 	int		num_bytes;
@@ -517,7 +517,7 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 /* Used to read packets in random-access fashion */
 static int
 pppdump_seek_read (wtap *wth,
-		 int seek_off,
+		 long seek_off,
 		 union wtap_pseudo_header *pseudo_header,
 		 guint8 *pd,
 		 int len)

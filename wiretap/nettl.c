@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.19 2001/03/10 06:33:57 guy Exp $
+ * $Id: nettl.c,v 1.20 2001/10/04 08:30:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -66,8 +66,8 @@ struct nettlrec_ns_ls_ip_hdr {
 
 /* header is followed by data and once again the total length (2 bytes) ! */
 
-static gboolean nettl_read(wtap *wth, int *err, int *data_offset);
-static int nettl_seek_read(wtap *wth, int seek_off,
+static gboolean nettl_read(wtap *wth, int *err, long *data_offset);
+static int nettl_seek_read(wtap *wth, long seek_off,
 		union wtap_pseudo_header *pseudo_header, u_char *pd, int length);
 static int nettl_read_rec_header(wtap *wth, FILE_T fh,
 		struct wtap_pkthdr *phdr, union wtap_pseudo_header *pseudo_header,
@@ -124,7 +124,7 @@ int nettl_open(wtap *wth, int *err)
 }
 
 /* Read the next packet */
-static gboolean nettl_read(wtap *wth, int *err, int *data_offset)
+static gboolean nettl_read(wtap *wth, int *err, long *data_offset)
 {
     int ret;
 
@@ -150,7 +150,7 @@ static gboolean nettl_read(wtap *wth, int *err, int *data_offset)
 }
 
 static int
-nettl_seek_read(wtap *wth, int seek_off,
+nettl_seek_read(wtap *wth, long seek_off,
 		union wtap_pseudo_header *pseudo_header, u_char *pd, int length)
 {
     int ret;

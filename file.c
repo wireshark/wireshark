@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.244 2001/08/21 06:39:14 guy Exp $
+ * $Id: file.c,v 1.245 2001/10/04 08:30:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,7 +98,7 @@ extern GtkWidget *packet_list, *byte_nb_ptr, *tree_view;
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
 
-static void read_packet(capture_file *cf, int offset);
+static void read_packet(capture_file *cf, long offset);
 
 static void rescan_packets(capture_file *cf, const char *action,
 	gboolean refilter, gboolean redissect);
@@ -314,7 +314,7 @@ read_cap_file(capture_file *cf, int *err)
   char     *errmsg;
   char      errmsg_errno[1024+1];
   gchar     err_str[2048+1];
-  int       data_offset;
+  long      data_offset;
   progdlg_t *progbar;
   gboolean  stop_flag;
   int       file_pos;
@@ -477,7 +477,7 @@ start_tail_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
 read_status_t
 continue_tail_cap_file(capture_file *cf, int to_read, int *err)
 {
-  int data_offset = 0;
+  long data_offset = 0;
 
   gtk_clist_freeze(GTK_CLIST(packet_list));
 
@@ -518,7 +518,7 @@ continue_tail_cap_file(capture_file *cf, int to_read, int *err)
 read_status_t
 finish_tail_cap_file(capture_file *cf, int *err)
 {
-  int data_offset;
+  long data_offset;
 
   gtk_clist_freeze(GTK_CLIST(packet_list));
 
@@ -758,7 +758,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 }
 
 static void
-read_packet(capture_file *cf, int offset)
+read_packet(capture_file *cf, long offset)
 {
   const struct wtap_pkthdr *phdr = wtap_phdr(cf->wth);
   union wtap_pseudo_header *pseudo_header = wtap_pseudoheader(cf->wth);

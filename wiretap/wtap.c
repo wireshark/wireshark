@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.54 2001/07/13 00:55:58 guy Exp $
+ * $Id: wtap.c,v 1.55 2001/10/04 08:30:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -247,7 +247,7 @@ wtap_close(wtap *wth)
 }
 
 gboolean
-wtap_read(wtap *wth, int *err, int *data_offset)
+wtap_read(wtap *wth, int *err, long *data_offset)
 {
 	return wth->subtype_read(wth, err, data_offset);
 }
@@ -273,7 +273,8 @@ wtap_buf_ptr(wtap *wth)
 gboolean
 wtap_loop(wtap *wth, int count, wtap_handler callback, u_char* user, int *err)
 {
-	int		data_offset, loop = 0;
+	long		data_offset;
+	int		loop = 0;
 
 	/* Start by clearing error flag */
 	*err = 0;
@@ -292,7 +293,7 @@ wtap_loop(wtap *wth, int count, wtap_handler callback, u_char* user, int *err)
 }
 
 int
-wtap_seek_read(wtap *wth, int seek_off,
+wtap_seek_read(wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len)
 {
 	return wth->subtype_seek_read(wth, seek_off, pseudo_header, pd, len);
