@@ -1,7 +1,7 @@
 /* endpoint_talkers_ip.c
  * endpoint_talkers_ip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_ip.c,v 1.11 2003/08/30 01:18:15 sahlberg Exp $
+ * $Id: endpoint_talkers_ip.c,v 1.12 2003/09/02 08:27:26 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 #include <string.h>
 #include "menu.h"
 #include "../epan/packet_info.h"
+#include "../epan/filesystem.h"
 #include "../tap.h"
 #include "../register.h"
 #include "compat_macros.h"
@@ -88,7 +89,7 @@ gtk_ip_talkers_init(char *optarg)
 	talkers->name="IPv4";
 	talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(talkers->win), 750, 400);
-	snprintf(title, 255, "IPv4 Talkers: %s", cfile.filename);
+	snprintf(title, 255, "IPv4 Talkers: %s", get_basename(cfile.filename));
 	gtk_window_set_title(GTK_WINDOW(talkers->win), title);
 
 	SIGNAL_CONNECT(talkers->win, "destroy", ett_win_destroy_cb, talkers);

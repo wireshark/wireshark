@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.8 2003/08/25 11:06:32 sahlberg Exp $
+ * $Id: mgcp_stat.c,v 1.9 2003/09/02 08:27:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,7 @@
 #include <string.h>
 #include "menu.h"
 #include "../epan/packet_info.h"
+#include "../epan/filesystem.h"
 #include "../tap.h"
 #include "../epan/value_string.h"
 #include "../register.h"
@@ -109,7 +110,7 @@ mgcpstat_reset(void *pms)
 	ms->req_dup_num=0;
 	ms->rsp_dup_num=0;
 
-	snprintf(title, 255, "MGCP SRT Statistics: %s", cfile.filename);
+	snprintf(title, 255, "MGCP SRT Statistics: %s", get_basename(cfile.filename));
 	gtk_window_set_title(GTK_WINDOW(dlg), title);
 }
 
@@ -344,7 +345,7 @@ gtk_mgcpstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	}
 
 	dlg=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	snprintf(title, 255, "MGCP SRT Statistics: %s", cfile.filename);
+	snprintf(title, 255, "MGCP SRT Statistics: %s", get_basename(cfile.filename));
 	gtk_window_set_title(GTK_WINDOW(dlg), title);
 	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
 	dlg_box=gtk_vbox_new(FALSE, 0);

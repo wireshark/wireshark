@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.9 2003/08/31 00:31:05 guy Exp $
+ * $Id: endpoint_talkers_table.c,v 1.10 2003/09/02 08:27:26 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 #include <gtk/gtk.h>
 #include "compat_macros.h"
 #include "epan/packet_info.h"
+#include "epan/filesystem.h"
 #include "epan/to_str.h"
 #include "endpoint_talkers_table.h"
 #include "image/clist_ascend.xpm"
@@ -80,7 +81,7 @@ reset_ett_table_data(endpoints_table *et)
 	guint32 i;
 	char title[256];
 
-	snprintf(title, 255, "%s Conversations: %s", et->name, cfile.filename);
+	snprintf(title, 255, "%s Conversations: %s", et->name, get_basename(cfile.filename));
 	gtk_window_set_title(GTK_WINDOW(et->win), title);
 
 	/* remove all entries from the clist */

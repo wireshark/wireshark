@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.13 2003/08/25 11:06:31 sahlberg Exp $
+ * $Id: dcerpc_stat.c,v 1.14 2003/09/02 08:27:23 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 #include <gtk/gtk.h>
 #include "menu.h"
 #include "epan/packet_info.h"
+#include "epan/filesystem.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "ui_util.h"
@@ -86,7 +87,7 @@ dcerpcstat_reset(rpcstat_t *rs)
 	char title_string[256];
 	reset_srt_table_data(&rs->srt_table);
 
-	snprintf(title_string, 255, "DCE-RPC Service Response Time statistics for %s version %d.%d : %s", rs->prog, rs->ver&0xff, rs->ver>>8, cfile.filename);
+	snprintf(title_string, 255, "DCE-RPC Service Response Time statistics for %s version %d.%d : %s", rs->prog, rs->ver&0xff, rs->ver>>8, get_basename(cfile.filename));
 	gtk_window_set_title(GTK_WINDOW(rs->win), title_string);
 }
 
@@ -210,7 +211,7 @@ gtk_dcerpcstat_init(char *optarg)
 
 	rs->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
-	snprintf(title_string, 255, "DCE-RPC Service Response Time statistics for %s version %d.%d : %s", rs->prog, rs->ver&0xff, rs->ver>>8, cfile.filename);
+	snprintf(title_string, 255, "DCE-RPC Service Response Time statistics for %s version %d.%d : %s", rs->prog, rs->ver&0xff, rs->ver>>8, get_basename(cfile.filename));
 	gtk_window_set_title(GTK_WINDOW(rs->win), title_string);
 	SIGNAL_CONNECT(rs->win, "destroy", win_destroy_cb, rs);
 
