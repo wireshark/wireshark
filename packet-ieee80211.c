@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.21 2001/06/10 07:40:39 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.22 2001/06/12 05:40:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -471,7 +471,7 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       cap_item = proto_tree_add_uint_format (tree, ff_capture, 
 					     tvb, offset, 2,
 					     pletohs (temp16),
-					     "Capability Information: %04X",
+					     "Capability Information: 0x%04X",
 					     pletohs (temp16));
       cap_tree = proto_item_add_subtree (cap_item, ett_cap_tree);
       proto_tree_add_boolean (cap_tree, ff_cf_ess, tvb, offset, 1,
@@ -1565,8 +1565,8 @@ proto_register_wlan (void)
   };
 
   static const true_false_string order_flags = {
-    "",
-    ""
+    "Strictly ordered",
+    "Not strictly ordered"
   };
 
   static const true_false_string cf_ess_flags = {
