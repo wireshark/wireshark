@@ -11,7 +11,7 @@
  * This file is based on packet-aim.c, which is
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-skinny.c,v 1.14 2002/03/20 23:32:54 guy Exp $
+ * $Id: packet-skinny.c,v 1.15 2002/03/21 11:08:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -277,31 +277,31 @@ static const value_string deviceStimuli[] = {
 #define DeviceMaxCapabilities 18 /* max capabilities allowed in Cap response message */
 
 static const value_string mediaPayloads[] = {
-  {1   , "NonStandard"},
-  {2   , "G711Alaw64k"},
-  {3   , "G711Alaw56k"},
-  {4   , "G711Ulaw64k"},
-  {5   , "G711Ulaw56k"},
-  {6   , "G722_64k"},
-  {7   , "G722_56k"},
-  {8   , "G722_48k"},
-  {9   , "G7231"},
-  {10  , "G728"},
-  {11  , "G729"},
-  {12  , "G729AnnexA"},
+  {1   , "Non-standard"},
+  {2   , "G.711 A-law 64k"},
+  {3   , "G.711 A-law 56k"},
+  {4   , "G.711 u-law 64k"},
+  {5   , "G.711 u-law 56k"},
+  {6   , "G.722 64k"},
+  {7   , "G.722 56k"},
+  {8   , "G.722 48k"},
+  {9   , "G.7231"},
+  {10  , "G.728"},
+  {11  , "G.729"},
+  {12  , "G.729 AnnexA"},
   {13  , "Is11172AudioCap"},
   {14  , "Is13818AudioCap"},
-  {15  , "G729AnnexB"},
-  {16  , "G729AnnexAwAnnexB"},
+  {15  , "G.729 Annex B"},
+  {16  , "G.729 Annex A+Annex B"},
   {32  , "Data64"},
   {33  , "Data56"},
   {80  , "GSM"},
   {81  , "ActiveVoice"},
-  {82  , "G726_32K"},
-  {83  , "G726_24K"},
-  {84  , "G726_16K"},
-  {85  , "G729_B"},
-  {86  , "G729_B_LOW_COMPLEXITY"},
+  {82  , "G.726 32K"},
+  {83  , "G.726 24K"},
+  {84  , "G.726 16K"},
+  {85  , "G.729B"},
+  {86  , "G.729B Low Complexity"},
   {0  , NULL}
 };
 
