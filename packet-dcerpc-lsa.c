@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.88 2003/08/20 00:09:36 sharpe Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.89 2003/09/03 09:48:50 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,7 +68,7 @@ static int hf_lsa_paei_settings = -1;
 static int hf_lsa_count = -1;
 static int hf_lsa_size = -1;
 static int hf_lsa_size16 = -1;
-static int hf_lsa_size_needed = -1;
+static int hf_lsa_privilege_display_name_size = -1;
 static int hf_lsa_max_count = -1;
 static int hf_lsa_index = -1;
 static int hf_lsa_fqdomain = -1;
@@ -102,6 +102,7 @@ static int hf_lsa_secret = -1;
 static int hf_nt_luid_high = -1;
 static int hf_nt_luid_low = -1;
 static int hf_lsa_privilege_name = -1;
+static int hf_lsa_privilege_display_name = -1;
 static int hf_lsa_attr = -1;
 static int hf_lsa_resume_handle = -1;
 static int hf_lsa_trust_direction = -1;
@@ -3404,15 +3405,11 @@ lsa_dissect_lsalookupprivilegedisplayname_rqst(tvbuff_t *tvb, int offset,
 
 	/* [in, ref] LSA_UNICODE_STRING *name */
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-		hf_lsa_name, 0);
+		hf_lsa_privilege_name, 0);
 
-	/* [in] USHORT unknown */
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
-		hf_lsa_unknown_short, NULL);
-
-	/* [in] USHORT size */
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
-		hf_lsa_size16, NULL);
+	/* [in, ref] long *size */
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_privilege_display_name_size, NULL);
 
 	return offset;
 }
@@ -3425,11 +3422,11 @@ lsa_dissect_lsalookupprivilegedisplayname_reply(tvbuff_t *tvb, int offset,
 	/* [out, ref] LSA_UNICODE_STRING **disp_name */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
-		"NAME pointer: ", hf_lsa_privilege_name);
+		"NAME pointer: ", hf_lsa_privilege_display_name);
 
-	/* [out, ref] USHORT *size_needed */
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
-		hf_lsa_size_needed, NULL);
+	/* [out, ref] long *size */
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_privilege_display_name_size, NULL);
 
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_lsa_rc, NULL);
@@ -4324,13 +4321,17 @@ proto_register_dcerpc_lsa(void)
 		{ "Size", "lsa.size", FT_UINT16, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
 
-	{ &hf_lsa_size_needed,
-		{ "Size Needed", "lsa.size_needed", FT_UINT16, BASE_DEC,
-		NULL, 0x0, "", HFILL }},
+	{ &hf_lsa_privilege_display_name_size,
+		{ "Size Needed", "lsa.privilege.display__name.size", FT_UINT32, BASE_DEC,
+		NULL, 0x0, "Number of characters in the privilege display name", HFILL }},
 
 	{ &hf_lsa_privilege_name,
 		{ "Name", "lsa.privilege.name", FT_STRING, BASE_NONE,
 		NULL, 0x0, "LSA Privilege Name", HFILL }},
+
+	{ &hf_lsa_privilege_display_name,
+		{ "Display Name", "lsa.privilege.display_name", FT_STRING, BASE_NONE,
+		NULL, 0x0, "LSA Privilege Display Name", HFILL }},
 
 	{ &hf_lsa_rights,
 		{ "Rights", "lsa.rights", FT_STRING, BASE_NONE,
