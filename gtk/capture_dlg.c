@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.9 1999/11/06 02:05:32 guy Exp $
+ * $Id: capture_dlg.c,v 1.10 1999/12/07 22:11:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -456,8 +456,11 @@ get_interface_list() {
 
     /*
      * Skip interfaces that we can't open with "libpcap".
+     * Open with the minimum packet size - it appears that the
+     * IRIX SIOCSNOOPLEN "ioctl" may fail if the capture length
+     * supplied is too large, rather than just truncating it.
      */
-    pch = pcap_open_live(ifr->ifr_name, WTAP_MAX_PACKET_SIZE, 0, 0, err_str);
+    pch = pcap_open_live(ifr->ifr_name, MIN_PACKET_SIZE, 0, 0, err_str);
     if (pch == NULL)
       goto next;
     pcap_close(pch);
