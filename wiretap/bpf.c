@@ -114,6 +114,15 @@ bpf_code_unit_alloc(guint8 label, guint16 code, guint8 jt, guint8 jf, guint32 k)
 }
 
 
+#define phtons(p)  ((guint16)                       \
+                    ((guint16)*((guint8 *)p+0)<<8|  \
+                     (guint16)*((guint8 *)p+1)<<0))
+
+#define phtonl(p)  ((guint32)*((guint8 *)p+0)<<24|  \
+                    (guint32)*((guint8 *)p+1)<<16|  \
+                    (guint32)*((guint8 *)p+2)<<8|   \
+                    (guint32)*((guint8 *)p+3)<<0)
+
 /* Finds ftype in the bytecmp_table, the relation, and the n-string
 byte array, and creates BPF that will check those bytes */
 static GList*
@@ -155,7 +164,7 @@ bpf_mk_bytecmp(int ftype, int rel_opcode, guint8 *bytes)
 					BPF_JMP|BPF_JEQ,
 					(len_to_cmp == 4 ? END_OF_PROGRAM_SUCCESS : 0),
 					NEXT_BLOCK,
-					htonl(*(guint32*)&bytes[len_to_cmp-3]));
+					phtonl(&bytes[len_to_cmp-3]));
 			g_list_append(L, bpf);
 
 			len_to_cmp -= 4;
@@ -178,7 +187,7 @@ bpf_mk_bytecmp(int ftype, int rel_opcode, guint8 *bytes)
 					BPF_JMP|BPF_JEQ,
 					(len_to_cmp == 3 ? END_OF_PROGRAM_SUCCESS : 0),
 					NEXT_BLOCK,
-					htonl(*(guint32*)&bytes[len_to_cmp-2]) & 0xffffff00);
+					phtonl(&bytes[len_to_cmp-2]) & 0xffffff00);
 			g_list_append(L, bpf);
 
 			len_to_cmp -= 3;
@@ -195,7 +204,7 @@ bpf_mk_bytecmp(int ftype, int rel_opcode, guint8 *bytes)
 					BPF_JMP|BPF_JEQ,
 					(len_to_cmp == 2 ? END_OF_PROGRAM_SUCCESS : 0),
 					NEXT_BLOCK,
-					(guint32)htons(*(guint16*)&bytes[len_to_cmp-1]));
+					(guint32)phtons(&bytes[len_to_cmp-1]));
 			g_list_append(L, bpf);
 
 			len_to_cmp -= 2;
