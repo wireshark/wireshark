@@ -1432,6 +1432,9 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 		    case IDM_ETHEREAL_MAIN_MERGE:
 			win32_merge_file(hw_mainwin);
 			break;
+		    case IDM_ETHEREAL_MAIN_EXPORT_FILE:
+			win32_export_file(hw_mainwin);
+			break;
 		    case IDM_ETHEREAL_MAIN_CLOSE:
 			/* XXX - Prompt the user if we have an unsaved file */
 			cf_close(&cfile);

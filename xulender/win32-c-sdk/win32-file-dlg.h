@@ -18,8 +18,6 @@ typedef enum {
 /** Open the "Open" dialog box.
  *
  * @param h_wnd HWND of the parent window.
- * @param file_name A buffer that will contain the file name.
- * @param len The length of the file name buffer.
  */
 gboolean win32_open_file (HWND h_wnd);
 
@@ -34,11 +32,23 @@ void win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpoin
 /** Open the "Merge" dialog box.
  *
  * @param h_wnd HWND of the parent window.
- * @param file_name A buffer that will contain the file name.
- * @param len The length of the file name buffer.
  */
 void win32_merge_file (HWND h_wnd);
 
+/** Open the "Export" dialog box.
+ *
+ * @param h_wnd HWND of the parent window.
+ */
+void win32_export_file (HWND h_wnd);
+
+/** Given a print_args_t struct, update a set of print/export format controls
+ *  accordingly.
+ *
+ * @param dlg_hwnd HWND of the dialog in question.
+ * @args Pointer to a print args struct.
+ */
+/* XXX - This should be moved to win32-print.c, maybe? */
+static void print_update_dynamic(HWND dlg_hwnd, print_args_t *args); 
 
 /* Open dialog defines */
 #define EWFD_FILTER_BTN    1000
@@ -93,5 +103,14 @@ void win32_merge_file (HWND h_wnd);
 #define EWFD_MERGE_PREPEND_BTN 1050
 #define EWFD_MERGE_CHRONO_BTN  1051
 #define EWFD_MERGE_APPEND_BTN  1052
+
+/* Export dialog defines.  Overlays Save dialog defines above. */
+/* These MUST be contiguous */
+#define EWFD_PKT_FORMAT_GB    1050
+#define EWFD_PKT_SUMMARY_CB   1051
+#define EWFD_PKT_DETAIL_CB    1052
+#define EWFD_PKT_DETAIL_COMBO 1053
+#define EWFD_PKT_BYTES_CB     1054
+#define EWFD_PKT_NEW_PAGE_CB  1055
 
 #endif /* win32-file-dlg.h */

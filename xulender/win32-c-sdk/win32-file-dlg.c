@@ -39,11 +39,13 @@
 #include <sys/stat.h>
 #include <io.h>
 
+#include "alert_box.h"
 #include "epan/filesystem.h"
 #include "epan/resolv.h"
 #include "merge.h"
 #include "prefs.h"
 #include "prefs-recent.h"
+#include "print.h"
 #include "simple_dialog.h"
 #include "util.h"
 
@@ -61,12 +63,16 @@ typedef enum {
 static UINT CALLBACK open_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT CALLBACK save_as_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT CALLBACK merge_file_hook_proc(HWND mf_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
+static UINT CALLBACK export_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static void file_set_save_marked_sensitive(HWND sf_hwnd);
-static void range_update_dynamics(HWND sf_hwnd);
+static void range_update_dynamics(HWND sf_hwnd, packet_range_t *range);
+static void range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range);
+static void range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t *range);
 
 static int            filetype;
 static packet_range_t range;
 static merge_action_e merge_action;
+static print_args_t   print_args;
 
 gboolean
 win32_open_file (HWND h_wnd) {
@@ -347,6 +353,190 @@ win32_merge_file (HWND h_wnd) {
 	s = get_dirname(tmpname);
 	set_last_open_dir(s);
     }
+}
+
+void
+win32_export_file(HWND h_wnd) {
+    static      OPENFILENAME ofn;
+    gchar       file_name[MAX_PATH] = "";
+    gchar      *dirname;
+    pp_return_t status;
+
+    /* XXX - Check for version and set OPENFILENAME_SIZE_VERSION_400
+       where appropriate */
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = h_wnd;
+    ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
+    /* XXX - Grab the rest of the extension list from ethereal.nsi. */
+    ofn.lpstrFilter =
+	"Plain text (*.txt)\0"			"*.txt\0"
+	"PostScript (*.ps)\0"			"*.ps\0"
+	"PSML (XML packet summary) (*.psml)\0"	"*.psml\0"
+	"PDML (XML packet detail) (*.pdml)\0"	"*.pdml\0"
+	"\0";
+    ofn.lpstrCustomFilter = NULL;
+    ofn.nMaxCustFilter = 0;
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFile = file_name;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
+	ofn.lpstrInitialDir = prefs.gui_fileopen_dir;
+    } else {
+	ofn.lpstrInitialDir = NULL;
+    }
+    ofn.lpstrTitle = "Ethereal: Export";
+    ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
+	    OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST |
+	    OFN_ENABLEHOOK;
+    ofn.lpstrDefExt = NULL;
+    ofn.lpfnHook = export_file_hook_proc;
+    ofn.lpTemplateName = "ETHEREAL_EXPORTFILENAME_TEMPLATE";
+
+    /* Fill in our print (and export) args */
+
+    print_args.format              = PR_FMT_TEXT;
+    print_args.to_file             = TRUE;
+    print_args.file                = file_name;
+    print_args.cmd                 = NULL;
+    print_args.print_summary       = TRUE;
+    print_args.print_dissections   = print_dissections_as_displayed;
+    print_args.print_hex           = FALSE;
+    print_args.print_formfeed      = FALSE;
+
+    if (GetSaveFileName(&ofn)) {
+	switch (ofn.nFilterIndex) {
+	    case 1:	/* Text */
+		print_args.stream = print_stream_text_new(TRUE, print_args.file);
+		if (print_args.stream == NULL) {
+		    open_failure_alert_box(print_args.file, errno, TRUE);
+		    return;
+		}
+		status = print_packets(&cfile, &print_args);
+		break;
+	    case 2:	/* PostScript (r) */
+		print_args.stream = print_stream_ps_new(TRUE, print_args.file);
+		if (print_args.stream == NULL) {
+		    open_failure_alert_box(print_args.file, errno, TRUE);
+		    return;
+		}
+		status = print_packets(&cfile, &print_args);
+		break;
+	    case 3:	/* PSML */
+		status = write_psml_packets(&cfile, &print_args);
+		break;
+	    case 4:	/* PDML */
+		status = write_pdml_packets(&cfile, &print_args);
+		break;
+	    default:
+		return;
+	}
+
+	switch (status) {
+	    case PP_OK:
+		break;
+	    case PP_OPEN_ERROR:
+		open_failure_alert_box(print_args.file, errno, TRUE);
+		break;
+	    case PP_WRITE_ERROR:
+		write_failure_alert_box(print_args.file, errno);
+		break;
+	}
+	/* Save the directory name for future file dialogs. */
+	dirname = get_dirname(file_name);  /* Overwrites cf_name */
+	set_last_open_dir(dirname);
+    }
+}
+
+static void
+format_handle_wm_initdialog(HWND dlg_hwnd, print_args_t *args) {
+    HWND cur_ctrl;
+
+    /* Set the "Packet summary" box */
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_SUMMARY_CB);
+    SendMessage(cur_ctrl, BM_SETCHECK, args->print_summary, 0);
+
+    /* Set the "Packet details" box */
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_CB);
+    SendMessage(cur_ctrl, BM_SETCHECK, args->print_dissections != print_dissections_none, 0);
+
+    /* Set the "Packet details" combo */
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_COMBO);
+    SendMessage(cur_ctrl, CB_ADDSTRING, 0, (LPARAM) (LPCTSTR) "All collapsed");
+    SendMessage(cur_ctrl, CB_ADDSTRING, 0, (LPARAM) (LPCTSTR) "As displayed");
+    SendMessage(cur_ctrl, CB_ADDSTRING, 0, (LPARAM) (LPCTSTR) "All expanded");
+
+    switch (args->print_dissections) {
+	case print_dissections_none:
+	case print_dissections_collapsed:
+	    SendMessage(cur_ctrl, CB_SETCURSEL, 0, 0);
+	    break;
+	case print_dissections_as_displayed:
+	    SendMessage(cur_ctrl, CB_SETCURSEL, 1, 0);
+	    break;
+	case print_dissections_expanded:
+	    SendMessage(cur_ctrl, CB_SETCURSEL, 2, 0);
+	default:
+	    g_assert_not_reached();
+    }
+
+    /* Set the "Packet bytes" box */
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_BYTES_CB);
+    SendMessage(cur_ctrl, BM_SETCHECK, args->print_hex, 0);
+
+    /* Set the "Each packet on a new page" box */
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_NEW_PAGE_CB);
+    SendMessage(cur_ctrl, BM_SETCHECK, args->print_formfeed, 0);
+
+    print_update_dynamic(dlg_hwnd, args);
+}
+
+static void
+print_update_dynamic(HWND dlg_hwnd, print_args_t *args) {
+    HWND cur_ctrl;
+
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_SUMMARY_CB);
+    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
+	args->print_summary = TRUE;
+    else
+	args->print_summary = FALSE;
+
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_CB);
+    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
+	switch (SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0)) {
+	    case 0:
+		args->print_dissections = print_dissections_collapsed;
+		break;
+	    case 1:
+		args->print_dissections = print_dissections_as_displayed;
+		break;
+	    case 2:
+		args->print_dissections = print_dissections_expanded;
+		break;
+	    default:
+		g_assert_not_reached();
+	}
+	cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_COMBO);
+	EnableWindow(cur_ctrl, TRUE);
+    } else {
+	args->print_dissections = print_dissections_none;
+	cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_DETAIL_COMBO);
+	EnableWindow(cur_ctrl, FALSE);
+    }
+
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_BYTES_CB);
+    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
+	args->print_hex = TRUE;
+    else
+	args->print_hex = FALSE;
+
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_NEW_PAGE_CB);
+    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
+	args->print_formfeed = TRUE;
+    else
+	args->print_formfeed = FALSE;
 }
 
 
@@ -640,7 +830,6 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND           cur_ctrl;
     OFNOTIFY      *notify = (OFNOTIFY *) l_param;
     int            new_filetype, index;
-    gchar          range_text[RANGE_TEXT_MAX];
 
     switch(msg) {
 	case WM_INITDIALOG:
@@ -655,41 +844,12 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 
 	    file_set_save_marked_sensitive(sf_hwnd);
 
-	    /* Set the appropriate captured/displayed radio */
-	    if (range.process_filtered)
-		cur_ctrl = GetDlgItem(sf_hwnd, EWFD_DISPLAYED_BTN);
-	    else
-		cur_ctrl = GetDlgItem(sf_hwnd, EWFD_CAPTURED_BTN);
-	    SendMessage(cur_ctrl, BM_SETCHECK, TRUE, 0);
-
-	    /* dynamic values in the range frame */
-	    range_update_dynamics(sf_hwnd);
-
-	    /* Set the appropriate range radio */
-	    switch(range.process) {
-		case(range_process_all):
-		    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_ALL_PKTS_BTN);
-		    break;
-		case(range_process_selected):
-		    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_SEL_PKT_BTN);
-		    break;
-		case(range_process_marked):
-		    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_MARKED_BTN);
-		    break;
-		case(range_process_marked_range):
-		    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_FIRST_LAST_BTN);
-		    break;
-		case(range_process_user_range):
-		    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_RANGE_BTN);
-		    break;
-		default:
-		    g_assert_not_reached();
-	    }
-	    SendMessage(cur_ctrl, BM_SETCHECK, TRUE, 0);
+	    range_handle_wm_initdialog(sf_hwnd, &range);
 
 	    break;
 	case WM_COMMAND:
 	    cur_ctrl = (HWND) l_param;
+
 	    switch (w_param) {
 		case (CBN_SELCHANGE << 16) | EWFD_FILE_TYPE_COMBO:
 		    index = SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0);
@@ -715,60 +875,8 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 			}
 		    }
 		    break;
-		case (BN_CLICKED << 16) | EWFD_CAPTURED_BTN:
-		case (BN_CLICKED << 16) | EWFD_DISPLAYED_BTN:
-		    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_CAPTURED_BTN);
-		    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
-			range.process_filtered = FALSE;
-		    else
-			range.process_filtered = TRUE;
-		    range_update_dynamics(sf_hwnd);
-		    break;
-		    range.process_filtered = TRUE;
-		    range_update_dynamics(sf_hwnd);
-		    break;
-		case (BN_CLICKED << 16) | EWFD_ALL_PKTS_BTN:
-		    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
-			range.process = range_process_all;
-			range_update_dynamics(sf_hwnd);
-		    }
-		    break;
-		case (BN_CLICKED << 16) | EWFD_SEL_PKT_BTN:
-		    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
-			range.process = range_process_selected;
-			range_update_dynamics(sf_hwnd);
-		    }
-		    break;
-		case (BN_CLICKED << 16) | EWFD_MARKED_BTN:
-		    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
-			range.process = range_process_marked;
-			range_update_dynamics(sf_hwnd);
-		    }
-		    break;
-		case (BN_CLICKED << 16) | EWFD_FIRST_LAST_BTN:
-		    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
-			range.process = range_process_marked_range;
-			range_update_dynamics(sf_hwnd);
-		    }
-		    break;
-		case (BN_CLICKED << 16) | EWFD_RANGE_BTN:
-		    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
-			range.process = range_process_user_range;
-			range_update_dynamics(sf_hwnd);
-			cur_ctrl = GetDlgItem(sf_hwnd, EWFD_RANGE_EDIT);
-			SetFocus(cur_ctrl);
-		    }
-		    break;
-		case (EN_SETFOCUS << 16) | EWFD_RANGE_EDIT:
-		    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_RANGE_BTN);
-		    SendMessage(cur_ctrl, BM_CLICK, 0, 0);
-		    break;
-		case (EN_CHANGE << 16) | EWFD_RANGE_EDIT:
-		    SendMessage(cur_ctrl, WM_GETTEXT, (WPARAM) RANGE_TEXT_MAX, (LPARAM) range_text);
-		    packet_range_convert_str(&range, range_text);
-		    range_update_dynamics(sf_hwnd);
-		    break;
 		default:
+		    range_handle_wm_command(sf_hwnd, cur_ctrl, w_param, &range);
 		    break;
 	    }
 	    break;
@@ -817,77 +925,173 @@ file_set_save_marked_sensitive(HWND sf_hwnd) {
 
 /* For each range static control, fill in its value and enable/disable it. */
 static void
-range_update_dynamics(HWND sf_hwnd) {
+range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     HWND     cur_ctrl;
     gboolean filtered_active = FALSE;
     gchar    static_val[100];
     gint     selected_num;
 
-    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_DISPLAYED_BTN);
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_DISPLAYED_BTN);
     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
 	filtered_active = TRUE;
 
     /* RANGE_SELECT_ALL */
-    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_ALL_PKTS_CAP);
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_ALL_PKTS_CAP);
     EnableWindow(cur_ctrl, !filtered_active);
     g_snprintf(static_val, sizeof(static_val), "%u", cfile.count);
     SetWindowText(cur_ctrl, static_val);
 
-    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_ALL_PKTS_DISP);
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_ALL_PKTS_DISP);
     EnableWindow(cur_ctrl, filtered_active);
-    g_snprintf(static_val, sizeof(static_val), "%u", range.displayed_cnt);
+    g_snprintf(static_val, sizeof(static_val), "%u", range->displayed_cnt);
     SetWindowText(cur_ctrl, static_val);
 
     /* RANGE_SELECT_CURR */
     selected_num = (cfile.current_frame) ? cfile.current_frame->num : 0;
-    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_SEL_PKT_CAP);
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_SEL_PKT_CAP);
     EnableWindow(cur_ctrl, selected_num && !filtered_active);
     g_snprintf(static_val, sizeof(static_val), "%u", selected_num ? 1 : 0);
     SetWindowText(cur_ctrl, static_val);
 
-    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_SEL_PKT_DISP);
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_SEL_PKT_DISP);
     EnableWindow(cur_ctrl, selected_num && filtered_active);
     g_snprintf(static_val, sizeof(static_val), "%u", selected_num ? 1 : 0);
     SetWindowText(cur_ctrl, static_val);
 
     /* RANGE_SELECT_MARKED */
-    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_MARKED_BTN);
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_MARKED_BTN);
     EnableWindow(cur_ctrl, cfile.marked_count);
 
-    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_MARKED_CAP);
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_MARKED_CAP);
     EnableWindow(cur_ctrl, cfile.marked_count && !filtered_active);
     g_snprintf(static_val, sizeof(static_val), "%u", cfile.marked_count);
     SetWindowText(cur_ctrl, static_val);
 
-    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_MARKED_DISP);
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_MARKED_DISP);
     EnableWindow(cur_ctrl, cfile.marked_count && filtered_active);
-    g_snprintf(static_val, sizeof(static_val), "%u", range.displayed_marked_cnt);
+    g_snprintf(static_val, sizeof(static_val), "%u", range->displayed_marked_cnt);
     SetWindowText(cur_ctrl, static_val);
 
     /* RANGE_SELECT_MARKED_RANGE */
-    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_FIRST_LAST_BTN);
-    EnableWindow(cur_ctrl, range.mark_range_cnt);
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_FIRST_LAST_BTN);
+    EnableWindow(cur_ctrl, range->mark_range_cnt);
 
-    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_FIRST_LAST_CAP);
-    EnableWindow(cur_ctrl, range.mark_range_cnt && !filtered_active);
-    g_snprintf(static_val, sizeof(static_val), "%u", range.mark_range_cnt);
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_FIRST_LAST_CAP);
+    EnableWindow(cur_ctrl, range->mark_range_cnt && !filtered_active);
+    g_snprintf(static_val, sizeof(static_val), "%u", range->mark_range_cnt);
     SetWindowText(cur_ctrl, static_val);
 
-    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_FIRST_LAST_DISP);
-    EnableWindow(cur_ctrl, range.displayed_mark_range_cnt && filtered_active);
-    g_snprintf(static_val, sizeof(static_val), "%u", range.displayed_mark_range_cnt);
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_FIRST_LAST_DISP);
+    EnableWindow(cur_ctrl, range->displayed_mark_range_cnt && filtered_active);
+    g_snprintf(static_val, sizeof(static_val), "%u", range->displayed_mark_range_cnt);
     SetWindowText(cur_ctrl, static_val);
 
     /* RANGE_SELECT_USER */
-    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_RANGE_CAP);
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_CAP);
     EnableWindow(cur_ctrl, !filtered_active);
-    g_snprintf(static_val, sizeof(static_val), "%u", range.user_range_cnt);
+    g_snprintf(static_val, sizeof(static_val), "%u", range->user_range_cnt);
     SetWindowText(cur_ctrl, static_val);
 
-    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_RANGE_DISP);
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_DISP);
     EnableWindow(cur_ctrl, filtered_active);
-    g_snprintf(static_val, sizeof(static_val), "%u", range.displayed_user_range_cnt);
+    g_snprintf(static_val, sizeof(static_val), "%u", range->displayed_user_range_cnt);
     SetWindowText(cur_ctrl, static_val);
+}
+
+static void
+range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range) {
+    HWND cur_ctrl;
+
+    /* Set the appropriate captured/displayed radio */
+    if (range->process_filtered)
+	cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_DISPLAYED_BTN);
+    else
+	cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_CAPTURED_BTN);
+    SendMessage(cur_ctrl, BM_SETCHECK, TRUE, 0);
+
+    /* dynamic values in the range frame */
+    range_update_dynamics(dlg_hwnd, range);
+
+    /* Set the appropriate range radio */
+    switch(range->process) {
+	case(range_process_all):
+	    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_ALL_PKTS_BTN);
+	    break;
+	case(range_process_selected):
+	    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_SEL_PKT_BTN);
+	    break;
+	case(range_process_marked):
+	    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_MARKED_BTN);
+	    break;
+	case(range_process_marked_range):
+	    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_FIRST_LAST_BTN);
+	    break;
+	case(range_process_user_range):
+	    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_BTN);
+	    break;
+	default:
+	    g_assert_not_reached();
+    }
+    SendMessage(cur_ctrl, BM_SETCHECK, TRUE, 0);
+}
+
+static void
+range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t *range) {
+    HWND  cur_ctrl;
+    gchar range_text[RANGE_TEXT_MAX];
+
+    switch(w_param) {
+	case (BN_CLICKED << 16) | EWFD_CAPTURED_BTN:
+	case (BN_CLICKED << 16) | EWFD_DISPLAYED_BTN:
+	    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_CAPTURED_BTN);
+	    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
+		range->process_filtered = FALSE;
+	    else
+		range->process_filtered = TRUE;
+	    range_update_dynamics(dlg_hwnd, range);
+	    break;
+	case (BN_CLICKED << 16) | EWFD_ALL_PKTS_BTN:
+	    if (SendMessage(ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
+		range->process = range_process_all;
+		range_update_dynamics(dlg_hwnd, range);
+	    }
+	    break;
+	case (BN_CLICKED << 16) | EWFD_SEL_PKT_BTN:
+	    if (SendMessage(ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
+		range->process = range_process_selected;
+		range_update_dynamics(dlg_hwnd, range);
+	    }
+	    break;
+	case (BN_CLICKED << 16) | EWFD_MARKED_BTN:
+	    if (SendMessage(ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
+		range->process = range_process_marked;
+		range_update_dynamics(dlg_hwnd, range);
+	    }
+	    break;
+	case (BN_CLICKED << 16) | EWFD_FIRST_LAST_BTN:
+	    if (SendMessage(ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
+		range->process = range_process_marked_range;
+		range_update_dynamics(dlg_hwnd, range);
+	    }
+	    break;
+	case (BN_CLICKED << 16) | EWFD_RANGE_BTN:
+	    if (SendMessage(ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
+		range->process = range_process_user_range;
+		range_update_dynamics(dlg_hwnd, range);
+		cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_EDIT);
+		SetFocus(cur_ctrl);
+	    }
+	    break;
+	case (EN_SETFOCUS << 16) | EWFD_RANGE_EDIT:
+	    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_BTN);
+	    SendMessage(cur_ctrl, BM_CLICK, 0, 0);
+	    break;
+	case (EN_CHANGE << 16) | EWFD_RANGE_EDIT:
+	    SendMessage(ctrl, WM_GETTEXT, (WPARAM) RANGE_TEXT_MAX, (LPARAM) range_text);
+	    packet_range_convert_str(range, range_text);
+	    range_update_dynamics(dlg_hwnd, range);
+	    break;
+    }
 }
 
 
@@ -941,3 +1145,59 @@ merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     return 0;
 }
 
+
+static UINT CALLBACK
+export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
+    HWND           cur_ctrl;
+    OFNOTIFY      *notify = (OFNOTIFY *) l_param;
+    gboolean       pkt_fmt_enable;
+    int            i, index;
+
+    switch(msg) {
+	case WM_INITDIALOG:
+	    /* init the printing range */
+	    packet_range_init(&print_args.range);
+	    range_handle_wm_initdialog(ef_hwnd, &print_args.range);
+	    format_handle_wm_initdialog(ef_hwnd, &print_args);
+
+	    break;
+	case WM_COMMAND:
+	    cur_ctrl = (HWND) l_param;
+	    switch (w_param) {
+//		case (CBN_SELCHANGE << 16) | EWFD_FILE_TYPE_COMBO:
+//		    break;
+		default:
+		    range_handle_wm_command(ef_hwnd, cur_ctrl, w_param, &print_args.range);
+		    print_update_dynamic(ef_hwnd, &print_args);
+		    break;
+	    }
+	    break;
+	case WM_NOTIFY:
+	    switch (notify->hdr.code) {
+		case CDN_FILEOK:
+		    break;
+		case CDN_TYPECHANGE:
+		    index = notify->lpOFN->nFilterIndex;
+
+		    if (index == 2)	/* PostScript */
+			print_args.format = PR_FMT_TEXT;
+		    else
+			print_args.format = PR_FMT_PS;
+		    if (index == 3 || index == 4)
+			pkt_fmt_enable = FALSE;
+		    else
+			pkt_fmt_enable = TRUE;
+		    for (i = EWFD_PKT_FORMAT_GB; i <= EWFD_PKT_NEW_PAGE_CB; i++) {
+			cur_ctrl = GetDlgItem(ef_hwnd, i);
+			EnableWindow(cur_ctrl, pkt_fmt_enable);
+		    }
+		    break;
+		default:
+		    break;
+	    }
+	    break;
+	default:
+	    break;
+    }
+    return 0;
+}
