@@ -233,7 +233,7 @@ ENABLE_LIBETHEREAL=USE
 
 !IFDEF ENABLE_LIBETHEREAL
 # Uncomment next line to link plugins with the import library of libethereal.dll 
-#LINK_PLUGINS_WITH_LIBETHEREAL=USE
+LINK_PLUGINS_WITH_LIBETHEREAL=USE
 !ENDIF
 
 #
