@@ -318,6 +318,15 @@ else
 	AC_MSG_RESULT(no)
 fi
 
+# Create DATAFILE_DIR #define for config.h
+datafiledir=$datadir/ethereal
+datafiledir=`(
+    test "x$prefix" = xNONE && prefix=$ac_default_prefix
+    test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
+    eval echo "$datafiledir"
+)`
+AC_DEFINE_UNQUOTED(DATAFILE_DIR,"$datafiledir", [Directory for data])
+
 # GTK checks
 # We don't add $GLIB_LIBS to LIBS, because we don't want to force all
 # programs to be built with GTK+.

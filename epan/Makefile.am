@@ -34,7 +34,7 @@ libethereal_la_LDFLAGS = -version-info 0:1:0
 
 include Makefile.common
 
-AM_CPPFLAGS = -I$(srcdir)/.. -DDATAFILE_DIR=\"$(datadir)\"
+INCLUDES = -I$(srcdir)/..
 
 libethereal_la_SOURCES = \
 	$(LIBETHEREAL_SRC)	\
