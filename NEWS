@@ -1,4 +1,4 @@
-$Id: NEWS,v 1.128 2003/06/10 01:47:32 gerald Exp $
+$Id: NEWS,v 1.129 2003/06/10 17:24:40 guy Exp $
 
 == June ?, 2003
 
@@ -15,8 +15,8 @@ New and updated features
 
   Ethereal now supports a system-wide color filter file.
 
-  Support for the GNU ADNS library has been added ADNS allows asynchronous
-  DNS lookups.
+  Support for the GNU ADNS library has been added.  ADNS allows
+  asynchronous DNS lookups.
   
   "Decode As..." functionality has been added to Tethereal via the "-d"
   flag.
