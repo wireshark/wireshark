@@ -7,7 +7,7 @@
  *       In particular I have not had an opportunity to see how it
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.39 2003/02/24 19:23:26 guy Exp $
+ * $Id: packet-srvloc.c,v 1.40 2003/03/01 09:03:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,7 +54,12 @@ static int hf_srvloc_xid = -1;
 static int hf_srvloc_langtaglen = -1;
 static int hf_srvloc_langtag = -1;
 static int hf_srvloc_nextextoff = -1;
-static int hf_srvloc_flags = -1;
+static int hf_srvloc_flags_v1 = -1;
+static int hf_srvloc_flags_v1_overflow = -1;
+static int hf_srvloc_flags_v1_monolingual = -1;
+static int hf_srvloc_flags_v1_url_auth = -1;
+static int hf_srvloc_flags_v1_attribute_auth = -1;
+static int hf_srvloc_flags_v1_fresh = -1;
 static int hf_srvloc_error = -1;
 static int hf_srvloc_flags_v2 = -1;
 static int hf_srvloc_flags_v2_overflow = -1;
@@ -142,11 +147,23 @@ static gint ett_srvloc = -1;
 static gint ett_srvloc_flags = -1;
 
 
-static const true_false_string tfs_srvloc_flags_v2_overflow = {
+static const true_false_string tfs_srvloc_flags_overflow = {
     "Message will not fit in datagram",
     "Message will fit in a datagram"
 };
-static const true_false_string tfs_srvloc_flags_v2_fresh = {
+static const true_false_string tfs_srvloc_flags_v1_monolingual = {
+    "Only responses in specified language will be accepted",
+    "Responses in any language will be accepted"
+};
+static const true_false_string tfs_srvloc_flags_v1_url_auth = {
+    "URL Authentication Block is present",
+    "URL Authentication Block is absent"
+};
+static const true_false_string tfs_srvloc_flags_v1_attribute_auth = {
+    "Attribute Authentication Block is present",
+    "Attribute Authentication Block is absent"
+};
+static const true_false_string tfs_srvloc_flags_fresh = {
     "New Service Registration",
     "Not a new Service Registration"
 };
@@ -495,14 +512,19 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_uint(srvloc_tree, hf_srvloc_pktlen, tvb, offset + 2, 2,
 				length);
 	    flags = tvb_get_guint8(tvb, offset + 4);
-	    tf = proto_tree_add_uint(srvloc_tree, hf_srvloc_flags, tvb, offset + 4, 1,
+	    tf = proto_tree_add_uint(srvloc_tree, hf_srvloc_flags_v1, tvb, offset + 4, 1,
 				     flags);
 	    srvloc_flags = proto_item_add_subtree(tf, ett_srvloc_flags);
-	    proto_tree_add_text(srvloc_flags, tvb, offset + 4, 0, "Overflow                          %d... .xxx", (flags & FLAG_O) >> 7 );
-	    proto_tree_add_text(srvloc_flags, tvb, offset + 4, 0, "Monolingual                       .%d.. .xxx", (flags & FLAG_M) >> 6 );
-	    proto_tree_add_text(srvloc_flags, tvb, offset + 4, 0, "URL Authentication Present        ..%d. .xxx", (flags & FLAG_U) >> 5 );
-	    proto_tree_add_text(srvloc_flags, tvb, offset + 4, 0, "Attribute Authentication Present  ...%d .xxx", (flags & FLAG_A) >> 4 );
-	    proto_tree_add_text(srvloc_flags, tvb, offset + 4, 0, "Fresh Service Entry               .... %dxxx", (flags & FLAG_F) >> 3 );
+	    proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v1_overflow,
+				   tvb, offset+4, 1, flags);
+	    proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v1_monolingual,
+				   tvb, offset+4, 1, flags);
+	    proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v1_url_auth,
+				   tvb, offset+4, 1, flags);
+	    proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v1_attribute_auth,
+				   tvb, offset+4, 1, flags);
+	    proto_tree_add_boolean(srvloc_flags, hf_srvloc_flags_v1_fresh,
+				   tvb, offset+4, 1, flags);
 	    proto_tree_add_text(srvloc_tree, tvb, offset + 5, 1, "Dialect: %u",
 				tvb_get_guint8(tvb, offset + 5));
 	    proto_tree_add_text(srvloc_tree, tvb, offset + 6, 2, "Language: %s",
@@ -1009,11 +1031,31 @@ proto_register_srvloc(void)
             "", HFILL }
         },
 
-        {&hf_srvloc_flags,
-            {"Flags", "srvloc.flags",
+        {&hf_srvloc_flags_v1,
+            {"Flags", "srvloc.flags_v1",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             "", HFILL }
         },
+
+	{ &hf_srvloc_flags_v1_overflow,
+	  { "Overflow", "srvloc.flags_v1.overflow.", FT_BOOLEAN, 8,
+	    TFS(&tfs_srvloc_flags_overflow), FLAG_O, "Can whole packet fit into a datagram?", HFILL }},
+
+	{ &hf_srvloc_flags_v1_monolingual,
+	  { "Monolingual", "srvloc.flags_v1.monolingual", FT_BOOLEAN, 8,
+	    TFS(&tfs_srvloc_flags_v1_monolingual), FLAG_M, "Can whole packet fit into a datagram?", HFILL }},
+
+	{ &hf_srvloc_flags_v1_url_auth,
+	  { "URL Authentication", "srvloc.flags_v1.url_auth", FT_BOOLEAN, 8,
+	    TFS(&tfs_srvloc_flags_v1_url_auth), FLAG_U, "Can whole packet fit into a datagram?", HFILL }},
+
+	{ &hf_srvloc_flags_v1_attribute_auth,
+	  { "Attribute Authentication", "srvloc.flags_v1.attribute_auth", FT_BOOLEAN, 8,
+	    TFS(&tfs_srvloc_flags_v1_attribute_auth), FLAG_A, "Can whole packet fit into a datagram?", HFILL }},
+
+	{ &hf_srvloc_flags_v1_fresh,
+	  { "Fresh Registration", "srvloc.flags_v1.fresh", FT_BOOLEAN, 8,
+	    TFS(&tfs_srvloc_flags_fresh), FLAG_F, "Is this a new registration?", HFILL }},
 
         {&hf_srvloc_flags_v2,
             {"Flags", "srvloc.flags_v2", 
@@ -1022,16 +1064,16 @@ proto_register_srvloc(void)
          },
 
 	{ &hf_srvloc_flags_v2_overflow,
-	  { "Overflow", "srvloc.flags_v2.overflow.", FT_BOOLEAN, 16,
-	    TFS(&tfs_srvloc_flags_v2_overflow), 0x8000, "Can whole packet fit into a datagram?", HFILL }},
+	  { "Overflow", "srvloc.flags_v2.overflow", FT_BOOLEAN, 16,
+	    TFS(&tfs_srvloc_flags_overflow), FLAG_O_V2, "Can whole packet fit into a datagram?", HFILL }},
 
 	{ &hf_srvloc_flags_v2_fresh,
-	  { "Fresh Registration", "srvloc.flags_v2.fresh.", FT_BOOLEAN, 16,
-	    TFS(&tfs_srvloc_flags_v2_fresh), 0x4000, "Is this a new registration?", HFILL }},
+	  { "Fresh Registration", "srvloc.flags_v2.fresh", FT_BOOLEAN, 16,
+	    TFS(&tfs_srvloc_flags_fresh), FLAG_F_V2, "Is this a new registration?", HFILL }},
 
 	{ &hf_srvloc_flags_v2_reqmulti,
-	  { "Multicast requested", "srvloc.flags_v2.reqmulti.", FT_BOOLEAN, 16,
-	    TFS(&tfs_srvloc_flags_v2_reqmulti), 0x2000, "Do we want multicast?", HFILL }},
+	  { "Multicast requested", "srvloc.flags_v2.reqmulti", FT_BOOLEAN, 16,
+	    TFS(&tfs_srvloc_flags_v2_reqmulti), FLAG_R_V2, "Do we want multicast?", HFILL }},
 
 	/* collection of helper functions for dissect_authblk_v2 */
 	{ &hf_srvloc_authblkv2_bsd,
