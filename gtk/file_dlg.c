@@ -771,6 +771,9 @@ file_merge_cmd(GtkWidget *w)
     return;
   }
 
+  /* Default to saving all packets, in the file's current format. */
+  filetype = cfile.cd_t;
+
   file_merge_w = file_selection_new("Ethereal: Merge with Capture File",
                                    FILE_SELECTION_OPEN);
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
