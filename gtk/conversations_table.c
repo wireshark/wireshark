@@ -948,6 +948,9 @@ draw_ct_table_address(conversations_table *ct, int conversation_idx)
     char *port;
     address_type  at;
     guint32 pt;
+    int rownum;
+
+    rownum=gtk_clist_find_row_from_data(ct->table, (gpointer)conversation_idx);
 
     at = ct->conversations[conversation_idx].src_address.type;
     if(!ct->resolve_names) at = AT_NONE;
@@ -961,7 +964,7 @@ draw_ct_table_address(conversations_table *ct, int conversation_idx)
     default:
         entry=address_to_str(&ct->conversations[conversation_idx].src_address);
     }
-    gtk_clist_set_text(ct->table, conversation_idx, 0, entry);
+    gtk_clist_set_text(ct->table, rownum, 0, entry);
 
     pt = ct->conversations[conversation_idx].port_type;
     if(!ct->resolve_names) pt = PT_NONE;
@@ -976,7 +979,7 @@ draw_ct_table_address(conversations_table *ct, int conversation_idx)
         port=ct_port_to_str(ct->conversations[conversation_idx].port_type, ct->conversations[conversation_idx].src_port);
         entry=port?port:"";
     }
-    gtk_clist_set_text(ct->table, conversation_idx, 1, entry);
+    gtk_clist_set_text(ct->table, rownum, 1, entry);
 
     at = ct->conversations[conversation_idx].dst_address.type;
     if(!ct->resolve_names) at = AT_NONE;
@@ -990,7 +993,7 @@ draw_ct_table_address(conversations_table *ct, int conversation_idx)
     default:
         entry=address_to_str(&ct->conversations[conversation_idx].dst_address);
     }
-    gtk_clist_set_text(ct->table, conversation_idx, 2, entry);
+    gtk_clist_set_text(ct->table, rownum, 2, entry);
 
     switch(pt) {
     case(PT_TCP):
@@ -1003,7 +1006,7 @@ draw_ct_table_address(conversations_table *ct, int conversation_idx)
         port=ct_port_to_str(ct->conversations[conversation_idx].port_type, ct->conversations[conversation_idx].dst_port);
         entry=port?port:"";
     }
-    gtk_clist_set_text(ct->table, conversation_idx, 3, entry);
+    gtk_clist_set_text(ct->table, rownum, 3, entry);
 }
 
 /* Refresh the address fields of all entries in the list */
@@ -1011,77 +1014,9 @@ static void
 draw_ct_table_addresses(conversations_table *ct)
 {
     guint32 i;
-    int j;
-
 
     for(i=0;i<ct->num_conversations;i++){
-#if 0
-        char *entry;
-        char *port;
-        address_type  at;
-        guint32 pt;
-#endif
-
-        j=gtk_clist_find_row_from_data(ct->table, (gpointer)i);
-
-        draw_ct_table_address(ct, j);
-#if 0
-        at = ct->conversations[i].src_address.type;
-        if(!ct->resolve_names) at = AT_NONE;
-        switch(at) {
-        case(AT_IPv4):
-            entry=get_hostname((*(guint *)ct->conversations[i].src_address.data));
-            break;
-        case(AT_ETHER):
-            entry=get_ether_name(ct->conversations[i].src_address.data);
-            break;
-        default:
-            entry=address_to_str(&ct->conversations[i].src_address);
-        }
-        gtk_clist_set_text(ct->table, j, 0, entry);
-
-        pt = ct->conversations[i].port_type;
-        if(!ct->resolve_names) pt = PT_NONE;
-        switch(pt) {
-        case(PT_TCP):
-            entry=get_tcp_port(ct->conversations[i].src_port);
-            break;
-        case(PT_UDP):
-            entry=get_udp_port(ct->conversations[i].src_port);
-            break;
-        default:
-            port=ct_port_to_str(ct->conversations[i].port_type, ct->conversations[i].src_port);
-            entry=port?port:"";
-        }
-        gtk_clist_set_text(ct->table, j, 1, entry);
-
-        at = ct->conversations[i].dst_address.type;
-        if(!ct->resolve_names) at = AT_NONE;
-        switch(at) {
-        case(AT_IPv4):
-            entry=get_hostname((*(guint *)ct->conversations[i].dst_address.data));
-            break;
-        case(AT_ETHER):
-            entry=get_ether_name(ct->conversations[i].dst_address.data);
-            break;
-        default:
-            entry=address_to_str(&ct->conversations[i].dst_address);
-        }
-        gtk_clist_set_text(ct->table, j, 2, entry);
-
-        switch(pt) {
-        case(PT_TCP):
-            entry=get_tcp_port(ct->conversations[i].dst_port);
-            break;
-        case(PT_UDP):
-            entry=get_udp_port(ct->conversations[i].dst_port);
-            break;
-        default:
-            port=ct_port_to_str(ct->conversations[i].port_type, ct->conversations[i].dst_port);
-            entry=port?port:"";
-        }
-        gtk_clist_set_text(ct->table, j, 3, entry);
-#endif
+        draw_ct_table_address(ct, i);
     }
 }
 

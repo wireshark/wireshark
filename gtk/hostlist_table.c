@@ -461,6 +461,9 @@ draw_hostlist_table_address(hostlist_table *hl, int hostlist_idx)
     char *port;
     address_type  at;
     guint32 pt;
+    int rownum;
+
+    rownum=gtk_clist_find_row_from_data(hl->table, (gpointer)hostlist_idx);
 
     at = hl->hosts[hostlist_idx].address.type;
     if(!hl->resolve_names) at = AT_NONE;
@@ -474,7 +477,7 @@ draw_hostlist_table_address(hostlist_table *hl, int hostlist_idx)
     default:
         entry=address_to_str(&hl->hosts[hostlist_idx].address);
     }
-    gtk_clist_set_text(hl->table, hostlist_idx, 0, entry);
+    gtk_clist_set_text(hl->table, rownum, 0, entry);
 
     pt = hl->hosts[hostlist_idx].port_type;
     if(!hl->resolve_names) pt = PT_NONE;
@@ -489,7 +492,7 @@ draw_hostlist_table_address(hostlist_table *hl, int hostlist_idx)
         port=hostlist_port_to_str(hl->hosts[hostlist_idx].port_type, hl->hosts[hostlist_idx].port);
         entry=port?port:"";
     }
-    gtk_clist_set_text(hl->table, hostlist_idx, 1, entry);
+    gtk_clist_set_text(hl->table, rownum, 1, entry);
 }
 
 /* Refresh the address fields of all entries in the list */
@@ -497,51 +500,9 @@ static void
 draw_hostlist_table_addresses(hostlist_table *hl)
 {
     guint32 i;
-    int j;
-
 
     for(i=0;i<hl->num_hosts;i++){
-#if 0
-        char *entry;
-        char *port;
-        address_type  at;
-        guint32 pt;
-#endif
-
-        j=gtk_clist_find_row_from_data(hl->table, (gpointer)i);
-
-        draw_hostlist_table_address(hl, j);
-
-#if 0
-        at = hl->hosts[i].address.type;
-        if(!hl->resolve_names) at = AT_NONE;
-        switch(at) {
-        case(AT_IPv4):
-            entry=get_hostname((*(guint *)hl->hosts[i].address.data));
-            break;
-        case(AT_ETHER):
-            entry=get_ether_name(hl->hosts[i].address.data);
-            break;
-        default:
-            entry=address_to_str(&hl->hosts[i].address);
-        }
-        gtk_clist_set_text(hl->table, j, 0, entry);
-
-        pt = hl->hosts[i].port_type;
-        if(!hl->resolve_names) pt = PT_NONE;
-        switch(pt) {
-        case(PT_TCP):
-            entry=get_tcp_port(hl->hosts[i].port);
-            break;
-        case(PT_UDP):
-            entry=get_udp_port(hl->hosts[i].port);
-            break;
-        default:
-            port=hostlist_port_to_str(hl->hosts[i].port_type, hl->hosts[i].port);
-            entry=port?port:"";
-        }
-        gtk_clist_set_text(hl->table, j, 1, entry);
-#endif
+        draw_hostlist_table_address(hl, i);
     }
 }
 
