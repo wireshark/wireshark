@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.81 2001/01/03 06:55:34 guy Exp $
+ * $Id: packet-udp.c,v 1.82 2001/01/06 08:44:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,10 +71,6 @@ typedef struct _e_udphdr {
   guint16 uh_sum;
 } e_udphdr;
 
-/* UDP Ports -> should go in packet-udp.h */
-
-#define UDP_PORT_VINES	573
-
 static dissector_table_t udp_dissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 
@@ -127,14 +123,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree))
     return;
 
-  /* XXX - we should do these with the subdissector table as well. */
-#define PORT_IS(port)	(uh_sport == port || uh_dport == port)
-  if (PORT_IS(UDP_PORT_VINES)) {
-    /* FIXME: AFAIK, src and dst port must be the same */
-    tvb_compat(next_tvb, &next_pd, &next_offset);
-    dissect_vines_frp(next_pd, next_offset, pinfo->fd, tree);
-  } else
-    dissect_data(next_tvb, 0, pinfo, tree);
+  dissect_data(next_tvb, 0, pinfo, tree);
 }
 
 
