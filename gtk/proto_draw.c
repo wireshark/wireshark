@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.97 2004/05/15 00:40:06 ulfl Exp $
+ * $Id: proto_draw.c,v 1.98 2004/05/18 00:05:12 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -215,10 +215,20 @@ redraw_hex_dump(GtkWidget *nb, frame_data *fd, field_info *finfo)
 void
 redraw_hex_dump_all(void)
 {
-  if (cfile.current_frame != NULL)
-    redraw_hex_dump( byte_nb_ptr, cfile.current_frame, cfile.finfo_selected);
+    if (cfile.current_frame != NULL)
+            redraw_hex_dump( byte_nb_ptr, cfile.current_frame, cfile.finfo_selected);
 
   redraw_hex_dump_packet_wins();
+
+#if GTK_MAJOR_VERSION >= 2
+  /* XXX - this is a hack, to workaround a bug in GTK2.x!
+     when changing the font size, even refilling of the corresponding 
+     gtk_text_buffer doesn't seem to trigger an update.     
+     The only workaround is to freshly select the frame, which will remove any 
+     existing notebook tabs and "restart" the whole byte view again. */
+  if (cfile.current_frame != NULL)
+    goto_frame(&cfile, cfile.current_frame->num);
+#endif
 }
 
 #if GTK_MAJOR_VERSION < 2
