@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-tvbuff.c,v 1.15 2003/12/18 13:02:19 obiot Exp $
+ * $Id: ftype-tvbuff.c,v 1.16 2004/02/01 22:42:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -195,7 +195,7 @@ cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 	}
 	TRY {
 		tvb_len = tvb_length(tvb);
-		data = tvb_get_ptr(tvb, 0, tvb_len);
+		data = (const char *)tvb_get_ptr(tvb, 0, tvb_len);
 		rc = pcre_exec(
 			pcre->re,	/* Compiled PCRE */
 			pcre->ex,	/* PCRE extra from pcre_study() */
