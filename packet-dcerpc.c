@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.119 2003/05/10 01:57:53 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.120 2003/05/10 02:29:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -990,7 +990,7 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
 
     if (add_subtree) {
-        string_item = proto_tree_add_text(tree, tvb, offset, 0, "%s",
+        string_item = proto_tree_add_text(tree, tvb, offset, -1, "%s",
                                           proto_registrar_get_name(hfindex));
         string_tree = proto_item_add_subtree(string_item, ett_dcerpc_string);
     } else {
@@ -1059,6 +1059,8 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    g_free(s);
     
     offset += buffer_len;
+
+    proto_item_set_end(string_item, tvb, offset);
 
     return offset;
 }
