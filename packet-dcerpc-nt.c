@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.12 2002/03/10 23:24:48 sahlberg Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.13 2002/03/11 00:15:20 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -530,6 +530,89 @@ dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset,
 	return offset;
 }
 /* UNICODE_STRING  END */
+
+/* functions to dissect a STRING structure, common to many 
+   NT services
+   struct {
+     short len;
+     short size;
+     [size_is(size), length_is(len), ptr] char *string;
+   } STRING;
+*/
+int
+dissect_ndr_nt_STRING_string (tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *tree, 
+                             char *drep)
+{
+	guint32 len, off, max_len;
+	guint8 *text;
+	int old_offset;
+	header_field_info *hfi;
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_nt_str_len, &len);
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_nt_str_off, &off);
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_nt_str_max_len, &max_len);
+
+	old_offset=offset;
+	offset = prs_uint8s(tvb, offset, pinfo, tree, max_len, &text, NULL);
+
+	hfi = proto_registrar_get_nth(di->hf_index);
+	proto_tree_add_string_format(tree, di->hf_index, 
+		tvb, old_offset, offset-old_offset,
+		text, "%s: %s", hfi->name, text);
+
+	if(tree){
+		proto_item_set_text(tree, "%s: %s", hfi->name, text);
+		proto_item_set_text(tree->parent, "%s: %s", hfi->name, text);
+	}
+  	return offset;
+}
+
+int
+dissect_ndr_nt_STRING (tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *parent_tree, 
+                             char *drep, int hf_index, int levels)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+	dcerpc_info *di;
+
+	ALIGN_TO_4_BYTES;  /* strcture starts with short, but is aligned for longs */
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+			"string");
+		tree = proto_item_add_subtree(item, ett_nt_unicode_string);
+	}
+
+        offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+                                     hf_nt_string_length, NULL);
+        offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+                                     hf_nt_string_size, NULL);
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			dissect_ndr_nt_STRING_string, NDR_POINTER_UNIQUE,
+			"", hf_index, levels);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
 
 
 /* This function is used to dissect a DCERPC encoded 64 bit time value.

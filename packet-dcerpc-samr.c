@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.22 2002/03/11 00:00:15 sahlberg Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.23 2002/03/11 00:15:20 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -190,89 +190,6 @@ static e_uuid_t uuid_dcerpc_samr = {
 static guint16 ver_dcerpc_samr = 1;
 
 
-/* functions to dissect a STRING structure, common to many 
-   NT services
-   struct {
-     short len;
-     short size;
-     [size_is(size), length_is(len), ptr] char *string;
-   } STRING;
-*/
-
-static int
-dissect_ndr_nt_STRING_string (tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *tree, 
-                             char *drep)
-{
-	guint32 len, off, max_len;
-	guint8 *text;
-	int old_offset;
-	char *name;
-	dcerpc_info *di;
-
-	di=pinfo->private_data;
-	if(di->conformant_run){
-		/*just a run to handle conformant arrays, nothing to dissect */
-		return offset;
-	}
-
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_nt_str_len, &len);
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_nt_str_off, &off);
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_nt_str_max_len, &max_len);
-
-	old_offset=offset;
-	offset = prs_uint8s(tvb, offset, pinfo, tree, max_len, &text, NULL);
-
-	name = proto_registrar_get_name(di->hf_index);
-	proto_tree_add_string(tree, di->hf_index, tvb, old_offset,
-		offset-old_offset, text);
-
-	if(tree){
-		proto_item_set_text(tree, "%s: %s", name, text);
-		proto_item_set_text(tree->parent, "%s: %s", name, text);
-	}
-  	return offset;
-}
-
-int
-dissect_ndr_nt_STRING (tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *parent_tree, 
-                             char *drep, int hf_index)
-{
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
-	int old_offset=offset;
-	char *name;
-	dcerpc_info *di;
-
-	di=pinfo->private_data;
-	if(di->conformant_run){
-		/*just a run to handle conformant arrays, nothing to dissect */
-		return offset;
-	}
-
-	name = proto_registrar_get_name(di->hf_index);
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
-			"%s", name);
-		tree = proto_item_add_subtree(item, ett_nt_unicode_string);
-	}
-
-        offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
-                                     hf_nt_string_length, NULL);
-        offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
-                                     hf_nt_string_size, NULL);
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_nt_STRING_string, NDR_POINTER_PTR,
-			name, hf_index, 0);
-
-	proto_item_set_len(item, offset-old_offset);
-	return offset;
-}
-
 static int
 samr_dissect_SID(tvbuff_t *tvb, int offset, 
 			packet_info *pinfo, proto_tree *tree, 
@@ -456,7 +373,7 @@ samr_dissect_pointer_STRING(tvbuff_t *tvb, int offset,
 	}
 
 	offset = dissect_ndr_nt_STRING(tvb, offset, pinfo, tree, drep,
-			di->hf_index);
+			di->hf_index, 0);
 	return offset;
 }
 
@@ -743,9 +660,9 @@ samr_dissect_ASCII_DISPINFO(tvbuff_t *tvb, int offset,
 			hf_samr_rid, NULL);
 	offset = dissect_ndr_nt_acct_ctrl(tvb, offset, pinfo, tree, drep);
 	offset = dissect_ndr_nt_STRING(tvb, offset, pinfo, tree, drep,
-			hf_samr_acct_name);
+			hf_samr_acct_name, 0);
 	offset = dissect_ndr_nt_STRING(tvb, offset, pinfo, tree, drep,
-			hf_samr_acct_desc);
+			hf_samr_acct_desc,0 );
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -865,7 +782,7 @@ samr_dissect_get_display_enumeration_index_rqst(tvbuff_t *tvb, int offset,
         offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_level, NULL);
 	offset = dissect_ndr_nt_STRING(tvb, offset, pinfo, tree, drep,
-			hf_samr_acct_name);
+			hf_samr_acct_name, 0);
 	return offset;
 }
 
