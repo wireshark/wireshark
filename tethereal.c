@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.202 2003/10/10 21:13:21 guy Exp $
+ * $Id: tethereal.c,v 1.203 2003/10/30 19:56:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1354,6 +1354,20 @@ main(int argc, char *argv[])
   }
   cfile.rfcode = rfcode;
   if (cf_name) {
+    /*
+     * We're reading a capture file.
+     */
+
+#ifndef _WIN32
+    /*
+     * Immediately relinquish any set-UID or set-GID privileges we have;
+     * we must not be allowed to read any capture files the user running
+     * Tethereal can't open.
+     */
+    setuid(getuid());
+    setgid(getgid());
+#endif
+
     err = cf_open(cf_name, FALSE, &cfile);
     if (err != 0) {
       epan_cleanup();
@@ -1541,6 +1555,22 @@ capture(int out_file_type)
       open_err_str[0] = '\0';
 #endif
   }
+
+#ifndef _WIN32
+  /*
+   * We've opened the capture device, so, if we're set-UID or set-GID,
+   * relinquish those privileges.
+   *
+   * XXX - if we have saved set-user-ID support, we should give up those
+   * privileges immediately, and then reclaim them long enough to get
+   * a list of network interfaces and to open one, and then give them
+   * up again, so that stuff we do while processing the argument list,
+   * reading the user's preferences, etc. is done as the real user and
+   * group, not the effective user and group.
+   */
+  setuid(getuid());
+  setgid(getgid());
+#endif
 
   if (cfile.cfilter && !ld.from_pipe) {
     /* A capture filter was specified; set it up. */
