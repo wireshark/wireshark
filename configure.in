@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.15 1998/11/17 04:28:43 gerald Exp $
+# $Id: configure.in,v 1.16 1998/11/18 01:40:09 gerald Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -10,6 +10,15 @@ AC_CANONICAL_HOST
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_RANLIB
+
+# If we're running gcc, add '-Wall' to CFLAGS.
+AC_MSG_CHECKING(to see if we can add '-Wall' to CFLAGS)
+if test x$GCC != x ; then
+  CFLAGS="-Wall $CFLAGS"
+  AC_MSG_RESULT(yes)
+else
+  AC_MSG_RESULT(no)
+fi
 
 # Create DATAFILE_DIR #define for config.h
 DATAFILE_DIR=$sysconfdir
