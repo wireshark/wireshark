@@ -5,7 +5,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.71 2002/12/17 22:14:54 oabad Exp $
+ * $Id: packet-radius.c,v 1.72 2002/12/17 22:49:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2370,8 +2370,9 @@ rddecryptpass(gchar *dest,tvbuff_t *tvb,int offset,int length)
     md5_state_t md_ctx;
     md5_byte_t digest[16];
     guint32 i;
-    guint32 totlen = 0;
-    const guint8 *pd = tvb_get_ptr(tvb,offset,length);
+    guint32 totlen;
+    const guint8 *pd;
+    guchar c;
 
     if (!shared_secret || !authenticator ) {
 	rdconvertbufftostr(dest,tvb,offset,length);
@@ -2379,7 +2380,7 @@ rddecryptpass(gchar *dest,tvbuff_t *tvb,int offset,int length)
     }
 
     dest[0] = '"';
-    dest[1] = 0;
+    dest[1] = '\0';
     totlen = 1;
 
     md5_init(&md_ctx);
@@ -2387,29 +2388,31 @@ rddecryptpass(gchar *dest,tvbuff_t *tvb,int offset,int length)
     md5_append(&md_ctx,authenticator,16);
     md5_finish(&md_ctx,digest);
 
+    pd = tvb_get_ptr(tvb,offset,length);
     for( i = 0 ; i < 16 && i < (guint32)length ; i++ ) {
-	dest[totlen] = pd[i] ^ digest[i];
-	if ( !isprint(dest[totlen])) {
-	    sprintf(&(dest[totlen]),"\\%03o",pd[i] ^ digest[i]);
-	    totlen += strlen(&(dest[totlen]));
-	} else {
+	c = pd[i] ^ digest[i];
+	if ( isprint(c)) {
+	    dest[totlen] = c;
 	    totlen++;
+	} else {
+	    sprintf(&(dest[totlen]),"\\%03o",c);
+	    totlen += strlen(&(dest[totlen]));
 	}
     }
     while(i<(guint32)length) {
-	if ( isprint((int)pd[i]) ) {
+	if ( isprint(pd[i]) ) {
 	    dest[totlen] = (gchar)pd[i];
 	    totlen++;
 	} else {
-		sprintf(&(dest[totlen]), "\\%03o", pd[i]);
-		totlen=totlen+strlen(&(dest[totlen]));
+	    sprintf(&(dest[totlen]), "\\%03o", pd[i]);
+	    totlen=totlen+strlen(&(dest[totlen]));
 	}
 	i++;
     }
     dest[totlen]='"';
-    dest[totlen+1] = 0;
-
+    dest[totlen+1] = '\0';
 }
+
 static void
 rdconvertbufftobinstr(gchar *dest, tvbuff_t *tvb, int offset, int length)
 {
