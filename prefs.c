@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.22 1999/09/09 03:31:50 gram Exp $
+ * $Id: prefs.c,v 1.23 1999/12/02 04:30:03 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -168,6 +168,22 @@ read_prefs(char **pf_path_return) {
       prefs.col_list = g_list_append(prefs.col_list, cfmt);
     }
     prefs.num_cols  = DEF_NUM_COLS;
+    prefs.st_client_fg.pixel =     0;
+    prefs.st_client_fg.red   = 32767;
+    prefs.st_client_fg.green =     0;
+    prefs.st_client_fg.blue  =     0;
+    prefs.st_client_bg.pixel = 65535;
+    prefs.st_client_bg.red   = 65535;
+    prefs.st_client_bg.green = 65535;
+    prefs.st_client_bg.blue  = 65535;
+    prefs.st_server_fg.pixel =     0;
+    prefs.st_server_fg.red   =     0;
+    prefs.st_server_fg.green =     0;
+    prefs.st_server_fg.blue  = 32767;
+    prefs.st_server_bg.pixel = 65535;
+    prefs.st_server_bg.red   = 65535;
+    prefs.st_server_bg.green = 65535;
+    prefs.st_server_bg.blue  = 65535;
   }
 
   if (! pf_path) {
@@ -272,11 +288,19 @@ read_prefs(char **pf_path_return) {
   return &prefs;
 }
 
-#define PRS_PRINT_FMT  "print.format"
-#define PRS_PRINT_DEST "print.destination"
-#define PRS_PRINT_FILE "print.file"
-#define PRS_PRINT_CMD  "print.command"
-#define PRS_COL_FMT    "column.format"
+#define PRS_PRINT_FMT    "print.format"
+#define PRS_PRINT_DEST   "print.destination"
+#define PRS_PRINT_FILE   "print.file"
+#define PRS_PRINT_CMD    "print.command"
+#define PRS_COL_FMT      "column.format"
+#define PRS_STREAM_CL_FG "stream.client.fg"
+#define PRS_STREAM_CL_BG "stream.client.bg"
+#define PRS_STREAM_SR_FG "stream.server.fg"
+#define PRS_STREAM_SR_BG "stream.server.bg"
+
+#define RED_COMPONENT(x)   ((((x) >> 16) & 0xff) * 65535 / 255)
+#define GREEN_COMPONENT(x) ((((x) >>  8) & 0xff) * 65535 / 255)
+#define BLUE_COMPONENT(x)   (((x)        & 0xff) * 65535 / 255)
 
 static gchar *pr_formats[] = { "text", "postscript" };
 static gchar *pr_dests[]   = { "command", "file" };
@@ -286,6 +310,7 @@ set_pref(gchar *pref, gchar *value) {
   GList    *col_l;
   gint      llen;
   fmt_data *cfmt;
+  unsigned long int cval;
 
   if (strcmp(pref, PRS_PRINT_FMT) == 0) {
     if (strcmp(value, pr_formats[PR_FMT_TEXT]) == 0) {
@@ -332,6 +357,30 @@ set_pref(gchar *pref, gchar *value) {
       /* To do: else print some sort of error? */
     }
     clear_string_list(col_l);
+  } else if (strcmp(pref, PRS_STREAM_CL_FG) == 0) {
+    cval = strtoul(value, NULL, 16);
+    prefs.st_client_fg.pixel = 0;
+    prefs.st_client_fg.red   = RED_COMPONENT(cval);
+    prefs.st_client_fg.green = GREEN_COMPONENT(cval);
+    prefs.st_client_fg.blue  = BLUE_COMPONENT(cval);
+  } else if (strcmp(pref, PRS_STREAM_CL_BG) == 0) {
+    cval = strtoul(value, NULL, 16);
+    prefs.st_client_bg.pixel = 0;
+    prefs.st_client_bg.red   = RED_COMPONENT(cval);
+    prefs.st_client_bg.green = GREEN_COMPONENT(cval);
+    prefs.st_client_bg.blue  = BLUE_COMPONENT(cval);
+  } else if (strcmp(pref, PRS_STREAM_SR_FG) == 0) {
+    cval = strtoul(value, NULL, 16);
+    prefs.st_server_fg.pixel = 0;
+    prefs.st_server_fg.red   = RED_COMPONENT(cval);
+    prefs.st_server_fg.green = GREEN_COMPONENT(cval);
+    prefs.st_server_fg.blue  = BLUE_COMPONENT(cval);
+  } else if (strcmp(pref, PRS_STREAM_SR_BG) == 0) {
+    cval = strtoul(value, NULL, 16);
+    prefs.st_server_bg.pixel = 0;
+    prefs.st_server_bg.red   = RED_COMPONENT(cval);
+    prefs.st_server_bg.green = GREEN_COMPONENT(cval);
+    prefs.st_server_bg.blue  = BLUE_COMPONENT(cval);
   } else {
     return 0;
   }
@@ -395,6 +444,25 @@ write_prefs(void) {
   fprintf (pf, "# Packet list column format.  Each pair of strings consists "
     "of a column title \n# and its format.\n"
     "%s: %s\n\n", PRS_COL_FMT, col_format_to_pref_str());
+
+  fprintf (pf, "# TCP stream window color preferences.  Each value is a six "
+    "digit hexadecimal value in the form rrggbb.\n");
+  fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_CL_FG,
+    (prefs.st_client_fg.red * 255 / 65535),
+    (prefs.st_client_fg.green * 255 / 65535),
+    (prefs.st_client_fg.blue * 255 / 65535));
+  fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_CL_BG,
+    (prefs.st_client_bg.red * 255 / 65535),
+    (prefs.st_client_bg.green * 255 / 65535),
+    (prefs.st_client_bg.blue * 255 / 65535));
+  fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_SR_FG,
+    (prefs.st_server_fg.red * 255 / 65535),
+    (prefs.st_server_fg.green * 255 / 65535),
+    (prefs.st_server_fg.blue * 255 / 65535));
+  fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_SR_BG,
+    (prefs.st_server_bg.red * 255 / 65535),
+    (prefs.st_server_bg.green * 255 / 65535),
+    (prefs.st_server_bg.blue * 255 / 65535));
 
   fclose(pf);
 }

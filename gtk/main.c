@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.57 1999/11/30 20:50:15 guy Exp $
+ * $Id: main.c,v 1.58 1999/12/02 04:30:13 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -436,19 +436,17 @@ static void follow_print_stream(GtkWidget *w, gpointer parent_w)
 static void
 follow_load_text(GtkWidget *text, char *filename, gboolean show_ascii)
 {
-	int bytes_already, bcount;
-        tcp_stream_chunk sc;
-        guint32 client_addr = 0;
-        guint16 client_port = 0;
-        GdkColor client = { 0, 16383, 0, 0 };
-        GdkColor server = { 0, 0, 0, 16383 };
+  int bytes_already, bcount;
+  tcp_stream_chunk sc;
+  guint32 client_addr = 0;
+  guint16 client_port = 0;
 
-	/* Delete any info already in text box */
-	bytes_already = gtk_text_get_length(GTK_TEXT(text));
-	if (bytes_already > 0) {
-		gtk_text_set_point(GTK_TEXT(text), 0);
-		gtk_text_forward_delete(GTK_TEXT(text), bytes_already);
-	}
+  /* Delete any info already in text box */
+  bytes_already = gtk_text_get_length(GTK_TEXT(text));
+  if (bytes_already > 0) {
+    gtk_text_set_point(GTK_TEXT(text), 0);
+    gtk_text_forward_delete(GTK_TEXT(text), bytes_already);
+  }
 
     /* stop the updates while we fill the text box */
     gtk_text_freeze( GTK_TEXT(text) );
@@ -478,9 +476,11 @@ follow_load_text(GtkWidget *text, char *filename, gboolean show_ascii)
 		  EBCDIC_to_ASCII(buffer, nchars);
 	  }
           if (client_addr == sc.src_addr && client_port == sc.src_port)
-	    gtk_text_insert( GTK_TEXT(text), m_r_font, &client, NULL, buffer, nchars );
+	    gtk_text_insert( GTK_TEXT(text), m_r_font, &prefs.st_client_fg,
+              &prefs.st_client_bg, buffer, nchars );
           else
-	    gtk_text_insert( GTK_TEXT(text), m_r_font, &server, NULL, buffer, nchars );
+	    gtk_text_insert( GTK_TEXT(text), m_r_font, &prefs.st_server_fg,
+              &prefs.st_server_bg, buffer, nchars );
 	}
       }
       if( ferror( data_out_file ) ) {

@@ -1,11 +1,11 @@
-/* prefs.h
- * Definitions for preference handling routines
+/* stream_prefs.h
+ * Definitions for stream preferences window
  *
- * $Id: prefs.h,v 1.9 1999/12/02 04:30:03 gerald Exp $
+ * $Id: stream_prefs.h,v 1.1 1999/12/02 04:30:15 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
- * Copyright 1998 Gerald Combs
+ * Copyright 1999 Gerald Combs
  *
  * 
  * This program is free software; you can redistribute it and/or
@@ -23,28 +23,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PREFS_H__
-#define __PREFS_H__
 
-#define PR_FMT_TEXT 0
-#define PR_FMT_PS   1
-
-#define PR_DEST_CMD  0
-#define PR_DEST_FILE 1
-
-typedef struct _e_prefs {
-  gint     pr_format;
-  gint     pr_dest;
-  gchar   *pr_file;
-  gchar   *pr_cmd;
-  GList   *col_list;
-  gint     num_cols;
-  GdkColor st_client_fg, st_client_bg, st_server_fg, st_server_bg;
-} e_prefs;
-
-extern e_prefs prefs;
-
-e_prefs* read_prefs(char **);
-void write_prefs(void);
-
-#endif /* prefs.h */
+GtkWidget *stream_prefs_show(void);
+void stream_prefs_ok(GtkWidget *w);
+void stream_prefs_save(GtkWidget *w);
+void stream_prefs_cancel(GtkWidget *w);
+void stream_prefs_delete(GtkWidget *w);
