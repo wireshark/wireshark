@@ -3,7 +3,7 @@
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  * derived from packet-rip.c
  *
- * $Id: packet-ripng.c,v 1.17 2001/01/09 06:31:40 guy Exp $
+ * $Id: packet-ripng.c,v 1.18 2001/01/22 08:03:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,6 +54,12 @@ static gint ett_ripng_addr = -1;
 
 #define UDP_PORT_RIPNG  521
 
+static const value_string cmdvals[] = {
+    { RIP6_REQUEST, "Request" },
+    { RIP6_RESPONSE, "Response" },
+    { 0, NULL },
+};
+
 static void 
 dissect_ripng(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     struct rip6 rip6;
@@ -61,32 +67,27 @@ dissect_ripng(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree *ripng_tree = NULL;
     proto_tree *subtree = NULL;
     proto_item *ti; 
-    static const value_string cmdvals[] = {
-	{ RIP6_REQUEST, "Request" },
-	{ RIP6_RESPONSE, "Response" },
-	{ 0, NULL },
-    };
-    const char *cmd;
 
-    OLD_CHECK_DISPLAY_AS_DATA(proto_ripng, pd, offset, fd, tree);
+    if (check_col(fd, COL_PROTOCOL))
+        col_set_str(fd, COL_PROTOCOL, "RIPng");
+    if (check_col(fd, COL_INFO))
+        col_clear(fd, COL_INFO);
 
     /* avoid alignment problem */
     memcpy(&rip6, &pd[offset], sizeof(rip6));
   
-    cmd = val_to_str(rip6.rip6_cmd, cmdvals, "Unknown");
-
     if (check_col(fd, COL_PROTOCOL))
         col_add_fstr(fd, COL_PROTOCOL, "RIPng version %u", rip6.rip6_vers);
     if (check_col(fd, COL_INFO))
-	col_add_fstr(fd, COL_INFO, "%s", cmd); 
+	col_add_str(fd, COL_INFO,
+	    val_to_str(rip6.rip6_cmd, cmdvals, "Unknown command (%u)")); 
 
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_ripng, NullTVB, offset, END_OF_FRAME, FALSE);
 	ripng_tree = proto_item_add_subtree(ti, ett_ripng);
 
-	proto_tree_add_uint_format(ripng_tree, hf_ripng_cmd, NullTVB, offset, 1,
-	    rip6.rip6_cmd,
-	    "Command: %s (%u)", cmd, rip6.rip6_cmd); 
+	proto_tree_add_uint(ripng_tree, hf_ripng_cmd, NullTVB, offset, 1,
+	    rip6.rip6_cmd);
 	proto_tree_add_uint(ripng_tree, hf_ripng_version, NullTVB, offset + 1, 1,
 	    rip6.rip6_vers);
 
@@ -141,10 +142,12 @@ proto_register_ripng(void)
     static hf_register_info hf[] = {
       { &hf_ripng_cmd,
 	{ "Command",		"ripng.cmd",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+				FT_UINT8, BASE_DEC, VALS(cmdvals),
+				0x0, "" }},
       { &hf_ripng_version,
 	{ "Version",		"ripng.version",
-				FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+				FT_UINT8, BASE_DEC, NULL,
+				0x0, "" }},
     };
     static gint *ett[] = {
       &ett_ripng,

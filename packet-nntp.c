@@ -2,7 +2,7 @@
  * Routines for nntp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-nntp.c,v 1.18 2001/01/09 06:31:39 guy Exp $
+ * $Id: packet-nntp.c,v 1.19 2001/01/22 08:03:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,18 +57,13 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*nntp_tree;
 	proto_item	*ti;
 	gint		offset = 0;
-	const u_char	*line;
 	gint		next_offset;
 	int		linelen;
-
-	CHECK_DISPLAY_AS_DATA(proto_nntp, tvb, pinfo, tree);
 
         if (pinfo->match_port == pinfo->destport)
         	type = "Request";
         else
         	type = "Response";
-
-	pinfo->current_proto = "NNTP";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "NNTP");
@@ -77,11 +72,14 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Put the first line from the buffer into the summary
 		 * (but leave out the line terminator).
+		 *
+		 * Note that "tvb_find_line_end()" will return a value that
+		 * is not longer than what's in the buffer, so the
+		 * "tvb_get_ptr()" call won't throw an exception.
 		 */
 		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
-		line = tvb_get_ptr(tvb, offset, linelen);
 		col_add_fstr(pinfo->fd, COL_INFO, "%s: %s", type,
-		    format_text(line, linelen));
+		    tvb_format_text(tvb, offset, linelen));
 	}
 
 	if (tree) {

@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.6 2001/01/09 06:31:33 guy Exp $
+ * $Id: packet-aim.c,v 1.7 2001/01/22 08:03:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -107,7 +107,6 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   unsigned short hdr_sequence_no;       /* Internal frame sequence number, not needed */
   unsigned short hdr_data_field_length; /* length of data within frame */
 
-
   guint16 family;
   guint16 subtype;
   guint8 buddyname_length = 0;
@@ -119,13 +118,6 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *ti1;
   proto_tree *aim_tree = NULL;
   proto_tree *aim_tree_fnac = NULL;
-
-/* Check if protocol decoding is enabled else decode as data and return */
-
-  CHECK_DISPLAY_AS_DATA(proto_aim, tvb, pinfo, tree);
-
-/* load the display labels  */
-  pinfo->current_proto = "AIM";            
 
 /* check, if this is really an AIM packet, they start with 0x2a */
 

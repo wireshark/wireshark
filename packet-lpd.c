@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lpd.c,v 1.26 2001/01/09 06:31:38 guy Exp $
+ * $Id: packet-lpd.c,v 1.27 2001/01/22 08:03:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -78,10 +78,6 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		"Queue temporarily full, retry later",
 		"Bad job format, do not retry"
 	};
-
-	CHECK_DISPLAY_AS_DATA(proto_lpd, tvb, pinfo, tree);
-
-	pinfo->current_proto = "LPD";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "LPD");

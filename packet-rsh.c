@@ -4,7 +4,7 @@
  * Robert Tsai <rtsai@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rsh.c,v 1.9 2001/01/09 06:31:41 guy Exp $
+ * $Id: packet-rsh.c,v 1.10 2001/01/22 08:03:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,13 +53,8 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*rsh_tree;
 	proto_item	*ti;
 	gint		offset = 0;
-	const u_char	*line;
 	gint		next_offset;
 	int		linelen;
-
-	CHECK_DISPLAY_AS_DATA(proto_rsh, tvb, pinfo, tree);
-
-	pinfo->current_proto = "RSH";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "RSH");
@@ -67,8 +62,16 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Put the first line from the buffer into the summary. */
 		tvb_find_line_end(tvb, offset, -1, &next_offset);
 		linelen = next_offset - offset;	/* include the line terminator */
-		line = tvb_get_ptr(tvb, offset, linelen);
-		col_add_str(pinfo->fd, COL_INFO, format_text(line, linelen));
+
+		/*
+		 * Make sure the line terminator isn't past the end of
+		 * the captured data in the packet, so we don't throw
+		 * an exception in the "tvb_get_ptr()" call.
+		 */
+		if (linelen > tvb_length(tvb))
+			linelen = tvb_length(tvb);
+		col_add_str(pinfo->fd, COL_INFO,
+		    tvb_format_text(tvb, offset, linelen));
 	}
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_rsh, tvb, offset,

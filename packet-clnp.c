@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.23 2001/01/10 09:07:35 guy Exp $
+ * $Id: packet-clnp.c,v 1.24 2001/01/22 08:03:44 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -1571,12 +1571,10 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *discpdu_tree;
   tvbuff_t   *next_tvb;
 
-  CHECK_DISPLAY_AS_DATA(proto_clnp, tvb, pinfo, tree);
-
-  pinfo->current_proto = "CLNP";
-
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_set_str(pinfo->fd, COL_PROTOCOL, "CLNP");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_clear(pinfo->fd, COL_INFO);
 
   cnf_proto_id = tvb_get_guint8(tvb, P_CLNP_PROTO_ID);
   if (cnf_proto_id == NLPID_NULL) {

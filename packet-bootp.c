@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.45 2001/01/09 06:31:34 guy Exp $
+ * $Id: packet-bootp.c,v 1.46 2001/01/22 08:03:44 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -653,10 +653,6 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32		ip_addr;
 	gboolean	is_dhcp = FALSE;
 	const char	*dhcp_type;
-
-	CHECK_DISPLAY_AS_DATA(proto_bootp, tvb, pinfo, tree);
-
-	pinfo->current_proto = "BOOTP/DHCP";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "BOOTP");

@@ -2,7 +2,7 @@
  * Routines for who protocol (see man rwhod)
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-who.c,v 1.14 2001/01/09 06:31:45 guy Exp $
+ * $Id: packet-who.c,v 1.15 2001/01/22 08:03:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -103,10 +103,6 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gchar		server_name[33];
 	double		loadav_5 = 0.0, loadav_10 = 0.0, loadav_15 = 0.0;
 	struct timeval	tv;
-
-	CHECK_DISPLAY_AS_DATA(proto_who, tvb, pinfo, tree);
-
-	pinfo->current_proto = "WHO";
 
 	/* Summary information */
 	if (check_col(pinfo->fd, COL_PROTOCOL))

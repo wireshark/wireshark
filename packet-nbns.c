@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.50 2001/01/09 06:31:38 guy Exp $
+ * $Id: packet-nbns.c,v 1.51 2001/01/22 08:03:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1135,12 +1135,12 @@ dissect_nbns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	guint16			id, flags, quest, ans, auth, add;
 	int			cur_off;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_nbns, pd, offset, fd, tree);
-
 	nbns_data_offset = offset;
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_set_str(fd, COL_PROTOCOL, "NBNS");
+	if (check_col(fd, COL_INFO))
+		col_clear(fd, COL_INFO);
 
 	if (pi.captured_len < NBNS_HDRLEN) {
 		if (check_col(fd, COL_INFO)) {
@@ -1299,7 +1299,10 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	int name_type;
 	int len;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_nbdgm, pd, offset, fd, tree);
+	if (check_col(fd, COL_PROTOCOL))
+		col_set_str(fd, COL_PROTOCOL, "NBDS");
+	if (check_col(fd, COL_INFO))
+		col_clear(fd, COL_INFO);
 
 	header.msg_type = pd[offset];
 	
@@ -1326,10 +1329,8 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		message_index = 0;
 	}
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "NBDS");
 	if (check_col(fd, COL_INFO)) {
-		col_add_fstr(fd, COL_INFO, "%s", message[message_index]);
+		col_set_str(fd, COL_INFO, message[message_index]);
 	}
 
 	if (tree) {
@@ -1594,7 +1595,10 @@ dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	int		max_data;
 	int		is_cifs;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_nbss, pd, offset, fd, tree);
+	if (check_col(fd, COL_PROTOCOL))
+		col_set_str(fd, COL_PROTOCOL, "NBSS");
+	if (check_col(fd, COL_INFO))
+		col_clear(fd, COL_INFO);
 
 	msg_type = pd[offset];
 
@@ -1636,8 +1640,6 @@ dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    ((msg_type == SESSION_MESSAGE) &&
 	    (memcmp(pd + offset + 4, "\377SMB", 4) != 0))) {
  
-	  if (check_col(fd, COL_PROTOCOL))
-	    col_set_str(fd, COL_PROTOCOL, "NBSS");
 	  if (check_col(fd, COL_INFO)) {
 	    col_add_fstr(fd, COL_INFO, "NBSS Continuation Message");
 	  }
@@ -1649,8 +1651,6 @@ dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 #endif
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "NBSS");
 	if (check_col(fd, COL_INFO)) {
 		col_add_fstr(fd, COL_INFO,
 		    val_to_str(msg_type, message_types, "Unknown (%x)"));

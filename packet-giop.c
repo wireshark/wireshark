@@ -4,7 +4,7 @@
  * Laurent Deniel <deniel@worldnet.fr>
  * Craig Rodrigues <rodrigc@mediaone.net>
  *
- * $Id: packet-giop.c,v 1.29 2001/01/16 23:35:58 guy Exp $
+ * $Id: packet-giop.c,v 1.30 2001/01/22 08:03:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1226,11 +1226,6 @@ dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   u_int minor_version;
   gboolean stream_is_big_endian;
 
-  if( !proto_is_protocol_enabled( proto_giop ))
-	  return FALSE;	/* GIOP has been disabled */
-
-  pinfo->current_proto = "GIOP";
-
   /* check magic number and version */
 
 
@@ -1290,6 +1285,14 @@ dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       return TRUE;
     }
 
+  if (check_col (pinfo->fd, COL_INFO)) 
+  { 
+      col_add_fstr (pinfo->fd, COL_INFO, "GIOP %u.%u %s",
+                    header.GIOP_version.major, header.GIOP_version.minor,
+                    val_to_str(header.message_type, giop_message_types,
+                    	       "Unknown message type (0x%02x)"));
+  }
+
   stream_is_big_endian = is_big_endian (&header);
 
   if (stream_is_big_endian)
@@ -1337,13 +1340,6 @@ dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			   giop_header_tvb, 8, 4, message_size);
 
     }				/* tree */
-
-  if (check_col (pinfo->fd, COL_INFO)) 
-  { 
-      col_add_fstr (pinfo->fd, COL_INFO, "GIOP %u.%u %s",
-                    header.GIOP_version.major, header.GIOP_version.minor,
-                    match_strval(header.message_type, giop_message_types));
-  }
 
   switch (header.message_type)
     {

@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.49 2001/01/18 06:33:23 guy Exp $
+ * $Id: packet-rpc.c,v 1.50 2001/01/22 08:03:45 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1034,7 +1034,7 @@ dissect_rpc_authgss_priv_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 
-gboolean
+static gboolean
 dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
@@ -1086,11 +1086,6 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	static address null_address = { AT_NONE, 0, NULL };
 
 	dissect_function_t *dissect_function = NULL;
-
-	if (!proto_is_protocol_enabled(proto_rpc))
-	  return FALSE;
-
-	pinfo->current_proto = "RPC";
 
 	/* TCP uses record marking */
 	use_rm = (pinfo->ptype == PT_TCP);
@@ -1175,6 +1170,8 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "RPC");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_clear(pinfo->fd, COL_INFO);
 
 	if (tree) {
 		rpc_item = proto_tree_add_item(tree, proto_rpc, tvb, 0,
@@ -1231,7 +1228,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (check_col(pinfo->fd, COL_PROTOCOL)) {
 			/* Set the protocol name to the underlying
 			   program name. */
-			col_add_fstr(pinfo->fd, COL_PROTOCOL, "%s", progname);
+			col_set_str(pinfo->fd, COL_PROTOCOL, progname);
 		}
 
 		if (!tvb_bytes_exist(tvb, offset+8,4))
@@ -1403,8 +1400,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (check_col(pinfo->fd, COL_PROTOCOL)) {
 				/* Set the protocol name to the underlying
 				   program name. */
-				col_add_fstr(pinfo->fd, COL_PROTOCOL, "%s",
-				    progname);
+				col_set_str(pinfo->fd, COL_PROTOCOL, progname);
 			}
 		}
 

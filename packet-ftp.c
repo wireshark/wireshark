@@ -2,7 +2,7 @@
  * Routines for ftp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-ftp.c,v 1.26 2001/01/09 06:31:35 guy Exp $
+ * $Id: packet-ftp.c,v 1.27 2001/01/22 08:03:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -73,27 +73,27 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		tokenlen;
 	const u_char	*next_token;
 
-	CHECK_DISPLAY_AS_DATA(proto_ftp, tvb, pinfo, tree);
-
 	if (pinfo->match_port == pinfo->destport)
 		is_request = TRUE;
 	else
 		is_request = FALSE;
-
-	pinfo->current_proto = "FTP";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "FTP");
 
 	/*
 	 * Find the end of the first line.
+	 *
+	 * Note that "tvb_find_line_end()" will return a value that is
+	 * not longer than what's in the buffer, so the "tvb_get_ptr()"
+	 * call won't throw an exception.
 	 */
 	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
 	line = tvb_get_ptr(tvb, offset, linelen);
 
 	if (check_col(pinfo->fd, COL_INFO)) {
 		/*
-		 * Put the first line from the buffer into the summary.
+		 * Put the first line from the buffer into the summary
 		 * (but leave out the line terminator).
 		 */
 		col_add_fstr(pinfo->fd, COL_INFO, "%s: %s",
@@ -187,10 +187,6 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree      *ti, *ftp_data_tree;
         int		data_length;
 
-	CHECK_DISPLAY_AS_DATA(proto_ftp_data, tvb, pinfo, tree);
-
-	pinfo->current_proto = "FTP-DATA";
-
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "FTP-DATA");
 
@@ -264,6 +260,6 @@ proto_register_ftp(void)
 void
 proto_reg_handoff_ftp(void)
 {
-  dissector_add("tcp.port", TCP_PORT_FTPDATA, &dissect_ftpdata, proto_ftp);
+  dissector_add("tcp.port", TCP_PORT_FTPDATA, &dissect_ftpdata, proto_ftp_data);
   dissector_add("tcp.port", TCP_PORT_FTP, &dissect_ftp, proto_ftp_data);
 }

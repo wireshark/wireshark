@@ -1,7 +1,7 @@
 /* packet-bxxp.c
  * Routines for BXXP packet disassembly
  *
- * $Id: packet-bxxp.c,v 1.15 2001/01/09 06:31:34 guy Exp $
+ * $Id: packet-bxxp.c,v 1.16 2001/01/22 08:03:44 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -986,10 +986,6 @@ dissect_bxxp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   struct bxxp_request_key request_key, *new_request_key;
   struct bxxp_request_val *request_val = NULL;
 
-  CHECK_DISPLAY_AS_DATA(proto_bxxp, tvb, pinfo, tree);
-
-  pinfo->current_proto = "BXXP";
-
   offset = 0;
 
   /* If we have per frame data, use that, else, we must have lost the per-
@@ -1053,7 +1049,9 @@ dissect_bxxp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (check_col(pinfo->fd, COL_INFO)) {  /* Check the type ... */
 
-    col_add_fstr(pinfo->fd, COL_INFO, "%s", tvb_format_text(tvb, offset, tvb_length_remaining(tvb, offset)));
+    /* "tvb_format_text()" is passed a value that won't go past the end
+     * of the packet, so it won't throw an exception. */
+    col_add_str(pinfo->fd, COL_INFO, tvb_format_text(tvb, offset, tvb_length_remaining(tvb, offset)));
 
   }
 

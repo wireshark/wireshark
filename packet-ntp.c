@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.24 2001/01/09 06:31:39 guy Exp $
+ * $Id: packet-ntp.c,v 1.25 2001/01/22 08:03:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -267,10 +267,6 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		*xmt;
 	gchar		buff[NTP_TS_SIZE];
 	int		i;
-
-	CHECK_DISPLAY_AS_DATA(proto_ntp, tvb, pinfo, tree);
-
-	pinfo->current_proto = "NTP";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "NTP");

@@ -3,7 +3,7 @@
  * see http://ddt.sourceforge.net/
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-ddtp.c,v 1.14 2001/01/09 06:31:34 guy Exp $
+ * $Id: packet-ddtp.c,v 1.15 2001/01/22 08:03:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -99,15 +99,16 @@ static const value_string vals_ddtp_status[] = {
 static void
 dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree *ddtp_tree;
+    proto_tree *ddtp_tree = NULL;
     proto_item *ti;
 
-    CHECK_DISPLAY_AS_DATA(proto_ddtp, tvb, pinfo, tree);
-
-    pinfo->current_proto = "DDTP";
     if (check_col(pinfo->fd, COL_PROTOCOL)) {
 	/* Indicate what kind of message this is. */
     	col_set_str (pinfo->fd, COL_PROTOCOL, "DDTP");
+    }
+    if (check_col(pinfo->fd, COL_INFO)) {
+	/* In case we throw an exception below. */
+    	col_clear (pinfo->fd, COL_INFO);
     }
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_ddtp, tvb, 0,
@@ -117,47 +118,61 @@ dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(ddtp_tree, hf_ddtp_version, tvb, 0, 4, FALSE);
 	proto_tree_add_item(ddtp_tree, hf_ddtp_encrypt, tvb, 4, 4, FALSE);
 	proto_tree_add_item(ddtp_tree, hf_ddtp_hostid, tvb, 8, 4, FALSE);
-	if (tvb_get_ntohl(tvb, 4) == DDTP_ENCRYPT_PLAINTEXT) {
+    }
+    if (tvb_get_ntohl(tvb, 4) == DDTP_ENCRYPT_PLAINTEXT) {
+	if (tree)
 	    proto_tree_add_item(ddtp_tree, hf_ddtp_msgtype, tvb, 12, 4, FALSE);
-	    switch (tvb_get_ntohl(tvb, 12)) {
-	    case DDTP_MESSAGE_ERROR :
-		if (check_col(pinfo->fd, COL_INFO))
-		    col_set_str (pinfo->fd, COL_INFO, "Message Error");
-		break;
-	    case DDTP_UPDATE_QUERY :
-		if (check_col(pinfo->fd, COL_INFO))
-		    col_set_str (pinfo->fd, COL_INFO, "Update Query");
+	switch (tvb_get_ntohl(tvb, 12)) {
+	case DDTP_MESSAGE_ERROR :
+	    if (check_col(pinfo->fd, COL_INFO))
+		col_set_str (pinfo->fd, COL_INFO, "Message Error");
+	    break;
+	case DDTP_UPDATE_QUERY :
+	    if (check_col(pinfo->fd, COL_INFO))
+		col_set_str (pinfo->fd, COL_INFO, "Update Query");
+	    if (tree) {
 		proto_tree_add_item(ddtp_tree, hf_ddtp_opcode, tvb, 16, 4,
 			FALSE);
 		proto_tree_add_item(ddtp_tree, hf_ddtp_ipaddr, tvb, 20, 4,
 			FALSE);
-		break;
-	    case DDTP_UPDATE_REPLY :
-		if (check_col(pinfo->fd, COL_INFO))
-		    col_set_str (pinfo->fd, COL_INFO, "Update Reply");
+	    }
+	    break;
+	case DDTP_UPDATE_REPLY :
+	    if (check_col(pinfo->fd, COL_INFO))
+		col_set_str (pinfo->fd, COL_INFO, "Update Reply");
+	    if (tree) {
 		proto_tree_add_item(ddtp_tree, hf_ddtp_status, tvb, 16, 4,
 			FALSE);
-		break;
-	    case DDTP_ALIVE_QUERY :
-		if (check_col(pinfo->fd, COL_INFO))
-		    col_set_str (pinfo->fd, COL_INFO, "Alive Query");
+	    }
+	    break;
+	case DDTP_ALIVE_QUERY :
+	    if (check_col(pinfo->fd, COL_INFO))
+		col_set_str (pinfo->fd, COL_INFO, "Alive Query");
+	    if (tree) {
 		proto_tree_add_text(ddtp_tree, tvb, 16, 4, "Dummy : %u",
 			tvb_get_ntohl(tvb, 16));
-		break;
-	    case DDTP_ALIVE_REPLY :
-		if (check_col(pinfo->fd, COL_INFO))
-		    col_set_str (pinfo->fd, COL_INFO, "Alive Reply");
+	    }
+	    break;
+	case DDTP_ALIVE_REPLY :
+	    if (check_col(pinfo->fd, COL_INFO))
+		col_set_str (pinfo->fd, COL_INFO, "Alive Reply");
+	    if (tree) {
 		proto_tree_add_text(ddtp_tree, tvb, 16, 4, "Dummy : %u",
 			tvb_get_ntohl(tvb, 16));
-		break;
-	    default :
-		if (check_col(pinfo->fd, COL_INFO))
-		    col_set_str (pinfo->fd, COL_INFO, "Unknwon type");
+	    }
+	    break;
+	default :
+	    if (check_col(pinfo->fd, COL_INFO))
+		col_set_str (pinfo->fd, COL_INFO, "Unknown type");
+	    if (tree) {
 		proto_tree_add_text(ddtp_tree, tvb, 12, 4, "Unknown type : %u",
 			tvb_get_ntohl(tvb, 12));
 	    }
 	}
-   }
+    } else {
+	if (check_col(pinfo->fd, COL_INFO))
+	    col_set_str (pinfo->fd, COL_INFO, "Encrypted payload");
+    }
 }
 
 void
@@ -180,7 +195,7 @@ proto_register_ddtp(void)
 	    { "Opcode", "ddtp.opcode", FT_UINT32, BASE_DEC, VALS(vals_ddtp_opcode), 0x0,
 		"Update query opcode" } },
 	{ &hf_ddtp_ipaddr,
-	    { "IP addres", "ddtp.ipaddr", FT_IPv4, BASE_NONE, NULL, 0x0,
+	    { "IP address", "ddtp.ipaddr", FT_IPv4, BASE_NONE, NULL, 0x0,
 		"IP address" } },
 	{ &hf_ddtp_status,
 	    { "Status", "ddtp.status", FT_UINT32, BASE_DEC, VALS(vals_ddtp_status), 0x0,

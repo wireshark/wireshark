@@ -2,7 +2,7 @@
  * Routines for pop packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-pop.c,v 1.23 2001/01/09 06:31:40 guy Exp $
+ * $Id: packet-pop.c,v 1.24 2001/01/22 08:03:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -68,15 +68,15 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		tokenlen;
 	const u_char	*next_token;
 
-	CHECK_DISPLAY_AS_DATA(proto_pop, tvb, pinfo, tree);
-
-	pinfo->current_proto = "POP";
-
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "POP");
 
 	/*
 	 * Find the end of the first line.
+	 *
+	 * Note that "tvb_find_line_end()" will return a value that is
+	 * not longer than what's in the buffer, so the "tvb_get_ptr()"
+	 * call won't throw an exception.
 	 */
 	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
 	line = tvb_get_ptr(tvb, offset, linelen);

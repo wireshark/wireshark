@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.21 2000/11/22 00:34:15 guy Exp $
+ * $Id: packet-rpc.h,v 1.22 2001/01/22 08:03:46 guy Exp $
  *
  * (c) 1999 Uwe Girlich
  *
@@ -109,7 +109,6 @@ extern void rpc_init_prog(int proto, guint32 prog, int ett);
 extern char *rpc_prog_name(guint32 prog);
 
 extern unsigned int rpc_roundup(unsigned int a);
-extern gboolean dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern int dissect_rpc_bool(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree, int hfindex);
 extern int dissect_rpc_bool_tvb(tvbuff_t *tvb, packet_info *pinfo,

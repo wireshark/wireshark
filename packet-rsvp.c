@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.32 2001/01/10 23:30:41 guy Exp $
+ * $Id: packet-rsvp.c,v 1.33 2001/01/22 08:03:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -845,7 +845,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     proto_tree *rsvp_object_tree;
     proto_tree *rsvp_sa_flags_tree;
     proto_tree *rsvp_ero_subtree;
-    char *packet_type, *object_type;
+    char *object_type;
     rsvp_header *hdr;
     rsvp_object *obj;
     int i, j, k, l, len, mylen;
@@ -855,17 +855,15 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     struct e_in6_addr *ip6a;
     guint32 ip_addr;
 
-    OLD_CHECK_DISPLAY_AS_DATA(proto_rsvp, pd, offset, fd, tree);
-
-    hdr = (rsvp_header *)&pd[offset];
-    packet_type = match_strval(hdr->message_type, message_type_vals);
     if (check_col(fd, COL_PROTOCOL))
         col_set_str(fd, COL_PROTOCOL, "RSVP");
+    if (check_col(fd, COL_INFO))
+        col_clear(fd, COL_INFO);
+
+    hdr = (rsvp_header *)&pd[offset];
     if (check_col(fd, COL_INFO)) {
-        if (packet_type != NULL)
-            col_add_str(fd, COL_INFO, packet_type); 
-        else
-            col_add_fstr(fd, COL_INFO, "Unknown (%u)", hdr->message_type); 
+        col_add_str(fd, COL_INFO,
+            val_to_str(hdr->message_type, message_type_vals, "Unknown (%u)")); 
     }
 
     if (tree) {

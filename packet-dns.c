@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.61 2001/01/09 06:31:35 guy Exp $
+ * $Id: packet-dns.c,v 1.62 2001/01/22 08:03:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2249,12 +2249,12 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		  { OPCODE_UPDATE, "Dynamic update"           },
 		  { 0,              NULL                      } };
 
-  OLD_CHECK_DISPLAY_AS_DATA(proto_dns, pd, offset, fd, tree);
-
   dns_data_offset = offset;
 
   if (check_col(fd, COL_PROTOCOL))
     col_set_str(fd, COL_PROTOCOL, "DNS");
+  if (check_col(fd, COL_INFO))
+    col_clear(fd, COL_INFO);
 
   if (!BYTES_ARE_IN_FRAME(offset, DNS_HDRLEN)) {
     if (check_col(fd, COL_INFO)) {

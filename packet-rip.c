@@ -2,7 +2,7 @@
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.22 2001/01/09 06:31:40 guy Exp $
+ * $Id: packet-rip.c,v 1.23 2001/01/22 08:03:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -82,9 +82,10 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16 family;
     guint reported_length;
 
-    CHECK_DISPLAY_AS_DATA(proto_rip, tvb, pinfo, tree);
-
-    pinfo->current_proto = "RIP";
+    if (check_col(pinfo->fd, COL_PROTOCOL))
+        col_set_str(pinfo->fd, COL_PROTOCOL, "RIP");
+    if (check_col(pinfo->fd, COL_INFO))
+        col_clear(pinfo->fd, COL_INFO);
 
     command = tvb_get_guint8(tvb, 0);
     version = tvb_get_guint8(tvb, 1);

@@ -3,7 +3,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.9 2001/01/09 06:31:45 guy Exp $
+ * $Id: packet-wtp.c,v 1.10 2001/01/22 08:03:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -188,11 +188,11 @@ dissect_wtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	unsigned char  b0 = pd[offset + 0];
 	unsigned char  b3 = pd[offset + 3];
 	*/
-	unsigned char  b0 = tvb_get_guint8 (tvb, offCur + 0);
+	unsigned char  b0;
 
 	/* continuation flag */
-	unsigned char  	fCon 		= b0 & 0x80;
-	unsigned char  	fRID 		= retransmission_indicator( b0 );
+	unsigned char  	fCon;
+	unsigned char  	fRID;
 	int 		cbHeader   	= 0;
 	int 		abortType  	= 0;
 
@@ -201,16 +201,12 @@ dissect_wtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *wtp_tree;
 	proto_tree *wtp_header_fixed;
 	
-	char pdut 			= pdu_type( b0 );
+	char pdut;
 	char clsTransaction 		= ' ';
 	int cchInfo;
 	int numMissing = 0;		/* Number of missing packets in a negative ack */
 	int i;
 	tvbuff_t *wsp_tvb = NULL;
-
-	CHECK_DISPLAY_AS_DATA(proto_wtp, tvb, pinfo, tree);
-
-	pinfo->current_proto = "WTP";
 
 /* Make entries in Protocol column and Info column of summary display */
 
@@ -233,7 +229,15 @@ dissect_wtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 		}
 	}
+	if (check_col(fdata, COL_INFO)) {
+		col_clear(fdata, COL_INFO);
+	};
     
+	b0 = tvb_get_guint8 (tvb, offCur + 0);
+	fCon = b0 & 0x80;
+	fRID = retransmission_indicator( b0 );
+	pdut = pdu_type( b0 );
+
 	/* Develop the string to put in the Info column */
 	cchInfo = snprintf( szInfo, sizeof( szInfo ), "WTP %s", vals_pdu_type[ ( int )pdut ].strptr  );
 
@@ -630,5 +634,5 @@ proto_reg_handoff_wtp(void)
 	wsp_handle = find_dissector("wsp");
 
 	dissector_add("udp.port", UDP_PORT_WTP_WSP, dissect_wtp, proto_wtp);
-	/* dissector_add("udp.port", UDP_PORT_WTLS_WTP_WSP, dissect_wsp, proto_wsp); */
+	/* dissector_add("udp.port", UDP_PORT_WTLS_WTP_WSP, dissect_wtp, proto_wtp); */
 }

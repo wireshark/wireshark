@@ -3,7 +3,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.11 2001/01/16 23:10:24 guy Exp $
+ * $Id: packet-wsp.c,v 1.12 2001/01/22 08:03:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -383,8 +383,6 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	frame_data *fdata = pinfo->fd;
 	int offset = 0;
 
-	char szInfo[ 50 ];
-	int cchInfo;
 	guint8 pdut;
 	guint count = 0;
 	guint value = 0;
@@ -406,10 +404,6 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /*	proto_tree *wsp_header_fixed; */
 	proto_tree *wsp_capabilities;
 	
-	CHECK_DISPLAY_AS_DATA(proto_wsp, tvb, pinfo, tree);
-
-	pinfo->current_proto = "WSP";
-
 /* This field shows up as the "Info" column in the display; you should make
    it, if possible, summarize what's in the packet, so that a user looking
    at the list of packets can tell what type of packet it is. */
@@ -427,6 +421,9 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 		}
 	}
+	if (check_col(fdata, COL_INFO)) {
+		col_clear(fdata, COL_INFO);
+	};
 
 	/* Connection-less mode has a TID first */
 	if ((pinfo->match_port == UDP_PORT_WSP) || (pinfo->match_port == UDP_PORT_WTLS_WSP))
@@ -438,10 +435,9 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pdut = tvb_get_guint8 (tvb, offset);
 
 	/* Develop the string to put in the Info column */
-	cchInfo = snprintf( szInfo, sizeof( szInfo ), "WSP %s",
-		val_to_str (pdut, vals_pdu_type, "Unknown PDU type (0x%02x)"));
 	if (check_col(fdata, COL_INFO)) {
-		col_add_str(fdata, COL_INFO, szInfo );
+		col_add_fstr(fdata, COL_INFO, "WSP %s",
+			val_to_str (pdut, vals_pdu_type, "Unknown PDU type (0x%02x)"));
 	};
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not

@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-xot.c,v 1.3 2001/01/09 06:31:45 guy Exp $
+ * $Id: packet-xot.c,v 1.4 2001/01/22 08:03:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,11 +50,10 @@ static void dissect_xot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16 version,len;
   tvbuff_t   *next_tvb; 
     
-  CHECK_DISPLAY_AS_DATA(proto_xot, tvb, pinfo, tree);
-
-  pinfo->current_proto = "XOT";
-  if (check_col(pinfo->fd, COL_PROTOCOL)) 
+  if (check_col(pinfo->fd, COL_PROTOCOL))
       col_set_str(pinfo->fd, COL_PROTOCOL, "XOT");
+  if (check_col(pinfo->fd, COL_INFO))
+      col_clear(pinfo->fd, COL_INFO);
 
   version = tvb_get_ntohs(tvb,0);
   len     = tvb_get_ntohs(tvb,2);

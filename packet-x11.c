@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.15 2001/01/09 06:31:45 guy Exp $
+ * $Id: packet-x11.c,v 1.16 2001/01/22 08:03:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -2842,10 +2842,6 @@ dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree *x11_tree;
       int left;
 	
-/* Make entries in Protocol column and Info column on summary display */
-      if (check_col(pinfo->fd, COL_PROTOCOL)) 
-	    col_set_str(pinfo->fd, COL_PROTOCOL, "X11");
-    
 /* This field shows up as the "Info" column in the display; you should make
    it, if possible, summarize what's in the packet, so that a user looking
    at the list of packets can tell what type of packet it is. */
@@ -2873,10 +2869,6 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_item *ti;
       proto_tree *x11_tree;
 	
-/* Make entries in Protocol column and Info column on summary display */
-      if (check_col(pinfo->fd, COL_PROTOCOL)) 
-	    col_set_str(pinfo->fd, COL_PROTOCOL, "X11");
-    
 /* This field shows up as the "Info" column in the display; you should make
    it, if possible, summarize what's in the packet, so that a user looking
    at the list of packets can tell what type of packet it is. */
@@ -2899,10 +2891,9 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_x11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-
-      CHECK_DISPLAY_AS_DATA(proto_x11, tvb, pinfo, tree);
-
-      pinfo->current_proto = "X11";
+      if (check_col(pinfo->fd, COL_PROTOCOL)) 
+	    col_set_str(pinfo->fd, COL_PROTOCOL, "X11");
+    
       if (pinfo->match_port == pinfo->destport)
 	    dissect_x11_request(tvb, pinfo, tree);
       else
