@@ -1744,6 +1744,10 @@ Jeff Rizzo <riz [AT] boogers.sf.ca.us> {
 	sFlow support
 }
 
+Christoph Wiest <ch.wiest [AT] tesionmail.de> {
+	Redo MEGACO dissector to more fully parse text-format messages
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
