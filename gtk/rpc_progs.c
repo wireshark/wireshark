@@ -81,6 +81,16 @@ typedef struct _rpc_program_t {
 static rpc_program_t *prog_list=NULL;
 
 
+static char *
+rpcprogs_gen_title(void)
+{
+	char *title;
+
+	title = g_strdup_printf("ONC-RPC Program Statistics: %s",
+	    cf_get_display_name(&cfile));
+	return title;
+}
+
 static void
 rpcprogs_reset(void *dummy _U_)
 {
@@ -322,25 +332,28 @@ win_destroy_cb(void *dummy _U_, gpointer data _U_)
 void
 gtk_rpcprogs_init(char *optarg _U_)
 {
+	char *title_string;
 	GtkWidget *vbox;
 	GtkWidget *stat_label;
 	GtkWidget *tmp;
 	GString *error_string;
-    GtkWidget	*bt_close;
-    GtkWidget	*bbox;
+	GtkWidget *bt_close;
+	GtkWidget *bbox;
 
 	if(win){
 		gdk_window_raise(win->window);
 		return;
 	}
 
-	win=window_new(GTK_WINDOW_TOPLEVEL, "ONC-RPC Program Statistics");
+	title_string = rpcprogs_gen_title();
+	win=window_new(GTK_WINDOW_TOPLEVEL, title_string);
 
 	vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(win), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
-	stat_label=gtk_label_new("ONC-RPC Program Statistics");
+	stat_label=gtk_label_new(title_string);
+	g_free(title_string);
 	gtk_box_pack_start(GTK_BOX(vbox), stat_label, FALSE, FALSE, 0);
 
 
@@ -380,19 +393,19 @@ gtk_rpcprogs_init(char *optarg _U_)
 	}
 
 	/* Button row. */
-    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-    gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+	gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-    bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    window_set_cancel_button(win, bt_close, window_cancel_button_cb);
+	bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	window_set_cancel_button(win, bt_close, window_cancel_button_cb);
 
-    SIGNAL_CONNECT(win, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(win, "delete_event", window_delete_event_cb, NULL);
 	SIGNAL_CONNECT(win, "destroy", win_destroy_cb, win);
 
-    gtk_widget_show_all(win);
-    window_present(win);
+	gtk_widget_show_all(win);
+	window_present(win);
 	
-    redissect_packets(&cfile);
+	redissect_packets(&cfile);
 }
 
 static void
@@ -407,5 +420,5 @@ register_tap_listener_gtkrpcprogs(void)
 	register_ethereal_tap("rpc,programs", gtk_rpcprogs_init);
 
 	register_tap_menu_item("ONC-RPC Programs", REGISTER_TAP_GROUP_NONE,
-        gtk_rpcprogs_cb, NULL, NULL, NULL);
+	gtk_rpcprogs_cb, NULL, NULL, NULL);
 }
