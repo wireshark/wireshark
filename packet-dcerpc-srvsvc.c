@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *   decode srvsvc calls where Samba knows them ...
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.11 2002/05/27 09:50:57 sahlberg Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.12 2002/05/30 00:20:32 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -401,8 +401,6 @@ srvsvc_dissect_pointer_SHARE_INFO_item(tvbuff_t *tvb, int offset,
 
   }
 
-  fprintf(stderr, "Switch_value: %0X\n", si->switch_value);
-
   switch (si->switch_value) {
   case 1:
     offset = srvsvc_dissect_SHARE_INFO_1_struct(tvb, offset, pinfo, tree, 
@@ -433,8 +431,6 @@ srvsvc_dissect_pointer_SHARE_INFO_array(tvbuff_t *tvb, int offset,
 
   /* Now, dissect the rest of this structure ... */
 
-  fprintf(stderr, "Info Level: %0d\n", si->switch_value);
-
   offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
 			       srvsvc_dissect_pointer_SHARE_INFO_item);
 			       
@@ -454,7 +450,6 @@ srvsvc_dissect_pointer_SHARE_INFO_struct(tvbuff_t *tvb, int offset,
      return offset;
 
   }
-  fprintf(stderr, "About to do the pointer for Info1\n");
   offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			       srvsvc_dissect_pointer_SHARE_INFO_array,
 			       NDR_POINTER_UNIQUE, "Share Info1", 
@@ -496,7 +491,6 @@ srvsvc_dissect_SHARE_INFO_CTR_struct(tvbuff_t *tvb, int offset,
 
   offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				hf_srvsvc_num_entries, &num_entries);
-  fprintf(stderr, "Done the num entries after Info 0\n");
   return offset;
 }
 
@@ -547,7 +541,6 @@ srvsvc_dissect_netshareenum_all_reply(tvbuff_t *tvb, int offset,
 			       srvsvc_dissect_SHARE_INFO_CTR_struct,
 			       NDR_POINTER_REF, "Shares", -1, 0);
 
-  fprintf(stderr, "About to do the second num entries\n");
   offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			      hf_srvsvc_num_entries, &num_entries);
 
