@@ -69,6 +69,8 @@
 #include "etypes.h"
 #include <epan/crc32.h>
 
+#include "isprint.h"
+
 /* Defragment fragmented 802.11 datagrams */
 static gboolean wlan_defragment = TRUE;
 
@@ -1176,7 +1178,7 @@ static const value_string environment_vals[] = {
 };
 
 static int
-add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
+add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int offset)
 {
   const guint8 *tag_data_ptr;
   guint32 tag_no, tag_len;
@@ -1208,9 +1210,20 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
       memcpy (out_buff, tag_data_ptr, (size_t) tag_len);
       out_buff[tag_len + 1] = 0;
-
+      for (i = 0; i < tag_len; i++) {
+	  if (!isprint(out_buff[i])) {
+	      out_buff[i]='.';
+	  }
+      }
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
 			     tag_len, out_buff);
+      if (check_col (pinfo->cinfo, COL_INFO)) {
+	  if (tag_len > 0) {
+              col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID: \"%s\"", out_buff);
+	  } else {
+              col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID: Broadcast");
+	  }
+      }
       break;
 
 
@@ -1384,13 +1397,13 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 }
 
 void
-ieee_80211_add_tagged_parameters (tvbuff_t * tvb, int offset, proto_tree * tree,
-       int tagged_parameters_len)
+ieee_80211_add_tagged_parameters (tvbuff_t * tvb, int offset, packet_info * pinfo,
+	proto_tree * tree, int tagged_parameters_len)
 {
   int next_len;
 
   while (tagged_parameters_len > 0) {
-    if ((next_len=add_tagged_field (tree, tvb, offset))==0)
+    if ((next_len=add_tagged_field (pinfo, tree, tvb, offset))==0)
       break;
     if (next_len > tagged_parameters_len) {
       /* XXX - flag this as an error? */
@@ -1408,17 +1421,15 @@ static void
 dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	proto_tree * tree)
 {
-  proto_item *ti = NULL;
-  proto_tree *mgt_tree;
-  proto_tree *fixed_tree;
-  proto_tree *tagged_tree;
-  int offset;
-  int tagged_parameter_tree_len;
+      proto_item *ti = NULL;
+      proto_tree *mgt_tree;
+      proto_tree *fixed_tree;
+      proto_tree *tagged_tree;
+      int offset;
+      int tagged_parameter_tree_len;
 
-  CHECK_DISPLAY_AS_X(data_handle,proto_wlan_mgt, tvb, pinfo, tree);
+      CHECK_DISPLAY_AS_X(data_handle,proto_wlan_mgt, tvb, pinfo, tree);
 
-  if (tree)
-    {
       ti = proto_tree_add_item (tree, proto_wlan_mgt, tvb, 0, -1, FALSE);
       mgt_tree = proto_item_add_subtree (ti, ett_80211_mgt);
 
@@ -1436,7 +1447,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
 						   tagged_parameter_tree_len);
 
-	  ieee_80211_add_tagged_parameters (tvb, offset, tagged_tree,
+	  ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree,
 	      tagged_parameter_tree_len);
 	  break;
 
@@ -1454,7 +1465,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
 						   tagged_parameter_tree_len);
 
-	  ieee_80211_add_tagged_parameters (tvb, offset, tagged_tree,
+	  ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree,
 	      tagged_parameter_tree_len);
 	  break;
 
@@ -1471,7 +1482,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
 						   tagged_parameter_tree_len);
 
-	  ieee_80211_add_tagged_parameters (tvb, offset, tagged_tree,
+	  ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree,
 	      tagged_parameter_tree_len);
 	  break;
 
@@ -1487,7 +1498,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
 						   tagged_parameter_tree_len);
 
-	  ieee_80211_add_tagged_parameters (tvb, offset, tagged_tree,
+	  ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree,
 	      tagged_parameter_tree_len);
 	  break;
 
@@ -1499,7 +1510,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
 						   tagged_parameter_tree_len);
 
-	  ieee_80211_add_tagged_parameters (tvb, offset, tagged_tree,
+	  ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree,
 	      tagged_parameter_tree_len);
 	  break;
 
@@ -1516,7 +1527,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
 						   tagged_parameter_tree_len);
 
-	  ieee_80211_add_tagged_parameters (tvb, offset, tagged_tree,
+	  ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree,
 	      tagged_parameter_tree_len);
 	  break;
 
@@ -1534,7 +1545,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
 						   tagged_parameter_tree_len);
 
-	  ieee_80211_add_tagged_parameters (tvb, offset, tagged_tree,
+	  ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree,
 	      tagged_parameter_tree_len);
 	  break;
 
@@ -1566,7 +1577,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 						       offset,
 						       tagged_parameter_tree_len);
 
-	      ieee_80211_add_tagged_parameters (tvb, offset, tagged_tree,
+	      ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree,
 		tagged_parameter_tree_len);
 	    }
 	  break;
@@ -1599,7 +1610,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 		  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
 							   tagged_parameter_tree_len);
 
-		  ieee_80211_add_tagged_parameters (tvb, offset, tagged_tree,
+		  ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree,
 						    tagged_parameter_tree_len);
 		}
 	      break;
@@ -1611,7 +1622,6 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	    }
 	  break;
 	}
-    }
 }
 
 static void

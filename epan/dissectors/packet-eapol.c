@@ -237,7 +237,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	     * Cannot parse this without knowing the key. */
 	  } else {
 	    keydes_tree = proto_item_add_subtree(ti, ett_eapol_keydes_data);
-	    ieee_80211_add_tagged_parameters(tvb, offset, keydes_tree,
+	    ieee_80211_add_tagged_parameters(tvb, offset, pinfo, keydes_tree,
 					     eapol_data_len);
 	  }
         }
