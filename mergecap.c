@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: mergecap.c,v 1.7 2002/02/24 01:26:42 guy Exp $
+ * $Id: mergecap.c,v 1.8 2002/03/31 20:59:47 guy Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -65,7 +65,7 @@ static out_file_t out_file;
  * Routine to write frame to output file
  */
 static void
-write_frame(u_char *user, const struct wtap_pkthdr *phdr, long offset,
+write_frame(u_char *user, const struct wtap_pkthdr *phdr, long offset _U_,
             union wtap_pseudo_header *pseudo_header, const u_char *buf) 
 {
   wtap_dumper *pdh = (wtap_dumper*)user;
