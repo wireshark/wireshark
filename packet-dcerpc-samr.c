@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.76 2003/02/08 09:41:44 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.77 2003/02/14 06:19:54 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -608,7 +608,7 @@ samr_dissect_open_user_reply(tvbuff_t *tvb, int offset,
 				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
 
 	if (rid)
-		pol_name = g_strdup_printf("OpenUser, rid 0x%x", rid);
+		pol_name = g_strdup_printf("OpenUser(rid 0x%x)", rid);
 	else
 		pol_name = g_strdup("OpenUser handle");
 
@@ -1181,7 +1181,7 @@ samr_dissect_connect2_reply(tvbuff_t *tvb, int offset,
 				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
 
 	if (server)
-		pol_name = g_strdup_printf("Connect2, %s", server);
+		pol_name = g_strdup_printf("Connect2(%s)", server);
 	else
 		pol_name = g_strdup("Connect2 handle");
 
@@ -1374,7 +1374,7 @@ samr_dissect_open_domain_reply(tvbuff_t *tvb, int offset,
 				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
 
 	if (sid_str)
-		pol_name = g_strdup_printf("OpenDomain, %s", sid_str);
+		pol_name = g_strdup_printf("OpenDomain(%s)", sid_str);
 	else
 		pol_name = g_strdup("OpenDomain handle");
 
@@ -4209,8 +4209,18 @@ static int
 samr_dissect_close_hnd_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    proto_tree *tree, char *drep)
 {
-        offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, TRUE);
+	e_ctx_hnd policy_hnd;
+	char *name;
+
+        offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_samr_hnd, &policy_hnd, 
+		FALSE, TRUE);
+
+	if (dcerpc_smb_fetch_pol(&policy_hnd, &name, NULL, NULL)) {
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(
+				pinfo->cinfo, COL_INFO, ", %s", name);
+	}
 
 	return offset;
 }
@@ -4537,7 +4547,7 @@ samr_dissect_open_group_reply(tvbuff_t *tvb, int offset,
 				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
 
 	if (rid)
-		pol_name = g_strdup_printf("OpenGroup, rid 0x%x", rid);
+		pol_name = g_strdup_printf("OpenGroup(rid 0x%x)", rid);
 	else
 		pol_name = g_strdup("OpenGroup handle");
 
@@ -4594,7 +4604,7 @@ samr_dissect_open_alias_reply(tvbuff_t *tvb, int offset,
 	rid = GPOINTER_TO_INT(dcv->private_data);
 
 	if (rid)
-		pol_name = g_strdup_printf("OpenAlias, rid 0x%x", rid);
+		pol_name = g_strdup_printf("OpenAlias(rid 0x%x)", rid);
 	else
 		pol_name = g_strdup_printf("OpenAlias handle");
 
@@ -4668,7 +4678,7 @@ samr_dissect_create_group_in_domain_reply(tvbuff_t *tvb, int offset,
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_rid, &rid);
 
-	pol_name = g_strdup_printf("CreateGroup, rid 0x%x", rid);
+	pol_name = g_strdup_printf("CreateGroup(rid 0x%x)", rid);
 
 	dcerpc_smb_store_pol_name(&policy_hnd, pol_name);
 
