@@ -5,7 +5,7 @@
  *
  * Copyright 2002, 2003 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-sua.c,v 1.20 2003/09/04 13:33:22 tuexen Exp $
+ * $Id: packet-sua.c,v 1.21 2003/10/06 08:35:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1712,7 +1712,6 @@ proto_register_sua(void)
     { &hf_translation_type,                      { "Translation Type",             "sua.global_title_translation_type",             FT_UINT8,   BASE_HEX,  NULL,                               0x0,                      "", HFILL } },
     { &hf_numbering_plan,                        { "Numbering Plan",               "sua.global_title_numbering_plan",               FT_UINT8,   BASE_HEX,  VALS(numbering_plan_values),        0x0,                      "", HFILL } },
     { &hf_nature_of_address,                     { "Nature of Address",            "sua.global_title_nature_of_address",            FT_UINT8,   BASE_HEX,  VALS(nature_of_address_values),     0x0,                      "", HFILL } },
-    { &hf_nature_of_address,                     { "Nature Of Address",            "sua.global_title_nature_of_address",            FT_UINT8,   BASE_HEX,  VALS(nature_of_address_values),     0x0,                      "", HFILL } },
     { &hf_global_title,                          { "Global Title",                 "sua.global_title_signals",                      FT_BYTES,   BASE_NONE, NULL,                               0x0,                      "", HFILL } },
     { &hf_point_code_dpc,                        { "Point Code",                   "sua.point_code",                                FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      "", HFILL } },
     { &hf_ssn_reserved,                          { "Reserved",                     "sua.ssn_reserved",                              FT_BYTES,   BASE_NONE, NULL,                               0x0,                      "", HFILL } },

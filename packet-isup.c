@@ -5,7 +5,7 @@
  *		<anders.broman@ericsson.com>
  * Inserted routines for BICC dissection according to Q.765.5 Q.1902 Q.1970 Q.1990,
  * calling SDP dissector for RFC2327 decoding.
- * $Id: packet-isup.c,v 1.29 2003/10/03 20:58:13 guy Exp $
+ * $Id: packet-isup.c,v 1.30 2003/10/06 08:35:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5244,11 +5244,6 @@ proto_register_isup(void)
 		{ &hf_isup_suspend_resume_indicator,
 			{ "Suspend/Resume indicator",  "isup.suspend_resume_indicator",
 			FT_BOOLEAN, 8, TFS(&isup_suspend_resume_ind_value), A_8BIT_MASK,
-			"", HFILL }},
-
-		{ &hf_isup_transmission_medium_requirement,
-			{ "Transmission medium requirement",  "isup.transmission_medium_requirement",
-			FT_UINT8, BASE_DEC, VALS(isup_transmission_medium_requirement_value), 0x0,
 			"", HFILL }},
 
 		{ &hf_isup_range_indicator,

@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.104 2003/08/04 02:49:00 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.105 2003/10/06 08:35:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7123,10 +7123,6 @@ proto_register_dcerpc_spoolss(void)
 		    "spoolss.devmode.driver_extra_len",
 		    FT_UINT32, BASE_DEC, NULL, 0, "Driver extra length", 
 		    HFILL }},
-
-		{ &hf_devmode_driver_extra,
-		  { "Driver extra", "spoolss.devmode.driver_extra",
-		    FT_BYTES, BASE_HEX, NULL, 0, "Driver extra", HFILL }},
 
 		/* Devicemode fields */
 

@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz  security/idl/rpriv.idl
  *
- * $Id: packet-dcerpc-rpriv.c,v 1.5 2003/08/04 02:49:01 tpot Exp $
+ * $Id: packet-dcerpc-rpriv.c,v 1.6 2003/10/06 08:35:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -123,8 +123,6 @@ proto_register_rpriv (void)
          { "Authn_Svc", "rpriv.get_eptgt_rqst_authn_svc", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
       { &hf_rpriv_get_eptgt_rqst_authz_svc,
          { "Authz_Svc", "rpriv.get_eptgt_rqst_authz_svc", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
-      { &hf_rpriv_get_eptgt_rqst_key_size,
-         { "Key_Size", "rpriv.get_eptgt_rqst_key_size", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
       { &hf_rpriv_get_eptgt_rqst_key_size,
          { "Key_Size", "rpriv.get_eptgt_rqst_key_size", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
       { &hf_rpriv_get_eptgt_rqst_var1,

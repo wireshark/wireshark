@@ -3,7 +3,7 @@
  * Based on 3GPP TS 25.413 V3.4.0
  * Copyright 2001, Martin Held <Martin.Held@icn.siemens.de>
  *
- * $Id: packet-ranap.c,v 1.19 2003/10/03 23:31:05 guy Exp $
+ * $Id: packet-ranap.c,v 1.20 2003/10/06 08:35:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4160,12 +4160,6 @@ proto_register_ranap(void)
     { &hf_ranap_number_of_ies,
       { "Number of IEs in PDU",
         "ranap.pdu.number_of_ies",
-	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"", HFILL }
-    },
-    { &hf_ranap_number_of_ProtocolExtensionFields,
-      { "Number of Protocol Extension Fields",
-        "ranap.ie.number_of_ProtocolExtensionFields",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL }
     },
