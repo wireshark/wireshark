@@ -23,6 +23,12 @@
  ** Previous NetFlow dissector written by Matthew Smart <smart@monkey.org>
  ** NetFlow v9 support added by same.
  **
+ ** See
+ **
+ ** http://www.cisco.com/warp/public/cc/pd/iosw/prodlit/tflow_wp.htm
+ **
+ ** for NetFlow v9 information.
+ **
  *****************************************************************************
  **
  ** this code was written from the following documentation:
@@ -34,8 +40,12 @@
  ** information contained in responses from vendors were also used. some fields
  ** are dissected as vendor specific fields.
  **
+ ** See also
+ **
+ ** http://www.cisco.com/univercd/cc/td/doc/cisintwk/intsolns/netflsol/nfwhite.htm
+ **
  ** $Yahoo: //depot/fumerola/packet-netflow/packet-netflow.c#14 $
- ** $Id: packet-netflow.c,v 1.9 2003/03/04 03:37:12 guy Exp $
+ ** $Id: packet-netflow.c,v 1.10 2003/03/07 00:43:30 guy Exp $
  */
 
 #ifdef HAVE_CONFIG_H
@@ -230,7 +240,7 @@ static int      dissect_v8_flowpdu(proto_tree * pdutree, tvbuff_t * tvb,
 static int	dissect_v9_flowset(proto_tree * pdutree, tvbuff_t * tvb,
 				   int offset, int verspec);
 static int	dissect_v9_data(proto_tree * pdutree, tvbuff_t * tvb,
-			       int offset, guint16 id, int length);
+			       int offset, guint16 id, guint length);
 static void	dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb,
 			       int offset, struct v9_template * template);
 #if 0
@@ -834,7 +844,15 @@ dissect_v9_flowset(proto_tree * pdutree, tvbuff_t * tvb, int offset, int ver)
 		    offset, 2, FALSE);
 		offset += 2;
 
-		dissect_v9_data(pdutree, tvb, offset, flowset_id, length);
+		/*
+		 * The length includes the length of the FlowSet ID and
+		 * the length field itself.
+		 */
+		length -= 4;
+		if (length > 0) {
+			dissect_v9_data(pdutree, tvb, offset, flowset_id,
+			    (guint)length);
+		}
 	}
 
 	return (length);
@@ -842,25 +860,18 @@ dissect_v9_flowset(proto_tree * pdutree, tvbuff_t * tvb, int offset, int ver)
 
 static int
 dissect_v9_data(proto_tree * pdutree, tvbuff_t * tvb, int offset,
-    guint16 id, int length)
+    guint16 id, guint length)
 {
 	struct v9_template *template;
 	proto_tree *data_tree;
 	proto_item *data_item;
 
 	template = v9_template_get(id, 0, 0);
-	if (template != NULL && template->length > 0) {
+	if (template != NULL && template->length != 0) {
 		int count;
 
 		count = 1;
-		while (length > 0) {
-			int available_length;
-
-			available_length = tvb_length(tvb) - offset;
-			if (available_length < template->length) {
-				break;
-			}
-
+		while (length >= template->length) {
 			data_item = proto_tree_add_text(pdutree, tvb,
 			    offset, template->length, "pdu %d", count++);
 			data_tree = proto_item_add_subtree(data_item,
@@ -871,6 +882,15 @@ dissect_v9_data(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 			offset += template->length;
 			length -= template->length;
 		}
+		if (length != 0) {
+			proto_tree_add_text(pdutree, tvb, offset, length,
+			    "Padding (%u byte%s)",
+			    length, plurality(length, "", "s"));
+		}
+	} else {
+		proto_tree_add_text(pdutree, tvb, offset, length,
+		    "Data (%u byte%s), no template found",
+		    length, plurality(length, "", "s"));
 	}
 
 	return (0);
