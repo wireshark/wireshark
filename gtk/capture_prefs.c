@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.14 2002/08/28 21:03:46 jmayer Exp $
+ * $Id: capture_prefs.c,v 1.15 2002/08/31 14:22:11 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,9 +32,7 @@
 #include <errno.h>
 #include <gtk/gtk.h>
 
-#ifdef HAVE_LIBPCAP
 #include <pcap.h>
-#endif
 
 #include "globals.h"
 #include "capture_prefs.h"
@@ -137,7 +135,6 @@ capture_prefs_fetch(GtkWidget *w)
 		g_free(prefs.capture_device);
 		prefs.capture_device = NULL;
 	}
-
 	if_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry)));
 	/* Strip out white space */
 	g_strstrip(if_text);
