@@ -534,7 +534,7 @@ Create the dissector...
 Other files you need to modify
 
 
-	Makefile.am
+	Makefile.common
 		Add your source code module to DISSECTOR_SOURCES
 	Rerun configure
 

@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.88 2003/12/30 15:49:12 obiot Exp $
+$Id: README.developer,v 1.89 2004/01/21 21:46:59 jmayer Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -250,12 +250,12 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.88 2003/12/30 15:49:12 obiot Exp $"
+The "$Id: README.developer,v 1.89 2004/01/21 21:46:59 jmayer Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
-When creating a new file, it is fine to just write "$Id: README.developer,v 1.88 2003/12/30 15:49:12 obiot Exp $" as RCS will
+When creating a new file, it is fine to just write "$Id: README.developer,v 1.89 2004/01/21 21:46:59 jmayer Exp $" as RCS will
 automatically fill in the identifier at the time the file will be added to the
 CVS repository (checked in).
 
@@ -264,7 +264,7 @@ CVS repository (checked in).
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.88 2003/12/30 15:49:12 obiot Exp $
+ * $Id: README.developer,v 1.89 2004/01/21 21:46:59 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -769,7 +769,7 @@ generated automatically; to arrange that a protocol's register routine
 be called at startup:
 
 	the file containing a dissector's "register" routine must be
-	added to "DISSECTOR_SRC" in "Makefile.am" and "Makefile.nmake";
+	added to "DISSECTOR_SRC" in "Makefile.common";
  
 	the "register" routine must have a name of the form
 	"proto_register_XXX";
@@ -1684,11 +1684,10 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 To arrange that your dissector will be built as part of Ethereal, you
 must add the name of the source file for your dissector, and the header
 file that declares your main dissector routine, to the
-'DISSECTOR_SRC' macro in the 'Makefile.am' and 'Makefile.nmake'
-files in the top-level directory.  (Note that this is for modern
-versions of UNIX, so there is no 14-character limitation on file names,
-and for modern versions of Windows, so there is no 8.3-character
-limitation on file names.)
+'DISSECTOR_SRC' macro in the 'Makefile.common' file in the top-level
+directory.  (Note that this is for modern versions of UNIX, so there
+is no 14-character limitation on file names, and for modern versions of
+Windows, so there is no 8.3-character limitation on file names.)
 
 If your dissector also has its own header files, you must add them to
 the 'noinst_HEADERS' macro in the 'Makefile.am' file in the top-level
