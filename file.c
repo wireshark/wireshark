@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.151 2000/01/10 01:43:48 guy Exp $
+ * $Id: file.c,v 1.152 2000/01/13 00:53:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -494,8 +494,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
   /* We don't yet have a color filter to apply. */
   args.colorf = NULL;
 
-  fdata->num = cf->count;
-
   /* If we don't have the time stamp of the first packet in the
      capture, it's because this is the first packet.  Save the time
      stamp of this packet as the time stamp of the first packet. */
@@ -694,6 +692,7 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
     cf->plist_end = fdata;
 
     cf->count++;
+    fdata->num = cf->count;
     add_packet_to_packet_list(fdata, cf, buf);
   } else
     g_free(fdata);
