@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.110 2003/11/25 13:23:10 sahlberg Exp $
+ * $Id: proto.c,v 1.111 2003/11/25 14:07:44 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -166,7 +166,28 @@ static field_info *field_info_tmp=NULL;
 static GMemChunk *gmc_proto_node = NULL;
 
 /* String space for protocol and field items for the GUI */
-static GMemChunk *gmc_item_labels = NULL;
+static item_label_t *item_label_free_list = NULL;
+#define ITEM_LABEL_FREE(il)				\
+	if (il) {					\
+		il->next=item_label_free_list;		\
+		item_label_free_list=il;		\
+	}
+#define ITEM_LABEL_NEW(il)				\
+	if(!item_label_free_list){			\
+		int i;					\
+		item_label_t *pil;			\
+		pil=g_malloc(INITIAL_NUM_ITEM_LABEL*sizeof(item_label_t));\
+		for(i=0;i<INITIAL_NUM_ITEM_LABEL;i++){	\
+			item_label_t *tmpil;		\
+			tmpil=&pil[i];			\
+			tmpil->representation=g_malloc(ITEM_LABEL_LENGTH);\
+			tmpil->next=item_label_free_list;\
+			item_label_free_list=tmpil;	\
+		}					\
+	}						\
+	il=item_label_free_list;			\
+	item_label_free_list=il->next;
+
 
 /* List which stores protocols and fields that have been registered */
 typedef struct _gpa_hfinfo_t {
@@ -213,11 +234,6 @@ proto_init(const char *plugin_dir
 	gmc_proto_node = g_mem_chunk_new("gmc_proto_node",
 		sizeof(proto_node),
         INITIAL_NUM_PROTO_NODE * sizeof(proto_node),
-		G_ALLOC_AND_FREE);
-
-	gmc_item_labels = g_mem_chunk_new("gmc_item_labels",
-		ITEM_LABEL_LENGTH,
-        INITIAL_NUM_ITEM_LABEL* ITEM_LABEL_LENGTH,
 		G_ALLOC_AND_FREE);
 
 	gpa_hfinfo.len=0;
@@ -294,8 +310,15 @@ proto_cleanup(void)
 
 	if (gmc_proto_node)
 		g_mem_chunk_destroy(gmc_proto_node);
-	if (gmc_item_labels)
-		g_mem_chunk_destroy(gmc_item_labels);
+
+	while(item_label_free_list){
+		item_label_t *tmpil;
+		tmpil=item_label_free_list->next;
+		g_free(item_label_free_list->representation);
+		g_free(item_label_free_list);
+		item_label_free_list=tmpil;
+	}
+
 	if(gpa_hfinfo.allocated_len){
 		gpa_hfinfo.len=0;
 		gpa_hfinfo.allocated_len=0;
@@ -346,10 +369,7 @@ free_node_tree_data(tree_data_t *tree_data)
 static void
 free_node_field_info(field_info* finfo)
 {
-	if (finfo->representation) {
-		g_mem_chunk_free(gmc_item_labels, finfo->representation);
-	}
-
+	ITEM_LABEL_FREE(finfo->rep);
 	FVALUE_FREE(finfo->value);
 	FREE_FIELD_INFO(finfo);
 }
@@ -1922,7 +1942,7 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	fi->length = *length;
 	fi->tree_type = -1;
 	fi->visible = PTREE_DATA(tree)->visible;
-	fi->representation = NULL;
+	fi->rep = NULL;
 
 	fi->value = fvalue_new(fi->ptr_u.hfinfo->type);
 
@@ -1945,10 +1965,10 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 	field_info *fi = PITEM_FINFO(pi);
 
 	if (fi->visible) {
-		fi->representation = g_mem_chunk_alloc(gmc_item_labels);
-		ret = vsnprintf(fi->representation, ITEM_LABEL_LENGTH, format, ap);
+		ITEM_LABEL_NEW(fi->rep);
+		ret = vsnprintf(fi->rep->representation, ITEM_LABEL_LENGTH, format, ap);
 		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-			fi->representation[ITEM_LABEL_LENGTH - 1] = '\0';
+			fi->rep->representation[ITEM_LABEL_LENGTH - 1] = '\0';
 	}
 }
 
@@ -1965,8 +1985,7 @@ proto_item_set_text(proto_item *pi, const char *format, ...)
 
 	fi = PITEM_FINFO(pi);
 
-	if (fi->representation)
-		g_mem_chunk_free(gmc_item_labels, fi->representation);
+	ITEM_LABEL_FREE(fi->rep);
 
 	va_start(ap, format);
 	proto_tree_set_representation(pi, format, ap);
@@ -1995,17 +2014,17 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 		 * If we don't already have a representation,
 		 * generate the default representation.
 		 */
-		if (fi->representation == NULL) {
-			fi->representation = g_mem_chunk_alloc(gmc_item_labels);
-			proto_item_fill_label(fi, fi->representation);
+		if (fi->rep == NULL) {
+			ITEM_LABEL_NEW(fi->rep);
+			proto_item_fill_label(fi, fi->rep->representation);
 		}
 
-		curlen = strlen(fi->representation);
+		curlen = strlen(fi->rep->representation);
 		if (ITEM_LABEL_LENGTH > curlen) {
-			ret = vsnprintf(fi->representation + curlen,
+			ret = vsnprintf(fi->rep->representation + curlen,
 			    ITEM_LABEL_LENGTH - curlen, format, ap);
 			if ((ret == -1) || (ret >= (int)(ITEM_LABEL_LENGTH - curlen)))
-				fi->representation[ITEM_LABEL_LENGTH - 1] = '\0';
+				fi->rep->representation[ITEM_LABEL_LENGTH - 1] = '\0';
 		}
 		va_end(ap);
 	}

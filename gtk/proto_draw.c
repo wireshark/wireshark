@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.64 2003/11/03 21:00:05 guy Exp $
+ * $Id: proto_draw.c,v 1.65 2003/11/25 14:07:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1457,8 +1457,8 @@ proto_tree_draw_node(GNode *node, gpointer data)
         return;
 
     /* was a free format label produced? */
-    if (fi->representation) {
-        label_ptr = fi->representation;
+    if (fi->rep) {
+        label_ptr = fi->rep->representation;
     }
     else { /* no, make a generic label */
         label_ptr = label_str;

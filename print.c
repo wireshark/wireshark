@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.58 2003/11/24 22:11:53 guy Exp $
+ * $Id: print.c,v 1.59 2003/11/25 14:07:42 sahlberg Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -143,8 +143,8 @@ void proto_tree_print_node(GNode *node, gpointer data)
 		return;
 
 	/* was a free format label produced? */
-	if (fi->representation) {
-		label_ptr = fi->representation;
+	if (fi->rep) {
+		label_ptr = fi->rep->representation;
 	}
 	else { /* no, make a generic label */
 		label_ptr = label_str;

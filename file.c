@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.323 2003/11/15 10:06:44 ulfl Exp $
+ * $Id: file.c,v 1.324 2003/11/25 14:07:42 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1650,8 +1650,8 @@ match_subtree_text(GNode *node, gpointer data)
     return;
 
   /* was a free format label produced? */
-  if (fi->representation) {
-    label_ptr = fi->representation;
+  if (fi->rep) {
+    label_ptr = fi->rep->representation;
   } else {
     /* no, make a generic label */
     label_ptr = label_str;
