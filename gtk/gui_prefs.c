@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.9 2000/08/21 22:35:59 guy Exp $
+ * $Id: gui_prefs.c,v 1.10 2000/08/22 14:04:52 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,6 +38,7 @@
 #include "ui_util.h"
 #include "dlg_utils.h"
 #include "proto_draw.h"
+#include "main.h"
 
 static void create_option_menu(GtkWidget *main_vb, const gchar *key,
     GtkWidget *main_tb, int table_position,
@@ -46,6 +47,11 @@ static void font_browse_cb(GtkWidget *w, gpointer data);
 static void font_browse_ok_cb(GtkWidget *w, GtkFontSelectionDialog *fs);
 static void font_browse_destroy(GtkWidget *win, gpointer data);
 static gint fetch_enum_value(gpointer control, const enum_val *enumvals);
+static void color_browse_cb(GtkWidget *w, gpointer data);
+static void update_text_color(GtkWidget *w, gpointer data);
+static void update_current_color(GtkWidget *w, gpointer data);
+static void color_ok_cb(GtkWidget *w, gpointer data);
+static void color_destroy_cb(GtkWidget *w, gpointer data);
 
 #define SCROLLBAR_PLACEMENT_KEY		"scrollbar_placement"
 #define PLIST_SEL_BROWSE_KEY		"plist_sel_browse"
@@ -55,6 +61,10 @@ static gint fetch_enum_value(gpointer control, const enum_val *enumvals);
 
 #define FONT_DIALOG_PTR_KEY	"font_dialog_ptr"
 #define FONT_CALLER_PTR_KEY	"font_caller_ptr"
+#define COLOR_DIALOG_PTR_KEY	"color_dialog_ptr"
+#define COLOR_CALLER_PTR_KEY	"color_caller_ptr"
+#define COLOR_SAMPLE_PTR_KEY	"color_sample_ptr"
+#define COLOR_SELECTION_PTR_KEY	"color_selection_ptr"
 
 static const enum_val scrollbar_placement_vals[] = {
 	{ "Left",  FALSE },
@@ -87,14 +97,14 @@ static const enum_val expander_style_vals[] = {
 GtkWidget*
 gui_prefs_show(void)
 {
-	GtkWidget	*main_tb, *main_vb, *font_bt;
+	GtkWidget	*main_tb, *main_vb, *font_bt, *color_bt;
 
 	/* Main vertical box */
 	main_vb = gtk_vbox_new(FALSE, 5);
 	gtk_container_border_width( GTK_CONTAINER(main_vb), 5 );
 
 	/* Main table */
-	main_tb = gtk_table_new(6, 2, FALSE);
+	main_tb = gtk_table_new(7, 2, FALSE);
 	gtk_box_pack_start( GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0 );
 	gtk_table_set_row_spacings( GTK_TABLE(main_tb), 10 );
 	gtk_table_set_col_spacings( GTK_TABLE(main_tb), 15 );
@@ -129,6 +139,12 @@ gui_prefs_show(void)
 	gtk_signal_connect(GTK_OBJECT(font_bt), "clicked",
 	    GTK_SIGNAL_FUNC(font_browse_cb), NULL);
 	gtk_table_attach_defaults( GTK_TABLE(main_tb), font_bt, 1, 2, 5, 6 );
+
+	/* "Colors..." button - click to open a color selection dialog box. */
+	color_bt = gtk_button_new_with_label("Colors...");
+	gtk_signal_connect(GTK_OBJECT(color_bt), "clicked",
+	    GTK_SIGNAL_FUNC(color_browse_cb), NULL);
+	gtk_table_attach_defaults( GTK_TABLE(main_tb), color_bt, 1, 2, 7, 8 );
 
 	/* Show 'em what we got */
 	gtk_widget_show_all(main_vb);
@@ -368,4 +384,209 @@ gui_prefs_destroy(GtkWidget *w)
 		/* Yes.  Destroy it. */
 		gtk_widget_destroy(fs);
 	}
+
+	/* Is there a color selection dialog associated with this
+	   Preferences dialog? */
+	fs = gtk_object_get_data(GTK_OBJECT(caller), COLOR_DIALOG_PTR_KEY);
+
+	if (fs != NULL) {
+		/* Yes.  Destroy it. */
+		gtk_widget_destroy(fs);
+	}
 }
+
+/* color selection part */
+
+#define MAX_HANDLED_COL		2
+
+typedef struct {
+  GdkColor color;
+  char    *label;
+} color_info_t;
+
+static color_info_t color_info[MAX_HANDLED_COL] = {
+#define MFG_IDX			0
+  { {0.0, 0.0, 0.0, 0.0},      	"Marked frame foreground" },
+#define MBG_IDX			1
+  { {0.0, 0.0, 0.0, 0.0},	"Marked frame background" }
+};
+
+#define SAMPLE_MARKED_TEXT	"Sample marked frame text\n"
+
+#define CS_RED			0
+#define CS_GREEN		1
+#define CS_BLUE			2
+#define CS_OPACITY		3
+
+static GdkColor *curcolor = NULL;
+
+static void
+color_browse_cb(GtkWidget *w, gpointer data)
+{
+
+  GtkWidget *main_vb, *main_tb, *label, *optmenu, *menu, *menuitem;
+  GtkWidget *sample, *colorsel, *bbox, *cancel_bt, *ok_bt, *color_w;
+  int        width, height, i;
+  gdouble    scolor[4]; 
+  GtkWidget *caller = gtk_widget_get_toplevel(w);
+ 
+  color_w = gtk_object_get_data(GTK_OBJECT(caller),
+				       COLOR_DIALOG_PTR_KEY);
+
+  if (color_w != NULL) {
+    reactivate_window(color_w);
+    return;
+  }
+
+  color_info[MFG_IDX].color = prefs.gui_marked_fg;
+  color_info[MBG_IDX].color = prefs.gui_marked_bg;
+  curcolor = &color_info[MFG_IDX].color;
+  scolor[CS_RED]     = (gdouble) (curcolor->red)   / 65535.0;
+  scolor[CS_GREEN]   = (gdouble) (curcolor->green) / 65535.0;
+  scolor[CS_BLUE]    = (gdouble) (curcolor->blue)  / 65535.0;
+  scolor[CS_OPACITY] = 1.0;
+
+  color_w = dlg_window_new();
+  gtk_window_set_title(GTK_WINDOW(color_w), "Ethereal: Select Color");  
+  gtk_signal_connect(GTK_OBJECT(color_w), "destroy",
+		     GTK_SIGNAL_FUNC(color_destroy_cb), NULL);
+  
+  main_vb = gtk_vbox_new(FALSE, 5);
+  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+  gtk_container_add (GTK_CONTAINER (color_w), main_vb);
+  main_tb = gtk_table_new(3, 3, FALSE);
+  gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
+  gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
+  gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
+  gtk_widget_show(main_tb);
+  label = gtk_label_new("Set:");
+  gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
+  gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 0, 1);
+  gtk_widget_show(label);
+
+  colorsel = gtk_color_selection_new();
+  optmenu = gtk_option_menu_new();
+  menu = gtk_menu_new();
+  for (i = 0; i < MAX_HANDLED_COL; i++){
+    menuitem = gtk_menu_item_new_with_label(color_info[i].label);
+    gtk_object_set_data(GTK_OBJECT(menuitem), COLOR_SELECTION_PTR_KEY, 
+			(gpointer) colorsel);
+    gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
+		       GTK_SIGNAL_FUNC(update_current_color),
+		       &color_info[i].color);
+    gtk_widget_show(menuitem);
+    gtk_menu_append(GTK_MENU (menu), menuitem);
+  }
+  gtk_option_menu_set_menu (GTK_OPTION_MENU (optmenu), menu);
+  gtk_table_attach_defaults(GTK_TABLE(main_tb), optmenu, 1, 2, 0, 1);
+  gtk_widget_show(optmenu);
+
+  sample = gtk_text_new(FALSE, FALSE);
+  height = sample->style->font->ascent + sample->style->font->descent;
+  width = gdk_string_width(sample->style->font, SAMPLE_MARKED_TEXT);
+  gtk_widget_set_usize(GTK_WIDGET(sample), width, height);
+  gtk_text_set_editable(GTK_TEXT(sample), FALSE);
+  gtk_text_insert(GTK_TEXT(sample), NULL, 
+		  &color_info[MFG_IDX].color, 
+		  &color_info[MBG_IDX].color,
+		  SAMPLE_MARKED_TEXT, -1);
+  gtk_table_attach_defaults(GTK_TABLE(main_tb), sample, 2, 3, 0, 2);
+  gtk_widget_show(sample);
+  gtk_color_selection_set_color(GTK_COLOR_SELECTION(colorsel), 
+				&scolor[CS_RED]);
+  gtk_table_attach_defaults(GTK_TABLE(main_tb), colorsel, 0, 3, 2, 3);
+  gtk_object_set_data(GTK_OBJECT(colorsel), COLOR_SAMPLE_PTR_KEY,
+		      (gpointer) sample);
+  gtk_signal_connect(GTK_OBJECT(colorsel), "color-changed", 
+		     GTK_SIGNAL_FUNC(update_text_color), NULL);
+  gtk_widget_show(colorsel);
+  gtk_widget_show(main_vb);
+
+  gtk_object_set_data(GTK_OBJECT(color_w), COLOR_CALLER_PTR_KEY, caller);
+  gtk_object_set_data(GTK_OBJECT(caller), COLOR_DIALOG_PTR_KEY, color_w);
+
+  /* Ok, Cancel Buttons */  
+  bbox = gtk_hbutton_box_new();
+  gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
+  gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
+  gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+  gtk_widget_show(bbox);
+
+  ok_bt = gtk_button_new_with_label ("OK");
+  gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
+		     GTK_SIGNAL_FUNC(color_ok_cb), color_w);
+  GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
+  gtk_box_pack_start(GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
+  gtk_widget_grab_default(ok_bt);
+  gtk_widget_show(ok_bt);
+  cancel_bt = gtk_button_new_with_label ("Cancel");
+  gtk_signal_connect_object(GTK_OBJECT(cancel_bt), "clicked", 
+			    (GtkSignalFunc)gtk_widget_destroy,
+			    GTK_OBJECT(color_w));
+  gtk_box_pack_start(GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
+  gtk_widget_show(cancel_bt);
+  dlg_set_cancel(color_w, cancel_bt);
+
+  gtk_widget_show(color_w);
+}
+
+static void
+update_text_color(GtkWidget *w, gpointer data) {
+  GtkText  *sample = gtk_object_get_data(GTK_OBJECT(w), COLOR_SAMPLE_PTR_KEY);
+  gdouble   scolor[4];
+
+  gtk_color_selection_get_color(GTK_COLOR_SELECTION(w), &scolor[CS_RED]);
+  
+  curcolor->red   = (gushort) (scolor[CS_RED]   * 65535.0);
+  curcolor->green = (gushort) (scolor[CS_GREEN] * 65535.0);
+  curcolor->blue  = (gushort) (scolor[CS_BLUE]  * 65535.0);
+  
+  gtk_text_freeze(sample);
+  gtk_text_set_point(sample, 0);
+  gtk_text_forward_delete(sample, gtk_text_get_length(sample));
+  gtk_text_insert(GTK_TEXT(sample), NULL, 
+		  &color_info[MFG_IDX].color, 
+		  &color_info[MBG_IDX].color,
+		  SAMPLE_MARKED_TEXT, -1);
+  gtk_text_thaw(sample);
+}
+
+static void
+update_current_color(GtkWidget *w, gpointer data)
+{
+  GtkColorSelection *colorsel;    
+  gdouble            scolor[4];
+
+  colorsel = GTK_COLOR_SELECTION(gtk_object_get_data(GTK_OBJECT(w),
+						     COLOR_SELECTION_PTR_KEY));
+  curcolor = (GdkColor *)data;
+  scolor[CS_RED]     = (gdouble) (curcolor->red)   / 65535.0;
+  scolor[CS_GREEN]   = (gdouble) (curcolor->green) / 65535.0;
+  scolor[CS_BLUE]    = (gdouble) (curcolor->blue)  / 65535.0;
+  scolor[CS_OPACITY] = 1.0;
+  
+  gtk_color_selection_set_color(colorsel, &scolor[CS_RED]);
+}
+
+static void
+color_ok_cb(GtkWidget *w, gpointer data)
+{
+  prefs.gui_marked_fg = color_info[MFG_IDX].color;
+  prefs.gui_marked_bg = color_info[MBG_IDX].color;
+  gtk_widget_hide(GTK_WIDGET(data));
+  gtk_widget_destroy(GTK_WIDGET(data));
+  update_marked_frames();
+}
+
+static void
+color_destroy_cb(GtkWidget *w, gpointer data)
+{
+  GtkWidget *caller = gtk_object_get_data(GTK_OBJECT(w), 
+					  COLOR_CALLER_PTR_KEY);
+  if (caller != NULL) {
+    gtk_object_set_data(GTK_OBJECT(caller), COLOR_DIALOG_PTR_KEY, NULL);
+  }
+  gtk_grab_remove(GTK_WIDGET(w));
+  gtk_widget_destroy(GTK_WIDGET(w));
+}
+

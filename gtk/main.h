@@ -1,7 +1,7 @@
 /* main.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.18 2000/08/21 19:36:10 deniel Exp $
+ * $Id: main.h,v 1.19 2000/08/22 14:04:52 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,5 +61,6 @@ void resolve_name_cb(GtkWidget *, gpointer);
 void mark_frame_cb(GtkWidget *, gpointer);
 void mark_all_frames_cb(GtkWidget *w, gpointer);
 void unmark_all_frames_cb(GtkWidget *w, gpointer);
+void update_marked_frames(void);
 
 #endif /* __MAIN_H__ */

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.148 2000/08/22 05:06:20 guy Exp $
+ * $Id: main.c,v 1.149 2000/08/22 14:04:50 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -503,6 +503,18 @@ static void mark_all_frames(gboolean set) {
     set_frame_mark(set,
 		   fdata,
 		   gtk_clist_find_row_from_data(GTK_CLIST(packet_list), fdata));    
+  }
+}
+
+void update_marked_frames(void) {
+  frame_data *fdata;
+  if (cfile.plist == NULL) return;
+  for (fdata = cfile.plist; fdata != NULL; fdata = fdata->next) {
+    if (fdata->flags.marked)
+      set_frame_mark(TRUE,
+		     fdata,
+		     gtk_clist_find_row_from_data(GTK_CLIST(packet_list),
+						  fdata));
   }
 }
 
