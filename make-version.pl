@@ -2,7 +2,7 @@
 #
 # Copyright 2004 Jörg Mayer (see AUTHORS file)
 #
-# $Id: make-version.pl,v 1.2 2004/01/17 13:09:00 jmayer Exp $
+# $Id: make-version.pl,v 1.3 2004/01/18 01:41:13 obiot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -74,9 +74,9 @@ if ($last eq "" && -f "cvsversion") {
 	$last = `cat cvsversion`;
 }
 if ( $last ne "" ) {
-	$last = "#define CVSVERSION \"cvs$last\"\n";
+	$last = "#define CVSVERSION \"$last\"\n";
 } else {
-	$last = "#define CVSVERSION \"\"\n";
+	$last = "/* #define CVSVERSION \"\" */\n";
 }
 
 my $needsupdate=0;

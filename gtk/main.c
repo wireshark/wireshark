@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.355 2004/01/18 00:40:39 ulfl Exp $
+ * $Id: main.c,v 1.356 2004/01/18 01:41:14 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -208,8 +208,12 @@ about_ethereal( GtkWidget *w _U_, gpointer data _U_ ) {
   snprintf(message, MAX_ABOUT_MSG_LEN,
 	   "Ethereal - Network Protocol Analyzer\n\n"
 	   
-	   "Version " VERSION CVSVERSION " (C) 1998-2003 Gerald Combs <gerald@ethereal.com>\n\n"
-	   
+	   "Version " VERSION
+#ifdef CVSVERSION
+	   " (cvs " CVSVERSION ")"
+#endif
+	   " (C) 1998-2003 Gerald Combs <gerald@ethereal.com>\n\n"
+
        "%s\n"
        "%s\n\n"
 
@@ -1200,8 +1204,12 @@ static void
 print_usage(gboolean print_ver) {
 
   if (print_ver) {
-    fprintf(stderr, "This is GNU " PACKAGE " " VERSION CVSVERSION "\n%s\n%s\n",
-	  comp_info_str->str, runtime_info_str->str);
+    fprintf(stderr, "This is GNU " PACKAGE " " VERSION
+#ifdef CVSVERSION
+	" (cvs " CVSVERSION ")"
+#endif
+	"\n%s\n%s\n",
+	comp_info_str->str, runtime_info_str->str);
   }
 #ifdef HAVE_LIBPCAP
   fprintf(stderr, "\n%s [ -vh ] [ -klLnpQS ] [ -a <capture autostop condition> ] ...\n",
@@ -1231,8 +1239,12 @@ show_version(void)
   create_console();
 #endif
 
-  printf("%s %s%s\n%s\n%s\n", PACKAGE, VERSION, CVSVERSION, comp_info_str->str,
-         runtime_info_str->str);
+  printf(PACKAGE " " VERSION
+#ifdef CVSVERSION
+      " (cvs " CVSVERSION ")"
+#endif
+      "\n%s\n%s\n",
+      comp_info_str->str, runtime_info_str->str);
 }
 
 static int

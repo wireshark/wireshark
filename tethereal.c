@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.218 2004/01/16 20:03:10 jmayer Exp $
+ * $Id: tethereal.c,v 1.219 2004/01/18 01:41:13 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -236,7 +236,11 @@ print_usage(gboolean print_ver)
   int i;
 
   if (print_ver) {
-    fprintf(stderr, "This is GNU t%s %s%s\n%s\n%s\n", PACKAGE, VERSION, CVSVERSION,
+    fprintf(stderr, "This is GNU t" PACKAGE " " VERSION
+#ifdef CVSVERSION
+	" (cvs " CVSVERSION ")"
+#endif
+	"\n%s\n%s\n",
 	comp_info_str->str, runtime_info_str->str);
   }
 #ifdef HAVE_LIBPCAP
@@ -1197,8 +1201,12 @@ main(int argc, char *argv[])
 	}
 	break;
       case 'v':        /* Show version and exit */
-        printf("t%s %s%s\n%s\n%s\n", PACKAGE, VERSION, CVSVERSION, comp_info_str->str,
-               runtime_info_str->str);
+        printf("t" PACKAGE " " VERSION
+#ifdef CVSVERSION
+	    " (cvs " CVSVERSION ")"
+#endif
+	    "\n%s\n%s\n",
+	    comp_info_str->str, runtime_info_str->str);
         exit(0);
         break;
       case 'w':        /* Write to capture file xxx */
