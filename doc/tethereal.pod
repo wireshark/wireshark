@@ -27,7 +27,7 @@ S<[ B<-R> display filter expression ]>
 S<[ B<-s> snaplen ]>
 S<[ B<-S> ]>
 S<[ B<-t> time stamp format ]>
-S<[ B<-T> pdml|ps|text ]>
+S<[ B<-T> pdml|psml|ps|text ]>
 S<[ B<-v> ]>
 S<[ B<-V> ]>
 S<[ B<-w> savefile ]>
@@ -145,8 +145,8 @@ preferences file (which are also the fields displayed in the packet list
 pane in B<Ethereal>), although if it's printing packets as it captures
 them, rather than printing packets from a saved capture file, it won't
 print the "frame number" field.  If the B<-V> flag is specified, it
-prints intead a protocol tree, showing all the fields of all protocols
-in the packet.
+prints instead a view of the details of the packet, showing all the
+fields of all protocols in the packet.
 
 When writing packets to a file, B<Tethereal>, by default, writes the
 file in B<libpcap> format, and writes all of the packets it sees to the
@@ -444,8 +444,39 @@ captured.  The default is relative.
 
 =item -T
 
-Set the format of the print-out when viewing packet data.
-The PDML format always shows protocol tree data, as if (B<-V>) had been set.
+Set the format of the output when viewing packet data.  The options are:
+
+=for man .RS
+
+=for html <P><DL>
+
+=item pdml
+
+Packet Details Markup Language, an XML-based format for the details of
+a decoded packet.  This information is equivalent to the packet details
+printed with the B<-V> flag.
+
+=item psml
+
+Packet Summary Markup Language, an XML-based format for the summary
+information of a decoded packet.  This information is equivalent to the
+information shown in the one-line summary printed by default.
+
+=item ps
+
+PostScript for a human-readable one-line summary of each of the packets,
+or a multi-line view of the details of each of the packets, depending on
+whether the B<-V> flag was specified.
+
+=item text
+
+Text of a human-readable one-line summary of each of the packets, or a
+multi-line view of the details of each of the packets, depending on
+whether the B<-V> flag was specified.  This is the default.
+
+=for man .RE
+
+=for html </DL>
 
 =item -v
 
@@ -453,8 +484,8 @@ Print the version and exit.
 
 =item -V
 
-Cause B<Tethereal> to print a protocol tree for each packet rather than
-a one-line summary of the packet.
+Cause B<Tethereal> to print a view of the details of the packet rather
+than a one-line summary of the packet.
 
 =item -w
 
@@ -464,7 +495,7 @@ I<savefile> is "-".
 =item -x
 
 Cause B<Tethereal> to print a hex and ASCII dump of the packet data
-after printing the summary or protocol tree.
+after printing the summary or details.
 
 =item -y
 
@@ -536,10 +567,11 @@ statistics for all SMB frames to/from host 1.2.3.4.
 The examples above all use the standard syntax for generating statistics
 which only calculates the number of frames and bytes in each interval.
 
+B<io,stat> can also do much more statistics and calculate COUNT(), SUM(),
+MIN(), MAX(), and AVG() using a slightly different filter syntax:
 
-io,stat can also do much more statistics and calculate COUNT() SUM() MIN() 
-MAX() and AVG() using a slightly filter syntax:
   [COUNT|SUM|MIN|MAX|AVG](<field>)<filter>
+
 One important thing to note here is that the field that the calculation is 
 based on MUST also be part of the filter string or else the calculation will
 fail.
@@ -584,15 +616,16 @@ B<-z> conv,I<type>[,I<filter>]
 
 Create a table that lists all conversations that could be seen in the capture.
 I<type> specifies which type of conversation we want to generate the 
-statistics for, currently the supported ones are
+statistics for; currently the supported ones are
+
   "eth"   Ethernet
   "fc"    Fibre Channel
   "fddi"  FDDI
   "ip"    IP addresses
   "ipx"   IPX addresses
-  "tcp"   TCP/IP socketpairs   Both IPv4 and IPv6 are supported
-  "tr"    TokenRing
-  "udp"   UDP/IP socketpairs   Both IPv4 and IPv6 are supported
+  "tcp"   TCP/IP socket pairs  Both IPv4 and IPv6 are supported
+  "tr"    Token Ring
+  "udp"   UDP/IP socket pairs  Both IPv4 and IPv6 are supported
 
 If the optional filter string is specified, only those packets that match the
 filter will be used in the calculations.
@@ -605,27 +638,28 @@ The table is sorted according to total number of bytes.
 
 B<-z> proto,colinfo,I<filter>,I<field>
 
-Append all I<field> values for the packet to the COL_INFO information line.
-This feature can be used to append arbitrary fields to the COL_INFO line
-in addition to the normal content of the COL_INFO line.
+Append all I<field> values for the packet to the Info column of the
+one-line summary output.
+This feature can be used to append arbitrary fields to the Info column
+in addition to the normal content of that column.
 I<field> is the display-filter name of a field which value should be placed
-on the COL_INFO line.
+in the Info column.
 I<filter> is a filter string that controls for which packets the field value
-will be presented on COL_INFO line. I<field> will only be presented on the
-COL_INFO line for the packets which match I<filter>.
+will be presented in the info column. I<field> will only be presented in the
+Info column for the packets which match I<filter>.
 
 NOTE: In order for B<Tethereal> to be able to extract the I<field> value
 from the packet, I<field> MUST be part of the I<filter> string.  If not,
 B<Tethereal> will not be able to extract its value.
 
-For a simple example to add the "nfs.fh.hash" field to COL_INFO for all
-packets containing the "nfs.fh.hash" field, use
+For a simple example to add the "nfs.fh.hash" field to the Info column
+for all packets containing the "nfs.fh.hash" field, use
 
 B<-z proto,colinfo,nfs.fh.hash,nfs.fh.hash>
 
 
-To put "nfs.fh.hash" on COL_INFO but only for packets coming from host 1.2.3.4
-use :
+To put "nfs.fh.hash" in the Info column but only for packets coming from
+host 1.2.3.4 use:
 
 B<-z "proto,colinfo,nfs.fh.hash && ip.src==1.2.3.4,nfs.fh.hash">
 
