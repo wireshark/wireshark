@@ -634,6 +634,7 @@ Ronnie Sahlberg <ronnie_sahlberg[AT]ozemail.com.au> {
 	TCP ACK/SEQ number analysis and relative sequence numbers
 	TAP system and ONC RPC and DCE RPC examples
 	DISTCC updates
+	H225 and H245 dissectors and PER dissector helpers
 }
 
 Borosa Tomislav <tomislav.borosa[AT]SIEMENS.HR> {
