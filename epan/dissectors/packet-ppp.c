@@ -2474,9 +2474,9 @@ dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 	val_to_str(subopt_type, bap_phone_delta_subopt_vals, "Unknown"),
 	subopt_type);
 
-    if (subopt_len < 1) {
+    if (subopt_len < 2) {
       proto_tree_add_text(suboption_tree, tvb, offset + 1, 1,
-	  "Sub-Option Length: %u (invalid, must be >= 1)", subopt_len);
+	  "Sub-Option Length: %u (invalid, must be >= 2)", subopt_len);
       return;
     }
     if (subopt_len > length) {
@@ -2490,8 +2490,14 @@ dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
     switch (subopt_type) {
     case BAP_PHONE_DELTA_SUBOPT_UNIQ_DIGIT:
-      proto_tree_add_text(suboption_tree, tvb, offset + 2, 1, "Uniq Digit: %u",
-			  tvb_get_guint8(tvb, offset + 2));
+      if (subopt_len == 3) {
+        proto_tree_add_text(suboption_tree, tvb, offset + 2, 1, "Unique Digit: %u",
+			    tvb_get_guint8(tvb, offset + 2));
+      } else {
+        proto_tree_add_text(suboption_tree, tvb, offset + 1, 1,
+			  "Invalid suboption length: %u (must be == 3)",
+			  subopt_len);
+      }
       break;
     case BAP_PHONE_DELTA_SUBOPT_SUBSC_NUM:
       if (subopt_len > 2) {
@@ -2500,7 +2506,8 @@ dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 			  tvb_format_text(tvb, offset + 2, subopt_len - 2));
       } else {
         proto_tree_add_text(suboption_tree, tvb, offset + 1, 1,
-			  "Invalid suboption length: %u", subopt_len);
+			  "Invalid suboption length: %u (must be > 2)",
+			  subopt_len);
       }
       break;
     case BAP_PHONE_DELTA_SUBOPT_PHONENUM_SUBADDR:
@@ -2510,7 +2517,8 @@ dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 			  tvb_format_text(tvb, offset + 2, subopt_len - 2));
       } else {
         proto_tree_add_text(suboption_tree, tvb, offset + 1, 1,
-			  "Invalid suboption length: %u", subopt_len);
+			  "Invalid suboption length: %u (must be > 2)",
+			  subopt_len);
       }
       break;
     default:
@@ -2519,7 +2527,8 @@ dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 			  "Unknown");
       } else {
         proto_tree_add_text(suboption_tree, tvb, offset + 1, 1,
-			  "Invalid suboption length: %u", subopt_len);
+			  "Invalid suboption length: %u (must be > 2)",
+			  subopt_len);
       }
       break;
     }
