@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.33 2001/06/21 06:59:47 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.34 2001/06/22 06:03:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,14 +95,23 @@
 #define COL_SHOW_INFO_CONST(fd,info) if (check_col(fd,COL_INFO)) \
 				col_set_str(fd,COL_INFO,info);
 
-#define IS_TO_DS(x)            ((x) & 0x01)
-#define IS_FROM_DS(x)          ((x) & 0x02)
-#define HAVE_FRAGMENTS(x)      ((x) & 0x04)
-#define IS_RETRY(x)            ((x) & 0x08)
-#define POWER_MGT_STATUS(x)    ((x) & 0x10)
-#define HAS_MORE_DATA(x)       ((x) & 0x20)
-#define IS_WEP(x)              ((x) & 0x40)
-#define IS_STRICTLY_ORDERED(x) ((x) & 0x80)
+#define FLAG_TO_DS		0x01
+#define FLAG_FROM_DS		0x02
+#define FLAG_MORE_FRAGMENTS	0x04
+#define FLAG_RETRY		0x08
+#define FLAG_POWER_MGT		0x10
+#define FLAG_MORE_DATA		0x20
+#define FLAG_WEP		0x40
+#define FLAG_ORDER		0x80
+
+#define IS_TO_DS(x)            ((x) & FLAG_TO_DS)
+#define IS_FROM_DS(x)          ((x) & FLAG_FROM_DS)
+#define HAVE_FRAGMENTS(x)      ((x) & FLAG_MORE_FRAGMENTS)
+#define IS_RETRY(x)            ((x) & FLAG_RETRY)
+#define POWER_MGT_STATUS(x)    ((x) & FLAG_POWER_MGT)
+#define HAS_MORE_DATA(x)       ((x) & FLAG_MORE_DATA)
+#define IS_WEP(x)              ((x) & FLAG_WEP)
+#define IS_STRICTLY_ORDERED(x) ((x) & FLAG_ORDER)
 
 #define MGT_RESERVED_RANGE(x)  (((x>=0x06)&&(x<=0x07))||((x>=0x0D)&&(x<=0x0F)))
 #define CTRL_RESERVED_RANGE(x) ((x>=0x10)&&(x<=0x19))
@@ -149,10 +158,10 @@
 #define DATA_CF_POLL_NOD     0x26       /* Data - Data + CF poll (No data)         */
 #define DATA_CF_ACK_POLL_NOD 0x27	/* Data - CF ack + CF poll (no data)       */
 
-#define DATA_ADDR_T1         0x0000
-#define DATA_ADDR_T2         0x0100
-#define DATA_ADDR_T3         0x0200
-#define DATA_ADDR_T4         0x0300
+#define DATA_ADDR_T1         0
+#define DATA_ADDR_T2         (FLAG_FROM_DS << 8)
+#define DATA_ADDR_T3         (FLAG_TO_DS << 8)
+#define DATA_ADDR_T4         ((FLAG_TO_DS|FLAG_FROM_DS) << 8)
 
 
 /* ************************************************************************* */
@@ -1400,10 +1409,10 @@ proto_register_wlan (void)
   };
 
   static const value_string tofrom_ds[] = {
-    {0, "Not leaving DS or network is operating in AD-HOC mode (To DS: 0  From DS: 0)"},
-    {1, "Frame is exiting DS (To DS: 0  From DS: 1)"},
-    {2, "Frame is entering DS (To DS: 1  From DS: 0)"},
-    {3, "Frame part of WDS (To DS: 1  From DS: 1)"},
+    {0,                       "Not leaving DS or network is operating in AD-HOC mode (To DS: 0  From DS: 0)"},
+    {FLAG_TO_DS,              "Frame is entering DS (To DS: 1  From DS: 0)"},
+    {FLAG_FROM_DS,            "Frame is exiting DS (To DS: 0  From DS: 1)"},
+    {FLAG_TO_DS|FLAG_FROM_DS, "Frame part of WDS (To DS: 1  From DS: 1)"},
     {0, NULL}
   };
 
@@ -1578,35 +1587,35 @@ proto_register_wlan (void)
       "Data-frame DS-traversal status", HFILL }},	/* 3 */
 
     {&hf_fc_to_ds,
-     {"To DS", "wlan.fc.tods", FT_BOOLEAN, 8, TFS (&tods_flag), 0x1,
+     {"To DS", "wlan.fc.tods", FT_BOOLEAN, 8, TFS (&tods_flag), FLAG_TO_DS,
       "To DS flag", HFILL }},		/* 4 */
 
     {&hf_fc_from_ds,
-     {"From DS", "wlan.fc.fromds", FT_BOOLEAN, 8, TFS (&fromds_flag), 0x2,
+     {"From DS", "wlan.fc.fromds", FT_BOOLEAN, 8, TFS (&fromds_flag), FLAG_FROM_DS,
       "From DS flag", HFILL }},		/* 5 */
 
     {&hf_fc_more_frag,
-     {"Fragments", "wlan.fc.frag", FT_BOOLEAN, 8, TFS (&more_frags), 0x4,
+     {"Fragments", "wlan.fc.frag", FT_BOOLEAN, 8, TFS (&more_frags), FLAG_MORE_FRAGMENTS,
       "More Fragments flag", HFILL }},	/* 6 */
 
     {&hf_fc_retry,
-     {"Retry", "wlan.fc.retry", FT_BOOLEAN, 8, TFS (&retry_flags), 0x8,
+     {"Retry", "wlan.fc.retry", FT_BOOLEAN, 8, TFS (&retry_flags), FLAG_RETRY,
       "Retransmission flag", HFILL }},
 
     {&hf_fc_pwr_mgt,
-     {"PWR MGT", "wlan.fc.pwrmgt", FT_BOOLEAN, 8, TFS (&pm_flags), 0x10,
+     {"PWR MGT", "wlan.fc.pwrmgt", FT_BOOLEAN, 8, TFS (&pm_flags), FLAG_POWER_MGT,
       "Power management status", HFILL }},
 
     {&hf_fc_more_data,
-     {"More Data", "wlan.fc.moredata", FT_BOOLEAN, 8, TFS (&md_flags), 0x20,
+     {"More Data", "wlan.fc.moredata", FT_BOOLEAN, 8, TFS (&md_flags), FLAG_MORE_DATA,
       "More data flag", HFILL }},
 
     {&hf_fc_wep,
-     {"WEP flag", "wlan.fc.wep", FT_BOOLEAN, 8, TFS (&wep_flags), 0x40,
+     {"WEP flag", "wlan.fc.wep", FT_BOOLEAN, 8, TFS (&wep_flags), FLAG_WEP,
       "WEP flag", HFILL }},
 
     {&hf_fc_order,
-     {"Order flag", "wlan.fc.order", FT_BOOLEAN, 8, TFS (&order_flags), 0x80,
+     {"Order flag", "wlan.fc.order", FT_BOOLEAN, 8, TFS (&order_flags), FLAG_ORDER,
       "Strictly ordered flag", HFILL }},
 
     {&hf_assoc_id,
