@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.73 2003/11/16 23:17:18 guy Exp $
+ * $Id: packet-giop.c,v 1.74 2003/11/26 02:58:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1265,11 +1265,11 @@ static guint32 string_to_IOR(guchar *in, guint32 in_len, guint8 **out){
 
 
 /*
- * Simple getline, copied from somewhere :)
+ * Simple "get a line" routine, copied from somewhere :)
  *
  */
 
-static int getline(FILE *fp, gchar *line, int maxlen) {
+static int giop_getline(FILE *fp, gchar *line, int maxlen) {
 
   if (fgets(line,maxlen,fp) == NULL)
     return 0;
@@ -1305,7 +1305,7 @@ static void read_IOR_strings_from_file(gchar *name, int max_iorlen) {
 
   buf = g_malloc0(max_iorlen+1);	/* input buf */
 
-  while ((len = getline(fp,buf,max_iorlen+1)) > 0) {
+  while ((len = giop_getline(fp,buf,max_iorlen+1)) > 0) {
     my_offset = 0;		/* reset for every IOR read */
 
     ior_val_len = string_to_IOR(buf,len,&out);	/* convert */
