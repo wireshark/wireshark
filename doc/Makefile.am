@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal documentation
 #
-# $Id: Makefile.am,v 1.12 2001/07/30 21:40:13 guy Exp $
+# $Id: Makefile.am,v 1.13 2002/02/05 18:39:06 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -26,7 +26,7 @@
 # capture when $(VERSION) changes.
 
 ../ethereal.1: ethereal.pod ../config.h
-	pod2man ethereal.pod                     \
+	$(POD2MAN) ethereal.pod                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
 	> ../ethereal.1
@@ -35,7 +35,7 @@ ethereal.pod: ethereal.pod.template  ../ethereal
 	../ethereal -G | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/ethereal.pod.template > ethereal.pod
 
 ../tethereal.1: tethereal.pod ../config.h
-	pod2man tethereal.pod                     \
+	$(POD2MAN) tethereal.pod                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
 	> ../tethereal.1
@@ -44,25 +44,25 @@ tethereal.pod: tethereal.pod.template  ../tethereal
 	../tethereal -G | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/tethereal.pod.template > tethereal.pod
 
 ../editcap.1: editcap.pod ../config.h
-	pod2man $(srcdir)/editcap.pod                     \
+	$(POD2MAN) $(srcdir)/editcap.pod                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
 	> ../editcap.1
 
 ../idl2eth.1: idl2eth.pod ../config.h
-	pod2man $(srcdir)/idl2eth.pod                     \
+	$(POD2MAN) $(srcdir)/idl2eth.pod                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
 	> ../idl2eth.1
 
 ../mergecap.1: mergecap.pod ../config.h
-	pod2man $(srcdir)/mergecap.pod                     \
+	$(POD2MAN) $(srcdir)/mergecap.pod                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
 	> ../mergecap.1
 
 ../text2pcap.1: text2pcap.pod ../config.h
-	pod2man $(srcdir)/text2pcap.pod                     \
+	$(POD2MAN) $(srcdir)/text2pcap.pod                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
 	> ../text2pcap.1
