@@ -6,7 +6,7 @@
  * Portions based on information retrieved from the RX definitions
  *   in Arla, the free AFS client at http://www.stacken.kth.se/project/arla/
  *
- * $Id: packet-afs.c,v 1.2 1999/10/22 07:17:30 guy Exp $
+ * $Id: packet-afs.c,v 1.3 1999/10/24 07:27:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -636,6 +636,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	value_string const *vals;
 	int reply = 0;
 	int doffset = 0;
+	conversation_t *conversation;
 	struct afs_request_key request_key, *new_request_key;
 	struct afs_request_val *request_val;
 	void (*dissector)(const u_char *pd, int offset,
@@ -656,8 +657,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	port = ((reply == 0) ? pi.destport : pi.srcport );
 
 	/*
-	 * Find out what conversation this packet is part of, or add it to a
-	 * new conversation if it's not already part of one.
+	 * Find out what conversation this packet is part of.
 	 * XXX - this should really be done by the transport-layer protocol,
 	 * although for connectionless transports, we may not want to do that
 	 * unless we know some higher-level protocol will want it - or we
@@ -669,8 +669,15 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	 * packets from A:X to B:Y as being part of the same conversation as
 	 * packets from B:Y to A:X.
 	 */
-	request_key.conversation = add_to_conversation(&pi.src, &pi.dst,
-		pi.ptype, pi.srcport, pi.destport);
+	conversation = find_conversation(&pi.src, &pi.dst, pi.ptype,
+	    pi.srcport, pi.destport);
+	if (conversation == NULL) {
+		/* It's not part of any conversation - create a new one. */
+		conversation = conversation_new(&pi.src, &pi.dst, pi.ptype,
+		    pi.srcport, pi.destport, NULL);
+	}
+
+	request_key.conversation = conversation->index;	
 	request_key.service = ntohs(rxh->serviceId);
 	request_key.callnumber = ntohl(rxh->callNumber);
 

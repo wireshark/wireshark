@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.1 1999/10/22 07:17:28 guy Exp $
+ * $Id: conversation.c,v 1.2 1999/10/24 07:27:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,10 +40,11 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
+#include "conversation.h"
 
 static GHashTable *conversation_hashtable = NULL;
 static GMemChunk *conversation_key_chunk = NULL;
-static GMemChunk *conversation_val_chunk = NULL;
+static GMemChunk *conversation_chunk = NULL;
 
 typedef struct conversation_key {
 	struct conversation_key *next;
@@ -59,11 +60,6 @@ typedef struct conversation_key {
  * free the address data allocations associated with them.
  */
 static conversation_key *conversation_keys;
-
-typedef struct conversation_val {
-	struct conversation_val *next;
-	guint32	index;
-} conversation_val;
 
 static guint32 new_index;
 
@@ -207,8 +203,8 @@ conversation_init(void)
 		g_hash_table_destroy(conversation_hashtable);
 	if (conversation_key_chunk != NULL)
 		g_mem_chunk_destroy(conversation_key_chunk);
-	if (conversation_val_chunk != NULL)
-		g_mem_chunk_destroy(conversation_val_chunk);
+	if (conversation_chunk != NULL)
+		g_mem_chunk_destroy(conversation_chunk);
 
 	conversation_hashtable = g_hash_table_new(conversation_hash,
 	    conversation_equal);
@@ -216,9 +212,9 @@ conversation_init(void)
 	    sizeof(conversation_key),
 	    conversation_init_count * sizeof(struct conversation_key),
 	    G_ALLOC_AND_FREE);
-	conversation_val_chunk = g_mem_chunk_new("conversation_val_chunk",
-	    sizeof(conversation_val),
-	    conversation_init_count * sizeof(struct conversation_val),
+	conversation_chunk = g_mem_chunk_new("conversation_chunk",
+	    sizeof(conversation_t),
+	    conversation_init_count * sizeof(conversation_t),
 	    G_ALLOC_AND_FREE);
 
 	/*
@@ -243,18 +239,45 @@ copy_address(address *to, address *from)
 }
 
 /*
- * Given source and destination addresses and ports for a packet, add
- * it to the conversation containing packets between those address/port
- * pairs, creating a new conversation if none exists between them.
- *
- * Returns an index to use to refer to the conversation.
+ * Given source and destination addresses and ports for a packet,
+ * create a new conversation to contain packets between those address/port
+ * pairs.
  */
-guint32
-add_to_conversation(address *src, address *dst, port_type ptype,
+conversation_t *
+conversation_new(address *src, address *dst, port_type ptype,
+    guint16 src_port, guint16 dst_port, void *data)
+{
+	conversation_t *conversation;
+	conversation_key *new_key;
+
+	new_key = g_mem_chunk_alloc(conversation_key_chunk);
+	new_key->next = conversation_keys;
+	conversation_keys = new_key;
+	copy_address(&new_key->src, src);
+	copy_address(&new_key->dst, dst);
+	new_key->ptype = ptype;
+	new_key->port_src = src_port;
+	new_key->port_dst = dst_port;
+
+	conversation = g_mem_chunk_alloc(conversation_chunk);
+	conversation->index = new_index;
+	conversation->data = data;
+	new_index++;
+
+	g_hash_table_insert(conversation_hashtable, new_key, conversation);
+	return conversation;
+}
+
+/*
+ * Given source and destination addresses and ports for a packet,
+ * search for a conversation containing packets between those address/port
+ * pairs.  Returns NULL if not found.
+ */
+conversation_t *
+find_conversation(address *src, address *dst, port_type ptype,
     guint16 src_port, guint16 dst_port)
 {
-	conversation_val *conversation;
-	conversation_key key, *new_key;
+	conversation_key key;
 
 	/*
 	 * We don't make a copy of the address data, we just copy the
@@ -265,30 +288,5 @@ add_to_conversation(address *src, address *dst, port_type ptype,
 	key.ptype = ptype;
 	key.port_src = src_port;
 	key.port_dst = dst_port;
-	conversation =
-	    (conversation_val *)g_hash_table_lookup(conversation_hashtable,
-	    &key);
-	if (conversation == NULL) {
-		/*
-		 * No such conversation yet.
-		 * Allocate a new one.
-		 * Here, we *do* have to copy the address data.
-		 */
-		new_key = g_mem_chunk_alloc(conversation_key_chunk);
-		new_key->next = conversation_keys;
-		conversation_keys = new_key;
-		copy_address(&new_key->src, src);
-		copy_address(&new_key->dst, dst);
-		new_key->ptype = ptype;
-		new_key->port_src = src_port;
-		new_key->port_dst = dst_port;
-
-		conversation = g_mem_chunk_alloc(conversation_val_chunk);
-		conversation->index = new_index;
-		new_index++;
-
-		g_hash_table_insert(conversation_hashtable, new_key,
-		    conversation);
-	}
-	return conversation->index;
+	return g_hash_table_lookup(conversation_hashtable, &key);
 }

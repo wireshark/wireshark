@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.31 1999/10/22 07:17:37 guy Exp $
+ * $Id: packet-smb.c,v 1.32 1999/10/24 07:27:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -8208,13 +8208,12 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
   guint16       DataCount;
   guint16       ByteCount;
   const char    *TransactName;
-  guint32       conversation;
+  conversation_t *conversation;
   struct smb_request_key      request_key, *new_request_key;
   struct smb_request_val      *request_val;
 
   /*
-   * Find out what conversation this packet is part of, or add it to a
-   * new conversation if it's not already part of one.
+   * Find out what conversation this packet is part of.
    * XXX - this should really be done by the transport-layer protocol,
    * although for connectionless transports, we may not want to do that
    * unless we know some higher-level protocol will want it - or we
@@ -8226,13 +8225,18 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
    * packets from A:X to B:Y as being part of the same conversation as
    * packets from B:Y to A:X.
    */
-  conversation = add_to_conversation(&pi.src, &pi.dst, pi.ptype,
+  conversation = find_conversation(&pi.src, &pi.dst, pi.ptype,
 				pi.srcport, pi.destport);
+  if (conversation == NULL) {
+    /* It's not part of any conversation - create a new one. */
+    conversation = conversation_new(&pi.src, &pi.dst, pi.ptype,
+				pi.srcport, pi.destport, NULL);
+  }
 
   /*
    * Check for and insert entry in request hash table if does not exist
    */
-  request_key.conversation = conversation;
+  request_key.conversation = conversation->index;
   request_key.mid          = si.mid;
 
   request_val = (struct smb_request_val *) g_hash_table_lookup(smb_request_hash, &request_key);
@@ -8240,7 +8244,7 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
   if (!request_val) { /* Create one */
 
     new_request_key = g_mem_chunk_alloc(smb_request_keys);
-    new_request_key -> conversation = conversation;
+    new_request_key -> conversation = conversation->index;
     new_request_key -> mid          = si.mid;
 
     request_val = g_mem_chunk_alloc(smb_request_vals);
