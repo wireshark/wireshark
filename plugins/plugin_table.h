@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.28 2001/11/01 09:53:13 guy Exp $
+ * $Id: plugin_table.h,v 1.29 2001/11/04 03:16:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -345,7 +345,7 @@ typedef struct  {
 
 } plugin_address_table_t;
 
-#else /* ! PLUGINS_NEED_ACCESS_TABLE */
+#else /* ! PLUGINS_NEED_ADDRESS_TABLE */
 
 typedef void	plugin_address_table_t;
 
