@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.276 2001/01/13 07:47:48 guy Exp $
+# $Id: Makefile.am,v 1.277 2001/01/15 08:55:30 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -24,11 +24,48 @@
 
 ACLOCAL_AMFLAGS = `./aclocal-flags`
 
+#
+# This is a hideous hack.
+#
+# Automake needs to know into which sections to install various man
+# pages; if the names in "man_MANS" have suffixes, it can infer the
+# sections from the name (e.g., "hello.1" goes in section 1), but if
+# they don't have suffixes, it can't tell what sections to put them, and
+# it just gives up and doesn't create any rules to install them (and it
+# gives up silently, so you have no clue what's wrong).
+#
+# Therefore, we can't just set "man_MANS" to a list of variables to be
+# filled in by the configure script, as those variables don't have man
+# page section numbers.
+#
+# It turns out (although this is not documented anywhere I could find
+# in the automake Info file) that if you define, instead, variables with
+# names like "man{section}_MANS", automake will infer that the names in
+# those variables are the names of man pages to be installed in section
+# "{section}".
+#
+# So, as all our man pages go in section 1, we define "man1_MANS" to
+# contain all the man page.
+#
+# *However*, if "man_MANS" isn't defined at all, automake concludes that
+# there are no man pages, the fact that, say, "man1_MANS" is defined
+# nonwithstanding!  (I suspect this is the result of a mistaken attempt
+# to get people to fix their automake files not to use "MANS"; if "MANS"
+# is defined, it prints a warning and sets the exit status, but doesn't
+# exit, and then it just gives up if "man_MANS" isn't defined,
+# presumably on the theory that the only reason it wouldn't be defined
+# is because the automake file uses the obsolete "MANS" variable instead
+# of the shiny new "man_MANS" variable.)
+#
+# So we also define "man_MANS", but don't define it as anything;
+# automake will arrange that the Makefile define it as the union of all
+# the "man{section}_MANS" variables.
+#
 bin_PROGRAMS = @ethereal_bin@ @editcap_bin@ @tethereal_bin@
-man_MANS = @ethereal_man@ @editcap_man@ @tethereal_man@
+man1_MANS = @ethereal_man@ @editcap_man@ @tethereal_man@
+man_MANS = 
 
 EXTRA_PROGRAMS = ethereal ethereal_static tethereal tethereal_static editcap
-EXTRA_MANS = ethereal.1 tethereal.1 editcap.1
 
 sysconf_DATA = manuf
 
