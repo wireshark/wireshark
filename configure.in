@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.76 2000/01/15 09:46:28 guy Exp $
+# $Id: configure.in,v 1.77 2000/01/15 13:25:13 gram Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -341,14 +341,12 @@ AC_DEFINE_UNQUOTED(PLUGIN_DIR,"$PLUGIN_DIR", [Plugin installation directory])
 AC_SUBST(PLUGIN_DIR)
 
 dnl libtool defs
-AC_LIBLTDL_CONVENIENCE(libltdl)
 AC_LIBTOOL_DLOPEN
 AM_PROG_LIBTOOL
-AC_SUBST(LIBLTDL)
 AC_SUBST(LIBTOOL_DEPS)
 
 AM_CONFIG_HEADER(config.h)
-AC_CONFIG_SUBDIRS(wiretap libltdl)
+AC_CONFIG_SUBDIRS(wiretap)
 AC_OUTPUT(
   Makefile
   ethereal.spec

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.154 2000/01/15 09:46:27 guy Exp $
+# $Id: Makefile.am,v 1.155 2000/01/15 13:25:13 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -30,15 +30,6 @@ sysconf_DATA = manuf
 
 # Any POSIX-compatible YACC should honor the -p flag
 YFLAGS=-d -p dfilter_
-
-## use @LIBLTDL@ because some broken makes do not accept macros in targets
-## we can only do this because our LIBLTDL does not contain ${top_builddir}
-@LIBLTDL@: libtool libltdl/libtool libltdl/config.h \
-	$(srcdir)/libltdl/ltdl.c $(srcdir)/libltdl/ltdl.h
-	(cd libltdl; $(MAKE) `echo $(LIBLTDL) | sed 's,.*\.\./libltdl/,,g'`)
-# Without the following line, the check may fail if libltdl/libtool is
-# removed after libltdl is configured
-libltdl/libtool libltdl/config.h:
 
 DISSECTOR_SOURCES = \
 	packet-aarp.c  \
@@ -276,7 +267,6 @@ ethereal_additional_libs = wiretap/libwiretap.a gtk/libui.a
 ethereal_DEPENDENCIES = \
 	$(ethereal_optional_objects)	\
 	$(ethereal_additional_libs)	\
-	@LIBLTDL@
 	plugins/gryphon/gryphon.la
 
 # This automake variable adds to the link-line for the executable.
@@ -290,7 +280,7 @@ ethereal_LDADD = \
 	$(ethereal_optional_objects)	\
 	$(ethereal_additional_libs)	\
 	@SNMP_LIBS@			\
-	@LIBLTDL@ "-dlopen" self	\
+	"-dlopen" self	\
 	"-dlopen" plugins/gryphon/gryphon.la @PCAP_LIBS@ @GTK_LIBS@
 
 ethereal_LDFLAGS = -export-dynamic
@@ -308,7 +298,6 @@ tethereal_additional_libs = wiretap/libwiretap.a
 tethereal_DEPENDENCIES = \
 	$(ethereal_optional_objects)	\
 	$(tethereal_additional_libs)	\
-	@LIBLTDL@
 	plugins/gryphon/gryphon.la
 
 # This automake variable adds to the link-line for the executable
@@ -316,7 +305,7 @@ tethereal_LDADD = wiretap/libwiretap.a	\
 	$(ethereal_optional_objects)	\
 	$(tethereal_additional_libs)	\
 	@SNMP_LIBS@			\
-	@LIBLTDL@ "-dlopen" self	\
+	"-dlopen" self	\
 	"-dlopen" plugins/gryphon/gryphon.la @GLIB_LIBS@ -lm \
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@
 
@@ -421,7 +410,7 @@ EXTRA_DIST = \
 dist-hook:
 	@rm -f $(distdir)/register.c
 
-SUBDIRS = wiretap gtk plugins libltdl @ethereal_SUBDIRS@
+SUBDIRS = wiretap gtk plugins @ethereal_SUBDIRS@
 
 ethereal.1: ethereal doc/ethereal.pod.template
 	(cd doc ; \
@@ -437,8 +426,6 @@ editcap.1: doc/editcap.pod
 
 dfilter-scanner.c : dfilter-scanner.l
 	$(LEX) -Pdfilter_ -t $(srcdir)/dfilter-scanner.l > dfilter-scanner.c
-
-INCLUDES = -I$(srcdir)/libltdl
 
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status --recheck

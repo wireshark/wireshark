@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for the GTK interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.19 2000/01/10 01:43:58 guy Exp $
+# $Id: Makefile.am,v 1.20 2000/01/15 13:25:22 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -66,6 +66,4 @@ libui_a_SOURCES = \
 	summary_dlg.c   \
 	summary_dlg.h   \
 	ui_util.c
-
-INCLUDES = -I$(srcdir)/../libltdl
 
