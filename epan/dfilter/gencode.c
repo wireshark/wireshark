@@ -1,5 +1,5 @@
 /*
- * $Id: gencode.c,v 1.7 2002/08/28 20:40:55 jmayer Exp $
+ * $Id: gencode.c,v 1.8 2002/10/16 16:32:59 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,45 +45,54 @@ dfw_append_insn(dfwork_t *dfw, dfvm_insn_t *insn)
 
 /* returns register number */
 static int
-dfw_append_read_tree(dfwork_t *dfw, int field_id)
+dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo)
 {
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*val1, *val2;
 	int		reg = -1;
 
+	/* Rewind to find the first field of this name. */
+	while (hfinfo->same_name_prev) {
+		hfinfo = hfinfo->same_name_prev;
+	}
+
 	/* Keep track of which registers
-	 * were used for which field_id's so that we
+	 * were used for which hfinfo's so that we
 	 * can re-use registers. */
 	reg = GPOINTER_TO_UINT(
-			g_hash_table_lookup(dfw->loaded_fields,
-			GINT_TO_POINTER(field_id)));
+			g_hash_table_lookup(dfw->loaded_fields, hfinfo));
 	if (reg) {
 		/* Reg's are stored in has as reg+1, so
-		 * that the non-existence of a field_id in
+		 * that the non-existence of a hfinfo in
 		 * the hash, or 0, can be differentiated from
-		 * a field_id being loaded into register #0. */
+		 * a hfinfo being loaded into register #0. */
 		reg--;
 	}
 	else {
 		reg = dfw->next_register++;
 		g_hash_table_insert(dfw->loaded_fields,
-			GUINT_TO_POINTER(field_id),
-			GUINT_TO_POINTER(reg + 1));
+			hfinfo, GUINT_TO_POINTER(reg + 1));
 
-        /* Record the FIELD_ID in hash of interesting fields. */
-        g_hash_table_insert(dfw->interesting_fields,
-            GINT_TO_POINTER(field_id), GUINT_TO_POINTER(TRUE));
+		insn = dfvm_insn_new(READ_TREE);
+		val1 = dfvm_value_new(HFINFO);
+		val1->value.hfinfo = hfinfo;
+		val2 = dfvm_value_new(REGISTER);
+		val2->value.numeric = reg;
+
+		insn->arg1 = val1;
+		insn->arg2 = val2;
+		dfw_append_insn(dfw, insn);
+
+		while (hfinfo) {
+			/* Record the FIELD_ID in hash of interesting fields. */
+			g_hash_table_insert(dfw->interesting_fields,
+			    GINT_TO_POINTER(hfinfo->id),
+			    GUINT_TO_POINTER(TRUE));
+			hfinfo = hfinfo->same_name_next;
+		}
+
 	}
 
-	insn = dfvm_insn_new(READ_TREE);
-	val1 = dfvm_value_new(FIELD_ID);
-	val1->value.numeric = field_id;
-	val2 = dfvm_value_new(REGISTER);
-	val2->value.numeric = reg;
-
-	insn->arg1 = val1;
-	insn->arg2 = val2;
-	dfw_append_insn(dfw, insn);
 
 	return reg;
 }
@@ -119,7 +128,7 @@ dfw_append_mk_range(dfwork_t *dfw, stnode_t *node)
 	dfvm_value_t		*val;
 
 	hfinfo = sttype_range_hfinfo(node);
-	hf_reg = dfw_append_read_tree(dfw, hfinfo->id);
+	hf_reg = dfw_append_read_tree(dfw, hfinfo);
 
 	insn = dfvm_insn_new(MK_RANGE);
 
@@ -159,7 +168,7 @@ gen_relation(dfwork_t *dfw, dfvm_opcode_t op, stnode_t *st_arg1, stnode_t *st_ar
 
 	if (type1 == STTYPE_FIELD) {
 		hfinfo = stnode_data(st_arg1);
-		reg1 = dfw_append_read_tree(dfw, hfinfo->id);
+		reg1 = dfw_append_read_tree(dfw, hfinfo);
 
 		insn = dfvm_insn_new(IF_FALSE_GOTO);
 		jmp1 = dfvm_value_new(INSN_NUMBER);
@@ -178,7 +187,7 @@ gen_relation(dfwork_t *dfw, dfvm_opcode_t op, stnode_t *st_arg1, stnode_t *st_ar
 
 	if (type2 == STTYPE_FIELD) {
 		hfinfo = stnode_data(st_arg2);
-		reg2 = dfw_append_read_tree(dfw, hfinfo->id);
+		reg2 = dfw_append_read_tree(dfw, hfinfo);
 
 		insn = dfvm_insn_new(IF_FALSE_GOTO);
 		jmp2 = dfvm_value_new(INSN_NUMBER);
@@ -229,16 +238,25 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 			break;
 
 		case TEST_OP_EXISTS:
-			val1 = dfvm_value_new(FIELD_ID);
+			val1 = dfvm_value_new(HFINFO);
 			hfinfo = stnode_data(st_arg1);
-			val1->value.numeric = hfinfo->id;
+
+			/* Rewind to find the first field of this name. */
+			while (hfinfo->same_name_prev) {
+				hfinfo = hfinfo->same_name_prev;
+			}
+			val1->value.hfinfo = hfinfo;
 			insn = dfvm_insn_new(CHECK_EXISTS);
 			insn->arg1 = val1;
 			dfw_append_insn(dfw, insn);
 
-            /* Record the FIELD_ID in hash of interesting fields. */
-            g_hash_table_insert(dfw->interesting_fields,
-                GINT_TO_POINTER(hfinfo->id), GUINT_TO_POINTER(TRUE));
+			/* Record the FIELD_ID in hash of interesting fields. */
+			while (hfinfo) {
+				g_hash_table_insert(dfw->interesting_fields,
+					GINT_TO_POINTER(hfinfo->id),
+					GUINT_TO_POINTER(TRUE));
+				hfinfo = hfinfo->same_name_next;
+			}
 
 			break;
 

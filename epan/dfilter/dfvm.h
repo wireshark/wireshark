@@ -1,5 +1,5 @@
 /*
- * $Id: dfvm.h,v 1.7 2002/08/28 20:40:55 jmayer Exp $
+ * $Id: dfvm.h,v 1.8 2002/10/16 16:32:59 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,7 +32,7 @@
 typedef enum {
 	EMPTY,
 	FVALUE,
-	FIELD_ID,
+	HFINFO,
 	INSN_NUMBER,
 	REGISTER,
 	INTEGER,
@@ -43,9 +43,10 @@ typedef struct {
 	dfvm_value_type_t	type;
 
 	union {
-		fvalue_t	*fvalue;
-		guint32		numeric;
-		drange		*drange;
+		fvalue_t		*fvalue;
+		guint32			numeric;
+		drange			*drange;
+		header_field_info	*hfinfo;
 	} value;
 
 } dfvm_value_t;

@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter.c,v 1.12 2002/09/09 21:04:15 guy Exp $
+ * $Id: dfilter.c,v 1.13 2002/10/16 16:32:59 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -135,9 +135,9 @@ dfilter_free(dfilter_t *df)
 		free_insns(df->insns);
 	}
 
-    if (df->interesting_fields) {
-        g_free(df->interesting_fields);
-    }
+	if (df->interesting_fields) {
+		g_free(df->interesting_fields);
+	}
 
 	g_free(df->registers);
 	g_free(df->attempted_load);
@@ -250,8 +250,8 @@ dfilter_compile(gchar *text, dfilter_t **dfp)
 		dfilter = dfilter_new();
 		dfilter->insns = dfw->insns;
 		dfw->insns = NULL;
-        dfilter->interesting_fields = dfw_interesting_fields(dfw,
-                &dfilter->num_interesting_fields);
+		dfilter->interesting_fields = dfw_interesting_fields(dfw,
+			&dfilter->num_interesting_fields);
 
 		/* Initialize run-time space */
 		dfilter->num_registers = dfw->next_register;

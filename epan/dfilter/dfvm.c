@@ -1,5 +1,5 @@
 /*
- * $Id: dfvm.c,v 1.8 2002/08/28 20:40:55 jmayer Exp $
+ * $Id: dfvm.c,v 1.9 2002/10/16 16:32:59 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -107,12 +107,12 @@ dfvm_dump(FILE *f, GPtrArray *insns)
 		switch (insn->op) {
 			case CHECK_EXISTS:
 				fprintf(f, "%05d CHECK_EXISTS\t%s\n",
-					id, proto_registrar_get_abbrev(arg1->value.numeric));
+					id, arg1->value.hfinfo->abbrev);
 				break;
 
 			case READ_TREE:
 				fprintf(f, "%05d READ_TREE\t\t%s -> reg#%d\n",
-					id, proto_registrar_get_abbrev(arg1->value.numeric),
+					id, arg1->value.hfinfo->abbrev,
 					arg2->value.numeric);
 				break;
 
@@ -187,12 +187,13 @@ dfvm_dump(FILE *f, GPtrArray *insns)
 /* Reads a field from the proto_tree and loads the fvalues into a register,
  * if that field has not already been read. */
 static gboolean
-read_tree(dfilter_t *df, proto_tree *tree, int field_id, int reg)
+read_tree(dfilter_t *df, proto_tree *tree, header_field_info *hfinfo, int reg)
 {
 	GPtrArray	*finfos;
 	field_info	*finfo;
 	int		i, len;
 	GList		*fvalues = NULL;
+	gboolean	found_something = FALSE;
 
 	/* Already loaded in this run of the dfilter? */
 	if (df->attempted_load[reg]) {
@@ -206,20 +207,32 @@ read_tree(dfilter_t *df, proto_tree *tree, int field_id, int reg)
 
 	df->attempted_load[reg] = TRUE;
 
-	finfos = proto_get_finfo_ptr_array(tree, field_id);
-	if (!finfos) {
+	while (hfinfo) {
+		finfos = proto_get_finfo_ptr_array(tree, hfinfo->id);
+		if (!finfos) {
+			hfinfo = hfinfo->same_name_next;
+			continue;
+		}
+		else if (g_ptr_array_len(finfos) == 0) {
+			hfinfo = hfinfo->same_name_next;
+			continue;
+		}
+		else {
+			found_something = TRUE;
+		}
+
+		len = finfos->len;
+		for (i = 0; i < len; i++) {
+			finfo = g_ptr_array_index(finfos, i);
+			fvalues = g_list_prepend(fvalues, finfo->value);
+		}
+
+		hfinfo = hfinfo->same_name_next;
+	}
+
+	if (!found_something) {
 		return FALSE;
 	}
-    else if (g_ptr_array_len(finfos) == 0) {
-        return FALSE;
-    }
-
-	len = finfos->len;
-	for (i = 0; i < len; i++) {
-		finfo = g_ptr_array_index(finfos, i);
-		fvalues = g_list_prepend(fvalues, finfo->value);
-	}
-	fvalues = g_list_reverse(fvalues);
 
 	df->registers[reg] = fvalues;
 	return TRUE;
@@ -308,6 +321,7 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 	dfvm_value_t	*arg1;
 	dfvm_value_t	*arg2;
 	dfvm_value_t	*arg3;
+	header_field_info	*hfinfo;
 
 	g_assert(tree);
 
@@ -329,13 +343,22 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 
 		switch (insn->op) {
 			case CHECK_EXISTS:
-				accum = proto_check_for_protocol_or_field(tree,
-						arg1->value.numeric);
+				hfinfo = arg1->value.hfinfo;
+				while(hfinfo) {
+					accum = proto_check_for_protocol_or_field(tree,
+							arg1->value.hfinfo->id);
+					if (accum) {
+						break;
+					}
+					else {
+						hfinfo = hfinfo->same_name_next;
+					}
+				}
 				break;
 
 			case READ_TREE:
 				accum = read_tree(df, tree,
-						arg1->value.numeric, arg2->value.numeric);
+						arg1->value.hfinfo, arg2->value.numeric);
 				break;
 
 			case PUT_FVALUE:
