@@ -1,6 +1,6 @@
 /* eyesdn.c
  *
- * $Id: eyesdn.c,v 1.6 2004/03/17 09:24:41 guy Exp $
+ * $Id: eyesdn.c,v 1.7 2004/03/23 00:17:50 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -132,54 +132,22 @@ static long eyesdn_seek_next_packet(wtap *wth, int *err)
   return -1;
 }
 
-/* Look through the first part of a file to see if this is
- * a eyesdn trace file.
- *
- * Returns TRUE if it is, FALSE if it isn't or if we get an I/O error;
- * if we get an I/O error, "*err" will be set to a non-zero value.
- */
-static gboolean eyesdn_check_file_type(wtap *wth, int *err)
-{
-	char	buf[EYESDN_HDR_MAGIC_SIZE];
-	size_t	i, reclen;
-	guint	level;
-	char	byte;
-
-        reclen=EYESDN_HDR_MAGIC_SIZE;
-        if (file_read(buf, 1, reclen, wth->fh) == reclen) {
-	    level = 0;
-	    for (i = 0; i < reclen; i++) {
-		byte = buf[i];
-		if (byte == eyesdn_hdr_magic[level]) {
-		    level++;
-		    if (level >= EYESDN_HDR_MAGIC_SIZE) {
-			return TRUE;
-		    }
-		} else {
-		    level = 0;
-		}
-	    }
-	} else {/* EOF or error. */
-	    if (file_eof(wth->fh))
-		*err = 0;
-	    else
-		*err = file_error(wth->fh);
-	    return FALSE;
-	}
-	*err = 0;
-	return FALSE;
-}
-
-
 int eyesdn_open(wtap *wth, int *err, gchar **err_info _U_)
 {
+	int	bytes_read;
+	char	magic[EYESDN_HDR_MAGIC_SIZE];
+
 	/* Look for eyesdn header */
-	if (!eyesdn_check_file_type(wth, err)) {
-		if (*err == 0)
-			return 0;
-		else
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(&magic, 1, sizeof magic, wth->fh);
+	if (bytes_read != sizeof magic) {
+		*err = file_error(wth->fh);
+		if (*err != 0)
 			return -1;
+		return 0;
 	}
+	if (memcmp(magic, eyesdn_hdr_magic, EYESDN_HDR_MAGIC_SIZE) != 0)
+		return 0;
 
 	wth->data_offset = 0;
 	wth->file_encap = WTAP_ENCAP_ISDN;
