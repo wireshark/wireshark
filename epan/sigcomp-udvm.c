@@ -87,7 +87,6 @@
 #define SIGCOMP_INSTR_OUTPUT                    34
 #define SIGCOMP_INSTR_END_MESSAGE               35
 
-#define UDVM_MEMORY_SIZE						65536
 
 static gboolean print_level_1;
 static gboolean print_level_2;
@@ -115,12 +114,12 @@ const value_string result_code_vals[] = {
 	{ 0,    NULL }
 };
 
-static int decode_udvm_literal_operand(guint8 buff[],guint operand_address, guint16 *value);
-static int dissect_udvm_reference_operand(guint8 buff[],guint operand_address, guint16 *value, guint *result_dest);
-static int decode_udvm_multitype_operand(guint8 buff[],guint operand_address,guint16 *value);
-static int decode_udvm_address_operand(guint8 buff[],guint operand_address, guint16 *value,guint current_address);
+static int decode_udvm_literal_operand(guint8 *buff,guint operand_address, guint16 *value);
+static int dissect_udvm_reference_operand(guint8 *buff,guint operand_address, guint16 *value, guint *result_dest);
+static int decode_udvm_multitype_operand(guint8 *buff,guint operand_address,guint16 *value);
+static int decode_udvm_address_operand(guint8 *buff,guint operand_address, guint16 *value,guint current_address);
 static int decomp_dispatch_get_bits(tvbuff_t *message_tvb,proto_tree *udvm_tree,guint8 bit_order, 
-			guint8 buff[],guint16 *old_input_bit_order, guint16 *remaining_bits,
+			guint8 *buff,guint16 *old_input_bit_order, guint16 *remaining_bits,
 			guint16	*input_bits, guint *input_address, guint16 length, guint16 *result_code,guint msg_end);
 
 
@@ -131,7 +130,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 	tvbuff_t	*decomp_tvb;
 	guint8		buff[UDVM_MEMORY_SIZE];
 	char		string[2];
-	guint8		out_buff[65536];		/* Largest allowed size for a message is 65535  */
+	guint8		*out_buff;		/* Largest allowed size for a message is 65535  */
 	guint32		i = 0;
 	guint16		n = 0;
 	guint16		m = 0;
@@ -314,6 +313,8 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 		offset++;
 
 	}
+	/* Largest allowed size for a message is 65535  */
+	out_buff = g_malloc(65535);
 	/* Start executing code */
 	current_address = udvm_mem_dest;
 	input_address = 0;
@@ -343,12 +344,20 @@ execute_next_instruction:
 		if ( output_address > 0 ){
 			/* At least something got decompressed, show it */
 			decomp_tvb = tvb_new_real_data(out_buff,output_address,output_address);
+			/* Arrange that the allocated packet data copy be freed when the
+			 * tvbuff is freed. 
+			 */
+			tvb_set_free_cb( decomp_tvb, g_free );
+			/* Add the tvbuff to the list of tvbuffs to which the tvbuff we
+			 * were handed refers, so it'll get cleaned up when that tvbuff
+			 * is cleaned up. 
+			 */
 			tvb_set_child_real_data_tvbuff(message_tvb,decomp_tvb);
 			add_new_data_source(pinfo, decomp_tvb, "Decompressed SigComp message(Incomplete)");
 			proto_tree_add_text(udvm_tree, decomp_tvb, 0, -1,"SigComp message Decompression failure");
 		return decomp_tvb;
 		}
-
+		g_free(out_buff);
 		return NULL;
 		break;
 
@@ -2317,6 +2326,11 @@ execute_next_instruction:
 
 		/* At least something got decompressed, show it */
 		decomp_tvb = tvb_new_real_data(out_buff,output_address,output_address);
+		/* Arrange that the allocated packet data copy be freed when the
+		 * tvbuff is freed. 
+		 */
+		tvb_set_free_cb( decomp_tvb, g_free );
+
 		tvb_set_child_real_data_tvbuff(message_tvb,decomp_tvb);
 		add_new_data_source(pinfo, decomp_tvb, "Decompressed SigComp message");
 		/*
@@ -2333,14 +2347,14 @@ execute_next_instruction:
 			current_address,current_instruction,current_instruction);
 		break;
 		}
-	return NULL;
+		g_free(out_buff);
+		return NULL;
 decompression_failure:
 		
-			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"DECOMPRESSION FAILURE: %s",
-					    val_to_str(result_code, result_code_vals,"Unknown (%u)"));
-	return NULL;
-
-
+		proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"DECOMPRESSION FAILURE: %s",
+				    val_to_str(result_code, result_code_vals,"Unknown (%u)"));
+		g_free(out_buff);
+		return NULL;
 
 }
 	
@@ -2356,7 +2370,7 @@ decompression_failure:
   *
   */
 static int
-decode_udvm_literal_operand(guint8 buff[],guint operand_address, guint16 *value) 
+decode_udvm_literal_operand(guint8 *buff,guint operand_address, guint16 *value) 
 {
 	guint	bytecode;
 	guint16 operand;
@@ -2420,7 +2434,7 @@ decode_udvm_literal_operand(guint8 buff[],guint operand_address, guint16 *value)
  *            Figure 9: Bytecode for a reference ($) operand
  */
 static int
-dissect_udvm_reference_operand(guint8 buff[],guint operand_address, guint16 *value,guint *result_dest) 
+dissect_udvm_reference_operand(guint8 *buff,guint operand_address, guint16 *value,guint *result_dest) 
 {
 	guint bytecode;
 	guint16 operand;
@@ -2493,7 +2507,7 @@ dissect_udvm_reference_operand(guint8 buff[],guint operand_address, guint16 *val
 	 * 10000001 nnnnnnnn nnnnnnnn      memory[N]           0 - 65535			0x81
 	 */
 static int
-decode_udvm_multitype_operand(guint8 buff[],guint operand_address, guint16 *value)
+decode_udvm_multitype_operand(guint8 *buff,guint operand_address, guint16 *value)
 {
 	guint test_bits;
 	guint bytecode;
@@ -2648,7 +2662,7 @@ decode_udvm_multitype_operand(guint8 buff[],guint operand_address, guint16 *valu
 	 * placed in the UDVM memory).
 	 */
 static int
-decode_udvm_address_operand(guint8 buff[],guint operand_address, guint16 *value,guint current_address)
+decode_udvm_address_operand(guint8 *buff,guint operand_address, guint16 *value,guint current_address)
 {
 	guint32 result;
 	guint16 value1;
@@ -2663,7 +2677,7 @@ decode_udvm_address_operand(guint8 buff[],guint operand_address, guint16 *value,
 
 static int
 decomp_dispatch_get_bits(tvbuff_t *message_tvb,proto_tree *udvm_tree,guint8 bit_order, 
-			guint8 buff[],guint16 *old_input_bit_order, guint16 *remaining_bits,
+			guint8 *buff,guint16 *old_input_bit_order, guint16 *remaining_bits,
 			guint16	*input_bits, guint *input_address, guint16 length, 
 			guint16 *result_code,guint msg_end){
 

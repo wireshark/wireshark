@@ -376,12 +376,16 @@ static const guint8 sip_sdp_static_dictionaty_for_sigcomp[0x12e4] =
 static GHashTable *state_buffer_table=NULL;
 
 static void
-state_buffer_table_cleanup(gpointer key _U_, gpointer value, gpointer user_data _U_){
+state_buffer_table_cleanup(gpointer key , gpointer value, gpointer user_data _U_){
 
 	guint8 *state_buff = value;
+	gchar *partial_state_str = key;
 
-	if ( state_buff )
+	if ( state_buff ){
 		g_free(state_buff);
+		g_free(partial_state_str);
+	}
+
 }
 
 void
@@ -392,8 +396,10 @@ sigcomp_init_udvm(void){
 	guint8 *sip_sdp_buff;
 
 	/* Destroy any existing memory chunks / hashes. */
-	if (state_buffer_table)
+	if (state_buffer_table){
 		g_hash_table_foreach(state_buffer_table, state_buffer_table_cleanup, NULL);
+		g_hash_table_destroy(state_buffer_table);
+	}
 	
 
 	state_buffer_table = g_hash_table_new(g_str_hash, g_str_equal);
@@ -422,11 +428,12 @@ sigcomp_init_udvm(void){
 	 *	g_warning("g_hash_table_insert = 0x%x",sip_sdp_buff);
 	 *  g_warning("g_hash_table_insert = 0x%x",sip_sdp_buff);
 	 */
+	g_free(partial_state_str);
 
 }
 
                           
-int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 buff[],guint16 p_id_start, guint16 p_id_length, guint16 state_begin, guint16 *state_length, 
+int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint16 p_id_start, guint16 p_id_length, guint16 state_begin, guint16 *state_length, 
 					   guint16 *state_address, guint16 state_instruction, gboolean state_vars_valid)
 {
 	int			result_code = 0;
@@ -469,9 +476,10 @@ int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 buff[],guint16 p_id
 	 *	g_warning("g_hash_table_lookup = 0x%x",state_buff);
 	 * g_warning("State Access: partial state =%s",partial_state_str);
 	 */
-	state_buff = g_hash_table_lookup(state_buffer_table, g_strdup(partial_state_str));
+	state_buff = g_hash_table_lookup(state_buffer_table, partial_state_str);
 	if ( state_buff == NULL ){
 		result_code = 2; /* No state match */
+		g_free(partial_state_str);
 		return result_code;
 	}
 	/* 
@@ -593,7 +601,7 @@ int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 buff[],guint16 p_id
 	/* partial_state_ID_length */
 	buff[6] = p_id_length >> 8;
 	buff[7] = p_id_length & 0xff;
-
+	g_free(partial_state_str);
 	return 0;
 	/*
 	 * End SIP
@@ -648,6 +656,7 @@ void udvm_state_free(guint8 buff[],guint16 p_id_start,guint16 p_id_length){
 		i++;
 	}
 	partial_state_str = bytes_to_str(partial_state, p_id_length);
+	g_free(partial_state_str);
 	/* TODO Implement a state create counter before actually freeing states 
 	 * Hmm is it a good idea to free the buffer at all?
 	g_warning("State-free on  %s ",partial_state_str);
