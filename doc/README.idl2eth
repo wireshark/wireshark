@@ -1,6 +1,43 @@
-$Id: README.idl2eth,v 1.1 2001/06/18 05:27:18 guy Exp $
+$Id: README.idl2eth,v 1.2 2001/06/19 20:10:51 guy Exp $
 
 Copyright (C) 2001 Frank Singleton <frank.singleton@ericsson.com>
+
+
+What is it ?
+============
+
+As you have probably guessed from the name, "idl2eth" takes a
+user specified IDL file and attempts to build a dissector that
+can decode the IDL traffic over GIOP. The resulting file is
+"C" code, that should compile okay as an ethereal dissector.
+
+idl2eth basically parses the data struct given to it by
+the omniidl compiler, and using the GIOP API available in packet-giop.[ch],
+generates  get_CDR_xxx calls to decode the CORBA traffic on the wire.
+
+It consists of 4 main files.
+
+README.idl2eth     - This document
+ethereal_be.py     - The main compiler backend
+ethereal_gen.py    - A helper class, that generates the C code.
+idl2eth            - A simple shell script wrapper that the end user should
+                     use to generate the dissector from the IDL file(s).
+
+Why did you do this ?
+=====================
+
+It is important to understand how CORBA traffic looks
+like over GIOP/IIOP, and to help build a tool that can assist
+in troubleshooting CORBA interworking. This was especially the
+case after seeing a lot of discussions about how particular
+IDL types are represented inside an octet stream.
+
+I have also had comments/feedback that this tool would be good for say
+a CORBA class when teaching students how CORBA traffic looks like
+"on the wire".
+
+It is also COOL to work on a great Open Source project such as
+the case with "Ethereal" (http://www.ethereal.com)
 
 
 How to use idl2eth
@@ -16,11 +53,10 @@ need the following.
 2. omniidl from the the omniORB package must be available.
    http://www.uk.research.att.com/omniORB/omniORB.html
 
-3  Of course you can have ethereal installed to compile the
-   code an tweak it if required.
+3  Of course you need ethereal installed to compile the
+   code an tweak it if required. idl2eth is part of the 
+   standard Ethereal distribution
 
-4. You need ethereal_be.py and ethereal_gen.py, part of the idl2eth
-   code.
 
 Procedure
 =========
@@ -67,7 +103,7 @@ steps 3 or 4 instead.
 
 6. Run configure
 
-   ./configure
+   ./configure (or ./autogen.sh)
 
 7. Compile the code
 
@@ -91,13 +127,16 @@ Limitations
 See TODO list inside packet-giop.c
 
 
-
 Notes
 =====
 
 1. The "-p ./" option passed to omniidl indicates that the ethereal_be.py
    and ethereal_gen.py are residing in the current directory. This may need
    tweaking if you place these files somewhere else.
+
+2. If it complains about being unable to find some modules (eg tempfile.py), 
+   you may want to check if PYTHONPATH is set correctly.
+   On my Linux box, it is  PYTHONPATH=/usr/lib/python1.5/ 
 
 Frank Singleton.
 
