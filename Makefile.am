@@ -65,9 +65,11 @@ ethereal_SOURCES = \
 	file.h         \
 	filter.h       \
 	follow.h       \
+	gtkpacket.h    \
 	menu.h         \
 	packet.h       \
 	packet-dns.h   \
+	packet-ip.h    \
 	packet-ipv6.h  \
 	packet-ipx.h   \
 	packet-ncp.h   \
