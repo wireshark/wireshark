@@ -1,7 +1,7 @@
 /* dlg_utils.h
  * Declarations of utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.h,v 1.11 2004/03/29 22:40:57 guy Exp $
+ * $Id: dlg_utils.h,v 1.12 2004/03/29 22:55:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,10 @@ extern GtkWidget *file_selection_new(const gchar *, file_selection_action_t);
 
 /* Set the current folder for a file selection dialog. */
 extern gboolean file_selection_set_current_folder(GtkWidget *, const gchar *);
+
+/* Set the "extra" widget for a file selection dialog, with user-supplied
+   options. */
+extern void file_selection_set_extra_widget(GtkWidget *, GtkWidget *);
 
 /* Create a button row for a dialog */
 /* the button widgets will be available by OBJECT_GET_DATA(stock_id) */

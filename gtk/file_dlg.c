@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.101 2004/03/29 22:40:58 guy Exp $
+ * $Id: file_dlg.c,v 1.102 2004/03/29 22:55:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -279,12 +279,7 @@ file_open_cmd(GtkWidget *w)
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-  gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(file_open_w), main_vb);
-#else
-  gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(file_open_w)->action_area),
-    main_vb, FALSE, FALSE, 0);
-#endif
+  file_selection_set_extra_widget(file_open_w, main_vb);
   gtk_widget_show(main_vb);
 
   filter_hbox = gtk_hbox_new(FALSE, 1);
@@ -904,12 +899,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
        
   main_vb = gtk_vbox_new(FALSE, 5);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-  gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(file_save_as_w), main_vb);
-#else
-  gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(file_save_as_w)->action_area),
-                     main_vb, FALSE, FALSE, 0);
-#endif
+  file_selection_set_extra_widget(file_save_as_w, main_vb);
   gtk_widget_show(main_vb);	
 		
   /*** Packet Range frame ***/
@@ -1297,13 +1287,7 @@ file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-  gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(file_color_import_w),
-                                    main_vb);
-#else
-  gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(file_color_import_w)->action_area),
-                     main_vb, FALSE, FALSE, 0);
-#endif
+  file_selection_set_extra_widget(file_color_import_w, main_vb);
   gtk_widget_show(main_vb);
 
 
@@ -1460,13 +1444,7 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-  gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(file_color_export_w),
-                                    main_vb);
-#else
-  gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(file_color_export_w)->action_area),
-    main_vb, FALSE, FALSE, 0);
-#endif
+  file_selection_set_extra_widget(file_color_export_w, main_vb);
   gtk_widget_show(main_vb);
 
   cfmark_cb = gtk_check_button_new_with_label("Export only marked filters");

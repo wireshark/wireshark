@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.23 2004/03/29 22:40:57 guy Exp $
+ * $Id: dlg_utils.c,v 1.24 2004/03/29 22:55:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -375,6 +375,19 @@ file_selection_set_current_folder(GtkWidget *fs, const gchar *filename)
 #else
   gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), filename);
   return TRUE;
+#endif
+}
+
+/* Set the "extra" widget for a file selection dialog, with user-supplied
+   options. */
+void
+file_selection_set_extra_widget(GtkWidget *fs, GtkWidget *extra)
+{
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+  gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(fs), extra);
+#else
+  gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(fs)->action_area), extra,
+                     FALSE, FALSE, 0);
 #endif
 }
 
