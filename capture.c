@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.181 2002/06/07 21:11:22 guy Exp $
+ * $Id: capture.c,v 1.182 2002/06/13 21:23:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -219,16 +219,26 @@ typedef struct _loop_data {
   gint           sync_packets;
   gboolean       pcap_err;     /* TRUE if error from pcap */
   gboolean       from_pipe;    /* TRUE if we are capturing data from a pipe */
-  gboolean       modified;     /* TRUE if data in the pipe uses modified pcap headers */
-  gboolean       byte_swapped; /* TRUE if data in the pipe is byte swapped */
   packet_counts  counts;
   wtap_dumper   *pdh;
+#ifndef _WIN32
+  gboolean       modified;     /* TRUE if data in the pipe uses modified pcap headers */
+  gboolean       byte_swapped; /* TRUE if data in the pipe is byte swapped */
+  unsigned int   bytes_to_read, bytes_read; /* Used by pipe_dispatch */
+  enum {
+         STATE_EXPECT_REC_HDR, STATE_READ_REC_HDR,
+         STATE_EXPECT_DATA,     STATE_READ_DATA
+       } pipe_state;
+
+  enum { PIPOK, PIPEOF, PIPERR, PIPNEXIST } pipe_err;
+#endif
 } loop_data;
 
 #ifndef _WIN32
 static void adjust_header(loop_data *, struct pcap_hdr *, struct pcaprec_hdr *);
-static int pipe_open_live(char *, struct pcap_hdr *, loop_data *);
-static int pipe_dispatch(int, loop_data *, struct pcap_hdr *);
+static int pipe_open_live(char *, struct pcap_hdr *, loop_data *, char *, int);
+static int pipe_dispatch(int, loop_data *, struct pcap_hdr *, \
+		struct pcaprec_modified_hdr *, u_char *, char *, int);
 #endif
 
 /* Win32 needs the O_BINARY flag for open() */
@@ -603,7 +613,7 @@ do_capture(char *capfile_name)
 		  "Capture child process failed: EOF reading its error message.");
 	    wait_for_child(FALSE);
 	  } else
-	    simple_dialog(ESD_TYPE_WARN, NULL, msg);
+	    simple_dialog(ESD_TYPE_CRIT, NULL, msg);
 	  g_free(msg);
 	}
 
@@ -1055,23 +1065,86 @@ adjust_header(loop_data *ld, struct pcap_hdr *hdr, struct pcaprec_hdr *rechdr)
  * N.B. : we can't read the libpcap formats used in RedHat 6.1 or SuSE 6.3
  * because we can't seek on pipes (see wiretap/libpcap.c for details) */
 static int
-pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld)
+pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
+                 char *errmsg, int errmsgl)
 {
   struct stat pipe_stat;
   int         fd;
   guint32     magic;
-  int         bytes_read, b;
+  int         b, sel_ret;
+  unsigned int bytes_read;
+  fd_set      rfds;
+  struct timeval timeout;
 
-  if (strcmp(pipename, "-") == 0) fd = 0; /* read from stdin */
-  else if (stat(pipename, &pipe_stat) == 0 && S_ISFIFO(pipe_stat.st_mode)) {
-    if ((fd = open(pipename, O_RDONLY)) == -1) return -1;
-  } else return -1;
+/*
+ * XXX Ethereal blocks until we return
+ */
+
+  if (strcmp(pipename, "-") == 0)
+    fd = 0; /* read from stdin */
+  else {
+    if (stat(pipename, &pipe_stat) < 0) {
+      if (errno == ENOENT || errno == ENOTDIR)
+        ld->pipe_err = PIPNEXIST;
+      else {
+        snprintf(errmsg, errmsgl,
+          "The capture session could not be initiated "
+          "due to error on pipe: %s", strerror(errno));
+        ld->pipe_err = PIPERR;
+      }
+      return -1;
+    }
+    if (! S_ISFIFO(pipe_stat.st_mode)) {
+      if (S_ISCHR(pipe_stat.st_mode)) {
+        /*
+         * Assume the user specified an interface on a system where
+         * interfaces are in /dev.  Pretend we haven't seen it.
+         */
+         ld->pipe_err = PIPNEXIST;
+      } else {
+        snprintf(errmsg, errmsgl,
+            "The capture session could not be initiated because\n"
+            "\"%s\" is neither an interface nor a pipe", pipename);
+        ld->pipe_err = PIPERR;
+      }
+      return -1;
+    }
+    fd = open(pipename, O_RDONLY | O_NONBLOCK);
+    if (fd == -1) {
+      snprintf(errmsg, errmsgl,
+          "The capture session could not be initiated "
+          "due to error on pipe open: %s", strerror(errno));
+      ld->pipe_err = PIPERR;
+      return -1;
+    }
+  }
 
   ld->from_pipe = TRUE;
+
   /* read the pcap header */
-  if (read(fd, &magic, sizeof magic) != sizeof magic) {
-    close(fd);
-    return -1;
+  FD_ZERO(&rfds);
+  bytes_read = 0;
+  while (bytes_read < sizeof magic) {
+    FD_SET(fd, &rfds);
+    timeout.tv_sec = 0;
+    timeout.tv_usec = CAP_READ_TIMEOUT*1000;
+    sel_ret = select(fd+1, &rfds, NULL, NULL, &timeout);
+    if (sel_ret < 0) {
+      snprintf(errmsg, errmsgl,
+        "Unexpected error from select: %s", strerror(errno));
+      goto error;
+    } else if (sel_ret > 0) {
+      b = read(fd, &magic+bytes_read, sizeof magic-bytes_read);
+      if (b <= 0) {
+        if (b == 0)
+          snprintf(errmsg, errmsgl, "End of file on pipe during open");
+        else
+          snprintf(errmsg, errmsgl, "Error on pipe during open: %s",
+            strerror(errno));
+        goto error;
+      }
+      bytes_read += b;
+    }
   }
 
   switch (magic) {
@@ -1103,25 +1176,36 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld)
     break;
   default:
     /* Not a "libpcap" type we know about. */
-    close(fd);
-    return -1;
+    snprintf(errmsg, errmsgl, "Unrecognized libpcap format");
+    goto error;
   }
 
   /* Read the rest of the header */
-  bytes_read = read(fd, hdr, sizeof(struct pcap_hdr));
-  if (bytes_read <= 0) {
-    close(fd);
-    return -1;
-  }
-  while ((unsigned) bytes_read < sizeof(struct pcap_hdr))
-  {
-    b = read(fd, ((char *)&hdr)+bytes_read, sizeof(struct pcap_hdr) - bytes_read);
-    if (b <= 0) {
-      close(fd);
-      return -1;
+  bytes_read = 0;
+  while (bytes_read < sizeof(struct pcap_hdr)) {
+    FD_SET(fd, &rfds);
+    timeout.tv_sec = 0;
+    timeout.tv_usec = CAP_READ_TIMEOUT*1000;
+    sel_ret = select(fd+1, &rfds, NULL, NULL, &timeout);
+    if (sel_ret < 0) {
+      snprintf(errmsg, errmsgl,
+        "Unexpected error from select: %s", strerror(errno));
+      goto error;
+    } else if (sel_ret > 0) {
+      b = read(fd, ((char *)hdr)+bytes_read,
+            sizeof(struct pcap_hdr) - bytes_read);
+      if (b <= 0) {
+        if (b == 0)
+          snprintf(errmsg, errmsgl, "End of file on pipe during open");
+        else
+          snprintf(errmsg, errmsgl, "Error on pipe during open: %s",
+            strerror(errno));
+        goto error;
+      }
+      bytes_read += b;
     }
-    bytes_read += b;
   }
+
   if (ld->byte_swapped) {
     /* Byte-swap the header fields about which we care. */
     hdr->version_major = BSWAP16(hdr->version_major);
@@ -1129,76 +1213,129 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld)
     hdr->snaplen = BSWAP32(hdr->snaplen);
     hdr->network = BSWAP32(hdr->network);
   }
+
   if (hdr->version_major < 2) {
-    close(fd);
-    return -1;
+    snprintf(errmsg, errmsgl, "Unable to read old libpcap format");
+    goto error;
   }
 
+  ld->pipe_state = STATE_EXPECT_REC_HDR;
+  ld->pipe_err = PIPOK;
   return fd;
+
+error:
+  ld->pipe_err = PIPERR;
+  close(fd);
+  return -1;
+
 }
 
 /* We read one record from the pipe, take care of byte order in the record
  * header, write the record in the capture file, and update capture statistics. */
+
 static int
-pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr)
+pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
+		struct pcaprec_modified_hdr *rechdr, u_char *data,
+		char *errmsg, int errmsgl)
 {
-  struct pcaprec_modified_hdr rechdr;
   struct pcap_pkthdr phdr;
-  int bytes_to_read, bytes_read, b;
-  u_char pd[WTAP_MAX_PACKET_SIZE];
+  int b;
+  enum { PD_REC_HDR_READ, PD_DATA_READ, PD_PIPE_EOF, PD_PIPE_ERR,
+          PD_ERR } result;
 
-  /* read the record header */
-  bytes_to_read = ld->modified ? sizeof rechdr : sizeof rechdr.hdr;
-  bytes_read = read(fd, &rechdr, bytes_to_read);
-  if (bytes_read <= 0) {
-    close(fd);
-    ld->go = FALSE;
-    return 0;
-  }
-  while (bytes_read < bytes_to_read)
-  {
-    b = read(fd, ((char *)&rechdr)+bytes_read, bytes_to_read - bytes_read);
+  switch (ld->pipe_state) {
+
+  case STATE_EXPECT_REC_HDR:
+    ld->bytes_to_read = ld->modified ?
+      sizeof(struct pcaprec_modified_hdr) : sizeof(struct pcaprec_hdr);
+    ld->bytes_read = 0;
+    ld->pipe_state = STATE_READ_REC_HDR;
+    /* Fall through */
+
+  case STATE_READ_REC_HDR:
+    b = read(fd, ((char *)rechdr)+ld->bytes_read,
+      ld->bytes_to_read - ld->bytes_read);
     if (b <= 0) {
-      close(fd);
-      ld->go = FALSE;
-      return 0;
+      if (b == 0)
+        result = PD_PIPE_EOF;
+      else
+        result = PD_PIPE_ERR;
+      break;
     }
-    bytes_read += b;
-  }
-  /* take care of byte order */
-  adjust_header(ld, hdr, &rechdr.hdr);
-  if (rechdr.hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
-    close(fd);
-    ld->go = FALSE;
-    return 0;
-  }
-  /* read the packet data */
-  bytes_read = read(fd, pd, rechdr.hdr.incl_len);
-  if (bytes_read <= 0) {
-    close(fd);
-    ld->go = FALSE;
-    return 0;
-  }
-  while ((unsigned) bytes_read < rechdr.hdr.incl_len)
-  {
-    b = read(fd, pd+bytes_read, rechdr.hdr.incl_len - bytes_read);
+    if ((ld->bytes_read += b) < ld->bytes_to_read)
+        return 0;
+    result = PD_REC_HDR_READ;
+    break;
+
+  case STATE_EXPECT_DATA:
+    ld->bytes_read = 0;
+    ld->pipe_state = STATE_READ_DATA;
+    /* Fall through */
+
+  case STATE_READ_DATA:
+    b = read(fd, data+ld->bytes_read, rechdr->hdr.incl_len - ld->bytes_read);
     if (b <= 0) {
-      close(fd);
-      ld->go = FALSE;
-      return 0;
+      if (b == 0)
+        result = PD_PIPE_EOF;
+      else
+        result = PD_PIPE_ERR;
+      break;
     }
-    bytes_read += b;
+    if ((ld->bytes_read += b) < rechdr->hdr.incl_len)
+      return 0;
+    result = PD_DATA_READ;
+    break;
+
+  default:
+    snprintf(errmsg, errmsgl, "pipe_dispatch: invalid state");
+    result = PD_ERR;
+
+  } /* switch (ld->pipe_state) */
+
+  /*
+   * We've now read as much data as we were expecting, so process it.
+   */
+
+  switch (result) {
+
+  case PD_REC_HDR_READ:
+    /* We've read the header. Take care of byte order. */
+    adjust_header(ld, hdr, &rechdr->hdr);
+    if (rechdr->hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
+      snprintf(errmsg, errmsgl, "Frame %u too long (%d bytes)",
+        ld->counts.total+1, rechdr->hdr.incl_len);
+      break;
+    }
+    ld->pipe_state = STATE_EXPECT_DATA;
+    return 0;
+
+  case PD_DATA_READ:
+    /* Fill in a "struct pcap_pkthdr", and process the packet. */
+    phdr.ts.tv_sec = rechdr->hdr.ts_sec;
+    phdr.ts.tv_usec = rechdr->hdr.ts_usec;
+    phdr.caplen = rechdr->hdr.incl_len;
+    phdr.len = rechdr->hdr.orig_len;
+  
+    capture_pcap_cb((u_char *)ld, &phdr, data);
+  
+    ld->pipe_state = STATE_EXPECT_REC_HDR;
+    return 1;
+
+  case PD_PIPE_EOF:
+    ld->pipe_err = PIPEOF;
+    return -1;
+
+  case PD_PIPE_ERR:
+    snprintf(errmsg, errmsgl, "Error reading from pipe: %s",
+      strerror(errno));
+  case PD_ERR:
+    /* Fall out */
+
   }
 
-  /* Fill in a "struct pcap_pkthdr", and process the packet. */
-  phdr.ts.tv_sec = rechdr.hdr.ts_sec;
-  phdr.ts.tv_usec = rechdr.hdr.ts_usec;
-  phdr.caplen = rechdr.hdr.incl_len;
-  phdr.len = rechdr.hdr.orig_len;
-
-  capture_pcap_cb((u_char *)ld, &phdr, pd);
-
-  return 1;
+  ld->pipe_err = PIPERR;
+  /* Return here rather than inside the switch to prevent GCC warning */
+  return -1;
 }
 #endif
 
@@ -1230,24 +1367,8 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   static const char capstart_msg = SP_CAPSTART;
   char        errmsg[4096+1];
   gboolean    dump_ok;
-#ifndef _WIN32
-  static const char ppamsg[] = "can't find PPA for ";
-  char       *libpcap_warn;
-  int         sel_ret;
-#endif
   fd_set      set1;
   struct timeval timeout;
-#ifdef MUST_DO_SELECT
-  int         pcap_fd = 0;
-#endif
-#ifdef _WIN32 
-  WORD wVersionRequested; 
-  WSADATA wsaData; 
-#endif
-#ifndef _WIN32
-  int         pipe_fd = -1;
-  struct pcap_hdr hdr;
-#endif
   struct {
       const gchar *title;
       gint *value_ptr;
@@ -1267,6 +1388,26 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   };
 
 #define N_COUNTS (sizeof counts / sizeof counts[0])
+
+#ifdef _WIN32 
+  WORD wVersionRequested; 
+  WSADATA wsaData; 
+#else
+  static const char ppamsg[] = "can't find PPA for ";
+  char       *libpcap_warn;
+  int         sel_ret;
+  int         pipe_fd = -1;
+  struct pcap_hdr hdr;
+  struct pcaprec_modified_hdr rechdr;
+  u_char pcap_data[WTAP_MAX_PACKET_SIZE];
+#endif
+#ifdef MUST_DO_SELECT
+  int         pcap_fd = 0;
+#endif
+
+/* Size of buffer to hold decimal representation of
+   signed/unsigned 64-bit int */
+#define DECISIZE 20
 
   /* Initialize Windows Socket if we are in a WIN32 OS 
      This needs to be done before querying the interface for network/netmask */
@@ -1343,23 +1484,22 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     goto error;
 #else
     /* try to open cfile.iface as a pipe */
-    pipe_fd = pipe_open_live(cfile.iface, &hdr, &ld);
+    pipe_fd = pipe_open_live(cfile.iface, &hdr, &ld, errmsg, sizeof errmsg);
 
     if (pipe_fd == -1) {
-      /* Well, we couldn't start the capture assuming the interface was
-         a device, and we couldn't open the pipe, either.
 
-	 We choose to report the error for the device, rather than the
-	 file, under the assumption that you're typically capturing on
-	 a device.
-
-	 If this is a child process that does the capturing in sync
-	 mode or fork mode, it shouldn't do any UI stuff until we pop up the
-	 capture-progress window, and, since we couldn't start the
-	 capture, we haven't popped it up. */
+      /* If this is a child process that does the capturing in sync
+       * mode or fork mode, it shouldn't do any UI stuff until we pop up the
+       * capture-progress window, and, since we couldn't start the
+       * capture, we haven't popped it up.
+       */
       if (!capture_child) {
 	while (gtk_events_pending()) gtk_main_iteration();
       }
+
+      if (ld.pipe_err == PIPNEXIST) {
+
+      /* Pipe doesn't exist, so output message for interface */
 
       /* If we got a "can't find PPA for XXX" message, warn the user (who
          is running Ethereal on HP-UX) that they don't have a version
@@ -1385,6 +1525,11 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 	  "Please check to make sure you have sufficient permissions, and that\n"
 	  "you have the proper interface or pipe specified.%s", open_err_str,
 	  libpcap_warn);
+      }
+      /*
+       * Else pipe (or file) does exist and pipe_open_live() has
+       * filled in errmsg
+       */
       goto error;
     } else
       /* pipe_open_live() succeeded; don't want
@@ -1567,7 +1712,8 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
    * Catch SIGUSR1, so that we exit cleanly if the parent process
    * kills us with it due to the user selecting "Capture->Stop".
    */
-  signal(SIGUSR1, stop_capture);
+  if (capture_child)
+    signal(SIGUSR1, stop_capture);
 #endif
   /* initialize capture stop conditions */ 
   init_capture_stop_conditions();
@@ -1589,21 +1735,22 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
       timeout.tv_sec = 0;
       timeout.tv_usec = CAP_READ_TIMEOUT*1000;
       sel_ret = select(pipe_fd+1, &set1, NULL, NULL, &timeout);
-      if (sel_ret > 0) {
-	/*
-	 * "select()" says we can read from the pipe without blocking; go for
-	 * it. We are not sure we can read a whole record, but at least the
-	 * begninning of one. pipe_dispatch() will block reading the whole
-	 * record.
-	 */
-	inpkts = pipe_dispatch(pipe_fd, &ld, &hdr);
-      } else {
+      if (sel_ret <= 0) {
 	inpkts = 0;
         if (sel_ret < 0 && errno != EINTR) {
           snprintf(errmsg, sizeof(errmsg),
             "Unexpected error from select: %s", strerror(errno));
           popup_errmsg(errmsg);
           ld.go = FALSE;
+        }
+      } else {
+	/*
+	 * "select()" says we can read from the pipe without blocking
+	 */
+	inpkts = pipe_dispatch(pipe_fd, &ld, &hdr, &rechdr, pcap_data,
+          errmsg, sizeof errmsg);
+	if (inpkts < 0) {
+	  ld.go = FALSE;
         }
       }
     }
@@ -1670,60 +1817,71 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
       }
 #endif
     }
-    if (inpkts > 0)
+
+    if (inpkts > 0) {
       ld.sync_packets += inpkts;
-    /* check capture stop conditons */
-    if (cnd_stop_timeout != NULL && cnd_eval(cnd_stop_timeout)) {
-      /* The specified capture time has elapsed; stop the capture. */
-      ld.go = FALSE;
-    } else if (cnd_stop_capturesize != NULL && cnd_eval(cnd_stop_capturesize, 
-                  (guint32)wtap_get_bytes_dumped(ld.pdh))){
-      /* Capture file reached its maximum size. */
-      if (capture_opts.ringbuffer_on) {
-        /* Switch to the next ringbuffer file */
-        if (ringbuf_switch_file(&cfile, &ld.pdh, &ld.err)) {
-          /* File switch succeeded: reset the condition */
-          cnd_reset(cnd_stop_capturesize);
+      /* check capture stop conditons */
+      if (cnd_stop_capturesize != NULL && cnd_eval(cnd_stop_capturesize, 
+                    (guint32)wtap_get_bytes_dumped(ld.pdh))){
+        /* Capture file reached its maximum size. */
+        if (capture_opts.ringbuffer_on) {
+          /* Switch to the next ringbuffer file */
+          if (ringbuf_switch_file(&cfile, &ld.pdh, &ld.err)) {
+            /* File switch succeeded: reset the condition */
+            cnd_reset(cnd_stop_capturesize);
+          } else {
+            /* File switch failed: stop here */
+            ld.go = FALSE;
+            continue;
+          }
         } else {
-          /* File switch failed: stop here */
+          /* no ringbuffer - just stop */
           ld.go = FALSE;
-          continue;
         }
-      } else {
-        /* no ringbuffer - just stop */
-        ld.go = FALSE;
       }
     }
+
     /* Only update once a second so as not to overload slow displays */
     cur_time = time(NULL);
     if (cur_time > upd_time) {
       upd_time = cur_time;
 
-      for (i = 0; i < N_COUNTS; i++) {
-          snprintf(label_str, sizeof(label_str), "%d",
-                   *counts[i].value_ptr);
+      if (ld.sync_packets) {
 
-          gtk_label_set(GTK_LABEL(counts[i].value), label_str);
+        for (i = 0; i < N_COUNTS; i++) {
+            snprintf(label_str, sizeof(label_str), "%d",
+                     *counts[i].value_ptr);
+  
+            gtk_label_set(GTK_LABEL(counts[i].value), label_str);
+  
+            snprintf(label_str, sizeof(label_str), "(%.1f%%)",
+                     pct(*counts[i].value_ptr, ld.counts.total));
+  
+            gtk_label_set(GTK_LABEL(counts[i].percent), label_str);
+        }
 
-          snprintf(label_str, sizeof(label_str), "(%.1f%%)",
-                   pct(*counts[i].value_ptr, ld.counts.total));
+        /* do sync here, too */
+        fflush(wtap_dump_file(ld.pdh));
 
-          gtk_label_set(GTK_LABEL(counts[i].percent), label_str);
+        if (capture_child) {
+	  /* This is the child process for a sync mode capture, so send
+	     our parent a message saying we've written out "ld.sync_packets"
+	     packets to the capture file. */
+	  char tmp[DECISIZE+1+1];
+	  sprintf(tmp, "%d%c", ld.sync_packets, SP_PACKET_COUNT);
+	  write(1, tmp, strlen(tmp));
+        }
+
+	ld.sync_packets = 0;
+
       }
 
-      /* do sync here, too */
-      fflush(wtap_dump_file(ld.pdh));
-      if (capture_child && ld.sync_packets) {
-	/* This is the child process for a sync mode capture, so send
-	   our parent a message saying we've written out "ld.sync_packets"
-	   packets to the capture file. */
-	char tmp[20];
-	sprintf(tmp, "%d%c", ld.sync_packets, SP_PACKET_COUNT);
-	write(1, tmp, strlen(tmp));
-	ld.sync_packets = 0;
+      if (cnd_stop_timeout != NULL && cnd_eval(cnd_stop_timeout)) {
+        /* The specified capture time has elapsed; stop the capture. */
+        ld.go = FALSE;
       }
     }
-  }
+  } /* while (ld.go) */
     
   /* delete stop conditions */
   if (cnd_stop_capturesize != NULL)
@@ -1735,7 +1893,12 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     snprintf(errmsg, sizeof(errmsg), "Error while capturing packets: %s",
       pcap_geterr(pch));
     popup_errmsg(errmsg);
+#ifdef _WIN32
   }
+#else
+  } else if (ld.from_pipe && ld.pipe_err == PIPERR)
+      popup_errmsg(errmsg);
+#endif
 
   if (ld.err != 0) {
     get_capture_file_io_error(errmsg, sizeof(errmsg), cfile.save_file, ld.err,
@@ -1763,7 +1926,16 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     }
   }
 #ifndef _WIN32
-  if (ld.from_pipe)
+
+/* XXX We exhibit different behaviour between normal mode and sync mode
+ * when the pipe is stdin and not already at EOF.  If we're a child, the
+ * parent's stdin isn't closed, so if the user starts another capture,
+ * pipe_open_live() will very likely not see the expected magic bytes and
+ * will say "Unrecognized libpcap format".  On the other hand, in normal
+ * mode, pipe_open_live() will say "End of file on pipe during open".
+ */
+
+  if (ld.from_pipe && pipe_fd >= 0)
     close(pipe_fd);
   else
 #endif
@@ -1774,7 +1946,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
       *stats_known = TRUE;
       if (capture_child) {
       	/* Let the parent process know. */
-	char tmp[20];
+	char tmp[DECISIZE+1+1];
 	sprintf(tmp, "%d%c", stats->ps_drop, SP_DROPS);
 	write(1, tmp, strlen(tmp));
       }
@@ -1813,7 +1985,11 @@ error:
   }
   cfile.save_file = NULL;
   popup_errmsg(errmsg);
-  if (pch != NULL && !ld.from_pipe)
+
+  if (ld.from_pipe) {
+    if (pipe_fd >= 0)
+      close(pipe_fd);
+  } else if (pch != NULL)
     pcap_close(pch);
 
   return FALSE;
@@ -1895,7 +2071,7 @@ static void
 send_errmsg_to_parent(const char *errmsg)
 {
     int msglen = strlen(errmsg);
-    char lenbuf[10+1+1];
+    char lenbuf[DECISIZE+1+1];
 
     sprintf(lenbuf, "%u%c", msglen, SP_ERROR_MSG);
     write(1, lenbuf, strlen(lenbuf));
