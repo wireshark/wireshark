@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.30 2001/12/19 19:16:11 guy Exp $
+$Id: README.win32,v 1.31 2002/03/04 01:26:40 guy Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -159,9 +159,11 @@ The file will probably be called "ucd-snmp-X.X-x86-win32.zip", where
 
 Instructions for MS Visual C
 ----------------------------
-Modify the config.nmake file in the top directory of the Ethereal
-source tree to work for your local configuration. You should not
-have to modify any other Makefile.
+Modify the config.nmake file in the top directory of the Ethereal source
+tree to work for your local configuration; if you don't have Python,
+comment out the line that defines PYTHON, otherwise set it to refer to
+the pathname of your Python interpreter executable.  You should not have
+to modify any other Makefile.
 
 In order to compile, at least with the default settings, you
 also need zlib, which is provided as an archive library, not
@@ -211,14 +213,12 @@ make-reg-dotc, packet*.c	register.c		Bash + grep + sed
 or
 make-reg-dotc.py, packet*.c	register.c		Python
 
-The Makefile.nmake supplied with the Ethereal distribution will
-attempt to make register.c with Python, since it is much much much
-faster than the shell version. The reason it is faster is because
-the shell version launches multiple processes (grep, sed) for each
-source file, multiple times. The Python script is one process. This
-matters a lot on Win32. If for some reason you want to build register.c
-with the shell script, uncomment out the action line for the register.c
-target in Makefile.nmake.
+The Makefile.nmake supplied with the Ethereal distribution will, if
+PYTHON is defined in config.nmake, attempt to make register.c with
+Python, since it is much much much faster than the shell version.  The
+reason it is faster is because the shell version launches multiple
+processes (grep, sed) for each source file, multiple times.  The Python
+script is one process.  This matters a lot on Win32.
 
 If you have a Unix system handy, you can first build on Unix to create
 most of the source files that these tools make, then run the build on
