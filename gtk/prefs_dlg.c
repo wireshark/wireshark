@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.12 2000/07/05 02:45:41 guy Exp $
+ * $Id: prefs_dlg.c,v 1.13 2000/07/05 06:33:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -79,12 +79,10 @@ static void     prefs_main_destroy_cb(GtkWidget *, gpointer);
 static GtkWidget *prefs_w;
 
 void
-prefs_cb(GtkWidget *w, gpointer sp) {
+prefs_cb(GtkWidget *w, gpointer dummy) {
   GtkWidget *main_vb, *top_hb, *bbox, *prefs_nb,
             *ok_bt, *save_bt, *cancel_bt;
   GtkWidget *print_pg, *column_pg, *stream_pg, *gui_pg, *label;
-
-  gint       start_page = (gint) sp;
 
   if (prefs_w != NULL) {
     /* There's already a "Preferences" dialog box; reactivate it. */
@@ -138,10 +136,6 @@ prefs_cb(GtkWidget *w, gpointer sp) {
   label = gtk_label_new ("GUI");
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), gui_pg, label);
 
-  /* Jump to the specified page, if it was supplied */
-  if (start_page > E_PR_PG_NONE)
-    gtk_notebook_set_page(GTK_NOTEBOOK(prefs_nb), start_page);
-    
   /* Button row: OK and cancel buttons */
   bbox = gtk_hbutton_box_new();
   gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);

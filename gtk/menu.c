@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.30 2000/05/02 07:44:37 guy Exp $
+ * $Id: menu.c,v 1.31 2000/07/05 06:33:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -109,7 +109,7 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Edit/_Find Frame...", "<control>F", GTK_MENU_FUNC(find_frame_cb), 0, NULL},
   {"/Edit/_Go To Frame...", "<control>G", GTK_MENU_FUNC(goto_frame_cb), 0, NULL},
   {"/Edit/<separator>", NULL, NULL, 0, "<Separator>"},
-  {"/Edit/_Preferences...", NULL, GTK_MENU_FUNC(prefs_cb), E_PR_PG_NONE, NULL},
+  {"/Edit/_Preferences...", NULL, GTK_MENU_FUNC(prefs_cb), 0, NULL},
   {"/Edit/_Filters...", NULL, GTK_MENU_FUNC(filter_dialog_cb), 0, NULL},
 #ifdef HAVE_LIBPCAP
   {"/_Capture", NULL, NULL, 0, "<Branch>" },
