@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.26 2004/02/18 04:41:37 jmayer Exp $
+ * $Id: packet-tds.c,v 1.27 2004/02/20 08:40:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1062,6 +1062,10 @@ dissect_tds7_results_token(tvbuff_t *tvb, guint offset, proto_tree *tree)
  				g_free(msg);
 				offset += table_len*2;
 			}
+		}
+		else if (type == 106) {
+			proto_tree_add_text(tree, tvb, offset, 3, "unknown 3 bytes");
+			offset +=3;
 		}
 		if(type > 128) {
 			proto_tree_add_text(tree, tvb, offset, 2, "Large type size: 0x%x", tvb_get_letohs(tvb, offset));
