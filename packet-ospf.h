@@ -1,6 +1,6 @@
 /* packet-ospf.h (c) 1998 Hannes Boehm */
 
-/* $Id: packet-ospf.h,v 1.4 1999/10/06 03:33:48 guy Exp $ */
+/* $Id: packet-ospf.h,v 1.5 1999/10/19 15:59:04 gram Exp $ */
 
 #define OSPF_HEADER_LENGTH	24
 
@@ -122,6 +122,13 @@ typedef struct _e_ospf_asexternal_lsa {
     guint32	gateway;
     guint32 	external_tag;
 } e_ospf_asexternal_lsa;
+
+typedef struct _e_ospf_crypto {
+    guint16   mbz;
+    guint8      key_id;
+    guint8      length;
+    guint32   sequence_num;
+} e_ospf_crypto;
 
 
 void dissect_ospf_hello(const u_char*, int, frame_data*, proto_tree*);

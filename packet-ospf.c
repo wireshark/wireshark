@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.13 1999/08/26 07:34:41 guy Exp $
+ * $Id: packet-ospf.c,v 1.14 1999/10/19 15:59:03 gram Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -55,11 +55,13 @@ static int proto_ospf = -1;
 void 
 dissect_ospf(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     e_ospfhdr ospfh;
+    e_ospf_crypto *crypto;
+    int i, saved_len, ospflen;
 
     proto_tree *ospf_tree = NULL;
 	proto_item *ti; 
     proto_tree *ospf_header_tree;
-    char auth_data[9]="";
+    char auth_data[(2 * 16) + 1]="";
     char *packet_type;
     static value_string pt_vals[] = { {OSPF_HELLO,   "Hello Packet"   },
                                       {OSPF_DB_DESC, "DB Descr."      },
@@ -116,8 +118,19 @@ dissect_ospf(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	         proto_tree_add_text(ospf_header_tree, offset + 16 , 8, "Auth Data: %s", auth_data);
 		 break;
 	    case OSPF_AUTH_CRYPT:
+                 crypto = (e_ospf_crypto *)ospfh.auth_data;
 	         proto_tree_add_text(ospf_header_tree, offset + 14 , 2, "Auth Type: crypt");
-	         proto_tree_add_text(ospf_header_tree, offset + 16 , 8, "Auth Data (crypt)");
+                 proto_tree_add_text(ospf_header_tree, offset + 18 , 1, "Auth Key ID: %d",
+                                     crypto->key_id);
+                 proto_tree_add_text(ospf_header_tree, offset + 19 , 1, "Auth Data Length: %d",
+                                     crypto->length);
+                 proto_tree_add_text(ospf_header_tree, offset + 20 , 4, "Auth Crypto Sequence Number: 0x%x",
+                                     ntohl(crypto->sequence_num));
+  
+                 ospflen = ntohs(ospfh.length);
+                 for (i = 0; i < crypto->length && i < (sizeof(auth_data)/2); i++)
+                     sprintf(&auth_data[i*2],"%02x",pd[offset + ospflen + i]);
+                 proto_tree_add_text(ospf_header_tree, offset + ospflen , 16, "Auth Data: %s", auth_data);
 		 break;
             default:
 	         proto_tree_add_text(ospf_header_tree, offset + 14 , 2, "Auth Type (unknown)");
@@ -126,8 +139,18 @@ dissect_ospf(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     }
 
+    /* Temporarily adjust the captured length to match the size of the OSPF
+     * packet (since the dissect routines use it to work out where the end of
+     * the ospf packet is).
+     */
+    saved_len = pi.captured_len;
+    if (BYTES_ARE_IN_FRAME(offset, ntohs(ospfh.length))) {
+      pi.captured_len = offset + ntohs(ospfh.length);
+    }
+
     /*  Skip over header */
     offset += OSPF_HEADER_LENGTH;
+
     switch(ospfh.packet_type){
 	case OSPF_HELLO:
 	    dissect_ospf_hello(pd, offset, fd, ospf_tree); 
@@ -145,8 +168,10 @@ dissect_ospf(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    dissect_ospf_ls_ack(pd, offset, fd, ospf_tree);
 	    break;
 	default:
+            pi.captured_len = saved_len;
             dissect_data(pd, offset, fd, tree); 
     }
+    pi.captured_len = saved_len;
 }
 
 void
