@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.21 2000/05/11 08:15:30 gram Exp $
+ * $Id: packet-null.c,v 1.22 2000/05/19 04:54:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -218,42 +218,47 @@ capture_null( const u_char *pd, packet_counts *ld )
 }
 
 void
-dissect_null( const u_char *pd, frame_data *fd, proto_tree *tree )
+dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint32     null_header;
-  proto_tree *fh_tree;
-  proto_item *ti;
+  guint32	null_header;
+  proto_tree	*fh_tree;
+  proto_item	*ti;
+  tvbuff_t	*next_tvb;
+  const guint8	*next_pd;
+  int		next_offset;
 
   /*
    * See comment in "capture_null()" for an explanation of what we're
    * doing.
    */
-  if (pd[0] == 0xFF && pd[1] == 0x03) {
+  if (tvb_get_ntohs(tvb, 0) == 0xFF03) {
     /*
      * Hand it to PPP.
      */
-    dissect_ppp(pd, 0, fd, tree);
+    tvb_compat(tvb, &next_pd, &next_offset);
+    dissect_ppp(next_pd, next_offset, pinfo->fd, tree);
   } else {
+
+    /* load the top pane info. This should be overwritten by
+       the next protocol in the stack */
+    if(check_col(pinfo->fd, COL_RES_DL_SRC))
+      col_add_str(pinfo->fd, COL_RES_DL_SRC, "N/A" );
+    if(check_col(pinfo->fd, COL_RES_DL_DST))
+      col_add_str(pinfo->fd, COL_RES_DL_DST, "N/A" );
+    if(check_col(pinfo->fd, COL_PROTOCOL))
+      col_add_str(pinfo->fd, COL_PROTOCOL, "N/A" );
+    if(check_col(pinfo->fd, COL_INFO))
+      col_add_str(pinfo->fd, COL_INFO, "Null/Loopback" );
+
     /*
      * Treat it as a normal DLT_NULL header.
      */
-    memcpy((char *)&null_header, (char *)&pd[0], sizeof(null_header));
+    memcpy((char *)&null_header, (char *)tvb_get_ptr(tvb, 0, sizeof(null_header)), sizeof(null_header));
 
     if ((null_header & 0xFFFF0000) != 0) {
       /* Byte-swap it. */
       null_header = BSWAP32(null_header);
     }
-
-    /* load the top pane info. This should be overwritten by
-       the next protocol in the stack */
-    if(check_col(fd, COL_RES_DL_SRC))
-      col_add_str(fd, COL_RES_DL_SRC, "N/A" );
-    if(check_col(fd, COL_RES_DL_DST))
-      col_add_str(fd, COL_RES_DL_DST, "N/A" );
-    if(check_col(fd, COL_PROTOCOL))
-      col_add_str(fd, COL_PROTOCOL, "N/A" );
-    if(check_col(fd, COL_INFO))
-      col_add_str(fd, COL_INFO, "Null/Loopback" );
 
     /*
      * The null header value must be greater than the IEEE 802.3 maximum
@@ -267,45 +272,48 @@ dissect_null( const u_char *pd, frame_data *fd, proto_tree *tree )
      */
     if (null_header > IEEE_802_3_MAX_LEN) {
       if (tree) {
-        ti = proto_tree_add_item(tree, proto_null, NullTVB, 0, 4, NULL);
+        ti = proto_tree_add_item(tree, proto_null, tvb, 0, 4, NULL);
         fh_tree = proto_item_add_subtree(ti, ett_null);
       } else
       	fh_tree = NULL;
-      ethertype(null_header, 4, pd, fd, tree, fh_tree, hf_null_etype);
+      ethertype(null_header, tvb, 4, pinfo, tree, fh_tree, hf_null_etype);
     } else {
       /* populate a tree in the second pane with the status of the link
          layer (ie none) */
       if (tree) {
-        ti = proto_tree_add_item(tree, proto_null, NullTVB, 0, 4, NULL);
+        ti = proto_tree_add_item(tree, proto_null, tvb, 0, 4, NULL);
         fh_tree = proto_item_add_subtree(ti, ett_null);
-        proto_tree_add_item(fh_tree, hf_null_family, NullTVB, 0, 4, null_header);
+        proto_tree_add_item(fh_tree, hf_null_family, tvb, 0, 4, null_header);
       }
+
+      next_tvb = tvb_new_subset(tvb, 4, -1, -1);
+      tvb_compat(next_tvb, &next_pd, &next_offset);
 
       switch (null_header) {
 
       case BSD_AF_INET:
-        dissect_ip(pd, 4, fd, tree);
+        dissect_ip(next_pd, next_offset, pinfo->fd, tree);
         break;
 
       case BSD_AF_APPLETALK:
-        dissect_ddp(pd, 4, fd, tree);
+        dissect_ddp(next_pd, next_offset, pinfo->fd, tree);
         break;
 
       case BSD_AF_IPX:
-        dissect_ipx(pd, 4, fd, tree);
+        dissect_ipx(next_pd, next_offset, pinfo->fd, tree);
         break;
 
       case BSD_AF_ISO:
-        dissect_osi(pd, 4, fd, tree);
+        dissect_osi(next_pd, next_offset, pinfo->fd, tree);
         break;
 
       case BSD_AF_INET6_BSD:
       case BSD_AF_INET6_FREEBSD:
-        dissect_ipv6(pd, 4, fd, tree);
+        dissect_ipv6(next_pd, next_offset, pinfo->fd, tree);
         break;
 
       default:
-        dissect_data(pd, 4, fd, tree);
+        dissect_data_tvb(next_tvb, pinfo, tree);
         break;
       }
     }

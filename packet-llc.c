@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.60 2000/05/16 04:44:12 gram Exp $
+ * $Id: packet-llc.c,v 1.61 2000/05/19 04:54:33 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -357,8 +357,8 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			   OUI_ENCAP_ETHER and an Ethernet
 			   packet type for AARP packets. */
 			if (XDLC_IS_INFORMATION(control)) {
-				ethertype(etype, offset, pd,
-				    pinfo->fd, tree, llc_tree, hf_llc_type);
+				ethertype(etype, tvb, 8,
+				    pinfo, tree, llc_tree, hf_llc_type);
 			} else
 				dissect_data_tvb(next_tvb, pinfo, tree);
 			break;

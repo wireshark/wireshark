@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.65 2000/05/18 08:31:51 guy Exp $
+ * $Id: proto.c,v 1.66 2000/05/19 04:54:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -497,11 +497,16 @@ static void
 proto_tree_set_bytes(field_info *fi, const guint8* start_ptr, gint length)
 {
 	g_assert(start_ptr != NULL);
-	g_assert(length > 0);
-	/* This g_malloc'ed memory is freed in
-	   proto_tree_free_node() */
-	fi->value.bytes = g_malloc(length);
-	memcpy(fi->value.bytes, start_ptr, length);
+
+	if (length > 0) {
+		/* This g_malloc'ed memory is freed in
+		   proto_tree_free_node() */
+		fi->value.bytes = g_malloc(length);
+		memcpy(fi->value.bytes, start_ptr, length);
+	}
+	else {
+		fi->value.bytes = NULL;
+	}
 }
 
 /* Add a FT_*TIME to a proto_tree */
@@ -1081,9 +1086,15 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_BYTES:
-			snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %s", hfinfo->name, 
-				 bytes_to_str(fi->value.bytes, fi->length));
+			if (fi->value.bytes) {
+				snprintf(label_str, ITEM_LABEL_LENGTH,
+					"%s: %s", hfinfo->name, 
+					 bytes_to_str(fi->value.bytes, fi->length));
+			}
+			else {
+				snprintf(label_str, ITEM_LABEL_LENGTH,
+					"%s: <MISSING>", hfinfo->name);
+			}
 			break;
 
 		/* Four types of integers to take care of:

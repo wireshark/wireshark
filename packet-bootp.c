@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.32 2000/05/19 02:16:17 gram Exp $
+ * $Id: packet-bootp.c,v 1.33 2000/05/19 04:54:32 gram Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -621,12 +621,18 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		proto_tree_add_item(bp_tree, hf_bootp_ip_relay, NullTVB,
 				    offset + 24, 4, ip_addr);
 
-		proto_tree_add_bytes_format(bp_tree, hf_bootp_hw_addr, NullTVB, 
-					   offset + 28, pd[offset+2],
-					   &pd[offset+28],
-					   "Client hardware address: %s",
-					   arphrdaddr_to_str((guint8*)&pd[offset+28],
-							     pd[offset+2], pd[offset+1]));
+		if (pd[offset+2] > 0) {
+			proto_tree_add_bytes_format(bp_tree, hf_bootp_hw_addr, NullTVB, 
+						   offset + 28, pd[offset+2],
+						   &pd[offset+28],
+						   "Client hardware address: %s",
+						   arphrdaddr_to_str((guint8*)&pd[offset+28],
+								     pd[offset+2], pd[offset+1]));
+		}
+		else {
+			proto_tree_add_item(bp_tree, hf_bootp_hw_addr, NullTVB, 
+						   offset + 28, 0, NULL);
+		}
 
 		/* The server host name is optional */
 		if (pd[offset+44]) {

@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.39 2000/05/17 03:05:39 gram Exp $
+ * $Id: packet-eth.c,v 1.40 2000/05/19 04:54:33 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -285,7 +285,7 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dissect_llc(next_tvb, &pi, tree);
       break;
     case ETHERNET_II:
-      ethertype(etype, eth_offset, pd, pinfo->fd, tree, fh_tree, hf_eth_type);
+      ethertype(etype, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree, hf_eth_type);
       break;
   }
 

@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.3 2000/05/11 08:15:08 gram Exp $
+ * $Id: packet-ethertype.c,v 1.4 2000/05/19 04:54:33 gram Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -86,46 +86,51 @@ capture_ethertype(guint16 etype, int offset,
 }
 
 void
-ethertype(guint16 etype, int offset,
-		const u_char *pd, frame_data *fd, proto_tree *tree, proto_tree
-		*fh_tree, int item_id)
+ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype, packet_info *pinfo,
+		proto_tree *tree, proto_tree *fh_tree, int item_id)
 {
 	dissector_t	sub_dissector;
 	char		*description;
+	tvbuff_t	*next_tvb;
+	const guint8	*next_pd;
+	int		next_offset;
 	
 	/* Add to proto_tree */
 	if (tree) {
-		proto_tree_add_item(fh_tree, item_id, NullTVB, offset - 2, 2, etype);
+		proto_tree_add_item(fh_tree, item_id, tvb, offset_after_etype - 2, 2, etype);
 	}
+
+	next_tvb = tvb_new_subset(tvb, offset_after_etype, -1, -1);
+	tvb_compat(next_tvb, &next_pd, &next_offset);
 
 	/* Look for sub-dissector */
 	sub_dissector = dissector_lookup( ethertype_dissector_table, etype );
 
 	if (sub_dissector) {
 		/* Call sub-dissector */
-		sub_dissector(pd, offset, fd, tree);
+		sub_dissector(next_pd, next_offset, pinfo->fd, tree);
 	}
 	else {
 		/* Label rest of packet as "Data" */
-		dissect_data(pd, offset, fd, tree);
+		dissect_data_tvb(next_tvb, pinfo, tree);
 
 		/* Label protocol */
 		switch(etype) {
 			case ETHERTYPE_LOOP:
-				if (check_col(fd, COL_PROTOCOL)) {
-					col_add_fstr(fd, COL_PROTOCOL, "LOOP");
+				if (check_col(pinfo->fd, COL_PROTOCOL)) {
+					col_add_fstr(pinfo->fd, COL_PROTOCOL, "LOOP");
 				}
 				break;
 			    default:
-				if (check_col(fd, COL_PROTOCOL)) {
-					col_add_fstr(fd, COL_PROTOCOL, "0x%04x", etype);
+				if (check_col(pinfo->fd, COL_PROTOCOL)) {
+					col_add_fstr(pinfo->fd, COL_PROTOCOL, "0x%04x", etype);
 				}
 				break;
 		}
-		if (check_col(fd, COL_INFO)) {
+		if (check_col(pinfo->fd, COL_INFO)) {
 			description = match_strval(etype, etype_vals);
 			if (description) {
-				col_add_fstr(fd, COL_INFO, "%s", description);
+				col_add_fstr(pinfo->fd, COL_INFO, "%s", description);
 			}
 		}
 	}
