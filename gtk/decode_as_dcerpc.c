@@ -377,7 +377,7 @@ decode_dcerpc_add_page (packet_info *pinfo)
     binding->port_a = pinfo->srcport;
     binding->port_b = pinfo->destport;
     binding->ctx_id = pinfo->dcectxid;
-    binding->smb_fid = dcerpc_get_transport_salt(pinfo, pinfo->dcetransporttype);
+    binding->smb_fid = dcerpc_get_transport_salt(pinfo);
     binding->ifname = NULL;
     /*binding->uuid = NULL;*/
     binding->ver = 0;

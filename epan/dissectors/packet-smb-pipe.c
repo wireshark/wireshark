@@ -3240,7 +3240,6 @@ gboolean
 dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree,
     proto_tree *tree, guint32 fid)
 {
-	dcerpc_private_info dcerpc_priv;
 	smb_info_t *smb_priv = (smb_info_t *)pinfo->private_data;
 	gboolean result=0;
 	gboolean save_fragmented;
@@ -3249,10 +3248,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	fragment_data *fd_head;
 	tvbuff_t *new_tvb;
 
-	dcerpc_priv.fid = fid;
-
-	pinfo->private_data = &dcerpc_priv;
-
+	pinfo->dcetransportsalt = fid;
 
 	/*
 	 * Offer desegmentation service to DCERPC if we have all the

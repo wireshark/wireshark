@@ -247,17 +247,6 @@ value_string *value_string_from_subdissectors(dcerpc_sub_dissector *sd);
 /* try to get protocol name registered for this uuid */
 gchar *dcerpc_get_uuid_name(e_uuid_t *uuid, guint16 ver);
 
-/* Private data structure to pass to DCERPC dissector. This is used to
-   pass transport specific information down to the dissector from the
-   dissector that parsed this encapsulated calls. 
-   When it comes to DCERPC over SMB the only thing we really want to pass
-   on is the FID.
-*/
-
-typedef struct _dcerpc_private_info {
-	guint16 fid;
-} dcerpc_private_info;
-
 /* Private data passed to subdissectors from the main DCERPC dissector. */
 typedef struct _dcerpc_call_value {
     e_uuid_t uuid;
@@ -361,7 +350,7 @@ struct _dcerpc_bind_value *
 dcerpc_add_conv_to_bind_table(decode_dcerpc_bind_values_t *binding);
 
 guint16 
-dcerpc_get_transport_salt (packet_info *pinfo, int transport_type);
+dcerpc_get_transport_salt (packet_info *pinfo);
 
 /* Authentication services */
 
