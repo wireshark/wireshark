@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.58 2003/09/14 21:28:13 gerald Exp $
+ * $Id: packet-gtp.c,v 1.59 2003/09/15 18:31:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1668,7 +1668,8 @@ static gchar *
 id_to_str(const guint8 *ad) {
 
 	static gchar	str[17] = "                ";
-	guint8		bits8to5, bits4to1, i;
+	guint8		bits8to5, bits4to1;
+	int		i;
 	static const	gchar hex_digits[10] = "0123456789";
 
 	str[16] = '\0';
@@ -1686,7 +1687,7 @@ static gchar *
 imsi_to_str(const guint8 *ad) {
 
 	static gchar	str[17] = "                ";
-	guint8		i, j = 0;
+	int		i, j = 0;
 	
 	for (i = 0; i < 8; i++) {
 		if ((ad[i] & 0x0F) <= 9) str[j++] = (ad[i] & 0x0F) + 0x30;
@@ -1702,7 +1703,8 @@ msisdn_to_str(const guint8 *ad, int len) {
 
 	static gchar	str[18] = "+                ";
 	gchar		*p;
-	guint8		bits8to5, bits4to1, i;
+	guint8		bits8to5, bits4to1;
+	int		i;
 	static const	gchar hex_digits[16] = "0123456789      ";
 
 	p = &str[0];
