@@ -1702,7 +1702,7 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
             else
                 state_tree = proto_item_add_subtree(state_item, ett_oampdu_remote_info_state);
 
-            proto_tree_add_boolean(state_tree, hf_oampdu_info_state_parser,
+            proto_tree_add_uint(state_tree, hf_oampdu_info_state_parser,
                     tvb, offset, 1, raw_octet);
 
             proto_tree_add_boolean(state_tree, hf_oampdu_info_state_mux,
@@ -2699,7 +2699,7 @@ proto_register_slow_protocols(void)
 
     { &hf_oampdu_info_state_parser,
       { "Parser Action",        "oam.info.state.parser",
-        FT_BOOLEAN,    8,        VALS(&parser_vals),    0x03,
+        FT_UINT8,    8,        VALS(&parser_vals),    0x03,
         "Parser Action", HFILL }},
 
     { &hf_oampdu_info_state_mux,
