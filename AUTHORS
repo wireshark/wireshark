@@ -377,6 +377,7 @@ Phil Techau <phil_t@altavista.net> {
 	Added "col_append_str()"
 	Signed integer support in display filters and in the protocol tree
 	BOOTP fixes
+	Additional NTP reference clock identifiers
 }
 
 Wes Hardaker <wjhardaker@ucdavis.edu> {

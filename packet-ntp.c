@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.16 2000/08/13 14:08:25 deniel Exp $
+ * $Id: packet-ntp.c,v 1.17 2000/11/17 05:25:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -168,6 +168,9 @@ static const struct {
 	{ "DTS\0",	"Digital Time Service" },
 	{ "ATOM",	"Atomic clock (calibrated)" },
 	{ "VLF\0",	"VLF radio (OMEGA,, etc.)" },
+	{ "IRIG",	"IRIG-B timecode" },
+	{ "1PPS",	"External 1 PPS input" },
+	{ "FREE",	"(Internal clock)" },
 	{ NULL,		NULL}
 };
 
