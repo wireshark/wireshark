@@ -685,6 +685,8 @@ Hannes Gredler <hannes[AT]juniper.net> {
 	HELLO message support in RSVP
 	Labeled unicast support for BGP
 	BGP bug fixes
+	Fix display of OSI system IDs to use a dot rather than a dash
+	    before the PSN byte
 }
 
 Inoue <inoue[AT]ainet.or.jp> {

@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: osi-utils.c,v 1.4 2001/05/15 18:58:15 guy Exp $
+ * $Id: osi-utils.c,v 1.5 2002/06/28 22:43:49 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -89,7 +89,7 @@ gchar *print_system_id( const guint8 *buffer, int length ) {
     cur += sprintf(cur, "%02x%02x.%02x%02x.%02x%02x", buffer[0], buffer[1],
                     buffer[2], buffer[3], buffer[4], buffer[5] );
     if ( 7 == length ) {
-      sprintf( cur, "-%02x", buffer[6] );
+      sprintf( cur, ".%02x", buffer[6] );
     }
   }
   else {
@@ -101,7 +101,7 @@ gchar *print_system_id( const guint8 *buffer, int length ) {
       cur += sprintf( cur, "%02x.", buffer[tmp++] );
     }
     if ( 1 == tmp ) {   /* Special case for Designated IS */
-      sprintf( --cur, "-%02x", buffer[tmp] );
+      sprintf( --cur, ".%02x", buffer[tmp] );
     }
     else {
       for ( ; tmp < length; ) {  /* print the rest without dot */
