@@ -3,7 +3,7 @@
  * Routines for JFIF image/jpeg media dissection
  * Copyright 2004, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-image-jfif.c,v 1.2 2004/01/06 00:09:48 guy Exp $
+ * $Id: packet-image-jfif.c,v 1.3 2004/02/14 11:13:16 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -518,6 +518,10 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	tvbuff_t *tmp_tvb;
 	guint32 len;
 	guint16 marker;
+
+	/* Add summary to INFO column if it is enabled */
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(JPEG JFIF image)");
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_jfif,
