@@ -1,8 +1,8 @@
-/* packet-lpr.c
+/* packet-lpd.c
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-lpd.c,v 1.10 1999/09/17 05:56:55 guy Exp $
+ * $Id: packet-lpd.c,v 1.11 1999/10/17 11:40:13 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -36,6 +36,10 @@
 
 #include <glib.h>
 #include "packet.h"
+
+static int proto_lpd = -1;
+static int hf_lpd_response = -1;
+static int hf_lpd_request = -1;
 
 enum lpr_type { request, response };
 
@@ -80,7 +84,6 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		lpr_packet_type = response;
 	}
 
-
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "LPD");
 	if (check_col(fd, COL_INFO)) {
@@ -93,9 +96,17 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
-		  "Line Printer Daemon Protocol");
+		ti = proto_tree_add_text(tree, proto_lpd, offset, 
+					 END_OF_FRAME, NULL);
 		lpd_tree = proto_item_add_subtree(ti, ETT_LPD);
+
+		if (lpr_packet_type == response) {
+		  proto_tree_add_item_hidden(lpd_tree, hf_lpd_response, 
+					     0, 0, TRUE);
+		} else {
+		  proto_tree_add_item_hidden(lpd_tree, hf_lpd_request, 
+					     0, 0, TRUE);
+		}
 
 		if (lpr_packet_type == request) {
 			if (pd[offset] <= 9) {
@@ -146,3 +157,22 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 }
 
+void
+proto_register_lpd(void)
+{
+  static hf_register_info hf[] = {
+    { &hf_lpd_response,
+      { "Response",           "lpd.response",		
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+      	"TRUE if LPD response" }},
+
+    { &hf_lpd_request,
+      { "Request",            "lpd.request",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+      	"TRUE if LPD request" }}
+  };
+
+  proto_lpd = proto_register_protocol("Line Printer Daemon Protocol", "lpd");
+  proto_register_field_array(proto_lpd, hf, array_length(hf));
+
+}
