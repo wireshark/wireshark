@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.83 2000/09/14 21:58:48 gram Exp $
+ * $Id: packet-tcp.c,v 1.84 2000/09/21 00:44:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -67,6 +67,7 @@ static int hf_tcp_srcport = -1;
 static int hf_tcp_dstport = -1;
 static int hf_tcp_port = -1;
 static int hf_tcp_seq = -1;
+static int hf_tcp_nxtseq = -1;
 static int hf_tcp_ack = -1;
 static int hf_tcp_hdr_len = -1;
 static int hf_tcp_flags = -1;
@@ -415,6 +416,7 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   guint      hlen;
   guint      optlen;
   guint      packet_max = pi.len;
+  guint32    nxtseq;
 
   OLD_CHECK_DISPLAY_AS_DATA(proto_tcp, pd, offset, fd, tree);
 
@@ -452,6 +454,9 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   
   hlen = hi_nibble(th.th_off_x2) * 4;  /* TCP header length, in bytes */
 
+  /* Compute the sequence number of next octet after this segment. */
+  nxtseq = th.th_seq + (pi.len - (offset + hlen));
+
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "TCP");
   if (check_col(fd, COL_INFO)) {
@@ -483,6 +488,8 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_uint_hidden(tcp_tree, hf_tcp_port, NullTVB, offset, 2, th.th_sport);
     proto_tree_add_uint_hidden(tcp_tree, hf_tcp_port, NullTVB, offset + 2, 2, th.th_dport);
     proto_tree_add_uint(tcp_tree, hf_tcp_seq, NullTVB, offset + 4, 4, th.th_seq);
+    if (nxtseq != th.th_seq)
+      proto_tree_add_uint(tcp_tree, hf_tcp_nxtseq, NullTVB, offset, 0, nxtseq);
     if (th.th_flags & TH_ACK)
       proto_tree_add_uint(tcp_tree, hf_tcp_ack, NullTVB, offset + 8, 4, th.th_ack);
     proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, NullTVB, offset + 12, 1, hlen,
@@ -584,6 +591,10 @@ proto_register_tcp(void)
 
 		{ &hf_tcp_seq,
 		{ "Sequence number",		"tcp.seq", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"" }},
+
+		{ &hf_tcp_nxtseq,
+		{ "Next sequence number",	"tcp.nxtseq", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"" }},
 
 		{ &hf_tcp_ack,
