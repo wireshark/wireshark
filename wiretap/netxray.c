@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.79 2003/03/04 02:04:00 guy Exp $
+ * $Id: netxray.c,v 1.80 2003/03/28 21:59:12 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -81,12 +81,6 @@ struct netxray_hdr {
 #define CAPTYPE_SMDS	10	/* SMDS DXI */
 #define CAPTYPE_BROUTER4 11	/* Bridge/router captured with pod */
 #define CAPTYPE_BROUTER5 12	/* Bridge/router captured with pod */
-
-/*
- * # of ticks that equal 1 second
- */
-static double TpS[] = { 1e6, 1193000.0, 1193180.0 };
-#define NUM_NETXRAY_TIMEUNITS (sizeof TpS / sizeof TpS[0])
 
 /* Version number strings. */
 static const char vers_1_0[] = {
@@ -253,27 +247,41 @@ int netxray_open(wtap *wth, int *err)
 		} else if (memcmp(hdr.version, vers_2_000, sizeof vers_2_000) == 0
 		    || memcmp(hdr.version, vers_2_001, sizeof vers_2_001) == 0
 		    || memcmp(hdr.version, vers_2_002, sizeof vers_2_002) == 0) {
-			if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS) {
-				g_message("netxray: Unknown timeunit %u",
-					  hdr.timeunit);
-				*err = WTAP_ERR_UNSUPPORTED;
-				return -1;
-			}
-			timeunit = TpS[hdr.timeunit];
-			version_major = 2;
-			file_type = WTAP_FILE_NETXRAY_2_00x;
-
 			/*
-			 * It appears that if hdr.xxb[20] is 2, that indicates
+			 * It appears that, at least for Ethernet
+			 * captures, if hdr.xxb[20] is 2, that indicates
 			 * that it's a gigabit Ethernet capture, possibly
 			 * from a special whizzo gigabit pod, and also
-			 * indicates that the time stamps have nanosecond
-			 * resolution (or, at least, 1000 times greater
-			 * resolution), possibly thanks to a high-resolution
+			 * indicates that the time stamps have some
+			 * higher resolution than in other captures,
+			 * possibly thanks to a high-resolution
 			 * timer on the pod.
 			 */
-			if (hdr.xxb[20] == CAPTYPE_GIGPOD)
-				timeunit = timeunit*1000.0;
+			if (hdr.network == 0 && hdr.xxb[20] == CAPTYPE_GIGPOD) {
+				/*
+				 * It appears that the time units for these
+				 * captures are nanoseconds, unless
+				 * hdr.timeunit is 2, in which case it's
+				 * 1/31250000.0 of a second.
+				 */
+				if (hdr.timeunit == 2)
+					timeunit = 31250000.0;
+				else
+					timeunit = 1e9;
+			} else {
+				/*
+				 * It appears that the time units for
+				 * these captures are 1/1193000.0 of
+				 * a second, unless hdr.timeunit is 0,
+				 * in which case it's microseconds.
+				 */
+				if (hdr.timeunit == 0)
+					timeunit = 1e6;
+				else
+					timeunit = 1193000.0;
+			}
+			version_major = 2;
+			file_type = WTAP_FILE_NETXRAY_2_00x;
 		} else {
 			g_message("netxray: version \"%.8s\" unsupported", hdr.version);
 			*err = WTAP_ERR_UNSUPPORTED;
