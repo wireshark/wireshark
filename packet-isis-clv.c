@@ -1,7 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.25 2003/04/02 08:36:42 guy Exp $
+ * $Id: packet-isis-clv.c,v 1.26 2003/05/24 19:51:48 gerald Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -145,14 +145,15 @@ isis_dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  * Output:
  *	void, but we will add to proto tree if !NULL.
  */
+#define SBUF_LEN 300		/* 255 + header info area */
 void
 isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int length, char *meaning)
 {
 	guchar pw_type;
-	char sbuf[300];		/* 255 + header info area */
+	char sbuf[SBUF_LEN];
 	char *s = sbuf;
-	int auth_unsupported;
+	int auth_unsupported, ret;
 
 	if ( length <= 0 ) {
 		return;
@@ -165,11 +166,11 @@ isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 	switch (pw_type) {
 	case 1:
-		s += sprintf ( s, "clear text (1), password (length %d) = ", length );
+		ret = sprintf ( s, "clear text (1), password (length %d) = ", length );
+		s += ret;
 
 		if ( length > 0 ) {
-		  strncpy(s, tvb_get_ptr(tvb, offset, length), length);
-		  s[length] = 0;
+		  strncpy(s, tvb_get_ptr(tvb, offset, length), MIN(length, SBUF_LEN - ret));
                 } else {
 		  strcat(s, "no clear-text password found!!!" );
 		}
@@ -192,11 +193,12 @@ isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		}
 		break;
 	default:
-		s += sprintf ( s, "type 0x%02x (0x%02x): ", pw_type, length );
+		sprintf (sbuf, "type 0x%02x (0x%02x): ", pw_type, length );
 		auth_unsupported=TRUE;
 		break;
 	}
 
+	sbuf[SBUF_LEN] = '\0';
 	proto_tree_add_text ( tree, tvb, offset - 1, length + 1,
 			"%s %s", meaning, sbuf );
 

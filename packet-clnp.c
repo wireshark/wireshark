@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.74 2003/04/22 22:03:45 deniel Exp $
+ * $Id: packet-clnp.c,v 1.75 2003/05/24 19:51:48 gerald Exp $
  * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -326,7 +326,7 @@ static gboolean clnp_reassemble = FALSE;
 static gchar *print_tsap(const guchar *tsap, int length)
 {
 
-  static gchar  str[3][MAX_TSAP_LEN * 2 + 1];
+  static gchar  str[3][MAX_TSAP_LEN * 2 + 3];	/* TSAP in hex + '0x' + NULL */
   static gchar *cur;
   gchar tmp[3];
   gboolean allprintable;
