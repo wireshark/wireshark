@@ -35,7 +35,7 @@ XSLTPROC="xsltproc"
 XMLLINT="xmllint"
 
 # as eug_chm will stop with an error, make sure it's the last in this dependency list
-all: eug edg 
+all: svn_version.xml eug edg 
 
 clean:
 	rm -f *.html
@@ -58,7 +58,10 @@ eug: eug_validate eug_pdf_a4 eug_html eug_html_chunked eug_chm
 #
 # on every build, record the working copy revision string
 #
-svn_version.xml::
+# FORCE is the portable version of .PHONY
+FORCE:
+
+svn_version.xml: FORCE
 	echo -n '<!ENTITY SvnVersion "' > svn_version.xml
 	svnversion -n .                   >> svn_version.xml
 	echo '">'   >> svn_version.xml
