@@ -11,7 +11,7 @@
  * This file is based on packet-aim.c, which is
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-skinny.c,v 1.20 2002/08/28 21:00:31 jmayer Exp $
+ * $Id: packet-skinny.c,v 1.21 2002/09/21 03:14:10 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1199,7 +1199,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       break;
 
     case 0x93 : /* configStat */
-      proto_tree_add_item(skinny_tree, hf_skinny_deviceName, tvb, offset+12, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_deviceName, tvb, offset+12, StationMaxDeviceNameSize, TRUE);
       i = offset+12+StationMaxDeviceNameSize;
       proto_tree_add_item(skinny_tree, hf_skinny_stationUserId, tvb, i, 4, TRUE);
       i += 4;
@@ -1274,7 +1274,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     case 0x9e : /* serverRes */
       for (i = 0; i < StationMaxServers; i++) {
-	proto_tree_add_item(skinny_tree, hf_skinny_serverIdentifier, tvb, offset+12+(i*StationMaxServers), StationMaxServers, TRUE);
+	proto_tree_add_item(skinny_tree, hf_skinny_serverIdentifier, tvb, offset+12+(i*StationMaxServers), StationMaxServerNameSize, TRUE);
       }
       j = offset+12+(i*StationMaxServers);
       for (i = 0; i < StationMaxServers; i++) {

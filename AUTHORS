@@ -1429,6 +1429,10 @@ PC Drew <drewpc[AT]ibsncentral.com> {
 	Dissector for the FIX protocol
 }
 
+Renzo Tomas <renzo.toma [AT] xs4all.nl> {
+	Skinny bugfix for configStat and serverRes
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
