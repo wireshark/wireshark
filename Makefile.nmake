@@ -59,6 +59,7 @@ DISSECTOR_OBJECTS = \
 	packet-isis-hello.obj \
 	packet-isis-lsp.obj \
 	packet-isis-snp.obj \
+	packet-isl.obj \
 	packet-l2tp.obj  \
 	packet-lapb.obj  \
 	packet-lapd.obj  \
