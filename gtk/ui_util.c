@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.14 2002/11/11 15:39:06 oabad Exp $
+ * $Id: ui_util.c,v 1.15 2004/01/22 18:13:57 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,6 +26,14 @@
 # include "config.h"
 #endif
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+#ifdef HAVE_IO_H
+# include <io.h>
+#endif
+
 #include <gtk/gtk.h>
 
 #include "gtkglobals.h"
@@ -46,6 +54,146 @@ set_main_window_name(gchar *window_name)
   gtk_window_set_title(GTK_WINDOW(top_level), window_name);
   gdk_window_set_icon_name(top_level->window, window_name);
 }
+
+
+#ifdef HAVE_LIBPCAP
+
+/* update the main window */
+void main_window_update(void)
+{
+  while (gtk_events_pending()) gtk_main_iteration();
+}
+
+/* exit the main window */
+void main_window_exit(void)
+{
+  gtk_exit(0);
+}
+
+/* quit a nested main window */
+void main_window_nested_quit(void)
+{
+  if (gtk_main_level() > 0)
+    gtk_main_quit();
+}
+
+/* quit the main window */
+void main_window_quit(void)
+{
+  gtk_main_quit();
+}
+
+
+
+
+typedef struct pipe_input_tag {
+    gint                source;
+    gpointer            user_data;
+    HANDLE              *child_process;
+    pipe_input_cb_t     input_cb;
+    guint               pipe_input_id;
+} pipe_input_t;
+
+
+#ifdef _WIN32
+/* The timer has expired, see if there's stuff to read from the pipe,
+   if so, do the callback */
+static gint
+pipe_timer_cb(gpointer data)
+{
+  HANDLE handle;
+  DWORD avail = 0;
+  gboolean result, result1;
+  DWORD childstatus;
+  pipe_input_t *pipe_input = data;
+
+
+  /* Oddly enough although Named pipes don't work on win9x,
+     PeekNamedPipe does !!! */
+  handle = (HANDLE) _get_osfhandle (pipe_input->source);
+  result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
+
+  /* Get the child process exit status */
+  result1 = GetExitCodeProcess(*(pipe_input->child_process), &childstatus);
+
+  /* If the Peek returned an error, or there are bytes to be read
+     or the childwatcher thread has terminated then call the normal
+     callback */
+  if (!result || avail > 0 || childstatus != STILL_ACTIVE) {
+
+    /* avoid reentrancy problems and stack overflow */
+    gtk_timeout_remove(pipe_input->pipe_input_id);
+
+    /* And call the real handler */
+    if (pipe_input->input_cb(pipe_input->source, pipe_input->user_data)) {
+        /* restore pipe handler */
+        pipe_input->pipe_input_id = gtk_timeout_add(1000, pipe_timer_cb, data);
+    }
+
+    /* Return false so that this timer is not run again */
+    return FALSE;
+  }
+  else {
+    /* No data so let timer run again */
+    return TRUE;
+  }
+}
+
+#else /* _WIN32 */
+
+/* There's stuff to read from the sync pipe, meaning the child has sent
+   us a message, or the sync pipe has closed, meaning the child has
+   closed it (perhaps because it exited). */
+static void
+pipe_input_cb(gpointer data, gint source _U_,
+  GdkInputCondition condition _U_)
+{
+  pipe_input_t *pipe_input = data;
+
+
+  /* avoid reentrancy problems and stack overflow */
+  gtk_input_remove(pipe_input->pipe_input_id);
+
+  if (pipe_input->input_cb(source, pipe_input->user_data)) {
+    /* restore pipe handler */
+    pipe_input->pipe_input_id = gtk_input_add_full (source,
+				     GDK_INPUT_READ|GDK_INPUT_EXCEPTION,
+				     pipe_input_cb,
+				     NULL,
+				     data,
+				     NULL);
+  }
+}
+#endif
+
+void pipe_input_set_handler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb)
+{
+    static pipe_input_t pipe_input;
+
+    pipe_input.source        = source;
+    pipe_input.child_process = (HANDLE *)child_process;
+    pipe_input.user_data     = user_data;
+    pipe_input.input_cb      = input_cb;
+
+#ifdef _WIN32
+    /* Tricky to use pipes in win9x, as no concept of wait.  NT can
+       do this but that doesn't cover all win32 platforms.  GTK can do
+       this but doesn't seem to work over processes.  Attempt to do
+       something similar here, start a timer and check for data on every
+       timeout. */
+    pipe_input.pipe_input_id = gtk_timeout_add(1000, pipe_timer_cb, &pipe_input);
+#else
+    pipe_input.pipe_input_id = gtk_input_add_full(source,
+				      GDK_INPUT_READ|GDK_INPUT_EXCEPTION,
+				      pipe_input_cb,
+				      NULL,
+				      &pipe_input,
+				      NULL);
+#endif
+}
+
+
+#endif /* HAVE_LIBPCAP */
 
 /* Given a pointer to a GtkWidget for a top-level window, raise it and
    de-iconify it.  This routine is used if the user has done something to

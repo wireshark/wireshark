@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.143 2004/01/21 19:21:28 ulfl Exp $
+ * $Id: menu.c,v 1.144 2004/01/22 18:13:56 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -194,9 +194,6 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/View/Show/Packet Data", NULL, byte_view_show_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/Show/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/View/Show/Status Bar", NULL, statusbar_show_cb, 0, "<CheckItem>", NULL),
-	/* XXX: the settings in the "Options" dialog could be seperated into the following menu items. */
-	/* before this, some effort must be taken to transfer the functionality of this dialog to the menu items */
-	/* (getting the current values, handling the radioitems, ...) */
     ITEM_FACTORY_ENTRY("/View/_Time Display Format", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/View/Time Display Format/Time of day", NULL, timestamp_absolute_cb, 
                         0, "<RadioItem>", NULL),
@@ -211,8 +208,6 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _Network layer", NULL, name_resolution_mac_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _Transport layer", NULL, name_resolution_transport_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/Auto scroll in live capture", NULL, auto_scroll_live_cb, 0, "<CheckItem>", NULL),
-/*    ITEM_FACTORY_ENTRY("/View/_Options...", NULL, display_opt_cb,
-                       0, NULL, NULL),*/
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/View/Zoom In", "<control>plus", view_zoom_in_cb,
                              0, GTK_STOCK_ZOOM_IN),
@@ -237,13 +232,8 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/_Capture", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Capture/_Start...", "<control>K",
                              capture_prep_cb, 0, ETHEREAL_STOCK_CAPTURE_START),
-  /*
-   * XXX - this doesn't yet work in Win32.
-   */
-#ifndef _WIN32
     ITEM_FACTORY_STOCK_ENTRY("/Capture/S_top", "<control>E", capture_stop_cb,
                              0, GTK_STOCK_STOP),
-#endif /* _WIN32 */
     ITEM_FACTORY_STOCK_ENTRY("/Capture/_Capture Filters...", NULL, cfilter_dialog_cb,
                        0, ETHEREAL_STOCK_CAPTURE_FILTER),
 #endif /* HAVE_LIBPCAP */
@@ -1201,6 +1191,7 @@ void
 set_menus_for_capture_file(gboolean have_capture_file)
 {
   set_menu_sensitivity(main_menu_factory, "/File/Open...", have_capture_file);
+  set_menu_sensitivity(main_menu_factory, "/File/Open Recent", have_capture_file);
   set_menu_sensitivity(main_menu_factory, "/File/Save As...",
       have_capture_file);
   set_menu_sensitivity(main_menu_factory, "/File/Close", have_capture_file);
@@ -1225,16 +1216,13 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
 {
   set_menu_sensitivity(main_menu_factory, "/File/Open...",
       !capture_in_progress);
+  set_menu_sensitivity(main_menu_factory, "/File/Open Recent", 
+      !capture_in_progress);
 #ifdef HAVE_LIBPCAP
   set_menu_sensitivity(main_menu_factory, "/Capture/Start...",
       !capture_in_progress);
-  /*
-   * XXX - this doesn't yet work in Win32.
-   */
-#ifndef _WIN32
   set_menu_sensitivity(main_menu_factory, "/Capture/Stop",
       capture_in_progress);
-#endif
 #endif /* HAVE_LIBPCAP */
   set_toolbar_for_capture_in_progress(capture_in_progress);
 }

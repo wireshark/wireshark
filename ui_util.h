@@ -1,7 +1,7 @@
 /* ui_util.h
  * Definitions for UI utility routines
  *
- * $Id: ui_util.h,v 1.15 2004/01/10 17:29:26 ulfl Exp $
+ * $Id: ui_util.h,v 1.16 2004/01/22 18:13:56 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,6 +31,19 @@ extern "C" {
 
 /* Set the name of the top-level window and its icon. */
 void set_main_window_name(gchar *);
+
+/* update the main window */
+extern void main_window_update(void);
+/* exit the main window */
+extern void main_window_exit(void);
+/* quit a nested main window */
+extern void main_window_nested_quit(void);
+/* quit the main window */
+extern void main_window_quit(void);
+
+/* read from a pipe */
+typedef gboolean (*pipe_input_cb_t) (gint source, gpointer user_data);
+extern void pipe_input_set_handler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb);
 
 /* packet list related functions */
 void packet_list_clear(void);

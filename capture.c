@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.223 2004/01/20 18:47:21 ulfl Exp $
+ * $Id: capture.c,v 1.224 2004/01/22 18:13:56 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,7 +70,7 @@
 
 #include <pcap.h>
 
-#include <gtk/gtk.h>
+#include <glib.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -164,6 +164,7 @@
 #ifdef _WIN32
 #include "capture-wpcap.h"
 #endif
+#include "ui_util.h"
 
 /*
  * Capture options.
@@ -175,7 +176,6 @@ enum PIPES { READ, WRITE }; /* Constants 0 and 1 for READ and WRITE */
 int quit_after_cap; /* Makes a "capture only mode". Implies -k */
 gboolean capture_child;	/* if this is the child for "-S" */
 static int fork_child = -1;	/* If not -1, in parent, process ID of child */
-static guint cap_input_id;
 
 /*
  * Indications sent out on the sync pipe.
@@ -185,12 +185,8 @@ static guint cap_input_id;
 #define SP_ERROR_MSG	'!'	/* followed by length of error message that follows */
 #define SP_DROPS	'#'	/* followed by count of packets dropped in capture */
 
-#ifdef _WIN32
-static guint cap_timer_id;
-static int cap_timer_cb(gpointer); /* Win32 kludge to check for pipe input */
-#endif
 
-static void cap_file_input_cb(gpointer, gint, GdkInputCondition);
+static gboolean cap_pipe_input_cb(gint source, gpointer user_data);
 static void wait_for_child(gboolean);
 #ifndef _WIN32
 static char *signame(int);
@@ -621,27 +617,13 @@ do_capture(const char *save_file)
        arrange that our callback be called whenever it's possible
        to read from the sync pipe, so that it's called when
        the child process wants to tell us something. */
-#ifdef _WIN32
-    /* Tricky to use pipes in win9x, as no concept of wait.  NT can
-       do this but that doesn't cover all win32 platforms.  GTK can do
-       this but doesn't seem to work over processes.  Attempt to do
-       something similar here, start a timer and check for data on every
-       timeout. */
-    cap_timer_id = gtk_timeout_add(1000, cap_timer_cb, NULL);
-#else
-    cap_input_id = gtk_input_add_full(sync_pipe[READ],
-				      GDK_INPUT_READ|GDK_INPUT_EXCEPTION,
-				      cap_file_input_cb,
-				      NULL,
-				      (gpointer) &cfile,
-				      NULL);
-#endif
+    pipe_input_set_handler(sync_pipe[READ], (gpointer) &cfile, &child_process, cap_pipe_input_cb);
   } else {
     /* Not sync mode. */
     capture_succeeded = capture(&stats_known, &stats);
     if (quit_after_cap) {
       /* DON'T unlink the save file.  Presumably someone wants it. */
-      gtk_exit(0);
+        main_window_exit();
     }
     if (!capture_succeeded) {
       /* We didn't succeed in doing the capture, so we don't have a save
@@ -713,8 +695,7 @@ do_capture(const char *save_file)
     case READ_ABORTED:
       /* Exit by leaving the main loop, so that any quit functions
          we registered get called. */
-      if (gtk_main_level() > 0)
-        gtk_main_quit();
+      main_window_nested_quit();
       return FALSE;
     }
 
@@ -730,52 +711,12 @@ do_capture(const char *save_file)
   return TRUE;
 }
 
-#ifdef _WIN32
-/* The timer has expired, see if there's stuff to read from the pipe,
-   if so call the cap_file_input_cb */
-static gint
-cap_timer_cb(gpointer data)
-{
-  HANDLE handle;
-  DWORD avail = 0;
-  gboolean result, result1;
-  DWORD childstatus;
-
-  /* Oddly enough although Named pipes don't work on win9x,
-     PeekNamedPipe does !!! */
-  handle = (HANDLE) _get_osfhandle (sync_pipe[READ]);
-  result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
-
-  /* Get the child process exit status */
-  result1 = GetExitCodeProcess((HANDLE)child_process, &childstatus);
-
-  /* If the Peek returned an error, or there are bytes to be read
-     or the childwatcher thread has terminated then call the normal
-     callback */
-  if (!result || avail > 0 || childstatus != STILL_ACTIVE) {
-
-    /* avoid reentrancy problems and stack overflow */
-    gtk_timeout_remove(cap_timer_id);
-
-    /* And call the real handler */
-    cap_file_input_cb((gpointer) &cfile, 0, 0);
-
-    /* Return false so that the timer is not run again */
-    return FALSE;
-  }
-  else {
-    /* No data so let timer run again */
-    return TRUE;
-  }
-}
-#endif
 
 /* There's stuff to read from the sync pipe, meaning the child has sent
    us a message, or the sync pipe has closed, meaning the child has
    closed it (perhaps because it exited). */
-static void
-cap_file_input_cb(gpointer data, gint source _U_,
-  GdkInputCondition condition _U_)
+static gboolean 
+cap_pipe_input_cb(gint source, gpointer user_data)
 {
   capture_file *cf = (capture_file *)data;
 #define BUFSIZE	4096
@@ -784,12 +725,8 @@ cap_file_input_cb(gpointer data, gint source _U_,
   int  to_read = 0;
   int  err;
 
-#ifndef _WIN32
-  /* avoid reentrancy problems and stack overflow */
-  gtk_input_remove(cap_input_id);
-#endif
 
-  if ((nread = read(sync_pipe[READ], buffer, BUFSIZE)) <= 0) {
+  if ((nread = read(source, buffer, BUFSIZE)) <= 0) {
     /* The child has closed the sync pipe, meaning it's not going to be
        capturing any more packets.  Pick up its exit status, and
        complain if it did anything other than exit with status 0. */
@@ -809,8 +746,8 @@ cap_file_input_cb(gpointer data, gint source _U_,
     case READ_ABORTED:
       /* Exit by leaving the main loop, so that any quit functions
          we registered get called. */
-      gtk_main_quit();
-      return;
+      main_window_quit();
+      return FALSE;
     }
 
     /* We're not doing a capture any more, so we don't have a save
@@ -818,7 +755,7 @@ cap_file_input_cb(gpointer data, gint source _U_,
     g_free(cf->save_file);
     cf->save_file = NULL;
 
-    return;
+    return FALSE;
   }
 
   buffer[nread] = '\0';
@@ -853,7 +790,7 @@ cap_file_input_cb(gpointer data, gint source _U_,
       while (msglen != 0) {
       	if (nread == 0) {
       	  /* Read more. */
-          if ((nread = read(sync_pipe[READ], buffer, BUFSIZE)) <= 0)
+          if ((nread = read(source, buffer, BUFSIZE)) <= 0)
             break;
           p = buffer;
           q = buffer;
@@ -893,25 +830,11 @@ cap_file_input_cb(gpointer data, gint source _U_,
   case READ_ABORTED:
     /* Kill the child capture process; the user wants to exit, and we
        shouldn't just leave it running. */
-#ifdef _WIN32
-    /* XXX - kill it. */
-#else
-    kill(fork_child, SIGTERM);	/* SIGTERM so it can clean up if necessary */
-#endif
+    kill_capture_child();
     break;
   }
 
-  /* restore pipe handler */
-#ifdef _WIN32
-  cap_timer_id = gtk_timeout_add(1000, cap_timer_cb, NULL);
-#else
-  cap_input_id = gtk_input_add_full (sync_pipe[READ],
-				     GDK_INPUT_READ|GDK_INPUT_EXCEPTION,
-				     cap_file_input_cb,
-				     NULL,
-				     (gpointer) cf,
-				     NULL);
-#endif
+  return TRUE;
 }
 
 static void
@@ -920,7 +843,7 @@ wait_for_child(gboolean always_report)
   int  wstatus;
 
 #ifdef _WIN32
-  /* XXX - analyze the wait stuatus and display more information
+  /* XXX - analyze the wait status and display more information
      in the dialog box? */
   if (_cwait(&wstatus, child_process, _WAIT_CHILD) == -1) {
     simple_dialog(ESD_TYPE_WARN, NULL, "Child capture process stopped unexpectedly");
@@ -1525,7 +1448,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
        capture-progress window, and, since we couldn't start the
        capture, we haven't popped it up. */
     if (!capture_child) {
-      while (gtk_events_pending()) gtk_main_iteration();
+      main_window_update();
     }
 
     /* On Win32 OSes, the capture devices are probably available to all
@@ -1554,7 +1477,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
        * capture, we haven't popped it up.
        */
       if (!capture_child) {
-	while (gtk_events_pending()) gtk_main_iteration();
+          main_window_update();
       }
 
       if (ld.pipe_err == PIPNEXIST) {
@@ -1753,7 +1676,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   /* WOW, everything is prepared! */
   /* please fasten your seat belts, we will enter now the actual capture loop */
   while (ld.go) {
-    while (gtk_events_pending()) gtk_main_iteration();
+    main_window_update();
 
 #ifndef _WIN32
     if (ld.from_pipe) {
@@ -2138,24 +2061,36 @@ gpointer 		callback_data)
 void
 capture_stop(void)
 {
-  /*
-   * XXX - find some way of signaling the child in Win32.
-   */
 #ifndef _WIN32
   if (fork_child != -1)
       kill(fork_child, SIGUSR1);
+#else
+  if (fork_child != -1) {
+      /* XXX: this is not the preferred method of closing a process!
+       * the clean way would be getting the process id of the child process,
+       * then getting window handle hWnd of that process (using EnumChildWindows),
+       * and then do a SendMessage(hWnd, WM_CLOSE, 0, 0) 
+       *
+       * Unfortunately, I don't know how to get the process id from the handle */
+      /* Hint: OpenProcess will get an handle from the id, not vice versa :-(
+       *
+       * Hint: GenerateConsoleCtrlEvent() will only work, if both processes are 
+       * running in the same console, I don't know if that is true for our case.
+       * And this also will require to have the process id
+       */
+      TerminateProcess((HANDLE) child_process, 0);
+  }
 #endif
 }
 
 void
 kill_capture_child(void)
 {
-  /*
-   * XXX - find some way of signaling the child in Win32.
-   */
 #ifndef _WIN32
   if (fork_child != -1)
     kill(fork_child, SIGTERM);	/* SIGTERM so it can clean up if necessary */
+#else
+  capture_stop();
 #endif
 }
 

@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.25 2004/01/21 09:02:09 guy Exp $
+ * $Id: toolbar.c,v 1.26 2004/01/22 18:13:57 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -257,14 +257,6 @@ void set_toolbar_for_capture_in_progress(gboolean capture_in_progress) {
     if (toolbar_init) {
 #ifdef HAVE_LIBPCAP
         gtk_widget_set_sensitive(new_button, !capture_in_progress);
-#endif
-        gtk_widget_set_sensitive(open_button, !capture_in_progress);
-
-#ifdef HAVE_LIBPCAP
-        /*
-         * XXX - this doesn't yet work in Win32, as in the menus :-(
-         */
-#ifndef _WIN32
         if (capture_in_progress) {
             gtk_widget_hide(new_button);
             gtk_widget_show(stop_button);
@@ -272,10 +264,8 @@ void set_toolbar_for_capture_in_progress(gboolean capture_in_progress) {
             gtk_widget_show(new_button);
             gtk_widget_hide(stop_button);
         }
-#else /* _WIN32 */
-        gtk_widget_set_sensitive(new_button, !capture_in_progress);
-#endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
+        gtk_widget_set_sensitive(open_button, !capture_in_progress);
     }
 }
 
@@ -380,10 +370,8 @@ toolbar_new(void)
 
     toolbar_item(new_button, window, main_tb, 
         ETHEREAL_STOCK_CAPTURE_START, "Start a new live capture...", capture_24_xpm, capture_prep_cb);
-#ifndef _WIN32
     toolbar_item(stop_button, window, main_tb, 
         GTK_STOCK_STOP, "Stop the running live capture", stock_stop_24_xpm, capture_stop_cb);
-#endif /* _WIN32 */
     toolbar_append_separator(main_tb);
 #endif /* HAVE_LIBPCAP */
 
