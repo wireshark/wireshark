@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly, core
  * bits.
  *
- * $Id: packet-isis.c,v 1.23 2001/07/02 00:46:21 guy Exp $
+ * $Id: packet-isis.c,v 1.24 2001/07/02 01:46:22 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -123,103 +123,130 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	isis_hdr_t ihdr;
 	proto_item *ti;
 	proto_tree *isis_tree = NULL;
-	int id_length;
 	int offset = 0;
+	guint8 isis_version;
+	guint8 isis_header_length;
+	guint8 isis_type_reserved;
+	guint8 isis_type;
+	guint8 isis_system_id_len;
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "ISIS");
 	if (check_col(pinfo->fd, COL_INFO))
 		col_clear(pinfo->fd, COL_INFO);
 
-	tvb_memcpy(tvb, (guint8 *)&ihdr, offset, sizeof(isis_hdr_t));
-
-	if (ihdr.isis_version != ISIS_REQUIRED_VERSION){
-		isis_dissect_unknown(tvb, pinfo, tree, offset,
+	isis_version = tvb_get_guint8(tvb, 2);
+	if (isis_version != ISIS_REQUIRED_VERSION){
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_add_fstr(pinfo->fd, COL_INFO,
+				"Unknown ISIS version (%u vs %u)",
+				isis_version, ISIS_REQUIRED_VERSION );
+		}
+		isis_dissect_unknown(tvb, pinfo, tree, 0,
 			"Unknown ISIS version (%d vs %d)",
-			ihdr.isis_version, ISIS_REQUIRED_VERSION);
+			isis_version, ISIS_REQUIRED_VERSION);
 		return;
 	}
 	
-	
+	isis_header_length = tvb_get_guint8(tvb, 1);
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_isis, tvb, offset, 
-			tvb_length_remaining(tvb, 0), FALSE );
-
+		ti = proto_tree_add_item(tree, proto_isis, tvb, 0, 
+			tvb_length(tvb), FALSE );
 		isis_tree = proto_item_add_subtree(ti, ett_isis);
+	}
 
-		proto_tree_add_uint(isis_tree, hf_isis_irpd, tvb, offset, 1,
-			ihdr.isis_irpd );
+	if (tree) {
+		proto_tree_add_item(isis_tree, hf_isis_irpd, tvb, offset, 1,
+			FALSE );
+	}
+	offset += 1;
+
+	if (tree) {
 		proto_tree_add_uint(isis_tree, hf_isis_header_length, tvb,
-			offset + 1, 1, ihdr.isis_header_length );
+			offset, 1, isis_header_length );
+	}
+	offset += 1;
+
+	if (tree) {
 		proto_tree_add_uint(isis_tree, hf_isis_version, tvb,
-			offset + 2, 1, ihdr.isis_version );
+			offset, 1, isis_version );
+	}
+	offset += 1;
+
+	isis_system_id_len = tvb_get_guint8(tvb, 3);
+	if (tree) {
 		proto_tree_add_uint(isis_tree, hf_isis_system_id_length, tvb,
-			offset + 3, 1, ihdr.isis_system_id_len );
-		proto_tree_add_uint_format(isis_tree, hf_isis_type, tvb,
-			offset + 4, 1, ihdr.isis_type,
-			"PDU Type           : %s (R:%s%s%s)",
-			val_to_str(ihdr.isis_type & ISIS_TYPE_MASK, isis_vals,
-		   		   "Unknown (0x%x)"),
-			(ihdr.isis_type & ISIS_R8_MASK) ? "1" : "0",
-			(ihdr.isis_type & ISIS_R7_MASK) ? "1" : "0",
-			(ihdr.isis_type & ISIS_R6_MASK) ? "1" : "0");
-		proto_tree_add_uint(isis_tree, hf_isis_version2, tvb,
-			offset + 5, 1, ihdr.isis_version2 );
-		proto_tree_add_uint(isis_tree, hf_isis_reserved, tvb,
-			offset + 6, 1, ihdr.isis_reserved );
-		proto_tree_add_uint(isis_tree, hf_isis_max_area_adr, tvb,
-			offset + 7, 1, ihdr.isis_max_area_adr );
+			offset, 1, isis_system_id_len );
 	}
+	offset += 1;
 
-
-	/*
-	 * Let us make sure we use the same names for all our decodes
-	 * here.  First, dump the name into info column, and THEN
-	 * dispatch the sub-type.
-	 */
+	isis_type_reserved = tvb_get_guint8(tvb, 4);
+	isis_type = isis_type_reserved & ISIS_TYPE_MASK;
 	if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_str(pinfo->fd, COL_INFO, val_to_str ( 
-			ihdr.isis_type&ISIS_TYPE_MASK, isis_vals,
-			"Unknown (0x%x)" ) );
+		col_add_str(pinfo->fd, COL_INFO,
+			val_to_str ( isis_type, isis_vals, "Unknown (0x%x)" ) );
 	}
+	if (tree) {
+		proto_tree_add_uint_format(isis_tree, hf_isis_type, tvb,
+			offset, 1, isis_type,
+			"PDU Type           : %s (R:%s%s%s)",
+			val_to_str(isis_type, isis_vals, "Unknown (0x%x)"),
+			(isis_type_reserved & ISIS_R8_MASK) ? "1" : "0",
+			(isis_type_reserved & ISIS_R7_MASK) ? "1" : "0",
+			(isis_type_reserved & ISIS_R6_MASK) ? "1" : "0");
+	}
+	offset += 1;
+
+	if (tree) {
+		proto_tree_add_item(isis_tree, hf_isis_version2, tvb, 5, 1,
+			FALSE );
+	}
+	offset += 1;
+
+	if (tree) {
+		proto_tree_add_item(isis_tree, hf_isis_reserved, tvb, 6, 1,
+			FALSE );
+	}
+	offset += 1;
+
+	if (tree) {
+		proto_tree_add_item(isis_tree, hf_isis_max_area_adr, tvb, 7, 1,
+			FALSE );
+	}
+	offset += 1;
 
 	/*
 	 * Interpret the system ID length.
 	 */
-	id_length = ihdr.isis_system_id_len;
-	if (id_length == 0)
-		id_length = 6;	/* zero means 6-octet ID field length */
-	else if (id_length == 255) {
-		id_length = 0;	/* 255 means null ID field */
+	if (isis_system_id_len == 0)
+		isis_system_id_len = 6;	/* zero means 6-octet ID field length */
+	else if (isis_system_id_len == 255) {
+		isis_system_id_len = 0;	/* 255 means null ID field */
 		/* XXX - what about the LAN ID? */
 	}
 	/* XXX - otherwise, must be in the range 1 through 8 */
 
-	/*
-	 * Advance offset (we are past the header).
-	 */
-	offset += sizeof(ihdr);
-	switch (ihdr.isis_type) {
+	switch (isis_type) {
 	case ISIS_TYPE_L1_HELLO:
 	case ISIS_TYPE_L2_HELLO:
 	case ISIS_TYPE_PTP_HELLO:
 		isis_dissect_isis_hello(tvb, pinfo, isis_tree, offset,
-			ihdr.isis_type, ihdr.isis_header_length, id_length);
+			isis_type, isis_header_length, isis_system_id_len);
 		break;
 	case ISIS_TYPE_L1_LSP:
 	case ISIS_TYPE_L2_LSP:
 		isis_dissect_isis_lsp(tvb, pinfo, isis_tree, offset,
-			ihdr.isis_type, ihdr.isis_header_length, id_length);
+			isis_type, isis_header_length, isis_system_id_len);
 		break;
 	case ISIS_TYPE_L1_CSNP:
 	case ISIS_TYPE_L2_CSNP:
 		isis_dissect_isis_csnp(tvb, pinfo, isis_tree, offset,
-			ihdr.isis_type, ihdr.isis_header_length, id_length);
+			isis_type, isis_header_length, isis_system_id_len);
 		break;
 	case ISIS_TYPE_L1_PSNP:
 	case ISIS_TYPE_L2_PSNP:
 		isis_dissect_isis_psnp(tvb, pinfo, isis_tree, offset,
-			ihdr.isis_type, ihdr.isis_header_length, id_length);
+			isis_type, isis_header_length, isis_system_id_len);
 		break;
 	default:
 		isis_dissect_unknown(tvb, pinfo, tree, offset,
@@ -282,7 +309,7 @@ proto_register_isis(void) {
     /*
      * Note, we pull in the unknown CLV handler here, since it
      * is used by all ISIS packet types.
-    */
+     */
     static gint *ett[] = {
       &ett_isis,
     };

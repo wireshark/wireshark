@@ -1,7 +1,7 @@
 /* packet-isis.h
  * Defines and such for core isis protcol decode.
  *
- * $Id: packet-isis.h,v 1.5 2001/07/02 00:19:34 guy Exp $
+ * $Id: packet-isis.h,v 1.6 2001/07/02 01:46:22 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -65,11 +65,6 @@ typedef struct {
   guint8 isis_reserved;	      /* reserved, must be 0 */
   guint8 isis_max_area_adr;   /* Maximum Number of AREA Addresses permitted */
 } isis_hdr_t;                 /* for this AREA. Value of 0 allows 3 Addresses */
-
-#define isis_type isis_type_reserved&ISIS_TYPE_MASK
-#define isis_r8   isis_type_reserved&ISIS_R8_MASK
-#define isis_r7   isis_type_reserved&ISIS_R7_MASK
-#define isis_r6   isis_type_reserved&ISIS_R6_MASK
 
 
 /*
