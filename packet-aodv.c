@@ -2,7 +2,7 @@
  * Routines for AODV dissection
  * Copyright 2000, Erik Nordström <erik.nordstrom@it.uu.se>
  *
- * $Id: packet-aodv.c,v 1.7 2003/04/30 23:21:19 guy Exp $
+ * $Id: packet-aodv.c,v 1.8 2003/07/09 03:59:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,9 +65,9 @@
 #define V6_RREP_ACK	19
 
 /* Extension Types */
-#define AODV6_EXT	1
-#define AODV6_EXT_INT	2
-#define AODV6_EXT_NTP	3
+#define AODV_EXT	1
+#define AODV_EXT_INT	2
+#define AODV_EXT_NTP	3
 
 /* Flag bits: */
 #define RREQ_GRAT    0x20
@@ -91,10 +91,10 @@ static const value_string type_vals[] = {
 };
 
 static const value_string exttype_vals[] = {
-    { AODV6_EXT,     "None"},
-    { AODV6_EXT_INT, "Hello Interval"},
-    { AODV6_EXT_NTP, "Timestamp"},
-    { 0,             NULL}
+    { AODV_EXT,     "None"},
+    { AODV_EXT_INT, "Hello Interval"},
+    { AODV_EXT_NTP, "Timestamp"},
+    { 0,            NULL}
 };
 
 struct aodv_rreq {
@@ -169,7 +169,7 @@ typedef struct v6_rrep_ack {
 typedef struct v6_ext {
     guint8 type;
     guint8 length;
-} v6_ext_t;
+} aodv_ext_t;
 
 /* Initialize the protocol and registered fields */
 static int proto_aodv = -1;
@@ -209,12 +209,11 @@ static gint ett_aodv_extensions = -1;
 /* Code to actually dissect the packets */
 
 static void
-dissect_aodv6_ext(tvbuff_t * tvb, int offset, proto_tree * tree)
+dissect_aodv_ext(tvbuff_t * tvb, int offset, proto_tree * tree)
 {
-    proto_tree *aodv6ext_tree;
+    proto_tree *ext_tree;
     proto_item *ti;
-    v6_ext_t aodv6ext, *ext;
-    char *typename;
+    aodv_ext_t aodvext, *ext;
     int len;
 
     if (!tree)
@@ -224,48 +223,38 @@ dissect_aodv6_ext(tvbuff_t * tvb, int offset, proto_tree * tree)
     if ((int) tvb_reported_length(tvb) <= offset)
 	return;			/* No more options left */
 
-    ext = &aodv6ext;
+    ext = &aodvext;
     tvb_memcpy(tvb, (guint8 *) ext, offset, sizeof(*ext));
     len = ext->length;
 
-    ti = proto_tree_add_text(tree, tvb, offset, sizeof(v6_ext_t) +
-			     len, "AODV6 Extensions");
-    aodv6ext_tree = proto_item_add_subtree(ti, ett_aodv_extensions);
+    ti = proto_tree_add_text(tree, tvb, offset, sizeof(aodv_ext_t) +
+			     len, "Extensions");
+    ext_tree = proto_item_add_subtree(ti, ett_aodv_extensions);
 
     if (len == 0) {
-	proto_tree_add_text(aodv6ext_tree, tvb,
-			    offset + offsetof(v6_ext_t, length), 1,
+	proto_tree_add_text(ext_tree, tvb,
+			    offset + offsetof(aodv_ext_t, length), 1,
 			    "Invalid option length: %u", ext->length);
 	return;			/* we must not try to decode this */
     }
 
-    switch (ext->type) {
-    case AODV6_EXT_INT:
-	typename = "Hello Interval";
-	break;
-    case AODV6_EXT_NTP:
-	typename = "Timestamp";
-	break;
-    default:
-	typename = "Unknown";
-	break;
-    }
-    proto_tree_add_text(aodv6ext_tree, tvb,
-			offset + offsetof(v6_ext_t, type), 1,
-			"Type: %u (%s)", ext->type, typename);
-    proto_tree_add_text(aodv6ext_tree, tvb,
-			offset + offsetof(v6_ext_t, length), 1,
+    proto_tree_add_text(ext_tree, tvb,
+			offset + offsetof(aodv_ext_t, type), 1,
+			"Type: %u (%s)", ext->type,
+			val_to_str(ext->type, exttype_vals, "Unknown"));
+    proto_tree_add_text(ext_tree, tvb,
+			offset + offsetof(aodv_ext_t, length), 1,
 			"Length: %u bytes", ext->length);
 
-    offset += sizeof(v6_ext_t);
+    offset += sizeof(aodv_ext_t);
 
     switch (ext->type) {
-    case AODV6_EXT_INT:
-	proto_tree_add_uint(aodv6ext_tree, hf_aodv_ext_interval,
+    case AODV_EXT_INT:
+	proto_tree_add_uint(ext_tree, hf_aodv_ext_interval,
 			    tvb, offset, 4, tvb_get_ntohl(tvb, offset));
 	break;
-    case AODV6_EXT_NTP:
-	proto_tree_add_item(aodv6ext_tree, hf_aodv_ext_timestamp,
+    case AODV_EXT_NTP:
+	proto_tree_add_item(ext_tree, hf_aodv_ext_timestamp,
 			    tvb, offset, 8, FALSE);
 	break;
     default:
@@ -349,6 +338,10 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_ipv4(aodv_tree, hf_aodv_orig_ip, tvb, 16, 4, rreq.orig_addr);
 	    proto_tree_add_uint(aodv_tree, hf_aodv_orig_seqno, tvb, 20, 4, rreq.orig_seqno);
 	    proto_item_append_text(ti, ", Dest IP: %s, Orig IP: %s, Id=%u", ip_to_str(tvb_get_ptr(tvb, 8, 4)), ip_to_str(tvb_get_ptr(tvb, 16, 4)), rreq.rreq_id);
+	    extlen = ((int) tvb_reported_length(tvb) - sizeof(struct aodv_rreq));
+	    if (extlen > 0) {
+		dissect_aodv_ext(tvb, sizeof(struct aodv_rreq), aodv_tree);
+	    }
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -386,6 +379,10 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_ipv4(aodv_tree, hf_aodv_orig_ip, tvb, 12, 4, rrep.orig_addr);
 	    proto_tree_add_uint(aodv_tree, hf_aodv_lifetime, tvb, 16, 4, rrep.lifetime);
 	    proto_item_append_text(ti, ", Dest IP: %s, Orig IP: %s, Lifetime=%u", ip_to_str(tvb_get_ptr(tvb, 4, 4)), ip_to_str(tvb_get_ptr(tvb, 12, 4)), rrep.lifetime);
+	    extlen = ((int) tvb_reported_length(tvb) - sizeof(struct aodv_rrep));
+	    if (extlen > 0) {
+		dissect_aodv_ext(tvb, sizeof(struct aodv_rrep), aodv_tree);
+	    }
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -478,7 +475,7 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				   v6_rreq.rreq_id);
 	    extlen = ((int) tvb_reported_length(tvb) - sizeof(v6_rreq_t));
 	    if (extlen > 0) {
-		dissect_aodv6_ext(tvb, sizeof(v6_rreq_t), aodv_tree);
+		dissect_aodv_ext(tvb, sizeof(v6_rreq_t), aodv_tree);
 	    }
 	}
 
@@ -541,7 +538,7 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				   v6_rrep.lifetime);
 	    extlen = ((int) tvb_reported_length(tvb) - sizeof(v6_rrep_t));
 	    if (extlen > 0) {
-		dissect_aodv6_ext(tvb, sizeof(v6_rrep_t), aodv_tree);
+		dissect_aodv_ext(tvb, sizeof(v6_rrep_t), aodv_tree);
 	    }
 	}
 
