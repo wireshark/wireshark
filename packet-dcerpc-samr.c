@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.17 2002/03/06 08:58:01 sahlberg Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.18 2002/03/06 10:01:17 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,7 +47,6 @@ static int hf_samr_alias = -1;
 static int hf_samr_rid_attrib = -1;
 static int hf_samr_rc = -1;
 static int hf_samr_index = -1;
-static int hf_samr_acct_ctrl = -1;
 static int hf_samr_count = -1;
 
 static int hf_samr_level = -1;
@@ -103,17 +102,6 @@ static int hf_samr_pwd_expired = -1;
 static int hf_samr_revision = -1;
 static int hf_samr_divisions = -1;
 static int hf_samr_info_type = -1;
-static int hf_samr_acb_disabled = -1;
-static int hf_samr_acb_homedirreq = -1;
-static int hf_samr_acb_pwnotreq = -1;
-static int hf_samr_acb_tempdup = -1;
-static int hf_samr_acb_normal = -1;
-static int hf_samr_acb_mns = -1;
-static int hf_samr_acb_domtrust = -1;
-static int hf_samr_acb_wstrust = -1;
-static int hf_samr_acb_svrtrust = -1;
-static int hf_samr_acb_pwnoexp = -1;
-static int hf_samr_acb_autolock = -1;
 
 static int hf_samr_unknown_hyper = -1;
 static int hf_samr_unknown_long = -1;
@@ -128,6 +116,18 @@ int hf_nt_str_off = -1;
 int hf_nt_str_max_len = -1;
 int hf_nt_string_length = -1;
 int hf_nt_string_size = -1;
+static int hf_nt_acct_ctrl = -1;
+static int hf_nt_acb_disabled = -1;
+static int hf_nt_acb_homedirreq = -1;
+static int hf_nt_acb_pwnotreq = -1;
+static int hf_nt_acb_tempdup = -1;
+static int hf_nt_acb_normal = -1;
+static int hf_nt_acb_mns = -1;
+static int hf_nt_acb_domtrust = -1;
+static int hf_nt_acb_wstrust = -1;
+static int hf_nt_acb_svrtrust = -1;
+static int hf_nt_acb_pwnoexp = -1;
+static int hf_nt_acb_autolock = -1;
 
 static gint ett_dcerpc_samr = -1;
 gint ett_nt_unicode_string = -1;	/* used by packet-dcerpc-nt.c*/
@@ -179,7 +179,7 @@ static gint ett_samr_member_array_rids = -1;
 static gint ett_samr_member_array = -1;
 static gint ett_samr_names = -1;
 static gint ett_samr_rids = -1;
-static gint ett_samr_acct_ctrl = -1;
+static gint ett_nt_acct_ctrl = -1;
 
 
 static e_uuid_t uuid_dcerpc_samr = {
@@ -334,56 +334,52 @@ samr_dissect_SID_ptr(tvbuff_t *tvb, int offset,
 
 
 
-/* above this line, just some general support routines which should be placed
-   in some more generic file common to all NT services dissectors
-*/
-
-static const true_false_string tfs_samr_acb_disabled = {
+static const true_false_string tfs_nt_acb_disabled = {
 	"Account is DISABLED",
 	"Account is NOT disabled"
 };
-static const true_false_string tfs_samr_acb_homedirreq = {
+static const true_false_string tfs_nt_acb_homedirreq = {
 	"Homedir is REQUIRED",
 	"Homedir is NOT required"
 };
-static const true_false_string tfs_samr_acb_pwnotreq = {
+static const true_false_string tfs_nt_acb_pwnotreq = {
 	"Password is NOT required",
 	"Password is REQUIRED"
 };
-static const true_false_string tfs_samr_acb_tempdup = {
+static const true_false_string tfs_nt_acb_tempdup = {
 	"This is a TEMPORARY DUPLICATE account",
 	"This is NOT a temporary duplicate account"
 };
-static const true_false_string tfs_samr_acb_normal = {
+static const true_false_string tfs_nt_acb_normal = {
 	"This is a NORMAL USER account",
 	"This is NOT a normal user account"
 };
-static const true_false_string tfs_samr_acb_mns = {
+static const true_false_string tfs_nt_acb_mns = {
 	"This is a MNS account",
 	"This is NOT a mns account"
 };
-static const true_false_string tfs_samr_acb_domtrust = {
+static const true_false_string tfs_nt_acb_domtrust = {
 	"This is a DOMAIN TRUST account",
 	"This is NOT a domain trust account"
 };
-static const true_false_string tfs_samr_acb_wstrust = {
+static const true_false_string tfs_nt_acb_wstrust = {
 	"This is a WORKSTATION TRUST account",
 	"This is NOT a workstation trust account"
 };
-static const true_false_string tfs_samr_acb_svrtrust = {
+static const true_false_string tfs_nt_acb_svrtrust = {
 	"This is a SERVER TRUST account",
 	"This is NOT a server trust account"
 };
-static const true_false_string tfs_samr_acb_pwnoexp = {
+static const true_false_string tfs_nt_acb_pwnoexp = {
 	"Passwords does NOT expire",
 	"Password will EXPIRE"
 };
-static const true_false_string tfs_samr_acb_autolock = {
+static const true_false_string tfs_nt_acb_autolock = {
 	"This account has been AUTO LOCKED",
 	"This account has NOT been auto locked"
 };
-static int
-samr_dissect_acct_ctrl(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+int
+dissect_ndr_nt_acct_ctrl(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 			proto_tree *parent_tree, char *drep)
 {
 	guint32 mask;
@@ -391,39 +387,44 @@ samr_dissect_acct_ctrl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree = NULL;
 
 	offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
-			hf_samr_acct_ctrl, &mask);
+			hf_nt_acct_ctrl, &mask);
 
 	if(parent_tree){
-		item = proto_tree_add_uint(parent_tree, hf_samr_acct_ctrl,
+		item = proto_tree_add_uint(parent_tree, hf_nt_acct_ctrl,
 			tvb, offset-4, 4, mask);
-		tree = proto_item_add_subtree(item, ett_samr_acct_ctrl);
+		tree = proto_item_add_subtree(item, ett_nt_acct_ctrl);
 	}
 
-	proto_tree_add_boolean(tree, hf_samr_acb_autolock,
+	proto_tree_add_boolean(tree, hf_nt_acb_autolock,
 		tvb, offset-4, 4, mask);
-	proto_tree_add_boolean(tree, hf_samr_acb_pwnoexp,
+	proto_tree_add_boolean(tree, hf_nt_acb_pwnoexp,
 		tvb, offset-4, 4, mask);
-	proto_tree_add_boolean(tree, hf_samr_acb_svrtrust,
+	proto_tree_add_boolean(tree, hf_nt_acb_svrtrust,
 		tvb, offset-4, 4, mask);
-	proto_tree_add_boolean(tree, hf_samr_acb_wstrust,
+	proto_tree_add_boolean(tree, hf_nt_acb_wstrust,
 		tvb, offset-4, 4, mask);
-	proto_tree_add_boolean(tree, hf_samr_acb_domtrust,
+	proto_tree_add_boolean(tree, hf_nt_acb_domtrust,
 		tvb, offset-4, 4, mask);
-	proto_tree_add_boolean(tree, hf_samr_acb_mns,
+	proto_tree_add_boolean(tree, hf_nt_acb_mns,
 		tvb, offset-4, 4, mask);
-	proto_tree_add_boolean(tree, hf_samr_acb_normal,
+	proto_tree_add_boolean(tree, hf_nt_acb_normal,
 		tvb, offset-4, 4, mask);
-	proto_tree_add_boolean(tree, hf_samr_acb_tempdup,
+	proto_tree_add_boolean(tree, hf_nt_acb_tempdup,
 		tvb, offset-4, 4, mask);
-	proto_tree_add_boolean(tree, hf_samr_acb_pwnotreq,
+	proto_tree_add_boolean(tree, hf_nt_acb_pwnotreq,
 		tvb, offset-4, 4, mask);
-	proto_tree_add_boolean(tree, hf_samr_acb_homedirreq,
+	proto_tree_add_boolean(tree, hf_nt_acb_homedirreq,
 		tvb, offset-4, 4, mask);
-	proto_tree_add_boolean(tree, hf_samr_acb_disabled,
+	proto_tree_add_boolean(tree, hf_nt_acb_disabled,
 		tvb, offset-4, 4, mask);
 
 	return offset;
 }
+
+
+/* above this line, just some general support routines which should be placed
+   in some more generic file common to all NT services dissectors
+*/
 
 static int
 samr_dissect_context_handle_reply(tvbuff_t *tvb, int offset, 
@@ -554,7 +555,7 @@ samr_dissect_USER_DISPINFO_1(tvbuff_t *tvb, int offset,
 				hf_samr_index, NULL);
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 				hf_samr_rid, NULL);
-	offset = samr_dissect_acct_ctrl(tvb, offset, pinfo, tree, drep);
+	offset = dissect_ndr_nt_acct_ctrl(tvb, offset, pinfo, tree, drep);
 	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
 				hf_samr_acct_name, 0);
 	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
@@ -625,7 +626,7 @@ samr_dissect_USER_DISPINFO_2(tvbuff_t *tvb, int offset,
 			hf_samr_index, NULL);
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_rid, NULL);
-	offset = samr_dissect_acct_ctrl(tvb, offset, pinfo, tree, drep);
+	offset = dissect_ndr_nt_acct_ctrl(tvb, offset, pinfo, tree, drep);
 	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
 			hf_samr_acct_name, 0);
 	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
@@ -697,7 +698,7 @@ samr_dissect_GROUP_DISPINFO(tvbuff_t *tvb, int offset,
 			hf_samr_index, NULL);
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_rid, NULL);
-	offset = samr_dissect_acct_ctrl(tvb, offset, pinfo, tree, drep);
+	offset = dissect_ndr_nt_acct_ctrl(tvb, offset, pinfo, tree, drep);
 	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
 			hf_samr_acct_name, 0);
 	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
@@ -766,7 +767,7 @@ samr_dissect_ASCII_DISPINFO(tvbuff_t *tvb, int offset,
 			hf_samr_index, NULL);
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_rid, NULL);
-	offset = samr_dissect_acct_ctrl(tvb, offset, pinfo, tree, drep);
+	offset = dissect_ndr_nt_acct_ctrl(tvb, offset, pinfo, tree, drep);
 	offset = dissect_ndr_nt_STRING(tvb, offset, pinfo, tree, drep,
 			hf_samr_acct_name);
 	offset = dissect_ndr_nt_STRING(tvb, offset, pinfo, tree, drep,
@@ -1430,7 +1431,7 @@ samr_dissect_create_user2_in_domain_rqst(tvbuff_t *tvb, int offset,
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_pointer_UNICODE_STRING, NDR_POINTER_REF,
 			"", hf_samr_acct_name, 0);
-	offset = samr_dissect_acct_ctrl(tvb, offset, pinfo, tree, drep);
+	offset = dissect_ndr_nt_acct_ctrl(tvb, offset, pinfo, tree, drep);
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_access, NULL);
 
@@ -2430,7 +2431,7 @@ samr_dissect_USER_INFO_1(tvbuff_t *tvb, int offset,
 				hf_samr_acct_name, 0);
 	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
 				hf_samr_full_name, 0);
-	offset = samr_dissect_acct_ctrl(tvb, offset, pinfo, tree, drep);
+	offset = dissect_ndr_nt_acct_ctrl(tvb, offset, pinfo, tree, drep);
 	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
 				hf_samr_home, 0);
 	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
@@ -2516,7 +2517,7 @@ samr_dissect_USER_INFO_3(tvbuff_t *tvb, int offset,
 				hf_samr_logon_count, NULL);
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
 				hf_samr_bad_pwd_count, NULL);
-	offset = samr_dissect_acct_ctrl(tvb, offset, pinfo, tree, drep);
+	offset = dissect_ndr_nt_acct_ctrl(tvb, offset, pinfo, tree, drep);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -2572,7 +2573,7 @@ samr_dissect_USER_INFO_5(tvbuff_t *tvb, int offset,
 				hf_samr_pwd_last_set_time);
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
 				hf_samr_acct_expiry_time);
-	offset = samr_dissect_acct_ctrl(tvb, offset, pinfo, tree, drep);
+	offset = dissect_ndr_nt_acct_ctrl(tvb, offset, pinfo, tree, drep);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -2645,7 +2646,7 @@ samr_dissect_USER_INFO_19(tvbuff_t *tvb, int offset,
 		tree = proto_item_add_subtree(item, ett_samr_user_info_19);
 	}
 
-	offset = samr_dissect_acct_ctrl(tvb, offset, pinfo, tree, drep);
+	offset = dissect_ndr_nt_acct_ctrl(tvb, offset, pinfo, tree, drep);
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
 				hf_samr_logon_time);
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
@@ -2787,7 +2788,7 @@ samr_dissect_USER_INFO_21(tvbuff_t *tvb, int offset,
 				hf_samr_rid, NULL);
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				hf_samr_group, NULL);
-	offset = samr_dissect_acct_ctrl(tvb, offset, pinfo, tree, drep);
+	offset = dissect_ndr_nt_acct_ctrl(tvb, offset, pinfo, tree, drep);
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 				hf_samr_unknown_long, NULL);
 	offset = samr_dissect_LOGON_HOURS(tvb, offset, pinfo, tree, drep);
@@ -3639,10 +3640,6 @@ proto_register_dcerpc_samr(void)
 		{ "Index", "samr.index", FT_UINT32, BASE_DEC, 
 		NULL, 0x0, "Index", HFILL }},
 
-	{ &hf_samr_acct_ctrl,
-		{ "Acct Ctrl", "samr.acct_ctrl", FT_UINT32, BASE_HEX, 
-		NULL, 0x0, "Acct CTRL", HFILL }},
-
         { &hf_samr_count,
           { "Count", "samr.count", FT_UINT32, BASE_DEC, NULL, 0x0, "Number of elements in following array", HFILL }},
 
@@ -3824,40 +3821,6 @@ proto_register_dcerpc_samr(void)
 	{ &hf_samr_divisions, {
 		"Divisions", "samr.divisions", FT_UINT16, BASE_DEC,
 		NULL, 0, "Number of divisions for LOGON_HOURS", HFILL }},
-	{ &hf_samr_acb_disabled, {
-		"", "samr.acb.disabled", FT_BOOLEAN, 32,
-		TFS(&tfs_samr_acb_disabled), 0x0001, "If this account is enabled or disabled", HFILL }},
-	{ &hf_samr_acb_homedirreq, {
-		"", "samr.acb.homedirreq", FT_BOOLEAN, 32,
-		TFS(&tfs_samr_acb_homedirreq), 0x0002, "Is hom,edirs required for this account?", HFILL }},
-	{ &hf_samr_acb_pwnotreq, {
-		"", "samr.acb.pwnotreq", FT_BOOLEAN, 32,
-		TFS(&tfs_samr_acb_pwnotreq), 0x0004, "If a password is required for this account?", HFILL }},
-	{ &hf_samr_acb_tempdup, {
-		"", "samr.acb.tempdup", FT_BOOLEAN, 32,
-		TFS(&tfs_samr_acb_tempdup), 0x0008, "If this is a temporary duplicate account", HFILL }},
-	{ &hf_samr_acb_normal, {
-		"", "samr.acb.normal", FT_BOOLEAN, 32,
-		TFS(&tfs_samr_acb_normal), 0x0010, "If this is a normal user account", HFILL }},
-	{ &hf_samr_acb_mns, {
-		"", "samr.acb.mns", FT_BOOLEAN, 32,
-		TFS(&tfs_samr_acb_mns), 0x0020, "MNS logon user account", HFILL }},
-	{ &hf_samr_acb_domtrust, {
-		"", "samr.acb.domtrust", FT_BOOLEAN, 32,
-		TFS(&tfs_samr_acb_domtrust), 0x0040, "Interdomain trust account", HFILL }},
-	{ &hf_samr_acb_wstrust, {
-		"", "samr.acb.wstrust", FT_BOOLEAN, 32,
-		TFS(&tfs_samr_acb_wstrust), 0x0080, "Workstation trust account", HFILL }},
-	{ &hf_samr_acb_svrtrust, {
-		"", "samr.acb.svrtrust", FT_BOOLEAN, 32,
-		TFS(&tfs_samr_acb_svrtrust), 0x0100, "Server trust account", HFILL }},
-	{ &hf_samr_acb_pwnoexp, {
-		"", "samr.acb.pwnoexp", FT_BOOLEAN, 32,
-		TFS(&tfs_samr_acb_pwnoexp), 0x0200, "If this account expires or not", HFILL }},
-	{ &hf_samr_acb_autolock, {
-		"", "samr.acb.autolock", FT_BOOLEAN, 32,
-		TFS(&tfs_samr_acb_autolock), 0x0400, "If this account has been autolocked", HFILL }},
-
 
 	/* these are used by packet-dcerpc-nt.c */
 	{ &hf_nt_string_length,
@@ -3879,6 +3842,54 @@ proto_register_dcerpc_samr(void)
 	{ &hf_nt_str_max_len,
 		{ "Max Length", "nt.str.max_len", FT_UINT32, BASE_DEC, 
 		NULL, 0x0, "Max Length of string in short integers", HFILL }},
+
+	{ &hf_nt_acct_ctrl,
+		{ "Acct Ctrl", "nt.acct_ctrl", FT_UINT32, BASE_HEX, 
+		NULL, 0x0, "Acct CTRL", HFILL }},
+
+	{ &hf_nt_acb_disabled, {
+		"", "nt.acb.disabled", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_acb_disabled), 0x0001, "If this account is enabled or disabled", HFILL }},
+
+	{ &hf_nt_acb_homedirreq, {
+		"", "nt.acb.homedirreq", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_acb_homedirreq), 0x0002, "Is hom,edirs required for this account?", HFILL }},
+
+	{ &hf_nt_acb_pwnotreq, {
+		"", "nt.acb.pwnotreq", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_acb_pwnotreq), 0x0004, "If a password is required for this account?", HFILL }},
+
+	{ &hf_nt_acb_tempdup, {
+		"", "nt.acb.tempdup", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_acb_tempdup), 0x0008, "If this is a temporary duplicate account", HFILL }},
+
+	{ &hf_nt_acb_normal, {
+		"", "nt.acb.normal", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_acb_normal), 0x0010, "If this is a normal user account", HFILL }},
+
+	{ &hf_nt_acb_mns, {
+		"", "nt.acb.mns", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_acb_mns), 0x0020, "MNS logon user account", HFILL }},
+
+	{ &hf_nt_acb_domtrust, {
+		"", "nt.acb.domtrust", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_acb_domtrust), 0x0040, "Interdomain trust account", HFILL }},
+
+	{ &hf_nt_acb_wstrust, {
+		"", "nt.acb.wstrust", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_acb_wstrust), 0x0080, "Workstation trust account", HFILL }},
+
+	{ &hf_nt_acb_svrtrust, {
+		"", "nt.acb.svrtrust", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_acb_svrtrust), 0x0100, "Server trust account", HFILL }},
+
+	{ &hf_nt_acb_pwnoexp, {
+		"", "nt.acb.pwnoexp", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_acb_pwnoexp), 0x0200, "If this account expires or not", HFILL }},
+
+	{ &hf_nt_acb_autolock, {
+		"", "nt.acb.autolock", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_acb_autolock), 0x0400, "If this account has been autolocked", HFILL }},
         };
         static gint *ett[] = {
                 &ett_dcerpc_samr,
@@ -3931,7 +3942,8 @@ proto_register_dcerpc_samr(void)
                 &ett_samr_member_array,
                 &ett_samr_names,
                 &ett_samr_rids,
-                &ett_samr_acct_ctrl,
+
+                &ett_nt_acct_ctrl,
         };
 
         proto_dcerpc_samr = proto_register_protocol(
