@@ -8,6 +8,7 @@ config.h
 config.h.in
 config.log
 config.status
+config.sub
 configure
 dfilter-grammar.c
 dfilter-grammar.h
@@ -17,7 +18,10 @@ editcap.1
 ethereal
 ethereal.1
 ethereal.spec
+install-sh
 libtool
+missing
+mkinstalldirs
 ps.c
 randpkt
 rdps
