@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.15 1999/01/28 21:29:35 gram Exp $
+ * $Id: packet-dns.c,v 1.16 1999/03/22 23:31:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,15 +62,40 @@
 
 /* type values  */
 #define T_A             1               /* host address */
-#define T_NS            2               /* authoritative server */
+#define T_NS            2               /* authoritative name server */
+#define T_MD            3               /* mail destination (obsolete) */
+#define T_MF            4               /* mail forwarder (obsolete) */
 #define T_CNAME         5               /* canonical name */
 #define T_SOA           6               /* start of authority zone */
+#define T_MB            7               /* mailbox domain name (experimental) */
+#define T_MG            8               /* mail group member (experimental) */
+#define T_MR            9               /* mail rename domain name (experimental) */
+#define T_NULL          10              /* null RR (experimental) */
 #define T_WKS           11              /* well known service */
 #define T_PTR           12              /* domain name pointer */
 #define T_HINFO         13              /* host information */
+#define T_MINFO         14              /* mailbox or mail list information */
 #define T_MX            15              /* mail routing information */
 #define T_TXT           16              /* text strings */
-#define T_AAAA          28              /* IP6 Address */
+#define T_RP            17              /* responsible person (RFC 1183) */
+#define T_AFSDB         18              /* AFS data base location (RFC 1183) */
+#define T_X25           19              /* X.25 address (RFC 1183) */
+#define T_ISDN          20              /* ISDN address (RFC 1183) */
+#define T_RT            21              /* route-through (RFC 1183) */
+#define T_NSAP          22              /* OSI NSAP (RFC 1706) */
+#define T_NSAP_PTR      23              /* PTR equivalent for OSI NSAP (RFC 1348 - obsolete) */
+#define T_SIG           24              /* digital signature (RFC 2065) */
+#define T_KEY           25              /* public key (RFC 2065) */
+#define T_PX            26              /* pointer to X.400/RFC822 mapping info (RFC 1664) */
+#define T_GPOS          27              /* geographical position (RFC 1712) */
+#define T_AAAA          28              /* IPv6 address (RFC 1886) */
+#define T_LOC           29              /* geographical location (RFC 1876) */
+#define T_NXT           30              /* "next" name (RFC 2065) */
+#define T_EID           31              /* ??? (Nimrod?) */
+#define T_NIMLOC        32              /* ??? (Nimrod?) */
+#define T_SRV           33              /* service location (RFC 2052) */
+#define T_ATMA          34              /* ??? */
+#define T_NAPTR         35              /* naming authority pointer (RFC 2168) */
 
 /* Bit fields in the flags */
 #define F_RESPONSE      (1<<15)         /* packet is response */
@@ -94,14 +119,47 @@
 #define RCODE_NOTIMPL   (4<<0)
 #define RCODE_REFUSED   (5<<0)
 
+/* See RFC 1035 for all RR types for which no RFC is listed. */
 static char *
 dns_type_name (int type)
 {
   char *type_names[36] = {
-    "unused", "A", "NS", "MD", "MF", "CNAME", "SOA", "MB", "MG", "MR",
-    "NULL", "WKS", "PTR", "HINFO", "MINFO", "MX", "TXT", "RP", "AFSDB",
-    "X25", "ISDN", "RT", "NSAP", "NSAP_PTR", "SIG", "KEY", "PX", "GPOS",
-    "AAAA", "LOC", "NXT", "EID", "NIMLOC", "SRV", "ATMA", "NAPTR"
+    "unused",
+    "A",
+    "NS",
+    "MD",
+    "MF",
+    "CNAME",
+    "SOA",
+    "MB",
+    "MG",
+    "MR",
+    "NULL",
+    "WKS",
+    "PTR",
+    "HINFO",
+    "MINFO",
+    "MX",
+    "TXT",
+    "RP",				/* RFC 1183 */
+    "AFSDB",				/* RFC 1183 */
+    "X25",				/* RFC 1183 */
+    "ISDN",				/* RFC 1183 */
+    "RT",				/* RFC 1183 */
+    "NSAP",				/* RFC 1706 */
+    "NSAP-PTR",				/* RFC 1348 */
+    "SIG",				/* RFC 2065 */
+    "KEY",				/* RFC 2065 */
+    "PX",				/* RFC 1664 */
+    "GPOS",				/* RFC 1712 */
+    "AAAA",				/* RFC 1886 */
+    "LOC",				/* RFC 1876 */
+    "NXT",				/* RFC 2065 */
+    "EID",
+    "NIMLOC",
+    "SRV",				/* RFC 2052 */
+    "ATMA",
+    "NAPTR"				/* RFC 2168 */
   };
   
   if (type <= 35)
@@ -122,7 +180,7 @@ dns_type_name (int type)
       
       /* queries  */
     case 251:
-      return "IXFR";
+      return "IXFR";	/* RFC 1995 */
     case 252:
       return "AXFR";
     case 253:
@@ -134,6 +192,83 @@ dns_type_name (int type)
     }
   
   return "unknown";
+}
+
+
+static char *
+dns_long_type_name (int type)
+{
+  char *type_names[36] = {
+    "unused",
+    "Host address",
+    "Authoritative name server",	
+    "Mail destination",
+    "Mail forwarder",
+    "Canonical name for an alias",
+    "Start of zone of authority",
+    "Mailbox domain name",
+    "Mail group member",
+    "Mail rename domain name",
+    "Null resource record",
+    "Well-known service description",
+    "Domain name pointer",
+    "Host information",
+    "Mailbox or mail list information",
+    "Mail exchange",
+    "Text strings",
+    "Responsible person",		/* RFC 1183 */
+    "AFS data base location",		/* RFC 1183 */
+    "X.25 address",			/* RFC 1183 */
+    "ISDN number",			/* RFC 1183 */
+    "Route through",			/* RFC 1183 */
+    "OSI NSAP",				/* RFC 1706 */
+    "OSI NSAP name pointer",		/* RFC 1348 */
+    "Signature",			/* RFC 2065 */
+    "Public key",			/* RFC 2065 */
+    "Pointer to X.400/RFC822 mapping info", /* RFC 1664 */
+    "Geographical position",		/* RFC 1712 */
+    "IPv6 address",			/* RFC 1886 */
+    "Location",				/* RFC 1876 */
+    "Next",				/* RFC 2065 */
+    "EID",
+    "NIMLOC",
+    "Service location",			/* RFC 2052 */
+    "ATMA",
+    "Naming authority pointer"		/* RFC 2168 */
+  };
+  static char unkbuf[7+1+2+1+4+1+1+10+1+1];	/* "Unknown RR type (%d)" */
+  
+  if (type <= 35)
+    return type_names[type];
+  
+  /* special cases */
+  switch (type) 
+    {
+      /* non standard  */
+    case 100:
+      return "UINFO";
+    case 101:
+      return "UID";
+    case 102:
+      return "GID";
+    case 103:
+      return "UNSPEC";
+      
+      /* queries  */
+    case 251:
+      return "Request for incremental zone transfer";	/* RFC 1995 */
+    case 252:
+      return "Request for full zone transfer";
+    case 253:
+      return "Request for mailbox-related records";
+    case 254:
+      return "Request for mail agent resource records";
+    case 255:
+      return "Request for all records";
+    }
+  
+  sprintf(unkbuf, "Unknown RR type (%d)", type);
+  return unkbuf;
 }
 
 
@@ -295,6 +430,7 @@ dissect_dns_query(const u_char *dns_data_ptr, const u_char *pd, int offset,
   int class;
   char *class_name;
   char *type_name;
+  char *long_type_name;
   const u_char *dptr;
   const u_char *data_start;
   GtkWidget *q_tree, *tq;
@@ -307,6 +443,7 @@ dissect_dns_query(const u_char *dns_data_ptr, const u_char *pd, int offset,
 
   type_name = dns_type_name(type);
   class_name = dns_class_name(class);
+  long_type_name = dns_long_type_name(type);
 
   tq = add_item_to_tree(dns_tree, offset, len, "%s: type %s, class %s", 
 		   name, type_name, class_name);
@@ -316,7 +453,7 @@ dissect_dns_query(const u_char *dns_data_ptr, const u_char *pd, int offset,
   add_item_to_tree(q_tree, offset, name_len, "Name: %s", name);
   offset += name_len;
 
-  add_item_to_tree(q_tree, offset, 2, "Type: %s", type_name);
+  add_item_to_tree(q_tree, offset, 2, "Type: %s", long_type_name);
   offset += 2;
 
   add_item_to_tree(q_tree, offset, 2, "Class: %s", class_name);
@@ -359,6 +496,7 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
   int class;
   char *class_name;
   char *type_name;
+  char *long_type_name;
   const u_char *dptr;
   const u_char *data_start;
   u_int ttl;
@@ -373,6 +511,7 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
 
   type_name = dns_type_name(type);
   class_name = dns_class_name(class);
+  long_type_name = dns_long_type_name(type);
 
   ttl = pntohl(dptr);
   dptr += 4;
@@ -386,8 +525,8 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
 		     "%s: type %s, class %s, addr %s",
 		     name, type_name, class_name,
 		     ip_to_str((guint8 *)dptr));
-    rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len, type_name,
-                     class_name, ttl, data_len);
+    rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
+                     long_type_name, class_name, ttl, data_len);
     offset += (dptr - data_start);
     add_item_to_tree(rr_tree, offset, 4, "Addr: %s",
                      ip_to_str((guint8 *)dptr));
@@ -403,20 +542,53 @@ dissect_dns_answer(const u_char *dns_data_ptr, const u_char *pd, int offset,
 		       "%s: type %s, class %s, ns %s",
 		       name, type_name, class_name, ns_name);
       rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
-                       type_name, class_name, ttl, data_len);
+                       long_type_name, class_name, ttl, data_len);
       offset += (dptr - data_start);
       add_item_to_tree(rr_tree, offset, ns_name_len, "Name server: %s", ns_name);
     }
     break;
 
-    /* TODO: parse more record types */
+  case T_CNAME:		/* "CNAME" record */
+    {
+      char cname[MAXDNAME];
+      int cname_len;
       
+      cname_len = get_dns_name(dns_data_ptr, dptr, 0, cname, sizeof(cname));
+      trr = add_item_to_tree(dns_tree, offset, (dptr - data_start) + data_len,
+		     "%s: type %s, class %s, cname %s",
+		     name, type_name, class_name, cname);
+      rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
+                       long_type_name, class_name, ttl, data_len);
+      offset += (dptr - data_start);
+      add_item_to_tree(rr_tree, offset, data_len, "Primary name: %s", cname);
+    }
+    break;
+
+  case T_PTR:		/* "PTR" record */
+    {
+      char pname[MAXDNAME];
+      int pname_len;
+      
+      pname_len = get_dns_name(dns_data_ptr, dptr, 0, pname, sizeof(pname));
+      trr = add_item_to_tree(dns_tree, offset, (dptr - data_start) + data_len,
+		     "%s: type %s, class %s, ptr %s",
+		     name, type_name, class_name, pname);
+      rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
+                       long_type_name, class_name, ttl, data_len);
+      offset += (dptr - data_start);
+      add_item_to_tree(rr_tree, offset, data_len, "Domain name: %s", pname);
+      break;
+    }
+    break;
+      
+    /* TODO: parse more record types */
+
   default:
     trr = add_item_to_tree(dns_tree, offset, (dptr - data_start) + data_len,
                      "%s: type %s, class %s",
 		     name, type_name, class_name);
-    rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len, type_name,
-                       class_name, ttl, data_len);
+    rr_tree = add_rr_to_tree(trr, ETT_DNS_RR, offset, name, name_len,
+                       long_type_name, class_name, ttl, data_len);
     offset += (dptr - data_start);
     add_item_to_tree(rr_tree, offset, data_len, "Data");
   }
