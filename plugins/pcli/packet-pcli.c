@@ -4,7 +4,7 @@
  * http://www.packetcable.com/downloads/specs/pkt-sp-esp-I01-991229.pdf
  * Chapter 4 ( Call Content Connection Interface )
  *
- * $Id: packet-pcli.c,v 1.6 2003/01/28 22:27:20 guy Exp $
+ * $Id: packet-pcli.c,v 1.7 2003/02/25 18:43:38 guy Exp $
  *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -148,7 +148,7 @@ proto_register_pcli(void) {
   prefs_register_uint_preference(pcli_module, "udp_port",
 				 "PCLI UDP Port",
 				 "The UDP port on which "
-				 "Packet Cable Lawful Intercept"
+				 "Packet Cable Lawful Intercept "
 				 "packets will be sent",
 				 10,&global_udp_port_pcli);
 
