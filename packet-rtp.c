@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <h323@ramdyne.nl>
  *
- * $Id: packet-rtp.c,v 1.47 2004/06/01 23:08:00 guy Exp $
+ * $Id: packet-rtp.c,v 1.48 2004/06/12 08:56:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -159,6 +159,7 @@ const value_string rtp_payload_type_vals[] =
 	{ PT_DVI4_11025, "DVI4 11025 samples/s" },
 	{ PT_DVI4_22050, "DVI4 22050 samples/s" },
 	{ PT_G729,	"ITU-T G.729" },
+	{ PT_CN_OLD,	"Comfort noise (old)" },
 	{ PT_CELB,	"Sun CellB video encoding" },
 	{ PT_JPEG,	"JPEG-compressed video" },
 	{ PT_NV,	"'nv' program" },
