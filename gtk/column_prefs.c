@@ -1,7 +1,7 @@
 /* column_prefs.c
  * Dialog box for column preferences
  *
- * $Id: column_prefs.c,v 1.10 2002/04/22 09:50:54 guy Exp $
+ * $Id: column_prefs.c,v 1.11 2002/04/23 06:25:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -223,7 +223,7 @@ column_list_select_cb(GtkCList *clist,
 /* A row was deselected.  Clear the text entry box and disable various widgets. */
 static void
 column_list_unselect_cb(GtkCList *clist _U_,
-                   gint      row,
+                   gint      row _U_,
                    gint      column _U_,
                    GdkEvent *event _U_,
                    gpointer  user_data _U_) {
@@ -263,7 +263,6 @@ static void
 column_list_delete_cb(GtkWidget *w _U_, gpointer data _U_) {
   GList      *clp;
   fmt_data   *cfmt;
-  gint        pos;
 
   g_assert(cur_row >= 0);
   clp = gtk_clist_get_row_data(GTK_CLIST(column_l), cur_row);
@@ -284,7 +283,6 @@ column_entry_changed_cb(GtkEditable *te, gpointer data) {
   GList      *clp;
   GtkCList   *cl = data;  
   gchar      *title;
-  gint        row;
   
   if (cur_row >= 0) {
     title = gtk_editable_get_chars(te, 0, -1);
@@ -302,7 +300,6 @@ static void
 column_menu_changed_cb(GtkWidget *w _U_, gpointer data) {
   fmt_data   *cfmt;
   GList      *clp;
-  gint        row;
   
   if (cur_row >= 0) {
     cur_fmt = (gint) data;
