@@ -225,6 +225,7 @@ fvalue_get_floating
 fvalue_get_integer
 fvalue_to_string_repr
 GatekeeperRejectReason_vals     DATA
+get_addr_name
 get_basename
 get_ber_identifier
 get_ber_last_created_item
