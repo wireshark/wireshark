@@ -510,19 +510,25 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	<title>Subversion (SVN) client (optional)</title>
 	<para>
 	The Ethereal project uses a subversion (or short SVN) server to keep 
-	track of all the changes done to the source code. If
-	you want to work with the source code and planning to commit your
-	changes back Ethereal, it is recommended to use a SVN client to get the
-	latest source files.
-	</para>
-	<para>
-	For detailed information about the different ways to obtain the sources, 
-	2.
+	track of all the changes done to the source code. The homepage of the 
+	subversion project is: <ulink url="http://subversion.tigris.org/"/>.
 	</para>
 	<para>
 	There is a book on subversion available at:
 	<ulink url="http://svnbook.red-bean.com/"/>
 	</para>
+	<para>	
+	If you want to work with the source code and planning to commit your
+	changes back Ethereal, it is recommended to use a SVN client to get the
+	latest source files. For detailed information about the different ways 
+	to obtain the sources, see <xref linkend="ChSrcObtaining"/>.
+	</para>
+	<para>
+	Along with the traditional command-line client, several GUI clients are 
+	available for a number of platforms, see
+	<ulink url="subversion.tigris.org/project_links.html"/>.
+	</para>
+
 
 	<section>
 	<title>Unix: svn</title>
@@ -567,9 +573,19 @@ This product includes software developed by CollabNet (http://www.Collab.Net/).
 	<title>diff (optional)</title>
 	<para>
 	Diff is used to get a file of all differences between two source
-	files/trees. The diff tool isn't needed for building ethereal, but it's
-	needed if you are going to commit your changes back to the ethereal
-	community.
+	files/trees (sometimes called a patch). The diff tool isn't needed for 
+	building ethereal, but it's needed if you are going to commit your changes 
+	back to the ethereal community.
+	</para>
+	<note><title>Note!</title>
+	<para>
+	The recommended way to build patches is using the subversion client,
+	see <xref linkend="ChToolsSubversion"/> for details.
+	</para>
+	</note>	
+	<para>
+	You will find more instructions in <xref linkend="ChSrcDiff"/> how to 
+	use the diff tool.
 	</para>
 
 	<section>
@@ -613,10 +629,16 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	<title>patch (optional)</title>
 	<para>
 	The patch utility is used to merge a diff file into your own source
-	tree. This tool is only needed, if you want to apply a diff file from
-	someone else (probably from the developer mailing list) to your own
-	source tree.
+	tree. This tool is only needed, if you want to apply a patch (diff file) 
+	from someone else (probably from the developer mailing list) to try out 
+	in your own private source tree.
 	</para>
+	<tip><title>Tip!</title>
+	<para>
+	Unless you are in the rare case needing to apply a patch to your private 
+	source tree, you won't need the patch tool installed.
+	</para>
+	</tip>
 
 	<section>
 	<title>Unix: patch</title>
@@ -687,6 +709,17 @@ written by Larry Wall and Paul Eggert]]>
 	final) from <ulink url="http://nsis.sourceforge.net"/>
 	and start the downloaded installer. You will need NSIS version 2 final 
 	or higher.
+	</para>
+	</section>
+
+
+	<section id="ChToolsCVS">
+	<title>Obsolete: CVS client</title>
+	<para>
+	Some time ago, the Ethereal project was using CVS to keep track of all 
+	the source code changes. As now subversion (SVN) is used, a CVS client
+	is no longer helpful, see <xref linkend="ChToolsSubversion"/> for details 
+	about subversion clients.
 	</para>
 	</section>
 

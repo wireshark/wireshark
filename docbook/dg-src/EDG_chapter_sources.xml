@@ -2,25 +2,108 @@
 <!-- $Id$ -->
 
 <chapter id="ChapterSources">
-  <title>Sources</title>
+  <title>Work with the Ethereal sources</title>
 
-  <section id="ChSrcObtaining">
-	<title>Obtaining the sources</title>
+  <section id="ChSrcIntro">
+	<title>Introduction</title>
 	<para>
-	The source code is stored inside the Subversion (SVN) server at
-	svn.ethereal.com.
-	SVN is used to keep track of the
-	changes made to the source code. There are
-	several ways to obtain the sources from the SVN server.
+	This chapter will explain how to work with the Ethereal source code.
+	It will show how to:
+	<itemizedlist>
+	<listitem><para>
+	look at the source
+	</para></listitem>
+	<listitem><para>
+	get the source
+	</para></listitem>
+	<listitem><para>
+	compile the source
+	</para></listitem>
+	<listitem><para>
+	...
+	</para></listitem>
+	</itemizedlist>
+	However, it will not explain the source file contents in detail, such as 
+	where to find a specific functionality. This is done in 
+	<xref linkend="PartDevelopment"/>.
 	</para>
+  </section>
 	
+  <section id="ChSrcSVNServer">
+	<title>The Ethereal subversion (SVN) server</title>
+	<para>
+	The Ethereal source code is stored inside Ethereal project's Subversion 
+	(SVN) server at svn.ethereal.com. SVN is used to keep track of the changes 
+	made to the source code. There is a book on subversion available at:
+	<ulink url="http://svnbook.red-bean.com/"/>
+	</para>
+	<para>
+	The svn server makes it possible to get the source files from any previous 
+	release, see which person changed a specific piece of code, or a lot more 
+	things related to the history of the source code development.
+	</para>
+	<para>
+	There are several ways to have a look at and obtain the sources from this 
+	server. Please note that the anonymous SVN repository is separate from 
+	the main repository. It may take several minutes for committed changes to 
+	appear in the anonymous repository. 
+	</para>
 	<tip><title>Tip!</title>
 	<para>
 	The Ethereal project has switched from CVS (Concurrent versioning system) 
-	to SVN some time ago. You still might find old references to CVS in the 
-	documents.
+	to SVN some time ago. You may still find old references to CVS in the 
+	Ethereal documentation and source files.
 	</para>
 	</tip>
+  </section>
+	
+  <section id="ChSrcQuickLook">
+	<title>A quick look at the Ethereal sources</title>
+	<para>
+	A <command>simple view</command> on the latest developer version can be 
+	found at: 
+	</para>
+	<para>
+	<ulink url="http://anonsvn.ethereal.com/ethereal/trunk/"/>.
+	</para>
+	<para>
+	A <command>comprehensive view</command> of all source versions 
+	(e.g. including the capability to show differences between versions) 
+	is available at:
+	</para>
+	<para>
+	<ulink url="http://anonsvn.ethereal.com/viewcvs/viewcvs.py/"/>. 
+	</para>
+	<para>
+	Of special interest might be the subdirectories:
+	<itemizedlist>
+	<listitem><para>
+	trunk - the very latest source files
+	</para></listitem>
+	<listitem><para>
+	releases - the source files of all released versions
+	</para></listitem>
+	</itemizedlist>
+	</para>
+  </section>	
+
+  <section id="ChSrcObtaining">
+	<title>Obtaining the Ethereal sources</title>
+	<para>
+	There are several ways to obtain the sources from the SVN server.
+	</para>
+	<note><title>Note!</title>
+	<para>
+	The following ways to retrieve the Ethereal sources are sorted in 
+	decreasing 
+	actuality. If you plan to commit changes you've made to the sources,
+	it's a good idea to keep your private source tree as actual as possible.
+	</para>
+	</note>
+	<para>
+	The age mentioned in the following sections will indicate, how old the 
+	most recent change in that sources will be. 
+	</para>
 	
 	<section id="ChSrcAnon">
 	<title>Anonymous subversion (SVN) access</title>
@@ -28,25 +111,73 @@
 	Recommended for development purposes.
 	</para>
 	<para>
+	Age: a few minutes.
+	</para>
+	<para>
+	You can use a a Subversion client to download the source code from 
+	Ethereal's anonymous SVN repository. The URL for the repository trunk is:
+	<ulink url="http://anonsvn.ethereal.com/ethereal/trunk"/>.
+	</para>
+	<para>
 	Even
-	"Read-Only" SVN access can make your life extremely easier, compared to
+	"Read-Only" SVN access can make your life much easier, compared to
 	merge sources by hand everytime you do an update using a zip file. SVN
 	handles merging
 	of changes into your personal sourcetree in a very comfortable way. So
 	you can update your sourcetree several times a day without much
-	effort.
+	effort, compared to use the zipped sources.
 	</para>
 	<para>
 	See <xref linkend="ChToolsSubversion"/> how to install a subversion client.
 	</para>
 	<para>
-	XXX: include SVN usage description from www.ethereal.com
+	For example, to check out using the command-line Subversion client, you 
+	would type:
+	</para>
+	<para>
+	<prompt>$</prompt> 
+	<userinput>svn checkout http://anonsvn.ethereal.com/ethereal/trunk ethereal</userinput>
+	</para>
+	<para>
+	The checkout has to be only done once. This will copy all the sources of 
+	the latest version (including directories) from the server to your machine.
+	This will take some time, depending on the speed of your internet line.
+	</para>
+	<para>
+	After this first time checkout is done, you only need to update your 
+	sources by typing (in the Ethereal source dir):
+	</para>
+	<para>
+	<prompt>$</prompt> 
+	<userinput>svn update</userinput>
+	</para>
+	<para>
+	This will only take a few seconds, even on a slow internet line. It will 
+	replace old file versions by new ones. If you and someone else have 
+	changed the same file, svn will try to merge the changes from outside into 
+	your private file (this is working remarkably well).
 	</para>
 	</section>
 
-
+	<section id="ChSrcSVNWeb">
+	<title>Subversion web interface</title>
+	<para>
+	Age: a few minutes (same as anonymous subversion access).
+	</para>
+	<para>
+	 The entire source tree is available via a web interface at:
+	 <ulink url="http://anonsvn.ethereal.com/viewcvs/viewcvs.py/"/>. 
+	 You can view 
+	 each revision of a particular file, as well as diffs between different 
+	 revisions. You can also download individual files or entire directories.
+	</para>
+	</section>	
+	 
 	<section id="ChSrcNightly">
 	<title>Nightly snapshots</title>
+	<para>
+	Age: up to 24 hours.
+	</para>
 	<para>
 	The SVN server will automatically generate a snapshot of the SVN
 	sourcetree every night. These snapshots can be found at: <ulink
@@ -69,6 +200,9 @@
 	Recommended for productive purposes.
 	</para>
 	<para>
+	Age: from days to weeks.
+	</para>
+	<para>
 	The officially released source files can be found at: <ulink
 	url="http://www.ethereal.com/download.html"/>.
 	You should use these sources if you want to build Ethereal on your
@@ -81,7 +215,6 @@
 	identical again :-).
 	</para>
 	</section>
-
 
   </section>
 
@@ -103,19 +236,40 @@
 	</para>
 	
 	<section>
+	<title>Unix platforms</title>
+	<para>
+	Run the autogen.sh script at the top-level ethereal directory to configure 
+	your build directory.
+	<programlisting>
+./autogen.sh
+./configure
+make 
+	</programlisting>
+	</para>
+	</section>
+	
+	<section>
 	<title>Win32 platforms</title>
 	<para>
-	The next place to look at is <filename>doc/README.win32</filename>, 
+	The place to look at is <filename>doc/README.win32</filename>, 
 	you will get the latest infos for generation on the win32
-	platforms. The next thing to do will be editing the file 
-	<filename>config.nmake</filename> to reflect your configuration.
+	platforms.
 	</para>
 	<para>
-	After doing this, you should open a cygwin bash "Start -&gt; Programs
-	-&gt; Cygwin -&gt; Cygwin Bash Shell" and navigate to the root of your
-	source tree. With:
-	<userinput>nmake -f Makefile.nmake all</userinput>
-	the whole Ethereal build process is started.
+	The next thing to do will be editing the file 
+	<filename>config.nmake</filename> to reflect your configuration.
+	The settings in this file are well documented, so please have a look at 
+	that file. XXX - add the settings everyone typical has to change 
+	(only very few).
+	</para>
+	<para>
+	After doing this, typing inside the command line (cmd.exe):
+	</para>
+	<para>
+	<prompt>&gt;</prompt> <userinput>nmake -f Makefile.nmake all</userinput>
+	</para>
+	<para>
+	will start the whole Ethereal build process.
 	</para>
 	<para>
 	After the build process successfully finished, you should find an 
@@ -124,17 +278,16 @@
 	</para>
 	</section>
 	
-	<section>
-	<title>Unix platforms</title>
-	<para>
-	XXX
-	</para>
-	</section>
-	
   </section>
 
   <section id="ChSrcChange">
 	<title>Make changes to the Ethereal sources</title>
+	<para>
+	As the Ethereal developers working on many different platforms, a lot of 
+	editors are used to develop Ethereal (emacs, vi, Microsoft Visual Studio
+	and many many others). There's no "standard" or "default" development 
+	environment.
+	</para>
 	<para>
 	There are several reasons why you might want to change the Ethereal
 	sources:
@@ -187,11 +340,52 @@
 	it to
 	the developer mailing list.	
 	</para>
-	
+	<para>
+	Before submitting your changes, please read the "Portability" section of 
+	doc/README.developer - as that section notes:
+	</para>
+	<para>
+    Ethereal runs on many platforms, and can be compiled with a number of 
+	different compilers; here are some rules for writing code that will work 
+	on multiple platforms. 
+	</para>
+	<note><title>Note!</title>
+	<para>
+	Just because something compiles on your platform, that doesn't mean it'll 
+	compile on all of the other platforms for which Ethereal is built. 
+	</para>
+	</note>
 
+	<section id="ChSrcSVN">
+	<title>Generate a diff file (a patch)</title>
+	<para>
+	There are several ways to generate such a patch.
+
+	<tip><title>Tip!</title>
+	<para>The diff file containing all changes is often also called a patch.
+	</para>
+	</tip>
+	</para>
+
+	<section id="ChSrcSVNDiff">
+	<title>Using the svn command-line client</title>
+	<para>
+	svn diff > your-changes.patch
+	XXX - add more details
+	</para>
+	</section>
+
+	<section id="ChSrcSVNGUIDiff">
+	<title>Using the diff feature of the GUI subverion clients</title>
+	<para>
+	Most (if not all) of the GUI subversion clients (RapidSVN, TortoiseSVN, ...) 
+	have a built-in "diff" feature.
+	XXX - add details at least for recommended TortoiseSVN
+	</para>
+	</section>
 
 	<section id="ChSrcDiff">
-	<title>Using the diff tool to generate a diff file (a patch)</title>
+	<title>Using the diff tool</title>
 	<para>
 	A diff file is generated, by comparing two files or directories between
 	your own working copy and the "official" source tree. So to be able to
@@ -262,14 +456,10 @@
 	</tgroup>
 	</table>
 	
-	<tip><title>Tip!</title>
-	<para>The resulting diff file is often also called a patch.
-	</para>
-	</tip>
-
 	</para>
 	</section>
 
+	</section>
 
 	<section id="ChSrcSend">
 	<title>Sending your patch to the developer mailing list</title>
@@ -303,27 +493,29 @@
 	</para>
 	<para>
 	You might get one of the following responses from your mail:
-	<orderedlist>
+	<itemizedlist>
 	  <listitem><para>
 	  your patch is checked into the SVN :-)
 	  </para></listitem>
 	  <listitem><para>
 	  your patch is rejected (and you get a response mail like: please
-	  change xy because of ...)
+	  change xy because of ...). Possible reasons: you didn't followed the 
+	  style guides, your code was buggy or insecure, your code does not 
+	  compilable on all of the supported platforms, ... So please fix the 
+	  mentioned things and send a newly generated patch.
 	  </para></listitem>
 	  <listitem><para>
-	  you don't get any reponse to your patch (even after a week or so)
+	  you don't get any reponse to your patch (even after a few days or so).
+	  Possible reason: your patch might simply get lost, as all core 
+	  maintainers were busy at that time and forgot to look at your patch. 
+	  Simply send a mail asking if the patch was forgotten or if someone is 
+	  still looking at it.
 	  </para></listitem>
-	</orderedlist>
-	2) Possible reasons: you didn't followed the style guides, your code
-	was buggy or insecure, your code does not compile on all of the
-	supported platforms, ... So please fix the mentioned things and send a
-	newly generated patch.
-	3) Possible reason: your patch might simply get lost, as all core
-	maintainers
-	were busy at that time and forgot to look at your patch. Simply try to
-	resend your patch.
+	</itemizedlist>
 	</para>
+	</section>
+	<section id="ChSrcGoodPatch">
+	<title>Some tips for a good patch</title>
 	<para>
 	Some tips that will make the merging of your changes into the SVN tree
 	much more likely (and you want exactly that, don't you :-):
@@ -350,8 +542,9 @@
 	  follow the source code style guide and other documented tips
 	  </para></listitem>
 	  <listitem><para>
-	  keep your patch as small as possible, don't include several smaller 
-	  changes into one large (unrelated) patch
+	  don't put a lot of unrelated things into one large patch, as a few 
+	  smaller patches are usually easier to apply (but don't put every 
+	  changed line into a seperate patch :-)
 	  </para></listitem>
 	</itemizedlist>
 	In general: making it easier to understand and apply your patch by one
@@ -374,6 +567,20 @@
 	the binary packages are made.
 	</para>
 
+	<section id="ChSrcDeb">
+	<title>Debian: .deb packages</title>
+	<para>
+	XXX
+	</para>
+	</section>
+
+	<section id="ChSrcRpm">
+	<title>Red Hat: .rpm packages</title>
+	<para>
+	XXX
+	</para>
+	</section>
+	
 	<section id="ChSrcNSIS">
 	<title>Win32: NSIS .exe installer</title>
 	<para>
@@ -398,25 +605,11 @@
 	</para>
 	<para>
 	You will hopefully now see something like:
-	<filename>ethereal-setup-0.10.2.exe</filename> in
+	<filename>ethereal-setup-&EtherealCurrentVersion;.exe</filename> in
 	the <filename>packaging/nsis</filename> directory.
 	</para>
 	</section>
 
-	<section id="ChSrcDeb">
-	<title>Debian: .deb packages</title>
-	<para>
-	XXX
-	</para>
-	</section>
-
-	<section id="ChSrcRpm">
-	<title>Red Hat: .rpm packages</title>
-	<para>
-	XXX
-	</para>
-	</section>
-	
   </section>
 
 </chapter>
