@@ -2,7 +2,7 @@
  * Routines for X.25 packet disassembly
  * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-x25.c,v 1.74 2003/01/08 08:43:09 guy Exp $
+ * $Id: packet-x25.c,v 1.75 2003/01/11 10:03:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1693,14 +1693,16 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		case PRT_ID_ISO_8073:
 		    /* ISO 8073 COTP */
-		    x25_hash_add_proto_start(vc, pinfo->fd->num, ositp_handle);
+		    if (!pinfo->fd->flags.visited)
+			x25_hash_add_proto_start(vc, pinfo->fd->num, ositp_handle);
 		    /* XXX - dissect the rest of the user data as COTP?
 		       That needs support for NCM TPDUs, etc. */
 		    break;
 
 		case PRT_ID_ISO_8602:
 		    /* ISO 8602 CLTP */
-		    x25_hash_add_proto_start(vc, pinfo->fd->num, ositp_handle);
+		    if (!pinfo->fd->flags.visited)
+			x25_hash_add_proto_start(vc, pinfo->fd->num, ositp_handle);
 		    break;
 		}
 	    } else if (is_x_264 == 0) {
@@ -1715,13 +1717,15 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 		localoffset++;
 
-		/*
-		 * Is there a dissector handle for this SPI?
-		 * If so, assign it to this virtual circuit.
-		 */
-		dissect = dissector_get_port_handle(x25_subdissector_table, spi);
-		if (dissect != NULL)
-		    x25_hash_add_proto_start(vc, pinfo->fd->num, dissect);
+		if (!pinfo->fd->flags.visited) {
+		    /*
+		     * Is there a dissector handle for this SPI?
+		     * If so, assign it to this virtual circuit.
+		     */
+		    dissect = dissector_get_port_handle(x25_subdissector_table, spi);
+		    if (dissect != NULL)
+			x25_hash_add_proto_start(vc, pinfo->fd->num, dissect);
+		}
 	    }
 	    if (localoffset < tvb_length(tvb)) {
 		if (userdata_tree) {
@@ -2149,7 +2153,8 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Did the user suggest QLLC/SNA? */
     if (payload_is_qllc_sna) {
 	/* Yes - dissect it as QLLC/SNA. */
-	x25_hash_add_proto_start(vc, pinfo->fd->num, qllc_handle);
+	if (!pinfo->fd->flags.visited)
+	    x25_hash_add_proto_start(vc, pinfo->fd->num, qllc_handle);
 	call_dissector(qllc_handle, next_tvb, pinfo, tree);
 	pinfo->private_data = saved_private_data;
 	return;
@@ -2161,13 +2166,15 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     case 0x45:
 	/* Looks like an IP header */
-	x25_hash_add_proto_start(vc, pinfo->fd->num, ip_handle);
+	if (!pinfo->fd->flags.visited)
+	    x25_hash_add_proto_start(vc, pinfo->fd->num, ip_handle);
 	call_dissector(ip_handle, next_tvb, pinfo, tree);
 	pinfo->private_data = saved_private_data;
 	return;
 
     case NLPID_ISO8473_CLNP:
-	x25_hash_add_proto_start(vc, pinfo->fd->num, clnp_handle);
+	if (!pinfo->fd->flags.visited)
+	    x25_hash_add_proto_start(vc, pinfo->fd->num, clnp_handle);
 	call_dissector(clnp_handle, next_tvb, pinfo, tree);
 	pinfo->private_data = saved_private_data;
 	return;
