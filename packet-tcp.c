@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.212 2003/11/06 08:51:21 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.213 2003/11/06 09:18:46 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2313,7 +2313,6 @@ decode_tcp_ports_exception(tvbuff_t *tvb, int offset, packet_info *pinfo,
 end_decode_tcp_ports:
   /* if !visited, check want_pdu_tracking and store it in table */
   /* XXX fix nxtseq so that it always has valid content and skip the ==0 check */
-  /* XXX we will need this one down in the exception handling as well soon */
   if((!pinfo->fd->flags.visited) && nxtseq && tcp_analyze_seq && pinfo->want_pdu_tracking){
     pdu_store_sequencenumber_of_next_pdu(pinfo, nxtseq+pinfo->bytes_until_next_pdu);
   }
@@ -2340,6 +2339,12 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		if(tcp_analyze_seq){
 			tcp_print_sequence_number_analysis(pinfo, tvb, tcp_tree);
+		}
+		/*
+		 * if !visited, check want_pdu_tracking and store it in table 
+		 */
+		if((!pinfo->fd->flags.visited) && nxtseq && tcp_analyze_seq && pinfo->want_pdu_tracking){
+			pdu_store_sequencenumber_of_next_pdu(pinfo, nxtseq+pinfo->bytes_until_next_pdu);
 		}
 		RETHROW;
 	}

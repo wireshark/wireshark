@@ -3,7 +3,7 @@
  *
  * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
  *
- * $Id: packet-ldap.c,v 1.66 2003/11/05 20:10:00 guy Exp $
+ * $Id: packet-ldap.c,v 1.67 2003/11/06 09:18:46 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1957,13 +1957,16 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
 
       /*
-       * Can we do reassembly?
+       * Is the buffer split across segment boundaries?
        */
-      if (ldap_desegment && pinfo->can_desegment) {
+      if (length_remaining < message_data_len) {
+        /* provide a hint to TCP where the next PDU starts */
+        pinfo->want_pdu_tracking=2;
+        pinfo->bytes_until_next_pdu=message_data_len-length_remaining;
         /*
-         * Yes - is the buffer split across segment boundaries?
+         * Can we do reassembly?
          */
-        if (length_remaining < message_data_len) {
+        if (ldap_desegment && pinfo->can_desegment) {
           /*
            * Yes.  Tell the TCP dissector where the data for this message
            * starts in the data it handed us, and how many more bytes we
@@ -2112,13 +2115,16 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
 
       /*
-       * Can we do reassembly?
+       * Is the message split across segment boundaries?
        */
-      if (ldap_desegment && pinfo->can_desegment) {
+      if (length_remaining < messageLength) {
+        /* provide a hint to TCP where the next PDU starts */
+        pinfo->want_pdu_tracking=2;
+        pinfo->bytes_until_next_pdu=messageLength-length_remaining;
         /*
-         * Yes - is the message split across segment boundaries?
+         * Can we do reassembly?
          */
-        if (length_remaining < messageLength) {
+        if (ldap_desegment && pinfo->can_desegment) {
 	  /*
 	   * Yes.  Tell the TCP dissector where the data for this message
 	   * starts in the data it handed us, and how many more bytes
