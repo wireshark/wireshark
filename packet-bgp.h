@@ -1,7 +1,7 @@
 /* packet-bgp.c
  * Definitions for BGP packet disassembly structures and routine
  *
- * $Id: packet-bgp.h,v 1.12 2001/05/16 18:52:36 guy Exp $
+ * $Id: packet-bgp.h,v 1.13 2001/06/10 02:08:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -135,6 +135,18 @@ struct bgp_attr {
 #define BGPTYPE_RCID_PATH        13   /* RFC1863          */
 #define BGPTYPE_MP_REACH_NLRI    14   /* RFC2858          */
 #define BGPTYPE_MP_UNREACH_NLRI  15   /* RFC2858          */
+#define BGPTYPE_EXTENDED_COMMUNITY 16 /* Draft Ramachandra */
+
+/* Extended community type */
+#define BGP_EXT_COM_RT_0        0x0002  /* Route Target,Format AS(2bytes):AN(4bytes) */
+#define BGP_EXT_COM_RT_1        0x0102  /* Route Target,Format IP address:AN(2bytes) */
+#define BGP_EXT_COM_RO_0        0x0003  /* Route Origin,Format AS(2bytes):AN(4bytes) */
+#define BGP_EXT_COM_RO_1        0x0103  /* Route Origin,Format IP address:AN(2bytes) */
+
+/* Extended community & Route dinstinguisher formats */
+#define FORMAT_AS2_LOC      0x00    /* Format AS(2bytes):AN(4bytes) */
+#define FORMAT_IP_LOC       0x01    /* Format IP address:AN(2bytes) */
+#define FORMAT_AS4_LOC      0x02    /* FOrmat AS(4bytes):AN(2bytes) */
 
 /* RFC1700 address family numbers */
 #define AFNUM_INET	1
@@ -152,6 +164,12 @@ struct bgp_attr {
 #define AFNUM_DECNET	13
 #define AFNUM_BANYAN	14
 #define AFNUM_E164NSAP	15
+
+/* RFC 2858 subsequent address family numbers */
+#define SAFNUM_UNICAST  1
+#define SAFNUM_MULCAST  2
+#define SAFNUM_UNIMULC  3
+#define SAFNUM_LBVPNIP  128     /* Draft-rosen-rfc2547bis-03 */
 
 #ifndef offsetof
 #define offsetof(type, member)  ((size_t)(&((type *)0)->member))
