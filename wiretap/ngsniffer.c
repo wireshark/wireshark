@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.44 2000/06/15 06:13:08 guy Exp $
+ * $Id: ngsniffer.c,v 1.45 2000/06/15 06:18:32 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -359,11 +359,11 @@ int ngsniffer_open(wtap *wth, int *err)
 
 	/* Check the data link type.
 	   If "version.network" is 7, that's "Internetwork analyzer";
-	   Sniffers appear to write out both LAPB and PPP captures
+	   Sniffers appear to write out LAPB, LAPD and PPP captures
 	   (and perhaps other types of captures) in that fashion,
 	   and, so far, the only way we know of distinguishing them
 	   is to look at the first byte of the packet - if it's 0xFF,
-	   it's PPP, otherwise it's LAPB.
+	   it's PPP, otherwise if it's odd, it's LAPB else it's LAPD.
 	   Therefore, we treat it as WTAP_ENCAP_UNKNOWN for now, but
 	   don't treat that as an error.
 
@@ -655,18 +655,23 @@ found:
 		/*
 		 * OK, this is from an "Internetwork analyzer"; let's
 		 * look at the first byte of the packet, and figure
-		 * out whether it's LAPB or PPP.
+		 * out whether it's LAPB, LAPD or PPP.
 		 */
 		if (pd[0] == 0xFF) {
 			/*
 			 * PPP.
 			 */
 			wth->file_encap = WTAP_ENCAP_PPP;
-		} else {
+		} else if (pd[0] & 1) {
 			/*
 			 * LAPB.
 			 */
 			wth->file_encap = WTAP_ENCAP_LAPB;
+		} else {
+			/*
+			 * LAPD.
+			 */
+			wth->file_encap = WTAP_ENCAP_LAPD;
 		}
 	}
 
