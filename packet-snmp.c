@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.86 2002/03/11 01:48:08 guy Exp $
+ * $Id: packet-snmp.c,v 1.87 2002/03/11 01:51:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -678,7 +678,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
 			    "Value: %s", vb_display_string);
-			g_free(vb_display_string);
+			free(vb_display_string);
 #else /* HAVE_UCD_SNMP_SNMP_H */
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
@@ -706,7 +706,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
 			    "Value: %s", vb_display_string);
-			g_free(vb_display_string);
+			free(vb_display_string);
 #else /* HAVE_UCD_SNMP_SNMP_H */
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
@@ -736,7 +736,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
 			    "Value: %s", vb_display_string);
-			g_free(vb_display_string);
+			free(vb_display_string);
 #else /* HAVE_UCD_SNMP_SNMP_H */
 			/*
 			 * If some characters are not printable, display
@@ -805,13 +805,14 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
 			    "Value: %s", vb_display_string);
+			free(vb_display_string);
 #else /* HAVE_UCD_SNMP_SNMP_H */
 			vb_display_string = format_oid(vb_oid, vb_oid_length);
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
 			    "Value: %s: %s", vb_type_name, vb_display_string);
-#endif /* HAVE_UCD_SNMP_SNMP_H */
 			g_free(vb_display_string);
+#endif /* HAVE_UCD_SNMP_SNMP_H */
 		}
 		g_free(vb_oid);
 		break;
