@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.221 2004/01/05 19:31:43 ulfl Exp $
+ * $Id: capture.c,v 1.222 2004/01/18 04:13:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1536,8 +1536,10 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 	"The capture session could not be initiated (%s).\n"
 	"Please check that you have the proper interface specified.\n"
 	"\n"
-	"Note that the driver Ethereal uses for packet capture on Windows doesn't\n"
-	"support capturing on PPP/WAN interfaces in Windows NT/2000/XP/.NET Server.\n",
+	"Note that the WinPcap 2.x version of the driver Ethereal uses for packet\n"
+	"capture on Windows doesn't support capturing on PPP/WAN interfaces in\n"
+	"Windows NT/2000/XP/2003 Server, and that the WinPcap 3.0 and later versions\n"
+	"don't support capturing on PPP/WAN interfaces at all.",
 	open_err_str);
     goto error;
 #else
