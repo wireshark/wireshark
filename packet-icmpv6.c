@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.41 2001/04/23 17:51:33 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.42 2001/04/27 01:27:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -365,6 +365,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	proto_item *tf;
     struct icmp6_nodeinfo icmp6_nodeinfo, *ni;
     int off;
+    unsigned int j;
     int i, n, l, p;
     guint16 flags;
     char dname[MAXDNAME];
@@ -562,21 +563,21 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_nodedns);
 	    /* XXXX - clean this up when packet-dns.c has been tvbuffified */
 	    tvb_compat(tvb, &pd, &top_level_offset);
-	    i = offset + sizeof (*ni) + sizeof(guint32);
-	    while (i < tvb_length(tvb)) {
-		l = get_dns_name(pd, top_level_offset + i,
+	    j = offset + sizeof (*ni) + sizeof(guint32);
+	    while (j < tvb_length(tvb)) {
+		l = get_dns_name(pd, top_level_offset + j,
 		   top_level_offset + offset + sizeof (*ni) + sizeof(guint32),
 		   dname,sizeof(dname));
-		if (tvb_bytes_exist(tvb, top_level_offset + i + l, 1) &&
-		    tvb_get_guint8(tvb, top_level_offset + i + l) == 0) {
+		if (tvb_bytes_exist(tvb, top_level_offset + j + l, 1) &&
+		    tvb_get_guint8(tvb, top_level_offset + j + l) == 0) {
 		    l++;
-		    proto_tree_add_text(field_tree, tvb, i, l,
+		    proto_tree_add_text(field_tree, tvb, j, l,
 			"DNS label: %s (truncated)", dname);
 		} else {
-		    proto_tree_add_text(field_tree, tvb, i, l,
+		    proto_tree_add_text(field_tree, tvb, j, l,
 			"DNS label: %s", dname);
 		}
-		i += l;
+		j += l;
 	    }
 	    off = tvb_length_remaining(tvb, offset);
 	    break;
@@ -630,7 +631,8 @@ dissect_rrenum(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
     struct icmp6_router_renum icmp6_router_renum, *rr;
     struct rr_pco_match rr_pco_match, *match;
     struct rr_pco_use rr_pco_use, *use;
-    int flagoff, off, l;
+    int flagoff, off;
+    unsigned int l;
     guint8 flags;
 
     rr = &icmp6_router_renum;

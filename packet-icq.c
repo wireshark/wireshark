@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.28 2001/03/27 02:01:31 guy Exp $
+ * $Id: packet-icq.c,v 1.29 2001/04/27 01:27:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -555,7 +555,7 @@ icqv5_decode_msgType(proto_tree* tree,
     guint16 msgType;
     gint sep_offset;
     int sz;            /* Size of the current element */
-    int n;
+    unsigned int n;
     static char* url_field_descr[] = {
 	"Description",
 	"URL",
@@ -1967,7 +1967,7 @@ dissect_icqv5Server(tvbuff_t *tvb,
     if (changeCol && check_col(pinfo->fd, COL_INFO))
 	col_add_fstr(pinfo->fd, COL_INFO, "ICQv5 %s", findServerCmd(cmd));
 
-    if (pktsize == -1)
+    if (pktsize == (guint32)-1)
 	pktsize = tvb_reported_length(tvb);
     
     if (tree) {

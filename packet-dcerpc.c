@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.3 2001/04/19 23:39:27 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.4 2001/04/27 01:27:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -161,7 +161,7 @@ dcerpc_tvb_get_ntohl (tvbuff_t *tvb, gint offset, char *drep)
 void
 dcerpc_tvb_get_uuid (tvbuff_t *tvb, gint offset, char *drep, e_uuid_t *uuid)
 {
-    int i;
+    unsigned int i;
     uuid->Data1 = dcerpc_tvb_get_ntohl (tvb, offset, drep);
     uuid->Data2 = dcerpc_tvb_get_ntohs (tvb, offset+4, drep);
     uuid->Data3 = dcerpc_tvb_get_ntohs (tvb, offset+6, drep);

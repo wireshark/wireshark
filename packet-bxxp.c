@@ -1,7 +1,7 @@
 /* packet-bxxp.c
  * Routines for BXXP packet disassembly
  *
- * $Id: packet-bxxp.c,v 1.17 2001/04/23 04:10:49 guy Exp $
+ * $Id: packet-bxxp.c,v 1.18 2001/04/27 01:27:36 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -98,7 +98,7 @@ static int ett_mime_header = -1;
 static int ett_header = -1;
 static int ett_trailer = -1;
 
-static int tcp_port = 0;
+static unsigned int tcp_port = 0;
 
 /* Get the state of the more flag ... */
 
@@ -146,7 +146,7 @@ GMemChunk  *bxxp_request_vals = NULL;
 GMemChunk  *bxxp_packet_infos = NULL;
 
 /* Hash Functions */
-gint
+static gint
 bxxp_equal(gconstpointer v, gconstpointer w)
 {
   struct bxxp_request_key *v1 = (struct bxxp_request_key *)v;
@@ -212,7 +212,7 @@ bxxp_init_protocol(void)
  * BXXP routines
  */
 
-int bxxp_get_more(char more)
+static int bxxp_get_more(char more)
 {
 
   if (more == '.')
@@ -229,7 +229,7 @@ int bxxp_get_more(char more)
  *  -1 -> Proto violation
  */
 
-int
+static int
 dissect_bxxp_more(tvbuff_t *tvb, int offset, frame_data *fd, 
 		  proto_tree *tree)
 {
@@ -273,7 +273,7 @@ dissect_bxxp_more(tvbuff_t *tvb, int offset, frame_data *fd,
 
 }
 
-void dissect_bxxp_status(tvbuff_t *tvb, int offset, frame_data *fd,
+static void dissect_bxxp_status(tvbuff_t *tvb, int offset, frame_data *fd,
 			 proto_tree *tree)
 {
 
@@ -307,9 +307,9 @@ void dissect_bxxp_status(tvbuff_t *tvb, int offset, frame_data *fd,
 
 }
 
-int num_len(tvbuff_t *tvb, int offset)
+static int num_len(tvbuff_t *tvb, int offset)
 {
-  int i = 0;
+  unsigned int i = 0;
 
   while (isdigit(tvb_get_guint8(tvb, offset + i))) i++;
 
@@ -324,7 +324,7 @@ int num_len(tvbuff_t *tvb, int offset)
  * However, we depend on the variable bxxp_strict_term
  */ 
 
-int 
+static int 
 check_term(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 
@@ -376,7 +376,7 @@ check_term(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 /* Get the header length, up to CRLF or CR or LF */
-int header_len(tvbuff_t *tvb, int offset)
+static int header_len(tvbuff_t *tvb, int offset)
 {
   int i = 0;
   guint8 sc;
@@ -404,7 +404,7 @@ int header_len(tvbuff_t *tvb, int offset)
   }
 }
 
-int
+static int
 dissect_bxxp_mime_header(tvbuff_t *tvb, int offset, 
 			 struct bxxp_proto_data *frame_data,
 			 proto_tree *tree)
@@ -454,11 +454,12 @@ dissect_bxxp_mime_header(tvbuff_t *tvb, int offset,
 
 }
 
-int
+static int
 dissect_bxxp_int(tvbuff_t *tvb, int offset, frame_data *fd,
 		    proto_tree *tree, int hf, int *val, int *hfa[])
 {
-  int ival, ind = 0, i = num_len(tvb, offset);
+  int ival, ind = 0;
+  unsigned int i = num_len(tvb, offset);
   guint8 int_buff[100];
 
   memset(int_buff, '\0', sizeof(int_buff));
@@ -484,7 +485,7 @@ dissect_bxxp_int(tvbuff_t *tvb, int offset, frame_data *fd,
 
 }
 
-void
+static void
 set_mime_hdr_flags(int more, struct bxxp_request_val *request_val, 
 		   struct bxxp_proto_data *frame_data)
 {
@@ -538,7 +539,7 @@ set_mime_hdr_flags(int more, struct bxxp_request_val *request_val,
  * A return value > 0 is the count of bytes we consumed ...
  */
 
-int
+static int
 dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 		  proto_tree *tree, struct bxxp_request_val *request_val, 
 		  struct bxxp_proto_data *frame_data)

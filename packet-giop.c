@@ -4,7 +4,7 @@
  * Laurent Deniel <deniel@worldnet.fr>
  * Craig Rodrigues <rodrigc@mediaone.net>
  *
- * $Id: packet-giop.c,v 1.31 2001/02/26 22:19:12 oabad Exp $
+ * $Id: packet-giop.c,v 1.32 2001/04/27 01:27:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -259,7 +259,7 @@ LocateReplyHeader;
 static void
 printable_string (gchar *in, guint32 len)
 {
-  int i = 0;
+  guint32 i = 0;
 
   for(i=0; i < len; i++)
   {
@@ -554,7 +554,7 @@ dissect_giop_reply (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   proto_tree *reply_tree = NULL;
   proto_item *tf;
 
-  int i;
+  guint32 i;
 
   big_endian = is_big_endian (header);
 
@@ -685,7 +685,7 @@ dissect_giop_reply_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   guint32 reply_status;
   proto_tree *reply_tree = NULL;
   proto_item *tf;
-  int i;
+  guint32 i;
 
   if (tree)
     {
@@ -827,7 +827,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
   gchar *reserved = NULL;
   proto_tree *request_tree = NULL;
   proto_item *tf;
-  int i;
+  guint32 i;
 
 
   if (tree)
