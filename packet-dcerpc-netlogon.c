@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.6 2002/03/13 10:52:22 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.7 2002/03/13 11:19:16 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,7 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-netlogon.h"
 #include "smb.h"	/* for "NT_errors[]" */
+#include "packet-smb-common.h"
 
 static int proto_dcerpc_netlogon = -1;
 static int hf_netlogon_rc = -1;
@@ -203,7 +204,7 @@ lsa_dissect_LSA_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset,
 {
 	guint32 len;
 	dcerpc_info *di;
-
+	
 	di=pinfo->private_data;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
@@ -212,8 +213,12 @@ lsa_dissect_LSA_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset,
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_netlogon_lsa_sd_size, &len);
-	proto_tree_add_item(tree, hf_netlogon_lsa_sd_data, tvb, offset, len, FALSE);
+
+	dissect_nt_sec_desc(tvb, pinfo, offset, tree, len);
 	offset += len;
+/*	proto_tree_add_item(tree, hf_netlogon_lsa_sd_data, tvb, offset, len, FALSE);
+	offset += len;
+*/
 
 	return offset;
 }
