@@ -2,7 +2,7 @@
  * Definitions of OUIs
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: oui.h,v 1.2 2000/01/07 22:05:28 guy Exp $
+ * $Id: oui.h,v 1.3 2000/01/12 19:37:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,6 +25,7 @@
  */
 
 #define	OUI_ENCAP_ETHER	0x000000	/* encapsulated Ethernet */
+#define	OUI_CISCO	0x00000C	/* Cisco */
 #define	OUI_ATM_FORUM	0x00A03E	/* ATM Forum */
 #define	OUI_APPLE_ATALK	0x080007	/* Appletalk */
 

@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.37 2000/01/07 22:05:32 guy Exp $
+ * $Id: packet-llc.c,v 1.38 2000/01/12 19:37:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -156,7 +156,7 @@ const value_string oui_vals[] = {
 /*
 http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r/brprt1/brsrb.htm
 */
-	{ 0x00000c,        "Cisco" },
+	{ OUI_CISCO,       "Cisco" },
 	{ 0x0000f8,        "Cisco 90-Compatible" },
 	{ 0x0080c2,        "Bridged Frame-Relay" }, /* RFC 2427 */
 	{ OUI_ATM_FORUM,   "ATM Forum" },
@@ -367,6 +367,26 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				   packet type for AARP packets. */
 				ethertype(etype, offset+8, pd,
 				    fd, tree, llc_tree, hf_llc_type);
+				break;
+
+
+			case OUI_CISCO:
+				/* So are all CDP packets LLC packets
+				   with an OUI of OUI_CISCO and a
+				   protocol ID of 0x2000, or
+				   are some of them raw or encapsulated
+				   Ethernet? */
+				switch (etype) {
+
+				case 0x2000:
+					if (tree) {
+						proto_tree_add_item(llc_tree,
+						    hf_llc_pid, offset+6,
+						    2, etype);
+					}
+					dissect_cdp(pd, offset+8, fd, tree);
+					break;
+				}
 				break;
 
 			default:
