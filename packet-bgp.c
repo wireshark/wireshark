@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.81 2003/05/28 20:59:46 guy Exp $
+ * $Id: packet-bgp.c,v 1.82 2003/06/03 23:49:59 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -2610,7 +2610,6 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    /*
 	     * The BGP length doesn't include the BGP header; report that
 	     * as an error.
-	     * Report this as an error.
 	     */
 	    show_reported_bounds_error(tvb, pinfo, tree);
 	    return;
