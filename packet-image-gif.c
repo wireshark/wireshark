@@ -3,7 +3,7 @@
  * Routines for image/gif media dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-image-gif.c,v 1.1 2003/12/24 02:06:26 obiot Exp $
+ * $Id: packet-image-gif.c,v 1.2 2003/12/24 12:46:57 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -325,7 +325,10 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		while (offset < tvb_len) {
 			peek = tvb_get_guint8(tvb, offset);
 			if (peek == 0x21) { /* GIF extension block */
-				guint32 item_len = 2;
+				guint32 item_len = 2;	/* Fixed header consisting of:
+										 *	1 byte : 0x21
+										 *	1 byte : extension_label
+										 */
 
 				ti = proto_tree_add_item(gif_tree, hf_extension,
 						tvb, offset, 1, TRUE);
@@ -349,9 +352,17 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 				} while (len > 0);
 				proto_item_set_len(ti, item_len);
 			} else if (peek == 0x2C) { /* Image separator */
-				guint32 item_len = 10;
 				proto_tree *subtree2;
 				proto_item *ti2;
+				guint32 item_len = 11;	/* Fixed header consisting of:
+										 *	1 byte : 0x2C
+										 *	2 bytes: image_left
+										 *	2 bytes: image_top
+										 *	2 bytes: image_width
+										 *	2 bytes: image height
+										 *	1 byte : packed bit field
+										 *	1 byte : image code size
+										 */
 
 				ti = proto_tree_add_item(gif_tree, hf_image,
 						tvb, offset, 1, TRUE);
