@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.296 2002/12/01 20:19:44 guy Exp $
+ * $Id: file.c,v 1.297 2003/03/02 22:07:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1554,7 +1554,7 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
     return FALSE;	/* failure */
 }
 
-goto_result_t
+gboolean
 goto_frame(capture_file *cf, guint fnumber)
 {
   frame_data *fdata;
@@ -1563,10 +1563,19 @@ goto_frame(capture_file *cf, guint fnumber)
   for (fdata = cf->plist; fdata != NULL && fdata->num < fnumber; fdata = fdata->next)
     ;
 
-  if (fdata == NULL)
-    return NO_SUCH_FRAME;	/* we didn't find that frame */
-  if (!fdata->flags.passed_dfilter)
-    return FRAME_NOT_DISPLAYED;	/* the frame with that number isn't displayed */
+  if (fdata == NULL) {
+    /* we didn't find that frame */
+    simple_dialog(ESD_TYPE_CRIT, NULL,
+	 	  "There is no frame with that frame number.");
+    return FALSE;	/* we failed to go to that frame */
+  }
+  if (!fdata->flags.passed_dfilter) {
+    /* the frame with that number isn't displayed */
+    /* XXX - add it to the set of displayed frames? */
+    simple_dialog(ESD_TYPE_CRIT, NULL,
+		  "The frame with that frame number is not currently being displayed.");
+    return FALSE;	/* we failed to go to that frame */
+  }
 
   /* We found that frame, and it's currently being displayed.
      Find what row it's in. */
@@ -1575,7 +1584,7 @@ goto_frame(capture_file *cf, guint fnumber)
 
   /* Select that row, make it the focus row, and make it visible. */
   packet_list_set_selected_row(row);
-  return FOUND_FRAME;
+  return TRUE;	/* we got to that frame */
 }
 
 /* Select the packet on a given row. */
