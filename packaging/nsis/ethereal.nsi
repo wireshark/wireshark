@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.46 2004/02/07 21:47:25 ulfl Exp $
+; $Id: ethereal.nsi,v 1.47 2004/02/09 18:23:25 ulfl Exp $
 
  
 !ifdef MAKENSIS_MODERN_UI
@@ -28,7 +28,7 @@ OutFile "${DEST}-setup-${VERSION}.exe"
 Icon "..\..\image\ethereal.ico"
 UninstallIcon "..\..\image\ethereal.ico"
 
-; Uninstall stuff (this text isn't used with the MODERN_UI!) */
+; Uninstall stuff (this text isn't used with the MODERN_UI!)
 UninstallText "This will uninstall Ethereal.\r\nBefore starting the uninstallation, make sure Ethereal is not running.\r\nClick 'Next' to continue."
 
 XPStyle on
