@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.39 2003/10/14 09:27:42 sahlberg Exp $
+ * $Id: io_stat.c,v 1.40 2003/10/14 09:55:40 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -133,11 +133,6 @@ typedef struct _io_stat_graph_t {
 	GtkWidget *filter_bt;
 } io_stat_graph_t;
 
-typedef struct _io_stat_yscale_t {
-	struct _io_stat_t *io;
-	int yscale;
-} io_stat_yscale_t;
-
 typedef struct _io_stat_count_type_t {
 	struct _io_stat_t *io;
 	int count_type;
@@ -151,7 +146,6 @@ typedef struct _io_stat_t {
 	guint32 num_items;
 
 	struct _io_stat_graph_t graphs[MAX_GRAPHS];
-	struct _io_stat_yscale_t yscale[MAX_YSCALE];
 	struct _io_stat_count_type_t counttype[MAX_COUNT_TYPES];
 	GtkWidget *window;
 	GtkWidget *draw_area;
@@ -1139,7 +1133,6 @@ pixels_per_tick_select(GtkWidget *item, gpointer key)
 
 	io=(io_stat_t *)key;
 	val=(int)gtk_object_get_data(GTK_OBJECT(item), "pixels_per_tick");
-
 	io->pixels_per_tick=val;
 	io->needs_redraw=TRUE;
 	gtk_iostat_draw(&io->graphs[0]);
@@ -1171,6 +1164,7 @@ create_pixels_per_tick_menu_items(io_stat_t *io, GtkWidget *menu)
 		sprintf(str,"%d", pixels_per_tick[i]);
 		menu_item=gtk_menu_item_new_with_label(str);
 
+		io->pixels_per_tick=DEFAULT_PIXELS_PER_TICK;
 		gtk_object_set_data(GTK_OBJECT(menu_item), "pixels_per_tick", (gpointer)pixels_per_tick[i]);
 		SIGNAL_CONNECT(menu_item, "activate", pixels_per_tick_select, io);
 		gtk_widget_show(menu_item);
@@ -1182,13 +1176,17 @@ create_pixels_per_tick_menu_items(io_stat_t *io, GtkWidget *menu)
 
 
 static void
-yscale_select(GtkWidget *item _U_, gpointer key)
+yscale_select(GtkWidget *item, gpointer key)
 {
-	io_stat_yscale_t *ys=(io_stat_yscale_t *)key;
+	int val;
+	io_stat_t *io;
 
-	ys->io->max_y_units=ys->yscale;
-	ys->io->needs_redraw=TRUE;
-	gtk_iostat_draw(&ys->io->graphs[0]);
+	io=(io_stat_t *)key;
+	val=(int)gtk_object_get_data(GTK_OBJECT(item), "yscale_max");
+
+	io->max_y_units=val;
+	io->needs_redraw=TRUE;
+	gtk_iostat_draw(&io->graphs[0]);
 }
 
 static void 
@@ -1233,9 +1231,8 @@ create_yscale_max_menu_items(io_stat_t *io, GtkWidget *menu)
 			sprintf(str,"%d", yscale_max[i]);
 		}
 		menu_item=gtk_menu_item_new_with_label(str);
-		io->yscale[i].io=io;
-		io->yscale[i].yscale=yscale_max[i];
-		SIGNAL_CONNECT(menu_item, "activate", yscale_select, &io->yscale[i]);
+		gtk_object_set_data(GTK_OBJECT(menu_item), "yscale_max", (gpointer)yscale_max[i]);
+		SIGNAL_CONNECT(menu_item, "activate", yscale_select, io);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 	}
