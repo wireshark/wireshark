@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.90 2003/11/19 21:24:19 guy Exp $
+ * $Id: packet-wsp.c,v 1.91 2003/11/21 22:00:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -165,7 +165,9 @@ static int hf_hdr_openwave_x_up_proxy_home_page			= HF_EMPTY;
 static int hf_hdr_openwave_x_up_proxy_uplink_version	= HF_EMPTY;
 static int hf_hdr_openwave_x_up_proxy_ba_realm			= HF_EMPTY;
 static int hf_hdr_openwave_x_up_proxy_request_uri		= HF_EMPTY;
+#if 0
 static int hf_hdr_openwave_x_up_proxy_client_id			= HF_EMPTY;
+#endif
 static int hf_hdr_openwave_x_up_proxy_bookmark			= HF_EMPTY;
 static int hf_hdr_openwave_x_up_proxy_push_seq			= HF_EMPTY;
 static int hf_hdr_openwave_x_up_proxy_notify			= HF_EMPTY;
@@ -1024,9 +1026,11 @@ static const value_string vals_wap_application_ids[] = {
 	{ 0x8007, "x-motorola:otaprov.ua"},
 	{ 0x8008, "x-motorola:browser.ua"},
 	{ 0x8009, "x-motorola:splash.ua"},
-	/* 0x800A: unused */
+	/* 0x800A: unassigned */
 	{ 0x800B, "x-wap-nai:mvsw.command"},
+	/* 0x800C -- 0x800F: unassigned */
 	{ 0x8010, "x-wap-openwave:iota.ua"},
+	/* 0x8011 -- 0x8FFF: unassigned */
 	{ 0x9000, "x-wap-docomo:imode.mail2.ua"},
 	{ 0x9001, "x-oma-nec:otaprov.ua"},
 	{ 0x9002, "x-oma-nokia:call.ua"},
@@ -1254,6 +1258,8 @@ parameter_value_q (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start);
 	"<Error: Invalid value for the '" hdr "' header>"
 #define InvalidTextualHeader \
 	"<Error: Invalid zero-length textual header>"
+#define TrailingQuoteWarning \
+	" <Warning: Quoted-string value has been encoded with a trailing quote>"
 
 /* WSP well-known header parsing function prototypes;
  * will be listed in the function lookup table WellKnownHeaders[] */
@@ -1439,8 +1445,6 @@ static guint32 wkh_openwave_x_up_proxy_ba_realm(proto_tree *tree,
 		tvbuff_t *tvb, guint32 hdr_start);
 static guint32 wkh_openwave_x_up_proxy_request_uri(proto_tree *tree,
 		tvbuff_t *tvb, guint32 hdr_start);
-static guint32 wkh_openwave_x_up_proxy_client_id(proto_tree *tree,
-		tvbuff_t *tvb, guint32 hdr_start);
 static guint32 wkh_openwave_x_up_proxy_bookmark(proto_tree *tree,
 		tvbuff_t *tvb, guint32 hdr_start);
 /* Integer headers */
@@ -1590,7 +1594,7 @@ static const hdr_parse_func_ptr WellKnownOpenwaveHeader[128] = {
 	/* 0x15 */	wkh_openwave_x_up_proxy_redirect_status,
 	/* 0x16 */	wkh_openwave_x_up_proxy_trans_charset,
 	/* 0x17 */	wkh_openwave_x_up_proxy_linger,
-	/* 0x18 */	wkh_openwave_x_up_proxy_client_id,
+	/* 0x18 */	wkh_openwave_default,
 	/* 0x19 */	wkh_openwave_x_up_proxy_enable_trust,
 	/* 0x1A */	wkh_openwave_x_up_proxy_trust,
 	/* 0x1B */	wkh_openwave_default,
@@ -2633,14 +2637,20 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start) \
 		/* Invalid */ \
 	wkh_2_TextualValue; \
 		if (is_quoted_string(val_str[0])) { \
-			str = g_strdup_printf("%s\"", val_str); \
+			if (is_quoted_string(val_str[val_len-2])) { \
+				/* Trailing quote - issue a warning */ \
+				str = g_strdup_printf("%s" TrailingQuoteWarning, val_str); \
+			} else { /* OK (no trailing quote) */ \
+				str = g_strdup_printf("%s\"", val_str); \
+			} \
 			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 					tvb, hdr_start, offset - hdr_start, str); \
 			g_free(str); \
 		} else { \
 			ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 					tvb, hdr_start, offset - hdr_start, val_str); \
-			proto_item_append_text(ti, " <Warning: should be encoded as a Quoted-string>"); \
+			proto_item_append_text(ti, \
+					" <Warning: should be encoded as a Quoted-string>"); \
 		} \
 		ok = TRUE; \
 	wkh_3_ValueWithLength; \
@@ -3276,7 +3286,13 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 					get_text_string(val_str, tvb, off, len, ok);
 					if (ok) {
 						if (is_quoted_string(val_str[0])) {
-							str = g_strdup_printf("%s\"", val_str);
+							if (is_quoted_string(val_str[len-2])) {
+								/* Trailing quote - issue a warning */
+								str = g_strdup_printf("%s" TrailingQuoteWarning,
+										val_str);
+							} else { /* OK (no trailing quote) */
+								str = g_strdup_printf("%s\"", val_str);
+							}
 							proto_item_append_string(ti, str);
 							g_free(str);
 						} else { /* Token-text | 0x00 */
@@ -3329,8 +3345,10 @@ wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 			val = warn_code & 0x7f;
 			val_str = match_strval(val, vals_wsp_warning_code_short);
 			if (val_str) { /* OK */
+				str = g_strdup_printf("code=%s", val_str);
 				ti = proto_tree_add_string(tree, hf_hdr_warning,
-						tvb, hdr_start, offset - hdr_start, val_str);
+						tvb, hdr_start, offset - hdr_start, str);
+				g_free(str);
 				subtree = proto_item_add_subtree(ti, ett_header);
 				proto_tree_add_uint(subtree, hf_hdr_warning_code,
 						tvb, off, 1, val);
@@ -3717,8 +3735,6 @@ wkh_text_header(openwave_x_up_proxy_ba_realm,
 		"x-up-proxy-ba-realm");
 wkh_text_header(openwave_x_up_proxy_request_uri,
 		"x-up-proxy-request-uri");
-wkh_text_header(openwave_x_up_proxy_client_id,
-		"x-up-proxy-client-id");
 wkh_text_header(openwave_x_up_proxy_bookmark,
 		"x-up-proxy-bookmark");
 
@@ -3787,7 +3803,8 @@ wkh_content_type_header(openwave_x_up_proxy_push_accept,
 #define parameter_text(hf,lowercase,Uppercase,value) \
 	get_text_string(val_str, tvb, offset, val_len, ok); \
 	if (ok) { \
-		proto_tree_add_string(tree, hf, tvb, start, type_len + val_len, val_str); \
+		proto_tree_add_string(tree, hf, \
+				tvb, start, type_len + val_len, val_str); \
 		str = g_strdup_printf("; " lowercase "=%s", val_str); \
 		proto_item_append_string(ti, str); \
 		g_free(str); \
@@ -3803,13 +3820,24 @@ wkh_content_type_header(openwave_x_up_proxy_push_accept,
 	get_text_string(val_str, tvb, offset, val_len, ok); \
 	if (ok) { \
 		if (is_quoted_string(val_str[0])) { \
-			str = g_strdup_printf("%s\"", val_str); \
-			proto_tree_add_string(tree, hf, tvb, start, type_len + val_len, str); \
-			g_free(str); \
-			str = g_strdup_printf("; " lowercase "=%s\"", val_str); \
+			if (is_quoted_string(val_str[val_len-2])) { \
+				/* Trailing quote - issue a warning */ \
+				str = g_strdup_printf("%s" TrailingQuoteWarning, val_str); \
+				proto_tree_add_string(tree, hf, \
+						tvb, start, type_len + val_len, str); \
+				g_free(str); \
+				str = g_strdup_printf("; " lowercase "=%s", val_str); \
+			} else { /* OK (no trailing quote) */ \
+				str = g_strdup_printf("%s\"", val_str); \
+				proto_tree_add_string(tree, hf, \
+						tvb, start, type_len + val_len, str); \
+				g_free(str); \
+				str = g_strdup_printf("; " lowercase "=%s\"", val_str); \
+			} \
 		} else { /* Token-text | 0x00 */ \
 			/* TODO - verify that we have either Token-text or 0x00 */ \
-			proto_tree_add_string(tree, hf, tvb, start, type_len + val_len, val_str); \
+			proto_tree_add_string(tree, hf, \
+					tvb, start, type_len + val_len, val_str); \
 			str = g_strdup_printf("; " lowercase "=%s", val_str); \
 		} \
 		proto_item_append_string(ti, str); \
@@ -3858,9 +3886,16 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 			if (ok) { /* Also found a textual parameter value: val_str */
 				offset += val_len;
 				if (is_quoted_string(val_str[0])) { /* Add trailing quote! */
-					proto_tree_add_text(tree, tvb, start, offset - start,
-							"%s: %s\"", str, val_str);
-					s = g_strdup_printf("; %s=%s\"", str, val_str);
+					if (is_quoted_string(val_str[val_len-2])) {
+						/* Trailing quote - issue a warning */
+						proto_tree_add_text(tree, tvb, start, offset - start,
+								"%s: %s" TrailingQuoteWarning, str, val_str);
+						s = g_strdup_printf("; %s=%s", str, val_str);
+					} else { /* OK (no trailing quote) */
+						proto_tree_add_text(tree, tvb, start, offset - start,
+								"%s: %s\"", str, val_str);
+						s = g_strdup_printf("; %s=%s\"", str, val_str);
+					}
 				} else { /* Token-text | 0x00 */
 					/* TODO - verify that it is either Token-text or 0x00
 					 * and flag with warning if invalid */
@@ -3912,7 +3947,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 				val_str = val_to_str(val, vals_character_sets,
 						"<Unknown character set Identifier 0x%X>");
 				proto_tree_add_string(tree, hf_parameter_charset,
-						tvb, start, offset - start, val_str);
+						tvb, start, type_len + val_len, val_str);
 				str = g_strdup_printf("; charset=%s", val_str);
 				proto_item_append_string(ti, str);
 				g_free(str);
@@ -4035,13 +4070,24 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 			break;
 
 		case 0x11:	/* WSP 1.4 encoding - SEC: Short-integer (OCTET) */
-			proto_tree_add_uint (tree, hf_wsp_parameter_sec, tvb, start, 2,
-					tvb_get_guint8 (tvb, start+1) & 0x7F);
-			offset++;
+			peek = tvb_get_guint8 (tvb, start+1);
+			if (peek & 0x80) { /* Valid Short-integer */
+				peek &= 0x7F;
+				proto_tree_add_uint (tree, hf_wsp_parameter_sec,
+						tvb, start, 2, peek);
+				str = match_strval(peek, vals_wsp_parameter_sec);
+				proto_item_append_text (ti, "; SEC=%s", str);
+				offset++;
+			} else { /* Error */
+				proto_tree_add_text (tree, tvb, start, len - start,
+						InvalidParameterValue("SEC", "Short-integer"));
+				offset = start + len; /* Skip to end of buffer */
+			}
 			break;
 
 		case 0x12:	/* WSP 1.4 encoding - MAC: Text-value */
-			parameter_text_value(hf_wsp_parameter_mac, "MAC", "MAC", "Text-value");
+			parameter_text_value(hf_wsp_parameter_mac, "MAC",
+					"MAC", "Text-value");
 			break;
 
 		case 0x02:	/* WSP 1.1 encoding - Level: Version-value */
@@ -5279,98 +5325,98 @@ proto_register_wsp(void)
 		},
 		{ &hf_wsp_parameter_well_known_charset,
 			{ 	"Charset",
-				"wsp.content_type.parameter.charset",
+				"wsp.parameter.charset",
 				 FT_UINT16, BASE_HEX, VALS ( vals_character_sets ), 0x00,
 				"Charset", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_type,
 			{ 	"Type",
-				"wsp.content_type.parameter.type",
+				"wsp.parameter.type",
 				 FT_UINT32, BASE_DEC, NULL, 0x00,
 				"Type", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_name,
 			{ 	"Name",
-				"wsp.content_type.parameter.name",
+				"wsp.parameter.name",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Name", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_filename,
 			{ 	"Filename",
-				"wsp.content_type.parameter.filename",
+				"wsp.parameter.filename",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Filename", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_start,
 			{ 	"Start",
-				"wsp.content_type.parameter.start",
+				"wsp.parameter.start",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Start", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_start_info,
 			{ 	"Start-info",
-				"wsp.content_type.parameter.start_info",
+				"wsp.parameter.start_info",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Start-info", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_comment,
 			{ 	"Comment",
-				"wsp.content_type.parameter.comment",
+				"wsp.parameter.comment",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Comment", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_domain,
 			{ 	"Domain",
-				"wsp.content_type.parameter.domain",
+				"wsp.parameter.domain",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Domain", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_path,
 			{ 	"Path",
-				"wsp.content_type.parameter.path",
+				"wsp.parameter.path",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Path", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_sec,
 			{ 	"SEC",
-				"wsp.content_type.parameter.sec",
+				"wsp.parameter.sec",
 				 FT_UINT8, BASE_HEX, VALS (vals_wsp_parameter_sec), 0x00,
 				"SEC parameter (Content-Type: application/vnd.wap.connectivity-wbxml)", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_mac,
 			{ 	"MAC",
-				"wsp.content_type.parameter.mac",
+				"wsp.parameter.mac",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"MAC parameter (Content-Type: application/vnd.wap.connectivity-wbxml)", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_upart_type,
 			{ 	"Type",
-				"wsp.content_type.parameter.upart.type",
+				"wsp.parameter.upart.type",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Multipart type", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_upart_type_value,
 			{ 	"Type",
-				"wsp.content_type.parameter.upart.type.int",
+				"wsp.parameter.upart.type.int",
 				 FT_UINT8, BASE_DEC, NULL, 0x00,
 				"Multipart type (int value)", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_level,
 			{ 	"Level",
-				"wsp.content_type.parameter.level",
+				"wsp.parameter.level",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Level parameter", HFILL
 			}
@@ -6235,13 +6281,6 @@ proto_register_wsp(void)
 				"WSP Openwave header x-up-proxy-request-uri", HFILL
 			}
 		},
-		{ &hf_hdr_openwave_x_up_proxy_client_id,
-			{	"x-up-proxy-client-id",
-				"wsp.hdr.openwave.x_up_proxy_client_id",
-				FT_STRING, BASE_NONE, NULL, 0x00,
-				"WSP Openwave header x-up-proxy-client-id", HFILL
-			}
-		},
 		{ &hf_hdr_openwave_x_up_proxy_bookmark,
 			{	"x-up-proxy-bookmark",
 				"wsp.hdr.openwave.x_up_proxy_bookmark",
@@ -6397,6 +6436,16 @@ proto_register_wsp(void)
 				"WSP Openwave header x-up-proxy-push-accept", HFILL
 			}
 		},
+
+		/* Not used for now
+		{ &hf_hdr_openwave_x_up_proxy_client_id,
+			{	"x-up-proxy-client-id",
+				"wsp.hdr.openwave.x_up_proxy_client_id",
+				FT_STRING, BASE_NONE, NULL, 0x00,
+				"WSP Openwave header x-up-proxy-client-id", HFILL
+			}
+		},
+		*/
 
 		/*
 		 * Header value parameters
