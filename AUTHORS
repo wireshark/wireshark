@@ -1568,7 +1568,7 @@ Jean-Baptiste Marchand <Jean-Baptiste.Marchand [AT] hsc.fr> {
 	Added an MSRPC (DCERPC) atsvc dissector
 	Added descriptions of permissions for SAM_SERVER and SAM_USER
 	    objects in SAMR
-	Fix for NETLOGON/DsrGetSiteName
+	Fix for NETLOGON/DsrGetSiteName and other NETLOGON functions
 }
 
 Andreas Trauer <andreas.trauer [AT] siemens.com> {
