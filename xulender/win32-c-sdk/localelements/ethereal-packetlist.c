@@ -256,7 +256,7 @@ ethereal_packetlist_notify(HWND hw_packetlist, LPARAM l_param, capture_file *cfi
 	case LVN_GETDISPINFO:
 	    lpdi = (LV_DISPINFO *)l_param;
 
-	    if (! lpdi->item.mask & LVIF_TEXT)
+	    if ((lpdi->item.mask & LVIF_TEXT) == 0)
 		break;
 
 	    if (lpdi->item.iSubItem) {	/* Our column number isn't zero. */
