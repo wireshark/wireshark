@@ -108,6 +108,7 @@ IMPORTS
 --        SYNTAX SEQUENCE SIZE (1..MAX) OF KeyPurposeId
 --        IDENTIFIED BY id-ce-extKeyUsage }
 --
+Dummy ::= NULL
 --KeyPurposeId ::= OBJECT IDENTIFIER
 --
 -- PKIX-defined extended key purpose OIDs

@@ -11,6 +11,17 @@ UserNotice
 
 #.PDU
 
+#.REGISTER
+Dummy         B "1.3.6.1.5.5.7.3.1"  "id-kp-serverAuth"
+Dummy         B "1.3.6.1.5.5.7.3.2"  "id-kp-clientAuth"
+Dummy         B "1.3.6.1.5.5.7.3.3"  "id-kp-codeSigning"
+Dummy         B "1.3.6.1.5.5.7.3.4"  "id-kp-emailProtection"
+Dummy         B "1.3.6.1.5.5.7.3.5"  "id-kp-ip-kp-ipsecEndSystem"
+Dummy         B "1.3.6.1.5.5.7.3.6"  "id-kp-ipsecTunnel"
+Dummy         B "1.3.6.1.5.5.7.3.7"  "id-kp-ipsecUser"
+Dummy         B "1.3.6.1.5.5.7.3.8"  "id-kp-timeStamping"
+Dummy         B "1.3.6.1.5.5.7.3.9"  "OCSPSigning"
+
 #.NO_EMIT
 
 #.TYPE_RENAME
