@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.67 2003/08/08 23:08:02 guy Exp $
+ * $Id: packet-isakmp.c,v 1.68 2003/09/15 19:08:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1256,6 +1256,7 @@ value2str(int ike_p1, guint16 att_type, guint16 value) {
 	  case 6:  return "Encryption with El-Gamal";
  	  case 7:  return "Revised encryption with El-Gamal";
 	  case 8:  return "ECDSA signatures";
+	  case 9:  return "AES-XCBC-MAC";
 	  case 64221: return "HybridInitRSA";
 	  case 64222: return "HybridRespRSA";
 	  case 64223: return "HybridInitDSS";
