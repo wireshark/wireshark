@@ -1,7 +1,7 @@
 /* gui_prefs.h
  * Definitions for GUI preferences window
  *
- * $Id: gui_prefs.h,v 1.4 2002/08/28 21:03:48 jmayer Exp $
+ * $Id: gui_prefs.h,v 1.5 2004/01/17 00:26:22 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,5 +30,7 @@ GtkWidget *gui_prefs_show(void);
 void gui_prefs_fetch(GtkWidget *w);
 void gui_prefs_apply(GtkWidget *w);
 void gui_prefs_destroy(GtkWidget *w);
+
+extern GtkWidget *gui_font_prefs_show(void);
 
 #endif

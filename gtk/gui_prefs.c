@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.52 2004/01/15 01:13:51 ulfl Exp $
+ * $Id: gui_prefs.c,v 1.53 2004/01/17 00:26:22 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,9 +47,6 @@
 #include "compat_macros.h"
 #include "toolbar.h"
 
-static void font_browse_cb(GtkWidget *w, gpointer data);
-static void font_browse_ok_cb(GtkWidget *w, GtkFontSelectionDialog *fs);
-static void font_browse_destroy(GtkWidget *win, gpointer data);
 static gint fetch_enum_value(gpointer control, const enum_val_t *enumvals);
 static gint fileopen_dir_changed_cb(GtkWidget *myentry _U_, GdkEvent *event, gpointer parent_w);
 static void fileopen_selected_cb(GtkWidget *mybutton_rb _U_, gpointer parent_w);
@@ -68,9 +65,6 @@ static gint recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
 #define HEX_DUMP_HIGHLIGHT_STYLE_KEY	"hex_dump_highlight_style"
 #define GEOMETRY_POSITION_KEY		"geometry_position"
 #define GEOMETRY_SIZE_KEY		"geometry_size"
-
-#define FONT_DIALOG_PTR_KEY	"font_dialog_ptr"
-#define FONT_CALLER_PTR_KEY	"font_caller_ptr"
 
 #define GUI_FILEOPEN_KEY	"fileopen_behavior"
 #define GUI_RECENT_FILES_COUNT_KEY "recent_files_count"
@@ -143,6 +137,8 @@ static gboolean font_changed;
    has been set to the name of the font the user selected. */
 static gchar *new_font_name;
 
+static GtkWidget *font_browse_w;
+
 /* Used to contain the string from the Recent Files Count Max pref item */
 static char recent_files_count_max_str[128] = "";
 
@@ -155,7 +151,7 @@ static char recent_files_count_max_str[128] = "";
 GtkWidget*
 gui_prefs_show(void)
 {
-	GtkWidget *main_tb, *main_vb, *hbox, *font_bt;
+	GtkWidget *main_tb, *main_vb, *hbox;
 	GtkWidget *scrollbar_om, *plist_browse_om;
 	GtkWidget *ptree_browse_om, *highlight_style_om;
         GtkWidget *fileopen_rb, *fileopen_dir_te, *toolbar_style_om;
@@ -182,7 +178,7 @@ gui_prefs_show(void)
 	gtk_box_pack_start (GTK_BOX(main_vb), hbox, TRUE, FALSE, 0);
 
 	/* Main table */
-	main_tb = gtk_table_new(GUI_TABLE_ROWS, 3, FALSE);
+	main_tb = gtk_table_new(GUI_TABLE_ROWS, 2, FALSE);
 	gtk_box_pack_start( GTK_BOX(hbox), main_tb, TRUE, FALSE, 0 );
 	gtk_table_set_row_spacings( GTK_TABLE(main_tb), 10 );
 	gtk_table_set_col_spacings( GTK_TABLE(main_tb), 15 );
@@ -272,11 +268,6 @@ gui_prefs_show(void)
 	OBJECT_SET_DATA(main_vb, GUI_RECENT_FILES_COUNT_KEY, recent_files_count_max_te);
 	SIGNAL_CONNECT(recent_files_count_max_te, "focus_out_event", recent_files_count_changed_cb, main_vb);
 
-	/* "Font..." button - click to open a font selection dialog box. */
-    font_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SELECT_FONT);
-	SIGNAL_CONNECT(font_bt, "clicked", font_browse_cb, NULL);
-	gtk_table_attach_defaults( GTK_TABLE(main_tb), font_bt, 2, 3, 0, 1 );
-
     fileopen_selected_cb(NULL, main_vb);        
 
 	/* Show 'em what we got */
@@ -285,39 +276,33 @@ gui_prefs_show(void)
 	return(main_vb);
 }
 
-/* Create a font dialog for browsing. */
-static void
-font_browse_cb(GtkWidget *w, gpointer data _U_)
+
+/* Create a font widget for browsing. */
+GtkWidget *
+gui_font_prefs_show(void)
 {
-	GtkWidget *caller = gtk_widget_get_toplevel(w);
-	GtkWidget *font_browse_w;
+#if 0
+    GdkWindow*  parent_win;
+#endif
 #if GTK_MAJOR_VERSION < 2
 	static gchar *fixedwidths[] = { "c", "m", NULL };
 #endif
 
-	/* Has a font dialog box already been opened for that top-level
-	   widget? */
-	font_browse_w = OBJECT_GET_DATA(caller, FONT_DIALOG_PTR_KEY);
+	/* Now create a new widget. */
+	font_browse_w = (GtkWidget *) gtk_font_selection_new();
 
-	if (font_browse_w != NULL) {
-		/* Yes.  Just re-activate that dialog box. */
-		reactivate_window(font_browse_w);
-		return;
-	}
+    /*gtk_font_selection_set_preview_text(GTK_FONT_SELECTION(font_browse_w), 
+        "WWWWWWWW llllllll (Tip: use a fixed width font)");*/
 
-	/* Now create a new dialog. */
-	font_browse_w = gtk_font_selection_dialog_new("Ethereal: Select Font");
-	gtk_window_set_transient_for(GTK_WINDOW(font_browse_w),
-	    GTK_WINDOW(top_level));
-
-	/* Call a handler when we're destroyed, so we can inform
-	   our caller, if any, that we've been destroyed. */
-	SIGNAL_CONNECT(font_browse_w, "destroy", font_browse_destroy, NULL);
-
+#if 0
+    /* GTK (at least version 1.3) has an annoying bug: */
+    /* when using the font selection instead of the dialog, */
+    /* the widget seems to disconnected from the parent, */
+    /* if a filter is used! */
 #if GTK_MAJOR_VERSION < 2
 	/* Set its filter to show only fixed_width fonts. */
-	gtk_font_selection_dialog_set_filter(
-	    GTK_FONT_SELECTION_DIALOG(font_browse_w),
+	gtk_font_selection_set_filter(
+	    GTK_FONT_SELECTION(font_browse_w),
 	    GTK_FONT_FILTER_BASE, /* user can't change the filter */
 	    GTK_FONT_ALL,	  /* bitmap or scalable are fine */
 	    NULL,		  /* all foundries are OK */
@@ -327,44 +312,25 @@ font_browse_cb(GtkWidget *w, gpointer data _U_)
 	    fixedwidths,	  /* ONLY fixed-width fonts */
 	    NULL);	/* all charsets are OK (XXX - ISO 8859/1 only?) */
 #endif
+#endif
 
-	/* Set the font to the current font.
+    /* Set the font to the current font.
 	   XXX - GTK+ 1.2.8, and probably earlier versions, have a bug
 	   wherein that doesn't necessarily cause that font to be
 	   selected in the dialog box.  I've sent to the GTK+ folk
 	   a fix; hopefully, it'll show up in 1.2.9 if, as, and when
 	   they put out a 1.2.9 release. */
-	gtk_font_selection_dialog_set_font_name(
-	    GTK_FONT_SELECTION_DIALOG(font_browse_w), prefs.gui_font_name);
+	gtk_font_selection_set_font_name(
+	    GTK_FONT_SELECTION(font_browse_w), prefs.gui_font_name);
 
-	/* Set the FONT_CALLER_PTR_KEY for the new dialog to point to
-	   our caller. */
-	OBJECT_SET_DATA(font_browse_w, FONT_CALLER_PTR_KEY, caller);
+    gtk_widget_show(font_browse_w);
 
-	/* Set the FONT_DIALOG_PTR_KEY for the caller to point to us */
-	OBJECT_SET_DATA(caller, FONT_DIALOG_PTR_KEY, font_browse_w);
-
-	/* Connect the ok_button to font_browse_ok_cb function and pass along a
-	   pointer to the font selection box widget */
-	SIGNAL_CONNECT(GTK_FONT_SELECTION_DIALOG(font_browse_w)->ok_button,
-                       "clicked", font_browse_ok_cb, font_browse_w);
-
-	/* Connect the cancel_button to destroy the widget */
-	SIGNAL_CONNECT_OBJECT(
-            GTK_FONT_SELECTION_DIALOG(font_browse_w)->cancel_button, "clicked",
-            gtk_widget_destroy, font_browse_w);
-
-	/* Catch the "key_press_event" signal in the window, so that we can
-	   catch the ESC key being pressed and act as if the "Cancel" button
-	   had been selected. */
-	dlg_set_cancel(font_browse_w,
-                       GTK_FONT_SELECTION_DIALOG(font_browse_w)->cancel_button);
-
-	gtk_widget_show(font_browse_w);
+    return font_browse_w;
 }
 
+
 static void
-font_browse_ok_cb(GtkWidget *w _U_, GtkFontSelectionDialog *fs)
+font_fetch(void)
 {
 	gchar   *font_name;
 #if GTK_MAJOR_VERSION < 2
@@ -374,8 +340,8 @@ font_browse_ok_cb(GtkWidget *w _U_, GtkFontSelectionDialog *fs)
         PangoFontDescription *new_r_font, *new_b_font;
 #endif
 
-	font_name = g_strdup(gtk_font_selection_dialog_get_font_name(
-	      GTK_FONT_SELECTION_DIALOG(fs)));
+	font_name = g_strdup(gtk_font_selection_get_font_name(
+	      GTK_FONT_SELECTION(font_browse_w)));
 	if (font_name == NULL) {
 		/* No font was selected; let the user know, but don't
 		   tear down the font selection dialog, so they can
@@ -432,32 +398,9 @@ font_browse_ok_cb(GtkWidget *w _U_, GtkFontSelectionDialog *fs)
 		return;
 	}
 
-	font_changed = TRUE;
 	new_font_name = font_name;
-
-	gtk_widget_hide(GTK_WIDGET(fs));
-	gtk_widget_destroy(GTK_WIDGET(fs));
 }
 
-static void
-font_browse_destroy(GtkWidget *win, gpointer data _U_)
-{
-	GtkWidget *caller;
-
-	/* Get the widget that requested that we be popped up, if any.
-	   (It should arrange to destroy us if it's destroyed, so
-	   that we don't get a pointer to a non-existent window here.) */
-	caller = OBJECT_GET_DATA(win, FONT_CALLER_PTR_KEY);
-
-	if (caller != NULL) {
-		/* Tell it we no longer exist. */
-		OBJECT_SET_DATA(caller, FONT_DIALOG_PTR_KEY, NULL);
-	}
-
-	/* Now nuke this window. */
-	gtk_grab_remove(GTK_WIDGET(win));
-	gtk_widget_destroy(GTK_WIDGET(win));
-}
 
 static gint
 fetch_enum_value(gpointer control, const enum_val_t *enumvals)
@@ -503,7 +446,10 @@ gui_prefs_fetch(GtkWidget *w)
         prefs.gui_fileopen_dir = g_strdup(gtk_entry_get_text(
                 GTK_ENTRY(OBJECT_GET_DATA(w, GUI_FILEOPEN_DIR_KEY))));
 
-	if (font_changed) {
+    font_fetch();
+
+    if (strcmp(new_font_name, prefs.gui_font_name) != 0) {
+        font_changed = TRUE;
 		if (prefs.gui_font_name != NULL)
 			g_free(prefs.gui_font_name);
 		prefs.gui_font_name = g_strdup(new_font_name);
@@ -556,7 +502,7 @@ gui_prefs_apply(GtkWidget *w _U_)
 
 	/* Redraw the "Follow TCP Stream" windows, if the font changed. */
 	if (font_changed) {
-    	follow_redraw_all();
+	follow_redraw_all();
     }
 
 	/* XXX: redraw the toolbar only, if style changed */
@@ -584,18 +530,6 @@ gui_prefs_apply(GtkWidget *w _U_)
 void
 gui_prefs_destroy(GtkWidget *w)
 {
-	GtkWidget *caller = gtk_widget_get_toplevel(w);
-	GtkWidget *fs;
-
-	/* Is there a font selection dialog associated with this
-	   Preferences dialog? */
-	fs = OBJECT_GET_DATA(caller, FONT_DIALOG_PTR_KEY);
-
-	if (fs != NULL) {
-		/* Yes.  Destroy it. */
-		gtk_widget_destroy(fs);
-	}
-
 	/* Free up any saved font name. */
 	if (new_font_name != NULL) {
 		g_free(new_font_name);

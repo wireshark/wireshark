@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.71 2004/01/14 23:32:48 ulfl Exp $
+ * $Id: prefs_dlg.c,v 1.72 2004/01/17 00:26:22 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,6 +72,7 @@ static void	prefs_tree_select_cb(GtkTreeSelection *, gpointer);
 
 #define E_GUI_PAGE_KEY	        "gui_options_page"
 #define E_GUI_COLUMN_PAGE_KEY   "gui_column_options_page"
+#define E_GUI_FONT_PAGE_KEY     "gui_font_options_page"
 #define E_GUI_STREAM_PAGE_KEY   "gui_tcp_stream_options_page"
 #define E_CAPTURE_PAGE_KEY      "capture_options_page"
 #define E_PRINT_PAGE_KEY        "printer_options_page"
@@ -337,7 +338,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 {
   GtkWidget         *top_hb, *bbox, *prefs_nb, *ct_sb, *frame,
                     *ok_bt, *apply_bt, *save_bt, *cancel_bt;
-  GtkWidget         *gui_pg, *gui_column_pg, *gui_stream_pg;
+  GtkWidget         *gui_pg, *gui_font_pg, *gui_column_pg, *gui_stream_pg;
 #ifdef HAVE_LIBPCAP
   GtkWidget         *capture_pg;
 #endif
@@ -355,6 +356,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   GtkTreeViewColumn *column;
   gint              col_offset;
   GtkTreeIter       iter;
+  GtkTreeIter       base_iter;
 #endif
 
   if (prefs_w != NULL) {
@@ -447,9 +449,12 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_ctree_node_set_row_data(GTK_CTREE(cts.tree), ct_node,
   		GINT_TO_POINTER(cts.page));
   ct_base_node = ct_node;
+  gtk_ctree_select(GTK_CTREE(cts.tree), ct_node);
 #else
   gtk_tree_store_append(store, &iter, NULL);
   gtk_tree_store_set(store, &iter, 0, label_str, 1, cts.page, -1);
+  base_iter = iter;
+  gtk_tree_selection_select_iter(selection, &iter);
 #endif
   cts.page++;
 
@@ -467,7 +472,28 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_ctree_node_set_row_data(GTK_CTREE(cts.tree), ct_node,
   		GINT_TO_POINTER(cts.page));
 #else
-  gtk_tree_store_append(store, &iter, NULL);
+  gtk_tree_store_append(store, &iter, &base_iter);
+  gtk_tree_store_set(store, &iter, 0, label_str, 1, cts.page, -1);
+  /* expand the parent */
+  gtk_tree_view_expand_all(GTK_TREE_VIEW(cts.tree));
+#endif
+  cts.page++;
+
+  /* GUI Font prefs */
+  frame = gtk_frame_new("Font");
+  gtk_widget_show(GTK_WIDGET(frame));
+  gui_font_pg = gui_font_prefs_show();
+  gtk_container_add(GTK_CONTAINER(frame), gui_font_pg);
+  OBJECT_SET_DATA(prefs_w, E_GUI_FONT_PAGE_KEY, gui_font_pg);
+  gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
+  strcpy(label_str, "Font");
+#if GTK_MAJOR_VERSION < 2
+  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.tree), ct_base_node, NULL,
+  		&label_ptr, 5, NULL, NULL, NULL, NULL, TRUE, TRUE);
+  gtk_ctree_node_set_row_data(GTK_CTREE(cts.tree), ct_node,
+  		GINT_TO_POINTER(cts.page));
+#else
+  gtk_tree_store_append(store, &iter, &base_iter);
   gtk_tree_store_set(store, &iter, 0, label_str, 1, cts.page, -1);
 #endif
   cts.page++;
@@ -486,7 +512,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_ctree_node_set_row_data(GTK_CTREE(cts.tree), ct_node,
   		GINT_TO_POINTER(cts.page));
 #else
-  gtk_tree_store_append(store, &iter, NULL);
+  gtk_tree_store_append(store, &iter, &base_iter);
   gtk_tree_store_set(store, &iter, 0, label_str, 1, cts.page, -1);
 #endif
   cts.page++;
