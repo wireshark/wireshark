@@ -8,7 +8,7 @@
  * Modified 2004-01-10 by Anders Broman to add abillity to dissect
  * Content type application/ISUP RFC 3204 used in SIP-T
  *
- * $Id: packet-isup.c,v 1.42 2004/01/13 03:35:18 guy Exp $
+ * $Id: packet-isup.c,v 1.43 2004/01/13 22:58:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3938,6 +3938,17 @@ dissect_isup_location_number_parameter(tvbuff_t *parameter_tvb, proto_tree *para
     proto_tree_add_text(parameter_tree, parameter_tvb, 1, 1, "Different meaning for Location Number: Numbering plan indicator = private numbering plan");
   proto_tree_add_uint(parameter_tree, hf_isup_address_presentation_restricted_indicator, parameter_tvb, 1, 1, indicators2);
   proto_tree_add_uint(parameter_tree, hf_isup_screening_indicator, parameter_tvb, 1, 1, indicators2);
+
+   /* NOTE  When the address presentation restricted indicator indicates address not available, the
+    * subfields in items a), b), c) and d) are coded with 0's, and the screening indicator is set to 11
+    * (network provided).
+    */
+  if ( indicators2 == 0x0b ){
+    proto_tree_add_text(parameter_tree, parameter_tvb, 1, -1, "Location number: address not available");
+    proto_item_set_text(parameter_item, "Location number: address not available");
+    return;
+  }
+
   offset = 2;
 
   address_digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,
@@ -6315,7 +6326,7 @@ proto_reg_handoff_isup(void)
   application_isup_handle = create_dissector_handle(dissect_application_isup, proto_isup);
   dissector_add("mtp3.service_indicator", MTP3_ISUP_SERVICE_INDICATOR, isup_handle);
   dissector_add("m3ua.protocol_data_si", MTP3_ISUP_SERVICE_INDICATOR, isup_handle);
-  dissector_add_string("media_type","application/ISUP", application_isup_handle);
+  dissector_add_string("media_type","application/isup", application_isup_handle);
 
 }
 
