@@ -10,6 +10,35 @@ IMPORTS
     FROM InformationFramework;
 
 
+ActionReply ::= SEQUENCE {
+  actionType       OBJECT IDENTIFIER,
+  actionReplyInfo  [4]  ANY
+}
+
+ActionResult ::= SEQUENCE {
+  managedObjectClass     ObjectClass OPTIONAL,
+  managedObjectInstance  ObjectInstance OPTIONAL,
+  currentTime            [5] IMPLICIT GeneralizedTime OPTIONAL,
+  actionReply            [6] IMPLICIT ActionReply OPTIONAL,
+  ...
+}
+
+ActionArgument ::= SEQUENCE {
+  baseManagedObjectClass     ObjectClass,
+  baseManagedObjectInstance  ObjectInstance,
+  accessControl    [5]  AccessControl OPTIONAL,
+  synchronization  [6] IMPLICIT CMISSync OPTIONAL,
+  scope            [7]  Scope OPTIONAL,
+  filter           CMISFilter OPTIONAL,
+  actionInfo       [12] IMPLICIT ActionInfo,
+  ...
+}
+
+ActionInfo ::= SEQUENCE {
+  actionType     OBJECT IDENTIFIER,
+  actionInfoArg  [4]  ANY OPTIONAL
+}
+
 ObjectClass ::= CHOICE {
   ocglobalForm  [0] IMPLICIT OBJECT IDENTIFIER,
   oclocalForm   [1] IMPLICIT INTEGER

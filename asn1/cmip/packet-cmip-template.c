@@ -47,6 +47,7 @@
 
 /* Initialize the protocol and registered fields */
 int proto_cmip = -1;
+static int hf_cmip_actionType_OID = -1;
 #include "packet-cmip-hf.c"
 
 /* Initialize the subtree pointers */
@@ -65,6 +66,8 @@ static int attributeform;
 #define ATTRIBUTE_LOCAL_FORM  0
 #define ATTRIBUTE_GLOBAL_FORM 1
 static char attribute_identifier_id[64]; /*64 chars should be long enough? */
+
+static char object_identifier_id[64]; /*64 chars should be long enough? */
 
 static int objectclassform;
 #define OBJECTCLASS_LOCAL_FORM  0
@@ -133,6 +136,10 @@ void proto_register_cmip(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
+    { &hf_cmip_actionType_OID,
+      { "actionType", "cmip.actionType_OID",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "actionType", HFILL }},
 #include "packet-cmip-hfarr.c"
   };
 
