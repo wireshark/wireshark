@@ -2,7 +2,7 @@
  * Routines for EIGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-eigrp.c,v 1.21 2002/01/24 09:20:47 guy Exp $
+ * $Id: packet-eigrp.c,v 1.22 2002/02/01 04:34:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -191,7 +191,7 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	     size =  tvb_get_ntohs(tvb,offset+2);
 	     if ( size == 0 ) 
 		{
-		proto_tree_add_text(eigrp_tree,tvb,offset,tvb_length_remaining(tvb,offset),"Unknown data (maybe authentication)");
+		proto_tree_add_text(eigrp_tree,tvb,offset,-1,"Unknown data (maybe authentication)");
 		return;
 		}
 

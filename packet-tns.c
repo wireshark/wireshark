@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.28 2002/01/24 09:20:52 guy Exp $
+ * $Id: packet-tns.c,v 1.29 2002/02/01 04:34:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -371,8 +371,7 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( connect_tree && cd_len > 0)
 	{
 		proto_tree_add_item(connect_tree, hf_tns_connect_data, tvb,
-			tns_offset+cd_offset,
-			tvb_length_remaining(tvb, tns_offset+cd_offset), FALSE);
+			tns_offset+cd_offset, -1, FALSE);
 	}
 	return;
 }
@@ -468,8 +467,7 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( accept_tree && accept_len > 0)
 	{
 		proto_tree_add_item(accept_tree, hf_tns_accept_data, tvb,
-			tns_offset+accept_offset,
-			tvb_length_remaining(tvb, tns_offset+accept_offset), FALSE);
+			tns_offset+accept_offset, -1, FALSE);
 	}
 	return;
 }
@@ -519,7 +517,7 @@ static void dissect_tns_refuse(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( refuse_tree )
 	{
 		proto_tree_add_item(refuse_tree, hf_tns_refuse_data, tvb,
-			offset, tvb_length_remaining(tvb, offset), FALSE);
+			offset, -1, FALSE);
 	}
 	return;
 }
@@ -562,7 +560,7 @@ static void dissect_tns_abort(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( abort_tree )
 	{
 		proto_tree_add_item(abort_tree, hf_tns_abort_data, tvb,
-			offset, tvb_length_remaining(tvb,offset), FALSE);
+			offset, -1, FALSE);
 	}
 	return;
 }
@@ -657,7 +655,7 @@ static void dissect_tns_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( redirect_tree )
 	{
 		proto_tree_add_item(redirect_tree, hf_tns_redirect_data, tvb,
-			offset, tvb_length_remaining(tvb, offset), FALSE);
+			offset, -1, FALSE);
 	}
 	return;
 }
@@ -692,7 +690,7 @@ static void dissect_tns_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( control_tree )
 	{
 		proto_tree_add_item(control_tree, hf_tns_control_data, tvb,
-			offset, tvb_length_remaining(tvb, offset), FALSE);
+			offset, -1, FALSE);
 	}
 	return;
 }

@@ -2,7 +2,7 @@
  * Routines for ISUP dissection
  * Copyright 2001, Martina Obermeier <martina.obermeier@icn.siemens.de>
  *
- * $Id: packet-isup.c,v 1.10 2002/01/31 00:49:59 guy Exp $
+ * $Id: packet-isup.c,v 1.11 2002/02/01 04:34:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1299,8 +1299,7 @@ void dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_t
   offset = 2;
 
   address_digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,
-					    offset,
-					    tvb_length_remaining(parameter_tvb, offset),
+					    offset, -1,
 					    "Called Party Number");
   address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
 
@@ -1346,8 +1345,7 @@ void dissect_isup_subsequent_number_parameter(tvbuff_t *parameter_tvb, proto_tre
   offset = 1;
 
   address_digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,
-					    offset,
-					    tvb_length_remaining(parameter_tvb, offset),
+					    offset, -1,
 					    "Subsequent Number");
   address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
 
@@ -1641,8 +1639,7 @@ dissect_isup_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree 
   offset = 2;
 
   address_digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,
-					    offset,
-					    tvb_length_remaining(parameter_tvb, offset),
+					    offset, -1,
 					    "Calling Party Number");
   address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
 
@@ -1693,8 +1690,7 @@ dissect_isup_original_called_number_parameter(tvbuff_t *parameter_tvb, proto_tre
   offset = 2;
 
   address_digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,
-					    offset,
-					    tvb_length_remaining(parameter_tvb, offset),
+					    offset, -1,
 					    "Original Called Number");
   address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
 
@@ -1745,8 +1741,7 @@ dissect_isup_redirecting_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
   offset = 2;
 
   address_digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,
-					    offset,
-					    tvb_length_remaining(parameter_tvb, offset),
+					    offset, -1,
 					    "Redirecting Number");
   address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
 
@@ -1796,8 +1791,7 @@ void dissect_isup_redirection_number_parameter(tvbuff_t *parameter_tvb, proto_tr
   offset = 2;
 
   address_digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,
-					    offset,
-					    tvb_length_remaining(parameter_tvb, offset),
+					    offset, -1,
 					    "Redirection Number");
   address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
 
@@ -1939,8 +1933,7 @@ dissect_isup_connected_number_parameter(tvbuff_t *parameter_tvb, proto_tree *par
   offset = 2;
 
   address_digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,
-					    offset,
-					    tvb_length_remaining(parameter_tvb, offset),
+					    offset, -1,
 					    "Connected Number");
   address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
 
@@ -1989,8 +1982,7 @@ dissect_isup_transit_network_selection_parameter(tvbuff_t *parameter_tvb, proto_
   offset = 1;
 
   address_digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,
-					    offset,
-					    tvb_length_remaining(parameter_tvb, offset),
+					    offset, -1,
 					    "Network identification");
   address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
 
@@ -2332,8 +2324,7 @@ dissect_isup_location_number_parameter(tvbuff_t *parameter_tvb, proto_tree *para
   offset = 2;
 
   address_digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,
-					    offset,
-					    tvb_length_remaining(parameter_tvb, offset),
+					    offset, -1,
 					    "Location number");
   address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
 
@@ -2439,8 +2430,7 @@ dissect_isup_call_transfer_number_parameter(tvbuff_t *parameter_tvb, proto_tree 
   offset = 2;
 
   address_digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,
-					    offset,
-					    tvb_length_remaining(parameter_tvb, offset),
+					    offset, -1,
 					    "Call transfer number");
   address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
 
@@ -2580,8 +2570,7 @@ dissect_isup_called_in_number_parameter(tvbuff_t *parameter_tvb, proto_tree *par
   offset = 2;
 
   address_digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,
-					    offset,
-					    tvb_length_remaining(parameter_tvb, offset),
+					    offset, -1,
 					    "Called IN Number");
   address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
 
@@ -2728,8 +2717,7 @@ dissect_isup_generic_number_parameter(tvbuff_t *parameter_tvb, proto_tree *param
   offset = 3;
 
   address_digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,
-					    offset,
-					    tvb_length_remaining(parameter_tvb, offset),
+					    offset, -1,
 					    "Generic number");
   address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
 
@@ -3087,7 +3075,7 @@ dissect_isup_initial_address_message(tvbuff_t *message_tvb, proto_tree *isup_tre
 				       "Nature of Connection Indicators");
   parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));		
-  actual_length = tvb_length_remaining(message_tvb, offset);
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(NATURE_OF_CONNECTION_IND_LENGTH, actual_length), NATURE_OF_CONNECTION_IND_LENGTH);
   dissect_isup_nature_of_connection_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += NATURE_OF_CONNECTION_IND_LENGTH;
@@ -3099,7 +3087,7 @@ dissect_isup_initial_address_message(tvbuff_t *message_tvb, proto_tree *isup_tre
 				       "Forward Call Indicators");
   parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));		
-  actual_length = tvb_length_remaining(message_tvb, offset); 
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset); 
   parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(FORWARD_CALL_IND_LENGTH, actual_length), FORWARD_CALL_IND_LENGTH );
   dissect_isup_forward_call_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset +=  FORWARD_CALL_IND_LENGTH;
@@ -3111,7 +3099,7 @@ dissect_isup_initial_address_message(tvbuff_t *message_tvb, proto_tree *isup_tre
 				       "Calling Party's category");
   parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));		
-  actual_length = tvb_length_remaining(message_tvb, offset); 
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset); 
   parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(CALLING_PRTYS_CATEGORY_LENGTH, actual_length),CALLING_PRTYS_CATEGORY_LENGTH );
   dissect_isup_calling_partys_category_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += CALLING_PRTYS_CATEGORY_LENGTH;
@@ -3123,7 +3111,7 @@ dissect_isup_initial_address_message(tvbuff_t *message_tvb, proto_tree *isup_tre
 				       "Transmission medium requirement");
   parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));		       
-  actual_length = tvb_length_remaining(message_tvb, offset); 
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset); 
   parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(TRANSMISSION_MEDIUM_REQUIREMENT_LENGTH, actual_length), TRANSMISSION_MEDIUM_REQUIREMENT_LENGTH);
   dissect_isup_transmission_medium_requirement_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += TRANSMISSION_MEDIUM_REQUIREMENT_LENGTH;
@@ -3142,7 +3130,7 @@ dissect_isup_initial_address_message(tvbuff_t *message_tvb, proto_tree *isup_tre
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));	
   proto_tree_add_uint_format(parameter_tree, hf_isup_mandatory_variable_parameter_pointer, message_tvb, offset, PARAMETER_POINTER_LENGTH, parameter_pointer, "Pointer to Parameter: %u", parameter_pointer);  
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, message_tvb, offset + parameter_pointer, PARAMETER_LENGTH_IND_LENGTH, parameter_length, "Parameter length: %u", parameter_length);
-  actual_length = tvb_length_remaining(message_tvb, offset); 	       
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset); 	       
   parameter_tvb = tvb_new_subset(message_tvb, offset + parameter_pointer + PARAMETER_LENGTH_IND_LENGTH, MIN(parameter_length, actual_length), parameter_length );
   dissect_isup_called_party_number_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += PARAMETER_POINTER_LENGTH;
@@ -3173,7 +3161,7 @@ gint dissect_isup_subsequent_address_message(tvbuff_t *message_tvb, proto_tree *
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));	
   proto_tree_add_uint_format(parameter_tree, hf_isup_mandatory_variable_parameter_pointer, message_tvb, offset, PARAMETER_POINTER_LENGTH, parameter_pointer, "Pointer to Parameter: %u", parameter_pointer);  
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, message_tvb, offset + parameter_pointer, PARAMETER_LENGTH_IND_LENGTH, parameter_length, "Parameter length: %u", parameter_length);
-  actual_length = tvb_length_remaining(message_tvb, offset); 	       
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset); 	       
   parameter_tvb = tvb_new_subset(message_tvb, offset + parameter_pointer + PARAMETER_LENGTH_IND_LENGTH, MIN(parameter_length, actual_length), parameter_length );
   dissect_isup_subsequent_number_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += PARAMETER_POINTER_LENGTH;
@@ -3199,7 +3187,7 @@ dissect_isup_information_request_message(tvbuff_t *message_tvb, proto_tree *isup
 				       "Information request indicators");
   parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));		
-  actual_length = tvb_length_remaining(message_tvb, offset);
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(INFO_REQUEST_IND_LENGTH, actual_length), INFO_REQUEST_IND_LENGTH);
   dissect_isup_information_request_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += INFO_REQUEST_IND_LENGTH;
@@ -3223,7 +3211,7 @@ dissect_isup_information_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 				       "Information indicators");
   parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));		
-  actual_length = tvb_length_remaining(message_tvb, offset);
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(INFO_IND_LENGTH, actual_length), INFO_IND_LENGTH);
   dissect_isup_information_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += INFO_IND_LENGTH;
@@ -3247,7 +3235,7 @@ dissect_isup_continuity_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 				       "Continuity indicators");
   parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));		
-  actual_length = tvb_length_remaining(message_tvb, offset);
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(CONTINUITY_IND_LENGTH, actual_length), CONTINUITY_IND_LENGTH);
   dissect_isup_continuity_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += CONTINUITY_IND_LENGTH;
@@ -3271,7 +3259,7 @@ dissect_isup_address_complete_message(tvbuff_t *message_tvb, proto_tree *isup_tr
 				       "Backward Call Indicators");
   parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));		
-  actual_length = tvb_length_remaining(message_tvb, offset);
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(BACKWARD_CALL_IND_LENGTH, actual_length), BACKWARD_CALL_IND_LENGTH);
   dissect_isup_backward_call_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += BACKWARD_CALL_IND_LENGTH;
@@ -3295,7 +3283,7 @@ dissect_isup_connect_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 				       "Backward Call Indicators");
   parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));		
-  actual_length = tvb_length_remaining(message_tvb, offset);
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(BACKWARD_CALL_IND_LENGTH, actual_length), BACKWARD_CALL_IND_LENGTH);
   dissect_isup_backward_call_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += BACKWARD_CALL_IND_LENGTH;
@@ -3326,7 +3314,7 @@ dissect_isup_release_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));	
   proto_tree_add_uint_format(parameter_tree, hf_isup_mandatory_variable_parameter_pointer, message_tvb, offset, PARAMETER_POINTER_LENGTH, parameter_pointer, "Pointer to Parameter: %u", parameter_pointer);  
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, message_tvb, offset + parameter_pointer, PARAMETER_LENGTH_IND_LENGTH, parameter_length, "Parameter length: %u", parameter_length);
-  actual_length = tvb_length_remaining(message_tvb, offset); 	       
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset); 	       
   parameter_tvb = tvb_new_subset(message_tvb, offset + parameter_pointer + PARAMETER_LENGTH_IND_LENGTH, MIN(parameter_length, actual_length), parameter_length );
   dissect_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += PARAMETER_POINTER_LENGTH;
@@ -3351,7 +3339,7 @@ dissect_isup_suspend_resume_message(tvbuff_t *message_tvb, proto_tree *isup_tree
 				       "Suspend/Resume indicator");
   parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));		
-  actual_length = tvb_length_remaining(message_tvb, offset);
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(SUSPEND_RESUME_IND_LENGTH, actual_length), SUSPEND_RESUME_IND_LENGTH);
   dissect_isup_suspend_resume_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += SUSPEND_RESUME_IND_LENGTH;
@@ -3382,7 +3370,7 @@ dissect_isup_circuit_group_reset_query_message(tvbuff_t *message_tvb, proto_tree
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));	
   proto_tree_add_uint_format(parameter_tree, hf_isup_mandatory_variable_parameter_pointer, message_tvb, offset, PARAMETER_POINTER_LENGTH, parameter_pointer, "Pointer to Parameter: %u", parameter_pointer);  
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, message_tvb, offset + parameter_pointer, PARAMETER_LENGTH_IND_LENGTH, parameter_length, "Parameter length: %u", parameter_length);
-  actual_length = tvb_length_remaining(message_tvb, offset); 	       
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset); 	       
   parameter_tvb = tvb_new_subset(message_tvb, offset + parameter_pointer + PARAMETER_LENGTH_IND_LENGTH, MIN(parameter_length, actual_length), parameter_length );
   dissect_isup_range_and_status_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += PARAMETER_POINTER_LENGTH;
@@ -3407,7 +3395,7 @@ dissect_isup_circuit_group_blocking_messages(tvbuff_t *message_tvb, proto_tree *
 				       "Circuit group supervision message type");
   parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));		
-  actual_length = tvb_length_remaining(message_tvb, offset);
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(CIRC_GRP_SV_MSG_TYPE_LENGTH, actual_length), CIRC_GRP_SV_MSG_TYPE_LENGTH);
   dissect_isup_circuit_group_supervision_message_type_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += CIRC_GRP_SV_MSG_TYPE_LENGTH;
@@ -3426,7 +3414,7 @@ dissect_isup_circuit_group_blocking_messages(tvbuff_t *message_tvb, proto_tree *
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));	
   proto_tree_add_uint_format(parameter_tree, hf_isup_mandatory_variable_parameter_pointer, message_tvb, offset, PARAMETER_POINTER_LENGTH, parameter_pointer, "Pointer to Parameter: %u", parameter_pointer);  
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, message_tvb, offset + parameter_pointer, PARAMETER_LENGTH_IND_LENGTH, parameter_length, "Parameter length: %u", parameter_length);
-  actual_length = tvb_length_remaining(message_tvb, offset); 	       
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset); 	       
   parameter_tvb = tvb_new_subset(message_tvb, offset + parameter_pointer + PARAMETER_LENGTH_IND_LENGTH, MIN(parameter_length, actual_length), parameter_length );
   dissect_isup_facility_ind_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += PARAMETER_POINTER_LENGTH;
@@ -3452,7 +3440,7 @@ dissect_isup_facility_request_accepted_message(tvbuff_t *message_tvb, proto_tree
 				       "Facility indicator");
   parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));		
-  actual_length = tvb_length_remaining(message_tvb, offset);
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(FACILITY_IND_LENGTH, actual_length), FACILITY_IND_LENGTH);
   dissect_isup_facility_ind_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += FACILITY_IND_LENGTH;
@@ -3476,7 +3464,7 @@ dissect_isup_facility_reject_message(tvbuff_t *message_tvb, proto_tree *isup_tre
 				       "Facility indicator");
   parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));		
-  actual_length = tvb_length_remaining(message_tvb, offset);
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(FACILITY_IND_LENGTH, actual_length), FACILITY_IND_LENGTH);
   dissect_isup_facility_ind_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += FACILITY_IND_LENGTH;
@@ -3495,7 +3483,7 @@ dissect_isup_facility_reject_message(tvbuff_t *message_tvb, proto_tree *isup_tre
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));	
   proto_tree_add_uint_format(parameter_tree, hf_isup_mandatory_variable_parameter_pointer, message_tvb, offset, PARAMETER_POINTER_LENGTH, parameter_pointer, "Pointer to Parameter: %u", parameter_pointer);  
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, message_tvb, offset + parameter_pointer, PARAMETER_LENGTH_IND_LENGTH, parameter_length, "Parameter length: %u", parameter_length);
-  actual_length = tvb_length_remaining(message_tvb, offset); 	       
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset); 	       
   parameter_tvb = tvb_new_subset(message_tvb, offset + parameter_pointer + PARAMETER_LENGTH_IND_LENGTH, MIN(parameter_length, actual_length), parameter_length );
   dissect_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += PARAMETER_POINTER_LENGTH;
@@ -3527,7 +3515,7 @@ dissect_isup_circuit_group_reset_acknowledgement_message(tvbuff_t *message_tvb, 
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));	
   proto_tree_add_uint_format(parameter_tree, hf_isup_mandatory_variable_parameter_pointer, message_tvb, offset, PARAMETER_POINTER_LENGTH, parameter_pointer, "Pointer to Parameter: %u", parameter_pointer);  
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, message_tvb, offset + parameter_pointer, PARAMETER_LENGTH_IND_LENGTH, parameter_length, "Parameter length: %u", parameter_length);
-  actual_length = tvb_length_remaining(message_tvb, offset); 	       
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset); 	       
   parameter_tvb = tvb_new_subset(message_tvb, offset + parameter_pointer + PARAMETER_LENGTH_IND_LENGTH, MIN(parameter_length, actual_length), parameter_length );
   dissect_isup_range_and_status_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += PARAMETER_POINTER_LENGTH;
@@ -3559,7 +3547,7 @@ dissect_isup_circuit_group_query_response_message(tvbuff_t *message_tvb, proto_t
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));	
   proto_tree_add_uint_format(parameter_tree, hf_isup_mandatory_variable_parameter_pointer, message_tvb, offset, PARAMETER_POINTER_LENGTH, parameter_pointer, "Pointer to Parameter: %u", parameter_pointer);  
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, message_tvb, offset + parameter_pointer, PARAMETER_LENGTH_IND_LENGTH, parameter_length, "Parameter length: %u", parameter_length);
-  actual_length = tvb_length_remaining(message_tvb, offset); 	       
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset); 	       
   parameter_tvb = tvb_new_subset(message_tvb, offset + parameter_pointer + PARAMETER_LENGTH_IND_LENGTH, MIN(parameter_length, actual_length), parameter_length );
   dissect_isup_range_and_status_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += PARAMETER_POINTER_LENGTH;
@@ -3578,7 +3566,7 @@ dissect_isup_circuit_group_query_response_message(tvbuff_t *message_tvb, proto_t
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));	
   proto_tree_add_uint_format(parameter_tree, hf_isup_mandatory_variable_parameter_pointer, message_tvb, offset, PARAMETER_POINTER_LENGTH, parameter_pointer, "Pointer to Parameter: %u", parameter_pointer);  
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, message_tvb, offset + parameter_pointer, PARAMETER_LENGTH_IND_LENGTH, parameter_length, "Parameter length: %u", parameter_length);
-  actual_length = tvb_length_remaining(message_tvb, offset); 	       
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset); 	       
   parameter_tvb = tvb_new_subset(message_tvb, offset + parameter_pointer + PARAMETER_LENGTH_IND_LENGTH, MIN(parameter_length, actual_length), parameter_length );
   dissect_isup_circuit_state_ind_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += PARAMETER_POINTER_LENGTH;
@@ -3603,7 +3591,7 @@ dissect_isup_call_progress_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 				       "Event information");
   parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));		
-  actual_length = tvb_length_remaining(message_tvb, offset);
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(EVENT_INFO_LENGTH, actual_length), EVENT_INFO_LENGTH);
   dissect_isup_event_information_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += EVENT_INFO_LENGTH;
@@ -3634,7 +3622,7 @@ dissect_isup_user_to_user_information_message(tvbuff_t *message_tvb, proto_tree 
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));	
   proto_tree_add_uint_format(parameter_tree, hf_isup_mandatory_variable_parameter_pointer, message_tvb, offset, PARAMETER_POINTER_LENGTH, parameter_pointer, "Pointer to Parameter: %u", parameter_pointer);  
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, message_tvb, offset + parameter_pointer, PARAMETER_LENGTH_IND_LENGTH, parameter_length, "Parameter length: %u", parameter_length);
-  actual_length = tvb_length_remaining(message_tvb, offset); 	       
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset); 	       
   parameter_tvb = tvb_new_subset(message_tvb, offset + parameter_pointer + PARAMETER_LENGTH_IND_LENGTH, MIN(parameter_length, actual_length), parameter_length );
   dissect_isup_user_to_user_information_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += PARAMETER_POINTER_LENGTH;
@@ -3666,7 +3654,7 @@ dissect_isup_confusion_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));	
   proto_tree_add_uint_format(parameter_tree, hf_isup_mandatory_variable_parameter_pointer, message_tvb, offset, PARAMETER_POINTER_LENGTH, parameter_pointer, "Pointer to Parameter: %u", parameter_pointer);  
   proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, message_tvb, offset + parameter_pointer, PARAMETER_LENGTH_IND_LENGTH, parameter_length, "Parameter length: %u", parameter_length);
-  actual_length = tvb_length_remaining(message_tvb, offset); 	       
+  actual_length = tvb_ensure_length_remaining(message_tvb, offset); 	       
   parameter_tvb = tvb_new_subset(message_tvb, offset + parameter_pointer + PARAMETER_LENGTH_IND_LENGTH, MIN(parameter_length, actual_length), parameter_length );
   dissect_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += PARAMETER_POINTER_LENGTH;
@@ -3698,7 +3686,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
    proto_tree_add_uint_format(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type, "Message type: %s (%u)", val_to_str(message_type, isup_message_type_value, "reserved"), message_type);
    offset +=  MESSAGE_TYPE_LENGTH;
 
-   bufferlength = tvb_length_remaining(message_tvb, offset);
+   bufferlength = tvb_ensure_length_remaining(message_tvb, offset);
    parameter_tvb = tvb_new_subset(message_tvb, offset, bufferlength, bufferlength);
 
    /* distinguish between message types:*/
@@ -3806,7 +3794,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
       /* call dissect_isup_message recursively */
       {	guint8 pa_message_type;
 	pa_message_type = tvb_get_guint8(parameter_tvb, 0);
-	pass_along_item = proto_tree_add_text(isup_tree, parameter_tvb, offset, tvb_length_remaining(parameter_tvb, offset), "Pass-along: %s Message (%u)", val_to_str(pa_message_type, isup_message_type_value, "reserved"), pa_message_type);
+	pass_along_item = proto_tree_add_text(isup_tree, parameter_tvb, offset, -1, "Pass-along: %s Message (%u)", val_to_str(pa_message_type, isup_message_type_value, "reserved"), pa_message_type);
 	pass_along_tree = proto_item_add_subtree(pass_along_item, ett_isup_pass_along_message);
 	dissect_isup_message(parameter_tvb, pinfo, pass_along_tree);
 	break;

@@ -2,7 +2,7 @@
  *
  * Routines for ITU-T Recommendation H.261 dissection
  *
- * $Id: packet-h261.c,v 1.13 2002/01/29 17:18:06 gram Exp $
+ * $Id: packet-h261.c,v 1.14 2002/02/01 04:34:15 gram Exp $
  * 
  * Copyright 2000, Philips Electronics N.V.
  * Andreas Sikkema <andreas.sikkema@philips.com>
@@ -117,7 +117,7 @@ dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		offset++;
 
 		/* The rest of the packet is the H.261 stream */
-		proto_tree_add_item( h261_tree, hf_h261_data, tvb, offset, tvb_length_remaining( tvb, offset ), FALSE );
+		proto_tree_add_item( h261_tree, hf_h261_data, tvb, offset, -1, FALSE );
 	}
 }
 

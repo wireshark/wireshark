@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.27 2002/01/04 06:45:14 gram Exp $
+ * $Id: tvbuff.c,v 1.28 2002/02/01 04:34:17 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -605,6 +605,22 @@ tvb_length_remaining(tvbuff_t *tvb, gint offset)
 		return -1;
 	}
 }
+
+gint
+tvb_ensure_length_remaining(tvbuff_t *tvb, gint offset)
+{
+	gint retval;
+
+	retval = tvb_length_remaining(tvb, offset);
+
+	if (retval == -1) {
+		THROW(ReportedBoundsError);
+	}
+	else {
+		return retval;
+	}
+}
+
 
 
 

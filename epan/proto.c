@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.50 2002/01/20 22:12:39 guy Exp $
+ * $Id: proto.c,v 1.51 2002/02/01 04:34:17 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1167,6 +1167,10 @@ proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length
 {
 	gchar	*string;
 
+	if (length == -1) {
+		length = tvb_ensure_length_remaining(tvb, start);
+	}
+
 	/* This memory is freed in proto_tree_free_node() */
 	string = g_malloc(length + 1);
 	tvb_memcpy(tvb, string, start, length);
@@ -1624,8 +1628,10 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint 
 		 * It's not valid for any other type of field.
 		 */
 		g_assert(hfinfo->type == FT_PROTOCOL ||
-			 hfinfo->type == FT_NONE);
-		length = tvb_length_remaining(tvb, start);
+			 hfinfo->type == FT_NONE ||
+			 hfinfo->type == FT_BYTES ||
+			 hfinfo->type == FT_STRING);
+		length = tvb_ensure_length_remaining(tvb, start);
 	}
 
 	fi = g_mem_chunk_alloc(gmc_field_info);
