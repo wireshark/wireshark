@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.30 2001/03/23 18:44:20 jfoster Exp $
+ * $Id: print.c,v 1.31 2001/03/24 09:39:47 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -199,6 +199,7 @@ void print_hex_data(FILE *fh, gint format, frame_data *fd)
 		tvb = src->data;
 		if (multiple_sources) {
 			name = tvb_get_name(tvb);
+			print_line(fh, format, "\n");
 			line = g_malloc(strlen(name) + 3);	/* <name>:\n\0 */
 			strcpy(line, name);
 			strcat(line, ":");
