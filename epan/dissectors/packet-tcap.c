@@ -2754,8 +2754,10 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *tcap_tree;
+	void *save_private_data = pinfo->private_data;
 
     g_pinfo = pinfo;
+	pinfo->private_data = NULL;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCAP");
@@ -2774,7 +2776,9 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
 	dissect_ansi_tcap_message(tvb, pinfo, tcap_tree);
     }
-	g_free(pinfo->private_data);	
+	if ( pinfo->private_data != NULL)
+		g_free(pinfo->private_data);
+	pinfo->private_data = save_private_data;
 }
 
 
