@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.25 1999/08/05 16:46:04 gram Exp $
+ * $Id: file.h,v 1.26 1999/08/07 17:28:21 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,7 +35,7 @@
 #endif
 
 #ifndef __WTAP_H__
-#include <wtap.h>
+#include <wiretap/wtap.h>
 #endif
 
 #ifdef HAVE_LIBPCAP

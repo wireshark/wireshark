@@ -126,10 +126,10 @@ ethereal_DEPENDENCIES = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ wiretap/libwiretap.a
 ethereal_LDADD = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ wiretap/libwiretap.a @SNMP_A@
 
 ps.c: print.ps rdps
-	./rdps print.ps ps.c
+	./rdps $(srcdir)/print.ps ps.c
 
 rdps: rdps.c
-	$(CC) -o rdps rdps.c
+	$(CC) -o rdps $(srcdir)/rdps.c
 
 DISTCLEANFILES =	\
 	rdps		\
