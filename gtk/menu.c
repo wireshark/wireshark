@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.103 2003/10/17 17:28:37 oabad Exp $
+ * $Id: menu.c,v 1.104 2003/10/20 22:28:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,6 +58,7 @@
 #include "compat_macros.h"
 #include "toolbar.h"
 #include "gtkglobals.h"
+#include "register.h"
 #include "../tap.h"
 #include "../menu.h"
 #include "../ipproto.h"
@@ -363,10 +364,8 @@ get_main_menu(GtkWidget ** menubar, GtkAccelGroup ** table) {
 
   grp = gtk_accel_group_new();
 
-  if (initialize) {
-    popup_menu_object = gtk_menu_new();
+  if (initialize)
     menus_init();
-  }
 
   if (menubar)
     *menubar = main_menu_factory->widget;
@@ -382,8 +381,8 @@ menus_init(void) {
     initialize = FALSE;
 
     /* popup */
-
     packet_list_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
+    popup_menu_object = gtk_menu_new();
     gtk_item_factory_create_items_ac(packet_list_menu_factory, sizeof(packet_list_menu_items)/sizeof(packet_list_menu_items[0]), packet_list_menu_items, popup_menu_object, 2);
     OBJECT_SET_DATA(popup_menu_object, PM_PACKET_LIST_KEY,
                     packet_list_menu_factory->widget);
@@ -401,8 +400,12 @@ menus_init(void) {
                     hexdump_menu_factory->widget);
     popup_menu_list = g_slist_append((GSList *)popup_menu_list, hexdump_menu_factory);
 
+    /* main */
     main_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
     gtk_item_factory_create_items_ac(main_menu_factory, nmenu_items, menu_items, NULL,2);
+    register_all_tap_menus();	/* must be done after creating the main menu */
+
+    /* Initialize enabled/disabled state of menu items */
     set_menus_for_unsaved_capture_file(FALSE);
     set_menus_for_capture_file(FALSE);
 #if 0
@@ -747,10 +750,16 @@ walk_menu_tree_for_captured_packets(menu_item_t *node,
 		 *
 		 * If it has no "selected_packet_enabled()" or
 		 * "selected_tree_row_enabled()" routines, we enable
-		 * it if we have captured packets and disable it if
-		 * we don't - it doesn't depend on whether we have a
-		 * packet or tree row selected or not or on the selected
-		 * packet or tree row.
+		 * it.  This allows tap windows to be popped up even
+		 * if you have no capture file; this is done to let
+		 * the user pop up multiple tap windows before reading
+		 * in a capture file, so that they can be processed in
+		 * parallel while the capture file is being read rather
+		 * than one at at time as you pop up the windows, and to
+		 * let the user pop up tap windows before starting an
+		 * "Update list of packets in real time" capture, so that
+		 * the statistics can be displayed while the capture is
+		 * in progress.
 		 *
 		 * If it has either of those routines, we disable it for
 		 * now - as long as, when a capture is first available,
@@ -758,8 +767,9 @@ walk_menu_tree_for_captured_packets(menu_item_t *node,
 		 * selected, that's OK.
 		 * XXX - that should be done better.
 		 */
-		if (node->selected_packet_enabled == NULL)
-			node->enabled = have_captured_packets;
+		if (node->selected_packet_enabled == NULL &&
+		    node->selected_tree_row_enabled == NULL)
+			node->enabled = TRUE;
 		else
 			node->enabled = FALSE;
 	} else {

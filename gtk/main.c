@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.325 2003/10/16 20:56:07 oabad Exp $
+ * $Id: main.c,v 1.326 2003/10/20 22:28:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2281,13 +2281,9 @@ main(int argc, char *argv[])
      to a file that our parent will read? */
   if (!capture_child) {
 #endif
-    /* No.  Pop up the main window, register menus for taps (which we
-       must do after creating the main window, so that we can add
-       menu items to the main menu), and read in a capture file if
+    /* No.  Pop up the main window, and read in a capture file if
        we were told to. */
     create_main_window(pl_size, tv_size, bv_size, prefs);
-    register_all_tap_menus();
-    set_menus_for_capture_file(FALSE);
 
     colors_init();
     colfilter_init();
