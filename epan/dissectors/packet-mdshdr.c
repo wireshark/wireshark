@@ -54,7 +54,7 @@
 #include <epan/value_string.h>
 #include <etypes.h>
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #define MDSHDR_VERSION_OFFSET 		0
 

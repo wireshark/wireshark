@@ -40,7 +40,7 @@
 
 #include "packet-tcp.h"
 #include "packet-aim.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 /* SNAC families */
 #define FAMILY_CHAT       0x000E

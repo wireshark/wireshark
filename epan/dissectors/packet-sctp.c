@@ -46,7 +46,7 @@
 #endif
 
 #include <string.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include <epan/packet.h>
 #include "tap.h"
 #include "ipproto.h"

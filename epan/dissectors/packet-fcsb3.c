@@ -52,7 +52,7 @@
 # include "snprintf.h"
 #endif
 
-#include "prefs.h"
+#include <epan/prefs.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include "etypes.h"

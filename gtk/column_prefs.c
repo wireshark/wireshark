@@ -31,7 +31,7 @@
 #include "globals.h"
 #include "column_prefs.h"
 #include "gtkglobals.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "column.h"
 #include "compat_macros.h"
 #include "ui_util.h"

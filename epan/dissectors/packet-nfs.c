@@ -36,7 +36,7 @@
 
 #include "packet-rpc.h"
 #include "packet-nfs.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 static int proto_nfs = -1;
 

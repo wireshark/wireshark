@@ -43,7 +43,7 @@
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "compat_macros.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "prefs_dlg.h"
 #include "keys.h"
 

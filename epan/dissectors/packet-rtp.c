@@ -66,7 +66,7 @@
 #include <epan/conversation.h>
 #include "tap.h"
 
-#include "prefs.h"
+#include <epan/prefs.h>
 
 static dissector_handle_t rtp_handle;
 

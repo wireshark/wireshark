@@ -43,7 +43,7 @@
 #include <string.h>
 
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #include "packet-rtp.h"
 #include "packet-tcp.h"

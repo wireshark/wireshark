@@ -42,7 +42,7 @@
 #include "column.h"
 #include "epan/column_info.h"
 #include "compat_macros.h"
-#include "../prefs.h"
+#include <epan/prefs.h>
 #include "file_dlg.h"
 #include "packet_list.h"
 #include "keys.h"

@@ -46,7 +46,7 @@
 #include "file_dlg.h"
 #include "main.h"
 #include "compat_macros.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "recent.h"
 #include "color.h"
 #include "../ui_util.h"

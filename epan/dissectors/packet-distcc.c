@@ -39,7 +39,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 
 
 static int proto_distcc = -1;

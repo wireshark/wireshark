@@ -33,7 +33,7 @@
 #include "print_prefs.h"
 #include "keys.h"
 #include "print.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "prefs_dlg.h"
 #include "util.h"
 #include "ui_util.h"

@@ -36,7 +36,7 @@
 #include "ipproto.h"
 #include "ip_opts.h"
 #include "follow.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-tcp.h"
 #include "packet-ip.h"
 #include "packet-frame.h"

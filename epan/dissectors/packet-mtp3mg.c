@@ -44,7 +44,7 @@
 #endif
 
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #include <packet-mtp3.h>
 

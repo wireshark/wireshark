@@ -32,7 +32,7 @@
 #include <epan/timestamp.h>
 #include <epan/tvbuff.h>
 #include "packet-frame.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "tap.h"
 
 int proto_frame = -1;

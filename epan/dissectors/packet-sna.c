@@ -34,7 +34,7 @@
 #include "ppptypes.h"
 #include <epan/sna-utils.h>
 #include <epan/charsets.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "reassemble.h"
 
 /*

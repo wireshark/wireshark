@@ -38,7 +38,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-tpkt.h"
 #include "packet-per.h"
 #include "t35.h"

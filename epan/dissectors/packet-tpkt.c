@@ -40,7 +40,7 @@
 
 #include "packet-tpkt.h"
 #include "packet-frame.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 /* TPKT header fields             */
 static int proto_tpkt          = -1;

@@ -140,7 +140,7 @@
 #include "pcap-util.h"
 #include "alert_box.h"
 #include "simple_dialog.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "globals.h"
 #include "conditions.h"
 #include "capture_stop_conditions.h"

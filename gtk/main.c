@@ -85,7 +85,7 @@
 #include "summary.h"
 #include "filters.h"
 #include "disabled_protos.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "filter_dlg.h"
 #include "layout_prefs.h"
 #include "color.h"

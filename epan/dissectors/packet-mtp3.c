@@ -45,7 +45,7 @@
 
 #include <epan/packet.h>
 #include "tap.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_mtp3  = -1;

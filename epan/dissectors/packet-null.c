@@ -34,7 +34,7 @@
 #include <epan/packet.h>
 #include "packet-null.h"
 #include <epan/atalk-utils.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-ip.h"
 #include "packet-ipx.h"
 #include "packet-osi.h"

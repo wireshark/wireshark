@@ -41,6 +41,7 @@ LIBETHEREAL_SRC = 		\
 	osi-utils.c		\
 	packet.c		\
 	plugins.c		\
+	prefs.c			\
 	proto.c			\
 	range.c			\
 	sna-utils.c		\
@@ -77,6 +78,7 @@ LIBETHEREAL_INCLUDES = 		\
 	packet_info.h		\
 	pint.h			\
 	plugins.h		\
+	prefs.h			\
 	proto.h			\
 	range.h			\
 	report_err.h		\
@@ -104,7 +106,6 @@ DISSECTOR_SUPPORT_SRC =	\
 	../h225-persistentdata.c	\
 	../in_cksum.c	\
 	../ipproto.c	\
-	../prefs.c	\
 	../ptvcursor.c	\
 	../reassemble.c	\
 	../req_resp_hdrs.c	\

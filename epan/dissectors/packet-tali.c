@@ -39,7 +39,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-tcp.h"
 
 #define TALI_SYNC_LENGTH    4

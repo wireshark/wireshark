@@ -52,7 +52,7 @@
 #include "goto_dlg.h"
 #include "color.h"
 #include "color_dlg.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "prefs_dlg.h"
 #include "main.h"
 #include "help_dlg.h"

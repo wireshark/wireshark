@@ -46,7 +46,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/report_err.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "reassemble.h"
 #include <epan/dissectors/packet-giop.h>
 #include <epan/dissectors/packet-tpkt.h>

@@ -61,7 +61,7 @@
 #include <epan/dissectors/packet-kerberos.h>
 #include <epan/dissectors/packet-netbios.h>
 #include <epan/dissectors/packet-tcp.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include <epan/dissectors/packet-ber.h>
 #include <epan/dissectors/packet-pkinit.h>
 #include <epan/dissectors/packet-cms.h>

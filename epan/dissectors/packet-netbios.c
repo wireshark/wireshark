@@ -37,7 +37,7 @@
 #include <epan/packet.h>
 #include "llcsaps.h"
 #include "reassemble.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-netbios.h"
 
 /* Netbios command numbers */

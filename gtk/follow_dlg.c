@@ -54,7 +54,7 @@
 #include "alert_box.h"
 #include "simple_dialog.h"
 #include <epan/dissectors/packet-ipv6.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include <epan/addr_resolv.h>
 #include <epan/charsets.h>
 #include "util.h"

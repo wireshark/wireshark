@@ -39,7 +39,7 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include "ipproto.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #include "packet-ip.h"
 #include "tap.h"

@@ -39,7 +39,7 @@
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "afn.h"
 
 #include "packet-frame.h"

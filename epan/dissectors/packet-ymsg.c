@@ -35,7 +35,7 @@
 #include <epan/packet.h>
 
 #include "packet-tcp.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 static int proto_ymsg = -1;
 static int hf_ymsg_version = -1;

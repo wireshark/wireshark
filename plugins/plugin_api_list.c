@@ -31,7 +31,7 @@
 #include <epan/filesystem.h>
 #include <epan/report_err.h>
 #include <epan/except.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "reassemble.h"
 #include <epan/dissectors/packet-giop.h>
 #include <epan/dissectors/packet-per.h>

@@ -40,7 +40,7 @@
 #include <epan/conversation.h>
 #include "smb.h"
 #include <epan/strutil.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "reassemble.h"
 #include "tap.h"
 #include "packet-ipx.h"

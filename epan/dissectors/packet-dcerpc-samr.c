@@ -31,7 +31,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <string.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-samr.h"

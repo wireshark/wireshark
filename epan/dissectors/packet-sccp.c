@@ -47,7 +47,7 @@
 
 #include <epan/packet.h>
 #include "packet-mtp3.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #define SCCP_SI 3
 

@@ -36,7 +36,7 @@
 #include <epan/filesystem.h>
 #include "menu.h"
 #include "main.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "prefs-int.h"
 #include "ui_util.h"
 #include "dlg_utils.h"

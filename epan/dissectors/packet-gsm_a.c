@@ -69,7 +69,7 @@
 #include <string.h>
 
 #include "epan/packet.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "tap.h"
 #include "asn1.h"
 

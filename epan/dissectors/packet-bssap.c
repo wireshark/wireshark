@@ -47,7 +47,7 @@
 #include <string.h>
 
 #include "epan/packet.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-bssap.h"
 
 #define BSSAP 0

@@ -50,7 +50,7 @@
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/conversation.h>
 #include "packet-mgcp.h"

@@ -40,7 +40,7 @@
 #include <epan/atalk-utils.h>
 #include <epan/conversation.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "reassemble.h"
 
 #include "packet-afp.h"

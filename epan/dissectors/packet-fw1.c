@@ -90,7 +90,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "etypes.h"
 
 /* Place FW1 summary in proto tree */

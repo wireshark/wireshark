@@ -36,7 +36,7 @@
 #endif
 
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "sctpppids.h"
 
 #define NETWORK_BYTE_ORDER          FALSE

@@ -51,7 +51,7 @@
 
 #include <epan/packet.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 
 /* We need the function tvb_get_guintvar() */
 #include "packet-wap.h"

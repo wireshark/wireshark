@@ -41,7 +41,7 @@
 #include <epan/addr_resolv.h>
 #include "packet-dns.h"
 #include "packet-tcp.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 static int proto_dns = -1;
 static int hf_dns_length = -1;

@@ -35,7 +35,7 @@
 #include "globals.h"
 #include "capture_prefs.h"
 #include "gtkglobals.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "prefs_dlg.h"
 #include "ui_util.h"
 #include "dlg_utils.h"

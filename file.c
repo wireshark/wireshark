@@ -80,7 +80,7 @@
 #include "progress_dlg.h"
 #include "ui_util.h"
 #include "statusbar.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/conversation.h>
 #include "globals.h"

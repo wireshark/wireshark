@@ -58,7 +58,7 @@
 #include <epan/packet.h>
 #include <string.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #define UDP_PORT_NETFLOW	2055
 

@@ -38,7 +38,7 @@
 #endif
 
 #include "recent.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #include "gtkglobals.h"
 

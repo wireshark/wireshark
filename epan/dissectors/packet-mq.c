@@ -72,7 +72,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include "reassemble.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-tcp.h"
 #include "packet-mq.h"
 

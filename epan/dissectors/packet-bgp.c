@@ -61,7 +61,7 @@
 #include "packet-ipv6.h"
 #include "packet-frame.h"
 #include "afn.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 static const value_string bgptypevals[] = {
     { BGP_OPEN, "OPEN Message" },

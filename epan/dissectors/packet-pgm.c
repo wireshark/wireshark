@@ -39,7 +39,7 @@
 #include "in_cksum.h"
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #include <epan/proto.h>
 

@@ -64,7 +64,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-frame.h"
 #include "packet-x11-keysymdef.h"
 

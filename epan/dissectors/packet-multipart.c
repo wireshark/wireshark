@@ -63,7 +63,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include <glib.h>
 #include <ctype.h>
 

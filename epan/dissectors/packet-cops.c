@@ -71,7 +71,7 @@
 
 #include "asn1.h"
 #include "format-oid.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 /* For PacketCable, port 2126 */
 #define TCP_PORT_COPS 3288

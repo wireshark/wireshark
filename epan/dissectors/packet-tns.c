@@ -36,7 +36,7 @@
 #include "packet-tcp.h"
 #include "packet-tns.h"
 
-#include "prefs.h"
+#include <epan/prefs.h>
 
 /* desegmentation of TNS over TCP */
 static gboolean tns_desegment = TRUE;

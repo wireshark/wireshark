@@ -43,7 +43,7 @@
 #include <epan/packet.h>
 
 #include <epan/strutil.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-ber.h"
 
 

@@ -44,7 +44,7 @@
 
 #include "req_resp_hdrs.h"
 #include "packet-http.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 typedef enum _http_type {
 	HTTP_REQUEST,

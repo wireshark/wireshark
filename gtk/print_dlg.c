@@ -33,7 +33,7 @@
 #include "globals.h"
 #include "keys.h"
 #include "print.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "alert_box.h"
 #include "simple_dialog.h"
 #include "file_dlg.h"

@@ -49,7 +49,7 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/report_err.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-tcp.h"
 
 #ifdef NEED_SNPRINTF_H

@@ -42,7 +42,7 @@
 #include <epan/conversation.h>
 
 #include "packet-tcp.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #define TCP_PORT_LAPLINK 1547
 #define UDP_PORT_LAPLINK 1547

@@ -83,7 +83,7 @@
 #include <epan/packet.h>
 #include "file.h"
 #include "disabled_protos.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "column.h"
 #include "print.h"
 #include <epan/addr_resolv.h>

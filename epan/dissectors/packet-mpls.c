@@ -42,7 +42,7 @@
 #include <epan/packet.h>
 #include "ppptypes.h"
 #include "etypes.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-ppp.h"
 
 static gint proto_mpls = -1;

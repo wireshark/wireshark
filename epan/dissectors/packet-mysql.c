@@ -41,7 +41,7 @@
 
 #include "packet-tcp.h"
 #include "reassemble.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 /* Capabilities */
 #define MYSQL_CAPS_LP 0x0001

@@ -47,7 +47,7 @@
 
 #include "packet-q931.h"
 #include "packet-gtp.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "crypt-md5.h"
 
 static int proto_radius = -1;

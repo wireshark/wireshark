@@ -50,7 +50,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #include <glib.h>
 #include <epan/packet.h>

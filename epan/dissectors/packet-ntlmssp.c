@@ -39,7 +39,7 @@
 #include "asn1.h"		/* XXX - needed for subid_t */
 #include "packet-gssapi.h"
 #include "packet-frame.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "crypt-rc4.h"
 #include "crypt-md4.h"
 #include "crypt-des.h"

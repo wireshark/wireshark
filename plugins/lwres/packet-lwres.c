@@ -36,7 +36,7 @@
 #include <ctype.h>
 #include <time.h>
 #include <string.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "plugins/plugin_api_defs.h"
 
 #define LWRES_LWPACKET_LENGTH           (4 * 5 + 2 * 4)

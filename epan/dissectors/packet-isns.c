@@ -54,7 +54,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include "packet-tcp.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 
 #define ISNS_PROTO_VER 0x1

@@ -33,7 +33,7 @@
 #include <epan/packet.h>
 #include "packet-tr.h"
 #include "packet-llc.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "tap.h"
 
 static int proto_tr = -1;

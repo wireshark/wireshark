@@ -45,7 +45,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-llc.h"
 #include "packet-chdlc.h"
 #include "xdlc.h"

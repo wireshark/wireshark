@@ -36,7 +36,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 
 static int proto_quake2 = -1;
 

@@ -50,7 +50,7 @@
 #include "packet-arp.h"
 #include "packet-dns.h"				/* for get_dns_name() */
 
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "tap.h"
  
 static int bootp_dhcp_tap = -1;

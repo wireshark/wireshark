@@ -40,7 +40,7 @@
 #include "xmlstub.h"
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 
 
 #ifdef NEED_SNPRINTF_H

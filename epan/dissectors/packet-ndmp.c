@@ -40,7 +40,7 @@
 #include "packet-rpc.h"
 #include "packet-scsi.h"
 #include "packet-frame.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "reassemble.h"
 #include "rpc_defrag.h"
 

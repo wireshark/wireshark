@@ -35,7 +35,7 @@
 #include "epan/filesystem.h"
 #include "help_dlg.h"
 #include "text_page.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "gtkglobals.h"
 #include "ui_util.h"
 #include "compat_macros.h"

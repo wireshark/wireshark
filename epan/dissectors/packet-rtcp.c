@@ -58,7 +58,7 @@
 #endif
 #include <epan/conversation.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 
 
 /* Version is the first 2 bits of the first octet*/

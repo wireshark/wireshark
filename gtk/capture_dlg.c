@@ -44,7 +44,7 @@
 #include "dlg_utils.h"
 #include "pcap-util.h"
 #include "capture_combo_utils.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "ringbuffer.h"
 #include <epan/filesystem.h>
 #include "compat_macros.h"

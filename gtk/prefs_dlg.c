@@ -35,7 +35,7 @@
 #include "main.h"
 #include <epan/packet.h>
 #include "file.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "column_prefs.h"
 #include "print.h"
 #include "prefs_dlg.h"

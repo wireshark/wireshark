@@ -41,7 +41,7 @@
 
 #include "gtkglobals.h"
 #include "ui_util.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "epan/epan.h"
 #include "../ui_util.h"
 #include "compat_macros.h"

@@ -38,7 +38,7 @@
 
 #include "packet-frame.h"
 #include "packet-ftam.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #include <epan/strutil.h>
 

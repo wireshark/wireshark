@@ -60,7 +60,7 @@
 #endif
 
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "asn1.h"
 #include "packet-tcap.h"
 

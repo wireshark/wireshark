@@ -29,7 +29,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "etypes.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "chdlctypes.h"
 #include <epan/addr_resolv.h>
 #include "packet-chdlc.h"

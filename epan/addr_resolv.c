@@ -103,7 +103,7 @@
 #include "ipv6-utils.h"
 #include "addr_resolv.h"
 #include "filesystem.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #define ENAME_ETHERS 		"ethers"
 #define ENAME_IPXNETS 		"ipxnets"

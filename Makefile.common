@@ -56,7 +56,6 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 	oui.h	\
 	ppptypes.h	\
 	prefs-int.h	\
-	prefs.h	\
 	ptvcursor.h	\
 	reassemble.h	\
 	req_resp_hdrs.h	\

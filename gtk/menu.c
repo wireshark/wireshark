@@ -35,7 +35,7 @@
 #include "tap_menu.h"
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "about_dlg.h"
 #include "capture_dlg.h"
 #include "color_dlg.h"

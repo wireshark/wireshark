@@ -32,7 +32,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-ntp.h"
 #include "packet-ldp.h"
 

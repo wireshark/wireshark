@@ -31,7 +31,7 @@
 
 #include <epan/packet.h>
 #include "packet-kerberos.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 static int proto_kpasswd = -1;
 static int hf_kpasswd_message_len = -1;

@@ -36,7 +36,7 @@
 #include <string.h>
 #include <glib.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "pcap-util.h"
 #include "capture_combo_utils.h"
 

@@ -40,7 +40,7 @@
 #endif
 
 #include <epan/timestamp.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "column.h"
 #include <epan/packet.h>
 

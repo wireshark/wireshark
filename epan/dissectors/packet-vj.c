@@ -66,7 +66,7 @@
 #include <glib.h>
 #include <string.h>
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-ppp.h"
 #include "ppptypes.h"
 #include "ipproto.h"

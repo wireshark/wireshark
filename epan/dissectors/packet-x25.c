@@ -35,7 +35,7 @@
 #include <epan/packet.h>
 #include <epan/circuit.h>
 #include "reassemble.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "nlpid.h"
 #include "x264_prt_id.h"
 

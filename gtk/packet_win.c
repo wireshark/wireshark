@@ -45,7 +45,7 @@
 #include <epan/packet.h>
 #include "summary.h"
 #include "file.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "menu.h"
 #include "../menu.h"
 #include "column.h"

@@ -36,7 +36,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-per.h"
 #include "packet-h225.h"
 #include "packet-h245.h"

@@ -38,7 +38,7 @@
 #include <epan/addr_resolv.h>
 #include "ipproto.h"
 #include "in_cksum.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #include "packet-udp.h"
 

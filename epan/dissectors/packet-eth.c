@@ -28,7 +28,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "etypes.h"
 #include <epan/addr_resolv.h>
 #include "packet-eth.h"
