@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.16 2000/05/08 05:35:08 guy Exp $
+ * $Id: print_dlg.c,v 1.17 2000/05/08 07:13:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -424,6 +424,11 @@ print_file_cb(GtkWidget *file_bt, gpointer file_te)
   /* Connect the cancel_button to destroy the widget */
   gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION(fs)->cancel_button),
     "clicked", (GtkSignalFunc) print_fs_cancel_cb, fs);
+
+  /* Catch the "key_press_event" signal in the window, so that we can catch
+     the ESC key being pressed and act as if the "Cancel" button had
+     been selected. */
+  dlg_set_cancel(fs, GTK_FILE_SELECTION(fs)->cancel_button);
 
   gtk_widget_show(fs);
 }

@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.22 2000/04/10 18:40:13 guy Exp $
+ * $Id: file_dlg.c,v 1.23 2000/05/08 07:13:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,6 +60,7 @@
 #endif
 
 #include "file_dlg.h"
+#include "dlg_utils.h"
 
 #ifndef __UTIL_H__
 #include "util.h"
@@ -141,6 +142,11 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
   gtk_signal_connect_object(GTK_OBJECT (GTK_FILE_SELECTION
     (file_open_w)->cancel_button), "clicked", (GtkSignalFunc)
     gtk_widget_destroy, GTK_OBJECT (file_open_w));
+
+  /* Catch the "key_press_event" signal in the window, so that we can catch
+     the ESC key being pressed and act as if the "Cancel" button had
+     been selected. */
+  dlg_set_cancel(file_open_w, GTK_FILE_SELECTION(file_open_w)->cancel_button);
 
   gtk_widget_show(file_open_w);
 }
@@ -419,6 +425,11 @@ file_save_as_cmd_cb(GtkWidget *w, gpointer data)
   gtk_signal_connect_object(GTK_OBJECT (GTK_FILE_SELECTION
     (file_save_as_w)->cancel_button), "clicked", (GtkSignalFunc)
     gtk_widget_destroy, GTK_OBJECT (file_save_as_w));
+
+  /* Catch the "key_press_event" signal in the window, so that we can catch
+     the ESC key being pressed and act as if the "Cancel" button had
+     been selected. */
+  dlg_set_cancel(file_save_as_w, GTK_FILE_SELECTION(file_save_as_w)->cancel_button);
 
   gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_save_as_w), "");
   gtk_widget_show(file_save_as_w);

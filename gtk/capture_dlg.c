@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.24 2000/05/08 05:51:36 guy Exp $
+ * $Id: capture_dlg.c,v 1.25 2000/05/08 07:13:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -374,6 +374,11 @@ capture_prep_file_cb(GtkWidget *w, gpointer file_te)
   /* Connect the cancel_button to destroy the widget */
   gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION(fs)->cancel_button),
     "clicked", (GtkSignalFunc) cap_prep_fs_cancel_cb, fs);
+
+  /* Catch the "key_press_event" signal in the window, so that we can catch
+     the ESC key being pressed and act as if the "Cancel" button had
+     been selected. */
+  dlg_set_cancel(fs, GTK_FILE_SELECTION(fs)->cancel_button);
   
   gtk_widget_show(fs);
 }
