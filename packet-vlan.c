@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.20 2000/11/12 05:43:26 guy Exp $
+ * $Id: packet-vlan.c,v 1.21 2000/11/12 05:58:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,10 +42,11 @@
 #include "etypes.h"
 
 static int proto_vlan = -1;
-static int hf_vlan_etype = -1;
 static int hf_vlan_priority = -1;
-static int hf_vlan_id = -1;
 static int hf_vlan_cfi = -1;
+static int hf_vlan_id = -1;
+static int hf_vlan_etype = -1;
+static int hf_vlan_len = -1;
 
 static gint ett_vlan = -1;
 
@@ -99,6 +100,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
 
   if ( encap_proto <= IEEE_802_3_MAX_LEN) {
+    proto_tree_add_uint(vlan_tree, hf_vlan_len, tvb, 2, 2, encap_proto);
     next_tvb = tvb_new_subset(tvb, 4, -1, -1); /* XXX - should TRY() like dissect_eth() */
     if ( tvb_get_ntohs(next_tvb, 2) == 0xffff ) {
       dissect_ipx(next_tvb, pinfo, tree);
@@ -114,18 +116,21 @@ void
 proto_register_vlan(void)
 {
   static hf_register_info hf[] = {
-	{ &hf_vlan_etype, { 
-		"Type", "vlan.etype", FT_UINT16, BASE_HEX, 
-		VALS(etype_vals), 0x0, "Type" }},
 	{ &hf_vlan_priority, { 
 		"Priority", "vlan.priority", FT_UINT16, BASE_BIN, 
 		0, 0xE000, "Priority" }},
 	{ &hf_vlan_cfi, { 
 		"CFI", "vlan.cfi", FT_UINT16, BASE_BIN, 
-		0, 0x1000, "CFI" }},
+		0, 0x1000, "CFI" }},	/* XXX - Boolean? */
 	{ &hf_vlan_id, { 
 		"ID", "vlan.id", FT_UINT16, BASE_BIN, 
 		0, 0x0FFF, "ID" }},
+	{ &hf_vlan_etype, { 
+		"Type", "vlan.etype", FT_UINT16, BASE_HEX, 
+		VALS(etype_vals), 0x0, "Type" }},
+	{ &hf_vlan_len, {
+		"Length", "vlan.len", FT_UINT16, BASE_DEC,
+		NULL, 0x0, "Length" }}
   };
   static gint *ett[] = {
 	&ett_vlan,
