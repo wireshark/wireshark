@@ -30,8 +30,6 @@
 
 #include "smb.h"
 
-int dissect_smb_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
-
 int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index, char **data);
 
 int display_ms_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index, char **data);

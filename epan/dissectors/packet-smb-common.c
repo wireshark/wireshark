@@ -288,14 +288,3 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
   *len = string_len;
   return string;
 }
-
-int
-dissect_smb_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
-{
-	/* display data as unknown */
-
-	proto_tree_add_text(tree, tvb, offset, -1, "Data (%u bytes)",
-	    tvb_reported_length_remaining(tvb, offset));
-
-	return offset+tvb_length_remaining(tvb, offset);
-}
