@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.17 2001/06/23 19:45:12 guy Exp $
+ * $Id: packet-isis-hello.c,v 1.18 2001/06/26 20:50:30 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -746,7 +746,7 @@ proto_register_isis_hello(void) {
 
 		{ &hf_isis_hello_clv_ptp_adj,
 		{ "point-to-point Adjacency  ", "isis_hello.clv_ptp_adj",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 
 	};
 	static gint *ett[] = {

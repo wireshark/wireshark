@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.45 2001/06/23 19:45:12 guy Exp $
+ * $Id: packet-rsvp.c,v 1.46 2001/06/26 20:50:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -437,7 +437,7 @@ static hf_register_info rsvpf_info[] = {
 
     {&rsvp_filter[RSVPF_HELLO], 
      { "HELLO Message", "rsvp.hello", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_RESV], 
      { "Resv Message", "rsvp.resv", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
@@ -483,7 +483,7 @@ static hf_register_info rsvpf_info[] = {
 
     {&rsvp_filter[RSVPF_HELLO_OBJ], 
      { "HELLO Request/Ack", "rsvp.hello_obj", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_INTEGRITY], 
      { "INTEGRITY", "rsvp.integrity", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -567,7 +567,7 @@ static hf_register_info rsvpf_info[] = {
 
     {&rsvp_filter[RSVPF_HELLO_OBJ], 
      { "HELLO Message", "rsvp.hello", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_UNKNOWN_OBJ], 
      { "Unknown object", "rsvp.obj_unknown", FT_NONE, BASE_NONE, NULL, 0x0,
