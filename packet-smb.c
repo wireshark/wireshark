@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.99 2001/08/11 13:50:11 sharpe Exp $
+ * $Id: packet-smb.c,v 1.100 2001/08/11 17:31:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -11137,7 +11137,7 @@ char *decode_smb_error(guint8 errcls, guint16 errcode)
 void
 dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data)
 {
-	proto_tree      *smb_tree = tree, *smb_hdr_tree, *flags_tree, *flags2_tree;
+	proto_tree      *smb_tree = tree, *smb_hdr_tree = NULL, *flags_tree, *flags2_tree;
 	proto_item      *ti, *tf, *th;
 	guint8          cmd, errcls, errcode1, flags;
 	guint16         flags2, errcode, tid, pid, uid, mid;
