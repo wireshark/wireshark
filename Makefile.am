@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.193 2000/05/05 09:32:00 guy Exp $
+# $Id: Makefile.am,v 1.194 2000/05/11 07:34:31 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -35,201 +35,203 @@ YFLAGS=-d -p dfilter_
 DISSECTOR_SOURCES = \
 	packet-aarp.c  \
 	packet-afs.c   \
-	packet-afs.h   \
 	packet-arp.c   \
-	packet-arp.h   \
 	packet-ascend.c\
-	packet-ascend.h\
 	packet-atalk.c \
-	packet-atalk.h \
 	packet-atm.c   \
-	packet-atm.h   \
 	packet-auto_rp.c   \
 	packet-bgp.c   \
-	packet-bgp.h   \
 	packet-bootp.c \
 	packet-bootparams.c \
-	packet-bootparams.h \
 	packet-bpdu.c  \
-	packet-bpdu.h  \
 	packet-cdp.c   \
-	packet-cdp.h   \
 	packet-cgmp.c  \
-	packet-cgmp.h  \
 	packet-clip.c  \
-	packet-clip.h  \
 	packet-clnp.c  \
-	packet-clnp.h  \
 	packet-data.c  \
 	packet-ddtp.c  \
-	packet-ddtp.h  \
 	packet-dns.c   \
-	packet-dns.h   \
-	packet-esis.h  \
 	packet-esis.c  \
 	packet-eth.c   \
-	packet-eth.h   \
 	packet-ethertype.c   \
 	packet-fddi.c  \
-	packet-fddi.h  \
 	packet-ftp.c   \
 	packet-giop.c  \
 	packet-gre.c   \
 	packet-h1.c    \
 	packet-hsrp.c  \
 	packet-http.c  \
-	packet-http.h  \
 	packet-icmpv6.c\
 	packet-icp.c   \
 	packet-icq.c   \
 	packet-imap.c   \
 	packet-ip.c    \
-	packet-ip.h    \
 	packet-ipp.c   \
-	packet-ipp.h   \
 	packet-ipsec.c \
-	packet-ipsec.h \
 	packet-ipv6.c  \
-	packet-ipv6.h  \
 	packet-ipx.c   \
-	packet-ipx.h   \
 	packet-irc.c   \
 	packet-isakmp.c\
-	packet-isis.h  \
 	packet-isis.c  \
-	packet-isis-clv.h \
 	packet-isis-clv.c \
-	packet-isis-hello.h \
 	packet-isis-hello.c \
-	packet-isis-lsp.h \
 	packet-isis-lsp.c \
-	packet-isis-snp.h \
 	packet-isis-snp.c \
 	packet-isl.c   \
-	packet-isl.h   \
 	packet-l2tp.c  \
 	packet-lapb.c  \
-	packet-lapb.h  \
 	packet-lapd.c  \
-	packet-lapd.h  \
 	packet-ldap.c  \
-	packet-ldap.h  \
 	packet-llc.c   \
-	packet-llc.h   \
 	packet-lpd.c   \
 	packet-mapi.c  \
 	packet-mount.c \
-	packet-mount.h \
 	packet-mpls.c \
 	packet-msproxy.c \
 	packet-nbipx.c \
-	packet-nbipx.h \
 	packet-nbns.c  \
 	packet-ncp.c   \
-	packet-ncp.h   \
 	packet-netbios.c \
-	packet-netbios.h \
 	packet-nfs.c   \
-	packet-nfs.h   \
 	packet-nlm.c   \
-	packet-nlm.h   \
 	packet-nntp.c  \
 	packet-ntp.c  \
-	packet-ntp.h  \
 	packet-null.c  \
-	packet-null.h  \
 	packet-osi.c   \
-	packet-osi.h   \
 	packet-osi-options.c \
-	packet-osi-options.h \
 	packet-ospf.c  \
-	packet-ospf.h  \
 	packet-pim.c   \
 	packet-pop.c   \
 	packet-portmap.c   \
-	packet-portmap.h   \
 	packet-ppp.c   \
-	packet-ppp.h   \
 	packet-pppoe.c \
 	packet-pptp.c  \
 	packet-q2931.c \
-	packet-q2931.h \
 	packet-q931.c  \
-	packet-q931.h  \
 	packet-radius.c\
 	packet-raw.c   \
-	packet-raw.h   \
 	packet-rip.c   \
-	packet-rip.h   \
 	packet-ripng.c \
-	packet-ripng.h \
 	packet-rlogin.c \
 	packet-rpc.c   \
-	packet-rpc.h   \
 	packet-rsvp.c  \
 	packet-rtcp.c  \
-	packet-rtcp.h  \
 	packet-rtp.c   \
-	packet-rtp.h   \
 	packet-rtsp.c  \
 	packet-rx.c  \
-	packet-rx.h  \
 	packet-sap.c   \
 	packet-sdp.c   \
-	packet-sdp.h   \
 	packet-smb.c   \
-	packet-smb.h   \
 	packet-smb-browse.c \
 	packet-smb-common.c \
-	packet-smb-common.h \
 	packet-smb-logon.c \
 	packet-smb-mailslot.c \
 	packet-smb-pipe.c \
 	packet-sna.c   \
-	packet-sna.h   \
 	packet-snmp.c	\
-	packet-snmp.h	\
 	packet-socks.c \
 	packet-srvloc.c \
 	packet-sscop.c \
-	packet-sscop.h \
 	packet-stat.c   \
-	packet-stat.h   \
 	packet-tacacs.c \
 	packet-tcp.c   \
-	packet-tcp.h   \
 	packet-telnet.c\
 	packet-tftp.c  \
-	packet-tftp.h  \
 	packet-time.c  \
 	packet-tns.c \
-	packet-tns.h \
 	packet-tr.c    \
-	packet-tr.h    \
 	packet-trmac.c \
-	packet-trmac.h \
 	packet-udp.c   \
-	packet-udp.h   \
 	packet-v120.c \
-	packet-v120.h \
 	packet-vines.c \
-	packet-vines.h \
 	packet-vlan.c \
-	packet-vlan.h \
 	packet-vrrp.c \
 	packet-vtp.c  \
-	packet-vtp.h  \
 	packet-wccp.c \
 	packet-who.c  \
 	packet-x25.c   \
-	packet-x25.h   \
 	packet-yhoo.c  \
-	packet-yhoo.h  \
 	packet-ypbind.c \
-	packet-ypbind.h \
 	packet-ypserv.c \
+	packet-ypxfr.c
+
+noinst_HEADERS = \
+	packet-afs.h   \
+	packet-arp.h   \
+	packet-ascend.h\
+	packet-atalk.h \
+	packet-atm.h   \
+	packet-bgp.h   \
+	packet-bootparams.h \
+	packet-bpdu.h  \
+	packet-cdp.h   \
+	packet-cgmp.h  \
+	packet-clip.h  \
+	packet-clnp.h  \
+	packet-ddtp.h  \
+	packet-dns.h   \
+	packet-esis.h  \
+	packet-eth.h   \
+	packet-fddi.h  \
+	packet-http.h  \
+	packet-ip.h    \
+	packet-ipp.h   \
+	packet-ipsec.h \
+	packet-ipv6.h  \
+	packet-ipx.h   \
+	packet-isis.h  \
+	packet-isis-clv.h \
+	packet-isis-hello.h \
+	packet-isis-lsp.h \
+	packet-isis-snp.h \
+	packet-isl.h   \
+	packet-lapb.h  \
+	packet-lapd.h  \
+	packet-ldap.h  \
+	packet-llc.h   \
+	packet-mount.h \
+	packet-nbipx.h \
+	packet-ncp.h   \
+	packet-netbios.h \
+	packet-nfs.h   \
+	packet-nlm.h   \
+	packet-ntp.h  \
+	packet-null.h  \
+	packet-osi.h   \
+	packet-osi-options.h \
+	packet-ospf.h  \
+	packet-portmap.h   \
+	packet-ppp.h   \
+	packet-q2931.h \
+	packet-q931.h  \
+	packet-raw.h   \
+	packet-rip.h   \
+	packet-ripng.h \
+	packet-rpc.h   \
+	packet-rtcp.h  \
+	packet-rtp.h   \
+	packet-rx.h  \
+	packet-sdp.h   \
+	packet-smb.h   \
+	packet-smb-common.h \
+	packet-sna.h   \
+	packet-snmp.h	\
+	packet-sscop.h \
+	packet-stat.h   \
+	packet-tcp.h   \
+	packet-tftp.h  \
+	packet-tns.h \
+	packet-tr.h    \
+	packet-trmac.h \
+	packet-udp.h   \
+	packet-v120.h \
+	packet-vines.h \
+	packet-vlan.h \
+	packet-vtp.h  \
+	packet-x25.h   \
+	packet-yhoo.h  \
+	packet-ypbind.h \
 	packet-ypserv.h \
-	packet-ypxfr.c \
 	packet-ypxfr.h 
 
 ETHEREAL_COMMON_SOURCES = \
