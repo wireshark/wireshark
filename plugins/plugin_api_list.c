@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.17 2003/11/18 19:26:26 ulfl Exp $
+ * $Id: plugin_api_list.c,v 1.18 2003/11/18 19:34:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -339,6 +339,8 @@ void except_free(void *);
 struct except_stacknode *except_pop(void);
 void except_setup_try(struct except_stacknode *, struct except_catch *, const except_id_t [], size_t);
 
+void col_set_fence(column_info*, gint);
+
 guint8 *tvb_get_string(tvbuff_t *, gint, gint);
 guint8 *tvb_get_stringz(tvbuff_t *, gint, gint *);
 
@@ -388,4 +390,3 @@ int asn1_id_decode1(ASN1_SCK *asn1, guint *tag);
 
 gboolean col_get_writable(column_info *);
 void col_set_writable(column_info *, gboolean);
-void col_set_fence(column_info *, gint);
