@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.4 2000/11/12 11:08:46 guy Exp $
+ * $Id: packet-mgcp.c,v 1.5 2000/11/15 07:07:52 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -47,7 +47,6 @@
 #include <time.h>
 #include <string.h>
 #include "packet.h"
-#include "packet-sdp.h"
 #include "resolv.h"
 #include "prefs.h"
 #include "strutil.h"
@@ -182,6 +181,8 @@ static gint tvb_section_length(tvbuff_t* tvb, gint tvb_sectionbegin,
 			       gint tvb_sectionend);
 static gboolean is_rfc2234_alpha(guint8 c);
 
+static dissector_handle_t sdp_handle;
+
 /*
  * dissect_mgcp - The dissector for the Media Gateway Control Protocol
  */
@@ -273,7 +274,7 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvb_sectionbegin++;
 	next_tvb = tvb_new_subset(tvb, tvb_sectionbegin, -1, -1);
 	
-	dissect_sdp(next_tvb, pinfo, tree);
+	call_dissector(sdp_handle, next_tvb, pinfo, tree);
       }
     }
     /* 
@@ -1087,6 +1088,11 @@ static gint tvb_section_length(tvbuff_t* tvb, gint tvb_sectionbegin,
 /* Start the functions we need for the plugin stuff */
 void plugin_reg_handoff(void){
   proto_reg_handoff_mgcp();
+
+  /*
+   * Get a handle for the SDP dissector.
+   */
+  sdp_handle = find_dissector("sdp");
 }
 
 DLLEXPORT void plugin_init(plugin_address_table_t *pat){
@@ -1103,5 +1109,3 @@ DLLEXPORT void plugin_init(plugin_address_table_t *pat){
   dfilter_init();  
 }
 /* End the functions we need for plugin stuff */
-
-

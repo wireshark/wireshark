@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.25 2000/11/13 08:58:10 guy Exp $
+ * $Id: packet-rtsp.c,v 1.26 2000/11/15 07:07:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,7 +39,6 @@
 
 #include <glib.h>
 #include "packet.h"
-#include "packet-sdp.h"
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 #include "conversation.h"
@@ -73,6 +72,8 @@ static const char *rtsp_methods[] = {
 };
 
 #define RTSP_NMETHODS	(sizeof rtsp_methods / sizeof rtsp_methods[0])
+
+static dissector_handle_t sdp_handle;
 
 static rtsp_type_t
 is_rtsp_request_or_reply(const u_char *line, int linelen)
@@ -359,7 +360,7 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * dissect it.
 			 */
 			new_tvb = tvb_new_subset(tvb, offset, -1, -1);
-			dissect_sdp(new_tvb, pinfo, tree);
+			call_dissector(sdp_handle, new_tvb, pinfo, tree);
 		}
 	} else {
 		if (datalen > 0) {
@@ -463,4 +464,9 @@ void
 proto_reg_handoff_rtsp(void)
 {
 	dissector_add("tcp.port", TCP_PORT_RTSP, dissect_rtsp);
+
+	/*
+	 * Get a handle for the SDP dissector.
+	 */
+	sdp_handle = find_dissector("sdp");
 }

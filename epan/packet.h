@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.4 2000/11/13 07:19:27 guy Exp $
+ * $Id: packet.h,v 1.5 2000/11/15 07:07:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -248,6 +248,21 @@ gboolean old_dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
     const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 gboolean dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+/* Handle for dissectors you call directly. */
+typedef struct dissector_handle *dissector_handle_t;
+
+/* Register a dissector. */
+void register_dissector(const char *name, dissector_t dissector);
+
+/* Find a dissector by name. */
+dissector_handle_t find_dissector(const char *name);
+
+/* Call a dissector through a handle. */
+void old_call_dissector(dissector_handle_t handle, const u_char *pd,
+    int offset, frame_data *fd, proto_tree *tree);
+void call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
+    packet_info *pinfo, proto_tree *tree);
 
 /* Utility routines used by packet*.c */
 gchar*     ether_to_str(const guint8 *);

@@ -7,7 +7,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sip.c,v 1.4 2000/11/13 09:04:27 guy Exp $
+ * $Id: packet-sip.c,v 1.5 2000/11/15 07:07:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,7 +40,6 @@
 
 #include <glib.h>
 #include "packet.h"
-#include "packet-sdp.h"
 
 #define TCP_PORT_SIP 5060
 #define UDP_PORT_SIP 5060
@@ -66,6 +65,8 @@ static const char *sip_methods[] = {
 static int sip_is_request(tvbuff_t *tvb, guint32 offset);
 static gint sip_get_msg_offset(tvbuff_t *tvb, guint32 offset);
  
+static dissector_handle_t sdp_handle;
+
 /* Code to actually dissect the packets */
 static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -120,7 +121,7 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (tvb_length_remaining(tvb, offset) > 0) {
                 next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-                dissect_sdp(next_tvb, pinfo, tree);
+                call_dissector(sdp_handle, next_tvb, pinfo, tree);
         }
 
         return;
@@ -195,4 +196,9 @@ proto_reg_handoff_sip(void)
 {
         dissector_add("tcp.port", TCP_PORT_SIP, dissect_sip);
         dissector_add("udp.port", UDP_PORT_SIP, dissect_sip);
+
+	/*
+	 * Get a handle for the SDP dissector.
+	 */
+	sdp_handle = find_dissector("sdp");
 }

@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.15 2000/11/13 08:58:12 guy Exp $
+ * $Id: packet-sdp.c,v 1.16 2000/11/15 07:07:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,7 +45,7 @@ static int proto_sdp = -1;
 
 static int ett_sdp = -1;
 
-void
+static void
 dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*sdp_tree;
@@ -218,4 +218,12 @@ proto_register_sdp(void)
         proto_sdp = proto_register_protocol("Session Description Protocol", "sdp");
  /*       proto_register_field_array(proto_sdp, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
+
+	/*
+	 * Register the dissector by name, so other dissectors can
+	 * grab it by name rather than just referring to it directly
+	 * (you can't refer to it directly from a plugin dissector
+	 * on Windows without stuffing it into the Big Transfer Vector).
+	 */
+	register_dissector("sdp", dissect_sdp);
 }

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.4 2000/11/13 07:19:24 guy Exp $
+ * $Id: packet.c,v 1.5 2000/11/15 07:07:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1405,7 +1405,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 void
 register_heur_dissector_list(const char *name, heur_dissector_list_t *sub_dissectors)
 {
-	/* Create our hash-of-hashes if it doesn't already exist */
+	/* Create our hash-of-lists if it doesn't already exist */
 	if (heur_dissector_lists == NULL) {
 		heur_dissector_lists = g_hash_table_new(g_str_hash, g_str_equal);
 		g_assert(heur_dissector_lists != NULL);
@@ -1417,4 +1417,82 @@ register_heur_dissector_list(const char *name, heur_dissector_list_t *sub_dissec
 	*sub_dissectors = NULL;	/* initially empty */
 	g_hash_table_insert(heur_dissector_lists, (gpointer)name,
 	    (gpointer) sub_dissectors);
+}
+
+/*
+ * Register dissectors by name; used if one dissector always calls a
+ * particular dissector, or if it bases the decision of which dissector
+ * to call on something other than a numerical value or on "try a bunch
+ * of dissectors until one likes the packet".
+ */
+
+/*
+ * List of registered dissectors.
+ */
+static GHashTable *registered_dissectors = NULL;
+
+/*
+ * An entry in the list of registered dissectors.
+ */
+struct dissector_handle {
+	const char	*name;		/* dissector name */
+	dissector_t	dissector;
+};
+
+/* Find a registered dissector by name. */
+dissector_handle_t
+find_dissector(const char *name)
+{
+	g_assert(registered_dissectors != NULL);
+	return g_hash_table_lookup(registered_dissectors, name);
+}
+
+/* Register a dissector by name. */
+void
+register_dissector(const char *name, dissector_t dissector)
+{
+	struct dissector_handle *handle;
+
+	/* Create our hash table if it doesn't already exist */
+	if (registered_dissectors == NULL) {
+		registered_dissectors = g_hash_table_new(g_str_hash, g_str_equal);
+		g_assert(registered_dissectors != NULL);
+	}
+
+	/* Make sure the registration is unique */
+	g_assert(g_hash_table_lookup(registered_dissectors, name) == NULL);
+
+	handle = g_malloc(sizeof (struct dissector_handle));
+	handle->name = name;
+	handle->dissector = dissector;
+	
+	g_hash_table_insert(registered_dissectors, (gpointer)name,
+	    (gpointer) handle);
+}
+
+/* Call a dissector through a handle. */
+void
+old_call_dissector(dissector_handle_t handle, const u_char *pd,
+    int offset, frame_data *fd, proto_tree *tree)
+{
+	tvbuff_t *tvb;
+
+	/*
+	 * Old dissector calling new dissector; use
+	 * "tvb_create_from_top()" to remap.
+	 *
+	 * XXX - what about the "pd" argument?  Do
+	 * any dissectors not just pass that along and
+	 * let the "offset" argument handle stepping
+	 * through the packet?
+	 */
+	tvb = tvb_create_from_top(offset);
+	(*handle->dissector)(tvb, &pi, tree);
+}
+
+void
+call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
+    packet_info *pinfo, proto_tree *tree)
+{
+	(*handle->dissector)(tvb, pinfo, tree);
 }

@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.8 2000/11/13 10:13:18 guy Exp $
+ * $Id: plugins.c,v 1.9 2000/11/15 07:07:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -619,6 +619,11 @@ init_plugins(const char *plugin_dir)
 	patable.p_dissector_delete		= dissector_delete;
 
 	patable.p_heur_dissector_add		= heur_dissector_add;
+
+	patable.p_register_dissector		= p_register_dissector;
+	patable.p_find_dissector		= p_find_dissector;
+	patable.p_old_call_dissector		= p_old_call_dissector;
+	patable.p_call_dissector		= p_call_dissector;
 
 	patable.p_dissect_data			= dissect_data;
 	patable.p_old_dissect_data		= old_dissect_data;

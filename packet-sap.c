@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.13 2000/11/10 06:50:36 guy Exp $
+ * $Id: packet-sap.c,v 1.14 2000/11/15 07:07:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,7 +43,6 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-ipv6.h"
-#include "packet-sdp.h"
 
 #define UDP_PORT_SAP	9875
 
@@ -125,6 +124,8 @@ static gint ett_sap = -1;
 static gint ett_sap_flags = -1;
 static gint ett_sap_auth = -1;
 static gint ett_sap_authf = -1;
+
+static dissector_handle_t sdp_handle;
 
 static void
 dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -277,7 +278,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           }
           
           /* Done with SAP */
-          dissect_sdp(tvb, pinfo, tree);
+          call_dissector(sdp_handle, tvb, pinfo, tree);
 	}
 
         return;
@@ -363,4 +364,9 @@ void
 proto_reg_handoff_sap(void)
 {
   dissector_add("udp.port", UDP_PORT_SAP, dissect_sap);
+
+  /*
+   * Get a handle for the SDP dissector.
+   */
+  sdp_handle = find_dissector("sdp");
 }
