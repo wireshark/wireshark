@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.50 2004/02/23 22:48:51 guy Exp $
+ * $Id: follow_dlg.c,v 1.51 2004/02/25 21:05:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -211,7 +211,6 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	   and set the display filter entry accordingly */
 	reset_tcp_reassembly();
 	follow_filter = build_follow_filter(&cfile.edt->pi);
-fprintf(stderr, "Follow filter = \"%s\"\n", follow_filter);
 
 	/* Set the display filter entry accordingly */
 	filter_te = OBJECT_GET_DATA(w, E_DFILTER_TE_KEY);
