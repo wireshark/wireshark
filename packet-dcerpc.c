@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.176 2004/05/29 04:34:51 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.177 2004/06/04 20:15:30 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3788,7 +3788,9 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	fd_head = fragment_add_seq(tvb, offset, pinfo,
-			hdr->seqnum, dcerpc_cl_reassemble_table,
+            /* XXX - simply adding the activity id to the sequence number might be unique enough 
+             * to build a meaningful hash value here?! */
+			hdr->seqnum + dcerpc_uuid_hash(&hdr->act_id), dcerpc_cl_reassemble_table,
 			hdr->frag_num, stub_length,
 			!(hdr->flags1 & PFCL1_LASTFRAG));
 	if (fd_head != NULL) {
