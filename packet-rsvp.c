@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.40 2001/04/23 18:19:03 guy Exp $
+ * $Id: packet-rsvp.c,v 1.41 2001/05/01 18:19:04 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,6 +62,7 @@
 #endif
 
 #include <glib.h>
+#include <arpa/inet.h>
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
@@ -107,9 +108,17 @@ static gint ett_rsvp_unknown_class = -1;
  * RSVP message types
  */
 typedef enum {
-    RSVP_MSG_PATH=1, RSVP_MSG_RESV, RSVP_MSG_PERR, RSVP_MSG_RERR,
-    RSVP_MSG_PTEAR, RSVP_MSG_RTEAR, RSVP_MSG_CONFIRM, 
-    RSVP_MSG_RTEAR_CONFIRM=10
+    RSVP_MSG_PATH=1, 
+    RSVP_MSG_RESV, 
+    RSVP_MSG_PERR, 
+    RSVP_MSG_RERR,
+    RSVP_MSG_PTEAR, 
+    RSVP_MSG_RTEAR, 
+    RSVP_MSG_CONFIRM, 
+    RSVP_MSG_RTEAR_CONFIRM=10,
+    RSVP_MSG_BUNDLE = 12,
+    RSVP_MSG_ACK,
+    RSVP_MSG_SREFRESH = 15
 } rsvp_message_types;
 
 static value_string message_type_vals[] = { 
@@ -121,6 +130,9 @@ static value_string message_type_vals[] = {
     {RSVP_MSG_RTEAR, "RESV TEAR Message"},
     {RSVP_MSG_CONFIRM, "CONFIRM Message"},
     {RSVP_MSG_RTEAR_CONFIRM, "RESV TEAR CONFIRM Message"},
+    {RSVP_MSG_BUNDLE, "BUNDLE Message"},
+    {RSVP_MSG_ACK, "ACK Message"},
+    {RSVP_MSG_SREFRESH, "SREFRESH Message"},
     {0, NULL}
 };
 
@@ -152,6 +164,10 @@ enum rsvp_classes {
     RSVP_CLASS_EXPLICIT_ROUTE,
     RSVP_CLASS_RECORD_ROUTE,
 
+    RSVP_CLASS_MESSAGE_ID = 23,
+    RSVP_CLASS_MESSAGE_ID_ACK,
+    RSVP_CLASS_MESSAGE_ID_LIST,
+
     RSVP_CLASS_SESSION_ATTRIBUTE=207,
 };
 
@@ -176,6 +192,9 @@ static value_string rsvp_class_vals[] = {
     {RSVP_CLASS_EXPLICIT_ROUTE, "EXPLICIT ROUTE object"},
     {RSVP_CLASS_RECORD_ROUTE, "RECORD ROUTE object"},
     {RSVP_CLASS_SESSION_ATTRIBUTE, "SESSION ATTRIBUTE object"},
+    {RSVP_CLASS_MESSAGE_ID, "MESSAGE-ID object"},
+    {RSVP_CLASS_MESSAGE_ID_ACK, "MESSAGE-ID ACK/NACK object"},
+    {RSVP_CLASS_MESSAGE_ID_LIST, "MESSAGE-ID LIST object"},
     {0, NULL}
 };
 
@@ -197,7 +216,9 @@ enum rsvp_error_types {
     RSVP_ERROR_UNKNOWN_C_TYPE,
     RSVP_ERROR_TRAFFIC = 21,
     RSVP_ERROR_TRAFFIC_SYSTEM,
-    RSVP_ERROR_SYSTEM
+    RSVP_ERROR_SYSTEM,
+    RSVP_ERROR_ROUTING,
+    RSVP_ERROR_NOTIFY
 };
 
 static value_string rsvp_error_vals[] = {
@@ -215,6 +236,9 @@ static value_string rsvp_error_vals[] = {
     {RSVP_ERROR_UNKNOWN_C_TYPE, "Unknown object C-type"},
     {RSVP_ERROR_TRAFFIC, "Traffic Control Error"},
     {RSVP_ERROR_TRAFFIC_SYSTEM, "Traffic Control System Error"},
+    {RSVP_ERROR_SYSTEM, "RSVP System Error"},
+    {RSVP_ERROR_ROUTING, "Routing Error"},
+    {RSVP_ERROR_NOTIFY, "RSVP Notify Error"},
     {0, NULL}
 };
 
@@ -339,6 +363,11 @@ enum rsvp_filter_keys {
     RSVPF_JUNK_MSG8,
     RSVPF_JUNK_MSG9,
     RSVPF_RTEARCONFIRM,
+    RSVPF_JUNK11,
+    RSVPF_BUNDLE,
+    RSVPF_ACK,
+    RSVPF_JUNK14,
+    RSVPF_SREFRESH,
 
     /* Does the message contain an object of this type? */
     RSVPF_OBJECT,
@@ -364,9 +393,12 @@ enum rsvp_filter_keys {
     RSVPF_LABEL_REQUEST,
     RSVPF_EXPLICIT_ROUTE,
     RSVPF_RECORD_ROUTE,
+    RSVPF_DUMMY_4,
+    RSVPF_MESSAGE_ID,
+    RSVPF_MESSAGE_ID_ACK,
+    RSVPF_MESSAGE_ID_LIST,
 
     RSVPF_SESSION_ATTRIBUTE,
-
     RSVPF_UNKNOWN_OBJ, 
 
     /* Session object */
@@ -509,6 +541,18 @@ static hf_register_info rsvpf_info[] = {
      { "RECORD ROUTE", "rsvp.record_route", FT_NONE, BASE_NONE, NULL, 0x0,
      	"" }},
 
+    {&rsvp_filter[RSVPF_MESSAGE_ID], 
+     { "MESSAGE-ID", "rsvp.msgid", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"" }},
+
+    {&rsvp_filter[RSVPF_MESSAGE_ID_ACK], 
+     { "MESSAGE-ID ACK", "rsvp.ack", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"" }},
+
+    {&rsvp_filter[RSVPF_MESSAGE_ID_LIST], 
+     { "MESSAGE-ID LIST", "rsvp.msgid_list", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"" }},
+
     {&rsvp_filter[RSVPF_UNKNOWN_OBJ], 
      { "Unknown object", "rsvp.obj_unknown", FT_NONE, BASE_NONE, NULL, 0x0,
      	"" }},
@@ -569,6 +613,9 @@ static inline int rsvp_class_to_filter_num(int classnum)
     case RSVP_CLASS_LABEL_REQUEST :
     case RSVP_CLASS_EXPLICIT_ROUTE :
     case RSVP_CLASS_RECORD_ROUTE :
+    case RSVP_CLASS_MESSAGE_ID :
+    case RSVP_CLASS_MESSAGE_ID_ACK :
+    case RSVP_CLASS_MESSAGE_ID_LIST :
 	return classnum + RSVPF_OBJECT;
 	break;
 
@@ -598,6 +645,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int obj_length;
     int mylen;
     int offset2;
+    char *objtype;
 
     if (check_col(pinfo->fd, COL_PROTOCOL))
         col_set_str(pinfo->fd, COL_PROTOCOL, "RSVP");
@@ -701,10 +749,14 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					offset2+4, 1, FALSE);
 		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+5, 1,
 					"Flags: %x",
-					tvb_get_ntohs(tvb, offset2+5));
+					tvb_get_guint8(tvb, offset2+5));
 		    proto_tree_add_item(rsvp_object_tree,
 					rsvp_filter[RSVPF_SESSION_PORT], tvb, 
 					offset2+6, 2, FALSE);
+                    proto_item_set_text(ti, "SESSION: IPv4, %s, %d, %d", 
+                                        ip_to_str(tvb_get_ptr(tvb, offset2, 4)), 
+                                        tvb_get_guint8(tvb, offset2+4),
+                                        tvb_get_ntohs(tvb, offset2+6));
 		    break;
 		}
 
@@ -744,6 +796,10 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    proto_tree_add_item_hidden(rsvp_object_tree,
 		    			rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
 		    			tvb, offset2+8, 4, FALSE);
+                    proto_item_set_text(ti, "SESSION: IPv4-LSP, %s, %d, %0x", 
+                                        ip_to_str(tvb_get_ptr(tvb, offset2, 4)), 
+                                        tvb_get_ntohs(tvb, offset2+6),
+                                        tvb_get_ntohl(tvb, offset2+8));
 		    break;
 		}
 
@@ -775,6 +831,8 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
 					"Logical interface: %u", 
 					tvb_get_ntohl(tvb, offset2+4));
+                    proto_item_set_text(ti, "HOP: IPv4, %s", 
+                                        ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
 		    break;
 		}
 
@@ -816,6 +874,8 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					"Refresh interval: %u ms (%u seconds)",
 					tvb_get_ntohl(tvb, offset2),
 					tvb_get_ntohl(tvb, offset2)/1000);
+                    proto_item_set_text(ti, "TIME VALUES: %d ms", 
+                                        tvb_get_ntohl(tvb, offset2));
 		    break;
 		}
 
@@ -857,6 +917,10 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+6, 2,
 					"Error value: %u",
 					tvb_get_ntohs(tvb, offset2+6));
+                    proto_item_set_text(ti, "ERROR: IPv4, %d, %d, %s", 
+                                        tvb_get_guint8(tvb, offset2+5),
+                                        tvb_get_ntohs(tvb, offset2+6),
+                                        ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
 		    break;
 		}
 
@@ -955,10 +1019,12 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					"Flags: 0x%02x",
 					tvb_get_guint8(tvb, offset2));
 		    style = tvb_get_ntoh24(tvb, offset2+1);
-		    ti = proto_tree_add_text(rsvp_object_tree, tvb, offset2+1,
-			3, "Style: 0x%06X - %s",
-			style,
-			val_to_str(style, style_vals, "Unknown"));
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+1,
+                                        3, "Style: 0x%06X - %s", style,
+                                        val_to_str(style, style_vals, "Unknown"));
+                    proto_item_set_text(ti, "STYLE: %s (%d)", 
+                                        val_to_str(style, style_vals, "Unknown"),
+                                        style);
 		    break;
 		}
 
@@ -987,6 +1053,8 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					"C-type: 1 - IPv4");
 		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4, 
 					"Receiver address: %s", 
+					ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
+		    proto_item_set_text(ti, "CONFIRM: %s", 
 					ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
 		    break;
 		}
@@ -1017,6 +1085,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
 				    "Class number: %u - %s", 
 				    class, object_type);
+                objtype = "SENDER TEMPLATE";
 		goto common_template;
 	    case RSVP_CLASS_FILTER_SPEC :
 		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_filter_spec);
@@ -1025,6 +1094,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
 				    "Class number: %u - %s", 
 				    class, object_type);
+                objtype = "FILTERSPEC";
 	    common_template:
 		mylen = obj_length - 4;
 		switch(type) {
@@ -1037,6 +1107,9 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    proto_tree_add_item(rsvp_object_tree,
 					rsvp_filter[RSVPF_SENDER_PORT],
 					tvb, offset2+6, 2, FALSE);
+                    proto_item_set_text(ti, "%s: IPv4, %s, %d", objtype,
+                                        ip_to_str(tvb_get_ptr(tvb, offset2, 4)), 
+                                        tvb_get_ntohs(tvb, offset2+6));
 		    break;
 		}
 
@@ -1061,6 +1134,9 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    proto_tree_add_item(rsvp_object_tree,
 					rsvp_filter[RSVPF_SENDER_LSP_ID],
 		    			tvb, offset2+6, 2, FALSE);
+                    proto_item_set_text(ti, "%s: IPv4-LSP, %s, %d", objtype,
+                                        ip_to_str(tvb_get_ptr(tvb, offset2, 4)), 
+                                        tvb_get_ntohs(tvb, offset2+6));
 		    break;
 		}
 
@@ -1144,6 +1220,8 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_text(rsvp_object_tree, tvb, offset2+20, 4,
 					    "Maximum policed unit: %u", 
 					    tvb_get_ntohl(tvb, offset2+20));
+                        proto_item_set_text(ti, "SENDER TSPEC: IntServ, %lu bytes/sec", 
+                                            tvb_ieee_to_long(tvb, offset2+4));
 			break;
 
 		    case QOS_QUALITATIVE :
@@ -1165,6 +1243,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
 					    "Maximum policed unit: %u", 
 					    tvb_get_ntohl(tvb, offset2+4));
+                        proto_item_set_text(ti, "SENDER TSPEC: Qualitative");
 			break;
 
 		    }
@@ -1246,8 +1325,12 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_text(rsvp_object_tree, tvb, offset2+20, 4,
 					    "Maximum policed unit: %u", 
 					    tvb_get_ntohl(tvb, offset2+20));
-			if (service_num != QOS_GUARANTEED)
+
+			if (service_num != QOS_GUARANTEED) {
+                            proto_item_set_text(ti, "FLOWSPEC: Controlled-Load, %lu bytes/sec", 
+                                                tvb_ieee_to_long(tvb, offset2+4));
 			    break;
+                        }
 			
 			/* Guaranteed-rate RSpec */
 			param_id = tvb_get_guint8(tvb, offset2+24);
@@ -1271,6 +1354,8 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_text(rsvp_object_tree, tvb, offset2+32, 4,
 					    "Slack term: %u", 
 					    tvb_get_ntohl(tvb, offset2+32));
+                        proto_item_set_text(ti, "FLOWSPEC: Guaranteed-Rate, %lu bytes/sec", 
+                                            tvb_ieee_to_long(tvb, offset2+4));
 			break;
 
 		    case QOS_QUALITATIVE :
@@ -1292,6 +1377,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    "Maximum policed unit: %u", 
 					    tvb_get_ntohl(tvb, offset2+4));
 			
+                        proto_item_set_text(ti, "FLOWSPEC: Qualitative");
 			break;
 		    }
 		    offset2 += length*4;
@@ -1436,6 +1522,9 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					"L3PID: %s (0x%04x)",
 					val_to_str(l3pid, etype_vals, "Unknown"),
 					l3pid);
+                    proto_item_set_text(ti, "LABEL REQUEST: %s (0x%04x)",
+					val_to_str(l3pid, etype_vals, "Unknown"),
+					l3pid);
 		    break;
 		}
 
@@ -1462,12 +1551,11 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 1: {
 		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
 					"C-type: 1");
-		    for (i=1, l = 0; l < mylen; l+=4, i++)
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+l, 4,
-					    "Label %d: %u %s", 
-					    i, tvb_get_ntohl(tvb, offset2+l), 
-					    l == mylen - 4 ? 
-					    "(Top label)" : "");
+                    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4,
+                                        "Label: %u", 
+                                        tvb_get_ntohl(tvb, offset2));
+                    proto_item_set_text(ti, "LABEL: %d", 
+                                        tvb_get_ntohl(tvb, offset2));
 		    break;
 		}
 
@@ -1761,6 +1849,115 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		break;
 	    
+	    case RSVP_CLASS_MESSAGE_ID :
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_policy);
+		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+				    "Length: %u", obj_length);
+		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+				    "Class number: %u - %s", 
+				    class, object_type);
+                switch(type) {
+                case 1: 
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+					"C-type: 1");
+                    proto_tree_add_text(rsvp_object_tree, tvb, offset+4, 1,
+                                        "Flags: %d", tvb_get_guint8(tvb, offset+4));
+                    proto_tree_add_text(rsvp_object_tree, tvb, offset+5, 3,
+                                        "Epoch: %d", tvb_get_ntoh24(tvb, offset+5));
+                    proto_tree_add_text(rsvp_object_tree, tvb, offset+8, 4,
+                                        "Message-ID: %d", tvb_get_ntohl(tvb, offset+8));
+                    proto_item_set_text(ti, "MESSAGE-ID: %d %s", 
+                                        tvb_get_ntohl(tvb, offset+8), 
+                                        tvb_get_guint8(tvb, offset+4) & 1 ? "(Ack Desired)" : "");
+                    break;
+
+                default:
+                    mylen = obj_length - 4;
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+					"C-type: Unknown (%u)",
+					type);
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
+					"Data (%d bytes)", mylen);
+		    break;
+                }
+                break;
+
+	    case RSVP_CLASS_MESSAGE_ID_ACK :
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_policy);
+		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+				    "Length: %u", obj_length);
+		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+				    "Class number: %u - %s", 
+				    class, object_type);
+                switch(type) {
+                case 1: 
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+					"C-type: 1");
+                    proto_tree_add_text(rsvp_object_tree, tvb, offset+4, 1,
+                                        "Flags: %d", tvb_get_guint8(tvb, offset+4));
+                    proto_tree_add_text(rsvp_object_tree, tvb, offset+5, 3,
+                                        "Epoch: %d", tvb_get_ntoh24(tvb, offset+5));
+                    proto_tree_add_text(rsvp_object_tree, tvb, offset+8, 4,
+                                        "Message-ID: %d", tvb_get_ntohl(tvb, offset+8));
+                    proto_item_set_text(ti, "MESSAGE-ID ACK: %d", tvb_get_ntohl(tvb, offset+8));
+                    break;
+
+                case 2: 
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+					"C-type: 2");
+                    proto_tree_add_text(rsvp_object_tree, tvb, offset+4, 1,
+                                        "Flags: %d", tvb_get_guint8(tvb, offset+4));
+                    proto_tree_add_text(rsvp_object_tree, tvb, offset+5, 3,
+                                        "Epoch: %d", tvb_get_ntoh24(tvb, offset+5));
+                    proto_tree_add_text(rsvp_object_tree, tvb, offset+8, 4,
+                                        "Message-ID: %d", tvb_get_ntohl(tvb, offset+8));
+                    proto_item_set_text(ti, "MESSAGE-ID NACK: %d", tvb_get_ntohl(tvb, offset+8));
+                    break;
+
+                default:
+                    mylen = obj_length - 4;
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+					"C-type: Unknown (%u)",
+					type);
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
+					"Data (%d bytes)", mylen);
+		    break;
+                }
+                break;
+
+	    case RSVP_CLASS_MESSAGE_ID_LIST :
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_policy);
+		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+				    "Length: %u", obj_length);
+		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+				    "Class number: %u - %s", 
+				    class, object_type);
+                switch(type) {
+                case 1: 
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+					"C-type: 1");
+                    proto_tree_add_text(rsvp_object_tree, tvb, offset+4, 1,
+                                        "Flags: %d", tvb_get_guint8(tvb, offset+4));
+                    proto_tree_add_text(rsvp_object_tree, tvb, offset+5, 3,
+                                        "Epoch: %d", tvb_get_ntoh24(tvb, offset+5));
+                    for (mylen = 8; mylen < obj_length; mylen += 4)
+                        proto_tree_add_text(rsvp_object_tree, tvb, offset+mylen, 4,
+                                            "Message-ID: %d", tvb_get_ntohl(tvb, offset+mylen));
+                    proto_item_set_text(ti, "MESSAGE-ID LIST: %d IDs", 
+                                        (obj_length - 8)/4);
+                    break;
+
+                default:
+                    mylen = obj_length - 4;
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+					"C-type: Unknown (%u)",
+					type);
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
+					"Data (%d bytes)", mylen);
+		    break;
+                }
+                break;
+
 	    default :
 		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_unknown_class);
 		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
