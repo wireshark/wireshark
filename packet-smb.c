@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.278 2002/08/10 21:15:37 guy Exp $
+ * $Id: packet-smb.c,v 1.279 2002/08/13 02:14:39 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -129,6 +129,7 @@ static int hf_smb_server_timezone = -1;
 static int hf_smb_encryption_key_length = -1;
 static int hf_smb_encryption_key = -1;
 static int hf_smb_primary_domain = -1;
+static int hf_smb_server = -1;
 static int hf_smb_max_raw_buf_size = -1;
 static int hf_smb_server_guid = -1;
 static int hf_smb_security_blob_len = -1;
@@ -2280,6 +2281,17 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 			proto_tree_add_string(tree, hf_smb_primary_domain,
 				tvb, offset, dn_len, dn);
 			COUNT_BYTES(dn_len);
+
+			/* server name, seen in w2k pro capture */
+			dn = get_unicode_or_ascii_string(tvb,
+				&offset, si->unicode, &dn_len, TRUE, FALSE,
+				&bc);
+			if (dn == NULL)
+				goto endofcommand;
+			proto_tree_add_string(tree, hf_smb_server,
+				tvb, offset, dn_len, dn);
+			COUNT_BYTES(dn_len);
+
 		} else {
 			/* guid */
 			/* XXX - show it in the standard Microsoft format
@@ -10356,13 +10368,15 @@ static int
 dissect_4_2_14_8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
-
+	
 	offset = dissect_4_2_14_4(tvb, pinfo, tree, offset, bcp, trunc);
-	if (trunc)
+	if (*trunc) {
 		return offset;
+	}
 	offset = dissect_4_2_14_5(tvb, pinfo, tree, offset, bcp, trunc);
-	if (trunc)
+	if (*trunc) {
 		return offset;
+	}
 
 	/* index number */
 	CHECK_BYTE_COUNT_SUBR(8);
@@ -10370,7 +10384,7 @@ dissect_4_2_14_8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	COUNT_BYTES_SUBR(8);
 
 	offset = dissect_4_2_14_6(tvb, pinfo, tree, offset, bcp, trunc);
-	if (trunc)
+	if (*trunc)
 		return offset;
 
 	/* access flags */
@@ -11181,18 +11195,18 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 			if(pc>0){
 				if(pc>tvb_length_remaining(tvb, po)){
-					p_tvb = tvb_new_subset(tvb, po, tvb_length_remaining(tvb, po), pc);
+					p_tvb = tvb_new_subset(tvb, po, -1, -1);
 				} else {
-					p_tvb = tvb_new_subset(tvb, po, pc, pc);
+					p_tvb = tvb_new_subset(tvb, po, -1, -1);
 				}
 			} else {
 				p_tvb = NULL;
 			}
 			if(dc>0){
 				if(dc>tvb_length_remaining(tvb, od)){
-					d_tvb = tvb_new_subset(tvb, od, tvb_length_remaining(tvb, od), dc);
+					d_tvb = tvb_new_subset(tvb, od, -1, -1);
 				} else {
-					d_tvb = tvb_new_subset(tvb, od, dc, dc);
+					d_tvb = tvb_new_subset(tvb, od, -1, -1);
 				}
 			} else {
 				d_tvb = NULL;
@@ -15675,6 +15689,10 @@ proto_register_smb(void)
 	{ &hf_smb_primary_domain,
 		{ "Primary Domain", "smb.primary_domain", FT_STRING, BASE_NONE,
 		NULL, 0, "The server's primary domain", HFILL }},
+
+	{ &hf_smb_server,
+		{ "Server", "smb.server", FT_STRING, BASE_NONE,
+		NULL, 0, "The name of the DC/server", HFILL }},
 
 	{ &hf_smb_max_raw_buf_size,
 		{ "Max Raw Buffer", "smb.max_raw", FT_UINT32, BASE_DEC,
