@@ -119,7 +119,15 @@
 static int proto_snmp = -1;
 
 /* Default MIB modules to load */
-#define DEF_MIB_MODULES "IP-MIB:IF-MIB:TCP-MIB:UDP-MIB:SNMPv2-MIB:RFC1213-MIB:UCD-SNMP-MIB"
+/*
+ * XXX - Should we try to be clever and replace colons for semicolons under
+ * Windows and the converse on non-Windows systems?
+ */
+#ifdef _WIN32
+# define DEF_MIB_MODULES "IP-MIB;IF-MIB;TCP-MIB;UDP-MIB;SNMPv2-MIB;RFC1213-MIB;UCD-SNMP-MIB"
+#else
+# define DEF_MIB_MODULES "IP-MIB:IF-MIB:TCP-MIB:UDP-MIB:SNMPv2-MIB:RFC1213-MIB:UCD-SNMP-MIB"
+#endif /* _WIN32 */
 
 static gchar *mib_modules = DEF_MIB_MODULES;
 static gboolean display_oid = TRUE;
@@ -2522,7 +2530,8 @@ proto_register_snmp(void)
 		mib_modules = tmp_mib_modules;
 	prefs_register_string_preference(snmp_module, "mib_modules",
 	    "MIB modules to load",
-	    "List of MIB modules to load (the list is set to environment variable MIBS if the variable is not already set)",
+	    "List of MIB modules to load (the list is set to environment variable MIBS if the variable is not already set)"
+	    "The list must be separated by colons (:) on non-Windows systems and semicolons (;) on Windows systems",
 	    &mib_modules);
 	prefs_register_bool_preference(snmp_module, "desegment",
 	    "Reassemble SNMP-over-TCP messages\nspanning multiple TCP segments",
