@@ -793,7 +793,7 @@ Eran Mann <emann[AT]opticalaccess.com> {
 	Fix to LDP prefix FEC dissection for IPv4
 }
 
-Andy Hood <ahood[AT]westpac.com.au> {
+Andy Hood <ajhood [AT] fl.net.au> {
 	"--with-ssl" configuration option, to use if UCD SNMP is
 	   compiled with crypto support and needs -lcrypto
 	On Solaris, with GCC, add flags to reduce warnings from
