@@ -1,5 +1,5 @@
 /*
- * $Id: network_instruments.c,v 1.1 2003/10/31 00:43:21 guy Exp $
+ * $Id: network_instruments.c,v 1.2 2003/10/31 08:06:24 guy Exp $
  */
 
 /***************************************************************************
@@ -172,7 +172,11 @@ static gboolean observer_read(wtap *wth, int *err, long *data_offset)
 	    GUINT64_FROM_LE(packet_header.nano_seconds_since_2000);
 	fill_time_struct(packet_header.nano_seconds_since_2000, &packet_time);
 	useconds = (long)(packet_time.useconds_from_1970 - ((guint64)packet_time.seconds_from_1970)*1000000);
+#if 0
 	seconds = (long)packet_time.seconds_from_1970 - packet_time.time_stamp.tm_gmtoff;
+#else
+	seconds = (long)packet_time.seconds_from_1970;
+#endif
 
 	/* set-up the packet header */
 	packet_header.network_size =
