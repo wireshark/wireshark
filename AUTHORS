@@ -699,6 +699,7 @@ Hannes Gredler <hannes[AT]juniper.net> {
 	    before the PSN byte
 	Decode the sample rate factor in cflowd5 headers
 	Support OSI over CHDLC
+	Show the type value for OSI protocols symbolically in GRE
 }
 
 Inoue <inoue[AT]ainet.or.jp> {
