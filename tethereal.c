@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.6 2000/01/15 10:23:10 guy Exp $
+ * $Id: tethereal.c,v 1.7 2000/01/15 10:47:56 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -77,6 +77,7 @@
 #include "util.h"
 #include "ui_util.h"
 #include "conversation.h"
+#include "plugins.h"
 
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
@@ -116,6 +117,9 @@ ethereal_proto_init(void) {
   proto_init();
   init_dissect_udp();
   dfilter_init();
+#ifdef HAVE_PLUGINS
+  init_plugins();
+#endif
 }
 
 static void
