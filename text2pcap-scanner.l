@@ -10,7 +10,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap-scanner.l,v 1.1 2001/05/16 21:32:04 ashokn Exp $
+ * $Id: text2pcap-scanner.l,v 1.2 2001/11/24 02:13:34 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,7 +46,8 @@ directive #TEXT2PCAP.*
 comment #[^W].*
 byte [0-9A-Fa-f][0-9A-Fa-f][ \t]
 byte_eol [0-9A-Fa-f][0-9A-Fa-f]\n
-offset [0-9A-Fa-f]+[ \t\n]
+offset [0-9A-Fa-f]+[ \t]
+offset_eol [0-9A-Fa-f]+\n
 text [^ \n\t]+
 mailfwd >
 eol \r?\n\r?
@@ -56,6 +57,7 @@ eol \r?\n\r?
 {byte}            { parse_token(T_BYTE, yytext); }
 {byte_eol}        { parse_token(T_BYTE, yytext); parse_token(T_EOL, NULL); }
 {offset}          { parse_token(T_OFFSET, yytext); }
+{offset_eol}      { parse_token(T_OFFSET, yytext); parse_token(T_EOL, NULL); }
 {mailfwd}{offset} { parse_token(T_OFFSET, yytext+1); }
 {eol}             { parse_token(T_EOL, NULL); }
 [ \t]             ; /* ignore whitespace */
