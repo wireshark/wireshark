@@ -3,7 +3,7 @@
  * Copyright Lucent Technologies 2004
  * Josh Bailey <joshbailey@lucent.com> and Ruud Linders <ruud@lucent.com>
  *
- * $Id: packet-ipdc.c,v 1.3 2004/03/20 08:01:07 guy Exp $
+ * $Id: packet-ipdc.c,v 1.4 2004/03/21 19:57:14 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -192,15 +192,15 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		des = val_to_str(tag, tag_description, TEXT_UNDEFINED);
 		/* lookup tag type */
 		for (i = 0; (ipdc_tag_types[i].tag != tag &&
-			ipdc_tag_types[i].type != UNKNOWN); i++)
+			ipdc_tag_types[i].type != IPDC_UNKNOWN); i++)
 		;
 		type = ipdc_tag_types[i].type;
 
 		tmp_tag = 0;
 
 		switch (type) {
-			/* simple ASCII strings */
-			case ASCII:
+			/* simple IPDC_ASCII strings */
+			case IPDC_ASCII:
 				tmp_str = tvb_memdup(tvb, offset + 2, len);
 				strncpy(tmp_tag_text, tmp_str, len);
 				tmp_tag_text[len] = 0;
@@ -211,8 +211,8 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 
 			/* unsigned integers, or bytes */
-			case UINT:
-			case BYTE:
+			case IPDC_UINT:
+			case IPDC_BYTE:
 				for (i = 0; i < len; i++) 
 					tmp_tag += tvb_get_guint8(tvb,
 						offset + 2 + i) * (guint32)
@@ -239,7 +239,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 
 			/* IP addresses */
-			case IPA:
+			case IPDC_IPA:
 				if (len == 4) {
 					sprintf(tmp_tag_text, "%u.%u.%u.%u",
 					tvb_get_guint8(tvb, offset + 2),
@@ -265,11 +265,11 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 
 			/* Line status arrays */
-			case LINESTATUS:
-			case CHANNELSTATUS:
+			case IPDC_LINESTATUS:
+			case IPDC_CHANNELSTATUS:
 				proto_tree_add_text(tag_tree, tvb, offset,
 				len + 2, "0x%2.2x: %s", tag, des);
-				val_ptr = (type == LINESTATUS) ?
+				val_ptr = (type == IPDC_LINESTATUS) ?
 					line_status_vals : channel_status_vals;
 
 				for (i = 0; i < len; i++) {
@@ -285,7 +285,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 			break;
 
-			case Q931:
+			case IPDC_Q931:
 				q931_tvb =
 					tvb_new_subset(tvb, offset+2, len, len);
 				call_dissector(q931_handle,q931_tvb,pinfo,tree);
