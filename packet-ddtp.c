@@ -3,7 +3,7 @@
  * see http://ddt.sourceforge.net/
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-ddtp.c,v 1.1 2000/04/13 21:03:55 oabad Exp $
+ * $Id: packet-ddtp.c,v 1.2 2000/04/13 21:16:22 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -219,14 +219,14 @@ proto_register_ddtp(void)
 	    { "IP addres", "ddtp.ipaddr", FT_IPv4, BASE_NONE, NULL, 0x0,
 		"IP address" } },
 	{ &hf_ddtp_status,
-	    { "Status", "ddtp.status", FT_UINT32, BASE_DEC, VALS(vals_dhis_status), 0x0,
+	    { "Status", "ddtp.status", FT_UINT32, BASE_DEC, VALS(vals_ddtp_status), 0x0,
 		"Update reply status" } }
     };
 
     static gint *ett[] = { &ett_ddtp };
 
-    proto_ddtp = proto_register_protocol("Dynamic Host Information Service", "dhis");
-    proto_register_field_array(proto_ddtp, hf_dhis, array_length(hf_dhis));
+    proto_ddtp = proto_register_protocol("Dynamic DNS Tools Protocol", "ddtp");
+    proto_register_field_array(proto_ddtp, hf_ddtp, array_length(hf_ddtp));
     proto_register_subtree_array(ett, array_length(ett));
 }
 
