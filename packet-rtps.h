@@ -1,5 +1,5 @@
 /*
- *  $Id: packet-rtps.h,v 1.1 2004/04/17 21:43:32 guy Exp $
+ *  $Id: packet-rtps.h,v 1.2 2004/04/18 06:39:31 ulfl Exp $
  *
  *  AUTHOR: Petr Smolik                 petr.smolik@wo.cz
  *
@@ -32,12 +32,12 @@ extern "C" {
 #define ORTE_TRUE            1
 #define ORTE_FALSE           0
 
-typedef int8_t                   Boolean;
+typedef gint8                    Boolean;
 
-typedef int8_t                   PathName[MAX_PATHNAME];
-typedef int8_t                   TypeName[MAX_TYPENAME];
+typedef gint8                    PathName[MAX_PATHNAME];
+typedef gint8                    TypeName[MAX_TYPENAME];
 
-typedef int32_t                  TypeChecksum;
+typedef gint32                   TypeChecksum;
 
 /*****************************************************************/
 /*             Wire Protocol Specification (WPS)                 */
@@ -49,7 +49,7 @@ typedef int32_t                  TypeChecksum;
    
   for example: IP address working nodes
 */
-typedef int32_t                  HostId;
+typedef gint32                   HostId;
 #define HID_UNKNOWN              0x00
 
 /**
@@ -58,7 +58,7 @@ typedef int32_t                  HostId;
   composed from: 3 bytes - instance Id
                  1 byte  - appKind (1 - ManagedApplication, 2 - Manager) 
 */
-typedef int32_t                  AppId;
+typedef gint32                   AppId;
 #define AID_UNKNOWN              0x00
 #define MANAGEDAPPLICATION       0x01
 #define MANAGER                  0x02
@@ -69,7 +69,7 @@ typedef int32_t                  AppId;
   composed from: 3 bytes - instance Id
                  1 byte  - objKind
 */
-typedef int32_t                  ObjectId;
+typedef gint32                   ObjectId;
 
 #define OID_UNKNOWN              0x00000000
 #define OID_APP                  0x000001C1
@@ -102,8 +102,8 @@ typedef struct {
      } GUID_RTPS;    
 
 typedef struct {
-       int8_t                major;
-       int8_t                minor;
+       gint8                 major;
+       gint8                 minor;
      } VendorId;
 
 #define VENDOR_ID_UNKNOWN(id)    {id.major=0;id.minor=0;}
@@ -111,15 +111,15 @@ typedef struct {
 #define VENDOR_ID_OCERA(id)      {id.major=0;id.minor=0;}
 
 typedef struct {
-       int8_t                major;
-       int8_t                minor;
+       gint8                 major;
+       gint8                 minor;
      } ProtocolVersion;
 
 #define PROTOCOL_VERSION_1_0(pv) {pv.major=1;pv.minor=0;}
 
 typedef struct {
-       int32_t               high;
-       int32_t               low;
+       gint32                high;
+       gint32                low;
      } SequenceNumber;
 
 
@@ -128,19 +128,19 @@ typedef struct {
 
 
 typedef struct {
-       int32_t               seconds;    /* time in seconds */
-       u_int32_t             fraction;   /* time in seconds / 2^32 */
+       gint32                seconds;    /* time in seconds */
+       guint32               fraction;   /* time in seconds / 2^32 */
      } NtpTime;
 
 #define NTPTIME_ZERO(t)          {t.seconds=0;t.fraction=0;}
 #define NTPTIME_BUILD(t,s)       {t.seconds=s;t.fraction=0;}
 #define NTPTIME_INFINITE(t)      {t.seconds=0xffffffff;t.fraction=0;}
 
-typedef int32_t                  IPAddress;
+typedef gint32                   IPAddress;
 
 #define IPADDRESS_INVALID        0
 
-typedef int32_t                     Port;
+typedef gint32                   Port;
 
 #define PORT_INVALID             0
 
@@ -206,8 +206,8 @@ typedef struct {
 #define PID_VALUE_RELIABILITY_BEST_EFFORTS  0x01
 #define PID_VALUE_RELIABILITY_STRICT        0x02
 
-typedef u_int16_t ParameterId;
-typedef u_int16_t ParameterLength;
+typedef guint16   ParameterId;
+typedef guint16   ParameterLength;
 
 /* State Machines */
 typedef enum {
