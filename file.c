@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.298 2003/03/02 22:37:03 guy Exp $
+ * $Id: file.c,v 1.299 2003/06/24 06:14:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1149,7 +1149,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
       line_len += column_len + 1;	/* "+1" for space */
       if (line_len > line_buf_len) {
         cp_off = cp - line_buf;
-        line_buf_len *= 2;
+        line_buf_len = 2 * line_len;
         line_buf = g_realloc(line_buf, line_buf_len + 1);
         cp = line_buf + cp_off;
       }
@@ -1247,7 +1247,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
           line_len += column_len + 1;	/* "+1" for space */
           if (line_len > line_buf_len) {
             cp_off = cp - line_buf;
-            line_buf_len *= 2;
+            line_buf_len = 2 * line_len;
             line_buf = g_realloc(line_buf, line_buf_len + 1);
             cp = line_buf + cp_off;
           }
