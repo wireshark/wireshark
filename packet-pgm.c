@@ -1,7 +1,7 @@
 /* packet-pgm.c
  * Routines for pgm packet disassembly
  *
- * $Id: packet-pgm.c,v 1.4 2001/07/20 23:21:33 guy Exp $
+ * $Id: packet-pgm.c,v 1.5 2001/07/21 10:27:12 guy Exp $
  * 
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -40,15 +40,6 @@
 #include <netinet/in.h>
 #endif
 
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-
-#ifdef HAVE_NETDB_H
-# include <netdb.h>
-#endif
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -56,16 +47,12 @@
 #include <string.h>
 #include "packet.h"
 #include "packet-pgm.h"
-#if 0
+#include "afn.h"
+#include "ipproto.h"
 #include "resolv.h"
-#include "prefs.h"
 #include "strutil.h"
-#endif 
 
 #include "proto.h"
-#ifndef IP_PROTO_PGM
-#define IP_PROTO_PGM 113
-#endif
 
 void proto_reg_handoff_pgm(void);
 extern void decode_tcp_ports(tvbuff_t *, int , packet_info *,
@@ -114,26 +101,17 @@ static int hf_pgm_opt_type = -1;
 static int hf_pgm_opt_len = -1;
 static int hf_pgm_opt_tlen = -1;
 
+static int hf_pgm_genopt = -1;
 static int hf_pgm_genopt_type = -1;
 static int hf_pgm_genopt_len = -1;
 static int hf_pgm_genopt_opx = -1;
-static int hf_pgm_genopt_res = -1;
 
-static int hf_pgm_opt_join_type = -1;
-static int hf_pgm_opt_join_len = -1;
-static int hf_pgm_opt_join_opx = -1;
 static int hf_pgm_opt_join_res = -1;
 static int hf_pgm_opt_join_minjoin = -1;
 
-static int hf_pgm_opt_parity_prm_type = -1;
-static int hf_pgm_opt_parity_prm_len = -1;
-static int hf_pgm_opt_parity_prm_opx = -1;
 static int hf_pgm_opt_parity_prm_po = -1;
 static int hf_pgm_opt_parity_prm_prmtgsz = -1;
 
-static int hf_pgm_opt_parity_grp_type = -1;
-static int hf_pgm_opt_parity_grp_len = -1;
-static int hf_pgm_opt_parity_grp_opx = -1;
 static int hf_pgm_opt_parity_grp_res = -1;
 static int hf_pgm_opt_parity_grp_prmgrp = -1;
 
@@ -143,9 +121,6 @@ static int hf_pgm_opt_curr_tgsize_opx = -1;
 static int hf_pgm_opt_curr_tgsize_res = -1;
 static int hf_pgm_opt_curr_tgsize_prmatgsz = -1;
 
-static int hf_pgm_opt_nak_type = -1;
-static int hf_pgm_opt_nak_len = -1;
-static int hf_pgm_opt_nak_opx = -1;
 static int hf_pgm_opt_nak_res = -1;
 static int hf_pgm_opt_nak_list = -1;
 
@@ -156,25 +131,12 @@ static int hf_pgm_opt_nak_list = -1;
  *
  * was the URL for the PGM draft.
  */
-G_INLINE_FUNC char *
-gsistr(char *gsi, int len)
-{
-	 static char msg[256];
-	 char *p = msg;
-	 int i;
 
-	for (i = 0; i <= 255 && i < len; i++) {
-		sprintf(p,"%02x",(nchar_t)gsi[i]);
-		p += 2;
-	}
-	return(msg);
-}
-
-G_INLINE_FUNC char *
+static char *
 optsstr(nchar_t opts)
 {
-	 static char msg[256];
-	 char *p = msg, *str;
+	static char msg[256];
+	char *p = msg, *str;
 
 	if (opts == 0)
 		return("");
@@ -213,62 +175,32 @@ optsstr(nchar_t opts)
 	return(msg);
 }
 
-G_INLINE_FUNC char *
-opttypes(nchar_t opt)
-{
-	 static char msg[128];
+static const value_string opt_vals[] = {
+	{ PGM_OPT_LENGTH,      "Length" },
+	{ PGM_OPT_END,         "End" },
+	{ PGM_OPT_FRAGMENT,    "Fragment" },
+	{ PGM_OPT_NAK_LIST,    "NakList" },
+	{ PGM_OPT_JOIN,        "Join" },
+	{ PGM_OPT_REDIRECT,    "ReDirect" },
+	{ PGM_OPT_SYN,         "Syn" },
+	{ PGM_OPT_FIN,         "Fin" },
+	{ PGM_OPT_RST,         "Rst" },
+	{ PGM_OPT_PARITY_PRM,  "ParityPrm" },
+	{ PGM_OPT_PARITY_GRP,  "ParityGrp" },
+	{ PGM_OPT_CURR_TGSIZE, "CurrTgsiz" },
+	{ 0,                   NULL }
+};
 
-	if (opt == PGM_OPT_LENGTH)
-		return("Length");
-	if (opt == PGM_OPT_END)
-		return("End");
-	if (opt == PGM_OPT_FRAGMENT)
-		return("Fragment");
-	if (opt == PGM_OPT_NAK_LIST)
-		return("NakList");
-	if (opt == PGM_OPT_JOIN)
-		return("Join");
-	if (opt == PGM_OPT_REDIRECT)
-		return("ReDirect");
-	if (opt == PGM_OPT_SYN)
-		return("Syn");
-	if (opt == PGM_OPT_FIN)
-		return("Fin");
-	if (opt == PGM_OPT_RST)
-		return("Rst");
-	if (opt == PGM_OPT_PARITY_PRM)
-		return("ParityPrm");
-	if (opt == PGM_OPT_PARITY_GRP)
-		return("ParityGrp");
-	if (opt == PGM_OPT_CURR_TGSIZE)
-		return("CurrTgsiz");
-
-	sprintf(msg, "0x%x", opt);
-	return(msg);
-}
-
-G_INLINE_FUNC char *
-opxbits(nchar_t opt)
-{
-	 static char msg[128];
-
-	if (opt == 0)
-		return("");
-
-	if (opt == PGM_OPX_IGNORE)
-		return("Ignore");
-	if (opt == PGM_OPX_INVAL)
-		return("Inval");
-	if (opt == PGM_OPX_DISCARD)
-		return("DisCard");
-
-	sprintf(msg, "0x%x", opt);
-	return(msg);
-}
-char *pktname = NULL;
+static const value_string opx_vals[] = {
+	{ PGM_OPX_IGNORE,  "Ignore" },
+	{ PGM_OPX_INVAL,   "Inval" },
+	{ PGM_OPX_DISCARD, "DisCard" },
+	{ 0,               NULL }
+};
 
 static void
-dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
+    const char *pktname)
 {
 	proto_item *tf;
 	proto_tree *opts_tree = NULL;
@@ -284,10 +216,12 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree)
 		opts.total_len, 
 		"%s Options (Total Length %d)", pktname, opts.total_len);
 	opts_tree = proto_item_add_subtree(tf, ett_pgm_opts);
-	proto_tree_add_uint_format(opts_tree, hf_pgm_opt_type, tvb, 
-		offset, 4, opts.type, 
-		"Option: %-9s (0x%x), Length: %d, Total Length: %d", 
-		opttypes(opts.type), opts.type, opts.len, opts.total_len);
+	proto_tree_add_uint(opts_tree, hf_pgm_opt_type, tvb, 
+		offset, 1, opts.type);
+	proto_tree_add_uint(opts_tree, hf_pgm_opt_len, tvb, 
+		offset+1, 1, opts.len);
+	proto_tree_add_uint(opts_tree, hf_pgm_opt_tlen, tvb, 
+		offset+2, 2, opts.total_len);
 
 	offset += 4;
 	for (opts.total_len -= 4; opts.total_len > 0;){
@@ -296,10 +230,10 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree)
 			genopts.type &= ~PGM_OPT_END;
 			theend = 1;
 		}
-		tf = proto_tree_add_uint_format(opts_tree, hf_pgm_genopt_type, tvb, 
-			offset, genopts.len, genopts.type, 
-			"Option: %-9s (0x%x), Length: %d", opttypes(genopts.type), 
-				genopts.type, genopts.len );
+		tf = proto_tree_add_text(opts_tree, tvb, offset, genopts.len,
+			"Option: %s, Length: %u",
+			val_to_str(genopts.type, opt_vals, "Unknown (0x%02x)"),
+			genopts.len);
 		if (genopts.len == 0)
 			break;
 
@@ -310,14 +244,13 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree)
 			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_join);
 
-			proto_tree_add_uint_format(opt_tree, hf_pgm_opt_join_type, 
-				tvb, offset, 1, optdata.type, "Type: %s (0x%x)", 
-				opttypes(optdata.type), optdata.type);
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type, 
+				tvb, offset, 1, optdata.type);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_join_len, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb, 
 				offset+1, 1, optdata.len);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_join_opx, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, tvb, 
 				offset+2, 1, optdata.opx);
 
 			proto_tree_add_uint_format(opt_tree, hf_pgm_opt_join_res, tvb, 
@@ -334,17 +267,14 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree)
 			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_parityprm);
 
-			proto_tree_add_uint_format(opt_tree, hf_pgm_opt_parity_prm_type, 
-				tvb, offset, 1, optdata.type, "Type: %s (0x%x)", 
-				opttypes(optdata.type), optdata.type);
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type, 
+				tvb, offset, 1, optdata.type);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_parity_prm_len, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb, 
 				offset+1, 1, optdata.len);
 
-			proto_tree_add_uint_format(opt_tree, hf_pgm_opt_parity_prm_opx, 
-				tvb, offset+2, 1, optdata.opx, 
-				"Extensibility Bits: %s (0x%x)", opxbits(optdata.opx), 
-				optdata.opx);
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, 
+				tvb, offset+2, 1, optdata.opx);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_parity_prm_po, tvb, 
 				offset+3, 1, optdata.po);
@@ -360,17 +290,14 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree)
 			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_paritygrp);
 
-			proto_tree_add_uint_format(opt_tree, hf_pgm_opt_parity_prm_type, 
-				tvb, offset, 1, optdata.type, "Type: %s (0x%x)", 
-				opttypes(optdata.type), optdata.type);
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type, 
+				tvb, offset, 1, optdata.type);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_parity_prm_len, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb, 
 				offset+1, 1, optdata.len);
 
-			proto_tree_add_uint_format(opt_tree, hf_pgm_opt_parity_grp_opx, 
-				tvb, offset+2, 1, optdata.opx, 
-				"Extensibility Bits: %s (0x%x)", opxbits(optdata.opx), 
-				optdata.opx);
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, 
+				tvb, offset+2, 1, optdata.opx);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_parity_grp_res, tvb, 
 				offset+3, 1, optdata.res);
@@ -389,17 +316,14 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree)
 			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_naklist);
 
-			proto_tree_add_uint_format(opt_tree, hf_pgm_opt_nak_type, tvb, 
-				offset, 1, optdata.type, "Type: %s (0x%x)", 
-				opttypes(optdata.type), optdata.type);
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type, tvb, 
+				offset, 1, optdata.type);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_nak_len, tvb, 
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb, 
 				offset+1, 1, optdata.len);
 
-			proto_tree_add_uint_format(opt_tree, hf_pgm_opt_nak_opx, 
-				tvb, offset+2, 1, optdata.opx, 
-				"Extensibility Bits: %s (0x%x)", opxbits(optdata.opx), 
-				optdata.opx);
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, 
+				tvb, offset+2, 1, optdata.opx);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_nak_res, tvb, 
 				offset+3, 1, optdata.res);
@@ -452,6 +376,17 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 	}
 }
+
+static const value_string type_vals[] = {
+	{ PGM_SPM_PCKT,   "SPM" },
+	{ PGM_RDATA_PCKT, "RDATA" },
+	{ PGM_ODATA_PCKT, "ODATA" },
+	{ PGM_NAK_PCKT,   "NAK" },
+	{ PGM_NNAK_PCKT,  "NNAK" },
+	{ PGM_NCF_PCKT,   "NCF" },
+	{ 0,              NULL }
+};
+
 /*
  * dissect_pgm - The dissector for Pragmatic General Multicast
  */
@@ -462,7 +397,6 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *opt_tree = NULL;
 	proto_tree *type_tree = NULL;
 	proto_item *tf;
-	struct hostent *hp;
 	pgm_type pgmhdr;
 	pgm_spm_t spm;
 	pgm_data_t data;
@@ -470,9 +404,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int offset = 0;
 	guint hlen, plen;
 	proto_item *ti;
-	char buf[512];
-	struct in_addr inaddr;
-	char tmpaddr[16];
+	const char *pktname;
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "PGM");
@@ -487,74 +419,70 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pgmhdr.dport = ntohs(pgmhdr.dport);
 	pgmhdr.tsdulen = ntohs(pgmhdr.tsdulen);
 
+	pktname = val_to_str(pgmhdr.type, type_vals, "Unknown (0x%02x)");
+
 	switch(pgmhdr.type) {
 	case PGM_SPM_PCKT:
 		plen = sizeof(pgm_spm_t);
 		tvb_memcpy(tvb, (guint8 *)&spm, sizeof(pgm_type), plen);
-		pktname = "SPM";
 		spm_ntoh(&spm);
-		inaddr.s_addr = htonl(spm.path);
-		sprintf(buf, "SPM: sqn 0x%x path %s", spm.sqn, inet_ntoa(inaddr));
+		if (check_col(pinfo->fd, COL_INFO)) {
+			/*
+			 * XXX - this is correct only if spm.path_afi
+			 * is AFNUM_INET; it's not correct for, say
+			 * AFNUM_INET6.
+			 */
+			col_add_fstr(pinfo->fd, COL_INFO,
+			    "SPM: sqn 0x%x path %s", spm.sqn,
+			    get_hostname(spm.path));
+		}
 		break;
 
 	case PGM_RDATA_PCKT:
-		pktname = "RDATA";
-		/* FALLTHUR */
 	case PGM_ODATA_PCKT:
-		if (pktname == NULL)
-			pktname = "ODATA";
 		plen = sizeof(pgm_data_t);
 		tvb_memcpy(tvb, (guint8 *)&data, sizeof(pgm_type), plen);
 		data_ntoh(&data);
-		sprintf(buf, "%s: sqn 0x%x tsdulen %d", pktname, data.sqn, 
-			pgmhdr.tsdulen);
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_add_fstr(pinfo->fd, COL_INFO,
+			    "%s: sqn 0x%x tsdulen %d", pktname, data.sqn, 
+			    pgmhdr.tsdulen);
+		}
 		break;
 
 	case PGM_NAK_PCKT:
-		pktname = "NAK";
-		/* FALLTHUR */
 	case PGM_NNAK_PCKT:
-		if (pktname == NULL)
-			pktname = "NNAK";
-		/* FALLTHUR */
 	case PGM_NCF_PCKT:
-		if (pktname == NULL)
-			pktname = "NCF";
 		plen = sizeof(pgm_nak_t);
 		tvb_memcpy(tvb, (guint8 *)&nak, sizeof(pgm_type), plen);
 		nak_ntoh(&nak);
-		inaddr.s_addr = htonl(nak.src);
-		strcpy(tmpaddr, inet_ntoa(inaddr));
-		inaddr.s_addr = htonl(nak.grp);
-		sprintf(buf, "%s: sqn 0x%x src %s grp %s", pktname, nak.sqn, 
-			tmpaddr, inet_ntoa(inaddr)); 
-
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_add_fstr(pinfo->fd, COL_INFO,
+			    "%s: sqn 0x%x src %s grp %s", pktname, nak.sqn, 
+			    get_hostname(nak.src),
+			    get_hostname(nak.grp));
+		}
 		break;
+
 	default:
 		return;
 	}
 
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_fstr(pinfo->fd, COL_INFO, "%s", buf);
-	}
 	if (tree) {
-		sprintf(buf, "Pragmatic General Multicast: Type %s (%d)"
-		    " SrcPort %u, DstPort %u, GSI %s", pktname,
-			pgmhdr.type, pgmhdr.sport, pgmhdr.dport, gsistr(pgmhdr.gsi, 6));
 		ti = proto_tree_add_protocol_format(tree, proto_pgm, 
-			tvb, offset, hlen, "%s", buf);
-#if 0
-		ti = proto_tree_add_item(tree, proto_pgm, tvb, offset, hlen, FALSE);
-#endif
+			tvb, offset, hlen,
+			"Pragmatic General Multicast: Type %s"
+			    " SrcPort %u, DstPort %u, GSI %s", pktname,
+			pgmhdr.sport, pgmhdr.dport,
+			bytes_to_str(pgmhdr.gsi, 6));
 
 		pgm_tree = proto_item_add_subtree(ti, ett_pgm);
-		proto_tree_add_uint_format(pgm_tree, hf_pgm_main_sport, tvb, offset, 2,
-			pgmhdr.sport, "Source port: %u", pgmhdr.sport);
-		proto_tree_add_uint_format(pgm_tree, hf_pgm_main_dport, tvb, offset+2, 
-			2, pgmhdr.dport, "Destination port: %u", pgmhdr.dport);
-		tf = proto_tree_add_uint_format(pgm_tree, hf_pgm_main_type, tvb, 
-			offset+4, 1, pgmhdr.type, "Packet type: %s (%d)", pktname, 
-			pgmhdr.type);
+		proto_tree_add_uint(pgm_tree, hf_pgm_main_sport, tvb, offset, 2,
+			pgmhdr.sport);
+		proto_tree_add_uint(pgm_tree, hf_pgm_main_dport, tvb, offset+2, 
+			2, pgmhdr.dport);
+		proto_tree_add_uint(pgm_tree, hf_pgm_main_type, tvb, 
+			offset+4, 1, pgmhdr.type);
 
 		tf = proto_tree_add_uint_format(pgm_tree, hf_pgm_main_opts, tvb, 
 			offset+5, 1, pgmhdr.opts, "Options: %s (0x%x)", 
@@ -570,13 +498,12 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_boolean(opt_tree, hf_pgm_main_opts_parity, tvb, 
 			offset+5, 1, (pgmhdr.opts & PGM_OPT_PARITY));
 
-		proto_tree_add_uint_format(pgm_tree, hf_pgm_main_cksum, tvb, offset+6, 
-			2, pgmhdr.cksum, "Check Sum: 0x%x", pgmhdr.cksum);
+		proto_tree_add_uint(pgm_tree, hf_pgm_main_cksum, tvb, offset+6, 
+			2, pgmhdr.cksum);
 		proto_tree_add_bytes(pgm_tree, hf_pgm_main_gsi, tvb, offset+8, 
 			6, pgmhdr.gsi);
-		proto_tree_add_uint_format(pgm_tree, hf_pgm_main_tsdulen, tvb, 
-			offset+14, 2, pgmhdr.tsdulen, "Transport Service Data Unit: %u", 
-			pgmhdr.tsdulen);
+		proto_tree_add_uint(pgm_tree, hf_pgm_main_tsdulen, tvb, 
+			offset+14, 2, pgmhdr.tsdulen);
 
 		offset = sizeof(pgm_type);
 		tf = proto_tree_add_text(pgm_tree, tvb, offset, plen, "%s Packet",
@@ -585,37 +512,41 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case PGM_SPM_PCKT:
 			type_tree = proto_item_add_subtree(tf, ett_pgm_spm);
 
-			proto_tree_add_uint_format(type_tree, hf_pgm_spm_sqn, tvb, 
-				offset, 4, spm.sqn, "Sequence Number: 0x%x", spm.sqn);
-			proto_tree_add_uint_format(type_tree, hf_pgm_spm_sqn, tvb, 
-				offset+4, 4, spm.trail, "Trailing Edge Sequence Number: 0x%x", 
-				spm.trail);
-			proto_tree_add_uint_format(type_tree, hf_pgm_spm_sqn, tvb, 
-				offset+8, 4, spm.lead, "Leading Edge Sequence Number: 0x%x", 
-				spm.lead);
-			proto_tree_add_uint_format(type_tree, hf_pgm_spm_sqn, tvb, 
-				offset+10, 2, spm.path_afi, 
-				"Network Layer Address (Family Indicator): 0x%x", 
-				spm.path_afi);
-			proto_tree_add_uint_format(type_tree, hf_pgm_spm_sqn, tvb, 
-				offset+12, 2, spm.res, "Reserved: 0x%x", spm.res);
-			inaddr.s_addr = htonl(spm.path);
-			hp = gethostbyaddr((const char *)&inaddr, 
-				sizeof(struct in_addr), AF_INET);
-			if (hp)
-				sprintf(buf, "Network Layer Address Path: %s (%s)",
-					inet_ntoa(inaddr), hp->h_name);
-			else
-				sprintf(buf, "Network Layer Address Path: %s",
-					inet_ntoa(inaddr));
-			proto_tree_add_uint_format(type_tree, hf_pgm_spm_sqn, tvb, 
-				offset+14, 4, spm.sqn, "%s", buf);
+			proto_tree_add_uint(type_tree, hf_pgm_spm_sqn, tvb, 
+				offset, 4, spm.sqn);
+			proto_tree_add_uint(type_tree, hf_pgm_spm_trail, tvb, 
+				offset+4, 4, spm.trail);
+			proto_tree_add_uint(type_tree, hf_pgm_spm_lead, tvb, 
+				offset+8, 4, spm.lead);
+			proto_tree_add_uint(type_tree, hf_pgm_spm_pathafi, tvb, 
+				offset+10, 2, spm.path_afi);
+			proto_tree_add_uint(type_tree, hf_pgm_spm_res, tvb, 
+				offset+12, 2, spm.res);
+			switch (spm.path_afi) {
+
+			case AFNUM_INET:
+				proto_tree_add_ipv4(type_tree, hf_pgm_spm_path,
+				    tvb, offset+14, 4, spm.path);
+				break;
+
+			default:
+				/*
+				 * XXX - the header is variable-length,
+				 * as the length of the NLA depends on
+				 * its AFI.
+				 *
+				 * However, our structure for it is
+				 * fixed-length, and assumes it's a 4-byte
+				 * IPv4 address.
+				 */
+				return;
+			}
 
 			if ((pgmhdr.opts & PGM_OPT) == FALSE)
 				break;
 			offset += plen;
 
-			dissect_pgmopts(tvb, offset, type_tree);
+			dissect_pgmopts(tvb, offset, type_tree, pktname);
 
 			break;
 
@@ -623,15 +554,14 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case PGM_ODATA_PCKT:
 			type_tree = proto_item_add_subtree(tf, ett_pgm_data);
 
-			proto_tree_add_uint_format(type_tree, hf_pgm_spm_sqn, tvb, 
-				offset, 4, data.sqn, "Sequence Number: 0x%x", spm.sqn);
-			proto_tree_add_uint_format(type_tree, hf_pgm_spm_sqn, tvb, 
-				offset+4, 4, data.trail, "Trailing Edge Sequence Number: 0x%x", 
-				data.trail);
+			proto_tree_add_uint(type_tree, hf_pgm_spm_sqn, tvb, 
+				offset, 4, data.sqn);
+			proto_tree_add_uint(type_tree, hf_pgm_spm_trail, tvb, 
+				offset+4, 4, data.trail);
 
 			if ((pgmhdr.opts & PGM_OPT) == TRUE) {
-				offset += plen;;
-				dissect_pgmopts(tvb, offset, type_tree);
+				offset += plen;
+				dissect_pgmopts(tvb, offset, type_tree, pktname);
 			}
 			/*
 			 * Now see if there are any sub-dissectors, of so call them
@@ -652,36 +582,56 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_uint(type_tree, hf_pgm_nak_srcres, tvb, 
 				offset+6, 2, nak.src_res);
 
-			inaddr.s_addr = htonl(nak.src);
-			hp = gethostbyaddr((const char *)&inaddr, 
-				sizeof(struct in_addr), AF_INET);
-			if (hp)
-				sprintf(buf, "Source Network Layer Address: %s (%s)",
-					inet_ntoa(inaddr), hp->h_name);
-			else
-				sprintf(buf, "Source Network Layer Address Path: %s",
-					inet_ntoa(inaddr));
-			proto_tree_add_uint_format(type_tree, hf_pgm_nak_src, tvb, 
-				offset+8, 4, nak.src, "%s", buf);
+			switch (nak.src_afi) {
 
-			proto_tree_add_uint_format(type_tree, hf_pgm_nak_grpafi, tvb, 
-				offset+12, 2, nak.grp_afi, 
-				"Multicast group Network Layer Address (Family Indicator):"
-				" 0x%x", nak.grp_afi);
-			proto_tree_add_uint_format(type_tree, hf_pgm_nak_grpres, tvb, 
-				offset+14, 2, nak.grp_res, "Reserved: 0x%x", nak.grp_res);
+			case AFNUM_INET:
+				proto_tree_add_ipv4(type_tree, hf_pgm_nak_src,
+				    tvb, offset+8, 4, nak.src);
+				break;
 
-			inaddr.s_addr = htonl(nak.grp);
-			proto_tree_add_uint_format(type_tree, hf_pgm_nak_grp, tvb, 
-				offset+16, 4, nak.grp, 
-				"Multicast group Network Layer Address Path: %s",
-				inet_ntoa(inaddr));
+			default:
+				/*
+				 * XXX - the header is variable-length,
+				 * as the length of the NLA depends on
+				 * its AFI.
+				 *
+				 * However, our structure for it is
+				 * fixed-length, and assumes it's a 4-byte
+				 * IPv4 address.
+				 */
+				return;
+			}
+
+			proto_tree_add_uint(type_tree, hf_pgm_nak_grpafi, tvb, 
+				offset+12, 2, nak.grp_afi);
+			proto_tree_add_uint(type_tree, hf_pgm_nak_grpres, tvb, 
+				offset+14, 2, nak.grp_res);
+
+			switch (nak.grp_afi) {
+
+			case AFNUM_INET:
+				proto_tree_add_ipv4(type_tree, hf_pgm_nak_grp,
+				    tvb, offset+16, 4, nak.grp);
+				break;
+
+			default:
+				/*
+				 * XXX - the header is variable-length,
+				 * as the length of the NLA depends on
+				 * its AFI.
+				 *
+				 * However, our structure for it is
+				 * fixed-length, and assumes it's a 4-byte
+				 * IPv4 address.
+				 */
+				return;
+			}
 
 			if ((pgmhdr.opts & PGM_OPT) == FALSE)
 				break;
 			offset += plen;
 
-			dissect_pgmopts(tvb, offset, type_tree);
+			dissect_pgmopts(tvb, offset, type_tree, pktname);
 
 			break;
 		}
@@ -700,39 +650,43 @@ proto_register_pgm(void)
 {
   static hf_register_info hf[] = {
     { &hf_pgm_main_sport,
-      { "Source Port", "pgm.hdr.sport", FT_UINT16, BASE_HEX, NULL, 0x0, 
-		"", HFILL }},
+      { "Source Port", "pgm.hdr.sport", FT_UINT16, BASE_DEC,
+	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_main_dport,
-      { "Destination Port", "pgm.hdr.dport", FT_UINT16, BASE_HEX, NULL, 0x0, 
-		"", HFILL }},
+      { "Destination Port", "pgm.hdr.dport", FT_UINT16, BASE_DEC,
+	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_main_type,
-      { "Type", "pgm.hdr.type", FT_UINT8, BASE_HEX, NULL, 0x0, 
-		"", HFILL }},
+      { "Type", "pgm.hdr.type", FT_UINT8, BASE_HEX,
+	  VALS(type_vals), 0x0, "", HFILL }},
     { &hf_pgm_main_opts,
-      { "Options", "pgm.hdr.opts", FT_UINT8, BASE_HEX, NULL, 0x0, 
-		"", HFILL }},
+      { "Options", "pgm.hdr.opts", FT_UINT8, BASE_HEX,
+	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_main_opts_opt,
-      { "Options", "pgm.hdr.opts.opt", FT_BOOLEAN, BASE_HEX, 
+      { "Options", "pgm.hdr.opts.opt", FT_BOOLEAN, BASE_NONE,
 	  TFS(&opts_present), PGM_OPT, "", HFILL }},
     { &hf_pgm_main_opts_netsig,
       { "Network Significant Options", "pgm.hdr.opts.netsig", 
-	  FT_BOOLEAN, BASE_HEX, TFS(&opts_present), PGM_OPT_NETSIG, "", HFILL }},
+	  FT_BOOLEAN, BASE_NONE,
+	  TFS(&opts_present), PGM_OPT_NETSIG, "", HFILL }},
     { &hf_pgm_main_opts_varlen,
-      { "Variable lenght Parity Packet Option", "pgm.hdr.opts.varlen", 
-	  FT_BOOLEAN, BASE_HEX, TFS(&opts_present), PGM_OPT_VAR_PKTLEN, "", HFILL }},
+      { "Variable length Parity Packet Option", "pgm.hdr.opts.varlen", 
+	  FT_BOOLEAN, BASE_NONE,
+	  TFS(&opts_present), PGM_OPT_VAR_PKTLEN, "", HFILL }},
     { &hf_pgm_main_opts_parity,
-      { "Parity", "pgm.hdr.opts.parity", FT_BOOLEAN, BASE_HEX, 
+      { "Parity", "pgm.hdr.opts.parity", FT_BOOLEAN, BASE_NONE,
 	  TFS(&opts_present), PGM_OPT_PARITY, "", HFILL }},
     { &hf_pgm_main_cksum,
-      { "Checksum", "pgm.hdr.cksum", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "Checksum", "pgm.hdr.cksum", FT_UINT16, BASE_HEX,
+        NULL, 0x0, "", HFILL }},
     { &hf_pgm_main_gsi,
       { "Global Source Identifier", "pgm.hdr.gsi", FT_BYTES, BASE_HEX, 
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_main_tsdulen,
-      { "Transport Service Data Unit", "pgm.hdr.tsdulen", FT_UINT8, BASE_HEX,
+      { "Transport Service Data Unit Length", "pgm.hdr.tsdulen", FT_UINT16, BASE_DEC,
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_spm_sqn,
-      { "Sequence number", "pgm.spm.sqn", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "Sequence number", "pgm.spm.sqn", FT_UINT32, BASE_HEX,
+	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_spm_trail,
       { "Trailing Edge Sequence Number", "pgm.spm.trail", FT_UINT32, BASE_HEX, 
 	  NULL, 0x0, "", HFILL }},
@@ -740,12 +694,14 @@ proto_register_pgm(void)
       { "Leading Edge Sequence Number", "pgm.spm.lead", FT_UINT32, BASE_HEX, 
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_spm_pathafi,
-      { "NLA AFI (IPv4 is set to 1)", "pgm.spm.pathafi", FT_UINT16, BASE_HEX, 
-	  NULL, 0x0, "", HFILL }},
+      { "Path NLA AFI", "pgm.spm.pathafi", FT_UINT16, BASE_DEC,
+	  VALS(afn_vals), 0x0, "", HFILL }},
     { &hf_pgm_spm_res,
-      { "Reserved", "pgm.spm.res", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "Reserved", "pgm.spm.res", FT_UINT16, BASE_HEX,
+	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_spm_path,
-      { "Path NLA", "pgm.spm.path", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "Path NLA", "pgm.spm.path", FT_IPv4, BASE_NONE,
+	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_data_sqn,
       { "Data Packet Sequence Number", "pgm.data.sqn", FT_UINT32, BASE_HEX, 
 	  NULL, 0x0, "", HFILL }},
@@ -756,99 +712,67 @@ proto_register_pgm(void)
       { "Requested Sequence Number", "pgm.nak.sqn", FT_UINT32, BASE_HEX, 
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_nak_srcafi,
-      { "Source Network Layer Address (Family Indicator)", "pgm.nak.srcafi", 
-	  FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "Source NLA AFI", "pgm.nak.srcafi", FT_UINT16, BASE_DEC,
+	  VALS(afn_vals), 0x0, "", HFILL }},
     { &hf_pgm_nak_srcres,
-      { "Reserved", "pgm.nak.srcres", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
-    { &hf_pgm_nak_src,
-      { "Source NLA", "pgm.nak.src", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
-    { &hf_pgm_nak_grpafi,
-      { "Multicast group AFI", "pgm.nak.grpafi", FT_UINT16, BASE_HEX, 
+      { "Reserved", "pgm.nak.srcres", FT_UINT16, BASE_HEX,
 	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_nak_src,
+      { "Source NLA", "pgm.nak.src", FT_IPv4, BASE_NONE,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_nak_grpafi,
+      { "Multicast Group AFI", "pgm.nak.grpafi", FT_UINT16, BASE_DEC,
+	  VALS(afn_vals), 0x0, "", HFILL }},
     { &hf_pgm_nak_grpres,
-      { "Reserved", "pgm.nak.grpres", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "Reserved", "pgm.nak.grpres", FT_UINT16, BASE_HEX,
+	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_nak_grp,
-      { "Multicast Group NLA", "pgm.nak.grp", FT_UINT32, BASE_HEX, 
+      { "Multicast Group NLA", "pgm.nak.grp", FT_IPv4, BASE_NONE,
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_opt_type,
-      { "Type", "pgm.opts.type", FT_UINT8, BASE_HEX, NULL, 0x0, 
-		"", HFILL }},
+      { "Type", "pgm.opts.type", FT_UINT8, BASE_HEX,
+          VALS(opt_vals), 0x0, "", HFILL }},
     { &hf_pgm_opt_len,
-      { "Length", "pgm.opts.len", FT_UINT8, BASE_DEC, NULL, 0x0, 
-		"", HFILL }},
+      { "Length", "pgm.opts.len", FT_UINT8, BASE_DEC,
+          NULL, 0x0, "", HFILL }},
     { &hf_pgm_opt_tlen,
-      { "Total Length", "pgm.opts.tlen", FT_UINT16, BASE_DEC, NULL, 0x0, 
-		"", HFILL }},
+      { "Total Length", "pgm.opts.tlen", FT_UINT16, BASE_DEC,
+          NULL, 0x0, "", HFILL }},
     { &hf_pgm_genopt_type,
-      { "Type", "pgm.genopts.type", FT_UINT8, BASE_HEX, NULL, 0x0, 
-		"", HFILL }},
+      { "Type", "pgm.genopts.type", FT_UINT8, BASE_HEX,
+          VALS(opt_vals), 0x0, "", HFILL }},
     { &hf_pgm_genopt_len,
-      { "Length", "pgm.genopts.len", FT_UINT8, BASE_DEC, NULL, 0x0, 
-		"", HFILL }},
+      { "Length", "pgm.genopts.len", FT_UINT8, BASE_DEC,
+          NULL, 0x0, "", HFILL }},
     { &hf_pgm_genopt_opx,
-      { "Option Extensibility Bits", "pgm.genopts.opx", FT_UINT8, 
-		  BASE_HEX, NULL, 0x0, "", HFILL }},
-    { &hf_pgm_genopt_res,
-      { "Reserved", "pgm.genopts.opx", FT_UINT8, BASE_HEX, NULL, 0x0, 
-		"", HFILL }},
-    { &hf_pgm_opt_parity_prm_type,
-      { "Type", "pgm.parity_prm.type", FT_UINT8, BASE_HEX, NULL, 0x0, 
-		"", HFILL }},
-    { &hf_pgm_opt_parity_prm_len,
-      { "Length", "pgm.parity_prm.len", FT_UINT8, BASE_DEC, NULL, 0x0, 
-		"", HFILL }},
-    { &hf_pgm_opt_parity_prm_opx,
-      { "Option Extensibility Bits", "pgm.opts.parity_prm.opx", FT_UINT8, 
-		  BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "Option Extensibility Bits", "pgm.genopts.opx", FT_UINT8, BASE_HEX,
+          VALS(opx_vals), 0x0, "", HFILL }},
     { &hf_pgm_opt_parity_prm_po,
-      { "Pro-Active Parity", "pgm.opts.parity_prm.op", FT_UINT8, 
-		  BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "Pro-Active Parity", "pgm.opts.parity_prm.op", FT_UINT8, BASE_HEX,
+          NULL, 0x0, "", HFILL }},
     { &hf_pgm_opt_parity_prm_prmtgsz,
-      { "Transmission Group Size", "pgm.opts.parity_prm.prm_grp", FT_UINT32, 
-		  BASE_HEX, NULL, 0x0, "", HFILL }},
-    { &hf_pgm_opt_join_type,
-      { "Type", "pgm.opts.join.type", FT_UINT8, 
-		  BASE_HEX, NULL, 0x0, "", HFILL }},
-    { &hf_pgm_opt_join_len,
-      { "Length", "pgm.opts.join.res", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
-    { &hf_pgm_opt_join_opx,
-      { "Option Extensibility Bits", "pgm.opts.join.opx", FT_UINT8, 
-		  BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "Transmission Group Size", "pgm.opts.parity_prm.prm_grp",
+          FT_UINT32, BASE_HEX,
+          NULL, 0x0, "", HFILL }},
     { &hf_pgm_opt_join_res,
-      { "Reserved", "pgm.opts.join.res", FT_UINT8, 
-		  BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "Reserved", "pgm.opts.join.res", FT_UINT8, BASE_HEX,
+          NULL, 0x0, "", HFILL }},
     { &hf_pgm_opt_join_minjoin,
-      { "Minimum Sequence Number", "pgm.opts.join.min_join", FT_UINT32, 
-		  BASE_HEX, NULL, 0x0, "", HFILL }},
-    { &hf_pgm_opt_parity_grp_type,
-      { "Type", "pgm.parity_grp.type", FT_UINT8, BASE_HEX, NULL, 0x0, 
-		"", HFILL }},
-    { &hf_pgm_opt_parity_grp_len,
-      { "Length", "pgm.parity_grp.len", FT_UINT8, BASE_DEC, NULL, 0x0, 
-		"", HFILL }},
-    { &hf_pgm_opt_parity_grp_opx,
-      { "Option Extensibility Bits", "pgm.opts.parity_prm.opx", FT_UINT8, 
-		  BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "Minimum Sequence Number", "pgm.opts.join.min_join",
+          FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pgm_opt_parity_grp_res,
-      { "Reserved", "pgm.opts.parity_prm.op", FT_UINT8, 
-		  BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "Reserved", "pgm.opts.parity_prm.op", FT_UINT8, BASE_HEX,
+          NULL, 0x0, "", HFILL }},
     { &hf_pgm_opt_parity_grp_prmgrp,
-      { "Transmission Group Size", "pgm.opts.parity_prm.prm_grp", FT_UINT32, 
-		  BASE_HEX, NULL, 0x0, "", HFILL }},
-    { &hf_pgm_opt_nak_type,
-      { "Type", "pgm.opt.nak.type", FT_UINT8, BASE_HEX, NULL, 0x0, 
-		"", HFILL }},
-    { &hf_pgm_opt_nak_len,
-      { "Length", "pgm.opts.nak.len", FT_UINT8, BASE_DEC, NULL, 0x0, 
-		"", HFILL }},
-    { &hf_pgm_opt_nak_opx,
-      { "Option Extensibility Bits", "pgm.opts.nak.opx", FT_UINT8, 
-		  BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "Transmission Group Size", "pgm.opts.parity_prm.prm_grp",
+          FT_UINT32, BASE_HEX,
+          NULL, 0x0, "", HFILL }},
     { &hf_pgm_opt_nak_res,
-      { "Reserved", "pgm.opts.nak.op", FT_UINT8, 
-		  BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "Reserved", "pgm.opts.nak.op", FT_UINT8, BASE_HEX,
+          NULL, 0x0, "", HFILL }},
     { &hf_pgm_opt_nak_list,
-      { "List", "pgm.opts.nak.list", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "List", "pgm.opts.nak.list", FT_BYTES, BASE_NONE,
+          NULL, 0x0, "", HFILL }},
   };
   static gint *ett[] = {
     &ett_pgm,

@@ -2,14 +2,13 @@
  * Declarations of IP protocol numbers, and of routines for converting
  * IP protocol numbers into strings.
  *
- * $Id: ipproto.h,v 1.2 2001/04/23 17:51:33 guy Exp $
+ * $Id: ipproto.h,v 1.3 2001/07/21 10:27:12 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -64,7 +63,8 @@
 #define IP_PROTO_PIM		103		/* Protocol Independent Mcast */
 #define IP_PROTO_IPCOMP		108		/* IP payload compression */
 #define IP_PROTO_VRRP		112		/* Virtual Router Redundancy Protocol */
-#define IP_PROTO_SCTP           132             /* Stream Control Transmission Protocol */
+#define IP_PROTO_PGM		113		/* Pragmatic General Multicast */
+#define IP_PROTO_SCTP		132		/* Stream Control Transmission Protocol */
 
 extern const char *ipprotostr(int proto);
 

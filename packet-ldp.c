@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for ldp packet disassembly
  *
- * $Id: packet-ldp.c,v 1.18 2001/07/16 05:16:57 guy Exp $
+ * $Id: packet-ldp.c,v 1.19 2001/07/21 10:27:12 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -44,6 +44,7 @@
 #include "packet.h"
 #include "resolv.h"
 #include "prefs.h"
+#include "afn.h"
 
 #define TCP_PORT_LDP 646
 #define UDP_PORT_LDP 646
@@ -187,20 +188,6 @@ static const value_string fec_types[] = {
   {1, "Wildcard FEC"},
   {2, "Prefix FEC"},
   {3, "Host Address FEC"},
-  {0, NULL}
-};
-
-static const value_string fec_af_types[] = {
-  {0, "Reserved"},
-  {1, "IP (IPv4)"},
-  {2, "IP6 (IPv6)"},
-  {3, "NSAP"},
-  {4, "HDLC (8-bit multidrop)"},
-  {5, "BBN 1822"},
-  {6, "802"},
-  {10, "X.121 (X.25, Frame Relay)"},
-  {11, "IPX"},
-  {12, "Appletalk"},
   {0, NULL}
 };
 
@@ -790,7 +777,7 @@ proto_register_ldp(void)
       { "FEC Element Type", "ldp.msg.tlv.fec.type", FT_UINT8, BASE_DEC, VALS(fec_types), 0x0, "Forwarding Equivalence Class Element Types", HFILL }},
 
     { &hf_ldp_tlv_fec_af,
-      { "FEC Element Address Type", "ldp.msg.tlv.fec.af", FT_UINT16, BASE_DEC, VALS(fec_af_types), 0x0, "Forwarding Equivalence Class Element Address Family", HFILL }},
+      { "FEC Element Address Type", "ldp.msg.tlv.fec.af", FT_UINT16, BASE_DEC, VALS(afn_vals), 0x0, "Forwarding Equivalence Class Element Address Family", HFILL }},
 
     { &hf_ldp_tlv_fec_len,
       { "FEC Element Length", "ldp.msg.tlv.fec.len", FT_UINT8, BASE_DEC, NULL, 0x0, "Forwarding Equivalence Class Element Length", HFILL }},

@@ -1,7 +1,7 @@
 /* packet-pgm.h
  * Declarations for pgm packet disassembly
  *
- * $Id: packet-pgm.h,v 1.3 2001/07/13 11:42:44 girlich Exp $
+ * $Id: packet-pgm.h,v 1.4 2001/07/21 10:27:13 guy Exp $
  * 
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -26,9 +26,9 @@
 
 #ifndef _PACKET_PGM_H
 #define _PACKET_PGM_H
-typedef unsigned char nchar_t;
-typedef unsigned short nshort_t;
-typedef unsigned int nlong_t;
+typedef guint8 nchar_t;
+typedef guint16 nshort_t;
+typedef guint32 nlong_t;
 
 /* The PGM main header */
 typedef struct {
@@ -53,7 +53,7 @@ typedef struct {
 	nlong_t sqn;              /* SPM's sequence number */
 	nlong_t trail;            /* Trailing edge sequence number */
 	nlong_t lead;             /* Leading edge sequence number */
-	nshort_t path_afi;        /* NLA AFI (IPv4 is set to 1) */
+	nshort_t path_afi;        /* NLA AFI */
 	nshort_t res;             /* reserved */
 	nlong_t path;             /* Path NLA */
 } pgm_spm_t;
@@ -63,8 +63,7 @@ const size_t PGM_SPM_SZ = sizeof(pgm_type)+sizeof(pgm_spm_t);
 	(_p)->trail = ntohl((_p)->trail); \
 	(_p)->lead = ntohl((_p)->lead); \
 	(_p)->path_afi = ntohs((_p)->path_afi); \
-	(_p)->res = ntohs((_p)->res); \
-	(_p)->path = ntohl((_p)->path)
+	(_p)->res = ntohs((_p)->res);
 
 /* The PGM Data (ODATA/RDATA) header */
 typedef struct {
@@ -91,10 +90,8 @@ const size_t PGM_NAK_SZ = sizeof(pgm_type)+sizeof(pgm_nak_t);
 	(_p)->sqn = ntohl((_p)->sqn); \
 	(_p)->src_afi = ntohs((_p)->src_afi); \
 	(_p)->src_res = ntohs((_p)->src_res); \
-	(_p)->src = ntohl((_p)->src); \
 	(_p)->grp_afi = ntohs((_p)->grp_afi); \
 	(_p)->grp_res = ntohs((_p)->grp_res); \
-	(_p)->grp = ntohl((_p)->grp)
 
 /* constants for hdr types */
 #if defined(PGM_SPEC_01_PCKTS)
@@ -141,9 +138,9 @@ const size_t PGM_NAK_SZ = sizeof(pgm_type)+sizeof(pgm_nak_t);
 const nchar_t PGM_OPT_INVALID = 0x7F;
 
 /* OPX bit values */
-const nchar_t PGM_OPX_IGNORE = 0x00;
-const nchar_t PGM_OPX_INVAL = 0x01;
-const nchar_t PGM_OPX_DISCARD = 0x10;
+#define PGM_OPX_IGNORE	0x00
+#define PGM_OPX_INVAL	0x01
+#define PGM_OPX_DISCARD	0x10
 
 /* option formats */
 typedef struct {

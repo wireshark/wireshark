@@ -1,10 +1,10 @@
 /* packet-bgp.c
  * Definitions for BGP packet disassembly structures and routine
  *
- * $Id: packet-bgp.h,v 1.14 2001/07/08 22:59:50 guy Exp $
+ * $Id: packet-bgp.h,v 1.15 2001/07/21 10:27:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -164,23 +164,6 @@ struct bgp_attr {
 #define FORMAT_AS2_LOC      0x00    /* Format AS(2bytes):AN(4bytes) */
 #define FORMAT_IP_LOC       0x01    /* Format IP address:AN(2bytes) */
 #define FORMAT_AS4_LOC      0x02    /* FOrmat AS(4bytes):AN(2bytes) */
-
-/* RFC1700 address family numbers */
-#define AFNUM_INET	1
-#define AFNUM_INET6	2
-#define AFNUM_NSAP	3
-#define AFNUM_HDLC	4
-#define AFNUM_BBN1822	5
-#define AFNUM_802	6
-#define AFNUM_E163	7
-#define AFNUM_E164	8
-#define AFNUM_F69	9
-#define AFNUM_X121	10
-#define AFNUM_IPX	11
-#define AFNUM_ATALK	12
-#define AFNUM_DECNET	13
-#define AFNUM_BANYAN	14
-#define AFNUM_E164NSAP	15
 
 /* RFC 2858 subsequent address family numbers */
 #define SAFNUM_UNICAST  1

@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.126 2001/07/12 20:16:28 guy Exp $
+# $Id: Makefile.nmake,v 1.127 2001/07/21 10:27:12 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -224,6 +224,7 @@ DISSECTOR_SRC = \
 DISSECTOR_OBJECTS = $(DISSECTOR_SRC:.c=.obj)
 
 ETHEREAL_COMMON_OBJECTS = \
+	afn.obj          \
 	asn1.obj         \
 	capture-wpcap.obj	\
 	column.obj       \

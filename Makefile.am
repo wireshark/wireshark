@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.355 2001/07/20 02:40:40 hagbard Exp $
+# $Id: Makefile.am,v 1.356 2001/07/21 10:27:12 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -387,6 +387,8 @@ noinst_HEADERS = \
 ETHEREAL_COMMON_SRC = \
 	aftypes.h      \
 	alignment.h    \
+	afn.c          \
+	afn.h          \
 	asn1.c         \
 	asn1.h         \
 	bridged_pids.h \

@@ -1,14 +1,13 @@
 /* ipproto.c
  * Routines for converting IPv4 protocol/v6 nxthdr field into string
  *
- * $Id: ipproto.c,v 1.13 2001/04/17 06:29:12 guy Exp $
+ * $Id: ipproto.c,v 1.14 2001/07/21 10:27:12 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -89,6 +88,7 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_IPCOMP,	"IPComp" },
     { IP_PROTO_VRRP,	"VRRP" },
     { IP_PROTO_VINES,	"VINES" },
+    { IP_PROTO_PGM,     "PGM" },
     { IP_PROTO_SCTP,    "SCTP" },
     { 0,		NULL },
 };

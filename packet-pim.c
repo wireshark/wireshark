@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.31 2001/07/02 09:42:40 guy Exp $
+ * $Id: packet-pim.c,v 1.32 2001/07/21 10:27:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,7 @@
 
 #include "packet.h"
 #include "ipproto.h"
+#include "afn.h"
 #include "packet-ipv6.h"
 #include "in_cksum.h"
 
@@ -65,26 +66,6 @@ static gint ett_pim = -1;
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
-
-/*
- * Address family values.
- */
-#define PIM_AF_RESERVED		0
-#define PIM_AF_IP		1	/* IPv4 */
-#define PIM_AF_IPV6		2	/* IPv6 */
-#define PIM_AF_NSAP		3	/* NSAP */
-#define PIM_AF_HDLC		4	/* HDLC (8-bit multidrop) */
-#define PIM_AF_BBN_1822		5	/* BBN 1822 */
-#define PIM_AF_802		6	/* 802 (D/I/X Ethernet, 802.x, FDDI) */
-#define PIM_AF_E_163		7	/* E.163 */
-#define PIM_AF_E_164		8	/* E.164 (SMDS, Frame Relay, ATM) */
-#define PIM_AF_F_69		9	/* F.69 (Telex) */
-#define PIM_AF_X_121		10	/* X.121 (X.25, Frame Relay) */
-#define PIM_AF_IPX		11	/* IPX */
-#define PIM_AF_ATALK		12	/* Appletalk */
-#define PIM_AF_DECNET_IV	13	/* DECnet Phase IV */
-#define PIM_AF_VINES		14	/* Banyan Vines */
-#define PIM_AF_E_164_NSAP	15	/* E.164 with NSAP format subaddress */
 
 /*
  * For PIM v1, see the PDF slides at
@@ -522,7 +503,7 @@ dissect_pim_addr(tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
     int len = 0;
 
     af = tvb_get_guint8(tvb, offset);
-    if (af != PIM_AF_IP && af != PIM_AF_IPV6) {
+    if (af != AFNUM_INET && af != AFNUM_INET6) {
 	/*
 	 * We don't handle the other formats, and addresses don't include
 	 * a length field, so we can't even show them as raw bytes.
@@ -544,13 +525,13 @@ dissect_pim_addr(tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
     switch (at) {
     case pimv2_unicast:
 	switch (af) {
-	case PIM_AF_IP:
+	case AFNUM_INET:
 	    len = 4;
 	    (void)snprintf(buf, sizeof(buf), "%s",
 	        ip_to_str(tvb_get_ptr(tvb, offset + 2, len)));
 	    break;
 
-	case PIM_AF_IPV6:
+	case AFNUM_INET6:
 	    len = 16;
 	    (void)snprintf(buf, sizeof(buf), "%s",
 		ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset + 2, len)));
@@ -563,13 +544,13 @@ dissect_pim_addr(tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
     case pimv2_group:
 	mask_len = tvb_get_guint8(tvb, offset + 3);
 	switch (af) {
-	case PIM_AF_IP:
+	case AFNUM_INET:
 	    len = 4;
 	    (void)snprintf(buf, sizeof(buf), "%s/%u",
 		ip_to_str(tvb_get_ptr(tvb, offset + 4, len)), mask_len);
 	    break;
 
-	case PIM_AF_IPV6:
+	case AFNUM_INET6:
 	    len = 16;
 	    (void)snprintf(buf, sizeof(buf), "%s/%u",
 		ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset + 4, len)), mask_len);
@@ -583,13 +564,13 @@ dissect_pim_addr(tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
 	flags = tvb_get_guint8(tvb, offset + 2);
 	mask_len = tvb_get_guint8(tvb, offset + 3);
 	switch (af) {
-	case PIM_AF_IP:
+	case AFNUM_INET:
 	    len = 4;
 	    (void)snprintf(buf, sizeof(buf), "%s/%u",
 		ip_to_str(tvb_get_ptr(tvb, offset + 4, len)), mask_len);
 	    break;
 
-	case PIM_AF_IPV6:
+	case AFNUM_INET6:
 	    len = 16;
 	    (void)snprintf(buf, sizeof(buf), "%s/%u",
 		ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset + 4, len)), mask_len);

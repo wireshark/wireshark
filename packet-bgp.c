@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.45 2001/07/09 11:08:39 guy Exp $
+ * $Id: packet-bgp.c,v 1.46 2001/07/21 10:27:12 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -66,6 +66,7 @@
 #include "packet.h"
 #include "packet-bgp.h"
 #include "packet-ipv6.h"
+#include "afn.h"
 
 static const value_string bgptypevals[] = {
     { BGP_OPEN, "OPEN Message" },
@@ -184,27 +185,6 @@ static const value_string bgpext_ospf_rtype[] = {
 
 /* MUST be resized if a longer named extended community is added */
 #define MAX_SIZE_OF_EXT_COM_NAMES       20
-
-static const value_string afnumber[] = {
-    { 0, "Reserved" },
-    { AFNUM_INET, "IPv4" },
-    { AFNUM_INET6, "IPv6" },
-    { AFNUM_NSAP, "NSAP" },
-    { AFNUM_HDLC, "HDLC" },
-    { AFNUM_BBN1822, "BBN 1822" },
-    { AFNUM_802, "802" },
-    { AFNUM_E163, "E.163" },
-    { AFNUM_E164, "E.164" },
-    { AFNUM_F69, "F.69" },
-    { AFNUM_X121, "X.121" },
-    { AFNUM_IPX, "IPX" },
-    { AFNUM_ATALK, "Appletalk" },
-    { AFNUM_DECNET, "Decnet IV" },
-    { AFNUM_BANYAN, "Banyan Vines" },
-    { AFNUM_E164NSAP, "E.164 with NSAP subaddress" },
-    { 65535, "Reserved" },
-    { 0, NULL },
-};
 
 /* Subsequent address family identifier, RFC2858 */
 static const value_string bgpattr_nlri_safi[] = {
@@ -615,7 +595,7 @@ dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
                         i = tvb_get_ntohs(tvb, p);
                         proto_tree_add_text(subtree3, tvb, p,
                              2, "Address family identifier: %s (%u)",
-                             val_to_str(i, afnumber, "Unknown"), i);
+                             val_to_str(i, afn_vals, "Unknown"), i);
                         p += 2;
                         /* Reserved */
                         proto_tree_add_text(subtree3, tvb, p,
@@ -1316,7 +1296,7 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 		af = tvb_get_ntohs(tvb, o + i + aoff);
 		proto_tree_add_text(subtree2, tvb, o + i + aoff, 2,
 		    "Address family: %s (%u)",
-		    val_to_str(af, afnumber, "Unknown"), af);
+		    val_to_str(af, afn_vals, "Unknown"), af);
                 saf = tvb_get_guint8(tvb, o + i + aoff + 2) ;
 		proto_tree_add_text(subtree2, tvb, o + i + aoff + 2, 1,
 		    "Subsequent address family identifier: %s (%u)",
@@ -1379,7 +1359,7 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 	        af = tvb_get_ntohs(tvb, o + i + aoff);
 		proto_tree_add_text(subtree2, tvb, o + i + aoff, 2,
 		    "Address family: %s (%u)",
-		    val_to_str(af, afnumber, "Unknown"), af);
+		    val_to_str(af, afn_vals, "Unknown"), af);
                 saf = tvb_get_guint8(tvb, o + i + aoff + 2) ;
 		proto_tree_add_text(subtree2, tvb, o + i + aoff + 2, 1,
 		    "Subsequent address family identifier: %s (%u)",
@@ -1576,7 +1556,7 @@ dissect_bgp_route_refresh(tvbuff_t *tvb, int offset, proto_tree *tree)
     i = tvb_get_ntohs(tvb, offset + BGP_HEADER_SIZE);
     proto_tree_add_text(tree, tvb, offset + BGP_HEADER_SIZE, 2, 
                         "Address family identifier: %s (%u)",
-                        val_to_str(i, afnumber, "Unknown"), i);
+                        val_to_str(i, afn_vals, "Unknown"), i);
     offset += 2;
     /* Reserved */
     proto_tree_add_text(tree, tvb, offset + BGP_HEADER_SIZE + 2, 1, 
