@@ -2,7 +2,7 @@
  * Routines for H.225 packet dissection
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-h225.c,v 1.4 2003/08/07 21:31:39 guy Exp $
+ * $Id: packet-h225.c,v 1.5 2003/08/10 19:43:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -330,7 +330,7 @@ static int hf_h225_releaseCompleteCauseIE = -1;
 static int hf_h225_CallTerminationCause = -1;
 static int hf_h225_CircuitInfo = -1;
 static int hf_h225_genericData = -1;
-static int hf_h225_fastStart_item = -1;
+static int hf_h225_fastStart_item_length = -1;
 static int hf_h225_fastStart = -1;
 static int hf_h225_fastConnectRefused = -1;
 static int hf_h225_InformationUUIE = -1;
@@ -4777,7 +4777,10 @@ dissect_h225_CircuitInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 static int
 dissect_h225_fastStart_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h225_fastStart_item, -1, -1);
+	guint32 length;
+	
+	offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_h225_fastStart_item_length, &length);
+	offset=dissect_h245_OpenLogicalChannel(tvb, offset, pinfo, tree);
 	return offset;
 }
 
@@ -6876,7 +6879,15 @@ static per_choice_t h323_message_body_choice[] = {
 static int
 dissect_h225_h323_message_body(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_h323_message_body, ett_h225_h323_message_body, h323_message_body_choice, "h323_message_body", NULL);
+	guint32 value;
+	
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_h323_message_body, ett_h225_h323_message_body, h323_message_body_choice, "h323_message_body", &(value));
+	
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		col_prepend_fstr(pinfo->cinfo, COL_INFO, "CS: %s ",
+			val_to_str(value, h323_message_body_vals, "<unknown>"));
+	}
+	
 	return offset;
 }
 
@@ -8102,7 +8113,7 @@ dissect_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 value;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.225.0 RAS");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.225.0");
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)){
 		col_clear(pinfo->cinfo, COL_INFO);
@@ -8114,7 +8125,7 @@ dissect_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset=dissect_per_choice(tvb, offset, pinfo, tr, hf_h225_RasMessage, ett_h225_RasMessage, RasMessage_choice, "RasMessage", &value);
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s ",
+		col_prepend_fstr(pinfo->cinfo, COL_INFO, "RAS: %s ",
 			val_to_str(value, RasMessage_vals, "<unknown>"));
 	}
 }
@@ -8137,29 +8148,18 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_item *it;
 	proto_tree *tr;
 	guint32 offset=0;
-#ifdef REMOVED
-	guint32 value;
-#endif
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.323 UserInformation");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.225.0");
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)){
 		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
-	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, 0, tvb_length(tvb), "H.225");
+	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, 0, tvb_length(tvb), "H.225.0 CS");
 	tr=proto_item_add_subtree(it, ett_h225);
 
 	offset=dissect_per_sequence(tvb, offset, pinfo, tr, hf_h225_H323_UserInformation, ett_h225_H323_UserInformation, H323_UserInformation_sequence);
-
-#ifdef REMOVED
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s ",
-			val_to_str(value, H323UserInformation_vals, "<unknown>"));
-	}
-#endif
-
 }
 
 
@@ -9023,9 +9023,9 @@ proto_register_h225(void)
 	{ &hf_h225_genericData,
 		{ "genericData", "h225.genericData", FT_NONE, BASE_NONE,
 		NULL, 0, "genericData sequence of", HFILL }},
-	{ &hf_h225_fastStart_item,
-		{ "fastStart_item", "h225.fastStart_item", FT_BYTES, BASE_HEX,
-		NULL, 0, "fastStart_item octet string", HFILL }},
+	{ &hf_h225_fastStart_item_length,
+		{ "fastStart item length", "h225.fastStart_item_length", FT_UINT32, BASE_DEC,
+		NULL, 0, "fastStart item length", HFILL }},
 	{ &hf_h225_fastStart,
 		{ "fastStart", "h225.fastStart", FT_NONE, BASE_NONE,
 		NULL, 0, "fastStart sequence of", HFILL }},
