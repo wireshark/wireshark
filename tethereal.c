@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.55 2000/11/06 09:28:42 guy Exp $
+ * $Id: tethereal.c,v 1.56 2000/11/09 07:29:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1138,8 +1138,8 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr, int offset,
 	  }
 	}
       }
+      putchar('\n');
     }
-    putchar('\n');
     if (print_hex) {
       print_hex_data(stdout, print_args.format, buf,
 			fdata.cap_len, fdata.flags.encoding);
