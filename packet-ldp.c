@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.33 2002/04/24 19:16:49 guy Exp $
+ * $Id: packet-ldp.c,v 1.34 2002/04/24 19:26:18 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -1400,11 +1400,8 @@ static void
 dissect_tlv_traffic(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
 	proto_tree *ti = NULL, *val_tree = NULL;
-	union {
-		guint32 val_32;
-		float   val_f;
-	} conv;
 	guint8  val_8;
+	float   val_f;
 	proto_item *pi;
 
 	if (tree != NULL) {
@@ -1435,7 +1432,7 @@ dissect_tlv_traffic(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 			/* reserver byte */
 			offset ++;
 
-			/* wieght */
+			/* weight */
 			pi = proto_tree_add_item(val_tree, hf_ldp_tlv_weight, tvb, offset, 1, FALSE);
 			val_8 = tvb_get_guint8(tvb, offset);
 			if (val_8 == 0)
@@ -1443,32 +1440,32 @@ dissect_tlv_traffic(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 			offset ++;
 
 			/* PDR */
-			conv.val_32 = tvb_get_ntohl (tvb, offset);
+			val_f = tvb_get_ntohieee_float (tvb, offset);
 			proto_tree_add_double_format(val_tree, hf_ldp_tlv_pdr, tvb, offset,
-						    4, conv.val_f, "PDR: %f Bps", conv.val_f);
+						    4, val_f, "PDR: %f Bps", val_f);
 			offset += 4;
 			/* PBS */
-			conv.val_32 = (float)tvb_get_ntohl (tvb, offset);
+			val_f = tvb_get_ntohieee_float (tvb, offset);
 			proto_tree_add_double_format(val_tree, hf_ldp_tlv_pbs, tvb, offset,
-						    4, conv.val_f, "PBS: %f Bytes", conv.val_f);
+						    4, val_f, "PBS: %f Bytes", val_f);
 			offset += 4;
 
 			/* CDR */
-			conv.val_32 = (float)tvb_get_ntohl (tvb, offset);
+			val_f = tvb_get_ntohieee_float (tvb, offset);
 			proto_tree_add_double_format(val_tree, hf_ldp_tlv_cdr, tvb, offset,
-						    4, conv.val_f, "CDR: %f Bps", conv.val_f);
+						    4, val_f, "CDR: %f Bps", val_f);
 			offset += 4;
 
 			/* CBS */
-			conv.val_32 = (float)tvb_get_ntohl (tvb, offset);
+			val_f = tvb_get_ntohieee_float (tvb, offset);
 			proto_tree_add_double_format(val_tree, hf_ldp_tlv_cbs, tvb, offset,
-						    4, conv.val_f, "CBS: %f Bytes", conv.val_f);
+						    4, val_f, "CBS: %f Bytes", val_f);
 			offset += 4;
 
 			/* EBS */
-			conv.val_32 = (float)tvb_get_ntohl (tvb, offset);
+			val_f = tvb_get_ntohieee_float (tvb, offset);
 			proto_tree_add_double_format(val_tree, hf_ldp_tlv_ebs, tvb, offset,
-						    4, conv.val_f, "EBS: %f Bytes", conv.val_f);
+						    4, val_f, "EBS: %f Bytes", val_f);
 
 		}
 	}
