@@ -1,7 +1,7 @@
 /* packet-igmp.c   2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
  * Routines for IGMP packet disassembly
  *
- * $Id: packet-igmp.c,v 1.11 2001/07/11 04:24:34 guy Exp $
+ * $Id: packet-igmp.c,v 1.12 2001/07/12 07:05:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -99,6 +99,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
+
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
+#endif
 
 #include "packet.h"
 #include "ipproto.h"
