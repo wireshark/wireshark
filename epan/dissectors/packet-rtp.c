@@ -126,7 +126,7 @@ static gboolean dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_rtp( tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree );
 static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static void get_conv_info(tvbuff_t *tvb, packet_info *pinfo);
+static void get_conv_info(packet_info *pinfo);
 
 /* Preferences bool to control whether or not setup info should be shown */
 static gboolean global_rtp_show_setup_info = TRUE;
@@ -542,7 +542,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	}
 
 	/* Look for conv and add to the frame if found */
-	get_conv_info(tvb, pinfo);
+	get_conv_info(pinfo);
 
 	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
 		col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTP" );
@@ -746,7 +746,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 }
 
 /* Look for conversation info */
-static void get_conv_info(tvbuff_t *tvb, packet_info *pinfo)
+static void get_conv_info(packet_info *pinfo)
 {
 	/* Conversation and current data */
 	conversation_t *p_conv = NULL;
