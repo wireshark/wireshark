@@ -1234,6 +1234,8 @@ Devin Heitmueller <dheitmueller[AT]netilla.com> {
 	    UnicodeChangePassword2
 	Supply offset to dissectors for connection-oriented DCERPC PDU
 	    types
+	Support for decrypting DCERPC conversations using NTLMSSP
+	    version 1
 }
 
 Chenjiang Hu <chu[AT]chiaro.com> {

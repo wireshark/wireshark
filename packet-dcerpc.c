@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.92 2002/12/19 11:22:16 sahlberg Exp $
+ * $Id: packet-dcerpc.c,v 1.93 2002/12/31 08:05:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -404,7 +404,8 @@ static gint ett_dcerpc_fragments = -1;
 static gint ett_dcerpc_fragment = -1;
 static gint ett_decrpc_krb5_auth_verf = -1;
 
-static dissector_handle_t ntlmssp_handle, ntlmssp_verf_handle;
+static dissector_handle_t ntlmssp_handle, ntlmssp_verf_handle,
+  ntlmssp_enc_payload_handle;
 static dissector_handle_t gssapi_handle, gssapi_verf_handle;
 
 static const fragment_items dcerpc_frag_items = {
@@ -421,6 +422,13 @@ static const fragment_items dcerpc_frag_items = {
 
 	"fragments"
 };
+
+typedef struct _dcerpc_auth_info {
+  guint8 auth_pad_len;
+  guint8 auth_level;
+  guint8 auth_type;
+  guint32 auth_size;
+} dcerpc_auth_info;
 
 /* try to desegment big DCE/RPC packets over TCP? */
 static gboolean dcerpc_cn_desegment = TRUE;
@@ -1315,7 +1323,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
                     proto_tree *dcerpc_tree,
                     tvbuff_t *tvb, gint offset,
                     char *drep, dcerpc_info *info,
-                    int auth_level)
+                    dcerpc_auth_info *auth_info)
 {
     dcerpc_uuid_key key;
     dcerpc_uuid_value *sub_proto;
@@ -1393,14 +1401,28 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 
     /*
      * If the authentication level is DCE_C_AUTHN_LEVEL_PKT_PRIVACY,
-     * the stub data is encrypted, and we can't dissect it.
+     * the stub data is encrypted, and we'd have to decrypt it in
+     * order to dissect it.
      */
-    if (auth_level == DCE_C_AUTHN_LEVEL_PKT_PRIVACY) {
+    if (auth_info != NULL &&
+          auth_info->auth_level == DCE_C_AUTHN_LEVEL_PKT_PRIVACY) {
         length = tvb_length_remaining (tvb, offset);
         if (length > 0) {
             proto_tree_add_text(sub_tree, tvb, offset, length,
                                 "Encrypted stub data (%d byte%s)",
                                 length, plurality(length, "", "s"));
+
+	    switch (auth_info->auth_type) {
+
+	    case DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP: {
+		/* NTLMSSP */
+		tvbuff_t *ntlmssp_tvb;
+		ntlmssp_tvb = tvb_new_subset(tvb, offset, length, length);
+	    
+		call_dissector(ntlmssp_enc_payload_handle, ntlmssp_tvb, pinfo,
+			       sub_tree);
+		break;
+	    }
         }
     } else {
         sub_dissect = info->request ? proc->dissect_rqst : proc->dissect_resp;
@@ -1429,21 +1451,62 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 }
 
 static int
+dissect_dcerpc_verifier (tvbuff_t *tvb, packet_info *pinfo, 
+			 proto_tree *dcerpc_tree, e_dce_cn_common_hdr_t *hdr,
+			 dcerpc_auth_info *auth_info)
+{
+    int auth_offset;
+
+    if (auth_info->auth_size != 0) {
+        auth_offset = hdr->frag_len - hdr->auth_len;
+        switch (auth_info->auth_type) {
+    
+        case DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP: {
+            /* NTLMSSP */
+            tvbuff_t *ntlmssp_tvb;
+    
+            ntlmssp_tvb = tvb_new_subset(tvb, auth_offset, hdr->auth_len,
+                                         hdr->auth_len);
+    
+            call_dissector(ntlmssp_verf_handle, ntlmssp_tvb, pinfo,
+	                   dcerpc_tree);
+    
+            break;
+            }
+    
+        case DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO: {
+            /* SPNEGO (rfc2478) */
+            tvbuff_t *gssapi_tvb;
+    
+            gssapi_tvb = tvb_new_subset(tvb, auth_offset, hdr->auth_len,
+                                        hdr->auth_len);
+    
+            call_dissector(gssapi_verf_handle, gssapi_tvb, pinfo, dcerpc_tree);
+    
+            break;
+            }
+    
+        default:
+            proto_tree_add_text (dcerpc_tree, tvb, auth_offset, hdr->auth_len,
+                                 "Auth Verifier");
+        }
+    }
+
+    return hdr->auth_len;
+}
+
+static void
 dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tree,
-                        e_dce_cn_common_hdr_t *hdr, int *auth_level_p,
-                        gboolean are_credentials)
+                        e_dce_cn_common_hdr_t *hdr, gboolean are_credentials, 
+			dcerpc_auth_info *auth_info)
 {
     int offset;
-    guint8 auth_pad_len;
-    guint8 auth_level;
-    guint8 auth_type;
 
     /*
-     * Initially set "*auth_level_p" to -1 to indicate that we haven't
+     * Initially set auth_level to -1 to indicate that we haven't
      * yet seen any authentication level information.
      */
-    if (auth_level_p != NULL)
-        *auth_level_p = -1;
+    auth_info->auth_level = -1;
 
     /*
      * The authentication information is at the *end* of the PDU; in
@@ -1460,13 +1523,15 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
         offset = hdr->frag_len - (hdr->auth_len + 8);
 
         offset = dissect_dcerpc_uint8 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
-                                       hf_dcerpc_auth_type, &auth_type);
+                                       hf_dcerpc_auth_type, 
+				       &auth_info->auth_type);
         offset = dissect_dcerpc_uint8 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
-                                       hf_dcerpc_auth_level, &auth_level);
-        if (auth_level_p != NULL)
-            *auth_level_p = auth_level;
+                                       hf_dcerpc_auth_level, 
+				       &auth_info->auth_level);
+
         offset = dissect_dcerpc_uint8 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
-                                       hf_dcerpc_auth_pad_len, &auth_pad_len);
+                                       hf_dcerpc_auth_pad_len, 
+				       &auth_info->auth_pad_len);
         offset = dissect_dcerpc_uint8 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                        hf_dcerpc_auth_rsrvd, NULL);
         offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
@@ -1479,7 +1544,7 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 	    /*
 	     * The authentication data are credentials.
 	     */
-	    switch (auth_type) {
+	    switch (auth_info->auth_type) {
 
 	    case DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP: {
 		/* NTLMSSP */
@@ -1510,54 +1575,30 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 		proto_tree_add_text (dcerpc_tree, tvb, offset, hdr->auth_len,
 				     "Auth Credentials");
 	    }
-	} else {
-	    /*
-	     * The authentication data are a verifier.
-	     */
-	    switch (auth_type) {
-
-	    case DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP: {
-		/* NTLMSSP */
-		tvbuff_t *ntlmssp_tvb;
-
-		ntlmssp_tvb = tvb_new_subset(tvb, offset, hdr->auth_len,
-					     hdr->auth_len);
-
-		call_dissector(ntlmssp_verf_handle, ntlmssp_tvb, pinfo,
-			       dcerpc_tree);
-
-		break;
-	    }
-
-	    case DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO: {
-		/* SPNEGO (rfc2478) */
-		tvbuff_t *gssapi_tvb;
-
-		gssapi_tvb = tvb_new_subset(tvb, offset, hdr->auth_len,
-					    hdr->auth_len);
-
-		call_dissector(gssapi_verf_handle, gssapi_tvb, pinfo, dcerpc_tree);
-
-		break;
-	    }
-
-	    default:
-		proto_tree_add_text (dcerpc_tree, tvb, offset, hdr->auth_len,
-				     "Auth Verifier");
-	    }
 	}
 
+	/*
+	 * XXX - sometimes the padding is a multiple of 4 and greater
+	 * than 3, meaning it's not padding to put the authentication
+	 * data on a 4-byte boundary.
+	 *
+	 * For now, we take its value mod 4.
+	 *
+	 * XXX - what is going on there?
+	 */
+	auth_info->auth_pad_len %= 4;
+
         /* figure out where the auth padding starts */
-        offset = hdr->frag_len - (hdr->auth_len + 8 + auth_pad_len);
-        if (offset > 0 && auth_pad_len) {
+        offset = hdr->frag_len - (hdr->auth_len + 8 + auth_info->auth_pad_len);
+        if (offset > 0 && auth_info->auth_pad_len) {
             proto_tree_add_text (dcerpc_tree, tvb, offset,
-                                 auth_pad_len, "Auth padding");
-            return hdr->auth_len + 8 + auth_pad_len;
+                                 auth_info->auth_pad_len, "Auth padding");
+	    auth_info->auth_size = hdr->auth_len + 8 + auth_info->auth_pad_len;
         } else {
-            return hdr->auth_len + 8;
+	    auth_info->auth_size = hdr->auth_len + 8;
         }
     } else {
-        return 0;
+        auth_info->auth_size = 0;
     }
 }
 
@@ -1604,6 +1645,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint16 if_ver, if_ver_minor;
     char uuid_str[DCERPC_UUID_STR_LEN]; 
     int uuid_str_len;
+    dcerpc_auth_info auth_info;
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_max_xmit, NULL);
@@ -1740,7 +1782,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
      * an authentication header, and associate it with an authentication
      * context, so subsequent PDUs can use that context.
      */
-    dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr, NULL, TRUE);
+    dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr, TRUE, &auth_info);
 }
 
 static void
@@ -1757,6 +1799,7 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint32 trans_ver;
     char uuid_str[DCERPC_UUID_STR_LEN]; 
     int uuid_str_len;
+    dcerpc_auth_info auth_info;
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_max_xmit, &max_xmit);
@@ -1826,7 +1869,7 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, gint offset, packet_info *pinfo,
      * XXX - do we need to do anything with the authentication level
      * we get back from this?
      */
-    dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr, NULL, TRUE);
+    dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr, TRUE, &auth_info);
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
         if (num_results != 0 && result == 0) {
@@ -1882,7 +1925,7 @@ static void
 dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
                         proto_tree *dcerpc_tree, proto_tree *tree,
                         e_dce_cn_common_hdr_t *hdr, dcerpc_info *di,
-                        int auth_sz, int auth_level, guint32 alloc_hint,
+                        dcerpc_auth_info *auth_info, guint32 alloc_hint,
                         guint32 frame)
 {
     int length, reported_length, stub_length;
@@ -1890,7 +1933,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     length = tvb_length_remaining(tvb, offset);
     reported_length = tvb_reported_length_remaining(tvb, offset);
-    stub_length = hdr->frag_len - offset - auth_sz;
+    stub_length = hdr->frag_len - offset - auth_info->auth_size;
     if (length > stub_length)
       length = stub_length;
     if (reported_length > stub_length)
@@ -1911,7 +1954,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
             dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
                                 tvb_new_subset (tvb, offset, length,
                                                 reported_length),
-                                0, hdr->drep, di, auth_level);
+                                0, hdr->drep, di, auth_info);
 	} else {
 	    /* PDU is fragmented and this isn't the first fragment */
 	    if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -1978,7 +2021,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		    pinfo->fragmented = FALSE;
 		    dcerpc_try_handoff (pinfo, tree, dcerpc_tree, next_tvb,
-                                0, hdr->drep, di, auth_level);
+                                0, hdr->drep, di, auth_info);
 		} else {
 		    /* Reassembly not complete - some fragments
 		       are missing */
@@ -2016,8 +2059,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint16 ctx_id;
     guint16 opnum;
     e_uuid_t obj_id;
-    int auth_sz = 0;
-    int auth_level;
+    dcerpc_auth_info auth_info;
     guint32 alloc_hint;
     int length;
     char uuid_str[DCERPC_UUID_STR_LEN]; 
@@ -2064,13 +2106,17 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
      * XXX - what if this was set when the connection was set up,
      * and we just have a security context?
      */
-    auth_sz = dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr,
-                                      &auth_level, FALSE);
+    dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr, FALSE, &auth_info);
 
     conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
                               pinfo->srcport, pinfo->destport, 0);
     if (!conv) {
-
+        length = tvb_length_remaining (tvb, offset);
+        if (length > 0) {
+            proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+                                 "Stub data (%d byte%s)", length,
+                                 plurality(length, "", "s"));
+        }
     } else {
         dcerpc_call_value *value;
 
@@ -2139,7 +2185,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	    }
 
 	    dissect_dcerpc_cn_stub (tvb, offset, pinfo, dcerpc_tree, tree,
-				    hdr, &di, auth_sz, auth_level, alloc_hint,
+				    hdr, &di, &auth_info, alloc_hint,
 				    value->req_frame);
 	} else {
             length = tvb_length_remaining (tvb, offset);
@@ -2150,6 +2196,9 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
             }
 	}
     }
+
+    /* Decrypt the verifier, if present */
+    dissect_dcerpc_verifier (tvb, pinfo, dcerpc_tree, hdr, &auth_info);
 }
 
 static void
@@ -2159,8 +2208,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     dcerpc_call_value *value = NULL;
     conversation_t *conv;
     guint16 ctx_id;
-    int auth_sz = 0;
-    int auth_level;
+    dcerpc_auth_info auth_info;
     guint32 alloc_hint;
     int length;
 
@@ -2183,13 +2231,18 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
      * XXX - what if this was set when the connection was set up,
      * and we just have a security context?
      */
-    auth_sz = dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr,
-                                      &auth_level, FALSE);
+    dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr, FALSE, &auth_info);
 
     conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
                               pinfo->srcport, pinfo->destport, 0);
     if (!conv) {
         /* no point in creating one here, really */
+        length = tvb_length_remaining (tvb, offset);
+        if (length > 0) {
+            proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+                                 "Stub data (%d byte%s)", length,
+                                 plurality(length, "", "s"));
+        }
     } else {
 
 	/* !!! we can NOT check flags.visited here since this will interact
@@ -2241,7 +2294,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	    }
 
 	    dissect_dcerpc_cn_stub (tvb, offset, pinfo, dcerpc_tree, tree,
-				    hdr, &di, auth_sz, auth_level, alloc_hint,
+				    hdr, &di, &auth_info, alloc_hint,
 				    value->rep_frame);
         } else {
             length = tvb_length_remaining (tvb, offset);
@@ -2252,6 +2305,9 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
             }
 	}
     }
+
+    /* Decrypt the verifier, if present */
+    dissect_dcerpc_verifier (tvb, pinfo, dcerpc_tree, hdr, &auth_info);
 }
 
 static void
@@ -2262,9 +2318,8 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     conversation_t *conv;
     guint16 ctx_id;
     guint32 status;
-    int auth_sz = 0;
-    int auth_level;
     guint32 alloc_hint;
+    dcerpc_auth_info auth_info;
 
     offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_alloc_hint, &alloc_hint);
@@ -2294,8 +2349,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
      * XXX - what if this was set when the connection was set up,
      * and we just have a security context?
      */
-    auth_sz = dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr,
-                                      &auth_level, FALSE);
+    dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr, FALSE, &auth_info);
 
     conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
                               pinfo->srcport, pinfo->destport, 0);
@@ -2354,7 +2408,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	    length = tvb_length_remaining(tvb, offset);
 	    reported_length = tvb_reported_length_remaining(tvb, offset);
-	    stub_length = hdr->frag_len - offset - auth_sz;
+	    stub_length = hdr->frag_len - offset - auth_info.auth_size;
 	    if (length > stub_length)
 	      length = stub_length;
 	    if (reported_length > stub_length)
@@ -2513,6 +2567,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *cn_flags_tree = NULL;
     proto_tree *drep_tree = NULL;
     e_dce_cn_common_hdr_t hdr;
+    dcerpc_auth_info auth_info;
 
     /*
      * when done over nbt, dcerpc requests are padded with 4 bytes of null
@@ -2634,7 +2689,8 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
         /*
          * Nothing after the common header other than credentials.
          */
-        dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, &hdr, NULL, TRUE);
+        dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, &hdr, TRUE, 
+				&auth_info);
         break;
 
     case PDU_REQ:
@@ -2659,7 +2715,8 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
          * Nothing after the common header other than an authentication
          * verifier.
          */
-        dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, &hdr, NULL, FALSE);
+        dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, &hdr, FALSE, 
+				&auth_info);
         break;
 
     case PDU_SHUTDOWN:
@@ -2671,7 +2728,8 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     default:
         /* might as well dissect the auth info */
-        dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, &hdr, NULL, FALSE);
+        dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, &hdr, FALSE, 
+				&auth_info);
         break;
     }
     return hdr.frag_len + padding;
@@ -2951,13 +3009,13 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    /* First fragment, possibly the only fragment */
 
 	    /*
-	     * XXX - authentication level?
+	     * XXX - authentication info?
 	     */
 	    pinfo->fragmented = (hdr->flags1 & PFCL1_FRAG);
 	    dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
 				tvb_new_subset (tvb, offset, length,
 						reported_length),
-				0, hdr->drep, di, 0);
+				0, hdr->drep, di, NULL);
 	} else {
 	    /* PDU is fragmented and this isn't the first fragment */
 	    if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -2998,11 +3056,11 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 				   dcerpc_tree, pinfo, next_tvb);
 
 	    /*
-	     * XXX - authentication level?
+	     * XXX - authentication info?
 	     */
 	    pinfo->fragmented = FALSE;
 	    dcerpc_try_handoff (pinfo, tree, dcerpc_tree, next_tvb,
-				0, hdr->drep, di, 0);
+				0, hdr->drep, di, NULL);
 	} else {
 	    /* Reassembly isn't completed yet */
 	    if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -3809,6 +3867,7 @@ proto_reg_handoff_dcerpc (void)
     heur_dissector_add ("smb_transact", dissect_dcerpc_cn_bs, proto_dcerpc);
     ntlmssp_handle = find_dissector("ntlmssp");
     ntlmssp_verf_handle = find_dissector("ntlmssp_verf");
+    ntlmssp_enc_payload_handle = find_dissector("ntlmssp_encrypted_payload");
     gssapi_handle = find_dissector("gssapi");
     gssapi_verf_handle = find_dissector("gssapi_verf");
 }
