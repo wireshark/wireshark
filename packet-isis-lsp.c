@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.11 2001/04/08 19:32:03 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.12 2001/04/16 10:04:30 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -56,6 +56,7 @@ static int hf_isis_lsp_remaining_life = -1;
 static int hf_isis_lsp_sequence_number = -1;
 static int hf_isis_lsp_checksum = -1;
 static int hf_isis_lsp_clv_ipv4_int_addr = -1;
+static int hf_isis_lsp_clv_te_router_id = -1;
 
 static gint ett_isis_lsp = -1;
 static gint ett_isis_lsp_clv_area_addr = -1;
@@ -65,6 +66,7 @@ static gint ett_isis_lsp_clv_partition_dis = -1;
 static gint ett_isis_lsp_clv_prefix_neighbors = -1;
 static gint ett_isis_lsp_clv_nlpid = -1;
 static gint ett_isis_lsp_clv_hostname = -1;
+static gint ett_isis_lsp_clv_te_router_id = -1;
 static gint ett_isis_lsp_clv_auth = -1;
 static gint ett_isis_lsp_clv_ipv4_int_addr = -1;
 static gint ett_isis_lsp_clv_ip_reachability = -1;
@@ -100,6 +102,8 @@ static void dissect_lsp_nlpid_clv(const u_char *pd, int offset,
 		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_hostname_clv(const u_char *pd, int offset,
                 guint length, int id_length, frame_data *fd, proto_tree *tree);
+static void dissect_lsp_te_router_id_clv(const u_char *pd, int offset,
+                guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_ip_int_addr_clv(const u_char *pd, int offset,
 		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_l1_auth_clv(const u_char *pd, int offset,
@@ -134,7 +138,7 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
 	},
 	{
 		ISIS_CLV_L1_LSP_NLPID,
-		"NLPID",
+		"Protocols supported",
 		&ett_isis_lsp_clv_nlpid,
 		dissect_lsp_nlpid_clv
 	},
@@ -143,6 +147,12 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
                 "Hostname",
                 &ett_isis_lsp_clv_hostname,
                 dissect_lsp_hostname_clv
+        },
+        {
+                ISIS_CLV_L1_LSP_TE_ROUTER_ID,
+                "Traffic Engineering Router ID",
+                &ett_isis_lsp_clv_te_router_id,
+                dissect_lsp_te_router_id_clv
         },
 	{
 		ISIS_CLV_L1_LSP_IP_INTERFACE_ADDR,
@@ -203,7 +213,7 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
 	},
 	{
 		ISIS_CLV_L2_LSP_NLPID,
-		"NLPID",
+		"Protocols supported",
 		&ett_isis_lsp_clv_nlpid,
 		dissect_lsp_nlpid_clv
 	},
@@ -212,6 +222,12 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
                 "Hostname",
                 &ett_isis_lsp_clv_hostname,
                 dissect_lsp_hostname_clv
+        },
+        {
+                ISIS_CLV_L2_LSP_TE_ROUTER_ID,
+                "Traffic Engineering Router ID",
+                &ett_isis_lsp_clv_te_router_id,
+                dissect_lsp_te_router_id_clv
         },
 	{
 		ISIS_CLV_L2_LSP_IP_EXT_REACHABLE,
@@ -396,6 +412,36 @@ dissect_lsp_hostname_clv(const u_char *pd, int offset,
                 guint length, int id_length, frame_data *fd, proto_tree *tree) {
         isis_dissect_hostname_clv(pd, offset, length, fd, tree );
 }
+
+
+/*
+ * Name: dissect_lsp_te_router_id_clv()
+ *
+ * Description:
+ *      Decode for a lsp packets Traffic Engineering ID clv.  Calls into the
+ *      clv common one.
+ *
+ * Input:
+ *      u_char * : packet data
+ *      int : current offset into packet data
+ *      guint : length of this clv
+ *      int : length of IDs in packet.
+ *      frame_data * : frame data
+ *      proto_tree * : proto tree to build on (may be null)
+ *
+ * Output:
+ *      void, will modify proto_tree if not null.
+ */
+static void
+dissect_lsp_te_router_id_clv(const u_char *pd, int offset,
+                guint length, int id_length, frame_data *fd, proto_tree *tree) {
+        isis_dissect_te_router_id_clv(pd, offset, length, fd, tree,
+                hf_isis_lsp_clv_te_router_id );
+}
+
+
+
+
 /*
  * Name: dissect_lsp_ip_int_addr_clv()
  *
@@ -576,9 +622,12 @@ dissect_lsp_eis_neighbors_clv_inner(const u_char *pd, int offset,
 				"Expense",FALSE );
 			dissect_metric ( ntree, offset + 3, pd[offset+3], 
 				"Error", FALSE );
-			proto_tree_add_text ( ntree, NullTVB, offset + 4, id_length, 
+
+/* this is redundant information
+			Proto_tree_add_text ( ntree, NullTVB, offset + 4, id_length, 
 				"Neighbour ID: %s",
 				print_system_id( pd + offset + 4, id_length ) );
+*/
 		}
 		offset += tlen;
 		length -= tlen;
@@ -974,6 +1023,10 @@ proto_register_isis_lsp(void) {
 		{ &hf_isis_lsp_clv_ipv4_int_addr,
 		{ "IPv4 interface address: ", "isis_lsp.clv_ipv4_int_addr", FT_IPv4,
 		   BASE_NONE, NULL, 0x0, "" }},
+
+		{ &hf_isis_lsp_clv_te_router_id,
+		{ "Traffic Engineering Router ID: ", "isis_lsp.clv_te_router_id", FT_IPv4,
+		   BASE_NONE, NULL, 0x0, "" }},
 	};
 	static gint *ett[] = {
 		&ett_isis_lsp,
@@ -986,6 +1039,7 @@ proto_register_isis_lsp(void) {
 		&ett_isis_lsp_clv_nlpid,
                 &ett_isis_lsp_clv_hostname,
 		&ett_isis_lsp_clv_ipv4_int_addr,
+		&ett_isis_lsp_clv_te_router_id,
 		&ett_isis_lsp_clv_ip_reachability,
 	};
 

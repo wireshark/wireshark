@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: osi-utils.c,v 1.2 2001/04/02 10:41:19 guy Exp $
+ * $Id: osi-utils.c,v 1.3 2001/04/16 10:04:33 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -86,7 +86,7 @@ gchar *print_system_id( const guint8 *buffer, int length ) {
  
   cur = str;
   if ( ( 6 == length ) || ( 7 == length ) ) { /* Special case, print as MAC */
-    cur += sprintf(str, "[%02x:%02x:%02x_%02x:%02x:%02x]", buffer[0], buffer[1],
+    cur += sprintf(str, "%02x%02x.%02x%02x.%02x%02x", buffer[0], buffer[1],
                     buffer[2], buffer[3], buffer[4], buffer[5] );
     if ( 7 == length ) {
       sprintf( cur, "-%02x", buffer[6] );
@@ -152,6 +152,11 @@ gchar *print_area(const guint8 *buffer, int length)
     return str;
   }
   else { /* print standard format */
+    if ( length == RFC1237_AREA_LEN ) {
+	sprintf( str, "%02x.%02x%02x", buffer[0], buffer[1],
+			buffer[2] );
+			return( str );
+       }
     if ( 4 < length ) { 
       while ( tmp < length / 4 ) {      /* 16/4==4  four Octets left to print */
         cur += sprintf( str, "%02x%02x%02x%02x.", buffer[tmp++], buffer[tmp++],

@@ -1,7 +1,7 @@
 /* ppptypes.h
  * Defines PPP packet types.
  *
- * $Id: ppptypes.h,v 1.7 2001/04/08 19:32:03 guy Exp $
+ * $Id: ppptypes.h,v 1.8 2001/04/16 10:04:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,7 +32,7 @@
 
  */
 #define PPP_IP		0x21	/* Internet Protocol */
-#define PPP_OSI               0x23
+#define PPP_OSI		0x23    /* OSI Protocol */
 #define PPP_AT		0x29	/* AppleTalk Protocol */
 #define PPP_IPX		0x2b	/* IPX protocol */
 #define	PPP_VJC_COMP	0x2d	/* VJ compressed TCP */
@@ -46,6 +46,7 @@
 #define PPP_MPLS_UNI	0x0281	/* MPLS Unicast */
 #define PPP_MPLS_MULTI	0x0283	/* MPLS Multicast */
 #define PPP_IPCP	0x8021	/* IP Control Protocol */
+#define PPP_OSICP	0x8023  /* OSI Control Protocol */
 #define PPP_ATCP	0x8029	/* AppleTalk Control Protocol */
 #define PPP_IPXCP	0x802b	/* IPX Control Protocol */
 #define PPP_CCP		0x80fd	/* Compression Control Protocol */

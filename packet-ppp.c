@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.61 2001/03/31 10:35:54 guy Exp $
+ * $Id: packet-ppp.c,v 1.62 2001/04/16 10:04:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -93,6 +93,7 @@ static gint ppp_fcs_decode = 0; /* 0 = No FCS, 1 = 16 bit FCS, 2 = 32 bit FCS */
 
 static const value_string ppp_vals[] = {
 	{PPP_IP,        "IP"             },
+	{PPP_OSI,       "OSI"            },
 	{PPP_AT,        "Appletalk"      },
 	{PPP_IPX,       "Netware IPX/SPX"},
 	{PPP_VJC_COMP,	"VJ compressed TCP"},
@@ -106,6 +107,7 @@ static const value_string ppp_vals[] = {
 	{PPP_MPLS_UNI,  "MPLS Unicast"},
 	{PPP_MPLS_MULTI, "MPLS Multicast"},
 	{PPP_IPCP,	"IP Control Protocol" },
+	{PPP_OSICP,     "OSI Control Protocol" },
 	{PPP_ATCP,	"AppleTalk Control Protocol" },
 	{PPP_IPXCP,	"IPX Control Protocol" },
 	{PPP_CCP,	"Compression Control Protocol" },

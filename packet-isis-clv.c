@@ -1,7 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.9 2001/04/08 19:32:03 guy Exp $
+ * $Id: packet-isis-clv.c,v 1.10 2001/04/16 10:04:30 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -46,6 +46,7 @@
 #include "packet-osi.h"
 #include "packet-isis.h"
 #include "packet-isis-clv.h"
+#include "nlpid.h"
 
 
 /*
@@ -262,6 +263,45 @@ isis_dissect_ip_int_clv(const u_char *pd, int offset,
 	}
 }
 
+
+/*
+ * Name: isis_dissect_te_router_id_clv()
+ *
+ * Description:
+ *      Display the Traffic Engineering Router ID TLV #134.
+ *      This TLV is like the IP Interface TLV, except that
+ *      only _one_ IP address is present
+ *
+ * Input:
+ *      u_char * : packet data
+ *      int : offset into packet data where we are.
+ *      guint : length of clv we are decoding
+ *      frame_data * : frame data (complete frame)
+ *      proto_tree * : protocol display tree to fill out.  May be NULL
+ *      gint : tree id to use for proto tree.
+ *
+ * Output:
+ *      void, but we will add to proto tree if !NULL.
+ */
+void
+isis_dissect_te_router_id_clv(const u_char *pd, int offset,
+                guint length, frame_data *fd, proto_tree *tree, gint tree_id ) {
+        guint32 addr;
+        if ( length <= 0 ) {
+                return;
+        }
+
+        if ( length != 4 ) {
+                isis_dissect_unknown(offset, length, tree, fd,
+                        "malformed Traffic Engineering Router ID (%d vs 4)",length );
+                return;
+        }
+        memcpy(&addr, &pd[offset], sizeof(addr));
+        if ( tree ) {
+                proto_tree_add_ipv4(tree, tree_id, NullTVB, offset, 4, addr);
+        }
+}
+
 /*
  * Name: isis_dissect_nlpid_clv()
  * 
@@ -293,16 +333,19 @@ isis_dissect_nlpid_clv(const u_char *pd, int offset,
 
 	while ( length-- > 0 ) {
 		if (s != sbuf ) {
-			s += sprintf ( s, ", " );
-		} 
-		s += sprintf ( s, "0x%02x", pd[offset++] );
+			s += sprintf ( s, ", " ); 
+		}
+		s += sprintf ( s, "%s (0x%02x)",
+		    val_to_str(pd[offset], nlpid_vals, "Unknown"), pd[offset]);
+		offset++;	
 	}
+
 	if ( hlen == 0 ) {
 		sprintf ( sbuf, "--none--" );
 	}
 
 	proto_tree_add_text ( tree, NullTVB, old_offset, hlen,
-			"NLPID: %s", sbuf );
+			"NLPID(s): %s", sbuf );
 }
 
 /*

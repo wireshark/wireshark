@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.12 2001/04/08 19:32:03 guy Exp $
+ * $Id: packet-isis-hello.c,v 1.13 2001/04/16 10:04:30 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -107,7 +107,7 @@ static const isis_clv_handle_t clv_l1_hello_opts[] = {
 	},
 	{
 		ISIS_CLV_L1H_NLPID,
-		"NLPID",
+		"Protocols Supported",
 		&ett_isis_hello_clv_nlpid,
 		dissect_hello_nlpid_clv
 	},
@@ -158,7 +158,7 @@ static const isis_clv_handle_t clv_l2_hello_opts[] = {
 	},
 	{
 		ISIS_CLV_L2H_NLPID,
-		"NLPID",
+		"Protocols Supported",
 		&ett_isis_hello_clv_nlpid,
 		dissect_hello_nlpid_clv
 	},
@@ -203,7 +203,7 @@ static const isis_clv_handle_t clv_ptp_hello_opts[] = {
 	},
 	{
 		ISIS_CLV_PTP_NLPID,
-		"NLPID",
+		"Protocols Supported",
 		&ett_isis_hello_clv_nlpid,
 		dissect_hello_nlpid_clv
 	},
