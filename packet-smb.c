@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.51 1999/12/07 06:36:12 sharpe Exp $
+ * $Id: packet-smb.c,v 1.52 1999/12/10 11:53:18 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -8890,7 +8890,7 @@ int pd_p_current = 0, pd_d_current = 0, in_params = 0, need_data = 0;
 
 /* Initialize the various data structure */
 void 
-dissect_transact_engine_init(const u_char *pd, const char *param_desc, const char *data_desc, int ParameterOffset, int ParameterCount, int DataOffset, int DataCount)
+dissect_transact_engine_init(const u_char *pd, const char *param_desc, const char *data_desc, int SMB_offset, int ParameterOffset, int ParameterCount, int DataOffset, int DataCount)
 {
 
   d_count = DataCount;
@@ -8945,125 +8945,219 @@ int dissect_transact_next(u_char *pd, char *Name, int dirn, proto_tree *tree)
   int           bc;
 
   while (1) {
-    if (dirn == 1) {       /* Request stuff */
-      switch (in_params) {
 
-      case 0:   /* We are in the params area ... */
+    if (p_desc[p_offset] == 0) return 0;  /* No more ... */
 
-	switch (params[p_offset++]) {
+    switch (in_params) {
 
-	case 'r':
+    case 0:   /* We are in the params area ... */
 
-	  break;   /* Do nothing about the above, because it is not there */
+      switch (p_desc[p_offset++]) {
 
-	case 'W':  /* Word Parameter */
+      case 'r':
 
-	  /* Insert a word param */
-
-	  WParam = GSHORT(pd, pd_p_current);
-
-	  proto_tree_add_text(tree, pd_p_current, 2, "Word Param: %u", WParam);
-
-	  pd_p_current += 2;
-
-	  break;
-
-	case 'D':  /* Double Word parameter */
-
-	  LParam = GWORD(pd, pd_p_current);
-
-	  proto_tree_add_text(tree, pd_p_current, 4, "DWord Param: %u", LParam);
-
-	  pd_p_current += 2;
+	if (dirn == 0) { /* We need to process the data ... */
 	  
-	  break;
-
-	case 'b':  /* A byte or series of bytes */
-
-	  bc = get_byte_count(pd + pd_p_current);  /* This is not clean */
-
-	  /*Bytes = g_malloc(bc + 1); / * Is this needed ? */
-
-	  proto_tree_add_text(tree, pd_p_current, bc, "B%u: %s", format_text(pd + pd_p_current, (bc) ? bc : 1));
-
-	  pd_p_current += (bc) ? bc : 1;
-
-	  break;
-
-	case 'O': /* A null pointer */
-
-	  proto_tree_add_text(tree, pd_p_current, 0, "Null Pointer");
-
-	  break;
-
-	case 'z': /* An AsciiZ string */
-
-	  AsciiZ = pd + pd_p_current;
-
-	  proto_tree_add_text(tree, pd_p_current, strlen(AsciiZ) + 1, "AsciiZ: %s", AsciiZ);
-
-	  pd_p_current += strlen(AsciiZ) + 1;
-
-	  break;
-
-	case 'F': /* One or more pad bytes */
-
-	  bc = get_byte_count(pd);
-
-	  proto_tree_add_text(tree, pd_p_current, bc, "Pad%u: %s", format_text(pd + pd_p_current, bc));
-
-	  pd_p_current += bc;
-
-	  break;
-
-	case 'L': /* Receive buffer len: Short */
-
-	  WParam = GSHORT(pd, pd_p_current);
-
-	  proto_tree_add_text(tree, pd_p_current, 2, "Word: %u", WParam);
-
-	  pd_p_current += 2;
-
-	  break;
-
-	case 's': /* Send buf ... */
-
 	  need_data = 1;
-
-	  LParam = GWORD(pd, pd_p_current);
-
-	  proto_tree_add_text(tree, pd_p_current, 4, "Buffer Ptr: %u", LParam);
-
-	  pd_p_current += 4;
-
-	  break;
-
-	case 'T':
-
-	  WParam = GSHORT(pd, pd_p_current);
-
-	  proto_tree_add_text(tree, pd_p_current, 2, "Buffer Len: %u", WParam);
-
-	  pd_p_current += 2;
-
-	  break;
-	
-	default:
-
-	  break;
 
 	}
 
 	break;
 
-      case 1:   /* We are in the data area ... */
+      case 'h':  /* A WORD parameter received */
 
+	if (dirn == 0) {
+
+	  WParam = GSHORT(pd, pd_p_current);
+
+	  proto_tree_add_text(tee, pd_p_current, 2, "%s: %u (%04X)", (Name) ? Name : "Returned Word", WParam, WParam);
+
+	  pd_p_current += 2;
+
+	  return 1;
+
+	}
+
+	break;
+
+      case 'W':  /* Word Parameter */
+
+	if (dirn == 1) {  /* A request ... */
+	
+	  /* Insert a word param */
+
+	  WParam = GSHORT(pd, pd_p_current);
+
+	  proto_tree_add_text(tree, pd_p_current, 2, "%s: %u (%04X)", (Name) ? Name : "Word Param", WParam, WParam);
+
+	  pd_p_current += 2;
+
+	  return 1;  /* That's it here ... we have dissected a param */
+
+	}
+
+	break;
+
+      case 'D':  /* Double Word parameter */
+
+	if (dirn == 1) {
+
+	  LParam = GWORD(pd, pd_p_current);
+
+	  proto_tree_add_text(tree, pd_p_current, 4, "%s: %u (%08X)", (Name) ? Name : "DWord Param", LParam, LParam);
+
+	  pd_p_current += 2;
+	  
+	  return 1;  /* That's it here */
+
+	}
+
+	break;
+
+      case 'g':  /* A byte or series of bytes is returned */
+
+	if (dirn == 0) {
+ 
+	  bc = get_byte_count(pd + pd_p_current);  /* Not clean */
+
+	  proto_tree_add_text(tree, pd_p_current, bc, "%s%u: %s", (Name) ? Name : "B", (bc) ? bc : 1, format_text( pd + pd_p_current, (bc) ? bc : 1));
+
+	  pd_p_current += (bc) ? bc : 1;
+
+	  return 1;
+
+	}
+
+	break;
+
+      case 'b':  /* A byte or series of bytes */
+
+	if (dirn == 1) {
+
+	  bc = get_byte_count(pd + pd_p_current);  /* This is not clean */
+
+	  /*Bytes = g_malloc(bc + 1); / * Is this needed ? */
+
+	  proto_tree_add_text(tree, pd_p_current, bc, "%s%u: %s", (Name) ? Name : "B", (bc) ? bc : 1, format_text(pd + pd_p_current, (bc) ? bc : 1));
+
+	  pd_p_current += (bc) ? bc : 1;
+
+	  return 1;  /* That's it here ... */
+
+	}
+
+	break;
+
+      case 'O': /* A null pointer */
+
+	if (dirn == 1) {
+
+	  proto_tree_add_text(tree, pd_p_current, 0, "%s: Null Pointer", (Name) ? Name : "Unknown");
+
+	  return 1;  /* That's it here */
+
+	}
+
+	break;
+
+      case 'z': /* An AsciiZ string */
+
+	if (dirn == 1) {
+
+	  AsciiZ = pd + pd_p_current;
+
+	  proto_tree_add_text(tree, pd_p_current, strlen(AsciiZ) + 1, "%s: %s", (Name) ? Name : "AsciiZ", AsciiZ);
+
+	  pd_p_current += strlen(AsciiZ) + 1;
+
+	  return 1;  /* That's it here ... */
+
+	}
+
+	break;
+
+      case 'F': /* One or more pad bytes */
+
+	if (dirn == 1) {
+
+	  bc = get_byte_count(pd);
+
+	  proto_tree_add_text(tree, pd_p_current, bc, "%s%u: %s", (Name) ? Name : "Pad", bc, format_text(pd + pd_p_current, bc));
+
+	  pd_p_current += bc;
+
+	  return 1;  /* That's it here */
+
+	}
+
+	break;
+
+      case 'L': /* Receive buffer len: Short */
+
+	if (dirn == 1) {
+
+	  WParam = GSHORT(pd, pd_p_current);
+
+	  proto_tree_add_text(tree, pd_p_current, 2, "%s: %u (%04X)", (Name) ? Name : "Receive Buffer Len", WParam, WParam);
+
+	  pd_p_current += 2;
+
+	  return 1;  /* That's it here ... */
+
+	}
+
+	break;
+
+      case 's': /* Send buf ... */
+
+	if (dirn == 1) {
+
+	  need_data = 1;
+
+	  LParam = GWORD(pd, pd_p_current);
+
+	  proto_tree_add_text(tree, pd_p_current, 4, "%s: %u", (Name) ? Name : "Send Buffer Ptr", LParam);
+
+	  pd_p_current += 4;
+
+	  return 1;  /* That's it here ... */
+
+	}
+
+	break;
+
+      case 'T':
+
+	if (dirn == 1) {
+
+	  WParam = GSHORT(pd, pd_p_current);
+
+	  proto_tree_add_text(tree, pd_p_current, 2, "%s: %u", (Name) ? Name : "Send Buffer Len", WParam);
+
+	  pd_p_current += 2;
+
+	  return 1;
+
+	}
+
+	break;
+	
+      default:
 
 	break;
 
       }
+
+      break;
+
+    case 1:   /* We are in the data area ... */
+
+      
+      break;
+	
     }
   }
+
   return 0;
 
 }
@@ -9786,6 +9880,60 @@ void dissect_server_flags(proto_tree *tree, int offset, int length, int flags)
 
 }
 
+/* 
+ * The following data structure describes the LANMAN requests we understand
+ *
+ * Simply fill in the number, name, and parameter names if you know them
+ * Try to keep them in order 
+ */
+
+struct lanman_desc {
+  int   lanman_num;
+  char  *lanman_name;
+  char  *params[10];
+};
+
+struct lanman_desc lmd[] = {
+  {0, "NetShareEnum", 
+   {"Detail Level", "Return Buffer Size", NULL}},
+  {1, "NetShareGetInfo", 
+   {"Share Name", "Detail Level", "Receive Buffer Size", NULL}},
+  {13, "NetServerGetInfo", 
+   {"Detail Level", "Receive Buffer Size", NULL}},
+  {56, "NetUserGetInfo",
+   {"User Name", "Detail Level", "Receive Buffer Size", NULL}},
+  {104, "NetServerEnum2", 
+   {"Detail Level", "Return Buffer Size", "Server Type", "Domain", NULL}},
+  {132, "NetWkstaUserLogon", 
+   {"Reserved1", "Reserved2", "Detail Level", "UserInfoStruct?", "Length of UStruct", "Receive Buffer Size", NULL}},
+  {133, "NetWkstaUserLogoff",
+   {"Reserved1", "Reserved2", "Detail Level", "UserInfoStruct?", "Length of UStruct", "Receive Buffer Size", NULL}},
+  {-1, NULL, NULL}
+};
+
+struct lanman_desc *
+find_lanman(int lanman_num)
+{
+  int i = 0;
+
+  /* FIXME, This could be more efficient */
+
+  while (lmd[i].lanman_num != -1) {
+
+    if (lmd[i].lanman_num == lanman_num) {
+
+      return &lmd[i];
+
+    }
+
+    i++;
+
+  }
+
+  return NULL;
+
+}
+
 guint32 
 dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn, const u_char *command, int DataOffset, int DataCount, int ParameterOffset, int ParameterCount)
 {
@@ -9798,6 +9946,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
   const char          *ReturnDescriptor;
   proto_tree          *lanman_tree = NULL, *flags_tree = NULL;
   proto_item          *ti;
+  struct lanman_desc  *lanman;
 
   if (check_col(fd, COL_PROTOCOL))
     col_add_fstr(fd, COL_PROTOCOL, "LANMAN");
@@ -9810,7 +9959,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
     switch (FunctionCode) {
 
-    case NETSHAREENUM:
+    case NETSHAREENUM + 10000:
 
       if (check_col(fd, COL_INFO)) {
 
@@ -9881,7 +10030,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
       
       break;
 
-    case NETSERVERENUM2:  /* Process a NetServerEnum2 */
+    case NETSERVERENUM2 + 10000:  /* Process a NetServerEnum2 */
 
       if (check_col(fd, COL_INFO)) {
 
@@ -9969,10 +10118,75 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
       return 1;
       break;
 
-    default:   /* Just try to handle what is there ... */
+      default:   /* Just try to handle what is there ... */
 
-      dissect_transact_engine_init(pd, ParameterDescriptor, ReturnDescriptor, ParameterOffset, ParameterCount, DataOffset, DataCount);
+      lanman = find_lanman(FunctionCode);
 
+      if (check_col(fd, COL_INFO)) {
+
+	if (lanman) { 
+	  col_add_fstr(fd, COL_INFO, "%s Request", lanman -> lanman_name);
+	}
+	else {
+	  col_add_fstr(fd, COL_INFO, "Unknown LANMAN Request: %u", FunctionCode);
+	}
+      }
+
+      if (tree) {
+
+	ti = proto_tree_add_item(parent, proto_lanman, SMB_offset + ParameterOffset, ParameterCount, NULL);
+	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
+
+	if (lanman) {
+	  proto_tree_add_text(lanman_tree, loc_offset, 2, "%s Request", lanman -> lanman_name);
+	}
+	else {
+	  proto_tree_add_text(lanman_tree, loc_offset, 2, "Function Code: Unknown LANMAN Request: %u", FunctionCode);
+	}
+
+      }
+
+      loc_offset += 2;
+
+      ParameterDescriptor = pd + loc_offset;
+
+      if (si.request_val -> last_param_descrip) g_free(si.request_val -> last_param_descrip);
+      si.request_val -> last_param_descrip = g_malloc(strlen(ParameterDescriptor) + 1);
+      if (si.request_val -> last_param_descrip)
+	strcpy(si.request_val -> last_param_descrip, ParameterDescriptor);
+
+      if (tree) {
+
+	proto_tree_add_text(lanman_tree, loc_offset, strlen(ParameterDescriptor) + 1, "Parameter Descriptor: %s", ParameterDescriptor);
+
+      }
+
+      loc_offset += strlen(ParameterDescriptor) + 1;
+
+      ReturnDescriptor = pd + loc_offset;
+
+      if (si.request_val -> last_data_descrip) g_free(si.request_val -> last_data_descrip);
+      si.request_val -> last_data_descrip = g_malloc(strlen(ReturnDescriptor) + 1);
+      if (si.request_val -> last_data_descrip)
+	strcpy(si.request_val -> last_data_descrip, ReturnDescriptor);
+
+      if (tree) {
+
+	proto_tree_add_text(lanman_tree, loc_offset, strlen(ReturnDescriptor) + 1, "Return Descriptor: %s", ReturnDescriptor);
+
+      }
+
+      loc_offset += strlen(ReturnDescriptor) + 1;
+
+      if (tree) {
+
+	int i = 0;
+
+	dissect_transact_engine_init(pd, ParameterDescriptor, ReturnDescriptor,SMB_offset, loc_offset, ParameterCount, DataOffset, DataCount);
+
+	while (dissect_transact_next(pd, (lanman) ? lanman -> params[i++] : NULL, dirn, lanman_tree))
+	  ;
+      }
 
       break;
     
@@ -10165,10 +10379,6 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
       }
 
       loc_offset += 2;
-
-      if (! BYTES_ARE_IN_FRAME(loc_offset, 26 * EntCount) ) {
-	return 1;
-      }
 
       if (tree) {
 
