@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.13 1999/08/22 02:29:40 guy Exp $
+ * $Id: lanalyzer.c,v 1.14 1999/08/28 01:19:43 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -61,6 +61,7 @@ int lanalyzer_open(wtap *wth, int *err)
 	struct tm tm;
 
 	fseek(wth->fh, 0, SEEK_SET);
+	wth->data_offset = 0;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(LE_record_type, 1, 2, wth->fh);
 	bytes_read += fread(LE_record_length, 1, 2, wth->fh);
@@ -71,6 +72,7 @@ int lanalyzer_open(wtap *wth, int *err)
 		}
 		return 0;
 	}
+	wth->data_offset += 4;
 	record_type = pletohs(LE_record_type);
 	record_length = pletohs(LE_record_length); /* make sure to do this for while() loop */
 
@@ -89,6 +91,7 @@ int lanalyzer_open(wtap *wth, int *err)
 	/* Read records until we find the start of packets */
 	while (1) {
 		fseek(wth->fh, record_length, SEEK_CUR);
+		wth->data_offset += record_length;
 		errno = WTAP_ERR_CANT_READ;
 		bytes_read = fread(LE_record_type, 1, 2, wth->fh);
 		bytes_read += fread(LE_record_length, 1, 2, wth->fh);
@@ -101,6 +104,7 @@ int lanalyzer_open(wtap *wth, int *err)
 			g_free(wth->capture.lanalyzer);
 			return 0;
 		}
+		wth->data_offset += 4;
 
 		record_type = pletohs(LE_record_type);
 		record_length = pletohs(LE_record_length);
@@ -121,6 +125,7 @@ int lanalyzer_open(wtap *wth, int *err)
 					g_free(wth->capture.lanalyzer);
 					return 0;
 				}
+				wth->data_offset += sizeof summary;
 
 				/* Assume that the date of the creation of the trace file
 				 * is the same date of the trace. Lanalyzer doesn't
@@ -176,6 +181,7 @@ int lanalyzer_open(wtap *wth, int *err)
 				/* Go back header number ob ytes so that lanalyzer_read
 				 * can read this header */
 				fseek(wth->fh, -bytes_read, SEEK_CUR);
+				wth->data_offset -= bytes_read;
 				return 1;
 
 			default:
@@ -217,6 +223,7 @@ static int lanalyzer_read(wtap *wth, int *err)
 		}
 		return 0;
 	}
+	wth->data_offset += 2;
 	bytes_read = fread(LE_record_length, 1, 2, wth->fh);
 	if (bytes_read != 2) {
 		if (ferror(wth->fh))
@@ -225,6 +232,7 @@ static int lanalyzer_read(wtap *wth, int *err)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
+	wth->data_offset += 2;
 
 	record_type = pletohs(LE_record_type);
 	record_length = pletohs(LE_record_length);
@@ -252,10 +260,11 @@ static int lanalyzer_read(wtap *wth, int *err)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
+	wth->data_offset += DESCRIPTOR_LEN;
 
 	/* Read the packet data */
 	buffer_assure_space(wth->frame_buffer, packet_size);
-	data_offset = ftell(wth->fh);
+	data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 		packet_size, wth->fh);
@@ -267,6 +276,7 @@ static int lanalyzer_read(wtap *wth, int *err)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
+	wth->data_offset += packet_size;
 
 	true_size = pletohs(&descriptor[4]);
 	time_low = pletohs(&descriptor[8]);

@@ -165,10 +165,13 @@ int radcom_open(wtap *wth, int *err)
 		}
 	}*/
 
-	if (wth->file_encap == WTAP_ENCAP_ETHERNET)
+	if (wth->file_encap == WTAP_ENCAP_ETHERNET) {
 		fseek(wth->fh, 294, SEEK_CUR);
-	else if (wth->file_encap == WTAP_ENCAP_LAPB)
+		wth->data_offset = 294;
+	} else if (wth->file_encap == WTAP_ENCAP_LAPB) {
 		fseek(wth->fh, 297, SEEK_CUR);
+		wth->data_offset = 297;
+	}
 
 	return 1;
 
@@ -193,6 +196,7 @@ static int radcom_read(wtap *wth, int *err)
 	char dce;
 
 	fseek(wth->fh, 4, SEEK_CUR);
+	wth->data_offset += 4;
 
 	/*
 	 * Read the frame size
@@ -210,6 +214,7 @@ static int radcom_read(wtap *wth, int *err)
 		}
 		return 0;
 	}
+	wth->data_offset += 2;
 
 	if (wth->file_encap == WTAP_ENCAP_LAPB)
 		length -= 2; /* FCS */
@@ -218,6 +223,7 @@ static int radcom_read(wtap *wth, int *err)
 	wth->phdr.caplen = length;
 
 	fseek(wth->fh, 5, SEEK_CUR);
+	wth->data_offset += 5;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(&date, 1, sizeof(struct frame_date), wth->fh);
 	if (bytes_read != sizeof(struct frame_date)) {
@@ -227,6 +233,7 @@ static int radcom_read(wtap *wth, int *err)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
+	wth->data_offset += sizeof(struct frame_date);
 
 	tm.tm_year = date.year-1900;
 	tm.tm_mon = date.month-1;
@@ -239,6 +246,7 @@ static int radcom_read(wtap *wth, int *err)
 	wth->phdr.ts.tv_usec = date.usec;
 
 	fseek(wth->fh, 6, SEEK_CUR);
+	wth->data_offset += 6;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(&dce, 1, 1, wth->fh);
 	if (bytes_read != 1) {
@@ -248,6 +256,7 @@ static int radcom_read(wtap *wth, int *err)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
+	wth->data_offset += 1;
 	wth->phdr.pseudo_header.x25.flags = (dce & 0x1) ? 0x00 : 0x80;
 
 	fseek(wth->fh, 9, SEEK_CUR);
@@ -256,7 +265,7 @@ static int radcom_read(wtap *wth, int *err)
 	 * Read the packet data.
 	 */
 	buffer_assure_space(wth->frame_buffer, length);
-	data_offset = ftell(wth->fh);
+	data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 			length, wth->fh);
@@ -268,11 +277,14 @@ static int radcom_read(wtap *wth, int *err)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
+	wth->data_offset += length;
 
 	wth->phdr.pkt_encap = wth->file_encap;
 
-	if (wth->file_encap == WTAP_ENCAP_LAPB)
+	if (wth->file_encap == WTAP_ENCAP_LAPB) {
 		fseek(wth->fh, 2, SEEK_CUR); /* FCS */
+		wth->data_offset += 2;
+	}
 
 	return data_offset;
 }

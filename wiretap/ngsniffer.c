@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.20 1999/08/24 03:19:32 guy Exp $
+ * $Id: ngsniffer.c,v 1.21 1999/08/28 01:19:44 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -269,6 +269,7 @@ int ngsniffer_open(wtap *wth, int *err)
 
 	/* Read in the string that should be at the start of a Sniffer file */
 	fseek(wth->fh, 0, SEEK_SET);
+	wth->data_offset = 0;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(magic, 1, 17, wth->fh);
 	if (bytes_read != 17) {
@@ -278,6 +279,7 @@ int ngsniffer_open(wtap *wth, int *err)
 		}
 		return 0;
 	}
+	wth->data_offset += 17;
 
 	magic[17] = 0;
 
@@ -299,6 +301,7 @@ int ngsniffer_open(wtap *wth, int *err)
 		}
 		return 0;
 	}
+	wth->data_offset += 6;
 
 	type = pletohs(record_type);
 	length = pletohs(record_length);
@@ -318,6 +321,7 @@ int ngsniffer_open(wtap *wth, int *err)
 		}
 		return 0;
 	}
+	wth->data_offset += sizeof version;
 
 	/* Make sure this is an uncompressed Sniffer file */
 	if (version.format != 1) {
@@ -416,6 +420,7 @@ static int ngsniffer_read(wtap *wth, int *err)
 			}
 			return 0;
 		}
+		wth->data_offset += 2;
 		errno = WTAP_ERR_CANT_READ;
 		bytes_read = fread(record_length, 1, 4, wth->fh);
 		if (bytes_read != 4) {
@@ -425,6 +430,7 @@ static int ngsniffer_read(wtap *wth, int *err)
 				*err = WTAP_ERR_SHORT_READ;
 			return -1;
 		}
+		wth->data_offset += 4;
 
 		type = pletohs(record_type);
 		length = pletohs(record_length);
@@ -452,6 +458,7 @@ static int ngsniffer_read(wtap *wth, int *err)
 					*err = WTAP_ERR_SHORT_READ;
 				return -1;
 			}
+			wth->data_offset += sizeof frame2;
 			time_low = pletohs(&frame2.time_low);
 			time_med = pletohs(&frame2.time_med);
 			time_high = pletohs(&frame2.time_high);
@@ -488,6 +495,7 @@ static int ngsniffer_read(wtap *wth, int *err)
 					*err = WTAP_ERR_SHORT_READ;
 				return -1;
 			}
+			wth->data_offset += sizeof frame4;
 			time_low = pletohs(&frame4.time_low);
 			time_med = pletohs(&frame4.time_med);
 			time_high = frame4.time_high;
@@ -539,6 +547,7 @@ static int ngsniffer_read(wtap *wth, int *err)
 		 * portion, and keep looping.
 		 */
 		fseek(wth->fh, length, SEEK_CUR);
+		wth->data_offset += length;
 	}
 
 found:
@@ -549,7 +558,7 @@ found:
 	 * Read the packet data.
 	 */
 	buffer_assure_space(wth->frame_buffer, length);
-	data_offset = ftell(wth->fh);
+	data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 			length, wth->fh);
@@ -561,6 +570,7 @@ found:
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
+	wth->data_offset += length;
 
 	t = t/1000000.0 * wth->capture.ngsniffer->timeunit; /* t = # of secs */
 	t += wth->capture.ngsniffer->start;

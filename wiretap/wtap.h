@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.34 1999/08/24 03:19:34 guy Exp $
+ * $Id: wtap.h,v 1.35 1999/08/28 01:19:45 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -260,6 +260,8 @@ typedef struct wtap {
 	int			snapshot_length;
 	struct Buffer		*frame_buffer;
 	struct wtap_pkthdr	phdr;
+
+	long			data_offset;
 
 	union {
 		libpcap_t		*pcap;

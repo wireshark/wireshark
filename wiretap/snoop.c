@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.8 1999/08/24 03:19:32 guy Exp $
+ * $Id: snoop.c,v 1.9 1999/08/28 01:19:45 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -77,6 +77,7 @@ int snoop_open(wtap *wth, int *err)
 
 	/* Read in the string that should be at the start of a "snoop" file */
 	fseek(wth->fh, 0, SEEK_SET);
+	wth->data_offset = 0;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(magic, 1, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
@@ -86,6 +87,7 @@ int snoop_open(wtap *wth, int *err)
 		}
 		return 0;
 	}
+	wth->data_offset += sizeof magic;
 
 	if (memcmp(magic, snoop_magic, sizeof snoop_magic) != 0) {
 		return 0;
@@ -101,6 +103,7 @@ int snoop_open(wtap *wth, int *err)
 		}
 		return 0;
 	}
+	wth->data_offset += sizeof hdr;
 
 	hdr.version = ntohl(hdr.version);
 	if (hdr.version != 2) {
@@ -148,6 +151,7 @@ static int snoop_read(wtap *wth, int *err)
 		}
 		return 0;
 	}
+	wth->data_offset += sizeof hdr;
 
 	packet_size = ntohl(hdr.incl_len);
 	if (packet_size > WTAP_MAX_PACKET_SIZE) {
@@ -161,7 +165,7 @@ static int snoop_read(wtap *wth, int *err)
 		return -1;
 	}
 	buffer_assure_space(wth->frame_buffer, packet_size);
-	data_offset = ftell(wth->fh);
+	data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 			packet_size, wth->fh);
@@ -173,6 +177,7 @@ static int snoop_read(wtap *wth, int *err)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
+	wth->data_offset += packet_size;
 
 	wth->phdr.ts.tv_sec = ntohl(hdr.ts_sec);
 	wth->phdr.ts.tv_usec = ntohl(hdr.ts_usec);
@@ -183,6 +188,7 @@ static int snoop_read(wtap *wth, int *err)
 	/* Skip over the padding. */
 	fseek(wth->fh, ntohl(hdr.rec_len) - (sizeof hdr + packet_size),
 	    SEEK_CUR);
+	wth->data_offset += ntohl(hdr.rec_len) - (sizeof hdr + packet_size);
 
 	return data_offset;
 }

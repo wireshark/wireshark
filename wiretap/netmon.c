@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.12 1999/08/24 03:19:33 guy Exp $
+ * $Id: netmon.c,v 1.13 1999/08/28 01:19:44 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -214,6 +214,7 @@ int netmon_open(wtap *wth, int *err)
 
 	/* Seek to the beginning of the data records. */
 	fseek(wth->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET);
+	wth->data_offset = CAPTUREFILE_HEADER_SIZE;
 
 	return 1;
 }
@@ -234,12 +235,10 @@ static int netmon_read(wtap *wth, int *err)
 	double	t;
 
 	/* Have we reached the end of the packet data? */
-	data_offset = ftell(wth->fh);
-	if (data_offset >= wth->capture.netmon->end_offset) {
+	if (wth->data_offset >= wth->capture.netmon->end_offset) {
 		/* Yes. */
 		return 0;
 	}
-	/* Read record header. */
 	/* Read record header. */
 	switch (wth->capture.netmon->version_major) {
 
@@ -264,7 +263,7 @@ static int netmon_read(wtap *wth, int *err)
 		}
 		return 0;
 	}
-	data_offset += hdr_size;
+	wth->data_offset += hdr_size;
 
 	switch (wth->capture.netmon->version_major) {
 
@@ -287,6 +286,7 @@ static int netmon_read(wtap *wth, int *err)
 		return -1;
 	}
 	buffer_assure_space(wth->frame_buffer, packet_size);
+	data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 			packet_size, wth->fh);
@@ -298,6 +298,7 @@ static int netmon_read(wtap *wth, int *err)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
+	wth->data_offset += packet_size;
 
 	t = (double)wth->capture.netmon->start_usecs;
 	switch (wth->capture.netmon->version_major) {

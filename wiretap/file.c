@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.18 1999/08/22 02:29:38 guy Exp $
+ * $Id: file.c,v 1.19 1999/08/28 01:19:43 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -105,6 +105,7 @@ wtap* wtap_open_offline(const char *filename, int *err)
 
 	/* initialization */
 	wth->file_encap = WTAP_ENCAP_UNKNOWN;
+	wth->data_offset = 0;
 
 	/* Try all file types */
 	for (i = 0; i < N_FILE_TYPES; i++) {

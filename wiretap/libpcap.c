@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.15 1999/08/24 03:19:34 guy Exp $
+ * $Id: libpcap.c,v 1.16 1999/08/28 01:19:44 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -147,6 +147,7 @@ int libpcap_open(wtap *wth, int *err)
 
 	/* Read in the number that should be at the start of a "libpcap" file */
 	fseek(wth->fh, 0, SEEK_SET);
+	wth->data_offset = 0;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(&magic, 1, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
@@ -156,6 +157,7 @@ int libpcap_open(wtap *wth, int *err)
 		}
 		return 0;
 	}
+	wth->data_offset += sizeof magic;
 
 	if (magic == PCAP_SWAPPED_MAGIC) {
 		/* Host that wrote it has a byte order opposite to ours. */
@@ -176,6 +178,7 @@ int libpcap_open(wtap *wth, int *err)
 		}
 		return 0;
 	}
+	wth->data_offset += sizeof hdr;
 
 	if (byte_swapped) {
 		/* Byte-swap the header fields about which we care. */
@@ -233,6 +236,7 @@ static int libpcap_read(wtap *wth, int *err)
 		}
 		return 0;
 	}
+	wth->data_offset += sizeof hdr;
 
 	if (wth->capture.pcap->byte_swapped) {
 		/* Byte-swap the record header fields. */
@@ -274,7 +278,7 @@ static int libpcap_read(wtap *wth, int *err)
 	}
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
-	data_offset = ftell(wth->fh);
+	data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 			packet_size, wth->fh);
@@ -286,6 +290,7 @@ static int libpcap_read(wtap *wth, int *err)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
+	wth->data_offset += packet_size;
 
 	wth->phdr.ts.tv_sec = hdr.ts_sec;
 	wth->phdr.ts.tv_usec = hdr.ts_usec;

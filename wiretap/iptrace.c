@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.9 1999/08/24 03:19:34 guy Exp $
+ * $Id: iptrace.c,v 1.10 1999/08/28 01:19:43 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -39,6 +39,7 @@ int iptrace_open(wtap *wth, int *err)
 	char name[12];
 
 	fseek(wth->fh, 0, SEEK_SET);
+	wth->data_offset = 0;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(name, 1, 11, wth->fh);
 	if (bytes_read != 11) {
@@ -48,6 +49,7 @@ int iptrace_open(wtap *wth, int *err)
 		}
 		return 0;
 	}
+	wth->data_offset += 11;
 	name[11] = 0;
 	if (strcmp(name, "iptrace 2.0") != 0) {
 		return 0;
@@ -81,12 +83,13 @@ static int iptrace_read(wtap *wth, int *err)
 		}
 		return 0;
 	}
+	wth->data_offset += 40;
 
 	packet_size = pntohs(&header[2]) - 32;
 
 	/* Read the packet data */
 	buffer_assure_space(wth->frame_buffer, packet_size);
-	data_offset = ftell(wth->fh);
+	data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 		packet_size, wth->fh);
@@ -98,6 +101,7 @@ static int iptrace_read(wtap *wth, int *err)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
+	wth->data_offset += packet_size;
 
 	wth->phdr.len = packet_size;
 	wth->phdr.caplen = packet_size;

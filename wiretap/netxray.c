@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.12 1999/08/24 03:19:33 guy Exp $
+ * $Id: netxray.c,v 1.13 1999/08/28 01:19:44 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -116,6 +116,7 @@ int netxray_open(wtap *wth, int *err)
 	/* Read in the string that should be at the start of a NetXRay
 	 * file */
 	fseek(wth->fh, 0, SEEK_SET);
+	wth->data_offset = 0;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(magic, 1, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
@@ -125,6 +126,7 @@ int netxray_open(wtap *wth, int *err)
 		}
 		return 0;
 	}
+	wth->data_offset += sizeof magic;
 
 	if (memcmp(magic, netxray_magic, sizeof netxray_magic) != 0) {
 		return 0;
@@ -140,6 +142,7 @@ int netxray_open(wtap *wth, int *err)
 		}
 		return 0;
 	}
+	wth->data_offset += sizeof hdr;
 
 	/* It appears that version 1.1 files (as produced by Windows
 	 * Sniffer Pro 2.0.01) have the time stamp in microseconds,
@@ -199,6 +202,7 @@ int netxray_open(wtap *wth, int *err)
 
 	/* Seek to the beginning of the data records. */
 	fseek(wth->fh, pletohl(&hdr.start_offset), SEEK_SET);
+	wth->data_offset = pletohl(&hdr.start_offset);
 
 	return 1;
 }
@@ -218,8 +222,7 @@ static int netxray_read(wtap *wth, int *err)
 
 reread:
 	/* Have we reached the end of the packet data? */
-	data_offset = ftell(wth->fh);
-	if (data_offset == wth->capture.netxray->end_offset) {
+	if (wth->data_offset == wth->capture.netxray->end_offset) {
 		/* Yes. */
 		return 0;
 	}
@@ -251,16 +254,18 @@ reread:
 			/* Yes.  Remember that we did. */
 			wth->capture.netxray->wrapped = 1;
 			fseek(wth->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET);
+			wth->data_offset = CAPTUREFILE_HEADER_SIZE;
 			goto reread;
 		}
 
 		/* We've already wrapped - don't wrap again. */
 		return 0;
 	}
-	data_offset += hdr_size;
+	wth->data_offset += hdr_size;
 
 	packet_size = pletohs(&hdr.hdr_1_x.incl_len);
 	buffer_assure_space(wth->frame_buffer, packet_size);
+	data_offset = wth->data_offset;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(buffer_start_ptr(wth->frame_buffer), 1,
 			packet_size, wth->fh);
@@ -272,6 +277,7 @@ reread:
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
+	wth->data_offset += packet_size;
 
 	t = (double)pletohl(&hdr.hdr_1_x.timelo)
 	    + (double)pletohl(&hdr.hdr_1_x.timehi)*4294967296.0;
