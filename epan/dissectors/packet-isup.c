@@ -53,6 +53,7 @@
 #include "packet-q931.h"
 #include "packet-isup.h"
 #include "packet-e164.h"
+#include "sctpppids.h"
 
 #define MTP3_ISUP_SERVICE_INDICATOR     5
 #define MTP3_BICC_SERVICE_INDICATOR     13
@@ -6383,4 +6384,5 @@ proto_reg_handoff_bicc(void)
   bicc_handle = create_dissector_handle(dissect_bicc, proto_bicc);
   dissector_add("mtp3.service_indicator", MTP3_BICC_SERVICE_INDICATOR, bicc_handle);
   dissector_add("m3ua.protocol_data_si", MTP3_BICC_SERVICE_INDICATOR, bicc_handle);
+  dissector_add("sctp.ppi", BICC_PAYLOAD_PROTOCOL_ID, bicc_handle);
 }
