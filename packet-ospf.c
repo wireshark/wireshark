@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.5 1998/10/10 03:32:13 gerald Exp $
+ * $Id: packet-ospf.c,v 1.6 1998/10/13 07:03:34 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -570,7 +570,7 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, GtkTree *tree, in
                 add_item_to_tree(ospf_lsa_tree, offset + 5,  3,"Metric: %d", asext_metric);
                 add_item_to_tree(ospf_lsa_tree, offset + 8,  4,"Forwarding Address: %s", 
                                                  ip_to_str((guint8 *) &(asext_lsa.gateway)));
-                add_item_to_tree(ospf_lsa_tree, offset + 12, 4,"External Route Tag: %d", ntohl(asext_lsa.external_tag)); 
+                add_item_to_tree(ospf_lsa_tree, offset + 12, 4,"External Route Tag: %ld", (long)ntohl(asext_lsa.external_tag)); 
                     
                 break;
             default:

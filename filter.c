@@ -1,7 +1,7 @@
 /* filter.c
  * Routines for managing filter sets
  *
- * $Id: filter.c,v 1.6 1998/10/13 02:10:55 gerald Exp $
+ * $Id: filter.c,v 1.7 1998/10/13 07:03:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -429,8 +429,7 @@ filter_prefs_save(GtkWidget *w) {
 
 void
 filter_prefs_cancel(GtkWidget *w) {
-  filter_def *filt;
-  
+ 
   /* Let the list cb know we're about to destroy the widget tree, so it */
   /* doesn't operate on widgets that don't exist. */  
   gtk_object_set_data(GTK_OBJECT(w), E_FILT_CM_KEY, (gpointer)TRUE);

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.6 1998/10/12 01:40:43 gerald Exp $
+ * $Id: capture.c,v 1.7 1998/10/13 07:03:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,11 +36,17 @@
 #include <pcap.h>
 
 #include <string.h>
+#include <unistd.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
 
 #ifdef NEED_SNPRINTF_H
+# ifdef HAVE_STDARG_H
+#  include <stdarg.h>
+# else
+#  include <varargs.h>
+# endif
 # include "snprintf.h"
 #endif
 

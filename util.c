@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.4 1998/10/12 01:40:57 gerald Exp $
+ * $Id: util.c,v 1.5 1998/10/13 07:03:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,15 @@
 
 #include <stdarg.h>
 #include <strings.h>
+
+#ifdef NEED_SNPRINTF_H
+# ifdef HAVE_STDARG_H
+#  include <stdarg.h>
+# else
+#  include <varargs.h>
+# endif
+# include "snprintf.h"
+#endif
 
 #include "util.h"
 

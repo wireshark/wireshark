@@ -63,7 +63,8 @@ ethereal_SOURCES = \
 
 EXTRA_ethereal_SOURCES = \
 	snprintf.c           \
-	snprintf.h
+	snprintf.h           \
+	snprintf-imp.h
 
 ethereal_DEPENDENCIES = @SNPRINTF_O@
 ethereal_LDADD = @SNPRINTF_O@

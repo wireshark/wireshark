@@ -44,6 +44,7 @@
 # include <config.h>
 #endif
 
+#include "snprintf-imp.h"
 #include "snprintf.h"
 
 /*
