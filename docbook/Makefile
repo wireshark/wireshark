@@ -63,7 +63,7 @@ eug_validate:
 	$(XMLLINT) --valid --noout user-guide.xml
 
 # create html single page file
-eug_html:
+eug_html: images
 	@ echo --- HTML SINGLE PAGE ---
 	mkdir -p eug_html
 	mkdir -p eug_html/graphics
@@ -125,7 +125,7 @@ edg_validate:
 	$(XMLLINT) --valid --noout developer-guide.xml
 
 # create html single page file
-edg_html:
+edg_html: images
 	@ echo --- HTML SINGLE PAGE ---
 	mkdir -p edg_html
 	mkdir -p edg_html/graphics
