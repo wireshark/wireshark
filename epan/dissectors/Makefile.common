@@ -317,6 +317,7 @@ DISSECTOR_SRC =	\
 	packet-llc.c	\
 	packet-lmi.c	\
 	packet-lmp.c	\
+	packet-loop.c	\
 	packet-lpd.c	\
 	packet-lwapp.c	\
 	packet-m2pa.c	\
