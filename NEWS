@@ -58,6 +58,7 @@ Overview of changes in Ethereal 0.8.13:
 * make-reg-dotc fix (Guy)
 * AFS static-function cleanup (Guy)
 * Filter GUI ease-of-use fixes (Santeri)
+* Support for Routines for IGRP dissection <Paul Ionescu>
 
 Overview of changes in Ethereal 0.8.12:
 * OSPF enhancements (Craig Metz)

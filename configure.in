@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.106 2000/10/17 09:21:51 guy Exp $
+# $Id: configure.in,v 1.107 2000/10/27 02:22:04 gram Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -13,7 +13,7 @@ AC_INIT(etypes.h)
 
 AC_PREREQ(2.13)
 
-AM_INIT_AUTOMAKE(ethereal, 0.8.12)
+AM_INIT_AUTOMAKE(ethereal, 0.8.13)
 
 AM_CONDITIONAL(SETUID_INSTALL, test x$enable_setuid_install = xyes)
 
@@ -384,7 +384,7 @@ AC_ARG_WITH(plugindir,
   *) PLUGIN_DIR="$withval"
   esac
   ],
-  : ${PLUGIN_DIR=$libdir/ethereal/plugins/0.8.12}
+  : ${PLUGIN_DIR=$libdir/ethereal/plugins/0.8.13}
 )
 
 PLUGIN_DIR=`(
