@@ -413,6 +413,7 @@ Wes Hardaker <wjhardaker@ucdavis.edu> {
 Robert Tsai <rtsai@netapp.com> {
 	Rsh support
 	Support for embedded newlines in SDP fields
+	Support for leading LWS in RTSP headers
 }
 
 Craig Metz <cmetz@inner.net> {

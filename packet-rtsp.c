@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.36 2001/01/25 06:14:14 guy Exp $
+ * $Id: packet-rtsp.c,v 1.37 2001/05/31 20:40:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -438,6 +438,14 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * this to be a MIME header.
 				 */
 				is_mime_header = TRUE;
+				goto is_rtsp;
+
+			case ' ':
+			case '\t':
+				/*
+				 * LWS (RFC-2616, 4.2); continue the previous
+				 * header.
+				 */
 				goto is_rtsp;
 			}
 		}
