@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.165 2004/02/16 19:00:09 ulfl Exp $
+ * $Id: menu.c,v 1.166 2004/02/20 18:43:59 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -856,9 +856,17 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 	GList *menu_item_list;
 	GList *li;
 	gchar *widget_cf_name;
+	gchar *normalized_cf_name;
 	GtkWidget *menu_item;
 	guint cnt;
 
+
+
+	normalized_cf_name = g_strdup(cf_name);
+#ifdef WIN32
+    /* replace all slashes by backslashes */
+    g_strdelimit(normalized_cf_name, "/", '\\');
+#endif
 
 	/* get the submenu container item */
 	submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
@@ -877,10 +885,18 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 		/* if this element string is one of our special items (seperator, ...) or
 		 * already in the list or 
 		 * this element is above maximum count (too old), remove it */
-        /* XXX: do a case insensitive compare on win32 */
-        /* XXX: replace all backslashes by slashes */
 		if (!widget_cf_name ||
-		    strncmp(widget_cf_name, cf_name, 1000) == 0 ||
+#ifdef WIN32
+            /* do a case insensitive compare on win32 */
+#if GLIB_MAJOR_VERSION < 2
+            g_strncasecmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||
+#else
+            g_ascii_strncasecmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||
+#endif
+#else   /* WIN32 */
+            /* do a case sensitive compare on unix */
+		    strncmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||
+#endif
 		    cnt >= prefs.gui_recent_files_count_max) {
 			remove_menu_recent_capture_file(li->data, NULL);
 			cnt--;
@@ -890,9 +906,8 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 	g_list_free(menu_item_list);
 
 	/* add new item at latest position */
-	menu_item = gtk_menu_item_new_with_label(cf_name);
-	widget_cf_name = g_strdup(cf_name);
-	OBJECT_SET_DATA(menu_item, MENU_RECENT_FILES_KEY, widget_cf_name);
+	menu_item = gtk_menu_item_new_with_label(normalized_cf_name);
+	OBJECT_SET_DATA(menu_item, MENU_RECENT_FILES_KEY, normalized_cf_name);
 	gtk_menu_prepend (GTK_MENU(submenu_recent_files), menu_item);
 	SIGNAL_CONNECT_OBJECT(GTK_OBJECT(menu_item), "activate", 
 		menu_open_recent_file_cmd_cb, (GtkObject *) menu_item);
