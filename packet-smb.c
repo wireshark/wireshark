@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.339 2003/05/15 02:14:00 tpot Exp $
+ * $Id: packet-smb.c,v 1.340 2003/05/16 10:24:13 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -16073,6 +16073,11 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset += 2;
 
 	pinfo->private_data = si;
+
+	/* tap the packet before the dissectors are called so we still get
+	   the tap listener called even if there is an exception.
+	*/
+	tap_queue_packet(smb_tap, pinfo, si);
         dissect_smb_command(tvb, pinfo, offset, tree, si->cmd, TRUE);
 
 	/* Append error info from this packet to info string. */
@@ -16106,8 +16111,6 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			}
 		}
 	}
-
-	tap_queue_packet(smb_tap, pinfo, si);
 }
 
 static gboolean
