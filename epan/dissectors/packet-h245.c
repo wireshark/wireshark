@@ -16365,7 +16365,7 @@ dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, int offset, packet_info *pin
   if (h245_pi != NULL) h245_pi->msg_type = H245_OpenLogChn;
 
   if (codec_str){
-        g_strlcpy(codec_str, codec_type, 50);
+        strncpy(codec_str, codec_type, 50);
   }
 
   return offset;
