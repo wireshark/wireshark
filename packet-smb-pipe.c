@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.c,v 1.2 2000/02/14 04:18:57 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.3 2000/02/19 12:13:52 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -92,7 +92,7 @@ struct lanman_desc lmd[] = {
   {0, "NetShareEnum", lm_params_req_0, lm_null_params, lm_null_params, lm_null_params},
   {1, "NetShareGetInfo", lm_params_req_1, lm_null_params, lm_params_resp_1, lm_null_params},
   {13, "NetServerGetInfo", lm_params_req_13, lm_null_params, lm_null_params, lm_null_params},
-  {56, "NetGroupGetUser", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
+  {52, "NetGroupGetUsers", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
   {56, "NetUserGetInfo", lm_params_req_56, lm_null_params, lm_null_params, lm_null_params},
   {59, "NetUserGetGroups", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
   {63, "NetWkstaGetInfo", lm_null_params, lm_null_params, lm_null_params, lm_null_params},
