@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.25 1999/12/16 06:19:50 gram Exp $
+ * $Id: prefs.c,v 1.26 1999/12/29 05:53:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,6 +62,8 @@ static void   clear_string_list(GList *);
 
 static int init_prefs = 1;
 static gchar *pf_path = NULL;
+
+e_prefs prefs;
 
 /* Parse through a list of comma-separated, quoted strings.  Return a
    list of the string data */

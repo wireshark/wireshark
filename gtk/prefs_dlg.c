@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.5 1999/12/16 06:20:18 gram Exp $
+ * $Id: prefs_dlg.c,v 1.6 1999/12/29 05:53:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,8 +54,6 @@
 #include "stream_prefs.h"
 #include "gui_prefs.h"
 #include "util.h"
-
-e_prefs prefs;
 
 static void     prefs_main_ok_cb(GtkWidget *, gpointer);
 static void     prefs_main_save_cb(GtkWidget *, gpointer);
