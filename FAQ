@@ -28,6 +28,9 @@
    2.1 I downloaded the Win32 installer, but when I try to run it, I get
    an error.
 
+   2.2 When I try to download the WinPcap driver and library, I can't get
+   to the WinPcap Web site.
+
    Installing Ethereal:
 
    3.1 I installed an Ethereal RPM, but Ethereal doesn't seem to be
@@ -52,6 +55,9 @@
    followed by linker errors. 
 
    4.5 The link fails on Solaris because plugin_list is undefined. 
+
+   4.6 The build fails on Windows because of conflicts between winsock.h
+   and winsock2.h. 
 
    Using Ethereal:
 
@@ -81,22 +87,22 @@
    5.8 I'm running Ethereal on Linux; why do my time stamps have only
    100ms resolution, rather than 1us resolution?
 
-   5.9 When I try to run Ethereal on Windows, it fails to run because it
+   5.9 I'm capturing packets on {Windows 95, Windows 98, Windows Me}; why
+   are the time stamps on packets wrong? 
+
+   5.10 When I try to run Ethereal on Windows, it fails to run because it
    can't find packet.dll.
 
-   5.10 When I try to download the WinPcap driver and library, I can't
-   get to the WinPcap Web site.
+   5.11 Why does some network interface on my machine not show up in the
+   list of interfaces in the "Interface:" field in the dialog box popped
+   up by "Capture->Start", and/or why does Ethereal give me an error if I
+   try to capture on that interface? 
 
-   5.11 I have an XXX network card on my machine; it doesn't show up in
-   the list of interfaces in the "Interface:" field in the dialog box
-   popped up by "Capture->Start", and/or Ethereal gives me an error if I
-   try to capture on that interface. 
-
-   5.12 I'm running Ethereal on Windows NT/2000/XP/.NET Server; my
-   machine has a PPP (dial-up POTS, ISDN, etc.) interface, and it shows
-   up in the "Interface" item in the "Capture Options" dialog box. Why
-   can no packets be sent on or received from that network while I'm
-   trying to capture traffic on that interface?
+   5.12 I'm running Ethereal on Windows NT/2000/XP/Server; my machine has
+   a PPP (dial-up POTS, ISDN, etc.) interface, and it shows up in the
+   "Interface" item in the "Capture Options" dialog box. Why can no
+   packets be sent on or received from that network while I'm trying to
+   capture traffic on that interface?
 
    5.13 I'm running Ethereal on Windows 95/98/Me, on a machine with more
    than one network adapter of the same type; Ethereal shows all of those
@@ -116,16 +122,16 @@
    5.18 Why doesn't Ethereal correctly identify RTP packets? It shows
    them only as UDP.
 
-   5.19 Why do I get the error 
+   5.19 Why doesn't Ethereal show Yahoo Messenger packets in captures
+   that contain Yahoo Messenger traffic?
+
+   5.20 Why do I get the error 
 
      Gdk-ERROR **: Palettized display (256-colour) mode not supported on
      Windows.
      aborting....
 
    when I try to run Ethereal on Windows?
-
-   5.20 I'm capturing packets on {Windows 95, Windows 98, Windows Me};
-   why are the time stamps on packets wrong? 
 
    5.21 When I capture on Windows in promiscuous mode, I can see packets
    other than those sent to or from my machine; however, those packets
@@ -142,6 +148,9 @@
 
    5.25 Ethereal hangs after I stop a capture. 
 
+   5.26 How can I search for, or filter, packets that have a particular
+   string anywhere in them? 
+
    GENERAL QUESTIONS 
    Q 1.1: Where can I get help?
 
@@ -151,26 +160,28 @@
 
    Q 1.2: What protocols are currently supported?
 
-   A: There are currently 325 supported protocols and media, listed
+   A: There are currently 340 supported protocols and media, listed
    below. Descriptions can be found in the ethereal(1) man page.
 
             802.1q Virtual LAN
             802.1x Authentication
-            Address Resolution Protocol
+            AFS (4.0) Replication Server call declarations
+            AOL Instant Messenger
+            ARCNET
+            ATM
+            ATM LAN Emulation
+            AVS WLAN Capture header
             Ad hoc On-demand Distance Vector Routing Protocol
             Ad hoc On-demand Distance Vector Routing Protocol v6
-            AFS (4.0) Replication Server call declarations
+            Address Resolution Protocol
             Aggregate Server Access Protocol
             Andrew File System (AFS)
-            AOL Instant Messenger
             Apache JServ Protocol v1.3
-            Appletalk Address Resolution Protocol
             AppleTalk Filing Protocol
             AppleTalk Session Protocol
             AppleTalk Transaction Protocol packet
+            Appletalk Address Resolution Protocol
             Async data over ISDN (V.120)
-            ATM
-            ATM LAN Emulation
             Authentication Header
             BACnet Virtual Link Control
             Banyan Vines
@@ -183,50 +194,54 @@
             Building Automation and Control Network APDU
             Building Automation and Control Network NPDU
             CDS Clerk Server Calls
-            Checkpoint FW-1
             Check Point High Availability Protocol
+            Checkpoint FW-1
             Cisco Auto-RP
             Cisco Discovery Protocol
             Cisco Group Management Protocol
             Cisco HDLC
             Cisco Hot Standby Router Protocol
-            Cisco Interior Gateway Routing Protocol
             Cisco ISL
+            Cisco Interior Gateway Routing Protocol
             Cisco NetFlow
             Cisco SLARP
+            Clearcase NFS
+            CoSine IPNOS L2 debug output
             Common Open Policy Service
             Common Unix Printing System (CUPS) Browsing Protocol
-            CoSine IPNOS L2 debug output
-            Data
-            Datagram Delivery Protocol
-            Data Link SWitching
-            Data Stream Interface
             DCE DFS Calls
+            DCE Distributed Time Service Local Server
+            DCE Distributed Time Service Provider
             DCE Name Service
             DCE RPC
+            DCE Security ID Mapper
             DCE/RPC BOS Server
             DCE/RPC CDS Solicitation
             DCE/RPC Conversation Manager
             DCE/RPC Endpoint Mapper
             DCE/RPC FLDB
-            DCE/RPC FLDB
             DCE/RPC FLDB UBIK TRANSFER
+            DCE/RPC FLDB UBIKVOTE
             DCE/RPC Kerberos V
-            DCE/RPC Remote Management
-            DCE/RPC Repserver Calls
             DCE/RPC RS_ACCT
             DCE/RPC RS_MISC
             DCE/RPC RS_UNIX
+            DCE/RPC Remote Management
+            DCE/RPC Repserver Calls
             DCE/RPC TokenServer Calls
-            DCE Security ID Mapper
+            DCE/RPC UpServer
             DCOM OXID Resolver
             DCOM Remote Activation
             DEC Spanning Tree Protocol
             DHCPv6
+            DNS Control Program Server
+            Data
+            Data Link SWitching
+            Data Stream Interface
+            Datagram Delivery Protocol
             Diameter Protocol
             Distance Vector Multicast Routing Protocol
             Distributed Checksum Clearinghouse Prototocl
-            DNS Control Program Server
             Domain Name Service
             Dummy Protocol
             Dynamic DNS Tools Protocol
@@ -234,28 +249,47 @@
             Enhanced Interior Gateway Routing Protocol
             Ethernet
             Extensible Authentication Protocol
+            FC Extended Link Svc
+            FCIP
+            FTP Data
+            FTServer Operations
             Fiber Distributed Data Interface
+            Fibre Channel
+            Fibre Channel Protocol for SCSI
+            Fibre Channel SW_ILS
             File Transfer Protocol (FTP)
             Financial Information eXchange Protocol
             Frame
             Frame Relay
-            FTP Data
-            FTServer Operations
             GARP Multicast Registration Protocol
             GARP VLAN Registration Protocol
+            GPRS Tunneling Protocol
+            GPRS Tunnelling Protocol v0
+            GPRS Tunnelling Protocol v1
             General Inter-ORB Protocol
             Generic Routing Encapsulation
             Generic Security Service Application Program Interface
             Gnutella Protocol
-            GPRS Tunneling Protocol
-            GPRS Tunnelling Protocol v0
-            GPRS Tunnelling Protocol v1
             Hummingbird NFS Daemon
+            HyperSCSI
             Hypertext Transfer Protocol
             ICQ Protocol
             IEEE 802.11 wireless LAN
             IEEE 802.11 wireless LAN management frame
             ILMI
+            IP Over FC
+            IP Payload Compression
+            IPX Message
+            IPX Routing Information Protocol
+            ISDN
+            ISDN Q.921-User Adaptation Layer
+            ISDN User Part
+            ISO 10589 ISIS InTRA Domain Routeing Information Exchange Protocol
+            ISO 8073 COTP Connection-Oriented Transport Protocol
+            ISO 8473 CLNP ConnectionLess Network Protocol
+            ISO 8602 CLTP ConnectionLess Transport Protocol
+            ISO 9542 ESIS Routeing Information Exchange Protocol
+            ITU-T Recommendation H.261
             Inter-Access-Point Protocol
             Interbase
             Internet Cache Protocol
@@ -270,18 +304,6 @@
             Internet Relay Chat
             Internet Security Association and Key Management Protocol
             Internetwork Packet eXchange
-            IP Payload Compression
-            IPX Message
-            IPX Routing Information Protocol
-            iSCSI
-            ISDN Q.921-User Adaptation Layer
-            ISDN User Part
-            ISO 10589 ISIS InTRA Domain Routeing Information Exchange Protocol
-            ISO 8073 COTP Connection-Oriented Transport Protocol
-            ISO 8473 CLNP ConnectionLess Network Protocol
-            ISO 8602 CLTP ConnectionLess Transport Protocol
-            ISO 9542 ESIS Routeing Information Exchange Protocol
-            ITU-T Recommendation H.261
             Java RMI
             Java Serialization
             Kerberos
@@ -290,8 +312,8 @@
             Layer 2 Tunneling Protocol
             Lightweight Directory Access Protocol
             Line Printer Daemon Protocol
-            Link Access Procedure Balanced Ethernet (LAPBETHER)
             Link Access Procedure Balanced (LAPB)
+            Link Access Procedure Balanced Ethernet (LAPBETHER)
             Link Access Procedure, Channel D (LAPD)
             Link Aggregation Control Protocol
             Link Management Protocol (LMP)
@@ -300,11 +322,19 @@
             LocalTalk Link Access Protocol
             Logical-Link Control
             Lucent/Ascend debug output
+            MMS Message Encapsulation
+            MS Proxy Protocol
+            MSNIP: Multicast Source Notification of Interest Protocol
+            MTP 2 Transparent Proxy
+            MTP 2 User Adaptation Layer
+            MTP 3 User Adaptation Layer
+            MTP2 Peer Adaptation Layer
             Message Transfer Part Level 2
             Message Transfer Part Level 3
             Microsoft Distributed File System
             Microsoft Exchange MAPI
             Microsoft Local Security Architecture
+            Microsoft Local Security Architecture (Directory Services)
             Microsoft Network Logon
             Microsoft Registry
             Microsoft Security Account Manager
@@ -315,26 +345,25 @@
             Microsoft Windows Lanman Remote API Protocol
             Microsoft Windows Logon Protocol
             Microsoft Workstation Service
-            MMS Message Encapsulation
             Mobile IP
             Modbus/TCP
             Mount Service
-            MSNIP: Multicast Source Notification of Interest Protocol
-            MS Proxy Protocol
-            MTP2 Peer Adaptation Layer
-            MTP 2 Transparent Proxy
-            MTP 2 User Adaptation Layer
-            MTP 3 User Adaptation Layer
+            MultiProtocol Label Switching Header
             Multicast Router DISCovery protocol
             Multicast Source Discovery Protocol
-            MultiProtocol Label Switching Header
+            NFSACL
+            NFSAUTH
+            NIS+
+            NIS+ Callback
+            NSPI
+            NTLM Secure Service Provider
             Name Binding Protocol
             Name Management Protocol over IPX
             NetBIOS
             NetBIOS Datagram Service
             NetBIOS Name Service
-            NetBIOS over IPX
             NetBIOS Session Service
+            NetBIOS over IPX
             NetWare Core Protocol
             Network Data Management Protocol
             Network File System
@@ -343,76 +372,81 @@
             Network Status Monitor CallBack Protocol
             Network Status Monitor Protocol
             Network Time Protocol
-            NFSACL
-            NFSAUTH
-            NIS+
-            NIS+ Callback
             Novell Distributed Print System
-            NSPI
-            NTLM Secure Service Provider
             Null/Loopback
-            OpenBSD Packet Filter log file
             Open Shortest Path First
+            OpenBSD Packet Filter log file
             PC NFS
-            Point-to-Point Protocol
-            Point-to-Point Tunnelling Protocol
-            Portmap
-            Post Office Protocol
             PPP Bandwidth Allocation Control Protocol
             PPP Bandwidth Allocation Protocol
-            PPP Callback Control Protocol
             PPP CDP Control Protocol
+            PPP Callback Control Protocol
             PPP Challenge Handshake Authentication Protocol
             PPP Compressed Datagram
             PPP Compression Control Protocol
             PPP IP Control Protocol
+            PPP IPv6 Control Protocol
             PPP Link Control Protocol
             PPP MPLS Control Protocol
             PPP Multilink Protocol
             PPP Multiplexing
-            PPPMux Control Protocol
-            PPP-over-Ethernet Discovery
-            PPP-over-Ethernet Session
             PPP Password Authentication Protocol
             PPP VJ Compression
+            PPP-over-Ethernet Discovery
+            PPP-over-Ethernet Session
+            PPPMux Control Protocol
+            Point-to-Point Protocol
+            Point-to-Point Tunnelling Protocol
+            Portmap
+            Post Office Protocol
             Pragmatic General Multicast
             Prism
             Privilege Server operations
             Protocol Independent Multicast
             Q.2931
             Q.931
-            Quake III Arena Network Protocol
             Quake II Network Protocol
+            Quake III Arena Network Protocol
             Quake Network Protocol
             QuakeWorld Network Protocol
             Qualified Logical Link Control
+            RFC 2250 MPEG1
+            RIPng
+            RPC Browser
+            RSTAT
+            RX Protocol
             Radio Access Network Application Part
             Radius Protocol
             Raw packet data
             Real Time Streaming Protocol
-            Real-time Transport Control Protocol
             Real-Time Transport Protocol
-            Registry server administration operations.
+            Real-time Transport Control Protocol
             Registry Server Attributes Manipulation Interface
+            Registry server administration operations.
             Remote Override interface
             Remote Procedure Call
+            Remote Program Load
             Remote Quota
-            Remote sec_login preauth interface.
             Remote Shell
             Remote Wall protocol
+            Remote sec_login preauth interface.
             Resource ReserVation Protocol (RSVP)
-            RFC 2250 MPEG1
-            RIPng
             Rlogin Protocol
             Routing Information Protocol
             Routing Table Maintenance Protocol
-            RPC Browser
-            RSTAT
-            RX Protocol
             SADMIND
             SCSI
+            SGI Mount Service
+            SMB (Server Message Block Protocol)
+            SMB MailSlot Protocol
+            SMB Pipe Protocol
+            SNA-over-Ethernet
+            SNMP Multiplex Protocol
+            SPNEGO-KRB5
+            SPRAY
+            SS7 SCCP-User Adaptation Layer
+            SSCOP
             Secure Socket Layer
-            Sequenced Packet eXchange
             Sequenced Packet eXchange
             Service Advertisement Protocol
             Service Location Protocol
@@ -427,32 +461,21 @@
             Sinec H1 Protocol
             Skinny Client Control Protocol
             SliMP3 Communication Protocol
-            SMB MailSlot Protocol
-            SMB Pipe Protocol
-            SMB (Server Message Block Protocol)
-            SNA-over-Ethernet
-            SNMP Multiplex Protocol
             Socks Protocol
             Spanning Tree Protocol
             Spnego
-            SPNEGO-KRB5
-            SPRAY
-            SS7 SCCP-User Adaptation Layer
-            SSCOP
             Stream Control Transmission Protocol
             Syslog message
             Systems Network Architecture
-            Tabular Data Stream
             TACACS
             TACACS+
+            TPKT
+            Tabular Data Stream
             Telnet
             Time Protocol
-            Time Service Provider Interfacer
-            Time Service Provider Interfacer
             Time Synchronization Protocol
             Token-Ring
             Token-Ring Media Access Control
-            TPKT
             Transmission Control Protocol
             Transparent Network Substrate Protocol
             Trivial File Transfer Protocol
@@ -467,10 +490,10 @@
             Wireless Session Protocol
             Wireless Transaction Protocol
             Wireless Transport Layer Security
-            X11
+            X Display Manager Control Protocol
             X.25
             X.25 over TCP
-            X Display Manager Control Protocol
+            X11
             Xyplex
             Yahoo Messenger Protocol
             Yellow Pages Bind
@@ -479,6 +502,7 @@
             Yellow Pages Transfer
             Zebra Protocol
             Zone Information Protocol
+            iSCSI
 
    Q 1.3: Are there any plans to support {your favorite protocol}?
 
@@ -518,24 +542,39 @@
    so), 802.11 wireless LAN (if the OS on which it's running allows
    Ethereal to do so), ATM connections (if the OS on which it's running
    allows Ethereal to do so), and the "any" device supported on Linux by
-   recent versions of libpcap. It can also read a variety of capture file
-   formats, including:
+   recent versions of libpcap. See the list of supported capture media on
+   various OSes for details (several items in there say "Unknown", which
+   doesn't mean "Ethereal can't capture on them", it means "we don't know
+   whether it can capture on them"; we expect that it will be able to
+   capture on many of them, but we haven't tried it ourselves - if you
+   try one of those types and it works, please send an update to
+   ethereal-web[AT]ethereal.com).
+
+   It can also read a variety of capture file formats, including:
      * libpcap/tcpdump
-     * snoop
-     * Shomiti
+     * Sun snoop/atmsnoop
+     * Shomiti/Finisar Surveyor
      * LanAlyzer
-     * Sniffer (compressed and uncompressed)
+     * DOS-based Sniffer (compressed and uncompressed)
      * MS Network Monitor
      * AIX iptrace
-     * NetXray
-     * Sniffer Pro
-     * RADCOM
+     * NetXray and Windows-based Sniffer
+     * EtherPeek/TokenPeek/AiroPeek
+     * RADCOM WAN/LAN analyzer
      * Lucent/Ascend debug output
      * Toshiba ISDN router "snoop" output
      * HPUX nettl
      * ISDN4BSD "i4btrace" utility.
      * Cisco Secure IDS
      * pppd log files (pppdump format)
+     * VMS TCPIPtrace
+     * DBS Etherwatch
+     * Visual Networks' Visual UpTime
+     * CoSine L2 debug
+
+   so that it can read traces from various network types, as captured by
+   other applications or equipment, even if it cannot itself capture on
+   those network types.
 
    Q 1.6: How do you pronounce Ethereal? Where did the name come from?
 
@@ -554,11 +593,27 @@
    get an error.
 
    A: The program you used to download it may have downloaded it
-   incorrectly. Web browsers sometimes may do this; try downloading it
-   with, for example, WS_FTP from Ipswitch, or with the ftp command that
-   comes with Windows - if you use the ftp command, make sure you do the
-   transfer in binary mode rather than ASCII mode, by using the binary
-   command before transferring the file.
+   incorrectly. Web browsers sometimes may do this.
+
+   Try downloading it with, for example:
+     * Wget, for which Windows binaries are available on the SunSITE FTP
+       server at sunsite.tk or Heiko Herold's windows wget spot - wGetGUI
+       offers a GUI interface that uses wget;
+     * WS_FTP from Ipswitch,
+     * the ftp command that comes with Windows.
+
+   If you use the ftp command, make sure you do the transfer in binary
+   mode rather than ASCII mode, by using the binary command before
+   transferring the file.
+
+   Q 2.2: When I try to download the WinPcap driver and library, I can't
+   get to the WinPcap Web site.
+
+   A: As is the case with all Web sites, that site won't necessarily
+   always be accessible; the server may be down due to a problem or down
+   for maintenance, or there may be a networking problem between you and
+   the server. You should try again later, or try the local mirror or the
+   Wiretapped.net mirror.
 
    INSTALLING ETHEREAL 
    Q 3.1: I installed an Ethereal RPM, but Ethereal doesn't seem to be
@@ -645,6 +700,22 @@
    persists, un-install them and try installing one of the other versions
    mentioned.)
 
+   Q 4.6: The build fails on Windows because of conflicts between
+   winsock.h and winsock2.h. 
+
+   A: As of Ethereal 0.9.5, you must install WinPcap 2.3 or later, and
+   the corresponding version of the developer's pack, in order to be able
+   to compile Ethereal; it will not compile with older versions of the
+   developer's pack. The symptoms of this failure are conflicts between
+   definitions in winsock.h and in winsock2.h; Ethereal uses winsock2.h,
+   but pre-2.3 versions of the WinPcap developer's packet use winsock.h.
+   (2.3 uses winsock2.h, so if Ethereal were to use winsock.h, it would
+   not be able to build with current versions of the WinPcap developer's
+   pack.)
+
+   Note that the installed version of the developer's pack should be the
+   same version as the version of WinPcap you have installed.
+
    USING ETHEREAL 
    Q 5.1: When I use Ethereal to capture packets, I see only packets to
    and from my machine, or I'm not seeing all the traffic I'm expecting
@@ -671,8 +742,10 @@
    port to sniff all traffic. You would have to check the documentation
    for the switch to see if this is possible and, if so, to see how to do
    this. See, for example, this documentation from Cisco on the Switched
-   Port Analyzer (SPAN) feature on Catalyst switches. If your machine is
-   not plugged into a switched network, or it is and the port is set up
+   Port Analyzer (SPAN) feature on Catalyst switches.
+
+   If your machine is not plugged into a switched network or a dual-speed
+   hub, or it is plugged into a switched network but the port is set up
    to have all traffic replicated to it, the problem might be that the
    network interface on which you're capturing doesn't support
    "promiscuous" mode, or because your OS can't put the interface into
@@ -684,9 +757,14 @@
        configured the interface to accept.
 
    Most network interfaces can also be put in "promiscuous" mode, in
-   which they supply to the host all network packets they see. However,
-   some network interfaces don't support promiscuous mode, and some OSes
-   might not allow interfaces to be put into promiscuous mode.
+   which they supply to the host all network packets they see. Ethereal
+   will try to put the interface on which it's capturing into promiscuous
+   mode unless the "Capture packets in promiscuous mode" option is turned
+   off in the "Capture Options" dialog box, and Tethereal will try to put
+   the interface on which it's capturing into promiscuous mode unless the
+   -p option was specified. However, some network interfaces don't
+   support promiscuous mode, and some OSes might not allow interfaces to
+   be put into promiscuous mode.
 
    If the interface is not running in promiscuous mode, it won't see any
    traffic that isn't intended to be seen by your machine. It will see
@@ -845,7 +923,16 @@
    have to run a standard kernel from kernel.org in order to get
    high-resolution time stamps.
 
-   Q 5.9: When I try to run Ethereal on Windows, it fails to run because
+   Q 5.9: I'm capturing packets on {Windows 95, Windows 98, Windows Me};
+   why are the time stamps on packets wrong? 
+
+   A: This is due to a bug in WinPcap. The bug should be fixed in the
+   WinPcap 3.0 alpha release - note that it's an alpha release, so it may
+   be buggier than the current production release of WinPcap; please
+   report those bugs to the WinPcap developers, and help them try to
+   track down the problem, so that they can fix it for the final release.
+
+   Q 5.10: When I try to run Ethereal on Windows, it fails to run because
    it can't find packet.dll.
 
    A: In older versions of Ethereal, there were two binary distributions
@@ -862,19 +949,10 @@
    Web site, the local mirror of the WinPcap Web site, or the
    Wiretapped.net mirror of the WinPcap site.
 
-   Q 5.10: When I try to download the WinPcap driver and library, I can't
-   get to the WinPcap Web site.
-
-   A: As is the case with all Web sites, that site won't necessarily
-   always be accessible; the server may be down due to a problem or down
-   for maintenance, or there may be a networking problem between you and
-   the server. You should try again later, or try the local mirror or the
-   Wiretapped.net mirror.
-
-   Q 5.11: I have an XXX network card on my machine; it doesn't show up
-   in the list of interfaces in the "Interface:" field in the dialog box
-   popped up by "Capture->Start", and/or Ethereal gives me an error if I
-   try to capture on that interface. 
+   Q 5.11: Why does some network interface on my machine not show up in
+   the list of interfaces in the "Interface:" field in the dialog box
+   popped up by "Capture->Start", and/or why does Ethereal give me an
+   error if I try to capture on that interface? 
 
    A: If you are running Ethereal on a UNIX-flavored platform, you may
    need to run Ethereal from an account with sufficient privileges to
@@ -884,7 +962,7 @@
    interfaces will show up in the list.
 
    If you are running Ethereal on Windows NT 4.0, Windows 2000, Windows
-   XP, or Windows .NET Server, and this is the first time you have run a
+   XP, or Windows Server, and this is the first time you have run a
    WinPcap-based program (such as Ethereal, or Tethereal, or WinDump, or
    Analyzer, or...) since the machine was rebooted, you need to run that
    program from an account with administrator privileges; once you have
@@ -893,7 +971,7 @@
 
    If you are running on a UNIX-flavored platform and have sufficient
    privileges, or if you are running on Windows 95/98/Me, or if you are
-   running on Windows NT 4.0/2000/XP/.NET Server and have administrator
+   running on Windows NT 4.0/2000/XP/Server and have administrator
    privileges or a WinPcap program has been run with those privileges
    since the machine rebooted, then note that Ethereal relies on the
    libpcap library, and on the facilities that come with the OS on which
@@ -929,16 +1007,18 @@
        version of WinPcap, and then install the latest version of
        Ethereal.
      * WinPcap doesn't support PPP WAN interfaces on Windows
-       NT/2000/XP/.NET Server, so Ethereal cannot capture packets on
-       those devices when running on Windows NT/2000/XP/.NET Server.
-       Regular dial-up lines, ISDN lines, and various other lines such as
-       T1/E1 lines are all PPP interfaces. This may cause the interface
-       not to show up on the list of interfaces in the "Capture Options"
-       dialog.
-     * WinPcap currently does not support multiprocessor machines, and
-       recent versions refuse to operate if they detect that they're
-       running on a multiprocessor machine, which means that they may not
-       show any network interfaces.
+       NT/2000/XP/Server, so Ethereal cannot capture packets on those
+       devices when running on Windows NT/2000/XP/Server. Regular dial-up
+       lines, ISDN lines, and various other lines such as T1/E1 lines are
+       all PPP interfaces. This may cause the interface not to show up on
+       the list of interfaces in the "Capture Options" dialog.
+     * WinPcap currently does not support multiprocessor machines (note
+       that machines with a single multi-threaded processor, such as
+       Intel's new multi-threaded x86 processors, are multiprocessor
+       machines as far as the OS and WinPcap are concerned), and recent
+       versions refuse to operate if they detect that they're running on
+       a multiprocessor machine, which means that they may not show any
+       network interfaces.
 
    If you are having trouble capturing on a particular network interface,
    and you've made sure that (on platforms that require it) you've
@@ -984,19 +1064,19 @@
    details of the problem, as described above, and also indicate that the
    problem occurs with tcpdump/WinDump, not just with Ethereal.
 
-   Q 5.12: I'm running Ethereal on Windows NT/2000/XP/.NET Server; my
-   machine has a PPP (dial-up POTS, ISDN, etc.) interface, and it shows
-   up in the "Interface" item in the "Capture Options" dialog box. Why
-   can no packets be sent on or received from that network while I'm
-   trying to capture traffic on that interface?
+   Q 5.12: I'm running Ethereal on Windows NT/2000/XP/Server; my machine
+   has a PPP (dial-up POTS, ISDN, etc.) interface, and it shows up in the
+   "Interface" item in the "Capture Options" dialog box. Why can no
+   packets be sent on or received from that network while I'm trying to
+   capture traffic on that interface?
 
    A: WinPcap doesn't support PPP WAN interfaces on Windows
-   NT/2000/XP/.NET Server; one symptom that may be seen is that attempts
-   to capture in promiscuous mode on the interface cause the interface to
-   be incapable of sending or receiving packets. You can disable
-   promiscuous mode using the -p command-line flag or the item in the
-   "Capture Preferences" dialog box, but this may mean that outgoing
-   packets, or incoming packets, won't be seen in the capture.
+   NT/2000/XP/Server; one symptom that may be seen is that attempts to
+   capture in promiscuous mode on the interface cause the interface to be
+   incapable of sending or receiving packets. You can disable promiscuous
+   mode using the -p command-line flag or the item in the "Capture
+   Preferences" dialog box, but this may mean that outgoing packets, or
+   incoming packets, won't be seen in the capture.
 
    Q 5.13: I'm running Ethereal on Windows 95/98/Me, on a machine with
    more than one network adapter of the same type; Ethereal shows all of
@@ -1082,7 +1162,20 @@
    both the source and destination ports of the packet should be
    dissected as some particular protocol.
 
-   Q 5.19: Why do I get the error 
+   Q 5.19: Why doesn't Ethereal show Yahoo Messenger packets in captures
+   that contain Yahoo Messenger traffic?
+
+   A: Ethereal only recognizes as Yahoo Messenger traffic packets to or
+   from TCP port 3050 that begin with "YPNS" or "YHOO". This means that
+    1. TCP segments that start with the middle of a Yahoo Messenger
+       packet that takes more than one TCP segment will not be recognized
+       as Yahoo Messenger packets (even if the TCP segment also contains
+       the beginning of another Yahoo Messenger packet);
+    2. Yahoo Messenger packets that begin with "YMSG", as packets for
+       some versions of the protocol apparently do, will not be
+       recognized as Yahoo Messenger packets.
+
+   Q 5.20: Why do I get the error 
 
      Gdk-ERROR **: Palettized display (256-colour) mode not supported on
      Windows.
@@ -1096,15 +1189,6 @@
    colors) or more. If your display supports more than 256 colors, switch
    to a display mode with more colors; if it doesn't support more than
    256 colors, you will be unable to run Ethereal.
-
-   Q 5.20: I'm capturing packets on {Windows 95, Windows 98, Windows Me};
-   why are the time stamps on packets wrong? 
-
-   A: This is due to a bug in WinPcap. The bug should be fixed in the
-   WinPcap 3.0 alpha release - note that it's an alpha release, so it may
-   be buggier than the current production release of WinPcap; please
-   report those bugs to the WinPcap developers, and help them try to
-   track down the problem, so that they can fix it for the final release.
 
    Q 5.21: When I capture on Windows in promiscuous mode, I can see
    packets other than those sent to or from my machine; however, those
@@ -1323,9 +1407,26 @@ echo "Mode: ess" >/proc/driver/aironet/ethN/Config
    contains sensitive information (e.g., passwords), then please do not
    send it.
 
+   Q 5.26: How can I search for, or filter, packets that have a
+   particular string anywhere in them? 
+
+   A: Currently, you can't.
+
+   That's a feature that would be hard to implement in capture filters
+   without changes to the capture filter code, which, on many platforms,
+   is in the OS kernel and, on other platforms, is in the libpcap
+   library.
+
+   It would be easier to implement in display filters, but it hasn't been
+   implemented yet. It would be best implemented as a display filter
+   "string match" operator, which would let you check not only the entire
+   packet for a string, but check portions of the packet for a string. It
+   should probably not use a naive string matching mechanism, as there
+   are mechanisms much faster than the naive one.
+
 
    Support can be found on the ethereal-users[AT]ethereal.com mailing
    list. 
    For corrections/additions/suggestions for this page, please send email
    to: ethereal-web[AT]ethereal.com
-   Last modified: Sun, November 17 2002.
+   Last modified: Thu, January 16 2003.
