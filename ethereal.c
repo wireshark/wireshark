@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.97 1999/08/20 04:41:31 guy Exp $
+ * $Id: ethereal.c,v 1.98 1999/08/20 19:43:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -193,11 +193,8 @@ void
 follow_stream_cb( GtkWidget *w, gpointer data ) {
   char      filename1[128+1];
   GtkWidget *streamwindow, *box, *text, *vscrollbar, *table;
-  GtkWidget *filter_te = NULL;
   int        tmp_fd;
-
-  if (w)
-  	filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
+  gchar     *old_dfilter;
 
   if( pi.ipproto == 6 ) {
     /* we got tcp so we can follow */
@@ -224,23 +221,20 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
       return;
     }
 
-    /* Delete any display filter we currently have. */
-    if( cf.dfilter != NULL ) {
-      /* get rid of this one */
-      g_free( cf.dfilter );
-      cf.dfilter = NULL;
-    }
+    /* Save any display filter we currently have. */
+    old_dfilter = cf.dfilter;
 
     /* Create a new filter that matches all packets in the TCP stream,
        and set the display filter entry accordingly */
     reset_tcp_reassembly();
     cf.dfilter = build_follow_filter( &pi );
-    if (filter_te)
-	    gtk_entry_set_text(GTK_ENTRY(filter_te), cf.dfilter);
+
     /* Run the display filter so it goes in effect. */
     filter_packets(&cf);
+
     /* the data_out_file should now be full of the streams information */
     fclose( data_out_file );
+
     /* the filename1 file now has all the text that was in the session */
     streamwindow = gtk_window_new( GTK_WINDOW_TOPLEVEL);
     gtk_widget_set_name( streamwindow, "TCP stream window" );
@@ -257,15 +251,18 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
     }
     gtk_widget_set_usize( GTK_WIDGET(streamwindow), DEF_WIDTH, DEF_HEIGHT );
     gtk_container_border_width( GTK_CONTAINER(streamwindow), 2 );
+
     /* setup the container */
     box = gtk_vbox_new( FALSE, 0 );
     gtk_container_add( GTK_CONTAINER(streamwindow), box );
     gtk_widget_show( box );
+
     /* set up the table we attach to */
     table = gtk_table_new( 1, 2, FALSE );
     gtk_table_set_col_spacing( GTK_TABLE(table), 0, 2);
     gtk_box_pack_start( GTK_BOX(box), table, TRUE, TRUE, 0 );
     gtk_widget_show( table );
+
     /* create a text box */
     text = gtk_text_new( NULL, NULL );
     gtk_text_set_editable( GTK_TEXT(text), FALSE);
@@ -273,12 +270,14 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
 		      GTK_EXPAND | GTK_SHRINK | GTK_FILL,
 		      GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0 );
     gtk_widget_show(text);
+
     /* create the scrollbar */
     vscrollbar = gtk_vscrollbar_new( GTK_TEXT(text)->vadj );
     gtk_table_attach( GTK_TABLE(table), vscrollbar, 1, 2, 0, 1,
 		      GTK_FILL, GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0 );
     gtk_widget_show( vscrollbar );
     gtk_widget_realize( text );
+
     /* stop the updates while we fill the text box */
     gtk_text_freeze( GTK_TEXT(text) );
     data_out_file = fopen( filename1, "r" );
@@ -307,8 +306,9 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
     gtk_widget_show( streamwindow );
     if( cf.dfilter != NULL ) {
       g_free( cf.dfilter );
-      cf.dfilter = NULL;
     }
+    cf.dfilter = old_dfilter;
+    filter_packets(&cf);
   } else {
     simple_dialog(ESD_TYPE_WARN, NULL,
       "Error following stream.  Please make\n"
@@ -326,7 +326,6 @@ match_selected_cb(GtkWidget *w, gpointer data)
     int i;
     guint8 *c;
 
-    if (w)
     filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
 
     if (tree_selected_start<0) {
@@ -337,26 +336,12 @@ match_selected_cb(GtkWidget *w, gpointer data)
 	return;
     }
 
-/*    sprintf(buf, "("); ptr = buf+strlen(buf);
-    for (i=0, c=cf.pd+tree_selected_start; i+4<tree_selected_len; i+=4, c+=4) {
-	sprintf(ptr, "(frame[%d : 4]=0x%02X%02X%02X%02X) and ", 
-	       tree_selected_start+i, 
-	       *c,
-	       *(c+1),
-	       *(c+2),
-	       *(c+3));
-	ptr = buf+strlen(buf);
-    }*/
-
-    i = 0;
     c = cf.pd + tree_selected_start;
     ptr = buf;
 
-    sprintf(ptr, "frame[%d : %d] == ", 
-	   tree_selected_start+i, 
-	   tree_selected_len - i);
+    sprintf(ptr, "frame[%d : %d] == ", tree_selected_start, tree_selected_len);
     ptr = buf+strlen(buf);
-    /*for (;i<tree_selected_len; i++) {*/
+
     if (tree_selected_len == 1) {
         sprintf(ptr, "0x%02x", *c++);
     }
@@ -372,22 +357,18 @@ match_selected_cb(GtkWidget *w, gpointer data)
 	    }
     }
 
-    /*sprintf(ptr, "))");*/
     if( cf.dfilter != NULL ) {
       /* get rid of this one */
       g_free( cf.dfilter );
-      cf.dfilter = NULL;
     }
     /* create a new one and set the display filter entry accordingly */
     cf.dfilter = buf;
-    if (filter_te)
+    if (filter_te) {
 	gtk_entry_set_text(GTK_ENTRY(filter_te), cf.dfilter);
+	printf("set text to %s\n", cf.dfilter);
+    }
     /* Run the display filter so it goes in effect. */
     filter_packets(&cf);
-    if( cf.dfilter != NULL ) {
-      g_free( cf.dfilter );
-      cf.dfilter = NULL;
-    }
 }
 
 /* Open a file */
@@ -1436,10 +1417,14 @@ main(int argc, char *argv[])
     GTK_SIGNAL_FUNC(filter_activate_cb), (gpointer) NULL);
   gtk_widget_show(filter_te);
 
+  /* Sets the text entry widget pointer as the E_DILTER_TE_KEY data
+   * of any widget that ends up calling a callback which needs
+   * that text entry pointer */
   set_menu_object_data("/File/Open...", E_DFILTER_TE_KEY, filter_te);
   set_menu_object_data("/File/Reload", E_DFILTER_TE_KEY, filter_te);
-  set_menu_object_data("/Tools/Follow TCP Stream", E_DFILTER_TE_KEY,
+  set_menu_object_data("/Display/Match Selected", E_DFILTER_TE_KEY,
     filter_te);
+
   info_bar = gtk_statusbar_new();
   main_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "main");
   file_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "file");
