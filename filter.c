@@ -1,7 +1,7 @@
 /* filter.c
  * Routines for managing filter sets
  *
- * $Id: filter.c,v 1.4 1998/10/10 03:32:07 gerald Exp $
+ * $Id: filter.c,v 1.5 1998/10/12 01:40:50 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,8 +39,7 @@
 #include "packet.h"
 #include "file.h"
 #include "menu.h"
-
-extern capture_file cf;
+#include "prefs.h"
 
 const gchar *fn_key     = "filter_name";
 const gchar *fl_key     = "filter_label";
@@ -182,9 +181,11 @@ filter_prefs_show() {
     gtk_widget_show(nl_item);
     gtk_object_set_data(GTK_OBJECT(nl_item), fl_key, nl_lb);
     gtk_object_set_data(GTK_OBJECT(nl_item), fn_key, flp);
-    if (cf.filter && filt->strval)
-      if (strcmp(cf.filter, filt->strval) == 0)
+/* 
+    if (cf.dfilter && filt->strval)
+      if (strcmp(cf.dfilter, filt->strval) == 0)
         l_select = nl_item;
+ */
     flp = flp->next;
   }
   
@@ -371,19 +372,15 @@ filter_prefs_ok(GtkWidget *w) {
   GList      *flp, *sl;
   GtkObject  *l_item;
   filter_def *filt;
+  GtkWidget  *mw_filt = gtk_object_get_data(GTK_OBJECT(w), E_FILT_TE_PTR_KEY);
 
-  if (cf.filter) {
-    g_free(cf.filter);
-    cf.filter = NULL;
-  }
-    
   sl = GTK_LIST(filter_l)->selection;
-  if (sl) {  /* Something was selected */
+  if (sl && mw_filt) {  /* Place something in the filter box. */
     l_item = GTK_OBJECT(sl->data);
     flp    = (GList *) gtk_object_get_data(l_item, fn_key);
     if (flp) {
       filt = (filter_def *) flp->data;
-      cf.filter = g_strdup(filt->strval);
+      gtk_entry_set_text(GTK_ENTRY(mw_filt), filt->strval);
     }
   }
 

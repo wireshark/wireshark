@@ -1,8 +1,8 @@
-# $Id: configure.in,v 1.6 1998/10/10 03:32:05 gerald Exp $
+# $Id: configure.in,v 1.7 1998/10/12 01:40:46 gerald Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
-AM_INIT_AUTOMAKE(ethereal, 0.3.18)
+AM_INIT_AUTOMAKE(ethereal, 0.4.0)
 
 dnl Check for CPU / vendor / OS
 AC_CANONICAL_HOST
@@ -44,8 +44,8 @@ AC_CHECK_HEADER(net/bpf.h,, AC_MSG_ERROR(Header file net/bpf.h not found.))
 AC_CHECK_LIB(pcap, pcap_open_offline,, AC_MSG_ERROR(Library libpcap not found.))
 
 dnl Checks for header files.
-# AC_HEADER_STDC
-# AC_CHECK_HEADERS(fcntl.h strings.h sys/ioctl.h sys/time.h unistd.h)
+AC_HEADER_STDC
+AC_CHECK_HEADERS(fcntl.h strings.h sys/ioctl.h sys/time.h unistd.h stdarg.h)
 
 AC_CHECK_HEADERS(sys/sockio.h sys/types.h netinet/in.h)
 
@@ -65,8 +65,14 @@ AC_CHECK_FUNC(socket,, AC_MSG_ERROR(Function 'socket' not found.))
 
 # If there's a system out there that has snprintf and _doesn't_ have vsnprintf,
 # then this won't work.
-AC_CHECK_FUNC(snprintf, SNPRINTF_C="" SNPRINTF_O="",
-	SNPRINTF_C="snprintf.c" SNPRINTF_O="snprintf.o" AC_DEFINE(NEED_SNPRINTF_H))
+SNPRINTF_C=""
+SNPRINTF_O=""
+AC_CHECK_FUNC(snprintf, SNPRINTF_O="",
+  SNPRINTF_O="snprintf.o" [AC_DEFINE(NEED_SNPRINTF_H)])
+if test "$ac_cv_func_snprintf" = no ; then
+  SNPRINTF_C="snprintf.c"
+  SNPRINTF_O="snprintf.o"
+fi
 AC_SUBST(SNPRINTF_C)
 AC_SUBST(SNPRINTF_O)
 

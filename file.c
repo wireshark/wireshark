@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.6 1998/10/10 03:32:06 gerald Exp $
+ * $Id: file.c,v 1.7 1998/10/12 01:40:48 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -120,9 +120,10 @@ open_cap_file(char *fname, capture_file *cf) {
       return 1;
     }
 
-    if (cf->filter) {
-      if (pcap_compile(cf->pfh, &cf->fcode, cf->filter, 1, 0) < 0) {
-        simple_dialog(ESD_TYPE_WARN, NULL, "Unable to parse filter string.");
+    if (cf->dfilter) {
+      if (pcap_compile(cf->pfh, &cf->fcode, cf->dfilter, 1, 0) < 0) {
+        simple_dialog(ESD_TYPE_WARN, NULL, "Unable to parse filter string"
+          "\"%s\".", cf->dfilter);
       } else if (pcap_setfilter(cf->pfh, &cf->fcode) < 0) {
         simple_dialog(ESD_TYPE_WARN, NULL, "Can't install filter.");
       }
@@ -197,7 +198,7 @@ close_cap_file(capture_file *cf, GtkWidget *w, guint context) {
 int
 load_cap_file(char *fname, capture_file *cf) {
   gchar  *name_ptr, *load_msg, *load_fmt = " Loading: %s...";
-  gchar  *done_fmt = " File: %s  Packets: %d  Drops: %d  Elapsed: %d.%06ds";
+  gchar  *done_fmt = " File: %s  Drops: %d";
   gchar  *err_fmt  = " Error: Could not load '%s'";
   gint    timeout;
   size_t  msg_len;
@@ -232,15 +233,15 @@ load_cap_file(char *fname, capture_file *cf) {
   gtk_statusbar_pop(GTK_STATUSBAR(info_bar), file_ctx);
 
   if (err == 0) {
-    msg_len = strlen(name_ptr) + strlen(load_fmt) + 64;
+    msg_len = strlen(name_ptr) + strlen(done_fmt) + 64;
     load_msg = g_realloc(load_msg, msg_len);
-    snprintf(load_msg, msg_len, done_fmt, name_ptr, cf->count, cf->drops,
-      cf->esec, cf->eusec);
+    snprintf(load_msg, msg_len, done_fmt, name_ptr, cf->count, cf->drops);
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
     g_free(load_msg);
 
     name_ptr[-1] = '\0';
     set_menu_sensitivity("<Main>/File/Close", TRUE);
+    set_menu_sensitivity("<Main>/File/Reload", TRUE);
   } else {
     msg_len = strlen(name_ptr) + strlen(err_fmt) + 2;
     load_msg = g_realloc(load_msg, msg_len);
@@ -248,6 +249,7 @@ load_cap_file(char *fname, capture_file *cf) {
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
     g_free(load_msg);
     set_menu_sensitivity("<Main>/File/Close", FALSE);
+    set_menu_sensitivity("<Main>/File/Reload", FALSE);
   }
 
   return err;

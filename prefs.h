@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.2 1998/10/10 03:32:18 gerald Exp $
+ * $Id: prefs.h,v 1.3 1998/10/12 01:40:55 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,7 +26,16 @@
 #ifndef __PREFS_H__
 #define __PREFS_H__
 
-void prefs_cb();
+#define E_PR_PG_NONE     -1
+#define E_PR_PG_PRINTING  0
+#define E_PR_PG_FILTER    1
+
+#define E_PRINT_PAGE_KEY  "printer_options_page"
+#define E_FILTER_PAGE_KEY "filter_options_page"
+
+#define E_FILT_TE_PTR_KEY "filter_te_ptr"
+
+void prefs_cb(GtkWidget *, gpointer);
 void prefs_main_ok_cb(GtkWidget *, gpointer);
 void prefs_main_save_cb(GtkWidget *, gpointer);
 void prefs_main_cancel_cb(GtkWidget *, gpointer);

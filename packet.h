@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.11 1998/10/10 03:32:17 gerald Exp $
+ * $Id: packet.h,v 1.12 1998/10/12 01:40:53 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -347,16 +347,18 @@ typedef struct _e_udphdr {
 gchar*     ether_to_str(guint8 *);
 gchar*     ip_to_str(guint8 *);
 void       packet_hex_print(GtkText *, guint8 *, gint, gint, gint);
+#define E_TREEINFO_START_KEY "tree_info_start"
+#define E_TREEINFO_LEN_KEY   "tree_info_len"
 #if __GNUC__ == 2
 GtkWidget* add_item_to_tree(GtkWidget *, gint, gint, gchar *, ...)
     __attribute__((format (printf, 4, 5)));
 #else
 GtkWidget* add_item_to_tree(GtkWidget *, gint, gint, gchar *, ...);
 #endif
-void       decode_start_len(GtkTreeItem *, gint*, gint*);
 gchar*     match_strval(guint32, value_string*, gint);
 
 /* Routines in packet.c */
+
 void dissect_packet(const u_char *, guint32 ts_secs, guint32 ts_usecs,
   frame_data *, GtkTree *);
 void add_subtree(GtkWidget *, GtkWidget*, gint);

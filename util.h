@@ -1,7 +1,7 @@
 /* util.h
  * Utility definitions
  *
- * $Id: util.h,v 1.3 1998/09/27 22:12:46 gerald Exp $
+ * $Id: util.h,v 1.4 1998/10/12 01:40:57 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,7 +39,13 @@ extern "C" {
 #define ESD_BTN_OK     0
 #define ESD_BTN_CANCEL 1
 
-void simple_dialog(gint, gint *, gchar *);
+#if __GNUC__ == 2
+void simple_dialog(gint, gint *, gchar *, ...)
+    __attribute__((format (printf, 3, 4)));
+#else
+void simple_dialog(gint, gint *, gchar *, ...);
+#endif
+
 void simple_dialog_cancel_cb(GtkWidget *, gpointer);
 
 #ifdef __cplusplus

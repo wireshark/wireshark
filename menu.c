@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.6 1998/10/10 03:32:09 gerald Exp $
+ * $Id: menu.c,v 1.7 1998/10/12 01:40:51 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,6 +61,7 @@ static GtkMenuEntry menu_items[] =
   {"<Main>/File/Close", "<control>W", file_close_cmd_cb, NULL},
   {"<Main>/File/Save", "<control>S", NULL, NULL},
   {"<Main>/File/Save as", NULL, NULL, NULL},
+  {"<Main>/File/Reload", "<control>R", file_reload_cmd_cb, NULL},
   {"<Main>/File/<separator>", NULL, NULL, NULL},
   {"<Main>/File/Print Packet", "<control>P", file_print_cmd_cb, NULL},
   {"<Main>/File/<separator>", NULL, NULL, NULL},
@@ -71,7 +72,7 @@ static GtkMenuEntry menu_items[] =
   {"<Main>/Edit/<separator>", NULL, NULL, NULL},
   {"<Main>/Edit/Find", "<control>F", NULL, NULL},
   {"<Main>/Edit/<separator>", NULL, NULL, NULL},
-  {"<Main>/Edit/Preferences", NULL, prefs_cb, NULL},
+  {"<Main>/Edit/Preferences", NULL, prefs_cb, (gpointer) E_PR_PG_NONE},
   {"<Main>/Tools/Capture", "<control>K", capture_prep_cb, NULL},
   {"<Main>/Tools/Follow TCP Stream", NULL, follow_stream_cb, NULL},
   {"<Main>/Tools/Graph", NULL, NULL, NULL},
@@ -113,6 +114,7 @@ menus_init(void) {
     set_menu_sensitivity("<Main>/File/Close", FALSE);
     set_menu_sensitivity("<Main>/File/Save", FALSE);
     set_menu_sensitivity("<Main>/File/Save as", FALSE);
+    set_menu_sensitivity("<Main>/File/Reload", FALSE);
     set_menu_sensitivity("<Main>/Edit/Cut", FALSE);
     set_menu_sensitivity("<Main>/Edit/Copy", FALSE);
     set_menu_sensitivity("<Main>/Edit/Paste", FALSE);
@@ -129,9 +131,16 @@ void
 set_menu_sensitivity (gchar *path, gint val) {
   GtkMenuPath *mp;
   
-  if ((mp = gtk_menu_factory_find(factory, path)) != NULL) {
+  if ((mp = gtk_menu_factory_find(factory, path)) != NULL)
     gtk_widget_set_sensitive(mp->widget, val);
-  }
+}
+
+void
+set_menu_object_data (gchar *path, gchar *key, gpointer data) {
+  GtkMenuPath *mp;
+  
+  if ((mp = gtk_menu_factory_find(factory, path)) != NULL)
+    gtk_object_set_data(GTK_OBJECT(mp->widget), key, data);
 }
 
 void

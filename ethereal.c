@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.4 1998/09/27 22:12:21 gerald Exp $
+ * $Id: ethereal.c,v 1.5 1998/10/12 01:40:47 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,12 +23,9 @@
  *
  *
  * To do:
- * - Add time stamps to packet list?
  * - Live browser/capture display
  * - Graphs
- * - Prefs dialog
  * - Get AIX to work
- * - Fix PPP support.
  * - Check for end of packet in dissect_* routines.
  * - Playback window
  * - Multiple window support
@@ -67,33 +64,37 @@
 #include "resolv.h"
 #include "follow.h"
 #include "util.h"
+#include "prefs.h"
 
 FILE        *data_out_file = NULL;
 packet_info  pi;
 capture_file cf;
 GtkWidget   *file_sel, *packet_list, *tree_view, *byte_view, *prog_bar,
-  *info_bar;
+            *info_bar;
 GdkFont     *m_r_font, *m_b_font;
 guint        main_ctx, file_ctx;
 frame_data  *fd;
 gint         start_capture = 0;
 
-const gchar *list_item_data_key = "list_item_data";
-
 extern pr_opts printer_opts;
 
 ts_type timestamp_type = RELATIVE;
 
+#define E_DFILTER_TE_KEY "display_filter_te"
+
 /* Things to do when the OK button is pressed */
 void
 file_sel_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
-  gchar  *cf_name;
-  int     err;
-  
+  gchar     *cf_name;
+  int        err;
+  GtkWidget *filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
+
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
   gtk_widget_hide(GTK_WIDGET (fs));
   gtk_widget_destroy(GTK_WIDGET (fs));
 
+  if (cf.dfilter) g_free(cf.dfilter);
+  cf.dfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
   if ((err = load_cap_file(cf_name, &cf)) == 0)
     chdir(cf_name);
   g_free(cf_name);
@@ -109,19 +110,22 @@ file_progress_cb(gpointer p) {
 
 /* Follow a TCP stream */
 void
-follow_stream_cb( GtkWidget *widget, gpointer data ) {
+follow_stream_cb( GtkWidget *w, gpointer data ) {
   char filename1[128];
   GtkWidget *streamwindow, *box, *text, *vscrollbar, *table;
+  GtkWidget *filter_te = gtk_object_get_data(GTK_OBJECT(w),
+    E_DFILTER_TE_KEY);
   if( pi.ipproto == 6 ) {
     /* we got tcp so we can follow */
     /* check to see if we are using a filter */
-    if( cf.filter != NULL ) {
+    if( cf.dfilter != NULL ) {
       /* get rid of this one */
-      g_free( cf.filter );
-      cf.filter = NULL;
+      g_free( cf.dfilter );
+      cf.dfilter = NULL;
     }
-    /* create a new one */
-    cf.filter = build_follow_filter( &pi );
+    /* create a new one and set the display filter entry accordingly */
+    cf.dfilter = build_follow_filter( &pi );
+    gtk_entry_set_text(GTK_ENTRY(filter_te), cf.dfilter);
     /* reload so it goes in effect. Also we set data_out_file which 
        tells the tcp code to output the data */
     close_cap_file( &cf, info_bar, file_ctx);
@@ -186,9 +190,9 @@ follow_stream_cb( GtkWidget *widget, gpointer data ) {
     gtk_text_thaw( GTK_TEXT(text) );
     data_out_file = NULL;
     gtk_widget_show( streamwindow );
-    if( cf.filter != NULL ) {
-      g_free( cf.filter );
-      cf.filter = NULL;
+    if( cf.dfilter != NULL ) {
+      g_free( cf.dfilter );
+      cf.dfilter = NULL;
     }
   } else {
     simple_dialog(ESD_TYPE_WARN, NULL,
@@ -199,12 +203,15 @@ follow_stream_cb( GtkWidget *widget, gpointer data ) {
 
 /* Open a file */
 void
-file_open_cmd_cb(GtkWidget *widget, gpointer data) {
+file_open_cmd_cb(GtkWidget *w, gpointer data) {
   file_sel = gtk_file_selection_new ("Ethereal: Open Capture File");
   
-  /* Connect the ok_button to file_ok_sel_cb function */
+  /* Connect the ok_button to file_ok_sel_cb function and pass along the
+     pointer to the filter entry */
   gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (file_sel)->ok_button),
     "clicked", (GtkSignalFunc) file_sel_ok_cb, file_sel );
+  gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_sel)->ok_button),
+    E_DFILTER_TE_KEY, gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY));
 
   /* Connect the cancel_button to destroy the widget */
   gtk_signal_connect_object(GTK_OBJECT (GTK_FILE_SELECTION
@@ -221,6 +228,17 @@ void
 file_close_cmd_cb(GtkWidget *widget, gpointer data) {
   close_cap_file(&cf, info_bar, file_ctx);
   set_menu_sensitivity("<Main>/File/Close", FALSE);
+  set_menu_sensitivity("<Main>/File/Reload", FALSE);
+}
+
+/* Reload a file using the current display filter */
+void
+file_reload_cmd_cb(GtkWidget *w, gpointer data) {
+  GtkWidget *filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
+
+  if (cf.dfilter) g_free(cf.dfilter);
+  cf.dfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
+  load_cap_file(cf.filename, &cf);
 }
 
 /* Print a packet */
@@ -264,12 +282,12 @@ packet_list_unselect_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
 void
 tree_view_cb(GtkWidget *w) {
   gint       start = -1, len = -1;
-  guint32    tinfo = 0;
 
   if (GTK_TREE(w)->selection) {
-    tinfo = (guint32) gtk_object_get_user_data(GTK_TREE(w)->selection->data);
-    start = (tinfo >> 16) & 0xffff;
-    len   = tinfo & 0xffff;
+    start = (gint) gtk_object_get_data(GTK_OBJECT(GTK_TREE(w)->selection->data),
+      E_TREEINFO_START_KEY);
+    len   = (gint) gtk_object_get_data(GTK_OBJECT(GTK_TREE(w)->selection->data),
+      E_TREEINFO_LEN_KEY);
   }
 
   gtk_text_freeze(GTK_TEXT(byte_view));
@@ -330,7 +348,7 @@ main(int argc, char *argv[])
   extern char         *optarg;
   GtkWidget           *window, *main_vbox, *menubar, *u_pane, *l_pane,
                       *bv_table, *bv_hscroll, *bv_vscroll, *stat_hbox, 
-                      *tv_scrollw;
+                      *tv_scrollw, *filter_bt, *filter_te;
   GtkStyle            *pl_style;
   GtkAcceleratorTable *accel;
   gint                 col_width, pl_size = 280, tv_size = 95, bv_size = 75;
@@ -344,7 +362,8 @@ main(int argc, char *argv[])
   cf.plist     = NULL;
   cf.pfh       = NULL;
   cf.fh        = NULL;
-  cf.filter    = NULL;
+  cf.dfilter   = NULL;
+  cf.cfilter   = NULL;
   cf.iface     = NULL;
   cf.save_file = NULL;
   cf.snap      = 68;
@@ -470,7 +489,9 @@ main(int argc, char *argv[])
 
   /* Panes for the packet list, tree, and byte view */
   u_pane = gtk_vpaned_new();
+  gtk_paned_gutter_size(GTK_PANED(u_pane), (GTK_PANED(u_pane))->handle_size);
   l_pane = gtk_vpaned_new();
+  gtk_paned_gutter_size(GTK_PANED(l_pane), (GTK_PANED(l_pane))->handle_size);
   gtk_container_add(GTK_CONTAINER(main_vbox), u_pane);
   gtk_widget_show(u_pane);
   gtk_paned_add2 (GTK_PANED(u_pane), l_pane);
@@ -545,15 +566,30 @@ main(int argc, char *argv[])
     GTK_FILL, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
   gtk_widget_show(bv_vscroll);
   
-  /* Progress/info box */
+  /* Progress/filter/info box */
   stat_hbox = gtk_hbox_new(FALSE, 1);
   gtk_container_border_width(GTK_CONTAINER(stat_hbox), 0);
   gtk_box_pack_start(GTK_BOX(main_vbox), stat_hbox, FALSE, TRUE, 0);
   gtk_widget_show(stat_hbox);
 
   prog_bar = gtk_progress_bar_new();  
-  gtk_box_pack_start(GTK_BOX(stat_hbox), prog_bar, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(stat_hbox), prog_bar, FALSE, TRUE, 3);
   gtk_widget_show(prog_bar);
+
+  filter_bt = gtk_button_new_with_label("Filter:");
+  gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
+    GTK_SIGNAL_FUNC(prefs_cb), (gpointer) E_PR_PG_FILTER);
+  gtk_box_pack_start(GTK_BOX(stat_hbox), filter_bt, FALSE, TRUE, 0);
+  gtk_widget_show(filter_bt);
+  
+  filter_te = gtk_entry_new();
+  gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
+  gtk_box_pack_start(GTK_BOX(stat_hbox), filter_te, TRUE, TRUE, 3);
+  gtk_widget_show(filter_te);
+  set_menu_object_data("<Main>/File/Open", E_DFILTER_TE_KEY, filter_te);
+  set_menu_object_data("<Main>/File/Reload", E_DFILTER_TE_KEY, filter_te);
+  set_menu_object_data("<Main>/Tools/Follow TCP Stream", E_DFILTER_TE_KEY,
+    filter_te);
 
   info_bar = gtk_statusbar_new();
   main_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "main");

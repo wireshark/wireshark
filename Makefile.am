@@ -59,8 +59,14 @@ ethereal_SOURCES = \
 	print.h        \
 	ps.h           \
 	resolv.h       \
-	snprintf.h     \
 	util.h
+
+EXTRA_ethereal_SOURCES = \
+	snprintf.c           \
+	snprintf.h
+
+ethereal_DEPENDENCIES = @SNPRINTF_O@
+ethereal_LDADD = @SNPRINTF_O@
 
 ps.c: print.ps rdps
 	./rdps print.ps ps.c
@@ -68,9 +74,6 @@ ps.c: print.ps rdps
 rdps: rdps.c
 	$(CC) -o rdps rdps.c
 
-EXTRA_ethereal_SOURCES = @SNPRINTF_C@
-ethereal_DEPENDENCIES = @SNPRINTF_O@
-LDADD = @SNPRINTF_O@
 DISTCLEANFILES = \
 	rdps \
 	ps.c
@@ -82,6 +85,4 @@ EXTRA_DIST =            \
 	image/icon-excl.xpm \
 	manuf               \
 	print.ps            \
-	rdps.c              \
-	snprintf.c
-
+	rdps.c

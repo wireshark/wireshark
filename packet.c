@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.5 1998/10/10 03:32:16 gerald Exp $
+ * $Id: packet.c,v 1.6 1998/10/12 01:40:53 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <ctype.h>
+#include <time.h>
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
@@ -153,16 +154,15 @@ add_item_to_tree(GtkWidget *tree, gint start, gint len,
   GtkWidget *ti;
   va_list    ap;
   gchar      label_str[256];
-  guint32    t_info;
   
   /* This limits us to a max packet size of 65535 bytes. */
   /* Are there any systems out there with < 32-bit pointers? */
   /* To do: use gtk_object_set_data instead, now that I know it exists. */
-  t_info = ((start & 0xffff) << 16) | (len & 0xffff);
   va_start(ap, format);
   vsnprintf(label_str, 256, format, ap);
   ti = gtk_tree_item_new_with_label(label_str);
-  gtk_object_set_user_data(GTK_OBJECT(ti), (gpointer) t_info);
+  gtk_object_set_data(GTK_OBJECT(ti), E_TREEINFO_START_KEY, (gpointer) start);
+  gtk_object_set_data(GTK_OBJECT(ti), E_TREEINFO_LEN_KEY, (gpointer) len);
   gtk_tree_append(GTK_TREE(tree), ti);
   gtk_widget_show(ti);
 
@@ -192,18 +192,6 @@ void
 collapse_tree(GtkWidget *w, gpointer data) {
   gint *val = (gint *) data;
   *val = 0;
-}
-
-/* decodes the protocol start and length thare are encoded into
-	the t_info field in add_item_to_tree. */
-void
-decode_start_len(GtkTreeItem *ti, gint *pstart, gint *plen)
-{
-	guint32		t_info;
-
-	t_info = (guint32) gtk_object_get_user_data(GTK_OBJECT(ti));
-	*pstart = t_info >> 16;
-	*plen =	t_info & 0xffff;
 }
 
 /* Tries to match val against each element in the value_string array vs.

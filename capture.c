@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.5 1998/10/10 03:32:02 gerald Exp $
+ * $Id: capture.c,v 1.6 1998/10/12 01:40:43 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,21 +54,26 @@
 #include "capture.h"
 #include "etypes.h"
 #include "util.h"
+#include "prefs.h"
 
 extern capture_file  cf;
 extern GtkWidget    *info_bar;
 extern guint         file_ctx;
 
 /* File selection data keys */
-const gchar *prep_fs_key = "prep_fs",
-            *prep_te_key = "prep_te";
+#define E_CAP_PREP_FS_KEY "cap_prep_fs"
+#define E_CAP_PREP_TE_KEY "cap_prep_te"
 
 /* Capture callback data keys */
-const gchar *cap_iface_key = "cap_iface",
-            *cap_file_key  = "cap_file",
-            *cap_count_key = "cap_count",
-            *cap_open_key  = "cap_open",
-            *cap_snap_key  = "cap_snap";
+#define E_CAP_IFACE_KEY "cap_iface"
+#define E_CAP_FILT_KEY  "cap_filter"
+#define E_CAP_FILE_KEY  "cap_file"
+#define E_CAP_COUNT_KEY "cap_count"
+#define E_CAP_OPEN_KEY  "cap_open"
+#define E_CAP_SNAP_KEY  "cap_snap"
+
+/* Capture filter key */
+#define E_CAP_FILT_TE_KEY "cap_filt_te"
 
 GList *
 get_interface_list() {
@@ -129,9 +134,10 @@ get_interface_list() {
 void
 capture_prep_cb(GtkWidget *w, gpointer d) {
   GtkWidget     *cap_open_w, *if_cb, *if_lb, *file_te, *file_bt,
-                *count_lb, *count_cb, *main_vb, *top_hb, *middle_hb,
-                *bottom_hb, *bbox, *ok_bt, *cancel_bt, *capfile_ck,
-                *snap_lb, *snap_sb;
+                *count_lb, *count_cb, *main_vb, *if_hb, *count_hb,
+                *filter_hb, *filter_bt, *filter_te, *file_hb, *caplen_hb,
+                *bbox, *ok_bt, *cancel_bt, *capfile_ck, *snap_lb,
+                *snap_sb;
   GtkAdjustment *adj;
   GList         *if_list, *count_list = NULL;
   gchar         *count_item1 = "0 (Infinite)", count_item2[16];
@@ -145,76 +151,102 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
   gtk_container_add(GTK_CONTAINER(cap_open_w), main_vb);
   gtk_widget_show(main_vb);
   
-  /* Top row: Interface and count selections */
-  top_hb = gtk_hbox_new(FALSE, 1);
-  gtk_container_add(GTK_CONTAINER(main_vb), top_hb);
-  gtk_widget_show(top_hb);
+  /* Interface row */
+  if_hb = gtk_hbox_new(FALSE, 3);
+  gtk_container_add(GTK_CONTAINER(main_vb), if_hb);
+  gtk_widget_show(if_hb);
   
   if_lb = gtk_label_new("Interface:");
-  gtk_box_pack_start(GTK_BOX(top_hb), if_lb, FALSE, FALSE, 3);
+  gtk_box_pack_start(GTK_BOX(if_hb), if_lb, FALSE, FALSE, 0);
   gtk_widget_show(if_lb);
   
   if_list = get_interface_list();
+  
   if_cb = gtk_combo_new();
   gtk_combo_set_popdown_strings(GTK_COMBO(if_cb), if_list);
   if (cf.iface)
     gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry), cf.iface);
   else if (if_list)
     gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry), if_list->data);
-  gtk_box_pack_start(GTK_BOX(top_hb), if_cb, FALSE, FALSE, 3);
+  gtk_box_pack_start(GTK_BOX(if_hb), if_cb, FALSE, FALSE, 0);
   gtk_widget_show(if_cb);
+  
   while (if_list) {
     g_free(if_list->data);
     if_list = g_list_remove_link(if_list, if_list);
   }
 
+  /* Count row */
+  count_hb = gtk_hbox_new(FALSE, 3);
+  gtk_container_add(GTK_CONTAINER(main_vb), count_hb);
+  gtk_widget_show(count_hb);
+  
+  count_lb = gtk_label_new("Count:");
+  gtk_box_pack_start(GTK_BOX(count_hb), count_lb, FALSE, FALSE, 0);
+  gtk_widget_show(count_lb);
+  
   if (cf.count) {
     snprintf(count_item2, 15, "%d", cf.count);
     count_list = g_list_append(count_list, count_item2);
   }
   count_list = g_list_append(count_list, count_item1);
+
   count_cb = gtk_combo_new();
   gtk_combo_set_popdown_strings(GTK_COMBO(count_cb), count_list);
-  gtk_box_pack_end(GTK_BOX(top_hb), count_cb, FALSE, FALSE, 3);
+  gtk_box_pack_start(GTK_BOX(count_hb), count_cb, FALSE, FALSE, 0);
   gtk_widget_show(count_cb);
+
   while (count_list)
     count_list = g_list_remove_link(count_list, count_list);
 
-  count_lb = gtk_label_new("Count:");
-  gtk_box_pack_end(GTK_BOX(top_hb), count_lb, FALSE, FALSE, 3);
-  gtk_widget_show(count_lb);
+  /* Filter row */
+  filter_hb = gtk_hbox_new(FALSE, 3);
+  gtk_container_add(GTK_CONTAINER(main_vb), filter_hb);
+  gtk_widget_show(filter_hb);
   
-  /* Middle row: File: button and text entry */
-  middle_hb = gtk_hbox_new(FALSE, 1);
-  gtk_container_add(GTK_CONTAINER(main_vb), middle_hb);
-  gtk_widget_show(middle_hb);
+  filter_bt = gtk_button_new_with_label("Filter:");
+  gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
+    GTK_SIGNAL_FUNC(prefs_cb), (gpointer) E_PR_PG_FILTER);
+  gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, TRUE, 0);
+  gtk_widget_show(filter_bt);
+  
+  filter_te = gtk_entry_new();
+  if (cf.cfilter) gtk_entry_set_text(GTK_ENTRY(filter_te), cf.cfilter);
+  gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
+  gtk_box_pack_start(GTK_BOX(filter_hb), filter_te, TRUE, TRUE, 0);
+  gtk_widget_show(filter_te);
+  
+  /* File row: File: button and text entry */
+  file_hb = gtk_hbox_new(FALSE, 3);
+  gtk_container_add(GTK_CONTAINER(main_vb), file_hb);
+  gtk_widget_show(file_hb);
   
   file_bt = gtk_button_new_with_label("File:");
-  gtk_box_pack_start(GTK_BOX(middle_hb), file_bt, FALSE, FALSE, 3);
+  gtk_box_pack_start(GTK_BOX(file_hb), file_bt, FALSE, FALSE, 0);
   gtk_widget_show(file_bt);
   
   file_te = gtk_entry_new();
   if (cf.save_file)
     gtk_entry_set_text(GTK_ENTRY(file_te), cf.save_file);
-  gtk_box_pack_start(GTK_BOX(middle_hb), file_te, TRUE, TRUE, 3);
+  gtk_box_pack_start(GTK_BOX(file_hb), file_te, TRUE, TRUE, 0);
   gtk_widget_show(file_te);
 
   gtk_signal_connect_object(GTK_OBJECT(file_bt), "clicked",
     GTK_SIGNAL_FUNC(capture_prep_file_cb), GTK_OBJECT(file_te));
 
-  /* Bottom row: Capture file checkbox and snap spinbutton */
-  bottom_hb = gtk_hbox_new(FALSE, 1);
-  gtk_container_add(GTK_CONTAINER(main_vb), bottom_hb);
-  gtk_widget_show(bottom_hb);
-  
+  /* Misc row: Capture file checkbox and snap spinbutton */
+  caplen_hb = gtk_hbox_new(FALSE, 3);
+  gtk_container_add(GTK_CONTAINER(main_vb), caplen_hb);
+  gtk_widget_show(caplen_hb);
+
   capfile_ck = gtk_check_button_new_with_label("Open file after capture");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(capfile_ck), TRUE);
-  gtk_box_pack_start(GTK_BOX(bottom_hb), capfile_ck, FALSE, FALSE, 3);
+  gtk_box_pack_start(GTK_BOX(caplen_hb), capfile_ck, FALSE, FALSE, 3);
   gtk_widget_show(capfile_ck);
-  
+
   snap_lb = gtk_label_new("Capture length");
   gtk_misc_set_alignment(GTK_MISC(snap_lb), 0, 0.5);
-  gtk_box_pack_start(GTK_BOX(bottom_hb), snap_lb, FALSE, FALSE, 6);
+  gtk_box_pack_start(GTK_BOX(caplen_hb), snap_lb, FALSE, FALSE, 6);
   gtk_widget_show(snap_lb);
 
   adj = (GtkAdjustment *) gtk_adjustment_new((float) cf.snap, 1.0, 4096.0,
@@ -222,35 +254,38 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
   snap_sb = gtk_spin_button_new (adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (snap_sb), TRUE);
   gtk_widget_set_usize (snap_sb, 80, 0);
-  gtk_box_pack_start (GTK_BOX(bottom_hb), snap_sb, FALSE, FALSE, 3); 
+  gtk_box_pack_start (GTK_BOX(caplen_hb), snap_sb, FALSE, FALSE, 3); 
   gtk_widget_show(snap_sb);
   
   /* Button row: OK and cancel buttons */
   bbox = gtk_hbutton_box_new();
   gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
+  gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
-  
+
   ok_bt = gtk_button_new_with_label ("OK");
   gtk_signal_connect_object(GTK_OBJECT(ok_bt), "clicked",
     GTK_SIGNAL_FUNC(capture_prep_ok_cb), GTK_OBJECT(cap_open_w));
-  gtk_container_add(GTK_CONTAINER(bbox), ok_bt);
-/*  GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
-  gtk_widget_grab_default(ok_bt);  */
+  GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
+  gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
+  gtk_widget_grab_default(ok_bt);
   gtk_widget_show(ok_bt);
 
   cancel_bt = gtk_button_new_with_label ("Cancel");
   gtk_signal_connect_object(GTK_OBJECT(cancel_bt), "clicked",
     GTK_SIGNAL_FUNC(capture_prep_close_cb), GTK_OBJECT(cap_open_w));
-  gtk_container_add(GTK_CONTAINER(bbox), cancel_bt);
+  GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
+  gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
   gtk_widget_show(cancel_bt);
 
   /* Attach pointers to needed widges to the capture prefs window/object */
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), cap_iface_key, if_cb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), cap_file_key,  file_te);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), cap_count_key, count_cb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), cap_open_key,  capfile_ck);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), cap_snap_key,  snap_sb);
+  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_IFACE_KEY, if_cb);
+  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_FILT_KEY,  filter_te);
+  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_FILE_KEY,  file_te);
+  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_COUNT_KEY, count_cb);
+  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_OPEN_KEY,  capfile_ck);
+  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_SNAP_KEY,  snap_sb);
   
   gtk_widget_show(cap_open_w);
 }
@@ -261,8 +296,8 @@ capture_prep_file_cb(GtkWidget *w, gpointer te) {
 
   fs = gtk_file_selection_new ("Ethereal: Open Save File");
 
-  gtk_object_set_data(GTK_OBJECT(w), prep_fs_key, fs);
-  gtk_object_set_data(GTK_OBJECT(w), prep_te_key, (GtkWidget *) te);
+  gtk_object_set_data(GTK_OBJECT(w), E_CAP_PREP_FS_KEY, fs);
+  gtk_object_set_data(GTK_OBJECT(w), E_CAP_PREP_TE_KEY, (GtkWidget *) te);
   
   gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION(fs)->ok_button),
     "clicked", (GtkSignalFunc) cap_prep_fs_ok_cb, w);
@@ -278,8 +313,8 @@ void
 cap_prep_fs_ok_cb(GtkWidget *w, gpointer data) {
   GtkWidget *fs, *te;
   
-  fs = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), prep_fs_key);
-  te = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), prep_te_key);
+  fs = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_PREP_FS_KEY);
+  te = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_PREP_TE_KEY);
 
   gtk_entry_set_text(GTK_ENTRY(te),
     gtk_file_selection_get_filename (GTK_FILE_SELECTION(fs)));
@@ -290,25 +325,28 @@ void
 cap_prep_fs_cancel_cb(GtkWidget *w, gpointer data) {
   GtkWidget *fs;
   
-  fs = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), prep_fs_key);
+  fs = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_PREP_FS_KEY);
 
   gtk_widget_destroy(fs);
 }  
 
 void
 capture_prep_ok_cb(GtkWidget *w, gpointer data) {
-  GtkWidget *if_cb, *file_te, *count_cb, *open_ck, *snap_sb;
+  GtkWidget *if_cb, *filter_te, *file_te, *count_cb, *open_ck, *snap_sb;
   gint     open;
 
-  if_cb    = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), cap_iface_key);
-  file_te  = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), cap_file_key);
-  count_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), cap_count_key);
-  open_ck  = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), cap_open_key);
-  snap_sb  = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), cap_snap_key);
+  if_cb     = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_IFACE_KEY);
+  filter_te = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_FILT_KEY);
+  file_te   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_FILE_KEY);
+  count_cb  = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_COUNT_KEY);
+  open_ck   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_OPEN_KEY);
+  snap_sb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_SNAP_KEY);
 
   if (cf.iface) g_free(cf.iface);
   cf.iface =
     g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry)));
+  if (cf.cfilter) g_free(cf.cfilter);
+  cf.cfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
   if (cf.save_file) g_free(cf.save_file);
   cf.save_file = g_strdup(gtk_entry_get_text(GTK_ENTRY(file_te)));
   cf.count =
@@ -369,12 +407,12 @@ capture(gint open) {
       }
     }
 
-    if (cf.filter) {
+    if (cf.cfilter) {
       if (pcap_lookupnet (cf.iface, &netnum, &netmask, err_str) < 0) {
         simple_dialog(ESD_TYPE_WARN, NULL,
           "Can't use filter:  Couldn't obtain netmask info.");
         return;
-      } else if (pcap_compile(pch, &cf.fcode, cf.filter, 1, netmask) < 0) {
+      } else if (pcap_compile(pch, &cf.fcode, cf.cfilter, 1, netmask) < 0) {
         simple_dialog(ESD_TYPE_WARN, NULL, "Unable to parse filter string.");
         return;
       } else if (pcap_setfilter(pch, &cf.fcode) < 0) {
@@ -512,28 +550,28 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   }
   
   switch(etype){ 
-      case ETHERTYPE_IP:
-          iptype = pd[offset + 9];
-          switch (iptype) {
-              case IP_PROTO_TCP:
-                  ld->tcp++;
-                  break;
-              case IP_PROTO_UDP:
-                  ld->udp++;
-                  break;
-              case IP_PROTO_OSPF:
-                  ld->ospf++;
-                  break;
-              default:
-                  ld->other++;
-          }
+    case ETHERTYPE_IP:
+      iptype = pd[offset + 9];
+      switch (iptype) {
+        case IP_PROTO_TCP:
+          ld->tcp++;
           break;
+        case IP_PROTO_UDP:
+          ld->udp++;
+          break;
+        case IP_PROTO_OSPF:
+          ld->ospf++;
+          break;
+        default:
+          ld->other++;
+        }
+        break;
       case ETHERTYPE_IPX:
       case ETHERTYPE_IPv6:
       case ETHERTYPE_ATALK:
       case ETHERTYPE_VINES:
       case ETHERTYPE_ARP:
       default:
-          ld->other++;
+        ld->other++;
   }
 }

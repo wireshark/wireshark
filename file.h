@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.3 1998/09/17 03:12:25 gerald Exp $
+ * $Id: file.h,v 1.4 1998/10/12 01:40:49 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -68,7 +68,8 @@ typedef struct _capture_file {
   gchar      *iface;     /* Interface */
   gchar      *save_file; /* File to write capture data */
   pcap_t     *pfh;       /* Pcap session */
-  gchar      *filter;    /* Pcap filter string */
+  gchar      *dfilter;   /* Display filter string */
+  gchar      *cfilter;   /* Capture filter string */
   bpf_prog    fcode;     /* Compiled filter program */
   guint8      pd[4096];  /* Packet data */
   GList      *plist;     /* Packet list */

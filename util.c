@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.3 1998/09/27 22:12:46 gerald Exp $
+ * $Id: util.c,v 1.4 1998/10/12 01:40:57 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,6 +31,7 @@
 
 #include <gtk/gtk.h>
 
+#include <stdarg.h>
 #include <strings.h>
 
 #include "util.h"
@@ -52,14 +53,18 @@ const gchar *bm_key = "button mask";
  * To do:
  * - Switch to variable args
  */
+ 
+#define ESD_MAX_MSG_LEN 1024
 void
-simple_dialog(gint type, gint *btn_mask, gchar *message) {
+simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
   GtkWidget   *win, *main_vb, *top_hb, *type_pm, *msg_label,
               *bbox, *ok_btn, *cancel_btn;
   GdkPixmap   *pixmap;
   GdkBitmap   *mask;
   GtkStyle    *style;
   GdkColormap *cmap;
+  va_list      ap;
+  gchar        message[ESD_MAX_MSG_LEN];
   
   /* Main window */
   win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -86,6 +91,10 @@ simple_dialog(gint type, gint *btn_mask, gchar *message) {
   gtk_container_add(GTK_CONTAINER(top_hb), type_pm);
   gtk_widget_show(type_pm);
 
+  /* Load our vararg list into the message string */
+  va_start(ap, msg_format);
+  vsnprintf(message, ESD_MAX_MSG_LEN, msg_format, ap);
+
   msg_label = gtk_label_new(message);
   gtk_label_set_justify(GTK_LABEL(msg_label), GTK_JUSTIFY_FILL);
   gtk_container_add(GTK_CONTAINER(top_hb), msg_label);
@@ -110,6 +119,7 @@ simple_dialog(gint type, gint *btn_mask, gchar *message) {
     gtk_signal_connect(GTK_OBJECT(cancel_btn), "clicked",
       GTK_SIGNAL_FUNC(simple_dialog_cancel_cb), (gpointer) win);
     gtk_container_add(GTK_CONTAINER(bbox), cancel_btn);
+    GTK_WIDGET_SET_FLAGS(cancel_btn, GTK_CAN_DEFAULT);
     gtk_widget_show(cancel_btn);
   }
 

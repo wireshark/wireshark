@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.5 1998/10/10 03:32:19 gerald Exp $
+ * $Id: print.c,v 1.6 1998/10/12 01:40:56 gerald Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -345,7 +345,10 @@ void print_tree_text(FILE *fh, const u_char *pd, frame_data *fd, GtkTree *tree)
 				print_tree_text(fh, pd, fd, GTK_TREE(subtree));
 		}
 		else if (strcmp("Data", text) == 0) {
-			decode_start_len(GTK_TREE_ITEM(child->data), &data_start, &data_len);
+			data_start = (gint) gtk_object_get_data(GTK_OBJECT(child->data),
+      	E_TREEINFO_START_KEY);
+			data_len = (gint) gtk_object_get_data(GTK_OBJECT(child->data),
+      	E_TREEINFO_LEN_KEY);
 			dumpit(fh, &pd[data_start], data_len);
 		}
 	}
@@ -457,7 +460,10 @@ void print_tree_ps(FILE *fh, const u_char *pd, frame_data *fd, GtkTree *tree)
 				print_tree_ps(fh, pd, fd, GTK_TREE(subtree));
 		}
 		else if (strcmp("Data", text) == 0) {
-			decode_start_len(GTK_TREE_ITEM(child->data), &data_start, &data_len);
+			data_start = (gint) gtk_object_get_data(GTK_OBJECT(child->data),
+      	E_TREEINFO_START_KEY);
+			data_len = (gint) gtk_object_get_data(GTK_OBJECT(child->data),
+      	E_TREEINFO_LEN_KEY);
 			print_ps_hex(fh);
 			dumpit_ps(fh, &pd[data_start], data_len);
 		}
