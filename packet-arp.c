@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.19 1999/10/12 06:20:01 gram Exp $
+ * $Id: packet-arp.c,v 1.20 1999/10/16 08:37:30 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -265,14 +265,10 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			       "Protocol type: %s", 
 			       val_to_str(ar_pro, etype_vals, 
 					  "Unknown (0x%04x)"));
-    proto_tree_add_item_format(arp_tree, hf_arp_hard_size, offset + AR_HLN, 1,
-			       ar_hln,
-			       "Hardware size: %d", 
-			       ar_hln);
-    proto_tree_add_item_format(arp_tree, hf_arp_proto_type, offset + AR_PLN, 1,
-			       ar_pln,
-			       "Protocol size: %d", 
-			       ar_pln);
+    proto_tree_add_item(arp_tree, hf_arp_hard_size, offset + AR_HLN, 1,
+			ar_hln);
+    proto_tree_add_item(arp_tree, hf_arp_proto_size, offset + AR_PLN, 1,
+			ar_pln);
     proto_tree_add_item_format(arp_tree, hf_arp_opcode, offset + AR_OP,  2,
 			       ar_op,
 			       "Opcode: 0x%04x (%s)", 
@@ -297,39 +293,48 @@ proto_register_arp(void)
 {
   static hf_register_info hf[] = {
     { &hf_arp_hard_type,
-      { "Hardware type",	       	"arp.hw.type",	 FT_UINT16, BASE_HEX, NULL, 0x0,
+      { "Hardware type",		"arp.hw.type",	 
+	FT_UINT16,	BASE_HEX,	NULL,	0x0,
       	"" }},
 
     { &hf_arp_proto_type,
-      { "Protocol type",		"arp.proto.type",FT_UINT16, BASE_HEX, NULL, 0x0,
+      { "Protocol type",		"arp.proto.type",
+	FT_UINT16,	BASE_HEX,	NULL,	0x0,
       	"" }},
 
     { &hf_arp_hard_size,
-      { "Hardware size",		"arp.hw.size",	 FT_UINT8, BASE_DEC, NULL, 0x0,
+      { "Hardware size",		"arp.hw.size",	 
+	FT_UINT8,	BASE_DEC,	NULL,	0x0,
       	"" }},
 
     { &hf_arp_proto_size,
-      { "Protocol size",		"arp.proto.size",FT_UINT8, BASE_DEC, NULL, 0x0,
+      { "Protocol size",		"arp.proto.size",
+	FT_UINT8,	BASE_DEC,	NULL,	0x0,
       	"" }},
 
     { &hf_arp_opcode,
-      { "Opcode",			"arp.opcode",	 FT_UINT16, BASE_HEX, NULL, 0x0,
+      { "Opcode",			"arp.opcode",
+	FT_UINT16,	BASE_HEX,	NULL,	0x0,
       	"" }},
 
     { &hf_arp_src_ether,
-      { "Sender hardware address",	"arp.src.hw",	 FT_BYTES, BASE_NONE, NULL, 0x0,
+      { "Sender hardware address",	"arp.src.hw",
+	FT_BYTES,	BASE_NONE,	NULL,	0x0,
       	"" }},
 
     { &hf_arp_src_proto,
-      { "Sender protocol address",	"arp.src.proto", FT_BYTES, BASE_NONE, NULL, 0x0,
+      { "Sender protocol address",	"arp.src.proto", 
+	FT_BYTES,	BASE_NONE,	NULL,	0x0,
       	"" }},
 
     { &hf_arp_dst_ether,
-      { "Target hardware address",	"arp.dst.hw",	 FT_BYTES, BASE_NONE, NULL, 0x0,
+      { "Target hardware address",	"arp.dst.hw",
+	FT_BYTES,	BASE_NONE,	NULL,	0x0,
       	"" }},
 
     { &hf_arp_dst_proto,
-      { "Target protocol address",	"arp.dst.proto", FT_BYTES, BASE_NONE, NULL, 0x0,
+      { "Target protocol address",	"arp.dst.proto", 
+	FT_BYTES,	BASE_NONE,	NULL,	0x0,
       "" }}
   };
 
