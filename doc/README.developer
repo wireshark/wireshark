@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.58 2002/07/10 04:29:23 guy Exp $
+$Id: README.developer,v 1.59 2002/07/15 20:31:06 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -139,7 +139,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.58 2002/07/10 04:29:23 guy Exp $"
+The "$Id: README.developer,v 1.59 2002/07/15 20:31:06 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -149,7 +149,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.58 2002/07/10 04:29:23 guy Exp $
+ * $Id: README.developer,v 1.59 2002/07/15 20:31:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -269,7 +269,8 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		PROTOABBREV_tree = proto_item_add_subtree(ti, ett_PROTOABBREV);
 
 /* add an item to the subtree, see section 1.6 for more information */
-		proto_tree_add_uint(tree, hf_PROTOABBREV_FIELDABBREV, tvb, offset, len, value)
+		proto_tree_add_item(PROTOABBREV_tree,
+		    hf_PROTOABBREV_FIELDABBREV, tvb, offset, len, FALSE)
 
 
 /* Continue adding tree items to process the packet here */
@@ -341,9 +342,15 @@ YOUR_NAME	Your name, of course.  You do want credit, don't you?
 YOUR_EMAIL_ADDRESS	Keep those cards and letters coming.
 WHATEVER_FILE_YOU_USED	Add this line if you are using another file as a
 		starting point.
-PROTONAME	The name of the protocol.
-PROTOABBREV	An abbreviated name for the protocol. (NO SPACES) (rec. 
-		a-z, 0-9 only and try to conform with IANA names)
+PROTONAME	The name of the protocol; this is displayed in the
+		top-level protocol tree item for that protocol.
+PROTOSHORTNAME	An abbreviated name for the protocol; this is displayed
+		in the "Preferences" dialog box if your dissector has
+		any preferences, and in the dialog box for filter fields
+		when constructing a filter expression.
+PROTOABBREV	A name for the protocol for use in filter expressions;
+		it should contain only lower-case letters, digits, and
+		hyphens.
 FIELDNAME	The displayed name for the header field.
 FIELDABBREV	The abbreviated name for the header field. (NO SPACES)
 FIELDTYPE	FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
@@ -359,6 +366,9 @@ PARENT_SUBFIELD	Lower level protocol field used for lookup, i.e. "tcp.port"
 ID_VALUE	Lower level protocol field value that identifies this protocol
 		For example the TCP or UDP port number
 
+If, for example, PROTONAME is "Internet Bogosity Discovery Protocol",
+PROTOSHORTNAME would be "IBDP", and PROTOABBREV would be "ibdp".  Try to
+conform with IANA names.
 
 1.4 The dissector and the data it receives.
 
