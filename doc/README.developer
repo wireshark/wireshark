@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.34 2001/08/29 00:51:07 guy Exp $
+$Id: README.developer,v 1.35 2001/08/31 09:04:36 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -85,7 +85,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.34 2001/08/29 00:51:07 guy Exp $"
+The "$Id: README.developer,v 1.35 2001/08/31 09:04:36 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -95,7 +95,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.34 2001/08/29 00:51:07 guy Exp $
+ * $Id: README.developer,v 1.35 2001/08/31 09:04:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1340,52 +1340,94 @@ conversation_new and find_conversation.
 
 2.2.1 The conversation_init function.
 
-This is an internal routine for the conversation code.  As such the you will not
-have to call this routine.  Just be aware that this routine is called at the
-start of each capture and before the packets are filtered with a display filter.
-The routine will destroy all stored conversations.  This routine does NOT clean
-up any data pointers that is passed in the conversation_new 'data' variable.
-You are responsible for this clean up if you pass a malloc'ed pointer in this
-variable.
+This is an internal routine for the conversation code.  As such the you
+will not have to call this routine.  Just be aware that this routine is
+called at the start of each capture and before the packets are filtered
+with a display filter.  The routine will destroy all stored
+conversations.  This routine does NOT clean up any data pointers that is
+passed in the conversation_new 'data' variable.  You are responsible for
+this clean up if you pass a malloc'ed pointer in this variable.
 
 See item 2.2.4 for more information about the 'data' pointer.
 
 
 2.2.2 The conversation_new function.
 
-This routine will create a new conversation based upon the source address:port
-and destination address:port. If you want store a pointer to memory structure it
-should be passed in the conversation_new 'data' variable. The ptype variable is
-used to differentiate between conversations over different protocols, ie. TCP
-and UDP. The options variable is used to define a conversation that will accept 
-any destination address and/or port.  Set options = 0 if the destination port and
-address are know when conversation_new is called.  See section 2.4 for more
-information on usage of the options parameter.
+This routine will create a new conversation based upon two address/port
+pairs.  If you want to associate with the conversation a pointer to a
+private data structure it should be passed in the conversation_new
+'data' variable.  The ptype variable is used to differentiate between
+conversations over different protocols, i.e. TCP and UDP.  The options
+variable is used to define a conversation that will accept any
+destination address and/or port.  Set options = 0 if the destination
+port and address are know when conversation_new is called.  See section
+2.4 for more information on usage of the options parameter.
 
 The conversation_new prototype:
-	conversation_t *conversation_new(address *src, address *dst, port_type ptype,
-	    guint32 src_port, guint32 dst_port, void *data, guint options);
+	conversation_t *conversation_new(address *addr1, address *addr2,
+	    port_type ptype, guint32 port1, guint32 port2, void *data,
+	    guint options);
 
 Where:
-	address* src 	= data packet source address
-	address* src 	= data packet destination address
-	port_type ptype 	= port type, this is defined in packet.h
-	guint32 src_port	= data packet source port
-	guint32 dst_port	= data packet destination port
- 	void *data		= dissector data structure
-	guint options	= conversation options, NO_DST_ADDR and/or NO_DST_PORT
+	address* addr1 	= first data packet address
+	address* addr2 	= second data packet address
+	port_type ptype = port type, this is defined in packet.h
+	guint32 port1	= first data packet port
+	guint32 port2	= second data packet port
+ 	void *data	= dissector data structure
+	guint options	= conversation options, NO_ADDR2 and/or NO_PORT2
 
+"addr1" and "port1" are the first address/port pair; "addr2" and "port2"
+are the second address/port pair.  A conversation doesn't have source
+and destination address/port pairs - packets in a conversation go in
+both directions - so "addr1"/"port1" may be the source or destination
+address/port pair; "addr2"/"port2" would be the other pair.
 
+If NO_ADDR2 is specified, the conversation is set up so that a
+conversation lookup will match only the "addr1" address; if NO_PORT2 is
+specified, the conversation is set up so that a conversation lookup will
+match only the "port1" port; if both are specified, i.e.
+NO_ADDR2|NO_PORT2, the conversation is set up so that the lookup will
+match only the "addr1"/"port1" address/port pair.  This can be used if a
+packet indicates that, later in the capture, a conversation will be
+created using certain addresses and ports, in the case where the packet
+doesn't specify the addresses and ports of both sides.
 
 2.2.3 The find_conversation function.
 
-Call this routine to lookup a conversation. If no conversation is found the
-routine will return a NULL value.  You don't have to worry about interchanging
-the source and destination values.  The conversation routine will automatically
-return the same conversation for packets traveling in both directions. The
-options value is used to define is the destination address and/or port should
-be use to match the lookup.  The matching conversation must have the same options
-as the value of the find call.
+Call this routine to lookup a conversation.  If no conversation is found,
+the routine will return a NULL value.
+
+The find_conversation prototype:
+
+	conversation_t *find_conversation(address *addr_a, address *addr_b,
+	    port_type ptype, guint32 port_a, guint32 port_b, guint options);
+
+Where:
+	address* addr_a = first address
+	address* addr_b = second address
+	port_type ptype = port type
+	guint32 port_a	= first data packet port
+	guint32 port_b	= second data packet port
+	guint options	= conversation options, NO_ADDR_B and/or NO_PORT_B
+
+"addr_a" and "port_a" are the first address/port pair; "addr_b" and
+"port_b" are the second address/port pair.  Again, as a conversation
+doesn't have source and destination address/port pairs, so
+"addr_a"/"port_a" may be the source or destination address/port pair;
+"addr_b"/"port_b" would be the other pair.  The search will match the
+"a" address/port pair against both the "1" and "2" address/port pairs,
+and match the "b" address/port pair against both the "2" and "1"
+address/port pairs; you don't have to worry about which side the "a" or
+"b" pairs correspond to.
+
+If the NO_ADDR_B flag was specified to "find_conversation()", the
+"addr_b" address will be treated as matching any "wildcarded" address;
+if the NO_PORT_B flag was specified, the "port_b" port will be treated
+as matching any "wildcarded" port.  If both flags are specified, i.e. 
+NO_ADDR_B|NO_PORT_B, the "addr_b" address will be treated as matching
+any "wildcarded" address and the "port_b" port will be treated as
+matching any "wildcarded" port.
 
 
 2.2.4 The example conversation code with GMemChunk's
@@ -1421,10 +1463,9 @@ my_entry_t *data_ptr
 
 
 /* look up the conversation */
-/* pi is a global variable of type packet_info, see  packet.h */
 
-conversation = find_conversation( &pi.src, &pi.dst, pi.ptype,
-	pi.srcport, pi.destport, 0);
+conversation = find_conversation( &pinfo->src, &pinfo->dst, pinfo->ptype,
+	pinfo->srcport, pinfo->destport, 0);
 
 /* if conversation found get the data pointer that you stored */
 if ( conversation)
@@ -1439,8 +1480,8 @@ else {
 
     /* create the conversation with your data pointer  */
 
-    conversation_new( &pi.src, &pi.dst, pi.ptype,
-	    pi.srcport, pi.destport, (void*)data_ptr, 0);
+    conversation_new( &pinfo->src, &pinfo->dst, pinfo->ptype,
+	    pinfo->srcport, pinfo->destport, (void*)data_ptr, 0);
 }
 
 /* at this point the conversation data is ready */
@@ -1494,12 +1535,12 @@ upon the conversation index and values inside the request packets.
 /* then used the conversation index, and request data to find data */
 /* in the local hash table */
 
-	conversation = find_conversation(&pi.src, &pi.dst, pi.ptype,
-	    pi.srcport, pi.destport, 0);
+	conversation = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype,
+	    pinfo->srcport, pinfo->destport, 0);
 	if (conversation == NULL) {
 		/* It's not part of any conversation - create a new one. */
-		conversation = conversation_new(&pi.src, &pi.dst, pi.ptype,
-		    pi.srcport, pi.destport, NULL, 0);
+		conversation = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,
+		    pinfo->srcport, pinfo->destport, NULL, 0);
 	}
 
 	request_key.conversation = conversation->index;	
@@ -1557,7 +1598,7 @@ static void sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
         new_conv_info->data1 = value1;
 
 /* create the conversation for the dynamic port */
-        conversation = conversation_new( &pi.src, &pi.dst, protocol,
+        conversation = conversation_new( &pinfo->src, &pinfo->dst, protocol,
                 src_port, dst_port, new_conv_info, 0);
 
 /* set the dissector for the new conversation */
@@ -1567,28 +1608,28 @@ static void sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 
 2.4 Dynamic server port dissector registration
 
-NOTE:  While this example used both NO_DST_ADDR and NO_DST_PORT to 
-create a conversation with only the source port and address set, this
-isn't a requirement.  Either the destination port or address can be 
-set when the conversation is create. 
+NOTE: While this example used both NO_ADDR2 and NO_PORT2 to create a
+conversation with only one port and address set, this isn't a
+requirement.  Either the second port or the second address can be set
+when the conversation is created.
 
 For protocols that define a server address and port for a secondary
-protocol, a conversation can be use to link a protocol dissector to
+protocol, a conversation can be used to link a protocol dissector to
 the server port and address.  The key is to create the new 
-conversation with the destination address and port set to the accept
-any values.  
+conversation with the second address and port set to the "accept
+any" values.  
 
-There are two support routines that will allow the destination port and/or
+There are two support routines that will allow the second port and/or
 address to be set latter.  
 
-conversation_set_port( conversation_t *conv, guint32 port);
-conversation_set_addr( conversation_t *conv, address addr);
+conversation_set_port2( conversation_t *conv, guint32 port);
+conversation_set_addr2( conversation_t *conv, address addr);
 
-These routines will change the destination information for the conversation.
-So, the server port conversation will be converted into a more complete
-conversation definition. Don't use these routines if you want create a 
-conversation between the server and client and retain the server port
-definition, you must create a new conversation.
+These routines will change the second address or port for the
+conversation.  So, the server port conversation will be converted into a
+more complete conversation definition.  Don't use these routines if you
+want create a conversation between the server and client and retain the
+server port definition, you must create a new conversation.
 
 
 An example -
@@ -1606,11 +1647,11 @@ static void sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
         new_conv_info->data1 = value1;
 
 /* create the conversation for the dynamic server address and port 	*/
-/* NOTE: The destination values don't matter because the NO_DST_ADDR 	*/
-/*	   NO_DST_PORT options are set. 						*/
+/* NOTE: The second address and port values don't matter because the	*/
+/* NO_ADDR2 and NO_PORT2 options are set. 				*/
 
         conversation = conversation_new( &server_src_addr, 0, protocol,
-                server_src_port, 0, new_conv_info, NO_DST_ADDR | NO_DST_PORT);
+                server_src_port, 0, new_conv_info, NO_ADDR2 | NO_PORT2);
 
 /* set the dissector for the new conversation */
         conversation_set_dissector(conversation, sub_dissector);
