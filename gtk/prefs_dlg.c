@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.55 2002/11/11 15:39:05 oabad Exp $
+ * $Id: prefs_dlg.c,v 1.56 2002/11/28 01:58:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1212,7 +1212,7 @@ prefs_main_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 struct properties_data {
   GtkWidget *w;
   int page_num;
-  char *title;
+  const char *title;
 };
 
 /* XXX this way of searching the correct page number is really ugly ... */
@@ -1234,15 +1234,15 @@ module_search_properties(module_t *module, gpointer user_data)
 void
 properties_cb(GtkWidget *w, gpointer dummy)
 {
-  gchar *title = NULL;
+  const gchar *title = NULL;
   struct properties_data p;
 
   if (finfo_selected) {
     header_field_info *hfinfo = finfo_selected->hfinfo;
     if (hfinfo->parent == -1) {
-      title = (gchar *)prefs_get_title_by_name(hfinfo->abbrev);
+      title = prefs_get_title_by_name(hfinfo->abbrev);
     } else {
-      title = (gchar *)
+      title =
 	prefs_get_title_by_name(proto_registrar_get_abbrev(hfinfo->parent));
     }
   } else {

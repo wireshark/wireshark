@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.276 2002/11/10 20:53:06 gerald Exp $
+ * $Id: main.c,v 1.277 2002/11/28 01:58:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -587,8 +587,8 @@ static gint
 packet_list_compare(GtkCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
 {
   /* Get row text strings */
-  char *text1 = GTK_CELL_TEXT (((GtkCListRow *)ptr1)->cell[clist->sort_column])->text;
-  char *text2 = GTK_CELL_TEXT (((GtkCListRow *)ptr2)->cell[clist->sort_column])->text;
+  const char *text1 = GTK_CELL_TEXT (((GtkCListRow *)ptr1)->cell[clist->sort_column])->text;
+  const char *text2 = GTK_CELL_TEXT (((GtkCListRow *)ptr2)->cell[clist->sort_column])->text;
 
   /* Attempt to convert to numbers */
   double  num1 = atof(text1);

@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.18 2002/11/11 17:32:42 guy Exp $
+ * $Id: proto_dlg.c,v 1.19 2002/11/28 01:58:27 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -340,8 +340,10 @@ static gboolean revert_proto_selection(void)
 
 gint protocol_data_compare(gconstpointer a, gconstpointer b)
 {
-  return strcmp(((protocol_data_t *)a)->abbrev,
-		((protocol_data_t *)b)->abbrev);
+  const protocol_data_t *ap = (const protocol_data_t *)a;
+  const protocol_data_t *bp = (const protocol_data_t *)b;
+
+  return strcmp(ap->abbrev, bp->abbrev);
 }
 
 static void show_proto_selection(GtkWidget *main, GtkWidget *container)
