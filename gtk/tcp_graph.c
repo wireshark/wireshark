@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.28 2003/02/13 22:17:18 guy Exp $
+ * $Id: tcp_graph.c,v 1.29 2003/02/14 05:00:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2956,6 +2956,7 @@ static gint button_press_event (GtkWidget *widget, GdkEventButton *event)
 				g->wp.height, g->zoom.x, g->zoom.y);
 #endif
 		graph_element_lists_make (g);
+		g->cross.erase_needed = 0;
 		graph_display (g);
 		axis_display (g->y_axis);
 		axis_display (g->x_axis);
@@ -3009,6 +3010,7 @@ static gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event)
 				g->geom.x = g->wp.width + g->wp.x - g->geom.width;
 			if (g->wp.y + g->wp.height > g->geom.y + g->geom.height)
 				g->geom.y = g->wp.height + g->wp.y - g->geom.height;
+			g->cross.erase_needed = 0;
 			graph_display (g);
 			axis_display (g->y_axis);
 			axis_display (g->x_axis);
@@ -3245,7 +3247,10 @@ static void tseq_stevens_initialize (struct graph *g)
 static void tseq_stevens_get_bounds (struct graph *g)
 {
 	struct segment *tmp, *last, *first;
-	double t, t0, tmax, y0, ymax;
+	double t, t0, tmax, ymax;
+	guint32 seq_base;
+	guint32 seq_cur;
+	guint32 ack_base = 0;
 
 	for (first=g->segments; first->next; first=first->next) {
 		if (compare_headers (g->current, first, COMPARE_CURR_DIR))
@@ -3254,13 +3259,21 @@ static void tseq_stevens_get_bounds (struct graph *g)
 	last = NULL;
 	ymax = 0;
 	tmax = 0;
+	
+	seq_base = g_ntohl (first->tcphdr.seq);
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
 		unsigned int highest_byte_num;
 		last = tmp;
-		if (compare_headers (g->current, tmp, COMPARE_CURR_DIR))
-			highest_byte_num = g_ntohl (tmp->tcphdr.seq) + tmp->data;
-		else
-			highest_byte_num = g_ntohl (tmp->tcphdr.ack_seq);
+		if (compare_headers (g->current, tmp, COMPARE_CURR_DIR)) {
+			seq_cur = g_ntohl (tmp->tcphdr.seq) -seq_base;
+			highest_byte_num = seq_cur + tmp->data;
+		}
+		else {
+			seq_cur = g_ntohl (tmp->tcphdr.ack_seq);
+			if (!ack_base)
+				ack_base = seq_cur;
+			highest_byte_num = seq_cur - ack_base;
+		}
 		if (highest_byte_num > ymax)
 			ymax = highest_byte_num;
 		t = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
@@ -3273,12 +3286,10 @@ static void tseq_stevens_get_bounds (struct graph *g)
 	}
 
 	t0 = g->segments->rel_secs + g->segments->rel_usecs / 1000000.0;
-	y0 = g_ntohl (first->tcphdr.seq);
-
 	g->bounds.x0 = t0;
-	g->bounds.y0 = y0;
+	g->bounds.y0 = seq_base;
 	g->bounds.width = tmax - t0;
-	g->bounds.height = ymax - y0;
+	g->bounds.height = ymax;
 	g->zoom.x = (g->geom.width - 1) / g->bounds.width;
 	g->zoom.y = (g->geom.height -1) / g->bounds.height;
 }
@@ -3288,6 +3299,8 @@ static void tseq_stevens_make_elmtlist (struct graph *g)
 	struct segment *tmp;
 	struct element *elements, *e;
 	double x0 = g->bounds.x0, y0 = g->bounds.y0;
+	guint32 seq_base = y0;
+	guint32 seq_cur;
 
 	debug(DBS_FENTRY) puts ("tseq_stevens_make_elmtlist()");
 	if (g->elists->elements == NULL) {
@@ -3301,9 +3314,9 @@ static void tseq_stevens_make_elmtlist (struct graph *g)
 
 		if (!compare_headers (g->current, tmp, COMPARE_CURR_DIR))
 			continue;
-
+		seq_cur = g_ntohl (tmp->tcphdr.seq) - seq_base;
 		secs = g->zoom.x * (tmp->rel_secs + tmp->rel_usecs / 1000000.0 - x0);
-		seqno = g->zoom.y * (g_ntohl (tmp->tcphdr.seq) - y0);
+		seqno = g->zoom.y * seq_cur;
 
 		e->type = ELMT_ARC;
 		e->parent = tmp;
@@ -3427,6 +3440,8 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 	double p_t; /* ackno, window and time of previous segment */
 	double p_ackno, p_win;
 	int toggle=0;
+	guint32 seq_base;
+	guint32 seq_cur;
 
 	debug(DBS_FENTRY) puts ("tseq_tcptrace_make_elmtlist()");
 
@@ -3444,6 +3459,7 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 
 	x0 = g->bounds.x0;
 	y0 = g->bounds.y0;
+	seq_base = y0;
 	/* initialize "previous" values */
 	for (tmp=g->segments; tmp; tmp=tmp->next)
 		if (!compare_headers (g->current, tmp, COMPARE_CURR_DIR))
@@ -3455,7 +3471,7 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 	p_win = g->zoom.y * g_ntohs (tmp->tcphdr.window);
 	p_t = g->segments->rel_secs + g->segments->rel_usecs/1000000.0 - x0;
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
-		double secs, seqno, data;
+		double secs, data;
 		double x;
 
 		secs = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
@@ -3465,14 +3481,14 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 			/* forward direction -> we need seqno and amount of data */
 			double y1, y2;
 
-			seqno = g_ntohl (tmp->tcphdr.seq);
+			seq_cur = g_ntohl (tmp->tcphdr.seq) -seq_base;
 			if (TCP_SYN (tmp->tcphdr))
 				data = 1;
 			else
 				data = tmp->data;
 
-			y1 = g->zoom.y * (seqno - y0);
-			y2 = g->zoom.y * (seqno - y0 + data);
+			y1 = g->zoom.y * (seq_cur);
+			y2 = g->zoom.y * (seq_cur + data);
 			e1->type = ELMT_LINE;
 			e1->parent = tmp;
 			e1->gc = g->s.tseq_tcptrace.gc_seq;
@@ -3500,7 +3516,8 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 				/* SYN's have ACK==0 and are useless here */
 				continue;
 			/* backward direction -> we need ackno and window */
-			ackno = (g_ntohl (tmp->tcphdr.ack_seq) - y0) * g->zoom.y;
+			seq_cur = g_ntohl (tmp->tcphdr.ack_seq) - seq_base;
+			ackno = seq_cur * g->zoom.y;
 			win = g_ntohs (tmp->tcphdr.window) * g->zoom.y;
 
 			/* ack line */
@@ -3714,7 +3731,9 @@ static void rtt_initialize (struct graph *g)
 	struct segment *tmp, *first=NULL;
 	struct unack *unack = NULL, *u;
 	double rttmax=0;
-	double x0, xmax=0, y0, ymax;
+	double x0, y0, ymax;
+	guint32 xmax = 0;
+	guint32 seq_base = 0;
 
 	debug(DBS_FENTRY) puts ("rtt_initialize()");
 
@@ -3722,11 +3741,13 @@ static void rtt_initialize (struct graph *g)
 
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
 		if (compare_headers (g->current, tmp, COMPARE_CURR_DIR)) {
-			unsigned int seqno = g_ntohl (tmp->tcphdr.seq);
+			guint32 seqno = g_ntohl (tmp->tcphdr.seq);
 
-			if (!first)
+			if (!first) {
 				first= tmp;
-
+				seq_base = seqno;
+			}
+			seqno -= seq_base;
 			if (tmp->data && !rtt_is_retrans (unack, seqno)) {
 				double time = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
 				u = rtt_get_new_unack (time, seqno);
@@ -3736,8 +3757,8 @@ static void rtt_initialize (struct graph *g)
 
 			if (seqno + tmp->data > xmax)
 				xmax = seqno + tmp->data;
-		} else {
-			unsigned int ackno = g_ntohl (tmp->tcphdr.ack_seq);
+		} else if (first) {
+			guint32 ackno = g_ntohl (tmp->tcphdr.ack_seq) -seq_base;
 			double time = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
 			struct unack *v;
 
@@ -3753,13 +3774,13 @@ static void rtt_initialize (struct graph *g)
 		}
 	}
 
-	x0 = g_ntohl (first->tcphdr.seq);
+	x0 = seq_base;
 	y0 = 0;
 	ymax = rttmax;
 
 	g->bounds.x0 = x0;
 	g->bounds.y0 = y0;
-	g->bounds.width = xmax - x0;
+	g->bounds.width = xmax;
 	g->bounds.height = ymax - y0;
 	g->zoom.x = g->geom.width / g->bounds.width;
 	g->zoom.y = g->geom.height / g->bounds.height;
@@ -3770,7 +3791,7 @@ static int rtt_is_retrans (struct unack *list, unsigned int seqno)
 	struct unack *u;
 
 	for (u=list; u; u=u->next)
-		if (u->seqno == seqno)
+		if (u->seqno== seqno)
 			return TRUE;
 
 	return FALSE;
@@ -3827,6 +3848,7 @@ static void rtt_make_elmtlist (struct graph *g)
 	struct segment *tmp;
 	struct unack *unack = NULL, *u;
 	struct element *elements, *e;
+	guint32 seq_base = g->bounds.x0;
 
 	debug(DBS_FENTRY) puts ("rtt_make_elmtlist()");
 
@@ -3838,7 +3860,7 @@ static void rtt_make_elmtlist (struct graph *g)
 
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
 		if (compare_headers (g->current, tmp, COMPARE_CURR_DIR)) {
-			unsigned int seqno = g_ntohl (tmp->tcphdr.seq);
+			guint32 seqno = g_ntohl (tmp->tcphdr.seq) -seq_base;
 
 			if (tmp->data && !rtt_is_retrans (unack, seqno)) {
 				double time = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
@@ -3847,7 +3869,7 @@ static void rtt_make_elmtlist (struct graph *g)
 				rtt_put_unack_on_list (&unack, u);
 			}
 		} else {
-			unsigned int ackno = g_ntohl (tmp->tcphdr.ack_seq);
+			guint32 ackno = g_ntohl (tmp->tcphdr.ack_seq) -seq_base;
 			double time = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
 			struct unack *v;
 
@@ -3860,8 +3882,7 @@ static void rtt_make_elmtlist (struct graph *g)
 					e->gc = g->fg_gc;
 					e->p.arc.dim.width = g->s.rtt.width;
 					e->p.arc.dim.height = g->s.rtt.height;
-					e->p.arc.dim.x = g->zoom.x * (u->seqno - g->bounds.x0)
-														- g->s.rtt.width/2.0;
+					e->p.arc.dim.x = g->zoom.x * u->seqno - g->s.rtt.width/2.0;
 					e->p.arc.dim.y = g->zoom.y * rtt + g->s.rtt.height/2.0;
 					e->p.arc.filled = TRUE;
 					e->p.arc.angle1 = 0;
