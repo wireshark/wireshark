@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.5 1998/12/13 05:08:03 gram Exp $
+ * $Id: lanalyzer.c,v 1.6 1998/12/13 05:38:13 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -102,8 +102,8 @@ int lanalyzer_open(wtap *wth)
 				tm.tm_sec = 0;
 				tm.tm_isdst = -1;
 				wth->capture.lanalyzer->start = mktime(&tm);
-				g_message("Day %d Month %d Year %d", tm.tm_mday,
-						tm.tm_mon, tm.tm_year);
+				/*g_message("Day %d Month %d Year %d", tm.tm_mday,
+						tm.tm_mon, tm.tm_year);*/
 				mxslc = pletohs(&summary[30]);
 				wth->snapshot_length = mxslc;
 
