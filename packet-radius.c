@@ -2,7 +2,7 @@
  * Routines for RADIUS packet disassembly
  * Copyright 1999 Johan Feyaerts
  *
- * $Id: packet-radius.c,v 1.45 2002/02/25 21:11:20 guy Exp $
+ * $Id: packet-radius.c,v 1.46 2002/02/25 22:33:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -908,6 +908,19 @@ void dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
        proto_tree_add_text(tree, tvb,offset,2,"t:%s(%u) l:%u",
 			   avptpstrval,avph.avp_type,avph.avp_length);
        next_tvb = tvb_new_subset(tvb, offset+2,avph.avp_length-2, -1);
+
+       /*
+        * Set the columns non-writable, so that the packet list
+        * shows this as an RADIUS packet, not as an EAP packet.
+        *
+        * XXX - we'll call the EAP dissector only if we're building
+        * a protocol tree.  The EAP dissector currently saves no state,
+        * and won't be modifying the columns, so that's OK right now,
+        * but it might call the SSL dissector - if that maintains state
+        * needed for dissection, we'll have to arrange that AVPs be
+        * dissected even if we're not building a protocol tree.
+        */
+       col_set_writable(pinfo->cinfo, FALSE);
        call_dissector(eap_handle, next_tvb, pinfo, tree);
      } else 
        proto_tree_add_text(tree, tvb,offset,avph.avp_length,
