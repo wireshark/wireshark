@@ -21,7 +21,8 @@ eicon3d32.xpm			transparent background, high color
 eicon3d48.xpm
 eicon3d64.xpm
 
-elogo3d48x48.png		3D Ethereal logo on a white background
+elogo3d48x48.png		3D Ethereal logo with transparent background
+elogo3d64x64.png		
 
 Ethereal.icns			Mac OS X icon file
 
