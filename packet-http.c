@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.78 2003/12/23 01:22:52 guy Exp $
+ * $Id: packet-http.c,v 1.79 2003/12/23 01:42:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,6 +66,7 @@ static int hf_http_proxy_authenticate = -1;
 static int hf_http_proxy_authorization = -1;
 static int hf_http_www_authenticate = -1;
 static int hf_http_content_type = -1;
+static int hf_http_content_length = -1;
 
 static gint ett_http = -1;
 static gint ett_http_ntlmssp = -1;
@@ -114,6 +115,7 @@ typedef void (*RequestDissector)(tvbuff_t*, proto_tree*, int);
  */
 typedef struct {
 	char	*content_type;
+	long	content_length;	/* XXX - make it 64-bit? */
 } entity_headers_t;
 
 static int is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type,
@@ -190,13 +192,14 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean	is_request_or_reply;
 	guchar		c;
 	http_type_t     http_type;
-	int		datalen;
 	proto_item	*hdr_item;
 	RequestDissector req_dissector;
 	int		req_strlen;
 	proto_tree	*req_tree;
 	int		colon_offset;
 	entity_headers_t entity_headers;
+	int		datalen;
+	int		reported_datalen;
 	dissector_handle_t handle;
 	gboolean	dissected;
 
@@ -278,6 +281,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	http_type = HTTP_OTHERS;	/* type not known yet */
 	entity_headers.content_type = NULL;	/* content type not known yet */
+	entity_headers.content_length = -1;	/* content length not known yet */
 	CLEANUP_PUSH(cleanup_entity_headers, &entity_headers);
 	while (tvb_offset_exists(tvb, offset)) {
 		/*
@@ -448,9 +452,13 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/*
-	 * XXX - if there was a Content-Length entity header, we should
-	 * use its value, as there might be stuff in this tvbuff
-	 * past the end of the body.
+	 * If a content length was supplied, the amount of data to be
+	 * processed as RTSP payload is the minimum of the content
+	 * length and the amount of data remaining in the frame.
+	 *
+	 * If no content length was supplied (or if a bad content length
+	 * was supplied), the amount of data to be processed is the amount
+	 * of data remaining in the frame.
 	 *
 	 * If there was no Content-Length entity header, we should
 	 * accumulate all data until the end of the connection.
@@ -460,8 +468,52 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * with empty segments.
 	 */
 	datalen = tvb_length_remaining(tvb, offset);
+	if (entity_headers.content_length != -1) {
+		if (datalen > entity_headers.content_length)
+			datalen = entity_headers.content_length;
+
+		/*
+		 * XXX - limit the reported length in the tvbuff we'll
+		 * hand to a subdissector to be no greater than the
+		 * content length.
+		 *
+		 * We really need both unreassembled and "how long it'd
+		 * be if it were reassembled" lengths for tvbuffs, so
+		 * that we throw the appropriate exceptions for
+		 * "not enough data captured" (running past the length),
+		 * "packet needed reassembly" (within the length but
+		 * running past the unreassembled length), and
+		 * "packet is malformed" (running past the reassembled
+		 * length).
+		 */
+		reported_datalen = tvb_reported_length_remaining(tvb, offset);
+		if (reported_datalen > entity_headers.content_length)
+			reported_datalen = entity_headers.content_length;
+	} else
+		reported_datalen = -1;
+
 	if (datalen > 0) {
-		tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		/*
+		 * There's stuff left over; process it.
+		 */
+		tvbuff_t *next_tvb;
+
+		/*
+		 * Create a tvbuff for the payload.
+		 *
+		 * The amount of data to be processed that's
+		 * available in the tvbuff is "datalen", which
+		 * is the minimum of the amount of data left in
+		 * the tvbuff and any specified content length.
+		 *
+		 * The amount of data to be processed that's in
+		 * this frame, regardless of whether it was
+		 * captured or not, is "reported_datalen",
+		 * which, if no content length was specified,
+		 * is -1, i.e. "to the end of the frame.
+		 */
+		next_tvb = tvb_new_subset(tvb, offset, datalen,
+		    reported_datalen);
 
 		/*
 		 * Do subdissector checks.
@@ -712,6 +764,7 @@ typedef struct {
 #define EH_AUTHORIZATION	1
 #define EH_AUTHENTICATE		2
 #define EH_CONTENT_TYPE		3
+#define EH_CONTENT_LENGTH	4
 
 static const entity_header_info headers[] = {
 	{ "Authorization", &hf_http_authorization, EH_AUTHORIZATION },
@@ -719,6 +772,7 @@ static const entity_header_info headers[] = {
 	{ "Proxy-Authenticate", &hf_http_proxy_authenticate, EH_AUTHENTICATE },
 	{ "WWW-Authenticate", &hf_http_www_authenticate, EH_AUTHENTICATE },
 	{ "Content-Type", &hf_http_content_type, EH_CONTENT_TYPE },
+	{ "Content-Length", &hf_http_content_length, EH_CONTENT_LENGTH },
 };
 
 static void
@@ -734,6 +788,8 @@ process_entity_header(tvbuff_t *tvb, int offset, int next_offset,
 	int value_offset;
 	int value_len;
 	char *value;
+	char *p;
+	guchar *up;
 	proto_item *hdr_item;
 	int i;
 
@@ -819,6 +875,14 @@ process_entity_header(tvbuff_t *tvb, int offset, int next_offset,
 				eh_ptr->content_type[i] = tolower(c);
 			}
 			eh_ptr->content_type[i] = '\0';
+			break;
+
+		case EH_CONTENT_LENGTH:
+			eh_ptr->content_length = strtol(value, &p, 10);
+			up = p;
+			if (eh_ptr->content_length < 0 || p == value ||
+			    (*up != '\0' && !isspace(*up)))
+				eh_ptr->content_length = -1;	/* not valid */
 			break;
 		}
 
@@ -964,6 +1028,10 @@ proto_register_http(void)
 	      { "Content-Type",	"http.content_type",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Content-Type header", HFILL }},
+	    { &hf_http_content_length,
+	      { "Content-Length",	"http.content_length",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Content-Length header", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_http,
