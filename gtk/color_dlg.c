@@ -896,6 +896,7 @@ create_new_color_filter(GtkButton *button, char *filter)
 {
   color_filter_t   *colorf;
   GtkStyle         *style;
+  color_t          bg_color, fg_color;
   GtkWidget        *color_filters;
 #if GTK_MAJOR_VERSION >= 2
   GtkTreeSelection *sel;
@@ -912,8 +913,9 @@ create_new_color_filter(GtkButton *button, char *filter)
 
   /* Use the default background and foreground colors as the colors. */
   style = gtk_widget_get_style(packet_list);
-  colorf = new_color_filter("name", filter, &style->base[GTK_STATE_NORMAL],
-                            &style->text[GTK_STATE_NORMAL]); /* Adds at end! */
+  gdkcolor_to_color_t(&bg_color, &style->base[GTK_STATE_NORMAL]);
+  gdkcolor_to_color_t(&fg_color, &style->text[GTK_STATE_NORMAL]);
+  colorf = new_color_filter("name", filter, &bg_color, &fg_color); /* Adds at end! */
 
   color_add_colorf(color_filters, colorf);
 

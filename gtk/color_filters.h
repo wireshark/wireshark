@@ -52,7 +52,7 @@ gboolean revert_filters(void);
  * @return the new color filter
  */
 color_filter_t *new_color_filter(gchar *name, gchar *filter_string,
-    GdkColor *bg_color, GdkColor *fg_color);
+    color_t *bg_color, color_t *fg_color);
 
 /** Remove the color filter.
  *
