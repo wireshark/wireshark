@@ -143,9 +143,8 @@ typedef struct _fcswils_efp {
     guint8  rsvd1[3];
     guint8  pswitch_prio;
     guint8  pswitch_name[8];
-    fcswils_efp_listrec *listrec;
 } fcswils_efp;
-#define FC_SWILS_EFP_SIZE 16    /* not including listrec */
+#define FC_SWILS_EFP_SIZE 16
 
 typedef struct _fcswils_dia {
     guint8 switch_name[8];

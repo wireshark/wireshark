@@ -51,6 +51,10 @@
 #include "packet-fc.h"
 #include "packet-fcswils.h"
 
+/*
+ * See the FC-SW specifications.
+ */
+
 #define FC_SWILS_RPLY               0x0
 #define FC_SWILS_REQ                0x1
 #define FC_SWILS_RSCN_DEVENTRY_SIZE 20
@@ -93,6 +97,7 @@ static int hf_swils_efp_dom_id         = -1;
 static int hf_swils_efp_switch_name    = -1;
 static int hf_swils_efp_mcast_grpno    = -1;
 static int hf_swils_efp_alias_token    = -1;
+static int hf_swils_efp_record_len     = -1;
 static int hf_swils_efp_payload_len    = -1;
 static int hf_swils_efp_pswitch_pri    = -1;
 static int hf_swils_efp_pswitch_name   = -1;
@@ -394,8 +399,8 @@ static gint get_zoneobj_len (tvbuff_t *tvb, gint offset);
 static gint
 fcswils_equal(gconstpointer v, gconstpointer w)
 {
-  fcswils_conv_key_t *v1 = (fcswils_conv_key_t *)v;
-  fcswils_conv_key_t *v2 = (fcswils_conv_key_t *)w;
+  const fcswils_conv_key_t *v1 = v;
+  const fcswils_conv_key_t *v2 = w;
 
   return (v1->conv_idx == v2->conv_idx);
 }
@@ -403,7 +408,7 @@ fcswils_equal(gconstpointer v, gconstpointer w)
 static guint
 fcswils_hash (gconstpointer v)
 {
-	fcswils_conv_key_t *key = (fcswils_conv_key_t *)v;
+	const fcswils_conv_key_t *key = v;
 	guint val;
 
 	val = key->conv_idx;
@@ -435,11 +440,11 @@ fcswils_init_protocol(void)
                                            G_ALLOC_AND_FREE);
 }
 
-static gchar *
+static guint8 *
 zonenm_to_str (tvbuff_t *tvb, gint offset)
 {
     int len = tvb_get_guint8 (tvb, offset);
-    return ((gchar *)tvb_get_ptr (tvb, offset+4, len));
+    return tvb_get_string (tvb, offset+4, len);
 }
 
 /* Offset points to the start of the zone object */
@@ -653,52 +658,67 @@ dissect_swils_efp (tvbuff_t *tvb, proto_tree *efp_tree, guint8 isreq _U_)
     int num_listrec = 0,
         offset = 0;
     fcswils_efp efp;
-    fcswils_efp_listrec *lrec;
+    guint8 rec_type;
+    guint8 sname[8];
     
-    tvb_memcpy (tvb, (guint8 *)&efp, offset, FC_SWILS_EFP_SIZE);
-    efp.payload_len = ntohs (efp.payload_len);
-    efp.listrec = (fcswils_efp_listrec *)tvb_get_ptr (tvb, FC_SWILS_EFP_SIZE,
-                                                      efp.payload_len - FC_SWILS_EFP_SIZE);
-    
-    if (efp_tree) {
-        offset += 2;
+    offset += 1;
+    efp.reclen = tvb_get_guint8 (tvb, offset);
+    if (efp_tree)
+        proto_tree_add_uint (efp_tree, hf_swils_efp_record_len, tvb, offset, 1, efp.reclen);
+    offset += 1;
+    efp.payload_len = tvb_get_ntohs (tvb, offset);
+    if (efp.payload_len < FC_SWILS_EFP_SIZE) {
+        if (efp_tree)
+            proto_tree_add_uint_format (efp_tree, hf_swils_efp_payload_len,
+                                        tvb, offset, 2, efp.payload_len,
+                                        "Payload Len: %u (bogus, must be >= %u)",
+                                        efp.payload_len, FC_SWILS_EFP_SIZE);
+        return;
+    }
+    if (efp_tree)
         proto_tree_add_item (efp_tree, hf_swils_efp_payload_len, tvb, offset, 2, 0);
-        offset += 5;
+    offset += 5;	/* skip 3 reserved bytes, too */
+    if (efp_tree)
         proto_tree_add_item (efp_tree, hf_swils_efp_pswitch_pri, tvb,
-                             offset++, 1, 0);
+                             offset, 1, FALSE);
+    offset++;
+    tvb_memcpy (tvb, efp.pswitch_name, offset, 8);
+    if (efp_tree)
         proto_tree_add_string (efp_tree, hf_swils_efp_pswitch_name, tvb, offset,
                                8, fcwwn_to_str (efp.pswitch_name));
-        offset += 8;
+    offset += 8;
 
-        /* Add List Records now */
-        if (efp.reclen) {
-            num_listrec = (efp.payload_len - FC_SWILS_EFP_SIZE)/efp.reclen;
+    /* Add List Records now */
+    if (efp_tree) {
+        if (efp.reclen == 0) {
+            proto_tree_add_text (efp_tree, tvb, 0, 0, "Record length is zero");
+            return;
         }
-        else {
-            num_listrec = 0;
-        }
-        
-        while (num_listrec--) {
-            lrec =  (fcswils_efp_listrec *)tvb_get_ptr (tvb, offset, efp.reclen);
-            if (lrec != NULL) {
-                if (lrec->didrec.rec_type == FC_SWILS_LRECTYPE_DOMAIN) {
-                    subti = proto_tree_add_text (efp_tree, tvb, offset,
-                                                 (efp.payload_len - FC_SWILS_EFP_SIZE),
-                                                 "Domain ID Record");
-                    lrec_tree = proto_item_add_subtree (subti, ett_fcswils_efplist);
-                    proto_tree_add_item (lrec_tree, hf_swils_efp_dom_id, tvb, offset+1, 1, 0); 
-                    proto_tree_add_string (lrec_tree, hf_swils_efp_switch_name, tvb, offset+8, 8,
-                                           fcwwn_to_str (lrec->didrec.sname));
-                }
-                else if (lrec->didrec.rec_type == FC_SWILS_LRECTYPE_MCAST) {
-                    subti = proto_tree_add_text (efp_tree, tvb, offset,
-                                                 (efp.payload_len - FC_SWILS_EFP_SIZE),
-                                                 "Multicast ID Record");
-                    lrec_tree = proto_item_add_subtree (subti, ett_fcswils_efplist);
-                    proto_tree_add_item (lrec_tree, hf_swils_efp_mcast_grpno, tvb, offset+1, 1, 0);  
-                }
-                offset += efp.reclen;
+        num_listrec = (efp.payload_len - FC_SWILS_EFP_SIZE)/efp.reclen;
+        while (num_listrec-- > 0) {
+            rec_type = tvb_get_guint8 (tvb, offset);
+            subti = proto_tree_add_text (efp_tree, tvb, offset, -1,
+                                         "%s",
+                                         val_to_str(rec_type,
+                                                    fcswils_rectype_val,
+                                                    "Unknown record type (0x%02x)"));
+            lrec_tree = proto_item_add_subtree (subti, ett_fcswils_efplist);
+            proto_tree_add_uint (lrec_tree, hf_swils_efp_rec_type, tvb, offset, 1,
+                                 rec_type); 
+            switch (rec_type) {
+
+            case FC_SWILS_LRECTYPE_DOMAIN:
+                proto_tree_add_item (lrec_tree, hf_swils_efp_dom_id, tvb, offset+1, 1, 0); 
+                tvb_memcpy (tvb, sname, offset, 8);
+                proto_tree_add_string (lrec_tree, hf_swils_efp_switch_name, tvb, offset+8, 8,
+                                       fcwwn_to_str (sname));
+                break;
+
+            case FC_SWILS_LRECTYPE_MCAST:
+                proto_tree_add_item (lrec_tree, hf_swils_efp_mcast_grpno, tvb, offset+1, 1, 0);
+                break;
             }
+            offset += efp.reclen;
         }
     }
 }
@@ -987,16 +1007,20 @@ dissect_swils_rscn (tvbuff_t *tvb, proto_tree *rscn_tree, guint8 isreq)
 static void
 dissect_swils_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
 {
-    int mbrlen = 4 + tvb_get_guint8 (tvb, offset+3);
+    guint8 mbrtype;
+    int idlen;
+    char dpbuf[2+8+1];
+    char *str;
 
-    proto_tree_add_item (zmbr_tree, hf_swils_zone_mbrtype, tvb,
-                         offset, 1, 0);
+    mbrtype = tvb_get_guint8 (tvb, offset);
+    proto_tree_add_uint (zmbr_tree, hf_swils_zone_mbrtype, tvb,
+                         offset, 1, mbrtype);
     proto_tree_add_text (zmbr_tree, tvb, offset+2, 1, "Flags: 0x%x",
                          tvb_get_guint8 (tvb, offset+2));
+    idlen = tvb_get_guint8 (tvb, offset+3);
     proto_tree_add_text (zmbr_tree, tvb, offset+3, 1,
-                         "Identifier Length: %d",
-                         tvb_get_guint8 (tvb, offset+3));
-    switch (tvb_get_guint8 (tvb, offset)) {
+                         "Identifier Length: %u", idlen);
+    switch (mbrtype) {
     case FC_SWILS_ZONEMBR_WWN:
         proto_tree_add_string (zmbr_tree, hf_swils_zone_mbrid, tvb,
                                offset+4, 8,
@@ -1005,12 +1029,9 @@ dissect_swils_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
                                                           8)));
         break;
     case FC_SWILS_ZONEMBR_DP:
-        proto_tree_add_string_format (zmbr_tree,
-                                      hf_swils_zone_mbrid,
-                                      tvb, offset+4, 4, " ",
-                                      "0x%x",
-                                      tvb_get_ntohl (tvb,
-                                                     offset+4));
+        sprintf(dpbuf, "0x%08x", tvb_get_ntohl (tvb, offset+4));
+        proto_tree_add_string (zmbr_tree, hf_swils_zone_mbrid, tvb,
+                               offset+4, 4, dpbuf);
         break;
     case FC_SWILS_ZONEMBR_FCID:
         proto_tree_add_string (zmbr_tree, hf_swils_zone_mbrid, tvb,
@@ -1020,10 +1041,10 @@ dissect_swils_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
                                                        3)));
         break;
     case FC_SWILS_ZONEMBR_ALIAS:
+        str = zonenm_to_str (tvb, offset+4);
         proto_tree_add_string (zmbr_tree, hf_swils_zone_mbrid, tvb,
-                               offset+4,
-                               tvb_get_guint8 (tvb, offset+3),
-                               zonenm_to_str (tvb, offset+4));
+                               offset+4, idlen, str);
+        g_free (str);
         break;
     case FC_SWILS_ZONEMBR_WWN_LUN:
         proto_tree_add_string (zmbr_tree, hf_swils_zone_mbrid, tvb,
@@ -1035,14 +1056,11 @@ dissect_swils_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
                              offset+12, 8, 0);
         break;
     case FC_SWILS_ZONEMBR_DP_LUN:
-        proto_tree_add_string_format (zmbr_tree,
-                                      hf_swils_zone_mbrid,
-                                      tvb, offset+4, 4, " ",
-                                      "0x%x",
-                                      tvb_get_ntohl (tvb,
-                                                     offset+4));
+        sprintf(dpbuf, "0x%08x", tvb_get_ntohl (tvb, offset+4));
+        proto_tree_add_string (zmbr_tree, hf_swils_zone_mbrid, tvb,
+                               offset+4, 4, dpbuf);
         proto_tree_add_item (zmbr_tree, hf_swils_zone_mbrid_lun, tvb,
-                             offset+8, 8, 0);
+                             offset+8, 8, FALSE);
         break;
     case FC_SWILS_ZONEMBR_FCID_LUN:
         proto_tree_add_string (zmbr_tree, hf_swils_zone_mbrid, tvb,
@@ -1055,7 +1073,7 @@ dissect_swils_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
         break;
     default:
         proto_tree_add_string (zmbr_tree, hf_swils_zone_mbrid, tvb,
-                               offset+4, mbrlen,
+                               offset+4, idlen,
                                "Unknown member type format");
             
     }
@@ -1066,6 +1084,7 @@ dissect_swils_zone_obj (tvbuff_t *tvb, proto_tree *zobj_tree, int offset)
 {
     proto_tree *zmbr_tree;
     int mbrlen, numrec, i, objtype;
+    char *str;
     proto_item *subti;
 
     objtype = tvb_get_guint8 (tvb, offset);
@@ -1074,9 +1093,10 @@ dissect_swils_zone_obj (tvbuff_t *tvb, proto_tree *zobj_tree, int offset)
                          1, 0);
     proto_tree_add_item (zobj_tree, hf_swils_zone_protocol, tvb,
                          offset+1, 1, 0);
+    str = zonenm_to_str (tvb, offset+4);
     proto_tree_add_string (zobj_tree, hf_swils_zone_objname, tvb,
-                           offset+4, ZONENAME_LEN (tvb, offset+4),
-                           zonenm_to_str (tvb, offset+4));
+                           offset+4, ZONENAME_LEN (tvb, offset+4), str);
+    g_free (str);
 
     numrec = tvb_get_ntohl (tvb, offset+4+ZONENAME_LEN (tvb, offset+4));
     proto_tree_add_text (zobj_tree, tvb,
@@ -1108,6 +1128,7 @@ dissect_swils_mergereq (tvbuff_t *tvb, proto_tree *mr_tree, guint8 isreq)
     int offset = 0;
     proto_tree *zobjlist_tree, *zobj_tree;
     int numrec, i, zonesetlen, objlistlen, objlen;
+    char *str;
     proto_item *subti;
 
     if (mr_tree) {
@@ -1115,12 +1136,14 @@ dissect_swils_mergereq (tvbuff_t *tvb, proto_tree *mr_tree, guint8 isreq)
             /* zonesetlen is the size of the zoneset including the zone name */ 
             zonesetlen = tvb_get_ntohs (tvb, offset+2);
             proto_tree_add_text (mr_tree, tvb, offset+2, 2,
-                                 "Active ZoneSet Length: %d", zonesetlen);
+                                 "Active ZoneSet Length: %u", zonesetlen);
 
             if (zonesetlen) {
+            	str = zonenm_to_str (tvb, offset+4);
                 proto_tree_add_string (mr_tree, hf_swils_zone_activezonenm, tvb,
                                        offset+4, ZONENAME_LEN (tvb, offset+4),
-                                       zonenm_to_str (tvb, offset+4));
+                                       str);
+                g_free (str);
                 
                 /* objlistlen gives the size of the active zoneset object list */ 
                 objlistlen = zonesetlen - ZONENAME_LEN (tvb, offset+4);
@@ -1252,6 +1275,7 @@ dissect_swils_sfc (tvbuff_t *tvb, proto_tree *sfc_tree, guint8 isreq)
     int offset = 0;
     proto_tree *zobjlist_tree, *zobj_tree;
     int numrec, i, zonesetlen, objlistlen, objlen;
+    char *str;
     proto_item *subti;
 
     if (sfc_tree) {
@@ -1263,9 +1287,11 @@ dissect_swils_sfc (tvbuff_t *tvb, proto_tree *sfc_tree, guint8 isreq)
                                  "ZoneSet Length: %d", zonesetlen);
 
             if (zonesetlen) {
+            	str = zonenm_to_str (tvb, offset+4);
                 proto_tree_add_string (sfc_tree, hf_swils_sfc_zonenm, tvb,
                                        offset+4, ZONENAME_LEN (tvb, offset+4),
-                                       zonenm_to_str (tvb, offset+4));
+                                       str);
+                g_free (str);
                 
                 /* objlistlen gives the size of the active zoneset object list */ 
                 objlistlen = zonesetlen - ZONENAME_LEN (tvb, offset+4);
@@ -1702,6 +1728,9 @@ proto_register_fcswils (void)
         { &hf_swils_efp_alias_token,
           {"Alias Token", "swils.efp.aliastok", FT_BYTES, BASE_HEX, NULL, 0x0,
            "", HFILL}},
+        { &hf_swils_efp_record_len,
+          {"Record Len", "swils.efp.recordlen", FT_UINT8, BASE_DEC, NULL, 0x0,
+           "", HFILL}},
         { &hf_swils_efp_payload_len,
           {"Payload Len", "swils.efp.payloadlen", FT_UINT16, BASE_DEC, NULL, 0x0,
            "", HFILL}},
@@ -1919,5 +1948,3 @@ proto_reg_handoff_fcswils (void)
     data_handle = find_dissector ("data");
     fcsp_handle = find_dissector ("fcsp");
 }
-
-
