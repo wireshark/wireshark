@@ -1003,23 +1003,19 @@ dissect_dcerpc_time_t (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 int
 dissect_dcerpc_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
                        proto_tree *tree, guint8 *drep,
-                       int hfindex, unsigned char *pdata)
+                       int hfindex, guint64 *pdata)
 {
-    if(pdata){
-      tvb_memcpy(tvb, pdata, offset, 8);
-      if(drep[0] & 0x10){/* XXX this might be the wrong way around */
-	unsigned char data;
-	data=pdata[0];pdata[0]=pdata[7];pdata[7]=data;
-	data=pdata[1];pdata[1]=pdata[6];pdata[6]=data;
-	data=pdata[2];pdata[2]=pdata[5];pdata[5]=data;
-	data=pdata[3];pdata[3]=pdata[4];pdata[4]=data;
-      }
-    }
+    guint64 data;
+
+    data = ((drep[0] & 0x10)
+            ? tvb_get_letoh64 (tvb, offset)
+            : tvb_get_ntoh64 (tvb, offset));
 
     if (tree) {
         proto_tree_add_item(tree, hfindex, tvb, offset, 8, (drep[0] & 0x10));
     }
-
+    if (pdata)
+        *pdata = data;
     return offset+8;
 }
 

@@ -670,30 +670,6 @@ gchar* dcom_uuid_to_str(e_uuid_t *uuid) {
 }
 
 
-/* dissect 64bits integer with alignment of 8 bytes (use this for VT_I8 type only) */
-int
-dissect_dcom_I8(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                    proto_tree *tree, guint8 *drep, 
-                    int hfindex, unsigned char *pdata)
-{
-    dcerpc_info *di;
-
-
-    di=pinfo->private_data;
-    if(di->conformant_run){
-      /* just a run to handle conformant arrays, no scalars to dissect */
-      return offset;
-    }
-
-    if (offset % 8) {
-        offset += 8 - (offset % 8);
-    }
-    return dissect_dcerpc_uint64(tvb, offset, pinfo, 
-                                  tree, drep, hfindex, pdata);
-}
-
-
-
 /* dissect a dcerpc array size */
 int
 dissect_dcom_dcerpc_array_size(tvbuff_t *tvb, gint offset, packet_info *pinfo,
@@ -1469,8 +1445,6 @@ dissect_dcom_STDOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 {
 	guint32	u32Flags;
 	guint32	u32PublicRefs;
-	unsigned char pu64Oxid[8];
-	unsigned char pu64Oid[8];
 	e_uuid_t ipid;
 	proto_item *sub_item;
 	proto_tree *sub_tree;
@@ -1488,9 +1462,9 @@ dissect_dcom_STDOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
                         hf_dcom_stdobjref_public_refs, &u32PublicRefs);
 	offset = dissect_dcom_ID(tvb, offset, pinfo, sub_tree, drep, 
-                        hf_dcom_stdobjref_oxid, pu64Oxid);
+                        hf_dcom_stdobjref_oxid, NULL);
 	offset = dissect_dcom_ID(tvb, offset, pinfo, sub_tree, drep, 
-                        hf_dcom_stdobjref_oid, pu64Oid);
+                        hf_dcom_stdobjref_oid, NULL);
 	offset = dissect_dcom_UUID(tvb, offset, pinfo, sub_tree, drep, 
                         hf_dcom_stdobjref_ipid, &ipid);
 

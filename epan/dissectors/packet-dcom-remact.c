@@ -134,7 +134,6 @@ static int
 dissect_remact_remote_activation_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	unsigned char pu64Oxid[8];
 	guint32	u32Pointer;
 	e_uuid_t ipid;
 	guint32	u32AuthnHint;
@@ -149,7 +148,7 @@ dissect_remact_remote_activation_resp(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep, 
-						hf_remact_oxid, pu64Oxid);
+						hf_remact_oxid, NULL);
 	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep, 
 						&u32Pointer);
 	if (u32Pointer) {

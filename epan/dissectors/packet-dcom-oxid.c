@@ -67,11 +67,8 @@ static int
 dissect_oxid_simple_ping_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	unsigned char pu64SetId[8];
-
-
 	offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep, 
-						hf_oxid_setid, pu64SetId);
+						hf_oxid_setid, NULL);
 
 	return offset;
 }
@@ -101,17 +98,14 @@ static int
 dissect_oxid_complex_ping_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	unsigned char pu64SetId[8];
 	guint16	u16SeqNum;
 	guint16	u16AddToSet;
 	guint16	u16DelFromSet;
 	guint32	u32Pointer;
 	guint32	u32ArraySize;
-	unsigned char pu64OId[8];
-
 
 	offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep, 
-						hf_oxid_setid, pu64SetId);
+						hf_oxid_setid, NULL);
 
 	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
 						hf_oxid_seqnum, &u16SeqNum);
@@ -133,7 +127,7 @@ dissect_oxid_complex_ping_rqst(tvbuff_t *tvb, int offset,
 
 		while (u16AddToSet--) {
 			offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep, 
-							hf_oxid_oid, pu64OId);
+							hf_oxid_oid, NULL);
 		}
 	}
 
@@ -145,7 +139,7 @@ dissect_oxid_complex_ping_rqst(tvbuff_t *tvb, int offset,
 
 		while (u16DelFromSet--) {
 			offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep, 
-							hf_oxid_oid, pu64OId);
+							hf_oxid_oid, NULL);
 		}
 	}
 
@@ -157,13 +151,12 @@ static int
 dissect_oxid_complex_ping_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	unsigned char pu64SetId[8];
 	guint16 u16PingBackoffFactor;
 	guint32 u32HResult;
 
 
 	offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep, 
-						hf_oxid_setid, pu64SetId);
+						hf_oxid_setid, NULL);
 	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
 						hf_oxid_ping_backoff_factor, &u16PingBackoffFactor);
 
@@ -183,14 +176,13 @@ static int
 dissect_oxid_resolve_oxid2_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	unsigned char pu64OxId[8];
 	guint16	u16ProtSeqs;
 	guint32	u32ArraySize;
 	guint32	u32ItemIdx;
 
 
 	offset = dissect_dcom_ID(tvb, offset, pinfo, tree, drep, 
-						hf_oxid_oxid, pu64OxId);
+						hf_oxid_oxid, NULL);
 
 	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep, 
                         hf_oxid_requested_protseqs, &u16ProtSeqs);
@@ -258,22 +250,19 @@ dissect_oxid_server_alive2_resp(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				proto_tree *tree, guint8 *drep) {
     guint16	u16VersionMajor;
     guint16 u16VersionMinor;
-	unsigned char unknown1[8];
-	unsigned char unknown2[8];
-
 
     offset = dissect_dcom_COMVERSION(tvb, offset, pinfo, tree, drep, &u16VersionMajor, &u16VersionMinor);
 
     /* XXX - understand what those 8 bytes mean! don't skip'em!*/
-	dissect_dcerpc_uint64(tvb , offset, pinfo, tree, drep, hf_oxid_Unknown1, unknown1);
-	offset += sizeof(unknown1); 
+    dissect_dcerpc_uint64(tvb , offset, pinfo, tree, drep, hf_oxid_Unknown1, NULL);
+    offset += 8;
 
     offset = dissect_dcom_DUALSTRINGARRAY(tvb, offset, pinfo, tree, drep, hf_oxid_ds_array);
 
     /* unknown field 2 */
-	dissect_dcerpc_uint64(tvb, offset, pinfo, tree, drep, hf_oxid_Unknown2, unknown2);
-	offset += sizeof(unknown2);
-        return offset;
+    dissect_dcerpc_uint64(tvb, offset, pinfo, tree, drep, hf_oxid_Unknown2, NULL);
+    offset += 8;
+    return offset;
 }
 
 

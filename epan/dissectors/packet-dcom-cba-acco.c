@@ -2390,7 +2390,6 @@ dissect_ICBAAccoSync_ReadItems_resp(tvbuff_t *tvb, int offset,
 {
 	guint32 u32Pointer;
 	guint16 u16QC;
-	unsigned char pu64TimeStamp[8];
 	guint32 u32ArraySize;
 	guint32 u32HResult;
 	guint32 u32Idx;
@@ -2428,7 +2427,7 @@ dissect_ICBAAccoSync_ReadItems_resp(tvbuff_t *tvb, int offset,
 			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
 								hf_cba_acco_qc, &u16QC);
 			offset = dissect_dcom_FILETIME(tvb, offset, pinfo, sub_tree, drep, 
-								hf_cba_acco_time_stamp, pu64TimeStamp);
+								hf_cba_acco_time_stamp, NULL);
 
 			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, sub_tree, drep, 
 								&u32HResult, u32Idx);
@@ -2531,8 +2530,6 @@ dissect_ICBAAccoSync_WriteItemsQCD_rqst(tvbuff_t *tvb, int offset,
 	guint32 u32SubStart;
 	guint32 u32Idx;
 	guint16 u16QC;
-	unsigned char pu64TimeStamp[8];
-
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
 
@@ -2567,7 +2564,7 @@ dissect_ICBAAccoSync_WriteItemsQCD_rqst(tvbuff_t *tvb, int offset,
 							hf_cba_acco_qc, &u16QC);
 		
 		offset = dissect_dcom_FILETIME(tvb, offset, pinfo, sub_tree, drep, 
-							hf_cba_acco_time_stamp, pu64TimeStamp);
+							hf_cba_acco_time_stamp, NULL);
 
 		proto_item_append_text(sub_item, "[%u]: Item=\"%s\" QC=%s (0x%02x)", 
 			u32Idx, szStr,
