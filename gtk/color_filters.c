@@ -1,7 +1,7 @@
 /* color_filters.c
  * Routines for color filters
  *
- * $Id: color_filters.c,v 1.8 2004/03/14 23:55:53 deniel Exp $
+ * $Id: color_filters.c,v 1.9 2004/04/16 19:05:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -254,6 +254,10 @@ read_filters_file(FILE *f, gpointer arg)
 				skip_end_of_line = TRUE;
 				continue;
 			}
+
+			fg_color.red = fg_r;
+			fg_color.green = fg_g;
+			fg_color.blue = fg_b;
 			if (!get_color(&fg_color)) {
 				/* oops */
 				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -263,6 +267,9 @@ read_filters_file(FILE *f, gpointer arg)
 				skip_end_of_line = TRUE;
 				continue;
 			}
+			bg_color.red = bg_r;
+			bg_color.green = bg_g;
+			bg_color.blue = bg_b;
 			if (!get_color(&bg_color)) {
 				/* oops */
 				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -275,13 +282,6 @@ read_filters_file(FILE *f, gpointer arg)
 
 			colorf = new_color_filter(name, filter_exp);
 			colorf->c_colorfilter = temp_dfilter;
-			fg_color.red = fg_r;
-			fg_color.green = fg_g;
-			fg_color.blue = fg_b;
-			bg_color.red = bg_r;
-			bg_color.green = bg_g;
-			bg_color.blue = bg_b;
-
 			gdkcolor_to_color_t(&colorf->bg_color, &bg_color);
 			gdkcolor_to_color_t(&colorf->fg_color, &fg_color);
 
