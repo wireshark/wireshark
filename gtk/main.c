@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.38 1999/11/17 02:17:18 guy Exp $
+ * $Id: main.c,v 1.39 1999/11/19 22:32:00 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -112,13 +112,14 @@ ts_type timestamp_type = RELATIVE;
 
 GtkStyle *item_style;
 
-/* Specifies byte offsets for object selected in tree */
-static gint tree_selected_start=-1, tree_selected_len=-1; 
+/* Specifies the field currently selected in the GUI protocol tree */
+field_info *finfo_selected = NULL;
 
 static void follow_destroy_cb(GtkWidget *win, gpointer data);
 static void follow_charset_toggle_cb(GtkWidget *w, gpointer parent_w);
 static void follow_load_text(GtkWidget *text, char *filename, gboolean show_ascii);
 static void follow_print_stream(GtkWidget *w, gpointer parent_w);
+static char* hfinfo_numeric_format(header_field_info *hfinfo);
 
 /* About Ethereal window */
 void
@@ -469,15 +470,16 @@ follow_load_text(GtkWidget *text, char *filename, gboolean show_ascii)
 void
 match_selected_cb(GtkWidget *w, gpointer data)
 {
-    char *buf;
-    GtkWidget *filter_te = NULL;
-    char *ptr;
-    int i;
-    guint8 *c;
+    char		*buf;
+    GtkWidget		*filter_te = NULL;
+    char		*ptr, *format, *stringified;
+    int			i, dfilter_len, abbrev_len;
+    guint8		*c;
+    header_field_info	*hfinfo;
 
     filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
 
-    if (tree_selected_start<0) {
+    if (!finfo_selected) {
 	simple_dialog(ESD_TYPE_WARN, NULL,
 		      "Error determining selected bytes.  Please make\n"
 		      "sure you have selected a field within the tree\n"
@@ -485,27 +487,118 @@ match_selected_cb(GtkWidget *w, gpointer data)
 	return;
     }
 
-    c = cf.pd + tree_selected_start;
-    buf = g_malloc(32 + tree_selected_len * 3);
-    ptr = buf;
+    hfinfo = finfo_selected->hfinfo;
+    g_assert(hfinfo);
+    abbrev_len = strlen(hfinfo->abbrev);
 
-    sprintf(ptr, "frame[%d : %d] == ", tree_selected_start, tree_selected_len);
-    ptr = buf+strlen(buf);
+	switch(hfinfo->type) {
 
-    if (tree_selected_len == 1) {
-        sprintf(ptr, "0x%02x", *c++);
-    }
-    else {
-	    for (i=0;i<tree_selected_len; i++) {
-		if (i == 0 ) {
-			sprintf(ptr, "%02x", *c++);
-		}
-		else {
-			sprintf(ptr, ":%02x", *c++);
-		}
-		ptr = buf+strlen(buf);
-	    }
-    }
+		case FT_BOOLEAN:
+		        dfilter_len = abbrev_len + 2;
+		        buf = g_malloc0(dfilter_len);
+			snprintf(buf, dfilter_len, "%s%s", finfo_selected->value.numeric ? "" : "!",
+					hfinfo->abbrev);
+			break;
+
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+			dfilter_len = abbrev_len + 20;
+		        buf = g_malloc0(dfilter_len);
+			format = hfinfo_numeric_format(hfinfo);
+		        snprintf(buf, dfilter_len, format, hfinfo->abbrev, finfo_selected->value.numeric);
+			break;
+
+		case FT_IPv4:
+			dfilter_len = abbrev_len + 21;
+		        buf = g_malloc0(dfilter_len);
+			                      /* xxx.xxx.xxx.xxx */
+			format = g_strdup("%s ==                ");
+			ipv4_addr_sprintf(&(finfo_selected->value.ipv4), &format[6]),
+		        snprintf(buf, dfilter_len, format, hfinfo->abbrev);
+			g_free(format);
+			break;
+
+		case FT_IPXNET:
+			dfilter_len = abbrev_len + 15;
+			buf = g_malloc0(dfilter_len);
+			snprintf(buf, dfilter_len, "%s == 0x%08x", hfinfo->abbrev,
+					finfo_selected->value.numeric);
+			break;
+
+		case FT_IPv6:
+			stringified = ip6_to_str((struct e_in6_addr*) &(finfo_selected->value.ipv6));
+			dfilter_len = abbrev_len + 4 + strlen(stringified) + 1;
+			buf = g_malloc0(dfilter_len);
+			snprintf(buf, dfilter_len, "%s == %s", hfinfo->abbrev,
+					stringified);
+			break;
+
+		case FT_DOUBLE:
+			dfilter_len = abbrev_len + 30;
+			buf = g_malloc0(dfilter_len);
+			snprintf(buf, dfilter_len, "%s == %f", hfinfo->abbrev,
+					finfo_selected->value.floating);
+			break;
+
+		case FT_ETHER:
+			dfilter_len = abbrev_len + 22;
+			buf = g_malloc0(dfilter_len);
+			snprintf(buf, dfilter_len, "%s == %02x:%02x:%02x:%02x:%02x:%02x",
+					hfinfo->abbrev,
+					finfo_selected->value.ether[0],
+					finfo_selected->value.ether[1],
+					finfo_selected->value.ether[2],
+					finfo_selected->value.ether[3],
+					finfo_selected->value.ether[4],
+					finfo_selected->value.ether[5]);
+			break;
+#if 0
+
+		case FT_ABSOLUTE_TIME:
+		case FT_RELATIVE_TIME:
+			memcpy(&fi->value.time, va_arg(ap, struct timeval*),
+				sizeof(struct timeval));
+			break;
+
+		case FT_STRING:
+			/* This g_strdup'ed memory is freed in proto_tree_free_node() */
+			fi->value.string = g_strdup(va_arg(ap, char*));
+			break;
+
+		case FT_TEXT_ONLY:
+			; /* nothing */
+			break;
+#endif
+		default:
+		    c = cf.pd + finfo_selected->start;
+		    buf = g_malloc0(32 + finfo_selected->length * 3);
+		    ptr = buf;
+
+		    sprintf(ptr, "frame[%d : %d] == ", finfo_selected->start, finfo_selected->length);
+		    ptr = buf+strlen(buf);
+
+		    if (finfo_selected->length == 1) {
+			sprintf(ptr, "0x%02x", *c++);
+		    }
+		    else {
+			    for (i=0;i<finfo_selected->length; i++) {
+				if (i == 0 ) {
+					sprintf(ptr, "%02x", *c++);
+				}
+				else {
+					sprintf(ptr, ":%02x", *c++);
+				}
+				ptr = buf+strlen(buf);
+			    }
+		    }
+		    break;
+	}
 
     /* create a new one and set the display filter entry accordingly */
     if (filter_te) {
@@ -513,7 +606,65 @@ match_selected_cb(GtkWidget *w, gpointer data)
     }
     /* Run the display filter so it goes in effect. */
     filter_packets(&cf, buf);
+
+    /* Don't g_free(buf) here. filter_packets() will do it the next time it's called */
 }
+
+static char*
+hfinfo_numeric_format(header_field_info *hfinfo)
+{
+	char *format = NULL;
+
+	/* Pick the proper format string */
+	switch(hfinfo->display) {
+		case BASE_DEC:
+		case BASE_NONE:
+		case BASE_OCT: /* I'm lazy */
+		case BASE_BIN: /* I'm lazy */
+			switch(hfinfo->type) {
+				case FT_UINT8:
+				case FT_UINT16:
+				case FT_UINT24:
+				case FT_UINT32:
+					format = "%s == %u";
+					break;
+				case FT_INT8:
+				case FT_INT16:
+				case FT_INT24:
+				case FT_INT32:
+					format = "%s == %d";
+					break;
+				default:
+					g_assert_not_reached();
+					;
+			}
+			break;
+		case BASE_HEX:
+			switch(hfinfo->type) {
+				case FT_UINT8:
+					format = "%s == 0x%02x";
+					break;
+				case FT_UINT16:
+					format = "%s == 0x%04x";
+					break;
+				case FT_UINT24:
+					format = "%s == 0x%06x";
+					break;
+				case FT_UINT32:
+					format = "%s == 0x%08x";
+					break;
+				default:
+					g_assert_not_reached();
+					;
+			}
+			break;
+		default:
+			g_assert_not_reached();
+			;
+	}
+	return format;
+}
+
 
 /* Run the current display filter on the current packet set, and
    redisplay. */
@@ -550,14 +701,15 @@ void
 tree_view_cb(GtkWidget *w, gpointer data) {
 
   field_info	*finfo;
-  tree_selected_start = -1;
-  tree_selected_len = -1;
+  int		tree_selected_start = -1;
+  int		tree_selected_len = -1;
 
   if (GTK_TREE(w)->selection) {
     finfo = 
 	gtk_object_get_data(GTK_OBJECT(GTK_TREE(w)->selection->data),
 				   E_TREEINFO_FIELD_INFO_KEY);
     g_assert(finfo);
+    finfo_selected = finfo;
     tree_selected_start = finfo->start;
     tree_selected_len   = finfo->length;
   }

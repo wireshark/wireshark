@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.120 1999/11/17 21:58:33 guy Exp $
+ * $Id: file.c,v 1.121 1999/11/19 22:31:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,6 +84,7 @@
 #include "dfilter.h"
 #include "timestamp.h"
 #include "conversation.h"
+#include "globals.h"
 
 #ifndef __RESOLV_H__
 #include "resolv.h"
@@ -1140,6 +1141,7 @@ colorize_packets(capture_file *cf)
       /* It was selected, so re-select it. */
       gtk_clist_select_row(GTK_CLIST(packet_list), cf->current_row, -1);
     }
+    finfo_selected = NULL;
   } else {
     /* The current frame didn't pass the filter; make the first frame
        the current frame, and leave it unselected. */
@@ -1575,6 +1577,8 @@ unselect_packet(capture_file *cf)
     proto_tree_free(cf->protocol_tree);
     cf->protocol_tree = NULL;
   }
+
+  finfo_selected = NULL;
 
   /* Clear out the display of that packet. */
   clear_tree_and_hex_views();
