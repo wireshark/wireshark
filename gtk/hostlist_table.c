@@ -472,14 +472,12 @@ draw_hostlist_table_address(hostlist_table *hl, int hostlist_idx)
 
     rownum=gtk_clist_find_row_from_data(hl->table, (gpointer)hostlist_idx);
 
-    if(!hl->resolve_names)
+    if (!hl->resolve_names)
         entry=address_to_str(&hl->hosts[hostlist_idx].address);
-    else {
+    else
         entry=get_addr_name(&hl->hosts[hostlist_idx].address);
-        if(!entry)
-            entry=address_to_str(&hl->hosts[hostlist_idx].address);
-    }
-    gtk_clist_set_text(hl->table, rownum, 0, entry);
+
+		gtk_clist_set_text(hl->table, rownum, 0, entry);
 
     pt = hl->hosts[hostlist_idx].port_type;
     if(!hl->resolve_names) pt = PT_NONE;

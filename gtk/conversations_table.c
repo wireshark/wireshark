@@ -962,8 +962,6 @@ draw_ct_table_address(conversations_table *ct, int conversation_idx)
         entry=address_to_str(&ct->conversations[conversation_idx].src_address);
     else {
         entry=get_addr_name(&ct->conversations[conversation_idx].src_address);
-        if(!entry)
-            entry=address_to_str(&ct->conversations[conversation_idx].src_address);
     }
     gtk_clist_set_text(ct->table, rownum, 0, entry);
 
@@ -986,8 +984,6 @@ draw_ct_table_address(conversations_table *ct, int conversation_idx)
         entry=address_to_str(&ct->conversations[conversation_idx].dst_address);
     else {
         entry=get_addr_name(&ct->conversations[conversation_idx].dst_address);
-        if(!entry)
-            entry=address_to_str(&ct->conversations[conversation_idx].dst_address);
     }
     gtk_clist_set_text(ct->table, rownum, 2, entry);
 

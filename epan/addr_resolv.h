@@ -80,14 +80,28 @@ extern gchar *get_tcp_port(guint port);
  */
 extern gchar *get_sctp_port(guint port);
 
-/*
- * For address types that support name resolution, and for AT_STRINGZ,
- * "get_addr_name()" returns the name corresponding to the address,
- * or a string for the address if not found.
- *
- * For other address types, it returns a null pointer.
- */
+/* get_addr_name takes as input an "address", as defined in address.h */
+/* it returns a string that contains: */
+/*  - if the address is of a type that can be translated into a name, and the user */
+/*    has activated name resolution, the translated name */
+/*  - if the address is of type AT_NONE, a pointer to the string "NONE" */
+/*  - if the address is of any other type, the result of address_to_str on the argument, */
+/*    which should be a string representation for the answer -e.g. "10.10.10.10" for IPv4 */
+/*    address 10.10.10.10 */
+/* take into account that get_addr_name might eventually call address_to_str and return */
+/* its result; this means that the returned pointer is only guaranteed to point to a valid */
+/* string immediately after return, because address_to_str overwrites its previous results */
+/* and it must not be g_free'd */
+
 const gchar *get_addr_name(address *addr);
+
+/* get_addr_name_buf solves an address in the same way as get_addr_name above */
+/* The difference is that get_addr_name_buf takes as input a buffer, in which it puts */
+/* the result, and a maximum string length -size-. the buffer should be large enough to */
+/* contain size characters plus the terminator */
+
+void get_addr_name_buf(address *addr, gchar *buf, guint size);
+
 
 /*
  * Asynchronous host name lookup initialization, processing, and cleanup

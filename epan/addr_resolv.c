@@ -524,6 +524,33 @@ static gchar *host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
 
 } /* host_name_lookup6 */
 
+const gchar *solve_address_to_name(address *addr)
+{
+  guint32 ipv4_addr;
+  struct e_in6_addr ipv6_addr;
+
+  switch (addr->type) {
+
+  case AT_ETHER:
+    return get_ether_name(addr->data);
+
+  case AT_IPv4:
+    memcpy(&ipv4_addr, addr->data, sizeof ipv4_addr);
+    return get_hostname(ipv4_addr);
+
+  case AT_IPv6:
+    memcpy(&ipv6_addr.s6_addr, addr->data, sizeof ipv6_addr.s6_addr);
+    return get_hostname6(&ipv6_addr);
+
+  case AT_STRINGZ:
+    return addr->data;
+
+  default:
+    return NULL;
+  }
+} /* solve_address_to_name */
+
+
 /*
  *  Miscellaneous functions
  */
@@ -1897,31 +1924,40 @@ extern gchar *get_sctp_port(guint port)
 
 } /* get_sctp_port */
 
+
 const gchar *get_addr_name(address *addr)
 {
-  guint32 ipv4_addr;
-  struct e_in6_addr ipv6_addr;
-
-  switch (addr->type) {
-
-  case AT_ETHER:
-    return get_ether_name(addr->data);
-
-  case AT_IPv4:
-    memcpy(&ipv4_addr, addr->data, sizeof ipv4_addr);
-    return get_hostname(ipv4_addr);
-
-  case AT_IPv6:
-    memcpy(&ipv6_addr.s6_addr, addr->data, sizeof ipv6_addr.s6_addr);
-    return get_hostname6(&ipv6_addr);
-
-  case AT_STRINGZ:
-    return addr->data;
-
-  default:
-    return NULL;
+  const gchar *result;
+  
+  result = solve_address_to_name(addr);
+  
+  if (result!=NULL){
+	  return result;
   }
-}
+  
+  /* if it gets here, either it is of type AT_NONE, */
+  /* or it should be solvable in address_to_str -unless addr->type is wrongly defined- */
+  
+  if (addr->type == AT_NONE){
+	  return "NONE";
+  }
+   
+  return(address_to_str(addr));
+} /* get_addr_name */
+  
+  
+void get_addr_name_buf(address *addr, gchar *buf, guint size)
+{
+  const gchar *result;
+    
+  result = get_addr_name(addr);
+  
+  strncpy(buf,result,size);
+  buf[size]='\0';
+  return;
+
+} /* get_addr_name_buf */
+
 
 extern gchar *get_ether_name(const guint8 *addr)
 {

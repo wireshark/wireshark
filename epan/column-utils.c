@@ -574,20 +574,16 @@ static void
 col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
 	     gboolean is_src)
 {
-  const char *addr_string;
   struct e_in6_addr ipv6_addr;
 
   pinfo->cinfo->col_expr[col][0] = '\0';
   pinfo->cinfo->col_expr_val[col][0] = '\0';
+  
   if (addr->type == AT_NONE)
     return;	/* no address, nothing to do */
+  
   if (is_res) {
-    addr_string = get_addr_name(addr);
-    if (addr_string != NULL) {
-      strncpy(pinfo->cinfo->col_buf[col], addr_string, COL_MAX_LEN);
-      pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
-    } else
-      address_to_str_buf(addr, pinfo->cinfo->col_buf[col]);
+    get_addr_name_buf(addr, pinfo->cinfo->col_buf[col],COL_MAX_LEN-1);
   } else {
     switch (addr->type) {
 
