@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.46 2003/10/26 03:09:03 sahlberg Exp $
+ * $Id: io_stat.c,v 1.47 2003/10/27 23:12:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -698,24 +698,24 @@ gtk_iostat_draw(void *g)
 			} else {
 				sprintf(label_string,"%d", max_y*i/10);
 			}
-		}
 #if GTK_MAJOR_VERSION < 2
-                lwidth=gdk_string_width(font, label_string);
-                gdk_draw_string(io->pixmap,
-                                font,
-                                io->draw_area->style->black_gc,
-                                io->pixmap_width-right_x_border+15+label_width-lwidth,
-                                io->pixmap_height-bottom_y_border-draw_height*i/10+label_height/2,
-                                label_string);
+	                lwidth=gdk_string_width(font, label_string);
+	                gdk_draw_string(io->pixmap,
+        	                        font,
+	                                io->draw_area->style->black_gc,
+	                                io->pixmap_width-right_x_border+15+label_width-lwidth,
+        	                        io->pixmap_height-bottom_y_border-draw_height*i/10+label_height/2,
+                	                label_string);
 #else
-                pango_layout_set_text(layout, label_string, -1);
-                pango_layout_get_pixel_size(layout, &lwidth, NULL);
-		gdk_draw_layout(io->pixmap,
-                                io->draw_area->style->black_gc,
-                                io->pixmap_width-right_x_border+15+label_width-lwidth,
-                                io->pixmap_height-bottom_y_border-draw_height*i/10-label_height/2,
-                                layout);
+	                pango_layout_set_text(layout, label_string, -1);
+	                pango_layout_get_pixel_size(layout, &lwidth, NULL);
+			gdk_draw_layout(io->pixmap,
+                	                io->draw_area->style->black_gc,
+                        	        io->pixmap_width-right_x_border+15+label_width-lwidth,
+                                	io->pixmap_height-bottom_y_border-draw_height*i/10-label_height/2,
+	                                layout);
 #endif
+		}
 	}
 
 
