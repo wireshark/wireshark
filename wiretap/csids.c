@@ -1,6 +1,6 @@
 /* csids.c
  *
- * $Id: csids.c,v 1.1 2000/08/08 22:16:41 mhall Exp $
+ * $Id: csids.c,v 1.2 2000/08/15 18:19:06 mhall Exp $
  *
  * Copyright (c) 2000 by Mike Hall <mlh@io.com>
  * Copyright (c) 2000 by Cisco Systems
@@ -50,7 +50,8 @@ static int csids_seek_read(wtap *wth, int seek_off,
 
 struct csids_header {
   guint32 seconds; /* seconds since epoch */
-  guint32 caplen;  /* the capture length  */
+  guint16 zeropad; /* 2 byte zero'ed pads */
+  guint16 caplen;  /* the capture length  */
 };
 
 /* XXX - return -1 on I/O error and actually do something with 'err'. */
@@ -82,8 +83,11 @@ int csids_open(wtap *wth, int *err)
       return 0;
     }
   }
+  if( hdr.zeropad != 0 ) {
+	return 0;
+  }
   hdr.seconds = pntohl( &hdr.seconds );
-  hdr.caplen = pntohl( &hdr.caplen );
+  hdr.caplen = pntohs( &hdr.caplen );
   bytesRead = file_read( &tmp, 2, 1, wth->fh );
   if( bytesRead != 2 ) {
     *err = file_error( wth->fh );
@@ -103,12 +107,13 @@ int csids_open(wtap *wth, int *err)
     }
   }
   iplen = pntohs(&iplen);
-  if( iplen != hdr.caplen ) {
+  /* if iplen and hdr.caplen are equal, default to no byteswap. */
+  if( iplen > hdr.caplen ) {
     /* maybe this is just a byteswapped version. the iplen ipflags */
     /* and ipid are swapped. We cannot use the normal swaps because */
     /* we don't know the host */
     iplen = BSWAP16(iplen);
-    if( iplen == hdr.caplen ) {
+    if( iplen <= hdr.caplen ) {
       /* we know this format */
       byteswap = TRUE;
     } else {
@@ -152,7 +157,7 @@ static int csids_read(wtap *wth, int *err)
     }
   }
   hdr.seconds = pntohl(&hdr.seconds);
-  hdr.caplen = pntohl(&hdr.caplen);
+  hdr.caplen = pntohs(&hdr.caplen);
 
   wth->data_offset += sizeof( struct csids_header );
 
@@ -226,7 +231,7 @@ csids_seek_read (wtap *wth,
     }
   }
   hdr.seconds = pntohl(&hdr.seconds);
-  hdr.caplen = pntohl(&hdr.caplen);
+  hdr.caplen = pntohs(&hdr.caplen);
   
   if( len != hdr.caplen ) {
     return -1;
