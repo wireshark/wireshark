@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.6 2002/04/28 21:53:31 guy Exp $
+ * $Id: packet-afp.c,v 1.7 2002/04/28 22:08:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -676,6 +676,7 @@ print_date(proto_tree *tree,int id, tvbuff_t *tvb, gint offset)
 	nstime_t tv;
 
 	tv.secs = AD_DATE_TO_UNIX(date);
+	tv.nsecs = 0;
 	proto_tree_add_time(tree, id, tvb, offset, 4, &tv);
 
 	return date;
