@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.99 2004/03/27 11:16:58 oabad Exp $
+ * $Id: file_dlg.c,v 1.100 2004/03/27 12:18:40 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,7 +98,9 @@ select_file_cb(GtkWidget *file_bt, const char *label)
 {
   GtkWidget *caller = gtk_widget_get_toplevel(file_bt);
   GtkWidget *fs, *file_te;
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   gchar     *f_name;
+#endif
 
   /* Has a file selection dialog box already been opened for that top-level
      widget? */
@@ -118,11 +120,10 @@ select_file_cb(GtkWidget *file_bt, const char *label)
 
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   if (last_open_dir)
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
     gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fs), last_open_dir);
 #else
-  if (last_open_dir)
     gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
 #endif
 
@@ -274,34 +275,30 @@ file_open_cmd(GtkWidget *w)
        directory, if we could determine it, as the directory, otherwise
        use the "last opened" directory saved in the preferences file if
        there was one. */
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
     if (last_open_dir) {
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
       gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(file_open_w),
                                           last_open_dir);
-    }
 #else
-    if (last_open_dir) {
       gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_open_w),
 				      last_open_dir);
-    }
 #endif
+    }
     break;
 
   case FO_STYLE_SPECIFIED:
     /* The user has specified that we should always start out in a
        specified directory; if they've specified that directory,
        start out by showing the files in that dir. */
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
     if (prefs.gui_fileopen_dir[0] != '\0') {
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
       gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(file_open_w),
                                           prefs.gui_fileopen_dir);
-    }
 #else
-    if (prefs.gui_fileopen_dir[0] != '\0') {
       gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_open_w),
 				      prefs.gui_fileopen_dir);
-    }
 #endif
+    }
     break;
   }
     
@@ -930,12 +927,11 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
 	
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   if (last_open_dir)
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
     gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(file_save_as_w),
                                         last_open_dir);
 #else
-  if (last_open_dir)
     gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_save_as_w),
                                     last_open_dir);
 #endif
@@ -1335,12 +1331,11 @@ file_color_import_cmd_cb(GtkWidget *w _U_, gpointer data)
 
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   if (last_open_dir)
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
     gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(file_color_import_w),
                                         last_open_dir);
 #else
-  if (last_open_dir)
     gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_color_import_w),
                                     last_open_dir);
 #endif
@@ -1509,12 +1504,11 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   if (last_open_dir)
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
     gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(file_color_export_w),
                                         last_open_dir);
 #else
-  if (last_open_dir)
     gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_color_export_w),
                                     last_open_dir);
 

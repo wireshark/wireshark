@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.122 2004/03/27 11:16:57 oabad Exp $
+ * $Id: capture_dlg.c,v 1.123 2004/03/27 12:18:40 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1029,7 +1029,9 @@ capture_prep_file_cb(GtkWidget *w, gpointer file_te)
 {
   GtkWidget *caller = gtk_widget_get_toplevel(w);
   GtkWidget *fs;
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   gchar     *cf_name;
+#endif
 
   /* Has a file selection dialog box already been opened for that top-level
      widget? */
@@ -1054,11 +1056,10 @@ capture_prep_file_cb(GtkWidget *w, gpointer file_te)
 
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   if (last_open_dir)
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
     gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fs), last_open_dir);
 #else
-  if (last_open_dir)
     gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
 #endif
 
