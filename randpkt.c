@@ -4,7 +4,7 @@
  * Creates random packet traces. Useful for debugging sniffers by testing
  * assumptions about the veracity of the data found in the packet.
  *
- * $Id: randpkt.c,v 1.11 2001/11/13 23:55:30 gram Exp $
+ * $Id: randpkt.c,v 1.12 2002/02/14 17:45:07 gram Exp $
  *
  * Copyright (C) 1999 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
@@ -60,7 +60,8 @@ enum {
 	PKT_TCP,
 	PKT_TR,
 	PKT_UDP,
-	PKT_BVLC
+	PKT_BVLC,
+	PKT_NCP2222
 };
 
 typedef struct {
@@ -212,6 +213,23 @@ guint8 pkt_bvlc[] = {
 	0x81
 };
 
+/* TR+LLC+IPX, indicating NCP, with NCP Type == 0x2222 */
+guint8 pkt_ncp2222[] = {
+	0x10, 0x40, 0x00, 0x00,
+	0xf6, 0x7c, 0x9b, 0x70,
+	0x68, 0x00, 0x19, 0x69,
+	0x95, 0x8b, 0xe0, 0xe0,
+	0x03, 0xff, 0xff, 0x00,
+	0x25, 0x02, 0x11, 0x00,
+	0x00, 0x74, 0x14, 0x00,
+	0x00, 0x00, 0x00, 0x00,
+	0x01, 0x04, 0x51, 0x00,
+	0x00, 0x00, 0x04, 0x00,
+	0x02, 0x16, 0x19, 0x7a,
+	0x84, 0x40, 0x01, 0x22,
+	0x22
+};
+
 /* This little data table drives the whole program */
 pkt_example examples[] = {
 	{ "arp", "Address Resolution Protocol",
@@ -249,8 +267,12 @@ pkt_example examples[] = {
 
 	{ "udp", "User Datagram Protocol",
 		PKT_UDP,	pkt_udp,	WTAP_ENCAP_ETHERNET,	array_length(pkt_udp) },
+
 	{ "bvlc", "BACnet Virtual Link Control",
-		PKT_BVLC,	pkt_bvlc,	WTAP_ENCAP_ETHERNET,	array_length(pkt_bvlc) }
+		PKT_BVLC,	pkt_bvlc,	WTAP_ENCAP_ETHERNET,	array_length(pkt_bvlc) },
+
+	{ "ncp2222", "NetWare Core Protocol",
+		PKT_NCP2222,	pkt_ncp2222,	WTAP_ENCAP_TOKEN_RING,	array_length(pkt_ncp2222) },
 
 };
 
@@ -401,8 +423,9 @@ int parse_type(char *string)
 		}
 	}
 
-	/* default type */
-	return PKT_ETHERNET;
+	/* Complain */
+	printf("Type %s not known.\n", string);
+	exit(1);
 }
 
 /* Find pkt_example record and return pointer to it */
@@ -419,7 +442,7 @@ pkt_example* find_example(int type)
 	}
 
 	printf("Internal error. Type %d has no entry in examples table.\n", type);
-	exit(0);
+	exit(1);
 }
 
 /* Seed the random-number generator */
