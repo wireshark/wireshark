@@ -3,7 +3,7 @@
  * Greg Morris <gmorris@novell.com>
  * Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ndps.c,v 1.16 2003/04/09 08:43:52 guy Exp $
+ * $Id: packet-ndps.c,v 1.17 2003/04/09 08:51:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -476,7 +476,7 @@ static const value_string spx_ndps_program_vals[] = {
     { 0x00060978, "Registry Program" },
     { 0x00060979, "Notify Program" },
     { 0x0006097a, "Resource Manager Program" },
-    { 0x0006097b, "Programatic Delivery Program" },
+    { 0x0006097b, "Programmatic Delivery Program" },
     { 0,          NULL }
 };
 
@@ -677,7 +677,7 @@ static const value_string ndps_address_type_enum[] = {
     { 0x0000000e, "Integer" },
     { 0x0000000f, "Network Address" },
     { 0x00000010, "Choice" },
-    { 0x00000011, "Groupwise User" },
+    { 0x00000011, "GroupWise User" },
     { 0,          NULL }
 };
 
@@ -687,7 +687,7 @@ static const value_string ndps_address_enum[] = {
     { 0x00000002, "SDLC" },
     { 0x00000003, "Token Ring to Ethernet" },
     { 0x00000004, "OSI" },
-    { 0x00000005, "Appletalk" },
+    { 0x00000005, "AppleTalk" },
     { 0x00000006, "Count" },
     { 0,          NULL }
 };
@@ -749,7 +749,7 @@ static const value_string ndps_media_enum[] = {
 
 static const value_string ndps_page_size_enum[] = {
     { 0x00000000, "ID" },
-    { 0x00000001, "Demensions" },
+    { 0x00000001, "Dimensions" },
     { 0,          NULL }
 };
 
@@ -775,7 +775,7 @@ static const value_string ndps_page_order_enum[] = {
 };
 
 static const value_string ndps_medium_size_enum[] = {
-    { 0x00000000, "Descrete" },
+    { 0x00000000, "Discrete" },
     { 0x00000001, "Continuous" },
     { 0,          NULL }
 };
@@ -889,13 +889,13 @@ static const value_string ndps_resource_type_enum[] = {
 
 static const value_string ndps_os_type_enum[] = {
     { 0x00000000, "DOS" },
-    { 0x00000001, "Windows 31" },
+    { 0x00000001, "Windows 3.1" },
     { 0x00000002, "Windows 95" },
     { 0x00000003, "Windows NT" },
     { 0x00000004, "OS2" },
     { 0x00000005, "MAC" },
     { 0x00000006, "UNIX" },
-    { 0x00000007, "Windows NT4" },
+    { 0x00000007, "Windows NT 4.0" },
     { 0x00000008, "Windows 2000/XP" },
     { 0x00000009, "Windows 98" },
     { 0xffffffff, "None" },
@@ -906,12 +906,12 @@ static const value_string ndps_banner_type_enum[] = {
     { 0x00000000, "All" },
     { 0x00000001, "PCL" },
     { 0x00000002, "PostScript" },
-    { 0x00000003, "Ascii Text" },
+    { 0x00000003, "ASCII Text" },
     { 0,          NULL }
 };
 
 static const value_string ndps_font_type_enum[] = {
-    { 0x00000000, "True Type" },
+    { 0x00000000, "TrueType" },
     { 0x00000001, "PostScript" },
     { 0x00000002, "System" },
     { 0x00000003, "SPD" },
@@ -8509,9 +8509,9 @@ proto_register_ndps(void)
           "Answer Time", HFILL }},
         
         { &hf_oid_asn1_type,
-        { "ASN1 Type",    "ndps.asn1_type",
+        { "ASN.1 Type",    "ndps.asn1_type",
           FT_UINT16,    BASE_DEC,   NULL,   0x0,
-          "ASN1 Type", HFILL }},
+          "ASN.1 Type", HFILL }},
 
         { &hf_ndps_item_ptr,
         { "Item Pointer",    "ndps.item_ptr",
