@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: isup_stat.c,v 1.9 2004/01/07 01:44:23 jmayer Exp $
+ * $Id: isup_stat.c,v 1.10 2004/01/11 10:02:39 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -101,6 +101,7 @@ isup_stat_packet(
     tapdata = tapdata;
     pinfo = pinfo;
 
+#if 0	/* always false because message_type is 8 bit value */
     if (data_p->message_type >= N_MESSAGE_TYPES)
     {
 	/*
@@ -108,6 +109,7 @@ isup_stat_packet(
 	 */
 	return(0);
     }
+#endif
 
     stat.message_type[data_p->message_type]++;
 
