@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.11 2001/10/31 05:59:20 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.12 2001/11/04 04:12:03 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -1166,6 +1166,7 @@ decode_add_transport_menu (GtkWidget *page)
 
 	info.conv = TRUE;
 	dissector_conv_foreach("udp", decode_add_to_clist, &info);
+	dissector_conv_foreach("tcp", decode_add_to_clist, &info);
     }
     decode_clist_menu_finish(clist);
     return(scrolled_window);
