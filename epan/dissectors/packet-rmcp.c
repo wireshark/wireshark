@@ -23,7 +23,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
  */
 
@@ -131,11 +131,14 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(field_tree, hf_rmcp_type, tvb, 3, 1, TRUE);
 	}
 
-	next_tvb = tvb_new_subset(tvb, 4, -1, -1);
+	if (!type){ /* do not expect a data block for an ACK */
 
-	if (!dissector_try_port(rmcp_dissector_table, class, next_tvb, pinfo,
-	    tree))
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		next_tvb = tvb_new_subset(tvb, 4, -1, -1);
+
+		if (!dissector_try_port(rmcp_dissector_table, class, next_tvb, pinfo,
+			tree))
+			call_dissector(data_handle, next_tvb, pinfo, tree);
+	}
 
 	return tvb_length(tvb);
 }
