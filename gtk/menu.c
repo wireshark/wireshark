@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.92 2003/04/23 05:37:22 guy Exp $
+ * $Id: menu.c,v 1.93 2003/05/03 00:48:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -757,13 +757,13 @@ set_menus_for_selected_tree_row(gboolean have_selected_tree)
 		"/Go To Corresponding Frame", FALSE);
 	}
 	set_menu_sensitivity(main_menu_factory, "/Display/Match",
-	  proto_can_match_selected(finfo_selected));
+	  proto_can_match_selected(finfo_selected, cfile.edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Match",
-	  proto_can_match_selected(finfo_selected));
+	  proto_can_match_selected(finfo_selected, cfile.edt));
 	set_menu_sensitivity(main_menu_factory, "/Display/Prepare",
-	  proto_can_match_selected(finfo_selected));
+	  proto_can_match_selected(finfo_selected, cfile.edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Prepare",
-	  proto_can_match_selected(finfo_selected));
+	  proto_can_match_selected(finfo_selected, cfile.edt));
   } else {
 	set_menu_sensitivity(main_menu_factory, "/Display/Match", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Match", FALSE);

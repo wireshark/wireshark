@@ -1,7 +1,7 @@
 /* tap-protocolinfo.c
  * protohierstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-protocolinfo.c,v 1.3 2003/04/23 08:20:01 guy Exp $
+ * $Id: tap-protocolinfo.c,v 1.4 2003/05/03 00:48:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,9 +61,11 @@ protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, void *du
 	}
 
 	for(i=0;i<gp->len;i++){
-		str=proto_alloc_dfilter_string(gp->pdata[i], NULL);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "  %s",str);
-		g_free(str);
+		str=proto_construct_dfilter_string(gp->pdata[i], NULL);
+		if(str){
+			col_append_fstr(pinfo->cinfo, COL_INFO, "  %s",str);
+			g_free(str);
+		}
 	}
 	return 0;
 }

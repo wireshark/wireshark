@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.83 2003/04/29 21:27:14 guy Exp $
+ * $Id: proto.c,v 1.84 2003/05/03 00:48:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,6 +41,7 @@
 #include "ipv6-utils.h"
 #include "proto.h"
 #include "int-64bit.h"
+#include "epan_dissect.h"
 
 #define cVALS(x) (const value_string*)(x)
 
@@ -3319,9 +3320,10 @@ hfinfo_numeric_format(header_field_info *hfinfo)
  * otherwise.
  */
 gboolean
-proto_can_match_selected(field_info *finfo)
+proto_can_match_selected(field_info *finfo, epan_dissect_t *edt)
 {
 	header_field_info	*hfinfo;
+	gint			length;
 
 	hfinfo = finfo->hfinfo;
 	g_assert(hfinfo);
@@ -3329,28 +3331,28 @@ proto_can_match_selected(field_info *finfo)
 	switch(hfinfo->type) {
 
 		case FT_BOOLEAN:
-		case FT_FRAMENUM:
 		case FT_UINT8:
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
-		case FT_UINT64:
 		case FT_INT8:
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
+		case FT_FRAMENUM:
+		case FT_UINT64:
 		case FT_INT64:
 		case FT_IPv4:
 		case FT_IPXNET:
 		case FT_IPv6:
 		case FT_FLOAT:
 		case FT_DOUBLE:
-		case FT_ETHER:
 		case FT_ABSOLUTE_TIME:
 		case FT_RELATIVE_TIME:
 		case FT_STRING:
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
+		case FT_ETHER:
 		case FT_BYTES:
 		case FT_UINT_BYTES:
 			/*
@@ -3361,22 +3363,58 @@ proto_can_match_selected(field_info *finfo)
 		default:
 			/*
 			 * This doesn't have a value, so we'd match
-			 * on the raw bytes at this address;
-			 * however, if the length is 0, there's nothing
-			 * to match, so we can't match.
+			 * on the raw bytes at this address.
+			 *
+			 * Should we be allowed to access to the raw bytes?
+			 * If "edt" is NULL, the answer is "no".
 			 */
-			return (finfo->length != 0);
+			if (edt == NULL)
+				return FALSE;
+
+			/*
+			 * Is this field part of the raw frame tvbuff?
+			 * If not, we can't use "frame[N:M]" to match
+			 * it.
+			 *
+			 * XXX - should this be frame-relative, or
+			 * protocol-relative?
+			 *
+			 * XXX - does this fallback for non-registered
+			 * fields even make sense?
+			 */
+			if (finfo->ds_tvb != edt->tvb)
+				return FALSE;
+
+			/*
+			 * If the length is 0, there's nothing to match, so
+			 * we can't match.  (Also check for negative values,
+			 * just in case, as we'll cast it to an unsigned
+			 * value later.)
+			 */
+			length = finfo->length;
+			if (length <= 0)
+				return FALSE;
+
+			/*
+			 * Don't go past the end of that tvbuff.
+			 */
+			if ((guint)length > tvb_length(finfo->ds_tvb))
+				length = tvb_length(finfo->ds_tvb);
+			if (length <= 0)
+				return FALSE;
+			return TRUE;
 	}
 }
 
 char*
-proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
+proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 {
 	header_field_info	*hfinfo;
 	int			abbrev_len;
 	char			*buf, *stringified, *format, *ptr, *value_str;
 	int			dfilter_len, i;
-	guint8			*c;
+	gint			start, length;
+	guint8			c;
 
 	hfinfo = finfo->hfinfo;
 	g_assert(hfinfo);
@@ -3524,7 +3562,6 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 					fvalue_get_floating(finfo->value));
 			break;
 
-
 		case FT_ABSOLUTE_TIME:
 			/*
 			 * 4 bytes for " == ".
@@ -3555,6 +3592,8 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 			break;
 
 		case FT_STRING:
+		case FT_STRINGZ:
+		case FT_UINT_STRING:
 			/*
 			 * 4 bytes for " == ".
 			 * N bytes for the string.
@@ -3574,32 +3613,74 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 			/*
 			 * 4 bytes for " == ".
 			 * 1 byte for the trailing '\0'.
-			 *
 			 */
 			dfilter_len = fvalue_string_repr_len(finfo->value);
 			dfilter_len += abbrev_len + 4 + 1;
 			buf = g_malloc0(dfilter_len);
 			snprintf(buf, dfilter_len, "%s == ", hfinfo->abbrev);
-            stringified = fvalue_to_string_repr(finfo->value);
-            strcat(buf, stringified);
-            g_free(stringified);
+			stringified = fvalue_to_string_repr(finfo->value);
+			strcat(buf, stringified);
+			g_free(stringified);
 			break;
 
 		default:
-			c = pd + finfo->start;
-			buf = g_malloc0(32 + finfo->length * 3);
+			/*
+			 * This doesn't have a value, so we'd match
+			 * on the raw bytes at this address.
+			 *
+			 * Should we be allowed to access to the raw bytes?
+			 * If "edt" is NULL, the answer is "no".
+			 */
+			if (edt == NULL)
+				return FALSE;
+
+			/*
+			 * Is this field part of the raw frame tvbuff?
+			 * If not, we can't use "frame[N:M]" to match
+			 * it.
+			 *
+			 * XXX - should this be frame-relative, or
+			 * protocol-relative?
+			 *
+			 * XXX - does this fallback for non-registered
+			 * fields even make sense?
+			 */
+			if (finfo->ds_tvb != edt->tvb)
+				return NULL;	/* you lose */
+
+			/*
+			 * If the length is 0, there's nothing to match, so
+			 * we can't match.  (Also check for negative values,
+			 * just in case, as we'll cast it to an unsigned
+			 * value later.)
+			 */
+			length = finfo->length;
+			if (length <= 0)
+				return NULL;
+
+			/*
+			 * Don't go past the end of that tvbuff.
+			 */
+			if ((guint)length > tvb_length(finfo->ds_tvb))
+				length = tvb_length(finfo->ds_tvb);
+			if (length <= 0)
+				return NULL;
+			
+			start = finfo->start;
+			buf = g_malloc0(32 + length * 3);
 			ptr = buf;
 
-			sprintf(ptr, "frame[%d:%d] == ", finfo->start,
-			    finfo->length);
+			sprintf(ptr, "frame[%d:%d] == ", finfo->start, length);
 			ptr = buf+strlen(buf);
 
-			for (i=0;i<finfo->length; i++) {
+			for (i=0;i<length; i++) {
+				c = tvb_get_guint8(finfo->ds_tvb, start);
+				start++;
 				if (i == 0 ) {
-					sprintf(ptr, "%02x", *c++);
+					sprintf(ptr, "%02x", c);
 				}
 				else {
-					sprintf(ptr, ":%02x", *c++);
+					sprintf(ptr, ":%02x", c);
 				}
 				ptr = buf+strlen(buf);
 			}

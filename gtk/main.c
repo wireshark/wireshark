@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.291 2003/04/23 20:51:57 deniel Exp $
+ * $Id: main.c,v 1.292 2003/05/03 00:48:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -303,7 +303,7 @@ match_selected_cb_replace_ptree(GtkWidget *w, gpointer data)
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW,
-	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
 }
 
 void
@@ -312,7 +312,7 @@ match_selected_cb_and_ptree(GtkWidget *w, gpointer data)
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW,
-	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
 }
 
 void
@@ -321,7 +321,7 @@ match_selected_cb_or_ptree(GtkWidget *w, gpointer data)
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW,
-	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
 }
 
 void
@@ -330,7 +330,7 @@ match_selected_cb_not_ptree(GtkWidget *w, gpointer data)
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW,
-	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
 }
 
 void
@@ -339,7 +339,7 @@ match_selected_cb_and_ptree_not(GtkWidget *w, gpointer data)
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW,
-	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
 }
 
 void
@@ -348,7 +348,7 @@ match_selected_cb_or_ptree_not(GtkWidget *w, gpointer data)
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_OR_NOT,
-	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
 }
 
 void
@@ -357,7 +357,7 @@ prepare_selected_cb_replace_ptree(GtkWidget *w, gpointer data)
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_REPLACE,
-	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
 }
 
 void
@@ -366,7 +366,7 @@ prepare_selected_cb_and_ptree(GtkWidget *w, gpointer data)
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_AND,
-	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
 }
 
 void
@@ -375,7 +375,7 @@ prepare_selected_cb_or_ptree(GtkWidget *w, gpointer data)
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_OR,
-	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
 }
 
 void
@@ -384,7 +384,7 @@ prepare_selected_cb_not_ptree(GtkWidget *w, gpointer data)
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_NOT,
-	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
 }
 
 void
@@ -393,7 +393,7 @@ prepare_selected_cb_and_ptree_not(GtkWidget *w, gpointer data)
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_AND_NOT,
-	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
 }
 
 void
@@ -402,7 +402,7 @@ prepare_selected_cb_or_ptree_not(GtkWidget *w, gpointer data)
     if (finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_OR_NOT,
-	    proto_alloc_dfilter_string(finfo_selected, cfile.pd));
+	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
 }
 
 static gchar *

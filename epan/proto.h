@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.39 2003/04/29 21:27:14 guy Exp $
+ * $Id: proto.h,v 1.40 2003/05/03 00:48:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -600,15 +600,17 @@ extern int           num_tree_types;
 extern int
 hfinfo_bitwidth(header_field_info *hfinfo);
 
+#include "epan.h"
+
 /*
  * Returns TRUE if we can do a "match selected" on the field, FALSE
  * otherwise.
  */
 extern gboolean
-proto_can_match_selected(field_info *finfo);
+proto_can_match_selected(field_info *finfo, epan_dissect_t *edt);
 
 extern char*
-proto_alloc_dfilter_string(field_info *finfo, guint8 *pd);
+proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt);
 
 extern field_info*
 proto_find_field_from_offset(proto_tree *tree, guint offset, tvbuff_t *tvb);
