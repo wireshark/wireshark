@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.273 2002/11/06 10:53:36 sahlberg Exp $
+ * $Id: main.c,v 1.274 2002/11/10 11:36:39 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -129,6 +129,7 @@
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 #include "../tap.h"
+#include "compat_macros.h"
 
 #ifdef WIN32
 #include "capture-wpcap.h"
@@ -225,7 +226,7 @@ match_selected_cb_do(gpointer data, int action, gchar *text)
     if (!text)
 	return;
     g_assert(data);
-    filter_te = gtk_object_get_data(GTK_OBJECT(data), E_DFILTER_TE_KEY);
+    filter_te = OBJECT_GET_DATA(data, E_DFILTER_TE_KEY);
     g_assert(filter_te);
 
     cur_filter = gtk_editable_get_chars(GTK_EDITABLE(filter_te), 0, -1);
@@ -402,8 +403,8 @@ prepare_selected_cb_or_ptree_not(GtkWidget *w, gpointer data)
 static gchar *
 get_text_from_packet_list(gpointer data)
 {
-    gint	row = (gint)gtk_object_get_data(GTK_OBJECT(data), E_MPACKET_LIST_ROW_KEY);
-    gint	column = (gint)gtk_object_get_data(GTK_OBJECT(data), E_MPACKET_LIST_COL_KEY);
+    gint	row = (gint)OBJECT_GET_DATA(data, E_MPACKET_LIST_ROW_KEY);
+    gint	column = (gint)OBJECT_GET_DATA(data, E_MPACKET_LIST_COL_KEY);
     frame_data *fdata = (frame_data *)gtk_clist_get_row_data(GTK_CLIST(packet_list), row);
     epan_dissect_t *edt;
     gchar      *buf=NULL;
@@ -536,8 +537,8 @@ prepare_selected_cb_or_plist_not(GtkWidget *w _U_, gpointer data)
 static void
 filter_activate_cb(GtkWidget *w, gpointer data)
 {
-  GtkCombo  *filter_cm = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_CM_KEY);
-  GList     *filter_list = gtk_object_get_data(GTK_OBJECT(filter_cm), E_DFILTER_FL_KEY);
+  GtkCombo  *filter_cm = OBJECT_GET_DATA(w, E_DFILTER_CM_KEY);
+  GList     *filter_list = OBJECT_GET_DATA(filter_cm, E_DFILTER_FL_KEY);
   GList     *li;
   gboolean   add_filter = TRUE;
   gboolean   free_filter = TRUE;
@@ -560,7 +561,7 @@ filter_activate_cb(GtkWidget *w, gpointer data)
     if (add_filter) {
       free_filter = FALSE;
       filter_list = g_list_append(filter_list, s);
-      gtk_object_set_data(GTK_OBJECT(filter_cm), E_DFILTER_FL_KEY, filter_list);
+      OBJECT_SET_DATA(filter_cm, E_DFILTER_FL_KEY, filter_list);
       gtk_combo_set_popdown_strings(filter_cm, filter_list);
       gtk_entry_set_text(GTK_ENTRY(filter_cm->entry), g_list_last(filter_list)->data);
     }
@@ -575,7 +576,7 @@ filter_reset_cb(GtkWidget *w, gpointer data _U_)
 {
   GtkWidget *filter_te = NULL;
 
-  if ((filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY))) {
+  if ((filter_te = OBJECT_GET_DATA(w, E_DFILTER_TE_KEY))) {
     gtk_entry_set_text(GTK_ENTRY(filter_te), "");
   }
   filter_packets(&cfile, NULL);
@@ -1410,6 +1411,7 @@ main(int argc, char *argv[])
   gint                 desk_x, desk_y;
   gboolean             prefs_write_needed = FALSE;
   ethereal_tap_list   *tli;
+  gchar               *tap_opt = NULL;
 
 #define OPTSTRING_INIT "a:b:B:c:f:hi:klm:nN:o:pP:Qr:R:Ss:t:T:w:vz:"
 
@@ -1838,7 +1840,7 @@ main(int argc, char *argv[])
       case 'z':
         for(tli=tap_list;tli;tli=tli->next){
           if(!strncmp(tli->cmd,optarg,strlen(tli->cmd))){
-            (*tli->func)(optarg);
+            tap_opt = g_strdup(optarg);
             break;
           }
         }
@@ -2130,6 +2132,17 @@ main(int argc, char *argv[])
 
     create_main_window(pl_size, tv_size, bv_size, prefs);
     set_menus_for_capture_file(FALSE);
+
+    /* open tap windows after creating the main window to avoid GTK warnings */
+    if (tap_opt) {
+      for(tli=tap_list;tli;tli=tli->next){
+        if(!strncmp(tli->cmd,tap_opt,strlen(tli->cmd))){
+          (*tli->func)(tap_opt);
+          break;
+        }
+      }
+      g_free(tap_opt);
+    }
 
     colfilter_init();
 
@@ -2530,17 +2543,9 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     /* Main window */
     top_level = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_widget_set_name(top_level, "main window");
-#if GTK_MAJOR_VERSION < 2
-    gtk_signal_connect(GTK_OBJECT(top_level), "delete_event",
-                       GTK_SIGNAL_FUNC(main_window_delete_event_cb), NULL);
-    gtk_signal_connect (GTK_OBJECT (top_level), "realize",
-                        GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
-#else
-    g_signal_connect(G_OBJECT(top_level), "delete_event",
-                     G_CALLBACK(main_window_delete_event_cb), NULL);
-    g_signal_connect(G_OBJECT(top_level), "realize",
-                     G_CALLBACK (window_icon_realize_cb), NULL);
-#endif
+    SIGNAL_CONNECT(top_level, "delete_event", main_window_delete_event_cb,
+                   NULL);
+    SIGNAL_CONNECT(top_level, "realize", window_icon_realize_cb, NULL);
     gtk_window_set_title(GTK_WINDOW(top_level), "The Ethereal Network Analyzer");
     if (prefs->gui_geometry_save_position) {
         gtk_widget_set_uposition(GTK_WIDGET(top_level),
@@ -2548,21 +2553,10 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
                                  prefs->gui_geometry_main_y);
     }
     if (prefs->gui_geometry_save_size) {
-#if GTK_MAJOR_VERSION < 2
-        gtk_widget_set_usize(GTK_WIDGET(top_level),
-                             prefs->gui_geometry_main_width,
-                             prefs->gui_geometry_main_height);
-#else
-        gtk_widget_set_size_request(GTK_WIDGET(top_level),
-                                    prefs->gui_geometry_main_width,
-                                    prefs->gui_geometry_main_height);
-#endif
+        WIDGET_SET_SIZE(top_level, prefs->gui_geometry_main_width,
+                        prefs->gui_geometry_main_height);
     } else {
-#if GTK_MAJOR_VERSION < 2
-        gtk_widget_set_usize(GTK_WIDGET(top_level), DEF_WIDTH, -1);
-#else
-        gtk_widget_set_size_request(GTK_WIDGET(top_level), DEF_WIDTH, -1);
-#endif
+        WIDGET_SET_SIZE(top_level, DEF_WIDTH, -1);
     }
     gtk_window_set_policy(GTK_WINDOW(top_level), TRUE, TRUE, FALSE);
 
@@ -2605,22 +2599,10 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     set_plist_sel_browse(prefs->gui_plist_sel_browse);
     set_plist_font(m_r_font);
     gtk_widget_set_name(packet_list, "packet list");
-#if GTK_MAJOR_VERSION < 2
-    gtk_signal_connect (GTK_OBJECT (packet_list), "click_column",
-                        GTK_SIGNAL_FUNC(packet_list_click_column_cb),
-                        col_arrows);
-    gtk_signal_connect(GTK_OBJECT(packet_list), "select_row",
-                       GTK_SIGNAL_FUNC(packet_list_select_cb), NULL);
-    gtk_signal_connect(GTK_OBJECT(packet_list), "unselect_row",
-                       GTK_SIGNAL_FUNC(packet_list_unselect_cb), NULL);
-#else
-    g_signal_connect(G_OBJECT(packet_list), "click-column",
-                     G_CALLBACK(packet_list_click_column_cb), col_arrows);
-    g_signal_connect(G_OBJECT(packet_list), "select-row",
-                     G_CALLBACK(packet_list_select_cb), NULL);
-    g_signal_connect(G_OBJECT(packet_list), "unselect-row",
-                     G_CALLBACK(packet_list_unselect_cb), NULL);
-#endif
+    SIGNAL_CONNECT(packet_list, "click-column", packet_list_click_column_cb,
+                   col_arrows);
+    SIGNAL_CONNECT(packet_list, "select-row", packet_list_select_cb, NULL);
+    SIGNAL_CONNECT(packet_list, "unselect-row", packet_list_unselect_cb, NULL);
     for (i = 0; i < cfile.cinfo.num_cols; i++) {
         if (get_column_resize_type(cfile.cinfo.col_fmt[i]) != RESIZE_MANUAL)
             gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), i, TRUE);
@@ -2630,23 +2612,11 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
             gtk_clist_set_column_justification(GTK_CLIST(packet_list), i,
                                                GTK_JUSTIFY_RIGHT);
     }
-#if GTK_MAJOR_VERSION < 2
-    gtk_widget_set_usize(packet_list, -1, pl_size);
-    gtk_signal_connect(GTK_OBJECT(packet_list), "button_press_event",
-                       GTK_SIGNAL_FUNC(popup_menu_handler),
-                       gtk_object_get_data(GTK_OBJECT(popup_menu_object),
-                                           PM_PACKET_LIST_KEY));
-    gtk_signal_connect(GTK_OBJECT(packet_list), "button_press_event",
-                       GTK_SIGNAL_FUNC(packet_list_button_pressed_cb), NULL);
-#else
-    gtk_widget_set_size_request(packet_list, -1, pl_size);
-    g_signal_connect(G_OBJECT(packet_list), "button_press_event",
-                     G_CALLBACK(popup_menu_handler),
-                     g_object_get_data(G_OBJECT(popup_menu_object),
-                                       PM_PACKET_LIST_KEY));
-    g_signal_connect(G_OBJECT(packet_list), "button_press_event",
-                     G_CALLBACK(packet_list_button_pressed_cb), NULL);
-#endif
+    WIDGET_SET_SIZE(packet_list, -1, pl_size);
+    SIGNAL_CONNECT(packet_list, "button_press_event", popup_menu_handler,
+                   OBJECT_GET_DATA(popup_menu_object, PM_PACKET_LIST_KEY));
+    SIGNAL_CONNECT(packet_list, "button_press_event",
+                   packet_list_button_pressed_cb, NULL);
     gtk_clist_set_compare_func(GTK_CLIST(packet_list), packet_list_compare);
     gtk_widget_show(packet_list);
 
@@ -2658,39 +2628,22 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 #endif
     create_tree_view(tv_size, prefs, l_pane, &tv_scrollw, &tree_view);
 #if GTK_MAJOR_VERSION < 2
-    gtk_signal_connect(GTK_OBJECT(tree_view), "tree-select-row",
-                       GTK_SIGNAL_FUNC(tree_view_select_row_cb), NULL);
-    gtk_signal_connect(GTK_OBJECT(tree_view), "tree-unselect-row",
-                       GTK_SIGNAL_FUNC(tree_view_unselect_row_cb), NULL);
-    gtk_signal_connect(GTK_OBJECT(tree_view), "button_press_event",
-                       GTK_SIGNAL_FUNC(popup_menu_handler),
-                       gtk_object_get_data(GTK_OBJECT(popup_menu_object),
-                                           PM_TREE_VIEW_KEY));
+    SIGNAL_CONNECT(tree_view, "tree-select-row", tree_view_select_row_cb, NULL);
+    SIGNAL_CONNECT(tree_view, "tree-unselect-row", tree_view_unselect_row_cb,
+                   NULL);
 #else
-    g_signal_connect(G_OBJECT(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view))),
-                     "changed", G_CALLBACK(tree_view_selection_changed_cb),
-                     NULL);
-    g_signal_connect(G_OBJECT(tree_view), "button_press_event",
-                     G_CALLBACK(popup_menu_handler),
-                     g_object_get_data(G_OBJECT(popup_menu_object),
-                                       PM_TREE_VIEW_KEY));
+    SIGNAL_CONNECT(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view)),
+                   "changed", tree_view_selection_changed_cb, NULL);
 #endif
+    SIGNAL_CONNECT(tree_view, "button_press_event", popup_menu_handler,
+                   OBJECT_GET_DATA(popup_menu_object, PM_TREE_VIEW_KEY));
     gtk_widget_show(tree_view);
 
     /* Byte view. */
     byte_nb_ptr = create_byte_view(bv_size, l_pane);
 
-#if GTK_MAJOR_VERSION < 2
-    gtk_signal_connect(GTK_OBJECT(byte_nb_ptr), "button_press_event",
-                       GTK_SIGNAL_FUNC(popup_menu_handler),
-                       gtk_object_get_data(GTK_OBJECT(popup_menu_object),
-                                           PM_HEXDUMP_KEY));
-#else
-    g_signal_connect(G_OBJECT(byte_nb_ptr), "button_press_event",
-                     G_CALLBACK(popup_menu_handler),
-                     g_object_get_data(G_OBJECT(popup_menu_object),
-                                       PM_HEXDUMP_KEY));
-#endif
+    SIGNAL_CONNECT(byte_nb_ptr, "button_press_event", popup_menu_handler,
+                   OBJECT_GET_DATA(popup_menu_object, PM_HEXDUMP_KEY));
 
     /* Filter/info box */
     stat_hbox = gtk_hbox_new(FALSE, 1);
@@ -2699,13 +2652,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_widget_show(stat_hbox);
 
     filter_bt = gtk_button_new_with_label("Filter:");
-#if GTK_MAJOR_VERSION < 2
-    gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
-                       GTK_SIGNAL_FUNC(display_filter_construct_cb), &args);
-#else
-    g_signal_connect(G_OBJECT(filter_bt), "clicked",
-                     G_CALLBACK(display_filter_construct_cb), &args);
-#endif
+    SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
     gtk_box_pack_start(GTK_BOX(stat_hbox), filter_bt, FALSE, TRUE, 0);
     gtk_widget_show(filter_bt);
 
@@ -2714,45 +2661,31 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), filter_list);
     gtk_combo_disable_activate(GTK_COMBO(filter_cm));
     gtk_combo_set_case_sensitive(GTK_COMBO(filter_cm), TRUE);
-    gtk_object_set_data(GTK_OBJECT(filter_cm), E_DFILTER_FL_KEY, filter_list);
+    OBJECT_SET_DATA(filter_cm, E_DFILTER_FL_KEY, filter_list);
     filter_te = GTK_COMBO(filter_cm)->entry;
-    gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
-    gtk_object_set_data(GTK_OBJECT(filter_te), E_DFILTER_CM_KEY, filter_cm);
+    OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
+    OBJECT_SET_DATA(filter_te, E_DFILTER_CM_KEY, filter_cm);
     gtk_box_pack_start(GTK_BOX(stat_hbox), filter_cm, TRUE, TRUE, 3);
-#if GTK_MAJOR_VERSION < 2
-    gtk_signal_connect(GTK_OBJECT(filter_te), "activate",
-                       GTK_SIGNAL_FUNC(filter_activate_cb), filter_te);
-#else
-    g_signal_connect(G_OBJECT(filter_te), "activate",
-                     G_CALLBACK(filter_activate_cb), filter_te);
-#endif
+    SIGNAL_CONNECT(filter_te, "activate", filter_activate_cb, filter_te);
     gtk_widget_show(filter_cm);
 
 #if GTK_MAJOR_VERSION < 2
     filter_reset = gtk_button_new_with_label("Reset");
-    gtk_object_set_data(GTK_OBJECT(filter_reset), E_DFILTER_TE_KEY, filter_te);
-    gtk_signal_connect(GTK_OBJECT(filter_reset), "clicked",
-                       GTK_SIGNAL_FUNC(filter_reset_cb), NULL);
 #else
     filter_reset = gtk_button_new_from_stock(GTK_STOCK_CLEAR);
-    g_object_set_data(G_OBJECT(filter_reset), E_DFILTER_TE_KEY, filter_te);
-    g_signal_connect(G_OBJECT(filter_reset), "clicked",
-                     G_CALLBACK(filter_reset_cb), NULL);
 #endif    
+    OBJECT_SET_DATA(filter_reset, E_DFILTER_TE_KEY, filter_te);
+    SIGNAL_CONNECT(filter_reset, "clicked", filter_reset_cb, NULL);
     gtk_box_pack_start(GTK_BOX(stat_hbox), filter_reset, FALSE, TRUE, 1);
     gtk_widget_show(filter_reset);
 
 #if GTK_MAJOR_VERSION < 2
     filter_apply = gtk_button_new_with_label("Apply");
-    gtk_object_set_data(GTK_OBJECT(filter_apply), E_DFILTER_CM_KEY, filter_cm);
-    gtk_signal_connect(GTK_OBJECT(filter_apply), "clicked",
-                       GTK_SIGNAL_FUNC(filter_activate_cb), filter_te);
 #else
     filter_apply = gtk_button_new_from_stock(GTK_STOCK_APPLY);
-    g_object_set_data(G_OBJECT(filter_apply), E_DFILTER_CM_KEY, filter_cm);
-    g_signal_connect(G_OBJECT(filter_apply), "clicked",
-                     G_CALLBACK(filter_activate_cb), filter_te);
 #endif
+    OBJECT_SET_DATA(filter_apply, E_DFILTER_CM_KEY, filter_cm);
+    SIGNAL_CONNECT(filter_apply, "clicked", filter_activate_cb, filter_te);
     gtk_box_pack_start(GTK_BOX(stat_hbox), filter_apply, FALSE, TRUE, 1);
     gtk_widget_show(filter_apply);
 
@@ -2788,10 +2721,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
                          filter_te);
     set_menu_object_data("/Display/Prepare/Or Not Selected", E_DFILTER_TE_KEY,
                          filter_te);
-    gtk_object_set_data(GTK_OBJECT(popup_menu_object), E_DFILTER_TE_KEY,
-                        filter_te);
-    gtk_object_set_data(GTK_OBJECT(popup_menu_object), E_MPACKET_LIST_KEY,
-                        packet_list);
+    OBJECT_SET_DATA(popup_menu_object, E_DFILTER_TE_KEY, filter_te);
+    OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_KEY, packet_list);
 
     info_bar = gtk_statusbar_new();
     main_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "main");
