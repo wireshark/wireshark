@@ -1,0 +1,34 @@
+October 3, 2003
+
+    Added two new "well known destinations": SD_IOPWR AND SD_UTIL.
+
+    Added logic to dissect the CMD_SET_TIME command.
+
+    Added an alterate destination for the CMD_PGM_START command.
+
+    Added logic to dissect the CMD_SCHED_MSG_REPLACE command.
+
+    Added logic to dissect the CMD_USDT_REGISTER command.
+
+    Added logic to dissect the CMD_USDT_SET_FUNCTIONAL command.
+
+    Added logic to dissect the following commands
+       CMD_IOPWR_GETINP   
+       CMD_IOPWR_GETLATCH 
+       CMD_IOPWR_CLRLATCH 
+       CMD_IOPWR_GETOUT   
+       CMD_IOPWR_SETOUT   
+       CMD_IOPWR_SETBIT   
+       CMD_IOPWR_CLRBIT   
+       CMD_IOPWR_GETPOWER 
+       CMD_UTIL_SET_INIT_STRATEGY
+       CMD_UTIL_GET_INIT_STRATEGY
+
+    Added the ability to recongnize more IOCTLS.  (For the SJA1000 driver, LIN
+        and power drivers.)
+
+    Added the ability to recognize more card types.
+
+    Added dissection of more fields for CMD_SCHED_TX command.
+
+    Bug fixes and general updating.

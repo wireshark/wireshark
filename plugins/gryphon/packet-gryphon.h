@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Definitions for Gryphon packet disassembly structures and routines
  *
- * $Id: packet-gryphon.h,v 1.7 2002/08/28 20:39:05 jmayer Exp $
+ * $Id: packet-gryphon.h,v 1.8 2003/10/03 23:22:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -38,6 +38,8 @@
 #define SD_BLM	    	    	0x23	/* Bus Load Monitoring */
 #define SD_FLIGHT   	    	0x25	/* Flight Recorder */
 #define SD_RESP     	    	0x26	/* Message Response */
+#define SD_IOPWR                0x27    /* VNG / Compact Gryphon I/O & power */
+#define SD_UTIL                 0x28    /* Miscellaneous utility commands   */
 
 
 
@@ -63,6 +65,7 @@
 #define CMD_RESET_RXDROP	0x08	/* Set count of Rx msgs dropped to zero */
 #define CMD_BCAST_ON		0x09	/* broadcasts on */
 #define CMD_BCAST_OFF		0x0a	/* broadcasts off */
+#define CMD_SET_TIME		0x0b	/* set time */
 
 /* SD-type specific commands: should start at 0x40, global uniqueness	*/
 /* is prefered, but not mandatory.					*/
@@ -125,6 +128,7 @@
 #define CMD_PGM_DELETE	    	(SD_PGM * 256 + 0x92)	/* Delete an uploaded program */
 #define CMD_PGM_LIST	    	(SD_PGM * 256 + 0x93)	/* Get a list of uploaded programs */
 #define CMD_PGM_START	    	(SD_PGM * 256 + 0x94)	/* Start an uploaded program */
+#define CMD_PGM_START2	    	(SD_CLIENT * 256 + 0x94)/* Start an uploaded program */
 #define CMD_PGM_STOP	    	(SD_PGM * 256 + 0x95)	/* Stop an uploaded program */
 #define CMD_PGM_STATUS	    	(SD_PGM * 256 + 0x96)	/* Get the status of an uploaded program */
 #define CMD_PGM_OPTIONS	    	(SD_PGM * 256 + 0x97)	/* Set the upload options */
@@ -135,11 +139,29 @@
 #define CMD_SCHED_TX		(SD_SCHED * 256 + 0x70)	/* schedule transmission list */
 #define CMD_SCHED_KILL_TX	(SD_SCHED * 256 + 0x71)	/* stop and destroy job */
 #define CMD_SCHED_STOP_TX	(SD_SCHED * 256 + 0x71)	/* deprecated */
+#define CMD_SCHED_MSG_REPLACE   (SD_SCHED * 256 + 0x72) /* replace a scheduled message */
 
 /* USDT (SD_USDT) target commands: */
 
 #define	CMD_USDT_IOCTL		(SD_USDT * 256 + 0x47)	/* Register/Unregister with USDT */
+#define	CMD_USDT_REGISTER	(SD_USDT * 256 + 0xB0)	/* Register/Unregister with USDT */
+#define CMD_USDT_SET_FUNCTIONAL (SD_USDT * 256 + 0xB1)  /* Set to use extended addressing*/
 
+/* USDT (SD_IOPWR) target commands: */
+
+#define CMD_IOPWR_GETINP        (SD_IOPWR * 256 + 0x40) /*  Read current digital inputs  */   
+#define CMD_IOPWR_GETLATCH      (SD_IOPWR * 256 + 0x41) /*  Read latched digital inputs  */   
+#define CMD_IOPWR_CLRLATCH      (SD_IOPWR * 256 + 0x42) /*  Read & clear latched inputs  */   
+#define CMD_IOPWR_GETOUT        (SD_IOPWR * 256 + 0x43) /*  Read digital outputs         */   
+#define CMD_IOPWR_SETOUT        (SD_IOPWR * 256 + 0x44) /*  Write digital outputs        */   
+#define CMD_IOPWR_SETBIT        (SD_IOPWR * 256 + 0x45) /*  Set indicated output bit(s)  */   
+#define CMD_IOPWR_CLRBIT        (SD_IOPWR * 256 + 0x46) /*  Clear indicated output bit(s)*/   
+#define CMD_IOPWR_GETPOWER      (SD_IOPWR * 256 + 0x47) /*  Read inputs at power on time */   
+
+/* Miscellaneous (SD_UTIL) target commands: */
+
+#define CMD_UTIL_SET_INIT_STRATEGY (SD_UTIL * 256 + 0x90) /* set the initialization strategy  */
+#define CMD_UTIL_GET_INIT_STRATEGY (SD_UTIL * 256 + 0x91) /* get the initialization strategy  */
 
 /* response frame (FT_RESP) response field definitions: */
 
@@ -324,8 +346,66 @@
 #define GUBPSETINTERBYTE        0x11800004
 #define GUBPGETNACKMODE         0x11800005
 #define GUBPSETNACKMODE         0x11800006
+#define GUBPGETRETRYDELAY	0x11800007
+#define GUBPSETRETRYDELAY	0x11800008
 
+#define GRESETHC08              0x11800009
+#define GTESTHC08COP            0x1180000A
 
+#define GSJAGETLISTEN	        0x11250001
+#define GSJASETLISTEN	        0x11250002
+#define GSJAGETSELFTEST         0x11250003
+#define GSJASETSELFTEST         0x11250004
+#define GSJAGETXMITONCE         0x11250005
+#define GSJASETXMITONCE         0x11250006
+#define GSJAGETTRIGSTATE        0x11250007
+#define GSJASETTRIGCTRL         0x11250008
+#define GSJAGETTRIGCTRL         0x11250009
+#define GSJAGETOUTSTATE         0x1125000A
+#define GSJASETOUTSTATE         0x1125000B
+#define GSJAGETFILTER           0x1125000C
+#define GSJASETFILTER           0x1125000D
+#define GSJAGETMASK             0x1125000E
+#define GSJASETMASK             0x1125000F
+#define GSJAGETINTTERM          0x11250010
+#define GSJASETINTTERM          0x11250011
+#define GSJAGETFTTRANS          0x11250012
+#define GSJASETFTTRANS          0x11250013
+#define GSJAGETFTERROR          0x11250014
+
+#define GLINGETBITRATE          0x11C00001
+#define GLINSETBITRATE          0x11C00002
+#define GLINGETBRKSPACE         0x11C00003
+#define GLINSETBRKSPACE         0x11C00004
+#define GLINGETBRKMARK          0x11C00005
+#define GLINSETBRKMARK          0x11C00006
+#define GLINGETIDDELAY          0x11C00007
+#define GLINSETIDDELAY          0x11C00008
+#define GLINGETRESPDELAY        0x11C00009
+#define GLINSETRESPDELAY        0x11C0000A
+#define GLINGETINTERBYTE        0x11C0000B
+#define GLINSETINTERBYTE        0x11C0000C
+#define GLINGETWAKEUPDELAY      0x11C0000D
+#define GLINSETWAKEUPDELAY      0x11C0000E
+#define GLINGETWAKEUPTIMEOUT    0x11C0000F
+#define GLINSETWAKEUPTIMEOUT    0x11C00010
+#define GLINGETWUTIMOUT3BR      0x11C00011
+#define GLINSETWUTIMOUT3BR      0x11C00012
+#define GLINSENDWAKEUP          0x11C00013
+#define GLINGETMODE             0x11C00014
+#define GLINSETMODE             0x11C00015
+
+#define GINPGETINP              0x11500001
+#define GINPGETLATCH            0x11500002
+#define GINPCLRLATCH            0x11500003
+#define GOUTGET                 0x11510001
+#define GOUTSET                 0x11510002
+#define GOUTSETBIT              0x11510003
+#define GOUTCLEARBIT            0x11510004
+#define GPWRGETWHICH            0x11520001
+#define GPWROFF                 0x11520002
+#define GPWROFFRESET            0x11520003
+#define GPWRRESET	        0x11520004
 
 
 /* Hardware / driver TYPE and SUBTYPE definitions */
@@ -337,6 +417,13 @@
 #define G82527		0x01		/* 82527 SUBTYPE */
 #define GSJA1000	0x02		/* SJA1000 SUBTYPE */
 #define G82527SW	0x03		/* 82527 single wire subtype */
+#define G82527ISO11992	0x04		/* 82527 ISO11992 subtype */
+#define G82527_SINGLECHAN   0x05	/* 82527 single channel */
+#define G82527SW_SINGLECHAN 0x06	/* 82527 single wire single channel */
+#define G82527ISO11992_SINGLECHAN   0x07 /* 82527 ISO11992 single channel */
+#define GSJA1000FT	0x10		/* SJA1000 Fault Tolerant subtype */
+#define GSJA1000C	0x11		/* SJA1000 Compact subtype */
+#define GSJA1000FT_FO   0x12            /* SJA1000 single chsnnel Fault Tolerant subtype */
 
 #define GJ1850		0x03	/* 1850 TYPE */
 #define GHBCCPAIR	0x01		/* HBCC SUBTYPE */
@@ -353,6 +440,14 @@
 #define GFORDUBP	0x06	/* FORD UBP TYPE */
 #define GDGUBP08	0x01		/* DG HC08 SUBTYPE */
 
+#define GSCI		0x09	/* Chrysler SCI TYPE */
+#define G16550SCI	0x01		/* 16550 type UART based card SUBTYPE */
+
+#define GCCD		0x0a	/* Chrysler C2D TYPE */
+#define G16550CDP68HC68	0x01		/* 16550 / CDP68HC68S1 card SUBTYPE */
+
+#define GLIN    	0x0b	/* LIN TYPE */
+#define GDGLIN08	0x01		/* DG HC08 SUBTYPE */
 
 #define SIZEOF(x)   	(sizeof(x)/sizeof(x[0]))
 

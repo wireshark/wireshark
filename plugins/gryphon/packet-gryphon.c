@@ -3,7 +3,7 @@
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
  *
- * $Id: packet-gryphon.c,v 1.39 2003/09/09 19:22:05 guy Exp $
+ * $Id: packet-gryphon.c,v 1.40 2003/10/03 23:22:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,6 +84,9 @@ static gint ett_gryphon_cmd_response_block = -1;
 static gint ett_gryphon_pgm_list = -1;
 static gint ett_gryphon_pgm_status = -1;
 static gint ett_gryphon_pgm_options = -1;
+static gint ett_gryphon_valid_headers = -1;
+static gint ett_gryphon_usdt_data = -1;
+static gint ett_gryphon_digital_data = -1;
 
 /* desegmentation of Gryphon */
 static gboolean gryphon_desegment = TRUE;
@@ -94,6 +97,7 @@ static int decode_command(tvbuff_t*, int, int, proto_tree*);
 static int decode_response(tvbuff_t*, int, int, proto_tree*);
 static int decode_data(tvbuff_t*, int, proto_tree*);
 static int decode_event(tvbuff_t*, int, proto_tree*);
+static int decode_misc(tvbuff_t*, int, proto_tree*);
 static int cmd_init(tvbuff_t*, int, proto_tree*);
 static int resp_time(tvbuff_t*, int, proto_tree*);
 static int cmd_setfilt(tvbuff_t*, int, proto_tree*);
@@ -112,6 +116,7 @@ static int cmd_sort(tvbuff_t*, int, proto_tree*);
 static int cmd_optimize(tvbuff_t*, int, proto_tree*);
 static int resp_config(tvbuff_t*, int, proto_tree*);
 static int cmd_sched(tvbuff_t*, int, proto_tree*);
+static int cmd_sched_rep(tvbuff_t*, int, proto_tree*);
 static int resp_blm_data(tvbuff_t*, int, proto_tree*);
 static int resp_blm_stat(tvbuff_t*, int, proto_tree*);
 static int cmd_addresp(tvbuff_t*, int, proto_tree*);
@@ -136,6 +141,9 @@ static int speed(tvbuff_t*, int, proto_tree*);
 static int filter_block(tvbuff_t*, int, proto_tree*);
 static int blm_mode(tvbuff_t*, int, proto_tree*);
 static int cmd_usdt(tvbuff_t*, int, proto_tree*);
+static int cmd_bits_in(tvbuff_t*, int, proto_tree*);
+static int cmd_bits_out(tvbuff_t*, int, proto_tree*);
+static int cmd_init_strat(tvbuff_t*, int, proto_tree*);
 
 static char *frame_type[] = {
 	"",
@@ -196,6 +204,8 @@ static const value_string src_dest[] = {
     {SD_BLM,	    	"Bus Load Monitoring"},
     {SD_FLIGHT,   	"Flight Recorder"},
     {SD_RESP,     	"Message Responder"},
+    {SD_IOPWR,          "I/O and power"},
+    {SD_UTIL,           "Utility/Miscellaneous"},
     {0,			NULL}
 };
 
@@ -282,7 +292,7 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset+3, 1, tvb_get_guint8(tvb, offset + 3));
 
     proto_tree_add_text(header_tree, tvb, offset+4, 2,
-	"Data length: %u bytes", msglen);
+	"Data length: %u byte%s", msglen, msglen == 1 ? "" : "s");
     proto_tree_add_text(header_tree, tvb, offset+6, 1,
 	"Frame type: %s", frame_type[frmtyp]);
     if (is_msgresp_add) {
@@ -324,6 +334,7 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset = decode_event(tvb, offset, body_tree);
 	break;
     case GY_FT_MISC:
+	offset = decode_misc (tvb, offset, body_tree);
 	break;
     case GY_FT_TEXT:
 	break;
@@ -344,12 +355,13 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 static const val_str_dsp cmds[] = {
-    	{CMD_INIT,	    	"Initialize", cmd_init, NULL},
-        {CMD_GET_STAT,  	"Get status", NULL, NULL},
-        {CMD_GET_CONFIG,	"Get configuration", NULL, resp_config},
-        {CMD_EVENT_ENABLE,  	"Enable event", eventnum, NULL},
-        {CMD_EVENT_DISABLE, 	"Disable event", eventnum, NULL},
+	{CMD_INIT,	    	"Initialize", cmd_init, NULL},
+	{CMD_GET_STAT,  	"Get status", NULL, NULL},
+	{CMD_GET_CONFIG,	"Get configuration", NULL, resp_config},
+	{CMD_EVENT_ENABLE,  	"Enable event", eventnum, NULL},
+	{CMD_EVENT_DISABLE, 	"Disable event", eventnum, NULL},
 	{CMD_GET_TIME,  	"Get time", NULL, resp_time},
+	{CMD_SET_TIME,  	"Set time", resp_time, NULL},
 	{CMD_GET_RXDROP,	"Get number of dropped RX messages", NULL, NULL},
 	{CMD_RESET_RXDROP,  	"Clear number of dropped RX messages", NULL, NULL},
 	{CMD_BCAST_ON,  	"Set broadcasts on", NULL, NULL},
@@ -372,8 +384,8 @@ static const val_str_dsp cmds[] = {
 	{CMD_CARD_GET_EVNAMES,	"Get event names", NULL, resp_events},
 	{CMD_CARD_GET_SPEEDS,	"Get defined speeds", NULL, resp_getspeeds},
 	{CMD_SERVER_REG, 	"Register with server", cmd_register, resp_register},
-    	{CMD_SERVER_SET_SORT,	"Set the sorting behavior", cmd_sort, NULL},
-    	{CMD_SERVER_SET_OPT,  	"Set the type of optimization", cmd_optimize, NULL},
+	{CMD_SERVER_SET_SORT,	"Set the sorting behavior", cmd_sort, NULL},
+	{CMD_SERVER_SET_OPT,  	"Set the type of optimization", cmd_optimize, NULL},
 	{CMD_BLM_SET_MODE,	"Set Bus Load Monitoring mode", blm_mode, NULL},
 	{CMD_BLM_GET_MODE,	"Get Bus Load Monitoring mode", NULL, blm_mode},
 	{CMD_BLM_GET_DATA,	"Get Bus Load data", NULL, resp_blm_data},
@@ -390,16 +402,30 @@ static const val_str_dsp cmds[] = {
 	{CMD_PGM_DELETE, 	"Delete an uploaded program", cmd_delete, NULL},
 	{CMD_PGM_LIST,   	"Get a list of uploaded programs", cmd_list, resp_list},
 	{CMD_PGM_START,  	"Start an uploaded program", cmd_start, resp_start},
+	{CMD_PGM_START2,	"Start an uploaded program", NULL, resp_start},
 	{CMD_PGM_STOP,   	"Stop an uploaded program", resp_start, NULL},
 	{CMD_PGM_STATUS, 	"Get status of an uploaded program", cmd_delete, resp_status},
 	{CMD_PGM_OPTIONS, 	"Set program upload options", cmd_options, resp_status},
-    	{CMD_PGM_FILES,     	"Get a list of files & directories", cmd_files, resp_files},
+	{CMD_PGM_FILES,     	"Get a list of files & directories", cmd_files, resp_files},
 	{CMD_SCHED_TX,   	"Schedule transmission of messages", cmd_sched, resp_sched},
-	{CMD_SCHED_KILL_TX,	"Stop and destroy a message transmission", NULL, NULL},
-	{CMD_SCHED_STOP_TX,	"Kill a message transmission (deprecated)", NULL, NULL},
+	{CMD_SCHED_KILL_TX,	"Stop and destroy a message transmission", resp_sched, NULL},
+	{CMD_SCHED_STOP_TX,	"Kill a message transmission (deprecated)", resp_sched, NULL},
+        {CMD_SCHED_MSG_REPLACE, "Replace a scheduled message", cmd_sched_rep, NULL},
 	{CMD_USDT_IOCTL,    	"Register/Unregister with USDT server", cmd_usdt, NULL},
+	{CMD_USDT_REGISTER,    	"Register/Unregister with USDT server", cmd_usdt, NULL},
+        {CMD_USDT_SET_FUNCTIONAL, "Set IDs to use extended addressing", cmd_usdt, NULL},
+        {CMD_IOPWR_GETINP,      "Read current digital inputs", NULL, cmd_bits_in},
+        {CMD_IOPWR_GETLATCH,    "Read latched digital inputs", NULL, cmd_bits_in},
+        {CMD_IOPWR_CLRLATCH,    "Read & clear latched digital inputs", cmd_bits_in, cmd_bits_in},
+        {CMD_IOPWR_GETOUT,      "Read digital outputs", NULL, cmd_bits_out},
+        {CMD_IOPWR_SETOUT,      "Write digital outputs", cmd_bits_out, NULL},
+        {CMD_IOPWR_SETBIT,      "Set indicated output bits", cmd_bits_out, NULL},
+        {CMD_IOPWR_CLRBIT,      "Clear indicated output bits", cmd_bits_out, NULL},
+        {CMD_IOPWR_GETPOWER,    "Read digital inputs at power on time", NULL, cmd_bits_in},
+        {CMD_UTIL_SET_INIT_STRATEGY, "Set initialization strategy", cmd_init_strat, NULL},
+        {CMD_UTIL_GET_INIT_STRATEGY, "Get initialization strategy", NULL, cmd_init_strat},
 	{-1,	    	    	"- unknown -", NULL, NULL},
-        };
+	};
 
 static const value_string responses[] = {
 	{RESP_OK,		"OK - no error"},
@@ -497,8 +523,8 @@ static const value_string ioctls[] = {
 	{GSETRAM,   	    	"GSETRAM: Write value to RAM"},
 	{GCANGETBTRS,	    	"GCANGETBTRS: Read CAN bit timing registers"},
 	{GCANSETBTRS,	    	"GCANSETBTRS: Write CAN bit timing registers"},
-	{GCANGETBC, 	    	"GCANGETBC: Read CAN byte count"},
-	{GCANSETBC, 	    	"GCANSETBC: Write CAN byte count"},
+	{GCANGETBC, 	    	"GCANGETBC: Read CAN bus configuration register"},
+	{GCANSETBC, 	    	"GCANSETBC: Write CAN bus configuration register"},
 	{GCANGETMODE,	    	"GCANGETMODE"},
 	{GCANSETMODE,	    	"GCANSETMODE"},
 	{GCANGETTRANS,	    	"GCANGETTRANS"},
@@ -552,6 +578,65 @@ static const value_string ioctls[] = {
 	{GUBPSETINTERBYTE,  	"GUBPSETINTERBYTE"},
 	{GUBPGETNACKMODE,   	"GUBPGETNACKMODE"},
 	{GUBPSETNACKMODE,   	"GUBPSETNACKMODE"},
+        {GUBPGETRETRYDELAY,	"GUBPGETRETRYDELAY"},
+        {GUBPSETRETRYDELAY,	"GUBPSETRETRYDELAY"},
+        {GRESETHC08,            "GRESETHC08: Reset the HC08 processor"},
+        {GTESTHC08COP,          "GTESTHC08COP: Stop updating the HC08 watchdog timer"},
+        {GSJAGETLISTEN,         "GSJAGETLISTEN"},
+        {GSJASETLISTEN,         "GSJASETLISTEN"},
+        {GSJAGETSELFTEST,       "GSJAGETSELFTEST"},
+        {GSJASETSELFTEST,       "GSJASETSELFTEST"},
+        {GSJAGETXMITONCE,       "GSJAGETXMITONCE"},
+        {GSJASETXMITONCE,       "GSJASETXMITONCE"},
+        {GSJAGETTRIGSTATE,      "GSJAGETTRIGSTATE"},
+        {GSJASETTRIGCTRL,       "GSJASETTRIGCTRL"},
+        {GSJAGETTRIGCTRL,       "GSJAGETTRIGCTRL"},
+        {GSJAGETOUTSTATE,       "GSJAGETOUTSTATE"},
+        {GSJASETOUTSTATE,       "GSJASETOUTSTATE"},
+        {GSJAGETFILTER,         "GSJAGETFILTER"},
+        {GSJASETFILTER,         "GSJASETFILTER"},
+        {GSJAGETMASK,           "GSJAGETMASK"},
+        {GSJASETMASK,           "GSJASETMASK"},
+        {GSJAGETINTTERM,        "GSJAGETINTTERM"},
+        {GSJASETINTTERM,        "GSJASETINTTERM"},
+        {GSJAGETFTTRANS,        "GSJAGETFTTRANS"},
+        {GSJASETFTTRANS,        "GSJASETFTTRANS"},
+        {GSJAGETFTERROR,        "GSJAGETFTERROR"},
+        {GLINGETBITRATE,        "GLINGETBITRATE: Get the current bit rate"},
+        {GLINSETBITRATE,        "GLINSETBITRATE: Set the bit rate"},
+        {GLINGETBRKSPACE,       "GLINGETBRKSPACE"},
+        {GLINSETBRKSPACE,       "GLINSETBRKSPACE"},
+        {GLINGETBRKMARK,        "GLINGETBRKMARK"},
+        {GLINSETBRKMARK,        "GLINSETBRKMARK"},
+        {GLINGETIDDELAY,        "GLINGETIDDELAY"},
+        {GLINSETIDDELAY,        "GLINSETIDDELAY"},
+        {GLINGETRESPDELAY,      "GLINGETRESPDELAY"},
+        {GLINSETRESPDELAY,      "GLINSETRESPDELAY"},
+        {GLINGETINTERBYTE,      "GLINGETINTERBYTE"},
+        {GLINSETINTERBYTE,      "GLINSETINTERBYTE"},
+        {GLINGETWAKEUPDELAY,    "GLINGETWAKEUPDELAY"},
+        {GLINSETWAKEUPDELAY,    "GLINSETWAKEUPDELAY"},
+        {GLINGETWAKEUPTIMEOUT,  "GLINGETWAKEUPTIMEOUT"},
+        {GLINSETWAKEUPTIMEOUT,  "GLINSETWAKEUPTIMEOUT"},
+        {GLINGETWUTIMOUT3BR,    "GLINGETWUTIMOUT3BR"},
+        {GLINSETWUTIMOUT3BR,    "GLINSETWUTIMOUT3BR"},
+        {GLINSENDWAKEUP,        "GLINSENDWAKEUP"},
+        {GLINGETMODE,           "GLINGETMODE"},
+        {GLINSETMODE,           "GLINSETMODE"},
+        {GINPGETINP,            "GINPGETINP: Read current digital inputs"},
+        {GINPGETLATCH,          "GINPGETLATCH: Read latched digital inputs"},
+        {GINPCLRLATCH,          "GINPCLRLATCH: Read and clear latched digital inputs"},
+        {GOUTGET,               "GOUTGET: Read digital outputs"},
+        {GOUTSET,               "GOUTSET: Write digital outputs"},
+        {GOUTSETBIT,            "GOUTSETBIT: Set digital output bits"},
+        {GOUTCLEARBIT,          "GOUTCLEARBIT"},
+        {GPWRGETWHICH,          "GPWRGETWHICH"},
+        {GPWROFF,               "GPWROFF"},
+        {GPWROFFRESET,          "GPWROFFRESET"},
+        {GPWRRESET,             "GPWRRESET"},
+
+
+
 	{0, 	    	    	NULL},
 	};
 
@@ -590,7 +675,8 @@ decode_command(tvbuff_t *tvb, int offset, int dst, proto_tree *pt)
 
     if (cmds[i].cmd_fnct && msglen > 0) {
     	padding = 3 - (msglen + 3) % 4;
- 	ti = proto_tree_add_text(pt, tvb, offset, -1, "Data: (%d bytes)", msglen);
+ 	ti = proto_tree_add_text(pt, tvb, offset, -1, "Data: (%d byte%s)",
+                msglen, msglen == 1 ? "" : "s");
 	ft = proto_item_add_subtree(ti, ett_gryphon_command_data);
 	offset = (*(cmds[i].cmd_fnct)) (tvb, offset, ft);
     }
@@ -634,7 +720,8 @@ decode_response(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     msglen -= 4;
 
     if (cmds[i].rsp_fnct && msglen > 0) {
-	ti = proto_tree_add_text(pt, tvb, offset, msglen, "Data: (%d bytes)", msglen);
+	ti = proto_tree_add_text(pt, tvb, offset, msglen, "Data: (%d byte%s)",
+                msglen, msglen == 1 ? "" : "s");
 	ft = proto_item_add_subtree(ti, ett_gryphon_response_data);
 	offset = (*(cmds[i].rsp_fnct)) (tvb, offset, ft);
     }
@@ -659,9 +746,12 @@ decode_data(tvbuff_t *tvb, int offset, proto_tree *pt)
 
     item = proto_tree_add_text(pt, tvb, offset, 16, "Message header");
     tree = proto_item_add_subtree (item, ett_gryphon_data_header);
-    proto_tree_add_text(tree, tvb, offset, 2, "Header length: %d bytes, %d bits", hdrsize, hdrbits);
-    proto_tree_add_text(tree, tvb, offset+2, 2, "Data length: %d bytes", datasize);
-    proto_tree_add_text(tree, tvb, offset+4, 1, "Extra data length: %d bytes", extrasize);
+    proto_tree_add_text(tree, tvb, offset, 2, "Header length: %d byte%s, %d bits",
+            hdrsize, plurality(hdrsize, "", "s"), hdrbits);
+    proto_tree_add_text(tree, tvb, offset+2, 2, "Data length: %d byte%s",
+            datasize, plurality(datasize, "", "s"));
+    proto_tree_add_text(tree, tvb, offset+4, 1, "Extra data length: %d byte%s",
+            extrasize, plurality(extrasize, "", "s"));
     mode = tvb_get_guint8(tvb, offset+5);
     item1 = proto_tree_add_text(tree, tvb, offset+5, 1, "Mode: %d", mode);
     if (mode) {
@@ -753,11 +843,32 @@ decode_event(tvbuff_t *tvb, int offset, proto_tree *pt)
     offset += 4;
     if (offset < msgend) {
     	length = msgend - offset;
-    	proto_tree_add_text (pt, tvb, offset, length, "Data (%d bytes)", length);
+    	proto_tree_add_text (pt, tvb, offset, length, "Data (%d byte%s)",
+                length, length == 1 ? "" : "s");
 	offset += length;
     }
     if (padding) {
     	proto_tree_add_text(pt, tvb, offset, padding, "padding");
+	offset += padding;
+    }
+    return offset;
+}
+
+static int
+decode_misc (tvbuff_t *tvb, int offset, proto_tree *pt)
+{
+    #define         LENGTH 120
+    int     	    padding, msglen;
+    gint            length;
+    unsigned char   local_data[LENGTH+1];
+
+    msglen = tvb_reported_length_remaining(tvb, offset);
+    padding = 3 - (msglen + 3) % 4;
+    length = tvb_get_nstringz0(tvb, offset, LENGTH, local_data);
+    proto_tree_add_text(pt, tvb, offset, msglen, "Data: %s", local_data);
+    offset += msglen;
+    if (padding) {
+    	proto_tree_add_text (pt, tvb, offset, padding, "padding");
 	offset += padding;
     }
     return offset;
@@ -1034,9 +1145,11 @@ resp_getspeeds(tvbuff_t *tvb, int offset, proto_tree *pt)
     proto_tree_add_text(pt, tvb, offset, 4, "Set Speed IOCTL");
     proto_tree_add_text(pt, tvb, offset+4, 4, "Get Speed IOCTL");
     size = tvb_get_guint8(tvb, offset+8);
-    proto_tree_add_text(pt, tvb, offset+8, 1, "Speed data size is %d bytes", size);
+    proto_tree_add_text(pt, tvb, offset+8, 1, "Speed data size is %d byte%s",
+            size, size == 1 ? "" : "s");
     number = tvb_get_guint8(tvb, offset+9);
-    proto_tree_add_text(pt, tvb, offset+9, 1, "There are %d preset speeds", number);
+    proto_tree_add_text(pt, tvb, offset+9, 1, "There %s %d preset speed%s",
+        number == 1 ? "is" : "are", number, number == 1 ? "" : "s");
     offset += 10;
     for (index = 0; index < number; index++) {
 	proto_tree_add_text(pt, tvb, offset, size, "Data for preset %d",
@@ -1075,24 +1188,34 @@ cmd_optimize(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 resp_config(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    proto_item	*ti;
-    proto_tree	*ft;
+    proto_item	*ti, *item;
+    proto_tree	*ft, *tree;
     int     	devices;
     int     	i;
-    unsigned int x;
+    unsigned int j, x;
 
     static const value_string protocol_types[] = {
 	{GDUMMY * 256 + GDGDMARKONE,	"Dummy device driver"},
 	{GCAN * 256 + G82527,	    	"CAN, 82527 subtype"},
 	{GCAN * 256 + GSJA1000,     	"CAN, SJA1000 subtype"},
 	{GCAN * 256 + G82527SW,     	"CAN, 82527 single wire subtype"},
+	{GCAN * 256 + G82527ISO11992,   "CAN, 82527 ISO11992 subtype"},
+	{GCAN * 256 + G82527_SINGLECHAN, "CAN, Fiber Optic 82527 subtype"},
+	{GCAN * 256 + G82527SW_SINGLECHAN, "CAN, Fiber Optic 82527 single wire subtype"},
+	{GCAN * 256 + G82527ISO11992_SINGLECHAN,	"CAN, Fiber Optic ISO11992 subtype"},
+	{GCAN * 256 + GSJA1000FT,	"CAN, SJA1000 Fault Tolerant subtype"},
+	{GCAN * 256 + GSJA1000C,    	"CAN, SJA1000 onboard subtype"},
+	{GCAN * 256 + GSJA1000FT_FO,    "CAN, SJA1000 Fiber Optic Fault Tolerant subtype"},
 	{GJ1850 * 256 + GHBCCPAIR,  	"J1850, HBCC subtype"},
 	{GJ1850 * 256 + GDLC,	    	"J1850, GM DLC subtype"},
 	{GJ1850 * 256 + GCHRYSLER,  	"J1850, Chrysler subtype"},
 	{GJ1850 * 256 + GDEHC12,    	"J1850, DE HC12 KWP/BDLC subtype"},
-	{GKWP2000 * 256 + GDEHC12KWP,  	"Keyword protocol 2000"},
+	{GKWP2000 * 256 + GDEHC12KWP,  	"Keyword protocol 2000/ISO 9141"},
 	{GHONDA * 256 + GDGHC08,    	"Honda UART, DG HC08 subtype"},
 	{GFORDUBP * 256 + GDGUBP08, 	"Ford UBP, DG HC08 subtype"},
+        {GSCI * 256 + G16550SCI,        "Chrysler SCI, UART subtype"},
+        {GCCD * 256 + G16550CDP68HC68,  "Chrysler C2D, UART / CDP68HC68S1 subtype"},
+        {GLIN * 256 + GDGLIN08,         "LIN, DG HC08 subtype"},
 	{0,	    	    	    	NULL},
     };
 
@@ -1110,7 +1233,9 @@ resp_config(tvbuff_t *tvb, int offset, proto_tree *pt)
 
     devices = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(pt, tvb, offset, 1, "Number of channels: %d", devices);
-    proto_tree_add_text(pt, tvb, offset+1, 15, "reserved");
+    proto_tree_add_text(pt, tvb, offset+1, 11, "Name & version extension: %.11s",
+	tvb_get_ptr(tvb, offset+1, 11));
+    proto_tree_add_text(pt, tvb, offset+12, 4, "reserved");
     offset += 16;
     for (i = 1; i <= devices; i++) {
 	ti = proto_tree_add_text(pt, tvb, offset, 80, "Channel %d:", i);
@@ -1123,9 +1248,34 @@ resp_config(tvbuff_t *tvb, int offset, proto_tree *pt)
 	    tvb_get_ptr(tvb, offset, 8));
 	offset += 8;
 
-	proto_tree_add_text(ft, tvb, offset, 24, "Device security string: %.24s",
-	    tvb_get_ptr(tvb, offset, 24));
-	offset += 24;
+	proto_tree_add_text(ft, tvb, offset, 16, "Device security string: %.16s",
+	    tvb_get_ptr(tvb, offset, 16));
+	offset += 16;
+
+        x = tvb_get_ntohl (tvb, offset);
+        if (x) {
+            item = proto_tree_add_text(ft, tvb, offset, 4, "Valid Header lengths");
+            tree = proto_item_add_subtree (item, ett_gryphon_valid_headers);
+            for (j = 0; ; j++) {
+                if (x & 1) {
+	            proto_tree_add_text(tree, tvb, offset, 4, "%d byte%s", j,
+                    j == 1 ? "" : "s");
+                }
+                if ((x >>= 1) == 0)
+                    break;
+            }
+        }
+	offset += 4;
+
+        x = tvb_get_ntohs (tvb, offset);
+	proto_tree_add_text(ft, tvb, offset, 2, "Maximum data length = %d byte%s",
+                x, x == 1 ? "" : "s");
+	offset += 2;
+
+        x = tvb_get_ntohs (tvb, offset);
+	proto_tree_add_text(ft, tvb, offset, 2, "Minimum data length = %d byte%s",
+                x, x == 1 ? "" : "s");
+	offset += 2;
 
 	proto_tree_add_text(ft, tvb, offset, 20, "Hardware serial number: %.20s",
 	    tvb_get_ptr(tvb, offset, 20));
@@ -1138,8 +1288,22 @@ resp_config(tvbuff_t *tvb, int offset, proto_tree *pt)
 
 	proto_tree_add_text(ft, tvb, offset, 1, "Channel ID: %u",
 	    tvb_get_guint8(tvb, offset));
-	proto_tree_add_text(ft, tvb, offset+1, 5, "reserved");
-	offset += 6;
+        offset++;
+
+	proto_tree_add_text(ft, tvb, offset, 1, "Card slot number: %u",
+	    tvb_get_guint8(tvb, offset));
+        offset ++;
+
+        x = tvb_get_ntohs (tvb, offset);
+	proto_tree_add_text(ft, tvb, offset, 2, "Maximum extra data = %d byte%s",
+                x, x == 1 ? "" : "s");
+        offset += 2;
+
+        x = tvb_get_ntohs (tvb, offset);
+	proto_tree_add_text(ft, tvb, offset, 2, "Minimum extra data = %d byte%s",
+                x, x == 1 ? "" : "s");
+        offset += 2;
+
     }
     return offset;
 }
@@ -1157,7 +1321,7 @@ cmd_sched(tvbuff_t *tvb, int offset, proto_tree *pt)
     msglen = tvb_reported_length_remaining(tvb, offset);
     x = tvb_get_ntohl(tvb, offset);
     if (x == 0xFFFFFFFF)
-    	proto_tree_add_text(pt, tvb, offset, 4, "Number of iterations: infinite");
+    	proto_tree_add_text(pt, tvb, offset, 4, "Number of iterations: \"infinite\"");
     else
     	proto_tree_add_text(pt, tvb, offset, 4, "Number of iterations: %u", x);
     offset += 4;
@@ -1189,7 +1353,17 @@ cmd_sched(tvbuff_t *tvb, int offset, proto_tree *pt)
 	proto_tree_add_text(tree, tvb, offset, 4, "Transmit period: %u milliseconds", x);
 	offset += 4;
 	msglen -= 4;
-	proto_tree_add_text(tree, tvb, offset, 2, "reserved flags");
+        x = tvb_get_ntohs(tvb, offset);
+	item1 = proto_tree_add_text(tree, tvb, offset, 2, "Flags");
+        tree1 = proto_item_add_subtree (item1, ett_gryphon_flags);
+        proto_tree_add_text(tree1, tvb, offset, 2, "%s%s",
+	        decode_boolean_bitfield(x, 1, 16, "S", "Do not s"),
+                "kip the last \"Transmit period\"");
+        if (i == 1) {
+            proto_tree_add_text(tree1, tvb, offset, 2, "%s%s",
+	            decode_boolean_bitfield(x, 2, 16, "S", "Do not s"),
+                    "kip the first \"Sleep\" value");
+        }
 	x = tvb_get_guint8(tvb, offset+2);
 	if (x == 0)
 	    x = def_chan;
@@ -1204,6 +1378,35 @@ cmd_sched(tvbuff_t *tvb, int offset, proto_tree *pt)
 	msglen -= offset - save_offset;
 	i++;
     }
+    return offset;
+}
+
+static int
+cmd_sched_rep(tvbuff_t *tvb, int offset, proto_tree *pt)
+{
+    int		    msglen;
+    proto_item	    *item;
+    int		    save_offset;
+    unsigned int    x;
+    char            *type;
+
+    msglen = tvb_reported_length_remaining(tvb, offset);
+    x = tvb_get_ntohl(tvb, offset);
+    if (x & 0x80000000)
+        type = "Critical";
+    else
+        type = "Normal";
+    proto_tree_add_text(pt, tvb, offset, 4, "%s schedule ID: %u", type, x);
+    offset += 4;
+    msglen -= 4;
+    x= tvb_get_guint8(tvb, offset);
+    item = proto_tree_add_text(pt, tvb, offset, 1, "Message index: %d", x);
+    item = proto_tree_add_text(pt, tvb, offset + 1, 3, "reserved");
+    offset += 4;
+    msglen -= 4;
+    save_offset = offset;
+    offset = decode_data(tvb, offset, pt);
+    msglen -= offset - save_offset;
     return offset;
 }
 
@@ -1474,14 +1677,13 @@ cmd_upload(tvbuff_t *tvb, int offset, proto_tree *pt)
     msglen = tvb_reported_length_remaining(tvb, offset);
     proto_tree_add_text(pt, tvb, offset, 2, "Block number: %u",
 	tvb_get_ntohs(tvb, offset));
-    offset += 4;
-    msglen -= 4;
     proto_tree_add_text(pt, tvb, offset+2, 1, "Handle: %u",
 	tvb_get_guint8(tvb, offset+2));
     offset += 3;
     msglen -= 3;
     length = msglen;
-    proto_tree_add_text(pt, tvb, offset, length, "Data (%u bytes)", length);
+    proto_tree_add_text(pt, tvb, offset, length, "Data (%u byte%s)",
+            length, length == 1 ? "" : "s");
     offset += length;
     length = 3 - (length + 3) % 4;
     if (length) {
@@ -1542,16 +1744,23 @@ cmd_start(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     char	    *string;
     gint	    length;
+    int             msglen;
+    int             hdr_stuff = offset;
 
+    msglen = tvb_reported_length_remaining(tvb, offset);
     offset = cmd_delete(tvb, offset, pt);	/* decode the name */
-    string = tvb_get_stringz(tvb, offset, &length);
-    proto_tree_add_text(pt, tvb, offset, length, "Arguments: %s", string);
-    g_free(string);
-    offset += length;
-    length = 3 - (length + 3) % 4;
-    if (length) {
-	proto_tree_add_text(pt, tvb, offset, length, "padding");
-	offset += length;
+    if (offset < msglen + hdr_stuff) {
+        string = tvb_get_stringz(tvb, offset, &length);
+        if (length > 1) {
+            proto_tree_add_text(pt, tvb, offset, length, "Arguments: %s", string);
+            offset += length;
+            length = 3 - (length + 3) % 4;
+            if (length) {
+	        proto_tree_add_text(pt, tvb, offset, length, "padding");
+	        offset += length;
+            }
+        }
+        g_free(string);
     }
     return offset;
 }
@@ -1559,10 +1768,15 @@ cmd_start(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 resp_start(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    proto_tree_add_text(pt, tvb, offset, 1, "Channel (Client) number: %u",
-	tvb_get_guint8(tvb, offset));
-    proto_tree_add_text(pt, tvb, offset+1, 3, "reserved");
-    offset += 4;
+    int             msglen;
+
+    msglen = tvb_reported_length_remaining(tvb, offset);
+    if (msglen > 0) {
+        proto_tree_add_text(pt, tvb, offset, 1, "Channel (Client) number: %u",
+	    tvb_get_guint8(tvb, offset));
+        proto_tree_add_text(pt, tvb, offset+1, 3, "reserved");
+        offset += 4;
+    }
     return offset;
 }
 
@@ -1699,31 +1913,211 @@ resp_files(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_usdt(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
+    int     ids, id, remain, size, i, j, bytes;
     guchar  *desc;
-    guint8  assemble_flag;
+    guint8  flags;
+    proto_tree	    *localTree;
+    proto_item	    *localItem;
+    guchar  *actions[] = {"Use 11 bit headers only",
+                          "Use 29 bit headers only",
+                          "Use both 11 & 29 bit headers",
+                          "undefined"};
+    guchar *xmit_opts[] = {"Pad messages with less than 8 data bytes with 0x00's",
+                           "Pad messages with less than 8 data bytes with 0xFF's",
+                           "Do not pad messages with less than 8 data bytes",
+                           "undefined"};
+    guchar *recv_opts[] = {"Do not verify the integrity of long received messages and do not send them to the client",
+                           "Verify the integrity of long received messages and send them to the client",
+                           "Verify the integrity of long received messages but do not send them to the client",
+                           "undefined"};
+    guchar *block_desc[] = {"USDT request", "USDT response", "UUDT response"};
 
-    if (tvb_get_guint8(tvb, offset))
-	desc = "Register with gusdt";
+    flags = tvb_get_guint8(tvb, offset);
+    if (flags & 1)
+	desc = "R";
     else
-	desc = "Unregister with gusdt";
-    proto_tree_add_text(pt, tvb, offset, 1, "%s", desc);
+	desc = "Unr";
+    proto_tree_add_text(pt, tvb, offset, 1, "%segister with gusdt", desc);
 
-    if (tvb_get_guint8(tvb, offset+1))
-	desc = "Echo long transmit messages back to the client";
-    else
-	desc = "Do not echo long transmit messages back to the client";
-    proto_tree_add_text(pt, tvb, offset+1, 1, "%s", desc);
+    if (flags & 1) {
+        localItem = proto_tree_add_text(pt, tvb, offset, 1, "Action flags");
+        localTree = proto_item_add_subtree (localItem, ett_gryphon_flags);
+	proto_tree_add_text(localTree, tvb, offset, 1, "%s%s",
+	    decode_boolean_bitfield (flags, 1, 8,
+		"R", "Unr"), "egister with gusdt");
+	proto_tree_add_text(localTree, tvb, offset, 1, "%s = %s",
+            decode_numeric_bitfield (flags, 6, 8, "%d"),
+            actions[(flags >> 1) & 3]);
 
-    assemble_flag = tvb_get_guint8(tvb, offset+2);
-    if (assemble_flag == 2)
-    	desc = "Assemble long received messages but do not send them to the client";
-    else if (assemble_flag)
-    	desc = "Assemble long received messages and send them to the client";
-    else
-    	desc = "Do not assemble long received messages on behalf of the client";
-    proto_tree_add_text(pt, tvb, offset+2, 1, "%s", desc);
+        flags = tvb_get_guint8(tvb, offset+1);
+        localItem = proto_tree_add_text(pt, tvb, offset+1, 1, "Transmit options");
+        localTree = proto_item_add_subtree (localItem, ett_gryphon_flags);
+	proto_tree_add_text(localTree, tvb, offset+1, 1, "%s%s",
+	    decode_boolean_bitfield (flags, 1, 8,
+		"E", "Do not e"),
+                "cho long transmit messages back to the client");
+	proto_tree_add_text(localTree, tvb, offset+1, 1, "%s = %s",
+            decode_numeric_bitfield (flags, 6, 8, "%d"),
+            xmit_opts[(flags >> 1) & 3]);
+	proto_tree_add_text(localTree, tvb, offset+1, 1, "%s%s",
+	    decode_boolean_bitfield (flags, 8, 8,
+		"S", "Do not s"),
+                "end a USDT_DONE event when the last frame of a multi-frame USDT message is transmitted");
 
+        flags = tvb_get_guint8(tvb, offset+2);
+        localItem = proto_tree_add_text(pt, tvb, offset+2, 1, "Receive options");
+        localTree = proto_item_add_subtree (localItem, ett_gryphon_flags);
+	proto_tree_add_text(localTree, tvb, offset+2, 1, "%s = %s",
+            decode_numeric_bitfield (flags, 3, 8, "%d"),
+            recv_opts[flags & 3]);
+	proto_tree_add_text(localTree, tvb, offset+2, 1, "%s%s",
+	    decode_boolean_bitfield (flags, 4, 8,
+		"S", "Do not s"),
+                "end a USDT_FIRSTFRAME event when the first frame of a multi-frame USDT message is received");
+	proto_tree_add_text(localTree, tvb, offset+2, 1, "%s%s",
+	    decode_boolean_bitfield (flags, 8, 8,
+		"S", "Do not s"),
+                "end a USDT_LASTFRAME event when the last frame of a multi-frame USDT message is received");
+
+        if ((ids = tvb_get_guint8(tvb, offset+3))) {
+            localItem = proto_tree_add_text(pt, tvb, offset+3, 1, "Using extended addressing for %d ID%s",
+                    ids, ids == 1?"":"s");
+            offset += 4;
+            localTree = proto_item_add_subtree (localItem, ett_gryphon_usdt_data);
+            while (ids) {
+                id = tvb_get_ntohl (tvb, offset);
+                proto_tree_add_text (localTree, tvb, offset, 4, "%04X", id);
+                offset += 4;
+                ids--;
+            }
+        } else {
+            proto_tree_add_text(pt, tvb, offset+3, 1, "Using extended addressing for the single, internally defined, ID");
+            offset += 4;
+        }
+        for (i = 0; i < 2; i++) {
+            bytes = tvb_reported_length_remaining (tvb, offset);
+            if (bytes <= 0)
+                break;
+            localItem = proto_tree_add_text(pt, tvb, offset, 16, "%s block of USDT/UUDT IDs", i==0?"First":"Second");
+            localTree = proto_item_add_subtree (localItem, ett_gryphon_usdt_data);
+            size = tvb_get_ntohl (tvb, offset);
+            if (size == 0) {
+                proto_tree_add_text (localTree, tvb, offset, 16, "No IDs in the block");
+                offset += 16;
+            } else if (size == 1) {
+                proto_tree_add_text (localTree, tvb, offset, 4, "1 ID in the block");
+                offset += 4;
+                for (j = 0; j < 3; j++){
+                    id = tvb_get_ntohl (tvb, offset);
+                    proto_tree_add_text (localTree, tvb, offset, 4,
+                            "%s ID: %04X", block_desc[j], id);
+                    offset += 4;
+                }
+            } else {
+                proto_tree_add_text (localTree, tvb, offset, 4, "%d IDs in the block", size);
+                offset += 4;
+                for (j = 0; j < 3; j++){
+                    id = tvb_get_ntohl (tvb, offset);
+                    proto_tree_add_text (localTree, tvb, offset, 4,
+                            "%s IDs from %04X through %04X", block_desc[j], id, id+size-1);
+                    offset += 4;
+                }
+            }
+        }
+    } else {
+        proto_tree_add_text(pt, tvb, offset+1, 3, "reserved");
+        offset += 4;
+    }
+
+    if ((remain = tvb_reported_length_remaining(tvb, offset))) {
+        proto_tree_add_text(pt, tvb, offset, remain, "%d ignored byte%s",
+                remain, remain == 1 ? "" : "s");
+        offset += remain;
+    }
+
+    return offset;
+}
+
+static int
+cmd_bits_in (tvbuff_t *tvb, int offset, proto_tree *pt)
+{
+    proto_item	*item;
+    proto_tree	*tree;
+    unsigned int i;
+    int	    msglen, mask, value;
+    char    *decode[] = {"Input 1", "Input 2", "Input 3", "Pushbutton"};
+
+    msglen = tvb_reported_length_remaining(tvb, offset);
+    value = tvb_get_guint8(tvb, offset);
+    if (value) {
+        item = proto_tree_add_text(pt, tvb, offset, 1, "Digital values set");
+        tree = proto_item_add_subtree (item, ett_gryphon_digital_data);
+        for (i = 0, mask = 1; i < SIZEOF (decode); mask <<= 1, i++) {
+            if (value & mask) {
+                proto_tree_add_text(tree, tvb, offset, 1, "%s is set",
+                        decode[i]);
+            }
+        }
+    } else {
+        proto_tree_add_text(pt, tvb, offset, 1, "No digital values are set");
+    }
+            
+    offset++;
+    msglen--;
+    return offset;
+}
+
+static int
+cmd_bits_out (tvbuff_t *tvb, int offset, proto_tree *pt)
+{
+    proto_item	*item;
+    proto_tree	*tree;
+    unsigned int i;
+    int	    msglen, mask, value;
+    char    *decode[] = {"Output 1", "Output 2"};
+
+    msglen = tvb_reported_length_remaining(tvb, offset);
+    value = tvb_get_guint8(tvb, offset);
+    if (value) {
+        item = proto_tree_add_text(pt, tvb, offset, 1, "Digital values set");
+        tree = proto_item_add_subtree (item, ett_gryphon_digital_data);
+        for (i = 0, mask = 1; i < SIZEOF (decode); mask <<= 1, i++) {
+            if (value & mask) {
+                proto_tree_add_text(tree, tvb, offset, 1, "%s is set",
+                        decode[i]);
+            }
+        }
+    } else {
+        proto_tree_add_text(pt, tvb, offset, 1, "No digital values are set");
+    }
+            
+    offset++;
+    msglen--;
+    return offset;
+}
+
+static int
+cmd_init_strat (tvbuff_t *tvb, int offset, proto_tree *pt)
+{
+    int	    msglen, index;
+    float   value;
+
+    msglen = tvb_reported_length_remaining(tvb, offset);
+    proto_tree_add_text(pt, tvb, offset, 4, "Reset Limit = %u messages",
+	tvb_get_ntohl(tvb, offset));
     offset += 4;
+    msglen -= 4;
+    for (index = 1; msglen; index++, offset++, msglen--) {
+        value = tvb_get_guint8(tvb, offset);
+        if (value) {
+            value /= 4;
+            proto_tree_add_text(pt, tvb, offset, 1, "Delay %d = %.2f seconds",
+	        index, value);
+        } else {
+            proto_tree_add_text(pt, tvb, offset, 1, "Delay %d = infinite",
+	        index);
+        }
+    }
     return offset;
 }
 
@@ -1746,7 +2140,8 @@ filter_block(tvbuff_t *tvb, int offset, proto_tree *pt)
     proto_tree_add_text(pt, tvb, offset, 2, "Filter field starts at byte %u",
 	tvb_get_ntohs(tvb, offset));
     length = tvb_get_ntohs(tvb, offset+2);
-    proto_tree_add_text(pt, tvb, offset+2, 2, "Filter field is %d bytes long", length);
+    proto_tree_add_text(pt, tvb, offset+2, 2, "Filter field is %d byte%s long",
+            length, length == 1 ? "" : "s");
     type = tvb_get_guint8(tvb, offset+4);
     proto_tree_add_text(pt, tvb, offset+4, 1, "Filtering on %s",
 	val_to_str(type, filter_data_types, "Unknown (0x%02x)"));
@@ -1863,6 +2258,9 @@ proto_register_gryphon(void)
 	&ett_gryphon_pgm_list,
 	&ett_gryphon_pgm_status,
 	&ett_gryphon_pgm_options,
+        &ett_gryphon_valid_headers,
+        &ett_gryphon_usdt_data,
+        &ett_gryphon_digital_data,
     };
     module_t *gryphon_module;
 
