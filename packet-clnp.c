@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.62 2002/12/19 11:22:13 sahlberg Exp $
+ * $Id: packet-clnp.c,v 1.63 2003/01/05 02:50:23 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -272,9 +272,6 @@ static const value_string tp_vpart_type_vals[] = {
 
 /* global variables */
 
-static guchar  li, tpdu, cdt; 	/* common fields */
-static gushort dst_ref;
-
 /* List of dissectors to call for COTP packets put atop the Inactive
    Subset of CLNP. */
 static heur_dissector_list_t cotp_is_heur_subdissector_list;
@@ -344,7 +341,7 @@ static gchar *print_tsap(const guchar *tsap, int length)
 
 } /* print_tsap */
 
-static gboolean osi_decode_tp_var_part(tvbuff_t *tvb, int offset,
+static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
 				      int vp_length, int class_option,
 				      proto_tree *tree)
 {
@@ -668,18 +665,19 @@ static gboolean osi_decode_tp_var_part(tvbuff_t *tvb, int offset,
   return TRUE;
 }
 
-static int osi_decode_DR(tvbuff_t *tvb, int offset,
+static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			 packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree;
   proto_item *ti;
-  gushort src_ref;
+  guint16 dst_ref, src_ref;
   guchar  reason;
   char *str;
 
   if (li < LI_MIN_DR)
     return -1;
 
+  dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
   reason  = tvb_get_guint8(tvb, offset + P_REASON_IN_DR);
 
@@ -731,9 +729,9 @@ static int osi_decode_DR(tvbuff_t *tvb, int offset,
 
   return offset;
 
-} /* osi_decode_DR */
+} /* ositp_decode_DR */
 
-static int osi_decode_DT(tvbuff_t *tvb, int offset,
+static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			 packet_info *pinfo, proto_tree *tree,
 			 gboolean uses_inactive_subset,
 			 gboolean *subdissector_found)
@@ -742,7 +740,8 @@ static int osi_decode_DT(tvbuff_t *tvb, int offset,
   proto_item *ti;
   gboolean is_extended;
   gboolean is_class_234;
-  guint    tpdu_nr ;
+  guint16  dst_ref;
+  guint    tpdu_nr;
   guint    fragment = 0;
   tvbuff_t *next_tvb;
 
@@ -764,6 +763,7 @@ static int osi_decode_DT(tvbuff_t *tvb, int offset,
 	fragment = 1;
       is_extended = FALSE;
       is_class_234 = TRUE;
+      dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
       break;
 
     case LI_EXTENDED_DT_WITH_CHECKSUM    :
@@ -779,6 +779,7 @@ static int osi_decode_DT(tvbuff_t *tvb, int offset,
 	fragment = 1;
       is_extended = TRUE;
       is_class_234 = TRUE;
+      dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
       break;
 
     case LI_NORMAL_DT_CLASS_01           :
@@ -789,6 +790,7 @@ static int osi_decode_DT(tvbuff_t *tvb, int offset,
 	fragment = 1;
       is_extended = FALSE;
       is_class_234 = FALSE;
+      dst_ref = 0;
       break;
 
     default : /* bad TPDU */
@@ -797,11 +799,18 @@ static int osi_decode_DT(tvbuff_t *tvb, int offset,
       break;
   }
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, "DT TPDU (%u) dst-ref: 0x%04x %s",
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    if (is_class_234) {
+      col_append_fstr(pinfo->cinfo, COL_INFO, "DT TPDU (%u) dst-ref: 0x%04x %s",
 		 tpdu_nr,
 		 dst_ref,
 		 (fragment)? "(fragment)" : "");
+    } else {
+      col_append_fstr(pinfo->cinfo, COL_INFO, "DT TPDU (%u) %s",
+		 tpdu_nr,
+		 (fragment)? "(fragment)" : "");
+    }
+  }
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
@@ -849,7 +858,7 @@ static int osi_decode_DT(tvbuff_t *tvb, int offset,
   }
 
   if (tree)
-    osi_decode_tp_var_part(tvb, offset, li, 4, cotp_tree);
+    ositp_decode_var_part(tvb, offset, li, 4, cotp_tree);
   offset += li;
 
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
@@ -868,15 +877,16 @@ static int osi_decode_DT(tvbuff_t *tvb, int offset,
 
   return offset;
 
-} /* osi_decode_DT */
+} /* ositp_decode_DT */
 
-static int osi_decode_ED(tvbuff_t *tvb, int offset,
+static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			 packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
   gboolean is_extended;
-  guint    tpdu_nr ;
+  guint16  dst_ref;
+  guint    tpdu_nr;
   tvbuff_t *next_tvb;
 
   /* ED TPDUs are never fragmented */
@@ -920,6 +930,7 @@ static int osi_decode_ED(tvbuff_t *tvb, int offset,
       break;
   } /* li */
 
+  dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO, "ED TPDU (%u) dst-ref: 0x%04x",
 		 tpdu_nr, dst_ref);
@@ -963,7 +974,7 @@ static int osi_decode_ED(tvbuff_t *tvb, int offset,
   }
 
   if (tree)
-    osi_decode_tp_var_part(tvb, offset, li, 4, cotp_tree);
+    ositp_decode_var_part(tvb, offset, li, 4, cotp_tree);
   offset += li;
 
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
@@ -974,14 +985,15 @@ static int osi_decode_ED(tvbuff_t *tvb, int offset,
 
   return offset;
 
-} /* osi_decode_ED */
+} /* ositp_decode_ED */
 
-static int osi_decode_RJ(tvbuff_t *tvb, int offset,
-			 packet_info *pinfo, proto_tree *tree)
+static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
+			 guint8 cdt, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree;
   proto_item *ti;
-  guint    tpdu_nr ;
+  guint16  dst_ref;
+  guint    tpdu_nr;
   gushort  credit = 0;
 
   switch(li) {
@@ -998,6 +1010,7 @@ static int osi_decode_RJ(tvbuff_t *tvb, int offset,
       break;
   }
 
+  dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO, "RJ TPDU (%u) dst-ref: 0x%04x",
 		 tpdu_nr, dst_ref);
@@ -1029,9 +1042,9 @@ static int osi_decode_RJ(tvbuff_t *tvb, int offset,
 
   return offset;
 
-} /* osi_decode_RJ */
+} /* ositp_decode_RJ */
 
-static int osi_decode_CC(tvbuff_t *tvb, int offset,
+static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			 packet_info *pinfo, proto_tree *tree)
 {
 
@@ -1039,7 +1052,7 @@ static int osi_decode_CC(tvbuff_t *tvb, int offset,
 
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
-  gushort src_ref;
+  guint16 dst_ref, src_ref;
   guchar  class_option;
 
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
@@ -1047,6 +1060,7 @@ static int osi_decode_CC(tvbuff_t *tvb, int offset,
   if (class_option > 4)
     return -1;
 
+  dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO,
 		 "%s TPDU src-ref: 0x%04x dst-ref: 0x%04x",
@@ -1092,7 +1106,7 @@ static int osi_decode_CC(tvbuff_t *tvb, int offset,
   li -= 1;
 
   if (tree)
-    osi_decode_tp_var_part(tvb, offset, li, class_option, cotp_tree);
+    ositp_decode_var_part(tvb, offset, li, class_option, cotp_tree);
   offset += li;
 
   /* User data */
@@ -1102,18 +1116,19 @@ static int osi_decode_CC(tvbuff_t *tvb, int offset,
 
   return offset;
 
-} /* osi_decode_CC */
+} /* ositp_decode_CC */
 
-static int osi_decode_DC(tvbuff_t *tvb, int offset,
+static int ositp_decode_DC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			 packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
-  gushort src_ref;
+  guint16 dst_ref, src_ref;
 
   if (li > LI_MAX_DC)
     return -1;
 
+  dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
 
   if (check_col(pinfo->cinfo, COL_INFO))
@@ -1152,18 +1167,19 @@ static int osi_decode_DC(tvbuff_t *tvb, int offset,
   li -= 2;
 
   if (tree)
-    osi_decode_tp_var_part(tvb, offset, li, 4, cotp_tree);
+    ositp_decode_var_part(tvb, offset, li, 4, cotp_tree);
   offset += li;
 
   return offset;
 
-} /* osi_decode_DC */
+} /* ositp_decode_DC */
 
-static int osi_decode_AK(tvbuff_t *tvb, int offset,
-			 packet_info *pinfo, proto_tree *tree)
+static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
+			 guint8 cdt, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
+  guint16    dst_ref;
   guint      tpdu_nr;
   gushort    cdt_in_ak;
 
@@ -1172,6 +1188,7 @@ static int osi_decode_AK(tvbuff_t *tvb, int offset,
 
   if (is_LI_NORMAL_AK(li)) {
 
+    dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
     tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
 
     if (check_col(pinfo->cinfo, COL_INFO))
@@ -1210,11 +1227,12 @@ static int osi_decode_AK(tvbuff_t *tvb, int offset,
     li -= 1;
 
     if (tree)
-      osi_decode_tp_var_part(tvb, offset, li, 4, cotp_tree);
+      ositp_decode_var_part(tvb, offset, li, 4, cotp_tree);
     offset += li;
 
   } else { /* extended format */
 
+    dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
     tpdu_nr   = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
     cdt_in_ak = tvb_get_ntohs(tvb, offset + P_CDT_IN_AK);
 
@@ -1259,22 +1277,23 @@ static int osi_decode_AK(tvbuff_t *tvb, int offset,
     li -= 2;
 
     if (tree)
-      osi_decode_tp_var_part(tvb, offset, li, 4, cotp_tree);
+      ositp_decode_var_part(tvb, offset, li, 4, cotp_tree);
     offset += li;
 
   } /* is_LI_NORMAL_AK */
 
   return offset;
 
-} /* osi_decode_AK */
+} /* ositp_decode_AK */
 
-static int osi_decode_EA(tvbuff_t *tvb, int offset,
+static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			 packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
   gboolean is_extended;
-  guint    tpdu_nr ;
+  guint16  dst_ref;
+  guint    tpdu_nr;
 
   if (li > LI_MAX_EA)
     return -1;
@@ -1312,6 +1331,7 @@ static int osi_decode_EA(tvbuff_t *tvb, int offset,
       break;
   } /* li */
 
+  dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO,
 		 "EA TPDU (%u) dst-ref: 0x%04x", tpdu_nr, dst_ref);
@@ -1355,19 +1375,20 @@ static int osi_decode_EA(tvbuff_t *tvb, int offset,
   }
 
   if (tree)
-    osi_decode_tp_var_part(tvb, offset, li, 4, cotp_tree);
+    ositp_decode_var_part(tvb, offset, li, 4, cotp_tree);
   offset += li;
 
   return offset;
 
-} /* osi_decode_EA */
+} /* ositp_decode_EA */
 
-static int osi_decode_ER(tvbuff_t *tvb, int offset,
+static int ositp_decode_ER(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			 packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree;
   proto_item *ti;
   guchar *str;
+  guint16 dst_ref;
 
   if (li > LI_MAX_ER)
     return -1;
@@ -1391,6 +1412,7 @@ static int osi_decode_ER(tvbuff_t *tvb, int offset,
       break;
   }
 
+  dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO, "ER TPDU dst-ref: 0x%04x", dst_ref);
 
@@ -1411,9 +1433,9 @@ static int osi_decode_ER(tvbuff_t *tvb, int offset,
 
   return offset;
 
-} /* osi_decode_ER */
+} /* ositp_decode_ER */
 
-static int osi_decode_UD(tvbuff_t *tvb, int offset,
+static int ositp_decode_UD(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			 packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
@@ -1439,7 +1461,7 @@ static int osi_decode_UD(tvbuff_t *tvb, int offset,
   li -= 1;
 
   if (tree)
-    osi_decode_tp_var_part(tvb, offset, li, 0, cltp_tree);
+    ositp_decode_var_part(tvb, offset, li, 0, cltp_tree);
   offset += li;
 
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
@@ -1449,7 +1471,7 @@ static int osi_decode_UD(tvbuff_t *tvb, int offset,
 
   return offset;
 
-} /* osi_decode_UD */
+} /* ositp_decode_UD */
 
 /* Returns TRUE if we found at least one valid COTP or CLTP PDU, FALSE
    otherwise.
@@ -1463,6 +1485,7 @@ static gboolean dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
 		  proto_tree *tree, gboolean uses_inactive_subset)
 {
   int offset = 0;
+  guint8 li, tpdu, cdt;
   gboolean first_tpdu = TRUE;
   int new_offset;
   gboolean found_ositp = FALSE;
@@ -1498,40 +1521,39 @@ static gboolean dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
     if (tpdu == UD_TPDU)
       pinfo->current_proto = "CLTP";	/* connectionless transport */
     cdt     = tvb_get_guint8(tvb, offset + P_CDT) & 0x0F;
-    dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
 
     switch (tpdu) {
       case CC_TPDU :
       case CR_TPDU :
-        new_offset = osi_decode_CC(tvb, offset, pinfo, tree);
+        new_offset = ositp_decode_CC(tvb, offset, li, tpdu, pinfo, tree);
         break;
       case DR_TPDU :
-        new_offset = osi_decode_DR(tvb, offset, pinfo, tree);
+        new_offset = ositp_decode_DR(tvb, offset, li, tpdu, pinfo, tree);
         break;
       case DT_TPDU :
-        new_offset = osi_decode_DT(tvb, offset, pinfo, tree,
+        new_offset = ositp_decode_DT(tvb, offset, li, tpdu, pinfo, tree,
 				   uses_inactive_subset, &subdissector_found);
         break;
       case ED_TPDU :
-        new_offset = osi_decode_ED(tvb, offset, pinfo, tree);
+        new_offset = ositp_decode_ED(tvb, offset, li, tpdu, pinfo, tree);
         break;
       case RJ_TPDU :
-        new_offset = osi_decode_RJ(tvb, offset, pinfo, tree);
+        new_offset = ositp_decode_RJ(tvb, offset, li, tpdu, cdt, pinfo, tree);
         break;
       case DC_TPDU :
-        new_offset = osi_decode_DC(tvb, offset, pinfo, tree);
+        new_offset = ositp_decode_DC(tvb, offset, li, tpdu, pinfo, tree);
         break;
       case AK_TPDU :
-        new_offset = osi_decode_AK(tvb, offset, pinfo, tree);
+        new_offset = ositp_decode_AK(tvb, offset, li, tpdu, cdt, pinfo, tree);
         break;
       case EA_TPDU :
-        new_offset = osi_decode_EA(tvb, offset, pinfo, tree);
+        new_offset = ositp_decode_EA(tvb, offset, li, tpdu, pinfo, tree);
         break;
       case ER_TPDU :
-        new_offset = osi_decode_ER(tvb, offset, pinfo, tree);
+        new_offset = ositp_decode_ER(tvb, offset, li, tpdu, pinfo, tree);
         break;
       case UD_TPDU :
-        new_offset = osi_decode_UD(tvb, offset, pinfo, tree);
+        new_offset = ositp_decode_UD(tvb, offset, li, tpdu, pinfo, tree);
         is_cltp = TRUE;
         break;
       default      :
@@ -1567,7 +1589,6 @@ static void dissect_ositp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (!dissect_ositp_internal(tvb, pinfo, tree, FALSE))
     call_dissector(data_handle,tvb, pinfo, tree);
 }
-
 
 /*
  *  CLNP part / main entry point
@@ -2074,6 +2095,7 @@ void proto_register_clnp(void)
   proto_clnp = proto_register_protocol(PROTO_STRING_CLNP, "CLNP", "clnp");
   proto_register_field_array(proto_clnp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  register_dissector("clnp", dissect_clnp, proto_clnp);
 
   clnp_module = prefs_register_protocol(proto_clnp, NULL);
   prefs_register_uint_preference(clnp_module, "tp_nsap_selector",
@@ -2107,7 +2129,7 @@ void proto_register_cotp(void)
 /* subdissector code */
 	register_heur_dissector_list("cotp_is", &cotp_is_heur_subdissector_list);
 
-	/* XXX - what about CLTP? */
+	/* XXX - what about CLTP and proto_cltp? */
 	register_dissector("ositp", dissect_ositp, proto_cotp);
 }
 
