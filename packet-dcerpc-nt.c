@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.2 2002/01/03 20:42:40 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.3 2002/01/07 19:55:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,6 +75,11 @@ int prs_uint8s(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	const guint8 *ptr;
 	
+	/* The tvb_get_ptr() function fails an assertion if count < -1 */
+	
+	if (count < -1)
+		THROW(BoundsError);
+
 	/* No alignment required */
 
 	ptr = tvb_get_ptr(tvb, offset, count);
@@ -118,6 +123,11 @@ int prs_uint16s(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	const guint8 *ptr;
 	
+	/* The tvb_get_ptr() function fails an assertion if count < -1 */
+	
+	if (count < -1)
+		THROW(BoundsError);
+
 	offset = prs_align(offset, 2);
 	
 	ptr = tvb_get_ptr(tvb, offset, count * 2);
@@ -162,6 +172,11 @@ int prs_uint32s(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	const guint8 *ptr;
 	
+	/* The tvb_get_ptr() function fails an assertion if count < -1 */
+	
+	if (count < -1)
+		THROW(BoundsError);
+
 	offset = prs_align(offset, 4);
 	
 	ptr = tvb_get_ptr(tvb, offset, count * 4);

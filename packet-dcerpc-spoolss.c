@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.2 2002/01/03 20:42:40 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.3 2002/01/07 19:55:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -426,13 +426,18 @@ int prs_referents(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		  void ***ptr_data)
 {
 	struct deferred_ptr_state s;
-	int new_offset = offset, list_len;
+	int new_offset = offset;
 
 	/* Create a list of void pointers to store return data */
 
 	if (ptr_data) {
-		list_len = g_list_length(*dp_list);
-		*ptr_data = malloc(list_len * sizeof(void *));
+		int len = g_list_length(*dp_list) * sizeof(void *);
+
+		if (len > 0) {
+			*ptr_data = malloc(len);
+			memset(*ptr_data, 0, len);
+		} else
+			*ptr_data = NULL;
 	}
 
 	/* Set up iterator data */
@@ -1108,16 +1113,21 @@ static int prs_relstr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *subtree;
 	guint32 relstr_offset, relstr_start, relstr_end;
 	guint16 *ptr;
-	char *text;
+	char *text = strdup("NULL");
 	gint len = 0, remaining, i;
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, &relstr_offset, NULL);
 
+	/* A relative offset of zero is a NULL string */
+
 	relstr_start = relstr_offset + struct_start;
-
-	relstr_end = prs_uint16uni(tvb, relstr_start, pinfo, tree, 
-				   (void **)&text, NULL);
-
+               
+	if (relstr_offset)
+		relstr_end = prs_uint16uni(tvb, relstr_start, pinfo, tree, 
+					   (void **)&text, NULL);
+	else
+		relstr_end = offset;
+	
 	item = proto_tree_add_text(tree, tvb, relstr_start, 
 				   relstr_end - relstr_start, "%s: %s", 
 				   name ? name : "RELSTR", text);
@@ -1222,6 +1232,29 @@ static gint ett_PRINTER_INFO_2 = -1;
 static int prs_PRINTER_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			      proto_tree *tree, GList **dp_list, void **data)
 {
+	int struct_start = offset;
+	
+	offset = prs_relstr(tvb, offset, pinfo, tree, dp_list, struct_start,
+			    NULL, "Server name");
+	
+	offset = prs_relstr(tvb, offset, pinfo, tree, dp_list, struct_start,
+			    NULL, "Printer name");
+	
+	offset = prs_relstr(tvb, offset, pinfo, tree, dp_list, struct_start,
+			    NULL, "Share name");
+	
+	offset = prs_relstr(tvb, offset, pinfo, tree, dp_list, struct_start,
+                           NULL, "Port name");
+	
+	offset = prs_relstr(tvb, offset, pinfo, tree, dp_list, struct_start,
+			    NULL, "Driver name");
+	
+	offset = prs_relstr(tvb, offset, pinfo, tree, dp_list, struct_start,
+			    NULL, "Comment");
+	
+	offset = prs_relstr(tvb, offset, pinfo, tree, dp_list, struct_start,
+			    NULL, "Location");
+	
 	return offset;
 }
 
@@ -1825,7 +1858,7 @@ struct BUFFER_DATA {
 static int prs_BUFFER_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			   proto_tree *tree, GList **dp_list, void **data)
 {
-	proto_item *item;
+	proto_item *item, *subitem;
 	proto_tree *subtree, *subsubtree;
 	guint32 ptr = 0, size;
 	guint8 *data8;
@@ -1836,9 +1869,9 @@ static int prs_BUFFER_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = prs_uint32(tvb, offset, pinfo, subtree, &size, "Size");
 
-	item = proto_tree_add_text(subtree, tvb, offset, size, "Data");
+	subitem = proto_tree_add_text(subtree, tvb, offset, size, "Data");
 
-	subsubtree = proto_item_add_subtree(item, ett_BUFFER_DATA_BUFFER);
+	subsubtree = proto_item_add_subtree(subitem, ett_BUFFER_DATA_BUFFER);
 
 	offset = prs_uint8s(tvb, offset, pinfo, subsubtree, size, &data8, 
 			    NULL);
@@ -1852,7 +1885,7 @@ static int prs_BUFFER_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		bd = (struct BUFFER_DATA *)malloc(sizeof(struct BUFFER_DATA));
 
 		bd->data8 = data8;
-		bd->item = item;
+		bd->item = subitem;
 		bd->tree = subsubtree;
 		bd->tvb = tvb;
 		bd->offset = offset - size;
@@ -1949,7 +1982,7 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	request_hash_value *request_info;
 	GList *dp_list = NULL;
 	void **data_list;
-	struct BUFFER_DATA *bd;
+	struct BUFFER_DATA *bd = NULL;
 	guint8 *data8;
 
 	/* Update informational fields */
@@ -1969,9 +2002,10 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					  prs_BUFFER, (void **)&data8, 
 					  &data_list);
 
-	bd = (struct BUFFER_DATA *)data_list[0];
+	if (data_list)
+		bd = (struct BUFFER_DATA *)data_list[0];
 
-	if (bd->tree && request_info) {
+	if (bd && bd->tree && request_info) {
 		gint16 level = request_info->data.GetPrinter.level;
 
 		proto_item_append_text(bd->item, ", PRINTER_INFO_%d", level);
@@ -1979,6 +2013,11 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		switch (level) {
 		case 0:
 			prs_PRINTER_INFO_0(bd->tvb, bd->offset, pinfo, 
+					   bd->tree, &dp_list, NULL);
+			break;
+			
+		case 2:
+			prs_PRINTER_INFO_2(bd->tvb, bd->offset, pinfo,
 					   bd->tree, &dp_list, NULL);
 			break;
 
@@ -2273,6 +2312,58 @@ static int SpoolssDeletePrinter_r(tvbuff_t *tvb, int offset,
  * AddPrinterEx
  */
 
+static int SpoolssAddPrinterEx_q(tvbuff_t *tvb, int offset, 
+                                 packet_info *pinfo, proto_tree *tree, 
+                                 char *drep)
+{
+       dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+       request_hash_value *request_info;
+       guint32 ptr;
+       char *printer_name;
+
+       /* Update informational fields */
+
+       if (check_col(pinfo->cinfo, COL_INFO))
+               col_set_str(pinfo->cinfo, COL_INFO, "AddPrinterEx request");
+
+       request_info = fetch_request_info(pinfo, di, SPOOLSS_DUMMY);
+
+       if (request_info)
+               add_request_text(tree, tvb, offset, request_info);
+       else 
+               store_request_info_none(pinfo, di);
+
+       /* Parse packet */
+
+       offset = prs_ptr(tvb, offset, pinfo, tree, &ptr, "Server name");
+
+       if (ptr) {
+               offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
+                                                 prs_UNISTR2_dp,
+                                                 (void *)&printer_name, NULL);
+       }
+
+       offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Level");
+       
+       /* PRINTER INFO LEVEL */
+
+       offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Unknown");
+       offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Unknown");
+       offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Unknown");
+       offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Unknown");
+
+       offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "User switch");
+
+       /* USER LEVEL */
+
+       if (tvb_length_remaining(tvb, offset) != 0)
+               proto_tree_add_text(tree, tvb, offset, 0, 
+                                   "[Long frame (%d bytes): SPOOLSS]",
+                                   tvb_length_remaining(tvb, offset));
+
+       return offset;
+}      
+
 static int SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 proto_tree *tree, char *drep)
 {
@@ -2375,7 +2466,9 @@ static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	request_hash_value *request_info;
-	guint32 data_size, type;
+	guint32 data_size, type, value_size;
+	guint16 *uint16s;
+	char *text;
 
 	/* Update informational fields */
 
@@ -2391,9 +2484,21 @@ static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 
 	/* Parse packet */
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Value size");
-
-	/* unistr2_dp */
+	offset = prs_uint32(tvb, offset, pinfo, tree, &value_size, 
+			    "Value size");
+	
+	offset = prs_uint16s(tvb, offset, pinfo, tree, value_size, &uint16s,
+			     NULL);
+	
+	text = fake_unicode(uint16s, value_size);
+	
+	proto_tree_add_text(tree, tvb, offset - value_size * 2, 
+			    value_size * 2, "Value: %s", text);
+       
+	if (text[0] && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", text);
+	
+	free(text);
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Real value size");
 
@@ -2506,6 +2611,104 @@ static int SpoolssEnumPrinters_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }	
 
+/*
+ * AddPrinterDriver
+ */
+
+static int SpoolssAddPrinterDriver_q(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	request_hash_value *request_info;
+
+	/* Update informational fields */
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, 
+			    "AddPrinterDriver request");
+
+	request_info = fetch_request_info(pinfo, di, SPOOLSS_DUMMY);
+
+	if (request_info)
+		add_request_text(tree, tvb, offset, request_info);
+	else 
+		store_request_info_none(pinfo, di);
+
+	/* Parse packet */
+
+	if (tvb_length_remaining(tvb, offset) != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "[Long frame (%d bytes): SPOOLSS]",
+				    tvb_length_remaining(tvb, offset));
+
+	return offset;
+}      
+
+static int SpoolssAddPrinterDriver_r(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	request_hash_value *request_info;
+
+	/* Update informational fields */
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, 
+			    "AddPrinterDriver response");
+
+	request_info = fetch_request_info(pinfo, di, SPOOLSS_DUMMY);
+	add_response_text(tree, tvb, offset, request_info);
+
+	if (request_info)
+		request_info->response_num = pinfo->fd->num;
+
+	/* Parse packet */
+
+	offset = prs_werror(tvb, offset, pinfo, tree, NULL);    
+
+	if (tvb_length_remaining(tvb, offset) != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "[Long frame (%d bytes): SPOOLSS]",
+				    tvb_length_remaining(tvb, offset));
+
+	return offset;
+}      
+
+/*
+ * AddForm
+ */
+
+static int SpoolssAddForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			    proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	request_hash_value *request_info;
+
+	/* Update informational fields */
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, "AddForm response");
+
+	request_info = fetch_request_info(pinfo, di, SPOOLSS_DUMMY);
+	add_response_text(tree, tvb, offset, request_info);
+
+	if (request_info)
+		request_info->response_num = pinfo->fd->num;
+	
+	/* Parse packet */
+
+	offset = prs_werror(tvb, offset, pinfo, tree, NULL);
+
+	if (tvb_length_remaining(tvb, offset) != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "[Long frame (%d bytes): SPOOLSS]",
+				    tvb_length_remaining(tvb, offset));
+
+	return offset;
+}      
+
 #if 0
 
 /* Templates for new subdissectors */
@@ -2588,7 +2791,8 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
 	  SpoolssSetPrinter_q, SpoolssSetPrinter_r },
         { SPOOLSS_GETPRINTER, "SPOOLSS_GETPRINTER", 
 	  SpoolssGetPrinter_q, SpoolssGetPrinter_r },
-        { SPOOLSS_ADDPRINTERDRIVER, "SPOOLSS_ADDPRINTERDRIVER", NULL, NULL },
+        { SPOOLSS_ADDPRINTERDRIVER, "SPOOLSS_ADDPRINTERDRIVER", 
+	  NULL, SpoolssAddPrinterDriver_r },
         { SPOOLSS_ENUMPRINTERDRIVERS, "SPOOLSS_ENUMPRINTERDRIVERS", NULL, NULL },
         { SPOOLSS_GETPRINTERDRIVERDIRECTORY, "SPOOLSS_GETPRINTERDRIVERDIRECTORY", NULL, NULL },
         { SPOOLSS_DELETEPRINTERDRIVER, "SPOOLSS_DELETEPRINTERDRIVER", NULL, NULL },
@@ -2608,7 +2812,8 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
 	  SpoolssSetPrinterData_q, SpoolssSetPrinterData_r },
         { SPOOLSS_CLOSEPRINTER, "SPOOLSS_CLOSEPRINTER", 
 	  SpoolssClosePrinter_q, SpoolssClosePrinter_r },
-        { SPOOLSS_ADDFORM, "SPOOLSS_ADDFORM", NULL, NULL },
+        { SPOOLSS_ADDFORM, "SPOOLSS_ADDFORM", 
+	  NULL, SpoolssAddForm_r },
         { SPOOLSS_DELETEFORM, "SPOOLSS_DELETEFORM", NULL, NULL },
         { SPOOLSS_GETFORM, "SPOOLSS_GETFORM", NULL, NULL },
         { SPOOLSS_SETFORM, "SPOOLSS_SETFORM", NULL, NULL },
@@ -2709,6 +2914,7 @@ proto_register_dcerpc_spoolss(void)
 		&ett_BUFFER_DATA,
 		&ett_BUFFER_DATA_BUFFER,
 		&ett_UNISTR2,
+		&ett_SPOOL_PRINTER_INFO_LEVEL,
 		&ett_PRINTER_INFO_0,
 		&ett_PRINTER_INFO_1,
 		&ett_PRINTER_INFO_2,
