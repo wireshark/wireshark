@@ -3,7 +3,7 @@
  *
  * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
  *
- * $Id: packet-ldap.c,v 1.67 2003/11/06 09:18:46 sahlberg Exp $
+ * $Id: packet-ldap.c,v 1.68 2003/11/07 04:03:44 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2078,6 +2078,21 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           return;
         }
       }
+
+      /* It might still be a packet containing a SASL security layer
+       * but its just that we never saw the BIND packet.
+       * check if it looks like it could be a SASL blob here
+       * and in that case just assume it is GSS-SPNEGO
+       */
+      if( ((tvb_get_ntohl(tvb, offset)+4)<=tvb_reported_length_remaining(tvb, offset))
+        &&(tvb_get_guint8(tvb, offset+4)==0x60) ){
+         ldap_info->auth_type=LDAP_AUTH_SASL;
+         ldap_info->first_auth_frame=pinfo->fd->num;
+         ldap_info->auth_mech=g_strdup("GSS-SPNEGO");
+         doing_sasl_security=TRUE;
+         continue;
+      }
+
 
       /*
        * OK, try to read the "Sequence Of" header; this gets the total
