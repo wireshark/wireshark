@@ -725,7 +725,7 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		case FT_IPv4:
 			g_assert(length == 4);
 			tvb_memcpy(tvb, (guint8 *)&value, start, 4);
-			proto_tree_set_ipv4(new_fi, value);
+			proto_tree_set_ipv4(new_fi, little_endian ? GUINT32_TO_BE(value) : value);
 			break;
 
 		case FT_IPXNET:
