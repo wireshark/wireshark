@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.7 1998/09/27 22:12:31 gerald Exp $
+ * $Id: packet-ipx.c,v 1.8 1998/10/02 22:14:29 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -395,28 +395,41 @@ server_type(guint16 type)
 {
 	int i=0;
 
+	/* some of these are from ncpfs, others are from the book */
 	static struct server_info	servers[] = {
+		{ 0x0001,	"User" },
+		{ 0x0002,	"User Group" },
+		{ 0x0003,	"Print Queue" },
 		{ 0x0004,	"File server" },
 		{ 0x0005,	"Job server" },
 		{ 0x0007,	"Print server" },
+		{ 0x0008,	"Archive server" },
 		{ 0x0009,	"Archive server" },
 		{ 0x000a,	"Job queue" },
+		{ 0x000b,	"Administration" },
 		{ 0x0021,	"NAS SNA gateway" },
-		{ 0x002e,	"Dynamic SAP" },
+		{ 0x0024,	"Remote bridge" },
+		{ 0x0026,	"Bridge server" },
+		{ 0x0027,	"TCP/IP gateway" },
+		{ 0x002d,	"Time Synchronization VAP" },
+		{ 0x002e,	"Archive Server Dynamic SAP" },
 		{ 0x0047,	"Advertising print server" },
 		{ 0x004b,	"Btrieve VAP 5.0" },
 		{ 0x004c,	"SQL VAP" },
-		{ 0x007a,	"TES---NetWare VMS" },
+		{ 0x0050,	"Btrieve VAP" },
+		{ 0x0053,	"Print Queue VAP" },
+		{ 0x007a,	"TES NetWare for VMS" },
 		{ 0x0098,	"NetWare access server" },
 		{ 0x009a,	"Named Pipes server" },
-		{ 0x009e,	"Portable NetWare---Unix" },
+		{ 0x009e,	"Portable NetWare Unix" },
 		{ 0x0107,	"NetWare 386" },
 		{ 0x0111,	"Test server" },
+		{ 0x0133,	"NetWare Name Service" },
 		{ 0x0166,	"NetWare management" },
 		{ 0x026a,	"NetWare management" },
 		{ 0x026b,	"Time synchronization" },
 		{ 0x0278,	"NetWare Directory server" },
-		{ 0x055d,	"Attachmate IPX-to-SNA gateway" }, /* unofficial name */
+		{ 0x055d,	"Attachmate SNA gateway" },
 		{ 0x0000,	NULL }
 	};
 
