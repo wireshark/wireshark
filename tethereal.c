@@ -88,6 +88,7 @@
 #include "print.h"
 #include <epan/addr_resolv.h>
 #include "util.h"
+#include "clopts_common.h"
 #include "version_info.h"
 #ifdef HAVE_LIBPCAP
 #include "pcap-util.h"
@@ -873,26 +874,7 @@ main(int argc, char *argv[])
 
      We do this here to mirror what happens in the GTK+ version, although
      it's not necessary here. */
-  if (argc >= 2 && strcmp(argv[1], "-G") == 0) {
-    if (argc == 2)
-      proto_registrar_dump_fields(1);
-    else {
-      if (strcmp(argv[2], "fields") == 0)
-        proto_registrar_dump_fields(1);
-      else if (strcmp(argv[2], "fields2") == 0)
-        proto_registrar_dump_fields(2);
-      else if (strcmp(argv[2], "protocols") == 0)
-        proto_registrar_dump_protocols();
-      else if (strcmp(argv[2], "values") == 0)
-        proto_registrar_dump_values();
-      else {
-        fprintf(stderr, "tethereal: Invalid \"%s\" option for -G flag\n",
-                argv[2]);
-        exit(1);
-      }
-    }
-    exit(0);
-  }
+  handle_dashG_option(argc, argv, "tethereal");
 
   /* Set the C-language locale to the native environment. */
   setlocale(LC_ALL, "");

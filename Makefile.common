@@ -82,6 +82,7 @@ ETHEREAL_COMMON_SRC =	\
 	$(PLATFORM_SRC) \
 	capture_stop_conditions.c	\
 	cfile.c	\
+	clopts_common.c	\
 	conditions.c	\
 	disabled_protos.c	\
 	packet-range.c	\
@@ -98,6 +99,7 @@ ETHEREAL_COMMON_INCLUDES =	\
 	svnversion.h		\
 	capture_stop_conditions.h	\
 	cfile.h	\
+	clopts_common.h	\
 	color.h	\
 	conditions.h	\
 	disabled_protos.h	\

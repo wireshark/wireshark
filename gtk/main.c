@@ -98,6 +98,7 @@
 #include "../ui_util.h"     /* beware: ui_util.h exists twice! */
 #include "tap.h"
 #include "util.h"
+#include "clopts_common.h"
 #include "version_info.h"
 #include "capture.h"
 #include "merge.h"
@@ -1669,26 +1670,7 @@ main(int argc, char *argv[])
 	to specify the information to dump;
 
 	arguments after that will not be used. */
-  if (argc >= 2 && strcmp(argv[1], "-G") == 0) {
-    if (argc == 2)
-      proto_registrar_dump_fields(1);
-    else {
-      if (strcmp(argv[2], "fields") == 0)
-        proto_registrar_dump_fields(1);
-      else if (strcmp(argv[2], "fields2") == 0)
-        proto_registrar_dump_fields(2);
-      else if (strcmp(argv[2], "protocols") == 0)
-        proto_registrar_dump_protocols();
-      else if (strcmp(argv[2], "values") == 0)
-        proto_registrar_dump_values();
-      else {
-        fprintf(stderr, "ethereal: Invalid \"%s\" option for -G flag\n",
-                argv[2]);
-        exit(1);
-      }
-    }
-    exit(0);
-  }
+  handle_dashG_option(argc, argv, "ethereal");
 
   /* multithread support currently doesn't seem to work in win32 gtk2.0.6 */
 #if ! defined WIN32 && GTK_MAJOR_VERSION >= 2 && defined G_THREADS_ENABLED && defined USE_THREADS
