@@ -1917,6 +1917,7 @@ Giles Scott             <gscott [AT] arubanetworks.com> {
 
 Vincent Jardin          <vincent.jardin [AT] 6wind.com> {
 	Support for TEREDO
+	Additional DHCPv6 options
 }
 
 Jean-Michel Fayard      <jean-michel.fayard [AT] moufrei.de> {

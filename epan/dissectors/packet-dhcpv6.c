@@ -1,5 +1,6 @@
 /* packet-dhpcv6.c
  * Routines for DHCPv6 packet disassembly
+ * Copyright 2004, Nicolas DICHTEL - 6WIND - <nicolas.dichtel@6wind.com>
  * Jun-ichiro itojun Hagino <itojun@iijlab.net>
  * IItom Tsutomu MIENO <iitom@utouto.com>
  * SHIRASAKI Yasuhiro <yasuhiro@gnome.gr.jp>
@@ -116,6 +117,11 @@ static gint ett_dhcpv6_option = -1;
 #define OPTION_TIME_ZONE	41
 #define OPTION_LIFETIME         42
 
+/* temporary value until defined by IETF */
+#define OPTION_MIP6_HA		165
+#define OPTION_MIP6_HOA		166
+#define OPTION_NAI		167
+
 #define	DUID_LLT		1
 #define	DUID_EN			2
 #define	DUID_LL			3
@@ -173,6 +179,9 @@ static const value_string opttype_vals[] = {
 	{ OPTION_TIME_ZONE,	"Time zone" },
 	{ OPTION_LIFETIME,      "Lifetime" },
 	{ OPTION_CLIENT_FQDN,   "Fully Qualified Domain Name" },
+	{ OPTION_MIP6_HA,	"Mobile IPv6 Home Agent" },
+	{ OPTION_MIP6_HOA,	"Mobile IPv6 Home Address" },
+	{ OPTION_NAI,		"Network Access Identifier" },
 	{ 0,	NULL }
 };
 
@@ -251,6 +260,7 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 	int i;
 	struct e_in6_addr in6;
 	guint16 duidtype;
+	guint32 xid;
 
 	/* option type and length must be present */
 	if (eoff - off < 4) {
@@ -480,7 +490,12 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 	  } else {
 	    /* XXX - shouldn't we be dissecting a full DHCP message
 	       here? */
-	    dhcpv6_option(tvb, subtree, off, off + optlen, at_end);
+	    proto_tree_add_uint(subtree, hf_dhcpv6_msgtype, tvb, off, 1, (guint32)tvb_get_guint8(tvb, off));
+	    xid = tvb_get_ntohl(tvb, off) & 0x00ffffff;
+	    proto_tree_add_text(subtree, tvb, off+1, 3, "Transaction-ID: 0x%08x", xid);
+	    temp_optlen = 4;
+	    while (optlen > temp_optlen)
+		temp_optlen += dhcpv6_option(tvb, subtree, off+temp_optlen, off + optlen, at_end);
 	    if (*at_end)
 	      return 0;
           } 
@@ -760,6 +775,37 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
                 }
 	    }
 	    break;
+	case OPTION_MIP6_HA:
+		if (optlen != 16) {
+			proto_tree_add_text(subtree, tvb, off, optlen,
+				"MIP6_HA: malformed option");
+			break;
+		}
+
+		tvb_memcpy(tvb, (guint8 *)&in6, off , sizeof(in6));
+		proto_tree_add_text(subtree, tvb, off,
+			16, "Home Agent: %s", ip6_to_str(&in6));
+		break;
+	case OPTION_MIP6_HOA:
+		if (optlen != 16) {
+			proto_tree_add_text(subtree, tvb, off, optlen,
+				"MIP6_HOA: malformed option");
+			break;
+		}
+
+		tvb_memcpy(tvb, (guint8 *)&in6, off , sizeof(in6));
+		proto_tree_add_text(subtree, tvb, off,
+			16, "Home Address: %s", ip6_to_str(&in6));
+		break;
+	case OPTION_NAI:
+		if (optlen < 4) {
+			proto_tree_add_text(subtree, tvb, off, optlen,
+				"NAI: malformed option");
+			break;
+		}
+		proto_tree_add_text(subtree, tvb, off, optlen,
+			"NAI : %s", tvb_get_ptr(tvb, off, optlen - 2));
+		break;
 	}
 
 	return 4 + optlen;
