@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol dissection
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.22 2002/03/27 07:41:20 guy Exp $
+ * $Id: packet-eap.c,v 1.23 2002/03/27 19:38:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -240,6 +240,7 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     col_clear(pinfo->cinfo, COL_INFO);
 
   eap_code = tvb_get_guint8(tvb, 0);
+
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO,
 		val_to_str(eap_code, eap_code_vals, "Unknown code (0x%02X)"));
@@ -413,14 +414,14 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (tree)
 	  proto_tree_add_text(eap_tree, tvb, offset, 1, "Flags(0x%X): %s%s%s",
 			      flags,
-			      has_length ? "Length " : "",
-			      more_fragments ? "More " : "",
-			      test_flag(flags,EAP_TLS_FLAG_S) ? "Start " : "");
+			      has_length                      ? "Length ":"",
+			      more_fragments                  ? "More "  :"",
+			      test_flag(flags,EAP_TLS_FLAG_S) ? "Start " :"");
 	size--;
 	offset++;
 
 	/* Length field, 4 bytes, OPTIONAL. */
-	if ( test_flag(flags, EAP_TLS_FLAG_L) ) {
+	if ( has_length ) {
 	  length = tvb_get_ntohl(tvb, offset);
 	  if (tree)
 	    proto_tree_add_text(eap_tree, tvb, offset, 4, "Length: %i",length);
