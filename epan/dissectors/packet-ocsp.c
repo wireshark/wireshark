@@ -188,7 +188,7 @@ static int dissect_locator(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 }
 
 
-static const value_string Version_vals[] = {
+static const value_string OCSPVersion_vals[] = {
   {   0, "v1" },
   { 0, NULL }
 };
@@ -838,7 +838,7 @@ void proto_register_ocsp(void) {
         "OCSPRequest/optionalSignature", HFILL }},
     { &hf_ocsp_version,
       { "version", "ocsp.version",
-        FT_INT32, BASE_DEC, VALS(Version_vals), 0,
+        FT_INT32, BASE_DEC, VALS(OCSPVersion_vals), 0,
         "", HFILL }},
     { &hf_ocsp_requestorName,
       { "requestorName", "ocsp.requestorName",
