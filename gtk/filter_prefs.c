@@ -1,7 +1,7 @@
 /* filter.c
  * Routines for managing filter sets
  *
- * $Id: filter.c,v 1.16 1999/09/09 02:42:25 gram Exp $
+ * $Id: filter_prefs.c,v 1.1 1999/09/09 03:35:31 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,14 +41,25 @@
 #endif
 
 #include "gtk/main.h"
-#include "filter.h"
+#include "filter_prefs.h"
 #include "packet.h"
 #include "file.h"
-#include "prefs.h"
+#include "prefs_dlg.h"
 
 #define E_FILT_NAME_KEY "filter_name"
 #define E_FILT_LBL_KEY  "filter_label"
 #define E_FILT_CM_KEY   "in_cancel_mode"
+
+typedef struct _filter_def {
+  char *name;
+  char *strval;
+} filter_def;
+
+typedef struct _filter_cb_data {
+  GList     *fl;
+  GtkWidget *win;
+} filter_cb_data;
+
 
 GtkWidget   *filter_l, *chg_bt, *copy_bt, *del_bt, *name_te, *filter_te;
 GList       *fl = NULL;
