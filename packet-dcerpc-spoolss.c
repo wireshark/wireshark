@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.19 2002/04/22 09:43:03 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.20 2002/04/24 03:08:49 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -947,7 +947,8 @@ static int prs_PRINTER_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static gint ett_PRINTER_INFO_2 = -1;
 
 static int prs_PRINTER_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			      proto_tree *tree, GList **dp_list, void **data)
+			      proto_tree *tree, int len, GList **dp_list, 
+			      void **data)
 {
 	int struct_start = offset;
 	guint32 rel_offset;
@@ -996,7 +997,7 @@ static int prs_PRINTER_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, &rel_offset, NULL);
 
-	dissect_nt_sec_desc(tvb, pinfo, struct_start + rel_offset, tree, -1);
+	dissect_nt_sec_desc(tvb, pinfo, struct_start + rel_offset, tree, len);
 	
 	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Attributes");
 
@@ -1025,11 +1026,12 @@ static int prs_PRINTER_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static gint ett_PRINTER_INFO_3 = -1;
 
 static int prs_PRINTER_INFO_3(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			      proto_tree *tree, GList **dp_list, void **data)
+			      proto_tree *tree, int len, GList **dp_list, 
+			      void **data)
 {
 	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Flags");
 
-	offset = dissect_nt_sec_desc(tvb, pinfo, offset, tree, -1);
+	offset = dissect_nt_sec_desc(tvb, pinfo, offset, tree, len);
 
 	return offset;
 }
@@ -1583,6 +1585,7 @@ struct BUFFER_DATA {
 	proto_tree *tree;	/* proto_tree holding buffer data */
 	tvbuff_t *tvb;		
 	int offset;		/* Offset where data starts in tvb*/
+	int size;		/* Size of buffer data */
 };
 
 static int prs_BUFFER_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -1618,6 +1621,7 @@ static int prs_BUFFER_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		bd->tree = subsubtree;
 		bd->tvb = tvb;
 		bd->offset = data8_offset;
+		bd->size = size;
 
 		*data = bd;
 	}
@@ -1741,21 +1745,20 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			
 		case 2:
 			prs_PRINTER_INFO_2(bd->tvb, bd->offset, pinfo,
-					   bd->tree, &dp_list, NULL);
+					   bd->tree, bd->size, &dp_list, NULL);
 			break;
 
 		case 3:
 			prs_PRINTER_INFO_3(bd->tvb, bd->offset, pinfo,
-					   bd->tree, &dp_list, NULL);
+					   bd->tree, bd->size, &dp_list, NULL);
 			break;
 
 		default:
-			proto_tree_add_text(tree, tvb, offset, 0,
-					    "[Unimplemented info level %d]", level);
+			proto_tree_add_text(bd->tree, tvb, offset, 0,
+					    "[Unknown info level %d]", level);
 			break;
 		}
 	}
-	done:
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Needed");
 
@@ -2023,7 +2026,6 @@ static int SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 
 	}
- done:
 
 	CLEANUP_CALL_AND_POP;
 
@@ -2497,7 +2499,7 @@ static int prs_FORM_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		break;
 	default:
 		proto_tree_add_text(subtree, tvb, offset, 0,
-				    "[Unimplemented info level %d]", level);
+				    "[Unknown info level %d]", level);
 		break;
 	}
 
@@ -2849,7 +2851,142 @@ static int SpoolssGeneric_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
+/*
+ * JOB_INFO_1
+ */
 
+static gint ett_JOB_INFO_1;
+
+static int prs_JOB_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			  proto_tree *tree, GList **dp_list, void **data)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	guint32 level;
+
+	item = proto_tree_add_text(tree, tvb, offset, 0, "JOB_INFO_1");
+
+	subtree = proto_item_add_subtree(item, ett_FORM_CTR);
+
+	return offset;
+}
+
+/*
+ * JOB_INFO_2
+ */
+
+static gint ett_JOB_INFO_2;
+
+static int prs_JOB_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			  proto_tree *tree, GList **dp_list, void **data)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	guint32 level;
+
+	item = proto_tree_add_text(tree, tvb, offset, 0, "JOB_INFO_2");
+
+	subtree = proto_item_add_subtree(item, ett_FORM_CTR);
+
+	return offset;
+}
+
+/*
+ * EnumJobs
+ */
+
+static int SpoolssEnumJobs_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			     proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	const guint8 *policy_hnd;
+	guint32 level;
+
+	/* Update informational fields */
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, "EnumJobs request");
+
+	if (dcv->rep_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Response in frame %d", dcv->rep_frame);
+
+	/* Parse packet */
+
+	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
+
+	display_pol(tree, tvb, offset - 20, policy_hnd);
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "First job");
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Num jobs");
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, &level, "Level");
+
+	dcv->private_data = (void *)level;
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
+
+	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
+					  prs_BUFFER, NULL, NULL);
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Offered");
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+static int SpoolssEnumJobs_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			     proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	void **data_list;
+	struct BUFFER_DATA *bd = NULL;
+	gint16 level = (guint32)dcv->private_data;
+
+	/* Update informational fields */
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, "EnumJobs response");
+
+	if (dcv->req_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %d", dcv->req_frame);
+
+	/* Parse packet */
+
+	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
+					   prs_BUFFER, NULL, &data_list);
+
+	if (data_list)
+		bd = (struct BUFFER_DATA *)data_list[0];
+
+	if (bd && bd->tree) {
+		proto_item_append_text(bd->item, ", JOB_INFO_%d", level);
+
+		switch (level) {
+		default:
+			proto_tree_add_text(
+				bd->tree, tvb, offset, 0,
+				"[Unknown info level %d]", level);
+			break;
+		}
+	}
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Needed");
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Returned");
+
+	offset = prs_werror(tvb, offset, pinfo, tree, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
 
 #if 0
 
@@ -2915,7 +3052,8 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
 	{ SPOOLSS_OPENPRINTER, "SPOOLSS_OPENPRINTER", NULL, SpoolssGeneric_r },
         { SPOOLSS_SETJOB, "SPOOLSS_SETJOB", NULL, SpoolssGeneric_r },
         { SPOOLSS_GETJOB, "SPOOLSS_GETJOB", NULL, SpoolssGeneric_r },
-        { SPOOLSS_ENUMJOBS, "SPOOLSS_ENUMJOBS", NULL, SpoolssGeneric_r },
+        { SPOOLSS_ENUMJOBS, "SPOOLSS_ENUMJOBS", 
+	  SpoolssEnumJobs_q, SpoolssEnumJobs_r },
         { SPOOLSS_ADDPRINTER, "SPOOLSS_ADDPRINTER", NULL, SpoolssGeneric_r },
         { SPOOLSS_DELETEPRINTER, "SPOOLSS_DELETEPRINTER", 
 	  SpoolssDeletePrinter_q, SpoolssDeletePrinter_r },
@@ -3097,6 +3235,8 @@ proto_register_dcerpc_spoolss(void)
 		&ett_FORM_REL,
 		&ett_FORM_CTR,
 		&ett_FORM_1,
+		&ett_JOB_INFO_1,
+		&ett_JOB_INFO_2,
         };
 
         proto_dcerpc_spoolss = proto_register_protocol(
