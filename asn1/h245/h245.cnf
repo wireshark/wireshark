@@ -1,0 +1,644 @@
+# H.245 conformation file
+# Copyright 2005 Anders Broman anders.broman[at]ericsson.com
+# $Id$
+#----------------------------------------------------------------------------------------
+#.EXPORTS
+#----------------------------------------------------------------------------------------
+T38FaxProfile
+DataProtocolCapability
+OpenLogicalChannel
+
+#----------------------------------------------------------------------------------------
+#.FN_BODY RequestMessage
+  guint32 value;
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h245_RequestMessage, RequestMessage_choice, "RequestMessage",
+                              &value);
+
+	if (check_col(pinfo->cinfo, COL_INFO)){
+	        if ( h245_shorttypes == TRUE )
+	        {
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(value, RequestMessage_short_vals, "<unknown>"));
+		}
+		else
+		{
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(value, RequestMessage_vals, "<unknown>"));
+		}
+	}
+
+	if (( check_col(pinfo->cinfo, COL_INFO)) && ( codec_type != NULL ) && ( value == 3) ){
+		col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", codec_type );
+	}
+
+        col_set_fence(pinfo->cinfo,COL_INFO);
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY ResponseMessage
+  guint32 value;
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h245_ResponseMessage, ResponseMessage_choice, "ResponseMessage",
+                              &value);
+
+
+	if (check_col(pinfo->cinfo, COL_INFO)){
+	        if ( h245_shorttypes == TRUE )
+	        {
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(value, ResponseMessage_short_vals, "<unknown>"));
+		}
+		else
+		{
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(value, ResponseMessage_vals, "<unknown>"));
+		}
+	}
+
+	col_set_fence(pinfo->cinfo,COL_INFO);
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY IndicationMessage
+  guint32 value;
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h245_IndicationMessage, IndicationMessage_choice, "IndicationMessage",
+                              &value);
+
+
+	if (check_col(pinfo->cinfo, COL_INFO)){
+	        if ( h245_shorttypes == TRUE )
+	        {
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(value, IndicationMessage_short_vals, "<unknown>"));
+		}
+		else
+		{
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(value, IndicationMessage_vals, "<unknown>"));
+		}
+	}
+
+	col_set_fence(pinfo->cinfo,COL_INFO);
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY CommandMessage
+  guint32 value;
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h245_CommandMessage, CommandMessage_choice, "CommandMessage",
+                              &value);
+
+
+	if (check_col(pinfo->cinfo, COL_INFO)){
+	        if ( h245_shorttypes == TRUE )
+	        {
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(value, CommandMessage_short_vals, "<unknown>"));
+		}
+		else
+		{
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(value, CommandMessage_vals, "<unknown>"));
+		}
+	}
+
+	col_set_fence(pinfo->cinfo,COL_INFO);
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY AudioCapability
+  guint32 value;
+
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h245_AudioCapability, AudioCapability_choice, "AudioCapability",
+                              &value);
+
+        codec_type = val_to_str(value, AudioCapability_vals, "<unknown>");
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY VideoCapability
+  guint32 value;
+
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h245_VideoCapability, VideoCapability_choice, "VideoCapability",
+                              &value);
+
+        codec_type = val_to_str(value, VideoCapability_vals, "<unknown>");
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY Application
+  guint32 value;
+
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h245_Application, Application_choice, "Application",
+                              &value);
+
+        codec_type = val_to_str(value, Application_vals, "<unknown>");
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR MasterSlaveDeterminationAck
+
+  h245_pi.msg_type = H245_MastSlvDetAck;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR MasterSlaveDeterminationReject
+
+  h245_pi.msg_type = H245_MastSlvDetRjc;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR OpenLogicalChannelReject
+
+  h245_pi.msg_type = H245_OpenLogChnRjc;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR CloseLogicalChannel
+
+  h245_pi.msg_type = H245_CloseLogChn;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR CloseLogicalChannelAck
+
+  h245_pi.msg_type = H245_CloseLogChnAck;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR OpenLogicalChannelConfirm
+
+  h245_pi.msg_type = H245_OpenLogChnCnf;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR TerminalCapabilitySetAck
+
+  h245_pi.msg_type = H245_TermCapSetAck;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR MasterSlaveDetermination
+
+  h245_pi.msg_type = H245_MastSlvDet;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR TerminalCapabilitySetReject
+
+  h245_pi.msg_type = H245_TermCapSetRjc;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR H245_MastSlvDetRls
+
+  h245_pi.msg_type = H245_TermCapSetRjc;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR TerminalCapabilitySet
+
+  h245_pi.msg_type = H245_TermCapSet;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR TerminalCapabilitySetRelease
+
+  h245_pi.msg_type = H245_TermCapSetRls;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR OpenLogicalChannel
+
+  h245_pi.msg_type = H245_OpenLogChn;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR OpenLogicalChannelAck
+
+  h245_pi.msg_type = H245_OpenLogChnAck;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY CapabilityIdentifier/standard
+  offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index,
+                                         standard_oid_str);
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY GenericMessage/subMessageIdentifer
+
+guint32 subMessageIdentifer;
+
+  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
+                                           0U, 127U, &subMessageIdentifer, NULL, FALSE);
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY UnicastAddress/iPAddress/network
+
+guint32 value_offset;
+guint32 value_len;
+
+  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
+                                    4, 4,
+                                    &value_offset, &value_len);
+  if ( media_channel )
+	tvb_memcpy(tvb, (char *)&ipv4_address, value_offset, 4);
+
+  if ( media_control_channel )
+	tvb_memcpy(tvb, (char *)&ipv4_address, value_offset, 4);
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY tsapIdentifier
+guint32 tsapIdentifier;
+
+
+	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
+		hf_h245_tsapIdentifier,  0,  65535,
+		&tsapIdentifier, NULL, FALSE);
+  if ( media_channel )
+	ipv4_port = tsapIdentifier;
+
+  if ( media_control_channel )
+	rtcp_ipv4_port = tsapIdentifier;
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR H2250LogicalChannelAckParameters/mediaChannel
+
+
+	media_channel = TRUE;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR H2250LogicalChannelAckParameters/mediaControlChannel
+
+
+	media_control_channel = TRUE;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR H2250LogicalChannelAckParameters/mediaChannel
+
+
+	media_channel = FALSE;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR H2250LogicalChannelAckParameters/mediaControlChannel
+
+
+	media_control_channel = FALSE;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR OpenLogicalChannelAck/forwardMultiplexAckParameters
+
+
+	media_channel = FALSE;
+	media_control_channel = FALSE;
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR OpenLogicalChannelAck/forwardMultiplexAckParameters
+	
+	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && rtp_handle){
+		address src_addr;
+
+		src_addr.type=AT_IPv4;
+		src_addr.len=4;
+		src_addr.data=(char *)&ipv4_address;
+
+		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num);
+	}
+	if((!pinfo->fd->flags.visited) && rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
+		address src_addr;
+
+		src_addr.type=AT_IPv4;
+		src_addr.len=4;
+		src_addr.data=(char *)&rtcp_ipv4_address;
+
+		rtcp_add_address(pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", pinfo->fd->num);
+	}
+
+#.END
+#----------------------------------------------------------------------------------------
+#.TYPE_RENAME
+#----------------------------------------------------------------------------------------
+
+NewATMVCCommand/aal Cmd_aal
+NewATMVCCommand/aal/aal1 Cmd_aal1
+NewATMVCCommand/aal/aal5 Cmd_aal5
+NewATMVCCommand/aal/aal1/clockRecovery Cmd_clockRecovery
+NewATMVCCommand/aal/aal1/errorCorrection Cmd_errorCorrection
+NewATMVCCommand/multiplex Cmd_multiplex
+NewATMVCCommand/reverseParameters Cmd_reverseParameters
+NewATMVCCommand/reverseParameters/multiplex CmdR_multiplex
+
+NewATMVCIndication/aal Ind_aal
+NewATMVCIndication/aal/aal1 Ind_aal1
+NewATMVCIndication/aal/aal5 Ind_aal5
+NewATMVCIndication/aal/aal1/clockRecovery Ind_clockRecovery
+NewATMVCIndication/aal/aal1/errorCorrection Ind_errorCorrection
+NewATMVCIndication/multiplex Ind_multiplex
+NewATMVCIndication/reverseParameters Ind_reverseParameters
+NewATMVCIndication/reverseParameters/multiplex IndR_multiplex
+
+MultilinkRequest/callInformation  CallInformationReq
+MultilinkRequest/addConnection AddConnectionReq
+MultilinkRequest/removeConnection RemoveConnectionReq
+MultilinkRequest/maximumHeaderInterval MaximumHeaderIntervalReq
+
+MultilinkResponse/callInformation CallInformationResp
+MultilinkResponse/addConnection AddConnectionResp
+MultilinkResponse/removeConnection RemoveConnectionResp
+MultilinkResponse/maximumHeaderInterval MaximumHeaderIntervalResp
+
+MasterSlaveDeterminationReject/cause             MasterSlaveDeterminationRejectCause
+TerminalCapabilitySetReject/cause                TerminalCapabilitySetRejectCause
+OpenLogicalChannelReject/cause                   OpenLogicalChannelRejectCause
+RequestChannelCloseReject/cause                  RequestChannelCloseRejectCause
+MultiplexEntryRejectionDescriptions/cause        MultiplexEntryRejectionDescriptionsCause
+RequestMultiplexEntryRejectionDescriptions/cause RequestMultiplexEntryRejectionDescriptionsCause
+RequestModeReject/cause                          RequestModeRejectCause
+MaintenanceLoopReject/cause                      MaintenanceLoopRejectCause
+FunctionNotSupported/cause                       FunctionNotSupportedCause
+
+AudioMode/g7231 Mode_g7231
+
+DataMode/application DataModeApplication
+DataMode/application/t38fax T38faxApp 
+
+FECData/rfc2733 RFC2733Data
+
+IS13818AudioMode/audioLayer IS13818AudioLayer
+IS13818AudioMode/audioSampling IS13818AudioSampling
+IS13818AudioMode/multichannelType IS13818MultichannelType
+
+H223ModeParameters/adaptationLayerType AdaptationLayerType
+
+H223AL1MParameters/headerFEC AL1HeaderFEC
+H223AL1MParameters/crcLength AL1CrcLength
+H223AL2MParameters/headerFEC AL2HeaderFEC
+H223AL3MParameters/crcLength AL3CrcLength
+
+H261VideoMode/resolution H261Resolution
+H263VideoMode/resolution H263Resolution
+
+UnicastAddress/iPAddress/network Ipv4_network
+MulticastAddress/iPAddress MIPAddress
+MulticastAddress/iP6Address MIP6Address
+
+NonStandardIdentifier/h221NonStandard H221NonStandardID
+OpenLogicalChannel/forwardLogicalChannelParameters/multiplexParameters OLC_forw_multiplexParameters
+OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters OLC_rev_multiplexParameters
+OpenLogicalChannel/reverseLogicalChannelParameters OLC_reverseLogicalChannelParameters
+OpenLogicalChannelAck/reverseLogicalChannelParameters OLC_ack_reverseLogicalChannelParameters
+CloseLogicalChannel/reason clc_reason
+VCCapability/availableBitRates/type Avb_type
+MultiplexElement/type Me_type
+RedundancyEncodingDTModeElement/type Re_type
+MaintenanceLoopRequest/type Mlr_type
+MaintenanceLoopAck/type Mla_type
+MaintenanceLoopReject/type Mlrej_type
+MiscellaneousCommand/type Mc_type
+MiscellaneousIndication/type Mi_type
+V76LogicalChannelParameters/mode V76LCP_mode
+FECData/rfc2733/mode FECdata_mode
+FECMode/rfc2733Mode/mode FEC_mode
+IS11172AudioMode/multichannelType IS11172_multichannelType
+MultiplexElement/repeatCount ME_repeatCount
+FECCapability/rfc2733 FECC_rfc2733
+RequestModeAck/response Req_mode_ack_response
+UserInputIndication/signalUpdate/rtp Si_rtp
+#----------------------------------------------------------------------------------------
+#.FIELD_RENAME
+#----------------------------------------------------------------------------------------
+
+NewATMVCCommand/aal cmd_aal
+NewATMVCCommand/aal/aal1 cmd_aal1
+NewATMVCCommand/aal/aal5 cmd_aal5
+NewATMVCCommand/aal/aal1/clockRecovery  cmd_clockRecovery
+NewATMVCCommand/aal/aal1/errorCorrection cmd_errorCorrection
+NewATMVCCommand/multiplex cmd_multiplex
+NewATMVCCommand/reverseParameters cmd_reverseParameters
+NewATMVCCommand/reverseParameters/multiplex cmdr_multiplex
+
+NewATMVCIndication/aal     ind_aal
+NewATMVCIndication/aal/aal1 ind_aal1
+NewATMVCIndication/aal/aal5 ind_aal5
+NewATMVCIndication/aal/aal1/clockRecovery ind_clockRecovery
+NewATMVCIndication/aal/aal1/errorCorrection ind_errorCorrection
+NewATMVCIndication/multiplex ind_multiplex
+NewATMVCIndication/reverseParameters ind_reverseParameters
+NewATMVCIndication/reverseParameters/multiplex indr_multiplex
+
+MultilinkRequest/callInformation  callInformationReq
+MultilinkRequest/addConnection addConnectionReq
+MultilinkRequest/removeConnection removeConnectionReq
+MultilinkRequest/maximumHeaderInterval maximumHeaderIntervalReq
+
+MultilinkResponse/callInformation callInformationResp
+MultilinkResponse/addConnection addConnectionResp
+MultilinkResponse/removeConnection removeConnectionResp
+MultilinkResponse/maximumHeaderInterval maximumHeaderIntervalResp
+
+MultiplexElement/type/logicalChannelNumber logicalChannelNum
+ConnectionIdentifier/sequenceNumber sequenceNum
+
+RequestMessage/nonStandard nonStandardMsg
+ResponseMessage/nonStandard nonStandardMsg
+CommandMessage/nonStandard nonStandardMsg
+IndicationMessage/nonStandard nonStandardMsg
+MultilinkRequest/nonStandard nonStandardMsg
+MultilinkResponse/nonStandard nonStandardMsg
+MultilinkIndication/nonStandard nonStandardMsg
+DialingInformation/nonStandard nonStandardMsg
+DialingInformationNetworkType/nonStandard nonStandardMsg
+
+UserInputCapability/nonStandard ui_nonStandard
+H2250LogicalChannelParameters/nonStandard nonStandardParams
+H2250LogicalChannelAckParameters/nonStandard nonStandardParams
+CommunicationModeTableEntry/nonStandard nonStandardParams
+ConferenceCapability/nonStandardData nonStandardParams
+
+UnicastAddress/iPXAddress/tsapIdentifier ipx_tsapIdentifier
+
+NonStandardParameter/data nsd_data
+NonStandardIdentifier/h221NonStandard h221NonStandardID
+
+AudioMode/g711Alaw64k g711Alaw64k_mode
+AudioMode/g711Alaw56k g711Alaw56k_mode
+AudioMode/g711Ulaw64k g711Ulaw64k_mode
+AudioMode/g711Ulaw56k g711Ulaw56k_mode
+AudioMode/g722-64k    g722_64k_mode
+AudioMode/g722-56k    g722_56k_mode
+AudioMode/g722-48k    g722_48k_mode
+AudioMode/g728        g728_mode
+AudioMode/g729        g729_mode
+AudioMode/g729AnnexA  g729AnnexA_mode
+AudioMode/g7231       g7231_mode
+AudioMode/vbd         vbd_mode
+
+IS11172AudioMode/audioLayer/audioLayer1 audioLayer1Mode
+IS11172AudioMode/audioLayer/audioLayer2 audioLayer2Mode
+IS11172AudioMode/audioLayer/audioLayer3 audioLayer3Mode
+IS11172AudioMode/audioSampling/audioSampling32k  audioSampling32kMode
+IS11172AudioMode/audioSampling/audioSampling44k1 audioSampling44k1Mode
+IS11172AudioMode/audioSampling/audioSampling48k  audioSampling48kMode
+IS11172AudioMode/multichannelType/singleChannel  singleChannelMode
+
+IS13818AudioMode/audioLayer             audioLayerMode
+IS13818AudioMode/audioLayer/audioLayer1 audioLayer1Mode
+IS13818AudioMode/audioLayer/audioLayer2 audioLayer2Mode
+IS13818AudioMode/audioLayer/audioLayer3 audioLayer3Mode
+IS13818AudioMode/audioSampling          audioSamplingMode
+IS13818AudioMode/audioSampling/audioSampling16k       audioSampling16kMode
+IS13818AudioMode/audioSampling/audioSampling22k05     audioSampling22k05Mode
+IS13818AudioMode/audioSampling/audioSampling24k       audioSampling24kMode
+IS13818AudioMode/audioSampling/audioSampling32k       audioSampling32kMode
+IS13818AudioMode/audioSampling/audioSampling44k1      audioSampling44k1Mode
+IS13818AudioMode/audioSampling/audioSampling48k       audioSampling48kMode
+IS13818AudioMode/multichannelType/singleChannel       singleChannelMode
+IS13818AudioMode/multichannelType/threeChannels2-1    threeChannels2_1Mode
+IS13818AudioMode/multichannelType/threeChannels3-0    threeChannels3_0Mode
+IS13818AudioMode/multichannelType/fourChannels2-0-2-0 fourChannels2_0_2_0Mode
+IS13818AudioMode/multichannelType/fourChannels2-2     fourChannels2_2Mode
+IS13818AudioMode/multichannelType/fourChannels3-1     fourChannels3_1Mode
+IS13818AudioMode/multichannelType/fiveChannels3-0-2-0 fiveChannels3_0_2_0Mode
+IS13818AudioMode/multichannelType/fiveChannels3-2     fiveChannels3_2Mode
+
+H262VideoMode/profileAndLevel/profileAndLevel-SPatML        profileAndLevel_SPatMLMode
+H262VideoMode/profileAndLevel/profileAndLevel-MPatLL        profileAndLevel_MPatLLMode
+H262VideoMode/profileAndLevel/profileAndLevel-MPatML        profileAndLevel_MPatMLMode
+H262VideoMode/profileAndLevel/profileAndLevel-MPatH-14      profileAndLevel_MPatH-14Mode
+H262VideoMode/profileAndLevel/profileAndLevel-MPatHL        profileAndLevel_MPatHLMode
+H262VideoMode/profileAndLevel/profileAndLevel-SNRatLL       profileAndLevel_SNRatLLMode
+H262VideoMode/profileAndLevel/profileAndLevel-SNRatML       profileAndLevel_SNRatMLMode
+H262VideoMode/profileAndLevel/profileAndLevel-SpatialatH-14 profileAndLevel_SpatialatH-14Mode
+H262VideoMode/profileAndLevel/profileAndLevel-HPatML        profileAndLevel_HPatMLMode
+H262VideoMode/profileAndLevel/profileAndLevel-HPatH-14      profileAndLevel_HPatH-14Mode
+H262VideoMode/profileAndLevel/profileAndLevel-HPatHL        profileAndLevel_HPatHLMode
+                    
+RedundancyEncodingMode/secondaryEncoding/audioData audioMode
+
+UnicastAddress/iPAddress/network ip4_network
+UnicastAddress/iP6Address/network ip6_network
+MulticastAddress/iP6Address/network mip6_network
+MulticastAddress/iPAddress mIPAddress
+MulticastAddress/iP6Address mIP6Address 
+MulticastAddress/iPAddress/network mip4_network
+
+RTPPayloadType/payloadDescriptor/nonStandardIdentifier nonStandard
+T84Profile/t84Restricted/cif cif_bool
+T84Profile/t84Restricted/qcif qcif_bool
+H223ModeParameters/adaptationLayerType adaptationLayer
+H261VideoMode/resolution h261_resolution
+H263VideoMode/resolution h263_resolution
+H263VideoMode/resolution/custom custom_res
+CommunicationModeTableEntry/dataType entryDataType
+VCCapability/transportStream transportStream_bool
+
+MultiplexEntrySendAck/multiplexTableEntryNumber multiplexTableEntryNumbers
+MultiplexEntrySendRelease/multiplexTableEntryNumber multiplexTableEntryNumbers
+CapabilityIdentifier/standard standardOid
+MiscellaneousIndication/type/videoNotDecodedMBs/temporalReference temporalReference_0_255
+CloseLogicalChannel/source CloseLogicalChannel_source
+FECCapability/rfc2733/separateStream separateStreamBool
+FECCapability/rfc2733/separateStream/samePort samePortBool
+VCCapability/aal1/srtsClockRecovery srtsClockRecovery_bool
+VCCapability/aal1ViaGateway/srtsClockRecovery srtsClockRecoveryflag
+DataMode/application/t84 t84DataProtocolCapability
+DataMode/application/t38fax t38faxDataProtocolCapability
+H2250LogicalChannelParameters/sessionID sessionID_0_255 
+H223Capability/mobileOperationTransmitCapability/h223AnnexADoubleFlag h223AnnexADoubleFlagFlag
+SendTerminalCapabilitySet/genericRequest genericRequestFlag
+H2250LogicalChannelParameters/mediaPacketization/h261aVideoPacketization h261aVideoPacketizationFlag
+RemoteMCResponse/reject/functionNotSupported functionNotSupportedFlag
+NewATMVCCommand/aal/aal1/errorCorrection/longInterleaver longInterleaverFlag 
+NewATMVCIndication/aal/aal1/errorCorrection/longInterleaver longInterleaverFlag
+MiscellaneousCommand/type/videoFastUpdateMB/firstGOB firstGOB_0_255
+H263VideoCapability/sqcifMPI sqcifMPI_1_32 
+EnhancementOptions/sqcifMPI sqcifMPI_1_32
+NewATMVCCommand/aal/aal1/errorCorrection/shortInterleaver shortInterleaverFlag
+NewATMVCIndication/aal/aal1/errorCorrection/shortInterleaver shortInterleaverFlag
+NewATMVCCommand/multiplex/programStream programStreamFlag 
+NewATMVCCommand/reverseParameters/multiplex/programStream programStreamFlag
+NewATMVCIndication/multiplex/programStream programStreamFlag
+NewATMVCIndication/reverseParameters/multiplex/programStream programStreamFlag
+H263ModeComboFlags/enhancedReferencePicSelect enhancedReferencePicSelectBool
+NewATMVCCommand/aal/aal1/errorCorrection/errorCorrectionOnly errorCorrectionOnlyFlag 
+NewATMVCIndication/aal/aal1/errorCorrection/errorCorrectionOnly errorCorrectionOnlyFlag
+UserInputCapability/extendedAlphanumeric extendedAlphanumericFlag
+MultiplexElement/repeatCount/finite  finite_1_65535
+MiscellaneousCommand/type/videoFastUpdateMB/firstMB firstMB_1_8192
+MiscellaneousIndication/type/videoNotDecodedMBs/firstMB firstMB_1_8192
+H261VideoCapability/cifMPI cifMPI_1_4
+CustomPictureClockFrequency/cifMPI cifMPI2_1_2048         
+H263VideoCapability/cif16MPI  cif16MPI_1_32
+EnhancementOptions/cif16MPI  cif16MPI_1_32
+H263VideoCapability/cif4MPI cif4MPI_1_32
+EnhancementOptions/cif4MPI  cif4MPI_1_32
+H263Version3Options/pictureNumber pictureNumberBoolean       
+MiscellaneousCommand/type/videoBadMBs/numberOfMBs numberOfMBs1_1_9216
+MiscellaneousCommand/type/lostPartialPicture/numberOfMBs numberOfMBs1_1_9216
+DataApplicationCapability/maxBitRate maxBitRate2_0_4294967295
+GenericCapability/maxBitRate maxBitRate2_0_4294967295
+H261VideoCapability/maxBitRate maxBitRate_1_19200
+IS13818AudioCapability/bitRate bitRate2_1_1130
+IS13818AudioMode/bitRate bitRate2_1_1130
+IS11172AudioCapability/bitRate bitRate_1_448 
+IS11172AudioMode/bitRate  bitRate_1_448
+DataMode/bitRate bitRate_0_4294967295
+H223Capability/bitRate bitRate_1_19200
+H261VideoMode/bitRate bitRate_1_19200
+H263VideoMode/bitRate bitRate_1_19200
+DialingInformationNumber/networkAddress networkAddressNum
+NewATMVCCommand/aal/aal1/clockRecovery/adaptiveClockRecovery adaptiveClockRecoveryFlag 
+NewATMVCIndication/aal/aal1/clockRecovery/adaptiveClockRecovery adaptiveClockRecoveryFlag
+NewATMVCCommand/aal/aal1/clockRecovery/nullClockRecovery nullClockRecoveryflag 
+NewATMVCIndication/aal/aal1/clockRecovery/nullClockRecovery nullClockRecoveryflag
+NewATMVCCommand/aal/aal1/errorCorrection/nullErrorCorrection nullErrorCorrectionFlag 
+NewATMVCIndication/aal/aal1/errorCorrection/nullErrorCorrection nullErrorCorrectionFlag
+H223AL2MParameters/headerFEC AL2HeaderFEC
+H223AL1MParameters/headerFEC AL1HeaderFEC
+H223AL1MParameters/crcLength crcLength2
+H223AL3MParameters/crcLength crlength2
+SendTerminalCapabilitySet/specificRequest/multiplexCapability multiplexCapabilityBool
+FECCapability/rfc2733/redundancyEncoding redundancyEncodingBool
+FECData/rfc2733/mode/redundancyEncoding redundancyEncodingFlag
+Moderfc2733/redundancyEncoding redundancyEncodingFlag 
+FECMode/rfc2733Mode/mode/redundancyEncoding redundancyEncodingFlag
+
+H261VideoCapability/qcifMPI qcifMPI_1_4
+CustomPictureClockFrequency/qcifMPI qcifMPI_1_2048
+DataMode/application datamodeapplication
+MasterSlaveDeterminationReject/cause msd_rej_cause
+
+OpenLogicalChannelReject/cause olc_rej_cause
+RequestMultiplexEntryRejectionDescriptions/cause req_mux_rej_cause
+RequestModeReject/cause req_rej_cause
+MultiplexEntryRejectionDescriptions/cause mux_rej_cause
+RequestChannelCloseReject/cause req_chan_clos_rej_cause
+TerminalCapabilitySetReject/cause tcs_rej_cause
+MaintenanceLoopReject/cause maintloop_rej_cause
+FunctionNotSupported/cause fns_cause
+Restriction/maximumBitRate Res_maximumBitRate
+RedundancyEncodingDTMode/primary prmary_dtmode
+RedundancyEncoding/rtpRedundancyEncoding/primary primary
+FECMode/rfc2733Mode/mode fec_mode
+FECData/rfc2733/mode fec_data_mode
+V76LogicalChannelParameters/mode v76_mode
+OpenLogicalChannelAck/reverseLogicalChannelParameters/multiplexParameters olc_ack_multiplexParameters
+OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters olc_rev_multiplexParameter
+OpenLogicalChannel/forwardLogicalChannelParameters/multiplexParameters olc_forw_multiplexParameters
+IS11172AudioMode/multichannelType is11172multichannelType
+IS13818AudioMode/multichannelType is13818MultichannelType
+CloseLogicalChannel/reason clc_reason
+MultiplexElement/repeatCount me_repeatCount
+FECCapability/rfc2733 fecc_rfc2733
+RequestModeAck/response req_mode_ack_response
+UserInputIndication/signalUpdate/rtp si_rtp
+VCCapability/availableBitRates/type Avb_type
+MultiplexElement/type Me_type
+RedundancyEncodingDTModeElement/type re_type
+MaintenanceLoopRequest/type mlr_type
+MaintenanceLoopAck/type Mla_type
+MaintenanceLoopReject/type mlrej_type
+MiscellaneousCommand/type mc_type
+MiscellaneousIndication/type mi_type
+VBDMode/type vbd_type
+VBDCapability/type vbd_cap_type
+OpenLogicalChannelAck/reverseLogicalChannelParameters olc_ack_reverseLogicalChannelParameters
+H2250LogicalChannelAckParameters/mediaChannel ack_mediaChannel
+H2250LogicalChannelAckParameters/mediaControlChannel ack_mediaControlChannel
+#----------------------------------------------------------------------------------------
+#.TYPE_ATTR
+UnicastAddress/iPAddress/network  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
+UnicastAddress/iP6Address/network  TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
+MulticastAddress/iPAddress/network  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
+MulticastAddress/iP6Address/network  TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
+RTPPayloadType/payloadDescriptor/rfc-number TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(RFC_number_vals)
+#----------------------------------------------------------------------------------------

@@ -1,0 +1,6 @@
+#.TYPE_ATTR
+DataProtocolCapability   TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(DataProtocolCapability_vals)  BITMASK = 0
+T38FaxProfile            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+OpenLogicalChannel       TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+#.END
+
