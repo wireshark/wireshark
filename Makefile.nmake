@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.403 2004/02/11 09:58:13 guy Exp $
+# $Id: Makefile.nmake,v 1.404 2004/02/13 02:03:14 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -109,6 +109,7 @@ ethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
+	$(ZLIB_LIBS) \
 	$(NET_SNMP_DIR)\win32\lib\netsnmp.lib
 #	$(PCAP_DIR)\lib\wpcap.lib
 
@@ -119,6 +120,7 @@ tethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(GLIB_LIBS) \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
+	$(ZLIB_LIBS) \
 	$(NET_SNMP_DIR)\win32\lib\netsnmp.lib
 
 editcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
@@ -133,7 +135,9 @@ dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib epan\ethereal.lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	wsock32.lib user32.lib \
 	wiretap\wiretap-$(WTAP_VERSION).lib \
-	$(GLIB_LIBS)
+	$(GLIB_LIBS) \
+	$(PCRE_LIBS) \
+	$(ZLIB_LIBS)
 
 randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	user32.lib \
