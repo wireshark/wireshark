@@ -39,17 +39,14 @@
 #include <gtk/gtk.h>
 
 /**
- * Create or reactivate the voip calls dialog box.
- *
- * @param list pointer to list of rtp_stream_info_t*
- */
-void voip_calls_dlg_show(GList *list);
-
-/**
  * Update the contents of the dialog box clist with that of list.
  *
  * @param list pointer to list of rtp_stream_info_t*
  */
 void voip_calls_dlg_update(GList *list);
+
+/* functions for tap_listeners in voip_calls.c */
+void voip_calls_dlg_draw(void *ptr);
+void voip_calls_dlg_reset(void *ptr);
 
 #endif /* VOIP_CALLS_DLG_H_INCLUDED*/

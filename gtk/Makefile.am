@@ -53,6 +53,7 @@ noinst_HEADERS = \
 	follow_dlg.h	\
 	font_utils.h	\
 	goto_dlg.h	\
+	graph_analysis.h \
 	gsm_map_stat.h	\
 	gtkglobals.h	\
 	gtk_stat_util.h \
@@ -93,6 +94,8 @@ noinst_HEADERS = \
 	text_page.h	\
 	toolbar.h       \
 	ui_util.h	\
+	voip_calls.h	\
+	voip_calls_dlg.h \
 	webbrowser.h
 
 if USE_GTK2

@@ -51,6 +51,7 @@ ETHEREAL_GTK_SRC = \
 	follow_dlg.c	\
 	font_utils.c	\
 	goto_dlg.c	\
+	graph_analysis.c \
 	gtk_stat_util.c	\
 	gui_prefs.c	\
 	h323_analysis.c	\
@@ -84,6 +85,7 @@ ETHEREAL_GTK_SRC = \
 	text_page.c	\
 	toolbar.c	\
 	ui_util.c \
+	voip_calls.c \
 	webbrowser.c
 
 
@@ -131,4 +133,5 @@ ETHEREAL_TAP_SRC = \
 	sip_stat.c	\
 	smb_stat.c	\
 	tcp_graph.c	\
+	voip_calls_dlg.c \
 	wsp_stat.c

@@ -136,6 +136,17 @@ typedef struct _voip_calls_tapinfo {
 	int completed_calls;
 	int rejected_calls;
 	graph_analysis_info_t* graph_analysis;
+	/* 
+	 * Now add dummy variables, one for each tap listener.
+	 * Their address will be used to distinguish between them.
+	 */
+	int sip_dummy;
+	int sdp_dummy;
+	int h225_dummy;
+	int h245dg_dummy;
+	int mtp3_dummy;
+	int isup_dummy;
+	int q931_dummy;
 } voip_calls_tapinfo_t;
 
 

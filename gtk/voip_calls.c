@@ -90,7 +90,7 @@ char *voip_protocol_name[3]={
 /****************************************************************************/
 /* the one and only global voip_calls_tapinfo_t structure */
 static voip_calls_tapinfo_t the_tapinfo_struct =
-	{0, NULL, 0, NULL, 0, 0, 0, 0, NULL};
+	{0, NULL, 0, NULL, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, 0};
 
 /* static voip_calls_tapinfo_t the_tapinfo_struct;
 */
@@ -174,6 +174,16 @@ void graph_analysis_data_init(){
 
 /****************************************************************************/
 /* Add the RTP streams into the graph data */
+/** 
+ * TODO: 
+ * - reimplement this function
+ * This function does not work with VoIP taps
+ * which keep the window up to date.
+ * Either make rtp_stream() work without redissection or
+ * add an additional tap listener for rtp to this file.
+ * The second solution is cleaner and probably easier to implement, 
+ * leaving the current rtp analysis feature untouched.
+ */
 void add_rtp_streams_graph()
 {
 	rtp_stream_info_t *strinfo;
@@ -272,7 +282,7 @@ int add_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, gchar *f
 /****************************************************************************/
 /* Append str to frame_label and comment in a graph item */
 /* return 0 if the frame_num is not in the graph list */
-int append_to_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_num, gchar *new_frame_label, gchar *new_comment)
+int append_to_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_num, const gchar *new_frame_label, const gchar *new_comment)
 {
 	graph_analysis_item_t *gai;
 	GList* list;
@@ -312,9 +322,10 @@ int append_to_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_num, 
 
 /****************************************************************************/
 /* whenever a SIP packet is seen by the tap listener */
-int SIPcalls_packet(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void *SIPinfo)
+static int 
+SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *SIPinfo)
 {
-
+	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
 	/* we just take note of the ISUP data here; when we receive the MTP3 part everything will
 	   be compared with existing calls */
 
@@ -326,7 +337,7 @@ int SIPcalls_packet(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, epan_
 	gchar *frame_label = NULL;
 	gchar *comment = NULL;
 
-	sip_info_value_t *pi = SIPinfo;
+	const sip_info_value_t *pi = SIPinfo;
 
 	/* do not consider packets without call_id */
 	if (pi->tap_call_id ==NULL){
@@ -462,8 +473,11 @@ sip_calls_init_tap(void)
 	if(have_SIP_tap_listener==FALSE)
 	{
 		/* don't register tap listener, if we have it already */
-		error_string = register_tap_listener("sip", &the_tapinfo_struct, NULL,
-			NULL, (void*)SIPcalls_packet, NULL);
+		error_string = register_tap_listener("sip", &(the_tapinfo_struct.sip_dummy), NULL,
+			voip_calls_dlg_reset, 
+			SIPcalls_packet, 
+			voip_calls_dlg_draw
+			);
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				      error_string->str);
@@ -485,7 +499,7 @@ void
 remove_tap_listener_sip_calls(void)
 {
 	protect_thread_critical_region();
-	remove_tap_listener(&the_tapinfo_struct);
+	remove_tap_listener(&(the_tapinfo_struct.sip_dummy));
 	unprotect_thread_critical_region();
 
 	have_SIP_tap_listener=FALSE;
@@ -501,10 +515,11 @@ static guint8		isup_message_type;
 
 /****************************************************************************/
 /* whenever a isup_ packet is seen by the tap listener */
-int isup_calls_packet(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void *isup_info _U_)
+static int 
+isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *isup_info _U_)
 {
-
-	isup_tap_rec_t *pi = isup_info;
+	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
+	const isup_tap_rec_t *pi = isup_info;
 
 	if (pi->calling_number!=NULL){
 		strcpy(isup_calling_number, pi->calling_number);
@@ -530,9 +545,12 @@ isup_calls_init_tap(void)
 
 	if(have_isup_tap_listener==FALSE)
 	{
-		error_string = register_tap_listener("isup", &the_tapinfo_struct,
+		error_string = register_tap_listener("isup", &(the_tapinfo_struct.isup_dummy),
 			NULL,
-			NULL, (void*)isup_calls_packet, NULL);
+			voip_calls_dlg_reset, 
+			isup_calls_packet, 
+			voip_calls_dlg_draw
+			);
 	
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -550,7 +568,7 @@ void
 remove_tap_listener_isup_calls(void)
 {
 	protect_thread_critical_region();
-	remove_tap_listener(&the_tapinfo_struct);
+	remove_tap_listener(&(the_tapinfo_struct.isup_dummy));
 	unprotect_thread_critical_region();
 
 	have_isup_tap_listener=FALSE;
@@ -564,9 +582,10 @@ remove_tap_listener_isup_calls(void)
 
 /****************************************************************************/
 /* whenever a mtp3_ packet is seen by the tap listener */
-int mtp3_calls_packet(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void *mtp3_info _U_)
+static int 
+mtp3_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *mtp3_info _U_)
 {
-
+	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
 	voip_calls_info_t *tmp_listinfo;
 	voip_calls_info_t *strinfo = NULL;
 	isup_calls_info_t *tmp_isupinfo;
@@ -575,7 +594,7 @@ int mtp3_calls_packet(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, epa
 	gboolean right_pair = TRUE;
 	GList* list;
 
-	mtp3_tap_rec_t *pi = mtp3_info;
+	const mtp3_tap_rec_t *pi = mtp3_info;
 
 	/* check wether we already have a call with these parameters in the list */
 	list = g_list_first(tapinfo->strinfo_list);
@@ -697,9 +716,12 @@ mtp3_calls_init_tap(void)
 
 	if(have_mtp3_tap_listener==FALSE)
 	{
-		error_string = register_tap_listener("mtp3", &the_tapinfo_struct,
+		error_string = register_tap_listener("mtp3", &(the_tapinfo_struct.mtp3_dummy),
 			NULL,
-			NULL, (void*)mtp3_calls_packet, NULL);
+			voip_calls_dlg_reset, 
+			mtp3_calls_packet, 
+			voip_calls_dlg_draw
+			);
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -717,7 +739,7 @@ void
 remove_tap_listener_mtp3_calls(void)
 {
 	protect_thread_critical_region();
-	remove_tap_listener(&the_tapinfo_struct);
+	remove_tap_listener(&(the_tapinfo_struct.mtp3_dummy));
 	unprotect_thread_critical_region();
 
 	have_mtp3_tap_listener=FALSE;
@@ -736,10 +758,11 @@ static guint32 q931_frame_num;
 
 /****************************************************************************/
 /* whenever a q931_ packet is seen by the tap listener */
-int q931_calls_packet(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void *q931_info _U_)
+static int 
+q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *q931_info _U_)
 {
-
-	q931_packet_info *pi = q931_info;
+	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
+	const q931_packet_info *pi = q931_info;
 
 	/* free previously allocated q931_calling/ed_number */
 	g_free(q931_calling_number);
@@ -772,9 +795,12 @@ q931_calls_init_tap(void)
 
 	if(have_q931_tap_listener==FALSE)
 	{
-		error_string = register_tap_listener("q931", &the_tapinfo_struct,
+		error_string = register_tap_listener("q931", &(the_tapinfo_struct.q931_dummy),
 			NULL,
-			NULL, (void*)q931_calls_packet, NULL);
+			voip_calls_dlg_reset,
+			q931_calls_packet,
+			voip_calls_dlg_draw
+			);
 			
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -792,7 +818,7 @@ void
 remove_tap_listener_q931_calls(void)
 {
 	protect_thread_critical_region();
-	remove_tap_listener(&the_tapinfo_struct);
+	remove_tap_listener(&(the_tapinfo_struct.q931_dummy));
 	unprotect_thread_critical_region();
 
 	have_q931_tap_listener=FALSE;
@@ -819,9 +845,10 @@ void add_h245_Address(h323_calls_info_t *h323info, guint32 h245_address, guint16
 
 /****************************************************************************/
 /* whenever a H225 packet is seen by the tap listener */
-int H225calls_packet(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void *H225info)
+static int 
+H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *H225info)
 {
-
+	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
 	voip_calls_info_t *tmp_listinfo;
 	voip_calls_info_t *strinfo = NULL;
 	h323_calls_info_t *tmp_h323info;
@@ -830,11 +857,7 @@ int H225calls_packet(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, epan
 	GList* list;
 	guint32 tmp_src, tmp_dst;
 
-	h225_packet_info *pi = H225info;
-
-	/* we ignore packets that are not displayed */
-	if (pinfo->fd->flags.passed_dfilter == 0)
-		return 0;
+	const h225_packet_info *pi = H225info;
 
 	/* if not guid and RAS return because did not belong to a call */
 	if ((memcmp(pi->guid, guid_allzero, GUID_LEN) == 0) && (pi->msg_type == H225_RAS))
@@ -1030,8 +1053,11 @@ h225_calls_init_tap(void)
 	if(have_H225_tap_listener==FALSE)
 	{
 		/* don't register tap listener, if we have it already */
-		error_string = register_tap_listener("h225", &the_tapinfo_struct, NULL,
-			NULL, (void*)H225calls_packet, NULL);
+		error_string = register_tap_listener("h225", &(the_tapinfo_struct.h225_dummy), NULL,
+			voip_calls_dlg_reset, 
+			H225calls_packet, 
+			voip_calls_dlg_draw
+			);
 			
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -1054,7 +1080,7 @@ void
 remove_tap_listener_h225_calls(void)
 {
 	protect_thread_critical_region();
-	remove_tap_listener(&the_tapinfo_struct);
+	remove_tap_listener(&(the_tapinfo_struct.h225_dummy));
 	unprotect_thread_critical_region();
 
 	have_H225_tap_listener=FALSE;
@@ -1063,9 +1089,10 @@ remove_tap_listener_h225_calls(void)
 
 /****************************************************************************/
 /* whenever a H245dg packet is seen by the tap listener (when H245 tunneling is ON) */
-int H245dgcalls_packet(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void *H245info)
+static int 
+H245dgcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *H245info)
 {
-
+	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
 	voip_calls_info_t *tmp_listinfo;
 	voip_calls_info_t *strinfo = NULL;
 	h323_calls_info_t *tmp_h323info;
@@ -1076,11 +1103,7 @@ int H245dgcalls_packet(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, ep
 	guint32 tmp_src, tmp_dst;
 	h245_address_t *h245_add = NULL;
 
-	h245_packet_info *pi = H245info;
-
-	/* we ignore packets that are not displayed */
-	if (pinfo->fd->flags.passed_dfilter == 0)
-		return 0;
+	const h245_packet_info *pi = H245info;
 
 	/* if H245 tunneling is on, append to graph */
 	if (append_to_frame_graph(tapinfo, pinfo->fd->num, pi->frame_label, pi->comment)) return 1;
@@ -1143,8 +1166,11 @@ h245dg_calls_init_tap(void)
 	if(have_H245dg_tap_listener==FALSE)
 	{
 		/* don't register tap listener, if we have it already */
-		error_string = register_tap_listener("h245dg", &the_tapinfo_struct, NULL,
-			NULL, (void*)H245dgcalls_packet, NULL);
+		error_string = register_tap_listener("h245dg", &(the_tapinfo_struct.h245dg_dummy), NULL,
+			voip_calls_dlg_reset,
+			H245dgcalls_packet, 
+			voip_calls_dlg_draw
+			);
 		
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -1166,7 +1192,7 @@ void
 remove_tap_listener_h245dg_calls(void)
 {
 	protect_thread_critical_region();
-	remove_tap_listener(&the_tapinfo_struct);
+	remove_tap_listener(&(the_tapinfo_struct.h245dg_dummy));
 	unprotect_thread_critical_region();
 
 	have_H245dg_tap_listener=FALSE;
@@ -1177,17 +1203,16 @@ remove_tap_listener_h245dg_calls(void)
 /****************************TAP for SDP PROTOCOL ***************************/
 /****************************************************************************/
 /* whenever a SDP packet is seen by the tap listener */
-int SDPcalls_packet(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void *SDPinfo)
+static int 
+SDPcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *SDPinfo)
 {
-	sdp_packet_info *pi = SDPinfo;
-
-	/* we ignore packets that are not displayed */
-	if (pinfo->fd->flags.passed_dfilter == 0)
-		return 0;
-
+	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
+	const sdp_packet_info *pi = SDPinfo;
+	char summary_str[50];
+	
 	/* Append to graph the SDP summary if the packet exists */
-	g_snprintf(pi->summary_str, 50, "SDP (%s)", pi->summary_str);
-	append_to_frame_graph(tapinfo, pinfo->fd->num, pi->summary_str, NULL);
+	g_snprintf(summary_str, 50, "SDP (%s)", pi->summary_str);
+	append_to_frame_graph(tapinfo, pinfo->fd->num, summary_str, NULL);
 
 	return 1;  /* refresh output */
 }
@@ -1206,8 +1231,11 @@ sdp_calls_init_tap(void)
 	if(have_sdp_tap_listener==FALSE)
 	{
 		/* don't register tap listener, if we have it already */
-		error_string = register_tap_listener("sdp", &the_tapinfo_struct, NULL,
-			NULL, (void*)SDPcalls_packet, NULL);
+		error_string = register_tap_listener("sdp", &(the_tapinfo_struct.sdp_dummy), NULL,
+			voip_calls_dlg_reset, 
+			SDPcalls_packet, 
+			voip_calls_dlg_draw
+			);
 			
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -1229,7 +1257,7 @@ void
 remove_tap_listener_sdp_calls(void)
 {
 	protect_thread_critical_region();
-	remove_tap_listener(&the_tapinfo_struct);
+	remove_tap_listener(&(the_tapinfo_struct.sdp_dummy));
 	unprotect_thread_critical_region();
 
 	have_sdp_tap_listener=FALSE;
@@ -1244,16 +1272,12 @@ remove_tap_listener_sdp_calls(void)
 /****************************************************************************/
 
 /****************************************************************************/
-/* redraw the output */
-/*void prot_calls_draw(voip_calls_tapinfo_t *tapinfo _U_)
-{
-	return;
-}
-*/
-/****************************************************************************/
 /* whenever a prot_ packet is seen by the tap listener */
-/*int prot_calls_packet(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void *prot_info _U_)
+/*
+static int 
+prot_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prot_info _U_)
 {
+	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
 	if (strinfo!=NULL){
 		strinfo->stop_sec=pinfo->fd->rel_secs;
 		strinfo->stop_usec=pinfo->fd->rel_usecs;
@@ -1276,9 +1300,12 @@ prot_calls_init_tap(void)
 
 	if(have_prot__tap_listener==FALSE)
 	{
-		error_string = register_tap_listener("prot_", &the_tapinfo_struct,
+		error_string = register_tap_listener("prot_", &(the_tapinfo_struct.prot__dummy),
 			NULL,
-			NULL, (void*)prot_calls_packet, NULL);
+			voip_calls_dlg_reset,
+			prot__calls_packet, 
+			voip_calls_dlg_draw
+			);
 
 		if (error_string != NULL) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -1296,17 +1323,10 @@ void
 remove_tap_listener_prot__calls(void)
 {
 	protect_thread_critical_region();
-	remove_tap_listener(&the_tapinfo_struct);
+	remove_tap_listener(&(the_tapinfo_struct.prot__dummy));
 	unprotect_thread_critical_region();
 
 	have_prot__tap_listener=FALSE;
 }
 */
 
-/****************************************************************************/
-
-/*void prot_calls_reset(voip_calls_tapinfo_t *tapinfo _U_)
-{
-	return;
-}
-*/

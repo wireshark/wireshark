@@ -183,6 +183,9 @@ static void
 voip_calls_on_destroy                      (GtkObject       *object _U_,
                                         gpointer         user_data _U_)
 {
+	/* remove_tap_listeners */
+	voip_calls_remove_tap_listener();
+
 	/* Clean up memory used by calls tap */
 	voip_calls_reset((voip_calls_tapinfo_t*) voip_calls_get_info());
 
@@ -279,11 +282,6 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 
 	
 	g_free(filter_string);
-
-/*
-	main_filter_packets(&cfile, filter_string, FALSE);
-	voip_calls_dlg_update(voip_calls_get_info()->strinfo_list);
-*/
 }
 
 
@@ -608,10 +606,9 @@ void voip_calls_dlg_update(GList *list)
 
 	if (voip_calls_dlg != NULL) {
 
-		voip_calls_remove_tap_listener();
-
 		/* Add the RTP streams info for the graph */
-		add_rtp_streams_graph();
+		/* deactivated for now */
+/*		add_rtp_streams_graph(); */
 
 		gtk_clist_clear(GTK_CLIST(clist));
 		calls_nb = 0;
@@ -647,23 +644,17 @@ void voip_calls_dlg_update(GList *list)
 
 
 /****************************************************************************/
-/* update the contents of the dialog box clist */
-/* list: pointer to list of voip_calls_info_t* */
-void voip_calls_dlg_show(GList *list)
+/* draw function for tap listeners to keep the window up to date */
+void voip_calls_dlg_draw(void *ptr _U_)
 {
-	if (voip_calls_dlg != NULL) {
-		/* There's already a dialog box; reactivate it. */
-		reactivate_window(voip_calls_dlg);
-		/* Another list since last call? */
-		if (list != last_list) {
-			voip_calls_dlg_update(list);
-		}
-	}
-	else {
-		/* Create and show the dialog box */
-		voip_calls_dlg_create();
-		voip_calls_dlg_update(list);
-	}
+	voip_calls_dlg_update(voip_calls_get_info()->strinfo_list);
+}
+
+/* reset function for tap listeners to clear window, if necessary */
+void voip_calls_dlg_reset(void *ptr _U_)
+{
+	/* Clean up memory used by calls tap */
+	voip_calls_reset((voip_calls_tapinfo_t*) voip_calls_get_info());
 }
 
 /* init function for tap */
@@ -684,16 +675,22 @@ voip_calls_init_tap(char *dummy _U_)
 	q931_calls_init_tap();
 	sdp_calls_init_tap();
 	
+	/* init the Graph Analysys */
+	graph_analysis_data = graph_analysis_init();
+	graph_analysis_data->graph_info = voip_calls_get_info()->graph_analysis;
 
+	/* create dialog box if necessary */
+	if (voip_calls_dlg == NULL) {
+		voip_calls_dlg_create();
+	} else {
+		/* There's already a dialog box; reactivate it. */
+		reactivate_window(voip_calls_dlg);
+	}
+	
 	/* Scan for VoIP calls calls (redissect all packets) */
 	retap_packets(&cfile);
-
-	/* Show the dialog box with the list of calls */
-	voip_calls_dlg_show(voip_calls_get_info()->strinfo_list);
 	
-
 	/* Tap listener will be removed and cleaned up in voip_calls_on_destroy */
-	
 }
 
 
@@ -702,10 +699,6 @@ voip_calls_init_tap(char *dummy _U_)
 void voip_calls_launch(GtkWidget *w _U_, gpointer data _U_)
 {
 	voip_calls_init_tap("");
-	
-	/* init the Graph Analysys */
-	graph_analysis_data = graph_analysis_init();
-	graph_analysis_data->graph_info = voip_calls_get_info()->graph_analysis;
 }
 
 /****************************************************************************/
