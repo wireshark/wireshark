@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.48 2003/02/08 02:59:05 guy Exp $
+$Id: ncp2222.py,v 1.49 2003/02/08 04:34:38 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1581,7 +1581,7 @@ DayOfWeek			= val_string8("s_day_of_week", "Day of Week", [
 ])
 DeadMirrorTable 		= bytes("dead_mirror_table", "Dead Mirror Table", 32)
 DefinedDataStreams		= uint8("defined_data_streams", "Defined Data Streams")
-DefinedNameSpaces		= uint8("definded_name_spaces", "Defined Name Spaces")
+DefinedNameSpaces		= uint8("defined_name_spaces", "Defined Name Spaces")
 DeletedDate			= uint16("deleted_date", "Deleted Date")
 DeletedDate.NWDate()
 DeletedFileTime			= uint32( "deleted_file_time", "Deleted File Time")
@@ -2260,6 +2260,7 @@ HugeStateInfo			= bytes("huge_state_info", "Huge State Info", 16)
 IdentificationNumber		= uint32("identification_number", "Identification Number")
 IgnoredRxPkts                   = uint32("ignored_rx_pkts", "Ignored Receive Packets")
 IncomingPacketDiscardedNoDGroup = uint16("incoming_packet_discarded_no_dgroup", "Incoming Packet Discarded No DGroup")
+IndexNumber			= uint8("index_number", "Index Number")
 InfoCount			= uint16("info_count", "Info Count")
 InfoFlags			= bitfield32("info_flags", "Info Flags", [
 	bf_boolean32(0x10000000, "info_flags_security", "Return Object Security"),
@@ -2543,6 +2544,7 @@ LFSCounters			= uint32("lfs_counters", "LFS Counters")
 LimboDataStreamsCount		= uint32("limbo_data_streams_count", "Limbo Data Streams Count")
 limbCount			= uint32("limb_count", "Limb Count")
 LimboUsed			= uint32("limbo_used", "Limbo Used")
+LoadedNameSpaces		= uint8("loaded_name_spaces", "Loaded Name Spaces")
 LocalConnectionID 		= uint32("local_connection_id", "Local Connection ID")
 LocalConnectionID.Display("BASE_HEX")
 LocalMaxPacketSize 		= uint32("local_max_packet_size", "Local Max Packet Size")
@@ -3830,6 +3832,7 @@ VolumeCachedFlag 		= val_string8("volume_cached_flag", "Volume Cached Flag", [
 	[ 0x00, "Volume is Not Cached" ],
 	[ 0xff, "Volume is Cached" ],
 ])	
+VolumeDataStreams		= uint8("volume_data_streams", "Volume Data Streams")
 VolumeHashedFlag 		= val_string8("volume_hashed_flag", "Volume Hashed Flag", [
 	[ 0x00, "Volume is Not Hashed" ],
 	[ 0xff, "Volume is Hashed" ],
@@ -3844,6 +3847,7 @@ VolumeMountedFlag 		= val_string8("volume_mounted_flag", "Volume Mounted Flag", 
 ])
 VolumeName			= fw_string("volume_name", "Volume Name", 16)
 VolumeNameLen			= nstring8("volume_name_len", "Volume Name")
+VolumeNameSpaces		= uint8("volume_name_spaces", "Volume Name Spaces")
 VolumeNameStringz               = stringz("volume_name_stringz", "Volume Name")
 VolumeNumber 			= uint8("volume_number", "Volume Number")
 VolumeNumberLong		= uint32("volume_number_long", "Volume Number")
@@ -4165,6 +4169,10 @@ CustomCntsInfo                  = struct("custom_cnts_info", [
         CustomVariableValue,
         CustomString,
 ], "Custom Counters" )        
+DataStreamInfo			= struct("data_stream_info", [
+	AssociatedNameSpace,
+	DataStreamName
+])
 DataStreamSizeStruct		= struct("data_stream_size_struct", [
 	DataStreamSize,
 ])
@@ -8674,20 +8682,22 @@ def define_ncp2222():
 	pkt.Request( 11, [
 		rec( 10, 1, VolumeNumber )
 	],info_str=(VolumeNumber, "Get Name Space Information for Volume %d", ", %d"))
-	pkt.Reply( (13,521), [
-		rec( 8, 1, DefinedNameSpaces ),
+	pkt.Reply( (15,523), [
 		#
-		# XXX - there's actually a sequence of DefinedNameSpaces
-		# NameSpaceNames here, not just one.
+		# XXX - why does this not display anything at all
+		# if the stuff after the first IndexNumber is
+		# un-commented?
 		#
-		rec( 9, (1,255), NameSpaceName ),
-		rec( -1, 1, DefinedDataStreams ),
-		rec( -1, 1, AssociatedNameSpace ),
-		#
-		# XXX - there's actually a sequence of DefinedDataStreams
-		# DataStreamNames here, not just one.
-		#
-		rec( -1, (1,255), DataStreamName ),
+		rec( 8, 1, DefinedNameSpaces, var="v" ),
+		rec( 9, (1,255), NameSpaceName, repeat="v" ),
+		rec( -1, 1, DefinedDataStreams, var="w" ),
+		rec( -1, (2,256), DataStreamInfo, repeat="w" ),
+		rec( -1, 1, LoadedNameSpaces, var="x" ),
+		rec( -1, 1, IndexNumber, repeat="x" ),
+#		rec( -1, 1, VolumeNameSpaces, var="y" ),
+#		rec( -1, 1, IndexNumber, repeat="y" ),
+#		rec( -1, 1, VolumeDataStreams, var="z" ),
+#		rec( -1, 1, IndexNumber, repeat="z" ),
 	])
 	pkt.CompletionCodes([0x0000])
 	# 2222/1630, 22/48
