@@ -3,7 +3,7 @@
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
  *
- * $Id: packet-gryphon.c,v 1.33 2002/05/05 00:16:38 guy Exp $
+ * $Id: packet-gryphon.c,v 1.34 2002/08/02 22:04:20 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,18 +32,11 @@
 
 #include "moduleinfo.h"
 
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
 
 #include <gmodule.h>
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 #include <epan/packet.h>
 #include "packet-gryphon.h"
 #include "packet-tcp.h"
@@ -1673,7 +1666,7 @@ static int
 cmd_files(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int	    msglen;
-    u_char  *which;
+    guchar  *which;
     
     msglen = tvb_reported_length_remaining(tvb, offset);
     if (tvb_get_guint8(tvb, offset) == 0)
@@ -1692,7 +1685,7 @@ static int
 resp_files(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int		msglen;
-    u_char  	*flag;
+    guchar  	*flag;
     
     msglen = tvb_reported_length_remaining(tvb, offset);
     flag = tvb_get_guint8(tvb, offset) ? "Yes": "No";
@@ -1705,7 +1698,7 @@ resp_files(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_usdt(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    u_char  *desc;
+    guchar  *desc;
     guint8  assemble_flag;
     
     if (tvb_get_guint8(tvb, offset))

@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.33 2002/07/17 06:55:29 guy Exp $
+ * $Id: packet-mgcp.c,v 1.34 2002/08/02 22:04:22 jmayer Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -32,14 +32,6 @@
 #include "plugins/plugin_api.h"
 
 #include "moduleinfo.h"
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -29,17 +29,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
 #include "plugins/plugin_api.h"
 #include "plugins/plugin_api_defs.h"
 #include "moduleinfo.h"
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 
 #include <gmodule.h>
 
