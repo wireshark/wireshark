@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.393 2004/01/17 18:52:07 ulfl Exp $
+# $Id: Makefile.nmake,v 1.394 2004/01/18 03:55:02 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -475,6 +475,11 @@ DISSECTOR_SUPPORT_OBJECTS = \
 	xdlc.obj	\
 	xmlstub.obj
 
+BUILT_SOURCES = \
+	cvsversion.h	\
+	x11-declarations.h \
+	x11-register-info.h
+
 ETHEREAL_COMMON_OBJECTS = \
 	$(DISSECTOR_SUPPORT_OBJECTS) \
 	capture_stop_conditions.obj \
@@ -748,7 +753,7 @@ clean:
 # Call distclean only, if you would like to remove ALL generated files.
 # Be sure to have python and perl installed to regenerate them.
 distclean: clean
-	rm -f cvsversion.h x11-declarations.h x11-register-info.h \
+	rm -f $(BUILT_SOURCES) \
 		packet-ncp2222.c register.c tethereal-tap-register.c 
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
