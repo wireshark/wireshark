@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.61 2002/08/03 19:46:43 guy Exp $
+ * $Id: packet-bgp.c,v 1.62 2002/08/15 18:52:04 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -192,6 +192,10 @@ static const value_string bgpattr_nlri_safi[] = {
 static const value_string orf_type_vals[] = {
     { 2,	"Communities ORF-Type" },
     { 3,	"Extended Communities ORF-Type" },
+    { 128,	"Cisco PrefixList ORF-Type" },
+    { 129,	"Cisco CommunityList ORF-Type" },
+    { 130,	"Cisco Extended CommunityList ORF-Type" },
+    { 131,	"Cisco AsPathList ORF-Type" },
     { 0,	NULL },
 };
 
@@ -203,6 +207,25 @@ static const value_string orf_send_recv_vals[] = {
     { 0,	NULL },
 };
 
+/* ORF Send/Receive, draft-ietf-idr-route-filter-04.txt */
+static const value_string orf_when_vals[] = {
+    { 1,	"Immediate" },
+    { 2,	"Defer" },
+    { 0,	NULL },
+};
+
+static const value_string orf_entry_action_vals[] = {
+    { 0,	"Add" },
+    { 0x40,	"Remove" },
+    { 0x80,	"RemoveAll" },
+    { 0,	NULL },
+};
+
+static const value_string orf_entry_match_vals[] = {
+    { 0,	"Permit" },
+    { 0x20,	"Deny" },
+    { 0,	NULL },
+};
 /* Maximal size of an IP address string */
 #define MAX_SIZE_OF_IP_ADDR_STRING      16
 
@@ -229,6 +252,8 @@ static gint ett_bgp_cluster_list = -1;  /* cluster list tree          */
 static gint ett_bgp_options = -1;       /* optional parameters tree   */
 static gint ett_bgp_option = -1;        /* an optional parameter tree */
 static gint ett_bgp_extended_communities = -1 ; /* extended communities list tree */
+static gint ett_bgp_orf = -1; 		/* orf (outbound route filter) tree */
+static gint ett_bgp_orf_entry = -1; 		/* orf entry tree */
 
 /* desegmentation */
 static gboolean bgp_desegment = TRUE;
@@ -700,6 +725,7 @@ dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
 			}
 			p += clen;
 			break;
+		    case BGP_CAPABILITY_ORF_CISCO:
 		    case BGP_CAPABILITY_COOPERATIVE_ROUTE_FILTERING:
 			ti = proto_tree_add_text(subtree1, tvb, p - 2,
                              2 + clen,
@@ -756,7 +782,7 @@ dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
 			break;
 		    /* unknown capability */
 		    default:
-			ti = proto_tree_add_text(subtree, tvb, p - 2,
+			ti = proto_tree_add_text(subtree1, tvb, p - 2,
                              2 + clen, "Unknown capability (%u %s)", 2 + clen,
                              (clen == 1) ? "byte" : "bytes");
 			subtree2 = proto_item_add_subtree(ti, ett_bgp_option);
@@ -1657,24 +1683,113 @@ static void
 dissect_bgp_route_refresh(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
     guint        i;    /* tmp            */
+    int             p;         /* tvb offset counter    */
+    int		    pend; 	/* end of list of entries for one orf type */
+    int 	    hlen; 	/* tvb RR msg length */
+    proto_item      *ti;       /* tree item             */
+    proto_item      *ti1;       /* tree item             */
+    proto_tree      *subtree;  /* tree for orf   */
+    proto_tree      *subtree1; /* tree for orf entry */
+    guint8          orftype;        /* ORF Type */
+    guint8	    orfwhen;	    /* ORF flag: immediate, defer */
+    int		    orflen;	    /* ORF len */
+    guint8          entryflag;	    /* ORF Entry flag: action(add,del,delall) match(permit,deny) */
+    int		    entryseq;       /* ORF Entry sequence number */
+    int 	    entrylen;       /* ORF Entry length */
+    guint8	    pfx_ge;	    /* ORF PrefixList mask lower bound */
+    guint8          pfx_le;         /* ORF PrefixList mask upper bound */
+    char            pfxbuf[20];	    /* ORF PrefixList prefix string buffer */
+    int             pfx_masklen;    /* ORF PRefixList prefix mask length */
+    
 
+/* 
+example 1
+ 00 1c 05	hlen=28
+ 00 01 00 01    afi,safi= ipv4-unicast
+ 02 80 00 01	defer, prefix-orf, len=1
+    80            removeall
+example 2
+ 00 25 05	hlen=37
+ 00 01 00 01	afi,saif= ipv4-unicast
+ 01 80 00 0a	immediate, prefix-orf, len=10
+    00 		  add
+    00 00 00 05   seqno = 5
+    12		  ge = 18
+    18		  le = 24
+    10 07 02	  prefix = 7.2.0.0/16
+*/
+    hlen = tvb_get_ntohs(tvb, offset + BGP_MARKER_SIZE);
+    p = offset + BGP_HEADER_SIZE;
     /* AFI */
-    i = tvb_get_ntohs(tvb, offset + BGP_HEADER_SIZE);
-    proto_tree_add_text(tree, tvb, offset + BGP_HEADER_SIZE, 2, 
+    i = tvb_get_ntohs(tvb, p);
+    proto_tree_add_text(tree, tvb, p, 2, 
                         "Address family identifier: %s (%u)",
                         val_to_str(i, afn_vals, "Unknown"), i);
-    offset += 2;
+    p += 2;
     /* Reserved */
-    proto_tree_add_text(tree, tvb, offset + BGP_HEADER_SIZE, 1, 
+    proto_tree_add_text(tree, tvb, p, 1, 
                         "Reserved: 1 byte");
-    offset++;
+    p++;
     /* SAFI */
-    i = tvb_get_guint8(tvb, offset + BGP_HEADER_SIZE);
-    proto_tree_add_text(tree, tvb, offset + BGP_HEADER_SIZE, 1, 
+    i = tvb_get_guint8(tvb, p);
+    proto_tree_add_text(tree, tvb, p, 1, 
                         "Subsequent address family identifier: %s (%u)",
                         val_to_str(i, bgpattr_nlri_safi,
                         i >= 128 ? "Vendor specific" : "Unknown"),
                         i);
+    p++;
+    if ( hlen == BGP_HEADER_SIZE + 4 )
+	return;
+    while (p < offset + hlen) {
+    	/* ORF type */
+    	orfwhen = tvb_get_guint8(tvb, p);
+    	orftype = tvb_get_guint8(tvb, p+1);
+    	orflen = tvb_get_ntohs(tvb, p+2);
+    	ti = proto_tree_add_text(tree, tvb, p , orflen + 4 , "ORF information (%u bytes)", orflen + 4);
+    	subtree = proto_item_add_subtree(ti, ett_bgp_orf);
+    	proto_tree_add_text(subtree, tvb, p , 1, "ORF flag: %s", val_to_str(orfwhen, orf_when_vals,"UNKNOWN"));
+    	proto_tree_add_text(subtree, tvb, p+1 , 1, "ORF type: %s", val_to_str(orftype, orf_type_vals,"UNKNOWN"));
+    	proto_tree_add_text(subtree, tvb, p+2 , 2, "ORF len: %u %s", orflen, (orflen == 1) ? "byte" : "bytes");
+    	p += 4;
+
+	if (orftype != BGP_ORF_PREFIX_CISCO){
+		proto_tree_add_text(subtree, tvb, p, orflen, "ORFEntry-Unknown (%u bytes)", orflen);
+		p += orflen;
+		continue;
+	}
+	pend = p + orflen;
+	while (p < pend) {
+    		entryflag = tvb_get_guint8(tvb, p);
+    		if ((entryflag & BGP_ORF_ACTION) == BGP_ORF_REMOVEALL) {
+			ti1 = proto_tree_add_text(subtree, tvb, p, 1, "ORFEntry-PrefixList (1 byte)");
+			subtree1 = proto_item_add_subtree(ti1, ett_bgp_orf_entry);
+			proto_tree_add_text(subtree1, tvb, p , 1, "RemoveAll");
+			p++;
+    		} else {
+			entryseq = tvb_get_ntohl(tvb, p+1);
+			pfx_ge = tvb_get_guint8(tvb, p+5);
+			pfx_le = tvb_get_guint8(tvb, p+6);
+			/* calc len */
+			decode_prefix4(tvb,  p+7, pfxbuf, sizeof(pfxbuf));
+			pfx_masklen = tvb_get_guint8(tvb, p+7);
+			entrylen = 7+ 1 + (pfx_masklen+7)/8;
+			ti1 = proto_tree_add_text(subtree, tvb, p, entrylen, "ORFEntry-PrefixList (%u bytes)", entrylen);
+			subtree1 = proto_item_add_subtree(ti1, ett_bgp_orf_entry);
+			proto_tree_add_text(subtree1, tvb, p , 1, "ACTION: %s MATCH: %s",
+                         val_to_str(entryflag&BGP_ORF_ACTION, orf_entry_action_vals,"UNKNOWN"), 
+                         val_to_str(entryflag&BGP_ORF_MATCH, orf_entry_match_vals,"UNKNOWN"));
+			p++;
+			proto_tree_add_text(subtree1, tvb, p , 4, "Entry Sequence No: %u", entryseq);
+			p += 4;
+			proto_tree_add_text(subtree1, tvb, p , 1, "PrefixMask length lower bound: %u", pfx_ge);
+			p++;
+			proto_tree_add_text(subtree1, tvb, p , 1, "PrefixMask length upper bound: %u", pfx_le);
+			p++;
+			proto_tree_add_text(subtree1, tvb, p , 1 + (pfx_masklen+7)/8, "Prefix: %s", pfxbuf);
+			p+= 1 + (pfx_masklen+7)/8;
+		}
+	}
+    }
 }
 
 /*
@@ -1854,7 +1969,9 @@ proto_register_bgp(void)
       &ett_bgp_cluster_list,
       &ett_bgp_options,
       &ett_bgp_option,
-      &ett_bgp_extended_communities
+      &ett_bgp_extended_communities,
+      &ett_bgp_orf,
+      &ett_bgp_orf_entry
     };
     module_t *bgp_module;
 

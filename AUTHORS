@@ -742,8 +742,7 @@ Jean-Christian Pennetier <jeanchristian.pennetier[AT]rd.francetelecom.fr> {
 }
 
 Jian Yu <bgp4news[AT]yahoo.com> {
-	Support for Cisco-proprietary capabilities in BGP
-	    Route-Refresh messages
+	BGP enhancements
 }
 
 Eran Mann <emann[AT]opticalaccess.com> {

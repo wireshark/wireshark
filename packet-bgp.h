@@ -1,7 +1,7 @@
 /* packet-bgp.c
  * Definitions for BGP packet disassembly structures and routine
  *
- * $Id: packet-bgp.h,v 1.17 2002/01/30 23:04:02 guy Exp $
+ * $Id: packet-bgp.h,v 1.18 2002/08/15 18:52:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -110,8 +110,24 @@ struct bgp_attr {
 #define BGP_CAPABILITY_MULTIPROTOCOL	1   /* RFC2858 */
 #define BGP_CAPABILITY_ROUTE_REFRESH	2   /* RFC2918 */
 #define BGP_CAPABILITY_COOPERATIVE_ROUTE_FILTERING	3	/* draft-ietf-idr-route-filter-04.txt */
+#define BGP_CAPABILITY_ORF_CISCO	0x82	/* Cisco */
 #define BGP_CAPABILITY_ROUTE_REFRESH_CISCO      0x80   /* Cisco */
 
+#define BGP_ORF_PREFIX_CISCO	0x80 /* Cisco */
+#define BGP_ORF_COMM_CISCO	0x81 /* Cisco */
+#define BGP_ORF_EXTCOMM_CISCO	0x82 /* Cisco */
+#define BGP_ORF_ASPATH_CISCO	0x83 /* Cisco */
+#define BGP_ORF_COMM		0x02 /* draft-ietf-idr-route-filter-06.txt */
+#define BGP_ORF_EXTCOMM		0x03 /* draft-ietf-idr-route-filter-06.txt */
+#define BGP_ORF_ASPATH		0x04 /* draft-ietf-idr-aspath-orf-02.txt */
+/* draft-ietf-idr-route-filter-06.txt */
+#define BGP_ORF_ACTION		0xc0
+#define BGP_ORF_ADD		0x00
+#define BGP_ORF_REMOVE		0x40
+#define BGP_ORF_REMOVEALL	0x80
+#define BGP_ORF_MATCH		0x10
+#define BGP_ORF_PERMIT		0x00
+#define BGP_ORF_DENY		0x10
 
 /* well-known communities, from RFC1997 */
 #define BGP_COMM_NO_EXPORT           0xFFFFFF01
