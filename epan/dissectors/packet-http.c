@@ -347,7 +347,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			col_add_str(pinfo->cinfo, COL_INFO,
 			    format_text(line, first_linelen));
 		else
-			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+			col_set_str(pinfo->cinfo, COL_INFO, "Continuation or non-HTTP traffic");
 	}
 
 	orig_offset = offset;
@@ -1238,6 +1238,9 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 				isHttpRequestOrReply = TRUE;
 			} else if (strncmp(data, "UNSUBSCRIBE", index) == 0) {
 				*type = HTTP_NOTIFICATION;
+				isHttpRequestOrReply = TRUE;
+			} else if (strncmp(data, "RPC_CONNECT", index) == 0) {
+				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			}
 			break;

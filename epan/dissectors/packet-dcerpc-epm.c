@@ -67,6 +67,7 @@ static int hf_epm_proto_netbios_name = -1;
 static int hf_epm_proto_ip = -1;
 static int hf_epm_proto_udp_port = -1;
 static int hf_epm_proto_tcp_port = -1;
+static int hf_epm_proto_http_port = -1;
 
 static gint ett_epm = -1;
 static gint ett_epm_tower_floor = -1;
@@ -270,6 +271,7 @@ epm_dissect_uuid (tvbuff_t *tvb, int offset,
 #define PROTO_ID_VINES_SPP	0x1a
 #define PROTO_ID_VINES_IPC	0x1b
 #define PROTO_ID_STREETTALK	0x1c
+#define PROTO_ID_HTTP		0x1f
 #define PROTO_ID_UNIX_DOMAIN	0x20
 #define PROTO_ID_NULL		0x21
 #define PROTO_ID_NETBIOS_3	0x22
@@ -300,6 +302,7 @@ static const value_string proto_id_vals[] = {
 	{ PROTO_ID_VINES_SPP,		"Vines SPP"},
 	{ PROTO_ID_VINES_IPC,		"Vines IPC"},
 	{ PROTO_ID_STREETTALK,		"StreetTalk"},
+	{ PROTO_ID_HTTP, 		"RPC over HTTP"},
 	{ PROTO_ID_UNIX_DOMAIN,		"Unix Domain Socket"},
 	{ PROTO_ID_NULL,		"null"},
 	{ PROTO_ID_NETBIOS_3,		"NetBIOS"},
@@ -415,7 +418,11 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
             proto_tree_add_item(tr, hf_epm_proto_netbios_name, tvb, offset, len, TRUE);
             proto_item_append_text(tr, "NetBIOS:%*s",MIN(len,tvb_length_remaining(tvb, offset)), tvb_get_ptr(tvb, offset, -1)); 
             break;
-
+        case PROTO_ID_HTTP: /* RPC over HTTP */
+            proto_tree_add_item(tr, hf_epm_proto_http_port, tvb, offset, 2, FALSE);
+            proto_item_append_text(tr, "RPC over HTTP Port:%d", tvb_get_ntohs(tvb, offset));
+            break;
+			
         default:
             if(len){
                 proto_tree_add_text(tr, tvb, offset, len, "not decoded yet");
@@ -655,7 +662,7 @@ static dcerpc_sub_dissector epm_dissectors[] = {
 void
 proto_register_epm (void)
 {
-	static hf_register_info hf[] = {
+    static hf_register_info hf[] = {
         { &hf_epm_opnum,
 	  { "Operation", "epm.opnum", FT_UINT16, BASE_DEC,
 	    NULL, 0x0, "Operation", HFILL }},
@@ -707,6 +714,8 @@ proto_register_epm (void)
           { "UDP Port", "epm.proto.udp_port", FT_UINT16, BASE_DEC, NULL, 0x0, "UDP Port where this service can be found", HFILL }},
         { &hf_epm_proto_tcp_port,
           { "TCP Port", "epm.proto.tcp_port", FT_UINT16, BASE_DEC, NULL, 0x0, "TCP Port where this service can be found", HFILL }},
+        { &hf_epm_proto_http_port,
+          { "TCP Port", "epm.proto.http_port", FT_UINT16, BASE_DEC, NULL, 0x0, "TCP Port where this service can be found", HFILL }},      
         { &hf_epm_tower_rhs_len,
           { "RHS Length", "epm.tower.rhs.len", FT_UINT16, BASE_DEC, NULL, 0x0, "Length of RHS data", HFILL }},
         { &hf_epm_tower_lhs_len,
@@ -716,20 +725,19 @@ proto_register_epm (void)
         { &hf_epm_tower_proto_id,
           { "Protocol", "epm.tower.proto_id", FT_UINT8, BASE_HEX, VALS(proto_id_vals), 0x0, "Protocol identifier", HFILL }}
     };
-
-	static gint *ett[] = {
-		&ett_epm,
-		&ett_epm_tower_floor,
-		&ett_epm_entry
-	};
-	proto_epm = proto_register_protocol ("DCE/RPC Endpoint Mapper", "EPM", "epm");
-	proto_register_field_array (proto_epm, hf, array_length (hf));
-	proto_register_subtree_array (ett, array_length (ett));
+    static gint *ett[] = {
+        &ett_epm,
+        &ett_epm_tower_floor,
+        &ett_epm_entry
+    };
+    proto_epm = proto_register_protocol ("DCE/RPC Endpoint Mapper", "EPM", "epm");
+    proto_register_field_array (proto_epm, hf, array_length (hf));
+    proto_register_subtree_array (ett, array_length (ett));
 }
 
 void
 proto_reg_handoff_epm (void)
 {
-	/* Register the protocol as dcerpc */
-	dcerpc_init_uuid (proto_epm, ett_epm, &uuid_epm, ver_epm, epm_dissectors, hf_epm_opnum);
+    /* Register the protocol as dcerpc */
+    dcerpc_init_uuid (proto_epm, ett_epm, &uuid_epm, ver_epm, epm_dissectors, hf_epm_opnum);
 }

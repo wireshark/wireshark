@@ -4874,5 +4874,6 @@ proto_reg_handoff_dcerpc (void)
     heur_dissector_add ("netbios", dissect_dcerpc_cn_pk, proto_dcerpc);
     heur_dissector_add ("udp", dissect_dcerpc_dg, proto_dcerpc);
     heur_dissector_add ("smb_transact", dissect_dcerpc_cn_smbpipe, proto_dcerpc);
+    heur_dissector_add ("http", dissect_dcerpc_cn_bs, proto_dcerpc);
     dcerpc_smb_init(proto_dcerpc);
 }
