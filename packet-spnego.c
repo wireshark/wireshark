@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.3 2002/08/28 00:19:10 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.4 2002/08/28 01:15:23 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,10 +58,14 @@
 static int proto_spnego = -1;
 
 static int hf_spnego = -1;
-static int hf_spnego_neg_token_init = -1;
-static int hf_spnego_neg_token_targ = -1; 
+static int hf_spnego_negtokeninit = -1;
+static int hf_spnego_negtokentarg = -1; 
+static int hf_spnego_mechtype = -1;
 
 static gint ett_spnego = -1;
+static gint ett_spnego_negtokeninit = -1;
+static gint ett_spnego_negtokentarg = -1;
+static gint ett_spnego_mechtype = -1;
 
 /*
  * XXX: Fixme. This thould be made global ...
@@ -87,8 +91,108 @@ dissect_parse_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 }
 
-static void
-dissect_spnego_negTokenInit(tvbuff_t *tvb, packet_info *pinfo _U_, 
+static int 
+dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+			 proto_tree *tree, ASN1_SCK *hnd)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	gboolean def;
+	guint len1, len, cls, con, tag, nbytes;
+	subid_t *oid;
+	gchar *oid_string;
+	proto_item *sub_item;
+	proto_tree *oid_subtree;
+	int ret, offset = 0;
+	int length = tvb_length_remaining(tvb, offset);
+
+	item = proto_tree_add_item( tree, hf_spnego_mechtype, tvb, offset, 
+				    length, FALSE);
+	subtree = proto_item_add_subtree(item, ett_spnego_mechtype);
+
+	/*
+	 * MechTypeList ::= SEQUENCE OF MechType 
+	 */
+
+	ret = asn1_header_decode(hnd, &cls, &con, &tag, &def, &len1);
+
+	if (ret != ASN1_ERR_NOERROR) {
+	  dissect_parse_error(tvb, offset, pinfo, subtree,
+			      "SPNEGO last sequence header", ret);
+	  goto done;
+	}
+
+	if (!(cls == ASN1_UNI && con == ASN1_CON && tag == ASN1_SEQ)) {
+	  proto_tree_add_text(
+			      subtree, tvb, offset, 0,
+			      "Unknown header (cls=%d, con=%d, tag=%d)",
+			      cls, con, tag);
+	  goto done;
+	}
+
+	/*
+	 * Now, the object IDs ... We should translate them: FIXME 
+	 */
+
+
+	while (len1) {
+	  printf("len1 = %d\n", len1);  
+
+	  ret = asn1_oid_decode(hnd, &oid, &len, &nbytes);
+
+	  printf("len = %d, nbytes = %d\n", len, nbytes);
+ 
+	  if (ret != ASN1_ERR_NOERROR) {
+	    dissect_parse_error(tvb, offset, pinfo, subtree,
+				"GSS-API token", ret);
+	    goto done;
+	  }
+
+	  oid_string = format_oid(oid, nbytes);
+
+	  proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s", 
+			      oid_string);
+
+	  offset += nbytes;
+	  len1 -= nbytes;
+
+	}
+
+ done:
+
+	return offset;
+
+}
+
+static int 
+dissect_spnego_reqFlags(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+			proto_tree *tree, ASN1_SCK *hnd)
+{
+
+  return offset;
+
+}
+
+static int 
+dissect_spnego_mechToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+			 proto_tree *tree, ASN1_SCK *hnd)
+{
+
+  return offset;
+
+}
+
+static int 
+dissect_spnego_mechListMIC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+			   proto_tree *tree, ASN1_SCK *hnd)
+{
+
+  return offset;
+
+}
+
+static int
+dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 			    proto_tree *tree, ASN1_SCK *hnd)
 {
 	proto_item *item;
@@ -102,6 +206,11 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_item *sub_item;
 	proto_tree *oid_subtree;
 	int ret, offset = 0;
+	int length = tvb_length_remaining(tvb, offset);
+
+	item = proto_tree_add_item( tree, hf_spnego_negtokeninit, tvb, offset, 
+				    length, FALSE);
+	subtree = proto_item_add_subtree(item, ett_spnego_negtokeninit);
 
 	/*
 	 * Here is what we need to get ...
@@ -158,6 +267,9 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	  case SPNEGO_mechTypes:
 
+	    offset = dissect_spnego_mechTypes(tvb, offset, pinfo, 
+					      subtree, hnd);
+
 	    break;
 
 	  case SPNEGO_reqFlags:
@@ -180,47 +292,6 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, packet_info *pinfo _U_,
 	  len1 -= len;
 
 	}
-
-	/* 
-	 * Last sequence header and then the ObjID.
-	 */
-
-	ret = asn1_header_decode(hnd, &cls, &con, &tag, &def, &len1);
-
-	if (ret != ASN1_ERR_NOERROR) {
-		dissect_parse_error(tvb, offset, pinfo, subtree,
-				    "SPNEGO last sequence header", ret);
-		goto done;
-	}
-
-	if (!(cls == ASN1_UNI && con == ASN1_CON && tag == ASN1_SEQ)) {
-		proto_tree_add_text(
-			subtree, tvb, offset, 0,
-			"Unknown header (cls=%d, con=%d, tag=%d)",
-			cls, con, tag);
-		goto done;
-	}
-
-	offset = hnd->offset;
-
-	/*
-	 * Now, the object ID ... 
-	 */
-
-	ret = asn1_oid_decode(hnd, &oid, &len, &nbytes);
-
-	if (ret != ASN1_ERR_NOERROR) {
-		dissect_parse_error(tvb, offset, pinfo, subtree,
-				    "GSS-API token", ret);
-		goto done;
-	}
-
-	oid_string = format_oid(oid, len);
-
-	proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s", 
-			    oid_string);
-
-	offset += nbytes;
 
 	/* Now get the offset. Assume 4 btyes to go ... */
 
@@ -253,6 +324,8 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, packet_info *pinfo _U_,
 	}
 
  done:
+
+	return offset; /* Not sure this is right */
 } 
 
 static void
@@ -339,6 +412,9 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 	case SPNEGO_negTokenInit:
 
+	  offset = dissect_spnego_negTokenInit(tvb, offset, pinfo, 
+					       subtree, &hnd);
+
 	  break;
 
 	case SPNEGO_negTokenTarg:
@@ -361,12 +437,24 @@ proto_register_snego(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_spnego,
-		  { "SPNEGO", "Spnego", FT_NONE, BASE_NONE, NULL, 0x0, 
+		  { "SPNEGO", "spnego", FT_NONE, BASE_NONE, NULL, 0x0, 
 		    "SPNEGO", HFILL }},
+		{ &hf_spnego_negtokeninit, 
+		  { "negTokenInit", "spnego.negtokeninit", FT_NONE, BASE_NONE,
+		    NULL, 0x0, "SPNEGO negTokenInit", HFILL}},
+		{ &hf_spnego_negtokentarg,
+		  { "negTokenTarg", "spnego.negtokentarg", FT_NONE, BASE_NONE,
+		    NULL, 0x0, "SPNEGO negTokenTarg", HFILL}},
+		{ &hf_spnego_mechtype,
+		  { "mechType", "spnego.negtokeninit.mechtype", FT_NONE, 
+		    BASE_NONE, NULL, 0x0, "SPNEGO negTokenInit mechTypes", HFILL}},
 	};
   
 	static gint *ett[] = {
 		&ett_spnego,
+		&ett_spnego_negtokeninit,
+		&ett_spnego_negtokentarg,
+		&ett_spnego_mechtype,
 	};
 	
 	proto_spnego = proto_register_protocol(
