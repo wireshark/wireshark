@@ -819,6 +819,8 @@ Jeff Morriss <jeff.morriss[AT]ulticom.com> {
 	SCCP support
 	SCCP Management support
 	MTP3 Management support
+	Fix M3UA to dissect other protocols even when not building a
+	    protocol tree
 }
 
 Aamer Akhter <aakhter[AT]cisco.com> {

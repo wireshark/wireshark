@@ -7,7 +7,7 @@
  *
  * Copyright 2000, 2001, 2002, 2003 Michael Tuexen <Michael.Tuexen [AT] siemens.com>
  *
- * $Id: packet-m3ua.c,v 1.24 2003/01/22 09:07:26 tuexen Exp $
+ * $Id: packet-m3ua.c,v 1.25 2003/01/27 21:40:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1189,6 +1189,9 @@ dissect_v5_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   padding_length = tvb_length(parameter_tvb) - length;
 
+  if (!tree && tag != V5_PROTOCOL_DATA_PARAMETER_TAG)
+    return;	/* Nothing to do here */
+
   /* create proto_tree stuff */
   parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), val_to_str(tag, v5_parameter_tag_values, "Unknown parameter"));
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_parameter);
@@ -1310,6 +1313,9 @@ dissect_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
   tag            = tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET);
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   padding_length = tvb_length(parameter_tvb) - length;
+
+  if (!tree && tag != V6_PROTOCOL_DATA_1_PARAMETER_TAG && tag != V6_PROTOCOL_DATA_2_PARAMETER_TAG)
+    return;	/* Nothing to do here */
 
   /* create proto_tree stuff */
   parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), val_to_str(tag, v6_parameter_tag_values, "Unknown parameter"));
@@ -1469,6 +1475,9 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
   proto_item *parameter_item;
   proto_tree *parameter_tree;
 
+  if (!tree)
+    return;	/* Nothing to do here */
+
   /* extract tag and length from the parameter */
   tag            = tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET);
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
@@ -1609,8 +1618,11 @@ dissect_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, pro
   	dissect_v5_common_header(common_header_tvb, pinfo, m3ua_tree);
   else
     dissect_common_header(common_header_tvb, pinfo, m3ua_tree);
-  if (m3ua_tree)
-    dissect_parameters(parameters_tvb, pinfo, tree, m3ua_tree);
+
+  /*  Need to dissect (certain) parameters even when !tree, so subdissectors
+   *  (e.g., MTP3) are always called.
+   */
+  dissect_parameters(parameters_tvb, pinfo, tree, m3ua_tree);
 }
 
 static void
