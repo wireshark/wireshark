@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.89 2000/01/15 10:50:23 oabad Exp $
+ * $Id: main.c,v 1.90 2000/01/15 12:54:24 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -114,8 +114,8 @@ FILE        *data_out_file = NULL;
 packet_info  pi;
 capture_file cf;
 GtkWidget   *top_level, *file_sel, *packet_list, *tree_view, *byte_view,
-            *prog_bar, *info_bar, *tv_scrollw, *pkt_scrollw,
-	    *bv_vscroll_left, *bv_vscroll_right;
+            *prog_bar, *info_bar, *tv_scrollw, *pkt_scrollw;
+static GtkWidget	*bv_vscroll_left, *bv_vscroll_right;
 GdkFont     *m_r_font, *m_b_font;
 guint        main_ctx, file_ctx;
 gchar        comp_info_str[256];
@@ -136,20 +136,21 @@ static void follow_charset_toggle_cb(GtkWidget *w, gpointer parent_w);
 static void follow_load_text(GtkWidget *text, char *filename, guint8 show_type);
 static void follow_print_stream(GtkWidget *w, gpointer parent_w);
 static char* hfinfo_numeric_format(header_field_info *hfinfo);
+static void create_main_window(gint, gint, gint, e_prefs*);
 
 /* About Ethereal window */
 void
 about_ethereal( GtkWidget *w, gpointer data ) {
   simple_dialog(ESD_TYPE_INFO, NULL,
 		"Ethereal - Network Protocol Analyzer\n"
-		"Version %s (C) 1998-2000 Gerald Combs <gerald@zing.org>\n"
+		"Version " VERSION " (C) 1998-2000 Gerald Combs <gerald@zing.org>\n"
                 "Compiled with %s\n\n"
 
 		"Check the man page for complete documentation and\n"
 		"for the list of contributors.\n"
 
 		"\nSee http://ethereal.zing.org/ for more information.",
-                VERSION, comp_info_str);
+                 comp_info_str);
 }
 
 /* Follow the TCP stream, if any, to which the last packet that we called
@@ -985,8 +986,8 @@ ethereal_proto_cleanup(void) {
 static void 
 print_usage(void) {
 
-  fprintf(stderr, "This is GNU %s %s, compiled with %s\n", PACKAGE,
-	  VERSION, comp_info_str);
+  fprintf(stderr, "This is GNU " PACKAGE " " VERSION ", compiled with %s\n",
+	  comp_info_str);
 #ifdef HAVE_LIBPCAP
   fprintf(stderr, "%s [-vh] [-kQS] [-b <bold font>] [-B <byte view height>] [-c count]\n",
 	  PACKAGE);
@@ -1029,13 +1030,6 @@ main(int argc, char *argv[])
 #else
   gboolean             capture_option_specified = FALSE;
 #endif
-  GtkWidget           *main_vbox, *menubar, *u_pane, *l_pane,
-                      *bv_table, *stat_hbox,
-                      *filter_bt, *filter_cm, *filter_te,
-                      *filter_reset;
-  GList               *filter_list = NULL;
-  GtkStyle            *pl_style;
-  GtkAccelGroup       *accel;
   gint                 pl_size = 280, tv_size = 95, bv_size = 75;
   gchar               *rc_file, *cf_name = NULL, *rfilter = NULL;
   dfilter             *rfcode = NULL;
@@ -1361,6 +1355,110 @@ main(int argc, char *argv[])
     exit(1);
   }
 
+  create_main_window(pl_size, tv_size, bv_size, prefs);
+
+/* 
+   Hmmm should we do it here
+*/
+
+  ethereal_proto_init();   /* Init anything that needs initializing */
+
+#ifdef HAVE_LIBPCAP
+  /* Is this a "child" ethereal, which is only supposed to pop up a
+     capture box to let us stop the capture, and run a capture
+     to a file that our parent will read? */
+  if (!capture_child) {
+#endif
+    /* No.  Pop up the main window, and read in a capture file if
+       we were told to. */
+
+    gtk_widget_show(top_level);
+
+    cf.colors = colfilter_new();
+
+    /* If we were given the name of a capture file, read it in now;
+       we defer it until now, so that, if we can't open it, and pop
+       up an alert box, the alert box is more likely to come up on
+       top of the main window - but before the preference-file-error
+       alert box, so, if we get one of those, it's more likely to come
+       up on top of us. */
+    if (cf_name) {
+      if (rfilter != NULL) {
+        if (dfilter_compile(rfilter, &rfcode) != 0) {
+          simple_dialog(ESD_TYPE_WARN, NULL, dfilter_error_msg);
+          rfilter_parse_failed = TRUE;
+        }
+      }
+      if (!rfilter_parse_failed) {
+        if ((err = open_cap_file(cf_name, FALSE, &cf)) == 0) {
+          /* "open_cap_file()" succeeded, so it closed the previous
+	     capture file, and thus destroyed any previous read filter
+	     attached to "cf". */
+          cf.rfcode = rfcode;
+          err = read_cap_file(&cf);
+          s = strrchr(cf_name, '/');
+          if (s) {
+            last_open_dir = cf_name;
+            *s = '\0';
+          }
+        } else {
+          dfilter_destroy(rfcode);
+          cf.rfcode = NULL;
+        }
+      }
+    }
+#ifdef HAVE_LIBPCAP
+  }
+#endif
+
+  /* If we failed to open the preferences file, pop up an alert box;
+     we defer it until now, so that the alert box is more likely to
+     come up on top of the main window. */
+  if (pf_path != NULL) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+        "Could not open preferences file\n\"%s\": %s.", pf_path,
+        strerror(pf_open_errno));
+  }
+
+#ifdef HAVE_LIBPCAP
+  if (capture_child) {
+    /* This is the child process for a sync mode or fork mode capture,
+       so just do the low-level work of a capture - don't create
+       a temporary file and fork off *another* child process (so don't
+       call "do_capture()"). */
+
+       capture();
+
+       /* The capture is done; there's nothing more for us to do. */
+       gtk_exit(0);
+  } else {
+    if (start_capture) {
+      /* "-k" was specified; start a capture. */
+      do_capture(save_file);
+    }
+  }
+#endif
+
+  gtk_main();
+
+  ethereal_proto_cleanup();
+  g_free(rc_file);
+
+  exit(0);
+}
+
+static void
+create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
+{
+  GtkWidget           *main_vbox, *menubar, *u_pane, *l_pane,
+                      *bv_table, *stat_hbox,
+                      *filter_bt, *filter_cm, *filter_te,
+                      *filter_reset;
+  GList               *filter_list = NULL;
+  GtkStyle            *pl_style;
+  GtkAccelGroup       *accel;
+  int			i;
+
   /* Main window */  
   top_level = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_widget_set_name(top_level, "main window");
@@ -1547,93 +1645,4 @@ main(int argc, char *argv[])
   gtk_statusbar_push(GTK_STATUSBAR(info_bar), main_ctx, DEF_READY_MESSAGE);
   gtk_box_pack_start(GTK_BOX(stat_hbox), info_bar, TRUE, TRUE, 0);
   gtk_widget_show(info_bar);
-
-/* 
-   Hmmm should we do it here
-*/
-
-  ethereal_proto_init();   /* Init anything that needs initializing */
-
-#ifdef HAVE_LIBPCAP
-  /* Is this a "child" ethereal, which is only supposed to pop up a
-     capture box to let us stop the capture, and run a capture
-     to a file that our parent will read? */
-  if (!capture_child) {
-#endif
-    /* No.  Pop up the main window, and read in a capture file if
-       we were told to. */
-
-    gtk_widget_show(top_level);
-
-    cf.colors = colfilter_new();
-
-    /* If we were given the name of a capture file, read it in now;
-       we defer it until now, so that, if we can't open it, and pop
-       up an alert box, the alert box is more likely to come up on
-       top of the main window - but before the preference-file-error
-       alert box, so, if we get one of those, it's more likely to come
-       up on top of us. */
-    if (cf_name) {
-      if (rfilter != NULL) {
-        if (dfilter_compile(rfilter, &rfcode) != 0) {
-          simple_dialog(ESD_TYPE_WARN, NULL, dfilter_error_msg);
-          rfilter_parse_failed = TRUE;
-        }
-      }
-      if (!rfilter_parse_failed) {
-        if ((err = open_cap_file(cf_name, FALSE, &cf)) == 0) {
-          /* "open_cap_file()" succeeded, so it closed the previous
-	     capture file, and thus destroyed any previous read filter
-	     attached to "cf". */
-          cf.rfcode = rfcode;
-          err = read_cap_file(&cf);
-          s = strrchr(cf_name, '/');
-          if (s) {
-            last_open_dir = cf_name;
-            *s = '\0';
-          }
-        } else {
-          dfilter_destroy(rfcode);
-          cf.rfcode = NULL;
-        }
-      }
-    }
-#ifdef HAVE_LIBPCAP
-  }
-#endif
-
-  /* If we failed to open the preferences file, pop up an alert box;
-     we defer it until now, so that the alert box is more likely to
-     come up on top of the main window. */
-  if (pf_path != NULL) {
-      simple_dialog(ESD_TYPE_WARN, NULL,
-        "Could not open preferences file\n\"%s\": %s.", pf_path,
-        strerror(pf_open_errno));
-  }
-
-#ifdef HAVE_LIBPCAP
-  if (capture_child) {
-    /* This is the child process for a sync mode or fork mode capture,
-       so just do the low-level work of a capture - don't create
-       a temporary file and fork off *another* child process (so don't
-       call "do_capture()"). */
-
-       capture();
-
-       /* The capture is done; there's nothing more for us to do. */
-       gtk_exit(0);
-  } else {
-    if (start_capture) {
-      /* "-k" was specified; start a capture. */
-      do_capture(save_file);
-    }
-  }
-#endif
-
-  gtk_main();
-
-  ethereal_proto_cleanup();
-  g_free(rc_file);
-
-  exit(0);
 }
