@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.320 2003/04/09 18:35:27 guy Exp $
+ * $Id: packet-smb.c,v 1.321 2003/04/10 08:41:58 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7698,7 +7698,7 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	guint16 revision;
+	guint8 revision;
 	int old_offset = offset;
 	guint32 owner_sid_offset;
 	guint32 group_sid_offset;
@@ -7712,10 +7712,14 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	/* revision */
-	revision = tvb_get_letohs(tvb, offset);
+	revision = tvb_get_guint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_sec_desc_revision,
-		tvb, offset, 2, revision);
-	offset += 2;
+		tvb, offset, 1, revision);
+	offset += 1;
+
+	/* next byte should be zero, for now just ignore it */
+	offset += 1;
+
 
 	switch(revision){
 	case 1:  /* only version we will ever see of this structure?*/
@@ -17972,7 +17976,7 @@ proto_register_smb(void)
 		TFS(&tfs_fs_attr_vic), 0x00008000, "Is this FS Compressed?", HFILL }},
 
 	{ &hf_smb_sec_desc_revision,
-		{ "Revision", "smb.sec_desc.revision", FT_UINT16, BASE_DEC,
+		{ "Revision", "smb.sec_desc.revision", FT_UINT8, BASE_DEC,
 		NULL, 0, "Version of NT Security Descriptor structure", HFILL }},
 
 	{ &hf_smb_sid,
