@@ -1,5 +1,7 @@
 /* radcom.c
  *
+ * $Id: radcom.c,v 1.11 1999/09/23 05:03:32 guy Exp $
+ *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * 
