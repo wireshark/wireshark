@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.5 2003/08/27 21:54:36 sahlberg Exp $
+ * $Id: endpoint_talkers_table.c,v 1.6 2003/08/27 23:01:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -187,7 +187,7 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 		return;
 	}
 	/* translate it back from row index to index in enndpoint array */
-	selection=gtk_clist_get_row_data(et->table, selection);
+	selection=GPOINTER_TO_INT(gtk_clist_get_row_data(et->table, selection));
 
 	switch(direction){
 	case 0:
