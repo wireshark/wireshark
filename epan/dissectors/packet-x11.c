@@ -1786,35 +1786,35 @@ static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 			  int *modifiermap[], int keycodes_per_modifier,
 			  gboolean little_endian)
 {
-      char buffer[1024];
       proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp,
-      array_length(modifiers) * keycodes_per_modifier, little_endian);
-
+        array_length(modifiers) * keycodes_per_modifier, little_endian);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_keycode);
       size_t m;
 
       for (m = 0; m < array_length(modifiers);
         ++m, *offsetp += keycodes_per_modifier) {
 	    const guint8 *p;
-	    char *bp = buffer;
+	    proto_item *tikc;
+	    char *sep = ": ";
 	    int i;
 
 	    p = tvb_get_ptr(tvb, *offsetp, keycodes_per_modifier);
-            modifiermap[m] =
-                g_malloc(sizeof(*modifiermap[m]) * keycodes_per_modifier);
+	    modifiermap[m] =
+	        g_malloc(sizeof(*modifiermap[m]) * keycodes_per_modifier);
 
+	    tikc = proto_tree_add_bytes_format(tt, hf_x11_keycodes_item, tvb,
+	        *offsetp, keycodes_per_modifier, p,
+	        "Keycode list for %s", modifiers[m]);
 	    for(i = 0; i < keycodes_per_modifier; ++i) {
 		guchar c = p[i];
 
-		if (c)
-		    bp += sprintf(bp, " %s=%d", modifiers[m], c);
+		if (c) {
+		    proto_item_append_text(tikc, "%s%u", sep, c);
+		    sep = ", ";
+		}
 
 		modifiermap[m][i] = c;
 	    }
-
-	    proto_tree_add_bytes_format(tt, hf_x11_keycodes_item, tvb,
-	        *offsetp, keycodes_per_modifier, p,
-	        "item: %s", buffer);
       }
 }
 
