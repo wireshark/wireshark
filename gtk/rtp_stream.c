@@ -1,7 +1,7 @@
 /* rtp_stream.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream.c,v 1.6 2004/01/18 16:08:21 jmayer Exp $
+ * $Id: rtp_stream.c,v 1.7 2004/01/25 02:24:44 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -37,6 +37,8 @@
 #include "tap.h"
 #include "register.h"
 #include "packet-rtp.h"
+
+#include <epan/filesystem.h>
 
 #include "simple_dialog.h"
 
@@ -275,16 +277,24 @@ void rtpstream_scan(void)
 
 /****************************************************************************/
 /* save rtp dump of stream_fwd */
-void rtpstream_save(rtp_stream_info_t* stream, const gchar *filename)
+gboolean rtpstream_save(rtp_stream_info_t* stream, const gchar *filename)
 {
 	gboolean was_registered = the_tapinfo_struct.is_registered;
 	/* open file for saving */
 	the_tapinfo_struct.save_file = fopen(filename, "wb");
 	if (the_tapinfo_struct.save_file==NULL) {
-		return;
+		simple_dialog(ESD_TYPE_CRIT, NULL,
+		    file_open_error_message(errno, TRUE), filename);
+		return FALSE;
 	}
 
 	rtp_write_header(stream, the_tapinfo_struct.save_file);
+	if (ferror(the_tapinfo_struct.save_file)) {
+		simple_dialog(ESD_TYPE_CRIT, NULL,
+		    file_write_error_message(errno), filename);
+		fclose(the_tapinfo_struct.save_file);
+		return FALSE;
+	}
 
 	if (!the_tapinfo_struct.is_registered)
 		register_tap_listener_rtp_stream();
@@ -297,8 +307,19 @@ void rtpstream_save(rtp_stream_info_t* stream, const gchar *filename)
 	if (!was_registered)
 		remove_tap_listener_rtp_stream();
 
-	/* XXX check for error at fclose? */
-	fclose(the_tapinfo_struct.save_file);
+	if (ferror(the_tapinfo_struct.save_file)) {
+		simple_dialog(ESD_TYPE_CRIT, NULL,
+		    file_write_error_message(errno), filename);
+		fclose(the_tapinfo_struct.save_file);
+		return FALSE;
+	}
+
+	if (fclose(the_tapinfo_struct.save_file) == EOF) {
+		simple_dialog(ESD_TYPE_CRIT, NULL,
+		    file_write_error_message(errno), filename);
+		return FALSE;
+	}
+	return TRUE;
 }
 
 

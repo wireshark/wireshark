@@ -1,7 +1,7 @@
 /* rtp_stream.h
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream.h,v 1.3 2004/01/18 16:08:21 jmayer Exp $
+ * $Id: rtp_stream.h,v 1.4 2004/01/25 02:24:44 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -132,7 +132,7 @@ void rtpstream_scan(void);
 * Saves an RTP stream as raw data stream with timestamp information for later RTP playback.
 * (redissects all packets)
 */
-void rtpstream_save(rtp_stream_info_t* stream, const gchar *filename);
+gboolean rtpstream_save(rtp_stream_info_t* stream, const gchar *filename);
 
 /*
 * Marks all packets belonging to either of stream_fwd or stream_rev.

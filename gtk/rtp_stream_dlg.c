@@ -1,7 +1,7 @@
 /* rtp_stream_dlg.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream_dlg.c,v 1.9 2004/01/21 03:54:31 ulfl Exp $
+ * $Id: rtp_stream_dlg.c,v 1.10 2004/01/25 02:24:44 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -162,7 +162,11 @@ static void save_stream_ok_cb(GtkWidget *ok_bt _U_, gpointer user_data _U_)
 		return;
 	}
 
-	rtpstream_save(selected_stream_fwd, g_dest);
+	/*
+	 * Don't dismiss the dialog box if the save operation fails.
+	 */
+	if (!rtpstream_save(selected_stream_fwd, g_dest))
+		return;
 
 	gtk_widget_destroy(GTK_WIDGET(rtpstream_save_dlg));
 }
