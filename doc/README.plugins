@@ -74,7 +74,7 @@ Here is a sample code for the function:
 
   proto_reg_handoff_xxx();
 
-As you can see the plugin_reg_handoff and plugin_init are just 
+As you can see the plugin_reg_handoff and plugin_register are just 
 wrappers for the proto_reg_handoff_xxx and proto_register_xxx functions.
 
 4 Directory structure and other file changes
@@ -306,6 +306,59 @@ by going to the plugins/xxx directory and running
 
 make install
 
+
+6	How to update an "old style" plugin (using plugin_init function)
+
+The plugin registering has changed between 0.10.9 and 0.10.10, everyone
+is encouraged to update it's plugins as outlined below:
+
+--- Remove following include statements from all plugin sources ---
+
+#include "plugins/plugin_api.h"
+#include "plugins/plugin_api_defs.h"
+
+--- Change init function from this ---
+
+G_MODULE_EXPORT void
+plugin_init(plugin_address_table_t *pat
+#ifndef PLUGINS_NEED_ADDRESS_TABLE
+_U_
+#endif
+){
+   /* initialise the table of pointers needed in Win32 DLLs */
+   plugin_address_table_init(pat);
+   /* register the new protocol, protocol fields, and subtrees */
+   if (proto_xxx == -1) { /* execute protocol initialization only once */
+     proto_register_xxx();
+   }
+}
+
+------ to this ------
+
+G_MODULE_EXPORT void
+plugin_register(void)
+{
+   /* register the new protocol, protocol fields, and subtrees */
+   if (proto_xxx == -1) { /* execute protocol initialization only once */
+     proto_register_xxx();
+   }
+}
+
+--- Changes to plugin's Makefile.nmake ---
+change
+!IFDEF LINK_PLUGINS_WITH_LIBETHEREAL
+to
+!IFDEF ENABLE_LIBETHEREAL
+
+remove
+!ELSE
+LINK_PLUGIN_WITH=..\plugin_api.obj
+
+move
+!ENDIF
+to the line just before the clean target
+
+----------------
 
 Ed Warnicke <hagbard@physics.rutgers.edu>
 
