@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.9 2001/07/27 07:10:13 guy Exp $
+dnl $Id: acinclude.m4,v 1.10 2001/08/18 20:09:44 guy Exp $
 dnl
 
 # Configure paths for GLIB
@@ -261,14 +261,19 @@ AC_DEFUN(AC_WIRETAP_PCAP_CHECK,
 #
 AC_DEFUN(AC_WIRETAP_ZLIB_CHECK,
 [
-        AC_CHECK_HEADER(zlib.h,,enable_zlib=no)
+	AC_CHECK_HEADER(zlib.h,,enable_zlib=no)
 
-        dnl
-        dnl Check for "gzgets()" in zlib, because we need it, but
-        dnl some older versions of zlib don't have it.  It appears
-        dnl from the ChangeLog that any released version of zlib
-        dnl with "gzgets()" should have the other routines we
-        dnl depend on, such as "gzseek()", "gztell()", and "zError()".
-        dnl
-        AC_CHECK_LIB(z, gzgets,,enable_zlib=no)
+	if test x$enable_zlib != xno
+	then
+		#
+		# Well, we at least have the zlib header file.
+		#
+		# Check for "gzgets()" in zlib, because we need it, but
+		# some older versions of zlib don't have it.  It appears
+		# from the ChangeLog that any released version of zlib
+		# with "gzgets()" should have the other routines we
+		# depend on, such as "gzseek()", "gztell()", and "zError()".
+		#
+		AC_CHECK_LIB(z, gzgets,,enable_zlib=no)
+	fi
 ])
