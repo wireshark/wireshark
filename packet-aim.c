@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.19 2003/01/12 04:58:32 guy Exp $
+ * $Id: packet-aim.c,v 1.20 2003/01/15 06:09:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,7 +74,7 @@
 #define FAMILY_SIGNON_SIGNON         0x0006
 #define FAMILY_SIGNON_SIGNON_REPLY   0x0007
 
-/* Family Signon */
+/* Family Generic */
 #define FAMILY_GENERIC_ERROR          0x0001
 #define FAMILY_GENERIC_CLIENTREADY    0x0002
 #define FAMILY_GENERIC_SERVERREADY    0x0003
@@ -98,9 +98,116 @@
 #define FAMILY_GENERIC_NOP            0x0016
 #define FAMILY_GENERIC_DEFAULT        0xffff
 
-/* messaging */
-#define MSG_TO_CLIENT     0x006
-#define MSG_FROM_CLIENT   0x007
+/* Family Location Services */
+#define FAMILY_LOCATION_ERROR         0x0001
+#define FAMILY_LOCATION_REQRIGHTS     0x0002
+#define FAMILY_LOCATION_RIGHTSINFO    0x0003
+#define FAMILY_LOCATION_SETUSERINFO   0x0004
+#define FAMILY_LOCATION_REQUSERINFO   0x0005
+#define FAMILY_LOCATION_USERINFO      0x0006
+#define FAMILY_LOCATION_WATCHERSUBREQ 0x0007
+#define FAMILY_LOCATION_WATCHERNOT    0x0008
+#define FAMILY_LOCATION_DEFAULT       0xffff
+
+/* Family Buddy List */
+#define FAMILY_BUDDYLIST_ERROR        0x0001
+#define FAMILY_BUDDYLIST_REQRIGHTS    0x0002
+#define FAMILY_BUDDYLIST_RIGHTSINFO   0x0003
+#define FAMILY_BUDDYLIST_ADDBUDDY     0x0004
+#define FAMILY_BUDDYLIST_REMBUDDY     0x0005
+#define FAMILY_BUDDYLIST_REJECT       0x000a
+#define FAMILY_BUDDYLIST_ONCOMING     0x000b
+#define FAMILY_BUDDYLIST_OFFGOING     0x000c
+#define FAMILY_BUDDYLIST_DEFAULT      0xffff
+
+/* Family Messaging Service */
+#define FAMILY_MESSAGING_ERROR          0x0001
+#define FAMILY_MESSAGING_PARAMINFO      0x0005
+#define FAMILY_MESSAGING_OUTGOING       0x0006
+#define FAMILY_MESSAGING_INCOMING       0x0007
+#define FAMILY_MESSAGING_EVIL           0x0009
+#define FAMILY_MESSAGING_MISSEDCALL     0x000a
+#define FAMILY_MESSAGING_CLIENTAUTORESP 0x000b
+#define FAMILY_MESSAGING_ACK            0x000c
+#define FAMILY_MESSAGING_DEFAULT        0xffff
+
+/* Family Advertising */
+#define FAMILY_ADVERTS_ERROR          0x0001
+#define FAMILY_ADVERTS_REQUEST        0x0002
+#define FAMILY_ADVERTS_DATA           0x0003
+#define FAMILY_ADVERTS_DEFAULT        0xffff
+
+/* Family Invitation */
+#define FAMILY_INVITATION_ERROR       0x0001
+#define FAMILY_INVITATION_DEFAULT     0xffff
+
+/* Family Admin */
+#define FAMILY_ADMIN_ERROR            0x0001
+#define FAMILY_ADMIN_INFOCHANGEREPLY  0x0005
+#define FAMILY_ADMIN_DEFAULT          0xffff
+
+/* Family Popup */
+#define FAMILY_POPUP_ERROR            0x0001
+#define FAMILY_POPUP_DEFAULT          0xffff
+
+/* Family BOS (Misc) */
+#define FAMILY_BOS_ERROR              0x0001
+#define FAMILY_BOS_RIGHTSQUERY        0x0002
+#define FAMILY_BOS_RIGHTS             0x0003
+#define FAMILY_BOS_DEFAULT            0xffff
+
+/* Family User Lookup */
+#define FAMILY_USERLOOKUP_ERROR        0x0001
+#define FAMILY_USERLOOKUP_SEARCHEMAIL  0x0002
+#define FAMILY_USERLOOKUP_SEARCHRESULT 0x0003
+#define FAMILY_USERLOOKUP_DEFAULT      0xffff
+
+/* Family User Stats */
+#define FAMILY_STATS_ERROR             0x0001
+#define FAMILY_STATS_SETREPORTINTERVAL 0x0002
+#define FAMILY_STATS_REPORTACK         0x0004
+#define FAMILY_STATS_DEFAULT           0xffff
+
+/* Family Translation */
+#define FAMILY_TRANSLATE_ERROR        0x0001
+#define FAMILY_TRANSLATE_DEFAULT      0xffff
+
+/* Family Chat Navigation */
+#define FAMILY_CHATNAV_ERROR          0x0001
+#define FAMILY_CHATNAV_CREATE         0x0008
+#define FAMILY_CHATNAV_INFO           0x0009
+#define FAMILY_CHATNAV_DEFAULT        0xffff
+
+/* Family Chat */
+#define FAMILY_CHAT_ERROR             0x0001
+#define FAMILY_CHAT_ROOMINFOUPDATE    0x0002
+#define FAMILY_CHAT_USERJOIN          0x0003
+#define FAMILY_CHAT_USERLEAVE         0x0004
+#define FAMILY_CHAT_OUTGOINGMSG       0x0005
+#define FAMILY_CHAT_INCOMINGMSG       0x0006
+#define FAMILY_CHAT_DEFAULT           0xffff
+
+/* Family Server-Stored Buddy Lists */
+#define FAMILY_SSI_ERROR              0x0001
+#define FAMILY_SSI_REQRIGHTS          0x0002
+#define FAMILY_SSI_RIGHTSINFO         0x0003
+#define FAMILY_SSI_REQLIST            0x0005
+#define FAMILY_SSI_LIST               0x0006
+#define FAMILY_SSI_ACTIVATE           0x0007
+#define FAMILY_SSI_ADD                0x0008
+#define FAMILY_SSI_MOD                0x0009
+#define FAMILY_SSI_DEL                0x000a
+#define FAMILY_SSI_SRVACK             0x000e
+#define FAMILY_SSI_NOLIST             0x000f
+#define FAMILY_SSI_EDITSTART          0x0011
+#define FAMILY_SSI_EDITSTOP           0x0012
+
+/* Family ICQ */
+#define FAMILY_ICQ_ERROR              0x0001
+#define FAMILY_ICQ_LOGINREQUEST       0x0002
+#define FAMILY_ICQ_LOGINRESPONSE      0x0003
+#define FAMILY_ICQ_AUTHREQUEST        0x0006
+#define FAMILY_ICQ_AUTHRESPONSE       0x0007
 
 static const value_string aim_fnac_family_ids[] = {
   { FAMILY_GENERIC, "Generic" }, 
@@ -158,6 +265,143 @@ static const value_string aim_fnac_family_generic[] = {
   { 0, NULL }
 };
 
+static const value_string aim_fnac_family_location[] = {
+  { FAMILY_LOCATION_ERROR, "Error" },
+  { FAMILY_LOCATION_REQRIGHTS, "Request Rights" },
+  { FAMILY_LOCATION_RIGHTSINFO, "Rights Info" },
+  { FAMILY_LOCATION_SETUSERINFO, "Set User Info" },
+  { FAMILY_LOCATION_REQUSERINFO, "Request User Info" },
+  { FAMILY_LOCATION_USERINFO, "User Info" },
+  { FAMILY_LOCATION_WATCHERSUBREQ, "Watcher Subrequest" },
+  { FAMILY_LOCATION_WATCHERNOT, "Watcher Notification" },
+  { FAMILY_LOCATION_DEFAULT, "Location Default" },
+  { 0, NULL }
+};
+
+static const value_string aim_fnac_family_buddylist[] = {
+  { FAMILY_BUDDYLIST_ERROR, "Error" },
+  { FAMILY_BUDDYLIST_REQRIGHTS, "Request Rights" },
+  { FAMILY_BUDDYLIST_RIGHTSINFO, "Rights Info" },
+  { FAMILY_BUDDYLIST_ADDBUDDY, "Add Buddy" },
+  { FAMILY_BUDDYLIST_REMBUDDY, "Remove Buddy" },
+  { FAMILY_BUDDYLIST_REJECT, "Reject Buddy" }, 
+  { FAMILY_BUDDYLIST_ONCOMING, "Oncoming Buddy" },
+  { FAMILY_BUDDYLIST_OFFGOING, "Offgoing Buddy" },
+  { FAMILY_BUDDYLIST_DEFAULT, "Buddy Default" },
+  { 0, NULL }
+};
+
+static const value_string aim_fnac_family_messaging[] = {
+  { FAMILY_MESSAGING_ERROR, "Error" },
+  { FAMILY_MESSAGING_PARAMINFO, "Parameter Info" },
+  { FAMILY_MESSAGING_INCOMING, "Incoming" },
+  { FAMILY_MESSAGING_EVIL, "Evil" },
+  { FAMILY_MESSAGING_MISSEDCALL, "Missed Call" },
+  { FAMILY_MESSAGING_CLIENTAUTORESP, "Client Auto Response" },
+  { FAMILY_MESSAGING_ACK, "Acknowledge" },
+  { FAMILY_MESSAGING_DEFAULT, "Messaging Default" },
+  { 0, NULL }
+};
+
+static const value_string aim_fnac_family_adverts[] = {
+  { FAMILY_ADVERTS_ERROR, "Error" },
+  { FAMILY_ADVERTS_REQUEST, "Request" },
+  { FAMILY_ADVERTS_DATA, "Data (GIF)" },
+  { FAMILY_ADVERTS_DEFAULT, "Adverts Default" },
+  { 0, NULL }
+};
+
+static const value_string aim_fnac_family_invitation[] = {
+  { FAMILY_INVITATION_ERROR, "Error" },
+  { FAMILY_INVITATION_DEFAULT, "Invitation Default" },
+  { 0, NULL }
+};
+
+static const value_string aim_fnac_family_admin[] = {
+  { FAMILY_ADMIN_ERROR, "Error" },
+  { FAMILY_ADMIN_INFOCHANGEREPLY, "Infochange reply" },
+  { FAMILY_ADMIN_DEFAULT, "Adminstrative Default" },
+  { 0, NULL }
+};
+
+static const value_string aim_fnac_family_popup[] = {
+  { FAMILY_POPUP_ERROR, "Error" },
+  { FAMILY_POPUP_DEFAULT, "Popup Default" },
+  { 0, NULL }
+};
+
+static const value_string aim_fnac_family_bos[] = {
+  { FAMILY_BOS_ERROR, "Error" },
+  { FAMILY_BOS_RIGHTSQUERY, "Rights Query" },
+  { FAMILY_BOS_RIGHTS, "Rights" },
+  { FAMILY_BOS_DEFAULT, "BOS Default" },
+  { 0, NULL }
+};
+
+static const value_string aim_fnac_family_userlookup[] = {
+  { FAMILY_USERLOOKUP_ERROR, "Error" },
+  { FAMILY_USERLOOKUP_DEFAULT, "Userlookup Default" },
+  { 0, NULL }
+};
+
+static const value_string aim_fnac_family_stats[] = {
+  { FAMILY_STATS_ERROR, "Error" },
+  { FAMILY_STATS_SETREPORTINTERVAL, "Set Report Interval" },
+  { FAMILY_STATS_REPORTACK, "Report Ack" },
+  { FAMILY_STATS_DEFAULT, "Stats Default" },
+  { 0, NULL }
+};
+
+static const value_string aim_fnac_family_translate[] = {
+  { FAMILY_TRANSLATE_ERROR, "Error" },
+  { FAMILY_TRANSLATE_DEFAULT, "Translate Default" },
+  { 0, NULL }
+};
+
+static const value_string aim_fnac_family_chatnav[] = {
+  { FAMILY_CHATNAV_ERROR, "Error" },
+  { FAMILY_CHATNAV_CREATE, "Create" },
+  { FAMILY_CHATNAV_INFO, "Info" },
+  { FAMILY_CHATNAV_DEFAULT, "ChatNav Default" },
+  { 0, NULL }
+};
+
+static const value_string aim_fnac_family_chat[] = {
+  { FAMILY_CHAT_ERROR, "Error" },
+  { FAMILY_CHAT_USERJOIN, "User Join" },
+  { FAMILY_CHAT_USERLEAVE, "User Leave" },
+  { FAMILY_CHAT_OUTGOINGMSG, "Outgoing Message" },
+  { FAMILY_CHAT_INCOMINGMSG, "Incoming Message" },
+  { FAMILY_CHAT_DEFAULT, "Chat Default" },
+  { 0, NULL }
+};
+
+static const value_string aim_fnac_family_ssi[] = {
+  { FAMILY_SSI_ERROR, "Error" },
+  { FAMILY_SSI_REQRIGHTS, "Request Rights" },
+  { FAMILY_SSI_RIGHTSINFO, "Rights Info" },
+  { FAMILY_SSI_REQLIST, "Request List" },
+  { FAMILY_SSI_LIST, "List" },
+  { FAMILY_SSI_ACTIVATE, "Activate" },
+  { FAMILY_SSI_ADD, "Add Buddy" },
+  { FAMILY_SSI_MOD, "Modify Buddy" },
+  { FAMILY_SSI_DEL, "Delete Buddy" },
+  { FAMILY_SSI_SRVACK, "Server Ack" },
+  { FAMILY_SSI_NOLIST, "No List" },
+  { FAMILY_SSI_EDITSTART, "Edit Start" },
+  { FAMILY_SSI_EDITSTOP, "Edit Stop" },
+  { 0, NULL }
+};
+
+static const value_string aim_fnac_family_icq[] = {
+  { FAMILY_ICQ_ERROR, "Error" },
+  { FAMILY_ICQ_LOGINREQUEST, "Login Request" },
+  { FAMILY_ICQ_LOGINRESPONSE, "Login Response" },
+  { FAMILY_ICQ_AUTHREQUEST, "Auth Request" },
+  { FAMILY_ICQ_AUTHRESPONSE, "Auth Response" },
+  { 0, NULL }
+};
+
 static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void get_message( guchar *msg, tvbuff_t *tvb, int msg_offset, int msg_length);
@@ -197,6 +441,9 @@ static void dissect_aim_snac_chat(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_aim_snac_messaging(tvbuff_t *tvb, packet_info *pinfo, 
 				       int offset, proto_tree *tree, 
 				       guint16 subtype);
+static void dissect_aim_snac_ssi(tvbuff_t *tvb, packet_info *pinfo, 
+				 int offset, proto_tree *tree, 
+				 guint16 subtype);
 static void dissect_aim_flap_err(tvbuff_t *tvb, packet_info *pinfo, 
 				 int offset, proto_tree *tree);
 static void dissect_aim_close_conn(tvbuff_t *tvb, packet_info *pinfo, 
@@ -217,6 +464,21 @@ static int hf_aim_fnac_family = -1;
 static int hf_aim_fnac_subtype = -1;
 static int hf_aim_fnac_subtype_signon = -1;
 static int hf_aim_fnac_subtype_generic = -1;
+static int hf_aim_fnac_subtype_location = -1;
+static int hf_aim_fnac_subtype_buddylist = -1;
+static int hf_aim_fnac_subtype_messaging = -1;
+static int hf_aim_fnac_subtype_adverts = -1;
+static int hf_aim_fnac_subtype_invitation = -1;
+static int hf_aim_fnac_subtype_admin = -1;
+static int hf_aim_fnac_subtype_popup = -1;
+static int hf_aim_fnac_subtype_bos = -1;
+static int hf_aim_fnac_subtype_userlookup = -1;
+static int hf_aim_fnac_subtype_stats = -1;
+static int hf_aim_fnac_subtype_translate = -1;
+static int hf_aim_fnac_subtype_chatnav = -1;
+static int hf_aim_fnac_subtype_chat = -1;
+static int hf_aim_fnac_subtype_ssi = -1;
+static int hf_aim_fnac_subtype_icq = -1;
 static int hf_aim_fnac_flags = -1;
 static int hf_aim_fnac_id = -1;
 static int hf_aim_infotype = -1;
@@ -479,6 +741,9 @@ static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo,
     case FAMILY_MESSAGING:
       dissect_aim_snac_messaging(tvb, pinfo, offset, aim_tree, subtype);
       break;
+    case FAMILY_SSI:
+      dissect_aim_snac_ssi(tvb, pinfo, offset, aim_tree, subtype);
+      break;
     }
 }
 
@@ -596,95 +861,95 @@ static void dissect_aim_snac_generic(tvbuff_t *tvb, packet_info *pinfo,
 {
   switch(subtype)
     {
-    case 0x0001:
+    case FAMILY_GENERIC_ERROR:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Generic Error");
       break;
-    case 0x0002:
+    case FAMILY_GENERIC_CLIENTREADY:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, 
 		     "Client is now online and ready for normal function");
       break;
-    case 0x0003:
+    case FAMILY_GENERIC_SERVERREADY:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, 
 		     "Server is now ready for normal functions");
       break;
-    case 0x0004:
+    case FAMILY_GENERIC_SERVICEREQ:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, 
 		     "Request for new service (server will redirect client)");
       break;
-    case 0x0005:
+    case FAMILY_GENERIC_REDIRECT:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Redirect response");
       break;
-    case 0x0006:
+    case FAMILY_GENERIC_RATEINFOREQ:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Request Rate Information");
       break;
-    case 0x0007:
+    case FAMILY_GENERIC_RATEINFO:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Rate information response");
       break;
-    case 0x0008:
+    case FAMILY_GENERIC_RATEINFOACK:
       if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Rate Information Response Ack");
       break;
-    case 0x000a:
+    case FAMILY_GENERIC_RATECHANGE:
       if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Rate Change");
       break;
-    case 0x000b:
+    case FAMILY_GENERIC_SERVERPAUSE:
       if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Server Pause");
       break;
-    case 0x000d:
+    case FAMILY_GENERIC_SERVERRESUME:
       if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Server Resume");
       break;
-    case 0x000e:
+    case FAMILY_GENERIC_REQSELFINFO:
       if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Request Self Info");
       break;
-    case 0x000f:
+    case FAMILY_GENERIC_SELFINFO:
       if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Self Info");
       break;
-    case 0x0010:
+    case FAMILY_GENERIC_EVIL:
       if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Evil");
       break;
-    case 0x0011:
+    case FAMILY_GENERIC_SETIDLE:
       if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Set Idle");
       break;
-    case 0x0012:
+    case FAMILY_GENERIC_MIGRATIONREQ:
       if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Request Migration");
       break;
-    case 0x0013:
+    case FAMILY_GENERIC_MOTD:
       if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "MOTD");
       break;
-    case 0x0014:
+    case FAMILY_GENERIC_SETPRIVFLAGS:
       if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Set Privilege Flags");
       break;
-    case 0x0015:
+    case FAMILY_GENERIC_WELLKNOWNURL:
       if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Well Known URL");
       break;
-    case 0x0016:
+    case FAMILY_GENERIC_NOP:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "No-op");
       break;
-    case 0xffff:
+    case FAMILY_GENERIC_DEFAULT:
       if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Generic Default");
       break;
     }
-  
+
   /* Show the undissected payload */
   proto_tree_add_item(tree, hf_aim_data, tvb, offset, 
 		      tvb_length_remaining (tvb, offset), FALSE);
@@ -696,37 +961,38 @@ static void dissect_aim_snac_buddylist(tvbuff_t *tvb, packet_info *pinfo,
 {
   guint8 buddyname_length = 0;
   char buddyname[MAX_BUDDYNAME_LENGTH];
+  guint16 tlv_count = 0;
 
   switch(subtype)
     {
-    case 0x0001:
+    case FAMILY_BUDDYLIST_ERROR:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Buddylist - Error");
       break;
        
-   case 0x0002:
+   case FAMILY_BUDDYLIST_REQRIGHTS:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Request Rights information");
       break;
       
-    case 0x0003:
+    case FAMILY_BUDDYLIST_RIGHTSINFO:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Rights information");
       break;
       
-    case 0x0004:
+    case FAMILY_BUDDYLIST_ADDBUDDY:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Add to Buddylist");
       break;
       
-    case 0x0005:
+    case FAMILY_BUDDYLIST_REMBUDDY:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Remove from Buddylist");
       break;
       
-    case 0x000b:
+    case FAMILY_BUDDYLIST_ONCOMING:
       buddyname_length = get_buddyname( buddyname, tvb, offset, offset + 1 );
-      
+
       if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Oncoming Buddy");
 	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", buddyname);
@@ -737,9 +1003,21 @@ static void dissect_aim_snac_buddylist(tvbuff_t *tvb, packet_info *pinfo,
 			    "Screen Name: %s", buddyname);
       }
       offset += buddyname_length + 1;
+
+      /* Warning level */
+      proto_tree_add_item(tree, hf_aim_userinfo_warninglevel, tvb, offset, 
+			  2, FALSE);
+      offset += 2;
+      
+      /* TLV Count */
+      tlv_count = tvb_get_ntohs(tvb, offset);
+      proto_tree_add_item(tree, hf_aim_userinfo_tlvcount, tvb, offset, 
+			  2, FALSE);
+      offset += 2;
+
       break;
       
-    case 0x000c:
+    case FAMILY_BUDDYLIST_OFFGOING:
       buddyname_length = get_buddyname( buddyname, tvb, offset, offset + 1 );
       
       if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -752,6 +1030,18 @@ static void dissect_aim_snac_buddylist(tvbuff_t *tvb, packet_info *pinfo,
 			    "Screen Name: %s", buddyname);
       }
       offset += buddyname_length + 1;
+
+      /* Warning level */
+      proto_tree_add_item(tree, hf_aim_userinfo_warninglevel, tvb, offset, 
+			  2, FALSE);
+      offset += 2;
+      
+      /* TLV Count */
+      tlv_count = tvb_get_ntohs(tvb, offset);
+      proto_tree_add_item(tree, hf_aim_userinfo_tlvcount, tvb, offset, 
+			  2, FALSE);
+      offset += 2;
+
       break;
     }
 
@@ -766,39 +1056,43 @@ static void dissect_aim_snac_location(tvbuff_t *tvb, packet_info *pinfo,
 {
   switch(subtype)
     {
-    case 0x0001:
+    case FAMILY_LOCATION_ERROR:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Location - Error");
       break;
-    case 0x0002:
+    case FAMILY_LOCATION_REQRIGHTS:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Request Rights Information");
       break;
-    case 0x0003:
+    case FAMILY_LOCATION_RIGHTSINFO:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Rights Information");
       break;
-    case 0x0004:
+    case FAMILY_LOCATION_SETUSERINFO:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Set User Information");
       break;
-    case 0x0005:
+    case FAMILY_LOCATION_REQUSERINFO:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Request User Information");
       dissect_aim_snac_location_request_user_information(tvb, offset, tree);
       break;
-    case 0x0006:
+    case FAMILY_LOCATION_USERINFO:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "User Information");
       dissect_aim_snac_location_user_information(tvb, offset, tree);
       break;
-    case 0x0007:
+    case FAMILY_LOCATION_WATCHERSUBREQ:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Watcher Subrequest");
       break;
-    case 0x0008:
+    case FAMILY_LOCATION_WATCHERNOT:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Watcher Notification");
+      break;
+    case FAMILY_LOCATION_DEFAULT:
+      if (check_col(pinfo->cinfo, COL_INFO)) 
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Location Default");
       break;
     }
 }
@@ -863,15 +1157,15 @@ static void dissect_aim_snac_adverts(tvbuff_t *tvb _U_,
 {
   switch(subtype)
     {
-    case 0x0001:
+    case FAMILY_ADVERTS_ERROR:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Advertisements - Error");
       break;
-    case 0x0002:
+    case FAMILY_ADVERTS_REQUEST:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Advertisement Request");
       break;
-    case 0x0003:
+    case FAMILY_ADVERTS_DATA:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Advertisement data (GIF)");
       break;
@@ -888,17 +1182,17 @@ static void dissect_aim_snac_userlookup(tvbuff_t *tvb _U_, packet_info *pinfo,
 {
   switch(subtype)
     {
-    case 0x0001:
+    case FAMILY_USERLOOKUP_ERROR:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, 
 		     "Search - Error (could be: not found)");
       break;
-    case 0x0002:
+    case FAMILY_USERLOOKUP_SEARCHEMAIL:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, 
 		     "Search for Screen Name by e-mail");
       break;
-    case 0x0003:
+    case FAMILY_USERLOOKUP_SEARCHRESULT:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Screen Name Search Result");
       break;
@@ -919,7 +1213,7 @@ static void dissect_aim_snac_chat(tvbuff_t *tvb, packet_info *pinfo,
 
   switch(subtype)
     {
-    case 0x005:
+    case FAMILY_CHAT_OUTGOINGMSG:
       /* channel message from client */
       get_message( msg, tvb, 40 + buddyname_length, tvb_length(tvb) 
 		   - 40 - buddyname_length );
@@ -930,7 +1224,7 @@ static void dissect_aim_snac_chat(tvbuff_t *tvb, packet_info *pinfo,
       }
       break;
       
-    case 0x006:
+    case FAMILY_CHAT_INCOMINGMSG:
       /* channel message to client */
       buddyname_length = get_buddyname( buddyname, tvb, 30, 31 );
       get_message( msg, tvb, 36 + buddyname_length, tvb_length(tvb) 
@@ -960,7 +1254,7 @@ static void dissect_aim_snac_messaging(tvbuff_t *tvb, packet_info *pinfo,
 
   switch(subtype)
     {    
-    case MSG_TO_CLIENT:
+    case FAMILY_MESSAGING_OUTGOING:
 
       /* Unknown */
       offset += 10;
@@ -985,7 +1279,7 @@ static void dissect_aim_snac_messaging(tvbuff_t *tvb, packet_info *pinfo,
       
       break;
       
-    case MSG_FROM_CLIENT:
+    case FAMILY_MESSAGING_INCOMING:
 
       /* Unknown */
       offset += 10;
@@ -1012,6 +1306,15 @@ static void dissect_aim_snac_messaging(tvbuff_t *tvb, packet_info *pinfo,
     }
 }
 
+static void dissect_aim_snac_ssi(tvbuff_t *tvb, packet_info *pinfo _U_, 
+				 int offset, proto_tree *tree, 
+				 guint16 subtype _U_)
+{
+  /* Show the undissected payload */
+  proto_tree_add_item(tree, hf_aim_data, tvb, offset, 
+		      tvb_length_remaining (tvb, offset), FALSE);
+}
+
 static void dissect_aim_snac_fnac_subtype(tvbuff_t *tvb, int offset, 
 				     proto_tree *tree, guint16 family)
 {
@@ -1027,21 +1330,64 @@ static void dissect_aim_snac_fnac_subtype(tvbuff_t *tvb, int offset,
 			   tvb, offset, 2, FALSE);
       break;
     case FAMILY_LOCATION:
+      proto_tree_add_item (tree, hf_aim_fnac_subtype_location,
+			   tvb, offset, 2, FALSE);
+      break;
     case FAMILY_BUDDYLIST:
+      proto_tree_add_item (tree, hf_aim_fnac_subtype_buddylist,
+			   tvb, offset, 2, FALSE);
+      break;
     case FAMILY_MESSAGING:
+      proto_tree_add_item (tree, hf_aim_fnac_subtype_messaging,
+			   tvb, offset, 2, FALSE);
+      break;
     case FAMILY_ADVERTS:
+      proto_tree_add_item (tree, hf_aim_fnac_subtype_adverts,
+			   tvb, offset, 2, FALSE);
+      break;
     case FAMILY_INVITATION:
+      proto_tree_add_item (tree, hf_aim_fnac_subtype_invitation,
+			   tvb, offset, 2, FALSE);
+      break;
     case FAMILY_ADMIN:
+      proto_tree_add_item (tree, hf_aim_fnac_subtype_admin,
+			   tvb, offset, 2, FALSE);
+      break;
     case FAMILY_POPUP:
+      proto_tree_add_item (tree, hf_aim_fnac_subtype_popup,
+			   tvb, offset, 2, FALSE);
+      break;
     case FAMILY_BOS:
+      proto_tree_add_item (tree, hf_aim_fnac_subtype_bos,
+			   tvb, offset, 2, FALSE);
+      break;
     case FAMILY_USERLOOKUP:
+      proto_tree_add_item (tree, hf_aim_fnac_subtype_userlookup,
+			   tvb, offset, 2, FALSE);
+      break;
     case FAMILY_STATS:
+      proto_tree_add_item (tree, hf_aim_fnac_subtype_stats,
+			   tvb, offset, 2, FALSE);
+      break;
     case FAMILY_TRANSLATE:
+      proto_tree_add_item (tree, hf_aim_fnac_subtype_translate,
+			   tvb, offset, 2, FALSE);
+      break;
     case FAMILY_CHAT_NAV:
+      proto_tree_add_item (tree, hf_aim_fnac_subtype_chatnav,
+			   tvb, offset, 2, FALSE);
+      break;
     case FAMILY_CHAT:
+      proto_tree_add_item (tree, hf_aim_fnac_subtype_chat,
+			   tvb, offset, 2, FALSE);
+      break;
     case FAMILY_SSI:
+      proto_tree_add_item (tree, hf_aim_fnac_subtype_ssi,
+			   tvb, offset, 2, FALSE);
+      break;
     case FAMILY_ICQ:
-      proto_tree_add_item(tree, hf_aim_fnac_subtype, tvb, offset, 2, FALSE);
+      proto_tree_add_item (tree, hf_aim_fnac_subtype_icq,
+			   tvb, offset, 2, FALSE);
       break;
     case FAMILY_SIGNON:
       proto_tree_add_item (tree, hf_aim_fnac_subtype_signon,
@@ -1130,6 +1476,51 @@ proto_register_aim(void)
     },
     { &hf_aim_fnac_subtype_generic,
       { "FNAC Subtype ID", "aim.fnac.subtype", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_generic), 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_location,
+      { "FNAC Subtype ID", "aim.fnac.subtype", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_location), 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_buddylist,
+      { "FNAC Subtype ID", "aim.fnac.subtype", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_buddylist), 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_messaging,
+      { "FNAC Subtype ID", "aim.fnac.subtype", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_messaging), 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_adverts,
+      { "FNAC Subtype ID", "aim.fnac.subtype", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_adverts), 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_invitation,
+      { "FNAC Subtype ID", "aim.fnac.subtype", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_invitation), 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_admin,
+      { "FNAC Subtype ID", "aim.fnac.subtype", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_admin), 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_popup,
+      { "FNAC Subtype ID", "aim.fnac.subtype", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_popup), 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_bos,
+      { "FNAC Subtype ID", "aim.fnac.subtype", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_bos), 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_userlookup,
+      { "FNAC Subtype ID", "aim.fnac.subtype", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_userlookup), 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_stats,
+      { "FNAC Subtype ID", "aim.fnac.subtype", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_stats), 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_translate,
+      { "FNAC Subtype ID", "aim.fnac.subtype", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_translate), 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_chatnav,
+      { "FNAC Subtype ID", "aim.fnac.subtype", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_chatnav), 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_chat,
+      { "FNAC Subtype ID", "aim.fnac.subtype", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_chat), 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_ssi,
+      { "FNAC Subtype ID", "aim.fnac.subtype", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_ssi), 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_subtype_icq,
+      { "FNAC Subtype ID", "aim.fnac.subtype", FT_UINT16, BASE_HEX, VALS(aim_fnac_family_icq), 0x0, "", HFILL }
     },
     { &hf_aim_fnac_flags,
       { "FNAC Flags", "aim.fnac.flags", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
