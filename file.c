@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.81 1999/08/24 16:27:22 gram Exp $
+ * $Id: file.c,v 1.82 1999/08/25 00:03:59 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -481,8 +481,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
 		fdata->passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, cf->pd);
 	else
 		fdata->passed_dfilter = TRUE;
-	/* Apply color filtersa.  The debuggery can come out real soon! */
-#ifdef DEBUG_COLOR_FITLERS
+	/* Apply color filters.  The debuggery can come out real soon! */
+#ifdef DEBUG_COLOR_FILTERS
 	fprintf(stderr, "Processing %d filters...\n",cf->colors->num_of_filters);
 	fflush(stderr);
 #endif
