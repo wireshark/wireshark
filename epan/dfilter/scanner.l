@@ -1,6 +1,6 @@
 %{
 /*
- * $Id: scanner.l,v 1.16 2004/02/27 12:00:30 obiot Exp $
+ * $Id: scanner.l,v 1.17 2004/04/25 04:53:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,7 @@
 #define LVAL_TYPE	stnode_t*
 #define LVAL_INIT_VAL	NULL
 #define MODNAME		df
+#define FLEX_YY_PREFIX	df_
 
 #include <lemonflex-head.inc>
 

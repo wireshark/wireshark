@@ -1,4 +1,4 @@
-/* $Id: lemonflex-tail.inc,v 1.1 2001/02/01 20:21:25 gram Exp $ */
+/* $Id: lemonflex-tail.inc,v 1.2 2004/04/25 04:53:42 gram Exp $ */
 
 /* This file is #include'd at the bottom of a Lex/Flex scanner
 for use with the Lemon parser. You must have #define'd:
@@ -19,6 +19,22 @@ int	MODNAME_wrap(void);
 #define CLEANUP_FUNC	CONCAT(MODNAME,_scanner_cleanup)
 #define WRAP_FUNC	CONCAT(MODNAME,_wrap)
 
+/* flex 2.5.31 no longer #defines these as yy_* if used with -P. */
+#ifndef yy_scan_string
+#define yy_scan_string		CONCAT(FLEX_YY_PREFIX, _scan_string)
+#endif
+
+#ifndef yy_create_buffer
+#define yy_create_buffer	CONCAT(FLEX_YY_PREFIX, _create_buffer)
+#endif
+
+#ifndef yy_switch_to_buffer
+#define yy_switch_to_buffer	CONCAT(FLEX_YY_PREFIX, _switch_to_buffer)
+#endif
+
+#ifndef yy_delete_buffer
+#define yy_delete_buffer	CONCAT(FLEX_YY_PREFIX, _delete_buffer)
+#endif
 
 /* Resets scanner and assigns the char* argument
  * as the text to scan
