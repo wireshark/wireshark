@@ -1,7 +1,7 @@
 /* packet-vines.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-vines.h,v 1.13 2002/08/28 21:00:36 jmayer Exp $
+ * $Id: packet-vines.h,v 1.14 2003/04/17 20:30:43 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -32,6 +32,10 @@
  * Banyan Systems incorporated
  * February 1990
  * Part Number: 092093-000
+ *
+ * Some information can also be found in
+ *
+ *	http://www.cisco.com/univercd/cc/td/doc/cisintwk/ito_doc/vines.htm
  */
 
 #ifndef __PACKETVINES_H__

@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.46 2003/04/17 19:10:17 guy Exp $
+ * $Id: packet-vines.c,v 1.47 2003/04/17 20:30:42 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -58,6 +58,7 @@ static gint ett_vines_llc = -1;
 static int proto_vines_spp = -1;
 
 static gint ett_vines_spp = -1;
+static gint ett_vines_spp_control = -1;
 
 static void dissect_vines_frp(tvbuff_t *, packet_info *, proto_tree *);
 #if 0
@@ -225,7 +226,7 @@ proto_register_vines_llc(void)
 	};
 
 	proto_vines_llc = proto_register_protocol(
-	    "Banyan Vines LLC Protocol", "Vines LLC", "vines_llc");
+	    "Banyan Vines LLC", "Vines LLC", "vines_llc");
 	proto_register_subtree_array(ett, array_length(ett));
 
 	/* subdissector code */
@@ -370,7 +371,14 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    "Transport control: 0x%02x",
 				    viph.vip_tctl);
 		tctl_tree = proto_item_add_subtree(ti, ett_vines_tctl);
-		/* XXX - bit 0x80 is "Normal" if 0; what is it if 1? */
+		/*
+		 * XXX - bit 0x80 is "Normal" if 0; what is it if 1?
+		 *
+		 * XXX - the Cisco document mentioned in packet-vines.h
+		 * says that there are 3 bits of class for broadcast
+		 * packets; can we determine whether this is a broadcast
+		 * packet by looking at the VINES destination address?
+		 */
 		proto_tree_add_text(tctl_tree, tvb, offset + 4, 1,
 		    decode_boolean_bitfield(viph.vip_tctl, 0x40, 1*8,
 		      "Forwarding router can handle redirect packets",
@@ -452,13 +460,16 @@ static const value_string pkttype_vals[] = {
 	{ 0,                  NULL }
 };
 
+static heur_dissector_list_t vines_spp_heur_subdissector_list;
+
 static void
 dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int          offset = 0;
 	e_vspp       viph;
-	proto_tree *vspp_tree;
+	proto_tree *vspp_tree, *control_tree;
 	proto_item *ti;
+	tvbuff_t *next_tvb;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSPP");
@@ -524,8 +535,28 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    viph.vspp_pkttype,
 				    val_to_str(viph.vspp_pkttype, pkttype_vals,
 				        "Unknown"));
-		proto_tree_add_text(vspp_tree, tvb, offset + 5,  1,
+		ti = proto_tree_add_text(vspp_tree, tvb, offset + 5,  1,
 				    "Control: 0x%02x", viph.vspp_control);
+		control_tree = proto_item_add_subtree(ti, ett_vines_spp_control);
+		/*
+		 * XXX - do reassembly based on BOM/EOM bits.
+		 */
+		proto_tree_add_text(control_tree, tvb, offset + 5, 1,
+		    decode_boolean_bitfield(viph.vspp_control, 0x80, 1*8,
+		      "Send immediate acknowledgment",
+		      "Do not send immediate acknowledgement"));
+		proto_tree_add_text(control_tree, tvb, offset + 5, 1,
+		    decode_boolean_bitfield(viph.vspp_control, 0x40, 1*8,
+		      "End of message",
+		      "Not end of message"));
+		proto_tree_add_text(control_tree, tvb, offset + 5, 1,
+		    decode_boolean_bitfield(viph.vspp_control, 0x20, 1*8,
+		      "Beginning of message",
+		      "Not beginning of message"));
+		proto_tree_add_text(control_tree, tvb, offset + 5, 1,
+		    decode_boolean_bitfield(viph.vspp_control, 0x10, 1*8,
+		      "Abort current message",
+		      "Do not abort current message"));
 		proto_tree_add_text(vspp_tree, tvb, offset + 6,  2,
 				    "Local Connection ID: 0x%04x",
 				    viph.vspp_lclid);
@@ -541,8 +572,17 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    "Window: %u", viph.vspp_win);
 	}
 	offset += 16; /* sizeof SPP */
-	call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1),
-	    pinfo, tree);
+
+	/*
+	 * For data packets, try the heuristic dissectors for Vines SPP;
+	 * if none of them accept the packet, or if it's not a data packet,
+	 * dissect it as data.
+	 */
+	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	if (viph.vspp_pkttype != VSPP_PKTTYPE_DATA ||
+	    !dissector_try_heuristic(vines_spp_heur_subdissector_list,
+	      next_tvb, pinfo, tree))
+		call_dissector(data_handle, next_tvb, pinfo, tree);
 }
 
 void
@@ -550,11 +590,15 @@ proto_register_vines_spp(void)
 {
 	static gint *ett[] = {
 		&ett_vines_spp,
+		&ett_vines_spp_control,
 	};
 
 	proto_vines_spp = proto_register_protocol("Banyan Vines SPP",
 	    "Vines SPP", "vines_spp");
 	proto_register_subtree_array(ett, array_length(ett));
+
+	register_heur_dissector_list("vines_spp",
+	    &vines_spp_heur_subdissector_list);
 }
 
 void
