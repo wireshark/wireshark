@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.21 2004/05/20 18:18:12 ulfl Exp $
+ * $Id: ui_util.c,v 1.22 2004/05/20 22:57:21 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -544,7 +544,11 @@ simple_list_new(gint cols, gchar **titles) {
     plugins_list = gtk_clist_new_with_titles(cols, titles);
     gtk_clist_set_selection_mode(GTK_CLIST(plugins_list), GTK_SELECTION_SINGLE);
     gtk_clist_column_titles_passive(GTK_CLIST(plugins_list));
-    gtk_clist_column_titles_show(GTK_CLIST(plugins_list));
+    if(titles) {
+        gtk_clist_column_titles_show(GTK_CLIST(plugins_list));
+    } else {
+        gtk_clist_column_titles_hide(GTK_CLIST(plugins_list));
+    }
     gtk_clist_set_column_auto_resize(GTK_CLIST(plugins_list), 0, TRUE);
     gtk_clist_set_column_auto_resize(GTK_CLIST(plugins_list), 1, TRUE);
 #else
@@ -554,10 +558,10 @@ simple_list_new(gint cols, gchar **titles) {
         G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
     plugins_list = tree_view_new(GTK_TREE_MODEL(store));
     g_object_unref(G_OBJECT(store));
-
+    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(plugins_list), (gboolean) titles);
     for(i=0; i<cols; i++) {
         renderer = gtk_cell_renderer_text_new();
-        column = gtk_tree_view_column_new_with_attributes(titles[i], renderer,
+        column = gtk_tree_view_column_new_with_attributes(titles ? titles[i] : "", renderer,
                                                           "text", i, NULL);
         gtk_tree_view_column_set_sort_column_id(column, i);
         gtk_tree_view_append_column(GTK_TREE_VIEW(plugins_list), column);
