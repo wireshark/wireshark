@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.18 2000/01/15 10:25:41 guy Exp $
+dnl $Id: acinclude.m4,v 1.19 2000/01/15 21:01:04 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -279,7 +279,7 @@ AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 	    # answer, and see if it's in "/usr/local/lib".
 	    #
 	    unset ac_cv_lib_pcap_pcap_open_live
-	    save_LIBS="$LIBS"
+	    ethereal_save_LIBS="$LIBS"
 	    AC_ETHEREAL_ADD_DASH_L(LIBS, /usr/local/lib)
 	    AC_CHECK_LIB(pcap, pcap_open_live,
 	      [
@@ -300,7 +300,7 @@ AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 		AC_ETHEREAL_ADD_DASH_L(PCAP_LIBS, /usr/local/lib)
 		PCAP_LIBS="$PCAP_LIBS -lpcap"
 		AC_DEFINE(HAVE_LIBPCAP)
-		LIBS="$save_LIBS"
+		LIBS="$ethereal_save_LIBS"
 	      ],
 	      [
 		#
@@ -308,7 +308,7 @@ AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 		# answer, and see if it's in "$prefix/lib".
 		#
 		unset ac_cv_lib_pcap_pcap_open_live
-		LIBS="$save_LIBS -L$prefix/lib"
+		LIBS="$ethereal_save_LIBS -L$prefix/lib"
 		AC_CHECK_LIB(pcap, pcap_open_live,
 		  [
 		    #
@@ -321,7 +321,7 @@ AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 		    AC_ETHEREAL_ADD_DASH_L(PCAP_LIBS, $prefix/lib)
 		    PCAP_LIBS="$PCAP_LIBS -lpcap"
 		    AC_DEFINE(HAVE_LIBPCAP)
-		    LIBS="$save_LIBS"
+		    LIBS="$ethereal_save_LIBS"
 		  ],
 		  AC_MSG_ERROR(Library libpcap not found.),
 		  $SOCKET_LIBS $NSL_LIBS)
