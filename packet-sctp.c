@@ -10,9 +10,13 @@
  * Copyright 2000, 2001, 2002, 2003, 2004 Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Still to do (so stay tuned)
  * - support for reassembly
- * - error checking mode 
+ * - error checking mode
+ *   * padding errors
+ *   * length errors
+ *   * bundling errors
+ *   * value errors
  *
- * $Id: packet-sctp.c,v 1.70 2004/05/04 17:46:44 tuexen Exp $
+ * $Id: packet-sctp.c,v 1.71 2004/05/08 17:54:54 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -474,7 +478,7 @@ static gboolean
 dissect_sctp_chunk(tvbuff_t *, packet_info *, proto_tree *, proto_tree *, gboolean);
 
 static void
-dissect_sctp_packet(tvbuff_t *, packet_info *, proto_tree *);
+dissect_sctp_packet(tvbuff_t *, packet_info *, proto_tree *, gboolean);
 
 
 
@@ -1755,11 +1759,8 @@ dissect_asconf_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *ch
 #define PKTDROP_CHUNK_DATA_FIELD_OFFSET     (PKTDROP_CHUNK_RESERVED_SIZE_OFFSET + PKTDROP_CHUNK_RESERVED_SIZE_LENGTH)
 
 #define SCTP_PKTDROP_CHUNK_M_BIT 0x01
-/*
-#define SCTP_PKTDROP_CHUNK_S_BIT 0x02
-*/
-#define SCTP_PKTDROP_CHUNK_B_BIT 0x04
-#define SCTP_PKTDROP_CHUNK_T_BIT 0x08
+#define SCTP_PKTDROP_CHUNK_B_BIT 0x02
+#define SCTP_PKTDROP_CHUNK_T_BIT 0x04
 
 static const true_false_string sctp_pktdropk_m_bit_value = {
   "Source is a middlebox",
@@ -1809,7 +1810,7 @@ dissect_pktdrop_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *chunk
     if (tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_PKTDROP_CHUNK_T_BIT)
       proto_tree_add_item(chunk_tree, hf_pktdrop_chunk_data_field,       chunk_tvb, PKTDROP_CHUNK_DATA_FIELD_OFFSET,     data_field_length,                     NETWORK_BYTE_ORDER);
     else
-      dissect_sctp_packet(data_field_tvb, pinfo, chunk_tree);
+      dissect_sctp_packet(data_field_tvb, pinfo, chunk_tree, TRUE);
   }
 }
 
@@ -1861,7 +1862,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
   padding_length = tvb_length(chunk_tvb) - length;
 
  if (useinfo && (check_col(pinfo->cinfo, COL_INFO)))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, chunk_type_values, "RESERVED"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, chunk_type_values, "RESERVED"));
  
   if (tree) {
     /* create proto_tree stuff */
@@ -1939,7 +1940,9 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
     dissect_asconf_chunk(chunk_tvb, pinfo, chunk_tree);
     break;
   case SCTP_PKTDROP_CHUNK_ID:
+    col_set_writable(pinfo->cinfo, FALSE);
     dissect_pktdrop_chunk(chunk_tvb, pinfo, chunk_tree, flags_item);
+    col_set_writable(pinfo->cinfo, TRUE);
     break;
   default:
     dissect_unknown_chunk(chunk_tvb, chunk_tree, chunk_item);
@@ -1956,7 +1959,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
 }
 
 static void
-dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *sctp_item, proto_tree *sctp_tree)
+dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *sctp_item, proto_tree *sctp_tree, gboolean encapsulated)
 {
   tvbuff_t *chunk_tvb;
   guint16 length, total_length, remaining_length;
@@ -1978,13 +1981,15 @@ dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
     chunk_tvb    = tvb_new_subset(tvb, offset, total_length, total_length);
 
     /* save it in the sctp_info structure */
-    if (sctp_info.number_of_tvbs < MAXIMUM_NUMBER_OF_TVBS)
-      sctp_info.tvb[sctp_info.number_of_tvbs++] = chunk_tvb;
-    else
-      sctp_info.incomplete = TRUE;
+    if (!encapsulated) {
+      if (sctp_info.number_of_tvbs < MAXIMUM_NUMBER_OF_TVBS)
+        sctp_info.tvb[sctp_info.number_of_tvbs++] = chunk_tvb;
+      else
+        sctp_info.incomplete = TRUE;
+    }
 
-    /* call dissect_sctp_chunk for a actual work */
-    if (dissect_sctp_chunk(chunk_tvb, pinfo, tree, sctp_tree, TRUE) && (tree)) {
+    /* call dissect_sctp_chunk for the actual work */
+    if (dissect_sctp_chunk(chunk_tvb, pinfo, tree, sctp_tree, !encapsulated) && (tree)) {
       proto_item_set_len(sctp_item, offset - last_offset + DATA_CHUNK_HEADER_LENGTH);
       sctp_item_length_set = TRUE;
       offset += total_length;
@@ -2005,7 +2010,7 @@ dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
 }
 
 static void
-dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean encapsulated)
 {
   guint32 checksum = 0, calculated_crc32c = 0, calculated_adler32 = 0;
   guint length;
@@ -2102,7 +2107,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     sctp_item = NULL;
   };
   /* add all chunks of the sctp datagram to the protocol tree */
-  dissect_sctp_chunks(tvb, pinfo, tree, sctp_item, sctp_tree);
+  dissect_sctp_chunks(tvb, pinfo, tree, sctp_item, sctp_tree, encapsulated);
 }
 
 static void
@@ -2129,7 +2134,7 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       
   memset(&sctp_info, 0, sizeof(struct _sctp_info));
   sctp_info.verification_tag = tvb_get_ntohl(tvb, VERIFICATION_TAG_OFFSET);
-  dissect_sctp_packet(tvb, pinfo, tree);
+  dissect_sctp_packet(tvb, pinfo, tree, FALSE);
   if (!pinfo->in_error_pkt)
     tap_queue_packet(sctp_tap, pinfo, &sctp_info);
 }
@@ -2217,9 +2222,6 @@ proto_register_sctp(void)
     { &hf_cause_measure_of_staleness,               { "Measure of staleness in usec",                "sctp.cause_measure_of_staleness",            FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_cause_tsn,                                { "TSN",                                         "sctp.cause_tsn",                             FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_pktdrop_chunk_m_bit,                      { "M-Bit",                                       "sctp.pckdrop_m_bit",                         FT_BOOLEAN, 8,         TFS(&sctp_pktdropk_m_bit_value),                SCTP_PKTDROP_CHUNK_M_BIT,           "", HFILL } },
-/*
-    { &hf_pktdrop_chunk_s_bit,                      { "S-Bit",                                       "sctp.pckdrop_s_bit",                         FT_BOOLEAN, 8,         TFS(&sctp_pktdropk_s_bit_value),                SCTP_PKTDROP_CHUNK_S_BIT,           "", HFILL } },
-*/
     { &hf_pktdrop_chunk_b_bit,                      { "B-Bit",                                       "sctp.pckdrop_b_bit",                         FT_BOOLEAN, 8,         TFS(&sctp_pktdropk_b_bit_value),                SCTP_PKTDROP_CHUNK_B_BIT,           "", HFILL } },
     { &hf_pktdrop_chunk_t_bit,                      { "T-Bit",                                       "sctp.pckdrop_t_bit",                         FT_BOOLEAN, 8,         TFS(&sctp_pktdropk_t_bit_value),                SCTP_PKTDROP_CHUNK_T_BIT,           "", HFILL } },
     { &hf_pktdrop_chunk_bandwidth,                  { "Bandwidth",                                   "sctp.pktdrop_bandwidth",                     FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
