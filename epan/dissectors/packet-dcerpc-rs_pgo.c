@@ -92,6 +92,7 @@ static int hf_sec_rgy_domain_t = -1;
 static int hf_sec_rgy_name_t_principalName_string = -1;
 static int hf_sec_rgy_name_t_size = -1;
 static int hf_sec_rgy_pname_t_principalName_string = -1;
+static int hf_sec_rgy_pname_t_size = -1;
 static int hf_sec_rgy_unix_sid_t_group = -1;
 static int hf_sec_rgy_unix_sid_t_org = -1;
 static int hf_sec_rgy_unix_sid_t_person = -1;
@@ -237,7 +238,7 @@ dissect    sec_rgy_pname const signed32        sec_rgy_pname_t_size  = 257; * In
 
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			sec_rgy_pname_t_size, &string_size);
+			hf_sec_rgy_pname_t_size, &string_size);
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO, " String_size:%u", string_size);
   if (string_size < sec_rgy_pname_t_size)
@@ -251,11 +252,11 @@ dissect    sec_rgy_pname const signed32        sec_rgy_pname_t_size  = 257; * In
       if (string_size > 1)
 	{
 	  namestring = tvb_get_ptr (tvb, offset, string_size);
-	  offset += string_size;
 	  if (check_col (pinfo->cinfo, COL_INFO))
 	    col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s",
 			     namestring);
 	}
+      offset += string_size;
     }
   else
     {
@@ -483,11 +484,11 @@ dissect_sec_rgy_name_t (tvbuff_t * tvb, int offset,
       if (string_size > 1)
 	{
 	  namestring = tvb_get_ptr (tvb, offset, string_size);
-	  offset += string_size;
 	  if (check_col (pinfo->cinfo, COL_INFO))
 	    col_append_fstr (pinfo->cinfo, COL_INFO, " Principal:%s",
 			     namestring);
 	}
+      offset += string_size;
     }
   else
     {
@@ -1827,10 +1828,14 @@ proto_register_rs_pgo (void)
       BASE_DEC, NULL, 0x0, "", HFILL}},
     {&hf_sec_rgy_pgo_flags_t,
      {"hf_sec_rgy_pgo_flags_t ", "hf_sec_rgy_pgo_flags_t", FT_UINT32,
-      BASE_DEC, NULL, 0x0, "", HFILL}},
+      BASE_HEX, NULL, 0x0, "", HFILL}},
     {&hf_sec_rgy_pgo_item_t,
      {"hf_sec_rgy_pgo_item_t ", "hf_sec_rgy_pgo_item_t", FT_UINT32, BASE_DEC,
       NULL, 0x0, "", HFILL}},
+    {&hf_sec_rgy_pname_t_size,
+     {"hf_sec_rgy_pname_t_size",
+      "hf_sec_rgy_pname_t_size", FT_UINT32, BASE_DEC, NULL,
+      0x0, "", HFILL}},
     {&hf_sec_rgy_pname_t_principalName_string,
      {"hf_sec_rgy_pname_t_principalName_string ",
       "hf_sec_rgy_pname_t_principalName_string", FT_STRING, BASE_NONE, NULL,
