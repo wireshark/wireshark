@@ -1,0 +1,273 @@
+$Id: README.developer,v 1.1 2000/03/01 07:43:23 guy Exp $
+
+This file is a HOWTO for Ethereal developers. It describes how to start coding
+a protocol dissector and the use some of the important functions and variables 
+in Ethereal.
+
+See also the "proto_tree" file for a more detailed description of the
+protocol tree construction functions.
+
+1. Setting up your protocol dissector code.
+
+This section provides skeleton code for a protocol dissector. It also explains
+the basic functions needed to enter values in the traffic summary columns,
+add to the protocol tree, and work with registered header fields.
+
+1.1 Skeleton code.
+
+Ethereal requires certain things when setting up a protocol dissector. 
+Below is skeleton code for a dissector that you can copy to a file and
+fill in.  Your dissector should follow the naming convention of packet-
+followed by the abbreviated name for the protocol.  It is recommended
+that where possible you keep to the IANA abbreviated name for the
+protocol, if there is one, or a commonly-used abbreviation for the
+protocol, if any.
+
+You should declare the main dissector routine in a header file whose
+name is "packet-", followed by the abbreviated name for the protocol,
+followed by ".h"; any dissector file that calls your dissector should be
+changed to include that file.
+
+/* Recommended includes for Ethereal protocol dissectors */
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+
+#ifdef HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
+
+#ifdef NEED_SNPRINTF_H
+# ifdef HAVE_STDARG_H
+#  include <stdarg.h>
+# else
+#  include <varargs.h>
+# endif
+# include "snprintf.h"
+#endif
+
+#include <string.h>
+#include <glib.h>
+#include "packet.h"
+#include "packet-PROTOABBREV.h"
+
+/* Initialize the protocol and registered fields */
+static int proto_PROTOABBREV = -1;
+static int hf_PROTOABBREV_FIELDABBREV = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_PROTOABBREV = -1;
+
+
+/* Code to actually dissect the packets */
+void
+dissect_PROTOABBREV(cont u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+
+/* Set up structures we will need to add the protocol subtree and manage it */
+	proto_item *ti;
+	proto_tree *PROTOABBREV_tree;
+	
+/* Make entries in Protocol column and Info column on summary display */
+	if (check_col(fd, COL_PROTOCOL)) 
+	col_add_str(fd, COL_PROTOCOL, "PROTOABBREV");
+    
+	if (check_col(fd, COL_INFO)) 
+	col_add_str(fd, COL_INFO, "PROTONAME");
+
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_PROTOABBREV, offset, END_OF_FRAME, NULL);
+	        PROTOABBREV_tree = proto_item_add_subtree(ti, ett_PROTOABBREV);
+
+/* Code to process the packet goes here */
+
+
+	};
+};
+
+/* Register the protocol with Ethereal */
+proto_register_PROTOABBREV(void)
+{                 
+
+/* Setup list of header fields */
+	static hf_register_info hf[] = {
+		{ &hf_PROTOABBREV_FIELDABBREV,
+			{ "FIELDNAME",           "PROTOABBREV.FIELDABBREV",
+			FIELDTYPE, FIELDBASE, FIELDCONVERT, BITMASK,          
+			"FIELDDESCR" }
+		},
+	};
+
+/* Setup protocol subtree array */
+	static gint *ett[] = {
+		&ett_PROTOABBREV,
+	};
+
+/* Register the protocol name and description */
+	proto_srvloc = proto_register_protocol("PROTONAME", "PROTOABBREV");
+
+/* Required function calls to register the header fields and subtrees used */
+	proto_register_field_array(proto_PROTOABBREV, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+};
+
+1.2 Explanation of needed substitutions in code skeleton.
+
+In the above code block the following strings should be substituted with
+your information.
+
+PROTONAME	The name of the protocol.
+PROTOABBREV	An abbreviated name for the protocol. (NO SPACES) (rec. 
+		a-z, 0-9 only and try to conform with IANA names)
+FIELDNAME	The displayed name for the header field.
+FIELDABBREV	The abbreviated name for the header field. (NO SPACES)
+FIELDTYPE	FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
+		FT_UINT32, FT_INT_8, FT_INT_16, FT_INT_24, FT_INT_32, 
+		FT_DOUBLE, FT_ABSOLUTE_TIME, FT_RELATIVE_TIME, FT_STRING,
+		FT_ETHER, FT_BYTES, FT_IPv4, FT_IPv6, FT_IPXNET,
+		FT_TEXT_ONLY
+FIELDBASE	BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT, BASE_BIN
+FIELDCONVERT	VALS(x), TFS(x), NULL
+BITMASK		Usually 0x0 unless using the TFS(x) field conversion.
+FIELDDESCR	A brief description of the field.
+
+1.3 Explanation of FIELDTYPE, FIELDBASE, FIELDCONVERT 
+
+1.3.1 FIELDBASE
+
+The FIELDTYPE values are described as follows:
+
+FT_NONE			No field type. Used for protocol labels.
+FT_BOOLEAN		TRUE and FALSE from glib.h
+FT_UINT8		An 8 bit unsigned integer.
+FT_UINT16		A 16 bit unsigned integer.
+FT_UINT24		A 32 bit unsigned integer displayed as 3 hex-digits.
+FT_UINT32		A 32 bit unsigned integer.
+FT_INT8			An 8 bit signed integer.
+FT_INT16		A 16 bit signed integer.
+FT_INT24		A 32 bit signed integer displayed as 3 hex-digits.
+FT_INT32		A 32 bit signed integer.
+FT_DOUBLE		A floating point number.
+FT_ABSOLUTE_TIME	Seconds (4 bytes) and microseconds (4 bytes) of time 
+			displayed as month name, month day, year, hours,
+			minutes, and seconds with 4 digits after the decimal
+			point.
+FT_RELATIVE_TIME	Seconds (4 bytes) and microseconds (4 bytes) of time 
+			displayed as seconds and 6 digits after the decimal
+			point.
+FT_STRING		A string of characters.
+FT_ETHER		A six octet string of hexadecimal bytes displayed in
+			Ethernet address format.
+FT_BYTES		A string of bytes.
+FT_IPv4			A version 4 IP address (4 bytes)  displayed as 4 
+			dot seperated decimal numbers.
+FT_IPv6			A version 6 IP address (16 bytes).
+FT_IPXNET		An IPX address displayed in hex as a 6-byte network 
+			number followed by a 6 byte station address. 
+FT_TEXT_ONLY		A reserved, non-filterable type for converting old
+			style trees. You shouldn't be using this.
+
+1.3.2 FIELDCONVERT
+
+NULL is used when no value to string conversions are desired.
+
+The VALS (x) field conversion changes an integer to a string for display. In
+order to use it you must have defined a value_string array. The x in VALS(x) 
+is replaced with the name of the value_string you wish to use (i.e.
+VALS(valstringname)). The value string array is created as follows and an 
+integer corresponding to the descriptive string is substituted for INTVALy.
+
+static const value_string valstringname[] = {
+	{ INTVAL1, "Descriptive String 1" }, 
+	{ INTVAL2, "Descriptive String 2" }, 
+};
+
+The TFS(x) field conversion changes an FT_BOOLEAN field in conjunction with a
+BITMASK to a string for display. In order to use it you must create the
+structure shown below. The x in TFS(x) is replaced with the pointer name of
+the true_false_string you wish to use (i.e. TFS(&boolstringname)). The
+string corresponding to True or False is displayed according to the valuse
+of the bit selected by the bitmask.
+
+static const true_false_string boolstringname = {
+  "String for True",
+  "String for False"
+};
+
+1.4 The dissector and the data it receives.
+
+1.4.1 The dissector has the following header which must be placed into
+packet.h.
+
+void
+dissect_PROTOABBREV(const u_char *pd, int offset, frame_data *fd, proto_tree *tree); 
+
+1.5 Functions to handle columns in the traffic summary window.
+
+check_col
+col_add_str
+
+1.5.1 The check_col function.
+
+1.5.2 The col_add_str function.
+
+1.6 Functions to add to the protocol dissection window.
+
+The functions shown below are necessary to add data to the protocol dissection
+tree and their use is detailed in the sections that follow.
+
+proto_item_add_subtree
+proto_tree_add_item
+proto_tree_add_item_format
+proto_tree_add_text
+proto_tree_add_text_format
+
+1.5.1 The proto_item_add_subtree function.
+
+1.6.2 The proto_tree_add_item function.
+
+1.6.3 The proto_tree_add_item_format function.
+
+1.6.4 The proto_tree_add_text function.
+
+1.6.5 The proto_tree_add_text_format function.
+
+1.7 Editing Makefile.am to add your dissector.
+
+1.8 Using the CVS source code tree.
+
+1.9 Submitting code for your new dissector.
+
+2. Advanced dissector topics.
+
+2.1 ?? 
+
+2.2 Following "conversations."
+
+In ethereal a conversation is ...
+
+2.2.1 The conversation_init function.
+
+2.2.2 The conversation_new function.
+
+2.2.3 The find_conversation function.
+
+2.3 ??
+
+3.0 Plugins
+
+4.0 Extending Wiretap.
+
+5.0 Adding new capabilities.
+
+
+
+
+James Coe <jammer@cin.net>
