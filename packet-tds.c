@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.12 2003/04/20 11:36:16 guy Exp $
+ * $Id: packet-tds.c,v 1.13 2003/08/23 02:34:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -308,6 +308,7 @@ static dissector_handle_t data_handle;
 static const value_string packet_type_names[] = {
 	{TDS_QUERY_PKT,  "Query Packet"},
 	{TDS_LOGIN_PKT,  "Login Packet"},
+	{TDS_RPC_PKT,    "Remote Procedure Call Packet"},
 	{TDS_RESP_PKT,   "Response Packet"},
 	{TDS_CANCEL_PKT, "Cancel Packet"},
 	{TDS_QUERY5_PKT, "TDS5 Query Packet"},
@@ -424,9 +425,8 @@ static void
 dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset, i, offset2, len;
-	guint16 bc;
 	gboolean is_unicode = TRUE;
-	const char *val;
+	char *val;
 
 	proto_item *login_hdr;
 	proto_tree *login_tree;
@@ -456,15 +456,17 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			val_to_str(i, login_field_names, "Unknown"),
 			len);
 		if (len != 0) {
-			if (is_unicode == TRUE)
+			if (is_unicode == TRUE) {
+				val = tvb_fake_unicode(tvb, offset2, len,
+				    TRUE);
 				len *= 2;
-			val = get_unicode_or_ascii_string(tvb, &offset2,
-				is_unicode, &len, TRUE, TRUE, &bc);
-			if (val != NULL)
-				proto_tree_add_text(login_tree, tvb, offset2, len,
-					"%s: %s",
-					val_to_str(i, login_field_names, "Unknown"),
-					val);
+			} else
+				val = tvb_get_string(tvb, offset2, len);
+			proto_tree_add_text(login_tree, tvb, offset2, len,
+				"%s: %s",
+				val_to_str(i, login_field_names, "Unknown"),
+				val);
+			g_free(val);
 		}
 	}
 
@@ -689,9 +691,8 @@ dissect_tds_env_chg(tvbuff_t *tvb, guint offset, guint token_sz,
 {
 	guint8 env_type;
 	guint old_len, new_len, old_len_offset;
-	const char *new_val = NULL, *old_val = NULL;
+	char *new_val = NULL, *old_val = NULL;
 	guint32 string_offset;
-	guint16 bc;
 	gboolean is_unicode = FALSE;
 
 	env_type = tvb_get_guint8(tvb, offset);
@@ -715,32 +716,56 @@ dissect_tds_env_chg(tvbuff_t *tvb, guint offset, guint token_sz,
 	proto_tree_add_text(tree, tvb, offset + 1, 1, "New Value Length: %u",
 	    new_len);
 	if (new_len) {
-		if (is_unicode == TRUE) {
-			new_len *= 2;
-		}
 		string_offset = offset + 2;
-		new_val = get_unicode_or_ascii_string(tvb, &string_offset,
-		                            is_unicode, &new_len,
-		                            TRUE, TRUE, &bc);
-
+		if (is_unicode == TRUE) {
+			new_val = tvb_fake_unicode(tvb, string_offset,
+			    new_len, TRUE);
+			new_len *= 2;
+		} else
+			new_val = tvb_get_string(tvb, string_offset, new_len);
 		proto_tree_add_text(tree, tvb, string_offset, new_len,
 		    "New Value: %s", new_val);
+		g_free(new_val);
 	}
 
 	proto_tree_add_text(tree, tvb, old_len_offset, 1, "Old Value Length: %u",
 	    old_len);
 	if (old_len) {
-		if (is_unicode == TRUE) {
-			old_len *= 2;
-		}
 		string_offset = old_len_offset + 1;
-		old_val = get_unicode_or_ascii_string(tvb, &string_offset,
-		                            is_unicode, &old_len,
-		                            TRUE, TRUE, &bc);
-
+		if (is_unicode == TRUE) {
+			old_val = tvb_fake_unicode(tvb, string_offset,
+			    old_len, TRUE);
+			old_len *= 2;
+		} else
+			old_val = tvb_get_string(tvb, string_offset, old_len);
 		proto_tree_add_text(tree, tvb, string_offset, old_len,
 		    "Old Value: %s", old_val);
+		g_free(old_val);
 	 }
+}
+
+static void
+dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	int offset = 0;
+	guint len;
+	const char *val;
+
+	/*
+	 * This appears to start with a little-endian string length,
+	 * followed by a little-endian Unicode string (or perhaps
+	 * it's Unicode-or-ASCII).
+	 */
+	len = tvb_get_letohs(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "String Length: %u", len);
+	offset += 2;
+	if (len != 0) {
+		val = tvb_fake_unicode(tvb, offset, len, TRUE);
+		len *= 2;
+		proto_tree_add_text(tree, tvb, offset, len, "String: %s", val);
+		offset += len;
+	}
+	proto_tree_add_text(tree, tvb, offset, -1, "Unknown data");
 }
 
 static void
@@ -916,6 +941,10 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (next_tvb != NULL) {
 		switch (type) {
 
+		case TDS_RPC_PKT:
+			dissect_tds_rpc(next_tvb, pinfo, tds_tree);
+			break;
+
 		case TDS_RESP_PKT:
 			dissect_tds_resp(next_tvb, pinfo, tds_tree);
 			break;
@@ -1023,6 +1052,7 @@ dissect_tds_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 */
 				pinfo->desegment_offset = offset;
 				pinfo->desegment_len = plen - length_remaining;
+				return;
 			}
 		}
 
