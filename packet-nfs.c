@@ -3,7 +3,7 @@
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2001, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
  *
- * $Id: packet-nfs.c,v 1.64 2002/01/20 22:12:26 guy Exp $
+ * $Id: packet-nfs.c,v 1.65 2002/02/06 22:54:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -386,7 +386,7 @@ static gint ett_nfs_stateid4 = -1;
 gboolean nfs_file_name_snooping = FALSE;
 gboolean nfs_file_name_full_snooping = FALSE;
 typedef struct nfs_name_snoop {
-	int fh_len;
+	int fh_length;
 	unsigned char *fh;
 	int name_len;
 	unsigned char *name;
@@ -398,7 +398,7 @@ typedef struct nfs_name_snoop {
 
 typedef struct nfs_name_snoop_key {
 	int key;
-	int fh_len;
+	int fh_length;
 	unsigned char *fh;
 } nfs_name_snoop_key_t;
 
@@ -419,8 +419,8 @@ nfs_name_snoop_matched_equal(gconstpointer k1, gconstpointer k2)
 	nfs_name_snoop_key_t *key2 = (nfs_name_snoop_key_t *)k2;
 
 	return (key1->key==key2->key)
-	     &&(key1->fh_len==key2->fh_len)
-	     &&(!memcmp(key1->fh, key2->fh, key1->fh_len));
+	     &&(key1->fh_length==key2->fh_length)
+	     &&(!memcmp(key1->fh, key2->fh, key1->fh_length));
 }
 static guint
 nfs_name_snoop_matched_hash(gconstpointer k)
@@ -430,7 +430,7 @@ nfs_name_snoop_matched_hash(gconstpointer k)
 	int hash;
 
 	hash=key->key;
-	for(i=0;i<key->fh_len;i++)
+	for(i=0;i<key->fh_length;i++)
 		hash ^= key->fh[i];
 
 	return hash;
@@ -473,7 +473,7 @@ nfs_name_snoop_unmatched_free_all(gpointer key_arg, gpointer value, gpointer use
 	if(nns->fh){
 		g_free((gpointer)nns->fh);
 		nns->fh=NULL;
-		nns->fh_len=0;
+		nns->fh_length=0;
 	}
 	return TRUE;
 }
@@ -551,7 +551,7 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 
 	nns=g_mem_chunk_alloc(nfs_name_snoop_chunk);
 
-	nns->fh_len=0;
+	nns->fh_length=0;
 	nns->fh=NULL;
 
 	if(parent_len){
@@ -598,7 +598,7 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 }
 
 static void
-nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_len)
+nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 {
 	nfs_name_snoop_t *nns, *old_nns;
 	nfs_name_snoop_key_t *key;
@@ -616,13 +616,13 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_len)
 	}
 
 	/* oki, we have a new entry */
-	nns->fh=g_malloc(fh_len);
-	memcpy(nns->fh, tvb_get_ptr(tvb, fh_offset, fh_len), fh_len);
-	nns->fh_len=fh_len;
+	nns->fh=g_malloc(fh_length);
+	memcpy(nns->fh, tvb_get_ptr(tvb, fh_offset, fh_length), fh_length);
+	nns->fh_length=fh_length;
 	
 	key=g_mem_chunk_alloc(nfs_name_snoop_key_chunk);
 	key->key=0;
-	key->fh_len=nns->fh_len;
+	key->fh_length=nns->fh_length;
 	key->fh    =nns->fh;
 
 	/* already have something matched for this fh, remove it from
@@ -660,7 +660,7 @@ nfs_full_name_snoop(nfs_name_snoop_t *nns, int *len, unsigned char **name, unsig
 	}
 
 	key.key=0;
-	key.fh_len=nns->parent_len;
+	key.fh_length=nns->parent_len;
 	key.fh=nns->parent;
 
 	parent_nns=g_hash_table_lookup(nfs_name_snoop_matched, &key);
@@ -684,7 +684,7 @@ nfs_full_name_snoop(nfs_name_snoop_t *nns, int *len, unsigned char **name, unsig
 }
 
 static void
-nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_offset, int fh_len)
+nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_offset, int fh_length)
 {
 	nfs_name_snoop_key_t key;
 	nfs_name_snoop_t *nns = NULL;
@@ -692,15 +692,15 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 	/* if this is a new packet, see if we can register the mapping */
 	if(!pinfo->fd->flags.visited){
 		key.key=0;
-		key.fh_len=fh_len;
-		key.fh=(unsigned char *)tvb_get_ptr(tvb, fh_offset, fh_len);
+		key.fh_length=fh_length;
+		key.fh=(unsigned char *)tvb_get_ptr(tvb, fh_offset, fh_length);
 
 		nns=g_hash_table_lookup(nfs_name_snoop_matched, &key);
 		if(nns){
 			nfs_name_snoop_key_t *k;
 			k=g_mem_chunk_alloc(nfs_name_snoop_key_chunk);
 			k->key=pinfo->fd->num;
-			k->fh_len=nns->fh_len;
+			k->fh_length=nns->fh_length;
 			k->fh=nns->fh;
 			g_hash_table_insert(nfs_name_snoop_known, k, nns);
 
@@ -720,8 +720,8 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 	/* see if we know this mapping */
 	if(!nns){
 		key.key=pinfo->fd->num;
-		key.fh_len=fh_len;
-		key.fh=(unsigned char *)tvb_get_ptr(tvb, fh_offset, fh_len);
+		key.fh_length=fh_length;
+		key.fh=(unsigned char *)tvb_get_ptr(tvb, fh_offset, fh_length);
 
 		nns=g_hash_table_lookup(nfs_name_snoop_known, &key);
 	}
@@ -2540,7 +2540,7 @@ dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint fh3_fill;
 	proto_item* fitem = NULL;
 	proto_tree* ftree = NULL;
-	int fh_offset,fh_len;
+	int fh_offset,fh_length;
 
 	fh3_len = tvb_get_ntohl(tvb, offset+0);
 	fh3_len_full = rpc_roundup(fh3_len);
@@ -2563,10 +2563,10 @@ dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		  &&(!civ->request)
 		  &&((civ->proc==3)||(civ->proc==8)||(civ->proc==9))
 		) {
-			fh_len=tvb_get_ntohl(tvb, offset);
+			fh_length=tvb_get_ntohl(tvb, offset);
 			fh_offset=offset+4;
 			nfs_name_snoop_add_fh(civ->xid, tvb, 
-				fh_offset, fh_len);
+				fh_offset, fh_length);
 		}
 
 		/* MOUNT v3 MNT replies might give us a filehandle */
@@ -2575,10 +2575,10 @@ dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		  &&(!civ->request)
 		  &&(civ->proc==1)
 		) {
-			fh_len=tvb_get_ntohl(tvb, offset);
+			fh_length=tvb_get_ntohl(tvb, offset);
 			fh_offset=offset+4;
 			nfs_name_snoop_add_fh(civ->xid, tvb, 
-				fh_offset, fh_len);
+				fh_offset, fh_length);
 		}
 	}
 
