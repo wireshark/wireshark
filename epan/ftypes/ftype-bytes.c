@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-bytes.c,v 1.19 2003/12/06 16:35:19 gram Exp $
+ * $Id: ftype-bytes.c,v 1.20 2003/12/18 13:02:19 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,6 +30,13 @@
 #include <epan/resolv.h>
 #include <epan/strutil.h>
 #include <epan/int-64bit.h>
+
+#ifdef HAVE_LIBPCRE
+#include <pcre.h>
+#define CMP_MATCHES cmp_matches
+#else
+#define CMP_MATCHES NULL
+#endif
 
 #define ETHER_LEN	6
 #define IPv6_LEN	16
@@ -612,6 +619,43 @@ cmp_contains(fvalue_t *fv_a, fvalue_t *fv_b)
 	}
 }
 
+#ifdef HAVE_LIBPCRE
+static gboolean
+cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
+{
+	GByteArray *a = fv_a->value.bytes;
+	pcre_tuple_t *pcre = fv_b->value.re;
+	int options = 0;
+	int rc;
+
+	/* fv_b is always a FT_PCRE, otherwise the dfilter semcheck() would have
+	 * warned us. For the same reason (and because we're using g_malloc()),
+	 * fv_b->value.re is not NULL.
+	 */
+	if (strcmp(fv_b->ftype->name, "FT_PCRE") != 0) {
+		return FALSE;
+	}
+	if (! pcre) {
+		return FALSE;
+	}
+	rc = pcre_exec(
+		pcre->re,	/* Compiled PCRE */
+		pcre->ex,	/* PCRE extra from pcre_study() */
+		a->data,	/* The data to check for the pattern... */
+		a->len,		/* ... and its length */
+		0,			/* Start offset within data */
+		options,	/* PCRE options */
+		NULL,		/* We are not interested in the matched string */
+		0			/* of the pattern; only in success or failure. */
+		);
+	/* NOTE - DO NOT g_free(data) */
+	if (rc == 0) {
+		return TRUE;
+	}
+	return FALSE;
+}
+#endif
+
 void
 ftype_register_bytes(void)
 {
@@ -642,7 +686,7 @@ ftype_register_bytes(void)
 		cmp_lt,
 		cmp_le,
 		cmp_contains,
-		NULL,				/* cmp_matches */
+		CMP_MATCHES,
 
 		len,
 		slice,
@@ -706,7 +750,7 @@ ftype_register_bytes(void)
 		cmp_lt,
 		cmp_le,
 		cmp_contains,
-		NULL,				/* cmp_matches */
+		CMP_MATCHES,
 
 		len,
 		slice,

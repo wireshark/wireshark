@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-tvbuff.c,v 1.14 2003/12/17 22:42:02 obiot Exp $
+ * $Id: ftype-tvbuff.c,v 1.15 2003/12/18 13:02:19 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -176,10 +176,12 @@ cmp_contains(fvalue_t *fv_a, fvalue_t *fv_b)
 static gboolean
 cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 {
+	tvbuff_t *tvb = fv_a->value.tvb;
+	pcre_tuple_t *pcre = fv_b->value.re;
 	int options = 0;
 	int rc;
-	const char *data = NULL;
-	guint32 tvb_len;
+	const char *data = NULL; /* tvb data */
+	guint32 tvb_len; /* tvb length */
 
 	/* fv_b is always a FT_PCRE, otherwise the dfilter semcheck() would have
 	 * warned us. For the same reason (and because we're using g_malloc()),
@@ -188,15 +190,15 @@ cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 	if (strcmp(fv_b->ftype->name, "FT_PCRE") != 0) {
 		return FALSE;
 	}
-	if (! fv_b->value.re) {
+	if (! pcre) {
 		return FALSE;
 	}
 	TRY {
-		tvb_len = tvb_length(fv_a->value.tvb);
-		data = tvb_get_ptr(fv_a->value.tvb, 0, tvb_len);
+		tvb_len = tvb_length(tvb);
+		data = tvb_get_ptr(tvb, 0, tvb_len);
 		rc = pcre_exec(
-			(fv_b->value.re)->re,	/* Compiled PCRE */
-			(fv_b->value.re)->ex,	/* PCRE extra from pcre_study() */
+			pcre->re,	/* Compiled PCRE */
+			pcre->ex,	/* PCRE extra from pcre_study() */
 			data,		/* The data to check for the pattern... */
 			tvb_len,	/* ... and its length */
 			0,			/* Start offset within data */

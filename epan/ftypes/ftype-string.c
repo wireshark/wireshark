@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-string.c,v 1.17 2003/12/09 23:02:39 obiot Exp $
+ * $Id: ftype-string.c,v 1.18 2003/12/18 13:02:19 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -237,6 +237,8 @@ cmp_contains(fvalue_t *fv_a, fvalue_t *fv_b)
 static gboolean
 cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 {
+	char *str = fv_a->value.string;
+	pcre_tuple_t *pcre = fv_b->value.re;
 	int options = 0;
 	int rc;
 
@@ -247,14 +249,14 @@ cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 	if (strcmp(fv_b->ftype->name, "FT_PCRE") != 0) {
 		return FALSE;
 	}
-	if (! fv_b->value.re) {
+	if (! pcre) {
 		return FALSE;
 	}
 	rc = pcre_exec(
-			(fv_b->value.re)->re,	/* Compiled PCRE */
-			(fv_b->value.re)->ex,	/* PCRE extra from pcre_study() */
-			fv_a->value.string,		/* The data to check for the pattern... */
-			(int)strlen(fv_a->value.string),	/* ... and its length */
+			pcre->re,	/* Compiled PCRE */
+			pcre->ex,	/* PCRE extra from pcre_study() */
+			str,				/* The data to check for the pattern... */
+			(int)strlen(str),	/* ... and its length */
 			0,			/* Start offset within data */
 			options,	/* PCRE options */
 			NULL,		/* We are not interested in the matched string */
