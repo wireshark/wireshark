@@ -525,6 +525,7 @@ static void analize_pdu(mate_pdu* pdu) {
 				if ( gop->released ) {
 					dbg_print (dbg_gop,3,dbg_facility,"analize_pdu: start on released gop, a new gop");
 					g_hash_table_remove(cfg->gop_index,gop_key);
+					gop->gop_key = NULL;
 					gop = new_gop(cfg,pdu,gop_key);
 					g_hash_table_insert(cfg->gop_index,gop_key,gop);
 				} else {

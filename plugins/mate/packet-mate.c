@@ -246,11 +246,13 @@ static int mate_packet(void *prs _U_,  packet_info* tree _U_, epan_dissect_t *ed
 static void init_mate(void) {
 	GString* tap_error = NULL;
 
-	tap_error = register_tap_listener("frame", &mate_tap_data,
-									  (char*) mc->tap_filter,
-									  (tap_reset_cb) NULL,
-									  mate_packet,
-									  (tap_draw_cb) NULL);
+	if ( ! mate_tap_data ) {
+		tap_error = register_tap_listener("frame", &mate_tap_data,
+										  (char*) mc->tap_filter,
+										  (tap_reset_cb) NULL,
+										  mate_packet,
+										  (tap_draw_cb) NULL);
+	}
 	
 	if ( tap_error ) {
 		g_warning("mate: couldn't (re)register tap: %s",tap_error->str);
