@@ -1,5 +1,7 @@
 /* nettl.c
  *
+ * $Id: nettl.c,v 1.2 1999/10/31 19:23:37 guy Exp $
+ *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * 
@@ -61,10 +63,9 @@ int nettl_open(wtap *wth, int *err)
     errno = WTAP_ERR_CANT_READ;
     bytes_read = file_read(magic, 1, 5, wth->fh);
     if (bytes_read != 5) {
-	if (file_error(wth->fh)) {
-	    *err = errno;
+    	*err = file_error(wth->fh);
+	if (*err != 0)
 	    return -1;
-	}
 	return 0;
     }
 
@@ -100,10 +101,9 @@ static int nettl_read(wtap *wth, int *err)
     errno = WTAP_ERR_CANT_READ;
     bytes_read = file_read(&hdr, 1, sizeof hdr, wth->fh);
     if (bytes_read != sizeof hdr) {
-	if (file_error(wth->fh)) {
-	    *err = errno;
+	*err = file_error(wth->fh);
+	if (*err != 0)
 	    return -1;
-	}
 	if (bytes_read != 0) {
 	    *err = WTAP_ERR_SHORT_READ;
 	    return -1;
@@ -133,9 +133,8 @@ static int nettl_read(wtap *wth, int *err)
 	    length, wth->fh);
 
     if (bytes_read != length) {
-	if (file_error(wth->fh))
-	    *err = errno;
-	else
+	*err = file_error(wth->fh);
+	if (*err == 0)
 	    *err = WTAP_ERR_SHORT_READ;
 	return -1;
     }
