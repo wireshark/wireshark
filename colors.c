@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.23 1999/12/19 09:22:18 guy Exp $
+ * $Id: colors.c,v 1.24 1999/12/19 10:39:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,12 +48,37 @@ extern capture_file cf;
 static color_filter_t *new_color_filter(colfilter *filters, gchar *name,
 				 gchar *filter_string);
 static gboolean read_filters(colfilter *filter);
-static GtkWidget* create_color_win(colfilter *filter);
-static GtkWidget* create_edit_color_filter_win(colfilter *filter,
+
+static GtkWidget* colorize_dialog_new(colfilter *filter);
+static void add_filter_to_clist(gpointer filter_arg, gpointer clist_arg);
+static void colorize_dialog_destroy(void);
+static void destroy_edit_dialog_cb(gpointer filter_arg, gpointer dummy);
+static void color_filter_up_cb(GtkButton *button, gpointer user_data);
+static void color_filter_down_cb(GtkButton *button, gpointer user_data);
+static void remember_selected_row(GtkCList *clist, gint row, gint column,
+				 GdkEvent *event, gpointer user_data);
+static void color_new_cb(GtkButton *button, gpointer user_data);
+static void color_edit_cb(GtkButton *button, gpointer user_data);
+static void color_delete_cb(GtkWidget *widget, gpointer user_data);
+static void color_save_cb(GtkButton *button, gpointer user_data);
+static void color_ok_cb(GtkButton *button, gpointer user_data);
+static void color_cancel_cb(GtkWidget *widget, gpointer user_data);
+static void color_apply_cb(GtkButton *button, gpointer user_data);
+
+static void edit_color_filter_dialog_new(colfilter *filter,
 				 GtkWidget *color_filters,
 				 GtkWidget **colorize_filter_name,
 				 GtkWidget **colorize_filter_text);
+static void edit_color_filter_dialog_destroy(color_filter_t *colorf);
+static void edit_color_filter_fg_cb(GtkButton *button, gpointer user_data);
+static void edit_color_filter_bg_cb(GtkButton *button, gpointer user_data);
+static void edit_color_filter_ok_cb(GtkButton *button, gpointer user_data);
+static void edit_color_filter_cancel_cb(GtkObject *object, gpointer user_data);
+
 static GtkWidget* create_color_sel_win(colfilter *filter, GdkColor *);
+static void color_sel_ok_cb(GtkButton *button, gpointer user_data);
+static void color_sel_cancel_cb(GtkObject *object, gpointer user_data);
+
 static gboolean get_color(GdkColor *new_color);
 
 GSList *filter_list;
@@ -67,8 +92,11 @@ static gchar *titles[2] = { "Name", "Filter String" };
 GdkColor	WHITE = { 0, 65535, 65535, 65535 };
 GdkColor	BLACK = { 0, 0, 0, 0 };
 
-#define COLOR_CHANGE_COLORS_LB	"color_change_colors_lb"
+#define COLOR_EDIT_LB		"color_edit_lb"
 #define COLOR_FILTERS_CL	"color_filters_cl"
+#define COLOR_FILTER		"color_filter"
+#define COLOR_SELECTION_FG	"color_selection_fg"
+#define COLOR_SELECTION_BG	"color_selection_bg"
 
 /* This structure is used to allow you to compile in default colors if
  * you wish.  They can be later changed by a user.
@@ -155,6 +183,7 @@ new_color_filter(colfilter *filters, gchar *name, gchar *filter_string)
 	colorf->bg_color = WHITE;
 	colorf->fg_color = BLACK;
 	colorf->c_colorfilter = NULL;
+	colorf->edit_dialog = NULL;
 	filter_list = g_slist_append(filter_list, colorf);
         return colorf;
 }
@@ -308,6 +337,8 @@ write_filters(colfilter *filter)
 
 		
 /* ===================== USER INTERFACE ====================== */
+
+/* Callback for the "Display:Colorize Display" menu item. */
 void
 color_display_cb(GtkWidget *w, gpointer d)
 {
@@ -317,405 +348,14 @@ color_display_cb(GtkWidget *w, gpointer d)
        calls "XSetInputFocus()" on a window.... */
     gdk_window_raise(colorize_win->window);
   } else {
-    colorize_win = create_color_win(cf.colors);
+    /* Create a new "Colorize Display" dialog. */
+    colorize_win = colorize_dialog_new(cf.colors);
   }
 }
 
-static void
-color_cancel_cb                        (GtkWidget       *widget,
-                                        gpointer         user_data)
-{
-  /* Delete the dialog box */
-  gtk_widget_destroy(colorize_win);
-  colorize_win = NULL;
-}
-
-static void
-color_delete_cb(GtkWidget *widget, gpointer user_data)
-{
-  colfilter *filter;
-  GtkWidget *color_filters;
-  color_filter_t *colorf;
-  GtkWidget *color_change_colors;
-
-  filter = (colfilter *)user_data;
-  if(filter->row_selected != -1){
-  	color_filters = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(widget),
-		      COLOR_FILTERS_CL);
-  	colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters),
-	   filter->row_selected);
-	gtk_clist_remove(GTK_CLIST(color_filters), filter->row_selected);
-	delete_color_filter(colorf);
-	filter->num_of_filters--;
-        if(!filter->num_of_filters){
-        	/* No filters any more, so none can be selected... */
-		filter->row_selected = -1;
-		color_change_colors =
-		    (GtkWidget *) gtk_object_get_data(GTK_OBJECT(widget),
-		      COLOR_CHANGE_COLORS_LB);
-
-		/* ...and none can be edited. */
-		gtk_widget_set_sensitive (color_change_colors, FALSE);
-	} else {
-		filter->row_selected--;
-		if(filter->row_selected < 0)
-			filter->row_selected = 0;
-		gtk_clist_select_row(GTK_CLIST(color_filters),
-		    filter->row_selected, 0);
-	}
-  }
-}
-
-/* Move the selected filter up in the list */
-static void
-color_filter_up_cb                     (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  colfilter *filter;
-  gint filter_number;
-  GtkWidget *color_filters;
-  color_filter_t *colorf;
-
-  filter = (colfilter *)user_data;
-  filter_number = filter->row_selected;
-
-  /* If it is filter number 0, it cannot be moved, as it's already
-     at the top of the filter.
-     If there's only one filter in the list, it cannot be moved,
-     as there's no place to move it. */
-  if(filter_number != 0 && filter->num_of_filters >= 2) {
-  	color_filters = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(button),
-		      COLOR_FILTERS_CL);
-        colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters),
-	   filter_number);
-	gtk_clist_swap_rows(GTK_CLIST(color_filters), filter_number,
-			filter_number-1);
-	filter_list = g_slist_remove(filter_list, colorf);
-	filter_list = g_slist_insert(filter_list, colorf, filter_number-1);
-	filter->row_selected--;
-  }
-}
-
-/* Move the selected filter down in the list */
-static void
-color_filter_down_cb                   (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  colfilter *filter;
-  gint filter_number;
-  GtkWidget *color_filters;
-  color_filter_t *colorf;
-
-  filter = (colfilter *)user_data;
-  filter_number = filter->row_selected;
-
-  /* If it is the last filter in the list, it cannot be moved, as it's
-     already at the bottom of the filter.
-     If there's only one filter in the list, it cannot be moved,
-     as there's no place to move it. */
-  if(filter_number != filter->num_of_filters-1 && filter->num_of_filters >= 2) {
-  	color_filters = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(button),
-		      COLOR_FILTERS_CL);
-        colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters),
-	   filter_number);
-	gtk_clist_swap_rows(GTK_CLIST(color_filters), filter_number+1,
-			filter_number);
-	filter_list = g_slist_remove(filter_list, colorf);
-	filter_list = g_slist_insert(filter_list, colorf, filter_number+1);
-	filter->row_selected++;
-  }
-  else
-	return;
-}
-
-/* Set selected row in cf */
-static void
-remember_selected_row                 (GtkCList        *clist,
-                                        gint             row,
-                                        gint             column,
-                                        GdkEvent        *event,
-                                        gpointer         user_data)
-{
-  colfilter *filter = (colfilter *)user_data;
-
-  filter->row_selected = row;
-}
-
-static GtkWidget *filt_name_entry;
-static GtkWidget *filt_text_entry;
-
-/* Create a new filter in the list */
-static void
-color_new_cb                          (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  colfilter *filter;
-  color_filter_t *colorf;
-  GtkWidget *color_filters;
-  gchar *data[2];
-  gint row;
-  GtkWidget *color_change_colors;
-
-  filter = (colfilter *)user_data;
-  colorf = new_color_filter(filter, "name", "filter"); /* Adds at end! */
-
-  color_filters = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(button),
-		      COLOR_FILTERS_CL);
-  data[0] = colorf->filter_name;
-  data[1] = colorf->filter_text;
-  row = gtk_clist_append(GTK_CLIST(color_filters), data);
-  gtk_clist_set_row_data(GTK_CLIST(color_filters), row, colorf);
-
-  /* A row has been added, so we can edit it. */
-  color_change_colors = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(button),
-					COLOR_CHANGE_COLORS_LB);
-  gtk_widget_set_sensitive (color_change_colors, TRUE);
-
-  /* select the new (last) row */
-  filter->row_selected = filter->num_of_filters;
-  filter->num_of_filters++;
-  gtk_clist_select_row(GTK_CLIST(color_filters), filter->row_selected, -1);
-  create_edit_color_filter_win(filter, color_filters, &filt_name_entry,
-				&filt_text_entry);
-}
-
-/* Change a filter */
-static void
-color_edit_cb                        (GtkButton       *button,
-                                      gpointer         user_data)
-{
-  colfilter *filter;
-  GtkWidget *color_filters;
-
-  filter = (colfilter *)user_data;
-  color_filters = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(button),
-		      COLOR_FILTERS_CL);
-  if(filter->row_selected == -1){
-	/* select the first row */
-	filter->row_selected = 0;
-	gtk_clist_select_row(GTK_CLIST(color_filters), filter->row_selected,
-				-1);
-  }
-  create_edit_color_filter_win(filter, color_filters, &filt_name_entry,
-				&filt_text_entry);
-}
-
-
-/* save filters in file */
-static void
-color_save_cb                          (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  colfilter *filter = (colfilter *)user_data;
-
-  if (!write_filters(filter))
-	simple_dialog(ESD_TYPE_WARN, NULL, "Could not open filter file: %s",
-	    strerror(errno));
-
-}
-
-/* Exit dialog and process list */
-static void
-color_ok_cb                            (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  /* colorize list */
-  colorize_packets(&cf);
-
-  /* Delete the dialog box */
-  gtk_widget_destroy(colorize_win);
-  colorize_win = NULL;
-}
-
-/* Process all data by applying filters in list */
-static void
-color_apply_cb                         (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  colorize_packets(&cf);
-}
-
-/* Exit dialog and do not process list */
-static void
-edit_color_filter_cancel_cb            (GtkObject       *object,
-                                        gpointer         user_data)
-{
-
-  GtkWidget *dialog;
-  dialog = (GtkWidget *)user_data;
-
-  gtk_widget_destroy(dialog);
-}
-
-static gint bg_set_flag; /* 0 -> setting foreground, 1-> setting background */
-/* Change the foreground color */
-static void
-edit_color_filter_fg_cb                (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  colfilter *filter;
-  GtkWidget *color_filters;
-  color_filter_t *colorf;
-
-  filter = (colfilter *)user_data;
-  color_filters = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(button),
-		      COLOR_FILTERS_CL);
-  colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters),
-	   filter->row_selected);
-  create_color_sel_win(filter, &colorf->fg_color);
-  bg_set_flag = 0;
-}
-
-/* Change the background color */
-static void
-edit_color_filter_bg_cb                (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  colfilter *filter;
-  GtkWidget *color_filters;
-  color_filter_t *colorf;
-
-  filter = (colfilter *)user_data;
-  color_filters = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(button),
-		      COLOR_FILTERS_CL);
-  colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters),
-	   filter->row_selected);
-  create_color_sel_win(filter, &colorf->bg_color);
-  bg_set_flag = 1;
-}
-
-/* accept color (and potential content) change */
-static void
-edit_color_filter_ok_cb                (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  GtkWidget *dialog;
-  GtkStyle *style;
-  GdkColor new_fg_color;
-  GdkColor new_bg_color;
-  gchar *filter_name;
-  gchar *filter_text;
-  color_filter_t *colorf;
-  dfilter *compiled_filter;
-  GtkWidget *color_filters;
-
-  dialog = (GtkWidget *)user_data;
-
-  style = gtk_widget_get_style(filt_name_entry);
-  new_bg_color = style->base[GTK_STATE_NORMAL];
-  new_fg_color = style->fg[GTK_STATE_NORMAL];
-
-  filter_name = g_strdup(gtk_entry_get_text(GTK_ENTRY(filt_name_entry)));
-  filter_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(filt_text_entry)));
-
-  if(strchr(filter_name,'@') || strchr(filter_text,'@')){
-	simple_dialog(ESD_TYPE_WARN,NULL, "Filter names and strings must not"
-	  " use the '@' character. Filter unchanged.");
-	g_free(filter_name);
-  	g_free(filter_text);
-	return;
-  }
-
-  if(dfilter_compile(filter_text, &compiled_filter) != 0 ){
-	simple_dialog(ESD_TYPE_WARN, NULL, "Filter \"%s\" did not compile correctly.\n"
-		" Please try again. Filter unchanged.\n%s\n", filter_name,
-		dfilter_error_msg);
-  } else {
-	color_filters = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(button),
-		      COLOR_FILTERS_CL);
-	colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters),
-	   cf.colors->row_selected);
-
-	if (colorf->filter_name != NULL)
-	    g_free(colorf->filter_name);
-	colorf->filter_name = filter_name;
-	if (colorf->filter_text != NULL)
-	    g_free(colorf->filter_text);
-	colorf->filter_text = filter_text;
-	colorf->fg_color = new_fg_color;
-	colorf->bg_color = new_bg_color;
-	gtk_clist_set_foreground(GTK_CLIST(color_filters),
-	    cf.colors->row_selected, &new_fg_color);
-	gtk_clist_set_background(GTK_CLIST(color_filters),
-	    cf.colors->row_selected, &new_bg_color);
-	if(colorf->c_colorfilter != NULL)
-	    dfilter_destroy(colorf->c_colorfilter);
-	colorf->c_colorfilter = compiled_filter;
-	/* gtk_clist_set_text frees old text (if any) and allocates new space */
-	gtk_clist_set_text(GTK_CLIST(color_filters),
-		cf.colors->row_selected, 0, filter_name);
-	gtk_clist_set_text(GTK_CLIST(color_filters),
-		cf.colors->row_selected, 1, filter_text);
-        gtk_widget_destroy(dialog);
-  }
-}
-
-/* Revert to existing colors */
-static void
-color_sel_cancel_cb                    (GtkObject       *object,
-                                        gpointer         user_data)
-{
-  GtkWidget *color_dialog;
-  color_dialog = (GtkWidget *)user_data;
-  /* nothing to change here.  Just get rid of the dialog box. */
-
-  gtk_widget_destroy(color_dialog);
-}
-
-/* Retrieve selected color */
-static void
-color_sel_ok_cb                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
-  GdkColor new_color; /* Color from color selection dialog */
-  gdouble new_colors[3];
-  GtkWidget *color_dialog;
-  GtkStyle  *style;
-
-  color_dialog = (GtkWidget *)user_data;
-
-  gtk_color_selection_get_color(GTK_COLOR_SELECTION(
-   GTK_COLOR_SELECTION_DIALOG(color_dialog)->colorsel), new_colors);
-
-  new_color.red   = (guint16)(new_colors[0]*65535.0);
-  new_color.green = (guint16)(new_colors[1]*65535.0);
-  new_color.blue  = (guint16)(new_colors[2]*65535.0);
-
-  if ( ! get_color(&new_color) ){
-	simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate color.  Try again.");
-  } else {
-	gtk_widget_destroy(color_dialog);
-
-	/* now apply the change to the fore/background */
-	
-	style = gtk_style_copy(gtk_widget_get_style(filt_name_entry));
-	if( bg_set_flag)
-	  style->base[GTK_STATE_NORMAL] = new_color;
-	else
-	  style->fg[GTK_STATE_NORMAL] = new_color;
-	gtk_widget_set_style(filt_name_entry, style);
-	gtk_widget_set_style(filt_text_entry, style);	
-  }
-}
-
-static void
-add_filter_to_clist(gpointer filter_arg, gpointer clist_arg)
-{
-  color_filter_t *colorf = filter_arg;
-  GtkWidget *color_filters = clist_arg;
-  gchar *data[2];
-  gint row;
-
-  data[0] = colorf->filter_name;
-  data[1] = colorf->filter_text;
-  row = gtk_clist_append(GTK_CLIST(color_filters), data);
-  gtk_clist_set_row_data(GTK_CLIST(color_filters), row, colorf);
-  gtk_clist_set_foreground(GTK_CLIST(color_filters), row, &colorf->fg_color);
-  gtk_clist_set_background(GTK_CLIST(color_filters), row, &colorf->bg_color);
-}
-
+/* Create the "Add color to protocols" dialog. */
 static GtkWidget*
-create_color_win (colfilter *filter)
+colorize_dialog_new (colfilter *filter)
 {
   GtkWidget *color_win;
   GtkWidget *vbox1;
@@ -728,7 +368,7 @@ create_color_win (colfilter *filter)
   GtkWidget *color_filters;
   GtkWidget *hbox2;
   GtkWidget *color_new;
-  GtkWidget *color_change_colors;
+  GtkWidget *color_edit;
   GtkWidget *color_delete;
   GtkWidget *color_save;
   GtkWidget *hbox3;
@@ -831,15 +471,15 @@ create_color_win (colfilter *filter)
   gtk_widget_set_usize (color_new, 50, 30);
   gtk_tooltips_set_tip (tooltips, color_new, ("Create a new colorization filter after selected filter"), NULL);
 
-  color_change_colors = gtk_button_new_with_label (("Edit"));
-  gtk_widget_ref (color_change_colors);
-  gtk_object_set_data_full (GTK_OBJECT (color_win), "color_change_colors", color_change_colors,
+  color_edit = gtk_button_new_with_label (("Edit"));
+  gtk_widget_ref (color_edit);
+  gtk_object_set_data_full (GTK_OBJECT (color_win), "color_edit", color_edit,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (color_change_colors);
-  gtk_widget_set_usize(color_change_colors, 50, 30);
-  gtk_box_pack_start (GTK_BOX (hbox2), color_change_colors, TRUE, FALSE, 5);
-  gtk_tooltips_set_tip (tooltips, color_change_colors, ("Change color of selected filter"), NULL);
-  gtk_widget_set_sensitive (color_change_colors,
+  gtk_widget_show (color_edit);
+  gtk_widget_set_usize(color_edit, 50, 30);
+  gtk_box_pack_start (GTK_BOX (hbox2), color_edit, TRUE, FALSE, 5);
+  gtk_tooltips_set_tip (tooltips, color_edit, ("Change color of selected filter"), NULL);
+  gtk_widget_set_sensitive (color_edit,
       (filter->num_of_filters != 0));
 
   color_delete = gtk_button_new_with_label (("Delete"));
@@ -908,20 +548,20 @@ create_color_win (colfilter *filter)
   gtk_signal_connect (GTK_OBJECT (color_filters), "select_row",
                       GTK_SIGNAL_FUNC (remember_selected_row),
                       filter);
-  gtk_object_set_data(GTK_OBJECT (color_new), COLOR_CHANGE_COLORS_LB,
-                      color_change_colors);
+  gtk_object_set_data(GTK_OBJECT (color_new), COLOR_EDIT_LB,
+                      color_edit);
   gtk_object_set_data(GTK_OBJECT (color_new), COLOR_FILTERS_CL,
                       color_filters);
   gtk_signal_connect (GTK_OBJECT (color_new), "clicked",
                       GTK_SIGNAL_FUNC (color_new_cb),
                       filter);
-  gtk_object_set_data(GTK_OBJECT (color_change_colors), COLOR_FILTERS_CL,
+  gtk_object_set_data(GTK_OBJECT (color_edit), COLOR_FILTERS_CL,
                       color_filters);
-  gtk_signal_connect (GTK_OBJECT (color_change_colors), "clicked",
+  gtk_signal_connect (GTK_OBJECT (color_edit), "clicked",
                       GTK_SIGNAL_FUNC (color_edit_cb),
                       filter);
-  gtk_object_set_data(GTK_OBJECT (color_delete), COLOR_CHANGE_COLORS_LB,
-                      color_change_colors);
+  gtk_object_set_data(GTK_OBJECT (color_delete), COLOR_EDIT_LB,
+                      color_edit);
   gtk_object_set_data(GTK_OBJECT (color_delete), COLOR_FILTERS_CL,
                       color_filters);
   gtk_signal_connect (GTK_OBJECT (color_delete), "clicked",
@@ -947,14 +587,268 @@ create_color_win (colfilter *filter)
   return color_win;
 }
 
-static GtkWidget*
-create_edit_color_filter_win (colfilter *filter,
+static void
+add_filter_to_clist(gpointer filter_arg, gpointer clist_arg)
+{
+  color_filter_t *colorf = filter_arg;
+  GtkWidget *color_filters = clist_arg;
+  gchar *data[2];
+  gint row;
+
+  data[0] = colorf->filter_name;
+  data[1] = colorf->filter_text;
+  row = gtk_clist_append(GTK_CLIST(color_filters), data);
+  gtk_clist_set_row_data(GTK_CLIST(color_filters), row, colorf);
+  gtk_clist_set_foreground(GTK_CLIST(color_filters), row, &colorf->fg_color);
+  gtk_clist_set_background(GTK_CLIST(color_filters), row, &colorf->bg_color);
+}
+
+/* Destroy the "Add color to protocols" dialog, and any "Edit color filter"
+   dialogs popped up from it. */
+static void
+colorize_dialog_destroy(void)
+{
+  /* Destroy any edit dialogs we have open. */
+  g_slist_foreach(filter_list, destroy_edit_dialog_cb, NULL);
+
+  /* Delete the dialog box itself. */
+  gtk_widget_destroy(colorize_win);
+  colorize_win = NULL;
+}
+
+static void
+destroy_edit_dialog_cb(gpointer filter_arg, gpointer dummy)
+{
+  edit_color_filter_dialog_destroy((color_filter_t *)filter_arg);
+}
+
+/* Move the selected filter up in the list */
+static void
+color_filter_up_cb                     (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  colfilter *filter;
+  gint filter_number;
+  GtkWidget *color_filters;
+  color_filter_t *colorf;
+
+  filter = (colfilter *)user_data;
+  filter_number = filter->row_selected;
+
+  /* If it is filter number 0, it cannot be moved, as it's already
+     at the top of the filter.
+     If there's only one filter in the list, it cannot be moved,
+     as there's no place to move it. */
+  if (filter_number != 0 && filter->num_of_filters >= 2) {
+  	color_filters = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(button),
+		      COLOR_FILTERS_CL);
+        colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters),
+	   filter_number);
+	gtk_clist_swap_rows(GTK_CLIST(color_filters), filter_number,
+			filter_number-1);
+	filter_list = g_slist_remove(filter_list, colorf);
+	filter_list = g_slist_insert(filter_list, colorf, filter_number-1);
+	filter->row_selected--;
+  }
+}
+
+/* Move the selected filter down in the list */
+static void
+color_filter_down_cb                   (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  colfilter *filter;
+  gint filter_number;
+  GtkWidget *color_filters;
+  color_filter_t *colorf;
+
+  filter = (colfilter *)user_data;
+  filter_number = filter->row_selected;
+
+  /* If it is the last filter in the list, it cannot be moved, as it's
+     already at the bottom of the filter.
+     If there's only one filter in the list, it cannot be moved,
+     as there's no place to move it. */
+  if (filter_number != filter->num_of_filters-1
+    && filter->num_of_filters >= 2) {
+  	color_filters = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(button),
+		      COLOR_FILTERS_CL);
+        colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters),
+	   filter_number);
+	gtk_clist_swap_rows(GTK_CLIST(color_filters), filter_number+1,
+			filter_number);
+	filter_list = g_slist_remove(filter_list, colorf);
+	filter_list = g_slist_insert(filter_list, colorf, filter_number+1);
+	filter->row_selected++;
+  }
+}
+
+/* Set selected row in cf */
+static void
+remember_selected_row                 (GtkCList        *clist,
+                                        gint             row,
+                                        gint             column,
+                                        GdkEvent        *event,
+                                        gpointer         user_data)
+{
+  colfilter *filter = (colfilter *)user_data;
+
+  filter->row_selected = row;
+}
+
+/* XXX - we don't forbid having more than one "Edit color filter" dialog
+   open, so these shouldn't be static. */
+static GtkWidget *filt_name_entry;
+static GtkWidget *filt_text_entry;
+
+/* Create a new filter in the list, and pop up an "Edit color filter"
+   dialog box to edit it. */
+static void
+color_new_cb                          (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  colfilter *filter;
+  color_filter_t *colorf;
+  GtkWidget *color_filters;
+  gchar *data[2];
+  gint row;
+  GtkWidget *color_edit;
+
+  filter = (colfilter *)user_data;
+  colorf = new_color_filter(filter, "name", "filter"); /* Adds at end! */
+
+  color_filters = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(button),
+		      COLOR_FILTERS_CL);
+  data[0] = colorf->filter_name;
+  data[1] = colorf->filter_text;
+  row = gtk_clist_append(GTK_CLIST(color_filters), data);
+  gtk_clist_set_row_data(GTK_CLIST(color_filters), row, colorf);
+
+  /* A row has been added, so we can edit it. */
+  color_edit = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(button),
+					COLOR_EDIT_LB);
+  gtk_widget_set_sensitive (color_edit, TRUE);
+
+  /* select the new (last) row */
+  filter->row_selected = filter->num_of_filters;
+  filter->num_of_filters++;
+  gtk_clist_select_row(GTK_CLIST(color_filters), filter->row_selected, -1);
+  edit_color_filter_dialog_new(filter, color_filters, &filt_name_entry,
+				&filt_text_entry);
+}
+
+/* Pop up an "Edit color filter" dialog box to edit an existing filter. */
+static void
+color_edit_cb                        (GtkButton       *button,
+                                      gpointer         user_data)
+{
+  colfilter *filter;
+  GtkWidget *color_filters;
+
+  filter = (colfilter *)user_data;
+  color_filters = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(button),
+		      COLOR_FILTERS_CL);
+  if(filter->row_selected == -1){
+	/* select the first row */
+	filter->row_selected = 0;
+	gtk_clist_select_row(GTK_CLIST(color_filters), filter->row_selected,
+				-1);
+  }
+  edit_color_filter_dialog_new(filter, color_filters, &filt_name_entry,
+				&filt_text_entry);
+}
+
+/* Delete a color from the list. */
+static void
+color_delete_cb(GtkWidget *widget, gpointer user_data)
+{
+  colfilter *filter;
+  GtkWidget *color_filters;
+  color_filter_t *colorf;
+  GtkWidget *color_edit;
+
+  filter = (colfilter *)user_data;
+  if(filter->row_selected != -1){
+  	color_filters = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(widget),
+		      COLOR_FILTERS_CL);
+  	colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters),
+	   filter->row_selected);
+	gtk_clist_remove(GTK_CLIST(color_filters), filter->row_selected);
+	edit_color_filter_dialog_destroy(colorf);
+	delete_color_filter(colorf);
+	filter->num_of_filters--;
+        if(!filter->num_of_filters){
+        	/* No filters any more, so none can be selected... */
+		filter->row_selected = -1;
+		color_edit =
+		    (GtkWidget *) gtk_object_get_data(GTK_OBJECT(widget),
+		      COLOR_EDIT_LB);
+
+		/* ...and none can be edited. */
+		gtk_widget_set_sensitive (color_edit, FALSE);
+	} else {
+		filter->row_selected--;
+		if(filter->row_selected < 0)
+			filter->row_selected = 0;
+		gtk_clist_select_row(GTK_CLIST(color_filters),
+		    filter->row_selected, 0);
+	}
+  }
+}
+
+/* Save color filters to the color filter file. */
+static void
+color_save_cb                          (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  colfilter *filter = (colfilter *)user_data;
+
+  if (!write_filters(filter))
+	simple_dialog(ESD_TYPE_WARN, NULL, "Could not open filter file: %s",
+	    strerror(errno));
+
+}
+
+/* Exit dialog and apply new list of color filters to the capture. */
+static void
+color_ok_cb                            (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  /* colorize list */
+  colorize_packets(&cf);
+
+  /* Delete the dialog box. */
+  colorize_dialog_destroy();
+}
+
+/* Exit dialog without colorizing packets with the new list.
+   XXX - should really undo any changes to the list.... */
+static void
+color_cancel_cb                        (GtkWidget       *widget,
+                                        gpointer         user_data)
+{
+  /* Delete the dialog box. */
+  colorize_dialog_destroy();
+}
+
+/* Apply new list of color filters to the capture. */
+static void
+color_apply_cb                         (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  colorize_packets(&cf);
+}
+
+/* Create an "Edit color filter" dialog for a given color filter, and
+   associate it with that color filter. */
+static void
+edit_color_filter_dialog_new (colfilter *filter,
 	GtkWidget *color_filters,
 	GtkWidget **colorize_filter_name,
 	GtkWidget **colorize_filter_text)
 {
   color_filter_t *colorf;
-  GtkWidget *colorize_win;
+  GtkWidget *edit_dialog;
   GtkWidget *vbox3;
   GtkWidget *hbox6;
   GtkWidget *color_filter_name;
@@ -971,37 +865,45 @@ create_edit_color_filter_win (colfilter *filter,
 
   colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters),
 	   filter->row_selected);
+  if (colorf->edit_dialog != NULL) {
+    /* There's already an edit box open for this filter; raise it.
+       XXX - give it focus, too.  Alas, GDK has nothing that calls
+       "XSetInputFocus()" on a window.... */
+    gdk_window_raise(colorf->edit_dialog->window);
+    return;
+  }
 
   tooltips = gtk_tooltips_new ();
 
-  colorize_win = gtk_window_new (GTK_WINDOW_DIALOG);
-  gtk_object_set_data (GTK_OBJECT (colorize_win), "colorize_win", colorize_win);
-  gtk_window_set_title (GTK_WINDOW (colorize_win), ("Edit color filter"));
+  edit_dialog = gtk_window_new (GTK_WINDOW_DIALOG);
+  gtk_object_set_data (GTK_OBJECT (edit_dialog), "edit_dialog", edit_dialog);
+  gtk_window_set_title (GTK_WINDOW (edit_dialog), ("Edit color filter"));
+  colorf->edit_dialog = edit_dialog;
 
   vbox3 = gtk_vbox_new (FALSE, 0);
   gtk_widget_ref (vbox3);
-  gtk_object_set_data_full (GTK_OBJECT (colorize_win), "vbox3", vbox3,
+  gtk_object_set_data_full (GTK_OBJECT (edit_dialog), "vbox3", vbox3,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (vbox3);
-  gtk_container_add (GTK_CONTAINER (colorize_win), vbox3);
+  gtk_container_add (GTK_CONTAINER (edit_dialog), vbox3);
 
   hbox6 = gtk_hbox_new (FALSE, 0);
   gtk_widget_ref (hbox6);
-  gtk_object_set_data_full (GTK_OBJECT (colorize_win), "hbox6", hbox6,
+  gtk_object_set_data_full (GTK_OBJECT (edit_dialog), "hbox6", hbox6,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (hbox6);
   gtk_box_pack_start (GTK_BOX (vbox3), hbox6, TRUE, FALSE, 5);
 
   color_filter_name = gtk_label_new (("Name: "));
   gtk_widget_ref (color_filter_name);
-  gtk_object_set_data_full (GTK_OBJECT (colorize_win), "color_filter_name", color_filter_name,
+  gtk_object_set_data_full (GTK_OBJECT (edit_dialog), "color_filter_name", color_filter_name,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (color_filter_name);
   gtk_box_pack_start (GTK_BOX (hbox6), color_filter_name, FALSE, FALSE, 0);
 
   *colorize_filter_name = gtk_entry_new ();
   gtk_widget_ref (*colorize_filter_name);
-  gtk_object_set_data_full (GTK_OBJECT (colorize_win), "*colorize_filter_name", *colorize_filter_name,
+  gtk_object_set_data_full (GTK_OBJECT (edit_dialog), "*colorize_filter_name", *colorize_filter_name,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_entry_set_text(GTK_ENTRY(*colorize_filter_name), colorf->filter_name);
 
@@ -1016,21 +918,21 @@ create_edit_color_filter_win (colfilter *filter,
 
   hbox7 = gtk_hbox_new (FALSE, 0);
   gtk_widget_ref (hbox7);
-  gtk_object_set_data_full (GTK_OBJECT (colorize_win), "hbox7", hbox7,
+  gtk_object_set_data_full (GTK_OBJECT (edit_dialog), "hbox7", hbox7,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (hbox7);
   gtk_box_pack_start (GTK_BOX (vbox3), hbox7, TRUE, FALSE, 5);
 
   color_filter_text = gtk_label_new (("Filter text:"));
   gtk_widget_ref (color_filter_text);
-  gtk_object_set_data_full (GTK_OBJECT (colorize_win), "color_filter_text", color_filter_text,
+  gtk_object_set_data_full (GTK_OBJECT (edit_dialog), "color_filter_text", color_filter_text,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (color_filter_text);
   gtk_box_pack_start (GTK_BOX (hbox7), color_filter_text, FALSE, FALSE, 0);
 
   *colorize_filter_text = gtk_entry_new ();
   gtk_widget_ref (*colorize_filter_text);
-  gtk_object_set_data_full (GTK_OBJECT (colorize_win), "*colorize_filter_text", *colorize_filter_text,
+  gtk_object_set_data_full (GTK_OBJECT (edit_dialog), "*colorize_filter_text", *colorize_filter_text,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_entry_set_text(GTK_ENTRY(*colorize_filter_text), colorf->filter_text);
 #if 0
@@ -1045,7 +947,7 @@ create_edit_color_filter_win (colfilter *filter,
 
   hbox5 = gtk_hbox_new (FALSE, 0);
   gtk_widget_ref (hbox5);
-  gtk_object_set_data_full (GTK_OBJECT (colorize_win), "hbox5", hbox5,
+  gtk_object_set_data_full (GTK_OBJECT (edit_dialog), "hbox5", hbox5,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (hbox5);
   gtk_box_pack_start (GTK_BOX (vbox3), hbox5, FALSE, FALSE, 5);
@@ -1053,7 +955,7 @@ create_edit_color_filter_win (colfilter *filter,
 
   colorize_filter_fg = gtk_button_new_with_label (("Choose \nforeground\ncolor"));
   gtk_widget_ref (colorize_filter_fg);
-  gtk_object_set_data_full (GTK_OBJECT (colorize_win), "colorize_filter_fg", colorize_filter_fg,
+  gtk_object_set_data_full (GTK_OBJECT (edit_dialog), "colorize_filter_fg", colorize_filter_fg,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (colorize_filter_fg);
   gtk_box_pack_start (GTK_BOX (hbox5), colorize_filter_fg, TRUE, FALSE, 0);
@@ -1061,7 +963,7 @@ create_edit_color_filter_win (colfilter *filter,
 
   colorize_filter_bg = gtk_button_new_with_label (("Choose\nbackground\ncolor"));
   gtk_widget_ref (colorize_filter_bg);
-  gtk_object_set_data_full (GTK_OBJECT (colorize_win), "colorize_filter_bg", colorize_filter_bg,
+  gtk_object_set_data_full (GTK_OBJECT (edit_dialog), "colorize_filter_bg", colorize_filter_bg,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (colorize_filter_bg);
   gtk_box_pack_start (GTK_BOX (hbox5), colorize_filter_bg, TRUE, FALSE, 0);
@@ -1069,7 +971,7 @@ create_edit_color_filter_win (colfilter *filter,
 
   hbox4 = gtk_hbox_new (FALSE, 0);
   gtk_widget_ref (hbox4);
-  gtk_object_set_data_full (GTK_OBJECT (colorize_win), "hbox4", hbox4,
+  gtk_object_set_data_full (GTK_OBJECT (edit_dialog), "hbox4", hbox4,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (hbox4);
   gtk_box_pack_start (GTK_BOX (vbox3), hbox4, TRUE, FALSE, 5);
@@ -1077,7 +979,7 @@ create_edit_color_filter_win (colfilter *filter,
 
   edit_color_filter_ok = gtk_button_new_with_label (("OK"));
   gtk_widget_ref (edit_color_filter_ok);
-  gtk_object_set_data_full (GTK_OBJECT (colorize_win), "edit_color_filter_ok", edit_color_filter_ok,
+  gtk_object_set_data_full (GTK_OBJECT (edit_dialog), "edit_color_filter_ok", edit_color_filter_ok,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_set_usize (edit_color_filter_ok, 50, 30);
   gtk_widget_show (edit_color_filter_ok);
@@ -1086,39 +988,193 @@ create_edit_color_filter_win (colfilter *filter,
 
   edit_color_filter_cancel = gtk_button_new_with_label (("Cancel"));
   gtk_widget_ref (edit_color_filter_cancel);
-  gtk_object_set_data_full (GTK_OBJECT (colorize_win), "edit_color_filter_cancel", edit_color_filter_cancel,
+  gtk_object_set_data_full (GTK_OBJECT (edit_dialog), "edit_color_filter_cancel", edit_color_filter_cancel,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_set_usize (edit_color_filter_cancel, 50, 30);
   gtk_widget_show (edit_color_filter_cancel);
   gtk_box_pack_start (GTK_BOX (hbox4), edit_color_filter_cancel, TRUE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, edit_color_filter_cancel, ("Reject filter color change"), NULL);
 #if 0
-  gtk_signal_connect (GTK_OBJECT (colorize_win), "destroy",
+  gtk_signal_connect (GTK_OBJECT (edit_dialog), "destroy",
                       GTK_SIGNAL_FUNC (edit_color_filter_cancel_cb),
-                      colorize_win);
+                      edit_dialog);
 #endif
-  gtk_object_set_data(GTK_OBJECT (colorize_filter_fg), COLOR_FILTERS_CL,
-                      color_filters);
+  gtk_object_set_data(GTK_OBJECT (colorize_filter_fg), COLOR_FILTER,
+                      colorf);
   gtk_signal_connect (GTK_OBJECT (colorize_filter_fg), "clicked",
                       GTK_SIGNAL_FUNC (edit_color_filter_fg_cb),
                       filter);
-  gtk_object_set_data(GTK_OBJECT (colorize_filter_bg), COLOR_FILTERS_CL,
-                      color_filters);
+  gtk_object_set_data(GTK_OBJECT (colorize_filter_bg), COLOR_FILTER,
+                      colorf);
   gtk_signal_connect (GTK_OBJECT (colorize_filter_bg), "clicked",
                       GTK_SIGNAL_FUNC (edit_color_filter_bg_cb),
                       filter);
   gtk_object_set_data(GTK_OBJECT (edit_color_filter_ok), COLOR_FILTERS_CL,
                       color_filters);
+  gtk_object_set_data(GTK_OBJECT (edit_color_filter_ok), COLOR_FILTER,
+                      colorf);
   gtk_signal_connect (GTK_OBJECT (edit_color_filter_ok), "clicked",
                       GTK_SIGNAL_FUNC (edit_color_filter_ok_cb),
-                      colorize_win);
+                      edit_dialog);
+  gtk_object_set_data(GTK_OBJECT (edit_color_filter_cancel), COLOR_FILTER,
+                      colorf);
   gtk_signal_connect (GTK_OBJECT (edit_color_filter_cancel), "clicked",
                       GTK_SIGNAL_FUNC (edit_color_filter_cancel_cb),
-                      colorize_win);
+                      edit_dialog);
 
-  gtk_object_set_data (GTK_OBJECT (colorize_win), "tooltips", tooltips);
-  gtk_widget_show (colorize_win);
-  return colorize_win;
+  gtk_object_set_data (GTK_OBJECT (edit_dialog), "tooltips", tooltips);
+  gtk_widget_show (edit_dialog);
+}
+
+/* Destroy an "Edit color filter" dialog for a given color filter, and
+   any color selection dialogs popped up from it. */
+static void
+edit_color_filter_dialog_destroy(color_filter_t *colorf)
+{
+  GtkWidget *dialog = colorf->edit_dialog;
+  GtkWidget *color_sel;
+
+  if (dialog != NULL) {
+    colorf->edit_dialog = NULL;
+
+    /* Destroy any color selection dialogs this dialog had open. */
+    color_sel = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(dialog),
+		      COLOR_SELECTION_FG);
+    if (color_sel != NULL)
+      gtk_widget_destroy(color_sel);
+    color_sel = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(dialog),
+		      COLOR_SELECTION_BG);
+    if (color_sel != NULL)
+      gtk_widget_destroy(color_sel);
+
+    /* Now destroy the dialog itself. */
+    gtk_widget_destroy(dialog);
+  }
+}
+
+/* XXX - we allow more than one color selection box to be open, so
+   this shouldn't be static. */
+static gint bg_set_flag; /* 0 -> setting foreground, 1-> setting background */
+
+/* Pop up a color selection box to choose the foreground color. */
+static void
+edit_color_filter_fg_cb                (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  colfilter *filter;
+  color_filter_t *colorf;
+  GtkWidget *color_selection_fg;
+
+  filter = (colfilter *)user_data;
+  colorf = (color_filter_t *) gtk_object_get_data(GTK_OBJECT(button),
+		      COLOR_FILTER);
+  color_selection_fg = create_color_sel_win(filter, &colorf->fg_color);
+  gtk_object_set_data(GTK_OBJECT (colorf->edit_dialog), COLOR_SELECTION_FG,
+                      color_selection_fg);
+  bg_set_flag = 0;
+}
+
+/* Pop up a color selection box to choose the background color. */
+static void
+edit_color_filter_bg_cb                (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  colfilter *filter;
+  color_filter_t *colorf;
+  GtkWidget *color_selection_bg;
+
+  filter = (colfilter *)user_data;
+  colorf = (color_filter_t *) gtk_object_get_data(GTK_OBJECT(button),
+		      COLOR_FILTER);
+  color_selection_bg = create_color_sel_win(filter, &colorf->bg_color);
+  gtk_object_set_data(GTK_OBJECT (colorf->edit_dialog), COLOR_SELECTION_BG,
+                      color_selection_bg);
+  bg_set_flag = 1;
+}
+
+/* accept color (and potential content) change */
+static void
+edit_color_filter_ok_cb                (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  GtkWidget *dialog;
+  GtkStyle *style;
+  GdkColor new_fg_color;
+  GdkColor new_bg_color;
+  gchar *filter_name;
+  gchar *filter_text;
+  color_filter_t *colorf;
+  dfilter *compiled_filter;
+  GtkWidget *color_filters;
+
+  dialog = (GtkWidget *)user_data;
+
+  style = gtk_widget_get_style(filt_name_entry);
+  new_bg_color = style->base[GTK_STATE_NORMAL];
+  new_fg_color = style->fg[GTK_STATE_NORMAL];
+
+  filter_name = g_strdup(gtk_entry_get_text(GTK_ENTRY(filt_name_entry)));
+  filter_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(filt_text_entry)));
+
+  if(strchr(filter_name,'@') || strchr(filter_text,'@')){
+	simple_dialog(ESD_TYPE_WARN,NULL, "Filter names and strings must not"
+	  " use the '@' character. Filter unchanged.");
+	g_free(filter_name);
+  	g_free(filter_text);
+	return;
+  }
+
+  if(dfilter_compile(filter_text, &compiled_filter) != 0 ){
+	simple_dialog(ESD_TYPE_WARN, NULL, "Filter \"%s\" did not compile correctly.\n"
+		" Please try again. Filter unchanged.\n%s\n", filter_name,
+		dfilter_error_msg);
+  } else {
+	color_filters = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(button),
+		      COLOR_FILTERS_CL);
+        colorf = (color_filter_t *) gtk_object_get_data(GTK_OBJECT(button),
+		      COLOR_FILTER);
+
+	if (colorf->filter_name != NULL)
+	    g_free(colorf->filter_name);
+	colorf->filter_name = filter_name;
+	if (colorf->filter_text != NULL)
+	    g_free(colorf->filter_text);
+	colorf->filter_text = filter_text;
+	colorf->fg_color = new_fg_color;
+	colorf->bg_color = new_bg_color;
+	gtk_clist_set_foreground(GTK_CLIST(color_filters),
+	    cf.colors->row_selected, &new_fg_color);
+	gtk_clist_set_background(GTK_CLIST(color_filters),
+	    cf.colors->row_selected, &new_bg_color);
+	if(colorf->c_colorfilter != NULL)
+	    dfilter_destroy(colorf->c_colorfilter);
+	colorf->c_colorfilter = compiled_filter;
+	/* gtk_clist_set_text frees old text (if any) and allocates new space */
+	gtk_clist_set_text(GTK_CLIST(color_filters),
+		cf.colors->row_selected, 0, filter_name);
+	gtk_clist_set_text(GTK_CLIST(color_filters),
+		cf.colors->row_selected, 1, filter_text);
+
+	/* Destroy the dialog box. */
+	edit_color_filter_dialog_destroy(colorf);
+  }
+}
+
+/* Exit dialog and do not process list */
+static void
+edit_color_filter_cancel_cb            (GtkObject       *object,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *dialog;
+  color_filter_t *colorf;
+
+  dialog = (GtkWidget *)user_data;
+  colorf = (color_filter_t *) gtk_object_get_data(GTK_OBJECT(object),
+		      COLOR_FILTER);
+
+  /* Destroy the dialog box. */
+  edit_color_filter_dialog_destroy(colorf);
 }
 
 static GtkWidget*
@@ -1177,6 +1233,55 @@ create_color_sel_win (colfilter *filter, GdkColor * color)
 
   gtk_widget_show(color_sel_win);
   return color_sel_win;
+}
+
+/* Retrieve selected color */
+static void
+color_sel_ok_cb                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  GdkColor new_color; /* Color from color selection dialog */
+  gdouble new_colors[3];
+  GtkWidget *color_dialog;
+  GtkStyle  *style;
+
+  color_dialog = (GtkWidget *)user_data;
+
+  gtk_color_selection_get_color(GTK_COLOR_SELECTION(
+   GTK_COLOR_SELECTION_DIALOG(color_dialog)->colorsel), new_colors);
+
+  new_color.red   = (guint16)(new_colors[0]*65535.0);
+  new_color.green = (guint16)(new_colors[1]*65535.0);
+  new_color.blue  = (guint16)(new_colors[2]*65535.0);
+
+  if ( ! get_color(&new_color) ){
+	simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate color.  Try again.");
+  } else {
+	gtk_widget_destroy(color_dialog);
+
+	/* now apply the change to the fore/background */
+	
+	style = gtk_style_copy(gtk_widget_get_style(filt_name_entry));
+	if( bg_set_flag)
+	  style->base[GTK_STATE_NORMAL] = new_color;
+	else
+	  style->fg[GTK_STATE_NORMAL] = new_color;
+	gtk_widget_set_style(filt_name_entry, style);
+	gtk_widget_set_style(filt_text_entry, style);	
+  }
+}
+
+/* Don't choose the selected color as the foreground or background
+   color for the filter. */
+static void
+color_sel_cancel_cb                    (GtkObject       *object,
+                                        gpointer         user_data)
+{
+  GtkWidget *color_dialog;
+  color_dialog = (GtkWidget *)user_data;
+  /* nothing to change here.  Just get rid of the dialog box. */
+
+  gtk_widget_destroy(color_dialog);
 }
 
 static gboolean

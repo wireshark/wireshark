@@ -1,7 +1,7 @@
 /* colors.h
  * Definitions for color structures and routines
  *
- * $Id: colors.h,v 1.10 1999/12/19 09:22:19 guy Exp $
+ * $Id: colors.h,v 1.11 1999/12/19 10:39:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,16 +44,14 @@
 extern GdkColor WHITE;
 extern GdkColor BLACK;
 
-/* This struct is used in the GtkCList which holds the filter information.
- * The filter name and text string for the filter are the clist data
- */
-
+/* Data for a color filter. */
 typedef struct _color_filter {
-	gchar *filter_name;
-	gchar *filter_text;
-	GdkColor bg_color;
-	GdkColor fg_color;
-	dfilter *c_colorfilter;
+	gchar *filter_name;	/* name of the filter */
+	gchar *filter_text;	/* text of the filter expression */
+	GdkColor bg_color;	/* background color for packets that match */
+	GdkColor fg_color;	/* foreground color for packets that match */
+	dfilter *c_colorfilter;	/* compiled filter expression */
+	GtkWidget *edit_dialog;	/* if filter is being edited, dialog box for it */
 } color_filter_t;
 
 /* List of all color filters. */
