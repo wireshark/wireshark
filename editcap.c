@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, or simply convert from one 
  * format to another format.
  *
- * $Id: editcap.c,v 1.4 1999/12/12 21:04:29 sharpe Exp $
+ * $Id: editcap.c,v 1.5 2000/01/17 08:06:03 sharpe Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -12,18 +12,67 @@
 #include <glib.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <string.h>
 #include "wtap.h"
 
 /*
  * Some globals so we can pass things to various routines
  */
 
-int selectfrm[100], max_selected = -1;
+struct select_item {
+
+  int inclusive;
+  int first, second;
+
+} select_item;
+
+struct select_item selectfrm[100];
+int max_selected = -1;
 static int count = 1;
 static int keep_em = 0;
 static int out_file_type = WTAP_FILE_PCAP;   /* default to "libpcap"   */
 static int out_frame_type = -2;              /* Leave frame type alone */
 static int verbose = 0;                      /* Not so verbose         */
+
+/* Add a selection item, a simple parser for now */
+
+void add_selection(char *sel) 
+{
+  char *locn;
+  char *next;
+
+  if (max_selected == (sizeof(selectfrm)/sizeof(struct select_item)) - 1)
+    return;
+
+  printf("Add_Selected: %s\n", sel);
+
+  if ((locn = index(sel, '-')) == NULL) { /* No dash, so a single number? */
+
+    printf("Not inclusive ...");
+
+    max_selected++;
+    selectfrm[max_selected].inclusive = 0;
+    selectfrm[max_selected].first = atoi(sel);
+
+    printf(" %i\n", selectfrm[max_selected].first);
+
+  }
+  else {
+
+    printf("Inclusive ...");
+
+    next = locn + 1;
+    max_selected++;
+    selectfrm[max_selected].inclusive = 1;
+    selectfrm[max_selected].first = atoi(sel);
+    selectfrm[max_selected].second = atoi(next);
+
+    printf(" %i, %i\n", selectfrm[max_selected].first, selectfrm[max_selected].second);
+
+  }
+
+
+}
 
 /* Was the record selected? */
 
@@ -33,8 +82,14 @@ int selected(int recno)
 
   for (i = 0; i<= max_selected; i++) {
 
-    if (recno == selectfrm[i]) return 1;
-
+    if (selectfrm[i].inclusive) {
+      if (selectfrm[i].first <= recno && selectfrm[i].second >= recno)
+	return 1;
+    }
+    else {
+      if (recno == selectfrm[i].first)
+	return 1;
+    }
   }
 
   return 0;
@@ -87,7 +142,7 @@ void usage()
   const char *string;
 
   fprintf(stderr, "Usage: editcap [-r] [-h] [-v] [-T <encap type>] [-F <capture type>] <infile>\\\n"); 
-  fprintf(stderr, "                <outfile> [ <record#> ... ]\n");
+  fprintf(stderr, "                <outfile> [ <record#>[-<record#>] ... ]\n");
   fprintf(stderr, "  where\t-r specifies that the records specified should be kept, not deleted, \n");
   fprintf(stderr, "                           default is to delete\n");
   fprintf(stderr, "       \t-v specifies verbose operation, default is silent\n");
@@ -107,6 +162,7 @@ void usage()
         wtap_file_type_short_string(i), wtap_file_type_string(i));
   }
   fprintf(stderr, "       \t    default is libpcap\n");
+  fprintf(stderr, "\n      \t    A range of records can be specified as well\n");
 }
 
 int main(int argc, char *argv[])
@@ -215,7 +271,7 @@ int main(int argc, char *argv[])
     }
 
     for (i = optind + 2; i < argc; i++)
-      selectfrm[++max_selected] = atoi(argv[i]);
+      add_selection(argv[i]);
 
     wtap_loop(wth, 0, edit_callback, (char *)&args, &err);
 
