@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.33 2001/09/03 10:33:07 guy Exp $
+ * $Id: packet-wsp.c,v 1.34 2001/09/03 18:05:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1190,7 +1190,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 				/* TODO: Data - decode WMLC */
 				/* Runs from offset+1+count+headerLength+1 to end of frame */
-				if (offset < tvb_reported_length (tvb))
+				if (tvb_reported_length_remaining (tvb, offset) > 0)
 				{
 					ti = proto_tree_add_item (wsp_tree, hf_wsp_reply_data,tvb,offset,tvb_length_remaining(tvb, offset),bo_little_endian);
 				}
