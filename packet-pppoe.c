@@ -1,7 +1,7 @@
 /* packet-pppoe.c
  * Routines for PPP Over Ethernet (PPPoE) packet disassembly (RFC2516)
  *
- * $Id: packet-pppoe.c,v 1.16 2001/01/21 22:51:46 guy Exp $
+ * $Id: packet-pppoe.c,v 1.17 2001/03/30 06:10:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,7 +43,7 @@ static gint ett_pppoed_tags = -1;
 
 static int proto_pppoes = -1;
 
-static dissector_handle_t payload_ppp_handle;
+static dissector_handle_t ppp_handle;
 
 /* For lack of a better source, I made up the following defines. -jsj */
 
@@ -277,7 +277,7 @@ dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	 * Im gonna try fudging it.
 	 */
 	next_tvb = tvb_new_subset(tvb,6,-1,-1);
-	call_dissector(payload_ppp_handle,next_tvb,pinfo,tree);
+	call_dissector(ppp_handle,next_tvb,pinfo,tree);
 }
 void
 proto_register_pppoes(void)
@@ -293,7 +293,7 @@ proto_reg_handoff_pppoes(void)
 	    proto_pppoes);
 
 	/*
-	 * Get a handle for the PPP payload dissector.
+	 * Get a handle for the PPP dissector.
 	 */
-	payload_ppp_handle = find_dissector("payload_ppp");
+	ppp_handle = find_dissector("ppp");
 }

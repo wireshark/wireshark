@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.24 2001/01/25 06:14:13 guy Exp $
+ * $Id: packet-ascend.c,v 1.25 2001/03/30 06:10:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,7 +50,7 @@ static const value_string encaps_vals[] = {
   {0,                NULL          } };
 
 static dissector_handle_t eth_handle;
-static dissector_handle_t ppp_handle;
+static dissector_handle_t ppp_hdlc_handle;
 
 static void
 dissect_ascend(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -97,7 +97,7 @@ dissect_ascend(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   switch (pseudo_header->ascend.type) {
     case ASCEND_PFX_WDS_X:
     case ASCEND_PFX_WDS_R:
-      call_dissector(ppp_handle, tvb, pinfo, tree);
+      call_dissector(ppp_hdlc_handle, tvb, pinfo, tree);
       break;
     case ASCEND_PFX_WDD:
       call_dissector(eth_handle, tvb, pinfo, tree);
@@ -149,9 +149,9 @@ void
 proto_reg_handoff_ascend(void)
 {
   /*
-   * Get handles for the Ethernet and PPP dissectors.
+   * Get handles for the Ethernet and PPP-in-HDLC-like-framing dissectors.
    */
   eth_handle = find_dissector("eth");
-  ppp_handle = find_dissector("ppp");
+  ppp_hdlc_handle = find_dissector("ppp_hdlc");
   dissector_add("wtap_encap", WTAP_ENCAP_ASCEND, dissect_ascend, proto_ascend);
 }

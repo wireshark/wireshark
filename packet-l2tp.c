@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.21 2001/01/25 06:14:14 guy Exp $
+ * $Id: packet-l2tp.c,v 1.22 2001/03/30 06:10:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -261,7 +261,7 @@ static const char *avptypestr[NUM_AVP_TYPES] = {
 
 static gchar textbuffer[200];
 
-static dissector_handle_t ppp_handle;
+static dissector_handle_t ppp_hdlc_handle;
 
 static void
 dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -439,7 +439,7 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* If we have data, signified by having a length bit, dissect it */
 	if (tvb_offset_exists(tvb, index)) {
 		next_tvb = tvb_new_subset(tvb, index, -1, proto_length - index);
-		call_dissector(ppp_handle, next_tvb, pinfo, tree);
+		call_dissector(ppp_hdlc_handle, next_tvb, pinfo, tree);
 	}
 	return;
   }
@@ -834,7 +834,7 @@ proto_reg_handoff_l2tp(void)
 	    proto_l2tp);
 
 	/*
-	 * Get a handle for the PPP dissector.
+	 * Get a handle for the PPP-in-HDLC-like-framing dissector.
 	 */
-	ppp_handle = find_dissector("ppp");
+	ppp_hdlc_handle = find_dissector("ppp_hdlc");
 }

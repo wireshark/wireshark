@@ -1,7 +1,7 @@
 /* packet-raw.c
  * Routines for raw packet disassembly
  *
- * $Id: packet-raw.c,v 1.24 2001/01/09 06:31:40 guy Exp $
+ * $Id: packet-raw.c,v 1.25 2001/03/30 06:10:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,7 +44,7 @@ static gint ett_raw = -1;
 static const char zeroes[10];
 
 static dissector_handle_t ip_handle;
-static dissector_handle_t ppp_handle;
+static dissector_handle_t ppp_hdlc_handle;
 
 void
 capture_raw(const u_char *pd, packet_counts *ld)
@@ -114,20 +114,20 @@ dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * sometimes.  This check should be removed when 2.2 is out.
    */
   if (tvb_get_ntohs(tvb, 0) == 0xff03) {
-	call_dissector(ppp_handle, tvb, pinfo, tree);
+	call_dissector(ppp_hdlc_handle, tvb, pinfo, tree);
 	return;
   }
   /* The Linux ISDN driver sends a fake MAC address before the PPP header
    * on its ippp interfaces... */
   else if (tvb_get_ntohs(tvb, 6) == 0xff03) {
 	next_tvb = tvb_new_subset(tvb, 6, -1, -1);
-	call_dissector(ppp_handle, next_tvb, pinfo, tree);
+	call_dissector(ppp_hdlc_handle, next_tvb, pinfo, tree);
 	return;
   }
   /* ...except when it just puts out one byte before the PPP header... */
   else if (tvb_get_ntohs(tvb, 1) == 0xff03) {
 	next_tvb = tvb_new_subset(tvb, 1, -1, -1);
-	call_dissector(ppp_handle, next_tvb, pinfo, tree);
+	call_dissector(ppp_hdlc_handle, next_tvb, pinfo, tree);
 	return;
   }
   /* ...and if the connection is currently down, it sends 10 bytes of zeroes
@@ -159,9 +159,9 @@ void
 proto_reg_handoff_raw(void)
 {
   /*
-   * Get handles for the IP and PPP dissectors.
+   * Get handles for the IP and PPP-in-HDLC-like-framing dissectors.
    */
   ip_handle = find_dissector("ip");
-  ppp_handle = find_dissector("ppp");
+  ppp_hdlc_handle = find_dissector("ppp_hdlc");
   dissector_add("wtap_encap", WTAP_ENCAP_RAW_IP, dissect_raw, -1);
 }

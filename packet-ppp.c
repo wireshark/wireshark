@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.58 2001/03/29 09:18:34 guy Exp $
+ * $Id: packet-ppp.c,v 1.59 2001/03/30 06:10:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -522,7 +522,7 @@ static const ip_tcp_opt ipcp_opts[] = {
 
 #define N_IPCP_OPTS	(sizeof ipcp_opts / sizeof ipcp_opts[0])
 
-static void dissect_payload_ppp(tvbuff_t *tvb, packet_info *pinfo,
+static void dissect_ppp(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree);
 
 const unsigned int fcstab_32[256] =
@@ -1157,20 +1157,20 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 #define PFC_BIT 0x01
 
 static void
-dissect_ppp_stuff( tvbuff_t *tvb, packet_info *pinfo,
+dissect_ppp_common( tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *tree, proto_tree *fh_tree,
 		proto_item *ti ) {
   guint16 ppp_prot;
   int     proto_len;
   tvbuff_t	*next_tvb;
 
-  ppp_prot = tvb_get_guint8(tvb, 0);
+  ppp_prot = tvb_get_guint8(tvb, offset);
   if (ppp_prot & PFC_BIT) {
     /* Compressed protocol field - just the byte we fetched. */
     proto_len = 1;
   } else {
     /* Uncompressed protocol field - fetch all of it. */
-    ppp_prot = tvb_get_ntohs(tvb, 0);
+    ppp_prot = tvb_get_ntohs(tvb, offset);
     proto_len = 2;
   }
 
@@ -1182,11 +1182,11 @@ dissect_ppp_stuff( tvbuff_t *tvb, packet_info *pinfo,
     proto_item_set_len(ti, proto_item_get_len(ti) + proto_len);
 
   if (tree) {
-    proto_tree_add_text(fh_tree, tvb, 0, proto_len, "Protocol: %s (0x%04x)",
+    proto_tree_add_text(fh_tree, tvb, offset, proto_len, "Protocol: %s (0x%04x)",
       val_to_str(ppp_prot, ppp_vals, "Unknown"), ppp_prot);
   }
 
-  next_tvb = tvb_new_subset(tvb, proto_len, -1, -1);
+  next_tvb = tvb_new_subset(tvb, offset + proto_len, -1, -1);
 
   /* do lookup with the subdissector table */
   if (!dissector_try_port(subdissector_table, ppp_prot, next_tvb, pinfo, tree)) {
@@ -1276,15 +1276,15 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tvb_reported_length_remaining(tvb, 4) > 0) {
     next_tvb = tvb_new_subset(tvb, 4, -1, -1);
-    dissect_payload_ppp(next_tvb, pinfo, tree);
+    dissect_ppp(next_tvb, pinfo, tree);
   }
 }
 
 /*
- * Handles PPP without HDLC headers, just a protocol field.
+ * Handles PPP without HDLC framing, just a protocol field (RFC 1661).
  */
 static void
-dissect_payload_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
+dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   proto_item *ti = NULL;
   proto_tree *fh_tree = NULL;
 
@@ -1293,25 +1293,19 @@ dissect_payload_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
     fh_tree = proto_item_add_subtree(ti, ett_ppp);
   }
 
-  dissect_ppp_stuff(tvb, pinfo, tree, fh_tree, ti);
+  dissect_ppp_common(tvb, 0, pinfo, tree, fh_tree, ti);
 }
 
 /*
- * Handles link-layer encapsulations where the frame might be:
- *
- *	a PPP frame with no HDLC header;
- *
- *	a PPP frame with an HDLC header (FF 03);
- *
- *	a Cisco HDLC frame.
+ * Handles link-layer encapsulations where the frame might be
+ * a PPP in HDLC-like Framing frame (RFC 1662) or a Cisco HDLC frame.
  */
 static void
-dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
+dissect_ppp_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   proto_item *ti = NULL;
   proto_tree *fh_tree = NULL;
   guint8     byte0;
   int        proto_offset;
-  tvbuff_t   *next_tvb;
   int        rx_fcs_offset;
   guint32    rx_fcs_exp;
   guint32    rx_fcs_got;
@@ -1356,8 +1350,7 @@ dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
     }
   }
 
-  next_tvb = tvb_new_subset(tvb, proto_offset, -1, -1);
-  dissect_ppp_stuff(next_tvb, pinfo, tree, fh_tree, ti);
+  dissect_ppp_common(tvb, proto_offset, pinfo, tree, fh_tree, ti);
 
   /* Calculate the FCS check */
   /* XXX - deal with packets cut off by the snapshot length */
@@ -1410,8 +1403,8 @@ proto_register_ppp(void)
 /* subdissector code */
 	subdissector_table = register_dissector_table("ppp.protocol");
 
+	register_dissector("ppp_hdlc", dissect_ppp_hdlc, proto_ppp);
 	register_dissector("ppp", dissect_ppp, proto_ppp);
-	register_dissector("payload_ppp", dissect_payload_ppp, proto_ppp);
 
 	/* Register the preferences for the ppp protocol */
 	ppp_module = prefs_register_protocol(proto_ppp, NULL);
@@ -1432,10 +1425,10 @@ proto_reg_handoff_ppp(void)
    */
   chdlc_handle = find_dissector("chdlc");
 
-  dissector_add("wtap_encap", WTAP_ENCAP_PPP, dissect_ppp, proto_ppp);
-  dissector_add("wtap_encap", WTAP_ENCAP_PPP_WITH_PHDR, dissect_ppp, proto_ppp);
+  dissector_add("wtap_encap", WTAP_ENCAP_PPP, dissect_ppp_hdlc, proto_ppp);
+  dissector_add("wtap_encap", WTAP_ENCAP_PPP_WITH_PHDR, dissect_ppp_hdlc, proto_ppp);
   dissector_add("fr.ietf", NLPID_PPP, dissect_ppp, proto_ppp);
-  dissector_add("gre.proto", ETHERTYPE_PPP, dissect_ppp, proto_ppp);
+  dissector_add("gre.proto", ETHERTYPE_PPP, dissect_ppp_hdlc, proto_ppp);
 }
 
 void

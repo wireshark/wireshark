@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.41 2001/03/22 16:24:14 gram Exp $
+ * $Id: packet-null.c,v 1.42 2001/03/30 06:10:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -74,7 +74,7 @@ static const value_string family_vals[] = {
     {0,                    NULL             }
 };
 
-static dissector_handle_t ppp_handle;
+static dissector_handle_t ppp_hdlc_handle;
 
 void
 capture_null( const u_char *pd, packet_counts *ld )
@@ -225,7 +225,7 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * Hand it to PPP.
      */
-    call_dissector(ppp_handle, tvb, pinfo, tree);
+    call_dissector(ppp_hdlc_handle, tvb, pinfo, tree);
   } else {
 
     /* load the top pane info. This should be overwritten by
@@ -315,8 +315,8 @@ void
 proto_reg_handoff_null(void)
 {
 	/*
-	 * Get a handle for the PPP dissector.
+	 * Get a handle for the PPP-in-HDLC-like-framing dissector.
 	 */
-	ppp_handle = find_dissector("ppp");
+	ppp_hdlc_handle = find_dissector("ppp_hdlc");
 	dissector_add("wtap_encap", WTAP_ENCAP_NULL, dissect_null, proto_null);
 }
