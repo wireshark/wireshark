@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.19 1998/12/29 04:05:34 gerald Exp $
+ * $Id: ethereal.c,v 1.20 1999/01/04 07:39:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,6 +54,15 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <netinet/in.h>
+
+#ifdef NEED_SNPRINTF_H
+# ifdef HAVE_STDARG_H
+#  include <stdarg.h>
+# else
+#  include <varargs.h>
+# endif
+# include "snprintf.h"
+#endif
 
 #include "ethereal.h"
 #include "capture.h"
