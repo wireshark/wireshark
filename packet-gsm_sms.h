@@ -1,6 +1,6 @@
-/* packet-gsm_ss.h
+/* packet-gsm_sms.h
  *
- * $Id: packet-gsm_ss.h,v 1.2 2004/03/27 11:32:29 guy Exp $
+ * $Id: packet-gsm_sms.h,v 1.1 2004/03/27 11:32:29 guy Exp $
  *
  * Copyright 2004, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
@@ -24,10 +24,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-extern gint gsm_ss_ett_sequence;
-extern gint gsm_ss_ett_param;
-
-extern const value_string gsm_ss_opr_code_strings[];
-
-extern void param_AddressString(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field);
-extern void gsm_ss_dissect(ASN1_SCK *asn1, proto_tree *tree, guint exp_len, guint opr_code, guint comp_type_tag);
+extern int gsm_sms_char_7bit_unpack(unsigned int offset, unsigned int in_length, unsigned int out_length,
+		     const guint8 *input, unsigned char *output);
+extern void gsm_sms_char_ascii_decode(unsigned char* dest, const unsigned char* src, int len);

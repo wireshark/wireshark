@@ -10,7 +10,7 @@
  *   2000 Access Network Interfaces
  *			3GPP2 A.S0001-1		TIA/EIA-2001
  *
- * $Id: packet-ansi_a.c,v 1.15 2003/12/21 04:31:56 jmayer Exp $
+ * $Id: packet-ansi_a.c,v 1.16 2004/03/27 11:32:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -374,6 +374,7 @@ static dissector_handle_t bsmap_handle;
 static dissector_handle_t dtap_handle;
 static dissector_table_t is637_dissector_table; /* IS-637-A Transport Layer (SMS) */
 static dissector_table_t is683_dissector_table; /* IS-683-A (OTA) */
+static dissector_table_t is801_dissector_table; /* IS-801 (PLD) */
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
 
@@ -4172,7 +4173,15 @@ elem_adds_user_part(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 	    (g_pinfo->p2p_dir == P2P_DIR_RECV), adds_tvb, g_pinfo, g_tree);
 	break;
 
-    case ADDS_APP_PLD: str = "PLD"; break;
+    case ADDS_APP_PLD:
+	str = "PLD";
+
+	adds_tvb = tvb_new_subset(tvb, curr_offset + 1, len - 1, len - 1);
+
+	dissector_try_port(is801_dissector_table,
+	    (g_pinfo->p2p_dir == P2P_DIR_RECV), adds_tvb, g_pinfo, g_tree);
+	break;
+
     default:
 	str = "Unknown";
 	break;
@@ -8398,6 +8407,10 @@ proto_register_ansi_a(void)
 
     is683_dissector_table =
 	register_dissector_table("ansi_a.ota", "IS-683-A (OTA)",
+	FT_UINT8, BASE_DEC);
+
+    is801_dissector_table =
+	register_dissector_table("ansi_a.pld", "IS-801 (PLD)",
 	FT_UINT8, BASE_DEC);
 
     proto_register_subtree_array(ett, ett_len / sizeof(gint *));

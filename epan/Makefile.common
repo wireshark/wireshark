@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.13 2004/03/23 19:51:06 guy Exp $
+# $Id: Makefile.common,v 1.14 2004/03/27 11:32:30 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -57,6 +57,7 @@ DISSECTOR_SRC =	\
 	../packet-ans.c	\
 	../packet-ansi_637.c	\
 	../packet-ansi_683.c	\
+	../packet-ansi_801.c	\
 	../packet-ansi_a.c	\
 	../packet-ansi_map.c	\
 	../packet-aodv.c	\

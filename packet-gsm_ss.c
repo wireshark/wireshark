@@ -19,7 +19,7 @@
  * Michael Lum <mlum [AT] telostech.com>,
  * Created (2004).
  *
- * $Id: packet-gsm_ss.c,v 1.1 2004/03/19 07:54:57 guy Exp $
+ * $Id: packet-gsm_ss.c,v 1.2 2004/03/27 11:32:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,32 +59,33 @@
 #include "asn1.h"
 
 #include "packet-tcap.h"
+#include "packet-gsm_sms.h"
 #include "packet-gsm_ss.h"
 
 
 const value_string gsm_ss_opr_code_strings[] = {
-    { 10,	"RegisterSS" },
-    { 11,	"EraseSS" },
-    { 12,	"ActivateSS" },
-    { 13,	"DeactivateSS" },
-    { 14,	"InterrogateSS" },
-    { 16,	"NotifySS" },
-    { 17,	"RegisterPassword" },
-    { 18,	"GetPassword" },
-    { 19,	"ProcessUnstructuredSS-Data" },
-    { 38,	"ForwardCheckSS-Indication" },
-    { 59,	"ProcessUnstructuredSS-Request" },
-    { 60,	"UnstructuredSS-Request" },
-    { 61,	"UnstructuredSS-Notify" },
-    { 77,	"EraseCC-Entry" },
-    { 119,	"AccessRegisterCCEntry" },
-    { 120,	"ForwardCUG-Info" },
-    { 121,	"SplitMPTY" },
-    { 122,	"RetrieveMPTY" },
-    { 123,	"HoldMPTY" },
-    { 124,	"BuildMPTY" },
-    { 125,	"ForwardChargeAdvice" },
-    { 126,	"ExplicitCT" },
+    { 10,	"Register SS" },
+    { 11,	"Erase SS" },
+    { 12,	"Activate SS" },
+    { 13,	"Deactivate SS" },
+    { 14,	"Interrogate SS" },
+    { 16,	"Notify SS" },
+    { 17,	"Register Password" },
+    { 18,	"Get Password" },
+    { 19,	"Process Unstructured SS Data" },
+    { 38,	"Forward Check SS Indication" },
+    { 59,	"Process Unstructured SS Request" },
+    { 60,	"Unstructured SS Request" },
+    { 61,	"Unstructured SS Notify" },
+    { 77,	"Erase CC Entry" },
+    { 119,	"Access Register CC Entry" },
+    { 120,	"Forward CUG Info" },
+    { 121,	"Split MPTY" },
+    { 122,	"Retrieve MPTY" },
+    { 123,	"Hold MPTY" },
+    { 124,	"Build MPTY" },
+    { 125,	"Forward Charge Advice" },
+    { 126,	"Explicit CT" },
     { 0, NULL }
 };
 
@@ -96,8 +97,86 @@ static int hf_null = -1;
 gint gsm_ss_ett_sequence = -1;
 gint gsm_ss_ett_param = -1;
 
+static gboolean gsm_ss_seven_bit = FALSE;
+static gboolean gsm_ss_eight_bit = FALSE;
+static gboolean gsm_ss_ucs2 = FALSE;
+static gboolean gsm_ss_compressed = FALSE;
+
+
+typedef struct dgt_set_t
+{
+    unsigned char out[15];
+}
+dgt_set_t;
+
+#ifdef MLUM
+static dgt_set_t Dgt_tbcd = {
+    {
+  /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
+     '0','1','2','3','4','5','6','7','8','9','?','B','C','*','#'
+    }
+};
+#endif
+
+static dgt_set_t Dgt_msid = {
+    {
+  /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
+     '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?'
+    }
+};
+
+
+/* FORWARD DECLARATIONS */
+
+static void op_generic_ss(ASN1_SCK *asn1, proto_tree *tree, guint exp_len);
+
 
 /* GENERIC HELPER FUNCTIONS */
+
+/*
+ * Unpack BCD input pattern into output ASCII pattern
+ *
+ * Input Pattern is supplied using the same format as the digits
+ *
+ * Returns: length of unpacked pattern
+ */
+static int
+my_dgt_tbcd_unpack(
+    char	*out,		/* ASCII pattern out */
+    guchar	*in,		/* packed pattern in */
+    int		num_octs,	/* Number of octets to unpack */
+    dgt_set_t	*dgt		/* Digit definitions */
+    )
+{
+    int cnt = 0;
+    unsigned char i;
+
+    while (num_octs)
+    {
+	/*
+	 * unpack first value in byte
+	 */
+	i = *in++;
+	*out++ = dgt->out[i & 0x0f];
+	cnt++;
+
+	/*
+	 * unpack second value in byte
+	 */
+	i >>= 4;
+
+	if (i == 0x0f)	/* odd number bytes - hit filler */
+	    break;
+
+	*out++ = dgt->out[i];
+	cnt++;
+	num_octs--;
+    }
+
+    *out = '\0';
+
+    return(cnt);
+}
 
 static gchar *
 my_match_strval(guint32 val, const value_string *vs, gint *idx)
@@ -119,6 +198,84 @@ my_match_strval(guint32 val, const value_string *vs, gint *idx)
 }
 
 /* PARAMETER dissection */
+
+void
+param_AddressString(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
+{
+    guint	saved_offset;
+    gint32	value;
+    guchar	*poctets;
+    gchar	*str = NULL;
+    char	bigbuf[1024];
+
+    saved_offset = asn1->offset;
+    asn1_int32_value_decode(asn1, 1, &value);
+
+    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    proto_tree_add_text(tree, asn1->tvb,
+	saved_offset, 1,
+	"%s :  %sxtension",
+	bigbuf, (value & 0x80) ? "No E" : "E");
+
+    switch ((value & 0x70) >> 4)
+    {
+    case 0x00: str = "unknown"; break;
+    case 0x01: str = "International Number"; break;
+    case 0x02: str = "National Significant Number"; break;
+    case 0x03: str = "Network Specific Number"; break;
+    case 0x04: str = "Subscriber Number"; break;
+    case 0x05: str = "Reserved"; break;
+    case 0x06: str = "Abbreviated Number"; break;
+    case 0x07: str = "Reserved for extension"; break;
+    }
+
+    other_decode_bitfield_value(bigbuf, value, 0x70, 8);
+    proto_tree_add_text(tree, asn1->tvb,
+	saved_offset, asn1->offset - saved_offset,
+	"%s :  %s",
+	bigbuf, str);
+
+    switch (value & 0x0f)
+    {
+    case 0x00: str = "unknown"; break;
+    case 0x01: str = "ISDN/Telephony Numbering (Rec ITU-T E.164)"; break;
+    case 0x02: str = "spare"; break;
+    case 0x03: str = "Data Numbering (ITU-T Rec. X.121)"; break;
+    case 0x04: str = "Telex Numbering (ITU-T Rec. F.69)"; break;
+    case 0x05: str = "spare"; break;
+    case 0x06: str = "Land Mobile Numbering (ITU-T Rec. E.212)"; break;
+    case 0x07: str = "spare"; break;
+    case 0x08: str = "National Numbering"; break;
+    case 0x09: str = "Private Numbering"; break;
+    case 0x0f: str = "Reserved for extension"; break;
+    default:
+	str = "Reserved";
+	break;
+    }
+
+    other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
+    proto_tree_add_text(tree, asn1->tvb,
+	saved_offset, asn1->offset - saved_offset,
+	"%s :  %s",
+	bigbuf, str);
+
+    saved_offset = asn1->offset;
+    asn1_string_value_decode(asn1, len - 1, &poctets);
+
+    my_dgt_tbcd_unpack(bigbuf, poctets, len - 1, &Dgt_msid);
+    g_free(poctets);
+
+    if (hf_field == -1)
+    {
+	proto_tree_add_text(tree, asn1->tvb,
+	    saved_offset, len - 1, "BCD Digits %s", bigbuf);
+    }
+    else
+    {
+	proto_tree_add_string_format(tree, hf_field, asn1->tvb,
+	    saved_offset, len - 1, bigbuf, "BCD Digits %s", bigbuf);
+    }
+}
 
 static void
 param_ssCode(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
@@ -423,11 +580,443 @@ param_ssStatus(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
 	(value & 0x01) ? "" : "Not ");
 }
 
+static void
+param_bearerservice(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
+{
+    guint	saved_offset;
+    gint32	value;
+    gchar	*str = NULL;
+
+    hf_field = hf_field;
+
+    saved_offset = asn1->offset;
+    asn1_int32_value_decode(asn1, len, &value);
+
+    switch (value)
+    {
+    case 0x00: str = "allBearerServices"; break;
+    case 0x10: str = "allDataCDA-Services"; break;
+    case 0x11: str = "dataCDA-300bps"; break;
+    case 0x12: str = "dataCDA-1200bps"; break;
+    case 0x13: str = "dataCDA-1200-75bps"; break;
+    case 0x14: str = "dataCDA-2400bps"; break;
+    case 0x15: str = "dataCDA-4800bps"; break;
+    case 0x16: str = "dataCDA-9600bps"; break;
+    case 0x17: str = "general-dataCDA"; break;
+    case 0x18: str = "allDataCDS-Services"; break;
+    case 0x1a: str = "dataCDS-1200bps"; break;
+    case 0x1c: str = "dataCDS-2400bps"; break;
+    case 0x1d: str = "dataCDS-4800bps"; break;
+    case 0x1e: str = "dataCDS-9600bps"; break;
+    case 0x1f: str = "general-dataCDS"; break;
+
+    case 0x20: str = "allPadAccessCA-Services"; break;
+    case 0x21: str = "padAccessCA-300bps"; break;
+    case 0x22: str = "padAccessCA-1200bps"; break;
+    case 0x23: str = "padAccessCA-1200-75bps"; break;
+    case 0x24: str = "padAccessCA-2400bps"; break;
+    case 0x25: str = "padAccessCA-4800bps"; break;
+    case 0x26: str = "padAccessCA-9600bps"; break;
+    case 0x27: str = "general-padAccessCA"; break;
+    case 0x28: str = "allDataPDS-Services"; break;
+    case 0x2c: str = "dataPDS-2400bps"; break;
+    case 0x2d: str = "dataPDS-4800bps"; break;
+    case 0x2e: str = "dataPDS-9600bps"; break;
+    case 0x2f: str = "general-dataPDS"; break;
+
+    case 0x30: str = "allAlternateSpeech-DataCDA"; break;
+    case 0x38: str = "allAlternateSpeech-DataCDS"; break;
+    case 0x40: str = "allSpeechFollowedByDataCDA"; break;
+    case 0x48: str = "allSpeechFollowedByDataCDS"; break;
+
+    case 0x50: str = "allDataCircuitAsynchronous"; break;
+    case 0x60: str = "allAsynchronousServices"; break;
+    case 0x58: str = "allDataCircuitSynchronous"; break;
+    case 0x68: str = "allSynchronousServices"; break;
+
+    case 0xd0: str = "allPLMN-specificBS"; break;
+    case 0xd1: str = "plmn-specificBS-1"; break;
+    case 0xd2: str = "plmn-specificBS-2"; break;
+    case 0xd3: str = "plmn-specificBS-3"; break;
+    case 0xd4: str = "plmn-specificBS-4"; break;
+    case 0xd5: str = "plmn-specificBS-5"; break;
+    case 0xd6: str = "plmn-specificBS-6"; break;
+    case 0xd7: str = "plmn-specificBS-7"; break;
+    case 0xd8: str = "plmn-specificBS-8"; break;
+    case 0xd9: str = "plmn-specificBS-9"; break;
+    case 0xda: str = "plmn-specificBS-A"; break;
+    case 0xdb: str = "plmn-specificBS-B"; break;
+    case 0xdc: str = "plmn-specificBS-C"; break;
+    case 0xdd: str = "plmn-specificBS-D"; break;
+    case 0xde: str = "plmn-specificBS-E"; break;
+    case 0xdf: str = "plmn-specificBS-F"; break;
+
+    default:
+	str = "Undefined";
+	break;
+    }
+
+    proto_tree_add_text(tree, asn1->tvb, saved_offset, len, str);
+}
+
+static void
+param_teleservice(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
+{
+    guint	saved_offset;
+    gint32	value;
+    gchar	*str = NULL;
+
+    hf_field = hf_field;
+
+    saved_offset = asn1->offset;
+    asn1_int32_value_decode(asn1, len, &value);
+
+    switch (value)
+    {
+    case 0x00: str = "allTeleservices"; break;
+    case 0x10: str = "allSpeechTransmissionServices"; break;
+    case 0x11: str = "telephony"; break;
+    case 0x12: str = "emergencyCalls"; break;
+    case 0x20: str = "allShortMessageServices"; break;
+    case 0x21: str = "shortMessageMT-PP"; break;
+    case 0x22: str = "shortMessageMO-PP"; break;
+    case 0x60: str = "allFacsimileTransmissionServices"; break;
+    case 0x61: str = "facsimileGroup3AndAlterSpeech"; break;
+    case 0x62: str = "automaticFacsimileGroup3"; break;
+    case 0x63: str = "facsimileGroup4"; break;
+
+    case 0x70: str = "allDataTeleservices"; break;
+    case 0x80: str = "allTeleservices-ExeptSMS"; break;
+
+    case 0x90: str = "allVoiceGroupCallServices"; break;
+    case 0x91: str = "voiceGroupCall"; break;
+    case 0x92: str = "voiceBroadcastCall"; break;
+
+    case 0xd0: str = "allPLMN-specificTS"; break;
+    case 0xd1: str = "plmn-specificTS-1"; break;
+    case 0xd2: str = "plmn-specificTS-2"; break;
+    case 0xd3: str = "plmn-specificTS-3"; break;
+    case 0xd4: str = "plmn-specificTS-4"; break;
+    case 0xd5: str = "plmn-specificTS-5"; break;
+    case 0xd6: str = "plmn-specificTS-6"; break;
+    case 0xd7: str = "plmn-specificTS-7"; break;
+    case 0xd8: str = "plmn-specificTS-8"; break;
+    case 0xd9: str = "plmn-specificTS-9"; break;
+    case 0xda: str = "plmn-specificTS-A"; break;
+    case 0xdb: str = "plmn-specificTS-B"; break;
+    case 0xdc: str = "plmn-specificTS-C"; break;
+    case 0xdd: str = "plmn-specificTS-D"; break;
+    case 0xde: str = "plmn-specificTS-E"; break;
+    case 0xdf: str = "plmn-specificTS-F"; break;
+
+    default:
+	str = "Undefined";
+	break;
+    }
+
+    proto_tree_add_text(tree, asn1->tvb, saved_offset, len, str);
+}
+
+/*
+ * GSM 03.38
+ * Same as Cell Broadcast
+ */
+static void
+param_ussdDCS(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
+{
+    guint		saved_offset;
+    gint32		value;
+    gchar		*str = NULL;
+    char		bigbuf[1024];
+    proto_tree		*subtree;
+    proto_item		*item;
+
+    hf_field = hf_field;
+
+    gsm_ss_seven_bit = FALSE;
+    gsm_ss_eight_bit = FALSE;
+    gsm_ss_ucs2 = FALSE;
+    gsm_ss_compressed = FALSE;
+
+    saved_offset = asn1->offset;
+    asn1_int32_value_decode(asn1, len, &value);
+
+    item =
+	proto_tree_add_text(tree, asn1->tvb,
+	    saved_offset, len,
+	    "Data Coding Scheme (%d)",
+	    value);
+
+    subtree = proto_item_add_subtree(item, gsm_ss_ett_param);
+
+    if ((value & 0xf0) == 0x00)
+    {
+	/* 0000....  Language using the default alphabet */
+
+	switch (value & 0x0f)
+	{
+	case 0x00: str = "German"; break;
+	case 0x01: str = "English"; break;
+	case 0x02: str = "Italian"; break;
+	case 0x03: str = "French"; break;
+	case 0x04: str = "Spanish"; break;
+	case 0x05: str = "Dutch"; break;
+	case 0x06: str = "Swedish"; break;
+	case 0x07: str = "Danish"; break;
+	case 0x08: str = "Portuguese"; break;
+	case 0x09: str = "Finnish"; break;
+	case 0x0a: str = "Norwegian"; break;
+	case 0x0b: str = "Greek"; break;
+	case 0x0c: str = "Turkish"; break;
+	case 0x0d: str = "Hungarian"; break;
+	case 0x0e: str = "Polish"; break;
+	case 0x0f: str = "Language unspecified"; break;
+	}
+
+	other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, 1,
+	    "%s :  %s language using default alphabet",
+	    bigbuf,
+	    str);
+
+	gsm_ss_seven_bit = TRUE;
+    }
+    else if ((value & 0xf0) == 0x10)
+    {
+	switch (value & 0x0f)
+	{
+	case 0x00: str = "Default alphabet; message preceded by language indication"; break;
+	case 0x01: str = "UCS2; message preceded by language indication"; break;
+	default:
+	    str = "Reserved for European languages";
+	    break;
+	}
+
+	other_decode_bitfield_value(bigbuf, value, 0xff, 8);
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, 1,
+	    "%s :  %s",
+	    bigbuf,
+	    str);
+    }
+    else if ((value & 0xf0) == 0x20)
+    {
+	switch (value & 0x0f)
+	{
+	case 0x00: str = "Czech"; break;
+	default:
+	    str = "Reserved for European languages using the default alphabet";
+	    break;
+	}
+
+	other_decode_bitfield_value(bigbuf, value, 0xff, 8);
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, 1,
+	    "%s :  %s",
+	    bigbuf,
+	    str);
+    }
+    else if ((value & 0xf0) == 0x30)
+    {
+	other_decode_bitfield_value(bigbuf, value, 0xff, 8);
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, 1,
+	    "%s :  Reserved for European Languages using the default alphabet",
+	    bigbuf);
+    }
+    else if ((value & 0xc0) == 0x40)
+    {
+	other_decode_bitfield_value(bigbuf, value, 0xc0, 8);
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, 1,
+	    "%s :  General Data Coding indication",
+	    bigbuf);
+
+	gsm_ss_compressed = (value & 0x20) >> 5;
+
+	other_decode_bitfield_value(bigbuf, value, 0x20, 8);
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, 1,
+	    "%s :  Text is %scompressed",
+	    bigbuf,
+	    gsm_ss_compressed ? "" : "not ");
+
+	other_decode_bitfield_value(bigbuf, value, 0x10, 8);
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, 1,
+	    "%s :  %s",
+	    bigbuf,
+	    (value & 0x10) ? "Message class is defined below" :
+		"Reserved, no message class");
+
+	switch ((value & 0x0c) >> 2)
+	{
+	case 0x00: str = "GSM 7 bit default alphabet";
+	    gsm_ss_seven_bit = TRUE;
+	    break;
+	case 0x01: str = "8 bit data"; break;
+	case 0x02: str = "UCS2 (16 bit)";
+	    gsm_ss_ucs2 = TRUE;
+	    break;
+	case 0x03: str = "Reserved"; break;
+	}
+
+	other_decode_bitfield_value(bigbuf, value, 0x0c, 8);
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, 1,
+	    "%s :  Character set: %s",
+	    bigbuf,
+	    str);
+
+	switch (value & 0x03)
+	{
+	case 0x00: str = "Class 0"; break;
+	case 0x01: str = "Class 1 Default meaning: ME-specific"; break;
+	case 0x02: str = "Class 2 (U)SIM specific message"; break;
+	case 0x03: str = "Class 3 Default meaning: TE-specific"; break;
+	}
+
+	other_decode_bitfield_value(bigbuf, value, 0x03, 8);
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, 1,
+	    "%s :  Message Class: %s%s",
+	    bigbuf,
+	    str,
+	    (value & 0x10) ? "" : " (reserved)");
+    }
+    else if ((value & 0xf0) == 0xf0)
+    {
+	other_decode_bitfield_value(bigbuf, value, 0xf0, 8);
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, 1,
+	    "%s :  Data Coding / Message Handling",
+	    bigbuf);
+
+	other_decode_bitfield_value(bigbuf, value, 0x08, 8);
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, 1,
+	    "%s :  Reserved",
+	    bigbuf);
+
+	gsm_ss_seven_bit = !(gsm_ss_eight_bit = (value & 0x04) ? TRUE : FALSE);
+
+	other_decode_bitfield_value(bigbuf, value, 0x04, 8);
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, 1,
+	    "%s :  Message coding: %s",
+	    bigbuf,
+	    gsm_ss_eight_bit ? "8 bit data" : "Default alphabet");
+
+	switch (value & 0x03)
+	{
+	case 0x00: str = "No message class"; break;
+	case 0x01: str = "Class 1 user defined"; break;
+	case 0x02: str = "Class 2 user defined"; break;
+	case 0x03: str = "Class 3 Default meaning: TE-specific"; break;
+	}
+
+	other_decode_bitfield_value(bigbuf, value, 0x03, 8);
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, 1,
+	    "%s :  Message Class: %s",
+	    bigbuf,
+	    str);
+    }
+    else
+    {
+	other_decode_bitfield_value(bigbuf, value, 0xff, 8);
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, 1,
+	    "%s :  Reserved coding groups",
+	    bigbuf);
+    }
+}
+
+static void
+param_ussdString(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
+{
+    guint		saved_offset;
+    char		bigbuf[1024];
+    guint8		fill_bits;
+    guint32		out_len;
+    char		*ustr;
+
+    hf_field = hf_field;
+
+    saved_offset = asn1->offset;
+
+    if (gsm_ss_compressed)
+    {
+	proto_tree_add_text(tree, asn1->tvb,
+	    saved_offset, len,
+	    "Compressed data");
+    }
+    else
+    {
+	if (gsm_ss_seven_bit)
+	{
+	    fill_bits = 0;
+
+	    out_len =
+		gsm_sms_char_7bit_unpack(fill_bits, len, sizeof(bigbuf),
+		    tvb_get_ptr(asn1->tvb, saved_offset, len), bigbuf);
+	    bigbuf[out_len] = '\0';
+	    gsm_sms_char_ascii_decode(bigbuf, bigbuf, out_len);
+
+	    proto_tree_add_text(tree, asn1->tvb, saved_offset, len, "%s", bigbuf);
+	}
+	else if (gsm_ss_eight_bit)
+	{
+	    proto_tree_add_text(tree, asn1->tvb, saved_offset, len, "%s",
+	        tvb_format_text(asn1->tvb, saved_offset, len));
+	}
+	else if (gsm_ss_ucs2)
+	{
+	    ustr = tvb_fake_unicode(asn1->tvb, saved_offset, len, FALSE);
+	    proto_tree_add_text(tree, asn1->tvb, saved_offset, len, "%s", ustr);
+	    g_free(ustr);
+	}
+	else
+	{
+	    /* don't know what form it is */
+
+	    proto_tree_add_text(tree, asn1->tvb,
+		saved_offset, len,
+		"Parameter Data");
+	}
+    }
+
+    asn1->offset += len;
+}
+
+static void
+param_ia5String(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
+{
+    guint		saved_offset;
+
+    hf_field = hf_field;
+
+    saved_offset = asn1->offset;
+
+    proto_tree_add_text(tree, asn1->tvb, saved_offset, len, "%s",
+	tvb_format_text(asn1->tvb, saved_offset, len));
+
+    asn1->offset += len;
+}
+
 
 typedef enum
 {
     GSM_SS_P_SS_CODE,			/* SS-Code */
     GSM_SS_P_SS_STATUS,			/* SS-Status */
+    GSM_SS_P_BEARERSERVICE,		/* Bearer Service */
+    GSM_SS_P_TELESERVICE,		/* Tele Service */
+    GSM_SS_P_FORWARD_TO_NUM,		/* Forward to Number */
+    GSM_SS_P_LONG_FORWARD_TO_NUM,	/* Long Forward to Number */
+    GSM_SS_P_USSD_DCS,			/* USSD Data Coding Scheme */
+    GSM_SS_P_USSD_STRING,		/* USSD String */
+    GSM_SS_P_IA5_STRING,		/* IA5 String */
     GSM_SS_P_NONE			/* NONE */
 }
 param_idx_t;
@@ -437,12 +1026,26 @@ static gint ett_param_1[NUM_PARAM_1];
 static void (*param_1_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field) = {
     param_ssCode,			/* SS-Code */
     param_ssStatus,			/* SS-Status */
+    param_bearerservice,		/* Bearer Service */
+    param_teleservice,			/* Tele Service */
+    param_AddressString,		/* Forward to Number */
+    param_AddressString,		/* Long Forward to Number */
+    param_ussdDCS,			/* USSD Data Coding Scheme */
+    param_ussdString,			/* USSD String */
+    param_ia5String,			/* IA5 String */
     NULL				/* NONE */
 };
 
 static int *param_1_hf[] = {
     HF_NULL,				/* SS-Code */
     HF_NULL,				/* SS-Status */
+    HF_NULL,				/* Bearer Service */
+    HF_NULL,				/* Tele Service */
+    HF_NULL,				/* Forward to Number */
+    HF_NULL,				/* Long Forward to Number */
+    HF_NULL,				/* USSD Data Coding Scheme */
+    HF_NULL,				/* USSD String */
+    HF_NULL,				/* IA5 String */
     NULL				/* NONE */
 };
 
@@ -478,7 +1081,6 @@ static int *param_1_hf[] = {
 	proto_item_set_len(_item, (asn1->offset - _Gsaved_offset) + *_Glen_p + \
 	    (*_Gdef_len_p ? 0 : TCAP_EOC_LEN)); \
     }
-
 
 #define	GSM_SS_PARAM_DISPLAY(Gtree, Goffset, Gtag, Ga1, Ga2) \
     { \
@@ -531,6 +1133,332 @@ static int *param_1_hf[] = {
 	} \
     }
 
+
+static void
+param_forwardingFeature(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint		saved_offset;
+    guint		tag, len;
+    gboolean		def_len;
+    proto_tree		*subtree;
+
+    exp_len = exp_len;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    GSM_SS_START_SUBTREE(tree, saved_offset, tag, "Forwarding Feature",
+	gsm_ss_ett_sequence,
+	&def_len, &len, subtree);
+
+    if (tcap_check_tag(asn1, 0x82))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_BEARERSERVICE, "Bearerservice");
+    }
+
+    if (tcap_check_tag(asn1, 0x83))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_TELESERVICE, "Teleservice");
+    }
+
+    if (tcap_check_tag(asn1, 0x84))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_SS_STATUS, "SS-Status");
+    }
+
+    if (tcap_check_tag(asn1, 0x85))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_FORWARD_TO_NUM, "Forwarded to Number");
+    }
+
+    if (tcap_check_tag(asn1, 0x88))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_NONE, "Forwarded to Subaddress");
+    }
+
+    if (tcap_check_tag(asn1, 0x86))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_NONE, "Forwarding Options");
+    }
+
+    if (tcap_check_tag(asn1, 0x87))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_NONE, "No Reply Condition Time");
+    }
+
+    if (tcap_check_tag(asn1, 0x89))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_LONG_FORWARD_TO_NUM, "Long Forward to Number");
+    }
+
+    if (!def_len)
+    {
+	saved_offset = asn1->offset;
+	asn1_eoc_decode(asn1, -1);
+
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, asn1->offset - saved_offset, "End of Contents");
+    }
+}
+
+static void
+param_forwardingFeatureList(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint		saved_offset, start_offset;
+    guint		tag, len;
+    gboolean		def_len;
+    proto_tree		*subtree;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    GSM_SS_START_SUBTREE(tree, saved_offset, tag, "Forwarding Feature List",
+	gsm_ss_ett_sequence,
+	&def_len, &len, subtree);
+
+    start_offset = asn1->offset;
+
+    while ((tvb_length_remaining(asn1->tvb, asn1->offset) > 0) &&
+	(!tcap_check_tag(asn1, 0)))
+    {
+	if ((exp_len != 0) &&
+	    ((asn1->offset - saved_offset) >= exp_len))
+	{
+	    break;
+	}
+
+	param_forwardingFeature(asn1, subtree, len - (asn1->offset - start_offset));
+    }
+
+    if (!def_len)
+    {
+	saved_offset = asn1->offset;
+	asn1_eoc_decode(asn1, -1);
+
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, asn1->offset - saved_offset, "End of Contents");
+    }
+}
+
+static void
+param_ssInfo(ASN1_SCK *asn1, proto_tree *tree)
+{
+    guint		saved_offset, start_offset;
+    guint		tag, len;
+    gboolean		def_len = FALSE;
+    proto_tree		*subtree;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    switch (tag)
+    {
+    case 0xa0:	/* forwardingInfo */
+	GSM_SS_START_SUBTREE(tree, saved_offset, tag, "Forwarding Info",
+	    gsm_ss_ett_sequence,
+	    &def_len, &len, subtree);
+
+	start_offset = asn1->offset;
+
+	if (tcap_check_tag(asn1, 0x04))
+	{
+	    saved_offset = asn1->offset;
+	    asn1_id_decode1(asn1, &tag);
+
+	    GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_SS_CODE, "SS-Code");
+	}
+
+	param_forwardingFeatureList(asn1, subtree, len - (asn1->offset - start_offset));
+
+	if (!def_len)
+	{
+	    saved_offset = asn1->offset;
+	    asn1_eoc_decode(asn1, -1);
+
+	    proto_tree_add_text(subtree, asn1->tvb,
+		saved_offset, asn1->offset - saved_offset, "End of Contents");
+	}
+	break;
+
+    case 0xa1:	/* callBarringInfo */
+	GSM_SS_START_SUBTREE(tree, saved_offset, tag, "Call Barring Info",
+	    gsm_ss_ett_sequence,
+	    &def_len, &len, subtree);
+
+	start_offset = asn1->offset;
+
+	/* XXX */
+	op_generic_ss(asn1, subtree, len - (asn1->offset - start_offset));
+
+	if (!def_len)
+	{
+	    saved_offset = asn1->offset;
+	    asn1_eoc_decode(asn1, -1);
+
+	    proto_tree_add_text(subtree, asn1->tvb,
+		saved_offset, asn1->offset - saved_offset, "End of Contents");
+	}
+	break;
+
+    case 0xa3:	/* ss-Data */
+	GSM_SS_START_SUBTREE(tree, saved_offset, tag, "ss-Data",
+	    gsm_ss_ett_sequence,
+	    &def_len, &len, subtree);
+
+	start_offset = asn1->offset;
+
+	/* XXX */
+	op_generic_ss(asn1, subtree, len - (asn1->offset - start_offset));
+
+	if (!def_len)
+	{
+	    saved_offset = asn1->offset;
+	    asn1_eoc_decode(asn1, -1);
+
+	    proto_tree_add_text(subtree, asn1->tvb,
+		saved_offset, asn1->offset - saved_offset, "End of Contents");
+	}
+	break;
+
+    default:
+	/* XXX */
+	break;
+    }
+}
+
+static void
+param_ssForBS(ASN1_SCK *asn1, proto_tree *tree)
+{
+    guint		saved_offset, start_offset;
+    guint		tag, len, rem_len;
+    gboolean		def_len = FALSE;
+    proto_tree		*subtree;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    GSM_SS_START_SUBTREE(tree, saved_offset, tag, "Sequence",
+	gsm_ss_ett_sequence,
+	&def_len, &len, subtree);
+
+    start_offset = asn1->offset;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_SS_CODE, "SS-Code");
+
+    if (tcap_check_tag(asn1, 0x82))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_BEARERSERVICE, "Bearerservice");
+    }
+
+    if (tcap_check_tag(asn1, 0x83))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_TELESERVICE, "Teleservice");
+    }
+
+    if (tcap_check_tag(asn1, 0x84))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_NONE, "Long FTN supported");
+    }
+
+    rem_len = len - (asn1->offset - start_offset);
+
+    if (rem_len > 0)
+    {
+	op_generic_ss(asn1, subtree, rem_len);
+    }
+
+    if (!def_len)
+    {
+	saved_offset = asn1->offset;
+	asn1_eoc_decode(asn1, -1);
+
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, asn1->offset - saved_offset, "End of Contents");
+    }
+}
+
+static void
+param_ussdArg(ASN1_SCK *asn1, proto_tree *tree)
+{
+    guint		saved_offset, start_offset;
+    guint		tag, len, rem_len;
+    gboolean		def_len = FALSE;
+    proto_tree		*subtree;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    GSM_SS_START_SUBTREE(tree, saved_offset, tag, "Sequence",
+	gsm_ss_ett_sequence,
+	&def_len, &len, subtree);
+
+    start_offset = asn1->offset;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_USSD_DCS, "USSD Data Coding Scheme");
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_USSD_STRING, "USSD String");
+
+    rem_len = len - (asn1->offset - start_offset);
+
+    if (rem_len > 0)
+    {
+	op_generic_ss(asn1, subtree, rem_len);
+    }
+
+    if (!def_len)
+    {
+	saved_offset = asn1->offset;
+	asn1_eoc_decode(asn1, -1);
+
+	proto_tree_add_text(subtree, asn1->tvb,
+	    saved_offset, asn1->offset - saved_offset, "End of Contents");
+    }
+}
+
+
+/* MESSAGES */
 
 static void
 op_generic_ss(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
@@ -622,10 +1550,10 @@ op_generic_ss(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 }
 
 static void
-op_interrogate_ss(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+op_register_ss(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
     guint	saved_offset, start_offset;
-    guint	tag, len;
+    guint	tag, len, rem_len;
     gboolean	def_len = FALSE;
     proto_tree	*subtree;
 
@@ -655,7 +1583,60 @@ op_interrogate_ss(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 
     GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_SS_CODE, "SS-Code");
 
-    op_generic_ss(asn1, subtree, len - (asn1->offset - start_offset));
+    if (tcap_check_tag(asn1, 0x82))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_BEARERSERVICE, "Bearerservice");
+    }
+
+    if (tcap_check_tag(asn1, 0x83))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_TELESERVICE, "Teleservice");
+    }
+
+    if (tcap_check_tag(asn1, 0x84))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_FORWARD_TO_NUM, "Forwarded to Number");
+    }
+
+    if (tcap_check_tag(asn1, 0x86))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_NONE, "Forwarded to Subaddress");
+    }
+
+    if (tcap_check_tag(asn1, 0x85))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_NONE, "No Reply Condition Time");
+    }
+
+    if (tcap_check_tag(asn1, 0x87))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_SS_P_NONE, "Default Priority");
+    }
+
+    rem_len = len - (asn1->offset - start_offset);
+
+    if (rem_len > 0)
+    {
+	op_generic_ss(asn1, subtree, rem_len);
+    }
 
     if (!def_len)
     {
@@ -665,6 +1646,118 @@ op_interrogate_ss(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	proto_tree_add_text(subtree, asn1->tvb,
 	    saved_offset, asn1->offset - saved_offset, "End of Contents");
     }
+}
+
+static void
+op_register_ss_rr(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint	saved_offset;
+
+    exp_len = exp_len;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+
+    param_ssInfo(asn1, tree);
+}
+
+static void
+op_erase_ss(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint	saved_offset;
+
+    exp_len = exp_len;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+
+    param_ssForBS(asn1, tree);
+}
+
+static void
+op_erase_ss_rr(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint	saved_offset;
+
+    exp_len = exp_len;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+
+    param_ssInfo(asn1, tree);
+}
+
+static void
+op_activate_ss(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint	saved_offset;
+
+    exp_len = exp_len;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+
+    param_ssForBS(asn1, tree);
+}
+
+static void
+op_activate_ss_rr(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint	saved_offset;
+
+    exp_len = exp_len;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+
+    param_ssInfo(asn1, tree);
+}
+
+static void
+op_deactivate_ss(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint	saved_offset;
+
+    exp_len = exp_len;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+
+    param_ssForBS(asn1, tree);
+}
+
+static void
+op_deactivate_ss_rr(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint	saved_offset;
+
+    exp_len = exp_len;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+
+    param_ssInfo(asn1, tree);
+}
+
+static void
+op_interrogate_ss(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint	saved_offset;
+
+    exp_len = exp_len;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+
+    param_ssForBS(asn1, tree);
 }
 
 static void
@@ -700,27 +1793,125 @@ op_interrogate_ss_rr(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 
     default:
 	/* do nothing - unexpected tag */
-	break;
+	return;
     }
 
     op_generic_ss(asn1, tree, 0);
 }
 
+static void
+op_proc_uss_data(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint	saved_offset;
+    guint	tag, rem_len;
+
+    exp_len = exp_len;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+
+    if (tcap_check_tag(asn1, 0x16))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(tree, saved_offset, tag, GSM_SS_P_IA5_STRING, "SS-UserData");
+    }
+
+    rem_len = exp_len - (asn1->offset - saved_offset);
+
+    if (rem_len > 0)
+    {
+	op_generic_ss(asn1, tree, rem_len);
+    }
+}
+
+static void
+op_proc_uss_data_rr(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint	saved_offset;
+    guint	tag, rem_len;
+
+    exp_len = exp_len;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+
+    if (tcap_check_tag(asn1, 0x16))
+    {
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+
+	GSM_SS_PARAM_DISPLAY(tree, saved_offset, tag, GSM_SS_P_IA5_STRING, "SS-UserData");
+    }
+
+    rem_len = exp_len - (asn1->offset - saved_offset);
+
+    if (rem_len > 0)
+    {
+	op_generic_ss(asn1, tree, rem_len);
+    }
+}
+
+static void
+op_proc_uss_req(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint	saved_offset;
+
+    exp_len = exp_len;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+
+    param_ussdArg(asn1, tree);
+}
+
+static void
+op_uss_req(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint	saved_offset;
+
+    exp_len = exp_len;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+
+    param_ussdArg(asn1, tree);
+}
+
+static void
+op_uss_notify(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint	saved_offset;
+
+    exp_len = exp_len;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+
+    param_ussdArg(asn1, tree);
+}
+
 #define	GSM_SS_NUM_OP (sizeof(gsm_ss_opr_code_strings)/sizeof(value_string))
 static void (*op_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint exp_len) = {
-    NULL,	/* RegisterSS */
-    NULL,	/* EraseSS */
-    NULL,	/* ActivateSS */
-    NULL,	/* DeactivateSS */
+    op_register_ss,	/* RegisterSS */
+    op_erase_ss,	/* EraseSS */
+    op_activate_ss,	/* ActivateSS */
+    op_deactivate_ss,	/* DeactivateSS */
     op_interrogate_ss,	/* InterrogateSS */
     NULL,	/* NotifySS */
     NULL,	/* RegisterPassword */
     NULL,	/* GetPassword */
-    NULL,	/* ProcessUnstructuredSS-Data */
+    op_proc_uss_data,	/* ProcessUnstructuredSS-Data */
     NULL,	/* ForwardCheckSS-Indication */
-    NULL,	/* ProcessUnstructuredSS-Request */
-    NULL,	/* UnstructuredSS-Request */
-    NULL,	/* UnstructuredSS-Notify */
+    op_proc_uss_req,	/* ProcessUnstructuredSS-Request */
+    op_uss_req,	/* UnstructuredSS-Request */
+    op_uss_notify,	/* UnstructuredSS-Notify */
     NULL,	/* EraseCC-Entry */
     NULL,	/* AccessRegisterCCEntry */
     NULL,	/* ForwardCUG-Info */
@@ -735,15 +1926,15 @@ static void (*op_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint exp_len) = {
 };
 
 static void (*op_fcn_rr[])(ASN1_SCK *asn1, proto_tree *tree, guint exp_len) = {
-    NULL,	/* RegisterSS */
-    NULL,	/* EraseSS */
-    NULL,	/* ActivateSS */
-    NULL,	/* DeactivateSS */
+    op_register_ss_rr,	/* RegisterSS */
+    op_erase_ss_rr,	/* EraseSS */
+    op_activate_ss_rr,	/* ActivateSS */
+    op_deactivate_ss_rr,	/* DeactivateSS */
     op_interrogate_ss_rr,	/* InterrogateSS */
     NULL,	/* NotifySS */
     NULL,	/* RegisterPassword */
     NULL,	/* GetPassword */
-    NULL,	/* ProcessUnstructuredSS-Data */
+    op_proc_uss_data_rr,	/* ProcessUnstructuredSS-Data */
     NULL,	/* ForwardCheckSS-Indication */
     NULL,	/* ProcessUnstructuredSS-Request */
     NULL,	/* UnstructuredSS-Request */

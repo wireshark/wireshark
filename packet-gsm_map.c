@@ -7,7 +7,7 @@
  * Changed to run on new version of TCAP, many changes for
  * EOC matching, and parameter separation.  (2003)
  *
- * $Id: packet-gsm_map.c,v 1.9 2004/03/19 07:54:57 guy Exp $
+ * $Id: packet-gsm_map.c,v 1.10 2004/03/27 11:32:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -407,23 +407,6 @@ my_match_strval(guint32 val, const value_string *vs, gint *idx)
     return(NULL);
 }
 
-static gboolean
-check_map_tag(ASN1_SCK *asn1, guint tag)
-{
-    guint	saved_offset, real_tag;
-
-    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0)
-    {
-	return(FALSE);
-    }
-
-    saved_offset = asn1->offset;
-    asn1_id_decode1(asn1, &real_tag);
-    asn1->offset = saved_offset;
-
-    return(tag == real_tag);
-}
-
 #define	GSM_MAP_START_SUBTREE(_Gtree, _Gsaved_offset, _Gtag, _Gstr1, _Gett, _Gdef_len_p, _Glen_p, _Gsubtree_p) \
     { \
 	guint		_len_offset; \
@@ -469,7 +452,7 @@ dissect_map_params(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
     orig_offset = asn1->offset;
 
     while ((tvb_length_remaining(asn1->tvb, asn1->offset) > 0) &&
-	(!check_map_tag(asn1, 0)))
+	(!tcap_check_tag(asn1, 0)))
     {
 	if ((exp_len != 0) &&
 	    ((asn1->offset - orig_offset) >= exp_len))
@@ -640,84 +623,6 @@ param_alertReason(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
 
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, len, str);
-}
-
-static void
-param_AddressString(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
-{
-    guint	saved_offset;
-    gint32	value;
-    guchar	*poctets;
-    gchar	*str = NULL;
-    char	bigbuf[1024];
-
-    saved_offset = asn1->offset;
-    asn1_int32_value_decode(asn1, 1, &value);
-
-    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
-    proto_tree_add_text(tree, asn1->tvb,
-	saved_offset, 1,
-	"%s :  %sxtension",
-	bigbuf, (value & 0x80) ? "No E" : "E");
-
-    switch ((value & 0x70) >> 4)
-    {
-    case 0x00: str = "unknown"; break;
-    case 0x01: str = "International Number"; break;
-    case 0x02: str = "National Significant Number"; break;
-    case 0x03: str = "Network Specific Number"; break;
-    case 0x04: str = "Subscriber Number"; break;
-    case 0x05: str = "Reserved"; break;
-    case 0x06: str = "Abbreviated Number"; break;
-    case 0x07: str = "Reserved for extension"; break;
-    }
-
-    other_decode_bitfield_value(bigbuf, value, 0x70, 8);
-    proto_tree_add_text(tree, asn1->tvb,
-	saved_offset, asn1->offset - saved_offset,
-	"%s :  %s",
-	bigbuf, str);
-
-    switch (value & 0x0f)
-    {
-    case 0x00: str = "unknown"; break;
-    case 0x01: str = "ISDN/Telephony Numbering (Rec ITU-T E.164)"; break;
-    case 0x02: str = "spare"; break;
-    case 0x03: str = "Data Numbering (ITU-T Rec. X.121)"; break;
-    case 0x04: str = "Telex Numbering (ITU-T Rec. F.69)"; break;
-    case 0x05: str = "spare"; break;
-    case 0x06: str = "Land Mobile Numbering (ITU-T Rec. E.212)"; break;
-    case 0x07: str = "spare"; break;
-    case 0x08: str = "National Numbering"; break;
-    case 0x09: str = "Private Numbering"; break;
-    case 0x0f: str = "Reserved for extension"; break;
-    default:
-	str = "Reserved";
-	break;
-    }
-
-    other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
-    proto_tree_add_text(tree, asn1->tvb,
-	saved_offset, asn1->offset - saved_offset,
-	"%s :  %s",
-	bigbuf, str);
-
-    saved_offset = asn1->offset;
-    asn1_string_value_decode(asn1, len - 1, &poctets);
-
-    my_dgt_tbcd_unpack(bigbuf, poctets, len - 1, &Dgt_msid);
-    g_free(poctets);
-
-    if (hf_field == -1)
-    {
-	proto_tree_add_text(tree, asn1->tvb,
-	    saved_offset, len - 1, "BCD Digits %s", bigbuf);
-    }
-    else
-    {
-	proto_tree_add_string_format(tree, hf_field, asn1->tvb,
-	    saved_offset, len - 1, bigbuf, "BCD Digits %s", bigbuf);
-    }
 }
 
 
@@ -913,7 +818,7 @@ param_TripletList(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
     orig_offset = asn1->offset;
 
     while ((tvb_length_remaining(asn1->tvb, asn1->offset) > 0) &&
-	(!check_map_tag(asn1, 0)))
+	(!tcap_check_tag(asn1, 0)))
     {
 	if ((exp_len != 0) &&
 	    ((asn1->offset - orig_offset) >= exp_len))
@@ -961,7 +866,7 @@ param_QuintupletList(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
     orig_offset = asn1->offset;
 
     while ((tvb_length_remaining(asn1->tvb, asn1->offset) > 0) &&
-	(!check_map_tag(asn1, 0)))
+	(!tcap_check_tag(asn1, 0)))
     {
 	if ((exp_len != 0) &&
 	    ((asn1->offset - orig_offset) >= exp_len))
@@ -1526,7 +1431,7 @@ op_send_rti_rr(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 
     start_offset = asn1->offset;
 
-    if (check_map_tag(asn1, 0x89))
+    if (tcap_check_tag(asn1, 0x89))
     {
 	saved_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
@@ -1581,7 +1486,7 @@ op_provide_rn(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 
     GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_MSC_NUMBER, "MSC Number");
 
-    if (check_map_tag(asn1, 0x82))
+    if (tcap_check_tag(asn1, 0x82))
     {
 	saved_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
@@ -1589,7 +1494,7 @@ op_provide_rn(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_MSISDN, "MSISDN");
     }
 
-    if (check_map_tag(asn1, 0x84))
+    if (tcap_check_tag(asn1, 0x84))
     {
 	saved_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
@@ -1597,7 +1502,7 @@ op_provide_rn(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_LMSI, "LMSI");
     }
 
-    if (check_map_tag(asn1, 0x85))
+    if (tcap_check_tag(asn1, 0x85))
     {
 	saved_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
@@ -1605,7 +1510,7 @@ op_provide_rn(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_NONE, "GSM Bearer Capability");
     }
 
-    if (check_map_tag(asn1, 0xa6))
+    if (tcap_check_tag(asn1, 0xa6))
     {
 	saved_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
@@ -1613,7 +1518,7 @@ op_provide_rn(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_NONE, "Network Signal Info");
     }
 
-    if (check_map_tag(asn1, 0x87))
+    if (tcap_check_tag(asn1, 0x87))
     {
 	saved_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
@@ -1621,7 +1526,7 @@ op_provide_rn(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_NONE, "Suppression Of Announcement");
     }
 
-    if (check_map_tag(asn1, 0x88))
+    if (tcap_check_tag(asn1, 0x88))
     {
 	saved_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
@@ -1629,7 +1534,7 @@ op_provide_rn(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_GMSC_ADDR, "GMSC Address");
     }
 
-    if (check_map_tag(asn1, 0x89))
+    if (tcap_check_tag(asn1, 0x89))
     {
 	saved_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
@@ -1637,7 +1542,7 @@ op_provide_rn(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_NONE, "Call Reference Number");
     }
 
-    if (check_map_tag(asn1, 0x8a))
+    if (tcap_check_tag(asn1, 0x8a))
     {
 	saved_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
@@ -1645,7 +1550,7 @@ op_provide_rn(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_NONE, "OR Interrogation");
     }
 
-    if (check_map_tag(asn1, 0x8b))
+    if (tcap_check_tag(asn1, 0x8b))
     {
 	saved_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
@@ -1653,7 +1558,7 @@ op_provide_rn(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_NONE, "Extension Container");
     }
 
-    if (check_map_tag(asn1, 0x8c))
+    if (tcap_check_tag(asn1, 0x8c))
     {
 	saved_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
@@ -1661,7 +1566,7 @@ op_provide_rn(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_NONE, "Alerting Pattern");
     }
 
-    if (check_map_tag(asn1, 0x8d))
+    if (tcap_check_tag(asn1, 0x8d))
     {
 	saved_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
@@ -1669,7 +1574,7 @@ op_provide_rn(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_NONE, "CCBS Call");
     }
 
-    if (check_map_tag(asn1, 0x8f))
+    if (tcap_check_tag(asn1, 0x8f))
     {
 	saved_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
@@ -1677,7 +1582,7 @@ op_provide_rn(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_NONE, "Supported Camel Phases In GMSC");
     }
 
-    if (check_map_tag(asn1, 0x8e))
+    if (tcap_check_tag(asn1, 0x8e))
     {
 	saved_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
@@ -1685,7 +1590,7 @@ op_provide_rn(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_NONE, "Additional Signal Info");
     }
 
-    if (check_map_tag(asn1, 0x90))
+    if (tcap_check_tag(asn1, 0x90))
     {
 	saved_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
@@ -1693,7 +1598,7 @@ op_provide_rn(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_NONE, "OR Not Supported In GMSC");
     }
 
-    if (check_map_tag(asn1, 0x91))
+    if (tcap_check_tag(asn1, 0x91))
     {
 	saved_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
@@ -1701,7 +1606,7 @@ op_provide_rn(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_NONE, "Pre-paging Supported");
     }
 
-    if (check_map_tag(asn1, 0x92))
+    if (tcap_check_tag(asn1, 0x92))
     {
 	saved_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
@@ -2406,7 +2311,7 @@ dissect_map_invokeId(ASN1_SCK *asn1, proto_tree *tree)
     proto_tree	*subtree;
     gboolean	def_len;
 
-    if (check_map_tag(asn1, TCAP_INVOKE_ID_TAG))
+    if (tcap_check_tag(asn1, TCAP_INVOKE_ID_TAG))
     {
 	saved_offset = asn1->offset;
 	item =
@@ -2574,7 +2479,7 @@ dissect_map_lnkId(ASN1_SCK *asn1, proto_tree *tree)
     proto_tree	*subtree;
     gboolean	def_len;
 
-    if (check_map_tag(asn1, TCAP_LINKED_ID_TAG))
+    if (tcap_check_tag(asn1, TCAP_LINKED_ID_TAG))
     {
 	saved_offset = asn1->offset;
 
@@ -2621,7 +2526,7 @@ dissect_map_opr_code(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gint 
     }
     tap_p = &tap_rec[tap_current];
 
-    if (check_map_tag(asn1, MAP_OPR_CODE_TAG))
+    if (tcap_check_tag(asn1, MAP_OPR_CODE_TAG))
     {
 	opr_offset = asn1->offset;
 
@@ -2879,12 +2784,12 @@ dissect_map_re(ASN1_SCK *asn1, proto_tree *tree)
 
 #define MAP_LOCAL_ERR_CODE_TAG 0x2
 #define MAP_GBL_ERR_CODE_TAG 0x6
-    if (check_map_tag(asn1, MAP_LOCAL_ERR_CODE_TAG))
+    if (tcap_check_tag(asn1, MAP_LOCAL_ERR_CODE_TAG))
     {
 	tag = -1;
 	dissect_map_tag(asn1, subtree, &tag, "Local Error Code Tag", &null_item);
     }
-    else if (check_map_tag(asn1, MAP_GBL_ERR_CODE_TAG))
+    else if (tcap_check_tag(asn1, MAP_GBL_ERR_CODE_TAG))
     {
 	tag = -1;
 	dissect_map_tag(asn1, subtree, &tag, "Global Error Code Tag", &null_item);

@@ -1832,6 +1832,7 @@ Michael Lum <mlum [AT] telostech.com> {
 	ALCAP (Q.2630.1) support
 	IS-637-A (SMS) support
 	IS-683-A (OTA) support
+	IS-801 (PLD) support
 	BSSAP (GSM 08.06)/BSAP (IOS 4.0.1) support
 	IOS 4.0.1 support
 	GSM BSSMAP (GSM 08.08) support

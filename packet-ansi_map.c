@@ -79,7 +79,7 @@
  *   UIM
  *			3GPP2 N.S0003
  *
- * $Id: packet-ansi_map.c,v 1.13 2003/12/12 19:55:26 guy Exp $
+ * $Id: packet-ansi_map.c,v 1.14 2004/03/27 11:32:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -670,10 +670,12 @@ static gchar ansi_map_add_string[1024];
 static dissector_handle_t data_handle;
 static dissector_table_t is637_tele_id_dissector_table; /* IS-637 Teleservice ID */
 static dissector_table_t is683_dissector_table; /* IS-683-A (OTA) */
+static dissector_table_t is801_dissector_table; /* IS-801 (PLD) */
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
 static gint32 ansi_map_sms_tele_id = -1;
 static gboolean is683_ota;
+static gboolean is801_pld;
 static gboolean ansi_map_is_invoke;
 
 
@@ -863,7 +865,7 @@ param_srvc_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     case 1: str = "CDMA OTASP Service"; is683_ota = TRUE; break;
     case 2: str = "TDMA OTASP Service"; break;
     case 3: str = "CDMA OTAPA Service"; is683_ota = TRUE; break;
-    case 4: str = "CDMA Position Determination Service"; break;
+    case 4: str = "CDMA Position Determination Service";  is801_pld = TRUE; break;
     case 5: str = "AMPS Position Determination Service"; break;
     default:
 	if ((value >= 6) && (value <= 223)) { str = "Reserved, treat as Undefined Service"; }
@@ -11748,6 +11750,10 @@ param_sms_bd(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     {
 	dissector_try_port(is683_dissector_table, ansi_map_is_invoke ? 0 : 1, next_tvb, g_pinfo, g_tree);
     }
+    else if (is801_pld)
+    {
+	dissector_try_port(is801_dissector_table, ansi_map_is_invoke ? 0 : 1, next_tvb, g_pinfo, g_tree);
+    }
 
     proto_tree_add_text(tree, asn1->tvb,
 	asn1->offset, len,
@@ -13083,6 +13089,7 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	ansi_map_is_invoke = FALSE;
 	is683_ota = FALSE;
+	is801_pld = FALSE;
 	dissect_ansi_map_message(&asn1, pinfo, ansi_map_tree);
 
 	asn1_close(&asn1, &offset);
@@ -13187,6 +13194,10 @@ proto_register_ansi_map(void)
 
     is683_dissector_table =
 	register_dissector_table("ansi_map.ota", "IS-683-A (OTA)",
+	    FT_UINT8, BASE_DEC);
+
+    is801_dissector_table =
+	register_dissector_table("ansi_map.pld", "IS-801 (PLD)",
 	    FT_UINT8, BASE_DEC);
 
     /* Required function calls to register the header fields and subtrees used */

@@ -11,7 +11,7 @@
  *   Technical realization of Short Message Service (SMS)
  *   (3GPP TS 23.040 version 5.4.0 Release 5)
  *
- * $Id: packet-gsm_sms.c,v 1.10 2004/03/05 10:06:19 guy Exp $
+ * $Id: packet-gsm_sms.c,v 1.11 2004/03/27 11:32:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,6 +52,8 @@
 
 #include "epan/packet.h"
 #include "prefs.h"
+
+#include "packet-gsm_sms.h"
 
 
 /* PROTOTYPES/FORWARDS */
@@ -1392,8 +1394,8 @@ dis_field_fcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
  */
 #define GN_BYTE_MASK ((1 << bits) - 1)
 
-static int
-char_7bit_unpack(unsigned int offset, unsigned int in_length, unsigned int out_length,
+int
+gsm_sms_char_7bit_unpack(unsigned int offset, unsigned int in_length, unsigned int out_length,
 		     const guint8 *input, unsigned char *output)
 {
     unsigned char *out_num = output; /* Current pointer to the output buffer */
@@ -1488,7 +1490,8 @@ char_def_alphabet_ext_decode(unsigned char value)
     }
 }
 
-unsigned char char_def_alphabet_decode(unsigned char value)
+static unsigned char
+char_def_alphabet_decode(unsigned char value)
 {
     if (value < GN_CHAR_ALPHABET_SIZE)
     {
@@ -1500,8 +1503,8 @@ unsigned char char_def_alphabet_decode(unsigned char value)
     }
 }
 
-static void
-char_ascii_decode(unsigned char* dest, const unsigned char* src, int len)
+void
+gsm_sms_char_ascii_decode(unsigned char* dest, const unsigned char* src, int len)
 {
     int i, j;
 
@@ -1828,10 +1831,10 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 	if (seven_bit)
 	{
 	    out_len =
-		char_7bit_unpack(fill_bits, length, sizeof(bigbuf),
+		gsm_sms_char_7bit_unpack(fill_bits, length, sizeof(bigbuf),
 		    tvb_get_ptr(tvb, offset, length), bigbuf);
 	    bigbuf[out_len] = '\0';
-	    char_ascii_decode(bigbuf, bigbuf, out_len);
+	    gsm_sms_char_ascii_decode(bigbuf, bigbuf, out_len);
 	    bigbuf[udl] = '\0';
 
 	    proto_tree_add_text(subtree, tvb, offset, length, "%s", bigbuf);
