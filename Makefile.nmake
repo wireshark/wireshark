@@ -345,7 +345,9 @@ gtk:: help config.h svnversion.h AUTHORS-SHORT doxygen
 gtk2:: help config.h svnversion.h AUTHORS-SHORT
 	if not exist gtk2.tmp mkdir gtk2.tmp
 	cd gtk
-	cp --update --preserve Makefile.* *.c *.h ..\gtk2.tmp
+	xcopy Makefile.* ..\gtk2.tmp /d /y
+	xcopy *.c        ..\gtk2.tmp /d /y
+	xcopy *.h        ..\gtk2.tmp /d /y
 	cd ..\gtk2.tmp
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake GTK_CFLAGS="$(GTK2_CFLAGS)" GTK_LIBS="$(GTK2_LIBS)" libui.lib
 	cd ..
