@@ -1,5 +1,42 @@
 $Id$
 
+== August ?, 2004
+
+Ethereal 0.10.6 has been released.
+
+  This release fixes a preferences bug present in Ethereal which displayed
+ 
+    (ethereal.exe:3512): Gtk-CRITICAL **: file gtkwindow.c: line 3107
+    (gtk_window_resize): assertion `height > 0' failed
+
+  at program startup.  A workaround for 0.10.5 is described in
+
+    http://www.ethereal.com/lists/ethereal-users/200408/msg00059.html
+
+  A new comman-line utility called "capinfo" has been added to the
+  distribution which prints statistics about capture files.  
+
+New and updated features
+
+  X.509 support has been greatly expanded.
+
+  Crash bugs have been fixed in the RTP and NCP dissectors.
+
+
+
+New protocol support
+
+
+
+Updated protocol support
+
+
+
+New and updated capture file support
+
+
+
+
 == July 7, 2004
 
 Ethereal 0.10.5 has been released.
