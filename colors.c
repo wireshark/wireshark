@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.24 1999/12/19 10:39:33 guy Exp $
+ * $Id: colors.c,v 1.25 1999/12/19 11:25:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -75,7 +75,7 @@ static void edit_color_filter_bg_cb(GtkButton *button, gpointer user_data);
 static void edit_color_filter_ok_cb(GtkButton *button, gpointer user_data);
 static void edit_color_filter_cancel_cb(GtkObject *object, gpointer user_data);
 
-static GtkWidget* create_color_sel_win(colfilter *filter, GdkColor *);
+static GtkWidget* color_sel_win_new(color_filter_t *colorf, gboolean);
 static void color_sel_ok_cb(GtkButton *button, gpointer user_data);
 static void color_sel_cancel_cb(GtkObject *object, gpointer user_data);
 
@@ -97,6 +97,7 @@ GdkColor	BLACK = { 0, 0, 0, 0 };
 #define COLOR_FILTER		"color_filter"
 #define COLOR_SELECTION_FG	"color_selection_fg"
 #define COLOR_SELECTION_BG	"color_selection_bg"
+#define COLOR_SELECTION_PARENT	"color_selection_parent"
 
 /* This structure is used to allow you to compile in default colors if
  * you wish.  They can be later changed by a user.
@@ -344,8 +345,9 @@ color_display_cb(GtkWidget *w, gpointer d)
 {
   if (colorize_win != NULL) {
     /* There's already a color dialog box active; raise it.
-       XXX - give it focus, too.  Alas, GDK has nothing that
-       calls "XSetInputFocus()" on a window.... */
+       XXX - request that it be given the input focus, too.
+       Alas, GDK has nothing to do that, e.g., in X, by calling
+       "XSetInputFocus()" on a window.... */
     gdk_window_raise(colorize_win->window);
   } else {
     /* Create a new "Colorize Display" dialog. */
@@ -535,6 +537,9 @@ colorize_dialog_new (colfilter *filter)
   gtk_widget_set_usize (color_cancel, 50, 30);
   gtk_tooltips_set_tip (tooltips, color_cancel, ("No more filter changes; don't apply"), NULL);
 
+  gtk_signal_connect (GTK_OBJECT (color_win), "destroy",
+                      GTK_SIGNAL_FUNC (color_cancel_cb),
+                      NULL);
   gtk_object_set_data(GTK_OBJECT (color_filter_up), COLOR_FILTERS_CL,
                       color_filters);
   gtk_signal_connect (GTK_OBJECT (color_filter_up), "clicked",
@@ -867,7 +872,8 @@ edit_color_filter_dialog_new (colfilter *filter,
 	   filter->row_selected);
   if (colorf->edit_dialog != NULL) {
     /* There's already an edit box open for this filter; raise it.
-       XXX - give it focus, too.  Alas, GDK has nothing that calls
+       XXX - request that it be given the input focus, too.
+       Alas, GDK has nothing to do that, e.g., in X, by calling
        "XSetInputFocus()" on a window.... */
     gdk_window_raise(colorf->edit_dialog->window);
     return;
@@ -994,11 +1000,11 @@ edit_color_filter_dialog_new (colfilter *filter,
   gtk_widget_show (edit_color_filter_cancel);
   gtk_box_pack_start (GTK_BOX (hbox4), edit_color_filter_cancel, TRUE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, edit_color_filter_cancel, ("Reject filter color change"), NULL);
-#if 0
+  gtk_object_set_data(GTK_OBJECT (edit_dialog), COLOR_FILTER,
+                      colorf);
   gtk_signal_connect (GTK_OBJECT (edit_dialog), "destroy",
                       GTK_SIGNAL_FUNC (edit_color_filter_cancel_cb),
-                      edit_dialog);
-#endif
+                      NULL);
   gtk_object_set_data(GTK_OBJECT (colorize_filter_fg), COLOR_FILTER,
                       colorf);
   gtk_signal_connect (GTK_OBJECT (colorize_filter_fg), "clicked",
@@ -1020,7 +1026,7 @@ edit_color_filter_dialog_new (colfilter *filter,
                       colorf);
   gtk_signal_connect (GTK_OBJECT (edit_color_filter_cancel), "clicked",
                       GTK_SIGNAL_FUNC (edit_color_filter_cancel_cb),
-                      edit_dialog);
+                      NULL);
 
   gtk_object_set_data (GTK_OBJECT (edit_dialog), "tooltips", tooltips);
   gtk_widget_show (edit_dialog);
@@ -1052,10 +1058,6 @@ edit_color_filter_dialog_destroy(color_filter_t *colorf)
   }
 }
 
-/* XXX - we allow more than one color selection box to be open, so
-   this shouldn't be static. */
-static gint bg_set_flag; /* 0 -> setting foreground, 1-> setting background */
-
 /* Pop up a color selection box to choose the foreground color. */
 static void
 edit_color_filter_fg_cb                (GtkButton       *button,
@@ -1068,10 +1070,24 @@ edit_color_filter_fg_cb                (GtkButton       *button,
   filter = (colfilter *)user_data;
   colorf = (color_filter_t *) gtk_object_get_data(GTK_OBJECT(button),
 		      COLOR_FILTER);
-  color_selection_fg = create_color_sel_win(filter, &colorf->fg_color);
-  gtk_object_set_data(GTK_OBJECT (colorf->edit_dialog), COLOR_SELECTION_FG,
+  /* Do we already have one open for this dialog? */
+  color_selection_fg = gtk_object_get_data(GTK_OBJECT (colorf->edit_dialog),
+      COLOR_SELECTION_FG);
+  if (color_selection_fg != NULL) {
+    /* Yes.  Just raise it.
+       XXX - request that it be given the input focus, too.
+       Alas, GDK has nothing to do that, e.g., in X, by calling
+       "XSetInputFocus()" on a window.... */
+    gdk_window_raise(color_selection_fg->window);
+  } else {
+    /* No.  Create a new color selection box, and associate it with
+       this dialog. */
+    color_selection_fg = color_sel_win_new(colorf, FALSE);
+    gtk_object_set_data(GTK_OBJECT (colorf->edit_dialog), COLOR_SELECTION_FG,
                       color_selection_fg);
-  bg_set_flag = 0;
+    gtk_object_set_data(GTK_OBJECT (color_selection_fg),
+		COLOR_SELECTION_PARENT, colorf->edit_dialog);
+  }
 }
 
 /* Pop up a color selection box to choose the background color. */
@@ -1086,10 +1102,25 @@ edit_color_filter_bg_cb                (GtkButton       *button,
   filter = (colfilter *)user_data;
   colorf = (color_filter_t *) gtk_object_get_data(GTK_OBJECT(button),
 		      COLOR_FILTER);
-  color_selection_bg = create_color_sel_win(filter, &colorf->bg_color);
-  gtk_object_set_data(GTK_OBJECT (colorf->edit_dialog), COLOR_SELECTION_BG,
+
+  /* Do we already have one open for this dialog? */
+  color_selection_bg = gtk_object_get_data(GTK_OBJECT (colorf->edit_dialog),
+      COLOR_SELECTION_BG);
+  if (color_selection_bg != NULL) {
+    /* Yes.  Just raise it.
+       XXX - request that it be given the input focus, too.
+       Alas, GDK has nothing to do that, e.g., in X, by calling
+       "XSetInputFocus()" on a window.... */
+    gdk_window_raise(color_selection_bg->window);
+  } else {
+    /* No.  Create a new color selection box, and associate it with
+       this dialog. */
+    color_selection_bg = color_sel_win_new(colorf, TRUE);
+    gtk_object_set_data(GTK_OBJECT (colorf->edit_dialog), COLOR_SELECTION_BG,
                       color_selection_bg);
-  bg_set_flag = 1;
+    gtk_object_set_data(GTK_OBJECT (color_selection_bg),
+		COLOR_SELECTION_PARENT, colorf->edit_dialog);
+  }
 }
 
 /* accept color (and potential content) change */
@@ -1166,10 +1197,8 @@ edit_color_filter_cancel_cb            (GtkObject       *object,
                                         gpointer         user_data)
 {
 
-  GtkWidget *dialog;
   color_filter_t *colorf;
 
-  dialog = (GtkWidget *)user_data;
   colorf = (color_filter_t *) gtk_object_get_data(GTK_OBJECT(object),
 		      COLOR_FILTER);
 
@@ -1178,14 +1207,31 @@ edit_color_filter_cancel_cb            (GtkObject       *object,
 }
 
 static GtkWidget*
-create_color_sel_win (colfilter *filter, GdkColor * color)
+color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
 {
+  gint title_len;
+  gchar *title;
+  static const gchar fg_title_format[] = "Choose foreground color for \"%s\"";
+  static const gchar bg_title_format[] = "Choose background color for \"%s\"";
   GtkWidget *color_sel_win;
+  GdkColor *color;
   GtkWidget *color_sel_ok;
   GtkWidget *color_sel_cancel;
   GtkWidget *color_sel_help;
 
-  color_sel_win = gtk_color_selection_dialog_new (("Choose color"));
+  if (is_bg) {
+    color = &colorf->bg_color;
+    title_len = strlen(bg_title_format) + strlen(colorf->filter_name);
+    title = g_malloc(title_len + 1);
+    sprintf(title, bg_title_format, colorf->filter_name);
+  } else {
+    color = &colorf->fg_color;
+    title_len = strlen(fg_title_format) + strlen(colorf->filter_name);
+    title = g_malloc(title_len + 1);
+    sprintf(title, fg_title_format, colorf->filter_name);
+  }
+  color_sel_win = gtk_color_selection_dialog_new(title);
+  g_free(title);
   gtk_object_set_data (GTK_OBJECT (color_sel_win), "color_sel_win", color_sel_win);
   gtk_container_set_border_width (GTK_CONTAINER (color_sel_win), 10);
 
@@ -1218,11 +1264,9 @@ create_color_sel_win (colfilter *filter, GdkColor * color)
 
 
   GTK_WIDGET_SET_FLAGS (color_sel_help, GTK_CAN_DEFAULT);
-#if 0
   gtk_signal_connect (GTK_OBJECT (color_sel_win), "destroy",
                       GTK_SIGNAL_FUNC (color_sel_cancel_cb),
                       color_sel_win);
-#endif
 
   gtk_signal_connect (GTK_OBJECT (color_sel_ok), "clicked",
                       GTK_SIGNAL_FUNC (color_sel_ok_cb),
@@ -1235,6 +1279,36 @@ create_color_sel_win (colfilter *filter, GdkColor * color)
   return color_sel_win;
 }
 
+static void
+color_sel_win_destroy(GtkWidget *sel_win)
+{
+  GtkWidget *parent;
+  GtkWidget *color_selection_fg, *color_selection_bg;
+
+  /* Find the "Edit color filter" dialog box with which this is associated. */
+  parent = (GtkWidget *)gtk_object_get_data(GTK_OBJECT (sel_win),
+      COLOR_SELECTION_PARENT);
+
+  /* Find that dialog box's foreground and background color selection
+     boxes, if any. */
+  color_selection_fg = gtk_object_get_data(GTK_OBJECT (parent),
+      COLOR_SELECTION_FG);
+  color_selection_bg = gtk_object_get_data(GTK_OBJECT (parent),
+      COLOR_SELECTION_BG);
+
+  if (sel_win == color_selection_fg) {
+    /* This was its foreground color selection box; it isn't, anymore. */
+    gtk_object_set_data(GTK_OBJECT (parent), COLOR_SELECTION_FG, NULL);
+  }
+  if (sel_win == color_selection_bg) {
+    /* This was its background color selection box; it isn't, anymore. */
+    gtk_object_set_data(GTK_OBJECT (parent), COLOR_SELECTION_BG, NULL);
+  }
+
+  /* Now destroy it. */
+  gtk_widget_destroy(sel_win);
+}
+
 /* Retrieve selected color */
 static void
 color_sel_ok_cb                        (GtkButton       *button,
@@ -1244,6 +1318,9 @@ color_sel_ok_cb                        (GtkButton       *button,
   gdouble new_colors[3];
   GtkWidget *color_dialog;
   GtkStyle  *style;
+  GtkWidget *parent;
+  GtkWidget *color_selection_fg, *color_selection_bg;
+  gboolean is_bg;
 
   color_dialog = (GtkWidget *)user_data;
 
@@ -1257,12 +1334,25 @@ color_sel_ok_cb                        (GtkButton       *button,
   if ( ! get_color(&new_color) ){
 	simple_dialog(ESD_TYPE_WARN, NULL, "Could not allocate color.  Try again.");
   } else {
-	gtk_widget_destroy(color_dialog);
+	/* Find the "Edit color filter" dialog box with which this is
+	   associated. */
+	parent = (GtkWidget *)gtk_object_get_data(GTK_OBJECT (color_dialog),
+	      COLOR_SELECTION_PARENT);
+
+	/* Find that dialog box's foreground and background color selection
+	   boxes, if any. */
+	color_selection_fg = gtk_object_get_data(GTK_OBJECT (parent),
+	      COLOR_SELECTION_FG);
+	color_selection_bg = gtk_object_get_data(GTK_OBJECT (parent),
+	      COLOR_SELECTION_BG);
+	is_bg = (color_dialog == color_selection_bg);
+
+	color_sel_win_destroy(color_dialog);
 
 	/* now apply the change to the fore/background */
 	
 	style = gtk_style_copy(gtk_widget_get_style(filt_name_entry));
-	if( bg_set_flag)
+	if (is_bg)
 	  style->base[GTK_STATE_NORMAL] = new_color;
 	else
 	  style->fg[GTK_STATE_NORMAL] = new_color;
@@ -1281,7 +1371,7 @@ color_sel_cancel_cb                    (GtkObject       *object,
   color_dialog = (GtkWidget *)user_data;
   /* nothing to change here.  Just get rid of the dialog box. */
 
-  gtk_widget_destroy(color_dialog);
+  color_sel_win_destroy(color_dialog);
 }
 
 static gboolean
