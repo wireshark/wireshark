@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.20 2001/07/02 01:41:25 guy Exp $
+ * $Id: packet-isis-hello.c,v 1.21 2001/08/22 18:00:40 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -490,25 +490,25 @@ dissect_hello_ptp_adj_clv(tvbuff_t *tvb,
 	    proto_tree_add_text ( tree, tvb, offset, 1,        
                                   "Adjacency State: %s", adj_state ); 
 	    proto_tree_add_text ( tree, tvb, offset+1, 4,        
-                                  "Extended Local Circuit ID: %u", tvb_get_ntohl(tvb, offset+1) ); 
+                                  "Extended Local circuit ID: 0x%08x", tvb_get_ntohl(tvb, offset+1) ); 
 	    break;
 	  case 11:
             proto_tree_add_text ( tree, tvb, offset, 1,
                                   "Adjacency State: %s", adj_state );
             proto_tree_add_text ( tree, tvb, offset+1, 4,
-                                  "Extended Local Circuit ID: %u", tvb_get_ntohl(tvb, offset+1) );
+                                  "Extended Local circuit ID: 0x%08x", tvb_get_ntohl(tvb, offset+1) );
             proto_tree_add_text ( tree, tvb, offset+5, 6,
-                                  "Neighbor System ID: %s", print_system_id( tvb_get_ptr(tvb, offset+5, 6), 6 ) );
+                                  "Neighbor SystemID: %s", print_system_id( tvb_get_ptr(tvb, offset+5, 6), 6 ) );
 	    break;
 	  case 15:
 	    proto_tree_add_text ( tree, tvb, offset, 1,
                                   "Adjacency State: %s", adj_state );
             proto_tree_add_text ( tree, tvb, offset+1, 4,
-                                  "Extended Local Circuit ID: %u", tvb_get_ntohl(tvb, offset+1) );
+                                  "Extended Local circuit ID: 0x%08x", tvb_get_ntohl(tvb, offset+1) );
             proto_tree_add_text ( tree, tvb, offset+5, 6,
-                                  "Neighbor System ID: %s", print_system_id( tvb_get_ptr(tvb, offset+5, 6), 6 ) );  
+                                  "Neighbor SystemID: %s", print_system_id( tvb_get_ptr(tvb, offset+5, 6), 6 ) );  
             proto_tree_add_text ( tree, tvb, offset+11, 4,
-                                  "Neighbor Extended Local Circuit ID: %u", tvb_get_ntohl(tvb, offset+11) );
+                                  "Neighbor Extended Local circuit ID: 0x%08x", tvb_get_ntohl(tvb, offset+11) );
 	    break;
 	  default:
 	    isis_dissect_unknown(tvb, pinfo, tree, offset,

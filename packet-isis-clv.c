@@ -1,7 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.14 2001/07/02 00:19:34 guy Exp $
+ * $Id: packet-isis-clv.c,v 1.15 2001/08/22 18:00:40 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -262,7 +262,7 @@ isis_dissect_mt_clv(tvbuff_t *tvb, packet_info *pinfo,
 		  strcpy(mt_desc,"Reserved for IETF Consensus");
 	      }
 	        proto_tree_add_text ( tree, tvb, offset, 2 ,
-                        "%s Topology (0x%x)%s%s",
+                        "%s Topology (0x%03x)%s%s",
 				      mt_desc,
 				      mt_block&0xfff,
 				      (mt_block&0x8000) ? "" : ", no sub-TLVs present",
