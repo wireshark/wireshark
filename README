@@ -2,7 +2,7 @@ General Information
 ------- -----------
 
 Ethereal is a network traffic analyzer for Unix and Unix-like operating
-systems.  It is based on GTK+, a graphical user interface library,
+systems.  It is uses GTK+, a graphical user interface library,
 and libpcap, a packet capture and filtering library.
 
 The official home of Ethereal is
@@ -71,7 +71,8 @@ to read multiple file types. You can read the following file
 formats, and create display filters for them as well:
 
 libpcap, Sniffer (uncompresed), NetXray, Sniffer Pro, snoop,
-Shomiti, LANalyzer, Network Monitor, and iptrace 2.0 (AIX)
+Shomiti, LANalyzer, Network Monitor, iptrace 2.0 (AIX), and
+RADCOM's WAN/LAN Analyzer
 
 
 IPv6

@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.72 1999/08/02 05:52:45 guy Exp $
+ * $Id: ethereal.c,v 1.73 1999/08/04 03:37:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -310,13 +310,14 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
 void
 match_selected_cb(GtkWidget *w, gpointer data)
 {
-#if 0
-    char *buf = malloc(1024);
-#endif
+    char *buf = g_malloc(1024);
     GtkWidget *filter_te = NULL;
+    char *ptr;
+    int i;
+    guint8 *c;
 
     if (w)
-  	filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
+    filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
 
     if (tree_selected_start<0) {
 	simple_dialog(ESD_TYPE_WARN, NULL,
@@ -325,45 +326,43 @@ match_selected_cb(GtkWidget *w, gpointer data)
 		      "view to be matched.");
 	return;
     }
-#if 0
-    switch (cf.lnk_t) {
-    case DLT_EN10MB :
-	c="ether";
-	break;
-    case DLT_FDDI :
-	c="fddi";
-	break;
-    default :
-#endif
-	simple_dialog(ESD_TYPE_WARN, NULL,
-		      "Unsupported frame type format. Only Ethernet and FDDI\n"
-		      "frame formats are supported.");
-	return;
-#if 0
-    }
 
-    sprintf(buf, "("); ptr = buf+strlen(buf);
+/*    sprintf(buf, "("); ptr = buf+strlen(buf);
     for (i=0, c=cf.pd+tree_selected_start; i+4<tree_selected_len; i+=4, c+=4) {
-	sprintf(ptr, "(ether[%d : 4]=0x%02X%02X%02X%02X) and ", 
+	sprintf(ptr, "(frame[%d : 4]=0x%02X%02X%02X%02X) and ", 
 	       tree_selected_start+i, 
 	       *c,
 	       *(c+1),
 	       *(c+2),
 	       *(c+3));
 	ptr = buf+strlen(buf);
-    }
+    }*/
 
-    sprintf(ptr, "(ether[%d : %d]=0x", 
+    i = 0;
+    c = cf.pd + tree_selected_start;
+    ptr = buf;
+
+    sprintf(ptr, "frame[%d : %d] == ", 
 	   tree_selected_start+i, 
 	   tree_selected_len - i);
     ptr = buf+strlen(buf);
-    for (;i<tree_selected_len; i++) {
-	sprintf(ptr, "%02X", *c++);
-	ptr = buf+strlen(buf);
+    /*for (;i<tree_selected_len; i++) {*/
+    if (tree_selected_len == 1) {
+        sprintf(ptr, "0x%02x", *c++);
+    }
+    else {
+	    for (i=0;i<tree_selected_len; i++) {
+		if (i == 0 ) {
+			sprintf(ptr, "%02x", *c++);
+		}
+		else {
+			sprintf(ptr, ":%02x", *c++);
+		}
+		ptr = buf+strlen(buf);
+	    }
     }
 
-    sprintf(ptr, "))");
-
+    /*sprintf(ptr, "))");*/
     if( cf.dfilter != NULL ) {
       /* get rid of this one */
       g_free( cf.dfilter );
@@ -379,7 +378,6 @@ match_selected_cb(GtkWidget *w, gpointer data)
       g_free( cf.dfilter );
       cf.dfilter = NULL;
     }
-#endif
 }
 
 /* Open a file */
