@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.148 2002/07/16 07:15:04 guy Exp $
+ * $Id: tethereal.c,v 1.149 2002/07/17 00:22:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -217,6 +217,7 @@ print_usage(gboolean print_ver)
   fprintf(stderr, "\tdefault is libpcap\n");
 }
 
+#ifdef HAVE_LIBPCAP
 static int
 get_positive_int(const char *string, const char *name)
 {
@@ -247,7 +248,6 @@ get_positive_int(const char *string, const char *name)
   return number;
 }
 
-#ifdef HAVE_LIBPCAP
 /*
  * Given a string of the form "<autostop criterion>:<value>", as might appear
  * as an argument to a "-a" option, parse it and set the criterion in
@@ -324,7 +324,10 @@ main(int argc, char *argv[])
   gboolean             capture_option_specified = FALSE;
 #endif
   int                  out_file_type = WTAP_FILE_PCAP;
-  gchar               *cf_name = NULL, *rfilter = NULL, *if_text;
+  gchar               *cf_name = NULL, *rfilter = NULL;
+#ifdef HAVE_LIBPCAP
+  gchar               *if_text;
+#endif
   dfilter_t           *rfcode = NULL;
   e_prefs             *prefs;
   char                 badopt;
@@ -673,14 +676,20 @@ main(int argc, char *argv[])
   }
 
   /* See if we're writing a capture file and the file is a pipe */
+#ifdef HAVE_LIBPCAP
   ld.output_to_pipe = FALSE;
+#endif
   if (cfile.save_file != NULL) {
     if (!strcmp(cfile.save_file, "-")) {
       /* stdout */
       g_free(cfile.save_file);
       cfile.save_file = g_strdup("");
+#ifdef HAVE_LIBPCAP
       ld.output_to_pipe = TRUE;
-    } else {
+#endif
+    }
+#ifdef HAVE_LIBPCAP
+    else {
       err = test_for_fifo(cfile.save_file);
       switch (err) {
   
@@ -700,6 +709,7 @@ main(int argc, char *argv[])
         exit(2);
       }
     }
+#endif
   }
 
 #ifdef HAVE_LIBPCAP
@@ -1516,7 +1526,9 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr,
   }
   if (passed) {
     /* The packet passed the read filter. */
+#ifdef HAVE_LIBPCAP
     ld.packet_count++;
+#endif
     if (!wtap_dump(pdh, phdr, pseudo_header, buf, &err)) {
 #ifdef HAVE_LIBPCAP
       if (ld.pch != NULL && !quiet) {
@@ -1627,7 +1639,9 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
   }
   if (passed) {
     /* The packet passed the read filter. */
+#ifdef HAVE_LIBPCAP
     ld.packet_count++;
+#endif
     if (verbose) {
       /* Print the information in the protocol tree. */
       print_args.to_file = TRUE;

@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.12 2002/06/28 01:59:46 guy Exp $
+ * $Id: capture_prefs.c,v 1.13 2002/07/17 00:22:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,6 +26,8 @@
 #include "config.h"
 #endif
 
+#ifdef HAVE_LIBPCAP
+
 #include <string.h>
 #include <errno.h>
 #include <gtk/gtk.h>
@@ -42,8 +44,6 @@
 #include "ui_util.h"
 #include "pcap-util.h"
 #include "main.h"
-
-#ifdef HAVE_LIBPCAP
 
 #define DEVICE_KEY		"device"
 #define PROM_MODE_KEY		"prom_mode"
@@ -164,27 +164,6 @@ capture_prefs_apply(GtkWidget *w _U_)
 
 void
 capture_prefs_destroy(GtkWidget *w _U_)
-{
-}
-
-#else /* HAVE_LIBPCAP */
-
-/*
- * Stub routines.
- */
-
-void
-capture_prefs_apply(GtkWidget *w)
-{
-}
-
-void
-capture_prefs_destroy(GtkWidget *w)
-{
-}
-
-void
-capture_prefs_fetch(GtkWidget *w)
 {
 }
 

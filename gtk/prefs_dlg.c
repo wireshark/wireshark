@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.48 2002/06/16 00:58:38 guy Exp $
+ * $Id: prefs_dlg.c,v 1.49 2002/07/17 00:22:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -249,7 +249,10 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 {
   GtkWidget        *main_vb, *top_hb, *bbox, *prefs_nb, *ct_sb, *frame,
                    *ok_bt, *apply_bt, *save_bt, *cancel_bt;
-  GtkWidget        *print_pg, *column_pg, *stream_pg, *gui_pg, *capture_pg;
+  GtkWidget        *print_pg, *column_pg, *stream_pg, *gui_pg;
+#ifdef HAVE_LIBPCAP
+  GtkWidget        *capture_pg;
+#endif
   GtkWidget        *nameres_pg;
   gchar            label_str[MAX_TREE_NODE_NAME_LEN], *label_ptr = label_str;
   GtkCTreeNode     *ct_node;
@@ -816,7 +819,16 @@ prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   column_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+#ifdef HAVE_LIBPCAP
+#ifdef _WIN32
+  /* Is WPcap loaded? */
+  if (has_wpcap) {
+#endif /* _WIN32 */
   capture_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_CAPTURE_PAGE_KEY));
+#ifdef _WIN32
+  }
+#endif /* _WIN32 */
+#endif /* HAVE_LIBPCAP */
   nameres_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_NAMERES_PAGE_KEY));
   prefs_module_foreach(module_prefs_fetch, &must_redissect);
 
@@ -825,7 +837,16 @@ prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   column_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+#ifdef HAVE_LIBPCAP
+#ifdef _WIN32
+  /* Is WPcap loaded? */
+  if (has_wpcap) {
+#endif /* _WIN32 */
   capture_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_CAPTURE_PAGE_KEY));
+#ifdef _WIN32
+  }
+#endif /* _WIN32 */
+#endif /* HAVE_LIBPCAP */
   nameres_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_NAMERES_PAGE_KEY));
   prefs_apply_all();
 
@@ -850,7 +871,16 @@ prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
   column_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+#ifdef HAVE_LIBPCAP
+#ifdef _WIN32
+  /* Is WPcap loaded? */
+  if (has_wpcap) {
+#endif /* _WIN32 */
   capture_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_CAPTURE_PAGE_KEY));
+#ifdef _WIN32
+  }
+#endif /* _WIN32 */
+#endif /* HAVE_LIBPCAP */
   nameres_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_NAMERES_PAGE_KEY));
   prefs_module_foreach(module_prefs_fetch, &must_redissect);
 
@@ -859,7 +889,16 @@ prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
   column_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+#ifdef HAVE_LIBPCAP
+#ifdef _WIN32
+  /* Is WPcap loaded? */
+  if (has_wpcap) {
+#endif /* _WIN32 */
   capture_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_CAPTURE_PAGE_KEY));
+#ifdef _WIN32
+  }
+#endif /* _WIN32 */
+#endif /* HAVE_LIBPCAP */
   nameres_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_NAMERES_PAGE_KEY));
   prefs_apply_all();
 
@@ -884,7 +923,16 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
   column_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+#ifdef HAVE_LIBPCAP
+#ifdef _WIN32
+  /* Is WPcap loaded? */
+  if (has_wpcap) {
+#endif /* _WIN32 */
   capture_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_CAPTURE_PAGE_KEY));
+#ifdef _WIN32
+  }
+#endif /* _WIN32 */
+#endif /* HAVE_LIBPCAP */
   nameres_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_NAMERES_PAGE_KEY));
   prefs_module_foreach(module_prefs_fetch, &must_redissect);
 
@@ -923,7 +971,16 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
   column_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+#ifdef HAVE_LIBPCAP
+#ifdef _WIN32
+  /* Is WPcap loaded? */
+  if (has_wpcap) {
+#endif /* _WIN32 */
   capture_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_CAPTURE_PAGE_KEY));
+#ifdef _WIN32
+  }
+#endif /* _WIN32 */
+#endif /* HAVE_LIBPCAP */
   nameres_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_NAMERES_PAGE_KEY));
   prefs_apply_all();
 
@@ -1046,7 +1103,16 @@ prefs_main_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   column_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w), E_COLUMN_PAGE_KEY));
   stream_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w), E_STREAM_PAGE_KEY));
   gui_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w), E_GUI_PAGE_KEY));
+#ifdef HAVE_LIBPCAP
+#ifdef _WIN32
+  /* Is WPcap loaded? */
+  if (has_wpcap) {
+#endif /* _WIN32 */
   capture_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w), E_CAPTURE_PAGE_KEY));
+#ifdef _WIN32
+  }
+#endif /* _WIN32 */
+#endif /* HAVE_LIBPCAP */
   nameres_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w), E_NAMERES_PAGE_KEY));
 
   /* Free up the saved preferences (both for "prefs" and for registered
