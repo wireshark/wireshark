@@ -1,7 +1,7 @@
 /* tap.h
  * packet tap interface   2002 Ronnie Sahlberg
  *
- * $Id: tap.h,v 1.1 2002/09/04 09:40:24 sahlberg Exp $
+ * $Id: tap.h,v 1.2 2002/09/07 00:41:26 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,6 +22,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#include "wiretap/wtap.h"
 
 void tap_init(void);
 int register_tap(char *name);
