@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.91 2004/02/19 11:45:02 jmayer Exp $
+$Id: README.developer,v 1.92 2004/02/25 22:45:51 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -213,7 +213,97 @@ to implement it.  Use something like
 
 instead.
 
-1.1.2 Name convention.
+The pointer retured by a call to "tvb_get_ptr()" is not guaranteed to be
+aligned on any particular byte boundary; this means that you cannot
+safely cast it to any data type other than a pointer to "char",
+"unsigned char", "guint8", or other one-byte data types.  You cannot,
+for example, safely cast it to a pointer to a structure, and then access
+the structure members directly; on some systems, unaligned accesses to
+integral data types larger than 1 byte, and floating-point data types,
+cause a trap, which will, at best, result in the OS slowly performing an
+unaligned access for you, and will, on at least some platforms, cause
+the program to be terminated.
+
+1.1.2 Robustness.
+
+Ethereal is not guaranteed to read only network traces that contain
+correctly-formed packets; in fact, one of the reasons why Ethereal is
+used is to track down networking problems, and the problems might be due
+to a buggy protocol implementation sending out bad packets.
+
+Therefore, protocol dissectors not only have to be able to handle
+correctly-formed packets without, for example, crashing or looping
+infinitely, they also have to be able to handle *incorrectly*-formed
+packets without crashing or looping infinitely.
+
+Here are some suggestions for making dissectors more robust in the face
+of incorrectly-formed packets:
+
+If you are allocating a chunk of memory to contain data from a packet,
+or to contain information derived from data in a packet, and the size of
+the chunk of memory is derived from a size field in the packet, make
+sure all the data is present in the packet before allocating the buffer.
+Doing so means that
+
+	1) Ethereal won't leak that chunk of memory if an attempt to
+	   fetch data not present in the packet throws an exception
+
+and
+
+	2) it won't crash trying to allocate an absurdly-large chunk of
+	   memory if the size field has a bogus large value.
+
+If you're fetching into such a chunk of memory a string from the buffer,
+and the string has a specified size, you can use "tvb_get_string()",
+which will check whether the entire string is present before allocating
+a buffer for the string, and will also put a trailing '\0' at the end of
+the buffer.
+
+If you're fetching into such a chunk of memory a 2-byte Unicode string
+from the buffer, and the string has a specified size, you can use
+"tvb_fake_unicode()", which will check whether the entire string is
+present before allocating a buffer for the string, and will also put a
+trailing '\0' at the end of the buffer.  The resulting string will be a
+sequence of single-byte characters; the only Unicode characters that
+will be handled correctly are those in the ASCII range.  (Ethereal's
+ability to handle non-ASCII strings is limited; it needs to be
+improved.)
+
+If you're fetching into such a chunk of memory a sequence of bytes from
+the buffer, and the sequence has a specified size, you can use
+"tvb_memdup()", which will check whether the entire sequence is present
+before allocating a buffer for it.
+
+Otherwise, you can check whether the data is present by using
+"tvb_ensure_bytes_exist()" or by getting a pointer to the data by using
+"tvb_get_ptr()", although note that there might be problems with using
+the pointer from "tvb_get_ptr()" (see the item on this in the
+Portability section above, and the next item below).
+
+If you have gotten a pointer using "tvb_get_ptr()", you must make sure
+that you do not refer to any data past the length passed as the last
+argument to "tvb_get_ptr()"; while the various "tvb_get" routines
+perform bounds checking and throw an exception if you refer to data not
+available in the tvbuff, direct references through a pointer gotten from
+"tvb_get_ptr()" do not do any bounds checking.
+
+If you have a loop that dissects a sequence of items, each of which has
+a length field, with the offset in the tvbuff advanced by the length of
+the item, then, if the length field is the total length of the item, and
+thus can be zero, you *MUST* check for a zero-length item and abort the
+loop if you see one.  Otherwise, a zero-length item could cause the
+dissector to loop infinitely.  You should also check that the offset,
+after having the length added to it, is greater than the offset before
+the length was added to it, if the length field is greater than 24 bits
+long, so that, if the length value is *very* large and adding it to the
+offset causes an overflow, that overflow is detected.
+
+Any tvbuff offset that is added to as processing is done on a packet
+should be stored in a 32-bit variable, such as an "int"; if you store it
+in an 8-bit or 16-bit variable, you run the risk of the variable
+overflowing.
+
+1.1.3 Name convention.
 
 Ethereal uses the underscore_convention rather than the InterCapConvention for
 function names, so new code should probably use underscores rather than
@@ -221,7 +311,7 @@ intercaps for functions and variable names. This is especially important if you
 are writing code that will be called from outside your code.  We are just
 trying to keep things consistent for other users.
 
-1.1.3 White space convention.
+1.1.4 White space convention.
 
 Avoid using tab expansions different from 8 spaces, as not all text editors in
 use by the developers support this.
@@ -262,12 +352,12 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.91 2004/02/19 11:45:02 jmayer Exp $"
+The "$Id: README.developer,v 1.92 2004/02/25 22:45:51 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
-When creating a new file, it is fine to just write "$Id: README.developer,v 1.91 2004/02/19 11:45:02 jmayer Exp $" as RCS will
+When creating a new file, it is fine to just write "$Id: README.developer,v 1.92 2004/02/25 22:45:51 guy Exp $" as RCS will
 automatically fill in the identifier at the time the file will be added to the
 CVS repository (checked in).
 
@@ -276,7 +366,7 @@ CVS repository (checked in).
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.91 2004/02/19 11:45:02 jmayer Exp $
+ * $Id: README.developer,v 1.92 2004/02/25 22:45:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -546,27 +636,27 @@ Single-byte accessor:
 
 guint8  tvb_get_guint8(tvbuff_t*, gint offset);
 
-Network-to-host-order access for 16-bit integers (guint16), 32-bit
+Network-to-host-order accessors for 16-bit integers (guint16), 32-bit
 integers (guint32), and 24-bit integers:
 
 guint16 tvb_get_ntohs(tvbuff_t*, gint offset);
 guint32 tvb_get_ntohl(tvbuff_t*, gint offset);
 guint32 tvb_get_ntoh24(tvbuff_t*, gint offset);
 
-Network-to-host-order access for single-precision and double-precision
-IEEE floating-point numbers:
+Network-to-host-order accessors for single-precision and
+double-precision IEEE floating-point numbers:
 
 gfloat tvb_get_ntohieee_float(tvbuff_t*, gint offset);
 gdouble tvb_get_ntohieee_double(tvbuff_t*, gint offset);
 
-Little-Endian-to-host-order access for 16-bit integers (guint16), 32-bit
-integers (guint32), and 24-bit integers:
+Little-Endian-to-host-order accessors for 16-bit integers (guint16),
+32-bit integers (guint32), and 24-bit integers:
 
 guint16 tvb_get_letohs(tvbuff_t*, gint offset);
 guint32 tvb_get_letohl(tvbuff_t*, gint offset);
 guint32 tvb_get_letoh24(tvbuff_t*, gint offset);
 
-Little-Endian-to-host-order access for single-precision and
+Little-Endian-to-host-order accessors for single-precision and
 double-precision IEEE floating-point numbers:
 
 gfloat tvb_get_letohieee_float(tvbuff_t*, gint offset);
@@ -580,10 +670,35 @@ wrong answer on the PC on which you're doing development, and try
 "tvb_get_letohl()" instead, as "tvb_get_letohl()" will give the wrong
 answer on big-endian machines.
 
+String accessors:
+
+guint8 *tvb_get_string(tvbuff_t*, gint offset, gint length);
+
+Returns a null-terminated buffer, allocated with "g_malloc()" (so it
+must be freed with "g_free()"), containing data from the specified
+tvbuff, starting at the specified offset, and containing the specified
+length worth of characters (the length of the buffer will be length+1,
+as it includes a null character to terminate the string).
+
+guint8 *tvb_get_stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
+
+Returns a null-terminated buffer, allocated with "g_malloc()",
+containing data from the specified tvbuff, starting with at the
+specified offset, and containing all characters from the tvbuff up to
+and including a terminating null character in the tvbuff.  "*lengthp"
+will be set to the length of the string, including the terminating null.
+
 Copying memory:
 guint8* tvb_memcpy(tvbuff_t*, guint8* target, gint offset, gint length);
+
+Copies into the specified target the specified length's worth of data
+from the specified tvbuff, starting at the specified offset.
+
 guint8* tvb_memdup(tvbuff_t*, gint offset, gint length);
 
+Returns a buffer, allocated with "g_malloc()", containing the specified
+length's worth of data from the specified tvbuff, starting at the
+specified offset.
 
 Pointer-retrieval:
 /* WARNING! This function is possibly expensive, temporarily allocating
@@ -593,11 +708,12 @@ Pointer-retrieval:
  */ 
 guint8* tvb_get_ptr(tvbuff_t*, gint offset, gint length);
 
-The reason that tvb_get_ptr() have to allocate a copy of its data only
-occurs with TVBUFF_COMPOSITES, data that spans multiple tvbuffers. If the
-user request a pointer to a range of bytes that spans the member tvbuffs that
-make up the TVBUFF_COMPOSITE, the data will have to be copied to another
-memory region to assure that all the bytes are contiguous.
+The reason that tvb_get_ptr() might have to allocate a copy of its data
+only occurs with TVBUFF_COMPOSITES, data that spans multiple tvbuffers. 
+If the user request a pointer to a range of bytes that spans the member
+tvbuffs that make up the TVBUFF_COMPOSITE, the data will have to be
+copied to another memory region to assure that all the bytes are
+contiguous.
 
 
 
