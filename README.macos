@@ -1,12 +1,16 @@
-$Id: README.macos,v 1.1 2004/03/15 02:04:08 jmayer Exp $
+$Id: README.macos,v 1.2 2004/03/16 18:18:48 guy Exp $
 
-This file tries to help building Ethereal for MacOS X
+This file tries to help building Ethereal for Mac OS X (Ethereal does
+not work on earlier versions of Mac OS).
 
 The changes to enable libwiretap and libethereal being built as shared
-libraries have broken shared gtk1 builds on MacOS X. It seems that the
-gtk1 libs don't work when linked into a shared library. The alternative
-to build Ethereal as one big statically linked binary isn't working
-either (and may never have worked on this OS).
+libraries have broken shared gtk1 builds on Mac OS X.  The GLib 1.x and
+GTK+ 1.x release tarballs were built with an older version of libtool
+that didn't support shared libraries on Mac OS X, so you can't build and
+install them as shared libraries, but the shared-library build of
+Ethereal requires GLib and GTK+, on Mac OS X, to be shared libraries. 
+The alternative to build Ethereal as one big statically linked binary
+isn't working either (and may never have worked on this OS).
 
 The way out of this situation is to use gtk2 and associated libraries
 which is known to work in this constellation:
