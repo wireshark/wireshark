@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.422 2004/06/20 20:22:09 ulfl Exp $
+# $Id: Makefile.nmake,v 1.423 2004/06/21 15:57:50 gerald Exp $
 
 include config.nmake
 include <win32.mak>
@@ -397,9 +397,9 @@ verify_apps:
 setup: verify_apps
 !IF "$(GTK2_INST_VERSION)" == "2.4"
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		glib gtk2.4/glib-2.4.1.zip
+		glib gtk2.4/glib-2.4.2.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		glib gtk2.4/glib-dev-2.4.1.zip
+		glib gtk2.4/glib-dev-2.4.2.zip
 !ELSE
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		glib glib-2.2.3-20040116.zip
@@ -439,9 +439,9 @@ setup: verify_apps
 !IFDEF GTK2_DIR
 !IF "$(GTK2_INST_VERSION)" == "2.4"
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		gtk2 gtk2.4/gtk+-2.4.1.zip
+		gtk2 gtk2.4/gtk+-2.4.3.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		gtk2 gtk2.4/gtk+-dev-2.4.1.zip
+		gtk2 gtk2.4/gtk+-dev-2.4.3.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		gtk2 gtk2.4/atk-1.6.0.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
