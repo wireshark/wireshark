@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.4 2000/03/29 09:25:20 guy Exp $
+ * $Id: packet-ldap.c,v 1.5 2000/03/31 10:22:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -216,7 +216,7 @@ static int read_integer(ASN1_SCK *a, proto_tree *tree, int hf_id,
   return read_integer_value(a, tree, hf_id, new_tree, i, start, length);
 }
 
-static int read_string_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
+static void read_string_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
 	proto_tree **new_tree, char **s, const guchar *start, guint length)
 {
   guchar *string;
@@ -242,8 +242,6 @@ static int read_string_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
     *s = string;
   else if (length)
     g_free(string);
-
-  return 0;
 }
 
 static int read_string(ASN1_SCK *a, proto_tree *tree, int hf_id,
@@ -253,40 +251,52 @@ static int read_string(ASN1_SCK *a, proto_tree *tree, int hf_id,
   gboolean def;
   guint length;
   const guchar *start = a->pointer;
+  int ret;
   
-  if (asn1_header_decode(a, &cls, &con, &tag, &def, &length) != ASN1_ERR_NOERROR)
-    return 1;
+  ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
+  if (ret != ASN1_ERR_NOERROR)
+    return ret;
   if (cls != expected_cls || con != ASN1_PRI || tag != expected_tag)
-    return 1;
+    return ASN1_ERR_WRONG_TYPE;
 
-  return read_string_value(a, tree, hf_id, new_tree, s, start, length);
+  read_string_value(a, tree, hf_id, new_tree, s, start, length);
+  return ASN1_ERR_NOERROR;
 }
 
-static void parse_filter_strings(ASN1_SCK *a, char **filter, guint *filter_length, const guchar *operation)
+static int parse_filter_strings(ASN1_SCK *a, char **filter, guint *filter_length, const guchar *operation)
 {
   guchar *string;
   guchar *string2;
   gint string_length;
   gint string2_length;
   guint string_bytes;
+  int ret;
 
-  asn1_octet_string_decode(a, &string, &string_length, &string_bytes);
-  asn1_octet_string_decode(a, &string2, &string2_length, &string_bytes);
+  ret = asn1_octet_string_decode(a, &string, &string_length, &string_bytes);
+  if (ret != ASN1_ERR_NOERROR)
+    return ret;
+  ret = asn1_octet_string_decode(a, &string2, &string2_length, &string_bytes);
+  if (ret != ASN1_ERR_NOERROR)
+    return ret;
   *filter_length += 2 + strlen(operation) + string_length + string2_length;
   *filter = g_realloc(*filter, *filter_length);
   sprintf(*filter + strlen(*filter), "(%.*s%s%.*s)", string_length, string, operation, string2_length, string2);
   g_free(string);
   g_free(string2);
+  return ASN1_ERR_NOERROR;
 }
 
-static gboolean parse_filter(ASN1_SCK *a, char **filter, guint *filter_length, const guchar **end)
+/* Returns -1 if we're at the end, returns an ASN1_ERR value otherwise. */
+static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length, const guchar **end)
 {
   guint cls, con, tag;
   guint length;
   gboolean def;
+  int ret;
 
-  /* XXX - what if this returns an error? */
-  asn1_header_decode(a, &cls, &con, &tag, &def, &length);
+  ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
+  if (ret != ASN1_ERR_NOERROR)
+    return ret;
   
   if (*end == 0)
   {
@@ -304,13 +314,16 @@ static gboolean parse_filter(ASN1_SCK *a, char **filter, guint *filter_length, c
         const guchar *add_end;
 
         if (con != ASN1_CON)
-          break;		/* XXX - handle this as an error? */
+          return ASN1_ERR_WRONG_TYPE;
         add_end = a->pointer + length;
         *filter_length += 3;
         *filter = g_realloc(*filter, *filter_length);
         strcat(*filter, "(&");
-        while (!parse_filter(a, filter, filter_length, &add_end))
+        while ((ret = parse_filter(a, filter, filter_length, &add_end))
+ 		== ASN1_ERR_NOERROR)
 	  continue;
+	if (ret != -1)
+	  return ret;
         strcat(*filter, ")");
       }
       break;
@@ -319,13 +332,16 @@ static gboolean parse_filter(ASN1_SCK *a, char **filter, guint *filter_length, c
         const guchar *or_end;
 
         if (con != ASN1_CON)
-          break;		/* XXX - handle this as an error? */
+          return ASN1_ERR_WRONG_TYPE;
         or_end = a->pointer + length;
         *filter_length += 3;
         *filter = g_realloc(*filter, *filter_length);
         strcat(*filter, "(|");
-        while (!parse_filter(a, filter, filter_length, &or_end))
+        while ((ret = parse_filter(a, filter, filter_length, &or_end))
+ 		== ASN1_ERR_NOERROR)
 	  continue;
+	if (ret != -1)
+	  return ret;
         strcat(*filter, ")");
       }
       break;
@@ -334,59 +350,74 @@ static gboolean parse_filter(ASN1_SCK *a, char **filter, guint *filter_length, c
         const guchar *not_end;
 
         if (con != ASN1_CON)
-          break;		/* XXX - handle this as an error? */
+          return ASN1_ERR_WRONG_TYPE;
         not_end = a->pointer + length;
         *filter_length += 3;
         *filter = g_realloc(*filter, *filter_length);
         strcat(*filter, "(!");
-        parse_filter(a, filter, filter_length, &not_end);
+        ret = parse_filter(a, filter, filter_length, &not_end);
+        if (ret != -1 && ret != ASN1_ERR_NOERROR)
+          return ret;
         strcat(*filter, ")");
       }
       break;
      case LDAP_FILTER_EQUALITY:
       if (con != ASN1_CON)
-        break;		/* XXX - handle this as an error? */
-      parse_filter_strings(a, filter, filter_length, "=");
+        return ASN1_ERR_WRONG_TYPE;
+      ret = parse_filter_strings(a, filter, filter_length, "=");
+      if (ret != -1 && ret != ASN1_ERR_NOERROR)
+        return ret;
       break;
      case LDAP_FILTER_GE:
       if (con != ASN1_CON)
-        break;		/* XXX - handle this as an error? */
-      parse_filter_strings(a, filter, filter_length, ">=");
+        return ASN1_ERR_WRONG_TYPE;
+      ret = parse_filter_strings(a, filter, filter_length, ">=");
+      if (ret != -1 && ret != ASN1_ERR_NOERROR)
+        return ret;
       break;
      case LDAP_FILTER_LE:
       if (con != ASN1_CON)
-        break;		/* XXX - handle this as an error? */
-      parse_filter_strings(a, filter, filter_length, "<=");
+        return ASN1_ERR_WRONG_TYPE;
+      ret = parse_filter_strings(a, filter, filter_length, "<=");
+      if (ret != -1 && ret != ASN1_ERR_NOERROR)
+        return ret;
       break;
      case LDAP_FILTER_APPROX:
       if (con != ASN1_CON)
-        break;		/* XXX - handle this as an error? */
-      parse_filter_strings(a, filter, filter_length, "~=");
+        return ASN1_ERR_WRONG_TYPE;
+      ret = parse_filter_strings(a, filter, filter_length, "~=");
+      if (ret != -1 && ret != ASN1_ERR_NOERROR)
+        return ret;
       break;
      case LDAP_FILTER_PRESENT:
       {
         guchar *string;
-        gint string_length;
-        guint string_bytes;
     
-        asn1_octet_string_decode(a, &string, &string_length, &string_bytes);
-        *filter_length += 3 + string_length;
+        if (con != ASN1_PRI)
+          return ASN1_ERR_WRONG_TYPE;
+        ret = asn1_octet_string_value_decode(a, length, &string);
+        if (ret != ASN1_ERR_NOERROR)
+          return ret;
+        *filter_length += 3 + length;
         *filter = g_realloc(*filter, *filter_length);
-        sprintf(*filter + strlen(*filter), "(%.*s=*)", string_length, string);
+        sprintf(*filter + strlen(*filter), "(%.*s=*)", (int)length, string);
         g_free(string);
       }
       break;
      case LDAP_FILTER_SUBSTRINGS:
       if (con != ASN1_CON)
-        break;		/* XXX - handle this as an error? */
+        return ASN1_ERR_WRONG_TYPE;
       asn1_null_decode(a, length);	/* XXX - actually decode this... */
       break;
      default:
-      break;		/* XXX - handle this as an error? */
+      return ASN1_ERR_WRONG_TYPE;
     }
   }
   
-  return a->pointer == *end;
+  if (a->pointer == *end)
+    return -1;
+  else
+    return ret;
 }
 
 static int read_filter(ASN1_SCK *a, proto_tree *tree, int hf_id)
@@ -395,12 +426,19 @@ static int read_filter(ASN1_SCK *a, proto_tree *tree, int hf_id)
   char *filter = 0;
   guint filter_length = 0;
   const guchar *end = 0;
+  int ret;
      
-  while (!parse_filter(a, &filter, &filter_length, &end))
+  while ((ret = parse_filter(a, &filter, &filter_length, &end))
+	== ASN1_ERR_NOERROR)
     continue;
-  
-  if (tree)
-    proto_tree_add_item(tree, hf_id, start-a->begin, a->pointer-start, filter);
+
+  if (tree) {
+    if (ret != -1) {
+      proto_tree_add_text(tree, start-a->begin, 0,
+        "Error parsing filter (%d)", ret);
+    } else
+      proto_tree_add_item(tree, hf_id, start-a->begin, a->pointer-start, filter);
+  }
 
   g_free(filter);
 
@@ -450,11 +488,11 @@ static int dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree)
     return 1;	/* XXX - right return value for an error? */
   if (cls != ASN1_CTX)
     return 1;	/* RFCs 1777 and 2251 say these are context-specific types */
+  proto_tree_add_item(tree, hf_ldap_message_bind_auth, start - a->begin,
+			a->pointer - start, tag);
   switch (tag)
   {
    case LDAP_AUTH_SIMPLE:
-    proto_tree_add_item(tree, hf_ldap_message_bind_auth, start - a->begin,
-			a->pointer - start);
     read_string_value(a, tree, hf_ldap_message_bind_auth_password, NULL, NULL,
 			start, length);
     break;
@@ -477,6 +515,7 @@ static int dissect_ldap_request_search(ASN1_SCK *a, proto_tree *tree)
 {
   guint seq_length;
   const guchar *end;
+  int ret;
   
   read_string(a, tree, hf_ldap_message_search_base, 0, 0, ASN1_UNI, ASN1_OTS);
   read_integer(a, tree, hf_ldap_message_search_scope, 0, 0, ASN1_ENUM);
@@ -484,12 +523,17 @@ static int dissect_ldap_request_search(ASN1_SCK *a, proto_tree *tree)
   read_integer(a, tree, hf_ldap_message_search_sizeLimit, 0, 0, ASN1_INT);
   read_integer(a, tree, hf_ldap_message_search_timeLimit, 0, 0, ASN1_INT);
   read_integer(a, tree, hf_ldap_message_search_typesOnly, 0, 0, ASN1_BOL);
-  read_filter(a, tree, hf_ldap_message_search_filter);
+  ret = read_filter(a, tree, hf_ldap_message_search_filter);
+  if (ret != ASN1_ERR_NOERROR)
+    return ret;
   read_sequence(a, &seq_length);
   end = a->pointer + seq_length;
-  while (a->pointer < end)
-    read_string(a, tree, hf_ldap_message_attribute, 0, 0, ASN1_UNI, ASN1_OTS);
-  return 0;
+  while (a->pointer < end) {
+    ret = read_string(a, tree, hf_ldap_message_attribute, 0, 0, ASN1_UNI, ASN1_OTS);
+    if (ret != ASN1_ERR_NOERROR)
+      return ret;
+  }
+  return ASN1_ERR_NOERROR;
 }
 
 static int dissect_ldap_response_search_entry(ASN1_SCK *a, proto_tree *tree)
@@ -661,6 +705,7 @@ dissect_ldap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   ASN1_SCK a;
   const guchar *start;
   int first_time = 1;
+  int ret;
 
   if (tree) 
   {
@@ -731,7 +776,9 @@ dissect_ldap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         dissect_ldap_request_bind(&a, msg_tree);
         break;
        case LDAP_REQ_SEARCH:
-        dissect_ldap_request_search(&a, msg_tree);
+        ret = dissect_ldap_request_search(&a, msg_tree);
+        if (ret != ASN1_ERR_NOERROR)
+          break;
         break;
        case LDAP_REQ_ADD:
         dissect_ldap_request_add(&a, msg_tree);
@@ -766,6 +813,12 @@ dissect_ldap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         dissect_ldap_result(&a, msg_tree);
         break;
       }
+    }
+    else
+    {
+      /* Only parse the first request in the sequence if we're not building
+         a protocol tree. */
+      break;
     }
   }
 }
