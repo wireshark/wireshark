@@ -2,7 +2,7 @@
  * Routines for decoding MDS Port Analyzer Adapter (FC in Eth) Header
  * Copyright 2001, Dinesh G Dutt <ddutt@andiamo.com>
  *
- * $Id: packet-brdwlk.c,v 1.5 2003/10/30 02:06:11 guy Exp $
+ * $Id: packet-brdwlk.c,v 1.6 2003/10/30 03:15:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -311,9 +311,14 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint (brdwlk_tree, hf_brdwlk_plen, tvb, offset-4,
                                  4, plen);
             
+#if 0
+            /* XXX - this would throw an exception if it would increase
+             * the reported length.
+             */
             if (error & BRDWLK_TRUNCATED_BIT) {
                 tvb_set_reported_length (tvb, plen);
             }
+#endif
         }
     }
     
