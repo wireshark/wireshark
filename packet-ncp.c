@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.25 1999/12/13 20:20:09 nneul Exp $
+ * $Id: packet-ncp.c,v 1.26 1999/12/14 21:57:03 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -320,6 +320,10 @@ static ncp2222_record ncp2222[] = {
 	NULL, NULL, NCP_BINDERY_SERVICES
 },
 
+{ 0x17, 0x11, SUBFUNC, "Get fileserver information",
+	NULL, NULL, NCP_BINDERY_SERVICES
+},
+
 { 0x17, 0x37, SUBFUNC, "Scan bindery object",
 	NULL, NULL, NCP_BINDERY_SERVICES
 },
@@ -389,6 +393,18 @@ static ncp2222_record ncp2222[] = {
 },
 
 { 0x4C, 0x11, SUBFUNC, "Open file",
+	NULL, NULL, NCP_FILE_SERVICES
+},
+
+{ 0x61, 0x00, NOSUB, "Get big packet NCP max packet size",
+	NULL, NULL, NCP_FILE_SERVICES
+},
+
+{ 0x68, 0x01, SUBFUNC, "Ping for NDS NCP",
+	NULL, NULL, NCP_FILE_SERVICES
+},
+
+{ 0x68, 0x02, SUBFUNC, "Send NDS fragmented message",
 	NULL, NULL, NCP_FILE_SERVICES
 },
 
