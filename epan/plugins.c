@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.7 2000/11/13 08:00:06 guy Exp $
+ * $Id: plugins.c,v 1.8 2000/11/13 10:13:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -616,13 +616,18 @@ init_plugins(const char *plugin_dir)
 
 	patable.p_dissector_add			= dissector_add;
 	patable.p_old_dissector_add		= old_dissector_add;
+	patable.p_dissector_delete		= dissector_delete;
 
 	patable.p_heur_dissector_add		= heur_dissector_add;
 
+	patable.p_dissect_data			= dissect_data;
 	patable.p_old_dissect_data		= old_dissect_data;
 
 	patable.p_proto_is_protocol_enabled	= proto_is_protocol_enabled;
 
+	patable.p_proto_item_get_len		= proto_item_get_len;
+	patable.p_proto_item_set_len		= proto_item_set_len;
+	patable.p_proto_item_set_text		= proto_item_set_text;
 	patable.p_proto_item_add_subtree	= proto_item_add_subtree;
 	patable.p_proto_tree_add_item		= proto_tree_add_item;
 	patable.p_proto_tree_add_item_hidden	= proto_tree_add_item_hidden;
@@ -709,6 +714,11 @@ init_plugins(const char *plugin_dir)
 	patable.p_tvb_strncaseeql		= tvb_strncaseeql;
 
 	patable.p_tvb_bytes_to_str		= tvb_bytes_to_str;
+
+	patable.p_prefs_register_module		= prefs_register_module;
+	patable.p_prefs_register_uint_preference = prefs_register_uint_preference;
+	patable.p_prefs_register_bool_preference = prefs_register_bool_preference;
+	patable.p_prefs_register_enum_preference = prefs_register_enum_preference;
 #endif
 
 	plugins_scan_dir(std_plug_dir);

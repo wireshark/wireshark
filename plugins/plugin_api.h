@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.9 2000/11/13 08:00:11 guy Exp $
+ * $Id: plugin_api.h,v 1.10 2000/11/13 10:13:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -53,13 +53,18 @@
 
 #define	dissector_add			(*p_dissector_add)
 #define old_dissector_add		(*p_old_dissector_add)
+#define dissector_delete		(*p_dissector_delete)
 
 #define	heur_dissector_add		(*p_heur_dissector_add)
 
+#define dissect_data			(*p_old_dissect_data)
 #define old_dissect_data		(*p_old_dissect_data)
 
 #define proto_is_protocol_enabled	(*p_proto_is_protocol_enabled)
 
+#define proto_item_get_len		(*p_proto_item_get_len)
+#define proto_item_set_len		(*p_proto_item_set_len)
+#define proto_item_set_text		(*p_proto_item_set_text)
 #define	proto_item_add_subtree		(*p_proto_item_add_subtree)
 #define	proto_tree_add_item		(*p_proto_tree_add_item)
 #define	proto_tree_add_item_hidden	(*p_proto_tree_add_item_hidden)
@@ -147,6 +152,11 @@
 
 #define tvb_bytes_to_str		(*p_tvb_bytes_to_str)
 
+#define prefs_register_module		(*p_prefs_register_module)
+#define prefs_register_uint_preference	(*p_prefs_register_uint_preference)
+#define prefs_register_bool_preference	(*p_prefs_register_bool_preference)
+#define prefs_register_enum_preference	(*p_prefs_register_enum_preference)
+
 #define pi	(*p_pi)
 
 #else
@@ -157,6 +167,7 @@
 #endif
 
 #include "packet.h"
+#include "prefs.h"
 #include "dfilter.h"
 
 #include "plugin_table.h"

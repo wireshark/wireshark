@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.6 2000/11/13 08:00:12 guy Exp $
+ * $Id: plugin_table.h,v 1.7 2000/11/13 10:13:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -45,13 +45,18 @@ typedef void (*addr_proto_register_subtree_array)(int**, int);
 
 typedef void (*addr_dissector_add)(const char *, guint32, dissector_t);
 typedef void (*addr_old_dissector_add)(const char *, guint32, old_dissector_t);
+typedef void (*addr_dissector_delete)(const char *, guint32, dissector_t);
 
 typedef void (*addr_heur_dissector_add)(const char *, heur_dissector_t);
 
+typedef void (*addr_dissect_data)(tvbuff_t *, packet_info *, proto_tree *);
 typedef void (*addr_old_dissect_data)(const u_char *, int, frame_data *, proto_tree *);
 
 typedef gboolean (*addr_proto_is_protocol_enabled)(int);
 
+typedef int (*addr_proto_item_get_len)(proto_item*);
+typedef void (*addr_proto_item_set_len)(proto_item*, gint);
+typedef void (*addr_proto_item_set_text)(proto_item*, const char*, ...);
 typedef proto_tree* (*addr_proto_item_add_subtree)(proto_item*, gint);
 typedef proto_item* (*addr_proto_tree_add_item)(proto_tree*, int, tvbuff_t*, gint, gint, gboolean);
 typedef proto_item* (*addr_proto_tree_add_item_hidden)(proto_tree*, int, tvbuff_t*, gint, gint, gboolean);
@@ -138,18 +143,27 @@ typedef gint (*addr_tvb_pbrk_guint8)(tvbuff_t *, gint, guint, guint8 *);
 
 typedef gint (*addr_tvb_strnlen)(tvbuff_t*, gint, guint);
 
-typedef guint8 * (*addr_tvb_format_text)(tvbuff_t *tvb, gint, gint);
+typedef guint8 * (*addr_tvb_format_text)(tvbuff_t*, gint, gint);
 
-typedef gint (*addr_tvb_get_nstringz)(tvbuff_t *tvb, gint, guint, guint8*);
-typedef gint (*addr_tvb_get_nstringz0)(tvbuff_t *tvb, gint, guint, guint8*);
+typedef gint (*addr_tvb_get_nstringz)(tvbuff_t*, gint, guint, guint8*);
+typedef gint (*addr_tvb_get_nstringz0)(tvbuff_t*, gint, guint, guint8*);
 
-typedef gint (*addr_tvb_find_line_end)(tvbuff_t *tvb, gint, int, gint *);
-typedef gint (*addr_tvb_find_line_end_unquoted)(tvbuff_t *tvb, gint, int, gint *);
+typedef gint (*addr_tvb_find_line_end)(tvbuff_t*, gint, int, gint *);
+typedef gint (*addr_tvb_find_line_end_unquoted)(tvbuff_t*, gint, int, gint *);
 
-typedef gint (*addr_tvb_strneql)(tvbuff_t *tvb, gint, const guint8 *str, gint);
-typedef gint (*addr_tvb_strncaseeql)(tvbuff_t *tvb, gint, const guint8 *str, gint);
+typedef gint (*addr_tvb_strneql)(tvbuff_t*, gint, const guint8 *, gint);
+typedef gint (*addr_tvb_strncaseeql)(tvbuff_t*, gint, const guint8 *, gint);
 
-typedef gchar *(*addr_tvb_bytes_to_str)(tvbuff_t *tvb, gint, gint len);
+typedef gchar *(*addr_tvb_bytes_to_str)(tvbuff_t*, gint, gint len);
+
+typedef module_t *(*addr_prefs_register_module(const char *, const char *,
+    void (*)(void));
+typedef void (*addr_prefs_register_uint_preference(module_t *, const char *,
+    const char *, const char *, guint, guint *);
+typedef void (*addr_prefs_register_bool_preference)(module_t *, const char *,
+    const char *, const char *, gboolean *);
+typedef void (*addr_prefs_register_enum_preference)(module_t *, const char *,
+    const char *, const char *, gint *, const enum_val *, gboolean);
 
 typedef struct  {
 	addr_check_col				p_check_col;
@@ -169,12 +183,18 @@ typedef struct  {
 
 	addr_dissector_add			p_dissector_add;
 	addr_old_dissector_add			p_old_dissector_add;
+	addr_dissector_delete			p_dissector_delete;
+
 	addr_heur_dissector_add			p_heur_dissector_add;
 
+	addr_dissect_data			p_dissect_data;
 	addr_old_dissect_data			p_old_dissect_data;
 
 	addr_proto_is_protocol_enabled		p_proto_is_protocol_enabled;
 
+	addr_proto_item_get_len			p_proto_item_get_len;
+	addr_proto_item_set_len			p_proto_item_set_len;
+	addr_proto_item_set_text		p_proto_item_set_text;
 	addr_proto_item_add_subtree		p_proto_item_add_subtree;
 	addr_proto_tree_add_item		p_proto_tree_add_item;
 	addr_proto_tree_add_item_hidden		p_proto_tree_add_item_hidden;
@@ -261,6 +281,11 @@ typedef struct  {
 	addr_tvb_strncaseeql			p_tvb_strncaseeql;
 
 	addr_tvb_bytes_to_str			p_tvb_bytes_to_str;
+
+	addr_prefs_register_module		p_prefs_register_module;
+	addr_prefs_register_uint_preference	p_prefs_register_uint_preference;
+	addr_prefs_register_bool_preference	p_prefs_register_bool_preference;
+	addr_prefs_register_enum_preference	p_prefs_register_enum_preference;
 } plugin_address_table_t;
 
 #else /* ! PLUGINS_NEED_ACCESS_TABLE */

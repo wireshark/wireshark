@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.10 2000/11/13 08:00:09 guy Exp $
+ * $Id: plugin_api.c,v 1.11 2000/11/13 10:13:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -49,9 +49,14 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_proto_register_subtree_array		= pat->p_proto_register_subtree_array;
 	p_dissector_add				= pat->p_dissector_add;
 	p_old_dissector_add			= pat->p_old_dissector_add;
+	p_dissector_delete			= pat->p_old_dissector_delete;
 	p_heur_dissector_add			= pat->p_heur_dissector_add;
+	p_dissect_data				= pat->p_dissect_data;
 	p_old_dissect_data			= pat->p_old_dissect_data;
 	p_proto_is_protocol_enabled		= pat->p_proto_is_protocol_enabled;
+	p_proto_item_get_len			= pat->p_proto_item_get_len;
+	p_proto_item_set_len			= pat->p_proto_item_set_len;
+	p_proto_item_set_text			= pat->p_proto_item_set_text;
 	p_proto_item_add_subtree		= pat->p_proto_item_add_subtree;
 	p_proto_tree_add_item			= pat->p_proto_tree_add_item;
 	p_proto_tree_add_item_hidden		= pat->p_proto_tree_add_item_hidden;
@@ -124,4 +129,8 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_tvb_strneql				= pat->p_tvb_strneql;
 	p_tvb_strncaseeql			= pat->p_tvb_strncaseeql;
 	p_tvb_bytes_to_str			= pat->p_tvb_bytes_to_str;
+	p_prefs_register_module			= pat->p_prefs_register_module;
+	p_prefs_register_uint_preference	= pat->p_prefs_register_uint_preference;
+	p_prefs_register_bool_preference	= pat->p_prefs_register_bool_preference;
+	p_prefs_register_enum_preference	= pat->p_prefs_register_enum_preference;
 }
