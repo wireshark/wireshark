@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-sna.c,v 1.39 2002/05/29 03:08:02 guy Exp $
+ * $Id: packet-sna.c,v 1.40 2002/05/29 08:55:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -414,8 +414,8 @@ static int  dissect_fid3 (tvbuff_t*, proto_tree*);
 static int  dissect_fid4 (tvbuff_t*, packet_info*, proto_tree*);
 static int  dissect_fid5 (tvbuff_t*, proto_tree*);
 static int  dissect_fidf (tvbuff_t*, proto_tree*);
-static void dissect_fid (tvbuff_t*, packet_info*, proto_tree*);
-static void dissect_nlp (tvbuff_t*, packet_info*, proto_tree*);
+static void dissect_fid (tvbuff_t*, packet_info*, proto_tree*, proto_tree*);
+static void dissect_nlp (tvbuff_t*, packet_info*, proto_tree*, proto_tree*);
 static void dissect_rh (tvbuff_t*, int, proto_tree*);
 
 static void
@@ -448,15 +448,16 @@ dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 0xb:
 		case 0xc:
 		case 0xd:
-			dissect_nlp(tvb, pinfo, sna_tree);
+			dissect_nlp(tvb, pinfo, sna_tree, tree);
 			break;
 		default:
-			dissect_fid(tvb, pinfo, sna_tree);
+			dissect_fid(tvb, pinfo, sna_tree, tree);
 	}
 }
 
 static void
-dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    proto_tree *parent_tree)
 {
 
 	proto_tree	*th_tree = NULL, *rh_tree = NULL;
@@ -504,7 +505,9 @@ dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			th_header_len = dissect_fidf(tvb, th_tree);
 			break;
 		default:
-			call_dissector(data_handle,tvb_new_subset(tvb, 1,-1,tvb_reported_length_remaining(tvb,1)), pinfo, tree);
+			call_dissector(data_handle,
+			    tvb_new_subset(tvb, 1, -1, -1), pinfo, parent_tree);
+			return;
 	}
 
 	sna_header_len += th_header_len;
@@ -527,7 +530,8 @@ dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tvb_offset_exists(tvb, offset+1)) {
-		call_dissector(data_handle,tvb_new_subset(tvb, offset, -1, tvb_reported_length_remaining(tvb,offset)),pinfo, tree);
+		call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1),
+		    pinfo, parent_tree);
 	}
 }
 
@@ -921,7 +925,8 @@ dissect_fidf(tvbuff_t *tvb, proto_tree *tree)
 
 /* HPR Network Layer Packet */
 static void
-dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    proto_tree *parent_tree)
 {
 	proto_tree	*nlp_tree, *bf_tree;
 	proto_item	*nlp_item, *bf_item, *h_item;
@@ -986,8 +991,9 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			index ++;
 
 			if (tvb_offset_exists(tvb, index+1)) {
-				call_dissector(data_handle,tvb_new_subset(tvb, 
-					index, -1, tvb_reported_length_remaining(tvb,index)),pinfo, tree);
+				call_dissector(data_handle,
+					tvb_new_subset(tvb, index, -1, -1),
+					pinfo, parent_tree);
 			}
 			return;
 		}
@@ -1051,14 +1057,15 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_add_str(pinfo->cinfo, COL_INFO, "HPR Fragment");
 		if (tvb_offset_exists(tvb, index+1)) {
-			call_dissector(data_handle,tvb_new_subset(tvb, 
-				index, -1, tvb_reported_length_remaining(tvb,index)),pinfo, tree);
+			call_dissector(data_handle,
+				tvb_new_subset(tvb, index, -1, -1), pinfo,
+				parent_tree);
 		}
 		return;
 	}
 	if (tvb_offset_exists(tvb, index+1)) {
-		dissect_fid(tvb_new_subset(tvb, index, -1, 
-			tvb_reported_length_remaining(tvb,index)), pinfo, tree);
+		dissect_fid(tvb_new_subset(tvb, index, -1, -1), pinfo, tree,
+			parent_tree);
 	}
 }
 
