@@ -7,13 +7,17 @@ Bugs Fixed
 
 New Features
 
-  TCP analysis was improved
+  TCP analysis (a feature added in the 0.9.6 release) was improved.
 
-  NCP code received quite a few updates
+  The NCP code base received quite a few updates.
 
-  Initial GTK2 support
+  Initial support for version 2 of the GTK+ library was added.
 
-  RPC staticstics (which use the new Tap API) were added
+  RPC staticstics (which use the new Tap API) were added.
+
+  Due to added and updated support for the NTLM, SNEGO, and GSS-API
+  protocols, Ethereal can now dissect most of the security blobs for
+  Windows 2000 authentication.
 
   The Ethernet "manuf" file now handles addresses specified with a
   mask, and  contains many well-known addresses.
@@ -35,16 +39,16 @@ DTSSTIME_REQ,
 FLDB,
 FTSERVER,
 KRB5RPC,
-REP_PROC, 
 REPADMIN,
+REP_PROC, 
+ROVERRIDE,
+RPRIV,
 RS_ATTR,
+RSEC_LOGIN,
 RS_MISC,
 RS_PGO,
 RS_REPLIST,
 RS_UNIX,
-RSEC_LOGIN,
-RPRIV,
-ROVERRIDE,
 SECIDMAP,
 TKN4INT,
 UBIKDISK,
@@ -69,8 +73,8 @@ BGP,
 CHDLC,
 CHPA,
 DCE/RPC CONV,
-DCE/RPC NT,
 DCE/RPC LSA,
+DCE/RPC NT,
 DCE/RPC SAMR,
 DNS,
 DOCSIS,
@@ -78,15 +82,15 @@ EAP,
 GTP,
 HTTP,
 IP,
-IS-IS,
 iSCSI,
+IS-IS,
 Kerberos,
 LDAP,
 LDP,
 M2PA
 MMSE,
-NCP,
 NBNS,
+NCP,
 NDS,
 NETLOGON,
 NTLMSSP,
