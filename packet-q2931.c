@@ -2,7 +2,7 @@
  * Routines for Q.2931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q2931.c,v 1.25 2002/05/24 08:08:43 guy Exp $
+ * $Id: packet-q2931.c,v 1.26 2002/05/28 23:25:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -330,8 +330,8 @@ static const value_string q2931_aal1_err_correction_method_vals[] = {
 };
 
 static const value_string q2931_aal_mode_vals[] = {
-	{ 0x00, "Streaming" },
 	{ 0x01, "Message" },
+	{ 0x02, "Streaming" },
 	{ 0x00, NULL }
 };
 
