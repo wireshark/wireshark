@@ -1,4 +1,4 @@
-/* $Id: config.h.win32,v 1.11 2000/06/07 22:57:44 gram Exp $ */
+/* $Id: config.h.win32,v 1.12 2000/07/04 12:09:44 gram Exp $ */
 /* config.h.win32 Generated manually. :-) */
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
@@ -13,10 +13,10 @@
 /* #undef HAVE_SA_LEN */
 
 #define DATAFILE_DIR "/usr/local/etc"
-#define PLUGIN_DIR "/usr/local/lib/ethereal/plugins/0.8.9"
+#define PLUGIN_DIR "/usr/local/lib/ethereal/plugins/0.8.10"
 
 /* Version number of package */
-#define VERSION "0.8.9"
+#define VERSION "0.8.10"
 
 /* #undef NEED_SNPRINTF_H */
 
