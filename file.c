@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.170 2000/03/12 03:13:58 guy Exp $
+ * $Id: file.c,v 1.171 2000/03/20 04:55:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -479,7 +479,7 @@ finish_tail_cap_file(capture_file *cf)
 typedef struct {
   color_filter_t *colorf;
   proto_tree	*protocol_tree;
-  guint8	*pd;
+  const guint8	*pd;
 } apply_color_filter_args;
 
 /*
@@ -536,14 +536,14 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
     protocol_tree = proto_tree_create_root();
     dissect_packet(buf, fdata, protocol_tree);
     if (cf->dfcode != NULL)
-      fdata->passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, cf->pd);
+      fdata->passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, buf);
     else
       fdata->passed_dfilter = TRUE;
 
     /* Apply color filters, if we have any. */
     if (filter_list != NULL) {
       args.protocol_tree = protocol_tree;
-      args.pd = cf->pd;
+      args.pd = buf;
       g_slist_foreach(filter_list, apply_color_filter, &args);
     }
     proto_tree_free(protocol_tree);
@@ -679,7 +679,7 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   if (cf->rfcode) {
     protocol_tree = proto_tree_create_root();
     dissect_packet(buf, fdata, protocol_tree);
-    passed = dfilter_apply(cf->rfcode, protocol_tree, cf->pd);
+    passed = dfilter_apply(cf->rfcode, protocol_tree, buf);
     proto_tree_free(protocol_tree);
   }   
   if (passed) {
