@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.66 2002/12/09 03:09:35 gerald Exp $
+$Id: README.developer,v 1.67 2002/12/19 05:28:40 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -158,7 +158,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.66 2002/12/09 03:09:35 gerald Exp $"
+The "$Id: README.developer,v 1.67 2002/12/19 05:28:40 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -168,7 +168,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.66 2002/12/09 03:09:35 gerald Exp $
+ * $Id: README.developer,v 1.67 2002/12/19 05:28:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -368,7 +368,8 @@ FIELDTYPE	FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
 		FT_UINT32, FT_UINT64, FT_INT8, FT_INT16, FT_INT24, FT_INT32,
 		FT_INT64, FT_FLOAT, FT_DOUBLE, FT_ABSOLUTE_TIME,
 		FT_RELATIVE_TIME, FT_STRING, FT_STRINGZ, FT_UINT_STRING,
-		FT_ETHER, FT_BYTES, FT_IPv4, FT_IPv6, FT_IPXNET
+		FT_ETHER, FT_BYTES, FT_IPv4, FT_IPv6, FT_IPXNET,
+		FT_FRAMENUM
 FIELDBASE	BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT, BASE_BIN
 FIELDCONVERT	VALS(x), TFS(x), NULL
 BITMASK		Usually 0x0 unless using the TFS(x) field conversion.
@@ -756,6 +757,9 @@ The type of value this field holds. The current field types are:
 				FT_NONE field.
 	FT_BOOLEAN		0 means "false", any other value means
 				"true".
+	FT_FRAMENUM		A frame number; if this is used, the "Go
+				To Corresponding Frame" menu item can
+				work on that field.
 	FT_UINT8		An 8-bit unsigned integer.
 	FT_UINT16		A 16-bit unsigned integer.
 	FT_UINT24		A 24-bit unsigned integer.
