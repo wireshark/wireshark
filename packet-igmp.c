@@ -1,7 +1,7 @@
 /* packet-igmp.c   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for IGMP packet disassembly
  *
- * $Id: packet-igmp.c,v 1.23 2003/07/23 19:38:52 jmayer Exp $
+ * $Id: packet-igmp.c,v 1.24 2003/07/24 20:46:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,7 +41,7 @@
 	0x07      20
 	0x08      20
 	0x11               8*     8*     >=12
-        0x12               8*     8*
+	0x12               8*     8*
 	0x13                                     x
 	0x16                      8
 	0x17                      8
@@ -809,7 +809,7 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			offset = dissect_igmp_v3_query(tvb, pinfo, tree, type, offset);
 		} else {
 			/* v1 and v2 differs in second byte of header */
-			if (tvb_get_guint8(tvb, offset)) {
+			if (tvb_get_guint8(tvb, offset+1)) {
 				offset = dissect_igmp_v2(tvb, pinfo, tree, type, offset);
 			} else {
 				offset = dissect_igmp_v1(tvb, pinfo, tree, type, offset);
