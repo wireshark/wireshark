@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.19 2000/08/15 20:53:31 deniel Exp $
+ * $Id: prefs.h,v 1.20 2000/08/17 21:02:10 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -64,6 +64,10 @@ typedef struct pref_module module_t;
  * Specify the name used for the module in the preferences file, the
  * title used in the tab for it in a preferences dialog box, and a
  * routine to call back when we apply the preferences.
+ * Note:
+ * In case of dissectors, the specified name should be the protocol
+ * name specified at the proto_register_protocol() call in order to
+ * make the "Protocol Properties..." menu item work.
  */
 module_t *prefs_register_module(const char *name, const char *title,
     void (*apply_cb)(void));
