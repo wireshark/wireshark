@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.12 1999/03/23 03:14:44 gram Exp $
+ * $Id: packet-tr.c,v 1.13 1999/06/14 20:30:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -163,7 +163,7 @@ capture_tr(const u_char *pd, guint32 cap_len, packet_counts *ld) {
 void
 dissect_tr(const u_char *pd, frame_data *fd, proto_tree *tree) {
 
-	proto_tree	*fh_tree;
+	proto_tree	*fh_tree, *bf_tree;
 	proto_item	*ti;
 	int			offset = 14;
 
@@ -183,7 +183,14 @@ dissect_tr(const u_char *pd, frame_data *fd, proto_tree *tree) {
 	/* non-source-routed version of source addr */
 	guint8			trn_shost_nonsr[6];
 
-	static const value_string fc_pcf[] = {
+
+	static const value_string ac_vals[] = {
+		{ 0,	"Token" },
+		{ 0x10,	"Frame" },
+		{ 0,	NULL }
+	};
+
+	static const value_string pcf_vals[] = {
 		{ 0,	"Normal buffer" },
 		{ 1,	"Express buffer" },
 		{ 2,	"Purge" },
@@ -191,6 +198,13 @@ dissect_tr(const u_char *pd, frame_data *fd, proto_tree *tree) {
 		{ 4,	"Beacon" },
 		{ 5,	"Active Monitor Present" },
 		{ 6,	"Standby Monitor Present" },
+		{ 0,	NULL },
+	};
+
+	static const value_string frame_vals[] = {
+		{ 0,	"MAC" },
+		{ 64,	"LLC" },
+		{ 128,	"Reserved" },
 		{ 0,	NULL },
 	};
 
@@ -285,18 +299,33 @@ dissect_tr(const u_char *pd, frame_data *fd, proto_tree *tree) {
 		ti = proto_tree_add_item(tree, 0, 14 + actual_rif_bytes, "Token-Ring");
 		fh_tree = proto_tree_new();
 		proto_item_add_subtree(ti, fh_tree, ETT_TOKEN_RING);
-		proto_tree_add_item(fh_tree, 0, 1,
-			"Access Control: %s, Priority=%d, Monitor Count=%d, "
-			"Priority Reservation=%d",
-			((trn_ac & 16) >> 4) ? "Frame" : "Token",	/* frame/token */
-			((trn_ac & 224) >> 5),				/* priority */
-			((trn_ac & 8) >> 3),				/* monitor count */
-			((trn_ac & 7)));				/* priority reserv. */
 
-		proto_tree_add_item(fh_tree, 1, 1,
-			"Frame Control: %s, Physical Control=%d (%s)",
-			fc[frame_type], (trn_fc & 15),
-			val_to_str((trn_fc & 15), fc_pcf, "Unknown"));
+		ti = proto_tree_add_item(fh_tree, 0, 1, "Access Control (0x%02x)", trn_ac);
+		bf_tree = proto_tree_new();
+		proto_item_add_subtree(ti, bf_tree, ETT_TOKEN_RING_AC);
+
+		proto_tree_add_item(bf_tree, 0, 1, "%s",
+			decode_numeric_bitfield(trn_ac, 0xe0, 8, "Priority = %d"));
+
+		proto_tree_add_item(bf_tree, 0, 1, "%s",
+			decode_enumerated_bitfield(trn_ac, 0x10, 8, ac_vals, "%s"));
+
+		proto_tree_add_item(bf_tree, 0, 1, "%s",
+			decode_numeric_bitfield(trn_ac, 0x08, 8, "Monitor Count"));
+
+		proto_tree_add_item(bf_tree, 0, 1, "%s",
+			decode_numeric_bitfield(trn_ac, 0x07, 8, "Priority Reservation = %d"));
+
+
+		ti = proto_tree_add_item(fh_tree, 1, 1, "Frame Control (0x%02x)", trn_fc);
+		bf_tree = proto_tree_new();
+		proto_item_add_subtree(ti, bf_tree, ETT_TOKEN_RING_FC);
+
+		proto_tree_add_item(bf_tree, 1, 1, "%s",
+			decode_enumerated_bitfield(trn_fc, 0xc0, 8, frame_vals, "%s"));
+
+		proto_tree_add_item(bf_tree, 1, 1, "%s",
+			decode_enumerated_bitfield(trn_fc, 0x0f, 8, pcf_vals, "%s"));
 
 		proto_tree_add_item(fh_tree, 2, 6, "Destination: %s",
 			ether_to_str((guint8 *) trn_dhost));

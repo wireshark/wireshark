@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.59 1999/06/12 04:21:09 guy Exp $
+ * $Id: packet.h,v 1.60 1999/06/14 20:30:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -143,6 +143,8 @@ enum {
 	ETT_ETHER2,
 	ETT_LLC,
 	ETT_TOKEN_RING,
+	ETT_TOKEN_RING_AC,
+	ETT_TOKEN_RING_FC,
 	ETT_TR_IERR_CNT,
 	ETT_TR_NERR_CNT,
 	ETT_TR_MAC,
