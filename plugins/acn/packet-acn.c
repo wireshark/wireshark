@@ -1,7 +1,7 @@
 /* packet-acn.c
  * Routines for ACN packet disassembly
  *
- * $Id: packet-acn.c,v 1.2 2003/10/31 18:28:32 guy Exp $
+ * $Id: packet-acn.c,v 1.3 2003/11/05 20:10:54 guy Exp $
  *
  * Copyright (c) 2003 by Erwin Rol <erwin@erwinrol.com>
  *
@@ -86,7 +86,7 @@ static const value_string acn_sdt_type_vals[] = {
 	{ ACN_SDT_TYPE_REPLOSTSEQON,	"REPLOSTSEQON"},
 	{ ACN_SDT_TYPE_REPLOSTSEQOFF,	"REPLOSTSEQOFF"},
 	{ ACN_SDT_TYPE_SESSEXPIRY,	"SESEXPIRY"},
-	{ ACN_SDT_TYPE_MAK,		"MAC"},
+	{ ACN_SDT_TYPE_MAK,		"MAK"},
 	{ ACN_SDT_TYPE_ACK,		"ACK"},
 	{ ACN_SDT_TYPE_NAK,		"NAK"},
 	{ ACN_SDT_TYPE_SEQLOST,		"SEQLOST"},
@@ -106,6 +106,23 @@ static const value_string acn_sdt_address_type_vals[] = {
 	{ ACN_SDT_ADDR_IPV6,		"IP version 6"},
 	{ 0,				NULL }
 };
+
+static const value_string acn_sdt_des_flag_vals[] = {
+	{ 0,				"Default"},
+	{ 1,				"Protocol Specific"},
+	{ 2,				"CID"},
+	{ 3,				"All"}, 
+	{ 0,				NULL }
+};
+
+static const value_string acn_sdt_src_flag_vals[] = {
+	{ 0,				"Default"},
+	{ 1,				"Protocol Specific"},
+	{ 2,				"CID"},
+	{ 3,				"Unspecified"}, 
+	{ 0,				NULL }
+};
+
 
 void proto_reg_handoff_acn(void);
 
@@ -140,6 +157,7 @@ static int hf_acn_pdu_type = -1;
 static int hf_acn_pdu_type_sdt = -1;
 static int hf_acn_pdu_type_dmp = -1;
 static int hf_acn_pdu_data = -1;
+static int hf_acn_pdu_unknown_data = -1;
 
 static int hf_acn_pdu_padding = -1;
 
@@ -150,7 +168,9 @@ static int hf_acn_sdt_rel_seq_nr = -1;
 static int hf_acn_sdt_unavailable_wrappers = -1;
 static int hf_acn_sdt_refuse_code = -1;
 static int hf_acn_sdt_last_rel_seq = -1;
+static int hf_acn_sdt_new_rel_seq = -1;
 static int hf_acn_sdt_last_rel_wrapper = -1;
+static int hf_acn_sdt_nr_lost_wrappers = -1;
 static int hf_acn_sdt_session_exp_time = -1;
 static int hf_acn_sdt_upstream_address_type = -1;
 static int hf_acn_sdt_upstream_ipv4_address = -1;
@@ -198,6 +218,7 @@ dissect_sdt(tvbuff_t *tvb, guint offset, proto_tree *tree, acn_pdu_history_t* pa
 	guint size = 0;
 	guint flags;
 	guint type;
+	guint count;
 
 	hist = *parent_hist;
 
@@ -368,6 +389,8 @@ dissect_sdt(tvbuff_t *tvb, guint offset, proto_tree *tree, acn_pdu_history_t* pa
 						offset, 2, FALSE);
 			offset += 2;
 					
+			size = offset - start_offset;
+
 			break;
 
 		case ACN_SDT_TYPE_TRANSFER:
@@ -492,7 +515,21 @@ dissect_sdt(tvbuff_t *tvb, guint offset, proto_tree *tree, acn_pdu_history_t* pa
 			offset += 2;
 			
 			/* CID+MID list */
+			count = (max_size - (offset - start_offset)) / 18;
+			while( count > 0) {
+				proto_tree_add_item(tree, hf_acn_sdt_member_cid, tvb,
+							offset, 16, FALSE);
+				offset += 16;
+
+				proto_tree_add_item(tree, hf_acn_sdt_mid, tvb,
+							offset, 2, FALSE);
+				offset += 2;
+
+				count--;
+			}
 			
+			size = offset - start_offset;
+
 			break;
 
 		case ACN_SDT_TYPE_JOINREF:
@@ -514,7 +551,6 @@ dissect_sdt(tvbuff_t *tvb, guint offset, proto_tree *tree, acn_pdu_history_t* pa
 			offset += 4;
 
 			size = offset - start_offset;
-
 			break;
 
 		case ACN_SDT_TYPE_LEAVING:
@@ -535,13 +571,51 @@ dissect_sdt(tvbuff_t *tvb, guint offset, proto_tree *tree, acn_pdu_history_t* pa
 			break;
 
 		case ACN_SDT_TYPE_MAK:
+			proto_tree_add_item(tree, hf_acn_sdt_ack_threshold, tvb,
+						offset, 2, FALSE);
+			offset += 2;
+
+			count = (max_size - (offset - start_offset)) / 2;
+			while( count > 0) {
+				proto_tree_add_item(tree, hf_acn_sdt_mid, tvb,
+							offset, 2, FALSE);
+				offset += 2;
+
+				count--;
+			}
+			
+			size = offset - start_offset;
 			break;
 			
-		case ACN_SDT_TYPE_NAK:
-				
+		case ACN_SDT_TYPE_NAK:				
+			proto_tree_add_item(tree, hf_acn_sdt_session_nr, tvb,
+						offset, 2, FALSE);
+			offset += 2;
+
+			proto_tree_add_item(tree, hf_acn_sdt_mid, tvb,
+						offset, 2, FALSE);
+			offset += 2;
+
+			proto_tree_add_item(tree, hf_acn_sdt_last_rel_seq, tvb,
+						offset, 4, FALSE);
+			offset += 4;
+
+			proto_tree_add_item(tree, hf_acn_sdt_nr_lost_wrappers, tvb,
+						offset, 2, FALSE);
+			offset += 2;
+
+			size = offset - start_offset;
 			break;
 			
 		case ACN_SDT_TYPE_SEQLOST:
+			proto_tree_add_item(tree, hf_acn_sdt_last_rel_seq, tvb,
+						offset, 4, FALSE);
+			offset += 4;
+
+			proto_tree_add_item(tree, hf_acn_sdt_new_rel_seq, tvb,
+						offset, 4, FALSE);
+			offset += 4;
+			size = offset - start_offset;
 			break;
 
 		case ACN_SDT_TYPE_NAKPARAMS:
@@ -556,6 +630,8 @@ dissect_sdt(tvbuff_t *tvb, guint offset, proto_tree *tree, acn_pdu_history_t* pa
 			proto_tree_add_item(tree, hf_acn_sdt_max_nak_wait_time, tvb,
 						offset, 2, FALSE);
 			offset += 2;
+
+			size = offset - start_offset;
 			break;
 
 		case ACN_SDT_TYPE_LEAVEREQ:
@@ -567,6 +643,7 @@ dissect_sdt(tvbuff_t *tvb, guint offset, proto_tree *tree, acn_pdu_history_t* pa
 		case ACN_SDT_TYPE_REPLOSTSEQON:
 		case ACN_SDT_TYPE_REPLOSTSEQOFF:
 			/* no data */
+			size = offset - start_offset;
 			break;
 
 		default:
@@ -590,7 +667,7 @@ dissect_pdu(tvbuff_t *tvb, guint offset, proto_tree *tree, acn_pdu_history_t* pa
 	guint src,des;
 	proto_tree *ti, *si, *flags_tree, *flags_item, *data_tree, *data_item;
 	guint start_offset = offset;
-	acn_pdu_history_t hist;
+	acn_pdu_history_t hist = *parent_hist;
 	
 
 	ti = proto_tree_add_item(tree,
@@ -634,6 +711,9 @@ dissect_pdu(tvbuff_t *tvb, guint offset, proto_tree *tree, acn_pdu_history_t* pa
 					offset, 4, size);	
 		offset += 4;
 	}
+	
+	if(size > max_size )
+		size = max_size;
 
 	switch( flags & ACN_PDU_DES )
 	{	
@@ -727,8 +807,6 @@ dissect_pdu(tvbuff_t *tvb, guint offset, proto_tree *tree, acn_pdu_history_t* pa
 		offset += 2;
 	}
 
-	/*hist = *parent_hist;*/
-
 	if( flags & ACN_PDU_FLAG_Z )
 	{
 		data_size = size - (offset - start_offset);
@@ -740,7 +818,6 @@ dissect_pdu(tvbuff_t *tvb, guint offset, proto_tree *tree, acn_pdu_history_t* pa
 		data_tree=proto_item_add_subtree(data_item, ett_acn);
 
 
-		
 		switch( hist.protocol ) {
 			case ACN_PDU_PROTO_SDT:
 				dissect_sdt( tvb, offset, data_tree, &hist, data_size);
@@ -751,8 +828,8 @@ dissect_pdu(tvbuff_t *tvb, guint offset, proto_tree *tree, acn_pdu_history_t* pa
 				break;
 	
 			default:
-				/*proto_tree_add_item(si, hf_acn_pdu_data, tvb,*/
-				/*			offset, data_size, FALSE );*/
+				proto_tree_add_item(si, hf_acn_pdu_unknown_data, tvb,
+							offset, data_size, FALSE );
 				break;	
 		}
 
@@ -824,12 +901,12 @@ proto_register_acn(void) {
 
 	{ &hf_acn_pdu_des,
 	    { "des","acn.pdu.des",
-		FT_UINT8, BASE_HEX, NULL, 0xC0,
+		FT_UINT8, BASE_HEX, VALS( acn_sdt_des_flag_vals ), 0xC0,
 		"des", HFILL }},
 
 	{ &hf_acn_pdu_src,
 	    { "src","acn.pdu.src",
-		FT_UINT8, BASE_HEX, NULL, 0x30,
+		FT_UINT8, BASE_HEX, VALS( acn_sdt_src_flag_vals ), 0x30,
 		"src", HFILL }},
 
 	{ &hf_acn_pdu_flag_p,
@@ -912,6 +989,11 @@ proto_register_acn(void) {
 		FT_NONE, BASE_HEX, NULL, 0x0,
 		"Data", HFILL }},
 
+	{ &hf_acn_pdu_unknown_data,
+	    { "Unknown Data","acn.pdu.unknown_data",
+		FT_BYTES, BASE_HEX, NULL, 0x0,
+		"Unknown Data", HFILL }},
+
 	{ &hf_acn_pdu_padding,
 	    { "Padding","acn.pdu.padding",
 		FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -947,10 +1029,20 @@ proto_register_acn(void) {
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		"SDT Last reliable seq nr", HFILL }},
 
+	{ &hf_acn_sdt_new_rel_seq,
+	    { "SDT reliable seq nr to continue with","acn.sdt.new_rel_seq",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		"SDT reliable seq nr to continue with", HFILL }},
+
 	{ &hf_acn_sdt_last_rel_wrapper,
 	    { "SDT Last reliable Wrapper","acn.sdt.last_rel_wrapper",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		"SDT Last reliable Wrapper", HFILL }},
+
+	{ &hf_acn_sdt_nr_lost_wrappers,
+	    { "SDT Nr of lost Wrappers","acn.sdt.nr_lost_wrappers",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		"SDT Nr of lost  Wrappers", HFILL }},
 
 	{ &hf_acn_sdt_session_exp_time,
 	    { "SDT Session expire time","acn.sdt.session_exp_time",
