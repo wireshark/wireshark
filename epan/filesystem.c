@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.21 2003/03/25 23:46:04 guy Exp $
+ * $Id: filesystem.c,v 1.22 2003/03/26 00:34:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -208,6 +208,27 @@ test_for_fifo(const char *path)
 /*
  * Get the directory in which Ethereal's global configuration and data
  * files are stored.
+ *
+ * XXX - if we ever make libethereal a real library, used by multiple
+ * applications (more than just Tethereal and versions of Ethereal with
+ * various UIs), should the configuration files belong to the library
+ * (and be shared by all those applications) or to the applications?
+ *
+ * If they belong to the library, that could be done on UNIX by the
+ * configure script, but it's trickier on Windows, as you can't just
+ * use the pathname of the executable.
+ *
+ * If they belong to the application, that could be done on Windows
+ * by using the pathname of the executable, but we'd have to have it
+ * passed in as an argument, in some call, on UNIX.
+ *
+ * Note that some of those configuration files might be used by code in
+ * libethereal, some of them might be used by dissectors (would they
+ * belong to libethereal, the application, or a separate library?),
+ * and some of them might be used by other code (the Ethereal preferences
+ * file includes resolver preferences that control the behavior of code
+ * in libethereal, dissector preferences, and UI preferences, for
+ * example).
  */
 const char *
 get_datafile_dir(void)
