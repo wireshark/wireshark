@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.145 1999/11/19 07:28:16 guy Exp $
+ * $Id: packet.h,v 1.146 1999/11/19 09:55:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -361,6 +361,7 @@ void dissect_imap(const u_char *,int, frame_data *, proto_tree *);
 void dissect_isakmp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_pim(const u_char *, int, frame_data *, proto_tree *);
 void dissect_q931(const u_char *, int, frame_data *, proto_tree *);
+void dissect_q2931(const u_char *, int, frame_data *, proto_tree *);
 void dissect_radius(const u_char *, int, frame_data *, proto_tree *);
 void dissect_rip(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ripng(const u_char *, int, frame_data *, proto_tree *);

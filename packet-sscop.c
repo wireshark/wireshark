@@ -2,7 +2,7 @@
  * Routines for SSCOP (Q.2110, Q.SAAL) frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sscop.c,v 1.2 1999/11/19 09:10:22 guy Exp $
+ * $Id: packet-sscop.c,v 1.3 1999/11/19 09:55:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -274,7 +274,16 @@ dissect_sscop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     pi.len -= (pdu_len + pad_len);
     if (pi.len < pi.captured_len)
       pi.captured_len = pi.len;
+
+    /*
+     * XXX - if more than just Q.2931 uses SSCOP, we need to tell
+     * SSCOP what dissector to use here.
+     */
+#if 1
+    dissect_q2931(pd, offset, fd, tree);
+#else
     dissect_data(pd, offset, fd, tree);
+#endif
     break;
   }
 }
