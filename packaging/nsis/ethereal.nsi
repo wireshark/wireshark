@@ -74,6 +74,8 @@ XPStyle on
 !define MUI_FINISHPAGE_SHOWREADME_TEXT "Show News"
 !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
 
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW myShowCallback
+
 ; ============================================================================
 ; MUI Pages
 ; ============================================================================
@@ -756,3 +758,29 @@ onSelChange.end:
 FunctionEnd
 !endif
 !endif
+
+
+!include "GetWindowsVersion.nsh"
+
+
+Function myShowCallback
+!ifdef GTK2_DIR
+	; Enable GTK-Wimp only for Windows 2000/XP/2003
+	; ...as Win9x/ME/NT known to have problems with it!
+	
+	; Get the Windows version
+	Call GetWindowsVersion
+	Pop $R0 ; Windows Version
+	;DetailPrint 'Windows Version: $R0'
+	StrCmp $R0 '2000' lbl_select_wimp
+	StrCmp $R0 'XP' lbl_select_wimp
+	StrCmp $R0 '2003' lbl_select_wimp
+	DetailPrint "Windows $R0 doesn't support GTK-Wimp!"
+
+	Goto lbl_ignore_wimp
+lbl_select_wimp:
+	!insertmacro SelectSection ${SecGTKWimp}
+
+lbl_ignore_wimp:
+!endif
+FunctionEnd
