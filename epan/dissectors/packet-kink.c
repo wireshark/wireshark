@@ -371,7 +371,10 @@ dissect_payload_kink_ap_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
     payload_length += (PADDING - (payload_length % PADDING));
   }
   offset = start_payload_offset + payload_length;
-  control_payload(pinfo, tvb, offset, next_payload, tree); /* Recur control_payload() */
+
+  if(payload_length > 0) {
+    control_payload(pinfo, tvb, offset, next_payload, tree); /* Recur control_payload() */
+  }
 }
 
 
@@ -437,7 +440,10 @@ dissect_payload_kink_ap_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
     payload_length += (PADDING - (payload_length % PADDING));
   }
   offset = start_payload_offset + payload_length;
-  control_payload(pinfo, tvb, offset, next_payload, tree); /* Recur control_payload() */
+
+  if(payload_length > 0) {
+    control_payload(pinfo, tvb, offset, next_payload, tree); /* Recur control_payload() */
+  }
 }
 
 static void
@@ -488,7 +494,10 @@ dissect_payload_kink_krb_error(packet_info *pinfo, tvbuff_t *tvb, int offset, pr
     payload_length += (PADDING - (payload_length % PADDING));
   }
   offset = start_payload_offset + payload_length;
-  control_payload(pinfo, tvb, offset, next_payload, tree); /* Recur control_payload() */
+
+  if(payload_length > 0) {
+    control_payload(pinfo, tvb, offset, next_payload, tree); /* Recur control_payload() */
+  }
 }
 
 static void
@@ -532,7 +541,10 @@ dissect_payload_kink_tgt_req(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
     payload_length += (PADDING - (payload_length % PADDING));
   }
   offset = start_payload_offset + payload_length;
-  control_payload(pinfo, tvb, offset, next_payload, tree); /* Recur control_payload() */
+
+  if(payload_length > 0) {
+    control_payload(pinfo, tvb, offset, next_payload, tree); /* Recur control_payload() */
+  }
 }
 
 static void
@@ -591,7 +603,10 @@ dissect_payload_kink_tgt_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
     payload_length += (PADDING - (payload_length % PADDING));
   }
   offset = start_payload_offset + payload_length;
-  control_payload(pinfo, tvb, offset, next_payload, tree); /* Recur control_payload() */
+
+  if(payload_length > 0) {
+    control_payload(pinfo, tvb, offset, next_payload, tree); /* Recur control_payload() */
+  }
 }
 
 static void
@@ -661,7 +676,10 @@ dissect_payload_kink_isakmp(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
     payload_length += (PADDING - (payload_length % PADDING));
   }
   offset = start_payload_offset + payload_length;
-  control_payload(pinfo, tvb, offset, next_payload, tree);  /* Recur control_payload() */
+
+  if(payload_length > 0) {
+    control_payload(pinfo, tvb, offset, next_payload, tree);  /* Recur control_payload() */
+  }
 }
 
 static void
@@ -717,7 +735,10 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
     payload_length += (PADDING - (payload_length % PADDING));
   }
   offset = start_payload_offset + payload_length;
-  control_payload(pinfo, tvb, offset, next_payload, tree);  /* Recur control_payload() */
+
+  if(payload_length > 0) {
+    control_payload(pinfo, tvb, offset, next_payload, tree);  /* Recur control_payload() */
+  }
 }
 
 static void
@@ -827,7 +848,7 @@ dissect_payload_kink_not_defined(packet_info *pinfo, tvbuff_t *tvb, int offset, 
   offset = start_payload_offset + payload_length;
 
   /* XXX - prevent an endless loop if payload_length is 0, don't know the correct way to handle this! */
-  if(payload_length != 0) {
+  if(payload_length > 0) {
     control_payload(pinfo, tvb, offset, next_payload, tree);
   }
 }
