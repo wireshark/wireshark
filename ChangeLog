@@ -1,3 +1,28 @@
+2004-03-26 04:01  gerald
+
+	* plugins/rudp/packet-rudp.c:
+
+	  Call plugin_address_table_init() before
+	  proto_register_protocol().
+
+2004-03-26 02:10  guy
+
+	* Makefile.common:
+
+	  Include packet-sip.h in the release.
+
+2004-03-26 01:55  gerald
+
+	* packet-sip.h:
+
+	  Add packet-sip.h
+
+2004-03-26 01:39  gerald
+
+	* ChangeLog, NEWS:
+
+	  Final changes for the 0.10.3 (codename: "Ides of March") release.
+
 2004-03-26 00:28  guy
 
 	* AUTHORS, packet-sip.c, gtk/Makefile.common, gtk/sip_stat.c:
