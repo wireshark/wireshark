@@ -153,13 +153,13 @@ README.win32 for those instructions.
         that comes with the net-snmp package is located, if not in a standard 
         location.
 
-    --without-ucdsnmp
+    --without-ucd-snmp
         If 'configure' finds a supported version of the UCD SNMP library
         on your system,  the SNMP dissector will be enhanced to use
         routines from that SNMP library. Use this switch to avoid
         using the UCD SNMP library even if you have it installed.
 
-    --with-ucdsnmp=DIR
+    --with-ucd-snmp=DIR
         Tell the 'configure' script where your UCD SNMP library
         is located, if not in a standard location.
 

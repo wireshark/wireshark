@@ -1,4 +1,4 @@
-$Id: README,v 1.60 2003/07/29 19:41:59 guy Exp $
+$Id: README,v 1.61 2003/09/03 07:11:31 sharpe Exp $
 
 General Information
 ------- -----------
@@ -203,14 +203,14 @@ to display OIDs and variable binding values in a friendlier fashion.
 The configure script will automatically determine whether you have the
 UCD SNMP library on your system, and will use it if it's version 4.2.2
 or later.  If you have an SNMP library but _do not_ want to have
-ethereal use it, you can run configure with the "--without-ucdsnmp"
+ethereal use it, you can run configure with the "--without-ucd-snmp"
 option.
 
 If you have an earlier version of the UCD SNMP library on your system,
 the configure script will stop, reporting that it can't find the
 "sprint_realloc_objid()" routine; you should either upgrade to version
 4.2.4 or later, as UCD SNMP 4.2.4 fixes some potential buffer overflow
-problems, or should configure with "--without-ucdsnmp".
+problems, or should configure with "--without-ucd-snmp".
 
 
 How to Report a Bug
