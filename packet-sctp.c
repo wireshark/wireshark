@@ -12,7 +12,7 @@
  * - support for reassembly
  * - error checking mode 
  *
- * $Id: packet-sctp.c,v 1.68 2004/04/26 19:08:55 tuexen Exp $
+ * $Id: packet-sctp.c,v 1.69 2004/04/29 18:11:08 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -761,7 +761,7 @@ static const value_string parameter_identifier_values[] = {
 #define SCTP_PARAMETER_BIT_2 0x4000
 
 static const true_false_string sctp_parameter_bit_1_value = {
-  "Skip parameter and continue prosessing of the chunk",
+  "Skip parameter and continue processing of the chunk",
   "Stop processing of chunk"
 };
 
@@ -1830,7 +1830,7 @@ dissect_unknown_chunk(tvbuff_t *chunk_tvb, proto_tree *chunk_tree, proto_item *c
 #define SCTP_CHUNK_BIT_2 0x40
 
 static const true_false_string sctp_chunk_bit_1_value = {
-  "Skip chunk and continue prosessing of the packet",
+  "Skip chunk and continue processing of the packet",
   "Stop processing of the packet"
 };
 
