@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.113 2004/02/29 10:41:03 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.114 2004/03/02 19:13:33 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -273,7 +273,6 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
       gtk_widget_set_sensitive(lt_menu_item, FALSE);
     }
     gtk_menu_append(GTK_MENU(lt_menu), lt_menu_item);
-    gtk_widget_show(lt_menu_item);
   }
   if (lt_list != NULL)
     free_pcap_linktype_list(lt_list);
@@ -373,26 +372,21 @@ capture_prep(void)
   main_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(cap_open_w), main_vb);
-  gtk_widget_show(main_vb);
 
   /* Capture-related options frame */
   capture_fr = gtk_frame_new("Capture");
   gtk_container_add(GTK_CONTAINER(main_vb), capture_fr);
-  gtk_widget_show(capture_fr);
 
   capture_vb = gtk_vbox_new(FALSE, 3);
   gtk_container_border_width(GTK_CONTAINER(capture_vb), 5);
   gtk_container_add(GTK_CONTAINER(capture_fr), capture_vb);
-  gtk_widget_show(capture_vb);
 
   /* Interface row */
   if_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(capture_vb), if_hb);
-  gtk_widget_show(if_hb);
 
   if_lb = gtk_label_new("Interface:");
   gtk_box_pack_start(GTK_BOX(if_hb), if_lb, FALSE, FALSE, 6);
-  gtk_widget_show(if_lb);
 
   if_cb = gtk_combo_new();
   combo_list = build_capture_combo_list(if_list, TRUE);
@@ -413,16 +407,13 @@ capture_prep(void)
   free_capture_combo_list(combo_list);
   free_interface_list(if_list);
   gtk_box_pack_start(GTK_BOX(if_hb), if_cb, TRUE, TRUE, 6);
-  gtk_widget_show(if_cb);
 
   /* Linktype row */
   linktype_hb = gtk_hbox_new(FALSE, 3);
   gtk_box_pack_start(GTK_BOX(capture_vb), linktype_hb, FALSE, FALSE, 0);
-  gtk_widget_show(linktype_hb);
 
   linktype_lb = gtk_label_new("Link-layer header type:");
   gtk_box_pack_start(GTK_BOX(linktype_hb), linktype_lb, FALSE, FALSE, 6);
-  gtk_widget_show(linktype_lb);
 
   linktype_om = gtk_option_menu_new();
   OBJECT_SET_DATA(linktype_om, E_CAP_LT_OM_LABEL_KEY, linktype_lb);
@@ -430,7 +421,6 @@ capture_prep(void)
   OBJECT_SET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(-1));
   set_link_type_list(linktype_om, GTK_COMBO(if_cb)->entry);
   gtk_box_pack_start (GTK_BOX(linktype_hb), linktype_om, FALSE, FALSE, 0);
-  gtk_widget_show(linktype_om);
   SIGNAL_CONNECT(GTK_ENTRY(GTK_COMBO(if_cb)->entry), "changed",
                  capture_prep_interface_changed_cb, linktype_om);
 
@@ -440,19 +430,16 @@ capture_prep(void)
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(promisc_cb),
 		capture_opts.promisc_mode);
   gtk_container_add(GTK_CONTAINER(capture_vb), promisc_cb);
-  gtk_widget_show(promisc_cb);
 
   /* Capture length row */
   snap_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(capture_vb), snap_hb);
-  gtk_widget_show(snap_hb);
 
   snap_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("_Limit each packet to", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(snap_cb),
 		capture_opts.has_snaplen);
   SIGNAL_CONNECT(snap_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
   gtk_box_pack_start(GTK_BOX(snap_hb), snap_cb, FALSE, FALSE, 0);
-  gtk_widget_show(snap_cb);
 
   snap_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) capture_opts.snaplen,
     MIN_PACKET_SIZE, WTAP_MAX_PACKET_SIZE, 1.0, 10.0, 0.0);
@@ -460,84 +447,68 @@ capture_prep(void)
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (snap_sb), TRUE);
   WIDGET_SET_SIZE(snap_sb, 80, -1);
   gtk_box_pack_start (GTK_BOX(snap_hb), snap_sb, FALSE, FALSE, 0);
-  gtk_widget_show(snap_sb);
 
   snap_lb = gtk_label_new("bytes");
   gtk_misc_set_alignment(GTK_MISC(snap_lb), 0, 0.5);
   gtk_box_pack_start(GTK_BOX(snap_hb), snap_lb, FALSE, FALSE, 0);
-  gtk_widget_show(snap_lb);
 
   /* Filter row */
   filter_hb = gtk_hbox_new(FALSE, 3);
   gtk_box_pack_start(GTK_BOX(capture_vb), filter_hb, FALSE, FALSE, 0);
-  gtk_widget_show(filter_hb);
 
   filter_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_CAPTURE_FILTER_ENTRY);
   SIGNAL_CONNECT(filter_bt, "clicked", capture_filter_construct_cb, NULL);
   SIGNAL_CONNECT(filter_bt, "destroy", filter_button_destroy_cb, NULL);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, FALSE, 3);
-  gtk_widget_show(filter_bt);
 
   filter_te = gtk_entry_new();
   if (cfile.cfilter) gtk_entry_set_text(GTK_ENTRY(filter_te), cfile.cfilter);
   OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_te, TRUE, TRUE, 3);
-  gtk_widget_show(filter_te);
 
   main_hb = gtk_hbox_new(FALSE, 5);
   gtk_container_border_width(GTK_CONTAINER(main_hb), 0);
   gtk_container_add(GTK_CONTAINER(main_vb), main_hb);
-  gtk_widget_show(main_hb);
 
   left_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_border_width(GTK_CONTAINER(left_vb), 0);
   gtk_box_pack_start(GTK_BOX(main_hb), left_vb, TRUE, TRUE, 0);
-  gtk_widget_show(left_vb);
 
   right_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_border_width(GTK_CONTAINER(right_vb), 0);
   gtk_box_pack_start(GTK_BOX(main_hb), right_vb, FALSE, FALSE, 0);
-  gtk_widget_show(right_vb);
 
 
   /* Capture file-related options frame */
   file_fr = gtk_frame_new("Capture file(s)");
   gtk_container_add(GTK_CONTAINER(left_vb), file_fr);
-  gtk_widget_show(file_fr);
 
   file_vb = gtk_vbox_new(FALSE, 3);
   gtk_container_border_width(GTK_CONTAINER(file_vb), 5);
   gtk_container_add(GTK_CONTAINER(file_fr), file_vb);
-  gtk_widget_show(file_vb);
 
   /* File row */
   file_hb = gtk_hbox_new(FALSE, 3);
   gtk_box_pack_start(GTK_BOX(file_vb), file_hb, FALSE, FALSE, 0);
-  gtk_widget_show(file_hb);
 
   file_lb = gtk_label_new("File:");
   gtk_box_pack_start(GTK_BOX(file_hb), file_lb, FALSE, FALSE, 3);
-  gtk_widget_show(file_lb);
 
   file_te = gtk_entry_new();
   gtk_box_pack_start(GTK_BOX(file_hb), file_te, TRUE, TRUE, 3);
-  gtk_widget_show(file_te);
 
   file_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_BROWSE);
   gtk_box_pack_start(GTK_BOX(file_hb), file_bt, FALSE, FALSE, 3);
-  gtk_widget_show(file_bt);
 
   SIGNAL_CONNECT(file_bt, "clicked", capture_prep_file_cb, file_te);
 
   /* Ring buffer row */
   ringbuffer_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(file_vb), ringbuffer_hb);
-  gtk_widget_show(ringbuffer_hb);
 
   ringbuffer_nbf_lb = gtk_label_new("Number of files");
   gtk_misc_set_alignment(GTK_MISC(ringbuffer_nbf_lb), 1, 0.5);
   gtk_box_pack_start(GTK_BOX(ringbuffer_hb), ringbuffer_nbf_lb, FALSE, FALSE, 3);
-  gtk_widget_show(ringbuffer_nbf_lb);
 
   /* Ring buffer mode is allowed only if we're not doing an "Update list of
      packets in real time" capture, so force it off if we're doing such
@@ -551,7 +522,6 @@ capture_prep(void)
   WIDGET_SET_SIZE(ringbuffer_nbf_sb, 40, -1);
   SIGNAL_CONNECT(ringbuffer_nbf_sb, "changed", capture_prep_adjust_sensitivity, cap_open_w);
   gtk_box_pack_start (GTK_BOX(ringbuffer_hb), ringbuffer_nbf_sb, TRUE, TRUE, 0);
-  gtk_widget_show(ringbuffer_nbf_sb);
 
   ringbuffer_on_tb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Use _ring buffer", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ringbuffer_on_tb),
@@ -559,19 +529,16 @@ capture_prep(void)
   SIGNAL_CONNECT(ringbuffer_on_tb, "toggled", capture_prep_adjust_sensitivity,
                  cap_open_w);
   gtk_box_pack_start(GTK_BOX(ringbuffer_hb), ringbuffer_on_tb, FALSE, FALSE, 0);
-  gtk_widget_show(ringbuffer_on_tb);
 
   /* Ring buffer filesize row */
   ring_filesize_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(file_vb), ring_filesize_hb);
-  gtk_widget_show(ring_filesize_hb);
 
   ring_filesize_cb = gtk_check_button_new_with_label("Next capture file every");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ring_filesize_cb),
 		capture_opts.has_autostop_filesize); /* TBD */
   SIGNAL_CONNECT(ring_filesize_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
   gtk_box_pack_start(GTK_BOX(ring_filesize_hb), ring_filesize_cb, FALSE, FALSE, 0);
-  gtk_widget_show(ring_filesize_cb);
 
   ring_filesize_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_filesize,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0); /* TBD */
@@ -579,63 +546,51 @@ capture_prep(void)
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (ring_filesize_sb), TRUE);
   WIDGET_SET_SIZE(ring_filesize_sb, 80, -1);
   gtk_box_pack_start (GTK_BOX(ring_filesize_hb), ring_filesize_sb, FALSE, FALSE, 0);
-  gtk_widget_show(ring_filesize_sb);
 
   ring_filesize_lb = gtk_label_new("kilobyte(s)");
   gtk_misc_set_alignment(GTK_MISC(ring_filesize_lb), 0, 0.5);
   gtk_box_pack_start(GTK_BOX(ring_filesize_hb), ring_filesize_lb, FALSE, FALSE, 0);
-  gtk_widget_show(ring_filesize_lb);
 
   /* Ring buffer duration row */
   ring_duration_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(file_vb), ring_duration_hb);
-  gtk_widget_show(ring_duration_hb);
 
   ring_duration_cb = gtk_check_button_new_with_label("Next capture file every");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ring_duration_cb),
 			      capture_opts.has_ring_duration);
   SIGNAL_CONNECT(ring_duration_cb, "toggled", 
 		 capture_prep_adjust_sensitivity, cap_open_w);
-  gtk_box_pack_start(GTK_BOX(ring_duration_hb), ring_duration_cb, 
-		     FALSE, FALSE, 0);
-  gtk_widget_show(ring_duration_cb);
+  gtk_box_pack_start(GTK_BOX(ring_duration_hb), ring_duration_cb, FALSE, FALSE, 0);
 
   ring_duration_adj = (GtkAdjustment *)gtk_adjustment_new((gfloat)capture_opts.ringbuffer_duration,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   ring_duration_sb = gtk_spin_button_new (ring_duration_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (ring_duration_sb), TRUE);
   WIDGET_SET_SIZE(ring_duration_sb, 80, -1);
-  gtk_box_pack_start (GTK_BOX(ring_duration_hb), ring_duration_sb, 
-		      FALSE, FALSE, 0);
-  gtk_widget_show(ring_duration_sb);
+  gtk_box_pack_start (GTK_BOX(ring_duration_hb), ring_duration_sb, FALSE, FALSE, 0);
 
   ring_duration_lb = gtk_label_new("second(s)");
   gtk_misc_set_alignment(GTK_MISC(ring_duration_lb), 0, 0.5);
   gtk_box_pack_start(GTK_BOX(ring_duration_hb), ring_duration_lb, 
 		     FALSE, FALSE, 0);
-  gtk_widget_show(ring_duration_lb);
 
   /* Capture limits frame */
   limit_fr = gtk_frame_new("Capture limits");
   gtk_container_add(GTK_CONTAINER(left_vb), limit_fr);
-  gtk_widget_show(limit_fr);
 
   limit_vb = gtk_vbox_new(FALSE, 3);
   gtk_container_border_width(GTK_CONTAINER(limit_vb), 5);
   gtk_container_add(GTK_CONTAINER(limit_fr), limit_vb);
-  gtk_widget_show(limit_vb);
 
   /* Packet count row */
   count_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(limit_vb), count_hb);
-  gtk_widget_show(count_hb);
 
   count_cb = gtk_check_button_new_with_label("Stop capture after");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(count_cb),
 		capture_opts.has_autostop_count);
   SIGNAL_CONNECT(count_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
   gtk_box_pack_start(GTK_BOX(count_hb), count_cb, FALSE, FALSE, 0);
-  gtk_widget_show(count_cb);
 
   count_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_count,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
@@ -643,24 +598,20 @@ capture_prep(void)
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (count_sb), TRUE);
   WIDGET_SET_SIZE(count_sb, 80, -1);
   gtk_box_pack_start (GTK_BOX(count_hb), count_sb, FALSE, FALSE, 0);
-  gtk_widget_show(count_sb);
 
   count_lb = gtk_label_new("packet(s)");
   gtk_misc_set_alignment(GTK_MISC(count_lb), 0, 0.5);
   gtk_box_pack_start(GTK_BOX(count_hb), count_lb, FALSE, FALSE, 0);
-  gtk_widget_show(count_lb);
 
   /* Filesize row */
   filesize_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(limit_vb), filesize_hb);
-  gtk_widget_show(filesize_hb);
 
   filesize_cb = gtk_check_button_new_with_label("Stop capture after");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filesize_cb),
 		capture_opts.has_autostop_filesize);
   SIGNAL_CONNECT(filesize_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
   gtk_box_pack_start(GTK_BOX(filesize_hb), filesize_cb, FALSE, FALSE, 0);
-  gtk_widget_show(filesize_cb);
 
   filesize_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_filesize,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
@@ -668,24 +619,20 @@ capture_prep(void)
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (filesize_sb), TRUE);
   WIDGET_SET_SIZE(filesize_sb, 80, -1);
   gtk_box_pack_start (GTK_BOX(filesize_hb), filesize_sb, FALSE, FALSE, 0);
-  gtk_widget_show(filesize_sb);
 
   filesize_lb = gtk_label_new("kilobyte(s)");
   gtk_misc_set_alignment(GTK_MISC(filesize_lb), 0, 0.5);
   gtk_box_pack_start(GTK_BOX(filesize_hb), filesize_lb, FALSE, FALSE, 0);
-  gtk_widget_show(filesize_lb);
 
   /* Duration row */
   duration_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(limit_vb), duration_hb);
-  gtk_widget_show(duration_hb);
 
   duration_cb = gtk_check_button_new_with_label("Stop capture after");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(duration_cb),
 		capture_opts.has_autostop_duration);
   SIGNAL_CONNECT(duration_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
   gtk_box_pack_start(GTK_BOX(duration_hb), duration_cb, FALSE, FALSE, 0);
-  gtk_widget_show(duration_cb);
 
   duration_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)capture_opts.autostop_duration,
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
@@ -693,22 +640,18 @@ capture_prep(void)
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (duration_sb), TRUE);
   WIDGET_SET_SIZE(duration_sb, 80, -1);
   gtk_box_pack_start (GTK_BOX(duration_hb), duration_sb, FALSE, FALSE, 0);
-  gtk_widget_show(duration_sb);
 
   duration_lb = gtk_label_new("second(s)");
   gtk_misc_set_alignment(GTK_MISC(duration_lb), 0, 0.5);
   gtk_box_pack_start(GTK_BOX(duration_hb), duration_lb, FALSE, FALSE, 0);
-  gtk_widget_show(duration_lb);
 
   /* Display-related options frame */
   display_fr = gtk_frame_new("Display options");
   gtk_container_add(GTK_CONTAINER(right_vb), display_fr);
-  gtk_widget_show(display_fr);
 
   display_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_border_width(GTK_CONTAINER(display_vb), 5);
   gtk_container_add(GTK_CONTAINER(display_fr), display_vb);
-  gtk_widget_show(display_vb);
 
   /* "Update display in real time" row */
   sync_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
@@ -717,50 +660,42 @@ capture_prep(void)
 		capture_opts.sync_mode);
   SIGNAL_CONNECT(sync_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
   gtk_container_add(GTK_CONTAINER(display_vb), sync_cb);
-  gtk_widget_show(sync_cb);
 
   /* "Auto-scroll live update" row */
   auto_scroll_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
 		"_Automatic scrolling in live capture", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(auto_scroll_cb), auto_scroll_live);
   gtk_container_add(GTK_CONTAINER(display_vb), auto_scroll_cb);
-  gtk_widget_show(auto_scroll_cb);
 
   /* Name Resolution frame */
   resolv_fr = gtk_frame_new("Name resolution");
   gtk_container_add(GTK_CONTAINER(right_vb), resolv_fr);
-  gtk_widget_show(resolv_fr);
 
   resolv_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_border_width(GTK_CONTAINER(resolv_vb), 5);
   gtk_container_add(GTK_CONTAINER(resolv_fr), resolv_vb);
-  gtk_widget_show(resolv_vb);
 
   m_resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
 		"Enable _MAC name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(m_resolv_cb),
 		g_resolv_flags & RESOLV_MAC);
   gtk_container_add(GTK_CONTAINER(resolv_vb), m_resolv_cb);
-  gtk_widget_show(m_resolv_cb);
 
   n_resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
 		"Enable _network name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(n_resolv_cb),
 		g_resolv_flags & RESOLV_NETWORK);
   gtk_container_add(GTK_CONTAINER(resolv_vb), n_resolv_cb);
-  gtk_widget_show(n_resolv_cb);
 
   t_resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
 		"Enable _transport name resolution", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(t_resolv_cb),
 		g_resolv_flags & RESOLV_TRANSPORT);
   gtk_container_add(GTK_CONTAINER(resolv_vb), t_resolv_cb);
-  gtk_widget_show(t_resolv_cb);
 
   /* Button row: OK and cancel buttons */
   bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
-  gtk_widget_show(bbox);
 
   ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
   SIGNAL_CONNECT(ok_bt, "clicked", capture_prep_ok_cb, cap_open_w);
@@ -841,7 +776,7 @@ capture_prep(void)
     in it; and it now appears that you simply *can't* make a combo box
     get the initial focus, at least not in the obvious fashion. Sigh.... */
 
-  gtk_widget_show(cap_open_w);
+  gtk_widget_show_all(cap_open_w);
 }
 
 static void 
@@ -936,7 +871,7 @@ capture_prep_file_cb(GtkWidget *w, gpointer file_te)
      been selected. */
   dlg_set_cancel(fs, GTK_FILE_SELECTION(fs)->cancel_button);
 
-  gtk_widget_show(fs);
+  gtk_widget_show_all(fs);
 }
 
 static void
