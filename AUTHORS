@@ -2090,6 +2090,10 @@ Love Hörnquist Åstrand <lha [AT] it.su.se> {
 	libraries to decrypt kerberos encrypted blobs.
 }
 
+Lukas Pokorny <maskis [AT] seznam.cz> {
+	RTPS (Real-Time Publish-Subscribe) support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
