@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.192 2003/09/03 10:49:02 sahlberg Exp $
+ * $Id: tethereal.c,v 1.193 2003/09/06 02:22:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -759,6 +759,8 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   gboolean             capture_filter_specified = FALSE;
   GList               *if_list, *if_entry;
+  long                 adapter_index;
+  char                *p;
   gchar                err_str[PCAP_ERRBUF_SIZE];
 #else
   gboolean             capture_option_specified = FALSE;
@@ -929,9 +931,10 @@ main(int argc, char *argv[])
             }
             exit(2);
         }
+        i = 1;  /* Interface id number */
         for (if_entry = g_list_first(if_list); if_entry != NULL;
 		if_entry = g_list_next(if_entry))
-          printf("%s\n", (char *)if_entry->data);
+          printf("%d. %s\n", i++, (char *)if_entry->data);
         free_interface_list(if_list);
         exit(0);
 #else
@@ -964,7 +967,59 @@ main(int argc, char *argv[])
         break;
       case 'i':        /* Use interface xxx */
 #ifdef HAVE_LIBPCAP
-        cfile.iface = g_strdup(optarg);
+        /*
+         * If the argument is a number, treat it as an index into the list
+         * of adapters, as printed by "tethereal -D".
+         *
+         * This should be OK on UNIX systems, as interfaces shouldn't have
+         * names that begin with digits.  It can be useful on Windows, where
+         * more than one interface can have the same name.
+         */
+        adapter_index = strtol(optarg, &p, 10);
+        if (p != NULL && *p == '\0') {
+          if (adapter_index < 0) {
+            fprintf(stderr,
+                "tethereal: The specified adapter index is a negative number\n");
+           exit(1);
+          }
+          if (adapter_index > INT_MAX) {
+            fprintf(stderr,
+                "tethereal: The specified adapter index is too large (greater than %d)\n",
+                INT_MAX);
+            exit(1);
+          }
+          if (adapter_index == 0) {
+            fprintf(stderr, "tethereal: there is no interface with that adapter index\n");
+            exit(1);
+          }
+          if_list = get_interface_list(&err, err_str);
+          if (if_list == NULL) {
+            switch (err) {
+
+            case CANT_GET_INTERFACE_LIST:
+                fprintf(stderr, "tethereal: Can't get list of interfaces: %s\n",
+                        err_str);
+                break;
+
+            case NO_INTERFACES_FOUND:
+                fprintf(stderr, "tethereal: There are no interfaces on which a capture can be done\n");
+                break;
+            }
+            exit(2);
+          }
+          if_text = (char *)g_list_nth_data(if_list, adapter_index - 1);
+          if (if_text == NULL) {
+            fprintf(stderr, "tethereal: there is no interface with that adapter index\n");
+            exit(1);
+          }
+#ifdef _WIN32
+          /* XXX - why is this done? */
+          if_text = strchr(if_text, '\\');
+#endif
+          cfile.iface = g_strdup(if_text);
+          free_interface_list(if_list);
+        } else
+          cfile.iface = g_strdup(optarg);
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;

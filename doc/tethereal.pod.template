@@ -202,7 +202,17 @@ value, packets should be dissected as the specified protocol.
 =item -D
 
 Print a list of the interfaces on which B<Tethereal> can capture, and
-exit.  Note that "can capture" means that B<Tethereal> was able to open
+exit.  For each network interface, a number and an
+interface name, possibly followed by a text description of the
+interface, is printed.  The interface name or the number can be supplied
+to the B<-i> flag to specify an interface on which to capture.
+
+This can be useful on systems that don't have a command to list them  
+(e.g., Windows systems, or UNIX systems lacking B<ifconfig \-a>);
+the number can be useful on Windows 2000 and later systems, where the
+interface name is a somewhat complex string.
+
+Note that "can capture" means that B<Tethereal> was able to open
 that device to do a live capture; if, on your system, a program doing a
 network capture must be run from an account with special privileges (for
 example, as root), then, if B<Tethereal> is run with the B<-D> flag and
@@ -226,9 +236,11 @@ Set the name of the network interface or pipe to use for live packet
 capture. 
 
 Network interface names should match one of the names listed in
-"B<tethereal -D>" (described above).  If you're using Unix, "B<netstat
+"B<tethereal -D>" (described above); a number, as reported by
+"B<tethereal -D>", can also be used.  If you're using UNIX, "B<netstat
 -i>" or "B<ifconfig -a>" might also work to list interface names,
-although not all versions of Unix support the B<-a> flag to B<ifconfig>.
+although not all versions of UNIX support the B<-a> flag to B<ifconfig>.
+
 If no interface is specified, B<Tethereal> searches the list of
 interfaces, choosing the first non-loopback interface if there are any
 non-loopback interfaces, and choosing the first loopback interface if
