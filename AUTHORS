@@ -15,6 +15,7 @@ Gilbert Ramirez      <gramirez@tivoli.com> {
 	IPX, SPX, NCP
 	BOOTP/DHCP
 	LPD
+	Win32 support
 }
 
 Hannes R. Boehm      <hannes@boehm.org> {
@@ -236,6 +237,10 @@ Gerrit Gehnen <G.Gehnen@atrie.de> {
 
 Craig Newell <craign@cheque.uq.edu.au> {
 	TFTP options (RFC 2347) support
+}
+
+Ed Meaney <emeaney@altiga.com> {
+	Win32 support
 }
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
