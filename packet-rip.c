@@ -3,7 +3,10 @@
  * RFC1058, RFC2453
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.33 2002/08/28 21:00:29 jmayer Exp $
+ * RFC2082 ( Keyed Message Digest Algorithm )
+ *   Emanuele Caratti  <wiz@iol.it>
+ *
+ * $Id: packet-rip.c,v 1.34 2003/10/18 18:46:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,6 +62,17 @@ static const value_string family_vals[] = {
 	{ 0,		NULL }
 };
 
+#define AUTH_IP_ROUTE		1
+#define AUTH_PASSWORD		2
+#define AUTH_KEYED_MSG_DIGEST	3
+
+static const value_string rip_auth_type[] = {
+	{ AUTH_IP_ROUTE,		"IP Route" },
+	{ AUTH_PASSWORD,		"Simple Password" },
+	{ AUTH_KEYED_MSG_DIGEST,	"Keyed Message Digest" },
+	{ 0,				NULL }
+};
+
 #define RIP_HEADER_LENGTH 4
 #define RIP_ENTRY_LENGTH 20
 
@@ -77,12 +91,13 @@ static int hf_rip_route_tag = -1;
 
 static gint ett_rip = -1;
 static gint ett_rip_vec = -1;
+static gint ett_auth_vec = -1;
 
 static void dissect_unspec_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
     proto_tree *tree);
 static void dissect_ip_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
     proto_tree *tree);
-static void dissect_rip_authentication(tvbuff_t *tvb, int offset,
+static gint dissect_rip_authentication(tvbuff_t *tvb, int offset,
     proto_tree *tree);
 
 static void
@@ -94,6 +109,7 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 command;
     guint8 version;
     guint16 family;
+    gint trailer_len = 0;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RIP");
@@ -124,7 +140,7 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = RIP_HEADER_LENGTH;
 
         /* zero or more entries */
-	while (tvb_reported_length_remaining(tvb, offset) > 0) {
+	while (tvb_reported_length_remaining(tvb, offset) > trailer_len ) {
 	    family = tvb_get_ntohs(tvb, offset);
 	    switch (family) {
 	    case AFVAL_UNSPEC: /* Unspecified */
@@ -138,8 +154,11 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dissect_ip_rip_vektor(tvb, offset, version, rip_tree);
 		break;
 	    case 0xFFFF:
-		dissect_rip_authentication(tvb, offset, rip_tree);
+		if( offset == RIP_HEADER_LENGTH ) {
+			trailer_len=dissect_rip_authentication(tvb, offset, rip_tree);
 		break;
+		}
+		/* Intentional fall through: auth Entry MUST be the first! */
 	    default:
 	        proto_tree_add_text(rip_tree, tvb, offset,
 				RIP_ENTRY_LENGTH, "Unknown address family %u",
@@ -211,24 +230,103 @@ dissect_ip_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
 			offset+16, 4, metric);
 }
 
-static void
+static gchar *
+rip_bytestring_to_str(const guint8 *ad, guint32 len, char punct) {
+  static gchar  *str=NULL;
+  static guint   str_len;
+  gchar        *p;
+  int          i;
+  guint32      octet;
+  /* At least one version of Apple's C compiler/linker is buggy, causing
+     a complaint from the linker about the "literal C string section"
+     not ending with '\0' if we initialize a 16-element "char" array with
+     a 16-character string, the fact that initializing such an array with
+     such a string is perfectly legitimate ANSI C nonwithstanding, the 17th
+     '\0' byte in the string nonwithstanding. */
+  static const gchar hex_digits[16] =
+      { '0', '1', '2', '3', '4', '5', '6', '7',
+        '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+
+	if( !str ) {
+		str_len=sizeof(gchar)*len*(punct?3:2);
+		str=g_malloc(str_len);
+	} else {
+		if( str_len < (sizeof(gchar)*len*(punct?3:2)) ) {
+			g_free(str);
+			str_len=sizeof(gchar)*len*(punct?3:2);
+			str=g_malloc(str_len);
+		}
+	}
+  len--;
+
+  p = &str[str_len];
+  *--p = '\0';
+  i = len;
+  for (;;) {
+    octet = ad[i];
+    *--p = hex_digits[octet&0xF];
+    octet >>= 4;
+    *--p = hex_digits[octet&0xF];
+    if (i == 0)
+      break;
+    if (punct)
+      *--p = punct;
+    i--;
+  }
+  return p;
+}
+
+static gint
 dissect_rip_authentication(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *rip_authentication_tree;
     guint16 authtype;
+    guint32 val, digest_off, auth_data_len;
+
+    auth_data_len = 0;
+    authtype = tvb_get_ntohs(tvb, offset + 2);
 
     ti = proto_tree_add_text(tree, tvb, offset, RIP_ENTRY_LENGTH,
-			     "Authentication");
+			"Authentication: %s", val_to_str( authtype, rip_auth_type, "Unknown (%u)" ) );
     rip_authentication_tree = proto_item_add_subtree(ti, ett_rip_vec);
 
-    authtype = tvb_get_ntohs(tvb, offset + 2);
     proto_tree_add_uint(rip_authentication_tree, hf_rip_auth, tvb, offset+2, 2,
 		authtype);
-    if (authtype == 2) {
+
+    switch ( authtype ) {
+
+    case AUTH_PASSWORD: /* Plain text password */
 	proto_tree_add_item(rip_authentication_tree, hf_rip_auth_passwd,
 			tvb, offset+4, 16, FALSE);
+	break;
+
+    case AUTH_KEYED_MSG_DIGEST: /* Keyed MD5 rfc 2082 */
+	digest_off = tvb_get_ntohs( tvb, offset+4 );
+	proto_tree_add_text( rip_authentication_tree, tvb, offset+4, 2,
+			"Digest Offset: %u" , digest_off );
+	val = tvb_get_guint8( tvb, offset+6 );
+	proto_tree_add_text( rip_authentication_tree, tvb, offset+6, 1,
+			"Key ID: %u" , val );
+	auth_data_len = tvb_get_guint8( tvb, offset+7 );
+	proto_tree_add_text( rip_authentication_tree, tvb, offset+7, 1,
+			"Auth Data Len: %u" , auth_data_len );
+	val = tvb_get_ntohl( tvb, offset+8 );
+	proto_tree_add_text( rip_authentication_tree, tvb, offset+8, 4,
+			"Seq num: %u" , val );
+	proto_tree_add_text( rip_authentication_tree, tvb, offset+12, 8,
+			"Zero Padding" );
+	ti = proto_tree_add_text( rip_authentication_tree, tvb, offset-4+digest_off,
+			auth_data_len, "Authentication Data Trailer" );
+	rip_authentication_tree = proto_item_add_subtree(ti, ett_auth_vec );
+	proto_tree_add_text( rip_authentication_tree, tvb, offset-4+digest_off+4,
+			auth_data_len-4, "Authentication Data: %s",
+				rip_bytestring_to_str(
+					tvb_get_ptr( tvb, offset-4+digest_off+4,auth_data_len-4),
+					auth_data_len-4, ' '));
+	break;
     }
+    return auth_data_len;
 }
 
 void
@@ -269,7 +367,7 @@ proto_register_rip(void)
 
 		{ &hf_rip_auth,
 			{ "Authentication type", "rip.auth.type", FT_UINT16, BASE_DEC,
-			NULL, 0, "Type of authentication", HFILL }},
+			VALS(rip_auth_type), 0, "Type of authentication", HFILL }},
 
 		{ &hf_rip_auth_passwd,
 			{ "Password", "rip.auth.passwd", FT_STRING, BASE_DEC,
@@ -283,6 +381,7 @@ proto_register_rip(void)
 	static gint *ett[] = {
 		&ett_rip,
 		&ett_rip_vec,
+		&ett_auth_vec,
 	};
 
 	proto_rip = proto_register_protocol("Routing Information Protocol",
