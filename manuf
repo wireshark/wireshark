@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes, and well-known MAC addresses
 #
-# $Id: manuf,v 1.30 2003/04/25 15:04:31 gerald Exp $
+# $Id: manuf,v 1.31 2003/04/29 23:58:00 jmayer Exp $
 #
 # Laurent Deniel <laurent.deniel [AT] free.fr>
 #
@@ -3387,6 +3387,9 @@
 00:0D:30	IcefyreSem             # IceFyre Semiconductor
 00:0D:31	Compellent             # Compellent Technologies, Inc.
 00:0D:32	Dispenseso             # DispenseSource, Inc.
+00:0D:33	Prediwave              # Prediwave Corp.
+00:0D:34	ShellInter             # Shell International Exploration and Production, Inc.
+00:0D:35	PacInterna             # PAC International Ltd
 00:10:00	CableTelev             # CABLE TELEVISION LABORATIES, INC.
 00:10:01	MckCommuni             # MCK COMMUNICATIONS
 00:10:02	Actia
@@ -6715,7 +6718,7 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 #
 # Well-known addresses.
 #
-# $Id: manuf,v 1.30 2003/04/25 15:04:31 gerald Exp $
+# $Id: manuf,v 1.31 2003/04/29 23:58:00 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald [AT] ethereal.com>
