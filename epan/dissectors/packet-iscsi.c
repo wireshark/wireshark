@@ -199,6 +199,31 @@ static gint ett_iscsi_ISID = -1;
 /* #endif */
 
 
+/* this structure contains session wide state for all iscsi sessions */
+typedef struct _iscsi_session_t {
+	guint32	conv_idx;			/* unique ID for conversation */
+} iscsi_session_t;
+static GHashTable *iscsi_session_table = NULL;
+static GMemChunk *iscsi_sessions = NULL;
+static gint
+iscsi_session_equal(gconstpointer v, gconstpointer w)
+{
+  const iscsi_session_t *v1 = (const iscsi_session_t *)v;
+  const iscsi_session_t *v2 = (const iscsi_session_t *)w;
+
+  return (v1->conv_idx == v2->conv_idx);
+}
+
+static guint
+iscsi_session_hash (gconstpointer v)
+{
+	const iscsi_session_t *key = (const iscsi_session_t *)v;
+
+	return key->conv_idx;
+}
+
+
+
 /* #ifdef DRAFT08 */
 #define X_BIT 0x80
 /* #endif */
@@ -671,18 +696,37 @@ iscsi_hash_matched (gconstpointer v)
 static void
 iscsi_init_protocol(void)
 {
-    if (iscsi_req_vals)
+    if (iscsi_sessions) {
+        g_mem_chunk_destroy(iscsi_sessions);
+	iscsi_sessions=NULL;
+    }
+    if (iscsi_req_vals) {
         g_mem_chunk_destroy(iscsi_req_vals);
-    if (iscsi_req_unmatched)
+	iscsi_req_vals=NULL;
+    }
+    if (iscsi_req_unmatched) {
         g_hash_table_destroy(iscsi_req_unmatched);
-    if (iscsi_req_matched)
+	iscsi_req_unmatched=NULL;
+    }
+    if (iscsi_req_matched) {
         g_hash_table_destroy(iscsi_req_matched);
+	iscsi_req_matched=NULL;
+    }
+    if (iscsi_session_table) {
+        g_hash_table_destroy(iscsi_session_table);
+	iscsi_session_table=NULL;
+    }
 
     iscsi_req_unmatched = g_hash_table_new(iscsi_hash_unmatched, iscsi_equal_unmatched);
     iscsi_req_matched = g_hash_table_new(iscsi_hash_matched, iscsi_equal_matched);
+    iscsi_session_table = g_hash_table_new(iscsi_session_hash, iscsi_session_equal);
     iscsi_req_vals = g_mem_chunk_new("iscsi_req_vals",
                                    sizeof(iscsi_conv_data_t),
                                    iscsi_init_count * sizeof(iscsi_conv_data_t),
+                                   G_ALLOC_AND_FREE);
+    iscsi_sessions = g_mem_chunk_new("iscsi_sessions",
+                                   sizeof(iscsi_session_t),
+                                   iscsi_init_count * sizeof(iscsi_session_t),
                                    G_ALLOC_AND_FREE);
 }
 
@@ -800,7 +844,7 @@ handleDataSegmentAsTextKeys(proto_item *ti, tvbuff_t *tvb, guint offset, guint d
 
 /* Code to actually dissect the packets */
 static void
-dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 opcode, const char *opcode_str, guint32 data_segment_len, conversation_t *conversation) {
+dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 opcode, const char *opcode_str, guint32 data_segment_len, iscsi_session_t *iscsi_session) {
 
     guint original_offset = offset;
     proto_tree *ti = NULL;
@@ -828,7 +872,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         (opcode == ISCSI_OPCODE_SCSI_DATA_OUT)) {
         if (!pinfo->fd->flags.visited){
             iscsi_conv_data_t ckey;
-            ckey.conv_idx = conversation->index;
+            ckey.conv_idx = iscsi_session->conv_idx;
             ckey.itt = tvb_get_ntohl (tvb, offset+16);
 
             /* first time we see this packet. check if we can find the request */
@@ -856,7 +900,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             }
         } else {
             iscsi_conv_data_t ckey;
-            ckey.conv_idx = conversation->index;
+            ckey.conv_idx = iscsi_session->conv_idx;
             ckey.itt = tvb_get_ntohl (tvb, offset+16);
             ckey.request_frame=0;
             ckey.data_in_frame=0;
@@ -892,7 +936,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
             /* first time we see this packet. */
             /*check if we have seen this request before and delete it in that case */
-            ckey.conv_idx = conversation->index;
+            ckey.conv_idx = iscsi_session->conv_idx;
             ckey.itt = tvb_get_ntohl (tvb, offset+16);
             cdata = (iscsi_conv_data_t *)g_hash_table_lookup (iscsi_req_unmatched, &ckey);
             if (cdata){
@@ -901,7 +945,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
             /* add this new transaction to the unmatched table */
             cdata = g_mem_chunk_alloc (iscsi_req_vals);
-            cdata->conv_idx = conversation->index;
+            cdata->conv_idx = iscsi_session->conv_idx;
             cdata->itt = tvb_get_ntohl (tvb, offset+16);
             cdata->request_frame=pinfo->fd->num;
             cdata->data_in_frame=0;
@@ -913,7 +957,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             g_hash_table_insert (iscsi_req_unmatched, cdata, cdata);
         } else {
                 iscsi_conv_data_t ckey;
-                ckey.conv_idx = conversation->index;
+                ckey.conv_idx = iscsi_session->conv_idx;
                 ckey.itt = tvb_get_ntohl (tvb, offset+16);
                 ckey.request_frame=pinfo->fd->num;
                 ckey.data_in_frame=0;
@@ -1635,6 +1679,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
     guint32 pduLen = 48;
     int digestsActive = 1;
     conversation_t *conversation = NULL;
+    iscsi_session_t *iscsi_session=NULL;
 
     /* quick check to see if the packet is long enough to contain the
      * minimum amount of information we need */
@@ -1750,8 +1795,23 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
             conversation = conversation_new (&pinfo->src, &pinfo->dst,
                                              pinfo->ptype, pinfo->srcport,
                                              pinfo->destport, 0);
+            iscsi_session=g_mem_chunk_alloc(iscsi_sessions);
+            iscsi_session->conv_idx=conversation->index;
+            g_hash_table_insert(iscsi_session_table, iscsi_session, iscsi_session);
+        }
+        if(!iscsi_session){
+            iscsi_session_t key;
+            key.conv_idx=conversation->index;
+            /* this should never return NULL */
+            iscsi_session = (iscsi_session_t *)g_hash_table_lookup (iscsi_session_table, &key);
+            if(!iscsi_session){
+                iscsi_session=g_mem_chunk_alloc(iscsi_sessions);
+                iscsi_session->conv_idx=conversation->index;
+                g_hash_table_insert(iscsi_session_table, iscsi_session, iscsi_session);
+            }
         }
 /*qqq  header digest autodetection should go in here */
+
 
 	/*
 	 * Desegmentation check.
@@ -1794,7 +1854,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 		col_append_str(pinfo->cinfo, COL_INFO, ", ");
 	}
 
-	dissect_iscsi_pdu(tvb, pinfo, tree, offset, opcode, opcode_str, data_segment_len, conversation);
+	dissect_iscsi_pdu(tvb, pinfo, tree, offset, opcode, opcode_str, data_segment_len, iscsi_session);
 	if(pduLen > available_bytes)
 	    pduLen = available_bytes;
 	offset += pduLen;
