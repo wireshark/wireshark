@@ -1,7 +1,7 @@
 /* asn1.h
  * Definitions for ASN.1 BER dissection
  *
- * $Id: asn1.h,v 1.2 1999/12/10 09:49:29 guy Exp $
+ * $Id: asn1.h,v 1.3 2000/03/27 08:51:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,6 +45,8 @@
 #define ASN1_OJI       6     /* Object Identifier  */
 #define ASN1_OJD       7     /* Object Description */
 #define ASN1_EXT       8     /* External           */
+#define ASN1_REAL      9     /* Real               */
+#define ASN1_ENUM      10    /* Enumerated         */
 #define ASN1_SEQ       16    /* Sequence           */
 #define ASN1_SET       17    /* Set                */
 #define ASN1_NUMSTR    18    /* Numerical String   */
