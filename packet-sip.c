@@ -4,7 +4,7 @@
  *
  * TODO: Pay attention to Content-Type: It might not always be SDP.
  *	Content-Type is fixed, mixed/mode is not handled though.
- *       hf_ display filters for headers of SIP extension RFCs: 
+ *       hf_ display filters for headers of SIP extension RFCs:
  *		Done for RFC 3265, RFC 3262
  *		Use hash table for list of headers
  *       Add sip msg body dissection based on Content-Type for:
@@ -18,7 +18,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.61 2004/03/26 00:28:39 guy Exp $
+ * $Id: packet-sip.c,v 1.62 2004/03/30 18:55:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -164,27 +164,27 @@ static const sip_header_t sip_headers[] = {
                 { "Via", 			"v" },
                 { "Warning", 			NULL },
                 { "WWW-Authenticate", 		NULL },
-                { "P-Access-Network-Info",	NULL },  /*  RFC3455  */  
-                { "P-Asserted-Identity",        NULL },  /*  RFC3325  */  
-                { "P-Associated-URI",           NULL },  /*  RFC3455  */  
-                { "P-Called-Party-ID",          NULL },  /*  RFC3455  */  
-                { "P-Charging-Function-Addresses",NULL }, /*  RFC3455  */  
-                { "P-Charging-Vector",          NULL },  /*  RFC3455  */  
-                { "P-DCS-Trace-Party-ID",       NULL },  /*  RFC3603  */  
-                { "P-DCS-OSPS",                 NULL },  /*  RFC3603  */  
-                { "P-DCS-Billing-Info",         NULL },  /*  RFC3603  */  
-                { "P-DCS-LAES",                 NULL },  /*  RFC3603  */  
-                { "P-DCS-Redirect",             NULL },  /*  RFC3603  */  
-                { "P-Media-Authorization",      NULL },  /*  RFC3313  */  
-                { "P-Preferred-Identity",       NULL },  /*  RFC3325  */  
-                { "P-Visited-Network-ID",       NULL },  /*  RFC3455  */  
-                { "Path",                       NULL },  /*  RFC3327  */  
-                { "Privacy",                    NULL },  /*  RFC3323  */  
-                { "Reason",                     NULL },  /*  RFC3326  */  
-                { "Refer-To",             	"r"  },  /*  RFC3515  */  
-                { "Service-Route",              NULL },  /*  RFC3608  */  
-                { "ETag",		        NULL },  /*  draft-ietf-sip-publish-01  */  
-                { "If-Match",	                NULL },  /*  draft-ietf-sip-publish-01  */  
+                { "P-Access-Network-Info",	NULL },  /*  RFC3455  */
+                { "P-Asserted-Identity",        NULL },  /*  RFC3325  */
+                { "P-Associated-URI",           NULL },  /*  RFC3455  */
+                { "P-Called-Party-ID",          NULL },  /*  RFC3455  */
+                { "P-Charging-Function-Addresses",NULL }, /*  RFC3455  */
+                { "P-Charging-Vector",          NULL },  /*  RFC3455  */
+                { "P-DCS-Trace-Party-ID",       NULL },  /*  RFC3603  */
+                { "P-DCS-OSPS",                 NULL },  /*  RFC3603  */
+                { "P-DCS-Billing-Info",         NULL },  /*  RFC3603  */
+                { "P-DCS-LAES",                 NULL },  /*  RFC3603  */
+                { "P-DCS-Redirect",             NULL },  /*  RFC3603  */
+                { "P-Media-Authorization",      NULL },  /*  RFC3313  */
+                { "P-Preferred-Identity",       NULL },  /*  RFC3325  */
+                { "P-Visited-Network-ID",       NULL },  /*  RFC3455  */
+                { "Path",                       NULL },  /*  RFC3327  */
+                { "Privacy",                    NULL },  /*  RFC3323  */
+                { "Reason",                     NULL },  /*  RFC3326  */
+                { "Refer-To",             	"r"  },  /*  RFC3515  */
+                { "Service-Route",              NULL },  /*  RFC3608  */
+                { "ETag",		        NULL },  /*  draft-ietf-sip-publish-01  */
+                { "If-Match",	                NULL },  /*  draft-ietf-sip-publish-01  */
 
 };
 
@@ -239,27 +239,27 @@ static const sip_header_t sip_headers[] = {
 #define POS_WARNING			48
 #define POS_WWW_AUTHENTICATE		49
 
-#define POS_P_ACCESS_NETWORK_INFO	50  
-#define POS_P_ASSERTED_IDENTITY         51    
-#define POS_P_ASSOCIATED_URI            52  
-#define POS_P_CALLED_PARTY_ID           53  
-#define POS_P_CHARGING_FUNCTION_ADDRESSES 54  
+#define POS_P_ACCESS_NETWORK_INFO	50
+#define POS_P_ASSERTED_IDENTITY         51
+#define POS_P_ASSOCIATED_URI            52
+#define POS_P_CALLED_PARTY_ID           53
+#define POS_P_CHARGING_FUNCTION_ADDRESSES 54
 #define POS_P_CHARGING_VECTOR           55
-#define POS_P_DCS_TRACE_PARTY_ID        56 
-#define POS_P_DCS_OSPS                  57  
-#define POS_P_DCS_BILLING_INFO          58  
-#define POS_P_DCS_LAES                  59  
-#define POS_P_DCS_REDIRECT              60  
-#define POS_P_MEDIA_AUTHORIZATION       61  
-#define POS_P_PREFERRED_IDENTITY        62  
-#define POS_P_VISITED_NETWORK_ID        63  
-#define POS_PATH                        64  
-#define POS_PRIVACY                     65  
-#define POS_REASON                      66 
-#define POS_REFER_TO                    67 
-#define POS_SERVICE_ROUTE               68 
-#define POS_ETAG		        69 
-#define POS_IF_MATCH	                70  
+#define POS_P_DCS_TRACE_PARTY_ID        56
+#define POS_P_DCS_OSPS                  57
+#define POS_P_DCS_BILLING_INFO          58
+#define POS_P_DCS_LAES                  59
+#define POS_P_DCS_REDIRECT              60
+#define POS_P_MEDIA_AUTHORIZATION       61
+#define POS_P_PREFERRED_IDENTITY        62
+#define POS_P_VISITED_NETWORK_ID        63
+#define POS_PATH                        64
+#define POS_PRIVACY                     65
+#define POS_REASON                      66
+#define POS_REFER_TO                    67
+#define POS_SERVICE_ROUTE               68
+#define POS_ETAG		        69
+#define POS_IF_MATCH	                70
 
 static gint hf_header_array[] = {
 		-1, /* "Unknown-header" - Pad so that the real headers start at index 1 */
@@ -312,27 +312,27 @@ static gint hf_header_array[] = {
                 -1, /* "Via" */
                 -1, /* "Warning" */
                 -1,  /* "WWW-Authenticate" */
-                -1,  /* "P-Access-Network-Info"	-   RFC3455  */  
-                -1,  /* "P-Asserted-Identity" 	-   RFC3325  */  
-                -1,  /* "P-Associated-URI" 	-   RFC3455  */  
-                -1,  /* "P-Called-Party-ID" 	-   RFC3455  */  
-                -1,  /* "P-Charging-Function-Addresses" -   RFC3455  */  
-                -1,  /* "P-Charging-Vector" 	-   RFC3455  */  
-                -1,  /* "P-DCS-Trace-Party-ID" 	-   RFC3603  */  
-                -1,  /* "P-DCS-OSPS" 		-   RFC3603  */  
-                -1,  /* "P-DCS-Billing-Info" 	-   RFC3603  */  
-                -1,  /* "P-DCS-LAES" 		-   RFC3603  */  
-                -1,  /* "P-DCS-Redirect" 	-   RFC3603  */  
-                -1,  /* "P-Media-Authorization" 	-   RFC3313  */  
-                -1,  /* "P-Preferred-Identity" 	-   RFC3325  */  
-                -1,  /* "P-Visited-Network-ID" 	-   RFC3455  */  
-                -1,  /* "Path" 			-   RFC3327  */  
-                -1,  /* "Privacy" 		-   RFC3323  */  
-                -1,  /* "Reason" 		-   RFC3326  */  
-                -1,  /* "Refer-To" 		-   RFC3515  */  
-                -1,  /* "Service-Route" 		-   RFC3608  */  
-                -1,  /* "ETag"     draft-ietf-sip-publish-01  */  
-                -1,  /* "If-Match  draft-ietf-sip-publish-01  */  
+                -1,  /* "P-Access-Network-Info"	-   RFC3455  */
+                -1,  /* "P-Asserted-Identity" 	-   RFC3325  */
+                -1,  /* "P-Associated-URI" 	-   RFC3455  */
+                -1,  /* "P-Called-Party-ID" 	-   RFC3455  */
+                -1,  /* "P-Charging-Function-Addresses" -   RFC3455  */
+                -1,  /* "P-Charging-Vector" 	-   RFC3455  */
+                -1,  /* "P-DCS-Trace-Party-ID" 	-   RFC3603  */
+                -1,  /* "P-DCS-OSPS" 		-   RFC3603  */
+                -1,  /* "P-DCS-Billing-Info" 	-   RFC3603  */
+                -1,  /* "P-DCS-LAES" 		-   RFC3603  */
+                -1,  /* "P-DCS-Redirect" 	-   RFC3603  */
+                -1,  /* "P-Media-Authorization" 	-   RFC3313  */
+                -1,  /* "P-Preferred-Identity" 	-   RFC3325  */
+                -1,  /* "P-Visited-Network-ID" 	-   RFC3455  */
+                -1,  /* "Path" 			-   RFC3327  */
+                -1,  /* "Privacy" 		-   RFC3323  */
+                -1,  /* "Reason" 		-   RFC3326  */
+                -1,  /* "Refer-To" 		-   RFC3515  */
+                -1,  /* "Service-Route" 		-   RFC3608  */
+                -1,  /* "ETag"     draft-ietf-sip-publish-01  */
+                -1,  /* "If-Match  draft-ietf-sip-publish-01  */
 
 };
 
@@ -381,17 +381,9 @@ static sip_info_value_t *stat_info;
 static int
 dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    /* Initialise stat info for passing to tap */
-	stat_info = g_malloc(sizeof(sip_info_value_t));
-	stat_info->response_code = 0;
-	stat_info->request_method = NULL;	
-	
 	if (!dissect_sip_common(tvb, pinfo, tree, FALSE))
 		return 0;
 
-	/* Report this packet to the tap */
-	tap_queue_packet(sip_tap, pinfo, stat_info);	
-	
 	return tvb_length(tvb);
 }
 
@@ -420,13 +412,18 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         char *descr;
         guint token_1_len;
 	guint current_method_idx = 0;
-        proto_item *ts = NULL, *ti, *th = NULL, *sip_element_item;
-        proto_tree *sip_tree = NULL, *reqresp_tree, *hdr_tree = NULL, *sip_element_tree, *message_body_tree;
-	guchar contacts = 0, contact_is_star = 0, expires_is_0 = 0;	
+        proto_item *ts = NULL, *ti = NULL, *th = NULL, *sip_element_item = NULL;
+        proto_tree *sip_tree = NULL, *reqresp_tree = NULL , *hdr_tree = NULL, *sip_element_tree = NULL, *message_body_tree = NULL;
+	guchar contacts = 0, contact_is_star = 0, expires_is_0 = 0;
 	char csec_method[16] = "";
 	char *media_type_str = NULL;
 	char *media_type_str_lower_case = NULL;
 	char *content_type_parameter_str = NULL;
+
+	/* Initialise stat info for passing to tap */
+	stat_info = g_malloc(sizeof(sip_info_value_t));
+	stat_info->response_code = 0;
+	stat_info->request_method = NULL;
 
         /*
          * Note that "tvb_find_line_end()" will return a value that
@@ -485,41 +482,49 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
                 break;
         }
+
         if (tree) {
                 ts = proto_tree_add_item(tree, proto_sip, tvb, 0, -1, FALSE);
                 sip_tree = proto_item_add_subtree(ts, ett_sip);
+	}
 
-		switch (line_type) {
+	switch (line_type) {
 
-                case REQUEST_LINE:
-		        ti = proto_tree_add_string(sip_tree, hf_Request_Line, tvb, 0, linelen,
-                                              tvb_format_text(tvb, 0, linelen));
-                        reqresp_tree = proto_item_add_subtree(ti, ett_sip_reqresp);
-                        dfilter_sip_request_line(tvb, reqresp_tree, token_1_len);
-                        break;
+	case REQUEST_LINE:
+		if (sip_tree) {
+	        	ti = proto_tree_add_string(sip_tree, hf_Request_Line, tvb, 0, linelen,
+	                              tvb_format_text(tvb, 0, linelen));
+	        	reqresp_tree = proto_item_add_subtree(ti, ett_sip_reqresp);
+	        }
+	        dfilter_sip_request_line(tvb, reqresp_tree, token_1_len);
+	        break;
 
-                case STATUS_LINE:
-                        ti = proto_tree_add_string(sip_tree, hf_Status_Line, tvb, 0, linelen,
-                                              tvb_format_text(tvb, 0, linelen));
-                        reqresp_tree = proto_item_add_subtree(ti, ett_sip_reqresp);
-                        dfilter_sip_status_line(tvb, reqresp_tree);
-                        break;
+	case STATUS_LINE:
+		if (sip_tree) {
+	        	ti = proto_tree_add_string(sip_tree, hf_Status_Line, tvb, 0, linelen,
+	       	                      tvb_format_text(tvb, 0, linelen));
+	        	reqresp_tree = proto_item_add_subtree(ti, ett_sip_reqresp);
+	        }
+	        dfilter_sip_status_line(tvb, reqresp_tree);
+	        break;
 
-		case OTHER_LINE:
-                        ti = proto_tree_add_text(sip_tree, tvb, 0, next_offset,
-                                                 "%s line: %s", descr,
-                                                 tvb_format_text(tvb, 0, linelen));
-                        reqresp_tree = proto_item_add_subtree(ti, ett_sip_reqresp);
-		        proto_tree_add_text(sip_tree, tvb, 0, -1,
-		            "Continuation data");
-		        return TRUE;
-                }
+	case OTHER_LINE:
+		if (sip_tree) {
+	        	ti = proto_tree_add_text(sip_tree, tvb, 0, next_offset,
+		                         "%s line: %s", descr,
+	                                 tvb_format_text(tvb, 0, linelen));
+	        	reqresp_tree = proto_item_add_subtree(ti, ett_sip_reqresp);
+	        	proto_tree_add_text(sip_tree, tvb, 0, -1,
+	            		"Continuation data");
+	        }
+	        return TRUE;
+	}
 
-                offset = next_offset;
-                th = proto_tree_add_item(sip_tree, hf_msg_hdr, tvb, offset, -1,
-                    FALSE);
-                hdr_tree = proto_item_add_subtree(th, ett_sip_hdr);
-        }
+	offset = next_offset;
+	if (sip_tree) {
+		th = proto_tree_add_item(sip_tree, hf_msg_hdr, tvb, offset, -1, FALSE);
+		hdr_tree = proto_item_add_subtree(th, ett_sip_hdr);
+	}
 
         /*
          * Process the headers - if we're not building a protocol tree,
@@ -554,18 +559,22 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			/*
 			 * Malformed header - no colon after the name.
 			 */
-			proto_tree_add_text(hdr_tree, tvb, offset,
-			    next_offset - offset, "%s",
-			    tvb_format_text(tvb, offset, linelen));
+			if(hdr_tree) {
+				proto_tree_add_text(hdr_tree, tvb, offset,
+				    next_offset - offset, "%s",
+				    tvb_format_text(tvb, offset, linelen));
+			}
 		} else {
 			header_len = colon_offset - offset;
 			hf_index = sip_is_known_sip_header(tvb,
 			    offset, header_len);
 
 			if (hf_index == -1) {
-				proto_tree_add_text(hdr_tree, tvb,
-				    offset, next_offset - offset, "%s",
-				    tvb_format_text(tvb, offset, linelen));
+				if(hdr_tree) {
+					proto_tree_add_text(hdr_tree, tvb,
+					    offset, next_offset - offset, "%s",
+					    tvb_format_text(tvb, offset, linelen));
+				}
 			} else {
 				/*
 				 * Skip whitespace after the colon.
@@ -590,61 +599,75 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				switch ( hf_index ) {
 
 				case POS_TO :
-					sip_element_item = proto_tree_add_string_format(hdr_tree,
-					    hf_header_array[hf_index], tvb,
-					    offset, next_offset - offset,
-					    value, "%s",
-					    tvb_format_text(tvb, offset, linelen));
-					sip_element_tree = proto_item_add_subtree( sip_element_item,
-						 ett_sip_element);
+					if(hdr_tree) {
+						sip_element_item = proto_tree_add_string_format(hdr_tree,
+						    hf_header_array[hf_index], tvb,
+						    offset, next_offset - offset,
+						    value, "%s",
+						    tvb_format_text(tvb, offset, linelen));
+						sip_element_tree = proto_item_add_subtree( sip_element_item,
+							 ett_sip_element);
+					}
 					tag_offset = tvb_find_guint8(tvb, offset,linelen, ';');
 					if ( tag_offset != -1){
 						tag_offset = tag_offset + 1;
 						c = tvb_get_guint8(tvb,tag_offset);
 						if ( c == 't' ){/* tag found */
-							proto_tree_add_string(sip_element_tree,
-							    hf_sip_to_addr, tvb,
-							    value_offset, (tag_offset - value_offset - 1),
-				    			tvb_format_text(tvb, value_offset,
-							( tag_offset - value_offset - 1)));
+							if(sip_element_tree) {
+								proto_tree_add_string(sip_element_tree,
+								    hf_sip_to_addr, tvb,
+								    value_offset, (tag_offset - value_offset - 1),
+				    				    tvb_format_text(tvb, value_offset,
+								    ( tag_offset - value_offset - 1)));
+							}
 							tag_offset = tvb_find_guint8(tvb, tag_offset,linelen, '=') + 1;
-							proto_tree_add_string(sip_element_tree,
-							    hf_sip_tag, tvb,
-							    tag_offset, (line_end_offset - tag_offset),
-				    			tvb_format_text(tvb, tag_offset, (line_end_offset - tag_offset)));
-						
+							if(sip_element_tree) {
+								proto_tree_add_string(sip_element_tree,
+								    hf_sip_tag, tvb,
+								    tag_offset, (line_end_offset - tag_offset),
+				    				    tvb_format_text(tvb, tag_offset, (line_end_offset - tag_offset)));
+				    			}
+
 						}
 						else {
-							proto_tree_add_string_format(sip_element_tree,
-							    hf_sip_to_addr, tvb,
-							    offset, line_end_offset - offset,
-							    value, "%s",
-							    tvb_format_text(tvb, offset, linelen));
+							if(sip_element_tree) {
+								proto_tree_add_string_format(sip_element_tree,
+								    hf_sip_to_addr, tvb,
+								    offset, line_end_offset - offset,
+								    value, "%s",
+								    tvb_format_text(tvb, offset, linelen));
+							}
 						}/* if c= t */
 					} /* if tag offset */
-					break;	
+					break;
 
 				case POS_FROM :
-					sip_element_item = proto_tree_add_string_format(hdr_tree,
-					    hf_header_array[hf_index], tvb,
-					    offset, next_offset - offset,
-					    value, "%s",
-					    tvb_format_text(tvb, offset, linelen));
-					sip_element_tree = proto_item_add_subtree( sip_element_item, ett_sip_element);
+					if(hdr_tree) {
+						sip_element_item = proto_tree_add_string_format(hdr_tree,
+						    hf_header_array[hf_index], tvb,
+						    offset, next_offset - offset,
+						    value, "%s",
+						    tvb_format_text(tvb, offset, linelen));
+						sip_element_tree = proto_item_add_subtree( sip_element_item, ett_sip_element);
+					}
 					tag_offset = tvb_find_guint8(tvb, offset,linelen, ';');
 					if ( tag_offset != -1){
 						tag_offset = tag_offset + 1;
 						c = tvb_get_guint8(tvb,tag_offset);
 						if ( c == 't' ){/* tag found */
-							proto_tree_add_string(sip_element_tree,
-							    hf_sip_from_addr, tvb,
-							    value_offset, (tag_offset - value_offset - 1),
-							    tvb_format_text(tvb, value_offset, ( tag_offset - value_offset - 1)));
+							if(sip_element_tree) {
+								proto_tree_add_string(sip_element_tree,
+								    hf_sip_from_addr, tvb,
+								    value_offset, (tag_offset - value_offset - 1),
+								    tvb_format_text(tvb, value_offset, ( tag_offset - value_offset - 1)));
+							}
 							tag_offset = tvb_find_guint8(tvb, offset,linelen, '=') + 1;
-							proto_tree_add_string(sip_element_tree,
-							    hf_sip_tag, tvb,
-							    tag_offset, (line_end_offset - tag_offset),
-							    tvb_format_text(tvb, tag_offset, (line_end_offset - tag_offset)));
+							if(sip_element_tree) {
+								proto_tree_add_string(sip_element_tree,
+								    hf_sip_tag, tvb,
+								    tag_offset, (line_end_offset - tag_offset),
+								    tvb_format_text(tvb, tag_offset, (line_end_offset - tag_offset)));
+							}
 						}
 						else {
 							tag_offset = tvb_find_guint8(tvb, tag_offset,linelen, ';');
@@ -652,15 +675,19 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 								tag_offset = tag_offset + 1;
 								c = tvb_get_guint8(tvb,tag_offset);
 								if ( c == 't' ){/* tag found */
-									proto_tree_add_string(sip_element_tree,
-							 		   hf_sip_from_addr, tvb,
-							   		   value_offset, (tag_offset - value_offset - 1),
-				    					   tvb_format_text(tvb, value_offset, ( tag_offset - value_offset - 1)));
+									if(sip_element_tree) {
+										proto_tree_add_string(sip_element_tree,
+							 			    hf_sip_from_addr, tvb,
+							   			    value_offset, (tag_offset - value_offset - 1),
+				    						    tvb_format_text(tvb, value_offset, ( tag_offset - value_offset - 1)));
+									}
 									tag_offset = tvb_find_guint8(tvb, tag_offset,linelen, '=') + 1;
-									proto_tree_add_string(sip_element_tree,
-									    hf_sip_tag, tvb,
-									    tag_offset, (line_end_offset - tag_offset),
-									    tvb_format_text(tvb, tag_offset, (line_end_offset - tag_offset)));
+									if(sip_element_tree) {
+										proto_tree_add_string(sip_element_tree,
+										    hf_sip_tag, tvb,
+										    tag_offset, (line_end_offset - tag_offset),
+										    tvb_format_text(tvb, tag_offset, (line_end_offset - tag_offset)));
+									}
 								}
 							}
 						}/* if c= t */
@@ -678,11 +705,13 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						}
 					}
 					/* Add 'CSeq' string item to tree */
-					proto_tree_add_string_format(hdr_tree,
-					    hf_header_array[hf_index], tvb,
-					    offset, next_offset - offset,
-					    value, "%s",
-					    tvb_format_text(tvb, offset, linelen));
+					if(hdr_tree) {
+						proto_tree_add_string_format(hdr_tree,
+						    hf_header_array[hf_index], tvb,
+						    offset, next_offset - offset,
+						    value, "%s",
+						    tvb_format_text(tvb, offset, linelen));
+					}
 					break;
 
 				case POS_EXPIRES :
@@ -691,11 +720,13 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						expires_is_0 = 1;
 					}
 					/* Add 'Expires' string item to tree */
-					proto_tree_add_string_format(hdr_tree,
-					    hf_header_array[hf_index], tvb,
-					    offset, next_offset - offset,
-					    value, "%s",
-					    tvb_format_text(tvb, offset, linelen));
+					if(hdr_tree) {
+						proto_tree_add_string_format(hdr_tree,
+						    hf_header_array[hf_index], tvb,
+						    offset, next_offset - offset,
+						    value, "%s",
+						    tvb_format_text(tvb, offset, linelen));
+					}
 					break;
 
 				/*
@@ -705,16 +736,18 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				 * lookup in "media_type" dissector table.
 				 */
 				case POS_CONTENT_TYPE :
-					proto_tree_add_string_format(hdr_tree,
-					    hf_header_array[hf_index], tvb,
-					    offset, next_offset - offset,
-					    value, "%s",
-					    tvb_format_text(tvb, offset, linelen));
+					if(hdr_tree) {
+						proto_tree_add_string_format(hdr_tree,
+						    hf_header_array[hf_index], tvb,
+						    offset, next_offset - offset,
+						    value, "%s",
+						    tvb_format_text(tvb, offset, linelen));
+					}
 					content_type_len = value_len;
 					semicolon_offset = tvb_find_guint8(tvb, value_offset,linelen, ';');
 					if ( semicolon_offset != -1) {
 						content_type_len = semicolon_offset - value_offset;
-						content_type_parameter_str_len = line_end_offset - (semicolon_offset + 1); 
+						content_type_parameter_str_len = line_end_offset - (semicolon_offset + 1);
 						content_type_parameter_str = tvb_get_string(tvb, semicolon_offset + 1,
 								content_type_parameter_str_len);
 					}
@@ -736,17 +769,19 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					}
 					/* Fall through to default case to add string to tree */
 
-				default :	
-					proto_tree_add_string_format(hdr_tree,
-					    hf_header_array[hf_index], tvb,
-					    offset, next_offset - offset,
-					    value, "%s",
-					    tvb_format_text(tvb, offset, linelen));
+				default :
+					if(hdr_tree) {
+						proto_tree_add_string_format(hdr_tree,
+						    hf_header_array[hf_index], tvb,
+						    offset, next_offset - offset,
+						    value, "%s",
+						    tvb_format_text(tvb, offset, linelen));
+					}
 				break;
 				}/* end switch */
 				g_free(value);
 			}/*if HF_index */
-		}/* if colon_offset */ 
+		}/* if colon_offset */
                 offset = next_offset;
         }/* End while */
 
@@ -758,12 +793,14 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  */
                 proto_item_set_end(th, tvb, next_offset);
                 next_tvb = tvb_new_subset(tvb, next_offset, -1, -1);
-               	ti = proto_tree_add_text(sip_tree, next_tvb, 0, -1,
-                                         "Message body");
-               	message_body_tree = proto_item_add_subtree(ti, ett_sip_message_body);
+                if(sip_tree) {
+               		ti = proto_tree_add_text(sip_tree, next_tvb, 0, -1,
+                	                         "Message body");
+               		message_body_tree = proto_item_add_subtree(ti, ett_sip_message_body);
+		}
 
 		/* give the content type parameters to sub dissectors */
-		
+
 		if ( media_type_str_lower_case != NULL ) {
 			void *save_private_data = pinfo->private_data;
 			pinfo->private_data = content_type_parameter_str;
@@ -782,8 +819,10 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	        	while (tvb_offset_exists(next_tvb, offset)) {
 	                	tvb_find_line_end(next_tvb, offset, -1, &next_offset, FALSE);
 	                	linelen = next_offset - offset;
-	                	proto_tree_add_text(message_body_tree, next_tvb, offset, linelen,
-	                   		"%s", tvb_format_text(next_tvb, offset, linelen));
+	                	if(message_body_tree) {
+	                		proto_tree_add_text(message_body_tree, next_tvb, offset, linelen,
+	                   			"%s", tvb_format_text(next_tvb, offset, linelen));
+	                   	}
  	        		offset = next_offset;
  	 		}/* end while */
 		}
@@ -817,6 +856,9 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (global_sip_raw_text)
                 tvb_raw_text_add(tvb, tree);
 
+	/* Report this packet to the tap */
+	tap_queue_packet(sip_tap, pinfo, stat_info);
+
         return TRUE;
 }
 
@@ -831,12 +873,13 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len)
          * would have returned OTHER_LINE.
          */
         string = tvb_get_string(tvb, 0, meth_len);
-        proto_tree_add_string(tree, hf_Method, tvb, 0, meth_len, string);
-		
-		/* Copy request method for telling tap */
-		stat_info->request_method = g_malloc(meth_len+1);
-		strncpy(stat_info->request_method, string, meth_len+1);
-		
+        if (tree) {
+        	proto_tree_add_string(tree, hf_Method, tvb, 0, meth_len, string);
+	}
+	/* Copy request method for telling tap */
+	stat_info->request_method = g_malloc(meth_len+1);
+	strncpy(stat_info->request_method, string, meth_len+1);
+
         /* String no longer needed */
         g_free(string);
 }
@@ -855,9 +898,10 @@ dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree)
          */
         tvb_memcpy(tvb, (guint8 *)string, SIP2_HDR_LEN + 1, 3);
         string[3] = '\0';
-        proto_tree_add_string(tree, hf_Status_Code, tvb, SIP2_HDR_LEN + 1,
-            3, string);
-
+        if (tree) {
+        	proto_tree_add_string(tree, hf_Status_Code, tvb, SIP2_HDR_LEN + 1,
+        	    3, string);
+	}
         /* Add response code for sending to tap */
         stat_info->response_code = atoi(string);
 }
@@ -912,7 +956,7 @@ sip_parse_line(tvbuff_t *tvb, gint linelen, guint *token_1_lenp)
 	token_2_len = space_offset - token_2_start;
 	token_3_start = space_offset + 1;
 	token_3_len = linelen - token_3_start;
-	
+
 	*token_1_lenp = token_1_len;
 
 	/*
@@ -1030,20 +1074,24 @@ static gint sip_is_known_sip_header(tvbuff_t *tvb, int offset, guint header_len)
 static void
 tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
 {
-        proto_tree *raw_tree;
-        proto_item *ti;
+        proto_tree *raw_tree = NULL;
+        proto_item *ti = NULL;
         int offset, next_offset, linelen;
 
-        ti = proto_tree_add_item(tree, proto_raw_sip, tvb, 0, -1, FALSE);
-        raw_tree = proto_item_add_subtree(ti, ett_raw_text);
+	if(tree) {
+		ti = proto_tree_add_item(tree, proto_raw_sip, tvb, 0, -1, FALSE);
+		raw_tree = proto_item_add_subtree(ti, ett_raw_text);
+	}
 
         offset = 0;
 
         while (tvb_offset_exists(tvb, offset)) {
                 tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
                 linelen = next_offset - offset;
-                proto_tree_add_text(raw_tree, tvb, offset, linelen,
-                    "%s", tvb_format_text(tvb, offset, linelen));
+                if(raw_tree) {
+			proto_tree_add_text(raw_tree, tvb, offset, linelen,
+			    "%s", tvb_format_text(tvb, offset, linelen));
+		}
                 offset = next_offset;
         }
 }
@@ -1061,7 +1109,7 @@ void proto_register_sip(void)
                         "Message Header in SIP message", HFILL }
                 },
                 { &hf_Method,
-		       { "Method", 		"sip.Method", 
+		       { "Method", 		"sip.Method",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"SIP Method", HFILL }
 		},
@@ -1071,7 +1119,7 @@ void proto_register_sip(void)
                        "SIP Request-Line", HFILL }
                 },
                 { &hf_Status_Code,
-		       { "Status-Code", 		"sip.Status-Code", 
+		       { "Status-Code", 		"sip.Status-Code",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"SIP Status Code", HFILL }
 		},
@@ -1081,386 +1129,386 @@ void proto_register_sip(void)
                        "SIP Status-Line", HFILL }
                 },
                 { &hf_sip_to_addr,
-		       { "SIP to address", 		"sip.from_addr", 
+		       { "SIP to address", 		"sip.from_addr",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: from addr", HFILL }
 		},
                 { &hf_sip_from_addr,
-		       { "SIP from address", 		"sip.to_addr", 
+		       { "SIP from address", 		"sip.to_addr",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: to addr", HFILL }
 		},
                 { &hf_sip_tag,
-		       { "SIP tag", 		"sip.tag", 
+		       { "SIP tag", 		"sip.tag",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: tag", HFILL }
 		},
                 { &hf_header_array[POS_ACCEPT],
-		       { "Accept", 		"sip.Accept", 
+		       { "Accept", 		"sip.Accept",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Accept Header", HFILL }
 		},
                 { &hf_header_array[POS_ACCEPT_ENCODING],
-		       { "Accept-Encoding", 		"sip.Accept-Encoding", 
+		       { "Accept-Encoding", 		"sip.Accept-Encoding",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Accept-Encoding Header", HFILL }
 		},
                 { &hf_header_array[POS_ACCEPT_LANGUAGE],
-		       { "Accept-Language", 		"sip.Accept-Language", 
+		       { "Accept-Language", 		"sip.Accept-Language",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Accept-Language Header", HFILL }
 		},
                 { &hf_header_array[POS_ALERT_INFO],
-		       { "Alert-Info", 		"sip.Alert-Info", 
+		       { "Alert-Info", 		"sip.Alert-Info",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Alert-Info Header", HFILL }
 		},
                 { &hf_header_array[POS_ALLOW],
-		       { "Allow", 		"sip.Allow", 
+		       { "Allow", 		"sip.Allow",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Allow Header", HFILL }
 		},
                 { &hf_header_array[POS_ALLOW_EVENTS],
-		       { "Allow-Events", 		"sip.Allow-Events", 
+		       { "Allow-Events", 		"sip.Allow-Events",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3265: Allow-Events Header", HFILL }
 		},
                 { &hf_header_array[POS_AUTHENTICATION_INFO],
-		       { "Authentication-Info", 		"sip.Authentication-Info", 
+		       { "Authentication-Info", 		"sip.Authentication-Info",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Authentication-Info Header", HFILL }
 		},
                 { &hf_header_array[POS_AUTHORIZATION],
-		       { "Authorization", 		"sip.Authorization", 
+		       { "Authorization", 		"sip.Authorization",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Authorization Header", HFILL }
 		},
                 { &hf_header_array[POS_CALL_ID],
-		       { "Call-ID", 		"sip.Call-ID", 
+		       { "Call-ID", 		"sip.Call-ID",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Call-ID Header", HFILL }
 		},
                 { &hf_header_array[POS_CALL_INFO],
-		       { "Call-Info", 		"sip.Call-Info", 
+		       { "Call-Info", 		"sip.Call-Info",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Call-Info Header", HFILL }
 		},
                 { &hf_header_array[POS_CONTACT],
-		       { "Contact", 		"sip.Contact", 
+		       { "Contact", 		"sip.Contact",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Contact Header", HFILL }
 		},
                 { &hf_header_array[POS_CONTENT_DISPOSITION],
-		       { "Content-Disposition", 		"sip.Content-Disposition", 
+		       { "Content-Disposition", 		"sip.Content-Disposition",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Content-Disposition Header", HFILL }
 		},
                 { &hf_header_array[POS_CONTENT_ENCODING],
-		       { "Content-Encoding", 		"sip.Content-Encoding", 
+		       { "Content-Encoding", 		"sip.Content-Encoding",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Content-Encoding Header", HFILL }
 		},
                 { &hf_header_array[POS_CONTENT_LANGUAGE],
-		       { "Content-Language", 		"sip.Content-Language", 
+		       { "Content-Language", 		"sip.Content-Language",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Content-Language Header", HFILL }
 		},
                 { &hf_header_array[POS_CONTENT_LENGTH],
-		       { "Content-Length", 		"sip.Content-Length", 
+		       { "Content-Length", 		"sip.Content-Length",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Content-Length Header", HFILL }
 		},
                 { &hf_header_array[POS_CONTENT_TYPE],
-		       { "Content-Type", 		"sip.Content-Type", 
+		       { "Content-Type", 		"sip.Content-Type",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Content-Type Header", HFILL }
 		},
                 { &hf_header_array[POS_CSEQ],
-		       { "CSeq", 		"sip.CSeq", 
+		       { "CSeq", 		"sip.CSeq",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: CSeq Header", HFILL }
 		},
                 { &hf_header_array[POS_DATE],
-		       { "Date", 		"sip.Date", 
+		       { "Date", 		"sip.Date",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Date Header", HFILL }
 		},
                 { &hf_header_array[POS_ERROR_INFO],
-		       { "Error-Info", 		"sip.Error-Info", 
+		       { "Error-Info", 		"sip.Error-Info",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Error-Info Header", HFILL }
 		},
                 { &hf_header_array[POS_EVENT],
-		       { "Event", 		"sip.Event", 
+		       { "Event", 		"sip.Event",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3265: Event Header", HFILL }
 		},
                 { &hf_header_array[POS_EXPIRES],
-		       { "Expires", 		"sip.Expires", 
+		       { "Expires", 		"sip.Expires",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Expires Header", HFILL }
 		},
                 { &hf_header_array[POS_FROM],
-		       { "From", 		"sip.From", 
+		       { "From", 		"sip.From",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: From Header", HFILL }
 		},
                 { &hf_header_array[POS_IN_REPLY_TO],
-		       { "In-Reply-To", 		"sip.In-Reply-To", 
+		       { "In-Reply-To", 		"sip.In-Reply-To",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: In-Reply-To Header", HFILL }
 		},
                 { &hf_header_array[POS_MAX_FORWARDS],
-		       { "Max-Forwards", 		"sip.Max-Forwards", 
+		       { "Max-Forwards", 		"sip.Max-Forwards",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Max-Forwards Header", HFILL }
 		},
                 { &hf_header_array[POS_MIME_VERSION],
-		       { "MIME-Version", 		"sip.MIME-Version", 
+		       { "MIME-Version", 		"sip.MIME-Version",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: MIME-Version Header", HFILL }
 		},
                 { &hf_header_array[POS_MIN_EXPIRES],
-		       { "Min-Expires", 		"sip.Min-Expires", 
+		       { "Min-Expires", 		"sip.Min-Expires",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Min-Expires Header", HFILL }
 		},
                 { &hf_header_array[POS_ORGANIZATION],
-		       { "Organization", 		"sip.Organization", 
+		       { "Organization", 		"sip.Organization",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Organization Header", HFILL }
 		},
                 { &hf_header_array[POS_PRIORITY],
-		       { "Priority", 		"sip.Priority", 
+		       { "Priority", 		"sip.Priority",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Priority Header", HFILL }
 		},
                 { &hf_header_array[POS_PROXY_AUTHENTICATE],
-		       { "Proxy-Authenticate", 		"sip.Proxy-Authenticate", 
+		       { "Proxy-Authenticate", 		"sip.Proxy-Authenticate",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Proxy-Authenticate Header", HFILL }
 		},
                 { &hf_header_array[POS_PROXY_AUTHORIZATION],
-		       { "Proxy-Authorization", 		"sip.Proxy-Authorization", 
+		       { "Proxy-Authorization", 		"sip.Proxy-Authorization",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Proxy-Authorization Header", HFILL }
 		},
                 { &hf_header_array[POS_RACK],
-		       { "RAck", 		"sip.RAck", 
+		       { "RAck", 		"sip.RAck",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3262: RAck Header", HFILL }
 		},
                 { &hf_header_array[POS_RSEQ],
-		       { "RSeq", 		"sip.RSeq", 
+		       { "RSeq", 		"sip.RSeq",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3262: RSeq Header", HFILL }
 		},
                 { &hf_header_array[POS_PROXY_REQUIRE],
-		       { "Proxy-Require", 		"sip.Proxy-Require", 
+		       { "Proxy-Require", 		"sip.Proxy-Require",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Proxy-Require Header", HFILL }
 		},
                 { &hf_header_array[POS_RECORD_ROUTE],
-		       { "Record-Route", 		"sip.Record-Route", 
+		       { "Record-Route", 		"sip.Record-Route",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Record-Route Header", HFILL }
 		},
                 { &hf_header_array[POS_REPLY_TO],
-		       { "Reply-To", 		"sip.Reply-To", 
+		       { "Reply-To", 		"sip.Reply-To",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Reply-To Header", HFILL }
 		},
                 { &hf_header_array[POS_REQUIRE],
-		       { "Require", 		"sip.Require", 
+		       { "Require", 		"sip.Require",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Require Header", HFILL }
 		},
                 { &hf_header_array[POS_RETRY_AFTER],
-		       { "Retry-After", 		"sip.Retry-After", 
+		       { "Retry-After", 		"sip.Retry-After",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Retry-After Header", HFILL }
 		},
                 { &hf_header_array[POS_ROUTE],
-		       { "Route", 		"sip.Route", 
+		       { "Route", 		"sip.Route",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Route Header", HFILL }
 		},
                 { &hf_header_array[POS_SERVER],
-		       { "Server", 		"sip.Server", 
+		       { "Server", 		"sip.Server",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Server Header", HFILL }
 		},
                 { &hf_header_array[POS_SUBJECT],
-		       { "Subject", 		"sip.Subject", 
+		       { "Subject", 		"sip.Subject",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Subject Header", HFILL }
 		},
                 { &hf_header_array[POS_SUBSCRIPTION_STATE],
-		       { "Subscription-State", 		"sip.Subscription-State", 
+		       { "Subscription-State", 		"sip.Subscription-State",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3265: Subscription-State Header", HFILL }
 		},
                 { &hf_header_array[POS_SUPPORTED],
-		       { "Supported", 		"sip.Supported", 
+		       { "Supported", 		"sip.Supported",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Supported Header", HFILL }
 		},
                 { &hf_header_array[POS_TIMESTAMP],
-		       { "Timestamp", 		"sip.Timestamp", 
+		       { "Timestamp", 		"sip.Timestamp",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Timestamp Header", HFILL }
 		},
                 { &hf_header_array[POS_TO],
-		       { "To", 		"sip.To", 
+		       { "To", 		"sip.To",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: To Header", HFILL }
 		},
                 { &hf_header_array[POS_UNSUPPORTED],
-		       { "Unsupported", 		"sip.Unsupported", 
+		       { "Unsupported", 		"sip.Unsupported",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Unsupported Header", HFILL }
 		},
                 { &hf_header_array[POS_USER_AGENT],
-		       { "User-Agent", 		"sip.User-Agent", 
+		       { "User-Agent", 		"sip.User-Agent",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: User-Agent Header", HFILL }
 		},
                 { &hf_header_array[POS_VIA],
-		       { "Via", 		"sip.Via", 
+		       { "Via", 		"sip.Via",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Via Header", HFILL }
 		},
                 { &hf_header_array[POS_WARNING],
-		       { "Warning", 		"sip.Warning", 
+		       { "Warning", 		"sip.Warning",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Warning Header", HFILL }
 		},
                 { &hf_header_array[POS_WWW_AUTHENTICATE],
-		       { "WWW-Authenticate", 		"sip.WWW-Authenticate", 
+		       { "WWW-Authenticate", 		"sip.WWW-Authenticate",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: WWW-Authenticate Header", HFILL }
 		},
-		{ &hf_header_array[POS_P_ACCESS_NETWORK_INFO],  
-		       { "P-Access-Network-Info",	"sip.P-Access-Network-Info",  
+		{ &hf_header_array[POS_P_ACCESS_NETWORK_INFO],
+		       { "P-Access-Network-Info",	"sip.P-Access-Network-Info",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"P-Access-Network-Info Header", HFILL }
 		},
 
-		{ &hf_header_array[POS_P_ASSERTED_IDENTITY],    
-		       { "P-Asserted-Identity",		"sip.P-Asserted-Identity",  
+		{ &hf_header_array[POS_P_ASSERTED_IDENTITY],
+		       { "P-Asserted-Identity",		"sip.P-Asserted-Identity",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"P-Asserted-Identity Header", HFILL }
 		},
 
-		{ &hf_header_array[POS_P_ASSOCIATED_URI],  
-		       { "P-Associated-URI", 		"sip.P-Associated-URI", 
+		{ &hf_header_array[POS_P_ASSOCIATED_URI],
+		       { "P-Associated-URI", 		"sip.P-Associated-URI",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"P-Associated-URI Header", HFILL }
 		},
 
-		{ &hf_header_array[POS_P_CALLED_PARTY_ID],  
-		       { "P-Called-Party-ID", 		"sip.P-Called-Party-ID", 
+		{ &hf_header_array[POS_P_CALLED_PARTY_ID],
+		       { "P-Called-Party-ID", 		"sip.P-Called-Party-ID",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"P-Called-Party-ID Header", HFILL }
 		},
 
-		{ &hf_header_array[POS_P_CHARGING_FUNCTION_ADDRESSES],  
-		       { "P-Charging-Function-Addresses","sip.P-Charging-Function-Addresses",  
+		{ &hf_header_array[POS_P_CHARGING_FUNCTION_ADDRESSES],
+		       { "P-Charging-Function-Addresses","sip.P-Charging-Function-Addresses",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"P-Charging-Function-Addresses", HFILL }
 		},
 
 		{ &hf_header_array[POS_P_CHARGING_VECTOR],
-		       { "P-Charging-Vector", 		"sip.P-Charging-Vector", 
+		       { "P-Charging-Vector", 		"sip.P-Charging-Vector",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"P-Charging-Vector Header", HFILL }
 		},
 
-		{ &hf_header_array[POS_P_DCS_TRACE_PARTY_ID], 
-		       { "P-DCS-Trace-Party-ID", 	"sip.P-DCS-Trace-Party-ID", 
+		{ &hf_header_array[POS_P_DCS_TRACE_PARTY_ID],
+		       { "P-DCS-Trace-Party-ID", 	"sip.P-DCS-Trace-Party-ID",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"P-DCS-Trace-Party-ID Header", HFILL }
 		},
 
-		{ &hf_header_array[POS_P_DCS_OSPS],  
-		       { "P-DCS-OSPS", 			"sip.P-DCS-OSPS", 
+		{ &hf_header_array[POS_P_DCS_OSPS],
+		       { "P-DCS-OSPS", 			"sip.P-DCS-OSPS",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"P-DCS-OSPS Header", HFILL }
 		},
 
-		{ &hf_header_array[POS_P_DCS_BILLING_INFO],  
-		       { "P-DCS-Billing-Info", 		"sip.P-DCS-Billing-Info", 
+		{ &hf_header_array[POS_P_DCS_BILLING_INFO],
+		       { "P-DCS-Billing-Info", 		"sip.P-DCS-Billing-Info",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"P-DCS-Billing-Info Header", HFILL }
 		},
 
-		{ &hf_header_array[POS_P_DCS_LAES],  
-		       { "P-DCS-LAES", 			"sip.P-DCS-LAES", 
+		{ &hf_header_array[POS_P_DCS_LAES],
+		       { "P-DCS-LAES", 			"sip.P-DCS-LAES",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"P-DCS-LAES Header", HFILL }
 		},
 
-		{ &hf_header_array[POS_P_DCS_REDIRECT],  
-		       { "P-DCS-Redirect", 		"sip.P-DCS-Redirect", 
+		{ &hf_header_array[POS_P_DCS_REDIRECT],
+		       { "P-DCS-Redirect", 		"sip.P-DCS-Redirect",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"P-DCS-Redirect Header", HFILL }
 		},
 
-		{ &hf_header_array[POS_P_MEDIA_AUTHORIZATION],  
-		       { "P-Media-Authorization", 	"sip.P-Media-Authorization", 
+		{ &hf_header_array[POS_P_MEDIA_AUTHORIZATION],
+		       { "P-Media-Authorization", 	"sip.P-Media-Authorization",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"P-Media-Authorization Header", HFILL }
 		},
 
-		{ &hf_header_array[POS_P_PREFERRED_IDENTITY],  
-		       { "P-Preferred-Identity",  	"sip.P-Preferred-Identity", 
+		{ &hf_header_array[POS_P_PREFERRED_IDENTITY],
+		       { "P-Preferred-Identity",  	"sip.P-Preferred-Identity",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"P-Preferred-Identity Header", HFILL }
 		},
 
-		{ &hf_header_array[POS_P_VISITED_NETWORK_ID],  
-		       { "P-Visited-Network-ID", 	"sip.P-Visited-Network-ID",  
+		{ &hf_header_array[POS_P_VISITED_NETWORK_ID],
+		       { "P-Visited-Network-ID", 	"sip.P-Visited-Network-ID",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"P-Visited-Network-ID Header", HFILL }
 		},
 
-		{ &hf_header_array[POS_PATH],  
-		       { "Path", 			"sip.Path", 
+		{ &hf_header_array[POS_PATH],
+		       { "Path", 			"sip.Path",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"Path Header", HFILL }
 		},
 
-		{ &hf_header_array[POS_PRIVACY],  
-		       { "Privacy", 			"sip.Privacy", 
+		{ &hf_header_array[POS_PRIVACY],
+		       { "Privacy", 			"sip.Privacy",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"Privacy Header", HFILL }
 		},
 
-		{ &hf_header_array[POS_REASON], 
-		       { "Reason", 			"sip.Reason", 
+		{ &hf_header_array[POS_REASON],
+		       { "Reason", 			"sip.Reason",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"Reason Header", HFILL }
 		},
 
-		{ &hf_header_array[POS_REFER_TO], 
-		       { "Refer-To", 			"sip.Refer-To", 
+		{ &hf_header_array[POS_REFER_TO],
+		       { "Refer-To", 			"sip.Refer-To",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"Refer-To Header", HFILL }
 		},
 
-		{ &hf_header_array[POS_SERVICE_ROUTE],                  
-		       { "Service-Route", 		"sip.Service-Route", 
+		{ &hf_header_array[POS_SERVICE_ROUTE],
+		       { "Service-Route", 		"sip.Service-Route",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"Service-Route Header", HFILL }
 		},
 
-		{ &hf_header_array[POS_ETAG],                  
-		       { "ETag", 		"sip.ETag", 
+		{ &hf_header_array[POS_ETAG],
+		       { "ETag", 		"sip.ETag",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"ETag Header", HFILL }
 		},
-		{ &hf_header_array[POS_IF_MATCH],                  
-		       { "If_Match", 		"sip.If_Match", 
+		{ &hf_header_array[POS_IF_MATCH],
+		       { "If_Match", 		"sip.If_Match",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"If-Match Header", HFILL }
 		},

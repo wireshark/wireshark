@@ -1,7 +1,7 @@
 /* sip_stat.c
  * sip_stat   2004 Martin Mathieson
  *
- * $Id: sip_stat.c,v 1.2 2004/03/27 11:13:03 guy Exp $
+ * $Id: sip_stat.c,v 1.3 2004/03/30 18:55:47 guy Exp $
  * Copied from http_stat.c
  *
  * Ethereal - Network traffic analyzer
@@ -325,10 +325,11 @@ static void
 sipstat_reset(void *psp)
 {
     sipstat_t *sp = psp;
-    if (!sp)
+    if (sp)
     {
+    	sp->packets = 0;
         g_hash_table_foreach(sp->hash_responses, (GHFunc)sip_reset_hash_responses, NULL);
-        g_hash_table_foreach(sp->hash_responses, (GHFunc)sip_reset_hash_requests, NULL);
+        g_hash_table_foreach(sp->hash_requests, (GHFunc)sip_reset_hash_requests, NULL);
     }
 }
 
@@ -447,6 +448,8 @@ sipstat_draw(void *psp)
     /* Draw responses and requests from their tables */
     g_hash_table_foreach(sp->hash_responses, (GHFunc)sip_draw_hash_responses, NULL);
     g_hash_table_foreach(sp->hash_requests,  (GHFunc)sip_draw_hash_requests, NULL);
+    
+    gtk_widget_show_all(sp->win);
 }
 
 
