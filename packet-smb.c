@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.203 2002/02/01 04:42:24 gram Exp $
+ * $Id: packet-smb.c,v 1.204 2002/02/01 07:22:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2741,12 +2741,13 @@ static int
 dissect_close_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8 wc;
-	guint16 bc;
+	guint16 bc, fid;
 
 	WORD_COUNT;
 
 	/* fid */
-	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	fid = tvb_get_letohs(tvb, offset);
+	add_fid(tvb, pinfo, tree, offset, 2, fid);
 	offset += 2;
 
 	/* last write time */
@@ -2966,12 +2967,13 @@ static int
 dissect_read_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8 wc;
-	guint16 bc;
+	guint16 bc, fid;
 
 	WORD_COUNT;
 
 	/* fid */
-	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	fid = tvb_get_letohs(tvb, offset);
+	add_fid(tvb, pinfo, tree, offset, 2, fid);
 	offset += 2;
 
 	/* read count */
@@ -3095,13 +3097,14 @@ dissect_lock_and_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static int
 dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
-	guint16 cnt=0, bc;
+	guint16 cnt=0, bc, fid;
 	guint8 wc;
 
 	WORD_COUNT;
 
 	/* fid */
-	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	fid = tvb_get_letohs(tvb, offset);
+	add_fid(tvb, pinfo, tree, offset, 2, fid);
 	offset += 2;
 
 	/* write count */
@@ -3163,12 +3166,13 @@ static int
 dissect_lock_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8 wc;
-	guint16 bc;
+	guint16 bc, fid;
 
 	WORD_COUNT;
 
 	/* fid */
-	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	fid = tvb_get_letohs(tvb, offset);
+	add_fid(tvb, pinfo, tree, offset, 2, fid);
 	offset += 2;
 
 	/* lock count */
@@ -3234,8 +3238,7 @@ dissect_create_temporary_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	int fn_len;
 	const char *fn;
 	guint8 wc;
-	guint16 bc;
-	guint16 fid;
+	guint16 bc, fid;
 
 	WORD_COUNT;
 
@@ -3276,12 +3279,13 @@ static int
 dissect_seek_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8 wc;
-	guint16 bc;
+	guint16 bc, fid;
 
 	WORD_COUNT;
 
 	/* fid */
-	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	fid = tvb_get_letohs(tvb, offset);
+	add_fid(tvb, pinfo, tree, offset, 2, fid);
 	offset += 2;
 
 	/* Seek Mode */
@@ -3322,12 +3326,13 @@ static int
 dissect_set_information2_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8 wc;
-	guint16 bc;
+	guint16 bc, fid;
 
 	WORD_COUNT;
 
 	/* fid */
-	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	fid = tvb_get_letohs(tvb, offset);
+	add_fid(tvb, pinfo, tree, offset, 2, fid);
 	offset += 2;
 
 	/* create time */
@@ -3398,12 +3403,13 @@ dissect_write_and_close_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
 	guint8 wc;
 	guint16 cnt=0;
-	guint16 bc;
+	guint16 bc, fid;
 
 	WORD_COUNT;
 
 	/* fid */
-	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	fid = tvb_get_letohs(tvb, offset);
+	add_fid(tvb, pinfo, tree, offset, 2, fid);
 	offset += 2;
 
 	/* write count */
@@ -3462,13 +3468,14 @@ static int
 dissect_read_raw_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8 wc;
-	guint16 bc;
+	guint16 bc, fid;
 	guint32 to;
 
 	WORD_COUNT;
 
 	/* fid */
-	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	fid = tvb_get_letohs(tvb, offset);
+	add_fid(tvb, pinfo, tree, offset, 2, fid);
 	offset += 2;
 
 	/* offset */
@@ -3544,12 +3551,13 @@ static int
 dissect_read_mpx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8 wc;
-	guint16 bc;
+	guint16 bc, fid;
 
 	WORD_COUNT;
 
 	/* fid */
-	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	fid = tvb_get_letohs(tvb, offset);
+	add_fid(tvb, pinfo, tree, offset, 2, fid);
 	offset += 2;
 
 	/* offset */
@@ -3688,13 +3696,14 @@ static int
 dissect_write_raw_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint32 to;
-	guint16 datalen=0, bc;
+	guint16 datalen=0, bc, fid;
 	guint8 wc;
 
 	WORD_COUNT;
 
 	/* fid */
-	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	fid = tvb_get_letohs(tvb, offset);
+	add_fid(tvb, pinfo, tree, offset, 2, fid);
 	offset += 2;
 
 	/* total data length */
@@ -3765,13 +3774,14 @@ static int
 dissect_write_mpx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint32 to;
-	guint16 datalen=0, bc;
+	guint16 datalen=0, bc, fid;
 	guint8 wc;
 
 	WORD_COUNT;
 
 	/* fid */
-	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	fid = tvb_get_letohs(tvb, offset);
+	add_fid(tvb, pinfo, tree, offset, 2, fid);
 	offset += 2;
 
 	/* total data length */
@@ -4092,7 +4102,7 @@ static int
 dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8	wc, cmd=0xff, lt=0;
-	guint16 andxoffset=0, un=0, ln=0, bc;
+	guint16 andxoffset=0, un=0, ln=0, bc, fid;
 	guint32 to;
 	proto_item *litem = NULL;
 	proto_tree *ltree = NULL;
@@ -4121,7 +4131,8 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset += 2;
 
 	/* fid */
-	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	fid = tvb_get_letohs(tvb, offset);
+	add_fid(tvb, pinfo, tree, offset, 2, fid);
 	offset += 2;
 
 	/* lock type */
@@ -6930,9 +6941,12 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		break;
 	case NT_TRANS_IOCTL:
 		break;
-	case NT_TRANS_SSD:
+	case NT_TRANS_SSD: {
+		guint16 fid;
+
 		/* fid */
-		proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+		fid = tvb_get_letohs(tvb, offset);
+		add_fid(tvb, pinfo, tree, offset, 2, fid);
 		offset += 2;
 
 		/* 2 reserved bytes */
@@ -6942,14 +6956,18 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		/* security information */
 		offset = dissect_security_information_mask(tvb, pinfo, tree, offset);
 		break;
+	}
 	case NT_TRANS_NOTIFY:
 		break;
 	case NT_TRANS_RENAME:
 		/* XXX not documented */
 		break;
-	case NT_TRANS_QSD:
+	case NT_TRANS_QSD: {
+		guint16 fid;
+
 		/* fid */
-		proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+		fid = tvb_get_letohs(tvb, offset);
+		add_fid(tvb, pinfo, tree, offset, 2, fid);
 		offset += 2;
 
 		/* 2 reserved bytes */
@@ -6959,6 +6977,7 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		/* security information */
 		offset = dissect_security_information_mask(tvb, pinfo, tree, offset);
 		break;
+	}
 	}
 
 	return offset;
@@ -6984,13 +7003,16 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	switch(ntd->subcmd){
 	case NT_TRANS_CREATE:
 		break;
-	case NT_TRANS_IOCTL:
+	case NT_TRANS_IOCTL: {
+		guint16 fid;
+
 		/* function code */
 		proto_tree_add_item(tree, hf_smb_nt_ioctl_function_code, tvb, offset, 4, TRUE);
 		offset += 4;
 
 		/* fid */
-		proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+		fid = tvb_get_letohs(tvb, offset);
+		add_fid(tvb, pinfo, tree, offset, 2, fid);
 		offset += 2;
 
 		/* isfsctl */
@@ -7001,14 +7023,18 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		offset = dissect_nt_ioctl_flags(tvb, pinfo, tree, offset);
 
 		break;
+	}
 	case NT_TRANS_SSD:
 		break;
-	case NT_TRANS_NOTIFY:
+	case NT_TRANS_NOTIFY: {
+		guint16 fid;
+
 		/* completion filter */
 		offset = dissect_nt_notify_completion_filter(tvb, pinfo, tree, offset);
 
 		/* fid */
-		proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+		fid = tvb_get_letohs(tvb, offset);
+		add_fid(tvb, pinfo, tree, offset, 2, fid);
 		offset += 2;
 
 		/* watch tree */
@@ -7020,6 +7046,7 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		offset += 1;
 
 		break;
+	}
 	case NT_TRANS_RENAME:
 		/* XXX not documented */
 		break;
@@ -7741,12 +7768,13 @@ dissect_write_print_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
 	int cnt;
 	guint8 wc;
-	guint16 bc;
+	guint16 bc, fid;
 
 	WORD_COUNT;
 
 	/* fid */
-	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	fid = tvb_get_letohs(tvb, offset);
+	add_fid(tvb, pinfo, tree, offset, 2, fid);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -8580,10 +8608,13 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		}
 
 		break;
-	case 0x07:	/*TRANS2_QUERY_FILE_INFORMATION*/
+	case 0x07: {	/*TRANS2_QUERY_FILE_INFORMATION*/
+		guint16 fid;
+
 		/* fid */
 		CHECK_BYTE_COUNT_TRANS(2);
-		proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+		fid = tvb_get_letohs(tvb, offset);
+		add_fid(tvb, pinfo, tree, offset, 2, fid);
 		COUNT_BYTES_TRANS(2);
 
 		/* level of interest */
@@ -8595,10 +8626,14 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(2);
 		
 		break;
-	case 0x08:	/*TRANS2_SET_FILE_INFORMATION*/
+	}
+	case 0x08: {	/*TRANS2_SET_FILE_INFORMATION*/
+		guint16 fid;
+
 		/* fid */
 		CHECK_BYTE_COUNT_TRANS(2);
-		proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+		fid = tvb_get_letohs(tvb, offset);
+		add_fid(tvb, pinfo, tree, offset, 2, fid);
 		COUNT_BYTES_TRANS(2);
 
 		/* level of interest */
@@ -8615,6 +8650,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(2);
 
 		break;
+	}
 	case 0x09:	/*TRANS2_FSCTL*/
 	case 0x0a:	/*TRANS2_IOCTL2*/
 		/* these calls have no parameter block in the request */
@@ -9701,8 +9737,12 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += 2;
 
 		if(si->cmd==SMB_COM_TRANSACTION2){
+			guint16 fid;
+
 			/* fid */
-			proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+			fid = tvb_get_letohs(tvb, offset);
+			add_fid(tvb, pinfo, tree, offset, 2, fid);
+
 			offset += 2;
 		}
 
