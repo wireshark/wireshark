@@ -2,7 +2,7 @@
  * Routines for MS Exchange MAPI
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-mapi.c,v 1.20 2003/02/10 02:07:15 tpot Exp $
+ * $Id: packet-dcerpc-mapi.c,v 1.21 2003/05/10 02:15:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,7 @@
 static int proto_dcerpc_mapi = -1;
 static int hf_mapi_unknown_string = -1;
 static int hf_mapi_unknown_short = -1;
+static int hf_mapi_unknown_long = -1;
 static int hf_mapi_hnd = -1;
 static int hf_mapi_rc = -1;
 static int hf_mapi_encap_datalen = -1;
@@ -259,7 +260,12 @@ mapi_logon_reply(tvbuff_t *tvb, int offset,
         offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep,
 			sizeof(guint8), hf_mapi_unknown_string, TRUE, NULL);
 
-        DISSECT_UNKNOWN(6); /* possibly 1 or 2 bytes padding here */
+        /* Was DISSECT_UNKNOWN(6), but the 1 or 2 bytes the comment that
+           was here referred to probably were padding, if they were seen;
+           in another capture, there are 5 bytes there - it's probably a
+           4-byte quantity, always aligned on a 4-byte boundary. */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+			hf_mapi_unknown_long, NULL);
 
         offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep,
 			sizeof(guint8), hf_mapi_unknown_string, TRUE, NULL);
@@ -383,6 +389,10 @@ static hf_register_info hf[] = {
 	{ &hf_mapi_unknown_short,
 		{ "Unknown short", "mapi.unknown_short", FT_UINT16, BASE_HEX,
 		NULL, 0, "Unknown short. If you know what this is, contact ethereal developers.", HFILL }},
+
+	{ &hf_mapi_unknown_long,
+		{ "Unknown long", "mapi.unknown_long", FT_UINT32, BASE_HEX,
+		NULL, 0, "Unknown long. If you know what this is, contact ethereal developers.", HFILL }},
 
 	{ &hf_mapi_encap_datalen,
 		{ "Length", "mapi.encap_len", FT_UINT16, BASE_DEC,
