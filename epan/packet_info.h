@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.30 2003/02/27 03:56:48 guy Exp $
+ * $Id: packet_info.h,v 1.31 2003/02/28 20:30:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,11 +71,21 @@ typedef struct _address {
 
 /*
  * Given two addresses, return "true" if they're equal, "false" otherwise.
+ * Addresses are equal only if they have the same type; if the type is
+ * AT_NONE, they are then equal, otherwise they must have the same
+ * amount of data and the data must be the same.
  */
-#define ADDRESSES_EQUAL(addr1, addr2) \
-	((addr1)->type == (addr2)->type && \
-	 (addr1)->len == (addr2)->len && \
-	 memcmp((addr1)->data, (addr2)->data, (addr1)->len) == 0)
+#define ADDRESSES_EQUAL(addr1, addr2)					\
+	(								\
+	 (addr1)->type == (addr2)->type &&				\
+	 (								\
+	  (addr1)->type == AT_NONE ||					\
+	  (								\
+	   (addr1)->len == (addr2)->len &&				\
+	   memcmp((addr1)->data, (addr2)->data, (addr1)->len) == 0	\
+	  )								\
+	 )								\
+	)
 
 /*
  * Copy an address, allocating a new buffer for the address data.
