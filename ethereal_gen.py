@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.15 2001/10/31 10:40:53 guy Exp $
+# $Id: ethereal_gen.py,v 1.16 2001/11/19 23:00:12 guy Exp $
 #                           
 # ethereal_gen.py (part of idl2eth)           
 #
@@ -94,8 +94,9 @@ import tempfile
 # 12. Implement IDL "union" code [done]
 # 13. Implement support for plugins [done]
 # 14. Dont generate code for empty operations (cf: exceptions without members)
-# 15. Generate code to display Enums numerically ans symbolically [done]
+# 15. Generate code to display Enums numerically and symbolically [done]
 # 16. Place structs in subtrees
+# 17. Recursive struct and union handling [started - pass struct and union list to ethereal_gen.py ]
 #
 # Also test, Test, TEST
 #
@@ -169,7 +170,7 @@ class ethereal_gen_C:
     #
     #
         
-    def genCode(self,oplist, atlist, enlist):   # operation and attribute lists
+    def genCode(self,oplist, atlist, enlist, stlist, unlist):   # operation,attribute,enums,struct and union lists
 
         self.genHelpers(oplist)         # sneaky .. call it now, to populate the fn_hash
                                         # so when I come to that operation later, I have the variables to
