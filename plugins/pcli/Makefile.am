@@ -1,34 +1,49 @@
 # Makefile.am
-# Automake file for Ethereal
+# Automake file for Ethereal/Gryphon
 #
-# $Id: Makefile.am,v 1.12 2002/10/03 02:56:57 hagbard Exp $
+# $Id: Makefile.am,v 1.1 2002/10/03 02:56:59 hagbard Exp $
 #
 # Ethereal - Network traffic analyzer
-# By Gerald Combs <gerald@ethereal.com>
-# Copyright 1998 Gerald Combs
+# By Steve Limkemann <stevelim@dgtech.com>
+# Copyright 1998 Steve Limkemann
 #
+# 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
 # of the License, or (at your option) any later version.
-#
+# 
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-#
+# 
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+#
 
-SUBDIRS = docsis giop gryphon mgcp pcli
+INCLUDES = -I$(top_srcdir)
 
 plugindir = @plugindir@
 
+plugin_LTLIBRARIES = pcli.la
+pcli_la_SOURCES = packet-pcli.c moduleinfo.h
+pcli_la_LDFLAGS = -module -avoid-version
+
+# Libs must be cleared, or else libtool won't create a shared module.
+# If your module needs to be linked against any particular libraries,
+# add them here.
+LIBS =
+
+pcli_la_DEPENDENCIES = packet-pcli-static.o
+
+packet-pcli-static.o:	packet-pcli.c moduleinfo.h
+	$(LTCOMPILE) -c -o packet-pcli-static.o -D__ETHEREAL_STATIC__ $(srcdir)/packet-pcli.c 
+
+CLEANFILES = \
+	pcli \
+	*~
+
 EXTRA_DIST = \
-	plugin_api.c	\
-	plugin_api.h	\
-	plugin_api_decls.h	\
-	plugin_api_defs.h	\
-	plugin_table.h	\
 	Makefile.nmake
