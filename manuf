@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes 
 #
-# $Id: manuf,v 1.15 2002/01/08 20:58:14 guy Exp $
+# $Id: manuf,v 1.16 2002/01/30 22:23:31 gerald Exp $
 #
 # Laurent Deniel <deniel@worldnet.fr>
 #
@@ -564,7 +564,7 @@
 00:02:04	Novell
 00:02:05	Hamilton (Sparc Clones)
 00:02:06	Telital R&D Denmark A/S
-00:02:07	VisionGlobal Network Corp.
+00:02:07	PRIVATE
 00:02:08	Unify Networks, Inc.
 00:02:09	Shenzhen SED Information Technology Co., Ltd.
 00:02:0A	Gefran Spa
@@ -686,7 +686,7 @@
 00:02:7E	Cisco Systems, Inc.
 00:02:7F	ask-technologies.com
 00:02:80	Mu Net, Inc.
-00:02:81	Red-M (Communications) Ltd.
+00:02:81	Madge Networks Limited
 00:02:82	ViaClix, Inc.
 00:02:83	Spectrum Controls, Inc.
 00:02:84	Alstom T&D P&C
@@ -903,7 +903,7 @@
 00:03:57	Intervoice-Brite, Inc.
 00:03:58	iCable System Co., Ltd.
 00:03:59	DigitalSis
-00:03:5A	Phototron Limited
+00:03:5A	Photron Limited
 00:03:5B	BridgeWave Communications
 00:03:5C	Saint Song Corp.
 00:03:5D	Bosung Hi-Net Co., Ltd.
@@ -941,7 +941,7 @@
 00:03:7D	Stellcom
 00:03:7E	PORTech Communications, Inc.
 00:03:7F	Atheros Communications, Inc.
-00:03:80	SSH Communications Security Corp.
+00:03:80	PRIVATE
 00:03:81	Ingenico International
 00:03:82	A-One Co., Ltd.
 00:03:83	Metera Networks, Inc.
@@ -958,7 +958,7 @@
 00:03:8E	Atoga Systems, Inc.
 00:03:8F	Weinschel Corporation
 00:03:90	Digital Video Communications, Inc.
-00:03:91	Advanced Digital Broadcast, Ltd.
+00:03:91	PRIVATE
 00:03:92	Hyundai Teletek Co., Ltd.
 00:03:93	Apple Computer, Inc.
 00:03:94	Connect One
@@ -1431,7 +1431,7 @@
 00:05:67	Etymonic Design, Inc.
 00:05:68	Piltofish Networks AB
 00:05:69	VMWARE, Inc.
-00:05:6A	Heuft Systemtechnik GmbH
+00:05:6A	PRIVATE
 00:05:6B	C.P. Technology Co., Ltd.
 00:05:6C	Hung Chang Co., Ltd.
 00:05:6D	Pacific Corporation
@@ -1781,7 +1781,7 @@
 00:06:C5	INNOVI Technologies Limited
 00:06:C6	lesswire AG
 00:06:C7	RFNET Technologies Pte Ltd (S)
-00:06:C8	Sumitomo Metal Industries, Ltd.
+00:06:C8	Sumitomo Metal Micro Devices, Inc.
 00:06:C9	Technical Marketing Research, Inc.
 00:06:CA	American Computer & Digital Components, Inc. (ACDC)
 00:06:CB	Jotron Electronics A/S
@@ -2272,7 +2272,83 @@
 00:08:D6	HASSNET Inc.
 00:08:D7	HOW CORPORATION
 00:08:D8	Dowkey Microwave
-00:08:D9	Mitadensi Co.,LTD
+00:08:D9	Mitadenshi Co.,LTD
+00:08:DA	SofaWare Technologies Ltd.
+00:08:DB	Corrigent Systems
+00:08:DC	Wiznet
+00:08:DD	Telena Communications, Inc.
+00:08:DE	3UP Systems
+00:08:DF	Alistel Inc.
+00:08:E0	ATO Technology Ltd.
+00:08:E1	Barix AG
+00:08:E2	Cisco Systems
+00:08:E3	Cisco Systems
+00:08:E4	Envenergy Inc
+00:08:E5	IDK Corporation
+00:08:E6	Littlefeet
+00:08:E7	SHI ControlSystems,Ltd.
+00:08:E8	Excel Master Ltd.
+00:08:E9	NextGig
+00:08:EA	Motion Control Engineering, Inc
+00:08:EB	ROMWin Co.,Ltd.
+00:08:EC	Zonu, Inc.
+00:08:ED	ST&T Instrument Corp.
+00:08:EE	Logic Product Development
+00:08:EF	DIBAL,S.A.
+00:08:F0	Next Generation Systems, Inc.
+00:08:F1	Voltaire
+00:08:F2	PRIVATE
+00:08:F3	WANY
+00:08:F4	Bluetake Technology Co., Ltd.
+00:08:F5	YESTECHNOLOGY Co.,Ltd.
+00:08:F6	SUMITOMO ELECTRIC HIGHTECHS.co.,ltd.
+00:08:F7	Hitachi Ltd, Semiconductor &amp; Integrated Circuits Gr
+00:08:F8	Guardall Ltd
+00:08:F9	Padcom, Inc.
+00:08:FA	Karl E.Brinkmann GmbH
+00:08:FB	PRIVATE
+00:08:FC	Gigaphoton Inc.
+00:08:FD	BlueKorea Co., Ltd.
+00:08:FE	PRIVATE
+00:08:FF	Trilogy Broadcast (Holdings) Ltd
+00:09:00	TMT
+00:09:01	Shenzhen Shixuntong Information & Technoligy Co
+00:09:02	Redline Communications Inc.
+00:09:03	Panasas, Inc
+00:09:04	MONDIAL electronic
+00:09:05	iTEC Technologies Ltd.
+00:09:06	Esteem Networks
+00:09:07	Chrysalis Development
+00:09:08	VTech Technology Corp.
+00:09:09	Telenor Connect A/S
+00:09:0A	SnedFar Technology Co., Ltd.
+00:09:0B	MTL  Instruments PLC
+00:09:0C	Mayekawa Mfg. Co. Ltd.
+00:09:0D	PRIVATE
+00:09:0E	Helix Technology Inc.
+00:09:0F	PRIVATE
+00:09:10	Simple Access Inc.
+00:09:11	Cisco Systems
+00:09:12	Cisco Systems
+00:09:13	PRIVATE
+00:09:14	COMPUTROLS INC.
+00:09:15	CAS Corp.
+00:09:16	Listman Home Technologies, Inc.
+00:09:17	WEM Technology Inc
+00:09:18	SAMSUNG TECHWIN CO.,LTD
+00:09:19	MDS Gateways
+00:09:1A	Macat Optics & Electronics Co., Ltd.
+00:09:1B	Digital Generation Inc.
+00:09:1C	CacheVision, Inc
+00:09:1D	Proteam Computer Corporation
+00:09:1E	Firstech Technology Corp.
+00:09:1F	A&amp;D Co., Ltd.
+00:09:20	PRIVATE
+00:09:21	Planmeca Oy
+00:09:22	Touchless Sensor Technology AG
+00:09:23	Heaman System Co., Ltd
+00:09:24	Telebau GmbH
+00:09:25	VSN Systemen BV
 00:0A:27	Apple Computer, Inc.
 00:10:00	CABLE TELEVISION
 00:10:01	MCK COMMUNICATIONS
@@ -3415,7 +3491,7 @@
 00:50:76	IBM
 00:50:77	PROLIFIC TECHNOLOGY, INC.
 00:50:78	MEGATON HOUSE, LTD.
-00:50:79	IEEE STANDARDS
+00:50:79	PRIVATE
 00:50:7A	XPEED, INC.
 00:50:7B	MERLOT COMMUNICATIONS
 00:50:7C	VIDEOCON AG
@@ -4398,7 +4474,7 @@
 00:A0:51	ANGIA COMMUNICATIONS. INC.
 00:A0:52	STANILITE ELECTRONICS PTY. LTD
 00:A0:53	COMPACT DEVICES, INC.
-00:A0:54	GASSAN SALMAN
+00:A0:54	PRIVATE
 00:A0:55	LINKTECH, INC.
 00:A0:56	MICROPROSS
 00:A0:57	ELSA
@@ -4447,9 +4523,9 @@
 00:A0:82	NKT ELEKTRONIK A/S
 00:A0:83	Intel
 00:A0:84	DATAPLEX PTY. LTD.
-00:A0:85	IEEE STANDARDS DEPARTMENT
+00:A0:85	PRIVATE
 00:A0:86	AMBER WAVE SYSTEMS, INC.
-00:A0:87	MITEL SEMICONDUCTOR, LTD.
+00:A0:87	Zarlink Semiconductor Ltd.
 00:A0:88	ESSENTIAL COMMUNICATIONS
 00:A0:89	XPOINT TECHNOLOGIES, INC.
 00:A0:8A	BROOKTROUT TECHNOLOGY, INC.
@@ -5570,7 +5646,7 @@
 10:00:D4	DEC
 10:00:E0	Apple A/UX			(modified addresses for licensing)
 10:00:E8	NATIONAL SEMICONDUCTOR
-11:00:AA	IEEE STANDARDS OFFICE
+11:00:AA	PRIVATE
 2E:2E:2E	LAA (Locally Administered Address) for Meditech Systems
 3C:00:00	3Com
 40:00:03	Net Ware (?)
@@ -5593,7 +5669,7 @@ AA:00:01	DEC				obsolete
 AA:00:02	DEC				obsolete
 AA:00:03	DEC
 AA:00:04	DEC
-AC:DE:48	IEEE Registration Authority
+AC:DE:48	PRIVATE
 C0:00:00	Western Digital (may be reversed 00 00 C0?)
 E2:0C:0F	Kingston Technologies
 EC:10:00	Enance Source Co., Ltd.	PC clones(?)
