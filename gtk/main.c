@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.52 1999/11/29 04:30:21 guy Exp $
+ * $Id: main.c,v 1.53 1999/11/29 08:28:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -796,6 +796,8 @@ void expand_all_cb(GtkWidget *widget, gpointer data) {
 
 void
 file_quit_cmd_cb (GtkWidget *widget, gpointer data) {
+  /* If we have a save file, and it's a temporary file (i.e., the user
+     hasn't explicitly saved it), delete it. */
   if (cf.save_file && !cf.user_saved) {
 	unlink(cf.save_file);
   }
