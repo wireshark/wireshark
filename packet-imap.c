@@ -2,7 +2,7 @@
  * Routines for imap packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-imap.c,v 1.22 2002/08/28 21:00:17 jmayer Exp $
+ * $Id: packet-imap.c,v 1.23 2003/06/11 20:03:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,6 +41,7 @@ static int hf_imap_response = -1;
 static int hf_imap_request = -1;
 
 static gint ett_imap = -1;
+static gint ett_imap_reqresp = -1;
 
 #define TCP_PORT_IMAP			143
 
@@ -48,7 +49,8 @@ static void
 dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         gboolean        is_request;
-        proto_tree      *imap_tree, *ti;
+        proto_tree      *imap_tree, *reqresp_tree;
+        proto_item      *ti;
 	gint		offset = 0;
 	const guchar	*line;
 	gint		next_offset;
@@ -98,6 +100,14 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		/*
+		 * Put the line into the protocol tree.
+		 */
+		ti = proto_tree_add_text(imap_tree, tvb, offset,
+		    next_offset - offset, "%s",
+		    tvb_format_text(tvb, offset, next_offset - offset));
+		reqresp_tree = proto_item_add_subtree(ti, ett_imap_reqresp);
+
+		/*
 		 * Show the first line as tags + requests or replies.
 		 */
 
@@ -108,11 +118,11 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tokenlen = get_token_len(line, line + linelen, &next_token);
 		if (tokenlen != 0) {
 			if (is_request) {
-				proto_tree_add_text(imap_tree, tvb, offset,
+				proto_tree_add_text(reqresp_tree, tvb, offset,
 				    tokenlen, "Request Tag: %s",
 				    format_text(line, tokenlen));
 			} else {
-				proto_tree_add_text(imap_tree, tvb, offset,
+				proto_tree_add_text(reqresp_tree, tvb, offset,
 				    tokenlen, "Response Tag: %s",
 				    format_text(line, tokenlen));
 			}
@@ -126,11 +136,11 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		if (linelen != 0) {
 			if (is_request) {
-				proto_tree_add_text(imap_tree, tvb, offset,
+				proto_tree_add_text(reqresp_tree, tvb, offset,
 				    linelen, "Request: %s",
 				    format_text(line, linelen));
 			} else {
-				proto_tree_add_text(imap_tree, tvb, offset,
+				proto_tree_add_text(reqresp_tree, tvb, offset,
 				    linelen, "Response: %s",
 				    format_text(line, linelen));
 			}
@@ -163,6 +173,7 @@ proto_register_imap(void)
   };
   static gint *ett[] = {
     &ett_imap,
+    &ett_imap_reqresp,
   };
 
   proto_imap = proto_register_protocol("Internet Message Access Protocol",
