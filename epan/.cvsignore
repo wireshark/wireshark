@@ -1,4 +1,6 @@
 *.lib
+*.la
+*.lo
 *.obj
 *.pdb
 .deps

@@ -1,9 +1,12 @@
 *.dll
 *.exp
 *.lib
+*.la
+*.lo
 *.obj
 *.pdb
 .deps
+.libs
 Makefile
 Makefile.in
 aclocal.m4
