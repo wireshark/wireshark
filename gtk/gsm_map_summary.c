@@ -39,6 +39,8 @@
 #include "epan/epan.h"
 #include "epan/value_string.h"
 #include "tap_menu.h"
+#include "globals.h"
+#include "file.h"
 #include "summary.h"
 #include "dlg_utils.h"
 #include "ui_util.h"
@@ -80,7 +82,7 @@ gsm_map_stat_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   double	tot_invokes_size, tot_rr_size;
 
   /* initialize the tally */
-  summary_fill_in(&summary);
+  summary_fill_in(&cfile, &summary);
 
   /* initial compututations */
   seconds = summary.stop_time - summary.start_time;

@@ -50,7 +50,7 @@ typedef struct _summary_tally {
     const char	*cfilter;	/* capture filter */
 } summary_tally;
 
-void summary_fill_in(summary_tally *st);
+void summary_fill_in(capture_file *cf, summary_tally *st);
 
 #endif /* summary.h */
 

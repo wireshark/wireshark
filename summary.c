@@ -27,7 +27,7 @@
 #endif
 
 #include <epan/packet.h>
-#include "globals.h"
+#include "cfile.h"
 #include "summary.h"
 
 
@@ -72,7 +72,7 @@ tally_frame_data(frame_data *cur_frame, summary_tally *sum_tally)
 }
 
 void
-summary_fill_in(summary_tally *st)
+summary_fill_in(capture_file *cf, summary_tally *st)
 {
 
   frame_data    *first_frame, *cur_frame;
@@ -89,33 +89,33 @@ summary_fill_in(summary_tally *st)
   st->marked_count = 0;
 
   /* initialize the tally */
-  if (cfile.plist != NULL) {
-    first_frame = cfile.plist;
+  if (cf->plist != NULL) {
+    first_frame = cf->plist;
     st->start_time 	= secs_usecs(first_frame->abs_secs,first_frame->abs_usecs);
     st->stop_time = secs_usecs(first_frame->abs_secs,first_frame->abs_usecs);
-    cur_glist = cfile.plist;
+    cur_glist = cf->plist;
 
-    for (i = 0; i < cfile.count; i++) {
+    for (i = 0; i < cf->count; i++) {
       cur_frame = cur_glist;
       tally_frame_data(cur_frame, st);
       cur_glist = cur_glist->next;
     }
   }
 
-  st->filename = cfile.filename;
-  st->file_length = cfile.f_len;
-  st->encap_type = cfile.cd_t;
-  st->has_snap = cfile.has_snap;
-  st->snap = cfile.snap;
-  st->elapsed_time = secs_usecs(cfile.esec, cfile.eusec);
-  st->packet_count = cfile.count;
-  st->drops_known = cfile.drops_known;
-  st->drops = cfile.drops;
-  st->iface = cfile.iface;
-  st->dfilter = cfile.dfilter;
+  st->filename = cf->filename;
+  st->file_length = cf->f_len;
+  st->encap_type = cf->cd_t;
+  st->has_snap = cf->has_snap;
+  st->snap = cf->snap;
+  st->elapsed_time = secs_usecs(cf->esec, cf->eusec);
+  st->packet_count = cf->count;
+  st->drops_known = cf->drops_known;
+  st->drops = cf->drops;
+  st->iface = cf->iface;
+  st->dfilter = cf->dfilter;
 
 #ifdef HAVE_LIBPCAP
-  st->cfilter = cfile.cfilter;
+  st->cfilter = cf->cfilter;
 #else
   st->cfilter = NULL;
 #endif

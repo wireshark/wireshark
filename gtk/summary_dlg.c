@@ -33,6 +33,8 @@
 #include <wtap.h>
 #include <time.h>
 
+#include "globals.h"
+#include "file.h"
 #include "summary.h"
 #include "summary_dlg.h"
 #include "dlg_utils.h"
@@ -108,7 +110,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   unsigned int  elapsed_time;
 
   /* initial computations */
-  summary_fill_in(&summary);
+  summary_fill_in(&cfile, &summary);
   seconds = summary.stop_time - summary.start_time;
   disp_seconds = summary.filtered_stop - summary.filtered_start;
 

@@ -40,6 +40,8 @@
 #include "epan/epan.h"
 #include "epan/value_string.h"
 #include "tap_menu.h"
+#include "globals.h"
+#include "file.h"
 #include "summary.h"
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
@@ -251,7 +253,7 @@ mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   int			i;
 
   /* initialize the tally */
-  summary_fill_in(&summary);
+  summary_fill_in(&cfile, &summary);
 
   /* initial compututations */
   seconds = summary.stop_time - summary.start_time;
