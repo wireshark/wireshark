@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.27 2004/05/19 22:17:08 ulfl Exp $
+ * $Id: dlg_utils.c,v 1.28 2004/05/20 12:47:28 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -286,12 +286,14 @@ dlg_button_row_new(gchar *stock_id_first, ...)
 }
 
 
+#if GTK_MAJOR_VERSION >= 2
 /* this is called, when a dialog was closed */
 void on_dialog_destroyed(GtkWidget *dialog, gpointer data)
 {
     /* bring main window back to front (workaround for a bug in win32 GTK2.x) */
     gtk_window_present(GTK_WINDOW(data));
 }
+#endif
 
 
 /* Create a dialog box window that belongs to Ethereal's main window. */
