@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.82 2000/09/11 16:16:10 gram Exp $
+ * $Id: packet-tcp.c,v 1.83 2000/09/14 21:58:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -70,6 +70,8 @@ static int hf_tcp_seq = -1;
 static int hf_tcp_ack = -1;
 static int hf_tcp_hdr_len = -1;
 static int hf_tcp_flags = -1;
+static int hf_tcp_flags_cwr = -1;
+static int hf_tcp_flags_ecn = -1;
 static int hf_tcp_flags_urg = -1;
 static int hf_tcp_flags_ack = -1;
 static int hf_tcp_flags_push = -1;
@@ -107,6 +109,8 @@ typedef struct _e_tcphdr {
 #define TH_PUSH 0x08
 #define TH_ACK  0x10
 #define TH_URG  0x20
+#define TH_ECN  0x40
+#define TH_CWR  0x80
   guint16 th_win;
   guint16 th_sum;
   guint16 th_urp;
@@ -405,7 +409,7 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_tree *tcp_tree = NULL, *field_tree = NULL;
   proto_item *ti, *tf;
   gchar      flags[64] = "<None>";
-  gchar     *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG"};
+  gchar     *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR" };
   gint       fpos = 0, i;
   guint      bpos;
   guint      hlen;
@@ -432,7 +436,7 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   info_len = 0;
 
   if (check_col(fd, COL_PROTOCOL) || tree) {  
-    for (i = 0; i < 6; i++) {
+    for (i = 0; i < 8; i++) {
       bpos = 1 << i;
       if (th.th_flags & bpos) {
         if (fpos) {
@@ -486,6 +490,8 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     tf = proto_tree_add_uint_format(tcp_tree, hf_tcp_flags, NullTVB, offset + 13, 1,
 	th.th_flags, "Flags: 0x%04x (%s)", th.th_flags, flags);
     field_tree = proto_item_add_subtree(tf, ett_tcp_flags);
+    proto_tree_add_boolean(field_tree, hf_tcp_flags_cwr, NullTVB, offset + 13, 1, th.th_flags);
+    proto_tree_add_boolean(field_tree, hf_tcp_flags_ecn, NullTVB, offset + 13, 1, th.th_flags);
     proto_tree_add_boolean(field_tree, hf_tcp_flags_urg, NullTVB, offset + 13, 1, th.th_flags);
     proto_tree_add_boolean(field_tree, hf_tcp_flags_ack, NullTVB, offset + 13, 1, th.th_flags);
     proto_tree_add_boolean(field_tree, hf_tcp_flags_push, NullTVB, offset + 13, 1, th.th_flags);
@@ -590,6 +596,14 @@ proto_register_tcp(void)
 
 		{ &hf_tcp_flags,
 		{ "Flags",			"tcp.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
+			"" }},
+
+		{ &hf_tcp_flags_cwr,
+		{ "Congestion Window Reduced (CWR)",			"tcp.flags.cwr", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_CWR,
+			"" }},
+
+		{ &hf_tcp_flags_ecn,
+		{ "ECN-Echo",			"tcp.flags.ecn", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_ECN,
 			"" }},
 
 		{ &hf_tcp_flags_urg,
