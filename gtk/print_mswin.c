@@ -1,7 +1,7 @@
 /* print_mswin.c
  * Printing support for MSWindows
  *
- * $Id: print_mswin.c,v 1.5 2002/09/09 20:16:11 guy Exp $
+ * $Id: print_mswin.c,v 1.6 2003/10/07 03:09:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,7 +30,8 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "windows.h"
+#include <windows.h>
+#include <commdlg.h>
 
 #ifdef __WIN32__
 #include <winspool.h>
