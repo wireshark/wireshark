@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.75 2003/05/24 19:51:48 gerald Exp $
+ * $Id: packet-clnp.c,v 1.76 2003/05/28 22:58:46 guy Exp $
  * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -71,10 +71,20 @@ static int hf_clnp_reassembled_in = -1;
 
 static int  proto_cotp         = -1;
 static gint ett_cotp           = -1;
+static gint ett_cotp_segments  = -1;
+static gint ett_cotp_segment   = -1;
 
-static int hf_cotp_srcref = -1;
-static int hf_cotp_destref = -1;
-static int hf_cotp_type = -1;
+static int hf_cotp_srcref      = -1;
+static int hf_cotp_destref     = -1;
+static int hf_cotp_type        = -1;
+static int hf_cotp_segments    = -1;
+static int hf_cotp_segment     = -1;
+static int hf_cotp_segment_overlap = -1;
+static int hf_cotp_segment_overlap_conflict = -1;
+static int hf_cotp_segment_multiple_tails = -1;
+static int hf_cotp_segment_too_long_segment = -1;
+static int hf_cotp_segment_error = -1;
+static int hf_cotp_reassembled_in = -1;
 
 static int  proto_cltp         = -1;
 static gint ett_cltp           = -1;
@@ -92,6 +102,20 @@ static const fragment_items clnp_frag_items = {
 	&hf_clnp_segment_too_long_segment,
 	&hf_clnp_segment_error,
 	&hf_clnp_reassembled_in,
+	"segments"
+};
+
+static const fragment_items cotp_frag_items = {
+	&ett_cotp_segment,
+	&ett_cotp_segments,
+	&hf_cotp_segments,
+	&hf_cotp_segment,
+	&hf_cotp_segment_overlap,
+	&hf_cotp_segment_overlap_conflict,
+	&hf_cotp_segment_multiple_tails,
+	&hf_cotp_segment_too_long_segment,
+	&hf_cotp_segment_error,
+	&hf_cotp_reassembled_in,
 	"segments"
 };
 
@@ -315,10 +339,17 @@ static heur_dissector_list_t clnp_heur_subdissector_list;
 static GHashTable *clnp_segment_table = NULL;
 static GHashTable *clnp_reassembled_table = NULL;
 
+/*
+ * Reassembly of COTP.
+ */
+static GHashTable *cotp_segment_table = NULL;
+static GHashTable *cotp_reassembled_table = NULL;
+
 /* options */
 static guint tp_nsap_selector = NSEL_TP;
 static gboolean always_decode_transport = FALSE;
 static gboolean clnp_reassemble = FALSE;
+static gboolean cotp_reassemble = FALSE;
 
 /* function definitions */
 
@@ -717,6 +748,8 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   reason  = tvb_get_guint8(tvb, offset + P_REASON_IN_DR);
 
+  pinfo->srcport = src_ref;
+  pinfo->destport = dst_ref;
   switch(reason) {
     case (128+0): str = "Normal Disconnect"; break;
     case (128+1): str = "Remote transport entity congestion"; break;
@@ -777,7 +810,10 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   guint16  dst_ref;
   guint    tpdu_nr;
   guint    fragment = 0;
+  guint32  fragment_length = 0;
   tvbuff_t *next_tvb;
+  tvbuff_t *reassembled_tvb = NULL;
+  fragment_data *fd_head;
 
   /* VP_CHECKSUM is the only parameter allowed in the variable part.
      (This means we may misdissect this if the packet is bad and
@@ -833,6 +869,9 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
       break;
   }
 
+  pinfo->destport = dst_ref;
+  pinfo->srcport = 0;
+  pinfo->fragmented = fragment;
   if (check_col(pinfo->cinfo, COL_INFO)) {
     if (is_class_234) {
       col_append_fstr(pinfo->cinfo, COL_INFO, "DT TPDU (%u) dst-ref: 0x%04x %s",
@@ -893,22 +932,64 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   offset += li;
 
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-  if (uses_inactive_subset){
-	if (dissector_try_heuristic(cotp_is_heur_subdissector_list, next_tvb,
-					pinfo, tree)) {
-		*subdissector_found = TRUE;
-	} else {
-	  /* Fill in other Dissectors using inactive subset here */
-	  call_dissector(data_handle,next_tvb, pinfo, tree);
-	}
+  if (cotp_reassemble) {
+    fragment_length = tvb_length(next_tvb);
+    fd_head = fragment_add_seq_check(next_tvb, 0, pinfo, dst_ref,
+				     cotp_segment_table, 
+				     cotp_reassembled_table,
+				     tpdu_nr, 
+				     fragment_length, fragment);
+    if (fd_head) {
+      if (fd_head->next) {
+	/* This is the last packet */
+	reassembled_tvb = tvb_new_real_data(fd_head->data,
+					    fd_head->len,
+					    fd_head->len);
+	tvb_set_child_real_data_tvbuff(next_tvb, reassembled_tvb);
+	add_new_data_source(pinfo, reassembled_tvb, "Reassembled COTP");
+	
+	show_fragment_seq_tree(fd_head,
+			       &cotp_frag_items,
+			       cotp_tree,
+			       pinfo, reassembled_tvb);
+	pinfo->fragmented = fragment;
+	next_tvb = reassembled_tvb;
+      }
+    }
+    if (fragment && reassembled_tvb == NULL) {
+      proto_tree_add_text(cotp_tree, tvb, offset, -1,
+			  "User data (%u byte%s)", fragment_length,
+			  plurality(fragment_length, "", "s"));
+    } 
+
+  } 
+
+  if (uses_inactive_subset) {
+    if (dissector_try_heuristic(cotp_is_heur_subdissector_list, next_tvb,
+				pinfo, tree)) {
+      *subdissector_found = TRUE;
+    } else {
+      /* Fill in other Dissectors using inactive subset here */
+      call_dissector(data_handle,next_tvb, pinfo, tree);
+    }
   } else {
-        if (dissector_try_heuristic(cotp_heur_subdissector_list, next_tvb,
-				    pinfo, tree)) {
-		*subdissector_found = TRUE;
-	} else {
-		call_dissector(data_handle,next_tvb, pinfo, tree);
-	}
-  }
+    /*
+     * We dissect payload if one of the following is TRUE: 
+     *
+     * - Reassembly option for COTP in preferences is unchecked 
+     * - Reassembly option is checked and this packet is the last fragment
+     */
+    if ( (!cotp_reassemble) ||
+	 ((cotp_reassemble) && (!fragment))) {
+      if (dissector_try_heuristic(cotp_heur_subdissector_list, next_tvb,
+				  pinfo, tree)) {
+        *subdissector_found = TRUE;
+      } else {
+        call_dissector(data_handle,next_tvb, pinfo, tree);
+      }
+    }
+  }   
+
   offset += tvb_length_remaining(tvb, offset);
      /* we dissected all of the containing PDU */
 
@@ -968,6 +1049,9 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   } /* li */
 
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
+
+  pinfo->destport = dst_ref;
+  pinfo->srcport = 0;
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO, "ED TPDU (%u) dst-ref: 0x%04x",
 		 tpdu_nr, dst_ref);
@@ -1046,6 +1130,9 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   }
 
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
+
+  pinfo->destport = dst_ref;
+  pinfo->srcport = 0;
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO, "RJ TPDU (%u) dst-ref: 0x%04x",
 		 tpdu_nr, dst_ref);
@@ -1099,6 +1186,8 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     return -1;
 
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
+  pinfo->srcport = src_ref;
+  pinfo->destport = dst_ref;
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO,
 		 "%s TPDU src-ref: 0x%04x dst-ref: 0x%04x",
@@ -1174,6 +1263,8 @@ static int ositp_decode_DC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
 
+  pinfo->srcport = src_ref;
+  pinfo->destport = dst_ref;
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO,
 		 "DC TPDU src-ref: 0x%04x dst-ref: 0x%04x",
@@ -1230,6 +1321,8 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
     tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
 
+    pinfo->srcport = 0;
+    pinfo->destport = dst_ref;
     if (check_col(pinfo->cinfo, COL_INFO))
       col_append_fstr(pinfo->cinfo, COL_INFO, "AK TPDU (%u) dst-ref: 0x%04x",
 		   tpdu_nr, dst_ref);
@@ -1367,6 +1460,8 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   } /* li */
 
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
+  pinfo->srcport = 0;
+  pinfo->destport = dst_ref;
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO,
 		 "EA TPDU (%u) dst-ref: 0x%04x", tpdu_nr, dst_ref);
@@ -1446,6 +1541,8 @@ static int ositp_decode_ER(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   }
 
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
+  pinfo->srcport = 0;
+  pinfo->destport = dst_ref;
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_fstr(pinfo->cinfo, COL_INFO, "ER TPDU dst-ref: 0x%04x", dst_ref);
 
@@ -2003,6 +2100,13 @@ clnp_reassemble_init(void)
   reassembled_table_init(&clnp_reassembled_table);
 }
 
+static void
+cotp_reassemble_init(void)
+{
+  fragment_table_init(&cotp_segment_table);
+  reassembled_table_init(&cotp_reassembled_table);
+}
+
 void proto_register_clnp(void)
 {
   static hf_register_info hf[] = {
@@ -2088,6 +2192,7 @@ void proto_register_clnp(void)
   register_dissector("clnp", dissect_clnp, proto_clnp);
   register_heur_dissector_list("clnp", &clnp_heur_subdissector_list);  
   register_init_routine(clnp_reassemble_init);
+  register_init_routine(cotp_reassemble_init);
 
   clnp_module = prefs_register_protocol(proto_clnp, NULL);
   prefs_register_uint_preference(clnp_module, "tp_nsap_selector",
@@ -2127,14 +2232,49 @@ void proto_register_cotp(void)
     { &hf_cotp_type,
       { "COTP PDU Type", "cotp.type", FT_UINT8, BASE_HEX, VALS(cotp_tpdu_type_abbrev_vals), 0x0,
         "COTP PDU Type", HFILL}},
+    { &hf_cotp_segment_overlap,
+      { "Segment overlap", "cotp.segment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	"Segment overlaps with other segments", HFILL }},
+    { &hf_cotp_segment_overlap_conflict,
+      { "Conflicting data in segment overlap", "cotp.segment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	"Overlapping segments contained conflicting data", HFILL }},
+    { &hf_cotp_segment_multiple_tails,
+      { "Multiple tail segments found", "cotp.segment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	"Several tails were found when reassembling the packet", HFILL }},
+    { &hf_cotp_segment_too_long_segment,
+      { "Segment too long", "cotp.segment.toolongsegment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	"Segment contained data past end of packet", HFILL }},
+    { &hf_cotp_segment_error,
+      { "Reassembly error", "cotp.segment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+	"Reassembly error due to illegal segments", HFILL }},
+    { &hf_cotp_segment,
+      { "COTP Segment", "cotp.segment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+	"COTP Segment", HFILL }},
+    { &hf_cotp_segments,
+      { "COTP Segments", "cotp.segments", FT_NONE, BASE_DEC, NULL, 0x0,
+	"COTP Segments", HFILL }},
+    { &hf_cotp_reassembled_in,
+      { "Reassembled COTP in frame", "cotp.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+	"This COTP packet is reassembled in this frame", HFILL }},
+
   };
   static gint *ett[] = {
 	&ett_cotp,
+	&ett_cotp_segment,
+	&ett_cotp_segments,
   };
+
+  module_t *cotp_module;
 
   proto_cotp = proto_register_protocol(PROTO_STRING_COTP, "COTP", "cotp");
   proto_register_field_array(proto_cotp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  cotp_module = prefs_register_protocol(proto_cotp, NULL);
+
+  prefs_register_bool_preference(cotp_module, "reassemble",
+	 "Reassemble segmented COTP datagrams",
+	 "Whether segmented COTP datagrams should be reassembled",
+	&cotp_reassemble);
 
   /* subdissector code in inactive subset */
   register_heur_dissector_list("cotp_is", &cotp_is_heur_subdissector_list);
