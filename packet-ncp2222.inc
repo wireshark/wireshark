@@ -11,7 +11,7 @@
  * Portions Copyright (c) Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp2222.inc,v 1.58 2003/08/25 22:12:04 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.59 2003/08/28 17:26:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4099,7 +4099,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
 void
 nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequence, guint16 type, proto_tree *tree)
 {
-    int                 i, len=0, frag_count=0;
+    int                 i, frag_count=0;
+    guint		len=0;
     guint32             tid = 1;
     tvbuff_t            *frag_tvb = NULL;
     fragment_data       *fd_head;
@@ -4193,8 +4194,8 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
          *
          */
         tid = (pinfo->srcport+pinfo->destport);
-        len = tvb_reported_length_remaining(tvb, 0);
-        if (tvb_bytes_exist(tvb, 0, len))
+        len = tvb_reported_length(tvb);
+        if (len > 0 && tvb_bytes_exist(tvb, 0, len))
         {
             if (frags[frag_count].nds_length > len)
             {
