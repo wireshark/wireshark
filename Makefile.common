@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.19 2004/02/22 08:30:41 ulfl Exp $
+# $Id: Makefile.common,v 1.20 2004/02/22 09:07:38 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -448,7 +448,7 @@ DISSECTOR_SRC =	\
 	packet-zebra.c
 
 # corresponding headers
-DISSECTOR_HEADERS =	\
+DISSECTOR_INCLUDES =	\
 	packet-acse.h	\
 	packet-afp.h	\
 	packet-afs-defs.h	\
@@ -643,7 +643,7 @@ DISSECTOR_SUPPORT_SRC =	\
 	xmlstub.c
 
 # corresponding headers
-DISSECTOR_SUPPORT_HEADERS =	\
+DISSECTOR_SUPPORT_INCLUDES =	\
 	adler32.h	\
 	afn.h	\
 	aftypes.h	\
@@ -688,7 +688,7 @@ DISSECTOR_SUPPORT_HEADERS =	\
 	xmlstub.h
 
 # headers needed for the generation process
-BUILT_HEADERS =	\
+BUILT_INCLUDES =	\
 	cvsversion.h	\
 	x11-declarations.h	\
 	x11-register-info.h
@@ -710,9 +710,9 @@ ETHEREAL_COMMON_SRC =	\
 	version_info.c
 
 # corresponding headers
-ETHEREAL_COMMON_HEADERS =	\
-	$(DISSECTOR_SUPPORT_HEADERS)	\
-	$(BUILT_HEADERS)	\
+ETHEREAL_COMMON_INCLUDES =	\
+	$(DISSECTOR_SUPPORT_INCLUDES)	\
+	$(BUILT_INCLUDES)	\
 	capture_stop_conditions.h	\
 	cfile.h	\
 	color.h	\
@@ -759,7 +759,7 @@ EXTRA_ethereal_SOURCES =	\
 	strptime.c
 
 # corresponding headers
-EXTRA_ethereal_HEADERS =	\
+EXTRA_ethereal_INCLUDES =	\
 	snprintf.h	\
 	snprintf-imp.h	\
 	strerror.h	\
@@ -779,7 +779,7 @@ ethereal_SOURCES =	\
 	summary.c
 
 # corresponding headers
-ethereal_HEADERS =	\
+ethereal_INCLUDES =	\
 	alert_box.h	\
 	capture.h	\
 	filters.h	\
@@ -830,10 +830,10 @@ randpkt_SOURCES = \
 
 # this target needed for distribution only
 noinst_HEADERS =	\
-	$(DISSECTOR_HEADERS) \
-	$(DISSECTOR_SUPPORT_HEADERS) \
-	$(BUILT_HEADERS) \
-	$(ETHEREAL_COMMON_HEADERS) \
-	$(ethereal_HEADERS) \
-	$(EXTRA_ethereal_HEADERS)
+	$(DISSECTOR_INCLUDES) \
+	$(DISSECTOR_SUPPORT_INCLUDES) \
+	$(BUILT_INCLUDES) \
+	$(ETHEREAL_COMMON_INCLUDES) \
+	$(ethereal_INCLUDES) \
+	$(EXTRA_ethereal_INCLUDES)
 
