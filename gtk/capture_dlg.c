@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.31 2000/08/23 06:55:12 guy Exp $
+ * $Id: capture_dlg.c,v 1.32 2000/08/23 20:55:44 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -101,10 +101,10 @@ void
 capture_prep_cb(GtkWidget *w, gpointer d)
 {
   GtkWidget     *if_cb, *if_lb,
-                *count_lb, *count_cb, *main_vb, *if_hb, *count_hb,
-                *filter_hb, *filter_bt, *filter_te,
-                *file_hb, *file_bt, *file_te,
-                *caplen_hb,
+                *count_lb, *count_cb, *main_vb,
+                *filter_bt, *filter_te,
+                *file_bt, *file_te,
+                *caplen_hb, *table,
                 *bbox, *ok_bt, *cancel_bt, *snap_lb,
                 *snap_sb, *sync_cb, *auto_scroll_cb, *resolv_cb;
   GtkAccelGroup *accel_group;
@@ -136,19 +136,22 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   accel_group = gtk_accel_group_new();
   gtk_window_add_accel_group(GTK_WINDOW(cap_open_w), accel_group);
   
-  /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(cap_open_w), main_vb);
   gtk_widget_show(main_vb);
   
+  /* Table : container of the first 4 rows */
+  table = gtk_table_new (4, 2, FALSE);
+  gtk_table_set_row_spacings(GTK_TABLE (table), 5);
+  gtk_table_set_col_spacings(GTK_TABLE (table), 5);
+  gtk_container_add(GTK_CONTAINER(main_vb), table);
+  gtk_widget_show(table);
+
   /* Interface row */
-  if_hb = gtk_hbox_new(FALSE, 3);
-  gtk_container_add(GTK_CONTAINER(main_vb), if_hb);
-  gtk_widget_show(if_hb);
   
   if_lb = gtk_label_new("Interface:");
-  gtk_box_pack_start(GTK_BOX(if_hb), if_lb, FALSE, FALSE, 0);
+  gtk_table_attach_defaults(GTK_TABLE(table), if_lb, 0, 1, 0, 1);
   gtk_widget_show(if_lb);
   
   if_cb = gtk_combo_new();
@@ -158,18 +161,15 @@ capture_prep_cb(GtkWidget *w, gpointer d)
     gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry), cfile.iface);
   else if (if_list)
     gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry), if_list->data);
-  gtk_box_pack_start(GTK_BOX(if_hb), if_cb, FALSE, FALSE, 0);
+  gtk_table_attach_defaults(GTK_TABLE(table), if_cb, 1, 2, 0, 1);
   gtk_widget_show(if_cb);
   
   free_interface_list(if_list);
 
   /* Count row */
-  count_hb = gtk_hbox_new(FALSE, 3);
-  gtk_container_add(GTK_CONTAINER(main_vb), count_hb);
-  gtk_widget_show(count_hb);
   
   count_lb = gtk_label_new("Count:");
-  gtk_box_pack_start(GTK_BOX(count_hb), count_lb, FALSE, FALSE, 0);
+  gtk_table_attach_defaults(GTK_TABLE(table), count_lb, 0, 1, 1, 2);
   gtk_widget_show(count_lb);
   
   count_list = g_list_append(count_list, count_item1);
@@ -180,40 +180,34 @@ capture_prep_cb(GtkWidget *w, gpointer d)
 
   count_cb = gtk_combo_new();
   gtk_combo_set_popdown_strings(GTK_COMBO(count_cb), count_list);
-  gtk_box_pack_start(GTK_BOX(count_hb), count_cb, FALSE, FALSE, 0);
+  gtk_table_attach_defaults(GTK_TABLE(table), count_cb, 1, 2, 1, 2);
   gtk_widget_show(count_cb);
 
   while (count_list)
     count_list = g_list_remove_link(count_list, count_list);
 
   /* Filter row */
-  filter_hb = gtk_hbox_new(FALSE, 3);
-  gtk_container_add(GTK_CONTAINER(main_vb), filter_hb);
-  gtk_widget_show(filter_hb);
   
   filter_bt = gtk_button_new_with_label("Filter:");
   gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
     GTK_SIGNAL_FUNC(filter_browse_cb), NULL);
-  gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, TRUE, 0);
+  gtk_table_attach_defaults(GTK_TABLE(table), filter_bt, 0, 1, 2, 3);
   gtk_widget_show(filter_bt);
   
   filter_te = gtk_entry_new();
   if (cfile.cfilter) gtk_entry_set_text(GTK_ENTRY(filter_te), cfile.cfilter);
   gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
-  gtk_box_pack_start(GTK_BOX(filter_hb), filter_te, TRUE, TRUE, 0);
+  gtk_table_attach_defaults(GTK_TABLE(table), filter_te, 1, 2, 2, 3);
   gtk_widget_show(filter_te);
   
   /* File row */
-  file_hb = gtk_hbox_new(FALSE, 1);
-  gtk_container_add(GTK_CONTAINER(main_vb), file_hb);
-  gtk_widget_show(file_hb);
   
   file_bt = gtk_button_new_with_label("File:");
-  gtk_box_pack_start(GTK_BOX(file_hb), file_bt, FALSE, FALSE, 3);
+  gtk_table_attach_defaults(GTK_TABLE(table), file_bt, 0, 1, 3, 4);
   gtk_widget_show(file_bt);
   
   file_te = gtk_entry_new();
-  gtk_box_pack_start(GTK_BOX(file_hb), file_te, TRUE, TRUE, 3);
+  gtk_table_attach_defaults(GTK_TABLE(table), file_te, 1, 2, 3, 4);
   gtk_widget_show(file_te);
 
   gtk_signal_connect(GTK_OBJECT(file_bt), "clicked",
