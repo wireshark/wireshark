@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.118 2001/04/11 23:49:44 guy Exp $
+# $Id: configure.in,v 1.119 2001/04/11 23:52:50 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -253,7 +253,7 @@ AC_SUBST(dftest_bin)
 # Enable/disable randpkt
 
 AC_ARG_ENABLE(randpkt,
-[  --enable-randpkt         build randpkt.  [default=no]],,enable_randpkt=no)
+[  --enable-randpkt        build randpkt.  [default=no]],,enable_randpkt=no)
 
 if test "x$enable_randpkt" = "xyes" ; then
 	randpkt_bin="randpkt"
@@ -474,11 +474,14 @@ AC_SUBST(ethereal_SUBDIRS)
 dnl check for plugins directory - stolen from Amanda's configure.in
 PLUGIN_DIR="$libdir/ethereal/plugins/$VERSION"
 AC_ARG_WITH(plugindir,
-  [  --with-plugindir=DIR   install plugins in DIR],
+  [  --with-plugindir=DIR    install plugins in DIR],
   [
   case "$withval" in
-  "" | y | ye | yes | n | no)
+  "" | y | ye | yes )
     AC_MSG_ERROR([*** You must supply an argument to the --with-plugindir option.])
+  ;;
+  n | no)
+    AC_MSG_ERROR([*** The --without-plugindir option is not supported.])
   ;;
   *) PLUGIN_DIR="$withval"
   esac
