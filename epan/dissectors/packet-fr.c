@@ -48,6 +48,11 @@
 #include <epan/prefs.h>
 #include "packet-llc.h"
 #include "packet-chdlc.h"
+#include "packet-eth.h"
+#include "packet-ip.h"
+#include "packet-ipv6.h"
+#include "packet-ppp.h"
+#include "packet-fr.h"
 #include <epan/xdlc.h>
 #include "etypes.h"
 #include "oui.h"
@@ -199,6 +204,200 @@ static const xdlc_cf_items fr_cf_items_ext = {
 	&hf_fr_ftype_i,
 	&hf_fr_ftype_s_u_ext
 };
+
+void
+capture_fr(const guchar *pd, int offset, int len, packet_counts *ld)
+{
+  guint8  fr_octet;
+  guint32 address;
+  guint8  fr_ctrl;
+  guint8  fr_nlpid;
+
+  /*
+   * OK, fetch the address field - keep going until we get an EA bit.
+   */
+  if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
+    ld->other++;
+    return;
+  }
+  fr_octet = pd[offset];
+  if (fr_octet & FRELAY_EA) {
+    /*
+     * Bogus!  There should be at least 2 octets.
+     * XXX - is this FRF.12 frame relay fragmentation?  If so, can
+     * we handle that?
+     */
+    ld->other++;
+    return;
+  }
+  /*
+   * The first octet contains the upper 6 bits of the DLCI, as well
+   * as the C/R bit.
+   */
+  address = (fr_octet & FRELAY_UPPER_DLCI) >> 2;
+  offset++;
+
+  /*
+   * The second octet contains 4 more bits of DLCI, as well as FECN,
+   * BECN, and DE.
+   */
+  if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
+    ld->other++;
+    return;
+  }
+  fr_octet = pd[offset];
+  address = (address << 4) | ((fr_octet & FRELAY_SECOND_DLCI) >> 4);
+  offset++;
+
+  if (!(fr_octet & FRELAY_EA)) {
+    /*
+     * We have 3 or more address octets.
+     *
+     * The third octet contains 7 more bits of DLCI if EA isn't set,
+     * and lower DLCI or DL-CORE control plus the DLCI or DL-CORE
+     * control indicator flag if EA is set.
+     */
+    if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
+      ld->other++;
+      return;
+    }
+    fr_octet = pd[offset];
+    if (!(fr_octet & FRELAY_EA)) {
+      /*
+       * 7 more bits of DLCI.
+       */
+      address = (address << 7) | ((fr_octet & FRELAY_THIRD_DLCI) >> 1);
+      offset++;
+      if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
+        ld->other++;
+        return;
+      }
+      fr_octet = pd[offset];
+      while (!(fr_octet & FRELAY_EA)) {
+	/*
+	 * Bogus!  More than 4 octets of address.
+	 */
+        offset++;
+        if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
+          ld->other++;
+          return;
+        }
+	fr_octet = pd[offset];
+      }
+    }
+
+    /*
+     * Last octet - contains lower DLCI or DL-CORE control, DLCI or
+     * DL-CORE control indicator flag.
+     */
+    if (fr_octet & FRELAY_DC) {
+      /*
+       * DL-CORE.
+       */
+    } else {
+      /*
+       * Last 6 bits of DLCI.
+       */
+      address = (address << 6) | ((fr_octet & FRELAY_LOWER_DLCI) >> 2);
+    }
+  }
+
+  switch (fr_encap) {
+
+  case FRF_3_2:
+    if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
+      ld->other++;
+      return;
+    }
+    fr_ctrl = pd[offset];
+    if (fr_ctrl == XDLC_U) {
+      offset++;
+
+      /*
+       * XXX - treat DLCI 0 specially?  On DLCI 0, an NLPID of 0x08
+       * means Q.933, but on other circuits it could be the "for
+       * protocols which do not have an NLPID assigned or do not
+       * have a SNAP encapsulation" stuff from RFC 2427.
+       */
+      if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
+        ld->other++;
+        return;
+      }
+      fr_nlpid = pd[offset];
+      if (fr_nlpid == 0) {
+	offset++;
+        if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
+          ld->other++;
+          return;
+        }
+	fr_nlpid = pd[offset];
+      }
+      offset++;
+      switch (fr_nlpid) {
+
+      case NLPID_IP:
+        capture_ip(pd, offset, len, ld);
+        break;
+
+      case NLPID_IP6:
+        capture_ipv6(pd, offset, len, ld);
+        break;
+
+      case NLPID_PPP:
+        capture_ppp_hdlc(pd, offset, len, ld);
+        break;
+
+      case NLPID_SNAP:
+        capture_snap(pd, offset, len, ld);
+        break;
+
+      default:
+        ld->other++;
+        break;
+      }
+    } else {
+      if (address == 0) {
+	/*
+	 * This must be some sort of LAPF on DLCI 0 for SVC
+	 * because DLCI 0 is reserved for LMI and SVC signaling
+	 * encapsulated in LAPF, and LMI is transmitted in
+	 * unnumbered information (03), so this must be LAPF
+	 * (guessing).
+	 *
+	 * XXX - but what is it?  Is Q.933 carried inside UI
+	 * frames or other types of frames or both?
+	 */
+	ld->other++;
+	return;
+      }
+      if (fr_ctrl == (XDLC_U|XDLC_XID)) {
+      	/*
+      	 * XID.
+      	 */
+	ld->other++;
+	return;
+      }
+
+      /*
+       * If the data does not start with unnumbered information (03) and
+       * the DLCI# is not 0, then there may be Cisco Frame Relay encapsulation.
+       */
+      capture_chdlc(pd, offset, len, ld);
+    }
+    break;
+
+  case GPRS_NS:
+    ld->other++;
+    break;
+
+  case RAW_ETHER:
+    if (address != 0)
+      capture_eth(pd, offset, len, ld);
+    else
+      ld->other++;
+    break;
+  }
+}
 
 static void
 dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,

@@ -92,6 +92,7 @@
 #include <epan/dissectors/packet-clip.h>
 #include <epan/dissectors/packet-eth.h>
 #include <epan/dissectors/packet-fddi.h>
+#include <epan/dissectors/packet-fr.h>
 #include <epan/dissectors/packet-null.h>
 #include <epan/dissectors/packet-ppp.h>
 #include <epan/dissectors/packet-raw.h>
@@ -1474,6 +1475,10 @@ capture_loop_packet_cb(guchar *user, const struct pcap_pkthdr *phdr,
       break;
     case WTAP_ENCAP_APPLE_IP_OVER_IEEE1394:
       capture_ap1394(pd, 0, whdr.caplen, &ld->counts);
+      break;
+    case WTAP_ENCAP_FRELAY:
+    case WTAP_ENCAP_FRELAY_WITH_PHDR:
+      capture_fr(pd, 0, whdr.caplen, &ld->counts);
       break;
     /* XXX - some ATM drivers on FreeBSD might prepend a 4-byte ATM
        pseudo-header to DLT_ATM_RFC1483, with LLC header following;

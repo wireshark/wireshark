@@ -1,4 +1,4 @@
-/* packet-llc.h
+/* packet-fr.h
  *
  * $Id$
  *
@@ -21,20 +21,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PACKET_LLC_H__
-#define __PACKET_LLC_H__
+#ifndef __PACKET_FR_H__
+#define __PACKET_FR_H__
 
-void capture_llc(const guchar *, int, int, packet_counts *);
-void capture_snap(const guchar *, int, int, packet_counts *);
-
-void dissect_snap(tvbuff_t *, int, packet_info *, proto_tree *,
-    proto_tree *, int, int, int, int, int);
-
-/*
- * Add an entry for a new OUI.
- */
-void llc_add_oui(guint32, const char *, char *, hf_register_info *);
-
-extern const value_string sap_vals[];
+void capture_fr(const guchar *, int, int, packet_counts *);
 
 #endif

@@ -226,8 +226,6 @@ capture_llc(const guchar *pd, int offset, int len, packet_counts *ld) {
 	int		is_snap;
 	guint16		control;
 	int		llc_header_len;
-	guint32		oui;
-	guint16		etype;
 
 	if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
 		ld->other++;
@@ -244,71 +242,81 @@ capture_llc(const guchar *pd, int offset, int len, packet_counts *ld) {
 	 */
 	control = get_xdlc_control(pd, offset+2, pd[offset+1] & SSAP_CR_BIT);
 	llc_header_len += XDLC_CONTROL_LEN(control, TRUE);
-	if (is_snap)
-		llc_header_len += 5;	/* 3 bytes of OUI, 2 bytes of protocol ID */
 	if (!BYTES_ARE_IN_FRAME(offset, len, llc_header_len)) {
 		ld->other++;
 		return;
 	}
 
-	if (is_snap) {
-		oui = pd[offset+3] << 16 | pd[offset+4] << 8 | pd[offset+5];
-		if (XDLC_IS_INFORMATION(control)) {
-			etype = pntohs(&pd[offset+6]);
-			switch (oui) {
-
-			case OUI_ENCAP_ETHER:
-			case OUI_CISCO_90:
-			case OUI_APPLE_ATALK:
-				/* No, I have no idea why Apple used
-				   one of their own OUIs, rather than
-				   OUI_ENCAP_ETHER, and an Ethernet
-				   packet type as protocol ID, for
-				   AppleTalk data packets - but used
-				   OUI_ENCAP_ETHER and an Ethernet
-				   packet type for AARP packets. */
-				capture_ethertype(etype, pd, offset+8, len,
-				    ld);
-				break;
-			case OUI_CISCO:
-				capture_ethertype(etype, pd, offset + 8, len,
-				    ld);
-				break;
-			default:
-				ld->other++;
-				break;
-			}
-		}
+	if (!XDLC_IS_INFORMATION(control)) {
+		ld->other++;
+		return;
 	}
+	if (is_snap)
+		capture_snap(pd, offset+3, len, ld);
 	else {
 		/* non-SNAP */
-		if (XDLC_IS_INFORMATION(control)) {
-			switch (pd[offset]) {
+		switch (pd[offset]) {
 
-			case SAP_IP:
-				capture_ip(pd, offset + llc_header_len, len,
-				    ld);
-				break;
+		case SAP_IP:
+			capture_ip(pd, offset + llc_header_len, len, ld);
+			break;
 
-			case SAP_NETWARE1:
-			case SAP_NETWARE2:
-				capture_ipx(ld);
-				break;
+		case SAP_NETWARE1:
+		case SAP_NETWARE2:
+			capture_ipx(ld);
+			break;
 
-			case SAP_NETBIOS:
-				capture_netbios(ld);
-				break;
+		case SAP_NETBIOS:
+			capture_netbios(ld);
+			break;
 
-			case SAP_VINES1:
-			case SAP_VINES2:
-				capture_vines(ld);
-				break;
+		case SAP_VINES1:
+		case SAP_VINES2:
+			capture_vines(ld);
+			break;
 
-			default:
-				ld->other++;
-				break;
-			}
+		default:
+			ld->other++;
+			break;
 		}
+	}
+}
+
+void
+capture_snap(const guchar *pd, int offset, int len, packet_counts *ld)
+{
+	guint32		oui;
+	guint16		etype;
+
+	if (!BYTES_ARE_IN_FRAME(offset, len, 5)) {
+		ld->other++;
+		return;
+	}
+
+	oui = pd[offset] << 16 | pd[offset+1] << 8 | pd[offset+2];
+	etype = pntohs(&pd[offset+3]);
+	switch (oui) {
+
+	case OUI_ENCAP_ETHER:
+	case OUI_CISCO_90:
+	case OUI_APPLE_ATALK:
+		/* No, I have no idea why Apple used
+		   one of their own OUIs, rather than
+		   OUI_ENCAP_ETHER, and an Ethernet
+		   packet type as protocol ID, for
+		   AppleTalk data packets - but used
+		   OUI_ENCAP_ETHER and an Ethernet
+		   packet type for AARP packets. */
+		capture_ethertype(etype, pd, offset+5, len, ld);
+		break;
+
+	case OUI_CISCO:
+		capture_ethertype(etype, pd, offset+5, len, ld);
+		break;
+
+	default:
+		ld->other++;
+		break;
 	}
 }
 
@@ -461,6 +469,9 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	dissector_table_t subdissector_table;
 	int		hf;
 
+	/*
+	 * XXX - what about non-UI frames?
+	 */
 	oui =	tvb_get_ntoh24(tvb, offset);
 	etype = tvb_get_ntohs(tvb, offset+3);
 
