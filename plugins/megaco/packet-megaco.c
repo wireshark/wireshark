@@ -2,7 +2,7 @@
 * Routines for megaco packet disassembly
 * RFC 3015
 *
-* $Id: packet-megaco.c,v 1.13 2003/09/24 18:41:37 guy Exp $
+* $Id: packet-megaco.c,v 1.14 2004/01/23 09:47:39 jmayer Exp $
 *
 * Christian Falckenberg, 2002/10/17
 * Copyright (c) 2002 by Christian Falckenberg
@@ -1306,7 +1306,7 @@ dissect_megaco_mediadescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
 }
 
 static void
-dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, gint offset, gint len, guint8 *msg)
+dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, gint offset, gint len, gchar *msg)
 {
 	proto_item *item;
 	proto_tree *tree;
@@ -1510,7 +1510,7 @@ dissect_megaco_eventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 					dissect_megaco_digitmapdescriptor(tvb, megaco_requestedevent_tree, requested_event_end_offset, requested_event_start_offset);
 				}
 				else{
-					guint8 *msg;
+					gchar *msg;
 
 					tokenlen = 	requested_event_end_offset - requested_event_start_offset;
 					msg=tvb_format_text(tvb,requested_event_start_offset, tokenlen);
@@ -1638,7 +1638,7 @@ dissect_megaco_signaldescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 			megaco_requestedsignal_tree = proto_item_add_subtree(megaco_requestedsignal_ti, ett_megaco_requestedsignal);	
 			
 			if ( tvb_help_offset < tvb_RBRKT && tvb_help_offset != -1 ){
-				guint8 *msg;
+				gchar *msg;
 				
 				requested_signal_start_offset = tvb_skip_wsp(tvb, requested_signal_start_offset +1);
 				requested_signal_end_offset = tvb_skip_wsp_return(tvb, requested_signal_end_offset-1);
@@ -1860,7 +1860,7 @@ dissect_megaco_observedeventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto
 				tvb_help_offset = requested_event_start_offset;
 				
 				do {
-					guint8 *msg;
+					gchar *msg;
 
 					param_start_offset = tvb_skip_wsp(tvb, tvb_help_offset+1);
 					
