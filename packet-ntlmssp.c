@@ -3,7 +3,7 @@
  * Devin Heitmueller <dheitmueller@netilla.com>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-ntlmssp.c,v 1.43 2003/08/24 01:29:50 sahlberg Exp $
+ * $Id: packet-ntlmssp.c,v 1.44 2003/09/01 00:01:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -587,7 +587,7 @@ dissect_ntlmssp_address_list (tvbuff_t *tvb, int offset,
   guint16 list_maxlen = tvb_get_letohs(tvb, offset+2);
   guint32 list_offset = tvb_get_letohl(tvb, offset+4);
   guint16 item_type, item_length;
-  guint16 item_offset;
+  guint32 item_offset;
   proto_item *tf = NULL;
   proto_tree *tree = NULL;
   proto_item *addr_tf = NULL;
@@ -622,10 +622,10 @@ dissect_ntlmssp_address_list (tvbuff_t *tvb, int offset,
 
   while (item_offset < (list_offset + list_length)) {
     const char *text=NULL;
-    guint16 content_offset;
+    guint32 content_offset;
     guint16 content_length;
-    guint16 type_offset;
-    guint16 len_offset;
+    guint32 type_offset;
+    guint32 len_offset;
 
     /* Content type */
     type_offset = item_offset;
