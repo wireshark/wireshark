@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.53 2002/08/28 20:38:58 jmayer Exp $
+ * $Id: plugin_table.h,v 1.54 2002/11/14 18:54:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -245,6 +245,39 @@ typedef void *(*addr_conversation_get_proto_data)(conversation_t *, int);
 typedef void (*addr_conversation_delete_proto_data)(conversation_t *, int);
 typedef void (*addr_p_add_proto_data)(frame_data *, int, void *);
 typedef void *(*addr_p_get_proto_data)(frame_data *, int);
+
+typedef gchar*	(*addr_ip_to_str)(const guint8 *);
+typedef char*	(*addr_ip6_to_str)(struct e_in6_addr *);
+typedef gchar*	(*addr_time_secs_to_str)(guint32);
+typedef gchar*	(*addr_time_msecs_to_str)(guint32);
+typedef gchar*	(*addr_abs_time_to_str)(nstime_t*);
+
+typedef int (*addr_proto_get_id_by_filter_name)(gchar* filter_name);
+typedef char *(*addr_proto_get_protocol_name)(int n);
+typedef char *(*addr_proto_get_protocol_short_name)(int proto_id);
+typedef char *(*addr_proto_get_protocol_filter_name)(int proto_id);
+
+typedef void (*addr_prefs_register_obsolete_preference)(module_t *, const char *);
+
+typedef void (*addr_add_new_data_source)(packet_info *, tvbuff_t *, char *);
+
+typedef void (*addr_fragment_table_init)(GHashTable **);
+typedef void (*addr_reassembled_table_init)(GHashTable **);
+typedef fragment_data *(*addr_fragment_add)(tvbuff_t *, int, packet_info *, guint32,
+			GHashTable *, guint32, guint32, gboolean);
+typedef fragment_data *(*addr_fragment_add_seq)(tvbuff_t *, int, packet_info *, guint32,
+			GHashTable *, guint32, guint32, gboolean);
+typedef fragment_data *(*addr_fragment_add_seq_check)(tvbuff_t *, int, packet_info *, guint32 id,
+			GHashTable *, GHashTable *, guint32, guint32, gboolean);
+typedef fragment_data *(*addr_fragment_add_seq_next)(tvbuff_t *, int, packet_info *, guint32,
+			GHashTable *, GHashTable *, guint32, gboolean);
+typedef fragment_data *(*addr_fragment_get)(packet_info *, guint32, GHashTable *);
+typedef void (*addr_fragment_set_tot_len)(packet_info *, guint32, GHashTable *, guint32);
+typedef guint32 (*addr_fragment_get_tot_len)(packet_info *, guint32, GHashTable *);
+typedef void (*addr_fragment_set_partial_reassembly)(packet_info *, guint32, GHashTable *);
+typedef unsigned char *(*addr_fragment_delete)(packet_info *, guint32, GHashTable *);
+typedef gboolean (*addr_show_fragment_tree)(fragment_data *, const fragment_items *, proto_tree *, packet_info *, tvbuff_t *);
+typedef gboolean (*addr_show_fragment_seq_tree)(fragment_data *, const fragment_items *, proto_tree *, packet_info *, tvbuff_t *);
 
 typedef struct  {
 

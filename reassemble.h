@@ -1,7 +1,7 @@
 /* reassemble.h
  * Declarations of outines for {fragment,segment} reassembly
  *
- * $Id: reassemble.h,v 1.11 2002/10/24 06:17:36 guy Exp $
+ * $Id: reassemble.h,v 1.12 2002/11/14 18:54:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,12 +64,12 @@ typedef struct _fragment_data {
 /*
  * Initialize a fragment table.
  */
-void fragment_table_init(GHashTable **fragment_table);
+extern void fragment_table_init(GHashTable **fragment_table);
 
 /*
  * Initialize a reassembled-packet table.
  */
-void reassembled_table_init(GHashTable **reassembled_table);
+extern void reassembled_table_init(GHashTable **reassembled_table);
 
 /*
  * Free up all space allocated for fragment keys and data.
@@ -87,13 +87,13 @@ void reassemble_init(void);
  * Returns a pointer to the head of the fragment data list if we have all the
  * fragments, NULL otherwise.
  */
-fragment_data *fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo,
+extern fragment_data *fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint32 id, GHashTable *fragment_table, guint32 frag_offset,
     guint32 frag_data_len, gboolean more_frags);
 
 /* same as fragment_add() but this one assumes frag_number is a block
    sequence number. note that frag_number is 0 for the first fragment. */
-fragment_data *fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo,
+extern fragment_data *fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint32 id, GHashTable *fragment_table, guint32 frag_number,
     guint32 frag_data_len, gboolean more_frags);
 
@@ -127,13 +127,13 @@ fragment_data *fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * "fragment_add_seq_next()" is for protocols with no sequence number,
  * and assumes fragments always appear in sequence.
  */
-fragment_data *
+extern fragment_data *
 fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	     guint32 id, GHashTable *fragment_table,
 	     GHashTable *reassembled_table, guint32 frag_number,
 	     guint32 frag_data_len, gboolean more_frags);
 
-fragment_data *
+extern fragment_data *
 fragment_add_seq_next(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	     GHashTable *fragment_table, GHashTable *reassembled_table,
 	     guint32 frag_data_len, gboolean more_frags);
@@ -145,12 +145,12 @@ fragment_add_seq_next(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
  * actually means we want to defragment 3 blocks, block 0, 1 and 2.
  *
  */
-void
+extern void
 fragment_set_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table,
 		     guint32 tot_len);
 
 /* to resad whatever totlen previously set */
-guint32
+extern guint32
 fragment_get_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
 
 /*
@@ -161,13 +161,13 @@ fragment_get_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
  * a fh will be extended (increase the already stored data). After calling this function,
  * and if FD_DEFRAGMENTED is set, the reassembly process will be continued.
  */
-void
+extern void
 fragment_set_partial_reassembly(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
 
 /* This function is used to check if there is partial or completed reassembly state
  * matching this packet. I.e. Are there reassembly going on or not for this packet?
  */
-fragment_data *
+extern fragment_data *
 fragment_get(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
 
 /* This will free up all resources and delete reassembly state for this PDU.
@@ -178,7 +178,7 @@ fragment_get(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
  * So, if you call fragment_delete and it returns non-NULL, YOU are responsible to
  * g_free() that buffer.
  */
-unsigned char *
+extern unsigned char *
 fragment_delete(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
 
 

@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.42 2002/08/28 20:38:57 jmayer Exp $
+ * $Id: plugin_api.c,v 1.43 2002/11/14 18:54:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -181,4 +181,33 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_conversation_delete_proto_data	= pat->p_conversation_delete_proto_data;
 	p_p_add_proto_data			= pat->p_p_add_proto_data;
 	p_p_get_proto_data			= pat->p_p_get_proto_data;
+
+	p_ip_to_str				= pat->p_ip_to_str;
+	p_ip6_to_str				= pat->p_ip6_to_str;
+	p_time_secs_to_str			= pat->p_time_secs_to_str;
+	p_time_msecs_to_str			= pat->p_time_msecs_to_str;
+	p_abs_time_to_str			= pat->p_abs_time_to_str;
+                                                                                         
+	p_proto_get_id_by_filter_name		= pat->p_proto_get_id_by_filter_name;
+	p_proto_get_protocol_name		= pat->p_proto_get_protocol_name;
+	p_proto_get_protocol_short_name		= pat->p_proto_get_protocol_short_name;
+	p_proto_get_protocol_filter_name	= pat->p_proto_get_protocol_filter_name;
+                                                                                         
+	p_prefs_register_obsolete_preference	= pat->p_prefs_register_obsolete_preference;
+                                                                                         
+	p_add_new_data_source			= pat->p_add_new_data_source;
+                                                                                         
+	p_fragment_table_init			= pat->p_fragment_table_init;
+	p_reassembled_table_init		= pat->p_reassembled_table_init;
+	p_fragment_add				= pat->p_fragment_add;
+	p_fragment_add_seq			= pat->p_fragment_add_seq;
+	p_fragment_add_seq_check		= pat->p_fragment_add_seq_check;
+	p_fragment_add_seq_next			= pat->p_fragment_add_seq_next;
+	p_fragment_get				= pat->p_fragment_get;
+	p_fragment_set_tot_len			= pat->p_fragment_set_tot_len;
+	p_fragment_get_tot_len			= pat->p_fragment_get_tot_len;
+	p_fragment_set_partial_reassembly	= pat->p_fragment_set_partial_reassembly;
+	p_fragment_delete			= pat->p_fragment_delete;
+	p_show_fragment_tree			= pat->p_show_fragment_tree;
+	p_show_fragment_seq_tree		= pat->p_show_fragment_seq_tree;
 }

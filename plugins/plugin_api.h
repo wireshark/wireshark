@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.43 2002/08/28 20:38:57 jmayer Exp $
+ * $Id: plugin_api.h,v 1.44 2002/11/14 18:54:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -212,11 +212,41 @@
 #define p_add_proto_data		(*p_p_add_proto_data)
 #define p_get_proto_data		(*p_p_get_proto_data)
 
+#define ip_to_str			(*p_ip_to_str)
+#define ip6_to_str			(*p_ip6_to_str)
+#define time_secs_to_str		(*p_time_secs_to_str)
+#define time_msecs_to_str		(*p_time_msecs_to_str)
+#define abs_time_to_str			(*p_abs_time_to_str)
+                                                                                  
+#define proto_get_id_by_filter_name	(*p_proto_get_id_by_filter_name)
+#define proto_get_protocol_name		(*p_proto_get_protocol_name)
+#define proto_get_protocol_short_name	(*p_proto_get_protocol_short_name)
+#define proto_get_protocol_filter_name	(*p_proto_get_protocol_filter_name)
+                                                                                  
+#define prefs_register_obsolete_preference	(*p_prefs_register_obsolete_preference)
+                                                                                  
+#define add_new_data_source		(*p_add_new_data_source)
+                                                                                  
+#define fragment_table_init		(*p_fragment_table_init)
+#define reassembled_table_init		(*p_reassembled_table_init)
+#define fragment_add			(*p_fragment_add)
+#define fragment_add_seq		(*p_fragment_add_seq)
+#define fragment_add_seq_check		(*p_fragment_add_seq_check)
+#define fragment_add_seq_next		(*p_fragment_add_seq_next)
+#define fragment_get			(*p_fragment_get)
+#define fragment_set_tot_len		(*p_fragment_set_tot_len)
+#define fragment_get_tot_len		(*p_fragment_get_tot_len)
+#define fragment_set_partial_reassembly	(*p_fragment_set_partial_reassembly)
+#define fragment_delete			(*p_fragment_delete)
+#define show_fragment_tree		(*p_show_fragment_tree)
+#define show_fragment_seq_tree		(*p_show_fragment_seq_tree)
+                                                
 #endif
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include "prefs.h"
+#include "reassemble.h"
 #include "packet-giop.h"
 #include "packet-tpkt.h"
 #include "packet-tcp.h"

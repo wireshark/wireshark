@@ -2,7 +2,7 @@
  * Declarations of a list of "p_" names; included in various places
  * to declare them as variables or as function members.
  *
- * $Id: plugin_api_decls.h,v 1.5 2002/08/28 20:38:57 jmayer Exp $
+ * $Id: plugin_api_decls.h,v 1.6 2002/11/14 18:54:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -220,4 +220,33 @@ addr_conversation_get_proto_data	p_conversation_get_proto_data;
 addr_conversation_delete_proto_data	p_conversation_delete_proto_data;
 addr_p_add_proto_data			p_p_add_proto_data;
 addr_p_get_proto_data			p_p_get_proto_data;
+
+addr_ip_to_str				p_ip_to_str;
+addr_ip6_to_str				p_ip6_to_str;
+addr_time_secs_to_str			p_time_secs_to_str;
+addr_time_msecs_to_str			p_time_msecs_to_str;
+addr_abs_time_to_str			p_abs_time_to_str;
+                                                                                         
+addr_proto_get_id_by_filter_name	p_proto_get_id_by_filter_name;
+addr_proto_get_protocol_name		p_proto_get_protocol_name;
+addr_proto_get_protocol_short_name	p_proto_get_protocol_short_name;
+addr_proto_get_protocol_filter_name	p_proto_get_protocol_filter_name;
+                                                                                         
+addr_prefs_register_obsolete_preference	p_prefs_register_obsolete_preference;
+                                                                                         
+addr_add_new_data_source		p_add_new_data_source;
+                                                                                         
+addr_fragment_table_init		p_fragment_table_init;
+addr_reassembled_table_init		p_reassembled_table_init;
+addr_fragment_add			p_fragment_add;
+addr_fragment_add_seq			p_fragment_add_seq;
+addr_fragment_add_seq_check		p_fragment_add_seq_check;
+addr_fragment_add_seq_next		p_fragment_add_seq_next;
+addr_fragment_get			p_fragment_get;
+addr_fragment_set_tot_len		p_fragment_set_tot_len;
+addr_fragment_get_tot_len		p_fragment_get_tot_len;
+addr_fragment_set_partial_reassembly	p_fragment_set_partial_reassembly;
+addr_fragment_delete			p_fragment_delete;
+addr_show_fragment_tree			p_show_fragment_tree;
+addr_show_fragment_seq_tree		p_show_fragment_seq_tree;
 

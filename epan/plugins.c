@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.59 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: plugins.c,v 1.60 2002/11/14 18:54:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -464,6 +464,36 @@ init_plugins(const char *plugin_dir)
 	patable.p_conversation_delete_proto_data = conversation_delete_proto_data;
 	patable.p_p_add_proto_data		= p_add_proto_data;
 	patable.p_p_get_proto_data		= p_get_proto_data;
+
+	patable.p_ip_to_str			= ip_to_str;
+	patable.p_ip6_to_str			= ip6_to_str;
+	patable.p_time_secs_to_str		= time_secs_to_str;
+	patable.p_time_msecs_to_str		= time_msecs_to_str;
+	patable.p_abs_time_to_str		= abs_time_to_str;
+                                                                                         
+	patable.p_proto_get_id_by_filter_name	= proto_get_id_by_filter_name;
+	patable.p_proto_get_protocol_name	= proto_get_protocol_name;
+	patable.p_proto_get_protocol_short_name	= proto_get_protocol_short_name;
+	patable.p_proto_get_protocol_filter_name	= proto_get_protocol_filter_name;
+                                                                                         
+	patable.p_prefs_register_obsolete_preference	= p_prefs_register_obsolete_preference;
+                                                                                         
+	patable.p_add_new_data_source		= add_new_data_source;
+                                                                                         
+	patable.p_fragment_table_init		= fragment_table_init;
+	patable.p_reassembled_table_init	= reassembled_table_init;
+	patable.p_fragment_add			= fragment_add;
+	patable.p_fragment_add_seq		= fragment_add_seq;
+	patable.p_fragment_add_seq_check	= fragment_add_seq_check;
+	patable.p_fragment_add_seq_next		= fragment_add_seq_next;
+	patable.p_fragment_get			= fragment_get;
+	patable.p_fragment_set_tot_len		= fragment_set_tot_len;
+	patable.p_fragment_get_tot_len		= fragment_get_tot_len;
+	patable.p_fragment_set_partial_reassembly	= fragment_set_partial_reassembly;
+	patable.p_fragment_delete		= fragment_delete;
+	patable.p_show_fragment_tree		= show_fragment_tree;
+	patable.p_show_fragment_seq_tree	= show_fragment_seq_tree;
+
 #endif
 
 #ifdef WIN32
