@@ -1,7 +1,7 @@
 /* packet-dec-bpdu.c
  * Routines for DEC BPDU (DEC Spanning Tree Protocol) disassembly
  *
- * $Id: packet-dec-bpdu.c,v 1.11 2002/03/19 08:44:41 guy Exp $
+ * $Id: packet-dec-bpdu.c,v 1.12 2002/03/19 08:47:11 guy Exp $
  *
  * Copyright 2001 Paul Ionescu <paul@acorp.ro>
  * 
@@ -216,7 +216,7 @@ proto_register_dec_bpdu(void)
   static hf_register_info hf[] = {
     { &hf_dec_bpdu_proto_id,
       { "Protocol Identifier",		"dec_stp.protocol",
-	FT_UINT16,	BASE_HEX,	VALS(&protocol_id_vals), 0x0,
+	FT_UINT8,	BASE_HEX,	VALS(&protocol_id_vals), 0x0,
       	"", HFILL }},
     { &hf_dec_bpdu_type,
       { "BPDU Type",			"dec_stp.type",
