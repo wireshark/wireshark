@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.39 1999/06/14 21:46:35 guy Exp $
+ * $Id: ethereal.c,v 1.40 1999/06/15 03:46:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -526,22 +526,6 @@ void blank_packetinfo() {
 /* Things to do when the main window is realized */
 void
 main_realize_cb(GtkWidget *w, gpointer data) {
-  gchar  *cf_name = (gchar *) data;
-  int     err;
-  
-  if (cf_name) {
-    err = load_cap_file(cf_name, &cf);
-    if (err != 0) {
-      simple_dialog(ESD_TYPE_WARN, NULL, file_open_error_message(err, FALSE),
-		cf_name);
-    }
-    cf_name[0] = '\0';
-#ifdef USE_ITEM
-    set_menu_sensitivity("/File/Save as", TRUE);
-#else
-    set_menu_sensitivity("<Main>/File/Save as", TRUE);
-#endif
-  }
   if (start_capture) {
     capture();
     start_capture = 0;
@@ -581,6 +565,7 @@ main(int argc, char *argv[])
   extern char         *optarg;
   char                *pf_path;
   int                 pf_open_errno = 0;
+  int                 err;
   GtkWidget           *window, *main_vbox, *menubar, *u_pane, *l_pane,
                       *bv_table, *bv_hscroll, *bv_vscroll, *stat_hbox, 
                       *tv_scrollw, *filter_bt, *filter_te;
@@ -727,6 +712,17 @@ main(int argc, char *argv[])
     }
   }
 
+  if (start_capture) {
+    if (cf.iface == NULL) {
+      fprintf(stderr, "ethereal: \"-k\" flag was specified without \"-i\" flag\n");
+      exit(1);
+    }
+    if (cf.save_file == NULL) {
+      fprintf(stderr, "ethereal: \"-k\" flag was specified without \"-w\" flag\n");
+      exit(1);
+    }
+  }
+
   if (sync_mode)
     signal(SIGUSR2, sigusr2_handler);
 
@@ -753,12 +749,12 @@ main(int argc, char *argv[])
   gtk_rc_parse(rc_file);
 
   if ((m_r_font = gdk_font_load(medium_font)) == NULL) {
-    fprintf(stderr, "Error font %s not found (use -m option)\n", medium_font);
+    fprintf(stderr, "ethereal: Error font %s not found (use -m option)\n", medium_font);
     exit(1);
   }
 
   if ((m_b_font = gdk_font_load(bold_font)) == NULL) {
-    fprintf(stderr, "Error font %s not found (use -b option)\n", bold_font);
+    fprintf(stderr, "ethereal: Error font %s not found (use -b option)\n", bold_font);
     exit(1);
   }
 
@@ -770,7 +766,7 @@ main(int argc, char *argv[])
   gtk_signal_connect(GTK_OBJECT(window), "destroy", 
     GTK_SIGNAL_FUNC(file_quit_cmd_cb), "WM destroy");
   gtk_signal_connect(GTK_OBJECT (window), "realize",
-    GTK_SIGNAL_FUNC(main_realize_cb), cf_name);
+    GTK_SIGNAL_FUNC(main_realize_cb), NULL);
   gtk_window_set_title(GTK_WINDOW(window), "The Ethereal Network Analyzer");
   gtk_widget_set_usize(GTK_WIDGET(window), DEF_WIDTH, -1);
   gtk_window_set_policy(GTK_WINDOW(window), TRUE, TRUE, FALSE);
@@ -928,6 +924,26 @@ main(int argc, char *argv[])
   ethereal_proto_init();   /* Init anything that needs initializing */
 
   gtk_widget_show(window);
+
+  /* If we were given the name of a capture file, read it in now;
+     we defer it until now, so that, if we can't open it, and pop
+     up an alert box, the alert box is more likely to cmoe up on
+     top of the main window - but before the preference-file-error
+     alert box, so, if we get one of those, it's more likely to come
+     up on top of us. */
+  if (cf_name) {
+    err = load_cap_file(cf_name, &cf);
+    if (err != 0) {
+      simple_dialog(ESD_TYPE_WARN, NULL, file_open_error_message(err, FALSE),
+		cf_name);
+    }
+    cf_name[0] = '\0';
+#ifdef USE_ITEM
+    set_menu_sensitivity("/File/Save as", TRUE);
+#else
+    set_menu_sensitivity("<Main>/File/Save as", TRUE);
+#endif
+  }
 
   /* If we failed to open the preferences file, pop up an alert box;
      we defer it until now, so that the alert box is more likely to
