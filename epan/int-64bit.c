@@ -2,7 +2,7 @@
  * Routines for handling of 64-bit integers
  * 2001 Ronnie Sahlberg
  *
- * $Id: int-64bit.c,v 1.4 2001/11/02 10:09:47 guy Exp $
+ * $Id: int-64bit.c,v 1.1 2001/11/22 03:07:06 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

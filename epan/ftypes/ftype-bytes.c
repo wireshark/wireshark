@@ -1,5 +1,5 @@
 /* 
- * $Id: ftype-bytes.c,v 1.7 2001/11/02 10:09:51 guy Exp $
+ * $Id: ftype-bytes.c,v 1.8 2001/11/22 03:07:07 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,7 +28,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "resolv.h"
-#include "../../int-64bit.h"
+#include "int-64bit.h"
 
 #define ETHER_LEN	6
 #define IPv6_LEN	16

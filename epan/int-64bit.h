@@ -1,7 +1,7 @@
 /* int-64bit.h
  * Handling of 64-bit integers 
  *
- * $Id: int-64bit.h,v 1.3 2001/11/02 10:09:47 guy Exp $
+ * $Id: int-64bit.h,v 1.1 2001/11/22 03:07:06 hagbard Exp $
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

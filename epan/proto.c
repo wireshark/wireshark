@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.44 2001/11/21 01:01:17 guy Exp $
+ * $Id: proto.c,v 1.45 2001/11/22 03:07:06 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,7 +44,7 @@
 #include "plugins.h"
 #include "ipv6-utils.h"
 #include "proto.h"
-#include "../int-64bit.h"
+#include "int-64bit.h"
 
 #define cVALS(x) (const value_string*)(x)
 
