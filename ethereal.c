@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.102 1999/08/22 00:47:44 guy Exp $
+ * $Id: ethereal.c,v 1.103 1999/08/22 07:12:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1231,6 +1231,7 @@ main(int argc, char *argv[])
       fprintf(stderr, "ethereal: \"-k\" flag was specified without \"-w\" flag\n");
       exit(1);
     }
+#ifdef HAVE_LIBPCAP
     if (fork_mode) {
       if (cf.save_file_fd == -1) {
         fprintf(stderr, "ethereal: \"-k\" flag was specified with \"-%c\" flag but without \"-W\" flag\n",
@@ -1238,6 +1239,7 @@ main(int argc, char *argv[])
         exit(1);
       }
     }
+#endif
   }
 
 #ifdef HAVE_LIBPCAP
