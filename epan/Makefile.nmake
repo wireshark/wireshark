@@ -34,6 +34,7 @@ OBJECTS=atalk-utils.obj	\
 	resolv.obj       \
 	sna-utils.obj	\
 	strutil.obj      \
+	to_str.obj	\
 	tvbuff.obj       \
 
 
