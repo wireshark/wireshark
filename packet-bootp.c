@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-bootp.c,v 1.76 2003/11/18 19:56:37 guy Exp $
+ * $Id: packet-bootp.c,v 1.77 2003/12/03 20:01:20 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -716,10 +716,17 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 				"Option %d: %s = %s", code, text,
 				val_to_str(byte, slpda_vals,
 				    "Unknown (0x%02x)"));
+        if (byte == 0x80) {
+            voff++;
+            consumed--;
+        }
 		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-        for (i = voff + 4; i < voff + consumed; i += 4) {
+        for (i = voff + 3; i < voff + consumed; i += 4) {
             proto_tree_add_text(v_tree, tvb, i, 4, "SLPDA Address: %s",
                 ip_to_str(tvb_get_ptr(tvb, i, 4)));
+        }
+        if (byte == 0x80) {
+            consumed++;
         }
 		break;
 
@@ -730,8 +737,9 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 				val_to_str(byte, slp_scope_vals,
 				    "Unknown (0x%02x)"));
 		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-        proto_tree_add_text(v_tree, tvb, voff+4, consumed-4, "SLP Scope: %s",
-                tvb_get_ptr(tvb, voff+4, consumed-4));
+        proto_tree_add_text(v_tree, tvb, voff+3, consumed-3,
+                "%s = \"%.*s\"", text, vlen-1,
+                tvb_get_ptr(tvb, voff+3, vlen-1));
 		break;
 
 	case 82:        /* Relay Agent Information Option */
