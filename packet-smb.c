@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.79 2001/01/29 08:14:41 sharpe Exp $
+ * $Id: packet-smb.c,v 1.80 2001/03/18 03:23:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,10 +49,8 @@
 #include "alignment.h"
 #include "strutil.h"
 
-guint32 dissect_mailslot_smb(const u_char *, int, frame_data *, proto_tree *, proto_tree *, struct smb_info, int, int, int, int, const u_char *, int, int, int, int);
-
-guint32 dissect_pipe_smb(const u_char *, int, frame_data *, proto_tree *, proto_tree *, struct smb_info, int, int, int, int, const u_char *, int, int, int, int);
-
+#include "packet-smb-mailslot.h"
+#include "packet-smb-pipe.h"
 
 static int proto_smb = -1;
 
@@ -9038,7 +9036,7 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
       proto_tree_add_text(Flags_tree, NullTVB, offset, 2, "%s",
                           decode_boolean_bitfield(Flags, 0x02, 16, "One way transaction", "Two way transaction"));
     
-}
+    }
 
     offset += 2; /* Skip Flags */
 
@@ -9504,8 +9502,12 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 
-void 
-dissect_transact_params(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn, int DataOffset, int DataCount, int ParameterOffset, int ParameterCount, int SetupAreaOffset, int SetupCount, const char *TransactName)
+static void 
+dissect_transact_params(const u_char *pd, int offset, frame_data *fd,
+    proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data,
+    int SMB_offset, int errcode, int dirn, int DataOffset, int DataCount,
+    int ParameterOffset, int ParameterCount, int SetupAreaOffset,
+    int SetupCount, const char *TransactName)
 {
   char             *TransactNameCopy;
   char             *trans_type = NULL, *trans_cmd, *loc_of_slash = NULL;
@@ -9535,9 +9537,14 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd, proto_tree
 
   if ((trans_cmd == NULL) ||
       (((trans_type == NULL || strcmp(trans_type, "MAILSLOT") != 0) ||
-       !dissect_mailslot_smb(pd, SetupAreaOffset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, trans_cmd, SMB_offset + DataOffset, DataCount, SMB_offset + ParameterOffset, ParameterCount)) &&
+       !dissect_mailslot_smb(pd, SetupAreaOffset, fd, parent, tree, si,
+			     max_data, SMB_offset, errcode, dirn, trans_cmd,
+			     SMB_offset + DataOffset, DataCount,
+			     SMB_offset + ParameterOffset, ParameterCount)) &&
       ((trans_type == NULL || strcmp(trans_type, "PIPE") != 0) ||
-       !dissect_pipe_smb(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, trans_cmd, DataOffset, DataCount, ParameterOffset, ParameterCount)))) {
+       !dissect_pipe_smb(pd, offset, fd, parent, tree, si, max_data,
+			 SMB_offset, errcode, dirn, trans_cmd, DataOffset,
+			 DataCount, ParameterOffset, ParameterCount)))) {
     
     if (ParameterCount > 0) {
 
@@ -9764,7 +9771,7 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
       proto_tree_add_text(Flags_tree, NullTVB, offset, 2, "%s",
                           decode_boolean_bitfield(Flags, 0x02, 16, "One way transaction", "Two way transaction"));
     
-}
+    }
 
     offset += 2; /* Skip Flags */
 
@@ -9981,6 +9988,33 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
     }
 
     offset += 1; /* Skip Word Count (WCT) */
+
+    if (WordCount == 0) {
+
+      /* Interim response.
+         XXX - should we tag it as such? */
+
+      /* Build display for: Byte Count (BCC) */
+
+      ByteCount = GSHORT(pd, offset);
+
+      if (tree) {
+
+        proto_tree_add_text(tree, NullTVB, offset, 2, "Byte Count (BCC): %u", ByteCount);
+
+      }
+
+      offset += 2; /* Skip Byte Count (BCC) */
+
+      /* Dissect the interim response by showing the type of request to
+         which it's a reply. */
+      dissect_transact_params(pd, offset, fd, parent, tree, si, max_data,
+          SMB_offset, errcode, dirn, -1, -1, -1, -1, -1, -1,
+	  si.request_val -> last_transact_command);
+
+      return;
+
+    }
 
     /* Build display for: Total Parameter Count */
 

@@ -1,8 +1,8 @@
 /* packet-smb-mailslot.c
- * Routines for smb mailslot packet dissection
+ * Routines for SMB mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.9 2001/01/03 06:55:32 guy Exp $
+ * $Id: packet-smb-mailslot.c,v 1.10 2001/03/18 03:23:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,6 +27,8 @@
 
 
 #include "packet-smb-common.h"
+#include "packet-smb-mailslot.h"
+#include "packet-smb-pipe.h"
 
 static int proto_smb_msp = -1;
 
@@ -40,12 +42,6 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data,
 	int SMB_offset, int errcode, int dirn, const u_char *command,
 	int DataOffset, int DataCount);
-
-extern guint32 
-dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data,
-	int SMB_offset, int errcode, int dirn, const u_char *command,
-	int DataOffset, int DataCount, int ParameterOffset, int ParameterCount);
 
 extern guint32 
 dissect_smb_ntlogon(const u_char *pd, int offset, frame_data *fd,
@@ -62,7 +58,7 @@ dissect_smb_logon(const u_char *pd, int offset, frame_data *fd,
 
 
 
-guint32
+gboolean
 dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data,
 	int SMB_offset, int errcode, int dirn, const u_char *command,
@@ -78,17 +74,23 @@ dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd,
    	const char *StrPtr;
 
 	if (!proto_is_protocol_enabled(proto_smb_msp))
-	  return 0;
+		return FALSE;
    
+	if (check_col(fd, COL_PROTOCOL))
+		col_set_str(fd, COL_PROTOCOL, "SMB Mailslot");
+
+	if (DataOffset < 0) {
+		/* Interim reply */
+		col_set_str(fd, COL_INFO, "Interim reply");
+		return TRUE;
+	}
+
  /* do the Op code field */
  
     	Temp16 = GSHORT(pd, offset);		/* get Op code */
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "SMB Mailslot");
-
 	if (check_col(fd, COL_INFO))
-		  col_add_fstr(fd, COL_INFO, "%s",
+		  col_set_str(fd, COL_INFO,
 		      ( Temp16 == 1 ? "Write Mail slot" : "Unknown"));
 
 
@@ -169,7 +171,7 @@ dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd,
 			command, DataOffset, DataCount);
 		
 	 }
-  	return 1;
+  	return TRUE;
 }
 
 

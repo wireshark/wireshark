@@ -1,8 +1,8 @@
 /* packet-smb-pipe.c
- * Routines for smb packet dissection
+ * Routines for SMB named pipe packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.c,v 1.15 2001/01/03 06:55:32 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.16 2001/03/18 03:23:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,6 +48,7 @@
 #include "smb.h"
 #include "alignment.h"
 #include "strutil.h"
+#include "packet-smb-pipe.h"
 
 static int proto_smb_lanman = -1;
 
@@ -129,7 +130,7 @@ struct lanman_desc lmd[] = {
   {-1, NULL, NULL,NULL, NULL, NULL}
 };
 
-struct lanman_desc *
+static struct lanman_desc *
 find_lanman(int lanman_num)
 {
   int i = 0;
@@ -156,7 +157,8 @@ find_lanman(int lanman_num)
 #define NETSHAREENUM   0x00  /* 00  */
 #define NETSERVERENUM2 0x68  /* 104 */
 
-void dissect_server_flags(proto_tree *tree, int offset, int length, int flags)
+static void
+dissect_server_flags(proto_tree *tree, int offset, int length, int flags)
 {
   proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x0001, length*8, "Workstation", "Not Workstation"));
@@ -217,8 +219,10 @@ static int pd_p_current = 0, pd_d_current = 0, in_params = 0, need_data = 0;
 static int lm_ent_count = 0, lm_act_count = 0; 
 
 /* Initialize the various data structure */
-void 
-dissect_transact_engine_init(const u_char *pd, const char *param_desc, const char *data_desc, int SMB_offset, int ParameterOffset, int ParameterCount, int DataOffset, int DataCount)
+static void 
+dissect_transact_engine_init(const u_char *pd, const char *param_desc,
+    const char *data_desc, int SMB_offset, int ParameterOffset,
+    int ParameterCount, int DataOffset, int DataCount)
 {
 
   d_count = DataCount;
@@ -264,7 +268,7 @@ int get_act_count()
 
 }
 
-int get_byte_count(const u_char *p_data)
+static int get_byte_count(const u_char *p_data)
 
 {
   int count = 0, off = 0;
@@ -283,7 +287,8 @@ int get_byte_count(const u_char *p_data)
 /* We pull out the next item in the appropriate place and display it */
 /* We display the parameters first, then the data, then any auxilliary data */
 
-int dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tree)
+static int
+dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tree)
 {
   /*  guint8        BParam; */
   guint16       WParam = 0;
@@ -553,7 +558,7 @@ static const value_string share_type_vals[] = {
         {0, NULL}
 };
 
-guint32 
+gboolean
 dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *parent, proto_tree *tree, struct smb_info si,
 	int max_data, int SMB_offset, int errcode, int dirn,
@@ -574,7 +579,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
   guint32             string_offset;
 
   if (check_col(fd, COL_PROTOCOL))
-    col_add_fstr(fd, COL_PROTOCOL, "LANMAN");
+    col_set_str(fd, COL_PROTOCOL, "LANMAN");
 
   if (dirn == 1) { /* The request side */
 
@@ -588,7 +593,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (check_col(fd, COL_INFO)) {
 
-	col_add_fstr(fd, COL_INFO, "NetShareEnum Request");
+	col_set_str(fd, COL_INFO, "NetShareEnum Request");
 
       }
 
@@ -661,7 +666,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (check_col(fd, COL_INFO)) {
 
-	col_add_fstr(fd, COL_INFO, "NetServerEnum2 %s", dirn ? "Request" : "Response");
+	col_set_str(fd, COL_INFO, "NetServerEnum2 Request");
 
       }
 
@@ -744,7 +749,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       loc_offset += 4;
 
-      return 1;
+      return TRUE;
       break;
 
       default:   /* Just try to handle what is there ... */
@@ -827,6 +832,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
     }
   }
   else {  /* Dirn == 0, response */
+    gboolean         is_interim_response;
     guint16          Status;
     guint16          Convert;
     guint16          EntCount;
@@ -847,7 +853,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
     if (si.request_val -> trans_response_seen == 1) {
 
       if (check_col(fd, COL_INFO)) {
-	  col_add_fstr(fd, COL_INFO, "Transact Continuation");
+	  col_set_str(fd, COL_INFO, "Transact Continuation");
       }
       
       if (tree) {
@@ -860,20 +866,34 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       }
 
-      return 1;
+      return TRUE;
 
 
     } 
 
     si.request_val -> trans_response_seen = 1; 
 
+    is_interim_response = (DataOffset < 0);
+
     switch (FunctionCode) {
 
     case NETSHAREENUM:
 
+      if (is_interim_response) {
+
+	if (check_col(fd, COL_INFO)) {
+
+	  col_set_str(fd, COL_INFO, "NetShareEnum Interim Response");
+
+	}
+
+	return TRUE;
+
+      }
+
       if (check_col(fd, COL_INFO)) {
 
-	col_add_fstr(fd, COL_INFO, "NetShareEnum Response");
+	col_set_str(fd, COL_INFO, "NetShareEnum Response");
 
       }
 
@@ -996,9 +1016,21 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
     case NETSERVERENUM2:
 
+      if (is_interim_response) {
+
+	if (check_col(fd, COL_INFO)) {
+
+	  col_set_str(fd, COL_INFO, "NetShareEnum2 Interim Response");
+
+	}
+
+	return TRUE;
+
+      }
+
       if (check_col(fd, COL_INFO)) {
 
-	col_add_fstr(fd, COL_INFO, "NetServerEnum2 %s", dirn ? "Request" : "Response");
+	col_set_str(fd, COL_INFO, "NetServerEnum2 Response");
 
       }
 
@@ -1155,6 +1187,22 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       lanman = find_lanman(si.request_val -> last_lanman_cmd);
 
+      if (is_interim_response) {
+
+	if (check_col(fd, COL_INFO)) {
+
+	  if (lanman) {
+	    col_add_fstr(fd, COL_INFO, "%s Interim Response", lanman -> lanman_name);
+	  }
+	  else {
+	    col_add_fstr(fd, COL_INFO, "Unknown LANMAN Interim Response: %u", FunctionCode);
+	  }
+	}
+
+	return TRUE;
+
+      }
+
       if (check_col(fd, COL_INFO)) {
 
 	if (lanman) {
@@ -1213,31 +1261,34 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 	  
       }
 
-      return 1;
+      return TRUE;
       break;
 
     }
 
   }
 
-  return 0;
+  return FALSE;
 
 }
 
-guint32
+gboolean
 dissect_pipe_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn, const u_char *command, int DataOffset, int DataCount, int ParameterOffset, int ParameterCount)
 {
 
   if (!proto_is_protocol_enabled(proto_smb_lanman))
-    return 0;
+    return FALSE;
 
-  if (command != NULL && strcmp(command, "LANMAN") == 0) { /* Try to decode a LANMAN */
+  if (command != NULL && strcmp(command, "LANMAN") == 0) {
+    /* Try to decode a LANMAN */
 
-    return dissect_pipe_lanman(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, command, DataOffset, DataCount, ParameterOffset, ParameterCount);
+    return dissect_pipe_lanman(pd, offset, fd, parent, tree, si, max_data,
+			       SMB_offset, errcode, dirn, command, DataOffset,
+			       DataCount, ParameterOffset, ParameterCount);
 
   }
 
-  return 0;
+  return FALSE;
 
 }
 
