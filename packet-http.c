@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.84 2003/12/27 08:35:08 guy Exp $
+ * $Id: packet-http.c,v 1.85 2003/12/27 18:45:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -484,6 +484,17 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * for all frames with FIN, even if they contain no data,
 	 * which would require subdissectors to deal intelligently
 	 * with empty segments.
+	 *
+	 * Acccording to RFC 2616, however, 1xx responses, 204 responses,
+	 * and 304 responses MUST NOT include a message body; if no
+	 * content length is specified for them, we don't attempt to
+	 * dissect the body.
+	 *
+	 * XXX - it says the same about responses to HEAD requests;
+	 * unless there's a way to determine from the response
+	 * whether it's a response to a HEAD request, we have to
+	 * keep information about the request and associate that with
+	 * the response in order to handle that.
 	 */
 	datalen = tvb_length_remaining(tvb, offset);
 	if (headers.content_length != -1) {
@@ -507,8 +518,14 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		reported_datalen = tvb_reported_length_remaining(tvb, offset);
 		if (reported_datalen > headers.content_length)
 			reported_datalen = headers.content_length;
-	} else
-		reported_datalen = -1;
+	} else {
+		if ((stat_info->response_code/100) == 1 ||
+		    stat_info->response_code == 204 ||
+		    stat_info->response_code == 304)
+			datalen = 0;	/* no content! */
+		else
+			reported_datalen = -1;
+	}
 
 	if (datalen > 0) {
 		/*
