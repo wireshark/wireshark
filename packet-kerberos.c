@@ -2,8 +2,10 @@
  * Routines for Kerberos
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
+ * Richard Share (C) 2002, rsharpe@samba.org, modularized a bit more and
+ *                         added AP-REQ and AP-REP dissection
  *
- * $Id: packet-kerberos.c,v 1.32 2002/09/07 03:32:49 sharpe Exp $
+ * $Id: packet-kerberos.c,v 1.33 2002/09/07 08:43:04 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -97,6 +99,14 @@ static gint ett_additional_tickets = -1;
 #define KRB5_BODY_ADDRESSES              9
 #define KRB5_BODY_ENC_AUTHORIZATION_DATA 10
 #define KRB5_BODY_ADDITIONAL_TICKETS     11
+
+/* TAGs within AP-REQ */
+#define KRB5_AP_REQ_APOPTIONS             2
+#define KRB5_AP_REQ_TICKET                3
+#define KRB5_AP_REQ_ENC_DATA              4
+
+/* TAGs within AP-REP */
+#define KRB5_AP_REP_ENC_DATA              2
 
 /* Type tags within KRB-ERROR */
 #define KRB5_ERROR_PVNO       0
@@ -396,8 +406,8 @@ krb_proto_tree_add_time(proto_tree *tree, tvbuff_t *tvb, int offset,
    ret = asn1_header_decode (asn1p, &cls, &con, &tag, &def, &item_len); \
    if (ret != ASN1_ERR_NOERROR) {\
        if (check_col(pinfo->cinfo, COL_INFO)) \
-           col_add_fstr(pinfo->cinfo, COL_INFO, "ERROR: Problem at %s: %s", \
-                    token, to_error_str(ret)); \
+           col_add_fstr(pinfo->cinfo, COL_INFO, "ERROR: Problem at %s: %s, offset: %d", \
+                    token, to_error_str(ret), start); \
        return -1; \
    } \
    if (!def) {\
@@ -425,8 +435,8 @@ krb_proto_tree_add_time(proto_tree *tree, tvbuff_t *tvb, int offset,
 #define DIE_WITH_BAD_TYPE(token, expected_tag) \
     { \
       if (check_col(pinfo->cinfo, COL_INFO)) \
-         col_add_fstr(pinfo->cinfo, COL_INFO, "ERROR: Problem at %s: %s (tag=%d exp=%d)", \
-                      token, to_error_str(ASN1_ERR_WRONG_TYPE), tag, expected_tag); \
+         col_add_fstr(pinfo->cinfo, COL_INFO, "ERROR: Problem at %s: %s (tag=%d exp=%d, con=%d, cls=%d, offset=%0x)", \
+                      token, to_error_str(ASN1_ERR_WRONG_TYPE), tag, expected_tag, con, cls, start); \
       return -1; \
     }
 
@@ -610,7 +620,7 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int d
     if (do_col_info & check_col(pinfo->cinfo, COL_INFO))
         col_add_str(pinfo->cinfo, COL_INFO, val_to_str(msg_type, krb5_msg_types,
                                              "Unknown msg type %#x"));
-
+    
         /* is preauthentication present? */
     KRB_HEAD_DECODE_OR_DIE("padata-or-body");
     if (((protocol_message_type == KRB5_MSG_AS_REQ ||
@@ -882,6 +892,45 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int d
             return -1;
         offset += length;
         break;
+
+    case KRB5_MSG_AP_REQ:
+
+        /* ap options */
+        /* We pulled the header above */
+        
+        KRB_HEAD_DECODE_OR_DIE("ap options:bits");
+
+        if (kerberos_tree) {
+                proto_tree_add_text(kerberos_tree, tvb, offset, item_len,
+                                    "APOptions: %s",
+                                    tvb_bytes_to_str(asn1p->tvb, asn1p->offset,
+                                                     item_len));
+        }
+        offset += item_len;
+        asn1p->offset += item_len;
+
+        KRB_DECODE_CONTEXT_HEAD_OR_DIE("ticket", KRB5_AP_REQ_TICKET);
+        length = dissect_Ticket(asn1p, pinfo, kerberos_tree, offset);
+        if (length == -1)
+            return -1;
+        offset += length;
+
+        KRB_DECODE_CONTEXT_HEAD_OR_DIE("authenticator",
+                                              KRB5_AP_REQ_ENC_DATA);
+        length = dissect_EncryptedData("Authenticator", asn1p, pinfo,
+                                       kerberos_tree, offset);
+        if (length == -1)
+            return -1;
+        offset += length;
+	break;
+
+    case KRB5_MSG_AP_REP:
+        length = dissect_EncryptedData("EncPart", asn1p, pinfo,
+                                       kerberos_tree, offset);
+        if (length == -1)
+            return -1;
+        offset += length;
+	break;
 
     case KRB5_MSG_ERROR:
 /*
