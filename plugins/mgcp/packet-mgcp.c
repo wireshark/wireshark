@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.31 2002/01/21 07:37:49 guy Exp $
+ * $Id: packet-mgcp.c,v 1.32 2002/04/30 10:37:37 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -170,12 +170,10 @@ static gint tvb_parse_param(tvbuff_t *tvb, gint offset, gint maxlength,
 static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, 
 				 proto_tree *tree,proto_tree *mgcp_tree, proto_tree *ti);
 static void dissect_mgcp_firstline(tvbuff_t *tvb, 
-				   packet_info* pinfo, 
 				   proto_tree *tree);
 static void dissect_mgcp_params(tvbuff_t *tvb,  
-				packet_info* pinfo,
 				proto_tree *tree);
-static void mgcp_raw_text_add(tvbuff_t *tvb, packet_info *pinfo, 
+static void mgcp_raw_text_add(tvbuff_t *tvb,
 			      proto_tree *tree);
 
 /* 
@@ -323,7 +321,7 @@ dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       if( sectionlen > 0){
 	dissect_mgcp_firstline(tvb_new_subset(tvb, tvb_sectionbegin,
 					      sectionlen,-1), 
-			       pinfo, mgcp_tree);
+			       mgcp_tree);
       }
       tvb_sectionbegin = tvb_sectionend;
 
@@ -333,7 +331,7 @@ dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					&tvb_sectionend);
 	dissect_mgcp_params(tvb_new_subset(tvb, tvb_sectionbegin, 
 					   sectionlen, -1),
-			    pinfo, mgcp_tree);
+			    mgcp_tree);
 	tvb_sectionbegin = tvb_sectionend;
       }
 	
@@ -347,7 +345,7 @@ dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
       /* Do we want to display the raw text of our MGCP packet? */
       if(global_mgcp_raw_text){
-	mgcp_raw_text_add(tvb_new_subset(tvb,0,tvb_len,-1),pinfo, 
+	mgcp_raw_text_add(tvb_new_subset(tvb,0,tvb_len,-1),
 			  mgcp_tree);
       }
 
@@ -363,12 +361,10 @@ dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* 
  * Add the raw text of the message to the dissect tree if appropriate 
- * preferences are specified.  The args and returns follow the general 
- * convention for proto dissectors (although this is NOT a proto dissector).
+ * preferences are specified.
  */
 
-static void mgcp_raw_text_add(tvbuff_t *tvb, packet_info *pinfo, 
-			      proto_tree *tree){
+static void mgcp_raw_text_add(tvbuff_t *tvb, proto_tree *tree){
 
   gint tvb_linebegin,tvb_lineend,tvb_len,linelen;
 
@@ -877,7 +873,6 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf){
  *        from the first line of the MGCP message.
  */
 static void dissect_mgcp_firstline(tvbuff_t *tvb, 
-				   packet_info *pinfo, 
 				   proto_tree *tree){
   gint tvb_current_offset,tvb_previous_offset,tvb_len,tvb_current_len;
   gint tokennum, tokenlen;
@@ -1007,8 +1002,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb,
  * tree - The tree from which to hang the structured information parsed 
  *        from the parameters of the MGCP message.
  */
-static void dissect_mgcp_params(tvbuff_t *tvb, packet_info *pinfo, 
-					 proto_tree *tree){
+static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree){
   int linelen, tokenlen, *my_param;
   gint tvb_lineend,tvb_current_len, tvb_linebegin,tvb_len;
   gint tvb_tokenbegin;
@@ -1261,7 +1255,11 @@ plugin_reg_handoff(void){
 }
 
 G_MODULE_EXPORT void
-plugin_init(plugin_address_table_t *pat){
+plugin_init(plugin_address_table_t *pat
+#ifndef PLUGINS_NEED_ADDRESS_TABLE
+_U_
+#endif
+){
   /* initialise the table of pointers needed in Win32 DLLs */
   plugin_address_table_init(pat);
   /* register the new protocol, protocol fields, and subtrees */
