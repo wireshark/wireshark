@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.29 2001/06/20 23:12:05 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.30 2001/06/20 23:29:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -192,7 +192,7 @@
 /* ************************************************************************* */
 /*                         Frame types, and their names                      */
 /* ************************************************************************* */
-static const value_string frame_type_vals[] = {
+static const value_string frame_type_subtype_vals[] = {
 	{MGT_ASSOC_REQ,        "Association Request"},
 	{MGT_ASSOC_RESP,       "Association Response"},
 	{MGT_REASSOC_REQ,      "Reassociation Request"},
@@ -788,7 +788,7 @@ set_dst_addr_cols(packet_info *pinfo, const guint8 *addr, char *type)
 static void
 dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  guint16 fcf, flags, frame_type;
+  guint16 fcf, flags, frame_type_subtype;
   const guint8 *src = NULL, *dst = NULL;
   proto_item *ti;
   proto_item *flag_item;
@@ -813,10 +813,11 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   cap_len = tvb_length(tvb);
   fcf = tvb_get_letohs (tvb, 0);
   hdr_len = find_header_length (fcf);
-  frame_type = COMPOSE_FRAME_TYPE(fcf);
+  frame_type_subtype = COMPOSE_FRAME_TYPE(fcf);
 
   COL_SHOW_INFO_CONST (pinfo->fd,
-      val_to_str(frame_type, frame_type_vals, "Unrecognized (Reserved frame)"));
+      val_to_str(frame_type_subtype, frame_type_subtype_vals,
+          "Unrecognized (Reserved frame)"));
 
   /* Add the FC to the current tree */
   if (tree)
@@ -824,6 +825,10 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       ti = proto_tree_add_protocol_format (tree, proto_wlan, tvb, 0, hdr_len,
 					   "IEEE 802.11");
       hdr_tree = proto_item_add_subtree (ti, ett_80211);
+
+      proto_tree_add_uint (hdr_tree, hf_fc_frame_type_subtype,
+			   tvb, 0, 1,
+			   frame_type_subtype);
 
       fc_item = proto_tree_add_uint_format (hdr_tree, hf_fc_field, tvb, 0, 2,
 					    fcf,
@@ -842,10 +847,6 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       proto_tree_add_uint (fc_tree, hf_fc_frame_subtype,
 			   tvb, 0, 1,
 			   COOK_FRAME_SUBTYPE (fcf));
-
-      proto_tree_add_uint (fc_tree, hf_fc_frame_type_subtype,
-			   tvb, 0, 1,
-			   frame_type);
 
       flags = COOK_FLAGS (fcf);
 
@@ -872,7 +873,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
       proto_tree_add_boolean (flag_tree, hf_fc_order, tvb, 1, 1, flags);
 
-      if (frame_type == CTRL_PS_POLL) 
+      if (frame_type_subtype == CTRL_PS_POLL) 
 	proto_tree_add_uint(hdr_tree, hf_assoc_id,tvb,2,2,
 			    COOK_ASSOC_ID(tvb_get_letohs(tvb,2)));
      
@@ -1037,7 +1038,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       break;
     }
 
-  switch (frame_type)
+  switch (frame_type_subtype)
     {
 
     case MGT_ASSOC_REQ:
@@ -1581,7 +1582,7 @@ proto_register_wlan (void)
       "Frame subtype", HFILL }},	/* 2 */
 
     {&hf_fc_frame_type_subtype,
-     {"Type/Subtype", "wlan.fc.type_subtype", FT_UINT16, BASE_HEX, VALS(frame_type_vals), 0,
+     {"Type/Subtype", "wlan.fc.type_subtype", FT_UINT16, BASE_HEX, VALS(frame_type_subtype_vals), 0,
       "Type and subtype combined", HFILL }},
 
     {&hf_fc_flags,
