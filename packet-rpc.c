@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.79 2002/01/07 00:59:26 guy Exp $
+ * $Id: packet-rpc.c,v 1.80 2002/01/10 08:06:25 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2113,6 +2113,7 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	gint tvb_len, tvb_reported_len;
 	tvbuff_t *msg_tvb;
 	const char *saved_proto;
+	volatile gboolean rpc_succeeded;
 
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 		/*
@@ -2192,10 +2193,10 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * nothing more to see, so we just re-throw it.
 		 */
 		saved_proto = pinfo->current_proto;
+		rpc_succeeded = FALSE;
 		TRY {
-			if (!dissect_rpc_message(msg_tvb, 4, pinfo, tree,
-			    TRUE, rpc_rm))
-				break;
+			rpc_succeeded = dissect_rpc_message(msg_tvb, 4,
+			    pinfo, tree, TRUE, rpc_rm);
 		}
 		CATCH(BoundsError) {
 			RETHROW;
@@ -2209,8 +2210,18 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    tvb, 0, 0, "[Malformed Packet: %s]",
 			    pinfo->current_proto );
 			pinfo->current_proto = saved_proto;
+
+			/*
+			 * We treat this as a "successful" dissection of
+			 * an RPC packet, as "dissect_rpc_message()"
+			 * *did* decide it was an RPC packet, throwing
+			 * an exception while dissecting it as such.
+			 */
+			rpc_succeeded = TRUE;
 		}
 		ENDTRY;
+		if (!rpc_succeeded)
+			break;
 		offset += len;
 		saw_rpc = TRUE;
 	}
