@@ -3151,12 +3151,14 @@ dissect_isup_connected_number_parameter(tvbuff_t *parameter_tvb, proto_tree *par
   proto_tree_add_uint(parameter_tree, hf_isup_screening_indicator, parameter_tvb, 1, 1, indicators2);
   offset = 2;
 
+  length = tvb_length_remaining(parameter_tvb, offset);
+  if (length == 0) 
+	return; /* empty connected number */
   address_digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,
 					    offset, -1,
 					    "Connected Number");
   address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
 
-  length = tvb_length_remaining(parameter_tvb, offset);
   while(length > 0){
     address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);

@@ -173,6 +173,11 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 #define	Q931_SEGMENT		0x60
 #define	Q931_STATUS		0x7D
 #define	Q931_STATUS_ENQUIRY	0x75
+#define	Q931_VERSION		0x0a
+#define	Q931_GROUIP_SERVICE	0x06
+#define	Q931_GROUIP_SERVICE_ACK	0x0b
+#define	Q931_RESYNC_REQ		0x08
+#define	Q931_RESYNC_RESP	0x09
 
 static const value_string q931_message_type_vals[] = {
 	{ Q931_ESCAPE,			"ESCAPE" },
@@ -209,6 +214,11 @@ static const value_string q931_message_type_vals[] = {
 	{ Q931_SEGMENT,			"SEGMENT" },
 	{ Q931_STATUS,			"STATUS" },
 	{ Q931_STATUS_ENQUIRY,		"STATUS ENQUIRY" },
+	{ Q931_VERSION,			"VERSION" },
+	{ Q931_GROUIP_SERVICE,		"GROUP SERVICE" },
+	{ Q931_GROUIP_SERVICE_ACK,	"GROUP SERVICE ACK" },
+	{ Q931_RESYNC_REQ,		"RESYNC REQ" },
+	{ Q931_RESYNC_RESP,		"RESYNC RESP" },
 	{ 0,				NULL }
 };
 
@@ -296,6 +306,9 @@ static const true_false_string q931_extension_ind_value = {
 #define	Q931_IE_CUG			0x47	/* Closed user group */
 #define	Q931_IE_REVERSE_CHARGE_IND	0x4A	/* Reverse charging indication */
 #define	Q931_IE_CONNECTED_NUMBER_DEFAULT        0x4C	/* Connected Number */
+#define	Q931_IE_INTERFACE_SERVICE	0x66	/* q931+ Interface Service */
+#define	Q931_IE_CHANNEL_STATUS		0x67	/* q931+ Channel Status */
+#define	Q931_IE_VERSION_INFO		0x68	/* q931+ Version Info */
 #define	Q931_IE_CALLING_PARTY_NUMBER	0x6C	/* Calling Party Number */
 #define	Q931_IE_CALLING_PARTY_SUBADDR	0x6D	/* Calling Party Subaddress */
 #define	Q931_IE_CALLED_PARTY_NUMBER	0x70	/* Called Party Number */
@@ -374,6 +387,9 @@ static const value_string q931_info_element_vals0[] = {
 	{ Q931_IE_CUG,				"Closed user group" },
 	{ Q931_IE_REVERSE_CHARGE_IND,		"Reverse charging indication" },
 	{ Q931_IE_CONNECTED_NUMBER_DEFAULT,     "Connected number" },
+	{ Q931_IE_INTERFACE_SERVICE,		"Interface Service" },
+	{ Q931_IE_CHANNEL_STATUS,		"Channel Status" },
+	{ Q931_IE_VERSION_INFO,			"Version Info" },
 	{ Q931_IE_CALLING_PARTY_NUMBER,		"Calling party number" },
 	{ Q931_IE_CALLING_PARTY_SUBADDR,	"Calling party subaddress" },
 	{ Q931_IE_CALLED_PARTY_NUMBER,		"Called party number" },
