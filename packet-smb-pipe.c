@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.79 2002/06/07 10:11:39 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.80 2002/07/03 18:17:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1787,8 +1787,10 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case 'T':
 			/*
 			 * 16-bit send buffer length.
-			 * This also appears not to be sent over the wire.
 			 */
+			proto_tree_add_item(tree, hf_send_buf_len, tvb,
+			    offset, 2, TRUE);
+			offset += 2;
 			break;
 
 		default:

@@ -1197,6 +1197,8 @@ Devin Heitmueller <dheitmueller[AT]netilla.com> {
 	Additional RAP error code
 	Give the user a warning if they click "New" in the filter list
 	    editing code without having specified a filter name and string
+	Fix to treat the "send buffer length" in SMB RAP messages as
+	    being present in the packet
 }
 
 Chenjiang Hu <chu[AT]chiaro.com> {
