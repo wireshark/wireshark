@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.97 2003/01/03 20:09:01 guy Exp $
+ * $Id: ngsniffer.c,v 1.98 2003/01/03 20:42:52 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -299,17 +299,23 @@ struct frame6_rec {
 };
 
 /*
- * Network type values in type 7 records.
+ * Network type values in some type 7 records.
  *
- * Note: captures with a major version number of 2 appear to have
- * type 7 records with text in them (at least one I have does); some
- * captures with a major version number of 5 appear not to have type 7
- * records at all (at least one I have doesn't), but do appear to put
- * non-zero values in the "rsvd" field of the version header (at least
- * one I have does) - at least some other captures with smaller version
+ * Captures with a major version number of 2 appear to have type 7
+ * records with text in them (at least one I have does).
+ *
+ * Captures with a major version of 4, and at least some captures with
+ * a major version of 5, have type 7 records with those values in the
+ * 5th byte.
+ *
+ * However, some captures with a major version number of 5 appear not to
+ * have type 7 records at all (at least one I have doesn't), but do appear
+ * to put non-zero values in the "rsvd" field of the version header (at
+ * least one I have does) - at least some other captures with smaller version
  * numbers appear to put 0 there, so *maybe* that's where the network
- * (sub)type is hidden.  Unfortunately, other version 5 captures, of
- * multiple network types, put 0 there, so that's not it.
+ * (sub)type is hidden in those captures.  The version 5 captures I've seen
+ * that *do* have type 7 records put 0 there, so it's not as if *all* V5
+ * captures have something in the "rsvd" field, however.
  *
  * The semantics of these network types is inferred from the Sniffer
  * documentation, as they correspond to types described in the UI;
@@ -318,6 +324,9 @@ struct frame6_rec {
  *	http://download.nai.com/products/media/sniffer/support/sdos/operation.pdf
  *
  * starting at page 3-10 (56 of 496).
+ *
+ * XXX - I've seen X.25 captures with NET_ROUTER, and I've seen bridge/
+ * router captures with NET_HDLC.  Sigh....
  */
 #define NET_SDLC	0	/* Probably "SDLC then SNA" */
 #define NET_HDLC	1	/* Used for X.25; is it used for other
@@ -347,7 +356,7 @@ static int process_header_records(wtap *wth, int *err, gint16 version,
     gboolean *is_router);
 static int process_rec_header2_v2(wtap *wth, unsigned char *buffer,
     guint16 length, int *err);
-static int process_rec_header2_v4(wtap *wth, unsigned char *buffer,
+static int process_rec_header2_v45(wtap *wth, unsigned char *buffer,
     guint16 length, gboolean *is_router, int *err);
 static gboolean ngsniffer_read(wtap *wth, int *err, long *data_offset);
 static gboolean ngsniffer_seek_read(wtap *wth, long seek_off,
@@ -641,9 +650,6 @@ process_header_records(wtap *wth, int *err, gint16 version, gboolean *is_router)
 		 *
 		 * If so, it appears to specify the particular type
 		 * of network we're on.
-		 *
-		 * If so, the 5th byte of the record appears to specify
-		 * the particular type of network we're on.
 		 */
 		if (wth->file_encap == WTAP_ENCAP_PER_PACKET &&
 		    type == REC_HEADER2) {
@@ -671,7 +677,8 @@ process_header_records(wtap *wth, int *err, gint16 version, gboolean *is_router)
 				break;
 
 			case 4:
-				if (process_rec_header2_v4(wth, buffer,
+			case 5:
+				if (process_rec_header2_v45(wth, buffer,
 				    length, is_router, err) < 0)
 					return -1;
 				break;
@@ -732,7 +739,7 @@ process_rec_header2_v2(wtap *wth, unsigned char *buffer, guint16 length,
 }
 
 static int
-process_rec_header2_v4(wtap *wth, unsigned char *buffer, guint16 length,
+process_rec_header2_v45(wtap *wth, unsigned char *buffer, guint16 length,
     gboolean *is_router, int *err)
 {
 	/*
