@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.15 2003/09/05 01:11:12 sahlberg Exp $
+ * $Id: endpoint_talkers_table.c,v 1.16 2003/09/05 06:16:09 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,7 @@
 #include "simple_dialog.h"
 #include "globals.h"
 #include "tap.h"
+#include "gtk/find_dlg.h"
 
 extern GtkWidget   *main_display_filter_widget;
 
@@ -313,6 +314,7 @@ ett_click_column_cb(GtkCList *clist, gint column, gpointer data)
    filter_action:
 	0: Match
 	1: Prepare
+	2: Find
    filter_type:
 	0: Selected
 	1: Not Selected
@@ -518,12 +520,16 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 		/* prepare */
 		/* do nothing */
 		break;
+	case 2:
+		/* find frame */
+		find_frame_with_filter(str);
+		break;
 	}
 
 }
 
 static gint
-ett_show_popup_menu_cb(endpoints_table *et, GdkEvent *event, gpointer vet _U_)
+ett_show_popup_menu_cb(void *widg _U_, GdkEvent *event, endpoints_table *et)
 {
 	GdkEventButton *bevent = (GdkEventButton *)event;
 
@@ -782,6 +788,27 @@ static GtkItemFactoryEntry ett_list_menu_items[] =
 	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Not Selected/ANY --> EP2", NULL,
 		ett_select_filter_cb, 1*65536+5*256+8, NULL, NULL),
 
+	/* Find Frame */
+	ITEM_FACTORY_ENTRY("/Find Frame", NULL, NULL, 0, "<Branch>", NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/EP1 <-> EP2", NULL,
+		ett_select_filter_cb, 2*65536+0*256+0, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/EP1 --> EP2", NULL,
+		ett_select_filter_cb, 2*65536+0*256+1, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/EP1 <-- EP2", NULL,
+		ett_select_filter_cb, 2*65536+0*256+2, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/EP1 <-> ANY", NULL,
+		ett_select_filter_cb, 2*65536+0*256+3, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/EP1 --> ANY", NULL,
+		ett_select_filter_cb, 2*65536+0*256+4, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/EP1 <-- ANY", NULL,
+		ett_select_filter_cb, 2*65536+0*256+5, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/ANY <-> EP2", NULL,
+		ett_select_filter_cb, 2*65536+0*256+6, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/ANY <-- EP2", NULL,
+		ett_select_filter_cb, 2*65536+0*256+7, NULL, NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/ANY --> EP2", NULL,
+		ett_select_filter_cb, 2*65536+0*256+8, NULL, NULL),
+
 
 };
 
@@ -793,7 +820,7 @@ ett_create_popup_menu(endpoints_table *et)
 	gtk_item_factory_create_items_ac(et->item_factory, sizeof(ett_list_menu_items)/sizeof(ett_list_menu_items[0]), ett_list_menu_items, et, 2);
 
 	et->menu = gtk_item_factory_get_widget(et->item_factory, "<main>");
-	gtk_signal_connect_object(GTK_OBJECT(et->table), "button_press_event", GTK_SIGNAL_FUNC(ett_show_popup_menu_cb), GTK_OBJECT(et));
+	SIGNAL_CONNECT(et->table, "button_press_event", ett_show_popup_menu_cb, et);
 }
 
 
@@ -976,7 +1003,6 @@ add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_
 	endpoint_talker_t *talker=NULL;
 	int talker_idx=0;
 	gboolean new_talker;
-	int res;
 
 	if(src_port>dst_port){
 		addr1=src;

@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.35 2003/08/29 09:32:16 sahlberg Exp $
+ * $Id: find_dlg.c,v 1.36 2003/09/05 06:16:10 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,11 +84,12 @@ filter_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w);
  * creating a new one.
  */
 static GtkWidget *find_frame_w;
+static GtkWidget *filter_text_box;
 
 void
 find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-  GtkWidget     *main_vb, *filter_hb, *filter_bt, *filter_te,
+  GtkWidget     *main_vb, *filter_hb, *filter_bt,
                 *direction_hb, *forward_rb, *backward_rb, 
                 *hex_hb, *hex_rb, *ascii_rb, *filter_rb,
                 *data_hb, *hex_data_rb, *decode_data_rb, *summary_data_rb,
@@ -147,11 +148,11 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_tooltips_set_tip (tooltips, filter_bt, ("Click on the filter button to select a display filter,\nor enter your search criteria into the text box"), NULL);
   gtk_widget_show(filter_bt);
 
-  filter_te = gtk_entry_new();
-  if (cfile.sfilter) gtk_entry_set_text(GTK_ENTRY(filter_te), cfile.sfilter);
-  OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
-  gtk_box_pack_start(GTK_BOX(filter_hb), filter_te, TRUE, TRUE, 0);
-  gtk_widget_show(filter_te);
+  filter_text_box = gtk_entry_new();
+  if (cfile.sfilter) gtk_entry_set_text(GTK_ENTRY(filter_text_box), cfile.sfilter);
+  OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_text_box);
+  gtk_box_pack_start(GTK_BOX(filter_hb), filter_text_box, TRUE, TRUE, 0);
+  gtk_widget_show(filter_text_box);
 
   direction_frame = gtk_frame_new("Direction");
   gtk_box_pack_start(GTK_BOX(main_vb), direction_frame, TRUE, TRUE, 0);
@@ -364,7 +365,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(cancel_bt);
 
   /* Attach pointers to needed widgets to the capture prefs window/object */
-  OBJECT_SET_DATA(find_frame_w, E_FIND_FILT_KEY, filter_te);
+  OBJECT_SET_DATA(find_frame_w, E_FIND_FILT_KEY, filter_text_box);
   OBJECT_SET_DATA(find_frame_w, E_FIND_BACKWARD_KEY, backward_rb);
   OBJECT_SET_DATA(find_frame_w, E_FIND_FILTERDATA_KEY, filter_rb);
   OBJECT_SET_DATA(find_frame_w, E_FIND_HEXDATA_KEY, hex_rb);
@@ -391,7 +392,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
      if the user types Return there, we act as if the "OK" button
      had been selected, as happens if Return is typed if some widget
      that *doesn't* handle the Return key has the input focus. */
-  dlg_set_activate(filter_te, ok_bt);
+  dlg_set_activate(filter_text_box, ok_bt);
 
   /* Catch the "key_press_event" signal in the window, so that we can catch
      the ESC key being pressed and act as if the "Cancel" button had
@@ -399,9 +400,17 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   dlg_set_cancel(find_frame_w, cancel_bt);
 
   /* Give the initial focus to the "Filter" entry box. */
-  gtk_widget_grab_focus(filter_te);
+  gtk_widget_grab_focus(filter_text_box);
 
   gtk_widget_show(find_frame_w);
+}
+
+/* this function opens the find frame dialogue and sets the filter string */
+void   
+find_frame_with_filter(char *filter)
+{
+	find_frame_cb(NULL, NULL);
+	gtk_entry_set_text(GTK_ENTRY(filter_text_box), filter);
 }
 
 /* 
