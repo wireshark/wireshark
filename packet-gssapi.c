@@ -2,7 +2,7 @@
  * Dissector for GSS-API tokens as described in rfc2078, section 3.1
  * Copyright 2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-gssapi.c,v 1.8 2002/08/29 05:26:45 sharpe Exp $
+ * $Id: packet-gssapi.c,v 1.9 2002/08/29 16:36:16 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,7 @@
 #include "asn1.h"
 #include "format-oid.h"
 #include "packet-gssapi.h"
+#include "epan/conversation.h"
 
 static int proto_gssapi = -1;
 
@@ -122,6 +123,7 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissector_handle_t handle;
 	proto_item *sub_item;
 	proto_tree *oid_subtree;
+	conversation_t *conversation;
 
 	item = proto_tree_add_item(
 		tree, hf_gssapi, tvb, offset, length, FALSE);
@@ -140,19 +142,36 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		goto done;
 	}
 
-	/* FIXME!
-	 * If we do not recognise an Application class, then
-	 * then we are probably dealing with an inner context
-	 * token, and we should retrieve the dissector from
-	 * the conversation that exists or we created from pinfo
-	 */
-
 	if (!(cls == ASN1_APL && con == ASN1_CON && tag == 0)) {
+
+	  /* 
+	   * If we do not recognise an Application class, then
+	   * then we are probably dealing with an inner context
+	   * token, and we should retrieve the dissector from
+	   * the conversation that exists or we created from pinfo
+	   *
+	   * Note! We cheat. Since we only need the dissector handle,
+	   * We store that as the conversation data ... after type casting. 
+	   */
+
+	  if (!(conversation = find_conversation(&pinfo->src, &pinfo->dst,
+						 pinfo->ptype, pinfo->srcport,
+						 pinfo->destport, 0))) {
+
 		proto_tree_add_text(
 			subtree, tvb, offset, 0,
 			"Unknown header (cls=%d, con=%d, tag=%d)",
 			cls, con, tag);
 		goto done;
+	  }
+	  else { /* Call the dissector directly, through the conversation */
+	    tvbuff_t *oid_tvb;
+
+	    offset = hnd.offset;
+	    oid_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	    call_dissector((dissector_handle_t)handle, 
+			   oid_tvb, pinfo, subtree);
+	  }
 	}
 
 	offset = hnd.offset;
