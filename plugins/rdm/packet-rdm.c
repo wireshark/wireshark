@@ -1,7 +1,7 @@
 /* packet-rdm.c
  * Routines for RDM packet disassembly
  *
- * $Id: packet-rdm.c,v 1.1 2003/11/17 20:57:14 guy Exp $
+ * $Id: packet-rdm.c,v 1.2 2003/11/17 22:26:57 guy Exp $
  *
  * Copyright (c) 2003 by Erwin Rol <erwin@erwinrol.com>
  *
@@ -80,10 +80,12 @@ static int ett_rdm = -1;
 
 static void
 dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-  gint offset = 0;
+  gint offset = 0, start_offset,i;
+  guint16 checksum,calc_checksum;
   gint mdb_size;
   proto_tree *ti=NULL,*rdm_tree=NULL;
-
+  proto_item* item;
+  
   /* Set the protocol column */
   if(check_col(pinfo->cinfo,COL_PROTOCOL)){
     col_set_str(pinfo->cinfo,COL_PROTOCOL,"RDM");
@@ -106,6 +108,8 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                                                                                                                                                                                      
   if (tree)
   {
+    start_offset = offset;
+  
     proto_tree_add_item(rdm_tree, hf_rdm_sub_start_code, tvb,
                         offset, 1, FALSE);
     offset += 1;
@@ -143,8 +147,21 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                         offset, mdb_size, FALSE);
     offset += mdb_size;
 
-    proto_tree_add_item(rdm_tree, hf_rdm_checksum, tvb,
+    calc_checksum = 0x00f0;
+    for( i = start_offset; i < offset; i++)
+    {
+      calc_checksum += tvb_get_guint8( tvb, i );    
+    }
+
+    checksum = tvb_get_ntohs( tvb, offset );
+    item = proto_tree_add_item(rdm_tree, hf_rdm_checksum, tvb,
                         offset, 2, FALSE);
+
+    if( calc_checksum != checksum )
+      proto_item_append_text( item, " ( INCORRECT should be 0x%04x )", calc_checksum );
+    else
+      proto_item_append_text( item, " ( CORRECT )" );
+  
     offset += 2;
   }
 }
