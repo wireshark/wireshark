@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-Editcap - Edit and/or translate the format of capture files
+editcap - Edit and/or translate the format of capture files
 
 =head1 SYNOPSYS
 

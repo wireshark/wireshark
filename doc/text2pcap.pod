@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-Text2pcap - Generate a capture file from an ASCII hexdump of packets
+text2pcap - Generate a capture file from an ASCII hexdump of packets
 
 =head1 SYNOPSYS
 
