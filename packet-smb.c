@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.57 1999/12/23 20:47:16 guy Exp $
+ * $Id: packet-smb.c,v 1.58 2000/01/07 04:27:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -9228,6 +9228,9 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd, proto_tree
   int              index;
   guint8           Pad2;
   const gchar      *Data;
+
+  if (!TransactName)
+	  return;
 
   TransactNameCopy = g_malloc(strlen(TransactName) + 1);
 
