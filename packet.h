@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.19 1998/10/16 01:18:33 gerald Exp $
+ * $Id: packet.h,v 1.20 1998/10/16 06:46:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -514,9 +514,11 @@ void dissect_tr(const u_char *, frame_data *, GtkTree *);
  * tree *
  * They should never modify the packet data.
  */
+void dissect_aarp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_arp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_bootp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_data(const u_char *, int, frame_data *, GtkTree *);
+void dissect_ddp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_dns(const u_char *, int, frame_data *, GtkTree *);
 void dissect_icmp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_igmp(const u_char *, int, frame_data *, GtkTree *);
