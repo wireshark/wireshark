@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.398 2004/02/17 14:49:11 ulfl Exp $
+ * $Id: main.c,v 1.399 2004/02/20 17:36:37 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1643,7 +1643,7 @@ register_ethereal_tap(char *cmd, void (*func)(char *arg))
 enum { DND_TARGET_STRING, DND_TARGET_ROOTWIN, DND_TARGET_URL };
 
 void
-dnd_open_file_cmd(gpointer cf_name)
+dnd_open_file_cmd(gchar *cf_name)
 {
 	int       err;
 
@@ -1690,17 +1690,24 @@ dnd_uri2filename(gchar *cf_name)
 
     /*
      * Remove URI header.
-     * On win32 (at least WinXP), this string looks like:
+     * On win32 (at least WinXP), this string looks like (UNC or local filename):
+     * file:////servername/sharename/dir1/dir2/capture-file.cap
+     * or
      * file:///d:/dir1/dir2/capture-file.cap
-     * we have to remove the file:/// to get a valid filename.
+     * we have to remove the prefix to get a valid filename.
      *
      * On UNIX (at least KDE 3.0 Konqueror), this string looks like:
      * file:/dir1/dir2/capture-file.cap
      * we have to remove the file: to get a valid filename.
      */ 
-    if (strncmp("file:///", cf_name, 8) == 0) {
+    if (strncmp("file:////", cf_name, 9) == 0) {
+        /* now becoming: //servername/sharename/dir1/dir2/capture-file.cap */
+        cf_name += 7;
+    } else if (strncmp("file:///", cf_name, 8) == 0) {
+        /* now becoming: d:/dir1/dir2/capture-file.cap */
         cf_name += 8;
     } else if (strncmp("file:", cf_name, 5) == 0) {
+        /* now becoming: /dir1/dir2/capture-file.cap */
         cf_name += 5;
     }
 
