@@ -386,6 +386,7 @@ I<type> specifies which type of conversation we want to generate the
 statistics for, currently the supported ones are
   "eth"   Ethernet
   "ip"    IP addresses
+  "ipx"   IPX addresses
   "tcp"   TCP/IP socketpairs   Both IPv4 and IPv6 are supported
   "tr"    TokenRing
   "udp"   UDP/IP socketpairs   Both IPv4 and IPv6 are supported

@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.33 2003/08/24 03:00:10 sahlberg Exp $
+ * $Id: to_str.c,v 1.34 2003/08/24 05:38:16 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -728,6 +728,8 @@ decode_numeric_bitfield(guint32 val, guint32 mask, int width,
 }
 
 
+/*XXX FIXME the code below may be called very very frequently in the future.
+  optimize it for speed and get rid of the slow sprintfs */
 /* convert an address struct into a printable string */
 gchar*	
 address_to_str(address *addr)
@@ -756,6 +758,9 @@ address_to_str(address *addr)
     return strp;
   case AT_IPv6:
     inet_ntop(AF_INET6, addr->data, strp, INET6_ADDRSTRLEN);
+    return strp;
+  case AT_IPX:
+    sprintf(strp, "%02x%02x%02x%02x.%02x%02x%02x%02x%02x%02x", addr->data[0], addr->data[1], addr->data[2], addr->data[3], addr->data[4], addr->data[5], addr->data[6], addr->data[7], addr->data[8], addr->data[9]);
     return strp;
   }
 

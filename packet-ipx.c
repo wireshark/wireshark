@@ -6,7 +6,7 @@
  * Portions Copyright (c) 2000-2002 by Gilbert Ramirez.
  * Portions Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ipx.c,v 1.135 2003/08/24 05:21:01 sahlberg Exp $
+ * $Id: packet-ipx.c,v 1.136 2003/08/24 05:37:57 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -276,7 +276,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	SET_ADDRESS(&ipxh->ipx_src,	AT_IPX, 10, src_net_node);
 	SET_ADDRESS(&pinfo->net_dst,	AT_IPX, 10, dst_net_node);
 	SET_ADDRESS(&pinfo->dst,	AT_IPX, 10, dst_net_node);
-	SET_ADDRESS(&ipxh->ipx_dst,	AT_IPX, 10, src_net_node);
+	SET_ADDRESS(&ipxh->ipx_dst,	AT_IPX, 10, dst_net_node);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%04x)",
