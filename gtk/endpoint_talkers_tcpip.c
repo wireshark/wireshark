@@ -1,9 +1,7 @@
-/* should be trivial to extend to handle ipv6 as well.    currently only support
-for ipv4*/
 /* endpoint_talkers_tcpip.c
  * endpoint_talkers_tcpip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_tcpip.c,v 1.1 2003/08/23 09:09:35 sahlberg Exp $
+ * $Id: endpoint_talkers_tcpip.c,v 1.2 2003/08/23 13:56:39 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,18 +71,14 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 static char *
 tcpip_address_to_str(address *addr)
 {
-	static int i=0;
-	static char *strp, str[4][256];
-
-	i++;
-	if(i>=4){
-		i=0;
-	}
-	strp=str[i];
+	char *strp=NULL;
 
 	switch(addr->type){
 	case AT_IPv4:
-		sprintf(strp, "%d.%d.%d.%d", addr->data[0], addr->data[1], addr->data[2], addr->data[3]);
+		strp=ip_to_str(addr->data);
+		break;
+	case AT_IPv6:
+		strp=ip6_to_str(addr->data);
 		break;
 	default:
 		fprintf(stderr, "Unsupported transport for TCP in the TCP talkers tap.\n");
@@ -151,8 +145,8 @@ gtk_tcpip_talkers_init(char *optarg)
 	GString *error_string;
 
 
-	if(!strncmp(optarg,"talkers,tcpip,",14)){
-		filter=optarg+14;
+	if(!strncmp(optarg,"talkers,tcp,",12)){
+		filter=optarg+12;
 	} else {
 		filter=NULL;
 	}
@@ -161,7 +155,7 @@ gtk_tcpip_talkers_init(char *optarg)
 
 	tcpip_talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(tcpip_talkers->win), 750, 400);
-	gtk_window_set_title(GTK_WINDOW(tcpip_talkers->win), "TCP/IP Talkers");
+	gtk_window_set_title(GTK_WINDOW(tcpip_talkers->win), "TCP Talkers");
 
 	SIGNAL_CONNECT(tcpip_talkers->win, "destroy", win_destroy_cb, tcpip_talkers);
 
@@ -170,7 +164,7 @@ gtk_tcpip_talkers_init(char *optarg)
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
 	gtk_widget_show(vbox);
 
-	label=gtk_label_new("TCPIP Talkers");
+	label=gtk_label_new("TCP Talkers");
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 	gtk_widget_show(label);
 
@@ -195,14 +189,14 @@ gtk_tcpip_talkers_init(char *optarg)
 static void
 gtk_tcpip_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_tcpip_talkers_init("talkers,tcpip");
+	gtk_tcpip_talkers_init("talkers,tcp");
 }
 
 
 void
 register_tap_menu_tcpip_talkers(void)
 {
-	register_tap_menu_item("Endpoint Talkers/TCPIP", gtk_tcpip_endpoints_cb);
+	register_tap_menu_item("Endpoint Talkers/TCP (IPv4 IPv6)", gtk_tcpip_endpoints_cb);
 }
 
 
@@ -211,6 +205,6 @@ register_tap_menu_tcpip_talkers(void)
 void
 register_tap_listener_tcpip_talkers(void)
 {
-	register_ethereal_tap("talkers,tcpip", gtk_tcpip_talkers_init);
+	register_ethereal_tap("talkers,tcp", gtk_tcpip_talkers_init);
 }
 

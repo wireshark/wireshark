@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.29 2003/08/23 13:35:06 sahlberg Exp $
+ * $Id: to_str.c,v 1.30 2003/08/23 13:56:39 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -183,10 +183,17 @@ ip6_to_str(const struct e_in6_addr *ad) {
 #ifndef INET6_ADDRSTRLEN
 #define INET6_ADDRSTRLEN 46
 #endif
-  static gchar buf[INET6_ADDRSTRLEN];
+  static int i=0;
+  static gchar *strp, str[4][INET6_ADDRSTRLEN];
 
-  inet_ntop(AF_INET6, (const guchar*)ad, (gchar*)buf, sizeof(buf));
-  return buf;
+  i++;
+  if(i>=4){
+    i=0;
+  }
+  strp=str[i];
+
+  inet_ntop(AF_INET6, (const guchar*)ad, (gchar*)strp, INET6_ADDRSTRLEN);
+  return strp;
 }
 
 gchar*
