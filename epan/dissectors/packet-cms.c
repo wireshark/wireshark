@@ -8,7 +8,7 @@
 /* packet-cms.c
  * Routines for RFC2630 Cryptographic Message Syntax packet dissection
  *
- * $Id: packet-cms-template.c 12394 2004-10-26 13:54:09Z sahlberg $
+ * $Id: packet-cms-template.c 12426 2004-10-28 22:06:55Z gerald $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,9 +51,7 @@
 
 /* Initialize the protocol and registered fields */
 int proto_cms = -1;
-static int hf_cms_keyAttr_id = -1;
 static int hf_cms_ci_contentType = -1;
-static int hf_cms_eci_eContentType = -1;
 
 /*--- Included file: packet-cms-hf.c ---*/
 
@@ -62,6 +60,8 @@ static int hf_cms_EnvelopedData_PDU = -1;         /* EnvelopedData */
 static int hf_cms_DigestedData_PDU = -1;          /* DigestedData */
 static int hf_cms_EncryptedData_PDU = -1;         /* EncryptedData */
 static int hf_cms_AuthenticatedData_PDU = -1;     /* AuthenticatedData */
+static int hf_cms_contentType = -1;               /* T_contentType */
+static int hf_cms_content = -1;                   /* T_content */
 static int hf_cms_version = -1;                   /* CMSVersion */
 static int hf_cms_digestAlgorithms = -1;          /* DigestAlgorithmIdentifiers */
 static int hf_cms_encapContentInfo = -1;          /* EncapsulatedContentInfo */
@@ -70,8 +70,8 @@ static int hf_cms_crls = -1;                      /* CertificateRevocationLists 
 static int hf_cms_signerInfos = -1;               /* SignerInfos */
 static int hf_cms_DigestAlgorithmIdentifiers_item = -1;  /* DigestAlgorithmIdentifier */
 static int hf_cms_SignerInfos_item = -1;          /* SignerInfo */
-static int hf_cms_eContentType = -1;              /* ContentType */
-static int hf_cms_eContent = -1;                  /* OCTET_STRING */
+static int hf_cms_eContentType = -1;              /* T_eContentType */
+static int hf_cms_eContent = -1;                  /* T_eContent */
 static int hf_cms_sid = -1;                       /* SignerIdentifier */
 static int hf_cms_digestAlgorithm = -1;           /* DigestAlgorithmIdentifier */
 static int hf_cms_signedAttrs = -1;               /* SignedAttributes */
@@ -89,7 +89,7 @@ static int hf_cms_encryptedContentInfo = -1;      /* EncryptedContentInfo */
 static int hf_cms_unprotectedAttrs = -1;          /* UnprotectedAttributes */
 static int hf_cms_certs = -1;                     /* CertificateSet */
 static int hf_cms_RecipientInfos_item = -1;       /* RecipientInfo */
-static int hf_cms_contentType = -1;               /* ContentType */
+static int hf_cms_contentType1 = -1;              /* ContentType */
 static int hf_cms_contentEncryptionAlgorithm = -1;  /* ContentEncryptionAlgorithmIdentifier */
 static int hf_cms_encryptedContent = -1;          /* EncryptedContent */
 static int hf_cms_UnprotectedAttributes_item = -1;  /* Attribute */
@@ -126,6 +126,8 @@ static int hf_cms_attrCert = -1;                  /* AttributeCertificate */
 static int hf_cms_CertificateSet_item = -1;       /* CertificateChoices */
 static int hf_cms_issuer = -1;                    /* Name */
 static int hf_cms_serialNumber = -1;              /* CertificateSerialNumber */
+static int hf_cms_keyAttrId = -1;                 /* T_keyAttrId */
+static int hf_cms_keyAttr = -1;                   /* T_keyAttr */
 static int hf_cms_extendedCertificateInfo = -1;   /* ExtendedCertificateInfo */
 static int hf_cms_signature = -1;                 /* Signature */
 static int hf_cms_attributes = -1;                /* UnauthAttributes */
@@ -134,10 +136,10 @@ static int hf_cms_attributes = -1;                /* UnauthAttributes */
 
 
 /* Initialize the subtree pointers */
-static gint ett_cms_ContentInfo = -1;
 
 /*--- Included file: packet-cms-ett.c ---*/
 
+static gint ett_cms_ContentInfo = -1;
 static gint ett_cms_SignedData = -1;
 static gint ett_cms_DigestAlgorithmIdentifiers = -1;
 static gint ett_cms_SignerInfos = -1;
@@ -180,8 +182,7 @@ static gint ett_cms_ExtendedCertificateInfo = -1;
 /*--- End of included file: packet-cms-ett.c ---*/
 
 
-static int dissect_cms_OtherKeyAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index);
-
+static char object_identifier_id[64]; /*64 chars should be long enough? */
 
 
 /*--- Included file: packet-cms-fn.c ---*/
@@ -215,11 +216,47 @@ dissect_cms_ContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
   return offset;
 }
-static int dissect_eContentType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cms_ContentType(FALSE, tvb, offset, pinfo, tree, hf_cms_eContentType);
+static int dissect_contentType1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_ContentType(FALSE, tvb, offset, pinfo, tree, hf_cms_contentType1);
+}
+
+
+static int
+dissect_cms_T_contentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cms_ci_contentType, object_identifier_id);
+
+
+  return offset;
 }
 static int dissect_contentType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cms_ContentType(FALSE, tvb, offset, pinfo, tree, hf_cms_contentType);
+  return dissect_cms_T_contentType(FALSE, tvb, offset, pinfo, tree, hf_cms_contentType);
+}
+
+
+static int
+dissect_cms_T_content(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+
+  return offset;
+}
+static int dissect_content(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_T_content(FALSE, tvb, offset, pinfo, tree, hf_cms_content);
+}
+
+static const ber_sequence ContentInfo_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_contentType },
+  { BER_CLASS_CON, 0, 0, dissect_content },
+  { 0, 0, 0, NULL }
+};
+
+int
+dissect_cms_ContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                ContentInfo_sequence, hf_index, ett_cms_ContentInfo);
+
+  return offset;
 }
 
 
@@ -277,19 +314,52 @@ static int dissect_digestAlgorithms(packet_info *pinfo, proto_tree *tree, tvbuff
 
 
 static int
-dissect_cms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+dissect_cms_T_eContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cms_ci_contentType, object_identifier_id);
+
+
+  return offset;
+}
+static int dissect_eContentType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_T_eContentType(FALSE, tvb, offset, pinfo, tree, hf_cms_eContentType);
+}
+
+
+static int
+dissect_cms_T_eContent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint8 class;
+  gboolean pc, ind;
+  guint32 tag, len;
+  int pdu_offset = offset;
+
+  /* XXX Do we care about printing out the octet string? */
+  offset = dissect_cms_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_cms_eContent);
+
+  pdu_offset = get_ber_identifier(tvb, pdu_offset, &class, &pc, &tag);
+  pdu_offset = get_ber_length(tvb, pdu_offset, &len, &ind);
+  pdu_offset = call_ber_oid_callback(object_identifier_id, tvb, pdu_offset, pinfo, tree);
+
 
   return offset;
 }
 static int dissect_eContent(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cms_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_cms_eContent);
-}
-static int dissect_keyIdentifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cms_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_cms_keyIdentifier);
+  return dissect_cms_T_eContent(FALSE, tvb, offset, pinfo, tree, hf_cms_eContent);
 }
 
+static const ber_sequence EncapsulatedContentInfo_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_eContentType },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_eContent },
+  { 0, 0, 0, NULL }
+};
+
+int
+dissect_cms_EncapsulatedContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                EncapsulatedContentInfo_sequence, hf_index, ett_cms_EncapsulatedContentInfo);
+
+  return offset;
+}
 static int dissect_encapContentInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_cms_EncapsulatedContentInfo(FALSE, tvb, offset, pinfo, tree, hf_cms_encapContentInfo);
 }
@@ -786,6 +856,44 @@ static int dissect_date(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
   return dissect_cms_GeneralizedTime(FALSE, tvb, offset, pinfo, tree, hf_cms_date);
 }
 
+
+static int
+dissect_cms_T_keyAttrId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cms_ci_contentType, object_identifier_id);
+
+
+  return offset;
+}
+static int dissect_keyAttrId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_T_keyAttrId(FALSE, tvb, offset, pinfo, tree, hf_cms_keyAttrId);
+}
+
+
+static int
+dissect_cms_T_keyAttr(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+
+  return offset;
+}
+static int dissect_keyAttr(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_T_keyAttr(FALSE, tvb, offset, pinfo, tree, hf_cms_keyAttr);
+}
+
+static const ber_sequence OtherKeyAttribute_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_keyAttrId },
+  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_keyAttr },
+  { 0, 0, 0, NULL }
+};
+
+int
+dissect_cms_OtherKeyAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                OtherKeyAttribute_sequence, hf_index, ett_cms_OtherKeyAttribute);
+
+  return offset;
+}
 static int dissect_other(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_cms_OtherKeyAttribute(FALSE, tvb, offset, pinfo, tree, hf_cms_other);
 }
@@ -882,6 +990,18 @@ dissect_cms_KeyAgreeRecipientInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 }
 static int dissect_kari_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_cms_KeyAgreeRecipientInfo(TRUE, tvb, offset, pinfo, tree, hf_cms_kari);
+}
+
+
+static int
+dissect_cms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                    NULL);
+
+  return offset;
+}
+static int dissect_keyIdentifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_cms_keyIdentifier);
 }
 
 static const ber_sequence KEKIdentifier_sequence[] = {
@@ -986,7 +1106,7 @@ static int dissect_encryptedContent_impl(packet_info *pinfo, proto_tree *tree, t
 }
 
 static const ber_sequence EncryptedContentInfo_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_contentType },
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_contentType1 },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_contentEncryptionAlgorithm },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_encryptedContent_impl },
   { 0, 0, 0, NULL }
@@ -1168,113 +1288,6 @@ static void dissect_AuthenticatedData_PDU(tvbuff_t *tvb, packet_info *pinfo, pro
 
 
 
-static char keyAttr_id[64]; /*64 chars should be long enough? */
-static int
-dissect_keyAttrId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
-{
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cms_keyAttr_id, keyAttr_id);
-  return offset;
-}
-
-static int
-dissect_keyAttr_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
-{
-  offset=call_ber_oid_callback(keyAttr_id, tvb, offset, pinfo, tree);
-
-  return offset;
-}
-
-static const ber_sequence OtherKeyAttribute_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_keyAttrId },
-  { BER_CLASS_ANY, 0, 0, dissect_keyAttr_type },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_cms_OtherKeyAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                OtherKeyAttribute_sequence, hf_index, ett_cms_OtherKeyAttribute);
-
-  return offset;
-}
-
-
-
-/* ContentInfo can not yet be handled by the compiler */
-static char ci_contentType[64]; /*64 chars should be long enough? */
-static int
-dissect_hf_cms_contentType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
-{
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cms_ci_contentType, ci_contentType);
-  return offset;
-}
-static int
-dissect_hf_cms_contentType_content(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
-{
-  offset=call_ber_oid_callback(ci_contentType, tvb, offset, pinfo, tree);
-
-  return offset;
-}
-
-static const ber_sequence ContentInfo_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_hf_cms_contentType },
-  { BER_CLASS_ANY, 0, 0, dissect_hf_cms_contentType_content },
-  { 0, 0, 0, NULL }
-};
-
-int
-dissect_cms_ContentInfo(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                ContentInfo_sequence, hf_index, ett_cms_ContentInfo);
-
-  return offset;
-}
-
-
-/* Do the same thing for EncapsulatedContentInfo */
-static char eci_eContentType[64]; /*64 chars should be long enough? */
-static int
-dissect_hf_cms_eContentType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
-{
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cms_eci_eContentType, eci_eContentType);
-  return offset;
-}
-static int
-dissect_hf_cms_eContentType_content(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
-{
-  guint8 class;
-  gboolean pc, ind;
-  guint32 tag, len;
-  int pdu_offset = offset;
-
-  /* XXX Do we care about printing out the octet string? */
-  offset = dissect_cms_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_cms_eContent);
-
-  pdu_offset = get_ber_identifier(tvb, pdu_offset, &class, &pc, &tag);
-  pdu_offset = get_ber_length(tvb, pdu_offset, &len, &ind);
-  pdu_offset = call_ber_oid_callback(eci_eContentType, tvb, pdu_offset, pinfo, tree);
-
-  return offset;
-}
-
-static const ber_sequence EncapsulatedContentInfo_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_hf_cms_eContentType },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_hf_cms_eContentType_content },
-  { 0, 0, 0, NULL }
-};
-
-int
-dissect_cms_EncapsulatedContentInfo(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                EncapsulatedContentInfo_sequence, hf_index, ett_cms_EncapsulatedContentInfo);
-
-  return offset;
-}
-
-
 /*--- proto_register_cms ----------------------------------------------*/
 void proto_register_cms(void) {
 
@@ -1284,14 +1297,6 @@ void proto_register_cms(void) {
       { "contentType", "cms.contentInfo.contentType",
         FT_STRING, BASE_NONE, NULL, 0,
         "ContentType", HFILL }},
-    { &hf_cms_eci_eContentType,
-      { "eContentType", "cms.encapContentInfo.eContentType",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "EncapsulatedContentType", HFILL }},
-    { &hf_cms_keyAttr_id,
-      { "keyAttr_id", "cms.keyAttr_id",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "keyAttr_id", HFILL }},
 
 /*--- Included file: packet-cms-hfarr.c ---*/
 
@@ -1315,6 +1320,14 @@ void proto_register_cms(void) {
       { "AuthenticatedData", "cms.AuthenticatedData",
         FT_NONE, BASE_NONE, NULL, 0,
         "AuthenticatedData", HFILL }},
+    { &hf_cms_contentType,
+      { "contentType", "cms.contentType",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "ContentInfo/contentType", HFILL }},
+    { &hf_cms_content,
+      { "content", "cms.content",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ContentInfo/content", HFILL }},
     { &hf_cms_version,
       { "version", "cms.version",
         FT_INT32, BASE_DEC, VALS(CMSVersion_vals), 0,
@@ -1423,7 +1436,7 @@ void proto_register_cms(void) {
       { "Item", "cms.RecipientInfos_item",
         FT_UINT32, BASE_DEC, VALS(RecipientInfo_vals), 0,
         "RecipientInfos/_item", HFILL }},
-    { &hf_cms_contentType,
+    { &hf_cms_contentType1,
       { "contentType", "cms.contentType",
         FT_STRING, BASE_NONE, NULL, 0,
         "EncryptedContentInfo/contentType", HFILL }},
@@ -1571,6 +1584,14 @@ void proto_register_cms(void) {
       { "serialNumber", "cms.serialNumber",
         FT_INT32, BASE_DEC, NULL, 0,
         "IssuerAndSerialNumber/serialNumber", HFILL }},
+    { &hf_cms_keyAttrId,
+      { "keyAttrId", "cms.keyAttrId",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "OtherKeyAttribute/keyAttrId", HFILL }},
+    { &hf_cms_keyAttr,
+      { "keyAttr", "cms.keyAttr",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "OtherKeyAttribute/keyAttr", HFILL }},
     { &hf_cms_extendedCertificateInfo,
       { "extendedCertificateInfo", "cms.extendedCertificateInfo",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1590,11 +1611,10 @@ void proto_register_cms(void) {
 
   /* List of subtrees */
   static gint *ett[] = {
-	&ett_cms_ContentInfo,
-	&ett_cms_EncapsulatedContentInfo,
 
 /*--- Included file: packet-cms-ettarr.c ---*/
 
+    &ett_cms_ContentInfo,
     &ett_cms_SignedData,
     &ett_cms_DigestAlgorithmIdentifiers,
     &ett_cms_SignerInfos,

@@ -9,11 +9,15 @@ InformationFramework x509if
 
 #.INCLUDE ../x509af/x509af_exp.cnf
 #.INCLUDE ../x509if/x509if_exp.cnf
+#.INCLUDE ./cms_dummy.cnf
 
 #.EXPORTS
+ContentInfo
+EncapsulatedContentInfo
 SignedData
 Countersignature
 IssuerAndSerialNumber
+OtherKeyAttribute
 
 #.REGISTER
 SignedData        B "1.2.840.113549.1.7.2"      "id-signedData"
@@ -23,14 +27,43 @@ EncryptedData     B "1.2.840.113549.1.7.6"      "id-encryptedData"
 AuthenticatedData B "1.2.840.113549.1.9.16.1.2" "id-ct-authenticatedData"
 
 #.NO_EMIT
-OtherKeyAttribute
-EncapsulatedContentInfo
 
 #.TYPE_RENAME
 
 #.FIELD_RENAME
 SignerInfo/signature	signatureValue
 RecipientEncryptedKey/rid	rekRid
+
+#.FN_BODY ContentInfo/contentType
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cms_ci_contentType, object_identifier_id);
+
+#.FN_BODY ContentInfo/content
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+#.FN_BODY EncapsulatedContentInfo/eContentType
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cms_ci_contentType, object_identifier_id);
+
+#.FN_BODY EncapsulatedContentInfo/eContent
+  guint8 class;
+  gboolean pc, ind;
+  guint32 tag, len;
+  int pdu_offset = offset;
+
+  /* XXX Do we care about printing out the octet string? */
+  offset = dissect_cms_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_cms_eContent);
+
+  pdu_offset = get_ber_identifier(tvb, pdu_offset, &class, &pc, &tag);
+  pdu_offset = get_ber_length(tvb, pdu_offset, &len, &ind);
+  pdu_offset = call_ber_oid_callback(object_identifier_id, tvb, pdu_offset, pinfo, tree);
+
+#.FN_BODY OtherKeyAttribute/keyAttrId
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cms_ci_contentType, object_identifier_id);
+
+#.FN_BODY OtherKeyAttribute/keyAttr
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 #.END
 

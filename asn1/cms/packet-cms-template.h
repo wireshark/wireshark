@@ -25,9 +25,6 @@
 #ifndef PACKET_CMS_H
 #define PACKET_CMS_H
 
-int dissect_cms_ContentInfo(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index);
-int dissect_cms_EncapsulatedContentInfo(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index);
-
 #include "packet-cms-exp.h"
 
 #endif  /* PACKET_CMS_H */

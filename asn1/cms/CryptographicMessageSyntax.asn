@@ -11,6 +11,8 @@ BEGIN
 -- own purposes.
 
 IMPORTS
+        Any
+           FROM DummyCms { 0 }
 
   -- Directory Information Framework (X.501)
         Name
@@ -28,11 +30,10 @@ IMPORTS
 -- 
 
 
---             Implemented by hand in the template
---ContentInfo ::= SEQUENCE {
---   contentType ContentType,
---   content [0] EXPLICIT ANY DEFINED BY contentType 
---}
+ContentInfo ::= SEQUENCE {
+   contentType ContentType,
+   content [0] EXPLICIT Any
+}
 
 
 ContentType ::= OBJECT IDENTIFIER
@@ -223,10 +224,9 @@ CMSVersion ::= INTEGER  { v0(0), v1(1), v2(2), v3(3), v4(4) }
 
 UserKeyingMaterial ::= OCTET STRING
 
--- Implemented by hand in the template
 OtherKeyAttribute ::= SEQUENCE {
---  keyAttrId OBJECT IDENTIFIER,
---  keyAttr ANY DEFINED BY keyAttrId OPTIONAL }
+  keyAttrId OBJECT IDENTIFIER,
+  keyAttr Any OPTIONAL
 }
 
 -- CMS Attributes
