@@ -2,7 +2,7 @@
  * Routines for hclnfsd (Hummingbird NFS Daemon) dissection
  * Copyright 2001, Mike Frisch <frisch@hummingbird.com>
  *
- * $Id: packet-hclnfsd.c,v 1.8 2002/01/12 10:24:46 guy Exp $
+ * $Id: packet-hclnfsd.c,v 1.9 2002/04/01 21:17:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -229,29 +229,8 @@ dissect_hclnfsd_grp_to_number_call(tvbuff_t *tvb, int offset, packet_info *pinfo
 static int
 dissect_hclnfsd_grp_to_number_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	guint32 ngrpnames, ngrpnames_i;
-	proto_tree *grptree = NULL;
-	proto_item *grpitem = NULL;
-
-	ngrpnames = tvb_get_ntohl(tvb, offset);
-	if (tree)
-	{
-		grpitem = proto_tree_add_text(tree, tvb, offset, 4, "Groups: %d",
-			ngrpnames);
-
-		if (grpitem)
-			grptree = proto_item_add_subtree(grpitem, ett_hclnfsd_groups);
-	}
-	offset += 4;
-
-	if (!grptree)
-		return offset;
-
-	for (ngrpnames_i = 0; ngrpnames_i < ngrpnames ; ngrpnames_i++)
-		offset = dissect_rpc_string(tvb, pinfo, grptree, 
-			hf_hclnfsd_grpname, offset, NULL);
-	
-	return offset;
+	return dissect_rpc_string(tvb, pinfo, tree, hf_hclnfsd_grpname, offset, 
+		NULL);
 }
 
 
