@@ -1650,6 +1650,8 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
     guint iSCSIPdusDissected = 0;
     guint offset = 0;
     guint32 available_bytes = tvb_length_remaining(tvb, offset);
+    guint32 pduLen = 48;
+    int digestsActive = 1;
 
     /* quick check to see if the packet is long enough to contain the
      * minimum amount of information we need */
@@ -1721,94 +1723,89 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 	if(badPdu) {
 	    return iSCSIPdusDissected > 0;
 	}
-	else {
-	    guint32 pduLen = 48;
-	    int digestsActive = 1;
 
-	    if(opcode == ISCSI_OPCODE_LOGIN_COMMAND ||
-	       opcode == ISCSI_OPCODE_LOGIN_RESPONSE) {
-		if(iscsi_protocol_version == ISCSI_PROTOCOL_DRAFT08) {
-		    if((secondPduByte & CSG_MASK) < ISCSI_CSG_OPERATIONAL_NEGOTIATION) {
-			/* digests are not yet turned on */
-			digestsActive = 0;
-		    }
-		}
-		else {
+	if(opcode == ISCSI_OPCODE_LOGIN_COMMAND ||
+	    opcode == ISCSI_OPCODE_LOGIN_RESPONSE) {
+	    if(iscsi_protocol_version == ISCSI_PROTOCOL_DRAFT08) {
+		if((secondPduByte & CSG_MASK) < ISCSI_CSG_OPERATIONAL_NEGOTIATION) {
+		    /* digests are not yet turned on */
 		    digestsActive = 0;
 		}
+	    } else {
+		digestsActive = 0;
 	    }
-
-	    if(opcode == ISCSI_OPCODE_SCSI_COMMAND) {
-		/* ahsLen */
-		pduLen += tvb_get_guint8(tvb, offset + 4) * 4;
-	    }
-
-	    pduLen += data_segment_len;
-	    if((pduLen & 3) != 0)
-		pduLen += 4 - (pduLen & 3);
-
-	    if(digestsActive && enableHeaderDigests) {
-		if(headerDigestIsCRC32)
-		    pduLen += 4;
-		else
-		    pduLen += headerDigestSize;
-	    }
-
-	    if(digestsActive && data_segment_len > 0 && enableDataDigests) {
-		if(dataDigestIsCRC32)
-		    pduLen += 4;
-		else
-		    pduLen += dataDigestSize;
-	    }
-
-	    /*
-	     * Desegmentation check.
-	     */
-	    if(iscsi_desegment && pinfo->can_desegment) {
-		if(pduLen > available_bytes) {
-		    /*
-		     * This frame doesn't have all of the data for
-		     * this message, but we can do reassembly on it.
-		     *
-		     * Tell the TCP dissector where the data for this
-		     * message starts in the data it handed us, and
-		     * how many more bytes we need, and return.
-		     */
-		    pinfo->desegment_offset = offset;
-		    pinfo->desegment_len = pduLen - available_bytes;
-		    return TRUE;
-		}
-	    }
-
-	    /* This is to help TCP keep track of PDU boundaries
-	       and allows it to find PDUs that are not aligned to 
-	       the start of a TCP segments.
-	       Since it also allows TCP to know what is in the middle
-	       of a large PDU, it reduces the probability of a segment
-	       in the middle of a large PDU transfer being misdissected as
-	       a PDU.
-	    */
-	    if(!pinfo->fd->flags.visited){
-		if(pduLen>(guint32)tvb_reported_length_remaining(tvb, offset)){
-		    pinfo->want_pdu_tracking=2;
-		    pinfo->bytes_until_next_pdu=pduLen-tvb_reported_length_remaining(tvb, offset);
-		}
-	    }
-
-	    if(check_col(pinfo->cinfo, COL_INFO)) {
-		if(iSCSIPdusDissected == 0)
-		    col_set_str(pinfo->cinfo, COL_INFO, "");
-		else
-		    col_append_str(pinfo->cinfo, COL_INFO, ", ");
-	    }
-
-	    dissect_iscsi_pdu(tvb, pinfo, tree, offset, opcode, opcode_str, data_segment_len);
-	    if(pduLen > available_bytes)
-		pduLen = available_bytes;
-	    offset += pduLen;
-	    available_bytes -= pduLen;
-	    ++iSCSIPdusDissected;
 	}
+
+	if(opcode == ISCSI_OPCODE_SCSI_COMMAND) {
+	    /* ahsLen */
+	    pduLen += tvb_get_guint8(tvb, offset + 4) * 4;
+	}
+
+	pduLen += data_segment_len;
+	if((pduLen & 3) != 0)
+	    pduLen += 4 - (pduLen & 3);
+
+	if(digestsActive && enableHeaderDigests) {
+	    if(headerDigestIsCRC32)
+		pduLen += 4;
+	    else
+		pduLen += headerDigestSize;
+	}
+
+	if(digestsActive && data_segment_len > 0 && enableDataDigests) {
+	    if(dataDigestIsCRC32)
+		pduLen += 4;
+	    else
+		pduLen += dataDigestSize;
+	}
+
+	/*
+	 * Desegmentation check.
+	 */
+	if(iscsi_desegment && pinfo->can_desegment) {
+	    if(pduLen > available_bytes) {
+		/*
+		 * This frame doesn't have all of the data for
+		 * this message, but we can do reassembly on it.
+		 *
+		 * Tell the TCP dissector where the data for this
+		 * message starts in the data it handed us, and
+		 * how many more bytes we need, and return.
+		 */
+		pinfo->desegment_offset = offset;
+		pinfo->desegment_len = pduLen - available_bytes;
+		return TRUE;
+	    }
+	}
+
+	/* This is to help TCP keep track of PDU boundaries
+	   and allows it to find PDUs that are not aligned to 
+	   the start of a TCP segments.
+	   Since it also allows TCP to know what is in the middle
+	   of a large PDU, it reduces the probability of a segment
+	   in the middle of a large PDU transfer being misdissected as
+	   a PDU.
+	*/
+	if(!pinfo->fd->flags.visited){
+	    if(pduLen>(guint32)tvb_reported_length_remaining(tvb, offset)){
+		pinfo->want_pdu_tracking=2;
+		pinfo->bytes_until_next_pdu=pduLen-tvb_reported_length_remaining(tvb, offset);
+	    }
+	}
+
+	if(check_col(pinfo->cinfo, COL_INFO)) {
+	    if(iSCSIPdusDissected == 0)
+		col_set_str(pinfo->cinfo, COL_INFO, "");
+	    else
+		col_append_str(pinfo->cinfo, COL_INFO, ", ");
+	}
+
+	dissect_iscsi_pdu(tvb, pinfo, tree, offset, opcode, opcode_str, data_segment_len);
+	if(pduLen > available_bytes)
+	    pduLen = available_bytes;
+	offset += pduLen;
+	available_bytes -= pduLen;
+	++iSCSIPdusDissected;
     }
 
     return iSCSIPdusDissected > 0;
