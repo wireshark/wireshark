@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.207 2003/09/18 19:19:51 guy Exp $
+ * $Id: packet-tcp.c,v 1.208 2003/10/10 22:52:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -525,25 +525,16 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		ual1=tcpd->ual1;
 		ual2=tcpd->ual2;
 		tnp=&tcpd->pdu_seq2;
-		base_seq=tcpd->base_seq1;
+		base_seq=(tcp_relative_seq && (ual1==NULL))?seq:tcpd->base_seq1;
+		base_ack=(tcp_relative_seq && (ual2==NULL))?seq:tcpd->base_seq2;
 		win_scale=tcpd->win_scale1;
-		base_ack=tcpd->base_seq2;
 	} else {
 		ual1=tcpd->ual2;
 		ual2=tcpd->ual1;
 		tnp=&tcpd->pdu_seq1;
-		base_seq=tcpd->base_seq2;
+		base_seq=(tcp_relative_seq && (ual1==NULL))?seq:tcpd->base_seq2;
+		base_ack=(tcp_relative_seq && (ual2==NULL))?seq:tcpd->base_seq1;
 		win_scale=tcpd->win_scale2;
-		base_ack=tcpd->base_seq1;
-	}
-
-	if(tcp_relative_seq){
-		if(base_seq==0){
-			base_seq=seq;
-		}
-		if(base_ack==0){
-			base_ack=ack;
-		}
 	}
 
 	/* To handle FIN, just add 1 to the length.
