@@ -9,7 +9,7 @@
  * Modified 2004-01-10 by Anders Broman to add abillity to dissect
  * Content type application/ISUP RFC 3204 used in SIP-T
  *
- * $Id: packet-isup.c,v 1.49 2004/01/20 18:30:25 obiot Exp $
+ * $Id: packet-isup.c,v 1.50 2004/02/09 19:36:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2824,6 +2824,8 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 	guint8 identifier,compatibility_info,content, BCTP_Indicator_field_1, BCTP_Indicator_field_2;
 	guint8 sdp_length, tempdata, element_no, number_of_indicators;
 	guint8 iwfa[32], diagnostic_len;
+	guint8 length_ind_len;
+	guint tempdata16;
 	guint content_len, length_indicator;
 	guint duration;
 	guint diagnostic;
@@ -2835,7 +2837,8 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 "Bearer Association Transport (BAT) Application Service Element (ASE) Encapsulated Application Information:");
 	bat_ase_tree = proto_item_add_subtree(bat_ase_item , ett_bat_ase);
 
-	proto_tree_add_text(bat_ase_tree, parameter_tvb, offset, -1, "BAT ASE Encapsulated Application Information, (%u byte%s length)", length, plurality(length, "", "s"));
+	proto_tree_add_text(bat_ase_tree, parameter_tvb, offset, -1, 
+		"BAT ASE Encapsulated Application Information, (%u byte%s length)", length, plurality(length, "", "s"));
 	while(tvb_reported_length_remaining(parameter_tvb, offset) > 0){
 		element_no = element_no + 1;
 		identifier = tvb_get_guint8(parameter_tvb, offset);
@@ -2844,24 +2847,30 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 		offset = offset + 1;
 		tempdata = tvb_get_guint8(parameter_tvb, offset);
 		if ( tempdata & 0x80 ) {
-			length_indicator = tempdata & 0x7f;	
+			length_indicator = tempdata & 0x7f;
+			length_ind_len = 1;	
 		}
 		else {
-			offset = offset +1;
-			length_indicator = tvb_get_guint8(parameter_tvb, offset);
+			offset = offset + 1;
+			tempdata16 = ( tempdata & 0x7f );
+			length_indicator = tvb_get_guint8(parameter_tvb, offset)& 0x0f;
 			length_indicator = length_indicator << 7;
-			length_indicator = length_indicator & ( tempdata & 0x7f );
+			length_indicator = length_indicator + tempdata16;
+			length_ind_len = 2;
 		}
 
 		bat_ase_element_item = proto_tree_add_text(bat_ase_tree,parameter_tvb,
-					  ( offset - 1),(length_indicator + 2),"BAT ASE Element %u, Identifier: %s",element_no,
+			( offset - length_ind_len),(length_indicator + 2),"BAT ASE Element %u, Identifier: %s",element_no,
 					val_to_str(identifier,bat_ase_list_of_Identifiers_vals,"unknown (%u)"));
-		bat_ase_element_tree = proto_item_add_subtree(bat_ase_element_item , ett_bat_ase_element);
+		bat_ase_element_tree = proto_item_add_subtree(bat_ase_element_item , 
+			ett_bat_ase_element);
 		if ( identifier != CODEC ) {
-			/* identifier, lengt indicator and compabillity info must be printed inside CODEC */
-			/* dissection in order to use dissect_codec routine for codec list */
-		proto_tree_add_uint(bat_ase_element_tree , hf_bat_ase_identifier , parameter_tvb, offset - 1, 1, identifier );
-		proto_tree_add_uint(bat_ase_element_tree , hf_length_indicator  , parameter_tvb, offset, 1, length_indicator );
+		/* identifier, lengt indicator and compabillity info must be printed inside CODEC */
+		/* dissection in order to use dissect_codec routine for codec list */
+		proto_tree_add_uint(bat_ase_element_tree , hf_bat_ase_identifier , parameter_tvb, 
+			offset - length_ind_len, 1, identifier );
+		proto_tree_add_uint(bat_ase_element_tree , hf_length_indicator  , parameter_tvb, 
+			offset - length_ind_len + 1, length_ind_len, length_indicator );
 		
 		offset = offset + 1;
 		compatibility_info = tvb_get_guint8(parameter_tvb, offset);
@@ -2983,7 +2992,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 					parameter_tvb, offset, 1, BCTP_Indicator_field_2 );
 				offset = offset + 1;
 
-				sdp_length = ( length_indicator & 0x7f) - 3;
+				sdp_length = ( length_indicator ) - 3;
 
 				next_tvb = tvb_new_subset(parameter_tvb, offset, sdp_length, sdp_length);
 				call_dissector(sdp_handle, next_tvb, pinfo, bat_ase_element_tree);
