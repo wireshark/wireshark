@@ -161,12 +161,12 @@ set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file) {
 	if(have_unsaved_capture_file) {
 	    SendMessage(toolbar->h_wnd, TB_HIDEBUTTON, (WPARAM) IDB_MAIN_TOOLBAR_SAVE_AS,
 		    (LPARAM) TRUE);
-	    SendMessage(toolbar->h_wnd, TB_HIDEBUTTON, (WPARAM) IDB_MAIN_TOOLBAR_SAVE_AS,
+	    SendMessage(toolbar->h_wnd, TB_HIDEBUTTON, (WPARAM) IDB_MAIN_TOOLBAR_SAVE,
 		    (LPARAM) FALSE);
 	} else {
 	    SendMessage(toolbar->h_wnd, TB_HIDEBUTTON, (WPARAM) IDB_MAIN_TOOLBAR_SAVE_AS,
 		    (LPARAM) FALSE);
-	    SendMessage(toolbar->h_wnd, TB_HIDEBUTTON, (WPARAM) IDB_MAIN_TOOLBAR_SAVE_AS,
+	    SendMessage(toolbar->h_wnd, TB_HIDEBUTTON, (WPARAM) IDB_MAIN_TOOLBAR_SAVE,
 		    (LPARAM) TRUE);
 	}
     }

@@ -195,6 +195,7 @@ wethereal_SOURCES =	\
 	$(ETHEREAL_COMMON_SRC) \
 	alert_box.c	\
 	capture.c	\
+	capture_combo_utils.c	\
 	color_filters.c	\
 	file.c		\
 	filters.c	\

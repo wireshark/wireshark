@@ -76,7 +76,6 @@ OBJECTS = \
 	$(LOCAL_OBJECTS) \
 	$(STD_OBJECTS) \
 	about-dlg.obj \
-	capture_combo_utils.obj \
 	capture-util.obj \
 	color-util.obj \
 	find-util.obj \
