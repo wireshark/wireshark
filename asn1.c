@@ -1,7 +1,7 @@
 /* asn1.c
  * Routines for ASN.1 BER dissection
  *
- * $Id: asn1.c,v 1.10 2002/02/21 02:05:53 guy Exp $
+ * $Id: asn1.c,v 1.11 2002/03/01 02:48:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,6 +60,8 @@
 # include "config.h"
 #endif
 
+#include <stdio.h>
+
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
@@ -71,6 +73,11 @@
 #include <limits.h>
 
 #include <glib.h>
+
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
+#endif
+
 #include <epan/tvbuff.h>
 #include "asn1.h"
 
@@ -969,4 +976,51 @@ asn1_sequence_decode ( ASN1_SCK *asn1, guint *seq_len, guint *nbytes)
 done:
     *nbytes = asn1->offset - start;
     return ret;
+}
+
+/*
+ * NAME:        asn1_err_to_str                             [API]
+ * SYNOPSIS:    char *asn1_err_to_str
+ *                  (
+ *                      int     err
+ *                  )
+ * DESCRIPTION: Returns the string corresponding to an ASN.1 library error.
+ *              Parameters:
+ *              err: the error code
+ * RETURNS:     string for the error
+ */
+char *
+asn1_err_to_str(int err)
+{
+    char         *errstr;
+    char         errstrbuf[14+1+1+11+1+1];	/* "Unknown error (%d)\0" */
+
+    switch (err) {
+
+    case ASN1_ERR_EOC_MISMATCH:
+	errstr = "EOC mismatch";
+	break;
+
+    case ASN1_ERR_WRONG_TYPE:
+	errstr = "Wrong type for that item";
+	break;
+
+    case ASN1_ERR_LENGTH_NOT_DEFINITE:
+	errstr = "Length was indefinite";
+	break;
+
+    case ASN1_ERR_LENGTH_MISMATCH:
+	errstr = "Length mismatch";
+	break;
+
+    case ASN1_ERR_WRONG_LENGTH_FOR_TYPE:
+	errstr = "Wrong length for that item's type";
+	break;
+
+    default:
+	snprintf(errstrbuf, sizeof errstrbuf, "Unknown error (%d)", err);
+	errstr = errstrbuf;
+	break;
+    }
+    return errstr;
 }

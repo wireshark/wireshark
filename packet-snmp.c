@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.80 2002/02/19 09:35:45 guy Exp $
+ * $Id: packet-snmp.c,v 1.81 2002/03/01 02:48:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -531,34 +531,9 @@ static void
 dissect_snmp_parse_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		   proto_tree *tree, const char *field_name, int ret)
 {
-	const gchar *errstr;
+	char *errstr;
 
-	switch (ret) {
-
-	case ASN1_ERR_EOC_MISMATCH:
-		errstr = "EOC mismatch";
-		break;
-
-	case ASN1_ERR_WRONG_TYPE:
-		errstr = "Wrong type for that item";
-		break;
-
-	case ASN1_ERR_LENGTH_NOT_DEFINITE:
-		errstr = "Length was indefinite";
-		break;
-
-	case ASN1_ERR_LENGTH_MISMATCH:
-		errstr = "Length mismatch";
-		break;
-
-	case ASN1_ERR_WRONG_LENGTH_FOR_TYPE:
-		errstr = "Wrong length for that item's type";
-		break;
-
-	default:
-		errstr = "Unknown error";
-		break;
-	}
+	errstr = asn1_err_to_str(ret);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -567,7 +542,8 @@ dissect_snmp_parse_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (tree != NULL) {
 		proto_tree_add_text(tree, tvb, offset, 0,
 		    "ERROR: Couldn't parse %s: %s", field_name, errstr);
-		call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
+		call_dissector(data_handle,
+		    tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
 	}
 }
 
