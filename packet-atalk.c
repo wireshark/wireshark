@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.26 1999/12/08 23:55:01 nneul Exp $
+ * $Id: packet-atalk.c,v 1.27 1999/12/09 04:02:50 nneul Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -54,9 +54,18 @@ static int hf_nbp_info = -1;
 static int hf_nbp_count = -1;
 static int hf_nbp_tid = -1;
 
+static int hf_nbp_node_net;
+static int hf_nbp_node_port;
+static int hf_nbp_node_node;
+static int hf_nbp_node_type;
+static int hf_nbp_node_name;
+static int hf_nbp_node_label;
+
 static gint ett_nbp = -1;
 static gint ett_nbp_info = -1;
+static gint ett_nbp_node = -1;
 static gint ett_ddp = -1;
+static gint ett_pstring = -1;
 
 /* P = Padding, H = Hops, L = Len */
 #if BYTE_ORDER == BIG_ENDIAN
@@ -121,6 +130,46 @@ static const value_string nbp_op_vals[] = {
   {0, NULL}
 };
 
+int dissect_pascal_string(const u_char *pd, int offset, frame_data *fd, 
+	proto_tree *tree, int hf_index)
+{
+	int len;
+	char *tmp;
+	
+	if ( ! BYTES_ARE_IN_FRAME(offset,1) ) {
+		dissect_data(pd,offset,fd,tree);
+		return END_OF_FRAME;
+	}
+		
+	len = pd[offset];
+	if ( ! BYTES_ARE_IN_FRAME(offset,len) ) {
+		dissect_data(pd,offset,fd,tree);
+		return END_OF_FRAME;
+	}
+	offset++;
+
+	if ( tree )
+	{
+		char *tmp;
+		proto_tree *item;
+		proto_tree *subtree;
+		
+		tmp = g_malloc( len+1 );
+		memcpy(tmp, &pd[offset], len);
+		tmp[len] = 0;
+		item = proto_tree_add_item(tree, hf_index, offset-1, len+1, tmp);
+
+		subtree = proto_item_add_subtree(item, ett_pstring);
+		proto_tree_add_text(subtree, offset-1, 1, "Length: %d", len);
+		proto_tree_add_text(subtree, offset, len, "Data: %s", tmp);
+		
+		g_free(tmp);
+	}
+	offset += len;
+	
+	return offset;	
+}
+
 static void
 dissect_rtmp_request(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   dissect_data(pd, offset, fd, tree);
@@ -139,6 +188,7 @@ dissect_nbp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_tree *nbp_info_tree;
   proto_item *ti, *info_item;
   guint op, count;
+  int i;
 
   if (!BYTES_ARE_IN_FRAME(offset, 2)) {
     dissect_data(pd, offset, fd, tree);
@@ -168,6 +218,41 @@ dissect_nbp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_item(nbp_info_tree, hf_nbp_op, offset, 1, pd[offset]);
     proto_tree_add_item(nbp_info_tree, hf_nbp_count, offset, 1, pd[offset]);
     proto_tree_add_item(nbp_tree, hf_nbp_tid, offset+1, 1, pd[offset+1]);
+	offset += 2;
+
+    for (i=0; i<count; i++) {
+		struct atalk_ddp_addr addr;
+		proto_tree *node_item,*node_tree;
+
+		if ( !BYTES_ARE_IN_FRAME(offset, 6) ) {
+			dissect_data(pd,offset,fd,nbp_tree);
+			return;
+		}
+
+		node_item = proto_tree_add_text(nbp_tree, offset, 4, 
+			"Node %d", i+1);
+		node_tree = proto_item_add_subtree(node_item, ett_nbp_node);
+
+		addr.net = pntohs(&pd[offset]);
+		addr.node = pd[offset+2];
+		addr.port = pd[offset+3];
+
+		/* note, this is probably wrong, I need to look at my info at work
+			tomorrow to straighten it out */
+
+		proto_tree_add_item(node_tree, hf_nbp_node_net, offset, 2, addr.net);
+		offset += 2;
+		proto_tree_add_item(node_tree, hf_nbp_node_node, offset, 1, addr.node);
+		offset++;
+		proto_tree_add_item(node_tree, hf_nbp_node_port, offset, 1, addr.port);
+		offset++;
+
+		offset++; /* skip a null */
+
+		offset = dissect_pascal_string(pd,offset,fd,node_tree,hf_nbp_node_type);
+		offset = dissect_pascal_string(pd,offset,fd,node_tree,hf_nbp_node_name);
+		offset = dissect_pascal_string(pd,offset,fd,node_tree,hf_nbp_node_label);
+	}
   }
 
   return;
@@ -297,6 +382,24 @@ proto_register_atalk(void)
     { &hf_nbp_count,
       { "Count",		"nbp.count",	FT_UINT8,  BASE_DEC, 
 		NULL, 0x0F, "Count" }},
+    { &hf_nbp_node_net,
+      { "Network",		"nbp.net",	FT_UINT16,  BASE_DEC, 
+		NULL, 0x0, "Network" }},
+    { &hf_nbp_node_node,
+      { "Node",		"nbp.node",	FT_UINT8,  BASE_DEC, 
+		NULL, 0x0, "Node" }},
+    { &hf_nbp_node_port,
+      { "Port",		"nbp.port",	FT_UINT8,  BASE_DEC, 
+		NULL, 0x0, "Port" }},
+    { &hf_nbp_node_name,
+      { "Name",		"nbp.name",	FT_STRING,  BASE_DEC, 
+		NULL, 0x0, "Name" }},
+    { &hf_nbp_node_type,
+      { "Type",		"nbp.type",	FT_STRING,  BASE_DEC, 
+		NULL, 0x0, "Type" }},
+    { &hf_nbp_node_label,
+      { "Label",		"nbp.label",	FT_STRING,  BASE_DEC, 
+		NULL, 0x0, "Label" }},
     { &hf_nbp_tid,
       { "Transaction ID",		"nbp.tid",	FT_UINT8,  BASE_DEC, 
 		NULL, 0x0, "Transaction ID" }}
@@ -305,7 +408,9 @@ proto_register_atalk(void)
   static gint *ett[] = {
     &ett_ddp,
 	&ett_nbp,
-	&ett_nbp_info
+	&ett_nbp_info,
+	&ett_nbp_node,
+	&ett_pstring
   };
 
   proto_ddp = proto_register_protocol("Datagram Delivery Protocol", "ddp");
