@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-sna.c,v 1.49 2003/12/21 05:51:34 jmayer Exp $
+ * $Id: packet-sna.c,v 1.50 2004/02/25 23:13:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2414,7 +2414,7 @@ dissect_control_05(tvbuff_t *tvb, proto_tree *tree)
 static void
 dissect_control_0e(tvbuff_t *tvb, proto_tree *tree)
 {
-	guint	len;
+	gint	len;
 	guint8	*buf;
 
 	if (!tree)
@@ -2422,14 +2422,12 @@ dissect_control_0e(tvbuff_t *tvb, proto_tree *tree)
 
 	proto_tree_add_item(tree, hf_sna_control_0e_type, tvb, 2, 1, FALSE);
 
-	len = tvb_length(tvb) - 3;
+	len = tvb_reported_length_remaining(tvb, 3);
 	if (len <= 0)
 		return;
 
-	buf = g_malloc(len+1);
-	tvb_memcpy (tvb, buf, 3, len);
+	buf = tvb_get_string(tvb, 3, len);
 	EBCDIC_to_ASCII(buf, len);
-	buf[len] = 0;
 	proto_tree_add_string(tree, hf_sna_control_0e_value, tvb, 3, len, buf);
 	g_free(buf);
 }
