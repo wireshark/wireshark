@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.27 2003/08/04 02:48:59 tpot Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.28 2003/09/27 23:43:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1023,24 +1023,52 @@ static int wkssvc_dissect_netwkstatransportenum_reply(tvbuff_t *tvb,
 }
 
 static dcerpc_sub_dissector dcerpc_wkssvc_dissectors[] = {
-        { WKS_NetWkstaGetInfo, "NetWkstaGetInfo", 
+        { WKS_NETRWKSTAGETINFO, "NetrWkstaGetInfo", 
 	  wkssvc_dissect_netwkstagetinfo_rqst, 
 	  wkssvc_dissect_netwkstagetinfo_reply},
-	{ WKS_NetWkstaSetInfo, "NetWkstaSetInfo",
+	{ WKS_NETRWKSTASETINFO, "NetrWkstaSetInfo",
 	  wkssvc_dissect_netwkstasetinfo_rqst,
 	  wkssvc_dissect_netwkstasetinfo_reply},
-        { WKS_NetWkstaEnumUsers, "NetWkstaUserEnum",
+        { WKS_NETRWKSTAUSERENUM, "NetrWkstaUserEnum",
 	  wkssvc_dissect_netwkstaenumusers_rqst,
  	  wkssvc_dissect_netwkstaenumusers_reply},
-	{ WKS_NetWkstaUnkn_003, "NetWkstaUnknown_003",
-	  NULL,
-	  NULL,},
-	{ WKS_NetWkstaUnkn_004, "NetWkstaUnknown_004",
-	  NULL,
-	  NULL},
-	{ WKS_NetWkstaTransportEnum, "NetWkstaTransportEnum",
+	{ WKS_NETRWKSTAUSERGETINFO, "NetrWkstaUserGetInfo", NULL, NULL },
+	{ WKS_NETRWKSTAUSERSETINFO, "NetrWkstaUserSetInfo", NULL, NULL },
+	{ WKS_NETRWKSTATRANSPORTENUM, "NetrWkstaTransportEnum",
 	  wkssvc_dissect_netwkstatransportenum_rqst, 
 	  wkssvc_dissect_netwkstatransportenum_reply},
+	{ WKS_NETRWKSTATRANSPORTADD, "NetrWkstaTransportAdd", NULL, NULL },
+	{ WKS_NETRWKSTATRANSPORTDEL, "NetrWkstaTransportDel", NULL, NULL },
+	{ WKS_NETRUSEADD, "NetrUseAdd", NULL, NULL },
+	{ WKS_NETRUSEGETINFO, "NetrUseGetInfo", NULL, NULL },
+	{ WKS_NETRUSEDEL, "NetrUseDel", NULL, NULL },
+	{ WKS_NETRUSEENUM, "NetrUseEnum", NULL, NULL },
+	{ WKS_NETRMESSAGEBUFFERSEND, "NetrMessageBufferSend", NULL, NULL },
+	{ WKS_NETRWORKSTATIONSTATISTICSGET, "NetrWorkstationStatisticsGet", 
+	  NULL, NULL },
+	{ WKS_NETRLOGONDOMAINNAMEADD, "NetrLogonDomainNameAdd", NULL, NULL },
+	{ WKS_NETRLOGONDOMAINNAMEDEL, "NetrLogonDomainNameDel", NULL, NULL },
+	{ WKS_NETRJOINDOMAIN, "NetrJoinDomain", NULL, NULL },
+	{ WKS_NETRUNJOINDOMAIN, "NetrUnjoinDomain", NULL, NULL },
+	{ WKS_NETRRENAMEMACHINEINDOMAIN, "NetrRenameMachineInDomain", 
+	  NULL, NULL },
+	{ WKS_NETRVALIDATENAME, "NetrValidateName", NULL, NULL },
+	{ WKS_NETRGETJOININFORMATION, "NetrGetJoinInformation", NULL, NULL },
+	{ WKS_NETRGETJOINABLEOUS, "NetrGetJoinableOUs", NULL, NULL },
+	{ WKS_NETRJOINDOMAIN2, "NetrJoinDomain2", NULL, NULL },
+	{ WKS_NETRUNJOINDOMAIN2, "NetrUnjoinDomain2", NULL, NULL },
+	{ WKS_NETRRENAMEMACHINEINDOMAIN2, "NetrRenameMachineInDomain2", 
+	  NULL, NULL },
+	{ WKS_NETRVALIDATENAME2, "NetrValidateName2", NULL, NULL },
+	{ WKS_NETRGETJOINABLEOUS2, "NetrGetJoinableOUs2", NULL, NULL },
+	{ WKS_NETRADDALTERNATECOMPUTERNAME, "NetrAddAlternateComputerName", 
+	  NULL, NULL },
+	{ WKS_NETRREMOVEALTERNATECOMPUTERNAME,
+	  "NetrRemoveAlternateComputerName", NULL, NULL },
+ 	{ WKS_NETRSETPRIMARYCOMPUTERNAME, "NetrSetPrimaryComputerName", 
+	  NULL, NULL },
+	{ WKS_NETRENUMERATECOMPUTERNAMES, "NetrEnumerateComputerNames", 
+	  NULL, NULL },
         {0, NULL, NULL,  NULL }
 };
 
