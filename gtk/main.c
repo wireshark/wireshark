@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.418 2004/03/19 06:23:38 guy Exp $
+ * $Id: main.c,v 1.419 2004/03/20 06:34:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1070,11 +1070,7 @@ void expand_tree_cb(GtkWidget *widget _U_, gpointer data _U_) {
 #if GTK_MAJOR_VERSION < 2    
   GtkCTreeNode *node;
 #else
-  GtkTreeModel *model;
   GtkTreePath  *path;
-  GtkTreeIter iter;
-  field_info *fi;
-  gboolean valid;
 #endif
 
 #if GTK_MAJOR_VERSION < 2
@@ -1082,17 +1078,7 @@ void expand_tree_cb(GtkWidget *widget _U_, gpointer data _U_) {
   g_assert(node);
   gtk_ctree_expand_recursive(GTK_CTREE(tree_view), node);
 #else
-  model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree_view));
-  path = NULL;
-  valid = gtk_tree_model_get_iter_first(model, &iter);
-  while (valid) {
-    gtk_tree_model_get(model, &iter, 1, &fi, -1);
-    if (fi == cfile.finfo_selected) {
-      path = gtk_tree_model_get_path(model, &iter);
-      break;
-    }
-    valid = gtk_tree_model_iter_next(model, &iter);
-  }
+  path = tree_find_by_field_info(GTK_TREE_VIEW(tree_view), cfile.finfo_selected);
   g_assert(path);
   gtk_tree_view_expand_row(GTK_TREE_VIEW(tree_view), path, TRUE);
   gtk_tree_path_free(path);

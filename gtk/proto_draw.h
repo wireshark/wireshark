@@ -1,7 +1,7 @@
 /* proto_draw.h
  * Definitions for GTK+ packet display structures and routines
  *
- * $Id: proto_draw.h,v 1.24 2004/01/27 20:36:48 guy Exp $
+ * $Id: proto_draw.h,v 1.25 2004/03/20 06:34:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,6 +64,7 @@ void packet_hex_print(GtkTextView *, const guint8 *, frame_data *, field_info *,
 		      guint);
 void packet_hex_reprint(GtkTextView *);
 void set_ptree_font_all(PangoFontDescription *font);
+GtkTreePath *tree_find_by_field_info(GtkTreeView *tree_view, field_info *finfo);
 #endif
 
 extern GtkWidget * main_tree_view_new(e_prefs *prefs, GtkWidget **tree_view_p);

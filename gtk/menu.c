@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.179 2004/03/19 06:23:38 guy Exp $
+ * $Id: menu.c,v 1.180 2004/03/20 06:34:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -234,6 +234,7 @@ static GtkItemFactoryEntry menu_items[] =
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/View/_Expand All", NULL, expand_all_cb,
                        0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/View/Expand Tree", NULL, expand_tree_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/View/_Coloring Rules...", NULL, color_display_cb,
                        0, GTK_STOCK_SELECT_COLOR),
@@ -1645,6 +1646,8 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL);
   set_menu_sensitivity(tree_view_menu_factory, "/Expand All",
       cf->current_frame != NULL);
+  set_menu_sensitivity(main_menu_factory, "/View/Expand Tree",
+      cf->current_frame != NULL);
   set_menu_sensitivity(tree_view_menu_factory, "/Expand Tree",
       cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/View/Show Packet in New Window",
@@ -1762,7 +1765,8 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Properties...",
 	  properties);
-	set_menu_sensitivity(tree_view_menu_factory, "/Expand Tree", TRUE);
+	set_menu_sensitivity(main_menu_factory, "/View/Expand Tree", cf->finfo_selected->tree_type != -1);
+	set_menu_sensitivity(tree_view_menu_factory, "/Expand Tree", cf->finfo_selected->tree_type != -1);
   } else {
 	set_menu_sensitivity(main_menu_factory,
 	    "/Go/Go to Corresponding Packet", FALSE);
@@ -1774,6 +1778,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	set_menu_sensitivity(tree_view_menu_factory, "/Prepare", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Properties...",
 	  FALSE);
+	set_menu_sensitivity(main_menu_factory, "/View/Expand Tree", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Expand Tree", FALSE);
   }
 

@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.89 2004/02/20 17:31:00 ulfl Exp $
+ * $Id: proto_draw.c,v 1.90 2004/03/20 06:34:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -337,6 +337,18 @@ lookup_finfo(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
     }
     return FALSE;
 }
+
+GtkTreePath *tree_find_by_field_info(GtkTreeView *tree_view, field_info *finfo) {
+  GtkTreeModel *model;
+  struct field_lookup_info fli;
+
+  model = gtk_tree_view_get_model(tree_view);
+  fli.fi = finfo;
+  gtk_tree_model_foreach(model, lookup_finfo, &fli);
+
+  return gtk_tree_model_get_path(model, &fli.iter);
+}
+
 #endif
 
 /* If the user selected a certain byte in the byte view, try to find
