@@ -1626,6 +1626,7 @@ Anders Broman <a.broman [AT] telia.com> {
 	Additional SCTP payload protocol identifiers
 	Assorted ISUP enhancements
 	MEGACO updates and fixes
+	T35 country code support for H245
 }
 
 Christian Falckenberg <christian.falckenberg [AT] nortelnetworks.com> {
