@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.390 2004/02/04 01:10:36 guy Exp $
+ * $Id: main.c,v 1.391 2004/02/06 14:59:52 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -575,8 +575,8 @@ prepare_selected_cb_or_ptree_not(GtkWidget *w, gpointer data)
 static gchar *
 get_text_from_packet_list(gpointer data)
 {
-    gint	row = (gint)OBJECT_GET_DATA(data, E_MPACKET_LIST_ROW_KEY);
-    gint	column = (gint)OBJECT_GET_DATA(data, E_MPACKET_LIST_COL_KEY);
+    gint	row = GPOINTER_TO_INT(OBJECT_GET_DATA(data, E_MPACKET_LIST_ROW_KEY));
+    gint	column = GPOINTER_TO_INT(OBJECT_GET_DATA(data, E_MPACKET_LIST_COL_KEY));
     frame_data *fdata = (frame_data *)packet_list_get_row_data(row);
     epan_dissect_t *edt;
     gchar      *buf=NULL;
@@ -1446,7 +1446,7 @@ get_positive_int(const char *string, const char *name)
 static gboolean
 set_autostop_criterion(const char *autostoparg)
 {
-  guchar *p, *colonp;
+  gchar *p, *colonp;
 
   colonp = strchr(autostoparg, ':');
   if (colonp == NULL)
@@ -1493,7 +1493,7 @@ set_autostop_criterion(const char *autostoparg)
 static gboolean
 get_ring_arguments(const char *arg)
 {
-  guchar *p = NULL, *colonp;
+  gchar *p = NULL, *colonp;
 
   colonp = strchr(arg, ':');
 
@@ -1659,7 +1659,8 @@ static gchar *
 dnd_uri2filename(gchar *cf_name)
 {
     gchar     *src, *dest;
-    gint      i, ret;
+    gint      ret;
+    guint     i;
     gchar     esc[3];
 
 
@@ -1747,7 +1748,7 @@ GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
          * a dialog box asking to merge these files together? */
 
         /* the name might not be zero terminated -> make a copy of it */
-        cf_name_ori = g_strndup(selection_data->data, selection_data->length);
+        cf_name_ori = g_strndup((gchar *)selection_data->data, selection_data->length);
         cf_name = cf_name_ori;
 
         /* replace trailing CR NL simply with zeroes */
@@ -3123,7 +3124,7 @@ font_zoom(char *gui_font_name)
     font_point_size_l += recent.gui_zoom_level;
 
     /* build a new font name */
-    sprintf(new_font_name, "%s %u", font_name_dup, font_point_size_l);
+    sprintf(new_font_name, "%s %ld", font_name_dup, font_point_size_l);
 #else
     minus_chars = 0;
     /* replace all '-' chars by NUL and count them */
