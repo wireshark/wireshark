@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.143 2001/11/10 22:23:11 guy Exp $
+ * $Id: packet-smb.c,v 1.144 2001/11/11 02:27:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -327,16 +327,12 @@ static int hf_smb_nt_notify_dir_name = -1;
 static int hf_smb_nt_notify_file_name = -1;
 static int hf_smb_root_dir_fid = -1;
 static int hf_smb_nt_create_disposition = -1;
-static int hf_smb_nt_create_options = -1;
 static int hf_smb_sd_length = -1;
 static int hf_smb_ea_length = -1;
 static int hf_smb_file_name_len = -1;
 static int hf_smb_nt_impersonation_level = -1;
 static int hf_smb_nt_security_flags_context_tracking = -1;
 static int hf_smb_nt_security_flags_effective_only = -1;
-static int hf_smb_nt_create_bits_oplock = -1;
-static int hf_smb_nt_create_bits_boplock = -1;
-static int hf_smb_nt_create_bits_dir = -1;
 static int hf_smb_nt_access_mask_generic_read = -1;
 static int hf_smb_nt_access_mask_generic_write = -1;
 static int hf_smb_nt_access_mask_generic_execute = -1;
@@ -357,6 +353,17 @@ static int hf_smb_nt_access_mask_read_ea = -1;
 static int hf_smb_nt_access_mask_append = -1;
 static int hf_smb_nt_access_mask_write = -1;
 static int hf_smb_nt_access_mask_read = -1;
+static int hf_smb_nt_create_bits_oplock = -1;
+static int hf_smb_nt_create_bits_boplock = -1;
+static int hf_smb_nt_create_bits_dir = -1;
+static int hf_smb_nt_create_options_directory_file = -1;
+static int hf_smb_nt_create_options_write_through = -1;
+static int hf_smb_nt_create_options_sequential_only = -1;
+static int hf_smb_nt_create_options_non_directory_file = -1;
+static int hf_smb_nt_create_options_no_ea_knowledge = -1;
+static int hf_smb_nt_create_options_eight_dot_three_only = -1;
+static int hf_smb_nt_create_options_random_access = -1;
+static int hf_smb_nt_create_options_delete_on_close = -1;
 static int hf_smb_nt_share_access_read = -1;
 static int hf_smb_nt_share_access_write = -1;
 static int hf_smb_nt_share_access_delete = -1;
@@ -449,8 +456,9 @@ static gint ett_smb_open_action = -1;
 static gint ett_smb_setup_action = -1;
 static gint ett_smb_connect_flags = -1;
 static gint ett_smb_connect_support_bits = -1;
-static gint ett_smb_nt_create_bits = -1;
 static gint ett_smb_nt_access_mask = -1;
+static gint ett_smb_nt_create_bits = -1;
+static gint ett_smb_nt_create_options = -1;
 static gint ett_smb_nt_share_access = -1;
 static gint ett_smb_nt_security_flags = -1;
 static gint ett_smb_nt_trans_setup = -1;
@@ -5533,6 +5541,92 @@ dissect_nt_create_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
 
 	return offset;
 }
+
+/*
+ * XXX - there are some more flags in the description of "ZwOpenFile()"
+ * in "Windows(R) NT(R)/2000 Native API Reference"; do those go over
+ * the wire as well?  (The spec at
+ *
+ *	http://www.samba.org/samba/ftp/specs/smb-nt01.doc
+ *
+ * says that "the FILE_NO_INTERMEDIATE_BUFFERING option is not exported
+ * via the SMB protocol.  The NT redirector should convert this option
+ * to FILE_WRITE_THROUGH."
+ */
+static const true_false_string tfs_nt_create_options_directory = {
+	"File being created/opened must be a directory",
+	"File being created/opened must not be a directory"
+};
+static const true_false_string tfs_nt_create_options_write_through = {
+	"Writes should flush buffered data before completing",
+	"Writes need not flush buffered data before completing"
+};
+static const true_false_string tfs_nt_create_options_sequential_only = {
+	"The file will only be accessed sequentially",
+	"The file might not only be accessed sequentially"
+};
+static const true_false_string tfs_nt_create_options_non_directory = {
+	"File being created/opened must not be a directory",
+	"File being created/opened must be a directory"
+};
+static const true_false_string tfs_nt_create_options_no_ea_knowledge = {
+	"The client does not understand extended attributes",
+	"The client understands extended attributes"
+};
+static const true_false_string tfs_nt_create_options_eight_dot_three_only = {
+	"The client understands only 8.3 file names",
+	"The client understands long file names"
+};
+static const true_false_string tfs_nt_create_options_random_access = {
+	"The file will be accessed randomly",
+	"The file will not be accessed randomly"
+};
+static const true_false_string tfs_nt_create_options_delete_on_close = {
+	"The file should be deleted when it is closed",
+	"The file should not be deleted when it is closed"
+};
+
+static int
+dissect_nt_create_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	guint32 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	mask = tvb_get_letohl(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
+			"Create Options: 0x%08x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_nt_create_options);
+	}
+
+	/*
+	 * From
+	 *
+	 *	http://www.samba.org/samba/ftp/specs/smb-nt01.doc
+	 */
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_directory_file,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_write_through,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_sequential_only,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_non_directory_file,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_no_ea_knowledge,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_eight_dot_three_only,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_random_access,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_delete_on_close,
+		tvb, offset, 4, mask);
+
+	offset += 4;
+
+	return offset;
+}
  
 static int
 dissect_nt_notify_completion_filter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
@@ -5761,8 +5855,8 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		COUNT_BYTES(4);
 
 		/* create options */
-		proto_tree_add_item(tree, hf_smb_nt_create_options, tvb, offset, 4, TRUE);
-		COUNT_BYTES(4);
+		offset = dissect_nt_create_options(tvb, pinfo, tree, offset);
+		bc -= 4;
 
 		/* sd length */
 		ntd->sd_len = tvb_get_letohl(tvb, offset);
@@ -6748,16 +6842,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	offset += 4;
 
 	/* create options */
-	/*
-	 * XXX - Network Monitor dissects this as a pile of bits,
-	 * including "directory, "write through", "sequential",
-	 * etc..
-	 *
-	 * Does the Win32 API documentation or the NT Native API
-	 * book suggest anything?
-	 */
-	proto_tree_add_item(tree, hf_smb_nt_create_options, tvb, offset, 4, TRUE);
-	offset += 4;
+	offset = dissect_nt_create_options(tvb, pinfo, tree, offset);
 
 	/* impersonation level */
 	proto_tree_add_item(tree, hf_smb_nt_impersonation_level, tvb, offset, 4, TRUE);
@@ -12270,10 +12355,6 @@ proto_register_smb(void)
 		{ "Disposition", "smb.create.disposition", FT_UINT32, BASE_DEC,
 		VALS(create_disposition_vals), 0, "Create disposition, what to do if the file does/does not exist", HFILL }},
 
-	{ &hf_smb_nt_create_options,
-		{ "Options", "smb.create.options", FT_UINT32, BASE_HEX,
-		NULL, 0, "What to do if creating a file", HFILL }},
-
 	{ &hf_smb_sd_length,
 		{ "SD Length", "smb.sd.length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Total length of security descriptor", HFILL }},
@@ -12297,18 +12378,6 @@ proto_register_smb(void)
 	{ &hf_smb_nt_security_flags_effective_only,
 		{ "Effective Only", "smb.security.flags.effective_only", FT_BOOLEAN, 8,
 		TFS(&tfs_nt_security_flags_effective_only), 0x02, "Are only enabled or all aspects uf the users SID available?", HFILL }},
-
-	{ &hf_smb_nt_create_bits_oplock,
-		{ "Exclusive Oplock", "smb.nt.create.oplock", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_create_bits_oplock), 0x00000002, "Is an oplock requested", HFILL }},
-
-	{ &hf_smb_nt_create_bits_boplock,
-		{ "Batch Oplock", "smb.nt.create.batch_oplock", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_create_bits_boplock), 0x00000004, "Is a batch oplock requested?", HFILL }},
-
-	{ &hf_smb_nt_create_bits_dir,
-		{ "Create Directory", "smb.nt.create.dir", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_create_bits_dir), 0x00000008, "Must target of open be a directory?", HFILL }},
 
 	{ &hf_smb_nt_access_mask_generic_read,
 		{ "Generic Read", "smb.access.generic_read", FT_BOOLEAN, 32,
@@ -12402,6 +12471,50 @@ proto_register_smb(void)
 	{ &hf_smb_nt_access_mask_read,
 		{ "Read", "smb.access.read", FT_BOOLEAN, 32,
 		TFS(&tfs_nt_access_mask_read), 0x00000001, "Can object's contents be read", HFILL }},
+
+	{ &hf_smb_nt_create_bits_oplock,
+		{ "Exclusive Oplock", "smb.nt.create.oplock", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_bits_oplock), 0x00000002, "Is an oplock requested", HFILL }},
+
+	{ &hf_smb_nt_create_bits_boplock,
+		{ "Batch Oplock", "smb.nt.create.batch_oplock", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_bits_boplock), 0x00000004, "Is a batch oplock requested?", HFILL }},
+
+	{ &hf_smb_nt_create_bits_dir,
+		{ "Create Directory", "smb.nt.create.dir", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_bits_dir), 0x00000008, "Must target of open be a directory?", HFILL }},
+
+	{ &hf_smb_nt_create_options_directory_file,
+		{ "Directory", "smb.nt.create_options.directory", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_options_directory), 0x00000001, "Should file being opened/created be a directory?", HFILL }},
+
+	{ &hf_smb_nt_create_options_write_through,
+		{ "Write Through", "smb.nt.create_options.write_through", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_options_write_through), 0x00000002, "Should writes to the file write buffered data out before completing?", HFILL }},
+
+	{ &hf_smb_nt_create_options_sequential_only,
+		{ "Sequential Only", "smb.nt.create_options.sequential_only", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_options_sequential_only), 0x00000004, "Will accees to thsis file only be sequential?", HFILL }},
+
+	{ &hf_smb_nt_create_options_non_directory_file,
+		{ "Non-Directory", "smb.nt.create_options.non_directory", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_options_non_directory), 0x00000040, "Should file being opened/created be a non-directory?", HFILL }},
+
+	{ &hf_smb_nt_create_options_no_ea_knowledge,
+		{ "No EA Knowledge", "smb.nt.create_options.no_ea_knowledge", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_options_no_ea_knowledge), 0x00000200, "Does the client not understand extended attributes?", HFILL }},
+
+	{ &hf_smb_nt_create_options_eight_dot_three_only,
+		{ "8.3 Only", "smb.nt.create_options.eight_dot_three_only", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_options_eight_dot_three_only), 0x00000400, "Does the client understand only 8.3 filenames?", HFILL }},
+
+	{ &hf_smb_nt_create_options_random_access,
+		{ "Random Access", "smb.nt.create_options.random_access", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_options_random_access), 0x00000800, "Will the client be accessing the file randomly?", HFILL }},
+
+	{ &hf_smb_nt_create_options_delete_on_close,
+		{ "Delete On Close", "smb.nt.create_options.delete_on_close", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_options_delete_on_close), 0x00001000, "Should the file be deleted when closed?", HFILL }},
 
 	{ &hf_smb_nt_share_access_read,
 		{ "Read", "smb.share.access.read", FT_BOOLEAN, 32,
@@ -12657,8 +12770,9 @@ proto_register_smb(void)
 		&ett_smb_setup_action,
 		&ett_smb_connect_flags,
 		&ett_smb_connect_support_bits,
-		&ett_smb_nt_create_bits,
 		&ett_smb_nt_access_mask,
+		&ett_smb_nt_create_bits,
+		&ett_smb_nt_create_options,
 		&ett_smb_nt_share_access,
 		&ett_smb_nt_security_flags,
 		&ett_smb_nt_trans_setup,
