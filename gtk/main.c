@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.293 2003/05/04 18:50:56 gerald Exp $
+ * $Id: main.c,v 1.294 2003/05/15 13:38:05 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1180,7 +1180,8 @@ print_usage(gboolean print_ver) {
 #ifdef HAVE_LIBPCAP
   fprintf(stderr, "\n%s [ -vh ] [ -klpQS ] [ -a <capture autostop condition> ] ...\n",
 	  PACKAGE);
-  fprintf(stderr, "\t[ -b <number of ringbuffer files> ] [ -B <byte view height> ]\n");
+  fprintf(stderr, "\t[ -b <number of ringbuffer files>[:<duration>] ]\n");
+  fprintf(stderr, "\t[ -B <byte view height> ]\n");
   fprintf(stderr, "\t[ -c <count> ] [ -f <capture filter> ] [ -i <interface> ]\n");
   fprintf(stderr, "\t[ -m <medium font> ] [ -n ] [ -N <resolving> ]\n");
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -P <packet list height> ]\n");
@@ -1283,6 +1284,55 @@ set_autostop_criterion(const char *autostoparg)
     return FALSE;
   }
   *colonp = ':'; /* put the colon back */
+  return TRUE;
+}
+
+/*
+ * Given a string of the form "<ring buffer file>:<duration>", as might appear
+ * as an argument to a "-b" option, parse it and set the arguments in
+ * question.  Return an indication of whether it succeeded or failed
+ * in some fashion.
+ */
+static gboolean
+get_ring_arguments(const char *arg)
+{
+  guchar *p, *colonp;
+
+  colonp = strchr(arg, ':');
+
+  if (colonp != NULL) {
+    p = colonp;
+    *p++ = '\0';
+  }
+
+  capture_opts.ringbuffer_num_files = 
+    get_positive_int(arg, "number of ring buffer files");
+
+  if (colonp == NULL)
+    return TRUE;
+
+  /*
+   * Skip over any white space (there probably won't be any, but
+   * as we allow it in the preferences file, we might as well
+   * allow it here).
+   */
+  while (isspace(*p))
+    p++;
+  if (*p == '\0') {
+    /*
+     * Put the colon back, so if our caller uses, in an
+     * error message, the string they passed us, the message
+     * looks correct.
+     */
+    *colonp = ':';
+    return FALSE;
+  }
+
+  capture_opts.has_ring_duration = TRUE;
+  capture_opts.ringbuffer_duration = get_positive_int(p,
+						      "ring buffer duration");
+
+  *colonp = ':';	/* put the colon back */
   return TRUE;
 }
 #endif
@@ -1554,6 +1604,8 @@ main(int argc, char *argv[])
   capture_opts.autostop_filesize = 1;
   capture_opts.ringbuffer_on = FALSE;
   capture_opts.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
+  capture_opts.has_ring_duration = FALSE;
+  capture_opts.ringbuffer_duration = 1;
 
   /* If this is a capture child process, it should pay no attention
      to the "prefs.capture_prom_mode" setting in the preferences file;
@@ -1621,8 +1673,10 @@ main(int argc, char *argv[])
       case 'b':        /* Ringbuffer option */
 #ifdef HAVE_LIBPCAP
         capture_opts.ringbuffer_on = TRUE;
-        capture_opts.ringbuffer_num_files =
-          get_positive_int(optarg, "number of ring buffer files");
+	if (get_ring_arguments(optarg) == FALSE) {
+          fprintf(stderr, "ethereal: Invalid or unknown -b arg \"%s\"\n", optarg);
+          exit(1);
+	}
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;

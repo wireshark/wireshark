@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.34 2003/01/09 19:37:14 guy Exp $
+ * $Id: capture.h,v 1.35 2003/05/15 13:33:53 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,6 +49,8 @@ typedef struct {
 	gint32 autostop_filesize;	/* Maximum capture file size */
 	gboolean ringbuffer_on;		/* TRUE if ring buffer in use */
 	guint32 ringbuffer_num_files;	/* Number of ring buffer files */
+	gboolean has_ring_duration;	/* TRUE if ring duration specified */
+	gint32 ringbuffer_duration;     /* Switch file after n seconds */
 } capture_options;
 
 extern capture_options capture_opts;

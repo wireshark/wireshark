@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.183 2003/05/14 10:31:15 deniel Exp $
+ * $Id: tethereal.c,v 1.184 2003/05/15 13:33:53 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -183,6 +183,8 @@ typedef struct {
 	gint32 autostop_filesize;	/* Maximum capture file size */
 	gboolean ringbuffer_on;		/* TRUE if ring buffer in use */
 	guint32 ringbuffer_num_files;	/* Number of ring buffer files */
+	gboolean has_ring_duration;	/* TRUE if ring duration specified */
+	gint32 ringbuffer_duration;     /* Switch file after n seconds */
 } capture_options;
 
 static capture_options capture_opts = {
@@ -198,8 +200,10 @@ static capture_options capture_opts = {
 					   specified by default */
 	0,				/* maximum capture file size */
 	FALSE,				/* ring buffer off by default */
-	RINGBUFFER_MIN_NUM_FILES	/* default number of ring buffer
+	RINGBUFFER_MIN_NUM_FILES,	/* default number of ring buffer
 					   files */
+	FALSE,				/* Switch ring file after some */
+	0				/* specified time is off by default */
 };
 
 #ifdef SIGINFO
@@ -220,7 +224,7 @@ print_usage(gboolean print_ver)
 #ifdef HAVE_LIBPCAP
   fprintf(stderr, "\nt%s [ -DvVhqSlp ] [ -a <capture autostop condition> ] ...\n",
 	  PACKAGE);
-  fprintf(stderr, "\t[ -b <number of ring buffer files> ] [ -c <count> ]\n");
+  fprintf(stderr, "\t[ -b <number of ring buffer files>[:<duration>] ] [ -c <count> ]\n");
   fprintf(stderr, "\t[ -f <capture filter> ] [ -F <output file type> ]\n");
   fprintf(stderr, "\t[ -i <interface> ] [ -n ] [ -N <resolving> ]\n");
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r <infile> ] [ -R <read filter> ]\n");
@@ -314,6 +318,55 @@ set_autostop_criterion(const char *autostoparg)
   } else {
     return FALSE;
   }
+  *colonp = ':';	/* put the colon back */
+  return TRUE;
+}
+
+/*
+ * Given a string of the form "<ring buffer file>:<duration>", as might appear
+ * as an argument to a "-b" option, parse it and set the arguments in
+ * question.  Return an indication of whether it succeeded or failed
+ * in some fashion.
+ */
+static gboolean
+get_ring_arguments(const char *arg)
+{
+  guchar *p, *colonp;
+
+  colonp = strchr(arg, ':');
+
+  if (colonp != NULL) {
+    p = colonp;
+    *p++ = '\0';
+  }
+
+  capture_opts.ringbuffer_num_files = 
+    get_positive_int(arg, "number of ring buffer files");
+
+  if (colonp == NULL)
+    return TRUE;
+
+  /*
+   * Skip over any white space (there probably won't be any, but
+   * as we allow it in the preferences file, we might as well
+   * allow it here).
+   */
+  while (isspace(*p))
+    p++;
+  if (*p == '\0') {
+    /*
+     * Put the colon back, so if our caller uses, in an
+     * error message, the string they passed us, the message
+     * looks correct.
+     */
+    *colonp = ':';
+    return FALSE;
+  }
+
+  capture_opts.has_ring_duration = TRUE;
+  capture_opts.ringbuffer_duration = get_positive_int(p,
+						      "ring buffer duration");
+
   *colonp = ':';	/* put the colon back */
   return TRUE;
 }
@@ -461,8 +514,10 @@ main(int argc, char *argv[])
       case 'b':        /* Ringbuffer option */
 #ifdef HAVE_LIBPCAP
         capture_opts.ringbuffer_on = TRUE;
-        capture_opts.ringbuffer_num_files =
-            get_positive_int(optarg, "number of ring buffer files");
+	if (get_ring_arguments(optarg) == FALSE) {
+          fprintf(stderr, "ethereal: Invalid or unknown -b arg \"%s\"\n", optarg);
+          exit(1);
+	}
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -920,6 +975,7 @@ capture(int out_file_type)
   char        errmsg[1024+1];
   condition  *volatile cnd_stop_capturesize = NULL;
   condition  *volatile cnd_stop_timeout = NULL;
+  condition  *volatile cnd_ring_timeout = NULL;
 #ifndef _WIN32
   static const char ppamsg[] = "can't find PPA for ";
   char       *libpcap_warn;
@@ -1113,6 +1169,10 @@ capture(int out_file_type)
     cnd_stop_timeout = cnd_new((const char*)CND_CLASS_TIMEOUT,
                                (gint32)capture_opts.autostop_duration);
 
+  if (capture_opts.ringbuffer_on && capture_opts.has_ring_duration)
+    cnd_ring_timeout = cnd_new(CND_CLASS_TIMEOUT, 
+			       capture_opts.ringbuffer_duration);
+
   if (!setjmp(ld.stopenv)) {
     ld.go = TRUE;
     ld.packet_count = 0;
@@ -1191,6 +1251,15 @@ capture(int out_file_type)
     } else if (cnd_stop_timeout != NULL && cnd_eval(cnd_stop_timeout)) {
       /* The specified capture time has elapsed; stop the capture. */
       ld.go = FALSE;
+    } else if (cnd_ring_timeout != NULL && cnd_eval(cnd_ring_timeout)) {
+      /* time elasped for this ring file, swith to the next */
+      if (ringbuf_switch_file(&cfile, &ld.pdh, &loop_err)) {
+	/* File switch succeeded: reset the condition */
+	cnd_reset(cnd_ring_timeout);
+      } else {
+	/* File switch failed: stop here */
+	ld.go = FALSE;
+      }
     } else if (inpkts > 0) {
       if (capture_opts.autostop_count != 0 &&
                  ld.packet_count >= capture_opts.autostop_count) {
@@ -1208,6 +1277,9 @@ capture(int out_file_type)
           if (ringbuf_switch_file(&cfile, &ld.pdh, &loop_err)) {
             /* File switch succeeded: reset the condition */
             cnd_reset(cnd_stop_capturesize);
+	    if (cnd_ring_timeout) {
+	      cnd_reset(cnd_ring_timeout);
+	    }
           } else {
             /* File switch failed: stop here */
             volatile_err = loop_err;
@@ -1235,6 +1307,8 @@ capture(int out_file_type)
     cnd_delete(cnd_stop_capturesize);
   if (cnd_stop_timeout != NULL)
     cnd_delete(cnd_stop_timeout);
+  if (cnd_ring_timeout != NULL)
+    cnd_delete(cnd_ring_timeout);
 
   if ((cfile.save_file != NULL) && !quiet) {
     /* We're saving to a file, which means we're printing packet counts

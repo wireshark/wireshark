@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.206 2003/04/24 09:07:36 guy Exp $
+ * $Id: capture.c,v 1.207 2003/05/15 13:33:53 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1368,6 +1368,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   int         err, inpkts;
   condition  *cnd_stop_capturesize = NULL;
   condition  *cnd_stop_timeout = NULL;
+  condition  *cnd_ring_timeout = NULL;
   unsigned int i;
   static const char capstart_msg = SP_CAPSTART;
   char        errmsg[4096+1];
@@ -1757,6 +1758,10 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     cnd_stop_timeout =
         cnd_new(CND_CLASS_TIMEOUT,(gint32)capture_opts.autostop_duration);
 
+  if (capture_opts.ringbuffer_on && capture_opts.has_ring_duration)
+    cnd_ring_timeout =
+	cnd_new(CND_CLASS_TIMEOUT, capture_opts.ringbuffer_duration);
+
   while (ld.go) {
     while (gtk_events_pending()) gtk_main_iteration();
 
@@ -1861,6 +1866,9 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
           if (ringbuf_switch_file(&cfile, &ld.pdh, &ld.err)) {
             /* File switch succeeded: reset the condition */
             cnd_reset(cnd_stop_capturesize);
+	    if (cnd_ring_timeout) {
+	      cnd_reset(cnd_ring_timeout);
+	    }
           } else {
             /* File switch failed: stop here */
             ld.go = FALSE;
@@ -1918,8 +1926,18 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
       if (cnd_stop_timeout != NULL && cnd_eval(cnd_stop_timeout)) {
         /* The specified capture time has elapsed; stop the capture. */
         ld.go = FALSE;
+      } else if (cnd_ring_timeout != NULL && cnd_eval(cnd_ring_timeout)) {
+	/* time elasped for this ring file, swith to the next */
+	if (ringbuf_switch_file(&cfile, &ld.pdh, &ld.err)) {
+	  /* File switch succeeded: reset the condition */
+	  cnd_reset(cnd_ring_timeout);
+	} else {
+	  /* File switch failed: stop here */
+	  ld.go = FALSE;
+	}
       }
     }
+
   } /* while (ld.go) */
 
   /* delete stop conditions */
@@ -1927,6 +1945,8 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     cnd_delete(cnd_stop_capturesize);
   if (cnd_stop_timeout != NULL)
     cnd_delete(cnd_stop_timeout);
+  if (cnd_ring_timeout != NULL)
+    cnd_delete(cnd_ring_timeout);
 
   if (ld.pcap_err) {
     snprintf(errmsg, sizeof(errmsg), "Error while capturing packets: %s",

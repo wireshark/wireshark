@@ -7,7 +7,7 @@ ethereal - Interactively browse network traffic
 
 B<ethereal>
 S<[ B<-a> capture autostop condition ] ...>
-S<[ B<-b> number of ring buffer files ]>
+S<[ B<-b> number of ring buffer files [:duration] ]>
 S<[ B<-B> byte view height ]>
 S<[ B<-c> count ]>
 S<[ B<-f> capture filter expression ]>
@@ -127,6 +127,10 @@ to the next file, until it fills up the last file, at which point it'll
 discard the data in the first file and start writing to that file.  When
 that file fills up, B<Ethereal> will discard the data in the next file
 and start writing to it, and so on.
+
+If the optional duration is specified, B<Ethereal> will switch also 
+to the next file when the specified number of seconds has elapsed even
+if the current file is not completely fills up.
 
 When the capture completes, the files will be renamed to have names
 based on the number of the file and on the date and time at which
@@ -1084,7 +1088,12 @@ can save those packets to a file with the I<File:Save As> menu item.
 
 The I<Use ring buffer> check box lets you specify that the capture
 should be done in "ring buffer" mode; the I<Number of files> field
-lets you specify the number of files in the ring buffer.
+lets you specify the number of files in the ring buffer. 
+
+The I<Rotate capture file every ...  second(s)> check box and field lets
+you to specify that the swith to a next ring buffer file should be done
+if the specified duration has elapsed even if the specified capture size
+is not reached.
 
 The I<Update list of packets in real time> check box lets you specify
 whether the display should be updated as packets are captured and, if
@@ -1108,7 +1117,7 @@ running, or the available disk space, may still limit the maximum size
 of a capture file).
 
 If "ring buffer" mode is specified, that field becomes the I<Rotate
-capture file very ...  kilobyte(s)> field, and specifies the number
+capture file every ...  kilobyte(s)> field, and specifies the number
 of kilobytes at which to start writing to a new ring buffer file; the
 check box is forced to be checked, as "ring buffer" mode requires a file
 size to be specified.
