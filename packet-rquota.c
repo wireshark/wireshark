@@ -2,7 +2,7 @@
  * Routines for rquota dissection
  * Copyright 2001, Mike Frisch <frisch@hummingbird.com>
  *
- * $Id: packet-rquota.c,v 1.9 2002/08/28 21:00:29 jmayer Exp $
+ * $Id: packet-rquota.c,v 1.10 2002/10/23 21:17:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -236,7 +236,7 @@ proto_reg_handoff_rquota(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_rquota, RQUOTA_PROGRAM, ett_rquota);
 	/* Register the procedure tables */
-	rpc_init_proc_table(RQUOTA_PROGRAM, 1, rquota1_proc);
+	rpc_init_proc_table(RQUOTA_PROGRAM, 1, rquota1_proc, -1);
 }
 
 

@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rstat.c,v 1.2 2002/08/02 23:35:58 jmayer Exp $
+ * $Id: packet-rstat.c,v 1.3 2002/10/23 21:17:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -109,8 +109,8 @@ proto_reg_handoff_rstat(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_rstat, RSTAT_PROGRAM, ett_rstat);
 	/* Register the procedure tables */
-	rpc_init_proc_table(RSTAT_PROGRAM, 1, rstat1_proc);
-	rpc_init_proc_table(RSTAT_PROGRAM, 2, rstat2_proc);
-	rpc_init_proc_table(RSTAT_PROGRAM, 3, rstat3_proc);
-	rpc_init_proc_table(RSTAT_PROGRAM, 4, rstat3_proc);
+	rpc_init_proc_table(RSTAT_PROGRAM, 1, rstat1_proc, -1);
+	rpc_init_proc_table(RSTAT_PROGRAM, 2, rstat2_proc, -1);
+	rpc_init_proc_table(RSTAT_PROGRAM, 3, rstat3_proc, -1);
+	rpc_init_proc_table(RSTAT_PROGRAM, 4, rstat3_proc, -1);
 }

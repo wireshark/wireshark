@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.104 2002/09/04 09:40:24 sahlberg Exp $
+ * $Id: packet-rpc.c,v 1.105 2002/10/23 21:17:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -265,9 +265,23 @@ rpc_proc_hash(gconstpointer k)
 
 /* insert some entries */
 void
-rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table)
+rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table,
+    int procedure_hf)
 {
+	rpc_prog_info_key rpc_prog_key;
+	rpc_prog_info_value *rpc_prog;
 	const vsff *proc;
+
+	/*
+	 * Add the operation number hfinfo value for this version of the
+	 * program.
+	 */
+	rpc_prog_key.prog = prog;
+	rpc_prog = g_hash_table_lookup(rpc_progs, &rpc_prog_key);
+	g_assert(rpc_prog != NULL);
+	rpc_prog->procedure_hfs = g_array_set_size(rpc_prog->procedure_hfs,
+	    vers);
+	g_array_insert_val(rpc_prog->procedure_hfs, vers, procedure_hf);
 
 	for (proc = proc_table ; proc->strptr!=NULL; proc++) {
 		rpc_proc_info_key *key;
@@ -354,6 +368,7 @@ rpc_init_prog(int proto, guint32 prog, int ett)
 	value->proto = proto;
 	value->ett = ett;
 	value->progname = proto_get_protocol_short_name(proto);
+	value->procedure_hfs = g_array_new(FALSE, TRUE, sizeof (int));
 
 	g_hash_table_insert(rpc_progs,key,value);
 }
@@ -1442,6 +1457,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	unsigned int gss_svc = 0;
 	int	proto = 0;
 	int	ett = 0;
+	int	procedure_hf;
 
 	unsigned int reply_state;
 	unsigned int accept_state;
@@ -2084,9 +2100,15 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (ptree) {
 			proto_tree_add_uint(ptree,
 				hf_rpc_programversion, tvb, 0, 0, vers);
-			proto_tree_add_uint_format(ptree,
-				hf_rpc_procedure, tvb, 0, 0, proc,
-				"Procedure: %s (%u)", procname, proc);
+			procedure_hf = g_array_index(rpc_prog->procedure_hfs, int, vers);
+			if (procedure_hf != 0 && procedure_hf != -1) {
+				proto_tree_add_uint(ptree,
+					procedure_hf, tvb, 0, 0, proc);
+			} else {
+				proto_tree_add_uint_format(ptree,
+					hf_rpc_procedure, tvb, 0, 0, proc,
+					"Procedure: %s (%u)", procname, proc);
+			}
 		}
 	}
 

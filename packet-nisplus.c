@@ -1,7 +1,7 @@
 /* packet-nisplus.c
  * 2001  Ronnie Sahlberg   <See AUTHORS for email>
  *
- * $Id: packet-nisplus.c,v 1.13 2002/08/28 21:00:24 jmayer Exp $
+ * $Id: packet-nisplus.c,v 1.14 2002/10/23 21:17:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1823,7 +1823,7 @@ proto_reg_handoff_nis(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nisplus, NIS_PROGRAM, ett_nisplus);
 	/* Register the procedure tables */
-	rpc_init_proc_table(NIS_PROGRAM, 3, nisplus3_proc);
+	rpc_init_proc_table(NIS_PROGRAM, 3, nisplus3_proc, -1);
 }
 
 
@@ -1914,5 +1914,5 @@ proto_reg_handoff_niscb(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nispluscb, CB_PROGRAM, ett_nispluscb);
 	/* Register the procedure tables */
-	rpc_init_proc_table(CB_PROGRAM, 1, cb1_proc);
+	rpc_init_proc_table(CB_PROGRAM, 1, cb1_proc, -1);
 }

@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.39 2002/08/28 21:00:25 jmayer Exp $
+ * $Id: packet-portmap.c,v 1.40 2002/10/23 21:17:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -555,10 +555,10 @@ proto_reg_handoff_portmap(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_portmap, PORTMAP_PROGRAM, ett_portmap);
 	/* Register the procedure tables */
-	rpc_init_proc_table(PORTMAP_PROGRAM, 1, portmap1_proc);
-	rpc_init_proc_table(PORTMAP_PROGRAM, 2, portmap2_proc);
-	rpc_init_proc_table(PORTMAP_PROGRAM, 3, portmap3_proc);
-	rpc_init_proc_table(PORTMAP_PROGRAM, 4, portmap4_proc);
+	rpc_init_proc_table(PORTMAP_PROGRAM, 1, portmap1_proc, -1);
+	rpc_init_proc_table(PORTMAP_PROGRAM, 2, portmap2_proc, -1);
+	rpc_init_proc_table(PORTMAP_PROGRAM, 3, portmap3_proc, -1);
+	rpc_init_proc_table(PORTMAP_PROGRAM, 4, portmap4_proc, -1);
 	rpc_handle = find_dissector("rpc");
 	rpc_tcp_handle = find_dissector("rpc-tcp");
 }

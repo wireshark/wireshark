@@ -2,7 +2,7 @@
  * Routines for async NSM stat callback dissection
  * 2001 Ronnie Sahlberg <See AUTHORS for email>
  *
- * $Id: packet-stat-notify.c,v 1.11 2002/08/28 21:00:35 jmayer Exp $
+ * $Id: packet-stat-notify.c,v 1.12 2002/10/23 21:17:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,5 +95,5 @@ proto_reg_handoff_statnotify(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_statnotify, STATNOTIFY_PROGRAM, ett_statnotify);
 	/* Register the procedure tables */
-	rpc_init_proc_table(STATNOTIFY_PROGRAM, 1, statnotify_proc);
+	rpc_init_proc_table(STATNOTIFY_PROGRAM, 1, statnotify_proc, -1);
 }

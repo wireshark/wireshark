@@ -2,7 +2,7 @@
  * Routines for hclnfsd (Hummingbird NFS Daemon) dissection
  * Copyright 2001, Mike Frisch <frisch@hummingbird.com>
  *
- * $Id: packet-hclnfsd.c,v 1.17 2002/08/28 21:00:16 jmayer Exp $
+ * $Id: packet-hclnfsd.c,v 1.18 2002/10/23 21:17:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -851,5 +851,5 @@ proto_reg_handoff_hclnfsd(void)
 	rpc_init_prog(proto_hclnfsd, HCLNFSD_PROGRAM, ett_hclnfsd);
 
 	/* Register the procedure tables */
-	rpc_init_proc_table(HCLNFSD_PROGRAM, 1, hclnfsd1_proc);
+	rpc_init_proc_table(HCLNFSD_PROGRAM, 1, hclnfsd1_proc, -1);
 }

@@ -1,7 +1,7 @@
 /* packet-spray.c
  * 2001  Ronnie Sahlberg   <See AUTHORS for email>
  *
- * $Id: packet-spray.c,v 1.10 2002/08/28 21:00:35 jmayer Exp $
+ * $Id: packet-spray.c,v 1.11 2002/10/23 21:17:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -131,6 +131,6 @@ proto_reg_handoff_spray(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_spray, SPRAY_PROGRAM, ett_spray);
 	/* Register the procedure tables */
-	rpc_init_proc_table(SPRAY_PROGRAM, 1, spray1_proc);
+	rpc_init_proc_table(SPRAY_PROGRAM, 1, spray1_proc, -1);
 }
 

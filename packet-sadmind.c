@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sadmind.c,v 1.2 2002/08/02 23:36:00 jmayer Exp $
+ * $Id: packet-sadmind.c,v 1.3 2002/10/23 21:17:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,7 +85,7 @@ proto_reg_handoff_sadmind(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_sadmind, SADMIND_PROGRAM, ett_sadmind);
 	/* Register the procedure tables */
-	rpc_init_proc_table(SADMIND_PROGRAM, 1, sadmind1_proc);
-	rpc_init_proc_table(SADMIND_PROGRAM, 2, sadmind2_proc);
-	rpc_init_proc_table(SADMIND_PROGRAM, 3, sadmind3_proc);
+	rpc_init_proc_table(SADMIND_PROGRAM, 1, sadmind1_proc, -1);
+	rpc_init_proc_table(SADMIND_PROGRAM, 2, sadmind2_proc, -1);
+	rpc_init_proc_table(SADMIND_PROGRAM, 3, sadmind3_proc, -1);
 }

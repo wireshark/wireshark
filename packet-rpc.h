@@ -1,13 +1,12 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.38 2002/09/04 09:40:24 sahlberg Exp $
+ * $Id: packet-rpc.h,v 1.39 2002/10/23 21:17:03 guy Exp $
  *
  * (c) 1999 Uwe Girlich
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -108,7 +107,8 @@ typedef struct _vsff {
 
 extern const value_string rpc_auth_flavor[];
 
-extern void rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table);
+extern void rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table,
+    int procedure_hf);
 extern void rpc_init_prog(int proto, guint32 prog, int ett);
 extern char *rpc_prog_name(guint32 prog);
 extern char *rpc_proc_name(guint32 prog, guint32 vers, guint32 proc);
@@ -146,6 +146,7 @@ typedef struct _rpc_prog_info_value {
 	int proto;
 	int ett;
 	char* progname;
+	GArray *procedure_hfs;
 } rpc_prog_info_value;
 
 extern GHashTable *rpc_progs;

@@ -4,7 +4,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nfsacl.c,v 1.3 2002/08/02 23:35:55 jmayer Exp $
+ * $Id: packet-nfsacl.c,v 1.4 2002/10/23 21:17:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -106,7 +106,7 @@ proto_reg_handoff_nfsacl(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nfsacl, NFSACL_PROGRAM, ett_nfsacl);
 	/* Register the procedure tables */
-	rpc_init_proc_table(NFSACL_PROGRAM, 1, nfsacl1_proc);
-	rpc_init_proc_table(NFSACL_PROGRAM, 2, nfsacl2_proc);
-	rpc_init_proc_table(NFSACL_PROGRAM, 3, nfsacl3_proc);
+	rpc_init_proc_table(NFSACL_PROGRAM, 1, nfsacl1_proc, -1);
+	rpc_init_proc_table(NFSACL_PROGRAM, 2, nfsacl2_proc, -1);
+	rpc_init_proc_table(NFSACL_PROGRAM, 3, nfsacl3_proc, -1);
 }

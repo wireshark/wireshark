@@ -1,7 +1,7 @@
 /* packet-stat.c
  * Routines for stat dissection
  *
- * $Id: packet-stat.c,v 1.17 2002/08/28 21:00:35 jmayer Exp $
+ * $Id: packet-stat.c,v 1.18 2002/10/23 21:17:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -333,5 +333,5 @@ proto_reg_handoff_stat(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_stat, STAT_PROGRAM, ett_stat);
 	/* Register the procedure tables */
-	rpc_init_proc_table(STAT_PROGRAM, 1, stat_proc);
+	rpc_init_proc_table(STAT_PROGRAM, 1, stat_proc, -1);
 }

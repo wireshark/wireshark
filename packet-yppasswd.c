@@ -1,7 +1,7 @@
 /* packet-yppasswd.c
  * Routines for yppasswd dissection
  *
- * $Id: packet-yppasswd.c,v 1.8 2002/08/28 21:00:40 jmayer Exp $
+ * $Id: packet-yppasswd.c,v 1.9 2002/10/23 21:17:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -157,6 +157,6 @@ proto_reg_handoff_yppasswd(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_yppasswd, YPPASSWD_PROGRAM, ett_yppasswd);
 	/* Register the procedure tables */
-	rpc_init_proc_table(YPPASSWD_PROGRAM, 1, yppasswd1_proc);
+	rpc_init_proc_table(YPPASSWD_PROGRAM, 1, yppasswd1_proc, -1);
 }
 

@@ -1,7 +1,7 @@
 /* packet-ypxfr.c
  * Routines for ypxfr dissection
  *
- * $Id: packet-ypxfr.c,v 1.7 2002/08/02 23:36:05 jmayer Exp $
+ * $Id: packet-ypxfr.c,v 1.8 2002/10/23 21:17:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -64,5 +64,5 @@ proto_reg_handoff_ypxfr(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_ypxfr, YPXFR_PROGRAM, ett_ypxfr);
 	/* Register the procedure tables */
-	rpc_init_proc_table(YPXFR_PROGRAM, 1, ypxfr1_proc);
+	rpc_init_proc_table(YPXFR_PROGRAM, 1, ypxfr1_proc, -1);
 }

@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.29 2002/08/28 21:00:24 jmayer Exp $
+ * $Id: packet-nlm.c,v 1.30 2002/10/23 21:17:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1132,8 +1132,8 @@ proto_reg_handoff_nlm(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nlm, NLM_PROGRAM, ett_nlm);
 	/* Register the procedure tables */
-	rpc_init_proc_table(NLM_PROGRAM, 1, nlm1_proc);
-	rpc_init_proc_table(NLM_PROGRAM, 2, nlm2_proc);
-	rpc_init_proc_table(NLM_PROGRAM, 3, nlm3_proc);
-	rpc_init_proc_table(NLM_PROGRAM, 4, nlm4_proc);
+	rpc_init_proc_table(NLM_PROGRAM, 1, nlm1_proc, -1);
+	rpc_init_proc_table(NLM_PROGRAM, 2, nlm2_proc, -1);
+	rpc_init_proc_table(NLM_PROGRAM, 3, nlm3_proc, -1);
+	rpc_init_proc_table(NLM_PROGRAM, 4, nlm4_proc, -1);
 }

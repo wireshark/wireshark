@@ -3,7 +3,7 @@
  *
  * Ronnie Sahlberg
  *
- * $Id: packet-nfsauth.c,v 1.2 2002/08/02 23:35:55 jmayer Exp $
+ * $Id: packet-nfsauth.c,v 1.3 2002/10/23 21:17:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,5 +75,5 @@ proto_reg_handoff_nfsauth(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nfsauth, NFSAUTH_PROGRAM, ett_nfsauth);
 	/* Register the procedure tables */
-	rpc_init_proc_table(NFSAUTH_PROGRAM, 1, nfsauth1_proc);
+	rpc_init_proc_table(NFSAUTH_PROGRAM, 1, nfsauth1_proc, -1);
 }

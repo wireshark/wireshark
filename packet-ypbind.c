@@ -1,7 +1,7 @@
 /* packet-ypbind.c
  * Routines for ypbind dissection
  *
- * $Id: packet-ypbind.c,v 1.13 2002/08/28 21:00:40 jmayer Exp $
+ * $Id: packet-ypbind.c,v 1.14 2002/10/23 21:17:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -197,6 +197,6 @@ proto_reg_handoff_ypbind(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_ypbind, YPBIND_PROGRAM, ett_ypbind);
 	/* Register the procedure tables */
-	rpc_init_proc_table(YPBIND_PROGRAM, 1, ypbind1_proc);
-	rpc_init_proc_table(YPBIND_PROGRAM, 2, ypbind2_proc);
+	rpc_init_proc_table(YPBIND_PROGRAM, 1, ypbind1_proc, -1);
+	rpc_init_proc_table(YPBIND_PROGRAM, 2, ypbind2_proc, -1);
 }

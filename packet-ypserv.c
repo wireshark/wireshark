@@ -1,7 +1,7 @@
 /* packet-ypserv.c
  * Routines for ypserv dissection
  *
- * $Id: packet-ypserv.c,v 1.24 2002/08/28 21:00:40 jmayer Exp $
+ * $Id: packet-ypserv.c,v 1.25 2002/10/23 21:17:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,8 @@
 #include "packet-ypserv.h"
 
 static int proto_ypserv = -1;
+static int hf_ypserv_procedure_v1 = -1;
+static int hf_ypserv_procedure_v2 = -1;
 static int hf_ypserv_domain = -1;
 static int hf_ypserv_servesdomain = -1;
 static int hf_ypserv_map = -1;
@@ -319,6 +321,22 @@ dissect_ypresp_maplist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 /* NULL as function pointer means: type of arguments is "void". */
 
 /* someone please get me a version 1 trace */
+
+static const value_string ypserv1_proc_vals[] = {
+    { YPPROC_DOMAIN, "DOMAIN" },
+    { YPPROC_DOMAIN_NONACK, "DOMAIN_NONACK" },
+    { YPPROC_MATCH, "MATCH" },
+    { YPPROC_FIRST, "FIRST" },
+    { YPPROC_NEXT,  "NEXT" },
+    { YPPROC_XFR,   "XFR" },
+    { YPPROC_CLEAR, "CLEAR" },
+    { YPPROC_ALL,   "ALL" },
+    { YPPROC_MASTER,    "MASTER" },
+    { YPPROC_ORDER, "ORDER" },
+    { YPPROC_MAPLIST,   "MAPLIST" },
+    { 0, NULL }
+};
+
 static const vsff ypserv1_proc[] = {
     { 0, "NULL", NULL, NULL },
     { YPPROC_DOMAIN, "DOMAIN",
@@ -345,7 +363,22 @@ static const vsff ypserv1_proc[] = {
 		NULL, NULL },
     { 0, NULL, NULL, NULL }
 };
-/* end of YPServ version 2 */
+/* end of YPServ version 1 */
+
+static const value_string ypserv2_proc_vals[] = {
+    { YPPROC_DOMAIN, "DOMAIN" },
+    { YPPROC_DOMAIN_NONACK, "DOMAIN_NONACK" },
+    { YPPROC_MATCH, "MATCH" },
+    { YPPROC_FIRST, "FIRST" },
+    { YPPROC_NEXT,  "NEXT" },
+    { YPPROC_XFR,   "XFR" },
+    { YPPROC_CLEAR, "CLEAR" },
+    { YPPROC_ALL,   "ALL" },
+    { YPPROC_MASTER,    "MASTER" },
+    { YPPROC_ORDER, "ORDER" },
+    { YPPROC_MAPLIST,   "MAPLIST" },
+    { 0, NULL }
+};
 
 static const vsff ypserv2_proc[] = {
     { 0, "NULL", NULL, NULL },
@@ -383,6 +416,12 @@ proto_register_ypserv(void)
 	static struct true_false_string yesno = { "Yes", "No" };
 
 	static hf_register_info hf[] = {
+		{ &hf_ypserv_procedure_v1, {
+			"V1 Procedure", "ypserv.procedure_v1", FT_UINT32, BASE_DEC,
+			VALS(ypserv1_proc_vals), 0, "V1 Procedure", HFILL }},
+		{ &hf_ypserv_procedure_v2, {
+			"V2 Procedure", "ypserv.procedure_v2", FT_UINT32, BASE_DEC,
+			VALS(ypserv2_proc_vals), 0, "V2 Procedure", HFILL }},
 		{ &hf_ypserv_domain, {
 			"Domain", "ypserv.domain", FT_STRING, BASE_DEC,
 			NULL, 0, "Domain", HFILL }},
@@ -443,6 +482,8 @@ proto_reg_handoff_ypserv(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_ypserv, YPSERV_PROGRAM, ett_ypserv);
 	/* Register the procedure tables */
-	rpc_init_proc_table(YPSERV_PROGRAM, 1, ypserv1_proc);
-	rpc_init_proc_table(YPSERV_PROGRAM, 2, ypserv2_proc);
+	rpc_init_proc_table(YPSERV_PROGRAM, 1, ypserv1_proc,
+	    hf_ypserv_procedure_v1);
+	rpc_init_proc_table(YPSERV_PROGRAM, 2, ypserv2_proc,
+	    hf_ypserv_procedure_v2);
 }

@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.81 2002/10/14 17:08:53 guy Exp $
+ * $Id: packet-nfs.c,v 1.82 2002/10/23 21:17:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7659,7 +7659,7 @@ proto_reg_handoff_nfs(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nfs, NFS_PROGRAM, ett_nfs);
 	/* Register the procedure tables */
-	rpc_init_proc_table(NFS_PROGRAM, 2, nfs2_proc);
-	rpc_init_proc_table(NFS_PROGRAM, 3, nfs3_proc);
-	rpc_init_proc_table(NFS_PROGRAM, 4, nfs4_proc);
+	rpc_init_proc_table(NFS_PROGRAM, 2, nfs2_proc, -1);
+	rpc_init_proc_table(NFS_PROGRAM, 3, nfs3_proc, -1);
+	rpc_init_proc_table(NFS_PROGRAM, 4, nfs4_proc, -1);
 }

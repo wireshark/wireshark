@@ -1,7 +1,7 @@
 /* packet-pcnfsd.c
  * Routines for PCNFSD dissection
  *
- * $Id: packet-pcnfsd.c,v 1.10 2002/08/28 21:00:25 jmayer Exp $
+ * $Id: packet-pcnfsd.c,v 1.11 2002/10/23 21:17:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -404,7 +404,7 @@ proto_reg_handoff_pcnfsd(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_pcnfsd, PCNFSD_PROGRAM, ett_pcnfsd);
 	/* Register the procedure tables */
-	rpc_init_proc_table(PCNFSD_PROGRAM, 1, pcnfsd1_proc);
-	rpc_init_proc_table(PCNFSD_PROGRAM, 2, pcnfsd2_proc);
+	rpc_init_proc_table(PCNFSD_PROGRAM, 1, pcnfsd1_proc, -1);
+	rpc_init_proc_table(PCNFSD_PROGRAM, 2, pcnfsd2_proc, -1);
 }
 
