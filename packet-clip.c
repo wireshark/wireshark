@@ -1,7 +1,7 @@
 /* packet-clip.c
  * Routines for clip packet disassembly
  *
- * $Id: packet-clip.c,v 1.1 1999/07/28 23:16:34 guy Exp $
+ * $Id: packet-clip.c,v 1.2 1999/08/24 06:16:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,7 +54,7 @@ dissect_clip( const u_char *pd, frame_data *fd, proto_tree *tree ) {
   if(check_col(fd, COL_RES_DL_DST))
     col_add_str(fd, COL_RES_DL_DST, "N/A" );
   if(check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "N/A" );
+    col_add_str(fd, COL_PROTOCOL, "CLIP" );
   if(check_col(fd, COL_INFO))
     col_add_str(fd, COL_INFO, "Classical IP frame" );
 
