@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.45 2000/06/15 06:18:32 guy Exp $
+ * $Id: ngsniffer.c,v 1.46 2000/06/28 03:58:52 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -403,15 +403,16 @@ int ngsniffer_open(wtap *wth, int *err)
 		return -1;
 
 	/*
-	 * Now position the random stream to the same location, which
-	 * should be the beginning of the real data, and should
-	 * be the beginning of the compressed data.
+	 * Now, if we have a random stream open, position it to the same
+	 * location, which should be the beginning of the real data, and
+	 * should be the beginning of the compressed data.
 	 *
 	 * XXX - will we see any records other than REC_FRAME2, REC_FRAME4,
 	 * or REC_EOF after this?  If not, we can get rid of the loop in
 	 * "ngsniffer_read()".
 	 */
-	file_seek(wth->random_fh, wth->data_offset, SEEK_SET);
+	if (wth->random_fh != NULL)
+		file_seek(wth->random_fh, wth->data_offset, SEEK_SET);
 
 	/* This is a ngsniffer file */
 	wth->capture.ngsniffer = g_malloc(sizeof(ngsniffer_t));
