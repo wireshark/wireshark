@@ -5,7 +5,7 @@
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: ipv4.c,v 1.1 1999/11/15 06:32:14 gram Exp $
+ * $Id: ipv4.c,v 1.2 1999/11/15 07:25:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -33,6 +33,10 @@
 
 #include <glib.h>
 #include <stdio.h>
+
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
 
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
