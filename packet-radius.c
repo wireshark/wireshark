@@ -1,7 +1,7 @@
 /* packet-radius.c
  * Routines for RADIUS packet disassembly
  *
- * $Id: packet-radius.c,v 1.9 2000/03/21 19:20:40 guy Exp $
+ * $Id: packet-radius.c,v 1.10 2000/04/05 16:01:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -133,6 +133,7 @@ typedef struct _value_value_pair {
 #define RD_TP_TUNNEL_MEDIUM_TYPE 65
 #define RD_TP_TUNNEL_CLIENT_ENDPOINT 66
 #define RD_TP_TUNNEL_SERVER_ENDPOINT 67
+#define RD_TP_TUNNEL_PASSWORD 69
 #define RD_TP_TUNNEL_ASSIGNMENT_ID 82
 
 #define AUTHENTICATOR_LENGTH 16
@@ -379,6 +380,7 @@ static value_value_pair radius_printinfo[] = {
 { RD_TP_TUNNEL_MEDIUM_TYPE, RADIUS_TUNNEL_MEDIUM_TYPE},
 { RD_TP_TUNNEL_CLIENT_ENDPOINT, RADIUS_STRING_TAGGED},
 { RD_TP_TUNNEL_SERVER_ENDPOINT, RADIUS_STRING_TAGGED},
+{ RD_TP_TUNNEL_PASSWORD, RADIUS_STRING_TAGGED},
 { RD_TP_TUNNEL_ASSIGNMENT_ID, RADIUS_STRING_TAGGED},
 {0,0},
 };
@@ -443,6 +445,7 @@ static value_string radius_attrib_type_vals[] = {
 { RD_TP_TUNNEL_MEDIUM_TYPE, "Tunnel Medium Type"},
 { RD_TP_TUNNEL_CLIENT_ENDPOINT, "Tunnel Client Endpoint"},
 { RD_TP_TUNNEL_SERVER_ENDPOINT, "Tunnel Server Endpoint"},
+{ RD_TP_TUNNEL_PASSWORD, "Tunnel Password"},
 { RD_TP_TUNNEL_ASSIGNMENT_ID, "Tunnel Assignment ID"},
 {0,NULL},
 };
