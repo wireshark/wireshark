@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.126 2003/05/20 07:56:46 guy Exp $
+ * $Id: packet-rpc.c,v 1.127 2003/05/21 02:48:40 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -493,12 +493,18 @@ int hfindex, int offset)
 	return offset + 8;
 }
 
-
-static int
+/*
+ * We want to make this function available outside this file and 
+ * allow callers to pass a dissection function for the opaque data
+ */ 
+int
 dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
-    proto_tree *tree, int hfindex,
+    proto_tree *tree,
+    packet_info *pinfo,
+    int hfindex,
     gboolean fixed_length, guint32 length,
-    gboolean string_data, char **string_buffer_ret)
+    gboolean string_data, char **string_buffer_ret,
+    dissect_function_t *dissect_it)
 {
 	proto_item *string_item = NULL;
 	proto_tree *string_tree = NULL;
@@ -573,6 +579,22 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 			fill_truncated = 0;
 		}
 	}
+
+	/*
+	 * If we were passed a dissection routine, make a TVB of the data
+	 * and call the dissection routine
+	 */
+
+        if (dissect_it) {
+          tvbuff_t *opaque_tvb;
+
+          opaque_tvb = tvb_new_subset(tvb, offset, 
+              (fixed_length?offset:(offset + 4)), string_length_copy);
+
+          return (*dissect_it)(opaque_tvb, offset, pinfo, tree);
+
+        }
+
 	string_buffer = (char*)g_malloc(string_length_copy +
 			(string_data ? 1 : 0));
 	if (fixed_length)
@@ -689,8 +711,8 @@ int
 dissect_rpc_string(tvbuff_t *tvb, proto_tree *tree,
     int hfindex, int offset, char **string_buffer_ret)
 {
-	offset = dissect_rpc_opaque_data(tvb, offset, tree,
-	    hfindex, FALSE, 0, TRUE, string_buffer_ret);
+        offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL, 
+	    hfindex, FALSE, 0, TRUE, string_buffer_ret, NULL);
 	return offset;
 }
 
@@ -699,8 +721,8 @@ int
 dissect_rpc_data(tvbuff_t *tvb, proto_tree *tree,
     int hfindex, int offset)
 {
-	offset = dissect_rpc_opaque_data(tvb, offset, tree,
-	    hfindex, FALSE, 0, FALSE, NULL);
+        offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL, 
+					 hfindex, FALSE, 0, FALSE, NULL, NULL);
 	return offset;
 }
 
@@ -710,8 +732,8 @@ dissect_rpc_bytes(tvbuff_t *tvb, proto_tree *tree,
     int hfindex, int offset, guint32 length,
     gboolean string_data, char **string_buffer_ret)
 {
-	offset = dissect_rpc_opaque_data(tvb, offset, tree,
-	    hfindex, TRUE, length, string_data, string_buffer_ret);
+        offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
+	    hfindex, TRUE, length, string_data, string_buffer_ret, NULL);
 	return offset;
 }
 
@@ -999,11 +1021,54 @@ dissect_rpc_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 	return offset;
 }
 
+/*
+ * XDR opaque object, the contents of which are interpreted as a GSS-API
+ * token.
+ */
+static int
+dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset,
+    packet_info *pinfo)
+{
+	guint32 opaque_length, rounded_length;
+	gint len_consumed, length, reported_length;
+	tvbuff_t *new_tvb;
+
+	proto_item *gitem;
+	proto_tree *gtree = NULL;
+
+	opaque_length = tvb_get_ntohl(tvb, offset+0);
+	rounded_length = rpc_roundup(opaque_length);
+	if (tree) {
+		gitem = proto_tree_add_text(tree, tvb, offset,
+					    4+rounded_length, "GSS Token");
+		gtree = proto_item_add_subtree(gitem, ett_rpc_gss_token);
+		proto_tree_add_uint(gtree, hf_rpc_authgss_token_length,
+				    tvb, offset+0, 4, opaque_length);
+	}
+	offset += 4;
+	length = tvb_length_remaining(tvb, offset);
+	reported_length = tvb_reported_length_remaining(tvb, offset);
+	g_assert(length >= 0);
+	g_assert(reported_length >= 0);
+	if (length > reported_length)
+		length = reported_length;
+	if ((guint32)length > opaque_length)
+		length = opaque_length;
+	if ((guint32)reported_length > opaque_length)
+		reported_length = opaque_length;
+	new_tvb = tvb_new_subset(tvb, offset, length, reported_length);
+	len_consumed = call_dissector(gssapi_handle, new_tvb, pinfo, gtree);
+	offset += len_consumed;
+
+	return offset;
+}
+
 /* AUTH_DES verifiers are asymmetrical, so we need to know what type of
  * verifier we're decoding (CALL or REPLY).
  */
 static int
-dissect_rpc_verf(tvbuff_t* tvb, proto_tree* tree, int offset, int msg_type)
+dissect_rpc_verf(tvbuff_t* tvb, proto_tree* tree, int offset, int msg_type,
+                 packet_info *pinfo)
 {
 	guint flavor;
 	guint length;
@@ -1055,8 +1120,7 @@ dissect_rpc_verf(tvbuff_t* tvb, proto_tree* tree, int offset, int msg_type)
 			}
 			break;
 		case RPCSEC_GSS:
-			dissect_rpc_data(tvb, vtree,
-				hf_rpc_authgss_checksum, offset+4);
+			dissect_rpc_authgss_token(tvb, vtree, offset+4, pinfo);
 			break;
 		default:
 			proto_tree_add_uint(vtree, hf_rpc_auth_length, tvb,
@@ -1068,48 +1132,6 @@ dissect_rpc_verf(tvbuff_t* tvb, proto_tree* tree, int offset, int msg_type)
 		}
 	}
 	offset += 8 + length;
-
-	return offset;
-}
-
-/*
- * XDR opaque object, the contents of which are interpreted as a GSS-API
- * token.
- */
-static int
-dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset,
-    packet_info *pinfo)
-{
-	guint32 opaque_length, rounded_length;
-	gint length, reported_length;
-	tvbuff_t *new_tvb;
-
-	proto_item *gitem;
-	proto_tree *gtree = NULL;
-
-	opaque_length = tvb_get_ntohl(tvb, offset+0);
-	rounded_length = rpc_roundup(opaque_length);
-	if (tree) {
-		gitem = proto_tree_add_text(tree, tvb, offset,
-					    4+rounded_length, "GSS Token");
-		gtree = proto_item_add_subtree(gitem, ett_rpc_gss_token);
-		proto_tree_add_uint(gtree, hf_rpc_authgss_token_length,
-				    tvb, offset+0, 4, opaque_length);
-	}
-	offset += 4;
-	length = tvb_length_remaining(tvb, offset);
-	reported_length = tvb_reported_length_remaining(tvb, offset);
-	g_assert(length >= 0);
-	g_assert(reported_length >= 0);
-	if (length > reported_length)
-		length = reported_length;
-	if ((guint32)length > opaque_length)
-		length = opaque_length;
-	if ((guint32)reported_length > opaque_length)
-		reported_length = opaque_length;
-	new_tvb = tvb_new_subset(tvb, offset, length, reported_length);
-	call_dissector(gssapi_handle, new_tvb, pinfo, gtree);
-	offset += rounded_length;
 
 	return offset;
 }
@@ -2021,7 +2043,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += 16;
 
 		offset = dissect_rpc_cred(tvb, rpc_tree, offset);
-		offset = dissect_rpc_verf(tvb, rpc_tree, offset, msg_type);
+		offset = dissect_rpc_verf(tvb, rpc_tree, offset, msg_type, pinfo);
 
 		/* pass rpc_info to subdissectors */
 		rpc_call->request=TRUE;
@@ -2162,7 +2184,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		switch (reply_state) {
 
 		case MSG_ACCEPTED:
-			offset = dissect_rpc_verf(tvb, rpc_tree, offset, msg_type);
+			offset = dissect_rpc_verf(tvb, rpc_tree, offset, msg_type, pinfo);
 			accept_state = tvb_get_ntohl(tvb,offset+0);
 			if (rpc_tree) {
 				proto_tree_add_uint(rpc_tree, hf_rpc_state_accept, tvb,

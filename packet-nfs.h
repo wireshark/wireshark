@@ -1,5 +1,5 @@
 /* packet-nfs.h (c) 1999 Uwe Girlich */
-/* $Id: packet-nfs.h,v 1.13 2003/04/01 04:38:05 guy Exp $ */
+/* $Id: packet-nfs.h,v 1.14 2003/05/21 02:48:40 sharpe Exp $ */
 
 #ifndef __PACKET_NFS_H__
 #define __PACKET_NFS_H__
@@ -117,6 +117,8 @@ typedef struct nfs_fhandle_data {
 	tvbuff_t *tvb;
 } nfs_fhandle_data_t;
 void dissect_fhandle_hidden(packet_info *pinfo, proto_tree *tree, nfs_fhandle_data_t *nfd);
+
+typedef int (diss_p)(tvbuff_t *tvb, int offset, proto_tree *tree, int hf);
 
 #endif /* packet-nfs.h */
 

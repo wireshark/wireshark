@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.41 2003/05/02 21:58:23 guy Exp $
+ * $Id: packet-rpc.h,v 1.42 2003/05/21 02:48:40 sharpe Exp $
  *
  * (c) 1999 Uwe Girlich
  *
@@ -127,6 +127,13 @@ extern int dissect_rpc_bool(tvbuff_t *tvb,
 	proto_tree *tree, int hfindex, int offset);
 extern int dissect_rpc_string(tvbuff_t *tvb,
 	proto_tree *tree, int hfindex, int offset, char **string_buffer_ret);
+int dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
+    proto_tree *tree,
+    packet_info *pinfo,
+    int hfindex,
+    gboolean fixed_length, guint32 length,
+    gboolean string_data, char **string_buffer_ret,
+    dissect_function_t *dissect_it);
 extern int dissect_rpc_data(tvbuff_t *tvb,
 	proto_tree *tree, int hfindex, int offset);
 extern int dissect_rpc_bytes(tvbuff_t *tvb,
