@@ -19,3 +19,4 @@ randpkt
 rdps
 stamp-h
 stamp-h.in
+register.c
