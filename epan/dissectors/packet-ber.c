@@ -1004,6 +1004,24 @@ int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, pro
 	char str[256],*strp, *name;
 	proto_item *item;
 
+#ifdef DEBUG_BER
+{
+char *name;
+header_field_info *hfinfo;
+if(hf_id>0){
+hfinfo = proto_registrar_get_nth(hf_id);
+name=hfinfo->name;
+} else {
+name="unnamed";
+}
+if(tvb_length_remaining(tvb,offset)>3){
+printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered implicit_tag:%d offset:%d len:%d %02x:%02x:%02x\n",name,implicit_tag,offset,tvb_length_remaining(tvb,offset),tvb_get_guint8(tvb,offset),tvb_get_guint8(tvb,offset+1),tvb_get_guint8(tvb,offset+2));
+}else{
+printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
+}
+}
+#endif
+
 	if (value_string) {
 		value_string[0] = '\0';
 	}
@@ -1088,7 +1106,7 @@ name=hfinfo->name;
 name="unnamed";
 }
 if(tvb_length_remaining(tvb,offset)>3){
-printf("SQ OF dissect_ber_sq_of(%s) entered offset:%d len:%d %02x:%02x:%02x\n",name,offset,tvb_length_remaining(tvb,offset),tvb_get_guint8(tvb,offset),tvb_get_guint8(tvb,offset+1),tvb_get_guint8(tvb,offset+2));
+printf("SQ OF dissect_ber_sq_of(%s) entered implicit_tag:%d offset:%d len:%d %02x:%02x:%02x\n",name,implicit_tag,offset,tvb_length_remaining(tvb,offset),tvb_get_guint8(tvb,offset),tvb_get_guint8(tvb,offset+1),tvb_get_guint8(tvb,offset+2));
 }else{
 printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 }
@@ -1187,13 +1205,15 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 		}
 
 		/* verify that this one is the one we want */
-		if ((seq->class!=class)
+		if(seq->class!=BER_CLASS_ANY){
+		  if ((seq->class!=class)
 			||(seq->tag!=tag) ){
 			if (!(seq->flags & BER_FLAGS_NOTCHKTAG)) {
 				proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in SQ OF");
 				offset = eoffset;
 				continue;
 			}
+		  }
 		}
 
 		if (!(seq->flags & BER_FLAGS_NOOWNTAG) && !(seq->flags & BER_FLAGS_IMPLTAG)) {
