@@ -1,0 +1,48 @@
+# ocsp.cnf
+# OCSP conformation file
+
+# $Id: ocsp.cnf 12558 2004-11-21 10:16:06Z sahlberg $
+
+#.MODULE_IMPORT
+AuthenticationFramework x509af
+CertificateExtensions x509ce
+PKIX1Implicit88 pkix1implicit
+PKIX1Explicit88 pkix1explicit
+
+#.INCLUDE ../x509af/x509af-exp.cnf
+#.INCLUDE ../x509ce/x509ce-exp.cnf
+#.INCLUDE ../pkix1implicit/pkix1implicit_exp.cnf
+#.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
+
+#.EXPORTS
+
+#.PDU
+
+#.REGISTER
+BasicOCSPResponse	B	"1.3.6.1.5.5.7.48.1.1"	"id-pkix-ocsp-basic"
+CrlID			B	"1.3.6.1.5.5.7.48.1.3"	"id-pkix-ocsp-crl"
+AcceptableResponses	B	"1.3.6.1.5.5.7.48.1.4"	"id-pkix-ocsp-response"
+ArchiveCutoff		B	"1.3.6.1.5.5.7.48.1.6"	"id-pkix-ocsp-archive-cutoff"
+ServiceLocator		B	"1.3.6.1.5.5.7.48.1.7"	"id-pkix-ocsp-service-locator"
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.FN_BODY ResponseBytes/responseType
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                 hf_ocsp_responseType_id, responseType_id);
+
+#.FN_BODY ResponseBytes/response
+  guint8 class;
+  gboolean pc, ind;
+  guint32 tag;
+  guint32 len;
+  /* skip past the T and L  */
+  offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+  offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind);
+  offset=call_ber_oid_callback(responseType_id, tvb, offset, pinfo, tree);
+
+#.END

@@ -379,6 +379,7 @@ DISSECTOR_SRC =	\
 	packet-ntlmssp.c	\
 	packet-ntp.c	\
 	packet-null.c	\
+	packet-ocsp.c	\
 	packet-olsr.c	\
 	packet-osi-options.c	\
 	packet-osi.c	\
@@ -673,6 +674,7 @@ DISSECTOR_INCLUDES =	\
 	packet-ntlmssp.h	\
 	packet-ntp.h	\
 	packet-null.h	\
+	packet-ocsp.h	\
 	packet-osi-options.h	\
 	packet-osi.h	\
 	packet-pcnfsd.h	\
