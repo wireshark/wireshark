@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.20 2002/01/21 07:36:36 guy Exp $
+ * $Id: packet-kerberos.c,v 1.21 2002/05/01 00:01:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -342,12 +342,12 @@ static const value_string krb5_msg_types[] = {
 static int dissect_PrincipalName(char *title, ASN1_SCK *asn1p,
                                  packet_info *pinfo, proto_tree *tree,
                                  int start_offset);
-static int dissect_Ticket(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
+static int dissect_Ticket(ASN1_SCK *asn1p, packet_info *pinfo,
                           proto_tree *tree, int start_offset);
 static int dissect_EncryptedData(char *title, ASN1_SCK *asn1p,
 				 packet_info *pinfo, proto_tree *tree,
 				 int start_offset);
-static int dissect_Addresses(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
+static int dissect_Addresses(ASN1_SCK *asn1p, packet_info *pinfo,
                              proto_tree *tree, int start_offset);
 
 static const char *
@@ -796,7 +796,7 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (CHECK_CONTEXT_TYPE(KRB5_BODY_ADDRESSES)) {
             /* addresses supplied */
 
-            length = dissect_Addresses("Addresses", asn1p, pinfo, kerberos_tree,
+            length = dissect_Addresses(asn1p, pinfo, kerberos_tree,
                                        offset);
             if (offset == -1)
                 return -1;
@@ -827,7 +827,7 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         end = asn1p->offset + item_len;
         while(asn1p->offset < end) {
             KRB_DECODE_CONTEXT_HEAD_OR_DIE("ticket", KRB5_KDC_REP_TICKET);
-            length = dissect_Ticket("ticket", asn1p, pinfo, additional_tickets_tree,
+            length = dissect_Ticket(asn1p, pinfo, additional_tickets_tree,
                                     offset);
             if (length == -1)
                 return -1;
@@ -869,7 +869,7 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += item_len;
         
         KRB_DECODE_CONTEXT_HEAD_OR_DIE("ticket", KRB5_KDC_REP_TICKET);
-        length = dissect_Ticket("ticket", asn1p, pinfo, kerberos_tree, offset);
+        length = dissect_Ticket(asn1p, pinfo, kerberos_tree, offset);
         if (length == -1)
             return -1;
         offset += length;
@@ -1120,7 +1120,7 @@ dissect_PrincipalName(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
 }
 
 static int
-dissect_Addresses(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
+dissect_Addresses(ASN1_SCK *asn1p, packet_info *pinfo,
                   proto_tree *tree, int start_offset) {
     proto_tree *address_tree = NULL;
     int offset = start_offset;
@@ -1248,7 +1248,7 @@ dissect_EncryptedData(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
 }
 
 static int
-dissect_Ticket(char *title, ASN1_SCK *asn1p, packet_info *pinfo,
+dissect_Ticket(ASN1_SCK *asn1p, packet_info *pinfo,
 	       proto_tree *tree, int start_offset)
 {
 /*
