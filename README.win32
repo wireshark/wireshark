@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.66 2004/04/08 20:36:09 gerald Exp $
+$Id: README.win32,v 1.67 2004/04/09 07:37:25 ulfl Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -170,9 +170,21 @@ The ADNS package is also available at its homepage:
 By default, the build process looks for these packages in
 C:\ethereal-win32-libs.  You can place them in a different directory, but
 you must update the ETHEREAL_LIBS variable in config.nmake accordingly.
-The default location for each package is listed below.  If you're running
-MSVC++, you cat run "nmake -f makefile.nmake setup" to download each
-file and unpack it in the $ETHEREAL_LIBS directory.
+
+If you're running MSVC++, you can run:
+
+nmake -f makefile.nmake setup 
+
+to download each package file (together around 30MB!) and unpack it in the 
+$ETHEREAL_LIBS directory. 
+This will first check the availability of all required tools and then uses 
+the tool wget to download the files from the server location at
+www.ethereal.com mentioned above. If you have problems downloading the files,
+you might be connected to the internet through a proxy/firewall. In this case
+see the wget documentation to configure wget accordingly.
+
+The following lists the packages needed to compile Ethereal and the default
+locations where to unpack them, when the above method isn't used.
 
     Package                               Default Location
     -------                               ----------------
@@ -187,7 +199,7 @@ file and unpack it in the $ETHEREAL_LIBS directory.
 
 and optional:
 
-    adns-1.0-win32-01.zip                 C:\ethereal-win32-libs
+    adns-1.0-win32-03.zip                 C:\ethereal-win32-libs
     pcre-4.4.zip                          C:\ethereal-win32-libs
     zlib121-dll.zip                       C:\ethereal-win32-libs\zlib121-dll
 
