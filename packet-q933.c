@@ -2,7 +2,7 @@
  * Routines for Q.933 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q933.c,v 1.5 2004/02/18 10:11:51 guy Exp $
+ * $Id: packet-q933.c,v 1.6 2004/03/06 10:29:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,7 @@ static int hf_q933_call_ref_len 			= -1;
 static int hf_q933_call_ref_flag 			= -1;
 static int hf_q933_call_ref 				= -1;
 static int hf_q933_message_type 			= -1;
+static int hf_q933_cause_location			= -1;
 static int hf_q933_cause_value 				= -1;
 static int hf_q933_number_type				= -1;
 static int hf_q933_numbering_plan			= -1;
@@ -52,6 +53,8 @@ static int hf_q933_calling_party_number 		= -1;
 static int hf_q933_called_party_number 			= -1;
 static int hf_q933_connected_number 			= -1;
 static int hf_q933_redirecting_number 			= -1;
+static int hf_q933_screening_ind				= -1;
+static int hf_q933_presentation_ind				= -1;
 
 static gint ett_q933 					= -1;
 static gint ett_q933_ie 				= -1;
@@ -880,21 +883,19 @@ dissect_q933_cause_ie(tvbuff_t *tvb, int offset, int len,
 		return;
 	octet = tvb_get_guint8(tvb, offset);
 	coding_standard = octet & 0x60;
-	proto_tree_add_uint(tree, hf_q933_coding_standard, tvb, offset, 1, octet);
 	if (coding_standard != Q933_ITU_STANDARDIZED_CODING) {
 		/*
 		 * We don't know how the cause is encoded,
 		 * so just dump it as data and be done with it.
 		 */
+		proto_tree_add_uint(tree, hf_q933_coding_standard, tvb, offset, 1, octet);
 		proto_tree_add_text(tree, tvb, offset,
 		    len, "Data: %s",
 		    tvb_bytes_to_str(tvb, offset, len));
 		return;
 	}
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Location: %s",
-	    val_to_str(octet & 0x0F, q933_cause_location_vals,
-	      "Unknown (0x%X)"));
+	proto_tree_add_uint(tree, hf_q933_cause_location, tvb, offset, 1, octet);
+	proto_tree_add_uint(tree, hf_q933_coding_standard, tvb, offset, 1, octet);
 	proto_tree_add_boolean(tree, hf_q933_extension_ind, tvb, offset, 1, octet);
 	offset += 1;
 	len -= 1;
@@ -907,6 +908,7 @@ dissect_q933_cause_ie(tvbuff_t *tvb, int offset, int len,
 		    "Recommendation: %s",
 		    val_to_str(octet & 0x7F, q933_cause_recommendation_vals,
 		      "Unknown (0x%02X)"));
+		proto_tree_add_boolean(tree, hf_q933_extension_ind, tvb, offset, 1, octet);
 		offset += 1;
 		len -= 1;
 	}
@@ -916,6 +918,7 @@ dissect_q933_cause_ie(tvbuff_t *tvb, int offset, int len,
 	octet = tvb_get_guint8(tvb, offset);
 	cause_value = octet & 0x7F;
 	proto_tree_add_uint(tree, hf_cause_value, tvb, offset, 1, cause_value);
+	proto_tree_add_boolean(tree, hf_q933_extension_ind, tvb, offset, 1, octet);
 	offset += 1;
 	len -= 1;
 
@@ -1508,8 +1511,8 @@ static const value_string q933_numbering_plan_vals[] = {
 
 static const value_string q933_presentation_indicator_vals[] = {
 	{ 0x00, "Presentation allowed" },
-	{ 0x20, "Presentation restricted" },
-	{ 0x40, "Number not available due to interworking" },
+	{ 0x01, "Presentation restricted" },
+	{ 0x02, "Number not available due to interworking" },
 	{ 0,    NULL }
 };
 
@@ -1552,14 +1555,9 @@ dissect_q933_number_ie(tvbuff_t *tvb, int offset, int len,
 		if (len == 0)
 			return;
 		octet = tvb_get_guint8(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Presentation indicator: %s",
-		    val_to_str(octet & 0x60, q933_presentation_indicator_vals,
-		      "Unknown (0x%X)"));
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Screening indicator: %s",
-		    val_to_str(octet & 0x03, q933_screening_indicator_vals,
-		      "Unknown (0x%X)"));
+		proto_tree_add_uint(tree, hf_q933_screening_ind, tvb, offset, 1, octet);
+		proto_tree_add_uint(tree, hf_q933_presentation_ind, tvb, offset, 1, octet);
+		proto_tree_add_boolean(tree, hf_q933_extension_ind, tvb, offset, 1, octet);
 		offset += 1;
 		len -= 1;
 	}
@@ -2084,8 +2082,12 @@ proto_register_q933(void)
 		  { "Message type", "q933.message_type", FT_UINT8, BASE_HEX, VALS(q933_message_type_vals), 0x0,
 			"", HFILL }},
 
+		{ &hf_q933_cause_location,
+		  { "Cause location", "q933.cause_location", FT_UINT8, BASE_DEC, VALS(q933_cause_location_vals), 0x0f,
+			"", HFILL }},
+
 		{ &hf_q933_cause_value,
-		  { "Cause value", "q933.cause_value", FT_UINT8, BASE_DEC, VALS(q933_cause_code_vals), 0x0,
+		  { "Cause value", "q933.cause_value", FT_UINT8, BASE_DEC, VALS(q933_cause_code_vals), 0x7f,
 			"", HFILL }},
 
 		{ &hf_q933_number_type,
@@ -2094,6 +2096,14 @@ proto_register_q933(void)
 
 		{ &hf_q933_numbering_plan,
 		  { "numbering plan", "q933.numbering_plan", FT_UINT8, BASE_HEX, VALS(q933_numbering_plan_vals), 0x0f,
+			"", HFILL }},
+
+		{ &hf_q933_screening_ind,
+		  { "Screening indicator", "q933.screening_ind", FT_UINT8, BASE_HEX, VALS(q933_screening_indicator_vals), 0x03,
+			"", HFILL }},
+
+		{ &hf_q933_presentation_ind,
+		  { "Presentation indicator", "q933.presentation_ind", FT_UINT8, BASE_HEX, VALS(q933_presentation_indicator_vals), 0x60,
 			"", HFILL }},
 
 		{ &hf_q933_extension_ind,
