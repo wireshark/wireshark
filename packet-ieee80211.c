@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.108 2004/05/24 02:25:18 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.109 2004/06/06 14:29:06 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3012,7 +3012,7 @@ static void init_wepkeys(void) {
 	g_free(wep_keys[i]);
       }
 
-      res = hex_str_to_bytes(tmp, bytes);
+      res = hex_str_to_bytes(tmp, bytes, FALSE);
       if (res && bytes->len > 0) {
         if (bytes->len > 32) {
 	  bytes->len = 32;
@@ -3026,6 +3026,9 @@ static void init_wepkeys(void) {
 	printf("%d: %s\n", i, bytes_to_str(bytes->data, bytes->len));
 #endif
       } else {
+#if 0
+	printf("res: %d  bytes->len: %d\n", res, bytes->len);
+#endif
         g_warning("Could not parse WEP key %d: %s", i + 1, tmp);
       }
     }

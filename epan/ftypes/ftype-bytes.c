@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-bytes.c,v 1.25 2004/02/27 12:00:31 obiot Exp $
+ * $Id: ftype-bytes.c,v 1.26 2004/06/06 14:29:07 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -160,7 +160,7 @@ bytes_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, Log
 
 	bytes = g_byte_array_new();
 
-	res = hex_str_to_bytes(s, bytes);
+	res = hex_str_to_bytes(s, bytes, TRUE);
 
 	if (!res) {
 		if (logfunc != NULL)
