@@ -46,15 +46,49 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_h248 = -1;
+static int hf_h248_mtpaddress_ni = -1;
+static int hf_h248_mtpaddress_pc = -1;
 #include "packet-h248-hf.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h248 = -1;
+static gint ett_mtpaddress = -1;
 #include "packet-h248-ett.c"
 
 
-#include "packet-h248-fn.c"
 
+static int 
+dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+  tvbuff_t *new_tvb;
+  proto_tree *mtp_tree=NULL;
+  guint32 val;
+  int i, len, old_offset;
+
+  old_offset=offset;
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
+
+
+  /* this field is either 2 or 4 bytes  so just read it into an integer */
+  val=0;
+  len=tvb_length(new_tvb);
+  for(i=0;i<len;i++){
+    val= (val<<8)|tvb_get_guint8(new_tvb, i);
+  }
+
+  /* do the prettification */
+  proto_item_append_text(ber_last_created_item, "  NI = %d, PC = %d ( %d-%d )", val&0x03,val>>2,val&0x03,val>>2);
+  if(tree){
+    mtp_tree = proto_item_add_subtree(ber_last_created_item, ett_mtpaddress);
+  }
+  proto_tree_add_uint(mtp_tree, hf_h248_mtpaddress_ni, tvb, old_offset, offset-old_offset, val&0x03);
+  proto_tree_add_uint(mtp_tree, hf_h248_mtpaddress_pc, tvb, old_offset, offset-old_offset, val>>2);
+
+
+  return offset;
+}
+
+
+#include "packet-h248-fn.c"
 
 
 static void
@@ -81,12 +115,19 @@ void proto_register_h248(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
+    { &hf_h248_mtpaddress_ni, {
+      "NI", "h248.mtpaddress.ni", FT_UINT32, BASE_DEC,
+      NULL, 0, "NI", HFILL }},
+    { &hf_h248_mtpaddress_pc, {
+      "PC", "h248.mtpaddress.pc", FT_UINT32, BASE_DEC,
+      NULL, 0, "PC", HFILL }},
 #include "packet-h248-hfarr.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_h248,
+    &ett_mtpaddress,
 #include "packet-h248-ettarr.c"
   };
 

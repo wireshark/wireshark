@@ -53,6 +53,8 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_h248 = -1;
+static int hf_h248_mtpaddress_ni = -1;
+static int hf_h248_mtpaddress_pc = -1;
 
 /*--- Included file: packet-h248-hf.c ---*/
 
@@ -71,7 +73,7 @@ static int hf_h248_ip4Address = -1;               /* IP4Address */
 static int hf_h248_ip6Address = -1;               /* IP6Address */
 static int hf_h248_domainName = -1;               /* DomainName */
 static int hf_h248_deviceName = -1;               /* PathName */
-static int hf_h248_mtpAddress = -1;               /* OCTET_STRING_SIZE_2_4 */
+static int hf_h248_mtpAddress = -1;               /* MtpAddress */
 static int hf_h248_name = -1;                     /* IA5String */
 static int hf_h248_portNumber = -1;               /* INTEGER_0_65535 */
 static int hf_h248_address = -1;                  /* OCTET_STRING_SIZE_4 */
@@ -286,6 +288,7 @@ static int hf_h248_serviceChangeDelay = -1;       /* INTEGER_0_4294967295 */
 static int hf_h248_serviceChangeMgcId = -1;       /* MId */
 static int hf_h248_timeStamp = -1;                /* TimeNotation */
 static int hf_h248_serviceChangeInfo = -1;        /* AuditDescriptor */
+static int hf_h248_mtpAddress1 = -1;              /* OCTET_STRING_SIZE_2_4 */
 static int hf_h248_timestamp = -1;                /* TimeNotation */
 static int hf_h248_profileName = -1;              /* IA5String_SIZE_1_67 */
 static int hf_h248_PackagesDescriptor_item = -1;  /* PackagesItem */
@@ -324,6 +327,7 @@ static int hf_h248_NotifyCompletion_otherReason = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_h248 = -1;
+static gint ett_mtpaddress = -1;
 
 /*--- Included file: packet-h248-ett.c ---*/
 
@@ -460,6 +464,38 @@ static gint ett_h248_Value = -1;
 
 /*--- End of included file: packet-h248-ett.c ---*/
 
+
+
+
+static int 
+dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+  tvbuff_t *new_tvb;
+  proto_tree *mtp_tree=NULL;
+  guint32 val;
+  int i, len, old_offset;
+
+  old_offset=offset;
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
+
+
+  /* this field is either 2 or 4 bytes  so just read it into an integer */
+  val=0;
+  len=tvb_length(new_tvb);
+  for(i=0;i<len;i++){
+    val= (val<<8)|tvb_get_guint8(new_tvb, i);
+  }
+
+  /* do the prettification */
+  proto_item_append_text(ber_last_created_item, "  NI = %d, PC = %d ( %d-%d )", val&0x03,val>>2,val&0x03,val>>2);
+  if(tree){
+    mtp_tree = proto_item_add_subtree(ber_last_created_item, ett_mtpaddress);
+  }
+  proto_tree_add_uint(mtp_tree, hf_h248_mtpaddress_ni, tvb, old_offset, offset-old_offset, val&0x03);
+  proto_tree_add_uint(mtp_tree, hf_h248_mtpaddress_pc, tvb, old_offset, offset-old_offset, val>>2);
+
+
+  return offset;
+}
 
 
 
@@ -680,16 +716,8 @@ static int dissect_deviceName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_h248_PathName(TRUE, tvb, offset, pinfo, tree, hf_h248_deviceName);
 }
 
-
-static int
-dissect_h248_OCTET_STRING_SIZE_2_4(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
-
-  return offset;
-}
 static int dissect_mtpAddress_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_OCTET_STRING_SIZE_2_4(TRUE, tvb, offset, pinfo, tree, hf_h248_mtpAddress);
+  return dissect_h248_MtpAddress(TRUE, tvb, offset, pinfo, tree, hf_h248_mtpAddress);
 }
 
 
@@ -2931,6 +2959,18 @@ static int dissect_serviceChangeMethod_impl(packet_info *pinfo, proto_tree *tree
 }
 
 
+static int
+dissect_h248_OCTET_STRING_SIZE_2_4(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                    NULL);
+
+  return offset;
+}
+static int dissect_mtpAddress1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_h248_OCTET_STRING_SIZE_2_4(TRUE, tvb, offset, pinfo, tree, hf_h248_mtpAddress1);
+}
+
+
 static const value_string ServiceChangeAddress_vals[] = {
   {   0, "portNumber" },
   {   1, "ip4Address" },
@@ -2947,7 +2987,7 @@ static ber_choice ServiceChangeAddress_choice[] = {
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ip6Address_impl },
   {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_domainName_impl },
   {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_deviceName_impl },
-  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_mtpAddress_impl },
+  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_mtpAddress1_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -3720,7 +3760,6 @@ dissect_h248_MegacoMessage(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
 
 
-
 static void
 dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -3745,6 +3784,12 @@ void proto_register_h248(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
+    { &hf_h248_mtpaddress_ni, {
+      "NI", "h248.mtpaddress.ni", FT_UINT32, BASE_DEC,
+      NULL, 0, "NI", HFILL }},
+    { &hf_h248_mtpaddress_pc, {
+      "PC", "h248.mtpaddress.pc", FT_UINT32, BASE_DEC,
+      NULL, 0, "PC", HFILL }},
 
 /*--- Included file: packet-h248-hfarr.c ---*/
 
@@ -3811,7 +3856,7 @@ void proto_register_h248(void) {
     { &hf_h248_mtpAddress,
       { "mtpAddress", "h248.mtpAddress",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
+        "MId/mtpAddress", HFILL }},
     { &hf_h248_name,
       { "name", "h248.name",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -4668,6 +4713,10 @@ void proto_register_h248(void) {
       { "serviceChangeInfo", "h248.serviceChangeInfo",
         FT_NONE, BASE_NONE, NULL, 0,
         "ServiceChangeParm/serviceChangeInfo", HFILL }},
+    { &hf_h248_mtpAddress1,
+      { "mtpAddress", "h248.mtpAddress",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ServiceChangeAddress/mtpAddress", HFILL }},
     { &hf_h248_timestamp,
       { "timestamp", "h248.timestamp",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4800,6 +4849,7 @@ void proto_register_h248(void) {
   /* List of subtrees */
   static gint *ett[] = {
     &ett_h248,
+    &ett_mtpaddress,
 
 /*--- Included file: packet-h248-ettarr.c ---*/
 

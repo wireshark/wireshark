@@ -48,7 +48,7 @@ BEGIN
          ip6Address           [1] IMPLICIT IP6Address, 
          domainName           [2] IMPLICIT DomainName, 
          deviceName           [3] IMPLICIT PathName, 
-         mtpAddress           [4] IMPLICIT OCTET STRING(SIZE(2..4)), 
+         mtpAddress           [4] IMPLICIT MtpAddress, 
           -- Addressing structure of mtpAddress: 
           --     25 - 15              0 
           --     |  PC           | NI | 
@@ -60,6 +60,8 @@ BEGIN
          ... 
       } 
        
+      MtpAddress ::= OCTET STRING(SIZE(2..4))
+
       DomainName ::= SEQUENCE 
       { 
          name           [0] IMPLICIT IA5String, 
