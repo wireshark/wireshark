@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.2 1999/10/16 00:21:07 itojun Exp $
+ * $Id: packet-bgp.c,v 1.3 1999/10/16 15:35:27 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -38,9 +38,19 @@
 # include <netinet/in.h>
 #endif
 
+#ifdef NEED_SNPRINTF_H
+# ifdef HAVE_STDARG_H
+#  include <stdarg.h>
+# else
+#  include <varargs.h>
+# endif
+# include "snprintf.h"
+#endif
+
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
+#include "packet-ipv6.h"
 
 struct bgp {
     guint8 bgp_marker[16];
@@ -174,9 +184,48 @@ static const value_string bgpattr_type[] = {
 
 /* Subsequent address family identifier, RFC2283 section 7 */
 static const value_string bgpattr_nlri_safi[] = {
+    { 0, "Reserved" },
     { 1, "Unicast" },
     { 2, "Multicast" },
     { 3, "Unicast+Multicast" },
+    { 0, NULL },
+};
+
+/* RFC1700 address family numbers */
+#define AFNUM_INET	1
+#define AFNUM_INET6	2
+#define AFNUM_NSAP	3
+#define AFNUM_HDLC	4
+#define AFNUM_BBN1822	5
+#define AFNUM_802	6
+#define AFNUM_E163	7
+#define AFNUM_E164	8
+#define AFNUM_F69	9
+#define AFNUM_X121	10
+#define AFNUM_IPX	11
+#define AFNUM_ATALK	12
+#define AFNUM_DECNET	13
+#define AFNUM_BANYAN	14
+#define AFNUM_E164NSAP	15
+
+static const value_string afnumber[] = {
+    { 0, "Reserved" },
+    { AFNUM_INET, "IPv4" },
+    { AFNUM_INET6, "IPv6" },
+    { AFNUM_NSAP, "NSAP" },
+    { AFNUM_HDLC, "HDLC" },
+    { AFNUM_BBN1822, "BBN 1822" },
+    { AFNUM_802, "802" },
+    { AFNUM_E163, "E.163" },
+    { AFNUM_E164, "E.164" },
+    { AFNUM_F69, "F.69" },
+    { AFNUM_X121, "X.121" },
+    { AFNUM_IPX, "IPX" },
+    { AFNUM_ATALK, "Appletalk" },
+    { AFNUM_DECNET, "Decnet IV" },
+    { AFNUM_BANYAN, "Banyan Vines" },
+    { AFNUM_E164NSAP, "E.164 with NSAP subaddress" },
+    { 65535, "Reserved" },
     { 0, NULL },
 };
 
@@ -186,6 +235,42 @@ static int proto_bgp = -1;
 #ifndef offsetof
 #define	offsetof(type, member)	((size_t)(&((type *)0)->member))
 #endif
+
+static int
+decode_prefix4(const u_char *pd, char *buf, int buflen)
+{
+    guint8 addr[4];
+    int plen;
+
+    plen = pd[0];
+    if (plen < 0 || 32 < plen)
+	return -1;
+
+    memset(addr, 0, sizeof(addr));
+    memcpy(addr, &pd[1], (plen + 7) / 8);
+    if (plen % 8)
+	addr[(plen + 7) / 8 - 1] &= ((0xff00 >> (plen % 8)) & 0xff);
+    snprintf(buf, buflen, "%s/%d", ip_to_str(addr), plen);
+    return 1 + (plen + 7) / 8;
+}
+
+static int
+decode_prefix6(const u_char *pd, char *buf, int buflen)
+{
+    struct e_in6_addr addr;
+    int plen;
+
+    plen = pd[0];
+    if (plen < 0 || 128 < plen)
+	return -1;
+
+    memset(&addr, 0, sizeof(addr));
+    memcpy(&addr, &pd[1], (plen + 7) / 8);
+    if (plen % 8)
+	addr.s6_addr[(plen + 7) / 8 - 1] &= ((0xff00 >> (plen % 8)) & 0xff);
+    snprintf(buf, buflen, "%s/%d", ip6_to_str(&addr), plen);
+    return 1 + (plen + 7) / 8;
+}
 
 static void
 dissect_bgp_open(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
@@ -253,6 +338,8 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 	while (i < len) {
 	    int alen, aoff;
 	    char *msg;
+	    guint16 af;
+	    int off, snpa;
 
 	    memcpy(&bgpa, &p[i], sizeof(bgpa));
 	    if (bgpa.bgpa_flags & 0x10) {
@@ -393,6 +480,140 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 			    "Aggregator origin: %s",
 			    ip_to_str(&p[i + aoff + 2]));
 		}
+		break;
+	    case BGPTYPE_MP_REACH_NLRI:
+		af = ntohs(*(guint16 *)&p[i + aoff]);
+		proto_tree_add_text(subtree2, p - pd + i + aoff, 2,
+		    "Address family: %s (%u)",
+		    val_to_str(af, afnumber, "Unknown"), af);
+		proto_tree_add_text(subtree2, p - pd + i + aoff + 2, 1,
+		    "Subsequent address family identifier: %s (%u)",
+		    val_to_str(p[i + aoff + 2], bgpattr_nlri_safi,
+			p[i + aoff + 2] >= 128 ? "Vendor specific" : "Unknown"),
+		    p[i + aoff + 2]);
+		ti = proto_tree_add_text(subtree2, p - pd + i + aoff + 3, 1,
+			"Next hop network address (%d bytes)",
+			p[i + aoff + 3]);
+		if (af == AFNUM_INET || af == AFNUM_INET6) {
+		    int j, advance;
+		    const char *s;
+
+		    subtree3 = proto_item_add_subtree(ti, ETT_BGP);
+
+		    j = 0;
+		    while (j < p[i + aoff + 3]) {
+			if (af == AFNUM_INET)
+			    advance = 4;
+			else if (af == AFNUM_INET6)
+			    advance = 16;
+			else
+			    break;
+			if (j + advance > p[i + aoff + 3])
+			    break;
+
+			if (af == AFNUM_INET)
+			    s = ip_to_str(&p[i + aoff + 4 + j]);
+			else {
+			    s = ip6_to_str((struct e_in6_addr *)
+				&p[i + aoff + 4 + j]);
+			}
+			proto_tree_add_text(subtree3,
+			    p - pd + i + aoff + 4 + j, advance,
+			    "Next hop: %s", s);
+			j += advance;
+		    }
+		}
+
+		alen -= (p[i + aoff + 3] + 4);
+		aoff += (p[i + aoff + 3] + 4);
+		off = 0;
+		snpa = p[i + aoff];
+		ti = proto_tree_add_text(subtree2, p - pd + i + aoff, 1,
+			"Subnetwork points of attachment: %u", snpa);
+		off++;
+		if (snpa)
+		    subtree3 = proto_item_add_subtree(ti, ETT_BGP);
+		for (/*nothing*/; snpa > 0; snpa--) {
+		    proto_tree_add_text(subtree3, p - pd + i + aoff + off, 1,
+			"SNPA length: ", p[i + aoff + off]);
+		    off++;
+		    proto_tree_add_text(subtree3, p - pd + i + aoff + off,
+			p[i + aoff + off - 1],
+			"SNPA (%u bytes)", p[i + aoff + off - 1]);
+		    off += p[i + aoff + off - 1];
+		}
+
+		alen -= off;
+		aoff += off;
+		ti = proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
+			"Network Layer Reachability Information (%u bytes)",
+			alen);
+		if (alen)
+		    subtree3 = proto_item_add_subtree(ti, ETT_BGP);
+		while (alen > 0) {
+		    int advance;
+		    char buf[256];
+
+		    if (af == AFNUM_INET) {
+			advance = decode_prefix4(&p[i + aoff], buf,
+			    sizeof(buf));
+		    } else if (af == AFNUM_INET6) {
+			advance = decode_prefix6(&p[i + aoff], buf,
+			    sizeof(buf));
+		    } else
+			break;
+		    if (advance < 0)
+			break;
+		    if (alen < advance)
+			break;
+		    proto_tree_add_text(subtree3, p - pd + i + aoff, advance,
+			"Network Layer Reachability Information: %s", buf);
+
+		    alen -= advance;
+		    aoff += advance;
+		}
+
+		break;
+	    case BGPTYPE_MP_UNREACH_NLRI:
+		af = ntohs(*(guint16 *)&p[i + aoff]);
+		proto_tree_add_text(subtree2, p - pd + i + aoff, 2,
+		    "Address family: %s (%u)",
+		    val_to_str(af, afnumber, "Unknown"), af);
+		proto_tree_add_text(subtree2, p - pd + i + aoff + 2, 1,
+		    "Subsequent address family identifier: %s (%u)",
+		    val_to_str(p[i + aoff + 2], bgpattr_nlri_safi,
+			p[i + aoff + 2] >= 128 ? "Vendor specific" : "Unknown"),
+		    p[i + aoff + 2]);
+		ti = proto_tree_add_text(subtree2, p - pd + i + aoff + 3,
+			alen - 3, "Withdrawn Routes (%u bytes)", alen - 3);
+
+		alen -= 3;
+		aoff += 3;
+		if (alen > 0)
+		    subtree3 = proto_item_add_subtree(ti, ETT_BGP);
+		while (alen > 0) {
+		    int advance;
+		    char buf[256];
+
+		    if (af == AFNUM_INET) {
+			advance = decode_prefix4(&p[i + aoff], buf,
+			    sizeof(buf));
+		    } else if (af == AFNUM_INET6) {
+			advance = decode_prefix6(&p[i + aoff], buf,
+			    sizeof(buf));
+		    } else
+			break;
+		    if (advance < 0)
+			break;
+		    if (alen < advance)
+			break;
+		    proto_tree_add_text(subtree3, p - pd + i + aoff, advance,
+			"Withdrawn route: %s", buf);
+
+		    alen -= advance;
+		    aoff += advance;
+		}
+
 		break;
 	    default:
 		proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
