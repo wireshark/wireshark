@@ -5,7 +5,7 @@
  * Full Tacacs+ parsing with decryption by
  *   Emanuele Caratti <wiz@iol.it>
  *
- * $Id: packet-tacacs.c,v 1.26 2003/09/20 09:54:11 guy Exp $
+ * $Id: packet-tacacs.c,v 1.27 2003/09/23 03:18:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,7 +47,7 @@
 #include "crypt-md5.h"
 #include "packet-tacacs.h"
 
-static int md5_xor( u_char *data, char *key, int data_len, guint32 session_id, u_char version, u_char seq_no );
+static void md5_xor( u_char *data, char *key, int data_len, u_char *session_id, u_char version, u_char seq_no );
 
 static int proto_tacacs = -1;
 static int hf_tacacs_version = -1;
@@ -329,15 +329,16 @@ static gint
 tacplus_tvb_setup( tvbuff_t *tvb, tvbuff_t **dst_tvb, packet_info *pinfo, guint32 len, guint8 version )
 {
 	guint8	*buff;
-	guint32 tmp_sess;
-	
-	buff=g_malloc(len);
+	u_char session_id[4];
+
+/* session_id is in NETWORK Byte Order, and is used as byte array in the md5_xor */
+
+	tvb_memcpy(tvb, (guint8*)session_id, 4,4); 
+
+	buff = tvb_memdup(tvb, TAC_PLUS_HDR_SIZE, len);
 
 
-	tvb_memcpy(tvb,(guint8*)&tmp_sess,4,4);
-	tvb_memcpy(tvb, buff, TAC_PLUS_HDR_SIZE, len);
-
-	md5_xor( buff, tacplus_key, len, tmp_sess,version, tvb_get_guint8(tvb,2) );
+	md5_xor( buff, tacplus_key, len, session_id,version, tvb_get_guint8(tvb,2) );
 
 	/* Allocate a new tvbuff, referring to the decrypted data. */
 	*dst_tvb = tvb_new_real_data( buff, len, len );
@@ -555,8 +556,7 @@ dissect_tacplus_body_authen_req_cont( tvbuff_t *tvb, proto_tree *tree )
 	val=tvb_get_ntohs( tvb, AUTHEN_C_USER_LEN_OFF ); 
 	proto_tree_add_text( tree, tvb, AUTHEN_C_USER_LEN_OFF, 2 , "User length: %d", val );
 	if( val ){
-		buff=g_malloc(val+1);
-		tvb_get_nstringz0( tvb, var_off, val+1, buff );
+		buff=tvb_get_string( tvb, var_off, val );
 		proto_tree_add_text( tree, tvb, var_off, val, "User: %s", buff );
 		var_off+=val;
 		g_free(buff);
@@ -594,8 +594,7 @@ dissect_tacplus_body_authen_rep( tvbuff_t *tvb, proto_tree *tree )
 	proto_tree_add_text( tree, tvb, AUTHEN_R_SRV_MSG_LEN_OFF, 2 ,
 				"Server message length: %d", val );
 	if( val ) {
-		buff=g_malloc(val+1);
-		tvb_get_nstringz0(tvb, var_off, val+1, buff);
+		buff=tvb_get_string(tvb, var_off, val );
 		proto_tree_add_text(tree, tvb, var_off, val, "Server message: %s", buff );
 		var_off+=val;
 		g_free(buff);
@@ -704,8 +703,7 @@ dissect_tacplus_body_acct_rep( tvbuff_t* tvb, proto_tree *tree )
 	proto_tree_add_text( tree, tvb, ACCT_R_SRV_MSG_LEN_OFF, 2 ,
 				"Server message length: %d", val );
 	if( val ) {
-		buff=(guint8*)g_malloc(val+1);
-		tvb_get_nstringz0( tvb, var_off, val+1, buff );
+		buff=tvb_get_string( tvb, var_off, val );
 		proto_tree_add_text( tree, tvb, var_off,
 				val, "Server message: %s", buff );
 		var_off+=val;
@@ -717,8 +715,7 @@ dissect_tacplus_body_acct_rep( tvbuff_t* tvb, proto_tree *tree )
 	proto_tree_add_text( tree, tvb, ACCT_R_DATA_LEN_OFF, 2 ,
 				"Data length: %d", val );
 	if( val ) {
-		buff=(guint8*)g_malloc(val+1);
-		tvb_get_nstringz0( tvb, var_off, val+1, buff );
+		buff= tvb_get_string( tvb, var_off, val );
 		proto_tree_add_text( tree, tvb, var_off,
 				val, "Data: %s", buff );
 		g_free(buff);
@@ -917,9 +914,8 @@ proto_register_tacplus(void)
 	proto_register_field_array(proto_tacplus, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	tacplus_module = prefs_register_protocol (proto_tacplus, NULL);
-	prefs_register_string_preference(tacplus_module, "key",
-	    "TACACS+ Encryption Key", "TACACS+ Encryption Key",
-	    &tacplus_key);
+	prefs_register_string_preference ( tacplus_module, "key",
+	"TACACS+ Encryption Key", "TACACS+ Encryption Key", &tacplus_key );
 }
 
 void
@@ -932,10 +928,11 @@ proto_reg_handoff_tacplus(void)
 	dissector_add("tcp.port", TCP_PORT_TACACS, tacplus_handle);
 }
 
+
 #define MD5_LEN 16
-	
-static int
-md5_xor( u_char *data, char *key, int data_len, guint32 session_id, u_char version, u_char seq_no )
+
+static void
+md5_xor( u_char *data, char *key, int data_len, u_char *session_id, u_char version, u_char seq_no )
 {
 	int i,j,md5_len;
 	md5_byte_t *md5_buff;
@@ -943,20 +940,21 @@ md5_xor( u_char *data, char *key, int data_len, guint32 session_id, u_char versi
 	md5_byte_t *mdp;
 	md5_state_t mdcontext;
 
-	md5_len = sizeof(session_id) + strlen(key)
+	md5_len = 4 /* sizeof(session_id) */ + strlen(key)
 			+ sizeof(version) + sizeof(seq_no);
 	
 	md5_buff = (md5_byte_t*)g_malloc(md5_len+MD5_LEN);
 
+	CLEANUP_PUSH( g_free, md5_buff );
+
 	mdp = md5_buff;
-	bcopy(&session_id, mdp, sizeof(session_id));
-	mdp += sizeof(session_id);
+	*(guint32*)mdp = *(guint32*)session_id;
+	mdp += 4 ;
 	bcopy(key, mdp, strlen(key));
 	mdp += strlen(key);
-	bcopy(&version, mdp, sizeof(version));
-	mdp += sizeof(version);
-	bcopy(&seq_no, mdp, sizeof(seq_no));
-	mdp += sizeof(seq_no);
+	*mdp++ = version;
+	*mdp++ = seq_no;
+
 
 	md5_init(&mdcontext);
 	md5_append(&mdcontext, md5_buff, md5_len);
@@ -965,8 +963,10 @@ md5_xor( u_char *data, char *key, int data_len, guint32 session_id, u_char versi
 	for (i = 0; i < data_len; i += 16) {
 
 		for (j = 0; j < 16; j++) {
-			if ((i + j) >= data_len) 
-				return 0;
+			if ((i + j) >= data_len)  {
+				i = data_len+1; /* To exit from the external loop  */
+				break;
+			}
 			data[i + j] ^= hash[j];
 		}
 		bcopy( hash, mdp , MD5_LEN );
@@ -974,6 +974,5 @@ md5_xor( u_char *data, char *key, int data_len, guint32 session_id, u_char versi
 		md5_append(&mdcontext, md5_buff, md5_len);
 		md5_finish(&mdcontext,hash);
 	}
-	g_free( md5_buff );
-	return 0;
+	CLEANUP_CALL_AND_POP;
 }
