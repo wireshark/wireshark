@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.111 2002/09/23 17:14:54 jmayer Exp $
+ * $Id: packet-ipx.c,v 1.112 2002/10/08 09:29:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -367,13 +367,13 @@ spx_datastream(guint8 type)
 static void
 dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree	*spx_tree;
+	proto_tree	*spx_tree = NULL;
 	proto_item	*ti;
 	tvbuff_t	*next_tvb;
 
 	guint8		conn_ctrl;
 	guint8		datastream_type;
-    const char        *spx_msg_string = '\0';
+	const char	*spx_msg_string = '\0';
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPX");
@@ -383,13 +383,17 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_spx, tvb, 0, SPX_HEADER_LEN, FALSE);
 		spx_tree = proto_item_add_subtree(ti, ett_spx);
+	}
 
-		conn_ctrl = tvb_get_guint8(tvb, 0);
-        spx_msg_string = spx_conn_ctrl(conn_ctrl);
+	conn_ctrl = tvb_get_guint8(tvb, 0);
+	spx_msg_string = spx_conn_ctrl(conn_ctrl);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_str(pinfo->cinfo, COL_INFO, (gchar*) spx_msg_string);
+	if (tree) {
 		proto_tree_add_uint_format(spx_tree, hf_spx_connection_control, tvb,
 					   0, 1, conn_ctrl,
 					   "Connection Control: %s (0x%02X)",
-					   spx_conn_ctrl(conn_ctrl), conn_ctrl);
+					   spx_msg_string, conn_ctrl);
 
 		datastream_type = tvb_get_guint8(tvb, 1);
 		proto_tree_add_uint_format(spx_tree, hf_spx_datastream_type, tvb,
@@ -402,8 +406,6 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(spx_tree, hf_spx_seq_nr, tvb,  6, 2, FALSE);
 		proto_tree_add_item(spx_tree, hf_spx_ack_nr, tvb,  8, 2, FALSE);
 		proto_tree_add_item(spx_tree, hf_spx_all_nr, tvb, 10, 2, FALSE);
-        if (check_col(pinfo->cinfo, COL_INFO))
-           col_append_str(pinfo->cinfo, COL_INFO, (gchar*) spx_msg_string);
 
 		next_tvb = tvb_new_subset(tvb, SPX_HEADER_LEN, -1, -1);
 		call_dissector(data_handle,next_tvb, pinfo, tree);
