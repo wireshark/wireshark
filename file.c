@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.267 2002/03/31 20:56:59 guy Exp $
+ * $Id: file.c,v 1.268 2002/04/20 01:54:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -654,7 +654,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   /* Dissect the frame. */
   edt = epan_dissect_new(create_proto_tree, FALSE);
 
-  if (cf->dfcode) {
+  if (cf->dfcode != NULL && refilter) {
       epan_dissect_prime_dfilter(edt, cf->dfcode);
   }
   if (filter_list) {
