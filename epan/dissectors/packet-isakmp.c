@@ -474,7 +474,6 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   struct isakmp_hdr 	hdr;
   proto_item *		ti;
   proto_tree *		isakmp_tree = NULL;
-g_warning("in isakmp");
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISAKMP");
