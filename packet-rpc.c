@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.117 2003/04/18 06:34:42 sahlberg Exp $
+ * $Id: packet-rpc.c,v 1.118 2003/04/20 00:27:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2651,8 +2651,8 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			/*
 			 * Start defragmentation.
 			 */
-			ipfd_head = fragment_add(tvb, offset + 4, pinfo,
-			    rfk->start_seq, rpc_fragment_table,
+			ipfd_head = fragment_add_multiple_ok(tvb, offset + 4,
+			    pinfo, rfk->start_seq, rpc_fragment_table,
 			    rfk->offset, len - 4, TRUE);
 
 			/*
@@ -2700,14 +2700,15 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * a record.  This means we must defragment it.
 		 * Add it to the defragmentation lists.
 		 */
-		ipfd_head = fragment_add(tvb, offset + 4, pinfo,
+		ipfd_head = fragment_add_multiple_ok(tvb, offset + 4, pinfo,
 		    rfk->start_seq, rpc_fragment_table,
 		    rfk->offset, len - 4, !(rpc_rm & RPC_RM_LASTFRAG));
 
 		if (ipfd_head == NULL) {
 			/*
-			 * fragment_add() returned NULL, This means that
-			 * defragmentation is not completed yet.
+			 * fragment_add_multiple_ok() returned NULL.
+			 * This means that defragmentation is not
+			 * completed yet.
 			 *
 			 * We must add an entry to the hash table with
 			 * the sequence number following this fragment

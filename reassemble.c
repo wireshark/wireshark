@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.33 2003/04/20 00:11:28 guy Exp $
+ * $Id: reassemble.c,v 1.34 2003/04/20 00:27:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -638,9 +638,10 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 }
 
 fragment_data *
-fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
+fragment_add_common(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	     GHashTable *fragment_table, guint32 frag_offset,
-	     guint32 frag_data_len, gboolean more_frags)
+	     guint32 frag_data_len, gboolean more_frags,
+	     gboolean check_already_added)
 {
 	fragment_key key, *new_key;
 	fragment_data *fd_head;
@@ -660,8 +661,9 @@ fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	 * we've already done all the reassembly and added all the
 	 * fragments.
 	 *
-	 * If it's not true, just check if we have seen this fragment before,
-	 * i.e., if we have already added it to reassembly.
+	 * If it's not true, but "check_already_added" is true, just check
+	 * if we have seen this fragment before, i.e., if we have already
+	 * added it to reassembly.
 	 * That can be true even if "pinfo->fd->flags.visited" is false
 	 * since we sometimes might call a subdissector multiple times.
 	 * As an additional check, just make sure we have not already added 
@@ -671,7 +673,7 @@ fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	 * We don't check it because its "frame" member isn't initialized
 	 * to anything, and because it doesn't count in any case.
 	 */
-	if (!already_added && fd_head != NULL) {
+	if (!already_added && check_already_added && fd_head != NULL) {
 		for(fd_item=fd_head->next;fd_item;fd_item=fd_item->next){
 			if(pinfo->fd->num==fd_item->frame){
 				already_added=TRUE;
@@ -730,6 +732,29 @@ fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 		 */
 		return NULL;
 	}
+}
+
+fragment_data *
+fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
+	     GHashTable *fragment_table, guint32 frag_offset,
+	     guint32 frag_data_len, gboolean more_frags)
+{
+	return fragment_add_common(tvb, offset, pinfo, id, fragment_table,
+	    frag_offset, frag_data_len, more_frags, TRUE);
+}
+
+/*
+ * For use when you can have multiple fragments in the same frame added
+ * to the same reassembled PDU, e.g. with ONC RPC-over-TCP.
+ */
+fragment_data *
+fragment_add_multiple_ok(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			 guint32 id, GHashTable *fragment_table,
+			 guint32 frag_offset, guint32 frag_data_len,
+			 gboolean more_frags)
+{
+	return fragment_add_common(tvb, offset, pinfo, id, fragment_table,
+	    frag_offset, frag_data_len, more_frags, FALSE);
 }
 
 fragment_data *

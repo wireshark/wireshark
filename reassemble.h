@@ -1,7 +1,7 @@
 /* reassemble.h
  * Declarations of outines for {fragment,segment} reassembly
  *
- * $Id: reassemble.h,v 1.15 2003/04/20 00:11:28 guy Exp $
+ * $Id: reassemble.h,v 1.16 2003/04/20 00:27:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -93,6 +93,9 @@ void reassemble_init(void);
 extern fragment_data *fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint32 id, GHashTable *fragment_table, guint32 frag_offset,
     guint32 frag_data_len, gboolean more_frags);
+extern fragment_data *fragment_add_multiple_ok(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, guint32 id, GHashTable *fragment_table,
+    guint32 frag_offset, guint32 frag_data_len, gboolean more_frags);
 
 extern fragment_data *fragment_add_check(tvbuff_t *tvb, int offset,
     packet_info *pinfo, guint32 id, GHashTable *fragment_table,
