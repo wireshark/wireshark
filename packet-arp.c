@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.49 2002/01/21 07:36:32 guy Exp $
+ * $Id: packet-arp.c,v 1.50 2002/02/10 22:41:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,10 +54,14 @@ static int hf_atmarp_thl = -1;
 static int hf_atmarp_tst = -1;
 static int hf_atmarp_tsl = -1;
 static int hf_atmarp_tpln = -1;
-static int hf_arp_src_ether = -1;
+static int hf_arp_src_hw = -1;
+static int hf_arp_src_hw_mac = -1;
 static int hf_arp_src_proto = -1;
-static int hf_arp_dst_ether = -1;
+static int hf_arp_src_proto_ipv4 = -1;
+static int hf_arp_dst_hw = -1;
+static int hf_arp_dst_hw_mac = -1;
 static int hf_arp_dst_proto = -1;
+static int hf_arp_dst_proto_ipv4 = -1;
 static int hf_atmarp_src_atm_num_e164 = -1;
 static int hf_atmarp_src_atm_num_nsap = -1;
 static int hf_atmarp_src_atm_subaddr = -1;
@@ -151,15 +155,31 @@ static const value_string atmop_vals[] = {
 #define	ATMARP_IS_E164	0x40	/* bit in type/length for E.164 format */
 #define	ATMARP_LEN_MASK	0x3F	/* length of {sub}address in type/length */
 
+/*
+ * Given the hardware address type and length, check whether an address
+ * is an Ethernet address - the address must be of type "Ethernet" or
+ * "IEEE 802.x", and the length must be 6 bytes.
+ */
+#define ARP_HW_IS_ETHER(ar_hrd, ar_hln) \
+	(((ar_hrd) == ARPHRD_ETHER || (ar_hrd) == ARPHRD_IEEE802) \
+  				&& (ar_hln) == 6)
+
+/*
+ * Given the protocol address type and length, check whether an address
+ * is an IPv4 address - the address must be of type "IP", and the length
+ * must be 4 bytes.
+ */
+#define ARP_PRO_IS_IPv4(ar_pro, ar_pln) \
+	((ar_pro) == ETHERTYPE_IP && (ar_pln) == 4)
+
 gchar *
 arphrdaddr_to_str(const guint8 *ad, int ad_len, guint16 type)
 {
   if (ad_len == 0)
     return "<No address>";
-  if ((type == ARPHRD_ETHER || type == ARPHRD_EETHER || type == ARPHRD_IEEE802)
-  				&& ad_len == 6) {
-    /* Ethernet address (or Experimental 3Mb Ethernet, or IEEE 802.x
-       address, which are the same type of address). */
+  if (ARP_HW_IS_ETHER(type, ad_len)) {
+    /* Ethernet address (or IEEE 802.x address, which is the same type of
+       address). */
     return ether_to_str(ad);
   }
   return bytes_to_str(ad, ad_len);
@@ -170,7 +190,7 @@ arpproaddr_to_str(const guint8 *ad, int ad_len, guint16 type)
 {
   if (ad_len == 0)
     return "<No address>";
-  if (type == ETHERTYPE_IP && ad_len == 4) {
+  if (ARP_PRO_IS_IPv4(type, ad_len)) {
     /* IPv4 address.  */
     return ip_to_str(ad);
   }
@@ -609,10 +629,12 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			       ssa_val,
 			       "Sender ATM subaddress: %s", ssa_str);
 
-    if (ar_spln != 0)
-      proto_tree_add_bytes_format(arp_tree, hf_arp_src_proto, tvb, spa_offset, ar_spln,
-			       spa_val,
-			       "Sender protocol address: %s", spa_str);
+    if (ar_spln != 0) {
+      proto_tree_add_item(arp_tree,
+	ARP_PRO_IS_IPv4(ar_pro, ar_spln) ? hf_arp_src_proto_ipv4
+					: hf_arp_src_proto,
+	tvb, spa_offset, ar_spln, FALSE);
+    }
 
     if (ar_thl != 0)
       dissect_atm_number(tvb, tha_offset, ar_thtl, hf_atmarp_dst_atm_num_e164,
@@ -624,10 +646,12 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			       tsa_val,
 			       "Target ATM subaddress: %s", tsa_str);
 
-    if (ar_tpln != 0)
-      proto_tree_add_bytes_format(arp_tree, hf_arp_dst_proto, tvb, tpa_offset, ar_tpln,
-			       tpa_val,
-			       "Target protocol address: %s", tpa_str);
+    if (ar_tpln != 0) {
+      proto_tree_add_item(arp_tree,
+	ARP_PRO_IS_IPv4(ar_pro, ar_tpln) ? hf_arp_dst_proto_ipv4
+					: hf_arp_dst_proto,
+	tvb, tpa_offset, ar_tpln, FALSE);
+    }
   }
 }
 
@@ -677,22 +701,11 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      was padding. */
   tvb_set_reported_length(tvb, tot_len);
 
-  /* Extract the addresses.  */
+  /* Get the offsets of the addresses. */
   sha_offset = MIN_ARP_HEADER_SIZE;
-  sha_val = tvb_get_ptr(tvb, sha_offset, ar_hln);
-  sha_str = arphrdaddr_to_str(sha_val, ar_hln, ar_hrd);
-
   spa_offset = sha_offset + ar_hln;
-  spa_val = tvb_get_ptr(tvb, spa_offset, ar_pln);
-  spa_str = arpproaddr_to_str(spa_val, ar_pln, ar_pro);
-
   tha_offset = spa_offset + ar_pln;
-  tha_val = tvb_get_ptr(tvb, tha_offset, ar_hln);
-  tha_str = arphrdaddr_to_str(tha_val, ar_hln, ar_hrd);
-
   tpa_offset = tha_offset + ar_hln;
-  tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_pln);
-  tpa_str = arpproaddr_to_str(tpa_val, ar_pln, ar_pro);
   
   if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
     switch (ar_op) {
@@ -716,6 +729,17 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
+    sha_val = tvb_get_ptr(tvb, sha_offset, ar_hln);
+    sha_str = arphrdaddr_to_str(sha_val, ar_hln, ar_hrd);
+
+    spa_val = tvb_get_ptr(tvb, spa_offset, ar_pln);
+    spa_str = arpproaddr_to_str(spa_val, ar_pln, ar_pro);
+
+    tha_val = tvb_get_ptr(tvb, tha_offset, ar_hln);
+    tha_str = arphrdaddr_to_str(tha_val, ar_hln, ar_hrd);
+
+    tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_pln);
+    tpa_str = arpproaddr_to_str(tpa_val, ar_pln, ar_pro);
     switch (ar_op) {
       case ARPOP_REQUEST:
         col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s", tpa_str, spa_str);
@@ -738,7 +762,8 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if ((ar_op == ARPOP_REPLY || ar_op == ARPOP_REQUEST) &&
-      ar_hln == 6 && ar_pln == 4) {
+      ARP_HW_IS_ETHER(ar_hrd, ar_hln) &&
+      ARP_PRO_IS_IPv4(ar_pro, ar_pln)) {
 
     /* inform resolv.c module of the new discovered addresses */
 
@@ -773,22 +798,28 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(arp_tree, hf_arp_hard_size, tvb, AR_HLN, 1, ar_hln);
     proto_tree_add_uint(arp_tree, hf_arp_proto_size, tvb, AR_PLN, 1, ar_pln);
     proto_tree_add_uint(arp_tree, hf_arp_opcode, tvb, AR_OP,  2, ar_op);
-    if (ar_hln != 0)
-      proto_tree_add_bytes_format(arp_tree, hf_arp_src_ether, tvb, sha_offset, ar_hln,
-			       sha_val,
-			       "Sender hardware address: %s", sha_str);
-    if (ar_pln != 0)
-      proto_tree_add_bytes_format(arp_tree, hf_arp_src_proto, tvb, spa_offset, ar_pln,
-			       spa_val,
-			       "Sender protocol address: %s", spa_str);
-    if (ar_hln != 0)
-      proto_tree_add_bytes_format(arp_tree, hf_arp_dst_ether, tvb, tha_offset, ar_hln,
-			       tha_val,
-			       "Target hardware address: %s", tha_str);
-    if (ar_pln != 0)
-      proto_tree_add_bytes_format(arp_tree, hf_arp_dst_proto, tvb, tpa_offset, ar_pln,
-			       tpa_val,
-			       "Target protocol address: %s", tpa_str);
+    if (ar_hln != 0) {
+      proto_tree_add_item(arp_tree,
+	ARP_HW_IS_ETHER(ar_hrd, ar_hln) ? hf_arp_src_hw_mac : hf_arp_src_hw,
+	tvb, sha_offset, ar_hln, FALSE);
+    }
+    if (ar_pln != 0) {
+      proto_tree_add_item(arp_tree,
+	ARP_PRO_IS_IPv4(ar_pro, ar_pln) ? hf_arp_src_proto_ipv4
+					: hf_arp_src_proto,
+	tvb, spa_offset, ar_pln, FALSE);
+    }
+    if (ar_hln != 0) {
+      proto_tree_add_item(arp_tree,
+	ARP_HW_IS_ETHER(ar_hrd, ar_hln) ? hf_arp_dst_hw_mac : hf_arp_dst_hw,
+	tvb, tha_offset, ar_hln, FALSE);
+    }
+    if (ar_pln != 0) {
+      proto_tree_add_item(arp_tree,
+	ARP_PRO_IS_IPv4(ar_pro, ar_pln) ? hf_arp_dst_proto_ipv4
+					: hf_arp_dst_proto,
+	tvb, tpa_offset, ar_pln, FALSE);
+    }
   }
 }
 
@@ -873,9 +904,14 @@ proto_register_arp(void)
 	FT_UINT8,	BASE_DEC,	NULL,	0x0,
       	"", HFILL }},
 
-    { &hf_arp_src_ether,
+    { &hf_arp_src_hw,
       { "Sender hardware address",	"arp.src.hw",
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
+      	"", HFILL }},
+
+    { &hf_arp_src_hw_mac,
+      { "Sender MAC address",		"arp.src.hw_mac",
+	FT_ETHER,	BASE_NONE,	NULL,	0x0,
       	"", HFILL }},
 
     { &hf_atmarp_src_atm_num_e164,
@@ -894,13 +930,23 @@ proto_register_arp(void)
       	"", HFILL }},
 
     { &hf_arp_src_proto,
-      { "Sender protocol address",	"arp.src.proto", 
+      { "Sender protocol address",	"arp.src.proto",
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
       	"", HFILL }},
 
-    { &hf_arp_dst_ether,
+    { &hf_arp_src_proto_ipv4,
+      { "Sender IP address",		"arp.src.proto_ipv4",
+	FT_IPv4,	BASE_NONE,	NULL,	0x0,
+      	"", HFILL }},
+
+    { &hf_arp_dst_hw,
       { "Target hardware address",	"arp.dst.hw",
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
+      	"", HFILL }},
+
+    { &hf_arp_dst_hw_mac,
+      { "Target MAC address",		"arp.dst.hw_mac",
+	FT_ETHER,	BASE_NONE,	NULL,	0x0,
       	"", HFILL }},
 
     { &hf_atmarp_dst_atm_num_e164,
@@ -919,8 +965,13 @@ proto_register_arp(void)
       	"", HFILL }},
 
     { &hf_arp_dst_proto,
-      { "Target protocol address",	"arp.dst.proto", 
+      { "Target protocol address",	"arp.dst.proto",
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
+      "", HFILL }},
+
+    { &hf_arp_dst_proto_ipv4,
+      { "Target IP address",		"arp.dst.proto_ipv4",
+	FT_IPv4,	BASE_NONE,	NULL,	0x0,
       "", HFILL }}
   };
   static gint *ett[] = {
