@@ -1303,6 +1303,11 @@ Yasuhiro Shirasaki <yasuhiro@gnome[AT]gr.jp> {
 
 Anand V. Narwani <anarwani[AT]cisco.com> {
 	gtk/Makefile.am fix
+	DOCSIS support, including support for "Ethernet" captures where
+	    the raw frame is a DOCSIS frame rather than an Ethernet
+	    frame (some Cisco cable-modem head-end gear can send out a
+	    trace of all traffic on an Ethernet, but what it sends are
+	    the raw bytes of DOCSIS frames, not Ethernet frames)
 }
 
 Christopher K. St. John <cks[AT]distributopia.com> {
@@ -1319,12 +1324,8 @@ Liviu Daia <Liviu.Daia[AT]imar.ro> {
 	    from the command line
 }
 
-Anand V. Narwani <anarwani[AT]cisco.com> {
-	DOCSIS support, including support for "Ethernet" captures where
-	    the raw frame is a DOCSIS frame rather than an Ethernet
-	    frame (some Cisco cable-modem head-end gear can send out a
-	    trace of all traffic on an Ethernet, but what it sends are
-	    the raw bytes of DOCSIS frames, not Ethernet frames)
+Richard Urwin <rurwin[AT]schenck.co.uk> {
+	Developer documentation fixes and updates
 }
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to

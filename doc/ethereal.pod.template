@@ -1460,7 +1460,7 @@ B<http://www.ethereal.com>.
   Christopher K. St. John  <cks[AT]distributopia.com>
   Nix                      <nix[AT]esperi.demon.co.uk>
   Liviu Daia               <Liviu.Daia[AT]imar.ro>
-  Anand V. Narwani         <anarwani[AT]cisco.com>
+  Richard Urwin            <rurwin[AT]schenck.co.uk>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

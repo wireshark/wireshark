@@ -1,4 +1,4 @@
-$Id: README.plugins,v 1.6 2002/07/06 20:40:43 guy Exp $
+$Id: README.plugins,v 1.7 2002/07/19 09:33:16 guy Exp $
 
 Plugins
 
@@ -23,6 +23,7 @@ definitions on OSes which don't need this).
 
 This header is optional and is described in greater detail further on.
 
+#include <gmodule.h>
 This header is required to define G_MODULE_EXPORT, which must be used
 when defining constants and functions exported by the plugin.
 
@@ -30,6 +31,11 @@ when defining constants and functions exported by the plugin.
 you include "gmodule.h"; however, "glib.h" is protected from multiple
 inclusion by #ifdefs, so it's safe to include it after including
 "gmodule.h".
+
+#include "plugins/plugin_api_defs.h"
+Only include this in one source file if you have more than one. It defines,
+(as opposed to declares,) the function pointer variables that the plugin uses
+to reference the address table.
 
 2 New exported constants in packet-xxx.c
 
@@ -148,7 +154,7 @@ CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap \
 OBJECTS=packet-xxx.obj 
 
 xxx.dll xxx.exp xxx.lib : packet-xxx.obj ..\plugin_api.obj
-	link -dll /out:xxx.dll packet-mgcp.obj ..\plugin_api.obj \
+	link -dll /out:xxx.dll packet-xxx.obj ..\plugin_api.obj \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib
 
 clean:
