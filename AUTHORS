@@ -2051,6 +2051,10 @@ Ryuji Somegawa <ryuji-so [AT] is.aist-nara.ac.jp> {
 	CDMA2000 A11 support
 }
 
+metatech <metatech [AT] flashmail.com> {
+	IBM WebSphere MQ protocol support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
