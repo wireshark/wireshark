@@ -30,7 +30,7 @@
 
 #include <pcap.h>
 #include <string.h>
-#include <gtk/gtk.h>
+#include <glib.h>
 
 #include "prefs.h"
 #include "pcap-util.h"
