@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.67 2003/09/02 23:09:10 guy Exp $
+ * $Id: packet-http.c,v 1.68 2003/10/27 09:17:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,7 @@
 
 #include "util.h"
 #include "packet-http.h"
+#include "prefs.h"
 
 typedef enum _http_type {
 	HTTP_REQUEST,
@@ -66,6 +67,19 @@ static gint ett_http_request = -1;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t http_handle;
+
+/*
+ * desegmentation of HTTP headers
+ * (when we are over TCP or another protocol providing the desegmentation API)
+ */
+static gboolean http_desegment_headers = FALSE;
+
+/*
+ * desegmentation of HTTP bodies
+ * (when we are over TCP or another protocol providing the desegmentation API)
+ * TODO let the user filter on content-type the bodies he wants desegmented
+ */
+static gboolean http_desegment_body = FALSE;
 
 #define TCP_PORT_HTTP			80
 #define TCP_PORT_PROXY_HTTP		3128
@@ -207,18 +221,151 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint		offset = 0;
 	const guchar	*line;
 	gint		next_offset;
+	gint		next_offset_sav;
 	const guchar	*linep, *lineend;
-	int		linelen;
+	int		first_linelen, linelen;
+	gboolean	is_request_or_reply;
 	guchar		c;
 	http_type_t     http_type;
 	int		datalen;
 	char		*text;
 	proto_item	*hdr_item;
-	RequestDissector	req_dissector;
-	int			req_strlen;
-	proto_tree		*req_tree;
+	RequestDissector req_dissector;
+	int		req_strlen;
+	proto_tree	*req_tree;
+	long int	content_length;
+	gboolean	content_length_found = FALSE;
 
-	stat_info	=g_malloc( sizeof(http_info_value_t));
+	/*
+	 * Is this a request or response?
+	 *
+	 * Note that "tvb_find_line_end()" will return a value that
+	 * is not longer than what's in the buffer, so the
+	 * "tvb_get_ptr()" call won't throw an exception.
+	 */
+	first_linelen = tvb_find_line_end(tvb, offset, -1, &next_offset,
+	    FALSE);
+	line = tvb_get_ptr(tvb, offset, first_linelen);
+	http_type = HTTP_OTHERS;	/* type not known yet */
+	is_request_or_reply = is_http_request_or_reply(line, first_linelen,
+	    &http_type, NULL, NULL);
+	if (is_request_or_reply) {
+		/*
+		 * Yes, it's a request or response.
+		 * Do header desegmentation if we've been told to.
+		 *
+		 * RFC 2616 defines HTTP messages as being either of the
+		 * Request or the Response type
+		 * (HTTP-message = Request | Response).
+		 * Request and Response are defined as:
+		 *     Request = Request-Line
+		 *         *(( general-header
+		 *         | request-header
+		 *         | entity-header ) CRLF)
+		 *         CRLF
+		 *         [ message-body ]
+		 *     Response = Status-Line
+		 *         *(( general-header
+		 *         | response-header
+		 *         | entity-header ) CRLF)
+		 *         CRLF
+		 *         [ message-body ]
+		 * that's why we can always assume two consecutive line
+		 * endings (we allow CR, LF, or CRLF, as some clients
+		 * or servers might not use a full CRLF) to mark the end
+		 * of the headers.  The worst thing that would happen
+		 * otherwise would be the packet not being desegmented
+		 * or being interpreted as only headers.
+		 */
+
+		/*
+		 * If header desegmentation is activated, check that all
+		 * headers are in this tvbuff (search for an empty line
+		 * marking end of headers) or request one more byte (we
+		 * don't know how many bytes we'll need, so we just ask
+		 * for one).
+		 */
+		if (http_desegment_headers && pinfo->can_desegment) {
+			next_offset = offset;
+			for (;;) {
+				next_offset_sav = next_offset;
+
+				/*
+				 * Request one more byte if there're no
+				 * bytes left.
+				 */
+				if (tvb_offset_exists(tvb, next_offset) == FALSE) {
+					pinfo->desegment_offset = offset;
+					pinfo->desegment_len = 1;
+					return;
+				}
+
+				/*
+				 * Request one more byte if we cannot find a
+				 * header (i.e. a line end).
+				 */
+				linelen = tvb_find_line_end(tvb, next_offset,
+				    -1, &next_offset, TRUE);
+				if (linelen == -1) {
+					/*
+					 * Not enough data; ask for one more
+					 * byte.
+					 */
+					pinfo->desegment_offset = offset;
+					pinfo->desegment_len = 1;
+					return;
+				} else if (linelen == 0) {
+					/*
+					 * We found the end of the headers.
+					 */
+					break;
+				}
+
+				/*
+				 * Is this a Content-Length header?
+				 * If not, it either means that we are in
+				 * a different header line, or that we are
+				 * at the end of the headers, or that there
+				 * isn't enough data; the two latter cases
+				 * have already been handled above.
+				 */
+				if (http_desegment_body) {
+					/*
+					 * Check if we've found Content-Length.
+					 */
+					if (tvb_strneql(tvb, next_offset_sav,
+					    "Content-Length:", 15) == 0) {
+						if (sscanf(
+						    tvb_get_string(tvb,
+						        next_offset_sav + 15,
+						        linelen - 15),
+						    "%li", &content_length)
+						    == 1)
+							content_length_found = TRUE;
+					}
+				}
+			}
+		}
+	}
+
+	/*
+	 * The above loop ends when we reached the end of the headers, so
+	 * there should be content_length byte after the 4 terminating bytes
+	 * and next_offset points to after the end of the headers.
+	 */
+	if (http_desegment_body && content_length_found) {
+		/* next_offset has been set because content-length was found */
+		if (!tvb_bytes_exist(tvb, next_offset, content_length)) {
+			gint length = tvb_length_remaining(tvb, next_offset);
+			if (length == -1)
+				length = 0;
+			pinfo->desegment_offset = offset;
+			pinfo->desegment_len = content_length - length;
+			return;
+		}
+	}
+
+	stat_info = g_malloc(sizeof(http_info_value_t));
 	stat_info->response_code = 0;
 	stat_info->request_method = NULL;
 
@@ -248,13 +395,10 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * is not longer than what's in the buffer, so the
 		 * "tvb_get_ptr()" call won't throw an exception.
 		 */
-		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset,
-		    FALSE);
-		line = tvb_get_ptr(tvb, offset, linelen);
-		http_type = HTTP_OTHERS;	/* type not known yet */
-		if (is_http_request_or_reply(line, linelen, &http_type, NULL, NULL))
+		line = tvb_get_ptr(tvb, offset, first_linelen);
+		if (is_request_or_reply)
 			col_add_str(pinfo->cinfo, COL_INFO,
-			    format_text(line, linelen));
+			    format_text(line, first_linelen));
 		else
 			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 	}
@@ -658,11 +802,25 @@ proto_register_http(void)
 		&ett_http_ntlmssp,
 		&ett_http_request,
 	};
+        module_t *http_module;
 
 	proto_http = proto_register_protocol("Hypertext Transfer Protocol",
 	    "HTTP", "http");
 	proto_register_field_array(proto_http, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+        http_module = prefs_register_protocol(proto_http, NULL);
+        prefs_register_bool_preference(http_module, "desegment_http_headers",
+                "Desegment all HTTP headers spanning multiple TCP segments",
+                "Whether the HTTP dissector should desegment all headers "
+                "of a request spanning multiple TCP segments",
+                &http_desegment_headers);
+        prefs_register_bool_preference(http_module, "desegment_http_body",
+                "Trust the \"Content-length:\" header and desegment HTTP "
+                "bodies spanning multiple TCP segments",
+                "Whether the HTTP dissector should use the "
+                "\"Content-length:\" value to desegment the body "
+                "of a request spanning multiple TCP segments",
+                &http_desegment_body);
 
 	register_dissector("http", dissect_http, proto_http);
 	http_handle = find_dissector("http");
@@ -684,8 +842,7 @@ proto_register_http(void)
 	 * this table using the standard heur_dissector_add()
 	 * function.
 	 */
-
-	register_heur_dissector_list("http",&heur_subdissector_list);
+	register_heur_dissector_list("http", &heur_subdissector_list);
 
 	/*
 	 * Register for tapping

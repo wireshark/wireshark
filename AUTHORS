@@ -1881,6 +1881,10 @@ Baktha Muralitharan <muralidb [AT] cisco.com> {
 	Link Management Protocol (LMP) fixes
 }
 
+Loïc Minier <lool [AT] dooz.org> {
+	HTTP header and payload desegmentation
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
@@ -1897,7 +1901,6 @@ And assorted fixes and enhancements by the people listed above and by:
 	Michael Kopp <michael.kopp [AT] isarnet.de>
 	Bernd Leibing <bernd.leibing [AT] kiz.uni-ulm.de>
 	Chris Heath <chris [AT] heathens.co.nz>
-	Loïc Minier <lool [AT] dooz.org>
 	Gisle Vanem <giva [AT] bgnett.no>
 	Ritchie <ritchie [AT] tipsybottle.com>
 	Aki Immonen <aki.immonen [AT] golftalma.fi>
