@@ -79,7 +79,7 @@
  *   UIM
  *			3GPP2 N.S0003
  *
- * $Id: packet-ansi_map.c,v 1.10 2003/11/16 23:17:16 guy Exp $
+ * $Id: packet-ansi_map.c,v 1.11 2003/11/19 01:39:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6287,16 +6287,20 @@ param_digits(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	break;
     }
 
-    item =
-	proto_tree_add_text(tree, asn1->tvb,
-	    saved_offset, asn1->offset - saved_offset,
-	    "Type of Digits %u: %s",
-	    value, str);
-
-    subtree = proto_item_add_subtree(item, ett_natnum);
+    proto_tree_add_text(tree, asn1->tvb,
+	saved_offset, asn1->offset - saved_offset,
+	"Type of Digits %u: %s",
+	value, str);
 
     saved_offset = asn1->offset;
     asn1_int32_value_decode(asn1, 1, &value);
+
+    item =
+	proto_tree_add_text(tree, asn1->tvb,
+	    saved_offset, asn1->offset - saved_offset,
+	    "Nature of Number");
+
+    subtree = proto_item_add_subtree(item, ett_natnum);
 
     my_decode_bitfield_value(bigbuf, value, 0xc0, 8);
     proto_tree_add_text(subtree, asn1->tvb,
@@ -6363,7 +6367,7 @@ param_digits(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     my_decode_bitfield_value(bigbuf, value, 0xf0, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
-	"%s :  Numbering Plan, %s",
+	"%s :  Numbering Plan: %s",
 	bigbuf, str);
 
     enc = value & 0x0f;
@@ -6381,7 +6385,7 @@ param_digits(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     my_decode_bitfield_value(bigbuf, value, 0x0f, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
-	"%s :  Encoding, %s",
+	"%s :  Encoding: %s",
 	bigbuf, str);
 
     saved_offset = asn1->offset;
@@ -6416,7 +6420,7 @@ param_digits(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
 	proto_tree_add_text(tree, asn1->tvb,
 	    saved_offset, asn1->offset - saved_offset,
-	    "Number of Digits, %u",
+	    "Number of Digits: %u",
 	    value);
 
 	if (enc == 0x02)
@@ -6437,7 +6441,7 @@ param_digits(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
 	    proto_tree_add_text(tree, asn1->tvb,
 		saved_offset, (value+1)/2,
-		"BCD Digits, %s",
+		"BCD Digits: %s",
 		bigbuf);
 	}
     }
