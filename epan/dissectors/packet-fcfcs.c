@@ -58,6 +58,10 @@
 #include "packet-fcct.h"
 #include "packet-fcfcs.h"
 
+/*
+ * See the FC-GS3 specification.
+ */
+
 /* Initialize the protocol and registered fields */
 static int proto_fcfcs          = -1;
 static int hf_fcs_opcode        = -1;
@@ -117,8 +121,8 @@ static dissector_handle_t data_handle;
 static gint
 fcfcs_equal(gconstpointer v, gconstpointer w)
 {
-  fcfcs_conv_key_t *v1 = (fcfcs_conv_key_t *)v;
-  fcfcs_conv_key_t *v2 = (fcfcs_conv_key_t *)w;
+  const fcfcs_conv_key_t *v1 = v;
+  const fcfcs_conv_key_t *v2 = w;
 
   return (v1->conv_idx == v2->conv_idx);
 }
@@ -126,7 +130,7 @@ fcfcs_equal(gconstpointer v, gconstpointer w)
 static guint
 fcfcs_hash (gconstpointer v)
 {
-	fcfcs_conv_key_t *key = (fcfcs_conv_key_t *)v;
+	const fcfcs_conv_key_t *key = v;
 	guint val;
 
 	val = key->conv_idx;
@@ -299,7 +303,6 @@ static void
 dissect_fcfcs_gieil (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 {
     int offset = 16; /* past the fcct header */
-    gchar *str;
     int len, tot_len, prevlen;
 
     if (tree) {
@@ -313,43 +316,28 @@ dissect_fcfcs_gieil (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                                  tot_len);
 
             prevlen = 0;
-            str = (gchar *)tvb_get_ptr (tvb, offset+4, tot_len);
-            len = strlen (str);
-            if (len) {
-                proto_tree_add_item (tree, hf_fcs_vendorname, tvb, offset+4,
-                                     len, 0);
-            }
-            
-            prevlen += (len+1);
-            str = (gchar *)tvb_get_ptr (tvb, offset+4+prevlen, tot_len-prevlen);
-            len = strlen (str);
+            len = tvb_strsize(tvb, offset+4);
+            proto_tree_add_item (tree, hf_fcs_vendorname, tvb, offset+4,
+                                 len, FALSE);
+            prevlen += len;
 
-            if (len) {
-                proto_tree_add_item (tree, hf_fcs_modelname, tvb, offset+4+prevlen,
-                                     len, 0);
-            }
+            len = tvb_strsize(tvb, offset+4+prevlen);
+            proto_tree_add_item (tree, hf_fcs_modelname, tvb, offset+4+prevlen,
+                                 len, FALSE);
+            prevlen += len;
 
-            prevlen += (len+1);
-            str = (gchar *)tvb_get_ptr (tvb, offset+4+prevlen, tot_len-prevlen);
-            len = strlen (str);
-
-            if (len) {
-                proto_tree_add_item (tree, hf_fcs_releasecode, tvb,
-                                     offset+4+prevlen, len, 0);
-            }
-            
-            prevlen += (len+1);
+            len = tvb_strsize(tvb, offset+4+prevlen);
+            proto_tree_add_item (tree, hf_fcs_releasecode, tvb,
+                                 offset+4+prevlen, len, FALSE);
+            prevlen += len;
             offset += (4+prevlen);
             while (tot_len > prevlen) {
-                str = (gchar *)tvb_get_ptr (tvb, offset, tot_len-prevlen);
-                len = strlen (str);
-                if (len) {
-                    proto_tree_add_text (tree, tvb, offset, len,
-                                         "Vendor-specific Information: %s",
-                                         str);
-                }
-                prevlen += (len+1);
-                offset += (len+1);
+                len = tvb_strsize(tvb, offset);
+                proto_tree_add_text (tree, tvb, offset, len,
+                                     "Vendor-specific Information: %s",
+                                     tvb_format_text(tvb, offset, len-1));
+                prevlen += len;
+                offset += len;
             }
         }
     }
@@ -1181,4 +1169,3 @@ proto_reg_handoff_fcfcs (void)
 
     data_handle = find_dissector ("data");
 }
-
