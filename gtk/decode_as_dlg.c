@@ -831,7 +831,7 @@ decode_transport(GtkWidget *notebook_pg)
            else 
              return;
         decode_change_one_dissector(table_name, ppid, list);
-	    return;
+        return;
     }
     if (requested_srcdst != E_DECODE_DPORT) {
         portp = OBJECT_GET_DATA(notebook_pg, E_PAGE_SPORT);
@@ -1003,7 +1003,7 @@ decode_destroy_cb (GtkWidget *win _U_, gpointer user_data _U_)
  * @param gpointer A pointer to the dialog window.
  */
 static void
-decode_clear_cb(GtkWidget *clear_bt _U_, gpointer parent_w)
+decode_clear_cb(GtkWidget *clear_bt _U_, gpointer parent_w _U_)
 {
     decode_clear_all();
 }
@@ -1143,7 +1143,7 @@ decode_add_srcdst_menu (GtkWidget *page)
 static GtkWidget *
 decode_add_ppid_menu (GtkWidget *page)
 {
-    GtkWidget *optmenu, *menu, *menuitem, *alignment;
+    GtkWidget *optmenu, *menu, *menuitem;
     gchar      tmp[100];
     guint      number_of_ppid;
     
@@ -1165,13 +1165,11 @@ decode_add_ppid_menu (GtkWidget *page)
         gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
       } else
         break;
-                
+
     OBJECT_SET_DATA(page, E_MENU_SRCDST, menu);
     gtk_option_menu_set_menu(GTK_OPTION_MENU(optmenu), menu);
-    
-    alignment = decode_add_pack_menu(optmenu);
 
-    return(alignment);
+    return(optmenu);
 }
 
 /*************************************************/
@@ -1318,6 +1316,8 @@ decode_list_menu_start(GtkWidget *page, GtkWidget **list_p,
 
 #if GTK_MAJOR_VERSION < 2
     list = GTK_CLIST(gtk_clist_new_with_titles(E_LIST_S_COLUMNS, titles));
+
+    OBJECT_SET_DATA(decode_w, "sctp_list", list);
     gtk_clist_column_titles_passive(list);
 #ifndef DEBUG
     gtk_clist_column_titles_hide(list);
@@ -1330,6 +1330,7 @@ decode_list_menu_start(GtkWidget *page, GtkWidget **list_p,
 #else
     store = gtk_list_store_new(E_LIST_S_COLUMNS+1, G_TYPE_STRING,
                                G_TYPE_STRING, G_TYPE_POINTER);
+    OBJECT_SET_DATA(G_OBJECT(decode_w), "sctp_data", store);
     list = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
     sortable = GTK_TREE_SORTABLE(store);
     gtk_tree_sortable_set_sort_func(sortable, SORT_ALPHABETICAL, sort_iter_compare_func, GINT_TO_POINTER(SORT_ALPHABETICAL), NULL);
@@ -1536,26 +1537,211 @@ decode_add_tcpudp_page (gchar *prompt, gchar *table_name)
     return(page);
 }
 
+void
+decode_sctp_list_menu_start(GtkWidget **list_p, GtkWidget **scrolled_win_p)
+{
+#if GTK_MAJOR_VERSION < 2
+    gchar             *titles[E_LIST_S_COLUMNS] = {"Short Name", "Table Name"};
+    GtkCList          *list;
+    gint               column;
+#else
+    GtkTreeView       *list;
+    GtkListStore      *sctp_store;
+    GtkCellRenderer   *renderer;
+    GtkTreeViewColumn *tc;
+    GtkTreeSortable   *sortable;
+#endif
+
+#if GTK_MAJOR_VERSION < 2
+    list=OBJECT_GET_DATA(decode_w, "sctp_list");
+    gtk_clist_column_titles_passive(list);
+#ifndef DEBUG
+    gtk_clist_column_titles_hide(list);
+    for (column = 1; column < E_LIST_S_COLUMNS; column++)
+        gtk_clist_set_column_visibility (list, column, FALSE);
+#endif
+    for (column = 0; column < E_LIST_S_COLUMNS; column++)
+        gtk_clist_set_column_auto_resize(list, column, TRUE);
+#else
+    sctp_store = OBJECT_GET_DATA(decode_w, "sctp_data");
+    list = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(sctp_store)));
+    sortable = GTK_TREE_SORTABLE(sctp_store);
+    gtk_tree_sortable_set_sort_func(sortable, SORT_ALPHABETICAL, sort_iter_compare_func, GINT_TO_POINTER(SORT_ALPHABETICAL), NULL);
+    gtk_tree_sortable_set_sort_column_id(sortable, SORT_ALPHABETICAL, GTK_SORT_ASCENDING);
+    gtk_tree_view_set_headers_clickable(list, FALSE);
+#ifndef DEBUG
+    gtk_tree_view_set_headers_visible(list, FALSE);
+#endif
+    renderer = gtk_cell_renderer_text_new();
+    tc = gtk_tree_view_column_new_with_attributes("Short Name", renderer,
+                                                  "text", E_LIST_S_PROTO_NAME,
+                                                  NULL);
+    gtk_tree_view_column_set_sizing(tc, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+    gtk_tree_view_append_column(list, tc);
+#endif
+
+    *scrolled_win_p = scrolled_window_new(NULL, NULL);
+    /* this will result to set the width of the dialog to the required size */
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(*scrolled_win_p), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+#if GTK_MAJOR_VERSION >= 2
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(*scrolled_win_p), GTK_SHADOW_IN);
+    gtk_container_add(GTK_CONTAINER(*scrolled_win_p), GTK_WIDGET(list));
+#endif
+    *list_p = GTK_WIDGET(list);
+}
+
+static void
+decode_sctp_update_ppid_menu(GtkWidget *w _U_, GtkWidget *page)
+{
+    GtkWidget *menu, *menuitem, *list, *scrolled_window, *sctpmenu;
+    gchar      tmp[100];
+    guint      number_of_ppid;
+#if GTK_MAJOR_VERSION < 2
+    GtkCList *sctp_list;
+#else
+    GtkListStore *sctp_store;
+#endif
+
+    menu = gtk_menu_new();
+
+    g_snprintf(tmp, 100, "PPID (%u)", 0);
+    menuitem = gtk_menu_item_new_with_label(tmp);
+    OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_PPID));
+    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
+    for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++)
+      if (cfile.edt->pi.ppid[number_of_ppid] != 0) {
+        g_snprintf(tmp, 100, "PPID (%u)", cfile.edt->pi.ppid[number_of_ppid]);
+        menuitem = gtk_menu_item_new_with_label(tmp);
+        OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
+        gtk_menu_append(GTK_MENU(menu), menuitem);
+        gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
+      } else
+        break;
+
+    OBJECT_SET_DATA(page, E_MENU_SRCDST, menu);
+    OBJECT_SET_DATA(page, E_PAGE_TABLE, "sctp.ppi");
+    sctpmenu = OBJECT_GET_DATA(decode_w, "user_data");
+    gtk_option_menu_set_menu(GTK_OPTION_MENU(sctpmenu), menu);
+
+#if GTK_MAJOR_VERSION < 2
+    sctp_list = OBJECT_GET_DATA(decode_w, "sctp_list");
+    gtk_clist_clear(sctp_list);
+#else
+    sctp_store = OBJECT_GET_DATA(G_OBJECT(decode_w), "sctp_data");
+    gtk_list_store_clear(sctp_store);
+#endif
+    decode_sctp_list_menu_start(&list, &scrolled_window);
+    dissector_table_foreach_handle("sctp.ppi", decode_proto_add_to_list, list);
+    decode_list_menu_finish(list);
+}
+
+
+static void
+decode_sctp_update_srcdst_menu(GtkWidget *w _U_, GtkWidget *page)
+{
+    GtkWidget  *menu, *menuitem, *scrolled_window, *list, *sctpmenu;
+    gchar      tmp[100];
+#if GTK_MAJOR_VERSION < 2
+    GtkCList	*sctp_list;
+#else
+    GtkListStore *sctp_store;
+#endif
+
+    menu = gtk_menu_new();
+    g_snprintf(tmp, 100, "source (%u)", cfile.edt->pi.srcport);
+    menuitem = gtk_menu_item_new_with_label(tmp);
+    OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_SPORT));
+    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
+
+    g_snprintf(tmp, 100, "destination (%u)", cfile.edt->pi.destport);
+    menuitem = gtk_menu_item_new_with_label(tmp);
+    OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_DPORT));
+    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
+
+    menuitem = gtk_menu_item_new_with_label("both");
+    OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_BPORT));
+    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
+
+    OBJECT_SET_DATA(page, E_MENU_SRCDST, menu);
+    OBJECT_SET_DATA(page, E_PAGE_TABLE, "sctp.port");
+    sctpmenu = OBJECT_GET_DATA(decode_w, "user_data");
+    gtk_option_menu_set_menu(GTK_OPTION_MENU(sctpmenu), menu);
+    OBJECT_SET_DATA(page, E_PAGE_SPORT, GINT_TO_POINTER(cfile.edt->pi.srcport));
+    OBJECT_SET_DATA(page, E_PAGE_DPORT, GINT_TO_POINTER(cfile.edt->pi.destport));  
+#if GTK_MAJOR_VERSION < 2
+    sctp_list = OBJECT_GET_DATA(decode_w, "sctp_list");
+    gtk_clist_clear(sctp_list);
+#else
+    sctp_store = OBJECT_GET_DATA(G_OBJECT(decode_w), "sctp_data");
+    gtk_list_store_clear(sctp_store);
+#endif
+    decode_sctp_list_menu_start(&list, &scrolled_window);
+    dissector_table_foreach_handle("sctp.port", decode_proto_add_to_list, list);
+    decode_list_menu_finish(list);
+}
+
+
+
+static GtkWidget *
+decode_sctp_add_port_ppid (GtkWidget *page)
+{
+    GtkWidget *format_vb, *radio_button;
+    GSList *format_grp;
+
+    format_vb = gtk_vbox_new(FALSE, 2);
+
+    radio_button = gtk_radio_button_new_with_label(NULL, "PPID");
+    format_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(radio_button));
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_button), TRUE);
+    SIGNAL_CONNECT(radio_button, "clicked", decode_sctp_update_ppid_menu, page);
+
+    gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
+
+    radio_button = gtk_radio_button_new_with_label(format_grp, "Port");
+    format_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(radio_button));
+    SIGNAL_CONNECT(radio_button, "clicked", decode_sctp_update_srcdst_menu, page);
+
+    gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
+
+    return(format_vb);
+}
+
+
 static GtkWidget *
 decode_add_sctp_page (gchar *prompt, gchar *table_name)
 {
-    GtkWidget	*page, *label, *scrolled_window, *optmenu;
+    GtkWidget	*page, *label, *scrolled_window,  *radio, *vbox, *alignment, *sctpbox, *sctpmenu;
 
     page = gtk_hbox_new(FALSE, 5);
     OBJECT_SET_DATA(page, E_PAGE_ACTION, decode_transport);
     OBJECT_SET_DATA(page, E_PAGE_TABLE, table_name);
     OBJECT_SET_DATA(page, E_PAGE_TITLE, "Transport");
 
+    vbox = gtk_vbox_new(FALSE, 5);
+    radio = decode_sctp_add_port_ppid(page);
+    gtk_box_pack_start(GTK_BOX(vbox), radio, TRUE, TRUE, 0);
+
     /* Always enabled */
+    sctpbox = gtk_hbox_new(FALSE, 5);
     label = gtk_label_new(prompt);
-    gtk_box_pack_start(GTK_BOX(page), label, TRUE, TRUE, 0);
-    optmenu = decode_add_ppid_menu(page);
-    gtk_box_pack_start(GTK_BOX(page), optmenu, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(sctpbox), label, TRUE, TRUE, 0);  
+    sctpmenu = decode_add_ppid_menu(page);
+    OBJECT_SET_DATA(decode_w, "user_data", sctpmenu);
+    alignment = decode_add_pack_menu(sctpmenu);
+
+    gtk_box_pack_start(GTK_BOX(sctpbox), alignment, TRUE, TRUE, 0);
 
     /* Conditionally enabled - only when decoding packets */
     label = gtk_label_new("as");
-    gtk_box_pack_start(GTK_BOX(page), label, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(sctpbox), label, TRUE, TRUE, 0);
     decode_dimmable = g_slist_prepend(decode_dimmable, label);
+    gtk_box_pack_start(GTK_BOX(vbox), sctpbox, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(page), vbox, TRUE, TRUE, 0);
+
     scrolled_window = decode_add_simple_menu(page, table_name);
     gtk_box_pack_start(GTK_BOX(page), scrolled_window, TRUE, TRUE, 0);
     decode_dimmable = g_slist_prepend(decode_dimmable, scrolled_window);
@@ -1651,6 +1837,7 @@ decode_add_notebook (GtkWidget *format_hb)
     /* Notebook must be visible for set_page to work. */
     gtk_widget_show_all(notebook);
     gtk_notebook_set_page(GTK_NOTEBOOK(notebook), -1);
+
 }
 
 

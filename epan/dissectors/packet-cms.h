@@ -8,7 +8,7 @@
 /* packet-cms.h
  * Routines for RFC2630 Cryptographic Message Syntax packet dissection
  *
- * $Id: packet-cms-template.h,v 1.1 2004/05/24 08:42:29 sahlberg Exp $
+ * $Id: packet-cms-template.h 12203 2004-10-05 09:18:55Z guy $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

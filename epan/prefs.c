@@ -316,43 +316,39 @@ find_module(const char *name)
 	return (module_t *) list_entry->data;
 }
 
-typedef struct {
-	module_cb callback;
-	gpointer user_data;
-} module_cb_arg_t;
-
-static void
-do_module_callback(gpointer data, gpointer user_data)
-{
-	module_t *module = data;
-	module_cb_arg_t *arg = user_data;
-
-	if (!module->obsolete)
-		(*arg->callback)(module, arg->user_data);
-}
-
 /*
  * Call a callback function, with a specified argument, for each module
  * in a list of modules.  If the list is NULL, searches the top-level
- * list in the display tree of modules.
+ * list in the display tree of modules.  If any callback returns a
+ * non-zero value, we stop and return that value, otherwise we
+ * return 0.
  *
  * Ignores "obsolete" modules; their sole purpose is to allow old
  * preferences for dissectors that no longer have preferences to be
  * silently ignored in preference files.  Does not ignore subtrees,
  * as this can be used when walking the display tree of modules.
  */
-void
+guint
 prefs_module_list_foreach(GList *module_list, module_cb callback,
     gpointer user_data)
 {
-	module_cb_arg_t arg;
+	GList *elem;
+	module_t *module;
+	guint ret;
 
 	if (module_list == NULL)
 		module_list = top_level_modules;
 
-	arg.callback = callback;
-	arg.user_data = user_data;
-	g_list_foreach(module_list, do_module_callback, &arg);
+	for (elem = g_list_first(module_list); elem != NULL;
+	    elem = g_list_next(elem)) {
+		module = elem->data;
+		if (!module->obsolete) {
+			ret = (*callback)(module, user_data);
+			if (ret != 0)
+				return ret;
+		}
+	}
+	return 0;
 }
 
 /*
@@ -363,10 +359,10 @@ prefs_module_list_foreach(GList *module_list, module_cb callback,
  * preferences for dissectors that no longer have preferences to be
  * silently ignored in preference files.
  */
-void
+guint
 prefs_modules_foreach(module_cb callback, gpointer user_data)
 {
-	prefs_module_list_foreach(modules, callback, user_data);
+	return prefs_module_list_foreach(modules, callback, user_data);
 }
 
 static void
@@ -570,7 +566,7 @@ prefs_register_string_preference(module_t *module, const char *name,
 	 * String preference values should be non-null (as you can't
 	 * keep them null after using the preferences GUI, you can at best
 	 * have them be null strings) and freeable (as we free them
-	 * if we change them.
+	 * if we change them).
 	 *
 	 * If the value is a null pointer, make it a copy of a null
 	 * string, otherwise make it a copy of the value.
@@ -581,6 +577,35 @@ prefs_register_string_preference(module_t *module, const char *name,
 		*var = g_strdup(*var);
 	preference->varp.string = var;
 	preference->saved_val.string = NULL;
+}
+
+/*
+ * Register a preference with a ranged value.
+ */
+void
+prefs_register_range_preference(module_t *module, const char *name,
+    const char *title, const char *description, range_t **var,
+    guint32 max_value)
+{
+	pref_t *preference;
+
+	preference = register_preference(module, name, title, description,
+					 PREF_RANGE);
+	preference->info.max_value = max_value;
+
+
+	/*
+	 * Range preference values should be non-null (as you can't
+	 * keep them null after using the preferences GUI, you can at best
+	 * have them be empty ranges) and freeable (as we free them
+	 * if we change them).
+	 *
+	 * If the value is a null pointer, make it an empty range.
+	 */
+	if (*var == NULL)
+		*var = range_empty();
+	preference->varp.range = var;
+	preference->saved_val.range = NULL;
 }
 
 /*
@@ -942,7 +967,15 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     prefs.filter_toolbar_show_in_statusbar = FALSE;
     prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
 #ifdef _WIN32
-    prefs.gui_font_name1 = g_strdup("-*-lucida console-medium-r-*-*-*-100-*-*-*-*-*-*");
+    /* XXX - not sure, if it must be "Lucida Console" or "lucida console"
+     * for gui_font_name1. Maybe it's dependant on the windows version running?!
+     * verified on XP: "Lucida Console"
+     * unknown for other windows versions.
+     *
+     * Problem: if we have no preferences file, and the default font name is unknown, 
+     * we cannot save Preferences as an error dialog pops up "You have not selected a font".
+     */
+    prefs.gui_font_name1 = g_strdup("-*-Lucida Console-medium-r-*-*-*-100-*-*-*-*-*-*");
     prefs.gui_font_name2 = g_strdup("Lucida Console 10");
 #else
     /*
@@ -1996,6 +2029,25 @@ set_pref(gchar *pref_name, gchar *value)
       }
       break;
 
+    case PREF_RANGE:
+    {
+      range_t *newrange;
+
+      if (range_convert_str(&newrange, value, pref->info.max_value) !=
+          CVT_NO_ERROR) {
+        /* XXX - distinguish between CVT_SYNTAX_ERROR and
+           CVT_NUMBER_TOO_BIG */
+        return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+      }
+
+      if (!ranges_are_equal(*pref->varp.range, newrange)) {
+	module->prefs_changed = TRUE;
+	g_free(*pref->varp.range);
+	*pref->varp.range = newrange;
+      }
+      break;
+    }
+
     case PREF_OBSOLETE:
       return PREFS_SET_OBSOLETE;	/* no such preference any more */
     }
@@ -2094,6 +2146,18 @@ write_pref(gpointer data, gpointer user_data)
 		fprintf(arg->pf, "%s.%s: %s\n", arg->module->name, pref->name,
 		    *pref->varp.string);
 		break;
+
+	case PREF_RANGE:
+	{
+		char *range_string;
+
+		range_string = range_convert_range(*pref->varp.range);
+		fprintf(arg->pf, "# A string denoting an positive integer range (e.g., \"1-20,30-40\").\n");
+		fprintf(arg->pf, "%s.%s: %s\n", arg->module->name, pref->name,
+			range_string);
+		g_free(range_string);
+		break;
+	}
 
 	case PREF_OBSOLETE:
 		g_assert_not_reached();

@@ -294,6 +294,8 @@ win32_merge_file (HWND h_wnd) {
     if (GetOpenFileName(&ofn)) {
 	out_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
 
+	filetype = cfile.cd_t;
+
 	/* merge or append the two files */
 
 	switch (merge_action) {
@@ -301,19 +303,19 @@ win32_merge_file (HWND h_wnd) {
 		/* append file */
 		in_filenames[0] = file_name;
 		in_filenames[1] = cfile.filename;
-		merge_ok = merge_n_files(out_fd, 2, in_filenames, TRUE, &err);
+		merge_ok = merge_n_files(out_fd, 2, in_filenames, filetype, TRUE, &err);
 		break;
 	    case merge_chrono:
 		/* chonological order */
 		in_filenames[0] = cfile.filename;
 		in_filenames[1] = file_name;
-		merge_ok = merge_n_files(out_fd, 2, in_filenames, FALSE, &err);
+		merge_ok = merge_n_files(out_fd, 2, in_filenames, filetype, FALSE, &err);
 		break;
 	    case merge_prepend:
 		/* prepend file */
 		in_filenames[0] = cfile.filename;
 		in_filenames[1] = file_name;
-		merge_ok = merge_n_files(out_fd, 2, in_filenames, TRUE, &err);
+		merge_ok = merge_n_files(out_fd, 2, in_filenames, filetype, TRUE, &err);
 		break;
 	    default:
 		g_assert_not_reached();

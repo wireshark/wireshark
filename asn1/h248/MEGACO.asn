@@ -367,7 +367,7 @@ BEGIN
          streamMode              [0] IMPLICIT NULL OPTIONAL, 
          reserveValue            [1] IMPLICIT NULL OPTIONAL, 
          reserveGroup            [2] IMPLICIT NULL OPTIONAL, 
-         propertyParms           [3] IMPLICIT SEQUENCE OF IndAudPropertyParm OPTIONAL, 
+         propertyParms           [3] IMPLICIT IndAudPropertyParms OPTIONAL, 
          ... 
       } 
        
@@ -376,6 +376,8 @@ BEGIN
          name     [0] IMPLICIT PkgdName, 
          ... 
       } 
+
+      IndAudPropertyParms ::= SEQUENCE OF IndAudPropertyParm 
        
       IndAudLocalRemoteDescriptor ::= SEQUENCE 
       { 
@@ -388,7 +390,7 @@ BEGIN
        
       IndAudTerminationStateDescriptor ::= SEQUENCE  
       { 
-         propertyParms        [0] IMPLICIT SEQUENCE OF IndAudPropertyParm, 
+         propertyParms        [0] IMPLICIT IndAudPropertyParms, 
          eventBufferControl   [1] IMPLICIT NULL OPTIONAL, 
          serviceState         [2] IMPLICIT NULL OPTIONAL, 
          ... 
@@ -471,29 +473,33 @@ BEGIN
       { 
          eventName               [0] IMPLICIT EventName, 
          streamID                [1] IMPLICIT StreamID OPTIONAL, 
-         eventParList            [2] IMPLICIT SEQUENCE OF EventParameter, 
+         eventParList            [2] IMPLICIT EventParameters, 
          timeNotation            [3] IMPLICIT TimeNotation OPTIONAL, 
          ... 
       } 
        
-      EventName ::= PkgdName 
-       
+      EventName ::= OCTET STRING 
+
+      ExtraInfo ::= CHOICE 
+      { 
+         relation [0] IMPLICIT Relation, 
+         range    [1] IMPLICIT BOOLEAN, 
+         sublist  [2] IMPLICIT BOOLEAN 
+      }
+             
       EventParameter ::= SEQUENCE 
       { 
          eventParameterName      [0] IMPLICIT Name, 
          value                   [1] IMPLICIT Value, 
     
          -- For use of extraInfo see the comment related to PropertyParm 
-         extraInfo CHOICE 
-         { 
-            relation [0] IMPLICIT Relation, 
-            range    [1] IMPLICIT BOOLEAN, 
-            sublist  [2] IMPLICIT BOOLEAN 
-         } OPTIONAL, 
+         extraInfo               [2] ExtraInfo OPTIONAL,
          ... 
        
-      } 
-       
+      }
+
+      EventParameters ::= SEQUENCE OF EventParameter
+
       ServiceChangeRequest ::= SEQUENCE 
       { 
          terminationID           [0] IMPLICIT TerminationIDList, 
@@ -561,7 +567,7 @@ BEGIN
          streamMode        [0] IMPLICIT StreamMode OPTIONAL, 
          reserveValue      [1] IMPLICIT BOOLEAN OPTIONAL, 
          reserveGroup      [2] IMPLICIT BOOLEAN OPTIONAL, 
-         propertyParms     [3] IMPLICIT SEQUENCE OF PropertyParm, 
+         propertyParms     [3] IMPLICIT PropertyParms, 
          ... 
       } 
        
@@ -600,15 +606,12 @@ BEGIN
       PropertyParm ::= SEQUENCE 
       { 
          propertyName [0] IMPLICIT PkgdName, 
-         value       [1] IMPLICIT SEQUENCE OF PropertyID, 
-         extraInfo   [2] CHOICE 
-         { 
-            relation    [0] IMPLICIT Relation, 
-            range       [1] IMPLICIT BOOLEAN, 
-            sublist     [2] IMPLICIT BOOLEAN 
-         } OPTIONAL, 
+         value        [1] IMPLICIT SEQUENCE OF PropertyID, 
+         extraInfo    [2] ExtraInfo OPTIONAL,
          ... 
       } 
+
+      PropertyParms ::= SEQUENCE OF PropertyParm 
        
       Name ::= OCTET STRING(SIZE(2)) 
        
@@ -643,7 +646,7 @@ BEGIN
        
       TerminationStateDescriptor ::= SEQUENCE  
       { 
-         propertyParms        [0] IMPLICIT SEQUENCE OF PropertyParm, 
+         propertyParms        [0] IMPLICIT PropertyParms, 
          eventBufferControl   [1] IMPLICIT EventBufferControl OPTIONAL, 
          serviceState         [2] IMPLICIT ServiceState OPTIONAL, 
          ... 
@@ -689,19 +692,21 @@ BEGIN
          requestID      [0] IMPLICIT RequestID OPTIONAL, 
                      -- RequestID must be present if eventList 
                      -- is non empty 
-         eventList      [1] IMPLICIT SEQUENCE OF RequestedEvent, 
+         eventList      [1] IMPLICIT RequestedEvents, 
          ... 
       } 
        
       RequestedEvent ::= SEQUENCE 
       { 
-         pkgdName       [0] IMPLICIT PkgdName, 
+         pkgdName       [0] IMPLICIT EventName, 
          streamID       [1] IMPLICIT StreamID OPTIONAL, 
          eventAction    [2] IMPLICIT RequestedActions OPTIONAL, 
-         evParList      [3] IMPLICIT SEQUENCE OF EventParameter, 
+         evParList      [3] IMPLICIT EventParameters, 
          ... 
       } 
-       
+
+      RequestedEvents ::= SEQUENCE OF RequestedEvent
+
       RequestedActions ::= SEQUENCE 
       { 
          keepActive           [0] IMPLICIT BOOLEAN OPTIONAL, 
@@ -726,10 +731,10 @@ BEGIN
        
       SecondRequestedEvent ::= SEQUENCE 
       { 
-         pkgdName          [0] IMPLICIT PkgdName, 
+         pkgdName          [0] IMPLICIT EventName, 
          streamID          [1] IMPLICIT StreamID OPTIONAL, 
          eventAction       [2] IMPLICIT SecondRequestedActions OPTIONAL, 
-         evParList         [3] IMPLICIT SEQUENCE OF EventParameter, 
+         evParList         [3] IMPLICIT EventParameters, 
          ... 
       } 
        
@@ -747,7 +752,7 @@ BEGIN
       { 
          eventName      [0] IMPLICIT EventName, 
          streamID       [1] IMPLICIT StreamID OPTIONAL, 
-         eventParList   [2] IMPLICIT SEQUENCE OF EventParameter, 
+         eventParList   [2] IMPLICIT EventParameters, 
          ... 
       } 
        
@@ -787,7 +792,7 @@ BEGIN
          ... 
       } 
        
-      SignalName ::= PkgdName 
+      SignalName ::= OCTET STRING 
        
       NotifyCompletion ::= BIT STRING 
       { 
@@ -800,12 +805,7 @@ BEGIN
          sigParameterName     [0] IMPLICIT Name, 
          value                [1] IMPLICIT Value, 
       -- For use of extraInfo see the comment related to PropertyParm 
-         extraInfo            [2] CHOICE 
-         { 
-            relation [0] IMPLICIT Relation, 
-            range    [1] IMPLICIT BOOLEAN, 
-            sublist  [2] IMPLICIT BOOLEAN 
-         } OPTIONAL, 
+         extraInfo            [2] ExtraInfo OPTIONAL,
          ... 
       } 
        
@@ -817,7 +817,7 @@ BEGIN
       ModemDescriptor ::= SEQUENCE 
       { 
          mtl               [0] IMPLICIT SEQUENCE OF ModemType,  
-         mpl               [1] IMPLICIT SEQUENCE OF PropertyParm, 
+         mpl               [1] IMPLICIT PropertyParms, 
          nonStandardData   [2] IMPLICIT NonStandardData OPTIONAL 
       } 
        
@@ -891,7 +891,7 @@ BEGIN
          ip6Address        [2] IMPLICIT IP6Address, 
          domainName        [3] IMPLICIT DomainName, 
          deviceName        [4] IMPLICIT PathName, 
-         mtpAddress        [5] IMPLICIT OCTET STRING(SIZE(2..4)), 
+         mtpAddress        [5] IMPLICIT MtpAddress, 
          ... 
       } 
        

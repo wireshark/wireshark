@@ -53,6 +53,7 @@ typedef enum {
 	PREF_BOOL,
 	PREF_ENUM,
 	PREF_STRING,
+	PREF_RANGE,
 	PREF_OBSOLETE
 } pref_type_t;
 
@@ -67,15 +68,18 @@ struct preference {
 		gboolean *boolp;
 		gint *enump;
 		char **string;
+		range_t **range;
 	} varp;			/* pointer to variable storing the value */
 	union {
 		guint uint;
 		gboolean boolval;
 		gint enumval;
 		char *string;
+		range_t *range;
 	} saved_val;		/* original value, when editing from the GUI */
 	union {
 	  guint base;			/* input/output base, for PREF_UINT */
+	  guint32 max_value;		/* maximum value of a range */
 	  struct {
 	    const enum_val_t *enumvals;	/* list of name & values */
 	    gboolean radio_buttons;	/* TRUE if it should be shown as

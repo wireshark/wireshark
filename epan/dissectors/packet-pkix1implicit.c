@@ -8,7 +8,7 @@
 /* packet-pkix1implicit.c
  * Routines for PKIX1Implitic packet dissection
  *
- * $Id: packet-pkix1implicit-template.c,v 1.2 2004/05/25 21:07:43 guy Exp $
+ * $Id: packet-pkix1implicit-template.c 12203 2004-10-05 09:18:55Z guy $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -130,7 +130,7 @@ static const value_string DisplayText_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice DisplayText_choice[] = {
+static const ber_choice DisplayText_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_VisibleString, BER_FLAGS_NOOWNTAG, dissect_visibleString },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_BMPString, BER_FLAGS_NOOWNTAG, dissect_bmpString },
   {   2, BER_CLASS_UNI, BER_UNI_TAG_UTF8String, BER_FLAGS_NOOWNTAG, dissect_utf8String },
@@ -163,7 +163,7 @@ static int dissect_noticeNumbers_item(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_pkix1implicit_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_noticeNumbers_item);
 }
 
-static ber_sequence SEQUNCE_OF_INTEGER_sequence_of[1] = {
+static const ber_sequence SEQUNCE_OF_INTEGER_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_noticeNumbers_item },
 };
 
@@ -178,7 +178,7 @@ static int dissect_noticeNumbers(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_pkix1implicit_SEQUNCE_OF_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_noticeNumbers);
 }
 
-static ber_sequence NoticeReference_sequence[] = {
+static const ber_sequence NoticeReference_sequence[] = {
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_organization },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_noticeNumbers },
   { 0, 0, 0, NULL }
@@ -195,7 +195,7 @@ static int dissect_noticeRef(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
   return dissect_pkix1implicit_NoticeReference(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_noticeRef);
 }
 
-static ber_sequence UserNotice_sequence[] = {
+static const ber_sequence UserNotice_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_noticeRef },
   { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_explicitText },
   { 0, 0, 0, NULL }
@@ -239,7 +239,7 @@ void proto_register_pkix1implicit(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "NoticeReference/noticeNumbers", HFILL }},
     { &hf_pkix1implicit_noticeNumbers_item,
-      { "Item[##]", "pkix1implicit.noticeNumbers_item",
+      { "Item", "pkix1implicit.noticeNumbers_item",
         FT_INT32, BASE_DEC, NULL, 0,
         "NoticeReference/noticeNumbers/_item", HFILL }},
     { &hf_pkix1implicit_visibleString,

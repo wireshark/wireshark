@@ -322,6 +322,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	case NETTL_SUBSYS_GSC100BT :
 	case NETTL_SUBSYS_PCI100BT :
 	case NETTL_SUBSYS_SPP100BT :
+	case NETTL_SUBSYS_100VG :
 	case NETTL_SUBSYS_GELAN :
 	case NETTL_SUBSYS_BTLAN :
 	case NETTL_SUBSYS_INTL100 :
@@ -665,6 +666,8 @@ int nettl_dump_can_write_encap(int encap)
 		case WTAP_ENCAP_FDDI:
 		case WTAP_ENCAP_TOKEN_RING:
 		case WTAP_ENCAP_RAW_IP:
+		case WTAP_ENCAP_RAW_ICMP:
+		case WTAP_ENCAP_RAW_ICMPV6:
 		case WTAP_ENCAP_PER_PACKET:
 		case WTAP_ENCAP_UNKNOWN:
 			return 0;
@@ -678,7 +681,6 @@ int nettl_dump_can_write_encap(int encap)
    sets "*err" to an error code on failure */
 gboolean nettl_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 {
-	guint32 magic;
 	struct nettl_file_hdr file_hdr;
 	size_t nwritten;
 
@@ -704,7 +706,7 @@ gboolean nettl_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 			*err = WTAP_ERR_SHORT_WRITE;
 		return FALSE;
 	}
-	wdh->bytes_dumped += sizeof magic;
+	wdh->bytes_dumped += sizeof(file_hdr);
 
 	return TRUE;
 }
@@ -747,6 +749,14 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 
 		case WTAP_ENCAP_TOKEN_RING:
 			rec_hdr.subsys = g_htons(NETTL_SUBSYS_PCI_TR);
+			break;
+	
+		case WTAP_ENCAP_RAW_ICMP:
+			rec_hdr.subsys = g_htons(NETTL_SUBSYS_NS_LS_ICMP);
+			break;
+	
+		case WTAP_ENCAP_RAW_ICMPV6:
+			rec_hdr.subsys = g_htons(NETTL_SUBSYS_NS_LS_ICMPV6);
 			break;
 	
 		default:

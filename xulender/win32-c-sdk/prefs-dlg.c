@@ -54,7 +54,7 @@ static void set_sample_colors();
 static void prefs_main_fetch_all(gboolean *must_redissect);
 static void prefs_main_apply_all();
 static void toggle_column_buttons(int cur_sel);
-static void module_prefs_revert(module_t *module, gpointer user_data);
+static guint module_prefs_revert(module_t *module, gpointer user_data);
 
 typedef struct _module_data_t {
     win32_element_t *tree;
@@ -1029,7 +1029,7 @@ pref_fetch(pref_t *pref, gpointer user_data)
     return 0;
 }
 
-static void
+static guint
 module_prefs_fetch(module_t *module, gpointer user_data) {
     gboolean *must_redissect_p = user_data;
 
@@ -1043,6 +1043,8 @@ module_prefs_fetch(module_t *module, gpointer user_data) {
      could cause packets to be dissected differently. */
     if (module->prefs_changed)
 	*must_redissect_p = TRUE;
+
+    return 0;     /* keep fetching module preferences */
 }
 
 /* fetch all pref values from all pages */
@@ -1203,7 +1205,7 @@ gui_prefs_init(win32_element_t *prefs_dlg) {
     i = 0;
     while (gui_fs_radio_vals[i].name != NULL) {
 	cur_el = win32_identifier_get_str(gui_fs_radio_vals[i].name);
-	if (gui_fs_radio_vals[i].val == prefs.gui_fileopen_style) {
+	if (gui_fs_radio_vals[i].val == (gint) prefs.gui_fileopen_style) {
 	    win32_radio_set_state(cur_el, TRUE);
 	    prefs_fileopen_style(cur_el);
 	} else {
@@ -1814,7 +1816,7 @@ pref_exists(pref_t *pref _U_, gpointer user_data _U_) {
 }
 
 #define MAX_TREE_NODE_NAME_LEN 96
-static void
+static guint
 module_prefs_show(module_t *module, gpointer user_data) {
     win32_element_t *groupbox, *grid;
     module_data_t   *md = user_data;
@@ -1837,7 +1839,7 @@ module_prefs_show(module_t *module, gpointer user_data) {
 	     * nothing under it that will be displayed, don't put it into
 	     * the window.
 	     */
-	    return;
+	    return 0;
 	}
     }
 
@@ -1845,7 +1847,7 @@ module_prefs_show(module_t *module, gpointer user_data) {
     g_snprintf(id, MAX_TREE_NODE_NAME_LEN, "prefs-dialog.tree.protocols.%s",
 	module->title);
     win32_tree_add_row(md->tree, id);
-    win32_tree_add_cell(md->tree, "", module->title);
+    win32_tree_add_cell(md->tree, "", (gchar *) module->title);
 
     if (module->is_subtree) {
 	prefs_module_list_foreach(module->prefs, module_prefs_show, md);
@@ -1856,7 +1858,7 @@ module_prefs_show(module_t *module, gpointer user_data) {
 	groupbox = win32_groupbox_new(md->deck->h_wnd);
 	win32_box_add(md->deck, groupbox, -1);
 	win32_element_set_id(groupbox, id);
-	win32_groupbox_set_title(groupbox, module->title);
+	win32_groupbox_set_title(groupbox, (gchar *) module->title);
 
 	/* Create a <grid> with two columns */
 	grid = win32_grid_new(groupbox->h_wnd);
@@ -1869,6 +1871,7 @@ module_prefs_show(module_t *module, gpointer user_data) {
     }
 
     win32_tree_pop(md->tree);
+    return 0;
 }
 
 static void
@@ -1974,7 +1977,7 @@ pref_revert(pref_t *pref, gpointer user_data)
     return 0;
 }
 
-static void
+static guint
 module_prefs_revert(module_t *module, gpointer user_data)
 {
     gboolean *must_redissect_p = user_data;
@@ -1990,4 +1993,5 @@ module_prefs_revert(module_t *module, gpointer user_data)
        could cause packets to be dissected differently. */
     if (module->prefs_changed)
 	*must_redissect_p = TRUE;
+    return 0;     /* keep processing modules */
 }

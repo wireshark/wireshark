@@ -31,19 +31,36 @@
 
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
 
 #include <glib.h>
 
 #include <epan/frame_data.h>
 
 #include <epan/range.h>
+#include <stdio.h>
 
-/* init the range struct */
-void range_init(range_t *range) {
+/*
+ * GLib 1.2[.x] doesn't define G_MAXUINT32; if it's not defined, we define
+ * it as the maximum 32-bit unsigned number.
+ */
+#ifndef G_MAXUINT32
+#define G_MAXUINT32	((guint32)0xFFFFFFFFU)
+#endif
 
-  range->nranges            = 0;
-  range->ranges[range->nranges].low  = 0L;
-  range->ranges[range->nranges].high = 0L;
+/*
+ * Size of the header of a range_t.
+ */
+#define RANGE_HDR_SIZE (sizeof (range_t) - sizeof (range_admin_t))
+
+/* Allocate an empty range. */
+range_t *range_empty(void)
+{
+   range_t *range;
+
+   range = g_malloc(RANGE_HDR_SIZE);
+   range->nranges = 0;
+   return range;
 }
 
 /******************** Range Entry Parser *********************************/
@@ -53,14 +70,15 @@ void range_init(range_t *range) {
  * The parameter 'max_value' specifies the maximum value in a
  * range.
  *
- * This function fills the array ranges containing low and high values indexed 
- * by a global variable nranges. After having called this function, the
- * function value_is_in_range() determines whether a given number is within 
- * the range or not. 
+ * This function allocates a range_t large enough to hold the number
+ * of ranges specified, and fills the array range->ranges containing
+ * low and high values with the number of ranges being range->nranges.
+ * After having called this function, the function value_is_in_range()
+ * determines whether a given number is within the range or not. 
  *
  * In case of a single number, we make a range where low is equal to high. 
- * We strip any characters other than commas, digits, or hyphens. We take care 
- * on wrongly entered ranges; opposite order will be taken care of.
+ * We take care on wrongly entered ranges; opposite order will be taken
+ * care of.
  * 
  * The following syntax is accepted :
  *
@@ -71,160 +89,160 @@ void range_init(range_t *range) {
  *   -              All values
  */
 
-void range_convert_str(range_t *range, const gchar *es, guint32 max_value)
+convert_ret_t range_convert_str(range_t **rangep, const gchar *es,
+				guint32 max_value)
 {
-    gchar     EntryStr[255], OrgStr[255], value[255], p;
-    guint     i, j=0;
-    guint32   tmp, val;
-    gboolean  hyphenseen;
+   range_t       *range;
+   guint         nranges;
+   const gchar   *p;
+   char          *endp;
+   gchar         c;
+   guint         i;
+   guint32       tmp;
+   unsigned long val;
 
-    /* Reset the number of ranges we are going to find */
-    range->nranges = 0;
-    range->ranges[range->nranges].low  = 0L;
-    range->ranges[range->nranges].high = 0L;
+   /* Allocate a range; this has room for one subrange. */
+   range = g_malloc(RANGE_HDR_SIZE + sizeof (range_admin_t));
+   range->nranges = 0;
+   nranges = 1;
 
-    /* Make a copy of the string, and check the validity of the input */
-    strcpy(OrgStr,es);
-    if (strlen(OrgStr) == 0 ) {
-        return;
-    }
+   /* Process the ranges separately until we get a comma or end of string.
+    *
+    * We build a structure array called ranges of high and low values. After the
+    * following loop, we have the nranges variable which tells how many ranges
+    * were found. The number of individual ranges is limited to 'MaxRanges'
+    */
 
-    /* Only keep digits, commas, and hyphens. */
-    for (i=0; i<=strlen(OrgStr); i++) {
-      if ( isdigit((guchar)OrgStr[i]) || OrgStr[i] == '-' || OrgStr[i] == ',' ) {
-         EntryStr[j++] = OrgStr[i];
+   p = es;
+   for (;;) {
+      /* Skip white space. */
+      while ((c = *p) == ' ' || c == '\t')
+	 p++;
+      if (c == '\0')
+	 break;
+
+      /* This must be a subrange.  Make sure we have room for it. */
+      if (range->nranges >= nranges) {
+	 /* Grow the structure.
+	  * 4 is an arbitrarily chosen number.
+	  * We start with 1, under the assumption that people
+	  * will often give a single number or range, and then
+	  * proceed to keep it a multiple of 4.
+	  */
+	 if (nranges == 1)
+	    nranges = 4;
+	 else
+	    nranges += 4;
+	 range = g_realloc(range, RANGE_HDR_SIZE +
+			   nranges*sizeof (range_admin_t));
       }
-    }
-    EntryStr[j] = '\0';
 
-    /* Remove any starting commas */
-    strcpy(OrgStr,EntryStr);
-    i = 0;
-    while (OrgStr[i] == ',') {
-       i++;
-    }
-    strcpy(EntryStr,OrgStr+i);
+      if (c == '-') {
+	 /* Subrange starts with 1. */
+	 range->ranges[range->nranges].low = 1;
+      } else if (isdigit((unsigned char)c)) {
+	 /* Subrange starts with the specified number */
+	 errno = 0;
+	 val = strtoul(p, &endp, 10);
+	 if (p == endp) {
+	    /* That wasn't a valid number. */
+	    g_free(range);
+	    return CVT_SYNTAX_ERROR;
+	 }
+	 if (errno == ERANGE || val > G_MAXUINT32) {
+	    /* That was valid, but it's too big. */
+	    g_free(range);
+	    return CVT_NUMBER_TOO_BIG;
+	 } 
+	 p = endp;
+	 range->ranges[range->nranges].low = val;
 
-    /* Remove any double commas */
-    strcpy(OrgStr,EntryStr);
-    p = ',';
-    j = 0;
-    for (i=0; i<=strlen(OrgStr); i++) {
-      if ( OrgStr[i] != ',' || p != ',') {
-         EntryStr[j++] = OrgStr[i];
+	 /* Skip white space. */
+	 while ((c = *p) == ' ' || c == '\t')
+	    p++;
+      } else {
+	 /* Neither empty nor a number. */
+	 g_free(range);
+	 return CVT_SYNTAX_ERROR;
       }
-      p = OrgStr[i];
-    }
-    EntryStr[j] = '\0';
 
-    /* Remove any double hyphens */
-    strcpy(OrgStr,EntryStr);
-    p = '-';
-    j = 0;
-    for (i=0; i<=strlen(OrgStr); i++) {
-      if (OrgStr[i] != '-' || p != '-' || i == 0) {
-         EntryStr[j++] = OrgStr[i];
+      if (c == '-') {
+	 /* There's a hyphen in the range.  Skip past it. */
+	 p++;
+
+	 /* Skip white space. */
+	 while ((c = *p) == ' ' || c == '\t')
+	    p++;
+
+	 if (c == ',' || c == '\0') {
+	   /* End of subrange string; that means the subrange ends
+	    * with max_value.
+	    */
+	   range->ranges[range->nranges].high = max_value;
+	 } else if (isdigit((unsigned char)c)) {
+	    /* Subrange ends with the specified number. */
+	    errno = 0;
+	    val = strtoul(p, &endp, 10);
+	    if (p == endp) {
+	       /* That wasn't a valid number. */
+	       g_free(range);
+	       return CVT_SYNTAX_ERROR;
+	    }
+	    if (errno == ERANGE || val > G_MAXUINT32) {
+	       /* That was valid, but it's too big. */
+	       g_free(range);
+	       return CVT_NUMBER_TOO_BIG;
+	    } 
+	    p = endp;
+	    range->ranges[range->nranges].high = val;
+
+	    /* Skip white space. */
+	    while ((c = *p) == ' ' || c == '\t')
+	       p++;
+	 } else {
+	    /* Neither empty nor a number. */
+	    g_free(range);
+	    return CVT_SYNTAX_ERROR;
+	 }
+      } else if (c == ',' || c == '\0') {
+	 /* End of subrange string; that means there's no hyphen
+	  * in the subrange, so the start and the end are the same.
+	  */
+	 range->ranges[range->nranges].high = range->ranges[range->nranges].low;
+      } else {
+	 /* Invalid character. */ 
+	 g_free(range);
+	 return CVT_SYNTAX_ERROR;
       }
-      p = OrgStr[i];
-    }
-    EntryStr[j] = '\0';
+      range->nranges++;
 
-    /* Remove any trailing commas */
-    i = strlen(EntryStr) - 1;
-    while (EntryStr[i] == ',') {
-       EntryStr[i] = '\0';
-       i--;
-    }
+      if (c == ',') {
+	 /* Subrange is followed by a comma; skip it. */
+	 p++;
+      }
+   }
 
-    /* The entry string is now filtered, and ready for further parsing */
-    /* printf("Function : range_convert_str EntryStr = %s\n",EntryStr); */
+   /* Now we are going through the low and high values, and check
+    * whether they are in a proper order. Low should be equal or lower
+    * than high. So, go through the loop and swap if needed.
+    */
+   for (i=0; i < range->nranges; i++) {
+      if (range->ranges[i].low > range->ranges[i].high) {
+	 tmp = range->ranges[i].low;
+	 range->ranges[i].low  = range->ranges[i].high;
+	 range->ranges[i].high = tmp;
+      }
+   }
 
-    /* Now we are going to process the ranges separately until we get a comma,
-     * or end of string.
-     *
-     * We build a structure array called ranges of high and low values. After the
-     * following loop, we have the nranges variable which tells how many ranges
-     * were found. The number of individual ranges is limited to 'MaxRanges'
-     */
-
-    j = 0;
-    hyphenseen = FALSE;
-    for (i=0; i<=strlen(EntryStr);i++) {
-
-       /* Copy the digit string until a no-digit character is seen */
-       if (isdigit((guchar)EntryStr[i])) {
-          value[j++] = EntryStr[i];
-          continue;
-       }
-
-       /* Terminate the digit string, and convert it */
-       value[j] = '\0';
-       val=atol(value);
-       j=0;
-
-       /* In case we see a hyphen, store the value we read in the low part 
-        * of ranges. In case it is a trailer hyphen, store the low value, and
-        * set the high value to the maximum of packets captured.
-        */
-       if (EntryStr[i] == '-') {
-          /* If this is a trailer hyphen, then treat it in a different
-           * way, then the high value is the maximum value and we are ready 
-           */
-          if (i == strlen(EntryStr)-1) {
-             range->ranges[range->nranges].low  = val;
-             range->ranges[range->nranges].high = max_value;
-             range->nranges++;
-             break;
-          } else {
-             /* Store the low value of the range */
-             range->ranges[range->nranges].low  = val;
-          }
-          hyphenseen=TRUE;
-          continue;
-       }
-
-       /* In case we see a comma, or end of string */
-       if (EntryStr[i] == ',' || i == strlen(EntryStr)) {
-          if (hyphenseen) {
-             /* Normal treatment: store the high value range in ranges */
-             range->ranges[range->nranges].high = val;
-          } else {
-             /* We did not see a hyphen and we get a comma, then this must
-              * be a single number */
-             range->ranges[range->nranges].low  = val;
-             range->ranges[range->nranges].high = val;
-          }
-          hyphenseen=FALSE;
-       }
-
-       /* Increase the index for the number of ranges we found, and protect
-        * against wildly outside array bound jumps */
-       range->nranges++;
-       if (range->nranges > MaxRange) {
-           range->nranges--;
-       }
-    }
-    range->nranges--;
-
-    /*  Now we are going through the low and high values, and check
-     *  whether they are in a proper order. Low should be equal or lower
-     *  than high. So, go through the loop and swap if needed.
-     */
-    for (i=0; i <= range->nranges; i++) {
-       if (range->ranges[i].low > range->ranges[i].high) {
-          tmp = range->ranges[i].low;
-          range->ranges[i].low  = range->ranges[i].high;
-          range->ranges[i].high = tmp;
-       }
-    }
-
-    /* In case we want to know what the result ranges are :
-     *
-     * for (i=0; i <= nranges; i++) {
-     *  printf("Function : range_convert_str L=%u \t H=%u\n",ranges[i].low,ranges[i].high);
-     * }
-     *
-     */
+   /* In case we want to know what the result ranges are :
+    *
+    * for (i=0; i < range->nranges; i++) {
+    *  printf("Function : range_convert_str L=%u \t H=%u\n",range->ranges[i].low,range->ranges[i].high);
+    * }
+    *
+    */
+   *rangep = range;
+   return CVT_NO_ERROR;
 } /* range_convert_str */
 
 /* This function returns TRUE if a given value is within one of the ranges
@@ -234,11 +252,86 @@ gboolean value_is_in_range(range_t *range, guint32 val)
 {
    guint i;
 
-   for (i=0; i <= range->nranges; i++) {
+   for (i=0; i < range->nranges; i++) {
       if (val >= range->ranges[i].low && val <= range->ranges[i].high)
-         return TRUE;
+	 return TRUE;
    }
    return(FALSE);
+}
+
+/* This function returns TRUE if the two given range_t's are equal.
+ */
+gboolean ranges_are_equal(range_t *a, range_t *b)
+{
+   guint i;
+
+   if (a->nranges != b->nranges)
+      return FALSE;
+
+   for (i=0; i < a->nranges; i++) {
+      if (a->ranges[i].low != b->ranges[i].low)
+	 return FALSE;
+
+      if (a->ranges[i].high != b->ranges[i].high)
+	 return FALSE;
+   }
+
+   return TRUE;
+
+}
+
+/* This function calls the provided callback function for each value in
+ * in the range.
+ */
+void
+range_foreach(range_t *range, void (*callback)(guint32 val))
+{
+   guint32 i, j;
+
+   for (i=0; i < range->nranges; i++) {
+      for (j = range->ranges[i].low; j <= range->ranges[i].high; j++)
+	 callback(j);
+   }
+}
+
+/* This function converts a range_t to a (g_malloc()-allocated) string.  */
+char *
+range_convert_range(range_t *range)
+{
+   GString *str;
+   guint32 i;
+   gboolean prepend_comma = FALSE;
+   char *string;
+
+   str = g_string_new("");
+
+   for (i=0; i < range->nranges; i++) {
+      if (prepend_comma)
+	 g_string_append_c(str, ',');
+
+      if (range->ranges[i].low == range->ranges[i].high)
+	 g_string_sprintfa(str, "%u", range->ranges[i].low);
+      else
+	 g_string_sprintfa(str, "%u-%u", range->ranges[i].low,
+			   range->ranges[i].high);
+      prepend_comma = TRUE;
+   }
+
+   string = str->str;
+   g_string_free(str, FALSE);
+   return string;
+}
+
+/* Create a copy of a range. */
+range_t *range_copy(range_t *src)
+{
+   range_t *dst;
+   size_t range_size;
+
+   range_size = RANGE_HDR_SIZE + src->nranges*sizeof (range_admin_t);
+   dst = g_malloc(range_size);
+   memcpy(dst, src, range_size);
+   return dst;
 }
 
 #if 0
@@ -256,3 +349,4 @@ static void value_is_in_range_check(range_t *range, guint32 val)
   }
 }
 #endif
+

@@ -146,7 +146,7 @@ call_ber_oid_callback(char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 
-static int dissect_ber_sq_of(gboolean implicit_tag, guint32 type, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_sequence *seq, gint hf_id, gint ett_id);
+static int dissect_ber_sq_of(gboolean implicit_tag, guint32 type, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence *seq, gint hf_id, gint ett_id);
 
 /* 8.1 General rules for encoding */
 
@@ -271,7 +271,11 @@ dissect_ber_length(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int 
 	offset = get_ber_length(tvb, offset, &tmp_length, &tmp_ind);
 	
 	if(show_internal_ber_fields){
-		proto_tree_add_uint(tree, hf_ber_length, tvb, old_offset, offset - old_offset, tmp_length);
+		if(tmp_ind){
+			proto_tree_add_text(tree, tvb, old_offset, 1, "Length: Indefinite length");
+		} else {
+			proto_tree_add_uint(tree, hf_ber_length, tvb, old_offset, offset - old_offset, tmp_length);
+		}
 	}
 	if (length)
 		*length = tmp_length;
@@ -451,7 +455,7 @@ dissect_ber_boolean(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
  */
 int dissect_ber_sequence(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence *seq, gint hf_id, gint ett_id) {
 	guint8 class;
-	gboolean pc, ind;
+	gboolean pc, ind, ind_field;
 	guint32 tag;
 	guint32 len;
 	proto_tree *tree = parent_tree;
@@ -462,7 +466,14 @@ int dissect_ber_sequence(gboolean implicit_tag, packet_info *pinfo, proto_tree *
 	/* first we must read the sequence header */
 	offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
 	offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind);
-	end_offset = offset + len;
+	if(ind){
+	  /* if the length is indefinite we dont really know (yet) where the
+	   * object ends so assume it spans the rest of the tvb for now.
+           */
+	  end_offset = tvb_length(tvb);
+	} else {
+	  end_offset = offset + len;
+	}
 
 	/* sanity check: we only handle Constructed Universal Sequences */
 	if ((!pc)
@@ -486,12 +497,20 @@ int dissect_ber_sequence(gboolean implicit_tag, packet_info *pinfo, proto_tree *
 		gboolean pc;
 		guint32 tag;
 		guint32 len;
-		int hoffset, eoffset;
+		int hoffset, eoffset, count;
 
+		if(ind){ /* this sequence was of indefinite length, so check for EOC */
+			if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0)){
+				if(show_internal_ber_fields){
+					proto_tree_add_text(tree, tvb, offset, 2, "EOC");
+				}
+				return offset+2;
+			}
+		}
 		hoffset = offset;
 		/* read header and len for next field */
 		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-		offset = get_ber_length(tvb, offset, &len, NULL);
+		offset = get_ber_length(tvb, offset, &len, &ind_field);
 		eoffset = offset + len;
 
 ber_sequence_try_again:
@@ -530,11 +549,27 @@ ber_sequence_try_again:
 		}
 		
 		/* call the dissector for this field */
-		next_tvb = tvb_new_subset(tvb, hoffset, eoffset-hoffset, eoffset-hoffset);
-		seq->func(pinfo, tree, next_tvb, 0);
+		if(ind_field){
+			/* creating a subtvb for indefinite length,  just
+			 * give it all of the tvb and hope for the best.
+			 */
+			next_tvb = tvb_new_subset(tvb, hoffset, tvb_length_remaining(tvb,hoffset), tvb_length_remaining(tvb,hoffset));
+		} else {
+			next_tvb = tvb_new_subset(tvb, hoffset, eoffset-hoffset, eoffset-hoffset);
+		}
 
-		seq++;
-		offset = eoffset;
+		count=seq->func(pinfo, tree, next_tvb, 0);
+		if(ind_field){
+			/* previous field was of indefinite length so we have
+			 * no choice but use whatever the subdissector told us
+			 * as size for the field.
+			 */
+			seq++;
+			offset = hoffset+count;
+		} else {
+			seq++;
+			offset = eoffset;
+		}
 	}
 
 	/* if we didnt end up at exactly offset, then we ate too many bytes */
@@ -787,7 +822,7 @@ int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, pro
 	return eoffset;
 }
 
-static int dissect_ber_sq_of(gboolean implicit_tag, guint32 type, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_sequence *seq, gint hf_id, gint ett_id) {
+static int dissect_ber_sq_of(gboolean implicit_tag, guint32 type, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence *seq, gint hf_id, gint ett_id) {
 	guint8 class;
 	gboolean pc, ind;
 	guint32 tag;
@@ -885,11 +920,11 @@ static int dissect_ber_sq_of(gboolean implicit_tag, guint32 type, packet_info *p
 	return end_offset;
 }
 
-int dissect_ber_sequence_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_sequence *seq, gint hf_id, gint ett_id) {
+int dissect_ber_sequence_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence *seq, gint hf_id, gint ett_id) {
 	return dissect_ber_sq_of(implicit_tag, BER_UNI_TAG_SEQUENCE, pinfo, parent_tree, tvb, offset, seq, hf_id, ett_id);
 }
 
-int dissect_ber_set_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_sequence *seq, gint hf_id, gint ett_id) {
+int dissect_ber_set_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence *seq, gint hf_id, gint ett_id) {
 	return dissect_ber_sq_of(implicit_tag, BER_UNI_TAG_SET, pinfo, parent_tree, tvb, offset, seq, hf_id, ett_id);
 }
 

@@ -21,6 +21,8 @@ OtherKeyAttribute
 #.TYPE_RENAME
 
 #.FIELD_RENAME
+SignerInfo/signature	signatureValue
+RecipientEncryptedKey/rid	rekRid
 
 #.END
 

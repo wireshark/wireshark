@@ -308,16 +308,24 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
  * the xmlsoft examples.
  */
 static xmlDocPtr
-xmlParseFilePush( char *filename, int checkValid) {
+xmlParseFilePush( char *filename, int checkValid
+#ifndef ETHEREAL_XML_DO_VALIDITY_CHECKING
+                 _U_
+#endif
+) {
   FILE *f;
   xmlDocPtr doc=NULL;
+#ifdef ETHEREAL_XML_DO_VALIDITY_CHECKING
   int valid=0;
+#endif
   int res, size = 1024;
   char chars[1024];
   xmlParserCtxtPtr ctxt;
 
+#ifdef ETHEREAL_XML_DO_VALIDITY_CHECKING
   /* I wonder what kind of a performance hit this is? */
   *XmlStub.xmlDoValidityCheckingDefaultValue = checkValid;
+#endif
 
   f = fopen(filename, "r");
   if (f == NULL) {
@@ -334,17 +342,22 @@ xmlParseFilePush( char *filename, int checkValid) {
 	}
 	XmlStub.xmlParseChunk(ctxt, chars, 0, 1);
 	doc = ctxt->myDoc;
-	valid=ctxt->valid;
+#ifdef ETHEREAL_XML_DO_VALIDITY_CHECKING
+  valid=ctxt->valid;
+#endif
 	XmlStub.xmlFreeParserCtxt(ctxt);
   }
   fclose(f);
 
+#ifdef ETHEREAL_XML_DO_VALIDITY_CHECKING
   /* Check valid */
   if (!valid) {
 	report_failure( "Error!  Invalid xml in %s!  Failed DTD check!",
 			   filename);
 	return NULL;
   }
+#endif
+
   return doc;
 } /* xmlParseFilePush */
 

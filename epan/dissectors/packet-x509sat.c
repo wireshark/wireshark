@@ -1,15 +1,14 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509sat.c                                                           */
+/* ./packet-x509sat.c                                                         */
 /* ../../tools/asn2eth.py -X -b -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
 
 /* Input file: packet-x509sat-template.c */
-/* Include files: packet-x509sat-hf.c, packet-x509sat-ett.c, packet-x509sat-fn.c, packet-x509sat-hfarr.c, packet-x509sat-ettarr.c, packet-x509sat-val.h */
 
 /* packet-x509sat.c
  * Routines for X.509 Selected Attribute Types packet dissection
  *
- * $Id: packet-x509sat-template.c,v 1.2 2004/05/25 21:07:43 guy Exp $
+ * $Id: packet-x509sat-template.c 12203 2004-10-05 09:18:55Z guy $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,11 +88,6 @@ int hf_x509sat_id_at_collectiveTelephoneNumber = -1;
 
 /*--- Included file: packet-x509sat-hf.c ---*/
 
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509sat-hf.c                                                        */
-/* ../../tools/asn2eth.py -X -b -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
-
 static int hf_x509sat_equality = -1;              /* AttributeType */
 static int hf_x509sat_substrings = -1;            /* AttributeType */
 static int hf_x509sat_greaterOrEqual = -1;        /* AttributeType */
@@ -111,11 +105,6 @@ static gint ett_x509sat_DirectoryString = -1;
 
 /*--- Included file: packet-x509sat-ett.c ---*/
 
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509sat-ett.c                                                       */
-/* ../../tools/asn2eth.py -X -b -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
-
 static gint ett_x509sat_CriteriaItem = -1;
 static gint ett_x509sat_TelexNumber = -1;
 
@@ -124,11 +113,6 @@ static gint ett_x509sat_TelexNumber = -1;
 
 
 /*--- Included file: packet-x509sat-fn.c ---*/
-
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509sat-fn.c                                                        */
-/* ../../tools/asn2eth.py -X -b -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
 
 /*--- Fields for imported types ---*/
 
@@ -178,7 +162,7 @@ static const value_string CriteriaItem_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice CriteriaItem_choice[] = {
+static const ber_choice CriteriaItem_choice[] = {
   {   0, BER_CLASS_CON, 0, 0, dissect_equality },
   {   1, BER_CLASS_CON, 1, 0, dissect_substrings },
   {   2, BER_CLASS_CON, 2, 0, dissect_greaterOrEqual },
@@ -224,7 +208,7 @@ static int dissect_answerback(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_x509sat_PrintableString(FALSE, tvb, offset, pinfo, tree, hf_x509sat_answerback);
 }
 
-static ber_sequence TelexNumber_sequence[] = {
+static const ber_sequence TelexNumber_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_telexNumber },
   { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_countryCode },
   { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_answerback },
@@ -655,11 +639,6 @@ void proto_register_x509sat(void) {
 
 /*--- Included file: packet-x509sat-hfarr.c ---*/
 
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509sat-hfarr.c                                                     */
-/* ../../tools/asn2eth.py -X -b -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
-
     { &hf_x509sat_equality,
       { "equality", "x509sat.equality",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -702,11 +681,6 @@ void proto_register_x509sat(void) {
     &ett_x509sat_DirectoryString,
 
 /*--- Included file: packet-x509sat-ettarr.c ---*/
-
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-x509sat-ettarr.c                                                    */
-/* ../../tools/asn2eth.py -X -b -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
 
     &ett_x509sat_CriteriaItem,
     &ett_x509sat_TelexNumber,

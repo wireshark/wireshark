@@ -8,6 +8,13 @@
 
 #include "config.h"
 
+/****************** specific to ethereal ********************************/
+/*
+ * Uncomment the following line to restore XML_DO_VALIDITY_CHECKING
+ * behavior which is causing issues on WIN32 platforms. See:
+ * http://www.ethereal.com/lists/ethereal-dev/200410/msg00194.html
+ */
+/* #define ETHEREAL_XML_DO_VALIDITY_CHECKING */
 /****************** From xml headers ************************************/
 
 /*
@@ -1088,10 +1095,9 @@ typedef struct {
 	char            *(*xmlGetProp)(xmlNodePtr, char *);
 	int              (*xmlKeepBlanksDefault)(int);
 	int              (*xmlSubstituteEntitiesDefault)(int);
-
-	/* Variables */
-	int              *xmlDoValidityCheckingDefaultValue;
-
+#ifdef ETHEREAL_XML_DO_VALIDITY_CHECKING
+  int              *xmlDoValidityCheckingDefaultValue;
+#endif
 } XML_STUB;
 
 XML_EXTERN XML_STUB XmlStub;

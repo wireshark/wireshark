@@ -51,7 +51,7 @@ EXTRA_OBJECTS = \
 
 ethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib shell32.lib \
-	$(NET_SNMP_DIR)\win32\lib\netsnmp.lib \
+	$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib \
 !IFDEF ENABLE_LIBETHEREAL
 	epan\libethereal.lib \
 !ELSE
@@ -67,7 +67,7 @@ ethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 tethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
-	$(NET_SNMP_DIR)\win32\lib\netsnmp.lib \
+	$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib \
 !IFDEF ENABLE_LIBETHEREAL
 	epan\libethereal.lib \
 !ELSE
@@ -82,7 +82,7 @@ tethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 wethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib comctl32.lib \
 	$(GLIB_LIBS) \
-	$(NET_SNMP_DIR)\win32\lib\netsnmp.lib \
+	$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib \
 !IFDEF ENABLE_LIBETHEREAL
 	epan\libethereal.lib \
 !ELSE
@@ -109,7 +109,7 @@ mergecap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
-	$(NET_SNMP_DIR)\win32\lib\netsnmp.lib \
+	$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib \
 !IFDEF ENABLE_LIBETHEREAL
 	epan\libethereal.lib \
 !ELSE
@@ -124,7 +124,7 @@ dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib \
 randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	user32.lib \
 	$(GLIB_LIBS) \
-	$(NET_SNMP_DIR)\win32\lib\netsnmp.lib
+	$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib
 
 EXECUTABLES=ethereal.exe ethereal-gtk2.exe tethereal.exe wethereal.exe \
 	capinfo.exe editcap.exe mergecap.exe text2pcap.exe
@@ -234,6 +234,7 @@ config.h	: config.h.win32 config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
 	    -e "s/@HAVE_GNU_ADNS@/$(ADNS_CONFIG)/" \
 	    -e "s/@HAVE_PCRE@/$(PCRE_CONFIG)/" \
+	    -e "s/@HAVE_NETTLE@/$(NETTLE_CONFIG)/" \
 	    -e "s/@HAVE_LIBZ@/$(ZLIB_CONFIG)/" \
 	    -e "s/@HAVE_LIBPCAP@/$(WINPCAP_CONFIG)/" \
 	    -e "s/@HAVE_PCAP_FINDALLDEVS@/$(PCAP_FINDALLDEVS_CONFIG)/" \
@@ -256,9 +257,15 @@ svnversion.h:
 #
 # Build the short version of the authors file for the about dialog
 #
-AUTHORS-SHORT: AUTHORS make-authors-short.pl make-authors-short2.pl
-	$(PERL) make-authors-short.pl < AUTHORS > AUTHORS-SHORT
+AUTHORS-SHORT: AUTHORS make-authors-short.pl
+	$(PERL) perlnoutf.pl make-authors-short.pl < AUTHORS > AUTHORS-SHORT
 
+#
+# Build the short version of the authors file with formatting codes for
+# the man page
+#
+AUTHORS-SHORT-FORMAT: AUTHORS-SHORT make-authors-format.pl
+    $(PERL) perlnoutf.pl make-authors-format.pl < AUTHORS-SHORT > AUTHORS-SHORT-FORMAT
 
 #
 # Build "tethereal-tap-register.c", which contains a function 
@@ -292,6 +299,7 @@ clean: gtk2_distclean
 		capinfo.obj editcap.obj mergecap.obj text2pcap.obj getopt.obj\
 		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
 		rdps.pdb rdps.exe rdps.ilk config.h ps.c AUTHORS-SHORT \
+		AUTHORS-SHORT-FORMAT \
 		dftest.obj dftest.exe randpkt.obj randpkt.ext doxygen.cfg \
 		$(RESOURCES)
 	cd wiretap
@@ -428,9 +436,9 @@ verify_tools:
 setup: verify_tools
 !IF "$(GTK2_INST_VERSION)" == "2.4"
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		glib gtk2.4/glib-2.4.5-20040903.zip
+		glib gtk2.4/glib-2.4.7.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		glib gtk2.4/glib-dev-2.4.5.zip
+		glib gtk2.4/glib-dev-2.4.7.zip
 !ELSE
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		glib glib-2.2.3-20040116.zip
@@ -449,7 +457,7 @@ setup: verify_tools
 		gettext-runtime-0.13.1 gettext-runtime-0.13.1.zip
 !IFDEF NET_SNMP_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		. net-snmp-5.1.zip
+		. net-snmp-5.1.2.zip
 !ENDIF
 !IFDEF PCAP_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
@@ -457,7 +465,7 @@ setup: verify_tools
 !ENDIF
 !IFDEF ADNS_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		. adns-1.0-win32-03.zip
+		. adns-1.0-win32-04.zip
 !ENDIF
 !IFDEF PCRE_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \

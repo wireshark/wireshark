@@ -106,7 +106,7 @@ AC_DEFUN([AC_ETHEREAL_CHECK_64BIT_FORMAT],
 #	  ifdef HAVE_INTTYPES_H
 	  #include <inttypes.h>
 #	  endif
-	  #include <glib.h>
+	  #include <glibconfig.h>
 	  #include <stdio.h>
 	  #include <sys/types.h>
 
@@ -973,8 +973,18 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	  #
 	  CFLAGS="$CFLAGS -I$krb5_dir/include"
 	  CPPFLAGS="$CPPFLAGS -I$krb5_dir/include"
-	  KRB5_LIBS="-L$krb5_dir/lib -lkrb5 -lasn1 $SSL_LIBS -lroken -lcrypt"
-	  ac_krb5_version=`grep heimdal $krb5_dir/include/krb5.h | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/'`
+	  ac_heimdal_version=`grep heimdal $krb5_dir/include/krb5.h | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/'`
+	  ac_mit_version=`grep 'Massachusetts Institute of Technology' $krb5_dir/include/krb5.h | head -n 1 | sed 's/^.*Massachusetts Institute of Technology.*$/MIT/'`
+	  ac_krb5_version="$ac_heimdal_version$ac_mit_version"
+	  if test "x$ac_krb5_version" = "xHEIMDAL"
+	      KRB5_LIBS="-L$krb5_dir/lib -lkrb5 -lasn1 $SSL_LIBS -lroken -lcrypt"
+	  then
+	      KRB5_LIBS="-L$krb5_dir/lib -lkrb5 -lk5crypto -lcom_err"
+	  fi
+	  if test "x$ac_krb5_version" = "xMIT"
+	  then
+	  AC_DEFINE(HAVE_MIT_KERBEROS, 1, [Define to use MIT kerberos])
+	  fi
 	else
 	  AC_PATH_PROG(KRB5_CONFIG, krb5-config) 
 	  if test -x "$KRB5_CONFIG"
@@ -983,10 +993,9 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	    KRB5_LIBS=`"$KRB5_CONFIG" --libs`
 	    CFLAGS="$CFLAGS $KRB5_FLAGS"
 	    CPPFLAGS="$CPPFLAGS $KRB5_FLAGS"
-	    KRB5_LIBS=`"$KRB5_CONFIG" --libs`
 	    #
 	    # If -lcrypto is in KRB5_FLAGS, we require it to build
-	    # with Heimdal.  We don't want to built with it by
+	    # with Heimdal/MIT.  We don't want to built with it by
 	    # default, due to annoying license incompatibilities
 	    # between the OpenSSL license and the GPL, so:
 	    #
@@ -1008,7 +1017,7 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 		fi
 		;;
 	    esac
-	    ac_krb5_version=`"$KRB5_CONFIG" --version | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/'`
+	    ac_krb5_version=`"$KRB5_CONFIG" --version | head -n 1 | sed -e 's/^.*heimdal.*$/HEIMDAL/' -e 's/^Kerberos .*$/MIT/'`
  	  fi
 	fi
 
@@ -1042,7 +1051,7 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 		# library, as it's probably not present.
 		#
 		want_krb5=no
-		AC_MSG_RESULT(Heimdal header not found - disabling dissection for some kerberos data in packet decoding)
+		AC_MSG_RESULT(No Heimdal or MIT header found - disabling dissection for some kerberos data in packet decoding)
 	      fi
 	    fi
 	  ])
@@ -1051,10 +1060,10 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	then
 	    #
 	    # Well, we at least have the krb5 header file.
-	    # Check whether this is Heimdal.
+	    # Check whether this is Heimdal or MIT.
 	    #
-	    AC_MSG_CHECKING(whether the Kerberos library is Heimdal)
-	    if test "x$ac_krb5_version" = "xHEIMDAL"
+	    AC_MSG_CHECKING(whether the Kerberos library is Heimdal or MIT)
+	    if test "x$ac_krb5_version" = "xHEIMDAL" -o "x$ac_krb5_version" = "xMIT"
 	    then
 		#
 		# Yes.
@@ -1062,7 +1071,7 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 		# we need to link with -lresolv when linking with
 		# the Kerberos library.
 		#
-		AC_MSG_RESULT(yes)
+		AC_MSG_RESULT($ac_krb5_version)
 		ethereal_save_LIBS="$LIBS"
 		found_krb5_kt_resolve=no
 		for extras in "" "-lresolv"
@@ -1070,9 +1079,9 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 		    LIBS="$KRB5_LIBS $extras"
 		    if test -z "$extras"
 		    then
-			AC_MSG_CHECKING([whether Heimdal includes krb5_kt_resolve])
+			AC_MSG_CHECKING([whether $ac_krb5_version includes krb5_kt_resolve])
 		    else
-			AC_MSG_CHECKING([whether Heimdal includes krb5_kt_resolve (linking with $extras)])
+			AC_MSG_CHECKING([whether $ac_krb5_version includes krb5_kt_resolve (linking with $extras)])
 		    fi
 		    AC_TRY_LINK(
 			[
@@ -1088,7 +1097,14 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 			    AC_MSG_RESULT(yes)
 			    KRB5_LIBS="$LIBS"
 			    AC_DEFINE(HAVE_KERBEROS, 1, [Define to use kerberos])
-			    AC_DEFINE(HAVE_HEIMDAL_KERBEROS, 1, [Define to use heimdal kerberos])
+	    		    if test "x$ac_krb5_version" = "xHEIMDAL"
+			    then
+				AC_DEFINE(HAVE_HEIMDAL_KERBEROS, 1, [Define to use heimdal kerberos])
+			    fi
+			    if test "x$ac_krb5_version" = "xMIT"
+			    then
+				AC_DEFINE(HAVE_MIT_KERBEROS, 1, [Define to use MIT kerberos])
+			    fi
 			    found_krb5_kt_resolve=yes
 			    break
 			],
@@ -1109,13 +1125,13 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 			# The user tried to force us to use the library,
 			# but we can't do so; report an error.
 			#
-			AC_MSG_ERROR(Usable Heimdal not found)
+			AC_MSG_ERROR(Usable $ac_krb5_version not found)
 		    else
 			#
 			# Restore the versions of CFLAGS and CPPFLAGS
 			# from before we added the flags for Kerberos.
 			#
-			AC_MSG_RESULT(Usable Heimdal not found - disabling dissection for some kerberos data in packet decoding)
+			AC_MSG_RESULT(Usable $ac_krb5_version not found - disabling dissection for some kerberos data in packet decoding)
 			CFLAGS="$ethereal_save_CFLAGS"
 			CPPFLAGS="$ethereal_save_CPPFLAGS"
 			KRB5_LIBS=""
@@ -1125,7 +1141,7 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 		LIBS="$ethereal_save_LIBS"
 	    else
 		#
-		# It's not Heimdal.
+		# It's not Heimdal or MIT.
 		#
 		AC_MSG_RESULT(no)
 		if test "x$want_krb5" = "xyes"
@@ -1134,13 +1150,13 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 		    # The user tried to force us to use the library,
 		    # but we can't do so; report an error.
 		    #
-		    AC_MSG_ERROR(Heimdal not found)
+		    AC_MSG_ERROR(Kerberos not found)
 		else
 		    #
 		    # Restore the versions of CFLAGS and CPPFLAGS
 		    # from before we added the flags for Kerberos.
 		    #
-		    AC_MSG_RESULT(Heimdal not found - disabling dissection for some kerberos data in packet decoding)
+		    AC_MSG_RESULT(Kerberos not found - disabling dissection for some kerberos data in packet decoding)
 		    CFLAGS="$ethereal_save_CFLAGS"
 		    CPPFLAGS="$ethereal_save_CPPFLAGS"
 		    KRB5_LIBS=""

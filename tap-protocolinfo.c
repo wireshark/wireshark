@@ -55,6 +55,20 @@ protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, void *du
 	guint i;
 	char *str;
 
+	/*
+	 * XXX - there needs to be a way for "protocolinfo_init()" to
+	 * find out whether the columns are being generated and, if not,
+	 * to report an error and exit, as the whole point of this tap
+	 * is to modify the columns, and if the columns aren't being
+	 * displayed, that makes this tap somewhat pointless.
+	 *
+	 * To prevent a crash, we check whether pinfo->cinfo is null
+	 * and, if so, we report that error and exit.
+	 */
+	if (pinfo->cinfo == NULL) {
+		fprintf(stderr, "tethereal: the proto,colinfo tap doesn't work if the columns aren't being printed.\n");
+		exit(1);
+	}
 	gp=proto_get_finfo_ptr_array(edt->tree, rs->hf_index);
 	if(!gp){
 		return 0;

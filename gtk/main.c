@@ -1319,7 +1319,7 @@ dnd_merge_files(int in_file_count, char **in_filenames)
     out_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
 
     /* merge the files in chonological order */
-    merge_ok = merge_n_files(out_fd, in_file_count, in_filenames, FALSE, &err);
+    merge_ok = merge_n_files(out_fd, in_file_count, in_filenames, WTAP_FILE_PCAP, FALSE, &err);
 
   if(!merge_ok) {
     /* merge failed */

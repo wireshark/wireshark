@@ -66,6 +66,12 @@
 
 Tcap_Standard_Type tcap_standard = ITU_TCAP_STANDARD;
 
+#define MAX_SSN 254
+static range_t *global_ssn_range;
+static range_t *ssn_range;
+
+static dissector_handle_t tcap_handle;
+
 /* saved pinfo */
 static packet_info *g_pinfo = NULL;
 static proto_tree *g_tcap_tree = NULL;
@@ -2741,6 +2747,8 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Register the protocol with Ethereal */
 
+void proto_reg_handoff_tcap(void);
+
 /* this format is require because a script is used to build the C function
    that calls all the protocol registration.
 */
@@ -2846,7 +2854,7 @@ proto_register_tcap(void)
     proto_register_field_array(proto_tcap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    tcap_module = prefs_register_protocol(proto_tcap, NULL);
+    tcap_module = prefs_register_protocol(proto_tcap, proto_reg_handoff_tcap);
 
     prefs_register_enum_preference(tcap_module, "standard", "TCAP standard",
 	"The SS7 standard used in TCAP packets",
@@ -2855,6 +2863,14 @@ proto_register_tcap(void)
     prefs_register_bool_preference(tcap_module, "lock_info_col", "Lock Info column",
 	"Always show TCAP in Info column",
 	&lock_info_col);
+
+    /* Set default SSNs */
+    range_convert_str(&global_ssn_range, "5-12", MAX_SSN);
+    ssn_range = range_empty();
+
+    prefs_register_range_preference(tcap_module, "ssn", "SCCP SSNs",
+	"SCCP (and SUA) SSNs to decode as TCAP",
+	&global_ssn_range, MAX_SSN);
 
     /* we will fake a ssn subfield which has the same value obtained from sccp */
     tcap_itu_ssn_dissector_table = register_dissector_table("tcap.itu_ssn", "ITU TCAP SSN", FT_UINT8, BASE_DEC);
@@ -2866,31 +2882,43 @@ proto_register_tcap(void)
    This format is required because a script is used to find these routines and
    create the code that calls these routines.
 */
+
+static void range_delete_callback(guint32 ssn)
+{
+    if (ssn) {
+	dissector_delete("sccp.ssn", ssn, tcap_handle);
+	dissector_delete("sua.ssn", ssn, tcap_handle);
+    }
+}
+
+static void range_add_callback(guint32 ssn)
+{
+    if (ssn) {
+	dissector_add("sccp.ssn", ssn, tcap_handle);
+	dissector_add("sua.ssn", ssn, tcap_handle);
+    }
+}
+
 void
 proto_reg_handoff_tcap(void)
 {
-    dissector_handle_t tcap_handle;
+    static gboolean prefs_initialized = FALSE;
 
-    tcap_handle = create_dissector_handle(dissect_tcap,
-	proto_tcap);
+    if (!prefs_initialized) {
 
-    dissector_add("sccp.ssn", 5, tcap_handle); /* MAP*/
-    dissector_add("sccp.ssn", 6, tcap_handle); /* HLR*/
-    dissector_add("sccp.ssn", 7, tcap_handle); /* VLR */
-    dissector_add("sccp.ssn", 8, tcap_handle); /* MSC */
-    dissector_add("sccp.ssn", 9, tcap_handle); /* EIR */
-    dissector_add("sccp.ssn", 10, tcap_handle); /* EIR */
-    dissector_add("sccp.ssn", 11, tcap_handle); /* SMS/MC */
-    dissector_add("sccp.ssn", 12, tcap_handle); /* IS41 OTAF */
+	tcap_handle = create_dissector_handle(dissect_tcap, proto_tcap);
+	data_handle = find_dissector("data");
 
-    dissector_add("sua.ssn", 5, tcap_handle); /* MAP*/
-    dissector_add("sua.ssn", 6, tcap_handle); /* HLR*/
-    dissector_add("sua.ssn", 7, tcap_handle); /* VLR */
-    dissector_add("sua.ssn", 8, tcap_handle); /* MSC */
-    dissector_add("sua.ssn", 9, tcap_handle); /* EIR */
-    dissector_add("sua.ssn", 10, tcap_handle); /* EIR */
-    dissector_add("sua.ssn", 11, tcap_handle); /* SMS/MC */
-    dissector_add("sua.ssn", 12, tcap_handle); /* IS41 OTAF */
+	prefs_initialized = TRUE;
 
-    data_handle = find_dissector("data");
+    } else {
+
+	range_foreach(ssn_range, range_delete_callback);
+    }
+
+    g_free(ssn_range);
+    ssn_range = range_copy(global_ssn_range);
+
+    range_foreach(ssn_range, range_add_callback);
+
 }

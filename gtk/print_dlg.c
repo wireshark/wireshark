@@ -749,6 +749,14 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 
   args = (print_args_t *)OBJECT_GET_DATA(ok_bt, PRINT_ARGS_KEY);
 
+  /* Check whether the range is valid. */
+  if (!range_check_validity(&args->range)) {
+    /* The range isn't valid; don't dismiss the print/export dialog box,
+       just leave it around so that the user can, after they
+       dismiss the alert box popped up for the error, try again. */
+    return;
+  }
+
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_DEST_CB_KEY);
   args->to_file = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
 

@@ -8,7 +8,7 @@
 /* packet-cms.c
  * Routines for RFC2630 Cryptographic Message Syntax packet dissection
  *
- * $Id: packet-cms-template.c,v 1.2 2004/05/25 21:07:43 guy Exp $
+ * $Id: packet-cms-template.c 12245 2004-10-08 20:28:04Z guy $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,7 +70,7 @@ static int hf_cms_sid = -1;                       /* SignerIdentifier */
 static int hf_cms_digestAlgorithm = -1;           /* DigestAlgorithmIdentifier */
 static int hf_cms_signedAttrs = -1;               /* SignedAttributes */
 static int hf_cms_signatureAlgorithm = -1;        /* SignatureAlgorithmIdentifier */
-static int hf_cms_signature = -1;                 /* SignatureValue */
+static int hf_cms_signatureValue = -1;            /* SignatureValue */
 static int hf_cms_unsignedAttrs = -1;             /* UnsignedAttributes */
 static int hf_cms_issuerAndSerialNumber = -1;     /* IssuerAndSerialNumber */
 static int hf_cms_subjectKeyIdentifier = -1;      /* SubjectKeyIdentifier */
@@ -100,7 +100,7 @@ static int hf_cms_originatorKey = -1;             /* OriginatorPublicKey */
 static int hf_cms_algorithm = -1;                 /* AlgorithmIdentifier */
 static int hf_cms_publicKey = -1;                 /* BIT_STRING */
 static int hf_cms_RecipientEncryptedKeys_item = -1;  /* RecipientEncryptedKey */
-static int hf_cms_rid1 = -1;                      /* KeyAgreeRecipientIdentifier */
+static int hf_cms_rekRid = -1;                    /* KeyAgreeRecipientIdentifier */
 static int hf_cms_rKeyId = -1;                    /* RecipientKeyIdentifier */
 static int hf_cms_date = -1;                      /* GeneralizedTime */
 static int hf_cms_other = -1;                     /* OtherKeyAttribute */
@@ -121,7 +121,7 @@ static int hf_cms_CertificateSet_item = -1;       /* CertificateChoices */
 static int hf_cms_issuer = -1;                    /* Name */
 static int hf_cms_serialNumber = -1;              /* CertificateSerialNumber */
 static int hf_cms_extendedCertificateInfo = -1;   /* ExtendedCertificateInfo */
-static int hf_cms_signature1 = -1;                /* Signature */
+static int hf_cms_signature = -1;                 /* Signature */
 static int hf_cms_attributes = -1;                /* UnauthAttributes */
 
 /*--- End of included file: packet-cms-hf.c ---*/
@@ -250,8 +250,11 @@ static int dissect_DigestAlgorithmIdentifiers_item(packet_info *pinfo, proto_tre
 static int dissect_digestAlgorithm(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_cms_DigestAlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_cms_digestAlgorithm);
 }
+static int dissect_digestAlgorithm_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_DigestAlgorithmIdentifier(TRUE, tvb, offset, pinfo, tree, hf_cms_digestAlgorithm);
+}
 
-static ber_sequence DigestAlgorithmIdentifiers_set_of[1] = {
+static const ber_sequence DigestAlgorithmIdentifiers_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_DigestAlgorithmIdentifiers_item },
 };
 
@@ -281,7 +284,7 @@ static int dissect_keyIdentifier(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_cms_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_cms_keyIdentifier);
 }
 
-static ber_sequence EncapsulatedContentInfo_sequence[] = {
+static const ber_sequence EncapsulatedContentInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_eContentType },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_eContent },
   { 0, 0, 0, NULL }
@@ -310,7 +313,7 @@ static int dissect_attrType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_cms_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_cms_attrType);
 }
 
-static ber_sequence Attribute_sequence[] = {
+static const ber_sequence Attribute_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_attrType },
   { 0, 0, 0, NULL }
 };
@@ -338,7 +341,7 @@ static int dissect_UnauthAttributes_item(packet_info *pinfo, proto_tree *tree, t
   return dissect_cms_Attribute(FALSE, tvb, offset, pinfo, tree, hf_cms_UnauthAttributes_item);
 }
 
-static ber_sequence UnauthAttributes_set_of[1] = {
+static const ber_sequence UnauthAttributes_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_UnauthAttributes_item },
 };
 
@@ -356,7 +359,7 @@ static int dissect_attributes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_cms_UnauthAttributes(FALSE, tvb, offset, pinfo, tree, hf_cms_attributes);
 }
 
-static ber_sequence ExtendedCertificateInfo_sequence[] = {
+static const ber_sequence ExtendedCertificateInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_certificate },
   { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_attributes },
@@ -394,14 +397,14 @@ dissect_cms_Signature(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
 
   return offset;
 }
-static int dissect_signature1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cms_Signature(FALSE, tvb, offset, pinfo, tree, hf_cms_signature1);
+static int dissect_signature(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_Signature(FALSE, tvb, offset, pinfo, tree, hf_cms_signature);
 }
 
-static ber_sequence ExtendedCertificate_sequence[] = {
+static const ber_sequence ExtendedCertificate_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_extendedCertificateInfo },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signatureAlgorithm },
-  { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_signature1 },
+  { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_signature },
   { 0, 0, 0, NULL }
 };
 
@@ -424,7 +427,7 @@ static const value_string CertificateChoices_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice CertificateChoices_choice[] = {
+static const ber_choice CertificateChoices_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_certificate },
   {   1, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_extendedCertificate_impl },
   {   2, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_attrCert_impl },
@@ -442,7 +445,7 @@ static int dissect_CertificateSet_item(packet_info *pinfo, proto_tree *tree, tvb
   return dissect_cms_CertificateChoices(FALSE, tvb, offset, pinfo, tree, hf_cms_CertificateSet_item);
 }
 
-static ber_sequence CertificateSet_set_of[1] = {
+static const ber_sequence CertificateSet_set_of[1] = {
   { -1/*choice*/ , -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_CertificateSet_item },
 };
 
@@ -460,7 +463,7 @@ static int dissect_certs_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_cms_CertificateSet(TRUE, tvb, offset, pinfo, tree, hf_cms_certs);
 }
 
-static ber_sequence CertificateRevocationLists_set_of[1] = {
+static const ber_sequence CertificateRevocationLists_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_CertificateRevocationLists_item },
 };
 
@@ -475,7 +478,7 @@ static int dissect_crls_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
   return dissect_cms_CertificateRevocationLists(TRUE, tvb, offset, pinfo, tree, hf_cms_crls);
 }
 
-static ber_sequence IssuerAndSerialNumber_sequence[] = {
+static const ber_sequence IssuerAndSerialNumber_sequence[] = {
   { BER_CLASS_ANY, -1, BER_FLAGS_NOOWNTAG, dissect_issuer },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serialNumber },
   { 0, 0, 0, NULL }
@@ -503,6 +506,9 @@ dissect_cms_SubjectKeyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 static int dissect_subjectKeyIdentifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_cms_SubjectKeyIdentifier(FALSE, tvb, offset, pinfo, tree, hf_cms_subjectKeyIdentifier);
 }
+static int dissect_subjectKeyIdentifier_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_SubjectKeyIdentifier(TRUE, tvb, offset, pinfo, tree, hf_cms_subjectKeyIdentifier);
+}
 
 
 static const value_string SignerIdentifier_vals[] = {
@@ -511,9 +517,9 @@ static const value_string SignerIdentifier_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice SignerIdentifier_choice[] = {
+static const ber_choice SignerIdentifier_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_issuerAndSerialNumber },
-  {   1, BER_CLASS_CON, 0, 0, dissect_subjectKeyIdentifier },
+  {   1, BER_CLASS_CON, 0, 0, dissect_subjectKeyIdentifier_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -528,7 +534,7 @@ static int dissect_sid(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
   return dissect_cms_SignerIdentifier(FALSE, tvb, offset, pinfo, tree, hf_cms_sid);
 }
 
-static ber_sequence SignedAttributes_set_of[1] = {
+static const ber_sequence SignedAttributes_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_SignedAttributes_item },
 };
 
@@ -551,11 +557,11 @@ dissect_cms_SignatureValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   return offset;
 }
-static int dissect_signature(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cms_SignatureValue(FALSE, tvb, offset, pinfo, tree, hf_cms_signature);
+static int dissect_signatureValue(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_SignatureValue(FALSE, tvb, offset, pinfo, tree, hf_cms_signatureValue);
 }
 
-static ber_sequence UnsignedAttributes_set_of[1] = {
+static const ber_sequence UnsignedAttributes_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_UnsignedAttributes_item },
 };
 
@@ -570,13 +576,13 @@ static int dissect_unsignedAttrs_impl(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_cms_UnsignedAttributes(TRUE, tvb, offset, pinfo, tree, hf_cms_unsignedAttrs);
 }
 
-static ber_sequence SignerInfo_sequence[] = {
+static const ber_sequence SignerInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
   { -1/*choice*/ , -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sid },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_digestAlgorithm },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_signedAttrs_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_signatureAlgorithm },
-  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_signature },
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_signatureValue },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_unsignedAttrs_impl },
   { 0, 0, 0, NULL }
 };
@@ -592,7 +598,7 @@ static int dissect_SignerInfos_item(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_cms_SignerInfo(FALSE, tvb, offset, pinfo, tree, hf_cms_SignerInfos_item);
 }
 
-static ber_sequence SignerInfos_set_of[1] = {
+static const ber_sequence SignerInfos_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_SignerInfos_item },
 };
 
@@ -607,7 +613,7 @@ static int dissect_signerInfos(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_cms_SignerInfos(FALSE, tvb, offset, pinfo, tree, hf_cms_signerInfos);
 }
 
-static ber_sequence SignedData_sequence[] = {
+static const ber_sequence SignedData_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_digestAlgorithms },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_encapContentInfo },
@@ -625,7 +631,7 @@ dissect_cms_SignedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
   return offset;
 }
 
-static ber_sequence OriginatorInfo_sequence[] = {
+static const ber_sequence OriginatorInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_certs_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_crls_impl },
   { 0, 0, 0, NULL }
@@ -649,9 +655,9 @@ static const value_string RecipientIdentifier_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice RecipientIdentifier_choice[] = {
+static const ber_choice RecipientIdentifier_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_issuerAndSerialNumber },
-  {   1, BER_CLASS_CON, 0, 0, dissect_subjectKeyIdentifier },
+  {   1, BER_CLASS_CON, 0, 0, dissect_subjectKeyIdentifier_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -689,7 +695,7 @@ static int dissect_encryptedKey(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_cms_EncryptedKey(FALSE, tvb, offset, pinfo, tree, hf_cms_encryptedKey);
 }
 
-static ber_sequence KeyTransRecipientInfo_sequence[] = {
+static const ber_sequence KeyTransRecipientInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
   { -1/*choice*/ , -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_rid },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_keyEncryptionAlgorithm },
@@ -721,7 +727,7 @@ static int dissect_publicKey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
   return dissect_cms_BIT_STRING(FALSE, tvb, offset, pinfo, tree, hf_cms_publicKey);
 }
 
-static ber_sequence OriginatorPublicKey_sequence[] = {
+static const ber_sequence OriginatorPublicKey_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_algorithm },
   { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_publicKey },
   { 0, 0, 0, NULL }
@@ -734,8 +740,8 @@ dissect_cms_OriginatorPublicKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 
   return offset;
 }
-static int dissect_originatorKey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cms_OriginatorPublicKey(FALSE, tvb, offset, pinfo, tree, hf_cms_originatorKey);
+static int dissect_originatorKey_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_OriginatorPublicKey(TRUE, tvb, offset, pinfo, tree, hf_cms_originatorKey);
 }
 
 
@@ -746,10 +752,10 @@ static const value_string OriginatorIdentifierOrKey_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice OriginatorIdentifierOrKey_choice[] = {
+static const ber_choice OriginatorIdentifierOrKey_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_issuerAndSerialNumber },
-  {   1, BER_CLASS_CON, 0, 0, dissect_subjectKeyIdentifier },
-  {   2, BER_CLASS_CON, 1, 0, dissect_originatorKey },
+  {   1, BER_CLASS_CON, 0, 0, dissect_subjectKeyIdentifier_impl },
+  {   2, BER_CLASS_CON, 1, 0, dissect_originatorKey_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -791,7 +797,7 @@ static int dissect_other(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
   return dissect_cms_OtherKeyAttribute(FALSE, tvb, offset, pinfo, tree, hf_cms_other);
 }
 
-static ber_sequence RecipientKeyIdentifier_sequence[] = {
+static const ber_sequence RecipientKeyIdentifier_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_subjectKeyIdentifier },
   { BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_date },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_other },
@@ -816,7 +822,7 @@ static const value_string KeyAgreeRecipientIdentifier_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice KeyAgreeRecipientIdentifier_choice[] = {
+static const ber_choice KeyAgreeRecipientIdentifier_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_issuerAndSerialNumber },
   {   1, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_rKeyId_impl },
   { 0, 0, 0, 0, NULL }
@@ -829,12 +835,12 @@ dissect_cms_KeyAgreeRecipientIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_rid1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cms_KeyAgreeRecipientIdentifier(FALSE, tvb, offset, pinfo, tree, hf_cms_rid1);
+static int dissect_rekRid(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_KeyAgreeRecipientIdentifier(FALSE, tvb, offset, pinfo, tree, hf_cms_rekRid);
 }
 
-static ber_sequence RecipientEncryptedKey_sequence[] = {
-  { -1/*choice*/ , -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_rid1 },
+static const ber_sequence RecipientEncryptedKey_sequence[] = {
+  { -1/*choice*/ , -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_rekRid },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_encryptedKey },
   { 0, 0, 0, NULL }
 };
@@ -850,7 +856,7 @@ static int dissect_RecipientEncryptedKeys_item(packet_info *pinfo, proto_tree *t
   return dissect_cms_RecipientEncryptedKey(FALSE, tvb, offset, pinfo, tree, hf_cms_RecipientEncryptedKeys_item);
 }
 
-static ber_sequence RecipientEncryptedKeys_sequence_of[1] = {
+static const ber_sequence RecipientEncryptedKeys_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_RecipientEncryptedKeys_item },
 };
 
@@ -865,7 +871,7 @@ static int dissect_recipientEncryptedKeys(packet_info *pinfo, proto_tree *tree, 
   return dissect_cms_RecipientEncryptedKeys(FALSE, tvb, offset, pinfo, tree, hf_cms_recipientEncryptedKeys);
 }
 
-static ber_sequence KeyAgreeRecipientInfo_sequence[] = {
+static const ber_sequence KeyAgreeRecipientInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_CON, 0, BER_FLAGS_NOTCHKTAG, dissect_originator },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_ukm },
@@ -881,11 +887,11 @@ dissect_cms_KeyAgreeRecipientInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
   return offset;
 }
-static int dissect_kari(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cms_KeyAgreeRecipientInfo(FALSE, tvb, offset, pinfo, tree, hf_cms_kari);
+static int dissect_kari_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_KeyAgreeRecipientInfo(TRUE, tvb, offset, pinfo, tree, hf_cms_kari);
 }
 
-static ber_sequence KEKIdentifier_sequence[] = {
+static const ber_sequence KEKIdentifier_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_keyIdentifier },
   { BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_date },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_other },
@@ -903,7 +909,7 @@ static int dissect_kekid(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
   return dissect_cms_KEKIdentifier(FALSE, tvb, offset, pinfo, tree, hf_cms_kekid);
 }
 
-static ber_sequence KEKRecipientInfo_sequence[] = {
+static const ber_sequence KEKRecipientInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_kekid },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_keyEncryptionAlgorithm },
@@ -918,8 +924,8 @@ dissect_cms_KEKRecipientInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
   return offset;
 }
-static int dissect_kekri(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cms_KEKRecipientInfo(FALSE, tvb, offset, pinfo, tree, hf_cms_kekri);
+static int dissect_kekri_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_KEKRecipientInfo(TRUE, tvb, offset, pinfo, tree, hf_cms_kekri);
 }
 
 
@@ -930,10 +936,10 @@ static const value_string RecipientInfo_vals[] = {
   { 0, NULL }
 };
 
-static ber_choice RecipientInfo_choice[] = {
+static const ber_choice RecipientInfo_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ktri },
-  {   1, BER_CLASS_CON, 1, 0, dissect_kari },
-  {   2, BER_CLASS_CON, 2, 0, dissect_kekri },
+  {   1, BER_CLASS_CON, 1, 0, dissect_kari_impl },
+  {   2, BER_CLASS_CON, 2, 0, dissect_kekri_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -948,7 +954,7 @@ static int dissect_RecipientInfos_item(packet_info *pinfo, proto_tree *tree, tvb
   return dissect_cms_RecipientInfo(FALSE, tvb, offset, pinfo, tree, hf_cms_RecipientInfos_item);
 }
 
-static ber_sequence RecipientInfos_set_of[1] = {
+static const ber_sequence RecipientInfos_set_of[1] = {
   { -1/*choice*/ , -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_RecipientInfos_item },
 };
 
@@ -986,7 +992,7 @@ static int dissect_encryptedContent_impl(packet_info *pinfo, proto_tree *tree, t
   return dissect_cms_EncryptedContent(TRUE, tvb, offset, pinfo, tree, hf_cms_encryptedContent);
 }
 
-static ber_sequence EncryptedContentInfo_sequence[] = {
+static const ber_sequence EncryptedContentInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_contentType },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_contentEncryptionAlgorithm },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_encryptedContent_impl },
@@ -1004,7 +1010,7 @@ static int dissect_encryptedContentInfo(packet_info *pinfo, proto_tree *tree, tv
   return dissect_cms_EncryptedContentInfo(FALSE, tvb, offset, pinfo, tree, hf_cms_encryptedContentInfo);
 }
 
-static ber_sequence UnprotectedAttributes_set_of[1] = {
+static const ber_sequence UnprotectedAttributes_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_UnprotectedAttributes_item },
 };
 
@@ -1019,7 +1025,7 @@ static int dissect_unprotectedAttrs_impl(packet_info *pinfo, proto_tree *tree, t
   return dissect_cms_UnprotectedAttributes(TRUE, tvb, offset, pinfo, tree, hf_cms_unprotectedAttrs);
 }
 
-static ber_sequence EnvelopedData_sequence[] = {
+static const ber_sequence EnvelopedData_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originatorInfo_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_recipientInfos },
@@ -1048,7 +1054,7 @@ static int dissect_digest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
   return dissect_cms_Digest(FALSE, tvb, offset, pinfo, tree, hf_cms_digest);
 }
 
-static ber_sequence DigestedData_sequence[] = {
+static const ber_sequence DigestedData_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_digestAlgorithm },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_encapContentInfo },
@@ -1064,7 +1070,7 @@ dissect_cms_DigestedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
   return offset;
 }
 
-static ber_sequence EncryptedData_sequence[] = {
+static const ber_sequence EncryptedData_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_encryptedContentInfo },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_unprotectedAttrs_impl },
@@ -1090,7 +1096,7 @@ static int dissect_macAlgorithm(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_cms_MessageAuthenticationCodeAlgorithm(FALSE, tvb, offset, pinfo, tree, hf_cms_macAlgorithm);
 }
 
-static ber_sequence AuthAttributes_set_of[1] = {
+static const ber_sequence AuthAttributes_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_AuthAttributes_item },
 };
 
@@ -1117,12 +1123,12 @@ static int dissect_mac(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
   return dissect_cms_MessageAuthenticationCode(FALSE, tvb, offset, pinfo, tree, hf_cms_mac);
 }
 
-static ber_sequence AuthenticatedData_sequence[] = {
+static const ber_sequence AuthenticatedData_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_version },
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originatorInfo_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_recipientInfos },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_macAlgorithm },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_digestAlgorithm },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digestAlgorithm_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_encapContentInfo },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_authenticatedAttributes_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_mac },
@@ -1168,7 +1174,7 @@ dissect_keyAttr_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int of
   return offset;
 }
 
-static ber_sequence OtherKeyAttribute_sequence[] = {
+static const ber_sequence OtherKeyAttribute_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_keyAttrId },
   { BER_CLASS_ANY, 0, 0, dissect_keyAttr_type },
   { 0, 0, 0, NULL }
@@ -1232,7 +1238,7 @@ dissect_hf_cms_contentType_content(packet_info *pinfo, proto_tree *tree, tvbuff_
   return offset;
 }
 
-static ber_sequence ContentInfo_sequence[] = {
+static const ber_sequence ContentInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_hf_cms_contentType },
   { BER_CLASS_ANY, 0, 0, dissect_hf_cms_contentType_content },
   { 0, 0, 0, NULL }
@@ -1288,11 +1294,11 @@ void proto_register_cms(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "SignedData/signerInfos", HFILL }},
     { &hf_cms_DigestAlgorithmIdentifiers_item,
-      { "Item(##)", "cms.DigestAlgorithmIdentifiers_item",
+      { "Item", "cms.DigestAlgorithmIdentifiers_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "DigestAlgorithmIdentifiers/_item", HFILL }},
     { &hf_cms_SignerInfos_item,
-      { "Item(##)", "cms.SignerInfos_item",
+      { "Item", "cms.SignerInfos_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "SignerInfos/_item", HFILL }},
     { &hf_cms_eContentType,
@@ -1319,7 +1325,7 @@ void proto_register_cms(void) {
       { "signatureAlgorithm", "cms.signatureAlgorithm",
         FT_NONE, BASE_NONE, NULL, 0,
         "", HFILL }},
-    { &hf_cms_signature,
+    { &hf_cms_signatureValue,
       { "signature", "cms.signature",
         FT_BYTES, BASE_HEX, NULL, 0,
         "SignerInfo/signature", HFILL }},
@@ -1336,11 +1342,11 @@ void proto_register_cms(void) {
         FT_BYTES, BASE_HEX, NULL, 0,
         "", HFILL }},
     { &hf_cms_SignedAttributes_item,
-      { "Item(##)", "cms.SignedAttributes_item",
+      { "Item", "cms.SignedAttributes_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "SignedAttributes/_item", HFILL }},
     { &hf_cms_UnsignedAttributes_item,
-      { "Item(##)", "cms.UnsignedAttributes_item",
+      { "Item", "cms.UnsignedAttributes_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "UnsignedAttributes/_item", HFILL }},
     { &hf_cms_attrType,
@@ -1368,7 +1374,7 @@ void proto_register_cms(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "OriginatorInfo/certs", HFILL }},
     { &hf_cms_RecipientInfos_item,
-      { "Item(##)", "cms.RecipientInfos_item",
+      { "Item", "cms.RecipientInfos_item",
         FT_UINT32, BASE_DEC, VALS(RecipientInfo_vals), 0,
         "RecipientInfos/_item", HFILL }},
     { &hf_cms_contentType,
@@ -1384,7 +1390,7 @@ void proto_register_cms(void) {
         FT_BYTES, BASE_HEX, NULL, 0,
         "EncryptedContentInfo/encryptedContent", HFILL }},
     { &hf_cms_UnprotectedAttributes_item,
-      { "Item(##)", "cms.UnprotectedAttributes_item",
+      { "Item", "cms.UnprotectedAttributes_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "UnprotectedAttributes/_item", HFILL }},
     { &hf_cms_ktri,
@@ -1436,10 +1442,10 @@ void proto_register_cms(void) {
         FT_BYTES, BASE_HEX, NULL, 0,
         "OriginatorPublicKey/publicKey", HFILL }},
     { &hf_cms_RecipientEncryptedKeys_item,
-      { "Item[##]", "cms.RecipientEncryptedKeys_item",
+      { "Item", "cms.RecipientEncryptedKeys_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "RecipientEncryptedKeys/_item", HFILL }},
-    { &hf_cms_rid1,
+    { &hf_cms_rekRid,
       { "rid", "cms.rid",
         FT_UINT32, BASE_DEC, VALS(KeyAgreeRecipientIdentifier_vals), 0,
         "RecipientEncryptedKey/rid", HFILL }},
@@ -1484,15 +1490,15 @@ void proto_register_cms(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "AuthenticatedData/unauthenticatedAttributes", HFILL }},
     { &hf_cms_AuthAttributes_item,
-      { "Item(##)", "cms.AuthAttributes_item",
+      { "Item", "cms.AuthAttributes_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "AuthAttributes/_item", HFILL }},
     { &hf_cms_UnauthAttributes_item,
-      { "Item(##)", "cms.UnauthAttributes_item",
+      { "Item", "cms.UnauthAttributes_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "UnauthAttributes/_item", HFILL }},
     { &hf_cms_CertificateRevocationLists_item,
-      { "Item(##)", "cms.CertificateRevocationLists_item",
+      { "Item", "cms.CertificateRevocationLists_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "CertificateRevocationLists/_item", HFILL }},
     { &hf_cms_certificate,
@@ -1508,7 +1514,7 @@ void proto_register_cms(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "CertificateChoices/attrCert", HFILL }},
     { &hf_cms_CertificateSet_item,
-      { "Item(##)", "cms.CertificateSet_item",
+      { "Item", "cms.CertificateSet_item",
         FT_UINT32, BASE_DEC, VALS(CertificateChoices_vals), 0,
         "CertificateSet/_item", HFILL }},
     { &hf_cms_issuer,
@@ -1523,7 +1529,7 @@ void proto_register_cms(void) {
       { "extendedCertificateInfo", "cms.extendedCertificateInfo",
         FT_NONE, BASE_NONE, NULL, 0,
         "ExtendedCertificate/extendedCertificateInfo", HFILL }},
-    { &hf_cms_signature1,
+    { &hf_cms_signature,
       { "signature", "cms.signature",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ExtendedCertificate/signature", HFILL }},

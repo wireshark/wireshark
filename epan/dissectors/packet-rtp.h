@@ -28,6 +28,7 @@
  */
 
 struct _rtp_info {
+	unsigned int  info_version;
 	gboolean      info_padding_set;
 	gboolean      info_marker_set;
 	unsigned int  info_payload_type;

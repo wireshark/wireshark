@@ -30,11 +30,6 @@
 
 #include <glib.h>
 
-#include <epan/frame_data.h>
-
-/* Range parser variables */
-#define MaxRange  30
-
 typedef struct range_admin_tag {
     guint32 low;
     guint32 high;
@@ -42,15 +37,32 @@ typedef struct range_admin_tag {
 
 typedef struct range {
     /* user specified range(s) */
-    guint           nranges;        /* number of entries in ranges (0 based) */
-    range_admin_t   ranges[MaxRange];
+    guint           nranges;   /* number of entries in ranges */
+    range_admin_t   ranges[1]; /* variable-length array */
 } range_t;
 
-extern void range_init(range_t *range);
+/*
+ * Return value from range_convert_str().
+ */
+typedef enum {
+    CVT_NO_ERROR,
+    CVT_SYNTAX_ERROR,
+    CVT_NUMBER_TOO_BIG
+} convert_ret_t;	
 
-extern void range_convert_str(range_t *range, const gchar *es,
+extern range_t *range_empty(void);
+
+extern convert_ret_t range_convert_str(range_t **range, const gchar *es,
     guint32 max_value);
 
 extern gboolean value_is_in_range(range_t *range, guint32 val);
+
+extern gboolean ranges_are_equal(range_t *a, range_t *b);
+
+extern void range_foreach(range_t *range, void (*callback)(guint32 val));
+
+extern char *range_convert_range(range_t *range);
+
+extern range_t *range_copy(range_t *src);
 
 #endif /* __RANGE_H__ */

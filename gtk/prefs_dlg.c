@@ -202,6 +202,21 @@ pref_show(pref_t *pref, gpointer user_data)
 					    pref->saved_val.string);
     break;
 
+  case PREF_RANGE:
+  {
+    char *range_string;
+
+    if (pref->saved_val.range != NULL)
+      g_free(pref->saved_val.range);
+    pref->saved_val.range = range_copy(*pref->varp.range);
+    range_string = range_convert_range(*pref->varp.range);
+    pref->control = create_preference_entry(main_tb, pref->ordinal,
+					    label_string, pref->description,
+					    range_string);
+    g_free(range_string);
+    break;
+  }
+
   case PREF_OBSOLETE:
     g_assert_not_reached();
     break;
@@ -213,7 +228,7 @@ pref_show(pref_t *pref, gpointer user_data)
 
 #define MAX_TREE_NODE_NAME_LEN 64
 /* show prefs page for each registered module (protocol) */
-static void
+static guint
 module_prefs_show(module_t *module, gpointer user_data)
 {
   struct ct_struct *cts = user_data;
@@ -243,7 +258,7 @@ module_prefs_show(module_t *module, gpointer user_data)
        * nothing under it that will be displayed, don't put it into
        * the window.
        */
-      return;
+      return 0;
     }
   }
 
@@ -334,6 +349,8 @@ module_prefs_show(module_t *module, gpointer user_data)
     /* Show 'em what we got */
     gtk_widget_show_all(main_vb);
   }
+
+  return 0;
 }
 
 
@@ -853,6 +870,68 @@ create_preference_entry(GtkWidget *main_tb, int table_position,
 }
 
 static guint
+pref_check(pref_t *pref, gpointer user_data)
+{
+  const char *str_val;
+  char *p;
+  guint uval;
+  pref_t **badpref = user_data;
+
+  /* Fetch the value of the preference, and check whether it's valid. */
+  switch (pref->type) {
+
+  case PREF_UINT:
+    str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
+    uval = strtoul(str_val, &p, pref->info.base);
+    if (p == str_val || *p != '\0') {
+      *badpref = pref;
+      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+    }
+    break;
+
+  case PREF_BOOL:
+    /* Value can't be bad. */
+    break;
+
+  case PREF_ENUM:
+    /* Value can't be bad. */
+    break;
+
+  case PREF_STRING:
+    /* Value can't be bad. */
+    break;
+
+  case PREF_RANGE:
+    str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
+
+    if (strlen(str_val) != 0) {
+	range_t *newrange;
+
+	if (range_convert_str(&newrange, str_val, pref->info.max_value) !=
+	    CVT_NO_ERROR) {
+	    *badpref = pref;
+	    return PREFS_SET_SYNTAX_ERR;	/* range was bad */
+	}
+	g_free(newrange);
+    }
+    break;
+
+  case PREF_OBSOLETE:
+    g_assert_not_reached();
+    break;
+  }
+  return 0;
+}
+
+static guint
+module_prefs_check(module_t *module, gpointer user_data)
+{
+  /* For all preferences in this module, fetch its value from this
+     module's notebook page and check whether it's valid. */
+  return prefs_pref_foreach(module, pref_check, user_data);
+}
+
+static guint
 pref_fetch(pref_t *pref, gpointer user_data)
 {
   const char *str_val;
@@ -911,6 +990,30 @@ pref_fetch(pref_t *pref, gpointer user_data)
     }
     break;
 
+  case PREF_RANGE:
+  {
+    range_t *newrange;
+    convert_ret_t ret;
+
+    str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
+    ret = range_convert_str(&newrange, str_val, pref->info.max_value);
+    if (ret != CVT_NO_ERROR)
+#if 0
+      return PREFS_SET_SYNTAX_ERR;	/* range was bad */
+#else
+      return 0;	/* XXX - should fail */
+#endif
+
+    if (!ranges_are_equal(*pref->varp.range, newrange)) {
+      *pref_changed_p = TRUE;
+      g_free(*pref->varp.range);
+      *pref->varp.range = newrange;
+    } else
+      g_free(newrange);
+
+    break;
+  }
+
   case PREF_OBSOLETE:
     g_assert_not_reached();
     break;
@@ -918,7 +1021,7 @@ pref_fetch(pref_t *pref, gpointer user_data)
   return 0;
 }
 
-static void
+static guint
 module_prefs_fetch(module_t *module, gpointer user_data)
 {
   gboolean *must_redissect_p = user_data;
@@ -933,6 +1036,8 @@ module_prefs_fetch(module_t *module, gpointer user_data)
      could cause packets to be dissected differently. */
   if (module->prefs_changed)
     *must_redissect_p = TRUE;
+
+  return 0;	/* keep fetching module preferences */
 }
 
 static guint
@@ -956,6 +1061,13 @@ pref_clean(pref_t *pref, gpointer user_data _U_)
     }
     break;
 
+  case PREF_RANGE:
+    if (pref->saved_val.range != NULL) {
+      g_free(pref->saved_val.range);
+      pref->saved_val.range = NULL;
+    }
+    break;
+
   case PREF_OBSOLETE:
     g_assert_not_reached();
     break;
@@ -963,19 +1075,46 @@ pref_clean(pref_t *pref, gpointer user_data _U_)
   return 0;
 }
 
-static void
+static guint
 module_prefs_clean(module_t *module, gpointer user_data _U_)
 {
   /* For all preferences in this module, clean up any cruft allocated for
      use by the GUI code. */
   prefs_pref_foreach(module, pref_clean, NULL);
+  return 0;	/* keep cleaning modules */
 }
 
-
 /* fetch all pref values from all pages */
-static void
+static gboolean
 prefs_main_fetch_all(GtkWidget *dlg, gboolean *must_redissect)
 {
+  pref_t *badpref;
+
+  /* First, check that the values are all valid. */
+  /* XXX - check the non-registered preferences too */
+  switch (prefs_modules_foreach(module_prefs_check, (gpointer)&badpref)) {
+
+  case PREFS_SET_SYNTAX_ERR:
+    switch (badpref->type) {
+
+    case PREF_UINT:
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "The value for \"%s\" is not a valid number.",
+                    badpref->title);
+      return FALSE;
+
+    case PREF_RANGE:
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "The value for \"%s\" is not a valid range.",
+                    badpref->title);
+      return FALSE;
+
+    default:
+      g_assert_not_reached();
+      break;
+    }
+  }
+
   /* Fetch the preferences (i.e., make sure all the values set in all of
      the preferences panes have been copied to "prefs" and the registered
      preferences). */
@@ -998,8 +1137,9 @@ prefs_main_fetch_all(GtkWidget *dlg, gboolean *must_redissect)
   nameres_prefs_fetch(OBJECT_GET_DATA(dlg, E_NAMERES_PAGE_KEY));
 
   prefs_modules_foreach(module_prefs_fetch, must_redissect);
-}
 
+  return TRUE;
+}
 
 /* apply all pref values to the real world */
 static void
@@ -1066,7 +1206,8 @@ prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 {
   gboolean must_redissect = FALSE;
 
-  prefs_main_fetch_all(parent_w, &must_redissect);
+  if (!prefs_main_fetch_all(parent_w, &must_redissect))
+    return; /* Errors in some preference setting */
 
   prefs_main_apply_all(parent_w);
 
@@ -1084,7 +1225,8 @@ prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
 {
   gboolean must_redissect = FALSE;
 
-  prefs_main_fetch_all(parent_w, &must_redissect);
+  if (!prefs_main_fetch_all(parent_w, &must_redissect))
+    return; /* Errors in some preference setting */
 
   prefs_main_apply_all(parent_w);
 
@@ -1102,7 +1244,8 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
   char *pf_dir_path;
   char *pf_path;
 
-  prefs_main_fetch_all(parent_w, &must_redissect);
+  if (!prefs_main_fetch_all(parent_w, &must_redissect))
+    return; /* Errors in some preference setting */
 
   /* Create the directory that holds personal configuration files, if
      necessary.  */
@@ -1181,6 +1324,14 @@ pref_revert(pref_t *pref, gpointer user_data)
     }
     break;
 
+  case PREF_RANGE:
+    if (!ranges_are_equal(*pref->varp.range, pref->saved_val.range)) {
+      *pref_changed_p = TRUE;
+      g_free(*pref->varp.range);
+      *pref->varp.range = range_copy(pref->saved_val.range);
+    }
+    break;
+
   case PREF_OBSOLETE:
     g_assert_not_reached();
     break;
@@ -1188,7 +1339,7 @@ pref_revert(pref_t *pref, gpointer user_data)
   return 0;
 }
 
-static void
+static guint
 module_prefs_revert(module_t *module, gpointer user_data)
 {
   gboolean *must_redissect_p = user_data;
@@ -1204,6 +1355,7 @@ module_prefs_revert(module_t *module, gpointer user_data)
      could cause packets to be dissected differently. */
   if (module->prefs_changed)
     *must_redissect_p = TRUE;
+  return 0;	/* keep processing modules */
 }
 
 /* cancel button pressed, revert prefs to saved and exit dialog */
@@ -1256,14 +1408,17 @@ struct properties_data {
   module_t *module;
 };
 
-static void
+static guint
 module_search_properties(module_t *module, gpointer user_data)
 {
   struct properties_data *p = (struct properties_data *)user_data;
 
   /* If this module has the specified title, remember it. */
-  if (strcmp(module->title, p->title) == 0)
+  if (strcmp(module->title, p->title) == 0) {
     p->module = module;
+    return 1;	/* stops the search */
+  }
+  return 0;
 }
 
 void

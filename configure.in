@@ -357,7 +357,7 @@ if test "$GTK_OK" = "no" ; then
 	ethereal_man=""
 	# Honor GLIB_CFLAGS
 	if test "x$enable_gtk2" = "xyes" ; then
-		AM_PATH_GLIB_2_0(2.0.0, CFLAGS="$CFLAGS $GLIB_CFLAGS", AC_MSG_ERROR(GLib distribution not found.), gmodule)
+		AM_PATH_GLIB_2_0(2.0.0, CFLAGS="$CFLAGS $GLIB_CFLAGS", AC_MSG_ERROR(GLib2 distribution not found.), gmodule)
 	else
 		AM_PATH_GLIB(1.2.0, CFLAGS="$CFLAGS $GLIB_CFLAGS", AC_MSG_ERROR(GLib distribution not found.), gmodule)
 	fi
@@ -892,12 +892,12 @@ fi
 AC_SUBST(SNMP_LIBS)
 
 
-dnl kerberos/heimdal check
-AC_MSG_CHECKING(whether to use kerberos/heimdal)
+dnl kerberos check
+AC_MSG_CHECKING(whether to use kerberos)
 
 AC_ARG_WITH(krb5,
 changequote(<<, >>)dnl
-<<  --with-krb5[=DIR]       use kerberos/heimdal (located in directory DIR, if supplied) to use in kerberos dissection  [default=yes]>>,
+<<  --with-krb5[=DIR]       use kerberos (located in directory DIR, if supplied) to use in kerberos dissection  [default=yes]>>,
 changequote([, ])dnl
 [
 	if test $withval = no
@@ -912,7 +912,7 @@ changequote([, ])dnl
 	fi
 ],[
 	#
-	# Use kerberos/heimdal if specified, otherwise don't.
+	# Use kerberos if specified, otherwise don't.
 	#
 	want_krb5=ifpresent
 	krb5_dir=
@@ -1281,7 +1281,7 @@ fi
 if test "x$want_krb5" = "xno" ; then
 	krb5_message="no"
 else
-	krb5_message="yes (heimdal)"
+	krb5_message="yes ($ac_krb5_version)"
 fi
 
 if test "x$have_good_adns" = "xyes" ; then

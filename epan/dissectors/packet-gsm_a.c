@@ -11363,6 +11363,7 @@ proto_reg_handoff_gsm_a(void)
     dissector_add("bssap.pdu_type",  BSSAP_PDU_TYPE_BSSMAP, bssmap_handle);
     dissector_add("bssap.pdu_type",  BSSAP_PDU_TYPE_DTAP, dtap_handle);
     dissector_add("ranap.nas_pdu",  BSSAP_PDU_TYPE_DTAP, dtap_handle);
+    dissector_add("llcgprs.sapi", 1, dtap_handle);
 
     data_handle = find_dissector("data");
 }

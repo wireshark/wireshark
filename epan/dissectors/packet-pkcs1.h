@@ -1,15 +1,14 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-pkcs1.h                                                             */
+/* ./packet-pkcs1.h                                                           */
 /* ../../tools/asn2eth.py -X -b -p pkcs1 -c pkcs1.cnf -s packet-pkcs1-template PKCS1.asn */
 
 /* Input file: packet-pkcs1-template.h */
-/* Include files: packet-pkcs1-exp.h, packet-pkcs1-valexp.h */
 
 /* packet-pkcs1.h
  * Routines for PKCS#1/RFC2313 packet dissection
  *
- * $Id: packet-pkcs1-template.h,v 1.1 2004/05/24 08:42:29 sahlberg Exp $
+ * $Id: packet-pkcs1-template.h 12203 2004-10-05 09:18:55Z guy $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,11 +34,6 @@
 
 
 /*--- Included file: packet-pkcs1-exp.h ---*/
-
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* packet-pkcs1-exp.h                                                         */
-/* ../../tools/asn2eth.py -X -b -p pkcs1 -c pkcs1.cnf -s packet-pkcs1-template PKCS1.asn */
 
 int dissect_pkcs1_RSAPublicKey(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_pkcs1_RSAPrivateKey(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);

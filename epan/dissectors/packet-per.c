@@ -329,12 +329,6 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	if((max_len!=-1)&&(max_len<2)){
 		byte_aligned=FALSE;
 	}
-	if(!length){  
-		/* there is no string at all, so dont do any byte alignment */
-		byte_aligned=FALSE;
-	}
-
-
 
 	/* xx.x */
 	length=max_len;
@@ -357,6 +351,11 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 		offset=dissect_per_constrained_integer(tvb, offset, pinfo,
 			etr, hf_per_octet_string_length, min_len, max_len,
 			&length, NULL, FALSE);
+	}
+
+	if(!length){
+		/* there is no string at all, so dont do any byte alignment */
+		byte_aligned=FALSE;
 	}
 
 	if(byte_aligned){

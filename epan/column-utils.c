@@ -195,7 +195,7 @@ col_set_str(column_info *cinfo, gint el, gchar* str)
 {
   int i;
   int fence;
-  size_t len, max_len;
+  size_t max_len;
 
   if (el == COL_INFO)
 	max_len = COL_MAX_INFO_LEN;
@@ -213,8 +213,7 @@ col_set_str(column_info *cinfo, gint el, gchar* str)
          */
         COL_CHECK_APPEND(cinfo, i, max_len);
 
-        len = strlen(cinfo->col_buf[i]);
-        strncat(cinfo->col_buf[i], str, max_len - len);
+        strncpy(&cinfo->col_buf[i][fence], str, max_len - fence);
         cinfo->col_buf[i][max_len - 1] = 0;
       } else {
         /*

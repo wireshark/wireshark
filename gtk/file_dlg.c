@@ -78,6 +78,7 @@ static void file_color_import_ok_cb(GtkWidget *w, gpointer fs);
 static void file_color_import_destroy_cb(GtkWidget *win, gpointer user_data);
 static void file_color_export_ok_cb(GtkWidget *w, gpointer fs);
 static void file_color_export_destroy_cb(GtkWidget *win, gpointer user_data);
+static void set_file_type_list(GtkWidget *option_menu);
 
 #define E_FILE_M_RESOLVE_KEY	  "file_dlg_mac_resolve_key"
 #define E_FILE_N_RESOLVE_KEY	  "file_dlg_network_resolve_key"
@@ -107,6 +108,13 @@ static void file_color_export_destroy_cb(GtkWidget *win, gpointer user_data);
  */
 static GtkWidget *file_save_as_w;
 
+/* XXX - can we make these not be static? */
+static packet_range_t range;
+static gboolean color_marked;
+static int filetype;
+static GtkWidget *cfmark_cb;
+static GtkWidget *ft_om;
+static GtkWidget *range_tb;
 
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
@@ -731,7 +739,7 @@ file_open_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 }
 
 /*
- * Keep a static pointer to the current "Marge Capture File" window, if
+ * Keep a static pointer to the current "Merge Capture File" window, if
  * any, so that if somebody tries to do "File:Merge" while there's already
  * an "Merge Capture File" window up, we just pop up the existing one,
  * rather than creating a new one.
@@ -742,8 +750,9 @@ static GtkWidget *file_merge_w;
 void
 file_merge_cmd(GtkWidget *w)
 {
-  GtkWidget	*main_hb, *main_vb, *filter_hbox, *filter_bt, *filter_te,
-  		*prepend_rb, *chrono_rb, *append_rb, *prev;
+  GtkWidget	*main_hb, *main_vb, *ft_hb, *ft_lb, *filter_hbox,
+		*filter_bt, *filter_te, *prepend_rb, *chrono_rb,
+		*append_rb, *prev;
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
 #endif
@@ -761,6 +770,9 @@ file_merge_cmd(GtkWidget *w)
     reactivate_window(file_merge_w);
     return;
   }
+
+  /* Default to saving all packets, in the file's current format. */
+  filetype = cfile.cd_t;
 
   file_merge_w = file_selection_new("Ethereal: Merge with Capture File",
                                    FILE_SELECTION_OPEN);
@@ -809,6 +821,23 @@ file_merge_cmd(GtkWidget *w)
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_box_pack_start(GTK_BOX(main_hb), main_vb, FALSE, FALSE, 0);
   gtk_widget_show(main_vb);
+
+  /* File type row */
+  range_tb = NULL;
+  ft_hb = gtk_hbox_new(FALSE, 3);
+  gtk_container_add(GTK_CONTAINER(main_vb), ft_hb);
+  gtk_widget_show(ft_hb);
+
+  ft_lb = gtk_label_new("Merged output file type:");
+  gtk_box_pack_start(GTK_BOX(ft_hb), ft_lb, FALSE, FALSE, 0);
+  gtk_widget_show(ft_lb);
+
+  ft_om = gtk_option_menu_new();
+
+  /* Generate the list of file types we can save. */
+  set_file_type_list(ft_om);
+  gtk_box_pack_start(GTK_BOX(ft_hb), ft_om, FALSE, FALSE, 0);
+  gtk_widget_show(ft_om);
 
   filter_hbox = gtk_hbox_new(FALSE, 1);
   gtk_container_border_width(GTK_CONTAINER(filter_hbox), 0);
@@ -995,19 +1024,19 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
       /* chonological order */
       in_filenames[0] = cfile.filename;
       in_filenames[1] = cf_name;
-      merge_ok = merge_n_files(out_fd, 2, in_filenames, FALSE, &err);
+      merge_ok = merge_n_files(out_fd, 2, in_filenames, filetype, FALSE, &err);
   } else {
       rb = OBJECT_GET_DATA(w, E_MERGE_PREPEND_KEY);
       if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rb))) {
           /* prepend file */
           in_filenames[0] = cfile.filename;
           in_filenames[1] = cf_name;
-          merge_ok = merge_n_files(out_fd, 2, in_filenames, TRUE, &err);
+          merge_ok = merge_n_files(out_fd, 2, in_filenames, filetype, TRUE, &err);
       } else {
           /* append file */
           in_filenames[0] = cf_name;
           in_filenames[1] = cfile.filename;
-          merge_ok = merge_n_files(out_fd, 2, in_filenames, TRUE, &err);
+          merge_ok = merge_n_files(out_fd, 2, in_filenames, filetype, TRUE, &err);
       }
   }
 
@@ -1123,14 +1152,6 @@ file_save_cmd_cb(GtkWidget *w, gpointer data) {
   file_save_as_cmd_cb(w, data);
 }
 
-/* XXX - can we make these not be static? */
-static packet_range_t range;
-static gboolean color_marked;
-static int filetype;
-static GtkWidget *cfmark_cb;
-static GtkWidget *ft_om;
-static GtkWidget *range_tb;
-
 static gboolean
 can_save_with_wiretap(int ft)
 {
@@ -1203,7 +1224,8 @@ select_file_type_cb(GtkWidget *w _U_, gpointer data)
   if (filetype != new_filetype) {
     /* We can select only the filtered or marked packets to be saved if we can
        use Wiretap to save the file. */
-    range_set_displayed_sensitive(range_tb, can_save_with_wiretap(new_filetype));
+    if (range_tb != NULL)
+       range_set_displayed_sensitive(range_tb, can_save_with_wiretap(new_filetype));
     filetype = new_filetype;
     file_set_save_marked_sensitive();
   }
@@ -1385,6 +1407,24 @@ file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
         return;
   }
 
+  /* Check whether the range is valid. */
+  if (!range_check_validity(&range)) {
+    /* The range isn't valid; don't dismiss the open dialog box,
+       just leave it around so that the user can, after they
+       dismiss the alert box popped up for the error, try again. */
+    g_free(cf_name);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+    /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
+     * as this will prevent the user from closing the now existing error
+     * message, simply close the dialog (this is the best we can do here). */
+    if (file_save_as_w)
+      window_destroy(GTK_WIDGET (fs));
+#else
+    gtk_widget_show(GTK_WIDGET (fs));
+#endif
+    return;
+  }
+
   /* don't show the dialog while saving */
   gtk_widget_hide(GTK_WIDGET (fs));
 
@@ -1396,9 +1436,9 @@ file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
        dismiss the alert box popped up for the error, try again. */
     g_free(cf_name);
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
-    /* as we cannot start a new event loop (using gtk_dialog_run()), as this 
-     * will prevent the user from closing the now existing error message, 
-     * simply close the dialog (this is the best we can do here). */
+    /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
+     * as this will prevent the user from closing the now existing error
+     * message, simply close the dialog (this is the best we can do here). */
     if (file_save_as_w)
       window_destroy(GTK_WIDGET (fs));
 #else
