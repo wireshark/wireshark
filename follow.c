@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.25 2000/08/11 22:18:12 deniel Exp $
+ * $Id: follow.c,v 1.26 2000/08/24 21:05:16 deniel Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -242,7 +242,7 @@ reassemble_tcp( u_long sequence, u_long length, const char* data,
   }
   else {
     /* out of order packet */
-    if( sequence > seq[src_index] ) {
+    if(data_length > 0 && sequence > seq[src_index] ) {
       tmp_frag = (tcp_frag *)malloc( sizeof( tcp_frag ) );
       tmp_frag->data = (u_char *)malloc( data_length );
       tmp_frag->seq = sequence;
