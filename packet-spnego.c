@@ -1,10 +1,10 @@
 /* packet-spnego.c
  * Routines for the simple and protected GSS-API negotiation mechanism
- * as described in rfc2478.
+ * as described in RFC 2478.
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.33 2002/09/08 02:45:26 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.34 2002/09/08 22:47:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,7 +40,7 @@
 #include "format-oid.h"
 #include "packet-gssapi.h"
 #include "packet-kerberos.h"
-#include "epan/conversation.h"
+#include <epan/conversation.h>
 
 #define SPNEGO_negTokenInit 0
 #define SPNEGO_negTokenTarg 1
@@ -128,7 +128,6 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_item *item;
 	proto_tree *subtree;
-	int length = tvb_length_remaining(tvb, 0);
 	int ret, offset = 0;
 	ASN1_SCK hnd;
 	gboolean def;
@@ -139,7 +138,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	tvbuff_t *krb5_tvb;
 
 	item = proto_tree_add_item(tree, hf_spnego_krb5, tvb, offset, 
-				   length, FALSE);
+				   -1, FALSE);
 
 	subtree = proto_item_add_subtree(item, ett_spnego_krb5);
 
@@ -219,19 +218,12 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	return;
 }
 
-/*
- * We need to keep this around for other routines to use.
- * We store it in the per-protocol conversation data and 
- * retrieve it in the main dissector.
- */
-
-static dissector_handle_t next_level_dissector = NULL;
-
 /* Spnego stuff from here */
 
 static int
 dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-			 proto_tree *tree, ASN1_SCK *hnd)
+			 proto_tree *tree, ASN1_SCK *hnd,
+			 dissector_handle_t *next_level_dissector_p)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
@@ -240,6 +232,7 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	subid_t *oid;
 	gchar *oid_string;
 	int ret;
+	gboolean saw_mechanism = FALSE;
 
 	/*
 	 * MechTypeList ::= SEQUENCE OF MechType
@@ -293,6 +286,23 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	  g_free(oid_string);
 
+	  /*
+	   * Tell our caller the first mechanism we see, so that if
+	   * this is a negTokenInit with a mechToken, it can interpret
+	   * the mechToken according to the first mechType.  (There
+	   * might not have been any indication of the mechType
+	   * in prior frames, so we can't necessarily use the
+	   * mechanism from the conversation; i.e., a negTokenInit
+	   * can contain the initial security token for the desired
+	   * mechanism of the initiator - that's the first mechanism
+	   * in the list.)
+	   */
+	  if (!saw_mechanism) {
+	    if (value)
+	      *next_level_dissector_p = value->handle;
+	    saw_mechanism = TRUE;
+	  }
+
 	  offset += nbytes;
 	  len1 -= nbytes;
 
@@ -344,7 +354,8 @@ dissect_spnego_reqFlags(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_spnego_mechToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-			 proto_tree *tree, ASN1_SCK *hnd)
+			 proto_tree *tree, ASN1_SCK *hnd,
+			 dissector_handle_t next_level_dissector)
 {
         proto_item *item;
 	proto_tree *subtree;
@@ -397,7 +408,8 @@ dissect_spnego_mechToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_spnego_mechListMIC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-			   proto_tree *tree, ASN1_SCK *hnd)
+			   proto_tree *tree, ASN1_SCK *hnd,
+			   dissector_handle_t next_level_dissector)
 {
 	guint len1, cls, con, tag;
 	int ret;
@@ -472,17 +484,17 @@ dissect_spnego_mechListMIC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-			    proto_tree *tree, ASN1_SCK *hnd)
+			    proto_tree *tree, ASN1_SCK *hnd,
+			    dissector_handle_t *next_level_dissector_p)
 {
 	proto_item *item;
 	proto_tree *subtree;
 	gboolean def;
 	guint len1, len, cls, con, tag;
 	int ret;
-	int length = tvb_length_remaining(tvb, offset);
 
 	item = proto_tree_add_item( tree, hf_spnego_negtokeninit, tvb, offset,
-				    length, FALSE);
+				    -1, FALSE);
 	subtree = proto_item_add_subtree(item, ett_spnego_negtokeninit);
 
 	/*
@@ -544,7 +556,8 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	  case SPNEGO_mechTypes:
 
 	    offset = dissect_spnego_mechTypes(tvb, offset, pinfo,
-					      subtree, hnd);
+					      subtree, hnd,
+					      next_level_dissector_p);
 
 	    break;
 
@@ -557,13 +570,13 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	  case SPNEGO_mechToken:
 
 	    offset = dissect_spnego_mechToken(tvb, offset, pinfo, subtree, 
-					      hnd);
+					      hnd, *next_level_dissector_p);
 	    break;
 
 	  case SPNEGO_mechListMIC:
 
 	    offset = dissect_spnego_mechListMIC(tvb, offset, pinfo, subtree,
-						hnd);
+						hnd, *next_level_dissector_p);
 	    break;
 
 	  default:
@@ -627,7 +640,8 @@ dissect_spnego_negResult(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-			     proto_tree *tree, ASN1_SCK *hnd)
+			     proto_tree *tree, ASN1_SCK *hnd,
+			     dissector_handle_t *next_level_dissector_p)
 {
 	int ret;
 	guint oid_len, nbytes;
@@ -667,9 +681,8 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	/* Should check for an unrecognized OID ... */
 
-	next_level_dissector = NULL; /* FIXME: Is this right? */
-
-	if (value) next_level_dissector = value->handle;
+	if (value)
+	  *next_level_dissector_p = value->handle;
 
 	/*
 	 * Now, we need to save this in per proto info in the
@@ -687,7 +700,7 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 
 	  conversation_add_proto_data(conversation, proto_spnego, 
-				      next_level_dissector);
+				      *next_level_dissector_p);
 	}
 	else {
 
@@ -699,7 +712,8 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_spnego_responseToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-			     proto_tree *tree, ASN1_SCK *hnd)
+			     proto_tree *tree, ASN1_SCK *hnd,
+			     dissector_handle_t next_level_dissector)
 {
 	gboolean def;
 	int ret;
@@ -747,7 +761,8 @@ dissect_spnego_responseToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-			    proto_tree *tree, ASN1_SCK *hnd)
+			    proto_tree *tree, ASN1_SCK *hnd,
+			    dissector_handle_t *next_level_dissector_p)
 
 {
 	proto_item *item;
@@ -755,10 +770,9 @@ dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	gboolean def;
 	int ret;
 	guint len1, len, cls, con, tag;
-	int length = tvb_length_remaining(tvb, offset);
 
 	item = proto_tree_add_item( tree, hf_spnego_negtokentarg, tvb, offset,
-				    length, FALSE);
+				    -1, FALSE);
 	subtree = proto_item_add_subtree(item, ett_spnego_negtokentarg);
 
 	/* 
@@ -829,20 +843,20 @@ dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	  case SPNEGO_supportedMech:
 
 	    offset = dissect_spnego_supportedMech(tvb, offset, pinfo, subtree,
-						  hnd);
+						  hnd, next_level_dissector_p);
 
 	    break;
 
 	  case SPNEGO_responseToken:
 
 	    offset = dissect_spnego_responseToken(tvb, offset, pinfo, subtree,
-						  hnd);
+						  hnd, *next_level_dissector_p);
 	    break;
 
 	  case SPNEGO_mechListMIC:
 
 	    offset = dissect_spnego_mechListMIC(tvb, offset, pinfo, subtree, 
-						hnd);
+						hnd, *next_level_dissector_p);
 	    break;
 
 	  default:
@@ -864,13 +878,12 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_item *item;
 	proto_tree *subtree;
-	int length = tvb_length_remaining(tvb, 0);
 	int ret, offset = 0;
 	ASN1_SCK hnd;
 	gboolean def;
 	guint len1, cls, con, tag;
 	conversation_t *conversation;
-	dissector_handle_t handle;
+	dissector_handle_t next_level_dissector = NULL;
 
 	/*
 	 * We need this later, so lets get it now ...
@@ -880,14 +893,12 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 					 pinfo->ptype, pinfo->srcport,
 					 pinfo->destport, 0);
 
-	if (conversation && 
-	    (handle = conversation_get_proto_data(conversation, 
-						 proto_spnego))) {
-	  next_level_dissector = handle;
+	if (conversation)
+	    next_level_dissector = conversation_get_proto_data(conversation, 
+							       proto_spnego);
 
-	}
 	item = proto_tree_add_item(tree, hf_spnego, tvb, offset, 
-				   length, FALSE);
+				   -1, FALSE);
 
 	subtree = proto_item_add_subtree(item, ett_spnego);
 
@@ -952,14 +963,16 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	case SPNEGO_negTokenInit:
 
 	  offset = dissect_spnego_negTokenInit(tvb, offset, pinfo,
-					       subtree, &hnd);
+					       subtree, &hnd,
+					       &next_level_dissector);
 
 	  break;
 
 	case SPNEGO_negTokenTarg:
 
 	  offset = dissect_spnego_negTokenTarg(tvb, offset, pinfo,
-					       subtree, &hnd);
+					       subtree, &hnd,
+					       &next_level_dissector);
 	  break;
 
 	default: /* Broken, what to do? */
