@@ -2239,6 +2239,9 @@ Susanne Edlund		<Susanne.Edlund [AT] ericsson.com> {
 	NSIP protocol support
 }
 
+Viorel Suman		<vsuman [AT] avmob.ro> {
+	Various GSM SMS fixes
+}
 
 
 And assorted fixes and enhancements by the people listed above

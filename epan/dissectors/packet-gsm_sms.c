@@ -1952,11 +1952,11 @@ dis_msg_deliver(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
     oct = tvb_get_guint8(tvb, offset);
 
+    DIS_FIELD_RP(tree, 0x80, offset);
+
+    DIS_FIELD_UDHI(tree, 0x40, offset, udhi);
+
     DIS_FIELD_SRI(tree, 0x20, offset);
-
-    DIS_FIELD_UDHI(tree, 0x10, offset, udhi);
-
-    DIS_FIELD_RP(tree, 0x08, offset);
 
     DIS_FIELD_MMS(tree, 0x04, offset);
 
@@ -2017,7 +2017,7 @@ dis_msg_deliver_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
     oct = tvb_get_guint8(tvb, offset);
 
-    DIS_FIELD_UDHI(tree, 0x04, offset, udhi);
+    DIS_FIELD_UDHI(tree, 0x40, offset, udhi);
 
     DIS_FIELD_MTI(tree, 0x03, offset);
 
@@ -2046,9 +2046,9 @@ dis_msg_deliver_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     if (oct & 0x80)
     {
 	dis_field_fcs(tvb, tree, offset, oct);
+	offset++;
     }
 
-    offset++;
     pi = tvb_get_guint8(tvb, offset);
 
     dis_field_pi(tvb, tree, offset, pi);
@@ -2136,11 +2136,11 @@ dis_msg_submit(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
     oct = tvb_get_guint8(tvb, offset);
 
-    DIS_FIELD_SRR(tree, 0x80, offset);
+    DIS_FIELD_RP(tree, 0x80, offset);
 
     DIS_FIELD_UDHI(tree, 0x40, offset, udhi);
 
-    DIS_FIELD_RP(tree, 0x20, offset);
+    DIS_FIELD_SRR(tree, 0x20, offset);
 
     DIS_FIELD_VPF(tree, 0x18, offset, &vp_form);
 
@@ -2208,7 +2208,7 @@ dis_msg_submit_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
     oct = tvb_get_guint8(tvb, offset);
 
-    DIS_FIELD_UDHI(tree, 0x04, offset, udhi);
+    DIS_FIELD_UDHI(tree, 0x40, offset, udhi);
 
     DIS_FIELD_MTI(tree, 0x03, offset);
 
@@ -2229,9 +2229,9 @@ dis_msg_submit_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     if (oct & 0x80)
     {
 	dis_field_fcs(tvb, tree, offset, oct);
+	offset++;
     }
 
-    offset++;
     pi = tvb_get_guint8(tvb, offset);
 
     dis_field_pi(tvb, tree, offset, pi);
@@ -2306,11 +2306,11 @@ dis_msg_status_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
     oct = tvb_get_guint8(tvb, offset);
 
-    DIS_FIELD_SRQ(tree, 0x10, offset);
+    DIS_FIELD_UDHI(tree, 0x40, offset, udhi);
 
-    DIS_FIELD_MMS(tree, 0x08, offset);
+    DIS_FIELD_SRQ(tree, 0x20, offset);
 
-    DIS_FIELD_UDHI(tree, 0x04, offset, udhi);
+    DIS_FIELD_MMS(tree, 0x04, offset);
 
     DIS_FIELD_MTI(tree, 0x03, offset);
 
@@ -2415,7 +2415,7 @@ dis_msg_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
     oct = tvb_get_guint8(tvb, offset);
 
-    DIS_FIELD_SRR(tree, 0x08, offset);
+    DIS_FIELD_SRR(tree, 0x20, offset);
 
     DIS_FIELD_UDHI(tree, 0x04, offset, udhi);
 
@@ -2514,7 +2514,18 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * convert the 2 bit value to one based on direction
 	 */
-	msg_type |= ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x04 : 0x00);
+	if (pinfo->p2p_dir == P2P_DIR_UNKNOWN)
+	{
+	    // Return Result ...
+	    if (msg_type == 0) // SMS-DELIVER
+	    {
+		msg_type |= 0x04; // see the msg_type_strings
+	    }
+	}
+	else
+	{
+	    msg_type |= ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x04 : 0x00);
+	}
 
 	str = my_match_strval(msg_type, msg_type_strings, &idx);
 
