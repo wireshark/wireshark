@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.9 2001/09/14 07:10:05 guy Exp $
+ * $Id: packet-frame.c,v 1.10 2001/11/01 04:00:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,7 @@
 #include "timestamp.h"
 #include "tvbuff.h"
 #include "packet-frame.h"
+#include "prefs.h"
 
 static int proto_frame = -1;
 static int hf_frame_arrival_time = -1;
@@ -42,10 +43,14 @@ static int hf_frame_number = -1;
 static int hf_frame_packet_len = -1;
 static int hf_frame_capture_len = -1;
 static int hf_frame_p2p_dir = -1;
+static int hf_frame_file_off = -1;
 static int proto_short = -1;
 int proto_malformed = -1;
 
 static gint ett_frame = -1;
+
+/* Preferences */
+static gboolean show_file_off = FALSE;
 
 static const value_string p2p_dirs[] = {
 	{ P2P_DIR_SENT,	"Sent" },
@@ -116,6 +121,12 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  proto_tree_add_uint(fh_tree, hf_frame_p2p_dir, tvb,
 				  0, 0, pinfo->p2p_dir);
 	  }
+
+      if (show_file_off) {
+        proto_tree_add_int_format(fh_tree, hf_frame_file_off, tvb,
+            0, 0, pinfo->fd->file_off, "File Offset: %ld (0x%lx)",
+            pinfo->fd->file_off, pinfo->fd->file_off);
+      }
 	}
 
 
@@ -178,10 +189,16 @@ proto_register_frame(void)
 		{ &hf_frame_p2p_dir,
 		{ "Point-to-Point Direction",	"frame.p2p_dir", FT_UINT8, BASE_DEC, VALS(p2p_dirs), 0x0,
 			"", HFILL }},
+
+		{ &hf_frame_file_off,
+		{ "File Offset",	"frame.file_off", FT_INT32, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+
 	};
 	static gint *ett[] = {
 		&ett_frame,
 	};
+    module_t *frame_module; 
 
 	wtap_encap_dissector_table = register_dissector_table("wtap_encap");
 
@@ -202,4 +219,9 @@ proto_register_frame(void)
 	   they're error indications; disabling them makes no sense. */
 	proto_set_cant_disable(proto_short);
 	proto_set_cant_disable(proto_malformed);
+
+    /* Our preferences */
+    frame_module = prefs_register_protocol(proto_frame, NULL);
+    prefs_register_bool_preference(frame_module, "show_file_off",
+        "Show File Offset", "Show File Offset", &show_file_off);
 }
