@@ -1375,6 +1375,10 @@ Bill Studenmund <wrstuden[AT]wasabisystems.com> {
 	Fix handling of SCSI mode sense
 }
 
+Brian Bruns <camber[AT]ais.org> {
+	TDS
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
