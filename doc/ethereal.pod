@@ -751,10 +751,17 @@ Packets are colored according to a list of color filters. Each filter
 consists of a name, a filter expression and a coloration. A packet is
 colored according to the first filter that it matches, Color filter
 expressions use exactly the same syntax as display filter expressions.
- 
+
 When Ethereal starts, the color filters are loaded from:
+
+=over
+
 1. The user's personal color filters file or, if that does not exist,
+
 2. The global color filters file.
+
+=back
+
 If neither of these exist then the packets will not be colored.
 
 =back
@@ -1056,14 +1063,15 @@ Load is measured in concurrency/number of overlapping i/o and the value
 In each tick interval the amount of overlap is measured.
 See the graph below containing three commands:
 Below the graph are the LOAD values for each interval that would be calculated.
-|     |     |     |     |     |     |     |     |
-|     |     |     |     |     |     |     |     |
-|     |  o=====*  |     |     |     |     |     |
-|     |     |     |     |     |     |     |     |
-|  o========*     | o============*  |     |     |
-|     |     |     |     |     |     |     |     |
---------------------------------------------------> Time
- 500   1500   500  750   1000   500    0     0
+
+  |     |     |     |     |     |     |     |     |
+  |     |     |     |     |     |     |     |     |
+  |     |  o=====*  |     |     |     |     |     |
+  |     |     |     |     |     |     |     |     |
+  |  o========*     | o============*  |     |     |
+  |     |     |     |     |     |     |     |     |
+  --------------------------------------------------> Time
+   500   1500   500  750   1000   500    0     0
 
 =item Statistics:Conversation List
 

@@ -881,7 +881,7 @@ Aamer Akhter            <aakhter[AT]cisco.com> {
 	LDP support for draft-martini-l2circuit-trans-mpls, LDP status
 	    code updates, and small LDP cleanups
 	LDP support for draft-martini-l2circuit-encap-mpls for
-            Ethernet-over-MPLS
+	    Ethernet-over-MPLS
 	Fix initialization of ett_slarp in CHDLC dissector
 	LDP PWE updates
 }
@@ -912,7 +912,7 @@ Motonori Shindo         <mshindo[AT]mshindo.net> {
 	Support for decoding additional data, for CHAP, in LCP
 	    Authentication Protocol option
 	Additional vendor (CoSine) for Radius
-        CoSine VSA support for Radius
+	CoSine VSA support for Radius
 	Patches to PPP for CHAP support
 	Patches to packet-x11-keysym.h to clean up 8-bit chars
 	Fixes to take the Vendor-Specific attribute into consideration
@@ -2131,7 +2131,7 @@ Carlos Pignataro        <cpignata [AT] cisco.com> {
 	Graceful Restart Mechanism for LDP [RFC3478]
 	Fault Tolerance for LDP [RFC3479]
 	Other LDP enhancements
-        PPP OSI Network Layer Control Protocol [RFC1377]
+	PPP OSI Network Layer Control Protocol [RFC1377]
 	Fix dissecting of CLNS Protocols over Cisco HDLC
 	PWE3 Interface parameter additions and miscelaneous updates
 	    from various IETF PWE3 drafts
@@ -2198,7 +2198,8 @@ M. Ortega y Strupp	<moys [AT] loplof.de> {
 Kelly Byrd		<kbyrd-ethereal [AT] memcpy.com> {
 	DAAP support
 }
-Luis Ontanon	<luis.ontanon.ibm[AT]h3g.it> {
+
+Luis Ontanon		<luis.ontanon.ibm[AT]h3g.it> {
 	RADIUS and ISUP enhancements
 }
 
