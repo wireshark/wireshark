@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.17 2004/04/17 21:43:32 guy Exp $
+# $Id: Makefile.common,v 1.18 2004/04/20 05:07:23 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -447,6 +447,7 @@ DISSECTOR_SRC =	\
 	../packet-tr.c	\
 	../packet-trmac.c	\
 	../packet-tsp.c	\
+	../packet-tuxedo.c	\
 	../packet-tzsp.c	\
 	../packet-ucp.c	\
 	../packet-udp.c	\
