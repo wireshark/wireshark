@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.57 2001/09/28 22:43:56 guy Exp $
+ * $Id: packet-nbns.c,v 1.58 2001/09/29 00:00:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1504,6 +1504,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		max_data;
 	int		len;
 	gboolean	is_cifs;
+	static const char zeroes[4] = { 0x00, 0x00, 0x00, 0x00 };
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "NBSS");
@@ -1536,15 +1537,20 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 #define RJSHACK 1
 #ifdef RJSHACK
-	if ((msg_type != SESSION_REQUEST) && 
+	if (max_data < 4 ||
+	    ((msg_type != SESSION_REQUEST) && 
 	     (msg_type != POSITIVE_SESSION_RESPONSE) &&
 	     (msg_type != NEGATIVE_SESSION_RESPONSE) &&
 	     (msg_type != RETARGET_SESSION_RESPONSE) &&
 	     (msg_type != SESSION_KEEP_ALIVE) &&
-	     (msg_type != SESSION_MESSAGE)) {
+	     (msg_type != SESSION_MESSAGE)) ||
+	    ((msg_type == SESSION_MESSAGE) &&
+	     (tvb_memeql(tvb, offset, zeroes, 4) == 0))) {
  
 	  /*
-	   * The first byte isn't one of the known message types.
+	   * We don't have the first 4 bytes of an NBNS header, or
+	   * the first byte isn't one of the known message types,
+	   * or it looks like a session message with a zero header.
 	   * Assume it's a continuation message.
 	   */
 	  if (check_col(pinfo->fd, COL_INFO)) {
