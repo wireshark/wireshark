@@ -1,7 +1,7 @@
 /* frame_data.h
  * Definitions for frame_data structures and routines
  *
- * $Id: frame_data.h,v 1.10 2003/09/12 02:48:22 sahlberg Exp $
+ * $Id: frame_data.h,v 1.11 2004/01/09 02:57:29 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,8 +25,21 @@
 #ifndef __FRAME_DATA_H__
 #define __FRAME_DATA_H__
 
+//#include "color.h"
 #include "column_info.h"
 #include "tvbuff.h"
+
+#if 0
+/* Defined in color.h */
+#ifndef __COLOR_H__
+typedef struct _color_t /* {
+	guint32 pixel;
+	guint16 red;
+	guint16 green;
+	guint16 blue;
+} */ color_t;
+#endif
+#endif
 
 /* XXX - some of this stuff is used only while a packet is being dissected;
    should we keep that stuff in the "packet_info" structure, instead, to
@@ -54,6 +67,7 @@ typedef struct _frame_data {
 	unsigned int marked             : 1; /* 1 = marked by user, 0 = normal */
 	unsigned int ref_time		: 1; /* 1 = marked as a reference time frame, 0 = normal */
   } flags;
+  void *color_filter;       /* Per-packet matching color_filter_t object */
 } frame_data;
 
 /*

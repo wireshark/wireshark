@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.349 2004/01/08 20:39:51 guy Exp $
+ * $Id: main.c,v 1.350 2004/01/09 02:57:54 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -932,12 +932,21 @@ set_frame_mark(gboolean set, frame_data *frame, gint row) {
     mark_frame(&cfile, frame);
     color_t_to_gdkcolor(&fg, &prefs.gui_marked_fg);
     color_t_to_gdkcolor(&bg, &prefs.gui_marked_bg);
-    gtk_clist_set_background(GTK_CLIST(packet_list), row, &bg);
     gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &fg);
+    gtk_clist_set_background(GTK_CLIST(packet_list), row, &bg);
   } else {
+    color_filter_t *cfilter = frame->color_filter;
     unmark_frame(&cfile, frame);
-    gtk_clist_set_background(GTK_CLIST(packet_list), row, NULL);
-    gtk_clist_set_foreground(GTK_CLIST(packet_list), row, NULL);
+    /* Restore the color from the matching color filter if any */
+    if (cfilter) { /* The packet matches a color filter */
+      color_t_to_gdkcolor(&fg, &cfilter->fg_color);
+      color_t_to_gdkcolor(&bg, &cfilter->bg_color);
+      gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &fg);
+      gtk_clist_set_background(GTK_CLIST(packet_list), row, &bg);
+    } else { /* No color filter match */
+      gtk_clist_set_foreground(GTK_CLIST(packet_list), row, NULL);
+      gtk_clist_set_background(GTK_CLIST(packet_list), row, NULL);
+    }
   }
   file_set_save_marked_sensitive();
 }

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.334 2004/01/02 21:47:06 ulfl Exp $
+ * $Id: file.c,v 1.335 2004/01/09 02:57:07 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -830,11 +830,24 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
     row = packet_list_append(cf->cinfo.col_data, fdata);
 
-    if (fdata->flags.marked) {
-        packet_list_set_colors(row, &prefs.gui_marked_fg, &prefs.gui_marked_bg);
-    } else if (filter_list != NULL && (args.colorf != NULL)) {
-        packet_list_set_colors(row, &args.colorf->fg_color,
-                               &args.colorf->bg_color);
+    /* If the packet matches a color filter,
+     * store matching color_filter_t object in frame data. */
+    if (filter_list != NULL && (args.colorf != NULL)) {
+      /* add the matching colorfilter to the frame data */
+      fdata->color_filter = args.colorf;
+      /* If packet is marked, use colors from preferences */
+      if (fdata->flags.marked) {
+          packet_list_set_colors(row, &prefs.gui_marked_fg, &prefs.gui_marked_bg);
+      } else /* if (filter_list != NULL && (args.colorf != NULL)) */ {
+          packet_list_set_colors(row, &(args.colorf->fg_color),
+	      &(args.colorf->bg_color));
+      }
+    } else {
+      /* No color filter match */
+      fdata->color_filter = NULL;
+      if (fdata->flags.marked) {
+          packet_list_set_colors(row, &prefs.gui_marked_fg, &prefs.gui_marked_bg);
+      }
     }
 
     /* Set the time of the previous displayed frame to the time of this
@@ -960,19 +973,19 @@ filter_packets(capture_file *cf, gchar *dftext)
 void
 colorize_packets(capture_file *cf)
 {
-  rescan_packets(cf, "Colorizing", "all frames", FALSE, FALSE);
+  rescan_packets(cf, "Colorizing", "all packets", FALSE, FALSE);
 }
 
 void
 reftime_packets(capture_file *cf)
 {
-  rescan_packets(cf, "Updating Reftime", "all frames", FALSE, FALSE);
+  rescan_packets(cf, "Updating Reftime", "all packets", FALSE, FALSE);
 }
 
 void
 redissect_packets(capture_file *cf)
 {
-  rescan_packets(cf, "Reprocessing", "all frames", TRUE, TRUE);
+  rescan_packets(cf, "Reprocessing", "all packets", TRUE, TRUE);
 }
 
 /* Rescan the list of packets, reconstructing the CList.
@@ -1351,12 +1364,12 @@ print_packets(capture_file *cf, print_args_t *print_args)
 
       if (progbar == NULL)
         /* Create the progress bar if necessary */
-        progbar = delayed_create_progress_dlg("Printing", "selected frames", "Stop", &stop_flag,
+        progbar = delayed_create_progress_dlg("Printing", "selected packets", "Stop", &stop_flag,
           &start_time, prog_val);
 
       if (progbar != NULL) {
         g_snprintf(status_str, sizeof(status_str),
-                   "%4u of %u frames", count, cf->count);
+                   "%4u of %u packets", count, cf->count);
         update_progress_dlg(progbar, prog_val, status_str);
       }
 
@@ -1562,7 +1575,7 @@ change_time_formats(capture_file *cf)
 
       if (progbar != NULL) {
         g_snprintf(status_str, sizeof(status_str),
-                   "%4u of %u frames", count, cf->count);
+                   "%4u of %u packets", count, cf->count);
         update_progress_dlg(progbar, prog_val, status_str);
       }
 
@@ -2005,7 +2018,7 @@ find_packet(capture_file *cf,
 
         if (progbar != NULL) {
           g_snprintf(status_str, sizeof(status_str),
-                     "%4u of %u frames", count, cf->count);
+                     "%4u of %u packets", count, cf->count);
           update_progress_dlg(progbar, prog_val, status_str);
         }
 
@@ -2089,27 +2102,27 @@ goto_frame(capture_file *cf, guint fnumber)
     ;
 
   if (fdata == NULL) {
-    /* we didn't find a frame with that frame number */
+    /* we didn't find a packet with that packet number */
     simple_dialog(ESD_TYPE_CRIT, NULL,
-	 	  "There is no frame with that frame number.");
-    return FALSE;	/* we failed to go to that frame */
+	 	  "There is no packet with that packet number.");
+    return FALSE;	/* we failed to go to that packet */
   }
   if (!fdata->flags.passed_dfilter) {
-    /* that frame currently isn't displayed */
-    /* XXX - add it to the set of displayed frames? */
+    /* that packet currently isn't displayed */
+    /* XXX - add it to the set of displayed packets? */
     simple_dialog(ESD_TYPE_CRIT, NULL,
-		  "That frame is not currently being displayed.");
-    return FALSE;	/* we failed to go to that frame */
+		  "That packet is not currently being displayed.");
+    return FALSE;	/* we failed to go to that packet */
   }
 
-  /* We found that frame, and it's currently being displayed.
+  /* We found that packet, and it's currently being displayed.
      Find what row it's in. */
   row = packet_list_find_row_from_data(fdata);
   g_assert(row != -1);
 
   /* Select that row, make it the focus row, and make it visible. */
   packet_list_set_selected_row(row);
-  return TRUE;	/* we got to that frame */
+  return TRUE;	/* we got to that packet */
 }
 
 /* Select the packet on a given row. */
