@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.81 2002/12/19 03:56:04 guy Exp $
+ * $Id: menu.c,v 1.82 2003/01/08 23:33:38 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -373,7 +373,7 @@ get_main_menu(GtkWidget ** menubar, GtkAccelGroup ** table) {
   grp = gtk_accel_group_new();
 
   if (initialize) {
-    popup_menu_object = gtk_widget_new(GTK_TYPE_WIDGET, NULL);
+    popup_menu_object = gtk_menu_new();
     menus_init();
   }
 
