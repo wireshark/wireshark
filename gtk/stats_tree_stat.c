@@ -232,6 +232,7 @@ static void init_gtk_tree(char* optarg) {
 	window_name = g_strdup_printf("%s Stats Tree", st->name);
 	
 	st->pr->win = window_new_with_geom(GTK_WINDOW_TOPLEVEL,window_name,window_name);
+	gtk_window_set_default_size(GTK_WINDOW(st->pr->win), 300, 300);
 	g_free(window_name);
 	
 	if(st->filter){
