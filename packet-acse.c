@@ -2,7 +2,7 @@
 *
 * Routine to dissect OSI ACSE Protocol packets
 *
-* $Id: packet-acse.c,v 1.1 2004/01/23 10:15:37 guy Exp $
+* $Id: packet-acse.c,v 1.2 2004/01/23 18:18:19 ulfl Exp $
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *
@@ -136,22 +136,15 @@ static const value_string acse_service_user_values_vals[] =
 {
   {ACSE_NULL,"null"},
   {ACSE_NO_REASON_GIVEN,"No reason given"},
-  {ACSE_APPLICATION_CONTEXT_NAME_NOT_SUPPORTED,"Application context name not 
-supported"},
+  {ACSE_APPLICATION_CONTEXT_NAME_NOT_SUPPORTED,"Application context name not supported"},
   {ACSE_CALLING_AP_TITLE_NOT_RECOGNIZED,"Calling AP title not recognized"},
-  {ACSE_CALLING_AP_INVOKATION_IDENTIFIER_NOT_RECOGNIZED,"Calling AP 
-invokation identifier not recognized"},
-  {ACSE_CALLING_AE_QUALIFIER_NOT_RECOGNIZED,"Calling AE qualifier not 
-recognized"},
-  {ACSE_CALLING_AE_INVOKATION_IDENTIFIER_NOT_RECOGNIZED,"Calling AE 
-invokation identifier not recognized"},
+  {ACSE_CALLING_AP_INVOKATION_IDENTIFIER_NOT_RECOGNIZED,"Calling AP invokation identifier not recognized"},
+  {ACSE_CALLING_AE_QUALIFIER_NOT_RECOGNIZED,"Calling AE qualifier not recognized"},
+  {ACSE_CALLING_AE_INVOKATION_IDENTIFIER_NOT_RECOGNIZED,"Calling AE invokation identifier not recognized"},
   {ACSE_CALLED_AP_TITLE_NOT_RECOGNIZED,"Called AP title not recognized"},
-  {ACSE_CALLED_AP_INVOKATION_IDENTIFIER_NOT_RECOGNIZED,"Called AP invokation 
-identifier not recognized"},
-  {ACSE_CALLED_AE_QUALIFIER_NOT_RECOGNIZED,"Called AE qualifier not 
-recognized"},
-  {ACSE_CALLED_AE_INVOKATION_IDENTIFIER_NOT_RECOGNIZED,"Called AE invokation 
-identifier not recognized"},
+  {ACSE_CALLED_AP_INVOKATION_IDENTIFIER_NOT_RECOGNIZED,"Called AP invokation identifier not recognized"},
+  {ACSE_CALLED_AE_QUALIFIER_NOT_RECOGNIZED,"Called AE qualifier not recognized"},
+  {ACSE_CALLED_AE_INVOKATION_IDENTIFIER_NOT_RECOGNIZED,"Called AE invokation identifier not recognized"},
   {0, NULL}
 };
 static const value_string acse_service_provider_values_vals[] =
@@ -234,8 +227,7 @@ call_app_dissector(tvbuff_t *tvb, int offset, guint16 param_len,
     packet_info *pinfo, proto_tree *tree, proto_tree *param_tree)
 {
 	char* name_of_app_dissect;
-	name_of_app_dissect = val_to_str(type_of_application, type_app,"Unknown 
-type of application dissector (0x%02x)");
+	name_of_app_dissect = val_to_str(type_of_application, type_app,"Unknown type of application dissector (0x%02x)");
 	/* do we have OSI app packet dissector ? */
 	if(!app_handle || !type_of_application)
 	{
@@ -1480,8 +1472,7 @@ dissect_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 		/*  set up type of pdu */
   	if (check_col(pinfo->cinfo, COL_INFO))
 					col_add_str(pinfo->cinfo, COL_INFO,
-						val_to_str(session->spdu_type, ses_vals, "Unknown pdu type 
-(0x%02x)"));
+						val_to_str(session->spdu_type, ses_vals, "Unknown pdu type (0x%02x)"));
   if (tree)
 	{
 		ti = proto_tree_add_item(tree, proto_acse, tvb, offset, -1,
@@ -1605,8 +1596,7 @@ dissect_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 					return  FALSE;
 						}
 				ms = proto_tree_add_text(acse_tree, tvb, offset, rest_len,
-										val_to_str(session->spdu_type, ses_vals, "Unknown pdu type 
-(0x%02x)"));
+										val_to_str(session->spdu_type, ses_vals, "Unknown pdu type (0x%02x)"));
 				acse_tree_ms = proto_item_add_subtree(ms, ett_acse_ms);
 				show_user_data(&asn,acse_tree_ms,tvb,&offset,rest_len,s_type);
 			}
@@ -1641,7 +1631,7 @@ tvb_reported_length_remaining(tvb,offset),
 					proto_tree_add_text(tree, tvb, offset, -1,
 							"Internal error:can't get spdu type from session dissector.");
 					return  ;
-						}
+						} 
 				}
 	else
 				{
@@ -1651,8 +1641,7 @@ tvb_reported_length_remaining(tvb,offset),
 						if(tree)
 						{
 					proto_tree_add_text(tree, tvb, offset, -1,
-							"Internal error:wrong spdu type %x from session 
-dissector.",session->spdu_type);
+							"Internal error:wrong spdu type %x from session dissector.",session->spdu_type);
 					return  ;
 						}
 					}
