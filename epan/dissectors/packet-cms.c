@@ -543,7 +543,7 @@ static int dissect_crls_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 }
 
 static const ber_sequence IssuerAndSerialNumber_sequence[] = {
-  { BER_CLASS_ANY, -1, BER_FLAGS_NOOWNTAG, dissect_issuer },
+  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_issuer },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serialNumber },
   { 0, 0, 0, NULL }
 };

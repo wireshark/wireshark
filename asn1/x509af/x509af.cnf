@@ -13,16 +13,28 @@ SelectedAttributeTypes x509sat
 #.INCLUDE ../x509sat/x509sat-exp.cnf
 
 #.EXPORTS
+ACPathData
 AlgorithmIdentifier
+AttCertValidityPeriod
 AttributeCertificate
 AttributeCertificateAssertion
+AttributeCertificateInfo
 AttributeCertificationPath
 Certificate
 Certificates
 CertificateList
+CertificatePair
 CertificateSerialNumber
 CertificationPath
+CrossCertificates
+Extension
+Extensions
+ForwardCertificationPath
+IssuerSerial
 SubjectPublicKeyInfo
+Time
+Validity
+Version
 
 #.PDU
 

@@ -87,7 +87,7 @@ static gint ett_pkcs1_DigestInfo = -1;
 
 
 static int
-dissect_pkcs1_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkcs1_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -124,7 +124,7 @@ static const ber_sequence RSAPublicKey_sequence[] = {
 };
 
 int
-dissect_pkcs1_RSAPublicKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkcs1_RSAPublicKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 RSAPublicKey_sequence, hf_index, ett_pkcs1_RSAPublicKey);
 
@@ -134,7 +134,7 @@ dissect_pkcs1_RSAPublicKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_pkcs1_Version(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkcs1_Version(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -157,7 +157,7 @@ static const ber_sequence RSAPrivateKey_sequence[] = {
 };
 
 int
-dissect_pkcs1_RSAPrivateKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkcs1_RSAPrivateKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 RSAPrivateKey_sequence, hf_index, ett_pkcs1_RSAPrivateKey);
 
@@ -166,7 +166,7 @@ dissect_pkcs1_RSAPrivateKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 
 
 static int
-dissect_pkcs1_DigestAlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkcs1_DigestAlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_x509af_AlgorithmIdentifier(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -177,7 +177,7 @@ static int dissect_digestAlgorithm(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 
 static int
-dissect_pkcs1_Digest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkcs1_Digest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     NULL);
 
@@ -194,7 +194,7 @@ static const ber_sequence DigestInfo_sequence[] = {
 };
 
 int
-dissect_pkcs1_DigestInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkcs1_DigestInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 DigestInfo_sequence, hf_index, ett_pkcs1_DigestInfo);
 
@@ -223,7 +223,7 @@ void proto_register_pkcs1(void) {
         "", HFILL }},
     { &hf_pkcs1_version,
       { "version", "pkcs1.version",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, VALS(Version_vals), 0,
         "RSAPrivateKey/version", HFILL }},
     { &hf_pkcs1_privateExponent,
       { "privateExponent", "pkcs1.privateExponent",

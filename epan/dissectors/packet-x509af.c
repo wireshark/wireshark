@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* ./packet-x509af.c                                                          */
-/* ../../tools/asn2eth.py -X -b -e -p x509af -c x509af.cnf -s packet-x509af-template AuthenticationFramework.asn */
+/* ../../tools/asn2eth.py -X -b -k -e -p x509af -c x509af.cnf -s packet-x509af-template AuthenticationFramework.asn */
 
 /* Input file: packet-x509af-template.c */
 
@@ -217,7 +217,7 @@ static int dissect_attType_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 }
 
 
-static const value_string Version_vals[] = {
+const value_string Version_vals[] = {
   {   0, "v1" },
   {   1, "v2" },
   {   2, "v3" },
@@ -225,7 +225,7 @@ static const value_string Version_vals[] = {
 };
 
 
-static int
+int
 dissect_x509af_Version(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
@@ -336,7 +336,7 @@ static int dissect_attCertValidity(packet_info *pinfo, proto_tree *tree, tvbuff_
 }
 
 
-static const value_string Time_vals[] = {
+const value_string Time_vals[] = {
   {   0, "utcTime" },
   {   1, "generalizedTime" },
   { 0, NULL }
@@ -348,7 +348,7 @@ static const ber_choice Time_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_x509af_Time(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Time_choice, hf_index, ett_x509af_Time);
@@ -377,7 +377,7 @@ static const ber_sequence Validity_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_x509af_Validity(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 Validity_sequence, hf_index, ett_x509af_Validity);
@@ -471,7 +471,7 @@ static const ber_sequence Extension_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_x509af_Extension(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 Extension_sequence, hf_index, ett_x509af_Extension);
@@ -486,7 +486,7 @@ static const ber_sequence Extensions_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Extensions_item },
 };
 
-static int
+int
 dissect_x509af_Extensions(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                    Extensions_sequence_of, hf_index, ett_x509af_Extensions);
@@ -562,7 +562,7 @@ static const ber_sequence CrossCertificates_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_CrossCertificates_item },
 };
 
-static int
+int
 dissect_x509af_CrossCertificates(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
                               CrossCertificates_set_of, hf_index, ett_x509af_CrossCertificates);
@@ -577,7 +577,7 @@ static const ber_sequence ForwardCertificationPath_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_ForwardCertificationPath_item },
 };
 
-static int
+int
 dissect_x509af_ForwardCertificationPath(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                    ForwardCertificationPath_sequence_of, hf_index, ett_x509af_ForwardCertificationPath);
@@ -608,7 +608,7 @@ static const ber_sequence CertificatePair_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_x509af_CertificatePair(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 CertificatePair_sequence, hf_index, ett_x509af_CertificatePair);
@@ -725,7 +725,7 @@ static const ber_sequence IssuerSerial_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_x509af_IssuerSerial(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 IssuerSerial_sequence, hf_index, ett_x509af_IssuerSerial);
@@ -766,7 +766,7 @@ static const ber_sequence AttCertValidityPeriod_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_x509af_AttCertValidityPeriod(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 AttCertValidityPeriod_sequence, hf_index, ett_x509af_AttCertValidityPeriod);
@@ -805,7 +805,7 @@ static const ber_sequence AttributeCertificateInfo_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_x509af_AttributeCertificateInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 AttributeCertificateInfo_sequence, hf_index, ett_x509af_AttributeCertificateInfo);
@@ -840,7 +840,7 @@ static const ber_sequence ACPathData_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_x509af_ACPathData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 ACPathData_sequence, hf_index, ett_x509af_ACPathData);
