@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  * 
- * $Id: packet-ftp.c,v 1.31 2001/09/03 02:32:10 guy Exp $
+ * $Id: packet-ftp.c,v 1.32 2001/09/03 02:41:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -284,30 +284,28 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			handle_pasv_response(line, linelen, pinfo);
 		}
+	}
 
+	if (tree) {
 		/*
 		 * Add the rest of the first line as request or
 		 * reply data.
 		 */
-		if (tree) {
-			if (linelen != 0) {
-				if (is_request) {
-					proto_tree_add_string_format(ftp_tree,
-					    hf_ftp_request_data, tvb, offset,
-					    linelen, line, "Request Arg: %s",
-					    format_text(line, linelen));
-				} else {
-					proto_tree_add_string_format(ftp_tree,
-					    hf_ftp_response_data, tvb, offset,
-					    linelen, line, "Response Arg: %s",
-					    format_text(line, linelen));
-				}
+		if (linelen != 0) {
+			if (is_request) {
+				proto_tree_add_string_format(ftp_tree,
+				    hf_ftp_request_data, tvb, offset,
+				    linelen, line, "Request Arg: %s",
+				    format_text(line, linelen));
+			} else {
+				proto_tree_add_string_format(ftp_tree,
+				    hf_ftp_response_data, tvb, offset,
+				    linelen, line, "Response Arg: %s",
+				    format_text(line, linelen));
 			}
 		}
 		offset = next_offset;
-	}
 
-	if (tree) {
 		/*
 		 * Show the rest of the request or response as text,
 		 * a line at a time.
