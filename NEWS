@@ -11,7 +11,7 @@ Overview of changes in Ethereal 0.8.2:
 * Filterable RTSP fields (Jason)
 * X.25-over-Ethernet support, perhaps (Guy)
 * Export and usage of NLPID values (Guy)
-* zlib fix for {Free,Open,Net}BSD (Guy)
+* zlib fix for {Free,Open,Net}BSD (Guy, Itojun)
 * Add tethereal and manpage (Guy)
 * Doc updates (Guy, Gilbert)
 * Fix type in hex printing in netbios (Gerald)
