@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.1 1998/11/17 04:28:40 gerald Exp $
+ * $Id: column.c,v 1.2 1998/11/17 05:04:03 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -149,6 +149,12 @@ get_column_format_matches(gboolean *fmt_list, gint format) {
         break;
       case COL_DEF_NET_DST:
         fmt_list[COL_RES_NET_DST] = TRUE;
+        break;
+      case COL_DEF_SRC_PORT:
+        fmt_list[COL_RES_SRC_PORT] = TRUE;
+        break;
+      case COL_DEF_DST_PORT:
+        fmt_list[COL_RES_DST_PORT] = TRUE;
         break;
       default:
         break;
