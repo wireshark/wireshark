@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.h,v 1.8 2002/06/17 03:21:15 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.h,v 1.9 2002/06/17 06:45:42 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -260,6 +260,20 @@
 #define PRINTER_STATUS_SERVER_UNKNOWN	0x00800000
 #define PRINTER_STATUS_POWER_SAVE	0x01000000
 
+/* Job status codes */
+
+#define JOB_STATUS_PAUSED		0x00000001
+#define JOB_STATUS_ERROR		0x00000002
+#define JOB_STATUS_DELETING		0x00000004
+#define JOB_STATUS_SPOOLING		0x00000008
+#define JOB_STATUS_PRINTING		0x00000010
+#define JOB_STATUS_OFFLINE		0x00000020
+#define JOB_STATUS_PAPEROUT		0x00000040
+#define JOB_STATUS_PRINTED		0x00000080
+#define JOB_STATUS_DELETED		0x00000100
+#define JOB_STATUS_BLOCKED		0x00000200
+#define JOB_STATUS_USER_INTERVENTION	0x00000400
+
 /* Printer attributes */
 
 #define PRINTER_ATTRIBUTE_QUEUED		0x00000001
@@ -276,5 +290,6 @@
 #define PRINTER_ATTRIBUTE_ENABLE_BIDI		0x00000800
 #define PRINTER_ATTRIBUTE_RAW_ONLY		0x00001000
 #define PRINTER_ATTRIBUTE_PUBLISHED             0x00002000
+
 
 #endif /* packet-dcerpc-spoolss.h */

@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.38 2002/06/17 03:21:15 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.39 2002/06/17 06:45:42 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,7 +62,6 @@ static int hf_spoolss_level = -1;
 /* Print job */
 
 static int hf_spoolss_jobid = -1;
-static int hf_spoolss_jobstatus = -1;
 static int hf_spoolss_jobpriority = -1;
 static int hf_spoolss_jobposition = -1;
 static int hf_spoolss_jobtotalpages = -1;
@@ -275,6 +274,74 @@ static const true_false_string tfs_printer_attributes_raw_only = {
 static const true_false_string tfs_printer_attributes_published = {
 	"Printer is published in the directory",
 	"Printer is not published in the directory"
+};
+
+static int hf_spoolss_job_status = -1;
+static int hf_spoolss_job_status_paused = -1;
+static int hf_spoolss_job_status_error = -1;
+static int hf_spoolss_job_status_deleting = -1;
+static int hf_spoolss_job_status_spooling = -1;
+static int hf_spoolss_job_status_printing = -1;
+static int hf_spoolss_job_status_offline = -1;
+static int hf_spoolss_job_status_paperout = -1;
+static int hf_spoolss_job_status_printed = -1;
+static int hf_spoolss_job_status_deleted = -1;
+static int hf_spoolss_job_status_blocked = -1;
+static int hf_spoolss_job_status_user_intervention = -1;
+
+static const true_false_string tfs_job_status_paused = {
+	"Job is paused",
+	"Job is not paused"
+};
+
+static const true_false_string tfs_job_status_error = {
+	"Job has an error",
+	"Job is OK"
+};
+
+static const true_false_string tfs_job_status_deleting = {
+	"Job is being deleted",
+	"Job is not being deleted"
+};
+
+static const true_false_string tfs_job_status_spooling = {
+	"Job is being spooled",
+	"Job is not being spooled"
+};
+
+static const true_false_string tfs_job_status_printing = {
+	"Job is being printed",
+	"Job is not being printed"
+};
+
+static const true_false_string tfs_job_status_offline = {
+	"Job is offline",
+	"Job is not offline"
+};
+
+static const true_false_string tfs_job_status_paperout = {
+	"Job is out of paper",
+	"Job is not out of paper"
+};
+
+static const true_false_string tfs_job_status_printed = {
+	"Job has completed printing",
+	"Job has not completed printing"
+};
+
+static const true_false_string tfs_job_status_deleted = {
+	"Job has been deleted",
+	"Job has not been deleted"
+};
+
+static const true_false_string tfs_job_status_blocked = {
+	"Job has been blocked",
+	"Job has not been blocked"
+};
+
+static const true_false_string tfs_job_status_user_intervention = {
+	"User intervention required",
+	"User intervention not required"
 };
 
 /* 
@@ -1304,6 +1371,73 @@ static int prs_PRINTER_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = prs_relstr(tvb, offset, pinfo, tree, dp_list, struct_start,
 			    NULL, "Comment");
 	
+	return offset;
+}
+
+/* Job status */
+
+static gint ett_job_status = -1;
+
+static int
+dissect_job_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		   proto_tree *tree, char *drep)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	guint32 status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
+				    hf_spoolss_job_status, &status);
+
+	item = proto_tree_add_text(tree, tvb, offset - 4, 4,
+				   "Status: 0x%08x", status);
+
+	subtree = proto_item_add_subtree(item, ett_job_status);
+
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_job_status_paused,
+		tvb, offset - 4, 4, status);
+
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_job_status_error,
+		tvb, offset - 4, 4, status);
+
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_job_status_deleting,
+		tvb, offset - 4, 4, status);
+
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_job_status_spooling,
+		tvb, offset - 4, 4, status);
+
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_job_status_printing,
+		tvb, offset - 4, 4, status);
+
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_job_status_offline,
+		tvb, offset - 4, 4, status);
+
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_job_status_paperout,
+		tvb, offset - 4, 4, status);
+
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_job_status_printed,
+		tvb, offset - 4, 4, status);
+
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_job_status_deleted,
+		tvb, offset - 4, 4, status);
+
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_job_status_blocked,
+		tvb, offset - 4, 4, status);
+
+	proto_tree_add_boolean(
+		subtree, hf_spoolss_job_status_user_intervention,
+		tvb, offset - 4, 4, status);
+
 	return offset;
 }
 
@@ -3488,8 +3622,7 @@ dissect_spoolss_JOB_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, subtree, drep, hf_spoolss_textstatus,
 		struct_start, NULL);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
-				    hf_spoolss_jobstatus, NULL);
+	offset = dissect_job_status(tvb, offset, pinfo, subtree, drep);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
 				    hf_spoolss_jobpriority, NULL);
@@ -4778,6 +4911,17 @@ dissect_NOTIFY_INFO_DATA_job(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		break;
 
+	case JOB_NOTIFY_STATUS:
+
+		offset = dissect_job_status(
+			tvb, offset, pinfo, tree, drep);
+
+		offset = dissect_ndr_uint32(
+			tvb, offset, pinfo, NULL, drep,
+			hf_spoolss_notify_info_data_value2, NULL);
+
+		break;
+
 	case JOB_NOTIFY_SUBMITTED:
 
 		/* SYSTEM_TIME */
@@ -4860,9 +5004,7 @@ dissect_NOTIFY_INFO_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	proto_item_append_text(
 		item, ": %s, %s", 
-		val_to_str(type, printer_notify_types, "%s"),
-		
-		val_to_str(field, printer_notify_option_data_vals, "%s"));
+		val_to_str(type, printer_notify_types, "%s"), field_string);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep,
@@ -4938,7 +5080,9 @@ static int SpoolssRFNPCNEX_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
 		FALSE, FALSE);	
 
-	offset = dissect_notify_options_flags(tvb, offset, pinfo, tree, drep);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_rrpcn_changelow, NULL);
 
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
@@ -5435,9 +5579,66 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_spoolss_jobid,
 		  { "Job ID", "spoolss.job.id", FT_UINT32, BASE_DEC, 
 		    NULL, 0x0, "Job identification number", HFILL }},
-		{ &hf_spoolss_jobstatus,
+
+		{ &hf_spoolss_job_status,
 		  { "Job status", "spoolss.job.status", FT_UINT32, BASE_DEC, 
 		    NULL, 0x0, "Job status", HFILL }},
+		
+		{ &hf_spoolss_job_status_paused,
+		  { "Paused", "spoolss.job.status.paused", FT_BOOLEAN, 32, 
+		    TFS(&tfs_job_status_paused), JOB_STATUS_PAUSED,
+		    "Paused", HFILL }},
+		
+		{ &hf_spoolss_job_status_error,
+		  { "Error", "spoolss.job.status.error", FT_BOOLEAN, 32, 
+		    TFS(&tfs_job_status_error), JOB_STATUS_ERROR,
+		    "Error", HFILL }},
+		
+		{ &hf_spoolss_job_status_deleting,
+		  { "Deleting", "spoolss.job.status.deleting", FT_BOOLEAN, 32, 
+		    TFS(&tfs_job_status_deleting), JOB_STATUS_DELETING,
+		    "Deleting", HFILL }},
+		
+		{ &hf_spoolss_job_status_spooling,
+		  { "Spooling", "spoolss.job.status.spooling", FT_BOOLEAN, 32, 
+		    TFS(&tfs_job_status_spooling), JOB_STATUS_SPOOLING,
+		    "Spooling", HFILL }},
+		
+		{ &hf_spoolss_job_status_printing,
+		  { "Printing", "spoolss.job.status.printing", FT_BOOLEAN, 32, 
+		    TFS(&tfs_job_status_printing), JOB_STATUS_PRINTING,
+		    "Printing", HFILL }},
+		
+		{ &hf_spoolss_job_status_offline,
+		  { "Offline", "spoolss.job.status.offline", FT_BOOLEAN, 32, 
+		    TFS(&tfs_job_status_offline), JOB_STATUS_OFFLINE,
+		    "Offline", HFILL }},
+		
+		{ &hf_spoolss_job_status_paperout,
+		  { "Paperout", "spoolss.job.status.paperout", FT_BOOLEAN, 32, 
+		    TFS(&tfs_job_status_paperout), JOB_STATUS_PAPEROUT,
+		    "Paperout", HFILL }},
+		
+		{ &hf_spoolss_job_status_printed,
+		  { "Printed", "spoolss.job.status.printed", FT_BOOLEAN, 32, 
+		    TFS(&tfs_job_status_printed), JOB_STATUS_PRINTED,
+		    "Printed", HFILL }},
+		
+		{ &hf_spoolss_job_status_deleted,
+		  { "Deleted", "spoolss.job.status.deleted", FT_BOOLEAN, 32, 
+		    TFS(&tfs_job_status_deleted), JOB_STATUS_DELETED,
+		    "Deleted", HFILL }},
+		
+		{ &hf_spoolss_job_status_blocked,
+		  { "Blocked", "spoolss.job.status.blocked", FT_BOOLEAN, 32, 
+		    TFS(&tfs_job_status_blocked), JOB_STATUS_BLOCKED,
+		    "Blocked", HFILL }},
+		
+		{ &hf_spoolss_job_status_user_intervention,
+		  { "User intervention", "spoolss.job.status.user_intervention", FT_BOOLEAN, 32, 
+		    TFS(&tfs_job_status_user_intervention), JOB_STATUS_USER_INTERVENTION,
+		    "User intervention", HFILL }},
+		
 		{ &hf_spoolss_jobpriority,
 		  { "Job priority", "spoolss.job.priority", FT_UINT32, BASE_DEC, 
 		    NULL, 0x0, "Job priority", HFILL }},
@@ -5808,6 +6009,7 @@ proto_register_dcerpc_spoolss(void)
 		&ett_NOTIFY_INFO_DATA,
 		&ett_NOTIFY_OPTION,
 		&ett_printer_attributes,
+		&ett_job_status,
         };
 
         proto_dcerpc_spoolss = proto_register_protocol(
