@@ -2,7 +2,7 @@
  * Routines for async NSM stat callback dissection
  * 2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
  *
- * $Id: packet-stat-notify.c,v 1.5 2001/06/18 02:17:53 guy Exp $
+ * $Id: packet-stat-notify.c,v 1.6 2001/09/13 08:02:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -88,7 +88,7 @@ proto_register_statnotify(void)
 		&ett_statnotify,
 	};
 
-	proto_statnotify = proto_register_protocol("Network Status Monitor CallBack Protocol", "STAT-CB", "stat-cb");
+	proto_statnotify = proto_register_protocol("Network Status Monitor CallBack Protocol", "STAT_CB", "stat_cb");
 	proto_register_field_array(proto_statnotify, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

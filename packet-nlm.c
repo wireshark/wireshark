@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.18 2001/06/18 02:17:50 guy Exp $
+ * $Id: packet-nlm.c,v 1.19 2001/09/13 08:02:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,6 +71,7 @@ static int hf_nlm_lock_l_offset = -1;
 static int hf_nlm_lock_l_len = -1;
 static int hf_nlm_reclaim = -1;
 static int hf_nlm_state = -1;
+static int hf_nlm_stat = -1;
 static int hf_nlm_test_stat = -1;
 static int hf_nlm_test_stat_stat = -1;
 static int hf_nlm_holder = -1;
@@ -203,7 +204,7 @@ dissect_nlm_lock(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_rpc_bool(tvb, pinfo, tree, hf_nlm_exclusive, offset);
 	offset = dissect_lock(tvb, pinfo, tree, version, offset);
 	offset = dissect_rpc_bool(tvb, pinfo, tree, hf_nlm_reclaim, offset);
-	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_nlm_state, offset);
+	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_nlm_stat, offset);
 	return offset;
 }
 
@@ -716,6 +717,9 @@ proto_register_nlm(void)
 		{ &hf_nlm_reclaim, {
 			"reclaim", "nlm.reclaim", FT_BOOLEAN, BASE_NONE,
 			&yesno, 0, "reclaim", HFILL }},
+		{ &hf_nlm_stat, {
+			"stat", "nlm.stat", FT_UINT32, BASE_DEC,
+			NULL, 0, "STATD state", HFILL }},
 		{ &hf_nlm_state, {
 			"state", "nlm.state", FT_UINT32, BASE_DEC,
 			VALS(names_nlm_state), 0, "state", HFILL }},
