@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.294 2003/05/15 13:38:05 deniel Exp $
+ * $Id: main.c,v 1.295 2003/05/16 00:48:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1296,7 +1296,7 @@ set_autostop_criterion(const char *autostoparg)
 static gboolean
 get_ring_arguments(const char *arg)
 {
-  guchar *p, *colonp;
+  guchar *p = NULL, *colonp;
 
   colonp = strchr(arg, ':');
 

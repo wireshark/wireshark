@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.184 2003/05/15 13:33:53 deniel Exp $
+ * $Id: tethereal.c,v 1.185 2003/05/16 00:48:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -331,7 +331,7 @@ set_autostop_criterion(const char *autostoparg)
 static gboolean
 get_ring_arguments(const char *arg)
 {
-  guchar *p, *colonp;
+  guchar *p = NULL, *colonp;
 
   colonp = strchr(arg, ':');
 
