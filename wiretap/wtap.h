@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.55 1999/12/05 01:24:54 guy Exp $
+ * $Id: wtap.h,v 1.56 1999/12/11 00:40:39 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -103,23 +103,24 @@
 #define WTAP_FILE_WTAP				1
 #define WTAP_FILE_PCAP				2
 #define WTAP_FILE_PCAP_MODIFIED			3
-#define WTAP_FILE_LANALYZER			4
-#define WTAP_FILE_NGSNIFFER			5
-#define WTAP_FILE_SNOOP				6
-#define WTAP_FILE_IPTRACE_1_0			7
-#define WTAP_FILE_IPTRACE_2_0			8
-#define WTAP_FILE_NETMON_1_x			9
-#define WTAP_FILE_NETMON_2_x			10
-#define WTAP_FILE_NETXRAY_1_0			11
-#define WTAP_FILE_NETXRAY_1_1			12
-#define WTAP_FILE_NETXRAY_2_001			13
-#define WTAP_FILE_RADCOM			14
-#define WTAP_FILE_ASCEND			15
-#define WTAP_FILE_NETTL				16
-#define WTAP_FILE_TOSHIBA			17
+#define WTAP_FILE_PCAP_RH_6_1			4
+#define WTAP_FILE_LANALYZER			5
+#define WTAP_FILE_NGSNIFFER			6
+#define WTAP_FILE_SNOOP				7
+#define WTAP_FILE_IPTRACE_1_0			8
+#define WTAP_FILE_IPTRACE_2_0			9
+#define WTAP_FILE_NETMON_1_x			10
+#define WTAP_FILE_NETMON_2_x			11
+#define WTAP_FILE_NETXRAY_1_0			12
+#define WTAP_FILE_NETXRAY_1_1			13
+#define WTAP_FILE_NETXRAY_2_001			14
+#define WTAP_FILE_RADCOM			15
+#define WTAP_FILE_ASCEND			16
+#define WTAP_FILE_NETTL				17
+#define WTAP_FILE_TOSHIBA			18
 
 /* last WTAP_FILE_ value + 1 */
-#define WTAP_NUM_FILE_TYPES			18
+#define WTAP_NUM_FILE_TYPES			19
 
 /*
  * Maximum packet size we'll support.
@@ -175,6 +176,8 @@ typedef struct {
 	time_t	start_secs;
 	guint32	start_usecs;
 	guint8	version_major;
+	guint32 *frame_table;
+	int	current_frame;
 	int	end_offset;
 } netmon_t;
 

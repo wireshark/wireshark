@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.38 1999/12/05 01:23:22 guy Exp $
+ * $Id: file.c,v 1.39 1999/12/11 00:40:40 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -192,15 +192,19 @@ const static struct file_type_info {
 
 	/* WTAP_FILE_PCAP_MODIFIED */
 	{ "modified libpcap (tcpdump)", NULL,
-	  NULL, NULL },
+	  libpcap_dump_can_write_encap, libpcap_dump_open },
+
+	/* WTAP_FILE_PCAP_RH_6_1 */
+	{ "Red Hat Linux 6.1 libpcap (tcpdump)", NULL,
+	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_LANALYZER */
 	{ "Novell LANalyzer", NULL,
 	  NULL, NULL },
 
 	/* WTAP_FILE_NGSNIFFER */
-	{ "Network Associates Sniffer (DOS-based)", NULL,
-	  NULL, NULL },
+	{ "Network Associates Sniffer (DOS-based)", "ngsniffer",
+	  ngsniffer_dump_can_write_encap, ngsniffer_dump_open },
 
 	/* WTAP_FILE_SNOOP */
 	{ "Sun snoop", "snoop",

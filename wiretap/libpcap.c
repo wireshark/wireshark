@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.26 1999/12/04 09:38:37 guy Exp $
+ * $Id: libpcap.c,v 1.27 1999/12/11 00:40:39 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -345,7 +345,7 @@ int libpcap_open(wtap *wth, int *err)
 			 * if that doesn't work, it probably *is*
 			 * a corrupt file.
 			 */
-			wth->file_type = WTAP_FILE_PCAP_MODIFIED;
+			wth->file_type = WTAP_FILE_PCAP_RH_6_1;
 			wth->capture.pcap->modified = TRUE;
 		}
 
@@ -495,7 +495,7 @@ int libpcap_dump_can_write_encap(int filetype, int encap)
    failure */
 gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 {
-	static const guint32 pcap_magic = PCAP_MAGIC;
+	guint32 magic;
 	struct pcap_hdr file_hdr;
 	int nwritten;
 
@@ -504,8 +504,26 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 	wdh->subtype_close = NULL;
 
 	/* Write the file header. */
-	nwritten = fwrite(&pcap_magic, 1, sizeof pcap_magic, wdh->fh);
-	if (nwritten != sizeof pcap_magic) {
+	switch (wdh->file_type) {
+
+	case WTAP_FILE_PCAP:
+	case WTAP_FILE_PCAP_RH_6_1:	/* modified, but with the old magic, sigh */
+		magic = PCAP_MAGIC;
+		break;
+
+	case WTAP_FILE_PCAP_MODIFIED:
+		magic = PCAP_MODIFIED_MAGIC;
+		break;
+
+	default:
+		/* We should never get here - our open routine
+		   should only get called for the types above. */
+		*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+		return FALSE;
+	}
+
+	nwritten = fwrite(&magic, 1, sizeof magic, wdh->fh);
+	if (nwritten != sizeof magic) {
 		if (nwritten < 0)
 			*err = errno;
 		else
@@ -537,15 +555,56 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const u_char *pd, int *err)
 {
-	struct pcaprec_hdr rec_hdr;
+	struct pcaprec_modified_hdr rec_hdr;
+	int hdr_size;
 	int nwritten;
 
-	rec_hdr.ts_sec = phdr->ts.tv_sec;
-	rec_hdr.ts_usec = phdr->ts.tv_usec;
-	rec_hdr.incl_len = phdr->caplen;
-	rec_hdr.orig_len = phdr->len;
-	nwritten = fwrite(&rec_hdr, 1, sizeof rec_hdr, wdh->fh);
-	if (nwritten != sizeof rec_hdr) {
+	rec_hdr.hdr.ts_sec = phdr->ts.tv_sec;
+	rec_hdr.hdr.ts_usec = phdr->ts.tv_usec;
+	rec_hdr.hdr.incl_len = phdr->caplen;
+	rec_hdr.hdr.orig_len = phdr->len;
+	switch (wdh->file_type) {
+
+	case WTAP_FILE_PCAP:
+		hdr_size = sizeof rec_hdr.hdr;
+		break;
+
+	case WTAP_FILE_PCAP_RH_6_1:	/* modified, but with the old magic, sigh */
+	case WTAP_FILE_PCAP_MODIFIED:
+		/* XXX - what should we supply here?
+
+		   Alexey's "libpcap" looks up the interface in the system's
+		   interface list if "ifindex" is non-zero, and prints
+		   the interface name.  It ignores "protocol", and uses
+		   "pkt_type" to tag the packet as "host", "broadcast",
+		   "multicast", "other host", "outgoing", or "none of the
+		   above", but that's it.
+
+		   If the capture we're writing isn't a modified or
+		   RH 6.1 capture, we'd have to do some work to
+		   generate the packet type and interface index - and
+		   we can't generate the interface index unless we
+		   just did the capture ourselves in any case.
+
+		   I'm inclined to continue to punt; systems other than
+		   those with the older patch can read standard "libpcap"
+		   files, and systems with the older patch, e.g. RH 6.1,
+		   will just have to live with this. */
+		rec_hdr.ifindex = 0;
+		rec_hdr.protocol = 0;
+		rec_hdr.pkt_type = 0;
+		hdr_size = sizeof rec_hdr;
+		break;
+
+	default:
+		/* We should never get here - our open routine
+		   should only get called for the types above. */
+		*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+		return FALSE;
+	}
+
+	nwritten = fwrite(&rec_hdr, 1, hdr_size, wdh->fh);
+	if (nwritten != hdr_size) {
 		if (nwritten < 0)
 			*err = errno;
 		else
