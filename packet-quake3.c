@@ -3,7 +3,7 @@
  *
  * Uwe Girlich <uwe@planetquake.com>
  *
- * $Id: packet-quake3.c,v 1.2 2001/07/22 19:04:20 girlich Exp $
+ * $Id: packet-quake3.c,v 1.3 2001/09/01 14:47:48 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -133,6 +133,12 @@ static const value_string names_command[] = {
 	{ COMMAND_getserversResponse,	"Reply Servers" },
 #define COMMAND_getservers		14
 	{ COMMAND_getservers,		"Request Servers" },
+#define COMMAND_getKeyAuthorize		15
+	{ COMMAND_getKeyAuthorize,	"Request Key Authorization" },
+#define COMMAND_getIpAuthorize		16
+	{ COMMAND_getIpAuthorize,	"Request IP Authorization" },
+#define COMMAND_ipAuthorize		17
+	{ COMMAND_ipAuthorize,		"Reply IP Authorization" },
 	{ 0, NULL }
 };
 
@@ -201,7 +207,6 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 		command = COMMAND_infoResponse;
 		*direction = DIR_S2C;
 		command_len = 12;
-
 	}
 	else if (strncmp(text, "getinfo", 7) == 0) {
 		command = COMMAND_getinfo;
@@ -222,7 +227,6 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 		command = COMMAND_connectResponse;
 		*direction = DIR_S2C;
 		command_len = 15;
-
 	}
 	else if (strncmp(text, "connect", 7) == 0) {
 		command = COMMAND_connect;
@@ -263,7 +267,8 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 			/* then replace the text */
 			proto_item_set_text(text_item, "Text: getserversResponse<DATA>");
 		}
-		proto_tree_add_string(text_tree, hf_quake3_connectionless_command,
+		if (text_tree)
+			proto_tree_add_string(text_tree, hf_quake3_connectionless_command,
 					tvb, offset, command_len,
 					val_to_str(command, names_command, "Unknown"));
 		command_finished = TRUE;
@@ -312,6 +317,21 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 		command = COMMAND_getservers;
 		*direction = DIR_C2M;
 		command_len = 10;
+	}
+	else if (strncmp(text, "getKeyAuthorize", 15) == 0) {
+		command = COMMAND_getKeyAuthorize;
+		*direction = DIR_C2M;
+		command_len = 15;
+	}
+	else if (strncmp(text, "getIpAuthorize", 14) == 0) {
+		command = COMMAND_getIpAuthorize;
+		*direction = DIR_C2M;
+		command_len = 14;
+	}
+	else if (strncmp(text, "ipAuthorize", 11) == 0) {
+		command = COMMAND_ipAuthorize;
+		*direction = DIR_M2C;
+		command_len = 11;
 	}
 	else {
 		*direction = DIR_UNKNOWN;
