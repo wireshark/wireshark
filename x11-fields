@@ -1,0 +1,400 @@
+acceleration-denominator	INT16	DEC
+acceleration-numerator	INT16	DEC
+access-mode	UINT8	VALS
+address		BYTES	NONE
+address-length	UINT16	DEC
+alloc		UINT8	VALS
+allow-events-mode	UINT8	VALS
+allow-exposures	UINT8	VALS(yes_no_default)
+arcs		NONE	NONE
+
+arc		NONE	NONE
+	x		INT16	DEC
+	y		INT16	DEC
+	width	UINT16	DEC
+	height	UINT16	DEC
+	angle1	INT16	DEC
+	angle2	INT16	DEC
+	mode	UINT8	VALS		Tell us if we're drawing an arc or a pie
+
+atom		UINT32	HEX
+auto-repeat-mode	UINT8	VALS
+back-blue	UINT16	DEC		Background blue value for a cursor
+back-green	UINT16	DEC		Background green value for a cursor
+back-red	UINT16	DEC		Background red value for a cursor
+background	UINT32	HEX		Background color
+background-pixel	UINT32	HEX	Background color for a window
+background-pixmap	UINT32	VALS	Background pixmap for a window
+backing-pixel	UINT32	HEX
+backing-planes	UINT32	HEX
+backing-store	UINT8	VALS
+bell-duration	INT16	DEC
+bell-percent	INT8	DEC
+bell-pitch	INT16	DEC
+bit-gravity	UINT8	VALS(gravity)
+bit-plane	UINT32	BIN
+blue		UINT16	DEC
+blues		UINT16	DEC
+border-pixel	UINT32	HEX
+border-pixmap	UINT32	VALS
+border-width	UINT16	DEC
+button		UINT8	VALS
+cap-style	UINT8	VALS
+change-host-mode	UINT8	VALS(insert_delete)
+cid		UINT32	HEX
+class		UINT8	VALS
+clip-mask	UINT32	VALS(zero_is_none)
+clip-x-origin	INT16	DEC
+clip-y-origin	INT16	DEC
+close-down-mode	UINT8	VALS
+cmap		UINT32	HEX
+colormap	UINT32	HEX
+
+color-items	NONE	NONE
+
+coloritem		NONE	NONE
+	pixel		UINT32	HEX
+	red		UINT16	DEC
+	green		UINT16	DEC
+	blue		UINT16	DEC
+	flags		UINT8	HEX
+		do-red		BOOLEAN	8	0x01
+		do-green	BOOLEAN	8	0x02
+		do-blue		BOOLEAN	8	0x04
+		unused		BOOLEAN	8	0xf8
+	unused		NONE	NONE
+
+colors		UINT16	DEC			The number of color cells to allocate.
+
+configure-window-mask	UINT16	HEX
+	x		BOOLEAN	16	0x0001
+	y		BOOLEAN	16	0x0002
+	width		BOOLEAN	16	0x0004
+	height		BOOLEAN	16	0x0008
+	border-width	BOOLEAN	16	0x0010
+	sibling		BOOLEAN	16	0x0020
+	stack-mode	BOOLEAN	16	0x0040
+
+confine-to	UINT32	VALS(zero_is_none)
+contiguous	BOOLEAN	8
+coordinate-mode	UINT8	VALS
+count		UINT8	DEC
+cursor		UINT32	VALS(zero_is_none)
+dash-offset	UINT16	DEC
+dashes		BYTES	NONE
+dashes-length	UINT16	DEC
+do-acceleration	BOOLEAN	8
+do-threshold	BOOLEAN	8
+
+do-not-propagate-mask	UINT32	HEX
+	KeyPress		BOOLEAN 32	0x00000001
+	KeyRelease		BOOLEAN 32	0x00000002
+	ButtonPress		BOOLEAN 32	0x00000004
+	ButtonRelease		BOOLEAN 32	0x00000008
+	PointerMotion		BOOLEAN 32	0x00000040
+	Button1Motion		BOOLEAN 32	0x00000100
+	Button2Motion		BOOLEAN 32	0x00000200
+	Button3Motion		BOOLEAN 32	0x00000400
+	Button4Motion		BOOLEAN 32	0x00000800
+	Button5Motion		BOOLEAN 32	0x00001000
+	ButtonMotion		BOOLEAN 32	0x00002000
+	erroneous-bits		BOOLEAN 32	0xffffc0b0
+
+gc-dashes	UINT8	BIN
+
+gc-value-mask	UINT32	HEX
+	function		BOOLEAN	32	0x00000001
+	plane-mask		BOOLEAN	32	0x00000002
+	foreground		BOOLEAN	32	0x00000004
+	background		BOOLEAN	32	0x00000008
+	line-width		BOOLEAN	32	0x00000010
+	line-style		BOOLEAN	32	0x00000020
+	cap-style		BOOLEAN	32	0x00000040
+	join-style		BOOLEAN	32	0x00000080
+	fill-style		BOOLEAN	32	0x00000100
+	fill-rule		BOOLEAN	32	0x00000200
+	tile			BOOLEAN	32	0x00000400
+	stipple			BOOLEAN	32	0x00000800
+	tile-stipple-x-origin	BOOLEAN	32	0x00001000
+	tile-stipple-y-origin	BOOLEAN	32	0x00002000
+	font			BOOLEAN	32	0x00004000
+	subwindow-mode		BOOLEAN	32	0x00008000
+	graphics-exposures	BOOLEAN	32	0x00010000
+	clip-x-origin		BOOLEAN	32	0x00020000
+	clip-y-origin		BOOLEAN	32	0x00040000
+	clip-mask		BOOLEAN	32	0x00080000
+	dash-offset		BOOLEAN	32	0x00100000
+	gc-dashes		BOOLEAN	32	0x00200000
+	arc-mode		BOOLEAN	32	0x00400000
+
+green		UINT16	DEC
+greens		UINT16	DEC
+data		BYTES	NONE
+data-length	UINT32	DEC
+delete		BOOLEAN	8		Delete this property after reading
+delta		INT16	DEC
+depth		UINT8	DEC
+direction	UINT8	VALS
+drawable	UINT32	HEX
+dst-drawable	UINT32	HEX
+dst-gc		UINT32	HEX
+dst-window	UINT32	HEX
+dst-x		INT16	DEC
+dst-y		INT16	DEC
+
+event-mask	UINT32	HEX
+	KeyPress		BOOLEAN 32	0x00000001
+	KeyRelease		BOOLEAN 32	0x00000002
+	ButtonPress		BOOLEAN 32	0x00000004
+	ButtonRelease		BOOLEAN 32	0x00000008
+	EnterWindow		BOOLEAN 32	0x00000010
+	LeaveWindow		BOOLEAN 32	0x00000020
+	PointerMotion		BOOLEAN 32	0x00000040
+	PointerMotionHint	BOOLEAN 32	0x00000080
+	Button1Motion		BOOLEAN 32	0x00000100
+	Button2Motion		BOOLEAN 32	0x00000200
+	Button3Motion		BOOLEAN 32	0x00000400
+	Button4Motion		BOOLEAN 32	0x00000800
+	Button5Motion		BOOLEAN 32	0x00001000
+	ButtonMotion		BOOLEAN 32	0x00002000
+	KeymapState		BOOLEAN 32	0x00004000
+	Exposure		BOOLEAN 32	0x00008000
+	VisibilityChange	BOOLEAN 32	0x00010000
+	StructureNotify		BOOLEAN 32	0x00020000
+	ResizeRedirect		BOOLEAN 32	0x00040000
+	SubstructureNotify	BOOLEAN 32	0x00080000
+	SubstructureRedirect	BOOLEAN 32	0x00100000
+	FocusChange		BOOLEAN 32	0x00200000
+	PropertyChange		BOOLEAN 32	0x00400000
+	ColormapChange		BOOLEAN 32	0x00800000
+	OwnerGrabButton		BOOLEAN 32	0x01000000
+	erroneous-bits		BOOLEAN 32	0xfe000000
+
+exposures	BOOLEAN	8
+family		UINT8	VALS
+fid		UINT32	HEX		Font id
+fill-rule	UINT8	VALS
+fill-style	UINT8	VALS
+first-keycode	UINT8	DEC
+focus		UINT8	VALS
+font		UINT32	HEX
+fore-blue	UINT16	DEC
+fore-green	UINT16	DEC
+fore-red	UINT16	DEC
+foreground	UINT32	HEX
+format		UINT8	DEC
+function	UINT8	VALS
+gc		UINT32	HEX
+get-property-type	UINT32	VALS(zero_is_any_property_type)
+grab_window	UINT32	HEX
+graphics-exposures	BOOLEAN	8
+height		UINT16	DEC
+image-format	UINT8	VALS
+image-pixmap-format	UINT8	VALS
+interval	INT16	DEC
+items		NONE	NONE
+join-style	UINT8	VALS
+key		UINT8	VALS
+key-click-percent	INT8	DEC
+keyboard-key	UINT8	DEC
+keyboard-mode	UINT8	VALS(pointer_keyboard_mode)
+
+keyboard-value-mask	UINT32	HEX
+	key-click-percent	BOOLEAN	32	0x0001
+	bell-percent		BOOLEAN	32	0x0002
+	bell-pitch		BOOLEAN	32	0x0004
+	bell-duration		BOOLEAN	32	0x0008
+	led			BOOLEAN	32	0x0010
+	led-mode		BOOLEAN	32	0x0020
+	keyboard-key		BOOLEAN	32	0x0040
+	auto-repeat-mode	BOOLEAN	32	0x0080
+
+keycode-count	UINT8	DEC
+
+keycodes	NONE	NONE
+	item	BYTES	NONE
+
+keycodes-per-modifier	UINT8	DEC
+
+keysyms		NONE	NONE
+	item	NONE	NONE
+		keysym	UINT32	HEX
+
+keysyms-per-keycode	UINT8	DEC
+led		UINT8	DEC
+led-mode	UINT8	VALS(on_off)
+left-pad	UINT8	DEC
+line-style	UINT8	VALS
+line-width	UINT16	DEC
+long-length	UINT32	DEC		The maximum length of the property in bytes
+long-offset	UINT32	DEC		The starting position in the property bytes array
+map		BYTES	NONE
+map-length	UINT8	DEC
+mask		UINT32	VALS(zero_is_none)
+mask-char	UINT16	DEC
+mask-font	UINT32	VALS(zero_is_none)
+max-names	UINT16	DEC
+mid		UINT32	HEX
+mode		UINT8	VALS
+
+modifiers-mask		UINT16	HEX
+	Shift			BOOLEAN	16	0x0001
+	Lock			BOOLEAN	16	0x0002
+	Control			BOOLEAN	16	0x0004
+	Mod1			BOOLEAN	16	0x0008
+	Mod2			BOOLEAN	16	0x0010
+	Mod3			BOOLEAN	16	0x0020
+	Mod4			BOOLEAN	16	0x0040
+	Mod5			BOOLEAN	16	0x0080
+	AnyModifier		UINT16	HEX	0x8000
+	erroneous-bits		BOOLEAN	16	0xff00
+
+name		STRING	HEX
+name-length	UINT16	DEC
+odd-length	BOOLEAN	8
+only-if-exists	BOOLEAN	8
+opcode		UINT8	VALS
+ordering	UINT8	VALS
+override-redirect	BOOLEAN	8	Window manager doesn't manage this window when true
+owner		UINT32	VALS(zero_is_none)
+owner-events	BOOLEAN 8
+parent		UINT32	HEX
+
+path	NONE	NONE
+	string			STRING	NONE
+
+pattern		STRING	HEX
+pattern-length	UINT16	DEC
+percent		UINT8	DEC
+pid		UINT32	HEX
+pixel		UINT32	HEX
+pixels		NONE	NONE
+pixels_item	UINT32	HEX
+pixmap		UINT32	HEX
+plane-mask	UINT32	VALS
+planes		UINT16	DEC
+point		NONE	NONE
+points		NONE	NONE
+point-x		INT16	DEC
+point-y		INT16	DEC
+
+pointer-event-mask	UINT16	HEX
+	ButtonPress		BOOLEAN 16	0x0004
+	ButtonRelease		BOOLEAN 16	0x0008
+	EnterWindow		BOOLEAN 16	0x0010
+	LeaveWindow		BOOLEAN 16	0x0020
+	PointerMotion		BOOLEAN 16	0x0040
+	PointerMotionHint	BOOLEAN 16	0x0080
+	Button1Motion		BOOLEAN 16	0x0100
+	Button2Motion		BOOLEAN 16	0x0200
+	Button3Motion		BOOLEAN 16	0x0400
+	Button4Motion		BOOLEAN 16	0x0800
+	Button5Motion		BOOLEAN 16	0x1000
+	ButtonMotion		BOOLEAN 16	0x2000
+	KeymapState		BOOLEAN 16	0x4000
+	erroneous-bits		BOOLEAN 16	0x8003
+
+pointer-mode	UINT8	VALS(pointer_keyboard_mode)
+prefer-blanking	UINT8	VALS(yes_no_default)
+
+properties	NONE	NONE
+	item	UINT32	HEX
+
+property	UINT32	HEX
+property-number	UINT16	DEC
+rectangle-height	UINT16	DEC
+rectangles	NONE	NONE
+rectangle	NONE	NONE
+rectangle-width	UINT16	DEC
+rectangle-x	INT16	DEC
+rectangle-y	INT16	DEC
+red		UINT16	DEC
+reds		UINT16	DEC
+request		UINT8	VALS(opcode)
+requestor	UINT32	HEX
+request-length	UINT16	DEC		Request length
+resource	UINT32	VALS(all_temporary)
+revert-to	UINT8	VALS
+save-set-mode	UINT8	VALS(insert_delete)
+save-under	BOOLEAN	8
+screen-saver-mode	UINT8	VALS
+segment		NONE	NONE
+segments	NONE	NONE
+segment_x1	INT16	DEC
+segment_x2	INT16	DEC
+segment_y1	INT16	DEC
+segment_y2	INT16	DEC
+selection	UINT32	HEX
+shape		UINT8	VALS
+sibling		UINT32	HEX
+source-pixmap	UINT32	HEX
+source-font	UINT32	HEX
+source-char	UINT16	DEC
+src-cmap	UINT32	HEX
+src-drawable	UINT32	HEX
+src-gc		UINT32	HEX
+src-height	UINT16	DEC
+src-width	UINT16	DEC
+src-window	UINT32	HEX
+src-x		INT16	DEC
+src-y		INT16	DEC
+start		UINT32	DEC
+stack-mode	UINT8	VALS
+stipple		UINT32	HEX
+stop		UINT32	DEC
+str-number-in-path	UINT16	DEC
+string		STRING	HEX
+
+string16	STRING	HEX
+	bytes	BYTES	NONE
+
+string-length	UINT32	DEC
+subwindow-mode	UINT8	VALS
+target		UINT32	HEX
+
+textitem	NONE	NONE
+	font	UINT32	HEX
+	string		NONE	NONE
+		delta		INT8	DEC
+		string8		STRING	NONE
+		string16	STRING	NONE
+			bytes	BYTES	NONE
+
+threshold	INT16	DEC
+tile		UINT32	HEX
+tile-stipple-x-origin	INT16	DEC
+tile-stipple-y-origin	INT16	DEC
+time		UINT32	DEC
+timeout		INT16	DEC
+type		UINT32	HEX
+undecoded	NONE	NONE		Yet undecoded by dissector
+unused		NONE	NONE
+visual		UINT32	HEX
+visualid	UINT32	HEX
+warp-pointer-dst-window	UINT32	HEX	VALS(zero_is_none)
+warp-pointer-src-window	UINT32	HEX	VALS(zero_is_none)
+wid		UINT32	HEX		Window id
+width		UINT16	DEC
+win-gravity	UINT8	VALS(gravity)
+window		UINT32	HEX
+window-class	UINT16	VALS		Window class
+
+window-value-mask	UINT32	HEX
+	background-pixmap	BOOLEAN	32	0x00000001
+	background-pixel	BOOLEAN	32	0x00000002
+	border-pixmap		BOOLEAN	32	0x00000004
+	border-pixel		BOOLEAN	32	0x00000008
+	bit-gravity		BOOLEAN	32	0x00000010
+	win-gravity		BOOLEAN	32	0x00000020
+	backing-store		BOOLEAN	32	0x00000040
+	backing-planes		BOOLEAN	32	0x00000080
+	backing-pixel		BOOLEAN	32	0x00000100
+	override-redirect	BOOLEAN	32	0x00000200
+	save-under		BOOLEAN	32	0x00000400
+	event-mask		BOOLEAN	32	0x00000800
+	do-not-propagate-mask	BOOLEAN	32	0x00001000
+	colormap		BOOLEAN	32	0x00002000
+	cursor			BOOLEAN	32	0x00004000
+
+x		INT16	DEC
+y		INT16	DEC

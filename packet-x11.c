@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.17 2001/02/01 20:21:13 gram Exp $
+ * $Id: packet-x11.c,v 1.18 2001/04/20 04:16:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -66,7 +66,7 @@
 /* Initialize the protocol and registered fields */
 static int proto_x11 = -1;
 
-#include "packet-x11-declarations.h"
+#include "x11-declarations.h"
 
 /* Initialize the subtree pointers */
 static gint ett_x11 = -1;
@@ -2913,7 +2913,7 @@ void proto_register_x11(void)
   "FIELDDESCR" }
   },
 */
-#include "packet-x11-register-info.h"
+#include "x11-register-info.h"
       };
 
 /* Setup protocol subtree array */

@@ -37,6 +37,8 @@ stamp-h.in
 tethereal
 tethereal_static
 tethereal.1
+x11-declarations.h
+x11-register-info.h
 .*.swp
 etherXXXX*
 *.tgz

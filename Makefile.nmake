@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.98 2001/04/18 20:41:12 guy Exp $
+# $Id: Makefile.nmake,v 1.99 2001/04/20 04:16:18 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -299,6 +299,18 @@ config.h	: config.h.win32
 
 ps.c	: rdps.exe print.ps
 	rdps print.ps ps.c
+
+#
+# The header files listed here are built from x11-fields using Perl;
+# we declare a dependency here so that they get built.
+#
+packet-x11.obj	: packet-x11.c x11-declarations.h x11-register-info.h
+
+#
+# Build various header files for the X11 dissector.
+#
+x11-declarations.h x11-register-info.h: x11-fields process-x11-fields.pl
+	$(PERL) process-x11-fields.pl <x11-fields
 
 packet-ncp2222.c : ncp2222.py
 	@echo Making packet-ncp2222.c

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.309 2001/04/19 23:39:27 guy Exp $
+# $Id: Makefile.am,v 1.310 2001/04/20 04:16:18 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -325,8 +325,6 @@ noinst_HEADERS = \
 	packet-wtls.h \
 	packet-wtp.h \
 	packet-wsp.h \
-	packet-x11-declarations.h	\
-	packet-x11-register-info.h	\
 	packet-x11-keysym.h	\
 	packet-yhoo.h  \
 	packet-ypbind.h \
@@ -369,8 +367,14 @@ ETHEREAL_COMMON_SOURCES = \
 	smb.h          \
 	util.c         \
 	util.h         \
+	x11-declarations.h \
+	x11-register-info.h \
 	xdlc.c         \
 	xdlc.h
+
+BUILT_SOURCES = \
+	x11-declarations.h \
+	x11-register-info.h
 
 ethereal_SOURCES = \
 	$(DISSECTOR_SOURCES) \
@@ -514,6 +518,12 @@ editcap_DEPENDENCIES = wiretap/libwiretap.a
 
 # This automake variable adds to the link-line for the executable
 editcap_LDADD = wiretap/libwiretap.a @GLIB_LIBS@
+
+#
+# Build various header files for the X11 dissector.
+#
+x11-declarations.h x11-register-info.h: x11-fields process-x11-fields.pl
+	$(PERL) process-x11-fields.pl <x11-fields
 
 #
 # Build "register.c", which contains a function "register_all_protocols()"
