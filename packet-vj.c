@@ -1,7 +1,7 @@
 /* packet-vj.c
  * Routines for Van Jacobson header decompression. 
  *
- * $Id: packet-vj.c,v 1.9 2002/05/20 00:56:30 guy Exp $
+ * $Id: packet-vj.c,v 1.10 2002/05/22 09:49:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,6 +84,7 @@
 #define IP_HDR_LEN           20 /* Minimum IP header length               */
 #define IP_HDR_LEN_MASK    0x0f /* Mask for header length field           */
 #define IP_MAX_OPT_LEN       44 /* Max length of IP options               */
+#define TCP_FIELD_HDR_LEN    12 /* Data offset field in TCP hdr           */
 #define TCP_HDR_LEN          20 /* Minimum TCP header length              */
 #define TCP_MAX_OPT_LEN      44 /* Max length of TCP options              */
 #define TCP_SIMUL_CONV_MAX  256 /* Max number of simul. TCP conversations */
@@ -146,20 +147,18 @@ typedef struct {
 
 /* State per active tcp conversation */
 typedef struct cstate {
-  struct cstate *next;   /* next in ring (xmit) */
   iphdr_type cs_ip; 
   tcphdr_type cs_tcp;
   guint8 cs_ipopt[IP_MAX_OPT_LEN];
   guint8 cs_tcpopt[TCP_MAX_OPT_LEN];
+  guint32 flags;
+#define SLF_TOSS  0x00000001    /* tossing rcvd frames until id received */
 } cstate;
 
 /* All the state data for one serial line */
 typedef struct {
-  cstate *rstate;  /* receive connection states (array)*/
-  guint8 rslot_limit;     /* highest receive slot id */
-  guint8 recv_current;    /* most recent rcvd id */
-  guint8 flags;
-#define SLF_TOSS  0x01    /* tossing rcvd frames until id received */
+  cstate rstate[TCP_SIMUL_CONV_MAX]; /* receive connection states (array) */
+  guint8 recv_current;               /* most recent rcvd id */
 } slcompress;
 
 /* Initialize the protocol and registered fields */
@@ -207,11 +206,6 @@ static int get_signed_delta(tvbuff_t *tvb, int *offsetp, int hf,
 static guint16 ip_csum(const guint8 *ptr, guint32 len);
 static slcompress *slhc_init(void);
 static void vj_init(void);
-static gint vjuc_check(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                       slcompress *comp);
-static void vjuc_update_state(tvbuff_t *tvb, slcompress *comp, guint8 index);
-static gint vjuc_tvb_setup(tvbuff_t *tvb, tvbuff_t **dst_tvb, 
-                           packet_info *pinfo, slcompress *comp);
 static gint vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
                       slcompress *comp);
 static gint vjc_tvb_setup(tvbuff_t *src_tvb, tvbuff_t **dst_tvb,
@@ -224,8 +218,14 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
   proto_item *ti;
   proto_tree *vj_tree     = NULL;
   slcompress *comp;
+  int         i;
   gint        conn_index;
-  tvbuff_t   *next_tvb    = NULL;
+  cstate     *cs          = NULL;
+  guint8      ihl;
+  guint8      thl;
+  guint8     *buffer;
+  tvbuff_t   *next_tvb;
+  gint        isize       = tvb_length(tvb);
 
   if(check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_INFO, "PPP VJ");
@@ -236,50 +236,158 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
     vj_tree = proto_item_add_subtree(ti, ett_vj);
   }
 
-  if(!ppp_vj_decomp) {
-    /* VJ decompression turned off */
-    if(check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (decompression disabled)");
-    if(tree != NULL)
-      call_dissector(data_handle, tvb, pinfo, vj_tree);
-    return;
-  }
-
   if(pinfo->p2p_dir == P2P_DIR_UNKNOWN) {
-    /* Direction of the traffic unknown - can't decompress */
-    if(check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (direction unknown)");
-    if(tree != NULL)
-      call_dissector(data_handle, tvb, pinfo, vj_tree);
-    return;
+    /* Direction of the traffic unknown - can't update state */
+    comp = NULL;
+  } else {
+    /* Get state for that direction, if any */
+    comp = rx_tx_state[pinfo->p2p_dir];
   }
-
-  if((comp = rx_tx_state[pinfo->p2p_dir]) == NULL) {
-    /* No state information found - can't decompress */
-    if(check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (no state information)");
-    if(tree != NULL)
-      call_dissector(data_handle, tvb, pinfo, vj_tree);
-    return;
-  }
-
-  /* Check if packet malformed. */
-  conn_index = vjuc_check(tvb, pinfo, vj_tree, comp);
-  if(conn_index == VJ_ERROR)
-    return;
-
-  /* Set up tvb containing decompressed packet */
-  if(vjuc_tvb_setup(tvb, &next_tvb, pinfo, comp) == VJ_ERROR)
-    return;
 
   /*
-   * No errors, so:
-   *
-   *	if packet seen for first time update state;
-   *	call IP dissector.
+   * Check to make sure we can fetch the connection index.
    */
-  if(!pinfo->fd->flags.visited)
-    vjuc_update_state(next_tvb, comp, conn_index);
+  if(!tvb_bytes_exist(tvb, IP_FIELD_PROTOCOL, 1)) {
+    /*
+     * We don't.  We can't even mark a connection as non-decompressable,
+     * as we don't know which connection this is.  Mark them all as
+     * non-decompressable.
+     */
+    if(check_col(pinfo->cinfo, COL_INFO))
+      col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (not enough data available)");
+    if(tree != NULL)
+      call_dissector(data_handle, tvb, pinfo, tree);
+    if(comp != NULL) {
+      for(i = 0; i < TCP_SIMUL_CONV_MAX; i++)
+        comp->rstate[i].flags |= SLF_TOSS;
+    }
+    return;
+  }
+
+  /* Get connection index */
+  conn_index = tvb_get_guint8(tvb, IP_FIELD_PROTOCOL);
+  if(tree != NULL)
+    proto_tree_add_uint(vj_tree, hf_vj_connection_number, tvb,
+                        IP_FIELD_PROTOCOL, 1, conn_index);
+
+  /*
+   * Update the current connection, and get a pointer to its state.
+   */
+  if(comp != NULL) {
+    comp->recv_current = conn_index;
+    cs = &comp->rstate[conn_index];
+  }
+
+  /* Get the IP header length */
+  ihl = tvb_get_guint8(tvb, 0) & IP_HDR_LEN_MASK;
+  ihl <<= 2;
+
+  /* Check IP header length */
+  if(ihl < IP_HDR_LEN) {
+    if(check_col(pinfo->cinfo, COL_INFO)) {
+      col_add_fstr(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (IP header length (%u) < %u)",
+                   ihl, IP_HDR_LEN);
+    }
+    if(cs != NULL)
+      cs->flags |= SLF_TOSS;
+    return;
+  }
+
+  /* Make sure we have the full IP header */
+  if(isize < ihl) {
+    if(check_col(pinfo->cinfo, COL_INFO))
+      col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (not enough data available)");
+    if(tree != NULL)
+      call_dissector(data_handle, tvb, pinfo, tree);
+    if(cs != NULL)
+      cs->flags |= SLF_TOSS;
+    return;
+  }
+
+  if(check_col(pinfo->cinfo, COL_INFO))
+    col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP");
+
+  /*
+   * Copy packet data to a buffer, and replace the connection index with
+   * the protocol type (which is always TCP), to give the actual IP header.
+   */
+  buffer = g_malloc(isize);
+  tvb_memcpy(tvb, buffer, 0, isize);
+  buffer[IP_FIELD_PROTOCOL] = IP_PROTO_TCP;
+
+  /* Check IP checksum */
+  if(ip_csum(buffer, ihl) != ZERO) {
+    /*
+     * Checksum invalid - don't update state, and don't decompress
+     * any subsequent compressed packets in this direction.
+     */
+    if(cs != NULL)
+      cs->flags |= SLF_TOSS;
+    cs = NULL;  /* disable state updates */
+  } else {
+    /* Do we have the TCP header length in the tvbuff? */
+    if(!tvb_bytes_exist(tvb, ihl + TCP_FIELD_HDR_LEN, 1)) {
+      /* We don't, so we can't provide enough data for decompression */
+      if(check_col(pinfo->cinfo, COL_INFO))
+        col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (not enough data available)");
+      if(cs != NULL)
+        cs->flags |= SLF_TOSS;
+      cs = NULL;  /* disable state updates */
+    } else {
+      /* Get the TCP header length */
+      thl = tvb_get_guint8(tvb, ihl + TCP_FIELD_HDR_LEN);
+      thl = ((thl & 0xf0) >> 4) * 4;
+
+      /* Check TCP header length */
+      if(thl < TCP_HDR_LEN) {
+        if(check_col(pinfo->cinfo, COL_INFO)) {
+          col_add_fstr(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (TCP header length (%u) < %u)",
+                       thl, TCP_HDR_LEN);
+        }
+        if(cs != NULL)
+          cs->flags |= SLF_TOSS;
+        cs = NULL;  /* disable state updates */
+      } else {
+        /* Make sure we have the full TCP header */
+        if(isize < thl) {
+          if(check_col(pinfo->cinfo, COL_INFO))
+            col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (not enough data available)");
+          if(cs != NULL)
+            cs->flags |= SLF_TOSS;
+          cs = NULL;  /* disable state updates */
+        }
+      }
+    }
+  }
+
+  /*
+   * If packet seen for first time, update state if we have state and can
+   * update it.
+   */
+  if(!pinfo->fd->flags.visited) {
+    if(cs != NULL) {
+      cs->flags &= ~SLF_TOSS;
+      memcpy(&cs->cs_ip, &buffer[0], IP_HDR_LEN);
+      memcpy(&cs->cs_tcp, &buffer[ihl], TCP_HDR_LEN);
+      if(ihl > IP_HDR_LEN)
+        memcpy(cs->cs_ipopt, &buffer[sizeof(iphdr_type)], ihl - IP_HDR_LEN);
+      if(TCP_OFFSET(&(cs->cs_tcp)) > 5)
+        memcpy(cs->cs_tcpopt, &buffer[ihl + sizeof(tcphdr_type)],
+                   (TCP_OFFSET(&(cs->cs_tcp)) - 5) * 4);
+    }
+  }
+
+  /* 
+   * Set up tvbuff containing packet with protocol type.
+   * Neither header checksum is recalculated.
+   */
+  next_tvb = tvb_new_real_data(buffer, isize, pntohs(&buffer[IP_FIELD_TOT_LEN]));
+  tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+  add_new_data_source(pinfo->fd, next_tvb, "VJ Uncompressed");
+
+  /*
+   * Call IP dissector.
+   */
   call_dissector(ip_handle, next_tvb, pinfo, tree);
 }
 
@@ -320,14 +428,7 @@ dissect_vjc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return;
   }
 
-  if((comp = rx_tx_state[pinfo->p2p_dir]) == NULL) {
-    /* No state information found - can't decompress */
-    if(check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP (no state information)");
-    if(tree != NULL)
-      call_dissector(data_handle, tvb, pinfo, vj_tree);
-    return;
-  }
+  comp = rx_tx_state[pinfo->p2p_dir];
 
   /* Process the compressed data header */
   if(vjc_process(tvb, pinfo, vj_tree, comp) == VJ_ERROR)
@@ -429,19 +530,15 @@ vj_init(void)
 {
   gint i           = ZERO;
   slcompress *pslc = NULL;
-  cstate *pstate   = NULL;
 
   if(vj_header_memchunk != NULL)
     g_mem_chunk_destroy(vj_header_memchunk);
   vj_header_memchunk = g_mem_chunk_new("vj header store", sizeof (vj_header_t), 
                                        sizeof (vj_header_t) * VJ_ATOM_COUNT,
                                        G_ALLOC_ONLY);
-  for(i=0; i< RX_TX_STATE_COUNT; i++){
-    if((pslc = rx_tx_state[i]) != NULL){
-      if((pstate = pslc->rstate) != NULL)
-        g_free(pstate);
+  for(i = 0; i < RX_TX_STATE_COUNT; i++) {
+    if((pslc = rx_tx_state[i]) != NULL)
       g_free(pslc);
-    }
     rx_tx_state[i] = slhc_init();
   }
   return;
@@ -451,22 +548,19 @@ vj_init(void)
 static slcompress *
 slhc_init(void)
 {
-  size_t rsize     = TCP_SIMUL_CONV_MAX * sizeof(cstate);
   slcompress *comp = g_malloc(sizeof(slcompress));
+  int         i;
 
-  if(comp != NULL) {
-    memset(comp, ZERO, sizeof(slcompress));
-    if((comp->rstate = g_malloc(rsize)) == NULL) {
-      g_free(comp);
-      comp = NULL;
-    }
-    else {
-      memset(comp->rstate, ZERO, rsize);
-      comp->rslot_limit = TCP_SIMUL_CONV_MAX - 1;
-      comp->recv_current = TCP_SIMUL_CONV_MAX - 1;
-      comp->flags |= SLF_TOSS;
-    }
-  }
+  memset(comp, ZERO, sizeof(slcompress));
+
+  /*
+   * Initialize the state; there is no current connection, and
+   * we have no header data for any of the connections, as we
+   * haven't yet seen an uncompressed frame.
+   */
+  comp->recv_current = TCP_SIMUL_CONV_MAX - 1;
+  for (i = 0; i < TCP_SIMUL_CONV_MAX; i++)
+    comp->rstate[i].flags |= SLF_TOSS;
   return comp;
 } 
 
@@ -491,7 +585,7 @@ vjc_tvb_setup(tvbuff_t *src_tvb,
   hdr_buf = p_get_proto_data(pinfo->fd, proto_vj);
   if(hdr_buf == NULL) {
     if(check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP (decompressed data not available)");
+      col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP (previous data bad or missing)");
     return VJ_ERROR;
   }
 
@@ -529,13 +623,14 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
             slcompress *comp)
 {
   int            offset     = ZERO;
+  int            i;
   gint           changes;
   proto_item    *ti;
   proto_tree    *changes_tree;
   guint8         conn_index;
-  cstate        *cs;
-  iphdr_type    *ip;
-  tcphdr_type   *thp;
+  cstate        *cs         = NULL;
+  iphdr_type    *ip         = NULL;
+  tcphdr_type   *thp        = NULL;
   guint16        tcp_cksum;
   gint           hdrlen     = ZERO;
   guint16        word;
@@ -545,11 +640,17 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
   guint8        *data_ptr;
 
   if(tvb_length(src_tvb) < 3){
+    /*
+     * We don't even have enough data for the change byte, so we can't
+     * determine which connection this is; mark all connections as
+     * non-decompressible.
+     */
     if(check_col(pinfo->cinfo, COL_INFO))
       col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP (not enough data available)");
     if(tree != NULL)
       call_dissector(data_handle, src_tvb, pinfo, tree);
-    comp->flags |= SLF_TOSS;
+    for(i = 0; i < TCP_SIMUL_CONV_MAX; i++)
+      comp->rstate[i].flags |= SLF_TOSS;
     return VJ_ERROR;
   }
 
@@ -605,39 +706,33 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
       proto_tree_add_uint(tree, hf_vj_connection_number, src_tvb, offset, 1,
                           conn_index);
     offset++;
-    if(conn_index > comp->rslot_limit) {
-      if(check_col(pinfo->cinfo, COL_INFO)) {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "VJ compressed TCP (index (%u) < highest receive slot ID (%u))",
-                     conn_index, comp->rslot_limit);
-      }
-      comp->flags |= SLF_TOSS;
-      return VJ_ERROR;
-    }
-    comp->flags &= ~SLF_TOSS;
     comp->recv_current = conn_index;
   } 
-  else {
-    if(comp->flags & SLF_TOSS) {
-      if(check_col(pinfo->cinfo, COL_INFO))
-        col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP (previous data bad)");
-      return VJ_ERROR;
+
+  if(!pinfo->fd->flags.visited) {
+    /*
+     * This is the first time this frame has been seen, so we need
+     * state information to decompress it.  If that information isn't
+     * available, don't use the state information, and don't update it,
+     * either.
+     */
+    if(!(comp->rstate[comp->recv_current].flags & SLF_TOSS)) {
+      cs = &comp->rstate[comp->recv_current];
+      thp = &cs->cs_tcp;
+      ip = &cs->cs_ip;
     }
   }
-  
-  cs = &comp->rstate[comp->recv_current];
-  thp = &cs->cs_tcp;
-  ip = &cs->cs_ip;
 
   /* Build TCP and IP headers */
   tcp_cksum = tvb_get_ntohs(src_tvb, offset);
   if(tree != NULL)
     proto_tree_add_uint(tree, hf_vj_tcp_cksum, src_tvb, offset, 2, tcp_cksum);
-  if(!pinfo->fd->flags.visited) {
+  if(cs != NULL) {
     hdrlen = lo_nibble(ip->ihl_version) * 4 + TCP_OFFSET(thp) * 4;
     thp->cksum = htons(tcp_cksum);
   }
   offset += 2;
-  if(!pinfo->fd->flags.visited) {
+  if(cs != NULL) {
     if(changes & CHANGE_PUSH_BIT)
       thp->flags |= TCP_PUSH_BIT;
     else
@@ -647,40 +742,40 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
   /* Deal with special cases and normal deltas */
   switch(changes & SPECIALS_MASK){
     case SPECIAL_I:                   /* Echoed terminal traffic */
-      if(!pinfo->fd->flags.visited) {
+      if(cs != NULL) {
         word = ntohs(ip->tot_len) - hdrlen;
         thp->ack_seq = htonl(ntohl(thp->ack_seq) + word);
         thp->seq = htonl(ntohl(thp->seq) + word);
       }
       break;
     case SPECIAL_D:                   /* Unidirectional data */
-      if(!pinfo->fd->flags.visited)
+      if(cs != NULL)
         thp->seq = htonl(ntohl(thp->seq) + ntohs(ip->tot_len) - hdrlen);
       break;
     default:
       if(changes & NEW_U){
         delta = get_unsigned_delta(src_tvb, &offset, hf_vj_urp, tree);
-        if(!pinfo->fd->flags.visited) {
+        if(cs != NULL) {
           thp->urg_ptr = delta;
           thp->flags |= TCP_URG_BIT;
         }
       } else {
-        if(!pinfo->fd->flags.visited)
+        if(cs != NULL)
           thp->flags &= ~TCP_URG_BIT;
       }
       if(changes & NEW_W) {
         delta = get_signed_delta(src_tvb, &offset, hf_vj_win_delta, tree);
-        if(!pinfo->fd->flags.visited)
+        if(cs != NULL)
           thp->window = htons(ntohs(thp->window) + delta);
       }
       if(changes & NEW_A) {
         delta = get_unsigned_delta(src_tvb, &offset, hf_vj_ack_delta, tree);
-        if(!pinfo->fd->flags.visited)
+        if(cs != NULL)
           thp->ack_seq = htonl(ntohl(thp->ack_seq) + delta);
       }
       if(changes & NEW_S) {
       	delta = get_unsigned_delta(src_tvb, &offset, hf_vj_seq_delta, tree);
-        if(!pinfo->fd->flags.visited)
+        if(cs != NULL)
           thp->seq = htonl(ntohl(thp->seq) + delta);
       }
       break;
@@ -689,7 +784,7 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
     delta = get_unsigned_delta(src_tvb, &offset, hf_vj_ip_id_delta, tree);
   else
     delta = 1;
-  if(!pinfo->fd->flags.visited)
+  if(cs != NULL)
     ip->id = htons(ntohs(ip->id) + delta);
 
   /* Compute IP packet length and the buffer length needed */
@@ -701,11 +796,11 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
      */
     if(check_col(pinfo->cinfo, COL_INFO))
       col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP (not enough data available)");
-    comp->flags |= SLF_TOSS;
+    comp->rstate[comp->recv_current].flags |= SLF_TOSS;
     return VJ_ERROR;
   }
 
-  if(!pinfo->fd->flags.visited) {
+  if(cs != NULL) {
     len += hdrlen;
     ip->tot_len = htons(len);
     /* Compute IP check sum */
@@ -782,125 +877,6 @@ get_signed_delta(tvbuff_t *tvb, int *offsetp, int hf, proto_tree *tree)
   *offsetp = offset;
   return del;
 }
-
-/* For VJ uncompressed packet check if it is malformed */
-static gint 
-vjuc_check(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-           slcompress *comp)
-{
-  guint8 ihl;
-  gint   index;
-
-  if(tvb_length(tvb) < IP_HDR_LEN) {
-    if(check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (not enough data available)");
-    if(tree != NULL)
-      call_dissector(data_handle, tvb, pinfo, tree);
-    comp->flags |= SLF_TOSS;
-    return VJ_ERROR;
-  }
-
-  /* Get the IP header length */
-  ihl = tvb_get_guint8(tvb, 0) & IP_HDR_LEN_MASK;
-  ihl <<= 2;
-
-  /* Get connection index */
-  index = tvb_get_guint8(tvb, IP_FIELD_PROTOCOL);
-  if(tree != NULL)
-    proto_tree_add_uint(tree, hf_vj_connection_number, tvb,
-                        IP_FIELD_PROTOCOL, 1, index);
-
-  /* Check connection number and IP header length field */
-  if(ihl < IP_HDR_LEN) {
-    if(check_col(pinfo->cinfo, COL_INFO)) {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (header length (%u) < %u)",
-                   ihl, IP_HDR_LEN);
-    }
-    comp->flags |= SLF_TOSS;
-    return VJ_ERROR;
-  }
-
-  if(index > comp->rslot_limit) {
-    if(check_col(pinfo->cinfo, COL_INFO)) {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (index (%u) < highest receive slot ID (%u))",
-                   index, comp->rslot_limit);
-    }
-    comp->flags |= SLF_TOSS;
-    return VJ_ERROR;
-  }
-
-  return index;
-} 
-
-/* Setup the decompressed packet tvb for VJ uncompressed packets */
-static gint 
-vjuc_tvb_setup(tvbuff_t *tvb, 
-               tvbuff_t **dst_tvb,
-               packet_info *pinfo,
-               slcompress *comp)
-{
-  frame_data *fd         = pinfo->fd;
-  guint8      ihl        = ZERO;
-  gint        isize      = tvb_length(tvb);
-  guint8     *buffer     = NULL;
-
-  /* Get the IP header length */
-  ihl = tvb_get_guint8(tvb, 0) & IP_HDR_LEN_MASK;
-  ihl <<= 2;
-  
-  /* Copy packet data to a buffer */
-  buffer   = g_malloc(isize);
-  tvb_memcpy(tvb, buffer, 0, isize);
-  buffer[IP_FIELD_PROTOCOL] = IP_PROTO_TCP;
-
-  /* Compute checksum */
-  if(ip_csum(buffer, ihl) != ZERO) {
-    g_free(buffer);
-    if(check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (bad IP checksum)");
-    comp->flags |= SLF_TOSS;
-    return VJ_ERROR;
-  }
-
-  if(check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP");
-
-  /* 
-   * Form the new tvbuff. 
-   * Neither header checksum is recalculated
-   */
-  *dst_tvb = tvb_new_real_data(buffer, isize, pntohs(&buffer[IP_FIELD_TOT_LEN]));
-  tvb_set_child_real_data_tvbuff(tvb, *dst_tvb);
-  add_new_data_source(fd, *dst_tvb, "VJ Uncompressed");
-  return VJ_OK;
-} 
-
-/* For VJ uncompressed packets update the decompressor state */
-static void 
-vjuc_update_state(tvbuff_t *tvb, slcompress *comp, guint8 index)
-{
-  cstate  *cs    = NULL;
-  guint8   ihl   = ZERO;
-
-  g_assert(comp);
-  g_assert(tvb);
-
-  /* Get the IP header length */
-  ihl = tvb_get_guint8(tvb, 0) & IP_HDR_LEN_MASK;
-  ihl <<= 2;
-  
-  /* Update local state */
-  cs = &comp->rstate[comp->recv_current = index];
-  comp->flags &= ~SLF_TOSS;
-  tvb_memcpy(tvb, (guint8 *)&cs->cs_ip, 0, IP_HDR_LEN);
-  tvb_memcpy(tvb, (guint8 *)&cs->cs_tcp, ihl, TCP_HDR_LEN);
-  if(ihl > IP_HDR_LEN)
-    tvb_memcpy(tvb, cs->cs_ipopt, sizeof(iphdr_type), ihl - IP_HDR_LEN);
-  if(TCP_OFFSET(&(cs->cs_tcp)) > 5)
-    tvb_memcpy(tvb, cs->cs_tcpopt, ihl + sizeof(tcphdr_type), 
-               (TCP_OFFSET(&(cs->cs_tcp)) - 5) * 4);
-  return;
-} 
 
 /* Wrapper for in_cksum function */
 static guint16 
