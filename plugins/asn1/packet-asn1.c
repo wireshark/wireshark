@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id: packet-asn1.c,v 1.10 2003/11/09 22:15:29 guy Exp $
+ * $Id: packet-asn1.c,v 1.11 2003/12/16 21:02:11 ulfl Exp $
  *
  * A plugin for:
  *
@@ -137,7 +137,7 @@ static guint udp_port_asn1 = UDP_PORT_ASN1;
 static gboolean asn1_desegment = TRUE;
 static char *asn1_filename = 0;
 static char *default_asn1_filename = 0;
-#define ASN1FILE "asn1/default.tt"
+#define ASN1FILE "asn1" G_DIR_SEPARATOR_S "default.tt"
 static char *current_asn1 = 0;
 static char *asn1_pduname = 0;
 static char *current_pduname = 0;
