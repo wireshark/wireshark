@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.152 2002/08/17 22:26:00 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.153 2002/08/21 21:25:23 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1537,13 +1537,6 @@ static const ip_tcp_opt tcpopts[] = {
 };
 
 #define N_TCP_OPTS	(sizeof tcpopts / sizeof tcpopts[0])
-
-/* TCP flags flag */
-static const true_false_string flags_set_truth = {
-  "Set",
-  "Not set"
-};
-
 
 /* Determine if there is a sub-dissector and call it.  This has been */
 /* separated into a stand alone routine to other protocol dissectors */

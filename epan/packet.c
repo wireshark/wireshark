@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.75 2002/08/02 21:29:39 jmayer Exp $
+ * $Id: packet.c,v 1.76 2002/08/21 21:25:21 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,6 +62,11 @@
 static gint proto_malformed = -1;
 static dissector_handle_t frame_handle = NULL;
 static dissector_handle_t data_handle = NULL;
+
+const true_false_string flags_set_truth = { 
+  "Set",
+  "Not set"
+};
 
 void
 packet_init(void)

@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.94 2002/08/02 23:36:03 jmayer Exp $
+ * $Id: packet-snmp.c,v 1.95 2002/08/21 21:25:23 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -112,11 +112,6 @@ static dissector_handle_t data_handle;
 #define TH_AUTH   0x01
 #define TH_CRYPT  0x02
 #define TH_REPORT 0x04
-
-static const true_false_string flags_set_truth = {
-  "Set",
-  "Not set"
-};
 
 #define UDP_PORT_SNMP		161
 #define UDP_PORT_SNMP_TRAP	162

@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.28 2002/08/02 23:36:00 jmayer Exp $
+ * $Id: packet-sap.c,v 1.29 2002/08/21 21:25:23 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,11 +50,6 @@ static const value_string mcast_sap_ver[] = {
 static const true_false_string mcast_sap_address_type = {
         "IPv6",
         "IPv4"
-};
-
-static const true_false_string flags_set_truth = {
-        "Set",
-        "Not set"
 };
 
 static const true_false_string mcast_sap_message_type = {

@@ -3,7 +3,7 @@
  * Copyright 2002, Antti J. Tuominen <ajtuomin@tml.hut.fi>
  * Loosely based on packet-aodv.c.
  *
- * $Id: packet-aodv6.c,v 1.2 2002/08/02 23:35:47 jmayer Exp $
+ * $Id: packet-aodv6.c,v 1.3 2002/08/21 21:25:23 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,11 +61,6 @@
 #define RREP_REP     0x80
 
 #define RERR_NODEL   0x80
-
-static const true_false_string flags_set_truth = {
-    "Set",
-    "Not set"
-};
 
 static const value_string type_vals[] = {
     {AODV6_RREQ, "Route Request"},

@@ -2,7 +2,7 @@
  * Routines for AODV dissection
  * Copyright 2000, Erik Nordström <erik.nordstrom@it.uu.se>
  *
- * $Id: packet-aodv.c,v 1.3 2002/08/02 23:35:47 jmayer Exp $
+ * $Id: packet-aodv.c,v 1.4 2002/08/21 21:25:23 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,11 +50,6 @@
 #define RREP_REP     0x80
 
 #define RERR_NODEL   0x80
-
-static const true_false_string flags_set_truth = {
-    "Set",
-    "Not set"
-};
 
 static const value_string type_vals[] = {
     { RREQ, "RREQ" },

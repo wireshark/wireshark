@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.7 2002/08/18 20:33:47 guy Exp $
+ * $Id: packet-ntlmssp.c,v 1.8 2002/08/21 21:25:23 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,11 +45,6 @@ static const value_string ntlmssp_message_types[] = {
   { NTLMSSP_AUTH, "NTLMSSP_AUTH" },
   { NTLMSSP_UNKNOWN, "NTLMSSP_UNKNOWN" },
   { 0, NULL }
-};
-
-static const true_false_string flags_set_truth = {
-  "Set",
-  "Not set"
 };
 
 /* 

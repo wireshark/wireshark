@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.58 2002/08/02 21:29:39 jmayer Exp $
+ * $Id: packet.h,v 1.59 2002/08/21 21:25:21 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,6 +76,8 @@ typedef struct true_false_string {
 	char	*true_string;
 	char	*false_string;
 } true_false_string;
+
+extern const true_false_string flags_set_truth;
 
 extern void packet_init(void);
 extern void packet_cleanup(void);

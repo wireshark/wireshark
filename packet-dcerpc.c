@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.71 2002/08/13 07:25:36 tpot Exp $
+ * $Id: packet-dcerpc.c,v 1.72 2002/08/21 21:25:23 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,11 +79,6 @@ static const value_string drep_fp_vals[] = {
     { 2, "Cray" },
     { 3, "IBM" },
     { 0,  NULL }
-};
-
-static const true_false_string flags_set_truth = {
-  "Set",
-  "Not set"
 };
 
 /*
