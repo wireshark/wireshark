@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.327 2003/04/14 17:38:49 guy Exp $
+ * $Id: packet-smb.c,v 1.328 2003/04/17 00:13:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -18324,6 +18324,7 @@ proto_reg_handoff_smb(void)
 	ntlmssp_handle = find_dissector("ntlmssp");
 
 	heur_dissector_add("netbios", dissect_smb_heur, proto_smb);
+	heur_dissector_add("cotp", dissect_smb_heur, proto_smb);
 	smb_handle = create_dissector_handle(dissect_smb, proto_smb);
 	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_SERVER, smb_handle);
 	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_REDIR, smb_handle);
