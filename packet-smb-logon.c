@@ -2,7 +2,7 @@
  * Routines for smb net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.6 2000/08/06 07:22:37 guy Exp $
+ * $Id: packet-smb-logon.c,v 1.7 2000/08/06 10:04:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -75,7 +75,14 @@ display_LM_token( const u_char *pd, int *offset, frame_data *fd,
 
 /* decode and display the LanMan token */	
 
-	guint16 Token = GSHORT( pd, *offset);
+	guint16 Token;
+
+	if (!BYTES_ARE_IN_FRAME(*offset, 2)) {
+		proto_tree_add_text(tree, NullTVB, *offset, 0,"****FRAME TOO SHORT***");
+		return;
+	}
+
+	Token = GSHORT( pd, *offset);
 	
 	if ( Token && 0x01) 
 		proto_tree_add_text( tree, NullTVB, *offset, 2,
@@ -83,11 +90,7 @@ display_LM_token( const u_char *pd, int *offset, frame_data *fd,
 	else
 		proto_tree_add_text( tree, NullTVB, *offset, 2,
 			"LM10 Token: 0x%x (WFW Networking)", Token);
-
-	if (( *offset + 2) > pi.captured_len)
-		proto_tree_add_text(tree, NullTVB, *offset, 0,"****FRAME TOO SHORT***");
-	else
-		*offset += 2;
+	*offset += 2;
 	
 }
 
@@ -99,6 +102,11 @@ display_NT_version( const u_char *pd, int *offset, frame_data *fd,
 
 	guint32 Version;
 	
+	if (!BYTES_ARE_IN_FRAME(*offset, length)) {
+		proto_tree_add_text(tree, NullTVB, *offset, 0, "****FRAME TOO SHORT***");
+		return;
+	}
+
 	if ( length == 2)
 		Version = GSHORT( pd, *offset);
 	else
@@ -107,10 +115,7 @@ display_NT_version( const u_char *pd, int *offset, frame_data *fd,
 	proto_tree_add_text( tree, NullTVB, *offset, length, "NT Version: 0x%x ",
 		Version);
 
-	if (( *offset + length) > pi.captured_len)
-		proto_tree_add_text(tree, NullTVB, *offset, 0, "****FRAME TOO SHORT***");
-	else
-		*offset += length;
+	*offset += length;
 	
 }
 
