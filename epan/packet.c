@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.11 2000/12/04 06:37:46 guy Exp $
+ * $Id: packet.c,v 1.12 2001/01/09 05:53:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1460,6 +1460,84 @@ register_heur_dissector_list(const char *name, heur_dissector_list_t *sub_dissec
 
 	*sub_dissectors = NULL;	/* initially empty */
 	g_hash_table_insert(heur_dissector_lists, (gpointer)name,
+	    (gpointer) sub_dissectors);
+}
+
+static GHashTable *conv_dissector_lists = NULL;
+
+/*
+ * XXX - for now, we support having both "old" dissectors, with packet
+ * data pointer, packet offset, frame_data pointer, and protocol tree
+ * pointer arguments, and "new" dissectors, with tvbuff pointer,
+ * packet_info pointer, and protocol tree pointer arguments.
+ *
+ * Nuke this and go back to storing a pointer to the dissector when
+ * the last old-style dissector is gone.
+ */
+typedef struct {
+	gboolean is_old_dissector;
+	union {
+		old_dissector_t	old;
+		dissector_t	new;
+	} dissector;
+} conv_dtbl_entry_t;
+
+/* Finds a conversation dissector table by table name. */
+static conv_dissector_list_t *
+find_conv_dissector_list(const char *name)
+{
+	g_assert(conv_dissector_lists != NULL);
+	return g_hash_table_lookup(conv_dissector_lists, name);
+}
+
+void
+old_conv_dissector_add(const char *name, old_dissector_t dissector)
+{
+	conv_dissector_list_t *sub_dissectors = find_conv_dissector_list(name);
+	conv_dtbl_entry_t *dtbl_entry;
+
+	/* sanity check */
+	g_assert(sub_dissectors != NULL);
+
+	dtbl_entry = g_malloc(sizeof (conv_dtbl_entry_t));
+	dtbl_entry->is_old_dissector = TRUE;
+	dtbl_entry->dissector.old = dissector;
+
+	/* do the table insertion */
+	*sub_dissectors = g_slist_append(*sub_dissectors, (gpointer)dtbl_entry);
+}
+
+void
+conv_dissector_add(const char *name, dissector_t dissector)
+{
+	conv_dissector_list_t *sub_dissectors = find_conv_dissector_list(name);
+	conv_dtbl_entry_t *dtbl_entry;
+
+	/* sanity check */
+	g_assert(sub_dissectors != NULL);
+
+	dtbl_entry = g_malloc(sizeof (conv_dtbl_entry_t));
+	dtbl_entry->is_old_dissector = FALSE;
+	dtbl_entry->dissector.new = dissector;
+
+	/* do the table insertion */
+	*sub_dissectors = g_slist_append(*sub_dissectors, (gpointer)dtbl_entry);
+}
+
+void
+register_conv_dissector_list(const char *name, conv_dissector_list_t *sub_dissectors)
+{
+	/* Create our hash-of-lists if it doesn't already exist */
+	if (conv_dissector_lists == NULL) {
+		conv_dissector_lists = g_hash_table_new(g_str_hash, g_str_equal);
+		g_assert(conv_dissector_lists != NULL);
+	}
+
+	/* Make sure the registration is unique */
+	g_assert(g_hash_table_lookup(conv_dissector_lists, name) == NULL);
+
+	*sub_dissectors = NULL;	/* initially empty */
+	g_hash_table_insert(conv_dissector_lists, (gpointer)name,
 	    (gpointer) sub_dissectors);
 }
 

@@ -629,3 +629,13 @@ proto_register_rtp(void)
 	register_init_routine( &rtp_init );
 #endif
 }
+
+void
+proto_reg_handoff_rtp(void)
+{
+	/*
+	 * Register this dissector as one that can be assigned to a
+	 * UDP conversation.
+	 */
+	conv_dissector_add("udp", dissect_rtp);
+}

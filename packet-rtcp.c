@@ -1218,3 +1218,13 @@ proto_register_rtcp(void)
 	register_init_routine( &rtcp_init );
 #endif
 }
+
+void
+proto_reg_handoff_rtcp(void)
+{
+	/*
+	 * Register this dissector as one that can be assigned to a
+	 * UDP conversation.
+	 */
+	conv_dissector_add("udp", dissect_rtcp);
+}

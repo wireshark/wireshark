@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.82 2001/01/06 08:44:03 guy Exp $
+ * $Id: packet-udp.c,v 1.83 2001/01/09 05:53:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -73,6 +73,7 @@ typedef struct _e_udphdr {
 
 static dissector_table_t udp_dissector_table;
 static heur_dissector_list_t heur_subdissector_list;
+static conv_dissector_list_t conv_subdissector_list;
 
 /* Determine if there is a sub-dissector and call it.  This has been */
 /* separated into a stand alone routine to other protocol dissectors */
@@ -273,6 +274,7 @@ proto_register_udp(void)
 /* subdissector code */
 	udp_dissector_table = register_dissector_table("udp.port");
 	register_heur_dissector_list("udp", &heur_subdissector_list);
+	register_conv_dissector_list("udp", &conv_subdissector_list);
 }
 
 void

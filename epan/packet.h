@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.15 2000/12/13 02:24:23 guy Exp $
+ * $Id: packet.h,v 1.16 2001/01/09 05:53:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -252,6 +252,28 @@ void heur_dissector_add(const char *name, heur_dissector_t dissector);
    TRUE, or we run out of dissectors, in which case we return FALSE. */
 gboolean dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+/* List of "conversation" dissectors (they're not heuristic, but are
+   assigned to a conversation if some other dissector sees some traffic
+   saying "traffic between these hosts on these ports will be of type
+   XXX", e.g. RTSP traffic doing so).
+
+   These lists are for use by the UI, which, for a given conversation,
+   would offer a list of dissectors that could be used with it; this
+   would include dissectors on the conversation dissector list for
+   the transport-layer protocol for the conversation, as well as
+   dissectors for any port-based lists for that protocol (as a conversation
+   between two ports, both of which have dissectors associated with them,
+   might have been given to the wrong one of those dissectors). */
+typedef GSList *conv_dissector_list_t;
+
+/* A protocol uses this function to register a conversation dissector list */
+void register_conv_dissector_list(const char *name, conv_dissector_list_t *list);
+
+/* Add a sub-dissector to a conversation dissector list.  Called by the
+   protocol routine that wants to register a sub-dissector.  */
+void old_conv_dissector_add(const char *name, old_dissector_t dissector);
+void conv_dissector_add(const char *name, dissector_t dissector);
 
 /* Handle for dissectors you call directly.
    This handle is opaque outside of "packet.c". */
