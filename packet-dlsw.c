@@ -2,7 +2,7 @@
  * Routines for DLSw packet dissection (Data Link Switching)
  * Copyright 2001, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-dlsw.c,v 1.1 2001/12/26 21:17:49 guy Exp $
+ * $Id: packet-dlsw.c,v 1.2 2001/12/26 21:21:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -197,8 +197,6 @@ static const value_string dlsw_refuse_vals[] = {
 #define TCP_PORT_DLSW		2065  
 #define DLSW_INFO_HEADER	16
 #define DLSW_CMD_HEADER		72
-
-static dissector_handle_t dlsw_handle;
 
 static void
 dissect_dlsw_capex(tvbuff_t *tvb, proto_tree *tree, proto_tree *ti);
@@ -431,12 +429,13 @@ proto_register_dlsw(void)
 	proto_dlsw = proto_register_protocol("Data Link SWitching", "DLSw", "dlsw");
 /*	proto_register_field_array(proto_dlsw, hf, array_length(hf)); */
 	proto_register_subtree_array(ett, array_length(ett));
-        dlsw_handle = find_dissector("dlsw");
 }
                                                                              
 void
 proto_reg_handoff_dlsw(void)
 {
+	dissector_handle_t dlsw_handle;
+
 	dlsw_handle = create_dissector_handle(dissect_dlsw, proto_dlsw);
 
 	dissector_add("tcp.port", TCP_PORT_DLSW, dlsw_handle);
