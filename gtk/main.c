@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.352 2004/01/10 16:27:42 ulfl Exp $
+ * $Id: main.c,v 1.353 2004/01/11 22:17:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -118,6 +118,7 @@
 #include "toolbar.h"
 #include "../tap.h"
 #include "../util.h"
+#include "../version_info.h"
 #include "compat_macros.h"
 #include "find_dlg.h"
 #include "packet_list.h"

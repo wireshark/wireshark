@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.687 2004/01/10 16:34:27 obiot Exp $
+# $Id: Makefile.am,v 1.688 2004/01/11 22:17:42 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -776,7 +776,7 @@ noinst_HEADERS = \
 	packet-ypserv.h \
 	packet-ypxfr.h
 
-DISSECTOR_HELPER_SRC = \
+DISSECTOR_SUPPORT_SRC = \
 	adler32.c      \
 	adler32.h      \
 	afn.c          \
@@ -787,6 +787,8 @@ DISSECTOR_HELPER_SRC = \
 	asn1.h         \
 	bridged_pids.h \
 	chdlctypes.h   \
+	column.c       \
+	column.h       \
 	crc32.c        \
 	crc32.h        \
 	crypt-des.c    \
@@ -798,6 +800,8 @@ DISSECTOR_HELPER_SRC = \
 	crypt-rc4.c    \
 	crypt-rc4.h    \
 	etypes.h       \
+	follow.c       \
+	follow.h       \
 	format-oid.h   \
 	g711.c		\
 	g711.h		\
@@ -814,6 +818,9 @@ DISSECTOR_HELPER_SRC = \
 	oui.h          \
 	packet-dcerpc-nt.c \
 	ppptypes.h     \
+	prefs-int.h    \
+	prefs.c        \
+	prefs.h        \
 	ptvcursor.c	\
 	ptvcursor.h	\
 	reassemble.c   \
@@ -826,38 +833,37 @@ DISSECTOR_HELPER_SRC = \
 	smb.h          \
 	t35.c		\
 	t35.h		\
+	tap.c		\
+	tap.h		\
+	util.c         \
+	util.h         \
 	x264_prt_id.h  \
 	xdlc.c         \
-	xdlc.h
+	xdlc.h         \
+	xmlstub.c      \
+	xmlstub.h
 
 BUILT_SOURCES = \
 	x11-declarations.h \
 	x11-register-info.h
 
 ETHEREAL_COMMON_SRC = \
-	$(DISSECTOR_HELPER_SRC) \
+	$(DISSECTOR_SUPPORT_SRC) \
 	$(BUILT_SOURCES) \
 	capture_stop_conditions.c   \
 	capture_stop_conditions.h   \
 	cfile.c         \
 	cfile.h         \
 	color.h        \
-	column.c       \
-	column.h       \
 	conditions.c   \
 	conditions.h   \
 	disabled_protos.c      \
 	disabled_protos.h      \
 	file.h         \
-	follow.c       \
-	follow.h       \
 	pcap-util.c    \
 	pcap-util.h    \
 	pcap-util-int.h \
 	pcap-util-unix.c \
-	prefs-int.h    \
-	prefs.c        \
-	prefs.h        \
 	print.c        \
 	print.h        \
 	ps.c           \
@@ -867,15 +873,10 @@ ETHEREAL_COMMON_SRC = \
 	register.h     \
 	ringbuffer.c   \
 	ringbuffer.h   \
-	tap.c		\
-	tap.h		\
-	tap_dfilter_dlg.h \
 	timestats.c	\
 	timestats.h	\
-	util.c         \
-	util.h         \
-	xmlstub.c      \
-	xmlstub.h
+	version_info.c	\
+	version_info.h
 
 ethereal_SOURCES = \
 	$(DISSECTOR_SRC) \
@@ -895,6 +896,7 @@ ethereal_SOURCES = \
 	statusbar.h    \
 	summary.c      \
 	summary.h      \
+	tap_dfilter_dlg.h \
 	ui_util.h
 
 EXTRA_ethereal_SOURCES = \
@@ -1126,7 +1128,8 @@ randpkt: randpkt.o wiretap/libwiretap.a
 
 dftest_SOURCES = \
 	$(DISSECTOR_SRC) \
-	$(ETHEREAL_COMMON_SRC) \
+	$(DISSECTOR_SUPPORT_SRC) \
+	$(BUILT_SOURCES) \
 	register.c     \
 	dftest.c
 

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.216 2004/01/09 21:38:21 guy Exp $
+ * $Id: tethereal.c,v 1.217 2004/01/11 22:17:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -82,6 +82,7 @@
 #include "print.h"
 #include <epan/resolv.h>
 #include "util.h"
+#include "version_info.h"
 #ifdef HAVE_LIBPCAP
 #include "pcap-util.h"
 #endif
