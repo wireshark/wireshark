@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.23 2001/11/03 03:41:35 guy Exp $
+ * $Id: tvbuff.c,v 1.24 2001/11/03 03:49:34 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -204,6 +204,8 @@ tvb_free(tvbuff_t* tvb)
 			if (tvb->free_cb) {
 				tvb->free_cb(tvb->real_data);
 			}
+			if (tvb->ds_name)
+				g_free(tvb->ds_name);
 			break;
 
 		case TVBUFF_SUBSET:
@@ -212,6 +214,12 @@ tvb_free(tvbuff_t* tvb)
 			if (tvb->tvbuffs.subset.tvb) {
 				tvb_decrement_usage_count(tvb->tvbuffs.subset.tvb, 1);
 			}
+
+			/*
+			 * TVBUFF_SUBSET tvbuffs share a "ds_name" with
+			 * the parent tvbuff, so this tvbuff's "ds_name"
+			 * shouldn't be freed.
+			 */
 			break;
 
 		case TVBUFF_COMPOSITE:
@@ -229,16 +237,14 @@ tvb_free(tvbuff_t* tvb)
 				g_free(composite->end_offsets);
 			if (tvb->real_data)
 				g_free(tvb->real_data);
+			if (tvb->ds_name)
+				g_free(tvb->ds_name);
 
 			break;
 		}
 
 		if (tvb->used_in) {
 			g_slist_free(tvb->used_in);
-		}
-
-		if (tvb->ds_name) {
-			g_free(tvb->ds_name);
 		}
 
 		g_chunk_free(tvb, tvbuff_mem_chunk);
