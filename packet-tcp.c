@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.176 2003/03/01 05:02:53 sharpe Exp $
+ * $Id: packet-tcp.c,v 1.177 2003/03/01 07:07:07 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -104,7 +104,7 @@ static int hf_tcp_segment_multiple_tails = -1;
 static int hf_tcp_segment_too_long_fragment = -1;
 static int hf_tcp_segment_error = -1;
 static int hf_tcp_option_mss = -1;
-static int hf_tcp_option_window = -1;
+static int hf_tcp_option_window_scale = -1;
 static int hf_tcp_option_sack_perm = -1;
 static int hf_tcp_option_sack = -1;
 static int hf_tcp_option_echo = -1;
@@ -1532,6 +1532,8 @@ dissect_tcpopt_maxseg(const ip_tcp_opt *optp, tvbuff_t *tvb,
   guint16 mss;
 
   mss = tvb_get_ntohs(tvb, offset + 2);
+  proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_mss, tvb, offset,
+				optlen, TRUE);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
 			"%s: %u bytes", optp->name, mss);
   tcp_info_append_uint(pinfo, "MSS", mss);
@@ -1544,6 +1546,8 @@ dissect_tcpopt_wscale(const ip_tcp_opt *optp, tvbuff_t *tvb,
   guint8 ws;
 
   ws = tvb_get_guint8(tvb, offset + 2);
+  proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_window_scale, tvb, 
+				offset, optlen, TRUE);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
 			"%s: %u (multiply by %u)", optp->name, ws, 1 << ws);
   tcp_info_append_uint(pinfo, "WS", ws);
@@ -1580,6 +1584,8 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
     /* XXX - check whether it goes past end of packet */
     rightedge = tvb_get_ntohl(tvb, offset + 4);
     optlen -= 4;
+    proto_tree_add_boolean_hidden(field_tree, hf_tcp_option_sack, tvb, 
+				  offset, 8, TRUE);
     proto_tree_add_text(field_tree, tvb, offset,      8,
         "left edge = %u, right edge = %u", leftedge, rightedge);
     tcp_info_append_uint(pinfo, "SLE", leftedge);
@@ -1595,6 +1601,8 @@ dissect_tcpopt_echo(const ip_tcp_opt *optp, tvbuff_t *tvb,
   guint32 echo;
 
   echo = tvb_get_ntohl(tvb, offset + 2);
+  proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_echo, tvb, offset,
+				optlen, TRUE);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
 			"%s: %u", optp->name, echo);
   tcp_info_append_uint(pinfo, "ECHO", echo);
@@ -2315,37 +2323,41 @@ proto_register_tcp(void)
 		{ "TCP Segments", "tcp.segments", FT_NONE, BASE_NONE, NULL, 0x0,
 			"TCP Segments", HFILL }},
 		{ &hf_tcp_option_mss,
-		  { "TCP MSS Option", "tcp.options.mss", FT_NONE, BASE_NONE, 
-		    NULL, 0x0, "TCP MSS Option", HFILL }},
-		{ &hf_tcp_option_window,
-		  { "TCP Window Option", "tcp.options.window", FT_NONE, 
+		  { "TCP MSS Option", "tcp.options.mss", FT_BOOLEAN, 
+		    BASE_NONE, NULL, 0x0, "TCP MSS Option", HFILL }},
+		{ &hf_tcp_option_window_scale,
+		  { "TCP Window Scale Option", "tcp.options.wscale", 
+		    FT_BOOLEAN, 
 		    BASE_NONE, NULL, 0x0, "TCP Window Option", HFILL}},
 		{ &hf_tcp_option_sack_perm, 
-		  { "TCP Sack Perm Option", "tcp.options.sack_perm", FT_NONE,
+		  { "TCP Sack Perm Option", "tcp.options.sack_perm", 
+		    FT_BOOLEAN,
 		    BASE_NONE, NULL, 0x0, "TCP Sack Perm Option", HFILL}},
 		{ &hf_tcp_option_sack,
-		  { "TCP Sack Option", "tcp.options.sack", FT_NONE, BASE_NONE,
-		    NULL, 0x0, "TCP Sack Option", HFILL}},
+		  { "TCP Sack Option", "tcp.options.sack", FT_BOOLEAN, 
+		    BASE_NONE, NULL, 0x0, "TCP Sack Option", HFILL}},
 		{ &hf_tcp_option_echo,
-		  { "TCP Echo Option", "tcp.options.echo", FT_NONE, BASE_NONE,
-		    NULL, 0x0, "TCP Sack Echo", HFILL}},
+		  { "TCP Echo Option", "tcp.options.echo", FT_BOOLEAN, 
+		    BASE_NONE, NULL, 0x0, "TCP Sack Echo", HFILL}},
 		{ &hf_tcp_option_echo_reply,
-		  { "TCP Echo Reply Option", "tcp.options.echo_reply", FT_NONE,
+		  { "TCP Echo Reply Option", "tcp.options.echo_reply", 
+		    FT_BOOLEAN,
 		    BASE_NONE, NULL, 0x0, "TCP Echo Reply Option", HFILL}},
 		{ &hf_tcp_option_time_stamp,
-		  { "TCP Time Stamp Option", "tcp.options.time_stamp", FT_NONE,
+		  { "TCP Time Stamp Option", "tcp.options.time_stamp", 
+		    FT_BOOLEAN,
 		    BASE_NONE, NULL, 0x0, "TCP Time Stamp Option", HFILL}},
 		{ &hf_tcp_option_cc,
-		  { "TCP CC Option", "tcp.options.cc", FT_NONE, BASE_NONE,
+		  { "TCP CC Option", "tcp.options.cc", FT_BOOLEAN, BASE_NONE,
 		    NULL, 0x0, "TCP CC Option", HFILL}},
 		{ &hf_tcp_option_ccnew,
-		  { "TCP CC New Option", "tcp.options.ccnew", FT_NONE, 
+		  { "TCP CC New Option", "tcp.options.ccnew", FT_BOOLEAN, 
 		    BASE_NONE, NULL, 0x0, "TCP CC New Option", HFILL}},
 		{ &hf_tcp_option_ccecho,
-		  { "TCP CC Echo Option", "tcp.options.ccecho", FT_NONE,
+		  { "TCP CC Echo Option", "tcp.options.ccecho", FT_BOOLEAN,
 		    BASE_NONE, NULL, 0x0, "TCP CC Echo Option", HFILL}},
 		{ &hf_tcp_option_md5,
-		  { "TCP MD5 Option", "tcp.options.md5", FT_NONE, BASE_NONE,
+		  { "TCP MD5 Option", "tcp.options.md5", FT_BOOLEAN, BASE_NONE,
 		    NULL, 0x0, "TCP MD5 Option", HFILL}},
 	};
 	static gint *ett[] = {
