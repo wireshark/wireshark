@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.62 2003/09/24 00:47:37 guy Exp $
+ * $Id: proto_draw.c,v 1.63 2003/10/17 17:20:32 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1466,7 +1466,7 @@ proto_tree_draw_node(GNode *node, gpointer data)
     {
         GtkTreePath *path;
         path = gtk_tree_model_get_path(GTK_TREE_MODEL(store), &iter);
-        gtk_tree_view_expand_row(info.tree_view, path, FALSE);
+        gtk_tree_view_expand_to_path(info.tree_view, path);
         gtk_tree_path_free(path);
     }
 #endif
