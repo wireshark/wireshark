@@ -3026,6 +3026,10 @@ gtk_clist_set_row_data_full (GtkCList         *clist,
     return;
 
   clist_row = ROW_ELEMENT (clist, row)->data;
+
+  if (clist_row->destroy)
+    clist_row->destroy (clist_row->data);
+
   clist_row->data = data;
   clist_row->destroy = destroy;
 }
@@ -3872,8 +3876,7 @@ real_undo_selection (GtkCList *clist)
       clist->selection_mode != GTK_SELECTION_EXTENDED)
     return;
 
-  if (clist->anchor >= 0)
-    GTK_CLIST_CLASS_FW (clist)->resync_selection (clist, NULL);
+  GTK_CLIST_CLASS_FW (clist)->resync_selection (clist, NULL);
 
   if (!(clist->undo_selection || clist->undo_unselection))
     {
@@ -3887,7 +3890,7 @@ real_undo_selection (GtkCList *clist)
 
   for (work = clist->undo_unselection; work; work = work->next)
     {
-      g_print ("unselect %d\n",GPOINTER_TO_INT (work->data));
+      /* g_print ("unselect %d\n",GPOINTER_TO_INT (work->data)); */
       gtk_signal_emit (GTK_OBJECT (clist), clist_signals[UNSELECT_ROW], 
 		       GPOINTER_TO_INT (work->data), -1, NULL);
     }
@@ -3955,7 +3958,10 @@ resync_selection (GtkCList *clist,
   GList *list;
   GtkCListRow *clist_row;
 
-  if (clist->anchor < 0)
+  if (clist->selection_mode != GTK_SELECTION_EXTENDED)
+    return;
+
+  if (clist->anchor < 0 || clist->drag_pos < 0)
     return;
 
   gtk_clist_freeze (clist);
@@ -4233,8 +4239,7 @@ end_selection (GtkCList *clist)
   g_return_if_fail (clist != NULL);
   g_return_if_fail (GTK_IS_CLIST (clist));
 
-  if ((gdk_pointer_is_grabbed () && GTK_WIDGET_HAS_FOCUS(clist)) ||
-      clist->anchor == -1)
+  if (gdk_pointer_is_grabbed () && GTK_WIDGET_HAS_FOCUS(clist))
     return;
   
   GTK_CLIST_CLASS_FW (clist)->resync_selection (clist, NULL);
@@ -4293,8 +4298,7 @@ sync_selection (GtkCList *clist,
 	clist->focus_row = clist->rows - 1;
     }
 
-  if (clist->selection_mode == GTK_SELECTION_BROWSE && clist->anchor != -1)
-    GTK_CLIST_CLASS_FW (clist)->resync_selection (clist, NULL);
+  GTK_CLIST_CLASS_FW (clist)->resync_selection (clist, NULL);
 
   g_list_free (clist->undo_selection);
   g_list_free (clist->undo_unselection);
@@ -4699,9 +4703,7 @@ gtk_clist_unmap (GtkWidget *widget)
 	{
 	  remove_grab (clist);
 
-	  if (clist->anchor != -1 &&
-	      clist->selection_mode == GTK_SELECTION_EXTENDED)
-	    GTK_CLIST_CLASS_FW (widget)->resync_selection (clist, NULL);
+	  GTK_CLIST_CLASS_FW (widget)->resync_selection (clist, NULL);
 
 	  clist->click_cell.row = -1;
 	  clist->click_cell.column = -1;
@@ -5001,9 +5003,12 @@ gtk_clist_button_press (GtkWidget      *widget,
 		case GTK_SELECTION_SINGLE:
 		case GTK_SELECTION_MULTIPLE:
 		  if (event->type != GDK_BUTTON_PRESS)
-		    gtk_signal_emit (GTK_OBJECT (clist),
-				     clist_signals[SELECT_ROW],
-				     row, column, event);
+                   {
+                     gtk_signal_emit (GTK_OBJECT (clist),
+                                      clist_signals[SELECT_ROW],
+                                      row, column, event);
+                     clist->anchor = -1;
+                   }
 		  else
 		    clist->anchor = row;
 		  break;
@@ -6694,8 +6699,7 @@ gtk_clist_focus_out (GtkWidget     *widget,
   
   clist = GTK_CLIST (widget);
 
-  if (clist->anchor != -1 && clist->selection_mode == GTK_SELECTION_EXTENDED)
-    GTK_CLIST_CLASS_FW (widget)->resync_selection (clist, (GdkEvent *) event);
+  GTK_CLIST_CLASS_FW (widget)->resync_selection (clist, (GdkEvent *) event);
 
   return FALSE;
 }
@@ -7881,7 +7885,7 @@ gtk_clist_set_button_actions (GtkCList *clist,
   g_return_if_fail (clist != NULL);
   g_return_if_fail (GTK_IS_CLIST (clist));
   
-  if (button <= MAX_BUTTON)
+  if (button < MAX_BUTTON)
     {
       if (gdk_pointer_is_grabbed () || GTK_WIDGET_HAS_GRAB (clist))
 	{
@@ -7889,9 +7893,7 @@ gtk_clist_set_button_actions (GtkCList *clist,
 	  clist->drag_button = 0;
 	}
 
-      if (clist->anchor >= 0 &&
-	  clist->selection_mode == GTK_SELECTION_EXTENDED)
-	GTK_CLIST_CLASS_FW (clist)->resync_selection (clist, NULL);
+      GTK_CLIST_CLASS_FW (clist)->resync_selection (clist, NULL);
 
       clist->button_actions[button] = button_actions;
     }
