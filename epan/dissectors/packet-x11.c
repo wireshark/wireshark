@@ -1134,7 +1134,7 @@ static const value_string zero_is_none_vals[] = {
 #define LISTofCOLORITEM(name, length) { listOfColorItem(tvb, offsetp, t, hf_x11_##name, (length) / 12, little_endian); }
 #define LISTofKEYCODE(map, name, length) { listOfKeycode(tvb, offsetp, t, hf_x11_##name, map, (length), little_endian); }
 #define LISTofKEYSYM(name, map, keycode_first, keycode_count, \
-keysyms_per_keycode) {\
+    keysyms_per_keycode) {\
       listOfKeysyms(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_item, map, (keycode_first), (keycode_count), (keysyms_per_keycode), little_endian); }
 #define LISTofPOINT(name, length) { listOfPoint(tvb, offsetp, t, hf_x11_##name, (length) / 4, little_endian); }
 #define LISTofRECTANGLE(name) { listOfRectangle(tvb, offsetp, t, hf_x11_##name, (next_offset - *offsetp) / 8, little_endian); }
@@ -1827,13 +1827,17 @@ static void listOfKeysyms(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 
       g_assert(keycode_first >= 0);
       g_assert(keycode_count >= 0);
-      g_assert((size_t)(keycode_first + keycode_count) <= 256);
-
 
       for (keycode = keycode_first; keycode_count > 0;
            ++keycode, --keycode_count) {
+	    if (keycode >= 256) {
+		proto_tree_add_text(tt, tvb, *offsetp, 4 * keysyms_per_keycode,
+		    "keycode value %d is out of range", keycode);
+		*offsetp += 4 * keysyms_per_keycode;
+		continue;
+	    }
 	    tti = proto_tree_add_none_format(tt, hf_item, tvb, *offsetp,
-	    keysyms_per_keycode * 4, "keysyms (keycode %d):", keycode);
+		4 * keysyms_per_keycode, "keysyms (keycode %d):", keycode);
 
 	    ttt = proto_item_add_subtree(tti, ett_x11_keysym);
 
