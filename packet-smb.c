@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.373 2003/10/23 08:40:56 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.374 2003/10/24 00:36:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -15317,6 +15317,7 @@ const value_string NT_errors[] = {
   { 0x00000116, "STATUS_CRASH_DUMP" },
   { 0x00000117, "STATUS_BUFFER_ALL_ZEROS" },
   { 0x00000118, "STATUS_REPARSE_OBJECT" },
+  { 0x0000045C, "STATUS_NO_SHUTDOWN_IN_PROGRESS" },
   { 0x40000000, "STATUS_OBJECT_NAME_EXISTS" },
   { 0x40000001, "STATUS_THREAD_WAS_SUSPENDED" },
   { 0x40000002, "STATUS_WORKING_SET_LIMIT_RANGE" },
