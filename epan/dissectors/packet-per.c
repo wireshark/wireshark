@@ -482,12 +482,12 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 
 	/* 19.6 ub>=64k or unset */
 	if(max_len>=65536){
-		guint32 old_offset=offset;
+		guint32 start_offset=offset;
 		/* semi-constrained whole number for number of elements */
 		/* each element encoded as 10.9 */
 		offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, -1, &length);
 		length+=min_len;
-		proto_tree_add_uint(tree, hf_per_sequence_of_length, tvb, old_offset>>3, (offset>>3)!=(old_offset>>3)?(offset>>3)-(old_offset>>3):1, length);
+		proto_tree_add_uint(tree, hf_per_sequence_of_length, tvb, start_offset>>3, (offset>>3)!=(start_offset>>3)?(offset>>3)-(start_offset>>3):1, length);
 		goto call_sohelper;
 	}
 
@@ -902,8 +902,8 @@ dissect_per_choice(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree
 	proto_item *it=NULL;
 	proto_tree *tr=NULL;
 	guint32 old_offset=offset;
-   int min_choice=INT_MAX;
-   int max_choice=-1;
+	int min_choice=INT_MAX;
+	int max_choice=-1;
 
 DEBUG_ENTRY("dissect_per_choice");
 
