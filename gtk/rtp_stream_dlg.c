@@ -1,7 +1,7 @@
 /* rtp_stream_dlg.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream_dlg.c,v 1.3 2003/09/26 22:29:42 guy Exp $
+ * $Id: rtp_stream_dlg.c,v 1.4 2003/10/06 08:58:00 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -467,7 +467,7 @@ static void rtpstream_dlg_create (void)
 	GtkWidget *bt_analyse;
 	GtkWidget *bt_close;
 	
-	rtpstream_dlg_w = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	rtpstream_dlg_w = gtk_dialog_new();
 	gtk_window_set_title (GTK_WINDOW (rtpstream_dlg_w), "Ethereal: RTP Streams");
 	
 	dialog_vbox1 = GTK_DIALOG (rtpstream_dlg_w)->vbox;
