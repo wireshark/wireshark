@@ -4,7 +4,7 @@
  *
  * Conforms to the protocol described in: draft-ietf-ips-iscsi-08.txt
  *
- * $Id: packet-iscsi.c,v 1.11 2001/10/19 20:53:14 guy Exp $
+ * $Id: packet-iscsi.c,v 1.12 2001/10/20 18:30:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1557,7 +1557,7 @@ proto_register_iscsi(void)
 	},
 	{ &hf_iscsi_snack_type,
 	  { "S", "iscsi.snack.type",
-	    FT_UINT8, 8, VALS(iscsi_snack_types), 0x0f,          
+	    FT_UINT8, BASE_DEC, VALS(iscsi_snack_types), 0x0f,          
 	    "Type of SNACK requested", HFILL }
 	},
 	{ &hf_iscsi_BegRun,
