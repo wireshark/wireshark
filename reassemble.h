@@ -1,7 +1,7 @@
 /* reassemble.h
  * Declarations of outines for {fragment,segment} reassembly
  *
- * $Id: reassemble.h,v 1.20 2003/08/28 04:19:29 guy Exp $
+ * $Id: reassemble.h,v 1.21 2003/12/20 03:21:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -114,32 +114,44 @@ extern fragment_data *fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *p
  * "fragment_data" structure is allocated to refer to the reassembled,
  * packet, and:
  *
- *	if "more_frags" is false, the structure is not added to
- *	the hash table, and not given any fragments to refer to,
- *	but is just returned;
+ *	in "fragment_add_seq_802_11()", if "more_frags" is false,
+ *	the structure is not added to the hash table, and not given
+ *	any fragments to refer to, but is just returned;
  *
- *	if "more_frags" is true, this fragment is added to the linked
- *	list of fragments for this packet, and the "fragment_data"
- *	structure is put into the hash table.
+ *	otherwise, this fragment is added to the linked list of fragments
+ *	for this packet, and the "fragment_data" structure is put into
+ *	the hash table.
  *
  * Otherwise, this fragment is just added to the linked list of fragments
  * for this packet.
  *
- * They return a pointer to the head of the fragment data list, and removes
- * that from the fragment hash table if necessary and adds it to the
- * table of reassembled fragments, if we have all the fragments or if
- * this is the only fragment and "more_frags" is false, returns NULL
- * otherwise.
+ * If, after processing this fragment, we have all the fragments, they
+ * remove that from the fragment hash table if necessary and add it
+ * to the table of reassembled fragments, and return a pointer to the
+ * head of the fragment list.
  *
- * They assumes frag_number is a block sequence number.
+ * If this is the first fragment we've seen, and "more_frags" is false,
+ * "fragment_add_seq_802_11()" does nothing to the fragment data list,
+ * and returns a pointer to the head of that (empty) list.  The other
+ * routines return NULL.
+ *
+ * Otherwise, they return NULL.
+ *
+ * "fragment_add_seq_check()" and "fragment_add_seq_802_11()" assume
+ * frag_number is a block sequence number.
  * The bsn for the first block is 0.
  *
- * "fragment_add_seq_check()" takes the sequence number as an argument;
  * "fragment_add_seq_next()" is for protocols with no sequence number,
  * and assumes fragments always appear in sequence.
  */
 extern fragment_data *
 fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	     guint32 id, GHashTable *fragment_table,
+	     GHashTable *reassembled_table, guint32 frag_number,
+	     guint32 frag_data_len, gboolean more_frags);
+
+extern fragment_data *
+fragment_add_seq_802_11(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	     guint32 id, GHashTable *fragment_table,
 	     GHashTable *reassembled_table, guint32 frag_number,
 	     guint32 frag_data_len, gboolean more_frags);

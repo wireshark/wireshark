@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.101 2003/09/24 23:35:39 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.102 2003/12/20 03:21:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1864,7 +1864,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
    * Fragments" indicator set *but* with a non-zero fragment
    * number.
    *
-   * "fragment_add_seq_check()" handles that; we want to call it
+   * "fragment_add_seq_802_11()" handles that; we want to call it
    * even if we have a short frame, so that it does those checks - if
    * the frame is short, it doesn't do reassembly on it.
    *
@@ -1882,7 +1882,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
      * whatever reassembly is in progress, if any, and see
      * if it's done.
      */
-    fd_head = fragment_add_seq_check(next_tvb, hdr_len, pinfo, seq_number,
+    fd_head = fragment_add_seq_802_11(next_tvb, hdr_len, pinfo, seq_number,
 				     wlan_fragment_table,
 				     wlan_reassembled_table,
 				     frag_number,

@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.43 2003/09/25 01:50:41 tpot Exp $
+ * $Id: reassemble.c,v 1.44 2003/12/20 03:21:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1239,29 +1239,36 @@ fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
  * "fragment_data" structure is allocated to refer to the reassembled,
  * packet, and:
  *
- *	if "more_frags" is false, the structure is not added to
- *	the hash table, and not given any fragments to refer to,
- *	but is just returned;
+ *	if "more_frags" is false and "frag_802_11_hack" is true, the
+ *	structure is not added to the hash table, and not given any
+ *	fragments to refer to, but is just returned - this is a special
+ *	hack for the 802.11 dissector (see packet-80211.c);
  *
- *	if "more_frags" is true, this fragment is added to the linked
- *	list of fragments for this packet, and the "fragment_data"
- *	structure is put into the hash table.
+ *	otherwise, this fragment is added to the linked list of fragments
+ *	for this packet, and the "fragment_data" structure is put into
+ *	the hash table.
  *
  * Otherwise, this fragment is just added to the linked list of fragments
  * for this packet.
  *
- * Returns a pointer to the head of the fragment data list, and removes
- * that from the fragment hash table if necessary and adds it to the
- * table of reassembled fragments, if we have all the fragments or if
- * this is the only fragment and "more_frags" is false, returns NULL
- * otherwise.
+ * If, after processing this fragment, we have all the fragments,
+ * "fragment_add_seq_check_work()" removes that from the fragment hash
+ * table if necessary and adds it to the table of reassembled fragments,
+ * and returns a pointer to the head of the fragment list.
+ *
+ * If this is the first fragment we've seen, and "more_frags" is false
+ * and "frag_802_11_hack" is true, "fragment_add_seq_check_work()" does
+ * nothing to the fragment data list, and returns a pointer to the head
+ * of that (empty) list.
+ *
+ * Otherwise, it returns NULL.
  */
-fragment_data *
+static fragment_data *
 fragment_add_seq_check_work(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	     guint32 id, GHashTable *fragment_table,
 	     GHashTable *reassembled_table, guint32 frag_number,
 	     guint32 frag_data_len, gboolean more_frags,
-	     gboolean no_frag_number)
+	     gboolean no_frag_number, gboolean frag_802_11_hack)
 {
 	reassembled_key reass_key;
 	fragment_key key, *new_key, *old_key;
@@ -1302,12 +1309,14 @@ fragment_add_seq_check_work(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		fd_head->data=NULL;
 		fd_head->reassembled_in=0;
 
-		if (!more_frags) {
+		if (frag_802_11_hack && !more_frags) {
 			/*
 			 * This is the last snooped fragment for this
-			 * packet as well; that means it's the only
-			 * fragment.  Just add it to the table of
-			 * reassembled packets, and return it.
+			 * packet as well, and is the only one we've
+			 * seen.  We're doing special 802.11 processing;
+			 * just add the fragment to the table of
+			 * reassembled packets, and return a pointer
+			 * to the head of the list.
 			 */
 			fragment_reassembled(fd_head, pinfo,
 			       reassembled_table, id);
@@ -1413,7 +1422,18 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	return fragment_add_seq_check_work(tvb, offset, pinfo, id,
 	    fragment_table, reassembled_table, frag_number, frag_data_len,
-	    more_frags, FALSE);
+	    more_frags, FALSE, FALSE);
+}
+
+fragment_data *
+fragment_add_seq_802_11(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	     guint32 id, GHashTable *fragment_table,
+	     GHashTable *reassembled_table, guint32 frag_number,
+	     guint32 frag_data_len, gboolean more_frags)
+{
+	return fragment_add_seq_check_work(tvb, offset, pinfo, id,
+	    fragment_table, reassembled_table, frag_number, frag_data_len,
+	    more_frags, FALSE, TRUE);
 }
 
 fragment_data *
@@ -1424,7 +1444,7 @@ fragment_add_seq_next(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	return fragment_add_seq_check_work(tvb, offset, pinfo, id,
 	    fragment_table, reassembled_table, 0, frag_data_len,
-	    more_frags, TRUE);
+	    more_frags, TRUE, FALSE);
 }
 
 /*
