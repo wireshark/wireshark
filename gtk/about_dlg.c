@@ -1,6 +1,6 @@
 /* about_dlg.c
  *
- * $Id: about_dlg.c,v 1.11 2004/05/23 17:37:36 ulfl Exp $
+ * $Id: about_dlg.c,v 1.12 2004/05/27 16:41:33 ulfl Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -97,10 +97,7 @@ about_ethereal_page_new(void)
 
        "Ethereal is Open Source Software released under the GNU General Public License.\n\n"
 
-	   "Check the man page for complete documentation and\n"
-	   "for the list of contributors.\n\n"
-
-	   "See http://www.ethereal.com for more information.",
+	   "Check the man page and http://www.ethereal.com for more information.",
 	    comp_info_str->str, runtime_info_str->str);
 
   msg_label = gtk_label_new(message);
