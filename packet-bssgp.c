@@ -2,7 +2,7 @@
  * Routines for BSSGP (BSS GPRS Protocol ETSI GSM 08.18 version 6.7.1 TS 101 343 ) dissection
  * Copyright 2000, Josef Korelus <jkor@quick.cz>
  *
- * $Id: packet-bssgp.c,v 1.1 2003/09/06 06:55:57 guy Exp $
+ * $Id: packet-bssgp.c,v 1.2 2003/09/06 07:10:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -789,7 +789,7 @@ static int dcd_bssgp_algn(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p
 		ti = proto_tree_add_text(dprm_p->tree,tvb,offset, len+2, "%u Aligment octets", len+2 );
 		algn_tree = proto_item_add_subtree(ti, ett_algn_tree);
 		proto_tree_add_uint_format(algn_tree,hf_bssgp_ietype,tvb,offset,1,code,"IE type: %s %#.2x",match_strval(code,bssgp_iei),code);
-		proto_tree_add_text(algn_tree,tvb,offset+1,1,"Lnegth:%u",len);
+		proto_tree_add_text(algn_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
 }
@@ -807,7 +807,7 @@ static int dcd_bssgp_bmaxms(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm
 		bmaxms_tree = proto_item_add_subtree(ti, ett_bmaxms_tree);
 		proto_tree_add_uint_format(bmaxms_tree,hf_bssgp_ietype,tvb,offset,1,code,"IE type: %s %#.2x",match_strval(code,bssgp_iei),code);
 		proto_tree_add_uint_format(bmaxms_tree, hf_bssgp_bmax_def_ms,tvb,offset+2,len,bucket,"%s in 100 octet increments: %u (%#.2x)",match_strval(code,bssgp_iei),bucket,bucket);
-		proto_tree_add_text(bmaxms_tree,tvb,offset+1,1,"Lnegth:%u",len);
+		proto_tree_add_text(bmaxms_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
 };
@@ -825,14 +825,14 @@ static int dcd_bssgp_bucklr(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm
 	code = tvb_get_guint8(tvb,offset);
 	
 	if (check_col((dprm_p->pinfo)->cinfo, COL_INFO)){
-		col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO, "   ,%s: %u bits/sec",match_strval(code,bssgp_iei),bucket*100 );
+		col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO, ", %s: %u bits/sec",match_strval(code,bssgp_iei),bucket*100 );
 		}	
  	if (dprm_p->tree){
 		ti = proto_tree_add_text(dprm_p->tree,tvb,offset, len+2, "Bucket Leak Rate(R): %u bits/sec", 100*bucket);
 		bucklr_tree = proto_item_add_subtree(ti, ett_bucklr_tree);
 		proto_tree_add_uint_format(bucklr_tree,hf_bssgp_ietype,tvb,offset,1,code,"IE type: %s %#.2x",match_strval(code,bssgp_iei),code);
 		proto_tree_add_uint_format(bucklr_tree, hf_bssgp_buck_leak_rate,tvb,offset+2,len,bucket,"%s in 100 bits/sec increments: %u (%#.2x)",match_strval(code,bssgp_iei),bucket,bucket);
-		proto_tree_add_text(bucklr_tree,tvb,offset+1,1,"Lnegth:%u",len);
+		proto_tree_add_text(bucklr_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
 };
@@ -846,14 +846,14 @@ static int dcd_bssgp_bvci(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p
 	code = tvb_get_guint8(tvb,offset);
 	bucket = tvb_get_ntohs(tvb,offset+2);
 	if (check_col((dprm_p->pinfo)->cinfo, COL_INFO)){
-		col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO, " ,%s: %u ",match_strval(code,bssgp_iei),bucket );
+		col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO, ", %s: %u",match_strval(code,bssgp_iei),bucket );
 		}	
  	if (dprm_p->tree){
 		ti = proto_tree_add_text(dprm_p->tree,tvb,offset, len+2, "%s: %u", match_strval(code,bssgp_iei), bucket);
 		bvci_tree = proto_item_add_subtree(ti, ett_bvci_tree);
 		proto_tree_add_uint_format(bvci_tree,hf_bssgp_ietype,tvb,offset,1,code,"IE type: %s %#.2x",match_strval(code,bssgp_iei),code);
 		proto_tree_add_uint_format(bvci_tree, hf_bssgp_bvci,tvb,offset+2,len,bucket,"%s: %u (%#.2x)",match_strval(code,bssgp_iei),bucket,bucket);
-		proto_tree_add_text(bvci_tree,tvb,offset+1,1,"Lnegth:%u",len);
+		proto_tree_add_text(bvci_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
 };
@@ -867,14 +867,14 @@ static int dcd_bssgp_bvci_n(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm
 	code = tvb_get_guint8(tvb,offset);
 	bucket = tvb_get_ntohs(tvb,offset+2);
 	if (check_col((dprm_p->pinfo)->cinfo, COL_INFO)){
-		col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO, " New %s: %u ",match_strval(code,bssgp_iei),bucket );
+		col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO, " New %s: %u",match_strval(code,bssgp_iei),bucket );
 		}	
  	if (dprm_p->tree){
 		ti = proto_tree_add_text(dprm_p->tree,tvb,offset, len+2, "New %s: %u", match_strval(code,bssgp_iei), bucket);
 		bvcin_tree = proto_item_add_subtree(ti, ett_bvcin_tree);
 		proto_tree_add_uint_format(bvcin_tree,hf_bssgp_ietype,tvb,offset,1,code,"IE type: %s(New) %#.2x",match_strval(code,bssgp_iei),code);
 		proto_tree_add_uint_format(bvcin_tree, hf_bssgp_bvci_new,tvb,offset+2,len,bucket,"New %s: %u (%#.2x)",match_strval(code,bssgp_iei),bucket,bucket);
-		proto_tree_add_text(bvcin_tree,tvb,offset+1,1,"Lnegth:%u",len);
+		proto_tree_add_text(bvcin_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
 };
@@ -888,14 +888,14 @@ static int dcd_bssgp_bvc_bsize(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *d
 	code = tvb_get_guint8(tvb,offset);
 	bucket = tvb_get_ntohs(tvb,offset+2);
 	if (check_col((dprm_p->pinfo)->cinfo, COL_INFO)){
-		col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO, "   ,%s: %u bytes",match_strval(code,bssgp_iei),bucket*100 );
+		col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO, ", %s: %u bytes",match_strval(code,bssgp_iei),bucket*100 );
 		}	
  	if (dprm_p->tree){
 		ti = proto_tree_add_text(dprm_p->tree,tvb,offset, len+2, "BVC Bucket Size: %u bytes", 100*bucket);
 		bsize_tree = proto_item_add_subtree(ti, ett_bsize_tree);
 		proto_tree_add_uint_format(bsize_tree,hf_bssgp_ietype,tvb,offset,1,code,"IE type: %s %#.2x",match_strval(code,bssgp_iei),code);
 		proto_tree_add_uint_format(bsize_tree, hf_bssgp_bvc_buck_size,tvb,offset+2,len,bucket,"%s in 100 octet increments: %u (%#.2x)",match_strval(code,bssgp_iei),bucket,bucket);
-		proto_tree_add_text(bsize_tree,tvb,offset+1,1,"Lnegth:%u",len);
+		proto_tree_add_text(bsize_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
 };
@@ -912,14 +912,14 @@ static int dcd_bssgp_cause(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_
 	code = tvb_get_guint8(tvb,offset);
 	cause = tvb_get_guint8(tvb,offset+2);
 	if (check_col((dprm_p->pinfo)->cinfo, COL_INFO)){
-		col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO, " ,%s: %s ",match_strval(code,bssgp_iei),match_strval(cause,bssgp_cause));
+		col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO, ", %s: %s",match_strval(code,bssgp_iei),match_strval(cause,bssgp_cause));
 		}	
  	if (dprm_p->tree){
 		ti = proto_tree_add_text(dprm_p->tree,tvb,offset, len+2, "%s: %s", match_strval(code,bssgp_iei),match_strval(cause,bssgp_cause));
 		cause_tree = proto_item_add_subtree(ti, ett_cause_tree);
 		proto_tree_add_uint_format(cause_tree,hf_bssgp_ietype,tvb,offset,1,code,"IE type: %s %#.2x",match_strval(code,bssgp_iei),code);
 		proto_tree_add_uint_format(cause_tree, hf_bssgp_cause,tvb,offset+2,len,cause,"%s: %s (%#.2x)",match_strval(code,bssgp_iei),match_strval(cause,bssgp_cause),cause);
-		proto_tree_add_text(cause_tree,tvb,offset+1,1,"Lnegth:%u",len);
+		proto_tree_add_text(cause_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
 };
@@ -947,7 +947,7 @@ static int dcd_bssgp_cellid(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm
 		proto_tree_add_uint_format(celid_tree,hf_bssgp_ra_lac,tvb,offset+5,2,lac,"LAC: %u",lac);
 		proto_tree_add_uint_format(celid_tree,hf_bssgp_ra_rac,tvb,offset+7,1,rac,"RAC: %u",rac);
 		proto_tree_add_uint_format(celid_tree,hf_bssgp_cid,tvb,offset+8,2,cid,"Cell Id: %u",cid);
-		proto_tree_add_text(celid_tree,tvb,offset+1,1,"Lnegth:%u",len);
+		proto_tree_add_text(celid_tree,tvb,offset+1,1,"Length:%u",len);
 		
 	}
 	 
@@ -968,7 +968,7 @@ static int dcd_bssgp_drx(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p)
 		ti = proto_tree_add_text(dprm_p->tree,tvb,offset, 4,"DRX Parameters");
 		drx_tree = proto_item_add_subtree(ti, ett_drx_tree);
 		proto_tree_add_uint_format(drx_tree,hf_bssgp_ietype,tvb,offset,1,code,"IE type: %s %#.2x",match_strval(code,bssgp_iei),code);
-		proto_tree_add_text(drx_tree,tvb,offset+1,1,"Lnegth:%u",len);
+		proto_tree_add_text(drx_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
 	
@@ -1016,7 +1016,7 @@ static int dcd_bssgp_imsi(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p
 	
 		}
 		if (check_col((dprm_p->pinfo)->cinfo, COL_INFO)){
-		col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO, "   ,%s: %s %s",match_strval(toi,type_of_identity),imsi_mccn, imsi_val );
+		col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO, ", %s: %s %s",match_strval(toi,type_of_identity),imsi_mccn, imsi_val );
 		}	
 	
 		if (dprm_p->tree){
@@ -1052,15 +1052,15 @@ static int dcd_bssgp_llc_pdu(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dpr
 	}
 
 	if (check_col((dprm_p->pinfo)->cinfo, COL_INFO)){
-		col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO, "   ,LLC PDU length %u bytes", llen );
+		col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO, ", LLC PDU length %u bytes", llen );
 		}	
  	
 	if (dprm_p->tree){
 		code = tvb_get_guint8(tvb,offset);
-		ti = proto_tree_add_text(dprm_p->tree,tvb,offset,llen ,"LLC PDU %u bytes ", llen);
+		ti = proto_tree_add_text(dprm_p->tree,tvb,offset,llen ,"LLC PDU %u bytes", llen);
 		b_llc_tree = proto_item_add_subtree(ti, ett_b_llc_tree);
 		proto_tree_add_uint_format(b_llc_tree,hf_bssgp_ietype,tvb,offset,1,code,"IE type: %s %#.2x",match_strval(code,bssgp_iei),code);
-		proto_tree_add_text(b_llc_tree,tvb,offset+1,k-1,"Lnegth:%u",llen);
+		proto_tree_add_text(b_llc_tree,tvb,offset+1,k-1,"Length:%u",llen);
 	}
 	
 return llen+k;	
@@ -1075,14 +1075,14 @@ static int dcd_bssgp_llc_frdsc(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *d
 	frdsc = tvb_get_guint8(tvb,offset+2);
 	code = tvb_get_guint8(tvb,offset);
 	if (check_col((dprm_p->pinfo)->cinfo, COL_INFO)){
-		col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO, " ,%s: %u ",match_strval(code,bssgp_iei), frdsc);
+		col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO, ", %s: %u",match_strval(code,bssgp_iei), frdsc);
 		}	
  	if (dprm_p->tree){
 		ti = proto_tree_add_text(dprm_p->tree,tvb,offset, len+2, "%s: %u", match_strval(code,bssgp_iei), frdsc);
 		frdsc_tree = proto_item_add_subtree(ti, ett_frdsc_tree);
 		proto_tree_add_uint_format(frdsc_tree,hf_bssgp_ietype,tvb,offset,1,code,"IE type: %s %#.2x",match_strval(code,bssgp_iei),code);
-		proto_tree_add_uint_format(frdsc_tree, hf_bssgp_frdsc,tvb,offset+2,len,frdsc,"%s: %u ",match_strval(code,bssgp_iei),frdsc);
-		proto_tree_add_text(frdsc_tree,tvb,offset+1,1,"Lnegth:%u",len);
+		proto_tree_add_uint_format(frdsc_tree, hf_bssgp_frdsc,tvb,offset+2,len,frdsc,"%s: %u",match_strval(code,bssgp_iei),frdsc);
+		proto_tree_add_text(frdsc_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
 };
@@ -1110,7 +1110,7 @@ static int dcd_bssgp_radio_acc(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *d
 		ti = proto_tree_add_text(dprm_p->tree,tvb,offset,len+2 ,"MS Radio Access Capability: ");
 		racc_tree = proto_item_add_subtree(ti, ett_bssgp_racc);
 		proto_tree_add_uint_format(racc_tree,hf_bssgp_ietype,tvb,offset,1,code,"IE type: %s %#.2x",match_strval(code,bssgp_iei),code);
-		proto_tree_add_text(racc_tree,tvb,offset+1,1,"Lnegth:%u",len);
+		proto_tree_add_text(racc_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
 };
@@ -1137,7 +1137,7 @@ static int dcd_bssgp_pdu_life(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dp
 		ti = proto_tree_add_text(dprm_p->tree,tvb,offset, 4,"PDU Lifetime (s): ");
 		lft_tree = proto_item_add_subtree(ti, ett_bssgp_lft);
 		proto_tree_add_uint_format(lft_tree,hf_bssgp_ietype,tvb,offset,1,code,"IE type: %s %#.2x",match_strval(code,bssgp_iei),code);
-		proto_tree_add_text(lft_tree,tvb,offset+1,1,"Lnegth:%u",len);
+		proto_tree_add_text(lft_tree,tvb,offset+1,1,"Length:%u",len);
 		if (lifetime == 0xFFFF){
 			proto_item_append_text(ti,"infinite delay");
 			proto_tree_add_uint_format(lft_tree,hf_bssgp_pdu_lifetime,tvb,offset+2,2,lifetime,"PDU Life time: infinite delay (%#.4x centi seconds)", lifetime);
@@ -1162,7 +1162,7 @@ static int dcd_bssgp_prio(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p
 		ti = proto_tree_add_text(dprm_p->tree,tvb,offset, 4,"Priority");
 		prio_tree = proto_item_add_subtree(ti, ett_prio_tree);
 		proto_tree_add_uint_format(prio_tree,hf_bssgp_ietype,tvb,offset,1,code,"IE type: %s %#.2x",match_strval(code,bssgp_iei),code);
-		proto_tree_add_text(prio_tree,tvb,offset+1,1,"Lnegth:%u",len);
+		proto_tree_add_text(prio_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
 }
@@ -1199,13 +1199,13 @@ static int dcd_bssgp_qos(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p)
 		switch (dprm_p->type){
 			case 4:
 				proto_tree_add_uint_format(qos_tree,hf_bssgp_ietype,tvb,offset,1,code,"IE type: %s %#.2x",match_strval(code,bssgp_iei),code);
-				proto_tree_add_text(qos_tree,tvb,offset+1,1,"Lnegth:%u",len);
+				proto_tree_add_text(qos_tree,tvb,offset+1,1,"Length:%u",len);
 			case 3:
 				if (blr){
-				proto_tree_add_uint_format(qos_tree,hf_bssgp_pbr,tvb,offset+start,2,blr,"Peak bit rate: %u bytes/s, (%#.4x)in  100bits/sec increments ",bps,blr);
+				proto_tree_add_uint_format(qos_tree,hf_bssgp_pbr,tvb,offset+start,2,blr,"Peak bit rate: %u bytes/s, (%#.4x)in 100bits/sec increments",bps,blr);
 				}
 				else{
-				proto_tree_add_uint_format(qos_tree,hf_bssgp_pbr,tvb,offset+start,2,blr,"Peak bit rate: best effort (%#.4x)in  100bits/sec increments ",blr);
+				proto_tree_add_uint_format(qos_tree,hf_bssgp_pbr,tvb,offset+start,2,blr,"Peak bit rate: best effort (%#.4x)in  100bits/sec increments",blr);
 				}
 				ti2 = proto_tree_add_item(qos_tree,hf_bssgp_qos,tvb,offset+(disp-1),1,FALSE);
 				o5_tree = proto_item_add_subtree(ti2, ett_bssgp_o5);
@@ -1234,13 +1234,13 @@ static int dcd_bssgp_radio_caus(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *
 	racaus = tvb_get_guint8(tvb,offset+2);
 	code = tvb_get_guint8(tvb,offset);
 	if (check_col((dprm_p->pinfo)->cinfo, COL_INFO)){
-		col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO, " ,%s: %s ",match_strval(code,bssgp_iei), val_to_str(racaus,radio_cause,"%u reserved value"));
+		col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO, ", %s: %s",match_strval(code,bssgp_iei), val_to_str(racaus,radio_cause,"%u reserved value"));
 		}	
  	if (dprm_p->tree){
 		ti = proto_tree_add_text(dprm_p->tree,tvb,offset, len+2, "%s: %s", match_strval(code,bssgp_iei), val_to_str(racaus,radio_cause,"%u  reserved value, if received , it shall be handled as ""radio contact lost with MS"""));
 		racaus_tree = proto_item_add_subtree(ti, ett_racaus_tree);
 		proto_tree_add_uint_format(racaus_tree,hf_bssgp_ietype,tvb,offset,1,code,"IE type: %s %#.2x",match_strval(code,bssgp_iei),code);
-		proto_tree_add_uint_format(racaus_tree, hf_bssgp_radio_cause,tvb,offset+2,len,racaus,"%s: %#.2x ",match_strval(code,bssgp_iei),racaus);
+		proto_tree_add_uint_format(racaus_tree, hf_bssgp_radio_cause,tvb,offset+2,len,racaus,"%s: %#.2x",match_strval(code,bssgp_iei),racaus);
 		proto_tree_add_text(racaus_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
@@ -1289,7 +1289,7 @@ static int dcd_bssgp_r_def_ms(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dp
 		rdefms_tree = proto_item_add_subtree(ti, ett_rdefms_tree);
 		proto_tree_add_uint_format(rdefms_tree,hf_bssgp_ietype,tvb,offset,1,code,"IE type: %s %#.2x",match_strval(code,bssgp_iei),code);
 		proto_tree_add_uint_format(rdefms_tree, hf_bssgp_r_defau_ms,tvb,offset+2,len,bucket,"%s in 100 bits/sec increments: %u (%#.2x)",match_strval(code,bssgp_iei),bucket,bucket);
-		proto_tree_add_text(rdefms_tree,tvb,offset+1,1,"Lnegth:%u",len);
+		proto_tree_add_text(rdefms_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
 };
@@ -1310,7 +1310,7 @@ static int dcd_bssgp_tag(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p)
 		ti = proto_tree_add_text(dprm_p->tree,tvb,offset, len+2,"Tag: %u", tag);
 		tag_tree = proto_item_add_subtree(ti, ett_tag_tree);
 		proto_tree_add_uint_format(tag_tree,hf_bssgp_ietype,tvb,offset,1,code,"IE type: %s %#.2x",match_strval(code,bssgp_iei),code);
-		proto_tree_add_text(tag_tree,tvb,offset+1,1,"Lnegth:%u",len);
+		proto_tree_add_text(tag_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
 };
@@ -1334,7 +1334,7 @@ static int dcd_bssgp_tlli(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dprm_p
 	}
 	tlli = tvb_get_ntohl(tvb, offset+disp);
 	if (check_col((dprm_p->pinfo)->cinfo, COL_INFO)){
-		col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO, " ,TLLI: %X", tlli);
+		col_append_fstr( (dprm_p->pinfo)->cinfo, COL_INFO,", TLLI: %X", tlli);
 	}
 	if (dprm_p->tree){
 		switch (dprm_p->type){
@@ -1387,7 +1387,7 @@ static int dcd_bssgp_num_oct_aff(tvbuff_t *tvb, int offset, dec_fu_param_stru_t 
 		noaff_tree = proto_item_add_subtree(ti, ett_noaff_tree);
 		proto_tree_add_uint_format(noaff_tree,hf_bssgp_ietype,tvb,offset,1,code,"IE type: %s %#.2x",match_strval(code,bssgp_iei),code);
 		proto_tree_add_uint_format(noaff_tree, hf_bssgp_noaff,tvb,offset+2,len,bucket,"%s: %u (%#.2x)",match_strval(code,bssgp_iei),bucket,bucket);
-		proto_tree_add_text(noaff_tree,tvb,offset+1,1,"Lnegth:%u",len);
+		proto_tree_add_text(noaff_tree,tvb,offset+1,1,"Length:%u",len);
 	}
 return len+2;
 };
@@ -1464,7 +1464,7 @@ guint16 offset=1;
 			 if (tree){
                 		ti = proto_tree_add_protocol_format(tree, proto_bssgp, tvb, 0, tvb_length(tvb),"BSS GPRS protocol PDU type: %s (%#.2x)", match_strval(pdutype,tab_bssgp_pdu_type), pdutype);
                 		bssgp_tree = proto_item_add_subtree(ti, ett_bssgp);
-                         	proto_tree_add_uint_format(bssgp_tree, hf_bssgp_pdu_type, tvb, 0, offset, pdutype, "PDU type: %s  (%#.2x)  ",match_strval(pdutype,tab_bssgp_pdu_type), pdutype );
+                         	proto_tree_add_uint_format(bssgp_tree, hf_bssgp_pdu_type, tvb, 0, offset, pdutype, "PDU type: %s  (%#.2x)",match_strval(pdutype,tab_bssgp_pdu_type), pdutype );
 			decodeparam->tree=bssgp_tree;	
 			 }
 			 while (bssgp_pdu[i].infe[j].presence){
@@ -1500,7 +1500,7 @@ guint16 offset=1;
 /*
                 proto_tree_add_uint(tree, hf_bssgp_FIELDABBREV, tvb, offset, len, value);
 */		
-/*                proto_tree_add_uint_format(bssgp_tree, hf_bssgp_pdu_type, tvb, 0, 1, pdutype, "PDU type: %s  (%#.2x)  ",match_strval(pdutype,tab_bssgp_pdu_type), pdutype );
+/*                proto_tree_add_uint_format(bssgp_tree, hf_bssgp_pdu_type, tvb, 0, 1, pdutype, "PDU type: %s  (%#.2x)",match_strval(pdutype,tab_bssgp_pdu_type), pdutype );
 */
 
 /* Continue adding tree items to process the packet here */
@@ -1529,15 +1529,15 @@ proto_register_bssgp(void)
 		{&hf_bssgp_tlli,
 			{ "TLLI","bssgp.tlli",FT_UINT32, BASE_HEX, NULL,0x0,"Current TLLI",HFILL}},
 		{&hf_bssgp_ietype,
-			{"IE_TYPE", "bssgp.ietype", FT_UINT8, BASE_HEX, VALS(bssgp_iei),0x0,"Information elment", HFILL }},
+			{"IE Type", "bssgp.ietype", FT_UINT8, BASE_HEX, VALS(bssgp_iei),0x0,"Information element", HFILL }},
 		{&hf_bssgp_pbr,
 			 {"QoS_Profile","bssgp.pbr",FT_UINT16, BASE_HEX, NULL, 0x0, "Peak bit rate",HFILL }},
 		{&hf_bssgp_qos,
 			{"Last byte QoS Profile","bssgp.qos",FT_UINT8, BASE_HEX, NULL, 0x0,"5th byte of QoS profile(contains Precedence..)",HFILL}},
 		{&hf_bssgp_qos_cr,
-			{"C/R bit ","bssgp.qos.cr",FT_BOOLEAN,8, TFS(&cr_string),QOSO5CR,"The SDU contains LLC ACK/SACK command/responce frame type",HFILL }},
+			{"C/R bit","bssgp.qos.cr",FT_BOOLEAN,8, TFS(&cr_string),QOSO5CR,"The SDU contains LLC ACK/SACK command/responce frame type",HFILL }},
 		{&hf_bssgp_qos_t,
-			{"T bit" , "bssgp.qos.t", FT_BOOLEAN, 8, TFS( &t_string) , QOSO5T, "The SDU contains signaling/data" , HFILL}},
+			{"T bit", "bssgp.qos.t", FT_BOOLEAN, 8, TFS( &t_string) , QOSO5T, "The SDU contains signaling/data" , HFILL}},
 			
 		{&hf_bssgp_qos_a,
 			{"A bit" , "bssgp.qos.a" , FT_BOOLEAN,8, TFS( &a_string), QOSO5A, "Radio interface uses ARQ/UNITDATA functionality",HFILL}},
