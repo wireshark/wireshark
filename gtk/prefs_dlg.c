@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.75 2004/01/23 01:12:46 ulfl Exp $
+ * $Id: prefs_dlg.c,v 1.76 2004/01/23 02:09:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -489,15 +489,21 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_container_add(GTK_CONTAINER(frame), gui_font_pg);
   OBJECT_SET_DATA(prefs_w, E_GUI_FONT_PAGE_KEY, gui_font_pg);
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
-  /* gtk_font_selection_set_font_name doesn't work when run before appending the
-   * frame to the notebook (at least in GTK2) */
+
+  /* We set the current font and, for GTK+ 1.2[.x], the font filter
+     now, because they appear not to work when run before appending
+     the frame to the notebook. */
+
+  /* Set the font to the current font.
+     XXX - GTK+ 1.2.8, and probably earlier versions, have a bug
+     wherein that doesn't necessarily cause that font to be
+     selected in the dialog box.  I've sent to the GTK+ folk
+     a fix; hopefully, it'll show up in 1.2.9 if, as, and when
+     they put out a 1.2.9 release. */
   gtk_font_selection_set_font_name(
 	    GTK_FONT_SELECTION(gui_font_pg), prefs.PREFS_GUI_FONT_NAME);
 
 #if GTK_MAJOR_VERSION < 2
-  /* gtk_font_selection_set_filter doesn't work correct, 
-   * when run before appending the frame to the notebook */
-  
   /* Set its filter to show only fixed_width fonts. */
   gtk_font_selection_set_filter(
 	    GTK_FONT_SELECTION(gui_font_pg),
