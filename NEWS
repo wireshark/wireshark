@@ -13,6 +13,7 @@ Overview of changes in Ethereal 0.7.0:
 * LAPB and X.25 dissectors added (Olivier)
 * FreeBSD compilation cleanups (Bill Fumerola,
 	<billf@jade.chc-chimes.com>)
+* Ability to print all packets at once (Guy)
 
 Overview of changes in Ethereal 0.6.3:
 * Capture dialogue window data bug-fix (Guy)
