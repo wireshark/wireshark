@@ -6,7 +6,7 @@
  * Copyright 2002, Ronnie Sahlberg
  *   rewrote entire dissector
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.40 2002/06/24 00:08:17 tpot Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.41 2002/06/24 01:59:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6020,6 +6020,18 @@ srvsvc_dissect_TIMEOFDAY(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree, 
 				     char *drep)
 {
+	/*
+	 * XXX - is "hf_srvsvc_tod_elapsed" something that should be
+	 * processed by "add_abstime_absent_unknown()" from
+	 * "packet-smb-pipe.c"?  This structure looks similar
+	 * to the result of a NetRemoteTOD RAP call, and that has
+	 * a "current time" field that's processed by
+	 * "add_abstime_absent_unknown()".
+	 *
+	 * Should other fields, such as the time zone offset and
+	 * the time interval, be processed as they are for
+	 * "lm_data_resp_netremotetod_nolevel" as well?
+	 */
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_tod_elapsed, NULL);
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
