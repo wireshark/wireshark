@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.30 2002/08/28 21:00:13 jmayer Exp $
+ * $Id: packet-fr.c,v 1.31 2002/10/19 00:40:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -155,13 +155,13 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
         if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
             col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
-    }
-    else {
+  }
+  else {
         if(check_col(pinfo->cinfo, COL_RES_DL_DST))
             col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
         if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
             col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
-    }
+  }
 
 /*XXX We should check the EA bits and use that to generate the address. */
 
@@ -197,8 +197,6 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(fr_tree, tvb, offset, 1, "Unnumbered Information");
       }
       offset++;
-
-      SET_ADDRESS(&pinfo->dl_src, AT_DLCI, 2, (guint8*)&address);
 
       dissect_fr_nlpid(tvb, offset, pinfo, tree, ti, fr_tree, fr_ctrl);
   } else {

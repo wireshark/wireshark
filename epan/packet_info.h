@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.21 2002/10/18 21:40:13 guy Exp $
+ * $Id: packet_info.h,v 1.22 2002/10/19 00:40:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,7 +39,6 @@ typedef enum {
   AT_ATALK,		/* Appletalk DDP */
   AT_VINES,		/* Banyan Vines */
   AT_OSI,		/* OSI NSAP */
-  AT_DLCI,		/* Frame Relay DLCI */
   AT_ARCNET		/* ARCNET */
 } address_type;
 
