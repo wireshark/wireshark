@@ -1,6 +1,6 @@
 /* packet-dcerpc-srvsvc.c
  * Routines for SMB \\PIPE\\srvsvc packet disassembly
- * Copyright 2001, Tim Potter <tpot@samba.org>
+ * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *   decode srvsvc calls where Samba knows them ...
  * Copyright 2002, Ronnie Sahlberg
@@ -10,7 +10,7 @@
  * sources.
  *
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.43 2002/08/28 21:00:11 jmayer Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.44 2002/09/05 00:17:05 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -553,7 +553,7 @@ srvsvc_dissect_netrchardevenum_reply(tvbuff_t *tvb, int offset,
 			srvsvc_dissect_ENUM_HANDLE,
 			NDR_POINTER_UNIQUE, "Enum Handle", -1, 0);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -597,7 +597,7 @@ srvsvc_dissect_netrchardevgetinfo_reply(tvbuff_t *tvb, int offset,
 			srvsvc_dissect_CHARDEV_INFO_UNION,
 			NDR_POINTER_REF, "CHARDEV_INFO_UNION", -1, 0);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -635,7 +635,7 @@ srvsvc_dissect_netrchardevcontrol_reply(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -905,7 +905,7 @@ srvsvc_dissect_netrchardevqenum_reply(tvbuff_t *tvb, int offset,
 			srvsvc_dissect_ENUM_HANDLE,
 			NDR_POINTER_UNIQUE, "Enum Handle", -1, 0);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -954,7 +954,7 @@ srvsvc_dissect_netrchardevqgetinfo_reply(tvbuff_t *tvb, int offset,
 			srvsvc_dissect_CHARDEVQ_INFO,
 			NDR_POINTER_REF, "CHARDEVQ_INFO:", -1, 0);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -1007,7 +1007,7 @@ srvsvc_dissect_netrchardevqsetinfo_reply(tvbuff_t *tvb, int offset,
 			srvsvc_dissect_pointer_long, NDR_POINTER_UNIQUE,
 			"Parameter Error:", hf_srvsvc_parm_error, 0);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -1041,7 +1041,7 @@ srvsvc_dissect_netrchardevqpurge_reply(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -1081,7 +1081,7 @@ srvsvc_dissect_netrchardevqpurgeself_reply(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -1325,7 +1325,7 @@ srvsvc_dissect_netrconnectionenum_reply(tvbuff_t *tvb, int offset,
 			srvsvc_dissect_ENUM_HANDLE,
 			NDR_POINTER_UNIQUE, "Enum Handle", -1, 0);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -1600,7 +1600,7 @@ srvsvc_dissect_netrfileenum_reply(tvbuff_t *tvb, int offset,
 			srvsvc_dissect_ENUM_HANDLE,
 			NDR_POINTER_UNIQUE, "Enum Handle", -1, 0);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -1642,7 +1642,7 @@ srvsvc_dissect_netrfilegetinfo_reply(tvbuff_t *tvb, int offset,
 			srvsvc_dissect_FILE_INFO_UNION,
 			NDR_POINTER_REF, "FILE_INFO_UNION:", -1, 0);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -1675,7 +1675,7 @@ srvsvc_dissect_netrfileclose_reply(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -2162,7 +2162,7 @@ srvsvc_dissect_netrsessionenum_reply(tvbuff_t *tvb, int offset,
 			srvsvc_dissect_ENUM_HANDLE,
 			NDR_POINTER_UNIQUE, "Enum Handle", -1, 0);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -2203,7 +2203,7 @@ srvsvc_dissect_netrsessiondel_reply(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -2954,7 +2954,7 @@ srvsvc_dissect_netrshareadd_reply(tvbuff_t *tvb, int offset,
 			srvsvc_dissect_pointer_long, NDR_POINTER_UNIQUE,
 			"Parameter Error:", hf_srvsvc_parm_error, 0);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -3122,7 +3122,7 @@ srvsvc_dissect_netrshareenum_reply(tvbuff_t *tvb, int offset,
 			srvsvc_dissect_ENUM_HANDLE,
 			NDR_POINTER_UNIQUE, "Enum Handle", -1, 0);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -3167,7 +3167,7 @@ srvsvc_dissect_netrsharegetinfo_reply(tvbuff_t *tvb, int offset,
 			NDR_POINTER_REF, "Share",
 			-1, 0);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -3220,7 +3220,7 @@ srvsvc_dissect_netrsharesetinfo_reply(tvbuff_t *tvb, int offset,
 			srvsvc_dissect_pointer_long, NDR_POINTER_UNIQUE,
 			"Parameter Error:", hf_srvsvc_parm_error, 0);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -3258,7 +3258,7 @@ srvsvc_dissect_netrsharedel_reply(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -3296,7 +3296,7 @@ srvsvc_dissect_netrsharedelsticky_reply(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -3334,7 +3334,7 @@ srvsvc_dissect_netrsharecheck_reply(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_share_type, NULL);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -5613,7 +5613,7 @@ srvsvc_dissect_netrservergetinfo_reply(tvbuff_t *tvb, int offset,
 			NDR_POINTER_REF, "Server Info",
 			-1, 0);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -5660,7 +5660,7 @@ srvsvc_dissect_netrserversetinfo_reply(tvbuff_t *tvb, int offset,
 			srvsvc_dissect_pointer_long, NDR_POINTER_UNIQUE,
 			"Parameter Error:", hf_srvsvc_parm_error, 0);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -5911,7 +5911,7 @@ srvsvc_dissect_netrserverstatisticsget_reply(tvbuff_t *tvb, int offset,
 			NDR_POINTER_REF, "Stat",
 			-1, 0);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -6178,7 +6178,7 @@ srvsvc_dissect_netrservertransportadd_reply(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -6234,7 +6234,7 @@ srvsvc_dissect_netrservertransportenum_reply(tvbuff_t *tvb, int offset,
 			srvsvc_dissect_ENUM_HANDLE,
 			NDR_POINTER_UNIQUE, "Enum Handle", -1, 0);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -6273,7 +6273,7 @@ srvsvc_dissect_netrservertransportdel_reply(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -6368,7 +6368,7 @@ srvsvc_dissect_netrremotetod_reply(tvbuff_t *tvb, int offset,
 			NDR_POINTER_UNIQUE, "Time of day",
 			-1, 0);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -6410,7 +6410,7 @@ srvsvc_dissect_netrsetserverservicebits_reply(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -6452,7 +6452,7 @@ srvsvc_dissect_netrpathtype_reply(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_path_type, NULL);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -6535,7 +6535,7 @@ srvsvc_dissect_netrpathcanonicalize_reply(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_path_type, NULL);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -6584,7 +6584,7 @@ srvsvc_dissect_netrpathcompare_reply(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -6627,7 +6627,7 @@ srvsvc_dissect_netrnamevalidate_reply(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -6701,7 +6701,7 @@ srvsvc_dissect_netrnamecanonicalize_reply(tvbuff_t *tvb, int offset,
 	g_free(text);
 
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -6750,7 +6750,7 @@ srvsvc_dissect_netrnamecompare_reply(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -6807,7 +6807,7 @@ srvsvc_dissect_netrshareenumsticky_reply(tvbuff_t *tvb, int offset,
 			srvsvc_dissect_ENUM_HANDLE,
 			NDR_POINTER_UNIQUE, "Enum Handle", -1, 0);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -6850,7 +6850,7 @@ srvsvc_dissect_netrsharedelstart_reply(tvbuff_t *tvb, int offset,
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_srvsvc_hnd, NULL, TRUE, FALSE);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -6879,7 +6879,7 @@ srvsvc_dissect_netrsharedelcommit_reply(tvbuff_t *tvb, int offset,
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_srvsvc_hnd, NULL, TRUE, FALSE);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -6931,7 +6931,7 @@ srvsvc_dissect_netrgetfilesecurity_reply(tvbuff_t *tvb, int offset,
 			lsa_dissect_LSA_SECURITY_DESCRIPTOR_data, NDR_POINTER_REF,
 			"LSA SECURITY DESCRIPTOR data:", -1, 0);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -6982,7 +6982,7 @@ srvsvc_dissect_netrsetfilesecurity_reply(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -7021,7 +7021,7 @@ srvsvc_dissect_netrservertransportaddex_reply(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -7074,7 +7074,7 @@ srvsvc_dissect_netrserversetservicebits2_reply(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     char *drep)
 {
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
 
 	return offset;
@@ -7347,7 +7347,7 @@ proto_register_dcerpc_srvsvc(void)
 	    BASE_DEC, NULL, 0x0, "Info Level", HFILL}},
 	  { &hf_srvsvc_rc,
 	    { "Return code", "srvsvc.rc", FT_UINT32,
-	      BASE_HEX, VALS(NT_errors), 0x0, "Return Code", HFILL}},
+	      BASE_HEX, VALS(DOS_errors), 0x0, "Return Code", HFILL}},
 
 	  { &hf_srvsvc_platform_id,
 	    { "Platform ID", "srvsvc.info.platform_id", FT_UINT32,
