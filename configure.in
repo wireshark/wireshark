@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.202 2003/03/11 00:12:36 gerald Exp $
+# $Id: configure.in,v 1.203 2003/03/25 23:35:30 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -165,15 +165,6 @@ if test "x$enable_usr_local" = "xyes" ; then
 else
 	AC_MSG_RESULT(no)
 fi
-
-# Create DATAFILE_DIR #define for config.h
-datafiledir=$sysconfdir
-datafiledir=`(
-    test "x$prefix" = xNONE && prefix=$ac_default_prefix
-    test "x$exec_prefix" = xNONE && exec_prefix=${prefix}
-    eval echo "$datafiledir"
-)`
-AC_DEFINE_UNQUOTED(DATAFILE_DIR, "$datafiledir", [Directory for data])
 
 #
 # If we're running Solaris, and LD_LIBRARY_PATH is defined, add it as a
