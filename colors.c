@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.2 1999/08/24 18:53:08 guy Exp $
+ * $Id: colors.c,v 1.3 1999/08/24 23:00:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,47 +28,10 @@
 #endif
 
 #include <gtk/gtk.h>
-#include <gtk/gtkwidget.h>
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <glibconfig.h>
-#include <glib.h>
-
-#include <gdk/gdkkeysyms.h>
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
-#ifdef HAVE_DIRECT_H
-#include <direct.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-
-#include <signal.h>
-
-#ifdef NEED_SNPRINTF_H
-# ifdef HAVE_STDARG_H
-#  include <stdarg.h>
-# else
-#  include <varargs.h>
-# endif
-# include "snprintf.h"
-#endif
-
-#ifdef NEED_STRERROR_H
-#include "strerror.h"
-#endif
 
 #include "ethereal.h"
 #include "packet.h"
