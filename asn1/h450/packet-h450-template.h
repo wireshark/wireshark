@@ -2,7 +2,7 @@
  * Routines for h450 packet dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id: packet-h450-template.h 12203 2004-10-05 09:18:55Z guy $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
