@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.74 1999/08/05 06:34:34 guy Exp $
+ * $Id: ethereal.c,v 1.75 1999/08/05 16:46:03 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -199,8 +199,9 @@ file_sel_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 /* Update the progress bar */
 gint
 file_progress_cb(gpointer p) {
+  capture_file *cf = (capture_file*) p;
   gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar),
-    (gfloat) ftell(cf.fh) / (gfloat) cf.f_len);
+    (gfloat) ftell(cf->fh) / (gfloat) cf->f_len);
   return TRUE;
 }
 

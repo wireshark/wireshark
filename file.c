@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.55 1999/08/05 00:23:07 guy Exp $
+ * $Id: file.c,v 1.56 1999/08/05 16:46:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -93,6 +93,8 @@ static void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, int,
 
 static void freeze_clist(capture_file *cf);
 static void thaw_clist(capture_file *cf);
+
+static gint dfilter_progress_cb(gpointer p);
 
 int
 open_cap_file(char *fname, capture_file *cf) {
@@ -206,7 +208,7 @@ load_cap_file(char *fname, capture_file *cf) {
   sprintf(load_msg, load_fmt, name_ptr);
   gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
   
-  timeout = gtk_timeout_add(250, file_progress_cb, (gpointer) &cf);
+  timeout = gtk_timeout_add(250, file_progress_cb, (gpointer) cf);
   
   err = open_cap_file(fname, cf);
   if ((err == 0) && (cf->cd_t != WTAP_FILE_UNKNOWN)) {
@@ -489,11 +491,17 @@ filter_packets_cb(gpointer data, gpointer user_data)
   fread(cf->pd, sizeof(guint8), fd->cap_len, cf->fh);
 
   add_packet_to_packet_list(fd, cf, cf->pd);
+
+  if (cf->count % 20 == 0) {
+	  dfilter_progress_cb(cf);
+  }
 }
 
 void
 filter_packets(capture_file *cf)
 {
+/*  gint timeout;*/
+
   if (cf->dfilter != NULL) {
     /*
      * Compile the filter.
@@ -525,8 +533,14 @@ filter_packets(capture_file *cf)
   firstusec = 0;
   lastsec = 0;
   lastusec = 0;
+  cf->unfiltered_count = cf->count;
   cf->count = 0;
+
+/*  timeout = gtk_timeout_add(250, dfilter_progress_cb, cf);*/
   g_list_foreach(cf->plist, filter_packets_cb, cf);
+/*  gtk_timeout_remove(timeout);*/
+ 
+  gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), 0);
 
   if (cf->selected_row != -1) {
     /* We had a selected packet and it passed the filter. */
@@ -539,6 +553,27 @@ filter_packets(capture_file *cf)
   /* Unfreeze the packet list. */
   gtk_clist_thaw(GTK_CLIST(packet_list));
 }
+
+/* Update the progress bar */
+static gint
+dfilter_progress_cb(gpointer p) {
+  capture_file *cf = (capture_file*)p;
+
+  /* let's not divide by zero. I should never be started
+   * with unfiltered_count == 0, so let's assert that
+   */
+  g_assert(cf->unfiltered_count > 0);
+
+  gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar),
+    (gfloat) cf->count / cf->unfiltered_count);
+
+  /* Have GTK+ repaint what is pending */
+  while (gtk_events_pending ()) {
+	  gtk_main_iteration();
+  }
+  return TRUE;
+}
+
 
 static void
 print_packets_cb(gpointer data, gpointer user_data)
