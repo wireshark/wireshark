@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.92 2003/05/22 11:58:54 sahlberg Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.93 2003/05/27 07:44:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4864,7 +4864,7 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
         { SAMR_CREATE_DOM_ALIAS, "CreateAlias",
 		samr_dissect_create_alias_in_domain_rqst,
 		samr_dissect_create_alias_in_domain_reply },
-        { SAMR_ENUM_DOM_ALIASES, "EnumAlises",
+        { SAMR_ENUM_DOM_ALIASES, "EnumAliases",
 		samr_dissect_enum_dom_aliases_rqst,
 		samr_dissect_enum_dom_aliases_reply },
         { SAMR_GET_ALIAS_MEMBERSHIP, "GetAliasMem",
@@ -5024,7 +5024,7 @@ static const value_string samr_opnum_vals[] = {
 	{ SAMR_CREATE_USER_IN_DOMAIN, "CreateUser" },
         { SAMR_ENUM_DOM_USERS, "EnumDomainUsers" },
         { SAMR_CREATE_DOM_ALIAS, "CreateAlias" },
-        { SAMR_ENUM_DOM_ALIASES, "EnumAlises" },
+        { SAMR_ENUM_DOM_ALIASES, "EnumAliases" },
         { SAMR_GET_ALIAS_MEMBERSHIP, "GetAliasMem" },
         { SAMR_LOOKUP_NAMES, "LookupNames" },
         { SAMR_LOOKUP_RIDS, "LookupRIDs" },
