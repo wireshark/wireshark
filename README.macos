@@ -1,7 +1,13 @@
-$Id: README.macos,v 1.6 2004/03/22 23:50:43 guy Exp $
+$Id: README.macos,v 1.7 2004/03/23 03:19:06 guy Exp $
 
 This file tries to help building Ethereal for Mac OS X (Ethereal does
 not work on earlier versions of Mac OS).
+
+In order to build Ethereal, you must have X11 and the X11 developer
+headers and libraries installed; otherwise, you will not be able to
+build or install GTK+, and will only be able to build Tethereal.  The
+X11 and X11 SDK that come with Mac OS X 10.3[.x] are sufficient to build
+and run Ethereal.
 
 The changes to enable libwiretap and libethereal being built as shared
 libraries have broken shared gtk1 builds on Mac OS X.  The GLib 1.x and
@@ -15,15 +21,14 @@ isn't working either (and may never have worked on this OS).
 The way out of this situation is to use gtk2 and associated libraries
 which is known to work in this constellation:
 
-        GLib 2.2.3
-        Pango 1.2.5
-        GTK+ 2.2.3
-        ATK 1.2.4
+        GLib 2.4.0
+        Pango 1.4.0
+        GTK+ 2.4.0
+        ATK 1.6.0
 
-(GTK+ 2.4 won't work, as it requires Pango 1.4 with fontconfig support,
-and Pango 1.4 refuses to handle a fontconfig that pkg-config doesn't
-know about, such as the fontconfig in Panther) and the corresponding
-dependencies:
+and the corresponding dependencies, which you can download from the
+"dependencies" subdirectory of the GTK+ download directory on the GTK+
+FTP site:
 
 	pkg-config
 	jpegsrc
@@ -31,16 +36,24 @@ dependencies:
 	tiff
 
 as well as GNU gettext, which isn't included in the directory of
-dependencies on the GTK+ FTP site.  NOTE: you must install the
-pkg-config dependency first; unless it is installed, you cannot
-configure GLib or GTK+.  After that, you must install GNU gettext; only
-after both of those have been built and installed will you be able to
-configure GLib.  After configuring and installing GLib, configure,
-build, and install Pango, ATK, jpegsrc, libpng, tiff, and GTK+, in
-order.  (The exact order might not be important, but you must configure,
-build, and install Pango and ATK before configuring GTK+ and, if you
-want GTK+ to be able to use the capabilities from the other libraries,
-you must configure, build, and install them before configuring GTK+.)
+dependencies on the GTK+ FTP site.
+
+NOTE: you must set the PKG_CONFIG_PATH environment variable to include
+"/usr/X11R6/lib/pkgconfig" (unless you've already set it, set it to
+"/usr/X11R6/lib/pkgconfig") before running the Pango configuration
+script, so that it can be configured to use the version of fontconfig
+that comes with Mac OS X's X11.
+
+NOTE: you must install the pkg-config dependency first; unless it is
+installed, you cannot configure GLib or GTK+.  After that, you must
+install GNU gettext; only after both of those have been built and
+installed will you be able to configure GLib.  After configuring and
+installing GLib, configure, build, and install Pango, ATK, jpegsrc,
+libpng, tiff, and GTK+, in order.  (The exact order might not be
+important, but you must configure, build, and install Pango and ATK
+before configuring GTK+ and, if you want GTK+ to be able to use the
+capabilities from the other libraries, you must configure, build, and
+install them before configuring GTK+.)
 
 You will need to do "make install-lib" for the JPEG library to install
 its libraries - "make install" does not suffice.  You will also have to
