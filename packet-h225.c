@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (h323@ramdyne.nl)
  *
- * $Id: packet-h225.c,v 1.33 2004/02/20 10:56:29 guy Exp $
+ * $Id: packet-h225.c,v 1.34 2004/03/22 20:16:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -280,6 +280,7 @@ static int hf_h225_McuInfo = -1;
 static int hf_h225_TunnelledProtocol_id = -1;
 static int hf_h225_TunnelledProtocol_subIdentifier = -1;
 static int hf_h225_TunnelledProtocol = -1;
+static int hf_h225_TunnelledProtocols = -1;
 static int hf_h225_desiredTunnelledProtocol = -1;
 static int hf_h225_CicInfo_cic_item = -1;
 static int hf_h225_CicInfo_pointCode = -1;
@@ -637,6 +638,7 @@ static gint ett_h225_GatewayInfo = -1;
 static gint ett_h225_McuInfo = -1;
 static gint ett_h225_TunnelledProtocol_id = -1;
 static gint ett_h225_TunnelledProtocol = -1;
+static gint ett_h225_TunnelledProtocols = -1;
 static gint ett_h225_CicInfo_cic = -1;
 static gint ett_h225_CicInfo = -1;
 static gint ett_h225_GroupID_member = -1;
@@ -4340,6 +4342,15 @@ dissect_h225_TunnelledProtocol(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 	return offset;
 }
 static int
+dissect_h225_TunnelledProtocols(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_per_sequence_of(tvb, offset, pinfo, tree,
+				hf_h225_TunnelledProtocols,
+				ett_h225_TunnelledProtocols, dissect_h225_TunnelledProtocol);
+	return offset;
+}
+
+static int
 dissect_h225_desiredTunnelledProtocol(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	tpID[0] = '\0';
@@ -5396,7 +5407,7 @@ static per_sequence_t EndPointType_sequence[] = {
 	{ "set", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_EndpointType_set },
 	{ "supportedTunnelledProtocols", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
-		dissect_h225_TunnelledProtocol },
+		dissect_h225_TunnelledProtocols },
 	{ NULL, 0, 0, NULL }
 };
 static int
@@ -9233,6 +9244,9 @@ proto_register_h225(void)
 	{ &hf_h225_TunnelledProtocol,
 		{ "TunnelledProtocol", "h225.TunnelledProtocol", FT_NONE, BASE_NONE,
 		NULL, 0, "TunnelledProtocol sequence", HFILL }},
+	{ &hf_h225_TunnelledProtocols,
+		{ "TunnelledProtocols", "h225.TunnelledProtocols", FT_NONE, BASE_NONE,
+		NULL, 0, "SEQUENCE OF TunnelledProtocol", HFILL }},
 	{ &hf_h225_desiredTunnelledProtocol,
 		{ "desiredTunnelledProtocol", "h225.desiredTunnelledProtocol", FT_NONE, BASE_NONE,
 		NULL, 0, "desiredTunnelledProtocol sequence", HFILL }},
@@ -10110,6 +10124,7 @@ proto_register_h225(void)
 		&ett_h225_McuInfo,
 		&ett_h225_TunnelledProtocol_id,
 		&ett_h225_TunnelledProtocol,
+		&ett_h225_TunnelledProtocols,
 		&ett_h225_CicInfo_cic,
 		&ett_h225_CicInfo,
 		&ett_h225_GroupID_member,
