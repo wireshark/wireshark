@@ -10,7 +10,7 @@
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.30 2002/01/21 07:36:41 guy Exp $
+ * $Id: packet-sctp.c,v 1.31 2002/02/02 21:17:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,11 +62,12 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_sctp = -1;
+static int hf_sctp_port = -1;
 static int hf_sctp_source_port      = -1;
 static int hf_sctp_destination_port = -1;
 static int hf_sctp_verification_tag = -1;
 static int hf_sctp_checksum         = -1;
-static int hf_sctp_checksum_correct = -1;
+static int hf_sctp_checksum_bad     = -1;
 
 static int hf_sctp_chunk_type       = -1;
 static int hf_sctp_chunk_flags      = -1;
@@ -2109,7 +2110,9 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(sctp_tree, hf_sctp_source_port, tvb, SOURCE_PORT_OFFSET, SOURCE_PORT_LENGTH, source_port);
     proto_tree_add_uint(sctp_tree, hf_sctp_destination_port, tvb, DESTINATION_PORT_OFFSET, DESTINATION_PORT_LENGTH, destination_port);
     proto_tree_add_uint(sctp_tree, hf_sctp_verification_tag, tvb, VERIFICATION_TAG_OFFSET, VERIFICATION_TAG_LENGTH, verification_tag);
-  
+    proto_tree_add_uint_hidden(sctp_tree, hf_sctp_port, tvb, SOURCE_PORT_OFFSET, SOURCE_PORT_LENGTH, source_port);
+    proto_tree_add_uint_hidden(sctp_tree, hf_sctp_port, tvb, DESTINATION_PORT_OFFSET, DESTINATION_PORT_LENGTH, destination_port);
+
     length = tvb_length(tvb);
     switch(sctp_checksum) {
     case SCTP_CHECKSUM_NONE:
@@ -2124,7 +2127,7 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       else
         proto_tree_add_uint_format(sctp_tree, hf_sctp_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, 
                                    checksum, "Checksum: 0x%08x (incorrect Adler32, should be 0x%08x)", checksum, calculated_adler32);    
-      proto_tree_add_boolean_hidden(sctp_tree, hf_sctp_checksum_correct, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, adler32_correct);
+      proto_tree_add_boolean_hidden(sctp_tree, hf_sctp_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(adler32_correct));
       break;
     case SCTP_CHECKSUM_CRC32C:
       calculated_crc32c = sctp_crc32c(tvb_get_ptr(tvb, 0, length), length);
@@ -2135,7 +2138,7 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       else
         proto_tree_add_uint_format(sctp_tree, hf_sctp_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, 
                                    checksum, "Checksum: 0x%08x (incorrect CRC32C, should be 0x%08x)", checksum, calculated_crc32c);    
-      proto_tree_add_boolean_hidden(sctp_tree, hf_sctp_checksum_correct, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, crc32c_correct);
+      proto_tree_add_boolean_hidden(sctp_tree, hf_sctp_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct));
       break;
     case SCTP_CHECKSUM_AUTOMATIC:
       calculated_adler32 = sctp_adler32(tvb_get_ptr(tvb, 0, length), length);
@@ -2155,7 +2158,7 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint_format(sctp_tree, hf_sctp_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, 
                                    checksum, "Checksum: 0x%08x (incorrect, should be 0x%08x (Adler32) or 0x%08x (CRC32C))",
                                    checksum, calculated_adler32, calculated_crc32c);
-      proto_tree_add_boolean_hidden(sctp_tree, hf_sctp_checksum_correct, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, (crc32c_correct || adler32_correct));
+      proto_tree_add_boolean_hidden(sctp_tree, hf_sctp_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct || adler32_correct));
       break;
     }
   } else {
@@ -2183,6 +2186,11 @@ proto_register_sctp(void)
 	       FT_UINT16, BASE_DEC, NULL, 0x0,          
 	       "", HFILL }
     }, 
+    { &hf_sctp_port,
+      { "Port", "sctp.port",
+	       FT_UINT16, BASE_DEC, NULL, 0x0,          
+	       "", HFILL }
+    }, 
     { &hf_sctp_verification_tag,
       { "Verification tag", "sctp.verfication_tag",
 	       FT_UINT32, BASE_HEX, NULL, 0x0,          
@@ -2193,8 +2201,8 @@ proto_register_sctp(void)
 	      FT_UINT32, BASE_HEX, NULL, 0x0,          
 	      "", HFILL }
     },
-    { &hf_sctp_checksum_correct,
-      { "Checksum correct", "sctp.checksum_correct",
+    { &hf_sctp_checksum_bad,
+      { "Bad checksum", "sctp.checksum_bad",
 	      FT_BOOLEAN, BASE_NONE, NULL, 0x0,          
 	      "", HFILL }
     },
