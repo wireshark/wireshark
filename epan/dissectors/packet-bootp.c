@@ -1572,7 +1572,9 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (hlen > 0) {
 			haddr = tvb_get_ptr(tvb, 28, hlen);
 			proto_tree_add_bytes_format(bp_tree, hf_bootp_hw_addr, tvb,
-						   28, hlen,
+				/* The chaddr element is 16 bytes in length, although
+				   only the first hlen bytes are used */
+						   28, 16,
 						   haddr,
 						   "Client hardware address: %s",
 						   arphrdaddr_to_str(haddr,
