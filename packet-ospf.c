@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.70 2002/08/28 21:00:24 jmayer Exp $
+ * $Id: packet-ospf.c,v 1.71 2002/11/15 18:50:47 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -1245,7 +1245,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
     proto_tree_add_item(ospf_lsa_tree, ospf_filter[OSPFF_ADV_ROUTER],
 			tvb, offset + 8, 4, FALSE);
-    proto_tree_add_text(ospf_lsa_tree, tvb, offset + 12, 4, "LS Sequence Number: 0x%04x",
+    proto_tree_add_text(ospf_lsa_tree, tvb, offset + 12, 4, "LS Sequence Number: 0x%08x",
 			tvb_get_ntohl(tvb, offset + 12));
     proto_tree_add_text(ospf_lsa_tree, tvb, offset + 16, 2, "LS Checksum: %04x",
 			tvb_get_ntohs(tvb, offset + 16));
@@ -1499,7 +1499,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
     proto_tree_add_item(ospf_lsa_tree, ospf_filter[OSPFF_ADV_ROUTER],
 			tvb, offset + 8, 4, FALSE);
-    proto_tree_add_text(ospf_lsa_tree, tvb, offset + 12, 4, "LS Sequence Number: %d",
+    proto_tree_add_text(ospf_lsa_tree, tvb, offset + 12, 4, "LS Sequence Number: 0x%08x",
 			tvb_get_ntohl(tvb, offset + 12));
     proto_tree_add_text(ospf_lsa_tree, tvb, offset + 16, 2, "LS Checksum: %04x",
 			tvb_get_ntohs(tvb, offset + 16));
@@ -1752,7 +1752,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         /* External Route Tag (optional - only if T-flag is on) */
         if ( (offset < end_offset) && (flags & OSPF_V3_AS_EXTERNAL_FLAG_T) ) {
 	    external_route_tag=tvb_get_ntohl(tvb, offset);
-	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4,"External Route Tag: 0x%04x",
+	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4,"External Route Tag: %u",
 				external_route_tag);
 
 	    offset+=4;
