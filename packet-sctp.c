@@ -10,7 +10,7 @@
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.26 2002/01/15 22:58:06 guy Exp $
+ * $Id: packet-sctp.c,v 1.27 2002/01/15 23:05:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2494,7 +2494,9 @@ proto_register_sctp(void)
   /* Register the protocol name and description */
   proto_sctp = proto_register_protocol("Stream Control Transmission Protocol", "SCTP", "sctp");
   sctp_module = prefs_register_protocol(proto_sctp, NULL);
-  prefs_register_enum_preference(sctp_module, "checksum", "SCTP Checksum", "SCTP Checksum",
+  prefs_register_enum_preference(sctp_module, "checksum",
+				 "Checksum type",
+				 "The type of checksum used in SCTP packets",
                                  &sctp_checksum, sctp_checksum_options, FALSE);
 
   /* Required function calls to register the header fields and subtrees used */
