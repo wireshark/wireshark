@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/GIOP subdissectors 
 #
-# $Id: Makefile.am,v 1.4 2003/09/05 07:44:45 jmayer Exp $
+# $Id: Makefile.am,v 1.5 2003/11/17 22:31:27 guy Exp $
 #
 # Copyright 2001, Ericsson Inc.
 # Frank Singleton <frank.singleton@ericsson.com>
@@ -9,7 +9,6 @@
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
 # Copyright 1998 Gerald Combs
-#
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
