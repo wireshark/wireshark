@@ -1,7 +1,9 @@
 /* filter_prefs.c
- * Dialog boxes for preferences for filter sets
+ * Dialog boxes for filter editing
+ * (This used to be a notebook page under "Preferences", hence the
+ * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.6 1999/12/10 06:28:19 guy Exp $
+ * $Id: filter_prefs.c,v 1.7 1999/12/10 07:20:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -209,7 +211,6 @@ filter_dlg_cancel(GtkWidget *cancel_bt, gpointer parent_w)
 }
 	
 /* Create and display the filter selection widgets. */
-/* Called when the 'Filter' preference notebook page is selected. */
 GtkWidget *
 filter_prefs_show(GtkWidget *w) {
   GtkWidget  *main_vb, *top_hb, *list_bb, *new_bt, *filter_sc,
