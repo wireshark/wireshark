@@ -55,6 +55,10 @@ static int hf_ppp_protocol = -1;
 
 static gint ett_ppp = -1;
 
+static int proto_ppp_hdlc = -1;
+
+static gint ett_ppp_hdlc_data = -1;
+
 static int proto_lcp = -1;
 
 static gint ett_lcp = -1;
@@ -3107,130 +3111,8 @@ dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   dissect_ppp_common(tvb, pinfo, tree, fh_tree, ti, 0);
 }
 
-static tvbuff_t*
-remove_escape_chars(tvbuff_t *tvb, int offset, int length)
-{
-  guint8	*buff;
-  int		i;
-  int		scanned_len = 0;
-  guint8	octet;
-  tvbuff_t  *next_tvb;
-	
-  buff = g_malloc(length);
-  i = 0;
-  while ( scanned_len < length ){
-	  octet = tvb_get_guint8(tvb,offset);
-	  if (octet == 0x7d){
-		  offset++;
-		  scanned_len++;
-		  octet = tvb_get_guint8(tvb,offset);
-		  buff[i] = octet ^ 0x20;
-	  }else{
-		  buff[i]= octet;
-	  }
-	  offset++;
-	  scanned_len++;
-	  i++;
-  }
-  next_tvb = tvb_new_real_data(buff,i,i);
-
-  /* Arrange that the allocated packet data copy be freed when the
-   * tvbuff is freed. 
-   */
-  tvb_set_free_cb( next_tvb, g_free );
-
-  tvb_set_child_real_data_tvbuff(tvb,next_tvb);
-  return next_tvb;
-
-}
-/*
- * Handles link-layer encapsulations 0x8881 where the frame might be
- * a PPP in HDLC-like Framing frame .
- */
 static void
-dissect_ppp_8881( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
-{
-  proto_item *ti = NULL;
-  proto_tree *fh_tree = NULL;
-  guint8     byte0;
-  int        proto_offset;
-  tvbuff_t  *next_tvb,*ppp_tvb;
-  gint		 end_offset;
-  int		 offset = 0;
-  int		 length;
-  int		 tvb_length = tvb_length_remaining(tvb,offset);
-
-  if(check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP" );
-
-  while ( offset < tvb_length ){
-
- 
-	 byte0 = tvb_get_guint8(tvb, 0);
-	  offset++;
-	  if (byte0 != 0x7e ){ 
-		  /* PPP Fragment */
-		  if(check_col(pinfo->cinfo, COL_INFO)){
-				col_add_str(pinfo->cinfo, COL_INFO,"PPP Fragment");
-		  }
-		  proto_tree_add_text(tree, tvb, 0, -1, "PPP Fragment");
-		  length = tvb_length_remaining(tvb,offset);
-		  ppp_tvb = remove_escape_chars(tvb, offset,length);
-		  add_new_data_source(pinfo, ppp_tvb, "PPP Fragment");
-		  call_dissector(data_handle, ppp_tvb, pinfo, tree);
-		  return;
-	  }
-
-	  end_offset = tvb_find_guint8(tvb, offset,-1, 0x7e);
-	  if ( end_offset == -1){
-		  if(check_col(pinfo->cinfo, COL_INFO)){
-			  col_add_str(pinfo->cinfo, COL_INFO,"PPP Fragment");
-		  }
-
-		  proto_tree_add_text(tree, tvb, 0, -1, "PPP Fragment");
-		  length = tvb_length_remaining(tvb,offset);
-		  ppp_tvb = remove_escape_chars(tvb, offset,length);
-		  add_new_data_source(pinfo, ppp_tvb, "PPP Fragment");
-		  call_dissector(data_handle, ppp_tvb, pinfo, tree);
-		  return;
-	  }
-	  length = end_offset - offset+1;
-	  g_warning("length(%u) = end_offset(%u) - offset(%u)+1",length,end_offset,offset);
-	  ppp_tvb = remove_escape_chars(tvb, offset,length);
-	  add_new_data_source(pinfo, ppp_tvb, "PPP Message");
-
-	  byte0 = tvb_get_guint8(ppp_tvb, 0);
-
-	  /* PPP HDLC encapsulation */
-	  if (byte0 == 0xff){
-	    proto_offset = 2;
-	  }else {
-	    /* address and control are compressed (NULL) */
-	    proto_offset = 0;
-	  }
-
-	  if(tree) {
-	    ti = proto_tree_add_item(tree, proto_ppp, ppp_tvb, 0, -1, FALSE);
-	    fh_tree = proto_item_add_subtree(ti, ett_ppp);
-	    if (byte0 == 0xff) {
-	      proto_tree_add_item(fh_tree, hf_ppp_address, ppp_tvb, 0, 1, FALSE);
-	      proto_tree_add_item(fh_tree, hf_ppp_control, ppp_tvb, 1, 1, FALSE);
-	    }
-	  }
-	  next_tvb = decode_fcs(ppp_tvb, fh_tree, ppp_fcs_decode, proto_offset);
-
-	  dissect_ppp_common(next_tvb, pinfo, tree, fh_tree, ti, proto_offset);
-	  offset = end_offset + 1;
-
-  } /* end while */
-}
-
-/*
- * Handles link-layer encapsulations where the frame might be
- * a PPP in HDLC-like Framing frame (RFC 1662) or a Cisco HDLC frame.
- */
-static void
-dissect_ppp_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+dissect_ppp_hdlc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti = NULL;
   proto_tree *fh_tree = NULL;
@@ -3239,16 +3121,6 @@ dissect_ppp_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   tvbuff_t  *next_tvb;
 
   byte0 = tvb_get_guint8(tvb, 0);
-  if (byte0 == CHDLC_ADDR_UNICAST || byte0 == CHDLC_ADDR_MULTICAST) {
-    /* Cisco HDLC encapsulation */
-    call_dissector(chdlc_handle, tvb, pinfo, tree);
-    return;
-  }
-
-  /*
-   * XXX - should we have a routine that always dissects PPP, for use
-   * when we know the packets are PPP, not CHDLC?
-   */
 
   /* PPP HDLC encapsulation */
   if (byte0 == 0xff)
@@ -3260,10 +3132,42 @@ dissect_ppp_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
+  if(tree) {
+    ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, -1, FALSE);
+    fh_tree = proto_item_add_subtree(ti, ett_ppp);
+    if (byte0 == 0xff) {
+      proto_tree_add_item(fh_tree, hf_ppp_address, tvb, 0, 1, FALSE);
+      proto_tree_add_item(fh_tree, hf_ppp_control, tvb, 1, 1, FALSE);
+    }
+  }
 
+  next_tvb = decode_fcs(tvb, fh_tree, ppp_fcs_decode, proto_offset);
+
+  dissect_ppp_common(next_tvb, pinfo, tree, fh_tree, ti, proto_offset);
+}
+
+/*
+ * Handles link-layer encapsulations where the frame might be
+ * a PPP in HDLC-like Framing frame (RFC 1662) or a Cisco HDLC frame.
+ */
+static void
+dissect_ppp_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+{
+  guint8     byte0;
+
+  byte0 = tvb_get_guint8(tvb, 0);
+  if (byte0 == CHDLC_ADDR_UNICAST || byte0 == CHDLC_ADDR_MULTICAST) {
+    /* Cisco HDLC encapsulation */
+    call_dissector(chdlc_handle, tvb, pinfo, tree);
+    return;
+  }
+
+  /*
+   * XXX - should we have an exported dissector that always dissects PPP,
+   * for use when we know the packets are PPP, not CHDLC?
+   */
   if(check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP" );
-
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP");
   switch (pinfo->p2p_dir) {
 
   case P2P_DIR_SENT:
@@ -3288,18 +3192,179 @@ dissect_ppp_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
     break;
   }
 
-  if(tree) {
-    ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, -1, FALSE);
-    fh_tree = proto_item_add_subtree(ti, ett_ppp);
-    if (byte0 == 0xff) {
-      proto_tree_add_item(fh_tree, hf_ppp_address, tvb, 0, 1, FALSE);
-      proto_tree_add_item(fh_tree, hf_ppp_control, tvb, 1, 1, FALSE);
-    }
+  dissect_ppp_hdlc_common(tvb, pinfo, tree);
+}
+
+static tvbuff_t*
+remove_escape_chars(tvbuff_t *tvb, int offset, int length)
+{
+  guint8	*buff;
+  int		i;
+  int		scanned_len = 0;
+  guint8	octet;
+  tvbuff_t  *next_tvb;
+	
+  buff = g_malloc(length);
+  i = 0;
+  while ( scanned_len < length ){
+	  octet = tvb_get_guint8(tvb,offset);
+	  if (octet == 0x7d){
+		  offset++;
+		  scanned_len++;
+		  if (scanned_len >= length)
+			  break;
+		  octet = tvb_get_guint8(tvb,offset);
+		  buff[i] = octet ^ 0x20;
+	  }else{
+		  buff[i]= octet;
+	  }
+	  offset++;
+	  scanned_len++;
+	  i++;
+  }
+  if (i == 0)
+	  return NULL;
+  next_tvb = tvb_new_real_data(buff,i,i);
+
+  /* Arrange that the allocated packet data copy be freed when the
+   * tvbuff is freed. 
+   */
+  tvb_set_free_cb( next_tvb, g_free );
+
+  tvb_set_child_real_data_tvbuff(tvb,next_tvb);
+  return next_tvb;
+
+}
+
+/*
+ * Handles link-layer encapsulations where we have a raw RFC 1662
+ * HDLC-like asynchronous framing byte stream, and have to
+ * break the byte stream into frames and remove escapes.
+ */
+static void
+dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+{
+  proto_item *ti;
+  proto_tree *bs_tree = NULL;
+  gint	      offset, end_offset;
+  int	      length;
+  tvbuff_t   *ppp_tvb;
+  gboolean    first = TRUE;
+
+  if(check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP" );
+
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_ppp_hdlc, tvb, 0, -1, FALSE);
+    bs_tree = proto_item_add_subtree(ti, ett_ppp_hdlc_data);
   }
 
-  next_tvb = decode_fcs(tvb, fh_tree, ppp_fcs_decode, proto_offset);
+  /*
+   * XXX - this needs to handle a PPP frame split over multiple higher-level
+   * packets.
+   */
 
-  dissect_ppp_common(next_tvb, pinfo, tree, fh_tree, ti, proto_offset);
+  /*
+   * Look for a frame delimiter.
+   */
+  offset = tvb_find_guint8(tvb, 0, -1, 0x7e);
+  if (offset == -1) {
+	  /*
+	   * None found - this is presumably continued from an earlier
+	   * packet and continued in a later packet.
+	   */
+	  if (check_col(pinfo->cinfo, COL_INFO)){
+		  col_add_str(pinfo->cinfo, COL_INFO,"PPP Fragment");
+	  }
+	  if (tree)
+		  proto_tree_add_text(bs_tree, tvb, offset, -1, "PPP Fragment");
+	  offset++;
+	  length = tvb_length_remaining(tvb,offset);
+	  ppp_tvb = remove_escape_chars(tvb, offset,length);
+	  if (ppp_tvb != NULL) {
+		  add_new_data_source(pinfo, ppp_tvb, "PPP Fragment");
+		  call_dissector(data_handle, ppp_tvb, pinfo, tree);
+	  }
+	  return;
+  }
+  if (offset != 0) {
+  	  /*
+  	   * We have some data preceding the first PPP packet;
+  	   * mark it as a PPP fragment.
+  	   */
+	  if(check_col(pinfo->cinfo, COL_INFO)){
+		  col_add_str(pinfo->cinfo, COL_INFO,"PPP Fragment");
+	  }
+	  length = offset;
+	  if (tree)
+		  proto_tree_add_text(bs_tree, tvb, 0, length, "PPP Fragment");
+	  if (length != 0) {
+		  ppp_tvb = remove_escape_chars(tvb, 0, length - 1);
+		  if (ppp_tvb != NULL) {
+			  add_new_data_source(pinfo, ppp_tvb, "PPP Fragment");
+			  call_dissector(data_handle, ppp_tvb, pinfo, tree);
+		  }
+	  }
+  }
+  while ( tvb_reported_length_remaining(tvb, offset) > 0 ){
+	  /*
+	   * Look for the next frame delimiter.
+	   */
+	  end_offset = tvb_find_guint8(tvb, offset+1, -1, 0x7e);
+	  if ( end_offset == -1 ){
+	  	  /*
+	  	   * We didn't find one.  This is probably continued in
+	  	   * a later packet.
+	  	   */
+		  if (first) {
+			  if(check_col(pinfo->cinfo, COL_INFO)){
+				  col_add_str(pinfo->cinfo, COL_INFO,"PPP Fragment");
+			  }
+		  }
+		  if (tree)
+			  proto_tree_add_text(bs_tree, tvb, offset, -1, "PPP Fragment");
+		  offset++;
+		  length = tvb_length_remaining(tvb, offset);
+		  ppp_tvb = remove_escape_chars(tvb, offset,length);
+		  if (ppp_tvb != NULL) {
+			  add_new_data_source(pinfo, ppp_tvb, "PPP Fragment");
+			  call_dissector(data_handle, ppp_tvb, pinfo, tree);
+		  }
+		  return;
+	  }
+	  length = end_offset - offset;
+	  if (tree)
+		  proto_tree_add_text(bs_tree, tvb, offset, length, "PPP Data");
+	  if (length > 1) {
+		  ppp_tvb = remove_escape_chars(tvb, offset + 1, length - 1);
+		  if (ppp_tvb != NULL) {
+			  add_new_data_source(pinfo, ppp_tvb, "PPP Message");
+			  dissect_ppp_hdlc_common(ppp_tvb, pinfo, tree);
+			  first = FALSE;
+		  }
+	  }
+	  offset = end_offset;
+  } /* end while */
+}
+
+void
+proto_register_ppp_raw_hdlc(void)
+{
+  static gint *ett[] = {
+    &ett_ppp_hdlc_data
+  };
+
+  proto_ppp_hdlc = proto_register_protocol("PPP In HDLC-Like Framing", "PPP-HDLC", "ppp_hdlc");
+  proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_ppp_raw_hdlc(void)
+{
+  dissector_handle_t ppp_raw_hdlc_handle;
+
+  ppp_raw_hdlc_handle = create_dissector_handle(dissect_ppp_raw_hdlc, proto_ppp);
+  dissector_add("gre.proto", ETHERTYPE_CDMA2000_A10_UBS, ppp_raw_hdlc_handle);
 }
 
 /*
@@ -3543,7 +3608,7 @@ proto_register_ppp(void)
         VALS(ppp_vals), 0x0, "", HFILL }},
   };
   static gint *ett[] = {
-    &ett_ppp,
+    &ett_ppp
   };
 
   module_t *ppp_module;
@@ -3556,7 +3621,6 @@ proto_register_ppp(void)
   ppp_subdissector_table = register_dissector_table("ppp.protocol",
 	"PPP protocol", FT_UINT16, BASE_HEX);
 
-  register_dissector("ppp_8881", dissect_ppp_8881, proto_ppp);
   register_dissector("ppp_hdlc", dissect_ppp_hdlc, proto_ppp);
   register_dissector("ppp_lcp_options", dissect_lcp_options, proto_ppp);
   register_dissector("ppp", dissect_ppp, proto_ppp);
@@ -3585,7 +3649,7 @@ proto_register_ppp(void)
 void
 proto_reg_handoff_ppp(void)
 {
-  dissector_handle_t ppp_8881_handle, ppp_hdlc_handle, ppp_handle;
+  dissector_handle_t ppp_hdlc_handle, ppp_handle;
 
   /*
    * Get a handle for the CHDLC dissector.
@@ -3593,14 +3657,13 @@ proto_reg_handoff_ppp(void)
   chdlc_handle = find_dissector("chdlc");
   data_handle = find_dissector("data");
 
-  ppp_8881_handle = find_dissector("ppp_8881");  
-  ppp_hdlc_handle = find_dissector("ppp_hdlc");
   ppp_handle = find_dissector("ppp");
+  dissector_add("fr.ietf", NLPID_PPP, ppp_handle);
+
+  ppp_hdlc_handle = find_dissector("ppp_hdlc");
   dissector_add("wtap_encap", WTAP_ENCAP_PPP, ppp_hdlc_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_PPP_WITH_PHDR, ppp_hdlc_handle);
-  dissector_add("fr.ietf", NLPID_PPP, ppp_handle);
   dissector_add("gre.proto", ETHERTYPE_PPP, ppp_hdlc_handle);
-  dissector_add("gre.proto", ETHERTYPE_CDMA2000_A10_UBS, ppp_8881_handle);
 }
 
 void
