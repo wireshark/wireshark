@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.106 2000/05/26 22:08:13 guy Exp $
+ * $Id: capture.c,v 1.107 2000/06/15 04:22:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -96,6 +96,7 @@
 #include "prefs.h"
 #include "globals.h"
 
+#include "packet-clip.h"
 #include "packet-eth.h"
 #include "packet-fddi.h"
 #include "packet-null.h"
@@ -1000,6 +1001,9 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
       break;
     case WTAP_ENCAP_RAW_IP:
       capture_raw(pd, &ld->counts);
+      break;
+    case WTAP_ENCAP_LINUX_ATM_CLIP:
+      capture_clip(pd, &ld->counts);
       break;
     /* XXX - FreeBSD may append 4-byte ATM pseudo-header to DLT_ATM_RFC1483,
        with LLC header following; we should implement it at some
