@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.59 2001/03/30 06:10:54 guy Exp $
+ * $Id: packet-ppp.c,v 1.60 2001/03/30 06:15:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -678,7 +678,7 @@ fcs32(guint32 fcs,
 }
 
 void
-capture_ppp( const u_char *pd, int offset, packet_counts *ld ) {
+capture_ppp_hdlc( const u_char *pd, int offset, packet_counts *ld ) {
   if (pd[0] == CHDLC_ADDR_UNICAST || pd[0] == CHDLC_ADDR_MULTICAST) {
     capture_chdlc(pd, offset, ld);
     return;

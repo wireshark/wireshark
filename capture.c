@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.144 2001/03/15 09:11:00 guy Exp $
+ * $Id: capture.c,v 1.145 2001/03/30 06:15:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1165,7 +1165,7 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr)
       capture_null(pd, &ld->counts);
       break;
     case WTAP_ENCAP_PPP:
-      capture_ppp(pd, 0, &ld->counts);
+      capture_ppp_hdlc(pd, 0, &ld->counts);
       break;
     case WTAP_ENCAP_RAW_IP:
       capture_raw(pd, &ld->counts);
@@ -1881,7 +1881,7 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
       capture_null(pd, &ld->counts);
       break;
     case WTAP_ENCAP_PPP:
-      capture_ppp(pd, 0, &ld->counts);
+      capture_ppp_hdlc(pd, 0, &ld->counts);
       break;
     case WTAP_ENCAP_RAW_IP:
       capture_raw(pd, &ld->counts);

@@ -1,7 +1,7 @@
 /* packet-raw.c
  * Routines for raw packet disassembly
  *
- * $Id: packet-raw.c,v 1.25 2001/03/30 06:10:54 guy Exp $
+ * $Id: packet-raw.c,v 1.26 2001/03/30 06:15:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,16 +58,16 @@ capture_raw(const u_char *pd, packet_counts *ld)
    * sometimes.  This check should be removed when 2.2 is out.
    */
   if (BYTES_ARE_IN_FRAME(0,2) && pd[0] == 0xff && pd[1] == 0x03) {
-    capture_ppp(pd, 0, ld);
+    capture_ppp_hdlc(pd, 0, ld);
   }
   /* The Linux ISDN driver sends a fake MAC address before the PPP header
    * on its ippp interfaces... */
   else if (BYTES_ARE_IN_FRAME(0,8) && pd[6] == 0xff && pd[7] == 0x03) {
-    capture_ppp(pd, 6, ld);
+    capture_ppp_hdlc(pd, 6, ld);
   }
   /* ...except when it just puts out one byte before the PPP header... */
   else if (BYTES_ARE_IN_FRAME(0,3) && pd[1] == 0xff && pd[2] == 0x03) {
-    capture_ppp(pd, 1, ld);
+    capture_ppp_hdlc(pd, 1, ld);
   }
   /* ...and if the connection is currently down, it sends 10 bytes of zeroes
    * instead of a fake MAC address and PPP header. */

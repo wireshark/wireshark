@@ -1,6 +1,6 @@
 /* packet-ppp.h
  *
- * $Id: packet-ppp.h,v 1.6 2000/11/29 05:16:15 gram Exp $
+ * $Id: packet-ppp.h,v 1.7 2001/03/30 06:15:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,6 +25,6 @@
 #ifndef __PACKET_PPP_H__
 #define __PACKET_PPP_H__
 
-void capture_ppp(const u_char *, int, packet_counts *);
+void capture_ppp_hdlc(const u_char *, int, packet_counts *);
 
 #endif
