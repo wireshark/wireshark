@@ -84,7 +84,7 @@ gtk_signal_disconnect_by_func(GTK_OBJECT(object), func, data)
  * @param data data to associate with that key
  */
 #define OBJECT_SET_DATA(widget, key, data) \
-gtk_object_set_data(GTK_OBJECT(widget), key, (gpointer)data)
+gtk_object_set_data(GTK_OBJECT(widget), key, (data))
 
 /** Get a named field from the object's table of associations (the object_data).
  *
@@ -261,7 +261,7 @@ g_signal_connect_swapped(G_OBJECT(widget), name, G_CALLBACK(callback), \
 g_signal_handlers_disconnect_by_func(G_OBJECT(object), func, data)
 
 #define OBJECT_SET_DATA(widget, key, data) \
-g_object_set_data(G_OBJECT(widget), key, (gpointer)data)
+g_object_set_data(G_OBJECT(widget), key, (data))
 
 #define OBJECT_GET_DATA(widget, key) \
 g_object_get_data(G_OBJECT(widget), key)
