@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.67 2002/04/14 20:06:04 gerald Exp $
+ * $Id: capture_dlg.c,v 1.68 2002/05/18 02:41:46 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -695,7 +695,13 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
 
   if_text =
     g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry)));
-  if_name = strtok(if_text, " \t");
+  /* Windows combo entries have a description followed by the interface name */
+  if_name = strrchr(if_text, ' ');
+  if (if_name == NULL) {
+    if_name = if_text;
+  } else {
+    if_name++;
+  }
   if (if_name == NULL) {
     simple_dialog(ESD_TYPE_CRIT, NULL,
       "You didn't specify an interface on which to capture packets.");

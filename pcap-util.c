@@ -1,7 +1,7 @@
 /* pcap-util.c
  * Utility routines for packet capture
  *
- * $Id: pcap-util.c,v 1.6 2002/04/25 22:03:54 guy Exp $
+ * $Id: pcap-util.c,v 1.7 2002/05/18 02:41:45 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -391,12 +391,13 @@ search_for_if_cb(gpointer data, gpointer user_data)
 		search_user_data->found = TRUE;
 }
 #else
+#define MAX_WIN_IF_NAME_LEN 511
 GList *
 get_interface_list(int *err, char *err_str) {
   GList  *il = NULL;
   wchar_t *names;
   char *win95names; 
-  char newname[255];
+  char newname[MAX_WIN_IF_NAME_LEN + 1];
   int i, j, done;
   
   /* On Windows pcap_lookupdev is implemented by calling
@@ -432,22 +433,25 @@ get_interface_list(int *err, char *err_str) {
 
 		  do 
 		  { 
-			  j = 0; 
-			  while (names[i] != 0) 
-				  newname[j++] = names[i++]; 
-			  i++; 
-			  if (names[i] == 0) 
-				  done = 1; 
-
-			  newname[j++] = ' '; 
-			  newname[j++] = '('; 
-			  while (*desc) {
-			    newname[j++] = *desc++; 
-			  }
-			  desc++; 
-			  newname[j++] = ')'; 
-			  newname[j++] = 0; 
-			  il = g_list_append(il, g_strdup(newname)); 
+			j = 0;
+			while (*desc) {
+			    if (j < MAX_WIN_IF_NAME_LEN)
+				newname[j++] = *desc++; 
+			}
+			*desc++;
+			if (j < MAX_WIN_IF_NAME_LEN - 1) {
+			    newname[j++] = ':'; 
+			    newname[j++] = ' '; 
+			}
+			while (names[i] != 0) {
+			    if (j < MAX_WIN_IF_NAME_LEN) 
+				newname[j++] = names[i++]; 
+			}
+			i++; 
+			if (names[i] == 0) 
+			    done = 1; 
+			newname[j] = 0; 
+			il = g_list_append(il, g_strdup(newname)); 
 		  } while (!done); 
 	  } 
 	  else { 
@@ -461,20 +465,25 @@ get_interface_list(int *err, char *err_str) {
 
 		  do 
 		  { 
-			  j = 0; 
-			  while (win95names[i] != 0) 
-				  newname[j++] = win95names[i++]; 
-			  i++; 
-			  if (win95names[i] == 0) 
-				  done = 1; 
-			  newname[j++] = ' '; 
-			  newname[j++] = '('; 
-			  while (*desc) {
-			    newname[j++] = *desc++; 
-			  }
-			  newname[j++] = ')'; 
-			  newname[j++] = 0; 
-			  il = g_list_append(il, g_strdup(newname)); 
+			j = 0;
+			while (*desc) {
+			    if (j < MAX_WIN_IF_NAME_LEN)
+				newname[j++] = *desc++; 
+			}
+			*desc++;
+			if (j < MAX_WIN_IF_NAME_LEN - 1) {
+			    newname[j++] = ':'; 
+			    newname[j++] = ' '; 
+			}
+			while (win95names[i] != 0) {
+			    if (j < MAX_WIN_IF_NAME_LEN) 
+				newname[j++] = win95names[i++]; 
+			}
+			i++; 
+			if (win95names[i] == 0) 
+			    done = 1; 
+			newname[j] = 0; 
+			il = g_list_append(il, g_strdup(newname)); 
 		  } while (!done); 
 	  } 
   }
