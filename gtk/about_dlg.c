@@ -1,6 +1,6 @@
 /* about_dlg.c
  *
- * $Id: about_dlg.c,v 1.3 2004/05/20 18:23:38 ulfl Exp $
+ * $Id: about_dlg.c,v 1.4 2004/05/21 00:38:45 guy Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -26,6 +26,8 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
+
+#include <string.h>
 
 #include <gtk/gtk.h>
 
@@ -62,7 +64,6 @@ about_ethereal_page_new(void)
   GtkWidget   *main_vb, *msg_label, *icon;
   gchar       *message;
   const char   title[] = "Ethereal - Network Protocol Analyzer";
-
 
   main_vb = gtk_vbox_new(FALSE, 6);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
