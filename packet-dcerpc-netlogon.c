@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.14 2002/04/17 09:24:08 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.15 2002/04/17 09:32:48 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,7 @@
 #include "packet-dcerpc-netlogon.h"
 #include "smb.h"	/* for "NT_errors[]" */
 #include "packet-smb-common.h"
+#include "packet-dcerpc-lsa.h"
 
 static int proto_dcerpc_netlogon = -1;
 static int hf_netlogon_rc = -1;
@@ -123,8 +124,6 @@ static int hf_netlogon_logon_attempts = -1;
 static int hf_netlogon_authoritative = -1;
 static int hf_netlogon_secure_channel_type = -1;
 static int hf_netlogon_logonsrv_handle = -1;
-static int hf_netlogon_lsa_secret = -1;
-static int hf_netlogon_lsa_sd_size = -1;
 
 static gint ett_dcerpc_netlogon = -1;
 static gint ett_NETLOGON_SECURITY_DESCRIPTOR = -1;
@@ -195,102 +194,6 @@ static e_uuid_t uuid_dcerpc_netlogon = {
 };
 
 static guint16 ver_dcerpc_netlogon = 1;
-
-
-static int
-lsa_dissect_LSA_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *tree,
-                             char *drep)
-{
-	guint32 len;
-	dcerpc_info *di;
-	
-	di=pinfo->private_data;
-	if(di->conformant_run){
-		/*just a run to handle conformant arrays, nothing to dissect */
-		return offset;
-	}
-
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_netlogon_lsa_sd_size, &len);
-
-	dissect_nt_sec_desc(tvb, pinfo, offset, tree, len);
-	offset += len;
-
-	return offset;
-}
-static int
-lsa_dissect_LSA_SECURITY_DESCRIPTOR(tvbuff_t *tvb, int offset,
-			packet_info *pinfo, proto_tree *parent_tree,
-			char *drep)
-{
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
- 	int old_offset=offset;
-
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
-			"LSA_SECURITY_DESCRIPTOR:");
-		tree = proto_item_add_subtree(item, ett_NETLOGON_SECURITY_DESCRIPTOR);
-	}
-
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_netlogon_lsa_sd_size, NULL);
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			lsa_dissect_LSA_SECURITY_DESCRIPTOR_data, NDR_POINTER_UNIQUE,
-			"LSA SECURITY DESCRIPTOR data:", -1, 0);
-
-	proto_item_set_len(item, offset-old_offset);
-	return offset;
-}
-
-/* XXX temporary, until we get the real one in LSA */
-static int
-lsa_dissect_LSA_SECRET_data(tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *tree,
-                             char *drep)
-{
-	guint32 len;
-	dcerpc_info *di;
-
-	di=pinfo->private_data;
-	if(di->conformant_run){
-		/*just a run to handle conformant arrays, nothing to dissect */
-		return offset;
-	}
-
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_netlogon_lsa_sd_size, &len);
-	proto_tree_add_item(tree, hf_netlogon_lsa_secret, tvb, offset, len, FALSE);
-	offset += len;
-
-	return offset;
-}
-static int
-lsa_dissect_LSA_SECRET(tvbuff_t *tvb, int offset,
-			packet_info *pinfo, proto_tree *parent_tree,
-			char *drep)
-{
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
- 	int old_offset=offset;
-
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
-			"LSA_SECRET:");
-		tree = proto_item_add_subtree(item, ett_NETLOGON_SECURITY_DESCRIPTOR);
-	}
-
-	/* XXX need to figure this one out */
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_netlogon_lsa_sd_size, NULL);
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			lsa_dissect_LSA_SECRET_data, NDR_POINTER_UNIQUE,
-			"LSA SECRET data:", -1, 0);
-
-	proto_item_set_len(item, offset-old_offset);
-	return offset;
-}
 
 
 static int
@@ -5349,10 +5252,6 @@ static hf_register_info hf[] = {
 		{ "LM Chal resp", "netlogon.lm_chal_resp", FT_BYTES, BASE_HEX,
 		NULL, 0, "Challenge response for LM authentication", HFILL }},
 
-	{ &hf_netlogon_lsa_secret,
-		{ "LSA Secret", "netlogon.lsa.secret", FT_BYTES, BASE_HEX,
-		NULL, 0, "", HFILL }},
-
 	{ &hf_netlogon_acct_name,
 		{ "Acct Name", "netlogon.acct_name", FT_STRING, BASE_NONE,
 		NULL, 0, "Account Name", HFILL }},
@@ -5564,10 +5463,6 @@ static hf_register_info hf[] = {
 	{ &hf_netlogon_logon_attempts,
 		{ "Logon Attempts", "netlogon.logon_attempts", FT_UINT32, BASE_DEC, 
 		NULL, 0x0, "Number of logon attempts", HFILL }},
-
-	{ &hf_netlogon_lsa_sd_size,
-		{ "Size", "netlogon.lsa_sd_size", FT_UINT32, BASE_DEC, 
-		NULL, 0x0, "Size of lsa security descriptor", HFILL }},
 
 	{ &hf_netlogon_logon_time,
 		{ "Logon Time", "netlogon.logon_time", FT_ABSOLUTE_TIME, BASE_NONE,
