@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.6 1999/11/18 09:38:50 guy Exp $
+ * $Id: packet-atm.c,v 1.7 1999/11/19 07:28:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -469,8 +469,6 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
     if (aal_type == ATT_AAL5) {
       proto_tree_add_text(atm_tree, 0, 0, "Traffic type: %s",
 	val_to_str(hl_type, aal5_hltype_vals, "Unknown AAL5 traffic type (%x)"));
-    }
-    if (aal_type == ATT_AAL5) {
       switch (hl_type) {
 
       case ATT_HL_LLCMX:
@@ -530,7 +528,13 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
     }
   }
 
-  if (aal_type == ATT_AAL5) {
+  switch (aal_type) {
+
+  case ATT_AAL_SIGNALLING:
+    dissect_sscop(pd, offset, fd, tree);
+    break;
+
+  case ATT_AAL5:
     switch (hl_type) {
 
     case ATT_HL_LLCMX:
@@ -557,11 +561,14 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
         break;
       }
     }
-  } else {
+    break;
+
+  default:
     if (tree) {
       /* Dump it as raw data.  (Is this a single cell?) */
       dissect_data(pd, offset, fd, tree);
     }
+    break;
   }
 }
 
@@ -570,18 +577,18 @@ proto_register_atm(void)
 {
 	static gint *ett[] = {
 		&ett_atm,
+#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
+		&ett_ilmi,
+#endif
 		&ett_atm_lane,
 		&ett_atm_lane_lc_lan_dest,
 		&ett_atm_lane_lc_lan_dest_rd,
 		&ett_atm_lane_lc_flags,
-#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
-		&ett_ilmi,
-#endif
 	};
 	proto_atm = proto_register_protocol("ATM", "atm");
-	proto_atm_lane = proto_register_protocol("ATM LANE", "lane");
 #if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
 	proto_ilmi = proto_register_protocol("ILMI", "ilmi");
 #endif
+	proto_atm_lane = proto_register_protocol("ATM LANE", "lane");
 	proto_register_subtree_array(ett, array_length(ett));
 }
