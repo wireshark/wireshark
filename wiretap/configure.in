@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.54 2004/02/08 14:11:48 jmayer Exp $
+# $Id: configure.in,v 1.55 2004/03/03 21:35:57 jmayer Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -11,7 +11,7 @@ dnl with pre-2.13 "autoconf" as well.
 dnl
 AC_INIT(wtap.c)
 
-AC_PREREQ(2.13)
+AC_PREREQ(2.53)
 
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
