@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes.c,v 1.21 2004/02/27 12:00:32 obiot Exp $
+ * $Id: ftypes.c,v 1.22 2004/05/09 08:29:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -347,15 +347,16 @@ slice_func(gpointer data, gpointer user_data)
 	}
 
 	/* Check the end type, and set both end_offset and length */
+
 	if (ending == TO_THE_END) {
-		end_offset = field_length;
-		length = end_offset - start_offset;
+		end_offset = field_length - 1;
+		length = end_offset - start_offset + 1;
 	}
 	else if (ending == LENGTH) {
 		length = drange_node_get_length(drnode);
 		if (length < 0) {
 			end_offset = field_length + length;
-			if (end_offset > start_offset) {
+			if (end_offset >= start_offset) {
 				length = end_offset - start_offset + 1;
 			}
 			else {
@@ -364,14 +365,14 @@ slice_func(gpointer data, gpointer user_data)
 			}
 		}
 		else {
-			end_offset = start_offset + length;
+			end_offset = start_offset + length - 1;
 		}
 	}
 	else if (ending == OFFSET) {
 		end_offset = drange_node_get_end_offset(drnode);
 		if (end_offset < 0) {
 			end_offset = field_length + end_offset;
-			if (end_offset > start_offset) {
+			if (end_offset >= start_offset) {
 				length = end_offset - start_offset + 1;
 			}
 			else {
@@ -390,11 +391,12 @@ slice_func(gpointer data, gpointer user_data)
 /*	g_debug("(NEW) start_offset=%d length=%d end_offset=%d",
 			start_offset, length, end_offset); */
 
-	if (start_offset > (int) field_length || end_offset > (int) field_length) {
+	if (end_offset >= (int) field_length) {
 		slice_data->slice_failure = TRUE;
 		return;
 	}
 
+	g_assert(start_offset >=0 && length > 0);
 	fv->ftype->slice(fv, slice_data->bytes, start_offset, length);
 }
 
