@@ -1,6 +1,6 @@
 /* about_dlg.c
  *
- * $Id: about_dlg.c,v 1.2 2004/05/20 13:48:25 ulfl Exp $
+ * $Id: about_dlg.c,v 1.3 2004/05/20 18:23:38 ulfl Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -36,7 +36,13 @@
 #include "compat_macros.h"
 #include "globals.h"
 
+#include "../image/eicon3d64.xpm"
+
 extern GString *comp_info_str, *runtime_info_str;
+
+#ifdef HAVE_PLUGINS
+extern GtkWidget *about_plugins_page_new(void);
+#endif
 
 static void about_ethereal_destroy_cb(GtkWidget *, gpointer);
 
@@ -51,33 +57,40 @@ static GtkWidget *about_ethereal_w;
 
 
 static GtkWidget *
-about_ethereal_new(void)
+about_ethereal_page_new(void)
 {
-  GtkWidget   *main_vb, *top_hb, *msg_label;
+  GtkWidget   *main_vb, *msg_label, *icon;
   gchar       *message;
+  const char   title[] = "Ethereal - Network Protocol Analyzer";
 
-  /* Container for our rows */
-  main_vb = gtk_vbox_new(FALSE, 5);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
 
-  /* Top row: Message text */
-  top_hb = gtk_hbox_new(FALSE, 10);
-  gtk_container_add(GTK_CONTAINER(main_vb), top_hb);
+  main_vb = gtk_vbox_new(FALSE, 6);
+  gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
 
-  /* Construct the message string */
-  message = g_strdup_printf(
-	   "Ethereal - Network Protocol Analyzer\n\n"
-	   
-	   "Version " VERSION
+  icon = xpm_to_widget(eicon3d64_xpm);
+  gtk_container_add(GTK_CONTAINER(main_vb), icon);
+
+  msg_label = gtk_label_new(title);
+#if GTK_MAJOR_VERSION >= 2
+  message = g_strdup_printf("<span size=\"x-large\" weight=\"bold\">%s</span>", title);
+  gtk_label_set_markup(GTK_LABEL(msg_label), message);
+  g_free(message);
+#endif
+  gtk_container_add(GTK_CONTAINER(main_vb), msg_label);
+
+  msg_label = gtk_label_new("Version " VERSION
 #ifdef CVSVERSION
 	   " (" CVSVERSION ")"
 #endif
-	   " (C) 1998-2004 Gerald Combs <gerald@ethereal.com>\n\n"
-
-       "%s\n"
+	   " (C) 1998-2004 Gerald Combs <gerald@ethereal.com>\n\n");
+  gtk_container_add(GTK_CONTAINER(main_vb), msg_label);
+  
+  /* Construct the message string */
+  message = g_strdup_printf(
+       "%s\n\n"
        "%s\n\n"
 
-       "Ethereal is Open Source software released under the GNU General Public License.\n\n"
+       "Ethereal is Open Source Software released under the GNU General Public License.\n\n"
 
 	   "Check the man page for complete documentation and\n"
 	   "for the list of contributors.\n\n"
@@ -88,100 +101,89 @@ about_ethereal_new(void)
   msg_label = gtk_label_new(message);
   g_free(message);
   gtk_label_set_justify(GTK_LABEL(msg_label), GTK_JUSTIFY_FILL);
-  gtk_container_add(GTK_CONTAINER(top_hb), msg_label);
+  gtk_container_add(GTK_CONTAINER(main_vb), msg_label);
 
   return main_vb;
 }
 
 
 static void
-about_dirs_row(GtkWidget *table, guint row, const char *label, const char *dir, const char *tip)
+about_folders_row(GtkWidget *table, const char *label, const char *dir, const char *tip)
 {
-  GtkWidget   *prefs_lb;
-
-  prefs_lb = gtk_label_new(label);
-  gtk_table_attach_defaults(GTK_TABLE(table), prefs_lb, 0, 1, row, row+1);
-  gtk_misc_set_alignment(GTK_MISC(prefs_lb), 1.0, 0.5);
-
-  prefs_lb = gtk_label_new(dir);
-  gtk_table_attach_defaults(GTK_TABLE(table), prefs_lb, 1, 2, row, row+1);
-  gtk_misc_set_alignment(GTK_MISC(prefs_lb), 0.0, 0.5);
-
-  prefs_lb = gtk_label_new(tip);
-  gtk_table_attach_defaults(GTK_TABLE(table), prefs_lb, 2, 3, row, row+1);
-  gtk_misc_set_alignment(GTK_MISC(prefs_lb), 0.0, 0.5);
+  simple_list_append(table, 0, label, 1, dir, 2, tip, -1);
 }
 
 
 static GtkWidget *
-about_dirs_new(void)
+about_folders_page_new(void)
 {
   GtkWidget   *table;
-  guint row;
   const char *path;
+  gchar *titles[] = { "Name", "Folder", "Typical Files"};
+  GtkWidget *scrolledwindow;
 
-  /* Container for our rows */
-  table = gtk_table_new(4, 3, FALSE);
-  gtk_table_set_col_spacings(GTK_TABLE(table), 6);
-  row = 0;
 
+  scrolledwindow = scrolled_window_new(NULL, NULL);
+#if GTK_MAJOR_VERSION >= 2
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow), 
+                                   GTK_SHADOW_IN);
+#endif
+
+  /* Container for our data */
+  table = simple_list_new(3, titles);
 
   /* "file open" */
-  about_dirs_row(table, row, "\"File\" dialogs:", last_open_dir,
+  about_folders_row(table, "\"File\" dialogs", last_open_dir,
       "capture files");
-  row++;
 
   /* temp */
   path = get_tempfile_path("");
-  about_dirs_row(table, row, "Temp:", path,
+  about_folders_row(table, "Temp", path,
       "untitled capture files");
   g_free((void *) path);
-  row++;
 
   /* pers conf */
   path = get_persconffile_path("", FALSE);
-  about_dirs_row(table, row, "Personal configuration:", path, 
+  about_folders_row(table, "Personal configuration", path, 
       "\"dfilters\", \"preferences\", \"ethers\", ...");
   g_free((void *) path);
-  row++;
 
   /* global conf */
   path = get_datafile_dir();
-  about_dirs_row(table, row, "Global configuration:", path,
+  about_folders_row(table, "Global configuration", path,
       "\"dfilters\", \"preferences\", \"manuf\", ...");
   /*g_free(path);*/
-  row++;
 
   /* system */
   path = get_systemfile_dir();
-  about_dirs_row(table, row, "System:", path,
+  about_folders_row(table, "System", path,
       "\"ethers\", \"ipxnets\"");
   /*g_free(path);*/
-  row++;
 
   /* program */
   path = strdup(ethereal_path);
   path = get_dirname((char *) path);
-  about_dirs_row(table, row, "Program:", path,
+  about_folders_row(table, "Program", path,
       "program files");
   g_free((void *) path);
-  row++;
 
+#ifdef HAVE_PLUGINS
   /* pers plugins */
   path = get_plugins_pers_dir();
-  about_dirs_row(table, row, "Personal Plugins:", path,
+  about_folders_row(table, "Personal Plugins", path,
       "dissector plugins");
   g_free((void *) path);
-  row++;
 
   /* global plugins */
   path = get_plugins_global_dir(PLUGIN_DIR);
-  about_dirs_row(table, row, "Global Plugins:", path,
+  about_folders_row(table, "Global Plugins", path,
       "dissector plugins");
   g_free((void *) path);
-  row++;
+#endif
 
-  return table;
+  gtk_container_add(GTK_CONTAINER(scrolledwindow), table);
+
+  return scrolledwindow;
 }
 
 
@@ -190,7 +192,7 @@ about_ethereal_cb( GtkWidget *w _U_, gpointer data _U_ )
 {
   GtkWidget   *main_vb, *main_nb, *bbox, *ok_btn;
 
-  GtkWidget   *about, *about_lb, *dirs, *dirs_lb;
+  GtkWidget   *page_lb, *about_page, *folders_page, *plugins_page;
 
   if (about_ethereal_w != NULL) {
     /* There's already an "About Ethereal" dialog box; reactivate it. */
@@ -206,26 +208,33 @@ about_ethereal_cb( GtkWidget *w _U_, gpointer data _U_ )
    */
   about_ethereal_w = dlg_window_new("About Ethereal");
   SIGNAL_CONNECT(about_ethereal_w, "destroy", about_ethereal_destroy_cb, NULL);
-  gtk_container_border_width(GTK_CONTAINER(about_ethereal_w), 7);
+  gtk_container_border_width(GTK_CONTAINER(about_ethereal_w), 6);
 
-  main_vb = gtk_vbox_new(FALSE, 5);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+  main_vb = gtk_vbox_new(FALSE, 12);
+  gtk_container_border_width(GTK_CONTAINER(main_vb), 6);
   gtk_container_add(GTK_CONTAINER(about_ethereal_w), main_vb);
 
   main_nb = gtk_notebook_new();
-  gtk_container_add(GTK_CONTAINER(main_vb), main_nb);
+  gtk_box_pack_start(GTK_BOX(main_vb), main_nb, TRUE, TRUE, 0);
 
-  about = about_ethereal_new();
-  about_lb = gtk_label_new("Ethereal");
-  gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), about, about_lb);
+  about_page = about_ethereal_page_new();
+  page_lb = gtk_label_new("Ethereal");
+  gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), about_page, page_lb);
 
-  dirs = about_dirs_new();
-  dirs_lb = gtk_label_new("Directories");
-  gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), dirs, dirs_lb);
+  folders_page = about_folders_page_new();
+  WIDGET_SET_SIZE(folders_page, 500, 200);
+  page_lb = gtk_label_new("Folders");
+  gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), folders_page, page_lb);
+
+#ifdef HAVE_PLUGINS
+  plugins_page = about_plugins_page_new();
+  page_lb = gtk_label_new("Plugins");
+  gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), plugins_page, page_lb);
+#endif
 
   /* Button row */
   bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
-  gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+  gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
   ok_btn = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
   SIGNAL_CONNECT_OBJECT(ok_btn, "clicked", gtk_widget_destroy,

@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.195 2004/05/20 12:01:13 ulfl Exp $
+ * $Id: menu.c,v 1.196 2004/05/20 18:23:38 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -323,8 +323,8 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Help/_Supported Protocols", NULL, supported_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL),
 #ifdef HAVE_PLUGINS
-    ITEM_FACTORY_ENTRY("/Help/About _Plugins", NULL, tools_plugins_cmd_cb,
-                       0, NULL, NULL),
+/*    ITEM_FACTORY_ENTRY("/Help/About _Plugins", NULL, tools_plugins_cmd_cb,
+                       0, NULL, NULL),*/
 #endif /* HAVE_PLUGINS */
     ITEM_FACTORY_ENTRY("/Help/_About Ethereal", NULL, about_ethereal_cb,
                        0, NULL, NULL)

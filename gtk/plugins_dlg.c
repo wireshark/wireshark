@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.35 2004/02/13 00:00:56 guy Exp $
+ * $Id: plugins_dlg.c,v 1.36 2004/05/20 18:23:38 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,11 +38,6 @@
 
 static void plugins_close_cb(GtkWidget *, gpointer);
 static void plugins_destroy_cb(GtkWidget *, gpointer);
-#if GTK_MAJOR_VERSION < 2
-static void plugins_scan(GtkWidget *);
-#else
-static void plugins_scan(GtkListStore *);
-#endif
 
 /*
  * Keep a static pointer to the current "Plugins" window, if any, so that
@@ -52,22 +47,56 @@ static void plugins_scan(GtkListStore *);
 */
 static GtkWidget *plugins_window = NULL;
 
+
+
+/*
+ * Fill the list widget with a list of the plugin modules.
+ */
+static void
+plugins_scan(GtkWidget *list)
+{
+    plugin     *pt_plug;
+
+    pt_plug = plugin_list;
+    while (pt_plug)
+    {
+    simple_list_append(list, 0, pt_plug->name, 1, pt_plug->version, -1);
+	pt_plug = pt_plug->next;
+    }
+}
+
+
+GtkWidget *
+about_plugins_page_new(void)
+{
+    GtkWidget *scrolledwindow;
+    GtkWidget *plugins_list;
+    gchar     *titles[] = {"Name", "Version"};
+
+    
+    scrolledwindow = scrolled_window_new(NULL, NULL);
+#if GTK_MAJOR_VERSION >= 2
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow), 
+                                   GTK_SHADOW_IN);
+#endif
+
+    plugins_list = simple_list_new(2, titles);
+    plugins_scan(plugins_list);
+
+    gtk_container_add(GTK_CONTAINER(scrolledwindow), plugins_list);
+
+    return scrolledwindow;
+}
+
 void
 tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
     GtkWidget *main_vbox;
     GtkWidget *main_frame;
     GtkWidget *frame_hbox;
-    GtkWidget *scrolledwindow;
-    GtkWidget *plugins_list;
+    GtkWidget *page;
     GtkWidget *bbox;
     GtkWidget *ok_bt;
-    gchar     *titles[] = {"Name", "Version"};
-#if GTK_MAJOR_VERSION >= 2
-    GtkListStore *store;
-    GtkCellRenderer *renderer;
-    GtkTreeViewColumn *column;
-#endif
 
     if (plugins_window != NULL) {
         /* There's already a "Plugins" dialog box; reactivate it. */
@@ -80,58 +109,21 @@ tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
     main_vbox = gtk_vbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(plugins_window), main_vbox);
-    gtk_widget_show(main_vbox);
 
     main_frame = gtk_frame_new("Plugins List");
     gtk_box_pack_start(GTK_BOX(main_vbox), main_frame, TRUE, TRUE, 0);
     gtk_container_set_border_width(GTK_CONTAINER(main_frame), 5);
-    gtk_widget_show(main_frame);
 
     frame_hbox = gtk_hbox_new(FALSE,0);
     gtk_container_add(GTK_CONTAINER(main_frame), frame_hbox);
     gtk_container_set_border_width(GTK_CONTAINER(frame_hbox), 5);
-    gtk_widget_show(frame_hbox);
 
-    scrolledwindow = scrolled_window_new(NULL, NULL);
-#if GTK_MAJOR_VERSION >= 2
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow), 
-                                   GTK_SHADOW_IN);
-#endif
-    gtk_box_pack_start(GTK_BOX(frame_hbox), scrolledwindow, TRUE, TRUE, 0);
-    WIDGET_SET_SIZE(scrolledwindow, 250, 200);
-    gtk_widget_show(scrolledwindow);
-
-#if GTK_MAJOR_VERSION < 2
-    plugins_list = gtk_clist_new_with_titles(2, titles);
-    gtk_container_add(GTK_CONTAINER(scrolledwindow), plugins_list);
-    gtk_clist_set_selection_mode(GTK_CLIST(plugins_list), GTK_SELECTION_SINGLE);
-    gtk_clist_column_titles_passive(GTK_CLIST(plugins_list));
-    gtk_clist_column_titles_show(GTK_CLIST(plugins_list));
-    gtk_clist_set_column_auto_resize(GTK_CLIST(plugins_list), 0, TRUE);
-    gtk_clist_set_column_auto_resize(GTK_CLIST(plugins_list), 1, TRUE);
-    plugins_scan(plugins_list);
-#else
-    store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
-    plugins_scan(store);
-    plugins_list = tree_view_new(GTK_TREE_MODEL(store));
-    g_object_unref(G_OBJECT(store));
-    gtk_container_add(GTK_CONTAINER(scrolledwindow), plugins_list);
-    renderer = gtk_cell_renderer_text_new();
-    column = gtk_tree_view_column_new_with_attributes(titles[0], renderer,
-                                                      "text", 0, NULL);
-    gtk_tree_view_column_set_sort_column_id(column, 0);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(plugins_list), column);
-    renderer = gtk_cell_renderer_text_new();
-    column = gtk_tree_view_column_new_with_attributes(titles[1], renderer,
-                                                      "text", 1, NULL);
-    gtk_tree_view_column_set_sort_column_id(column, 1);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(plugins_list), column);
-#endif
-    gtk_widget_show(plugins_list);
+    page = about_plugins_page_new();
+    WIDGET_SET_SIZE(page, 250, 200);
+    gtk_box_pack_start(GTK_BOX(frame_hbox), page, TRUE, TRUE, 0);
 
     bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
     gtk_box_pack_end(GTK_BOX(main_vbox), bbox, FALSE, FALSE, 3);
-    gtk_widget_show(bbox);
 
     ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
     SIGNAL_CONNECT(ok_bt, "clicked", plugins_close_cb, plugins_window);
@@ -142,42 +134,8 @@ tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
        been selected. */
 	dlg_set_cancel(plugins_window, ok_bt);
 
-    gtk_widget_show(plugins_window);
+    gtk_widget_show_all(plugins_window);
 
-}
-
-/*
- * Fill the list widget with a list of the plugin modules.
- */
-#if GTK_MAJOR_VERSION < 2
-static void
-plugins_scan(GtkWidget *list)
-#else
-static void
-plugins_scan(GtkListStore *store)
-#endif
-{
-    plugin     *pt_plug;
-#if GTK_MAJOR_VERSION < 2
-    gchar      *plugent[2];               /* new entry added in clist */
-#else
-    GtkTreeIter iter;
-#endif
-
-    pt_plug = plugin_list;
-    while (pt_plug)
-    {
-#if GTK_MAJOR_VERSION < 2
-	plugent[0] = pt_plug->name;
-	plugent[1] = pt_plug->version;
-	gtk_clist_append(GTK_CLIST(list), plugent);
-#else
-        gtk_list_store_append(store, &iter);
-        gtk_list_store_set(store, &iter, 0, pt_plug->name, 1, pt_plug->version,
-                           -1);
-#endif
-	pt_plug = pt_plug->next;
-    }
 }
 
 static void
