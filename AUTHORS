@@ -2070,6 +2070,7 @@ And assorted fixes and enhancements by the people listed above and by:
 	Holger Schurig <h.schurig [AT] mn-logistik.de>
 	Peter J. Creath <peter-ethereal [AT] creath.net>
 	Magnus Hansson <mah [AT] hms.se>
+	Pavel Kankovsky <kan [AT] dcit.cz>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.

@@ -9,7 +9,7 @@
  *
  * By Tim Newsham
  *
- * $Id: packet-prism.c,v 1.10 2003/03/08 11:43:54 jmayer Exp $
+ * $Id: packet-prism.c,v 1.11 2004/02/14 20:55:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -178,7 +178,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         VALFIELD(hosttime, "Host Time");
         VALFIELD(mactime, "MAC Time");
-        VALFIELD(channel, "Channel Time");
+        VALFIELD(channel, "Channel");
         VALFIELD(rssi, "RSSI");
         VALFIELD(sq, "SQ");
         VALFIELD(signal, "Signal");
@@ -208,7 +208,7 @@ proto_register_prism(void)
         INTFIELD2(FT_UINT32, msglen, "Message Length")
         VALFIELD2(hosttime, "Host Time")
         VALFIELD2(mactime, "MAC Time")
-        VALFIELD2(channel, "Channel Time")
+        VALFIELD2(channel, "Channel")
         VALFIELD2(rssi, "RSSI")
         VALFIELD2(sq, "SQ")
         VALFIELD2(signal, "Signal")
