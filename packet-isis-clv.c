@@ -1,7 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.2 1999/12/15 22:52:04 guy Exp $
+ * $Id: packet-isis-clv.c,v 1.3 2000/04/15 22:11:09 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -47,6 +47,7 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
+#include "packet-osi.h"
 #include "packet-isis.h"
 #include "packet-isis-clv.h"
 
@@ -93,7 +94,8 @@ isis_dissect_area_address_clv(const u_char *pd, int offset,
 		 * Lets turn the area address into "standard" 0000.0000.etc
 		 * format string.  
 		 */
-		sbuf = isis_address_to_string ( pd, offset + 1, mylen );
+/*		sbuf = isis_address_to_string ( pd, offset + 1, mylen );*/
+      sbuf = print_nsap_net( pd + offset + 1, mylen );
 		/* and spit it out */
 		if ( tree ) {
 			proto_tree_add_text ( tree, offset, mylen + 1,  

@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly, core
  * bits.
  *
- * $Id: packet-isis.c,v 1.6 2000/04/13 08:14:35 guy Exp $
+ * $Id: packet-isis.c,v 1.7 2000/04/15 22:11:11 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -40,37 +40,38 @@
 #include <glib.h>
 #include "packet.h"
 #include "nlpid.h"
+#include "packet-osi.h"
 #include "packet-isis.h"
 #include "packet-isis-lsp.h"
 #include "packet-isis-hello.h"
 #include "packet-isis-snp.h"
 
+
 /* isis base header */
-static int proto_isis = -1;
+static int proto_isis               = -1;
 
-static int hf_isis_irpd = -1;
-static int hf_isis_header_length = -1;
-static int hf_isis_version = -1;
-static int hf_isis_reserved = -1;
-static int hf_isis_type = -1;
-static int hf_isis_version2 = -1;
-static int hf_isis_eco = -1;
-static int hf_isis_user_eco = -1;
+static int hf_isis_irpd             = -1;
+static int hf_isis_header_length    = -1;
+static int hf_isis_version          = -1;
+static int hf_isis_system_id_length = -1;
+static int hf_isis_type             = -1;
+static int hf_isis_version2         = -1;
+static int hf_isis_reserved         = -1;
+static int hf_isis_max_area_adr     = -1;
 
-static gint ett_isis = -1;
+static gint ett_isis                = -1;
 
 static const value_string isis_vals[] = {
-	{ ISIS_TYPE_L1_HELLO,	"L1 HELLO"},
-	{ ISIS_TYPE_L2_HELLO,	"L2 HELLO"},
-	{ ISIS_TYPE_PTP_HELLO,	"P2P HELLO"},
-	{ ISIS_TYPE_L1_LSP,	"L1 LSP"},
-	{ ISIS_TYPE_L2_LSP,	"L2 LSP"},
-	{ ISIS_TYPE_L1_CSNP,	"L1 CSNP"},
-	{ ISIS_TYPE_L2_CSNP,	"L2 CSNP"},
-	{ ISIS_TYPE_L1_PSNP,	"L1 PSNP"},
-	{ ISIS_TYPE_L2_PSNP,	"L2 PSNP"},
-	{ 0,		NULL} };
-
+  { ISIS_TYPE_L1_HELLO,  "L1 HELLO"},
+  { ISIS_TYPE_L2_HELLO,  "L2 HELLO"},
+  { ISIS_TYPE_PTP_HELLO, "P2P HELLO"},
+  { ISIS_TYPE_L1_LSP,    "L1 LSP"},
+  { ISIS_TYPE_L2_LSP,    "L2 LSP"},
+  { ISIS_TYPE_L1_CSNP,   "L1 CSNP"},
+  { ISIS_TYPE_L2_CSNP,   "L2 CSNP"},
+  { ISIS_TYPE_L1_PSNP,   "L1 PSNP"},
+  { ISIS_TYPE_L2_PSNP,   "L2 PSNP"},
+  { 0,                   NULL}      };
 
 /*
  * Name: dissect_isis_unknown()
@@ -113,47 +114,6 @@ isis_dissect_unknown(int offset,guint length,proto_tree *tree,frame_data *fd,
 	proto_tree_add_text(tree, offset, length, fmat, ap);
 	va_end(ap);
 }
-
-/*
- * Name: isis_address_to_string()
- *
- * Description:
- *	Function for taking a byte string and turn it into a "0000.0000...."
- *	format ISIS address.
- *
- * Input:
- *	u_char * : Packet data
- * 	unt offset : Current offset into packet data.
- * 	int len : length of to dump.
- *
- * Output:
- *	static char * : print string
- */
-char 
-*isis_address_to_string ( const u_char *pd, int offset, int len ) {
-	static char sbuf[768];
-	char *s;
-
-	sbuf[0] = 0;
-	s = sbuf;
-	while ( len > 0 ) {
-		/* special case: len is 1, put ending on it */
-		if ( len == 1 ) {
-			s += sprintf ( s, "%02x", pd[offset++] );
-			len--;
-		} else {
-			/* general case, just add 2 bytes */
-			s+= sprintf ( s, "%02x%02x", pd[offset++],
-				pd[offset++] );
-			len -= 2;
-		}
-		if ( len > 0 ) {
-			s += sprintf ( s, "." );
-		}
-	}
-	return sbuf;
-}
-
 /*
  * Name: dissect_isis()
  * 
@@ -208,22 +168,22 @@ dissect_isis(const u_char *pd, int offset, frame_data *fd,
 			offset + 1, 1, ihdr->isis_header_length );
 		proto_tree_add_item(isis_tree, hf_isis_version,
 			offset + 2, 1, ihdr->isis_version );
-		proto_tree_add_item(isis_tree, hf_isis_reserved,
-			offset + 3, 1, ihdr->isis_reserved );
+		proto_tree_add_item(isis_tree, hf_isis_system_id_length,
+			offset + 3, 1, ihdr->isis_system_id_len );
 		proto_tree_add_uint_format(isis_tree, hf_isis_type,
 			offset + 4, 1, ihdr->isis_type,
-			"Type: %s (R:%s%s%s)",
+			"Type               : %s (R:%s%s%s)",
 			val_to_str(ihdr->isis_type & ISIS_TYPE_MASK, isis_vals,
-				"Unknown (0x%x)"),
+		   		   "Unknown (0x%x)"),
 			(ihdr->isis_type & ISIS_R8_MASK) ? "1" : "0",
 			(ihdr->isis_type & ISIS_R7_MASK) ? "1" : "0",
 			(ihdr->isis_type & ISIS_R6_MASK) ? "1" : "0");
 		proto_tree_add_item(isis_tree, hf_isis_version2,
 			offset + 5, 1, ihdr->isis_version2 );
-		proto_tree_add_item(isis_tree, hf_isis_eco,
-			offset + 6, 1, ihdr->isis_eco );
-		proto_tree_add_item(isis_tree, hf_isis_user_eco,
-			offset + 7, 1, ihdr->isis_user_eco );
+		proto_tree_add_item(isis_tree, hf_isis_reserved,
+			offset + 6, 1, ihdr->isis_reserved );
+		proto_tree_add_item(isis_tree, hf_isis_max_area_adr,
+			offset + 7, 1, ihdr->isis_max_area_adr );
 	}
 
 
@@ -304,49 +264,48 @@ dissect_isis(const u_char *pd, int offset, frame_data *fd,
  */
 void 
 proto_register_isis(void) {
-	static hf_register_info hf[] = {
-		{ &hf_isis_irpd,
-		{ "Intradomain Routing Protocol Discriminator",	"isis.irpd",	
-		  FT_UINT8, BASE_HEX, VALS(nlpid_vals), 0x0, "" }},
+  static hf_register_info hf[] = {
+    { &hf_isis_irpd,
+      { "Intra Domain Routing Protocol Discriminator",	"isis.irpd",	
+        FT_UINT8, BASE_HEX, VALS(nlpid_vals), 0x0, "" }},
 
-		{ &hf_isis_header_length,
-		{ "HDR Length",		"isis.hdr_len",	FT_UINT8, BASE_DEC, 
-		  NULL, 0x0, "" }},
+    { &hf_isis_header_length,
+      { "PDU Header Length  ", "isis.len", FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
 
-		{ &hf_isis_version,
-		{ "Version (==1)",		"isis.version", FT_UINT8, 
-		  BASE_DEC, NULL, 0x0, "" }},
+    { &hf_isis_version,
+      { "Version (==1)      ", "isis.version", FT_UINT8, 
+         BASE_DEC, NULL, 0x0, "" }},
 
-		{ &hf_isis_reserved,
-		{ "Reserved(==0)",			"isis.reserved",	
-		  FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+    { &hf_isis_system_id_length,
+      { "System ID Length   ", "isis.sysid_len",	
+        FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
 
-		{ &hf_isis_type,
-		{ "Type code",            "isis.type",	FT_UINT8, BASE_DEC, 
-		  VALS(isis_vals), 0xff, "" }},
+    { &hf_isis_type, 
+      { "PDU Type          :", "isis.type", FT_UINT8, BASE_DEC, 
+        VALS(isis_vals), 0xff, "" }},
 
-		{ &hf_isis_version2,
-		{ "Version2(==1)",   "isis.version2", FT_UINT8, BASE_DEC, NULL, 
-		   0x0, "" }},
+    { &hf_isis_version2, 
+      { "Version2 (==1)     ", "isis.version2", FT_UINT8, BASE_DEC, NULL, 
+        0x0, "" }},
 
-		{ &hf_isis_eco,
-		{ "ECO (==0)",		"isis.eco",FT_UINT8, BASE_DEC, NULL, 
-		  0x0, "" }},
+    { &hf_isis_reserved,
+      { "Reserved (==0)     ", "isis.reserved", FT_UINT8, BASE_DEC, NULL, 
+        0x0, "" }},
 
-		{ &hf_isis_user_eco,
-		{ "User ECO (==0)", "isis.user_eco", FT_UINT8, BASE_DEC, NULL, 
-		  0x0, "" }},
+    { &hf_isis_max_area_adr,
+      { "Max.AREAs: (0==3)  ", "isis.max_area_adr", FT_UINT8, BASE_DEC, NULL, 
+      0x0, "" }},
 
-	};
-	/*
-	 * Note, we pull in the unknown CLV handler here, since it
-	 * is used by all ISIS packet types.
-	 */
-	static gint *ett[] = {
-		&ett_isis,
-	};
+    };
+    /*
+     * Note, we pull in the unknown CLV handler here, since it
+     * is used by all ISIS packet types.
+    */
+    static gint *ett[] = {
+      &ett_isis,
+    };
 
-	proto_isis = proto_register_protocol("clnp ISIS", "isis");
-	proto_register_field_array(proto_isis, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
+    proto_isis = proto_register_protocol(PROTO_STRING_ISIS, "isis");
+    proto_register_field_array(proto_isis, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 }

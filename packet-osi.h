@@ -1,6 +1,6 @@
 /* packet-osi.h
  *
- * $Id: packet-osi.h,v 1.1 2000/02/15 21:02:48 gram Exp $
+ * $Id: packet-osi.h,v 1.2 2000/04/15 22:11:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -20,8 +20,92 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+*/
+
+#ifndef _PACKET_OSI_H
+#define _PACKET_OSI_H
+
+/* OSI Global defines, common for all OSI protocols */
+
+#define MAX_NSAP_LEN          30    
+#define MAX_SYSTEMID_LEN      15    
+#define MAX_AREA_LEN          30    
+
+#define RFC1237_NSAP_LEN      20
+#define RFC1237_FULLAREA_LEN  13
+#define RFC1237_SYSTEMID_LEN   6
+#define RFC1237_SELECTOR_LEN   1
+
+#define RFC1237_IDI_LEN        2
+#define RFC1237_AFI_LEN        1
+#define RFC1237_DFI_LEN        1
+#define RFC1237_ORG_LEN        3
+#define RFC1237_AA_LEN         3
+#define RFC1237_RSVD_LEN       2
+#define RFC1237_RD_LEN         2
+#define RFC1237_AREA_LEN       3
+
+
+#define NSAP_IDI_ISODCC       0x39
+#define NSAP_IDI_GOSIP2       0x47
+
+#define PDU_TYPE_ESIS_ESH       100
+#define PDU_TYPE_ESIS_ISH       101
+#define PDU_TYPE_ESIS_RD        102
+
+#define PDU_TYPE_ISIS_L1_HELLO  201
+#define PDU_TYPE_ISIS_L2_HELLO  202
+#define PDU_TYPE_ISIS_PTP_HELLO 203
+#define PDU_TYPE_ISIS_L1_CSNP   204
+#define PDU_TYPE_ISIS_L1_PSNP   205
+#define PDU_TYPE_ISIS_L2_CSNP   206
+#define PDU_TYPE_ISIS_L2_PSNP   207
+
+
+
+
+
+#define PROTO_STRING_ISIS "ISO 10598 ISIS InTRA Domain Routeing Information Exchange Protocol" 
+#define PROTO_STRING_IDRP "ISO 10747 IDRP InTER Domain Routeing Information Exchange Protocol" 
+#define PROTO_STRING_ESIS "ISO 9542 ESIS Routeing Information Exchange Protocol"
+#define PROTO_STRING_CLNP "ISO 8473 CLNP ConnectionLess Network Protocol" 
+#define PROTO_STRING_COTP "ISO 8073 COTP Connection-Oriented Transport Protocol"
+#define PROTO_STRING_LSP  "ISO 10598 ISIS Link State Protocol Data Unit"
+#define PROTO_STRING_CSNP "ISO 10598 ISIS Complete Sequence Numbers Protocol Data Unit"
+#define PROTO_STRING_PSNP "ISO 10598 ISIS Partial Sequence Numbers Protocol Data Unit"
+
+#define OSI_PDU_TYPE_MASK 0x1f
+#define BIS_PDU_TYPE MASK 0xff
+                             
+
+#define BIT_1   0x01
+#define BIT_2   0x02
+#define BIT_3   0x04
+#define BIT_4   0x08
+#define BIT_5   0x10
+#define BIT_6   0x20
+#define BIT_7   0x40
+#define BIT_8   0x80
+
+#define BIT_9   0x0100
+#define BIT_10  0x0200
+#define BIT_11  0x0400
+#define BIT_12  0x0800
+#define BIT_13  0x1000
+#define BIT_14  0x2000
+#define BIT_15  0x4000
+#define BIT_16  0x8000
+
+
+/*
+ * published API functions
  */
 
+extern void   dissect_osi( const u_char *, int, frame_data *, proto_tree *);
+extern gchar *print_nsap_net ( const u_char *, int );
+extern gchar *print_area     ( const u_char *, int );
+extern gchar *print_system_id( const u_char *, int );
+extern gchar *calc_checksum  ( const u_char *, u_int, u_int );
 
-void dissect_cotp(const u_char *, int, frame_data *, proto_tree *);
-void dissect_osi(const u_char *, int, frame_data *, proto_tree *);
+#endif /* _PACKET_OSI_H */
+

@@ -1,7 +1,7 @@
 /* packet-isis-snp.c
  * Routines for decoding isis complete & partial SNP and their payload
  *
- * $Id: packet-isis-snp.c,v 1.2 2000/01/24 03:33:32 guy Exp $
+ * $Id: packet-isis-snp.c,v 1.3 2000/04/15 22:11:10 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -38,6 +38,7 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
+#include "packet-osi.h"
 #include "packet-isis.h"
 #include "packet-isis-clv.h"
 #include "packet-isis-lsp.h"
@@ -196,16 +197,16 @@ dissect_snp_lsp_entries(const u_char *pd, int offset, guint length,
 			return;
 		}
 		
-		proto_tree_add_text(tree, offset, 2, "Remaining life: %d",
+		proto_tree_add_text(tree, offset, 2, "Remaining life      : %d",
 			pntohs(&ps->isis_snp_remaining_lifetime));
-		isis_lsp_decode_lsp_id( "LSP ID", tree, offset + 2,
+		isis_lsp_decode_lsp_id( "LSP ID              ", tree, offset + 2,
 			&ps->isis_snp_lsp_id );
 		proto_tree_add_text(tree, offset+10, 4, 
-			"LSP Sequence Number: 0x%04x",
+			"LSP Sequence Number : 0x%04x",
 			pntohl(&ps->isis_snp_sequence_number));
 		proto_tree_add_text(tree, offset+14, 2, 
-			"LSP checksum: 0x%02x",
-			pntohl(&ps->isis_snp_checksum));
+			"LSP checksum        : 0x%02x",
+			pntohs(&ps->isis_snp_checksum));
 		length -= sizeof ( isis_snp_t );
 		offset += sizeof ( isis_snp_t );
 		ps++;
@@ -258,18 +259,12 @@ isis_dissect_isis_csnp(int type, int header_length, const u_char *pd,
 		proto_tree_add_item(csnp_tree, hf_isis_csnp_pdu_length,
 			offset, 2, pntohs(&ilp->isis_csnp_pdu_length));
 		proto_tree_add_text(csnp_tree, offset + 2, 7, 
-			"Source id: %02x%02x.%02x%02x.%02x%02x.%02x",
-				ilp->isis_csnp_source_id[0],
-				ilp->isis_csnp_source_id[1],
-				ilp->isis_csnp_source_id[2],
-				ilp->isis_csnp_source_id[3],
-				ilp->isis_csnp_source_id[4],
-				ilp->isis_csnp_source_id[5],
-				ilp->isis_csnp_source_id[6] );
-		isis_lsp_decode_lsp_id( "Start LSP id", csnp_tree, offset + 9,
+			"Source id    : %s",
+				print_system_id( pd + offset + 2, 7 ) );
+		isis_lsp_decode_lsp_id( "Start LSP id ", csnp_tree, offset + 9,
 			&ilp->isis_csnp_start_lsp_id );
-		isis_lsp_decode_lsp_id( "End LSP id", csnp_tree, offset + 17,
-			&ilp->isis_csnp_start_lsp_id );
+		isis_lsp_decode_lsp_id( "End   LSP id ", csnp_tree, offset + 17,
+			&ilp->isis_csnp_end_lsp_id );
 	}
 
 	offset += hlen;
@@ -332,14 +327,8 @@ isis_dissect_isis_psnp(int type, int header_length, const u_char *pd,
 		proto_tree_add_item(psnp_tree, hf_isis_psnp_pdu_length,
 			offset, 2, pntohs(&ilp->isis_psnp_pdu_length));
 		proto_tree_add_text(psnp_tree, offset + 2, 7, 
-			"Source id: %02x%02x.%02x%02x.%02x%02x.%02x",
-				ilp->isis_psnp_source_id[0],
-				ilp->isis_psnp_source_id[1],
-				ilp->isis_psnp_source_id[2],
-				ilp->isis_psnp_source_id[3],
-				ilp->isis_psnp_source_id[4],
-				ilp->isis_psnp_source_id[5],
-				ilp->isis_psnp_source_id[6] );
+			"Source id: %s",
+			print_system_id( pd + offset + 2, 7 ) );
 	}
 
 	offset += hlen;
@@ -441,7 +430,7 @@ proto_register_isis_csnp(void) {
 		&ett_isis_csnp_clv_unknown,
 	};
 
-	proto_isis_csnp = proto_register_protocol("ISIS csnp", "ISIS-csnp");
+	proto_isis_csnp = proto_register_protocol(PROTO_STRING_CSNP, "isis_csnp");
 	proto_register_field_array(proto_isis_csnp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
@@ -479,7 +468,7 @@ proto_register_isis_psnp(void) {
 		&ett_isis_psnp_clv_unknown,
 	};
 
-	proto_isis_psnp = proto_register_protocol("ISIS psnp", "ISIS-psnp");
+	proto_isis_psnp = proto_register_protocol(PROTO_STRING_PSNP, "isis_psnp");
 	proto_register_field_array(proto_isis_psnp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

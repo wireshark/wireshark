@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.4 2000/03/20 22:52:42 gram Exp $
+ * $Id: packet-isis-lsp.c,v 1.5 2000/04/15 22:11:09 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -43,6 +43,7 @@
 #endif
 
 #include "packet.h"
+#include "packet-osi.h"
 #include "packet-isis.h"
 #include "packet-isis-clv.h"
 #include "packet-isis-lsp.h"
@@ -515,17 +516,12 @@ dissect_lsp_eis_neighbors_clv_inner(const u_char *pd, int offset,
 		if ( tree ) {
 			if ( is_eis ) {
 				ti = proto_tree_add_text ( tree, offset, 11, 
-					"ES Neighbor: %02x%02x.%02x%02x.%02x%02x",
-					pd[offset+4], pd[offset+5], 
-					pd[offset+6], pd[offset+7], 
-					pd[offset+8], pd[offset+9] );
+					"ES Neighbor: %s",
+					print_system_id( pd + offset + 4, 6 ) );
 			} else {
 				ti = proto_tree_add_text ( tree, offset, 11, 
-					"IS Neighbor: %02x%02x.%02x%02x.%02x%02x-%02x",
-					pd[offset+4], pd[offset+5], 
-					pd[offset+6], pd[offset+7], 
-					pd[offset+8], pd[offset+9],
-					pd[offset+10] );
+					"IS Neighbor:  %s",
+               print_system_id( pd + offset + 4, 6 ) );
 			}
 			ntree = proto_item_add_subtree(ti, 
 				ett_isis_lsp_clv_is_neighbors);
@@ -648,9 +644,8 @@ dissect_lsp_partition_dis_clv(const u_char *pd, int offset,
 	 */
 	if ( tree ) {
 		proto_tree_add_text ( tree, offset+4, 6, 
-			"Partition designated L2 IS: %02x%02x.%02x%02x.%02x%02x",
-			pd[offset], pd[offset+1], pd[offset+2],
-			pd[offset+3], pd[offset+4], pd[offset+5]);
+			"Partition designated L2 IS: %s",
+			print_system_id( pd + offset, 6 ) );
 	}
 	length -= 6;
 	offset +=  6;
@@ -720,7 +715,7 @@ dissect_lsp_prefix_neighbors_clv(const u_char *pd, int offset,
 		 * Lets turn the area address into "standard" 0000.0000.etc
 		 * format string.  
 		 */
-		sbuf = isis_address_to_string ( pd, offset + 1, mylen );
+		sbuf =  print_area( pd + offset + 1, mylen );
 		/* and spit it out */
 		if ( tree ) {
 			proto_tree_add_text ( tree, offset, mylen + 1, 
@@ -750,13 +745,8 @@ void
 isis_lsp_decode_lsp_id(char *tstr, proto_tree *tree, int offset, 
 		isis_lsp_id_t *id ) {
 	proto_tree_add_text(tree, offset, 8, 
-		"%s: %02x%02x.%02x%02x.%02x%02x.%02x-%02x", tstr,
-			id->source_id[0],
-			id->source_id[1],
-			id->source_id[2],
-			id->source_id[3],
-			id->source_id[4],
-			id->source_id[5],
+		"%s: %s.%02x-%02x", tstr,
+			print_system_id( id->source_id, 6 ),
 			id->psuodonode_id,
 			id->lsp_number );
 }
@@ -923,7 +913,7 @@ proto_register_isis_lsp(void) {
 		&ett_isis_lsp_clv_ip_reachability,
 	};
 
-	proto_isis_lsp = proto_register_protocol("ISIS lsp", "ISIS-lsp");
+	proto_isis_lsp = proto_register_protocol( PROTO_STRING_LSP, "isis_lsp");
 	proto_register_field_array(proto_isis_lsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

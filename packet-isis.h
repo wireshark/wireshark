@@ -1,7 +1,7 @@
 /* packet-isis.h
  * Defines and such for core isis protcol decode.
  *
- * $Id: packet-isis.h,v 1.2 2000/01/13 06:07:52 guy Exp $
+ * $Id: packet-isis.h,v 1.3 2000/04/15 22:11:11 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -37,48 +37,50 @@
 /*
  * ISIS type field values
  */
-#define ISIS_TYPE_L1_HELLO		15
-#define ISIS_TYPE_L2_HELLO		16
-#define ISIS_TYPE_PTP_HELLO		17
-#define ISIS_TYPE_L1_LSP		18
-#define ISIS_TYPE_L2_LSP		20
-#define ISIS_TYPE_L1_CSNP		24
-#define ISIS_TYPE_L2_CSNP		25
-#define ISIS_TYPE_L1_PSNP		26
-#define ISIS_TYPE_L2_PSNP		27
+#define ISIS_TYPE_L1_HELLO  15
+#define ISIS_TYPE_L2_HELLO  16
+#define ISIS_TYPE_PTP_HELLO 17
+#define ISIS_TYPE_L1_LSP    18
+#define ISIS_TYPE_L2_LSP    20
+#define ISIS_TYPE_L1_CSNP   24
+#define ISIS_TYPE_L2_CSNP   25
+#define ISIS_TYPE_L1_PSNP   26
+#define ISIS_TYPE_L2_PSNP   27
+
+#define ISIS_TYPE_MASK 	    0x1f
+#define ISIS_R8_MASK	    0x80
+#define ISIS_R7_MASK	    0x40
+#define ISIS_R6_MASK	    0x20
 
 /*
  * The common first 8 octets of the ISIS protocol header.
  */
 typedef struct {
-	guint8	isis_irpd;		/* Intradomain Routing Protocol Descriminator.  Must be 0x83 */
-	guint8	isis_header_length;	/* header length in octets */
-	guint8	isis_version;		/* isis version, must be 0x01 */
-	guint8	isis_reserved;		/* res byte, must be 0 */
-	guint8	isis_type_reserved;	/* packet type & reserved */
-#define ISIS_TYPE_MASK 	0x1f
-#define ISIS_R8_MASK	0x80
-#define ISIS_R7_MASK	0x40
-#define ISIS_R6_MASK	0x20
-	guint8	isis_version2;		/* another version(?!), must be 0x01 */
-
-	guint8	isis_eco;		/* ECO, must be 0 */
-	guint8	isis_user_eco;		/* user ECO, must be 0 */
-} isis_hdr_t;
+  guint8 isis_irpd;  /* Intradomain Routing Protocol Descriminator: 0x83 */
+  guint8 isis_header_length;  /* header length in octets */
+  guint8 isis_version;        /* isis version, must be 0x01 */
+  guint8 isis_system_id_len;  /* length of the system ID fields */
+  guint8 isis_type_reserved;  /* packet type & reserved */
+  guint8 isis_version2;	      /* another version(?!), must be 0x01 */
+  guint8 isis_reserved;	      /* reserved, must be 0 */
+  guint8 isis_max_area_adr;   /* Maximum Number of AREA Addresses permitted */
+} isis_hdr_t;                 /* for this AREA. Value of 0 allows 3 Addresses */
 
 #define isis_type isis_type_reserved&ISIS_TYPE_MASK
-#define isis_r8 isis_type_reserved&ISIS_R8_MASK
-#define isis_r7 isis_type_reserved&ISIS_R7_MASK
-#define isis_r6 isis_type_reserved&ISIS_R6_MASK
+#define isis_r8   isis_type_reserved&ISIS_R8_MASK
+#define isis_r7   isis_type_reserved&ISIS_R7_MASK
+#define isis_r6   isis_type_reserved&ISIS_R6_MASK
+
 
 /*
  * published API functions
  */
+
 extern char *isis_address_to_string ( const u_char *pd, int offset, int len );
-extern void dissect_isis(const u_char *pd, int offset, frame_data *fd, 
-		proto_tree *tree);
+extern void dissect_isis( const u_char *pd, int offset, frame_data *fd,
+                          proto_tree *tree);
 extern void proto_register_isis(void);
-extern void isis_dissect_unknown(int offset,guint length,proto_tree *tree,frame_data *fd,
-                char *fmat, ...);
+extern void isis_dissect_unknown( int offset, guint length, proto_tree *tree,
+                                  frame_data *fd, char *fmat, ...);
 
 #endif /* _PACKET_ISIS_H */
