@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.18 1999/11/18 09:39:12 guy Exp $
+ * $Id: iptrace.c,v 1.19 1999/11/19 05:48:21 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -144,10 +144,16 @@ static int iptrace_read(wtap *wth, int *err)
 		if (if_name1 == 'l' && if_name2 == 'o') {
 			wth->phdr.pkt_encap = WTAP_ENCAP_RAW_IP;
 		}
+		else if (if_name1 == 'f' && if_name2 == 'd') {
+			wth->phdr.pkt_encap = WTAP_ENCAP_FDDI_BITSWAPPED;
+		}
+		else if (if_name1 == 'x' && if_name2 == 'd') { /* X.25 */
+			wth->phdr.pkt_encap = WTAP_ENCAP_RAW_IP;
+		}
 		else {
 			g_message("iptrace: interface type %c%c (IFT=0x%02x) unknown or unsupported",
 			    if_name1, if_name2, pkt_hdr.if_type);
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_UNSUPPORTED;
 			return -1;
 		}
 	}
@@ -240,44 +246,53 @@ wtap_encap_ift(unsigned int  ift)
 {
 
 	static const int ift_encap[] = {
-/* 0x0 */	WTAP_ENCAP_UNKNOWN,
-/* 0x1 */	WTAP_ENCAP_UNKNOWN,
-/* 0x2 */	WTAP_ENCAP_UNKNOWN,
-/* 0x3 */	WTAP_ENCAP_UNKNOWN,
-/* 0x4 */	WTAP_ENCAP_UNKNOWN,
-/* 0x5 */	WTAP_ENCAP_RAW_IP,	/* X.25 */
-/* 0x6 */	WTAP_ENCAP_ETHERNET,
-/* 0x7 */	WTAP_ENCAP_UNKNOWN,
-/* 0x8 */	WTAP_ENCAP_UNKNOWN,
-/* 0x9 */	WTAP_ENCAP_TR,
-/* 0xa */	WTAP_ENCAP_UNKNOWN,
-/* 0xb */	WTAP_ENCAP_UNKNOWN,
-/* 0xc */	WTAP_ENCAP_UNKNOWN,
-/* 0xd */	WTAP_ENCAP_UNKNOWN,
-/* 0xe */	WTAP_ENCAP_UNKNOWN,
-/* 0xf */	WTAP_ENCAP_FDDI_BITSWAPPED,
-/* 0x10 */	WTAP_ENCAP_LAPB,
-/* 0x11 */	WTAP_ENCAP_UNKNOWN,
-/* 0x12 */	WTAP_ENCAP_UNKNOWN,
-/* 0x13 */	WTAP_ENCAP_UNKNOWN,
-/* 0x14 */	WTAP_ENCAP_UNKNOWN,
-/* 0x15 */	WTAP_ENCAP_UNKNOWN,
-/* 0x16 */	WTAP_ENCAP_UNKNOWN,
-/* 0x17 */	WTAP_ENCAP_UNKNOWN,
-/* 0x18 */	WTAP_ENCAP_UNKNOWN,
-/* 0x19 */	WTAP_ENCAP_UNKNOWN,
-/* 0x1a */	WTAP_ENCAP_UNKNOWN,
-/* 0x1b */	WTAP_ENCAP_UNKNOWN,
-/* 0x1c */	WTAP_ENCAP_UNKNOWN,
-/* 0x1d */	WTAP_ENCAP_UNKNOWN,
-/* 0x1e */	WTAP_ENCAP_UNKNOWN,
-/* 0x1f */	WTAP_ENCAP_UNKNOWN,
-/* 0x20 */	WTAP_ENCAP_UNKNOWN,
-/* 0x21 */	WTAP_ENCAP_UNKNOWN,
-/* 0x22 */	WTAP_ENCAP_UNKNOWN,
-/* 0x23 */	WTAP_ENCAP_UNKNOWN,
-/* 0x24 */	WTAP_ENCAP_UNKNOWN,
-/* 0x25 */	WTAP_ENCAP_ATM_SNIFFER,
+/* 0x0 */	WTAP_ENCAP_UNKNOWN,	/* nothing */
+/* 0x1 */	WTAP_ENCAP_UNKNOWN,	/* IFT_OTHER */
+/* 0x2 */	WTAP_ENCAP_UNKNOWN,	/* IFT_1822 */
+/* 0x3 */	WTAP_ENCAP_UNKNOWN,	/* IFT_HDH1822 */
+/* 0x4 */	WTAP_ENCAP_UNKNOWN,	/* IFT_X25DDN */
+#if 0
+	/* 0x5 */	WTAP_ENCAP_RAW_IP,	/* IFT_X25 */
+#endif
+/* 0x5 */	WTAP_ENCAP_UNKNOWN,	/* IFT_X25 */
+/* 0x6 */	WTAP_ENCAP_ETHERNET,	/* IFT_ETHER */
+/* 0x7 */	WTAP_ENCAP_UNKNOWN,	/* IFT_ISO88023 */
+/* 0x8 */	WTAP_ENCAP_UNKNOWN,	/* IFT_ISO88024 */
+/* 0x9 */	WTAP_ENCAP_TR,		/* IFT_ISO88025 */
+/* 0xa */	WTAP_ENCAP_UNKNOWN,	/* IFT_ISO88026 */
+/* 0xb */	WTAP_ENCAP_UNKNOWN,	/* IFT_STARLAN */
+/* 0xc */	WTAP_ENCAP_UNKNOWN,	/* IFT_P10 */
+/* 0xd */	WTAP_ENCAP_UNKNOWN,	/* IFT_P80 */
+/* 0xe */	WTAP_ENCAP_UNKNOWN,	/* IFT_HY */
+#if 0
+	/* 0xf */	WTAP_ENCAP_FDDI_BITSWAPPED,	/* IFT_FDDI */
+#endif
+/* 0xf */	WTAP_ENCAP_UNKNOWN,	/* IFT_FDDI */
+/* 0x10 */	WTAP_ENCAP_LAPB,	/* IFT_LAPB */	/* no data to back this up */
+/* 0x11 */	WTAP_ENCAP_UNKNOWN,	/* IFT_SDLC */
+/* 0x12 */	WTAP_ENCAP_UNKNOWN,	/* IFT_T1 */
+/* 0x13 */	WTAP_ENCAP_UNKNOWN,	/* IFT_CEPT */
+/* 0x14 */	WTAP_ENCAP_UNKNOWN,	/* IFT_ISDNBASIC */
+/* 0x15 */	WTAP_ENCAP_UNKNOWN,	/* IFT_ISDNPRIMARY */
+/* 0x16 */	WTAP_ENCAP_UNKNOWN,	/* IFT_PTPSERIAL */
+/* 0x17 */	WTAP_ENCAP_UNKNOWN,	/* IFT_PPP */
+#if 0
+	/* 0x18 */	WTAP_ENCAP_RAW_IP,	/* IFT_LOOP */
+#endif
+/* 0x18 */	WTAP_ENCAP_UNKNOWN,	/* IFT_LOOP */
+/* 0x19 */	WTAP_ENCAP_UNKNOWN,	/* IFT_EON */
+/* 0x1a */	WTAP_ENCAP_UNKNOWN,	/* IFT_XETHER */
+/* 0x1b */	WTAP_ENCAP_UNKNOWN,	/* IFT_NSIP */
+/* 0x1c */	WTAP_ENCAP_UNKNOWN,	/* IFT_SLIP */
+/* 0x1d */	WTAP_ENCAP_UNKNOWN,	/* IFT_ULTRA */
+/* 0x1e */	WTAP_ENCAP_UNKNOWN,	/* IFT_DS3 */
+/* 0x1f */	WTAP_ENCAP_UNKNOWN,	/* IFT_SIP */
+/* 0x20 */	WTAP_ENCAP_UNKNOWN,	/* IFT_FRELAY */
+/* 0x21 */	WTAP_ENCAP_UNKNOWN,	/* IFT_RS232 */
+/* 0x22 */	WTAP_ENCAP_UNKNOWN,	/* IFT_PARA */
+/* 0x23 */	WTAP_ENCAP_UNKNOWN,	/* IFT_ARCNET */
+/* 0x24 */	WTAP_ENCAP_UNKNOWN,	/* IFT_ARCNETPLUS */
+/* 0x25 */	WTAP_ENCAP_ATM_SNIFFER,	/* IFT_ATM */
 	};
 	#define NUM_IFT_ENCAPS (sizeof ift_encap / sizeof ift_encap[0])
 
