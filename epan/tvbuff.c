@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.58 2004/02/01 06:49:24 jmayer Exp $
+ * $Id: tvbuff.c,v 1.59 2004/02/01 21:30:17 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -1518,14 +1518,14 @@ tvb_strnlen(tvbuff_t *tvb, gint offset, guint maxlength)
  * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
 gint
-tvb_strneql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size)
+tvb_strneql(tvbuff_t *tvb, gint offset, const gchar *str, gint size)
 {
 	guint8 *ptr;
 
 	ptr = ensure_contiguous_no_exception(tvb, offset, size, NULL);
 
 	if (ptr) {
-		int cmp = strncmp(ptr, str, size);
+		int cmp = strncmp((char *)ptr, str, size);
 
 		/*
 		 * Return 0 if equal, -1 otherwise.
@@ -1552,7 +1552,7 @@ tvb_strncaseeql(tvbuff_t *tvb, gint offset, const gchar *str, gint size)
 	ptr = ensure_contiguous_no_exception(tvb, offset, size, NULL);
 
 	if (ptr) {
-		int cmp = strncasecmp(ptr, str, size);
+		int cmp = strncasecmp((char *)ptr, str, size);
 
 		/*
 		 * Return 0 if equal, -1 otherwise.
@@ -1856,7 +1856,7 @@ tvb_find_line_end(tvbuff_t *tvb, gint offset, int len, gint *next_offset,
 	/*
 	 * Look either for a CR or an LF.
 	 */
-	eol_offset = tvb_pbrk_guint8(tvb, offset, len, "\r\n");
+	eol_offset = tvb_pbrk_guint8(tvb, offset, len, (guint8 *)"\r\n");
 	if (eol_offset == -1) {
 		/*
 		 * No CR or LF - line is presumably continued in next packet.
@@ -1985,7 +1985,7 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
 			 * Look either for a CR, an LF, or a '"'.
 			 */
 			char_offset = tvb_pbrk_guint8(tvb, cur_offset, len,
-			    "\r\n\"");
+			    (guint8 *)"\r\n\"");
 		}
 		if (char_offset == -1) {
 			/*

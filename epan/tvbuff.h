@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.38 2004/02/01 06:49:24 jmayer Exp $
+ * $Id: tvbuff.h,v 1.39 2004/02/01 21:30:17 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -474,7 +474,7 @@ extern gint tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
  * Call strncmp after checking if enough chars left, returning 0 if
  * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
-extern gint tvb_strneql(tvbuff_t *tvb, gint offset, const guint8 *str,
+extern gint tvb_strneql(tvbuff_t *tvb, gint offset, const gchar *str,
     gint size);
 
 /*
