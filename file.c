@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.156 2000/01/25 00:17:00 guy Exp $
+ * $Id: file.c,v 1.157 2000/01/25 00:36:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -326,8 +326,10 @@ read_cap_file(capture_file *cf)
   /* Enable menu items that make sense if you have some captured packets. */
   set_menus_for_captured_packets(TRUE);
 
-  /* Make the first row the selected row. */
-  gtk_signal_emit_by_name(GTK_OBJECT(packet_list), "select_row", 0);
+  /* If we have any packets to select, select the first packet by making
+     the first row the selected row. */
+  if (cf->plist != NULL)
+    gtk_signal_emit_by_name(GTK_OBJECT(packet_list), "select_row", 0);
 
   if (!success) {
     /* Put up a message box noting that the read failed somewhere along
