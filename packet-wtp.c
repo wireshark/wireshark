@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.29 2002/03/27 07:44:33 guy Exp $
+ * $Id: packet-wtp.c,v 1.30 2002/04/05 09:29:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -334,7 +334,8 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Discover Concatenated PDUs */
 	if (b0 == 0) {
 		if (tree) {
-			wtp_tree = proto_tree_add_item(tree, proto_wtp, tvb, offCur, 1, bo_little_endian);
+			ti = proto_tree_add_item(tree, proto_wtp, tvb, offCur, 1, bo_little_endian);
+		        wtp_tree = proto_item_add_subtree(ti, ett_wtp);
 		}
 		offCur = 1;
 		i = 1;
@@ -463,13 +464,15 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			fprintf( stderr, "dissect_wtp: offCur = %d\n", offCur );  
 			fprintf( stderr, "dissect_wtp: About to call proto_tree_add_item with %p %d %p %d %d %d\n", 
 					wtp_tree, hf_wtp_header_fixed_part, tvb, offCur, cbHeader, bo_little_endian ); 
+#endif
 			ti = proto_tree_add_item( wtp_tree, hf_wtp_header_fixed_part, tvb, offCur, cbHeader, bo_little_endian );
+#ifdef DEBUG
 			fprintf( stderr, "dissect_wtp: (6) Returned from proto_tree_add_item\n" );  
 #endif
 			wtp_header_fixed = proto_item_add_subtree(ti, ett_header);
 
 			/* Add common items: only CON and PDU Type */
-			ti = proto_tree_add_item(
+			proto_tree_add_item(
 					wtp_header_fixed, 		/* tree */
 					hf_wtp_header_flag_continue, 	/* id */
 					tvb, 
@@ -477,81 +480,81 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					1,				/* length of high light */
 					b0				/* value */
 			     );
-			ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_pdu_type, tvb, offCur, 1, bo_little_endian );
+			proto_tree_add_item( wtp_header_fixed, hf_wtp_header_pdu_type, tvb, offCur, 1, bo_little_endian );
 
 			switch( pdut ) {
 				case INVOKE:
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_Trailer, tvb, offCur, 1, bo_little_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_RID, tvb, offCur, 1, bo_little_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_Trailer, tvb, offCur, 1, bo_little_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_RID, tvb, offCur, 1, bo_little_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian );
 
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_Inv_version , tvb, offCur + 3, 1, bo_little_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_Inv_flag_TIDNew, tvb, offCur + 3, 1, bo_little_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_Inv_flag_UP, tvb, offCur + 3, 1, bo_little_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_Inv_Reserved, tvb, offCur + 3, 1, bo_little_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_Inv_TransactionClass, tvb, offCur + 3, 1, bo_little_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_Inv_version , tvb, offCur + 3, 1, bo_little_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_Inv_flag_TIDNew, tvb, offCur + 3, 1, bo_little_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_Inv_flag_UP, tvb, offCur + 3, 1, bo_little_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_Inv_Reserved, tvb, offCur + 3, 1, bo_little_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_Inv_TransactionClass, tvb, offCur + 3, 1, bo_little_endian );
 					break;
 
 				case RESULT:
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_Trailer, tvb, offCur, 1, bo_little_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_RID, tvb, offCur, 1, bo_little_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_Trailer, tvb, offCur, 1, bo_little_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_RID, tvb, offCur, 1, bo_little_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian );
 					break;
 
 				case ACK:
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_Ack_flag_TVETOK, tvb, offCur, 1, bo_big_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_Ack_flag_TVETOK, tvb, offCur, 1, bo_big_endian );
 
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_RID, tvb, offCur, 1, bo_little_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_RID, tvb, offCur, 1, bo_little_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian );
 					break;
 
 				case ABORT:
 					abortType = tvb_get_guint8 (tvb, offCur) & 0x07;
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_Abort_type , tvb, offCur , 1, bo_little_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_Abort_type , tvb, offCur , 1, bo_little_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian );
 
 					if (abortType == PROVIDER)
 					{
-						ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_Abort_reason_provider , tvb, offCur + 3 , 1, bo_little_endian );
+						proto_tree_add_item( wtp_header_fixed, hf_wtp_header_Abort_reason_provider , tvb, offCur + 3 , 1, bo_little_endian );
 					}
 					else if (abortType == USER)
 					{
-						ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_Abort_reason_user , tvb, offCur + 3 , 1, bo_little_endian );
+						proto_tree_add_item( wtp_header_fixed, hf_wtp_header_Abort_reason_user , tvb, offCur + 3 , 1, bo_little_endian );
 					}
 					break;
 
 				case SEGMENTED_INVOKE:
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_Trailer, tvb, offCur, 1, bo_little_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_RID, tvb, offCur, 1, bo_little_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_Trailer, tvb, offCur, 1, bo_little_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_RID, tvb, offCur, 1, bo_little_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian );
 
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_sequence_number , tvb, offCur + 3, 1, bo_little_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_sequence_number , tvb, offCur + 3, 1, bo_little_endian );
 					break;
 
 				case SEGMENTED_RESULT:
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_Trailer, tvb, offCur, 1, bo_little_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_RID, tvb, offCur, 1, bo_little_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_Trailer, tvb, offCur, 1, bo_little_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_RID, tvb, offCur, 1, bo_little_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian );
 
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_sequence_number , tvb, offCur + 3, 1, bo_little_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_sequence_number , tvb, offCur + 3, 1, bo_little_endian );
 					break;
 
 				case NEGATIVE_ACK:
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_RID, tvb, offCur, 1, bo_little_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian );
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_RID, tvb, offCur, 1, bo_little_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian );
 
-					ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_missing_packets , tvb, offCur + 3, 1, bo_little_endian );
+					proto_tree_add_item( wtp_header_fixed, hf_wtp_header_missing_packets , tvb, offCur + 3, 1, bo_little_endian );
 					/* Iterate through missing packets */
 					for (i=0; i<numMissing; i++)
 					{
-						ti = proto_tree_add_item( wtp_header_fixed, hf_wtp_header_sequence_number , tvb, offCur + i, 1, bo_little_endian );
+						proto_tree_add_item( wtp_header_fixed, hf_wtp_header_sequence_number , tvb, offCur + i, 1, bo_little_endian );
 					}
 					break;
 
@@ -561,7 +564,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			if( fCon ) {
 				/* There is a variable part if the Con flag is set */ 
-				ti = proto_tree_add_bytes_format(
+				proto_tree_add_bytes_format(
 						wtp_tree, 			/* tree */
 						hf_wtp_header_variable_part, 	/* id */
 						tvb, 
