@@ -4,7 +4,7 @@
  * 
  * Copyright 2004, Taekshi Nakashima <T.Nakashima@jp.yokogawa.com>
  *
- * $Id: packet-kink.c,v 1.9 2005/02/09 07:02:12 takeshi Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
