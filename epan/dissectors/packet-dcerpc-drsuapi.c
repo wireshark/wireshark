@@ -198,6 +198,16 @@ static int hf_drsuapi_DsReplicaUpdateRefsOptions_DRSUAPI_DS_REPLICA_UPDATE_WRITE
 static int hf_drsuapi_DsReplicaUpdateRefsOptions_DRSUAPI_DS_REPLICA_UPDATE_ADD_REFERENCE = -1;
 static int hf_drsuapi_DsReplicaUpdateRefsOptions_DRSUAPI_DS_REPLICA_UPDATE_DELETE_REFERENCE = -1;
 static int hf_drsuapi_DsReplicaUpdateRefsOptions_DRSUAPI_DS_REPLICA_UPDATE_0x00000010 = -1;
+static int hf_drsuapi_DsReplicaUpdateRefsRequest1_unknown1 = -1;
+static int hf_drsuapi_DsReplicaUpdateRefsRequest1_unknown2 = -1;
+static int hf_drsuapi_DsReplicaUpdateRefsRequest1_dest_dsa_guid = -1;
+static int hf_drsuapi_DsReplicaUpdateRefsRequest1_options = -1;
+static int hf_drsuapi_DsReplicaUpdateRefsRequest1_sync_req_info1 = -1;
+static int hf_drsuapi_DsReplicaUpdateRefsRequest1_dest_dsa_dns_name = -1;
+static int hf_drsuapi_DsReplicaUpdateRefsRequest_1_req1 = -1;
+static int hf_drsuapi_DsReplicaUpdateRefs_bind_handle = -1;
+static int hf_drsuapi_DsReplicaUpdateRefs_level = -1;
+static int hf_drsuapi_DsReplicaUpdateRefs_req = -1;
 static int hf_drsuapi_DsReplicaAddOptions_DRSUAPI_DS_REPLICA_ADD_ASYNCHRONOUS_OPERATION = -1;
 static int hf_drsuapi_DsReplicaAddOptions_DRSUAPI_DS_REPLICA_ADD_WRITEABLE = -1;
 static int hf_drsuapi_DsReplicaDeleteOptions_DRSUAPI_DS_REPLICA_DELETE_ASYNCHRONOUS_OPERATION = -1;
@@ -401,6 +411,16 @@ static int hf_drsuapi_DsReplicaAttrValMetaData2_originating_dsa_obj_dn = -1;
 static int hf_drsuapi_DsReplicaAttrValMetaData2Ctr_count = -1;
 static int hf_drsuapi_DsReplicaAttrValMetaData2Ctr_enumeration_context = -1;
 static int hf_drsuapi_DsReplicaAttrValMetaData2Ctr_array = -1;
+static int hf_drsuapi_DsReplicaConnection04_u1 = -1;
+static int hf_drsuapi_DsReplicaConnection04_u2 = -1;
+static int hf_drsuapi_DsReplicaConnection04_u3 = -1;
+static int hf_drsuapi_DsReplicaConnection04_bind_guid = -1;
+static int hf_drsuapi_DsReplicaConnection04_bind_time = -1;
+static int hf_drsuapi_DsReplicaConnection04_u4 = -1;
+static int hf_drsuapi_DsReplicaConnection04_u5 = -1;
+static int hf_drsuapi_DsReplicaConnection04Ctr_count = -1;
+static int hf_drsuapi_DsReplicaConnection04Ctr_reserved = -1;
+static int hf_drsuapi_DsReplicaConnection04Ctr_array = -1;
 static int hf_drsuapi_DsReplica06_str1 = -1;
 static int hf_drsuapi_DsReplica06_u1 = -1;
 static int hf_drsuapi_DsReplica06_u2 = -1;
@@ -424,6 +444,7 @@ static int hf_drsuapi_DsReplicaInfo_DRSUAPI_DS_REPLICA_INFO_CURSORS3_coursors3 =
 static int hf_drsuapi_DsReplicaInfo_DRSUAPI_DS_REPLICA_INFO_OBJ_METADATA2_objmetadata2 = -1;
 static int hf_drsuapi_DsReplicaInfo_DRSUAPI_DS_REPLICA_INFO_ATTRIBUTE_VALUE_METADATA2_attrvalmetadata2 = -1;
 static int hf_drsuapi_DsReplicaInfo_DRSUAPI_DS_REPLICA_INFO_NEIGHBORS02_neighbours02 = -1;
+static int hf_drsuapi_DsReplicaInfo_DRSUAPI_DS_REPLICA_INFO_CONNECTIONS04_connections04 = -1;
 static int hf_drsuapi_DsReplicaInfo_DRSUAPI_DS_REPLICA_INFO_CURSURS05_coursors05 = -1;
 static int hf_drsuapi_DsReplicaInfo_DRSUAPI_DS_REPLICA_INFO_06_i06 = -1;
 static int hf_drsuapi_DsReplicaGetInfo_bind_handle = -1;
@@ -461,6 +482,8 @@ static gint ett_drsuapi_DsGetNCChangesCtr6 = -1;
 static gint ett_drsuapi_DsGetNCChangesCtr7 = -1;
 static gint ett_drsuapi_DsGetNCChangesCtr = -1;
 static gint ett_drsuapi_DsReplicaUpdateRefsOptions = -1;
+static gint ett_drsuapi_DsReplicaUpdateRefsRequest1 = -1;
+static gint ett_drsuapi_DsReplicaUpdateRefsRequest = -1;
 static gint ett_drsuapi_DsReplicaAddOptions = -1;
 static gint ett_drsuapi_DsReplicaDeleteOptions = -1;
 static gint ett_drsuapi_DsReplicaModifyOptions = -1;
@@ -506,6 +529,8 @@ static gint ett_drsuapi_DsReplicaObjMetaData2 = -1;
 static gint ett_drsuapi_DsReplicaObjMetaData2Ctr = -1;
 static gint ett_drsuapi_DsReplicaAttrValMetaData2 = -1;
 static gint ett_drsuapi_DsReplicaAttrValMetaData2Ctr = -1;
+static gint ett_drsuapi_DsReplicaConnection04 = -1;
+static gint ett_drsuapi_DsReplicaConnection04Ctr = -1;
 static gint ett_drsuapi_DsReplica06 = -1;
 static gint ett_drsuapi_DsReplica06Ctr = -1;
 static gint ett_drsuapi_DsReplicaInfo = -1;
@@ -2419,11 +2444,21 @@ drsuapi_dissect_DsReplicaCoursorEx_coursor(tvbuff_t *tvb, int offset, packet_inf
     return offset;
 }
 
+
+static int
+drsuapi_dissect_NTTIME_1sec(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    ALIGN_TO_8_BYTES;
+    offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep, hf_index);
+
+    return offset;
+}
+
 static int
 drsuapi_dissect_DsReplicaCoursorEx_time1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
     guint32 param=0;
-    offset=drsuapi_dissect_uint64(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursorEx_time1, param);
+    offset=drsuapi_dissect_NTTIME_1sec(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaCoursorEx_time1, param);
     return offset;
 }
 
@@ -2933,10 +2968,178 @@ drsuapi_dissect_DsReplicaUpdateRefsOptions(tvbuff_t *tvb, int offset, packet_inf
 
     return offset;
 }
+static int
+drsuapi_dissect_DsReplicaUpdateRefsRequest1_unknown1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaUpdateRefsRequest1_unknown1, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaUpdateRefsRequest1_unknown2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaUpdateRefsRequest1_unknown2, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaUpdateRefsRequest1_dest_dsa_guid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_GUID(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaUpdateRefsRequest1_dest_dsa_guid, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaUpdateRefsRequest1_options(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsReplicaUpdateRefsOptions(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaUpdateRefsRequest1_options, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaUpdateRefsRequest1_sync_req_info1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsReplicaSyncRequest1Info(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaUpdateRefsRequest1_sync_req_info1, param);
+    return offset;
+}
+
+
+static int
+drsuapi_dissect_ascstr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    offset=dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep, 1, hf_index, FALSE, NULL);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaUpdateRefsRequest1_dest_dsa_dns_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_ascstr(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaUpdateRefsRequest1_dest_dsa_dns_name, param);
+    return offset;
+}
+
+
+int
+drsuapi_dissect_DsReplicaUpdateRefsRequest1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset;
+
+    ALIGN_TO_4_BYTES;
+
+    old_offset=offset;
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+        tree=proto_item_add_subtree(item, ett_drsuapi_DsReplicaUpdateRefsRequest1);
+    }
+
+    offset=drsuapi_dissect_DsReplicaUpdateRefsRequest1_unknown1(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsReplicaUpdateRefsRequest1_unknown2(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsReplicaUpdateRefsRequest1_dest_dsa_guid(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsReplicaUpdateRefsRequest1_options(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsReplicaUpdateRefsRequest1_sync_req_info1(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsReplicaUpdateRefsRequest1_dest_dsa_dns_name(tvb, offset, pinfo, tree, drep);
+
+    proto_item_set_len(item, offset-old_offset);
+
+    return offset;
+}
+static int
+drsuapi_dissect_union_DsReplicaUpdateRefsRequest_1_req1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsReplicaUpdateRefsRequest1(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaUpdateRefsRequest_1_req1, param);
+    return offset;
+}
+
+
+static int
+drsuapi_dissect_union_DsReplicaUpdateRefsRequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset;
+    guint32 level;
+
+    ALIGN_TO_4_BYTES;
+
+    old_offset=offset;
+    if(parent_tree){
+        item=proto_tree_add_text(parent_tree, tvb, offset, -1, "DsReplicaUpdateRefsRequest");
+        tree=proto_item_add_subtree(item, ett_drsuapi_DsReplicaUpdateRefsRequest);
+    }
+
+    offset=dissect_ndr_uint32(tvb, offset, pinfo, tree,
+                              drep, hf_index, &level);
+
+    switch(level){
+    case 1:
+        ALIGN_TO_4_BYTES;
+        offset=drsuapi_dissect_union_DsReplicaUpdateRefsRequest_1_req1(tvb, offset, pinfo, tree, drep);
+        break;
+
+    }
+
+    proto_item_set_len(item, offset-old_offset);
+
+   return offset;
+}
+static int
+drsuapi_dissect_DsReplicaUpdateRefs_bind_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_policy_handle(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaUpdateRefs_bind_handle, param);
+    return offset;
+}
+
+static int
+ref_drsuapi_dissect_DsReplicaUpdateRefs_bind_handle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, drsuapi_dissect_DsReplicaUpdateRefs_bind_handle, NDR_POINTER_REF, "bind_handle", -1);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaUpdateRefs_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_int32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaUpdateRefs_level, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaUpdateRefs_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_union_DsReplicaUpdateRefsRequest(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaUpdateRefs_req, param);
+    return offset;
+}
+
 
 static int
 drsuapi_dissect_DsReplicaUpdateRefs_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+        offset=ref_drsuapi_dissect_DsReplicaUpdateRefs_bind_handle(tvb, offset, pinfo, tree, drep);
+        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+
+        offset=drsuapi_dissect_DsReplicaUpdateRefs_level(tvb, offset, pinfo, tree, drep);
+        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+
+        offset=drsuapi_dissect_DsReplicaUpdateRefs_req(tvb, offset, pinfo, tree, drep);
+        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+
 
    return offset;
 }
@@ -6905,6 +7108,153 @@ drsuapi_dissect_DsReplicaAttrValMetaData2Ctr(tvbuff_t *tvb, int offset, packet_i
     return offset;
 }
 static int
+drsuapi_dissect_DsReplicaConnection04_u1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint64(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaConnection04_u1, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaConnection04_u2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaConnection04_u2, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaConnection04_u3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaConnection04_u3, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaConnection04_bind_guid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_GUID(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaConnection04_bind_guid, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaConnection04_bind_time(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_NTTIME_1sec(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaConnection04_bind_time, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaConnection04_u4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaConnection04_u4, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaConnection04_u5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaConnection04_u5, param);
+    return offset;
+}
+
+
+int
+drsuapi_dissect_DsReplicaConnection04(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset;
+
+    ALIGN_TO_8_BYTES;
+
+    old_offset=offset;
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+        tree=proto_item_add_subtree(item, ett_drsuapi_DsReplicaConnection04);
+    }
+
+    offset=drsuapi_dissect_DsReplicaConnection04_u1(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsReplicaConnection04_u2(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsReplicaConnection04_u3(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsReplicaConnection04_bind_guid(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsReplicaConnection04_bind_time(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsReplicaConnection04_u4(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsReplicaConnection04_u5(tvb, offset, pinfo, tree, drep);
+
+    proto_item_set_len(item, offset-old_offset);
+
+    return offset;
+}
+static int
+drsuapi_dissect_DsReplicaConnection04Ctr_count(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaConnection04Ctr_count, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaConnection04Ctr_reserved(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaConnection04Ctr_reserved, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_DsReplicaConnection04Ctr_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsReplicaConnection04(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaConnection04Ctr_array, param);
+    return offset;
+}
+
+static int
+ucarray_drsuapi_dissect_DsReplicaConnection04Ctr_array(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, drsuapi_dissect_DsReplicaConnection04Ctr_array);
+    return offset;
+}
+
+
+int
+drsuapi_dissect_DsReplicaConnection04Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset;
+
+    ALIGN_TO_8_BYTES;
+
+    old_offset=offset;
+    if(parent_tree){
+        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+        tree=proto_item_add_subtree(item, ett_drsuapi_DsReplicaConnection04Ctr);
+    }
+
+    offset=drsuapi_dissect_DsReplicaConnection04Ctr_count(tvb, offset, pinfo, tree, drep);
+
+    offset=drsuapi_dissect_DsReplicaConnection04Ctr_reserved(tvb, offset, pinfo, tree, drep);
+
+    offset=ucarray_drsuapi_dissect_DsReplicaConnection04Ctr_array(tvb, offset, pinfo, tree, drep);
+
+    proto_item_set_len(item, offset-old_offset);
+
+    return offset;
+}
+static int
 drsuapi_dissect_DsReplica06_str1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
     guint32 param=0;
@@ -7249,6 +7599,21 @@ drsuapi_dissect_union_DsReplicaInfo_DRSUAPI_DS_REPLICA_INFO_NEIGHBORS02_neighbou
 }
 
 static int
+drsuapi_dissect_union_DsReplicaInfo_DRSUAPI_DS_REPLICA_INFO_CONNECTIONS04_connections04(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 param=0;
+    offset=drsuapi_dissect_DsReplicaConnection04Ctr(tvb, offset, pinfo, tree, drep, hf_drsuapi_DsReplicaInfo_DRSUAPI_DS_REPLICA_INFO_CONNECTIONS04_connections04, param);
+    return offset;
+}
+
+static int
+drsuapi_dissect_union_DsReplicaInfo_DRSUAPI_DS_REPLICA_INFO_CONNECTIONS04_connections04_unique(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    offset=dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, drsuapi_dissect_union_DsReplicaInfo_DRSUAPI_DS_REPLICA_INFO_CONNECTIONS04_connections04, NDR_POINTER_UNIQUE, "connections04", -1);
+    return offset;
+}
+
+static int
 drsuapi_dissect_union_DsReplicaInfo_DRSUAPI_DS_REPLICA_INFO_CURSURS05_coursors05(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
     guint32 param=0;
@@ -7357,6 +7722,11 @@ drsuapi_dissect_union_DsReplicaInfo(tvbuff_t *tvb, int offset, packet_info *pinf
     case DRSUAPI_DS_REPLICA_INFO_NEIGHBORS02:
         ALIGN_TO_4_BYTES;
         offset=drsuapi_dissect_union_DsReplicaInfo_DRSUAPI_DS_REPLICA_INFO_NEIGHBORS02_neighbours02_unique(tvb, offset, pinfo, tree, drep);
+        break;
+
+    case DRSUAPI_DS_REPLICA_INFO_CONNECTIONS04:
+        ALIGN_TO_4_BYTES;
+        offset=drsuapi_dissect_union_DsReplicaInfo_DRSUAPI_DS_REPLICA_INFO_CONNECTIONS04_connections04_unique(tvb, offset, pinfo, tree, drep);
         break;
 
     case DRSUAPI_DS_REPLICA_INFO_CURSURS05:
@@ -8165,7 +8535,7 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaCoursorEx_time1,
-          { "time1", "drsuapi.DsReplicaCoursorEx.time1", FT_UINT64, BASE_DEC,
+          { "time1", "drsuapi.DsReplicaCoursorEx.time1", FT_ABSOLUTE_TIME, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -8312,6 +8682,56 @@ proto_register_drsuapi(void)
         { &hf_drsuapi_DsReplicaUpdateRefsOptions_DRSUAPI_DS_REPLICA_UPDATE_0x00000010,
           { "DRSUAPI_DS_REPLICA_UPDATE_0x00000010", "drsuapi.DsReplicaUpdateRefsOptions.DRSUAPI_DS_REPLICA_UPDATE_0x00000010", FT_BOOLEAN, 32,
           TFS(&DRSUAPI_DS_REPLICA_UPDATE_0x00000010_tfs), 0x00000010,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaUpdateRefsRequest1_unknown1,
+          { "unknown1", "drsuapi.DsReplicaUpdateRefsRequest1.unknown1", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaUpdateRefsRequest1_unknown2,
+          { "unknown2", "drsuapi.DsReplicaUpdateRefsRequest1.unknown2", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaUpdateRefsRequest1_dest_dsa_guid,
+          { "dest_dsa_guid", "drsuapi.DsReplicaUpdateRefsRequest1.dest_dsa_guid", FT_STRING, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaUpdateRefsRequest1_options,
+          { "options", "drsuapi.DsReplicaUpdateRefsRequest1.options", FT_UINT32, BASE_HEX,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaUpdateRefsRequest1_sync_req_info1,
+          { "sync_req_info1", "drsuapi.DsReplicaUpdateRefsRequest1.sync_req_info1", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaUpdateRefsRequest1_dest_dsa_dns_name,
+          { "dest_dsa_dns_name", "drsuapi.DsReplicaUpdateRefsRequest1.dest_dsa_dns_name", FT_STRING, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaUpdateRefsRequest_1_req1,
+          { "req1", "drsuapi.DsReplicaUpdateRefsRequest.req1", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaUpdateRefs_bind_handle,
+          { "bind_handle", "drsuapi.DsReplicaUpdateRefs.bind_handle", FT_BYTES, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaUpdateRefs_level,
+          { "level", "drsuapi.DsReplicaUpdateRefs.level", FT_INT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaUpdateRefs_req,
+          { "req", "drsuapi.DsReplicaUpdateRefs.req", FT_UINT32, BASE_DEC,
+          NULL, 0,
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaAddOptions_DRSUAPI_DS_REPLICA_ADD_ASYNCHRONOUS_OPERATION,
@@ -9329,6 +9749,56 @@ proto_register_drsuapi(void)
           NULL, 0,
          "", HFILL }},
 
+        { &hf_drsuapi_DsReplicaConnection04_u1,
+          { "u1", "drsuapi.DsReplicaConnection04.u1", FT_UINT64, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaConnection04_u2,
+          { "u2", "drsuapi.DsReplicaConnection04.u2", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaConnection04_u3,
+          { "u3", "drsuapi.DsReplicaConnection04.u3", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaConnection04_bind_guid,
+          { "bind_guid", "drsuapi.DsReplicaConnection04.bind_guid", FT_STRING, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaConnection04_bind_time,
+          { "bind_time", "drsuapi.DsReplicaConnection04.bind_time", FT_ABSOLUTE_TIME, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaConnection04_u4,
+          { "u4", "drsuapi.DsReplicaConnection04.u4", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaConnection04_u5,
+          { "u5", "drsuapi.DsReplicaConnection04.u5", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaConnection04Ctr_count,
+          { "count", "drsuapi.DsReplicaConnection04Ctr.count", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaConnection04Ctr_reserved,
+          { "reserved", "drsuapi.DsReplicaConnection04Ctr.reserved", FT_UINT32, BASE_DEC,
+          NULL, 0,
+         "", HFILL }},
+
+        { &hf_drsuapi_DsReplicaConnection04Ctr_array,
+          { "array", "drsuapi.DsReplicaConnection04Ctr.array", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
         { &hf_drsuapi_DsReplica06_str1,
           { "str1", "drsuapi.DsReplica06.str1", FT_STRING, BASE_DEC,
           NULL, 0,
@@ -9444,6 +9914,11 @@ proto_register_drsuapi(void)
           NULL, 0,
          "", HFILL }},
 
+        { &hf_drsuapi_DsReplicaInfo_DRSUAPI_DS_REPLICA_INFO_CONNECTIONS04_connections04,
+          { "connections04", "drsuapi.DsReplicaInfo.connections04", FT_NONE, BASE_NONE,
+          NULL, 0,
+         "", HFILL }},
+
         { &hf_drsuapi_DsReplicaInfo_DRSUAPI_DS_REPLICA_INFO_CURSURS05_coursors05,
           { "coursors05", "drsuapi.DsReplicaInfo.coursors05", FT_NONE, BASE_NONE,
           NULL, 0,
@@ -9511,6 +9986,8 @@ proto_register_drsuapi(void)
         &ett_drsuapi_DsGetNCChangesCtr7,
         &ett_drsuapi_DsGetNCChangesCtr,
         &ett_drsuapi_DsReplicaUpdateRefsOptions,
+        &ett_drsuapi_DsReplicaUpdateRefsRequest1,
+        &ett_drsuapi_DsReplicaUpdateRefsRequest,
         &ett_drsuapi_DsReplicaAddOptions,
         &ett_drsuapi_DsReplicaDeleteOptions,
         &ett_drsuapi_DsReplicaModifyOptions,
@@ -9556,6 +10033,8 @@ proto_register_drsuapi(void)
         &ett_drsuapi_DsReplicaObjMetaData2Ctr,
         &ett_drsuapi_DsReplicaAttrValMetaData2,
         &ett_drsuapi_DsReplicaAttrValMetaData2Ctr,
+        &ett_drsuapi_DsReplicaConnection04,
+        &ett_drsuapi_DsReplicaConnection04Ctr,
         &ett_drsuapi_DsReplica06,
         &ett_drsuapi_DsReplica06Ctr,
         &ett_drsuapi_DsReplicaInfo,

@@ -238,8 +238,7 @@ interface drsuapi
 
 	typedef struct {
 		drsuapi_DsReplicaCoursor coursor;
-#		NTTIME_1sec time1;
-		hyper time1;
+		NTTIME_1sec time1;
 	} drsuapi_DsReplicaCoursorEx;
 
 	typedef struct {
@@ -291,23 +290,23 @@ interface drsuapi
 		DRSUAPI_DS_REPLICA_UPDATE_0x00000010			= 0x00000010
 	} drsuapi_DsReplicaUpdateRefsOptions;
 
-#	typedef struct {
-#		uint32 unknown1;
-#		uint32 unknown2;
-#		GUID dest_dsa_guid;
-#		drsuapi_DsReplicaUpdateRefsOptions options;
-#		drsuapi_DsReplicaSyncRequest1Info sync_req_info1;
-#		ascstr dest_dsa_dns_name;
-#	} drsuapi_DsReplicaUpdateRefsRequest1;
-#
-#	typedef [switch_type(int32)] union {
-#		[case(1)] drsuapi_DsReplicaUpdateRefsRequest1 req1;
-#	} drsuapi_DsReplicaUpdateRefsRequest;
+	typedef struct {
+		uint32 unknown1;
+		uint32 unknown2;
+		GUID dest_dsa_guid;
+		drsuapi_DsReplicaUpdateRefsOptions options;
+		drsuapi_DsReplicaSyncRequest1Info sync_req_info1;
+		ascstr dest_dsa_dns_name;
+	} drsuapi_DsReplicaUpdateRefsRequest1;
+
+	typedef [switch_type(int32)] union {
+		[case(1)] drsuapi_DsReplicaUpdateRefsRequest1 req1;
+	} drsuapi_DsReplicaUpdateRefsRequest;
 
 	WERROR drsuapi_DsReplicaUpdateRefs(
-#		[in,ref] policy_handle *bind_handle,
-#		[in] int32 level,
-#		[in,switch_is(level)] drsuapi_DsReplicaUpdateRefsRequest req
+		[in,ref] policy_handle *bind_handle,
+		[in] int32 level,
+		[in,switch_is(level)] drsuapi_DsReplicaUpdateRefsRequest req
 		);
 
 	/*****************/
@@ -787,21 +786,21 @@ interface drsuapi
 		[size_is(count)] drsuapi_DsReplicaAttrValMetaData2 array[];
 	} drsuapi_DsReplicaAttrValMetaData2Ctr;
 
-#	typedef struct {
-#		hyper u1; /* session number? */
-#		uint32 u2;
-#		uint32 u3;
-#		GUID bind_guid;
-#		NTTIME_1sec bind_time;
-#		uint32 u4; /* flags? */
-#		uint32 u5;
-#	} drsuapi_DsReplicaConnection04;
-#
-#	typedef struct {
-#		[range(0,10000)] uint32 count;
-#		uint32 reserved;
-#		[size_is(count)] drsuapi_DsReplicaConnection04 array[];
-#	} drsuapi_DsReplicaConnection04Ctr;
+	typedef struct {
+		hyper u1; /* session number? */
+		uint32 u2;
+		uint32 u3;
+		GUID bind_guid;
+		NTTIME_1sec bind_time;
+		uint32 u4; /* flags? */
+		uint32 u5;
+	} drsuapi_DsReplicaConnection04;
+
+	typedef struct {
+		[range(0,10000)] uint32 count;
+		uint32 reserved;
+		[size_is(count)] drsuapi_DsReplicaConnection04 array[];
+	} drsuapi_DsReplicaConnection04Ctr;
 
 	typedef struct {
 		unistr *str1;
@@ -833,7 +832,7 @@ interface drsuapi
 		[case(DRSUAPI_DS_REPLICA_INFO_OBJ_METADATA2)] drsuapi_DsReplicaObjMetaData2Ctr *objmetadata2;
 		[case(DRSUAPI_DS_REPLICA_INFO_ATTRIBUTE_VALUE_METADATA2)] drsuapi_DsReplicaAttrValMetaData2Ctr *attrvalmetadata2;
 		[case(DRSUAPI_DS_REPLICA_INFO_NEIGHBORS02)] drsuapi_DsReplicaNeighbourCtr *neighbours02;
-#		[case(DRSUAPI_DS_REPLICA_INFO_CONNECTIONS04)] drsuapi_DsReplicaConnection04Ctr *connections04;
+		[case(DRSUAPI_DS_REPLICA_INFO_CONNECTIONS04)] drsuapi_DsReplicaConnection04Ctr *connections04;
 		[case(DRSUAPI_DS_REPLICA_INFO_CURSURS05)] drsuapi_DsReplicaCoursor05Ctr *coursors05;
 		[case(DRSUAPI_DS_REPLICA_INFO_06)] drsuapi_DsReplica06Ctr *i06;
 	} drsuapi_DsReplicaInfo;

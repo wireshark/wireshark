@@ -51,6 +51,7 @@ int drsuapi_dissect_DsReplicaCoursorEx05Ctr(tvbuff_t *tvb, int offset, packet_in
 int drsuapi_dissect_DsGetNCChangesCtr6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsGetNCChangesCtr7(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsReplicaUpdateRefsOptions(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
+int drsuapi_dissect_DsReplicaUpdateRefsRequest1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsReplicaAddOptions(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsReplicaDeleteOptions(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsReplicaModifyOptions(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
@@ -172,6 +173,8 @@ int drsuapi_dissect_DsReplicaObjMetaData2(tvbuff_t *tvb, int offset, packet_info
 int drsuapi_dissect_DsReplicaObjMetaData2Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsReplicaAttrValMetaData2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsReplicaAttrValMetaData2Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
+int drsuapi_dissect_DsReplicaConnection04(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
+int drsuapi_dissect_DsReplicaConnection04Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsReplica06(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int drsuapi_dissect_DsReplica06Ctr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 /* END OF INCLUDED FILE : ETH_HDR */

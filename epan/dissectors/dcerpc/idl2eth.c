@@ -32,6 +32,8 @@ TODO
 
    time_t	A 32 bit integer holding a unix style time_t
 
+   NTTIME_hyper A 64 bit integer representing a NTTIME
+   NTTIME_1sec
 
 
    bool8
@@ -42,7 +44,6 @@ TODO
    uuid_t
    policy_handle
    NTTIME
-   NTTIME_hyper
 */
 
 /* All field dissectors that call a normal type 
@@ -1169,6 +1170,22 @@ find_type(char *name)
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
 			tmptype=register_new_type("NTTIME_hyper", dissectorname, "FT_ABSOLUTE_TIME", "BASE_NONE", "0", "NULL", 4);
+		} else if(!strcmp(name,"NTTIME_1sec")){
+			/* 8 bytes, aligned to 8 bytes */
+			sprintf(dissectorname, "%s_dissect_%s", ifname, name);
+			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
+			FPRINTF(eth_code, "\n");
+			FPRINTF(eth_code, "static int\n");
+			FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)\n", dissectorname);
+			FPRINTF(eth_code, "{\n");
+			FPRINTF(eth_code, "    ALIGN_TO_8_BYTES;\n");
+			FPRINTF(eth_code, "    offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep, hf_index);\n");
+
+			FPRINTF(eth_code, "\n");
+			FPRINTF(eth_code, "    return offset;\n");
+			FPRINTF(eth_code, "}\n");
+			FPRINTF(eth_code, "\n");
+			tmptype=register_new_type("NTTIME_1sec", dissectorname, "FT_ABSOLUTE_TIME", "BASE_NONE", "0", "NULL", 4);
 		} else if(!strcmp(name,"udlong")){
 			/* 8 bytes, aligned to 4 bytes */
 			sprintf(dissectorname, "%s_dissect_%s", ifname, name);
