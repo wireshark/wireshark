@@ -1,6 +1,6 @@
 /* about_dlg.c
  *
- * $Id: about_dlg.c,v 1.8 2004/05/22 04:25:57 guy Exp $
+ * $Id: about_dlg.c,v 1.9 2004/05/22 04:46:13 guy Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -36,6 +36,8 @@
 #include "dlg_utils.h"
 #include "compat_macros.h"
 #include "globals.h"
+
+#include "cvsversion.h"
 
 #include "../image/eicon3d64.xpm"
 
