@@ -1,9 +1,10 @@
 /* packet-isakmp.c
  * Routines for the Internet Security Association and Key Management Protocol
- * (ISAKMP) (RFC 2408)
+ * (ISAKMP) (RFC 2408) and the Internet IP Security Domain of Interpretation
+ * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.44 2001/10/22 20:45:58 guy Exp $
+ * $Id: packet-isakmp.c,v 1.45 2001/10/25 23:40:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -224,6 +225,7 @@ static const char *certtype2str(guint8);
 
 static gboolean get_num(tvbuff_t *, int, guint16, guint32 *);
 
+#define LOAD_TYPE_NONE		0	/* payload type for None */
 #define LOAD_TYPE_PROPOSAL	2	/* payload type for Proposal */
 #define	LOAD_TYPE_TRANSFORM	3	/* payload type for Transform */
 #define NUM_LOAD_TYPES		15
@@ -255,6 +257,53 @@ static dissector_handle_t esp_handle;
 static dissector_handle_t ah_handle;
 
 static void
+dissect_payloads(tvbuff_t *tvb, proto_tree *tree, guint8 initial_payload,
+		 int offset, int length)
+{
+  guint8 payload, next_payload;
+  guint16		payload_length;
+  proto_tree *		ntree;
+
+  for (payload = initial_payload; length != 0; payload = next_payload) {
+    if (payload == LOAD_TYPE_NONE) {
+      /*
+       * What?  There's more stuff in this chunk of data, but the
+       * previous payload had a "next payload" type of None?
+       */
+      proto_tree_add_text(tree, tvb, offset, length,
+			  "Extra data: %s",
+			  tvb_bytes_to_str(tvb, offset, length));
+      break;
+    }
+    ntree = dissect_payload_header(tvb, offset, length, payload,
+      &next_payload, &payload_length, tree);
+    if (ntree == NULL)
+      break;
+    if (payload_length >= 4) {	/* XXX = > 4? */
+      if (payload < NUM_LOAD_TYPES) {
+        if (next_payload == LOAD_TYPE_TRANSFORM)
+          dissect_transform(tvb, offset + 4, payload_length - 4, ntree, 0);
+            /* XXX - protocol ID? */
+        else
+          (*strfuncs[payload].func)(tvb, offset + 4, payload_length - 4, ntree);
+      }
+      else {
+        proto_tree_add_text(ntree, tvb, offset + 4, payload_length - 4,
+            "Payload");
+      }
+    }
+    else {
+        proto_tree_add_text(ntree, tvb, offset + 4, 0,
+            "Payload (bogus, length is %u, must be at least 4)",
+            payload_length);
+        payload_length = 4;
+    }
+    offset += payload_length;
+    length -= payload_length;
+  }
+}
+
+static void
 dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int			offset = 0;
@@ -263,9 +312,6 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *		isakmp_tree = NULL;
   struct udp_encap_hdr * encap_hdr;
   guint32		len;
-  guint8		payload, next_payload;
-  guint16		payload_length;
-  proto_tree *		ntree;
   static const guint8	non_ike_marker[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
   tvbuff_t *		next_tvb;
 
@@ -398,35 +444,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			"Encrypted payload (%d byte%s)",
 			len, plurality(len, "", "s"));
       }
-    } else {
-      for (payload = hdr->next_payload; len != 0; payload = next_payload) {
-        ntree = dissect_payload_header(tvb, offset, len, payload,
-            &next_payload, &payload_length, isakmp_tree);
-        if (ntree == NULL)
-          break;
-        if (payload_length >= 4) {	/* XXX = > 4? */
-          if (payload < NUM_LOAD_TYPES) {
-            if (next_payload == LOAD_TYPE_TRANSFORM)
-              dissect_transform(tvb, offset + 4, payload_length - 4, ntree, 0);
-            	/* XXX - protocol ID? */
-            else
-              (*strfuncs[payload].func)(tvb, offset + 4, payload_length - 4, ntree);
-          }
-          else {
-            proto_tree_add_text(ntree, tvb, offset + 4, payload_length - 4,
-                "Payload");
-          }
-        }
-        else {
-            proto_tree_add_text(ntree, tvb, offset + 4, 0,
-                "Payload (bogus, length is %u, must be at least 4)",
-                payload_length);
-            payload_length = 4;
-        }
-        offset += payload_length;
-        len -= payload_length;
-      }
-    }
+    } else
+      dissect_payloads(tvb, isakmp_tree, hdr->next_payload, offset, len);
   }
 }
 
@@ -471,10 +490,13 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 {
   guint32		doi;
   guint32		situation;
-  guint8		next_payload;
-  guint16		payload_length;
-  proto_tree *		ntree;
 
+  if (length < 4) {
+    proto_tree_add_text(tree, tvb, offset, length,
+			"DOI %s (length is %u, should be >= 4)",
+			tvb_bytes_to_str(tvb, offset, length), length);
+    return;
+  }
   doi = tvb_get_ntohl(tvb, offset);
   proto_tree_add_text(tree, tvb, offset, 4,
 		      "Domain of interpretation: %s (%u)",
@@ -482,17 +504,28 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
   offset += 4;
   length -= 4;
   
-  situation = tvb_get_ntohl(tvb, offset);
-  proto_tree_add_text(tree, tvb, offset, 4,
-		      "Situation: %s (%u)",
-		      situation2str(situation), situation);
-  offset += 4;
-  length -= 4;
+  if (doi == 1) {
+    /* IPSEC */
+    if (length < 4) {
+      proto_tree_add_text(tree, tvb, offset, length,
+			  "Situation: %s (length is %u, should be >= 4)",
+			  tvb_bytes_to_str(tvb, offset, length), length);
+      return;
+    }
+    situation = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_text(tree, tvb, offset, 4,
+			"Situation: %s (%u)",
+			situation2str(situation), situation);
+    offset += 4;
+    length -= 4;
   
-  ntree = dissect_payload_header(tvb, offset, length, LOAD_TYPE_PROPOSAL,
-    &next_payload, &payload_length, tree);
-  if (ntree != NULL)
-    dissect_proposal(tvb, offset + 4, payload_length - 4, ntree);
+    dissect_payloads(tvb, tree, LOAD_TYPE_PROPOSAL, offset, length);
+  } else {
+    /* Unknown */
+    proto_tree_add_text(tree, tvb, offset, length,
+			"Situation: %s",
+			tvb_bytes_to_str(tvb, offset, length));
+  }
 }
 
 static void
@@ -530,7 +563,8 @@ dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
   length -= 1;
 
   if (spi_size) {
-    proto_tree_add_text(tree, tvb, offset, spi_size, "SPI");
+    proto_tree_add_text(tree, tvb, offset, spi_size, "SPI: %s",
+			tvb_bytes_to_str(tvb, offset, spi_size));
     offset += spi_size;
     length -= spi_size;
   }
