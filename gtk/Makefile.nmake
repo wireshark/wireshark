@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.55 2003/10/15 19:40:40 guy Exp $
+# $Id: Makefile.nmake,v 1.56 2003/10/28 00:31:17 guy Exp $
 
 include ..\config.nmake
 
@@ -31,6 +31,7 @@ ETHEREAL_TAP_SRC = \
 	endpoint_talkers_tr.c	\
 	endpoint_talkers_udpip.c	\
 	fc_stat.c	\
+	h225_counter.c	\
 	http_stat.c	\
 	io_stat.c	\
 	mgcp_stat.c	\

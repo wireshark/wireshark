@@ -2,7 +2,7 @@
  * Routines for H.225 packet dissection
  * 2003  Tomas Kukosa
  *
- * $Id: packet-h225.h,v 1.3 2003/09/26 22:20:07 guy Exp $
+ * $Id: packet-h225.h,v 1.4 2003/10/28 00:31:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,11 +24,24 @@
  */
 
 #ifndef __H225_H__
-#define __H225_H__ 
+#define __H225_H__
 
 extern int dissect_h225_NonStandardParameter(tvbuff_t*, int, packet_info*, proto_tree*, int);
 
 extern int dissect_h225_AliasAddress(tvbuff_t*, int, packet_info*, proto_tree*);
 
+typedef enum _h225_msg_type {
+	H225_RAS,
+	H225_CS,
+	H225_OTHERS
+} h225_msg_type;
+
+typedef struct _h225_packet_info {
+	h225_msg_type msg_type;		/* ras or cs message */
+	gint msg_tag;			/* message tag*/
+	gint reason;			/* reason tag, if available */
+	guint requestSeqNum;		/* request sequence number of ras-message, if available */
+	guint8 guid[16];		/* globally unique call id */
+} h225_packet_info;
 
 #endif  /* __H225_H__ */

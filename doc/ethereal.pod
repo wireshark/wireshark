@@ -405,6 +405,22 @@ of frames.
 These tables can also be generated at runtime by selecting the appropriate
 conversation type from the menu "Tools/Statistics/Conversation List/".
 
+B<-z> h225,counter[I<,filter>]
+
+Count ITU-T H.225 messages and their reasons. In the first column you get a 
+list of H.225 messages and H.225 message reasons, which occur in the current
+capture file. The number of occurences of each message or reason is displayed 
+in the second column.
+
+Example: use B<-z h225,counter>.
+
+This option can be used multiple times on the command line. 
+
+If the optional filterstring is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z "h225,counter,ip.addr==1.2.3.4"> to only collect stats for
+H.225 packets exchanged by the host at IP address 1.2.3.4 .
+
 =back
 
 =head1 INTERFACE
@@ -1022,6 +1038,19 @@ doing live captures or when reading new capture files into B<Ethereal>.
 
 You can apply an optional filter string in a dialog box, before starting
 the calculation. The statistics will only be calculated 
+on those calls matching that filter.
+
+=item Tools:Statistics:Watch protocol:ITU-T H.225
+
+Count ITU-T H.225 messages and their reasons. In the first column you get a 
+list of H.225 messages and H.225 message reasons, which occur in the current
+capture file. The number of occurences of each message or reason will be displayed 
+in the second column.
+This window opened will update in semi-real time to reflect changes when
+doing live captures or when reading new capture files into B<Ethereal>.
+
+You can apply an optional filter string in a dialog box, before starting
+the counter. The statistics will only be calculated 
 on those calls matching that filter.
 
 =back

@@ -1680,6 +1680,7 @@ Laurent Meyer <laurent.meyer6 [AT] wanadoo.fr> {
 Lars Roland <Lars.Roland [AT] gmx.net> {
 	MGCP request/response matching and MGCP statistics tap
 	Common routines for use by statistics taps
+	H.225 message and reason tag counter taps
 }
 
 Miha Jemec <m.jemec [AT] iskratel.si> {

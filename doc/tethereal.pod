@@ -584,6 +584,22 @@ on those calls that match that filter.
 Example: use B<-z "mgcp,rtd,ip.addr==1.2.3.4"> to only collect stats for
 MGCP packets exchanged by the host at IP address 1.2.3.4 .
 
+B<-z> h225,counter[I<,filter>]
+
+Count ITU-T H.225 messages and their reasons. In the first column you get a 
+list of H.225 messages and H.225 message reasons, which occur in the current
+capture file. The number of occurences of each message or reason is displayed 
+in the second column.
+
+Example: use B<-z h225,counter>.
+
+This option can be used multiple times on the command line. 
+
+If the optional filterstring is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z "h225,counter,ip.addr==1.2.3.4"> to only collect stats for
+H.225 packets exchanged by the host at IP address 1.2.3.4 .
+
 =back
 
 =head1 CAPTURE FILTER SYNTAX

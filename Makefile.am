@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.644 2003/10/27 23:31:53 guy Exp $
+# $Id: Makefile.am,v 1.645 2003/10/28 00:31:15 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -901,6 +901,7 @@ ethereal_LDADD = \
 TETHEREAL_TAP_SRC = \
 	tap-bootpstat.c		\
 	tap-dcerpcstat.c	\
+	tap-h225counter.c	\
 	tap-httpstat.c		\
 	tap-iostat.c		\
 	tap-iousers.c		\
