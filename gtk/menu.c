@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.13 2000/01/03 03:57:04 guy Exp $
+ * $Id: menu.c,v 1.14 2000/01/03 04:06:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,8 +51,11 @@
 #include "follow.h"
 #include "colors.h"
 
+#define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
 
-GtkAccelGroup *grp;
+static void menus_init(void);
+static void set_menu_sensitivity (gchar *, gint);
+
 /* This is the GtkItemFactoryEntry structure used to generate new menus.
        Item 1: The menu path. The letter after the underscore indicates an
                accelerator key once the menu is open.
@@ -127,6 +130,8 @@ static int nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
 static int initialize = TRUE;
 static GtkItemFactory *factory = NULL;
 
+static GtkAccelGroup *grp;
+
 void
 get_main_menu(GtkWidget ** menubar, GtkAccelGroup ** table) {
 
@@ -142,7 +147,7 @@ get_main_menu(GtkWidget ** menubar, GtkAccelGroup ** table) {
     *table = grp;
 }
 
-void
+static void
 menus_init(void) {
 
   if (initialize) {
@@ -161,7 +166,7 @@ menus_init(void) {
   }
 }
 
-void
+static void
 set_menu_sensitivity (gchar *path, gint val) {
   GtkWidget *menu;
 
