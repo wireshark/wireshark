@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.263 2002/05/26 01:42:48 guy Exp $
+ * $Id: packet-smb.c,v 1.264 2002/05/26 09:47:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -9404,8 +9404,6 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
 			fn);
 		}
-
-		/* XXX dont know how to decode FEAList */
 		break;
 	case 0x01:	/*TRANS2_FIND_FIRST2*/
 		/* Search Attributes */
@@ -9447,8 +9445,6 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Pattern: %s",
 			fn);
 		}
-
-		/* XXX dont know how to decode FEAList */
 
 		break;
 	case 0x02:	/*TRANS2_FIND_NEXT2*/
@@ -9600,19 +9596,48 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		 * July 19, 1990" says this is I/O flags, but it's
 		 * reserved in the SNIA spec, and some clients appear
 		 * to leave junk in it.
+		 *
+		 * Is this some field used only if a particular
+		 * dialect was negotiated, so that clients can feel
+		 * safe not setting it if they haven't negotiated that
+		 * dialect?  Or do the (non-OS/2) clients simply not care
+		 * about that particular OS/2-oriented dialect?
 		 */
 
 		/* IO Flag */
 		CHECK_BYTE_COUNT_TRANS(2);
 		offset = dissect_sfi_ioflag(tvb, tree, offset);
 		bc -= 2;
+#else
+		/* 2 reserved bytes */
+		CHECK_BYTE_COUNT_TRANS(2);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+		COUNT_BYTES_TRANS(2);
 #endif
 
 		break;
 	}
 	case 0x09:	/*TRANS2_FSCTL*/
+		/* this call has no parameter block in the request */
+
+		/*
+		 * XXX - "Microsoft Networks SMB File Sharing Protocol
+		 * Extensions Version 3.0, Document Version 1.11,
+		 * July 19, 1990" says this this contains a
+		 * "File system specific parameter block".  (That means
+		 * we may not be able to dissect it in any case.)
+		 */
+		break;
 	case 0x0a:	/*TRANS2_IOCTL2*/
-		/* these calls have no parameter block in the request */
+		/* this call has no parameter block in the request */
+
+		/*
+		 * XXX - "Microsoft Networks SMB File Sharing Protocol
+		 * Extensions Version 3.0, Document Version 1.11,
+		 * July 19, 1990" says this this contains a
+		 * "Device/function specific parameter block".  (That
+		 * means we may not be able to dissect it in any case.)
+		 */
 		break;
 	case 0x0b: {	/*TRANS2_FIND_NOTIFY_FIRST*/
 		/* Search Attributes */
@@ -10650,13 +10675,13 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 
 	switch(subcmd){
 	case 0x00:	/*TRANS2_OPEN2*/
-		/* XXX FAEList here?*/
+		/* XXX dont know how to decode FEAList */
 		break;
 	case 0x01:	/*TRANS2_FIND_FIRST2*/
-		/* XXX FAEList here?*/
+		/* XXX dont know how to decode FEAList */
 		break;
 	case 0x02:	/*TRANS2_FIND_NEXT2*/
-		/* no data field in this request */
+		/* XXX dont know how to decode FEAList */
 		break;
 	case 0x03:	/*TRANS2_QUERY_FS_INFORMATION*/
 		/* no data field in this request */
@@ -10666,27 +10691,77 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		break;
 	case 0x05:	/*TRANS2_QUERY_PATH_INFORMATION*/
 		/* no data field in this request */
+		/*
+		 * XXX - "Microsoft Networks SMB File Sharing Protocol
+		 * Extensions Version 3.0, Document Version 1.11,
+		 * July 19, 1990" says there may be "Additional
+		 * FileInfoLevel dependent information" here.
+		 *
+		 * Was that just a cut-and-pasteo?
+		 * TRANS2_SET_PATH_INFORMATION *does* have that information
+		 * here.
+		 */
 		break;
 	case 0x06:	/*TRANS2_SET_PATH_INFORMATION*/
 		offset = dissect_qpi_loi_vals(tvb, pinfo, tree, offset, &dc);
 		break;
 	case 0x07:	/*TRANS2_QUERY_FILE_INFORMATION*/
 		/* no data field in this request */
+		/*
+		 * XXX - "Microsoft Networks SMB File Sharing Protocol
+		 * Extensions Version 3.0, Document Version 1.11,
+		 * July 19, 1990" says there may be "Additional
+		 * FileInfoLevel dependent information" here.
+		 *
+		 * Was that just a cut-and-pasteo?
+		 * TRANS2_SET_FILE_INFORMATION *does* have that information
+		 * here.
+		 */
 		break;
 	case 0x08:	/*TRANS2_SET_FILE_INFORMATION*/
 		offset = dissect_qpi_loi_vals(tvb, pinfo, tree, offset, &dc);
 		break;
 	case 0x09:	/*TRANS2_FSCTL*/
 		/*XXX dont know how to decode this yet */
+
+		/*
+		 * XXX - "Microsoft Networks SMB File Sharing Protocol
+		 * Extensions Version 3.0, Document Version 1.11,
+		 * July 19, 1990" says this this contains a
+		 * "File system specific data block".  (That means we
+		 * may not be able to dissect it in any case.)
+		 */
 		break;
 	case 0x0a:	/*TRANS2_IOCTL2*/
 		/*XXX dont know how to decode this yet */
+
+		/*
+		 * XXX - "Microsoft Networks SMB File Sharing Protocol
+		 * Extensions Version 3.0, Document Version 1.11,
+		 * July 19, 1990" says this this contains a
+		 * "Device/function specific data block".  (That
+		 * means we may not be able to dissect it in any case.)
+		 */
 		break;
 	case 0x0b:	/*TRANS2_FIND_NOTIFY_FIRST*/
 		/*XXX dont know how to decode this yet */
+
+		/*
+		 * XXX - "Microsoft Networks SMB File Sharing Protocol
+		 * Extensions Version 3.0, Document Version 1.11,
+		 * July 19, 1990" says this this contains "additional
+		 * level dependent match data".
+		 */
 		break;
 	case 0x0c:	/*TRANS2_FIND_NOTIFY_NEXT*/
 		/*XXX dont know how to decode this yet */
+
+		/*
+		 * XXX - "Microsoft Networks SMB File Sharing Protocol
+		 * Extensions Version 3.0, Document Version 1.11,
+		 * July 19, 1990" says this this contains "additional
+		 * level dependent monitor information".
+		 */
 		break;
 	case 0x0d:	/*TRANS2_CREATE_DIRECTORY*/
 		/* XXX optional FEAList, unknown what FEAList looks like*/
@@ -12257,15 +12332,49 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		break;
 	case 0x09:	/*TRANS2_FSCTL*/
 		/* XXX dont know how to dissect this one (yet)*/
+
+		/*
+		 * XXX - "Microsoft Networks SMB File Sharing Protocol
+		 * Extensions Version 3.0, Document Version 1.11,
+		 * July 19, 1990" says this this contains a
+		 * "File system specific return data block".
+		 * (That means we may not be able to dissect it in any
+		 * case.)
+		 */
 		break;
 	case 0x0a:	/*TRANS2_IOCTL2*/
 		/* XXX dont know how to dissect this one (yet)*/
+
+		/*
+		 * XXX - "Microsoft Networks SMB File Sharing Protocol
+		 * Extensions Version 3.0, Document Version 1.11,
+		 * July 19, 1990" says this this contains a
+		 * "Device/function specific return data block".
+		 * (That means we may not be able to dissect it in any
+		 * case.)
+		 */
 		break;
 	case 0x0b:	/*TRANS2_FIND_NOTIFY_FIRST*/
 		/* XXX dont know how to dissect this one (yet)*/
+
+		/*
+		 * XXX - "Microsoft Networks SMB File Sharing Protocol
+		 * Extensions Version 3.0, Document Version 1.11,
+		 * July 19, 1990" says this this contains "the level
+		 * dependent information about the changes which
+		 * occurred".
+		 */
 		break;
 	case 0x0c:	/*TRANS2_FIND_NOTIFY_NEXT*/
 		/* XXX dont know how to dissect this one (yet)*/
+
+		/*
+		 * XXX - "Microsoft Networks SMB File Sharing Protocol
+		 * Extensions Version 3.0, Document Version 1.11,
+		 * July 19, 1990" says this this contains "the level
+		 * dependent information about the changes which
+		 * occurred".
+		 */
 		break;
 	case 0x0d:	/*TRANS2_CREATE_DIRECTORY*/
 		/* no data in this response */
@@ -12343,6 +12452,20 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		add_fid(tvb, pinfo, tree, offset, 2, fid);
 		offset += 2;
 
+		/*
+		 * XXX - Microsoft Networks SMB File Sharing Protocol
+		 * Extensions Version 3.0, Document Version 1.11,
+		 * July 19, 1990 says that the file attributes, create
+		 * time (which it says is the last modification time),
+		 * data size, granted access, file type, and IPC state
+		 * are returned only if bit 0 is set in the open flags,
+		 * and that the EA length is returned only if bit 3
+		 * is set in the open flags.  Does that mean that,
+		 * at least in that SMB dialect, those fields are not
+		 * present in the reply parameters if the bits in
+		 * question aren't set?
+		 */
+
 		/* File Attributes */
 		offset = dissect_file_attributes(tvb, tree, offset);
 
@@ -12418,7 +12541,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		proto_tree_add_item(tree, hf_smb_end_of_search, tvb, offset, 2, TRUE);
 		offset += 2;
 
-		/* ea error offset , only a 16 bit integer here*/
+		/* ea_error_offset, only a 16 bit integer here*/
 		proto_tree_add_uint(tree, hf_smb_ea_error_offset, tvb, offset, 2, tvb_get_letohs(tvb, offset));
 		offset += 2;
 
@@ -12432,34 +12555,52 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		/* no parameter block here */
 		break;
 	case 0x05:	/*TRANS2_QUERY_PATH_INFORMATION*/
-		/* ea error offset , only a 16 bit integer here*/
+		/* ea_error_offset, only a 16 bit integer here*/
 		proto_tree_add_uint(tree, hf_smb_ea_error_offset, tvb, offset, 2, tvb_get_letohs(tvb, offset));
 		offset += 2;
 
 		break;
 	case 0x06:	/*TRANS2_SET_PATH_INFORMATION*/
-		/* ea error offset , only a 16 bit integer here*/
+		/* ea_error_offset, only a 16 bit integer here*/
 		proto_tree_add_uint(tree, hf_smb_ea_error_offset, tvb, offset, 2, tvb_get_letohs(tvb, offset));
 		offset += 2;
 
 		break;
 	case 0x07:	/*TRANS2_QUERY_FILE_INFORMATION*/
-		/* ea error offset , only a 16 bit integer here*/
+		/* ea_error_offset, only a 16 bit integer here*/
 		proto_tree_add_uint(tree, hf_smb_ea_error_offset, tvb, offset, 2, tvb_get_letohs(tvb, offset));
 		offset += 2;
 
 		break;
 	case 0x08:	/*TRANS2_SET_FILE_INFORMATION*/
-		/* ea error offset , only a 16 bit integer here*/
+		/* ea_error_offset, only a 16 bit integer here*/
 		proto_tree_add_uint(tree, hf_smb_ea_error_offset, tvb, offset, 2, tvb_get_letohs(tvb, offset));
 		offset += 2;
 
 		break;
 	case 0x09:	/*TRANS2_FSCTL*/
 		/* XXX dont know how to dissect this one (yet)*/
+
+		/*
+		 * XXX - "Microsoft Networks SMB File Sharing Protocol
+		 * Extensions Version 3.0, Document Version 1.11,
+		 * July 19, 1990" says this this contains a
+		 * "File system specific return parameter block".
+		 * (That means we may not be able to dissect it in any
+		 * case.)
+		 */
 		break;
 	case 0x0a:	/*TRANS2_IOCTL2*/
 		/* XXX dont know how to dissect this one (yet)*/
+
+		/*
+		 * XXX - "Microsoft Networks SMB File Sharing Protocol
+		 * Extensions Version 3.0, Document Version 1.11,
+		 * July 19, 1990" says this this contains a
+		 * "Device/function specific return parameter block".
+		 * (That means we may not be able to dissect it in any
+		 * case.)
+		 */
 		break;
 	case 0x0b:	/*TRANS2_FIND_NOTIFY_FIRST*/
 		/* Find Notify information level */
@@ -12474,7 +12615,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		proto_tree_add_uint(tree, hf_smb_change_count, tvb, offset, 2, si->info_count);
 		offset += 2;
 
-		/* ea error offset , only a 16 bit integer here*/
+		/* ea_error_offset, only a 16 bit integer here*/
 		proto_tree_add_uint(tree, hf_smb_ea_error_offset, tvb, offset, 2, tvb_get_letohs(tvb, offset));
 		offset += 2;
 
@@ -12488,7 +12629,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		proto_tree_add_uint(tree, hf_smb_change_count, tvb, offset, 2, si->info_count);
 		offset += 2;
 
-		/* ea error offset , only a 16 bit integer here*/
+		/* ea_error_offset, only a 16 bit integer here*/
 		proto_tree_add_uint(tree, hf_smb_ea_error_offset, tvb, offset, 2, tvb_get_letohs(tvb, offset));
 		offset += 2;
 
