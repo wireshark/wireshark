@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.10 2001/12/02 00:16:01 guy Exp $
+ * $Id: color_dlg.c,v 1.11 2001/12/03 02:37:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,7 +126,6 @@ colorize_dialog_new (colfilter *filter)
   GtkWidget *color_filter_down;
   GtkWidget *scrolledwindow1;
   GtkWidget *color_filters;
-  GtkWidget *hbox2;
   GtkWidget *color_new;
   GtkWidget *color_edit;
   GtkWidget *color_delete;
@@ -211,7 +210,7 @@ colorize_dialog_new (colfilter *filter)
   gtk_clist_column_titles_show (GTK_CLIST (color_filters));
   /* end list of filters */
 
-  /* hbox2 is  first button row convert to vbox4 */
+  /* vbox4 is first button column */
   vbox4 = gtk_vbox_new (FALSE, 0);
   gtk_widget_ref (vbox4);
   gtk_object_set_data_full (GTK_OBJECT (color_win), "vbox4", vbox4,
