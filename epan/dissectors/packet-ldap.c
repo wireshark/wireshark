@@ -920,6 +920,16 @@ static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length,
       if (ret != ASN1_ERR_NOERROR)
         return ret;
       break;
+     case LDAP_FILTER_EXTENSIBLE:
+      if (con != ASN1_CON)
+        return ASN1_ERR_WRONG_TYPE;
+      /* XXX - put a real decoder in here */
+      ret = asn1_null_decode(a, length);
+      if (ret != ASN1_ERR_NOERROR)
+        return ret;
+      *filter = g_strdup("(extensibleMatch not decoded)");
+      *filter_length = strlen(*filter);
+      break;
      default:
       return ASN1_ERR_WRONG_TYPE;
     }
@@ -2227,6 +2237,11 @@ dissect_ldap_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
       tap_queue_packet(ldap_tap, pinfo, lcrp);
     }
 
+    /*
+     * XXX - we should check for errors from these routines (and they
+     * should return errors), and not try to dissect the LDAP controls
+     * if they get an error.
+     */
     switch (protocolOpTag)
     {
      case LDAP_REQ_BIND:
