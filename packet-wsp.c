@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.18 2001/02/13 00:17:54 guy Exp $
+ * $Id: packet-wsp.c,v 1.19 2001/02/19 21:02:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -818,7 +818,6 @@ add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
 	guint valueLen = tvb_reported_length (value_buff);
 	guint peek = 0;
 	struct timeval timeValue;
-	guint count = 0;
 	guint value = 0;
 	guint valueLength = 0;
 	char valString[100];
@@ -883,8 +882,26 @@ add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
 						{
 							offset++;
 	
-							/* TODO: Need to read peek octets */
-							value = 0x00;
+							switch (peek)
+							{
+								case 1:
+									value = tvb_get_guint8 (value_buff, offset);
+									break;
+								case 2:
+									value = tvb_get_ntohs (value_buff, offset);
+									break;
+								case 3:
+									value = tvb_get_ntoh24 (value_buff, offset);
+									break;
+								case 4:
+									value = tvb_get_ntohl (value_buff, offset);
+									break;
+								default:
+									/* TODO: Need to read peek octets */
+									value = 0;
+									fprintf (stderr, "dissect_wsp: accept-charset size %d NYI\n", peek);
+									break;
+							}
 							offset += peek;
 						}
 						valMatch = match_strval(value, vals_character_sets);
@@ -897,22 +914,14 @@ add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
 					/* Any remaining data relates to Q-Value */
 					if (offset < valueLen)
 					{
-						count = 0;
-						q_value = tvb_get_guintvar (value_buff, offset, &count);
-						if (count == 1)			/* Two decimal quality factors */
-						{
-							q_value -= 1;
-							q_value /= 100;
+						peek = tvb_get_guintvar (value_buff, offset, NULL);
+						if (peek <= 100) {
+							peek = (peek - 1) * 10;
 						}
-						else if (count == 2) /* Three decimal quality factors */
-						{
-							q_value -= 100;
-							q_value /= 1000;
+						else {
+							peek -= 100;
 						}
-						else
-						{
-							fprintf (stderr, "dissect_wsp: Accept-Charset invalid Q-value %f\n", q_value);
-						}
+						q_value = peek/1000.0;
 					}
 
 					/* Build string including Q values if present */
@@ -920,7 +929,7 @@ add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
 					{
 						if (valMatch == NULL)
 						{
-							snprintf (valString, 100, "Unknown (%02X)", peek);
+							snprintf (valString, 100, "Unknown (%X)", peek);
 						}
 						else
 						{
@@ -929,15 +938,13 @@ add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
 					}
 					else
 					{
-						snprintf (valString, 100, "Unknown %d; Q=%5.3f", value,
-							q_value/1000.0);
 						if (valMatch == NULL)
 						{
-							snprintf (valString, 100, "Unknown (%02X)", peek);
+							snprintf (valString, 100, "Unknown (%X); Q=%5.3f", peek,q_value);
 						}
 						else
 						{
-							snprintf (valString, 100, "%s", valMatch);
+							snprintf (valString, 100, "%s; Q=%5.3f", valMatch,q_value);
 						}
 					}
 
@@ -1192,20 +1199,34 @@ add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
 		 * by a 4-byte date value */
 		if (strncasecmp ("x-wap.tod", tvb_get_ptr (header_buff, 0, headerLen), 9) == 0)
 		{
-			if (tvb_reported_length (value_buff) == 4)	/* Probably a date value */
+			peek = tvb_get_guint8 (value_buff,offset);
+			if (peek < 31) 
 			{
-				timeValue.tv_sec = tvb_get_ntohl (value_buff, 0);
+				timeValue.tv_usec = 0;
+				switch (peek)
+				{
+					case 1:
+						timeValue.tv_sec = tvb_get_guint8 (value_buff, 1);
+						break;
+					case 2:
+						timeValue.tv_sec = tvb_get_ntohs (value_buff, 1);
+						break;
+					case 3:
+						timeValue.tv_sec = tvb_get_ntoh24 (value_buff, 1);
+						break;
+					case 4:
+						timeValue.tv_sec = tvb_get_ntohl (value_buff, 1);
+						break;
+					default:
+						timeValue.tv_sec = 0;
+						fprintf (stderr, "dissect_wsp: X-WAP.TOD NYI\n");
+						break;
+				}
 				ti = proto_tree_add_time (tree, hf_wsp_header_x_wap_tod, header_buff, offset, headerLen, &timeValue);
 			}
-			else if (tvb_reported_length (value_buff) == 5) /* Probably a date */
-			{
-				add_date_value (value_buff, 0, tree,
-					hf_wsp_header_x_wap_tod, header_buff, offset,
-					headerLen, &timeValue, "X-Wap.Tod");
-			}
 			else
-			{
-				ti = proto_tree_add_text (tree, header_buff, 0, headerLen, "%s: %s", tvb_get_ptr (header_buff, 0, headerLen), tvb_get_ptr (value_buff, 0, valueLen));
+		       	{
+				fprintf (stderr, "dissect_wsp: X-WAP.TOD peek %X NYI\n",peek);
 			}
 		}
 		else

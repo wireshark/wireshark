@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTLS component of WAP traffic.
  * 
- * $Id: packet-wtls.c,v 1.2 2001/02/15 19:46:41 guy Exp $
+ * $Id: packet-wtls.c,v 1.3 2001/02/19 21:02:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -497,15 +497,16 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 			wtls_msg_type_item_sub_tree = proto_item_add_subtree(ti, ett_wtls_msg_type_item_sub);
 			offset+=2;
 			for (;count > 0;count-=client_size) {
-				cli_key_item = proto_tree_add_item(wtls_msg_type_item_sub_tree, 
+				value = tvb_get_guint8 (tvb, offset);
+				cli_key_item = proto_tree_add_uint(wtls_msg_type_item_sub_tree, 
 						hf_wtls_hands_cli_hello_key_exchange, tvb, offset,1,
-						bo_little_endian);
+						value);
 				client_size=1;
 				wtls_msg_type_item_sub_sub_tree = proto_item_add_subtree(cli_key_item, 
 								  ett_wtls_msg_type_item_sub_sub);
-				ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
+				ti = proto_tree_add_uint(wtls_msg_type_item_sub_sub_tree,
 						hf_wtls_hands_cli_hello_key_exchange_suite,
-						tvb,offset,1,bo_big_endian);
+						tvb,offset,1,value);
 				offset++;
 				value = tvb_get_guint8 (tvb, offset);
 				ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
@@ -536,15 +537,16 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 			wtls_msg_type_item_sub_tree = proto_item_add_subtree(ti, ett_wtls_msg_type_item_sub);
 			offset+=2;
 			for (;count > 0;count-=client_size) {
-				cli_key_item = proto_tree_add_item(wtls_msg_type_item_sub_tree, 
+				value = tvb_get_guint8 (tvb, offset);
+				cli_key_item = proto_tree_add_uint(wtls_msg_type_item_sub_tree, 
 						hf_wtls_hands_cli_hello_key_exchange, tvb, offset,1,
-						bo_little_endian);
+						value);
 				client_size=1;
 				wtls_msg_type_item_sub_sub_tree = proto_item_add_subtree(cli_key_item, 
 								  ett_wtls_msg_type_item_sub_sub);
-				ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
+				ti = proto_tree_add_uint(wtls_msg_type_item_sub_sub_tree,
 						hf_wtls_hands_cli_hello_key_exchange_suite,
-						tvb,offset,1,bo_big_endian);
+						tvb,offset,1,value);
 				offset++;
 				value = tvb_get_guint8 (tvb, offset);
 				ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
@@ -974,7 +976,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_cli_hello_key_exchange,
 			{ 	"Key Exchange",           
 				"wsp.wtls.handshake.client_hello.key.key_exchange",
-				 FT_NONE, BASE_NONE, NULL, 0x00,
+				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_key_exchange_suite ), 0x00,
 				"Key Exchange" 
 			}
 		},

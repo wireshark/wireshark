@@ -57,13 +57,13 @@ tvb_get_guintvar (tvbuff_t *tvb, guint offset, guint *octetCount)
 #ifdef DEBUG
 		fprintf (stderr, "dissect_wsp: Starting tvb_get_guintvar at offset %d, count=NULL\n", offset);
 #endif
+		/* counter = *octetCount; */
 	}
 	else
 	{
 #ifdef DEBUG
 		fprintf (stderr, "dissect_wsp: Starting tvb_get_guintvar at offset %d, count=%d\n", offset, *octetCount);
 #endif
-		counter = *octetCount;
 	}
 
 	while (cont != 0)
