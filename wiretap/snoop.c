@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.28 2000/05/19 23:07:02 gram Exp $
+ * $Id: snoop.c,v 1.29 2000/07/26 00:20:06 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -60,7 +60,7 @@ static int snoop_seek_read(wtap *wth, int seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int length);
 static int snoop_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
-static int snoop_read_rec_data(FILE_T fh, char *pd, int length, int *err);
+static int snoop_read_rec_data(FILE_T fh, u_char *pd, int length, int *err);
 static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
 
@@ -384,7 +384,7 @@ snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 }
 
 static int
-snoop_read_rec_data(FILE_T fh, char *pd, int length, int *err)
+snoop_read_rec_data(FILE_T fh, u_char *pd, int length, int *err)
 {
 	int	bytes_read;
 

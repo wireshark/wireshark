@@ -1,6 +1,6 @@
 /* buffer.h
  *
- * $Id: buffer.h,v 1.4 2000/01/22 06:22:36 guy Exp $
+ * $Id: buffer.h,v 1.5 2000/07/26 00:20:09 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -25,7 +25,7 @@
 
 typedef struct Buffer {
 
-	char			*data;
+	u_char		*data;
 	unsigned int	allocated;
 	unsigned int	start;
 	unsigned int	first_free;
@@ -35,7 +35,7 @@ typedef struct Buffer {
 void buffer_init(Buffer* buffer, unsigned int space);
 void buffer_free(Buffer* buffer);
 void buffer_assure_space(Buffer* buffer, unsigned int space);
-void buffer_append(Buffer* buffer, char *from, unsigned int bytes);
+void buffer_append(Buffer* buffer, u_char *from, unsigned int bytes);
 void buffer_remove_start(Buffer* buffer, unsigned int bytes);
 
 #ifdef SOME_FUNCTIONS_ARE_DEFINES
@@ -46,6 +46,6 @@ void buffer_remove_start(Buffer* buffer, unsigned int bytes);
 #else
  void buffer_increase_length(Buffer* buffer, unsigned int bytes);
  unsigned int buffer_length(Buffer* buffer);
- char* buffer_start_ptr(Buffer* buffer);
- char* buffer_end_ptr(Buffer* buffer);
+ u_char* buffer_start_ptr(Buffer* buffer);
+ u_char* buffer_end_ptr(Buffer* buffer);
 #endif

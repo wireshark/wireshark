@@ -1,6 +1,6 @@
 /* i4btrace.c
  *
- * $Id: i4btrace.c,v 1.7 2000/05/19 23:06:50 gram Exp $
+ * $Id: i4btrace.c,v 1.8 2000/07/26 00:20:08 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>
@@ -37,7 +37,7 @@ static int i4btrace_seek_read(wtap *wth, int seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int length);
 static int i4b_read_rec_header(FILE_T fh, i4b_trace_hdr_t *hdr, int *err);
 static void i4b_byte_swap_header(wtap *wth, i4b_trace_hdr_t *hdr);
-static int i4b_read_rec_data(FILE_T fh, char *pd, int length, int *err);
+static int i4b_read_rec_data(FILE_T fh, u_char *pd, int length, int *err);
 
 /*
  * Test some fields in the header to see if they make sense.
@@ -262,7 +262,7 @@ i4b_byte_swap_header(wtap *wth, i4b_trace_hdr_t *hdr)
 }
 
 static int
-i4b_read_rec_data(FILE_T fh, char *pd, int length, int *err)
+i4b_read_rec_data(FILE_T fh, u_char *pd, int length, int *err)
 {
 	int	bytes_read;
 

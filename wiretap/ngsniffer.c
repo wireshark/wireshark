@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.46 2000/06/28 03:58:52 guy Exp $
+ * $Id: ngsniffer.c,v 1.47 2000/07/26 00:20:07 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -266,7 +266,7 @@ static int ngsniffer_read_frame4(wtap *wth, FILE_T fh,
 static void set_pseudo_header_frame4(union wtap_pseudo_header *pseudo_header,
     struct frame4_rec *frame4);
 static int ngsniffer_read_rec_data(wtap *wth, FILE_T fh,
-    ngsniffer_comp_stream_t *comp_stream, char *pd, int length, int *err);
+    ngsniffer_comp_stream_t *comp_stream, u_char *pd, int length, int *err);
 static void ngsniffer_sequential_close(wtap *wth);
 static void ngsniffer_close(wtap *wth);
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
@@ -853,7 +853,7 @@ static void set_pseudo_header_frame4(union wtap_pseudo_header *pseudo_header,
 }
 
 static int ngsniffer_read_rec_data(wtap *wth, FILE_T fh,
-    ngsniffer_comp_stream_t *comp_stream, char *pd, int length, int *err)
+    ngsniffer_comp_stream_t *comp_stream, u_char *pd, int length, int *err)
 {
 	int	bytes_read;
 

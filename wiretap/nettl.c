@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.13 2000/05/19 23:06:57 gram Exp $
+ * $Id: nettl.c,v 1.14 2000/07/26 00:20:08 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -32,10 +32,10 @@
 #include "buffer.h"
 #include "nettl.h"
 
-static char nettl_magic_hpux9[12] = {
+static u_char nettl_magic_hpux9[12] = {
     0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xD0, 0x00
 };
-static char nettl_magic_hpux10[12] = {
+static u_char nettl_magic_hpux10[12] = {
     0x54, 0x52, 0x00, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80
 };
 
@@ -70,7 +70,7 @@ static int nettl_seek_read(wtap *wth, int seek_off,
 static int nettl_read_rec_header(wtap *wth, FILE_T fh,
 		struct wtap_pkthdr *phdr, union wtap_pseudo_header *pseudo_header,
 		int *err);
-static int nettl_read_rec_data(FILE_T fh, char *pd, int length, int *err);
+static int nettl_read_rec_data(FILE_T fh, u_char *pd, int length, int *err);
 static void nettl_close(wtap *wth);
 
 int nettl_open(wtap *wth, int *err)
@@ -289,7 +289,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 }
 
 static int
-nettl_read_rec_data(FILE_T fh, char *pd, int length, int *err)
+nettl_read_rec_data(FILE_T fh, u_char *pd, int length, int *err)
 {
     int bytes_read;
 

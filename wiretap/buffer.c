@@ -1,6 +1,6 @@
 /* buffer.c
  *
- * $Id: buffer.c,v 1.7 2000/01/22 06:22:36 guy Exp $
+ * $Id: buffer.c,v 1.8 2000/07/26 00:20:08 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -26,6 +26,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <glib.h>
+
+#include <sys/types.h>
 
 #include "buffer.h"
 
@@ -85,7 +87,7 @@ void buffer_assure_space(Buffer* buffer, unsigned int space)
 	buffer->data = (char*)g_realloc(buffer->data, buffer->allocated);
 }
 
-void buffer_append(Buffer* buffer, char *from, unsigned int bytes)
+void buffer_append(Buffer* buffer, u_char *from, unsigned int bytes)
 {
 	buffer_assure_space(buffer, bytes);
 	memcpy(buffer->data + buffer->first_free, from, bytes);
@@ -123,14 +125,14 @@ unsigned int buffer_length(Buffer* buffer)
 #endif
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
-char* buffer_start_ptr(Buffer* buffer)
+u_char* buffer_start_ptr(Buffer* buffer)
 {
 	return buffer->data + buffer->start;
 }
 #endif
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
-char* buffer_end_ptr(Buffer* buffer)
+u_char* buffer_end_ptr(Buffer* buffer)
 {
 	return buffer->data + buffer->first_free;
 }

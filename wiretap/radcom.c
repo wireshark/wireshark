@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.23 2000/05/19 23:07:01 gram Exp $
+ * $Id: radcom.c,v 1.24 2000/07/26 00:20:07 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -72,7 +72,7 @@ static int radcom_seek_read(wtap *wth, int seek_off,
 	union wtap_pseudo_header *pseudo_header, u_char *pd, int length);
 static int radcom_read_rec_header(FILE_T fh, struct radcomrec_hdr *hdr,
 	int *err);
-static int radcom_read_rec_data(FILE_T fh, char *pd, int length, int *err);
+static int radcom_read_rec_data(FILE_T fh, u_char *pd, int length, int *err);
 
 int radcom_open(wtap *wth, int *err)
 {
@@ -336,7 +336,7 @@ radcom_read_rec_header(FILE_T fh, struct radcomrec_hdr *hdr, int *err)
 }
 
 static int
-radcom_read_rec_data(FILE_T fh, char *pd, int length, int *err)
+radcom_read_rec_data(FILE_T fh, u_char *pd, int length, int *err)
 {
 	int	bytes_read;
 
