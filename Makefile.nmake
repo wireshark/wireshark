@@ -249,8 +249,8 @@ clean: gtk2_distclean
 		$(EXECUTABLES) $(PDB_FILE) \
 		editcap.obj mergecap.obj text2pcap.obj getopt.obj\
 		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
-		rdps.pdb config.h ps.c AUTHORS-SHORT \
-		rdps.exe rdps.ilk dftest.obj dftest.exe randpkt.obj randpkt.ext \
+		rdps.pdb rdps.exe rdps.ilk config.h ps.c AUTHORS-SHORT \
+		dftest.obj dftest.exe randpkt.obj randpkt.ext doxygen.cfg \
 		$(RESOURCES)
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
