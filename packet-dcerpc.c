@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.168 2004/05/07 11:07:53 ulfl Exp $
+ * $Id: packet-dcerpc.c,v 1.169 2004/05/07 11:24:02 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1475,7 +1475,7 @@ add_pointer_to_list(packet_info *pinfo, proto_tree *tree, proto_item *item,
 		di=pinfo->private_data;
 		value=di->call_data;
 
-		if(di->request){
+		if(di->ptype == PDU_REQ){
 			if(!(pinfo->fd->flags.visited)){
 				if(id>value->max_ptr){
 					value->max_ptr=id;
@@ -1854,7 +1854,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
         col_add_fstr (pinfo->cinfo, COL_INFO, "%s %s",
-                      name, info->request ? "request" : "response");
+                      name, (info->ptype == PDU_REQ) ? "request" : "response");
     }
 
     if (tree) {
@@ -2878,7 +2878,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	    di->conv = conv;
 	    di->call_id = hdr->call_id;
 	    di->smb_fid = get_smb_fid(pinfo->private_data);
-	    di->request = TRUE;
+	    di->ptype = PDU_REQ;
 	    di->call_data = value;
 		di->hf_index = -1;
 
@@ -2973,7 +2973,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	    di->conv = conv;
 	    di->call_id = hdr->call_id;
 	    di->smb_fid = get_smb_fid(pinfo->private_data);
-	    di->request = FALSE;
+	    di->ptype = PDU_RESP;
 	    di->call_data = value;
 
 	    proto_tree_add_uint (dcerpc_tree, hf_dcerpc_opnum, tvb, 0, 0, value->opnum);
@@ -3086,7 +3086,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	    di->conv = conv;
 	    di->call_id = hdr->call_id;
 	    di->smb_fid = get_smb_fid(pinfo->private_data);
-	    di->request = FALSE;
+	    di->ptype = PDU_FAULT;
 	    di->call_data = value;
 
 	    proto_tree_add_uint (dcerpc_tree, hf_dcerpc_opnum, tvb, 0, 0, value->opnum);
@@ -3878,7 +3878,7 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
     di->conv = conv;
     di->call_id = hdr->seqnum;
     di->smb_fid = -1;
-    di->request = TRUE;
+    di->ptype = PDU_REQ;
     di->call_data = value;
 
     if(value->rep_frame!=0){
@@ -3935,7 +3935,7 @@ dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
     di->conv = conv;
     di->call_id = 0;
     di->smb_fid = -1;
-    di->request = FALSE;
+    di->ptype = PDU_RESP;
     di->call_data = value;
 
     if(value->req_frame!=0){

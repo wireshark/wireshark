@@ -1,7 +1,7 @@
 /* tap-dcerpcstat.c
  * dcerpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-dcerpcstat.c,v 1.9 2004/01/19 23:43:29 guy Exp $
+ * $Id: tap-dcerpcstat.c,v 1.10 2004/05/07 11:25:15 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,7 +80,7 @@ dcerpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, void *
 	}
 
 	/* we are only interested in reply packets */
-	if(ri->request){
+	if(ri->ptype != PDU_RESP){
 		return 0;
 	}
 

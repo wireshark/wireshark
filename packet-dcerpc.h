@@ -2,7 +2,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.h,v 1.40 2004/03/05 23:09:32 sahlberg Exp $
+ * $Id: packet-dcerpc.h,v 1.41 2004/05/07 11:24:02 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -256,7 +256,7 @@ typedef struct _dcerpc_info {
 	conversation_t *conv;	/* Which TCP stream we are in */
 	guint32 call_id;	/* Context id for this call */
 	guint16 smb_fid;	/* FID for DCERPC over SMB */
-	gboolean request;
+    guint8 ptype;       /* packet type: PDU_REQ, PDU_RESP, ... */
 	gboolean conformant_run;
 	gint32 conformant_eaten; /* how many bytes did the conformant run eat?*/
 	guint32 array_max_count;	/* max_count for conformant arrays */

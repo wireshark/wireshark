@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.54 2004/04/12 08:53:01 ulfl Exp $
+ * $Id: dcerpc_stat.c,v 1.55 2004/05/07 11:25:15 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -133,7 +133,7 @@ dcerpcstat_packet(void *rs_arg, packet_info *pinfo, epan_dissect_t *edt _U_, voi
 	}
 
 	/* we are only interested in reply packets */
-	if(ri->request){
+	if(ri->ptype != PDU_RESP){
 		return 0;
 	}
 
