@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.127 2004/05/29 01:00:59 sahlberg Exp $
+ * $Id: packet-snmp.c,v 1.128 2004/06/28 22:04:12 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1703,6 +1703,11 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	case SNMP_VERSION_2u:
 		ret = asn1_octet_string_decode (&asn1, &community,
 		    &community_length, &length);
+		if (ret != ASN1_ERR_NOERROR) {
+			dissect_snmp_parse_error(tvb, offset, pinfo, snmp_tree,
+				"community (2u)", ret);
+			return message_length;
+		}
 		if (tree) {
 			dissect_snmp2u_parameters(snmp_tree, tvb, offset, length,
 			    community, community_length);
