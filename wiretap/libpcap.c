@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.22 1999/11/06 08:42:00 guy Exp $
+ * $Id: libpcap.c,v 1.23 1999/11/06 10:31:47 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -41,17 +41,17 @@
    PCAP_MAGIC is the magic number, in host byte order; PCAP_SWAPPED_MAGIC
    is a byte-swapped version of that.
 
-   PCAP_MUTANT_MAGIC is for Alexey Kuznetsov's modified "libpcap"
+   PCAP_MODIFIED_MAGIC is for Alexey Kuznetsov's modified "libpcap"
    format, as generated on Linux systems that have a "libpcap" with
    his patches, at
    
 	http://ftp.sunet.se/pub/os/Linux/ip-routing/lbl-tools/
 
-   applied; PCAP_SWAPPED_MUTANT_MAGIC is the byte-swapped version. */
+   applied; PCAP_SWAPPED_MODIFIED_MAGIC is the byte-swapped version. */
 #define	PCAP_MAGIC			0xa1b2c3d4
 #define	PCAP_SWAPPED_MAGIC		0xd4c3b2a1
-#define	PCAP_MUTANT_MAGIC		0xa1b2cd34
-#define	PCAP_SWAPPED_MUTANT_MAGIC	0x34cdb2a1
+#define	PCAP_MODIFIED_MAGIC		0xa1b2cd34
+#define	PCAP_SWAPPED_MODIFIED_MAGIC	0x34cdb2a1
 
 /* Macros to byte-swap 32-bit and 16-bit quantities. */
 #define	BSWAP32(x) \
@@ -87,7 +87,7 @@ struct pcaprec_hdr {
 };
 
 /* "libpcap" record header for Alexey's patched version. */
-struct pcaprec_mutant_hdr {
+struct pcaprec_modified_hdr {
 	struct pcaprec_hdr hdr;	/* the regular header */
 	guint32 ifindex;	/* index, in *capturing* machine's list of
 				   interfaces, of the interface on which this
@@ -97,6 +97,7 @@ struct pcaprec_mutant_hdr {
 };
 
 static int libpcap_read(wtap *wth, int *err);
+static void adjust_header(wtap *wth, struct pcaprec_hdr *hdr);
 static int libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const u_char *pd, int *err);
 static int libpcap_dump_close(wtap_dumper *wdh, int *err);
@@ -164,8 +165,10 @@ int libpcap_open(wtap *wth, int *err)
 	int bytes_read;
 	guint32 magic;
 	struct pcap_hdr hdr;
-	gboolean byte_swapped = FALSE;
-	gboolean mutant = FALSE;
+	gboolean byte_swapped;
+	gboolean modified;
+	struct pcaprec_hdr first_rec_hdr;
+	struct pcaprec_hdr second_rec_hdr;
 
 	/* Read in the number that should be at the start of a "libpcap" file */
 	file_seek(wth->fh, 0, SEEK_SET);
@@ -185,28 +188,28 @@ int libpcap_open(wtap *wth, int *err)
 	case PCAP_MAGIC:
 		/* Host that wrote it has our byte order. */
 		byte_swapped = FALSE;
-		mutant = FALSE;
+		modified = FALSE;
 		break;
 
-	case PCAP_MUTANT_MAGIC:
+	case PCAP_MODIFIED_MAGIC:
 		/* Host that wrote it has our byte order, but was running
 		   a program using the patched "libpcap". */
 		byte_swapped = FALSE;
-		mutant = TRUE;
+		modified = TRUE;
 		break;
 
 	case PCAP_SWAPPED_MAGIC:
 		/* Host that wrote it has a byte order opposite to ours. */
 		byte_swapped = TRUE;
-		mutant = FALSE;
+		modified = FALSE;
 		break;
 
-	case PCAP_SWAPPED_MUTANT_MAGIC:
+	case PCAP_SWAPPED_MODIFIED_MAGIC:
 		/* Host that wrote it out has a byte order opposite to
 		   ours, and was running a program using the patched
 		   "libpcap". */
 		byte_swapped = TRUE;
-		mutant = TRUE;
+		modified = TRUE;
 		break;
 
 	default:
@@ -248,15 +251,112 @@ int libpcap_open(wtap *wth, int *err)
 	}
 
 	/* This is a libpcap file */
-	wth->file_type = WTAP_FILE_PCAP;
+	wth->file_type = modified ? WTAP_FILE_PCAP_MODIFIED : WTAP_FILE_PCAP;
 	wth->capture.pcap = g_malloc(sizeof(libpcap_t));
 	wth->capture.pcap->byte_swapped = byte_swapped;
-	wth->capture.pcap->mutant = mutant;
+	wth->capture.pcap->modified = modified;
 	wth->capture.pcap->version_major = hdr.version_major;
 	wth->capture.pcap->version_minor = hdr.version_minor;
 	wth->subtype_read = libpcap_read;
 	wth->file_encap = pcap_encap[hdr.network];
 	wth->snapshot_length = hdr.snaplen;
+
+	/*
+	 * Is this a capture file with the non-modified magic number?
+	 */
+	if (!wth->capture.pcap->modified) {
+		/*
+		 * Yes.  Let's look at the header for the first record,
+		 * and see if, interpreting it as a non-modified header,
+		 * the position where it says the header for the
+		 * *second* record is contains a corrupted header.
+		 *
+		 * If so, this may be a modified capture file with a
+		 * non-modified magic number - in some versions of
+		 * Alexey's patches, the packet header format was
+		 * changed but the magic number wasn't, and, alas,
+		 * Red Hat appear to have picked up one of those
+		 * patches for RH 6.1, meaning RH 6.1 has a "tcpdump"
+		 * that writes out files that can't be read by any software
+		 * that expects non-modified headers if the magic number isn't
+		 * the modified magic number (e.g., any normal version of
+		 * "tcpdump", and Ethereal if we don't do this gross
+		 * heuristic).
+		 */
+		bytes_read = file_read(&first_rec_hdr, 1,
+		    sizeof first_rec_hdr, wth->fh);
+		if (bytes_read != sizeof first_rec_hdr) {
+			*err = file_error(wth->fh);
+			if (*err != 0)
+				return -1;	/* failed to read it */
+
+			/*
+			 * Short read - assume the file isn't modified,
+			 * and put the seek pointer back.  The attempt
+			 * to read the first packet will presumably get
+			 * the same short read.
+			 */
+			goto give_up;
+		}
+
+		adjust_header(wth, &first_rec_hdr);
+
+		if (first_rec_hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
+			/*
+			 * The first record is bogus, so this is probably
+			 * a corrupt file.  Assume the file isn't modified,
+			 * and put the seek pointer back.  The attempt
+			 * to read the first packet will probably get
+			 * the same bogus length.
+			 */
+			goto give_up;
+		}
+
+		file_seek(wth->fh,
+		    wth->data_offset + sizeof first_rec_hdr + first_rec_hdr.incl_len,
+		    SEEK_SET);
+		bytes_read = file_read(&second_rec_hdr, 1,
+		    sizeof second_rec_hdr, wth->fh);
+
+		/*
+		 * OK, does the next packet's header look sane?
+		 */
+		if (bytes_read != sizeof second_rec_hdr) {
+			*err = file_error(wth->fh);
+			if (*err != 0)
+				return -1;	/* failed to read it */
+
+			/*
+			 * Short read - assume the file isn't modified,
+			 * and put the seek pointer back.  The attempt
+			 * to read the second packet will presumably get
+			 * the same short read error.
+			 */
+			goto give_up;
+		}
+
+		adjust_header(wth, &second_rec_hdr);
+		if (second_rec_hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
+			/*
+			 * Oh, dear.  Maybe it's a Capture File
+			 * From Hell, and what looks like the
+			 * "header" of the next packet is actually
+			 * random junk from the middle of a packet.
+			 * Try treating it as a modified file;
+			 * if that doesn't work, it probably *is*
+			 * a corrupt file.
+			 */
+			wth->file_type = WTAP_FILE_PCAP_MODIFIED;
+			wth->capture.pcap->modified = TRUE;
+		}
+
+	give_up:
+		/*
+		 * Restore the seek pointer.
+		 */
+		file_seek(wth->fh, wth->data_offset, SEEK_SET);
+	}
+
 	return 1;
 }
 
@@ -265,12 +365,13 @@ static int libpcap_read(wtap *wth, int *err)
 {
 	guint	packet_size;
 	int	bytes_to_read, bytes_read;
-	struct pcaprec_mutant_hdr hdr;
+	struct pcaprec_modified_hdr hdr;
 	int	data_offset;
 
 	/* Read record header. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_to_read = wth->capture.pcap->mutant ? sizeof hdr : sizeof hdr.hdr;
+	bytes_to_read = wth->capture.pcap->modified ?
+	    sizeof hdr : sizeof hdr.hdr;
 	bytes_read = file_read(&hdr, 1, bytes_to_read, wth->fh);
 	if (bytes_read != bytes_to_read) {
 		*err = file_error(wth->fh);
@@ -284,32 +385,7 @@ static int libpcap_read(wtap *wth, int *err)
 	}
 	wth->data_offset += bytes_read;
 
-	if (wth->capture.pcap->byte_swapped) {
-		/* Byte-swap the record header fields. */
-		hdr.hdr.ts_sec = BSWAP32(hdr.hdr.ts_sec);
-		hdr.hdr.ts_usec = BSWAP32(hdr.hdr.ts_usec);
-		hdr.hdr.incl_len = BSWAP32(hdr.hdr.incl_len);
-		hdr.hdr.orig_len = BSWAP32(hdr.hdr.orig_len);
-	}
-
-	/* In file format version 2.3, the "incl_len" and "orig_len" fields
-	   were swapped, in order to match the BPF header layout.
-
-	   Unfortunately, some files were, according to a comment in the
-	   "libpcap" source, written with version 2.3 in their headers
-	   but without the interchanged fields, so if "incl_len" is
-	   greater than "orig_len" - which would make no sense - we
-	   assume that we need to swap them.  */
-	if (wth->capture.pcap->version_major == 2 &&
-	    (wth->capture.pcap->version_minor < 3 ||
-	     (wth->capture.pcap->version_minor == 3 &&
-	      hdr.hdr.incl_len > hdr.hdr.orig_len))) {
-		guint32 temp;
-
-		temp = hdr.hdr.orig_len;
-		hdr.hdr.orig_len = hdr.hdr.incl_len;
-		hdr.hdr.incl_len = temp;
-	}
+	adjust_header(wth, &hdr.hdr);
 
 	packet_size = hdr.hdr.incl_len;
 	if (packet_size > WTAP_MAX_PACKET_SIZE) {
@@ -344,6 +420,37 @@ static int libpcap_read(wtap *wth, int *err)
 	wth->phdr.pkt_encap = wth->file_encap;
 
 	return data_offset;
+}
+
+static void
+adjust_header(wtap *wth, struct pcaprec_hdr *hdr)
+{
+	if (wth->capture.pcap->byte_swapped) {
+		/* Byte-swap the record header fields. */
+		hdr->ts_sec = BSWAP32(hdr->ts_sec);
+		hdr->ts_usec = BSWAP32(hdr->ts_usec);
+		hdr->incl_len = BSWAP32(hdr->incl_len);
+		hdr->orig_len = BSWAP32(hdr->orig_len);
+	}
+
+	/* In file format version 2.3, the "incl_len" and "orig_len" fields
+	   were swapped, in order to match the BPF header layout.
+
+	   Unfortunately, some files were, according to a comment in the
+	   "libpcap" source, written with version 2.3 in their headers
+	   but without the interchanged fields, so if "incl_len" is
+	   greater than "orig_len" - which would make no sense - we
+	   assume that we need to swap them.  */
+	if (wth->capture.pcap->version_major == 2 &&
+	    (wth->capture.pcap->version_minor < 3 ||
+	     (wth->capture.pcap->version_minor == 3 &&
+	      hdr->incl_len > hdr->orig_len))) {
+		guint32 temp;
+
+		temp = hdr->orig_len;
+		hdr->orig_len = hdr->incl_len;
+		hdr->incl_len = temp;
+	}
 }
 
 int wtap_pcap_encap_to_wtap_encap(int encap)

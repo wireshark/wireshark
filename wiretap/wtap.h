@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.47 1999/11/06 08:42:01 guy Exp $
+ * $Id: wtap.h,v 1.48 1999/11/06 10:31:46 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -101,8 +101,9 @@
 #define WTAP_FILE_UNKNOWN			0
 #define WTAP_FILE_WTAP				1
 #define WTAP_FILE_PCAP				2
-#define WTAP_FILE_LANALYZER			3
-#define WTAP_FILE_NGSNIFFER			4
+#define WTAP_FILE_PCAP_MODIFIED			3
+#define WTAP_FILE_LANALYZER			4
+#define WTAP_FILE_NGSNIFFER			5
 #define WTAP_FILE_SNOOP				6
 #define WTAP_FILE_IPTRACE			7
 #define WTAP_FILE_NETMON_1_x			8
@@ -160,7 +161,7 @@ typedef struct {
 
 typedef struct {
 	gboolean byte_swapped;
-	gboolean mutant;
+	gboolean modified;
 	guint16	version_major;
 	guint16	version_minor;
 } libpcap_t;

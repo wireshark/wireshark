@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.27 1999/10/31 17:46:10 gram Exp $
+ * $Id: wtap.c,v 1.28 1999/11/06 10:31:45 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -65,6 +65,9 @@ const char *wtap_file_type_string(wtap *wth)
 
 		case WTAP_FILE_PCAP:
 			return "pcap";
+
+		case WTAP_FILE_PCAP_MODIFIED:
+			return "pcap-modified";
 
 		case WTAP_FILE_LANALYZER:
 			return "Novell LANalyzer";
@@ -161,6 +164,7 @@ void wtap_close(wtap *wth)
 	 * But for now this will work. */
 	switch(wth->file_type) {
 		case WTAP_FILE_PCAP:
+		case WTAP_FILE_PCAP_MODIFIED:
 			g_free(wth->capture.pcap);
 			break;
 
