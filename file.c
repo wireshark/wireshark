@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.360 2004/02/11 01:37:11 guy Exp $
+ * $Id: file.c,v 1.361 2004/02/11 02:02:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -116,11 +116,12 @@ static gboolean find_packet(capture_file *cf,
 	gboolean (*match_function)(capture_file *, frame_data *, void *),
 	void *criterion);
 
-static char *cf_open_error_message(int err, gchar *err_info,
-    gboolean for_writing, int file_type);
+static void cf_open_failure_alert_box(const char *filename, int err,
+				      gchar *err_info, gboolean for_writing,
+				      int file_type);
 static char *file_rename_error_message(int err);
-static char *cf_write_error_message(int);
-static char *cf_close_error_message(int err);
+static void cf_write_failure_alert_box(const char *filename, int err);
+static void cf_close_failure_alert_box(const char *filename, int err);
 static   gboolean copy_binary_file(char *from_filename, char *to_filename);
 
 /* Update the progress bar this many times when reading a file. */
@@ -129,7 +130,6 @@ static   gboolean copy_binary_file(char *from_filename, char *to_filename);
 /* Number of "frame_data" structures per memory chunk.
    XXX - is this the right number? */
 #define	FRAME_DATA_CHUNK_SIZE	1024
-
 
 typedef struct {
 	int		level;
@@ -215,8 +215,7 @@ cf_open(char *fname, gboolean is_tempfile, capture_file *cf)
   return (0);
 
 fail:
-  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			cf_open_error_message(err, err_info, FALSE, 0), fname);
+  cf_open_failure_alert_box(fname, err, err_info, FALSE, 0);
   return (err);
 }
 
@@ -2559,8 +2558,7 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
 
   /* and save the packet */
   if (!wtap_dump(args->pdh, &hdr, pseudo_header, pd, &err)) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, cf_write_error_message(err),
-                  args->fname);
+    cf_write_failure_alert_box(args->fname, err);
     return FALSE;
   }
   return TRUE;
@@ -2664,8 +2662,7 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
        we have to do it by writing the packets out in Wiretap. */
     pdh = wtap_dump_open(fname, save_format, cf->lnk_t, cf->snap, &err);
     if (pdh == NULL) {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			cf_open_error_message(err, NULL, TRUE, save_format), fname);
+      cf_open_failure_alert_box(fname, err, NULL, TRUE, save_format);
       goto fail;
     }
 
@@ -2704,8 +2701,7 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
     }
 
     if (!wtap_dump_close(pdh, &err)) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, cf_close_error_message(err),
-                    fname);
+      cf_close_failure_alert_box(fname, err);
       goto fail;
     }
   }
@@ -2758,108 +2754,127 @@ fail:
   return FALSE;
 }
 
-static char *
-cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
-                      int file_type)
+static void
+cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
+                          gboolean for_writing, int file_type)
 {
-  char *errmsg;
-  static char errmsg_errno[1024+1];
-
   if (err < 0) {
     /* Wiretap error. */
     switch (err) {
 
     case WTAP_ERR_NOT_REGULAR_FILE:
-      errmsg = "The file \"%s\" is a \"special file\" or socket or other non-regular file.";
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "The file \"%s\" is a \"special file\" or socket or other non-regular file.",
+		    filename);
       break;
 
     case WTAP_ERR_RANDOM_OPEN_PIPE:
       /* Seen only when opening a capture file for reading. */
-      errmsg = "The file \"%s\" is a pipe or FIFO; Ethereal cannot read pipe or FIFO files.";
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "The file \"%s\" is a pipe or FIFO; Ethereal cannot read pipe or FIFO files.",
+		    filename);
       break;
 
     case WTAP_ERR_FILE_UNKNOWN_FORMAT:
       /* Seen only when opening a capture file for reading. */
-      errmsg = "The file \"%s\" is not a capture file in a format Ethereal understands.";
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "The file \"%s\" is not a capture file in a format Ethereal understands.",
+		    filename);
       break;
 
     case WTAP_ERR_UNSUPPORTED:
       /* Seen only when opening a capture file for reading. */
-      snprintf(errmsg_errno, sizeof(errmsg_errno),
-               "The file \"%%s\" is not a capture file in a format Ethereal understands.\n"
-               "(%s)", err_info);
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "The file \"%s\" is not a capture file in a format Ethereal understands.\n"
+		    "(%s)",
+		    filename, err_info);
       g_free(err_info);
-      errmsg = errmsg_errno;
       break;
 
     case WTAP_ERR_CANT_WRITE_TO_PIPE:
       /* Seen only when opening a capture file for writing. */
-      snprintf(errmsg_errno, sizeof(errmsg_errno),
-	       "The file \"%%s\" is a pipe, and %s capture files cannot be "
-	       "written to a pipe.", wtap_file_type_string(file_type));
-      errmsg = errmsg_errno;
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "The file \"%s\" is a pipe, and %s capture files cannot be "
+		    "written to a pipe.",
+		    filename, wtap_file_type_string(file_type));
       break;
 
     case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
       /* Seen only when opening a capture file for writing. */
-      errmsg = "Ethereal does not support writing capture files in that format.";
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "Ethereal does not support writing capture files in that format.");
       break;
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
-      if (for_writing)
-        errmsg = "Ethereal cannot save this capture in that format.";
-      else {
-        snprintf(errmsg_errno, sizeof(errmsg_errno),
-                 "The file \"%%s\" is a capture for a network type that Ethereal doesn't support.\n"
-                 "(%s)", err_info);
+      if (for_writing) {
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		      "Ethereal cannot save this capture in that format.");
+      } else {
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		      "The file \"%s\" is a capture for a network type that Ethereal doesn't support.\n"
+		      "(%s)",
+		      filename, err_info);
         g_free(err_info);
-        errmsg = errmsg_errno;
       }
       break;
 
     case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
-      if (for_writing)
-        errmsg = "Ethereal cannot save this capture in that format.";
-      else
-        errmsg = "The file \"%s\" is a capture for a network type that Ethereal doesn't support.";
+      if (for_writing) {
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		      "Ethereal cannot save this capture in that format.");
+      } else {
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		      "The file \"%s\" is a capture for a network type that Ethereal doesn't support.",
+		      filename);
+      }
       break;
 
     case WTAP_ERR_BAD_RECORD:
       /* Seen only when opening a capture file for reading. */
-      snprintf(errmsg_errno, sizeof(errmsg_errno),
-               "The file \"%%s\" appears to be damaged or corrupt.\n"
-               "(%s)", err_info);
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "The file \"%s\" appears to be damaged or corrupt.\n"
+		    "(%s)",
+		    filename, err_info);
       g_free(err_info);
-      errmsg = errmsg_errno;
       break;
 
     case WTAP_ERR_CANT_OPEN:
-      if (for_writing)
-        errmsg = "The file \"%s\" could not be created for some unknown reason.";
-      else
-        errmsg = "The file \"%s\" could not be opened for some unknown reason.";
+      if (for_writing) {
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		      "The file \"%s\" could not be created for some unknown reason.",
+		      filename);
+      } else {
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		      "The file \"%s\" could not be opened for some unknown reason.",
+		      filename);
+      }
       break;
 
     case WTAP_ERR_SHORT_READ:
-      errmsg = "The file \"%s\" appears to have been cut short"
-               " in the middle of a packet or other data.";
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "The file \"%s\" appears to have been cut short"
+		    " in the middle of a packet or other data.",
+		    filename);
       break;
 
     case WTAP_ERR_SHORT_WRITE:
-      errmsg = "A full header couldn't be written to the file \"%s\".";
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "A full header couldn't be written to the file \"%s\".",
+		    filename);
       break;
 
     default:
-      snprintf(errmsg_errno, sizeof(errmsg_errno),
-	       "The file \"%%s\" could not be %s: %s.",
-	       for_writing ? "created" : "opened",
-	       wtap_strerror(err));
-      errmsg = errmsg_errno;
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "The file \"%s\" could not be %s: %s.",
+		    filename,
+		    for_writing ? "created" : "opened",
+		    wtap_strerror(err));
       break;
     }
-  } else
-    errmsg = file_open_error_message(err, for_writing);
-  return errmsg;
+  } else {
+    /* OS error. */
+    open_failure_alert_box(filename, err, for_writing);
+  }
 }
 
 static char *
@@ -2912,57 +2927,54 @@ cf_read_error_message(int err, gchar *err_info)
   return errmsg_errno;
 }
 
-static char *
-cf_write_error_message(int err)
+static void
+cf_write_failure_alert_box(const char *filename, int err)
 {
-  char *errmsg;
-  static char errmsg_errno[1024+1];
-
   if (err < 0) {
     /* Wiretap error. */
-    snprintf(errmsg_errno, sizeof(errmsg_errno),
-		    "An error occurred while writing to the file \"%%s\": %s.",
-				wtap_strerror(err));
-    errmsg = errmsg_errno;
-  } else
-    errmsg = file_write_error_message(err);
-  return errmsg;
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		  "An error occurred while writing to the file \"%s\": %s.",
+		  filename, wtap_strerror(err));
+  } else {
+    /* OS error. */
+    write_failure_alert_box(filename, err);
+  }
 }
 
 /* Check for write errors - if the file is being written to an NFS server,
    a write error may not show up until the file is closed, as NFS clients
    might not send writes to the server until the "write()" call finishes,
    so that the write may fail on the server but the "write()" may succeed. */
-static char *
-cf_close_error_message(int err)
+static void
+cf_close_failure_alert_box(const char *filename, int err)
 {
-  char *errmsg;
-  static char errmsg_errno[1024+1];
-
   if (err < 0) {
     /* Wiretap error. */
     switch (err) {
 
     case WTAP_ERR_CANT_CLOSE:
-      errmsg = "The file \"%s\" couldn't be closed for some unknown reason.";
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "The file \"%s\" couldn't be closed for some unknown reason.",
+		    filename);
       break;
 
     case WTAP_ERR_SHORT_WRITE:
-      errmsg = "Not all the packets could be written to the file \"%s\".";
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "Not all the packets could be written to the file \"%s\".",
+                    filename);
       break;
 
     default:
-      snprintf(errmsg_errno, sizeof(errmsg_errno),
-	       "An error occurred while closing the file \"%%s\": %s.",
-	       wtap_strerror(err));
-      errmsg = errmsg_errno;
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "An error occurred while closing the file \"%s\": %s.",
+		    filename, wtap_strerror(err));
       break;
     }
   } else {
-    /* We assume that a close error from the OS is really a write error. */
-    errmsg = file_write_error_message(err);
+    /* OS error.
+       We assume that a close error from the OS is really a write error. */
+    write_failure_alert_box(filename, err);
   }
-  return errmsg;
 }
 
 
