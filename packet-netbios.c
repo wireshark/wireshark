@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.48 2002/05/04 09:57:29 guy Exp $
+ * $Id: packet-netbios.c,v 1.49 2002/07/22 20:52:21 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -275,6 +275,19 @@ process_netbios_name(const u_char *name_ptr, char *name_ret)
 		}
 	}
 	*name_ret = '\0';
+
+	/* Remove trailing space characters from name. */
+
+	name_ret--;
+
+	for (i = 0; i < NETBIOS_NAME_LEN - 1; i++) {
+		if (*name_ret != ' ') {
+			*(name_ret + 1) = 0;
+			break;
+		}
+		name_ret--;
+	}
+
 	return name_type;
 }
 
