@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id: packet-asn1.c,v 1.4 2003/10/28 21:47:32 guy Exp $
+ * $Id: packet-asn1.c,v 1.5 2003/10/29 10:54:17 guy Exp $
  *
  * A plugin for:
  *
@@ -3329,9 +3329,12 @@ build_pdu_tree(char *pduname)
 }
 
 
+#ifdef DISSECTOR_WITH_GUI
+/* This cannot work in tethereal.... don't include for now */
 #if GTK_MAJOR_VERSION >= 2
 #define SHOWPDU	/* this needs GTK2, which is not yet on Win32 .............. */
 #endif
+#endif /* DISSECTOR_WITH_GUI */
 #ifdef SHOWPDU
 
 static GtkWidget *window = NULL;
