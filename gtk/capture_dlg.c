@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.21 2000/04/07 15:37:59 gram Exp $
+ * $Id: capture_dlg.c,v 1.22 2000/05/03 07:09:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,6 +57,7 @@
 #include "capture_dlg.h"
 #include "filter_prefs.h"
 #include "simple_dialog.h"
+#include "dlg_utils.h"
 #include "util.h"
 
 /* Capture callback data keys */
@@ -281,6 +282,41 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_SYNC_KEY,  sync_cb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_AUTO_SCROLL_KEY, auto_scroll_cb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_RESOLVE_KEY,  resolv_cb);
+
+  /* Catch the "activate" signal on the frame number and file name text
+     entries, so that if the user types Return there, we act as if the
+     "OK" button had been selected, as happens if Return is typed if some
+     widget that *doesn't* handle the Return key has the input focus. */
+  dlg_set_activate(filter_te, ok_bt);
+  dlg_set_activate(file_te, ok_bt);
+
+  /* Catch the "key_press_event" signal in the window, so that we can catch
+     the ESC key being pressed and act as if the "Cancel" button had
+     been selected. */
+  dlg_set_cancel(cap_open_w, cancel_bt);
+
+  /* XXX - why does not
+
+     gtk_widget_grab_focus(if_cb);
+
+    give the initial focus to the "Interface" combo box?
+
+    Or should I phrase that as "why does GTK+ continually frustrate
+    attempts to make GUIs driveable from the keyboard?"  We have to
+    go catch the activate signal on every single GtkEntry widget
+    (rather than having widgets whose activate signal is *not*
+    caught not catch the Return keystroke, so that it passes on,
+    ultimately, to the window, which can activate the default
+    widget, i.e. the "OK" button); we have to catch the "key_press_event"
+    signal and have the handler check for ESC, so that we can have ESC
+    activate the "Cancel" button; in order to support Alt+<key> mnemonics
+    for buttons and the like, we may have to construct an accelerator
+    group by hand and set up the accelerators by hand (if that even
+    works - I've not tried it yet); we have to do a "gtk_widget_grab_focus()"
+    to keep some container widget from getting the initial focus, so that
+    you don't have to tab into the first widget in order to start typing
+    in it; and it now appears that you simply *can't* make a combo box
+    get the initial focus, at least not in the obvious fashion. Sigh.... */
 
   gtk_widget_show(cap_open_w);
 }
