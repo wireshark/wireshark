@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Megaco Ethereal plugin
 #
-# $Id: Makefile.am,v 1.2 2003/09/05 07:44:48 jmayer Exp $
+# $Id: Makefile.am,v 1.3 2004/04/14 22:13:25 obiot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -29,6 +29,7 @@ plugindir = @plugindir@
 plugin_LTLIBRARIES = megaco.la
 megaco_la_SOURCES = packet-megaco.c moduleinfo.h
 megaco_la_LDFLAGS = -module -avoid-version
+megaco_la_LIBADD = -L../../epan -lethereal @GLIB_LIBS@
 
 # Libs must be cleared, or else libtool won't create a shared module.
 # If your module needs to be linked against any particular libraries,

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/ENTTEC
 #
-# $Id: Makefile.am,v 1.1 2003/11/17 20:57:13 guy Exp $
+# $Id: Makefile.am,v 1.2 2004/04/14 22:13:24 obiot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -29,6 +29,7 @@ plugindir = @plugindir@
 plugin_LTLIBRARIES = enttec.la
 enttec_la_SOURCES = packet-enttec.c moduleinfo.h
 enttec_la_LDFLAGS = -module -avoid-version
+enttec_la_LIBADD = -L../../epan -lethereal @GLIB_LIBS@
 
 # Libs must be cleared, or else libtool won't create a shared module.
 # If your module needs to be linked against any particular libraries,

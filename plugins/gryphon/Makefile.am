@@ -3,7 +3,7 @@
 # By Steve Limkemann <stevelim@dgtech.com>
 # Copyright 1998 Steve Limkemann
 #
-# $Id: Makefile.am,v 1.12 2003/11/17 22:34:23 guy Exp $
+# $Id: Makefile.am,v 1.13 2004/04/14 22:13:25 obiot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -31,6 +31,7 @@ plugindir = @plugindir@
 plugin_LTLIBRARIES = gryphon.la
 gryphon_la_SOURCES = packet-gryphon.c packet-gryphon.h moduleinfo.h
 gryphon_la_LDFLAGS = -module -avoid-version
+gryphon_la_LIBADD = -L../../epan -lethereal @GLIB_LIBS@
 
 # Libs must be cleared, or else libtool won't create a shared module.
 # If your module needs to be linked against any particular libraries,

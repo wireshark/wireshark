@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/docsis subdissectors
 #
-# $Id: Makefile.am,v 1.6 2004/03/17 06:55:02 guy Exp $
+# $Id: Makefile.am,v 1.7 2004/04/14 22:13:24 obiot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -29,6 +29,7 @@ plugindir = @plugindir@
 plugin_LTLIBRARIES = docsis.la
 docsis_la_SOURCES = packet-intrngreq.c packet-type29ucd.c packet-docsis.c packet-bpkmattr.c packet-dsarsp.c packet-macmgmt.c packet-rngrsp.c packet-bpkmreq.c packet-dscack.c packet-map.c packet-tlv.c packet-bpkmrsp.c packet-dscreq.c packet-regack.c packet-uccreq.c packet-dscrsp.c packet-regreq.c packet-uccrsp.c packet-dsaack.c packet-dsdreq.c packet-regrsp.c packet-ucd.c packet-dsareq.c packet-dsdrsp.c packet-rngreq.c packet-vendor.c packet-docsis.h packet-tlv.h moduleinfo.h
 docsis_la_LDFLAGS = -module -avoid-version
+docsis_la_LIBADD = -L../../epan -lethereal @GLIB_LIBS@
 
 # Libs must be cleared, or else libtool won't create a shared module.
 # If your module needs to be linked against any particular libraries,
