@@ -998,7 +998,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   GtkWidget   *filter_te, *rb;
   dfilter_t   *rfcode = NULL;
   int          err;
-  gboolean     merge_ok;
+  cf_status_t  merge_status;
   char        *in_filenames[2];
   int          out_fd;
   char         tmpname[128+1];
@@ -1035,7 +1035,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
       /* chronological order */
       in_filenames[0] = cfile.filename;
       in_filenames[1] = cf_name;
-      merge_ok = cf_merge_files(tmpname, out_fd, 2, in_filenames,
+      merge_status = cf_merge_files(tmpname, out_fd, 2, in_filenames,
                                 filetype, FALSE);
   } else {
       rb = OBJECT_GET_DATA(w, E_MERGE_PREPEND_KEY);
@@ -1043,20 +1043,20 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
           /* prepend file */
           in_filenames[0] = cfile.filename;
           in_filenames[1] = cf_name;
-          merge_ok = cf_merge_files(tmpname, out_fd, 2, in_filenames,
+          merge_status = cf_merge_files(tmpname, out_fd, 2, in_filenames,
                                     filetype, TRUE);
       } else {
           /* append file */
           in_filenames[0] = cf_name;
           in_filenames[1] = cfile.filename;
-          merge_ok = cf_merge_files(tmpname, out_fd, 2, in_filenames,
+          merge_status = cf_merge_files(tmpname, out_fd, 2, in_filenames,
                                     filetype, TRUE);
       }
   }
 
   g_free(cf_name);
   
-  if (!merge_ok) {
+  if (merge_status != CF_OK) {
     close(out_fd);	/* XXX - it's already closed, right? */
     if (rfcode != NULL)
       dfilter_free(rfcode);

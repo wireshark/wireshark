@@ -34,12 +34,14 @@
 
 #include "cfile.h"
 
-/** Return values from functions that read capture files. */
+
+/** Return values from functions that only can succeed or fail. */
 typedef enum {
-	CF_OK,		/**< operation succeeded */
+	CF_OK,			    /**< operation succeeded */
 	CF_ERROR	/**< operation got an error (function may provide err with details) */
 } cf_status_t;
 
+/** Return values from functions that read capture files. */
 typedef enum {
 	CF_READ_OK,		/**< operation succeeded */
 	CF_READ_ERROR,		/**< operation got an error (function may provide err with details) */
@@ -48,7 +50,7 @@ typedef enum {
 
 /** Return values from functions that print sets of packets. */
 typedef enum {
-	CF_PRINT_OK,		/**< operation succeeded */
+	CF_PRINT_OK,		    /**< print operation succeeded */
 	CF_PRINT_OPEN_ERROR,    /**< print operation failed while opening printer */
 	CF_PRINT_WRITE_ERROR    /**< print operation failed while writing to the printer */
 } cf_print_status_t;
@@ -399,7 +401,7 @@ char *cf_read_error_message(int err, const gchar *err_info);
  * @param do_append FALSE to merge chronologically, TRUE simply append
  * @return TRUE if merging suceeded, FALSE otherwise
  */
-gboolean
+cf_status_t
 cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
                char *const *in_filenames, int file_type, gboolean do_append);
 

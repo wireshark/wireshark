@@ -430,7 +430,7 @@ cf_read(capture_file *cf)
 
     if (stop_flag) {
       /* Well, the user decided to abort the read.  Destroy the progress
-         bar, close the capture file, and return CF_ABORTED so our caller
+         bar, close the capture file, and return CF_READ_ABORTED so our caller
 	 can do whatever is appropriate when that happens. */
       destroy_progress_dlg(progbar);
       cf->state = FILE_READ_ABORTED;	/* so that we're allowed to close it */
@@ -584,7 +584,7 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
     packet_list_moveto_end();
 
   if (cf->state == FILE_READ_ABORTED) {
-    /* Well, the user decided to exit Ethereal.  Return CF_ABORTED
+    /* Well, the user decided to exit Ethereal.  Return CF_READ_ABORTED
        so that our caller can kill off the capture child process;
        this will cause an EOF on the pipe from the child, so
        "cf_finish_tail()" will be called, and it will clean up
@@ -622,7 +622,7 @@ cf_finish_tail(capture_file *cf, int *err)
     /* Well, the user decided to abort the read.  We're only called
        when the child capture process closes the pipe to us (meaning
        it's probably exited), so we can just close the capture
-       file; we return CF_ABORTED so our caller can do whatever
+       file; we return CF_READ_ABORTED so our caller can do whatever
        is appropriate when that happens. */
     cf_close(cf);
     return CF_READ_ABORTED;
@@ -1014,7 +1014,7 @@ read_packet(capture_file *cf, long offset)
   }
 }
 
-gboolean
+cf_status_t
 cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
                char *const *in_filenames, int file_type, gboolean do_append)
 {
@@ -1050,7 +1050,7 @@ cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
     free(in_files);
     cf_open_failure_alert_box(in_filenames[err_fileno], open_err, err_info,
                               FALSE, 0);
-    return FALSE;
+    return CF_ERROR;
   }
 
   pdh = wtap_dump_fdopen(out_fd, file_type,
@@ -1061,7 +1061,7 @@ cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
     free(in_files);
     cf_open_failure_alert_box(out_filename, open_err, err_info, TRUE,
                               file_type);
-    return FALSE;
+    return CF_ERROR;
   }
 
   /* Get the sum of the sizes of all the files. */
@@ -1194,7 +1194,7 @@ cf_merge_files(const char *out_filename, int out_fd, int in_file_count,
     cf_write_failure_alert_box(out_filename, write_err);
   }
 
-  return (!got_read_error && !got_write_error);
+  return (!got_read_error && !got_write_error) ? CF_OK : CF_ERROR;
 }
 
 cf_status_t
@@ -1708,18 +1708,19 @@ cf_retap_packets(capture_file *cf)
                                     NULL)) {
   case PSP_FINISHED:
     /* Completed successfully. */
-    break;
+    return CF_OK;
 
   case PSP_STOPPED:
     /* Well, the user decided to abort the refiltering.
        Return CF_READ_ABORTED so our caller knows they did that. */
-    return FALSE;
+    return CF_READ_ABORTED;
 
   case PSP_FAILED:
     /* Error while retapping. */
     return CF_READ_ERROR;
   }
 
+  g_assert_not_reached();
   return CF_READ_OK;
 }
 
@@ -2010,7 +2011,7 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
   if (!destroy_print_stream(print_args->stream))
     return CF_PRINT_WRITE_ERROR;
 
-  return CF_OK;
+  return CF_PRINT_OK;
 }
 
 static gboolean
@@ -2080,7 +2081,7 @@ cf_write_pdml_packets(capture_file *cf, print_args_t *print_args)
   /* XXX - check for an error */
   fclose(fh);
 
-  return CF_OK;
+  return CF_PRINT_OK;
 }
 
 static gboolean
@@ -2150,7 +2151,7 @@ cf_write_psml_packets(capture_file *cf, print_args_t *print_args)
   /* XXX - check for an error */
   fclose(fh);
 
-  return CF_OK;
+  return CF_PRINT_OK;
 }
 
 /* Scan through the packet list and change all columns that use the

@@ -507,10 +507,10 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
         capture_opts->save_file = NULL;
         return FALSE;
         break;
-    default:
-        g_assert_not_reached();
-        return FALSE;
     }
+
+    g_assert_not_reached();
+    return FALSE;
 }
 
 
