@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.51 2004/02/25 21:05:09 guy Exp $
+ * $Id: follow_dlg.c,v 1.52 2004/03/13 14:07:13 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -161,6 +161,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	int		    tmp_fd;
 	gchar		*follow_filter;
 	const gchar	*previous_filter;
+    int		    filter_out_filter_len;
 	const char	*hostname0, *hostname1;
 	char		*port0, *port1;
 	char		string[128];
@@ -224,14 +225,16 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 
 	/* allocate our new filter. API claims g_malloc terminates program on failure */
 	/* my calc for max alloc needed is really +10 but when did a few extra bytes hurt ? */
-	follow_info->filter_out_filter =
-	    (gchar *)g_malloc(strlen(follow_filter) + strlen(previous_filter) + 16);
+	filter_out_filter_len = strlen(follow_filter) + strlen(previous_filter) + 16;
+	follow_info->filter_out_filter = (gchar *)g_malloc(filter_out_filter_len);
 
 	/* append the negation */
 	if(strlen(previous_filter)) {
-	    sprintf(follow_info->filter_out_filter, "%s and !(%s)", previous_filter, follow_filter);
+	    g_snprintf(follow_info->filter_out_filter, filter_out_filter_len,
+            "%s and !(%s)", previous_filter, follow_filter);
 	} else {
-	    sprintf(follow_info->filter_out_filter, "!(%s)", follow_filter);
+	    g_snprintf(follow_info->filter_out_filter, filter_out_filter_len,
+            "!(%s)", follow_filter);
 	}
 
 
@@ -614,8 +617,8 @@ follow_read_stream(follow_info_t *follow_info,
 
 			/* is_server indentation : put 63 spaces at the
 			 * beginning of the string */
-			sprintf(hexbuf, (is_server &&
-				follow_info->show_stream == BOTH_HOSTS) ?
+			g_snprintf(hexbuf, sizeof(hexbuf),
+                (is_server && follow_info->show_stream == BOTH_HOSTS) ?
 				"                                 "
 				"                                             %08X  " :
 				"%08X  ", *global_pos);

@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.37 2004/02/06 19:19:09 ulfl Exp $
+ * $Id: decode_as_dlg.c,v 1.38 2004/03/13 14:07:12 ulfl Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -665,17 +665,16 @@ decode_debug (GtkCList *clist, gchar *leadin)
     dissector_handle_t handle;
     gint row;
 
-    string = g_malloc(1024);
     if (clist->selection) {
 	row = GPOINTER_TO_INT(clist->selection->data);
 	gtk_clist_get_text(clist, row, E_LIST_S_PROTO_NAME, &text[E_LIST_S_PROTO_NAME]);
 	gtk_clist_get_text(clist, row, E_LIST_S_TABLE, &text[E_LIST_S_TABLE]);
 	handle = gtk_clist_get_row_data(clist, row);
-	sprintf(string, "%s clist row %d: <put handle here>, name %s, table %s",
+	string = g_strdup_printf("%s clist row %d: <put handle here>, name %s, table %s",
 		leadin, row, text[E_LIST_S_PROTO_NAME],
 		text[E_LIST_S_TABLE]);
     } else {
-	sprintf(string, "%s clist row (none), aka do not decode", leadin);
+	string = g_strdup_printf("%s clist row (none), aka do not decode", leadin);
     }
     simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, string);
     g_free(string);

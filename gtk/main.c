@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.412 2004/03/04 19:31:21 ulfl Exp $
+ * $Id: main.c,v 1.413 2004/03/13 14:07:14 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -994,13 +994,11 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
         } else if (finfo->length == 1) {
             strcpy (len_str, ", 1 byte");
         } else {
-            snprintf (len_str, sizeof len_str, ", %d bytes", finfo->length);
+            g_snprintf (len_str, sizeof len_str, ", %d bytes", finfo->length);
         }
         statusbar_pop_field_msg();	/* get rid of current help msg */
         if (length) {
-            length += strlen(finfo->hfinfo->abbrev) + strlen(len_str) + 10;
-            help_str = g_malloc(sizeof(gchar) * length);
-            sprintf(help_str, "%s (%s)%s",
+            help_str = g_strdup_printf("%s (%s)%s",
                     (has_blurb) ? finfo->hfinfo->blurb : finfo->hfinfo->name,
                     finfo->hfinfo->abbrev, len_str);
             statusbar_push_field_msg(help_str);
@@ -3122,7 +3120,7 @@ not_xlfd:
 static char *
 font_zoom(char *gui_font_name)
 {
-    char new_font_name[200];
+    char *new_font_name;
     char *font_name_dup;
     char *font_name_p;
     long font_point_size_l;
@@ -3165,7 +3163,7 @@ font_zoom(char *gui_font_name)
     font_point_size_l += recent.gui_zoom_level;
 
     /* build a new font name */
-    sprintf(new_font_name, "%s %ld", font_name_dup, font_point_size_l);
+    new_font_name = g_strdup_printf("%s %ld", font_name_dup, font_point_size_l);
 #else
     minus_chars = 0;
     /* replace all '-' chars by NUL and count them */
@@ -3254,7 +3252,7 @@ font_zoom(char *gui_font_name)
         font_point_size_l = 10;
 
     /* build a new font name */
-    sprintf(new_font_name, "-%s-%s-%s-%s-%s-%s-%s-%ld-%s-%s-%s-%s-%s-%s", 
+    new_font_name = g_strdup_printf("-%s-%s-%s-%s-%s-%s-%s-%ld-%s-%s-%s-%s-%s-%s", 
         font_foundry, font_family, font_weight, font_slant, font_set_width, 
         font_add_style, font_pixel_size, font_point_size_l, font_res_x,
         font_res_y, font_spacing, font_aver_width, font_charset_reg,
@@ -3263,7 +3261,7 @@ font_zoom(char *gui_font_name)
 
     g_free(font_name_dup);
 
-    return g_strdup(new_font_name);
+    return new_font_name;
 }
 
 fa_ret_t
@@ -3364,7 +3362,7 @@ font_apply(void) {
 /* The setting of the MS default font for system stuff (menus, dialogs, ...),
  * coming from: Allin Cottrell, http://www.ecn.wfu.edu/~cottrell/gtk_win32,
  * Thank you very much for this! */
-int get_windows_font_gtk1(char *fontspec)
+int get_windows_font_gtk1(char *fontspec, int fontspec_len)
 {
     HDC h_dc;
     HGDIOBJ h_font;
@@ -3390,7 +3388,7 @@ int get_windows_font_gtk1(char *fontspec)
     }
     pix_height = tm.tmHeight;
     DeleteDC(h_dc);
-    sprintf(fontspec, "-*-%s-*-*-*-*-%i-*-*-*-p-*-iso8859-1", name,
+    g_snprintf(fontspec, fontspec_len, "-*-%s-*-*-*-*-%i-*-*-*-p-*-iso8859-1", name,
             pix_height);
     return 0;
 }
@@ -3401,7 +3399,7 @@ void set_app_font_gtk1(GtkWidget *top_level_w)
     char winfont[80];
  
     style = gtk_widget_get_style(top_level);
-    if (get_windows_font_gtk1(winfont) == 0)
+    if (get_windows_font_gtk1(winfont, sizeof(winfont)) == 0)
         style->font = gdk_font_load(winfont);
     if (style->font) gtk_widget_set_style(top_level, style);
 }

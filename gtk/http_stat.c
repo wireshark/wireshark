@@ -1,7 +1,7 @@
 /* http_stat.c
  * http_stat   2003 Jean-Michel FAYARD
  *
- * $Id: http_stat.c,v 1.24 2004/02/23 19:19:37 ulfl Exp $
+ * $Id: http_stat.c,v 1.25 2004/03/13 14:07:14 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -159,12 +159,18 @@ http_init_hash( httpstat_t *sp)
 	}
 	sp->hash_requests = g_hash_table_new( g_str_hash, g_str_equal);
 }
+
+#define SUM_STR_MAX 1024
+
 static void
-http_draw_hash_requests( gchar *key _U_ , http_request_methode_t *data, gchar * string_buff)
+http_draw_hash_requests( gchar *key _U_ , http_request_methode_t *data, gchar * unused _U_)
 {
+    gchar	string_buff[SUM_STR_MAX];
+
 	if (data->packets==0)
 		return;
-	sprintf(string_buff, "     %-11s : %3d packets", data->response, data->packets); 
+	g_snprintf(string_buff, sizeof(string_buff), 
+        "     %-11s : %3d packets", data->response, data->packets); 
 	if (data->widget==NULL){
 		data->widget=gtk_label_new( string_buff );
 		gtk_misc_set_alignment(GTK_MISC(data->widget), 0.0, 0.5);
@@ -176,14 +182,17 @@ http_draw_hash_requests( gchar *key _U_ , http_request_methode_t *data, gchar * 
 }
 
 static void
-http_draw_hash_responses( gint * key _U_ , http_response_code_t *data, gchar * string_buff)
+http_draw_hash_responses( gint * key _U_ , http_response_code_t *data, gchar * unused _U_)
 {
+    gchar	string_buff[SUM_STR_MAX];
+
 	if (data==NULL) {
 		g_warning("C'est quoi ce borderl key=%d\n", *key);
 	}
 	if (data->packets==0)
 		return;
-	/*sprintf(string_buff, "%d packets %d:%s", data->packets, data->response_code, data->name); */
+	/*g_snprintf(string_buff, sizeof(string_buff),
+        "%d packets %d:%s", data->packets, data->response_code, data->name); */
 	if (data->widget==NULL){	/* create an entry in the relevant box of the window */
 		guint16 x;
 		GtkWidget *tmp;
@@ -203,14 +212,16 @@ http_draw_hash_responses( gint * key _U_ , http_response_code_t *data, gchar * s
 			data->table = data->sp->server_errors_table;
 		x=GTK_TABLE( data->table)->nrows;
 		
-		sprintf(string_buff, "HTTP %3d %s ", data->response_code, data->name ); 
+		g_snprintf(string_buff, sizeof(string_buff),
+            "HTTP %3d %s ", data->response_code, data->name ); 
 		tmp = gtk_label_new( string_buff );
 		
 		gtk_table_attach_defaults( GTK_TABLE(data->table), tmp,  0,1, x, x+1);
 		gtk_label_set_justify( GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
 		gtk_widget_show( tmp );
 
-		sprintf(string_buff, "%9d", data->packets);
+		g_snprintf(string_buff, sizeof(string_buff),
+            "%9d", data->packets);
 		data->widget=gtk_label_new( string_buff);
 
 		gtk_table_attach_defaults( GTK_TABLE(data->table), data->widget, 1, 2,x,x+1);
@@ -221,7 +232,8 @@ http_draw_hash_responses( gint * key _U_ , http_response_code_t *data, gchar * s
 		
 	} else {
 		/* Just update the label string */
-		sprintf(string_buff, "%9d", data->packets );
+		g_snprintf(string_buff, sizeof(string_buff),
+            "%9d", data->packets );
 		gtk_label_set( GTK_LABEL(data->widget), string_buff);
 	}
 }
@@ -329,17 +341,16 @@ httpstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, voi
 }
 
 
-#define SUM_STR_MAX	1024
 static void
 httpstat_draw(void *psp  )
 {
-	gchar	string_buff[SUM_STR_MAX];
+    gchar	string_buff[SUM_STR_MAX];
 	httpstat_t *sp=psp;
 
-	sprintf( string_buff, "HTTP stats (%d packets)", sp->packets);
+	g_snprintf( string_buff, sizeof(string_buff), "HTTP stats (%d packets)", sp->packets);
 	gtk_label_set( GTK_LABEL(sp->packets_label), string_buff);
-	g_hash_table_foreach( sp->hash_responses, (GHFunc)http_draw_hash_responses, string_buff);
-	g_hash_table_foreach( sp->hash_requests,  (GHFunc)http_draw_hash_requests, string_buff);
+	g_hash_table_foreach( sp->hash_responses, (GHFunc)http_draw_hash_responses, NULL);
+	g_hash_table_foreach( sp->hash_requests,  (GHFunc)http_draw_hash_requests, NULL);
 }
 
 
@@ -389,8 +400,7 @@ gtk_httpstat_init(char *optarg)
 	
 	sp = g_malloc( sizeof(httpstat_t) );
 	if(filter){
-		sp->filter=g_malloc(strlen(filter)+1);
-		strcpy(sp->filter,filter);
+		sp->filter=g_strdup(filter);
 		title=g_strdup_printf("HTTP statistics with filter: %s", filter);
 	} else {
 		sp->filter=NULL;

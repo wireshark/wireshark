@@ -2,7 +2,7 @@
  * h225 RAS Service Response Time statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: h225_ras_srt.c,v 1.13 2004/02/23 19:19:36 ulfl Exp $
+ * $Id: h225_ras_srt.c,v 1.14 2004/03/13 14:07:13 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -217,17 +217,28 @@ h225rassrt_draw(void *phs)
 			continue;
 		}
 
-		sprintf(str[0], "%s", val_to_str(i,ras_message_category,"Other"));
-		sprintf(str[1], "%7d", hs->ras_rtd[i].stats.num);
-		sprintf(str[2], "%8.2f msec", nstime_to_msec(&(hs->ras_rtd[i].stats.min)));
-		sprintf(str[3], "%8.2f msec", nstime_to_msec(&(hs->ras_rtd[i].stats.max)));;
-		sprintf(str[4], "%8.2f msec", get_average(&(hs->ras_rtd[i].stats.tot), hs->ras_rtd[i].stats.num));
-		sprintf(str[5], "%6u", hs->ras_rtd[i].stats.min_num);
-		sprintf(str[6], "%6u", hs->ras_rtd[i].stats.max_num);
-		sprintf(str[7], "%4u", hs->ras_rtd[i].open_req_num);
-		sprintf(str[8], "%4u", hs->ras_rtd[i].disc_rsp_num);
-		sprintf(str[9], "%4u", hs->ras_rtd[i].req_dup_num);
-		sprintf(str[10], "%4u", hs->ras_rtd[i].rsp_dup_num);
+		g_snprintf(str[0], sizeof(char[256]), 
+            "%s", val_to_str(i,ras_message_category,"Other"));
+		g_snprintf(str[1], sizeof(char[256]), 
+            "%7d", hs->ras_rtd[i].stats.num);
+		g_snprintf(str[2], sizeof(char[256]), 
+            "%8.2f msec", nstime_to_msec(&(hs->ras_rtd[i].stats.min)));
+		g_snprintf(str[3], sizeof(char[256]), 
+            "%8.2f msec", nstime_to_msec(&(hs->ras_rtd[i].stats.max)));;
+		g_snprintf(str[4], sizeof(char[256]), 
+            "%8.2f msec", get_average(&(hs->ras_rtd[i].stats.tot), hs->ras_rtd[i].stats.num));
+		g_snprintf(str[5], sizeof(char[256]), 
+            "%6u", hs->ras_rtd[i].stats.min_num);
+		g_snprintf(str[6], sizeof(char[256]), 
+            "%6u", hs->ras_rtd[i].stats.max_num);
+		g_snprintf(str[7], sizeof(char[256]), 
+            "%4u", hs->ras_rtd[i].open_req_num);
+		g_snprintf(str[8], sizeof(char[256]), 
+            "%4u", hs->ras_rtd[i].disc_rsp_num);
+		g_snprintf(str[9], sizeof(char[256]), 
+            "%4u", hs->ras_rtd[i].req_dup_num);
+		g_snprintf(str[10], sizeof(char[256]), 
+            "%4u", hs->ras_rtd[i].rsp_dup_num);
 		gtk_clist_append(GTK_CLIST(hs->table), str);
 	}
 
@@ -281,8 +292,7 @@ gtk_h225rassrt_init(char *optarg)
 	}
 
 	hs=g_malloc(sizeof(h225rassrt_t));
-	hs->filter=g_malloc(strlen(filter)+1);
-	strcpy(hs->filter, filter);
+	hs->filter=g_strdup(filter);
 
 	h225rassrt_reset(hs);
 

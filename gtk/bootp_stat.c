@@ -1,7 +1,7 @@
 /* bootp_stat.c
  * boop_stat   2003 Jean-Michel FAYARD
  *
- * $Id: bootp_stat.c,v 1.22 2004/02/23 19:19:35 ulfl Exp $
+ * $Id: bootp_stat.c,v 1.23 2004/03/13 14:07:12 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -209,8 +209,7 @@ gtk_dhcpstat_init(char *optarg)
 	sp = g_malloc( sizeof(dhcpstat_t) );
 	sp->hash = g_hash_table_new( g_str_hash, g_str_equal);
 	if(filter){
-		sp->filter=g_malloc(strlen(filter)+1);
-		strcpy(sp->filter,filter);
+		sp->filter=g_strdup(filter);
 		title=g_strdup_printf("DHCP statistics with filter: %s", filter);
 	} else {
 		sp->filter=NULL;

@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.47 2004/02/13 00:56:30 guy Exp $
+ * $Id: help_dlg.c,v 1.48 2004/03/13 14:07:14 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -308,7 +308,7 @@ static void insert_text(GtkWidget *w, const char *buffer, int nchars)
     gtk_text_buffer_get_end_iter(buf, &iter);
     gtk_widget_modify_font(w, m_r_font);
     if (!g_utf8_validate(buffer, -1, NULL))
-        printf(buffer);
+        printf("Invalid utf8 encoding: %s\n", buffer);
     gtk_text_buffer_insert(buf, &iter, buffer, nchars);
 #endif
 }

@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.31 2004/03/13 12:09:27 ulfl Exp $
+ * $Id: mgcp_stat.c,v 1.32 2004/03/13 14:07:14 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -272,8 +272,7 @@ gtk_mgcpstat_init(char *optarg)
 	}
 
 	ms=g_malloc(sizeof(mgcpstat_t));
-	ms->filter=g_malloc(strlen(filter)+1);
-	strcpy(ms->filter, filter);
+	ms->filter=g_strdup(filter);
 
 	mgcpstat_reset(ms);
 
