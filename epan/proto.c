@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.65 2002/04/28 22:21:09 guy Exp $
+ * $Id: proto.c,v 1.66 2002/04/28 23:39:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -364,7 +364,10 @@ proto_registrar_get_nth(int hfindex)
 }
 
 /* Finds a record in the hf_info_records array by name.
- * XXX - have a hash table so this lookup can go faster?
+ * XXX - the display filter code maintains a balanced tree
+ * of filter names and hfinfo pointers; should that be moved
+ * up into here, so the display filter code could just use
+ * this routine?
  */
 header_field_info*
 proto_registrar_get_byname(const char *field_name)
