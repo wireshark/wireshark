@@ -2013,6 +2013,10 @@ Sam Leffler <sam [AT] errno.com> {
 	   5.2 and later and by NetBSD-current
 }
 
+Martin Mathieson <martin [AT] arca-technologies.com> {
+	SIP sipfrag support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
@@ -2037,7 +2041,6 @@ And assorted fixes and enhancements by the people listed above and by:
 	Steve Ford <sford [AT] geeky-boy.com>
 	Masaki Chikama <masaki-c [AT] is.aist-nara.ac.jp>
 	Mohammad Hanif <mhanif [AT] nexthop.com>
-	Martin Mathieson <martin [AT] arca-technologies.com>
 	Eric Wedel <ewedel [AT] bluearc.com>
 	Reinhard Speyerer <rspmn [AT] arcor.de>
 	Patrick Kursawe <phosphan [AT] gentoo.org>
