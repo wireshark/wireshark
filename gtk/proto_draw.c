@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.51 2002/04/08 19:10:09 guy Exp $
+ * $Id: proto_draw.c,v 1.52 2002/04/23 06:42:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -366,6 +366,7 @@ create_byte_view(gint bv_size, GtkWidget *pane)
   gtk_notebook_set_tab_pos(GTK_NOTEBOOK(byte_nb), GTK_POS_BOTTOM);
 
   gtk_paned_pack2(GTK_PANED(pane), byte_nb, FALSE, FALSE);
+  gtk_widget_set_usize(byte_nb, -1, bv_size);
   gtk_widget_show(byte_nb);
 
   /* Add a placeholder byte view so that there's at least something
