@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.15 2001/12/03 08:47:31 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.16 2001/12/03 09:09:11 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -313,6 +313,15 @@ decode_show_reset_cb (GtkWidget *reset_bt, gpointer parent_w)
     }
     g_slist_free(dissector_reset_list);
     dissector_reset_list = NULL;
+
+    /*
+     * Clear the list of IP protocol numbers to be decoded as TCP
+     * and as UDP.
+     */
+    g_slist_free(decode_as_tcp);
+    decode_as_tcp = NULL;
+    g_slist_free(decode_as_udp);
+    decode_as_udp = NULL;
 
     redissect_packets(&cfile);
 
