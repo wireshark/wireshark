@@ -174,10 +174,13 @@ int
 main ()
 {
   int major, minor, micro;
+  char *tmp_version;
 
   system ("touch conf.gtktest");
 
-  if (sscanf("$min_gtk_version", "%d.%d.%d", &major, &minor, &micro) != 3) {
+  /* HP/UX 9 (%@#!) writes to sscanf strings */
+  tmp_version = g_strdup("$min_gtk_version");
+  if (sscanf(tmp_version, "%d.%d.%d", &major, &minor, &micro) != 3) {
      printf("%s, bad version string\n", "$min_gtk_version");
      exit(1);
    }
@@ -281,34 +284,6 @@ main ()
   AC_SUBST(GTK_LIBS)
   rm -f conf.gtktest
 ])
-
-dnl This was copied from the libpcap 0.4a6 source.
-dnl ftp://ftp.ee.lbl.gov
-
-dnl
-dnl Checks to see if the sockaddr struct has the 4.4 BSD sa_len member
-dnl
-dnl usage:
-dnl
-dnl AC_LBL_SOCKADDR_SA_LEN
-dnl
-dnl results:
-dnl
-dnl HAVE_SOCKADDR_SA_LEN (defined)
-dnl
-AC_DEFUN(AC_LBL_SOCKADDR_SA_LEN,
-    [AC_MSG_CHECKING(if sockaddr struct has sa_len member)
-    AC_CACHE_VAL(ac_cv_lbl_sockaddr_has_sa_len,
-    AC_TRY_COMPILE([
-#   include <sys/types.h>
-#   include <sys/socket.h>],
-    [u_int i = sizeof(((struct sockaddr *)0)->sa_len)],
-    ac_cv_lbl_sockaddr_has_sa_len=yes,
-    ac_cv_lbl_sockaddr_has_sa_len=no))
-    AC_MSG_RESULT($ac_cv_lbl_sockaddr_has_sa_len)
-    if test $ac_cv_lbl_sockaddr_has_sa_len = yes ; then
-        AC_DEFINE(HAVE_SOCKADDR_SA_LEN)
-    fi])
 
 # Like AC_CONFIG_HEADER, but automatically create stamp file.
 

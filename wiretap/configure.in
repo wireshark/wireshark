@@ -1,10 +1,12 @@
-# $Id: configure.in,v 1.1 1998/11/12 00:06:45 gram Exp $
+# $Id: configure.in,v 1.2 1998/11/12 21:39:22 gram Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(wtap.c)
 AM_INIT_AUTOMAKE(libwtap.a, 0.0.0)
 AM_CONFIG_HEADER(config.h)
 
-#AC_PROG_RANLIB
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_RANLIB
 
 # Pcap checks (copied from ethereal)
 AC_CHECK_HEADER(pcap.h,, AC_MSG_ERROR(Header file pcap.h not found.))
