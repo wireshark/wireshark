@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.51 2002/08/13 05:36:02 tpot Exp $
+ * $Id: packet-http.c,v 1.52 2002/08/13 05:38:04 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -136,8 +136,6 @@ base64_to_tvb(char *base64)
 
 	len = base64_decode(data);
 	tvb = tvb_new_real_data(data, len, len);
-
-	g_warning("decoded %d bytes of data", len);
 
 	/* XXX: need to set free function */
 
