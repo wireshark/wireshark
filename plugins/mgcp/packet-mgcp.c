@@ -1189,7 +1189,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
 	   guarantee that the reply will come from the address
 	   to which the call was sent. */
 	if (pinfo->ptype == PT_TCP) {
-		conversation = find_conversation(&pinfo->src,
+		conversation = find_conversation(pinfo->fd->num, &pinfo->src,
 		    &pinfo->dst, pinfo->ptype, pinfo->srcport,
 		    pinfo->destport, 0);
 	} else {
@@ -1199,7 +1199,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
 		 * pointer for the second address argument even
 		 * if you do that.
 		 */
-		conversation = find_conversation(&null_address,
+		conversation = find_conversation(pinfo->fd->num, &null_address,
 		    &pinfo->dst, pinfo->ptype, pinfo->srcport,
 		    pinfo->destport, 0);
 	}
@@ -1275,7 +1275,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
 	   guarantee that the reply will come from the address
 	   to which the call was sent. */
 	if (pinfo->ptype == PT_TCP) {
-		conversation = find_conversation(&pinfo->src,
+		conversation = find_conversation(pinfo->fd->num, &pinfo->src,
 		    &pinfo->dst, pinfo->ptype, pinfo->srcport,
 		    pinfo->destport, 0);
 	} else {
@@ -1285,7 +1285,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
 		 * pointer for the second address argument even
 		 * if you do that.
 		 */
-		conversation = find_conversation(&pinfo->src,
+		conversation = find_conversation(pinfo->fd->num, &pinfo->src,
 		    &null_address, pinfo->ptype, pinfo->srcport,
 		    pinfo->destport, 0);
 	}
@@ -1293,11 +1293,11 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
 		/* It's not part of any conversation - create a new
 		   one. */
 		if (pinfo->ptype == PT_TCP) {
-			conversation = conversation_new(&pinfo->src,
+			conversation = conversation_new(pinfo->fd->num, &pinfo->src,
 			    &pinfo->dst, pinfo->ptype, pinfo->srcport,
 			    pinfo->destport, 0);
 		} else {
-			conversation = conversation_new(&pinfo->src,
+			conversation = conversation_new(pinfo->fd->num, &pinfo->src,
 			    &null_address, pinfo->ptype, pinfo->srcport,
 			    pinfo->destport, 0);
 		}
