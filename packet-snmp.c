@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.121 2003/10/29 22:11:08 guy Exp $
+ * $Id: packet-snmp.c,v 1.122 2003/11/02 23:12:31 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -181,6 +181,20 @@ static const value_string versions[] = {
 	{ SNMP_VERSION_3,	"3" },
 	{ 0,			NULL },
 };
+
+/* defined in net-SNMP; include/net-snmp/library/snmp.h */
+#undef SNMP_MSG_GET
+#undef SNMP_MSG_SET
+#undef SNMP_MSG_GETNEXT
+#undef SNMP_MSG_RESPONSE
+#undef SNMP_MSG_TRAP
+#undef SNMP_MSG_GETBULK
+#undef SNMP_MSG_INFORM
+#undef SNMP_MSG_TRAP2
+#undef SNMP_MSG_REPORT
+#undef SNMP_NOSUCHOBJECT
+#undef SNMP_NOSUCHINSTANCE
+#undef SNMP_ENDOFMIBVIEW
 
 /* PDU types */
 #define SNMP_MSG_GET		0

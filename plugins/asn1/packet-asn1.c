@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id: packet-asn1.c,v 1.6 2003/10/30 11:56:36 guy Exp $
+ * $Id: packet-asn1.c,v 1.7 2003/11/02 23:12:35 gerald Exp $
  *
  * A plugin for:
  *
@@ -145,12 +145,9 @@ static gboolean asn1_message_win = FALSE;
 static gboolean asn1_verbose = FALSE; /* change to TRUE for logging the startup phase */
 static gboolean asn1_full = FALSE; /* show full names */
 static guint type_recursion_level = 1; /* eliminate 1 level of references */
-static char *asn1_logfile = 0;
-#ifdef WIN32
-#define ASN1LOGFILE "C:\\temp\\ethereal.log"
-#else
-#define ASN1LOGFILE "/tmp/ethereal.log"
-#endif
+static char *asn1_logfile = NULL;
+
+#define ASN1LOGFILE "ethereal.log"
 
 /* PDU counter, for correlation between GUI display and log file in debug mode */
 static int pcount = 0;
@@ -2563,11 +2560,13 @@ static char eol[] = "\r\n";
 
 	(void) log_domain; (void) log_level; (void) user_data; /* make references */
 
-	if (logf == 0) {
+	if (logf == NULL && asn1_logfile) {
 		logf = fopen(asn1_logfile, "w");
 	}
+	if (logf) {
 	fputs(message, logf);
 	fputs(eol, logf);
+}
 }
 
 void
@@ -3332,7 +3331,7 @@ build_pdu_tree(char *pduname)
 #ifdef DISSECTOR_WITH_GUI
 /* This cannot work in tethereal.... don't include for now */
 #if GTK_MAJOR_VERSION >= 2
-#define SHOWPDU	/* this needs GTK2, which is not yet on Win32 .............. */
+#define SHOWPDU	/* this needs GTK2 */
 #endif
 #endif /* DISSECTOR_WITH_GUI */
 #ifdef SHOWPDU
@@ -4638,8 +4637,7 @@ proto_register_asn1(void) {
   module_t *asn1_module;
   int i, j;
 
-
-  asn1_logfile = g_strdup(ASN1LOGFILE);
+  asn1_logfile = get_tempfile_path(ASN1LOGFILE);
 
   current_pduname = g_strdup("ASN1");
   asn1_pduname = g_strdup(current_pduname);
@@ -4712,7 +4710,7 @@ proto_register_asn1(void) {
 				 &asn1_message_win);
   prefs_register_bool_preference(asn1_module, "verbose_log",
 				 "Write very verbose log",
-				 "log to file " ASN1LOGFILE,
+				 "log to file $TMP/" ASN1LOGFILE,
 				 &asn1_verbose);
 }
 

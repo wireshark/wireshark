@@ -1,7 +1,7 @@
 /* filesystem.h
  * Filesystem utility definitions
  *
- * $Id: filesystem.h,v 1.13 2003/05/15 07:44:54 guy Exp $
+ * $Id: filesystem.h,v 1.14 2003/11/02 23:12:34 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -110,6 +110,15 @@ int create_persconffile_dir(char **pf_dir_path_return);
  * from earlier versions can be read.
  */
 char *get_persconffile_path(const char *filename, gboolean for_writing);
+
+/*
+ * Construct the path name of a file in $TMP/%TEMP% directory.
+ * Or "/tmp/<filename>" (C:\<filename>) if that fails.
+ *
+ * Return value is malloced so the caller should free it.
+ */
+char *get_tempfile_path(const char *filename);
+
 
 /* Delete a file */
 gboolean deletefile (const char *path);

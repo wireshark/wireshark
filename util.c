@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.70 2003/10/31 07:57:22 guy Exp $
+ * $Id: util.c,v 1.71 2003/11/02 23:12:32 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -237,14 +237,14 @@ get_runtime_version_info(GString *str)
 				break;
 
 			default:
-				g_string_sprintfa(str, "Windows OT, unknown version %u.%u",
+				g_string_sprintfa(str, "Windows OT, unknown version %lu.%lu",
 				    info.dwMajorVersion, info.dwMinorVersion);
 				break;
 			}
 			break;
 
 		default:
-			g_string_sprintfa(str, "Windows OT, unknown version %u.%u",
+			g_string_sprintfa(str, "Windows OT, unknown version %lu.%lu",
 			    info.dwMajorVersion, info.dwMinorVersion);
 			break;
 		}
@@ -256,7 +256,7 @@ get_runtime_version_info(GString *str)
 
 		case 3:
 		case 4:
-			g_string_sprintfa(str, "Windows NT %u.%u",
+			g_string_sprintfa(str, "Windows NT %lu.%lu",
 			    info.dwMajorVersion, info.dwMinorVersion);
 			break;
 
@@ -277,27 +277,27 @@ get_runtime_version_info(GString *str)
 				break;
 
 			default:
-				g_string_sprintfa(str, "Windows NT, unknown version %u.%u",
+				g_string_sprintfa(str, "Windows NT, unknown version %lu.%lu",
 				    info.dwMajorVersion, info.dwMinorVersion);
 				break;
 			}
 			break;
 
 		default:
-			g_string_sprintfa(str, "Windows NT, unknown version %u.%u",
+			g_string_sprintfa(str, "Windows NT, unknown version %lu.%lu",
 			    info.dwMajorVersion, info.dwMinorVersion);
 			break;
 		}
 		break;
 
 	default:
-		g_string_sprintfa(str, "Unknown Windows platform %u version %u.%u",
+		g_string_sprintfa(str, "Unknown Windows platform %lu version %lu.%lu",
 		    info.dwPlatformId, info.dwMajorVersion, info.dwMinorVersion);
 		break;
 	}
 	if (info.szCSDVersion[0] != '\0')
 		g_string_sprintfa(str, " %s", info.szCSDVersion);
-	g_string_sprintfa(str, ", build %u", info.dwBuildNumber);
+	g_string_sprintfa(str, ", build %lu", info.dwBuildNumber);
 #elif defined(HAVE_SYS_UTSNAME_H)
 	/*
 	 * We have <sys/utsname.h>, so we assume we have "uname()".

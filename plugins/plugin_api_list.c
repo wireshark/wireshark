@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.12 2003/11/01 03:10:03 guy Exp $
+ * $Id: plugin_api_list.c,v 1.13 2003/11/02 23:12:34 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -379,6 +379,7 @@ gboolean dissector_try_string(dissector_table_t, const gchar*, tvbuff_t*, packet
 dissector_handle_t dissector_get_string_handle(dissector_table_t, const gchar*);
 
 char *get_datafile_path(const char *filename);
+char *get_tempfile_path(const char *filename);
 
 void register_heur_dissector_list(const char *name,
     heur_dissector_list_t *list);
