@@ -866,8 +866,9 @@ decode_pdu_sns_delete(build_info_t *bi) {
     { NSIP_IE_IP4_ELEMENTS, NSIP_IE_PRESENCE_C, NSIP_IE_FORMAT_TLV, 0, 0 },
     { NSIP_IE_IP6_ELEMENTS, NSIP_IE_PRESENCE_C, NSIP_IE_FORMAT_TLV, 0, 0 },
   };
-  decode_iei_transaction_id(ies, bi, bi->offset);
-  decode_pdu_general(&ies[1], 3, bi);
+  decode_pdu_general(ies, 1, bi);
+  decode_iei_transaction_id(&ies[1], bi, bi->offset);
+  decode_pdu_general(&ies[2], 3, bi);
 }
 
 static void 
