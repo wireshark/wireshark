@@ -17,7 +17,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.41 2003/08/04 23:13:39 guy Exp $
+ * $Id: packet-sip.c,v 1.42 2003/09/02 21:23:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,6 +49,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "prefs.h"
+
 #include <glib.h>
 #include <epan/packet.h>
 
@@ -57,6 +59,7 @@
 
 /* Initialize the protocol and registered fields */
 static gint proto_sip = -1;
+static gint proto_raw_sip = -1;
 static gint hf_msg_hdr = -1;
 static gint hf_Method = -1;
 static gint hf_Status_Code = -1;
@@ -65,6 +68,7 @@ static gint hf_Status_Code = -1;
 static gint ett_sip = -1;
 static gint ett_sip_reqresp = -1;
 static gint ett_sip_hdr = -1;
+static gint ett_raw_text = -1;
 
 static const char *sip_methods[] = {
         "<Invalid method>",      /* Pad so that the real methods start at index 1 */
@@ -254,6 +258,12 @@ typedef enum {
 	OTHER_LINE
 } line_type_t;
 
+/* global_sip_raw_text determines whether we are going to display		*/
+/* the raw text of the SIP message, much like the MEGACO dissector does.	*/
+
+static gboolean global_sip_raw_text = FALSE;
+
+
 static gboolean dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, gboolean is_heur);
 static line_type_t sip_parse_line(tvbuff_t *tvb, gint eol, guint *token_1_len);
@@ -268,8 +278,38 @@ void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree);
 static dissector_handle_t sdp_handle;
 static dissector_handle_t data_handle;
 
+static void 
+tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
+
+
 #define SIP2_HDR "SIP/2.0"
 #define SIP2_HDR_LEN (strlen (SIP2_HDR))
+
+
+
+/* Copied from MGCP dissector, prints whole message in raw text */
+
+static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree){
+
+  proto_tree *raw_tree;
+  proto_item *ti;
+  gint tvb_linebegin,tvb_lineend,tvb_len,linelen;
+
+  ti = proto_tree_add_item(tree, proto_raw_sip, tvb, 0, -1, FALSE);
+  raw_tree = proto_item_add_subtree(ti, ett_raw_text);
+
+  tvb_linebegin = 0;
+  tvb_len = tvb_length(tvb);
+
+  do {
+    tvb_find_line_end(tvb,tvb_linebegin,-1,&tvb_lineend,FALSE);
+    linelen = tvb_lineend - tvb_linebegin;
+    proto_tree_add_text(raw_tree, tvb, tvb_linebegin, linelen,
+			"%s", tvb_format_text(tvb,tvb_linebegin,
+					      linelen));
+    tvb_linebegin = tvb_lineend;
+  } while ( tvb_lineend < tvb_len );
+}
 
 /* Code to actually dissect the packets */
 static void
@@ -463,13 +503,14 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         offset = next_offset;
                 }
                 offset += 2;  /* Skip the CRLF mentioned above */
-       }
+        }
 
         if (tvb_offset_exists(tvb, msg_offset)) {
                 next_tvb = tvb_new_subset(tvb, msg_offset, -1, -1);
                 call_dissector(sdp_handle, next_tvb, pinfo, tree);
         }
-
+	if(global_sip_raw_text)
+		tvb_raw_text_add(tvb, tree);
         return TRUE;
 
   bad:
@@ -948,13 +989,31 @@ void proto_register_sip(void)
                 &ett_sip_hdr,
         };
 
+        static gint *ett_raw[] = {
+                &ett_raw_text,
+        };
+
+	  module_t *sip_module;
+
         /* Register the protocol name and description */
         proto_sip = proto_register_protocol("Session Initiation Protocol",
             "SIP", "sip");
+        proto_raw_sip = proto_register_protocol("Session Initiation Protocol (SIP as raw text)",
+            "Raw_SIP", "raw_sip");
 
         /* Required function calls to register the header fields and subtrees used */
         proto_register_field_array(proto_sip, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
+        proto_register_subtree_array(ett_raw, array_length(ett_raw));
+
+        sip_module = prefs_register_protocol(proto_sip, NULL);
+
+	prefs_register_bool_preference(sip_module, "display_raw_text",
+		"Display raw text for SIP message",
+		"Specifies that the raw text of the "
+		"SIP message should be displayed "
+		"in addition to the dissection tree",
+		&global_sip_raw_text);
 }
 
 void
