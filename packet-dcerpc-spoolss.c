@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.65 2002/12/12 08:05:31 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.66 2002/12/13 04:58:56 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2524,6 +2524,11 @@ static int dissect_USER_LEVEL_1(tvbuff_t *tvb, int offset,
                                 char *drep)
 {
         guint32 level;
+
+	/* Guy has pointed out that this dissection looks wrong.  In
+	   the ethereal output for a USER_LEVEL_1 it looks like the 
+           info level and container pointer are transposed.  I'm not 
+           even sure this structure is a container. */
 
         offset = dissect_ndr_uint32(
                 tvb, offset, pinfo, tree, drep,
