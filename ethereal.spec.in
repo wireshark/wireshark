@@ -1,5 +1,5 @@
 # Note that this is NOT a relocatable package
-%define ver      0.7.2
+%define ver      @VERSION@
 %define rel      1
 %define prefix   /usr/X11R6
 
@@ -44,6 +44,10 @@ rm -rf $RPM_BUILD_ROOT
 /usr/X11R6/man/man1/ethereal.1
 
 %changelog
+* Tue Aug 24 1999 Gilbert Ramirez
+- changed to ethereal.spec.in so that 'configure' can update
+  the version automatically
+
 * Tue Aug 03 1999 Gilbert Ramirez <gram@xiexie.org>
 - updated to 0.7.0 and changed gtk+ requirement
 
