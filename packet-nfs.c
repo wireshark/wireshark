@@ -1,9 +1,8 @@
 /* packet-nfs.c
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
- * Copyright 2000-2001, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- *
- * $Id: packet-nfs.c,v 1.65 2002/02/06 22:54:01 guy Exp $
+ * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
+ * $Id: packet-nfs.c,v 1.66 2002/03/01 22:14:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -199,7 +198,6 @@ static int hf_nfs_mand_attr = -1;
 static int hf_nfs_recc_attr = -1;
 static int hf_nfs_time_how4 = -1;
 static int hf_nfs_attrlist4 = -1;
-static int hf_nfs_fattr4_expire_type = -1;
 static int hf_nfs_fattr4_link_support = -1;
 static int hf_nfs_fattr4_symlink_support = -1;
 static int hf_nfs_fattr4_named_attr = -1;
@@ -380,6 +378,7 @@ static gint ett_nfs_fs_location4 = -1;
 static gint ett_nfs_open4_result_flags = -1;
 static gint ett_nfs_secinfo4_flavor_info = -1;
 static gint ett_nfs_stateid4 = -1;
+static gint ett_nfs_fattr4_fh_expire_type = -1;
 
 
 /* file name snooping */
@@ -4424,34 +4423,6 @@ dissect_nfs_settime4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static const value_string names_fattr4_expire_type[] = {
-#define FH4_PERSISTENT 0x00000000
-	{	FH4_PERSISTENT,	"FH4_PERSISTENT"	},
-#define FH4_NOEXPIRE_WITH_OPEN 0x00000001
-	{	FH4_NOEXPIRE_WITH_OPEN,	"FH4_NOEXPIRE_WITH_OPEN"	},
-#define FH4_VOLATILE_ANY 0x00000002
-	{	FH4_NOEXPIRE_WITH_OPEN,	"FH4_NOEXPIRE_WITH_OPEN"	},
-#define FH4_VOL_MIGRATION 0x00000004
-	{	FH4_VOL_MIGRATION,	"FH4_VOL_MIGRATION"	},
-#define FH4_VOL_RENAME 0x00000008
-	{	FH4_VOL_RENAME,	"FH4_VOL_RENAME"	},
-	{	0,	NULL	}
-};
-
-int
-dissect_nfs_fh_expire_type(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree)
-{
-	guint32 fattr4_fh_expire_type;
-
-	fattr4_fh_expire_type = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_nfs_fattr4_expire_type, tvb, offset+0, 
-		4, fattr4_fh_expire_type);
-	offset += 4;
-
-	return offset;
-}
-
 int
 dissect_nfs_fsid4(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 	proto_tree *tree, char *name)
@@ -4599,6 +4570,73 @@ dissect_nfs_mode4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, char *name)
 {
 	return dissect_mode(tvb, offset, pinfo, tree, name);
+}
+
+static const value_string nfs4_fattr4_fh_expire_type_names[] = {
+#define FH4_PERSISTENT 0x00000000
+	{	FH4_PERSISTENT,	"FH4_PERSISTENT"	},
+#define FH4_NOEXPIRE_WITH_OPEN 0x00000001
+	{	FH4_NOEXPIRE_WITH_OPEN,	"FH4_NOEXPIRE_WITH_OPEN"	},
+#define FH4_VOLATILE_ANY 0x00000002
+	{	FH4_VOLATILE_ANY,	"FH4_VOLATILE_ANY"	},
+#define FH4_VOL_MIGRATION 0x00000004
+	{	FH4_VOL_MIGRATION,	"FH4_VOL_MIGRATION"	},
+#define FH4_VOL_RENAME 0x00000008
+	{	FH4_VOL_RENAME,	"FH4_VOL_RENAME"	},
+	{	0,	NULL	}
+};
+
+
+int
+dissect_nfs_fattr4_fh_expire_type(tvbuff_t *tvb, int offset, 
+	packet_info *pinfo, proto_tree *tree)
+{
+	guint32 expire_type;
+	proto_item *expire_type_item = NULL;
+	proto_tree *expire_type_tree = NULL;
+
+	expire_type = tvb_get_ntohl(tvb, offset + 0);
+
+	if (tree)
+	{
+		expire_type_item = proto_tree_add_text(tree, tvb, offset, 4,
+			"fattr4_fh_expire_type: 0x%08x", expire_type);
+		if (expire_type_item)
+			expire_type_tree = proto_item_add_subtree(expire_type_item, 
+				ett_nfs_fattr4_fh_expire_type);
+	}
+
+	if (expire_type_tree)
+	{
+		if (expire_type == FH4_PERSISTENT)
+		{
+			proto_tree_add_text(expire_type_tree, tvb, offset, 4, "%s",
+				decode_enumerated_bitfield(expire_type, FH4_PERSISTENT, 8, 
+				nfs4_fattr4_fh_expire_type_names, "%s"));
+		}
+		else
+		{
+			if (expire_type & FH4_NOEXPIRE_WITH_OPEN)
+				proto_tree_add_text(expire_type_tree, tvb, offset, 4,
+						"FH4_NOEXPIRE_WITH_OPEN (0x%08x)", FH4_NOEXPIRE_WITH_OPEN);
+
+			if (expire_type & FH4_VOLATILE_ANY)
+				proto_tree_add_text(expire_type_tree, tvb, offset, 4,
+						"FH4_VOLATILE_ANY (0x%08x)", FH4_VOLATILE_ANY);
+
+			if (expire_type & FH4_VOL_MIGRATION)
+				proto_tree_add_text(expire_type_tree, tvb, offset, 4,
+						"FH4_VOL_MIGRATION (0x%08x)", FH4_VOL_MIGRATION);
+
+			if (expire_type & FH4_VOL_RENAME)
+				proto_tree_add_text(expire_type_tree, tvb, offset, 4,
+						"FH4_VOL_RENAME (0x%08x)", FH4_VOL_RENAME);
+		}
+	}
+
+	offset += 4;
+
+	return offset;
 }
 
 static const value_string names_fattr4[] = {
@@ -4795,9 +4833,8 @@ dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 						break;
 
 					case FATTR4_FH_EXPIRE_TYPE:
-						attr_vals_offset = dissect_rpc_uint32(tvb, pinfo,
-							attr_newftree, hf_nfs_fattr4_expire_type, 
-							attr_vals_offset);
+						attr_vals_offset = dissect_nfs_fattr4_fh_expire_type(tvb,
+							attr_vals_offset, pinfo, attr_newftree);
 						break;
 
 					case FATTR4_CHANGE:
@@ -6181,8 +6218,8 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case NFS4_OP_CREATE:
 			offset = dissect_nfs_change_info4(tvb, offset, pinfo, newftree, 
 				"change_info");
-			offset = dissect_nfs_fattr4(tvb, offset, pinfo, newftree, 
-				"attrsset");
+			offset = dissect_nfs_attributes(tvb, offset, pinfo, newftree,
+				"attrsset", FATTR4_BITMAP_ONLY);
 			break;
 
 		case NFS4_OP_GETATTR:
@@ -6264,6 +6301,8 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				guint flavor;
 				proto_item *fitem;
 				proto_tree *secftree;
+
+				printf("here\n");
 
 				while ((data_follows = tvb_get_ntohl(tvb, offset)))
 				{
@@ -6880,10 +6919,6 @@ proto_register_nfs(void)
 			"attr_vals", "nfs.fattr4.attr_vals", FT_BYTES, BASE_DEC,
 			NULL, 0, "attr_vals", HFILL }},
 
-		{ &hf_nfs_fattr4_expire_type, {
-			"fattr4_expire_type", "nfs.fattr4_expire_type", FT_UINT32, BASE_DEC,
-			VALS(names_fattr4_expire_type), 0, "fattr4_expire_type", HFILL }},
-
 		{ &hf_nfs_fattr4_link_support, {
 			"fattr4_link_support", "nfs.fattr4_link_support", FT_BOOLEAN, 
 			BASE_NONE, &yesno, 0, "nfs.fattr4_link_support", HFILL }},
@@ -7370,8 +7405,10 @@ proto_register_nfs(void)
 		&ett_nfs_fs_locations4,
 		&ett_nfs_fs_location4,
 		&ett_nfs_open4_result_flags,
+		&ett_nfs_secinfo4,
 		&ett_nfs_secinfo4_flavor_info,
-		&ett_nfs_stateid4
+		&ett_nfs_stateid4,
+		&ett_nfs_fattr4_fh_expire_type,
 	};
 	module_t *nfs_module;
 
