@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.33 2003/09/03 20:58:09 guy Exp $
+ * $Id: packet-scsi.c,v 1.34 2003/10/28 03:57:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -161,7 +161,19 @@ static int hf_scsi_persresv_key          = -1;
 static int hf_scsi_persresv_scopeaddr    = -1;
 static int hf_scsi_add_cdblen = -1;
 static int hf_scsi_svcaction = -1;
-
+static int hf_scsi_ssu_immed = -1;
+static int hf_scsi_ssu_pwr_cond = -1;
+static int hf_scsi_ssu_loej = -1;
+static int hf_scsi_ssu_start = -1;
+static int hf_scsi_wb_mode = -1;
+static int hf_scsi_wb_bufferid = -1;
+static int hf_scsi_wb_bufoffset = -1;
+static int hf_scsi_paramlen24 = -1;
+static int hf_scsi_senddiag_st_code = -1;
+static int hf_scsi_senddiag_pf = -1;
+static int hf_scsi_senddiag_st = -1;
+static int hf_scsi_senddiag_devoff = -1;
+static int hf_scsi_senddiag_unitoff = -1;
 
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
@@ -1162,6 +1174,54 @@ const value_string scsi_status_val[] = {
     {0, NULL},
 };
 
+const value_string scsi_ssu_pwrcnd_val[] = {
+    {0x0, "No Change"},
+    {0x1, "Place Device In Active Condition"},
+    {0x2, "Place device into Idle condition"},
+    {0x3, "Place device into Standby condition"},
+    {0x4, "Reserved"},
+    {0x5, "Place device into Sleep condition"},
+    {0x6, "Reserved"},
+    {0x7, "Transfer control of power conditions to block device"},
+    {0x8, "Reserved"},
+    {0x9, "Reserved"},
+    {0xA, "Force Idle Condition Timer to zero"},
+    {0xB, "Force Standby Condition Timer to zero"},
+    {0, NULL},
+};
+
+const value_string scsi_wb_mode_val[] = {
+    {0x0, "Write combined header and data"},
+    {0x1, "Vendor specific"},
+    {0x2, "Write data"},
+    {0x3, "Reserved"},
+    {0x4, "Download microcode"},
+    {0x5, "Download microcode and save"},
+    {0x6, "Download microcode with offsets"},
+    {0x7, "Download microcode with offsets and save"},
+    {0x8, "Reserved"},
+    {0x9, "Reserved"},
+    {0xA, "Echo buffer"},
+    {0, NULL},
+};
+
+const value_string scsi_senddiag_st_code_val[] = {
+    {0, ""},
+    {0x1, "Start short self-test in background"},
+    {0x2, "Start extended self-test in background"},
+    {0x3, "Reserved"},
+    {0x4, "Abort background self-test"},
+    {0x5, "Foreground short self-test"},
+    {0x6, "Foreground extended self-test"},
+    {0x7, "Reserved"},
+    {0, NULL},
+};
+
+const true_false_string scsi_senddiag_pf_val = {
+    "Vendor-specific Page Format",
+    "Standard Page Format",
+};
+
 static gint scsi_def_devtype = SCSI_DEV_SBC;
 
 /*
@@ -1399,7 +1459,7 @@ dissect_scsi_evpd (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     proto_item *ti;
     guint pcode, plen, i, idlen;
     guint8 codeset, flags;
-    char str[256+1];
+    const char *str;
 
     if (tree) {
         pcode = tvb_get_guint8 (tvb, offset+1);
@@ -1508,10 +1568,9 @@ dissect_scsi_evpd (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             break;
         case SCSI_EVPD_DEVSERNUM:
             if (plen > 0) {
-                tvb_memcpy (tvb, str, offset, MIN(plen, sizeof(str) - 1));
-                str[sizeof(str) - 1] = '\0';
+                str = tvb_get_ptr (tvb, offset, plen);
                 proto_tree_add_text (evpd_tree, tvb, offset, plen,
-                                     "Product Serial Number: %s", str);
+                                     "Product Serial Number: %.*s", plen, str);
             }
             break;
         }
@@ -3082,6 +3141,28 @@ dissect_scsi_reserve10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
+dissect_scsi_startstopunit (tvbuff_t *tvb, packet_info *pinfo _U_,
+                            proto_tree *tree, guint offset, gboolean isreq _U_,
+                            gboolean iscdb)
+{
+    guint8 flags;
+    
+    if (!tree || !iscdb)
+        return;
+
+    proto_tree_add_boolean (tree, hf_scsi_ssu_immed, tvb, offset, 1, 0);
+    proto_tree_add_uint (tree, hf_scsi_ssu_pwr_cond, tvb, offset+3, 1, 0);
+    proto_tree_add_boolean (tree, hf_scsi_ssu_loej, tvb, offset+3, 1, 0);
+    proto_tree_add_boolean (tree, hf_scsi_ssu_start, tvb, offset+3, 1, 0);
+
+    flags = tvb_get_guint8 (tvb, offset+4);
+    proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
+                                flags,
+                                "Vendor Unique = %u, NACA = %u, Link = %u",
+                                flags & 0xC0, flags & 0x4, flags & 0x1);
+}
+
+static void
 dissect_scsi_testunitrdy (tvbuff_t *tvb, packet_info *pinfo _U_,
                           proto_tree *tree, guint offset, gboolean isreq,
                           gboolean iscdb)
@@ -3349,6 +3430,50 @@ dissect_scsi_reassignblks (tvbuff_t *tvb, packet_info *pinfo _U_,
                                     "Vendor Unique = %u, NACA = %u, Link = %u",
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
     }
+}
+
+static void
+dissect_scsi_senddiag (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                          guint offset, gboolean isreq, gboolean iscdb _U_)
+{
+    guint8 flags;
+    
+    if (!tree && !isreq)
+        return;
+
+    proto_tree_add_uint (tree, hf_scsi_senddiag_st_code, tvb, offset, 1, 0);
+    proto_tree_add_boolean (tree, hf_scsi_senddiag_pf, tvb, offset, 1, 0);
+    proto_tree_add_boolean (tree, hf_scsi_senddiag_st, tvb, offset, 1, 0);
+    proto_tree_add_boolean (tree, hf_scsi_senddiag_devoff, tvb, offset, 1, 0);
+    proto_tree_add_boolean (tree, hf_scsi_senddiag_unitoff, tvb, offset, 1, 0);
+    proto_tree_add_uint (tree, hf_scsi_paramlen16, tvb, offset+2, 2, 0);
+    
+    flags = tvb_get_guint8 (tvb, offset+4);
+    proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+                                flags,
+                                "Vendor Unique = %u, NACA = %u, Link = %u",
+                                flags & 0xC0, flags & 0x4, flags & 0x1);
+}
+
+static void
+dissect_scsi_writebuffer (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                          guint offset, gboolean isreq, gboolean iscdb _U_)
+{
+    guint8 flags;
+    
+    if (!tree && !isreq)
+        return;
+
+    proto_tree_add_uint (tree, hf_scsi_wb_mode, tvb, offset, 1, 0);
+    proto_tree_add_uint (tree, hf_scsi_wb_bufferid, tvb, offset+1, 1, 0);
+    proto_tree_add_uint (tree, hf_scsi_wb_bufoffset, tvb, offset+2, 3, 0);
+    proto_tree_add_uint (tree, hf_scsi_paramlen24, tvb, offset+5, 3, 0);
+    
+    flags = tvb_get_guint8 (tvb, offset+8);
+    proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+                                flags,
+                                "Vendor Unique = %u, NACA = %u, Link = %u",
+                                flags & 0xC0, flags & 0x4, flags & 0x1);
 }
 
 static void
@@ -4395,11 +4520,21 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                     TRUE);
             break;
 
+        case SCSI_SPC2_SENDDIAG:
+            dissect_scsi_senddiag (tvb, pinfo, scsi_tree, offset+1, TRUE,
+                                   TRUE);
+            break;
+
         case SCSI_SPC2_TESTUNITRDY:
             dissect_scsi_testunitrdy (tvb, pinfo, scsi_tree, offset+1,
                                       TRUE, TRUE);
             break;
 
+        case SCSI_SPC2_WRITEBUFFER:
+            dissect_scsi_writebuffer (tvb, pinfo, scsi_tree, offset+1, TRUE,
+                                      TRUE);
+            break;
+                
         case SCSI_SPC2_VARLENCDB:
             dissect_scsi_varlencdb (tvb, pinfo, scsi_tree, offset+1,
                                     TRUE, TRUE);
@@ -4417,6 +4552,11 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case SCSI_SBC2_FORMATUNIT:
             dissect_scsi_formatunit (tvb, pinfo, scsi_tree, offset+1, TRUE,
                                      TRUE);
+            break;
+
+        case SCSI_SBC2_STARTSTOPUNIT:
+            dissect_scsi_startstopunit (tvb, pinfo, scsi_tree, offset+1, TRUE,
+                                        TRUE);
             break;
 
         case SCSI_SBC2_READ6:
@@ -4752,6 +4892,11 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             case SCSI_SBC2_FORMATUNIT:
                 dissect_scsi_formatunit (tvb, pinfo, scsi_tree, offset, isreq,
                                          FALSE);
+                break;
+
+            case SCSI_SBC2_STARTSTOPUNIT:
+                dissect_scsi_startstopunit (tvb, pinfo, scsi_tree, offset, isreq,
+                                            FALSE);
                 break;
 
             case SCSI_SBC2_READ6:
@@ -5116,6 +5261,46 @@ proto_register_scsi (void)
         { &hf_scsi_svcaction,
           {"Service Action", "scsi.spc2.svcaction", FT_UINT16, BASE_HEX, NULL,
            0x0, "", HFILL}},
+        { &hf_scsi_ssu_immed,
+          {"Immediate", "scsi.sbc2.ssu.immediate", FT_BOOLEAN, BASE_DEC, NULL,
+           0x1, "", HFILL}},
+        { &hf_scsi_ssu_pwr_cond,
+          {"Power Conditions", "scsi.sbc2.ssu.pwr", FT_UINT8, BASE_HEX,
+           VALS (scsi_ssu_pwrcnd_val), 0xF0, "", HFILL}},
+        { &hf_scsi_ssu_loej,
+          {"LOEJ", "scsi.sbc2.ssu.loej", FT_BOOLEAN, BASE_HEX, NULL, 0x2, "",
+           HFILL}},
+        { &hf_scsi_ssu_start,
+          {"Start", "scsi.sbc2.ssu.start", FT_BOOLEAN, BASE_HEX, NULL, 0x1,
+           "", HFILL}},
+        { &hf_scsi_wb_mode,
+          {"Mode", "scsi.spc2.wb.mode", FT_UINT8, BASE_HEX,
+           VALS (scsi_wb_mode_val), 0xF, "", HFILL}},
+        { &hf_scsi_wb_bufferid,
+          {"Buffer ID", "scsi.spc2.sb.bufid", FT_UINT8, BASE_DEC, NULL, 0x0,
+           "", HFILL}},
+        { &hf_scsi_wb_bufoffset,
+          {"Buffer Offset", "scsi.spc2.wb.bufoff", FT_UINT24, BASE_HEX, NULL,
+           0x0, "", HFILL}},
+        { &hf_scsi_paramlen24,
+          {"Paremeter List Length", "scsi.cdb.paramlen24", FT_UINT24, BASE_HEX,
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_senddiag_st_code,
+          {"Self-Test Code", "scsi.spc2.senddiag.code", FT_UINT8, BASE_HEX,
+           VALS (scsi_senddiag_st_code_val), 0xE0, "", HFILL}},
+        { &hf_scsi_senddiag_pf,
+          {"PF", "scsi.spc2.senddiag.pf", FT_BOOLEAN, BASE_HEX,
+           TFS (&scsi_senddiag_pf_val), 0x10, "", HFILL}},
+        { &hf_scsi_senddiag_st,
+          {"Self Test", "scsi.spc2.senddiag.st", FT_BOOLEAN, BASE_HEX, NULL,
+           0x4, "", HFILL}},
+        { &hf_scsi_senddiag_devoff,
+          {"Device Offline", "scsi.spc2.senddiag.devoff", FT_BOOLEAN, BASE_HEX,
+           NULL, 0x2, "", HFILL}},
+        { &hf_scsi_senddiag_unitoff,
+          {"Unit Offline", "scsi.spc2.senddiag.unitoff", FT_BOOLEAN, BASE_HEX,
+           NULL, 0x1, "", HFILL}},
+        
     };
 
     /* Setup protocol subtree array */
