@@ -277,6 +277,7 @@ static const value_string resp_errors[] = {
   { AGENTX_DUP_REGISTR, 	"duplicateRegistration" },
   { AGENTX_UNKNOWN_REG, 	"unknownRegistration" },
   { AGENTX_UNKNOWN_CAPS, 	"unknownAgentCaps" },
+  { 0, NULL }
 };
 
 
