@@ -3,7 +3,7 @@
  *
  * Uwe Girlich <uwe@planetquake.com>
  *
- * $Id: packet-quake3.c,v 1.1 2001/07/22 18:54:16 girlich Exp $
+ * $Id: packet-quake3.c,v 1.2 2001/07/22 19:04:20 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -270,7 +270,7 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 
 		/* now we decode all the rest */
 		base = offset + 18;
-		/* '/' IP.IP.IP.IP PORTLO PORTHI */
+		/* '/', ip-address in network order, port in network order */
 		while (tvb_length_remaining(tvb, base) >= 7) {
 			guint32		ip_addr;
 			guint16		udp_port;
