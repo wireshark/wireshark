@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.42 2003/12/09 05:06:22 guy Exp $
+ * $Id: to_str.c,v 1.43 2004/03/23 01:02:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -863,6 +863,11 @@ address_to_str_buf(address *addr, gchar *buf)
     break;
   case AT_SS7PC:
     mtp3_addr_to_str_buf(addr->data, buf);
+    break;
+  case AT_EUI64:
+    sprintf(buf, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x",
+            addr->data[0], addr->data[1], addr->data[2], addr->data[3],
+            addr->data[4], addr->data[5], addr->data[6], addr->data[7]);
     break;
   default:
     g_assert_not_reached();

@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.118 2004/03/19 05:22:41 guy Exp $
+ * $Id: libpcap.c,v 1.119 2004/03/23 01:02:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -296,9 +296,12 @@ static const struct {
 	/*
 	 * Values 130 through 137 are reserved for use in Juniper
 	 * hardware.
-	 *
-	 * 138 is reserved for Apple IP-over-IEEE 1394.
 	 */
+
+	{ 138,		WTAP_ENCAP_APPLE_IP_OVER_IEEE1394 },
+						/* Apple IP-over-IEEE 1394 */
+
+	/* 139 is reserved for SS7 */
 
 	{ 140,		WTAP_ENCAP_MTP2 },
 	{ 141,		WTAP_ENCAP_MTP3 },

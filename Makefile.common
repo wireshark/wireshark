@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.30 2004/03/19 07:54:57 guy Exp $
+# $Id: Makefile.common,v 1.31 2004/03/23 01:02:40 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,7 @@ DISSECTOR_INCLUDES =	\
 	packet-afs.h	\
 	packet-ansi_a.h	\
 	packet-ansi_map.h	\
+	packet-ap1394.h	\
 	packet-arcnet.h	\
 	packet-arp.h	\
 	packet-atalk.h	\

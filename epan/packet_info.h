@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.39 2004/02/29 08:47:11 guy Exp $
+ * $Id: packet_info.h,v 1.40 2004/03/23 01:02:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,9 +40,10 @@ typedef enum {
   AT_VINES,		/* Banyan Vines */
   AT_OSI,		/* OSI NSAP */
   AT_ARCNET,		/* ARCNET */
-  AT_FC,                /* Fibre Channel */
-  AT_SS7PC,             /* SS7 Point Code */
-  AT_STRINGZ            /* null-terminated string */
+  AT_FC,		/* Fibre Channel */
+  AT_SS7PC,		/* SS7 Point Code */
+  AT_STRINGZ,		/* null-terminated string */
+  AT_EUI64		/* IEEE EUI-64 */
 } address_type;
 
 typedef struct _address {
