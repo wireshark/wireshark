@@ -2,7 +2,7 @@
  * Declaration of routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.h,v 1.3 2001/08/01 03:47:00 guy Exp $
+ * $Id: packet-smb-browse.h,v 1.4 2001/08/05 01:15:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,5 +31,8 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 gboolean
 dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
+
+void
+dissect_smb_server_type_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean infoflag);
 
 #endif

@@ -2,7 +2,7 @@
  * Routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.16 2001/08/01 08:12:15 guy Exp $
+ * $Id: packet-smb-browse.c,v 1.17 2001/08/05 01:15:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -439,8 +439,12 @@ dissect_election_criterion(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent
 
 }
 
-static void
-dissect_server_type_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+/*
+ * XXX - this causes non-browser packets to have browser fields.
+ */
+void
+dissect_smb_server_type_flags(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *parent_tree, int offset, gboolean infoflag)
 {
 	proto_tree *tree = NULL;
 	proto_item *item = NULL;
@@ -454,13 +458,15 @@ dissect_server_type_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_
 	      	tree = proto_item_add_subtree(item, ett_browse_flags);
 	}
 
-	/* Append the type(s) of the system to the COL_INFO line ... */
-	if (check_col(pinfo->fd, COL_INFO)) {
-		for (i = 0; i < 32; i++) {
-			if (flags & (1<<i)) {
-				col_append_fstr(pinfo->fd, COL_INFO, ", %s",
-					val_to_str(i, server_types,
-					"Unknown server type:%d"));
+	if (infoflag) {
+		/* Append the type(s) of the system to the COL_INFO line ... */
+		if (check_col(pinfo->fd, COL_INFO)) {
+			for (i = 0; i < 32; i++) {
+				if (flags & (1<<i)) {
+					col_append_fstr(pinfo->fd, COL_INFO, ", %s",
+						val_to_str(i, server_types,
+						"Unknown server type:%d"));
+				}
 			}
 		}
 	}
@@ -515,6 +521,7 @@ dissect_server_type_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_
 		tvb, offset, 4, flags);
 
 }
+
 
 gboolean
 dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -600,7 +607,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		offset += 1;
 
 		/* server type flags */
-		dissect_server_type_flags(tvb, pinfo, tree, offset);
+		dissect_smb_server_type_flags(tvb, pinfo, tree, offset, TRUE);
 		offset += 4;
 
 		if (cmd == BROWSE_DOMAIN_ANNOUNCEMENT) {
@@ -797,7 +804,8 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		offset += 1;
 
 		/* server type flags */
-		dissect_server_type_flags(tvb, pinfo, tree, offset);
+		dissect_smb_server_type_flags(tvb, pinfo, tree, offset,
+		    hf_server_type);
 		offset += 4;
 
 		/* OS major version */

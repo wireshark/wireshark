@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.9 2001/08/05 00:16:36 guy Exp $
+ * $Id: smb.h,v 1.10 2001/08/05 01:15:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -628,6 +628,7 @@
 #define SMB_LMapi_UserPasswordSet 0x0073
 
 struct smb_request_val {
+  int frame;                   /* Frame in which this request appeared */
   int last_transact2_command;
   gchar *last_transact_command;
   guint16 last_lanman_cmd;
@@ -643,6 +644,10 @@ struct smb_info {
   struct smb_request_val *request_val;
   gboolean unicode;		/* Are strings in this SMB Unicode? */
   gboolean request;		/* Is this a request? */
+  gboolean is_interim_response;	/* Is this an interim transaction response? */
+  int data_offset;		/* Offset from parameter to data in transaction */
+  int data_count;		/* Number of bytes of data in transaction */
+  guint16 ddisp;		/* Data displacement for transaction commands */
 };
 
 #endif

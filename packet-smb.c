@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.94 2001/08/05 00:30:41 guy Exp $
+ * $Id: packet-smb.c,v 1.95 2001/08/05 01:15:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -8973,6 +8973,7 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
     new_request_key -> pid          = si.pid;
 
     request_val = g_mem_chunk_alloc(smb_request_vals);
+    request_val -> frame = fd->num;
     request_val -> last_transact2_command = -1;		/* unknown */
     request_val -> last_transact_command = NULL;
     request_val -> last_param_descrip = NULL;
@@ -9114,6 +9115,9 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     /* Build display for: Parameter Count */
 
+    if (!BYTES_ARE_IN_FRAME(offset, 2))
+      return;
+
     ParameterCount = GSHORT(pd, offset);
 
     if (tree) {
@@ -9125,6 +9129,9 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
     offset += 2; /* Skip Parameter Count */
 
     /* Build display for: Parameter Offset */
+
+    if (!BYTES_ARE_IN_FRAME(offset, 2))
+      return;
 
     ParameterOffset = GSHORT(pd, offset);
 
@@ -9138,6 +9145,9 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     /* Build display for: Data Count */
 
+    if (!BYTES_ARE_IN_FRAME(offset, 2))
+      return;
+
     DataCount = GSHORT(pd, offset);
 
     if (tree) {
@@ -9150,6 +9160,9 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     /* Build display for: Data Offset */
 
+    if (!BYTES_ARE_IN_FRAME(offset, 2))
+      return;
+
     DataOffset = GSHORT(pd, offset);
 
     if (tree) {
@@ -9161,6 +9174,9 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
     offset += 2; /* Skip Data Offset */
 
     /* Build display for: Setup Count */
+
+    if (!BYTES_ARE_IN_FRAME(offset, 2))
+      return;
 
     SetupCount = GBYTE(pd, offset);
 
@@ -9190,6 +9206,9 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
       int i;
 
+      if (!BYTES_ARE_IN_FRAME(offset, 2))
+	return;
+
       /*
        * First Setup word is transaction code.
        */
@@ -9214,6 +9233,9 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
       offset += 2; /* Skip Setup word */
 
       for (i = 2; i <= SetupCount; i++) {
+
+	if (!BYTES_ARE_IN_FRAME(offset, 2))
+	  return;
 
 	Setup = GSHORT(pd, offset);
 
@@ -9318,11 +9340,11 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
     if (check_col(fd, COL_INFO)) {
 
       if (request_val == NULL)
-        col_set_str(fd, COL_INFO, "Response to unknown message");
+	col_set_str(fd, COL_INFO, "Response to unknown message");
       else if (request_val -> last_transact2_command == -1)
-        col_set_str(fd, COL_INFO, "Response to message of unknown type");
+	col_set_str(fd, COL_INFO, "Response to message of unknown type");
       else
-        col_add_fstr(fd, COL_INFO, "%s Response",
+	col_add_fstr(fd, COL_INFO, "%s Response",
 		     val_to_str(request_val -> last_transact2_command,
 				trans2_cmd_vals, "Unknown (0x%02X)"));
 
@@ -9438,7 +9460,11 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     /* Build display for: Data Displacement */
 
+    if (!BYTES_ARE_IN_FRAME(offset, 2))
+      return;
+
     DataDisplacement = GSHORT(pd, offset);
+    si.ddisp = DataDisplacement;
 
     if (tree) {
 
@@ -9583,6 +9609,8 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd,
   char             *trans_type = NULL, *trans_cmd, *loc_of_slash = NULL;
   int              index;
   const gchar      *Data;
+  packet_info      *pinfo;
+  tvbuff_t         *next_tvb;
 
   if (!TransactName)
 	  return;
@@ -9604,10 +9632,45 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd,
   else
     trans_cmd = NULL;
 
+  pinfo = &pi;
+
+  if (DataOffset < 0) {
+    /*
+     * This is an interim response, so there're no parameters or data
+     * to dissect.
+     */
+    si.is_interim_response = TRUE;
+
+    /*
+     * Create a zero-length tvbuff.
+     */
+    next_tvb = tvb_create_from_top(pi.captured_len);
+  } else {
+    /*
+     * This isn't an interim response.
+     */
+    si.is_interim_response = FALSE;
+
+    /*
+     * Create a tvbuff for the parameters and data.
+     */
+    next_tvb = tvb_create_from_top(SMB_offset + ParameterOffset);
+  }
+
+  /*
+   * Offset of beginning of data from beginning of next_tvb.
+   */
+  si.data_offset = DataOffset - ParameterOffset;
+
+  /*
+   * Number of bytes of data.
+   */
+  si.data_count = DataCount;
+
   /*
    * Pass "si" to the subdissector.
    */
-  pi.private = &si;
+  pinfo->private = &si;
 
   if ((trans_cmd == NULL) ||
       (((trans_type == NULL || strcmp(trans_type, "MAILSLOT") != 0) ||
@@ -9616,9 +9679,7 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd,
 			     SMB_offset + DataOffset, DataCount,
 			     SMB_offset + ParameterOffset, ParameterCount)) &&
       ((trans_type == NULL || strcmp(trans_type, "PIPE") != 0) ||
-       !dissect_pipe_smb(pd, offset, fd, parent, tree, max_data,
-			 SMB_offset, errcode, trans_cmd, DataOffset,
-			 DataCount, ParameterOffset, ParameterCount)))) {
+       !dissect_pipe_smb(next_tvb, pinfo, parent, trans_cmd)))) {
 
     if (ParameterCount > 0) {
 
@@ -9743,6 +9804,7 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
     new_request_key -> pid          = si.pid;
 
     request_val = g_mem_chunk_alloc(smb_request_vals);
+    request_val -> frame = fd->num;
     request_val -> last_transact2_command = -1;		/* unknown */
     request_val -> last_transact_command = NULL;
     request_val -> last_param_descrip = NULL;
@@ -9887,6 +9949,9 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
 
     /* Build display for: Parameter Count */
 
+    if (!BYTES_ARE_IN_FRAME(offset, 2))
+      return;
+
     ParameterCount = GSHORT(pd, offset);
 
     if (tree) {
@@ -9898,6 +9963,9 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
     offset += 2; /* Skip Parameter Count */
 
     /* Build display for: Parameter Offset */
+
+    if (!BYTES_ARE_IN_FRAME(offset, 2))
+      return;
 
     ParameterOffset = GSHORT(pd, offset);
 
@@ -9911,6 +9979,9 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
 
     /* Build display for: Data Count */
 
+    if (!BYTES_ARE_IN_FRAME(offset, 2))
+      return;
+
     DataCount = GSHORT(pd, offset);
 
     if (tree) {
@@ -9923,6 +9994,9 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
 
     /* Build display for: Data Offset */
 
+    if (!BYTES_ARE_IN_FRAME(offset, 2))
+      return;
+
     DataOffset = GSHORT(pd, offset);
 
     if (tree) {
@@ -9934,6 +10008,9 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
     offset += 2; /* Skip Data Offset */
 
     /* Build display for: Setup Count */
+
+    if (!BYTES_ARE_IN_FRAME(offset, 2))
+      return;
 
     SetupCount = GBYTE(pd, offset);
 
@@ -9964,10 +10041,16 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
 
       int i = SetupCount;
 
+      if (!BYTES_ARE_IN_FRAME(offset, 2))
+	return;
+
       Setup = GSHORT(pd, offset);
 
       for (i = 1; i <= SetupCount; i++) {
 	
+	if (!BYTES_ARE_IN_FRAME(offset, 2))
+	  return;
+
 	Setup = GSHORT(pd, offset);
 
 	if (tree) {
@@ -10081,11 +10164,11 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
 
     if (check_col(fd, COL_INFO)) {
       if ( request_val == NULL )
-        col_set_str(fd, COL_INFO, "Response to unknown message");
+	col_set_str(fd, COL_INFO, "Response to unknown message");
       else if (request_val -> last_transact_command == NULL)
-        col_set_str(fd, COL_INFO, "Response to message of unknown type");
+	col_set_str(fd, COL_INFO, "Response to message of unknown type");
       else
-        col_add_fstr(fd, COL_INFO, "%s Response",
+	col_add_fstr(fd, COL_INFO, "%s Response",
 		     request_val -> last_transact_command);
 
     }
@@ -10113,7 +10196,7 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-        proto_tree_add_text(tree, NullTVB, offset, 2, "Byte Count (BCC): %u", ByteCount);
+	proto_tree_add_text(tree, NullTVB, offset, 2, "Byte Count (BCC): %u", ByteCount);
 
       }
 
@@ -10229,7 +10312,11 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
 
     /* Build display for: Data Displacement */
 
+    if (!BYTES_ARE_IN_FRAME(offset, 2))
+      return;
+
     DataDisplacement = GSHORT(pd, offset);
+    si.ddisp = DataDisplacement;
 
     if (tree) {
 
@@ -10752,7 +10839,7 @@ char *decode_smb_error(guint8 errcls, guint16 errcode)
 void
 dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data)
 {
-        proto_tree      *smb_tree = tree, *flags_tree, *flags2_tree;
+	proto_tree      *smb_tree = tree, *flags_tree, *flags2_tree;
 	proto_item      *ti, *tf;
 	guint8          cmd, errcls, errcode1, flags;
 	guint16         flags2, errcode, tid, pid, uid, mid;
@@ -10763,6 +10850,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	OLD_CHECK_DISPLAY_AS_DATA(proto_smb, pd, offset, fd, tree);
 
 	si.unicode = FALSE;
+    	si.ddisp = 0;
 
 	cmd = pd[offset + SMB_hdr_com_offset];
 
@@ -10803,8 +10891,8 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	/* Handle error code */
 
-        if (!BYTES_ARE_IN_FRAME(SMB_offset + 10, 2))
-          return;
+	if (!BYTES_ARE_IN_FRAME(SMB_offset + 10, 2))
+	  return;
 
 	if (GSHORT(pd, SMB_offset + 10) & 0x4000) {
 
@@ -10904,8 +10992,8 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	offset += 1;
 
-        if (!BYTES_ARE_IN_FRAME(offset, 2))
-          return;
+	if (!BYTES_ARE_IN_FRAME(offset, 2))
+	  return;
 
 	flags2 = GSHORT(pd, offset);
 
@@ -11021,7 +11109,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	offset += 2;
 
-        /* Now the UID, User ID */
+	/* Now the UID, User ID */
 
 	uid = GSHORT(pd, offset);
 	si.uid = uid;
@@ -11034,7 +11122,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	
 	offset += 2;
 
-        /* Now the MID, Multiplex ID */
+	/* Now the MID, Multiplex ID */
 
 	mid = GSHORT(pd, offset);
 	si.mid = mid;
@@ -11090,7 +11178,7 @@ proto_register_smb(void)
 		&ett_smb_lock_type,
 	};
 
-        proto_smb = proto_register_protocol("SMB (Server Message Block Protocol)",
+	proto_smb = proto_register_protocol("SMB (Server Message Block Protocol)",
 	    "SMB", "smb");
 
 	proto_register_subtree_array(ett, array_length(ett));
