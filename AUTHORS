@@ -1845,6 +1845,10 @@ Kevin A. Noll <knoll [AT] poss.com> {
 	RFC 2833 RTP Events support
 }
 
+Emanuele Caratti <wiz [AT] libero.it> {
+	Full TACACS+ dissection
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.627 2003/09/20 08:56:56 guy Exp $
+# $Id: Makefile.am,v 1.628 2003/09/20 09:41:48 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -683,6 +683,7 @@ noinst_HEADERS = \
 	packet-spray.h \
 	packet-stat-notify.h \
 	packet-stat.h   \
+	packet-tacacs.h \
 	packet-tcp.h   \
 	packet-tns.h \
 	packet-tpkt.h  \
