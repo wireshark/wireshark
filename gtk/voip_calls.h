@@ -104,6 +104,7 @@ typedef struct _h323_calls_info {
 	gboolean is_h245Tunneling;
 	gint32 q931_crv;
 	gint32 q931_crv2;
+	guint requestSeqNum;
 } h323_calls_info_t;
 
 /* defines a voip call */
@@ -128,7 +129,7 @@ typedef struct _voip_calls_info {
 /* struct holding all information of the tap */
 
 typedef struct _voip_calls_tapinfo {
-	int     ncalls;       /* number of calls in the list */
+	int     ncalls;       /* number of call */
 	GList*  strinfo_list;   /* list with all calls */
 	int     npackets;       /* total number of packets of all calls */
 	voip_calls_info_t* filter_calls_fwd;  /* used as filter in some tap modes */

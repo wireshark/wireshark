@@ -154,7 +154,7 @@ static void add_to_clist(voip_calls_info_t* strinfo)
 	/* Update the status label with the number of total messages */
         g_snprintf(label_text, 256,
        		"Total: Calls: %d   Start packets: %d   Completed calls: %d   Rejected calls: %d",
-			voip_calls_get_info()->ncalls,
+			g_list_length(voip_calls_get_info()->strinfo_list),
 			voip_calls_get_info()->start_packets, 
 			voip_calls_get_info()->completed_calls,
 			voip_calls_get_info()->rejected_calls);
@@ -604,19 +604,20 @@ static void voip_calls_dlg_create (void)
 void voip_calls_dlg_update(GList *list)
 {
 	gchar label_text[256];
-
+guint foo;
 	if (voip_calls_dlg != NULL) {
 		gtk_clist_clear(GTK_CLIST(clist));
 		calls_nb = 0;
 		calls_ns = 0;
         	g_snprintf(label_text, 256,
         		"Total: Calls: %d   Start packets: %d   Completed calls: %d   Rejected calls: %d",
-			voip_calls_get_info()->ncalls,
+			g_list_length(voip_calls_get_info()->strinfo_list),
 		        voip_calls_get_info()->start_packets, 
 			voip_calls_get_info()->completed_calls,
 			voip_calls_get_info()->rejected_calls);
         	gtk_label_set(GTK_LABEL(status_label), label_text);
 
+		foo=	g_list_length(list);
 		list = g_list_first(list);
 		while (list)
 		{
