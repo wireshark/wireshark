@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.19 2001/06/14 22:34:39 guy Exp $
+ * $Id: packet-rtp.c,v 1.20 2001/06/15 00:42:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -331,8 +331,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	unsigned int payload_type;
 	unsigned int i            = 0;
 	unsigned int hdr_extension= 0;
-	unsigned int padding_count= 0;
-	int         data_len, data_reported_len;
+	unsigned int padding_count;
+	int         data_len;
 	unsigned int offset = 0;
 	guint16     seq_num;
 	guint32     timestamp;
@@ -468,37 +468,82 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 				}
 			}
 		}
-		/* Find the padding 
-		 * The padding count is found in the LAST octet of the packet
-		 * This contains the number of octets that can be ignored at 
-		 * the end of the packet
-		 */
+
 		if ( padding_set ) {
-			padding_count = tvb_get_guint8( tvb, tvb_length( tvb ) - 1 );
-			if ( padding_count > 0 ) {
-				data_len = tvb_length( tvb ) - padding_count;
-				data_reported_len =
-				    tvb_reported_length( tvb ) - padding_count;
-				if (data_len > 0 && data_reported_len > 0) {
-					dissect_rtp_data( tvb, pinfo, tree, rtp_tree,
-					    offset,
-					    data_len,
-					    data_reported_len,
-					    payload_type );
-					offset = tvb_length( tvb ) - padding_count;
-					proto_tree_add_item( rtp_tree, hf_rtp_padding_data, tvb, offset, padding_count - 1, FALSE );
-					offset += padding_count - 1;
-					proto_tree_add_item( rtp_tree, hf_rtp_padding_count, tvb, offset, 1, FALSE );
-				}
+			/*
+			 * This RTP frame has padding - find it.
+			 *
+			 * The padding count is found in the LAST octet of
+			 * the packet; it contains the number of octets
+			 * that can be ignored at the end of the packet.
+			 */
+			if (tvb_length(tvb) < tvb_reported_length(tvb)) {
+				/*
+				 * We don't *have* the last octet of the
+				 * packet, so we can't get the padding
+				 * count.
+				 *
+				 * Put an indication of that into the
+				 * tree, and just put in a raw data
+				 * item.
+				 */
+				proto_tree_add_text(rtp_tree, tvb, 0, 0,
+				    "Frame has padding, but not all the frame data was captured");
+				dissect_data(tvb, offset, pinfo, rtp_tree);
+				return;
 			}
-			else {
-				proto_tree_add_item( rtp_tree, hf_rtp_padding_count, tvb, tvb_length( tvb ) - 1, 1, FALSE );
+
+			padding_count = tvb_get_guint8( tvb,
+			    tvb_reported_length( tvb ) - 1 );
+			data_len =
+			    tvb_reported_length_remaining( tvb, offset ) - padding_count;
+			if (data_len > 0) {
+				/*
+				 * There's data left over when you take out
+				 * the padding; dissect it.
+				 */
+				dissect_rtp_data( tvb, pinfo, tree, rtp_tree,
+				    offset,
+				    data_len,
+				    data_len,
+				    payload_type );
+				offset += data_len;
+			} else if (data_len < 0) {
+				/*
+				 * The padding count is bigger than the
+				 * amount of RTP payload in the packet!
+				 * Clip the padding count.
+				 *
+				 * XXX - put an item in the tree to indicate
+				 * that the padding count is bogus?
+				 */
+				padding_count =
+				    tvb_reported_length_remaining(tvb, offset);
 			}
+			if (padding_count > 1) {
+				/*
+				 * There's more than one byte of padding;
+				 * show all but the last byte as padding
+				 * data.
+				 */
+				proto_tree_add_item( rtp_tree, hf_rtp_padding_data,
+				    tvb, offset, padding_count - 1, FALSE );
+				offset += padding_count - 1;
+			}
+			/*
+			 * Show the last byte in the PDU as the padding
+			 * count.
+			 */
+			proto_tree_add_item( rtp_tree, hf_rtp_padding_count,
+			    tvb, offset, 1, FALSE );
 		}
 		else {
+			/*
+			 * No padding.
+			 */
 			dissect_rtp_data( tvb, pinfo, tree, rtp_tree, offset,
-			    tvb_length_remaining( tvb, offset ) - padding_count,
-			    tvb_reported_length_remaining( tvb, offset ) - padding_count,
+			    tvb_length_remaining( tvb, offset ),
+			    tvb_reported_length_remaining( tvb, offset ),
 			    payload_type );
 		}
 	}
