@@ -3,12 +3,11 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.49 2001/06/18 02:17:46 guy Exp $
+ * $Id: packet-fddi.c,v 1.50 2001/07/03 01:23:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -44,11 +43,16 @@
 
 static int proto_fddi = -1;
 static int hf_fddi_fc = -1;
+static int hf_fddi_fc_clf = -1;
+static int hf_fddi_fc_prio = -1;
+static int hf_fddi_fc_smt_subtype = -1;
+static int hf_fddi_fc_mac_subtype = -1;
 static int hf_fddi_dst = -1;
 static int hf_fddi_src = -1;
 static int hf_fddi_addr = -1;
 
 static gint ett_fddi = -1;
+static gint ett_fddi_fc = -1;
 
 /* FDDI Frame Control values */
 
@@ -85,6 +89,33 @@ static gint ett_fddi = -1;
  */
 #define FDDI_FC_ASYNC_R		0x08		/* Reserved */
 #define FDDI_FC_ASYNC_PRI	0x07		/* Priority */
+
+#define CLFF_BITS(fc)	(((fc) & FDDI_FC_CLFF) >> 4)
+#define ZZZZ_BITS(fc)	((fc) & FDDI_FC_ZZZZ)
+
+static const value_string clf_vals[] = {
+	{ CLFF_BITS(FDDI_FC_VOID),      "Void" },
+	{ CLFF_BITS(FDDI_FC_SMT),       "SMT" },
+	{ CLFF_BITS(FDDI_FC_LLC_ASYNC), "Async LLC" },
+	{ CLFF_BITS(FDDI_FC_IMP_ASYNC), "Implementor Async" },
+	{ CLFF_BITS(FDDI_FC_NRT),       "Nonrestricted Token" },
+	{ CLFF_BITS(FDDI_FC_MAC),       "MAC" },
+	{ CLFF_BITS(FDDI_FC_LLC_SYNC),  "Sync LLC" },
+	{ CLFF_BITS(FDDI_FC_IMP_SYNC),  "Implementor Sync" },
+	{ 0,                            NULL }
+};
+
+static const value_string smt_subtype_vals[] = {
+	{ ZZZZ_BITS(FDDI_FC_SMT_INFO), "Info" },
+	{ ZZZZ_BITS(FDDI_FC_SMT_NSA),  "Next Station Address" },
+	{ 0,                           NULL }
+};
+
+static const value_string mac_subtype_vals[] = {
+	{ ZZZZ_BITS(FDDI_FC_MAC_BEACON), "Beacon" },
+	{ ZZZZ_BITS(FDDI_FC_MAC_CLAIM),  "Claim" },
+	{ 0,                             NULL }
+};
 
 #define FDDI_HEADER_SIZE	13
 
@@ -230,6 +261,7 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_tree *fh_tree = NULL;
   proto_item *ti;
   gchar      *fc_str;
+  proto_tree *fc_tree;
   static u_char src[6], dst[6];
   u_char     src_swapped[6], dst_swapped[6];
   tvbuff_t   *next_tvb;
@@ -247,7 +279,26 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_protocol_format(tree, proto_fddi, tvb, 0, FDDI_HEADER_SIZE,
 		"Fiber Distributed Data Interface, %s", fc_str);
     fh_tree = proto_item_add_subtree(ti, ett_fddi);
-    proto_tree_add_uint(fh_tree, hf_fddi_fc, tvb, FDDI_P_FC, 1, fc);
+    ti = proto_tree_add_uint_format(fh_tree, hf_fddi_fc, tvb, FDDI_P_FC, 1, fc,
+        "Frame Control: 0x%02x (%s)", fc, fc_str);
+    fc_tree = proto_item_add_subtree(ti, ett_fddi_fc);
+    proto_tree_add_uint(fc_tree, hf_fddi_fc_clf, tvb, FDDI_P_FC, 1, fc);
+    switch (fc & FDDI_FC_CLFF) {
+
+    case FDDI_FC_SMT:
+      proto_tree_add_uint(fc_tree, hf_fddi_fc_smt_subtype, tvb, FDDI_P_FC, 1, fc);
+      break;
+
+    case FDDI_FC_MAC:
+      if (fc != FDDI_FC_RT)
+        proto_tree_add_uint(fc_tree, hf_fddi_fc_mac_subtype, tvb, FDDI_P_FC, 1, fc);
+      break;
+
+    case FDDI_FC_LLC_ASYNC:
+      if (!(fc & FDDI_FC_ASYNC_R))
+        proto_tree_add_uint(fc_tree, hf_fddi_fc_prio, tvb, FDDI_P_FC, 1, fc);
+      break;
+    }
   }
 
   /* Extract the destination address, possibly bit-swapping it. */
@@ -351,6 +402,22 @@ proto_register_fddi(void)
 		{ "Frame Control",	"fddi.fc", FT_UINT8, BASE_HEX, NULL, 0x0,
 			"", HFILL }},
 
+		{ &hf_fddi_fc_clf,
+		{ "Class/Length/Format", "fddi.fc.clf", FT_UINT8, BASE_HEX, VALS(clf_vals), FDDI_FC_CLFF,
+			"", HFILL }},
+
+		{ &hf_fddi_fc_prio,
+		{ "Priority", "fddi.fc.prio", FT_UINT8, BASE_DEC, NULL, FDDI_FC_ASYNC_PRI,
+			"", HFILL }},
+
+		{ &hf_fddi_fc_smt_subtype,
+		{ "SMT Subtype", "fddi.fc.smt_subtype", FT_UINT8, BASE_DEC, VALS(smt_subtype_vals), FDDI_FC_ZZZZ,
+			"", HFILL }},
+
+		{ &hf_fddi_fc_mac_subtype,
+		{ "MAC Subtype", "fddi.fc.mac_subtype", FT_UINT8, BASE_DEC, VALS(mac_subtype_vals), FDDI_FC_ZZZZ,
+			"", HFILL }},
+
 		{ &hf_fddi_dst,
 		{ "Destination",	"fddi.dst", FT_ETHER, BASE_NONE, NULL, 0x0,
 			"Destination Hardware Address", HFILL }},
@@ -366,6 +433,7 @@ proto_register_fddi(void)
 	};
 	static gint *ett[] = {
 		&ett_fddi,
+		&ett_fddi_fc,
 	};
 
 	proto_fddi = proto_register_protocol("Fiber Distributed Data Interface",
