@@ -48,7 +48,7 @@ typedef struct capture_options_tag {
 	int linktype;			/**< Data link type to use, or -1 for
 					   "use default" */
 	gboolean capture_child;	/**< True if this is the child for "-S" */
-    gchar    *save_file;    /**< File that user saved capture to */
+    gchar    *save_file;    /**< File the capture was saved in */
     int      save_file_fd;  /**< File descriptor for saved file */
 
     /* GUI related */
@@ -85,16 +85,20 @@ typedef struct capture_options_tag {
 } capture_options;
 
 
-/** Open a specified file, or create a temporary file, and start a capture
+/** 
+ * Open a specified file, or create a temporary file, and start a capture
  * to the file in question.  
  *
- * @return TRUE if the capture starts successfully, FALSE otherwise. */
+ * @param capture_opts the numerous capture options
+ * @param save_file the name of the capture file, or NULL for a temporary file
+ * @return TRUE if the capture starts successfully, FALSE otherwise.
+ */
 extern gboolean do_capture(capture_options *capture_opts, const char *save_file);
 
 /** Do the low-level work of a capture (start the capture child). */
 extern int  capture_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats);
 
-/** Stop a capture from a menu item. */
+/** Stop a capture (usually from a menu item). */
 extern void capture_stop(capture_options *capture_opts);
 
 /** Terminate the capture child cleanly when exiting. */
