@@ -1575,7 +1575,8 @@ Jean-Baptiste Marchand <Jean-Baptiste.Marchand [AT] hsc.fr> {
 	    objects in SAMR
 	Fix for NETLOGON/DsrGetSiteName and other NETLOGON functions
 	Initial DRSUAPI (Active Directory directory replication) support
-	Procedure names for TAPI interface
+	Changed or added procedure names for a number of DCE RPC
+	    interfaces
 }
 
 Andreas Trauer <andreas.trauer [AT] siemens.com> {

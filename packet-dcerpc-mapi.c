@@ -2,7 +2,7 @@
  * Routines for MS Exchange MAPI
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-mapi.c,v 1.24 2003/08/04 02:49:02 tpot Exp $
+ * $Id: packet-dcerpc-mapi.c,v 1.25 2003/10/24 00:42:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -280,7 +280,7 @@ mapi_logon_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-mapi_unknown_02_request(tvbuff_t *tvb, int offset,
+mapi_ec_do_rpc_request(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -306,7 +306,7 @@ mapi_unknown_02_request(tvbuff_t *tvb, int offset,
 	return offset;
 }
 static int
-mapi_unknown_02_reply(tvbuff_t *tvb, int offset,
+mapi_ec_do_rpc_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -357,16 +357,24 @@ mapi_logoff_reply(tvbuff_t *tvb, int offset,
 
 
 static dcerpc_sub_dissector dcerpc_mapi_dissectors[] = {
-        { MAPI_LOGON,		"Logon",
+        { MAPI_EC_DO_CONNECT,	"EcDoConnect",
 		mapi_logon_rqst,
 		mapi_logon_reply },
-        { MAPI_LOGOFF,		"Logoff",
+        { MAPI_EC_DO_DISCONNECT,"EcDoDisconnect",
 		mapi_logoff_rqst,
 		mapi_logoff_reply },
-        { MAPI_UNKNOWN_02,	"unknown_02",
-		mapi_unknown_02_request,
-		mapi_unknown_02_reply },
-
+        { MAPI_EC_DO_RPC,	"EcDoRpc",
+		mapi_ec_do_rpc_request,
+		mapi_ec_do_rpc_reply },
+	{ MAPI_EC_GET_MORE_RPC, "EcGetMoreRpc", NULL, NULL },
+	{ MAPI_EC_REGISTER_PUSH_NOTIFICATION, "EcRRegisterPushNotification",
+		NULL, NULL },
+	{ MAPI_EC_UNREGISTER_PUSH_NOTIFICATION, "EcRUnregisterPushNotification",
+		NULL, NULL },
+	{ MAPI_EC_DUMMY_RPC, "EcDummyRpc", NULL, NULL },
+	{ MAPI_EC_GET_DC_NAME, "EcRGetDCName", NULL, NULL },
+ 	{ MAPI_EC_NET_GET_DC_NAME, "EcRNetGetDCName", NULL, NULL },
+	{ MAPI_EC_DO_RPC_EXT, "EcDoRpcExt", NULL, NULL },
         {0, NULL, NULL,  NULL }
 };
 
