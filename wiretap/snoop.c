@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.65 2003/11/11 20:49:46 guy Exp $
+ * $Id: snoop.c,v 1.66 2003/12/19 22:23:05 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -432,6 +432,15 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 		 */
 		g_message("snoop: File has %u-byte packet, bigger than maximum of %u",
 		    packet_size, WTAP_MAX_PACKET_SIZE);
+		*err = WTAP_ERR_BAD_RECORD;
+		return FALSE;
+	}
+	if (packet_size > rec_size) {
+		/*
+		 * Probably a corrupt capture file.
+		 */
+		g_message("snoop: File has %u-byte packet, bigger than record size %u",
+		    packet_size, rec_size);
 		*err = WTAP_ERR_BAD_RECORD;
 		return FALSE;
 	}
