@@ -1,0 +1,2396 @@
+--          Expanded ASN1 Module 'MAP-Protocol'          
+--SIEMENS ASN.1 Compiler       R5.70  (Production_5.70)    
+--            Date: 2003-09-04 Time: 14:14:00            
+
+MAP-Protocol{ 0 identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-Protocol (4) version5 (5) }
+
+DEFINITIONS::=
+
+BEGIN
+
+
+Bss-APDU ::=        SEQUENCE {
+            protocolId  ProtocolId,
+            signalInfo           OCTET STRING ( SIZE( 1 .. 200 ) ), 
+            extensionContainer   ExtensionContainer OPTIONAL, 
+            ... } 
+
+SupportedCamelPhases ::= BIT STRING {
+  phase1  (0 ), 
+  phase2  (1 )}
+
+Vlr-Capability ::= SEQUENCE {
+            supportedCamelPhases    [0] IMPLICIT SupportedCamelPhases OPTIONAL, 
+            extensionContainer   ExtensionContainer OPTIONAL, 
+            ... , 
+            solsaSupportIndicator   [2] IMPLICIT NULL OPTIONAL}
+
+Imsi ::= OCTET STRING 
+Lmsi ::= OCTET STRING ( SIZE( 4 ) )
+--updateLocation OPERATION
+--   ARGUMENT
+UpdateLocationArg ::= SEQUENCE {
+         imsi                 Imsi, 
+         msc-Number           [1] IMPLICIT Msc-Number, 
+         vlr-Number           Vlr-Number, 
+         lmsi                 [10] IMPLICIT Lmsi OPTIONAL, 
+         extensionContainer   ExtensionContainer OPTIONAL, 
+         ... , 
+         vlr-Capability       [6] IMPLICIT Vlr-Capability OPTIONAL}
+--   RESULT
+UpdateLocationRes ::= SEQUENCE {
+         hlr-Number           Hlr-Number, 
+          extensionContainer   ExtensionContainer OPTIONAL, 
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- unknownSubscriber   localValue : 1, 
+-- roamingNotAllowed   localValue : 8}
+-- ::= localValue : 2
+
+-- Ethereal adaptation 
+PrivateExtensionList ::= SEQUENCE OF PrivateExtension
+
+PrivateExtension ::= SEQUENCE {
+--                  extId      MAP-EXTENSION .&extensionId , 
+--                  extType    MAP-EXTENSION .&ExtensionType   OPTIONAL
+--{ @extId   }  )  OPTIONAL
+} 
+
+
+PcsExtensions ::= SEQUENCE {
+          ...
+ }
+Teleservice ::= OCTET STRING ( SIZE( 1 .. 5 ) )
+Msc-Number  ::= OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ) 
+-- End Ethereal adaptation 
+
+CancellationType ::=    ENUMERATED {
+  updateProcedure         ( 0 ), 
+  subscriptionWithdraw    ( 1 ), 
+  ...  }
+
+--cancelLocation OPERATION
+--   ARGUMENT
+CancelLocationArg ::= [3] IMPLICIT SEQUENCE {
+         identity             CHOICE {
+            imsi              Imsi, 
+            imsi-WithLMSI     SEQUENCE {
+               imsi       Imsi, 
+               lmsi       Lmsi, 
+               ... }}, 
+         cancellationType     CancellationType OPTIONAL, 
+         extensionContainer   ExtensionContainer OPTIONAL, 
+         ... }
+--   RESULT
+CancelLocationRes ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL, 
+         ... }
+--   ERRORS {
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36}
+-- ::= localValue : 3
+
+--purgeMS    OPERATION
+--   ARGUMENT
+PurgeMS-Arg ::= [3] IMPLICIT SEQUENCE {
+         imsi                 Imsi, 
+         vlr-Number           [0] IMPLICIT Vlr-Number OPTIONAL, 
+         sgsn-Number          [1] IMPLICIT Sgsn-Number OPTIONAL, 
+         extensionContainer   ExtensionContainer OPTIONAL, 
+         ... }
+--   RESULT
+PurgeMS-Res ::= SEQUENCE {
+         freezeTMSI           [0] IMPLICIT NULL OPTIONAL, 
+         freezeP-TMSI         [1] IMPLICIT NULL OPTIONAL, 
+         extensionContainer   ExtensionContainer OPTIONAL, 
+         ... }
+--   ERRORS {
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- unknownSubscriber   localValue : 1}
+-- ::= localValue : 67
+
+--sendIdentification OPERATION
+--   ARGUMENT
+Tmsi    ::=   OCTET STRING ( SIZE( 1 .. 4 ) )
+--   RESULT
+SendIdentificationRes ::= SEQUENCE {
+         imsi                    Imsi, 
+         authenticationSetList   SEQUENCE  ( SIZE( 1 .. 5 ) ) OF
+            SEQUENCE {
+               rand       OCTET STRING ( SIZE( 16 ) ), 
+               sres       OCTET STRING ( SIZE( 4 ) ), 
+               kc         OCTET STRING ( SIZE( 8 ) ), 
+               ... } OPTIONAL, 
+         ... }
+--   ERRORS {
+-- dataMissing   localValue : 35, 
+-- unidentifiedSubscriber   localValue : 5}
+-- ::= localValue : 55
+
+--prepareHandover OPERATION
+--   ARGUMENT
+PrepareHO-Arg ::= SEQUENCE {
+         targetCellId           OCTET STRING ( SIZE( 5 .. 7 ) ) OPTIONAL, 
+         ho-NumberNotRequired   NULL OPTIONAL, 
+         bss-APDU               Bss-APDU OPTIONAL, 
+         ... }
+--   RESULT
+PrepareHO-Res ::= SEQUENCE {
+         handoverNumber   OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ) OPTIONAL, 
+         bss-APDU         Bss-APDU OPTIONAL, 
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- noHandoverNumberAvailable   localValue : 25}
+-- ::= localValue : 68
+-- Ethereal adaptation --
+ProtocolId  ::=         ENUMERATED {
+               gsm-0408        ( 1 ), 
+               gsm-0806        ( 2 ), 
+               gsm-BSSMAP      ( 3 ), 
+               ets-300102-1    ( 4 ) 
+}
+
+Sgsn-Number ::= OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ) 
+Vlr-Number ::= OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) )
+-- End Ethereal adaptation --
+--sendEndSignal OPERATION
+--   ARGUMENT
+--Bss-APDU ::=  SEQUENCE { ... defined elsewhere
+-- ::= localValue : 29
+
+--processAccessSignalling OPERATION
+--   ARGUMENT
+--Bss-APDU ::=  SEQUENCE { ... defined elsewhere
+-- ::= localValue : 33
+
+--forwardAccessSignalling OPERATION
+--   ARGUMENT
+--Bss-APDU ::=  SEQUENCE { ... defined elsewhere
+-- ::= localValue : 34
+
+--prepareSubsequentHandover OPERATION
+--   ARGUMENT
+PrepareSubsequentHO-Arg ::= SEQUENCE {
+         targetCellId       OCTET STRING ( SIZE( 5 .. 7 ) ), 
+         targetMSC-Number   OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ), 
+         bss-APDU           Bss-APDU, 
+         ... }
+--   RESULT
+--bss-APDU ::=  SEQUENCE {  ... defined elsewhere
+--   ERRORS {
+-- unexpectedDataValue   localValue : 36, 
+-- dataMissing   localValue : 35, 
+-- unknownMSC   localValue : 3, 
+-- subsequentHandoverFailure   localValue : 26}
+-- ::= localValue : 69
+
+--sendAuthenticationInfo OPERATION
+--   ARGUMENT
+SendAuthenticationInfoArg ::= SEQUENCE {
+      imsi                         [0] IMPLICIT Imsi, 
+      numberOfRequestedVectors     INTEGER ( 1 .. 5 ), 
+      segmentationProhibited       NULL OPTIONAL, 
+      immediateResponsePreferred   [1] IMPLICIT NULL OPTIONAL, 
+      re-synchronisationInfo       SEQUENCE {
+         rand       OCTET STRING (  SIZE (16 ) ), 
+         auts       OCTET STRING (  SIZE (14 ) ), 
+         ... } OPTIONAL, 
+      extensionContainer           [2] IMPLICIT ExtensionContainer OPTIONAL, 
+      requestingNodeType           [3] IMPLICIT ENUMERATED {
+         vlr         (0 ), 
+         sgsn        (1 ), 
+         ... } OPTIONAL, 
+      requestingPLMN-Id            [4] IMPLICIT OCTET STRING (  SIZE (3 ) ) OPTIONAL}
+
+--   RESULT
+SendAuthenticationInfoRes ::= SEQUENCE  ( SIZE( 1 .. 5 ) ) OF
+         SEQUENCE {
+            rand       OCTET STRING ( SIZE( 16 ) ), 
+            sres       OCTET STRING ( SIZE( 4 ) ), 
+            kc         OCTET STRING ( SIZE( 8 ) ), 
+            ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- unknownSubscriber   localValue : 1}
+-- ::= localValue : 56
+
+--checkIMEI  OPERATION
+--   ARGUMENT
+CheckIMEIArg ::= Imei
+
+Imei ::=      OCTET STRING ( SIZE( 8 ) )
+--   RESULT
+EquipmentStatus ::= ENUMERATED {
+         whiteListed    ( 0 ), 
+         blackListed    ( 1 ), 
+         greyListed     ( 2 ) }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unknownEquipment   localValue : 7}
+-- ::= localValue : 43
+
+
+OverrideCategory ::= ENUMERATED {
+   overrideEnabled     ( 0 ), 
+   overrideDisabled    ( 1 ) }
+
+BasicService ::= CHOICE {
+  bearerService     [2] IMPLICIT OCTET STRING, 
+  teleservice       [3] IMPLICIT Teleservice}
+
+BasicServiceGroupList ::= SEQUENCE OF BasicService
+
+IntraCUG-Options ::= ENUMERATED {
+  noCUG-Restrictions    ( 0 ), 
+  cugIC-CallBarred      ( 1 ), 
+  cugOG-CallBarred      ( 2 ) }
+
+Odb-GeneralData ::= BIT STRING {
+  allOGCallsBarred(0), 
+  internationalOGCallsBarred(1), 
+  internationalOGCallsNotToHPLMNCountryBarred(2), 
+  premiumRateInformationOGCallsBarred  (3 ), 
+  premiumRateEntertainementOGCallsBarred  (4 ), 
+  ssAccessBarred  (5 ), 
+  interzonalOGCallsBarred  (6 ), 
+  interzonalOGCallsNotToHPLMNCountryBarred  (7 ), 
+  interzonalOGCallsAndIntOGCallsNotToHPLMNCountryBarred  (8 ), 
+  allECTBarred  (9 ), 
+  chargeableECTBarred  (10 ), 
+  internationalECTBarred  (11 ), 
+  interzonalECTBarred  (12 ), 
+  doublyChargeableECTBarred  (13 ), 
+  multipleECTBarred  (14 )}
+
+Odb-HPLMN-Data ::= BIT STRING {
+  plmnSpecificBarringType1  (0 ), 
+  plmnSpecificBarringType2  (1 ), 
+  plmnSpecificBarringType3  (2 ), 
+  plmnSpecificBarringType4  (3 )}
+
+SubscriberStatus ::= ENUMERATED {
+  serviceGranted               ( 0 ), 
+  operatorDeterminedBarring    ( 1 ) }
+
+BcsmTriggerDetectionPoint ::= ENUMERATED {
+  collectedInfo    ( 2 ), 
+  termAttemptAuthorized    ( 12 ), 
+  ...  }
+
+ServiceKey ::= INTEGER ( 0 .. 2147483647 )
+
+BcsmCamelTDPData ::= SEQUENCE {
+  bcsmTriggerDetectionPoint   BcsmTriggerDetectionPoint, 
+  serviceKey                    ServiceKey, 
+  gsmSCFAddress                [0] IMPLICIT GsmSCF-Address, 
+  defaultCallHandling           [1] IMPLICIT DefaultCallHandling, 
+  extensionContainer            [2] IMPLICIT ExtensionContainer OPTIONAL, 
+  ... }
+
+BcsmCamelTDPDataList ::= SEQUENCE OF BcsmCamelTDPData
+
+GsmSCF-Address ::= OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) )
+
+DefaultCallHandling ::= ENUMERATED {
+  continueCall    ( 0 ), 
+  releaseCall     ( 1 ), 
+  ...  }
+
+O-CSI ::= SEQUENCE {
+  o-BcsmCamelTDPDataList    BcsmCamelTDPDataList, 
+  extensionContainer   ExtensionContainer OPTIONAL, 
+  ... , 
+  camelCapabilityHandling   [0] IMPLICIT INTEGER ( 1 .. 16 ) OPTIONAL}
+
+
+Msisdn ::= OCTET STRING
+
+--insertSubscriberData OPERATION
+--   ARGUMENT
+InsertSubscriberDataArg ::= SEQUENCE {
+         imsi                                             [0] IMPLICIT Imsi OPTIONAL, 
+         msisdn                                      [1] IMPLICIT Msisdn OPTIONAL, 
+         category                                    [2] IMPLICIT OCTET STRING ( SIZE( 1 ) ) OPTIONAL, 
+         subscriberStatus                            [3] IMPLICIT SubscriberStatus OPTIONAL, 
+         bearerServiceList                           [4] IMPLICIT SEQUENCE  ( SIZE( 1 .. 50 ) ) OF
+            OCTET STRING ( SIZE( 1 .. 5 ) ) OPTIONAL, 
+         teleserviceList                             [6] IMPLICIT SEQUENCE  ( SIZE( 1 .. 20 ) ) OF
+            Teleservice OPTIONAL, 
+         provisionedSS                               [7] IMPLICIT SEQUENCE  ( SIZE( 1 .. 30 ) ) OF
+            CHOICE {
+               forwardingInfo      [0] IMPLICIT ForwardingInfo, 
+               callBarringInfo     [1] IMPLICIT CallBarringInfo, 
+               cug-Info            [2] IMPLICIT SEQUENCE {
+                  cug-SubscriptionList   SEQUENCE  ( SIZE( 0 .. 10 ) ) OF
+                     SEQUENCE {
+                        cug-Index               INTEGER ( 0 .. 32767 ), 
+                        cug-Interlock           OCTET STRING ( SIZE( 4 ) ), 
+                        intraCUG-Options        IntraCUG-Options,
+                        basicServiceGroupList   BasicServiceGroupList OPTIONAL, 
+                        extensionContainer      [0] IMPLICIT ExtensionContainer OPTIONAL, 
+                        ... }, 
+                  cug-FeatureList        SEQUENCE  ( SIZE( 1 .. 32 ) ) OF
+                     SEQUENCE {
+                        basicService                BasicService OPTIONAL, 
+                        preferentialCUG-Indicator   INTEGER ( 0 .. 32767 ) OPTIONAL, 
+                        interCUG-Restrictions       OCTET STRING ( SIZE( 1 ) ), 
+                        extensionContainer   ExtensionContainer OPTIONAL, 
+                        ... } OPTIONAL, 
+                  extensionContainer     [0] IMPLICIT ExtensionContainer OPTIONAL, 
+                  ... }, 
+               ss-Data2             [3] IMPLICIT SEQUENCE {
+                  ss-Code                 Ss-Code, 
+                  ss-Status               [4] IMPLICIT Ss-Status, 
+                  ss-SubscriptionOption   Ss-SubscriptionOption OPTIONAL, 
+                  basicServiceGroupList   BasicServiceGroupList OPTIONAL, 
+                  extensionContainer      [5] IMPLICIT ExtensionContainer OPTIONAL, 
+                  ... }, 
+               emlpp-Info          [4] IMPLICIT SEQUENCE {
+                  maximumentitledPriority   INTEGER ( 0 .. 15 ), 
+                  defaultPriority           INTEGER ( 0 .. 15 ), 
+                  extensionContainer   ExtensionContainer OPTIONAL, 
+                  ... }} OPTIONAL, 
+         odb-Data                                    [8] IMPLICIT SEQUENCE {
+            odb-GeneralData      Odb-GeneralData, 
+            odb-HPLMN-Data       Odb-HPLMN-Data OPTIONAL, 
+            extensionContainer   ExtensionContainer OPTIONAL, 
+            ... } OPTIONAL, 
+         roamingRestrictionDueToUnsupportedFeature   [9] IMPLICIT NULL OPTIONAL, 
+         regionalSubscriptionData                    [10] IMPLICIT SEQUENCE  ( SIZE( 1 .. 10 ) ) OF
+            OCTET STRING ( SIZE( 2 ) ) OPTIONAL, 
+         vbsSubscriptionData                         [11] IMPLICIT SEQUENCE  ( SIZE( 1 .. 50 ) ) OF
+            SEQUENCE {
+               groupid                    OCTET STRING ( SIZE( 3 ) ), 
+               broadcastInitEntitlement   NULL OPTIONAL, 
+               extensionContainer   ExtensionContainer OPTIONAL, 
+               ... } OPTIONAL, 
+         vgcsSubscriptionData                        [12] IMPLICIT SEQUENCE  ( SIZE( 1 .. 50 ) ) OF
+            SEQUENCE {
+               groupId              OCTET STRING ( SIZE( 3 ) ), 
+               extensionContainer   ExtensionContainer OPTIONAL, 
+               ... } OPTIONAL, 
+         vlrCamelSubscriptionInfo                    [13] IMPLICIT SEQUENCE {
+            o-CSI                         [0] IMPLICIT O-CSI OPTIONAL, 
+            extensionContainer            [1] IMPLICIT ExtensionContainer OPTIONAL, 
+            ... , 
+            ss-CSI                        [2] IMPLICIT SEQUENCE {
+               ss-CamelData         SEQUENCE {
+                  ss-EventList         SEQUENCE  ( SIZE( 1 .. 10 ) ) OF
+                     OCTET STRING ( SIZE( 1 ) ), 
+                  gsmSCF-Address       GsmSCF-Address, 
+                  extensionContainer   [0] IMPLICIT ExtensionContainer OPTIONAL, 
+                  ... }, 
+               extensionContainer   ExtensionContainer OPTIONAL, 
+               ... } OPTIONAL, 
+            o-BcsmCamelTDP-CriteriaList   [4] IMPLICIT O-BcsmCamelTDP-CriteriaList OPTIONAL, 
+            tif-CSI                       [3] IMPLICIT NULL OPTIONAL} OPTIONAL, 
+         extensionContainer                               [14] IMPLICIT ExtensionContainer OPTIONAL, 
+         ... , 
+         naea-PreferredCI                                 [15] IMPLICIT Naea-PreferredCI OPTIONAL, 
+         gprsSubscriptionData                             [16] IMPLICIT SEQUENCE {
+            completeDataListIncluded   NULL OPTIONAL, 
+            gprsDataList               [1] IMPLICIT SEQUENCE  ( SIZE( 1 .. 50 ) ) OF
+               SEQUENCE {
+                  pdp-ContextId         INTEGER ( 1 .. 50 ), 
+                  pdp-Type              [16] IMPLICIT OCTET STRING ( SIZE( 2 ) ), 
+                  pdp-Address           [17] IMPLICIT OCTET STRING ( SIZE( 1 .. 16 ) ) OPTIONAL, 
+                  qos-Subscribed        [18] IMPLICIT OCTET STRING ( SIZE( 3 ) ), 
+                  vplmnAddressAllowed   [19] IMPLICIT NULL OPTIONAL, 
+                  apn                   [20] IMPLICIT OCTET STRING ( SIZE( 2 .. 63 ) ), 
+                  extensionContainer    [21] IMPLICIT ExtensionContainer OPTIONAL, 
+                  ... }, 
+            extensionContainer         [2] IMPLICIT ExtensionContainer OPTIONAL, 
+            ... } OPTIONAL, 
+         roamingRestrictedInSgsnDueToUnsupportedFeature   [23] IMPLICIT NULL OPTIONAL, 
+         networkAccessMode                                [24] IMPLICIT ENUMERATED {
+            bothMSCAndSGSN    ( 0 ), 
+            onlyMSC           ( 1 ), 
+            onlySGSN          ( 2 ), 
+            ...  } OPTIONAL, 
+         lsaInformation                                   [25] IMPLICIT SEQUENCE {
+            completeDataListIncluded   NULL OPTIONAL, 
+            lsaOnlyAccessIndicator     [1] IMPLICIT ENUMERATED {
+               accessOutsideLSAsAllowed       ( 0 ), 
+               accessOutsideLSAsRestricted    ( 1 ) } OPTIONAL, 
+            lsaDataList                [2] IMPLICIT SEQUENCE  ( SIZE( 1 .. 20 ) ) OF
+               SEQUENCE {
+                  lsaIdentity              [0] IMPLICIT OCTET STRING ( SIZE( 3 ) ), 
+                  lsaAttributes            [1] IMPLICIT OCTET STRING ( SIZE( 1 ) ), 
+                  lsaActiveModeIndicator   [2] IMPLICIT NULL OPTIONAL, 
+                  extensionContainer       [3] IMPLICIT ExtensionContainer OPTIONAL, 
+                  ... } OPTIONAL, 
+            extensionContainer         [3] IMPLICIT ExtensionContainer OPTIONAL, 
+            ... } OPTIONAL, 
+         lmu-Indicator                                    [21] IMPLICIT NULL OPTIONAL, 
+         lcsInformation                                   [22] IMPLICIT SEQUENCE {
+            gmlc-List                  [0] IMPLICIT SEQUENCE  ( SIZE( 1 .. 5 ) ) OF
+               OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ) OPTIONAL, 
+            lcs-PrivacyExceptionList   [1] IMPLICIT SEQUENCE  ( SIZE( 1 .. 4 ) ) OF
+               SEQUENCE {
+                  ss-Code                Ss-Code, 
+                  ss-Status              Ss-Status, 
+                  notificationToMSUser   [0] IMPLICIT NotificationToMSUser OPTIONAL, 
+                  externalClientList     [1] IMPLICIT SEQUENCE  ( SIZE( 0 .. 5 ) ) OF
+                     SEQUENCE {
+                        clientIdentity         SEQUENCE {
+                           externalAddress      [0] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ) OPTIONAL, 
+                           extensionContainer   [1] IMPLICIT ExtensionContainer OPTIONAL, 
+                           ... }, 
+                        gmlc-Restriction       [0] IMPLICIT ENUMERATED {
+                           gmlc-List       ( 0 ), 
+                           home-Country    ( 1 ), 
+                           ...  } OPTIONAL, 
+                        notificationToMSUser   [1] IMPLICIT NotificationToMSUser OPTIONAL, 
+                        extensionContainer     [2] IMPLICIT ExtensionContainer OPTIONAL, 
+                        ... } OPTIONAL, 
+                  plmnClientList         [2] IMPLICIT SEQUENCE  ( SIZE( 1 .. 5 ) ) OF
+                     ENUMERATED {
+                        broadcastService             ( 0 ), 
+                        o-andM-HPLMN                 ( 1 ), 
+                        o-andM-VPLMN                 ( 2 ), 
+                        anonymousLocation            ( 3 ), 
+                        targetMSsubscribedService    ( 4 ), 
+                        ...  } OPTIONAL, 
+                  extensionContainer     [3] IMPLICIT ExtensionContainer OPTIONAL, 
+                  ... } OPTIONAL, 
+            molr-List                  [2] IMPLICIT SEQUENCE  ( SIZE( 1 .. 3 ) ) OF
+               SEQUENCE {
+                  ss-Code              Ss-Code, 
+                  ss-Status            Ss-Status, 
+                  extensionContainer   [0] IMPLICIT ExtensionContainer OPTIONAL, 
+                  ... } OPTIONAL, 
+            ... } OPTIONAL}
+--   RESULT
+InsertSubscriberDataRes ::= SEQUENCE {
+         teleserviceList                [1] IMPLICIT SEQUENCE  ( SIZE( 1 .. 20 ) ) OF
+            Teleservice OPTIONAL, 
+         bearerServiceList              [2] IMPLICIT SEQUENCE  ( SIZE( 1 .. 50 ) ) OF
+            OCTET STRING ( SIZE( 1 .. 5 ) ) OPTIONAL, 
+         ss-List                        [3] IMPLICIT SEQUENCE  ( SIZE( 1 .. 30 ) ) OF
+            OCTET STRING ( SIZE( 1 ) ) OPTIONAL, 
+         odb-GeneralData                [4] IMPLICIT Odb-GeneralData OPTIONAL, 
+         regionalSubscriptionResponse   [5] IMPLICIT RegionalSubscriptionResponse OPTIONAL,
+
+         supportedCamelPhases           [6] IMPLICIT SupportedCamelPhases OPTIONAL, 
+         extensionContainer             [7] IMPLICIT ExtensionContainer OPTIONAL, 
+         ... }
+--   ERRORS {
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- unidentifiedSubscriber   localValue : 5}
+-- ::= localValue : 7
+-- Ethereal adaptation --
+CliRestrictionOption ::= ENUMERATED {
+                  permanent                     ( 0 ), 
+                  temporaryDefaultRestricted    ( 1 ), 
+                  temporaryDefaultAllowed       ( 2 ) 
+}
+
+RegionalSubscriptionResponse ::=  ENUMERATED {
+            networkNodeAreaRestricted    ( 0 ), 
+            tooManyZoneCodes              ( 1 ), 
+            zoneCodesConflict             ( 2 ), 
+            regionalSubscNotSupported     ( 3 ) 
+} 
+CallTypeCriteria ::= ENUMERATED {
+	forwarded       ( 0 ), 
+      notForwarded    ( 1 ) 
+}
+Ss-Status ::= OCTET STRING ( SIZE( 1 .. 5 ) )
+ForwardedToNumber ::= OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ) 
+ForwardedToSubaddress ::= OCTET STRING ( SIZE( 1 .. 21 ) )
+
+CallBarringInfo ::= SEQUENCE {
+                  ss-Code                  Ss-Code, 
+                  callBarringFeatureList   SEQUENCE  ( SIZE( 1 .. 32 ) ) OF
+                     SEQUENCE {
+                        basicService         BasicService OPTIONAL, 
+                        ss-Status            [4] IMPLICIT Ss-Status, 
+                        extensionContainer   ExtensionContainer OPTIONAL, 
+                        ... }, 
+                  extensionContainer   ExtensionContainer OPTIONAL, 
+       ... }
+ForwardingFeatureList ::= SEQUENCE {
+                        basicService            BasicService OPTIONAL, 
+                        ss-Status               [4] IMPLICIT Ss-Status, 
+                        forwardedToNumber       [5] IMPLICIT ForwardedToNumber OPTIONAL, 
+                        forwardedToSubaddress   [8] IMPLICIT ForwardedToSubaddress OPTIONAL, 
+                        forwardingOptions       [6] IMPLICIT ForwardingOptions OPTIONAL, 
+                        noReplyConditionTime    [7] IMPLICIT INTEGER OPTIONAL, 
+                        extensionContainer      [9] IMPLICIT ExtensionContainer OPTIONAL, 
+                        ... }
+NotificationToMSUser ::= ENUMERATED {
+                     notifyLocationAllowed                             ( 0 ), 
+                     notifyAndVerify-LocationAllowedIfNoResponse       ( 1 ), 
+                     notifyAndVerify-LocationNotAllowedIfNoResponse    ( 2 ), 
+                     ...  }
+DestinationNumberCriteria ::= SEQUENCE {
+                     matchType                     [0] IMPLICIT MatchType, 
+                     destinationNumberList         [1] IMPLICIT SEQUENCE  ( SIZE( 1 .. 10 ) ) OF
+                        OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ) OPTIONAL, 
+                     destinationNumberLengthList   [2] IMPLICIT SEQUENCE  ( SIZE( 1 .. 3 ) ) OF
+                        INTEGER ( 1 .. 15 ) OPTIONAL, 
+          ... }
+ForwardingInfo ::= SEQUENCE {
+                  ss-Code                 Ss-Code, 
+                  forwardingFeatureList   SEQUENCE  ( SIZE( 1 .. 32 ) ) OF ForwardingFeatureList, 
+                  extensionContainer      [0] IMPLICIT ExtensionContainer OPTIONAL, 
+                  ... }
+Naea-PreferredCI ::= SEQUENCE {
+            naea-PreferredCIC    [0] IMPLICIT OCTET STRING ( SIZE( 3 ) ), 
+            extensionContainer   [1] IMPLICIT ExtensionContainer OPTIONAL, 
+            ... } 
+
+O-BcsmCamelTDP-CriteriaList ::= SEQUENCE  ( SIZE( 1 .. 10 ) ) OF
+               SEQUENCE {
+                  o-BcsmTriggerDetectionPoint   BcsmTriggerDetectionPoint, 
+                  destinationNumberCriteria     [0] IMPLICIT DestinationNumberCriteria OPTIONAL, 
+                  basicServiceCriteria          [1] IMPLICIT BasicServiceGroupList OPTIONAL, 
+                  callTypeCriteria              [2] IMPLICIT CallTypeCriteria OPTIONAL, 
+                  ... }
+Ss-SubscriptionOption ::= CHOICE {
+	cliRestrictionOption     [2] IMPLICIT CliRestrictionOption, 
+	overrideCategory         [1] IMPLICIT OverrideCategory
+}
+ForwardingOptions ::= OCTET STRING ( SIZE( 1 ) )
+--  noReplyConditionTime    [7] IMPLICIT INTEGER ( 1 .. 100 ) OPTIONAL, 
+-- Changed to no size
+-- End Ethereal adaptation --
+--deleteSubscriberData OPERATION
+--   ARGUMENT
+DeleteSubscriberDataArg ::= SEQUENCE {
+         imsi                                              [0] IMPLICIT Imsi, 
+         basicServiceList                                  [1] IMPLICIT BasicServiceGroupList OPTIONAL, 
+         ss-List                                           [2] IMPLICIT SEQUENCE  ( SIZE( 1 .. 30 ) ) OF
+            OCTET STRING ( SIZE( 1 ) ) OPTIONAL, 
+         roamingRestrictionDueToUnsupportedFeature         [4] IMPLICIT NULL OPTIONAL, 
+         regionalSubscriptionIdentifier                    [5] IMPLICIT OCTET STRING ( SIZE( 2 ) ) OPTIONAL, 
+         vbsGroupIndication                                [7] IMPLICIT NULL OPTIONAL, 
+         vgcsGroupIndication                               [8] IMPLICIT NULL OPTIONAL, 
+         camelSubscriptionInfoWithdraw                     [9] IMPLICIT NULL OPTIONAL, 
+         extensionContainer                                [6] IMPLICIT ExtensionContainer OPTIONAL, 
+         ... , 
+         gprsSubscriptionDataWithdraw                      [10] CHOICE {
+            allGPRSData       NULL, 
+            contextIdList     SEQUENCE  ( SIZE( 1 .. 50 ) ) OF
+               INTEGER ( 1 .. 50 )} OPTIONAL, 
+         roamingRestrictedInSgsnDueToUnsuppportedFeature   [11] IMPLICIT NULL OPTIONAL, 
+         lsaInformationWithdraw                            [12] CHOICE {
+            allLSAData          NULL, 
+            lsaIdentityList     SEQUENCE  ( SIZE( 1 .. 20 ) ) OF
+               OCTET STRING ( SIZE( 3 ) )} OPTIONAL, 
+         gmlc-ListWithdraw                                 [13] IMPLICIT NULL OPTIONAL}
+--   RESULT
+DeleteSubscriberDataRes ::= SEQUENCE {
+         regionalSubscriptionResponse   [0] IMPLICIT RegionalSubscriptionResponse OPTIONAL, 
+         extensionContainer   ExtensionContainer OPTIONAL, 
+         ... }
+--   ERRORS {
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- unidentifiedSubscriber   localValue : 5}
+-- ::= localValue : 8
+
+--reset      OPERATION
+--   ARGUMENT
+ResetArg ::=  SEQUENCE {
+         hlr-Number   Hlr-Number, 
+         hlr-List     SEQUENCE  ( SIZE( 1 .. 50 ) ) OF
+            OCTET STRING ( SIZE( 3 .. 8 ) ) OPTIONAL, 
+         ... }
+-- ::= localValue : 37
+Hlr-Number ::= OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) )
+--forwardCheckSS-Indication OPERATION
+-- ::= localValue : 38
+
+--restoreData OPERATION
+--   ARGUMENT
+RestoreDataArg ::= SEQUENCE {
+         imsi                 Imsi, 
+         lmsi                 Lmsi OPTIONAL, 
+         extensionContainer   ExtensionContainer OPTIONAL, 
+         ... , 
+         vlr-Capability       [6] IMPLICIT Vlr-Capability OPTIONAL}
+--   RESULT
+RestoreDataRes ::= SEQUENCE {
+         hlr-Number           Hlr-Number, 
+         msNotReachable       NULL OPTIONAL, 
+         extensionContainer   ExtensionContainer OPTIONAL, 
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- unknownSubscriber   localValue : 1}
+-- ::= localValue : 57
+
+--activateTraceMode OPERATION
+--   ARGUMENT
+ActivateTraceModeArg ::= SEQUENCE {
+         imsi                 [0] IMPLICIT Imsi OPTIONAL, 
+         traceReference       [1] IMPLICIT OCTET STRING ( SIZE( 1 .. 2 ) ), 
+         traceType            [2] IMPLICIT INTEGER ( 0 .. 255 ), 
+         omc-Id               [3] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ) OPTIONAL, 
+         extensionContainer   [4] IMPLICIT ExtensionContainer OPTIONAL, 
+         ... }
+--   RESULT
+ActivateTraceModeRes ::= SEQUENCE {
+         extensionContainer   [0] IMPLICIT ExtensionContainer OPTIONAL, 
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- facilityNotSupported   localValue : 21, 
+-- unidentifiedSubscriber   localValue : 5, 
+-- tracingBufferFull   localValue : 40}
+-- ::= localValue : 50
+
+--deactivateTraceMode OPERATION
+--   ARGUMENT
+DeactivateTraceModeArg ::= SEQUENCE {
+         imsi                 [0] IMPLICIT Imsi OPTIONAL, 
+         traceReference       [1] IMPLICIT OCTET STRING ( SIZE( 1 .. 2 ) ), 
+         extensionContainer   [2] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   RESULT
+DeactivateTraceModeRes ::= SEQUENCE {
+         extensionContainer   [0] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- facilityNotSupported   localValue : 21, 
+-- unidentifiedSubscriber   localValue : 5}
+-- ::= localValue : 51
+
+--sendIMSI   OPERATION
+--   ARGUMENT
+--Msisdn ::=defined elsewhere
+--   RESULT
+--Imsi ::= defined elsewhere
+--   ERRORS {
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- unknownSubscriber   localValue : 1}
+-- ::= localValue : 58
+
+--sendRoutingInfo OPERATION
+--   ARGUMENT
+SendRoutingInfoArg ::= SEQUENCE {
+         msisdn                      [0] IMPLICIT Msisdn, 
+         cug-CheckInfo               [1] IMPLICIT Cug-CheckInfo OPTIONAL, 
+         numberOfForwarding          [2] IMPLICIT INTEGER ( 1 .. 5 ) OPTIONAL, 
+         interrogationType           [3] IMPLICIT ENUMERATED {
+            basicCall     ( 0 ), 
+            forwarding    ( 1 ) }, 
+         or-Interrogation            [4] IMPLICIT NULL OPTIONAL, 
+         or-Capability               [5] IMPLICIT INTEGER ( 1 .. 127 ) OPTIONAL, 
+         gmsc-Address                [6] IMPLICIT Gmsc-Address, 
+         callReferenceNumber         [7] IMPLICIT OCTET STRING ( SIZE( 1 .. 8 ) ) OPTIONAL, 
+         forwardingReason            [8] IMPLICIT ENUMERATED {
+            notReachable    ( 0 ), 
+            busy            ( 1 ), 
+            noReply         ( 2 ) } OPTIONAL, 
+         basicServiceGroup           [9] BasicService OPTIONAL, 
+         networkSignalInfo           [10] IMPLICIT Bss-APDU OPTIONAL, 
+         camelInfo                   [11] IMPLICIT SEQUENCE {
+            supportedCamelPhases   SupportedCamelPhases, 
+            suppress-T-CSI         NULL OPTIONAL, 
+            extensionContainer     ExtensionContainer OPTIONAL,
+            ... } OPTIONAL, 
+         suppressionOfAnnouncement   [12] IMPLICIT NULL OPTIONAL, 
+         extensionContainer          [13] IMPLICIT ExtensionContainer OPTIONAL,
+         ... , 
+         alertingPattern             [14] IMPLICIT OCTET STRING ( SIZE( 1 ) ) OPTIONAL, 
+         ccbs-Call                   [15] IMPLICIT NULL OPTIONAL, 
+         supportedCCBS-Phase         [16] IMPLICIT INTEGER ( 1 .. 127 ) OPTIONAL, 
+         additionalSignalInfo        [17] IMPLICIT AdditionalSignalInfo OPTIONAL}
+--   RESULT
+SendRoutingInfoRes ::= [3] IMPLICIT SEQUENCE {
+         imsi                              [9] IMPLICIT Imsi OPTIONAL, 
+         extendedRoutingInfo               CHOICE {
+            routingInfo          CHOICE {
+               roamingNumber      RoamingNumber, 
+               forwardingData     ForwardingData}, 
+            camelRoutingInfo     [8] IMPLICIT SEQUENCE {
+               forwardingData              ForwardingData OPTIONAL, 
+               gmscCamelSubscriptionInfo   [0] IMPLICIT SEQUENCE {
+                  t-CSI                         [0] IMPLICIT SEQUENCE {
+                     t-BcsmCamelTDPDataList    BcsmCamelTDPDataList, 
+                     extensionContainer        ExtensionContainer OPTIONAL,
+                     ... , 
+                     camelCapabilityHandling   [0] IMPLICIT INTEGER ( 1 .. 16 ) OPTIONAL} OPTIONAL, 
+                  o-CSI                         [1] IMPLICIT O-CSI OPTIONAL, 
+                  extensionContainer            [2] IMPLICIT ExtensionContainer OPTIONAL,
+                  ... , 
+                  o-BcsmCamelTDP-CriteriaList   [3] IMPLICIT  O-BcsmCamelTDP-CriteriaList OPTIONAL}, 
+               extensionContainer          [1] IMPLICIT ExtensionContainer OPTIONAL,
+               ... }} OPTIONAL, 
+         cug-CheckInfo                     [3] IMPLICIT Cug-CheckInfo OPTIONAL, 
+         cugSubscriptionFlag               [6] IMPLICIT NULL OPTIONAL, 
+         subscriberInfo                    [7] IMPLICIT SubscriberInfo OPTIONAL, 
+         ss-List                           [1] IMPLICIT SEQUENCE  ( SIZE( 1 .. 30 ) ) OF
+            OCTET STRING ( SIZE( 1 ) ) OPTIONAL, 
+         basicService                      [5] BasicService OPTIONAL, 
+         forwardingInterrogationRequired   [4] IMPLICIT NULL OPTIONAL, 
+         vmsc-Address                      [2] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ) OPTIONAL, 
+         extensionContainer                [0] IMPLICIT ExtensionContainer OPTIONAL,
+         ... , 
+         naea-PreferredCI                  [10] IMPLICIT Naea-PreferredCI OPTIONAL, 
+         ccbs-Indicators                   [11] IMPLICIT SEQUENCE {
+            ccbs-Possible            [0] IMPLICIT NULL OPTIONAL, 
+            keepCCBS-CallIndicator   [1] IMPLICIT NULL OPTIONAL, 
+            extensionContainer       [2] IMPLICIT ExtensionContainer OPTIONAL,
+            ... } OPTIONAL, 
+         msisdn                            [12] IMPLICIT Msisdn OPTIONAL, 
+         numberPortabilityStatus           [13] IMPLICIT ENUMERATED {
+            notKnownToBePorted                     ( 0 ), 
+            ownNumberPortedOut                     ( 1 ), 
+            foreignNumberPortedToForeignNetwork    ( 2 ), 
+            ...  } OPTIONAL}
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- facilityNotSupported   localValue : 21, 
+-- or-NotAllowed   localValue : 48, 
+-- unknownSubscriber   localValue : 1, 
+-- numberChanged   localValue : 44, 
+-- bearerServiceNotProvisioned   localValue : 10, 
+-- teleserviceNotProvisioned   localValue : 11, 
+-- absentSubscriber   localValue : 27, 
+-- busySubscriber   localValue : 45, 
+-- noSubscriberReply   localValue : 46, 
+-- callBarred   localValue : 13, 
+-- cug-Reject   localValue : 15, 
+-- forwardingViolation   localValue : 14}
+-- ::= localValue : 22
+MatchType ::= ENUMERATED {
+              inhibiting    ( 0 ), 
+              enabling      ( 1 ) 
+}
+
+SubscriberState ::= CHOICE {
+               assumedIdle            [0] IMPLICIT NULL, 
+               camelBusy              [1] IMPLICIT NULL, 
+--XXX               netDetNotReachable     IMPLICIT NetDetNotReachable, 
+               notProvidedFromVLR     [2] IMPLICIT NULL
+} 
+NetDetNotReachable ::=    ENUMERATED {
+                  msPurged          ( 0 ), 
+                  imsiDetached      ( 1 ), 
+                  restrictedArea    ( 2 ), 
+                  notRegistered     ( 3 ) }
+
+LocationInformation ::= SEQUENCE {
+               ageOfLocationInformation   INTEGER ( 0 .. 32767 ) OPTIONAL, 
+               geographicalInformation    [0] IMPLICIT OCTET STRING ( SIZE( 8 ) ) OPTIONAL, 
+               vlr-number                 [1] IMPLICIT Vlr-Number OPTIONAL, 
+               locationNumber             [2] IMPLICIT OCTET STRING ( SIZE( 2 .. 10 ) ) OPTIONAL, 
+               cellIdOrLAI                [3] CHOICE {
+                  cellIdFixedLength     [0] IMPLICIT OCTET STRING ( SIZE( 7 ) ), 
+                  laiFixedLength        [1] IMPLICIT OCTET STRING ( SIZE( 5 ) )} OPTIONAL, 
+               extensionContainer         [4] IMPLICIT ExtensionContainer OPTIONAL,
+               ... }
+SubscriberInfo ::=  SEQUENCE {
+            locationInformation   [0] IMPLICIT LocationInformation OPTIONAL, 
+            subscriberState       [1] SubscriberState OPTIONAL, 
+            extensionContainer    [2] IMPLICIT ExtensionContainer OPTIONAL,
+            ... } 
+RoamingNumber ::= OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ) 
+
+AdditionalSignalInfo ::= SEQUENCE {
+            ext-ProtocolId       ENUMERATED {
+               ets-300356    ( 1 ), 
+               ...  }, 
+            signalInfo           OCTET STRING ( SIZE( 1 .. 200 ) ), 
+            extensionContainer   ExtensionContainer OPTIONAL,
+            ... }
+Cug-CheckInfo ::= SEQUENCE {
+            cug-Interlock        OCTET STRING ( SIZE( 4 ) ), 
+            cug-OutgoingAccess   NULL OPTIONAL, 
+            extensionContainer   ExtensionContainer OPTIONAL,
+            ... }
+ForwardingData ::= SEQUENCE {
+                  forwardedToNumber       [5] IMPLICIT ForwardedToNumber OPTIONAL, 
+                  forwardedToSubaddress   [4] IMPLICIT ForwardedToSubaddress OPTIONAL, 
+                  forwardingOptions       [6] IMPLICIT ForwardingOptions OPTIONAL, 
+                  extensionContainer      [7] IMPLICIT ExtensionContainer OPTIONAL,
+                  ... }
+
+Gmsc-Address ::= OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) )
+
+--provideRoamingNumber OPERATION
+--   ARGUMENT
+ProvideRoamingNumberArg ::= SEQUENCE {
+         imsi                         [0] IMPLICIT Imsi, 
+         msc-Number                   [1] IMPLICIT Msc-Number, 
+         msisdn                       [2] IMPLICIT Msisdn OPTIONAL, 
+         lmsi                         [4] IMPLICIT Lmsi OPTIONAL, 
+         gsm-BearerCapability         [5] IMPLICIT Bss-APDU OPTIONAL, 
+         networkSignalInfo            [6] IMPLICIT Bss-APDU OPTIONAL, 
+         suppressionOfAnnouncement    [7] IMPLICIT NULL OPTIONAL, 
+         gmsc-Address                 [8] IMPLICIT Gmsc-Address OPTIONAL, 
+         callReferenceNumber          [9] IMPLICIT OCTET STRING ( SIZE( 1 .. 8 ) ) OPTIONAL, 
+         or-Interrogation             [10] IMPLICIT NULL OPTIONAL, 
+         extensionContainer           [11] IMPLICIT ExtensionContainer OPTIONAL,
+         ... , 
+         alertingPattern              [12] IMPLICIT OCTET STRING ( SIZE( 1 ) ) OPTIONAL, 
+         ccbs-Call                    [13] IMPLICIT NULL OPTIONAL, 
+         supportedCamelPhasesInGMSC   [15] IMPLICIT SupportedCamelPhases OPTIONAL, 
+         additionalSignalInfo         [14] IMPLICIT AdditionalSignalInfo OPTIONAL, 
+         orNotSupportedInGMSC         [16] IMPLICIT NULL OPTIONAL}
+--   RESULT
+ProvideRoamingNumberRes ::= SEQUENCE {
+         roamingNumber        RoamingNumber, 
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- facilityNotSupported   localValue : 21, 
+-- or-NotAllowed   localValue : 48, 
+-- absentSubscriber   localValue : 27, 
+-- noRoamingNumberAvailable   localValue : 39}
+-- ::= localValue : 4
+
+--resumeCallHandling OPERATION
+--   ARGUMENT
+ResumeCallHandlingArg ::= SEQUENCE {
+         callReferenceNumber   [0] IMPLICIT OCTET STRING ( SIZE( 1 .. 8 ) ) OPTIONAL, 
+         basicServiceGroup     [1] BasicService OPTIONAL, 
+         forwardingData        [2] IMPLICIT ForwardingData OPTIONAL, 
+         imsi                  [3] IMPLICIT Imsi OPTIONAL, 
+         cug-CheckInfo         [4] IMPLICIT Cug-CheckInfo OPTIONAL, 
+         o-CSI                 [5] IMPLICIT O-CSI OPTIONAL, 
+         extensionContainer    [7] IMPLICIT ExtensionContainer OPTIONAL,
+         ccbs-Possible         [8] IMPLICIT NULL OPTIONAL, 
+         msisdn                [9] IMPLICIT Msisdn OPTIONAL, 
+         uu-Data               [10] IMPLICIT SEQUENCE {
+            uuIndicator          [0] IMPLICIT OCTET STRING ( SIZE( 1 ) ) OPTIONAL, 
+            uui                  [1] IMPLICIT OCTET STRING ( SIZE( 1 .. 131 ) ) OPTIONAL, 
+            uusCFInteraction     [2] IMPLICIT NULL OPTIONAL, 
+            extensionContainer   [3] IMPLICIT ExtensionContainer OPTIONAL,
+            ... } OPTIONAL, 
+         allInformationSent    [11] IMPLICIT NULL OPTIONAL, 
+         ... }
+--   RESULT
+ResumeCallHandlingRes ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- forwardingFailed   localValue : 47, 
+-- or-NotAllowed   localValue : 48, 
+-- unexpectedDataValue   localValue : 36, 
+-- dataMissing   localValue : 35}
+-- ::= localValue : 6
+
+--provideSIWFSNumber OPERATION
+--   ARGUMENT
+ProvideSIWFSNumberArg ::= SEQUENCE {
+         gsm-BearerCapability      [0] IMPLICIT Bss-APDU, 
+         isdn-BearerCapability     [1] IMPLICIT Bss-APDU, 
+         call-Direction            [2] IMPLICIT OCTET STRING ( SIZE( 1 ) ), 
+         b-Subscriber-Address      [3] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ), 
+         chosenChannel             [4] IMPLICIT Bss-APDU, 
+         lowerLayerCompatibility   [5] IMPLICIT Bss-APDU OPTIONAL, 
+         highLayerCompatibility    [6] IMPLICIT Bss-APDU OPTIONAL, 
+         extensionContainer        [7] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   RESULT
+ProvideSIWFSNumberRes ::= SEQUENCE {
+         sIWFSNumber          [0] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ), 
+         extensionContainer   [1] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- resourceLimitation   localValue : 51, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- systemFailure   localValue : 34}
+-- ::= localValue : 31
+
+--sIWFSSignallingModify OPERATION
+--   ARGUMENT
+SIWFSSignallingModifyArg ::= SEQUENCE {
+         channelType          [0] IMPLICIT Bss-APDU OPTIONAL, 
+         chosenChannel        [1] IMPLICIT Bss-APDU OPTIONAL, 
+         extensionContainer   [2] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   RESULT
+SIWFSSignallingModifyRes ::= SEQUENCE {
+         chosenChannel        [0] IMPLICIT Bss-APDU OPTIONAL, 
+         extensionContainer   [1] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- resourceLimitation   localValue : 51, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- systemFailure   localValue : 34}
+-- ::= localValue : 32
+
+Ccbs-Monitoring ::= ENUMERATED {
+  stopMonitoring     ( 0 ), 
+  startMonitoring    ( 1 ), 
+  ...  }
+
+--setReportingState OPERATION
+--   ARGUMENT
+SetReportingStateArg ::= SEQUENCE {
+         imsi                 [0] IMPLICIT Imsi OPTIONAL, 
+         lmsi                 [1] IMPLICIT Lmsi OPTIONAL, 
+         ccbs-Monitoring      [2] IMPLICIT Ccbs-Monitoring OPTIONAL, 
+         extensionContainer   [3] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   RESULT
+Ccbs-SubscriberStatus ::= ENUMERATED {
+            ccbsNotIdle         ( 0 ), 
+            ccbsIdle            ( 1 ), 
+            ccbsNotReachable    ( 2 ), 
+            ...  }
+
+SetReportingStateRes ::= SEQUENCE {
+         ccbs-SubscriberStatus   [0] IMPLICIT Ccbs-SubscriberStatus OPTIONAL, 
+         extensionContainer      [1] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- unidentifiedSubscriber   localValue : 5, 
+-- unexpectedDataValue   localValue : 36, 
+-- dataMissing   localValue : 35, 
+-- resourceLimitation   localValue : 51, 
+-- facilityNotSupported   localValue : 21}
+-- ::= localValue : 73
+
+MonitoringMode ::= ENUMERATED {
+  a-side      ( 0 ), 
+  b-side      ( 1 ), 
+  ...  }
+
+CallOutcome ::= ENUMERATED {
+  success     ( 0 ), 
+  failure     ( 1 ), 
+  busy        ( 2 ), 
+  ...  }
+
+--statusReport OPERATION
+--   ARGUMENT
+StatusReportArg ::= SEQUENCE {
+         imsi                 [0] IMPLICIT Imsi, 
+         eventReportData      [1] IMPLICIT SEQUENCE {
+            ccbs-SubscriberStatus   [0] IMPLICIT Ccbs-SubscriberStatus OPTIONAL, 
+            extensionContainer      [1] IMPLICIT ExtensionContainer OPTIONAL,
+            ... } OPTIONAL, 
+         callReportdata       [2] IMPLICIT SEQUENCE {
+            monitoringMode       [0] IMPLICIT MonitoringMode OPTIONAL, 
+            callOutcome          [1] IMPLICIT CallOutcome OPTIONAL, 
+            extensionContainer   [2] IMPLICIT ExtensionContainer OPTIONAL,
+            ... } OPTIONAL, 
+         extensionContainer   [3] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   RESULT
+StatusReportRes ::= SEQUENCE {
+         extensionContainer   [0] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- unknownSubscriber   localValue : 1, 
+-- systemFailure   localValue : 34, 
+-- unexpectedDataValue   localValue : 36, 
+-- dataMissing   localValue : 35}
+-- ::= localValue : 74
+
+Ruf-Outcome ::= ENUMERATED {
+  accepted                ( 0 ), 
+  rejected                ( 1 ), 
+  noResponseFromFreeMS    ( 2 ), 
+  noResponseFromBusyMS    ( 3 ), 
+  udubFromFreeMS          ( 4 ), 
+  udubFromBusyMS          ( 5 ), 
+  ...  }
+
+--remoteUserFree OPERATION
+--   ARGUMENT
+RemoteUserFreeArg ::= SEQUENCE {
+         imsi                 [0] IMPLICIT Imsi, 
+         callInfo             [1] IMPLICIT Bss-APDU, 
+         ccbs-Feature         [2] IMPLICIT Ccbs-Feature, 
+         translatedB-Number   [3] IMPLICIT TranslatedB-Number, 
+         replaceB-Number      [4] IMPLICIT NULL OPTIONAL, 
+         alertingPattern      [5] IMPLICIT OCTET STRING ( SIZE( 1 ) ) OPTIONAL, 
+         extensionContainer   [6] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   RESULT
+RemoteUserFreeRes ::= SEQUENCE {
+         ruf-Outcome          [0] IMPLICIT Ruf-Outcome, 
+         extensionContainer   [1] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- unexpectedDataValue   localValue : 36, 
+-- dataMissing   localValue : 35, 
+-- incompatibleTerminal   localValue : 28, 
+-- absentSubscriber   localValue : 27, 
+-- systemFailure   localValue : 34, 
+-- busySubscriber   localValue : 45}
+--ocalValue : 75
+TranslatedB-Number ::= OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) )
+
+Ss-Data ::= SEQUENCE {
+            ss-Code                 Ss-Code OPTIONAL, 
+            ss-Status               [4] IMPLICIT Ss-Status OPTIONAL, 
+            ss-SubscriptionOption   Ss-SubscriptionOption OPTIONAL, 
+            basicServiceGroupList   BasicServiceGroupList OPTIONAL, 
+            ... , 
+            defaultPriority         INTEGER ( 0 .. 15 ) OPTIONAL}
+
+
+--registerSS OPERATION
+--   ARGUMENT
+RegisterSS-Arg ::= SEQUENCE {
+         ss-Code                 Ss-Code, 
+         basicService            BasicService OPTIONAL, 
+         forwardedToNumber       [4] IMPLICIT ForwardedToNumber OPTIONAL, 
+         forwardedToSubaddress   [6] IMPLICIT ForwardedToSubaddress OPTIONAL, 
+         noReplyConditionTime    [5] IMPLICIT INTEGER OPTIONAL, 
+         ... , 
+         defaultPriority         [7] IMPLICIT INTEGER ( 0 .. 15 ) OPTIONAL}
+--   RESULT
+Ss-Info ::=   CHOICE {
+         forwardingInfo      [0] IMPLICIT ForwardingInfo, 
+         callBarringInfo     [1] IMPLICIT CallBarringInfo, 
+         ss-Data             [3] IMPLICIT Ss-Data}
+Ccbs-Feature ::= SEQUENCE {
+            ccbs-Index               [0] IMPLICIT INTEGER ( 1 .. 5 ) OPTIONAL, 
+            b-subscriberNumber       [1] IMPLICIT B-subscriberNumber OPTIONAL, 
+            b-subscriberSubaddress   [2] IMPLICIT OCTET STRING ( SIZE( 1 .. 21 ) ) OPTIONAL, 
+            basicServiceGroup        [3] BasicService OPTIONAL, 
+            ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- bearerServiceNotProvisioned   localValue : 10, 
+-- teleserviceNotProvisioned   localValue : 11, 
+-- callBarred   localValue : 13, 
+-- illegalSS-Operation   localValue : 16, 
+-- ss-ErrorStatus   localValue : 17, 
+-- ss-Incompatibility   localValue : 20}
+-- ::= localValue : 10
+
+B-subscriberNumber ::= OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) )
+
+--eraseSS    OPERATION
+--   ARGUMENT
+
+Ss-ForBS ::=  SEQUENCE {
+         ss-Code        Ss-Code, 
+         basicService   BasicService OPTIONAL, 
+         ... }
+
+--   RESULT
+--Ss-Info ::=   CHOICE {.. defined elsewhere
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- bearerServiceNotProvisioned   localValue : 10, 
+-- teleserviceNotProvisioned   localValue : 11, 
+-- callBarred   localValue : 13, 
+-- illegalSS-Operation   localValue : 16, 
+-- ss-ErrorStatus   localValue : 17}
+-- ::= localValue : 11
+
+--activateSS OPERATION
+--   ARGUMENT
+--Ss-ForBS ::=  SEQUENCE {  defined elsewhere
+--   RESULT
+--Ss-Info ::=   CHOICE {.. defined elsewhere
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- bearerServiceNotProvisioned   localValue : 10, 
+-- teleserviceNotProvisioned   localValue : 11, 
+-- callBarred   localValue : 13, 
+-- illegalSS-Operation   localValue : 16, 
+-- ss-ErrorStatus   localValue : 17, 
+-- ss-SubscriptionViolation   localValue : 19, 
+-- ss-Incompatibility   localValue : 20, 
+-- negativePW-Check   localValue : 38, 
+-- numberOfPW-AttemptsViolation   localValue : 43}
+-- ::= localValue : 12
+
+--deactivateSS OPERATION
+--  ARGUMENT
+--Ss-ForBS ::=  SEQUENCE {  defined elsewhere
+--   RESULT
+--Ss-Info ::=   CHOICE {.. defined elsewhere
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- bearerServiceNotProvisioned   localValue : 10, 
+-- teleserviceNotProvisioned   localValue : 11, 
+-- callBarred   localValue : 13, 
+-- illegalSS-Operation   localValue : 16, 
+-- ss-ErrorStatus   localValue : 17, 
+-- ss-SubscriptionViolation   localValue : 19, 
+-- negativePW-Check   localValue : 38, 
+-- numberOfPW-AttemptsViolation   localValue : 43}
+-- ::= localValue : 13
+
+--interrogateSS OPERATION
+--  ARGUMENT
+--Ss-ForBS ::=  SEQUENCE {  defined elsewhere
+--   RESULT
+InterrogateSS-Res ::= CHOICE {
+         ss-Status                 [0] IMPLICIT Ss-Status, 
+         basicServiceGroupList     [2] IMPLICIT BasicServiceGroupList, 
+         forwardingFeatureList     [3] IMPLICIT SEQUENCE  ( SIZE( 1 .. 13 ) ) OF
+            ForwardingFeatureList, 
+         genericServiceInfo        [4] IMPLICIT SEQUENCE {
+            ss-Status                 Ss-Status, 
+            cliRestrictionOption     [2] IMPLICIT CliRestrictionOption OPTIONAL, 
+            ... , 
+            maximumEntitledPriority   [0] IMPLICIT INTEGER ( 0 .. 15 ) OPTIONAL, 
+            defaultPriority           [1] IMPLICIT INTEGER ( 0 .. 15 ) OPTIONAL, 
+            ccbs-FeatureList          [2] IMPLICIT SEQUENCE  ( SIZE( 1 .. 5 ) ) OF
+               SEQUENCE {
+                  ccbs-Index               [0] IMPLICIT INTEGER ( 1 .. 5 ) OPTIONAL, 
+                  b-subscriberNumber       [1] IMPLICIT B-subscriberNumber OPTIONAL, 
+                  b-subscriberSubaddress   [2] IMPLICIT OCTET STRING ( SIZE( 1 .. 21 ) ) OPTIONAL, 
+                  basicServiceGroup        [3] BasicService OPTIONAL, 
+                  ... } OPTIONAL}}
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- bearerServiceNotProvisioned   localValue : 10, 
+-- teleserviceNotProvisioned   localValue : 11, 
+-- callBarred   localValue : 13, 
+-- illegalSS-Operation   localValue : 16, 
+-- ss-NotAvailable   localValue : 18}
+-- ::= localValue : 14
+
+--processUnstructuredSS-Request OPERATION
+--   ARGUMENT
+Ussd-Arg ::=  SEQUENCE {
+         ussd-DataCodingScheme   OCTET STRING ( SIZE( 1 ) ), 
+         ussd-String             OCTET STRING ( SIZE( 1 .. 160 ) ), 
+         ... , 
+         alertingPattern         OCTET STRING ( SIZE( 1 ) ) OPTIONAL, 
+         msisdn                  [0] IMPLICIT Msisdn OPTIONAL}
+--   RESULT
+Ussd-Res ::=  SEQUENCE {
+         ussd-DataCodingScheme   OCTET STRING ( SIZE( 1 ) ), 
+         ussd-String             OCTET STRING ( SIZE( 1 .. 160 ) ), 
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- unknownAlphabet   localValue : 71, 
+-- callBarred   localValue : 13}
+-- ::= localValue : 59
+
+--unstructuredSS-Request OPERATION
+--   ARGUMENT
+--ussd-Arg ::=  SEQUENCE { .. defined elsewhere
+--   RESULT
+--ussd-Res ::=  SEQUENCE { ... defined elsewhere
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- absentSubscriber   localValue : 27, 
+-- illegalSubscriber   localValue : 9, 
+-- illegalEquipment   localValue : 12, 
+-- unknownAlphabet   localValue : 71, 
+-- ussd-Busy   localValue : 72}
+-- ::= localValue : 60
+
+--unstructuredSS-Notify OPERATION
+--   ARGUMENT
+--ussd-Arg ::=  SEQUENCE { .. defined elsewhere
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- absentSubscriber   localValue : 27, 
+-- illegalSubscriber   localValue : 9, 
+-- illegalEquipment   localValue : 12, 
+-- unknownAlphabet   localValue : 71, 
+-- ussd-Busy   localValue : 72}
+-- ::= localValue : 61
+
+--registerPassword OPERATION
+--   ARGUMENT
+Ss-Code  ::=  OCTET STRING
+--   RESULT
+NewPassword ::= NumericString (SIZE( 4 ) )
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- callBarred   localValue : 13, 
+-- ss-SubscriptionViolation   localValue : 19, 
+-- pw-RegistrationFailure   localValue : 37, 
+-- negativePW-Check   localValue : 38, 
+-- numberOfPW-AttemptsViolation   localValue : 43}
+--LINKED {
+     -- getPassword   localValue : 18}
+-- ::= localValue : 17
+
+--getPassword OPERATION
+--   ARGUMENT
+GetPasswordArg ::= ENUMERATED {
+         enterPW             ( 0 ), 
+         enterNewPW          ( 1 ), 
+         enterNewPW-Again    ( 2 ) }
+--   RESULT
+CurrentPassword ::= NumericString (SIZE( 4 ) )
+-- ::= localValue : 18
+
+
+ServiceIndicator ::= BIT STRING {
+  clirInvoked  (0 ), 
+  camelInvoked  (1 )}
+
+--registerCC-Entry OPERATION
+--   ARGUMENT
+RegisterCC-EntryArg ::= SEQUENCE {
+         ss-Code     [0] IMPLICIT Ss-Code, 
+         ccbs-Data   [1] IMPLICIT SEQUENCE {
+            ccbs-Feature         [0] IMPLICIT Ccbs-Feature, 
+            translatedB-Number   [1] IMPLICIT TranslatedB-Number, 
+            serviceIndicator     [2] IMPLICIT ServiceIndicator OPTIONAL, 
+            callInfo             [3] IMPLICIT Bss-APDU, 
+            networkSignalInfo    [4] IMPLICIT Bss-APDU, 
+            ... } OPTIONAL, 
+         ... }
+--   RESULT
+RegisterCC-EntryRes ::= SEQUENCE {
+         ccbs-Feature   [0] IMPLICIT Ccbs-Feature OPTIONAL, 
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- callBarred   localValue : 13, 
+-- illegalSS-Operation   localValue : 16, 
+-- ss-ErrorStatus   localValue : 17, 
+-- ss-Incompatibility   localValue : 20, 
+-- shortTermDenial   localValue : 29, 
+-- longTermDenial   localValue : 30, 
+-- facilityNotSupported   localValue : 21}
+-- ::= localValue : 76
+
+--eraseCC-Entry OPERATION
+--   ARGUMENT
+EraseCC-EntryArg ::= SEQUENCE {
+         ss-Code      [0] IMPLICIT Ss-Code, 
+         ccbs-Index   [1] IMPLICIT INTEGER ( 1 .. 5 ) OPTIONAL, 
+         ... }
+--   RESULT
+EraseCC-EntryRes ::= SEQUENCE {
+         ss-Code     [0] IMPLICIT Ss-Code, 
+         ss-Status   [1] IMPLICIT Ss-Status OPTIONAL, 
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- callBarred   localValue : 13, 
+-- illegalSS-Operation   localValue : 16, 
+-- ss-ErrorStatus   localValue : 17}
+-- ::= localValue : 77
+
+--sendRoutingInfoForSM OPERATION
+--   ARGUMENT
+RoutingInfoForSMArg ::= SEQUENCE {
+         msisdn                 [0] IMPLICIT Msisdn, 
+         sm-RP-PRI              [1] IMPLICIT BOOLEAN, 
+         serviceCentreAddress   [2] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ), 
+         extensionContainer     [6] IMPLICIT ExtensionContainer OPTIONAL,
+         ... , 
+         gprsSupportIndicator   [7] IMPLICIT NULL OPTIONAL, 
+         sm-RP-MTI              [8] IMPLICIT INTEGER ( 0 .. 10 ) OPTIONAL, 
+         sm-RP-SMEA             [9] IMPLICIT OCTET STRING ( SIZE( 1 .. 12 ) ) OPTIONAL}
+--   RESULT
+RoutingInfoForSMRes ::= SEQUENCE {
+         imsi                   Imsi, 
+         locationInfoWithLMSI   [0] IMPLICIT SEQUENCE {
+            networkNode-Number   [1] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ), 
+            lmsi                 Lmsi OPTIONAL, 
+            extensionContainer   ExtensionContainer OPTIONAL,
+            ... , 
+            gprsNodeIndicator    [5] IMPLICIT NULL OPTIONAL, 
+            additional-Number    [6] CHOICE {
+               msc-Number      [0] IMPLICIT Msc-Number, 
+               sgsn-Number     [1] IMPLICIT Sgsn-Number} OPTIONAL}, 
+         extensionContainer     [4] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- facilityNotSupported   localValue : 21, 
+-- unknownSubscriber   localValue : 1, 
+-- teleserviceNotProvisioned   localValue : 11, 
+-- callBarred   localValue : 13, 
+-- absentsubscriberSM   localValue : 6}
+-- ::= localValue : 45
+
+--mo-forwardSM OPERATION
+--   ARGUMENT
+Mo-forwardSM-Arg ::= SEQUENCE {
+         sm-RP-DA             Sm-RP-DA, 
+         sm-RP-OA             Sm-RP-OA, 
+         sm-RP-UI             OCTET STRING ( SIZE( 1 .. 200 ) ), 
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... , 
+         imsi                 Imsi OPTIONAL}
+--   RESULT
+Mo-forwardSM-Res ::= SEQUENCE {
+         sm-RP-UI             OCTET STRING ( SIZE( 1 .. 200 ) ) OPTIONAL, 
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- unexpectedDataValue   localValue : 36, 
+-- facilityNotSupported   localValue : 21, 
+-- sm-DeliveryFailure   localValue : 32}
+-- ::= localValue : 46
+
+Sm-RP-OA ::= CHOICE {
+            msisdn                     [2] IMPLICIT Msisdn, 
+            serviceCentreAddressOA     [4] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ), 
+            noSM-RP-OA                 [5] IMPLICIT NULL}
+
+Sm-RP-DA ::= CHOICE {
+            imsi                       [0] IMPLICIT Imsi, 
+            lmsi                       [1] IMPLICIT Lmsi, 
+            serviceCentreAddressDA     [4] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ), 
+            noSM-RP-DA                 [5] IMPLICIT NULL
+}
+--mt-forwardSM OPERATION
+--   ARGUMENT
+Mt-forwardSM-Arg ::= SEQUENCE {
+         sm-RP-DA             Sm-RP-DA, 
+         sm-RP-OA             Sm-RP-OA, 
+         sm-RP-UI             OCTET STRING ( SIZE( 1 .. 200 ) ), 
+         moreMessagesToSend   NULL OPTIONAL, 
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+--   RESULT
+Mt-forwardSM-Res ::= SEQUENCE {
+         sm-RP-UI             OCTET STRING ( SIZE( 1 .. 200 ) ) OPTIONAL, 
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- facilityNotSupported   localValue : 21, 
+-- unidentifiedSubscriber   localValue : 5, 
+-- illegalSubscriber   localValue : 9, 
+-- illegalEquipment   localValue : 12, 
+-- subscriberBusyForMT-SMS   localValue : 31, 
+-- sm-DeliveryFailure   localValue : 32, 
+-- absentsubscriberSM   localValue : 6}
+-- ::= localValue : 44
+
+
+StoredMSISDN ::= Msisdn
+
+
+Sm-DeliveryOutcome ::= ENUMERATED {
+  memoryCapacityExceeded    ( 0 ), 
+  absentSubscriber          ( 1 ), 
+  successfulTransfer        ( 2 ) }
+
+--reportSM-DeliveryStatus OPERATION
+--  ARGUMENT
+ReportSM-DeliveryStatusArg ::= SEQUENCE {
+         msisdn                                   Msisdn, 
+         serviceCentreAddress                     OCTET STRING ( SIZE( 1 .. 20 ) ), 
+         sm-DeliveryOutcome                       Sm-DeliveryOutcome, 
+         absentSubscriberDiagnosticSM             [0] IMPLICIT INTEGER ( 0 .. 255 ) OPTIONAL, 
+         extensionContainer                       [1] IMPLICIT ExtensionContainer OPTIONAL,
+         ... , 
+         gprsSupportIndicator                     [2] IMPLICIT NULL OPTIONAL, 
+         deliveryOutcomeIndicator                 [3] IMPLICIT NULL OPTIONAL, 
+         additionalSM-DeliveryOutcome             [4] IMPLICIT Sm-DeliveryOutcome OPTIONAL, 
+         additionalAbsentSubscriberDiagnosticSM   [5] IMPLICIT INTEGER ( 0 .. 255 ) OPTIONAL}
+--   RESULT
+ReportSM-DeliveryStatusRes ::= SEQUENCE {
+         storedMSISDN         StoredMSISDN OPTIONAL, 
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- unknownSubscriber   localValue : 1, 
+-- messageWaitingListFull   localValue : 33}
+-- ::= localValue : 47
+
+--informServiceCentre OPERATION
+--   ARGUMENT
+InformServiceCentreArg ::= SEQUENCE {
+         storedMSISDN         StoredMSISDN OPTIONAL, 
+         mw-Status            BIT STRING {
+            scAddressNotIncluded  (0 ), 
+            mnrfSet  (1 ), 
+            mcefSet  (2 ), 
+            mnrgSet  (3 )} ( SIZE( 6 .. 16 ) ) OPTIONAL, 
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 63
+
+--alertServiceCentre OPERATION
+--   ARGUMENT
+AlertServiceCentreArg ::= SEQUENCE {
+         msisdn                 Msisdn, 
+         serviceCentreAddress   OCTET STRING ( SIZE( 1 .. 20 ) ), 
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36}
+-- ::= localValue : 64
+
+--readyForSM OPERATION
+--   ARGUMENT
+ReadyForSM-Arg ::= SEQUENCE {
+         imsi                   [0] IMPLICIT Imsi, 
+         alertReason            ENUMERATED {
+            msPresent         ( 0 ), 
+            memoryAvailable    ( 1 ) }, 
+         alertReasonIndicator   NULL OPTIONAL, 
+         extensionContainer     ExtensionContainer OPTIONAL,
+         ... }
+--   RESULT
+ReadyForSM-Res ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- facilityNotSupported   localValue : 21, 
+-- unknownSubscriber   localValue : 1}
+-- ::= localValue : 66
+
+--provideSubscriberInfo OPERATION
+--   ARGUMENT
+ProvideSubscriberInfoArg ::= SEQUENCE {
+         imsi                 [0] IMPLICIT Imsi, 
+         lmsi                 [1] IMPLICIT Lmsi OPTIONAL, 
+         requestedInfo        [2] IMPLICIT RequestedInfo, 
+         extensionContainer   [3] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   RESULT
+ProvideSubscriberInfoRes ::= SEQUENCE {
+         subscriberInfo       SubscriberInfo, 
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36}
+-- ::= localValue : 70
+RequestedInfo ::= SEQUENCE {
+            locationInformation   [0] IMPLICIT NULL OPTIONAL, 
+            subscriberState       [1] IMPLICIT NULL OPTIONAL, 
+            extensionContainer    [2] IMPLICIT ExtensionContainer OPTIONAL,
+            ... }
+--anyTimeInterrogation OPERATION
+--   ARGUMENT
+AnyTimeInterrogationArg ::= SEQUENCE {
+         subscriberIdentity   [0] CHOICE {
+            imsi         [0] IMPLICIT Imsi, 
+            msisdn       [1] IMPLICIT Msisdn}, 
+         requestedInfo        [1] IMPLICIT RequestedInfo, 
+         gsmSCF-Address       [3] IMPLICIT GsmSCF-Address, 
+         extensionContainer   [2] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   RESULT
+AnyTimeInterrogationRes ::= SEQUENCE {
+         subscriberInfo       SubscriberInfo, 
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- ati-NotAllowed   localValue : 49, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- unknownSubscriber   localValue : 1}
+-- ::= localValue : 71
+
+--ss-InvocationNotification OPERATION
+--   ARGUMENT
+Ss-InvocationNotificationArg ::= SEQUENCE {
+         imsi                    [0] IMPLICIT Imsi, 
+         msisdn                  [1] IMPLICIT Msisdn, 
+         ss-Event                [2] IMPLICIT OCTET STRING ( SIZE( 1 ) ), 
+         ss-EventSpecification   [3] IMPLICIT SEQUENCE  ( SIZE( 1 .. 2 ) ) OF
+            OCTET STRING ( SIZE( 1 .. 20 ) ) OPTIONAL, 
+         extensionContainer      [4] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   RESULT
+Ss-InvocationNotificationRes ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- unknownSubscriber   localValue : 1}
+-- ::= localValue : 72
+
+--prepareGroupCall OPERATION
+--   ARGUMENT
+PrepareGroupCallArg ::= SEQUENCE {
+         teleservice          Teleservice, 
+         asciCallReference    OCTET STRING ( SIZE( 1 .. 8 ) ), 
+         codec-Info           OCTET STRING ( SIZE( 5 .. 10 ) ), 
+         cipheringAlgorithm   OCTET STRING ( SIZE( 1 ) ), 
+         groupKeyNumber       [0] IMPLICIT INTEGER ( 0 .. 15 ) OPTIONAL, 
+         groupKey             [1] IMPLICIT OCTET STRING ( SIZE( 8 ) ) OPTIONAL, 
+         priority             [2] IMPLICIT INTEGER ( 0 .. 15 ) OPTIONAL, 
+         uplinkFree           [3] IMPLICIT NULL OPTIONAL, 
+         extensionContainer   [4] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   RESULT
+PrepareGroupCallRes ::= SEQUENCE {
+         groupCallNumber      OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ), 
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- noGroupCallNumberAvailable   localValue : 50, 
+-- unexpectedDataValue   localValue : 36}
+-- ::= localValue : 39
+
+--sendGroupCallEndSignal OPERATION
+--   ARGUMENT
+SendGroupCallEndSignalArg ::= SEQUENCE {
+         imsi                 Imsi OPTIONAL, 
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+--   RESULT
+SendGroupCallEndSignalRes ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 40
+
+--processGroupCallSignalling OPERATION
+--   ARGUMENT
+ProcessGroupCallSignallingArg ::= SEQUENCE {
+         uplinkRequest             [0] IMPLICIT NULL OPTIONAL, 
+         uplinkReleaseIndication   [1] IMPLICIT NULL OPTIONAL, 
+         releaseGroupCall          [2] IMPLICIT NULL OPTIONAL, 
+         extensionContainer        ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 41
+
+--forwardGroupCallSignalling OPERATION
+--   ARGUMENT
+ForwardGroupCallSignallingArg ::= SEQUENCE {
+         imsi                      Imsi OPTIONAL, 
+         uplinkRequestAck          [0] IMPLICIT NULL OPTIONAL, 
+         uplinkReleaseIndication   [1] IMPLICIT NULL OPTIONAL, 
+         uplinkRejectCommand       [2] IMPLICIT NULL OPTIONAL, 
+         uplinkSeizedCommand       [3] IMPLICIT NULL OPTIONAL, 
+         uplinkReleaseCommand      [4] IMPLICIT NULL OPTIONAL, 
+         extensionContainer        ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 42
+
+--updateGprsLocation OPERATION
+--   ARGUMENT
+UpdateGprsLocationArg ::= SEQUENCE {
+         imsi                 Imsi, 
+         sgsn-Number          Sgsn-Number, 
+         sgsn-Address         OCTET STRING ( SIZE( 5 .. 17 ) ), 
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... , 
+         sgsn-Capability      [0] IMPLICIT SEQUENCE {
+            solsaSupportIndicator   NULL OPTIONAL, 
+            extensionContainer      [1] IMPLICIT ExtensionContainer OPTIONAL,
+            ... } OPTIONAL}
+--   RESULT
+UpdateGprsLocationRes ::= SEQUENCE {
+         hlr-Number           Hlr-Number, 
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- unexpectedDataValue   localValue : 36, 
+-- unknownSubscriber   localValue : 1, 
+-- roamingNotAllowed   localValue : 8}
+-- ::= localValue : 23
+
+--sendRoutingInfoForGprs OPERATION
+--   ARGUMENT
+SendRoutingInfoForGprsArg ::= SEQUENCE {
+         imsi                 [0] IMPLICIT Imsi, 
+         ggsn-Address         [1] IMPLICIT Ggsn-Address OPTIONAL, 
+         ggsn-Number          [2] IMPLICIT Ggsn-Number, 
+         extensionContainer   [3] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   RESULT
+SendRoutingInfoForGprsRes ::= SEQUENCE {
+         sgsn-Address               [0] IMPLICIT OCTET STRING ( SIZE( 5 .. 17 ) ), 
+         ggsn-Address               [1] IMPLICIT Ggsn-Address OPTIONAL, 
+         mobileNotReachableReason   [2] IMPLICIT INTEGER ( 0 .. 255 ) OPTIONAL, 
+         extensionContainer         [3] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- absentSubscriber   localValue : 27, 
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- unknownSubscriber   localValue : 1}
+-- ::= localValue : 24
+
+Ggsn-Number ::= OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) )
+Ggsn-Address ::= OCTET STRING ( SIZE( 5 .. 17 ) )
+--failureReport OPERATION
+--   ARGUMENT
+FailureReportArg ::= SEQUENCE {
+         imsi                 [0] IMPLICIT Imsi, 
+         ggsn-Number          [1] IMPLICIT Ggsn-Number, 
+         ggsn-Address         [2] IMPLICIT Ggsn-Address OPTIONAL, 
+         extensionContainer   [3] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   RESULT
+FailureReportRes ::= SEQUENCE {
+         ggsn-Address         [0] IMPLICIT Ggsn-Address OPTIONAL, 
+         extensionContainer   [1] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- unknownSubscriber   localValue : 1}
+-- ::= localValue : 25
+
+--noteMsPresentForGprs OPERATION
+--   ARGUMENT
+NoteMsPresentForGprsArg ::= SEQUENCE {
+         imsi                 [0] IMPLICIT Imsi, 
+         sgsn-Address         [1] IMPLICIT OCTET STRING ( SIZE( 5 .. 17 ) ), 
+         ggsn-Address         [2] IMPLICIT Ggsn-Address OPTIONAL, 
+         extensionContainer   [3] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   RESULT
+NoteMsPresentForGprsRes ::= SEQUENCE {
+         extensionContainer   [0] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- unknownSubscriber   localValue : 1}
+-- ::= localValue : 26
+
+LcsClientType ::= ENUMERATED {
+  emergencyServices          ( 0 ), 
+  valueAddedServices         ( 1 ), 
+  plmnOperatorServices       ( 2 ), 
+  lawfulInterceptServices    ( 3 ), 
+  ...  }
+
+LcsClientExternalID ::= SEQUENCE {
+  externalAddress      [0] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ) OPTIONAL, 
+  extensionContainer   [1] IMPLICIT ExtensionContainer OPTIONAL,
+  ... }
+
+LcsClientInternalID ::= ENUMERATED {
+  broadcastService             ( 0 ), 
+  o-andM-HPLMN                 ( 1 ), 
+  o-andM-VPLMN                 ( 2 ), 
+  anonymousLocation            ( 3 ), 
+  targetMSsubscribedService    ( 4 ), 
+  ...  }
+
+LcsClientName ::= SEQUENCE {
+  dataCodingScheme   [0] IMPLICIT OCTET STRING, 
+  nameString         [2] IMPLICIT OCTET STRING, 
+  ... }
+
+Lcs-ClientID ::= SEQUENCE {
+  lcsClientType         [0] IMPLICIT LcsClientType, 
+  lcsClientExternalID   [1] IMPLICIT LcsClientExternalID OPTIONAL, 
+  lcsClientDialedByMS   [2] IMPLICIT OCTET STRING OPTIONAL, 
+  lcsClientInternalID   [3] IMPLICIT LcsClientInternalID OPTIONAL, 
+  lcsClientName         [4] IMPLICIT LcsClientName OPTIONAL, 
+  ... } 
+
+Lcs-Event ::= ENUMERATED {
+  emergencyCallOrigination    ( 0 ), 
+  emergencyCallRelease        ( 1 ), 
+  mo-lr                       ( 2 ), 
+  ...  }
+
+LcsLocationInfo ::= SEQUENCE {
+  msc-Number            Msc-Number, 
+  lmsi                 [0] IMPLICIT Lmsi OPTIONAL, 
+  extensionContainer   [1] IMPLICIT ExtensionContainer OPTIONAL,
+  ... }
+
+--provideSubscriberLocation OPERATION
+--   ARGUMENT
+ProvideSubscriberLocation-Arg ::= SEQUENCE {
+         locationType         SEQUENCE {
+            locationEstimateType   [0] IMPLICIT ENUMERATED {
+               currentLocation               ( 0 ), 
+               currentOrLastKnownLocation    ( 1 ), 
+               initialLocation               ( 2 ), 
+               ...  }, 
+            ... }, 
+         mlc-Number           OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ), 
+         lcs-ClientID         [0] IMPLICIT Lcs-ClientID OPTIONAL, 
+         privacyOverride      [1] IMPLICIT NULL OPTIONAL, 
+         imsi                 [2] IMPLICIT Imsi OPTIONAL, 
+         msisdn               [3] IMPLICIT Msisdn OPTIONAL, 
+         lmsi                 [4] IMPLICIT Lmsi OPTIONAL, 
+         imei                 [5] IMPLICIT Imei OPTIONAL, 
+         lcs-Priority         [6] IMPLICIT OCTET STRING ( SIZE( 1 ) ) OPTIONAL, 
+         lcs-QoS              [7] IMPLICIT SEQUENCE {
+            horizontal-accuracy         [0] IMPLICIT OCTET STRING ( SIZE( 1 ) ) OPTIONAL, 
+            verticalCoordinateRequest   [1] IMPLICIT NULL OPTIONAL, 
+            vertical-accuracy           [2] IMPLICIT OCTET STRING ( SIZE( 1 ) ) OPTIONAL, 
+            responseTime                [3] IMPLICIT SEQUENCE {
+               responseTimeCategory   ENUMERATED {
+                  lowdelay         ( 0 ), 
+                  delaytolerant    ( 1 ), 
+                  ...  }, 
+               ... } OPTIONAL, 
+            extensionContainer          [4] IMPLICIT ExtensionContainer OPTIONAL,
+            ... } OPTIONAL, 
+         extensionContainer   [8] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   RESULT
+ProvideSubscriberLocation-Res ::= SEQUENCE {
+         locationEstimate        OCTET STRING ( SIZE( 1 .. 20 ) ), 
+         ageOfLocationEstimate   [0] IMPLICIT INTEGER ( 0 .. 32767 ) OPTIONAL, 
+         extensionContainer      [1] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- facilityNotSupported   localValue : 21, 
+-- unidentifiedSubscriber   localValue : 5, 
+-- illegalSubscriber   localValue : 9, 
+-- illegalEquipment   localValue : 12, 
+-- absentSubscriber   localValue : 27, 
+-- unauthorizedRequestingNetwork   localValue : 52, 
+-- unauthorizedLCSClient   localValue : 53, 
+-- positionMethodFailure   localValue : 54}
+-- ::= localValue : 83
+
+TargetMS ::= CHOICE {
+            imsi         [0] IMPLICIT Imsi, 
+            msisdn       [1] IMPLICIT Msisdn}
+
+--sendRoutingInfoForLCS OPERATION
+--   ARGUMENT
+RoutingInfoForLCS-Arg ::= SEQUENCE {
+         mlcNumber            [0] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ), 
+         targetMS             [1] TargetMS, 
+         extensionContainer   [2] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   RESULT
+RoutingInfoForLCS-Res ::= SEQUENCE {
+         targetMS             [0] TargetMS, 
+         lcsLocationInfo      [1] IMPLICIT LcsLocationInfo, 
+         extensionContainer   [2] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- facilityNotSupported   localValue : 21, 
+-- unknownSubscriber   localValue : 1, 
+-- absentSubscriber   localValue : 27, 
+-- unauthorizedRequestingNetwork   localValue : 52}
+-- ::= localValue : 85
+
+--subscriberLocationReport OPERATION
+--   ARGUMENT
+SubscriberLocationReport-Arg ::= SEQUENCE {
+         lcs-Event               Lcs-Event, 
+         lcs-ClientID            Lcs-ClientID, 
+         lcsLocationInfo         LcsLocationInfo, 
+         msisdn                  [0] IMPLICIT Msisdn OPTIONAL, 
+         imsi                    [1] IMPLICIT Imsi OPTIONAL, 
+         imei                    [2] IMPLICIT Imei OPTIONAL, 
+         na-ESRD                 [3] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ) OPTIONAL, 
+         na-ESRK                 [4] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ) ( SIZE( 1 .. 9 ) ) OPTIONAL, 
+         locationEstimate        [5] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ) OPTIONAL, 
+         ageOfLocationEstimate   [6] IMPLICIT INTEGER ( 0 .. 32767 ) OPTIONAL, 
+         extensionContainer      [7] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+--   RESULT
+SubscriberLocationReport-Res ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+--   ERRORS {
+-- systemFailure   localValue : 34, 
+-- dataMissing   localValue : 35, 
+-- unexpectedDataValue   localValue : 36, 
+-- resourceLimitation   localValue : 51, 
+-- unknownSubscriber   localValue : 1, 
+-- unauthorizedRequestingNetwork   localValue : 52, 
+-- unknownOrUnreachableLCSClient   localValue : 58}
+-- ::= localValue : 86
+
+NetworkResource ::= ENUMERATED {
+  plmn              ( 0 ), 
+  hlr               ( 1 ), 
+  vlr               ( 2 ), 
+  pvlr              ( 3 ), 
+  controllingMSC    ( 4 ), 
+  vmsc              ( 5 ), 
+  eir               ( 6 ), 
+  rss               ( 7 ) }
+
+--systemFailure ERROR
+--   PARAMETER
+SystemFailureParam ::= CHOICE {
+         networkResource                  NetworkResource, 
+         extensibleSystemFailureParam     SEQUENCE {
+            networkResource      NetworkResource OPTIONAL, 
+            extensionContainer   ExtensionContainer OPTIONAL,
+            ... }}
+-- ::= localValue : 34
+
+--dataMissing ERROR
+--  PARAMETER
+DataMissingParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 35
+
+--unexpectedDataValue ERROR
+--   PARAMETER
+UnexpectedDataParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 36
+
+--facilityNotSupported ERROR
+--   PARAMETER
+FacilityNotSupParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 21
+
+--incompatibleTerminal ERROR
+--   PARAMETER
+IncompatibleTerminalParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 28
+
+--resourceLimitation ERROR
+--   PARAMETER
+ResourceLimitationParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 51
+
+--unknownSubscriber ERROR
+--   PARAMETER
+UnknownSubscriberParam ::= SEQUENCE {
+         extensionContainer            ExtensionContainer OPTIONAL,
+         ... , 
+         unknownSubscriberDiagnostic   ENUMERATED {
+            imsiUnknown                ( 0 ), 
+            gprsSubscriptionUnknown    ( 1 ), 
+            ...  } OPTIONAL}
+-- ::= localValue : 1
+
+--numberChanged ERROR
+--  PARAMETER
+NumberChangedParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 44
+
+--unknownMSC ERROR
+-- ::= localValue : 3
+
+--unidentifiedSubscriber ERROR
+--   PARAMETER
+UnidentifiedSubParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 5
+
+--unknownEquipment ERROR
+-- ::= localValue : 7
+
+--roamingNotAllowed ERROR
+--   PARAMETER
+RoamingNotAllowedParam ::= SEQUENCE {
+         roamingNotAllowedCause   ENUMERATED {
+            plmnRoamingNotAllowed        ( 0 ), 
+            operatorDeterminedBarring    ( 3 ) }, 
+         extensionContainer       ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 8
+
+--illegalSubscriber ERROR
+--   PARAMETER
+IllegalSubscriberParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 9
+
+--illegalEquipment ERROR
+--   PARAMETER
+IllegalEquipmentParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 12
+
+--bearerServiceNotProvisioned ERROR
+--   PARAMETER
+BearerServNotProvParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 10
+
+--teleserviceNotProvisioned ERROR
+--   PARAMETER
+TeleservNotProvParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 11
+
+--noHandoverNumberAvailable ERROR
+-- ::= localValue : 25
+
+--subsequentHandoverFailure ERROR
+-- ::= localValue : 26
+
+--tracingBufferFull ERROR
+--   PARAMETER
+TracingBufferFullParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 40
+
+--noRoamingNumberAvailable ERROR
+--   PARAMETER
+NoRoamingNbParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 39
+
+--absentSubscriber ERROR
+--   PARAMETER
+AbsentSubscriberParam ::= SEQUENCE {
+         extensionContainer       ExtensionContainer OPTIONAL,
+         ... , 
+         absentSubscriberReason   [0] IMPLICIT ENUMERATED {
+            imsiDetach        ( 0 ), 
+            restrictedArea    ( 1 ), 
+            noPageResponse    ( 2 ), 
+            ...  } OPTIONAL}
+-- ::= localValue : 27
+
+--busySubscriber ERROR
+--   PARAMETER
+BusySubscriberParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... , 
+         ccbs-Possible        [0] IMPLICIT NULL OPTIONAL, 
+         ccbs-Busy            [1] IMPLICIT NULL OPTIONAL}
+-- ::= localValue : 45
+
+--noSubscriberReply ERROR
+--   PARAMETER
+NoSubscriberReplyParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 46
+
+--callBarred ERROR
+--   PARAMETER
+CallBarredParam ::= CHOICE {
+         callBarringCause              CallBarringCause, 
+         extensibleCallBarredParam     SEQUENCE {
+            callBarringCause                CallBarringCause OPTIONAL, 
+            extensionContainer              ExtensionContainer OPTIONAL,
+            ... , 
+            unauthorisedMessageOriginator   [1] IMPLICIT NULL OPTIONAL}}
+-- ::= localValue : 13
+CallBarringCause ::= ENUMERATED {
+            barringServiceActive    ( 0 ), 
+            operatorBarring         ( 1 ) 
+}
+
+--forwardingFailed ERROR
+--   PARAMETER
+ForwardingFailedParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 47
+
+--or-NotAllowed ERROR
+--   PARAMETER
+Or-NotAllowedParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 48
+
+--forwardingViolation ERROR
+--   PARAMETER
+ForwardingViolationParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 14
+
+--cug-Reject ERROR
+--   PARAMETER
+Cug-RejectParam ::= SEQUENCE {
+         cug-RejectCause      ENUMERATED {
+            incomingCallsBarredWithinCUG                    ( 0 ), 
+            subscriberNotMemberOfCUG                        ( 1 ), 
+            requestedBasicServiceViolatesCUG-Constraints    ( 5 ), 
+            calledPartySS-InteractionViolation              ( 7 ) } OPTIONAL, 
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 15
+
+--ati-NotAllowed ERROR
+--   PARAMETER
+Ati-NotAllowedParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 49
+
+--noGroupCallNumberAvailable ERROR
+--   PARAMETER
+NoGroupCallNbParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 50
+
+--illegalSS-Operation ERROR
+-- ::= localValue : 16
+
+--ss-ErrorStatus ERROR
+--   PARAMETER
+-- Ss-Statis is also declared as OCTET STRING ( SIZE( 1..5 ) ) ???
+-- Ss-Status ::= OCTET STRING ( SIZE( 1 ) )
+-- ::= localValue : 17
+
+--ss-NotAvailable ERROR
+-- ::= localValue : 18
+
+--ss-SubscriptionViolation ERROR
+-- ::= localValue : 19
+
+--ss-Incompatibility ERROR
+--   PARAMETER
+Ss-IncompatibilityCause ::= SEQUENCE {
+         ss-Code        [1] IMPLICIT Ss-Code OPTIONAL, 
+         basicService   BasicService OPTIONAL, 
+         ss-Status      [4] IMPLICIT Ss-Status OPTIONAL, 
+         ... }
+-- ::= localValue : 20
+
+--unknownAlphabet ERROR
+-- ::= localValue : 71
+
+--ussd-Busy  ERROR
+-- ::= localValue : 72
+
+--pw-RegistrationFailure ERROR
+--   PARAMETER
+Pw-RegistrationFailureCause ::= ENUMERATED {
+         undetermined            ( 0 ), 
+         invalidFormat           ( 1 ), 
+         newPasswordsMismatch    ( 2 ) }
+-- ::= localValue : 37
+
+--negativePW-Check ERROR
+-- ::= localValue : 38
+
+--numberOfPW-AttemptsViolation ERROR
+-- ::= localValue : 43
+
+--shortTermDenial ERROR
+--   PARAMETER
+ShortTermDenialParam ::= SEQUENCE {
+         ... }
+-- ::= localValue : 29
+
+--longTermDenial ERROR
+--   PARAMETER
+LongTermDenialParam ::= SEQUENCE {
+         ... }
+-- ::= localValue : 30
+
+--subscriberBusyForMT-SMS ERROR
+--   PARAMETER
+SubBusyForMT-SMS-Param ::= SEQUENCE {
+         extensionContainer        ExtensionContainer OPTIONAL,
+         ... , 
+         gprsConnectionSuspended   NULL OPTIONAL}
+-- ::= localValue : 31
+
+--sm-DeliveryFailure ERROR
+--   PARAMETER
+Sm-DeliveryFailureCause ::= SEQUENCE {
+         sm-EnumeratedDeliveryFailureCause   ENUMERATED {
+            memoryCapacityExceeded        ( 0 ), 
+            equipmentProtocolError        ( 1 ), 
+            equipmentNotSM-Equipped       ( 2 ), 
+            unknownServiceCentre          ( 3 ), 
+            sc-Congestion                 ( 4 ), 
+            invalidSME-Address            ( 5 ), 
+            subscriberNotSC-Subscriber    ( 6 ) }, 
+         diagnosticInfo                      OCTET STRING ( SIZE( 1 .. 200 ) ) OPTIONAL, 
+         extensionContainer                  ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 32
+
+--messageWaitingListFull ERROR
+--   PARAMETER
+MessageWaitListFullParam ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 33
+
+--absentsubscriberSM ERROR
+--   PARAMETER
+AbsentSubscriberSM-Param ::= SEQUENCE {
+         absentSubscriberDiagnosticSM             INTEGER ( 0 .. 255 ) OPTIONAL, 
+         extensionContainer                       ExtensionContainer OPTIONAL,
+         ... , 
+         additionalAbsentSubscriberDiagnosticSM   [0] IMPLICIT INTEGER ( 0 .. 255 ) OPTIONAL}
+-- ::= localValue : 6
+
+--unauthorizedRequestingNetwork ERROR
+--   PARAMETER
+UnauthorizedRequestingNetwork-Param ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 52
+
+--unauthorizedLCSClient ERROR
+--   PARAMETER
+UnauthorizedLCSClient-Param ::= SEQUENCE {
+         unauthorizedLCSClient-Diagnostic   [0] IMPLICIT ENUMERATED {
+            noAdditionalInformation                    ( 0 ), 
+            clientNotInMSPrivacyExceptionList          ( 1 ), 
+            callToClientNotSetup                       ( 2 ), 
+            privacyOverrideNotApplicable               ( 3 ), 
+            disallowedByLocalRegulatoryRequirements    ( 4 ), 
+            ...  } OPTIONAL, 
+         extensionContainer                 [1] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 53
+
+--positionMethodFailure ERROR
+--   PARAMETER
+PositionMethodFailure-Param ::= SEQUENCE {
+         positionMethodFailure-Diagnostic   [0] IMPLICIT ENUMERATED {
+            congestion                                  ( 0 ), 
+            insufficientResources                       ( 1 ), 
+            insufficientMeasurementData                 ( 2 ), 
+            inconsistentMeasurementData                 ( 3 ), 
+            locationProcedureNotCompleted               ( 4 ), 
+            locationProcedureNotSupportedByTargetMS     ( 5 ), 
+            qoSNotAttainable                            ( 6 ), 
+            positionMethodNotAvailableInNetwork         ( 7 ), 
+            positionMethodNotAvailableInLocationArea    ( 8 ), 
+            ...  } OPTIONAL, 
+         extensionContainer                 [1] IMPLICIT ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 54
+
+--unknownOrUnreachableLCSClient ERROR
+--   PARAMETER
+UnknownOrUnreachableLCSClient-Param ::= SEQUENCE {
+         extensionContainer   ExtensionContainer OPTIONAL,
+         ... }
+-- ::= localValue : 58
+
+ExtensionContainer  ::=    SEQUENCE {
+   privateExtensionList [0] IMPLICIT PrivateExtensionList OPTIONAL, 
+   pcsExtensions     [1] IMPLICIT PcsExtensions OPTIONAL, 
+   ... }
+
+
+END
+
+-- 
+--B.2	Fully Expanded ASN.1 Source of MAP-DialogueInformation
+--
+--    Expanded ASN1 Module 'MAP-DialogueInformation'     
+--SIEMENS ASN.1 Compiler       R5.70  (Production_5.70)    
+--            Date: 2003-09-04 Time: 14:14:14            
+--
+--MAP-DialogueInformation{ 0 identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-DialogueInformation (3) version5 (5) }
+--
+--DEFINITIONS
+--
+--::=
+--
+--BEGIN
+--
+--EXPORTS
+--   map-DialogueAS, 
+--   MAP-DialoguePDU;
+--
+--
+--map-DialogueAS OBJECT IDENTIFIER ::= { ccitt (0) identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) 1 map-DialoguePDU (1) version1 (1) }
+--
+--MAP-DialoguePDU ::= CHOICE {
+--   map-open              [0] IMPLICIT SEQUENCE {
+--      destinationReference   [0] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ) OPTIONAL, 
+--      originationReference   [1] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ) OPTIONAL, 
+--      ... , 
+--      extensionContainer     ExtensionContainer OPTIONAL,
+--   map-accept            [1] IMPLICIT SEQUENCE {
+--      ... , 
+--      extensionContainer   ExtensionContainer OPTIONAL,
+--   map-close             [2] IMPLICIT SEQUENCE {
+--      ... , 
+--      extensionContainer   ExtensionContainer OPTIONAL,
+--   map-refuse            [3] IMPLICIT SEQUENCE {
+--      reason               ENUMERATED {
+--         noReasonGiven                  ( 0 ), 
+--         invalidDestinationReference    ( 1 ), 
+--         invalidOriginatingReference    ( 2 ) }, 
+--      ... , 
+--      extensionContainer   ExtensionContainer OPTIONAL,
+--   map-userAbort         [4] IMPLICIT SEQUENCE {
+--      map-UserAbortChoice   CHOICE {
+--         userSpecificReason                   [0] IMPLICIT NULL, 
+--         userResourceLimitation               [1] IMPLICIT NULL, 
+--         resourceUnavailable                  [2] IMPLICIT ENUMERATED {
+--            shortTermResourceLimitation    ( 0 ), 
+--            longTermResourceLimitation     ( 1 ) }, 
+--         applicationProcedureCancellation     [3] IMPLICIT ENUMERATED {
+--            handoverCancellation          ( 0 ), 
+--            radioChannelRelease           ( 1 ), 
+--            networkPathRelease            ( 2 ), 
+--            callRelease                   ( 3 ), 
+--            associatedProcedureFailure    ( 4 ), 
+--            tandemDialogueRelease         ( 5 ), 
+--            remoteOperationsFailure       ( 6 ) }}, 
+--      ... , 
+--      extensionContainer    ExtensionContainer OPTIONAL,
+--   map-providerAbort     [5] IMPLICIT SEQUENCE {
+--      map-ProviderAbortReason   ENUMERATED {
+--         abnormalDialogue    ( 0 ), 
+--         invalidPDU          ( 1 ) }, 
+--      ... , 
+--      extensionContainer        ExtensionContainer OPTIONAL,
+--} 
+-- End Ethereal adaptation
+--
+--MAP-OpenInfo ::= SEQUENCE {
+--   destinationReference   [0] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ) OPTIONAL, 
+--   originationReference   [1] IMPLICIT OCTET STRING ( SIZE( 1 .. 20 ) ) OPTIONAL, 
+--   ... , 
+--   extensionContainer     ExtensionContainer OPTIONAL,
+--
+--MAP-AcceptInfo ::= SEQUENCE {
+--   ... , 
+--   extensionContainer   ExtensionContainer OPTIONAL,
+--
+--MAP-CloseInfo ::= SEQUENCE {
+--   ... , 
+--   extensionContainer   ExtensionContainer OPTIONAL,
+--
+--MAP-RefuseInfo ::= SEQUENCE {
+--   reason               ENUMERATED {
+--      noReasonGiven                  ( 0 ), 
+--      invalidDestinationReference    ( 1 ), 
+--      invalidOriginatingReference    ( 2 ) }, 
+--   ... , 
+--   extensionContainer   ExtensionContainer OPTIONAL,
+--
+--Reason     ::= ENUMERATED {
+--   noReasonGiven                  ( 0 ), 
+--   invalidDestinationReference    ( 1 ), 
+--   invalidOriginatingReference    ( 2 ) }
+--
+--MAP-UserAbortInfo ::= SEQUENCE {
+--   map-UserAbortChoice   CHOICE {
+--      userSpecificReason                   [0] IMPLICIT NULL, 
+--      userResourceLimitation               [1] IMPLICIT NULL, 
+--      resourceUnavailable                  [2] IMPLICIT ENUMERATED {
+--         shortTermResourceLimitation    ( 0 ), 
+--         longTermResourceLimitation     ( 1 ) }, 
+--      applicationProcedureCancellation     [3] IMPLICIT ENUMERATED {
+--         handoverCancellation          ( 0 ), 
+--         radioChannelRelease           ( 1 ), 
+--         networkPathRelease            ( 2 ), 
+--         callRelease                   ( 3 ), 
+--         associatedProcedureFailure    ( 4 ), 
+--         tandemDialogueRelease         ( 5 ), 
+--         remoteOperationsFailure       ( 6 ) }}, 
+--   ... , 
+--   extensionContainer    ExtensionContainer OPTIONAL,
+--
+--MAP-UserAbortChoice ::= CHOICE {
+--   userSpecificReason                   [0] IMPLICIT NULL, 
+--   userResourceLimitation               [1] IMPLICIT NULL, 
+--   resourceUnavailable                  [2] IMPLICIT ENUMERATED {
+--      shortTermResourceLimitation    ( 0 ), 
+--      longTermResourceLimitation     ( 1 ) }, 
+--   applicationProcedureCancellation     [3] IMPLICIT ENUMERATED {
+--      handoverCancellation          ( 0 ), 
+--      radioChannelRelease           ( 1 ), 
+--      networkPathRelease            ( 2 ), 
+--      callRelease                   ( 3 ), 
+--      associatedProcedureFailure    ( 4 ), 
+--      tandemDialogueRelease         ( 5 ), 
+--      remoteOperationsFailure       ( 6 ) }}
+--
+--ResourceUnavailableReason ::= ENUMERATED {
+--   shortTermResourceLimitation    ( 0 ), 
+--   longTermResourceLimitation     ( 1 ) }
+--
+--ProcedureCancellationReason ::= ENUMERATED {
+--   handoverCancellation          ( 0 ), 
+--   radioChannelRelease           ( 1 ), 
+--   networkPathRelease            ( 2 ), 
+--   callRelease                   ( 3 ), 
+--   associatedProcedureFailure    ( 4 ), 
+--   tandemDialogueRelease         ( 5 ), 
+--   remoteOperationsFailure       ( 6 ) }
+--
+--MAP-ProviderAbortInfo ::= SEQUENCE {
+--   map-ProviderAbortReason   ENUMERATED {
+--      abnormalDialogue    ( 0 ), 
+--      invalidPDU          ( 1 ) }, 
+--   ... , 
+--   extensionContainer        ExtensionContainer OPTIONAL,
+--
+--MAP-ProviderAbortReason ::= ENUMERATED {
+--   abnormalDialogue    ( 0 ), 
+--   invalidPDU          ( 1 ) }
+--
+--
+--END
+

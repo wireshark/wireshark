@@ -1,0 +1,24 @@
+# gsm_map.cnf
+# gsm_map conformation file
+
+# $Id: gsm_map.cnf 12205 2004-10-05 09:50:19Z etxrab $
+
+#.MODULE_IMPORT
+
+#.EXPORTS
+
+#.PDU
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.TYPE_ATTR
+Ss-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)
+Teleservice  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Teleservice_vals)
+
+#.END
+
+
