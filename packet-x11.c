@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.5 2000/06/14 00:24:39 guy Exp $
+ * $Id: packet-x11.c,v 1.6 2000/06/14 07:16:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -625,7 +625,7 @@ static struct maskStruct {
 #define BITMASK8(name) { bitmask(hf_x11_##name##_mask, 1); }
 #define BITMASK16(name) { bitmask(hf_x11_##name##_mask, 2); }
 #define BITMASK32(name)  { bitmask(hf_x11_##name##_mask, 4); }
-#define BOOL(name)     (boolean(#name, hf_x11_##name))
+#define BOOL(name)     (add_boolean(#name, hf_x11_##name))
 #define BUTTON(name)   { FIELD8(name); }
 #define CARD8(name)    { FIELD8(name); }
 #define CARD16(name)   (FIELD16(name))
@@ -712,7 +712,7 @@ static void bitmask(int hf, int size)
       cur_offset += size; 
 }
 
-static guint32 boolean(const char *nameAsChar, int hf)
+static guint32 add_boolean(const char *nameAsChar, int hf)
 {
       guint32 v = VALUE8(tvb, cur_offset);
       proto_tree_add_boolean(t, hf, tvb, cur_offset, 1, v);
