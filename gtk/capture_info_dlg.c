@@ -1,7 +1,7 @@
 /* capture_info_dlg.c
  * Routines for packet capture info dialog
  *
- * $Id: capture_info_dlg.c,v 1.3 2003/11/17 20:00:37 guy Exp $
+ * $Id: capture_info_dlg.c,v 1.4 2003/11/18 06:06:41 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,7 +63,7 @@ typedef struct {
 static float
 pct(gint num, gint denom) {
   if (denom) {
-    return (float) num * 100.0 / (float) denom;
+    return (float) (num * 100.0 / denom);
   } else {
     return 0.0;
   }
@@ -90,7 +90,6 @@ capture_info    *cinfo)
   unsigned int      i;
   GtkWidget         *main_vb, *stop_bt, *counts_tb;
   GtkWidget         *counts_fr, *running_tb, *running_label;
-  GtkWidget         *iface_lb, *iface_name_lb, *iface_descr_lb;
   capture_info_ui_t *info;
 
   info = g_malloc0(sizeof(capture_info_ui_t));
