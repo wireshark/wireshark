@@ -1,7 +1,7 @@
 /* packet-ip.h
  * Definitions for IP packet disassembly structures and routines
  *
- * $Id: packet-ip.h,v 1.9 1999/11/21 14:43:53 gram Exp $
+ * $Id: packet-ip.h,v 1.10 2000/01/20 21:34:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,7 +51,8 @@
 #define IP_PROTO_NONE		59		/* IP6 no next header */
 #define IP_PROTO_DSTOPTS	60		/* IP6 no next header */
 #define IP_PROTO_EON		80		/* ISO cnlp */
-#define IP_PROTO_EIGRP   88
+#define IP_PROTO_VINES		83		/* Vines over raw IP */
+#define IP_PROTO_EIGRP		88
 #define IP_PROTO_OSPF		89
 #define IP_PROTO_ENCAP		98		/* encapsulation header */
 #define IP_PROTO_PIM		103		/* Protocol Independent Mcast */

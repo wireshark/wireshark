@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.68 2000/01/16 02:54:47 guy Exp $
+ * $Id: packet-ip.c,v 1.69 2000/01/20 21:34:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -326,6 +326,9 @@ capture_ip(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
       ld->ospf++;
       break;
     case IP_PROTO_GRE:
+      ld->gre++;
+      break;
+    case IP_PROTO_VINES:
       ld->gre++;
       break;
     default:
@@ -710,6 +713,7 @@ static const value_string proto_vals[] = { {IP_PROTO_ICMP, "ICMP"},
                                            {IP_PROTO_ESP,  "ESP" },
                                            {IP_PROTO_IPV6, "IPv6"},
                                            {IP_PROTO_PIM,  "PIM" },
+                                           {IP_PROTO_VINES,"VINES"},
                                            {0,             NULL  } };
 
 static const value_string precedence_vals[] = {
@@ -819,6 +823,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     case IP_PROTO_AH:
     case IP_PROTO_IPV6:
     case IP_PROTO_PIM:
+    case IP_PROTO_VINES:
       /* Names are set in the associated dissect_* routines */
       break;
     default:
@@ -946,6 +951,9 @@ again:
       break;
     case IP_PROTO_OSPF:
       dissect_ospf(pd, offset, fd, tree);
+      break;
+    case IP_PROTO_VINES:
+      dissect_vines_frp(pd, offset, fd, tree);
       break;
     case IP_PROTO_RSVP:
       dissect_rsvp(pd, offset, fd, tree);
