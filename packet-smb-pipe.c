@@ -2,7 +2,7 @@
  * Routines for SMB named pipe packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.c,v 1.18 2001/03/21 23:13:49 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.19 2001/03/21 23:30:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -604,58 +604,73 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
     si.request_val -> last_lanman_cmd = FunctionCode;
 
+    lanman = find_lanman(FunctionCode);
+
+    if (check_col(fd, COL_INFO)) {
+
+      if (lanman) { 
+	col_add_fstr(fd, COL_INFO, "%s Request", lanman -> lanman_name);
+      }
+      else {
+	col_add_fstr(fd, COL_INFO, "Unknown LANMAN Request: %u", FunctionCode);
+      }
+    }
+
+    if (tree) {
+
+      ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, loc_offset, ParameterCount, FALSE);
+      lanman_tree = proto_item_add_subtree(ti, ett_lanman);
+
+      if (lanman) {
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Function Code: %s", lanman -> lanman_name);
+      }
+      else {
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Function Code: Unknown LANMAN Request: %u", FunctionCode);
+      }
+
+    }
+
+    loc_offset += 2;
+
+    ParameterDescriptor = pd + loc_offset;
+
+    /* Now, save these for later */
+
+    si.request_val -> trans_response_seen = 0; 
+
+    if (si.request_val -> last_param_descrip)
+      g_free(si.request_val -> last_param_descrip);
+    si.request_val -> last_param_descrip = g_malloc(strlen(ParameterDescriptor) + 1);
+    if (si.request_val -> last_param_descrip)
+      strcpy(si.request_val -> last_param_descrip, ParameterDescriptor);
+
+    if (tree) {
+
+      proto_tree_add_text(lanman_tree, NullTVB, loc_offset, strlen(ParameterDescriptor) + 1, "Parameter Descriptor: %s", ParameterDescriptor);
+
+    }
+
+    loc_offset += strlen(ParameterDescriptor) + 1;
+
+    ReturnDescriptor = pd + loc_offset;
+
+    if (si.request_val -> last_data_descrip)
+      g_free(si.request_val -> last_data_descrip);
+    si.request_val -> last_data_descrip = g_malloc(strlen(ReturnDescriptor) + 1);
+    if (si.request_val -> last_data_descrip)
+      strcpy(si.request_val -> last_data_descrip, ReturnDescriptor);
+
+    if (tree) {
+
+      proto_tree_add_text(lanman_tree, NullTVB, loc_offset, strlen(ReturnDescriptor) + 1, "Return Descriptor: %s", ReturnDescriptor);
+
+    }
+
+    loc_offset += strlen(ReturnDescriptor) + 1;
+
     switch (FunctionCode) {
 
     case NETSHAREENUM:   /* Never decode this at the moment ... */
-
-      if (check_col(fd, COL_INFO)) {
-
-	col_set_str(fd, COL_INFO, "NetShareEnum Request");
-
-      }
-
-      if (tree) {
-
-	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, loc_offset, ParameterCount, FALSE);
-	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
-
-	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Function Code: NetShareEnum");
-
-      }
-
-      loc_offset += 2;
-
-      ParameterDescriptor = pd + loc_offset;
-
-      si.request_val -> trans_response_seen = 0; 
-
-      if (si.request_val -> last_param_descrip) g_free(si.request_val -> last_param_descrip);
-      si.request_val -> last_param_descrip = g_malloc(strlen(ParameterDescriptor) + 1);
-      if (si.request_val -> last_param_descrip)
-	strcpy(si.request_val -> last_param_descrip, ParameterDescriptor);
-
-      if (tree) {
-
-	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, strlen(ParameterDescriptor) + 1, "Parameter Descriptor: %s", ParameterDescriptor);
-
-      }
-
-      loc_offset += strlen(ParameterDescriptor) + 1;
-
-      ReturnDescriptor = pd + loc_offset;
-
-      if (si.request_val -> last_data_descrip) g_free(si.request_val -> last_data_descrip);
-      si.request_val -> last_data_descrip = g_malloc(strlen(ReturnDescriptor) + 1);
-      if (si.request_val -> last_data_descrip)
-	strcpy(si.request_val -> last_data_descrip, ReturnDescriptor);
-
-      if (tree) {
-
-	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, strlen(ReturnDescriptor) + 1, "Return Descriptor: %s", ReturnDescriptor);
-
-      }
-
-      loc_offset += strlen(ReturnDescriptor) + 1;
 
       Level = GSHORT(pd, loc_offset);
       
@@ -680,58 +695,6 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
       break;
 
     case NETSERVERENUM2:  /* Process a NetServerEnum2 */
-
-      if (check_col(fd, COL_INFO)) {
-
-	col_set_str(fd, COL_INFO, "NetServerEnum2 Request");
-
-      }
-
-      if (tree) {
-
-	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, loc_offset, ParameterCount, FALSE);
-	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
-      
-	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Function Code: NetServerEnum2");
-
-      }
-
-      loc_offset += 2;
-
-      ParameterDescriptor = pd + loc_offset;
-
-      /* Now, save these for later */
-
-      si.request_val -> trans_response_seen = 0; 
-
-      if (si.request_val -> last_param_descrip) g_free(si.request_val -> last_param_descrip);
-      si.request_val -> last_param_descrip = g_malloc(strlen(ParameterDescriptor) + 1);
-      if (si.request_val -> last_param_descrip)
-	strcpy(si.request_val -> last_param_descrip, ParameterDescriptor);
-
-      if (tree) {
-
-	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, strlen(ParameterDescriptor) + 1, "Parameter Descriptor: %s", ParameterDescriptor);
-
-      }
-
-      loc_offset += strlen(ParameterDescriptor) + 1;
-
-      ReturnDescriptor = pd + loc_offset;
-
-      if (si.request_val -> last_data_descrip) g_free(si.request_val -> last_data_descrip);
-
-      si.request_val -> last_data_descrip = g_malloc(strlen(ReturnDescriptor) + 1);
-      if (si.request_val -> last_data_descrip)
-	strcpy(si.request_val -> last_data_descrip, ReturnDescriptor);
-      
-      if (tree) {
-
-	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, strlen(ReturnDescriptor) + 1, "Return Descriptor: %s", ReturnDescriptor);
-
-      }
-
-      loc_offset += strlen(ReturnDescriptor) + 1;
 
       Level = GSHORT(pd, loc_offset);
       si.request_val -> last_level = Level;
@@ -769,67 +732,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
       return TRUE;
       break;
 
-      default:   /* Just try to handle what is there ... */
-
-      lanman = find_lanman(FunctionCode);
-
-      if (check_col(fd, COL_INFO)) {
-
-	if (lanman) { 
-	  col_add_fstr(fd, COL_INFO, "%s Request", lanman -> lanman_name);
-	}
-	else {
-	  col_add_fstr(fd, COL_INFO, "Unknown LANMAN Request: %u", FunctionCode);
-	}
-      }
-
-      if (tree) {
-
-	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, loc_offset, ParameterCount, FALSE);
-	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
-
-	if (lanman) {
-	  proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "%s Request", lanman -> lanman_name);
-	}
-	else {
-	  proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Function Code: Unknown LANMAN Request: %u", FunctionCode);
-	}
-
-      }
-
-      loc_offset += 2;
-
-      ParameterDescriptor = pd + loc_offset;
-
-      si.request_val -> trans_response_seen = 0; 
-
-      if (si.request_val -> last_param_descrip) g_free(si.request_val -> last_param_descrip);
-      si.request_val -> last_param_descrip = g_malloc(strlen(ParameterDescriptor) + 1);
-      if (si.request_val -> last_param_descrip)
-	strcpy(si.request_val -> last_param_descrip, ParameterDescriptor);
-
-      if (tree) {
-
-	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, strlen(ParameterDescriptor) + 1, "Parameter Descriptor: %s", ParameterDescriptor);
-
-      }
-
-      loc_offset += strlen(ParameterDescriptor) + 1;
-
-      ReturnDescriptor = pd + loc_offset;
-
-      if (si.request_val -> last_data_descrip) g_free(si.request_val -> last_data_descrip);
-      si.request_val -> last_data_descrip = g_malloc(strlen(ReturnDescriptor) + 1);
-      if (si.request_val -> last_data_descrip)
-	strcpy(si.request_val -> last_data_descrip, ReturnDescriptor);
-
-      if (tree) {
-
-	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, strlen(ReturnDescriptor) + 1, "Return Descriptor: %s", ReturnDescriptor);
-
-      }
-
-      loc_offset += strlen(ReturnDescriptor) + 1;
+    default:   /* Just try to handle what is there ... */
 
       if (tree) {
 
