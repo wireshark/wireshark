@@ -52,6 +52,7 @@
 #include "compat_macros.h"
 #include "dlg_utils.h"
 #include "filter_dlg.h"
+#include "help_dlg.h"
 
 void protect_thread_critical_region(void);
 void unprotect_thread_critical_region(void);
@@ -1871,7 +1872,8 @@ init_io_stat_window(io_stat_t *io)
 {
 	GtkWidget *vbox;
 	GtkWidget *hbox;
-    GtkWidget *bt_close;
+	GtkWidget *bbox;
+    GtkWidget *close_bt, *help_bt;
 
 	/* create the main window */
 	io->window=window_new(GTK_WINDOW_TOPLEVEL, "I/O Graphs");
@@ -1893,12 +1895,21 @@ init_io_stat_window(io_stat_t *io)
 
 	io_stat_set_title(io);
 
-    hbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
-    gtk_widget_show(hbox);
+    if(topic_available(HELP_STATS_IO_GRAPH_DIALOG)) {
+        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
+    } else {
+        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+    }
+	gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+    gtk_widget_show(bbox);
 
-    bt_close = OBJECT_GET_DATA(hbox, GTK_STOCK_CLOSE);
-    window_set_cancel_button(io->window, bt_close, window_cancel_button_cb);
+    close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    window_set_cancel_button(io->window, close_bt, window_cancel_button_cb);
+
+    if(topic_available(HELP_STATS_IO_GRAPH_DIALOG)) {
+        help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+        SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_STATS_IO_GRAPH_DIALOG);
+    }
 
     SIGNAL_CONNECT(io->window, "delete_event", window_delete_event_cb, NULL);
 

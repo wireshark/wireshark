@@ -42,6 +42,7 @@
 #include "compat_macros.h"
 #include "disabled_protos.h"
 #include <epan/filesystem.h>
+#include "help_dlg.h"
 
 static gboolean proto_delete_event_cb(GtkWidget *, GdkEvent *, gpointer);
 static void proto_ok_cb(GtkWidget *, gpointer);
@@ -219,7 +220,11 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
 
 
   /* Button row */
-  bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
+  if(topic_available(HELP_ENABLED_PROTOCOLS_DIALOG)) {
+    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
+  } else {
+    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
+  }
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 
@@ -235,6 +240,11 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
 
   button = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
   window_set_cancel_button(proto_w, button, proto_cancel_cb);
+
+  if(topic_available(HELP_ENABLED_PROTOCOLS_DIALOG)) {
+    button = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+    SIGNAL_CONNECT(button, "clicked", topic_cb, HELP_ENABLED_PROTOCOLS_DIALOG);
+  }
 
   SIGNAL_CONNECT(proto_w, "delete_event", proto_delete_event_cb, NULL);
   SIGNAL_CONNECT(proto_w, "destroy", proto_destroy_cb, NULL);

@@ -331,16 +331,16 @@ static void toolbar_append_separator(GtkWidget *toolbar) {
 
 
 #if GTK_MAJOR_VERSION < 2
-#define toolbar_item(new_item, window, toolbar, stock, tooltip, xpm, callback) { \
+#define toolbar_item(new_item, window, toolbar, stock, tooltip, xpm, callback, user_data) { \
     icon = gdk_pixmap_create_from_xpm_d(window->window, &mask, &window->style->white, xpm); \
     iconw = gtk_pixmap_new(icon, mask); \
     new_item = gtk_toolbar_append_item(GTK_TOOLBAR (toolbar), \
-        stock, tooltip, "Private", iconw, GTK_SIGNAL_FUNC(callback), NULL);\
+        stock, tooltip, "Private", iconw, GTK_SIGNAL_FUNC(callback), user_data);\
     }
 #else
-#define toolbar_item(new_item, window, toolbar, stock, tooltip, xpm, callback) { \
+#define toolbar_item(new_item, window, toolbar, stock, tooltip, xpm, callback, user_data) { \
     new_item = gtk_toolbar_insert_stock(GTK_TOOLBAR(toolbar), \
-        stock, tooltip, "Private", G_CALLBACK(callback), NULL, -1);\
+        stock, tooltip, "Private", G_CALLBACK(callback), user_data, -1);\
     }
 #endif /* GTK_MAJOR_VERSION */
 
@@ -395,63 +395,63 @@ toolbar_new(void)
      * between them is needed here (stop button is hidden by default) */
 
     toolbar_item(new_button, window, main_tb, 
-        ETHEREAL_STOCK_CAPTURE_START, "Start a new live capture...", capture_24_xpm, capture_prep_cb);
+        ETHEREAL_STOCK_CAPTURE_START, "Start a new live capture...", capture_24_xpm, capture_prep_cb, NULL);
     toolbar_item(stop_button, window, main_tb, 
-        GTK_STOCK_STOP, "Stop the running live capture", stock_stop_24_xpm, capture_stop_cb);
+        GTK_STOCK_STOP, "Stop the running live capture", stock_stop_24_xpm, capture_stop_cb, NULL);
     toolbar_append_separator(main_tb);
 #endif /* HAVE_LIBPCAP */
 
     toolbar_item(open_button, window, main_tb, 
-        GTK_STOCK_OPEN, "Open a capture file...", stock_open_24_xpm, file_open_cmd_cb);
+        GTK_STOCK_OPEN, "Open a capture file...", stock_open_24_xpm, file_open_cmd_cb, NULL);
     toolbar_item(save_button, window, main_tb, 
-        GTK_STOCK_SAVE, "Save this capture file...", stock_save_24_xpm, file_save_cmd_cb);
+        GTK_STOCK_SAVE, "Save this capture file...", stock_save_24_xpm, file_save_cmd_cb, NULL);
     toolbar_item(save_as_button, window, main_tb, 
-        GTK_STOCK_SAVE_AS, "Save this capture file as...", stock_save_as_24_xpm, file_save_as_cmd_cb);
+        GTK_STOCK_SAVE_AS, "Save this capture file as...", stock_save_as_24_xpm, file_save_as_cmd_cb, NULL);
     toolbar_item(close_button, window, main_tb, 
-        GTK_STOCK_CLOSE, "Close this capture file", stock_close_24_xpm, file_close_cmd_cb);
+        GTK_STOCK_CLOSE, "Close this capture file", stock_close_24_xpm, file_close_cmd_cb, NULL);
     toolbar_item(reload_button, window, main_tb, 
-        GTK_STOCK_REFRESH, "Reload this capture file", stock_refresh_24_xpm, file_reload_cmd_cb);
+        GTK_STOCK_REFRESH, "Reload this capture file", stock_refresh_24_xpm, file_reload_cmd_cb, NULL);
     toolbar_item(print_button, window, main_tb, 
-        GTK_STOCK_PRINT, "Print packet(s)...", stock_print_24_xpm, file_print_cmd_cb);
+        GTK_STOCK_PRINT, "Print packet(s)...", stock_print_24_xpm, file_print_cmd_cb, NULL);
     toolbar_append_separator(main_tb);
 
     toolbar_item(find_button, window, main_tb, 
-        GTK_STOCK_FIND, "Find a packet...", stock_search_24_xpm, find_frame_cb);
+        GTK_STOCK_FIND, "Find a packet...", stock_search_24_xpm, find_frame_cb, NULL);
     toolbar_item(history_back_button, window, main_tb, 
-        GTK_STOCK_GO_BACK, "Go back in packet history", stock_left_arrow_24_xpm, history_back_cb);
+        GTK_STOCK_GO_BACK, "Go back in packet history", stock_left_arrow_24_xpm, history_back_cb, NULL);
     toolbar_item(history_forward_button, window, main_tb, 
-        GTK_STOCK_GO_FORWARD, "Go forward in packet history", stock_right_arrow_24_xpm, history_forward_cb);
+        GTK_STOCK_GO_FORWARD, "Go forward in packet history", stock_right_arrow_24_xpm, history_forward_cb, NULL);
     toolbar_item(go_to_button, window, main_tb, 
-        GTK_STOCK_JUMP_TO, "Go to the packet with number...", stock_jump_to_24_xpm, goto_frame_cb);
+        GTK_STOCK_JUMP_TO, "Go to the packet with number...", stock_jump_to_24_xpm, goto_frame_cb, NULL);
     toolbar_item(go_to_top_button, window, main_tb, 
-        GTK_STOCK_GOTO_TOP, "Go to the first packet", stock_top_24_xpm, goto_top_frame_cb);
+        GTK_STOCK_GOTO_TOP, "Go to the first packet", stock_top_24_xpm, goto_top_frame_cb, NULL);
     toolbar_item(go_to_bottom_button, window, main_tb, 
-        GTK_STOCK_GOTO_BOTTOM, "Go to the last packet", stock_bottom_24_xpm, goto_bottom_frame_cb);
+        GTK_STOCK_GOTO_BOTTOM, "Go to the last packet", stock_bottom_24_xpm, goto_bottom_frame_cb, NULL);
     toolbar_append_separator(main_tb);
 
     toolbar_item(zoom_in_button, window, main_tb, 
-        GTK_STOCK_ZOOM_IN, "Zoom in", stock_zoom_in_24_xpm, view_zoom_in_cb);
+        GTK_STOCK_ZOOM_IN, "Zoom in", stock_zoom_in_24_xpm, view_zoom_in_cb, NULL);
     toolbar_item(zoom_out_button, window, main_tb, 
-        GTK_STOCK_ZOOM_OUT, "Zoom out", stock_zoom_out_24_xpm, view_zoom_out_cb);
+        GTK_STOCK_ZOOM_OUT, "Zoom out", stock_zoom_out_24_xpm, view_zoom_out_cb, NULL);
     toolbar_item(zoom_100_button, window, main_tb, 
-        GTK_STOCK_ZOOM_100, "Zoom 100%", stock_zoom_1_24_xpm, view_zoom_100_cb);
+        GTK_STOCK_ZOOM_100, "Zoom 100%", stock_zoom_1_24_xpm, view_zoom_100_cb, NULL);
     toolbar_append_separator(main_tb);
     
 #ifdef HAVE_LIBPCAP
     toolbar_item(capture_filter_button, window, main_tb, 
-        ETHEREAL_STOCK_CAPTURE_FILTER, "Edit capture filter...", cfilter_24_xpm, cfilter_dialog_cb);
+        ETHEREAL_STOCK_CAPTURE_FILTER, "Edit capture filter...", cfilter_24_xpm, cfilter_dialog_cb, NULL);
 #endif /* HAVE_LIBPCAP */
     toolbar_item(display_filter_button, window, main_tb, 
-        ETHEREAL_STOCK_DISPLAY_FILTER, "Edit/apply display filter...", dfilter_24_xpm, dfilter_dialog_cb);
+        ETHEREAL_STOCK_DISPLAY_FILTER, "Edit/apply display filter...", dfilter_24_xpm, dfilter_dialog_cb, NULL);
     toolbar_item(color_display_button, window, main_tb, 
-        GTK_STOCK_SELECT_COLOR, "Edit coloring rules...", stock_colorselector_24_xpm, color_display_cb);
+        GTK_STOCK_SELECT_COLOR, "Edit coloring rules...", stock_colorselector_24_xpm, color_display_cb, NULL);
     /* the preference button uses it's own Stock icon label "Prefs", as "Preferences" is too long */
     toolbar_item(prefs_button, window, main_tb, 
-        ETHEREAL_STOCK_PREFS, "Edit preferences...", stock_preferences_24_xpm, prefs_cb);
+        ETHEREAL_STOCK_PREFS, "Edit preferences...", stock_preferences_24_xpm, prefs_cb, NULL);
     toolbar_append_separator(main_tb);
 
     toolbar_item(help_button, window, main_tb, 
-        GTK_STOCK_HELP, "Show some help...", stock_help_24_xpm, help_cb);
+        GTK_STOCK_HELP, "Show some help...", stock_help_24_xpm, topic_cb, GINT_TO_POINTER(HELP_CONTENT));
 
     /* disable all "sensitive" items by default */
     toolbar_init = TRUE;

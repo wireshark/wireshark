@@ -39,6 +39,7 @@
 #include <epan/epan_dissect.h>
 #include "compat_macros.h"
 #include "decode_as_dcerpc.h"
+#include "help_dlg.h"
 
 #undef DEBUG
 
@@ -520,7 +521,7 @@ decode_show_destroy_cb (GtkWidget *win _U_, gpointer user_data _U_)
 void
 decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
 {
-    GtkWidget         *main_vb, *bbox, *ok_bt, *clear_bt, *scrolled_window;
+    GtkWidget         *main_vb, *bbox, *ok_bt, *clear_bt, *help_bt, *scrolled_window;
     gchar             *titles[E_LIST_D_COLUMNS] = {
         "Table", "Value", "Initial", "Current"
     };
@@ -603,7 +604,11 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
     }
 
     /* Button row */
-    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CLEAR, NULL);
+    if(topic_available(HELP_DECODE_AS_SHOW_DIALOG)) {
+        bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CLEAR, GTK_STOCK_HELP, NULL);
+    } else {
+        bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CLEAR, NULL);
+    }
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
@@ -612,6 +617,11 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
     
     clear_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLEAR);
     SIGNAL_CONNECT(clear_bt, "clicked", decode_show_clear_cb, decode_show_w);
+
+    if(topic_available(HELP_DECODE_AS_SHOW_DIALOG)) {
+        help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+        SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_DECODE_AS_SHOW_DIALOG);
+    }
 
     /* set ok as default, this button won't change anything */
     window_set_cancel_button(decode_show_w, ok_bt, NULL);
@@ -1858,7 +1868,7 @@ decode_add_notebook (GtkWidget *format_hb)
 void
 decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
 {
-    GtkWidget	*main_vb, *format_hb, *bbox, *ok_bt, *close_bt, *button;
+    GtkWidget	*main_vb, *format_hb, *bbox, *ok_bt, *close_bt, *help_bt, *button;
     GtkWidget   *button_vb, *apply_bt;
     GtkTooltips *tooltips = gtk_tooltips_new();
 
@@ -1904,7 +1914,11 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
     }
 
     /* Button row */
-    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CLOSE, NULL);
+    if(topic_available(HELP_DECODE_AS_DIALOG)) {
+        bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
+    } else {
+        bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CLOSE, NULL);
+    }
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
@@ -1923,6 +1937,11 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
     SIGNAL_CONNECT(close_bt, "clicked", decode_close_cb, decode_w);
     gtk_tooltips_set_tip(tooltips, close_bt, 
         "Close the dialog, don't redissect packets.", NULL);
+
+    if(topic_available(HELP_DECODE_AS_DIALOG)) {
+        help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+        SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_DECODE_AS_DIALOG);
+    }
 
     gtk_widget_grab_default(ok_bt);
 

@@ -284,6 +284,8 @@ browser_open_data_file(const gchar *filename)
     /* build filename */
     file_path = g_strdup_printf("%s/%s", get_datafile_dir(), filename);
 
+    /* XXX - check, if the file is really existing, otherwise display a simple_dialog about the problem */
+
     /* convert filename to uri */
     uri = filename2uri(file_path);
 

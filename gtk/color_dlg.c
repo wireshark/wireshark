@@ -47,6 +47,7 @@
 #include "file_dlg.h"
 #include "gtkglobals.h"
 #include <epan/prefs.h>
+#include "help_dlg.h"
 
 static GtkWidget* colorize_dialog_new(char *filter);
 static void add_filter_to_list(gpointer filter_arg, gpointer list_arg);
@@ -200,6 +201,7 @@ colorize_dialog_new (char *filter)
   GtkWidget *color_apply;
   GtkWidget *color_save;
   GtkWidget *color_cancel;
+  GtkWidget *color_help;
 
 #if GTK_MAJOR_VERSION >= 2
   GtkListStore      *store;
@@ -386,7 +388,11 @@ colorize_dialog_new (char *filter)
 
 
   /* Button row: OK and cancel buttons */
-  button_ok_hbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CLOSE/*, GTK_STOCK_CANCEL*/, NULL);
+  if(topic_available(HELP_COLORING_RULES_DIALOG)) {
+    button_ok_hbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
+  } else {
+    button_ok_hbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CLOSE/*, GTK_STOCK_CANCEL*/, NULL);
+  }
   gtk_box_pack_start (GTK_BOX (dlg_vbox), button_ok_hbox, FALSE, FALSE, 5);
 
   color_ok = OBJECT_GET_DATA(button_ok_hbox, GTK_STOCK_OK);
@@ -401,6 +407,12 @@ colorize_dialog_new (char *filter)
   color_cancel = OBJECT_GET_DATA(button_ok_hbox, GTK_STOCK_CLOSE);
   window_set_cancel_button(color_win, color_cancel, color_cancel_cb);
   gtk_tooltips_set_tip (tooltips, color_cancel, ("Close this dialog but don't apply the color filter changes to the display"), NULL);
+
+  if(topic_available(HELP_COLORING_RULES_DIALOG)) {
+      color_help = OBJECT_GET_DATA(button_ok_hbox, GTK_STOCK_HELP);
+      gtk_tooltips_set_tip (tooltips, color_help, ("Get help about this dialog"), NULL);
+      SIGNAL_CONNECT(color_help, "clicked", topic_cb, HELP_COLORING_RULES_DIALOG);
+  }
 
   gtk_widget_grab_default(color_ok);
 

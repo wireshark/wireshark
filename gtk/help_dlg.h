@@ -32,24 +32,6 @@
  *  @ingroup dialog_group
  */
 
-/** User requested the "Help" dialog box by menu or toolbar.
- *
- * @param widget parent widget (unused)
- * @param data unused
- */
-void help_cb(GtkWidget *widget, gpointer data);
-
-/** Create a "Help" dialog box and start with a specific topic.
- *  Will show the first page if topic is not found.
- *
- * @param widget parent widget (unused)
- * @param topic the topic to display (a string)
- */
-void help_topic_cb(GtkWidget *widget, gpointer topic);
-
-/** Redraw all the text widgets, to use a new font. */
-void help_redraw(void);
-
 typedef enum {
     /* pages online at www.ethereal.com */
     ONLINEPAGE_HOME,
@@ -65,40 +47,54 @@ typedef enum {
     LOCALPAGE_MAN_TETHEREAL,
     LOCALPAGE_MAN_MERGECAP,
     LOCALPAGE_MAN_EDITCAP,
-    LOCALPAGE_MAN_TEXT2PCAP
+    LOCALPAGE_MAN_TEXT2PCAP,
 
-    /* local help pages (User's Guide) */
-#ifdef ETHEREAL_EUG_DIR
-    ,
+    /* help pages (textfiles or local HTML User's Guide) */
     HELP_CONTENT = 200,
+    HELP_GETTING_STARTED,           /* currently unused */
     HELP_CAPTURE_OPTIONS_DIALOG,
     HELP_CAPTURE_FILTERS_DIALOG,
-    HELP_DISPLAY_FILTERS_DIALOG
-#endif
-} url_page_action_e;
+    HELP_DISPLAY_FILTERS_DIALOG,
+    HELP_COLORING_RULES_DIALOG,
+    HELP_PRINT_DIALOG,
+    HELP_FIND_DIALOG,
+    HELP_GOTO_DIALOG,
+    HELP_CAPTURE_INTERFACES_DIALOG,
+    HELP_ENABLED_PROTOCOLS_DIALOG,
+    HELP_DECODE_AS_DIALOG,
+    HELP_DECODE_AS_SHOW_DIALOG,
+    HELP_FOLLOW_TCP_STREAM_DIALOG,  /* currently unused */
+    HELP_STATS_SUMMARY_DIALOG,
+    HELP_STATS_PROTO_HIERARCHY_DIALOG,
+    HELP_STATS_ENDPOINTS_DIALOG,
+    HELP_STATS_CONVERSATIONS_DIALOG,
+    HELP_STATS_IO_GRAPH_DIALOG
+} topic_action_e;
 
 
-/** User requested one of the html pages.
- *
- * @param action the page to show
- */
-extern void
-url_page_action(url_page_action_e action);
-
-/** User requested one of the html pages by button click.
- *
- * @param widget parent widget (unused)
- * @param action the page to show
- */
-extern void
-url_page_cb(GtkWidget *widget _U_, url_page_action_e action);
-
-/** User requested one of the html pages by menu.
+/** Open a specific topic (create a "Help" dialog box or open a webpage).
  *
  * @param widget parent widget (unused)
- * @param data unused
- * @param action the page to show
+ * @param topic the topic to display
  */
-extern void url_page_menu_cb( GtkWidget *widget, gpointer data, url_page_action_e action);
+void topic_cb(GtkWidget *widget, topic_action_e topic);
+
+/** Open a specific topic called from a menu item.
+ *
+ * @param widget parent widget (unused)
+ * @param data user_data (unused)
+ * @param topic the topic to display
+ */
+void topic_menu_cb(GtkWidget *w _U_, gpointer data _U_, topic_action_e topic);
+
+/** Check, if a specific topic is available.
+ *
+ * @param topic the topic to display
+ * @return TRUE, if topic is available, FALSE if not
+ */
+gboolean topic_available(topic_action_e action);
+
+/** Redraw all the help dialog text widgets, to use a new font. */
+void help_redraw(void);
 
 #endif

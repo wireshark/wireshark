@@ -33,6 +33,7 @@
 #include "ui_util.h"
 #include "main.h"
 #include "compat_macros.h"
+#include "help_dlg.h"
 
 #if GTK_MAJOR_VERSION < 2
 #define NUM_STAT_COLUMNS 8
@@ -312,7 +313,7 @@ void
 proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	ph_stats_t	*ps;
-	GtkWidget	*dlg, *ok_bt, *vbox, *bbox;
+	GtkWidget	*dlg, *ok_bt, *help_bt, *vbox, *bbox;
 
 	/* Get the statistics. */
 	ps = ph_stats_new();
@@ -334,12 +335,21 @@ proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
 	ph_stats_free(ps);
 
 	/* Button row. */
-	bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
+    if(topic_available(HELP_STATS_PROTO_HIERARCHY_DIALOG)) {
+	    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_HELP, NULL);
+    } else {
+	    bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
+    }
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 	gtk_widget_show(bbox);
 
 	ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
     window_set_cancel_button(dlg, ok_bt, window_cancel_button_cb);
+
+    if(topic_available(HELP_STATS_PROTO_HIERARCHY_DIALOG)) {
+        help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+        SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_STATS_PROTO_HIERARCHY_DIALOG);
+    }
 
 	SIGNAL_CONNECT(dlg, "delete_event", window_delete_event_cb, NULL);
 

@@ -99,7 +99,8 @@ static GtkWidget * help_page(const char *topic, const char *filename)
 /*
  * Create and show help dialog.
  */
-void help_cb(GtkWidget *w _U_, gpointer data _U_)
+static
+void help_dialog(void)
 {
   GtkWidget *main_vb, *bbox, *help_nb, *close_bt, *label, *topic_vb;
   char line[4096+1];	/* XXX - size? */
@@ -180,23 +181,51 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
 
   gtk_widget_show_all(help_w);
   window_present(help_w);
-} /* help_cb */
+} /* help_dialog */
 
+
+gboolean topic_available(topic_action_e action) {
+
+#ifdef ETHEREAL_EUG_DIR
+    /* online: we have all pages available */
+    return TRUE;
+#else
+    /* offline: we have only some pages available */
+    switch(action) {
+    case(HELP_CONTENT):
+        return TRUE;
+        break;
+    case(HELP_GETTING_STARTED):
+        return TRUE;
+        break;
+    case(HELP_CAPTURE_OPTIONS_DIALOG):
+        return TRUE;
+        break;
+    case(HELP_CAPTURE_FILTERS_DIALOG):
+        return TRUE;
+        break;
+    case(HELP_DISPLAY_FILTERS_DIALOG):
+        return TRUE;
+        break;
+    default:
+        return FALSE;
+    }
+#endif
+}
 
 /*
  * Open the help dialog and show a specific help page.
  */
-
-void help_topic_cb(GtkWidget *w _U_, gpointer data) {
-    gchar       *topic = data;
+void help_topic(gchar *topic) {
     gchar       *page_topic;
     GtkWidget   *help_nb;
     GSList      *help_page_ent;
     gint        page_num = 0;
     help_page_t *page;
 
+
     /* show help dialog, if not already opened */
-    help_cb(NULL, NULL);
+    help_dialog();
 
     help_nb = OBJECT_GET_DATA(help_w, NOTEBOOK_KEY);
 
@@ -261,8 +290,8 @@ void help_redraw(void)
 }
 
 
-void
-url_page_action(url_page_action_e action)
+static void
+topic_action(topic_action_e action)
 {
     /* pages online at www.ethereal.com */
     switch(action) {
@@ -319,6 +348,65 @@ url_page_action(url_page_action_e action)
     case(HELP_DISPLAY_FILTERS_DIALOG):
         browser_open_data_file("eug_html_chunked/ChWorkDefineFilterSection.html");
         break;
+    case(HELP_COLORING_RULES_DIALOG):
+        browser_open_data_file("eug_html_chunked/ChCustColorizationSection.html");
+        break;
+    case(HELP_PRINT_DIALOG):
+        browser_open_data_file("eug_html_chunked/ChIOPrintSection.html");
+        break;
+    case(HELP_FIND_DIALOG):
+        browser_open_data_file("eug_html_chunked/ChWorkFindPacketSection.html");
+        break;
+    case(HELP_GOTO_DIALOG):
+        browser_open_data_file("eug_html_chunked/ChWorkGoToPacketSection.html");
+        break;
+    case(HELP_CAPTURE_INTERFACES_DIALOG):
+        browser_open_data_file("eug_html_chunked/ChCapInterfaceSection.html");
+        break;
+    case(HELP_ENABLED_PROTOCOLS_DIALOG):
+        browser_open_data_file("eug_html_chunked/ChCustProtocolDissectionSection.html");
+        break;
+    case(HELP_DECODE_AS_DIALOG):
+        browser_open_data_file("eug_html_chunked/ChCustProtocolDissectionSection.html");
+        break;
+    case(HELP_DECODE_AS_SHOW_DIALOG):
+        browser_open_data_file("eug_html_chunked/ChCustProtocolDissectionSection.html");
+        break;
+    case(HELP_FOLLOW_TCP_STREAM_DIALOG):
+        browser_open_data_file("eug_html_chunked/ChAdvFollowTCPSection.html");
+        break;
+    case(HELP_STATS_SUMMARY_DIALOG):
+        browser_open_data_file("eug_html_chunked/ChStatSummary.html");
+        break;
+    case(HELP_STATS_PROTO_HIERARCHY_DIALOG):
+        browser_open_data_file("eug_html_chunked/ChStatHierarchy.html");
+        break;
+    case(HELP_STATS_ENDPOINTS_DIALOG):
+        browser_open_data_file("eug_html_chunked/ChStatEndpoints.html");
+        break;
+    case(HELP_STATS_CONVERSATIONS_DIALOG):
+        browser_open_data_file("eug_html_chunked/ChStatConversations.html");
+        break;
+    case(HELP_STATS_IO_GRAPH_DIALOG):
+        browser_open_data_file("eug_html_chunked/ChStatIOGraphs.html");
+        break;
+#else
+    /* only some help pages are available for offline reading */
+    case(HELP_CONTENT):
+        help_topic("Overview");
+        break;
+    case(HELP_GETTING_STARTED):
+        help_topic("Getting Started");
+        break;
+    case(HELP_CAPTURE_OPTIONS_DIALOG):
+        help_topic("Capturing");
+        break;
+    case(HELP_CAPTURE_FILTERS_DIALOG):
+        help_topic("Capture Filters");
+        break;
+    case(HELP_DISPLAY_FILTERS_DIALOG):
+        help_topic("Display Filters");
+        break;
 #endif
 
     default:
@@ -327,16 +415,14 @@ url_page_action(url_page_action_e action)
 }
 
 
-void
-url_page_cb(GtkWidget *w _U_, url_page_action_e action)
+void 
+topic_cb(GtkWidget *w _U_, topic_action_e action)
 {
-    url_page_action(action);
+    topic_action(action);
 }
 
-
-void
-url_page_menu_cb( GtkWidget *w _U_, gpointer data _U_, url_page_action_e action)
-{
-    url_page_action(action);
+void 
+topic_menu_cb(GtkWidget *w _U_, gpointer data _U_, topic_action_e action) {
+    topic_action(action);
 }
 

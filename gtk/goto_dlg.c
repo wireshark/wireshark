@@ -37,6 +37,7 @@
 #include "dlg_utils.h"
 #include "compat_macros.h"
 #include "ui_util.h"
+#include "help_dlg.h"
 
 /* Capture callback data keys */
 #define E_GOTO_FNUMBER_KEY     "goto_fnumber_te"
@@ -48,7 +49,7 @@ void
 goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   GtkWidget     *goto_frame_w, *main_vb, *fnumber_hb, *fnumber_lb, *fnumber_te,
-                *bbox, *ok_bt, *cancel_bt;
+                *bbox, *ok_bt, *cancel_bt, *help_bt;
 
   goto_frame_w = dlg_window_new("Ethereal: Go To Packet");
 
@@ -72,7 +73,11 @@ goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(fnumber_te);
 
   /* Button row: OK and cancel buttons */
-  bbox = dlg_button_row_new(GTK_STOCK_JUMP_TO, GTK_STOCK_CANCEL, NULL);
+  if(topic_available(HELP_GOTO_DIALOG)) {
+    bbox = dlg_button_row_new(GTK_STOCK_JUMP_TO, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
+  } else {
+    bbox = dlg_button_row_new(GTK_STOCK_JUMP_TO, GTK_STOCK_CANCEL, NULL);
+  }
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
@@ -81,6 +86,11 @@ goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
   window_set_cancel_button(goto_frame_w, cancel_bt, window_cancel_button_cb);
+
+  if(topic_available(HELP_GOTO_DIALOG)) {
+      help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+      SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_GOTO_DIALOG);
+  }
 
   gtk_widget_grab_default(ok_bt);
 

@@ -48,6 +48,7 @@
 #endif
 #include "compat_macros.h"
 #include "range_utils.h"
+#include "help_dlg.h"
 
 
 /* dialog output action */
@@ -359,7 +360,7 @@ open_print_dialog(char *title, output_action_e action, print_args_t *args)
   GtkWidget     *hex_cb;
   GtkWidget     *sep, *formfeed_cb;
 
-  GtkWidget     *bbox, *ok_bt, *cancel_bt;
+  GtkWidget     *bbox, *ok_bt, *cancel_bt, *help_bt;
 
   GtkTooltips   *tooltips;
 
@@ -622,7 +623,11 @@ open_print_dialog(char *title, output_action_e action, print_args_t *args)
 
 
   /* Button row */
-  bbox = dlg_button_row_new(action == output_action_print ? GTK_STOCK_PRINT : GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
+  if(topic_available(HELP_PRINT_DIALOG)) {
+    bbox = dlg_button_row_new(action == output_action_print ? GTK_STOCK_PRINT : GTK_STOCK_OK, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
+  } else {
+    bbox = dlg_button_row_new(action == output_action_print ? GTK_STOCK_PRINT : GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
+  }
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 
@@ -653,6 +658,11 @@ open_print_dialog(char *title, output_action_e action, print_args_t *args)
   cancel_bt  = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
   window_set_cancel_button(main_win, cancel_bt, window_cancel_button_cb);
   gtk_tooltips_set_tip (tooltips, cancel_bt, "Cancel and exit dialog", NULL);
+
+  if(topic_available(HELP_PRINT_DIALOG)) {
+    help_bt  = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+    SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_PRINT_DIALOG);
+  }
 
   gtk_widget_grab_default(ok_bt);
 

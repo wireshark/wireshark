@@ -46,6 +46,7 @@
 #include <epan/prefs.h>
 #include "prefs_dlg.h"
 #include "keys.h"
+#include "help_dlg.h"
 
 /* Capture callback data keys */
 #define E_FIND_FILT_KEY       "find_filter_te"
@@ -113,7 +114,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
                 *string_opt_frame, *string_opt_vb,
                 *case_cb, *combo_lb, *combo_cb,
 
-                *bbox, *ok_bt, *cancel_bt;
+                *bbox, *ok_bt, *cancel_bt, *help_bt;
   GtkTooltips   *tooltips;
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
@@ -325,7 +326,11 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
 
   /* Button row */
-  bbox = dlg_button_row_new(GTK_STOCK_FIND, GTK_STOCK_CANCEL, NULL);
+  if(topic_available(HELP_FIND_DIALOG)) {
+    bbox = dlg_button_row_new(GTK_STOCK_FIND, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
+  } else {
+    bbox = dlg_button_row_new(GTK_STOCK_FIND, GTK_STOCK_CANCEL, NULL);
+  }
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 
@@ -334,6 +339,11 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
   SIGNAL_CONNECT(cancel_bt, "clicked", find_frame_close_cb, find_frame_w);
+
+  if(topic_available(HELP_FIND_DIALOG)) {
+      help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+      SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_FIND_DIALOG);
+  }
 
   /* Attach pointers to needed widgets to the capture prefs window/object */
   OBJECT_SET_DATA(find_frame_w, E_FIND_FILT_KEY, filter_text_box);

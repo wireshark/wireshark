@@ -45,13 +45,14 @@
 #include "image/clist_descend.xpm"
 #include "simple_dialog.h"
 #include "globals.h"
-#include "gtk/find_dlg.h"
+#include "find_dlg.h"
 #include "color.h"
 #include "gtk/color_dlg.h"
 #include "gtkglobals.h"
 #include "main.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
+#include "help_dlg.h"
 
 
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
@@ -723,7 +724,7 @@ init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char 
     char title[256];
     GtkWidget *vbox;
     GtkWidget *bbox;
-    GtkWidget *close_bt;
+    GtkWidget *close_bt, *help_bt;
     gboolean ret;
 
 
@@ -746,11 +747,20 @@ init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char 
     }
 
     /* Button row. */
-    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+    if(topic_available(HELP_STATS_ENDPOINTS_DIALOG)) {
+        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
+    } else {
+        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+    }
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
     close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
     window_set_cancel_button(hosttable->win, close_bt, window_cancel_button_cb);
+
+    if(topic_available(HELP_STATS_ENDPOINTS_DIALOG)) {
+        help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+        SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_STATS_ENDPOINTS_DIALOG);
+    }
 
     SIGNAL_CONNECT(hosttable->win, "delete_event", window_delete_event_cb, NULL);
     SIGNAL_CONNECT(hosttable->win, "destroy", hostlist_win_destroy_cb, hosttable);
@@ -869,7 +879,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     GtkWidget *vbox;
     GtkWidget *hbox;
     GtkWidget *bbox;
-    GtkWidget *close_bt;
+    GtkWidget *close_bt, *help_bt;
     GtkWidget *win;
     GtkWidget *resolv_cb;
     int page;
@@ -925,11 +935,20 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     SIGNAL_CONNECT(resolv_cb, "toggled", hostlist_resolve_toggle_dest, pages);
 
     /* Button row. */
-    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+    if(topic_available(HELP_STATS_ENDPOINTS_DIALOG)) {
+        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
+    } else {
+        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+    }
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
     close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
     window_set_cancel_button(win, close_bt, window_cancel_button_cb);
+
+    if(topic_available(HELP_STATS_ENDPOINTS_DIALOG)) {
+        help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+        SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_STATS_ENDPOINTS_DIALOG);
+    }
 
     SIGNAL_CONNECT(win, "delete_event", window_delete_event_cb, NULL);
     SIGNAL_CONNECT(win, "destroy", hostlist_win_destroy_notebook_cb, pages);
