@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.51 2004/04/15 23:28:11 guy Exp $
+ * $Id: find_dlg.c,v 1.52 2004/05/26 02:33:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -182,7 +182,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Filter */
   filter_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL,
-               "_Display Filter", accel_group);
+               "_Display filter", accel_group);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(filter_rb), !cfile.hex && !cfile.string);
   gtk_box_pack_start(GTK_BOX(find_type_hb), filter_rb, FALSE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, filter_rb, ("Search for data by display filter syntax.\ne.g. ip.addr==10.1.1.1"), NULL);
