@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.51 2004/01/21 21:19:32 ulfl Exp $
+ * $Id: filter_prefs.c,v 1.52 2004/01/25 12:25:57 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,7 +75,7 @@ static void filter_dlg_apply_cb(GtkWidget *apply_bt, gpointer dummy);
 static void filter_apply(GtkWidget *main_w, gboolean destroy);
 static void filter_dlg_save_cb(GtkWidget *save_bt, gpointer parent_w);
 static void filter_dlg_close_cb(GtkWidget *close_bt, gpointer parent_w);
-static void filter_dlg_destroy(GtkWidget *win, gpointer data);
+static void filter_dlg_destroy_cb(GtkWidget *win, gpointer data);
 
 static gint filter_sel_list_button_cb(GtkWidget *, GdkEventButton *,
                                       gpointer);
@@ -84,17 +84,10 @@ static void filter_sel_list_cb(GtkWidget *, gpointer);
 #else
 static void filter_sel_list_cb(GtkTreeSelection *, gpointer);
 #endif
-static void filter_list_destroy_cb(GtkWidget *, gpointer);
 static void filter_new_bt_clicked_cb(GtkWidget *, gpointer);
-static void filter_chg_bt_clicked_cb(GtkWidget *, gpointer);
-static void filter_chg_bt_destroy_cb(GtkWidget *, gpointer);
-static void filter_copy_bt_clicked_cb(GtkWidget *, gpointer);
-static void filter_copy_bt_destroy_cb(GtkWidget *, gpointer);
 static void filter_del_bt_clicked_cb(GtkWidget *, gpointer);
-static void filter_del_bt_destroy_cb(GtkWidget *, gpointer);
-static void filter_expr_cb(GtkWidget *, gpointer);
-static void filter_name_te_destroy_cb(GtkWidget *, gpointer);
-static void filter_filter_te_destroy_cb(GtkWidget *, gpointer);
+static void filter_add_expr_bt_cb(GtkWidget *, gpointer);
+static void filter_te_changed_cb(GtkWidget *, gpointer);
 
 #ifdef HAVE_LIBPCAP
 /* Create a filter dialog for constructing a capture filter.
@@ -230,8 +223,6 @@ cfilter_dialog_cb(GtkWidget *w _U_)
 void
 dfilter_dialog_cb(GtkWidget *w _U_)
 {
-	/* No Apply button, and there's no text widget to set, much less
-	   activate, on "OK". */
 	static construct_args_t args = {
 		"Ethereal: Display Filter",
 		TRUE,
@@ -311,8 +302,6 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     GtkWidget  *top_hb,
                *list_bb,
                *new_bt,
-               *chg_bt,
-               *copy_bt,
                *del_bt,
                *filter_sc,
                *filter_l,
@@ -328,23 +317,23 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
                *props_fr;
     GList      *fl_entry;
     filter_def *filt;
-    static filter_list_type_t cfilter_list = CFILTER_LIST;
-    static filter_list_type_t dfilter_list = DFILTER_LIST;
-    filter_list_type_t *filter_list_p;
-    GList     **filter_dialogs;
+    static filter_list_type_t cfilter_list_type = CFILTER_LIST;
+    static filter_list_type_t dfilter_list_type = DFILTER_LIST;
+    filter_list_type_t *filter_list_type_p;
+    GList       **filter_dialogs;
+    const gchar *filter_te_str = NULL;
 #if GTK_MAJOR_VERSION < 2
-    gchar      *filter_te_str = NULL;
     GtkWidget  *nl_item,
                *nl_lb,
                *l_select = NULL;
 #else
-    const gchar       *filter_te_str = NULL;
     gboolean           l_select = FALSE;
     GtkListStore      *store;
     GtkCellRenderer   *renderer;
     GtkTreeViewColumn *column;
     GtkTreeSelection  *sel;
     GtkTreeIter        iter;
+    GtkTreeIter        sel_iter;
 #endif
 
     /* Get a pointer to a static variable holding the type of filter on
@@ -354,18 +343,18 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 
     case CFILTER_LIST:
         filter_dialogs = &cfilter_dialogs;
-        filter_list_p = &cfilter_list;
+        filter_list_type_p = &cfilter_list_type;
         break;
 
     case DFILTER_LIST:
         filter_dialogs = &dfilter_dialogs;
-        filter_list_p = &dfilter_list;
+        filter_list_type_p = &dfilter_list_type;
         break;
 
     default:
         g_assert_not_reached();
         filter_dialogs = NULL;
-        filter_list_p = NULL;
+        filter_list_type_p = NULL;
         break;
     }
 
@@ -374,10 +363,10 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 
     /* Call a handler when we're destroyed, so we can detach ourselves
        from the button. */
-    SIGNAL_CONNECT(main_w, "destroy", filter_dlg_destroy, filter_list_p);
+    SIGNAL_CONNECT(main_w, "destroy", filter_dlg_destroy_cb, filter_list_type_p);
 
     main_vb = gtk_vbox_new(FALSE, 0);
-    gtk_container_border_width(GTK_CONTAINER(main_vb), 1);
+    gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
     gtk_container_add(GTK_CONTAINER(main_w), main_vb);
     gtk_widget_show(main_vb);
 
@@ -386,13 +375,13 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
         filter_te_str = gtk_entry_get_text(GTK_ENTRY(parent_filter_te));
 
     /* Container for each row of widgets */
-    filter_vb = gtk_vbox_new(FALSE, 5);
-    gtk_container_border_width(GTK_CONTAINER(filter_vb), 5);
+    filter_vb = gtk_vbox_new(FALSE, 0);
+    gtk_container_border_width(GTK_CONTAINER(filter_vb), 0);
     gtk_container_add(GTK_CONTAINER(main_vb), filter_vb);
     gtk_widget_show(filter_vb);
 
-    /* Top row: Filter list and buttons */
-    top_hb = gtk_hbox_new(FALSE, 5);
+    /* Top row: Buttons and filter list */
+    top_hb = gtk_hbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(filter_vb), top_hb);
     gtk_widget_show(top_hb);
 
@@ -400,41 +389,28 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_box_pack_start(GTK_BOX(top_hb), edit_fr, FALSE, FALSE, 0);
     gtk_widget_show(edit_fr);
 
-    list_bb = gtk_vbutton_box_new();
-    /*gtk_button_box_set_layout (GTK_BUTTON_BOX (list_bb), GTK_BUTTONBOX_START);*/
+    list_bb = gtk_vbox_new(TRUE, 0);
     gtk_container_border_width(GTK_CONTAINER(list_bb), 5);
     gtk_container_add(GTK_CONTAINER(edit_fr), list_bb);
     gtk_widget_show(list_bb);
 
     new_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
-    SIGNAL_CONNECT(new_bt, "clicked", filter_new_bt_clicked_cb, filter_list_p);
-    gtk_container_add(GTK_CONTAINER(list_bb), new_bt);
+    SIGNAL_CONNECT(new_bt, "clicked", filter_new_bt_clicked_cb, filter_list_type_p);
+#if GTK_MAJOR_VERSION < 2
+    WIDGET_SET_SIZE(new_bt, 50, 20);
+#endif
     gtk_widget_show(new_bt);
-
-    chg_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_EDIT);
-    gtk_widget_set_sensitive(chg_bt, FALSE);
-    SIGNAL_CONNECT(chg_bt, "clicked", filter_chg_bt_clicked_cb, filter_list_p);
-    OBJECT_SET_DATA(main_w, E_FILT_CHG_BT_KEY, chg_bt);
-    SIGNAL_CONNECT(chg_bt, "destroy", filter_chg_bt_destroy_cb, NULL);
-    gtk_container_add(GTK_CONTAINER(list_bb), chg_bt);
-    gtk_widget_show(chg_bt);
-
-    copy_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_COPY);
-    gtk_widget_set_sensitive(copy_bt, FALSE);
-    SIGNAL_CONNECT(copy_bt, "clicked", filter_copy_bt_clicked_cb,
-                   filter_list_p);
-    OBJECT_SET_DATA(main_w, E_FILT_COPY_BT_KEY, copy_bt);
-    SIGNAL_CONNECT(copy_bt, "destroy", filter_copy_bt_destroy_cb, NULL);
-    gtk_container_add(GTK_CONTAINER(list_bb), copy_bt);
-    gtk_widget_show(copy_bt);
+    gtk_box_pack_start (GTK_BOX (list_bb), new_bt, FALSE, FALSE, 0);
 
     del_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_DELETE);
     gtk_widget_set_sensitive(del_bt, FALSE);
-    SIGNAL_CONNECT(del_bt, "clicked", filter_del_bt_clicked_cb, filter_list_p);
+    SIGNAL_CONNECT(del_bt, "clicked", filter_del_bt_clicked_cb, filter_list_type_p);
     OBJECT_SET_DATA(main_w, E_FILT_DEL_BT_KEY, del_bt);
-    SIGNAL_CONNECT(del_bt, "destroy", filter_del_bt_destroy_cb, NULL);
-    gtk_container_add(GTK_CONTAINER(list_bb), del_bt);
+#if GTK_MAJOR_VERSION < 2
+    WIDGET_SET_SIZE(del_bt, 50, 20);
+#endif
     gtk_widget_show(del_bt);
+    gtk_box_pack_start (GTK_BOX (list_bb), del_bt, FALSE, FALSE, 0);
 
     filter_fr = gtk_frame_new("Filter");
     gtk_box_pack_start(GTK_BOX(top_hb), filter_fr, TRUE, TRUE, 0);
@@ -469,7 +445,6 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
                    NULL);
 #endif
     OBJECT_SET_DATA(main_w, E_FILT_FILTER_L_KEY, filter_l);
-    SIGNAL_CONNECT(filter_l, "destroy", filter_list_destroy_cb, NULL);
 #if GTK_MAJOR_VERSION < 2
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(filter_sc),
                                           filter_l);
@@ -486,6 +461,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     OBJECT_SET_DATA(filter_l, E_FILT_DBLACTIVATE_KEY,
                     construct_args->activate_on_ok ? "" : NULL);
 
+    /* fill in data */
     fl_entry = get_filter_list_first(list);
     while (fl_entry != NULL) {
         filt    = (filter_def *) fl_entry->data;
@@ -514,7 +490,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 #if GTK_MAJOR_VERSION < 2 
                 l_select = nl_item;
 #else
-                gtk_tree_selection_select_iter(sel, &iter);
+                sel_iter = iter;
                 l_select = TRUE;
 #endif
             }
@@ -531,55 +507,40 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_box_pack_start(GTK_BOX(filter_vb), props_fr, FALSE, FALSE, 0);
     gtk_widget_show(props_fr);
 
-    props_vb = gtk_vbox_new(FALSE, 0);
-    gtk_container_border_width(GTK_CONTAINER(props_vb), 1);
+    props_vb = gtk_vbox_new(FALSE, 3);
+    gtk_container_border_width(GTK_CONTAINER(props_vb), 5);
     gtk_container_add(GTK_CONTAINER(props_fr), props_vb);
     gtk_widget_show(props_vb);
 
-    /* Middle row: Filter name entry */
-    middle_hb = gtk_hbox_new(FALSE, 5);
+    /* row: Filter name entry */
+    middle_hb = gtk_hbox_new(FALSE, 3);
     gtk_container_add(GTK_CONTAINER(props_vb), middle_hb);
     gtk_widget_show(middle_hb);
 
     name_lb = gtk_label_new("Filter name:");
-    gtk_box_pack_start(GTK_BOX(middle_hb), name_lb, FALSE, FALSE, 3);
+    gtk_box_pack_start(GTK_BOX(middle_hb), name_lb, FALSE, FALSE, 0);
     gtk_widget_show(name_lb);
 
     name_te = gtk_entry_new();
-    gtk_box_pack_start(GTK_BOX(middle_hb), name_te, TRUE, TRUE, 3);
+    gtk_box_pack_start(GTK_BOX(middle_hb), name_te, TRUE, TRUE, 0);
     OBJECT_SET_DATA(main_w, E_FILT_NAME_TE_KEY, name_te);
-    SIGNAL_CONNECT(name_te, "destroy", filter_name_te_destroy_cb, NULL);
+    SIGNAL_CONNECT(name_te, "changed", filter_te_changed_cb, filter_list_type_p);
     gtk_widget_show(name_te);
 
-    /* Bottom row: Filter text entry */
-    bottom_hb = gtk_hbox_new(FALSE, 5);
+    /* row: Filter text entry */
+    bottom_hb = gtk_hbox_new(FALSE, 3);
     gtk_container_add(GTK_CONTAINER(props_vb), bottom_hb);
     gtk_widget_show(bottom_hb);
 
     filter_lb = gtk_label_new("Filter string:");
-    gtk_box_pack_start(GTK_BOX(bottom_hb), filter_lb, FALSE, FALSE, 3);
+    gtk_box_pack_start(GTK_BOX(bottom_hb), filter_lb, FALSE, FALSE, 0);
     gtk_widget_show(filter_lb);
 
     filter_te = gtk_entry_new();
-    gtk_box_pack_start(GTK_BOX(bottom_hb), filter_te, TRUE, TRUE, 3);
+    gtk_box_pack_start(GTK_BOX(bottom_hb), filter_te, TRUE, TRUE, 0);
     OBJECT_SET_DATA(main_w, E_FILT_FILTER_TE_KEY, filter_te);
-
-    SIGNAL_CONNECT(filter_te, "destroy", filter_filter_te_destroy_cb, NULL);
+    SIGNAL_CONNECT(filter_te, "changed", filter_te_changed_cb, filter_list_type_p);
     gtk_widget_show(filter_te);
-
-#if GTK_MAJOR_VERSION < 2 
-    if (l_select) {
-        gtk_list_select_child(GTK_LIST(filter_l), l_select);
-    } else if (filter_te_str && filter_te_str[0]) {
-        gtk_entry_set_text(GTK_ENTRY(name_te), "New filter");
-        gtk_entry_set_text(GTK_ENTRY(filter_te), filter_te_str);
-    }
-#else
-    if (!l_select && filter_te_str && filter_te_str[0]) {
-        gtk_entry_set_text(GTK_ENTRY(name_te), "New filter");
-        gtk_entry_set_text(GTK_ENTRY(filter_te), filter_te_str);
-    }
-#endif
 
     OBJECT_SET_DATA(main_w, E_FILT_PARENT_FILTER_TE_KEY, parent_filter_te);
 
@@ -587,8 +548,8 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
         /* Create the "Add Expression..." button, to pop up a dialog
            for constructing filter comparison expressions. */
         add_expression_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_ADD_EXPRESSION);
-        SIGNAL_CONNECT(add_expression_bt, "clicked", filter_expr_cb, main_w);
-        gtk_box_pack_start(GTK_BOX(bottom_hb), add_expression_bt, FALSE, FALSE, 3);
+        SIGNAL_CONNECT(add_expression_bt, "clicked", filter_add_expr_bt_cb, main_w);
+        gtk_box_pack_start(GTK_BOX(bottom_hb), add_expression_bt, FALSE, FALSE, 0);
         gtk_widget_show(add_expression_bt);
     }
 
@@ -607,7 +568,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
             bbox = dlg_button_row_new(GTK_STOCK_SAVE, GTK_STOCK_CLOSE, NULL);
         }
     }
-    gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
     gtk_widget_show(bbox);
 
     if (parent_filter_te != NULL) {
@@ -634,7 +595,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     }
 
     save_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
-    SIGNAL_CONNECT(save_bt, "clicked", filter_dlg_save_cb, filter_list_p);
+    SIGNAL_CONNECT(save_bt, "clicked", filter_dlg_save_cb, filter_list_type_p);
 
     close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
     SIGNAL_CONNECT(close_bt, "clicked", filter_dlg_close_cb, main_w);
@@ -661,6 +622,24 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 	/* Set the E_FILT_DIALOG_PTR_KEY for the button to point to us */
 	OBJECT_SET_DATA(button, E_FILT_DIALOG_PTR_KEY, main_w);
     }
+
+    /* DO SELECTION THINGS *AFTER* SHOWING THE DIALOG! */
+    /* otherwise the updatings can get confused */
+#if GTK_MAJOR_VERSION < 2 
+    if (l_select) {
+        gtk_list_select_child(GTK_LIST(filter_l), l_select);
+    } else if (filter_te_str && filter_te_str[0]) {
+        gtk_entry_set_text(GTK_ENTRY(name_te), "New filter");
+        gtk_entry_set_text(GTK_ENTRY(filter_te), filter_te_str);
+    }
+#else
+    if (l_select) {
+        gtk_tree_selection_select_iter(sel, &sel_iter);        
+    } else if (filter_te_str && filter_te_str[0]) {
+        gtk_entry_set_text(GTK_ENTRY(name_te), "New filter");
+        gtk_entry_set_text(GTK_ENTRY(filter_te), filter_te_str);
+    }
+#endif
 
     return main_w;
 }
@@ -855,7 +834,7 @@ filter_dlg_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
 }
 
 static void
-filter_dlg_destroy(GtkWidget *win, gpointer data)
+filter_dlg_destroy_cb(GtkWidget *win, gpointer data)
 {
 	filter_list_type_t list = *(filter_list_type_t *)data;
 	GtkWidget *button;
@@ -949,7 +928,7 @@ filter_sel_list_cb(GtkTreeSelection *sel, gpointer data _U_)
     GtkWidget    *copy_bt = OBJECT_GET_DATA(main_w, E_FILT_COPY_BT_KEY);
     GtkWidget    *del_bt = OBJECT_GET_DATA(main_w, E_FILT_DEL_BT_KEY);
     filter_def   *filt;
-    gchar        *name = "", *strval = "";
+    gchar        *name = NULL, *strval = NULL;
     GList        *flp;
     gint          sensitivity = FALSE;
 
@@ -968,8 +947,8 @@ filter_sel_list_cb(GtkTreeSelection *sel, gpointer data _U_)
 #endif
         if (flp) {
             filt   = (filter_def *) flp->data;
-            name   = filt->name;
-            strval = filt->strval;
+            name   = g_strdup(filt->name);
+            strval = g_strdup(filt->strval);
             sensitivity = TRUE;
         }
     }
@@ -993,23 +972,19 @@ filter_sel_list_cb(GtkTreeSelection *sel, gpointer data _U_)
      * destroyed, we know that we shouldn't do anything to those widgets.
      */
     if (name_te != NULL)
-        gtk_entry_set_text(GTK_ENTRY(name_te), name);
+        gtk_entry_set_text(GTK_ENTRY(name_te), name ? name : "");
     if (filter_te != NULL)
-        gtk_entry_set_text(GTK_ENTRY(filter_te), strval);
+        gtk_entry_set_text(GTK_ENTRY(filter_te), strval ? strval : "");
     if (chg_bt != NULL)
         gtk_widget_set_sensitive(chg_bt, sensitivity);
     if (copy_bt != NULL)
         gtk_widget_set_sensitive(copy_bt, sensitivity);
     if (del_bt != NULL)
         gtk_widget_set_sensitive(del_bt, sensitivity);
-}
-
-static void
-filter_list_destroy_cb(GtkWidget *l, gpointer data _U_)
-{
-  GtkWidget  *main_w = gtk_widget_get_toplevel(l);
-
-  OBJECT_SET_DATA(main_w, E_FILT_FILTER_L_KEY, NULL);
+    if (name != NULL)
+        g_free(name);
+    if (strval != NULL)
+        g_free(strval);
 }
 
 /* To do: add input checking to each of these callbacks */
@@ -1085,7 +1060,16 @@ filter_new_bt_clicked_cb(GtkWidget *w, gpointer data)
   name   = gtk_entry_get_text(GTK_ENTRY(name_te));
   strval = gtk_entry_get_text(GTK_ENTRY(filter_te));
 
-  if (strlen(name) > 0 && strlen(strval) > 0) {
+  /* if the user didn't entered a name, set default one */
+  if (strlen(name) == 0) {
+    name = "new";
+  }
+
+  /* if the user didn't entered a string value, set default one */
+  if (strlen(strval) == 0) {
+    strval = "new";
+  }
+
     /* Add a new entry to the filter list. */
     fl_entry = add_to_filter_list(list, name, strval);
 
@@ -1094,20 +1078,7 @@ filter_new_bt_clicked_cb(GtkWidget *w, gpointer data)
     args.active_filter_l = filter_l;
     args.nflp = fl_entry;
     g_list_foreach(get_filter_dialog_list(list), new_filter_cb, &args);
-  } else {
-    /* Give the user some basic directions on how to use the 'new' button */
-    if (CFILTER_LIST == list) 
-      simple_dialog(ESD_TYPE_WARN, NULL,
-		    "You have left either the 'Filter name' or 'Filter string' field empty.\n"
-		    "To add a new filter, enter a name for the filter, and enter the expression\n"
-		    "for the filter.");
-    else /* DFILTER */
-      simple_dialog(ESD_TYPE_WARN, NULL,
-		    "You have left either the 'Filter name' or 'Filter string' field empty.\n"
-		    "To add a new filter, enter a name for the filter, and enter the expression\n"
-		    "for the filter or use the 'Add Expression...' button to construct an\n"
-		    "expression, then click 'New'.");
-  }
+
 }
 
 #if GTK_MAJOR_VERSION < 2
@@ -1164,7 +1135,7 @@ chg_filter_cb(gpointer data, gpointer user_data)
 }
 
 static void
-filter_chg_bt_clicked_cb(GtkWidget *w, gpointer data)
+filter_te_changed_cb(GtkWidget *w, gpointer data)
 {
     GtkWidget  *main_w = gtk_widget_get_toplevel(w);
     GtkWidget  *name_te = OBJECT_GET_DATA(main_w, E_FILT_NAME_TE_KEY);
@@ -1172,18 +1143,22 @@ filter_chg_bt_clicked_cb(GtkWidget *w, gpointer data)
     GtkWidget  *filter_l = OBJECT_GET_DATA(main_w, E_FILT_FILTER_L_KEY);
     filter_def *filt;
     GList      *fl_entry;
-    filter_list_type_t list = *(filter_list_type_t *)data;
+    filter_list_type_t  list = *(filter_list_type_t *)data;
+    const gchar         *name = "";
+    const gchar         *strval = "";
+
 #if GTK_MAJOR_VERSION < 2
-    gchar      *name = "", *strval = "";
     GList      *sl;
     GtkObject  *l_item;
     GtkLabel   *nl_lb;
 #else
-    const gchar       *name, *strval;
     GtkTreeSelection  *sel;
     GtkTreeModel      *model;
     GtkTreeIter        iter;
 #endif
+    dfilter_t   *dfp;
+    GdkColor    bg;
+    GtkStyle    *style;
 
 #if GTK_MAJOR_VERSION < 2
     sl     = GTK_LIST(filter_l)->selection;
@@ -1192,6 +1167,25 @@ filter_chg_bt_clicked_cb(GtkWidget *w, gpointer data)
 #endif
     name   = gtk_entry_get_text(GTK_ENTRY(name_te));
     strval = gtk_entry_get_text(GTK_ENTRY(filter_te));
+
+    if (DFILTER_LIST == list) {
+        /* colorize filter string entry */
+        if (strval && dfilter_compile(strval, &dfp)) {
+            /* XXX: do we have to free the dfp again? */
+            bg.pixel    = 0;
+            bg.red      = 0xAFFF;
+            bg.green    = 0xFFFF;
+            bg.blue     = 0xAFFF;
+        } else {
+            bg.pixel    = 0;
+            bg.red      = 0xFFFF;
+            bg.green    = 0xAFFF;
+            bg.blue     = 0xAFFF;
+        }
+        style = gtk_style_copy(gtk_widget_get_style(filter_te));
+        style->base[GTK_STATE_NORMAL] = bg;
+        gtk_widget_set_style(filter_te, style);
+    }
 
     /* if something was selected */
 #if GTK_MAJOR_VERSION < 2
@@ -1221,71 +1215,6 @@ filter_chg_bt_clicked_cb(GtkWidget *w, gpointer data)
             }
         }
     }
-}
-
-static void
-filter_chg_bt_destroy_cb(GtkWidget *chg_bt, gpointer data _U_)
-{
-  GtkWidget  *main_w = gtk_widget_get_toplevel(chg_bt);
-
-  OBJECT_SET_DATA(main_w, E_FILT_CHG_BT_KEY, NULL);
-}
-
-static void
-filter_copy_bt_clicked_cb(GtkWidget *w, gpointer data)
-{
-    GtkWidget  *main_w = gtk_widget_get_toplevel(w);
-    GtkWidget  *filter_l = OBJECT_GET_DATA(main_w, E_FILT_FILTER_L_KEY);
-    GList      *fl_entry, *nfl_entry;
-    gchar      *prefix = "Copy of ", *name;
-    filter_def *filt;
-    filter_list_type_t list = *(filter_list_type_t *)data;
-    new_filter_cb_args_t args;
-#if GTK_MAJOR_VERSION < 2
-    GList      *sl;
-    GtkObject  *l_item;
-#else
-    GtkTreeSelection    *sel;
-    GtkTreeModel        *model;
-    GtkTreeIter          iter;
-#endif
-
-#if GTK_MAJOR_VERSION < 2
-    sl     = GTK_LIST(filter_l)->selection;
-    /* if something was selected */
-    if (sl) {
-        l_item = GTK_OBJECT(sl->data);
-        fl_entry = (GList *) OBJECT_GET_DATA(l_item, E_FILT_LIST_ITEM_MODEL_KEY);
-#else
-    sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(filter_l));
-    /* if something was selected */
-    if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
-        gtk_tree_model_get(model, &iter, 1, &fl_entry, -1);
-#endif
-        if (fl_entry != NULL) {
-            /* Add a new entry, copying the existing entry, to the
-             * filter list. */
-            filt = (filter_def *) fl_entry->data;
-            name = g_malloc(strlen(prefix) + strlen(filt->name) + 1);
-            sprintf(name, "%s%s", prefix, filt->name);
-            nfl_entry = add_to_filter_list(list, name, filt->strval);
-            g_free(name);
-
-            /* Update all the filter list widgets, not just the one in
-               the dialog box in which we clicked on "Copy". */
-            args.active_filter_l = filter_l;
-            args.nflp = nfl_entry;
-            g_list_foreach(get_filter_dialog_list(list), new_filter_cb, &args);
-        }
-    }
-}
-
-static void
-filter_copy_bt_destroy_cb(GtkWidget *copy_bt, gpointer data _U_)
-{
-  GtkWidget  *main_w = gtk_widget_get_toplevel(copy_bt);
-
-  OBJECT_SET_DATA(main_w, E_FILT_COPY_BT_KEY, NULL);
 }
 
 static void
@@ -1364,15 +1293,7 @@ filter_del_bt_clicked_cb(GtkWidget *w, gpointer data)
 }
 
 static void
-filter_del_bt_destroy_cb(GtkWidget *del_bt, gpointer data _U_)
-{
-  GtkWidget  *main_w = gtk_widget_get_toplevel(del_bt);
-
-  OBJECT_SET_DATA(main_w, E_FILT_DEL_BT_KEY, NULL);
-}
-
-static void
-filter_expr_cb(GtkWidget *w _U_, gpointer main_w_arg)
+filter_add_expr_bt_cb(GtkWidget *w _U_, gpointer main_w_arg)
 {
 	GtkWidget  *main_w = GTK_WIDGET(main_w_arg);
 	GtkWidget  *filter_te;
@@ -1381,18 +1302,3 @@ filter_expr_cb(GtkWidget *w _U_, gpointer main_w_arg)
 	dfilter_expr_dlg_new(filter_te);
 }
 
-static void
-filter_name_te_destroy_cb(GtkWidget *name_te, gpointer data _U_)
-{
-  GtkWidget  *main_w = gtk_widget_get_toplevel(name_te);
-
-  OBJECT_SET_DATA(main_w, E_FILT_NAME_TE_KEY, NULL);
-}
-
-static void
-filter_filter_te_destroy_cb(GtkWidget *filter_te, gpointer data _U_)
-{
-  GtkWidget  *main_w = gtk_widget_get_toplevel(filter_te);
-
-  OBJECT_SET_DATA(main_w, E_FILT_FILTER_TE_KEY, NULL);
-}
