@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.49 2004/01/21 03:54:29 ulfl Exp $
+ * $Id: filter_prefs.c,v 1.50 2004/01/21 05:35:42 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -306,7 +306,8 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
                *apply_bt,         /* "Apply" button */
                *save_bt,          /* "Save" button */
                *close_bt;         /* "Cancel" button */
-    GtkWidget  *filter_pg = NULL; /* filter settings box */
+    GtkWidget  *filter_vb,        /* filter settings box */
+               *props_vb;
     GtkWidget  *top_hb,
                *list_bb,
                *new_bt,
@@ -321,8 +322,10 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
                *bottom_hb,
                *filter_lb,
                *filter_te,
-	       *add_expression_bt,
-	       *filter_frame;
+               *add_expression_bt,
+               *filter_fr,
+               *edit_fr,
+               *props_fr;
     GList      *fl_entry;
     filter_def *filt;
     static filter_list_type_t cfilter_list = CFILTER_LIST;
@@ -378,32 +381,29 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_container_add(GTK_CONTAINER(main_w), main_vb);
     gtk_widget_show(main_vb);
 
-    if (list == CFILTER_LIST)
-      filter_frame = gtk_frame_new("Capture Filters");
-    else
-      filter_frame = gtk_frame_new("Display Filters");
-    gtk_box_pack_start(GTK_BOX(main_vb), filter_frame, TRUE, TRUE, 0);
-    gtk_container_border_width(GTK_CONTAINER(filter_frame), 5);
-    gtk_widget_show(filter_frame);
-
     /* Make sure everything is set up */
     if (parent_filter_te)
         filter_te_str = gtk_entry_get_text(GTK_ENTRY(parent_filter_te));
 
     /* Container for each row of widgets */
-    filter_pg = gtk_vbox_new(FALSE, 5);
-    gtk_container_border_width(GTK_CONTAINER(filter_pg), 5);
-    gtk_container_add(GTK_CONTAINER(filter_frame), filter_pg);
-    gtk_widget_show(filter_pg);
+    filter_vb = gtk_vbox_new(FALSE, 5);
+    gtk_container_border_width(GTK_CONTAINER(filter_vb), 5);
+    gtk_container_add(GTK_CONTAINER(main_vb), filter_vb);
+    gtk_widget_show(filter_vb);
 
     /* Top row: Filter list and buttons */
     top_hb = gtk_hbox_new(FALSE, 5);
-    gtk_container_add(GTK_CONTAINER(filter_pg), top_hb);
+    gtk_container_add(GTK_CONTAINER(filter_vb), top_hb);
     gtk_widget_show(top_hb);
 
+    edit_fr = gtk_frame_new("Edit");
+    gtk_box_pack_start(GTK_BOX(top_hb), edit_fr, FALSE, FALSE, 0);
+    gtk_widget_show(edit_fr);
+
     list_bb = gtk_vbutton_box_new();
-    gtk_button_box_set_layout (GTK_BUTTON_BOX (list_bb), GTK_BUTTONBOX_START);
-    gtk_container_add(GTK_CONTAINER(top_hb), list_bb);
+    /*gtk_button_box_set_layout (GTK_BUTTON_BOX (list_bb), GTK_BUTTONBOX_START);*/
+    gtk_container_border_width(GTK_CONTAINER(list_bb), 5);
+    gtk_container_add(GTK_CONTAINER(edit_fr), list_bb);
     gtk_widget_show(list_bb);
 
     new_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
@@ -436,27 +436,23 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_container_add(GTK_CONTAINER(list_bb), del_bt);
     gtk_widget_show(del_bt);
 
-    if (list == DFILTER_LIST) {
-        /* Create the "Add Expression..." button, to pop up a dialog
-           for constructing filter comparison expressions. */
-        add_expression_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_ADD_EXPRESSION);
-        SIGNAL_CONNECT(add_expression_bt, "clicked", filter_expr_cb, main_w);
-        gtk_container_add(GTK_CONTAINER(list_bb), add_expression_bt);
-        gtk_widget_show(add_expression_bt);
-    }
+    filter_fr = gtk_frame_new("Filter");
+    gtk_box_pack_start(GTK_BOX(top_hb), filter_fr, TRUE, TRUE, 0);
+    gtk_widget_show(filter_fr);
 
     filter_sc = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(filter_sc),
                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
     WIDGET_SET_SIZE(filter_sc, 250, 150);
-    gtk_container_add(GTK_CONTAINER(top_hb), filter_sc);
+    gtk_container_set_border_width  (GTK_CONTAINER (filter_sc), 5);
+    gtk_container_add(GTK_CONTAINER(filter_fr), filter_sc);
     gtk_widget_show(filter_sc);
 
 #if GTK_MAJOR_VERSION < 2
     filter_l = gtk_list_new();
     gtk_list_set_selection_mode(GTK_LIST(filter_l), GTK_SELECTION_SINGLE);
     SIGNAL_CONNECT(filter_l, "selection_changed", filter_sel_list_cb,
-                   filter_pg);
+                   filter_vb);
 #else
     store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);
     filter_l = tree_view_new(GTK_TREE_MODEL(store));
@@ -468,7 +464,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_tree_view_append_column(GTK_TREE_VIEW(filter_l), column);
     sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(filter_l));
     gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
-    SIGNAL_CONNECT(sel, "changed", filter_sel_list_cb, filter_pg);
+    SIGNAL_CONNECT(sel, "changed", filter_sel_list_cb, filter_vb);
     SIGNAL_CONNECT(filter_l, "button_press_event", filter_sel_list_button_cb,
                    NULL);
 #endif
@@ -480,6 +476,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 #else
     gtk_container_add(GTK_CONTAINER(filter_sc), filter_l);
 #endif
+    WIDGET_SET_SIZE(filter_sc, 400, 300);
     gtk_widget_show(filter_l);
 
     OBJECT_SET_DATA(filter_l, E_FILT_DBLFUNC_KEY, filter_dlg_dclick);
@@ -529,9 +526,19 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     g_object_unref(G_OBJECT(store));
 #endif
 
+
+    props_fr = gtk_frame_new("Properties");
+    gtk_box_pack_start(GTK_BOX(filter_vb), props_fr, FALSE, FALSE, 0);
+    gtk_widget_show(props_fr);
+
+    props_vb = gtk_vbox_new(FALSE, 0);
+    gtk_container_border_width(GTK_CONTAINER(props_vb), 1);
+    gtk_container_add(GTK_CONTAINER(props_fr), props_vb);
+    gtk_widget_show(props_vb);
+
     /* Middle row: Filter name entry */
     middle_hb = gtk_hbox_new(FALSE, 5);
-    gtk_container_add(GTK_CONTAINER(filter_pg), middle_hb);
+    gtk_container_add(GTK_CONTAINER(props_vb), middle_hb);
     gtk_widget_show(middle_hb);
 
     name_lb = gtk_label_new("Filter name:");
@@ -546,7 +553,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 
     /* Bottom row: Filter text entry */
     bottom_hb = gtk_hbox_new(FALSE, 5);
-    gtk_container_add(GTK_CONTAINER(filter_pg), bottom_hb);
+    gtk_container_add(GTK_CONTAINER(props_vb), bottom_hb);
     gtk_widget_show(bottom_hb);
 
     filter_lb = gtk_label_new("Filter string:");
@@ -576,10 +583,21 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 
     OBJECT_SET_DATA(main_w, E_FILT_PARENT_FILTER_TE_KEY, parent_filter_te);
 
+    if (list == DFILTER_LIST) {
+        /* Create the "Add Expression..." button, to pop up a dialog
+           for constructing filter comparison expressions. */
+        add_expression_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_ADD_EXPRESSION);
+        SIGNAL_CONNECT(add_expression_bt, "clicked", filter_expr_cb, main_w);
+        gtk_box_pack_start(GTK_BOX(bottom_hb), add_expression_bt, FALSE, FALSE, 3);
+        gtk_widget_show(add_expression_bt);
+    }
+
+
+    /* button row */
     bbox = gtk_hbutton_box_new();
     gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
     gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
-    gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+    gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
     if (parent_filter_te != NULL) {
