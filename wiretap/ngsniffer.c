@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.99 2003/01/03 22:31:26 guy Exp $
+ * $Id: ngsniffer.c,v 1.100 2003/01/06 00:03:43 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -766,12 +766,17 @@ process_rec_header2_v45(wtap *wth, unsigned char *buffer, guint16 length,
 	 * at the traffic; it's not clear whether it stores in the file
 	 * an indication of the protocol it inferred was being used.
 	 *
-	 * For now, we interpret NET_HDLC as X.25 (LAPB) and NET_ROUTER
-	 * as "per-packet encapsulation".  We remember that we saw
-	 * NET_ROUTER, though, as it appears that we can infer whether
-	 * a packet is PPP or ISDN based on the channel number subfield
-	 * of the frame error status bits - if it's 0, it's PPP, otherwise
-	 * it's ISDN and the channel number indicates which channel it is.
+	 * Unfortunately, it also appears that NET_HDLC is used for
+	 * stuff other than X.25 as well, so we can't just interpret
+	 * it unconditionally as X.25.
+	 *
+	 * For now, we interpret both NET_HDLC and NET_ROUTER as "per-packet
+	 * encapsulation".  We remember that we saw NET_ROUTER, though,
+	 * as it appears that we can infer whether a packet is PPP or
+	 * ISDN based on the channel number subfield of the frame error
+	 * status bits - if it's 0, it's PPP, otherwise it's ISDN and
+	 * the channel number indicates which channel it is.  We assume
+	 * NET_HDLC isn't used for ISDN.
 	 */
 	switch (buffer[4]) {
 
@@ -780,7 +785,7 @@ process_rec_header2_v45(wtap *wth, unsigned char *buffer, guint16 length,
 		break;
 
 	case NET_HDLC:
-		wth->file_encap = WTAP_ENCAP_LAPB;
+		wth->file_encap = WTAP_ENCAP_PER_PACKET;
 		break;
 
 	case NET_FRAME_RELAY:
@@ -1196,19 +1201,17 @@ static int set_pseudo_header_frame2(wtap *wth,
 	 *	correlation with anything.  See previous comment
 	 *	about display filters.
 	 *
-	 * In some PPP and ISDN captures, with subtype NET_ROUTER,
-	 * the 0x18 bits in "frame2.fs" are 0 for frames in a PPP
-	 * capture and non-zero for frames in an ISDN capture, specifying
-	 * the channel number in the fashion described in the Sniffer
-	 * manual.
+	 * In some NET_ROUTER captures, the 0x18 bits in "frame2.fs" are
+	 * 0 for frames in a non-ISDN capture and non-zero for frames in
+	 * an ISDN capture, specifying the channel number in the fashion
+	 * described in the Sniffer manual, so we use that to distinguish
+	 * between ISDN frames and non-ISDN frames.
 	 */
 	if (wth->file_encap == WTAP_ENCAP_PER_PACKET &&
-	    wth->capture.ngsniffer->is_router) {
-		if ((frame2->fs & 0x18) == 0)
-			pkt_encap = WTAP_ENCAP_PPP_WITH_PHDR;
-		else
-			pkt_encap = WTAP_ENCAP_ISDN;
-	} else
+	    wth->capture.ngsniffer->is_router &&
+	    (frame2->fs & 0x18) != 0)
+		pkt_encap = WTAP_ENCAP_ISDN;
+	else
 		pkt_encap = wth->file_encap;
 
 	switch (pkt_encap) {
@@ -1581,8 +1584,8 @@ static int infer_pkt_encap(const guint8 *pd, int len)
 		/*
 		 * Frame Relay.
 		 *
-		 * XXX - in version 4 captures, wouldn't this just have
-		 * a capture subtype of NET_FRAME_RELAY?  Or is this
+		 * XXX - in version 4 and 5 captures, wouldn't this just
+		 * have a capture subtype of NET_FRAME_RELAY?  Or is this
 		 * here only to handle other versions of the capture
 		 * file, where we might just not yet have found where
 		 * the subtype is specified in the capture?
@@ -1596,7 +1599,7 @@ static int infer_pkt_encap(const guint8 *pd, int len)
 			 * Wellfleet HDLC.
 			 */
 			return WTAP_ENCAP_WFLEET_HDLC;
-		} else if ((pd[0] == 0x08 && pd[1] == 0x00) ||
+		} else if ((pd[0] == 0x0F && pd[1] == 0x00) ||
 			   (pd[0] == 0x8F && pd[1] == 0x00)) {
 			/*
 			 * Cisco HDLC.
@@ -1633,6 +1636,15 @@ static void fix_pseudo_header(int encap,
     union wtap_pseudo_header *pseudo_header)
 {
 	switch (encap) {
+
+	case WTAP_ENCAP_WFLEET_HDLC:
+	case WTAP_ENCAP_CHDLC:
+	case WTAP_ENCAP_PPP_WITH_PHDR:
+		if (pseudo_header->x25.flags == 0)
+			pseudo_header->p2p.sent = TRUE;
+		else
+			pseudo_header->p2p.sent = FALSE;
+		break;
 
 	case WTAP_ENCAP_ISDN:
 		if (pseudo_header->x25.flags == 0x00)
