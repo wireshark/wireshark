@@ -155,6 +155,8 @@ When the capture completes, the files will be renamed to have names
 based on the number of the file and on the date and time at which
 packets most recently started being written to the file.
 
+You can only save files in B<libpcap> format when using a ring buffer.
+
 =item -c
 
 Sets the default number of packets to read when capturing live

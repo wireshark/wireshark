@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.119 2002/01/21 07:36:48 guy Exp $
+ * $Id: tethereal.c,v 1.120 2002/01/29 05:38:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -635,10 +635,15 @@ main(int argc, char *argv[])
     /* Ring buffer works only under certain conditions:
        a) ring buffer does not work if you're not saving the capture to
           a file;
-       b) it makes no sense to enable the ring buffer if the maximum
+       b) ring buffer only works if you're saving in libpcap format;
+       c) it makes no sense to enable the ring buffer if the maximum
           file size is set to "infinite". */
     if (cfile.save_file == NULL) {
       fprintf(stderr, "tethereal: Ring buffer requested, but capture isn't being saved to a file.\n");
+      exit(2);
+    }
+    if (out_file_type != WTAP_FILE_PCAP) {
+      fprintf(stderr, "tethereal: Ring buffer requested, but capture isn't being saved in libpcap format.\n");
       exit(2);
     }
     if (cfile.autostop_filesize == 0) {
