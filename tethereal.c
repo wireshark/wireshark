@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.52 2000/10/31 08:15:26 guy Exp $
+ * $Id: tethereal.c,v 1.53 2000/11/01 07:38:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -592,9 +592,14 @@ capture(int packet_count, int out_file_type)
   if (cfile.cfilter) {
     /* A capture filter was specified; set it up. */
     if (pcap_lookupnet (cfile.iface, &netnum, &netmask, err_str) < 0) {
-      snprintf(errmsg, sizeof errmsg,
-        "Can't use filter:  Couldn't obtain netmask info (%s).", err_str);
-      goto error;
+      /*
+       * Well, we can't get the netmask for this interface; it's used
+       * only for filters that check for broadcast IP addresses, so
+       * we just warn the user, and punt and use 0.
+       */
+      fprintf(stderr, 
+        "Warning:  Couldn't obtain netmask info (%s)\n.", err_str);
+      netmask = 0;
     }
     if (pcap_compile(ld.pch, &cfile.fcode, cfile.cfilter, 1, netmask) < 0) {
       snprintf(errmsg, sizeof errmsg, "Unable to parse filter string (%s).",

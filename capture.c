@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.130 2000/10/21 04:20:07 guy Exp $
+ * $Id: capture.c,v 1.131 2000/11/01 07:38:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1179,9 +1179,16 @@ capture(void)
   if (cfile.cfilter && !ld.from_pipe) {
     /* A capture filter was specified; set it up. */
     if (pcap_lookupnet (cfile.iface, &netnum, &netmask, err_str) < 0) {
-      snprintf(errmsg, sizeof errmsg,
-        "Can't use filter:  Couldn't obtain netmask info (%s).", err_str);
-      goto error;
+      /*
+       * Well, we can't get the netmask for this interface; it's used
+       * only for filters that check for broadcast IP addresses, so
+       * we just punt and use 0.  It might be nice to warn the user,
+       * but that's a pain in a GUI application, as it'd involve popping
+       * up a message box, and it's not clear how often this would make
+       * a difference (only filters that check for IP broadcast addresses
+       * use the netmask).
+       */
+      netmask = 0;
     }
     if (pcap_compile(pch, &cfile.fcode, cfile.cfilter, 1, netmask) < 0) {
       snprintf(errmsg, sizeof errmsg, "Unable to parse filter string (%s).",
