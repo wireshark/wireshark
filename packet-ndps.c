@@ -3,7 +3,7 @@
  * Greg Morris <gmorris@novell.com>
  * Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ndps.c,v 1.12 2003/04/08 02:00:53 guy Exp $
+ * $Id: packet-ndps.c,v 1.13 2003/04/08 02:35:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,7 +55,7 @@ static guint32  tid = 1;
 
 static void dissect_ndps_request(tvbuff_t*, packet_info*, proto_tree*, guint32, guint32, guint32, int);
 
-static void dissect_ndps_reply(tvbuff_t *, packet_info*, proto_tree*, guint32, int);
+static void dissect_ndps_reply(tvbuff_t *, packet_info*, proto_tree*, int);
 
 static int hf_ndps_segments = -1;
 static int hf_ndps_segment = -1;
@@ -84,6 +84,7 @@ static int hf_ndps_user_name = -1;
 static int hf_ndps_broker_name = -1;
 static int hf_ndps_pa_name = -1;
 static int hf_ndps_tree = -1;
+static int hf_ndps_reqframe = -1;
 static int hf_ndps_error_val = -1;
 static int hf_ndps_ext_error = -1;
 static int hf_ndps_object = -1;
@@ -3015,9 +3016,6 @@ static const fragment_items ndps_frag_items = {
 	"segments"
 };
 
-
-static dissector_table_t ddp_dissector_table;
-
 static dissector_handle_t ndps_data_handle;
 
 /* NDPS packets come in request/reply pairs. The request packets tell the 
@@ -3046,7 +3044,7 @@ typedef struct {
 
 typedef struct {
         guint32             ndps_prog;
-        guint32			    ndps_func;
+        guint32             ndps_func;
         guint32             ndps_frame_num;
 } ndps_req_hash_value;
 
@@ -3144,11 +3142,11 @@ ndps_hash_insert(conversation_t *conversation, guint32 ndps_xport)
 	request_key->ndps_xport = ndps_xport;
 
 	request_value = g_mem_chunk_alloc(ndps_req_hash_values);
-    request_value->ndps_prog = 0;
+	request_value->ndps_prog = 0;
 	request_value->ndps_func = 0;
-    request_value->ndps_frame_num = 0;
+	request_value->ndps_frame_num = 0;
        
-    g_hash_table_insert(ndps_req_hash, request_key, request_value);
+	g_hash_table_insert(ndps_req_hash, request_key, request_value);
 
 	return request_value;
 }
@@ -3176,7 +3174,6 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree)
     guint32     ndps_prog;
     guint32     ndps_packet_type;
     guint32     ndps_rpc_version;
-    guint32     frame_num;
     int         foffset;
     guint32     ndps_hfname;
     guint32     ndps_func;
@@ -3221,7 +3218,7 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree)
             proto_tree_add_item(ndps_tree, hf_ndps_rpc_rej_stat, tvb, foffset+4, 4, FALSE);
             foffset += 4;
         }
-        dissect_ndps_reply(tvb, pinfo, ndps_tree, ndps_xid, foffset);
+        dissect_ndps_reply(tvb, pinfo, ndps_tree, foffset);
     }
     else
     {
@@ -6474,7 +6471,7 @@ ndps_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffset
 }
 
 static void
-dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, guint32 ndps_xid, int foffset)
+dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffset)
 {
     conversation_t			*conversation = NULL;
     ndps_req_hash_value		*request_value = NULL;
@@ -6522,8 +6519,8 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, gui
         frame_num = request_value->ndps_frame_num;
     }
 
-    proto_tree_add_uint_format(ndps_tree, hf_ndps_xid, tvb, 0, 
-    0, ndps_xid, "Response to Request in Frame Number: %d", frame_num);
+    proto_tree_add_uint_format(ndps_tree, hf_ndps_reqframe, tvb, 0, 
+    0, frame_num, "Response to Request in Frame Number: %u", frame_num);
 
     if (tvb_length_remaining(tvb, foffset) < 12 && tvb_get_ntohl(tvb, foffset) == 0) /* No error and no return data */
     {
@@ -8089,6 +8086,11 @@ proto_register_ndps(void)
         { "Tree",    "ndps.tree",
           FT_STRING,    BASE_NONE,   NULL,   0x0,
           "Tree", HFILL }},
+
+        { &hf_ndps_reqframe,
+        { "Request Frame",    "ndps.reqframe",
+          FT_FRAMENUM,  BASE_NONE,   NULL,   0x0,
+          "Request Frame", HFILL }},
 
         { &hf_ndps_error_val,
         { "Return Status",    "ndps.error_val",
