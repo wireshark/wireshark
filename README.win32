@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.52 2003/12/07 00:04:31 gerald Exp $
+$Id: README.win32,v 1.53 2003/12/10 23:21:51 gerald Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -110,11 +110,11 @@ will reside in C:\Program Files\Ethereal\plugins\0.9.8
 
 Yes, the location of plugins needs to be more flexible.
 
-Make sure the glib and gtk DLL's are in your path - i.e., that your path
-includes the directory (folder) or directories (folders) in which those
-DLLs are found - when you run Ethereal.  This includes gtk-*.dll,
-glib-*.dll, gmodule-*.dll, gdk-*.dll, gnu-intl.dll, and iconv-*.dll.
-As of the 20000805 GTK+/GLIB distribution, gthread-*.dll is no longer needed.
+Make sure the glib and gtk DLL's are in your path - i.e., that your
+path includes the directory (folder) or directories (folders) in which
+those DLLs are found - when you run Ethereal.  This includes gtk-*.dll,
+glib-*.dll, gmodule-*.dll, gdk-*.dll, intl.dll, and iconv-*.dll.  As of
+the 20000805 GTK+/GLIB distribution, gthread-*.dll is no longer needed.
 
 The Win32 Binary distribution, available from
 
@@ -147,7 +147,7 @@ or the mirror site at
 Compiling the Ethereal distribution from source
 ===============================================
 
-You'll need the development packages for GLIB, GTK+, iconv, intl,
+You'll need the development packages for GLIB, GTK+, iconv, gettext,
 WinPcap, zlib, Net-SNMP, ADNS, and PCRE.  The GLIB, GTK+, and WinPcap
 packages are available from the respctive home pages for each project
 (the same URLs as listed above). The development packages contain header
@@ -173,11 +173,13 @@ package is as follows:
     gtk+-1.3.0-20030216.zip             C:\ethereal-win32-libs\gtk+
     gtk+-dev-1.3.0-20030115.zip         C:\ethereal-win32-libs\gtk+
     libiconv-1.9.1.bin.woe32.zip        C:\ethereal-win32-libs\gtk+
-    libintl-0.10.40-tml-20020904.zip    C:\ethereal-win32-libs\gtk+
+    gettext-runtime-0.13.bin.woe32.zip  [ None ]
     net-snmp-5.1.zip                    C:\ethereal-win32-libs
     pcre-4.4.zip                        C:\ethereal-win32-libs
     zlib121-dll.zip                     C:\ethereal-win32-libs\zlib121-dll
 
+The gettext runtime package provides intl.dll, which is needed by
+GLib 2.2.3.
 
 Instructions for MS Visual C++
 ----------------------------

@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.27 2003/12/10 19:05:06 ulfl Exp $
+; $Id: ethereal.nsi,v 1.28 2003/12/10 23:21:52 gerald Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -81,7 +81,7 @@ File "${COMMON_FILES_GNU}\iconv.dll"
 File "${COMMON_FILES_GNU}\libglib-2.0-0.dll"
 File "${COMMON_FILES_GNU}\libgmodule-2.0-0.dll"
 File "${COMMON_FILES_GNU}\libgobject-2.0-0.dll"
-File "${COMMON_FILES_GNU}\libintl-1.dll"
+File "${COMMON_FILES_GNU}\intl.dll"
 !endif
 File "${COMMON_FILES_GNU}\zlib1.dll"
 File "${COMMON_FILES_GNU}\adns_dll.dll"
