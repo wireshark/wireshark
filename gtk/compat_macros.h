@@ -1,7 +1,7 @@
 /* compat_macros.h
  * GTK-related Global defines, etc.
  *
- * $Id: compat_macros.h,v 1.7 2004/01/18 00:33:03 ulfl Exp $
+ * $Id: compat_macros.h,v 1.8 2004/01/20 02:21:17 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,15 @@
 
 #ifndef __COMPAT_MACROS_H__
 #define __COMPAT_MACROS_H__
+
+#ifdef HAVE_LIBPCAP
+#define ETHEREAL_STOCK_LABEL_CAPTURE_START            "_New"
+#define ETHEREAL_STOCK_LABEL_CAPTURE_FILTER           "_CFilter"
+#define ETHEREAL_STOCK_LABEL_CAPTURE_FILTER_ENTRY     "CFilter:"
+#endif
+#define ETHEREAL_STOCK_LABEL_DISPLAY_FILTER           "_DFilter"
+#define ETHEREAL_STOCK_LABEL_DISPLAY_FILTER_ENTRY     "DFilter:"
+#define ETHEREAL_STOCK_LABEL_PREFS                    "_Prefs"
 
 /*
  * helper macros fro gtk1.2/gtk2 compatibility :
@@ -79,18 +88,32 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #define GTK_STOCK_CLOSE             "Close"
 #define GTK_STOCK_COPY              "Copy"
 #define GTK_STOCK_DELETE            "Delete"
+#define GTK_STOCK_FIND              "Find"
 #define GTK_STOCK_GO_DOWN           "Down"
+#define GTK_STOCK_GO_FORWARD        "Next"
 #define GTK_STOCK_GO_UP             "Up"
 #define GTK_STOCK_HELP              "Help"
+#define GTK_STOCK_JUMP_TO           "GoTo"
 #define GTK_STOCK_NEW               "New"
 #define GTK_STOCK_OK                "OK"
+#define GTK_STOCK_OPEN              "Open"
 #define GTK_STOCK_PRINT             "Print"
 #define GTK_STOCK_PROPERTIES        "Properties"
+#define GTK_STOCK_REFRESH           "Reload"
 #define GTK_STOCK_REVERT_TO_SAVED   "Revert"
 #define GTK_STOCK_SAVE              "Save"
 #define GTK_STOCK_SAVE_AS           "Save As"
 #define GTK_STOCK_SELECT_COLOR      "Color"
 #define GTK_STOCK_SELECT_FONT       "Font"
+
+#ifdef HAVE_LIBPCAP
+#define ETHEREAL_STOCK_CAPTURE_START            ETHEREAL_STOCK_LABEL_CAPTURE_START
+#define ETHEREAL_STOCK_CAPTURE_FILTER           ETHEREAL_STOCK_LABEL_CAPTURE_FILTER
+#define ETHEREAL_STOCK_CAPTURE_FILTER_ENTRY     ETHEREAL_STOCK_LABEL_CAPTURE_FILTER_ENTRY
+#endif
+#define ETHEREAL_STOCK_DISPLAY_FILTER           ETHEREAL_STOCK_LABEL_DISPLAY_FILTER
+#define ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY     ETHEREAL_STOCK_LABEL_DISPLAY_FILTER_ENTRY
+#define ETHEREAL_STOCK_PREFS                    ETHEREAL_STOCK_LABEL_PREFS
 
 #define BUTTON_NEW_FROM_STOCK(stock_id) \
 gtk_button_new_with_label(stock_id);
@@ -146,6 +169,15 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 
 #define ITEM_FACTORY_STOCK_ENTRY(path, accelerator, callback, action, data) \
 {path, accelerator, GTK_MENU_FUNC(callback), action, "<StockItem>", data}
+
+#ifdef HAVE_LIBPCAP
+#define ETHEREAL_STOCK_CAPTURE_START            "Ethereal_Stock_CaptureStart"
+#define ETHEREAL_STOCK_CAPTURE_FILTER           "Ethereal_Stock_CaptureFilter"
+#define ETHEREAL_STOCK_CAPTURE_FILTER_ENTRY     "Ethereal_Stock_CaptureFilter_Entry"
+#endif
+#define ETHEREAL_STOCK_DISPLAY_FILTER           "Ethereal_Stock_DisplayFilter"
+#define ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY     "Ethereal_Stock_DisplayFilter_Entry"
+#define ETHEREAL_STOCK_PREFS                    "Ethereal_Stock_Prefs"
 
 #define BUTTON_NEW_FROM_STOCK(stock_id) \
 gtk_button_new_from_stock(stock_id);

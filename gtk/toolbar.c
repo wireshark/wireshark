@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.20 2004/01/19 00:42:11 ulfl Exp $
+ * $Id: toolbar.c,v 1.21 2004/01/20 02:21:17 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,7 +81,6 @@
 #include "../image/toolbar/stock_right_arrow_24.xpm"
 #include "../image/toolbar/stock_jump_to_24.xpm"
 #include "../image/toolbar/stock_colorselector_24.xpm"
-#include "../image/toolbar/stock_preferences_24.xpm"
 #include "../image/toolbar/stock_help_24.xpm"
 #endif /* GTK_MAJOR_VERSION */
 
@@ -91,6 +90,7 @@
 #include "../image/toolbar/cfilter_24.xpm"
 #endif /* HAVE_LIBPCAP */
 #include "../image/toolbar/dfilter_24.xpm"
+#include "../image/toolbar/stock_preferences_24.xpm"
 
 
 /* XXX: add this key to some .h file, as it adds a key to the top level Widget? */
@@ -127,18 +127,24 @@ void ethereal_stock_icons(void) {
     /* register non-standard pixmaps with the gtk-stock engine */
     static const GtkStockItem stock_items[] = {
 #ifdef HAVE_LIBPCAP
-        { ETHEREAL_STOCK_CAPTURE_START, "_New", 0, 0, NULL },
-        { ETHEREAL_STOCK_CAPTURE_FILTER, "_CFilter", 0, 0, NULL },
+        { ETHEREAL_STOCK_CAPTURE_START,         ETHEREAL_STOCK_LABEL_CAPTURE_START,         0, 0, NULL },
+        { ETHEREAL_STOCK_CAPTURE_FILTER,        ETHEREAL_STOCK_LABEL_CAPTURE_FILTER,        0, 0, NULL },
+        { ETHEREAL_STOCK_CAPTURE_FILTER_ENTRY,  ETHEREAL_STOCK_LABEL_CAPTURE_FILTER_ENTRY,  0, 0, NULL },
 #endif
-        { ETHEREAL_STOCK_DISPLAY_FILTER, "_DFilter", 0, 0, NULL },
+        { ETHEREAL_STOCK_DISPLAY_FILTER,        ETHEREAL_STOCK_LABEL_DISPLAY_FILTER,        0, 0, NULL },
+        { ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY,  ETHEREAL_STOCK_LABEL_DISPLAY_FILTER_ENTRY,  0, 0, NULL },
+        { ETHEREAL_STOCK_PREFS,                 ETHEREAL_STOCK_LABEL_PREFS,                 0, 0, NULL },
     };
 
     static const stock_pixmap_t pixmaps[] = {
 #ifdef HAVE_LIBPCAP
-        { ETHEREAL_STOCK_CAPTURE_START, capture_24_xpm },
-        { ETHEREAL_STOCK_CAPTURE_FILTER, cfilter_24_xpm },
+        { ETHEREAL_STOCK_CAPTURE_START,         capture_24_xpm },
+        { ETHEREAL_STOCK_CAPTURE_FILTER,        cfilter_24_xpm },
+        { ETHEREAL_STOCK_CAPTURE_FILTER_ENTRY,  cfilter_24_xpm },
 #endif
-        { ETHEREAL_STOCK_DISPLAY_FILTER, dfilter_24_xpm },
+        { ETHEREAL_STOCK_DISPLAY_FILTER,        dfilter_24_xpm },
+        { ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY,  dfilter_24_xpm },
+        { ETHEREAL_STOCK_PREFS,                 stock_preferences_24_xpm },
         { NULL, NULL }
     };
 
@@ -167,34 +173,6 @@ void ethereal_stock_icons(void) {
 }
 #endif
 
-
-/*
- * Create all toolbars (currently only the main toolbar)
- */
-GtkWidget *
-toolbar_new(void)
-{
-    GtkWidget *main_tb;
-
-    
-#if GTK_MAJOR_VERSION >= 2
-    /* create application specific stock icons */
-    ethereal_stock_icons();
-#endif
-
-    /* Main Toolbar */
-    get_main_toolbar(top_level, &main_tb);
-#if GTK_MAJOR_VERSION < 2
-    gtk_toolbar_set_space_size(GTK_TOOLBAR(main_tb), 3);
-#endif
-
-    OBJECT_SET_DATA(top_level, E_TB_MAIN_KEY, main_tb);
-
-    /* make current preferences effective */
-    toolbar_redraw_all();
-
-    return main_tb;
-}
 
 /*
  * Redraw all toolbars (currently only the main toolbar)
@@ -305,14 +283,41 @@ static void toolbar_append_separator(GtkWidget *toolbar) {
 }
 
 
-/* get the main toolbar (remember: call this only once!) */
-static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
+
+#if GTK_MAJOR_VERSION < 2
+#define toolbar_item(new_item, window, toolbar, stock, tooltip, xpm, callback) { \
+    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask, &window->style->white, xpm); \
+    iconw = gtk_pixmap_new(icon, mask); \
+    new_item = gtk_toolbar_append_item(GTK_TOOLBAR (toolbar), \
+        stock, tooltip, "Private", iconw, GTK_SIGNAL_FUNC(callback), NULL);\
+    }
+#else
+#define toolbar_item(new_item, window, toolbar, stock, tooltip, xpm, callback) { \
+    new_item = gtk_toolbar_insert_stock(GTK_TOOLBAR(toolbar), \
+        stock, tooltip, "Private", G_CALLBACK(callback), NULL, -1);\
+    }
+#endif /* GTK_MAJOR_VERSION */
+
+
+/*
+ * Create all toolbars (currently only the main toolbar)
+ */
+GtkWidget *
+toolbar_new(void)
 {
+    GtkWidget *main_tb;
+    GtkWidget *window = top_level;
 #if GTK_MAJOR_VERSION < 2
     GdkPixmap *icon;
     GtkWidget *iconw;
     GdkBitmap * mask;
 #endif /* GTK_MAJOR_VERSION */
+
+    
+#if GTK_MAJOR_VERSION >= 2
+    /* create application specific stock icons */
+    ethereal_stock_icons();
+#endif
 
     /* this function should be only called once! */
     g_assert(!toolbar_init);
@@ -325,341 +330,68 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
     /* toolbar will be horizontal, with both icons and text (as default here) */
     /* (this will usually be overwritten by the preferences setting) */
 #if GTK_MAJOR_VERSION < 2
-    *toolbar = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL,
+    main_tb = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL,
                                GTK_TOOLBAR_BOTH);
+    gtk_toolbar_set_space_size(GTK_TOOLBAR(main_tb), 3);
 #else
-    *toolbar = gtk_toolbar_new();
-    gtk_toolbar_set_orientation(GTK_TOOLBAR(*toolbar),
+    main_tb = gtk_toolbar_new();
+    gtk_toolbar_set_orientation(GTK_TOOLBAR(main_tb),
                                 GTK_ORIENTATION_HORIZONTAL);
 #endif /* GTK_MAJOR_VERSION */
 
+    OBJECT_SET_DATA(top_level, E_TB_MAIN_KEY, main_tb);
+
+
 #ifdef HAVE_LIBPCAP
+    /* either start OR stop button can be valid at a time, so no space 
+     * between them is needed here (stop button is hidden by default) */
 
-    /* start capture button */
-#if GTK_MAJOR_VERSION < 2
-    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
-                                        &window->style->white, capture_24_xpm);
-    iconw = gtk_pixmap_new(icon, mask); /* icon widget */
-
-    new_button = 
-        gtk_toolbar_append_item(GTK_TOOLBAR (*toolbar),/* our toolbar */
-                                "New",                 /* button label */
-                                "Start a new live capture...",/* button's tooltip */
-                                "Private",             /* tooltip private info */
-                                iconw,                 /* icon widget */
-                                GTK_SIGNAL_FUNC(capture_prep_cb), /* callback */
-                                NULL );
-#else
-    new_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
-                                          ETHEREAL_STOCK_CAPTURE_START,
-                                          "Start a new live capture...", "Private",
-                                          G_CALLBACK(capture_prep_cb), NULL,
-                                          -1);
-#endif /* GTK_MAJOR_VERSION */
-
-    /* either start OR stop button can be valid at a time, so no space needed
-     * here */
-
-    /* stop capture button (hidden by default) */
+    toolbar_item(new_button, window, main_tb, 
+        ETHEREAL_STOCK_CAPTURE_START, "Start a new live capture...", capture_24_xpm, capture_prep_cb);
 #ifndef _WIN32
-#if GTK_MAJOR_VERSION < 2
-    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
-                                        &window->style->white,
-                                        stock_stop_24_xpm);
-    iconw = gtk_pixmap_new(icon, mask);
-
-    stop_button = gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar),
-                                          "Stop", "Stop running live capture",
-                                          "Private", iconw,
-                                          GTK_SIGNAL_FUNC(capture_stop_cb),
-                                          NULL);
-#else
-    stop_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
-                                           GTK_STOCK_STOP,
-                                           "Stop running live capture", "Private",
-                                           G_CALLBACK(capture_stop_cb), NULL,
-                                           -1);
-#endif /* GTK_MAJOR_VERSION */
+    toolbar_item(stop_button, window, main_tb, 
+        GTK_STOCK_STOP, "Stop the running live capture", stock_stop_24_xpm, capture_stop_cb);
 #endif /* _WIN32 */
-    toolbar_append_separator(*toolbar);
+    toolbar_append_separator(main_tb);
 #endif /* HAVE_LIBPCAP */
 
-    /* open capture button */
-#if GTK_MAJOR_VERSION < 2
-    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
-                                        &window->style->white,
-                                        stock_open_24_xpm);
-    iconw = gtk_pixmap_new(icon, mask);
+    toolbar_item(open_button, window, main_tb, 
+        GTK_STOCK_OPEN, "Open a capture file...", stock_open_24_xpm, file_open_cmd_cb);
+    toolbar_item(save_button, window, main_tb, 
+        GTK_STOCK_SAVE, "Save this capture file...", stock_save_24_xpm, file_save_cmd_cb);
+    toolbar_item(save_as_button, window, main_tb, 
+        GTK_STOCK_SAVE_AS, "Save this capture file as...", stock_save_as_24_xpm, file_save_as_cmd_cb);
+    toolbar_item(close_button, window, main_tb, 
+        GTK_STOCK_CLOSE, "Close this capture file", stock_close_24_xpm, file_close_cmd_cb);
+    toolbar_item(reload_button, window, main_tb, 
+        GTK_STOCK_REFRESH, "Reload this capture file", stock_refresh_24_xpm, file_reload_cmd_cb);
+    toolbar_item(print_button, window, main_tb, 
+        GTK_STOCK_PRINT, "Print packet(s)...", stock_print_24_xpm, file_print_cmd_cb);
+    toolbar_append_separator(main_tb);
 
-    open_button = gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar),
-                                          "Open", "Open a capture file...",
-                                          "Private", iconw,
-                                          GTK_SIGNAL_FUNC(file_open_cmd_cb),
-                                          NULL);
-#else
-    open_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
-                                           GTK_STOCK_OPEN,
-                                           "Open a capture file...", "Private",
-                                           G_CALLBACK(file_open_cmd_cb), NULL,
-                                           -1);
-#endif /* GTK_MAJOR_VERSION */
-
-    /* save capture button */
-#if GTK_MAJOR_VERSION < 2
-    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
-                                        &window->style->white,
-                                        stock_save_24_xpm);
-    iconw = gtk_pixmap_new(icon, mask);
-
-    save_button = gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar),
-                                          "Save", "Save this capture file...",
-                                          "Private", iconw,
-                                          GTK_SIGNAL_FUNC(file_save_cmd_cb),
-                                          NULL);
-#else
-    save_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
-                                           GTK_STOCK_SAVE,
-                                           "Save this capture file...", "Private",
-                                           G_CALLBACK(file_save_cmd_cb), NULL,
-                                           -1);
-#endif /* GTK_MAJOR_VERSION */
-
-    /* save as capture button */
-#if GTK_MAJOR_VERSION < 2
-    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
-                                        &window->style->white,
-                                        stock_save_as_24_xpm);
-    iconw = gtk_pixmap_new(icon, mask);
-
-    save_as_button = gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar),
-                                          "Save As", "Save this capture file as...",
-                                          "Private", iconw,
-                                          GTK_SIGNAL_FUNC(file_save_as_cmd_cb),
-                                          NULL);
-#else
-    save_as_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
-                                           GTK_STOCK_SAVE_AS,
-                                           "Save this capture file as...", "Private",
-                                           G_CALLBACK(file_save_as_cmd_cb), NULL,
-                                           -1);
-#endif /* GTK_MAJOR_VERSION */
-
-    /* close capture button */
-#if GTK_MAJOR_VERSION < 2
-    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
-                                        &window->style->white,
-                                        stock_close_24_xpm);
-    iconw = gtk_pixmap_new(icon, mask);
-
-    close_button = gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar),
-                                           "Close", "Close this capture file",
-                                           "Private", iconw,
-                                           GTK_SIGNAL_FUNC(file_close_cmd_cb),
-                                           NULL);
-#else
-    close_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
-                                            GTK_STOCK_CLOSE,
-                                            "Close this capture file", "Private",
-                                            G_CALLBACK(file_close_cmd_cb), NULL,
-                                            -1);
-#endif /* GTK_MAJOR_VERSION */
-
-    /* reload capture file button */
-#if GTK_MAJOR_VERSION < 2
-    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
-                                        &window->style->white,
-                                        stock_refresh_24_xpm);
-    iconw = gtk_pixmap_new(icon, mask);
-
-    reload_button = gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar),
-                                            "Reload", "Reload this capture file",
-                                            "Private", iconw,
-                                            GTK_SIGNAL_FUNC(file_reload_cmd_cb),
-                                            NULL);
-#else
-    reload_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
-                                             GTK_STOCK_REFRESH,
-                                             "Reload this capture file",
-                                             "Private",
-                                             G_CALLBACK(file_reload_cmd_cb),
-                                             NULL, -1);
-#endif /* GTK_MAJOR_VERSION */
-
-    /* print packet(s) button */
-#if GTK_MAJOR_VERSION < 2
-    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
-                                        &window->style->white,
-                                        stock_print_24_xpm);
-    iconw = gtk_pixmap_new(icon, mask);
-
-    print_button = gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar),
-                                           "Print", "Print packet(s)...",
-                                           "Private", iconw,
-                                           GTK_SIGNAL_FUNC(file_print_cmd_cb),
-                                           NULL);
-#else
-    print_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
-                                            GTK_STOCK_PRINT, "Print packets(s)...",
-                                            "Private",
-                                            G_CALLBACK(file_print_cmd_cb),
-                                            NULL, -1);
-#endif /* GTK_MAJOR_VERSION */
-    toolbar_append_separator(*toolbar);
-
-    /* find packet button */
-#if GTK_MAJOR_VERSION < 2
-    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
-                                        &window->style->white,
-                                        stock_search_24_xpm);
-    iconw = gtk_pixmap_new(icon, mask);
-
-    find_button = gtk_toolbar_append_item(GTK_TOOLBAR (*toolbar), "Find",
-                                          "Find a packet...",
-                                          "Private", iconw,
-                                          GTK_SIGNAL_FUNC(find_frame_cb), NULL);
-#else
-    find_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
-                                           GTK_STOCK_FIND,
-                                           "Find a packet...",
-                                           "Private", G_CALLBACK(find_frame_cb),
-                                           NULL, -1);
-#endif /* GTK_MAJOR_VERSION */
-
-    /* find next packet button */
-#if GTK_MAJOR_VERSION < 2
-    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
-                                        &window->style->white,
-                                        stock_right_arrow_24_xpm);
-    iconw = gtk_pixmap_new(icon, mask);
-
-    find_next_button = gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar), "Next",
-                                               "Find the next matching packet", "Private",
-                                               iconw,
-                                               GTK_SIGNAL_FUNC(find_next_cb),
-                                               NULL);
-#else
-    find_next_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
-                                                GTK_STOCK_GO_FORWARD,
-                                                "Find the next matching packet", "Private",
-                                                G_CALLBACK(find_next_cb), NULL,
-                                                -1);
-#endif /* GTK_MAJOR_VERSION */
-
-    /* go to packet button */
-#if GTK_MAJOR_VERSION < 2
-    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
-                                        &window->style->white,
-                                        stock_jump_to_24_xpm);
-    iconw = gtk_pixmap_new(icon, mask);
-
-    go_to_button = gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar), "GoTo",
-                                           "Go to the packet with number...", "Private",
-                                           iconw,
-                                           GTK_SIGNAL_FUNC(goto_frame_cb),
-                                           NULL);
-#else
-    go_to_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
-                                            GTK_STOCK_JUMP_TO,
-                                            "Go to the packet with number...", "Private",
-                                            G_CALLBACK(goto_frame_cb), NULL,
-                                            -1);
-#endif /* GTK_MAJOR_VERSION */
-    toolbar_append_separator(*toolbar);
+    toolbar_item(find_button, window, main_tb, 
+        GTK_STOCK_FIND, "Find a packet...", stock_search_24_xpm, find_frame_cb);
+    toolbar_item(find_next_button, window, main_tb, 
+        GTK_STOCK_GO_FORWARD, "Find the next matching packet", stock_right_arrow_24_xpm, find_next_cb);
+    toolbar_item(go_to_button, window, main_tb, 
+        GTK_STOCK_JUMP_TO, "Go to the packet with number...", stock_jump_to_24_xpm, goto_frame_cb);
+    toolbar_append_separator(main_tb);
     
 #ifdef HAVE_LIBPCAP
-
-    /* capture filter button */
-#if GTK_MAJOR_VERSION < 2
-    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
-                                        &window->style->white, cfilter_24_xpm);
-    iconw = gtk_pixmap_new(icon, mask);
-
-    capture_filter_button =
-        gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar), "CFilter",
-                                "Edit Capture Filters...", "Private", iconw,
-                                GTK_SIGNAL_FUNC(cfilter_dialog_cb), NULL);
-#else
-    capture_filter_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
-                                            ETHEREAL_STOCK_CAPTURE_FILTER,
-                                            "Edit Capture Filters...", "Private",
-                                            G_CALLBACK(cfilter_dialog_cb), NULL,
-                                            -1);
-#endif /* GTK_MAJOR_VERSION */
+    toolbar_item(capture_filter_button, window, main_tb, 
+        ETHEREAL_STOCK_CAPTURE_FILTER, "Edit capture filter...", cfilter_24_xpm, cfilter_dialog_cb);
 #endif /* HAVE_LIBPCAP */
+    toolbar_item(display_filter_button, window, main_tb, 
+        ETHEREAL_STOCK_DISPLAY_FILTER, "Edit/apply display filter...", dfilter_24_xpm, dfilter_dialog_cb);
+    toolbar_item(color_display_button, window, main_tb, 
+        GTK_STOCK_SELECT_COLOR, "Edit coloring rules...", stock_colorselector_24_xpm, color_display_cb);
+    /* the preference button uses it's own Stock icon label "Prefs", as "Preferences" is too long */
+    toolbar_item(prefs_button, window, main_tb, 
+        ETHEREAL_STOCK_PREFS, "Edit preferences...", stock_preferences_24_xpm, prefs_cb);
+    toolbar_append_separator(main_tb);
 
-    /* display filter button */
-#if GTK_MAJOR_VERSION < 2
-    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
-                                        &window->style->white, dfilter_24_xpm);
-    iconw = gtk_pixmap_new(icon, mask);
-
-    display_filter_button =
-        gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar), "DFilter",
-                                "Edit Display Filters...", "Private", iconw,
-                                GTK_SIGNAL_FUNC(dfilter_dialog_cb),
-                                NULL);
-#else
-    display_filter_button =
-        gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar), 
-                                 ETHEREAL_STOCK_DISPLAY_FILTER,
-                                 "Edit Display Filters...", "Private",
-                                 G_CALLBACK(dfilter_dialog_cb), NULL, -1);
-#endif /* GTK_MAJOR_VERSION */
-
-    /* coloring rules button */
-#if GTK_MAJOR_VERSION < 2
-    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
-                                        &window->style->white,
-                                        stock_colorselector_24_xpm);
-    iconw = gtk_pixmap_new(icon, mask);
-
-    color_display_button =
-        gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar), "Color",
-                                "Edit Coloring Rules...", "Private", iconw,
-                                GTK_SIGNAL_FUNC(color_display_cb), NULL);
-#else
-    color_display_button =
-        gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar), GTK_STOCK_SELECT_COLOR,
-                                 "Edit Coloring Rules...", "Private",
-                                 G_CALLBACK(color_display_cb), NULL, -1);
-#endif /* GTK_MAJOR_VERSION */
-
-    /* preferences button */
-#if GTK_MAJOR_VERSION < 2
-    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
-                                        &window->style->white,
-                                        stock_preferences_24_xpm);
-    iconw = gtk_pixmap_new(icon, mask);
-
-    prefs_button = gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar), "Prefs",
-                                           "Edit Preferences...", "Private",
-                                           iconw, GTK_SIGNAL_FUNC(prefs_cb),
-                                           NULL);
-#else
-    prefs_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
-                                            GTK_STOCK_PREFERENCES,
-                                            "Edit Preferences...", "Private",
-                                            G_CALLBACK(prefs_cb), NULL, -1);
-#endif /* GTK_MAJOR_VERSION */
-    toolbar_append_separator(*toolbar);
-
-    /* help button */
-#if GTK_MAJOR_VERSION < 2
-    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
-                                        &window->style->white,
-                                        stock_help_24_xpm);
-    iconw = gtk_pixmap_new(icon, mask);
-
-    help_button = gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar), "Help",
-                                          "Show Help Dialog...", "Private",
-                                          iconw, GTK_SIGNAL_FUNC(help_cb),
-                                          NULL);
-#else
-    help_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
-                                           GTK_STOCK_HELP,
-                                           "Show Help Dialog...", "Private",
-                                           G_CALLBACK(help_cb), NULL, -1);
-#endif /* GTK_MAJOR_VERSION */
+    toolbar_item(help_button, window, main_tb, 
+        GTK_STOCK_HELP, "Show some help...", stock_help_24_xpm, help_cb);
 
     /* disable all "sensitive" items by default */
     toolbar_init = TRUE;
@@ -668,6 +400,11 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
 #ifdef HAVE_LIBPCAP
     set_toolbar_for_capture_in_progress(FALSE);
 #endif /* HAVE_LIBPCAP */
+
+    /* make current preferences effective */
+    toolbar_redraw_all();
+
+    return main_tb;
 }
 
 void
