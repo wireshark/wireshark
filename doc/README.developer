@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.48 2002/03/01 20:19:44 guy Exp $
+$Id: README.developer,v 1.49 2002/03/02 07:56:16 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -41,6 +41,10 @@ data types as opaque arrays of bytes on platforms where it's not
 defined.  Also, don't assume you can use "%lld", "%llu", "%llx", or
 "%llo" to print 64-bit integral data types - not all platforms support
 "%ll" for printing them.
+
+Don't use "ulong" or "ushort"; they aren't defined on all platforms.  If
+you want a 32-bit unsigned quantity, use "guint32", and if you want a
+16-bit unsigned quantity, use "guint16".
 
 Don't use a label without a statement following it.  For example,
 something such as
@@ -101,7 +105,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.48 2002/03/01 20:19:44 guy Exp $"
+The "$Id: README.developer,v 1.49 2002/03/02 07:56:16 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -111,7 +115,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.48 2002/03/01 20:19:44 guy Exp $
+ * $Id: README.developer,v 1.49 2002/03/02 07:56:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
