@@ -2,7 +2,7 @@
  * Routines for Stream Control Transmission Protocol dissection
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sctp.c,v 1.11 2001/01/13 04:30:20 guy Exp $
+ * $Id: packet-sctp.c,v 1.12 2001/01/14 08:27:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -494,7 +494,7 @@ nr_of_padding_bytes (guint length)
 static void
 dissect_parameter(tvbuff_t *, proto_tree *);
 
-static void
+static gboolean
 dissect_sctp_chunk(tvbuff_t *, packet_info *, proto_tree *, proto_tree *);
 
 static void 
@@ -979,16 +979,16 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
  * Code to actually dissect the packets 
 */
 
-static void
+static gboolean
 dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree *chunk_tree, guint32 ppi, guint16 payload_length, guint16 padding_length)
 {
   /* do lookup with the subdissector table */
   if (dissector_try_port (sctp_ppi_dissector_table, ppi,  payload_tvb, pinfo, tree) ||
       dissector_try_port(sctp_port_dissector_table, pi.srcport,  payload_tvb, pinfo, tree) ||
-      dissector_try_port(sctp_port_dissector_table, pi.destport, payload_tvb, pinfo, tree))
-    
-    return;
+      dissector_try_port(sctp_port_dissector_table, pi.destport, payload_tvb, pinfo, tree)){
+    return TRUE;
+  }
   else {
     if (check_col(pinfo->fd, COL_INFO))
       col_append_str(pinfo->fd, COL_INFO, "DATA ");
@@ -999,10 +999,11 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree,
       proto_tree_add_text(chunk_tree, payload_tvb, payload_length, padding_length,
 			  "Padding: %u byte%s",
 			  padding_length, plurality(padding_length, "", "s"));
+    return FALSE;
   }
 }
 
-static void
+static gboolean
 dissect_data_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 		   proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 { 
@@ -1055,7 +1056,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 			tsn, stream_id, stream_seq_number, 
 			payload_length, plurality(payload_length, "", "s"));
   };   
-  dissect_payload(payload_tvb, pinfo, tree, chunk_tree, payload_proto_id, payload_length, padding_length); 
+  return dissect_payload(payload_tvb, pinfo, tree, chunk_tree, payload_proto_id, payload_length, padding_length); 
 }
 
 static void
@@ -1480,15 +1481,18 @@ dissect_unknown_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 } 
 
 
-static void
+static gboolean
 dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *sctp_tree)
 {  
   guint8 type, flags;
   guint16 length;
+  gboolean result;
   proto_item *flags_item;
   proto_item *chunk_item;
   proto_tree *chunk_tree;
 
+  result = FALSE;
+  
   /* first extract the chunk header */
   type   = tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET);
   flags  = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET);
@@ -1521,7 +1525,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
 
   switch(type) {
   case SCTP_DATA_CHUNK_ID:
-    dissect_data_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    result = dissect_data_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
     break;
   case SCTP_INIT_CHUNK_ID:
     dissect_init_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
@@ -1568,18 +1572,23 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
   default:
     dissect_unknown_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
     break;
-  }
+  };
+  return result;
 }
 
 static void
-dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *sctp_tree)
+dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		    proto_item *sctp_item, proto_tree *sctp_tree)
 { 
   tvbuff_t *chunk_tvb;
   guint16 length, padding_length, total_length;
-  gint offset;
-  
+  gint last_offset, offset;
+  gboolean sctp_item_length_set;
+
   /* the common header of the datagram is already handled */
+  last_offset = 0;
   offset = COMMON_HEADER_LENGTH;
+  sctp_item_length_set = FALSE;
 
   while(tvb_length_remaining(tvb, offset) > 0) {
     /* extract the chunk length and compute number of padding bytes */
@@ -1589,13 +1598,25 @@ dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
     /* create a tvb for the chunk including the padding bytes */
     chunk_tvb    = tvb_new_subset(tvb, offset, total_length, total_length);
     /* call dissect_sctp_chunk for a actual work */
-    dissect_sctp_chunk(chunk_tvb, pinfo, tree, sctp_tree);
+    if (dissect_sctp_chunk(chunk_tvb, pinfo, tree, sctp_tree) && (tree)) {
+      proto_item_set_len(sctp_item, offset - last_offset + DATA_CHUNK_HEADER_LENGTH);
+      sctp_item_length_set = TRUE;
+      offset += total_length;
+      last_offset = offset;
+      if (tvb_length_remaining(tvb, offset) > 0) {
+	sctp_item = proto_tree_add_item(tree, proto_sctp, tvb, offset, 0, FALSE);
+	sctp_tree = proto_item_add_subtree(sctp_item, ett_sctp);
+	sctp_item_length_set = FALSE;
+      }
+    } else {
     /* get rid of the dissected chunk */
     offset += total_length;
-  }
+    }
+  };
+  if (!sctp_item_length_set && (tree)) { 
+    proto_item_set_len(sctp_item, offset - last_offset);
+  };
 }
-
-
 
 /* dissect_sctp handles the common header of a SCTP datagram.
  * For the handling of the chunks dissect_sctp_chunks is called.
@@ -1606,7 +1627,7 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint16 source_port, destination_port;
   guint32 verification_tag, checksum;
-  proto_item *ti;
+  proto_item *sctp_item;
   proto_tree *sctp_tree;
 
   CHECK_DISPLAY_AS_DATA(proto_sctp, tvb, pinfo, tree);
@@ -1636,9 +1657,8 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the sctp protocol tree */
-    ti = proto_tree_add_protocol_format(tree, proto_sctp, tvb, 0, tvb_length(tvb), 
-					"Stream Control Transmission Protocol");
-    sctp_tree = proto_item_add_subtree(ti, ett_sctp);
+    sctp_item = proto_tree_add_item(tree, proto_sctp, tvb, 0, 0, FALSE);
+    sctp_tree = proto_item_add_subtree(sctp_item, ett_sctp);
 
     /* add the components of the common header to the protocol tree */
     proto_tree_add_uint(sctp_tree, hf_sctp_source_port, 
@@ -1656,9 +1676,10 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			       checksum, sctp_checksum_state(tvb, checksum));
   } else {
     sctp_tree = NULL;
+    sctp_item = NULL;
   };
   /* add all chunks of the sctp datagram to the protocol tree */
-  dissect_sctp_chunks(tvb, pinfo, tree, sctp_tree);
+  dissect_sctp_chunks(tvb, pinfo, tree, sctp_item, sctp_tree);
 }
 
 /* Register the protocol with Ethereal */
