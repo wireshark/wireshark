@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h225.c,v 1.22 2003/10/28 00:31:15 guy Exp $
+ * $Id: packet-h225.c,v 1.23 2003/10/31 19:48:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4866,7 +4866,7 @@ dissect_h225_enterpriseNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 static per_sequence_t VendorIdentifier_sequence[] = {
 	{ "vendor", ASN1_EXTENSION_ROOT, ASN1_NOT_OPTIONAL,
-		dissect_h245_h221NonStandard },
+		dissect_h225_h221NonStandard },
 	{ "productId", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_productID },
 	{ "versionId", ASN1_EXTENSION_ROOT, ASN1_OPTIONAL,
