@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.29 1999/09/18 15:44:40 deniel Exp $
+ * $Id: proto.c,v 1.30 1999/10/03 15:06:28 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -189,6 +189,9 @@ proto_init(void)
 		G_ALLOC_AND_FREE);
 	gpa_hfinfo = g_ptr_array_new();
 
+	/* XXX: make aarp dfilter work */
+	proto_register_protocol("first entry can't be used", "buggyentry");
+	   
 	/* Have each dissector register its protocols and fields. The
 	 * order doesn't matter. Put the calls in alphabetical order
 	 * just to make it easy. */

@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.8 1999/09/23 05:21:28 guy Exp $
+ * $Id: packet-aarp.c,v 1.9 1999/10/03 15:06:27 deniel Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -34,6 +34,15 @@
 #include "etypes.h"
 
 static int proto_aarp = -1;
+static int hf_aarp_hard_type = -1;
+static int hf_aarp_proto_type = -1;
+static int hf_aarp_hard_size = -1;
+static int hf_aarp_proto_size = -1;
+static int hf_aarp_opcode = -1;
+static int hf_aarp_src_ether = -1;
+static int hf_aarp_src_id = -1;
+static int hf_aarp_dst_ether = -1;
+static int hf_aarp_dst_id = -1;
 
 typedef struct _e_ether_aarp {
         guint16 htype, ptype;
@@ -105,24 +114,38 @@ dissect_aarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       ti = proto_tree_add_item_format(tree, proto_aarp, offset, 28, NULL,
         "Unknown AARP (opcode 0x%04x)", ea.op);
     aarp_tree = proto_item_add_subtree(ti, ETT_AARP);
-    proto_tree_add_text(aarp_tree, offset,      2,
-      "Hardware type: 0x%04x", ea.htype);
-    proto_tree_add_text(aarp_tree, offset +  2, 2,
-      "Protocol type: 0x%04x", ea.ptype);
-    proto_tree_add_text(aarp_tree, offset +  4, 1,
-      "Hardware size: 0x%02x", ea.halen);
-    proto_tree_add_text(aarp_tree, offset +  5, 1,
-      "Protocol size: 0x%02x", ea.palen);
-    proto_tree_add_text(aarp_tree, offset +  6, 2,
-      "Opcode: 0x%04x (%s)", ea.op, op_str ? op_str : "Unknown");
-    proto_tree_add_text(aarp_tree, offset +  8, 6,
-      "Sender ether: %s", ether_to_str((guint8 *) ea.hsaddr));
-    proto_tree_add_text(aarp_tree, offset + 14, 4,
-      "Sender ID: %s", atalkid_to_str((guint8 *) ea.psaddr));
-    proto_tree_add_text(aarp_tree, offset + 18, 6,
-      "Target ether: %s", ether_to_str((guint8 *) ea.hdaddr));
-    proto_tree_add_text(aarp_tree, offset + 24, 4,
-      "Target ID: %s", atalkid_to_str((guint8 *) ea.pdaddr));
+    proto_tree_add_item_format(aarp_tree, hf_aarp_hard_type, offset,      2,
+			       ea.htype,
+			       "Hardware type: 0x%04x", 
+			       ea.htype);
+    proto_tree_add_item_format(aarp_tree, hf_aarp_proto_type, offset +  2, 2,
+			       ea.ptype,
+			       "Protocol type: 0x%04x",
+			       ea.ptype);
+    proto_tree_add_item_format(aarp_tree, hf_aarp_hard_size, offset +  4, 1,
+			       ea.halen,
+			       "Hardware size: 0x%02x", 
+			       ea.halen);
+    proto_tree_add_item_format(aarp_tree, hf_aarp_proto_size, offset +  5, 1,
+			       ea.palen,
+			       "Protocol size: 0x%02x", 
+			       ea.palen);
+    proto_tree_add_item_format(aarp_tree, hf_aarp_opcode, offset +  6, 2,
+			       ea.op,
+			       "Opcode: 0x%04x (%s)",
+			       ea.op, op_str ? op_str : "Unknown");
+    proto_tree_add_item(aarp_tree, hf_aarp_src_ether, offset +  8, 6,
+			ea.hsaddr);
+    proto_tree_add_item_format(aarp_tree, hf_aarp_src_id, offset + 14, 4,
+			       ea.psaddr,
+			       "Sender ID: %s", 
+			       atalkid_to_str((guint8 *) ea.psaddr));
+    proto_tree_add_item(aarp_tree, hf_aarp_dst_ether, offset + 18, 6,
+			ea.hdaddr);
+    proto_tree_add_item_format(aarp_tree, hf_aarp_dst_id, offset + 24, 4,
+			       ea.pdaddr,
+			       "Target ID: %s", 
+			       atalkid_to_str((guint8 *) ea.pdaddr));
   }
 
   if (ea.ptype != ETHERTYPE_AARP && ea.ptype != ETHERTYPE_ATALK && 
@@ -153,11 +176,28 @@ dissect_aarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 void
 proto_register_aarp(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "aarp.abbreviation", TYPE, VALS_POINTER }},
-        };*/
+  static hf_register_info hf[] = {
+    { &hf_aarp_hard_type,
+      { "Hardware type", "aarp.hard.type",	FT_UINT16,	NULL }},
+    { &hf_aarp_proto_type,
+      { "Protocol type", "aarp.proto.type",	FT_UINT16,	NULL }},    
+    { &hf_aarp_hard_size,
+      { "Hardware size", "aarp.hard.size",	FT_UINT8,	NULL }},
+    { &hf_aarp_proto_size,
+      { "Protocol size", "aarp.proto.size",	FT_UINT8,	NULL }},
+    { &hf_aarp_opcode,
+      { "Opcode",	 "aarp.opcode",		FT_UINT16,	NULL }},
+    { &hf_aarp_src_ether,
+      { "Sender ether",	 "aarp.src.ether",	FT_ETHER,	NULL }},
+    { &hf_aarp_src_id,
+      { "Sender ID",	 "aarp.src.id",		FT_UINT32,	NULL }},
+    { &hf_aarp_dst_ether,
+      { "Target ether",	 "aarp.dst.ether",	FT_ETHER,	NULL }},
+    { &hf_aarp_dst_id,
+      { "Target ID",	 "aarp.dst.id",		FT_UINT32,	NULL }}
+  };
 
-        proto_aarp = proto_register_protocol("Appletalk Address Resolution Protocol", "aarp");
- /*       proto_register_field_array(proto_aarp, hf, array_length(hf));*/
+  proto_aarp = proto_register_protocol("Appletalk Address Resolution Protocol",
+				       "aarp");
+  proto_register_field_array(proto_aarp, hf, array_length(hf));
 }
