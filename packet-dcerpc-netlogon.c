@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.31 2002/07/06 00:22:05 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.32 2002/07/07 01:07:23 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,6 +54,8 @@ static int hf_netlogon_priv = -1;
 static int hf_netlogon_status = -1;
 static int hf_netlogon_attrs = -1;
 static int hf_netlogon_count = -1;
+static int hf_netlogon_minpasswdlen = -1;
+static int hf_netlogon_passwdhistorylen = -1;
 static int hf_netlogon_level16 = -1;
 static int hf_netlogon_validation_level = -1;
 static int hf_netlogon_level = -1;
@@ -98,6 +100,9 @@ static int hf_netlogon_logon_srv = -1;
 static int hf_netlogon_principal = -1;
 static int hf_netlogon_logon_dom = -1;
 static int hf_netlogon_domain_name = -1;
+static int hf_netlogon_domain_create_time = -1;
+static int hf_netlogon_domain_modify_time = -1;
+static int hf_netlogon_oem_info = -1;
 static int hf_netlogon_trusted_domain_name = -1;
 static int hf_netlogon_num_rids = -1;
 static int hf_netlogon_num_other_groups = -1;
@@ -153,7 +158,6 @@ static gint ett_NETLOGON_SECURITY_DESCRIPTOR = -1;
 static gint ett_CYPHER_BLOCK = -1;
 static gint ett_TYPE_16 = -1;
 static gint ett_IDENTITY_INFO = -1;
-static gint ett_NETLOGON_SAM_DOMAIN_INFO = -1;
 static gint ett_NETLOGON_SAM_GROUP_INFO = -1;
 static gint ett_TYPE_23 = -1;
 static gint ett_NETLOGON_SAM_GROUP_MEM_INFO = -1;
@@ -1767,6 +1771,98 @@ netlogon_dissect_DELTA_USER(tvbuff_t *tvb, int offset,
 }
 
 
+/*
+ * IDL typedef struct {
+ * IDL   UNICODESTRING DomainName;
+ * IDL   UNICODESTRING OEMInfo;
+ * IDL   NTTIME forcedlogoff;
+ * IDL   short minpasswdlen;
+ * IDL   short passwdhistorylen;
+ * IDL   NTTIME pwd_must_change_time;
+ * IDL   NTTIME pwd_can_change_time;
+ * IDL   NTTIME domain_modify_time;
+ * IDL   NTTIME domain_create_time;
+ * IDL   long SecurityInformation;
+ * IDL   LSA_SECURITY_DESCRIPTOR sec_desc;
+ * IDL   UNICODESTRING dummy1;
+ * IDL   UNICODESTRING dummy2;
+ * IDL   UNICODESTRING dummy3;
+ * IDL   UNICODESTRING dummy4;
+ * IDL   long dummy5;
+ * IDL   long dummy6;
+ * IDL   long dummy7;
+ * IDL   long dummy8;
+ * IDL } DELTA_DOMAIN;
+ */
+static int
+netlogon_dissect_DELTA_DOMAIN(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *tree,
+			char *drep)
+{
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_domain_name, 1);
+
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_oem_info, 0);
+
+	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_kickoff_time);
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_minpasswdlen, NULL);
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_passwdhistorylen, NULL);
+
+	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_pwd_must_change_time);
+
+	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_pwd_can_change_time);
+
+	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_domain_modify_time);
+
+	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_domain_create_time);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_security_information, NULL);
+
+	offset = lsa_dissect_LSA_SECURITY_DESCRIPTOR(tvb, offset,
+		pinfo, tree, drep);
+
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_profile_path, 0);
+
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_dummy, 0);
+
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_dummy, 0);
+
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_dummy, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_reserved, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_reserved, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_reserved, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_netlogon_reserved, NULL);
+
+	return offset;
+}
+
+
+
+
+
 
 
 /*qqq*/
@@ -1910,80 +2006,6 @@ netlogon_dissect_TYPE_16(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_unknown_time);
-
-	proto_item_set_len(item, offset-old_offset);
-	return offset;
-}
-
-
-static int
-netlogon_dissect_NETLOGON_SAM_DOMAIN_INFO(tvbuff_t *tvb, int offset,
-			packet_info *pinfo, proto_tree *parent_tree,
-			char *drep)
-{
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
- 	int old_offset=offset;
-
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
-			"NETLOGON_SAM_DOMAIN_INFO:");
-		tree = proto_item_add_subtree(item, ett_NETLOGON_SAM_DOMAIN_INFO);
-	}
-
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_string, 0);
-
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_string, 0);
-
-	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_time);
-
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_short, NULL);
-
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_short, NULL);
-
-	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_time);
-
-	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_time);
-
-	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_time);
-
-	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_time);
-
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_string, 0);
-
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_string, 0);
-
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_string, 0);
-
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_string, 0);
-
-	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_string, 0);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, NULL);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, NULL);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, NULL);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_unknown_long, NULL);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -3673,8 +3695,8 @@ netlogon_dissect_TYPE_20(tvbuff_t *tvb, int offset,
 	switch(level){
 	case 1:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			netlogon_dissect_NETLOGON_SAM_DOMAIN_INFO, NDR_POINTER_PTR,
-			"NETLOGON_SAM_DOMAIN_INFO pointer:", -1, 0);
+			netlogon_dissect_DELTA_DOMAIN, NDR_POINTER_UNIQUE,
+			"DELTA_DOMAIN:", -1, 0);
 		break;
 	case 2:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -5811,6 +5833,10 @@ static hf_register_info hf[] = {
 		{ "Domain", "netlogon.domain", FT_STRING, BASE_NONE,
 		NULL, 0, "Domain Name", HFILL }},
 
+	{ &hf_netlogon_oem_info,
+		{ "OEM Info", "netlogon.oem_info", FT_STRING, BASE_NONE,
+		NULL, 0, "OEM Info", HFILL }},
+
 	{ &hf_netlogon_trusted_dc_name,
 		{ "Trusted DC", "netlogon.trusted_dc", FT_STRING, BASE_NONE,
 		NULL, 0, "Trusted DC", HFILL }},
@@ -5862,6 +5888,14 @@ static hf_register_info hf[] = {
 	{ &hf_netlogon_validation_level,
 		{ "Validation Level", "netlogon.validation_level", FT_UINT16, BASE_DEC, 
 		NULL, 0x0, "Requested level of validation", HFILL }},
+
+	{ &hf_netlogon_minpasswdlen,
+		{ "Min Password Len", "netlogon.min_passwd_len", FT_UINT16, BASE_DEC, 
+		NULL, 0x0, "Minimum length of password", HFILL }},
+
+	{ &hf_netlogon_passwdhistorylen,
+		{ "Passwd History Len", "netlogon.passwd_history_len", FT_UINT16, BASE_DEC, 
+		NULL, 0x0, "Length of password history", HFILL }},
 
 	{ &hf_netlogon_secure_channel_type,
 		{ "Sec Chn Type", "netlogon.sec_chn_type", FT_UINT16, BASE_DEC, 
@@ -5965,7 +5999,15 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_pwd_must_change_time,
 		{ "PWD Must Change", "netlogon.pwd_must_change_time", FT_ABSOLUTE_TIME, BASE_NONE,
-		NULL, 0, "When this users password must be changed", HFILL }}
+		NULL, 0, "When this users password must be changed", HFILL }},
+
+	{ &hf_netlogon_domain_create_time,
+		{ "Domain Create Time", "netlogon.domain_create_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		NULL, 0, "Time when this domain was created", HFILL }},
+
+	{ &hf_netlogon_domain_modify_time,
+		{ "Domain Modify Time", "netlogon.domain_modify_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		NULL, 0, "Time when this domain was last modified", HFILL }}
 
 	};
 
@@ -5975,7 +6017,6 @@ static hf_register_info hf[] = {
 		&ett_CYPHER_BLOCK,
 		&ett_TYPE_16,
 		&ett_IDENTITY_INFO,
-		&ett_NETLOGON_SAM_DOMAIN_INFO,
 		&ett_NETLOGON_SAM_GROUP_INFO,
 		&ett_TYPE_23,
 		&ett_NETLOGON_SAM_GROUP_MEM_INFO,
