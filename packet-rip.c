@@ -2,7 +2,7 @@
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.5 1998/11/18 03:01:36 gerald Exp $
+ * $Id: packet-rip.c,v 1.6 1998/11/20 09:24:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,22 +42,22 @@
 #include "packet.h"
 #include "packet-rip.h"
 
+static void dissect_ip_rip_vektor(guint8 version,
+    const e_rip_vektor *rip_vektor, int offset, GtkWidget *tree);
+static void dissect_rip_authentication(const e_rip_authentication *rip_authentication,
+  int offset, GtkWidget *tree);
 
 void 
 dissect_rip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     e_riphdr *rip_header;
-    e_rip_vektor rip_vektor;
-    int auth = FALSE;
-
+    e_rip_entry rip_entry;
+    guint16 family;
     GtkWidget *rip_tree = NULL, *ti; 
-    GtkWidget *rip_vektor_tree;
-
 
     /* we do the range checking of the index when checking wether or not this is a RIP packet */
-    char *packet_type[8] = { "never used", "Request", "Response", 
+    static char *packet_type[8] = { "never used", "Request", "Response", 
     "Traceon", "Traceoff", "Vendor specific (Sun)" };
-    char *version[3] = { "RIP", "RIPv1", "RIPv2" };
-
+    static char *version[3] = { "RIP", "RIPv1", "RIPv2" };
 
     rip_header = (e_riphdr *) &pd[offset];
     /* Check if we 've realy got a RIP packet */
@@ -85,7 +85,6 @@ dissect_rip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
             return;
     }
 
-
     if (check_col(fd, COL_PROTOCOL))
         col_add_str(fd, COL_PROTOCOL, version[rip_header->version] );
     if (check_col(fd, COL_INFO))
@@ -96,52 +95,87 @@ dissect_rip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	rip_tree = gtk_tree_new(); 
 	add_subtree(ti, rip_tree, ETT_RIP);
 
-	add_item_to_tree(rip_tree, offset + 1, 1, "Version: %d", rip_header->version);
 	add_item_to_tree(rip_tree, offset, 1, "Command: %d (%s)", rip_header->command, packet_type[rip_header->command]); 
-	switch(ntohs(rip_header->family)){
-	    case 2: /* IP */
-	        add_item_to_tree(rip_tree, offset + 4 , 2, "Address Family ID: IP"); 
-		break;
-	    case 0xFFFF:
-	        add_item_to_tree(rip_tree, offset + 4 , 2, "Authenticated Packet"); 
-		auth = TRUE;
-		break;
-            default:
-            	break;
-	        /* return; */
-	} 
-
-	if(rip_header->version == RIPv2) {
+	add_item_to_tree(rip_tree, offset + 1, 1, "Version: %d", rip_header->version);
+	if(rip_header->version == RIPv2)
 	    add_item_to_tree(rip_tree, offset + 2 , 2, "Routing Domain: %d", ntohs(rip_header->domain)); 
-	    add_item_to_tree(rip_tree, offset + 6 , 2, "Route Tag: %d", ntohs(rip_header->tag)); 
-	}
+
 	/* skip header */
 	offset += RIP_HEADER_LENGTH;
 
-	/* if present, skip the authentication */
-	if(auth){
-	    offset += RIP_VEKTOR_LENGTH;
-	}
-        /* zero or more distance vektors */
+        /* zero or more entries */
 
-	while((fd->cap_len - offset) >= RIP_VEKTOR_LENGTH){
-            ti = add_item_to_tree(GTK_WIDGET(rip_tree), offset, RIP_VEKTOR_LENGTH, "RIP Vektor"); 
-            rip_vektor_tree = gtk_tree_new(); 
-            add_subtree(ti, rip_vektor_tree, ETT_RIP_VEC);
-	   
-            memcpy(&rip_vektor, &pd[offset], sizeof(rip_vektor)); /* avoid alignment problem */
-            add_item_to_tree(rip_vektor_tree, offset, 4, "IP Address: %s", ip_to_str((guint8 *) &(rip_vektor.ip))); 
+	while((fd->cap_len - offset) >= RIP_ENTRY_LENGTH){
+	    memcpy(&rip_entry, &pd[offset], sizeof(rip_entry)); /* avoid alignment problem */
+	    family = ntohs(rip_entry.vektor.family);
+	    switch (family) {
+	    case 2: /* IP */
+		ti = add_item_to_tree(GTK_WIDGET(rip_tree), offset,
+				RIP_ENTRY_LENGTH, "IP Address: %s, Metric: %ld",
+				ip_to_str((guint8 *) &(rip_entry.vektor.ip)),
+				(long)ntohl(rip_entry.vektor.metric));
+		dissect_ip_rip_vektor(rip_header->version, &rip_entry.vektor,
+				offset, ti);
+		break;
+	    case 0xFFFF:
+	        add_item_to_tree(GTK_WIDGET(rip_tree), offset,
+				RIP_ENTRY_LENGTH, "Authention");
+		dissect_rip_authentication(&rip_entry.authentication,
+				offset, ti);
+		break;
+	    default:
+	        add_item_to_tree(GTK_WIDGET(rip_tree), offset,
+				RIP_ENTRY_LENGTH, "Unknown address family %u",
+				family);
+		break;
+	    }
 
-	    if(rip_header->version == RIPv2) {
-                add_item_to_tree(rip_vektor_tree, offset + 4 , 4, "Netmask: %s", 
-		                                      ip_to_str((guint8 *) &(rip_vektor.mask))); 
-                add_item_to_tree(rip_vektor_tree, offset + 8 , 4, "Next Hop: %s", 
-		                                      ip_to_str((guint8 *) &(rip_vektor.next_hop))); 
-            }
-
-            add_item_to_tree(rip_vektor_tree, offset + 12 , 4, "Metric: %ld", (long)ntohl(rip_vektor.metric)); 
-
-            offset += RIP_VEKTOR_LENGTH;
-        };
+            offset += RIP_ENTRY_LENGTH;
+        }
     }
 }
+
+static void
+dissect_ip_rip_vektor(guint8 version, const e_rip_vektor *rip_vektor,
+  int offset, GtkWidget *tree)
+{
+    GtkWidget *rip_vektor_tree;
+
+    rip_vektor_tree = gtk_tree_new(); 
+    add_subtree(tree, rip_vektor_tree, ETT_RIP_VEC);
+	   
+    add_item_to_tree(rip_vektor_tree, offset, 2, "Address Family ID: IP"); 
+    if(version == RIPv2)
+	add_item_to_tree(rip_vektor_tree, offset + 2 , 2, "Route Tag: %d",
+				ntohs(rip_vektor->tag)); 
+    add_item_to_tree(rip_vektor_tree, offset + 4, 4, "IP Address: %s",
+    				ip_to_str((guint8 *) &(rip_vektor->ip))); 
+    if(version == RIPv2) {
+	add_item_to_tree(rip_vektor_tree, offset + 8 , 4, "Netmask: %s", 
+				ip_to_str((guint8 *) &(rip_vektor->mask))); 
+	add_item_to_tree(rip_vektor_tree, offset + 12, 4, "Next Hop: %s", 
+				ip_to_str((guint8 *) &(rip_vektor->next_hop))); 
+    }
+    add_item_to_tree(rip_vektor_tree, offset + 16, 4, "Metric: %ld",
+    				(long)ntohl(rip_vektor->metric)); 
+}
+
+static void
+dissect_rip_authentication(const e_rip_authentication *rip_authentication,
+  int offset, GtkWidget *tree)
+{
+    GtkWidget *rip_authentication_tree;
+    guint16 authtype;
+
+    rip_authentication_tree = gtk_tree_new(); 
+    add_subtree(tree, rip_authentication_tree, ETT_RIP_VEC);
+
+    authtype = ntohs(rip_authentication->authtype);
+    add_item_to_tree(rip_authentication_tree, offset + 2, 2,
+    				"Authentication type: %u", authtype); 
+    if (authtype == 2)
+	add_item_to_tree(rip_authentication_tree, offset + 4 , 16,
+				"Password: %.16s",
+				rip_authentication->authentication);
+}
+
