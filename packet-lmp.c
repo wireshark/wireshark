@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-lmp.c,v 1.19 2004/05/19 17:45:04 ashokn Exp $
+ * $Id: packet-lmp.c,v 1.20 2004/05/20 11:47:46 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -820,7 +820,7 @@ lmp_class_to_filter_num(int class)
 static int
 lmp_09_class_to_filter_num(int class)
 {
-    ushort gap = LMP_09_CLASS_ERROR - LMP_09_CLASS_CHANNEL_STATUS_REQUEST;
+    guint16 gap = LMP_09_CLASS_ERROR - LMP_09_CLASS_CHANNEL_STATUS_REQUEST;
 
     if (VALID_09_CLASS(class)) {
 	if (class != LMP_09_CLASS_ERROR)
