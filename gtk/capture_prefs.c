@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.38 2004/06/20 14:48:23 ulfl Exp $
+ * $Id: capture_prefs.c,v 1.39 2004/07/13 05:43:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -638,7 +638,7 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 		if (if_info->description != NULL)
 			text[1] = g_strdup(if_info->description);
 		else
-			text[1] = "";
+			text[1] = g_strdup("");
 		/* set empty description */
 		text[2] = g_strdup("");
 		/* check if interface is "hidden" */
@@ -662,7 +662,7 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 		if (if_info->description != NULL)
 			text[1] = g_strdup(if_info->description);
 		else
-			text[1] = "";
+			text[1] = g_strdup("");
 		/* set empty description */
 		text[2] = g_strdup("");
 		/* interface is not "hidden" */
