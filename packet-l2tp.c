@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.32 2002/05/30 10:09:27 sahlberg Exp $
+ * $Id: packet-l2tp.c,v 1.33 2002/07/10 20:55:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -286,6 +286,7 @@ static const value_string avp_type_vals[] = {
 #define VENDOR_3COM 429
 #define VENDOR_ASCEND 529
 #define VENDOR_BAY 1584
+#define VENDOR_REDBACK 2352
 #define VENDOR_JUNIPER 2636
 #define VENDOR_COSINE 3085
 #define VENDOR_UNISPHERE 4874
@@ -299,6 +300,7 @@ static const value_string avp_vendor_id_vals[] =
 {VENDOR_3COM,"3Com"},
 {VENDOR_ASCEND,"Ascend"},
 {VENDOR_BAY,"Bay Networks"},
+{VENDOR_REDBACK,"Redback"},
 {VENDOR_JUNIPER,"Juniper Networks"},
 {VENDOR_COSINE,"CoSine Communications"},
 {VENDOR_UNISPHERE,"Unisphere Networks"},

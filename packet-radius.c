@@ -4,7 +4,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.63 2002/06/04 07:03:45 guy Exp $
+ * $Id: packet-radius.c,v 1.64 2002/07/10 20:55:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1805,6 +1805,9 @@ static value_value_string radius_vendor_redback_attrib[] =
   {138,	RADIUS_INTEGER4,		"LAC Real Port"},
   {139,	REDBACK_LAC_PORT_TYPE,		"LAC Port Type"},
   {140,	REDBACK_LAC_REAL_PORT_TYPE,	"LAC Real Port Type"},
+  {141, RADIUS_STRING,			"Acct Dyn Ac Ent"}, 
+  {142, RADIUS_INTEGER4,		"Session Error Code"},
+  {143, RADIUS_STRING,			"Session Error Msg"},
   {0, 0, NULL},
 };
 
