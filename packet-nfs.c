@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.67 2002/03/06 04:02:02 guy Exp $
+ * $Id: packet-nfs.c,v 1.68 2002/03/07 05:51:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5217,7 +5217,7 @@ static const value_string names_claim_type4[] = {
 
 int
 dissect_nfs_open_claim4(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree, char *name)
+	proto_tree *tree)
 {
 	guint open_claim_type4;
 	proto_item *fitem = NULL;
@@ -5986,13 +5986,13 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_OPEN:
-			offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_nfs_seqid4, offset);
+			offset = dissect_rpc_uint32(tvb, pinfo, newftree, hf_nfs_seqid4, 
+				offset);
 			offset = dissect_nfs_open4_share_access(tvb, offset, pinfo, newftree);
 			offset = dissect_nfs_open4_share_deny(tvb, offset, pinfo, newftree);
 			offset = dissect_nfs_open_owner4(tvb, offset, pinfo, newftree);
 			offset = dissect_nfs_openflag4(tvb, offset, pinfo, newftree);
-			offset = dissect_nfs_open_claim4(tvb, offset, pinfo, newftree, 
-				"claim");
+			offset = dissect_nfs_open_claim4(tvb, offset, pinfo, newftree);
 			break;
 
 		case NFS4_OP_OPENATTR:
@@ -6002,12 +6002,14 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		case NFS4_OP_OPEN_CONFIRM:
 			offset = dissect_nfs_stateid4(tvb, offset, pinfo, newftree);
-			offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_nfs_seqid4, offset);
+			offset = dissect_rpc_uint32(tvb, pinfo, newftree, hf_nfs_seqid4, 
+				offset);
 			break;
 
 		case NFS4_OP_OPEN_DOWNGRADE:
 			offset = dissect_nfs_stateid4(tvb, offset, pinfo, newftree);
-			offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_nfs_seqid4, offset);
+			offset = dissect_rpc_uint32(tvb, pinfo, newftree, hf_nfs_seqid4, 
+				offset);
 			offset = dissect_nfs_open4_share_access(tvb, offset, pinfo, newftree);
 			offset = dissect_nfs_open4_share_deny(tvb, offset, pinfo, newftree);
 			break;
