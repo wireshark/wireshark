@@ -2468,8 +2468,8 @@ static const radius_attr_info radius_vendor_nomadix_attrib[] =
 
 /*
 reference:
-	'unisphere5-2.dct' file from Juniper Networks
-          http://www.juniper.net/techpubs/software/erx/junose52/unisphere5-2.dct
+	'unisphere5-3.dct' file from Juniper Networks
+          http://www.juniper.net/techpubs/software/erx/junose53/unisphere5-3.dct
 */
 
 static const value_string radius_vendor_unisphere_ingress_statistics_vals[] =
@@ -2577,6 +2577,14 @@ static const radius_attr_info radius_vendor_unisphere_attrib[] =
   {46,	RADIUS_STRING,		"ERX IPV6 Local Interface", NULL},
   {47,	RADIUS_IP6_ADDRESS,	"ERX IPV6 Primary Dns", NULL},
   {48,	RADIUS_IP6_ADDRESS,	"ERX IPV6 Secondary Dns", NULL},
+  /* 49, 50 Unused */
+  {51,	RADIUS_BINSTRING,	"ERX Disconnect Cause", NULL},
+  /* 52 Unused */
+  {53,	RADIUS_BINSTRING,	"ERX Service Description", NULL},
+  /* 54 Unused */
+  {55,	RADIUS_BINSTRING,	"ERX DHCP Options", NULL},
+  {56,	RADIUS_STRING,		"ERX DHCP Mac Address", NULL},
+  {57,	RADIUS_IP_ADDRESS,	"ERX DHCP Gi Address", NULL},
   {0, 0, NULL, NULL},
 };
 
