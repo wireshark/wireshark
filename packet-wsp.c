@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.103 2004/01/04 02:55:03 obiot Exp $
+ * $Id: packet-wsp.c,v 1.104 2004/01/09 22:10:02 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4900,6 +4900,10 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			break;
 
 		case WSP_PDU_GET:
+		case WSP_PDU_OPTIONS:
+		case WSP_PDU_HEAD:
+		case WSP_PDU_DELETE:
+		case WSP_PDU_TRACE:
 			count = 0;	/* Initialise count */
 			/* Length of URI and size of URILen field */
 			value = tvb_get_guintvar (tvb, offset, &count);
@@ -4913,6 +4917,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			break;
 
 		case WSP_PDU_POST:
+		case WSP_PDU_PUT:
 			uriStart = offset;
 			count = 0;	/* Initialise count */
 			uriLength = tvb_get_guintvar (tvb, offset, &count);
