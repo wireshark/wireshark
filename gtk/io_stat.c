@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.55 2004/01/13 21:04:52 guy Exp $
+ * $Id: io_stat.c,v 1.56 2004/01/13 21:10:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1494,7 +1494,8 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 		io_stat_redraw(gio->io);
 		return 0;
 	}
-	dfilter_free(dfilter);
+	if (dfilter != NULL)
+		dfilter_free(dfilter);
 
 	/* this graph is not active, just update display and redraw */
 	if(!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gio->display_button))){
