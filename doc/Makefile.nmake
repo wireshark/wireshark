@@ -1,7 +1,7 @@
 # Makefile.nmake
 # Nmake file for Ethereal documentation
 #
-# $Id: Makefile.nmake,v 1.12 2003/12/23 11:53:25 ulfl Exp $
+# $Id: Makefile.nmake,v 1.13 2004/04/25 09:02:02 ulfl Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -54,7 +54,7 @@ tethereal.1: tethereal.pod ../config.h
 
 tethereal.html: tethereal.pod ../config.h
 	$(POD2HTML)                    \
-	--title="The Ethereal Network Analyzer $(VERSION)" \
+	--title="tethereal - The Ethereal Network Analyzer $(VERSION)" \
 	--noindex                                 \
 	tethereal.pod > tethereal.html
 
@@ -66,7 +66,7 @@ ethereal-filter.4: ethereal-filter.pod ../config.h
 
 ethereal-filter.html: ethereal-filter.pod ../config.h
 	$(POD2HTML)                    \
-	--title="The Ethereal Network Analyzer $(VERSION)" \
+	--title="ethereal-filter - The Ethereal Network Analyzer $(VERSION)" \
 	--noindex                                 \
 	ethereal-filter.pod > ethereal-filter.html
 
@@ -83,7 +83,7 @@ editcap.1: editcap.pod ../config.h
 
 editcap.html: editcap.pod ../config.h
 	$(POD2HTML)                     \
-	--title="The Ethereal Network Analyzer $(VERSION)" \
+	--title="editcap - The Ethereal Network Analyzer $(VERSION)" \
 	--noindex                                 \
 	editcap.pod > editcap.html
 
@@ -95,7 +95,7 @@ idl2eth.1: idl2eth.pod ../config.h
 
 idl2eth.html: idl2eth.pod ../config.h
 	$(POD2HTML)                     \
-	--title="The Ethereal Network Analyzer $(VERSION)" \
+	--title="idl2eth - The Ethereal Network Analyzer $(VERSION)" \
 	--noindex                                 \
 	idl2eth.pod > idl2eth.html
 
@@ -107,7 +107,7 @@ mergecap.1: mergecap.pod ../config.h
 
 mergecap.html: mergecap.pod ../config.h
 	$(POD2HTML)                     \
-	--title="The Ethereal Network Analyzer $(VERSION)" \
+	--title="mergecap - The Ethereal Network Analyzer $(VERSION)" \
 	--noindex                                 \
 	mergecap.pod > mergecap.html
 
@@ -119,7 +119,7 @@ text2pcap.1: text2pcap.pod ../config.h
 
 text2pcap.html: text2pcap.pod ../config.h
 	$(POD2HTML)                     \
-	--title="The Ethereal Network Analyzer $(VERSION)" \
+	--title="text2pcap - The Ethereal Network Analyzer $(VERSION)" \
 	--noindex                                 \
 	text2pcap.pod > text2pcap.html
 

@@ -192,6 +192,8 @@ B<NOTE:> The subsecond component delimiter must be specified (.) but no
 pattern is required; the remaining number is assumed to be fractions of
 a second.
 
+=back
+
 =head1 SEE ALSO
 
 I<tcpdump(8)>, I<pcap(3)>, I<ethereal(1)>, I<editcap(1)>, I<strptime(3)>.

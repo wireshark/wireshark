@@ -6,26 +6,31 @@ See: http://www.ethereal.com for new versions, documentation, ...
 
 Ethereal's native capture file format is libpcap format, which is also the format used by tcpdump and various other tools. So Ethereal can read capture files from:
 
--libpcap/WinPcap
+-libpcap/WinPcap, tcpdump and various other tools using tcpdump's capture format
 -snoop and atmsnoop
--Shomiti/Finisar Surveyor
--Novell LANalyzer
--Network General/Network Associates DOS-based Sniffer (compressed or uncompressed),
--Microsoft Network Monitor
--AIX's iptrace
--Cinco Networks NetXRay
--Network Associates Windows-based Sniffer
--AG Group/WildPackets EtherPeek/TokenPeek/AiroPeek
--RADCOM's WAN/LAN analyzer
+-Shomiti/Finisar Surveyor captures
+-Novell LANalyzer captures
+-Microsoft Network Monitor captures
+-AIX's iptrace captures
+-Cinco Networks NetXRay captures
+-Network Associates Windows-based Sniffer captures
+-Network General/Network Associates DOS-based Sniffer (compressed or uncompressed) captures
+-AG Group/WildPackets EtherPeek/TokenPeek/AiroPeek/EtherHelp/PacketGrabber captures
+-RADCOM's WAN/LAN analyzer captures
+-Network Instruments Observer version 9 captures
 -Lucent/Ascend router debug output
--HP-UX's nettl
--the dump output from Toshiba's ISDN routers
+-files from HP-UX's nettl
+-Toshiba's ISDN routers dump output
 -the output from i4btrace from the ISDN4BSD project
--the output in IPLog format from the Cisco Secure Intrusion Detection System, 
+-traces from the EyeSDN USB S0.
+-the output in IPLog format from the Cisco Secure Intrusion Detection System
 -pppd logs (pppdump format)
--the output from VMS's TCPIPtrace utility
+-the output from VMS's TCPIPtrace/TCPtrace/UCX$TRACE utilities
 -the text output from the DBS Etherwatch VMS utility
--traffic capture files from Visual Networks' Visual UpTime
+-Visual Networks' Visual UpTime traffic capture
 -the output from CoSine L2 debug
+-the output from Accellent's 5Views LAN agents
+-Endace Measurement Systems' ERF format captures 
+-Linux Bluez Bluetooth stack hcidump -w traces
 
 There is no need to tell Ethereal what type of file you are reading; it will determine the file type by itself. Ethereal is also capable of reading any of these file formats if they are compressed using gzip. Ethereal recognizes this directly from the file; the '.gz' extension is not required for this purpose.

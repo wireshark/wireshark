@@ -43,26 +43,93 @@ data from a live network, or read packets from a previously saved
 capture file, either printing a decoded form of those packets to the
 standard output or writing the packets to a file.  B<Tethereal>'s native
 capture file format is B<libpcap> format, which is also the format used
-by B<tcpdump> and various other tools.  In addition, B<Tethereal> can
-read capture files from B<snoop> and B<atmsnoop>, Shomiti/Finisar
-B<Surveyor> captures, Novell B<LANalyzer> captures, Network
-General/Network Associates DOS-based B<Sniffer> (compressed or
-uncompressed) captures, Microsoft B<Network Monitor> captures, files
-from AIX's B<iptrace>, Cinco Networks B<NetXRay> captures, captures from
-Network Associates Windows-based B<Sniffer>, AG Group/WildPackets
-B<EtherPeek>/B<TokenPeek>/B<AiroPeek>/B<EtherHelp> captures, captures
-from B<RADCOM>'s WAN/LAN analyzer, B<Lucent/Ascend> router debug output,
-files from HP-UX's B<nettl>, the dump output from B<Toshiba's> ISDN
-routers, the output from B<i4btrace> from the ISDN4BSD project, the
-output in B<IPLog> format from the Cisco Secure Intrusion Detection
-System, B<pppd logs> (pppdump format), the output from VMS's
-B<TCPIPtrace>/B<TCPtrace>/B<UCX$TRACE> utilities, the text output from
-the B<DBS Etherwatch> VMS utility, traffic capture files from Visual
-Networks' Visual UpTime, the output from B<CoSine> L2 debug, the output
-from Accellent's 5Views LAN agents, captures in Endace Measurement
-Systems' ERF format, Linux Bluez Bluetooth stack B<hcidump -w> traces,
-captures from Network Instruments Observer version 9, and traces from
-the EyeSDN USB S0.  There is no need to tell B<Tethereal> what type of
+by B<tcpdump> and various other tools.  
+
+B<Ethereal> can read / import the following file formats:
+
+=over 4
+
+=item *
+libpcap/WinPcap, tcpdump and various other tools using tcpdump's capture format
+
+=item *
+B<snoop> and B<atmsnoop>
+
+=item *
+Shomiti/Finisar B<Surveyor> captures
+
+=item *
+Novell B<LANalyzer> captures
+
+=item *
+Microsoft B<Network Monitor> captures
+
+=item *
+AIX's B<iptrace> captures
+
+=item *
+Cinco Networks B<NetXRay> captures
+
+=item *
+Network Associates Windows-based B<Sniffer> captures
+
+=item *
+Network General/Network Associates DOS-based B<Sniffer> (compressed or uncompressed) captures
+
+=item *
+AG Group/WildPackets B<EtherPeek>/B<TokenPeek>/B<AiroPeek>/B<EtherHelp>/B<PacketGrabber> captures
+
+=item *
+B<RADCOM>'s WAN/LAN analyzer captures
+
+=item *
+Network Instruments B<Observer> version 9 captures
+
+=item *
+B<Lucent/Ascend> router debug output
+
+=item *
+files from HP-UX's B<nettl>
+
+=item *
+B<Toshiba's> ISDN routers dump output
+
+=item *
+the output from B<i4btrace> from the ISDN4BSD project
+
+=item *
+traces from the B<EyeSDN> USB S0.
+
+=item *
+the output in B<IPLog> format from the Cisco Secure Intrusion Detection System
+
+=item *
+B<pppd logs> (pppdump format)
+
+=item *
+the output from VMS's B<TCPIPtrace>/B<TCPtrace>/B<UCX$TRACE> utilities
+
+=item *
+the text output from the B<DBS Etherwatch> VMS utility
+
+=item *
+Visual Networks' B<Visual UpTime> traffic capture
+
+=item *
+the output from B<CoSine> L2 debug
+
+=item *
+the output from Accellent's B<5Views> LAN agents
+
+=item *
+Endace Measurement Systems' ERF format captures 
+
+=item *
+Linux Bluez Bluetooth stack B<hcidump -w> traces
+
+=back
+
+There is no need to tell B<Tethereal> what type of
 file you are reading; it will determine the file type by itself. 
 B<Tethereal> is also capable of reading any of these file formats if
 they are compressed using gzip.  B<Tethereal> recognizes this directly
@@ -84,35 +151,48 @@ in the packet.
 When writing packets to a file, B<Tethereal>, by default, writes the
 file in B<libpcap> format, and writes all of the packets it sees to the
 output file.  The B<-F> flag can be used to specify the format in which
-to write the file.  The following formats are supported:
+to write the file.  The following output formats are supported:
 
-=over 8
+=over 4
 
-=item B<libpcap> - libpcap (tcpdump, Ethereal, etc.)
+=item*
+B<libpcap> - libpcap (tcpdump, Ethereal, etc.)
 
-=item B<rh6_1libpcap> - Red Hat Linux 6.1 libpcap (tcpdump)
+=item *
+B<rh6_1libpcap> - Red Hat Linux 6.1 libpcap (tcpdump)
 
-=item B<suse6_3libpcap> - SuSE Linux 6.3 libpcap (tcpdump)
+=item *
+B<suse6_3libpcap> - SuSE Linux 6.3 libpcap (tcpdump)
 
-=item B<modlibpcap> - modified libpcap (tcpdump)
+=item *
+B<modlibpcap> - modified libpcap (tcpdump)
 
-=item B<nokialibpcap> - Nokia libpcap (tcpdump)
+=item *
+B<nokialibpcap> - Nokia libpcap (tcpdump)
 
-=item B<lanalyzer> - Novell LANalyzer
+=item *
+B<lanalyzer> - Novell LANalyzer
 
-=item B<ngsniffer> - Network Associates Sniffer (DOS-based)
+=item *
+B<ngsniffer> - Network Associates Sniffer (DOS-based)
 
-=item B<snoop> - Sun snoop
+=item *
+B<snoop> - Sun snoop
 
-=item B<netmon1> - Microsoft Network Monitor 1.x
+=item *
+B<netmon1> - Microsoft Network Monitor 1.x
 
-=item B<netmon2> - Microsoft Network Monitor 2.x
+=item *
+B<netmon2> - Microsoft Network Monitor 2.x
 
-=item B<ngwsniffer_1_1> - Network Associates Sniffer (Windows-based) 1.1
+=item *
+B<ngwsniffer_1_1> - Network Associates Sniffer (Windows-based) 1.1
 
-=item B<ngwsniffer_2_0> - Network Associates Sniffer (Windows-based) 2.00x
+=item *
+B<ngwsniffer_2_0> - Network Associates Sniffer (Windows-based) 2.00x
 
-=item B<visual> - Visual Networks traffic capture
+=item *
+B<visual> - Visual Networks traffic capture
 
 =back
 

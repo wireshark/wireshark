@@ -25,6 +25,7 @@ B<ethereal_be.py>  - Contains the main IDL Visitor Class
 
 B<ethereal_gen.py> - Contains the Source Code Generator Class 
 
+=back
 
 B<idl2eth> supports heuristic dissection of GIOP/IIOP traffic,
 and some experimental code for explicit dissection, based on
