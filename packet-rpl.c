@@ -2,7 +2,7 @@
  * Routines for RPL
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-rpl.c,v 1.3 2002/11/05 22:50:42 guy Exp $
+ * $Id: packet-rpl.c,v 1.4 2003/02/18 21:47:01 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -268,11 +268,11 @@ dissect_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		val_to_str(rpl_type, rpl_type_vals, "Unknown Type"));
 	}
 	if (tree) {
-		proto_tree_add_uint_hidden(tree, hf_rpl_type, tvb, 2, 2,
-			rpl_type);
 		ti = proto_tree_add_item(tree, proto_rpl, tvb, 0, 
 			rpl_len, FALSE);
 		rpl_tree = proto_item_add_subtree(ti, ett_rpl);
+		proto_tree_add_uint_hidden(rpl_tree, hf_rpl_type, tvb, 2, 2,
+			rpl_type);
 		dissect_rpl_container(tvb_new_subset(tvb, 0, rpl_len, -1),
 			pinfo, rpl_tree);
 	
