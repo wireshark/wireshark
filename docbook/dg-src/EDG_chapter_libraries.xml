@@ -51,17 +51,25 @@
 	<tip><title>Tip!</title>
 	<para>
 	It's a really good idea to use the Win32 automated library download to 
-	install the required libraries.
+	install the required libraries as it makes this download very easy.
 	</para>
 	</tip>
 	<para>
-	If you have the required tools installed, you can download/install all
-	required libraries by using the setup target of the Makefile.nmake from
-	the source package.
+	You can download/install all required libraries by using the setup target 
+	of the <filename>Makefile.nmake</filename> from the source package.
 	</para>
 	<para>
-	Be sure to edit the line containing the ETHEREAL_LIBS setting in the
-	config.nmake file to your favourite place.
+	Before you start the download, you must have installed both
+	the required tools (see <xref linkend="ChapterTools"/>) and also the 
+	Ethereal sources (see <xref linkend="ChSrcObtaining"/>).
+	</para>
+	<para>
+	By default the libraries will be downloaded and installed into 
+	<filename>C:\ethereal-win32-libs</filename>.
+	You can change this to any other location by editing the file
+	<filename>config.nmake</filename> and changing the line containing 
+	the ETHEREAL_LIBS setting to your favourite place (use an absolute path 
+	here).
 	</para>
 	<para>
 	Then enter at the command line:
@@ -70,26 +78,12 @@
 	<prompt>&gt;</prompt> <userinput>nmake -f Makefile.nmake setup</userinput>
 	</para>
 	<para>
-	This will first check for all the various tools needed to build Ethereal:
-	</para>
-	<para>
-	<programlisting>
-<![CDATA[Checking for required applications:
-        bash: /usr/bin/bash
-        bison: /usr/bin/bison
-        flex: /usr/bin/flex
-        grep: /usr/bin/grep
-        perl: /usr/bin/perl
-        env: /usr/bin/env
-        python: /usr/bin/python
-        sed: /usr/bin/sed
-        unzip: /usr/bin/unzip
-        wget: /usr/bin/wget]]>
-	</programlisting>
+	This will first check for all the various tools needed to build Ethereal,
+	as described already in <xref linkend="ChToolsWin32Verify"/>.
 	</para>
 	<para>
 	Then it will download and install (unpack) all required libraries into the
-	ETHEREAL_LIBS directory.
+	directory specified by ETHEREAL_LIBS.
 	</para>
   </section>
 	  
@@ -98,7 +92,7 @@
 	<title>GLIB / GDK / GTK / Pango / Atk / GNU libiconv / GNU gettext</title>
 	<para>
 	The libraries (and dependant libraries) of the user interface. See 
-	<xref linkend="ChUIWhatGTK"/> for a more detailed description of the GTK 
+	<xref linkend="ChUIWhatGTK"/> for a detailed description of the GTK 
 	libraries.
 	</para>
 	
@@ -243,7 +237,7 @@ utilities."
 
 
   <section id="ChLibsWimp">
-	<title>GTK WIMP (optional)</title>
+	<title>Win32: GTK WIMP (optional)</title>
 	<para>
 	"GTK-Wimp ("Windows impersonator") is a GTK theme that blends well into
 	the Windows desktop environment."
