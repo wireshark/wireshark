@@ -1,4 +1,4 @@
-$Id: README.macos,v 1.7 2004/03/23 03:19:06 guy Exp $
+$Id: README.macos,v 1.8 2004/03/23 18:33:25 tuexen Exp $
 
 This file tries to help building Ethereal for Mac OS X (Ethereal does
 not work on earlier versions of Mac OS).
@@ -90,5 +90,5 @@ In addition, the Software Update to 10.3.3 and later will update the
 libpcap dylib but not the header files.  If systems come pre-installed
 with 10.3.3, they might have the correct header files (and man pages).
 
-As a workaround, install pcap.h, pcap-bpf.h and pcap-stdinc.h from
+As a workaround, install pcap.h and pcap-bpf.h from
 tcpdump.org's libpcap 0.8.1 in "/usr/include".
