@@ -799,10 +799,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
      If we don't have a display filter, set "passed_dfilter" to 1. */
   if (cf->dfcode != NULL) {
     if (refilter) {
-      if (cf->dfcode != NULL)
-        fdata->flags.passed_dfilter = dfilter_apply_edt(cf->dfcode, edt) ? 1 : 0;
-      else
-        fdata->flags.passed_dfilter = 1;
+      fdata->flags.passed_dfilter = dfilter_apply_edt(cf->dfcode, edt) ? 1 : 0;
     }
   } else
     fdata->flags.passed_dfilter = 1;
