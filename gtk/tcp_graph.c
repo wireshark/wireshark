@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.35 2003/09/15 22:17:25 guy Exp $
+ * $Id: tcp_graph.c,v 1.36 2003/09/16 20:41:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1854,6 +1854,7 @@ static int get_headers (frame_data *fd, char *pd, struct segment *hdrs)
 		break;
 
 	case WTAP_ENCAP_PPP:
+	case WTAP_ENCAP_PPP_WITH_PHDR:
 		/* It's PPP */
 		p = (struct ppp_header *)pd;
 		if (p->ppp_type != PPPTYPE_IP)
