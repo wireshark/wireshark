@@ -792,6 +792,7 @@ dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, i
 	int end_offset, start_offset, count;
 	int hoffset = offset;
 	header_field_info	*hfinfo;
+	gint reported_length, length;
 	tvbuff_t *next_tvb;
 
 #ifdef DEBUG_BER
@@ -819,6 +820,8 @@ printf("CHOICE dissect_ber_choice(%s) entered len:%d\n",name,tvb_length_remainin
 	if(ind){
 	  /* if the length is indefinite we dont really know (yet) where the
 	   * object ends so assume it spans the rest of the tvb for now.
+	   * XXX - what if it runs past the end of the tvb because we
+	   * need to do reassembly?
            */
  	  end_offset = tvb_length(tvb);
 	} else {
@@ -865,7 +868,11 @@ printf("CHOICE dissect_ber_choice(%s) entered len:%d\n",name,tvb_length_remainin
 				}
 			}
 
-			next_tvb=tvb_new_subset(tvb, hoffset, end_offset-start_offset, end_offset-start_offset);
+			reported_length = end_offset-start_offset;
+			length = tvb_length_remaining(tvb, hoffset);
+			if (length > reported_length)
+				length = reported_length;
+			next_tvb=tvb_new_subset(tvb, hoffset, length, reported_length);
 
 #ifdef DEBUG_BER
 {
