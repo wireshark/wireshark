@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.43 2002/08/28 21:00:20 jmayer Exp $
+ * $Id: packet-ldp.c,v 1.44 2003/07/08 00:46:26 guy Exp $
  *
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -136,6 +136,7 @@ static int hf_ldp_tlv_fec_vc_groupid = -1;
 static int hf_ldp_tlv_fec_vc_vcid = -1;
 static int hf_ldp_tlv_fec_vc_intparam_length = -1;
 static int hf_ldp_tlv_fec_vc_intparam_mtu = -1;
+static int hf_ldp_tlv_fec_vc_intparam_tdmbps = -1;
 static int hf_ldp_tlv_fec_vc_intparam_id = -1;
 static int hf_ldp_tlv_fec_vc_intparam_maxcatmcells = -1;
 static int hf_ldp_tlv_fec_vc_intparam_desc = -1;
@@ -345,10 +346,15 @@ static const value_string fec_vc_types_vals[] = {
   {0x0005, "Ethernet"},
   {0x0006, "HDLC"},
   {0x0007, "PPP"},
-  {0x0009, "ATM VCC cell transport"},
-  {0x8008, "CEM"},
-  {0x000A, "ATM VPC cell transport"},
-  {0x000B, "Ethernet VPLS"},
+  {0x0008, "SONET/SDH Circuit Emulation Service"},
+  {0x0009, "ATM n-to-one VCC cell transport"},
+  {0x000A, "ATM n-to one VPC cell transport"},
+  {0x000B, "IP layer2 transport"},
+  {0x000C, "ATM one-to-one VCC Cell Mode"},
+  {0x000D, "ATM one-to-one VPC Cell Mode"},
+  {0x000E, "ATM AAL5 PDU VCC transport"},
+  {0x000F, "Frame-Relay Port mode"},
+  {0x0010, "SONET/SDH Circuit Emulation over Packet"},
   {0, NULL}
 };
 
@@ -359,6 +365,9 @@ static const value_string fec_vc_types_vals[] = {
 #define FEC_VC_INTERFACEPARAM_CEMBYTES     0x04
 #define FEC_VC_INTERFACEPARAM_CEMOPTIONS   0x05
 #define FEC_VC_INTERFACEPARAM_VPNID        0x06
+#define FEC_VC_INTERFACEPARAM_TDMBPS       0x07
+#define FEC_VC_INTERFACEPARAM_FRDLCILEN    0x08
+
 
 
 static const value_string fec_vc_interfaceparm[] = {
@@ -367,7 +376,9 @@ static const value_string fec_vc_interfaceparm[] = {
   {FEC_VC_INTERFACEPARAM_DESCRIPTION, "Interface Description"},
   {FEC_VC_INTERFACEPARAM_CEMBYTES, "CEM Payload Bytes"},
   {FEC_VC_INTERFACEPARAM_CEMOPTIONS, "CEM options"},
-  {FEC_VC_INTERFACEPARAM_VPNID, "VPN Id"}
+  {FEC_VC_INTERFACEPARAM_VPNID, "VPN Id"},
+  {FEC_VC_INTERFACEPARAM_TDMBPS, "CEP/TDM bit-rate"},
+  {FEC_VC_INTERFACEPARAM_FRDLCILEN, "Frame-Relay DLCI Length"}
 };
 
 static const true_false_string fec_vc_cbit = {
@@ -744,6 +755,10 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 			    case FEC_VC_INTERFACEPARAM_MTU:
 			      proto_item_append_text(ti,": MTU %u", tvb_get_ntohs(tvb,offset+2));
 			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_mtu,tvb, offset+2, 2, FALSE);
+			      break;
+			    case FEC_VC_INTERFACEPARAM_TDMBPS:
+			      proto_item_append_text(ti,": BPS %u", tvb_get_ntohs(tvb,offset+2));
+			      proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_tdmbps,tvb, offset+2, 2, FALSE);
 			      break;
 			    case FEC_VC_INTERFACEPARAM_MAXCATMCELLS:
 			      proto_item_append_text(ti,": Max ATM Concat Cells %u", tvb_get_ntohs(tvb,offset+2));
@@ -2433,6 +2448,9 @@ proto_register_ldp(void)
 
     {&hf_ldp_tlv_fec_vc_intparam_mtu,
      {"MTU", "ldp.msg.tlv.fec.vc.intparam.mtu", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Paramater MTU", HFILL }},
+
+    {&hf_ldp_tlv_fec_vc_intparam_tdmbps,
+     {"BPS", "ldp.msg.tlv.fec.vc.intparam.tdmbps", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Parameter CEP/TDM bit-rate", HFILL }},
 
     {&hf_ldp_tlv_fec_vc_intparam_id,
      {"ID", "ldp.msg.tlv.fec.vc.intparam.id", FT_UINT8, BASE_HEX, VALS(fec_vc_interfaceparm), 0x0, "VC FEC Interface Paramater ID", HFILL }},
