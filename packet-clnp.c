@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.17 2000/12/23 19:34:46 guy Exp $
+ * $Id: packet-clnp.c,v 1.18 2000/12/23 21:40:22 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -50,6 +50,7 @@
 
 static int  proto_clnp         = -1;
 static gint ett_clnp           = -1;
+static gint ett_clnp_type      = -1;
 static gint ett_clnp_disc_pdu  = -1;
 static int  proto_cotp         = -1;
 static gint ett_cotp           = -1;
@@ -1549,6 +1550,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8      cnf_type;
   char        flag_string[6+1];
   char       *pdu_type_string;
+  proto_tree *type_tree;
   guint16     segment_length;
   guint16     segment_offset = 0;
   guint16     cnf_cksum;
@@ -1621,12 +1623,28 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (cnf_type & CNF_ERR_OK)
     strcat(flag_string, "E ");
   if (tree) {
-    proto_tree_add_uint_format(clnp_tree, hf_clnp_type, tvb, P_CLNP_TYPE, 1,
+    ti = proto_tree_add_uint_format(clnp_tree, hf_clnp_type, tvb, P_CLNP_TYPE, 1,
 			       cnf_type,
 			       "PDU Type     : 0x%02x (%s%s)",
 			       cnf_type,
 			       flag_string,
 			       pdu_type_string);
+    type_tree = proto_item_add_subtree(ti, ett_clnp_type);
+    proto_tree_add_text(type_tree, tvb, P_CLNP_TYPE, 1, "%s",
+			decode_boolean_bitfield(cnf_type, CNF_SEG_OK, 8,
+				      "Segmentation permitted",
+				      "Segmentation not permitted"));
+    proto_tree_add_text(type_tree, tvb, P_CLNP_TYPE, 1, "%s",
+			decode_boolean_bitfield(cnf_type, CNF_MORE_SEGS, 8,
+				      "More segments",
+				      "Last segment"));
+    proto_tree_add_text(type_tree, tvb, P_CLNP_TYPE, 1, "%s",
+			decode_boolean_bitfield(cnf_type, CNF_ERR_OK, 8,
+				      "Report error if PDU discarded",
+				      "Don't report error if PDU discarded"));
+    proto_tree_add_text(type_tree, tvb, P_CLNP_TYPE, 1, "%s",
+			decode_enumerated_bitfield(cnf_type, CNF_TYPE, 8,
+				      npdu_type_vals, "%s"));
   }
 
   /* If we don't have the full header - i.e., not enough to see the
@@ -1840,6 +1858,7 @@ void proto_register_clnp(void)
   };
   static gint *ett[] = {
     &ett_clnp,
+    &ett_clnp_type,
     &ett_clnp_disc_pdu,
   };
 
