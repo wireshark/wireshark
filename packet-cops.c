@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.24 2002/03/12 10:37:01 guy Exp $
+ * $Id: packet-cops.c,v 1.25 2002/03/12 10:40:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,15 +38,6 @@
 #include <epan/packet.h>
 #include "packet-ipv6.h"
 #include "packet-frame.h"
-
-#ifdef HAVE_UCD_SNMP
-# include <ucd-snmp/asn1.h>
-# include <ucd-snmp/snmp_api.h>
-# include <ucd-snmp/snmp_impl.h>
-# include <ucd-snmp/mib.h>
-# include <ucd-snmp/default_store.h>
-# include <ucd-snmp/tools.h>
-#endif
 
 #include "asn1.h"
 #include "format-oid.h"
