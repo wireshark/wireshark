@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h225.c,v 1.29 2004/02/06 20:04:48 jmayer Exp $
+ * $Id: packet-h225.c,v 1.30 2004/02/11 20:55:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -518,6 +518,7 @@ static int hf_h225_object = -1;
 static int hf_h225_t35CountryCode = -1;
 static int hf_h225_t35Extension = -1;
 static int hf_h225_manufacturerCode = -1;
+static int hf_h221Manufacturer = -1;
 static int hf_h225_h221NonStandard = -1;
 static int hf_h225_nonStandardIdentifier = -1;
 static int hf_h225_nsp_data = -1;
@@ -1938,6 +1939,8 @@ dissect_h225_h221NonStandard(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 				ett_h225_H221NonStandard, H221NonStandard_sequence);
 
 	h221NonStandard = ((t35CountryCode * 256) + t35Extension) * 65536 + manufacturerCode;
+
+	proto_tree_add_uint(tree, hf_h221Manufacturer, tvb, (offset-3)>>3,4,h221NonStandard);
 
    	return offset;
 }
@@ -9930,6 +9933,11 @@ proto_register_h225(void)
 	{ &hf_h225_manufacturerCode,
 		{ "manufacturerCode", "h225.manufacturerCode", FT_UINT32, BASE_DEC,
 		NULL, 0, "manufacturerCode value", HFILL }},
+
+	{ &hf_h221Manufacturer,
+		{ "H.221 Manufacturer", "h221.Manufacturer", FT_UINT32, BASE_HEX,
+		VALS(H221ManufacturerCode_vals), 0, "H.221 Manufacturer", HFILL }},
+
 	{ &hf_h225_h221NonStandard,
 		{ "h221NonStandard", "h225.h221NonStandard", FT_NONE, BASE_NONE,
 		NULL, 0, "H221NonStandard SEQUENCE", HFILL }},
