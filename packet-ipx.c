@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.115 2002/10/18 20:59:57 guy Exp $
+ * $Id: packet-ipx.c,v 1.116 2002/10/19 01:17:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -415,37 +415,39 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(spx_tree, hf_spx_all_nr, tvb, 10, 2, FALSE);
 	}
 
-	/*
-	 * Call subdissectors based on the IPX socket numbers; a
-	 * subdissector might have registered with our IPX socket
-	 * dissector table rather than the IPX dissector's socket
-	 * dissector table.
-	 *
-	 * Assume the lower-numbered socket number is more likely
-	 * to be the right one, along the lines of what we do for
-	 * TCP and UDP.  We've seen NCP packets with a type of NCP,
-	 * a source socket of IPX_SOCKET_NCP, and a destination
-	 * socket of IPX_SOCKET_IPX_MESSAGE, and we've seen NCP
-	 * packets with a type of NCP, a source socket of
-	 * IPX_SOCKET_IPX_MESSAGE, and a destination socket of
-	 * IPX_SOCKET_NCP.
-	 */
-	if (pinfo->srcport > pinfo->destport) {
-		low_socket = pinfo->destport;
-		high_socket = pinfo->srcport;
-	} else {
-		low_socket = pinfo->srcport;
-		high_socket = pinfo->destport;
-	}
+	if (tvb_reported_length_remaining(tvb, SPX_HEADER_LEN) > 0) {
+		/*
+		 * Call subdissectors based on the IPX socket numbers; a
+		 * subdissector might have registered with our IPX socket
+		 * dissector table rather than the IPX dissector's socket
+		 * dissector table.
+		 *
+		 * Assume the lower-numbered socket number is more likely
+		 * to be the right one, along the lines of what we do for
+		 * TCP and UDP.  We've seen NCP packets with a type of NCP,
+		 * a source socket of IPX_SOCKET_NCP, and a destination
+		 * socket of IPX_SOCKET_IPX_MESSAGE, and we've seen NCP
+		 * packets with a type of NCP, a source socket of
+		 * IPX_SOCKET_IPX_MESSAGE, and a destination socket of
+		 * IPX_SOCKET_NCP.
+		 */
+		if (pinfo->srcport > pinfo->destport) {
+			low_socket = pinfo->destport;
+			high_socket = pinfo->srcport;
+		} else {
+			low_socket = pinfo->srcport;
+			high_socket = pinfo->destport;
+		}
 
-	next_tvb = tvb_new_subset(tvb, SPX_HEADER_LEN, -1, -1);
-	if (dissector_try_port(spx_socket_dissector_table, low_socket,
-	    next_tvb, pinfo, tree))
-		return;
-	if (dissector_try_port(spx_socket_dissector_table, high_socket,
-	    next_tvb, pinfo, tree))
-		return;
-	call_dissector(data_handle, next_tvb, pinfo, tree);
+		next_tvb = tvb_new_subset(tvb, SPX_HEADER_LEN, -1, -1);
+		if (dissector_try_port(spx_socket_dissector_table, low_socket,
+		    next_tvb, pinfo, tree))
+			return;
+		if (dissector_try_port(spx_socket_dissector_table, high_socket,
+		    next_tvb, pinfo, tree))
+			return;
+		call_dissector(data_handle, next_tvb, pinfo, tree);
+	}
 }
 
 /* ================================================================= */
