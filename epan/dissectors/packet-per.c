@@ -634,8 +634,7 @@ DEBUG_ENTRY("dissect_per_boolean");
 	if(hf_index!=-1){
 		char str[256];
 		hfi = proto_registrar_get_nth(hf_index);
-		sprintf(str,"%s: %c%c%c%c %c%c%c%c %s",
-			hfi->name,
+		sprintf(str,"%c%c%c%c %c%c%c%c %s: %s",
 			mask&0x80?'0'+value:'.',
 			mask&0x40?'0'+value:'.',
 			mask&0x20?'0'+value:'.',
@@ -644,6 +643,7 @@ DEBUG_ENTRY("dissect_per_boolean");
 			mask&0x04?'0'+value:'.',
 			mask&0x02?'0'+value:'.',
 			mask&0x01?'0'+value:'.',
+			hfi->name,
 			value?"True":"False"
 		);
 		it=proto_tree_add_boolean_format(tree, hf_index, tvb, offset>>3, 1, value, str);
