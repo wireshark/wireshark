@@ -231,7 +231,7 @@ extern void mate_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	if (( pdus = mate_get_pdus(pinfo->fd->num) )) {
 		for ( ; pdus; pdus = pdus->next_in_frame) {
-			mate_i = proto_tree_add_text(tree,tvb,0,0,"mate");
+			mate_i = proto_tree_add_text(tree,tvb,0,0,"MATE");
 			mate_t = proto_item_add_subtree(mate_i, mc->ett_root);			
 			mate_pdu_tree(pdus,tvb,mate_t);
 		}
@@ -295,7 +295,7 @@ proto_register_mate(void)
 {
 	module_t *mate_module;
 
-	proto_mate = proto_register_protocol("Meta Analysis Tracing Engine", "mate", "mate");
+	proto_mate = proto_register_protocol("Meta Analysis Tracing Engine", "MATE", "mate");
 	register_dissector("mate",mate_tree,proto_mate);
 	mate_module = prefs_register_protocol(proto_mate, proto_reg_handoff_mate);
 	prefs_register_string_preference(mate_module, "config_filename",
