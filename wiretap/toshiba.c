@@ -1,6 +1,6 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.4 1999/11/11 19:19:17 gram Exp $
+ * $Id: toshiba.c,v 1.5 1999/11/18 07:04:29 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -149,7 +149,7 @@ static gboolean toshiba_check_file_type(wtap *wth)
 	buf[TOSHIBA_LINE_LENGTH-1] = 0;
 
 	for (line = 0; line < TOSHIBA_HEADER_LINES_TO_CHECK; line++) {
-		if (file_gets(buf, TOSHIBA_LINE_LENGTH, wth->fh) >= 0) {
+		if (file_gets(buf, TOSHIBA_LINE_LENGTH, wth->fh) != NULL) {
 
 			reclen = strlen(buf);
 			if (reclen < TOSHIBA_HDR_MAGIC_SIZE) {
@@ -263,7 +263,7 @@ parse_toshiba_rec_hdr(wtap *wth, FILE *fh, int *err)
 	 * summary information for a packet. Read in that line and
 	 * extract the useful information
 	 */
-	if (file_gets(line, TOSHIBA_LINE_LENGTH, fh) < 0) {
+	if (file_gets(line, TOSHIBA_LINE_LENGTH, fh) == NULL) {
 		*err = file_error(fh);
 		if (*err == 0) {
 			*err = WTAP_ERR_SHORT_READ;
@@ -284,7 +284,7 @@ parse_toshiba_rec_hdr(wtap *wth, FILE *fh, int *err)
 
 	/* The next line contains mostly junk, but it does contain the
 	 * packet length. */
-	if (file_gets(line, TOSHIBA_LINE_LENGTH, fh) < 0) {
+	if (file_gets(line, TOSHIBA_LINE_LENGTH, fh) == NULL) {
 		*err = file_error(fh);
 		if (*err == 0) {
 			*err = WTAP_ERR_SHORT_READ;
@@ -334,7 +334,7 @@ parse_toshiba_hex_dump(FILE *fh, int pkt_len, guint8* buf, int *err)
 	hex_lines = pkt_len / 16 + ((pkt_len % 16) ? 1 : 0);
 
 	for (i = 0; i < hex_lines; i++) {
-		if (file_gets(line, TOSHIBA_LINE_LENGTH, fh) < 0) {
+		if (file_gets(line, TOSHIBA_LINE_LENGTH, fh) == NULL) {
 			*err = file_error(fh);
 			if (*err == 0) {
 				*err = WTAP_ERR_SHORT_READ;
