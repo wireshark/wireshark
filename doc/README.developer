@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.54 2002/06/22 21:00:53 guy Exp $
+$Id: README.developer,v 1.55 2002/06/28 20:20:22 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -129,7 +129,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.54 2002/06/22 21:00:53 guy Exp $"
+The "$Id: README.developer,v 1.55 2002/06/28 20:20:22 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -139,7 +139,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.54 2002/06/22 21:00:53 guy Exp $
+ * $Id: README.developer,v 1.55 2002/06/28 20:20:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1488,15 +1488,16 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 To arrange that your dissector will be built as part of Ethereal, you
 must add the name of the source file for your dissector, and the header
 file that declares your main dissector routine, to the
-'DISSECTOR_SOURCES' macro in the 'Makefile.am' file in the top-level
-directory, and must add the name the object file for the dissector will
-have when built on Windows - if your dissector source file is
-'packet-PROTOABBREV.c', the object file for it will be
-'packet-PROTOABBREV.obj' - to the 'DISSECTOR_OBJECTS' macro in the
-'Makefile.nmake' file in the top-level directory.  (Note that this is
-for modern versions of UNIX, so there is no 14-character limitation on
-file names, and for modern versions of Windows, so there is no
-8.3-character limitation on file names.)
+'DISSECTOR_SOURCES' macro in the 'Makefile.am' and 'Makefile.nmake'
+files in the top-level directory.  (Note that this is for modern
+versions of UNIX, so there is no 14-character limitation on file names,
+and for modern versions of Windows, so there is no 8.3-character
+limitation on file names.)
+
+If your dissector also has its own header files, you must add them to
+the 'noinst_HEADERS' macro in the 'Makefile.am' file in the top-level
+directory, so that it's included when release source tarballs are built
+(otherwise, the source in the release tarballs won't compile).
 
 Please remember to update both files; it may not be necessary to do so
 in order for you to build Ethereal on your machine, but both changes
