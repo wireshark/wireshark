@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.59 2001/01/30 07:16:28 guy Exp $
+ * $Id: packet-snmp.c,v 1.60 2001/02/27 19:39:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2123,7 +2123,7 @@ dissect_smux(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 void
 proto_register_snmp(void)
 {
-#ifdef linux
+#if defined(HAVE_UCD_SNMP_SNMP_H) && defined(linux)
 	void *libsnmp_handle;
 	int (*snmp_set_suffix_only_p)(int);
 	int (*ds_set_int_p)(int, int, int);
