@@ -3,7 +3,7 @@ Section: net
 Priority: optional
 Maintainer: Frederic Peters <fpeters@debian.org>
 Standards-Version: 3.1.0
-Build-Depends: libgtk1.2-dev, libpcap-dev, libsnmp4.0-dev, flex, libz-dev
+Build-Depends: libgtk1.2-dev, libpcap-dev, libsnmp4.1-dev, flex, libz-dev, debhelper
 
 Package: ethereal
 Architecture: any
