@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.36 2002/03/01 03:02:36 guy Exp $
+ * $Id: packet-ldap.c,v 1.37 2002/03/02 21:07:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1128,8 +1128,14 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        case LDAP_REQ_BIND:
         ret = dissect_ldap_request_bind(&a, msg_tree);
         break;
+       case LDAP_REQ_UNBIND:
+        /* Nothing to dissect */
+        break;
        case LDAP_REQ_SEARCH:
         ret = dissect_ldap_request_search(&a, msg_tree);
+        break;
+       case LDAP_REQ_MODIFY:
+        ret = dissect_ldap_request_modify(&a, msg_tree);
         break;
        case LDAP_REQ_ADD:
         ret = dissect_ldap_request_add(&a, msg_tree);
@@ -1142,9 +1148,6 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
        case LDAP_REQ_COMPARE:
         ret = dissect_ldap_request_compare(&a, msg_tree);
-        break;
-       case LDAP_REQ_MODIFY:
-        ret = dissect_ldap_request_modify(&a, msg_tree);
         break;
        case LDAP_REQ_ABANDON:
         ret = dissect_ldap_request_abandon(&a, msg_tree, start, opLen);
