@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.35 2002/04/14 23:04:03 guy Exp $
+ * $Id: packet-portmap.c,v 1.36 2002/05/09 12:10:05 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,8 @@
 #include "packet-rpc.h"
 #include "packet-portmap.h"
 #include "ipproto.h"
+#include "epan/conversation.h"
+#include "epan/packet_info.h"
 
 /*
  * See:
@@ -66,6 +68,8 @@ static gint ett_portmap = -1;
 static gint ett_portmap_rpcb = -1;
 static gint ett_portmap_entry = -1;
 
+static dissector_handle_t rpc_handle;
+static dissector_handle_t rpc_tcp_handle;
 
 /* Dissect a getport call */
 static int
@@ -74,6 +78,17 @@ dissect_getport_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 {
 	guint32 proto;
 	guint32 prog;
+
+	/* make sure we remember protocol type until the reply packet */
+	if(!pinfo->fd->flags.visited){
+		rpc_call_info_value *rpc_call=pinfo->private_data;
+		if(rpc_call){
+			proto = tvb_get_ntohl(tvb, offset+8);
+			if(proto==17){  /* only do this for UDP */
+				rpc_call->private_data=(void *)PT_UDP;
+			}
+		}
+	}
 
 	if ( tree )
 	{
@@ -99,6 +114,24 @@ static int
 dissect_getport_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree *tree)
 {
+	/* we might have learnt a <ipaddr><protocol><port> mapping for ONC-RPC*/
+	if(!pinfo->fd->flags.visited){
+		rpc_call_info_value *rpc_call=pinfo->private_data;
+		/* only do this for UDP, TCP does not need anything like this */
+		if(rpc_call && ((int)rpc_call->private_data==PT_UDP) ){
+			guint32 port;
+			port=tvb_get_ntohl(tvb, offset);
+			if(port){
+				conversation_t *conv;
+				conv=find_conversation(&pinfo->src, &pinfo->dst, (port_type)rpc_call->private_data, port, 0, NO_ADDR_B|NO_PORT_B);
+				if(!conv){
+					conv=conversation_new(&pinfo->src, &pinfo->dst, (port_type)rpc_call->private_data, port, 0, NO_ADDR_B|NO_PORT_B);
+				}
+				conversation_set_dissector(conv, rpc_handle);
+			}
+		}
+	}
+				
 	offset = dissect_rpc_uint32(tvb, tree, hf_portmap_port,
 	    offset);
 	return offset;
@@ -530,4 +563,6 @@ proto_reg_handoff_portmap(void)
 	rpc_init_proc_table(PORTMAP_PROGRAM, 2, portmap2_proc);
 	rpc_init_proc_table(PORTMAP_PROGRAM, 3, portmap3_proc);
 	rpc_init_proc_table(PORTMAP_PROGRAM, 4, portmap4_proc);
+	rpc_handle = find_dissector("rpc");
+	rpc_tcp_handle = find_dissector("rpc-tcp");
 }

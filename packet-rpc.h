@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.35 2002/04/03 13:24:13 girlich Exp $
+ * $Id: packet-rpc.h,v 1.36 2002/05/09 12:10:05 sahlberg Exp $
  *
  * (c) 1999 Uwe Girlich
  *
@@ -93,6 +93,7 @@ typedef struct _rpc_call_info_value {
 	struct _rpc_proc_info_value*	proc_info;
 	gboolean request;	/* Is this a request or not ?*/
 	nstime_t req_time;
+	void *private_data;
 } rpc_call_info_value;
 
 

@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.17 2001/11/29 09:05:25 guy Exp $
+ * $Id: conversation.c,v 1.18 2002/05/09 12:10:06 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -775,7 +775,7 @@ find_conversation(address *addr_a, address *addr_b, port_type ptype,
 	 * one address/port pair.
 	 *
 	 * First try looking for a conversation with the specified address A
-	 * and port B as the first address and port.
+	 * and port A as the first address and port.
 	 * (Neither "addr_b" nor "port_b" take part in this lookup.)
 	 */
 	conversation =

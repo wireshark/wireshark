@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.90 2002/04/03 13:24:12 girlich Exp $
+ * $Id: packet-rpc.c,v 1.91 2002/05/09 12:10:05 sahlberg Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1198,6 +1198,7 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			rpc_call->prog = prog;
 			rpc_call->vers = vers;
 			rpc_call->proc = proc;
+			rpc_call->private_data = NULL;
 
 			/*
 			 * XXX - what about RPCSEC_GSS?
@@ -1767,6 +1768,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			rpc_call->prog = prog;
 			rpc_call->vers = vers;
 			rpc_call->proc = proc;
+			rpc_call->private_data = NULL;
 			rpc_call->xid = xid;
 			rpc_call->flavor = flavor;
 			rpc_call->gss_proc = gss_proc;
@@ -1778,6 +1780,12 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			/* store it */
 			g_hash_table_insert(rpc_calls, new_rpc_call_key,
 			    rpc_call);
+		}
+
+		if(rpc_call && rpc_call->rep_num){
+			proto_tree_add_text(rpc_tree, tvb, 0, 0,
+			    "The reply to this request is in frame %u",
+			    rpc_call->rep_num);
 		}
 
 		offset += 16;
@@ -1802,21 +1810,6 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		flavor = rpc_call->flavor;
 		gss_proc = rpc_call->gss_proc;
 		gss_svc = rpc_call->gss_svc;
-
-		/* Indicate the frame to which this is a reply. */
-		proto_tree_add_text(rpc_tree, tvb, 0, 0,
-		    "This is a reply to a request in frame %u",
-		    rpc_call->req_num);
-		ns.secs= pinfo->fd->abs_secs-rpc_call->req_time.secs;
-		ns.nsecs=pinfo->fd->abs_usecs*1000-rpc_call->req_time.nsecs;
-		if(ns.nsecs<0){
-			ns.nsecs+=1000000000;
-			ns.secs--;
-		}
-		proto_tree_add_time(rpc_tree, hf_rpc_time, tvb, offset, 0,
-				&ns);
-
-
 
 		if (rpc_call->proc_info != NULL) {
 			dissect_function = rpc_call->proc_info->dissect_reply;
@@ -1873,6 +1866,29 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				"Procedure: %s (%u)", procname, proc);
 		}
 
+		reply_state = tvb_get_ntohl(tvb,offset+0);
+		if (rpc_tree) {
+			proto_tree_add_uint(rpc_tree, hf_rpc_state_reply, tvb,
+				offset+0, 4, reply_state);
+		}
+		offset += 4;
+
+		/* Indicate the frame to which this is a reply. */
+		if(rpc_call && rpc_call->req_num){
+			proto_tree_add_text(rpc_tree, tvb, 0, 0,
+			    "This is a reply to a request in frame %u",
+			    rpc_call->req_num);
+			ns.secs= pinfo->fd->abs_secs-rpc_call->req_time.secs;
+			ns.nsecs=pinfo->fd->abs_usecs*1000-rpc_call->req_time.nsecs;
+			if(ns.nsecs<0){
+				ns.nsecs+=1000000000;
+				ns.secs--;
+			}
+			proto_tree_add_time(rpc_tree, hf_rpc_time, tvb, offset, 0,
+				&ns);
+		}
+
+
 		if (rpc_call->rep_num == 0) {
 			/* We have not yet seen a reply to that call, so
 			   this must be the first reply; remember its
@@ -1896,13 +1912,6 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				}
 			}
 		}
-
-		reply_state = tvb_get_ntohl(tvb,offset+0);
-		if (rpc_tree) {
-			proto_tree_add_uint(rpc_tree, hf_rpc_state_reply, tvb,
-				offset+0, 4, reply_state);
-		}
-		offset += 4;
 
 		if (reply_state == MSG_ACCEPTED) {
 			offset = dissect_rpc_verf(tvb, rpc_tree, offset, msg_type);
@@ -2913,6 +2922,9 @@ proto_register_rpc(void)
 		"Defragment all RPC-over-TCP messages",
 		"Whether the RPC dissector should defragment multi-fragment RPC-over-TCP messages",
 		&rpc_defragment);
+
+	register_dissector("rpc", dissect_rpc, proto_rpc);
+	register_dissector("rpc-tcp", dissect_rpc_tcp, proto_rpc);
 
 	/*
 	 * Init the hash tables.  Dissectors for RPC protocols must
