@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.76 2002/10/24 06:17:34 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.77 2002/10/31 20:46:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1194,6 +1194,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
       proto_tree_add_uint (flag_tree, hf_fc_data_ds, tvb, 1, 1,
 			   COOK_DS_STATUS (flags));
+      proto_tree_add_boolean_hidden (flag_tree, hf_fc_to_ds, tvb, 1, 1, 
+				     flags);
+      proto_tree_add_boolean_hidden (flag_tree, hf_fc_from_ds, tvb, 1, 1, 
+				     flags);
 
       proto_tree_add_boolean (flag_tree, hf_fc_more_frag, tvb, 1, 1,
 			      flags);
@@ -1887,13 +1891,13 @@ proto_register_wlan (void)
   };
 
   static const true_false_string tods_flag = {
-    "TO DS: Should be false",
-    "Not used"
+    "Frame is entering DS",
+    "Frame is not entering DS"
   };
 
   static const true_false_string fromds_flag = {
-    "FROM DS: Should be false",
-    "Not used"
+    "Frame is exiting DS",
+    "Frame is not exiting DS"
   };
 
   static const true_false_string more_frags = {

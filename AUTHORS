@@ -1301,6 +1301,8 @@ Chris Waters <chris[AT]waters.co.nz> {
 	Don't use "bool" as a variable name or structure member, as it's
 	    a C++ keyword
 	Check 802.11 FCS if present
+	Put the "wlan.fc.fromds" and "wlan.fc.tods" fields into the
+	    protocol tree
 }
 
 Solomon Peachy <pizza[AT]shaftnet.org> {
