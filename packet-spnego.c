@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.34 2002/09/08 22:47:43 guy Exp $
+ * $Id: packet-spnego.c,v 1.35 2002/09/18 08:36:25 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1058,11 +1058,11 @@ proto_reg_handoff_spnego(void)
 	spnego_krb5_handle = create_dissector_handle(dissect_spnego_krb5,
 						     proto_spnego_krb5);
 	gssapi_init_oid("1.3.6.1.5.5.2", proto_spnego, ett_spnego,
-	    spnego_handle, "SPNEGO (Simple Protected Negotiation)");
+	    spnego_handle, "SPNEGO - Simple Protected Negotiation");
 
 	/* Register both the one MS created and the real one */
 	gssapi_init_oid("1.2.840.48018.1.2.2", proto_spnego_krb5, ett_spnego_krb5,
-			spnego_krb5_handle, "MS KRB5 (Microsoft Kerberos 5)");
+			spnego_krb5_handle, "MS KRB5 - Microsoft Kerberos 5");
 	gssapi_init_oid("1.2.840.113554.1.2.2", proto_spnego_krb5, ett_spnego_krb5,
-			spnego_krb5_handle, "KRB5 (Kerberos 5)");
+			spnego_krb5_handle, "KRB5 - Kerberos 5");
 }

@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.21 2002/09/11 17:47:32 sharpe Exp $
+ * $Id: packet-ntlmssp.c,v 1.22 2002/09/18 08:36:25 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -819,5 +819,5 @@ proto_reg_handoff_ntlmssp(void)
 
   ntlmssp_handle = find_dissector("ntlmssp");
   gssapi_init_oid("1.3.6.1.4.1.311.2.2.10", proto_ntlmssp, ett_ntlmssp, 
-		  ntlmssp_handle, "NTLMSSP (Microsoft NTLM Security Support Provider)");
+		  ntlmssp_handle, "NTLMSSP - Microsoft NTLM Security Support Provider");
 }
