@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quake.c,v 1.4 2000/08/13 14:08:36 deniel Exp $
+ * $Id: packet-quake.c,v 1.5 2000/08/21 18:36:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -267,8 +267,7 @@ dissect_quake_CCREP_ACCEPT
 	port = tvb_get_letohl(tvb, 0);
 	c = conversation_new( &pi.src, &pi.dst, PT_UDP, port, pi.destport, NULL);
 	if (c) {
-		c->is_old_dissector = FALSE;
-		c->dissector.new = dissect_quake;
+		conversation_set_dissector(c, dissect_quake);
 	}
 	if (tree) {
 		proto_tree_add_uint(tree, hf_quake_CCREP_ACCEPT_port,

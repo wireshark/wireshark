@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.10 2000/08/20 19:40:47 deniel Exp $
+ * $Id: packet-msproxy.c,v 1.11 2000/08/21 18:36:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -304,8 +304,7 @@ static void add_msproxy_conversation( hash_entry_t *hash_info){
 	new_conv_info->server_int_port = hash_info->server_int_port;
 	new_conv_info->proto = hash_info->proto;
 	
-	conversation->is_old_dissector = TRUE;
-	conversation->dissector.old = msproxy_sub_dissector;
+	old_conversation_set_dissector(conversation, msproxy_sub_dissector);
 }
 
 

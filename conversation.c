@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.9 2000/08/07 11:48:40 deniel Exp $
+ * $Id: conversation.c,v 1.10 2000/08/21 18:36:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -245,7 +245,7 @@ conversation_new(address *src, address *dst, port_type ptype,
 	conversation->data = data;
 
 /* clear dissector pointer */
-	conversation->dissector.new = NULL;
+	conversation->dissector.new_d = NULL;
 
 	new_index++;
 
@@ -277,6 +277,25 @@ find_conversation(address *src, address *dst, port_type ptype,
 }
 
 /*
+ * Set the dissector for a conversation.
+ */
+void
+old_conversation_set_dissector(conversation_t *conversation,
+    old_dissector_t dissector)
+{
+	conversation->is_old_dissector = TRUE;
+	conversation->dissector.old_d = dissector;
+}
+
+void
+conversation_set_dissector(conversation_t *conversation,
+    dissector_t dissector)
+{
+	conversation->is_old_dissector = FALSE;
+	conversation->dissector.new_d = dissector;
+}
+
+/*
  * Given source and destination addresses and ports for a packet,
  * search for a conversational dissector.
  * If found, call it and return TRUE, otherwise return FALSE.
@@ -292,11 +311,11 @@ old_try_conversation_dissector(address *src, address *dst, port_type ptype,
 	conversation = find_conversation(src, dst, ptype, src_port, dst_port);
 	if (conversation != NULL) {
 		if (conversation->is_old_dissector) {
-			if (conversation->dissector.old == NULL)
+			if (conversation->dissector.old_d == NULL)
 				return FALSE;
-			(*conversation->dissector.old)(pd, offset, fd, tree);
+			(*conversation->dissector.old_d)(pd, offset, fd, tree);
 		} else {
-			if (conversation->dissector.new == NULL)
+			if (conversation->dissector.new_d == NULL)
 				return FALSE;
 
 			/*
@@ -309,7 +328,7 @@ old_try_conversation_dissector(address *src, address *dst, port_type ptype,
 			 * through the packet?
 			 */
 			tvb = tvb_create_from_top(offset);
-			(*conversation->dissector.new)(tvb, &pi, tree);
+			(*conversation->dissector.new_d)(tvb, &pi, tree);
 		}
 		return TRUE;
 	}
@@ -333,10 +352,10 @@ try_conversation_dissector(address *src, address *dst, port_type ptype,
 			 * "tvb_compat()" to remap.
 			 */
 			tvb_compat(tvb, &pd, &offset);
-			(*conversation->dissector.old)(pd, offset, pinfo->fd,
+			(*conversation->dissector.old_d)(pd, offset, pinfo->fd,
 			    tree);
 		} else
-			(*conversation->dissector.new)(tvb, pinfo, tree);
+			(*conversation->dissector.new_d)(tvb, pinfo, tree);
 		return TRUE;
 	}
 	return FALSE;
