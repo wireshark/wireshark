@@ -25,7 +25,7 @@
 **   drh@acm.org
 **   http://www.hwaci.com/drh/
 **
-** $Id: lemon.c,v 1.6 2001/03/09 04:35:25 guy Exp $
+** $Id: lemon.c,v 1.7 2001/04/18 03:02:57 gram Exp $
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -3528,8 +3528,8 @@ struct symbol *Symbol_new(char *x)
 /* Compare two symbols */
 int Symbolcmpp(const void *a_arg, const void *b_arg)
 {
-  struct symbol *const *a = a_arg;
-  struct symbol *const *b = b_arg;
+  const struct symbol **a = a_arg;
+  const struct symbol **b = b_arg;
 
   return strcmp((**a).name,(**b).name);
 }

@@ -1,4 +1,11 @@
 
+include ..\..\config.nmake
+
+CFLAGS=$(LOCAL_CFLAGS)
+
+{$S}.c{$O}.obj::
+   $(CC) $(CFLAGS) -Fd$O\ -c $<
+
 all : lemon.exe
 
 OBJECTS = lemon.obj
