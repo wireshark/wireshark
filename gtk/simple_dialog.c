@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.6 2000/08/23 06:56:31 guy Exp $
+ * $Id: simple_dialog.c,v 1.7 2000/10/09 06:38:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -76,7 +76,7 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
   gchar      **icon;
 
   /* Main window */
-  switch (type) {
+  switch (type & ~ESD_TYPE_MODAL) {
   case ESD_TYPE_WARN :
     icon = icon_excl_xpm;
     win = dlg_window_new("Ethereal: Warning");
@@ -91,6 +91,9 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
     win = dlg_window_new("Ethereal: Information");
     break;
   }
+
+  if (type & ESD_TYPE_MODAL)
+    gtk_window_set_modal(GTK_WINDOW(win), TRUE);
 
   gtk_container_border_width(GTK_CONTAINER(win), 7);
 

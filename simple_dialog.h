@@ -2,7 +2,7 @@
  * Definitions for dialog box routines with toolkit-independent APIs but
  * toolkit-dependent implementations.
  *
- * $Id: simple_dialog.h,v 1.1 2000/01/03 06:59:09 guy Exp $
+ * $Id: simple_dialog.h,v 1.2 2000/10/09 06:38:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,9 +32,13 @@ extern "C" {
 #endif /* __cplusplus */
 
 /* Dialog type. */
-#define ESD_TYPE_INFO 0
-#define ESD_TYPE_WARN 1
-#define ESD_TYPE_CRIT 2
+#define ESD_TYPE_INFO	0x00
+#define ESD_TYPE_WARN	0x01
+#define ESD_TYPE_CRIT	0x02
+
+/* Flag to be ORed with the dialog type, to specify that the dialog is
+   to be modal. */
+#define ESD_TYPE_MODAL	0x04
 
 /* Which buttons to display. */
 #define ESD_BTN_OK     0
