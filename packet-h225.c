@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (h323@ramdyne.nl)
  *
- * $Id: packet-h225.c,v 1.35 2004/04/08 23:52:12 sahlberg Exp $
+ * $Id: packet-h225.c,v 1.36 2004/04/09 01:07:30 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -539,6 +539,8 @@ static int hf_h235_password = -1;
 static int hf_h235_NonStandardParameter = -1;
 static int hf_h235_nonStandardIdentifier = -1;
 static int hf_h235_nsp_data = -1;
+static int hf_h235_AuthenticationMechanisms = -1;
+static int hf_h235_AuthenticationMechanism = -1;
 /*aaa*/
 
 static gint ett_h225 = -1;
@@ -808,6 +810,8 @@ static gint ett_h225_NonStandardParameter = -1;
 static gint ett_h225_aliasAddress_sequence = -1;
 static gint ett_h235_ClearToken = -1;
 static gint ett_h235_NonStandardParameter = -1;
+static gint ett_h235_AuthenticationMechanisms = -1;
+static gint ett_h235_AuthenticationMechanism = -1;
 /*bbb*/
 
 /* Subdissector tables */
@@ -3002,6 +3006,9 @@ dissect_h225_CallLinkage(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 
 
+
+
+
 static int
 dissect_h235_tokenOID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
@@ -3125,6 +3132,65 @@ static per_sequence_t H235ClearToken_sequence[] = {
 		dissect_h235_H235Key },
 	{ NULL, 0, 0, NULL }
 };
+
+
+static int
+dissect_h235_AuthenticationBES(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+NOT_DECODED_YET("AuthenticationBES");
+	return offset;
+}
+
+static const value_string AuthenticationMechanism_vals[] = {
+	{ 0, "dhExch" },
+	{ 1, "pwdSymEnc" },
+	{ 2, "pwdHash" },
+	{ 3, "certSign" },
+	{ 4, "ipsec" },
+	{ 5, "tls" },
+	{ 6, "nonStandard" },
+	{ 7, "authenticationBES" },
+	{ 0, NULL}
+};
+static per_choice_t AuthenticationMechanism_choice[] = {
+	{ 0, "dhExch", ASN1_EXTENSION_ROOT,
+		dissect_h225_NULL},
+	{ 1, "pwdSymEnc", ASN1_EXTENSION_ROOT,
+		dissect_h225_NULL},
+	{ 2, "pwdHash", ASN1_EXTENSION_ROOT,
+		dissect_h225_NULL},
+	{ 3, "certSign", ASN1_EXTENSION_ROOT,
+		dissect_h225_NULL},
+	{ 4, "ipsec", ASN1_EXTENSION_ROOT,
+		dissect_h225_NULL},
+	{ 5, "tls", ASN1_EXTENSION_ROOT,
+		dissect_h225_NULL},
+	{ 6, "nonStandard", ASN1_EXTENSION_ROOT,
+		dissect_h235_nonStandardParameter },
+	{ 7, "authenticationBES", ASN1_NOT_EXTENSION_ROOT,
+		dissect_h235_AuthenticationBES },
+	{ 0, NULL, 0, NULL }
+};
+static int
+dissect_h235_AuthenticationMechanism(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h235_AuthenticationMechanism, ett_h235_AuthenticationMechanism, AuthenticationMechanism_choice, "AuthenticationMechanism", NULL);
+
+	return offset;
+}
+static int
+dissect_h235_AuthenticationMechanism_sequence_of(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset = dissect_per_sequence_of(tvb, offset, pinfo, tree,
+				hf_h235_AuthenticationMechanisms,
+				ett_h235_AuthenticationMechanisms, dissect_h235_AuthenticationMechanism);
+	return offset;
+}
+
+
+
+
+
 static int
 dissect_h225_ClearToken(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
 {
@@ -5982,8 +6048,8 @@ static per_sequence_t GatekeeperRequest_sequence[] = {
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_cryptoTokens },
-/*XXX from h235 AuthenticationMechanism */
-	{ "authenticationCapability", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL, NULL },
+	{ "authenticationCapability", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
+		dissect_h235_AuthenticationMechanism_sequence_of },
 	{ "algorithmOIDs", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_algorithmOIDs },
 	{ "integrity", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -7600,8 +7666,8 @@ static per_sequence_t GatekeeperConfirm_sequence[] = {
 		dissect_h225_rasAddress },
 	{ "alternateGatekeeper", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_alternateGatekeeper },
-/*XXX from h235 AuthenticationMechanism */
-	{ "authenticationMode", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL, NULL },
+	{ "authenticationMode", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL, 
+		dissect_h235_AuthenticationMechanism },
 	{ "tokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
 		dissect_h225_tokens },
 	{ "cryptoTokens", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL,
@@ -10165,6 +10231,14 @@ proto_register_h225(void)
 	{ &hf_h235_nsp_data,
 		{ "data", "h235.nsp_data", FT_BYTES, BASE_HEX,
 		NULL, 0, "OCTET STRING", HFILL }},
+
+	{ &hf_h235_AuthenticationMechanisms,
+		{ "AuthenticationMechanisms", "h235.AuthenticationMechanisms", FT_NONE, BASE_NONE,
+		NULL, 0, "SEQUENCE OF AuthenticationMechanisms", HFILL }},
+
+	{ &hf_h235_AuthenticationMechanism,
+		{ "AuthenticationMechanism", "h235.AuthenticationMechanism", FT_UINT32, BASE_DEC,
+		VALS(AuthenticationMechanism_vals), 0, "AuthenticationMechanism choice", HFILL }},
 /*ddd*/
 	};
 
@@ -10437,6 +10511,8 @@ proto_register_h225(void)
 		&ett_h225_aliasAddress_sequence,
 		&ett_h235_ClearToken,
 		&ett_h235_NonStandardParameter,
+		&ett_h235_AuthenticationMechanisms,
+		&ett_h235_AuthenticationMechanism,
 /*eee*/
 	};
 	module_t *h225_module;
