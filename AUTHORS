@@ -1397,6 +1397,7 @@ Ulf Lamping <ulf.lamping[AT]web.de> {
 	Added more information to progress dialog box
 	Change some #define names to avoid name collisions on Windows
 	    that cause compiler warnings
+	Decoding of IEEE float and doubles for DCE-RPC
 }
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
