@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.38 1999/08/18 00:57:50 guy Exp $
+ * $Id: packet-ip.c,v 1.39 1999/08/21 21:06:11 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -962,7 +962,7 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_text(icmp_tree, offset +  1, 1, "Code: %d %s",
       ih.icmp_code, code_str);
     proto_tree_add_text(icmp_tree, offset +  2, 2, "Checksum: 0x%04x",
-      ih.icmp_cksum);
+      cksum);
 
     /* Decode the second 4 bytes of the packet. */
     switch (ih.icmp_type) {
@@ -1121,7 +1121,7 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_text(igmp_tree, offset + 1, 1, "Unused: 0x%02x",
       ih.igmp_unused);
     proto_tree_add_text(igmp_tree, offset + 2, 2, "Checksum: 0x%04x",
-      ih.igmp_cksum);
+      cksum);
     proto_tree_add_text(igmp_tree, offset + 4, 4, "Group address: %s",
       ip_to_str((guint8 *) &ih.igmp_gaddr));
   }
