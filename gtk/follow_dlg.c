@@ -480,7 +480,10 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 }
 
 /* XXX - can I emulate follow_charset_toggle_cb() instead of having
- * 3 different functions here? */
+ * 3 different functions here?
+ * That might not be a bad idea, as it might mean we only reload
+ * the window once, not twice - see follow_charset_toggle_cb()
+ * for an explanation. */
 static void
 follow_stream_om_both(GtkWidget *w _U_, gpointer data)
 {
@@ -506,24 +509,31 @@ follow_stream_om_server(GtkWidget *w _U_, gpointer data)
 }
 
 
-/* Handles the ASCII/EBCDIC toggling */
+/* Handles the display style toggling */
 static void
 follow_charset_toggle_cb(GtkWidget * w _U_, gpointer data)
 {
-    follow_info_t	*follow_info = data;
+	follow_info_t	*follow_info = data;
 
-	if (GTK_TOGGLE_BUTTON(follow_info->ebcdic_bt)->active)
-		follow_info->show_type = SHOW_EBCDIC;
-	else if (GTK_TOGGLE_BUTTON(follow_info->hexdump_bt)->active)
-		follow_info->show_type = SHOW_HEXDUMP;
-	else if (GTK_TOGGLE_BUTTON(follow_info->carray_bt)->active)
-		follow_info->show_type = SHOW_CARRAY;
-	else if (GTK_TOGGLE_BUTTON(follow_info->ascii_bt)->active)
-		follow_info->show_type = SHOW_ASCII;
-	else
-		g_assert_not_reached();
+	/*
+	 * A radio button toggles when it goes on and when it goes
+	 * off, so when you click a radio button two signals are
+	 * delivered.  We only want to reprocess the display once,
+	 * so we do it only when the button goes on.
+	 */
+	if (GTK_TOGGLE_BUTTON(w)->active) {
+		if (w == follow_info->ebcdic_bt)
+			follow_info->show_type = SHOW_EBCDIC;
+		else if (w == follow_info->hexdump_bt)
+			follow_info->show_type = SHOW_HEXDUMP;
+		else if (w == follow_info->carray_bt)
+			follow_info->show_type = SHOW_CARRAY;
+		else if (w == follow_info->ascii_bt)
+			follow_info->show_type = SHOW_ASCII;
 
-	follow_load_text(follow_info);
+fprintf(stderr, "follow charset poo\n");
+		follow_load_text(follow_info);
+	}
 }
 
 #define FLT_BUF_SIZE 1024
