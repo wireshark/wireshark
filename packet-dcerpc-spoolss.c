@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.54 2002/11/07 17:45:30 sharpe Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.55 2002/11/08 19:25:42 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -580,29 +580,6 @@ dissect_spoolss_buffer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				     dissect_spoolss_buffer_data,
 				     NDR_POINTER_UNIQUE, "Buffer",
 				     -1, 0);
-
-	return offset;
-}
-
-static int
-dissect_spoolss_keybuffer(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			  proto_tree *tree, char *drep)
-{
-	dcerpc_info *di = pinfo->private_data;
-	guint32 size;
-
-	if (di->conformant_run)
-		return offset;
-
-	/* Dissect size and data */
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_keybuffer_size, &size);
-
-	if (size)
-		offset = dissect_ndr_uint16s(tvb, offset, pinfo, tree, drep,
-					     hf_spoolss_keybuffer_data, size, 
-					     NULL);
 
 	return offset;
 }
@@ -5791,6 +5768,31 @@ static int SpoolssRouterReplyPrinter_r(tvbuff_t *tvb, int offset, packet_info *p
 
 	return offset;
 }
+
+static int
+dissect_spoolss_keybuffer(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			  proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = pinfo->private_data;
+	guint32 size, key_start;
+
+	if (di->conformant_run)
+		return offset;
+
+	/* Dissect size and data */
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_spoolss_keybuffer_size, &size);
+
+	key_start = offset;
+	while (key_start + (size*2) > offset) {
+		offset = prs_uint16uni(tvb, offset, pinfo, tree,
+				       NULL, "Key");
+	}
+
+	return offset;
+}
+
 
 static int SpoolssEnumPrinterKey_q(tvbuff_t *tvb, int offset, 
 				   packet_info *pinfo, proto_tree *tree, 
