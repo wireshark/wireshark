@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.409 2004/02/28 16:21:11 ulfl Exp $
+ * $Id: main.c,v 1.410 2004/02/28 21:55:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2021,7 +2021,7 @@ main(int argc, char *argv[])
   capture_opts.autostop_duration = 1;
   capture_opts.has_autostop_filesize = FALSE;
   capture_opts.autostop_filesize = 1;
-  capture_opts.ringbuffer_on = TRUE;
+  capture_opts.ringbuffer_on = FALSE;
   capture_opts.num_files = 1;
   capture_opts.has_ring_duration = FALSE;
   capture_opts.ringbuffer_duration = 1;
