@@ -152,8 +152,9 @@ Print the version and options and exit.
 =item -i
 
 Set the name of the network interface or pipe to use for live packet capture.
-Network interface names should match one of the names listed in "B<netstat -i>"
-or "B<ifconfig -a>".
+Network interface names should match one of the names listed in
+"B<tethereal -D>".  If you're using Unix, "B<netstat -i>" or "B<ifconfig -a>"
+should also work.
 Pipe names should be either the name of a FIFO (named pipe) or ``-'' to read
 data from the standard input. Data read from pipes must be in libpcap format.
 
