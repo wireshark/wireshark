@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.17 2001/04/20 20:34:28 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.18 2001/05/30 19:17:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ * Credits:
+ * 
+ * The following people helped me by pointing out bugs etc. Thank you!
+ *
+ * Marco Molteni
+ * Lena-Marie Nilsson     
+ * Magnus Hultman-Persson
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -231,15 +240,15 @@ static int hf_fcs = -1;
 /* ************************************************************************* */
 /*                      Fixed fields found in mgt frames                     */
 /* ************************************************************************* */
-static int ff_auth_alg = -1;	/* Authentication algorithm field          */
-static int ff_auth_seq = -1;	/* Authentication transaction sequence     */
-static int ff_current_ap = -1;	/* Current AP MAC address                  */
-static int ff_listen_ival = -1;	/* Listen interval fixed field             */
-static int ff_timestamp = -1;	/* 64 bit timestamp                        */
-static int ff_beacon_interval = -1;	/* 16 bit Beacon interval                  */
-static int ff_assoc_id = -1;	/* 16 bit AID field                        */
-static int ff_reason = -1;	/* 16 bit reason code                      */
-static int ff_status_code = -1;	/* Status code                             */
+static int ff_auth_alg = -1;	/* Authentication algorithm field            */
+static int ff_auth_seq = -1;	/* Authentication transaction sequence       */
+static int ff_current_ap = -1;	/* Current AP MAC address                    */
+static int ff_listen_ival = -1;	/* Listen interval fixed field               */
+static int ff_timestamp = -1;	/* 64 bit timestamp                          */
+static int ff_beacon_interval = -1;	/* 16 bit Beacon interval            */
+static int ff_assoc_id = -1;	/* 16 bit AID field                          */
+static int ff_reason = -1;	/* 16 bit reason code                        */
+static int ff_status_code = -1;	/* Status code                               */
 
 /* ************************************************************************* */
 /*            Flags found in the capability field (fixed field)              */
@@ -381,6 +390,7 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
   guint16 *temp16;
   proto_item *cap_item;
   static proto_tree *cap_tree;
+  double temp_double;
 
   switch (lfcode)
     {
@@ -388,14 +398,14 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       dataptr = tvb_get_ptr (tvb, offset, 8);
       memset (out_buff, 0, SHORT_STR);
       snprintf (out_buff, SHORT_STR, "0x%02X%02X%02X%02X%02X%02X%02X%02X",
-		BIT_SWAP (dataptr[7]),
-		BIT_SWAP (dataptr[6]),
-		BIT_SWAP (dataptr[5]),
-		BIT_SWAP (dataptr[4]),
-		BIT_SWAP (dataptr[3]),
-		BIT_SWAP (dataptr[2]),
-		BIT_SWAP (dataptr[1]),
-		BIT_SWAP (dataptr[0]));
+		dataptr[7],
+		dataptr[6],
+		dataptr[5],
+		dataptr[4],
+		dataptr[3],
+		dataptr[2],
+		dataptr[1],
+		dataptr[0]);
 
       proto_tree_add_string (tree, ff_timestamp, tvb, offset, 8, out_buff);
       break;
@@ -403,19 +413,17 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
     case FIELD_BEACON_INTERVAL:
       dataptr = tvb_get_ptr (tvb, offset, 2);
-      out_buff[0] = BIT_SWAP (dataptr[1]);
-      out_buff[1] = BIT_SWAP (dataptr[0]);
-      temp16 = (guint16 *) out_buff;
-      proto_tree_add_uint (tree, ff_beacon_interval, tvb, offset, 2,
-			   pntohs (temp16));
+      temp_double = ((double) *((guint16 *) dataptr));
+      temp_double = temp_double * 1024 / 1000000;
+      proto_tree_add_double_format (tree, ff_beacon_interval, tvb, offset, 2,
+				    temp_double,"Beacon Interval: %f [Seconds]",
+				    temp_double);
       break;
 
 
     case FIELD_CAP_INFO:
       dataptr = tvb_get_ptr (tvb, offset, 2);
-      out_buff[0] = BIT_SWAP (dataptr[1]);
-      out_buff[0] = BIT_SWAP (dataptr[0]);
-      temp16 = (guint16 *) out_buff;
+      temp16 = (guint16 *) dataptr;
 
       cap_item = proto_tree_add_uint_format (tree, ff_capture, 
 					     tvb, offset, 2,
@@ -441,9 +449,7 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
     case FIELD_AUTH_ALG:
       dataptr = tvb_get_ptr (tvb, offset, 2);
-      out_buff[0] = BIT_SWAP (dataptr[1]);
-      out_buff[1] = BIT_SWAP (dataptr[0]);
-      temp16 = (guint16 *) out_buff;
+      temp16 =(guint16 *) dataptr;
       proto_tree_add_uint (tree, ff_auth_alg, tvb, offset, 2,
 			   pntohs (temp16));
       break;
@@ -451,9 +457,7 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
     case FIELD_AUTH_TRANS_SEQ:
       dataptr = tvb_get_ptr (tvb, offset, 2);
-      out_buff[0] = BIT_SWAP (dataptr[1]);
-      out_buff[1] = BIT_SWAP (dataptr[0]);
-      temp16 = (guint16 *) out_buff;
+      temp16 = (guint16 *)dataptr;
       proto_tree_add_uint (tree, ff_auth_seq, tvb, offset, 2,
 			   pntohs (temp16));
       break;
@@ -461,23 +465,13 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
     case FIELD_CURRENT_AP_ADDR:
       dataptr = tvb_get_ptr (tvb, offset, 6);
-      memset (out_buff, 0, SHORT_STR);
-      out_buff[0] = BIT_SWAP (dataptr[5]);
-      out_buff[1] = BIT_SWAP (dataptr[4]);
-      out_buff[2] = BIT_SWAP (dataptr[3]);
-      out_buff[3] = BIT_SWAP (dataptr[2]);
-      out_buff[4] = BIT_SWAP (dataptr[1]);
-      out_buff[5] = BIT_SWAP (dataptr[0]);
-
-      proto_tree_add_string (tree, ff_current_ap, tvb, offset, 6, out_buff);
+      proto_tree_add_ether (tree, ff_current_ap, tvb, offset, 6, dataptr);
       break;
 
 
     case FIELD_LISTEN_IVAL:
       dataptr = tvb_get_ptr (tvb, offset, 2);
-      out_buff[0] = BIT_SWAP (dataptr[1]);
-      out_buff[1] = BIT_SWAP (dataptr[0]);
-      temp16 = (guint16 *) out_buff;
+      temp16 = (guint16 *) dataptr;
       proto_tree_add_uint (tree, ff_listen_ival, tvb, offset, 2,
 			   pntohs (temp16));
       break;
@@ -485,26 +479,20 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
     case FIELD_REASON_CODE:
       dataptr = tvb_get_ptr (tvb, offset, 2);
-      out_buff[0] = BIT_SWAP (dataptr[1]);
-      out_buff[1] = BIT_SWAP (dataptr[0]);
-      temp16 = (guint16 *) out_buff;
+      temp16 = (guint16 *) dataptr;
       proto_tree_add_uint (tree, ff_reason, tvb, offset, 2, pntohs (temp16));
       break;
 
 
     case FIELD_ASSOC_ID:
       dataptr = tvb_get_ptr (tvb, offset, 2);
-      out_buff[0] = BIT_SWAP (dataptr[1]);
-      out_buff[1] = BIT_SWAP (dataptr[0]);
-      temp16 = (guint16 *) out_buff;
+      temp16 = (guint16 *) dataptr;
       proto_tree_add_uint (tree, ff_assoc_id, tvb, offset, 2, pntohs (temp16));
       break;
 
     case FIELD_STATUS_CODE:
       dataptr = tvb_get_ptr (tvb, offset, 2);
-      out_buff[0] = BIT_SWAP (dataptr[1]);
-      out_buff[1] = BIT_SWAP (dataptr[0]);
-      temp16 = (guint16 *) out_buff;
+      temp16 = (guint16 *) dataptr;
       proto_tree_add_uint (tree, ff_status_code, tvb, offset, 2,
 			   pntohs (temp16));
       break;
@@ -731,12 +719,16 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   tvbuff_t *next_tvb;
   guint32 next_idx;
   guint32 addr_type;
-
-  cap_len = pinfo->captured_len;
-  fcf = tvb_get_letohs (tvb, 0);
+  guint32 next_len;
+  int tagged_parameter_tree_len;
 
   if (check_col (pinfo->fd, COL_PROTOCOL))
     col_set_str (pinfo->fd, COL_PROTOCOL, "IEEE 802.11");
+  if (check_col (pinfo->fd, COL_INFO))
+    col_clear (pinfo->fd, COL_INFO);
+
+  cap_len = tvb_length(tvb);
+  fcf = tvb_get_letohs (tvb, 0);
 
   /* Add the FC to the current tree */
   if (tree)
@@ -827,11 +819,11 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				tvb_get_ptr (tvb, 16, 6));
 
 	  proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
-			       COOK_FRAGMENT_NUMBER (tvb_get_ntohs
+			       COOK_FRAGMENT_NUMBER (tvb_get_letohs
 						     (tvb, 22)));
 
 	  proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
-			       COOK_SEQUENCE_NUMBER (tvb_get_ntohs
+			       COOK_SEQUENCE_NUMBER (tvb_get_letohs
 						     (tvb, 22)));
 	  cap_len = cap_len - MGT_FRAME_LEN - 4;
 	}
@@ -979,13 +971,17 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			   FIELD_LISTEN_IVAL);
 
 	  next_idx = MGT_FRAME_HDR_LEN + 4;	/* Size of fixed fields */
+	  tagged_parameter_tree_len =
+	      tvb_reported_length_remaining(tvb, next_idx + 4);
 	  tagged_tree = get_tagged_parameter_tree (tree, tvb, next_idx,
-						   pinfo->captured_len - 4 -
-						   next_idx);
+						   tagged_parameter_tree_len);
 
-
-	  while (pinfo->captured_len > (next_idx + 4))
-	    next_idx += add_tagged_field (tagged_tree, tvb, next_idx);
+	  while (tagged_parameter_tree_len > 0) {
+	    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
+	      break;
+	    next_idx +=next_len;
+	    tagged_parameter_tree_len -= next_len;
+	  }
 	}
       break;
 
@@ -1005,15 +1001,20 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 	  next_idx = MGT_FRAME_LEN + 6;	/* Size of fixed fields */
 
+	  tagged_parameter_tree_len =
+	      tvb_reported_length_remaining(tvb, next_idx + 4);
 	  tagged_tree = get_tagged_parameter_tree (tree, tvb, next_idx,
-						   pinfo->captured_len - 4 -
-						   next_idx);
+						   tagged_parameter_tree_len);
 
-	  while (pinfo->captured_len > (next_idx + 4))
-	    next_idx += add_tagged_field (tagged_tree, tvb, next_idx);
-
+	  while (tagged_parameter_tree_len > 0) {
+	    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
+	      break;
+	    next_idx +=next_len;
+	    tagged_parameter_tree_len -= next_len;
+	  }
 	}
       break;
+
 
     case MGT_REASSOC_REQ:
       COL_SHOW_INFO (pinfo->fd, "Reassociation Request");
@@ -1027,12 +1028,17 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			   FIELD_CURRENT_AP_ADDR);
 
 	  next_idx = MGT_FRAME_LEN + 10;	/* Size of fixed fields */
+	  tagged_parameter_tree_len =
+	      tvb_reported_length_remaining(tvb, next_idx + 4);
 	  tagged_tree = get_tagged_parameter_tree (tree, tvb, next_idx,
-						   pinfo->captured_len - 4 -
-						   next_idx);
+						   tagged_parameter_tree_len);
 
-	  while ((pinfo->captured_len) > (next_idx + 4))
-	    next_idx += add_tagged_field (tagged_tree, tvb, next_idx);
+	  while (tagged_parameter_tree_len > 0) {
+	    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
+	      break;
+	    next_idx +=next_len;
+	    tagged_parameter_tree_len -= next_len;
+	  }
 	}
       break;
 
@@ -1048,31 +1054,39 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			   FIELD_ASSOC_ID);
 
 	  next_idx = MGT_FRAME_LEN + 6;	/* Size of fixed fields */
+	  tagged_parameter_tree_len =
+	      tvb_reported_length_remaining(tvb, next_idx + 4);
 	  tagged_tree = get_tagged_parameter_tree (tree, tvb, next_idx,
-						   pinfo->captured_len - 4 -
-						   next_idx);
+						   tagged_parameter_tree_len);
 
-	  while (pinfo->captured_len > (next_idx + 4))
-	    next_idx += add_tagged_field (tagged_tree, tvb, next_idx);
-
-
+	  while (tagged_parameter_tree_len > 0) {
+	    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
+	      break;
+	    next_idx +=next_len;
+	    tagged_parameter_tree_len -= next_len;
+	  }
 	}
       break;
+
 
     case MGT_PROBE_REQ:
       COL_SHOW_INFO (pinfo->fd, "Probe Request");
       if (tree)
 	{
 	  next_idx = MGT_FRAME_LEN;
-	  tagged_tree = get_tagged_parameter_tree (tree, tvb, MGT_FRAME_LEN,
-						   pinfo->captured_len - 4 -
-						   next_idx);
+	  tagged_parameter_tree_len =
+	      tvb_reported_length_remaining(tvb, next_idx + 4);
+	  tagged_tree = get_tagged_parameter_tree (tree, tvb, next_idx,
+						   tagged_parameter_tree_len);
 
-	  while (pinfo->captured_len > (next_idx + 4))
-	    next_idx += add_tagged_field (tagged_tree, tvb, next_idx);
+	  while (tagged_parameter_tree_len > 0) {
+	    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
+	      break;
+	    next_idx +=next_len;
+	    tagged_parameter_tree_len -= next_len;
+	  }
 	}
       break;
-
 
 
     case MGT_PROBE_RESP:
@@ -1087,12 +1101,17 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			   FIELD_CAP_INFO);
 
 	  next_idx = MGT_FRAME_LEN + 12;	/* Size of fixed fields */
+	  tagged_parameter_tree_len =
+	      tvb_reported_length_remaining(tvb, next_idx + 4);
 	  tagged_tree = get_tagged_parameter_tree (tree, tvb, next_idx,
-						   pinfo->captured_len - 4 -
-						   next_idx);
+						   tagged_parameter_tree_len);
 
-	  while ((pinfo->captured_len) > (next_idx + 4))
-	    next_idx += add_tagged_field (tagged_tree, tvb, next_idx);
+	  while (tagged_parameter_tree_len > 0) {
+	    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
+	      break;
+	    next_idx +=next_len;
+	    tagged_parameter_tree_len -= next_len;
+	  }
 	}
       break;
 
@@ -1112,13 +1131,17 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			   FIELD_CAP_INFO);
 
 	  next_idx = MGT_FRAME_LEN + 12;	/* Size of fixed fields */
+	  tagged_parameter_tree_len =
+	      tvb_reported_length_remaining(tvb, next_idx + 4);
 	  tagged_tree = get_tagged_parameter_tree (tree, tvb, next_idx,
-						   pinfo->captured_len - 4 -
-						   next_idx);
+						   tagged_parameter_tree_len);
 
-	  while (pinfo->captured_len > (next_idx + 4))
-	    next_idx += add_tagged_field (tagged_tree, tvb, next_idx);
-
+	  while (tagged_parameter_tree_len > 0) {
+	    if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
+	      break;
+	    next_idx +=next_len;
+	    tagged_parameter_tree_len -= next_len;
+	  }
 	}
       break;
 
@@ -1135,8 +1158,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       COL_SHOW_INFO (pinfo->fd, "Dissassociate");
       if (tree)
 	{
-	  fixed_tree =
-	    get_fixed_parameter_tree (tree, tvb, MGT_FRAME_LEN, cap_len);
+	  fixed_tree = get_fixed_parameter_tree (tree, tvb, MGT_FRAME_LEN, cap_len);
 	  add_fixed_field (fixed_tree, tvb, MGT_FRAME_LEN, FIELD_REASON_CODE);
 	}
       break;
@@ -1154,16 +1176,21 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 	  next_idx = MGT_FRAME_LEN + 6;	/* Size of fixed fields */
 
-	  if ((pinfo->captured_len - next_idx - 4) != 0)
+	  tagged_parameter_tree_len =
+	      tvb_reported_length_remaining(tvb, next_idx + 4);
+	  if (tagged_parameter_tree_len != 0)
 	    {
 	      tagged_tree = get_tagged_parameter_tree (tree,
 						       tvb,
 						       next_idx,
-						       pinfo->captured_len -
-						       next_idx - 4);
+						       tagged_parameter_tree_len);
 
-	      while ((pinfo->captured_len) > (next_idx - 4))
-		next_idx += add_tagged_field (tagged_tree, tvb, next_idx);
+	      while (tagged_parameter_tree_len > 0) {
+		if ((next_len=add_tagged_field (tagged_tree, tvb, next_idx))==0)
+		  break;
+		next_idx +=next_len;
+		tagged_parameter_tree_len -= next_len;
+	      }
 	    }
 	}
       break;
@@ -1648,7 +1675,7 @@ proto_register_wlan (void)
       FT_UINT16, BASE_DEC, VALS (&auth_alg), 0, ""}},
 
     {&ff_beacon_interval,
-     {"Beacon Interval", "wlan.fixed.beacon", FT_UINT16, BASE_DEC, NULL, 0,
+     {"Beacon Interval", "wlan.fixed.beacon", FT_DOUBLE, BASE_DEC, NULL, 0,
       ""}},
 
     {&hf_fixed_parameters,
