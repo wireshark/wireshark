@@ -1,7 +1,7 @@
 /* packet-cisco-oui.c
  * Register an LLC dissector table for Cisco's OUI 00:00:0c
  *
- * $Id: packet-cisco-oui.c,v 1.2 2003/10/25 06:10:21 guy Exp $
+ * $Id: packet-cisco-oui.c,v 1.3 2003/10/25 06:19:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,7 @@ static int hf_llc_cisco_pid = -1;
 static const value_string cisco_pid_vals[] = {
 	{ 0x0102,	"DRIP" },
 	{ 0x0104,	"PagP" },	/* Port Aggregation Protocol */
+	{ 0x0105,	"MLS Hello" },	/* from a mail message found on the Web */
 	{ 0x010b,	"PVSTP+" },	/* Spanning tree of some sort */
 	{ 0x010c,	"VLAN Bridge" },
 	{ 0x0111,	"UDLD" },	/* Unidirectional Link Detection */
