@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.174 2002/12/31 22:01:48 guy Exp $
+ * $Id: tethereal.c,v 1.175 2002/12/31 22:42:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1306,12 +1306,15 @@ capture(int out_file_type)
 
   /* If we got an error while capturing, report it. */
   if (inpkts < 0) {
+#ifndef _WIN32
     if (ld.from_pipe) {
       if (ld.pipe_err == PIPERR) {
         fprintf(stderr, "tethereal: Error while capturing packets: %s\n",
 	  errmsg);
       }
-    } else {
+    } else
+#endif
+    {
       fprintf(stderr, "tethereal: Error while capturing packets: %s\n",
 	  pcap_geterr(ld.pch));
     }
