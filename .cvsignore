@@ -32,6 +32,7 @@ ps.c
 randpkt
 rdps
 register.c
+register-static.c
 stamp-h
 stamp-h.in
 tethereal
