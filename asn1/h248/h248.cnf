@@ -1,0 +1,20 @@
+# ih248.cnf
+# H.248 conformation file
+
+# $Id: h248.cnf,v 1.2 2004/06/03 08:35:44 guy Exp $
+
+#.MODULE_IMPORT
+
+#.EXPORTS
+
+#.PDU
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.END
+
+
