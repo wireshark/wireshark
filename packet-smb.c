@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.91 2001/08/02 09:37:27 guy Exp $
+ * $Id: packet-smb.c,v 1.92 2001/08/04 10:17:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -118,7 +118,7 @@ smb_equal(gconstpointer v, gconstpointer w)
   return 0;
 }
 
-static guint 
+static guint
 smb_hash (gconstpointer v)
 {
   struct smb_request_key *key = (struct smb_request_key *)v;
@@ -8881,39 +8881,25 @@ dissect_find_close2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
 }
 
-char *trans2_cmd_names[] = {
-  "TRANS2_OPEN",
-  "TRANS2_FIND_FIRST2",
-  "TRANS2_FIND_NEXT2",
-  "TRANS2_QUERY_FS_INFORMATION",
-  "no such command",
-  "TRANS2_QUERY_PATH_INFORMATION",
-  "TRANS2_SET_PATH_INFORMATION",
-  "TRANS2_QUERY_FILE_INFORMATION",
-  "TRANS2_SET_FILE_INFORMATION",
-  "TRANS2_FSCTL",
-  "TRANS2_IOCTL2",
-  "TRANS2_FIND_NOTIFY_FIRST",
-  "TRANS2_FIND_NOTIFY_NEXT",
-  "TRANS2_CREATE_DIRECTORY",
-  "TRANS2_SESSION_SETUP",
-  "TRANS2_GET_DFS_REFERRAL",
-  "no such command",
-  "TRANS2_REPORT_DFS_INCONSISTENCY"};
-
-char *decode_trans2_name(int code)
-{
-
-  if (code > 17 || code < 0) {
-
-    return("no such command");
-
-  }
-
-  return trans2_cmd_names[code];
-
-}
-
+static const value_string trans2_cmd_vals[] = {
+  { 0x00, "TRANS2_OPEN" },
+  { 0x01, "TRANS2_FIND_FIRST2" },
+  { 0x02, "TRANS2_FIND_NEXT2" },
+  { 0x03, "TRANS2_QUERY_FS_INFORMATION" },
+  { 0x05, "TRANS2_QUERY_PATH_INFORMATION" },
+  { 0x06, "TRANS2_SET_PATH_INFORMATION" },
+  { 0x07, "TRANS2_QUERY_FILE_INFORMATION" },
+  { 0x08, "TRANS2_SET_FILE_INFORMATION" },
+  { 0x09, "TRANS2_FSCTL" },
+  { 0x0A, "TRANS2_IOCTL2" },
+  { 0x0B, "TRANS2_FIND_NOTIFY_FIRST" },
+  { 0x0C, "TRANS2_FIND_NOTIFY_NEXT" },
+  { 0x0D, "TRANS2_CREATE_DIRECTORY" },
+  { 0x0E, "TRANS2_SESSION_SETUP" },
+  { 0x10, "TRANS2_GET_DFS_REFERRAL" },
+  { 0x11, "TRANS2_REPORT_DFS_INCONSISTENCY" },
+  { 0,    NULL }
+};
 
 void
 dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
@@ -8930,7 +8916,7 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
   guint32       Timeout;
   guint16       TotalParameterCount;
   guint16       TotalDataCount;
-  guint16       Setup = 0;
+  guint16       Setup;
   guint16       Reserved2;
   guint16       ParameterOffset;
   guint16       ParameterDisplacement;
@@ -8970,7 +8956,8 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
   si.conversation = conversation;  /* Save this for later */
 
   /*
-   * Check for and insert entry in request hash table if does not exist
+   * Check for entry in hash table; if it's not found, insert an entry
+   * in the hash table if this is a request.
    */
   request_key.conversation = conversation->index;
   request_key.mid          = si.mid;
@@ -8978,7 +8965,7 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
   request_val = (struct smb_request_val *) g_hash_table_lookup(smb_request_hash, &request_key);
 
-  if (!request_val) { /* Create one */
+  if (!request_val && dirn == 1) { /* Create one */
 
     new_request_key = g_mem_chunk_alloc(smb_request_keys);
     new_request_key -> conversation = conversation->index;
@@ -8986,7 +8973,7 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
     new_request_key -> pid          = si.pid;
 
     request_val = g_mem_chunk_alloc(smb_request_vals);
-    request_val -> last_transact2_command = 0xFFFF;
+    request_val -> last_transact2_command = -1;		/* unknown */
     request_val -> last_transact_command = NULL;
     request_val -> last_param_descrip = NULL;
     request_val -> last_data_descrip = NULL;
@@ -8997,7 +8984,8 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
   si.request_val = request_val;  /* Save this for later */
 
-  if (dirn == 1) { /* Request(s) dissect code */
+  if (dirn == 1) {
+    /* Request(s) dissect code */
   
     /* Build display for: Word Count (WCT) */
 
@@ -9198,32 +9186,44 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     /* Build display for: Setup */
 
-    if (SetupCount > 0) {
+    if (SetupCount != 0) {
 
-      int i = SetupCount;
+      int i;
 
+      /*
+       * First Setup word is transaction code.
+       */
       Setup = GSHORT(pd, offset);
 
       request_val -> last_transact2_command = Setup;  /* Save for later */
 
       if (check_col(fd, COL_INFO)) {
 
-	col_add_fstr(fd, COL_INFO, "%s %s", decode_trans2_name(Setup), (dirn ? "Request" : "Response"));
+	col_add_fstr(fd, COL_INFO, "%s Request",
+		     val_to_str(Setup, trans2_cmd_vals, "Unknown (0x%02X)"));
 
       }
 
-      for (i = 1; i <= SetupCount; i++) {
-	int Setup1;
+      if (tree) {
 
-	Setup1 = GSHORT(pd, offset);
+	proto_tree_add_text(tree, NullTVB, offset, 2, "Setup1: %s",
+			  val_to_str(Setup, trans2_cmd_vals, "Unknown (0x%02X)"));
+
+      }
+
+      offset += 2; /* Skip Setup word */
+
+      for (i = 2; i <= SetupCount; i++) {
+
+	Setup = GSHORT(pd, offset);
 
 	if (tree) {
 
-	  proto_tree_add_text(tree, NullTVB, offset, 2, "Setup%i: %u", i, Setup1);
+	  proto_tree_add_text(tree, NullTVB, offset, 2, "Setup%i: %u", i, Setup);
 
 	}
 
-	offset += 2; /* Skip Setup */
+	offset += 2; /* Skip Setup word */
 
       }
 
@@ -9243,14 +9243,6 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
     }
 
     offset += 2; /* Skip Byte Count (BCC) */
-
-    /* Build display for: Transact Name */
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Transact Name: %s", decode_trans2_name(Setup));
-
-    }
 
     if (offset < (SMB_offset + ParameterOffset)) {
 
@@ -9318,15 +9310,21 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
       offset += DataCount; /* Skip Data */
 
     }
-  }
-
-  if (dirn == 0) { /* Response(s) dissect code */
+  } else {
+    /* Response(s) dissect code */
 
     /* Pick up the last transact2 command and put it in the right places */
 
     if (check_col(fd, COL_INFO)) {
 
-      col_add_fstr(fd, COL_INFO, "%s %s", decode_trans2_name(request_val -> last_transact2_command), "response");
+      if (request_val == NULL)
+        col_set_str(fd, COL_INFO, "Response to unknown message");
+      else if (request_val -> last_transact2_command == -1)
+        col_set_str(fd, COL_INFO, "Response to message of unknown type");
+      else
+        col_add_fstr(fd, COL_INFO, "%s Response",
+		     val_to_str(request_val -> last_transact2_command,
+				trans2_cmd_vals, "Unknown (0x%02X)"));
 
     }
 
@@ -9474,11 +9472,9 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     offset += 1; /* Skip Reserved3 */
 
-    if (SetupCount > 0) {
+    if (SetupCount != 0) {
 
-      int i = SetupCount;
-
-      Setup = GSHORT(pd, offset);
+      int i;
 
       for (i = 1; i <= SetupCount; i++) {
 	
@@ -9723,7 +9719,8 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
   si.conversation = conversation;  /* Save this */
 
   /*
-   * Check for and insert entry in request hash table if does not exist
+   * Check for entry in hash table; if it's not found, insert an entry
+   * in the hash table if this is a request.
    */
   request_key.conversation = conversation->index;
   request_key.mid          = si.mid;
@@ -9731,7 +9728,7 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
 
   request_val = (struct smb_request_val *) g_hash_table_lookup(smb_request_hash, &request_key);
 
-  if (!request_val) { /* Create one */
+  if (!request_val && dirn == 1) { /* Create one */
 
     new_request_key = g_mem_chunk_alloc(smb_request_keys);
     new_request_key -> conversation = conversation -> index;
@@ -9749,7 +9746,8 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
 
   si.request_val = request_val;  /* Save this for later */
 
-  if (dirn == 1) { /* Request(s) dissect code */
+  if (dirn == 1) {
+    /* Request(s) dissect code */
 
     /* Build display for: Word Count (WCT) */
 
@@ -10008,16 +10006,34 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
       TNlen = strlen(TransactName) + 1;
     }
 
-    if (request_val -> last_transact_command) g_free(request_val -> last_transact_command);
-
-    request_val -> last_transact_command = g_malloc(strlen(TransactName) + 1);
-
-    if (request_val -> last_transact_command) 
-      strcpy(request_val -> last_transact_command, TransactName);
+    /*
+     * XXX - we should, arguably, do this only if we haven't already visited
+     * this frame, and thus shouldn't need to free "last_transact_command".
+     *
+     * However, when we did that, and put in an assertion to check that
+     * "last_transact_command" was null, we crashed on some browser
+     * messages; in at least one capture, all the browser messages
+     * had the same MID and PID (browser announcements don't get a response,
+     * so you can get away with giving them the same MID and PID),
+     * so instead of creating a new "request_val" structure for each
+     * one, they all got the same "request_val" structure.
+     *
+     * Therefore, for now, we allow the "request_val" structures to be
+     * reused in that fashion.
+     *
+     * That won't work if different transactions in the same conversation
+     * with the same MID and PID have different transaction names.
+     * Fortunately, unless MIDs get recycled in a conversation, the only
+     * time that should happen is with transactions that don't get
+     * replies.
+     */
+    if (request_val -> last_transact_command)
+      g_free(request_val -> last_transact_command);
+    request_val -> last_transact_command = g_strdup(TransactName);
 
     if (check_col(fd, COL_INFO)) {
 
-      col_add_fstr(fd, COL_INFO, "%s %s", TransactName, (dirn ? "Request" : "Response"));
+      col_add_fstr(fd, COL_INFO, "%s Request", TransactName);
 
     }
 
@@ -10049,14 +10065,17 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
 
     dissect_transact_params(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, DataOffset, DataCount, ParameterOffset, ParameterCount, SetupAreaOffset, SetupCount, TransactName);
 
-  }
-
-  if (dirn == 0) { /* Response(s) dissect code */
+  } else {
+    /* Response(s) dissect code */
 
     if (check_col(fd, COL_INFO)) {
-      if ( request_val -> last_transact_command )
-        col_add_fstr(fd, COL_INFO, "%s %s", request_val -> last_transact_command, "Response");
-      else col_add_fstr(fd, COL_INFO, "Response to unknown message");
+      if ( request_val == NULL )
+        col_set_str(fd, COL_INFO, "Response to unknown message");
+      else if (request_val -> last_transact_command == NULL)
+        col_set_str(fd, COL_INFO, "Response to message of unknown type");
+      else
+        col_add_fstr(fd, COL_INFO, "%s Response",
+		     request_val -> last_transact_command);
 
     }
 
@@ -10093,7 +10112,7 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
          which it's a reply. */
       dissect_transact_params(pd, offset, fd, parent, tree, si, max_data,
           SMB_offset, errcode, dirn, -1, -1, -1, -1, -1, -1,
-	  si.request_val -> last_transact_command);
+	  (request_val != NULL) ? request_val -> last_transact_command : NULL);
 
       return;
 
@@ -10288,7 +10307,12 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
 
     }
 
-    dissect_transact_params(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, DataOffset, DataCount, ParameterOffset, ParameterCount, SetupAreaOffset, SetupCount, si.request_val -> last_transact_command);
+    dissect_transact_params(pd, offset, fd, parent, tree, si, max_data,
+			    SMB_offset, errcode, dirn, DataOffset, DataCount,
+			    ParameterOffset, ParameterCount,
+			    SetupAreaOffset, SetupCount,
+			    (request_val != NULL) ?
+			      request_val -> last_transact_command : NULL);
 
   }
 
@@ -11028,13 +11052,11 @@ extern void register_proto_smb_mailslot( void);
 void
 proto_register_smb(void)
 {
-  static hf_register_info hf[] = {
-    { &hf_smb_cmd,
-      { "SMB Command", "smb.cmd",
-	FT_UINT8, BASE_HEX, VALS(smb_cmd_vals), 0x0, "", HFILL }}
-
-
-  };
+	static hf_register_info hf[] = {
+	  { &hf_smb_cmd,
+	    { "SMB Command", "smb.cmd",
+	      FT_UINT8, BASE_HEX, VALS(smb_cmd_vals), 0x0, "", HFILL }}
+	};
 	static gint *ett[] = {
 		&ett_smb,
 		&ett_smb_fileattributes,
