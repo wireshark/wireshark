@@ -25,7 +25,7 @@ DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_SRC:.c=.obj)
 
 #dissectors.lib: ../../config.h $(DISSECTOR_OBJECTS) $(EXTRA_OBJECTS)
 dissectors.lib: register.obj packet-ncp2222.c x11-declarations.h x11-register-info.h ../../config.h $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS)
-	echo dissectors.lib
+	@echo Linking dissectors.lib
 	link /lib /out:dissectors.lib $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS)
 
 #
@@ -99,4 +99,5 @@ clean:
 		$(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS)
 
 distclean: clean
-	rm -f $(BUILT_SOURCES) packet-ncp2222.c
+	rm -f $(BUILT_SOURCES) packet-ncp2222.c \
+		register.c x11-declarations.h x11-register-info.h
