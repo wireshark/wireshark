@@ -1,6 +1,6 @@
 /* packet-tcp.h
  *
- * $Id: packet-tcp.h,v 1.18 2003/09/12 05:52:38 sahlberg Exp $
+ * $Id: packet-tcp.h,v 1.19 2003/11/08 00:02:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,6 +85,6 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 void (*dissect_pdu)(tvbuff_t *, packet_info *, proto_tree *));
 
 extern void decode_tcp_ports(tvbuff_t *, int, packet_info *,
-	proto_tree *, int, int, guint32);
+	proto_tree *, int, int);
 
 #endif

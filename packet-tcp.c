@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.213 2003/11/06 09:18:46 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.214 2003/11/08 00:02:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,9 +44,6 @@
 #include <epan/strutil.h>
 #include "reassemble.h"
 #include "tap.h"
-
-/* yucc a global variable  XXX fix this if we expect TCP-oversomething-overTCP */
-static proto_tree *tcp_tree = NULL;
 
 static int tcp_tap = -1;
 
@@ -163,6 +160,10 @@ static dissector_handle_t data_handle;
 
 /* TCP structs and definitions */
 
+static void
+decode_tcp_ports_internal(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree *tree, proto_tree *tcp_tree, int src_port, int dst_port,
+	guint32 nxtseq, gboolean from_tcp);
 
 /* **************************************************************************
  * stuff to analyze TCP sequencenumbers for retransmissions, missing segments,
@@ -1475,7 +1476,7 @@ static void
 desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		guint32 seq, guint32 nxtseq,
 		guint32 sport, guint32 dport,
-		proto_tree *tree)
+		proto_tree *tree, proto_tree *tcp_tree)
 {
 	struct tcpinfo *tcpinfo = pinfo->private_data;
 	fragment_data *ipfd_head=NULL;
@@ -1548,8 +1549,8 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		   contain a continuation of a higher-level PDU.
 		   Call the normal subdissector.
 		*/
-		decode_tcp_ports(tvb, offset, pinfo, tree,
-				sport, dport, 0);
+		decode_tcp_ports_internal(tvb, offset, pinfo, tree, tcp_tree,
+				sport, dport, 0, TRUE);
 		called_dissector = TRUE;
 
 		/* Did the subdissector ask us to desegment some more data
@@ -1617,8 +1618,8 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			tcpinfo->is_reassembled = TRUE;
 
 			/* call subdissector */
-			decode_tcp_ports(next_tvb, 0, pinfo, tree,
-				sport, dport, 0);
+			decode_tcp_ports_internal(next_tvb, 0, pinfo, tree,
+			    tcp_tree, sport, dport, 0, TRUE);
 			called_dissector = TRUE;
 
 			/*
@@ -2244,7 +2245,8 @@ static gboolean try_heuristic_first = FALSE;
 
 static void
 decode_tcp_ports_exception(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree, int src_port, int dst_port, guint32 nxtseq)
+	proto_tree *tree, int src_port, int dst_port, guint32 nxtseq,
+	gboolean from_tcp)
 {
   tvbuff_t *next_tvb;
   int low_port, high_port;
@@ -2311,20 +2313,26 @@ decode_tcp_ports_exception(tvbuff_t *tvb, int offset, packet_info *pinfo,
   return;
 
 end_decode_tcp_ports:
-  /* if !visited, check want_pdu_tracking and store it in table */
-  /* XXX fix nxtseq so that it always has valid content and skip the ==0 check */
-  if((!pinfo->fd->flags.visited) && nxtseq && tcp_analyze_seq && pinfo->want_pdu_tracking){
-    pdu_store_sequencenumber_of_next_pdu(pinfo, nxtseq+pinfo->bytes_until_next_pdu);
+  /*
+   * Is this from TCP or from some wrapper protocol such as SOCKS?
+   */
+  if(from_tcp){
+    /* if !visited, check want_pdu_tracking and store it in table */
+    /* XXX fix nxtseq so that it always has valid content and skip the ==0 check */
+    if((!pinfo->fd->flags.visited) && nxtseq && tcp_analyze_seq && pinfo->want_pdu_tracking){
+      pdu_store_sequencenumber_of_next_pdu(pinfo, nxtseq+pinfo->bytes_until_next_pdu);
+    }
   }
-
 }
 
-void
-decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree, int src_port, int dst_port, guint32 nxtseq)
+static void
+decode_tcp_ports_internal(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree *tree, proto_tree *tcp_tree, int src_port, int dst_port,
+	guint32 nxtseq, gboolean from_tcp)
 {
 	TRY {
-		decode_tcp_ports_exception(tvb, offset, pinfo, tree, src_port, dst_port, nxtseq);
+		decode_tcp_ports_exception(tvb, offset, pinfo, tree,
+		    src_port, dst_port, nxtseq, from_tcp);
 	}
 	CATCH_ALL {
 		/* We got an exception. At this point the dissection is
@@ -2333,24 +2341,39 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * Here we have to place whatever we want the dissector
 		 * to do before aborting the tcp dissection.
 		 */
-		/* 
-		 * Handle TCP seq# analysis, print any extra SEQ/ACK data 
-		 * for this segment
-		 */
-		if(tcp_analyze_seq){
-			tcp_print_sequence_number_analysis(pinfo, tvb, tcp_tree);
-		}
 		/*
-		 * if !visited, check want_pdu_tracking and store it in table 
+		 * Is this from TCP or from some wrapper protocol such as
+		 * SOCKS?
 		 */
-		if((!pinfo->fd->flags.visited) && nxtseq && tcp_analyze_seq && pinfo->want_pdu_tracking){
-			pdu_store_sequencenumber_of_next_pdu(pinfo, nxtseq+pinfo->bytes_until_next_pdu);
+		if(from_tcp){
+			/*
+			 * It's from TCP.
+			 *
+			 * Handle TCP seq# analysis, print any extra SEQ/ACK
+			 * data for this segment.
+			 */
+			if(tcp_analyze_seq){
+				tcp_print_sequence_number_analysis(pinfo, tvb, tcp_tree);
+			}
+			/*
+			 * if !visited, check want_pdu_tracking and store it in table 
+			 */
+			if((!pinfo->fd->flags.visited) && nxtseq && tcp_analyze_seq && pinfo->want_pdu_tracking){
+				pdu_store_sequencenumber_of_next_pdu(pinfo, nxtseq+pinfo->bytes_until_next_pdu);
+			}
 		}
 		RETHROW;
 	}
 	ENDTRY;
 }
 
+void
+decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree *tree, int src_port, int dst_port)
+{
+	decode_tcp_ports_internal(tvb, offset, pinfo, tree, NULL,
+	    src_port, dst_port, 0, FALSE);
+}
 
 static void
 dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -2358,7 +2381,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8  th_off_x2; /* combines th_off and th_x2 */
   guint16 th_sum;
   guint16 th_urp;
-  proto_tree *field_tree = NULL;
+  proto_tree *tcp_tree = NULL, *field_tree = NULL;
   proto_item *ti = NULL, *tf;
   int        offset = 0;
   gchar      flags[64] = "<None>";
@@ -2378,7 +2401,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   static struct tcpheader tcphstruct[4], *tcph;
   static int tcph_count=0;
 
-  tcp_tree = NULL;
   tcph_count++;
   if(tcph_count>=4){
      tcph_count=0;
@@ -2736,19 +2758,19 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Can we desegment this segment? */
       if (pinfo->can_desegment) {
         /* Yes. */
-        desegment_tcp(tvb, pinfo, offset, tcph->th_seq, nxtseq, tcph->th_sport, tcph->th_dport, tree);
+        desegment_tcp(tvb, pinfo, offset, tcph->th_seq, nxtseq, tcph->th_sport, tcph->th_dport, tree, tcp_tree);
       } else {
         /* No - just call the subdissector.
            Mark this as fragmented, so if somebody throws an exception,
            we don't report it as a malformed frame. */
         save_fragmented = pinfo->fragmented;
         pinfo->fragmented = TRUE;
-        decode_tcp_ports(tvb, offset, pinfo, tree, tcph->th_sport, tcph->th_dport, nxtseq);
+        decode_tcp_ports_internal(tvb, offset, pinfo, tree, tcp_tree,
+            tcph->th_sport, tcph->th_dport, nxtseq, TRUE);
         pinfo->fragmented = save_fragmented;
       }
     }
   }
-
 
   /* handle TCP seq# analysis, print any extra SEQ/ACK data for this segment*/
   if(tcp_analyze_seq){

@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.48 2003/10/15 20:07:51 guy Exp $
+ * $Id: packet-socks.c,v 1.49 2003/11/08 00:02:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -925,7 +925,7 @@ static void call_next_dissector(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		in_socks_dissector_flag = 1; /* avoid recursive overflow */
 
-		decode_tcp_ports( tvb, offset, pinfo, tree, pinfo->srcport, pinfo->destport, 0);
+		decode_tcp_ports( tvb, offset, pinfo, tree, pinfo->srcport, pinfo->destport);
 
 		in_socks_dissector_flag = 0; /* avoid recursive overflow */
 
