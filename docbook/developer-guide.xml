@@ -63,10 +63,13 @@ FILE SECTION
 <!-- These are the actual files that make up the document -->
   <!ENTITY BookMetaInformation SYSTEM "dg-src/EDG_meta_info.xml">
   <!ENTITY Preface SYSTEM "dg-src/EDG_preface.xml">
-  <!ENTITY Introduction SYSTEM "dg-src/EDG_chapter_introduction.xml">
+  <!ENTITY EnvIntroduction SYSTEM "dg-src/EDG_chapter_env_intro.xml">
   <!ENTITY Tools SYSTEM "dg-src/EDG_chapter_tools.xml">
   <!ENTITY Libraries SYSTEM "dg-src/EDG_chapter_libraries.xml">
   <!ENTITY Sources SYSTEM "dg-src/EDG_chapter_sources.xml">
+  
+  <!ENTITY BuildIntroduction SYSTEM "dg-src/EDG_chapter_build_intro.xml">
+  <!ENTITY Dissection SYSTEM "dg-src/EDG_chapter_dissection.xml">
   <!ENTITY UserInterface SYSTEM "dg-src/EDG_chapter_userinterface.xml">
 
   <!ENTITY AppGPL SYSTEM    "GPL_appendix.xml">
@@ -88,7 +91,7 @@ The first part of this book will describe how to set up the environment needed
 to develop Ethereal.
 </para>
 </partintro>
-&Introduction;
+&EnvIntroduction;
 &Tools;
 &Libraries;
 &Sources;
@@ -100,6 +103,8 @@ to develop Ethereal.
 The second part of this book will describe how to do the actual Ethereal development.
 </para>
 </partintro>
+&BuildIntroduction;
+&Dissection;
 &UserInterface;
 </part>
 
