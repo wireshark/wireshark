@@ -2,7 +2,7 @@
  * Routines for wbxml dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-wbxml.c,v 1.2 2003/02/12 01:17:02 guy Exp $
+ * $Id: packet-wbxml.c,v 1.3 2003/02/12 21:46:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,22 +81,40 @@ static int hf_wbxml_charset = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_wbxml = -1;
+static gint ett_wbxml_str_tbl = -1;
 static gint ett_wbxml_content = -1;
 
-/*
- * Function prototypes
- */
+
+
+/************************** Function prototypes **************************/
+
+
 
 static void
 dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
 
 void
 proto_register_wbxml(void);
 
 
+/* Parse and display the WBXML string table
+ */
+static void
+show_wbxml_string_table (proto_tree *tree, tvbuff_t *tvb, guint32 str_tbl,
+		guint32 str_tbl_len);
+
+
+/* Return a pointer to the string in the string table.
+ * Can also be hacked for inline string retrieval.
+ */
+static const char*
+strtbl_lookup (tvbuff_t *tvb, guint32 str_tbl, guint32 offset, guint32 *len);
+
+
 /* Parse data while in STAG state
  */
-void
+static void
 parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		guint32 str_tbl, guint8 *level,
 		guint8 *codepage_stag, guint8 *codepage_attr, guint32 *parsed_length);
@@ -105,7 +123,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 /* Parse data while in STAG state;
  * interpret tokens as defined by content type
  */
-void
+static void
 parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		guint32 str_tbl, guint8 *level,
 		guint8 *codepage_stag, guint8 *codepage_attr, guint32 *parsed_length,
@@ -114,36 +132,26 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 
 /* Parse data while in ATTR state
  */
-void
-parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
-		guint32 str_tbl, guint8 level, guint8 *codepage_attr, guint32 *parsed_length);
+static void
+parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
+		guint32 offset, guint32 str_tbl, guint8 level,
+		guint8 *codepage_attr, guint32 *parsed_length);
 
 
 /* Parse data while in ATTR state;
  * interpret tokens as defined by content type
  */
-void
-parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
-		guint32 str_tbl, guint8 level, guint8 *codepage_attr, guint32 *parsed_length,
+static void
+parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
+		guint32 offset, guint32 str_tbl, guint8 level,
+		guint8 *codepage_attr, guint32 *parsed_length,
 		const wbxml_mapping_table *map);
 
 
 
-/* "INLINE" functions */
 
-/* Return a pointer to the string in the string table.
- * Can also be hacked for inline string retrieval.
- */
-const char*
-strtbl_lookup (tvbuff_t *tvb, guint32 str_tbl, guint32 offset, guint32 *len)
-{
-	if (len) { /* The "hack" call for inline string reading */
-		*len = tvb_strsize (tvb, str_tbl+offset);
-		return tvb_get_ptr (tvb, str_tbl+offset, *len);
-	} else { /* Normal string table reading */
-		return tvb_get_ptr (tvb, str_tbl+offset, tvb_strsize (tvb, str_tbl+offset));
-	}
-}
+/****************** WBXML protocol dissection functions ******************/
+
 
 
 
@@ -154,8 +162,9 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
-	proto_tree *wbxml_tree;
-	proto_tree *wbxml_content_tree;
+	proto_tree *wbxml_tree; /* Main WBXML tree */
+	proto_tree *wbxml_str_tbl_tree; /* String table subtree */
+	proto_tree *wbxml_content_tree; /* Content subtree */
 	guint8 version;
 	guint offset = 0;
 	const char *token;
@@ -166,7 +175,7 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 publicid_index = 0;
 	guint32 publicid_len;
 	guint32 str_tbl;
-	guint32 str_len;
+	guint32 str_tbl_len;
 	guint8 level = 0; /* WBXML recursion level */
 	guint8 codepage_stag = 0; /* Initial codepage in state = STAG */
 	guint8 codepage_attr = 0; /* Initial codepage in state = ATTR */
@@ -231,12 +240,13 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 		}
 
-		/* String table */
-		str_len = tvb_get_guintvar (tvb, offset, &len); /* Length of string table */
+		/* String table: read string table length in bytes */
+		str_tbl_len = tvb_get_guintvar (tvb, offset, &len);
 		str_tbl = offset + len; /* Start of 1st string in string table */
 
 
-		/* Now we can add public ID, charset (if available), and string table */
+		/* Now we can add public ID, charset (if available),
+		 * and string table */
 		if ( ! publicid ) { /* Read Public ID from string table */
 			token = strtbl_lookup (tvb, str_tbl, publicid_index, NULL);
 			proto_tree_add_string (wbxml_tree, hf_wbxml_public_id_literal,
@@ -247,11 +257,19 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					tvb, 1+publicid_len, charset_len, charset);
 		}
 		/* String Table */
-		proto_tree_add_text(wbxml_tree,
-				tvb, offset, len + str_len, "String table: %u bytes", str_len);
+		ti = proto_tree_add_text(wbxml_tree,
+				tvb, offset, len + str_tbl_len, "String table: %u bytes",
+				str_tbl_len);
+
+		if (wbxml_tree && str_tbl_len) { /* Display string table as subtree */
+			wbxml_str_tbl_tree = proto_item_add_subtree (ti,
+					ett_wbxml_str_tbl);
+			show_wbxml_string_table (wbxml_str_tbl_tree, tvb,
+					str_tbl, str_tbl_len);
+		}
 
 		/* Data starts HERE */
-		offset += len + str_len;
+		offset += len + str_tbl_len;
 
 		/* The WBXML BODY starts here */
 		ti = proto_tree_add_text (wbxml_tree, tvb, offset, -1,
@@ -272,8 +290,10 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* Look in wbxml_map[] table for defined mapping */
 				if (publicid < WBXML_MAP_MAX_ID) {
 					if (wbxml_map[publicid].defined) {
-						proto_tree_add_text (wbxml_content_tree, tvb, offset, -1,
-								"Level | State | Token                           "
+						proto_tree_add_text (wbxml_content_tree, tvb,
+								offset, -1,
+								"Level | State "
+								"| WBXML Token Description         "
 								"| Rendering");
 						parse_wbxml_tag_defined (wbxml_content_tree,
 								tvb, offset, str_tbl, &level,
@@ -289,7 +309,7 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 			/* Default: WBXML only, no interpretation of the content */
 			proto_tree_add_text (wbxml_content_tree, tvb, offset, -1,
-					"Level | State | Token                           "
+					"Level | State | WBXML Token Description         "
 					"| Rendering");
 			parse_wbxml_tag (wbxml_content_tree, tvb, offset,
 					str_tbl, &level,
@@ -302,6 +322,56 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 	}
 }
+
+
+
+
+/* Return a pointer to the string in the string table.
+ * Can also be hacked for inline string retrieval.
+ */
+static const char*
+strtbl_lookup (tvbuff_t *tvb, guint32 str_tbl, guint32 offset, guint32 *len)
+{
+	if (len) { /* The "hack" call for inline string reading */
+		*len = tvb_strsize (tvb, str_tbl+offset);
+		return tvb_get_ptr (tvb, str_tbl+offset, *len);
+	} else { /* Normal string table reading */
+		return tvb_get_ptr (tvb, str_tbl+offset,
+				tvb_strsize (tvb, str_tbl+offset));
+	}
+}
+
+
+
+
+/* Parse and display the WBXML string table (in a 3-column table format).
+ * This function displays:
+ *  - the offset in the string table,
+ *  - the length of the string
+ *  - the string.
+ */
+static void
+show_wbxml_string_table (proto_tree *tree, tvbuff_t *tvb, guint32 str_tbl,
+		guint32 str_tbl_len)
+{
+	guint32 off = str_tbl;
+	guint32 len = 0;
+	guint32 end = str_tbl + str_tbl_len;
+	const char *str;
+
+	proto_tree_add_text (tree, tvb, off, end,
+			"Start  | Length | String");
+	while (off < end) {
+		/* Hack the string table lookup function */
+		str = strtbl_lookup (tvb, off, 0, &len);
+		proto_tree_add_text (tree, tvb, off, len,
+				"%6d | %6d | '%s'",
+				off - str_tbl, len, str);
+		off += len;
+	}
+}
+
+
 
 
 /* Indentation code is based on a static const array of space characters.
@@ -317,9 +387,11 @@ static const char indent_buffer[514] = " "
 	"                                                                "
 	; /* Generate XML indentation (length = 1 + 2 * 256 + 1 for '\0') */
 
-const char * Indent (guint8 level) {
+static const char * Indent (guint8 level) {
 	return indent_buffer + (512 - 2 * (level));
 }
+
+
 
 
 /********************
@@ -351,6 +423,7 @@ const char * Indent (guint8 level) {
 
 
 
+
 /* This function parses the WBXML and maps known token interpretations
  * to the WBXML tokens. As a result, the original XML document can be
  * recreated. Indentation is generated in order to ease reading.
@@ -369,7 +442,7 @@ const char * Indent (guint8 level) {
  *
  * NOTE: See packet-wbxml.h for known token mappings.
  */
-void
+static void
 parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		guint32 str_tbl, guint8 *level,
 		guint8 *codepage_stag, guint8 *codepage_attr, guint32 *parsed_length,
@@ -383,14 +456,14 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	const char* str;
 	guint8 peek;
 	guint32 tag_len; /* Length of the index (uintvar) from a LITERAL tag */
-	guint8 tag_save_known = 0; /* Will contain peek & 0x3F thus the tag identity */
-	guint8 tag_new_known = 0; /* Will contain peek & 0x3F thus the tag identity */
+	guint8 tag_save_known = 0; /* Will contain peek & 0x3F (tag identity) */
+	guint8 tag_new_known = 0; /* Will contain peek & 0x3F (tag identity) */
 	const char *tag_save_literal; /* Will contain the LITERAL tag identity */
 	const char *tag_new_literal; /* Will contain the LITERAL tag identity */
 	guint8 parsing_tag_content = FALSE; /* Are we parsing content from a
 										   tag with content: <x>Content</x>
 										   
-										   The initial state is FALSE of course.
+										   The initial state is FALSE.
 										   This state will trigger recursion. */
 	tag_save_literal = NULL; /* Prevents compiler warning */
 
@@ -401,7 +474,8 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	while (off < tvb_len) {
 		peek = tvb_get_guint8 (tvb, off);
 #ifdef DEBUG
-		printf("WBXML - STAG: level = %3d, peek = 0x%02X, off = %d, tvb_len = %d\n",
+		printf("WBXML - STAG: level = %3d, peek = 0x%02X, off = %d, "
+				"tvb_len = %d\n",
 				*level, peek, off, tvb_len);
 #endif
 		if ((peek & 0x3F) < 4) switch (peek) { /* Global tokens in state = STAG
@@ -558,7 +632,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			if (peek & 0x40) { /* Content present */
 				/* Content follows
 				 * [!] An explicit END token is expected in these cases!
-				 * ==> Recursion is possible if we encounter a tag with content;
+				 * ==> Recursion possible if we encounter a tag with content;
 				 *     recursion will return at the explicit END token.
 				 */
 				if (parsing_tag_content) { /* Recurse */
@@ -594,11 +668,12 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 							proto_tree_add_text (tree, tvb, off, 1,
 									"  %3d | Tag   "
 									"| LITERAL_AC (Literal tag)   (AC) "
-									"|   %s<%s",
+									"| %s<%s",
 									*level, Indent (*level), tag_new_literal);
 							off += 1 + tag_len;
 						}
-						parse_wbxml_attribute_list_defined (tree, tvb, off, str_tbl,
+						parse_wbxml_attribute_list_defined (tree, tvb,
+								off, str_tbl,
 								*level, codepage_attr, &len, map);
 						off += len;
 						proto_tree_add_text (tree, tvb, off-1, 1,
@@ -631,12 +706,14 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					 */
 					parsing_tag_content = TRUE;
 #ifdef DEBUG
-					printf ("WBXML: Tag in Tag - No recursion this time! (off = %d)\n",off);
+					printf ("WBXML: Tag in Tag - No recursion this time! "
+							"(off = %d)\n", off);
 #endif
 				}
 			} else { /* No Content */
 #ifdef DEBUG
-				printf ("WBXML: <Tag/> in Tag - No recursion! (off = %d)\n",off);
+				printf ("WBXML: <Tag/> in Tag - No recursion! "
+						"(off = %d)\n", off);
 #endif
 				(*level)++;
 				if (peek & 0x80) { /* No Content, Attribute list present */
@@ -648,7 +725,8 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 								*level, tag_new_known, Indent (*level),
 								match_strval (tag_new_known, map->tags));
 						off++;
-						parse_wbxml_attribute_list_defined (tree, tvb, off, str_tbl,
+						parse_wbxml_attribute_list_defined (tree, tvb,
+								off, str_tbl,
 								*level, codepage_attr, &len, map);
 						off += len;
 						proto_tree_add_text (tree, tvb, off-1, 1,
@@ -663,7 +741,8 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 								"| %s<%s",
 								*level, Indent (*level), tag_new_literal);
 						off += 1 + tag_len;
-						parse_wbxml_attribute_list_defined (tree, tvb, off, str_tbl,
+						parse_wbxml_attribute_list_defined (tree, tvb,
+								off, str_tbl,
 								*level, codepage_attr, &len, map);
 						off += len;
 						proto_tree_add_text (tree, tvb, off-1, 1,
@@ -696,6 +775,9 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	} /* while */
 }
 
+
+
+
 /* This function performs the WBXML decoding as in parse_wbxml_tag_defined()
  * but this time no WBXML mapping is performed.
  *
@@ -703,7 +785,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
  *
  * NOTE: Code page switches not yet processed in the code!
  */
-void
+static void
 parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		guint32 str_tbl, guint8 *level,
 		guint8 *codepage_stag, guint8 *codepage_attr, guint32 *parsed_length)
@@ -716,14 +798,14 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	const char* str;
 	guint8 peek;
 	guint32 tag_len; /* Length of the index (uintvar) from a LITERAL tag */
-	guint8 tag_save_known = 0; /* Will contain peek & 0x3F thus the tag identity */
-	guint8 tag_new_known = 0; /* Will contain peek & 0x3F thus the tag identity */
+	guint8 tag_save_known = 0; /* Will contain peek & 0x3F (tag identity) */
+	guint8 tag_new_known = 0; /* Will contain peek & 0x3F (tag identity) */
 	const char *tag_save_literal; /* Will contain the LITERAL tag identity */
 	const char *tag_new_literal; /* Will contain the LITERAL tag identity */
 	guint8 parsing_tag_content = FALSE; /* Are we parsing content from a
 										   tag with content: <x>Content</x>
 										   
-										   The initial state is FALSE of course.
+										   The initial state is FALSE.
 										   This state will trigger recursion. */
 	tag_save_literal = NULL; /* Prevents compiler warning */
 
@@ -734,7 +816,8 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	while (off < tvb_len) {
 		peek = tvb_get_guint8 (tvb, off);
 #ifdef DEBUG
-		printf("WBXML - STAG: level = %3d, peek = 0x%02X, off = %d, tvb_len = %d\n",
+		printf("WBXML - STAG: level = %3d, peek = 0x%02X, off = %d, "
+				"tvb_len = %d\n",
 				*level, peek, off, tvb_len);
 #endif
 		if ((peek & 0x3F) < 4) switch (peek) { /* Global tokens in state = STAG
@@ -752,7 +835,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				if (tag_save_known) {
 					proto_tree_add_text (tree, tvb, off, 1,
 							"  %3d | Tag   | END (Known Tag 0x%02X)            "
-							"| %s</Tag 0x%02X>",
+							"| %s</Tag_0x%02X>",
 							*level, tag_save_known, Indent (*level),
 							tag_save_known);
 				} else { /* Literal TAG */
@@ -888,7 +971,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			if (peek & 0x40) { /* Content present */
 				/* Content follows
 				 * [!] An explicit END token is expected in these cases!
-				 * ==> Recursion is possible if we encounter a tag with content;
+				 * ==> Recursion possible if we encounter a tag with content;
 				 *     recursion will return at the explicit END token.
 				 */
 				if (parsing_tag_content) { /* Recurse */
@@ -916,7 +999,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 							proto_tree_add_text (tree, tvb, off, 1,
 									"  %3d | Tag   "
 									"|   Known Tag 0x%02X           (AC) "
-									"| %s<Tag 0x%02X",
+									"| %s<Tag_0x%02X",
 									*level, tag_new_known, Indent (*level),
 									tag_new_known);
 							off++;
@@ -924,7 +1007,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 							proto_tree_add_text (tree, tvb, off, 1,
 									"  %3d | Tag   "
 									"| LITERAL_AC (Literal tag)   (AC) "
-									"|   %s<%s",
+									"| %s<%s",
 									*level, Indent (*level), tag_new_literal);
 							off += 1 + tag_len;
 						}
@@ -941,7 +1024,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 							proto_tree_add_text (tree, tvb, off, 1,
 									"  %3d | Tag   "
 									"|   Known Tag 0x%02X           (.C) "
-									"| %s<Tag 0x%02X>",
+									"| %s<Tag_0x%02X>",
 									*level, tag_new_known, Indent (*level),
 									tag_new_known);
 							off++;
@@ -961,12 +1044,14 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					 */
 					parsing_tag_content = TRUE;
 #ifdef DEBUG
-					printf ("WBXML: Tag in Tag - No recursion this time! (off = %d)\n",off);
+					printf ("WBXML: Tag in Tag - No recursion this time! "
+							"(off = %d)\n", off);
 #endif
 				}
 			} else { /* No Content */
 #ifdef DEBUG
-				printf ("WBXML: <Tag/> in Tag - No recursion! (off = %d)\n",off);
+				printf ("WBXML: <Tag/> in Tag - No recursion! "
+						"(off = %d)\n", off);
 #endif
 				(*level)++;
 				if (peek & 0x80) { /* No Content, Attribute list present */
@@ -1007,7 +1092,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 						proto_tree_add_text (tree, tvb, off, 1,
 								"  %3d | Tag   "
 								"|   Known Tag 0x%02x           (..) "
-								"| %s<Tag 0x%02X />",
+								"| %s<Tag_0x%02X />",
 								*level, tag_new_known, Indent (*level),
 								tag_new_known);
 						off++;
@@ -1028,6 +1113,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 
 
 
+
 /**************************
  * WBXML Attribute tokens *
  **************************
@@ -1038,6 +1124,8 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
  * 1... .... : "www."            (attribute value, or part of it)
  * 
  */
+
+
 
 
 /* This function parses the WBXML and maps known token interpretations
@@ -1052,9 +1140,10 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
  *
  * NOTE: Code page switches not yet processed in the code!
  */
-void
-parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
-		guint32 str_tbl, guint8 level, guint8 *codepage_attr, guint32 *parsed_length,
+static void
+parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
+		guint32 offset, guint32 str_tbl, guint8 level,
+		guint8 *codepage_attr, guint32 *parsed_length,
 		const wbxml_mapping_table *map)
 {
 	guint32 tvb_len = tvb_reported_length (tvb);
@@ -1066,16 +1155,19 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, guint32 off
 	guint8 peek;
 
 #ifdef DEBUG
-	printf ("WBXML - parse_wbxml_attr_defined (level = %d, offset = %d)\n", level, offset);
+	printf ("WBXML - parse_wbxml_attr_defined (level = %d, offset = %d)\n",
+			level, offset);
 #endif
 	/* Parse attributes */
 	while (off < tvb_len) {
 		peek = tvb_get_guint8 (tvb, off);
 #ifdef DEBUG
-		printf("WBXML - ATTR: level = %3d, peek = 0x%02X, off = %d, tvb_len = %d\n",
+		printf("WBXML - ATTR: level = %3d, peek = 0x%02X, off = %d, "
+				"tvb_len = %d\n",
 				level, peek, off, tvb_len);
 #endif
-		if ((peek & 0x3F) < 5) switch (peek) { /* Global tokens in state = ATTR */
+		if ((peek & 0x3F) < 5) switch (peek) { /* Global tokens
+												  in state = ATTR */
 			case 0x00: /* SWITCH_PAGE */
 				peek = tvb_get_guint8 (tvb, off+1);
 				proto_tree_add_text (tree, tvb, off, 2,
@@ -1218,6 +1310,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, guint32 off
 
 
 
+
 /* This function performs the WBXML attribute decoding as in
  * parse_wbxml_attribute_list_defined() but this time no WBXML mapping
  * is performed.
@@ -1226,9 +1319,10 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, guint32 off
  * 
  * NOTE: Code page switches not yet processed in the code!
  */
-void
-parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
-		guint32 str_tbl, guint8 level, guint8 *codepage_attr, guint32 *parsed_length)
+static void
+parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
+		guint32 offset, guint32 str_tbl, guint8 level,
+		guint8 *codepage_attr, guint32 *parsed_length)
 {
 	guint32 tvb_len = tvb_reported_length (tvb);
 	guint32 off = offset;
@@ -1239,16 +1333,19 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	guint8 peek;
 
 #ifdef DEBUG
-	printf ("WBXML - parse_wbxml_attr_defined (level = %d, offset = %d)\n", level, offset);
+	printf ("WBXML - parse_wbxml_attr_defined (level = %d, offset = %d)\n",
+			level, offset);
 #endif
 	/* Parse attributes */
 	while (off < tvb_len) {
 		peek = tvb_get_guint8 (tvb, off);
 #ifdef DEBUG
-		printf("WBXML - ATTR: level = %3d, peek = 0x%02X, off = %d, tvb_len = %d\n",
+		printf("WBXML - ATTR: level = %3d, peek = 0x%02X, off = %d, "
+				"tvb_len = %d\n",
 				level, peek, off, tvb_len);
 #endif
-		if ((peek & 0x3F) < 5) switch (peek) { /* Global tokens in state = ATTR */
+		if ((peek & 0x3F) < 5) switch (peek) { /* Global tokens
+												  in state = ATTR */
 			case 0x00: /* SWITCH_PAGE */
 				peek = tvb_get_guint8 (tvb, off+1);
 				proto_tree_add_text (tree, tvb, off, 2,
@@ -1370,13 +1467,13 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			if (peek & 0x80) { /* attrValue */
 				proto_tree_add_text (tree, tvb, off, 1,
 						"  %3d |  Attr |   Known attrValue 0x%02X          "
-						"|       %sattrValue 0x%02X",
+						"|       %sattrValue_0x%02X",
 						level, peek & 0x7f, Indent (level), peek);
 				off++;
 			} else { /* attrStart */
 				proto_tree_add_text (tree, tvb, off, 1,
 						"  %3d |  Attr |   Known attrStart 0x%02X          "
-						"|   %sattrStart 0x%02X",
+						"|   %sattrStart_0x%02X",
 						level, peek & 0x7f, Indent (level), peek);
 				off++;
 			}
@@ -1386,11 +1483,12 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 
 
 
-/* Register the protocol with Ethereal */
+
+/****************** Register the protocol with Ethereal ******************/
 
 /* This format is required because a script is used to build the C function
-   that calls the protocol registration.
-*/
+ * that calls the protocol registration.
+ */
 
 void
 proto_register_wbxml(void)
@@ -1435,6 +1533,7 @@ proto_register_wbxml(void)
 /* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_wbxml,
+		&ett_wbxml_str_tbl,
 		&ett_wbxml_content,
 	};
 
@@ -1460,14 +1559,76 @@ proto_reg_handoff_wbxml(void)
 {
 	dissector_handle_t wbxml_handle;
 
-	/* heur_dissector_add("wsp", dissect_wbxml_heur, proto_wbxml); */
+	/* Heuristic dissectors would be declared by means of:
+	 * heur_dissector_add("wsp", dissect_wbxml_heur, proto_wbxml);
+	 */
+
 	wbxml_handle = create_dissector_handle(dissect_wbxml, proto_wbxml);
 
 	/* Register the WSP content types (defined as protocol port)
-	 * for WBXML dissection */
-	dissector_add("wsp.content_type.type", 0x14, wbxml_handle); /* wmlc */
-	dissector_add("wsp.content_type.type", 0x16, wbxml_handle); /* channelc */
-	dissector_add("wsp.content_type.type", 0x2E, wbxml_handle); /* sic */
-	dissector_add("wsp.content_type.type", 0x30, wbxml_handle); /* slc */
-	dissector_add("wsp.content_type.type", 0x32, wbxml_handle); /* coc */
+	 * for WBXML dissection.
+	 * 
+	 * See http://www.wapforum.org/wina/wsp-content-type.htm
+	 */
+
+	/**** Well-known WBXML WSP Content-Type values ****/
+	
+	/* application/vnd.wap.wmlc */
+	dissector_add("wsp.content_type.type", 0x14, wbxml_handle);
+	
+	/* application/vnd.wap.wta-eventc */
+	dissector_add("wsp.content_type.type", 0x16, wbxml_handle);
+	
+	/* application/vnd.wap.wbxml */
+	dissector_add("wsp.content_type.type", 0x29, wbxml_handle);
+	
+	/* application/vnd.wap.sic */
+	dissector_add("wsp.content_type.type", 0x2E, wbxml_handle);
+	
+	/* application/vnd.wap.slc */
+	dissector_add("wsp.content_type.type", 0x30, wbxml_handle);
+	
+	/* application/vnd.wap.coc */
+	dissector_add("wsp.content_type.type", 0x32, wbxml_handle);
+	
+	/* application/vnd.wap.connectivity-wbxml */
+	dissector_add("wsp.content_type.type", 0x36, wbxml_handle);
+	
+	/* application/vnd.wap.locc+wbxml */
+	dissector_add("wsp.content_type.type", 0x40, wbxml_handle);
+	
+	/* application/vnd.syncml.dm+wbxml */
+	dissector_add("wsp.content_type.type", 0x42, wbxml_handle);
+	
+	/* application/vnd.oma.drm.rights+wbxml */
+	dissector_add("wsp.content_type.type", 0x4B, wbxml_handle);
+
+#ifdef WSP_DISSECTOR_REGISTERS_ContentType_AS_FourByteGuint	
+	
+	/**** Registered WBXML WSP Content-Type values ****/
+
+	/* application/vnd.uplanet.cacheop-wbxml */
+	dissector_add("wsp.content_type.type", 0x0201, wbxml_handle);
+	
+	/* application/vnd.uplanet.alert-wbxml */
+	dissector_add("wsp.content_type.type", 0x0203, wbxml_handle);
+	
+	/* application/vnd.uplanet.list-wbxml */
+	dissector_add("wsp.content_type.type", 0x0204, wbxml_handle);
+	
+	/* application/vnd.uplanet.listcmd-wbxml */
+	dissector_add("wsp.content_type.type", 0x0205, wbxml_handle);
+	
+	/* application/vnd.uplanet.channel-wbxml */
+	dissector_add("wsp.content_type.type", 0x0206, wbxml_handle);
+	
+	/* application/vnd.uplanet.bearer-choice-wbxml */
+	dissector_add("wsp.content_type.type", 0x0209, wbxml_handle);
+	
+	/* application/vnd.phonecom.mmc-wbxml */
+	dissector_add("wsp.content_type.type", 0x020A, wbxml_handle);
+	
+	/* application/vnd.nokia.syncset+wbxml */
+	dissector_add("wsp.content_type.type", 0x020B, wbxml_handle);
+#endif
 }
