@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.20 2002/01/21 07:50:24 guy Exp $
+# $Id: ethereal_gen.py,v 1.21 2002/01/21 21:59:10 guy Exp $
 #                           
 # ethereal_gen.py (part of idl2eth)           
 #
@@ -95,8 +95,9 @@ import tempfile
 # 13. Implement support for plugins [done]
 # 14. Dont generate code for empty operations (cf: exceptions without members)
 # 15. Generate code to display Enums numerically and symbolically [done]
-# 16. Place structs in subtrees
+# 16. Place structs/unions in subtrees
 # 17. Recursive struct and union handling [started - pass struct and union list to ethereal_gen.py ]
+# 18. Improve variable naming for display (eg: structs, unions etc)
 #
 # Also test, Test, TEST
 #
@@ -172,7 +173,10 @@ class ethereal_gen_C:
         
     def genCode(self,oplist, atlist, enlist, stlist, unlist):   # operation,attribute,enums,struct and union lists
 
-        self.genHelpers(oplist)         # sneaky .. call it now, to populate the fn_hash
+        #self.st = self.st_save          # test remove later
+        #self.genDeclares(oplist,atlist,enlist,stlist,unlist) # test remove later
+
+        self.genHelpers(oplist,stlist,unlist)  # sneaky .. call it now, to populate the fn_hash
                                         # so when I come to that operation later, I have the variables to
                                         # declare already.
                                         
@@ -192,7 +196,7 @@ class ethereal_gen_C:
         self.genEthCopyright()          # Ethereal Copyright comments.
         self.genGPL()                   # GPL license
         self.genIncludes()
-        self.genDeclares(oplist)
+        self.genDeclares(oplist,atlist,enlist,stlist,unlist)
         self.genProtocol()
         self.genRegisteredFields()
         self.genOpList(oplist)          # string constant declares for operation names
@@ -205,7 +209,7 @@ class ethereal_gen_C:
         self.genExceptionDelegator(oplist) # finds the helper function to decode a user exception
         self.genAttributeHelpers(atlist)   # helper function to decode "attributes"
 
-        self.genHelpers(oplist)
+        self.genHelpers(oplist,stlist,unlist)  # operation, struct and union decode helper functions
 
         self.genMainEntryStart(oplist)
         self.genOpDelegator(oplist)
@@ -274,14 +278,38 @@ class ethereal_gen_C:
             
         self.st.out(self.template_Includes)
                                 
+
     #
     # denDeclares
     #
+    # generate function prototypes if required
+    #
+    # Currently this is used for struct and union helper function declarations.
     #
     
-    def genDeclares(self,oplist):
+    
+    def genDeclares(self,oplist,atlist,enlist,stlist,unlist):
         if self.DEBUG:
             print "XXX genDeclares"
+
+        # struct prototypes
+        
+        self.st.out(self.template_prototype_struct_start)        
+        for st in stlist:
+            #print st.repoId()
+            sname = self.namespace(st, "_")   
+
+            self.st.out(self.template_prototype_struct_body, stname=st.repoId(),name=sname)        
+        self.st.out(self.template_prototype_struct_end)        
+
+        # union prototypes
+
+        self.st.out(self.template_prototype_union_start)        
+        for un in unlist:
+            sname = self.namespace(un, "_")   
+            self.st.out(self.template_prototype_union_body, unname=un.repoId(),name=sname)        
+        self.st.out(self.template_prototype_union_end)        
+                        
 
 
                                 
@@ -668,15 +696,21 @@ class ethereal_gen_C:
     # genHelpers()
     #
     # Generate private helper functions for each IDL operation.
+    # Generate private helper functions for each IDL struct.
+    # Generate private helper functions for each IDL union.
     #
-    # in: oplist
+    #
+    # in: oplist, stlist, unlist
     #
     
         
-    def genHelpers(self,oplist):
+    def genHelpers(self,oplist,stlist,unlist):
         for op in oplist:
             self.genOperation(op)
-
+        for st in stlist:
+            self.genStructHelper(st)
+        for un in unlist:
+            self.genUnionHelper(un)
 
     #
     # genOperation()
@@ -756,7 +790,6 @@ class ethereal_gen_C:
     #
     # Decode function parameters for a GIOP request message
     #
-    # TODO check for enum
     #
     
     def genOperationRequest(self,opnode):
@@ -773,7 +806,6 @@ class ethereal_gen_C:
     #
     # Decode function parameters for a GIOP reply message
     #
-    # TODO check for enum
 
     
     def genOperationReply(self,opnode):
@@ -965,7 +997,8 @@ class ethereal_gen_C:
             #self.get_CDR_enum(pn)
             
         elif pt ==  idltype.tk_struct:
-            self.get_CDR_struct(type,pn)
+            ##self.get_CDR_struct(type,pn)
+            self.get_CDR_struct2(type,pn)
         elif pt ==  idltype.tk_TypeCode: # will I ever get here ?
             self.get_CDR_TypeCode(type,pn)
         elif pt == idltype.tk_sequence:
@@ -975,7 +1008,7 @@ class ethereal_gen_C:
         elif pt == idltype.tk_array:
             self.get_CDR_array(type,pn)
         elif pt == idltype.tk_union:
-            self.get_CDR_union(type,pn)            
+            self.get_CDR_union2(type,pn)            
         elif pt == idltype.tk_alias:
             if self.DEBUG:
                 print "XXXXX Alias type XXXXX " , type
@@ -1212,7 +1245,179 @@ class ethereal_gen_C:
                     self.st.out(self.template_comment_union_code_label_compare_end )
                 else:
                     self.st.out(self.template_comment_union_code_label_default_end  )
+
+
             
+    def get_CDR_union2(self,type,pn):
+        if self.DEBUG:
+            print "XXX Union type =" , type, " pn = ",pn
+            print "XXX Union type.decl()" , type.decl()
+            print "XXX Union Scoped Name" , type.scopedName()
+
+       #  If I am a typedef union {..}; node then find the union node
+        
+        if isinstance(type.decl(), idlast.Declarator):
+            ntype = type.decl().alias().aliasType().decl()           
+        else:
+            ntype = type.decl()         # I am a union node
+
+        if self.DEBUG:    
+            print "XXX Union ntype =" , ntype
+
+        sname = self.namespace(ntype, "_")
+        self.st.out(self.template_union_start, name=sname )
+
+        # Output a call to the union helper function so I can handle recursive union also.
+        
+        self.st.out(self.template_decode_union,name=sname)    
+
+        self.st.out(self.template_union_end, name=sname )
+
+##         if ntype.recursive():
+##             sys.stderr.write( "Error: idl2eth does not handle recursive unions yet \n")
+##             sys.exit(1)
+            
+        st = ntype.switchType().unalias() # may be typedef switch type, so find real type
+
+    #
+    # Code to generate Union Helper functions
+    #
+    # in: un - a union node
+    #
+    #
+
+
+    def genUnionHelper(self,un):
+        if self.DEBUG:
+            print "XXX Union type =" , un
+            print "XXX Union type.decl()" , un.decl()
+            print "XXX Union Scoped Name" , un.scopedName()
+
+        sname = self.namespace(un, "_")
+        self.curr_sname = sname         # update current opnode/exnode/stnode/unnode scoped name
+        if not self.fn_hash_built:
+            self.fn_hash[sname] = []        # init empty list as val for this sname key
+                                            # but only if the fn_hash is not already built
+
+        self.st.out(self.template_union_helper_function_start, sname=sname, unname=un.repoId())
+        self.st.inc_indent()
+
+        self.st.out(self.template_helper_function_vars_start)
+        self.dumpCvars(sname)
+        self.st.out(self.template_helper_function_vars_end )
+        
+        self.st.out(self.template_union_helper_function_get_endianess)
+
+        st = un.switchType().unalias() # may be typedef switch type, so find real type
+
+        #std = st.decl()
+
+        self.st.out(self.template_comment_union_code_start, uname=un.repoId() )
+
+        self.getCDR3(st,un.identifier());
+
+        # Depending on what kind of discriminant I come accross (enum,integer,char,
+        # short, boolean), make sure I cast the return value of the get_XXX accessor
+        # to an appropriate value. Omniidl idlast.CaseLabel.value() accessor will
+        # return an integer, or an Enumerator object that is then converted to its
+        # integer equivalent.
+        #
+        #
+        # NOTE - May be able to skip some of this stuff, but leave it in for now -- FS
+        #
+
+        if (st.kind() == idltype.tk_enum):
+            std = st.decl()            
+            self.st.out(self.template_comment_union_code_discriminant, uname=std.repoId() )
+            self.st.out(self.template_union_code_save_discriminant_enum, discname=un.identifier() )
+            self.addvar(self.c_s_disc + un.identifier() + ";")            
+
+        elif (st.kind() == idltype.tk_long):
+            self.st.out(self.template_union_code_save_discriminant_long, discname=un.identifier() )
+            self.addvar(self.c_s_disc + un.identifier() + ";")            
+
+        elif (st.kind() == idltype.tk_short):
+            self.st.out(self.template_union_code_save_discriminant_short, discname=un.identifier() )
+            self.addvar(self.c_s_disc + un.identifier() + ";")            
+
+        elif (st.kind() == idltype.tk_boolean):
+            self.st.out(self.template_union_code_save_discriminant_boolean, discname=un.identifier()  )
+            self.addvar(self.c_s_disc + un.identifier() + ";")            
+            
+        elif (st.kind() == idltype.tk_char):
+            self.st.out(self.template_union_code_save_discriminant_char, discname=un.identifier() )
+            self.addvar(self.c_s_disc + un.identifier() + ";")            
+
+        else:
+            print "XXX Unknown st.kind() = ", st.kind()
+            
+        #
+        # Loop over all cases in this union
+        #
+        
+        for uc in un.cases():           # for all UnionCase objects in this union
+            for cl in uc.labels():      # for all Caselabel objects in this UnionCase
+
+                # get integer value, even if discriminant is
+                # an Enumerator node
+                
+                if isinstance(cl.value(),idlast.Enumerator):
+                    if self.DEBUG:
+                        print "XXX clv.identifier()", cl.value().identifier()
+                        print "XXX clv.repoId()", cl.value().repoId()
+                        print "XXX clv.scopedName()", cl.value().scopedName()
+                                            
+                    # find index of enumerator in enum declaration
+                    # eg: RED is index 0 in enum Colors { RED, BLUE, GREEN }
+                    
+                    clv = self.valFromEnum(std,cl.value())
+                    
+                else:
+                    clv = cl.value()
+                    
+                #print "XXX clv = ",clv
+
+                #    
+                # if char, dont convert to int, but put inside single quotes so that it is understood by C.
+                # eg: if (disc == 'b')..
+                #
+                # TODO : handle \xxx chars generically from a function or table lookup rather than
+                #        a whole bunch of "if" statements. -- FS
+                
+                                          
+                if (st.kind() == idltype.tk_char):
+                    if (clv == '\n'):          # newline
+                        string_clv = "'\\n'" 
+                    elif (clv == '\t'):        # tab
+                        string_clv = "'\\t'"
+                    else:
+                        string_clv = "'" + clv + "'"
+                else:                    
+                    string_clv = '%i ' % clv
+
+                #
+                # If default case, then skp comparison with discriminator
+                #
+                
+                if not cl.default():
+                    self.st.out(self.template_comment_union_code_label_compare_start, discname=un.identifier(),labelval=string_clv )
+                    self.st.inc_indent()       
+                else:
+                    self.st.out(self.template_comment_union_code_label_default_start  )
+                    
+
+                self.getCDR3(uc.caseType(),uc.declarator().identifier())
+
+                if not cl.default():
+                    self.st.dec_indent()       
+                    self.st.out(self.template_comment_union_code_label_compare_end )
+                else:
+                    self.st.out(self.template_comment_union_code_label_default_end  )
+
+        self.st.dec_indent()
+        self.st.out(self.template_union_helper_function_end)
+
+
 
     #
     # Currently, get_CDR_alias is geared to finding typdef 
@@ -1286,11 +1491,84 @@ class ethereal_gen_C:
 
         self.st.out(self.template_structure_end, name=type.name())
 
+    #
+    # Handle structs, including recursive
+    #
+    
+    def get_CDR_struct2(self,type,pn):       
+
+        #  If I am a typedef struct {..}; node then find the struct node
+        
+        if isinstance(type.decl(), idlast.Declarator):
+            ntype = type.decl().alias().aliasType().decl()           
+        else:
+            ntype = type.decl()         # I am a struct node
+
+        sname = self.namespace(ntype, "_")
+        self.st.out(self.template_structure_start, name=sname )
+
+        # Output a call to the struct helper function so I can handle recursive structs also.
+        
+        self.st.out(self.template_decode_struct,name=sname)    
+
+        self.st.out(self.template_structure_end, name=sname )
+
+    #
+    # genStructhelper() 
+    #
+    # Generate private helper functions to decode a struct
+    #
+    # in: stnode ( a struct node)
+    #
+    
+    def genStructHelper(self,st):
+        if self.DEBUG:
+            print "XXX genStructHelper"
+            
+        sname = self.namespace(st, "_")
+        self.curr_sname = sname         # update current opnode/exnode/stnode scoped name
+        if not self.fn_hash_built:
+            self.fn_hash[sname] = []        # init empty list as val for this sname key
+                                            # but only if the fn_hash is not already built
+
+        self.st.out(self.template_struct_helper_function_start, sname=sname, stname=st.repoId())
+        self.st.inc_indent()
+
+        self.st.out(self.template_helper_function_vars_start)
+        self.dumpCvars(sname)
+        self.st.out(self.template_helper_function_vars_end )
+        
+        self.st.out(self.template_struct_helper_function_get_endianess)
+
+        for m in st.members():
+            for decl in m.declarators():
+                if decl.sizes():        # an array
+                    indices = self.get_indices_from_sizes(decl.sizes())
+                    string_indices = '%i ' % indices # convert int to string
+                    self.st.out(self.template_get_CDR_array_comment, aname=decl.identifier(), asize=string_indices)     
+                    self.st.out(self.template_get_CDR_array_start, aname=decl.identifier(), aval=string_indices)
+                    self.addvar(self.c_i + decl.identifier() + ";")
+                    
+                    self.st.inc_indent()       
+                    self.getCDR3(m.memberType(), st.identifier() + "_" + decl.identifier() )                    
+                    self.st.dec_indent()
+                    self.st.out(self.template_get_CDR_array_end)
+                    
+                    
+                else:                            
+                    self.getCDR3(m.memberType(), st.identifier() + "_" + decl.identifier() )
+                            
+        self.st.dec_indent()
+        self.st.out(self.template_struct_helper_function_end)
+
+
+
 
 
     #
     # Generate code to access a sequence of a type
     #
+
     
     def get_CDR_sequence(self,type, pn):
         self.st.out(self.template_get_CDR_sequence_length, seqname=pn )
@@ -1998,6 +2276,15 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 /*  End struct \"@name@\"  */
 """
 
+    template_union_start = """\
+/*  Begin union \"@name@\"  */
+"""
+
+
+    template_union_end = """\
+/*  End union \"@name@\"  */
+"""
+
 
 
 
@@ -2336,6 +2623,75 @@ stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 }
 """
 
+    
+#
+# template for struct helper code
+#
+
+
+    template_struct_helper_function_start = """\
+
+/* Struct = @stname@ */
+
+static void decode_@sname@_st(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+
+    gboolean stream_is_big_endian;          /* big endianess */
+"""
+
+
+
+
+    #
+    # Template for the helper function
+    # to get stream endianess from header
+    #
+
+    template_struct_helper_function_get_endianess = """\
+
+stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
+
+"""
+
+    
+    template_struct_helper_function_end = """\
+}
+"""
+
+#
+# template for union helper code
+#
+
+
+    template_union_helper_function_start = """\
+
+/* Union = @unname@ */
+
+static void decode_@sname@_un(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+
+    gboolean stream_is_big_endian;          /* big endianess */
+"""
+
+
+
+
+    #
+    # Template for the helper function
+    # to get stream endianess from header
+    #
+
+    template_union_helper_function_get_endianess = """\
+
+stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
+
+"""
+
+    
+    template_union_helper_function_end = """\
+}
+"""
+
+
+
 #-------------------------------------------------------------#
 #             Value string  templates                         #
 #-------------------------------------------------------------#
@@ -2565,7 +2921,7 @@ if (disc_s_@discname@ == @labelval@) {
 
  """
     template_comment_union_code_label_compare_end = """\
-    break;
+    return;     /* End Compare for this discriminant type */
 }
 
  """
@@ -2580,3 +2936,62 @@ if (disc_s_@discname@ == @labelval@) {
 /* Default Union Case End */
  
  """
+
+    #
+    # Templates for function prototypes.
+    # This is used in genDeclares() for declaring function prototypes
+    # for structs and union helper functions.
+    #
+
+    template_prototype_struct_start = """
+/* Struct prototype declaration Start */
+ 
+"""
+    
+    template_prototype_struct_end = """
+/* Struct prototype declaration End */
+ 
+"""
+    
+    template_prototype_struct_body = """
+        
+/* Struct = @stname@ */
+
+static void decode_@name@_st(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation);
+
+"""
+
+    template_decode_struct = """
+        
+decode_@name@_st(tvb, pinfo, tree, offset, header, operation);
+
+"""
+
+
+    
+    
+    template_prototype_union_start = """
+/* Union prototype declaration Start */
+ 
+"""
+    
+    template_prototype_union_end = """
+/* Union prototype declaration End */
+ 
+"""
+    
+    template_prototype_union_body = """
+        
+/* Union = @unname@ */
+
+static void decode_@name@_un(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation);
+
+"""
+
+    template_decode_union = """
+        
+decode_@name@_un(tvb, pinfo, tree, offset, header, operation);
+
+"""
+    
+    
