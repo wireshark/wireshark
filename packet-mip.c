@@ -1,8 +1,8 @@
 /* packet-mip.c
  * Routines for Mobile IP dissection
- * Copyright 2000, Stefan Raab <Stefan.Raab@nextel.com>
+ * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-mip.c,v 1.13 2001/01/25 06:14:14 guy Exp $
+ * $Id: packet-mip.c,v 1.14 2001/02/14 17:01:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -40,6 +40,7 @@
 
 #include <string.h>
 #include <glib.h>
+#include <time.h>
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
@@ -62,42 +63,19 @@ static int hf_mip_homeaddr = -1;
 static int hf_mip_haaddr = -1;
 static int hf_mip_coa = -1;
 static int hf_mip_ident = -1;
+static int hf_mip_ext_type = -1;
+static int hf_mip_ext_len = -1;
+static int hf_mip_aext_spi = -1;
+static int hf_mip_aext_auth = -1;
+static int hf_mip_next_nai = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mip = -1;
+static gint ett_mip_ext = -1;
 
 /* Port used for Mobile IP */
 #define UDP_PORT_MIP    434
-
-
-/*
-struct mip_packet{
-  unsigned char type;
-};
-
-
-struct mip_request_packet{
-  unsigned char type;
-  unsigned char code;
-  unsigned char life[2];
-  unsigned char homeaddr[4];
-  unsigned char haaddr[4];
-  unsigned char coa[4];
-  unsigned char ident[8];
-
-};
-
-
-struct mip_reply_packet{
-  unsigned char type;
-  unsigned char code;
-  unsigned char life[2];
-  unsigned char homeaddr[4];
-  unsigned char haaddr[4];
-  unsigned char ident[8];
-
-};
-*/
+#define NTP_BASETIME 2208988800ul
 
 static const value_string mip_types[] = {
   {1, "Registration Request"},
@@ -106,57 +84,73 @@ static const value_string mip_types[] = {
 };
 
 static const value_string mip_reply_codes[]= {
-  {0, "Registration Accepted"},
-  {1, "Registration Accepted, no simul bindings"},
-  {64, "Registration Denied by FA, unspecified reason"},
-  {65, "Registration Denied by FA, Admin Prohibit"},
-  {66, "Registration Denied by FA, Insufficient Resources"},
-  {67, "Registration Denied by FA, MN failed Auth"},
-  {68, "Registration Denied by FA, HA failed Auth"},
-  {69, "Registration Denied by FA, Lifetime to long"},
-  {70, "Registration Denied by FA, Poorly Formed Request"},
-  {71, "Registration Denied by FA, Poorly Formed Reply"},
-  {72, "Registration Denied by FA, encap unavailable"},
-  {73, "Registration Denied by FA, VJ unavailable"},
-  {80, "Registration Denied by FA, Home net unreachable"},
-  {81, "Registration Denied by FA, Home Agent host unreachable"},
-  {82, "Registration Denied by FA, Home Agent port unreachable"},
-  {88, "Registration Denied by FA, Home Agent unreachable"},
-  {128, "Registration Denied by HA, unspecified"},
-  {129, "Registration Denied by HA, Admin Prohibit"},
-  {130, "Registration Denied by HA, insufficient resources"},
-  {131, "Registration Denied by HA, MN failed Auth"},
-  {132, "Registration Denied by HA, FA failed Auth"},
-  {133, "Registration Denied by HA, registration ID Mismatch"},
-  {134, "Registration Denied by HA, poorly formed request"},
-  {135, "Registration Denied by HA, too many simul bindings"},
-  {136, "Registration Denied by HA, unknown HA address"},
+  {0, "Reg Accepted"},
+  {1, "Reg Accepted, but Simultaneous Bindings Unsupported."},
+  {64, "Reg Deny (FA)- Unspecified Reason"},
+  {65, "Reg Deny (FA)- Administratively Prohibited"},
+  {66, "Reg Deny (FA)- Insufficient Resources"},
+  {67, "Reg Deny (FA)- MN failed Authentication"},
+  {68, "Reg Deny (FA)- HA failed Authentication"},
+  {69, "Reg Deny (FA)- Requested Lifetime too Long"},
+  {70, "Reg Deny (FA)- Poorly Formed Request"},
+  {71, "Reg Deny (FA)- Poorly Formed Reply"},
+  {72, "Reg Deny (FA)- Requested Encapsulation Unavailable"},
+  {73, "Reg Deny (FA)- VJ Compression Unavailable"},
+  {80, "Reg Deny (FA)- Home Network Unreachable"},
+  {81, "Reg Deny (FA)- HA Host Unreachable"},
+  {82, "Reg Deny (FA)- HA Port Unreachable"},
+  {88, "Reg Deny (FA)- HA Unreachable"},
+  {96, "Reg Deny (FA)(NAI) - Non Zero Home Address Required"},
+  {97, "Reg Deny (FA)(NAI) - Missing NAI"},
+  {98, "Reg Deny (FA)(NAI) - Missing Home Agent"},
+  {99, "Reg Deny (FA)(NAI) - Missing Home Address"},
+  {128, "Reg Deny (HA)- Unspecified"},
+  {129, "Reg Deny (HA)- Administratively Prohibited"},
+  {130, "Reg Deny (HA)- Insufficient Resources"},
+  {131, "Reg Deny (HA)- MN Failed Authentication"},
+  {132, "Reg Deny (HA)- FA Failed Authentication"},
+  {133, "Reg Deny (HA)- Registration ID Mismatch"},
+  {134, "Reg Deny (HA)- Poorly Formed Request"},
+  {135, "Reg Deny (HA)- Too Many Simultaneous Bindings"},
+  {136, "Reg Deny (HA)- Unknown HA Address"},
+  {0, NULL},
+};
+
+static const value_string mip_ext_types[]= {
+  {32, "Mobile-Home Authentication Extension"},
+  {33, "Mobile-Foreign Authentication Extension"},
+  {34, "Foreign-Home Authentication Extension"},
+  {131, "Mobile Node NAI Extension"},
   {0, NULL},
 };
 
 /* Code to actually dissect the packets */
 static void
-dissect_mip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
 /* Set up structures we will need to add the protocol subtree and manage it */
 	proto_item	*ti;
-	proto_tree	*mip_tree;
+	proto_tree	*mip_tree=NULL, *ext_tree=NULL;
 	guint8		type, code;
+	struct timeval      ident_time;
+	int eoffset, elen;
+	
+	CHECK_DISPLAY_AS_DATA(proto_mip, tvb, pinfo, tree);
 
 /* Make entries in Protocol column and Info column on summary display */
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "Mobile IP");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	pinfo->current_proto = "Mobile IP";
+	if (check_col(pinfo->fd, COL_PROTOCOL)) 
+		col_set_str(pinfo->fd, COL_PROTOCOL, "MobileIP");
     
 	type = tvb_get_guint8(tvb, 0);
 
 	if (type==1) {
 
 	  if (check_col(pinfo->fd, COL_INFO)) 
-		 col_set_str(pinfo->fd, COL_INFO, "Mobile IP Registration Request");
+		 col_add_fstr(pinfo->fd, COL_INFO, "Reg Request: HAddr=%s COA=%s", 
+						  ip_to_str(tvb_get_ptr(tvb, 4, 4)), ip_to_str(tvb_get_ptr(tvb,12,4)));
 	
 	  if (tree) {
 		 ti = proto_tree_add_item(tree, proto_mip, tvb, 0, tvb_length(tvb), FALSE);
@@ -170,31 +164,96 @@ dissect_mip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 proto_tree_add_boolean(mip_tree, hf_mip_m, tvb, 1, 1, code);
 		 proto_tree_add_boolean(mip_tree, hf_mip_g, tvb, 1, 1, code);
 		 proto_tree_add_boolean(mip_tree, hf_mip_v, tvb, 1, 1, code);
+		 
+		 proto_tree_add_item(mip_tree, hf_mip_life, tvb, 2, 2, FALSE);
+		 proto_tree_add_item(mip_tree, hf_mip_homeaddr, tvb, 4, 4, FALSE);
+		 proto_tree_add_item(mip_tree, hf_mip_haaddr, tvb, 8, 4, FALSE);
+		 proto_tree_add_item(mip_tree, hf_mip_coa, tvb, 12, 4, FALSE);
+		 ident_time.tv_sec =  tvb_get_ntohl(tvb,16)-(guint32) NTP_BASETIME;
+		 ident_time.tv_usec = tvb_get_ntohl(tvb,20);
+		 proto_tree_add_time(mip_tree, hf_mip_ident, tvb, 16, 8, &ident_time);
+		 
+		 eoffset = 24;
+		 while (eoffset < tvb_length(tvb)) {             /* Registration Extensions */
+			if (eoffset ==24) {
+			  ti = proto_tree_add_text(mip_tree, tvb, 24, tvb_length(tvb)-24, "Extensions");
+			  ext_tree = proto_item_add_subtree(ti, ett_mip_ext);
+			}
 
-		 proto_tree_add_int(mip_tree, hf_mip_life, tvb, 2, 2, tvb_get_ntohs(tvb, 2));
-		 proto_tree_add_ipv4(mip_tree, hf_mip_homeaddr, tvb, 4, 4, tvb_get_letohl(tvb, 4));
-		 proto_tree_add_ipv4(mip_tree, hf_mip_haaddr, tvb, 8, 4, tvb_get_letohl(tvb, 8));
-		 proto_tree_add_ipv4(mip_tree, hf_mip_coa, tvb, 12, 4, tvb_get_letohl(tvb, 12));
-		 proto_tree_add_bytes(mip_tree, hf_mip_ident, tvb, 16, 8, tvb_get_ptr(tvb, 16, 8));
+			proto_tree_add_item(ext_tree, hf_mip_ext_type, tvb, eoffset, 1, FALSE);
+			elen = tvb_get_guint8(tvb, eoffset+1);
+			proto_tree_add_int(ext_tree, hf_mip_ext_len, tvb, eoffset+1, 1, elen);
+
+			switch (tvb_get_guint8(tvb, eoffset)) {
+			case 32 ... 34:
+			  proto_tree_add_item(ext_tree, hf_mip_aext_spi, tvb, eoffset+2, 4, FALSE);
+			  proto_tree_add_item(ext_tree, hf_mip_aext_auth, tvb, eoffset+6, elen-4, FALSE);
+			  break;
+			case 131:
+			  proto_tree_add_string(ext_tree, hf_mip_next_nai, tvb, eoffset+2, 
+											tvb_get_guint8(tvb, eoffset+1), 
+											tvb_get_ptr(tvb, eoffset+2,tvb_get_guint8(tvb, eoffset+1)));
+			  break;
+			default:
+			  proto_tree_add_text(ext_tree, tvb, eoffset + 2,  tvb_get_guint8(tvb, eoffset+1), 
+										 "Unknown Extension");
+			  break;
+			  
+			}
+			eoffset += tvb_get_guint8(tvb, eoffset+1) + 2;
+		 }
 	  }
 	}
 
-
+	
 	if (type==3){
 	  if (check_col(pinfo->fd, COL_INFO)) 
-		 col_set_str(pinfo->fd, COL_INFO, "Mobile IP Registration Reply");
-
+		 col_add_fstr(pinfo->fd, COL_INFO, "Reg Reply: HAddr=%s, Code=%u", 
+						  ip_to_str(tvb_get_ptr(tvb,4,4)), tvb_get_guint8(tvb,1));
+	  
 	  if (tree) {
 		 ti = proto_tree_add_item(tree, proto_mip, tvb, 0, tvb_length(tvb), FALSE);
-	   	 mip_tree = proto_item_add_subtree(ti, ett_mip);
+		 mip_tree = proto_item_add_subtree(ti, ett_mip);
 		 proto_tree_add_int(mip_tree, hf_mip_type, tvb, 0, 1, type);
-
-		 code = tvb_get_guint8(tvb, 1);
-		 proto_tree_add_uint(mip_tree, hf_mip_code, tvb, 1, 1, code);
-		 proto_tree_add_int(mip_tree, hf_mip_life, tvb, 2, 2, tvb_get_ntohs(tvb, 2));
-		 proto_tree_add_ipv4(mip_tree, hf_mip_homeaddr, tvb, 4, 4, tvb_get_letohl(tvb, 4));
-		 proto_tree_add_ipv4(mip_tree, hf_mip_haaddr, tvb, 8, 4, tvb_get_letohl(tvb, 8));
-		 proto_tree_add_bytes(mip_tree, hf_mip_ident, tvb, 12, 8, tvb_get_ptr(tvb, 12, 8));
+		 
+		 /*	 code = tvb_get_guint8(tvb, 1);
+				 proto_tree_add_uint(mip_tree, hf_mip_code, tvb, 1, 1, code);*/
+		 proto_tree_add_item(mip_tree, hf_mip_code, tvb, 1, 1, FALSE);
+		 proto_tree_add_item(mip_tree, hf_mip_life, tvb, 2, 2, FALSE);
+		 proto_tree_add_item(mip_tree, hf_mip_homeaddr, tvb, 4, 4, FALSE);
+  		 proto_tree_add_item(mip_tree, hf_mip_haaddr, tvb, 8, 4, FALSE);
+		 ident_time.tv_sec =  tvb_get_ntohl(tvb,12)-(guint32) NTP_BASETIME;
+		 ident_time.tv_usec = tvb_get_ntohl(tvb,16);
+		 proto_tree_add_time(mip_tree, hf_mip_ident, tvb, 12, 8, &ident_time);
+		 
+		 eoffset = 20;
+		 while (eoffset < tvb_length(tvb)) {             /* Registration Extensions */
+			if (eoffset==20) {
+			  ti = proto_tree_add_text(mip_tree, tvb, 20, tvb_length(tvb)-20, "Extensions");
+			  ext_tree = proto_item_add_subtree(ti, ett_mip_ext);
+			}
+			
+			proto_tree_add_int(ext_tree, hf_mip_ext_type, tvb, eoffset, 1, 
+									 tvb_get_guint8(tvb, eoffset));
+			elen = tvb_get_guint8(tvb, eoffset+1);
+			proto_tree_add_int(ext_tree, hf_mip_ext_len, tvb, eoffset+1, 1, elen);
+			
+			switch (tvb_get_guint8(tvb, eoffset)) {
+			case 32 ... 34:                             
+			  proto_tree_add_item(ext_tree, hf_mip_aext_spi, tvb, eoffset+2, 4, FALSE);
+			  proto_tree_add_item(ext_tree, hf_mip_aext_auth, tvb, eoffset+6, elen-4, FALSE);
+			  break;
+			case 131:
+			  proto_tree_add_item(ext_tree, hf_mip_next_nai, tvb, eoffset+2, 
+											tvb_get_guint8(tvb, eoffset+1), FALSE);
+			  break;
+			default:
+			  proto_tree_add_text(ext_tree, tvb, eoffset + 2,  tvb_get_guint8(tvb, eoffset+1), 
+										 "Unknown Extension");
+			  break;
+			}
+			eoffset += tvb_get_guint8(tvb, eoffset+1) + 2;
+		 }
 	  }
 	}
 }
@@ -212,6 +271,7 @@ void proto_register_mip(void)
 	  },
 	  { &hf_mip_s,
 		 {"Simultaneous Bindings",           "mip.s",
+
 		   FT_BOOLEAN, 8, NULL, 128,          
 		   "Simultaneous Bindings Allowed" }
 	  },
@@ -247,7 +307,7 @@ void proto_register_mip(void)
 	  },
 	  { &hf_mip_life,
 		 { "Lifetime",           "mip.life",
-			FT_INT16, BASE_DEC, NULL, 0,          
+			FT_UINT16, BASE_DEC, NULL, 0,          
 			"Mobile IP Lifetime." }
 	  },
 	  { &hf_mip_homeaddr,
@@ -268,18 +328,40 @@ void proto_register_mip(void)
 	  },
 	  { &hf_mip_ident,
 		 { "Identification",           "mip.ident",
-			FT_BYTES, BASE_NONE, NULL, 0,          
+			FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0,          
 			"MN Identification." }
 	  },
-
-
-
-
+	  { &hf_mip_ext_type,
+		 { "Extension Type",           "mip.ext.type",
+			FT_INT8, BASE_DEC, VALS(mip_ext_types), 0,          
+			"Mobile IP Extension Type." }
+	  },
+	  { &hf_mip_ext_len,
+		 { "Extension Length",         "mip.ext.len",
+			FT_INT8, BASE_DEC, NULL, 0,
+			"Mobile IP Extension Length."}
+	  },
+	  { &hf_mip_aext_spi,
+		 { "SPI",                      "mip.auth.spi",
+			FT_INT32, BASE_HEX, NULL, 0,
+			"Authentication Header Security Parameter Index."}
+	  },
+	  { &hf_mip_aext_auth,
+		 { "Authenticator",            "mip.auth.auth",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			"Authenticator."}
+	  },
+	  { &hf_mip_next_nai,
+		 { "NAI",                      "mip.nai",
+			FT_STRING, BASE_NONE, NULL, 0,
+			"NAI"}
+	  },
 	};
 
 /* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_mip,
+		&ett_mip_ext,
 	};
 
 /* Register the protocol name and description */
@@ -293,5 +375,5 @@ void proto_register_mip(void)
 void
 proto_reg_handoff_mip(void)
 {
-	dissector_add("udp.port", UDP_PORT_MIP, dissect_mip, proto_mip);
+  dissector_add("udp.port", UDP_PORT_MIP, dissect_mip, proto_mip);
 }
