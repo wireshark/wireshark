@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.3 2001/02/12 01:17:23 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.4 2001/02/14 07:15:39 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -233,39 +233,6 @@ decode_build_reset_list (gchar *table_name, gpointer key,
     dissector_reset_list = g_slist_prepend(dissector_reset_list, item);
 }
 
-/*
- * This routine resets any changed dissectors.  it is called from the
- * "Decode As" dialog box when the "reset changed" button is pressed.
- *
- * This routine uses auxiliary functions to perform the bulk of its
- * work.  These functions walk the dissector tables and build a list
- * of dissectors that should be deleted.
- *
- * @param w Unknown
- * @param data Unknown
- */
-static void
-decode_reset_cb (GtkWidget * w, gpointer data)
-{
-    dissector_delete_item_t *item;
-    GSList *tmp;
-    
-    dissector_all_tables_foreach_changed(decode_build_reset_list, NULL);
-
-    for (tmp = dissector_reset_list; tmp; tmp = g_slist_next(tmp)) {
-	item = tmp->data;
-	dissector_reset(item->ddi_table_name, item->ddi_port);
-	g_free(item);
-    }
-    g_slist_free(dissector_reset_list);
-    dissector_reset_list = NULL;
-
-    simple_dialog(ESD_TYPE_INFO, NULL,
-		  "All dissectors have been reset to their default values.");
-
-    redissect_packets(&cfile);
-}
-
 
 /**************************************************/
 /*             Show Changed Dissectors            */
@@ -319,7 +286,7 @@ decode_build_show_list (gchar *table_name, gpointer key,
 
 /*
  * This routine is called when the user clicks the "OK" button in
- * the "Decode Show:Show" dialog window.  This routine then destroys the
+ * the "Decode As:Show..." dialog window.  This routine destroys the
  * dialog box and performs other housekeeping functions.
  *
  * @param GtkWidget * A pointer to the "OK" button.
@@ -334,8 +301,40 @@ decode_show_ok_cb (GtkWidget *ok_bt, gpointer parent_w)
 
 
 /*
+ * This routine is called when the user clicks the "Reset" button in
+ * the "Decode As:Show..." dialog window.  This routine resets all the
+ * dissector values and then destroys the dialog box and performs
+ * other housekeeping functions.
+ *
+ * @param GtkWidget * A pointer to the "Reset" button.
+ *
+ * @param gpointer A pointer to the dialog window.
+ */
+static void
+decode_show_reset_cb (GtkWidget *reset_bt, gpointer parent_w)
+{
+    dissector_delete_item_t *item;
+    GSList *tmp;
+    
+    dissector_all_tables_foreach_changed(decode_build_reset_list, NULL);
+
+    for (tmp = dissector_reset_list; tmp; tmp = g_slist_next(tmp)) {
+	item = tmp->data;
+	dissector_reset(item->ddi_table_name, item->ddi_port);
+	g_free(item);
+    }
+    g_slist_free(dissector_reset_list);
+    dissector_reset_list = NULL;
+
+    redissect_packets(&cfile);
+
+    gtk_widget_destroy(GTK_WIDGET(parent_w));
+}
+
+
+/*
  * This routine is called when the user clicks the "Close" button in
- * the "Decode As:Show" dialog window.  This routine simply calls the
+ * the "Decode As:Show..." dialog window.  This routine simply calls the
  * cancel routine as if the user had clicked the cancel button instead
  * of the close button.
  *
@@ -379,7 +378,7 @@ decode_show_destroy_cb (GtkWidget *win, gpointer user_data)
 void
 decode_show_cb (GtkWidget * w, gpointer data)
 {
-    GtkWidget *main_vb, *bbox, *ok_bt, *scrolled_window;
+    GtkWidget *main_vb, *bbox, *ok_bt, *button, *scrolled_window;
     GtkCList  *clist;
     gchar     *titles[E_CLIST_D_COLUMNS] = {"Table", "Port", "Initial", "Current"};
     gint       column;
@@ -424,11 +423,19 @@ decode_show_cb (GtkWidget * w, gpointer data)
 	gtk_widget_set_usize(scrolled_window, 0, E_DECODE_MIN_HEIGHT);
     }
 
-    /* Button row: OK and cancel buttons */
+    /* Button row: OK and reset buttons */
     bbox = gtk_hbutton_box_new();
     gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
     gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 10);
+
+    button = gtk_button_new_with_label("Reset Changes");
+    gtk_signal_connect(GTK_OBJECT(button), "clicked",
+		       GTK_SIGNAL_FUNC(decode_show_reset_cb),
+		       GTK_OBJECT(decode_show_w));
+    GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+    gtk_box_pack_start(GTK_BOX(bbox), button, FALSE, FALSE, 0);
+    gtk_widget_set_sensitive(button, (clist->rows != 0));
 
     ok_bt = gtk_button_new_with_label("OK");
     gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
@@ -471,9 +478,8 @@ decode_show_cb (GtkWidget * w, gpointer data)
  * @return gchar * Pointer to the next free location in the string
  * buffer.
  */
-static gchar *
-decode_change_one_dissector (gchar *s, gchar *table_name, gint selector,
-			     GtkCList *clist)
+static void
+decode_change_one_dissector (gchar *table_name, gint selector, GtkCList *clist)
 {
     dissector_t  dissector;
     gboolean     old;
@@ -495,24 +501,15 @@ decode_change_one_dissector (gchar *s, gchar *table_name, gint selector,
 	if ((proto_num != -1) && (dissector == NULL)) {
 	    simple_dialog(ESD_TYPE_CRIT, NULL,
 			  "Protocol dissector structure disappeared");
-	    return(s);
+	    return;
 	}
     }
 
     if (strcmp(abbrev, "(default)") == 0) {
 	dissector_reset(table_name, selector);
-	s += sprintf(s, "Reset %s port %5d.\n", table_name, selector);
     } else {
 	dissector_change(table_name, selector, dissector, old, proto_num);
-	if (dissector != NULL) {
-	    s += sprintf(s, "Decoding %s table entry %5d as %s.\n",
-			 table_name, selector, abbrev);
-	} else {
-	    s += sprintf(s, "Not decoding %s table entry %5d.\n",
-			 table_name, selector);
-	}
     }
-    return(s);
 }
 
 
@@ -573,7 +570,7 @@ static void
 decode_simple (GtkWidget *notebook_pg)
 {
     GtkCList *clist;
-    gchar *string, *table_name;
+    gchar *table_name;
     gint value;
 
     clist = GTK_CLIST(gtk_object_get_data(GTK_OBJECT(notebook_pg), E_PAGE_CLIST));
@@ -585,13 +582,10 @@ decode_simple (GtkWidget *notebook_pg)
     decode_debug(clist, string);
 #endif
 
-    string = g_malloc(1024);
     table_name = gtk_object_get_data(GTK_OBJECT(notebook_pg), E_PAGE_TABLE);
     value = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(notebook_pg),
 						E_PAGE_VALUE));
-    decode_change_one_dissector(string, table_name, value, clist);
-    simple_dialog(ESD_TYPE_INFO, NULL, string);
-    g_free(string);
+    decode_change_one_dissector(table_name, value, clist);
 }
 
 
@@ -667,7 +661,6 @@ decode_transport (GtkObject *notebook_pg)
     GtkWidget *menu, *menuitem;
     GtkCList *clist;
     gint requested_tcpudp, requested_srcdst;
-    gchar *s, *string;
 
     clist = GTK_CLIST(gtk_object_get_data(notebook_pg, E_PAGE_CLIST));
     if (requested_action == E_DECODE_NO)
@@ -686,21 +679,18 @@ decode_transport (GtkObject *notebook_pg)
     decode_debug(clist, string);
 #endif
 
-    string = s = g_malloc(1024);
     if (requested_tcpudp != E_DECODE_UDP) {
 	if (requested_srcdst != E_DECODE_DPORT)
-	    s = decode_change_one_dissector(s, "tcp.port", pi.srcport, clist);
+	    decode_change_one_dissector("tcp.port", pi.srcport, clist);
 	if (requested_srcdst != E_DECODE_SPORT)
-	    s = decode_change_one_dissector(s, "tcp.port", pi.destport, clist);
+	    decode_change_one_dissector("tcp.port", pi.destport, clist);
     }
     if (requested_tcpudp != E_DECODE_TCP) {
 	if (requested_srcdst != E_DECODE_DPORT)
-	    s = decode_change_one_dissector(s, "udp.port", pi.srcport, clist);
+	    decode_change_one_dissector("udp.port", pi.srcport, clist);
 	if (requested_srcdst != E_DECODE_SPORT)
-	    s = decode_change_one_dissector(s, "udp.port", pi.destport, clist);
+	    decode_change_one_dissector("udp.port", pi.destport, clist);
     }
-    simple_dialog(ESD_TYPE_INFO, NULL, string);
-    g_free(string);
 }
 
 /**************************************************/
@@ -1426,13 +1416,6 @@ decode_as_cb (GtkWidget * w, gpointer data)
     button = gtk_button_new_with_label("Show Current");
     gtk_signal_connect(GTK_OBJECT(button), "clicked",
 		       GTK_SIGNAL_FUNC(decode_show_cb),
-		       GTK_OBJECT(decode_w));
-    GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
-    gtk_box_pack_start(GTK_BOX(bbox), button, FALSE, FALSE, 0);
-
-    button = gtk_button_new_with_label("Reset Changes");
-    gtk_signal_connect(GTK_OBJECT(button), "clicked",
-		       GTK_SIGNAL_FUNC(decode_reset_cb),
 		       GTK_OBJECT(decode_w));
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(bbox), button, FALSE, FALSE, 0);

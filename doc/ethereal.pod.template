@@ -340,6 +340,12 @@ window of the currently selected packet; this window will continue to
 display that packet's protocol tree and data even if another packet is
 selected.
 
+=item Display:User Specified Decodes
+
+Creates a new window showing whether any protocol ID to dissector
+mappings have been changed by the user.  This window also allows the
+user to reset all decodes to their default values.
+
 =item Tools:Plugins
 
 Allows you to see what dynamically loadable dissector plugin modules
@@ -383,6 +389,17 @@ print options that are used for the I<File:Print Packet> menu item, or
 save it as text to a file.
 
 =back
+
+=item Tools:Decode As
+
+If you have a packet selected, this menu item will present a dialog
+allowing you to change which dissectors are used to decode this
+packet.  The dialog has one panel each for the link layer, network
+layer and transport layer protocol/port numbers, and will allow each
+of these to be changed independently.  For example, if the selected
+packet is a TCP packet to port 12345, using this dialog you can
+instruct Ethereal to decode all packets to or from that TCP port as
+HTTP packets.
 
 =head2 WINDOWS
 
