@@ -24,6 +24,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/* The DCE RPC specification can be found at:
+ * http://www.opengroup.org/dce/
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -2816,13 +2820,21 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
       goto end_cn_stub;
     }
 
+    /* defragmentation is a bit tricky here, as there's no offset of the fragment 
+     * in the protocol data.
+     *
+     * Currently two possible ways:
+     * - the transmitter sends an alloc_hint != 0, use it
+     * - the transmitter sends an alloc_hint == 0, simply append fragments
+     */
+
     /* if this is the first fragment we need to start reassembly
     */
     if(hdr->flags&PFC_FIRST_FRAG){
 	fragment_add(decrypted_tvb, 0, pinfo, frame, dcerpc_co_reassemble_table,
 		     0, tvb_length(decrypted_tvb), TRUE);
 	fragment_set_tot_len(pinfo, frame,
-		 dcerpc_co_reassemble_table, alloc_hint);
+        dcerpc_co_reassemble_table, alloc_hint ? alloc_hint : tvb_length(decrypted_tvb));
 
 	goto end_cn_stub;
     }
@@ -2835,6 +2847,10 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 dcerpc_co_reassemble_table,
 		 tot_len-alloc_hint, tvb_length(decrypted_tvb),
 		 TRUE);
+	if(alloc_hint == 0) {
+	     fragment_set_tot_len(pinfo, frame,
+		  dcerpc_co_reassemble_table, tot_len + tvb_length(decrypted_tvb));
+	}
 
 	goto end_cn_stub;
     }
@@ -2848,6 +2864,10 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 		dcerpc_co_reassemble_table,
 		tot_len-alloc_hint, tvb_length(decrypted_tvb),
 		TRUE);
+	if(alloc_hint == 0) {		
+	    fragment_set_tot_len(pinfo, frame,
+		  dcerpc_co_reassemble_table, tot_len + tvb_length(decrypted_tvb));
+    }
 
 end_cn_stub:
 
