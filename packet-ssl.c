@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.26 2003/03/10 02:06:31 jmayer Exp $
+ * $Id: packet-ssl.c,v 1.27 2003/07/19 07:06:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -21,6 +21,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ * See
+ *
+ *	http://www.netscape.com/eng/security/SSL_2.html
+ *
+ * for SSL 2.0 specs.
+ * 
+ * See
+ *
+ *	http://www.netscape.com/eng/ssl3/
+ *
+ * for SSL 3.0 specs.
+ *
+ * See RFC 2246 for SSL 3.1/TLS 1.0 specs.
  *
  * Notes:
  *
@@ -174,16 +188,16 @@ static gchar* ssl_version_short_names[] = {
 #define SSL_ID_HANDSHAKE               0x16
 #define SSL_ID_APP_DATA                0x17
 
-#define SSL_HND_HELLO_REQUEST          0x00
-#define SSL_HND_CLIENT_HELLO           0x01
-#define SSL_HND_SERVER_HELLO           0x02
-#define SSL_HND_CERTIFICATE            0x0b
-#define SSL_HND_SERVER_KEY_EXCHG       0x0c
-#define SSL_HND_CERT_REQUEST           0x0d
-#define SSL_HND_SVR_HELLO_DONE         0x0e
-#define SSL_HND_CERT_VERIFY            0x0f
-#define SSL_HND_CLIENT_KEY_EXCHG       0x10
-#define SSL_HND_FINISHED               0x14
+#define SSL_HND_HELLO_REQUEST          0
+#define SSL_HND_CLIENT_HELLO           1
+#define SSL_HND_SERVER_HELLO           2
+#define SSL_HND_CERTIFICATE            11
+#define SSL_HND_SERVER_KEY_EXCHG       12
+#define SSL_HND_CERT_REQUEST           13
+#define SSL_HND_SVR_HELLO_DONE         14
+#define SSL_HND_CERT_VERIFY            15
+#define SSL_HND_CLIENT_KEY_EXCHG       16
+#define SSL_HND_FINISHED               20
 
 #define SSL2_HND_ERROR                 0x00
 #define SSL2_HND_CLIENT_HELLO          0x01
@@ -312,10 +326,14 @@ static const value_string ssl_versions[] = {
     { 0x00, NULL }
 };
 
+#if 0
+/* XXX - would be used if we dissected the body of a Change Cipher Spec
+   message. */
 static const value_string ssl_31_change_cipher_spec[] = {
     { 1, "Change Cipher Spec" },
     { 0x00, NULL },
 };
+#endif
 
 static const value_string ssl_31_alert_level[] = {
     { 1, "Warning" },
@@ -370,6 +388,9 @@ static const value_string ssl_31_compression_method[] = {
     { 0x00, NULL }
 };
 
+#if 0
+/* XXX - would be used if we dissected a Signature, as would be
+   seen in a server key exchange or certificate verify message. */
 static const value_string ssl_31_key_exchange_algorithm[] = {
     { 0, "RSA" },
     { 1, "Diffie Hellman" },
@@ -382,6 +403,7 @@ static const value_string ssl_31_signature_algorithm[] = {
     { 2, "DSA" },
     { 0x00, NULL }
 };
+#endif
 
 static const value_string ssl_31_client_certificate_type[] = {
     { 1, "RSA Sign" },
@@ -391,11 +413,15 @@ static const value_string ssl_31_client_certificate_type[] = {
     { 0x00, NULL }
 };
 
+#if 0
+/* XXX - would be used if we dissected exchnage keys, as would be
+   seen in a client key exchange message. */
 static const value_string ssl_31_public_value_encoding[] = {
     { 0, "Implicit" },
     { 1, "Explicit" },
     { 0x00, NULL }
 };
+#endif
 
 static const value_string ssl_31_ciphersuite[] = {
     { 0x0000, "TLS_NULL_WITH_NULL_NULL" },
@@ -1207,6 +1233,10 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 dissect_ssl3_hnd_cert(tvb, ssl_hand_tree, offset);
                 break;
 
+            case SSL_HND_SERVER_KEY_EXCHG:
+                /* unimplemented */
+                break;
+
             case SSL_HND_CERT_REQUEST:
                 dissect_ssl3_hnd_cert_req(tvb, ssl_hand_tree, offset);
                 break;
@@ -1215,15 +1245,17 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 /* server_hello_done has no fields, so nothing to do! */
                 break;
 
+            case SSL_HND_CERT_VERIFY:
+                /* unimplemented */
+                break;
+
+            case SSL_HND_CLIENT_KEY_EXCHG:
+                /* unimplemented */
+                break;
+
             case SSL_HND_FINISHED:
                 dissect_ssl3_hnd_finished(tvb, ssl_hand_tree,
                                           offset, conv_version);
-                break;
-
-            case SSL_HND_SERVER_KEY_EXCHG:
-            case SSL_HND_CERT_VERIFY:
-            case SSL_HND_CLIENT_KEY_EXCHG:
-                /* unimplemented */
                 break;
             }
 
