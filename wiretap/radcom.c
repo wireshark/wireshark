@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.45 2004/03/03 22:24:52 guy Exp $
+ * $Id: radcom.c,v 1.46 2004/06/16 08:11:59 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -292,6 +292,7 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info _U_,
 		 * field, but non-zero values in other fields, so we
 		 * check for that and treat it as an EOF indication.
 		 */
+		*err = 0;
 		return FALSE;
 	}
 	length = pletohs(&hdr.length);
