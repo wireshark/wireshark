@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* ./packet-x509af.c                                                          */
-/* ../../tools/asn2eth.py -X -b -k -e -p x509af -c x509af.cnf -s packet-x509af-template AuthenticationFramework.asn */
+/* ../../tools/asn2eth.py -X -b -e -p x509af -c x509af.cnf -s packet-x509af-template AuthenticationFramework.asn */
 
 /* Input file: packet-x509af-template.c */
 
@@ -1211,11 +1211,11 @@ void proto_register_x509af(void) {
         "", HFILL }},
     { &hf_x509af_infoSubjectName,
       { "subjectName", "x509af.subjectName",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "AttributeCertificateInfo/subject/subjectName", HFILL }},
     { &hf_x509af_issuerName,
       { "issuer", "x509af.issuer",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "", HFILL }},
     { &hf_x509af_attCertValidityPeriod,
       { "attCertValidityPeriod", "x509af.attCertValidityPeriod",

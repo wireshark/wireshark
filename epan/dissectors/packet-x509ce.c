@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* ./packet-x509ce.c                                                          */
-/* ../../tools/asn2eth.py -X -b -k -e -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
+/* ../../tools/asn2eth.py -X -b -e -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
 
 /* Input file: packet-x509ce-template.c */
 
@@ -1937,7 +1937,7 @@ void proto_register_x509ce(void) {
         "DistributionPointName/fullName", HFILL }},
     { &hf_x509ce_nameRelativeToCRLIssuer,
       { "nameRelativeToCRLIssuer", "x509ce.nameRelativeToCRLIssuer",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "DistributionPointName/nameRelativeToCRLIssuer", HFILL }},
     { &hf_x509ce_containsUserPublicKeyCerts,
       { "containsUserPublicKeyCerts", "x509ce.containsUserPublicKeyCerts",

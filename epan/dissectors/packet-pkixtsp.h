@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
 /* ./packet-pkixtsp.h                                                         */
-/* ../../tools/asn2eth.py -X -b -k -e -p pkixtsp -c pkixtsp.cnf -s packet-pkixtsp-template PKIXTSP.asn */
+/* ../../tools/asn2eth.py -X -b -e -p pkixtsp -c pkixtsp.cnf -s packet-pkixtsp-template PKIXTSP.asn */
 
 /* Input file: packet-pkixtsp-template.h */
 
