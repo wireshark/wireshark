@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.6 1999/06/12 07:04:35 guy Exp $
+ * $Id: prefs.h,v 1.7 1999/07/23 08:29:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,8 @@ typedef struct _e_prefs {
   GList  *col_list;
   gint    num_cols;
 } e_prefs;
+
+extern e_prefs prefs;
 
 #define E_PR_PG_NONE     -1
 #define E_PR_PG_PRINTING  0

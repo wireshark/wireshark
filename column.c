@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.18 1999/07/22 21:14:13 guy Exp $
+ * $Id: column.c,v 1.19 1999/07/23 08:29:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,8 +47,6 @@
 #include "prefs.h"
 #include "column.h"
 #include "packet.h"
-
-extern e_prefs prefs;
 
 static GtkWidget *column_l, *chg_bt, *del_bt, *title_te, *fmt_m, *up_bt,
                  *dn_bt;

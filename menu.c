@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.26 1999/07/17 04:19:02 gram Exp $
+ * $Id: menu.c,v 1.27 1999/07/23 08:29:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -80,7 +80,8 @@ static GtkItemFactoryEntry menu_items[] =
   {"/File/Save _As...", NULL, GTK_MENU_FUNC(file_save_as_cmd_cb), 0, NULL},
   {"/File/_Reload", "<control>R", GTK_MENU_FUNC(file_reload_cmd_cb), 0, NULL},
   {"/File/<separator>", NULL, NULL, 0, "<Separator>"},
-  {"/File/_Print Packet", "<control>P", GTK_MENU_FUNC(file_print_cmd_cb), 0, NULL},
+  {"/File/Print...", NULL, GTK_MENU_FUNC(file_print_cmd_cb), 0, NULL},
+  {"/File/Print Pac_ket", "<control>P", GTK_MENU_FUNC(file_print_packet_cmd_cb), 0, NULL},
   {"/File/<separator>", NULL, NULL, 0, "<Separator>"},
   {"/File/_Quit", "<control>Q", GTK_MENU_FUNC(file_quit_cmd_cb), 0, NULL},
   {"/_Edit", NULL, NULL, 0, "<Branch>" },
@@ -142,6 +143,7 @@ menus_init(void) {
     set_menu_sensitivity("/File/Save", FALSE);
     set_menu_sensitivity("/File/Save As...", FALSE);
     set_menu_sensitivity("/File/Reload", FALSE);
+    set_menu_sensitivity("/File/Print...", FALSE);
     set_menu_sensitivity("/Edit/Cut", FALSE);
     set_menu_sensitivity("/Edit/Copy", FALSE);
     set_menu_sensitivity("/Edit/Paste", FALSE);

@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.13 1999/07/15 15:32:43 gram Exp $
+ * $Id: print.c,v 1.14 1999/07/23 08:29:22 guy Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -56,7 +56,6 @@ static void ps_clean_string(unsigned char *out, const unsigned char *in,
 			int outbuf_size);
 static void dumpit_ps (FILE *fh, register const u_char *cp, register u_int length);
 
-extern e_prefs prefs;
 extern int proto_data; /* in packet-data.c */
 
 /* #include "ps.c" */
@@ -262,26 +261,34 @@ typedef struct {
 	const guint8	*pd;
 } print_data;
 
-void proto_tree_print(GNode *protocol_tree, const u_char *pd, frame_data *fd)
+FILE *open_print_dest(int to_file, const char *dest)
 {
 	FILE	*fh;
 	char	*out;
-	print_data data;
 
 	/* Open the file or command for output */
-	if (prefs.pr_dest == PR_DEST_CMD) {
-		out = prefs.pr_cmd;
+	out = dest;
+	if (to_file)
+		fh = fopen(dest, "w");
+	else
 		fh = popen(prefs.pr_cmd, "w");
-	}
-	else {
-		out = prefs.pr_file;
-		fh = fopen(prefs.pr_file, "w");
-	}
 
-	if (!fh) {
-		g_error("Cannot open %s for output.\n", out);
-		return;
-	}
+	return fh;
+}
+
+void close_print_dest(int to_file, FILE *fh)
+{
+	/* Close the file or command */
+	if (to_file)
+		fclose(fh);
+	else
+		pclose(fh);
+}
+
+void proto_tree_print(GNode *protocol_tree, const u_char *pd, frame_data *fd,
+    FILE *fh)
+{
+	print_data data;
 
 	/* Create the output */
 	data.level = 0;
@@ -295,14 +302,6 @@ void proto_tree_print(GNode *protocol_tree, const u_char *pd, frame_data *fd)
 		g_node_children_foreach((GNode*) protocol_tree, G_TRAVERSE_ALL,
 			proto_tree_print_node_ps, &data);
 		print_ps_finale(fh);
-	}
-
-	/* Close the file or command */
-	if (prefs.pr_dest == PR_DEST_CMD) {
-		pclose(fh);
-	}
-	else {
-		fclose(fh);
 	}
 }
 

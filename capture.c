@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.33 1999/07/20 06:16:08 guy Exp $
+ * $Id: capture.c,v 1.34 1999/07/23 08:29:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -567,7 +567,8 @@ capture(void) {
     }
   }
   set_menu_sensitivity("/File/Save", TRUE);
-  set_menu_sensitivity("/File/Save as", FALSE);
+  set_menu_sensitivity("/File/Save As...", FALSE);
+  set_menu_sensitivity("/File/Print...", TRUE);
   set_menu_sensitivity("/Tools/Summary", TRUE);
 }
 

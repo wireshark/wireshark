@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.40 1999/07/22 21:14:11 guy Exp $
+ * $Id: file.c,v 1.41 1999/07/23 08:29:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -69,6 +69,7 @@
 #include "column.h"
 #include "menu.h"
 #include "packet.h"
+#include "print.h"
 #include "file.h"
 #include "util.h"
 #include "dfilter.h"
@@ -233,6 +234,7 @@ load_cap_file(char *fname, capture_file *cf) {
 /*    name_ptr[-1] = '\0';  Why is this here? It causes problems with capture files */
     set_menu_sensitivity("/File/Close", TRUE);
     set_menu_sensitivity("/File/Reload", TRUE);
+    set_menu_sensitivity("/File/Print...", TRUE);
     set_menu_sensitivity("/Tools/Summary", TRUE);
   } else {
     msg_len = strlen(name_ptr) + strlen(err_fmt) + 2;
@@ -243,6 +245,7 @@ load_cap_file(char *fname, capture_file *cf) {
     set_menu_sensitivity("/File/Close", FALSE);
     set_menu_sensitivity("/File/Save", FALSE);
     set_menu_sensitivity("/File/Save As...", FALSE);
+    set_menu_sensitivity("/File/Print...", FALSE);
     set_menu_sensitivity("/File/Reload", FALSE);
     set_menu_sensitivity("/Tools/Summary", FALSE);
   }
@@ -292,6 +295,7 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
     set_menu_sensitivity("/File/Open...", TRUE);
     set_menu_sensitivity("/File/Close", TRUE);
     set_menu_sensitivity("/File/Save As...", TRUE);
+    set_menu_sensitivity("/File/Print...", TRUE);
     set_menu_sensitivity("/File/Reload", TRUE);
     set_menu_sensitivity("/Capture/Start...", TRUE);
     set_menu_sensitivity("/Tools/Capture...", TRUE);
@@ -357,6 +361,7 @@ tail_cap_file(char *fname, capture_file *cf) {
     set_menu_sensitivity("/File/Open...", FALSE);
     set_menu_sensitivity("/File/Close", FALSE);
     set_menu_sensitivity("/File/Reload", FALSE);
+    set_menu_sensitivity("/File/Print...", FALSE);
     set_menu_sensitivity("/Capture/Start...", FALSE);
     set_menu_sensitivity("/Tools/Capture...", FALSE);
     set_menu_sensitivity("/Tools/Summary", FALSE);
@@ -377,6 +382,7 @@ tail_cap_file(char *fname, capture_file *cf) {
     set_menu_sensitivity("/File/Save", FALSE);
     set_menu_sensitivity("/File/Save As...", FALSE);
     set_menu_sensitivity("/File/Reload", FALSE);
+    set_menu_sensitivity("/File/Print...", FALSE);
     set_menu_sensitivity("/Tools/Summary", FALSE);
     close(sync_pipe[0]);
   }
@@ -468,7 +474,6 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   fdata = (frame_data *) g_malloc(sizeof(frame_data));
   cf->plist = g_list_append(cf->plist, (gpointer) fdata);
 
-  cf->cur = fdata;
   cf->count++;
 
   fdata->pkt_len  = phdr->len;
@@ -488,7 +493,6 @@ filter_packets_cb(gpointer data, gpointer user_data)
   frame_data *fd = data;
   capture_file *cf = user_data;
 
-  cf->cur = fd;
   cf->count++;
 
   fseek(cf->fh, fd->file_off, SEEK_SET);
@@ -535,13 +539,54 @@ filter_packets(capture_file *cf)
 }
 
 static void
+print_packets_cb(gpointer data, gpointer user_data)
+{
+  frame_data *fd = data;
+  capture_file *cf = user_data;
+  proto_tree *protocol_tree;
+
+  cf->count++;
+
+  fseek(cf->fh, fd->file_off, SEEK_SET);
+  fread(cf->pd, sizeof(guint8), fd->cap_len, cf->fh);
+
+  /* create the logical protocol tree */
+  protocol_tree = proto_tree_create_root();
+  dissect_packet(cf->pd, fd, protocol_tree);
+
+  /* Print the packet */
+  fprintf(cf->print_fh, "Frame %d:\n\n", cf->count);
+  proto_tree_print((GNode *)protocol_tree, cf->pd, fd, cf->print_fh);
+  fprintf(cf->print_fh, "\n");
+
+  proto_tree_free(protocol_tree);
+}
+
+int
+print_packets(capture_file *cf, int to_file, const char *dest)
+{
+  cf->print_fh = open_print_dest(to_file, dest);
+  if (cf->print_fh == NULL)
+    return FALSE;	/* attempt to open destination failed */
+
+  /*
+   * Iterate through the list of packets, printing each of them.
+   */
+  cf->count = 0;
+  g_list_foreach(cf->plist, print_packets_cb, cf);
+
+  close_print_dest(to_file, cf->print_fh);
+  cf->print_fh = NULL;
+  return TRUE;
+}
+
+static void
 change_time_formats_cb(gpointer data, gpointer user_data)
 {
   frame_data *fd = data;
   capture_file *cf = user_data;
   gint          i;
 
-  cf->cur = fd;
   cf->count++;
 
   /* XXX - there really should be a way of checking "cf->cinfo" for this;
@@ -652,20 +697,19 @@ file_cp(char *from, char *to)
 
 	int from_fd, to_fd, nread, nwritten;
 	char *buffer;
-	gint dialogue_button = ESD_BTN_OK;
 
 	buffer = g_malloc(COPY_BUFFER_SIZE);
 
 	from_fd = open(from, O_RDONLY);
 	if (from_fd < 0) {
-		simple_dialog(ESD_TYPE_WARN, &dialogue_button,
+		simple_dialog(ESD_TYPE_WARN, NULL,
 			file_open_error_message(errno, TRUE), from);
 		return 0;
 	}
 
 	to_fd = creat(to, 0644);
 	if (to_fd < 0) {
-		simple_dialog(ESD_TYPE_WARN, &dialogue_button,
+		simple_dialog(ESD_TYPE_WARN, NULL,
 			file_open_error_message(errno, TRUE), to);
 		close(from_fd);
 		return 0;
@@ -675,10 +719,10 @@ file_cp(char *from, char *to)
 		nwritten = write(to_fd, buffer, nread);
 		if (nwritten < nread) {
 			if (nwritten < 0) {
-				simple_dialog(ESD_TYPE_WARN, &dialogue_button,
+				simple_dialog(ESD_TYPE_WARN, NULL,
 					file_write_error_message(errno), to);
 			} else {
-				simple_dialog(ESD_TYPE_WARN, &dialogue_button,
+				simple_dialog(ESD_TYPE_WARN, NULL,
 "The file \"%s\" could not be saved: tried writing %d, wrote %d.\n",
 					to, nread, nwritten);
 			}
@@ -688,7 +732,7 @@ file_cp(char *from, char *to)
 		}
 	}
 	if (nread < 0) {
-		simple_dialog(ESD_TYPE_WARN, &dialogue_button,
+		simple_dialog(ESD_TYPE_WARN, NULL,
 			file_read_error_message(errno), from);
 		close(from_fd);
 		close(to_fd);
@@ -772,4 +816,3 @@ file_write_error_message(int err)
   }
   return errmsg;
 }
-
