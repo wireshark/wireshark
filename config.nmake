@@ -2,10 +2,10 @@
 GTK_VERSION=1.3
 GLIB_VERSION=1.3
 
-GLIB_DIR=T:\w32-ix86\glib
-GTK_DIR=T:\w32-ix86\gtk+
+GLIB_DIR=F:\gram\win32tools\src\glib
+GTK_DIR=F:\gram\win32tools\src\gtk+
 
-PCAP_DIR=T:\w32-ix86\WPdpack
+PCAP_DIR=F:\gram\win32tools\WPdpack
 
 LOCAL_CFLAGS=-Zi
 LOCAL_LDFLAGS=/DEBUG

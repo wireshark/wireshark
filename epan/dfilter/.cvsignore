@@ -6,3 +6,5 @@ grammar.h
 grammar.out
 Makefile.in
 grammar.c
+*.lib
+*.obj

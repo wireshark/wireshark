@@ -48,17 +48,17 @@ config.h	: config.h.win32
 clean:
 	rm -f $(OBJECTS) ethereal.lib
 	cd ftypes
-	nmake -f Makefile.nmake clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../dfilter
-	nmake -f Makefile.nmake clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 
 
 ftypes::
 	cd ftypes
-	nmake -f Makefile.nmake
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
 dfilter::
 	cd dfilter
-	nmake -f Makefile.nmake
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..

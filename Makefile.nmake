@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
-## Use: nmake -f makefile.nmake
+## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.82 2001/02/27 19:40:58 guy Exp $
+# $Id: Makefile.nmake,v 1.83 2001/03/06 13:08:07 gram Exp $
 
 include config.nmake
 
@@ -297,38 +297,38 @@ clean:
 	rm -f $(ethereal_OBJECTS) $(EXTRA_OBJECTS) $(EXECUTABLES) \
 		tethereal.obj editcap.obj register.c rdps.obj
 	cd wiretap
-	nmake -f Makefile.nmake clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../gtk
-	nmake -f Makefile.nmake clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../epan
-	nmake -f Makefile.nmake clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../plugins
-	nmake -f Makefile.nmake clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../tools
-	nmake -f Makefile.nmake clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 
 tools::
 	cd tools
-	nmake -f Makefile.nmake
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
 wiretap::
 	cd wiretap
-	nmake -f Makefile.nmake
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
 gtk::
 	cd gtk
-	nmake -f Makefile.nmake
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
 epan::
 	cd epan
-	nmake -f Makefile.nmake
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
 plugins::
 	cd plugins
-	nmake -f Makefile.nmake
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..

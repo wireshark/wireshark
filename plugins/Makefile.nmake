@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.8 2000/11/12 11:08:45 guy Exp $
+# $Id: Makefile.nmake,v 1.9 2001/03/06 13:08:12 gram Exp $
 #
 
 include ..\config.nmake
@@ -17,18 +17,18 @@ all: plugin_api.obj gryphon mgcp
 
 gryphon::
 	cd gryphon
-	nmake -f Makefile.nmake
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
 mgcp::
     cd mgcp
-    nmake -f Makefile.nmake
+    $(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
     cd .. 
 
 clean:
 	rm -f plugin_api.obj
 	cd gryphon
-	nmake -f Makefile.nmake clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../mgcp
-	nmake -f Makefile.nmake clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..

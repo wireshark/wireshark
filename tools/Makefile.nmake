@@ -4,10 +4,10 @@ all: lemon
 
 clean:
 	cd lemon
-	nmake -f Makefile.nmake clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 
 
 lemon::
 	cd lemon
-	nmake -f Makefile.nmake
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..

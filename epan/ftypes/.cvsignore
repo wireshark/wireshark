@@ -2,3 +2,5 @@
 .deps
 Makefile
 Makefile.in
+*.lib
+*.obj
