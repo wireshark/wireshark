@@ -1,7 +1,7 @@
 /* packet-ip.h
  * Definitions for IP packet disassembly structures and routines
  *
- * $Id: packet-ip.h,v 1.3 1999/06/11 15:30:38 gram Exp $
+ * $Id: packet-ip.h,v 1.4 1999/06/11 16:44:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,6 +49,7 @@
 #define IP_PROTO_IPV6		41		/* IP6 header */
 #define IP_PROTO_ROUTING	43		/* IP6 routing header */
 #define IP_PROTO_FRAGMENT	44		/* IP6 fragmentation header */
+#define IP_PROTO_RSVP           46              /* Resource ReSerVation protocol */
 #define IP_PROTO_GRE		47		/* GRE */
 #define IP_PROTO_ESP		50		/* ESP */
 #define IP_PROTO_AH		51		/* AH */

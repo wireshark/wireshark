@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.57 1999/06/11 15:30:40 gram Exp $
+ * $Id: packet.h,v 1.58 1999/06/11 16:44:52 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -248,6 +248,27 @@ enum {
  	ETT_PPPOES,
  	ETT_LCP,
  	ETT_IPCP,
+        ETT_RSVP,
+        ETT_RSVP_UNKNOWN_CLASS,
+        ETT_RSVP_HDR,
+        ETT_RSVP_SESSION,
+        ETT_RSVP_SGROUP,
+        ETT_RSVP_HOP,
+        ETT_RSVP_INTEGRITY,
+        ETT_RSVP_TIME_VALUES,
+        ETT_RSVP_ERROR,
+        ETT_RSVP_SCOPE,
+        ETT_RSVP_STYLE,
+        ETT_RSVP_FLOWSPEC,
+        ETT_RSVP_FILTER_SPEC,
+        ETT_RSVP_SENDER_TEMPLATE,
+        ETT_RSVP_SENDER_TSPEC,
+        ETT_RSVP_ADSPEC,
+        ETT_RSVP_POLICY,
+        ETT_RSVP_CONFIRM,
+        ETT_RSVP_ADSPEC_SUBTREE1,
+        ETT_RSVP_ADSPEC_SUBTREE2,
+        ETT_RSVP_ADSPEC_SUBTREE3,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -390,6 +411,7 @@ void dissect_pppoed(const u_char *, int, frame_data *, proto_tree *);
 void dissect_pppoes(const u_char *, int, frame_data *, proto_tree *);
 void dissect_isakmp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_rip(const u_char *, int, frame_data *, proto_tree *);
+void dissect_rsvp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_snmp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_tcp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_tftp(const u_char *, int, frame_data *, proto_tree *);

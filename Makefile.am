@@ -66,6 +66,8 @@ ethereal_SOURCES = \
 	packet-raw.c   \
 	packet-rip.c   \
 	packet-rip.h   \
+	packet-rsvp.c  \
+	packet-rsvp.h  \
 	packet-smb.c   \
 	packet-tcp.c   \
 	packet-telnet.c\

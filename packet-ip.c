@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.24 1999/06/11 15:30:37 gram Exp $
+ * $Id: packet-ip.c,v 1.25 1999/06/11 16:44:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -739,6 +739,9 @@ again:
       break;
     case IP_PROTO_OSPF:
       dissect_ospf(pd, offset, fd, tree);
+     break;
+    case IP_PROTO_RSVP:
+      dissect_rsvp(pd, offset, fd, tree);
      break;
     case IP_PROTO_AH:
       advance = dissect_ah(pd, offset, fd, tree);
