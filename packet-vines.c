@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.44 2003/01/23 09:39:33 guy Exp $
+ * $Id: packet-vines.c,v 1.45 2003/04/17 08:25:11 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -168,6 +168,15 @@ proto_reg_handoff_vines_frp(void)
 
 static dissector_table_t vines_dissector_table;
 
+static const value_string proto_vals[] = {
+	{ VIP_PROTO_IPC, "IPC" },
+	{ VIP_PROTO_SPP, "SPP" },
+	{ VIP_PROTO_ARP, "ARP" },
+	{ VIP_PROTO_RTP, "RTP" },
+	{ VIP_PROTO_ICP, "ICP" },
+	{ 0,             NULL }
+};
+
 static void
 dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -182,7 +191,7 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvbuff_t *next_tvb;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines IP");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
@@ -198,43 +207,36 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	viph.vip_snet = g_ntohl(viph.vip_snet);
 	viph.vip_ssub = g_ntohs(viph.vip_ssub);
 
+	/*
+	 * Handle Vines protocols for which we don't have dissectors.
+	 */
 	switch (viph.vip_proto) {
- 	case VIP_PROTO_IPC:
+
+	case VIP_PROTO_IPC:
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines IPC");
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_fstr(pinfo->cinfo, COL_INFO, "IPC (%02x)", viph.vip_proto);
- 		break;
- 	case VIP_PROTO_SPP:
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines SPP");
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_fstr(pinfo->cinfo, COL_INFO, "SPP (%02x)", viph.vip_proto);
 		break;
+
 	case VIP_PROTO_ARP:
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines ARP");
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_fstr(pinfo->cinfo, COL_INFO, "ARP (%02x)", viph.vip_proto);
 		break;
+
 	case VIP_PROTO_RTP:
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines RTP");
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_fstr(pinfo->cinfo, COL_INFO, "RTP (%02x)", viph.vip_proto);
 		break;
+
 	case VIP_PROTO_ICP:
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines ICP");
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_fstr(pinfo->cinfo, COL_INFO, "ICP (%02x)", viph.vip_proto);
 		break;
-	default:
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines IP");
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown VIP protocol (%02x)",
-				     viph.vip_proto);
+	}
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)",
+		    val_to_str(viph.vip_proto, proto_vals,
+		        "Unknown VIP protocol"),
+		    viph.vip_proto);
 	}
 
 	src_addr = tvb_get_ptr(tvb, offset+12, VINES_ADDR_LEN);
@@ -276,9 +278,9 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	*/
 
 	if (tree) {
-		ti = proto_tree_add_protocol_format(tree, proto_vines, tvb,
-						    offset, (viph.vip_pktlen),
-						    "Vines IP");
+		ti = proto_tree_add_item(tree, proto_vines, tvb,
+					 offset, viph.vip_pktlen,
+					 FALSE);
 		vip_tree = proto_item_add_subtree(ti, ett_vines);
 		proto_tree_add_text(vip_tree, tvb, offset,      2,
 				    "Packet checksum: 0x%04x",
@@ -320,11 +322,12 @@ proto_register_vines(void)
 	static hf_register_info hf[] = {
 	  { &hf_vines_protocol,
 	    { "Protocol",			"vines.protocol",
-	      FT_UINT8,		BASE_HEX,	NULL,	0x0,
+	      FT_UINT8,		BASE_HEX,	VALS(proto_vals),	0x0,
 	      "Vines protocol", HFILL }}
 	};
 
-	proto_vines = proto_register_protocol("Banyan Vines", "Vines", "vines");
+	proto_vines = proto_register_protocol("Banyan Vines IP", "Vines IP",
+	    "vines_ip");
 	proto_register_field_array(proto_vines, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
@@ -332,8 +335,7 @@ proto_register_vines(void)
 	vines_dissector_table = register_dissector_table("vines.proto",
 	    "Vines protocol", FT_UINT8, BASE_HEX);
 
-	register_dissector("vines", dissect_vines, proto_vines);
-	vines_handle = find_dissector("vines");
+	vines_handle = create_dissector_handle(dissect_vines, proto_vines);
 }
 
 void
@@ -344,6 +346,14 @@ proto_reg_handoff_vines(void)
 	dissector_add("arcnet.protocol_id", ARCNET_PROTO_BANYAN, vines_handle);
 	data_handle = find_dissector("data");
 }
+
+static const value_string pkttype_vals[] = {
+	{ VSPP_PKTTYPE_DATA,  "Data" },
+	{ VSPP_PKTTYPE_DISC,  "Disconnect" },
+	{ VSPP_PKTTYPE_PROBE, "Probe" },
+	{ VSPP_PKTTYPE_ACK,   "Ack" },
+	{ 0,                  NULL }
+};
 
 static void
 dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -368,31 +378,13 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	viph.vspp_lclid = g_ntohs(viph.vspp_lclid);
 	viph.vspp_rmtid = g_ntohs(viph.vspp_rmtid);
 
-	switch (viph.vspp_pkttype) {
-	case VSPP_PKTTYPE_DATA:
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSPP Data");
-		break;
-	case VSPP_PKTTYPE_DISC:
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSPP Disconnect");
-		break;
-	case VSPP_PKTTYPE_PROBE:
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSPP Probe");
-		break;
-	case VSPP_PKTTYPE_ACK:
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
- 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSPP Ack");
-		break;
-	default:
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
- 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSPP Unknown");
-	}
-
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines SPP");
 	if (check_col(pinfo->cinfo, COL_INFO))
  		col_add_fstr(pinfo->cinfo, COL_INFO,
-			     "NS=%04x NR=%04x Window=%04x RID=%04x LID=%04x D=%04x S=%04x",
+			     "%s NS=%04x NR=%04x Window=%04x RID=%04x LID=%04x D=%04x S=%04x",
+			     val_to_str(viph.vspp_pkttype, pkttype_vals,
+			         "Unknown packet type (0x%02x)"),
 			     viph.vspp_seqno, viph.vspp_ack, viph.vspp_win,
 			     viph.vspp_rmtid, viph.vspp_lclid, viph.vspp_dport,
 			     viph.vspp_sport);
@@ -431,7 +423,10 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    "Destination port: 0x%04x",
 				    viph.vspp_dport);
 		proto_tree_add_text(vspp_tree, tvb, offset + 4,  1,
-				    "Packet type: 0x%02x", viph.vspp_pkttype);
+				    "Packet type: 0x%02x (%s)",
+				    viph.vspp_pkttype,
+				    val_to_str(viph.vspp_pkttype, pkttype_vals,
+				        "Unknown"));
 		proto_tree_add_text(vspp_tree, tvb, offset + 5,  1,
 				    "Control: 0x%02x", viph.vspp_control);
 		proto_tree_add_text(vspp_tree, tvb, offset + 6,  2,
