@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.21 1999/09/11 04:19:26 gerald Exp $
+ * $Id: proto.c,v 1.22 1999/09/11 16:41:18 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -91,6 +91,8 @@ void proto_register_atalk(void);
 void proto_register_atm(void);
 void proto_register_bootp(void);
 void proto_register_cdp(void);
+void proto_register_clnp(void);
+void proto_register_cotp(void);
 void proto_register_data(void);
 void proto_register_dns(void);
 void proto_register_eth(void);
@@ -117,7 +119,6 @@ void proto_register_ncp(void);
 void proto_register_netbios(void);
 void proto_register_nntp(void);
 void proto_register_null(void);
-void proto_register_osi(void);
 void proto_register_ospf(void);
 void proto_register_pop(void);
 void proto_register_ppp(void);
@@ -194,6 +195,8 @@ proto_init(void)
 	proto_register_atm();
 	proto_register_bootp();
 	proto_register_cdp();
+	proto_register_clnp();
+	proto_register_cotp();
 	proto_register_data();
 	proto_register_dns();
 	proto_register_eth();
@@ -220,7 +223,6 @@ proto_init(void)
 	proto_register_netbios();
 	proto_register_nntp();
 	proto_register_null();
-	proto_register_osi();
 	proto_register_ospf();
 	proto_register_pop();
 	proto_register_ppp();
