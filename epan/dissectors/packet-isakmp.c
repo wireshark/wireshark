@@ -545,11 +545,11 @@ dissect_payload_header(tvbuff_t *tvb, int offset, int length, guint8 payload,
 		      "Next payload: %s (%u)",
 		      payloadtype2str(next_payload), next_payload);
   if (isakmp_version == 2) {
-    proto_tree_add_text(ntree, tvb, offset, 1, "%s",
-        	decode_boolean_bitfield(tvb_get_guint8(tvb, 1), 0x80, 8, 
-  		"Critical", "Not critical"));
+    proto_tree_add_text(ntree, tvb, offset + 1, 1, "%s",
+        	decode_boolean_bitfield(tvb_get_guint8(tvb, offset + 1), 0x80,
+        	8, "Critical", "Not critical"));
   }
-  proto_tree_add_text(ntree, tvb, offset+2, 2, "Length: %u", payload_length);
+  proto_tree_add_text(ntree, tvb, offset + 2, 2, "Length: %u", payload_length);
 
   *next_payload_p = next_payload;
   *payload_length_p = payload_length;
@@ -1733,7 +1733,7 @@ dissect_enc(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     packet_info *pinfo _U_, int unused _U_)
 {
   proto_tree_add_text(tree, tvb, offset, 4, "Initialization Vector: 0x%s",
-                      tvb_bytes_to_str(tvb, 8, 4));
+                      tvb_bytes_to_str(tvb, offset, 4));
   proto_tree_add_text(tree, tvb, offset + 4, length, "Encrypted Data");
 }
 
