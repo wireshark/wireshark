@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.5 2000/11/10 09:15:57 guy Exp $
+ * $Id: tvbuff.c,v 1.6 2000/11/11 19:55:48 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -1125,7 +1125,7 @@ tvb_strnlen(tvbuff_t *tvb, gint offset, guint maxlength)
 
 /* Call strncmp after checking if enough chars left, otherwise return -1 */
 gint
-tvb_strneql(tvbuff_t *tvb, gint offset, guint8 *str, gint size)
+tvb_strneql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size)
 {
 	guint8 *ptr;
 
@@ -1149,7 +1149,7 @@ tvb_strneql(tvbuff_t *tvb, gint offset, guint8 *str, gint size)
 
 /* Call strncasecmp after checking if enough chars left, otherwise return -1 */
 gint
-tvb_strncaseeql(tvbuff_t *tvb, gint offset, guint8 *str, gint size)
+tvb_strncaseeql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size)
 {
 	guint8 *ptr;
 
