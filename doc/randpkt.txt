@@ -1,6 +1,6 @@
 Random Packet Generator
 -----------------------
-$Id: randpkt.txt,v 1.1 1999/09/10 05:15:17 gram Exp $
+$Id: randpkt.txt,v 1.2 1999/09/10 15:38:58 gram Exp $
 
 This small utility creates a libpcap trace file full of random packets.
 You can control the number of packets, the maximum size of each packet,
@@ -84,27 +84,6 @@ in the following locations.
 			NULL,
 			WTAP_ENCAP_ETHERNET,
 			0 },
-
-		{ "fddi",
-			"Fiber Distributed Data Interface",
-			PKT_FDDI,
-			NULL,
-			WTAP_ENCAP_FDDI,
-			0 },
-
-		{ "llc",
-			"Logical Link Control",
-			PKT_LLC,
-			pkt_llc,
-			WTAP_ENCAP_TR,	
-			array_length(pkt_llc) },
-
-		{ "tr",
-			"Token-Ring",
-			PKT_TR,
-			NULL,
-			WTAP_ENCAP_TR,
-			0 }
 	};
 
 Note that packets that designate only their datalink type have no sample

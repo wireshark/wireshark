@@ -4,7 +4,7 @@
  * Creates random packet traces. Useful for debugging sniffers by testing
  * assumptions about the veracity of the data found in the packet.
  *
- * $Id: randpkt.c,v 1.1 1999/09/10 05:15:10 gram Exp $
+ * $Id: randpkt.c,v 1.2 1999/09/10 15:38:48 gram Exp $
  *
  * Copyright (C) 1999 by Gilbert Ramirez <gram@xiexie.org>
  * 
@@ -51,8 +51,11 @@ enum {
 	PKT_ARP,
 	PKT_ETHERNET,
 	PKT_FDDI,
+	PKT_IP,
 	PKT_LLC,
-	PKT_TR
+	PKT_TCP,
+	PKT_TR,
+	PKT_UDP
 };
 
 typedef struct {
@@ -72,12 +75,51 @@ guint8 pkt_arp[] = {
 	0x08, 0x06
 };
 
+/* Ethernet, indicating IP */
+guint8 pkt_ip[] = {
+	0xff, 0xff, 0xff, 0xff,
+	0xff, 0xff, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01,
+	0x08, 0x00
+};
+
 /* TR, indicating LLC */
 guint8 pkt_llc[] = {
 	0x10, 0x40, 0x68, 0x00,
 	0x19, 0x69, 0x95, 0x8b,
 	0x00, 0x01, 0xfa, 0x68,
 	0xc4, 0x67
+};
+
+/* TR+LLC+IP, indicating TCP */
+guint8 pkt_tcp[] = {
+	0x10, 0x40, 0x68, 0x00,
+	0x19, 0x69, 0x95, 0x8b,
+	0x00, 0x01, 0xfa, 0x68,
+	0xc4, 0x67,
+
+	0xaa, 0xaa, 0x03, 0x00,
+	0x00, 0x00, 0x08, 0x00,
+
+	0x45, 0x00, 0x00, 0x28,
+	0x0b, 0x0b, 0x40, 0x00,
+	0x20, 0x06, 0x85, 0x37,
+	0xc0, 0xa8, 0x27, 0x01,
+	0xc0, 0xa8, 0x22, 0x3c
+};
+
+/* Ethernet+IP, indicating UDP */
+guint8 pkt_udp[] = {
+	0xff, 0xff, 0xff, 0xff,
+	0xff, 0xff, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01,
+	0x08, 0x00,
+
+	0x45, 0x00, 0x00, 0x3c,
+	0xc5, 0x9e, 0x40, 0x00,
+	0xff, 0x11, 0xd7, 0xe0,
+	0xd0, 0x15, 0x02, 0xb8,
+	0x0a, 0x01, 0x01, 0x63
 };
 
 /* This little data table drives the whole program */
@@ -91,11 +133,20 @@ pkt_example examples[] = {
 	{ "fddi", "Fiber Distributed Data Interface",
 		PKT_FDDI,	NULL,		WTAP_ENCAP_FDDI,	0 },
 
+	{ "ip", "Internet Protocol",
+		PKT_IP,		pkt_ip,		WTAP_ENCAP_ETHERNET,	array_length(pkt_ip) },
+
 	{ "llc", "Logical Link Control",
 		PKT_LLC,	pkt_llc,	WTAP_ENCAP_TR,		array_length(pkt_llc) },
 
+	{ "tcp", "Transmission Control Protocol",
+		PKT_TCP,	pkt_tcp,	WTAP_ENCAP_TR,		array_length(pkt_tcp) },
+
 	{ "tr",	 "Token-Ring",
-		PKT_TR,		NULL,		WTAP_ENCAP_TR,		0 }
+		PKT_TR,		NULL,		WTAP_ENCAP_TR,		0 },
+
+	{ "udp", "User Datagram Protocol",
+		PKT_UDP,	pkt_udp,	WTAP_ENCAP_ETHERNET,	array_length(pkt_udp) }
 };
 
 
