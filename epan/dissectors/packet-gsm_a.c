@@ -10601,15 +10601,6 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_append_str(pinfo->cinfo, COL_INFO, "(RP) ");
     }
 
-    /*
-     * In the interest of speed, if "tree" is NULL, don't do any work
-     * not necessary to generate protocol tree items.
-     */
-    if (!tree)
-    {
-	return;
-    }
-
     offset = 0;
     saved_offset = offset;
 
