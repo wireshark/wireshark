@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.31 2002/11/03 17:38:33 oabad Exp $
+ * $Id: display_opts.c,v 1.32 2002/11/10 11:00:29 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 #include "display_opts.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
+#include "compat_macros.h"
 
 extern capture_file  cfile;
 
@@ -94,18 +95,14 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
   current_timestamp_type = timestamp_type;
 
   display_opt_w = dlg_window_new("Ethereal: Display Options");
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(display_opt_w), "destroy",
-                     GTK_SIGNAL_FUNC(display_opt_destroy_cb), NULL);
+  SIGNAL_CONNECT(display_opt_w, "destroy", display_opt_destroy_cb, NULL);
 
+#if GTK_MAJOR_VERSION < 2
   /* Accelerator group for the accelerators (or, as they're called in
      Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
      Ctrl+<key> is an accelerator). */
   accel_group = gtk_accel_group_new();
   gtk_window_add_accel_group(GTK_WINDOW(display_opt_w), accel_group);
-#else
-  g_signal_connect(G_OBJECT(display_opt_w), "destroy",
-                   G_CALLBACK(display_opt_destroy_cb), NULL);
 #endif
 
   /* Container for each row of widgets */
@@ -122,12 +119,7 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
 #endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
                (timestamp_type == ABSOLUTE));
-#if GTK_MAJOR_VERSION < 2
-  gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_TIME_ABS_KEY,
-                      button);
-#else
-  g_object_set_data(G_OBJECT(display_opt_w), E_DISPLAY_TIME_ABS_KEY, button);
-#endif
+  OBJECT_SET_DATA(display_opt_w, E_DISPLAY_TIME_ABS_KEY, button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
 
   gtk_widget_show(button);
@@ -142,13 +134,7 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
 #endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
                (timestamp_type == ABSOLUTE_WITH_DATE));
-#if GTK_MAJOR_VERSION < 2
-  gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_DATE_TIME_ABS_KEY,
-                      button);
-#else
-  g_object_set_data(G_OBJECT(display_opt_w), E_DISPLAY_DATE_TIME_ABS_KEY,
-                    button);
-#endif
+  OBJECT_SET_DATA(display_opt_w, E_DISPLAY_DATE_TIME_ABS_KEY, button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
@@ -162,12 +148,7 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
 #endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
                (timestamp_type == RELATIVE));
-#if GTK_MAJOR_VERSION < 2
-  gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_TIME_REL_KEY,
-                      button);
-#else
-  g_object_set_data(G_OBJECT(display_opt_w), E_DISPLAY_TIME_REL_KEY, button);
-#endif
+  OBJECT_SET_DATA(display_opt_w, E_DISPLAY_TIME_REL_KEY, button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
@@ -181,12 +162,7 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
 #endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
                (timestamp_type == DELTA));
-#if GTK_MAJOR_VERSION < 2
-  gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_TIME_DELTA_KEY,
-                      button);
-#else
-  g_object_set_data(G_OBJECT(display_opt_w), E_DISPLAY_TIME_DELTA_KEY, button);
-#endif
+  OBJECT_SET_DATA(display_opt_w, E_DISPLAY_TIME_DELTA_KEY, button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
@@ -199,12 +175,7 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
 		"_Automatic scrolling in live capture");
 #endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), auto_scroll_live);
-#if GTK_MAJOR_VERSION < 2
-  gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_AUTO_SCROLL_KEY,
-                      button);
-#else
-  g_object_set_data(G_OBJECT(display_opt_w), E_DISPLAY_AUTO_SCROLL_KEY, button);
-#endif
+  OBJECT_SET_DATA(display_opt_w, E_DISPLAY_AUTO_SCROLL_KEY, button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 #endif
@@ -218,13 +189,7 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
 #endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
 		g_resolv_flags & RESOLV_MAC);
-#if GTK_MAJOR_VERSION < 2
-  gtk_object_set_data(GTK_OBJECT(display_opt_w),
-                      E_DISPLAY_M_NAME_RESOLUTION_KEY, button);
-#else
-  g_object_set_data(G_OBJECT(display_opt_w), E_DISPLAY_M_NAME_RESOLUTION_KEY,
-                    button);
-#endif
+  OBJECT_SET_DATA(display_opt_w, E_DISPLAY_M_NAME_RESOLUTION_KEY, button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
@@ -237,13 +202,7 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
 #endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
 		g_resolv_flags & RESOLV_NETWORK);
-#if GTK_MAJOR_VERSION < 2
-  gtk_object_set_data(GTK_OBJECT(display_opt_w),
-                      E_DISPLAY_N_NAME_RESOLUTION_KEY, button);
-#else
-  g_object_set_data(G_OBJECT(display_opt_w), E_DISPLAY_N_NAME_RESOLUTION_KEY,
-                    button);
-#endif
+  OBJECT_SET_DATA(display_opt_w, E_DISPLAY_N_NAME_RESOLUTION_KEY, button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
@@ -256,13 +215,7 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
 #endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
 		g_resolv_flags & RESOLV_TRANSPORT);
-#if GTK_MAJOR_VERSION < 2
-  gtk_object_set_data(GTK_OBJECT(display_opt_w),
-                      E_DISPLAY_T_NAME_RESOLUTION_KEY, button);
-#else
-  g_object_set_data(G_OBJECT(display_opt_w), E_DISPLAY_T_NAME_RESOLUTION_KEY,
-                    button);
-#endif
+  OBJECT_SET_DATA(display_opt_w, E_DISPLAY_T_NAME_RESOLUTION_KEY, button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
@@ -275,14 +228,10 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
 
 #if GTK_MAJOR_VERSION < 2
   ok_bt = gtk_button_new_with_label ("OK");
-  gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
-                     GTK_SIGNAL_FUNC(display_opt_ok_cb),
-                     GTK_OBJECT(display_opt_w));
 #else
   ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
-  g_signal_connect(G_OBJECT(ok_bt), "clicked",
-                   G_CALLBACK(display_opt_ok_cb), G_OBJECT(display_opt_w));
 #endif
+  SIGNAL_CONNECT(ok_bt, "clicked", display_opt_ok_cb, display_opt_w);
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
@@ -290,28 +239,20 @@ display_opt_cb(GtkWidget *w _U_, gpointer d _U_) {
 
 #if GTK_MAJOR_VERSION < 2
   apply_bt = gtk_button_new_with_label ("Apply");
-  gtk_signal_connect(GTK_OBJECT(apply_bt), "clicked",
-                     GTK_SIGNAL_FUNC(display_opt_apply_cb),
-                     GTK_OBJECT(display_opt_w));
 #else
   apply_bt = gtk_button_new_from_stock(GTK_STOCK_APPLY);
-  g_signal_connect(G_OBJECT(apply_bt), "clicked",
-                   G_CALLBACK(display_opt_apply_cb), G_OBJECT(display_opt_w));
 #endif
+  SIGNAL_CONNECT(apply_bt, "clicked", display_opt_apply_cb, display_opt_w);
   GTK_WIDGET_SET_FLAGS(apply_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), apply_bt, TRUE, TRUE, 0);
   gtk_widget_show(apply_bt);
 
 #if GTK_MAJOR_VERSION < 2
   cancel_bt = gtk_button_new_with_label ("Cancel");
-  gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
-                     GTK_SIGNAL_FUNC(display_opt_close_cb),
-                     GTK_OBJECT(display_opt_w));
 #else
   cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-  g_signal_connect(G_OBJECT(cancel_bt), "clicked",
-                   G_CALLBACK(display_opt_close_cb), G_OBJECT(display_opt_w));
 #endif
+  SIGNAL_CONNECT(cancel_bt, "clicked", display_opt_close_cb, display_opt_w);
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
   gtk_widget_show(cancel_bt);
@@ -345,83 +286,38 @@ get_display_options(GtkWidget *parent_w)
 {
   GtkWidget *button;
 
-#if GTK_MAJOR_VERSION < 2
-  button = (GtkWidget *)gtk_object_get_data(GTK_OBJECT(parent_w),
-                                            E_DISPLAY_TIME_ABS_KEY);
-#else
-  button = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),
-                                          E_DISPLAY_TIME_ABS_KEY);
-#endif
+  button = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_DISPLAY_TIME_ABS_KEY);
   if (GTK_TOGGLE_BUTTON (button)->active)
     timestamp_type = ABSOLUTE;
 
-#if GTK_MAJOR_VERSION < 2
-  button = (GtkWidget *)gtk_object_get_data(GTK_OBJECT(parent_w),
-                                            E_DISPLAY_DATE_TIME_ABS_KEY);
-#else
-  button = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),
-                                          E_DISPLAY_DATE_TIME_ABS_KEY);
-#endif
+  button = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_DISPLAY_DATE_TIME_ABS_KEY);
   if (GTK_TOGGLE_BUTTON (button)->active)
     timestamp_type = ABSOLUTE_WITH_DATE;
 
-#if GTK_MAJOR_VERSION < 2
-  button = (GtkWidget *)gtk_object_get_data(GTK_OBJECT(parent_w),
-                                            E_DISPLAY_TIME_REL_KEY);
-#else
-  button = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),
-                                          E_DISPLAY_TIME_REL_KEY);
-#endif
+  button = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_DISPLAY_TIME_REL_KEY);
   if (GTK_TOGGLE_BUTTON (button)->active)
     timestamp_type = RELATIVE;
 
-#if GTK_MAJOR_VERSION < 2
-  button = (GtkWidget *)gtk_object_get_data(GTK_OBJECT(parent_w),
-                                            E_DISPLAY_TIME_DELTA_KEY);
-#else
-  button = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),
-                                          E_DISPLAY_TIME_DELTA_KEY);
-#endif
+  button = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_DISPLAY_TIME_DELTA_KEY);
   if (GTK_TOGGLE_BUTTON (button)->active)
     timestamp_type = DELTA;
 
 #ifdef HAVE_LIBPCAP
-#if GTK_MAJOR_VERSION < 2
-  button = (GtkWidget *)gtk_object_get_data(GTK_OBJECT(parent_w),
-                                            E_DISPLAY_AUTO_SCROLL_KEY);
-#else
-  button = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),
-                                          E_DISPLAY_AUTO_SCROLL_KEY);
-#endif
+  button = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_DISPLAY_AUTO_SCROLL_KEY);
   auto_scroll_live = (GTK_TOGGLE_BUTTON (button)->active);
 #endif
 
   g_resolv_flags = RESOLV_NONE;
-#if GTK_MAJOR_VERSION < 2
-  button = (GtkWidget *)gtk_object_get_data(GTK_OBJECT(parent_w),
-                                            E_DISPLAY_M_NAME_RESOLUTION_KEY);
-#else
-  button = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),
-                                          E_DISPLAY_M_NAME_RESOLUTION_KEY);
-#endif
+  button = (GtkWidget *)OBJECT_GET_DATA(parent_w,
+                                        E_DISPLAY_M_NAME_RESOLUTION_KEY);
   g_resolv_flags |= (GTK_TOGGLE_BUTTON (button)->active ? RESOLV_MAC :
                                                           RESOLV_NONE);
-#if GTK_MAJOR_VERSION < 2
-  button = (GtkWidget *)gtk_object_get_data(GTK_OBJECT(parent_w),
-                                            E_DISPLAY_N_NAME_RESOLUTION_KEY);
-#else
-  button = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),
-                                          E_DISPLAY_N_NAME_RESOLUTION_KEY);
-#endif
+  button = (GtkWidget *)OBJECT_GET_DATA(parent_w,
+                                        E_DISPLAY_N_NAME_RESOLUTION_KEY);
   g_resolv_flags |= (GTK_TOGGLE_BUTTON (button)->active ? RESOLV_NETWORK :
                                                           RESOLV_NONE);
-#if GTK_MAJOR_VERSION < 2
-  button = (GtkWidget *)gtk_object_get_data(GTK_OBJECT(parent_w),
-                                            E_DISPLAY_T_NAME_RESOLUTION_KEY);
-#else
-  button = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),
-                                          E_DISPLAY_T_NAME_RESOLUTION_KEY);
-#endif
+  button = (GtkWidget *)OBJECT_GET_DATA(parent_w,
+                                        E_DISPLAY_T_NAME_RESOLUTION_KEY);
   g_resolv_flags |= (GTK_TOGGLE_BUTTON (button)->active ? RESOLV_TRANSPORT :
                                                           RESOLV_NONE);
 

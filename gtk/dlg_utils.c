@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.9 2002/11/03 17:38:33 oabad Exp $
+ * $Id: dlg_utils.c,v 1.10 2002/11/10 11:00:29 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,6 +32,7 @@
 
 #include "gtkglobals.h"
 #include "ui_util.h"
+#include "compat_macros.h"
 
 static void
 dlg_activate (GtkWidget *widget, gpointer ok_button);
@@ -52,13 +53,7 @@ dlg_window_new(const gchar *title)
 #endif
 	gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
 	gtk_window_set_title(GTK_WINDOW(win), title);
-#if GTK_MAJOR_VERSION < 2
-	gtk_signal_connect(GTK_OBJECT (win), "realize",
-                           GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
-#else
-	g_signal_connect(G_OBJECT (win), "realize",
-                         G_CALLBACK (window_icon_realize_cb), NULL);
-#endif
+	SIGNAL_CONNECT(win, "realize", window_icon_realize_cb, NULL);
 	return win;
 }
 
@@ -74,13 +69,7 @@ dlg_window_new(const gchar *title)
 void
 dlg_set_activate(GtkWidget *widget, GtkWidget *ok_button)
 {
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(widget), "activate",
-                     GTK_SIGNAL_FUNC(dlg_activate), ok_button);
-#else
-  g_signal_connect(G_OBJECT(widget), "activate",
-                   G_CALLBACK(dlg_activate), ok_button);
-#endif
+  SIGNAL_CONNECT(widget, "activate", dlg_activate, ok_button);
 }
 
 static void
@@ -103,13 +92,7 @@ dlg_activate (GtkWidget *widget _U_, gpointer ok_button)
 void
 dlg_set_cancel(GtkWidget *widget, GtkWidget *cancel_button)
 {
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(widget), "key_press_event",
-                     GTK_SIGNAL_FUNC(dlg_key_press), cancel_button);
-#else
-  g_signal_connect(G_OBJECT(widget), "key_press_event",
-                   G_CALLBACK(dlg_key_press), cancel_button);
-#endif
+  SIGNAL_CONNECT(widget, "key_press_event", dlg_key_press, cancel_button);
 }
 
 static gint

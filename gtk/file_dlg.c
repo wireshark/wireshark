@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.53 2002/11/03 17:38:33 oabad Exp $
+ * $Id: file_dlg.c,v 1.54 2002/11/10 11:00:29 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,6 +41,7 @@
 #include "file_dlg.h"
 #include "dlg_utils.h"
 #include "main.h"
+#include "compat_macros.h"
 
 static void file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 static void file_open_destroy_cb(GtkWidget *win, gpointer user_data);
@@ -84,18 +85,14 @@ file_open_cmd_cb(GtkWidget *w, gpointer data _U_)
   }
 
   file_open_w = gtk_file_selection_new ("Ethereal: Open Capture File");
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(file_open_w), "destroy",
-                     GTK_SIGNAL_FUNC(file_open_destroy_cb), NULL);
+  SIGNAL_CONNECT(file_open_w, "destroy", file_open_destroy_cb, NULL);
 
+#if GTK_MAJOR_VERSION < 2
   /* Accelerator group for the accelerators (or, as they're called in
      Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
      Ctrl+<key> is an accelerator). */
   accel_group = gtk_accel_group_new();
   gtk_window_add_accel_group(GTK_WINDOW(file_open_w), accel_group);
-#else
-  g_signal_connect(G_OBJECT(file_open_w), "destroy",
-                   G_CALLBACK(file_open_destroy_cb), NULL);
 #endif
 
   /* If we've opened a file, start out by showing the files in the directory
@@ -116,23 +113,17 @@ file_open_cmd_cb(GtkWidget *w, gpointer data _U_)
   gtk_widget_show(filter_hbox);
 
   filter_bt = gtk_button_new_with_label("Filter:");
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
-                     GTK_SIGNAL_FUNC(display_filter_construct_cb), &args);
-#else
-  g_signal_connect(G_OBJECT(filter_bt), "clicked",
-                   G_CALLBACK(display_filter_construct_cb), &args);
-#endif
+  SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
 
   filter_te = gtk_entry_new();
-  gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
+  OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_te, TRUE, TRUE, 3);
   gtk_widget_show(filter_te);
 
-  gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
-    E_RFILTER_TE_KEY, filter_te);
+  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_open_w)->ok_button,
+                  E_RFILTER_TE_KEY, filter_te);
 
 #if GTK_MAJOR_VERSION < 2
   m_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
@@ -145,8 +136,8 @@ file_open_cmd_cb(GtkWidget *w, gpointer data _U_)
 	g_resolv_flags & RESOLV_MAC);
   gtk_box_pack_start(GTK_BOX(main_vb), m_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(m_resolv_cb);
-  gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
-		  E_FILE_M_RESOLVE_KEY, m_resolv_cb);
+  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_open_w)->ok_button,
+                  E_FILE_M_RESOLVE_KEY, m_resolv_cb);
 
 #if GTK_MAJOR_VERSION < 2
   n_resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
@@ -159,7 +150,7 @@ file_open_cmd_cb(GtkWidget *w, gpointer data _U_)
 	g_resolv_flags & RESOLV_NETWORK);
   gtk_box_pack_start(GTK_BOX(main_vb), n_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(n_resolv_cb);
-  gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
+  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_open_w)->ok_button,
 		  E_FILE_N_RESOLVE_KEY, n_resolv_cb);
 
 #if GTK_MAJOR_VERSION < 2
@@ -173,33 +164,21 @@ file_open_cmd_cb(GtkWidget *w, gpointer data _U_)
 	g_resolv_flags & RESOLV_TRANSPORT);
   gtk_box_pack_start(GTK_BOX(main_vb), t_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(t_resolv_cb);
-  gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
+  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_open_w)->ok_button,
 		  E_FILE_T_RESOLVE_KEY, t_resolv_cb);
 
-#if GTK_MAJOR_VERSION < 2
   /* Connect the ok_button to file_open_ok_cb function and pass along a
      pointer to the file selection box widget */
-  gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
-                     "clicked", (GtkSignalFunc) file_open_ok_cb, file_open_w);
+  SIGNAL_CONNECT(GTK_FILE_SELECTION(file_open_w)->ok_button, "clicked",
+                 file_open_ok_cb, file_open_w);
 
-  gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
-                      E_DFILTER_TE_KEY, gtk_object_get_data(GTK_OBJECT(w),
-                                                            E_DFILTER_TE_KEY));
-#else
-  /* Connect the ok_button to file_open_ok_cb function and pass along a
-     pointer to the file selection box widget */
-  g_signal_connect(G_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
-                   "clicked", G_CALLBACK(file_open_ok_cb), file_open_w);
-
-  g_object_set_data(G_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
-                    E_DFILTER_TE_KEY, g_object_get_data(G_OBJECT(w),
-                                                        E_DFILTER_TE_KEY));
-#endif
+  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_open_w)->ok_button,
+                  E_DFILTER_TE_KEY, OBJECT_GET_DATA(w, E_DFILTER_TE_KEY));
 
   /* Connect the cancel_button to destroy the widget */
-  gtk_signal_connect_object(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->cancel_button),
-                            "clicked", (GtkSignalFunc)gtk_widget_destroy,
-                            GTK_OBJECT (file_open_w));
+  SIGNAL_CONNECT_OBJECT(GTK_FILE_SELECTION(file_open_w)->cancel_button,
+                        "clicked", (GtkSignalFunc)gtk_widget_destroy,
+                        file_open_w);
 
   /* Catch the "key_press_event" signal in the window, so that we can catch
      the ESC key being pressed and act as if the "Cancel" button had
@@ -217,8 +196,8 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   int        err;
 
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
-  filter_te = gtk_object_get_data(GTK_OBJECT(w), E_RFILTER_TE_KEY);
-  rfilter = gtk_entry_get_text(GTK_ENTRY(filter_te));
+  filter_te = OBJECT_GET_DATA(w, E_RFILTER_TE_KEY);
+  rfilter = (gchar *)gtk_entry_get_text(GTK_ENTRY(filter_te));
   if (!dfilter_compile(rfilter, &rfcode)) {
     g_free(cf_name);
     simple_dialog(ESD_TYPE_CRIT, NULL, dfilter_error_msg);
@@ -255,11 +234,11 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 
   /* Set the global resolving variable */
   g_resolv_flags = 0;
-  m_resolv_cb = gtk_object_get_data(GTK_OBJECT(w), E_FILE_M_RESOLVE_KEY);
+  m_resolv_cb = OBJECT_GET_DATA(w, E_FILE_M_RESOLVE_KEY);
   g_resolv_flags |= GTK_TOGGLE_BUTTON (m_resolv_cb)->active ? RESOLV_MAC : RESOLV_NONE;
-  n_resolv_cb = gtk_object_get_data(GTK_OBJECT(w), E_FILE_N_RESOLVE_KEY);
+  n_resolv_cb = OBJECT_GET_DATA(w, E_FILE_N_RESOLVE_KEY);
   g_resolv_flags |= GTK_TOGGLE_BUTTON (n_resolv_cb)->active ? RESOLV_NETWORK : RESOLV_NONE;
-  t_resolv_cb = gtk_object_get_data(GTK_OBJECT(w), E_FILE_T_RESOLVE_KEY);
+  t_resolv_cb = OBJECT_GET_DATA(w, E_FILE_T_RESOLVE_KEY);
   g_resolv_flags |= GTK_TOGGLE_BUTTON (t_resolv_cb)->active ? RESOLV_TRANSPORT : RESOLV_NONE;
 
   /* We've crossed the Rubicon; get rid of the file selection box. */
@@ -300,7 +279,7 @@ file_open_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 
   /* Is there a filter edit/selection dialog associated with this
      Open Capture File dialog? */
-  file_open_filter_w = gtk_object_get_data(GTK_OBJECT(win), E_FILT_DIALOG_PTR_KEY);
+  file_open_filter_w = OBJECT_GET_DATA(win, E_FILT_DIALOG_PTR_KEY);
 
   if (file_open_filter_w != NULL) {
     /* Yes.  Destroy it. */
@@ -388,13 +367,8 @@ set_file_type_list(GtkWidget *option_menu)
       /* Default to the same format as the file, if it's supported. */
       item_to_select = index;
     }
-#if GTK_MAJOR_VERSION < 2
-    gtk_signal_connect(GTK_OBJECT(ft_menu_item), "activate",
-                       GTK_SIGNAL_FUNC(select_file_type_cb), (gpointer)ft);
-#else
-    g_signal_connect(G_OBJECT(ft_menu_item), "activate",
-                     G_CALLBACK(select_file_type_cb), (gpointer)ft);
-#endif
+    SIGNAL_CONNECT(ft_menu_item, "activate", select_file_type_cb,
+                   GINT_TO_POINTER(ft));
     gtk_menu_append(GTK_MENU(ft_menu), ft_menu_item);
     gtk_widget_show(ft_menu_item);
     index++;
@@ -407,7 +381,7 @@ set_file_type_list(GtkWidget *option_menu)
 static void
 select_file_type_cb(GtkWidget *w _U_, gpointer data)
 {
-  int new_filetype = (int)data;
+  int new_filetype = GPOINTER_TO_INT(data);
 
   if (filetype != new_filetype) {
     /* We can select only the filtered or marked packets to be saved if we can
@@ -471,13 +445,7 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   filetype = cfile.cd_t;
 
   file_save_as_w = gtk_file_selection_new ("Ethereal: Save Capture File As");
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(file_save_as_w), "destroy",
-                     GTK_SIGNAL_FUNC(file_save_as_destroy_cb), NULL);
-#else
-  g_signal_connect(G_OBJECT(file_save_as_w), "destroy",
-                   G_CALLBACK(file_save_as_destroy_cb), NULL);
-#endif
+  SIGNAL_CONNECT(file_save_as_w, "destroy", file_save_as_destroy_cb, NULL);
 
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
@@ -487,13 +455,7 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   /* Connect the ok_button to file_save_as_ok_cb function and pass along a
      pointer to the file selection box widget */
   ok_bt = GTK_FILE_SELECTION (file_save_as_w)->ok_button;
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT (ok_bt), "clicked",
-                     (GtkSignalFunc)file_save_as_ok_cb, file_save_as_w);
-#else
-  g_signal_connect(G_OBJECT(ok_bt), "clicked",
-                   G_CALLBACK(file_save_as_ok_cb), file_save_as_w);
-#endif
+  SIGNAL_CONNECT(ok_bt, "clicked", file_save_as_ok_cb, file_save_as_w);
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
@@ -515,13 +477,7 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   filter_cb = gtk_check_button_new_with_label("Save only packets currently being displayed");
   gtk_container_add(GTK_CONTAINER(main_vb), filter_cb);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(filter_cb), "toggled",
-                     GTK_SIGNAL_FUNC(toggle_filtered_cb), NULL);
-#else
-  g_signal_connect(G_OBJECT(filter_cb), "toggled",
-                   G_CALLBACK(toggle_filtered_cb), NULL);
-#endif
+  SIGNAL_CONNECT(filter_cb, "toggled", toggle_filtered_cb, NULL);
   gtk_widget_set_sensitive(filter_cb, can_save_with_wiretap(filetype));
   gtk_widget_show(filter_cb);
 
@@ -538,13 +494,7 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_container_add(GTK_CONTAINER(main_vb), mark_cb);
   marked = FALSE;
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(mark_cb), FALSE);
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(mark_cb), "toggled",
-		     GTK_SIGNAL_FUNC(toggle_marked_cb), NULL);
-#else
-  g_signal_connect(G_OBJECT(mark_cb), "toggled",
-                   G_CALLBACK(toggle_marked_cb), NULL);
-#endif
+  SIGNAL_CONNECT(mark_cb, "toggled", toggle_marked_cb, NULL);
   gtk_widget_show(mark_cb);
 
   /* File type row */
@@ -573,9 +523,9 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   file_set_save_marked_sensitive();
 
   /* Connect the cancel_button to destroy the widget */
-  gtk_signal_connect_object(GTK_OBJECT(GTK_FILE_SELECTION(file_save_as_w)->cancel_button),
-                            "clicked", (GtkSignalFunc)gtk_widget_destroy,
-                            GTK_OBJECT(file_save_as_w));
+  SIGNAL_CONNECT_OBJECT(GTK_FILE_SELECTION(file_save_as_w)->cancel_button,
+                        "clicked", (GtkSignalFunc)gtk_widget_destroy,
+                        file_save_as_w);
 
   /* Catch the "key_press_event" signal in the window, so that we can catch
      the ESC key being pressed and act as if the "Cancel" button had
@@ -666,13 +616,10 @@ file_save_as_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 /* Reload a file using the current read and display filters */
 void
 file_reload_cmd_cb(GtkWidget *w, gpointer data _U_) {
-  /*GtkWidget *filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);*/
-  GtkWidget *filter_te;
+  GtkWidget *filter_te = OBJECT_GET_DATA(w, E_DFILTER_TE_KEY);
   gchar *filename;
   gboolean is_tempfile;
   int err;
-
-  filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
 
   if (cfile.dfilter)
     g_free(cfile.dfilter);

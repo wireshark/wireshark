@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.30 2002/11/03 17:38:33 oabad Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.31 2002/11/10 11:00:29 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,6 +59,7 @@
 #include "proto_dlg.h"
 #include "filter_prefs.h"
 #include "dfilter_expr_dlg.h"
+#include "compat_macros.h"
 
 #define E_DFILTER_EXPR_TREE_KEY			"dfilter_expr_tree"
 #define E_DFILTER_EXPR_CURRENT_VAR_KEY		"dfilter_expr_current_var"
@@ -107,32 +108,28 @@ field_select_row_cb(GtkWidget *tree, GList *node, gint column _U_,
                     gpointer user_data _U_)
 #else
 static void
-field_select_row_cb(GtkTreeSelection *sel, gpointer user_data)
+field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
 #endif
 {
-#if GTK_MAJOR_VERSION < 2
     GtkWidget *window = gtk_widget_get_toplevel(tree);
-#else
-    GtkWidget *window = gtk_widget_get_toplevel(user_data);
-#endif
-    GtkWidget *relation_label = gtk_object_get_data(GTK_OBJECT(window),
-                                                    E_DFILTER_EXPR_RELATION_LABEL_KEY);
-    GtkWidget *relation_list = gtk_object_get_data(GTK_OBJECT(window),
-                                                   E_DFILTER_EXPR_RELATION_LIST_KEY);
-    GtkWidget *range_label = gtk_object_get_data(GTK_OBJECT(window),
-                                                 E_DFILTER_EXPR_RANGE_LABEL_KEY);
-    GtkWidget *range_entry = gtk_object_get_data(GTK_OBJECT(window),
-                                                 E_DFILTER_EXPR_RANGE_ENTRY_KEY);
-    GtkWidget *value_label = gtk_object_get_data(GTK_OBJECT(window),
-                                                 E_DFILTER_EXPR_VALUE_LABEL_KEY);
-    GtkWidget *value_entry = gtk_object_get_data(GTK_OBJECT(window),
-                                                 E_DFILTER_EXPR_VALUE_ENTRY_KEY);
-    GtkWidget *value_list = gtk_object_get_data(GTK_OBJECT(window),
-                                                E_DFILTER_EXPR_VALUE_LIST_KEY);
-    GtkWidget *value_list_scrolled_win = gtk_object_get_data(GTK_OBJECT(window),
-                                                             E_DFILTER_EXPR_VALUE_LIST_SW_KEY);
-    GtkWidget *accept_bt = gtk_object_get_data(GTK_OBJECT(window),
-                                               E_DFILTER_EXPR_ACCEPT_BT_KEY);
+    GtkWidget *relation_label = OBJECT_GET_DATA(window,
+                                                E_DFILTER_EXPR_RELATION_LABEL_KEY);
+    GtkWidget *relation_list = OBJECT_GET_DATA(window,
+                                               E_DFILTER_EXPR_RELATION_LIST_KEY);
+    GtkWidget *range_label = OBJECT_GET_DATA(window,
+                                             E_DFILTER_EXPR_RANGE_LABEL_KEY);
+    GtkWidget *range_entry = OBJECT_GET_DATA(window,
+                                             E_DFILTER_EXPR_RANGE_ENTRY_KEY);
+    GtkWidget *value_label = OBJECT_GET_DATA(window,
+                                             E_DFILTER_EXPR_VALUE_LABEL_KEY);
+    GtkWidget *value_entry = OBJECT_GET_DATA(window,
+                                             E_DFILTER_EXPR_VALUE_ENTRY_KEY);
+    GtkWidget *value_list = OBJECT_GET_DATA(window,
+                                            E_DFILTER_EXPR_VALUE_LIST_KEY);
+    GtkWidget *value_list_scrolled_win = OBJECT_GET_DATA(window,
+                                                         E_DFILTER_EXPR_VALUE_LIST_SW_KEY);
+    GtkWidget *accept_bt = OBJECT_GET_DATA(window,
+                                           E_DFILTER_EXPR_ACCEPT_BT_KEY);
     header_field_info *hfinfo, *cur_hfinfo;
     const char *value_type;
     char value_label_string[1024+1];   /* XXX - should be large enough */
@@ -152,8 +149,7 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer user_data)
     /*
      * What was the item that was last selected?
      */
-    cur_hfinfo = gtk_object_get_data(GTK_OBJECT(window),
-                                     E_DFILTER_EXPR_CURRENT_VAR_KEY);
+    cur_hfinfo = OBJECT_GET_DATA(window, E_DFILTER_EXPR_CURRENT_VAR_KEY);
     if (cur_hfinfo == hfinfo) {
         /*
          * It's still selected; no need to change anything.
@@ -164,8 +160,7 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer user_data)
     /*
      * Mark it as currently selected.
      */
-    gtk_object_set_data(GTK_OBJECT(window), E_DFILTER_EXPR_CURRENT_VAR_KEY,
-                        hfinfo);
+    OBJECT_SET_DATA(window, E_DFILTER_EXPR_CURRENT_VAR_KEY, hfinfo);
 
     show_relations(relation_label, relation_list, hfinfo->type);
 
@@ -341,20 +336,19 @@ relation_list_sel_cb(GtkTreeSelection *sel, gpointer user_data _U_)
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(gtk_tree_selection_get_tree_view(sel)));
 #endif
     GtkWidget *range_label =
-        gtk_object_get_data(GTK_OBJECT(window), E_DFILTER_EXPR_RANGE_LABEL_KEY);
+        OBJECT_GET_DATA(window, E_DFILTER_EXPR_RANGE_LABEL_KEY);
     GtkWidget *range_entry =
-        gtk_object_get_data(GTK_OBJECT(window), E_DFILTER_EXPR_RANGE_ENTRY_KEY);
+        OBJECT_GET_DATA(window, E_DFILTER_EXPR_RANGE_ENTRY_KEY);
     GtkWidget *value_label =
-        gtk_object_get_data(GTK_OBJECT(window), E_DFILTER_EXPR_VALUE_LABEL_KEY);
+        OBJECT_GET_DATA(window, E_DFILTER_EXPR_VALUE_LABEL_KEY);
     GtkWidget *value_entry =
-        gtk_object_get_data(GTK_OBJECT(window), E_DFILTER_EXPR_VALUE_ENTRY_KEY);
+        OBJECT_GET_DATA(window, E_DFILTER_EXPR_VALUE_ENTRY_KEY);
     GtkWidget *value_list =
-        gtk_object_get_data(GTK_OBJECT(window), E_DFILTER_EXPR_VALUE_LIST_KEY);
+        OBJECT_GET_DATA(window, E_DFILTER_EXPR_VALUE_LIST_KEY);
     GtkWidget *value_list_scrolled_win =
-        gtk_object_get_data(GTK_OBJECT(window),
-                            E_DFILTER_EXPR_VALUE_LIST_SW_KEY);
+        OBJECT_GET_DATA(window, E_DFILTER_EXPR_VALUE_LIST_SW_KEY);
     header_field_info *hfinfo =
-        gtk_object_get_data(GTK_OBJECT(window), E_DFILTER_EXPR_CURRENT_VAR_KEY);
+        OBJECT_GET_DATA(window, E_DFILTER_EXPR_CURRENT_VAR_KEY);
     gchar *item_str;
 #if GTK_MAJOR_VERSION < 2
     GList *sl;
@@ -514,7 +508,7 @@ add_value_list_item(GtkWidget *value_list, gchar *string, gpointer data)
     gtk_container_add(GTK_CONTAINER(item), label);
     gtk_widget_show(label);
     gtk_container_add(GTK_CONTAINER(value_list), item);
-    gtk_object_set_data(GTK_OBJECT(item), E_DFILTER_EXPR_VALUE_KEY, data);
+    OBJECT_SET_DATA(item, E_DFILTER_EXPR_VALUE_KEY, data);
     gtk_widget_show(item);
 #else
     GtkListStore *store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(value_list)));
@@ -694,14 +688,13 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
     GtkTreeModel *model;
     GtkTreeIter   iter;
 #endif
-    header_field_info *hfinfo = gtk_object_get_data(GTK_OBJECT(window),
-                                                    E_DFILTER_EXPR_CURRENT_VAR_KEY);
+    header_field_info *hfinfo = OBJECT_GET_DATA(window,
+                                                E_DFILTER_EXPR_CURRENT_VAR_KEY);
     const value_string *value = NULL;
     char value_string[11+1];	/* long enough for 32-bit octal value */
 
 #if GTK_MAJOR_VERSION < 2
-    value = gtk_object_get_data(GTK_OBJECT(child),
-                                E_DFILTER_EXPR_VALUE_KEY);
+    value = OBJECT_GET_DATA(child, E_DFILTER_EXPR_VALUE_KEY);
 #else
     if (!gtk_tree_selection_get_selected(sel, &model, &iter))
         return;
@@ -791,12 +784,11 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
     GtkWidget *filter_te = filter_te_arg;
     GtkWidget *window = gtk_widget_get_toplevel(w);
     GtkWidget *relation_list =
-        gtk_object_get_data(GTK_OBJECT(window),
-                            E_DFILTER_EXPR_RELATION_LIST_KEY);
+        OBJECT_GET_DATA(window, E_DFILTER_EXPR_RELATION_LIST_KEY);
     GtkWidget *range_entry =
-        gtk_object_get_data(GTK_OBJECT(window), E_DFILTER_EXPR_RANGE_ENTRY_KEY);
+        OBJECT_GET_DATA(window, E_DFILTER_EXPR_RANGE_ENTRY_KEY);
     GtkWidget *value_entry =
-        gtk_object_get_data(GTK_OBJECT(window), E_DFILTER_EXPR_VALUE_ENTRY_KEY);
+        OBJECT_GET_DATA(window, E_DFILTER_EXPR_VALUE_ENTRY_KEY);
     header_field_info *hfinfo;
     gchar        *item_str;
     gchar        *range_str, *stripped_range_str;
@@ -817,8 +809,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
     /*
      * Get the variable to be tested.
      */
-    hfinfo = gtk_object_get_data(GTK_OBJECT(window),
-                                 E_DFILTER_EXPR_CURRENT_VAR_KEY);
+    hfinfo = OBJECT_GET_DATA(window, E_DFILTER_EXPR_CURRENT_VAR_KEY);
 
     /*
      * Get the relation to use, if any.
@@ -1057,13 +1048,7 @@ dfilter_expr_dlg_destroy_cb(GtkWidget *w, gpointer filter_te)
 	 * attached, as the handler for that signal is supposed
 	 * to destroy us, but we're already gone.
 	 */
-#if GTK_MAJOR_VERSION < 2
-	gtk_signal_disconnect_by_func(GTK_OBJECT(filter_te),
-                                      dfilter_expr_dlg_cancel_cb, w);
-#else
-	g_signal_handlers_disconnect_by_func(G_OBJECT(filter_te),
-                                             dfilter_expr_dlg_cancel_cb, w);
-#endif
+	SIGNAL_DISCONNECT_BY_FUNC(filter_te, dfilter_expr_dlg_cancel_cb, w);
 }
 
 void
@@ -1124,18 +1109,13 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(tree_scrolled_win),
                                    GTK_POLICY_AUTOMATIC,
                                    GTK_POLICY_AUTOMATIC);
-#if GTK_MAJOR_VERSION < 2
-    gtk_widget_set_usize(tree_scrolled_win, 300, 400);
-#else
-    gtk_widget_set_size_request(tree_scrolled_win, 300, 400);
-#endif
+    WIDGET_SET_SIZE(tree_scrolled_win, 300, 400);
     gtk_box_pack_start(GTK_BOX(col1_vb), tree_scrolled_win, FALSE, FALSE, 0);
     gtk_widget_show(tree_scrolled_win);
 
 #if GTK_MAJOR_VERSION < 2
     tree = ctree_new(1, 0);
-    gtk_signal_connect(GTK_OBJECT(tree), "tree-select-row",
-                       GTK_SIGNAL_FUNC(field_select_row_cb), tree);
+    SIGNAL_CONNECT(tree, "tree-select-row", field_select_row_cb, tree);
 #else
     store = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);
     tree = tree_view_new(GTK_TREE_MODEL(store));
@@ -1148,8 +1128,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     gtk_tree_view_column_set_sort_column_id(column, 0);
-    g_signal_connect(G_OBJECT(selection), "changed",
-                     G_CALLBACK(field_select_row_cb), tree);
+    SIGNAL_CONNECT(selection, "changed", field_select_row_cb, tree);
 #endif
     gtk_container_add(GTK_CONTAINER(tree_scrolled_win), tree);
 
@@ -1244,8 +1223,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     value_list = gtk_list_new();
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(value_list_scrolled_win),
                                           value_list);
-    gtk_signal_connect(GTK_OBJECT(value_list), "select-child",
-                       GTK_SIGNAL_FUNC(value_list_sel_cb), value_entry);
+    SIGNAL_CONNECT(value_list, "select-child", value_list_sel_cb, value_entry);
     gtk_list_set_selection_mode(GTK_LIST(value_list), GTK_SELECTION_SINGLE);
     /* This remains hidden until an enumerated field is selected */
 
@@ -1254,8 +1232,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
      * relation was selected; connect to the "select-child" signal
      * for the relation list, so we can make that happen.
      */
-    gtk_signal_connect(GTK_OBJECT(relation_list), "select-child",
-                       GTK_SIGNAL_FUNC(relation_list_sel_cb), NULL);
+    SIGNAL_CONNECT(relation_list, "select-child", relation_list_sel_cb, NULL);
 #else
     l_store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);
     value_list = tree_view_new(GTK_TREE_MODEL(l_store));
@@ -1265,16 +1242,16 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     column = gtk_tree_view_column_new_with_attributes("value", renderer,
                                                       "text", 0, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(value_list), column);
-    g_signal_connect(G_OBJECT(gtk_tree_view_get_selection(GTK_TREE_VIEW(value_list))),
-                     "changed", G_CALLBACK(value_list_sel_cb), value_entry);
+    SIGNAL_CONNECT(gtk_tree_view_get_selection(GTK_TREE_VIEW(value_list)),
+                   "changed", value_list_sel_cb, value_entry);
 
     /*
      * The value stuff may be hidden or shown depending on what
      * relation was selected; connect to the "changed" signal
      * for the relation list, so we can make that happen.
      */
-    g_signal_connect(G_OBJECT(gtk_tree_view_get_selection(GTK_TREE_VIEW(relation_list))),
-                     "changed", G_CALLBACK(relation_list_sel_cb), NULL);
+    SIGNAL_CONNECT(gtk_tree_view_get_selection(GTK_TREE_VIEW(relation_list)),
+                   "changed", relation_list_sel_cb, NULL);
     l_sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(value_list));
     gtk_tree_selection_set_mode(l_sel, GTK_SELECTION_SINGLE);
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(value_list_scrolled_win),
@@ -1386,15 +1363,11 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
 #if GTK_MAJOR_VERSION < 2
     accept_bt = gtk_button_new_with_label("Accept");
-    gtk_widget_set_sensitive(accept_bt, FALSE);
-    gtk_signal_connect(GTK_OBJECT(accept_bt), "clicked",
-                       GTK_SIGNAL_FUNC(dfilter_expr_dlg_accept_cb), filter_te);
 #else
     accept_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
-    gtk_widget_set_sensitive(accept_bt, FALSE);
-    g_signal_connect(G_OBJECT(accept_bt), "clicked",
-                     G_CALLBACK(dfilter_expr_dlg_accept_cb), filter_te);
 #endif
+    gtk_widget_set_sensitive(accept_bt, FALSE);
+    SIGNAL_CONNECT(accept_bt, "clicked", dfilter_expr_dlg_accept_cb, filter_te);
     GTK_WIDGET_SET_FLAGS(accept_bt, GTK_CAN_DEFAULT);
     alignment = gtk_alignment_new(0.0, 0.5, 1.0, 0.0);
     gtk_container_add(GTK_CONTAINER(alignment), accept_bt);
@@ -1405,13 +1378,10 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
 #if GTK_MAJOR_VERSION < 2
     close_bt = gtk_button_new_with_label("Close");
-    gtk_signal_connect(GTK_OBJECT(close_bt), "clicked",
-                       GTK_SIGNAL_FUNC(dfilter_expr_dlg_cancel_cb), window);
 #else
     close_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-    g_signal_connect(G_OBJECT(close_bt), "clicked",
-                     G_CALLBACK(dfilter_expr_dlg_cancel_cb), window);
 #endif
+    SIGNAL_CONNECT(close_bt, "clicked", dfilter_expr_dlg_cancel_cb, window);
     alignment = gtk_alignment_new(0.0, 0.5, 1.0, 0.0);
     gtk_container_add(GTK_CONTAINER(alignment), close_bt);
     gtk_box_pack_start(GTK_BOX(list_bb), alignment, TRUE, TRUE, 0);
@@ -1432,24 +1402,16 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
      */
     dlg_set_cancel(window, close_bt);
 
-    gtk_object_set_data(GTK_OBJECT(window),
-                        E_DFILTER_EXPR_RELATION_LABEL_KEY, relation_label);
-    gtk_object_set_data(GTK_OBJECT(window),
-                        E_DFILTER_EXPR_RELATION_LIST_KEY, relation_list);
-    gtk_object_set_data(GTK_OBJECT(window),
-                        E_DFILTER_EXPR_RANGE_LABEL_KEY, range_label);
-    gtk_object_set_data(GTK_OBJECT(window),
-                        E_DFILTER_EXPR_RANGE_ENTRY_KEY, range_entry);
-    gtk_object_set_data(GTK_OBJECT(window),
-                        E_DFILTER_EXPR_VALUE_LABEL_KEY, value_label);
-    gtk_object_set_data(GTK_OBJECT(window),
-                        E_DFILTER_EXPR_VALUE_ENTRY_KEY, value_entry);
-    gtk_object_set_data(GTK_OBJECT(window),
-                        E_DFILTER_EXPR_VALUE_LIST_KEY, value_list);
-    gtk_object_set_data(GTK_OBJECT(window),
-                        E_DFILTER_EXPR_VALUE_LIST_SW_KEY, value_list_scrolled_win);
-    gtk_object_set_data(GTK_OBJECT(window),
-                        E_DFILTER_EXPR_ACCEPT_BT_KEY, accept_bt);
+    OBJECT_SET_DATA(window, E_DFILTER_EXPR_RELATION_LABEL_KEY, relation_label);
+    OBJECT_SET_DATA(window, E_DFILTER_EXPR_RELATION_LIST_KEY, relation_list);
+    OBJECT_SET_DATA(window, E_DFILTER_EXPR_RANGE_LABEL_KEY, range_label);
+    OBJECT_SET_DATA(window, E_DFILTER_EXPR_RANGE_ENTRY_KEY, range_entry);
+    OBJECT_SET_DATA(window, E_DFILTER_EXPR_VALUE_LABEL_KEY, value_label);
+    OBJECT_SET_DATA(window, E_DFILTER_EXPR_VALUE_ENTRY_KEY, value_entry);
+    OBJECT_SET_DATA(window, E_DFILTER_EXPR_VALUE_LIST_KEY, value_list);
+    OBJECT_SET_DATA(window, E_DFILTER_EXPR_VALUE_LIST_SW_KEY,
+                    value_list_scrolled_win);
+    OBJECT_SET_DATA(window, E_DFILTER_EXPR_ACCEPT_BT_KEY, accept_bt);
 
 #if GTK_MAJOR_VERSION < 2
     /*
@@ -1459,31 +1421,21 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
      */
     gtk_clist_set_selection_mode (GTK_CLIST(tree),
                                   GTK_SELECTION_BROWSE);
+#endif
 
     /*
      * Catch the "destroy" signal on our top-level window, and,
      * when it's destroyed, disconnect the signal we'll be
      * connecting below.
      */
-    gtk_signal_connect(GTK_OBJECT(window), "destroy",
-                       GTK_SIGNAL_FUNC(dfilter_expr_dlg_destroy_cb), filter_te);
-#else
-    g_signal_connect(G_OBJECT(window), "destroy",
-                     G_CALLBACK(dfilter_expr_dlg_destroy_cb), filter_te);
-#endif
+    SIGNAL_CONNECT(window, "destroy", dfilter_expr_dlg_destroy_cb, filter_te);
 
     /*
      * Catch the "destroy" signal on the text entry widget to which
      * we're attached; if it's destroyed, we should destroy ourselves
      * as well.
      */
-#if GTK_MAJOR_VERSION < 2
-    gtk_signal_connect(GTK_OBJECT(filter_te), "destroy",
-                       GTK_SIGNAL_FUNC(dfilter_expr_dlg_cancel_cb), window);
-#else
-    g_signal_connect(G_OBJECT(filter_te), "destroy",
-                     G_CALLBACK(dfilter_expr_dlg_cancel_cb), window);
-#endif
+    SIGNAL_CONNECT(filter_te, "destroy", dfilter_expr_dlg_cancel_cb, window);
 
     gtk_widget_show(window);
 }
