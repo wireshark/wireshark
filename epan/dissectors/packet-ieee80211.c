@@ -256,6 +256,8 @@ static char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 #define TAG_ERP_INFO_OLD         0x2F	/* IEEE Std 802.11g/D4.0 */
 #define TAG_RSN_IE               0x30
 #define TAG_EXT_SUPP_RATES       0x32
+#define TAG_CISCO_UNKNOWN_1	 0x85	/* Cisco Compatible eXtensions? */
+#define TAG_CISCO_UNKNOWN_2	 0x88	/* Cisco Compatible eXtensions? */
 #define TAG_VENDOR_SPECIFIC_IE	 0xDD
 
 #define WPA_OUI	"\x00\x50\xF2"
@@ -1172,6 +1174,8 @@ static const value_string tag_num_vals[] = {
 	{ TAG_ERP_INFO_OLD,         "ERP Information" },
 	{ TAG_RSN_IE,               "RSN Information" },
 	{ TAG_EXT_SUPP_RATES,       "Extended Supported Rates" },
+	{ TAG_CISCO_UNKNOWN_1,      "Cisco Unknown 1 + Device Name" },
+	{ TAG_CISCO_UNKNOWN_2,      "Cisco Unknown 2" },
 	{ TAG_VENDOR_SPECIFIC_IE,   "Vendor Specific" },
 	{ 0,                        NULL }
 };
@@ -1211,7 +1215,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
   switch (tag_no)
     {
 
-
     case TAG_SSID:
       memset (out_buff, 0, SHORT_STR);
 
@@ -1235,8 +1238,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 	  }
       }
       break;
-
-
 
     case TAG_SUPP_RATES:
     case TAG_EXT_SUPP_RATES:
@@ -1385,6 +1386,19 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
 			     tag_len, out_buff);
 
+      break;
+
+    case TAG_CISCO_UNKNOWN_1:
+      memset (out_buff, 0, SHORT_STR);
+      /* The Name of the sending device starts at offset 10 and is up to 
+         15 or 16 bytes in length, \0 padded */
+      snprintf (out_buff, SHORT_STR, "%.16s", tag_data_ptr + 10);
+      proto_tree_add_string_format (tree, tag_interpretation, tvb, offset + 2,
+			     tag_len, "", "Tag interpretation: Unknown + Name: %s",
+			     out_buff);
+      if (check_col (pinfo->cinfo, COL_INFO)) {
+          col_append_fstr(pinfo->cinfo, COL_INFO, ", Name: \"%s\"", out_buff);
+      }
       break;
 
     case TAG_VENDOR_SPECIFIC_IE:
@@ -2725,6 +2739,7 @@ proto_register_ieee80211 (void)
   static const value_string auth_alg[] = {
     {0x00, "Open System"},
     {0x01, "Shared key"},
+    {0x80, "Network EAP"},	/* Cisco proprietary? */
     {0, NULL}
   };
 
