@@ -1010,9 +1010,11 @@ lsa_dissect_POLICY_AUDIT_FULL_QUERY_INFO(tvbuff_t *tvb, int offset,
 }
 
 
+/*2005JAN  dummy1 and dummy2 to make the signature compatible with soon to follow changes to LSA */
 int
-lsa_dissect_POLICY_DNS_DOMAIN_INFO(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *parent_tree, guint8 *drep)
+lsa_dissect_DnsDomainInfo(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *parent_tree,
+			guint8 *drep, int dummy1 _U_, guint32 dummy2 _U_)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -1112,8 +1114,8 @@ lsa_dissect_POLICY_INFORMATION(tvbuff_t *tvb, int offset,
 				tvb, offset, pinfo, tree, drep);
 		break;
 	case 12:
-		offset = lsa_dissect_POLICY_DNS_DOMAIN_INFO(
-				tvb, offset, pinfo, tree, drep);
+		offset = lsa_dissect_DnsDomainInfo(
+				tvb, offset, pinfo, tree, drep, 0, 0);
 		break;
 	}
 

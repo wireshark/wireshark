@@ -123,9 +123,9 @@ lsa_dissect_LSA_SECRET(tvbuff_t *tvb, int offset,
 			guint8 *drep);
 
 int
-lsa_dissect_POLICY_DNS_DOMAIN_INFO(tvbuff_t *tvb, int offset,
+lsa_dissect_DnsDomainInfo(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
-			guint8 *drep);
+			guint8 *drep, int dummy1, guint32 dummy2);
 
 /* Specific access rights */
 

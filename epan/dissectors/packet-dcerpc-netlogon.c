@@ -5013,7 +5013,7 @@ netlogon_dissect_DOMAIN_TRUST_INFO(tvbuff_t *tvb, int offset,
 	}
 
 
-	offset = lsa_dissect_POLICY_DNS_DOMAIN_INFO(tvb, offset, pinfo, tree, drep);
+	offset = lsa_dissect_DnsDomainInfo(tvb, offset, pinfo, tree, drep, 0, 0);
 
 	/* Guesses at best. */
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
