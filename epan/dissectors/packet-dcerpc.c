@@ -238,7 +238,10 @@ static const value_string reject_reason_vals[] = {
  */
 static const value_string reject_status_vals[] = {
 	{ 0,          "Stub-defined exception" },
-	{ 0x00000005, "logon failure" },
+	{ 0x00000001, "nca_s_fault_other" },
+	{ 0x00000005, "nca_s_fault_access_denied" },
+	{ 0x000006f7, "nca_s_fault_ndr" },
+	{ 0x000006d8, "nca_s_fault_cant_perform" },
 	{ 0x1c000001, "nca_s_fault_int_div_by_zero" },
 	{ 0x1c000002, "nca_s_fault_addr_error" },
 	{ 0x1c000003, "nca_s_fault_fp_div_zero" },
@@ -2058,7 +2061,8 @@ static void
 show_stub_data (tvbuff_t *tvb, gint offset, proto_tree *dcerpc_tree,
                 dcerpc_auth_info *auth_info, gboolean is_encrypted)
 {
-    int length;
+    int length, plain_length, auth_pad_len;
+    guint auth_pad_offset;
 
     /*
      * We don't show stub data unless we have some in the tvbuff;
@@ -2067,23 +2071,43 @@ show_stub_data (tvbuff_t *tvb, gint offset, proto_tree *dcerpc_tree,
      * that happen to be in the tvbuff.
      */
     if (tvb_length_remaining (tvb, offset) > 0) {
+	auth_pad_len = auth_info?auth_info->auth_pad_len:0;
         length = tvb_reported_length_remaining (tvb, offset);
+
+	/* if auth_pad_len is larger than length then we ignore auth_pad_len totally */
+	plain_length = length - auth_pad_len;
+	if (plain_length < 1) {
+	    plain_length = length;
+	    auth_pad_len = 0;
+	}
+	auth_pad_offset = offset + plain_length;
+
         if (auth_info != NULL &&
             auth_info->auth_level == DCE_C_AUTHN_LEVEL_PKT_PRIVACY) {
             if (is_encrypted) {
-                proto_tree_add_text(dcerpc_tree, tvb, offset, -1,
+                proto_tree_add_text(dcerpc_tree, tvb, offset, length,
                                     "Encrypted stub data (%d byte%s)",
                                     length, plurality(length, "", "s"));
+		/* is the padding is still inside the encrypted blob, don't display it explicit */
+		auth_pad_len = 0;
             } else {
-                proto_tree_add_text(dcerpc_tree, tvb, offset, -1,
+                proto_tree_add_text(dcerpc_tree, tvb, offset, plain_length,
                                     "Decrypted stub data (%d byte%s)",
-                                    length, plurality(length, "", "s"));
+                                    plain_length, plurality(plain_length, "", "s"));
             }
         } else {
-            proto_tree_add_text (dcerpc_tree, tvb, offset, -1,
-                                 "Stub data (%d byte%s)", length,
-                                 plurality(length, "", "s"));
+            proto_tree_add_text (dcerpc_tree, tvb, offset, plain_length,
+                                 "Stub data (%d byte%s)", plain_length,
+                                 plurality(plain_length, "", "s"));
         }
+        /* If there is auth padding at the end of the stub, display it */
+        if (auth_pad_len != 0) {
+                proto_tree_add_text (dcerpc_tree, tvb, auth_pad_offset,
+                                     auth_pad_len,
+                                     "Auth Padding (%u byte%s)",
+                                     auth_pad_len,
+                                     plurality(auth_pad_len, "", "s"));
+            }
     }
 }
 
