@@ -2,7 +2,7 @@
  * Routines for opening EtherPeek (and TokenPeek?) files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.17 2002/02/27 08:57:24 guy Exp $
+ * $Id: etherpeek.c,v 1.18 2002/04/08 09:44:42 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -118,6 +118,16 @@ typedef struct etherpeek_utime {
 #define ETHERPEEK_V7_TIMESTAMP_LOWER_OFFSET	12
 #define ETHERPEEK_V7_PKT_SIZE			16
 
+/*
+ * AiroPeek radio information, at the beginning of every packet.
+ */
+typedef struct {
+	guint8	data_rate;
+	guint8	channel;
+	guint8	signal_level;
+	guint8	unused;
+} airopeek_radio_hdr_t;
+
 typedef struct etherpeek_encap_lookup {
 	guint16 protoNum;
 	int     encap;
@@ -131,6 +141,8 @@ static const etherpeek_encap_lookup_t etherpeek_encap[] = {
 	(sizeof (etherpeek_encap) / sizeof (etherpeek_encap[0]))
 
 static gboolean etherpeek_read_v7(wtap *wth, int *err, long *data_offset);
+static gboolean etherpeek_seek_read_v7(wtap *wth, long seek_off,
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err);
 static gboolean etherpeek_read_v56(wtap *wth, int *err, long *data_offset);
 static void etherpeek_close(wtap *wth);
 
@@ -220,8 +232,13 @@ int etherpeek_open(wtap *wth, int *err)
 				 * 802.11, with a private header giving
 				 * some radio information.  Presumably
 				 * this is from AiroPeek.
+				 *
+				 * We supply the private header as
+				 * the WTAP_ENCAP_IEEE_802_11_WITH_RADIO
+				 * pseudo-header, rather than as frame
+				 * data.
 				 */
-				file_encap = WTAP_ENCAP_AIROPEEK;
+				file_encap = WTAP_ENCAP_IEEE_802_11_WITH_RADIO;
 				break;
 
 			default:
@@ -302,7 +319,7 @@ int etherpeek_open(wtap *wth, int *err)
 		wth->file_type = WTAP_FILE_ETHERPEEK_V7;
 		wth->file_encap = file_encap;
 		wth->subtype_read = etherpeek_read_v7;
-		wth->subtype_seek_read = wtap_def_seek_read;
+		wth->subtype_seek_read = etherpeek_seek_read_v7;
 		break;
 
 	default:
@@ -330,6 +347,7 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, long *data_offset)
 	guint8  status;
 	etherpeek_utime timestamp;
 	double  t;
+	airopeek_radio_hdr_t radio_hdr;
 
 	wtap_file_read_expected_bytes(ep_pkt, sizeof(ep_pkt), wth->fh, err);
 	wth->data_offset += sizeof(ep_pkt);
@@ -364,6 +382,33 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, long *data_offset)
 	if (sliceLength % 2) /* packets are padded to an even length */
 		sliceLength++;
 
+	if (wth->file_encap == WTAP_ENCAP_IEEE_802_11_WITH_RADIO) {
+		/*
+		 * The first 4 bytes of the packet data are radio
+		 * information (including a reserved byte).
+		 */
+		if (sliceLength < 4) {
+			/*
+			 * We don't *have* 4 bytes of packet data.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			return FALSE;
+		}
+		wtap_file_read_expected_bytes(&radio_hdr, 4, wth->fh, err);
+
+		/*
+		 * We don't treat the radio information as packet data.
+		 */
+		sliceLength -= 4;
+		wth->phdr.len -= 4;
+		wth->phdr.caplen -= 4;
+		wth->data_offset += 4;
+
+		wth->pseudo_header.ieee_802_11.channel = radio_hdr.channel;
+		wth->pseudo_header.ieee_802_11.data_rate = radio_hdr.data_rate;
+		wth->pseudo_header.ieee_802_11.signal_level = radio_hdr.signal_level;
+	}
+
 	/* read the frame data */
 	buffer_assure_space(wth->frame_buffer, sliceLength);
 	wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
@@ -378,7 +423,64 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, long *data_offset)
 	wth->phdr.ts.tv_usec = (guint32) (t - (double) wth->phdr.ts.tv_sec *
 	                                               1000000.0);
 
+	if (wth->file_encap == WTAP_ENCAP_IEEE_802_11_WITH_RADIO) {
+		/*
+		 * The last 4 bytes appear to be random data - the length
+		 * might include the FCS - so we reduce the length by 4.
+		 *
+		 * Or maybe this is just the same kind of random 4 bytes
+		 * of junk at the end you get in Wireless Sniffer
+		 * captures.
+		 */
+		 wth->phdr.len -= 4;
+		 wth->phdr.caplen -= 4;
+	}
+
 	wth->phdr.pkt_encap = wth->file_encap;
+	return TRUE;
+}
+
+static gboolean
+etherpeek_seek_read_v7(wtap *wth, long seek_off,
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err)
+{
+	airopeek_radio_hdr_t radio_hdr;
+
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
+		*err = file_error(wth->random_fh);
+		return FALSE;
+	}
+
+	if (wth->file_encap == WTAP_ENCAP_IEEE_802_11_WITH_RADIO) {
+		/*
+		 * The first 4 bytes of the packet data are radio
+		 * information (including a reserved byte).
+		 */
+		if (length < 4) {
+			/*
+			 * We don't *have* 4 bytes of packet data.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			return FALSE;
+		}
+		wtap_file_read_expected_bytes(&radio_hdr, 4, wth->random_fh,
+		    err);
+
+		/*
+		 * We don't treat the radio information as packet data.
+		 */
+		length -= 4;
+
+		pseudo_header->ieee_802_11.channel = radio_hdr.channel;
+		pseudo_header->ieee_802_11.data_rate = radio_hdr.data_rate;
+		pseudo_header->ieee_802_11.signal_level = radio_hdr.signal_level;
+	}
+
+	/*
+	 * XXX - should "errno" be set in "wtap_file_read_expected_bytes()"?
+	 */
+	errno = WTAP_ERR_CANT_READ;
+	wtap_file_read_expected_bytes(pd, length, wth->random_fh, err);
 	return TRUE;
 }
 

@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.64 2002/04/08 09:09:49 guy Exp $
+ * $Id: wtap.c,v 1.65 2002/04/08 09:44:42 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -139,9 +139,6 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_PFLOG  */
 	{ "OpenBSD PF Firewall logs", "pflog" },
-
-	/* WTAP_ENCAP_AIROPEEK  */
-	{ "IEEE 802.11 plus AiroPeek header", "airopeek" },
 
 	/* WTAP_ENCAP_HHDLC */
 	{ "HiPath HDLC", "hhdlc" },

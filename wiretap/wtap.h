@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.108 2002/04/08 09:09:49 guy Exp $
+ * $Id: wtap.h,v 1.109 2002/04/08 09:44:42 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -106,11 +106,10 @@
 #define WTAP_ENCAP_LOCALTALK			24
 #define WTAP_ENCAP_PRISM_HEADER			25
 #define WTAP_ENCAP_PFLOG			26
-#define WTAP_ENCAP_AIROPEEK			27
-#define WTAP_ENCAP_HHDLC			28
+#define WTAP_ENCAP_HHDLC			27
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			29
+#define WTAP_NUM_ENCAP_TYPES			28
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we
