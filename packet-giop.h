@@ -4,7 +4,7 @@
  *
  * Based on CORBAv2.4.2  Chapter 15 GIOP Description.
  *
- * $Id: packet-giop.h,v 1.11 2003/11/16 23:17:18 guy Exp $
+ * $Id: packet-giop.h,v 1.12 2003/12/21 03:44:00 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -573,7 +573,7 @@ enum TCKind {
   tk_value,
   tk_value_box,
   tk_native,
-  tk_abstract_interface,
+  tk_abstract_interface
 
   /* - none -   0xffffffff TODO */
 };
