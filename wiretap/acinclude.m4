@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.6 2000/08/25 06:25:20 guy Exp $
+dnl $Id: acinclude.m4,v 1.7 2001/01/27 23:47:16 guy Exp $
 dnl
 
 # Configure paths for GLIB
@@ -226,7 +226,7 @@ AC_DEFUN(AC_WIRETAP_PCAP_CHECK,
 	fi
 
 	# Pcap header check
-	AC_CHECK_HEADER(pcap.h)
+	AC_CHECK_HEADERS(pcap.h)
 ])
 
 #
