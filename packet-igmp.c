@@ -104,8 +104,12 @@ static int ett_max_resp = -1;
 #define IGMP_V0_CONFIRM_GROUP_REPLY	0x08
 #define IGMP_V1_HOST_MEMBERSHIP_QUERY	0x11
 #define IGMP_V1_HOST_MEMBERSHIP_REPORT	0x12
+#define IGMP_V1_DVMRP_MESSAGE		0x13
+#define IGMP_V1_PIM_ROUTING_MESSAGE	0x14
 #define IGMP_V2_MEMBERSHIP_REPORT	0x16
 #define IGMP_V2_LEAVE_GROUP		0x17
+#define IGMP_V1_TRACEROUTE_RESPONSE	0x1e	/* XXX */
+#define IGMP_V1_TRACEROUTE_MESSAGE	0x1f	/* XXX */
 #define IGMP_V3_MEMBERSHIP_REPORT	0x22
 	
 static const value_string commands[] = {
@@ -119,8 +123,12 @@ static const value_string commands[] = {
 	{IGMP_V0_CONFIRM_GROUP_REPLY,	"Confirm Group Reply"		},
 	{IGMP_V1_HOST_MEMBERSHIP_QUERY,	"Membership Query"		},
 	{IGMP_V1_HOST_MEMBERSHIP_REPORT,"Membership Report"		},
+	{IGMP_V1_DVMRP_MESSAGE,		"DVMRP Message"			},
+	{IGMP_V1_PIM_ROUTING_MESSAGE,	"PIM Routing Message"		},
 	{IGMP_V2_MEMBERSHIP_REPORT,	"Membership Report"		},
 	{IGMP_V2_LEAVE_GROUP,		"Leave Group"			},
+	{IGMP_V1_TRACEROUTE_RESPONSE,	"Traceroute Response"		},
+	{IGMP_V1_TRACEROUTE_MESSAGE,	"Traceroute Message"		},
 	{IGMP_V3_MEMBERSHIP_REPORT,	"Membership Report"		},
 	{0,		NULL}
 };
@@ -437,6 +445,50 @@ dissect_igmp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, i
 	return offset;
 }
 
+/*
+ * Dissector for V1 PIM messages.
+ *
+ * XXX - are these just PIM V1 messages (which we don't dissect in the PIM
+ * dissector)?  Where is PIM V1 documented?  I'm inferring some of this
+ * from the tcpdump IGMP dissector.
+ */
+#define PIMV1_QUERY		0
+#define PIMV1_REGISTER		1
+#define PIMV1_REGISTER_STOP	2
+#define PIMV1_JOIN_PRUNE	3
+#define PIMV1_RP_REACHABLE	4
+#define PIMV1_ASSERT		5
+#define PIMV1_GRAFT		6
+#define PIMV1_GRAFT_ACK		7
+#define PIMV1_MODE		8
+
+static const value_string pim_routing_type[] = {
+	{ PIMV1_QUERY,		"Query" },
+	{ PIMV1_REGISTER,	"Register" },
+	{ PIMV1_REGISTER_STOP,	"Register-Stop" },
+	{ PIMV1_JOIN_PRUNE,	"Join/Prune" },
+	{ PIMV1_RP_REACHABLE,	"RP-reachable" },
+	{ PIMV1_ASSERT,		"Assert" },
+	{ PIMV1_GRAFT,		"Graft" },
+	{ PIMV1_GRAFT_ACK,	"Graft-ACK" },
+	{ PIMV1_MODE,		"Mode" },
+	{ 0,			NULL }
+};
+
+static int
+dissect_igmp_v1_pim_routing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, int offset)
+{
+	guint8 pimv1_type;
+
+	PRINT_VERSION(1);
+
+	pimv1_type = tvb_get_guint8(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 2, "Message type: %s",
+	    val_to_str(pimv1_type, pim_routing_type, "Unknown (%u)"));
+
+	/* XXX - dissect the rest of it */
+	return offset;
+}
 
 /* dissector for version 0, rfc988 */
 static int
@@ -507,10 +559,11 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 
-	/* 0x11 v1/v2/v3*/
-	if (type==0x11) {
-		/* version 3 */
+	switch (type) {
+
+	case IGMP_V1_HOST_MEMBERSHIP_QUERY:	/* 0x11 v1/v2/v3 */
 		if ( (pinfo->iplen-pinfo->iphdrlen*4)>=12 ) {
+			/* version 3 */
 			offset = dissect_igmp_v3_query(tvb, pinfo, tree, type, offset);
 		} else {
 			/* v1 and v2 differs in second byte of header */
@@ -520,26 +573,55 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				offset = dissect_igmp_v1(tvb, pinfo, tree, type, offset);
 			}
 		}
-	}
+		break;
 
-	/* 0x12  v1/v2*/
-	if (type==0x12) {
+	case IGMP_V1_HOST_MEMBERSHIP_REPORT:	/* 0x12  v1/v2 */
 		/* v1 and v2 differs in second byte of header */
 		if (tvb_get_guint8(tvb, offset)) {
 			offset = dissect_igmp_v2(tvb, pinfo, tree, type, offset);
 		} else {
 			offset = dissect_igmp_v1(tvb, pinfo, tree, type, offset);
 		}
-	}
-  
-	/* 0x16 0x17  version 2*/
-	if((type==0x16)||(type==0x17)) {
-		offset = dissect_igmp_v2(tvb, pinfo, tree, type, offset);
-	}
+		break;
 
-	/* 0x22   version 3 */
-	if (type==0x22) {
+	case IGMP_V1_DVMRP_MESSAGE:
+		offset = dissect_igmp_v1(tvb, pinfo, tree, type, offset);
+		/*
+		 * XXX - dissect the rest as DVMRP; see the tcpdump IGMP
+		 * and DVMRP dissectors.
+		 */
+		break;
+
+	case IGMP_V1_PIM_ROUTING_MESSAGE:
+		offset = dissect_igmp_v1_pim_routing(tvb, pinfo, tree, type, offset);
+		break;
+
+	case IGMP_V2_MEMBERSHIP_REPORT:
+	case IGMP_V2_LEAVE_GROUP:
+		offset = dissect_igmp_v2(tvb, pinfo, tree, type, offset);
+		break;
+
+	case IGMP_V1_TRACEROUTE_RESPONSE:
+		/* XXX - V1 or V2? */
+		offset = dissect_igmp_v1(tvb, pinfo, tree, type, offset);
+		/*
+		 * XXX - dissect the rest as traceroute response; see the
+		 * tcpdump IGMP dissector.
+		 */
+		break;
+
+	case IGMP_V1_TRACEROUTE_MESSAGE:
+		/* XXX - V1 or V2? */
+		offset = dissect_igmp_v1(tvb, pinfo, tree, type, offset);
+		/*
+		 * XXX - dissect the rest as traceroute message; see the
+		 * tcpdump IGMP dissector.
+		 */
+		break;
+
+	case IGMP_V3_MEMBERSHIP_REPORT:
 		offset = dissect_igmp_v3_response(tvb, pinfo, tree, type, offset);
+		break;
 	}
 
 
