@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.1 1999/09/09 03:32:00 gram Exp $
+ * $Id: capture_dlg.c,v 1.2 1999/09/11 06:23:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,6 +53,19 @@
 
 #include <signal.h>
 #include <errno.h>
+
+#ifdef NEED_SNPRINTF_H
+# ifdef HAVE_STDARG_H
+#  include <stdarg.h>
+# else
+#  include <varargs.h>
+# endif
+# include "snprintf.h"
+#endif
+
+#ifdef HAVE_SYS_SOCKIO_H
+# include <sys/sockio.h>
+#endif
 
 #include <wiretap/wtap.h>
 #include "capture.h"

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.66 1999/09/09 03:31:49 gram Exp $
+ * $Id: capture.c,v 1.67 1999/09/11 06:23:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,10 +71,6 @@
 #  include <varargs.h>
 # endif
 # include "snprintf.h"
-#endif
-
-#ifdef HAVE_SYS_SOCKIO_H
-# include <sys/sockio.h>
 #endif
 
 #include "gtk/main.h"
