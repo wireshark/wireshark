@@ -9,7 +9,7 @@
  * Portions Copyright (c) by James Coe 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp.c,v 1.77 2004/02/18 06:01:47 guy Exp $
+ * $Id: packet-ncp.c,v 1.78 2004/06/15 09:30:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,6 +67,8 @@ static int hf_ncp_system_flags = -1;
 static int hf_ncp_system_flags_abt = -1;
 static int hf_ncp_system_flags_eob = -1;
 static int hf_ncp_system_flags_sys = -1;
+static int hf_ncp_system_flags_bsy = -1;
+static int hf_ncp_system_flags_lst = -1;
 static int hf_ncp_src_connection = -1;
 static int hf_ncp_dst_connection = -1;
 static int hf_ncp_packet_seqno = -1;
@@ -87,6 +89,9 @@ static int hf_ncp_slot = -1;
 static int hf_ncp_control_code = -1;
 static int hf_ncp_fragment_handle = -1;
 static int hf_lip_echo = -1;
+static int hf_ncp_burst_command = -1;
+static int hf_ncp_burst_file_handle = -1;
+static int hf_ncp_burst_reserved = -1;
 
 gint ett_ncp = -1;
 gint ett_nds = -1;
@@ -136,6 +141,12 @@ static const value_string ncp_ip_signature[] = {
 	{ NCPIP_RQST, "Demand Transport (Request)" },
 	{ NCPIP_RPLY, "Transport is NCP (Reply)" },
 	{ 0, NULL },
+};
+
+static const value_string burst_command[] = {
+    { 0x01000000, "Burst Read" },
+    { 0x02000000, "Burst Write" },
+    { 0, NULL },
 };
 
 /* The information in this module comes from:
@@ -284,7 +295,9 @@ mncp_hash_lookup(conversation_t *conversation)
  * Burst packet system flags.
  */
 #define ABT	0x04		/* Abort request */
+#define BSY 0x08        /* Server Busy */
 #define EOB	0x10		/* End of burst */
+#define LST 0x40        /* Include Fragment List */
 #define SYS	0x80		/* System packet */
 
 static void
@@ -296,7 +309,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	struct ncp_ip_header		ncpiph;
 	struct ncp_ip_rqhdr		ncpiphrq;
 	struct ncp_common_header	header;
-	guint16				nw_connection;
+	guint16				nw_connection, ncp_burst_seqno, ncp_ack_seqno;
 	guint16				flags = 0;
 	char				flags_str[1+3+1+3+1+3+1+1];
 	char				*sep;
@@ -308,7 +321,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int				offset;
 	gint				length_remaining;
 	tvbuff_t       			*next_tvb;
-	guint32				testvar = 0;
+	guint32				testvar = 0, ncp_burst_command, burst_len, burst_off, burst_file;
 	guint8				subfunction;
     mncp_rhash_value    *request_value = NULL;
     conversation_t      *conversation;
@@ -536,9 +549,19 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			strcat(flags_str, "ABT");
 			sep = ",";
 		}
+		if (flags & BSY) {
+			strcat(flags_str, sep);
+			strcat(flags_str, "BSY");
+			sep = ",";
+		}
 		if (flags & EOB) {
 			strcat(flags_str, sep);
 			strcat(flags_str, "EOB");
+			sep = ",";
+		}
+		if (flags & LST) {
+			strcat(flags_str, sep);
+			strcat(flags_str, "LST");
 			sep = ",";
 		}
 		if (flags & SYS) {
@@ -553,7 +576,11 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		flags_tree = proto_item_add_subtree(ti, ett_ncp_system_flags);
 		proto_tree_add_item(flags_tree, hf_ncp_system_flags_abt,
 		    tvb, commhdr + 2, 1, FALSE);
+		proto_tree_add_item(flags_tree, hf_ncp_system_flags_bsy,
+		    tvb, commhdr + 2, 1, FALSE);
 		proto_tree_add_item(flags_tree, hf_ncp_system_flags_eob,
+		    tvb, commhdr + 2, 1, FALSE);
+		proto_tree_add_item(flags_tree, hf_ncp_system_flags_lst,
 		    tvb, commhdr + 2, 1, FALSE);
 		proto_tree_add_item(flags_tree, hf_ncp_system_flags_sys,
 		    tvb, commhdr + 2, 1, FALSE);
@@ -568,8 +595,10 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    tvb, commhdr + 12, 4, FALSE);
 		proto_tree_add_item(ncp_tree, hf_ncp_delay_time,
 		    tvb, commhdr + 16, 4, FALSE);
+        ncp_burst_seqno = tvb_get_ntohs(tvb, commhdr+20);
 		proto_tree_add_item(ncp_tree, hf_ncp_burst_seqno,
 		    tvb, commhdr + 20, 2, FALSE);
+        ncp_ack_seqno = tvb_get_ntohs(tvb, commhdr+22);
 		proto_tree_add_item(ncp_tree, hf_ncp_ack_seqno,
 		    tvb, commhdr + 22, 2, FALSE);
 		proto_tree_add_item(ncp_tree, hf_ncp_burst_len,
@@ -582,6 +611,28 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		missing_fraglist_count = tvb_get_ntohs(tvb, commhdr + 34);
 		proto_tree_add_item(ncp_tree, hf_ncp_missing_fraglist_count,
 		    tvb, commhdr + 34, 2, FALSE);
+        if (ncp_burst_seqno==ncp_ack_seqno)
+        {
+            ncp_burst_command = tvb_get_ntohl(tvb, commhdr+36);
+            proto_tree_add_item(ncp_tree, hf_ncp_burst_command,
+                tvb, commhdr + 36, 4, FALSE);
+            burst_file = tvb_get_ntohl(tvb, commhdr+40);
+            proto_tree_add_item(ncp_tree, hf_ncp_burst_file_handle,
+                tvb, commhdr + 40, 4, FALSE);
+            proto_tree_add_item(ncp_tree, hf_ncp_burst_reserved,
+                tvb, commhdr + 44, 8, FALSE);
+            burst_off = tvb_get_ntohl(tvb, commhdr+52);
+            proto_tree_add_item(ncp_tree, hf_ncp_data_offset,
+                tvb, commhdr + 52, 4, FALSE);
+            burst_len = tvb_get_ntohl(tvb, commhdr+56);
+            proto_tree_add_item(ncp_tree, hf_ncp_burst_len,
+                tvb, commhdr + 56, 4, FALSE);
+            if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_set_str(pinfo->cinfo, COL_INFO, match_strval(ncp_burst_command, burst_command));
+                col_append_fstr(pinfo->cinfo, COL_INFO, " %d bytes starting at offset %d in file 0x%08x", burst_len, burst_off, burst_file);
+            }
+            return;
+        }
 		break;
 
 	case NCP_ALLOCATE_SLOT:		/* Allocate Slot Request */
@@ -862,6 +913,14 @@ proto_register_ncp(void)
       { "SYS",     	"ncp.system_flags.sys",
 	FT_BOOLEAN, 8, NULL, SYS,
 	"Is this a system packet?", HFILL }},
+    { &hf_ncp_system_flags_bsy,
+      { "BSY",     	"ncp.system_flags.bsy",
+	FT_BOOLEAN, 8, NULL, BSY,
+	"Is the server busy?", HFILL }},
+    { &hf_ncp_system_flags_lst,
+      { "LST",     	"ncp.system_flags.lst",
+	FT_BOOLEAN, 8, NULL, LST,
+	"Return Fragment List?", HFILL }},
     { &hf_ncp_src_connection,
       { "Source Connection ID",    "ncp.src_connection",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -934,6 +993,17 @@ proto_register_ncp(void)
       { "Large Internet Packet Echo",    "ncp.lip_echo",
     FT_STRING, BASE_NONE, NULL, 0x0,
     "", HFILL }},
+    { &hf_ncp_burst_command,
+      { "Burst Command",    "ncp.burst_command",
+	FT_UINT32, BASE_HEX, VALS(burst_command), 0x0,
+	"Packet Burst Command", HFILL }},
+    { &hf_ncp_burst_file_handle,
+      { "Burst File Handle",    "ncp.file_handle",
+	FT_UINT32, BASE_HEX, NULL, 0x0,
+	"Packet Burst File Handle", HFILL }},
+ 	{ &hf_ncp_burst_reserved,
+	{ "Reserved", "ncp.burst_reserved", 
+    FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
   
   };
   static gint *ett[] = {
