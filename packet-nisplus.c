@@ -1815,7 +1815,7 @@ proto_register_nis(void)
 		&ett_nisplus_log_entry,
 	};
 
-	proto_nisplus = proto_register_protocol("NIS",
+	proto_nisplus = proto_register_protocol("NIS+",
 	    "NIS+", "nisplus");
 	proto_register_field_array(proto_nisplus, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
