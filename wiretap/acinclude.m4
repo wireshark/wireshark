@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.17 2003/02/26 20:08:33 guy Exp $
+dnl $Id: acinclude.m4,v 1.18 2003/12/17 02:41:04 guy Exp $
 dnl
 
 #
@@ -102,7 +102,7 @@ AC_DEFUN(AC_WIRETAP_ZLIB_CHECK,
 	  #
 	  wiretap_save_CFLAGS="$CFLAGS"
 	  CFLAGS="$CFLAGS -I$zlib_dir/include"
-	  wiretap_save_CPPLAGS="$CPPLAGS"
+	  wiretap_save_CPPFLAGS="$CPPFLAGS"
 	  CPPFLAGS="$CPPFLAGS -I$zlib_dir/include"
 	  wiretap_save_LIBS="$LIBS"
 	  AC_WIRETAP_ADD_DASH_L(LIBS, $zlib_dir/lib)
@@ -195,7 +195,7 @@ AC_DEFUN(AC_WIRETAP_ZLIB_CHECK,
 				# contains gzgets there.
 				#
 			        CFLAGS="$wiretap_save_CFLAGS"
-				CPPFLAGS="$wiretap_save_CPPLAGS"
+				CPPFLAGS="$wiretap_save_CPPFLAGS"
 				LIBS="$wiretap_save_LIBS"
 			fi
 			want_zlib=no

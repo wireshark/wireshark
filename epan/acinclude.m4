@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.5 2003/12/17 02:36:56 guy Exp $
+dnl $Id: acinclude.m4,v 1.6 2003/12/17 02:41:04 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -204,7 +204,7 @@ AC_DEFUN(AC_ETHEREAL_LIBPCRE_CHECK,
 	  #
 	  ethereal_save_CFLAGS="$CFLAGS"
 	  CFLAGS="$CFLAGS -I$pcre_dir/include"
-	  ethereal_save_CPPLAGS="$CPPLAGS"
+	  ethereal_save_CPPFLAGS="$CPPFLAGS"
 	  CPPFLAGS="$CPPFLAGS -I$pcre_dir/include"
 	  ethereal_save_LIBS="$LIBS"
 	  LIBS="$LIBS -lpcre"
@@ -278,7 +278,7 @@ AC_DEFUN(AC_ETHEREAL_LIBPCRE_CHECK,
 				# actually find pcre there.
 				#
 				CFLAGS="$ethereal_save_CFLAGS"
-				CPPFLAGS="$ethereal_save_CPPLAGS"
+				CPPFLAGS="$ethereal_save_CPPFLAGS"
 				LDFLAGS="$ethereal_save_LDFLAGS"
 				LIBS="$ethereal_save_LIBS"
 				PCRE_LIBS=""
