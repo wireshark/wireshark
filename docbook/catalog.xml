@@ -24,8 +24,9 @@ Please note that if you shift any files in the directory structure you MUST adju
     <!-- if you need to change this, don't forget to change it in the Makefile too -->
     <rewriteURI
         uriStartString="http://docbook.sourceforge.net/release/xsl/current/"
-        rewritePrefix="/usr/share/docbook-xsl/" />
+        <!-- rewritePrefix="/usr/share/docbook-xsl/" /> -->
         <!-- rewritePrefix="/usr/share/xml/docbook/stylesheet/nwalsh/1.64.1/" /> -->
+        rewritePrefix="/usr/share/xml/docbook/stylesheet/nwalsh/1.64.1/" />
 
     <!-- Resolve DTD PUBLIC identifiers -->
     <nextCatalog  catalog="docbook42/catalog.xml" />
