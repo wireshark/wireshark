@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.55 1999/10/15 05:30:35 itojun Exp $
+ * $Id: packet-ip.c,v 1.56 1999/10/16 20:59:03 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -784,12 +784,10 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
        decode_boolean_bitfield(iph.ip_tos, IPTOS_LOWCOST,
             sizeof (iph.ip_tos)*8, "low cost", "normal cost"));
     proto_tree_add_item(ip_tree, hf_ip_len, offset +  2, 2, iph.ip_len);
-    proto_tree_add_item_format(ip_tree, hf_ip_id, offset +  4, 2, iph.ip_id, "Identification: 0x%04x",
-      iph.ip_id);
+    proto_tree_add_item(ip_tree, hf_ip_id, offset +  4, 2, iph.ip_id);
 
     flags = (iph.ip_off & (IP_DF|IP_MF)) >> 12;
-    tf = proto_tree_add_item_format(ip_tree, hf_ip_flags, offset +  6, 1, flags,
-		   "Flags: 0x%x", flags);
+    tf = proto_tree_add_item(ip_tree, hf_ip_flags, offset +  6, 1, flags);
     field_tree = proto_item_add_subtree(tf, ETT_IP_OFF);
     proto_tree_add_text(field_tree, offset + 6, 1, "%s",
       decode_boolean_bitfield(iph.ip_off >> 12, IP_DF >> 12, 4, "don't fragment",
@@ -803,9 +801,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_item(ip_tree, hf_ip_ttl, offset +  8, 1, iph.ip_ttl);
     proto_tree_add_item_format(ip_tree, hf_ip_proto, offset +  9, 1, iph.ip_p,
 	"Protocol: %s (0x%02x)", ipprotostr(iph.ip_p), iph.ip_p);
-    proto_tree_add_item_format(ip_tree, hf_ip_checksum, offset + 10, 2, iph.ip_sum,
-	    "Header checksum: 0x%04x", iph.ip_sum);
-
+    proto_tree_add_item(ip_tree, hf_ip_checksum, offset + 10, 2, iph.ip_sum);
     proto_tree_add_item(ip_tree, hf_ip_src, offset + 12, 4, iph.ip_src);
     proto_tree_add_item(ip_tree, hf_ip_dst, offset + 16, 4, iph.ip_dst);
     proto_tree_add_item_hidden(ip_tree, hf_ip_addr, offset + 12, 4, iph.ip_src);
@@ -1028,10 +1024,8 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			       ih.icmp_code,
 			       "Code: %d %s",
 			       ih.icmp_code, code_str);
-    proto_tree_add_item_format(icmp_tree, hf_icmp_checksum, offset +  2, 2, 
-			       cksum,
-			       "Checksum: 0x%04x",
-			       cksum);
+    proto_tree_add_item(icmp_tree, hf_icmp_checksum, offset +  2, 2, 
+			cksum);
 
     /* Decode the second 4 bytes of the packet. */
     switch (ih.icmp_type) {
@@ -1191,10 +1185,8 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			       ih.igmp_unused,
 			       "Unused: 0x%02x",
 			       ih.igmp_unused);
-    proto_tree_add_item_format(igmp_tree, hf_igmp_checksum, offset + 2, 2, 
-			       cksum,
-			       "Checksum: 0x%04x",
-			       cksum);
+    proto_tree_add_item(igmp_tree, hf_igmp_checksum, offset + 2, 2, 
+			cksum);
     proto_tree_add_item(igmp_tree, hf_igmp_group, offset + 4, 4, 
 			ih.igmp_gaddr);
   }
@@ -1257,7 +1249,7 @@ proto_register_ip(void)
 			"" }},
 
 		{ &hf_ip_id,
-		{ "Identification",	"ip.id", FT_UINT32, BASE_DEC, NULL, 0x0,
+		{ "Identification",	"ip.id", FT_UINT16, BASE_HEX, NULL, 0x0,
 			"" }},
 
 		{ &hf_ip_dst,
