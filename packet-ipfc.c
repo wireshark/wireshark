@@ -2,7 +2,7 @@
  * Routines for Decoding FC header for IP/FC
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-ipfc.c,v 1.3 2002/12/08 22:01:20 guy Exp $
+ * $Id: packet-ipfc.c,v 1.4 2002/12/08 22:35:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,8 @@
 #include <epan/packet.h>
 #include "etypes.h"
 #include "packet-fc.h"
+#include "packet-ipfc.h"
+#include "packet-llc.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_ipfc              = -1;
@@ -45,6 +47,17 @@ static int hf_ipfc_network_sa = -1;
 /* Initialize the subtree pointers */
 static gint ett_ipfc = -1;
 static dissector_handle_t llc_handle;
+
+void
+capture_ipfc (const guchar *pd, int len, packet_counts *ld)
+{
+  if (!BYTES_ARE_IN_FRAME(0, len, 16)) {
+    ld->other++;
+    return;
+  }
+
+  capture_llc(pd, 16, len, ld);
+}
 
 static void
 dissect_ipfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)

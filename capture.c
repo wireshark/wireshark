@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.195 2002/10/19 07:52:12 guy Exp $
+ * $Id: capture.c,v 1.196 2002/12/08 22:35:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -160,6 +160,7 @@
 #include "packet-ieee80211.h"
 #include "packet-chdlc.h"
 #include "packet-prism.h"
+#include "packet-ipfc.h"
 
 #ifdef WIN32
 #include "capture-wpcap.h"
@@ -2245,6 +2246,9 @@ capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
       break;
     case WTAP_ENCAP_ATM_SNIFFER:
       capture_atm(&pseudo_header, pd, whdr.caplen, &ld->counts);
+      break;
+    case WTAP_ENCAP_IP_OVER_FC:
+      capture_ipfc(pd, whdr.caplen, &ld->counts);
       break;
     /* XXX - some ATM drivers on FreeBSD might prepend a 4-byte ATM
        pseudo-header to DLT_ATM_RFC1483, with LLC header following;
