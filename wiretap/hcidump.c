@@ -1,6 +1,6 @@
 /* hcidump.c
  *
- * $Id: hcidump.c,v 1.1 2003/10/30 03:11:02 guy Exp $
+ * $Id: hcidump.c,v 1.2 2003/10/30 11:53:48 guy Exp $
  *
  * Copyright (c) 2003 by Marcel Holtmann <marcel@holtmann.org>
  *
@@ -55,7 +55,7 @@ static gboolean hcidump_read(wtap *wth, int *err, long *data_offset)
 	}
 	wth->data_offset += DUMP_HDR_SIZE;
 
-	packet_size = g_ntohs(dh.len);
+	packet_size = GUINT16_FROM_LE(dh.len);
 	if (packet_size > WTAP_MAX_PACKET_SIZE) {
 		/*
 		 * Probably a corrupt capture file; don't blow up trying
@@ -79,8 +79,8 @@ static gboolean hcidump_read(wtap *wth, int *err, long *data_offset)
 	}
 	wth->data_offset += packet_size;
 
-	wth->phdr.ts.tv_sec = g_ntohl(dh.ts_sec);
-	wth->phdr.ts.tv_usec = g_ntohl(dh.ts_usec);
+	wth->phdr.ts.tv_sec = GUINT32_FROM_LE(dh.ts_sec);
+	wth->phdr.ts.tv_usec = GUINT32_FROM_LE(dh.ts_usec);
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = packet_size;
 	wth->phdr.pkt_encap = WTAP_ENCAP_BLUETOOTH_H4;
@@ -131,7 +131,7 @@ int hcidump_open(wtap *wth, int *err)
 		return (*err != 0) ? -1 : 0;
 	}
 
-	if (dh.in != 0 && dh.in != 1 && dh.pad != 0 && g_ntohs(dh.len) < 1)
+	if (dh.in != 0 && dh.in != 1 && dh.pad != 0 && GUINT16_FROM_LE(dh.len) < 1)
 		return 0;
 
 	bytes_read = file_read(&type, 1, 1, wth->fh);
