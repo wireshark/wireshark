@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.111 2004/06/17 22:42:40 guy Exp $
+ * $Id: file_dlg.c,v 1.112 2004/06/18 05:58:30 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,8 +25,6 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
-#include <string.h>
 
 #include <gtk/gtk.h>
 
@@ -398,6 +396,7 @@ file_merge_cmd(GtkWidget *w)
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
 #endif
+  GtkTooltips *tooltips = gtk_tooltips_new();
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
   static construct_args_t args = {
@@ -476,6 +475,9 @@ file_merge_cmd(GtkWidget *w)
 #endif
 
   prepend_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "Prepend packets to existing file", accel_group);
+  gtk_tooltips_set_tip(tooltips, prepend_rb, 
+      "The resulting file contains the packets from the selected, followed by the packets from the currently loaded file,"
+      " the packet timestamps will be ignored.", NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), prepend_rb, FALSE, FALSE, 0);
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   OBJECT_SET_DATA(file_merge_w,
@@ -486,7 +488,10 @@ file_merge_cmd(GtkWidget *w)
 #endif
   gtk_widget_show(prepend_rb);
 
-  chrono_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(prepend_rb, "Sort packets chronologically", accel_group);
+  chrono_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(prepend_rb, "Merge packets chronologically", accel_group);
+  gtk_tooltips_set_tip(tooltips, chrono_rb, 
+      "The resulting file contains all the packets from the currently loaded and the selected file,"
+      " sorted by the packet timestamps.", NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chrono_rb), TRUE);
   gtk_box_pack_start(GTK_BOX(main_vb), chrono_rb, FALSE, FALSE, 0);
   gtk_widget_show(chrono_rb);
@@ -498,6 +503,9 @@ file_merge_cmd(GtkWidget *w)
 #endif
 
   append_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(prepend_rb, "Append packets to existing file", accel_group);
+  gtk_tooltips_set_tip(tooltips, append_rb, 
+      "The resulting file contains the packets from the currently loaded, followed by the packets from the selected file,"
+      " the packet timestamps will be ignored.", NULL);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(append_rb),
 	g_resolv_flags & RESOLV_TRANSPORT);
   gtk_box_pack_start(GTK_BOX(main_vb), append_rb, FALSE, FALSE, 0);
@@ -607,7 +615,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
     	return;
   }
 
-  cf_current_name = strdup(cfile.filename);
+  cf_current_name = g_strdup(cfile.filename);
   /*XXX should use temp file stuff in util routines */
   cf_merged_name = tmpnam(NULL);
 
