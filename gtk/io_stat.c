@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.33 2003/10/06 22:13:36 guy Exp $
+ * $Id: io_stat.c,v 1.34 2003/10/11 11:23:52 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,8 +66,10 @@ static guint32 yscale_max[MAX_YSCALE] = {AUTO_MAX_YSCALE, 10, 20, 50, 100, 200, 
 #define DEFAULT_PIXELS_PER_TICK 2
 static guint32 pixels_per_tick[MAX_PIXELS_PER_TICK] = {1, 2, 5, 10};
 
-#define MAX_COUNT_TYPES 3
+#define COUNT_TYPE_FRAMES   0
+#define COUNT_TYPE_BYTES    1
 #define COUNT_TYPE_ADVANCED 2
+#define MAX_COUNT_TYPES 3
 static char *count_type_names[MAX_COUNT_TYPES] = {"frames/tick", "bytes/tick", "advanced..."};
 
 /* unit is in ms */
@@ -397,87 +399,75 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, void *dummy 
 
 
 static guint32
-get_it_value(io_stat_t *io, io_stat_item_t *it, int adv_type, int calc_type)
+get_it_value(io_stat_item_t *it, int adv_type, int calc_type)
 {
 	guint32 value=0;
 
-	switch(io->count_type){
-	case 0:
-		value=it->frames;
+	switch(adv_type){
+	case FT_NONE:
+		switch(calc_type){
+		case CALC_TYPE_COUNT:
+			value=it->frames;
+			break;
+		default:
+			break;
+		}
 		break;
-	case 1:
-		value=it->bytes;
-		break;
-	case COUNT_TYPE_ADVANCED:
-		switch(adv_type){
-		case FT_NONE:
-			switch(calc_type){
-			case CALC_TYPE_COUNT:
-				value=it->frames;
-				break;
-			default:
-				break;
+	case FT_UINT8:
+	case FT_UINT16:
+	case FT_UINT24:
+	case FT_UINT32:
+	case FT_INT8:
+	case FT_INT16:
+	case FT_INT24:
+	case FT_INT32:
+		switch(calc_type){
+		case CALC_TYPE_SUM:
+			value=it->int_tot;
+			break;
+		case CALC_TYPE_COUNT:
+			value=it->frames;
+			break;
+		case CALC_TYPE_MAX:
+			value=it->int_max;
+			break;
+		case CALC_TYPE_MIN:
+			value=it->int_min;
+			break;
+		case CALC_TYPE_AVG:
+			if(it->frames){
+				value=it->int_tot/it->frames;
+			} else {
+				value=0;
 			}
 			break;
-		case FT_UINT8:
-		case FT_UINT16:
-		case FT_UINT24:
-		case FT_UINT32:
-		case FT_INT8:
-		case FT_INT16:
-		case FT_INT24:
-		case FT_INT32:
-			switch(calc_type){
-			case CALC_TYPE_SUM:
-				value=it->int_tot;
-				break;
-			case CALC_TYPE_COUNT:
-				value=it->frames;
-				break;
-			case CALC_TYPE_MAX:
-				value=it->int_max;
-				break;
-			case CALC_TYPE_MIN:
-				value=it->int_min;
-				break;
-			case CALC_TYPE_AVG:
-				if(it->frames){
-					value=it->int_tot/it->frames;
-				} else {
-					value=0;
-				}
-				break;
-			default:
-				break;
-			}
+		default:
 			break;
-		case FT_RELATIVE_TIME:
-			switch(calc_type){
-			case CALC_TYPE_COUNT:
-				value=it->frames;
-				break;
-			case CALC_TYPE_MAX:
-				value=it->time_max.secs*1000000+it->time_max.nsecs/1000;
-				break;
-			case CALC_TYPE_MIN:
-				value=it->time_min.secs*1000000+it->time_min.nsecs/1000;
-				break;
-			case CALC_TYPE_AVG:
-				if(it->frames){
+		}
+		break;
+	case FT_RELATIVE_TIME:
+		switch(calc_type){
+		case CALC_TYPE_COUNT:
+			value=it->frames;
+			break;
+		case CALC_TYPE_MAX:
+			value=it->time_max.secs*1000000+it->time_max.nsecs/1000;
+			break;
+		case CALC_TYPE_MIN:
+			value=it->time_min.secs*1000000+it->time_min.nsecs/1000;
+			break;
+		case CALC_TYPE_AVG:
+			if(it->frames){
 #ifdef G_HAVE_UINT64
-					guint64 tmp;
+				guint64 tmp;
 #else
-					guint32 tmp;
+				guint32 tmp;
 #endif
-					tmp=it->time_tot.secs;
-					tmp=tmp*1000000+it->time_tot.nsecs/1000;
-					value=tmp/it->frames;
-				} else {
-					value=0;
-				}
-				break;
-			default:
-				break;
+				tmp=it->time_tot.secs;
+				tmp=tmp*1000000+it->time_tot.nsecs/1000;
+				value=tmp/it->frames;
+			} else {
+				value=0;
 			}
 			break;
 		default:
@@ -495,12 +485,9 @@ gtk_iostat_draw(void *g)
 {
 	io_stat_graph_t *git=g;
 	io_stat_t *io;
-	io_stat_item_t *it;
 	int i;
-	guint32 value;
 	guint32 last_interval, first_interval, interval_delta, delta_multiplier;
 	gint32 current_interval;
-	guint32 max_y;
 	guint32 left_x_border;
 	guint32 right_x_border;
 	guint32 top_y_border;
@@ -514,6 +501,14 @@ gtk_iostat_draw(void *g)
 	guint32 draw_width, draw_height;
 	char label_string[15];
 
+	/* new variables */
+	guint32 *values[MAX_GRAPHS];
+	guint32 first_time_value, last_time_value;
+	guint32 num_time_intervals;
+	guint32 max_value;		/* max value of seen data */
+	guint32 max_y;			/* max value of the Y scale */
+	gboolean draw_y_as_time;
+
 	io=git->io;
 #if GTK_MAJOR_VERSION <2
 	font = io->draw_area->style->font;
@@ -524,66 +519,95 @@ gtk_iostat_draw(void *g)
 	}
 	git->io->needs_redraw=FALSE;
 
-	/* if we havent specified the last_interval via the gui,
-	   then just pick the most recent one */
-	if(io->last_interval==0xffffffff){
-		last_interval=io->max_interval;
-	} else {
-		last_interval=io->last_interval;
+
+
+	/* 
+	 * First we convert the list of counters into arrays so it
+	 * it is easier to process the data
+	 */
+	for(i=0;i<MAX_GRAPHS;i++){
+		values[i]=NULL;
 	}
-	
+	/* 
+	 * Find the length of the intervals we have data for
+	 * so we know how large arrays we need to malloc()
+	 */
+	first_time_value=0xffffffff;
+	last_time_value=0;
+	for(i=0;i<MAX_GRAPHS;i++){
+		if(!io->graphs[i].display){
+			continue;
+		}
+		if(!io->graphs[i].counts){
+			continue;
+		}
+		if(io->graphs[i].counts->time<first_time_value){
+			first_time_value=io->graphs[i].counts->time;
+		}
+		if(!io->graphs[i].counts->prev){
+			continue;
+		}
+		if(io->graphs[i].counts->prev->time>last_time_value){
+			last_time_value=io->graphs[i].counts->prev->time;
+		}
+	}
+	/* XXX for now, always start at the beginning of the capture */
+	first_time_value=0;
+	/* if there isnt anything to do, just return */
+	if(first_time_value==last_time_value){
+		return;
+	}
+	/* how many time intervals do we need? */
+	num_time_intervals=(last_time_value-first_time_value)/io->interval+1;
+	/* we have to make sure that funny timestamps or incredibly long
+	   captures do not mean we try to create too large arrays and 
+	   allocate like 100MB arrays.
+	   1000000 entries is an arbitrary number that should be large
+	   enough to accomodate even very long captures
+	 */
+	if(num_time_intervals>1000000){
+		simple_dialog(ESD_TYPE_WARN, NULL, "IO-Stat error. There are too many entries, bailing out");
+		return;
+	}
+	/* allocate the value arrays and populate them
+	   at the same time, keep track of the max value encountered
+	 */
+	max_value=0;
+	for(i=0;i<MAX_GRAPHS;i++){
+		io_stat_item_t *tit;
+		if(!io->graphs[i].display){
+			continue;
+		}
+		values[i]=g_malloc(num_time_intervals*sizeof(guint32));
+		memset(values[i],0,num_time_intervals*sizeof(guint32));
+		for(tit=io->graphs[i].counts;tit;tit=tit->next){
+			int idx, adv_type;
 
-	if(io->max_y_units==AUTO_MAX_YSCALE){
-		guint32 max_value=0;
-		for(i=0;i<MAX_GRAPHS;i++){
-			int adv_type=0;
-
-			if( (!io->graphs[i].display) || (!io->graphs[i].counts) ){
-				continue;
-			}
-
-			if(io->count_type==COUNT_TYPE_ADVANCED){
+			idx=(tit->time-first_time_value)/io->interval;
+			switch(io->count_type){
+			case COUNT_TYPE_FRAMES:
+				(values[i])[idx]=tit->frames;
+				break;
+			case COUNT_TYPE_BYTES:
+				(values[i])[idx]=tit->bytes;
+				break;
+			case COUNT_TYPE_ADVANCED:
 				adv_type=proto_registrar_get_ftype(io->graphs[i].hf_index);
+				(values[i])[idx]=get_it_value(tit, adv_type, io->graphs[i].calc_type);
+				break;
 			}
-
-			for(it=io->graphs[i].counts;it;it=it->next){
-				value=get_it_value(io, it, adv_type, io->graphs[i].calc_type);
-				if(value>=max_value){
-					max_value=value;
-				}
-			}
-		}
-		max_y=yscale_max[MAX_YSCALE-1];
-		for(i=MAX_YSCALE-1;i>0;i--){
-			if(max_value<yscale_max[i]){
-				max_y=yscale_max[i];
+			/* keep track of the max value we have encountered */
+			if((values[i])[idx]>max_value){
+				max_value=(values[i])[idx];
 			}
 		}
-	} else {
-		max_y=io->max_y_units;
 	}
 
 
-	/* just assume that max_y will be the longest string */
-	sprintf(label_string,"%d", max_y);
-#if GTK_MAJOR_VERSION < 2
-        label_width=gdk_string_width(font, label_string);
-        label_height=gdk_string_height(font, label_string);
-#else
-        layout = gtk_widget_create_pango_layout(io->draw_area, label_string);
-        pango_layout_get_pixel_size(layout, &label_width, &label_height);
-#endif
 
-	left_x_border=10;
-	right_x_border=label_width+20;
-	top_y_border=10;
-	bottom_y_border=label_height+20;
-
-	draw_width=io->pixmap_width-right_x_border-left_x_border;
-	draw_height=io->pixmap_height-top_y_border-bottom_y_border;
-
-
-	/* clear out old plot */
+	/* 
+	 * Clear out old plot
+	 */
         gdk_draw_rectangle(io->pixmap,
                            io->draw_area->style->white_gc,
                            TRUE,
@@ -591,7 +615,105 @@ gtk_iostat_draw(void *g)
                            io->draw_area->allocation.width,
                            io->draw_area->allocation.height);
 
-	/* plot the y-scale */
+
+	/*
+	 * Calculate the y scale we should use
+	 */
+	if(io->max_y_units==AUTO_MAX_YSCALE){
+		max_y=yscale_max[MAX_YSCALE-1];
+		for(i=MAX_YSCALE-1;i>0;i--){
+			if(max_value<yscale_max[i]){
+				max_y=yscale_max[i];
+			}
+		}
+	} else {
+		/* the user had specified an explicit y scale to use */
+		max_y=io->max_y_units;
+	}
+
+
+	/*
+	 * If we use ADVANCED and all the graphs are plotting
+	 * either MIN/MAX/AVG of an FT_RELATIVE_TIME field
+	 * then we will do some some special processing for the
+	 * labels for the Y axis below:
+	 *   we will append the time unit " s" " ms" or " us"
+	 *   and we will present the unit in decimal
+	 */
+	draw_y_as_time=FALSE;
+	if(io->count_type==COUNT_TYPE_ADVANCED){
+		draw_y_as_time=TRUE;
+		for(i=0;i<MAX_GRAPHS;i++){
+			int adv_type;
+
+			if(!io->graphs[i].display){
+				continue;
+			}
+			adv_type=proto_registrar_get_ftype(io->graphs[i].hf_index);
+			switch(adv_type){
+			case FT_RELATIVE_TIME:
+				switch(io->graphs[i].calc_type){
+				case CALC_TYPE_MAX:
+				case CALC_TYPE_MIN:
+				case CALC_TYPE_AVG:
+					break;
+				default:
+					draw_y_as_time=FALSE;
+				}
+				break;
+			default:
+				draw_y_as_time=FALSE;
+			}
+		}
+	}
+
+
+
+	/* 
+	 * Calculate size of borders surrounding the plot 
+	 * The border on the right side needs to be adjusted depending
+	 * on the width of the text labels. For simplicity we assume that the
+	 * top y scale label will be the widest one
+	 */
+	if(draw_y_as_time){
+		if(max_y>=10000000){
+			sprintf(label_string, "%ds",max_y/1000000);
+		} else if(max_y>=1000000){
+			sprintf(label_string, "%d.%03ds",max_y/1000000,(max_y%1000000)/1000);
+		} else if(max_y>=10000){
+			sprintf(label_string, "%dms",max_y/1000);
+		} else if(max_y>=1000){
+			sprintf(label_string, "%d.%03dms",max_y/1000,max_y%1000);
+		} else {
+			sprintf(label_string, "%dus",max_y);
+		}
+	} else {
+		sprintf(label_string,"%d", max_y);
+	}
+#if GTK_MAJOR_VERSION < 2
+        label_width=gdk_string_width(font, label_string);
+        label_height=gdk_string_height(font, label_string);
+#else
+        layout = gtk_widget_create_pango_layout(io->draw_area, label_string);
+        pango_layout_get_pixel_size(layout, &label_width, &label_height);
+#endif
+	left_x_border=10;
+	right_x_border=label_width+20;
+	top_y_border=10;
+	bottom_y_border=label_height+20;
+
+
+	/*
+	 * Calculate the size of the drawing area for the actual plot
+	 */
+	draw_width=io->pixmap_width-right_x_border-left_x_border;
+	draw_height=io->pixmap_height-top_y_border-bottom_y_border;
+
+
+	/* 
+	 * Draw the y axis and labels
+	 * (we always draw the y scale with 11 ticks along the axis)
+	 */
 	gdk_draw_line(io->pixmap, io->draw_area->style->black_gc,
 		io->pixmap_width-right_x_border+1, 
 		top_y_border,
@@ -602,14 +724,31 @@ gtk_iostat_draw(void *g)
 
 		xwidth=5;
 		if(!(i%5)){
+			/* first, middle and last tick are slightly longer */
 			xwidth=10;
 		}
+		/* draw the tick */
 		gdk_draw_line(io->pixmap, io->draw_area->style->black_gc, 
 			io->pixmap_width-right_x_border+1, 
 			io->pixmap_height-bottom_y_border-draw_height*i/10, 
 			io->pixmap_width-right_x_border+1+xwidth, 
 			io->pixmap_height-bottom_y_border-draw_height*i/10);
-		sprintf(label_string,"%d", max_y*i/10);
+		/* draw the label */
+		if(draw_y_as_time){
+			if(max_y>=10000000){
+				sprintf(label_string, "%ds",(max_y*i/10)/1000000);
+			} else if(max_y>=1000000){
+				sprintf(label_string, "%d.%03ds",(max_y*i/10)/1000000,((max_y*i/10)%1000000)/1000);
+			} else if(max_y>=10000){
+				sprintf(label_string, "%dms",(max_y*i/10)/1000);
+			} else if(max_y>=1000){
+				sprintf(label_string, "%d.%03dms",(max_y*i/10)/1000,(max_y*i/10)%1000);
+			} else {
+				sprintf(label_string, "%dus",(max_y*i/10));
+			}
+		} else {
+			sprintf(label_string,"%d", max_y*i/10);
+		}
 #if GTK_MAJOR_VERSION < 2
                 lwidth=gdk_string_width(font, label_string);
                 gdk_draw_string(io->pixmap,
@@ -629,6 +768,23 @@ gtk_iostat_draw(void *g)
 #endif
 	}
 
+
+
+	/* 
+	 * if we have not specified the last_interval via the gui,
+	 * then just pick the current end of the capture so that is scrolls
+	 * nicely when doing live captures
+	 */
+	if(io->last_interval==0xffffffff){
+		last_interval=io->max_interval;
+	} else {
+		last_interval=io->last_interval;
+	}
+	
+
+
+
+/*XXX*/
 	/* plot the x-scale */
 	gdk_draw_line(io->pixmap, io->draw_area->style->black_gc, left_x_border, io->pixmap_height-bottom_y_border+1, io->pixmap_width-right_x_border+1, io->pixmap_height-bottom_y_border+1);
 
@@ -638,7 +794,6 @@ gtk_iostat_draw(void *g)
 	} else {
 		first_interval=0;
 	}
-
 
 	interval_delta=1;
 	delta_multiplier=5;
@@ -650,7 +805,6 @@ gtk_iostat_draw(void *g)
 			delta_multiplier=5;
 		}
 	}
-
 
 	for(current_interval=last_interval;current_interval>(gint32)first_interval;current_interval=current_interval-io->interval){
 		int x, xlen;
@@ -709,105 +863,56 @@ gtk_iostat_draw(void *g)
 #endif
 
 
-	/* loop over all items */
-	for(i=MAX_GRAPHS-1;i>=0;i--){
-		int adv_type=0;
-		int first_drawed=1;
 
-		if( (!io->graphs[i].display) || (!io->graphs[i].counts) ){
+	/* 
+	 * Loop over all graphs and draw them 
+	 */
+	for(i=MAX_GRAPHS-1;i>=0;i--){
+		guint32 interval;
+		guint32 x_pos, y_pos, prev_x_pos, prev_y_pos;
+
+		if(!io->graphs[i].display){
 			continue;
 		}
 
-		if(io->count_type==COUNT_TYPE_ADVANCED){
-			adv_type=proto_registrar_get_ftype(io->graphs[i].hf_index);
-		}
-
-		/* loop over all intervals for the item */
-		for(it=io->graphs[i].counts;it;it=it->next){
-			guint32 startx,starty, nexty;
-			guint32 val=0;
-			guint32 next_val=0;
-
-			/* skip it if is outside the graph */
-			if(it->time<first_interval){
-				continue;
-			}
-			if(it->time>last_interval){
-				continue;
-			}
-
-			val=get_it_value(io, it, adv_type, io->graphs[i].calc_type);
-			if(it->next){
-				next_val=get_it_value(io, it->next, adv_type, io->graphs[i].calc_type);
-			}
+		/* initialize prev x/y to the low left corner of the graph */
+		prev_x_pos=draw_width-1-io->pixels_per_tick*((last_interval-first_interval)/io->interval+1)+left_x_border;
+		prev_y_pos=draw_height-1+top_y_border;
 
 
-			startx=draw_width-1-io->pixels_per_tick*((last_interval-it->time)/io->interval+1);
-			if(val>max_y){
-				starty=0;
-			} else {
-				starty=draw_height-1-(val*draw_height)/max_y;
-			}
-			if(next_val>max_y){
-				nexty=0;
-			} else {
-				nexty=draw_height-1-(next_val*draw_height)/max_y;
-			}
+		for(interval=first_interval+io->interval;interval<=last_interval;interval+=io->interval){
+			guint32 val;
 
-
-			/* just skip intervals that ar all or partially outside
-			   the draw_area */
-			if(startx <=0){
-				continue;
-			}
-
-
-			/* the first seen data for this graph might be 
-			 * somewhere in the middle of the capture,  make sure 
-			 * we start drawing a proper line at zero from the 
-			 * left edge of the graph up until the measurement 
-			 * point.
-			 */
-			if(first_drawed){
-				first_drawed=0;
-				gdk_draw_line(io->pixmap, io->graphs[i].gc, 10, draw_height-1+10, startx+10, draw_height-1+10);
-				gdk_draw_line(io->pixmap, io->graphs[i].gc, startx+10, draw_height-1+10, startx+10, starty+10);
-			}
-
-			gdk_draw_line(io->pixmap, io->graphs[i].gc, startx+10, starty+10, startx+io->pixels_per_tick-1+10, starty+10);
-
-			/* if there is no next measured interval but he have 
-			   not reached last_interval yet, just draw 0 for the
-			   rest of the graph */
-			if( (!it->next) && (it->time!=last_interval) ){
-				gdk_draw_line(io->pixmap, io->graphs[i].gc, startx+io->pixels_per_tick-1+10, starty+10, startx+io->pixels_per_tick-1+10, draw_height-1+10);
-				gdk_draw_line(io->pixmap, io->graphs[i].gc, startx+io->pixels_per_tick-1+10, draw_height-1+10, draw_width-1+10, draw_height-1+10);
-				continue;
-			}
-
-			if(!it->next){
-				continue;
-			}
-
-			/* if there is data in next interval, connect to it */
-			if((it->time+io->interval)==it->next->time){
-				gdk_draw_line(io->pixmap, io->graphs[i].gc, startx+io->pixels_per_tick-1+10, starty+10, startx+io->pixels_per_tick-1+10, nexty+10);
-				continue;
-			}
-
-			/* there is a gap until the next interval, we need to
-			   draw a bit more to connect to it. */
-			if((it->time+io->interval)<it->next->time){
-				int nextx;
-				nextx=draw_width-1-io->pixels_per_tick*((last_interval-it->next->time)/io->interval+1);
-				gdk_draw_line(io->pixmap, io->graphs[i].gc, startx+io->pixels_per_tick-1+10, starty+10, startx+io->pixels_per_tick-1+10, draw_height-1+10);
-				gdk_draw_line(io->pixmap, io->graphs[i].gc, startx+io->pixels_per_tick-1+10, draw_height-1+10, nextx-1+10, draw_height-1+10);
-				gdk_draw_line(io->pixmap, io->graphs[i].gc, nextx-1+10, draw_height-1+10, nextx-1+10, nexty+10);
-				continue;
-			}
+			x_pos=draw_width-1-io->pixels_per_tick*((last_interval-interval)/io->interval+1)+left_x_border;
 			
+			val=(values[i])[(interval-first_time_value)/io->interval];
+			if(val>max_y){
+				y_pos=0;
+			} else {
+				y_pos=draw_height-1-(val*draw_height)/max_y+top_y_border;
+			}
+
+			/* dont need to draw anything if the segment
+			 * is entirely above the top of the graph 
+			 */
+			if( (prev_y_pos==0) && (y_pos==0) ){
+				prev_y_pos=y_pos;
+				prev_x_pos=x_pos;
+				continue;
+			}
+
+			gdk_draw_line(io->pixmap, io->graphs[i].gc, 
+				prev_x_pos, 
+				prev_y_pos, 
+				x_pos, 
+				y_pos);
+
+			prev_y_pos=y_pos;
+			prev_x_pos=x_pos;
 		}
 	}
+
+
 
 	gdk_draw_pixmap(io->draw_area->window,
 			io->draw_area->style->fg_gc[GTK_WIDGET_STATE(io->draw_area)],
@@ -829,6 +934,15 @@ gtk_iostat_draw(void *g)
 	io->scrollbar_adjustment->value=last_interval-io->scrollbar_adjustment->page_size;
 	gtk_adjustment_changed(io->scrollbar_adjustment);
 	gtk_adjustment_value_changed(io->scrollbar_adjustment);
+
+
+	/* free the arrays of values */
+	for(i=0;i<MAX_GRAPHS;i++){
+		if(values[i]){
+			g_free(values[i]);
+			values[i]=NULL;
+		}
+	}
 }
 
 
