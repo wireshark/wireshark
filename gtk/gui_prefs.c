@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.53 2004/01/17 00:26:22 ulfl Exp $
+ * $Id: gui_prefs.c,v 1.54 2004/01/17 03:09:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,9 +122,9 @@ static const enum_val_t toolbar_style_vals[] = {
 };
 
 static const enum_val_t gui_fileopen_vals[] = {
-        { "Remember last directory", FO_STYLE_LAST_OPENED },
-        { "Always start in directory:", FO_STYLE_SPECIFIED },
-        { NULL,    0 }
+	{ "Remember last directory", FO_STYLE_LAST_OPENED },
+	{ "Always start in directory:", FO_STYLE_SPECIFIED },
+	{ NULL,    0 }
 };
 
 /* Set to FALSE initially; set to TRUE if the user ever hits "OK" on
@@ -154,15 +154,15 @@ gui_prefs_show(void)
 	GtkWidget *main_tb, *main_vb, *hbox;
 	GtkWidget *scrollbar_om, *plist_browse_om;
 	GtkWidget *ptree_browse_om, *highlight_style_om;
-        GtkWidget *fileopen_rb, *fileopen_dir_te, *toolbar_style_om;
+	GtkWidget *fileopen_rb, *fileopen_dir_te, *toolbar_style_om;
 	GtkWidget *recent_files_count_max_te;
 	GtkWidget *save_position_cb, *save_size_cb;
 #if GTK_MAJOR_VERSION < 2
 	GtkWidget *expander_style_om, *line_style_om;
 #else
-        GtkWidget *altern_colors_om;
+	GtkWidget *altern_colors_om;
 #endif
-        int        pos = 0;
+	int        pos = 0;
 	char       current_val_str[128];
 
 	/* The font haven't been changed yet. */
@@ -215,10 +215,10 @@ gui_prefs_show(void)
 	    prefs.gui_ptree_expander_style);
 	OBJECT_SET_DATA(main_vb, PTREE_EXPANDER_STYLE_KEY, expander_style_om);
 #else
-        /* Alternating row colors in list and tree views */
+	/* Alternating row colors in list and tree views */
 	altern_colors_om = create_preference_option_menu(main_tb, pos++,
 	    "Alternating row colors in lists and trees:", NULL,
-            altern_colors_vals, prefs.gui_altern_colors);
+	    altern_colors_vals, prefs.gui_altern_colors);
 	OBJECT_SET_DATA(main_vb, ALTERN_COLORS_KEY, altern_colors_om);
 #endif
 
@@ -227,18 +227,18 @@ gui_prefs_show(void)
 	    "Hex display highlight style:", NULL, highlight_style_vals,
 	    prefs.gui_hex_dump_highlight_style);
 	OBJECT_SET_DATA(main_vb, HEX_DUMP_HIGHLIGHT_STYLE_KEY,
-                        highlight_style_om);
+	    highlight_style_om);
 
 	/* Toolbar prefs */
 	toolbar_style_om = create_preference_option_menu(main_tb, pos++,
 	    "Toolbar style:", NULL, toolbar_style_vals,
 	    prefs.gui_toolbar_main_style);
 	OBJECT_SET_DATA(main_vb, GUI_TOOLBAR_STYLE_KEY,
-                        toolbar_style_om);
+	    toolbar_style_om);
 
 	/* Geometry prefs */
 	save_position_cb = create_preference_check_button(main_tb, pos++,
-            "Save window position:", NULL, prefs.gui_geometry_save_position);
+	    "Save window position:", NULL, prefs.gui_geometry_save_position);
 	OBJECT_SET_DATA(main_vb, GEOMETRY_POSITION_KEY, save_position_cb);
 
 	save_size_cb = create_preference_check_button(main_tb, pos++,
@@ -255,10 +255,10 @@ gui_prefs_show(void)
 	fileopen_dir_te = create_preference_entry(main_tb, pos++, "Directory:",
 	    NULL, prefs.gui_fileopen_dir);
 	OBJECT_SET_DATA(main_vb, GUI_FILEOPEN_KEY, fileopen_rb);
-        OBJECT_SET_DATA(main_vb, GUI_FILEOPEN_DIR_KEY, fileopen_dir_te);
+	OBJECT_SET_DATA(main_vb, GUI_FILEOPEN_DIR_KEY, fileopen_dir_te);
 	SIGNAL_CONNECT(fileopen_rb, "clicked", fileopen_selected_cb, main_vb);
-        SIGNAL_CONNECT(fileopen_dir_te, "focus-out-event",
-                       fileopen_dir_changed_cb, main_vb);
+	SIGNAL_CONNECT(fileopen_dir_te, "focus-out-event",
+	    fileopen_dir_changed_cb, main_vb);
 
 	/* Number of entries in the recent_files list ... */
 	recent_files_count_max_te = create_preference_entry(main_tb, pos++,
@@ -268,7 +268,7 @@ gui_prefs_show(void)
 	OBJECT_SET_DATA(main_vb, GUI_RECENT_FILES_COUNT_KEY, recent_files_count_max_te);
 	SIGNAL_CONNECT(recent_files_count_max_te, "focus_out_event", recent_files_count_changed_cb, main_vb);
 
-    fileopen_selected_cb(NULL, main_vb);        
+	fileopen_selected_cb(NULL, main_vb);        
 
 	/* Show 'em what we got */
 	gtk_widget_show_all(main_vb);
@@ -282,10 +282,10 @@ GtkWidget *
 gui_font_prefs_show(void)
 {
 #if 0
-    GdkWindow*  parent_win;
-#endif
+	GdkWindow*  parent_win;
 #if GTK_MAJOR_VERSION < 2
 	static gchar *fixedwidths[] = { "c", "m", NULL };
+#endif
 #endif
 
 	/* Now create a new widget. */
@@ -323,21 +323,21 @@ gui_font_prefs_show(void)
 	gtk_font_selection_set_font_name(
 	    GTK_FONT_SELECTION(font_browse_w), prefs.gui_font_name);
 
-    gtk_widget_show(font_browse_w);
+	gtk_widget_show(font_browse_w);
 
-    return font_browse_w;
+	return font_browse_w;
 }
 
 
-static void
+static gboolean
 font_fetch(void)
 {
 	gchar   *font_name;
 #if GTK_MAJOR_VERSION < 2
-        gchar   *bold_font_name;
+	gchar   *bold_font_name;
 	GdkFont *new_r_font, *new_b_font;
 #else
-        PangoFontDescription *new_r_font, *new_b_font;
+	PangoFontDescription *new_r_font, *new_b_font;
 #endif
 
 	font_name = g_strdup(gtk_font_selection_get_font_name(
@@ -348,7 +348,7 @@ font_fetch(void)
 		   try again. */
 		simple_dialog(ESD_TYPE_CRIT | ESD_TYPE_MODAL, NULL,
 		   "You have not selected a font.");
-		return;
+		return FALSE;
 	}
 
 #if GTK_MAJOR_VERSION < 2
@@ -358,7 +358,7 @@ font_fetch(void)
 	/* Now load those fonts, just to make sure we can. */
 	new_r_font = gdk_font_load(font_name);
 #else
-        new_r_font = pango_font_description_from_string(font_name);
+	new_r_font = pango_font_description_from_string(font_name);
 #endif
 	if (new_r_font == NULL) {
 		/* Oops, that font didn't work.
@@ -371,15 +371,14 @@ font_fetch(void)
 #if GTK_MAJOR_VERSION < 2
 		g_free(bold_font_name);
 #endif
-		return;
+		return FALSE;
 	}
 
 #if GTK_MAJOR_VERSION < 2
 	new_b_font = gdk_font_load(bold_font_name);
 #else
-        new_b_font = pango_font_description_copy(new_r_font);
-        pango_font_description_set_weight(new_b_font,
-                                          PANGO_WEIGHT_BOLD);
+	new_b_font = pango_font_description_copy(new_r_font);
+	pango_font_description_set_weight(new_b_font, PANGO_WEIGHT_BOLD);
 #endif
 	if (new_b_font == NULL) {
 		/* Oops, that font didn't work.
@@ -393,12 +392,13 @@ font_fetch(void)
 		g_free(bold_font_name);
 		gdk_font_unref(new_r_font);
 #else
-                pango_font_description_free(new_r_font);
+		pango_font_description_free(new_r_font);
 #endif
-		return;
+		return FALSE;
 	}
 
 	new_font_name = font_name;
+	return TRUE;
 }
 
 
@@ -413,7 +413,7 @@ gui_prefs_fetch(GtkWidget *w)
 {
 	prefs.gui_scrollbar_on_right = fetch_enum_value(
 	    OBJECT_GET_DATA(w, SCROLLBAR_PLACEMENT_KEY),
-            scrollbar_placement_vals);
+	    scrollbar_placement_vals);
 	prefs.gui_plist_sel_browse = fetch_enum_value(
 	    OBJECT_GET_DATA(w, PLIST_SEL_BROWSE_KEY), selection_mode_vals);
 	prefs.gui_ptree_sel_browse = fetch_enum_value(
@@ -424,35 +424,41 @@ gui_prefs_fetch(GtkWidget *w)
 	prefs.gui_ptree_expander_style = fetch_enum_value(
 	    OBJECT_GET_DATA(w, PTREE_EXPANDER_STYLE_KEY), expander_style_vals);
 #else
-        prefs.gui_altern_colors = fetch_enum_value(
+	prefs.gui_altern_colors = fetch_enum_value(
 	    OBJECT_GET_DATA(w, ALTERN_COLORS_KEY), altern_colors_vals);
 #endif
 	prefs.gui_hex_dump_highlight_style = fetch_enum_value(
 	    OBJECT_GET_DATA(w, HEX_DUMP_HIGHLIGHT_STYLE_KEY),
-            highlight_style_vals);
+	    highlight_style_vals);
 	prefs.gui_toolbar_main_style = fetch_enum_value(
 	    OBJECT_GET_DATA(w, GUI_TOOLBAR_STYLE_KEY),
-            toolbar_style_vals);	
+	    toolbar_style_vals);	
 	prefs.gui_geometry_save_position =
 	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w,
 	    	GEOMETRY_POSITION_KEY));
 	prefs.gui_geometry_save_size =
 	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w, GEOMETRY_SIZE_KEY));
-        prefs.gui_fileopen_style = fetch_preference_radio_buttons_val(
-            OBJECT_GET_DATA(w, GUI_FILEOPEN_KEY), gui_fileopen_vals);
-            
-        if (prefs.gui_fileopen_dir != NULL)
-                g_free(prefs.gui_fileopen_dir);
-        prefs.gui_fileopen_dir = g_strdup(gtk_entry_get_text(
-                GTK_ENTRY(OBJECT_GET_DATA(w, GUI_FILEOPEN_DIR_KEY))));
+	prefs.gui_fileopen_style = fetch_preference_radio_buttons_val(
+	    OBJECT_GET_DATA(w, GUI_FILEOPEN_KEY), gui_fileopen_vals);
+	    
+	if (prefs.gui_fileopen_dir != NULL)
+		g_free(prefs.gui_fileopen_dir);
+	prefs.gui_fileopen_dir = g_strdup(gtk_entry_get_text(
+		GTK_ENTRY(OBJECT_GET_DATA(w, GUI_FILEOPEN_DIR_KEY))));
 
-    font_fetch();
-
-    if (strcmp(new_font_name, prefs.gui_font_name) != 0) {
-        font_changed = TRUE;
-		if (prefs.gui_font_name != NULL)
-			g_free(prefs.gui_font_name);
-		prefs.gui_font_name = g_strdup(new_font_name);
+	/*
+	 * XXX - we need to have a way to fetch the preferences into
+	 * local storage and only set the permanent preferences if there
+	 * weren't any errors in those fetches, as there are several
+	 * places where there *can* be a bad preference value.
+	 */
+	if (font_fetch()) {
+		if (strcmp(new_font_name, prefs.gui_font_name) != 0) {
+			font_changed = TRUE;
+			if (prefs.gui_font_name != NULL)
+				g_free(prefs.gui_font_name);
+			prefs.gui_font_name = g_strdup(new_font_name);
+		}
 	}
 }
 
@@ -464,7 +470,7 @@ gui_prefs_apply(GtkWidget *w _U_)
 	char *bold_font_name;
 	GdkFont *old_r_font = NULL, *old_b_font = NULL;
 #else
-        PangoFontDescription *new_r_font, *new_b_font;
+	PangoFontDescription *new_r_font, *new_b_font;
 	PangoFontDescription *old_r_font = NULL, *old_b_font = NULL;
 #endif
 
@@ -477,10 +483,10 @@ gui_prefs_apply(GtkWidget *w _U_)
 		bold_font_name = boldify(prefs.gui_font_name);
 		new_b_font = gdk_font_load(bold_font_name);
 #else
-                new_r_font = pango_font_description_from_string(prefs.gui_font_name);
+		new_r_font = pango_font_description_from_string(prefs.gui_font_name);
 		new_b_font = pango_font_description_copy(new_r_font);
-                pango_font_description_set_weight(new_b_font,
-                                                  PANGO_WEIGHT_BOLD);
+		pango_font_description_set_weight(new_b_font,
+		    PANGO_WEIGHT_BOLD);
 #endif
 		set_plist_font(new_r_font);
 		set_ptree_font_all(new_r_font);
@@ -501,9 +507,8 @@ gui_prefs_apply(GtkWidget *w _U_)
 	help_redraw();
 
 	/* Redraw the "Follow TCP Stream" windows, if the font changed. */
-	if (font_changed) {
-	follow_redraw_all();
-    }
+	if (font_changed)
+		follow_redraw_all();
 
 	/* XXX: redraw the toolbar only, if style changed */
 	toolbar_redraw_all();
@@ -520,7 +525,7 @@ gui_prefs_apply(GtkWidget *w _U_)
 	if (old_b_font != NULL)
 		gdk_font_unref(old_b_font);
 #else
-        if (old_r_font != NULL)
+	if (old_r_font != NULL)
 		pango_font_description_free(old_r_font);
 	if (old_b_font != NULL)
 		pango_font_description_free(old_b_font);
@@ -528,7 +533,7 @@ gui_prefs_apply(GtkWidget *w _U_)
 }
 
 void
-gui_prefs_destroy(GtkWidget *w)
+gui_prefs_destroy(GtkWidget *w _U_)
 {
 	/* Free up any saved font name. */
 	if (new_font_name != NULL) {
@@ -561,7 +566,6 @@ recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
     /* We really should pop up a nasty dialog box if newval <= 0 */
 
     return TRUE;
-
 }
 
 static gint
@@ -573,11 +577,12 @@ fileopen_dir_changed_cb(GtkWidget *fileopen_entry _U_, GdkEvent *event _U_, gpoi
     
     fileopen_dir_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, GUI_FILEOPEN_DIR_KEY);
     fileopen_dir_te_length = strlen(gtk_entry_get_text (GTK_ENTRY(fileopen_entry)));
-    if (fileopen_dir_te_length == 0) return FALSE;
+    if (fileopen_dir_te_length == 0)
+    	return FALSE;
     lastchar = gtk_editable_get_chars(GTK_EDITABLE(fileopen_entry), fileopen_dir_te_length-1, -1);
     if (strcmp(lastchar, G_DIR_SEPARATOR_S) != 0)
-        gtk_entry_append_text(GTK_ENTRY(fileopen_entry), G_DIR_SEPARATOR_S);
-    return(FALSE);
+	gtk_entry_append_text(GTK_ENTRY(fileopen_entry), G_DIR_SEPARATOR_S);
+    return FALSE;
 }
 
 static void
@@ -590,11 +595,11 @@ fileopen_selected_cb(GtkWidget *mybutton_rb _U_, gpointer parent_w)
     
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fileopen_rb)))
     {
-        gtk_widget_set_sensitive(GTK_WIDGET(fileopen_dir_te), TRUE);
+	gtk_widget_set_sensitive(GTK_WIDGET(fileopen_dir_te), TRUE);
     }
     else
     {
-        gtk_widget_set_sensitive(GTK_WIDGET(fileopen_dir_te), FALSE);
+	gtk_widget_set_sensitive(GTK_WIDGET(fileopen_dir_te), FALSE);
     }
     return;
 }
