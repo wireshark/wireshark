@@ -1,7 +1,7 @@
 /* filesystem.h
  * Filesystem utility definitions
  *
- * $Id: filesystem.h,v 1.1 2000/09/28 03:16:16 gram Exp $
+ * $Id: filesystem.h,v 1.2 2000/12/22 22:26:19 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,4 +30,4 @@
  * variable, or a default directory if HOME is not set */
 const char* get_home_dir(void);
 
-#endif FILESYSTEM_H
+#endif /* FILESYSTEM_H */
