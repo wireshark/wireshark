@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.105 2003/11/26 23:23:36 guy Exp $
+ * $Id: packet-dns.c,v 1.106 2003/11/27 21:02:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -865,7 +865,7 @@ static const value_string algo_vals[] = {
 	  { DNS_ALGO_DH,         "Diffie-Hellman" },
 	  { DNS_ALGO_DSA,        "DSA" },
 	  { DNS_ALGO_ECC,        "Elliptic curve crypto" },
-	  { DNS_ALGO_RSAMD5,     "RSA/MD5" },
+	  { DNS_ALGO_RSASHA1,    "RSA/SHA1" },
 	  { DNS_ALGO_HMACMD5,    "HMAC/MD5" },
 	  { DNS_ALGO_INDIRECT,   "Indirect key" },
 	  { DNS_ALGO_PRIVATEDNS, "Private, domain name" },
