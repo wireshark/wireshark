@@ -1,6 +1,6 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.12 2001/12/13 05:50:51 gram Exp $
+ * $Id: pppdump.c,v 1.13 2001/12/17 22:22:42 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
@@ -332,7 +332,7 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd, int *er
 				if (pkt->cnt > 0) {
 					pkt->esc = FALSE;
 
-					num_written = pkt->cnt - 2;
+					num_written = pkt->cnt;
 					pkt->cnt = 0;
 					if (num_written <= 0) {
 						return 0;
@@ -471,17 +471,17 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 				/* What can we do? */
 				break;
 
-			case PPPD_TIME_STEP_LONG:
-				wtap_file_read_unknown_bytes(&time_long, sizeof(guint32), fh, err);
-				state->offset += sizeof(guint32);
-				state->timestamp = time_long;
-				state->tenths = 0;
-				break;
-
 			case PPPD_RESET_TIME:
 				wtap_file_read_unknown_bytes(&time_long, sizeof(guint32), fh, err);
 				state->offset += sizeof(guint32);
-				state->tenths += time_long;
+				state->timestamp = pntohl(&time_long);
+				state->tenths = 0;
+				break;
+
+			case PPPD_TIME_STEP_LONG:
+				wtap_file_read_unknown_bytes(&time_long, sizeof(guint32), fh, err);
+				state->offset += sizeof(guint32);
+				state->tenths += pntohl(&time_long);
 
 				if (state->tenths >= 10) {
 					state->timestamp += state->tenths / 10;

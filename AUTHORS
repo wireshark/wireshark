@@ -960,6 +960,10 @@ Heinz Prantner <Heinz.Prantner[AT]radisys.com> {
 	M2TP support
 }
 
+Irfan Khan <ikhan[AT]qualcomm.com> {
+	pppdump reader fixes
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
