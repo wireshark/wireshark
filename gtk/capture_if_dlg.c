@@ -402,13 +402,18 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       g_string_append(if_tool_str, "\n");
 
       /* description */
-      if_dlg_data->descr_lb = gtk_label_new(if_info->description);
+      if (if_info->description != NULL)
+        if_dlg_data->descr_lb = gtk_label_new(if_info->description);
+      else
+        if_dlg_data->descr_lb = gtk_label_new("");
       gtk_misc_set_alignment(GTK_MISC(if_dlg_data->descr_lb), 0.0, 0.5);
       gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->descr_lb, 1, 2, row, row+1);
 
-      g_string_append(if_tool_str, "Description: ");
-      g_string_append(if_tool_str, if_info->description);
-      g_string_append(if_tool_str, "\n");
+      if (if_info->description) {
+        g_string_append(if_tool_str, "Description: ");
+        g_string_append(if_tool_str, if_info->description);
+        g_string_append(if_tool_str, "\n");
+      }
 
       /* IP address */
       /* only one IP address will be shown */
