@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.26 2002/08/30 06:11:35 sharpe Exp $
+ * $Id: packet-kerberos.c,v 1.27 2002/08/30 10:05:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,7 @@
 
 #include "asn1.h"
 #include "packet-netbios.h"
+#include "packet-gssapi.h"
 
 #define UDP_PORT_KERBEROS		88
 #define TCP_PORT_KERBEROS		88
