@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.35 2003/12/13 01:08:42 guy Exp $
+ * $Id: packet-afp.c,v 1.36 2004/02/25 23:15:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1406,7 +1406,6 @@ name_in_bitmap(tvbuff_t *tvb, gint offset, guint16 bitmap, int isdir)
 	guint16 len16;
 	gint	tp_ofs;
 
-	name = NULL;
 	if ((bitmap & kFPAttributeBit))		/* 0 */
 		offset += 2;
 	if ((bitmap & kFPParentDirIDBit))	/* 1 */
@@ -1426,10 +1425,7 @@ name_in_bitmap(tvbuff_t *tvb, gint offset, guint16 bitmap, int isdir)
 			tp_ofs = nameoff +org_offset;
 			len = tvb_get_guint8(tvb, tp_ofs);
 			tp_ofs++;
-			if (!(name = g_malloc(len +1)))
-				return name;
-			tvb_memcpy(tvb, name, tp_ofs, len);
-			*(name +len) = 0;
+			name = tvb_get_string(tvb, tp_ofs, len);
 			return name;
 		}
 		offset += 2;
@@ -1467,14 +1463,11 @@ name_in_bitmap(tvbuff_t *tvb, gint offset, guint16 bitmap, int isdir)
 			tp_ofs = nameoff +org_offset +4;
 			len16 = tvb_get_ntohs(tvb, tp_ofs);
 			tp_ofs += 2;
-			if (!(name = g_malloc(len16 +1)))
-				return name;
-			tvb_memcpy(tvb, name, tp_ofs, len16);
-			*(name +len16) = 0;
+			name = tvb_get_string(tvb, tp_ofs, len16);
 			return name;
 		}
 	}
-	return name;
+	return NULL;
 }
 
 /* -------------------------- */
@@ -1897,14 +1890,14 @@ loop_record(tvbuff_t *tvb, proto_tree *ptree, gint offset,
 			else {
 				name = name_in_fbitmap(tvb, offset +decal, f_bitmap);
 			}
-			if (!name) {
-				if (!(name = g_malloc(50))) { /* no memory ! */
-				}
-				snprintf(name, 50,"line %d", i +1);
+			if (name) {
+				item = proto_tree_add_text(ptree, tvb, offset, size, "%s", name);
+				g_free(name);
 			}
-			item = proto_tree_add_text(ptree, tvb, offset, size, name);
+			else {
+				item = proto_tree_add_text(ptree, tvb, offset, size, "line %d", i+1);
+			}
 			tree = proto_item_add_subtree(item, ett_afp_enumerate_line);
-			g_free((gpointer)name);
 		}
 		if (ext) {
 			proto_tree_add_item(tree, hf_afp_struct_size16, tvb, offset, 2,FALSE);
