@@ -1,0 +1,32 @@
+$Id: README.bsd,v 1.1 2000/02/19 21:54:07 guy Exp $
+
+In order to capture packets (with Ethereal/Tethereal, tcpdump, or any
+other packet capture program) on a Linux system, your kernel must have
+the Berkeley packet Filter mechanism enabled.  On some BSDs (recent
+versions of FreeBSD, for example), it's enabled by default in the
+generic kernel; it's not enabled by default in older FreeBSD kernels,
+and might not be enabled by default in other kernels.
+
+The entry in the FreeBSD 3.4 i386 GENERIC configuration file for it is:
+
+	# The `bpfilter' pseudo-device enables the Berkeley Packet Filter.
+	# Be aware of the administrative consequences of enabling this!
+	# The number of devices determines the maximum number of
+	# simultaneous BPF clients programs runnable.
+	pseudo-device   bpfilter 1      #Berkeley packet filter
+
+To enable BPF, add "pseudo-device" line such as the last line there to
+your configuration file, re-run "config", rebuild the kernel, install
+the new kernel, and reboot.
+
+Note that some daemons, or other applications, may be BPF clients, i.e. 
+may use the BPF mechanism to see link-layer traffic coming into the
+machine and send link-layer traffic from the machine; for example, if
+the number in the "pseudo-device bpfilter" line is 1, and such a daemon
+or application is running, a packet-capture program will not be able to
+do packet capture, as the one and only BPF device will already be in
+use.  You may therefore need to increase the number of BPF devices, by
+increasing the number in the "pseudo-device bpfilter" line, re-running
+"config", rebuilding the kernel, installing the new kernel, and
+rebooting.
+
