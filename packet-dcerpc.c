@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.114 2003/03/31 07:26:18 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.115 2003/04/14 13:22:13 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -397,6 +397,7 @@ static int hf_dcerpc_fragment_overlap_conflict = -1;
 static int hf_dcerpc_fragment_multiple_tails = -1;
 static int hf_dcerpc_fragment_too_long_fragment = -1;
 static int hf_dcerpc_fragment_error = -1;
+static int hf_dcerpc_reassembled_in = -1;
 
 static gint ett_dcerpc = -1;
 static gint ett_dcerpc_cn_flags = -1;
@@ -2172,6 +2173,9 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
     int length, reported_length, stub_length;
     gboolean save_fragmented;
+    fragment_data *fd_head=NULL;
+    guint32 tot_len;
+
 
     length = tvb_length_remaining(tvb, offset);
     reported_length = tvb_reported_length_remaining(tvb, offset);
@@ -2183,113 +2187,144 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     save_fragmented = pinfo->fragmented;
 
-    /* If we don't have reassembly enabled, or this packet contains
-       the entire PDU, or if this is a short frame (or a frame
-       not reassembled at a lower layer) that doesn't include all
-       the data in the fragment, just call the handoff directly if
-       this is the first fragment or the PDU isn't fragmented. */
-    if( (!dcerpc_reassemble) || PFC_NOT_FRAGMENTED(hdr) ||
-		!tvb_bytes_exist(tvb, offset, stub_length) ){
-	if(hdr->flags&PFC_FIRST_FRAG){
-	    /* First fragment, possibly the only fragment */
-            pinfo->fragmented = !PFC_NOT_FRAGMENTED(hdr);
-            dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
-                                tvb_new_subset (tvb, offset, length,
-                                                reported_length),
-                                0, hdr->drep, di, auth_info);
+
+    /* if this packet is not fragmented, just dissect it and exit */
+    if(PFC_NOT_FRAGMENTED(hdr)){
+	pinfo->fragmented = !PFC_NOT_FRAGMENTED(hdr);
+	dcerpc_try_handoff (pinfo, tree, dcerpc_tree, 
+		tvb_new_subset (tvb, offset, length, reported_length), 
+		0, hdr->drep, di, auth_info);
+        goto end_cn_stub;
+    }
+
+
+    /* if we are not doing reassembly and this is the first fragment
+       then just dissect it and exit
+    */
+    if( (!dcerpc_reassemble) && hdr->flags&PFC_FIRST_FRAG ){
+        pinfo->fragmented = !PFC_NOT_FRAGMENTED(hdr);
+        dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
+                            tvb_new_subset (tvb, offset, length,
+                                            reported_length),
+                            0, hdr->drep, di, auth_info);
+        goto end_cn_stub;
+    }
+
+    /* if we have already seen this packet, see if it was reassembled
+       and if so dissect the full pdu.
+       then exit 
+    */
+    if(pinfo->fd->flags.visited){
+	fd_head=fragment_get(pinfo, frame, dcerpc_co_reassemble_table);
+
+	goto end_cn_stub;
+    }
+
+
+    /* if we are not doing reassembly and it was neither a complete PDU
+       nor the first fragment then there is nothing more we can do
+       so we just have to exit
+    */
+    if( !dcerpc_reassemble ){
+        goto end_cn_stub;
+    }
+
+    /* if we didnt get 'frame' we dont know where the PDU started and thus
+       it is pointless to continue 
+    */
+    if(!frame){
+        goto end_cn_stub;
+    }
+
+
+    /* from now on we must attempt to reassemble the PDU 
+    */
+
+
+    /* we dont have the full fragment so we just have to abort and exit
+    */
+    if( !tvb_bytes_exist(tvb, offset, stub_length) ){
+        goto end_cn_stub;
+    }
+
+
+    /* if we get here we know it is the first time we see the packet
+       and we also know it is only a fragment and not a full PDU,
+       thus we must reassemble it.
+    */
+
+
+    /* if this is the first fragment we need to start reassembly
+    */
+    if(hdr->flags&PFC_FIRST_FRAG){
+	fragment_add(tvb, offset, pinfo, frame,
+		 dcerpc_co_reassemble_table,
+		 0, stub_length, TRUE);
+	fragment_set_tot_len(pinfo, frame,
+		 dcerpc_co_reassemble_table, alloc_hint);
+
+	goto end_cn_stub;
+    }
+
+    /* if this is a middle fragment, just add it and exit */
+    if(!(hdr->flags&PFC_LAST_FRAG)){
+	tot_len = fragment_get_tot_len(pinfo, frame,
+		 dcerpc_co_reassemble_table);
+	fragment_add(tvb, offset, pinfo, frame,
+		 dcerpc_co_reassemble_table,
+		 tot_len-alloc_hint,
+		 stub_length,
+		 TRUE);
+
+	goto end_cn_stub;
+    }
+
+    /* this was the last fragment add it to reassembly
+    */
+    tot_len = fragment_get_tot_len(pinfo, frame,
+		dcerpc_co_reassemble_table);
+    fd_head = fragment_add(tvb, offset, pinfo,
+		frame,
+		dcerpc_co_reassemble_table,
+		tot_len-alloc_hint,
+		stub_length,
+		TRUE);
+
+
+
+end_cn_stub:
+
+    /* if reassembly is complete, dissect the full PDU
+    */
+    if(fd_head && (fd_head->flags&FD_DEFRAGMENTED) ){
+	if(pinfo->fd->num==fd_head->reassembled_in){
+	    tvbuff_t *next_tvb;
+
+	    next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen, fd_head->datalen);
+	    tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+	    add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
+	    show_fragment_tree(fd_head, &dcerpc_frag_items,
+		dcerpc_tree, pinfo, next_tvb);
+
+	    pinfo->fragmented = FALSE;
+	    dcerpc_try_handoff (pinfo, tree, dcerpc_tree, next_tvb,
+		0, hdr->drep, di, auth_info);
 	} else {
-	    /* PDU is fragmented and this isn't the first fragment */
+	    proto_tree_add_uint(dcerpc_tree, hf_dcerpc_reassembled_in, tvb, 0, 0, fd_head->reassembled_in);
 	    if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO,
-		                " [DCE/RPC fragment]");
-	    }
-	    if (dcerpc_tree) {
-		if (stub_length > 0) {
-		    proto_tree_add_text (dcerpc_tree, tvb, offset, stub_length,
-					 "Fragment data (%d byte%s)", stub_length,
-					 plurality(stub_length, "", "s"));
-		}
+			" [DCE/RPC fragment]");
 	    }
 	}
     } else {
-	/* Reassembly is enabled, the PDU is fragmented, and
-	   we have all the data in the fragment; the first two
-	   of those mean we should attempt reassembly, and the
-	   third means we can attempt reassembly. */
-	if (dcerpc_tree) {
-	    if (stub_length > 0) {
-		proto_tree_add_text (dcerpc_tree, tvb, offset, stub_length,
-				     "Fragment data (%d byte%s)", stub_length,
-				     plurality(stub_length, "", "s"));
-	    }
-	}
-	if(hdr->flags&PFC_FIRST_FRAG){  /* FIRST fragment */
-	    if( (!pinfo->fd->flags.visited) && frame){
-		fragment_add(tvb, offset, pinfo, frame,
-			     dcerpc_co_reassemble_table,
-			     0,
-			     stub_length,
-			     TRUE);
-		fragment_set_tot_len(pinfo, frame,
-			     dcerpc_co_reassemble_table, alloc_hint);
-	    }
-	    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-		                " [DCE/RPC fragment]");
-	    }
-	} else if(hdr->flags&PFC_LAST_FRAG){  /* LAST fragment */
-	    if( frame ){
-		fragment_data *fd_head;
-		guint32 tot_len;
-
-		tot_len = fragment_get_tot_len(pinfo, frame,
-		               dcerpc_co_reassemble_table);
-		fd_head = fragment_add(tvb, offset, pinfo,
-		     frame,
-		     dcerpc_co_reassemble_table,
-		     tot_len-alloc_hint,
-		     stub_length,
-		     TRUE);
-
-		if(fd_head){
-		    /* We completed reassembly */
-		    tvbuff_t *next_tvb;
-
-		    next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen, fd_head->datalen);
-		    tvb_set_child_real_data_tvbuff(tvb, next_tvb);
-		    add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
-		    show_fragment_tree(fd_head, &dcerpc_frag_items,
-			dcerpc_tree, pinfo, next_tvb);
-
-		    pinfo->fragmented = FALSE;
-		    dcerpc_try_handoff (pinfo, tree, dcerpc_tree, next_tvb,
-                                0, hdr->drep, di, auth_info);
-		} else {
-		    /* Reassembly not complete - some fragments
-		       are missing */
-		    if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO,
-				    " [DCE/RPC fragment]");
-		    }
-		}
-	    }
-	} else {  /* MIDDLE fragment(s) */
-	    if( (!pinfo->fd->flags.visited) && frame ){
-		guint32 tot_len;
-		tot_len = fragment_get_tot_len(pinfo, frame,
-			               dcerpc_co_reassemble_table);
-		fragment_add(tvb, offset, pinfo, frame,
-			     dcerpc_co_reassemble_table,
-			     tot_len-alloc_hint,
-			     stub_length,
-			     TRUE);
-	    }
-	    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-		                " [DCE/RPC fragment]");
-	    }
+	/* Reassembly not complete - some fragments
+	   are missing */
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+	    col_append_fstr(pinfo->cinfo, COL_INFO,
+			" [DCE/RPC fragment]");
 	}
     }
+
     pinfo->fragmented = save_fragmented;
 }
 
@@ -2375,37 +2410,51 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		bind_key.ctx_id=ctx_id;
 		bind_key.smb_fid=get_smb_fid(pinfo->private_data);
 
-		if((bind_value=g_hash_table_lookup(dcerpc_binds, &bind_key))){
-			dcerpc_call_key *call_key;
-			dcerpc_call_value *call_value;
+		if((bind_value=g_hash_table_lookup(dcerpc_binds, &bind_key)) ){
+			if(!(hdr->flags&PFC_FIRST_FRAG)){
+				dcerpc_call_key call_key;
+				dcerpc_call_value *call_value;
 
-			/* We found the binding so just add the call
-			   to both the call table and the matched table
-			*/
-			call_key=g_mem_chunk_alloc (dcerpc_call_key_chunk);
-			call_key->conv=conv;
-			call_key->call_id=hdr->call_id;
-			call_key->smb_fid=get_smb_fid(pinfo->private_data);
+				call_key.conv=conv;
+				call_key.call_id=hdr->call_id;
+				call_key.smb_fid=get_smb_fid(pinfo->private_data);
+				if((call_value=g_hash_table_lookup(dcerpc_calls, &call_key))){
+					g_hash_table_insert (dcerpc_matched, (void *)pinfo->fd->num, call_value);
+				}
+			} else {
+				dcerpc_call_key *call_key;
+				dcerpc_call_value *call_value;
 
-			/* if there is already a matching call in the table
-			   remove it so it is replaced with the new one */
-			if(g_hash_table_lookup(dcerpc_calls, call_key)){
-				g_hash_table_remove(dcerpc_calls, call_key);
+				/* We found the binding and it is the first fragment 
+				   (or a complete PDU) of a dcerpc pdu so just add 
+				   the call to both the call table and the 
+				   matched table
+				*/
+				call_key=g_mem_chunk_alloc (dcerpc_call_key_chunk);
+				call_key->conv=conv;
+				call_key->call_id=hdr->call_id;
+				call_key->smb_fid=get_smb_fid(pinfo->private_data);
+
+				/* if there is already a matching call in the table
+				   remove it so it is replaced with the new one */
+				if(g_hash_table_lookup(dcerpc_calls, call_key)){
+					g_hash_table_remove(dcerpc_calls, call_key);
+				}
+
+				call_value=g_mem_chunk_alloc (dcerpc_call_value_chunk);
+				call_value->uuid = bind_value->uuid;
+				call_value->ver = bind_value->ver;
+				call_value->opnum = opnum;
+				call_value->req_frame=pinfo->fd->num;
+				call_value->req_time.secs=pinfo->fd->abs_secs;
+				call_value->req_time.nsecs=pinfo->fd->abs_usecs*1000;
+				call_value->rep_frame=0;
+				call_value->max_ptr=0;
+				call_value->private_data = NULL;
+				g_hash_table_insert (dcerpc_calls, call_key, call_value);
+
+				g_hash_table_insert (dcerpc_matched, (void *)pinfo->fd->num, call_value);
 			}
-
-			call_value=g_mem_chunk_alloc (dcerpc_call_value_chunk);
-			call_value->uuid = bind_value->uuid;
-			call_value->ver = bind_value->ver;
-			call_value->opnum = opnum;
-			call_value->req_frame=pinfo->fd->num;
-			call_value->req_time.secs=pinfo->fd->abs_secs;
-			call_value->req_time.nsecs=pinfo->fd->abs_usecs*1000;
-			call_value->rep_frame=0;
-			call_value->max_ptr=0;
-			call_value->private_data = NULL;
-			g_hash_table_insert (dcerpc_calls, call_key, call_value);
-
-			g_hash_table_insert (dcerpc_matched, (void *)pinfo->fd->num, call_value);
 		}
 	}
 
@@ -2425,7 +2474,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		proto_tree_add_uint(dcerpc_tree, hf_dcerpc_response_in,
 				    tvb, 0, 0, value->rep_frame);
 	    }
-
+/*qqq request, broken*/
 	    dissect_dcerpc_cn_stub (tvb, offset, pinfo, dcerpc_tree, tree,
 				    hdr, &di, &auth_info, alloc_hint,
 				    value->req_frame);
@@ -2535,6 +2584,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &ns);
 	    }
 
+/*qqq response ok*/
 	    dissect_dcerpc_cn_stub (tvb, offset, pinfo, dcerpc_tree, tree,
 				    hdr, &di, &auth_info, alloc_hint,
 				    value->rep_frame);
@@ -4072,7 +4122,9 @@ proto_register_dcerpc (void)
 	  { "Defragmentation error", "dcerpc.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
 
 	{ &hf_dcerpc_time, 
-	  { "Time from request", "dcerpc.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0, "Time between Request and Reply for DCE-RPC calls", HFILL }}
+	  { "Time from request", "dcerpc.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0, "Time between Request and Reply for DCE-RPC calls", HFILL }},
+	{ &hf_dcerpc_reassembled_in,
+	  { "This PDU is reassembled in", "dcerpc.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "The DCE/RPC PDU is completely reassembled in this frame", HFILL }}
 
    };
     static gint *ett[] = {
