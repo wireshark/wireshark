@@ -9,10 +9,11 @@ CC = cl
 LINK= link
 
 LDFLAGS = /NOLOGO /SUBSYSTEM:console /INCREMENTAL:no /MACHINE:I386 \
-	/OUT:ethereal.exe
+	$(LOCAL_LDFLAGS) /OUT:ethereal.exe
 
 CFLAGS=-DHAVE_CONFIG_H $(LOCAL_CFLAGS) /I$(GLIB_DIR) /I$(GLIB_DIR)\gmodule \
-	/I$(GTK_DIR) /Iwiretap /I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32
+	/I$(GTK_DIR) /Iwiretap /I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
+	/I$(PCAP_DIR)/include
 
 DISSECTOR_OBJECTS = \
 	packet-aarp.obj  \
@@ -159,15 +160,16 @@ EXTRA_ethereal_OBJECTS = \
 	inet_ntop.obj
 
 
-LIBS= wiretap\libwtap.lib gtk\libui.lib wsock32.lib \
+LIBS= wiretap\libwtap.lib gtk\libui.lib wsock32.lib user32.lib \
 	$(GTK_DIR)\gtk\gtk-$(GTK_VERSION).lib \
 	$(GTK_DIR)\gdk\win32\gdk-$(GTK_VERSION).lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
-	$(GLIB_DIR)\gmodule-$(GLIB_VERSION).lib
+	$(GLIB_DIR)\gmodule-$(GLIB_VERSION).lib \
+	$(PCAP_DIR)\lib\libpcap.lib
 
-all: ethereal.exe plugins\plugins_api.obj
+all: ethereal.exe
 
-ethereal.exe	: config.h $(ethereal_OBJECTS) $(EXTRA_ethereal_OBJECTS) wiretap\libwtap.lib gtk\libui.lib
+ethereal.exe	: config.h $(ethereal_OBJECTS) $(EXTRA_ethereal_OBJECTS) wiretap gtk plugins
 	$(LINK) @<<
 		$(LDFLAGS) $(LIBS) $(ethereal_OBJECTS) $(EXTRA_ethereal_OBJECTS)
 <<
@@ -189,17 +191,17 @@ dfilter-grammar.c dfilter-grammer.h : dfilter-grammar.y
 clean:
 	rm -f $(ethereal_OBJECTS) $(EXTRA_ethereal_OBJECTS) ethereal.exe
 
-wiretap\libwtap.lib::
+wiretap::
 	cd wiretap
 	nmake -f Makefile.nmake
 	cd ..
 
-gtk\libui.lib::
+gtk::
 	cd gtk
 	nmake -f Makefile.nmake
 	cd ..
 
-plugins\plugins_api.obj::
+plugins::
 	cd plugins
 	nmake -f Makefile.nmake
 	cd ..

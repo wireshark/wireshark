@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.94 2000/02/02 18:38:52 gram Exp $
+ * $Id: capture.c,v 1.95 2000/02/09 19:17:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,9 @@
 
 #ifdef HAVE_SYS_WAIT_H
 # include <sys/wait.h>
+#endif
+#ifdef HAVE_IO_H
+#include <io.h>
 #endif
 
 #include <gtk/gtk.h>
@@ -115,6 +118,11 @@ typedef struct _loop_data {
   wtap_dumper   *pdh;
 } loop_data;
 
+/* Win32 needs the O_BINARY flag for open() */
+#ifndef O_BINARY
+#define O_BINARY	0
+#endif
+
 /* Open a specified file, or create a temporary file, and start a capture
    to the file in question. */
 void
@@ -131,7 +139,7 @@ do_capture(char *capfile_name)
 
   if (capfile_name != NULL) {
     /* Try to open/create the specified file for use as a capture buffer. */
-    cf.save_file_fd = open(capfile_name, O_RDWR|O_TRUNC|O_CREAT, 0600);
+    cf.save_file_fd = open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT, 0600);
     is_tempfile = FALSE;
   } else {
     /* Choose a random name for the capture buffer */
@@ -150,6 +158,7 @@ do_capture(char *capfile_name)
   cf.save_file = capfile_name;
 
   if (sync_mode) {	/*  use fork() for capture */
+#ifndef _WIN32
     int  fork_child;
     char ssnap[24];
     char scount[24];	/* need a constant for len of numbers */
@@ -283,6 +292,7 @@ do_capture(char *capfile_name)
 	}
       }
     }
+#endif
   } else {
     /* Not sync mode. */
     capture_succeeded = capture();
@@ -305,6 +315,7 @@ do_capture(char *capfile_name)
   }
 }
 
+#ifndef _WIN32
 /* There's stuff to read from the sync pipe, meaning the child has sent
    us a message, or the sync pipe has closed, meaning the child has
    closed it (perhaps because it exited). */
@@ -474,6 +485,7 @@ cap_file_input_cb(gpointer data, gint source, GdkInputCondition condition)
 				     (gpointer) cf,
 				     NULL);
 }
+#endif /* _WIN32 */
 
 /*
  * Timeout, in milliseconds, for reads from the stream of captured packets.

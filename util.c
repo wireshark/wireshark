@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.35 2000/01/31 19:34:25 gram Exp $
+ * $Id: util.c,v 1.36 2000/02/09 19:17:52 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -416,6 +416,7 @@ search_for_if_cb(gpointer data, gpointer user_data);
 static void
 free_if_cb(gpointer data, gpointer user_data);
 
+#ifndef WIN32
 GList *
 get_interface_list(int *err, char *err_str)
 {
@@ -562,6 +563,33 @@ search_for_if_cb(gpointer data, gpointer user_data)
 	if (strcmp((char *)data, search_user_data->name) == 0)
 		search_user_data->found = TRUE;
 }
+#else
+GList *
+get_interface_list(int *err, char *err_str) {
+  GList  *il = NULL;
+  wchar_t *names;
+  char newname[255];
+  int i, j, done;
+  
+  names = (wchar_t *)pcap_lookupdev(err_str);
+  i = done = 0;
+
+  if (names)
+     do
+     {
+        j = 0;
+        while (names[i] != 0)
+           newname[j++] = names[i++];
+        i++;
+        if (names[i] == 0)
+           done = 1;
+        newname[j++] = 0;
+        il = g_list_append(il, g_strdup(newname));
+     } while (!done);
+  
+  return(il);
+}
+#endif
 
 static void
 free_if_cb(gpointer data, gpointer user_data)

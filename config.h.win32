@@ -51,7 +51,7 @@
 /* #define HAVE_UNISTD_H 1 */
 
 /* Define if you have the pcap library (-lpcap).  */
-/* #define HAVE_LIBPCAP 1 */
+#define HAVE_LIBPCAP 1
 
 /* Define if you have the z library (-lz).  */
 /*#define HAVE_LIBZ 1*/

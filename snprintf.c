@@ -90,6 +90,8 @@ double r;
   if (r < 0.)
     r = -r;
 
+  if (r == 0.0)
+     return(0);
   if (r < 1.) {
     while (result >= r) {result *= .1; i++;}
     return (-i);

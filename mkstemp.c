@@ -36,6 +36,9 @@
 #ifndef __set_errno
 #define __set_errno(x) errno=(x) 
 #endif
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
 
 /* Generate a unique temporary file name from TEMPLATE.
    The last six characters of TEMPLATE must be "XXXXXX";
@@ -68,7 +71,7 @@ mkstemp (template)
 
       template[len - 6] = letters[i];
 
-      fd = open (template, O_RDWR|O_CREAT|O_EXCL, 0600);
+      fd = open (template, O_RDWR|O_BINARY|O_CREAT|O_EXCL, 0600);
       if (fd >= 0)
 	return fd;
     }

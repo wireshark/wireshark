@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.5 2000/02/09 00:41:02 gram Exp $
+$Id: README.win32,v 1.6 2000/02/09 19:17:50 gram Exp $
 
 Ethereal can be compiled on Win32 platforms. Some libraries are
 needed, however.
@@ -31,12 +31,20 @@ or
 
 	http://www.iki.fi/~tml/gimp/win32/index-19990828.html
 
+A win32 version libpcap is also needed. You'll need the WinDump 
+developer's pack available from 
+http://netgroup-serv.polito.it/windump/install/download.htm
+
+In order to capture with Win32, you need to install the NDIS
+packet capture driver available from the same WinDump site.
+
+The home page for WinDump (TCPdump for Windows) is at:
+http://netgroup-serv.polito.it/windump/
+
+
 The UCD SNMP library for win32 can be had from
 ftp://ftp.revelstone.com/pub/snmp/, but it has not been tested
 with Ethereal.
-
-The win32 versions of libpcap have not been integrated into
-Ethereal yet.
 
 Zlib (or 'libz') is available for Win32 from
 http://www.winimage.com/zLibDll/
