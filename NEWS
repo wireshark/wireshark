@@ -1,3 +1,44 @@
+Overview of changes in Ethereal 0.7.6:
+* Fix xdlc bug (Guy, Gilbert)
+* Add name resolution option to GUI. (Laurent)
+* Fix LLC bug (Guy)
+* Display filter bug fixes
+	Santeri Paavolainen <santtu@ssh.fi>
+	Dewi Morgan <dewim@sco.com>
+	(Gilbert)
+* Print changes (Guy)
+* NG Sniffer FDDI time unit fix (Guy)
+* Fixes for SINIX (Uwe Girlich)
+* Lots of fork/sync fixes (Guy)
+* Add filename to Capture dialog box (Guy)
+* New display filters for many protocols
+	(Laurent... the man!)
+* Check for bad packet lengths in many protocols
+	(Laurent, Gilbert, Guy)
+* More SMB fields and fixes (Richard, Guy)
+* NBNS fix (Richard)
+* POP fix (Laurent)
+* Fix behavior for bad color filters (Gilbert)
+* Default colors for color wheel (Santeri Paavolainen <santtu@ssh.fi>)
+* ZLIB error messages (Guy)
+* Display filter byte-string syntax additions (Gilbert)
+* IPv6 proto_tree and display filter support (Lareunt, Jun-ichiro)
+* Added info to protocol registration (Gilbert)
+* Added signed integer support to display filters (Phil Techau)
+* IPv6 fixes (Jun-ichiro)
+* ASCII/EBCDIC conversion in TCP Follow window (Gilbert)
+* Add DOUBLE filtering to display filters (Gilbert)
+* OSPF fix to dissect MD5 field (Tony Hard <thart@avici.com>
+* Automated method of finding proto_register functions (Guy)
+* Wiretap support for nettl (HP-UX trace tool) (Olivier)
+* Added BPDU (Christophe Tronche)
+* Added SNA (Gilbert)
+* Added RIPng, PIM (Jun-ichiro)
+* Added Yahoo messager and pager protocols (Nathan)
+* Added NTP (Nathan)
+* Added BGP (Jun-ichiro)
+* Added AFS, RX (Nathan)
+
 Overview of changes in Ethereal 0.7.5:
 * Fixed bug when reading files on FreeBSD (Guy)
 * Fixed compilation bug when disabling zlib on FreeBSD (Guy)
