@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.5 1999/10/12 06:20:01 gram Exp $
+ * $Id: packet-ascend.c,v 1.6 1999/10/16 08:54:25 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,7 @@ static int proto_ascend  = -1;
 static int hf_session_id = -1;
 static int hf_chunk      = -1;
 static int hf_task       = -1;
+static int hf_user_name  = -1;
 
 static const value_string encaps_vals[] = {
   {ASCEND_PFX_WDS_X, "PPP Transmit"},
@@ -74,22 +75,19 @@ dissect_ascend( const u_char *pd, frame_data *fd, proto_tree *tree ) {
       val_to_str(fd->pseudo_header.ascend.type, encaps_vals, "Unknown (%d)"));
     if (fd->pseudo_header.ascend.type == ASCEND_PFX_WDD) {
       proto_tree_add_text(fh_tree, 0, 0, "Called number: %s",
-        fd->pseudo_header.ascend.call_num);
-      proto_tree_add_item_format(fh_tree, hf_chunk, 0, 0,
-        fd->pseudo_header.ascend.chunk, "Chunk: 0x%08x",
-        fd->pseudo_header.ascend.chunk);
+			  fd->pseudo_header.ascend.call_num);
+      proto_tree_add_item(fh_tree, hf_chunk, 0, 0,
+			  fd->pseudo_header.ascend.chunk);
       proto_tree_add_item_hidden(fh_tree, hf_session_id, 0, 0, 0);
     } else {  /* It's wandsession data */
-      proto_tree_add_text(fh_tree, 0, 0, "Username: %s",
-        fd->pseudo_header.ascend.user);
-      proto_tree_add_item_format(fh_tree, hf_session_id, 0, 0,
-        fd->pseudo_header.ascend.sess, "Session: %d",
-        fd->pseudo_header.ascend.sess);
+      proto_tree_add_item_format(fh_tree, hf_user_name, 0, 0, 
+				 "Username: %s",
+				 fd->pseudo_header.ascend.user);
+      proto_tree_add_item(fh_tree, hf_session_id, 0, 0,
+			  fd->pseudo_header.ascend.sess);
       proto_tree_add_item_hidden(fh_tree, hf_chunk, 0, 0, 0);
     }
-    proto_tree_add_item_format(fh_tree, hf_task, 0, 0,
-      fd->pseudo_header.ascend.task, "Task: 0x%08X",
-      fd->pseudo_header.ascend.task);
+    proto_tree_add_item(fh_tree, hf_task, 0, 0, fd->pseudo_header.ascend.task);
   }
 
   switch (fd->pseudo_header.ascend.type) {
@@ -114,11 +112,15 @@ proto_register_ascend(void)
     	"" }},
 
     { &hf_chunk,
-    { "WDD Chunk",	"ascend.chunk",	FT_UINT32, BASE_DEC,	NULL, 0x0,
+    { "WDD Chunk",	"ascend.chunk",	FT_UINT32, BASE_HEX,	NULL, 0x0,
     	"" }},
 
     { &hf_task,
-    { "Task",		"ascend.task",	FT_UINT32, BASE_DEC,	NULL, 0x0,
+    { "Task",		"ascend.task",	FT_UINT32, BASE_HEX,	NULL, 0x0,
+    	"" }},
+
+    { &hf_user_name,
+    { "User name",     	"ascend.user",	FT_STRING, BASE_NONE,	NULL, 0x0,
     	"" }},
   };
 
