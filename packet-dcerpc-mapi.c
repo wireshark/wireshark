@@ -2,7 +2,7 @@
  * Routines for MS Exchange MAPI
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-mapi.c,v 1.19 2003/02/07 22:44:52 guy Exp $
+ * $Id: packet-dcerpc-mapi.c,v 1.20 2003/02/10 02:07:15 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -237,7 +237,7 @@ mapi_logon_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
         offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep,
-			sizeof(guint8), hf_mapi_unknown_string, TRUE);
+			sizeof(guint8), hf_mapi_unknown_string, TRUE, NULL);
 
         DISSECT_UNKNOWN(tvb_length_remaining(tvb, offset));
 
@@ -257,12 +257,12 @@ mapi_logon_reply(tvbuff_t *tvb, int offset,
         DISSECT_UNKNOWN(20); /* this is 20 bytes, unless there are pointers */
 
         offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep,
-			sizeof(guint8), hf_mapi_unknown_string, TRUE);
+			sizeof(guint8), hf_mapi_unknown_string, TRUE, NULL);
 
         DISSECT_UNKNOWN(6); /* possibly 1 or 2 bytes padding here */
 
         offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep,
-			sizeof(guint8), hf_mapi_unknown_string, TRUE);
+			sizeof(guint8), hf_mapi_unknown_string, TRUE, NULL);
 
         DISSECT_UNKNOWN( tvb_length_remaining(tvb, offset)-4 );
 
