@@ -1,6 +1,6 @@
 /* dbs-etherwatch.c
  *
- * $Id: dbs-etherwatch.c,v 1.15 2004/01/25 21:55:13 guy Exp $
+ * $Id: dbs-etherwatch.c,v 1.16 2004/02/09 00:06:30 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <ethereal@mmilgram.NOSPAMmail.net>
@@ -360,7 +360,7 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 	 * 'HEX' character
 	 */
 	p = line;
-	while(!isxdigit(*p)) {
+	while(!isxdigit((guchar)*p)) {
 		p++;
 	}
 	if(parse_hex_dump(p, &buf[eth_hdr_len], HEX_HDR_SPR,
@@ -581,8 +581,8 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, int byte_offset) {
 	/* Get the byte_offset directly from the record */
 	value = 0;
 	for(i = 0; i < COUNT_SIZE; i++) {
-		if(!isspace(rec[pos])) {
-			if(isdigit(rec[pos])) {
+		if(!isspace((guchar)rec[pos])) {
+			if(isdigit((guchar)rec[pos])) {
 				value *= 10;
 				value += rec[pos] - '0';
 			} else {
@@ -617,17 +617,18 @@ parse_hex_dump(char* dump, guint8 *buf, char seperator, char end) {
 	count = 0;
 	while(dump[pos] != end) {
 		/* Check the hex value */
-		if(!(isxdigit(dump[pos]) && isxdigit(dump[pos + 1]))) {
+		if(!(isxdigit((guchar)dump[pos]) &&
+		    isxdigit((guchar)dump[pos + 1]))) {
 			return 0;
 		}
 		/* Get the hex value value */
-		if(isdigit(dump[pos])) {
+		if(isdigit((guchar)dump[pos])) {
 			buf[count] = (dump[pos] - '0') << 4;
 		} else {
 			buf[count] = (toupper(dump[pos]) - 'A' + 10) << 4;
 		}
 		pos++;
-		if(isdigit(dump[pos])) {
+		if(isdigit((guchar)dump[pos])) {
 			buf[count] += dump[pos] - '0';
 		} else {
 			buf[count] += toupper(dump[pos]) - 'A' + 10;

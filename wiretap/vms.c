@@ -1,6 +1,6 @@
 /* vms.c
  *
- * $Id: vms.c,v 1.21 2004/01/25 21:55:17 guy Exp $
+ * $Id: vms.c,v 1.22 2004/02/09 00:06:30 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <ethereal@mmilgram.NOSPAMmail.net>
@@ -344,12 +344,12 @@ isdumpline( gchar *line )
 {
     int i, j;
 
-    while (*line && !isalnum(*line))
+    while (*line && !isalnum((guchar)*line))
 	line++;
 
     for (j=0; j<4; j++) {
 	for (i=0; i<8; i++, line++)
-	    if (! isxdigit(*line))
+	    if (! isxdigit((guchar)*line))
 		return FALSE;
 
 	for (i=0; i<3; i++, line++)
@@ -357,7 +357,7 @@ isdumpline( gchar *line )
 		return FALSE;
     }
 
-    return isspace(*line);
+    return isspace((guchar)*line);
 }
 
 /* Parses a packet record header. */
@@ -418,7 +418,7 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info)
 	}
         if ( (! pkt_len) && (p = strstr(line, "Length"))) {
             p += sizeof("Length ");
-            while (*p && ! isdigit(*p))
+            while (*p && ! isdigit((guchar)*p))
                 p++;
 
             if ( !*p ) {
@@ -479,7 +479,7 @@ parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
 		}
 		line[VMS_LINE_LENGTH] = '\0';
 	    }
-            while (line[offset] && !isxdigit(line[offset]))
+            while (line[offset] && !isxdigit((guchar)line[offset]))
                 offset++;
 	}
 	if (!parse_single_hex_dump_line(line, buf, i,

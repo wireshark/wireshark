@@ -1,6 +1,6 @@
 /* cosine.c
  *
- * $Id: cosine.c,v 1.8 2004/01/25 21:55:12 guy Exp $
+ * $Id: cosine.c,v 1.9 2004/02/09 00:06:30 guy Exp $
  *
  * CoSine IPNOS L2 debug output parsing
  * Copyright (c) 2002 by Motonori Shindo <mshindo@mshindo.net>
@@ -186,7 +186,7 @@ static int parse_single_hex_dump_line(char* rec, guint8 *buf,
 static gboolean empty_line(const gchar *line)
 {
 	while (*line) {
-		if (isspace(*line)) {
+		if (isspace((guchar)*line)) {
 			line++;
 			continue;
 		} else {
