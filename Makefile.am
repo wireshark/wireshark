@@ -29,6 +29,7 @@ ethereal_SOURCES = \
 	packet-tr.c    \
 	packet-trmac.c \
 	packet-udp.c   \
+	packet-vines.c \
 	print.c        \
 	ps.c           \
 	resolv.c       \
@@ -44,6 +45,7 @@ ethereal_SOURCES = \
 	packet-ipv6.h  \
 	packet-ospf.h  \
 	packet-rip.h   \
+	packet-vines.h \
 	print.h        \
 	ps.h           \
 	resolv.h       \

@@ -2,7 +2,7 @@
  * Routines for calling the right protocol for the ethertype.
  * This is called by both packet-eth.c (Ethernet II) and packet-llc.c (SNAP)
  *
- * $Id: ethertype.c,v 1.2 1998/09/16 03:21:55 gerald Exp $
+ * $Id: ethertype.c,v 1.3 1998/09/17 02:37:45 gerald Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -96,6 +96,13 @@ ethertype(guint16 etype, int offset,
           "Type: Netware IPX/SPX (0x%04x)", etype);
       }
       dissect_ipx(pd, offset, fd, tree);
+      break;
+    case ETHERTYPE_VINES:
+      if (tree) {
+        add_item_to_tree(fh_tree, offset - 2, 2,
+          "Type Vines (0x%04x)", etype);
+      }
+      dissect_vines(pd, offset, fd, tree);
       break;
     default:
       if (tree) {
