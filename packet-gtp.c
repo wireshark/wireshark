@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.46 2002/11/11 19:23:11 guy Exp $
+ * $Id: packet-gtp.c,v 1.47 2002/11/13 09:01:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4908,7 +4908,7 @@ dissect_gtpv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		sub_proto = tvb_get_guint8(tvb,GTPv0_HDR_LENGTH);
 
                 if ((sub_proto >= 0x45) &&  (sub_proto <= 0x4e)) {
-                    /* this must is most likely an IPv4 packet */
+                    /* this is most likely an IPv4 packet */
                     /* we can exclude 0x40 - 0x44 because the minimum header size is 20 octets */
                     /* 0x4f is excluded because PPP protocol type "IPv6 header compression" 
                        with protocol field compression is more likely than a plain IPv4 packet with 60 octet header size */    
@@ -4935,10 +4935,9 @@ dissect_gtpv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     next_tvb = tvb_new_subset(tvb, GTPv0_HDR_LENGTH + acfield_len, -1, -1);
                     call_dissector(ppp_handle, next_tvb, pinfo, tree);
                 }
+            if (check_col(pinfo->cinfo, COL_PROTOCOL))
+                    col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "GTP");
 	}
-        if (check_col(pinfo->cinfo, COL_PROTOCOL))
-                col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "GTP");
-
 }
 
 /* GTP v1 dissector */
@@ -5057,7 +5056,7 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		sub_proto = tvb_get_guint8(tvb,GTPv1_HDR_LENGTH - hdr_offset);
 
                 if ((sub_proto >= 0x45) &&  (sub_proto <= 0x4e)) {
-                    /* this must is most likely an IPv4 packet */
+                    /* this is most likely an IPv4 packet */
                     /* we can exclude 0x40 - 0x44 because the minimum header size is 20 octets */
                     /* 0x4f is excluded because PPP protocol type "IPv6 header compression" 
                        with protocol field compression is more likely than a plain IPv4 packet with 60 octet header size */    
@@ -5087,9 +5086,9 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                     next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset + acfield_len, -1, -1);
                     call_dissector(ppp_handle, next_tvb, pinfo, tree);
                 }
+            if (check_col(pinfo->cinfo, COL_PROTOCOL))
+                    col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "GTP-U");
 	}
-        if (check_col(pinfo->cinfo, COL_PROTOCOL))
-                col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "GTP-U");
 }
 
 static const true_false_string yes_no_tfs = {
@@ -5205,7 +5204,7 @@ proto_register_gtp(void)
 	{ &hf_gtpv1_teid_cp,		{ "TEID Control Plane",	"gtpv1.teid_cp", 		FT_UINT32, 	BASE_HEX, NULL, 0, "Tunnel Endpoint Identifier Control Plane", HFILL }},
 	{ &hf_gtpv1_nsapi,		{ "NSAPI",		"gtpv1.nsapi",			FT_UINT8, 	BASE_DEC, NULL, 0, "Network layer Service Access Point Identifier", HFILL }},
 	{ &hf_gtpv1_teid_ii,		{ "TEID Data II",	"gtpv1.teid_ii", 		FT_UINT32, 	BASE_HEX, NULL, 0, "Tunnel Endpoint Identifier Data II", HFILL }},
-	{ &hf_gtpv1_tear_ind,		{ "Teardown indication","gtpv1.tear_ind", 		FT_BOOLEAN, 	BASE_NONE,NULL, 0, "Teardown Indication", HFILL }},
+	{ &hf_gtpv1_tear_ind,		{ "Teardown Indicator","gtpv1.tear_ind", 		FT_BOOLEAN, 	BASE_NONE,NULL, 0, "Teardown Indicator", HFILL }},
 	{ &hf_gtpv1_ranap_cause,		{ "RANAP cause",	"gtpv1.ranap_cause",		FT_UINT8, 	BASE_DEC, VALS(ranap_cause_type), 0, "RANAP cause", HFILL }},
 	{ &hf_gtpv1_rab_gtpu_dn,		{ "Downlink GTP-U seq number",	"gtpv1.rab_gtp_dn",	FT_UINT16, 	BASE_DEC, NULL, 0, "Downlink GTP-U sequence number", HFILL }},
 	{ &hf_gtpv1_rab_gtpu_up,		{ "Uplink GTP-U seq number",	"gtpv1.rab_gtp_up",	FT_UINT16, 	BASE_DEC, NULL, 0, "Uplink GTP-U sequence number", HFILL }},
