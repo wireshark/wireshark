@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.112 2004/02/06 00:45:27 guy Exp $
+ * $Id: libpcap.c,v 1.113 2004/02/11 20:47:00 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1475,14 +1475,39 @@ static int wtap_wtap_encap_to_pcap_encap(int encap)
 
 	case WTAP_ENCAP_PPP_WITH_PHDR:
 		/*
-		 * Also special-case PPP and Frame Relay with direction
-		 * bits; map them to PPP and Frame Relay, even though
-		 * that means that the direction of the packet is lost.
+		 * Also special-case PPP with direction bits; map it to
+		 * PPP, even though that means that the direction of the
+		 * packet is lost.
 		 */
 		return 9;
 
 	case WTAP_ENCAP_FRELAY_WITH_PHDR:
+		/*
+		 * Do the same with Frame Relay.
+		 */
 		return 107;
+
+	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
+		/*
+		 * Map this to DLT_IEEE802_11, for now, even though
+		 * that means the radio information will be lost.
+		 * Once tcpdump support for the BSD radiotap header
+		 * is sufficiently widespread, we should probably
+		 * use that, instead - although we should probably
+		 * ultimately just have WTAP_ENCAP_IEEE_802_11
+		 * as the only Wiretap encapsulation for 802.11,
+		 * and have the pseudo-header include a radiotap-style
+		 * list of attributes.  If we do that, though, we
+		 * should probably bypass the regular Wiretap code
+		 * when writing out packets during a capture, and just
+		 * do the equivalent of a libpcap write (unfortunately,
+		 * libpcap doesn't have an "open dump by file descriptor"
+		 * function, so we can't just use "pcap_dump()"), so
+		 * that we don't spend cycles mapping from libpcap to
+		 * Wiretap and then back to libpcap.  (There are other
+		 * reasons to do that, e.g. to handle AIX libpcap better.)
+		 */
+		return 105;
 	}
 
 	for (i = 0; i < NUM_PCAP_ENCAPS; i++) {
