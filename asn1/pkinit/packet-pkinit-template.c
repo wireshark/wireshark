@@ -105,7 +105,6 @@ void proto_register_pkinit(void) {
 
 /*--- proto_reg_handoff_pkinit -------------------------------------------*/
 void proto_reg_handoff_pkinit(void) {
-  register_ber_oid_dissector("1.3.6.1.5.2.3.1", dissect_AuthPack_PDU, proto_pkinit, "id-pkauthdata");
-  register_ber_oid_dissector("1.3.6.1.5.2.3.2", dissect_KDCDHKeyInfo_PDU, proto_pkinit, "id-pkdhkeydata");
+#include "packet-pkinit-dis-tab.c"
 }
 

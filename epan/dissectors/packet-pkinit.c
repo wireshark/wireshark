@@ -8,7 +8,7 @@
 /* packet-pkinit.c
  * Routines for PKINIT packet dissection
  *
- * $Id: packet-pkinit-template.c 12203 2004-10-05 09:18:55Z guy $
+ * $Id: packet-pkinit-template.c 12426 2004-10-28 22:06:55Z gerald $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -69,12 +69,12 @@ static int hf_pkinit_supportedCMSTypes = -1;      /* SEQUNCE_OF_AlgorithmIdentif
 static int hf_pkinit_supportedCMSTypes_item = -1;  /* AlgorithmIdentifier */
 static int hf_pkinit_cusec = -1;                  /* INTEGER */
 static int hf_pkinit_ctime = -1;                  /* KerberosTime */
-static int hf_pkinit_nonce = -1;                  /* INTEGER_0_4294967295 */
+static int hf_pkinit_paNonce = -1;                /* INTEGER_0_4294967295 */
 static int hf_pkinit_paChecksum = -1;             /* Checksum */
 static int hf_pkinit_dhSignedData = -1;           /* ContentInfo */
 static int hf_pkinit_encKeyPack = -1;             /* ContentInfo */
 static int hf_pkinit_subjectPublicKey = -1;       /* BIT_STRING */
-static int hf_pkinit_nonce1 = -1;                 /* INTEGER */
+static int hf_pkinit_dhNonce = -1;                /* INTEGER */
 static int hf_pkinit_dhKeyExpiration = -1;        /* KerberosTime */
 
 /*--- End of included file: packet-pkinit-hf.c ---*/
@@ -203,8 +203,8 @@ dissect_pkinit_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 static int dissect_cusec(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_pkinit_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkinit_cusec);
 }
-static int dissect_nonce1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pkinit_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkinit_nonce1);
+static int dissect_dhNonce(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pkinit_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkinit_dhNonce);
 }
 
 
@@ -215,14 +215,14 @@ dissect_pkinit_INTEGER_0_4294967295(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 
   return offset;
 }
-static int dissect_nonce(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pkinit_INTEGER_0_4294967295(FALSE, tvb, offset, pinfo, tree, hf_pkinit_nonce);
+static int dissect_paNonce(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pkinit_INTEGER_0_4294967295(FALSE, tvb, offset, pinfo, tree, hf_pkinit_paNonce);
 }
 
 static const ber_sequence PKAuthenticator_sequence[] = {
   { BER_CLASS_CON, 0, 0, dissect_cusec },
   { BER_CLASS_CON, 1, 0, dissect_ctime },
-  { BER_CLASS_CON, 2, 0, dissect_nonce },
+  { BER_CLASS_CON, 2, 0, dissect_paNonce },
   { BER_CLASS_CON, 3, 0, dissect_paChecksum },
   { 0, 0, 0, NULL }
 };
@@ -304,7 +304,7 @@ static int dissect_subjectPublicKey(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static const ber_sequence KDCDHKeyInfo_sequence[] = {
   { BER_CLASS_CON, 0, 0, dissect_subjectPublicKey },
-  { BER_CLASS_CON, 1, 0, dissect_nonce1 },
+  { BER_CLASS_CON, 1, 0, dissect_dhNonce },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_dhKeyExpiration },
   { 0, 0, 0, NULL }
 };
@@ -419,7 +419,7 @@ void proto_register_pkinit(void) {
       { "ctime", "pkinit.ctime",
         FT_NONE, BASE_NONE, NULL, 0,
         "PKAuthenticator/ctime", HFILL }},
-    { &hf_pkinit_nonce,
+    { &hf_pkinit_paNonce,
       { "nonce", "pkinit.nonce",
         FT_UINT32, BASE_DEC, NULL, 0,
         "PKAuthenticator/nonce", HFILL }},
@@ -439,7 +439,7 @@ void proto_register_pkinit(void) {
       { "subjectPublicKey", "pkinit.subjectPublicKey",
         FT_BYTES, BASE_HEX, NULL, 0,
         "KDCDHKeyInfo/subjectPublicKey", HFILL }},
-    { &hf_pkinit_nonce1,
+    { &hf_pkinit_dhNonce,
       { "nonce", "pkinit.nonce",
         FT_INT32, BASE_DEC, NULL, 0,
         "KDCDHKeyInfo/nonce", HFILL }},
@@ -482,7 +482,14 @@ void proto_register_pkinit(void) {
 
 /*--- proto_reg_handoff_pkinit -------------------------------------------*/
 void proto_reg_handoff_pkinit(void) {
-  register_ber_oid_dissector("1.3.6.1.5.2.3.1", dissect_AuthPack_PDU, proto_pkinit, "id-pkauthdata");
-  register_ber_oid_dissector("1.3.6.1.5.2.3.2", dissect_KDCDHKeyInfo_PDU, proto_pkinit, "id-pkdhkeydata");
+
+/*--- Included file: packet-pkinit-dis-tab.c ---*/
+
+ register_ber_oid_dissector("1.3.6.1.5.2.3.1", dissect_AuthPack_PDU, proto_pkinit, "id-pkauthdata");
+ register_ber_oid_dissector("1.3.6.1.5.2.3.2", dissect_KDCDHKeyInfo_PDU, proto_pkinit, "id-pkdhkeydata");
+
+
+/*--- End of included file: packet-pkinit-dis-tab.c ---*/
+
 }
 
