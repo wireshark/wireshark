@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.53 2001/07/18 15:49:29 oabad Exp $
+ * $Id: packet-x25.c,v 1.54 2001/11/15 21:11:01 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,6 +38,7 @@
 #include <string.h>
 #include "llcsaps.h"
 #include "packet.h"
+#include "prefs.h"
 #include "nlpid.h"
 
 #define FROM_DCE			0x80
@@ -155,6 +156,11 @@ static const value_string vals_x25_type[] = {
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t ositp_handle;
+static dissector_handle_t sna_handle;
+static dissector_handle_t qllc_handle;
+
+/* Preferences */
+static gboolean non_q_bit_is_sna = FALSE;
 
 /*
  * each vc_info node contains :
@@ -1482,6 +1488,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16 bytes0_1;
     guint8 pkt_type;
     tvbuff_t *next_tvb;
+    gboolean q_bit_set = FALSE;
 
     if (check_col(pinfo->fd, COL_PROTOCOL))
 	col_set_str(pinfo->fd, COL_PROTOCOL, "X.25");
@@ -1508,24 +1515,32 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pkt_type = tvb_get_guint8(tvb, 2);
 
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_x25, tvb, 0, x25_pkt_len, FALSE);
-	x25_tree = proto_item_add_subtree(ti, ett_x25);
-	ti = proto_tree_add_item(x25_tree, hf_x25_gfi, tvb, 0, 2, FALSE);
-	gfi_tree = proto_item_add_subtree(ti, ett_x25_gfi);
-	if ((pkt_type & 0x01) == X25_DATA)
-	    proto_tree_add_boolean(gfi_tree, hf_x25_qbit, tvb, 0, 2,
-		    bytes0_1);
-	else if (pkt_type == X25_CALL_REQUEST ||
-		pkt_type == X25_CALL_ACCEPTED ||
-		pkt_type == X25_CLEAR_REQUEST ||
-		pkt_type == X25_CLEAR_CONFIRMATION)
-	    proto_tree_add_boolean(gfi_tree, hf_x25_abit, tvb, 0, 2,
-		    bytes0_1);
-	if (pkt_type == X25_CALL_REQUEST || pkt_type == X25_CALL_ACCEPTED ||
-		(pkt_type & 0x01) == X25_DATA)
-	    proto_tree_add_boolean(gfi_tree, hf_x25_dbit, tvb, 0, 2,
-		    bytes0_1);
-	proto_tree_add_uint(gfi_tree, hf_x25_mod, tvb, 0, 2, bytes0_1);
+        ti = proto_tree_add_item(tree, proto_x25, tvb, 0, x25_pkt_len, FALSE);
+        x25_tree = proto_item_add_subtree(ti, ett_x25);
+        ti = proto_tree_add_item(x25_tree, hf_x25_gfi, tvb, 0, 2, FALSE);
+        gfi_tree = proto_item_add_subtree(ti, ett_x25_gfi);
+
+        if ((pkt_type & 0x01) == X25_DATA) {
+            proto_tree_add_boolean(gfi_tree, hf_x25_qbit, tvb, 0, 2,
+                bytes0_1);
+            if (bytes0_1 & 0x8000) {
+                q_bit_set = TRUE;
+            }
+        }
+        else if (pkt_type == X25_CALL_REQUEST ||
+            pkt_type == X25_CALL_ACCEPTED ||
+            pkt_type == X25_CLEAR_REQUEST ||
+            pkt_type == X25_CLEAR_CONFIRMATION) {
+            proto_tree_add_boolean(gfi_tree, hf_x25_abit, tvb, 0, 2,
+                bytes0_1);
+        }
+
+        if (pkt_type == X25_CALL_REQUEST || pkt_type == X25_CALL_ACCEPTED ||
+            (pkt_type & 0x01) == X25_DATA) {
+            proto_tree_add_boolean(gfi_tree, hf_x25_dbit, tvb, 0, 2,
+                bytes0_1);
+        }
+        proto_tree_add_uint(gfi_tree, hf_x25_mod, tvb, 0, 2, bytes0_1);
     }
 
     switch (pkt_type) {
@@ -1989,19 +2004,33 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (localoffset >= tvb_reported_length(tvb)) return;
 
     next_tvb = tvb_new_subset(tvb, localoffset, -1, -1);
+
+    /* QLLC ? */
+    if (q_bit_set) {
+        call_dissector(qllc_handle, next_tvb, pinfo, tree);
+        return;
+    }
+
     /* search the dissector in the hash table */
-    if ((dissect = x25_hash_get_dissect(pinfo->fd->abs_secs, pinfo->fd->abs_usecs, vc)))
-	call_dissector(dissect, next_tvb, pinfo, tree);
+    if ((dissect = x25_hash_get_dissect(pinfo->fd->abs_secs, pinfo->fd->abs_usecs, vc))) {
+        call_dissector(dissect, next_tvb, pinfo, tree);
+    }
     else {
-	/* If the Call Req. has not been captured, assume these packets carry IP */
-	if (tvb_get_guint8(tvb, localoffset) == 0x45) {
-	    x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
-		    pinfo->fd->abs_usecs, ip_handle);
-	    call_dissector(ip_handle, next_tvb, pinfo, tree);
-	}
-	else {
-	    dissect_data(next_tvb, 0, pinfo, tree);
-	}
+        /* Did the user suggest SNA-over-X.25? */
+        if (non_q_bit_is_sna) {
+            x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
+                                     pinfo->fd->abs_usecs, sna_handle);
+            call_dissector(sna_handle, next_tvb, pinfo, tree);
+        }
+        /* If the Call Req. has not been captured, assume these packets carry IP */
+        else if (tvb_get_guint8(tvb, localoffset) == 0x45) {
+            x25_hash_add_proto_start(vc, pinfo->fd->abs_secs,
+                pinfo->fd->abs_usecs, ip_handle);
+            call_dissector(ip_handle, next_tvb, pinfo, tree);
+        }
+        else {
+            dissect_data(next_tvb, 0, pinfo, tree);
+        }
     }
 }
 
@@ -2074,6 +2103,7 @@ proto_register_x25(void)
 	&ett_x25_fac_call_deflect,
 	&ett_x25_fac_priority
     };
+    module_t *x25_module;
 
     proto_x25 = proto_register_protocol ("X.25", "X.25", "x.25");
     proto_register_field_array (proto_x25, hf, array_length(hf));
@@ -2081,6 +2111,12 @@ proto_register_x25(void)
     register_init_routine(&reinit_x25_hashtable);
 
     register_dissector("x.25", dissect_x25, proto_x25);
+
+    /* Preferences */
+    x25_module = prefs_register_protocol(proto_x25, NULL);
+    prefs_register_bool_preference(x25_module, "non_q_bit_is_sna",
+            "When Q-bit is 0, payload is SNA", "When Q-bit is 0, payload is SNA",
+            &non_q_bit_is_sna);
 }
 
 void
@@ -2091,6 +2127,8 @@ proto_reg_handoff_x25(void)
      */
     ip_handle = find_dissector("ip");
     ositp_handle = find_dissector("ositp");
+    sna_handle = find_dissector("sna");
+    qllc_handle = find_dissector("qllc");
 
     dissector_add("llc.dsap", SAP_X25, dissect_x25, proto_x25);
 }
