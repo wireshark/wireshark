@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.148 2004/01/26 18:35:56 ulfl Exp $
+ * $Id: menu.c,v 1.149 2004/01/27 05:05:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -364,6 +364,8 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/_Resolve Name", NULL, resolve_name_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/_Go To Corresponding Packet", NULL, goto_framenum_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/_Export As _Raw Packet Data...", NULL, savehex_cb,
+                       0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Protocol Properties...", NULL, properties_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Match", NULL, NULL, 0, "<Branch>", NULL),
