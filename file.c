@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.294 2002/11/23 03:19:39 guy Exp $
+ * $Id: file.c,v 1.295 2002/11/29 11:02:13 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -656,6 +656,35 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     firstsec  = fdata->abs_secs;
     firstusec = fdata->abs_usecs;
   }
+  /* If we don't have the time stamp of the previous displayed packet,
+     it's because this is the first displayed packet.  Save the time
+     stamp of this packet as the time stamp of the previous displayed
+     packet. */
+  if (!prevsec && !prevusec) {
+    prevsec  = fdata->abs_secs;
+    prevusec = fdata->abs_usecs;
+  }
+
+  /* Get the time elapsed between the first packet and this packet. */
+  compute_timestamp_diff(&fdata->rel_secs, &fdata->rel_usecs,
+     fdata->abs_secs, fdata->abs_usecs, firstsec, firstusec);
+
+  /* If it's greater than the current elapsed time, set the elapsed time
+     to it (we check for "greater than" so as not to be confused by
+     time moving backwards). */
+  if ((gint32)cf->esec < fdata->rel_secs
+  || ((gint32)cf->esec == fdata->rel_secs && (gint32)cf->eusec < fdata->rel_usecs)) {
+    cf->esec = fdata->rel_secs;
+    cf->eusec = fdata->rel_usecs;
+  }
+
+  /* Get the time elapsed between the previous displayed packet and
+     this packet. */
+  compute_timestamp_diff(&fdata->del_secs, &fdata->del_usecs,
+	fdata->abs_secs, fdata->abs_usecs, prevsec, prevusec);
+  prevsec = fdata->abs_secs;
+  prevusec = fdata->abs_usecs;
+
 
   /* If either
 
@@ -711,35 +740,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
   if (fdata->flags.passed_dfilter) {
     /* This frame passed the display filter, so add it to the clist. */
-
-    /* If we don't have the time stamp of the previous displayed packet,
-       it's because this is the first displayed packet.  Save the time
-       stamp of this packet as the time stamp of the previous displayed
-       packet. */
-    if (!prevsec && !prevusec) {
-      prevsec  = fdata->abs_secs;
-      prevusec = fdata->abs_usecs;
-    }
-
-    /* Get the time elapsed between the first packet and this packet. */
-    compute_timestamp_diff(&fdata->rel_secs, &fdata->rel_usecs,
-		fdata->abs_secs, fdata->abs_usecs, firstsec, firstusec);
-
-    /* If it's greater than the current elapsed time, set the elapsed time
-       to it (we check for "greater than" so as not to be confused by
-       time moving backwards). */
-    if ((gint32)cf->esec < fdata->rel_secs
-	|| ((gint32)cf->esec == fdata->rel_secs && (gint32)cf->eusec < fdata->rel_usecs)) {
-      cf->esec = fdata->rel_secs;
-      cf->eusec = fdata->rel_usecs;
-    }
-
-    /* Get the time elapsed between the previous displayed packet and
-       this packet. */
-    compute_timestamp_diff(&fdata->del_secs, &fdata->del_usecs,
-		fdata->abs_secs, fdata->abs_usecs, prevsec, prevusec);
-    prevsec = fdata->abs_secs;
-    prevusec = fdata->abs_usecs;
 
     epan_dissect_fill_in_columns(edt);
 
