@@ -7,7 +7,7 @@
  *
  * Copyright 2000, 2001, 2002, 2003 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m3ua.c,v 1.36 2003/10/06 20:46:51 guy Exp $
+ * $Id: packet-m3ua.c,v 1.37 2003/12/21 05:51:33 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1753,7 +1753,7 @@ proto_register_m3ua(void)
   proto_register_subtree_array(ett, array_length(ett));
   si_dissector_table = register_dissector_table("m3ua.protocol_data_si", "MTP3 Service indicator", FT_UINT8, BASE_HEX);
 
-};
+}
 
 void
 proto_reg_handoff_m3ua(void)

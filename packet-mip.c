@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-mip.c,v 1.34 2003/12/21 04:31:56 jmayer Exp $
+ * $Id: packet-mip.c,v 1.35 2003/12/21 05:51:33 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -507,7 +507,7 @@ void proto_register_mip(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_mip, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-};
+}
 
 void
 proto_reg_handoff_mip(void)

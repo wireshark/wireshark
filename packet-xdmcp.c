@@ -2,7 +2,7 @@
  * Routines for XDMCP message dissection
  * Copyright 2002, Pasi Eronen <pasi.eronen@nixu.com>
  *
- * $Id: packet-xdmcp.c,v 1.3 2002/08/28 21:00:40 jmayer Exp $
+ * $Id: packet-xdmcp.c,v 1.4 2003/12/21 05:51:34 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -504,7 +504,7 @@ void proto_register_xdmcp(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_xdmcp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-};
+}
 
 void
 proto_reg_handoff_xdmcp(void)

@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  *
- * $Id: packet-wtp.c,v 1.54 2003/12/15 22:38:29 obiot Exp $
+ * $Id: packet-wtp.c,v 1.55 2003/12/21 05:51:34 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -971,7 +971,7 @@ proto_register_wtp(void)
     register_dissector("wtp-wtls", dissect_wtp_fromwtls, proto_wtp);
     register_dissector("wtp-udp", dissect_wtp_fromudp, proto_wtp);
     register_init_routine(wtp_defragment_init);
-};
+}
 
 void
 proto_reg_handoff_wtp(void)

@@ -3,7 +3,7 @@
  * Routines for wbxml dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-wbxml.c,v 1.22 2003/12/16 22:39:32 obiot Exp $
+ * $Id: packet-wbxml.c,v 1.23 2003/12/21 05:51:34 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3638,7 +3638,7 @@ proto_register_wbxml(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("wbxml", dissect_wbxml, proto_wbxml);
-};
+}
 
 
 void

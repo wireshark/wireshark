@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rs_acct.idl
  *      
- * $Id: packet-dcerpc-rs_acct.c,v 1.5 2003/08/04 02:49:01 tpot Exp $
+ * $Id: packet-dcerpc-rs_acct.c,v 1.6 2003/12/21 05:51:33 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,7 +89,7 @@ rs_acct_dissect_lookup_rqst (tvbuff_t *tvb, int offset,
 	}
 
 	return offset;
-};
+}
 
 
 

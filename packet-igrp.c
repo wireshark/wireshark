@@ -2,7 +2,7 @@
  * Routines for IGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-igrp.c,v 1.13 2002/08/28 21:00:17 jmayer Exp $
+ * $Id: packet-igrp.c,v 1.14 2003/12/21 05:51:33 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -200,7 +200,7 @@ void proto_register_igrp(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_igrp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-};
+}
 
 void
 proto_reg_handoff_igrp(void)

@@ -6,7 +6,7 @@
  *
  * Copyright 2002, Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-asap.c,v 1.10 2003/04/22 13:47:30 tuexen Exp $
+ * $Id: packet-asap.c,v 1.11 2003/12/21 05:51:32 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -626,7 +626,7 @@ proto_register_asap(void)
   proto_register_field_array(proto_asap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-};
+}
 
 void
 proto_reg_handoff_asap(void)

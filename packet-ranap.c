@@ -3,7 +3,7 @@
  * Based on 3GPP TS 25.413 V3.4.0
  * Copyright 2001, Martin Held <Martin.Held@icn.siemens.de>
  *
- * $Id: packet-ranap.c,v 1.21 2003/12/01 22:25:32 guy Exp $
+ * $Id: packet-ranap.c,v 1.22 2003/12/21 05:51:33 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4842,7 +4842,7 @@ proto_register_ranap(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   nas_pdu_dissector_table = register_dissector_table("ranap.nas_pdu", "RANAP NAS PDU", FT_UINT8, BASE_DEC);
-};
+}
 
 
 void

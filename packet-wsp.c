@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.99 2003/12/21 04:31:57 jmayer Exp $
+ * $Id: packet-wsp.c,v 1.100 2003/12/21 05:51:34 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3783,17 +3783,17 @@ wkh_openwave_default(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 
 /* Textual Openwave headers */
 wkh_text_header(openwave_x_up_proxy_operator_domain,
-		"x-up-proxy-operator-domain");
+		"x-up-proxy-operator-domain")
 wkh_text_header(openwave_x_up_proxy_home_page,
-		"x-up-proxy-home-page");
+		"x-up-proxy-home-page")
 wkh_text_header(openwave_x_up_proxy_uplink_version,
-		"x-up-proxy-uplink-version");
+		"x-up-proxy-uplink-version")
 wkh_text_header(openwave_x_up_proxy_ba_realm,
-		"x-up-proxy-ba-realm");
+		"x-up-proxy-ba-realm")
 wkh_text_header(openwave_x_up_proxy_request_uri,
-		"x-up-proxy-request-uri");
+		"x-up-proxy-request-uri")
 wkh_text_header(openwave_x_up_proxy_bookmark,
-		"x-up-proxy-bookmark");
+		"x-up-proxy-bookmark")
 
 /* Integer Openwave headers */
 wkh_integer_value_header(openwave_x_up_proxy_push_seq,
@@ -7071,7 +7071,7 @@ proto_register_wsp(void)
 
 	wsp_fromudp_handle = create_dissector_handle(dissect_wsp_fromudp,
 	    proto_wsp);
-};
+}
 
 void
 proto_reg_handoff_wsp(void)

@@ -5,7 +5,7 @@
  *
  * Copyright 2003, Dave Sclarsky <dave_sclarsky[AT]cnt.com>
  *
- * $Id: packet-cpfi.c,v 1.5 2003/11/19 09:49:00 guy Exp $
+ * $Id: packet-cpfi.c,v 1.6 2003/12/21 05:51:33 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -355,7 +355,7 @@ proto_register_cpfi(void)
                  "Set the port for CPFI messages (if other"
                  " than the default of 5000)",
                  10, &cpfi_configured_udp_port);
-};
+}
 
 void
 proto_reg_handoff_cpfi(void)

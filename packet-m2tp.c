@@ -5,7 +5,7 @@
  *
  * Copyright 2001, Heinz Prantner <heinz.prantner[AT]radisys.com>
  *
- * $Id: packet-m2tp.c,v 1.8 2003/04/22 13:47:37 tuexen Exp $
+ * $Id: packet-m2tp.c,v 1.9 2003/12/21 05:51:33 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -663,7 +663,7 @@ proto_register_m2tp(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_m2tp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-};
+}
 
 void
 proto_reg_handoff_m2tp(void)

@@ -1,6 +1,6 @@
 /* packet-mip6.c
  *
- * $Id: packet-mip6.c,v 1.5 2003/11/24 21:42:13 guy Exp $
+ * $Id: packet-mip6.c,v 1.6 2003/12/21 05:51:33 jmayer Exp $
  *
  * Routines for Mobile IPv6 dissection (draft-ietf-mobileip-ipv6-20.txt)
  * Copyright 2003 Oy L M Ericsson Ab <teemu.rinta-aho@ericsson.fi>
@@ -678,7 +678,7 @@ proto_register_mip6(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_mip6, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-};
+}
 
 void
 proto_reg_handoff_mip6(void)

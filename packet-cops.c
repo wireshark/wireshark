@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.38 2003/12/13 02:10:30 guy Exp $
+ * $Id: packet-cops.c,v 1.39 2003/12/21 05:51:32 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1555,7 +1555,7 @@ void proto_register_cops(void)
                                  "Whether the COPS dissector should decode COPS-PR ASN.1 types based on data types read from packet or PIBs (converted to MIBs)",
                                  &cops_typefrommib);
 #endif /*HAVE_NET_SNMP*/
-};
+}
 
 void proto_reg_handoff_cops(void)
 {

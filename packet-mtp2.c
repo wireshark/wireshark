@@ -5,7 +5,7 @@
  *
  * Copyright 2001, Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-mtp2.c,v 1.9 2003/12/03 22:50:41 guy Exp $
+ * $Id: packet-mtp2.c,v 1.10 2003/12/21 05:51:33 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -203,7 +203,7 @@ proto_register_mtp2(void)
   proto_register_field_array(proto_mtp2, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-};
+}
 
 void
 proto_reg_handoff_mtp2(void)

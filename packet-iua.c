@@ -8,7 +8,7 @@
  *
  * Copyright 2002, Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-iua.c,v 1.21 2003/04/22 13:47:37 tuexen Exp $
+ * $Id: packet-iua.c,v 1.22 2003/12/21 05:51:33 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -892,7 +892,7 @@ proto_register_iua(void)
   proto_register_field_array(proto_iua, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   prefs_register_bool_preference(iua_module, "support_ig", "Support Implementers Guide", "Support Implementers Guide (version 01)", &support_IG);
-};
+}
 
 #define SCTP_PORT_IUA          9900
 

@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-sna.c,v 1.48 2003/07/18 05:12:13 guy Exp $
+ * $Id: packet-sna.c,v 1.49 2003/12/21 05:51:34 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2558,7 +2558,7 @@ dissect_gds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (tvb_offset_exists(tvb, offset))
 		call_dissector(data_handle,
 		    tvb_new_subset(tvb, offset, -1, -1), pinfo, parent_tree);
-};
+}
 
 /* --------------------------------------------------------------------
  * General stuff
