@@ -1,7 +1,7 @@
 /* packet-pppoe.c
  * Routines for PPP Over Ethernet (PPPoE) packet disassembly (RFC2516)
  *
- * $Id: packet-pppoe.c,v 1.21 2002/01/21 07:36:38 guy Exp $
+ * $Id: packet-pppoe.c,v 1.22 2002/05/01 07:54:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,7 +98,7 @@ pppoetag_to_str(guint16 tag_type, const char *fmt) {
 
 
 static void
-dissect_pppoe_tags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int payload_length) {
+dissect_pppoe_tags(tvbuff_t *tvb, int offset, proto_tree *tree, int payload_length) {
 
 	guint16 poe_tag;
 	guint16 poe_tag_length;
@@ -197,7 +197,7 @@ dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		proto_tree_add_text(pppoe_tree, tvb,4,2,
 			"Payload Length: %u", pppoe_length);
 	}
-	dissect_pppoe_tags(tvb,6,pinfo,tree,6+pppoe_length);
+	dissect_pppoe_tags(tvb,6,tree,6+pppoe_length);
 }
 
 void
