@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.468 2002/09/04 20:38:00 jmayer Exp $
+# $Id: Makefile.am,v 1.469 2002/09/05 09:27:50 sahlberg Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -597,6 +597,8 @@ ETHEREAL_COMMON_SRC = \
 	tap.h		\
 	tap-rpcstat.c	\
 	tap-rpcstat.h	\
+	tap-rpcprogs.c	\
+	tap-rpcprogs.h	\
 	util.c         \
 	util.h         \
 	x11-declarations.h \

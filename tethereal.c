@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.155 2002/09/05 06:46:34 sahlberg Exp $
+ * $Id: tethereal.c,v 1.156 2002/09/05 09:27:50 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -97,6 +97,7 @@
 #include <epan/epan_dissect.h>
 #include "tap.h"
 #include "tap-rpcstat.h"
+#include "tap-rpcprogs.h"
 
 #ifdef HAVE_LIBPCAP
 #include <wiretap/wtap-capture.h>
@@ -657,12 +658,17 @@ main(int argc, char *argv[])
               fprintf(stderr, "tethereal: invalid \"-z rpc,rtt,<program>,<version>\" argument\n");
               exit(1);
             }
+          } else if(!strncmp(optarg,"rpc,programs",12)){
+            rpcprogs_init();
           } else {
-            fprintf(stderr, "tethereal: invalid -z argument. Argument must be \"-z rpc,rtt,...\"\n");
+            fprintf(stderr, "tethereal: invalid -z argument. Argument must be one of:\n");
+            fprintf(stderr, "   \"-z rpc,rtt,<program>,<version>\"\n");
+            fprintf(stderr, "   \"-z rpc,programs\"\n");
             exit(1);
           }
         } else {
-          fprintf(stderr, "tethereal: invalid -z argument. Argument must be \"-z rpc,...\"\n");
+          fprintf(stderr, "tethereal: invalid -z argument. Argument must be:\n");
+          fprintf(stderr, "   \"-z rpc,...\"\n");
           exit(1);
         }
         break;
