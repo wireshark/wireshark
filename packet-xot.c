@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-xot.c,v 1.11 2002/08/28 21:00:40 jmayer Exp $
+ * $Id: packet-xot.c,v 1.12 2003/01/21 01:45:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,7 +35,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include "packet-frame.h"
+#include "packet-tcp.h"
 #include "prefs.h"
 
 #define TCP_PORT_XOT 1998
@@ -51,10 +51,24 @@ static gboolean xot_desegment = TRUE;
 
 static dissector_handle_t x25_handle;
 
-static void dissect_xot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static guint get_xot_pdu_len(tvbuff_t *tvb, int offset)
 {
-  volatile int offset = 0;
-  int length_remaining;
+  guint16 plen;
+
+  /*
+   * Get the length of the X.25-over-TCP packet.
+   */
+  plen = tvb_get_ntohs(tvb, offset + 2);
+
+  /*
+   * That length doesn't include the header; add that in.
+   */
+  return plen + 4;
+}
+
+static void dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  int offset = 0;
   guint16 version;
   guint16 plen;
   int length;
@@ -62,115 +76,56 @@ static void dissect_xot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *xot_tree;
   tvbuff_t   *next_tvb;
 
-  while (tvb_reported_length_remaining(tvb, offset) != 0) {
-    length_remaining = tvb_length_remaining(tvb, offset);
+  /*
+   * Dissect the X.25-over-TCP packet.
+   */
+  version = tvb_get_ntohs(tvb, offset + 0);
+  plen = tvb_get_ntohs(tvb, offset + 2);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "XOT");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_fstr(pinfo->cinfo, COL_INFO, "XOT Version = %u, size = %u",
+		 version, plen);
 
-    /*
-     * Can we do reassembly?
-     */
-    if (xot_desegment && pinfo->can_desegment) {
-      /*
-       * Yes - is the X.25-over-TCP header split across segment boundaries?
-       */
-      if (length_remaining < 4) {
-	/*
-	 * Yes.  Tell the TCP dissector where the data for this message
-	 * starts in the data it handed us, and how many
-	 * more bytes we need, and return.
-	 */
-	pinfo->desegment_offset = offset;
-	pinfo->desegment_len = 4 - length_remaining;
-	return;
-      }
-    }
-
-    /*
-     * Get the length of the XOT packet.
-     */
-    version = tvb_get_ntohs(tvb, offset + 0);
-    if (version != 0)
-      return;
-    plen    = tvb_get_ntohs(tvb, offset + 2);
-
-    /*
-     * Can we do reassembly?
-     */
-    if (xot_desegment && pinfo->can_desegment) {
-      /*
-       * Yes - is the XOT packet split across segment boundaries?
-       */
-      if (length_remaining < plen + 4) {
-	/*
-	 * Yes.  Tell the TCP dissector where the data for this message
-	 * starts in the data it handed us, and how many more bytes we
-	 * need, and return.
-	 */
-	pinfo->desegment_offset = offset;
-	pinfo->desegment_len = (plen + 4) - length_remaining;
-	return;
-      }
-    }
-
-    /*
-     * Dissect the X.25-over-TCP packet.
-     *
-     * Catch the ReportedBoundsError exception; if this particular message
-     * happens to get a ReportedBoundsError exception, that doesn't mean
-     * that we should stop dissecting X.25-over-TCP messages within this
-     * frame or chunk of reassembled data.
-     *
-     * If it gets a BoundsError, we can stop, as there's nothing more to see,
-     * so we just re-throw it.
-     */
-    TRY {
-      if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "XOT");
-      if (check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "XOT Version = %u, size = %u",
-		     version,plen );
-
-      if (tree) {
-	ti = proto_tree_add_protocol_format(tree, proto_xot, tvb, offset, 4,
+  if (tree) {
+    ti = proto_tree_add_protocol_format(tree, proto_xot, tvb, offset, 4,
 					    "X.25 over TCP");
-	xot_tree = proto_item_add_subtree(ti, ett_xot);
+    xot_tree = proto_item_add_subtree(ti, ett_xot);
 
-	proto_tree_add_uint(xot_tree, hf_xot_version, tvb, offset, 2, version);
-	proto_tree_add_uint(xot_tree, hf_xot_length, tvb, offset + 2, 2, plen);
-      }
-
-      /*
-       * Construct a tvbuff containing the amount of the payload we have
-       * available.  Make its reported length the amount of data in the
-       * X.25-over-TCP packet.
-       *
-       * XXX - if reassembly isn't enabled. the subdissector will throw a
-       * BoundsError exception, rather than a ReportedBoundsError exception.
-       * We really want a tvbuff where the length is "length", the reported
-       * length is "plen + 4", and the "if the snapshot length were infinite"
-       * length is the minimum of the reported length of the tvbuff handed
-       * to us and "plen+4", with a new type of exception thrown if the offset
-       * is within the reported length but beyond that third length, with that
-       * exception getting the "Unreassembled Packet" error.
-       */
-      length = length_remaining - 4;
-      if (length > plen)
-        length = plen;
-      next_tvb = tvb_new_subset(tvb, offset + 4, length, plen);
-      call_dissector(x25_handle,next_tvb,pinfo,tree);
-    }
-    CATCH(BoundsError) {
-      RETHROW;
-    }
-    CATCH(ReportedBoundsError) {
-      show_reported_bounds_error(tvb, pinfo, tree);
-    }
-    ENDTRY;
-
-    /*
-     * Skip the X.25-over-TCP header and the payload.
-     */
-    offset += plen + 4;
+    proto_tree_add_uint(xot_tree, hf_xot_version, tvb, offset, 2, version);
+    proto_tree_add_uint(xot_tree, hf_xot_length, tvb, offset + 2, 2, plen);
   }
+
+  /*
+   * Construct a tvbuff containing the amount of the payload we have
+   * available.  Make its reported length the amount of data in the
+   * X.25-over-TCP packet.
+   */
+  length = tvb_length_remaining(tvb, offset + 4);
+  if (length > plen)
+    length = plen;
+  next_tvb = tvb_new_subset(tvb, offset + 4, length, plen);
+  call_dissector(x25_handle, next_tvb, pinfo, tree);
+}
+
+static int dissect_xot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  /*
+   * Do we have the full version number and, if so, is it zero?
+   * If we have it but it's not zero, reject this segment.
+   */
+  if (tvb_bytes_exist(tvb, 0, 2)) {
+    if (tvb_get_ntohs(tvb, 0) != 0)
+      return 0;
+  }
+
+  /*
+   * The version number's OK, so dissect this segment.
+   */
+  tcp_dissect_pdus(tvb, pinfo, tree, xot_desegment, 4, get_xot_pdu_len,
+		   dissect_xot_pdu);
+
+  return tvb_length(tvb);
 }
 
 /* Register the protocol with Ethereal */
@@ -214,6 +169,6 @@ proto_reg_handoff_xot(void)
 	 */
 	x25_handle = find_dissector("x.25");
 
-	xot_handle = create_dissector_handle(dissect_xot, proto_xot);
+	xot_handle = new_create_dissector_handle(dissect_xot, proto_xot);
 	dissector_add("tcp.port", TCP_PORT_XOT, xot_handle);
 }
