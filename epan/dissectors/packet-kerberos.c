@@ -655,6 +655,21 @@ printf("added key in %d\n",pinfo->fd->num);
 	new_key->contents = g_malloc(keylength);
 	memcpy(new_key->contents, keyvalue, keylength);
 	sprintf(new_key->origin, "%s learnt from frame %d", origin, pinfo->fd->num);
+	service_key_list = g_slist_append(service_key_list, (gpointer) new_key);
+}
+
+static void
+clear_keytab(void) {
+	GSList *ske;
+	service_key_t *sk;
+
+	for(ske = service_key_list; ske != NULL; ske = g_slist_next(ske)){
+		sk = (service_key_t *) ske->data;
+		if (sk && sk->contents) g_free(sk->contents);
+		if (sk) g_free(sk);
+	}
+	g_slist_free(service_key_list);
+	service_key_list = NULL;
 }
 
 static void
@@ -713,8 +728,6 @@ decrypt_krb5_data(proto_tree _U_ *tree, packet_info *pinfo,
 			const char *cryptotext,
 			int keytype)
 {
-	static gboolean first_time = TRUE;
-
 	tvbuff_t *encr_tvb;
 	guint8 *decrypted_data = NULL, *plaintext = NULL;
 	int res;
@@ -737,14 +750,6 @@ decrypt_krb5_data(proto_tree _U_ *tree, packet_info *pinfo,
 	/* dont do anything if we are not attempting to decrypt data */
 	if(!krb_decrypt){
 		return NULL;
-	}
-
-	/* XXX we should only do this for first time, then store somewhere */
-	/* XXX We also need to re-read the keytab when the preference changes */
-
-	if(first_time){
-		first_time = FALSE;
-		read_keytab_file(keytab_filename);
 	}
 
 	if (keytype != KEYTYPE_DES3_CBC_MD5 || service_key_list == NULL) {
@@ -3752,6 +3757,13 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
+void
+kerberos_prefs_apply_cb(void) {
+#ifdef HAVE_LIBNETTLE
+	clear_keytab();
+	read_keytab_file(keytab_filename);
+#endif
+}
 
 void
 proto_register_kerberos(void)
@@ -4213,7 +4225,7 @@ proto_register_kerberos(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register preferences */
-    krb_module = prefs_register_protocol(proto_kerberos, NULL);
+    krb_module = prefs_register_protocol(proto_kerberos, kerberos_prefs_apply_cb);
     prefs_register_bool_preference(krb_module, "desegment",
 	"Reassemble Kerberos over TCP messages spanning multiple TCP segments",
 	"Whether the Kerberos dissector should reassemble messages spanning multiple TCP segments."

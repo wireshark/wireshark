@@ -181,9 +181,6 @@
 
 /* Define to use the Nettle library */
 @HAVE_NETTLE@
-#ifdef HAVE_LIBNETTLE
-#define HAVE_KERBEROS 1
-#endif
 
 #ifndef WIN32
 #define WIN32			1
