@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.121 2000/06/15 08:02:43 guy Exp $
+ * $Id: main.c,v 1.122 2000/06/24 05:06:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -188,7 +188,7 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
         "Could not create temporary file %s: %s", filename1, strerror(errno));
       return;
     }
-    data_out_file = fdopen( tmp_fd, "w" );
+    data_out_file = fdopen( tmp_fd, "wb" );
     if( data_out_file == NULL ) {
       simple_dialog(ESD_TYPE_WARN, NULL,
         "Could not create temporary file %s: %s", filename1, strerror(errno));
@@ -396,7 +396,7 @@ follow_read_stream(char *filename, guint8 show_type,
   guint16 current_pos, global_client_pos = 0, global_server_pos = 0;
   guint16 *global_pos;
 
-  data_out_file = fopen( filename, "r" );
+  data_out_file = fopen( filename, "rb" );
   if( data_out_file ) {
     char buffer[FLT_BUF_SIZE];
     int nchars;
