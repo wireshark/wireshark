@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly
  *
- * $Id: packet-ipsec.c,v 1.43 2003/04/29 17:24:35 guy Exp $
+ * $Id: packet-ipsec.c,v 1.44 2003/08/16 00:11:07 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -289,7 +289,7 @@ proto_register_ipsec(void)
       { "SPI",		"ah.spi",	FT_UINT32,	BASE_HEX, NULL, 0x0,
       	"", HFILL }},
     { &hf_ah_sequence,
-      { "Sequence",     "ah.sequence",	FT_UINT32,	BASE_HEX, NULL, 0x0,
+      { "Sequence",     "ah.sequence",	FT_UINT32,	BASE_DEC, NULL, 0x0,
       	"", HFILL }}
   };
 
@@ -298,7 +298,7 @@ proto_register_ipsec(void)
       { "SPI",		"esp.spi",	FT_UINT32,	BASE_HEX, NULL, 0x0,
       	"", HFILL }},
     { &hf_esp_sequence,
-      { "Sequence",     "esp.sequence",	FT_UINT32,	BASE_HEX, NULL, 0x0,
+      { "Sequence",     "esp.sequence",	FT_UINT32,	BASE_DEC, NULL, 0x0,
       	"", HFILL }}
   };
 
