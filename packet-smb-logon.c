@@ -2,7 +2,7 @@
  * Routines for smb net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.2 2000/02/21 23:40:33 sharpe Exp $
+ * $Id: packet-smb-logon.c,v 1.3 2000/02/21 23:50:15 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,8 +54,8 @@ dissect_account_control( const u_char *pd, int offset, frame_data *fd,
 		{ 0x008, "", "", "Not a ", "temp duplicate user account"},
 		{ 0x004, "", "No", "", "User password required"},
 		{ 0x002, "", "No", "", "User home directory required"},
-		{ 0x001, "User account ", "enabled", "disabled"},
-		{ 0, "", "", ""}
+		{ 0x001, "User account ", "enabled", "disabled", ""},
+		{ 0, "", "", "", ""}
 	};
 
 
