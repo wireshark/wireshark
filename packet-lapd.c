@@ -2,10 +2,10 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lapd.c,v 1.20 2001/01/22 00:20:29 guy Exp $
+ * $Id: packet-lapd.c,v 1.21 2001/05/27 07:27:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998
  *
  * 
@@ -58,6 +58,8 @@ static int hf_lapd_control = -1;
 static gint ett_lapd = -1;
 static gint ett_lapd_address = -1;
 static gint ett_lapd_control = -1;
+
+static dissector_handle_t q931_handle;
 
 /*
  * Bits in the address field.
@@ -145,7 +147,7 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		switch (sapi) {
 
 		case LAPD_SAPI_Q931:
-			dissect_q931(next_tvb, pinfo, tree);
+			call_dissector(q931_handle, next_tvb, pinfo, tree);
 			break;
 
 		default:
@@ -203,5 +205,10 @@ proto_register_lapd(void)
 void
 proto_reg_handoff_lapd(void)
 {
+	/*
+	 * Get handle for the Q.931 dissector.
+	 */
+	q931_handle = find_dissector("q931");
+
 	dissector_add("wtap_encap", WTAP_ENCAP_LAPD, dissect_lapd, proto_lapd);
 }

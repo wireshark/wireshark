@@ -2,12 +2,12 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.28 2001/03/30 07:57:38 guy Exp $
+ * $Id: packet-q931.c,v 1.29 2001/05/27 07:27:21 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998
  *
  * 
@@ -2606,10 +2606,9 @@ dissect_q931_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return q931_dissector(tvb, pinfo, tree, TRUE);
 }
 
-void
+static void
 dissect_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	pinfo->current_proto = "Q.931";
 	q931_dissector(tvb, pinfo, tree, FALSE);
 }
 
@@ -2643,6 +2642,7 @@ proto_register_q931(void)
 	proto_register_field_array (proto_q931, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	register_dissector("q931", dissect_q931, proto_q931);
 }
 
 void
