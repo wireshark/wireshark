@@ -9,10 +9,11 @@
 #	will be replaced by the pod-formatted glossary
 # STDOUT is the output
 #
-# $Id: dfilter2pod.pl,v 1.1 2000/07/28 16:30:28 gram Exp $
+# $Id: dfilter2pod.pl,v 1.2 2001/04/19 23:17:30 guy Exp $
 
 %ftenum_names = (
 	'FT_NONE',		'No value',
+	'FT_PROTOCOL',	'Protocol',
 	'FT_BOOLEAN',		'Boolean',
 	'FT_UINT8',		'Unsigned 8-bit integer',
 	'FT_UINT16',		'Unsigned 16-bit integer',
@@ -22,17 +23,16 @@
 	'FT_INT16',		'Signed 16-bit integer',
 	'FT_INT24',		'Signed 24-bit integer',
 	'FT_INT32',		'Signed 32-bit integer',
+	'FT_DOUBLE',		'Double-precision floating point',
 	'FT_ABSOLUTE_TIME',	'Date/Time stamp',
 	'FT_RELATIVE_TIME',	'Time duration',
 	'FT_STRING',		'String',
-	'FT_NSTRING_UINT8',	'String',
-	'FT_DOUBLE',		'Double-precision floating point',
+	'FT_STRINGZ',		'String',
 	'FT_ETHER',		'6-byte Hardware (MAC) Address',
 	'FT_BYTES',		'Byte array',
 	'FT_IPv4',		'IPv4 address',
 	'FT_IPv6',		'IPv6 address',
 	'FT_IPXNET',		'IPX network or server name',
-	'FT_TEXT_ONLY',		'Text-only. Not filterable'
 );
 
 # Read all the data into memory
@@ -80,10 +80,6 @@ sub create_dfilter_table {
 
 	# Print each protocol
 	for $proto_name (sort keys %proto_abbrev) {
-
-		if ($proto_name eq 'Text' && $proto_abbrev{$proto_name} eq 'text') {
-			next;
-		}
 
 		print "=head2 $proto_name ($proto_abbrev{$proto_name})\n\n";
 
