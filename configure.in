@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.128 2001/06/02 06:21:13 guy Exp $
+# $Id: configure.in,v 1.129 2001/06/18 02:26:00 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -87,7 +87,7 @@ AC_SUBST(HAVE_RPM_PACKAGING)
 # If we're running gcc, add '-Wall' to CFLAGS.
 AC_MSG_CHECKING(to see if we can add '-Wall' to CFLAGS)
 if test x$GCC != x ; then
-  CFLAGS="-Wall $CFLAGS"
+  CFLAGS="-Wall -W -Wno-unused $CFLAGS"
   AC_MSG_RESULT(yes)
 else
   AC_MSG_RESULT(no)

@@ -79,6 +79,7 @@ Joerg Mayer      <jmayer@loplof.de> {
 	Changes to structure initializations to initialize all members
 	Define __USE_XOPEN in files that use "strptime()"
 	Various signed vs. unsigned fixes
+	Crank up the warning level in GCC
 }
 
 Martin Maciaszek <fastjack@i-s-o.net> {
