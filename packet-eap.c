@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol dissection
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.16 2002/03/18 00:26:27 guy Exp $
+ * $Id: packet-eap.c,v 1.17 2002/03/19 11:33:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,20 +68,54 @@ static const value_string eap_code_vals[] = {
     { 0,            NULL }
 };
 
+/*
+References:
+  1) http://www.iana.org/assignments/ppp-numbers	
+			PPP EAP REQUEST/RESPONSE TYPES
+  2) http://www.ietf.org/internet-drafts/draft-ietf-pppext-rfc2284bis-02.txt
+  3) RFC2284
+*/
+
 #define EAP_TYPE_ID     1
 #define EAP_TYPE_TLS	13
 #define EAP_TYPE_LEAP	17
 
 static const value_string eap_type_vals[] = { 
-    { EAP_TYPE_ID,  "Identity" },
-    { 2,            "Notification" },
-    { 3,            "Nak (Response only)" },
-    { 4,            "MD5-Challenge" },
-    { 5,            "One-Time Password (OTP) (RFC 1938)" },
-    { 6,            "Generic Token Card" },
-    { EAP_TYPE_TLS, "EAP/TLS (RFC2716)" },
-    { EAP_TYPE_LEAP,"Cisco LEAP" },
-    { 0,            NULL }
+  {EAP_TYPE_ID,  "Identity [RFC2284]" },
+  {  2,          "Notification [RFC2284]" },
+  {  3,          "Nak (Response only) [RFC2284]" },
+  {  4,          "MD5-Challenge [RFC2284]" },
+  {  5,          "One Time Password (OTP) [RFC2289]" },
+  {  6,          "Generic Token Card [RFC2284]" },
+  {  7,          "?? RESERVED ?? " }, /* ??? */
+  {  8,          "?? RESERVED ?? " }, /* ??? */
+  {  9,          "RSA Public Key Authentication [Whelan]" },
+  { 10,          "DSS Unilateral [Nace]" },
+  { 11,          "KEA [Nace]" },
+  { 12,          "KEA-VALIDATE [Nace]" },
+  {EAP_TYPE_TLS, "EAP-TLS [RFC2716] [Aboba]" },
+  { 14,          "Defender Token (AXENT) [Rosselli]" },
+  { 15,          "Windows 2000 EAP [Asnes]" },
+  { 16,          "Arcot Systems EAP [Jerdonek]" },
+  {EAP_TYPE_LEAP,"EAP-Cisco Wireless (LEAP) [Norman]" }, 
+  { 18,          "Nokia IP smart card authentication [Haverinen]" },  
+  { 19,          "SRP-SHA1 Part 1 [Carlson]" },
+  { 20,          "SRP-SHA1 Part 2 [Carlson]" },
+  { 21,          "EAP-TTLS [Funk]" },
+  { 22,          "Remote Access Service [Fields]" },
+  { 23,          "UMTS Authentication and Key Argreement [Haverinen]" }, 
+  { 24,          "EAP-3Com Wireless [Young]" }, 
+  { 25,          "PEAP [Palekar]" },
+  { 26,          "MS-EAP-Authentication [Palekar]" },
+  { 27,          "Mutual Authentication w/Key Exchange (MAKE)[Berrendonner]" },
+  { 28,          "CRYPTOCard [Webb]" },
+  { 29,          "EAP-MSCHAP-V2 [Potter]" },
+  { 30,          "DynamID [Merlin]" },
+  { 31,          "Rob EAP [Ullah]" },
+  { 32,          "SecurID EAP [Josefsson]" },
+  { 255,         "Vendor-specific [draft-ietf-pppext-rfc2284bis-02.txt]" },
+  { 0,          NULL }
+
 };
 
 static int
@@ -225,31 +259,31 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	      proto_tree_add_text(eap_tree, tvb, offset, count, 
 			       "Peer Challenge [R8] (%d byte%s) Value:'%s'",
 				  count, plurality(count, "", "s"),
-				  tvb_format_text(tvb, offset, count));
+				  tvb_bytes_to_str(tvb, offset, count));
 	      leap_state++;
 	    } else if (leap_state==1) {
 	      proto_tree_add_text(eap_tree, tvb, offset, count, 
 				  "Peer Response MSCHAP [24] (%d byte%s) NtChallengeResponse(%s)",
 				  count, plurality(count, "", "s"),
-				  tvb_format_text(tvb, offset, count));
+				  tvb_bytes_to_str(tvb, offset, count));
 	      leap_state++;
 	    } else if (leap_state==2) {
 	      proto_tree_add_text(eap_tree, tvb, offset, count, 
 			       "AP Challenge [R8] (%d byte%s) Value:'%s'",
 				  count, plurality(count, "", "s"),
-				  tvb_format_text(tvb, offset, count));
+				  tvb_bytes_to_str(tvb, offset, count));
 	      leap_state++;
 	    } else if (leap_state==3) {
 	      proto_tree_add_text(eap_tree, tvb, offset, count, 
 				  "AP Response [24] (%d byte%s) NtChallengeResponse(%s)",
 				  count, plurality(count, "", "s"),
-				  tvb_format_text(tvb, offset, count));
+				  tvb_bytes_to_str(tvb, offset, count));
 	      leap_state++;
 	    } else 
 	      proto_tree_add_text(eap_tree, tvb, offset, count, 
 				"Data (%d byte%s): %s",
 				count, plurality(count, "", "s"),
-				tvb_format_text(tvb, offset, count));
+				tvb_bytes_to_str(tvb, offset, count));
 
 	    size   -= count;
 	    offset += count;
@@ -269,7 +303,7 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  proto_tree_add_text(eap_tree, tvb, offset, size, 
 			      "Type-Data (%d byte%s) Value: %s",
 			      size, plurality(size, "", "s"),
-			      tvb_format_text(tvb, offset, size));
+			      tvb_bytes_to_str(tvb, offset, size));
 	  break;
 	}
       }
