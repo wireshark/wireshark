@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.247 2001/11/20 10:37:14 guy Exp $
+ * $Id: file.c,v 1.248 2001/11/21 23:16:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -678,7 +678,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   if (protocol_tree != NULL)
     proto_tree_free(protocol_tree);
 
-  epan_dissect_free(edt);
 
   if (fdata->flags.passed_dfilter) {
     /* This frame passed the display filter, so add it to the clist. */
@@ -712,7 +711,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     prevsec = fdata->abs_secs;
     prevusec = fdata->abs_usecs;
 
-    fill_in_columns(fdata);
+    fill_in_columns(fdata, &edt->pi);
 
     /* If we haven't yet seen the first frame, this is it.
 
@@ -753,6 +752,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
        to the clist, and thus has no row. */
     row = -1;
   }
+  epan_dissect_free(edt);
   fdata->cinfo = NULL;
   return row;
 }
@@ -1197,7 +1197,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
           fdata->cinfo->col_data[i] = fdata->cinfo->col_buf[i];
         }
         edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, NULL);
-        fill_in_columns(fdata);
+        fill_in_columns(fdata, &edt->pi);
         cp = &line_buf[0];
         line_len = 0;
         for (i = 0; i < cf->cinfo.num_cols; i++) {

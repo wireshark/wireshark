@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.6 2001/09/14 07:23:33 guy Exp $
+ * $Id: column-utils.c,v 1.7 2001/11/21 23:16:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -457,7 +457,7 @@ col_set_port(frame_data *fd, int col, port_type ptype, guint32 port,
 }
 
 void
-fill_in_columns(frame_data *fd)
+fill_in_columns(frame_data *fd, packet_info *pinfo)
 {
   int i;
 
@@ -491,74 +491,74 @@ fill_in_columns(frame_data *fd)
 
     case COL_DEF_SRC:
     case COL_RES_SRC:	/* COL_DEF_SRC is currently just like COL_RES_SRC */
-      col_set_addr(fd, i, &pi.src, TRUE);
+      col_set_addr(fd, i, &pinfo->src, TRUE);
       break;
 
     case COL_UNRES_SRC:
-      col_set_addr(fd, i, &pi.src, FALSE);
+      col_set_addr(fd, i, &pinfo->src, FALSE);
       break;
 
     case COL_DEF_DL_SRC:
     case COL_RES_DL_SRC:
-      col_set_addr(fd, i, &pi.dl_src, TRUE);
+      col_set_addr(fd, i, &pinfo->dl_src, TRUE);
       break;
 
     case COL_UNRES_DL_SRC:
-      col_set_addr(fd, i, &pi.dl_src, FALSE);
+      col_set_addr(fd, i, &pinfo->dl_src, FALSE);
       break;
 
     case COL_DEF_NET_SRC:
     case COL_RES_NET_SRC:
-      col_set_addr(fd, i, &pi.net_src, TRUE);
+      col_set_addr(fd, i, &pinfo->net_src, TRUE);
       break;
 
     case COL_UNRES_NET_SRC:
-      col_set_addr(fd, i, &pi.net_src, FALSE);
+      col_set_addr(fd, i, &pinfo->net_src, FALSE);
       break;
 
     case COL_DEF_DST:
     case COL_RES_DST:	/* COL_DEF_DST is currently just like COL_RES_DST */
-      col_set_addr(fd, i, &pi.dst, TRUE);
+      col_set_addr(fd, i, &pinfo->dst, TRUE);
       break;
 
     case COL_UNRES_DST:
-      col_set_addr(fd, i, &pi.dst, FALSE);
+      col_set_addr(fd, i, &pinfo->dst, FALSE);
       break;
 
     case COL_DEF_DL_DST:
     case COL_RES_DL_DST:
-      col_set_addr(fd, i, &pi.dl_dst, TRUE);
+      col_set_addr(fd, i, &pinfo->dl_dst, TRUE);
       break;
 
     case COL_UNRES_DL_DST:
-      col_set_addr(fd, i, &pi.dl_dst, FALSE);
+      col_set_addr(fd, i, &pinfo->dl_dst, FALSE);
       break;
 
     case COL_DEF_NET_DST:
     case COL_RES_NET_DST:
-      col_set_addr(fd, i, &pi.net_dst, TRUE);
+      col_set_addr(fd, i, &pinfo->net_dst, TRUE);
       break;
 
     case COL_UNRES_NET_DST:
-      col_set_addr(fd, i, &pi.net_dst, FALSE);
+      col_set_addr(fd, i, &pinfo->net_dst, FALSE);
       break;
 
     case COL_DEF_SRC_PORT:
     case COL_RES_SRC_PORT:	/* COL_DEF_SRC_PORT is currently just like COL_RES_SRC_PORT */
-      col_set_port(fd, i, pi.ptype, pi.srcport, TRUE);
+      col_set_port(fd, i, pinfo->ptype, pinfo->srcport, TRUE);
       break;
 
     case COL_UNRES_SRC_PORT:
-      col_set_port(fd, i, pi.ptype, pi.srcport, FALSE);
+      col_set_port(fd, i, pinfo->ptype, pinfo->srcport, FALSE);
       break;
 
     case COL_DEF_DST_PORT:
     case COL_RES_DST_PORT:	/* COL_DEF_DST_PORT is currently just like COL_RES_DST_PORT */
-      col_set_port(fd, i, pi.ptype, pi.destport, TRUE);
+      col_set_port(fd, i, pinfo->ptype, pinfo->destport, TRUE);
       break;
 
     case COL_UNRES_DST_PORT:
-      col_set_port(fd, i, pi.ptype, pi.destport, FALSE);
+      col_set_port(fd, i, pinfo->ptype, pinfo->destport, FALSE);
       break;
 
     case COL_PROTOCOL:	/* currently done by dissectors */

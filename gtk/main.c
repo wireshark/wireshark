@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.211 2001/11/20 09:07:33 guy Exp $
+ * $Id: main.c,v 1.212 2001/11/21 23:16:26 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -157,7 +157,6 @@ typedef struct column_arrows {
   GtkWidget *descend_pm;
 } column_arrows;
 
-packet_info  pi;
 capture_file cfile;
 GtkWidget   *top_level, *packet_list, *tree_view, *byte_nb_ptr,
             *tv_scrollw, *pkt_scrollw;
@@ -443,8 +442,6 @@ void unmark_all_frames_cb(GtkWidget *w, gpointer data) {
 /* What to do when a list item is selected/unselected */
 static void
 packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
-
-  blank_packetinfo();
 
 /* Remove the hex display tabbed pages */
   while( (gtk_notebook_get_nth_page( GTK_NOTEBOOK(byte_nb_ptr), 0)))

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.40 2001/11/21 01:00:37 guy Exp $
+ * $Id: packet.c,v 1.41 2001/11/21 23:16:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -149,27 +149,42 @@ init_all_protocols(void)
 
 /* Creates the top-most tvbuff and calls dissect_frame() */
 void
-dissect_packet(tvbuff_t **p_tvb, union wtap_pseudo_header *pseudo_header,
-		const u_char *pd, frame_data *fd, proto_tree *tree)
+dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
+		const u_char *pd, frame_data *fd)
 {
-	blank_packetinfo();
+    edt->pi.dl_src.type = AT_NONE;
+    edt->pi.dl_dst.type = AT_NONE;
+    edt->pi.net_src.type = AT_NONE;
+    edt->pi.net_dst.type = AT_NONE;
+    edt->pi.src.type = AT_NONE;
+    edt->pi.dst.type = AT_NONE;
+    edt->pi.ethertype  = 0;
+    edt->pi.ipproto  = 0;
+    edt->pi.ipxptype = 0;
+    edt->pi.in_error_pkt = FALSE;
+    edt->pi.ptype = PT_NONE;
+    edt->pi.srcport  = 0;
+    edt->pi.destport = 0;
+    edt->pi.current_proto = "<Missing Protocol Name>";
+    edt->pi.p2p_dir = P2P_DIR_UNKNOWN;
+    edt->pi.private_data = NULL;
 
-	pi.fd = fd;
-	pi.pseudo_header = pseudo_header;
+	edt->pi.fd = fd;
+	edt->pi.pseudo_header = pseudo_header;
 
 	col_set_writable(fd, TRUE);
 
 	TRY {
-		*p_tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len, "Frame");
+		edt->tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len, "Frame");
 	/* Add this tvbuffer into the data_src list */
-                fd->data_src = g_slist_append( fd->data_src, *p_tvb);
+                fd->data_src = g_slist_append( fd->data_src, edt->tvb);
 	}
 	CATCH(BoundsError) {
 		g_assert_not_reached();
 	}
 	CATCH(ReportedBoundsError) {
 	  if(proto_malformed != -1){
-		proto_tree_add_protocol_format(tree, proto_malformed, *p_tvb, 0, 0,
+		proto_tree_add_protocol_format(edt->tree, proto_malformed, edt->tvb, 0, 0,
 				"[Malformed Frame: Packet Length]" );
 	  }
 	  else {
@@ -179,7 +194,7 @@ dissect_packet(tvbuff_t **p_tvb, union wtap_pseudo_header *pseudo_header,
 	ENDTRY;
 
 	if(frame_handle != NULL)
-	  call_dissector(frame_handle, *p_tvb, &pi, tree);
+	  call_dissector(frame_handle, edt->tvb, &edt->pi, edt->tree);
 
 	fd->flags.visited = 1;
 }

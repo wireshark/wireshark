@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.27 2001/10/31 05:59:18 guy Exp $
+ * $Id: packet-socks.c,v 1.28 2001/11/21 23:16:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -404,7 +404,7 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
         *ptr = hash_info->udp_remote_port;
    	
-	decode_udp_ports( tvb, offset, &pi, tree, pinfo->srcport, pinfo->destport);
+	decode_udp_ports( tvb, offset, pinfo, tree, pinfo->srcport, pinfo->destport);
  
         *ptr = hash_info->udp_port;
 

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.98 2001/11/13 23:55:30 gram Exp $
+ * $Id: tethereal.c,v 1.99 2001/11/21 23:16:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -143,7 +143,6 @@ static void show_capture_file_io_error(const char *, int, gboolean);
 static void wtap_dispatch_cb_print(u_char *, const struct wtap_pkthdr *, long,
     union wtap_pseudo_header *, const u_char *);
 
-packet_info  pi;
 capture_file cfile;
 FILE        *data_out_file = NULL;
 ts_type timestamp_type = RELATIVE;
@@ -1213,7 +1212,7 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
       }
     } else {
       /* Just fill in the columns. */
-      fill_in_columns(&fdata);
+      fill_in_columns(&fdata, &edt->pi);
 
       /* Now print them. */
       for (i = 0; i < cf->cinfo.num_cols; i++) {

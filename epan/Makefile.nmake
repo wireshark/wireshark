@@ -32,7 +32,6 @@ OBJECTS=atalk-utils.obj	\
 	ipv4.obj         \
 	osi-utils.obj	\
 	packet.obj       \
-	packet_info.obj	\
 	plugins.obj      \
 	proto.obj        \
 	resolv.obj       \

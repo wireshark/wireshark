@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.12 2001/11/04 04:12:03 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.13 2001/11/21 23:16:25 gram Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -676,15 +676,15 @@ decode_transport (GtkObject *notebook_pg)
 
     if (requested_tcpudp != E_DECODE_UDP) {
 	if (requested_srcdst != E_DECODE_DPORT)
-	    decode_change_one_dissector("tcp.port", pi.srcport, clist);
+	    decode_change_one_dissector("tcp.port", cfile.edt->pi.srcport, clist);
 	if (requested_srcdst != E_DECODE_SPORT)
-	    decode_change_one_dissector("tcp.port", pi.destport, clist);
+	    decode_change_one_dissector("tcp.port", cfile.edt->pi.destport, clist);
     }
     if (requested_tcpudp != E_DECODE_TCP) {
 	if (requested_srcdst != E_DECODE_DPORT)
-	    decode_change_one_dissector("udp.port", pi.srcport, clist);
+	    decode_change_one_dissector("udp.port", cfile.edt->pi.srcport, clist);
 	if (requested_srcdst != E_DECODE_SPORT)
-	    decode_change_one_dissector("udp.port", pi.destport, clist);
+	    decode_change_one_dissector("udp.port", cfile.edt->pi.destport, clist);
     }
 }
 
@@ -907,7 +907,7 @@ decode_add_tcpudp_menu (GtkWidget *page)
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
-    requested_tcpudp = (pi.ipproto == IP_PROTO_TCP) ? E_DECODE_TCP : E_DECODE_UDP;
+    requested_tcpudp = (cfile.edt->pi.ipproto == IP_PROTO_TCP) ? E_DECODE_TCP : E_DECODE_UDP;
     gtk_menu_set_active(GTK_MENU(menu), requested_tcpudp == E_DECODE_UDP);
     gtk_object_set_data(GTK_OBJECT(page), E_MENU_TCPUDP, menu);
     gtk_option_menu_set_menu(GTK_OPTION_MENU(optmenu), menu);
@@ -938,14 +938,14 @@ decode_add_srcdst_menu (GtkWidget *page)
 
     optmenu = gtk_option_menu_new();
     menu = gtk_menu_new();
-    sprintf(tmp, "source (%u)", pi.srcport);
+    sprintf(tmp, "source (%u)", cfile.edt->pi.srcport);
     menuitem = gtk_menu_item_new_with_label(tmp);
     gtk_object_set_user_data(GTK_OBJECT(menuitem),
 			     GINT_TO_POINTER(E_DECODE_SPORT));
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
-    sprintf(tmp, "destination (%u)", pi.destport);
+    sprintf(tmp, "destination (%u)", cfile.edt->pi.destport);
     menuitem = gtk_menu_item_new_with_label(tmp);
     gtk_object_set_user_data(GTK_OBJECT(menuitem),
 			     GINT_TO_POINTER(E_DECODE_DPORT));
@@ -1312,24 +1312,24 @@ decode_add_notebook (GtkWidget *format_hb)
     gtk_object_set_data(GTK_OBJECT(decode_w), E_NOTEBOOK, notebook);
 
     /* Add link level selection page */
-    if (pi.ethertype) {
-	sprintf(buffer, "Ethertype 0x%04x", pi.ethertype);
-	page = decode_add_simple_page(buffer, "Link", "ethertype", pi.ethertype);
+    if (cfile.edt->pi.ethertype) {
+	sprintf(buffer, "Ethertype 0x%04x", cfile.edt->pi.ethertype);
+	page = decode_add_simple_page(buffer, "Link", "ethertype", cfile.edt->pi.ethertype);
 	label = gtk_label_new("Link");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
     }
 
     /* Add network selection page */
-    if (pi.ipproto) {
-	sprintf(buffer, "IP protocol %u", pi.ipproto);
-	page = decode_add_simple_page(buffer, "Network", "ip.proto", pi.ipproto);
+    if (cfile.edt->pi.ipproto) {
+	sprintf(buffer, "IP protocol %u", cfile.edt->pi.ipproto);
+	page = decode_add_simple_page(buffer, "Network", "ip.proto", cfile.edt->pi.ipproto);
 	gtk_object_set_data(GTK_OBJECT(page), E_PAGE_ACTION, decode_network);
 	label = gtk_label_new("Network");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
     }
 
     /* Add transport selection page */
-    if (decode_as_transport_ok(pi.ipproto)) {
+    if (decode_as_transport_ok(cfile.edt->pi.ipproto)) {
 	page = decode_add_tcpudp_page();
 	label = gtk_label_new("Transport");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
@@ -1437,7 +1437,7 @@ decode_as_cb (GtkWidget * w, gpointer data)
 gboolean
 decode_as_ok(void)
 {
-    return pi.ethertype || pi.ipproto || decode_as_transport_ok(pi.ipproto);
+    return cfile.edt->pi.ethertype || cfile.edt->pi.ipproto || decode_as_transport_ok(cfile.edt->pi.ipproto);
 }
 
 

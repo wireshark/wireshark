@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.39 2001/11/20 21:59:18 guy Exp $
+ * $Id: packet.h,v 1.40 2001/11/21 23:16:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,7 @@
 #include "frame_data.h"
 #include "packet_info.h"
 #include "column-utils.h"
+#include "epan.h"
 
 #define hi_nibble(b) (((b) & 0xf0) >> 4)
 #define lo_nibble(b) ((b) & 0x0f)
@@ -223,9 +224,9 @@ extern void init_all_protocols(void);
 /*
  * Dissectors should never modify the packet data.
  */
-extern void dissect_packet(tvbuff_t **p_tvb,
+extern void dissect_packet(struct _epan_dissect_t *edt,
     union wtap_pseudo_header *pseudo_header, const u_char *pd,
-    frame_data *fd, proto_tree *tree);
+    frame_data *fd);
 extern void dissect_data(tvbuff_t *tvb, int, packet_info *pinfo,
     proto_tree *tree);
 

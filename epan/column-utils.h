@@ -1,7 +1,7 @@
 /* column-utils.h
  * Definitions for column utility structures and routines
  *
- * $Id: column-utils.h,v 1.3 2001/10/31 07:47:26 guy Exp $
+ * $Id: column-utils.h,v 1.4 2001/11/21 23:16:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,7 @@
 
 #include "column_info.h"
 #include "frame_data.h"
+#include "packet_info.h"
 
 /* Allocate all the data structures for constructing column data, given
    the number of columns. */
@@ -55,7 +56,7 @@ extern void	col_append_fstr(frame_data *, gint, gchar *, ...);
 extern void	col_add_str(frame_data *, gint, const gchar *);
 extern void	col_append_str(frame_data *, gint, gchar *);
 extern void	col_set_cls_time(frame_data *, int);
-extern void	fill_in_columns(frame_data *);
+extern void	fill_in_columns(frame_data *, packet_info *);
 
 #endif /* __COLUMN_UTILS_H__ */
 

@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.13 2001/04/10 12:07:39 gram Exp $
+ * $Id: follow_dlg.c,v 1.14 2001/11/21 23:16:26 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -163,7 +163,7 @@ follow_stream_cb(GtkWidget * w, gpointer data)
 	follow_info_t	*follow_info;
 
 	/* we got tcp so we can follow */
-	if (pi.ipproto != 6) {
+	if (cfile.edt->pi.ipproto != 6) {
 		simple_dialog(ESD_TYPE_CRIT, NULL,
 			      "Error following stream.  Please make\n"
 			      "sure you have a TCP packet selected.");
@@ -205,7 +205,7 @@ follow_stream_cb(GtkWidget * w, gpointer data)
 	/* Create a new filter that matches all packets in the TCP stream,
 	   and set the display filter entry accordingly */
 	reset_tcp_reassembly();
-	follow_filter = build_follow_filter(&pi);
+	follow_filter = build_follow_filter(&cfile.edt->pi);
 
 	/* Set the display filter entry accordingly */
 	filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);

@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.c,v 1.10 2001/04/02 00:38:34 hagbard Exp $
+ * $Id: epan.c,v 1.11 2001/11/21 23:16:23 gram Exp $
  *
  * Ethereal Protocol Analyzer Library
  *
@@ -88,7 +88,7 @@ epan_dissect_new(void* pseudo_header, const guint8* data, frame_data *fd, proto_
 	/* XXX - init tree */
 	edt->tree = tree;
 
-	dissect_packet(&edt->tvb, pseudo_header, data, fd, tree);
+	dissect_packet(edt, pseudo_header, data, fd);
 
 	return edt;
 }

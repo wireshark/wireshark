@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.55 2001/07/17 05:44:58 hagbard Exp $
+ * $Id: menu.c,v 1.56 2001/11/21 23:16:26 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -398,7 +398,7 @@ set_menus_for_selected_packet(gboolean have_selected_packet)
   set_menu_sensitivity("/Display/Expand All", have_selected_packet);
   set_menu_sensitivity("/Display/Show Packet In New Window", have_selected_packet);
   set_menu_sensitivity("/Tools/Follow TCP Stream",
-      have_selected_packet ? (pi.ipproto == 6) : FALSE);
+      have_selected_packet ? (cfile.edt->pi.ipproto == 6) : FALSE);
   set_menu_sensitivity("/Tools/Decode As...",
       have_selected_packet && decode_as_ok());
   set_menu_sensitivity("/Resolve Name", 
