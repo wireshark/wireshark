@@ -89,6 +89,16 @@ struct bgp_attr {
 #define BGP_ATTR_FLAG_PARTIAL         0x20
 #define BGP_ATTR_FLAG_EXTENDED_LENGTH 0x10
 
+/* SSA flags */
+#define BGP_SSA_TRANSITIVE	0x8000
+#define BGP_SSA_TYPE		0x7FFF
+
+/* SSA Types */
+#define BGP_SSA_L2TPv3	1
+#define BGP_SSA_mGRE	2
+#define BGP_SSA_IPSec	3
+#define BGP_SSA_MPLS	4
+
 /* AS_PATH segment types */
 #define AS_SET             1   /* RFC1771 */
 #define AS_SEQUENCE        2   /* RFC1771 */
@@ -152,6 +162,7 @@ struct bgp_attr {
 #define BGPTYPE_EXTENDED_COMMUNITY 16 /* Draft Ramachandra */
 #define BGPTYPE_NEW_AS_PATH        17 /* draft-ietf-idr-as4bytes */
 #define BGPTYPE_NEW_AGGREGATOR     18 /* draft-ietf-idr-as4bytes */
+#define BGPTYPE_SAFI_SPECIFIC_ATTR 19 /* draft-kapoor-nalawade-idr-bgp-ssa-00.txt */
 
 /* Extended community type */
                                         /* draft-ramachandra-bgp-ext-communities */
@@ -189,6 +200,7 @@ struct bgp_attr {
 #define SAFNUM_MULCAST  2
 #define SAFNUM_UNIMULC  3
 #define SAFNUM_MPLS_LABEL 4     /* rfc3107 */
+#define SAFNUM_TUNNEL	64	/* draft-nalawade-kapoor-tunnel-safi-02.txt */
 #define SAFNUM_LAB_VPNUNICAST  128     /* Draft-rosen-rfc2547bis-03 */
 #define SAFNUM_LAB_VPNMULCAST  129
 #define SAFNUM_LAB_VPNUNIMULC  130

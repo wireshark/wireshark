@@ -182,6 +182,7 @@ static const value_string bgpattr_type[] = {
     { BGPTYPE_EXTENDED_COMMUNITY, "EXTENDED_COMMUNITIES" },
     { BGPTYPE_NEW_AS_PATH, "NEW_AS_PATH" },
     { BGPTYPE_NEW_AGGREGATOR, "NEW_AGGREGATOR" },
+    { BGPTYPE_SAFI_SPECIFIC_ATTR, "SAFI_SPECIFIC_ATTRIBUTE" },
     { 0, NULL },
 };
 
@@ -197,6 +198,14 @@ static const value_string bgpext_com_type[] = {
     { BGP_EXT_COM_OSPF_RTYPE, "OSPF Route Type" },
     { BGP_EXT_COM_OSPF_RID, "OSPF Router ID" },
     { BGP_EXT_COM_L2INFO, "Layer 2 Information" },
+    { 0, NULL },
+};
+
+static const value_string bgp_ssa_type[] = {
+    { BGP_SSA_L2TPv3 , "L2TPv3 Tunnel" },
+    { BGP_SSA_mGRE , "mGRE Tunnel" },
+    { BGP_SSA_IPSec , "IPSec Tunnel" },
+    { BGP_SSA_MPLS , "MPLS Tunnel" },
     { 0, NULL },
 };
 
@@ -235,6 +244,7 @@ static const value_string bgpattr_nlri_safi[] = {
     { SAFNUM_MULCAST, "Multicast" },
     { SAFNUM_UNIMULC, "Unicast+Multicast" },
     { SAFNUM_MPLS_LABEL, "Labeled Unicast"},
+    { SAFNUM_TUNNEL, "Tunnel"},
     { SAFNUM_LAB_VPNUNICAST, "Labeled VPN Unicast" },        /* draft-rosen-rfc2547bis-03 */
     { SAFNUM_LAB_VPNMULCAST, "Labeled VPN Multicast" },
     { SAFNUM_LAB_VPNUNIMULC, "Labeled VPN Unicast+Multicast" },
@@ -313,12 +323,23 @@ static int hf_bgp_community_value = -1;
 static int hf_bgp_origin = -1;
 static int hf_bgp_cluster_list = -1;
 static int hf_bgp_originator_id = -1;
+static int hf_bgp_ssa_t = -1;
+static int hf_bgp_ssa_type = -1;
+static int hf_bgp_ssa_len = -1;
+static int hf_bgp_ssa_value = -1;
+static int hf_bgp_ssa_l2tpv3_pref = -1;
+static int hf_bgp_ssa_l2tpv3_s = -1;
+static int hf_bgp_ssa_l2tpv3_unused = -1;
+static int hf_bgp_ssa_l2tpv3_cookie_len = -1;
+static int hf_bgp_ssa_l2tpv3_session_id = -1;
+static int hf_bgp_ssa_l2tpv3_cookie = -1;
 static int hf_bgp_local_pref = -1;
 static int hf_bgp_multi_exit_disc = -1;
 static int hf_bgp_aggregator_as = -1;
 static int hf_bgp_aggregator_origin = -1;
 static int hf_bgp_mp_reach_nlri_ipv4_prefix = -1;
 static int hf_bgp_mp_unreach_nlri_ipv4_prefix = -1;
+static int hf_bgp_mp_nlri_tnl_id = -1;
 static int hf_bgp_withdrawn_prefix = -1;
 static int hf_bgp_nlri_prefix = -1;
 
@@ -345,6 +366,8 @@ static gint ett_bgp_cluster_list = -1;  /* cluster list tree          */
 static gint ett_bgp_options = -1;       /* optional parameters tree   */
 static gint ett_bgp_option = -1;        /* an optional parameter tree */
 static gint ett_bgp_extended_communities = -1 ; /* extended communities list tree */
+static gint ett_bgp_ssa = -1;		/* safi specific attribute */
+static gint ett_bgp_ssa_subtree = -1;	/* safi specific attribute Subtrees */
 static gint ett_bgp_orf = -1; 		/* orf (outbound route filter) tree */
 static gint ett_bgp_orf_entry = -1; 		/* orf entry tree */
 
@@ -499,6 +522,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, GString *b
                         case SAFNUM_MULCAST:
                         case SAFNUM_UNIMULC:
                         case SAFNUM_MPLS_LABEL:
+			case SAFNUM_TUNNEL:
                                 length = 4 ;
                                 tvb_memcpy(tvb, ip4addr, offset, sizeof(ip4addr));
 			        g_string_sprintf(buf, "%s", ip_to_str(ip4addr));
@@ -543,6 +567,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, GString *b
                         case SAFNUM_MULCAST:
                         case SAFNUM_UNIMULC:
                         case SAFNUM_MPLS_LABEL:
+			case SAFNUM_TUNNEL:
                             length = 16 ;
                             tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8,offset, 16);
                             g_string_sprintf(buf, "%s", ip6_to_str(&ip6addr));
@@ -619,6 +644,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
     int                 length;             /* length of the prefix address, in bytes */
     guint               plen;               /* length of the prefix address, in bits */
     guint               labnum;             /* number of labels             */
+    guint16		tnl_id;		    /* Tunnel Identifier */
     int                 ce_id,labblk_off;
     union {
        guint8 addr_bytes[4];
@@ -680,6 +706,45 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             }
             total_length = (1 + labnum*3) + length;
             break;
+
+	case SAFNUM_TUNNEL:
+	    plen =  tvb_get_guint8(tvb, offset);
+	    if (plen <= 16){
+		proto_tree_add_text(tree, tvb, start_offset, 1,
+			"%s Tunnel IPv4 prefix length %u invalid",
+			tag, plen);
+		return -1;
+	    }
+	    tnl_id = tvb_get_ntohs(tvb, offset + 1);
+	    offset += 3; /* Length + Tunnel Id */
+	    plen -= 16; /* 2-octet Identifier */
+	    length = ipv4_addr_and_mask(tvb, offset, ip4addr.addr_bytes, plen);
+	    if (length < 0) {
+		proto_tree_add_text(tree, tvb, start_offset, 1,
+			"%s Tunnel IPv4 prefix length %u invalid",
+			tag, plen + 16);
+		return -1;
+	    }
+	    ti = proto_tree_add_text(tree, tvb, start_offset,
+			(offset + length) - start_offset,
+			"Tunnel Identifier=0x%x IPv4=%s/%u",
+			tnl_id, ip_to_str(ip4addr.addr_bytes), plen);
+	    prefix_tree = proto_item_add_subtree(ti, ett_bgp_prefix);
+
+	    proto_tree_add_text(prefix_tree, tvb, start_offset, 1, "%s Prefix length: %u",
+		tag, plen + 16);
+	    proto_tree_add_item(prefix_tree, hf_bgp_mp_nlri_tnl_id, tvb,
+				start_offset + 1, 2, FALSE);
+	    if (hf_addr4 != -1) {
+		proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb, offset,
+				length, ip4addr.addr);
+	    } else {
+		proto_tree_add_text(prefix_tree, tvb, offset, length,
+			"%s IPv4 prefix: %s",
+			tag, ip_to_str(ip4addr.addr_bytes));
+	    }
+	    total_length = 1 + 2 + length; /* length field + Tunnel Id + IPv4 len */
+	    break;
 
         case SAFNUM_LAB_VPNUNICAST:
         case SAFNUM_LAB_VPNMULCAST:
@@ -821,7 +886,8 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             length = ipv6_addr_and_mask(tvb, offset, &ip6addr, plen);
             if (length < 0) {
                 proto_tree_add_text(tree, tvb, start_offset, 1,
-                        "%s Labeled IPv6 prefix length %u invalid", tag, plen);
+                        "%s Labeled IPv6 prefix length %u invalid",
+			tag, plen  + (labnum * 3*8));
                 return -1;
             }
 
@@ -832,6 +898,31 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                  ip6_to_str(&ip6addr), plen);
 	    total_length = (1 + labnum * 3) + length;
 	    break;
+
+	case SAFNUM_TUNNEL:
+            plen =  tvb_get_guint8(tvb, offset);
+            if (plen <= 16){
+                proto_tree_add_text(tree, tvb, start_offset, 1,
+                        "%s Tunnel IPv6 prefix length %u invalid",
+                        tag, plen);
+                return -1;
+            }
+            tnl_id = tvb_get_ntohs(tvb, offset + 1);
+            offset += 3; /* Length + Tunnel Id */
+            plen -= 16; /* 2-octet Identifier */
+            length = ipv6_addr_and_mask(tvb, offset, &ip6addr, plen);
+            if (length < 0) {
+                proto_tree_add_text(tree, tvb, start_offset, 1,
+                        "%s Tunnel IPv6 prefix length %u invalid",
+                        tag, plen + 16);
+                return -1;
+            }
+            ti = proto_tree_add_text(tree, tvb, start_offset,
+                        (offset + length) - start_offset,
+                        "Tunnel Identifier=0x%x IPv6=%s/%u",
+                        tnl_id, ip6_to_str(&ip6addr), plen);
+            total_length = (1 + 2) + length; /* length field + Tunnel Id + IPv4 len */
+            break;
 
         case SAFNUM_LAB_VPNUNICAST:
         case SAFNUM_LAB_VPNMULCAST:
@@ -1355,6 +1446,9 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
     static GString  *junk_gbuf = NULL;	    	/* tmp                      */
     guint8          ipaddr[4];                  /* IPv4 address             */
     guint32         aggregator_as;
+    guint16	    ssa_type;			/* SSA T + Type */
+    guint16	    ssa_len;			/* SSA TLV Length */
+    guint8	    ssa_v3_len;			/* SSA L2TPv3 Cookie Length */
 
     hlen = tvb_get_ntohs(tvb, BGP_MARKER_SIZE);
     o = BGP_HEADER_SIZE;
@@ -1654,6 +1748,13 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 	    case BGPTYPE_EXTENDED_COMMUNITY:
 		if (tlen %8 != 0)
 		    break;
+                ti = proto_tree_add_text(subtree,tvb,o+i,tlen+aoff,
+                        "%s: (%u %s)",
+                        val_to_str(bgpa.bgpa_type,bgpattr_type,"Unknown"),
+                        tlen + aoff,
+                        (tlen + aoff == 1) ? "byte" : "bytes");
+                break;
+            case BGPTYPE_SAFI_SPECIFIC_ATTR:
                 ti = proto_tree_add_text(subtree,tvb,o+i,tlen+aoff,
                         "%s: (%u %s)",
                         val_to_str(bgpa.bgpa_type,bgpattr_type,"Unknown"),
@@ -2190,6 +2291,72 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                         }
                 }
                 break;
+	    case BGPTYPE_SAFI_SPECIFIC_ATTR:
+		q = o + i + aoff;
+		end = o + i + aoff + tlen ;
+
+		while(q < end) {
+		    ssa_type = tvb_get_ntohs(tvb, q) & BGP_SSA_TYPE;
+		    ssa_len = tvb_get_ntohs(tvb, q + 2);
+
+		    ti = proto_tree_add_text(subtree2, tvb, q, MIN(ssa_len + 4, end - q),
+			    "%s Information",
+			    val_to_str(ssa_type, bgp_ssa_type, "Unknown SSA"));
+		    subtree3 = proto_item_add_subtree(ti, ett_bgp_ssa);
+
+		    proto_tree_add_item(subtree3, hf_bgp_ssa_t, tvb,
+			    q, 1, FALSE);
+		    proto_tree_add_item_hidden(subtree3, hf_bgp_ssa_type, tvb,
+			    q, 2, FALSE);
+		    proto_tree_add_text(subtree3, tvb, q, 2,
+			    "Type: %s", val_to_str(ssa_type, bgp_ssa_type, "Unknown"));
+		    if ((ssa_len == 0) || (q + ssa_len > end)) {
+			proto_tree_add_text(subtree3, tvb, q + 2, end - q - 2,
+				"Invalid Length of %u", ssa_len);
+			break;
+		    }
+		    proto_tree_add_item(subtree3, hf_bgp_ssa_len, tvb,
+			    q + 2, 2, FALSE);
+
+		    switch(ssa_type){
+		    case BGP_SSA_L2TPv3:
+	                    proto_tree_add_item(subtree3, hf_bgp_ssa_l2tpv3_pref, tvb,
+	                            q + 4, 2, FALSE);
+
+			    ti = proto_tree_add_text(subtree3, tvb, q + 6, 1, "Flags");
+			    subtree4 = proto_item_add_subtree(ti, ett_bgp_ssa_subtree) ;
+                            proto_tree_add_item(subtree4, hf_bgp_ssa_l2tpv3_s, tvb,
+                                    q + 6, 1, FALSE);
+                            proto_tree_add_item(subtree4, hf_bgp_ssa_l2tpv3_unused, tvb,
+                                    q + 6, 1, FALSE);
+
+			    ssa_v3_len = tvb_get_guint8(tvb, q + 7);
+			    if (ssa_v3_len + 8 == ssa_len){
+				proto_tree_add_item(subtree3, hf_bgp_ssa_l2tpv3_cookie_len, tvb,
+					q + 7, 1, FALSE);
+			    } else {
+				proto_tree_add_text(subtree3, tvb, q + 7, 1,
+					"Invalid Cookie Length of %u", ssa_v3_len);
+				break;
+			    }
+                            proto_tree_add_item(subtree3, hf_bgp_ssa_l2tpv3_session_id, tvb,
+                                    q + 8, 4, FALSE);
+			    if (ssa_v3_len)
+	                            proto_tree_add_item(subtree3, hf_bgp_ssa_l2tpv3_cookie, tvb,
+	                                    q + 12, ssa_v3_len, FALSE);
+			    break;
+		    case BGP_SSA_mGRE:
+		    case BGP_SSA_IPSec:
+		    case BGP_SSA_MPLS:
+		    default:
+			    proto_tree_add_item(subtree3, hf_bgp_ssa_value, tvb,
+				    q + 4, ssa_len, FALSE);
+			    break;
+		    }
+		    q = q + ssa_len + 4; /* 4 from type and length */
+		}
+		break;
+
 	    default:
 		proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
 			"Unknown (%d %s)", tlen, (tlen == 1) ? "byte" :
@@ -2751,6 +2918,9 @@ proto_register_bgp(void)
       { &hf_bgp_mp_unreach_nlri_ipv4_prefix,
 	{ "MP Unreach NLRI IPv4 prefix", "bgp.mp_unreach_nlri_ipv4_prefix", FT_IPv4, BASE_NONE,
           NULL, 0x0, "", HFILL}}, 
+      { &hf_bgp_mp_nlri_tnl_id,
+        { "MP Reach NLRI Tunnel Identifier", "bgp.mp_nlri_tnl_id", FT_UINT16, BASE_HEX,
+          NULL, 0x0, "", HFILL}},
       { &hf_bgp_multi_exit_disc,
 	{ "Multiple exit discriminator", "bgp.multi_exit_disc", FT_UINT32, BASE_DEC,
 	  NULL, 0x0, "", HFILL}},
@@ -2766,6 +2936,36 @@ proto_register_bgp(void)
       { &hf_bgp_originator_id,
 	{ "Originator identifier", "bgp.originator_id", FT_IPv4, BASE_NONE,
 	  NULL, 0x0, "", HFILL}},
+      { &hf_bgp_ssa_t,
+        { "Transitive bit", "bgp.ssa_t", FT_BOOLEAN, 8,
+          NULL, 0x80, "SSA Transitive bit", HFILL}},
+      { &hf_bgp_ssa_type,
+        { "SSA Type", "bgp.ssa_type", FT_UINT16, BASE_DEC,
+          VALS(bgp_ssa_type), 0x7FFF, "SSA Type", HFILL}},
+      { &hf_bgp_ssa_len,
+        { "Length", "bgp.ssa_len", FT_UINT16, BASE_DEC,
+          NULL, 0x0, "SSA Length", HFILL}},
+      { &hf_bgp_ssa_value,
+        { "Value", "bgp.ssa_value", FT_BYTES, BASE_HEX,
+          NULL, 0x0, "SSA Value", HFILL}},
+      { &hf_bgp_ssa_l2tpv3_pref,
+        { "Preference", "bgp.ssa_l2tpv3_pref", FT_UINT16, BASE_DEC,
+          NULL, 0x0, "Preference", HFILL}},
+      { &hf_bgp_ssa_l2tpv3_s,
+        { "Sequencing bit", "bgp.ssa_l2tpv3_s", FT_BOOLEAN, 8,
+          NULL, 0x80, "Sequencing S-bit", HFILL}},
+      { &hf_bgp_ssa_l2tpv3_unused,
+        { "Unused", "bgp.ssa_l2tpv3_Unused", FT_BOOLEAN, 8,
+          NULL, 0x7F, "Unused Flags", HFILL}},
+      { &hf_bgp_ssa_l2tpv3_cookie_len,
+        { "Cookie Length", "bgp.ssa_l2tpv3_cookie_len", FT_UINT8, BASE_DEC,
+          NULL, 0x0, "Cookie Length", HFILL}},
+      { &hf_bgp_ssa_l2tpv3_session_id,
+        { "Session ID", "bgp.ssa_l2tpv3_session_id", FT_UINT32, BASE_DEC,
+          NULL, 0x0, "Session ID", HFILL}},
+      { &hf_bgp_ssa_l2tpv3_cookie,
+        { "Cookie", "bgp.ssa_l2tpv3_cookie", FT_BYTES, BASE_HEX,
+          NULL, 0x0, "Cookie", HFILL}},
       { &hf_bgp_withdrawn_prefix,
         { "Withdrawn prefix", "bgp.withdrawn_prefix", FT_IPv4, BASE_NONE,
           NULL, 0x0, "", HFILL}}, 
@@ -2798,6 +2998,8 @@ proto_register_bgp(void)
       &ett_bgp_options,
       &ett_bgp_option,
       &ett_bgp_extended_communities,
+      &ett_bgp_ssa,
+      &ett_bgp_ssa_subtree,
       &ett_bgp_orf,
       &ett_bgp_orf_entry
     };

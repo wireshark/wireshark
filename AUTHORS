@@ -2148,6 +2148,8 @@ Carlos Pignataro        <cpignata [AT] cisco.com> {
 	MPLS in Generic Routing Encapsulation (GRE)
 	OSPF Traffic Engineering enhancements
 	MP-BGP Updates
+	BGPv4 SAFI-Specific Attribute support
+	Tunnel SAFI support for BGP
 }
 
 Thomas Anders           <thomas.anders [AT] blue-cable.de> {
