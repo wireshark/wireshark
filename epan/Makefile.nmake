@@ -33,7 +33,7 @@ DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_SRC:.c=.obj)
 .c.obj::
 	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
-LIBETHEREAL_OBJECTS = $(LIBETHERAL_SRC:.c=.obj)
+LIBETHEREAL_OBJECTS = $(LIBETHEREAL_SRC:.c=.obj)
 
 EXTRA_OBJECTS = \
 #	snprintf.obj	\
@@ -62,7 +62,7 @@ libethereal.exp: libethereal.dll
 #DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_SRC:.c=.obj)
 #DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_OBJECTS:../=)
 
-libethereal.dll: ..\config.h $(OBJECTS) libethereal.def ftypes dfilter dissectors $(DISSECTOR_SUPPORT_OBJECTS) doxygen $(EXTRA_OBJECTS) ..\image\libethereal.res
+libethereal.dll: ..\config.h $(LIBETHEREAL_OBJECTS) libethereal.def ftypes dfilter dissectors $(DISSECTOR_SUPPORT_OBJECTS) doxygen $(EXTRA_OBJECTS) ..\image\libethereal.res
 	@echo Linking libethereal.dll
 	$(link) $(dlllflags) $(conlibsdll) \
 		$(LOCAL_LDFLAGS) \
