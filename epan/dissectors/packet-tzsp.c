@@ -154,7 +154,7 @@ add_option_info(tvbuff_t *tvb, int pos, proto_tree *tree, proto_item *ti)
 			length = tvb_get_guint8(tvb, pos++);
 			if (tree)
 				proto_tree_add_int (tree, hf_signal, tvb, pos-2, 3,
-						tvb_get_ntohs(tvb, pos));
+						(char)tvb_get_guint8(tvb, pos));
 			pos += length;
 			break;
 
@@ -162,7 +162,7 @@ add_option_info(tvbuff_t *tvb, int pos, proto_tree *tree, proto_item *ti)
 			length = tvb_get_guint8(tvb, pos++);
 			if (tree)
 				proto_tree_add_int (tree, hf_silence, tvb, pos-2, 3,
-						tvb_get_ntohs(tvb, pos));
+						(char)tvb_get_guint8(tvb, pos));
 			pos += length;
 			break;
 
@@ -470,16 +470,16 @@ proto_register_tzsp(void)
 			"Time", "tzsp.wlan.time", FT_UINT32, BASE_HEX,
 			NULL, 0, "Time", HFILL }},
 		{ &hf_silence, {
-			"Silence", "tzsp.wlan.silence", FT_INT8, BASE_HEX,
+			"Silence", "tzsp.wlan.silence", FT_INT8, BASE_DEC,
 			NULL, 0, "Silence", HFILL }},
 		{ &hf_original_length, {
 			"Original Length", "tzsp.original_length", FT_INT16, BASE_DEC,
 			NULL, 0, "OrigLength", HFILL }},
 		{ &hf_signal, {
-			"Signal", "tzsp.wlan.signal", FT_INT8, BASE_HEX,
+			"Signal", "tzsp.wlan.signal", FT_INT8, BASE_DEC,
 			NULL, 0, "Signal", HFILL }},
 		{ &hf_rate, {
-			"Rate", "tzsp.wlan.rate", FT_UINT8, BASE_HEX,
+			"Rate", "tzsp.wlan.rate", FT_UINT8, BASE_DEC,
 			VALS(rates), 0, "Rate", HFILL }},
 		{ &hf_channel, {
 			"Channel", "tzsp.wlan.channel", FT_UINT8, BASE_DEC,
