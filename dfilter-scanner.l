@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.15 1999/10/07 21:47:19 guy Exp $
+ * $Id: dfilter-scanner.l,v 1.16 1999/10/09 14:14:53 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -183,7 +183,7 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 			retval = 0;
 			break;
 		case FT_STRING:
-			dfilter_error("sorry, we don't yet support filtering on time-delta values");
+			dfilter_error("sorry, we don't yet support filtering on string values");
 			retval = 0;
 			break;
 		case FT_ETHER:
