@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.87 2003/12/31 09:58:55 guy Exp $
+ * $Id: packet-http.c,v 1.88 2004/01/01 23:34:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -442,6 +442,24 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/*
 		 * Process this line.
 		 */
+		if (linelen == 0) {
+			/*
+			 * This is a blank line, which means that
+			 * whatever follows it isn't part of this
+			 * request or reply.
+			 */
+			proto_tree_add_text(http_tree, tvb, offset,
+			    next_offset - offset, "%s",
+			    tvb_format_text(tvb, offset, next_offset - offset));
+			offset = next_offset;
+			break;
+		}
+
+		/*
+		 * Not a blank line - either a request, a reply, or a header
+		 * line.
+		 */ 
+		saw_req_resp_or_header = TRUE;
 		if (is_request_or_reply) {
 			if (tree) {
 				hdr_item = proto_tree_add_text(http_tree, tvb,
@@ -455,32 +473,14 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					    req_strlen);
 				}
 			}
-			saw_req_resp_or_header = TRUE;
-		} else if (linelen != 0) {
+		} else {
 			/*
 			 * Header.
 			 */
 			process_header(tvb, offset, next_offset, line, linelen,
 			    colon_offset, pinfo, http_tree, &headers);
-			saw_req_resp_or_header = TRUE;
-		} else {
-			/*
-			 * Blank line.
-			 */
-			proto_tree_add_text(http_tree, tvb,
-			    offset, next_offset - offset, "%s",
-			    tvb_format_text(tvb, offset,
-			      next_offset - offset));
 		}
 		offset = next_offset;
-		if (linelen == 0) {
-			/*
-			 * That was a blank line, which means that
-			 * whatever follows it isn't part of this
-			 * request or reply.
-			 */
-			break;
-		}
 	}
 
 	if (tree) {
