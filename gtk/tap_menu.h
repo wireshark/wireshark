@@ -1,7 +1,7 @@
 /* tap_menu.h
  * Menu definitions for use by taps
  *
- * $Id: tap_menu.h,v 1.5 2004/06/02 22:13:04 ulfl Exp $
+ * $Id: tap_menu.h,v 1.6 2004/06/03 02:14:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,7 +34,7 @@ extern "C" {
  */
 
 /** The menu group this tap should be registered at. */
-typedef struct {
+typedef enum {
     REGISTER_TAP_GROUP_NONE,
     REGISTER_TAP_GROUP_GENERIC,
     REGISTER_TAP_GROUP_CONVERSATION_LIST,
