@@ -6,7 +6,7 @@
  * RFC2082 ( Keyed Message Digest Algorithm )
  *   Emanuele Caratti  <wiz@iol.it>
  *
- * $Id: packet-rip.c,v 1.34 2003/10/18 18:46:37 guy Exp $
+ * $Id: packet-rip.c,v 1.35 2004/07/05 10:15:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,6 +75,7 @@ static const value_string rip_auth_type[] = {
 
 #define RIP_HEADER_LENGTH 4
 #define RIP_ENTRY_LENGTH 20
+#define MD5_AUTH_DATA_LEN 16
 
 static int proto_rip = -1;
 static int hf_rip_command = -1;
@@ -110,6 +111,7 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 version;
     guint16 family;
     gint trailer_len = 0;
+    gboolean is_md5_auth = FALSE;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RIP");
@@ -156,8 +158,11 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    case 0xFFFF:
 		if( offset == RIP_HEADER_LENGTH ) {
 			trailer_len=dissect_rip_authentication(tvb, offset, rip_tree);
+			is_md5_auth = TRUE;
 		break;
 		}
+		if(is_md5_auth && tvb_reported_length_remaining(tvb, offset) == 20)
+			break;
 		/* Intentional fall through: auth Entry MUST be the first! */
 	    default:
 	        proto_tree_add_text(rip_tree, tvb, offset,
@@ -317,13 +322,13 @@ dissect_rip_authentication(tvbuff_t *tvb, int offset, proto_tree *tree)
 	proto_tree_add_text( rip_authentication_tree, tvb, offset+12, 8,
 			"Zero Padding" );
 	ti = proto_tree_add_text( rip_authentication_tree, tvb, offset-4+digest_off,
-			auth_data_len, "Authentication Data Trailer" );
+			MD5_AUTH_DATA_LEN+4, "Authentication Data Trailer" );
 	rip_authentication_tree = proto_item_add_subtree(ti, ett_auth_vec );
 	proto_tree_add_text( rip_authentication_tree, tvb, offset-4+digest_off+4,
-			auth_data_len-4, "Authentication Data: %s",
+			MD5_AUTH_DATA_LEN, "Authentication Data: %s",
 				rip_bytestring_to_str(
-					tvb_get_ptr( tvb, offset-4+digest_off+4,auth_data_len-4),
-					auth_data_len-4, ' '));
+					tvb_get_ptr( tvb, offset-4+digest_off+4,MD5_AUTH_DATA_LEN),
+					MD5_AUTH_DATA_LEN, ' '));
 	break;
     }
     return auth_data_len;
