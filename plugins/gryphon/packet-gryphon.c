@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Routines for Gryphon protocol packet disassembly
  *
- * $Id: packet-gryphon.c,v 1.14 2000/11/05 09:09:29 guy Exp $
+ * $Id: packet-gryphon.c,v 1.15 2000/11/06 08:44:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -1713,7 +1713,7 @@ plugin_init(plugin_address_table_t *pat)
     }
 }
 
-void
+DLLEXPORT void
 plugin_reg_handoff(void)
 {
     old_dissector_add("tcp.port", 7000, &dissect_gryphon);
