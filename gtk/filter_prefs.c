@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.56 2004/01/25 22:21:01 guy Exp $
+ * $Id: filter_prefs.c,v 1.57 2004/01/26 18:51:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -551,6 +551,11 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     OBJECT_SET_DATA(main_w, E_FILT_PARENT_FILTER_TE_KEY, parent_filter_te);
 
     if (list == DFILTER_LIST) {
+        gtk_tooltips_set_tip(tooltips, filter_te, 
+            "Enter a display filter. "
+            "The background color of this field is changed by a continuous syntax check (green is valid, red is invalid).", 
+            NULL);
+
         /* Create the "Add Expression..." button, to pop up a dialog
            for constructing filter comparison expressions. */
         add_expression_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_ADD_EXPRESSION);
