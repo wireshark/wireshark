@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.23 2002/04/08 20:30:52 gram Exp $
+ * $Id: packet-frame.c,v 1.24 2002/04/13 00:02:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,16 +72,23 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	pinfo->current_proto = "Frame";
 
-	if (pinfo->fd->lnk_t == WTAP_ENCAP_LAPD ||
-			pinfo->fd->lnk_t == WTAP_ENCAP_CHDLC ||
-			pinfo->fd->lnk_t == WTAP_ENCAP_PPP_WITH_PHDR) {
+	if (pinfo->pseudo_header != NULL) {
+		switch (pinfo->fd->lnk_t) {
 
-		pinfo->p2p_dir = pinfo->pseudo_header->p2p.sent ? P2P_DIR_SENT : P2P_DIR_RECV;
-	}
-	else if (pinfo->fd->lnk_t == WTAP_ENCAP_LAPB ||
-			pinfo->fd->lnk_t == WTAP_ENCAP_FRELAY) {
+		case WTAP_ENCAP_LAPD:
+		case WTAP_ENCAP_CHDLC:
+		case WTAP_ENCAP_PPP_WITH_PHDR:
+			pinfo->p2p_dir = pinfo->pseudo_header->p2p.sent ?
+			    P2P_DIR_SENT : P2P_DIR_RECV;
+			break;
 
-		pinfo->p2p_dir = (pinfo->pseudo_header->x25.flags & 0x80) ? P2P_DIR_RECV : P2P_DIR_SENT;
+		case WTAP_ENCAP_LAPB:
+		case WTAP_ENCAP_FRELAY:
+			pinfo->p2p_dir =
+			    (pinfo->pseudo_header->x25.flags & FROM_DCE) ?
+			    P2P_DIR_RECV : P2P_DIR_SENT;
+			break;
+		}
 	}
 
 	/* Put in frame header information. */
