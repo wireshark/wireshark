@@ -135,8 +135,8 @@ appropriate Ethernet and IP headers with each packet. Example: I<-u
 
 =item -t timefmt
 
-Treats the text before the packet as a date/time code; I<timevmt> is a
-format string of the sort supported by L<strptime(3)>.
+Treats the text before the packet as a date/time code; I<timefmt> is a
+format string of the sort supported by B<strptime(3)>.
 Example: The time "10:15:14.5476" has the format code "%H:%M:%S."
 
 B<NOTE:> The subsecond component delimiter must be specified (.) but no
@@ -145,7 +145,7 @@ a second.
 
 =head1 SEE ALSO
 
-L<tcpdump(8)>, L<pcap(3)>, L<ethereal(1)>, L<editcap(1)>
+L<tcpdump(8)>, L<pcap(3)>, L<ethereal(1)>, L<editcap(1)>, L<strptime(3)>.
 
 =head1 NOTES
 

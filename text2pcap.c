@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.7 2001/11/24 08:14:10 guy Exp $
+ * $Id: text2pcap.c,v 1.8 2001/11/24 08:59:38 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -741,16 +741,22 @@ help (char *progname)
             " -q           : Generate no output at all (automatically turns off -d)\n"
             " -e l3pid     : Prepend dummy Ethernet II header with specified L3PID (in HEX)\n"
             "                Example: -e 0x800\n"
-            " -i proto     : Prepend dummy IP header with specified IP protocol (in DECIMAL). \n"
-            "                Automatically prepends Ethernet header as well. Example: -i 46\n"
-            " -u srcp destp: Prepend dummy UDP header with specified dest and source ports (in DECIMAL).\n"
-            "                Automatically prepends Ethernet and IP headers as well\n"
+            " -i proto     : Prepend dummy IP header with specified IP protocol (in DECIMAL).\n"
+            "                Automatically prepends Ethernet header as well.\n"
+            "                Example: -i 46\n"
+            " -u srcp destp: Prepend dummy UDP header with specified dest and source ports\n"
+            "                (in DECIMAL).\n"
+            "                Automatically prepends Ethernet and IP headers as well.\n"
             "                Example: -u 30 40\n"
-            " -t timefmt   : Treats the text before the packet as a time code parsed by strptime format patterns.\n"
-            "                Example: The time \"10:15:14.5476\" has the format code \"%%H:%%M:%%S.\"\n"
-            "                NOTE:    The subsecond component delimiter must be specified (.) but no\n"
-            "                         pattern is required; the remaining number is assumed to be subseconds."
-            "\n", 
+            " -t timefmt   : Treats the text before the packet as a date/time code; the\n"
+            "                specified argument is a format string of the sort supported\n"
+            "                by strptime.\n"
+            "                Example: The time \"10:15:14.5476\" has the format code\n"
+            "                \"%%H:%%M:%%S.\"\n"
+            "                NOTE:    The subsecond component delimiter must be specified\n"
+            "                         (.) but no pattern is required; the remaining number\n"
+            "                         is assumed to be fractions of a second.\n"
+            "",
             progname);
 
     exit(-1);
