@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.31 2002/01/21 07:36:32 guy Exp $
+ * $Id: packet-bpdu.c,v 1.32 2002/02/27 10:03:08 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -100,6 +100,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       
       proto_tree *bpdu_tree;
       proto_item *ti;
+      guint8	rstp_bpdu;
 
       /* GARP application frames require special interpretation of the
          destination address field; otherwise, they will be mistaken as
@@ -155,7 +156,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       }
 
       bpdu_type = tvb_get_guint8(tvb, BPDU_TYPE);
-      if (bpdu_type == 0) {
+      if (bpdu_type == 0 || bpdu_type == 0x02) {
 	    flags = tvb_get_guint8(tvb, BPDU_FLAGS);
 	    root_identifier_bridge_priority = tvb_get_ntohs(tvb,
 	        BPDU_ROOT_IDENTIFIER);
@@ -181,6 +182,13 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			       port_identifier);
 	    else if (bpdu_type == 0x80)
 		  col_add_fstr(pinfo->cinfo, COL_INFO, "Topology Change Notification");
+            else if (bpdu_type == 0x02)
+		  col_add_fstr(pinfo->cinfo, COL_INFO, "RST. %sRoot = %d/%s  Cost = %d  Port = 0x%04x", 
+			       flags & 0x1 ? "TC + " : "",
+			       root_identifier_bridge_priority, root_identifier_mac_str, root_path_cost,
+			       port_identifier);
+            else
+                  col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown");
       }
 
       if (tree) {
@@ -201,22 +209,32 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    proto_tree_add_uint(bpdu_tree, hf_bpdu_version_id, tvb, 
 				BPDU_VERSION_IDENTIFIER, 1, 
 				protocol_version_identifier);
-	    if (protocol_version_identifier != 0)
+            switch (protocol_version_identifier) {
+              case 0:
+                break;
+              case 2:
+                break;
+              default:
 		  proto_tree_add_text(bpdu_tree, tvb, BPDU_VERSION_IDENTIFIER, 1,
-		  "   (Warning: this version of Ethereal only knows about version = 0)");
+		  "   (Warning: this version of Ethereal only knows about versions 0 & 2)");
+                break;
+            }
 	    proto_tree_add_uint_format(bpdu_tree, hf_bpdu_type, tvb,
 				       BPDU_TYPE, 1, 
 				       bpdu_type,
 				       "BPDU Type: 0x%02x (%s)", 
 				       bpdu_type,
 				       bpdu_type == 0 ? "Configuration" :
-				       bpdu_type == 0x80 ? "Topology Change Notification" : "Unknown");
+				       bpdu_type == 0x80 ?
+                                       "Topology Change Notification" :
+                                       bpdu_type == 0x02 ? "RST" : "Unknown");
 
-	    if (bpdu_type != 0) {
+	    if (bpdu_type != 0 && bpdu_type != 0x02) {
 	      call_dissector(data_handle,tvb_new_subset(tvb, BPDU_TYPE + 1,-1,tvb_reported_length_remaining(tvb,BPDU_TYPE + 1)), pinfo, tree);
 	      return;
 	    }
 
+            rstp_bpdu = (bpdu_type == 0x02);
 	    bridge_identifier_bridge_priority = tvb_get_ntohs(tvb, BPDU_BRIDGE_IDENTIFIER);
 	    bridge_identifier_mac = tvb_get_ptr(tvb, BPDU_BRIDGE_IDENTIFIER + 2, 6);
 	    bridge_identifier_mac_str = ether_to_str(bridge_identifier_mac);
@@ -227,10 +245,41 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	    proto_tree_add_uint(bpdu_tree, hf_bpdu_flags, tvb, 
 				BPDU_FLAGS, 1, flags);
-	    if (flags & 0x80)
-		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   1... ....  Topology Change Acknowledgment");
 	    if (flags & 0x01)
 		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   .... ...1  Topology Change");
+
+            if (rstp_bpdu) {
+              guint8 port_role;
+
+	      if (flags & 0x02)
+		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   .... ..1.  Proposal");
+              port_role = (flags & 0x0c) >> 2;
+              switch (port_role) {
+                case 0:
+		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   .... 00..  Unknown");
+                  break;
+                case 1:
+		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   .... 01..  Alternate or Backup");
+                  break;
+                case 2:
+		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   .... 10..  Root");
+                  break;
+                case 3:
+		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   .... 11..  Designated");
+                  break;
+                default:
+		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   .... ??..  Invalid");
+                  break;
+              }
+	      if (flags & 0x10)
+		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   ...1 ....  learning");
+	      if (flags & 0x20)
+		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   ..1. ....  Forawding");
+	      if (flags & 0x40)
+		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   .1.. ....  Agreement");
+            }
+	    if (flags & 0x80)
+		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   1... ....  Topology Change Acknowledgment");
 
 	    proto_tree_add_ether_hidden(bpdu_tree, hf_bpdu_root_mac, tvb,
 				       BPDU_ROOT_IDENTIFIER + 2, 6,
