@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.10 2002/04/29 08:20:05 guy Exp $
+ * $Id: packet-afp.c,v 1.11 2002/04/29 09:38:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -164,7 +164,7 @@ static int hf_afp_passwd = -1;
 static int hf_afp_pad = -1;
 
 static int hf_afp_vol_bitmap = -1;
-static int hf_afp_bitmap_offset = -1;
+static int hf_afp_vol_name_offset = -1;
 static int hf_afp_vol_id = -1;
 static int hf_afp_vol_attribute = -1;
 static int hf_afp_vol_name = -1;
@@ -195,7 +195,6 @@ static int hf_afp_file_DataForkLen    = -1;
 static int hf_afp_file_RsrcForkLen    = -1;
 static int hf_afp_file_ExtDataForkLen = -1;
 static int hf_afp_file_ExtRsrcForkLen = -1;
-static int hf_afp_file_UnixPrivs      = -1;
 
 static int hf_afp_dir_bitmap 	 = -1;
 static int hf_afp_dir_offspring  = -1;
@@ -214,6 +213,13 @@ static int hf_afp_creation_date = -1;
 static int hf_afp_modification_date = -1;
 static int hf_afp_backup_date = -1;
 static int hf_afp_finder_info = -1;
+static int hf_afp_long_name_offset = -1;
+static int hf_afp_short_name_offset = -1;
+static int hf_afp_unicode_name_offset = -1;
+static int hf_afp_unix_privs_uid = -1;
+static int hf_afp_unix_privs_gid = -1;
+static int hf_afp_unix_privs_permissions = -1;
+static int hf_afp_unix_privs_ua_permissions = -1;
 
 static int hf_afp_path_type = -1;
 static int hf_afp_path_len = -1;
@@ -225,6 +231,8 @@ static int hf_afp_ofork		= -1;
 static int hf_afp_ofork_len	= -1;
 static int hf_afp_offset	= -1;
 static int hf_afp_rw_count	= -1;
+static int hf_afp_newline_mask	= -1;
+static int hf_afp_newline_char	= -1;
 static int hf_afp_last_written	= -1;
 static int hf_afp_actual_count	= -1;
 
@@ -253,13 +261,11 @@ static gint ett_afp_dir_bitmap = -1;
 static gint ett_afp_dir_attribute = -1;
 static gint ett_afp_file_attribute = -1;
 static gint ett_afp_file_bitmap = -1;
+static gint ett_afp_unix_privs = -1;
 static gint ett_afp_path_name = -1;
 static gint ett_afp_lock_flags = -1;
 static gint ett_afp_dir_ar = -1;
 
-#ifdef AFP_UNUSED_HANDLES
-static dissector_handle_t afp_handle;
-#endif
 static dissector_handle_t data_handle;
 
 static const value_string vol_signature_vals[] = {
@@ -724,9 +730,8 @@ parse_vol_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap)
 	}
 	if ((bitmap & kFPVolNameBit)) {
 		nameoff = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(tree, hf_afp_bitmap_offset,tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_afp_vol_name_offset,tvb, offset, 2, FALSE);
 		offset += 2;
-
 	}
 	if ((bitmap & kFPVolExtBytesFreeBit)) {
 		proto_tree_add_item(tree, hf_afp_vol_ex_bytes_free,tvb, offset, 8, FALSE);
@@ -741,7 +746,7 @@ parse_vol_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap)
 		offset += 4;
 	}
 	if (nameoff) {
-	guint8 len;
+		guint8 len;
 
 		len = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(tree, hf_afp_vol_name, tvb, offset, 1,FALSE);
@@ -823,12 +828,62 @@ decode_file_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset, int shared)
 	return(attribute);
 }
 
+static void
+decode_access_rights (proto_tree *tree, tvbuff_t *tvb, int hf, gint offset)
+{
+  	proto_tree *sub_tree;
+  	proto_item *item;
+
+	if (tree) {
+		item = proto_tree_add_item(tree, hf, tvb, offset, 4, FALSE);
+		sub_tree = proto_item_add_subtree(item, ett_afp_dir_ar);
+
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_o_search, tvb, offset, 4,	FALSE);  
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_o_read  , tvb, offset, 4,	FALSE);  
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_o_write , tvb, offset, 4,	FALSE);  
+
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_g_search, tvb, offset, 4,	FALSE);  
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_g_read  , tvb, offset, 4,	FALSE);  
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_g_write , tvb, offset, 4,	FALSE);  
+
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_e_search, tvb, offset, 4,	FALSE);  
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_e_read  , tvb, offset, 4,	FALSE);  
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_e_write , tvb, offset, 4,	FALSE);  
+
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_u_search, tvb, offset, 4,	FALSE);  
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_u_read  , tvb, offset, 4,	FALSE);  
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_u_write , tvb, offset, 4,	FALSE);  
+
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_blank   , tvb, offset, 4,	FALSE);  
+		proto_tree_add_item(sub_tree, hf_afp_dir_ar_u_own   , tvb, offset, 4,	FALSE);  
+	}
+}		
+
+static void
+decode_unix_privs (proto_tree *tree, tvbuff_t *tvb, gint offset)
+{
+  	proto_tree *sub_tree;
+  	proto_item *item;
+
+	if (tree) {
+		item = proto_tree_add_text(tree, tvb, offset, 16,
+		    "UNIX privileges");
+		sub_tree = proto_item_add_subtree(item, ett_afp_unix_privs);
+
+		proto_tree_add_item(sub_tree, hf_afp_unix_privs_uid, tvb, offset, 4, FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_unix_privs_gid, tvb, offset+4, 4, FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_unix_privs_permissions, tvb, offset+8, 4, FALSE);
+		decode_access_rights(sub_tree, tvb, hf_afp_unix_privs_ua_permissions, offset+12);
+	}
+}
+
 /* -------------------------- */
 static gint
 parse_file_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap, int shared)
 {
 	guint16 lnameoff = 0;
 	guint16 snameoff = 0;
+	guint16 unameoff = 0;
 	gint 	max_offset = 0;
 
 	gint 	org_offset = offset;
@@ -864,7 +919,7 @@ parse_file_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap,
 		lnameoff = tvb_get_ntohs(tvb, offset);
 		if (lnameoff) {
 			tp_ofs = lnameoff +org_offset;
-			proto_tree_add_item(tree, hf_afp_bitmap_offset,tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_afp_long_name_offset,tvb, offset, 2, FALSE);
 			len = tvb_get_guint8(tvb, tp_ofs);
 			proto_tree_add_item(tree, hf_afp_path_len, tvb, tp_ofs,  1,FALSE);
 			tp_ofs++;
@@ -876,7 +931,7 @@ parse_file_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap,
 	}
 	if ((bitmap & kFPShortNameBit)) {
 		snameoff = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(tree, hf_afp_bitmap_offset,tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_afp_short_name_offset,tvb, offset, 2, FALSE);
 		offset += 2;
 	}
 	if ((bitmap & kFPNodeIDBit)) {
@@ -904,6 +959,8 @@ parse_file_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap,
 	}
 
 	if ((bitmap & kFPUTF8NameBit)) {
+		unameoff = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_item(tree, hf_afp_unicode_name_offset,tvb, offset, 2, FALSE);
 		offset += 2;
 	}
 
@@ -913,8 +970,15 @@ parse_file_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap,
 	}
 
 	if ((bitmap & kFPUnixPrivsBit_file)) {
-		proto_tree_add_item(tree, hf_afp_file_UnixPrivs, tvb, offset, 4,FALSE);
-		offset += 4;
+		/*
+		 * XXX - the AFP 3.0 spec says this is "Four bytes", but
+		 * also says the privileges are "stored in an FPUnixPrivs
+		 * structure", which is 16 bytes long.
+		 *
+		 * We assume, for now, that the latter is true.
+		 */
+		decode_unix_privs(tree, tvb, offset);
+		offset += 16;
 	}
 
 	return (max_offset)?max_offset:offset;
@@ -1020,7 +1084,7 @@ parse_dir_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap)
 		lnameoff = tvb_get_ntohs(tvb, offset);
 		if (lnameoff) {
 			tp_ofs = lnameoff +org_offset;
-			proto_tree_add_item(tree, hf_afp_bitmap_offset,tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_afp_long_name_offset,tvb, offset, 2, FALSE);
 			len = tvb_get_guint8(tvb, tp_ofs);
 			proto_tree_add_item(tree, hf_afp_path_len, tvb, tp_ofs,  1,FALSE);
 			tp_ofs++;
@@ -1032,7 +1096,7 @@ parse_dir_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap)
 	}
 	if ((bitmap & kFPShortNameBit)) {
 		snameoff = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(tree, hf_afp_bitmap_offset,tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_afp_short_name_offset,tvb, offset, 2, FALSE);
 		offset += 2;
 	}
 	if ((bitmap & kFPNodeIDBit)) {
@@ -1052,39 +1116,24 @@ parse_dir_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap)
 		offset += 4;
 	}
 	if ((bitmap & kFPAccessRightsBit)) {
-  		proto_tree *sub_tree = NULL;
-  		proto_item *item;
-  			
-		if (tree) {
-			item = proto_tree_add_item(tree, hf_afp_dir_ar, tvb, offset, 4, FALSE);
-			sub_tree = proto_item_add_subtree(item, ett_afp_dir_ar);
-		}
-		proto_tree_add_item(sub_tree, hf_afp_dir_ar_o_search, tvb, offset, 4,	FALSE);  
-		proto_tree_add_item(sub_tree, hf_afp_dir_ar_o_read  , tvb, offset, 4,	FALSE);  
-		proto_tree_add_item(sub_tree, hf_afp_dir_ar_o_write , tvb, offset, 4,	FALSE);  
-
-		proto_tree_add_item(sub_tree, hf_afp_dir_ar_g_search, tvb, offset, 4,	FALSE);  
-		proto_tree_add_item(sub_tree, hf_afp_dir_ar_g_read  , tvb, offset, 4,	FALSE);  
-		proto_tree_add_item(sub_tree, hf_afp_dir_ar_g_write , tvb, offset, 4,	FALSE);  
-
-		proto_tree_add_item(sub_tree, hf_afp_dir_ar_e_search, tvb, offset, 4,	FALSE);  
-		proto_tree_add_item(sub_tree, hf_afp_dir_ar_e_read  , tvb, offset, 4,	FALSE);  
-		proto_tree_add_item(sub_tree, hf_afp_dir_ar_e_write , tvb, offset, 4,	FALSE);  
-
-		proto_tree_add_item(sub_tree, hf_afp_dir_ar_u_search, tvb, offset, 4,	FALSE);  
-		proto_tree_add_item(sub_tree, hf_afp_dir_ar_u_read  , tvb, offset, 4,	FALSE);  
-		proto_tree_add_item(sub_tree, hf_afp_dir_ar_u_write , tvb, offset, 4,	FALSE);  
-
-		proto_tree_add_item(sub_tree, hf_afp_dir_ar_blank   , tvb, offset, 4,	FALSE);  
-		proto_tree_add_item(sub_tree, hf_afp_dir_ar_u_own   , tvb, offset, 4,	FALSE);  
-		
+		decode_access_rights(tree, tvb, hf_afp_dir_ar, offset);
 		offset += 4;
 	}
 	if ((bitmap & kFPUTF8NameBit)) {
+		unameoff = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_item(tree, hf_afp_unicode_name_offset,tvb, offset, 2, FALSE);
 		offset += 2;
 	}
 	if ((bitmap & kFPUnixPrivsBit)) {
-		offset += 4;
+		/*
+		 * XXX - the AFP 3.0 spec says this is "Four bytes", but
+		 * also says the privileges are "stored in an FPUnixPrivs
+		 * structure", which is 16 bytes long.
+		 *
+		 * We assume, for now, that the latter is true.
+		 */
+		decode_unix_privs(tree, tvb, offset);
+		offset += 16;
 	}
 	return (max_offset)?max_offset:offset;
 }
@@ -1582,8 +1631,6 @@ dissect_reply_afp_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gin
 static gint
 dissect_query_afp_read(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
-	int len;
-	
 	PAD(1);
 	
 	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
@@ -1595,10 +1642,12 @@ dissect_query_afp_read(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
 	proto_tree_add_item(tree, hf_afp_rw_count, tvb, offset, 4,FALSE);
 	offset += 4;
 
-	/* FIXME */
+	proto_tree_add_item(tree, hf_afp_newline_mask, tvb, offset, 1,FALSE);
 	offset++;
 	
+	proto_tree_add_item(tree, hf_afp_newline_char, tvb, offset, 1,FALSE);
 	offset++;
+
 	return offset;
 }
 
@@ -2842,10 +2891,10 @@ proto_register_afp(void)
 		FT_UINT16, BASE_DEC, VALS(vol_signature_vals), 0x0,
       	"Volume signature", HFILL }},
 
-    { &hf_afp_bitmap_offset,
-      { "Offset",         "afp.bitmap_offset",
+    { &hf_afp_vol_name_offset,
+      { "Volume name offset","afp.vol_name_offset",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"Name offset in packet", HFILL }},
+      	"Volume name offset in packet", HFILL }},
 
     { &hf_afp_vol_creation_date,
       { "Creation date",         "afp.vol_creation_date",
@@ -2932,6 +2981,41 @@ proto_register_afp(void)
 		FT_BYTES, BASE_HEX, NULL, 0x0,
       	"Finder info", HFILL }},
 
+    { &hf_afp_long_name_offset,
+      { "Long name offset",    "afp.long_name_offset",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"Long name offset in packet", HFILL }},
+
+    { &hf_afp_short_name_offset,
+      { "Short name offset",   "afp.short_name_offset",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"Short name offset in packet", HFILL }},
+
+    { &hf_afp_unicode_name_offset,
+      { "Unicode name offset", "afp.unicode_name_offset",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"Unicode name offset in packet", HFILL }},
+
+    { &hf_afp_unix_privs_uid,
+      { "UID",             "afp.unix_privs.uid",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+      	"User ID", HFILL }},
+
+    { &hf_afp_unix_privs_gid,
+      { "GID",             "afp.unix_privs.gid",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+      	"Group ID", HFILL }},
+
+    { &hf_afp_unix_privs_permissions,
+      { "Permissions",     "afp.unix_privs.permissions",
+		FT_UINT32, BASE_OCT, NULL, 0x0,
+      	"Permissions", HFILL }},
+
+    { &hf_afp_unix_privs_ua_permissions,
+      { "User's access rights",     "afp.unix_privs.ua_permissions",
+		FT_UINT32, BASE_HEX, NULL, 0x0,
+      	"User's access rights", HFILL }},
+
     { &hf_afp_file_id,
       { "File ID",         "afp.file_id",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -2956,11 +3040,6 @@ proto_register_afp(void)
       { "Extended resource fork size",         "afp.ext_resource_fork_len",
 		FT_UINT64, BASE_DEC, NULL, 0x0,
       	"Extended (>2GB) resource fork length", HFILL }},
-
-    { &hf_afp_file_UnixPrivs,
-      { "UNIX privileges",         "afp.unix_privs",
-		FT_UINT32, BASE_DEC, NULL, 0x0,
-      	"UNIX privileges", HFILL }},
     
     { &hf_afp_file_bitmap,
       { "File bitmap",         "afp.file_bitmap",
@@ -3021,6 +3100,16 @@ proto_register_afp(void)
       { "Count",         "afp.rw_count",
 		FT_INT32, BASE_DEC, NULL, 0x0,
       	"Number of bytes to be read/written", HFILL }},
+    
+    { &hf_afp_newline_mask,
+      { "Newline mask",  "afp.newline_mask",
+		FT_UINT8, BASE_HEX, NULL, 0x0,
+      	"Value to AND bytes with when looking for newline", HFILL }},
+    
+    { &hf_afp_newline_char,
+      { "Newline char",  "afp.newline_char",
+		FT_UINT8, BASE_HEX, NULL, 0x0,
+      	"Value to compare ANDed bytes with when looking for newline", HFILL }},
     
     { &hf_afp_last_written,
       { "Last written",  "afp.last_written",
@@ -3234,6 +3323,7 @@ proto_register_afp(void)
 	&ett_afp_vol_attribute,
 	&ett_afp_dir_bitmap,
 	&ett_afp_file_bitmap,
+	&ett_afp_unix_privs,
 	&ett_afp_enumerate,
 	&ett_afp_enumerate_line,
 	&ett_afp_access_mode,
