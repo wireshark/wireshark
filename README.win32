@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.64 2004/02/24 18:44:06 ulfl Exp $
+$Id: README.win32,v 1.65 2004/02/24 19:42:22 ulfl Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -370,6 +370,39 @@ In the ethereal directory, type "nmake -f makefile.nmake packaging" to build the
 Please be patient while the compression is done, it will take some time even on fast machines.
 
 You will hopefully now see something like ethereal-setup-0.10.2.exe in the dir packaging/nsis.
+
+
+Installing GTK-Wimp
+-------------------
+
+GTK-Wimp can be used to get a native Look-and-Feel on WinXP machines, 
+especially with the new "coloured" WinXP theme. It will only take effect
+together with the GTK2 version of Ethereal. 
+
+No changes to the Ethereal sources are needed, GTK-Wimp simply changes the 
+way GTK2 displays the widgets (by changing the GTK2 default theme).
+
+GTK-Wimp might already be installed. In this case, the files mentioned below
+are already existing at the appropriate places.
+
+If GTK-Wimp isn't installed, you can install it yourself: 
+
+1. Go to http://gtk-wimp.sourceforge.net/
+2. Download the ZIP archive containing the library and the theme
+3. Locate the installation directory of Ethereal (C:\Program Files\Ethereal)
+4. Create a subdirectory 'share\themes\Default\gtk-2.0'
+5. Drop the file 'gtkrc' in 'share\themes\Default\gtk-2.0'
+6. Create a subdirectory named 'lib\gtk-2.0\2.2.0\engines'
+7. Drop the 'libwimp.dll' library in 'lib\gtk-2.0\2.2.0\engines'
+
+When you're finished, you should have:
+
+C:\Program Files\Ethereal\lib\gtk-2.0\2.2.0\engines\libwimp.dll
+C:\Program Files\Ethereal\share\themes\Default\gtk-2.0\gtkrc
+
+After (re-)starting Ethereal, you should now see it's widgets in the modern 
+WinXP style on your screen.
+
 
 Instructions for Cygwin
 -----------------------
