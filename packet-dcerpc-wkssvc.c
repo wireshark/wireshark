@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.21 2003/05/01 00:23:47 sharpe Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.22 2003/05/01 00:43:37 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -91,6 +91,9 @@ static int hf_wkssvc_buf_read_only_files = -1;
 static int hf_wkssvc_force_core_create_mode = -1;
 static int hf_wkssvc_use_512_byte_max_transfer = -1;
 static int hf_wkssvc_parm_err = -1;
+static int hf_wkssvc_errlog_sz = -1;
+static int hf_wkssvc_print_buf_time = -1;
+static int hf_wkssvc_wrk_heuristics = -1;
 static gint ett_dcerpc_wkssvc = -1;
 
 extern const value_string platform_id_vals[];
@@ -390,6 +393,39 @@ wkssvc_dissect_WKS_INFO_1018(tvbuff_t *tvb, int offset,
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_wkssvc_sess_timeout, NULL);
+
+	return offset;
+}
+
+static int
+wkssvc_dissect_WKS_INFO_1023(tvbuff_t *tvb, int offset,
+			     packet_info *pinfo, proto_tree *tree,
+			     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_siz_char_buf, NULL);
+
+	return offset;
+}
+
+static int
+wkssvc_dissect_WKS_INFO_1027(tvbuff_t *tvb, int offset,
+			     packet_info *pinfo, proto_tree *tree,
+			     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_errlog_sz, NULL);
+
+	return offset;
+}
+
+static int
+wkssvc_dissect_WKS_INFO_1033(tvbuff_t *tvb, int offset,
+			     packet_info *pinfo, proto_tree *tree,
+			     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_wkssvc_max_threads, NULL);
 
 	return offset;
 }
@@ -973,6 +1009,15 @@ proto_register_dcerpc_wkssvc(void)
 	  { &hf_wkssvc_parm_err, 
 	    { "Parameter Error Offset", "wkssvc.parm.err", FT_INT32,
 	      BASE_DEC, NULL, 0x0, "Parameter Error Offset", HFILL}},
+	  { &hf_wkssvc_errlog_sz, 
+	    { "Error Log Size", "wkssvc.errlog.sz", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Error Log Size", HFILL}},
+	  { &hf_wkssvc_print_buf_time, 
+	    { "Print Buf Time", "wkssvc.print.buf.time", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Print Buff Time", HFILL}},
+	  { &hf_wkssvc_wrk_heuristics, 
+	    { "Wrk Heuristics", "wkssvc.wrk.heuristics", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Wrk Heuristics", HFILL}},
 	};
         static gint *ett[] = {
                 &ett_dcerpc_wkssvc
