@@ -236,7 +236,6 @@ FILE SECTION
   <!ENTITY AppHowItWorks SYSTEM "eug_src/EUG_app_howitworks.xml">
   <!ENTITY AppTools SYSTEM "eug_src/EUG_app_tools.xml">
   <!ENTITY AppGPL SYSTEM    "GPL_appendix.xml">
-  <!ENTITY ProtoList SYSTEM    "protocols.xml">
 
 ]>
 

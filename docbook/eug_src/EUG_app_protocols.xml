@@ -11,15 +11,5 @@
 	 A comprehensive list of all protocols and protocol fields can be found 
 	at: <ulink url="&EtherealProtocolsPage;">&EtherealProtocolsPage;</ulink>	
     </para>
-  
-    <para>
-	XXX - update this protocols list.
-    </para>
-  
-    <para>
-	For a quick reference, the list of available protocols is following:
-	&ProtoList;
-    </para>
-
 </appendix>
 <!-- End of EUG Appendix Protocols -->
