@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.63 2003/09/21 20:06:00 gerald Exp $
+ * $Id: packet-gtp.c,v 1.64 2003/10/10 10:25:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -339,11 +339,7 @@ static gint ett_gtp_can_pack		= -1;
 static gint ett_gtp_data_resp		= -1;
 static gint ett_gtp_priv_ext		= -1;
 
-/* Definition of user preferences panel fields */
-#define DONT_DISSECT_CDRS	2
-
 static gboolean	gtp_tpdu		= TRUE;
-static gint 	gtpv0_cdr_as 		= DONT_DISSECT_CDRS;			/* 2 = do not dissect */
 static gboolean	gtpv0_etsi_order	= FALSE;
 static gboolean	gtpv1_etsi_order	= FALSE;
 static int	gtpv0_port		= 0;
@@ -1481,157 +1477,6 @@ typedef struct {
 	guint32		teid;
 } _gtpv1_hdr;
 
-static struct gcdr_ {				/* GCDR 118B */
-	guint8		imsi[8];
-	guint32		ggsnaddr;
-	guint32		chrgid;
-	guint32		sgsnaddr;
-	gchar		apn[63];
-	guint8		pdporg;
-	guint8		pdptype;
-	guint32		pdpaddr;
-	guint8		addrflag;
-	guint8		qos[3];
-	guint32		uplink;
-	guint32		downlink;
-	guint32		timestamp;
-	guint32		opening;
-	guint32		duration;
-	guint8		closecause;
-	guint32		seqno;
-	guint8		msisdn[9];
-} gcdr;
-
-typedef struct change_ {
-	guint8		change;
-	guint32		time1;
-	guint32		time2;
-	guint32		uplink;
-	guint32		downlink;
-	guint8		qos_req[3];
-	guint8		qos_neg[3];
-} change_t;
-
-static struct _scdr {				/* SCDR 277B */
-	guint16		len;
-	guint8		netini;
-	guint8		anon;
-	guint8		imsilen;
-	guint8		imsi[8];
-	guint8		imei[8];
-	guint8		msisdnlen;
-	guint8		msisdn[10];
-	guint32		sgsnaddr;
-	guint8		msclass_notused[12];
-	guint8		msclass_caplen;
-	guint8		msclass_cap;
-	guint16		msclass_capomit;
-	guint16		lac;
-	guint8		rac;
-	guint16		cid;
-	guint32		chrgid;
-	guint32		ggsnaddr;
-	gchar		apn[64];
-	guint8		pdporg;
-	guint8		pdptype;
-	guint32		pdpaddr;
-	guint8		listind;
-	change_t	change[5];
-	guint32		timestamp;
-	guint32		opening;
-	guint32		duration;
-	guint8		sgsnchange;
-	guint8		closecause;
-	guint8		diag1;
-	guint8		diag2;
-	guint8		diag3;
-	guint8		diag4;
-	guint32		diag5;
-	guint32		seqno;
-} scdr;
-
-typedef struct mmchange_ {
-	guint16		lac;
-	guint8		rac;
-	guint16		cid;
-	guint8		omit[8];
-} mmchange_t;
-
-static struct _mcdr {				/* MCDR 147B */
-	guint16		len;
-	guint8		imsilen;
-	guint8		imsi[8];
-	guint8		imei[8];
-	guint8		msisdnlen;
-	guint8		msisdn[10];
-	guint32		sgsnaddr;
-	guint8		msclass_notused[12];
-	guint8		msclass_caplen;
-	guint8		msclass_cap;
-	guint16		msclass_capomit;
-	guint16		lac;
-	guint8		rac;
-	guint16		cid;
-	guint8		change_count;
-	mmchange_t	change[5];
-	guint32		timestamp;
-	guint32		opening;
-/*	guint8		opening[8]; */
-	guint32		duration;
-	guint8		sgsnchange;
-	guint8		closecause;
-	guint8		diag1;
-	guint8		diag2;
-	guint8		diag3;
-	guint8		diag4;
-	guint32		diag5;
-	guint32		seqno;
-} mcdr;
-
-static struct _socdr {					/* SOCDR 80B */
-	guint16		len;
-	guint8		imsilen;
-	guint8		imsi[8];
-	guint8		imei[8];
-	guint8		msisdnlen;
-	guint8		msisdn[10];
-	guint8		msclass_notused[12];
-	guint8		msclass_caplen;
-	guint8		msclass_cap;
-	guint16		msclass_capomit;
-	guint8		serv_centr[9];
-	guint8		rec_ent[9];
-	guint16		lac;
-	guint8		rac;
-	guint16		cid;
-	guint32		time1;
-	guint32		time2;
-	guint8		messref;
-	guint16		smsres;
-} socdr;
-
-
-static struct _stcdr {					/* STCDR 79B */
-	guint16		len;
-	guint8		imsilen;
-	guint8		imsi[8];
-	guint8		imei[8];
-	guint8		msisdnlen;
-	guint8		msisdn[10];
-	guint8		msclass_notused[12];
-	guint8		msclass_caplen;
-	guint8		msclass_cap;
-	guint16		msclass_capomit;
-	guint8		serv_centr[9];
-	guint8		rec_ent[9];
-	guint16		lac;
-	guint8		rac;
-	guint16		cid;
-	guint32		time1;
-	guint32		time2;
-	guint16		smsres;
-} stcdr;
-
 static	guint8		gtp_version = 0;
 static	char		*yesno[] = { "False", "True" };
 
@@ -1716,30 +1561,6 @@ msisdn_to_str(const guint8 *ad, int len) {
 	}
 	*p = '\0';
 	return str;
-}
-
-static gchar *
-time_int_to_str (guint32 time)
-{
-
-	nstime_t	nstime;
-
-	nstime.secs = time;
-	nstime.nsecs = 0;
-
-	return abs_time_to_str (&nstime);
-}
-
-static gchar *
-rel_time_int_to_str (guint32 time)
-{
-
-	nstime_t	nstime;
-
-	nstime.secs = time;
-	nstime.nsecs = 0;
-
-	return rel_time_to_str (&nstime);
 }
 
 /* Next definitions and function check_field_presence checks if given field
@@ -4364,10 +4185,10 @@ decode_gtp_can_pack(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 static int
 decode_gtp_data_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
-	guint16		length, format_ver, data_len, i, j;
-	guint8		no, format, rectype;
-	proto_tree	*ext_tree, *cdr_tree;
-	proto_item	*te, *ce;
+	guint16		length, format_ver;
+	guint8		no, format;
+	proto_tree	*ext_tree;
+	proto_item	*te;
 
 	te = proto_tree_add_text(tree, tvb, offset, 1, val_to_str(GTP_EXT_DATA_REQ, gtp_val, "Unknown message"));
 	ext_tree = proto_item_add_subtree(te, ett_gtp_ext);
@@ -4381,386 +4202,7 @@ decode_gtp_data_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 	proto_tree_add_text(ext_tree, tvb, offset+3, 1, "Number of data records: %u", no);
 	proto_tree_add_text(ext_tree, tvb, offset+4, 1, "Data record format: %u", format);
 	proto_tree_add_text(ext_tree, tvb, offset+5, 2, "Data record format version: %u", format_ver);
-
-	data_len = 0;
-	offset = offset + 7;
-
-	if (gtpv0_cdr_as != DONT_DISSECT_CDRS) {
-
-	for (i = 0; i < no; i++) {
-		data_len = tvb_get_ntohs(tvb, offset);
-		rectype = tvb_get_guint8(tvb, offset+2);
-		switch (rectype) {
-			case 0x13:		/* GCDR */
-				if (tvb_length_remaining(tvb, offset) < 3 + 118) {
-					proto_tree_add_text(ext_tree, tvb, offset, tvb_length_remaining(tvb, offset), "GCDR fragmented, can't dissect");
-					break;
-				}
-
-				tvb_memcpy(tvb, gcdr.imsi, offset+3, 8);
-				tvb_memcpy(tvb, (guint8 *)&gcdr.ggsnaddr, offset+11, sizeof gcdr.ggsnaddr);
-				gcdr.chrgid = tvb_get_ntohl(tvb, offset+15);
-				tvb_memcpy(tvb, (guint8 *)&gcdr.sgsnaddr, offset+19, sizeof gcdr.sgsnaddr);
-				tvb_memcpy(tvb, gcdr.apn, offset+23, 63);
-				gcdr.pdporg = tvb_get_guint8(tvb, offset+86);
-				gcdr.pdptype = tvb_get_guint8(tvb, offset+87);
-				tvb_memcpy(tvb, (guint8 *)&gcdr.pdpaddr, offset+88, sizeof gcdr.pdpaddr);
-				gcdr.addrflag = tvb_get_guint8(tvb, offset+92);
-				gcdr.uplink = tvb_get_ntohl(tvb, offset+96);
-				gcdr.downlink = tvb_get_ntohl(tvb, offset+100);
-				gcdr.timestamp = tvb_get_ntohl(tvb, offset+104);
-				gcdr.opening = tvb_get_ntohl(tvb, offset+108);
-				gcdr.duration = tvb_get_ntohl(tvb, offset+112);
-				gcdr.closecause = tvb_get_guint8(tvb, offset+116);
-				gcdr.seqno = tvb_get_ntohl(tvb, offset+117);
-
-				ce = proto_tree_add_text(ext_tree, tvb, offset, data_len + 2, "GCDR (0x13), sequence number: %u", gcdr.seqno);
-				cdr_tree = proto_item_add_subtree(ce, ett_gtp_ext);
-				proto_tree_add_text(cdr_tree, tvb, offset, 2, "Length: %u", data_len);
-				proto_tree_add_text(cdr_tree, tvb, offset+2, 1, "Type: %u (%x)", rectype, rectype);
-				proto_tree_add_text(cdr_tree, tvb, offset+3, 8, "IMSI: %s", id_to_str(gcdr.imsi));
-				proto_tree_add_text(cdr_tree, tvb, offset+11, 4, "GGSN address: %s", ip_to_str((guint8 *)&gcdr.ggsnaddr));
-				proto_tree_add_text(cdr_tree, tvb, offset+15, 4, "Charging ID: %x", gcdr.chrgid);
-				proto_tree_add_text(cdr_tree, tvb, offset+19, 4, "SGSN address: %s", ip_to_str((guint8 *)&gcdr.sgsnaddr));
-				proto_tree_add_text(cdr_tree, tvb, offset+23, 63, "APN: %s", gcdr.apn);
-				proto_tree_add_text(cdr_tree, tvb, offset+86, 1, "PDP org: %s", val_to_str(gcdr.pdporg, pdp_org_type, "Unknown PDP org"));
-				proto_tree_add_text(cdr_tree, tvb, offset+87, 1, "PDP type: %s", val_to_str(gcdr.pdptype, pdp_type, "Unknown PDP type"));
-				proto_tree_add_text(cdr_tree, tvb, offset+88, 4, "PDP address: %s", ip_to_str((guint8 *)&gcdr.pdpaddr));
-				proto_tree_add_text(cdr_tree, tvb, offset+92, 1, "PDP address type: %u", gcdr.addrflag);
-				decode_qos_gprs(tvb, offset+93, cdr_tree, "QoS", 0);
-				proto_tree_add_text(cdr_tree, tvb, offset+96, 4, "Uplink volume: %u", gcdr.uplink);
-				proto_tree_add_text(cdr_tree, tvb, offset+100, 4, "Downlink volume: %u", gcdr.downlink);
-				proto_tree_add_text(cdr_tree, tvb, offset+104, 4, "Timestamp: %s", time_int_to_str(gcdr.timestamp));
-				proto_tree_add_text(cdr_tree, tvb, offset+108, 4, "Record opening time: %s", time_int_to_str(gcdr.opening));
-				proto_tree_add_text(cdr_tree, tvb, offset+112, 4, "Duration: %s", rel_time_int_to_str(gcdr.duration));
-				proto_tree_add_text(cdr_tree, tvb, offset+116, 1, "Cause for close: %s (%u)", val_to_str(gcdr.closecause, cdr_close_type, "Unknown cause"), gcdr.closecause);
-				proto_tree_add_text(cdr_tree, tvb, offset+117, 4, "Sequence number: %u", gcdr.seqno);
-
-				if (data_len > 119) {
-					tvb_memcpy (tvb, gcdr.msisdn, offset + 121, 9);
-					proto_tree_add_text(cdr_tree, tvb, offset+121, 9, "MSISDN: %s", msisdn_to_str (gcdr.msisdn, 9));
-				}
-
-				break;
-
-			case 0x12:		/* SCDR */
-				if (tvb_length_remaining(tvb, offset) < 3 + 277) {
-					proto_tree_add_text(ext_tree, tvb, offset, tvb_length_remaining(tvb, offset), "SCDR fragmented, can't dissect");
-					break;
-				}
-
-				scdr.len = tvb_get_letohs(tvb, offset+3);
-				scdr.netini = tvb_get_guint8(tvb, offset+5);
-				scdr.anon = tvb_get_guint8(tvb, offset+6);
-				scdr.imsilen = tvb_get_guint8(tvb, offset+7);
-				tvb_memcpy(tvb, scdr.imsi, offset+8, 8);
-				tvb_memcpy(tvb, scdr.imei, offset+16, 8);
-				scdr.msisdnlen = tvb_get_guint8(tvb, offset+24);
-				tvb_memcpy(tvb, scdr.msisdn, offset+25, 10);
-				tvb_memcpy(tvb, (guint8 *)&scdr.sgsnaddr, offset+35, sizeof scdr.sgsnaddr);
-				tvb_memcpy(tvb, scdr.msclass_notused, offset+39, 12);
-				scdr.msclass_caplen = tvb_get_guint8(tvb, offset+51);
-				scdr.msclass_cap = tvb_get_guint8(tvb, offset+52);
-				scdr.msclass_capomit = tvb_get_ntohs(tvb, offset+53);
-				scdr.lac = tvb_get_ntohs(tvb, offset+55);
-				scdr.rac = tvb_get_guint8(tvb, offset+57);
-				scdr.cid = tvb_get_ntohs(tvb, offset+58);
-				scdr.chrgid = tvb_get_ntohl(tvb, offset+60);
-				tvb_memcpy(tvb, (guint8 *)&scdr.ggsnaddr, offset+64, sizeof scdr.ggsnaddr);
-				tvb_memcpy(tvb, scdr.apn, offset+68, 64);
-				scdr.pdporg = tvb_get_guint8(tvb, offset+132);
-				scdr.pdptype = tvb_get_guint8(tvb, offset+133);
-				tvb_memcpy(tvb, (guint8 *)&scdr.pdpaddr, offset+134, sizeof scdr.pdpaddr);
-				scdr.listind = tvb_get_guint8(tvb, offset+138);
-				for (j=0;j<4;j++) {
-					scdr.change[j].change = tvb_get_guint8(tvb, offset+139+23*j);
-					scdr.change[j].time1 = tvb_get_ntohl(tvb, offset+140+23*j);
-					scdr.change[j].time2 = tvb_get_ntohl(tvb, offset+144+23*j);
-					scdr.change[j].uplink = tvb_get_ntohl(tvb, offset+148+23*j);
-					scdr.change[j].downlink = tvb_get_ntohl(tvb, offset+152+23*j);
-/*					tvb_memcpy(tvb, scdr.change[j].qos_req, offset+156+23*j, 3);
-					tvb_memcpy(tvb, scdr.change[j].qos_neg, offset+159+23*j, 3);*/
-				}
-				scdr.timestamp = tvb_get_ntohl(tvb, offset+254);
-				scdr.opening = tvb_get_ntohl(tvb, offset+258);
-				scdr.duration = tvb_get_ntohl(tvb, offset+262);
-				scdr.sgsnchange = tvb_get_guint8(tvb, offset+266);
-				scdr.closecause = tvb_get_guint8(tvb, offset+267);
-				scdr.diag1 = tvb_get_guint8(tvb, offset+268);
-				scdr.diag2 = tvb_get_guint8(tvb, offset+269);
-				scdr.diag3 = tvb_get_guint8(tvb, offset+270);
-				scdr.diag4 = tvb_get_guint8(tvb, offset+271);
-				scdr.diag5 = tvb_get_ntohl(tvb, offset+272);
-				scdr.seqno = tvb_get_ntohl(tvb, offset+276);
-
-				ce = proto_tree_add_text(ext_tree, tvb, offset, data_len + 2, "SCDR (type %x), sequence number: %u", rectype, scdr.seqno);
-				cdr_tree = proto_item_add_subtree(ce, ett_gtp_ext);
-				proto_tree_add_text(cdr_tree, tvb, offset, 2, "Length: %u", data_len);
-				proto_tree_add_text(cdr_tree, tvb, offset+2, 1, "Type: %u (%x)", rectype, rectype);
-				proto_tree_add_text(cdr_tree, tvb, offset+3, 2, "CDR length: %u", scdr.len);
-				proto_tree_add_text(cdr_tree, tvb, offset+5, 1, "Network initiated PDP context: %s", yesno[scdr.netini]);
-				proto_tree_add_text(cdr_tree, tvb, offset+6, 1, "Anonymous acces: %s", yesno[scdr.anon]);
-				proto_tree_add_text(cdr_tree, tvb, offset+7, 1, "IMSI length: %u", scdr.imsilen);
-				proto_tree_add_text(cdr_tree, tvb, offset+8, 8, "IMSI: %s", id_to_str(scdr.imsi));
-				proto_tree_add_text(cdr_tree, tvb, offset+16, 8, "IMEI: %s", id_to_str(scdr.imei));
-				proto_tree_add_text(cdr_tree, tvb, offset+24, 1, "MSISDN length: %u", scdr.msisdnlen);
-				proto_tree_add_text(cdr_tree, tvb, offset+25, 10, "MSISDN: %s", msisdn_to_str(scdr.msisdn, 10));
-				proto_tree_add_text(cdr_tree, tvb, offset+35, 4, "SGSN address: %s", ip_to_str((guint8 *)&scdr.sgsnaddr));
-				proto_tree_add_text(cdr_tree, tvb, offset+39, 12, "(not used)");
-				proto_tree_add_text(cdr_tree, tvb, offset+51, 1, "MS network capability length: %u", scdr.msclass_caplen);
-
-/*				cap_id = proto_tree_add_text(cdr_tree, tvb, offset+52, 1, "MS network capability: %u", scdr.msclass_cap);
-				cap_tree = proto_item_add_subtree(cap_id, ett_chrg_cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_gea, tvb, offset+52, 1, scdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_sm_gsm, tvb, offset+52, 1, scdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_sm_gprs, tvb, offset+52, 1, scdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_ucs2, tvb, offset+52, 1, scdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_ss, tvb, offset+52, 1, scdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_solsa, tvb, offset+52, 1, scdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_pad, tvb, offset+52, 1, scdr.cap);
-*/
-
-				proto_tree_add_text(cdr_tree, tvb, offset+53, 2, "MS network capability omitted: %u", scdr.msclass_capomit);
-				proto_tree_add_text(cdr_tree, tvb, offset+55, 2, "LAC: %u", scdr.lac);
-				proto_tree_add_text(cdr_tree, tvb, offset+57, 1, "RAC: %u", scdr.rac);
-				proto_tree_add_text(cdr_tree, tvb, offset+58, 2, "Cell ID: %u", scdr.cid);
-				proto_tree_add_text(cdr_tree, tvb, offset+60, 4, "Charging ID: %x", scdr.chrgid);
-				proto_tree_add_text(cdr_tree, tvb, offset+64, 4, "GGSN address: %s", ip_to_str((guint8 *)&scdr.ggsnaddr));
-				proto_tree_add_text(cdr_tree, tvb, offset+68, 64, "APN: %s", scdr.apn);
-				proto_tree_add_text(cdr_tree, tvb, offset+132, 1, "PDP org: %s", val_to_str(scdr.pdporg, pdp_org_type, "Unknown PDP org"));
-				proto_tree_add_text(cdr_tree, tvb, offset+133, 1, "PDP type: %s", val_to_str(scdr.pdptype, pdp_type, "Unknown PDP type"));
-				proto_tree_add_text(cdr_tree, tvb, offset+134, 4, "PDP address: %s", ip_to_str((guint8 *)&scdr.pdpaddr));
-				proto_tree_add_text(cdr_tree, tvb, offset+138, 1, "List of data volume index: %u", scdr.listind);
-				for (j=0;j<4;j++) {
-					proto_tree_add_text(cdr_tree, tvb, offset+139+23*j, 1, "List of data vol change condition: %u", scdr.change[j].change);
-					proto_tree_add_text(cdr_tree, tvb, offset+140+23*j, 4, "Time1: %x", scdr.change[j].time1);
-					proto_tree_add_text(cdr_tree, tvb, offset+144+23*j, 4, "Time2: %x", scdr.change[j].time2);
-					proto_tree_add_text(cdr_tree, tvb, offset+148+23*j, 4, "Uplink: %x", scdr.change[j].uplink);
-					proto_tree_add_text(cdr_tree, tvb, offset+152+23*j, 4, "Downlink: %x", scdr.change[j].downlink);
-					decode_qos_gprs(tvb, offset+156, cdr_tree, "QoS requested", 0);
-					decode_qos_gprs(tvb, offset+159, cdr_tree, "QoS negotiated", 0);
-				}
-				proto_tree_add_text(cdr_tree, tvb, offset+254, 4, "Timestamp: %s", time_int_to_str(scdr.timestamp));
-				proto_tree_add_text(cdr_tree, tvb, offset+258, 4, "Opening: %s", time_int_to_str(scdr.opening));
-				proto_tree_add_text(cdr_tree, tvb, offset+262, 4, "Duration: %s", rel_time_int_to_str(scdr.duration));
-				proto_tree_add_text(cdr_tree, tvb, offset+266, 1, "SGSN change: %u", scdr.sgsnchange);
-				proto_tree_add_text(cdr_tree, tvb, offset+267, 1, "Cause for close: %s (%u)", val_to_str(scdr.closecause, cdr_close_type, "Unknown cause"), scdr.closecause);
-				proto_tree_add_text(cdr_tree, tvb, offset+268, 1, "Diagnostics 1: %u", scdr.diag1);
-				proto_tree_add_text(cdr_tree, tvb, offset+269, 1, "Diagnostics 2: %u", scdr.diag2);
-				proto_tree_add_text(cdr_tree, tvb, offset+270, 1, "Diagnostics 3: %u", scdr.diag3);
-				proto_tree_add_text(cdr_tree, tvb, offset+271, 1, "Diagnostics 4: %u", scdr.diag4);
-				proto_tree_add_text(cdr_tree, tvb, offset+272, 4, "Diagnostics 5: %u", scdr.diag5);
-				proto_tree_add_text(cdr_tree, tvb, offset+276, 4, "Sequence number: %u", scdr.seqno);
-				break;
-			case 0x14:		/* MCDR */
-				if (tvb_length_remaining(tvb, offset) < 3 + 147) {
-					proto_tree_add_text(ext_tree, tvb, offset, tvb_length_remaining(tvb, offset), "MCDR fragmented, can't dissect");
-					break;
-				}
-
-				mcdr.len = tvb_get_ntohs(tvb, offset+3);
-				mcdr.imsilen = tvb_get_guint8(tvb, offset+5);
-				tvb_memcpy(tvb, mcdr.imsi, offset+6, 8);
-				tvb_memcpy(tvb, mcdr.imei, offset+14, 8);
-				mcdr.msisdnlen = tvb_get_guint8(tvb, offset+22);
-				tvb_memcpy(tvb, mcdr.msisdn, offset+23, 10);
-				tvb_memcpy(tvb, (guint8 *)&mcdr.sgsnaddr, offset+33, sizeof mcdr.sgsnaddr);
-				tvb_memcpy(tvb, mcdr.msclass_notused, offset+37, 12);
-				mcdr.msclass_caplen = tvb_get_guint8(tvb, offset+49);
-				mcdr.msclass_cap = tvb_get_guint8(tvb, offset+50);
-				mcdr.msclass_capomit = tvb_get_ntohs(tvb, offset+51);
-				mcdr.lac = tvb_get_ntohs(tvb, offset+53);
-				mcdr.rac = tvb_get_guint8(tvb, offset+55);
-				mcdr.cid = tvb_get_ntohs(tvb, offset+56);
-				mcdr.change_count = tvb_get_guint8(tvb, offset+58);
-				for (j=0;j<4;j++) {
-					mcdr.change[j].lac = tvb_get_ntohs(tvb, offset+59+13*j);
-					mcdr.change[j].rac = tvb_get_guint8(tvb, offset+61+13*j);
-					mcdr.change[j].cid = tvb_get_ntohs(tvb, offset+62+13*j);
-					tvb_memcpy(tvb, mcdr.change[j].omit, offset+64+13*j, 8);
-				}
-				mcdr.timestamp = tvb_get_ntohl(tvb, offset+124);
-				mcdr.opening = tvb_get_ntohl(tvb, offset+128);
-				mcdr.duration = tvb_get_ntohl(tvb, offset+132);
-				mcdr.sgsnchange = tvb_get_guint8(tvb, offset+136);
-				mcdr.closecause = tvb_get_guint8(tvb, offset+137);
-				mcdr.diag1 = tvb_get_guint8(tvb, offset+138);
-				mcdr.diag2 = tvb_get_guint8(tvb, offset+139);
-				mcdr.diag3 = tvb_get_guint8(tvb, offset+140);
-				mcdr.diag4 = tvb_get_guint8(tvb, offset+141);
-				mcdr.diag5 = tvb_get_ntohl(tvb, offset+142);
-				mcdr.seqno = tvb_get_ntohl(tvb, offset+146);
-
-				ce = proto_tree_add_text(ext_tree, tvb, offset, data_len + 2, "MCDR (0x14), sequence number: %u", mcdr.seqno);
-				cdr_tree = proto_item_add_subtree(ce, ett_gtp_ext);
-				proto_tree_add_text(cdr_tree, tvb, offset, 2, "Length: %u", data_len);
-				proto_tree_add_text(cdr_tree, tvb, offset+2, 1, "Type: %u (%x)", rectype, rectype);
-				proto_tree_add_text(cdr_tree, tvb, offset+3, 2, "MCDR length: %u", mcdr.len);
-				proto_tree_add_text(cdr_tree, tvb, offset+5, 1, "IMSI length: %u", mcdr.imsilen);
-				proto_tree_add_text(cdr_tree, tvb, offset+6, 8, "IMSI: %s", id_to_str(mcdr.imsi));
-				proto_tree_add_text(cdr_tree, tvb, offset+14, 8, "IMEI: %s", id_to_str(mcdr.imei));
-				proto_tree_add_text(cdr_tree, tvb, offset+22, 1, "MSISDN length: %u", mcdr.msisdnlen);
-				proto_tree_add_text(cdr_tree, tvb, offset+23, 10, "MSISDN: %s", msisdn_to_str(mcdr.msisdn, 10));
-				proto_tree_add_text(cdr_tree, tvb, offset+33, 4, "SGSN address: %s", ip_to_str((guint8 *)&mcdr.sgsnaddr));
-				proto_tree_add_text(cdr_tree, tvb, offset+37, 12, "(not used)");
-				proto_tree_add_text(cdr_tree, tvb, offset+49, 1, "MS network capability length: %u", mcdr.msclass_caplen);
-
-/*				cap_id = proto_tree_add_text(cdr_tree, tvb, offset+50, 1, "MS network capability: %u", mcdr.msclass_cap);
-				cap_tree = proto_item_add_subtree(cap_id, ett_chrg_cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_gea, tvb, offset+50, 1, mcdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_sm_gsm, tvb, offset+50, 1, mcdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_sm_gprs, tvb, offset+50, 1, mcdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_ucs2, tvb, offset+50, 1, mcdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_ss, tvb, offset+50, 1, mcdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_solsa, tvb, offset+50, 1, mcdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_pad, tvb, offset+50, 1, mcdr.cap);
-*/
-				proto_tree_add_text(cdr_tree, tvb, offset+51, 2, "MS network capability omitted: %u", mcdr.msclass_capomit);
-				proto_tree_add_text(cdr_tree, tvb, offset+53, 2, "LAC: %u", mcdr.lac);
-				proto_tree_add_text(cdr_tree, tvb, offset+55, 1, "RAC: %u", mcdr.rac);
-				proto_tree_add_text(cdr_tree, tvb, offset+56, 2, "Cell ID: %u", mcdr.cid);
-				proto_tree_add_text(cdr_tree, tvb, offset+58, 1, "List of data volume changes: %u", mcdr.change_count);
-				for (j=0;j<4;j++) {
-					proto_tree_add_text(cdr_tree, tvb, offset+59+13*j, 2, "LAC: %u", mcdr.change[j].lac);
-					proto_tree_add_text(cdr_tree, tvb, offset+61+13*j, 1, "RAC: %u", mcdr.change[j].rac);
-					proto_tree_add_text(cdr_tree, tvb, offset+62+13*j, 2, "CID: %u", mcdr.change[j].cid);
-					proto_tree_add_text(cdr_tree, tvb, offset+64+13*j, 8, "(omitted)");
-				}
-
-				proto_tree_add_text(cdr_tree, tvb, offset+124, 4, "Timestamp: %s", time_int_to_str(mcdr.timestamp));
-				proto_tree_add_text(cdr_tree, tvb, offset+128, 4, "Record opening time: %s", time_int_to_str(mcdr.opening));
-				proto_tree_add_text(cdr_tree, tvb, offset+132, 4, "Duration: %s", rel_time_int_to_str(mcdr.duration));
-				proto_tree_add_text(cdr_tree, tvb, offset+136, 1, "SGSN change: %u", mcdr.sgsnchange);
-				proto_tree_add_text(cdr_tree, tvb, offset+137, 1, "Cause for close: %s (%u)", val_to_str(mcdr.closecause, cdr_close_type, "Unknown cause"), mcdr.closecause);
-				proto_tree_add_text(cdr_tree, tvb, offset+138, 1, "Diagnostics 1: %u", mcdr.diag1);
-				proto_tree_add_text(cdr_tree, tvb, offset+139, 1, "Diagnostics 2: %u", mcdr.diag2);
-				proto_tree_add_text(cdr_tree, tvb, offset+140, 1, "Diagnostics 3: %u", mcdr.diag3);
-				proto_tree_add_text(cdr_tree, tvb, offset+141, 1, "Diagnostics 4: %u", mcdr.diag4);
-				proto_tree_add_text(cdr_tree, tvb, offset+142, 4, "Diagnostics 5: %u", mcdr.diag5);
-				proto_tree_add_text(cdr_tree, tvb, offset+146, 4, "Sequence number: %u", mcdr.seqno);
-				break;
-
-			case 0x15:		/* SOCDR */
-				if (tvb_length_remaining(tvb, offset) < 3 + 80) {
-					proto_tree_add_text(ext_tree, tvb, offset, tvb_length_remaining(tvb, offset), "SOCDR fragmented, can't dissect");
-					break;
-				}
-
-				socdr.len = tvb_get_ntohs(tvb, offset+3);
-				socdr.imsilen = tvb_get_guint8(tvb, offset+5);
-				tvb_memcpy(tvb, socdr.imsi, offset+6, 8);
-				tvb_memcpy(tvb, socdr.imei, offset+14, 8);
-				socdr.msisdnlen = tvb_get_guint8(tvb, offset+22);
-				tvb_memcpy(tvb, socdr.msisdn, offset+23, 10);
-				tvb_memcpy(tvb, socdr.msclass_notused, offset+33, 12);
-				socdr.msclass_caplen = tvb_get_guint8(tvb, offset+45);
-				socdr.msclass_cap = tvb_get_guint8(tvb, offset+46);
-				socdr.msclass_capomit = tvb_get_ntohs(tvb, offset+47);
-				tvb_memcpy(tvb, socdr.serv_centr, offset+49, 9);
-				tvb_memcpy(tvb, socdr.rec_ent, offset+58, 9);
-				socdr.lac = tvb_get_ntohs(tvb, offset+67);
-				socdr.rac = tvb_get_guint8(tvb, offset+69);
-				socdr.cid = tvb_get_ntohs(tvb, offset+70);
-				socdr.time1 = tvb_get_ntohl(tvb, offset+72);
-				socdr.time2 = tvb_get_ntohl(tvb, offset+76);
-				socdr.messref = tvb_get_guint8(tvb, offset+80);
-				socdr.smsres = tvb_get_ntohs(tvb, offset+81);
-
-				ce = proto_tree_add_text(ext_tree, tvb, offset, data_len + 2, "SOCDR (0x15)");
-				cdr_tree = proto_item_add_subtree(ce, ett_gtp_ext);
-				proto_tree_add_text(cdr_tree, tvb, offset, 2, "Length: %u", data_len);
-				proto_tree_add_text(cdr_tree, tvb, offset+2, 1, "Type: %u (%x)", rectype, rectype);
-				proto_tree_add_text(cdr_tree, tvb, offset+3, 2, "MCDR length: %u", socdr.len);
-				proto_tree_add_text(cdr_tree, tvb, offset+5, 1, "IMSI length: %u", socdr.imsilen);
-				proto_tree_add_text(cdr_tree, tvb, offset+6, 8, "IMSI: %s", id_to_str(socdr.imsi));
-				proto_tree_add_text(cdr_tree, tvb, offset+14, 8, "IMEI: %s", id_to_str(socdr.imei));
-				proto_tree_add_text(cdr_tree, tvb, offset+22, 1, "MSISDN length: %u", socdr.msisdnlen);
-				proto_tree_add_text(cdr_tree, tvb, offset+23, 10, "MSISDN: %s", msisdn_to_str(socdr.msisdn, 10));
-				proto_tree_add_text(cdr_tree, tvb, offset+33, 12, "(not used)");
-				proto_tree_add_text(cdr_tree, tvb, offset+45, 1, "MS network capability length: %u", socdr.msclass_caplen);
-
-/*				cap_id = proto_tree_add_text(cdr_tree, tvb, offset+46, 1, "MS network capability: %u", socdr.msclass_cap);
-				cap_tree = proto_item_add_subtree(cap_id, ett_chrg_cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_gea, tvb, offset+46, 1, socdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_sm_gsm, tvb, offset+46, 1, socdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_sm_gprs, tvb, offset+46, 1, socdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_ucs2, tvb, offset+46, 1, socdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_ss, tvb, offset+46, 1, socdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_solsa, tvb, offset+46, 1, socdr.cap);
-*/
-				proto_tree_add_text(cdr_tree, tvb, offset+47, 2, "MS network capability omitted: %u", stcdr.msclass_capomit);
-				proto_tree_add_text(cdr_tree, tvb, offset+49, 9, "SMSC E.164 address: %s", msisdn_to_str(socdr.serv_centr, 9));
-				proto_tree_add_text(cdr_tree, tvb, offset+58, 9, "SGSN E.164 address: %s", msisdn_to_str(socdr.rec_ent, 9));
-				proto_tree_add_text(cdr_tree, tvb, offset+67, 2, "LAC: %u", socdr.lac);
-				proto_tree_add_text(cdr_tree, tvb, offset+69, 1, "RAC: %u", socdr.rac);
-				proto_tree_add_text(cdr_tree, tvb, offset+70, 2, "Cell ID: %u", socdr.cid);
-				proto_tree_add_text(cdr_tree, tvb, offset+72, 4, "Time1: %s", time_int_to_str(socdr.time1));
-				proto_tree_add_text(cdr_tree, tvb, offset+76, 4, "Time2: %s", time_int_to_str(socdr.time2));
-				proto_tree_add_text(cdr_tree, tvb, offset+80, 1, "Message reference: %u", socdr.messref);
-				proto_tree_add_text(cdr_tree, tvb, offset+81, 2, "Delivery result: %u", socdr.smsres);
-				break;
-
-			case 0x16:		/* STCDR */
-				if (tvb_length_remaining(tvb, offset) < 3 + 79) {
-					proto_tree_add_text(ext_tree, tvb, offset, tvb_length_remaining(tvb, offset), "STCDR fragmented, can't dissect");
-					break;
-				}
-
-				stcdr.len = tvb_get_ntohs(tvb, offset+3);
-				stcdr.imsilen = tvb_get_guint8(tvb, offset+5);
-				tvb_memcpy(tvb, stcdr.imsi, offset+6, 8);
-				tvb_memcpy(tvb, stcdr.imei, offset+14, 8);
-				stcdr.msisdnlen = tvb_get_guint8(tvb, offset+22);
-				tvb_memcpy(tvb, stcdr.msisdn, offset+23, 10);
-				tvb_memcpy(tvb, stcdr.msclass_notused, offset+33, 12);
-				stcdr.msclass_caplen = tvb_get_guint8(tvb, offset+45);
-				stcdr.msclass_cap = tvb_get_guint8(tvb, offset+46);
-				stcdr.msclass_capomit = tvb_get_ntohs(tvb, offset+47);
-				tvb_memcpy(tvb, stcdr.serv_centr, offset+49, 9);
-				tvb_memcpy(tvb, stcdr.rec_ent, offset+58, 9);
-				stcdr.lac = tvb_get_ntohs(tvb, offset+67);
-				stcdr.rac = tvb_get_guint8(tvb, offset+69);
-				stcdr.cid = tvb_get_ntohs(tvb, offset+70);
-				stcdr.time1 = tvb_get_ntohl(tvb, offset+72);
-				stcdr.time2 = tvb_get_ntohl(tvb, offset+76);
-				stcdr.smsres = tvb_get_ntohs(tvb, offset+80);
-
-				ce = proto_tree_add_text(ext_tree, tvb, offset, data_len + 2, "STCDR (0x16)");
-				cdr_tree = proto_item_add_subtree(ce, ett_gtp_ext);
-				proto_tree_add_text(cdr_tree, tvb, offset, 2, "Length: %u", data_len);
-				proto_tree_add_text(cdr_tree, tvb, offset+2, 1, "Type: %u (%x)", rectype, rectype);
-				proto_tree_add_text(cdr_tree, tvb, offset+3, 2, "MCDR length: %u", stcdr.len);
-				proto_tree_add_text(cdr_tree, tvb, offset+5, 1, "IMSI length: %u", stcdr.imsilen);
-				proto_tree_add_text(cdr_tree, tvb, offset+6, 8, "IMSI: %s", id_to_str(stcdr.imsi));
-				proto_tree_add_text(cdr_tree, tvb, offset+14, 8, "IMEI: %s", id_to_str(stcdr.imei));
-				proto_tree_add_text(cdr_tree, tvb, offset+22, 1, "MSISDN length: %u", stcdr.msisdnlen);
-				proto_tree_add_text(cdr_tree, tvb, offset+23, 10, "MSISDN: %s", msisdn_to_str(stcdr.msisdn, 10));
-				proto_tree_add_text(cdr_tree, tvb, offset+33, 12, "(not used)");
-				proto_tree_add_text(cdr_tree, tvb, offset+45, 1, "MS network capability length: %u", stcdr.msclass_caplen);
-
-/*				cap_id = proto_tree_add_text(cdr_tree, tvb, offset+46, 1, "MS network capability: %u", stcdr.msclass_cap);
-				cap_tree = proto_item_add_subtree(cap_id, ett_chrg_cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_gea, tvb, offset+46, 1, stcdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_sm_gsm, tvb, offset+46, 1, stcdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_sm_gprs, tvb, offset+46, 1, stcdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_ucs2, tvb, offset+46, 1, stcdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_ss, tvb, offset+46, 1, stcdr.cap);
-				proto_tree_add_uint(cap_tree, hf_gtpv0_chrg_cap_solsa, tvb, offset+46, 1, stcdr.cap);
-*/
-				proto_tree_add_text(cdr_tree, tvb, offset+47, 2, "MS network capability omitted: %u", stcdr.msclass_capomit);
-				proto_tree_add_text(cdr_tree, tvb, offset+49, 9, "SMSC E.164 address: %s", msisdn_to_str(stcdr.serv_centr, 9));
-				proto_tree_add_text(cdr_tree, tvb, offset+58, 9, "SGSN E.164 address: %s", msisdn_to_str(stcdr.rec_ent, 9));
-				proto_tree_add_text(cdr_tree, tvb, offset+67, 2, "LAC: %u", stcdr.lac);
-				proto_tree_add_text(cdr_tree, tvb, offset+69, 1, "RAC: %u", stcdr.rac);
-				proto_tree_add_text(cdr_tree, tvb, offset+70, 2, "Cell ID: %u", stcdr.cid);
-				proto_tree_add_text(cdr_tree, tvb, offset+72, 4, "Time1: %s", time_int_to_str(stcdr.time1));
-				proto_tree_add_text(cdr_tree, tvb, offset+76, 4, "Time2: %s", time_int_to_str(stcdr.time2));
-				proto_tree_add_text(cdr_tree, tvb, offset+80, 2, "Delivery result: %u", stcdr.smsres);
-				break;
-		}
-		offset = offset + 2 + data_len;
-	}
-	}
+	
 	return 3+length;
 }
 
@@ -5373,13 +4815,6 @@ proto_register_gtp(void)
 
 	module_t	*gtp_module;
 
-	static enum_val_t gtpv0_cdr_options[] = {
-		{ "GSM 12.15 (not implemented yet)",	0 },
-		{ "Nokia CDR", 	1 },
-		{ "None",	2 },
-		{ NULL, 	-1 }
-	};
-
 	/* proto_gtp defined only for preference tab */
 	proto_gtp = proto_register_protocol ("GPRS Tunneling Protocol", "GTP", "gtp");
 
@@ -5397,7 +4832,7 @@ proto_register_gtp(void)
 	prefs_register_uint_preference(gtp_module, "v1c_port", "GTPv1 control plane (GTP-C) port", "GTPv1 control plane port (default 2123)", 10, &g_gtpv1c_port);
 	prefs_register_uint_preference(gtp_module, "v1u_port", "GTPv1 user plane (GTP-U) port", "GTPv1 user plane port (default 2152)", 10, &g_gtpv1u_port);
 	prefs_register_bool_preference(gtp_module, "dissect_tpdu", "Dissect T-PDU", "Dissect T-PDU", &gtp_tpdu);
-	prefs_register_enum_preference(gtp_module, "v0_dissect_cdr_as", "Dissect GTP'v0 CDRs as", "Dissect GTP'v0 CDRs as", &gtpv0_cdr_as, gtpv0_cdr_options, FALSE);
+	prefs_register_obsolete_preference(gtp_module, "v0_dissect_cdr_as");
 	prefs_register_bool_preference(gtp_module, "v0_check_etsi", "Compare GTPv0 order with ETSI", "GTPv0 ETSI order", &gtpv0_etsi_order);
 	prefs_register_bool_preference(gtp_module, "v1_check_etsi", "Compare GTPv1 order with ETSI", "GTPv1 ETSI order", &gtpv1_etsi_order);
 	prefs_register_obsolete_preference(gtp_module, "ppp_reorder");
