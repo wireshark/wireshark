@@ -154,7 +154,8 @@ Nathan Neulinger <nneul@umr.edu> {
 	802.1q VLAN support
 	RPC Portmap dissector
 	RPC Bootparams dissector
-	Stubs for ypbind/ypserv/ypxfr rpc dissectors
+	RPC YPServ dissector
+	Stubs for ypbind/ypxfr rpc dissectors
 }
 
 Tomislav Vujec <tvujec@carnet.hr> {

@@ -1,7 +1,7 @@
 /* packet-bootparams.c
  * Routines for bootparams dissection
  *
- * $Id: packet-bootparams.c,v 1.3 1999/11/11 16:20:24 nneul Exp $
+ * $Id: packet-bootparams.c,v 1.4 1999/11/11 20:18:46 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -44,10 +44,43 @@
 
 static int proto_bootparams = -1;
 static int hf_bootparams_host = -1;
+static int hf_bootparams_domain = -1;
 static int hf_bootparams_fileid = -1;
 static int hf_bootparams_filepath = -1;
-static int hf_bootparams_addresstype = -1;
-static int hf_bootparams_address = -1;
+static int hf_bootparams_hostaddr = -1;
+static int hf_bootparams_routeraddr = -1;
+
+int dissect_bp_address(const u_char *pd, int offset, frame_data *fd,
+	proto_tree *tree, int hfindex)
+{
+	guint32 type;
+	guint32 ipaddr;
+
+	/* get the address type */
+	if ( !BYTES_ARE_IN_FRAME(offset, 1)) return offset;
+	type = pntohl(&pd[offset]); /* type of address */
+#if 0
+	proto_tree_add_item(tree, hf_bootparams_addresstype,
+		offset, 4, type);
+#endif
+	offset += 4;
+
+	if ( type != 1 ) /* only know how to handle this type of address */
+	{
+		return offset;
+	}
+
+	/* get the address itself - weird ass format */
+	if ( ! BYTES_ARE_IN_FRAME(offset, 16)) return offset;
+	ipaddr = (pd[offset+3]<<24) + (pd[offset+7]<<16) +
+		(pd[offset+11]<<8) + (pd[offset+15]);
+	proto_tree_add_item(tree, hfindex, 
+		offset, 16, ntohl(ipaddr));
+	offset += 16;
+
+	return offset;
+}
+
 
 /* Dissect a getfile call */
 int dissect_getfile_call(const u_char *pd, int offset, frame_data *fd,
@@ -66,34 +99,37 @@ int dissect_getfile_call(const u_char *pd, int offset, frame_data *fd,
 int dissect_getfile_reply(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
-	guint32 type;
-	guint32 ipaddr;
-
 	if ( tree )
 	{
 		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_bootparams_host);
-
-		/* get the address type */
-		if ( !BYTES_ARE_IN_FRAME(offset, 1)) return offset;
-		type = pntohl(&pd[offset]); /* type of address */
-		proto_tree_add_item(tree, hf_bootparams_addresstype,
-			offset, 4, type);
-		offset += 4;
-
-		if ( type != 1 ) /* only know how to handle this type of address */
-		{
-			return offset;
-		}
-
-		/* get the address itself - weird ass format */
-		if ( ! BYTES_ARE_IN_FRAME(offset, 16)) return offset;
-		ipaddr = (pd[offset+3]<<24) + (pd[offset+7]<<16) +
-			(pd[offset+11]<<8) + (pd[offset+15]);
-		proto_tree_add_item(tree, hf_bootparams_address, 
-			offset, 16, ntohl(ipaddr));
-		offset += 16;
-
+		offset = dissect_bp_address(pd,offset,fd,tree,hf_bootparams_hostaddr);
 		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_bootparams_filepath);
+	}
+	
+	return offset;
+}
+
+/* Dissect a whoami call */
+int dissect_whoami_call(const u_char *pd, int offset, frame_data *fd,
+	proto_tree *tree)
+{
+	if ( tree )
+	{
+		offset = dissect_bp_address(pd,offset,fd,tree,hf_bootparams_hostaddr);
+	}
+	
+	return offset;
+}
+
+/* Dissect a whoami reply */
+int dissect_whoami_reply(const u_char *pd, int offset, frame_data *fd,
+	proto_tree *tree)
+{
+	if ( tree )
+	{
+		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_bootparams_host);
+		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_bootparams_domain);
+		offset = dissect_bp_address(pd,offset,fd,tree,hf_bootparams_routeraddr);
 	}
 	
 	return offset;
@@ -105,7 +141,7 @@ const vsff bootparams1_proc[] = {
 	{ BOOTPARAMSPROC_NULL, "NULL",
 		NULL, NULL },
 	{ BOOTPARAMSPROC_WHOAMI, "WHOAMI", 
-		NULL, NULL },
+		dissect_whoami_call, dissect_whoami_reply },
 	{ BOOTPARAMSPROC_GETFILE, "GETFILE", 
 		dissect_getfile_call, dissect_getfile_reply },
 	{ 0, NULL, NULL, NULL }
@@ -118,20 +154,23 @@ proto_register_bootparams(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_bootparams_host, {
-			"Host", "bootparams.host", FT_STRING, BASE_DEC,
-			NULL, 0, "Host" }},
+			"Client Host", "bootparams.host", FT_STRING, BASE_DEC,
+			NULL, 0, "Client Host" }},
+		{ &hf_bootparams_domain, {
+			"Client Domain", "bootparams.domain", FT_STRING, BASE_DEC,
+			NULL, 0, "Client Domain" }},
 		{ &hf_bootparams_fileid, {
 			"File ID", "bootparams.fileid", FT_STRING, BASE_DEC,
 			NULL, 0, "File ID" }},
 		{ &hf_bootparams_filepath, {
 			"File Path", "bootparams.filepath", FT_STRING, BASE_DEC,
 			NULL, 0, "File Path" }},
-		{ &hf_bootparams_addresstype, {
-			"Address Type", "bootparams.addresstype", FT_UINT32, BASE_DEC,
-			NULL, 0, "Address Type" }},
-		{ &hf_bootparams_address, {
-			"Address", "bootparams.address", FT_IPv4, BASE_DEC,
+		{ &hf_bootparams_hostaddr, {
+			"Client Address", "bootparams.hostaddr", FT_IPv4, BASE_DEC,
 			NULL, 0, "Address" }},
+		{ &hf_bootparams_routeraddr, {
+			"Router Address", "bootparams.routeraddr", FT_IPv4, BASE_DEC,
+			NULL, 0, "Router Address" }},
 	};
 
 	proto_bootparams = proto_register_protocol("Boot Parameters", "bootparams");

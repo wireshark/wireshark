@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.3 1999/11/10 22:43:53 nneul Exp $
+ * $Id: packet-portmap.c,v 1.4 1999/11/11 20:18:46 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -69,6 +69,13 @@ int dissect_getport_call(const u_char *pd, int offset, frame_data *fd,
 int dissect_getport_reply(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
+	if ( tree )
+	{
+		if ( !BYTES_ARE_IN_FRAME(offset, 4)) return offset;
+
+		proto_tree_add_item(tree, hf_portmap_port,
+			offset, 4, pntohl(&pd[offset+0]));
+	}
     return offset;
 }
 
