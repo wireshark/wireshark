@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.10 2000/07/10 06:52:29 guy Exp $
+ * $Id: packet-clnp.c,v 1.11 2000/08/06 15:54:42 deniel Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -38,6 +38,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <glib.h>
+#include "prefs.h"
 #include "packet.h"
 #include "packet-osi.h"
 #include "packet-osi-options.h"
@@ -253,6 +254,10 @@ static u_short dst_ref;
 /* List of dissectors to call for COTP packets put atop the Inactive
    Subset of CLNP. */
 static heur_dissector_list_t cotp_is_heur_subdissector_list;
+
+/* options */
+static guint tp_nsap_selector = NSEL_TP;
+static gboolean always_decode_transport = FALSE;
 
 /* function definitions */
 
@@ -1717,7 +1722,7 @@ static void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
          XXX - if this isn't the first Derived PDU of a segmented Initial
          PDU, skip that? */
 
-      if (nsel == NSEL_TP) { 	/* just guessing here - valid for DECNet-OSI */
+      if (nsel == (char)tp_nsap_selector || always_decode_transport) { 
         if (dissect_ositp_internal(pd, offset, fd, tree, FALSE))
           return;	/* yes, it appears to be COTP or CLTP */
       }
@@ -1785,9 +1790,22 @@ void proto_register_clnp(void)
     &ett_clnp,
   };
 
+  module_t *clnp_module;
+
   proto_clnp = proto_register_protocol(PROTO_STRING_CLNP, "clnp");
   proto_register_field_array(proto_clnp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  clnp_module = prefs_register_module("clnp", "CLNP", NULL);
+  prefs_register_uint_preference(clnp_module, "tp_nsap_selector",
+	"NSAP selector for Transport Protocol (last byte in hexa)",
+	"NSAP selector for Transport Protocol (last byte in hexa)",
+       	16, &tp_nsap_selector);
+  prefs_register_bool_preference(clnp_module, "always_decode_transport",
+	"Always try to decode NSDU as transport PDUs",
+	"Always try to decode NSDU as transport PDUs",
+       	&always_decode_transport);
+
 }
 
 void proto_register_cotp(void)
