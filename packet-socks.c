@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.56 2004/01/22 20:43:17 guy Exp $
+ * $Id: packet-socks.c,v 1.57 2004/02/12 20:47:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -141,6 +141,7 @@ enum SockState {
 	V5Reply,
 	V5BindReply,
 	UserNameAuth,
+	UserNameAuthReply,
 	GssApiAuth,
 	AuthReply,
 	Done
@@ -150,9 +151,9 @@ enum SockState {
 
 typedef struct {
 	int		state;
-	int	 	version;
-	int	 	command;
-	int	 	grant;
+	int		version;
+	int		command;
+	int		grant;
 	guint32 	port;
 	guint32 	udp_port;
 	guint32 	udp_remote_port;
@@ -166,6 +167,7 @@ typedef struct {
 	row_pointer_type	command_row;
 	row_pointer_type 	auth_method_row;
 	row_pointer_type	user_name_auth_row;
+	row_pointer_type	auth_version;
 	guint32 start_done_row;
 
 	guint32	dst_addr;	/* this needs to handle IPv6 */
@@ -246,7 +248,7 @@ static int display_string(tvbuff_t *tvb, int offset,
 	temp[ length ] = 0;
 
    	ti = proto_tree_add_text(tree, tvb, offset, length + 1,
-   	 	"%s: %s" , label, temp);
+   		"%s: %s" , label, temp);
 
 
 	name_tree = proto_item_add_subtree(ti, ett_socks_name);
@@ -538,7 +540,7 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	unsigned int i, command;
 	guint temp;
 	char *AuthMethodStr;
-
+	unsigned char auth_status;
 	proto_tree_add_item( tree, hf_socks_ver, tvb, offset, 1, FALSE);
 	++offset;
 
@@ -589,6 +591,14 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 					/* command to the server */
 					/* command response from server */
+	else if (compare_packet( hash_info->auth_version)) {
+		auth_status = tvb_get_guint8(tvb, offset);
+		if(auth_status != 0)
+			proto_tree_add_text( tree, tvb, offset, 1, "Status: %d (failure)", auth_status);
+		else
+			proto_tree_add_text( tree, tvb, offset, 1, "Status: success", auth_status);
+		offset ++;
+	}
 	else if ((compare_packet( hash_info->command_row)) ||
 	         (compare_packet( hash_info->cmd_reply_row)) ||
 	         (compare_packet( hash_info->bind_reply_row))){
@@ -638,7 +648,7 @@ state_machine_v4( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 	if ( hash_info->state == None) {		/* new connection */
 
 		if (check_col(pinfo->cinfo, COL_INFO))
-	 		col_append_str(pinfo->cinfo, COL_INFO, " Connect to server request");
+			col_append_str(pinfo->cinfo, COL_INFO, " Connect to server request");
 
 		hash_info->state = Connecting;	/* change state		*/
 
@@ -688,7 +698,7 @@ state_machine_v4( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 	}else if ( hash_info->state == V4UserNameWait){
 
 		if (check_col(pinfo->cinfo, COL_INFO))
-	 		col_append_str(pinfo->cinfo, COL_INFO, " Connect Request (User name)");
+			col_append_str(pinfo->cinfo, COL_INFO, " Connect Request (User name)");
 
 		hash_info->v4_user_name_row = get_packet_ptr;
 /*XXX may need to check for domain name here */
@@ -704,7 +714,7 @@ state_machine_v4( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 	else if ( hash_info->state == Connecting){
 
 		if (check_col(pinfo->cinfo, COL_INFO))
-	 		col_append_str(pinfo->cinfo, COL_INFO, " Connect Response");
+			col_append_str(pinfo->cinfo, COL_INFO, " Connect Response");
 
 						/* save packet pointer 	*/
 		hash_info->cmd_reply_row = get_packet_ptr;
@@ -746,7 +756,7 @@ state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 		guint AuthMethod = tvb_get_guint8(tvb, offset + 1);
 
 		if (check_col(pinfo->cinfo, COL_INFO))
-	 		col_append_str(pinfo->cinfo, COL_INFO, " Connect to server response");
+			col_append_str(pinfo->cinfo, COL_INFO, " Connect to server response");
 
 		hash_info->auth_method_row = get_packet_ptr;
 
@@ -771,8 +781,8 @@ state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 		hash_info->command = tvb_get_guint8(tvb, offset + 1); /* get command */
 
 		if (check_col(pinfo->cinfo, COL_INFO))
-	 		col_append_fstr(pinfo->cinfo, COL_INFO, " Command Request - %s",
-	 			get_command_name(hash_info->command));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " Command Request - %s",
+				get_command_name(hash_info->command));
 
 		hash_info->state = V5Reply;
 		hash_info->command_row = get_packet_ptr;
@@ -793,8 +803,8 @@ state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 
 
 		if (check_col(pinfo->cinfo, COL_INFO))
-	 		col_append_fstr(pinfo->cinfo, COL_INFO, " Command Response - %s",
-	 			get_command_name(hash_info->command));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " Command Response - %s",
+				get_command_name(hash_info->command));
 
 		hash_info->cmd_reply_row = get_packet_ptr;
 
@@ -823,24 +833,25 @@ state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 	else if ( hash_info->state == V5BindReply) {	/* V5 Bind Second Reply */
 
 		if (check_col(pinfo->cinfo, COL_INFO))
-	 		col_append_str(pinfo->cinfo, COL_INFO, " Command Response: Bind remote host info");
+			col_append_str(pinfo->cinfo, COL_INFO, " Command Response: Bind remote host info");
 
 		hash_info->bind_reply_row = get_packet_ptr;
 		hash_info->state = Done;
 	}
 	else if ( hash_info->state == UserNameAuth) {	/* Handle V5 User Auth*/
+		hash_info->auth_version = get_packet_ptr;
 		if (check_col(pinfo->cinfo, COL_INFO))
-	 		col_append_str(pinfo->cinfo, COL_INFO,
-	 			" User authentication response");
+			col_append_str(pinfo->cinfo, COL_INFO,
+				" User authentication request");
 
 		hash_info->user_name_auth_row = get_packet_ptr;
 		hash_info->state = AuthReply;
 
 	}
 	else if ( hash_info->state == AuthReply){	/* V5 User Auth reply */
-		hash_info->cmd_reply_row = get_packet_ptr;
+		hash_info->auth_version = get_packet_ptr;
 		if (check_col(pinfo->cinfo, COL_INFO))
-	 		col_append_str(pinfo->cinfo, COL_INFO, " User authentication reply");
+			col_append_str(pinfo->cinfo, COL_INFO, " User authentication reply");
 		hash_info->state = V5Command;
 	}
 }
@@ -865,8 +876,8 @@ display_ping_and_tracert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 		if ( tree)
   			proto_tree_add_text(tree, tvb, offset, 1,
    				(hash_info->command  == PING_COMMAND) ?
-	 			"Ping: End command" :
-	   	 		"Traceroute: End command");
+				"Ping: End command" :
+	   			"Traceroute: End command");
 	}
        	else{ 		/* display the PING or Traceroute results */
 		if (check_col(pinfo->cinfo, COL_INFO))
@@ -874,9 +885,9 @@ display_ping_and_tracert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 		if ( tree){
 			proto_tree_add_text(tree, tvb, offset, -1,
-   		 		(hash_info->command  == PING_COMMAND) ?
-   		 		"Ping Results:" :
-   	 			"Traceroute Results");
+   				(hash_info->command  == PING_COMMAND) ?
+   				"Ping Results:" :
+   				"Traceroute Results");
 
   	      		data = tvb_get_ptr(tvb, offset, -1);
         		dataend = data + tvb_length_remaining(tvb, offset);
@@ -1120,17 +1131,17 @@ proto_register_socks( void){
 
 		{ &hf_socks_ver,
 			{ "Version", "socks.version", FT_UINT8, BASE_DEC, NULL,
-			 	0x0, "", HFILL
+				0x0, "", HFILL
 			}
 		},
 		{ &hf_socks_ip_dst,
 			{ "Remote Address", "socks.dst", FT_IPv4, BASE_NONE, NULL,
-			 	0x0, "", HFILL
+				0x0, "", HFILL
 			}
 		},
 		{ &hf_socks_ip6_dst,
 			{ "Remote Address(ipv6)", "socks.dstV6", FT_IPv6, BASE_NONE, NULL,
-			 	0x0, "", HFILL
+				0x0, "", HFILL
 			}
 		},
 
