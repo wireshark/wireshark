@@ -6,7 +6,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.93 2004/02/28 22:56:35 guy Exp $
+ * $Id: packet-radius.c,v 1.94 2004/03/06 22:06:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -147,6 +147,8 @@ enum {
     RADIUS_INTEGER4,
     RADIUS_IP_ADDRESS,
     RADIUS_IP6_ADDRESS,
+    RADIUS_IP6_PREFIX,
+    RADIUS_IP6_INTF_ID,
     RADIUS_UNKNOWN,
     RADIUS_IPX_ADDRESS,
     RADIUS_STRING_TAGGED,
@@ -569,6 +571,12 @@ static const radius_attr_info radius_attrib[] =
   {88,	RADIUS_STRING,		"Framed Pool", NULL},
   {90,	RADIUS_STRING_TAGGED,	"Tunnel Client Auth ID", NULL},
   {91,	RADIUS_STRING_TAGGED,	"Tunnel Server Auth ID", NULL},
+  {95,	RADIUS_IP6_ADDRESS,	"NAS IPv6 Address", NULL},
+  {96,	RADIUS_IP6_INTF_ID,	"Framed Interface Id", NULL},
+  {97,	RADIUS_IP6_PREFIX,	"Framed IPv6 Prefix", NULL},
+  {98,	RADIUS_IP6_ADDRESS,	"Login IPv6 Host", NULL},
+  {99,	RADIUS_STRING,		"Framed IPV6 Route", NULL},
+  {100,	RADIUS_STRING,		"Framed IPV6 Pool", NULL},
   {120,	RADIUS_INTEGER4,	"Ascend Modem Port No", NULL},
   {121,	RADIUS_INTEGER4,	"Ascend Modem Slot No", NULL},
   {187,	RADIUS_INTEGER4,	"Ascend Multilink ID", NULL},
@@ -2388,6 +2396,8 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
   gint32 timeval;
   const guint8 *pd;
   guint8 tag;
+  guint8 ipv6_prefix_length;
+  guint8 ipv6_addr_temp[16];
 
   int vsa_length;
   int vsa_len;
@@ -2431,6 +2441,22 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 
         case( RADIUS_IP6_ADDRESS ):
                 ip6_to_str_buf((const struct e_in6_addr *)tvb_get_ptr(tvb,offset+2,16),cont);
+                break;
+
+        case( RADIUS_IP6_PREFIX ):
+                ipv6_prefix_length = tvb_get_guint8(tvb,offset+3);
+                memset(ipv6_addr_temp, 0, 16);
+                if (ipv6_prefix_length > 16) ipv6_prefix_length = 16;
+                tvb_memcpy(tvb, ipv6_addr_temp, offset+4, ipv6_prefix_length);
+                ip6_to_str_buf((const struct e_in6_addr *)ipv6_addr_temp, cont);
+                break;
+
+        case( RADIUS_IP6_INTF_ID ):
+                ipv6_prefix_length = tvb_get_guint8(tvb,offset+1);
+                bzero(ipv6_addr_temp, 16);
+                if (ipv6_prefix_length > 16) ipv6_prefix_length = 16;
+                tvb_memcpy(tvb, ipv6_addr_temp, offset+2, ipv6_prefix_length);
+                ip6_to_str_buf((const struct e_in6_addr *)ipv6_addr_temp, cont);
                 break;
 
         case( RADIUS_IPX_ADDRESS ):
@@ -2511,8 +2537,14 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 
 	case( THE3GPP_NSAPI ):
 	case( THE3GPP_SESSION_STOP_INDICATOR ):
-	case( THE3GPP_IPV6_DNS_SERVERS ):
 		sprintf(cont,"(not parsed)");
+		break;
+
+	case( THE3GPP_IPV6_DNS_SERVERS ):
+		/* XXX - does this have more than one IPv6 address?
+		   If not, we should just use RADIUS_IP6_ADDRESS;
+		   if so, we should process those addresses. */
+		ip6_to_str_buf((const struct e_in6_addr *)tvb_get_ptr(tvb,offset+2,16),cont);
 		break;
 
 	case( THE3GPP_QOS ):
