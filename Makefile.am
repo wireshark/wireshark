@@ -6,6 +6,7 @@ sysconf_DATA = manuf
 
 ethereal_SOURCES = \
 	capture.c      \
+	column.c       \
 	ethereal.c     \
 	ethertype.c    \
 	file.c         \
@@ -46,6 +47,7 @@ ethereal_SOURCES = \
 	resolv.c       \
 	util.c         \
 	capture.h      \
+	column.h       \
 	config.h       \
 	ethereal.h     \
 	etypes.h       \

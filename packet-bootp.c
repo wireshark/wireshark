@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-bootp.c,v 1.9 1998/11/12 21:39:18 gram Exp $
+ * $Id: packet-bootp.c,v 1.10 1998/11/17 04:28:51 gerald Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -388,16 +388,17 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	GtkWidget	*bp_tree, *ti;
 	int			voff, eoff; /* vender offset, end offset */
 
-	if (fd->win_info[COL_NUM]) {
-		strcpy(fd->win_info[COL_PROTOCOL], "BOOTP");
+	if (check_col(fd, COL_PROTOCOL))
+		col_add_str(fd, COL_PROTOCOL, "BOOTP");
 
+	if (check_col(fd, COL_INFO)) {
 		/* if hwaddr is 6 bytes, assume MAC */
 		if (pd[offset] == 1 && pd[offset+2] == 6) {
-			sprintf(fd->win_info[COL_INFO], "Boot Request from %s",
+			col_add_fstr(fd, COL_INFO, "Boot Request from %s",
 				ether_to_str((guint8*)&pd[offset+28]));
 		}
 		else {
-			strcpy(fd->win_info[COL_INFO], pd[offset] == 1 ? "Boot Request" :
+			col_add_str(fd, COL_INFO, pd[offset] == 1 ? "Boot Request" :
 				"Boot Reply");
 		}
 	}

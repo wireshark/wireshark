@@ -1,7 +1,7 @@
 /* ethereal.h
  * Global defines, etc.
  *
- * $Id: ethereal.h,v 1.7 1998/10/16 01:18:27 gerald Exp $
+ * $Id: ethereal.h,v 1.8 1998/11/17 04:28:45 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,7 +28,8 @@
 
 #include "config.h"
 
-#define RC_FILE ".etherealrc"
+#define PF_DIR ".ethereal"
+#define RC_FILE PF_DIR "/gtkrc"
 #define MONO_MEDIUM_FONT "-*-lucidatypewriter-medium-r-normal-*-*-120-*-*-*-*-iso8859-1"
 #define MONO_BOLD_FONT "-*-lucidatypewriter-bold-r-normal-*-*-120-*-*-*-*-iso8859-1"
 #define DEF_WIDTH 750
@@ -72,16 +73,44 @@ typedef struct _selection_info {
 } selection_info;
 
 /*
- * Columns in summary listing.
+ * All of the possible columns in summary listing.
+ *
+ * NOTE: The SRC and DST entries MUST remain in this order, or else you
+ * need to fix the offset #defines before get_column_format!
  */
-#define	COL_NUM		0
-#define	COL_TIME	1
-#define	COL_SOURCE	2
-#define	COL_DESTINATION	3
-#define	COL_PROTOCOL	4
-#define	COL_INFO	5
-
-#define	NUM_COLS	6
+enum {
+  COL_NUMBER,         /* Packet list item number */
+  COL_REL_TIME,       /* Relative time (default) */
+  COL_ABS_TIME,       /* Absolute time */
+  COL_DELTA_TIME,     /* Delta time */
+  COL_DEF_SRC,        /* Source address */
+  COL_RES_SRC,        /* Resolved source */
+  COL_UNRES_SRC,      /* Unresolved source */
+  COL_DEF_DL_SRC,     /* Data link layer source address */
+  COL_RES_DL_SRC,     /* Resolved DL source */
+  COL_UNRES_DL_SRC,   /* Unresolved DL source */
+  COL_DEF_NET_SRC,    /* Network layer source address */
+  COL_RES_NET_SRC,    /* Resolved net source */
+  COL_UNRES_NET_SRC,  /* Unresolved net source */
+  COL_DEF_DST,        /* Destination address */
+  COL_RES_DST,        /* Resolved dest */
+  COL_UNRES_DST,      /* Unresolved dest */
+  COL_DEF_DL_DST,     /* Data link layer dest address */
+  COL_RES_DL_DST,     /* Resolved DL dest */
+  COL_UNRES_DL_DST,   /* Unresolved DL dest */
+  COL_DEF_NET_DST,    /* Network layer dest address */
+  COL_RES_NET_DST,    /* Resolved net dest */
+  COL_UNRES_NET_DST,  /* Unresolved net dest */
+  COL_DEF_SRC_PORT,   /* Source port */
+  COL_RES_SRC_PORT,   /* Resolved source port */
+  COL_UNRES_SRC_PORT, /* Unresolved source port */
+  COL_DEF_DST_PORT,   /* Destination port */
+  COL_RES_DST_PORT,   /* Resolved dest port */
+  COL_UNRES_DST_PORT, /* Unresolved dest port */
+  COL_PROTOCOL,       /* Protocol */
+  COL_INFO,           /* Description */
+  NUM_COL_FMTS        /* Should always be last */
+};
 
 /*
  * Type of time-stamp shown in the summary display.

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.10 1998/11/12 00:06:40 gram Exp $
+ * $Id: packet.c,v 1.11 1998/11/17 04:29:08 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -155,9 +155,6 @@ add_item_to_tree(GtkWidget *tree, gint start, gint len,
   va_list    ap;
   gchar      label_str[256];
   
-  /* This limits us to a max packet size of 65535 bytes. */
-  /* Are there any systems out there with < 32-bit pointers? */
-  /* To do: use gtk_object_set_data instead, now that I know it exists. */
   va_start(ap, format);
   vsnprintf(label_str, 256, format, ap);
   ti = gtk_tree_item_new_with_label(label_str);
@@ -232,6 +229,48 @@ match_strval(guint32 val, const value_string *vs) {
   return(NULL);
 }
 
+/* Checks to see if a particular packet information element is needed for
+   the packet list */
+gint
+check_col(frame_data *fd, gint el) {
+  int i;
+  
+  if (fd->cinfo) {
+    for (i = 0; i < fd->cinfo->num_cols; i++) {
+      if (fd->cinfo->fmt_matx[i][el])
+        return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+/* To do: Add check_col checks to the pinfo_add* routines */
+
+/* Adds a vararg list to a packet info string. */
+void
+col_add_fstr(frame_data *fd, gint el, gchar *format, ...) {
+  va_list    ap;
+  int        i;
+  
+  va_start(ap, format);
+  for (i = 0; i < fd->cinfo->num_cols; i++) {
+    if (fd->cinfo->fmt_matx[i][el])
+      vsnprintf(fd->cinfo->col_data[i], COL_MAX_LEN, format, ap);
+  }
+}
+
+void
+col_add_str(frame_data *fd, gint el, gchar* str) {
+  int i;
+  
+  for (i = 0; i < fd->cinfo->num_cols; i++) {
+    if (fd->cinfo->fmt_matx[i][el]) {
+      strncpy(fd->cinfo->col_data[i], str, COL_MAX_LEN);
+      fd->cinfo->col_data[i][COL_MAX_LEN - 1] = 0;
+    }
+  }
+}
+
 static const char *mon_names[12] = {
 	"Jan",
 	"Feb",
@@ -257,17 +296,19 @@ dissect_packet(const u_char *pd, guint32 ts_secs, guint32 ts_usecs,
 	time_t then;
 
 	/* Put in frame header information. */
-	if (fd->win_info[COL_NUM]) {
+	if (check_col(fd, COL_ABS_TIME)) {
 	  if (timestamp_type == ABSOLUTE) {
 	    then = fd->secs;
 	    tmp = localtime(&then);
-	    sprintf(fd->win_info[COL_TIME], "%02d:%02d:%02d.%04ld",
+	    col_add_fstr(fd, COL_ABS_TIME, "%02d:%02d:%02d.%04ld",
 	      tmp->tm_hour,
 	      tmp->tm_min,                                                      
 	      tmp->tm_sec,
 	      (long)fd->usecs/100);
-	  } else
-	    sprintf(fd->win_info[COL_TIME], "%d.%06d", ts_secs, ts_usecs);
+	  }
+        }
+	if (check_col(fd, COL_REL_TIME)) {
+	    col_add_fstr(fd, COL_REL_TIME, "%d.%06d", ts_secs, ts_usecs);
 	}
 
 	if (tree) {

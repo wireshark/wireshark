@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.11 1998/11/12 00:06:28 gram Exp $
+ * $Id: packet-ip.c,v 1.12 1998/11/17 04:28:54 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -403,23 +403,29 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
   hlen = iph.ip_hl * 4;	/* IP header length, in bytes */
   
-  if (fd->win_info[COL_NUM]) {
-    switch (iph.ip_p) {
-      case IP_PROTO_ICMP:
-      case IP_PROTO_IGMP:
-      case IP_PROTO_TCP:
-      case IP_PROTO_UDP:
-      case IP_PROTO_OSPF:
-        /* Names are set in the associated dissect_* routines */
-        break;
-      default:
-        strcpy(fd->win_info[COL_PROTOCOL], "IP");
-        sprintf(fd->win_info[COL_INFO], "Unknown IP protocol (%02x)", iph.ip_p);
-    }
-
-    strcpy(fd->win_info[COL_SOURCE], get_hostname(iph.ip_src));
-    strcpy(fd->win_info[COL_DESTINATION], get_hostname(iph.ip_dst));
+  switch (iph.ip_p) {
+    case IP_PROTO_ICMP:
+    case IP_PROTO_IGMP:
+    case IP_PROTO_TCP:
+    case IP_PROTO_UDP:
+    case IP_PROTO_OSPF:
+      /* Names are set in the associated dissect_* routines */
+      break;
+    default:
+      if (check_col(fd, COL_PROTOCOL))
+        col_add_str(fd, COL_PROTOCOL, "IP");
+      if (check_col(fd, COL_INFO))
+        col_add_fstr(fd, COL_INFO, "Unknown IP protocol (%02x)", iph.ip_p);
   }
+
+  if (check_col(fd, COL_RES_NET_SRC))
+    col_add_str(fd, COL_RES_NET_SRC, get_hostname(iph.ip_src));
+  if (check_col(fd, COL_UNRES_NET_SRC))
+    col_add_str(fd, COL_UNRES_NET_SRC, ip_to_str((guint8 *) &iph.ip_src));
+  if (check_col(fd, COL_RES_NET_DST))
+    col_add_str(fd, COL_RES_NET_DST, get_hostname(iph.ip_dst));
+  if (check_col(fd, COL_UNRES_NET_DST))
+    col_add_str(fd, COL_UNRES_NET_DST, ip_to_str((guint8 *) &iph.ip_dst));
   
   iph.ip_tos = IPTOS_TOS(iph.ip_tos);
   switch (iph.ip_tos) {
@@ -466,10 +472,12 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       val_to_str(iph.ip_p, proto_vals, "Unknown (%x)"));
     add_item_to_tree(ip_tree, offset + 10, 2, "Header checksum: 0x%04x",
       iph.ip_sum);
-    add_item_to_tree(ip_tree, offset + 12, 4, "Source address: %s",
-		     get_hostname(iph.ip_src));
-    add_item_to_tree(ip_tree, offset + 16, 4, "Destination address: %s",
-		     get_hostname(iph.ip_dst));
+    add_item_to_tree(ip_tree, offset + 12, 4, "Source address: %s (%s)",
+		     get_hostname(iph.ip_src),
+                     ip_to_str((guint8 *) &iph.ip_src));
+    add_item_to_tree(ip_tree, offset + 16, 4, "Destination address: %s (%s)",
+		     get_hostname(iph.ip_dst),
+                     ip_to_str((guint8 *) &iph.ip_dst));
 
     /* Decode IP options, if any. */
     if (hlen > sizeof (e_ip)) {
@@ -606,10 +614,10 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       strcpy(type_str, "Unknown ICMP (obsolete or malformed?)");
   }
 
-  if (fd->win_info[COL_NUM]) {    
-    strcpy(fd->win_info[COL_PROTOCOL], "ICMP");
-    strcpy(fd->win_info[COL_INFO], type_str);
-  }
+  if (check_col(fd, COL_PROTOCOL))
+    col_add_str(fd, COL_PROTOCOL, "ICMP");
+  if (check_col(fd, COL_INFO))
+    col_add_str(fd, COL_INFO, type_str);
   
   if (tree) {
     ti = add_item_to_tree(GTK_WIDGET(tree), offset, 4,
@@ -666,9 +674,10 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       strcpy(type_str, "Unknown IGMP");
   }
 
-  if (fd->win_info[COL_NUM]) {    
-    strcpy(fd->win_info[COL_PROTOCOL], "IGMP");
-  }
+  if (check_col(fd, COL_PROTOCOL))
+    col_add_str(fd, COL_PROTOCOL, "IGMP");
+  if (check_col(fd, COL_INFO))
+    col_add_str(fd, COL_INFO, type_str);
   
   if (tree) {
     ti = add_item_to_tree(GTK_WIDGET(tree), offset, 4,

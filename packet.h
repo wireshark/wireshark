@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.23 1998/11/03 07:45:10 guy Exp $
+ * $Id: packet.h,v 1.24 1998/11/17 04:29:09 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,13 +60,21 @@
 #define IEEE_802_3_MAX_LEN 1500
 #define BYTE_VIEW_WIDTH    16
 
+typedef struct _column_info {
+  gint       num_cols; /* Number of columns */
+  gboolean **fmt_matx; /* Specifies which formats apply to a column */
+  gchar    **col_data; /* Column data */
+} column_info;
+
+#define COL_MAX_LEN 256
+
 typedef struct _frame_data {
-  guint32  pkt_len;         /* Packet length */
-  guint32  cap_len;         /* Amount actually captured */
-  guint32  secs;            /* Seconds */
-  guint32  usecs;           /* Microseconds */
-  long     file_off;        /* File offset */
-  gchar   *win_info[NUM_COLS]; /* Text for packet summary list fields */
+  guint32      pkt_len;  /* Packet length */
+  guint32      cap_len;  /* Amount actually captured */
+  guint32      secs;     /* Seconds */
+  guint32      usecs;    /* Microseconds */
+  long         file_off; /* File offset */
+  column_info *cinfo;    /* Column formatting information */
 } frame_data;
 
 typedef struct _packet_info {
@@ -477,6 +485,14 @@ GtkWidget* add_item_to_tree(GtkWidget *, gint, gint, gchar *, ...);
 #endif
 gchar*     val_to_str(guint32, const value_string *, const char *);
 gchar*     match_strval(guint32, const value_string*);
+gint       check_col(frame_data *, gint);
+#if __GNUC__ == 2
+void       col_add_fstr(frame_data *, gint, gchar *, ...)
+    __attribute__((format (printf, 3, 4)));
+#else
+void       col_add_fstr(frame_data *, gint, gchar *, ...);
+#endif
+void       col_add_str(frame_data *, gint, gchar *);
 
 /* Routines in packet.c */
 

@@ -2,7 +2,7 @@
  * Routines for calling the right protocol for the ethertype.
  * This is called by both packet-eth.c (Ethernet II) and packet-llc.c (SNAP)
  *
- * $Id: ethertype.c,v 1.9 1998/11/12 00:06:20 gram Exp $
+ * $Id: ethertype.c,v 1.10 1998/11/17 04:28:46 gerald Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -95,7 +95,7 @@ ethertype(guint16 etype, int offset,
       break;
     default:
       dissect_data(pd, offset, fd, tree);
-      if (fd->win_info[COL_NUM]) { sprintf(fd->win_info[COL_PROTOCOL], "0x%04x", etype); }
+      if (check_col(fd, COL_PROTOCOL)) { col_add_fstr(fd, COL_PROTOCOL, "0x%04x", etype); }
       break;
   }
  }

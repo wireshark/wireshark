@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.12 1998/11/15 05:28:59 guy Exp $
+ * $Id: file.c,v 1.13 1998/11/17 04:28:46 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -317,8 +317,6 @@ pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
 #endif
   const u_char *buf) {
   frame_data   *fdata;
-  /* To do: make sure this is big enough. */
-  gchar         p_info[NUM_COLS][256];
   gint          i, row;
   capture_file *cf = (capture_file *) user;
   guint32 tssecs, tsusecs;
@@ -383,11 +381,15 @@ pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
       tsusecs = 0;
       break;
   }
-  for (i = 0; i < NUM_COLS; i++) { fdata->win_info[i] = &p_info[i][0]; }
-  sprintf(fdata->win_info[COL_NUM], "%d", cf->count);
+  fdata->cinfo = &cf->cinfo;
+  for (i = 0; i < fdata->cinfo->num_cols; i++) {
+    fdata->cinfo->col_data[i][0] = '\0';
+  }
+  if (check_col(fdata, COL_NUMBER))
+    col_add_fstr(fdata, COL_NUMBER, "%d", cf->count);
   dissect_packet(buf, tssecs, tsusecs, fdata, NULL);
-  row = gtk_clist_append(GTK_CLIST(packet_list), fdata->win_info);
-  for (i = 0; i < NUM_COLS; i++) { fdata->win_info[i] = NULL; }
+  row = gtk_clist_append(GTK_CLIST(packet_list), fdata->cinfo->col_data);
+  fdata->cinfo = NULL;
 
   /* Make sure we always have an available list entry */
   if (cf->plist->next == NULL) {

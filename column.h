@@ -1,7 +1,7 @@
-/* prefs.h
- * Definitions for preference handling routines
+/* column.h
+ * Definitions for column handling routines
  *
- * $Id: prefs.h,v 1.5 1998/11/17 04:29:11 gerald Exp $
+ * $Id: column.h,v 1.1 1998/11/17 04:28:41 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,32 +23,22 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PREFS_H__
-#define __PREFS_H__
+#ifndef __COLUMN_H__
+#define __COLUMN_H__
 
-#define PR_FMT_TEXT 0
-#define PR_FMT_PS   1
+typedef struct _fmt_data {
+  gchar *title;
+  gchar *fmt;
+} fmt_data;
 
-#define PR_DEST_CMD  0
-#define PR_DEST_FILE 1
+gint       get_column_format(gint);
+gchar     *get_column_title(gint);
+gchar     *col_format_to_pref_str();
+void       get_column_format_matches(gboolean *, gint);
+gint       get_column_width(gint format, GdkFont *font);
+GtkWidget *column_prefs_show();
+void       column_prefs_ok(GtkWidget *);
+void       column_prefs_save(GtkWidget *);
+void       column_prefs_cancel(GtkWidget *);
 
-typedef struct _e_prefs {
-  gint    pr_format;
-  gint    pr_dest;
-  gchar  *pr_file;
-  gchar  *pr_cmd;
-  GList  *col_list;
-  gint    num_cols;
-} e_prefs;
-
-#define E_PR_PG_NONE     -1
-#define E_PR_PG_PRINTING  0
-#define E_PR_PG_FILTER    1
-#define E_PR_PG_COLUMN    2
-
-#define E_FILT_TE_PTR_KEY "filter_te_ptr"
-
-void     prefs_cb(GtkWidget *, gpointer);
-e_prefs* read_prefs();
-
-#endif /* prefs.h */
+#endif /* column.h */

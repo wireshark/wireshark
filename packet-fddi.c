@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.7 1998/11/12 21:22:47 guy Exp $
+ * $Id: packet-fddi.c,v 1.8 1998/11/17 04:28:53 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -151,11 +151,18 @@ void dissect_fddi(const u_char *pd, frame_data *fd, GtkTree *tree)
 
   fc = (int) pd[FDDI_P_FC];
 
-  if (fd->win_info[COL_NUM]) {
-    strcpy(fd->win_info[COL_DESTINATION], get_ether_name(dst));
-    strcpy(fd->win_info[COL_SOURCE], get_ether_name(src));
-    strcpy(fd->win_info[COL_INFO], "FDDI");
-  }
+  if (check_col(fd, COL_RES_DL_SRC))
+    col_add_str(fd, COL_RES_DL_SRC, get_ether_name(src));
+  if (check_col(fd, COL_RES_DL_DST))
+    col_add_str(fd, COL_RES_DL_DST, get_ether_name(dst));
+  if (check_col(fd, COL_UNRES_DL_SRC))
+    col_add_str(fd, COL_UNRES_DL_SRC, ether_to_str(src));
+  if (check_col(fd, COL_UNRES_DL_DST))
+    col_add_str(fd, COL_UNRES_DL_DST, ether_to_str(dst));
+  if (check_col(fd, COL_PROTOCOL))
+    col_add_str(fd, COL_PROTOCOL, "N/A");
+  if (check_col(fd, COL_INFO))
+    col_add_str(fd, COL_INFO, "FDDI");
 
   if (tree) {
     ti = add_item_to_tree(GTK_WIDGET(tree), 0, offset,

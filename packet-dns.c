@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.8 1998/11/12 00:06:26 gram Exp $
+ * $Id: packet-dns.c,v 1.9 1998/11/17 04:28:51 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -463,10 +463,10 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   
   query = ! (flags & (1 << 15));
   
-  if (fd->win_info[COL_NUM]) {    
-    strcpy(fd->win_info[COL_PROTOCOL], "DNS (UDP)");
-    strcpy(fd->win_info[COL_INFO], query ? "Query" : "Response");
-  }
+  if (check_col(fd, COL_PROTOCOL))
+    col_add_str(fd, COL_PROTOCOL, "DNS (UDP)");
+  if (check_col(fd, COL_INFO))
+    col_add_str(fd, COL_INFO, query ? "Query" : "Response");
   
   if (tree) {
     ti = add_item_to_tree(GTK_WIDGET(tree), offset, 4,

@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.12 1998/11/12 00:06:30 gram Exp $
+ * $Id: packet-ipx.c,v 1.13 1998/11/17 04:28:55 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -170,15 +170,15 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	guint16		dsocket, ssocket;
 	void		(*dissect) (const u_char *, int, frame_data *, GtkTree *);
 
-	/* Calculate here for use in win_info[] and in tree */
+	/* Calculate here for use in pinfo and in tree */
 	dnet = ipxnet_to_string((guint8*)&pd[offset+6]);
 	snet = ipxnet_to_string((guint8*)&pd[offset+18]);
 	dsocket = pntohs(&pd[offset+16]);
 
-	if (fd->win_info[COL_NUM]) {
-		strcpy(fd->win_info[COL_PROTOCOL], "IPX");
-		sprintf(fd->win_info[COL_INFO], "%s (0x%04X)", port_text(dsocket), dsocket);
-	}
+	if (check_col(fd, COL_PROTOCOL))
+		col_add_str(fd, COL_PROTOCOL, "IPX");
+	if (check_col(fd, COL_INFO))
+		col_add_fstr(fd, COL_INFO, "%s (0x%04X)", port_text(dsocket), dsocket);
 
 	ipx_type = pd[offset+5];
 
@@ -284,10 +284,10 @@ dissect_spx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
 	GtkWidget	*spx_tree, *ti;
 
-	if (fd->win_info[COL_NUM]) {
-		strcpy(fd->win_info[COL_PROTOCOL], "SPX");
-		strcpy(fd->win_info[COL_INFO], "SPX");
-	}
+	if (check_col(fd, COL_PROTOCOL))
+		col_add_str(fd, COL_PROTOCOL, "SPX");
+	if (check_col(fd, COL_INFO))
+		col_add_str(fd, COL_INFO, "SPX");
 
 	if (tree) {
 		ti = add_item_to_tree(GTK_WIDGET(tree), offset, 12,
@@ -338,14 +338,15 @@ dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
 	operation = pntohs(&pd[offset]) - 1;
 
-	if (fd->win_info[COL_NUM]) {
-		strcpy(fd->win_info[COL_PROTOCOL], "IPX RIP");
-		if (operation < 2) {
-			sprintf(fd->win_info[COL_INFO], rip_type[operation]);
-		}
-		else {
-			strcpy(fd->win_info[COL_INFO], "Unknown Packet Type");
-		}
+	if (check_col(fd, COL_PROTOCOL))
+	 col_add_str(fd, COL_PROTOCOL, "IPX RIP");
+	if (check_col(fd, COL_PROTOCOL)) {
+	 if (operation < 2) {
+		 col_add_str(fd, COL_INFO, rip_type[operation]);
+	 }
+	 else {
+		 col_add_str(fd, COL_INFO, "Unknown Packet Type");
+	 }
 	}
 
 	if (tree) {
@@ -457,13 +458,14 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	query.query_type = pntohs(&pd[offset]);
 	query.server_type = pntohs(&pd[offset+2]);
 
-	if (fd->win_info[COL_NUM]) {
-		strcpy(fd->win_info[COL_PROTOCOL], "SAP");
+	if (check_col(fd, COL_PROTOCOL))
+		col_add_str(fd, COL_PROTOCOL, "SAP");
+	if (check_col(fd, COL_INFO)) {
 		if (query.query_type < 4) {
-			sprintf(fd->win_info[COL_INFO], sap_type[query.query_type - 1]);
+			col_add_str(fd, COL_INFO, sap_type[query.query_type - 1]);
 		}
 		else {
-			strcpy(fd->win_info[COL_INFO], "Unknown Packet Type");
+			col_add_str(fd, COL_INFO, "Unknown Packet Type");
 		}
 	}
 

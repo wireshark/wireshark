@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.3 1998/11/12 00:06:39 gram Exp $
+ * $Id: packet-vines.c,v 1.4 1998/11/17 04:29:08 gerald Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -65,26 +65,31 @@ dissect_vines(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
   	iph.vip_dsub = pntohs(&pd[offset+10]);
   	iph.vip_ssub = pntohs(&pd[offset+16]);
 
-  	if (fd->win_info[COL_NUM]) 
-  		{
     	switch (iph.vip_proto) 
     		{
       		case VINES_VSPP:      
-        		strcpy(fd->win_info[COL_PROTOCOL], "Vines");
-        		sprintf(fd->win_info[COL_INFO], "VSPP (%02x)", iph.vip_proto);
+						if (check_col(fd, COL_PROTOCOL))
+        			col_add_str(fd, COL_PROTOCOL, "Vines");
+						if (check_col(fd, COL_INFO))
+        			col_add_fstr(fd, COL_INFO, "VSPP (%02x)", iph.vip_proto);
         		break;
       		case VINES_DATA:
-        		strcpy(fd->win_info[COL_PROTOCOL], "Vines IP");
-        		sprintf(fd->win_info[COL_INFO], "DATA (%02x)", iph.vip_proto);
+						if (check_col(fd, COL_PROTOCOL))
+	        		col_add_str(fd, COL_PROTOCOL, "Vines IP");
+						if (check_col(fd, COL_INFO))
+  	      		col_add_fstr(fd, COL_INFO, "DATA (%02x)", iph.vip_proto);
 				break;
       		default:
-        		strcpy(fd->win_info[COL_PROTOCOL], "Vines IP");
-        		sprintf(fd->win_info[COL_INFO], "Unknown VIP protocol (%02x)", iph.vip_proto);
+						if (check_col(fd, COL_PROTOCOL))
+    	    		col_add_str(fd, COL_PROTOCOL, "Vines IP");
+						if (check_col(fd, COL_INFO))
+      	  		col_add_fstr(fd, COL_INFO, "Unknown VIP protocol (%02x)", iph.vip_proto);
     		}
 
-    	sprintf(fd->win_info[COL_SOURCE], "%08x.%04x", iph.vip_snet, iph.vip_ssub);
-    	sprintf(fd->win_info[COL_DESTINATION], "%08x.%04x", iph.vip_dnet, iph.vip_dsub);
-  		}
+			if (check_col(fd, COL_RES_NET_SRC))
+  	  	col_add_fstr(fd, COL_RES_NET_SRC, "%08x.%04x", iph.vip_snet, iph.vip_ssub);
+			if (check_col(fd, COL_RES_NET_DST))
+    		col_add_fstr(fd, COL_RES_NET_DST, "%08x.%04x", iph.vip_dnet, iph.vip_dsub);
   /*
   	iph.ip_tos = IPTOS_TOS(iph.ip_tos);
   	switch (iph.ip_tos) 
@@ -148,28 +153,31 @@ void dissect_vspp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
   	iph.vspp_lclid = ntohs(iph.vspp_lclid);
   	iph.vspp_rmtid = ntohs(iph.vspp_rmtid);
 
-  	if (fd->win_info[COL_NUM]) 
-  		{
-    	switch (iph.vspp_pkttype) 
-    		{
-      		case VINES_VSPP_DATA:      
-        		strcpy(fd->win_info[COL_PROTOCOL], "Vines");
-        		sprintf(fd->win_info[COL_INFO], "VSPP Data Port=%04x(Transient) NS=%04x NR=%04x Window=%04x RID=%04x LID=%04x D=%04x S=%04x", 
-        			iph.vspp_sport, iph.vspp_seq, iph.vspp_ack, iph.vspp_win, iph.vspp_rmtid,
-        			iph.vspp_lclid, iph.vspp_dport, iph.vspp_sport);
-        		break;
-      		case VINES_VSPP_ACK:
-        		strcpy(fd->win_info[COL_PROTOCOL], "Vines");
-        		sprintf(fd->win_info[COL_INFO], "VSPP Ack Port=%04x(Transient) NS=%04x NR=%04x Window=%04x RID=%04x LID=%04x", 
-        			iph.vspp_sport, iph.vspp_seq, iph.vspp_ack, iph.vspp_win, iph.vspp_rmtid,
-        			iph.vspp_lclid);
+    switch (iph.vspp_pkttype) 
+    	{
+      	case VINES_VSPP_DATA:      
+					if (check_col(fd, COL_PROTOCOL))
+   	    		col_add_str(fd, COL_PROTOCOL, "Vines");
+					if (check_col(fd, COL_INFO))
+        		col_add_fstr(fd, COL_INFO, "VSPP Data Port=%04x(Transient) NS=%04x NR=%04x Window=%04x RID=%04x LID=%04x D=%04x S=%04x", 
+	        		iph.vspp_sport, iph.vspp_seq, iph.vspp_ack, iph.vspp_win, iph.vspp_rmtid,
+  	      		iph.vspp_lclid, iph.vspp_dport, iph.vspp_sport);
+        	break;
+      	case VINES_VSPP_ACK:
+					if (check_col(fd, COL_PROTOCOL))
+   	    		col_add_str(fd, COL_PROTOCOL, "Vines");
+					if (check_col(fd, COL_INFO))
+        		col_add_fstr(fd, COL_INFO, "VSPP Ack Port=%04x(Transient) NS=%04x NR=%04x Window=%04x RID=%04x LID=%04x", 
+	        		iph.vspp_sport, iph.vspp_seq, iph.vspp_ack, iph.vspp_win, iph.vspp_rmtid,
+  	      		iph.vspp_lclid);
 
-				break;
-      		default:
-        		strcpy(fd->win_info[COL_PROTOCOL], "Vines IP");
-        		sprintf(fd->win_info[COL_INFO], "Unknown VSPP packet type (%02x)", iph.vspp_pkttype);
-    		}
-  		}
+			break;
+      	default:
+					if (check_col(fd, COL_PROTOCOL))
+   	    		col_add_str(fd, COL_PROTOCOL, "Vines IP");
+					if (check_col(fd, COL_INFO))
+        		col_add_fstr(fd, COL_INFO, "Unknown VSPP packet type (%02x)", iph.vspp_pkttype);
+    	}
   /*
   	iph.ip_tos = IPTOS_TOS(iph.ip_tos);
   	switch (iph.ip_tos) 

@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.7 1998/10/20 05:31:01 guy Exp $
+ * $Id: packet-ospf.c,v 1.8 1998/11/17 04:29:02 gerald Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -71,12 +71,13 @@ dissect_ospf(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     memcpy(&ospfh, &pd[offset], sizeof(e_ospfhdr));
 
     packet_type = match_strval(ospfh.packet_type, pt_vals);
-    if (fd->win_info[COL_NUM]) {
-        strcpy(fd->win_info[COL_PROTOCOL], "OSPF");
+    if (check_col(fd, COL_PROTOCOL))
+        col_add_str(fd, COL_PROTOCOL, "OSPF");
+    if (check_col(fd, COL_INFO)) {
         if (packet_type != NULL)
-            sprintf(fd->win_info[COL_INFO], "%s", packet_type); 
+            col_add_str(fd, COL_INFO, packet_type); 
         else
-            sprintf(fd->win_info[COL_INFO], "Unknown (%d)", ospfh.packet_type); 
+            col_add_fstr(fd, COL_INFO, "Unknown (%d)", ospfh.packet_type); 
     }  
 
     if (tree) {

@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.7 1998/11/12 00:06:38 gram Exp $
+ * $Id: packet-tr.c,v 1.8 1998/11/17 04:29:06 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -178,12 +178,14 @@ dissect_tr(const u_char *pd, frame_data *fd, GtkTree *tree) {
 
 
 	/* information window */
-	if (fd->win_info[COL_NUM]) {
-		strcpy(fd->win_info[COL_DESTINATION], ether_to_str((guint8 *)&pd[2]));
-		strcpy(fd->win_info[COL_SOURCE], ether_to_str(trn_shost_nonsr));
-		strcpy(fd->win_info[COL_PROTOCOL], "TR");
-		sprintf(fd->win_info[COL_INFO], "Token-Ring %s", fc[frame_type]);
-	}
+	if (check_col(fd, COL_RES_DL_DST))
+		col_add_str(fd, COL_RES_DL_DST, ether_to_str((guint8 *)&pd[2]));
+	if (check_col(fd, COL_RES_DL_SRC))
+		col_add_str(fd, COL_RES_DL_SRC, ether_to_str(trn_shost_nonsr));
+	if (check_col(fd, COL_PROTOCOL))
+		col_add_str(fd, COL_PROTOCOL, "TR");
+	if (check_col(fd, COL_INFO))
+		col_add_fstr(fd, COL_INFO, "Token-Ring %s", fc[frame_type]);
 
 	/* protocol analysis tree */
 	if (tree) {

@@ -1,7 +1,7 @@
 /* packet-raw.c
  * Routines for raw packet disassembly
  *
- * $Id: packet-raw.c,v 1.6 1998/11/12 00:06:37 gram Exp $
+ * $Id: packet-raw.c,v 1.7 1998/11/17 04:29:04 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,11 +44,14 @@ dissect_raw( const u_char *pd, frame_data *fd, GtkTree *tree ) {
 
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
-  if(fd->win_info[COL_NUM]) {
-    strcpy(fd->win_info[COL_SOURCE], "N/A" );
-    strcpy(fd->win_info[COL_DESTINATION], "N/A" );
-    strcpy(fd->win_info[COL_INFO], "Raw packet data" );
-  }
+  if(check_col(fd, COL_RES_DL_SRC))
+    col_add_str(fd, COL_RES_DL_SRC, "N/A" );
+  if(check_col(fd, COL_RES_DL_DST))
+    col_add_str(fd, COL_RES_DL_DST, "N/A" );
+  if(check_col(fd, COL_PROTOCOL))
+    col_add_str(fd, COL_PROTOCOL, "N/A" );
+  if(check_col(fd, COL_INFO))
+    col_add_str(fd, COL_INFO, "Raw packet data" );
 
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */

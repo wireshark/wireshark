@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.5 1998/10/13 05:40:04 guy Exp $
+ * $Id: packet-tcp.c,v 1.6 1998/11/17 04:29:05 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -250,11 +250,11 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   }
   flags[fpos] = '\0';
   
-  if (fd->win_info[COL_NUM]) {
-    strcpy(fd->win_info[COL_PROTOCOL], "TCP");
-    sprintf(fd->win_info[COL_INFO], "Source port: %d  Destination port: %d",
+  if (check_col(fd, COL_PROTOCOL))
+    col_add_str(fd, COL_PROTOCOL, "TCP");
+  if (check_col(fd, COL_INFO))
+    col_add_fstr(fd, COL_INFO, "Source port: %d  Destination port: %d",
       th.th_sport, th.th_dport);
-  }
   
   hlen = th.th_off * 4;  /* TCP header length, in bytes */
 

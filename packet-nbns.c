@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.6 1998/11/12 00:06:32 gram Exp $
+ * $Id: packet-nbns.c,v 1.7 1998/11/17 04:28:58 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -697,13 +697,14 @@ dissect_nbns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	header.nscount = pntohs(&pd[offset+8]);
 	header.arcount = pntohs(&pd[offset+10]);
 
-	if (fd->win_info[COL_NUM]) {
-		strcpy(fd->win_info[COL_PROTOCOL], "NBNS (UDP)");
+	if (check_col(fd, COL_PROTOCOL))
+		col_add_str(fd, COL_PROTOCOL, "NBNS (UDP)");
+	if (check_col(fd, COL_INFO)) {
 		if (header.opcode <= 15) {
-			sprintf(fd->win_info[COL_INFO], "%s %s",
+			col_add_fstr(fd, COL_INFO, "%s %s",
 			    opcode[header.opcode], header.r ? "reply" : "request");
 		} else {
-			sprintf(fd->win_info[COL_INFO], "Unknown operation (%d) %s",
+			col_add_fstr(fd, COL_INFO, "Unknown operation (%d) %s",
 			    header.opcode, header.r ? "reply" : "request");
 		}
 	}

@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.9 1998/10/29 15:59:00 gerald Exp $
+ * $Id: prefs.c,v 1.10 1998/11/17 04:29:10 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,26 +35,35 @@
 
 #include <ctype.h>
 #include <errno.h>
+#include <unistd.h>
+#include <sys/stat.h>
 
 #include "ethereal.h"
 #include "packet.h"
 #include "file.h"
 #include "prefs.h"
+#include "column.h"
 #include "print.h"
 #include "filter.h"
 #include "util.h"
 
 /* Internal functions */
-static int  set_pref(gchar*, gchar*);
-static void write_prefs();
-static void prefs_main_ok_cb(GtkWidget *, gpointer);
-static void prefs_main_save_cb(GtkWidget *, gpointer);
-static void prefs_main_cancel_cb(GtkWidget *, gpointer);
+static int    set_pref(gchar*, gchar*);
+static void   write_prefs();
+static void   prefs_main_ok_cb(GtkWidget *, gpointer);
+static void   prefs_main_save_cb(GtkWidget *, gpointer);
+static void   prefs_main_cancel_cb(GtkWidget *, gpointer);
+static GList *get_string_list(gchar *);
+static void   clear_string_list(GList *);
 
 e_prefs prefs;
 static int init_prefs = 1;
 
-#define PF_NAME ".ethereal/preferences"
+#define PF_NAME "preferences"
+
+#define E_PRINT_PAGE_KEY  "printer_options_page"
+#define E_FILTER_PAGE_KEY "filter_options_page"
+#define E_COLUMN_PAGE_KEY "column_options_page"
 
 static gchar *pf_path = NULL;
 
@@ -62,7 +71,7 @@ void
 prefs_cb(GtkWidget *w, gpointer sp) {
   GtkWidget *prefs_w, *main_vb, *top_hb, *bbox, *prefs_nb,
             *ok_bt, *save_bt, *cancel_bt;
-  GtkWidget *print_pg, *filter_pg, *filter_te, *label;
+  GtkWidget *print_pg, *filter_pg, *column_pg, *filter_te, *label;
 /*  GtkWidget *nlabel; */
   gint       start_page = (gint) sp;
 
@@ -107,6 +116,12 @@ prefs_cb(GtkWidget *w, gpointer sp) {
   label = gtk_label_new ("Filters");
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), filter_pg, label);
 
+  /* Column prefs */
+  column_pg = column_prefs_show();
+  gtk_object_set_data(GTK_OBJECT(prefs_w), E_COLUMN_PAGE_KEY, column_pg);
+  label = gtk_label_new ("Columns");
+  gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), column_pg, label);
+  
   /* Jump to the specified page, if it was supplied */
   if (start_page > E_PR_PG_NONE)
     gtk_notebook_set_page(GTK_NOTEBOOK(prefs_nb), start_page);
@@ -148,6 +163,7 @@ prefs_main_ok_cb(GtkWidget *w, gpointer win) {
   
   printer_prefs_ok(gtk_object_get_data(GTK_OBJECT(win), E_PRINT_PAGE_KEY));
   filter_prefs_ok(gtk_object_get_data(GTK_OBJECT(win), E_FILTER_PAGE_KEY));
+  column_prefs_ok(gtk_object_get_data(GTK_OBJECT(win), E_COLUMN_PAGE_KEY));
   gtk_widget_destroy(GTK_WIDGET(win));
 }
 
@@ -155,6 +171,7 @@ void
 prefs_main_save_cb(GtkWidget *w, gpointer win) {
   printer_prefs_save(gtk_object_get_data(GTK_OBJECT(win), E_PRINT_PAGE_KEY));
   filter_prefs_save(gtk_object_get_data(GTK_OBJECT(win), E_FILTER_PAGE_KEY));
+  column_prefs_save(gtk_object_get_data(GTK_OBJECT(win), E_COLUMN_PAGE_KEY));
   write_prefs();
 }
 
@@ -163,7 +180,65 @@ prefs_main_cancel_cb(GtkWidget *w, gpointer win) {
 
   printer_prefs_cancel(gtk_object_get_data(GTK_OBJECT(win), E_PRINT_PAGE_KEY));
   filter_prefs_cancel(gtk_object_get_data(GTK_OBJECT(win), E_FILTER_PAGE_KEY));
+  column_prefs_cancel(gtk_object_get_data(GTK_OBJECT(win), E_COLUMN_PAGE_KEY));
   gtk_widget_destroy(GTK_WIDGET(win));
+}
+
+/* Parse through a list of comma-separated, quoted strings.  Return a
+   list of the string data */
+static GList *
+get_string_list(gchar *str) {
+  enum { PRE_QUOT, IN_QUOT, POST_QUOT };
+
+  gint      state = PRE_QUOT, i = 0, j = 0;
+  gboolean  backslash = FALSE;
+  gchar     cur_c, *slstr;
+  GList    *sl = NULL;
+  
+  while ((cur_c = str[i]) != '\0') {
+    if (cur_c == '"' && ! backslash) {
+      switch (state) {
+        case PRE_QUOT:
+          state = IN_QUOT;
+          slstr = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+          j = 0;
+          break;
+        case IN_QUOT:
+          state  = POST_QUOT;
+          slstr[j] = '\0';
+          sl = g_list_append(sl, slstr);
+          break;
+        case POST_QUOT:
+          clear_string_list(sl);
+          return NULL;
+          break;
+        default:
+          break;
+      }
+    } else if (cur_c == '\\' && ! backslash) {
+      backslash = TRUE;
+    } else if (cur_c == ',' && state == POST_QUOT) {
+      state = PRE_QUOT;
+    } else if (state == IN_QUOT && j < COL_MAX_LEN) {
+      slstr[j] = str[i];
+      j++;
+    }
+    i++;
+  }
+  if (state != POST_QUOT) {
+    clear_string_list(sl);
+  }
+  return(sl);
+}
+
+void
+clear_string_list(GList *sl) {
+  GList *l = sl;
+  
+  while (l) {
+    g_free(l->data);
+    l = g_list_remove_link(l, l);
+  }
 }
 
 /* Preferences file format:
@@ -181,29 +256,45 @@ print.file: /a/very/long/path/
  *
  */
 
-#define MAX_VAR_LEN  32
-#define MAX_VAL_LEN 256
-void
+#define MAX_VAR_LEN    32
+#define MAX_VAL_LEN  1024
+#define DEF_NUM_COLS    6
+e_prefs *
 read_prefs() {
   enum { START, IN_VAR, PRE_VAL, IN_VAL, IN_SKIP };
-  FILE   *pf;
-  gchar   cur_var[MAX_VAR_LEN], cur_val[MAX_VAL_LEN];
-  int     got_c, state = START;
-  gint    var_len = 0, val_len = 0, fline = 1, pline = 1;
+  FILE     *pf;
+  gchar     cur_var[MAX_VAR_LEN], cur_val[MAX_VAL_LEN], **cfdata;
+  int       got_c, state = START, i;
+  gint      var_len = 0, val_len = 0, fline = 1, pline = 1;
+  gboolean  got_val = FALSE;
+  fmt_data *cfmt;
+  gchar    *col_fmt[] = {"No.",      "%m", "Time",        "%t",
+                         "Source",   "%s", "Destination", "%d",
+                         "Protocol", "%p", "Info",        "%i"};
+
   
   /* Initialize preferences.  With any luck, these values will be
      overwritten below. */
   if (init_prefs) {
-    init_prefs      = 0;
-    prefs.pr_format = PR_FMT_TEXT;
-    prefs.pr_dest   = PR_DEST_CMD;
-    prefs.pr_file   = g_strdup("ethereal.out");
-    prefs.pr_cmd    = g_strdup("lpr");
+    init_prefs       = 0;
+    prefs.pr_format  = PR_FMT_TEXT;
+    prefs.pr_dest    = PR_DEST_CMD;
+    prefs.pr_file    = g_strdup("ethereal.out");
+    prefs.pr_cmd     = g_strdup("lpr");
+    prefs.col_list = NULL;
+    for (i = 0; i < DEF_NUM_COLS; i++) {
+      cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
+      cfmt->title = g_strdup(col_fmt[i * 2]);
+      cfmt->fmt   = g_strdup(col_fmt[(i * 2) + 1]);
+      prefs.col_list = g_list_append(prefs.col_list, cfmt);
+    }
+    prefs.num_cols  = DEF_NUM_COLS;
   }
 
   if (! pf_path) {
-    pf_path = (gchar *) g_malloc(strlen(getenv("HOME")) + strlen(PF_NAME) + 4);
-    sprintf(pf_path, "%s/%s", getenv("HOME"), PF_NAME);
+    pf_path = (gchar *) g_malloc(strlen(getenv("HOME")) + strlen(PF_DIR) +
+      strlen(PF_NAME) + 4);
+    sprintf(pf_path, "%s/%s/%s", getenv("HOME"), PF_DIR, PF_NAME);
   }
     
   if ((pf = fopen(pf_path, "r")) == NULL) {
@@ -236,17 +327,22 @@ read_prefs() {
     switch (state) {
       case START:
         if (isalnum(got_c)) {
-          state = IN_VAR;
           if (var_len > 0) {
-            cur_var[var_len] = '\0';
-            cur_val[val_len] = '\0';
-            if (! set_pref(cur_var, cur_val))
-              g_warning ("%s line %d: Bogus preference", pf_path, pline);
+            if (got_val) {
+              cur_var[var_len] = '\0';
+              cur_val[val_len] = '\0';
+              if (! set_pref(cur_var, cur_val))
+                g_warning ("%s line %d: Bogus preference", pf_path, pline);
+            } else {
+              g_warning ("%s line %d: Incomplete preference", pf_path, pline);
+            }
           }
+          state      = IN_VAR;
+          got_val    = FALSE;
           cur_var[0] = got_c;
-          var_len = 1;
+          var_len    = 1;
           pline = fline;
-        } else if (isspace(got_c) && var_len > 0) {
+        } else if (isspace(got_c) && var_len > 0 && got_val) {
           state = PRE_VAL;
         } else if (got_c == '#') {
           state = IN_SKIP;
@@ -259,8 +355,9 @@ read_prefs() {
           cur_var[var_len] = got_c;
           var_len++;
         } else {
-          state = PRE_VAL;
+          state   = PRE_VAL;
           val_len = 0;
+          got_val = TRUE;
         }
         break;
       case PRE_VAL:
@@ -271,30 +368,47 @@ read_prefs() {
         }
         break;
       case IN_VAL:
-        cur_val[val_len] = got_c;
-        val_len++;
+        if (got_c != '#')  {
+          cur_val[val_len] = got_c;
+          val_len++;
+        } else {
+          while (isspace(cur_val[val_len]) && val_len > 0)
+            val_len--;
+          state = IN_SKIP;
+        }
         break;
     }
   }
   if (var_len > 0) {
-    cur_var[var_len] = '\0';
-    cur_val[val_len] = '\0';
-    if (! set_pref(cur_var, cur_val))
-      g_warning ("%s line %d: Bogus preference", pf_path, pline);
+    if (got_val) {
+      cur_var[var_len] = '\0';
+      cur_val[val_len] = '\0';
+      if (! set_pref(cur_var, cur_val))
+        g_warning ("%s line %d: Bogus preference", pf_path, pline);
+    } else {
+      g_warning ("%s line %d: Incomplete preference", pf_path, pline);
+    }
   }
   fclose(pf);
+  
+  return &prefs;
 }
 
 #define PRS_PRINT_FMT  "print.format"
 #define PRS_PRINT_DEST "print.destination"
 #define PRS_PRINT_FILE "print.file"
 #define PRS_PRINT_CMD  "print.command"
+#define PRS_COL_FMT    "column.format"
 
 static gchar *pr_formats[] = { "text", "postscript" };
 static gchar *pr_dests[]   = { "command", "file" };
 
 int
 set_pref(gchar *pref, gchar *value) {
+  gchar    *col_ptr;
+  GList    *col_l;
+  gint      i, llen;
+  fmt_data *cfmt;
 
   if (strcmp(pref, PRS_PRINT_FMT) == 0) {
     if (strcmp(value, pr_formats[PR_FMT_TEXT]) == 0) {
@@ -318,6 +432,29 @@ set_pref(gchar *pref, gchar *value) {
   } else if (strcmp(pref, PRS_PRINT_CMD) == 0) {
     if (prefs.pr_cmd) g_free(prefs.pr_cmd);
     prefs.pr_cmd = g_strdup(value);
+  } else if (strcmp(pref, PRS_COL_FMT) == 0) {
+    if ((col_l = get_string_list(value)) && (g_list_length(col_l) % 2) == 0) {
+      while (prefs.col_list) {
+        cfmt = prefs.col_list->data;
+        g_free(cfmt->title);
+        g_free(cfmt->fmt);
+        g_free(cfmt);
+        prefs.col_list = g_list_remove_link(prefs.col_list, prefs.col_list);
+      }
+      llen             = g_list_length(col_l);
+      prefs.num_cols   = llen / 2;
+      col_l = g_list_first(col_l);
+      while(col_l) {
+        cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
+        cfmt->title    = g_strdup(col_l->data);
+        col_l          = col_l->next;
+        cfmt->fmt      = g_strdup(col_l->data);
+        col_l          = col_l->next;
+        prefs.col_list = g_list_append(prefs.col_list, cfmt);
+      }
+      /* To do: else print some sort of error? */
+    }
+    clear_string_list(col_l);
   } else {
     return 0;
   }
@@ -327,15 +464,25 @@ set_pref(gchar *pref, gchar *value) {
 
 void
 write_prefs() {
-  FILE   *pf;
+  FILE        *pf;
+  struct stat  s_buf;
   
-  /* To do: Split output lines longer than MAX_VAL_LEN */
+  /* To do:
+   * - Split output lines longer than MAX_VAL_LEN
+   * - Create a function for the preference directory check/creation
+   *   so that duplication can be avoided with filter.c
+   */
 
   if (! pf_path) {
-    pf_path = (gchar *) g_malloc(strlen(getenv("HOME")) + strlen(PF_NAME) + 4);
-    sprintf(pf_path, "%s/%s", getenv("HOME"), PF_NAME);
+    pf_path = (gchar *) g_malloc(strlen(getenv("HOME")) + strlen(PF_DIR) +
+      strlen(PF_NAME) + 4);
   }
-    
+
+  sprintf(pf_path, "%s/%s", getenv("HOME"), PF_DIR);
+  if (stat(pf_path, &s_buf) != 0)
+    mkdir(pf_path, 0755);
+
+  sprintf(pf_path, "%s/%s/%s", getenv("HOME"), PF_DIR, PF_NAME);
   if ((pf = fopen(pf_path, "w")) == NULL) {
      simple_dialog(ESD_TYPE_WARN, NULL,
       "Can't open preferences file\n\"%s\".", pf_path);
@@ -362,7 +509,11 @@ write_prefs() {
 
   fprintf (pf, "# Output gets piped to this command when the destination "
     "is set to \"command\"\n"
-    "%s: %s\n", PRS_PRINT_CMD, prefs.pr_cmd);
+    "%s: %s\n\n", PRS_PRINT_CMD, prefs.pr_cmd);
+
+  fprintf (pf, "# Packet list column format.  Each pair of strings consists "
+    "of a column title \n# and its format.\n"
+    "%s: %s\n\n", PRS_COL_FMT, col_format_to_pref_str());
 
   fclose(pf);
 }

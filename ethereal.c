@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.11 1998/11/12 00:06:19 gram Exp $
+ * $Id: ethereal.c,v 1.12 1998/11/17 04:28:44 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,6 +61,7 @@
 #include "menu.h"
 #include "etypes.h"
 #include "prefs.h"
+#include "column.h"
 #include "print.h"
 #include "resolv.h"
 #include "follow.h"
@@ -362,10 +363,11 @@ print_usage(void) {
   fprintf(stderr, "         [-T tree view height] [-w savefile] \n");
 }
 
+/* And now our feature presentation... [ fade to music ] */
 int
 main(int argc, char *argv[])
 {
-  int                  opt;
+  int                  opt, i, j;
   extern char         *optarg;
   GtkWidget           *window, *main_vbox, *menubar, *u_pane, *l_pane,
                       *bv_table, *bv_hscroll, *bv_vscroll, *stat_hbox, 
@@ -374,11 +376,17 @@ main(int argc, char *argv[])
   GtkAcceleratorTable *accel;
   gint                 col_width, pl_size = 280, tv_size = 95, bv_size = 75;
   gchar               *rc_file, *cf_name = NULL;
-  gchar               *cl_title[] = {"No.", "Time", "Source", "Destination",
-                      "Protocol", "Info"};
   gchar               *medium_font = MONO_MEDIUM_FONT;
   gchar               *bold_font = MONO_BOLD_FONT;
+  e_prefs             *prefs;
+  gint                *col_fmt;
+  gchar              **col_title;
 
+  /* Let GTK get its args */
+  gtk_init (&argc, &argv);
+
+  prefs = read_prefs();
+    
   /* Initialize the capture file struct */
   cf.plist     = NULL;
 #ifdef WITH_WIRETAP
@@ -393,12 +401,24 @@ main(int argc, char *argv[])
   cf.save_file = NULL;
   cf.snap      = 68;
   cf.count     = 0;
+  cf.cinfo.num_cols = prefs->num_cols;
+  cf.cinfo.fmt_matx = (gboolean **) g_malloc(sizeof(gboolean *) *
+    cf.cinfo.num_cols);
+  cf.cinfo.col_data = (gchar **) g_malloc(sizeof(gchar *) *
+    cf.cinfo.num_cols);
 
-  /* Let GTK get its args */
-  gtk_init (&argc, &argv);
+  col_fmt   = (gint *) g_malloc(sizeof(gint) * cf.cinfo.num_cols);
+  col_title = (gchar **) g_malloc(sizeof(gchar *) * cf.cinfo.num_cols);
+  
+  for (i = 0; i < cf.cinfo.num_cols; i++) {
+    col_fmt[i]   = get_column_format(i);
+    col_title[i] = g_strdup(get_column_title(i));
+    cf.cinfo.fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) *
+      NUM_COL_FMTS);
+    get_column_format_matches(cf.cinfo.fmt_matx[i], col_fmt[i]);
+    cf.cinfo.col_data[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+  }
 
-  read_prefs();
-    
   /* Now get our args */
   while ((opt = getopt(argc, argv, "b:B:c:hi:m:nP:r:s:t:T:w:v")) != EOF) {
     switch (opt) {
@@ -518,7 +538,8 @@ main(int argc, char *argv[])
   gtk_widget_show(l_pane);
 
   /* Packet list */
-  packet_list = gtk_clist_new_with_titles(NUM_COLS, cl_title);
+  packet_list = gtk_clist_new_with_titles(cf.cinfo.num_cols, col_title);
+  gtk_clist_column_titles_passive(GTK_CLIST(packet_list));
   pl_style = gtk_style_new();
   gdk_font_unref(pl_style->font);
   pl_style->font = m_r_font;
@@ -528,20 +549,13 @@ main(int argc, char *argv[])
     GTK_SIGNAL_FUNC(packet_list_select_cb), NULL);
   gtk_signal_connect(GTK_OBJECT(packet_list), "unselect_row",
     GTK_SIGNAL_FUNC(packet_list_unselect_cb), NULL);
-  gtk_clist_set_column_justification(GTK_CLIST(packet_list), 0, 
-    GTK_JUSTIFY_RIGHT);
-  col_width = (gdk_string_width(pl_style->font, "0") * 7) + 2;
-  gtk_clist_set_column_width(GTK_CLIST(packet_list), COL_NUM, col_width);
-  if (timestamp_type == ABSOLUTE)
-    col_width = gdk_string_width(pl_style->font, "00:00:00.000000");
-  else
-    col_width = gdk_string_width(pl_style->font, "0000.000000");
-  gtk_clist_set_column_width(GTK_CLIST(packet_list), COL_TIME, col_width);
-  col_width = gdk_string_width(pl_style->font, "00:00:00:00:00:00") + 2;
-  gtk_clist_set_column_width(GTK_CLIST(packet_list), COL_SOURCE, col_width);
-  gtk_clist_set_column_width(GTK_CLIST(packet_list), COL_DESTINATION, col_width);
-  col_width = gdk_string_width(pl_style->font, "NBNS (UDP)") + 2;
-  gtk_clist_set_column_width(GTK_CLIST(packet_list), COL_PROTOCOL, col_width);
+  for (i = 0; i < cf.cinfo.num_cols; i++) {
+    gtk_clist_set_column_width(GTK_CLIST(packet_list), i,
+      get_column_width(get_column_format(i), pl_style->font));
+    if (col_fmt[i] == COL_NUMBER)
+      gtk_clist_set_column_justification(GTK_CLIST(packet_list), i, 
+        GTK_JUSTIFY_RIGHT);
+  }
   gtk_widget_set_usize(packet_list, -1, pl_size);
   gtk_paned_add1(GTK_PANED(u_pane), packet_list);
   gtk_widget_show(packet_list);

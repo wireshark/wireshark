@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-lpd.c,v 1.4 1998/11/12 00:06:31 gram Exp $
+ * $Id: packet-lpd.c,v 1.5 1998/11/17 04:28:57 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -89,13 +89,14 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 	}
 
 
-	if (fd->win_info[COL_NUM]) {
-		strcpy(fd->win_info[COL_PROTOCOL], "LPD");
+	if (check_col(fd, COL_PROTOCOL))
+		col_add_str(fd, COL_PROTOCOL, "LPD");
+	if (check_col(fd, COL_INFO)) {
 		if (lpr_packet_type == request) {
-			strcpy(fd->win_info[COL_INFO], lpd_client_code[pd[offset]]);
+			col_add_str(fd, COL_INFO, lpd_client_code[pd[offset]]);
 		}
 		else {
-			strcpy(fd->win_info[COL_INFO], "LPD response");
+			col_add_str(fd, COL_INFO, "LPD response");
 		}
 	}
 

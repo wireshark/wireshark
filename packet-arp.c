@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.9 1998/11/12 00:06:23 gram Exp $
+ * $Id: packet-arp.c,v 1.10 1998/11/17 04:28:49 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -207,31 +207,31 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   tpa_offset = tha_offset + ar_hln;
   tpa_str = arpproaddr_to_str((guint8 *) &pd[tpa_offset], ar_pln, ar_pro);
   
-  if (fd->win_info[COL_NUM]) {
+  if (check_col(fd, COL_PROTOCOL)) {
+    if ((op_str = match_strval(ar_op, op_vals)))
+      col_add_str(fd, COL_PROTOCOL, op_str);
+    else
+      col_add_str(fd, COL_PROTOCOL, "ARP");
+  }
+
+  if (check_col(fd, COL_INFO)) {
     switch (ar_op) {
       case ARPOP_REQUEST:
-        strcpy(fd->win_info[COL_PROTOCOL], "ARP");
-        sprintf(fd->win_info[COL_INFO], "Who has %s?  Tell %s",
+        col_add_fstr(fd, COL_INFO, "Who has %s?  Tell %s",
           tpa_str, spa_str);
         break;
       case ARPOP_REPLY:
-        strcpy(fd->win_info[COL_PROTOCOL], "ARP");
-        sprintf(fd->win_info[COL_INFO], "%s is at %s",
-          spa_str, sha_str);
+        col_add_fstr(fd, COL_INFO, "%s is at %s", spa_str, sha_str);
         break;
       case ARPOP_RREQUEST:
-        strcpy(fd->win_info[COL_PROTOCOL], "RARP");
-        sprintf(fd->win_info[COL_INFO], "Who is %s?  Tell %s",
+        col_add_fstr(fd, COL_INFO, "Who is %s?  Tell %s",
           tha_str, sha_str);
         break;
       case ARPOP_RREPLY:
-        strcpy(fd->win_info[COL_PROTOCOL], "RARP");
-        sprintf(fd->win_info[COL_INFO], "%s is at %s",
-          sha_str, spa_str);
+        col_add_fstr(fd, COL_INFO, "%s is at %s", sha_str, spa_str);
         break;
       default:
-        strcpy(fd->win_info[COL_PROTOCOL], "ARP");
-        sprintf(fd->win_info[COL_INFO], "Unknown ARP opcode 0x%04x", ar_op);
+        col_add_fstr(fd, COL_INFO, "Unknown ARP opcode 0x%04x", ar_op);
         break;
     }
   }

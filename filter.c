@@ -1,7 +1,7 @@
 /* filter.c
  * Routines for managing filter sets
  *
- * $Id: filter.c,v 1.8 1998/10/16 01:18:28 gerald Exp $
+ * $Id: filter.c,v 1.9 1998/11/17 04:28:48 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,7 +54,7 @@ void
 get_filter_list() {
   filter_def *filt;
   FILE       *ff;
-  gchar      *ff_path, *ff_name = ".ethereal/filters", f_buf[256];
+  gchar      *ff_path, *ff_name = PF_DIR "/filters", f_buf[256];
   gchar      *name_begin, *name_end, *filt_begin;
   int         len, line = 0;
 
@@ -104,7 +104,7 @@ get_filter_list() {
   g_free(ff_path);
 }
 
-/* filter_sel_pg - Create and display the filter selection widgets. */
+/* Create and display the filter selection widgets. */
 /* Called when the 'Filter' preference notebook page is selected. */
 GtkWidget *
 filter_prefs_show(GtkWidget *w) {
@@ -172,6 +172,7 @@ filter_prefs_show(GtkWidget *w) {
   gtk_widget_show(filter_sc);
 
   filter_l = gtk_list_new();
+  gtk_list_set_selection_mode(GTK_LIST(filter_l), GTK_SELECTION_SINGLE);
   gtk_signal_connect(GTK_OBJECT(filter_l), "selection_changed",
     GTK_SIGNAL_FUNC(filter_sel_list_cb), main_vb);
   gtk_container_add(GTK_CONTAINER(filter_sc), filter_l);
@@ -376,7 +377,7 @@ filter_sel_del_cb(GtkWidget *w, gpointer data) {
       g_free(filt->name);
       g_free(filt->strval);
       g_free(filt);
-      fl = g_list_remove_link(fl, flp);
+      fl = g_list_remove(fl, flp);
       gtk_list_clear_items(GTK_LIST(filter_l), pos, pos + 1);
     } 
   }
@@ -406,7 +407,7 @@ void
 filter_prefs_save(GtkWidget *w) {
   GList       *flp;
   filter_def  *filt;
-  gchar       *ff_path, *ff_dir = ".ethereal", *ff_name = "filters";
+  gchar       *ff_path, *ff_dir = PF_DIR, *ff_name = "filters";
   FILE        *ff;
   struct stat  s_buf;
   

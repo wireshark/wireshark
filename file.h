@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.6 1998/11/15 05:29:01 guy Exp $
+ * $Id: file.h,v 1.7 1998/11/17 04:28:47 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -73,7 +73,7 @@ typedef struct _capture_file {
   gchar      *iface;     /* Interface */
   gchar      *save_file; /* File to write capture data */
 #ifdef WITH_WIRETAP
-  wtap     *wth;       /* Wiretap session */
+  wtap     *wth;         /* Wiretap session */
 #else
   pcap_t     *pfh;       /* Pcap session */
 #endif
@@ -83,6 +83,7 @@ typedef struct _capture_file {
   guint8      pd[4096];  /* Packet data */
   GList      *plist;     /* Packet list */
   frame_data *cur;       /* Current list item */
+  column_info  cinfo;    /* Column formatting information */
 } capture_file;
 
 /* Taken from RFC 1761 */

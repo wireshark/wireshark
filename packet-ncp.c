@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.c,v 1.6 1998/11/12 00:06:34 gram Exp $
+ * $Id: packet-ncp.c,v 1.7 1998/11/17 04:28:59 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -212,12 +212,12 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 		ncp_hdr = 6; /* in order to get ncp_type_text[0] */
 	}
 
-	if (fd->win_info[COL_NUM]) {
-		strcpy(fd->win_info[COL_PROTOCOL], "NCP");
+	if (check_col(fd, COL_PROTOCOL))
+		col_add_str(fd, COL_PROTOCOL, "NCP");
+	if (check_col(fd, COL_INFO))
 		/* I take advantage of the ncp_hdr length to use as an index into
 		 * ncp_type_text[]. Ugly hack, but quick.  */
-		sprintf(fd->win_info[COL_INFO], "%s", ncp_type_text[ncp_hdr - 6]);
-	}
+		col_add_fstr(fd, COL_INFO, "%s", ncp_type_text[ncp_hdr - 6]);
 
 
 	if (tree) {

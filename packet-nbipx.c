@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-nbipx.c,v 1.4 1998/11/12 00:06:32 gram Exp $
+ * $Id: packet-nbipx.c,v 1.5 1998/11/17 04:28:57 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -120,22 +120,23 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree,
 		header.node_name[17] = 0; /* null-terminate the string */
 	}
 
-	if (fd->win_info[COL_NUM]) {
+	if (check_col(fd, COL_PROTOCOL)) {
 		if (nbipx == NETBIOS_NETWARE) {
-			strcpy(fd->win_info[COL_PROTOCOL], "NetBIOS");
+			col_add_str(fd, COL_PROTOCOL, "NetBIOS");
 		}
 		else {
-			strcpy(fd->win_info[COL_PROTOCOL], "NWLink");
+			col_add_str(fd, COL_PROTOCOL, "NWLink");
 		}
+	}
 
+	if (check_col(fd, COL_INFO)) {
 			switch (header.packet_type) {
 				case 1:
-					sprintf(fd->win_info[COL_INFO], "Name Query for %s",
-							header.name);
+					col_add_fstr(fd, COL_INFO, "Name Query for %s", header.name);
 					break;
 
 				default:
-					strcpy(fd->win_info[COL_INFO], "NetBIOS over IPX");
+					col_add_str(fd, COL_INFO, "NetBIOS over IPX");
 			}
 	}
 

@@ -79,14 +79,15 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   ddp.snet=ntohs(ddp.snet);
   ddp.sum=ntohs(ddp.sum);
   
-  if (fd->win_info[COL_NUM]) {
-    strcpy(fd->win_info[COL_PROTOCOL], "DDP");
-    strcpy(fd->win_info[COL_INFO],
+  if (check_col(fd, COL_RES_NET_SRC))
+    col_add_fstr(fd, COL_RES_NET_SRC, "%d.%d:%d", ddp.snet, ddp.snode, ddp.sport);
+  if (check_col(fd, COL_RES_NET_DST))
+    col_add_fstr(fd, COL_RES_NET_DST, "%d.%d:%d", ddp.dnet, ddp.dnode, ddp.dport);
+  if (check_col(fd, COL_PROTOCOL))
+    col_add_str(fd, COL_PROTOCOL, "DDP");
+  if (check_col(fd, COL_INFO))
+    col_add_str(fd, COL_INFO,
       val_to_str(ddp.type, op_vals, "Unknown DDP protocol (%02x)"));
-
-    sprintf(fd->win_info[COL_SOURCE],"%d.%d:%d",ddp.snet,ddp.snode,ddp.sport);
-    sprintf(fd->win_info[COL_DESTINATION], "%d.%d:%d",ddp.dnet,ddp.dnode,ddp.dport);
-  }
   
   if (tree) {
     ti = add_item_to_tree(GTK_WIDGET(tree), offset, 13,

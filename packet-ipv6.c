@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.4 1998/11/12 00:06:29 gram Exp $
+ * $Id: packet-ipv6.c,v 1.5 1998/11/17 04:28:55 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -52,22 +52,23 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
   memcpy(&ipv6, (void *) &pd[offset], 8); 
 
-  if (fd->win_info[COL_NUM]) {
-      switch(ipv6.next_header){
-	  /*
-	  case IP_PROTO_ICMP:
-          case IP_PROTO_IGMP:
-          case IP_PROTO_TCP:
-          case IP_PROTO_UDP:
-          case IP_PROTO_OSPF:
-	  */
-          /* Names are set in the associated dissect_* routines */
-	  /*    break; */
-	 default:
-             strcpy(fd->win_info[COL_PROTOCOL], "IPv6");
-             sprintf(fd->win_info[COL_INFO], "IPv6 support is still under development (%d)", ipv6.next_header);
-      }
+  switch(ipv6.next_header){
+      /*
+      case IP_PROTO_ICMP:
+      case IP_PROTO_IGMP:
+      case IP_PROTO_TCP:
+      case IP_PROTO_UDP:
+      case IP_PROTO_OSPF:
+      */
+      /* Names are set in the associated dissect_* routines */
+      /*    break; */
+     default:
+         if (check_col(fd, COL_PROTOCOL))
+             col_add_str(fd, COL_PROTOCOL, "IPv6");
+         if (check_col(fd, COL_INFO))
+             col_add_fstr(fd, COL_INFO, "IPv6 support is still under development (%d)", ipv6.next_header);
   }
+
   if (tree) {
     /* !!! specify length */
     ti = add_item_to_tree(GTK_WIDGET(tree), offset, 40,

@@ -97,7 +97,8 @@ dissect_aarp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   memcpy(&ea.hdaddr, &pd[offset + 18], 6);
   memcpy(&ea.pdaddr, &pd[offset + 24], 4);
   
-  if (fd->win_info[COL_NUM]) { strcpy(fd->win_info[COL_PROTOCOL], "AARP"); }
+  if(check_col(fd, COL_PROTOCOL))
+    col_add_str(fd, COL_PROTOCOL, "AARP");
   
   if (tree) {
     if ((op_str = match_strval(ea.op, op_vals)))
@@ -127,31 +128,27 @@ dissect_aarp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       "Target ID: %s", atalkid_to_str((guint8 *) ea.pdaddr));
   }
 
-  if (ea.ptype != ETHERTYPE_AARP && ea.ptype !=ETHERTYPE_ATALK && 
-      fd->win_info[COL_NUM]) {
-    sprintf(fd->win_info[COL_INFO], "h/w %d (%d) prot %d (%d) op 0x%04x",
+  if (ea.ptype != ETHERTYPE_AARP && ea.ptype != ETHERTYPE_ATALK && 
+      check_col(fd, COL_INFO)) {
+    col_add_fstr(fd, COL_INFO, "h/w %d (%d) prot %d (%d) op 0x%04x",
       ea.htype, ea.halen, ea.ptype, ea.palen, ea.op);
     return;
   }
-  switch (ea.op) {
-    case AARP_REQUEST:
-      if (fd->win_info[COL_NUM]) {
-        sprintf(fd->win_info[COL_INFO], "Who has %s?  Tell %s",
+  if (check_col(fd, COL_INFO)) {
+    switch (ea.op) {
+      case AARP_REQUEST:
+        col_add_fstr(fd, COL_INFO, "Who has %s?  Tell %s",
           atalkid_to_str((guint8 *) ea.pdaddr), atalkid_to_str((guint8 *) ea.psaddr));
-      }
-      break;
-    case AARP_REPLY:
-      if (fd->win_info[COL_NUM]) {
-        sprintf(fd->win_info[COL_INFO], "%s is at %s",
+        break;
+      case AARP_REPLY:
+        col_add_fstr(fd, COL_INFO, "%s is at %s",
           atalkid_to_str((guint8 *) ea.psaddr),
           ether_to_str((guint8 *) ea.hsaddr));
-      }
-      break;
-    case AARP_PROBE:
-      if (fd->win_info[COL_NUM]) {
-        sprintf(fd->win_info[COL_INFO], "Is there a %s",
+        break;
+      case AARP_PROBE:
+        col_add_fstr(fd, COL_INFO, "Is there a %s",
           atalkid_to_str((guint8 *) ea.pdaddr));
-      }
-      break;
+        break;
+    }
   }
 }

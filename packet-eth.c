@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.6 1998/11/12 00:06:26 gram Exp $
+ * $Id: packet-eth.c,v 1.7 1998/11/17 04:28:52 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,11 +62,18 @@ dissect_eth(const u_char *pd, frame_data *fd, GtkTree *tree) {
   GtkWidget *fh_tree = NULL, *ti;
   int   	ethhdr_type;	/* the type of ethernet frame */
 
-  if (fd->win_info[COL_NUM]) {
-    strcpy(fd->win_info[COL_DESTINATION], get_ether_name((u_char *)&pd[0]));
-    strcpy(fd->win_info[COL_SOURCE], get_ether_name((u_char *)&pd[6]));
-    strcpy(fd->win_info[COL_INFO], "Ethernet II");
-  }
+  if (check_col(fd, COL_RES_DL_DST))
+    col_add_str(fd, COL_RES_DL_DST, get_ether_name((u_char *)&pd[0]));
+  if (check_col(fd, COL_RES_DL_SRC))
+    col_add_str(fd, COL_RES_DL_SRC, get_ether_name((u_char *)&pd[6]));
+  if (check_col(fd, COL_UNRES_DL_DST))
+    col_add_str(fd, COL_UNRES_DL_DST, ether_to_str((u_char *)&pd[0]));
+  if (check_col(fd, COL_UNRES_DL_SRC))
+    col_add_str(fd, COL_UNRES_DL_SRC, ether_to_str((u_char *)&pd[6]));
+  if (check_col(fd, COL_PROTOCOL))
+    col_add_str(fd, COL_PROTOCOL, "N/A");
+  if (check_col(fd, COL_INFO))
+    col_add_str(fd, COL_INFO, "Ethernet II");
 
   etype = (pd[12] << 8) | pd[13];
 
@@ -87,7 +94,8 @@ dissect_eth(const u_char *pd, frame_data *fd, GtkTree *tree) {
       ethhdr_type = ETHERNET_802_2;
     }
 
-    if (fd->win_info[COL_NUM]) { sprintf(fd->win_info[COL_INFO], "802.3"); }
+    if (check_col(fd, COL_INFO))
+      col_add_str(fd, COL_INFO, "802.3");
     if (tree) {
       ti = add_item_to_tree(GTK_WIDGET(tree), 0, offset,
         "IEEE 802.3 %s", (ethhdr_type == ETHERNET_802_3 ? "Raw " : ""));
