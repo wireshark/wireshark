@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.28 2000/05/31 05:07:24 guy Exp $
+ * $Id: packet-nfs.c,v 1.29 2000/06/12 08:47:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,7 +55,6 @@ static int hf_nfs_write_totalcount = -1;
 static int hf_nfs_symlink_to = -1;
 static int hf_nfs_readdir_cookie = -1;
 static int hf_nfs_readdir_count = -1;
-static int hf_nfs_readdir_value_follows = -1;
 static int hf_nfs_readdir_entry = -1;
 static int hf_nfs_readdir_entry_fileid = -1;
 static int hf_nfs_readdir_entry_name = -1;
@@ -849,25 +848,13 @@ int
 dissect_nfs2_readdir_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
 	guint32 status;
-	guint32 value_follows;
 	guint32 eof_value;
 
 	offset = dissect_stat(pd, offset, fd, tree, &status);
 	switch (status) {
 		case 0:
-			while (1) {
-				if (!BYTES_ARE_IN_FRAME(offset,4)) break;
-				value_follows = EXTRACT_UINT(pd, offset+0);
-				proto_tree_add_boolean(tree,hf_nfs_readdir_value_follows, NullTVB,
-					offset+0, 4, value_follows);
-				offset += 4;
-				if (value_follows == 1) {
-					offset = dissect_readdir_entry(pd, offset, fd, tree);
-				}
-				else {
-					break;
-				}
-			}
+			offset = dissect_rpc_list(pd, offset, fd, tree,
+				dissect_readdir_entry);
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			eof_value = EXTRACT_UINT(pd, offset+0);
 			if (tree)
@@ -2556,7 +2543,6 @@ int
 dissect_nfs3_readdir_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
 	guint32 status;
-	guint32 value_follows;
 	guint32 eof_value;
 
 	offset = dissect_stat(pd, offset, fd, tree, &status);
@@ -2564,19 +2550,8 @@ dissect_nfs3_readdir_reply(const u_char* pd, int offset, frame_data* fd, proto_t
 		case 0:
 			offset = dissect_post_op_attr(pd, offset, fd, tree, "dir_attributes");
 			offset = dissect_cookieverf3(pd, offset, fd, tree);
-			while (1) {
-				if (!BYTES_ARE_IN_FRAME(offset,4)) break;
-				value_follows = EXTRACT_UINT(pd, offset+0);
-				proto_tree_add_boolean(tree,hf_nfs_readdir_value_follows, NullTVB,
-					offset+0, 4, value_follows);
-				offset += 4;
-				if (value_follows == 1) {
-					offset = dissect_entry3(pd, offset, fd, tree);
-				}
-				else {
-					break;
-				}
-			}
+			offset = dissect_rpc_list(pd, offset, fd, tree,
+				dissect_entry3);
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			eof_value = EXTRACT_UINT(pd, offset+0);
 			if (tree)
@@ -2650,7 +2625,6 @@ int
 dissect_nfs3_readdirplus_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 {
 	guint32 status;
-	guint32 value_follows;
 	guint32 eof_value;
 
 	offset = dissect_stat(pd, offset, fd, tree, &status);
@@ -2658,19 +2632,8 @@ dissect_nfs3_readdirplus_reply(const u_char* pd, int offset, frame_data* fd, pro
 		case 0:
 			offset = dissect_post_op_attr(pd, offset, fd, tree, "dir_attributes");
 			offset = dissect_cookieverf3(pd, offset, fd, tree);
-			while (1) {
-				if (!BYTES_ARE_IN_FRAME(offset,4)) break;
-				value_follows = EXTRACT_UINT(pd, offset+0);
-				proto_tree_add_boolean(tree,hf_nfs_readdir_value_follows, NullTVB,
-					offset+0, 4, value_follows);
-				offset += 4;
-				if (value_follows == 1) {
-					offset = dissect_entryplus3(pd, offset, fd, tree);
-				}
-				else {
-					break;
-				}
-			}
+			offset = dissect_rpc_list(pd, offset, fd, tree,
+				dissect_entryplus3);
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			eof_value = EXTRACT_UINT(pd, offset+0);
 			if (tree)
@@ -3012,9 +2975,6 @@ proto_register_nfs(void)
 		{ &hf_nfs_readdir_count, {
 			"Count", "nfs.readdir.count", FT_UINT32, BASE_DEC,
 			NULL, 0, "Directory Count" }},
-		{ &hf_nfs_readdir_value_follows, {
-			"Value Follows", "nfs.readdir.value_follows", FT_BOOLEAN, BASE_NONE,
-			&yesno, 0, "Value Follows" }},
 		{ &hf_nfs_readdir_entry, {
 			"Entry", "nfs.readdir.entry", FT_NONE, 0,
 			NULL, 0, "Directory Entry" }},

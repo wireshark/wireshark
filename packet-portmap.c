@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.16 2000/05/31 05:07:29 guy Exp $
+ * $Id: packet-portmap.c,v 1.17 2000/06/12 08:47:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -52,15 +52,11 @@ static int hf_portmap_rpcb_netid = -1;
 static int hf_portmap_rpcb_addr = -1;
 static int hf_portmap_rpcb_owner = -1;
 static int hf_portmap_uaddr = -1;
-static int hf_portmap_value_follows = -1;
 
 
 static gint ett_portmap = -1;
 static gint ett_portmap_rpcb = -1;
 static gint ett_portmap_entry = -1;
-
-
-static struct true_false_string yesno = { "Yes", "No" };
 
 
 /* Dissect a getport call */
@@ -173,53 +169,49 @@ int dissect_set_reply(const u_char *pd, int offset, frame_data *fd,
     return offset;
 }
 
+static int
+dissect_dump_entry(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	int prog, version, proto, port;
+	proto_item *ti, *subtree;
+
+	if ( ! BYTES_ARE_IN_FRAME(offset, 16) )
+	{
+		if ( tree )
+		{
+			proto_tree_add_text(tree, NullTVB, offset, END_OF_FRAME, "Map Entry: <TRUNCATED>");
+		}
+		return pi.captured_len;
+	}
+	prog = pntohl(&pd[offset+0]);
+	version = pntohl(&pd[offset+4]);
+	proto = pntohl(&pd[offset+8]);
+	port = pntohl(&pd[offset+12]);
+	if ( tree )
+	{
+		ti = proto_tree_add_text(tree, NullTVB, offset, 16, "Map Entry: %s (%u) V%d",
+			rpc_prog_name(prog), prog, version);
+		subtree = proto_item_add_subtree(ti, ett_portmap_entry);
+
+		proto_tree_add_uint_format(subtree, hf_portmap_prog, NullTVB,
+			offset+0, 4, prog,
+			"Program: %s (%u)", rpc_prog_name(prog), prog);
+		proto_tree_add_uint(subtree, hf_portmap_version, NullTVB,
+			offset+4, 4, version);
+		proto_tree_add_uint_format(subtree, hf_portmap_proto, NullTVB,
+			offset+8, 4, proto, 
+			"Protocol: %s (0x%02x)", ipprotostr(proto), proto);
+		proto_tree_add_uint(subtree, hf_portmap_port, NullTVB,
+			offset+12, 4, port);
+	}
+	offset += 16;
+	return offset;
+}
+
 int dissect_dump_reply(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
-	int prog, version, proto, port, value_follows;
-	proto_item *ti, *subtree;
-
-	while ( BYTES_ARE_IN_FRAME(offset, 4) )
-	{
-		value_follows = pntohl(&pd[offset+0]);
-		if ( tree )
-		{
-			proto_tree_add_boolean(tree, hf_portmap_value_follows, NullTVB,
-				offset, 4, value_follows);
-		}
-		offset += 4;
-
-		if ( value_follows )
-		{
-			if ( ! BYTES_ARE_IN_FRAME(offset, 16) )
-			{
-				break;
-			}
-			prog = pntohl(&pd[offset+0]);
-			version = pntohl(&pd[offset+4]);
-			proto = pntohl(&pd[offset+8]);
-			port = pntohl(&pd[offset+12]);
-
-			if ( tree )
-			{
-				ti = proto_tree_add_text(tree, NullTVB, offset, 16, "Map Entry: %s (%u) V%d",
-					rpc_prog_name(prog), prog, version);
-				subtree = proto_item_add_subtree(ti, ett_portmap_entry);
-
-				proto_tree_add_uint_format(subtree, hf_portmap_prog, NullTVB,
-					offset+0, 4, prog,
-					"Program: %s (%u)", rpc_prog_name(prog), prog);
-				proto_tree_add_uint(subtree, hf_portmap_version, NullTVB,
-					offset+4, 4, version);
-				proto_tree_add_uint_format(subtree, hf_portmap_proto, NullTVB,
-					offset+8, 4, proto, 
-					"Protocol: %s (0x%02x)", ipprotostr(proto), proto);
-				proto_tree_add_uint(subtree, hf_portmap_port, NullTVB,
-					offset+12, 4, port);
-			}
-			offset += 16;
-		}
-	}
+	offset = dissect_rpc_list(pd, offset, fd, tree, dissect_dump_entry);
 	return offset;
 }
 
@@ -255,7 +247,8 @@ const vsff portmap2_proc[] = {
 
 
 /* RFC 1833, Page 3 */
-int dissect_rpcb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int hfindex)
+static int
+dissect_rpcb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	proto_item* rpcb_item = NULL;
 	proto_tree* rpcb_tree = NULL;
@@ -264,7 +257,7 @@ int dissect_rpcb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	guint32 version;
 
 	if (tree) {
-		rpcb_item = proto_tree_add_item(tree, hfindex, NullTVB,
+		rpcb_item = proto_tree_add_item(tree, hf_portmap_rpcb, NullTVB,
 			offset+0, END_OF_FRAME, FALSE);
 		if (rpcb_item)
 			rpcb_tree = proto_item_add_subtree(rpcb_item, ett_portmap_rpcb);
@@ -303,7 +296,7 @@ int dissect_rpcb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 int dissect_rpcb3_getaddr_call(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
-	offset = dissect_rpcb(pd, offset, fd, tree, hf_portmap_rpcb);
+	offset = dissect_rpcb(pd, offset, fd, tree);
 
 	return offset;
 }
@@ -323,22 +316,7 @@ int dissect_rpcb3_getaddr_reply(const u_char *pd, int offset, frame_data *fd,
 int dissect_rpcb3_dump_reply(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
-	guint32 value_follows;
-	
-	while (1) {
-		if (!BYTES_ARE_IN_FRAME(offset,4)) break;
-		value_follows = EXTRACT_UINT(pd, offset+0);
-		proto_tree_add_boolean(tree,hf_portmap_value_follows, NullTVB,
-			offset+0, 4, value_follows);
-		offset += 4;
-		if (value_follows == 1) {
-			offset = dissect_rpcb(pd, offset, fd, tree, hf_portmap_rpcb);
-		}
-		else {
-			break;
-		}
-	}
-
+	offset = dissect_rpc_list(pd, offset, fd, tree, dissect_rpcb);
 	return offset;
 }
 
@@ -443,9 +421,6 @@ proto_register_portmap(void)
 		{ &hf_portmap_uaddr, {
 			"Universal Address", "portmap.uaddr", FT_STRING, BASE_DEC,
 			NULL, 0, "Universal Address" }},
-		{ &hf_portmap_value_follows, {
-			"Value Follows", "portmap.value_follows", FT_BOOLEAN, BASE_NONE,
-			&yesno, 0, "Value Follows" }},
 	};
 	static gint *ett[] = {
 		&ett_portmap,
