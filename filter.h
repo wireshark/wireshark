@@ -1,7 +1,7 @@
 /* filter.h
  * Definitions for packet filter window
  *
- * $Id: filter.h,v 1.3 1998/10/10 03:32:08 gerald Exp $
+ * $Id: filter.h,v 1.4 1998/10/13 02:10:55 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,8 +36,7 @@ typedef struct _filter_cb_data {
   GtkWidget *win;
 } filter_cb_data;
 
-GList     *read_filter_list();
-GtkWidget *filter_prefs_show();
+GtkWidget *filter_prefs_show(GtkWidget *);
 void       filter_sel_list_cb(GtkWidget *, gpointer);
 void       filter_sel_new_cb(GtkWidget *, gpointer);
 void       filter_sel_chg_cb(GtkWidget *, gpointer);

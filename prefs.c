@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.5 1998/10/12 01:40:55 gerald Exp $
+ * $Id: prefs.c,v 1.6 1998/10/13 02:10:56 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,7 +46,7 @@ void
 prefs_cb(GtkWidget *w, gpointer sp) {
   GtkWidget *prefs_w, *main_vb, *top_hb, *bbox, *prefs_nb,
             *ok_bt, *save_bt, *cancel_bt;
-  GtkWidget *print_pg, *filter_pg;
+  GtkWidget *print_pg, *filter_pg, *filter_te;
   GtkWidget *nlabel, *label;
   gint       start_page = (gint) sp;
 
@@ -82,10 +82,11 @@ prefs_cb(GtkWidget *w, gpointer sp) {
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), print_pg, label);
     
   /* Filter prefs */
-  filter_pg = filter_prefs_show();
+  filter_te = gtk_object_get_data(GTK_OBJECT(w), E_FILT_TE_PTR_KEY);
+  filter_pg = filter_prefs_show(filter_te);
+  
   /* Pass along the entry widget pointer from the calling widget */
-  gtk_object_set_data(GTK_OBJECT(filter_pg), E_FILT_TE_PTR_KEY,
-    gtk_object_get_data(GTK_OBJECT(w), E_FILT_TE_PTR_KEY));
+  gtk_object_set_data(GTK_OBJECT(filter_pg), E_FILT_TE_PTR_KEY, filter_te);
   gtk_object_set_data(GTK_OBJECT(prefs_w), E_FILTER_PAGE_KEY, filter_pg);
   label = gtk_label_new ("Filters");
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), filter_pg, label);

@@ -1,7 +1,7 @@
 /* filter.c
  * Routines for managing filter sets
  *
- * $Id: filter.c,v 1.5 1998/10/12 01:40:50 gerald Exp $
+ * $Id: filter.c,v 1.6 1998/10/13 02:10:55 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,19 +41,24 @@
 #include "menu.h"
 #include "prefs.h"
 
-const gchar *fn_key     = "filter_name";
-const gchar *fl_key     = "filter_label";
-const gchar *cancel_key = "in_cancel_mode";
+#define E_FILT_NAME_KEY "filter_name"
+#define E_FILT_LBL_KEY  "filter_label"
+#define E_FILT_CM_KEY   "in_cancel_mode"
+
 GtkWidget   *filter_l, *chg_bt, *copy_bt, *del_bt, *name_te, *filter_te;
 GList       *fl = NULL;
 
-GList *
-read_filter_list() {
+void get_filter_list();
+
+void
+get_filter_list() {
   filter_def *filt;
   FILE       *ff;
   gchar      *ff_path, *ff_name = ".ethereal/filters", f_buf[256];
   gchar      *name_begin, *name_end, *filt_begin;
   int         len, line = 0;
+
+  if (fl) return;
   
   /* To do: generalize this */
   ff_path = (gchar *) g_malloc(strlen(getenv("HOME")) + strlen(ff_name) +  4);
@@ -61,7 +66,7 @@ read_filter_list() {
 
   if ((ff = fopen(ff_path, "r")) == NULL) {
     g_free(ff_path);
-    return NULL;
+    return;
   }
 
   while (fgets(f_buf, 256, ff)) {
@@ -97,27 +102,30 @@ read_filter_list() {
   }
   fclose(ff);
   g_free(ff_path);
-  return fl;
 }
 
 /* filter_sel_pg - Create and display the filter selection widgets. */
 /* Called when the 'Filter' preference notebook page is selected. */
 GtkWidget *
-filter_prefs_show() {
+filter_prefs_show(GtkWidget *w) {
   GtkWidget  *main_vb, *top_hb, *list_bb, *new_bt, *filter_sc,
              *nl_item, *nl_lb, *middle_hb, *name_lb, *bottom_hb,
              *filter_lb;
   GtkWidget  *l_select = NULL;
   GList      *flp = NULL;
   filter_def *filt;
-  
-  fl = read_filter_list();
+  gchar      *filter_te_str = NULL;
+
+  /* Make sure everything is set up */  
+  get_filter_list();
+  if (w)
+    filter_te_str = gtk_entry_get_text(GTK_ENTRY(w));
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 5);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_widget_show(main_vb);
-  gtk_object_set_data(GTK_OBJECT(main_vb), cancel_key, (gpointer)FALSE);
+  gtk_object_set_data(GTK_OBJECT(main_vb), E_FILT_CM_KEY, (gpointer)FALSE);
   
   /* Top row: Filter list and buttons */
   top_hb = gtk_hbox_new(FALSE, 5);
@@ -179,13 +187,13 @@ filter_prefs_show() {
     gtk_widget_show(nl_lb);
     gtk_container_add(GTK_CONTAINER(filter_l), nl_item);
     gtk_widget_show(nl_item);
-    gtk_object_set_data(GTK_OBJECT(nl_item), fl_key, nl_lb);
-    gtk_object_set_data(GTK_OBJECT(nl_item), fn_key, flp);
-/* 
-    if (cf.dfilter && filt->strval)
-      if (strcmp(cf.dfilter, filt->strval) == 0)
+    gtk_object_set_data(GTK_OBJECT(nl_item), E_FILT_LBL_KEY, nl_lb);
+    gtk_object_set_data(GTK_OBJECT(nl_item), E_FILT_NAME_KEY, flp);
+ 
+    if (filter_te_str && filt->strval)
+      if (strcmp(filter_te_str, filt->strval) == 0)
         l_select = nl_item;
- */
+
     flp = flp->next;
   }
   
@@ -233,7 +241,7 @@ filter_sel_list_cb(GtkWidget *l, gpointer data) {
           
   if (sl) {  /* Something was selected */
     l_item = GTK_OBJECT(sl->data);
-    flp    = (GList *) gtk_object_get_data(l_item, fn_key);
+    flp    = (GList *) gtk_object_get_data(l_item, E_FILT_NAME_KEY);
     if (flp) {
       filt   = (filter_def *) flp->data;
       name   = filt->name;
@@ -244,7 +252,7 @@ filter_sel_list_cb(GtkWidget *l, gpointer data) {
 
   /* Did you know that this function is called when the window is destroyed? */
   /* Funny, that. */
-  if (!gtk_object_get_data(GTK_OBJECT(data), cancel_key)) {
+  if (!gtk_object_get_data(GTK_OBJECT(data), E_FILT_CM_KEY)) {
     gtk_entry_set_text(GTK_ENTRY(name_te), name);
     gtk_entry_set_text(GTK_ENTRY(filter_te), strval);
     gtk_widget_set_sensitive(chg_bt, sensitivity);
@@ -276,8 +284,9 @@ filter_sel_new_cb(GtkWidget *w, gpointer data) {
     gtk_widget_show(nl_lb);
     gtk_container_add(GTK_CONTAINER(filter_l), nl_item);
     gtk_widget_show(nl_item);
-    gtk_object_set_data(GTK_OBJECT(nl_item), fl_key, nl_lb);
-    gtk_object_set_data(GTK_OBJECT(nl_item), fn_key, g_list_last(fl));
+    gtk_object_set_data(GTK_OBJECT(nl_item), E_FILT_LBL_KEY, nl_lb);
+    gtk_object_set_data(GTK_OBJECT(nl_item), E_FILT_NAME_KEY, g_list_last(fl));
+    gtk_list_select_child(GTK_LIST(filter_l), nl_item);
   }
 }
 
@@ -295,8 +304,8 @@ filter_sel_chg_cb(GtkWidget *w, gpointer data) {
 
   if (sl) {  /* Something was selected */
     l_item = GTK_OBJECT(sl->data);
-    flp    = (GList *) gtk_object_get_data(l_item, fn_key);
-    nl_lb  = (GtkLabel *) gtk_object_get_data(l_item, fl_key);
+    flp    = (GList *) gtk_object_get_data(l_item, E_FILT_NAME_KEY);
+    nl_lb  = (GtkLabel *) gtk_object_get_data(l_item, E_FILT_LBL_KEY);
     if (flp && nl_lb) {
       filt = (filter_def *) flp->data;
       
@@ -322,7 +331,7 @@ filter_sel_copy_cb(GtkWidget *w, gpointer data) {
   sl     = GTK_LIST(filter_l)->selection;
   if (sl) {  /* Something was selected */
     l_item = GTK_OBJECT(sl->data);
-    flp    = (GList *) gtk_object_get_data(l_item, fn_key);
+    flp    = (GList *) gtk_object_get_data(l_item, E_FILT_NAME_KEY);
     if (flp) {
       filt          = (filter_def *) flp->data;
       nfilt         = (filter_def *) g_malloc(sizeof(filter_def));
@@ -337,8 +346,9 @@ filter_sel_copy_cb(GtkWidget *w, gpointer data) {
       gtk_widget_show(nl_lb);
       gtk_container_add(GTK_CONTAINER(filter_l), nl_item);
       gtk_widget_show(nl_item);
-      gtk_object_set_data(GTK_OBJECT(nl_item), fl_key, nl_lb);
-      gtk_object_set_data(GTK_OBJECT(nl_item), fn_key, g_list_last(fl));
+      gtk_object_set_data(GTK_OBJECT(nl_item), E_FILT_LBL_KEY, nl_lb);
+      gtk_object_set_data(GTK_OBJECT(nl_item), E_FILT_NAME_KEY, g_list_last(fl));
+      gtk_list_select_child(GTK_LIST(filter_l), nl_item);
     }
   }
 }
@@ -355,7 +365,7 @@ filter_sel_del_cb(GtkWidget *w, gpointer data) {
     l_item = GTK_OBJECT(sl->data);
     pos    = gtk_list_child_position(GTK_LIST(filter_l),
       GTK_WIDGET(l_item));
-    flp    = (GList *) gtk_object_get_data(l_item, fn_key);
+    flp    = (GList *) gtk_object_get_data(l_item, E_FILT_NAME_KEY);
     if (flp) {
       filt = (filter_def *) flp->data;
       g_free(filt->name);
@@ -377,7 +387,7 @@ filter_prefs_ok(GtkWidget *w) {
   sl = GTK_LIST(filter_l)->selection;
   if (sl && mw_filt) {  /* Place something in the filter box. */
     l_item = GTK_OBJECT(sl->data);
-    flp    = (GList *) gtk_object_get_data(l_item, fn_key);
+    flp    = (GList *) gtk_object_get_data(l_item, E_FILT_NAME_KEY);
     if (flp) {
       filt = (filter_def *) flp->data;
       gtk_entry_set_text(GTK_ENTRY(mw_filt), filt->strval);
@@ -421,18 +431,8 @@ void
 filter_prefs_cancel(GtkWidget *w) {
   filter_def *filt;
   
-  while (fl) {
-    if (fl->data) {
-      filt = (filter_def *) fl->data;
-      g_free(filt->name);
-      g_free(filt->strval);
-      g_free(filt);
-    }
-    fl = g_list_remove_link(fl, fl);
-  }
-
   /* Let the list cb know we're about to destroy the widget tree, so it */
   /* doesn't operate on widgets that don't exist. */  
-  gtk_object_set_data(GTK_OBJECT(w), cancel_key, (gpointer)TRUE);
+  gtk_object_set_data(GTK_OBJECT(w), E_FILT_CM_KEY, (gpointer)TRUE);
   gtk_widget_destroy(GTK_WIDGET(w));
 } 

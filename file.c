@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.8 1998/10/12 01:45:17 gerald Exp $
+ * $Id: file.c,v 1.9 1998/10/13 02:10:54 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -122,7 +122,7 @@ open_cap_file(char *fname, capture_file *cf) {
 
     if (cf->dfilter) {
       if (pcap_compile(cf->pfh, &cf->fcode, cf->dfilter, 1, 0) < 0) {
-        simple_dialog(ESD_TYPE_WARN, NULL, "Unable to parse filter string"
+        simple_dialog(ESD_TYPE_WARN, NULL, "Unable to parse filter string "
           "\"%s\".", cf->dfilter);
       } else if (pcap_setfilter(cf->pfh, &cf->fcode) < 0) {
         simple_dialog(ESD_TYPE_WARN, NULL, "Can't install filter.");

@@ -2,7 +2,7 @@ Overview of changes in Ethereal 0.4.0:
 
 * Lots of fixes from Guy Harris
 * Preferences dialog (Gerald)
-* OSPF alignment fixes (Gerald)
+* OSPF updates (Hannes, Gerald)
 * FDDI support (Laurent, Guy)
 * Separate display and capture filters (Gerald)
 
