@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.68 2001/10/04 08:30:35 guy Exp $
+ * $Id: file.c,v 1.69 2001/10/16 04:58:24 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -420,13 +420,27 @@ gboolean wtap_dump_can_write_encap(int filetype, int encap)
 	return TRUE;
 }
 
-static wtap_dumper* wtap_dump_open_common(FILE *fh, int filetype,
+static gboolean wtap_dump_open_check(int filetype, int encap, int *err);
+static wtap_dumper* wtap_dump_alloc_wdh(int filetype, int encap, int snaplen,
+    int *err);
+static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int filetype,
     int encap, int snaplen, int *err);
 
 wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 				int snaplen, int *err)
 {
+	wtap_dumper *wdh;
 	FILE *fh;
+
+	/* Check whether we can open a capture file with that file type
+	   and that encapsulation. */
+	if (!wtap_dump_open_check(filetype, encap, err))
+		return NULL;
+
+	/* Allocate a data structure for the output stream. */
+	wdh = wtap_dump_alloc_wdh(filetype, encap, snaplen, err);
+	if (wdh == NULL)
+		return NULL;	/* couldn't allocate it */
 
 	/* In case "fopen()" fails but doesn't set "errno", set "errno"
 	   to a generic "the open failed" error. */
@@ -436,13 +450,32 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 		*err = errno;
 		return NULL;	/* can't create file */
 	}
-	return wtap_dump_open_common(fh, filetype, encap, snaplen, err);
+	wdh->fh = fh;
+
+	if (!wtap_dump_open_finish(wdh, filetype, encap, snaplen, err)) {
+		/* Get rid of the file we created; we couldn't finish
+		   opening it. */
+		unlink(filename);
+		return NULL;
+	}
+	return wdh;
 }
 
 wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 				int *err)
 {
+	wtap_dumper *wdh;
 	FILE *fh;
+
+	/* Check whether we can open a capture file with that file type
+	   and that encapsulation. */
+	if (!wtap_dump_open_check(filetype, encap, err))
+		return NULL;
+
+	/* Allocate a data structure for the output stream. */
+	wdh = wtap_dump_alloc_wdh(filetype, encap, snaplen, err);
+	if (wdh == NULL)
+		return NULL;	/* couldn't allocate it */
 
 	/* In case "fopen()" fails but doesn't set "errno", set "errno"
 	   to a generic "the open failed" error. */
@@ -452,63 +485,67 @@ wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 		*err = errno;
 		return NULL;	/* can't create standard I/O stream */
 	}
-	return wtap_dump_open_common(fh, filetype, encap, snaplen, err);
+	wdh->fh = fh;
+
+	if (!wtap_dump_open_finish(wdh, filetype, encap, snaplen, err))
+		return NULL;
+	return wdh;
 }
 
-static wtap_dumper* wtap_dump_open_common(FILE *fh, int filetype, int encap,
-					int snaplen, int *err)
+static gboolean wtap_dump_open_check(int filetype, int encap, int *err)
 {
-	wtap_dumper *wdh;
-
-	if (filetype < 0 || filetype >= WTAP_NUM_FILE_TYPES
-	    || dump_open_table[filetype].dump_open == NULL) {
+	if (!wtap_dump_can_open(filetype)) {
 		/* Invalid type, or type we don't know how to write. */
 		*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
-		/* NOTE: this means the FD handed to "wtap_dump_fdopen()"
-		   will be closed if we can't write that file type. */
-		fclose(fh);
-		return NULL;
+		return FALSE;
 	}
 
 	/* OK, we know how to write that type; can we write the specified
 	   encapsulation type? */
 	*err = (*dump_open_table[filetype].can_write_encap)(filetype, encap);
-	if (*err != 0) {
-		/* NOTE: this means the FD handed to "wtap_dump_fdopen()"
-		   will be closed if we can't write that encapsulation type. */
-		fclose(fh);
-		return NULL;
-	}
+	if (*err != 0)
+		return FALSE;
 
-	/* OK, we can write the specified encapsulation type.  Allocate
-	   a data structure for the output stream. */
+	/* All systems go! */
+	return TRUE;
+}
+
+static wtap_dumper* wtap_dump_alloc_wdh(int filetype, int encap, int snaplen,
+					int *err)
+{
+	wtap_dumper *wdh;
+
 	wdh = g_malloc(sizeof (wtap_dumper));
 	if (wdh == NULL) {
 		*err = errno;
-		/* NOTE: this means the FD handed to "wtap_dump_fdopen()"
-		   will be closed if the malloc fails. */
-		fclose(fh);
 		return NULL;
 	}
-	wdh->fh = fh;
+	wdh->fh = NULL;
 	wdh->file_type = filetype;
 	wdh->snaplen = snaplen;
 	wdh->encap = encap;
 	wdh->dump.opaque = NULL;
 	wdh->subtype_write = NULL;
 	wdh->subtype_close = NULL;
+	return wdh;
+}
 
+static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int filetype,
+				      int encap, int snaplen, int *err)
+{
 	/* Now try to open the file for writing. */
 	if (!(*dump_open_table[filetype].dump_open)(wdh, err)) {
-		/* The attempt failed. */
-		g_free(wdh);
-		/* NOTE: this means the FD handed to "wtap_dump_fdopen()"
+		/* The attempt failed.  Close the stream for the file.
+		   NOTE: this means the FD handed to "wtap_dump_fdopen()"
 		   will be closed if the open fails. */
-		fclose(fh);
-		return NULL;
+		fclose(wdh->fh);
+
+		/* Now free up the dumper handle. */
+		g_free(wdh);
+		return FALSE;
 	}
 
-	return wdh;	/* success! */
+	return TRUE;	/* success! */
 }
 
 FILE* wtap_dump_file(wtap_dumper *wdh)
