@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.302 2001/04/07 08:39:46 guy Exp $
+# $Id: Makefile.am,v 1.303 2001/04/10 16:19:33 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -616,14 +616,14 @@ EXTRA_DIST = \
 	getopt.c		\
 	getopt.h		\
 	ieee-float.h		\
-	image/editcap.rc	\
+	image/editcap.rc.in	\
 	image/ethereal48x48-trans.png  \
 	image/ethereal48x48.png \
 	image/ethereal.ico	\
-	image/ethereal.rc	\
+	image/ethereal.rc.in	\
 	image/icon-excl.xpm     \
 	image/icon-ethereal.xpm \
-	image/tethereal.rc	\
+	image/tethereal.rc.in	\
 	INSTALL.configure       \
 	libpcap-0.4.HPUX.HPUXPAC.patch \
 	libpcap-0.4.HPUX.LBL.patch \

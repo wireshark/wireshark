@@ -1,4 +1,4 @@
 EXTRA_DIST = \
-	ethereal.nsi	\
+	ethereal.nsi.in	\
 	GPL.txt		\
 	Makefile.nmake
