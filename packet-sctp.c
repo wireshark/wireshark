@@ -10,7 +10,7 @@
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.28 2002/01/20 22:12:27 guy Exp $
+ * $Id: packet-sctp.c,v 1.29 2002/01/20 22:28:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -525,8 +525,8 @@ sctp_adler32(const unsigned char* buf, unsigned int len)
     return (s2 << 16) | s1;
 }
 
-/* The CRC32C code is taken from the checksum draft. That code
- * is copyrighted by D. Otis and has been modified.
+/* The CRC32C code is taken from draft-ietf-tsvwg-sctpcsum-01.txt.
+ * That code is copyrighted by D. Otis and has been modified.
  */
   
 #define CRC32C(c,d) (c=(c>>8)^crc_c[(c^(d))&0xFF]) 
@@ -2189,12 +2189,12 @@ proto_register_sctp(void)
 	       "", HFILL }
     },
     { &hf_sctp_checksum,
-      { "Adler-32 checksum", "sctp.checksum",
+      { "Checksum", "sctp.checksum",
 	      FT_UINT32, BASE_HEX, NULL, 0x0,          
 	      "", HFILL }
     },
     { &hf_sctp_checksum_correct,
-      { "Adler-32 checksum correct", "sctp.checksum_correct",
+      { "Checksum correct", "sctp.checksum_correct",
 	      FT_BOOLEAN, BASE_NONE, NULL, 0x0,          
 	      "", HFILL }
     },
