@@ -12,23 +12,35 @@ S<[ B<-R> "filter expression" ]>
 
 =head1 DESCRIPTION
 
-Ethereal and Tethereal share a powerful filter engine that help remove the
-noise from a packet trace and let you see only the packets that interest
+B<ethereal> and B<tethereal> share a powerful filter engine that help remove
+the noise from a packet trace and let you see only the packets that interest
 you.  If a packet meets the requirements expressed in your filter, then it
 is displayed in the list of packets.  Display filters let you compare the
 fields within a protocol against a specific value, compare fields against
 fields, and to check the existence of specified fields or protocols.
 
 Filters are also used by other features such as statistics generation and
-packet list colorization (Ethereal only).  This manual page describes
-their syntax and provides a comprehensive reference of filter fields.
+packet list colorization (the latter is only available to B<ethereal>). This
+manual page describes their syntax and provides a comprehensive reference of
+filter fields.
 
 =head1 FILTER SYNTAX
+
+=head2 Check whether a field or protocol exists
 
 The simplest filter allows you to check for the existence of a protocol or
 field.  If you want to see all packets which contain the IPX protocol, the
 filter would be "ipx".  (Without the quotation marks) To see all packets
 that contain a Token-Ring RIF field, use "tr.rif".
+
+Think of a protocol or field in a filter as implicitly having the "exists"
+operator.
+
+Note: all protocol and field names that are available in B<ethereal> and
+B<tethereal> filters are listed in the B<FILTER PROTOCOL REFERENCE> (see
+below).
+
+=head2 Comparison operators
 
 Fields can also be compared against values.  The comparison operators
 can be expressed either through C-like symbols, or through English-like
@@ -41,10 +53,39 @@ abbreviations:
     ge, >=    Greater than or Equal to
     le, <=    Less than or Equal to
 
-An additional operator exists that is expressed only in English, not
-punctuation:
+=head2 Search and match operators
 
-    contains  Does the protocol, byte-string, or string contain a value
+Additional operators exist expressed only in English, not punctuation:
+
+	contains  Does the protocol, byte-string, or text string contain a value
+	matches   Does the text string match the given Perl regular expression
+
+The "contains" operator allows a filter to search for any sequence of
+characters that may occur in a protocol or field. To search for a given HTTP
+URL in a capture, the following filter can be used:
+
+	http contains "http://www.ethereal.com"
+
+The "matches" operator allows a filter to apply to a specified Perl-compatible
+regular expression (PCRE). Due to the nature of regular expressions, the
+"contains" operator is only implemented for fields with a text string
+representation. To search for a given WAP WSP User-Agent, one can write:
+
+	wsp.user_agent matches "(?i)cldc"
+
+This example shows an interesting PCRE feature: pattern match options have to
+be specified with the B<(?>optionB<)> construct. For instance, B<(?i)> performs
+a case-insensitive pattern match. More information on PCRE can be found in the
+pcrepattern(3) man page (Perl Regular Expressions are explained in
+B<http://www.perldoc.com/perl5.8.0/pod/perlre.html>).
+
+Note: the "matches" operator is only available if B<ethereal> or B<tethereal>
+have been compiled with the PCRE library. This can be checked by running:
+
+	ethereal -v
+	tethereal -v
+
+=head2 Protocol field types
 
 Furthermore, each protocol field is typed. The types are:
 
@@ -56,7 +97,7 @@ Furthermore, each protocol field is typed. The types are:
     IPv4 address
     IPv6 address
     IPX network number
-    String (text)
+    Text string
     Double-precision floating point number
 
 An integer may be expressed in decimal, octal, or hexadecimal notation. 
@@ -129,7 +170,7 @@ Strings are enclosed in double-quotes:
 Inside double quotes, you may use the backslash to embed a double-quote,
 or an arbitrary byte represented in either octal or hexadecimal.
 
-    browser.comment = "An embedded \" double-quote"
+    browser.comment == "An embedded \" double-quote"
 
 Use of hexadecimal to look for "HEAD":
 
@@ -145,6 +186,8 @@ double quotes:
     smb.path contains "\\\\SERVER\\SHARE"
 
 to look for \\SERVER\SHARE in "smb.path".
+
+=head2 The slice operator
 
 A slice operator also exists.  You can check the substring
 (byte-string) of any protocol or field.  For example, you can filter on
@@ -189,26 +232,36 @@ You can create complex concatenations of slices using the comma operator:
 
 	field[1,3-5,9:] == 01:03:04:05:09:0a:0b
 
+=head2 Logical expressions
+
 All the above tests can be combined together with logical expressions. 
 These too are expressable in C-like syntax or with English-like
 abbreviations:
 
     and, &&   Logical AND
-    or, ||    Logical OR
+    or,  ||   Logical OR
     not, !    Logical NOT
 
 Expressions can be grouped by parentheses as well.  The following are
-all valid display filter expression:
+all valid display filter expressions:
 
     tcp.port == 80 and ip.src == 192.168.2.1
     not llc
     (ipx.srcnet == 0xbad && ipx.srnode == 0.0.0.0.0.1) || ip
     tr.dst[0:3] == 0.6.29 xor tr.src[0:3] == 0.6.29
 
+Remember that whenever a protocol or field name occurs in an expression, the
+"exists" operator is implicitly called. The "exists" operator has the highest
+priority. This means that the first filter expression must be read as "show me
+the packets for which tcp.port exists and equals 80, and ip.src exists and
+equals 192.168.2.1". The second filter expression means "show me the packets
+where not (llc exists)", or in other words "where llc does not exist" and hence
+will match all packets that do not convey the llc protocol.
+
 A special caveat must be given regarding fields that occur more than
 once per packet.  "ip.addr" occurs twice per IP packet, once for the
 source address, and once for the destination address.  Likewise,
-tr.rif.ring fields can occur more than once per packet.  The following
+"tr.rif.ring" fields can occur more than once per packet.  The following
 two expressions are not equivalent:
 
         ip.addr ne 192.168.4.1
@@ -248,7 +301,6 @@ lets "ip.dst ne 224.1.2.3" to filter out the unwanted IP packets. The
 second filter has already been explained above where filtering with
 multiply occuring fields was discussed.
 
-
 =head1 FILTER PROTOCOL REFERENCE
 
 Each entry below provides an abbreviated protocol or field name.  Every
@@ -263,9 +315,14 @@ The B<ethereal-filters> manpage is part of the B<Ethereal> distribution.
 The latest version of B<Ethereal> can be found at
 B<http://www.ethereal.com>.
 
+Regular expressions in the "matches" operator are provided with B<libpcre>,
+the Perl-Compatible Regular Expressions library, see B<http://www.pcre.org/>.
+
 This manpage does not describe the capture filter syntax, which is
 different. See the tcpdump(8) manpage for a description of capture
-filters.
+filters. Microsoft Windows versions use WinPcap from
+B<http://winpcap.polito.it/> for which the capture filter syntax is described
+in B<http://winpcap.polito.it/docs/man/html/group__language.html>.
 
 =head1 SEE ALSO
 
