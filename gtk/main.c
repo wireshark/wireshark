@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.84 2000/01/06 08:20:13 guy Exp $
+ * $Id: main.c,v 1.85 2000/01/10 01:43:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1336,8 +1336,8 @@ main(int argc, char *argv[])
 
     /* Save static column sizes to use during a "-S" capture, so that
        the columns don't resize during a live capture. */
-    cf.cinfo.col_width[i] = get_column_width(get_column_format(i),
-						pl_style->font);
+    cf.cinfo.col_width[i] = gdk_string_width(pl_style->font,
+			        get_column_longest_string(get_column_format(i)));
   }
   gtk_widget_set_usize(packet_list, -1, pl_size);
   gtk_widget_show(packet_list);

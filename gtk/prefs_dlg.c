@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.8 2000/01/03 06:59:23 guy Exp $
+ * $Id: prefs_dlg.c,v 1.9 2000/01/10 01:44:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,7 +48,7 @@
 #include "packet.h"
 #include "file.h"
 #include "prefs.h"
-#include "column.h"
+#include "column_prefs.h"
 #include "print.h"
 #include "prefs_dlg.h"
 #include "print_prefs.h"

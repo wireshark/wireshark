@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.150 2000/01/08 23:49:25 guy Exp $
+ * $Id: file.c,v 1.151 2000/01/10 01:43:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1053,7 +1053,7 @@ change_time_formats(capture_file *cf)
   for (i = 0; i < cf->cinfo.num_cols; i++) {
     if (cf->cinfo.fmt_matx[i][COL_CLS_TIME]) {
       gtk_clist_set_column_width(GTK_CLIST(packet_list), i,
-        get_column_width(COL_CLS_TIME, pl_style->font));
+        gdk_string_width(pl_style->font, get_column_longest_string(COL_CLS_TIME)));
     }
   }
 

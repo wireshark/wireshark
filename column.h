@@ -1,7 +1,7 @@
 /* column.h
  * Definitions for column handling routines
  *
- * $Id: column.h,v 1.6 1999/09/12 06:11:34 guy Exp $
+ * $Id: column.h,v 1.7 2000/01/10 01:43:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,17 +37,15 @@ enum col_resize_type {
   RESIZE_MANUAL         /* Don't automatically resize */
 };
 
+gchar               *col_format_to_string(gint);
+gchar               *col_format_desc(gint);
 gint                 get_column_format(gint);
+void                 get_column_format_matches(gboolean *, gint);
+gint                 get_column_format_from_str(gchar *);
 enum col_resize_type get_column_resize_type(gint);
 gchar               *get_column_title(gint);
 gchar               *col_format_to_pref_str(void);
-void                 get_column_format_matches(gboolean *, gint);
-gint                 get_column_width(gint format, GdkFont *font);
+char                *get_column_longest_string(gint);
 gint                 get_column_char_width(gint format);
-GtkWidget           *column_prefs_show(void);
-void                 column_prefs_ok(GtkWidget *);
-void                 column_prefs_save(GtkWidget *);
-void                 column_prefs_cancel(GtkWidget *);
-void                 column_prefs_delete(GtkWidget *);
 
 #endif /* column.h */
