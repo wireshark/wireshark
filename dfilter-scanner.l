@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.3 1999/08/05 16:42:31 gram Exp $
+ * $Id: dfilter-scanner.l,v 1.4 1999/08/12 15:10:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -56,7 +56,6 @@
 #include "dfilter-grammar.h"
 
 static int ether_str_to_guint8_array(const char *s, guint8 *mac);
-static GByteArray* byte_str_to_guint8_array(const char *s);
 
 /* in dfilter-grammar.y */
 extern GSList *dfilter_list_byte_arrays;
@@ -140,13 +139,25 @@ false		{ yylval.operand = TOK_FALSE; return TOK_FALSE; }
 }
 
 
-({hex}{hexsep}){1,4}{hex} {		/* small byte array */
+({hex}{hexsep}){1,2}{hex} {		/* small byte array */
 
 	yylval.bytes = byte_str_to_guint8_array(yytext);
 	return T_VAL_BYTES;
 }	
 
-({hex}{hexsep}){5}{hex} {		/* Ether Hardware Address */
+({hex}{hexsep}){3}{hex} {		/* possibly IPv4 address (e.g., 0.0.0.0) */
+
+	yylval.id = g_strdup(yytext);
+	return T_VAL_UNQUOTED_STRING;
+}	
+
+({hex}{hexsep}){4}{hex} {		/* small byte array */
+
+	yylval.bytes = byte_str_to_guint8_array(yytext);
+	return T_VAL_BYTES;
+}	
+
+({hex}{hexsep}){5}{hex} {		/* possibly Ether Hardware Address */
 
 	/* it's faster to copy six bytes to yylval than to create a GByteArray
 	 * structure and append 6 bytes. That means I'll have to handle this
@@ -232,6 +243,7 @@ false		{ yylval.operand = TOK_FALSE; return TOK_FALSE; }
 	return T_VAL_UNQUOTED_STRING;
 }
 
+.	return yytext[0];
 %%
 
 /* Resets scanner and assigns the char* argument
@@ -307,7 +319,7 @@ ether_str_to_guint8_array(const char *s, guint8 *mac)
  *
  * Returns a non-null GByteArray pointer on success, NULL on failure.
  */
-static GByteArray*
+GByteArray*
 byte_str_to_guint8_array(const char *s)
 {
 	GByteArray	*barray;

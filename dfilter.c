@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.6 1999/08/03 15:04:25 gram Exp $
+ * $Id: dfilter.c,v 1.7 1999/08/12 15:10:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -151,8 +151,8 @@ static void
 clear_byte_array(gpointer data, gpointer user_data)
 {
 	GByteArray *barray = data;
-
-	g_byte_array_free(barray, TRUE);
+	if (barray)
+		g_byte_array_free(barray, TRUE);
 }
 
 void

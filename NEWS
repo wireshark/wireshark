@@ -1,5 +1,6 @@
 Overview of changes in Ethereal 0.7.3:
 * Fixed bug in RSVP, added RSVP+ support (Ashok)
+* Fixed bug in display filter parsing (Gilbert)
 
 Overview of changes in Ethereal 0.7.2:
 * Another memory leak fix (Jochen)

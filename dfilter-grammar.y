@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.6 1999/08/11 16:25:07 gram Exp $
+ * $Id: dfilter-grammar.y,v 1.7 1999/08/12 15:10:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -93,6 +93,9 @@ GNode *dfilter_tree = NULL;
 /* list of byte arrays we allocate during parse. We can traverse this list
  * faster than the tree when we go back and free the byte arrays */
 GSList *dfilter_list_byte_arrays = NULL;
+
+/* In dfilter-scanner.l */
+GByteArray* byte_str_to_guint8_array(const char *s);
 
 %}
 
@@ -257,14 +260,11 @@ bytes_value:	T_VAL_BYTES
 	}
 
 	|	T_VAL_UNQUOTED_STRING
-	{								/* one byte */
-		GByteArray	*barray = g_byte_array_new();
-		guint8		val;
-		char		*endptr;
+	{								/* one or 4 bytes */
+		GByteArray	*barray;
 
-		dfilter_list_byte_arrays = g_slist_append(dfilter_list_byte_arrays, barray);
-		val = (guint8) strtoul($1, &endptr, 16);
-		g_byte_array_append(barray, &val, 1);
+		/* the next function appends to dfilter_list_byte_arrays for me */
+		barray = byte_str_to_guint8_array($1);
 		$$ = dfilter_mknode_bytes_value(barray);
 		g_free($1);
 	}
