@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.23 2000/05/31 17:10:08 gram Exp $
+ * $Id: packet-rsvp.c,v 1.24 2000/06/02 13:24:12 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -589,6 +589,9 @@ enum rsvp_filter_keys {
     RSVPF_PATHTEAR,
     RSVPF_RESVTEAR,
     RSVPF_RCONFIRM,
+    RSVPF_JUNK_MSG8,
+    RSVPF_JUNK_MSG9,
+    RSVPF_RTEARCONFIRM,
 
     /* Does the message contain an object of this type? */
     RSVPF_OBJECT,
@@ -646,31 +649,35 @@ static hf_register_info rsvpf_info[] = {
 
     /* Message type shorthands */
     {&rsvp_filter[RSVPF_PATH], 
-     { "Path Message", "rsvp.path", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "Path Message", "rsvp.path", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_RESV], 
-     { "Resv Message", "rsvp.resv", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "Resv Message", "rsvp.resv", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_PATHERR], 
-     { "Path Error Message", "rsvp.perr", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "Path Error Message", "rsvp.perr", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_RESVERR], 
-     { "Resv Error Message", "rsvp.rerr", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "Resv Error Message", "rsvp.rerr", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_PATHTEAR], 
-     { "Path Tear Message", "rsvp.ptear", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "Path Tear Message", "rsvp.ptear", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_RESVTEAR], 
-     { "Resv Tear Message", "rsvp.rtear", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "Resv Tear Message", "rsvp.rtear", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     {&rsvp_filter[RSVPF_RCONFIRM], 
-     { "Resv Confirm Message", "rsvp.resvconf", FT_UINT8, BASE_NONE, NULL, 0x0,
+     { "Resv Confirm Message", "rsvp.resvconf", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+     	"" }},
+
+    {&rsvp_filter[RSVPF_RTEARCONFIRM], 
+     { "Resv Tear Confirm Message", "rsvp.rtearconf", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"" }},
 
     /* Object present */
@@ -870,13 +877,12 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			    hdr->ver_flags & 0xf);  
 	proto_tree_add_uint(rsvp_header_tree, rsvp_filter[RSVPF_MSG], NullTVB, 
 			    offset+1, 1, hdr->message_type);
-	if (hdr->message_type >= RSVPF_MAX) {
-	    proto_tree_add_text(rsvp_header_tree, NullTVB, offset+1, 1, "Message Type: %u - Unknown",
-				hdr->message_type);
-	    return;
-	}
-	proto_tree_add_uint_hidden(rsvp_header_tree, rsvp_filter[RSVPF_MSG + hdr->message_type], NullTVB, 
+	if (hdr->message_type <= RSVPF_RTEARCONFIRM &&
+			hdr->message_type != RSVPF_JUNK_MSG8 &&
+			hdr->message_type != RSVPF_JUNK_MSG9 ) {
+	       proto_tree_add_boolean_hidden(rsvp_header_tree, rsvp_filter[RSVPF_MSG + hdr->message_type], NullTVB, 
 				   offset+1, 1, 1);
+	}
 	proto_tree_add_text(rsvp_header_tree, NullTVB, offset + 2 , 2, "Message Checksum");
 	proto_tree_add_text(rsvp_header_tree, NullTVB, offset + 4 , 1, "Sending TTL: %u",
 			    hdr->sending_ttl);
