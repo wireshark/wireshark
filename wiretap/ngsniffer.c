@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.5 1998/11/15 05:29:13 guy Exp $
+ * $Id: ngsniffer.c,v 1.6 1998/11/21 05:08:40 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -64,7 +64,7 @@
 #define NUM_NGSNIFF_TIMEUNITS 7
 static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 0.0, 0.1 };
 
-#define NUM_NGSNIFF_ENCAPS 10
+#define NUM_NGSNIFF_ENCAPS 11
 static int sniffer_encap[] = {
 		WTAP_ENCAP_TR,
 		WTAP_ENCAP_ETHERNET,
@@ -72,10 +72,11 @@ static int sniffer_encap[] = {
 		WTAP_ENCAP_NONE,	/* StarLAN */
 		WTAP_ENCAP_NONE,	/* PC Network broadband */
 		WTAP_ENCAP_NONE,	/* LocalTalk */
-		WTAP_ENCAP_NONE,	/* type 6 not defined in Sniffer */
+		WTAP_ENCAP_NONE,	/* Znet */
 		WTAP_ENCAP_NONE,	/* Internetwork analyzer */
 		WTAP_ENCAP_NONE,	/* type 8 not defined in Sniffer */
-		WTAP_ENCAP_FDDI
+		WTAP_ENCAP_FDDI,
+		WTAP_ENCAP_NONE		/* ATM */
 };
 
 /* Returns WTAP_FILE_NGSNIFFER on success, WTAP_FILE_UNKNOWN on failure */
@@ -87,6 +88,7 @@ int ngsniffer_open(wtap *wth)
 	char record_length[4]; /* only the first 2 bytes are length,
 							  the last 2 are "reserved" and are thrown away */
 	guint16 type, length = 0;
+	char	format;
 	char	network;
 	char	version[18]; /* to hold the entire version record */
 	char	timeunit;
@@ -131,10 +133,18 @@ int ngsniffer_open(wtap *wth)
 				fread(version, 1, 18, wth->fh);
 				length = 0; /* to fake the next iteration of while() */
 
+				/* Make sure this is an uncompressed Sniffer file */
+				format = version[10];
+				if (format != 1) {
+					g_message("ngsniffer: This Sniffer file type is not supported");
+					free(wth->capture.ngsniffer);
+					return WTAP_FILE_UNKNOWN;
+				}
+
 				/* Get data link type */
 				network = version[9];
 				if (network >= NUM_NGSNIFF_ENCAPS) {
-					g_error("ngsniffer: network type %d unknown", network);
+					g_message("ngsniffer: network type %d unknown", network);
 					free(wth->capture.ngsniffer);
 					return WTAP_FILE_UNKNOWN;
 				}
@@ -145,7 +155,7 @@ int ngsniffer_open(wtap *wth)
 				/* Get time unit */
 				timeunit = version[11];
 				if (timeunit >= NUM_NGSNIFF_TIMEUNITS) {
-					g_error("ngsniffer: Unknown timeunit %d", timeunit);
+					g_message("ngsniffer: Unknown timeunit %d", timeunit);
 					free(wth->capture.ngsniffer);
 					return WTAP_FILE_UNKNOWN;
 				}
@@ -209,7 +219,7 @@ int ngsniffer_read(wtap *wth)
 	/* Read the f_frame2_struct */
 	bytes_read = fread(frame2, 1, 14, wth->fh);
 	if (bytes_read != 14) {
-		g_error("ngsniffer_read: not enough frame2 data (%d bytes)",
+		g_message("ngsniffer_read: not enough frame2 data (%d bytes)",
 				bytes_read);
 		return 0;
 	}
@@ -228,9 +238,9 @@ int ngsniffer_read(wtap *wth)
 
 	if (bytes_read != packet_size) {
 		if (ferror(wth->fh)) {
-			g_error("ngsniffer_read: fread for data: read error\n");
+			g_message("ngsniffer_read: fread for data: read error\n");
 		} else {
-			g_error("ngsniffer_read: fread for data: %d bytes out of %d",
+			g_message("ngsniffer_read: fread for data: %d bytes out of %d",
 				bytes_read, packet_size);
 		}
 		return -1;

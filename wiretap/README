@@ -1,4 +1,4 @@
-$Id: README,v 1.3 1998/11/15 05:29:05 guy Exp $
+$Id: README,v 1.4 1998/11/21 05:08:39 gram Exp $
 
 Wiretap is a library that is being developed as a future replacement for
 libpcap, the current standard Unix library for packet capturing. Libpcap is
@@ -40,11 +40,14 @@ The "libpcap" file format was determined by reading the "libpcap" code;
 wiretap reads the "libpcap" file format with its own code, rather than
 using the "libpcap" library's code to read it.
 
-Sniffer
+Sniffer (uncompressed)
 -------
 The Sniffer format, at least for Token-Ring, is documented in the
 Sniffer manual.  Unfortunately, Sniffer manuals tend to document only
-the format for the Sniffer model they document.
+the format for the Sniffer model they document. Ethernet seems to work well,
+though. If you have an ATM Sniffer file, both Guy and I would be *very*
+interested in receiving a sample. (see 'AUTHORS' file for our e-mail
+addresses)
 
 LANalyzer
 ---------
