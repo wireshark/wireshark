@@ -1,8 +1,9 @@
 /* packet-mtp3.c
  * Routines for Message Transfer Part Level 3 dissection
  * Copyright 2001, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
+ * Updated for ANSI support by Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-mtp3.c,v 1.10 2002/02/02 20:55:45 guy Exp $
+ * $Id: packet-mtp3.c,v 1.11 2002/03/04 22:39:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,13 +62,9 @@ static gint ett_mtp3_label_dpc = -1;
 static gint ett_mtp3_label_opc = -1;
 
 static dissector_table_t mtp3_sio_dissector_table;
-typedef enum {
-  ITU_STANDARD  = 1,
-  ANSI_STANDARD = 2
-} Standard_Type;
 
-
-static Standard_Type mtp3_standard = ITU_STANDARD;
+#include <packet-mtp3.h>
+Standard_Type mtp3_standard = ITU_STANDARD;
 
 #define SIO_LENGTH                1
 
@@ -80,16 +77,14 @@ static Standard_Type mtp3_standard = ITU_STANDARD;
 #define ITU_ROUTING_LABEL_OFFSET  (SIO_OFFSET + SIO_LENGTH)
 #define ITU_MTP_PAYLOAD_OFFSET    (SIO_OFFSET + ITU_HEADER_LENGTH)
 
-#define ANSI_DPC_LENGTH           3 
-#define ANSI_OPC_LENGTH           3
 #define ANSI_SLS_LENGTH           1
-#define ANSI_ROUTING_LABEL_LENGTH (ANSI_DPC_LENGTH + ANSI_OPC_LENGTH + ANSI_SLS_LENGTH)
+#define ANSI_ROUTING_LABEL_LENGTH (ANSI_PC_LENGTH + ANSI_PC_LENGTH + ANSI_SLS_LENGTH)
 #define ANSI_HEADER_LENGTH        (SIO_LENGTH + ANSI_ROUTING_LABEL_LENGTH)
 
 #define ANSI_ROUTING_LABEL_OFFSET (SIO_OFFSET + SIO_LENGTH)
 #define ANSI_DPC_OFFSET           ANSI_ROUTING_LABEL_OFFSET
-#define ANSI_OPC_OFFSET           (ANSI_DPC_OFFSET + ANSI_DPC_LENGTH)
-#define ANSI_SLS_OFFSET           (ANSI_OPC_OFFSET + ANSI_OPC_LENGTH)
+#define ANSI_OPC_OFFSET           (ANSI_DPC_OFFSET + ANSI_PC_LENGTH)
+#define ANSI_SLS_OFFSET           (ANSI_OPC_OFFSET + ANSI_PC_LENGTH)
 #define ANSI_MTP_PAYLOAD_OFFSET   (SIO_OFFSET + ANSI_HEADER_LENGTH)
 
 #define SERVICE_INDICATOR_MASK         0x0F
@@ -193,25 +188,25 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, proto_tree *mtp3_tree)
 
     /* create the DPC tree */
     dpc = tvb_get_ntoh24(tvb, ANSI_DPC_OFFSET);
-    label_dpc_item = proto_tree_add_text(label_tree, tvb, ANSI_DPC_OFFSET, ANSI_DPC_LENGTH,
+    label_dpc_item = proto_tree_add_text(label_tree, tvb, ANSI_DPC_OFFSET, ANSI_PC_LENGTH,
 					 "DPC (%d-%d-%d)", (dpc & ANSI_NETWORK_MASK), ((dpc & ANSI_CLUSTER_MASK) >> 8), ((dpc & ANSI_MEMBER_MASK) >> 16));
 
     label_dpc_tree = proto_item_add_subtree(label_dpc_item, ett_mtp3_label_dpc);
 
-    proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_member, tvb, ANSI_DPC_OFFSET, ANSI_DPC_LENGTH, dpc);
-    proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_cluster,tvb, ANSI_DPC_OFFSET, ANSI_DPC_LENGTH, dpc);
-    proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_network,tvb, ANSI_DPC_OFFSET, ANSI_DPC_LENGTH, dpc);
+    proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_member, tvb, ANSI_DPC_OFFSET, ANSI_PC_LENGTH, dpc);
+    proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_cluster,tvb, ANSI_DPC_OFFSET, ANSI_PC_LENGTH, dpc);
+    proto_tree_add_uint(label_dpc_tree, hf_mtp3_dpc_network,tvb, ANSI_DPC_OFFSET, ANSI_PC_LENGTH, dpc);
 
     /* create the OPC tree */
     opc = tvb_get_ntoh24(tvb, ANSI_OPC_OFFSET);
 
-    label_opc_item = proto_tree_add_text(label_tree, tvb, ANSI_OPC_OFFSET, ANSI_OPC_LENGTH,
+    label_opc_item = proto_tree_add_text(label_tree, tvb, ANSI_OPC_OFFSET, ANSI_PC_LENGTH,
 					 "OPC (%d-%d-%d)", (opc & ANSI_NETWORK_MASK), ((opc & ANSI_CLUSTER_MASK) >> 8), ((opc & ANSI_MEMBER_MASK) >> 16));
     label_opc_tree = proto_item_add_subtree(label_opc_item, ett_mtp3_label_opc);
 
-    proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_member, tvb, ANSI_OPC_OFFSET, ANSI_OPC_LENGTH, opc);
-    proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_cluster, tvb, ANSI_OPC_OFFSET, ANSI_OPC_LENGTH, opc);
-    proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_network,tvb, ANSI_OPC_OFFSET, ANSI_OPC_LENGTH, opc);
+    proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_member, tvb, ANSI_OPC_OFFSET, ANSI_PC_LENGTH, opc);
+    proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_cluster, tvb, ANSI_OPC_OFFSET, ANSI_PC_LENGTH, opc);
+    proto_tree_add_uint(label_opc_tree, hf_mtp3_opc_network,tvb, ANSI_OPC_OFFSET, ANSI_PC_LENGTH, opc);
     /* SLS */
     /* TODO: separate 5-bit and 8-bit SLS */
     proto_tree_add_item(label_tree, hf_mtp3_ansi_sls, tvb, ANSI_SLS_OFFSET, ANSI_SLS_LENGTH, sls);
@@ -221,7 +216,7 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, proto_tree *mtp3_tree)
 }
 
 static void
-dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_tree, proto_tree *tree)
+dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint8 sio;
   guint8 service_indicator;
@@ -274,8 +269,10 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* dissect the packet */
     dissect_mtp3_sio(tvb, mtp3_tree);
     dissect_mtp3_routing_label(tvb, mtp3_tree);
-    dissect_mtp3_payload(tvb, pinfo, mtp3_tree, tree);
   }
+
+  /* Need to dissect payload even if !tree so can call sub-dissectors */
+  dissect_mtp3_payload(tvb, pinfo, tree);
 }
 
 void
