@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.50 2004/06/24 07:43:24 sahlberg Exp $
+ * $Id: reassemble.c,v 1.51 2004/06/25 06:16:35 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -309,7 +309,7 @@ reassemble_init(void)
 	if (fragment_key_chunk != NULL)
 		g_mem_chunk_destroy(fragment_key_chunk);
 	if (dcerpc_fragment_key_chunk != NULL)
-		g_mem_chunk_destroy(fragment_key_chunk);
+		g_mem_chunk_destroy(dcerpc_fragment_key_chunk);
 	if (fragment_data_chunk != NULL)
 		g_mem_chunk_destroy(fragment_data_chunk);
 	if (reassembled_key_chunk != NULL)
