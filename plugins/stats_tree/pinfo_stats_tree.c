@@ -33,7 +33,7 @@
 /* XXX: this belongs to to_str.c */
 static const gchar* port_type_to_str (port_type type) {
 	switch (type) {
-		case PT_NONE:   return NULL;
+		case PT_NONE:   return "NONE";
 		case PT_SCTP:   return "SCTP";
 		case PT_TCP:	return "TCP";
 		case PT_UDP:	return "UDP";
@@ -68,6 +68,7 @@ extern int ip_hosts_stats_tree_packet(stats_tree *st  , packet_info *pinfo, epan
 	g_snprintf(str, sizeof(str),"%s",address_to_str(&pinfo->net_dst));
 	tick_stat_node(st, str, st_node_ip, FALSE);
 	
+	return 1;
 }
 
 
@@ -79,12 +80,14 @@ extern void ptype_stats_tree_init(stats_tree* st) {
 	st_node_ptype = create_pivot_node(st, st_str_ptype, 0);
 }
 
-extern void ptype_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
+extern int ptype_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
 	const gchar* ptype;
 	
 	ptype = port_type_to_str(pinfo->ptype);
 
 	tick_pivot(st,st_node_ptype,ptype);
+	
+	return 1;
 }
 
 /* packet length stats_tree -- test range node */ 
@@ -95,15 +98,50 @@ extern void plen_stats_tree_init(stats_tree* st) {
 	st_node_plen = create_range_node(st, st_str_plen, 0, "0-19","20-39","40-79","80-159","160-319","320-639","640-1279","1280-",NULL);
 }
 
-extern void plen_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
+extern int plen_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
 	tick_stat_node(st, st_str_plen, 0, FALSE);
 	tick_range(st, st_str_plen, 0, pinfo->fd->pkt_len);
+	
+	return 1;
 }
+
+/* a tree exapmple
+ - IP
+    - PROTO
+	   - PORT
+
+*/
+static int st_node_dsts = -1;
+static gchar* st_str_dsts = "Destinations";
+
+extern void dsts_stats_tree_init(stats_tree* st) {
+	st_node_dsts = create_node(st, st_str_dsts, 0, TRUE);	
+}
+
+extern int dsts_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
+	static guint8 str[128];
+	int ip_dst_node;
+	int proto_node;
+	
+	tick_stat_node(st, st_str_dsts, 0, FALSE);
+	
+	g_snprintf(str, sizeof(str),"%s",address_to_str(&pinfo->net_src));
+	ip_dst_node = tick_stat_node(st, str, st_node_dsts, TRUE);
+	
+	proto_node = tick_stat_node(st,port_type_to_str(pinfo->ptype),ip_dst_node,TRUE);
+
+	g_snprintf(str, sizeof(str),"%u",pinfo->destport);
+	tick_stat_node(st,str,proto_node,TRUE);
+	
+	return 1;
+}
+
 
 /* register all pinfo trees */
 extern void register_pinfo_stat_trees(void) {
 	register_stats_tree("ip","ip_hosts",st_str_ip, ip_hosts_stats_tree_packet, ip_hosts_stats_tree_init );
 	register_stats_tree("ip","ptype",st_str_ptype, ptype_stats_tree_packet, ptype_stats_tree_init );
 	register_stats_tree("frame","plen",st_str_plen, plen_stats_tree_packet, plen_stats_tree_init );
+	register_stats_tree("ip","dests",st_str_dsts, dsts_stats_tree_packet, dsts_stats_tree_init );
 }
  
