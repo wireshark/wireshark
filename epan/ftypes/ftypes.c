@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes.c,v 1.13 2003/11/25 13:20:36 sahlberg Exp $
+ * $Id: ftypes.c,v 1.14 2003/11/25 19:25:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,15 @@ static ftype_t* type_list[FT_NUM_TYPES];
 /* Space for quickly allocating/de-allocating fvalue_t's */
 fvalue_t *fvalue_free_list=NULL;
 
+/* Chunk of fvalue_t values */
+#define FVALUE_TS_PER_CHUNK	200
+typedef struct _fvalue_chunk_t {
+	struct _fvalue_chunk_t *next;
+	fvalue_t fvalues[FVALUE_TS_PER_CHUNK];
+} fvalue_chunk_t;
+
+static fvalue_chunk_t *fvalue_chunk_list;
+
 /* These are the ftype registration functions that need to be called.
  * This list and the initialization function could be produced
  * via a script, like the dissector registration, but there's so few
@@ -63,12 +72,13 @@ ftypes_initialize(void)
 void
 ftypes_cleanup(void)
 {
-	while (fvalue_free_list) {
-		fvalue_t *tmpfv;
-		tmpfv=fvalue_free_list->ptr_u.next;
-		g_free(fvalue_free_list);
-		fvalue_free_list=tmpfv;
+	while (fvalue_chunk_list) {
+		fvalue_chunk_t *tmpchunk;
+		tmpchunk=fvalue_chunk_list->next;
+		g_free(fvalue_chunk_list);
+		fvalue_chunk_list=tmpchunk;
 	}
+	fvalue_free_list=NULL;
 }
 
 
@@ -207,11 +217,13 @@ fvalue_new(ftenum_t ftype)
 
 	if(!fvalue_free_list){
 		int i;
-		fvalue_t *pfv;
-		pfv=g_malloc(200*sizeof(fvalue_t));
-		for(i=0;i<200;i++){
+		fvalue_chunk_t *chunk;
+		chunk=g_malloc(sizeof(fvalue_chunk_t));
+		chunk->next=fvalue_chunk_list;
+		fvalue_chunk_list=chunk;
+		for(i=0;i<FVALUE_TS_PER_CHUNK;i++){
 			fvalue_t *tmpfv;
-			tmpfv=&pfv[i];
+			tmpfv=&chunk->fvalues[i];
 			tmpfv->ptr_u.next=fvalue_free_list;
 			fvalue_free_list=tmpfv;
 		}
