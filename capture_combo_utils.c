@@ -41,16 +41,17 @@
 #include "capture_combo_utils.h"
 
 /*
- * Find capture device description that matches interface name.
+ * Find user-specified capture device description that matches interface
+ * name, if any.
  */
 static char *
-capture_dev_descr_find(const gchar *if_name)
+capture_dev_user_descr_find(const gchar *if_name)
 {
 	char	*p;
 	char	*p2 = NULL;
 	char	*descr = NULL;
-	int		lp = 0;
-	int		ct = 0;
+	int	lp = 0;
+	int	ct = 0;
 
 	if (prefs.capture_devices_descr == NULL) {
 		/* There are no descriptions. */
@@ -99,6 +100,58 @@ capture_dev_descr_find(const gchar *if_name)
 		return NULL;
 }
 
+/*
+ * Return as descriptive a name for an interface as we can get.
+ * If the user has specified a comment, use that.  Otherwise,
+ * if get_interface_list() supplies a description, use that,
+ * otherwise use the interface name.
+ */
+char *
+get_interface_descriptive_name(const char *if_name)
+{
+  char *descr;
+  GList *if_list;
+  GList *if_entry;
+  if_info_t *if_info;
+  int err;
+  char err_buf[PCAP_ERRBUF_SIZE];
+
+  /* Do we have a user-supplied description? */
+  descr = capture_dev_user_descr_find(if_name);
+  if (descr != NULL) {
+    /* Yes - make a copy of that. */
+    descr = g_strdup(descr);
+  } else {
+    /* No, we don't have a user-supplied description; did we get
+       one from the OS or libpcap? */
+    descr = NULL;
+    if_list = get_interface_list(&err, err_buf);
+    if (if_list != NULL) {
+      if_entry = if_list;
+      do {
+        if_info = if_entry->data;
+        if (strcmp(if_info->name, if_name) == 0) {
+          if (if_info->description != NULL) {
+            /* Return a copy of that - when we free the interface
+               list, that'll also free up the strings to which
+               it refers. */
+            descr = g_strdup(if_info->description);
+          }
+          break;
+        }
+      } while ((if_entry = g_list_next(if_entry)) != NULL);
+    }
+    free_interface_list(if_list);
+
+    if (descr == NULL) {
+      /* The interface name is all we have, so just return a copy of that. */
+      descr = g_strdup(if_name);
+    }
+  }
+
+  return descr;
+}
+
 GList *
 build_capture_combo_list(GList *if_list, gboolean do_hide)
 {
@@ -123,7 +176,7 @@ build_capture_combo_list(GList *if_list, gboolean do_hide)
 	/* It's not hidden, or it is but we should include it in the list. */
 
 	/* Do we have a user-supplied description? */
-	descr = capture_dev_descr_find(if_info->name);
+	descr = capture_dev_user_descr_find(if_info->name);
 	if (descr != NULL) {
 	  /* Yes, we have a user-supplied description; use it. */
 	  if_string = g_strdup_printf("%s: %s", descr, if_info->name);
@@ -242,7 +295,5 @@ get_if_name(char *if_text)
 #endif
   return if_name;
 }
-
-
 
 #endif /* HAVE_LIBPCAP */

@@ -29,6 +29,17 @@
  *  GList of available capture interfaces.
  */
 
+/** Return as descriptive a name for an interface as we can get.
+ * If the user has specified a comment, use that.  Otherwise,
+ * if get_interface_list() supplies a description, use that,
+ * otherwise use the interface name.
+ *
+ * @param if_name The name if the interface.
+ *
+ * @return The descriptive name.
+ */
+char *get_interface_descriptive_name(const char *if_name);
+
 /** Build the GList of available capture interfaces.
  *
  * @param if_list An interface list from get_interface_list().

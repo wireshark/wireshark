@@ -26,6 +26,8 @@
 # include "config.h"
 #endif
 
+#include <string.h>
+
 #ifdef HAVE_LIBPCAP
 
 #include <pcap.h>
@@ -89,13 +91,7 @@ gchar           *iface)
   capture_info_ui_t *info;
   gchar             *cap_w_title;
   gchar             *title_iface;
-#ifdef _WIN32
-  GList *if_list;
-  GList *if_entry;
-  int err;
-  char err_buf[PCAP_ERRBUF_SIZE];
-  if_info_t *if_info;
-#endif
+  gchar             *descr;
 
   info = g_malloc0(sizeof(capture_info_ui_t));
   info->counts[0].title = "Total";
@@ -123,39 +119,23 @@ gchar           *iface)
   info->counts[11].title = "Other";
   info->counts[11].value_ptr = &(cinfo->counts->other);
 
-#ifdef _WIN32
-  /* on win32 (at least Win2k and XP), 
-   * the interface name is something like "\Device\NPF_{242423..." 
-   * which is pretty useless to the normal user. Try to convert to a somewhat 
-   * more readable format to show in the capture info dialog title. */
-  if_list = get_interface_list(&err, err_buf);
-  if (if_list != NULL) {
-    if_entry = if_list;
-    do {
-      if_info = if_entry->data;
-      if (strcmp(if_info->name, iface) == 0) {
-        iface = if_info->description;
-        break;
-      }
-    } while ((if_entry = g_list_next(if_entry)) != NULL);
-  }
-#endif
-
-  title_iface = g_strdup_printf("Ethereal: Capture from %s", iface);
-
-  /* use user-defined title if preference is set */
+  /*
+   * Create the dialog window, with a title that includes the interface.
+   *
+   * If we have a descriptive name for the interface, show that,
+   * rather than its raw name.  On NT 5.x (2K/XP/Server2K3), the
+   * interface name is something like "\Device\NPF_{242423..." 
+   * which is pretty useless to the normal user.  On other platforms,
+   * it might be less cryptic, but if a more descriptive name is
+   * available, we should still use that.
+   */
+  descr = get_interface_descriptive_name(iface);
+  title_iface = g_strdup_printf("Ethereal: Capture from %s", descr);
+  g_free(descr);
   cap_w_title = create_user_window_title(title_iface);
-
-  info->cap_w = dlg_window_new(cap_w_title);
   g_free(title_iface);
+  info->cap_w = dlg_window_new(cap_w_title);
   g_free(cap_w_title);
-#ifdef _WIN32
-  if(if_list != NULL) {
-    /* this indirectly frees up the space iface points to, so do it after last 
-     * usage of iface */
-    free_interface_list(if_list);
-  }
-#endif
 
   gtk_window_set_modal(GTK_WINDOW(info->cap_w), TRUE);
 

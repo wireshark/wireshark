@@ -55,6 +55,7 @@
 #include "file.h"
 #include "capture.h"
 #include "capture_sync.h"
+#include "capture_combo_utils.h"
 #include "util.h"
 #include "pcap-util.h"
 #include "alert_box.h"
@@ -145,24 +146,27 @@ do_capture(capture_options *capture_opts, const char *save_file)
 {
   gboolean is_tempfile;
   gboolean ret;
-
+  gchar *title;
 
   /* open the output file (temporary/specified name/ringbuffer) and close the old one */
   if(!capture_open_output(capture_opts, save_file, &is_tempfile)) {
     return FALSE;
   }
 
+  title = g_strdup_printf("%s: Capturing - Ethereal",
+                          get_interface_descriptive_name(cfile.iface));
   if (capture_opts->sync_mode) {	
     /* sync mode: do the capture in a child process */
     ret = sync_pipe_do_capture(capture_opts, is_tempfile);
     /* capture is still running */
-    set_main_window_name("(Live Capture in Progress) - Ethereal");
+    set_main_window_name(title);
   } else {
     /* normal mode: do the capture synchronously */
-    set_main_window_name("(Live Capture in Progress) - Ethereal");
+    set_main_window_name(title);
     ret = normal_do_capture(capture_opts, is_tempfile);
     /* capture is finished here */
   }
+  g_free(title);
 
   return ret;
 }
