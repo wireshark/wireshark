@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.144 2002/06/27 22:39:16 gerald Exp $
+ * $Id: tethereal.c,v 1.145 2002/06/28 09:47:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -132,8 +132,12 @@ static loop_data ld;
 static int capture(int);
 static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
   const u_char *);
+#ifdef _WIN32
+static BOOL WINAPI capture_cleanup(DWORD);
+#else /* _WIN32 */
 static void capture_cleanup(int);
-#endif
+#endif /* _WIN32 */
+#endif /* HAVE_LIBPCAP */
 
 typedef struct {
   capture_file *cf;
@@ -1007,16 +1011,19 @@ capture(int out_file_type)
   if (open_err_str[0] != '\0')
     fprintf(stderr, "tethereal: WARNING: %s.\n", open_err_str);
 
+#ifdef _WIN32
+  /* Catch a CTRL+C event and, if we get it, clean up and exit. */
+  SetConsoleCtrlHandler(capture_cleanup, TRUE);
+#else /* _WIN32 */
   /* Catch SIGINT and SIGTERM and, if we get either of them, clean up
      and exit.
-     XXX - deal with signal semantics on various platforms.  Or just
+     XXX - deal with signal semantics on various UNIX platforms.  Or just
      use "sigaction()" and be done with it? */
   signal(SIGTERM, capture_cleanup);
   signal(SIGINT, capture_cleanup);
-#if !defined(WIN32)
   if ((oldhandler = signal(SIGHUP, capture_cleanup)) != SIG_DFL)
     signal(SIGHUP, oldhandler);
-#endif
+#endif /* _WIN32 */
 
   /* Let the user know what interface was chosen. */
   fprintf(stderr, "Capturing on %s\n", cfile.iface);
@@ -1176,15 +1183,46 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   }
 }
 
+#ifdef _WIN32
+static BOOL WINAPI
+capture_cleanup(DWORD ctrltype _U_)
+{
+  /* CTRL_C_EVENT is sort of like SIGINT, CTRL_BREAK_EVENT is unique to
+     Windows, CTRL_CLOSE_EVENT is sort of like SIGHUP, CTRL_LOGOFF_EVENT
+     is also sort of like SIGHUP, and CTRL_SHUTDOWN_EVENT is sort of
+     like SIGTERM at least when the machine's shutting down.
+
+     For now, we handle them all as indications that we should clean up
+     and quit, just as we handle SIGINT, SIGHUP, and SIGTERM in that
+     way on UNIX.
+
+     However, as handlers run in a new thread, we can't just longjmp
+     out; we have to set "ld.go" to FALSE, and must return TRUE so that
+     no other handler - such as one that would terminate the process -
+     gets called.
+
+     XXX - for some reason, typing ^C to Tethereal, if you run this in
+     a Cygwin console window in at least some versions of Cygwin,
+     causes Tethereal to terminate immediately; this routine gets
+     called, but the main loop doesn't get a chance to run and
+     exit cleanly, at least if this is compiled with Microsoft Visual
+     C++ (i.e., it's a property of the Cygwin console window or Bash;
+     it happens if Tethereal is not built with Cygwin - for all I know,
+     building it with Cygwin may make the problem go away). */
+  ld.go = FALSE;
+  return TRUE;
+}
+#else
 static void
 capture_cleanup(int signum _U_)
 {
   /* Longjmp back to the starting point; "pcap_dispatch()", on many
-     platforms, just keeps looping if it gets EINTR, so if we set
+     UNIX platforms, just keeps looping if it gets EINTR, so if we set
      "ld.go" to FALSE and return, we won't break out of it and quit
      capturing. */
   longjmp(ld.stopenv, 1);
 }
+#endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
 
 static int
