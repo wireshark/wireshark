@@ -149,7 +149,7 @@ proto_register_g723(void)
 	};
 
 /* Register the protocol name and description */
-	proto_g723 = proto_register_protocol("G723","g723", "g723");
+	proto_g723 = proto_register_protocol("G.723","G.723", "g723");
 
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_g723, hf, array_length(hf));
