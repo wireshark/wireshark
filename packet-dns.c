@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.38 2000/03/21 06:21:37 guy Exp $
+ * $Id: packet-dns.c,v 1.39 2000/03/30 01:33:09 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -108,6 +108,7 @@ static gint ett_t_key_flags = -1;
 #define T_SRV           33              /* service location (RFC 2052) */
 #define T_ATMA          34              /* ??? */
 #define T_NAPTR         35              /* naming authority pointer (RFC 2168) */
+#define T_OPT		41		/* OPT pseudo-RR (RFC 2671) */
 
 /* Bit fields in the flags */
 #define F_RESPONSE      (1<<15)         /* packet is response */
@@ -135,7 +136,7 @@ static gint ett_t_key_flags = -1;
 static char *
 dns_type_name (u_int type)
 {
-  char *type_names[36] = {
+  char *type_names[] = {
     "unused",
     "A",
     "NS",
@@ -171,11 +172,17 @@ dns_type_name (u_int type)
     "NIMLOC",
     "SRV",				/* RFC 2052 */
     "ATMA",
-    "NAPTR"				/* RFC 2168 */
+    "NAPTR",				/* RFC 2168 */
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    "OPT"				/* RFC 2671 */
   };
   
-  if (type <= 35)
-    return type_names[type];
+  if (type < sizeof(type_names)/sizeof(type_names[0]))
+    return type_names[type] ? type_names[type] : "unknown";
   
   /* special cases */
   switch (type) 
@@ -210,7 +217,7 @@ dns_type_name (u_int type)
 static char *
 dns_long_type_name (u_int type)
 {
-  char *type_names[36] = {
+  char *type_names[] = {
     "unused",
     "Host address",
     "Authoritative name server",	
@@ -246,12 +253,18 @@ dns_long_type_name (u_int type)
     "NIMLOC",
     "Service location",			/* RFC 2052 */
     "ATMA",
-    "Naming authority pointer"		/* RFC 2168 */
+    "Naming authority pointer",		/* RFC 2168 */
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    "EDNS0 option"			/* RFC 2671 */
   };
   static char unkbuf[7+1+2+1+4+1+1+10+1+1];	/* "Unknown RR type (%d)" */
   
-  if (type <= 35)
-    return type_names[type];
+  if (type < sizeof(type_names)/sizeof(type_names[0]))
+    return type_names[type] ? type_names[type] : "unknown";
   
   /* special cases */
   switch (type) 
@@ -546,6 +559,32 @@ add_rr_to_tree(proto_item *trr, int rr_type, int offset, const char *name,
   return rr_tree;
 }
 
+proto_tree *
+add_opt_rr_to_tree(proto_item *trr, int rr_type, int offset, const char *name,
+  int namelen, const char *type_name, int class, u_int ttl, u_short data_len)
+{
+  proto_tree *rr_tree;
+
+  rr_tree = proto_item_add_subtree(trr, rr_type);
+  proto_tree_add_text(rr_tree, offset, namelen, "Name: %s", name);
+  offset += namelen;
+  proto_tree_add_text(rr_tree, offset, 2, "Type: %s", type_name);
+  offset += 2;
+  proto_tree_add_text(rr_tree, offset, 2, "UDP payload size: %u",
+      class & 0xffff);
+  offset += 2;
+  proto_tree_add_text(rr_tree, offset, 1, "Higher bits in extended RCODE: 0x%x",
+      (ttl >> 24) & 0xff0);
+  offset++;
+  proto_tree_add_text(rr_tree, offset, 1, "EDNS0 version: %u",
+      (ttl >> 16) & 0xff);
+  offset++;
+  proto_tree_add_text(rr_tree, offset, 2, "Must be zero: 0x%x", ttl & 0xffff);
+  offset += 2;
+  proto_tree_add_text(rr_tree, offset, 2, "Data length: %u", data_len);
+  return rr_tree;
+}
+
 /*
  * SIG and KEY RR algorithms.
  */
@@ -617,8 +656,13 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
   if (dns_tree != NULL) {
     trr = proto_tree_add_notext(dns_tree, offset,
 				(dptr - data_start) + data_len);
-    rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
+    if (type != T_OPT) {
+      rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
 		     long_type_name, class_name, ttl, data_len);
+    } else  {
+      rr_tree = add_opt_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
+		     long_type_name, class, ttl, data_len);
+    }
   }
 
   switch (type) {
@@ -1359,6 +1403,13 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
 	  rr_len -= 1;
 	}
       }
+    }
+    break;
+
+  case T_OPT:
+    if (dns_tree != NULL) {
+      proto_item_set_text(trr, "%s: type %s", name, type_name);
+      proto_tree_add_text(rr_tree, cur_offset, data_len, "Data");
     }
     break;
 

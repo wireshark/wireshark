@@ -2,7 +2,7 @@
  * Definitions for packet disassembly structures and routines used both by
  * DNS and NBNS.
  *
- * $Id: packet-dns.h,v 1.5 2000/02/15 21:02:06 gram Exp $
+ * $Id: packet-dns.h,v 1.6 2000/03/30 01:33:10 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,6 +39,9 @@ proto_tree *
 add_rr_to_tree(proto_item *trr, int rr_type, int offset, const char *name,
   int namelen, const char *type_name, const char *class_name, u_int ttl,
   u_short data_len);
+proto_tree *
+add_opt_rr_to_tree(proto_item *trr, int rr_type, int offset, const char *name,
+  int namelen, const char *type_name, int class, u_int ttl, u_short data_len);
 
 void dissect_dns(const u_char *, int, frame_data *, proto_tree *);
 
