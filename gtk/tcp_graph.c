@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.36 2003/09/16 20:41:17 guy Exp $
+ * $Id: tcp_graph.c,v 1.37 2003/09/25 00:37:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,8 @@
 #include "color.h"
 #include "tcp_graph.h"
 #include "compat_macros.h"
+#include "etypes.h"
+#include "ppptypes.h"
 
 /* from <net/ethernet.h> */
 struct ether_header {
@@ -53,15 +55,17 @@ struct ether_header {
 	guint8 ether_shost[6];	/* source ether addr */
 	guint16 ether_type;	/* packet type ID field */
 };
-#define ETHERTYPE_IP	0x0800
-
 
 /* reverse engineered from capture file, not too difficult :) */
 struct ppp_header {
 	guint8 ppp_type;	/* Protocol on PPP connection */
 };
-#define PPPTYPE_IP 0x21
 
+/* 802.1q header */
+struct vlan_802_1_q {
+	guint16 info;
+	guint16 type;
+};
 
 /* from <netinet/ip.h> */
 struct iphdr {
@@ -876,6 +880,7 @@ static void control_panel_create (struct graph *g)
 
 	toplevel = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	SIGNAL_CONNECT(toplevel, "realize", window_icon_realize_cb, NULL);
+	SIGNAL_CONNECT(toplevel, "destroy", callback_toplevel_destroy, g);
 
 	table = gtk_table_new (2, 1,  FALSE);
 	gtk_container_add (GTK_CONTAINER (toplevel), table);
@@ -1829,6 +1834,7 @@ static int get_headers (frame_data *fd, char *pd, struct segment *hdrs)
 {
 	struct ether_header *e;
 	struct ppp_header   *p;
+	struct vlan_802_1_q *vlan;
 	void *ip;
 	void *tcp;
 
@@ -1848,16 +1854,40 @@ static int get_headers (frame_data *fd, char *pd, struct segment *hdrs)
 	case WTAP_ENCAP_ETHERNET:
 		/* It's Ethernet */
 		e = (struct ether_header *)pd;
-		if (pntohs (&e->ether_type) != ETHERTYPE_IP)
-			return FALSE;	/* not IP */
-		ip = e + 1;
+		switch (pntohs (&e->ether_type))
+		{
+			case ETHERTYPE_IP:
+				ip = e + 1;
+				break;
+
+			case ETHERTYPE_VLAN:
+				/*
+				 * This code is awful but no more than the
+				 * rest of this file!!
+				 *
+				 * This really needs to be converted to
+				 * work as a TCP tap, so that the
+				 * regular dissectors take care of
+				 * finding the TCP header, rather than
+				 * doing our own *ad hoc* header
+				 * parsing.
+				 */ 
+				vlan = (struct vlan_802_1_q *)(e + 1);
+				if (ETHERTYPE_IP != pntohs(&vlan->type))
+					return FALSE;
+				ip = vlan + 1;
+				break;
+
+			default:
+				return FALSE;
+		}
 		break;
 
 	case WTAP_ENCAP_PPP:
 	case WTAP_ENCAP_PPP_WITH_PHDR:
 		/* It's PPP */
 		p = (struct ppp_header *)pd;
-		if (p->ppp_type != PPPTYPE_IP)
+		if (p->ppp_type != PPP_IP)
 			return FALSE;	/* not IP */
 		ip = p + 1;
 		break;
