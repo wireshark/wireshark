@@ -3,7 +3,7 @@
  * Copyright 1998, Gilbert Ramirez <gram@alumni.rice.edu>
  * Copyright 2004, Thomas Anders <thomas.anders [AT] blue-cable.de>
  *
- * $Id: packet-bootp.c,v 1.78 2004/05/07 08:02:22 guy Exp $
+ * $Id: packet-bootp.c,v 1.79 2004/05/24 16:38:29 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -93,7 +93,7 @@ gboolean novell_string = FALSE;
 enum field_type { none, ipv4, string, toggle, yes_no, special, opaque,
 	time_in_secs,
 	val_u_byte, val_u_short, val_u_le_short, val_u_long,
-	val_s_long, fqdn, ipv4_or_fqdn };
+	val_s_long, fqdn, ipv4_or_fqdn, bytes };
 
 struct opt_info {
 	char	*text;
@@ -1182,7 +1182,7 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 		/* 5 */ {"Hardware Version", string},
 		/* 6 */ {"Software Version", string},
 		/* 7 */ {"Boot ROM version", string},
-		/* 8 */ {"Organizational Unique Identifier", string},
+		/* 8 */ {"Organizational Unique Identifier", bytes},
 		/* 9 */ {"Model Number", string},
 		/* 10 */ {"Vendor Name", string},
 		/* *** 11-30: CableHome *** */
@@ -1242,6 +1242,13 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 				"Suboption %d: %s = \"%.*s\"", subopt, 
 				o43cablelabs_opt[subopt].text, subopt_len,
 				tvb_get_ptr(tvb, optp+2, subopt_len));
+			break;
+
+		case bytes:
+			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+				"Suboption %d: %s = 0x%s", subopt, 
+				o43cablelabs_opt[subopt].text,
+				tvb_bytes_to_str(tvb, optp+2, subopt_len));
 			break;
     
 		case special:
