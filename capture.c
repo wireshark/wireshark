@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.11 1998/11/17 02:17:27 guy Exp $
+ * $Id: capture.c,v 1.12 1998/11/18 03:17:17 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -215,12 +215,19 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
     GTK_SIGNAL_FUNC(prefs_cb), (gpointer) E_PR_PG_FILTER);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
+#ifdef WITH_WIRETAP
+  gtk_widget_set_sensitive(filter_bt, FALSE);
+#endif
   
   filter_te = gtk_entry_new();
   if (cf.cfilter) gtk_entry_set_text(GTK_ENTRY(filter_te), cf.cfilter);
   gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_te, TRUE, TRUE, 0);
   gtk_widget_show(filter_te);
+#ifdef WITH_WIRETAP
+  gtk_widget_set_sensitive(filter_te, FALSE);
+  gtk_entry_set_text(GTK_ENTRY(filter_te), "<unavailable>");
+#endif
   
   /* File row: File: button and text entry */
   file_hb = gtk_hbox_new(FALSE, 3);

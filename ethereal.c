@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.13 1998/11/18 03:01:31 gerald Exp $
+ * $Id: ethereal.c,v 1.14 1998/11/18 03:17:16 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -615,11 +615,19 @@ main(int argc, char *argv[])
     GTK_SIGNAL_FUNC(prefs_cb), (gpointer) E_PR_PG_FILTER);
   gtk_box_pack_start(GTK_BOX(stat_hbox), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
+#ifdef WITH_WIRETAP
+  gtk_widget_set_sensitive(filter_bt, FALSE);
+#endif
   
   filter_te = gtk_entry_new();
   gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(stat_hbox), filter_te, TRUE, TRUE, 3);
   gtk_widget_show(filter_te);
+#ifdef WITH_WIRETAP
+  gtk_widget_set_sensitive(filter_te, FALSE);
+  gtk_entry_set_text(GTK_ENTRY(filter_te), "<unavailable>");
+#endif
+
   set_menu_object_data("<Main>/File/Open", E_DFILTER_TE_KEY, filter_te);
   set_menu_object_data("<Main>/File/Reload", E_DFILTER_TE_KEY, filter_te);
   set_menu_object_data("<Main>/Tools/Follow TCP Stream", E_DFILTER_TE_KEY,

@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.11 1998/11/18 03:01:42 gerald Exp $
+ * $Id: prefs.c,v 1.12 1998/11/18 03:17:18 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -109,6 +109,9 @@ prefs_cb(GtkWidget *w, gpointer sp) {
   /* Filter prefs */
   filter_te = gtk_object_get_data(GTK_OBJECT(w), E_FILT_TE_PTR_KEY);
   filter_pg = filter_prefs_show(filter_te);
+#ifdef WITH_WIRETAP
+  gtk_widget_set_sensitive(filter_pg, FALSE);
+#endif
   
   /* Pass along the entry widget pointer from the calling widget */
   gtk_object_set_data(GTK_OBJECT(filter_pg), E_FILT_TE_PTR_KEY, filter_te);
