@@ -1385,6 +1385,7 @@ B<http://www.ethereal.com>.
   Alfred Arnold            <Alfred.Arnold[AT]elsa.de>
   Dermot Bradley           <dermot.bradley[AT]openwave.com>
   Adam Sulmicki            <adam[AT]cfar.umd.edu>
+  Kari Tiirikainen         <ktiirika[AT]stybba.ntc.nokia.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

@@ -1,10 +1,10 @@
 /* packet-cops.c
  * Routines for the COPS (Common Open Policy Service) protocol dissection
- * RFC2748
+ * RFC2748 & COPS-PR extension RFC3084
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.18 2002/02/22 02:56:58 hagbard Exp $
+ * $Id: packet-cops.c,v 1.19 2002/02/22 11:16:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,17 +31,23 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <string.h>
+#include <ctype.h>
+
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-ipv6.h"
+#include "packet-frame.h"
+#include "asn1.h"
 #include "prefs.h"
 
 #define TCP_PORT_COPS 3288
 
 /* Variable to hold the tcp port preference */
 static guint global_cops_tcp_port = TCP_PORT_COPS;
+
+/* desegmentation of COPS */
+static gboolean cops_desegment = TRUE;
 
 /* Variable to allow for proper deletion of dissector registration 
  * when the user changes port from the gui
@@ -50,6 +56,77 @@ static guint global_cops_tcp_port = TCP_PORT_COPS;
 static guint cops_tcp_port = 0;
 
 #define COPS_OBJECT_HDR_SIZE 4
+
+/* Null string of type "guchar[]". */
+static const guchar nullstring[] = "";
+
+#define	SAFE_STRING(s)	(((s) != NULL) ? (s) : nullstring)
+
+/* COPS PR Tags */
+
+#define COPS_IPA    0		/* IP Address */
+#define COPS_U32    2		/* Unsigned 32*/
+#define COPS_TIT    3		/* TimeTicks */
+#define COPS_OPQ    4		/* Opaque */
+#define COPS_I64    10		/* Integer64 */
+#define COPS_U64    11		/* Uinteger64 */
+
+/* COPS PR Types */
+
+#define COPS_NULL                0
+#define COPS_INTEGER             1    /* l  */
+#define COPS_OCTETSTR            2    /* c  */
+#define COPS_OBJECTID            3    /* ul */
+#define COPS_IPADDR              4    /* uc */
+#define COPS_UNSIGNED32          5    /* ul */
+#define COPS_TIMETICKS           7    /* ul */
+#define COPS_OPAQUE              8    /* c  */
+#define COPS_INTEGER64           10   /* ll */
+#define COPS_UNSIGNED64          11   /* ull  */
+
+
+typedef struct _COPS_CNV COPS_CNV;
+
+struct _COPS_CNV
+{
+  guint class;
+  guint tag;
+  gint  syntax;
+  gchar *name;
+};
+
+static COPS_CNV CopsCnv [] =
+{
+  {ASN1_UNI, ASN1_NUL, COPS_NULL,      "NULL"},
+  {ASN1_UNI, ASN1_INT, COPS_INTEGER,   "INTEGER"},
+  {ASN1_UNI, ASN1_OTS, COPS_OCTETSTR,  "OCTET STRING"},
+  {ASN1_UNI, ASN1_OJI, COPS_OBJECTID,  "OBJECTID"},
+  {ASN1_APL, COPS_IPA, COPS_IPADDR,    "IPADDR"},
+  {ASN1_APL, COPS_U32, COPS_UNSIGNED32,"UNSIGNED32"},
+  {ASN1_APL, COPS_TIT, COPS_TIMETICKS, "TIMETICKS"},
+  {ASN1_APL, COPS_OPQ, COPS_OPAQUE,    "OPAQUE"},
+  {ASN1_APL, COPS_I64, COPS_INTEGER64, "INTEGER64"},
+  {ASN1_APL, COPS_U64, COPS_UNSIGNED64, "UNSIGNED64"},
+  {0,       0,         -1,                  NULL}
+};
+
+static gchar *
+cops_tag_cls2syntax ( guint tag, guint cls, gushort *syntax)
+{
+    COPS_CNV *cnv;
+
+    cnv = CopsCnv;
+    while (cnv->syntax != -1)
+    {
+        if (cnv->tag == tag && cnv->class == cls)
+        {
+            *syntax = cnv->syntax;
+            return cnv->name;
+        }
+        cnv++;
+    }
+    return NULL;
+}
 
 static const value_string cops_flags_vals[] = {
         { 0x00,          "None" },
@@ -109,8 +186,7 @@ enum cops_c_num {
         COPS_OBJ_PDPREDIRADDR, /* PDP Redirect Address Object (PDPRedirAddr) */
         COPS_OBJ_LASTPDPADDR,  /* Last PDP Address (LastPDPaddr)       */
         COPS_OBJ_ACCTTIMER,    /* Accounting Timer Object (AcctTimer)  */
-        COPS_OBJ_INTEGRITY,    /* Message Integrity Object (Integrity) */
-
+        COPS_OBJ_INTEGRITY,    /* Message Integrity Object (Integrity) */	
         COPS_LAST_C_NUM        /* For error checking                   */
 };
 
@@ -132,6 +208,31 @@ static const value_string cops_c_num_vals[] = {
         { COPS_OBJ_ACCTTIMER,    "Accounting Timer Object (AcctTimer)" },
         { COPS_OBJ_INTEGRITY,    "Message Integrity Object (Integrity)" },
         { 0, NULL },
+};
+
+
+/* The different objects in COPS-PR messages */
+enum cops_s_num {
+        COPS_NO_PR_OBJECT,     /* Not a COPS-PR Object type               */
+	COPS_OBJ_PRID,         /* Provisioning Instance Identifier (PRID) */
+	COPS_OBJ_PPRID,        /* Prefix Provisioning Instance Identifier (PPRID) */
+	COPS_OBJ_EPD,          /* Encoded Provisioning Instance Data (EPD) */
+	COPS_OBJ_GPERR,        /* Global Provisioning Error Object (GPERR) */
+	COPS_OBJ_CPERR,        /* PRC Class Provisioning Error Object (CPERR) */
+	COPS_OBJ_ERRPRID,      /* Error Provisioning Instance Identifier (ErrorPRID)*/
+	
+        COPS_LAST_S_NUM        /* For error checking                   */
+};
+
+
+static const value_string cops_s_num_vals[] = {
+	{ COPS_OBJ_PRID,         "Provisioning Instance Identifier (PRID)" },
+	{ COPS_OBJ_PPRID,        "Prefix Provisioning Instance Identifier (PPRID)" },
+	{ COPS_OBJ_EPD,          "Encoded Provisioning Instance Data (EPD)" },
+	{ COPS_OBJ_GPERR,        "Global Provisioning Error Object (GPERR)" },
+	{ COPS_OBJ_CPERR,        "PRC Class Provisioning Error Object (CPERR)" },
+	{ COPS_OBJ_ERRPRID,      "Error Provisioning Instance Identifier (ErrorPRID)" },
+        { 0, NULL },
 
 };
 
@@ -141,6 +242,11 @@ static const value_string cops_r_type_vals[] = {
         { 0x02, "Resource-Allocation request" },
         { 0x04, "Outgoing-Message request" },
         { 0x08, "Configuration request" },
+        { 0, NULL },
+};
+/* S-Type is carried within the ClientSI Object for COPS-PR*/
+static const value_string cops_s_type_vals[] = {
+        { 0x01, "BER" },
         { 0, NULL },
 };
 
@@ -196,6 +302,40 @@ static const value_string cops_error_vals[] = {
         {15, "Authentication Required" },
 	{0,  NULL },
 };
+/* Error-Code from GPERR object */
+static const value_string cops_gperror_vals[] = {
+        {1,  "AvailMemLow" },
+        {2,  "AvailMemExhausted" },
+        {3,  "unknownASN.1Tag" },
+        {4,  "maxMsgSizeExceeded" },
+        {5,  "unknownError" },
+        {6,  "maxRequestStatesOpen" },
+        {7,  "invalidASN.1Length" },
+        {8,  "invalidObjectPad" },
+        {9,  "unknownPIBData" },
+        {10, "unknownCOPSPRObject" },
+        {11, "malformedDecision" },
+	{0,  NULL },
+};
+
+/* Error-Code from CPERR object */
+static const value_string cops_cperror_vals[] = {
+        {1,  "priSpaceExhausted" },
+        {2,  "priInstanceInvalid" },
+        {3,  "attrValueInvalid" },
+        {4,  "attrValueSupLimited" },
+        {5,  "attrEnumSupLimited" },
+        {6,  "attrMaxLengthExceeded" },
+        {7,  "attrReferenceUnknown" },
+        {8,  "priNotifyOnly" },
+        {9,  "unknownPrc" },
+        {10, "tooFewAttrs" },
+        {11, "invalidAttrType" },
+        {12, "deletedInRef" },
+        {13, "priSpecificError" },
+ 	{0,  NULL },     
+};
+        
 
 /* Report-Type from Report-Type object */
 static const value_string cops_report_type_vals[] = {
@@ -219,6 +359,9 @@ static gint hf_cops_obj_len = -1;
 static gint hf_cops_obj_c_num = -1;
 static gint hf_cops_obj_c_type = -1;
 
+static gint hf_cops_obj_s_num = -1;
+static gint hf_cops_obj_s_type = -1;
+
 static gint hf_cops_r_type_flags = -1;
 static gint hf_cops_m_type_flags = -1;
 
@@ -236,6 +379,12 @@ static gint hf_cops_dec_flags = -1;
 
 static gint hf_cops_error = -1;
 static gint hf_cops_error_sub = -1;
+
+static gint hf_cops_gperror = -1;
+static gint hf_cops_gperror_sub = -1;
+
+static gint hf_cops_cperror = -1;
+static gint hf_cops_cperror_sub = -1;
 
 static gint hf_cops_katimer = -1;
 
@@ -258,22 +407,134 @@ static gint hf_cops_seq_num = -1;
 static gint ett_cops = -1;
 static gint ett_cops_ver_flags = -1;
 static gint ett_cops_obj = -1;
+static gint ett_cops_pr_obj = -1;
 static gint ett_cops_obj_data = -1;
 static gint ett_cops_r_type_flags = -1;
 static gint ett_cops_itf = -1;
 static gint ett_cops_reason = -1;
 static gint ett_cops_decision = -1;
 static gint ett_cops_error = -1;
+static gint ett_cops_gperror = -1;
+static gint ett_cops_cperror = -1;
 static gint ett_cops_pdp = -1;
 
 void proto_reg_handoff_cops(void);
+
+static void dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static int dissect_cops_object(tvbuff_t *tvb, guint32 offset, proto_tree *tree);
 static int dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *tree,
                                     guint8 c_num, guint8 c_type, guint16 len);
 
+static int dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *tree, guint16 pr_len);
+static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *tree,
+				       guint8 s_num, guint8 s_type, guint16 len);
+
 /* Code to actually dissect the packets */
-static void dissect_cops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_cops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+        int offset = 0;
+	int length_remaining;
+	guint32 msg_len;
+	int length;
+	tvbuff_t *next_tvb;
+
+	while (tvb_reported_length_remaining(tvb, offset) != 0) {
+		length_remaining = tvb_length_remaining(tvb, offset);
+		if (length_remaining == -1)
+			THROW(BoundsError);
+
+		/*
+		 * Can we do reassembly?
+		 */
+		if (cops_desegment && pinfo->can_desegment) {
+			/*
+			 * Yes - is the COPS header split across segment
+			 * boundaries?
+			 */
+			if (length_remaining < 8) {
+				/*
+				 * Yes.  Tell the TCP dissector where
+				 * the data for this message starts in
+				 * the data it handed us, and how many
+				 * more bytes we need, and return.
+				 */
+				pinfo->desegment_offset = offset;
+				pinfo->desegment_len = 8 - length_remaining;
+				return;
+			}
+		}
+
+		/*
+		 * Get the length of the COPS message.
+		 */
+		msg_len = tvb_get_ntohl(tvb, offset + 4);
+
+		/*
+		 * Can we do reassembly?
+		 */
+		if (cops_desegment && pinfo->can_desegment) {
+			/*
+			 * Yes - is the DNS packet split across segment
+			 * boundaries?
+			 */
+			if ((guint32)length_remaining < msg_len) {
+				/*
+				 * Yes.  Tell the TCP dissector where
+				 * the data for this message starts in
+				 * the data it handed us, and how many
+				 * more bytes we need, and return.
+				 */
+				pinfo->desegment_offset = offset;
+				pinfo->desegment_len =
+				    msg_len - length_remaining;
+				return;
+			}
+		}
+
+		/*
+		 * Construct a tvbuff containing the amount of the payload
+		 * we have available.  Make its reported length the
+		 * amount of data in the COPS packet.
+		 */
+		length = length_remaining;
+		if ((guint32)length > msg_len)
+			length = msg_len;
+		next_tvb = tvb_new_subset(tvb, offset, length, msg_len);
+
+		/*
+		 * Dissect the COPS packet.
+		 *
+		 * Catch the ReportedBoundsError exception; if this
+		 * particular message happens to get a ReportedBoundsError
+		 * exception, that doesn't mean that we should stop
+		 * dissecting COPS messages within this frame or chunk
+		 * of reassembled data.
+		 *
+		 * If it gets a BoundsError, we can stop, as there's nothing
+		 * more to see, so we just re-throw it.
+		 */
+		TRY {
+			dissect_cops_pdu(next_tvb, pinfo, tree);
+		}
+		CATCH(BoundsError) {
+			RETHROW;
+		}
+		CATCH(ReportedBoundsError) {
+			show_reported_bounds_error(tvb, pinfo, tree);
+		}
+		ENDTRY;
+
+		/*
+		 * Skip the COPS packet.
+		 */
+		offset += msg_len;
+	}
+}
+
+static void
+dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         guint8 op_code;
 
@@ -290,11 +551,11 @@ static void dissect_cops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (tree) {
                 proto_item *ti, *tv;
                 proto_tree *cops_tree, *ver_flags_tree;
-                guint32 offset, msg_len;
+                guint32 msg_len;
+                guint32 offset = 0;
                 guint8 ver_flags;
 		gint garbage;
 
-                offset = 0;
                 ti = proto_tree_add_item(tree, proto_cops, tvb, offset, -1, FALSE);
                 cops_tree = proto_item_add_subtree(ti, ett_cops);
 
@@ -318,15 +579,8 @@ static void dissect_cops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_uint(cops_tree, hf_cops_msg_len, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
                 offset += 4;
 
-                while (msg_len >= COPS_OBJECT_HDR_SIZE) {
-                        int consumed;
-
-                        consumed = dissect_cops_object(tvb, offset, cops_tree);
-                        if (consumed == 0)
-                                break;
-                        msg_len -= consumed;
-                        offset += consumed;
-                }
+                while (tvb_reported_length_remaining(tvb, offset) >= COPS_OBJECT_HDR_SIZE)
+                        offset += dissect_cops_object(tvb, offset, cops_tree);
 
                 garbage = tvb_length_remaining(tvb, offset);
                 if (garbage > 0)
@@ -404,9 +658,6 @@ static int dissect_cops_object(tvbuff_t *tvb, guint32 offset, proto_tree *tree)
         char *type_str;
         int ret;
 
-        if (tvb_reported_length_remaining(tvb, offset) < COPS_OBJECT_HDR_SIZE)
-                return 0;
-
         object_len = tvb_get_ntohs(tvb, offset);
         c_num = tvb_get_guint8(tvb, offset + 2);
         c_type = tvb_get_guint8(tvb, offset + 3);
@@ -437,9 +688,61 @@ static int dissect_cops_object(tvbuff_t *tvb, guint32 offset, proto_tree *tree)
         /* Pad to 32bit boundary */
         if (object_len % sizeof (guint32))
                 object_len += (sizeof (guint32) - object_len % sizeof (guint32));
+	
+        return object_len;        
+}
 
-        return object_len;
-        
+static int dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *tree, guint16 pr_len)
+{
+        guint16 object_len, contents_len;
+        guint8 s_num, s_type;
+        char *type_str;
+        int ret;
+        proto_tree *cops_pr_tree, *obj_tree;
+        proto_item *ti;
+
+        cops_pr_tree = proto_item_add_subtree(tree, ett_cops_pr_obj);
+	
+        while (pr_len >= COPS_OBJECT_HDR_SIZE) { 
+                object_len = tvb_get_ntohs(tvb, offset);
+                s_num = tvb_get_guint8(tvb, offset + 2);
+                s_type = tvb_get_guint8(tvb, offset + 3);
+
+                ti = proto_tree_add_uint_format(cops_pr_tree, hf_cops_obj_s_num, tvb, offset, object_len, s_num,
+                                        "%s", val_to_str(s_num, cops_s_num_vals, "Unknown"));
+                obj_tree = proto_item_add_subtree(cops_pr_tree, ett_cops_pr_obj);
+
+                proto_tree_add_uint(obj_tree, hf_cops_obj_len, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
+                offset += 2;
+                pr_len -= 2;
+ 
+                proto_tree_add_uint(obj_tree, hf_cops_obj_s_num, tvb, offset, 1, s_num);
+                offset++;
+                pr_len--;
+
+                type_str = val_to_str(s_type, cops_s_type_vals, "Unknown");
+                proto_tree_add_text(obj_tree, tvb, offset, 1, "S-Type: %s%s%u%s",
+                            type_str,
+                            strlen(type_str) ? " (" : "",
+                            s_type,
+                            strlen(type_str) ? ")" : "");
+                offset++;
+                pr_len--;
+
+                contents_len = object_len - COPS_OBJECT_HDR_SIZE;
+                ret = dissect_cops_pr_object_data(tvb, offset, obj_tree, s_num, s_type, contents_len);
+                if (ret < 0)
+                        break;
+
+                /*Pad to 32bit boundary */
+                if (object_len % sizeof (guint32))
+                        object_len += (sizeof (guint32) - object_len % sizeof (guint32));
+	   
+                pr_len -= object_len - COPS_OBJECT_HDR_SIZE;
+                offset += object_len - COPS_OBJECT_HDR_SIZE;
+	}
+
+        return 0;
 }
 
 static int dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *tree,
@@ -514,19 +817,22 @@ static int dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *t
                 break;
         case COPS_OBJ_DECISION:
         case COPS_OBJ_LPDPDECISION:
-                if (c_type != 1)
-                        break;
-
-                cmd_code = tvb_get_ntohs(tvb, offset);
-                cmd_flags = tvb_get_ntohs(tvb, offset + 2);
-                ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: Command-Code: %s, Flags: %s",
+                if (c_type == 1) {
+                        cmd_code = tvb_get_ntohs(tvb, offset);
+                        cmd_flags = tvb_get_ntohs(tvb, offset + 2);
+                        ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: Command-Code: %s, Flags: %s",
                                          val_to_str(cmd_code, cops_dec_cmd_code_vals, "<Unknown value>"),
                                          val_to_str(cmd_flags, cops_dec_cmd_flag_vals, "<Unknown flag>"));
-                dec_tree = proto_item_add_subtree(ti, ett_cops_decision);
-                proto_tree_add_uint(dec_tree, hf_cops_dec_cmd_code, tvb, offset, 2, cmd_code);
-                offset += 2;
-                proto_tree_add_uint(dec_tree, hf_cops_dec_flags, tvb, offset, 2, cmd_flags);
-                
+                        dec_tree = proto_item_add_subtree(ti, ett_cops_decision);
+                        proto_tree_add_uint(dec_tree, hf_cops_dec_cmd_code, tvb, offset, 2, cmd_code);
+                        offset += 2;
+                        proto_tree_add_uint(dec_tree, hf_cops_dec_flags, tvb, offset, 2, cmd_flags);
+                } else if (c_type == 5) { /*COPS-PR Data*/
+                        ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: %u bytes", len);
+                        dissect_cops_pr_objects(tvb, offset, ti, len);
+                } else 
+                        break;
+
                 return 0;
                 break;
         case COPS_OBJ_ERROR:
@@ -548,6 +854,17 @@ static int dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *t
                         proto_tree_add_uint(error_tree, hf_cops_error_sub, tvb, offset, 2, error_sub);
 
                 return 0;
+                break;
+	case COPS_OBJ_CLIENTSI:
+	  
+	        if (c_type != 2) /*Not COPS-PR data*/
+	              break;
+
+		ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: %u bytes", len);
+
+		dissect_cops_pr_objects(tvb, offset, ti, len);
+
+		return 0;
                 break;
         case COPS_OBJ_KATIMER:
                 if (c_type != 1)
@@ -630,6 +947,7 @@ static int dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *t
 
                 return 0;
                 break;
+
         default:
                 break;
         }
@@ -638,6 +956,365 @@ static int dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *t
 
         return 0;
 }
+
+static gchar *
+format_oid(subid_t *oid, guint oid_length)
+{
+	char *result;
+	int result_len;
+	int len;
+	unsigned int i;
+	char *buf;
+
+	result_len = oid_length * 22;
+	result = g_malloc(result_len + 1);
+	buf = result;
+	len = sprintf(buf, "%lu", (unsigned long)oid[0]);
+	buf += len;
+	for (i = 1; i < oid_length;i++) {
+		len = sprintf(buf, ".%lu", (unsigned long)oid[i]);
+		buf += len;
+	}
+	return result;
+}
+
+static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset, proto_tree *tree, guint epdlen)
+{
+        ASN1_SCK asn1; 
+	int start;
+	gboolean def;
+	guint length;
+
+	guint vb_length;
+	gushort vb_type;
+	gchar *vb_type_name;
+
+	int ret;
+	guint cls, con, tag;
+
+	subid_t *variable_oid;
+	guint variable_oid_length;
+
+	gint32 vb_integer_value;
+	guint32 vb_uinteger_value;
+
+	guint8 *vb_octet_string;
+
+	subid_t *vb_oid;
+	guint vb_oid_length;
+
+	gchar *vb_display_string;
+
+	unsigned int i;
+	gchar *buf;
+	int len;
+
+	while (epdlen > 0){ /*while there is stuff to be decoded*/
+
+	asn1_open(&asn1, tvb, offset);
+
+
+	/* parse the type of the object */
+
+	start = asn1.offset;
+
+	ret = asn1_header_decode (&asn1, &cls, &con, &tag, &def, &vb_length);
+	if (ret != ASN1_ERR_NOERROR)
+	  return 0;
+	if (!def)
+	  return ASN1_ERR_LENGTH_NOT_DEFINITE;
+
+	/* Convert the class, constructed flag, and tag to a type. */
+	vb_type_name = cops_tag_cls2syntax(tag, cls, &vb_type);
+	if (vb_type_name == NULL) {
+		/*
+		 * Unsupported type.
+		 * Dissect the value as an opaque string of octets.
+		 */
+		vb_type_name = "unsupported type";
+		vb_type = COPS_OPAQUE;
+	}
+
+	/* parse the value */
+
+	switch (vb_type) {
+
+	case  COPS_INTEGER : 
+		ret = asn1_int32_value_decode(&asn1, vb_length,
+		    &vb_integer_value);
+		if (ret != ASN1_ERR_NOERROR)
+			return ret;
+		length = asn1.offset - start;
+		if (tree) {
+#ifdef HAVE_SPRINT_VALUE
+			if (!unsafe) {
+#if defined(HAVE_UCD_SNMP_SNMP_H)
+				value = vb_integer_value;
+				variable.val.integer = &value;
+#elif defined(HAVE_SNMP_SNMP_H)
+				variable.val.integer = &vb_integer_value;
+#endif
+				vb_display_string = format_var(&variable,
+				    variable_oid, variable_oid_length, vb_type,
+				    vb_length);
+				proto_tree_add_text(tree, asn1.tvb, offset,
+				    length,
+				    "Value: %s", vb_display_string);
+				g_free(vb_display_string);
+				break;	/* we added formatted version to the tree */
+			}
+#endif /* HAVE_SPRINT_VALUE */
+			proto_tree_add_text(tree, asn1.tvb, offset, length,
+			    "Value: %s: %d (%#x)", vb_type_name,
+			    vb_integer_value, vb_integer_value);
+		}
+		break;
+
+
+	case COPS_UNSIGNED32:
+	case COPS_TIMETICKS:
+		ret = asn1_uint32_value_decode(&asn1, vb_length,
+		    &vb_uinteger_value);
+		if (ret != ASN1_ERR_NOERROR)
+			return ret;
+		length = asn1.offset - start;
+		if (tree) {
+#ifdef HAVE_SPRINT_VALUE
+			if (!unsafe) {
+#if defined(HAVE_UCD_SNMP_SNMP_H)
+				value = vb_uinteger_value;
+				variable.val.integer = &value;
+#elif defined(HAVE_SNMP_SNMP_H)
+				variable.val.integer = &vb_uinteger_value;
+#endif
+				vb_display_string = format_var(&variable,
+				    variable_oid, variable_oid_length, vb_type,
+				    vb_length);
+				proto_tree_add_text(tree, asn1->tvb, offset,
+				    length,
+				    "Value: %s", vb_display_string);
+				g_free(vb_display_string);
+				break;	/* we added formatted version to the tree */
+			}
+#endif /* HAVE_SPRINT_VALUE */
+			proto_tree_add_text(tree, asn1.tvb, offset, length,
+			    "Value: %s: %u (%#x)", vb_type_name,
+			    vb_uinteger_value, vb_uinteger_value);
+		}
+		break;
+
+	case COPS_OCTETSTR:
+	case COPS_IPADDR:
+	case COPS_OPAQUE:
+	case COPS_UNSIGNED64:
+	case COPS_INTEGER64:
+		ret = asn1_string_value_decode (&asn1, vb_length,
+		    &vb_octet_string);
+		if (ret != ASN1_ERR_NOERROR)
+			return ret;
+		length = asn1.offset - start;
+		if (tree) {
+#ifdef HAVE_SPRINT_VALUE
+			if (!unsafe) {
+				variable.val.string = vb_octet_string;
+				vb_display_string = format_var(&variable,
+				    variable_oid, variable_oid_length, vb_type,
+				    vb_length);
+				proto_tree_add_text(tree, asn1.tvb, offset,
+				    length,
+				    "Value: %s", vb_display_string);
+				g_free(vb_display_string);
+				break;	/* we added formatted version to the tree */
+			}
+#endif /* HAVE_SPRINT_VALUE */
+			/*
+			 * If some characters are not printable, display
+			 * the string as bytes.
+			 */
+			for (i = 0; i < vb_length; i++) {
+				if (!(isprint(vb_octet_string[i])
+				    || isspace(vb_octet_string[i])))
+					break;
+			}
+			if (i < vb_length) {
+				/*
+				 * We stopped, due to a non-printable
+				 * character, before we got to the end
+				 * of the string.
+				 */
+				vb_display_string = g_malloc(4*vb_length);
+				buf = &vb_display_string[0];
+				len = sprintf(buf, "%03u", vb_octet_string[0]);
+				buf += len;
+				for (i = 1; i < vb_length; i++) {
+					len = sprintf(buf, ".%03u",
+					    vb_octet_string[i]);
+					buf += len;
+				}
+				proto_tree_add_text(tree, asn1.tvb, offset, length,
+				    "Value: %s: %s", vb_type_name,
+				    vb_display_string);
+				g_free(vb_display_string);
+			} else {
+				proto_tree_add_text(tree, asn1.tvb, offset, length,
+				    "Value: %s: %.*s", vb_type_name,
+				    (int)vb_length,
+				    SAFE_STRING(vb_octet_string));
+			}
+		}
+		g_free(vb_octet_string);
+		break;
+
+	case COPS_NULL:
+		ret = asn1_null_decode (&asn1, vb_length);
+		if (ret != ASN1_ERR_NOERROR)
+			return ret;
+		length = asn1.offset - start;
+		if (tree) {
+			proto_tree_add_text(tree, asn1.tvb, offset, length,
+			    "Value: %s", vb_type_name);
+		}
+		break;
+
+	case COPS_OBJECTID:
+		ret = asn1_oid_value_decode (&asn1, vb_length, &vb_oid,
+		    &vb_oid_length);
+		if (ret != ASN1_ERR_NOERROR)
+			return ret;
+		length = asn1.offset - start;
+		if (tree) {
+#ifdef HAVE_SPRINT_VALUE
+			if (!unsafe) {
+				variable.val.objid = vb_oid;
+				vb_display_string = format_var(&variable,
+				    variable_oid, variable_oid_length, vb_type,
+				    vb_length);
+				proto_tree_add_text(tree, asn1.tvb, offset,
+				    length,
+				    "Value: %s", vb_display_string);
+				break;	/* we added formatted version to the tree */
+			}
+#endif /* HAVE_SPRINT_VALUE */
+			vb_display_string = format_oid(vb_oid, vb_oid_length);
+			proto_tree_add_text(tree, asn1.tvb, offset, length,
+			    "Value: %s: %s", vb_type_name, vb_display_string);
+			g_free(vb_display_string);
+		}
+		g_free(vb_oid);
+		break;
+
+	default:
+		g_assert_not_reached();
+		return ASN1_ERR_WRONG_TYPE;
+	}
+  
+	asn1_close(&asn1,&offset);
+ 
+	epdlen -= length;
+	}
+	return 0;
+}
+
+static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *tree,
+                                    guint8 s_num, guint8 s_type, guint16 len)
+{
+        proto_item *ti;
+        proto_tree *gperror_tree, *cperror_tree;
+        guint16 gperror=0, gperror_sub=0, cperror=0, cperror_sub=0;
+
+	switch (s_num){
+        case COPS_OBJ_PRID:
+	       if (s_type != 1) /* Not Provisioning Instance Identifier (PRID) */
+                        break; 
+
+                ti=proto_tree_add_text(tree, tvb, offset, len, "Contents:");
+
+		decode_cops_pr_asn1_data(tvb, offset, ti, len);
+
+                return 0;
+
+                break;
+	case COPS_OBJ_PPRID: 
+                if (s_type != 1) /* Not Prefix Provisioning Instance Identifier (PPRID) */
+                        break; 
+
+                ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
+
+		decode_cops_pr_asn1_data(tvb, offset, ti, len);
+
+		return 0;		
+                break;
+	case COPS_OBJ_EPD:
+                if (s_type != 1) /* Not  Encoded Provisioning Instance Data (EPD) */
+                        break; 
+
+                ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
+
+		decode_cops_pr_asn1_data(tvb, offset, ti, len);
+			
+		return 0;
+                break;
+        case COPS_OBJ_GPERR:
+                if (s_type != 1) /* Not Global Provisioning Error Object (GPERR) */
+                        break;
+		
+	        gperror = tvb_get_ntohs(tvb, offset);
+                gperror_sub = tvb_get_ntohs(tvb, offset + 2);
+                ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: Error-Code: %s, Error Sub-code: 0x%04x",
+                                         val_to_str(gperror, cops_gperror_vals, "<Unknown value>"), gperror_sub);
+                gperror_tree = proto_item_add_subtree(ti, ett_cops_gperror);
+                proto_tree_add_uint(gperror_tree, hf_cops_gperror, tvb, offset, 2, gperror);
+                offset += 2;
+                if (cperror == 13) {
+                        proto_tree_add_text(gperror_tree, tvb, offset, 2, "Error Sub-code: "
+                                            "Unknown object's C-Num %u, C-Type %u",
+                                            tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset + 1));
+                } else 
+                        proto_tree_add_uint(gperror_tree, hf_cops_gperror_sub, tvb, offset, 2, gperror_sub);
+
+                return 0;
+                break;
+        case COPS_OBJ_CPERR:
+                if (s_type != 1) /*Not PRC Class Provisioning Error Object (CPERR) */
+                        break;
+                
+		break;
+
+                cperror = tvb_get_ntohs(tvb, offset);
+                cperror_sub = tvb_get_ntohs(tvb, offset + 2);
+                ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: Error-Code: %s, Error Sub-code: 0x%04x",
+                                         val_to_str(cperror, cops_cperror_vals, "<Unknown value>"), cperror_sub);
+                cperror_tree = proto_item_add_subtree(ti, ett_cops_cperror);
+                proto_tree_add_uint(cperror_tree, hf_cops_cperror, tvb, offset, 2, cperror);
+                offset += 2;
+                if (cperror == 13) {
+                        proto_tree_add_text(cperror_tree, tvb, offset, 2, "Error Sub-code: "
+                                            "Unknown object's S-Num %u, C-Type %u",
+                                            tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset + 1));
+                } else 
+                        proto_tree_add_uint(cperror_tree, hf_cops_cperror_sub, tvb, offset, 2, cperror_sub);
+
+                return 0;
+                break;
+        case COPS_OBJ_ERRPRID:
+                if (s_type != 1) /*Not  Error Provisioning Instance Identifier (ErrorPRID)*/
+                        break;
+
+                ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
+
+		decode_cops_pr_asn1_data(tvb, offset, ti, len);
+
+		return 0;
+		break;
+        default:
+                break;
+        }
+
+        ti = proto_tree_add_text(tree, tvb, offset, len, "Contents: %u bytes", len);
+
+        return 0;
+}
+
 
 /* Register the protocol with Ethereal */
 void proto_register_cops(void)
@@ -690,6 +1367,18 @@ void proto_register_cops(void)
                         FT_UINT8, BASE_DEC, NULL, 0x0,
                         "C-Type in COPS Object Header", HFILL }
                 },
+
+                { &hf_cops_obj_s_num,
+                        { "S-Num",           "cops.s_num",
+                        FT_UINT8, BASE_DEC, VALS(cops_s_num_vals), 0x0,
+                        "S-Num in COPS-PR Object Header", HFILL }
+                },
+                { &hf_cops_obj_s_type,
+                        { "S-Type",           "cops.s_type",
+                        FT_UINT8, BASE_DEC, NULL, 0x0,
+                        "S-Type in COPS-PR Object Header", HFILL }
+                },
+
                 { &hf_cops_r_type_flags,
                         { "R-Type",           "cops.context.r_type",
                         FT_UINT16, BASE_HEX, VALS(cops_r_type_vals), 0xFFFF,
@@ -810,6 +1499,27 @@ void proto_register_cops(void)
                         FT_UINT32, BASE_DEC, NULL, 0,
                         "Sequence Number in Integrity object", HFILL }
                 },
+                { &hf_cops_gperror,
+                        { "Error",           "cops.gperror",
+                        FT_UINT16, BASE_DEC, VALS(cops_gperror_vals), 0,
+                        "Error in Error object", HFILL }
+                },
+                { &hf_cops_gperror_sub,
+                        { "Error Sub-code",           "cops.gperror_sub",
+                        FT_UINT16, BASE_HEX, NULL, 0,
+                        "Error Sub-code in Error object", HFILL }
+                },
+                { &hf_cops_cperror,
+                        { "Error",           "cops.cperror",
+                        FT_UINT16, BASE_DEC, VALS(cops_cperror_vals), 0,
+                        "Error in Error object", HFILL }
+                },
+                { &hf_cops_cperror_sub,
+                        { "Error Sub-code",           "cops.cperror_sub",
+                        FT_UINT16, BASE_HEX, NULL, 0,
+                        "Error Sub-code in Error object", HFILL }
+                },
+
         };
 
         /* Setup protocol subtree array */
@@ -824,6 +1534,7 @@ void proto_register_cops(void)
                 &ett_cops_decision,
                 &ett_cops_error,
                 &ett_cops_pdp,
+		&ett_cops_pr_obj,
         };
 
 	module_t* cops_module;
@@ -845,6 +1556,10 @@ void proto_register_cops(void)
 				       "COPS TCP Port",
 				       "Set the TCP port for COPS messages",
 				       10,&global_cops_tcp_port);
+	prefs_register_bool_preference(cops_module, "desegment",
+	    "Desegment all COPS messages spanning multiple TCP segments",
+	    "Whether the COPS dissector should desegment all messages spanning multiple TCP segments",
+	    &cops_desegment);
 };
 
 void
