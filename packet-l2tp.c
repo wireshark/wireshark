@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.37 2003/01/14 18:57:07 guy Exp $
+ * $Id: packet-l2tp.c,v 1.38 2003/12/26 23:33:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -522,9 +522,9 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			continue;
 		}
 
-		if (avp_len == 0) {
+		if (avp_len < 6) {
 			proto_tree_add_text(l2tp_avp_tree, tvb, index, 0,
-			  "AVP length must not be zero");
+			  "AVP length must be >= 6");
 			return;
 		}
 		index += 2;
