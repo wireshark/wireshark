@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.17 2002/08/28 21:00:07 jmayer Exp $
+ * $Id: packet-aim.c,v 1.18 2003/01/11 07:17:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,6 +73,9 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void get_message( guchar *msg, tvbuff_t *tvb, int msg_offset, int msg_length);
 static int get_buddyname( char *name, tvbuff_t *tvb, int len_offset, int name_offset);
+static void dissect_aim_signon_reply(tvbuff_t *tvb, int offset, proto_tree *tree);
+static void dissect_aim_request_user_information(tvbuff_t *tvb, int offset, proto_tree *tree);
+static void dissect_aim_user_information(tvbuff_t *tvb, int offset, proto_tree *tree);
 
 /* Initialize the protocol and registered fields */
 static int proto_aim = -1;
@@ -80,8 +83,17 @@ static int hf_aim_cmd_start = -1;
 static int hf_aim_channel = -1;
 static int hf_aim_seqno = -1;
 static int hf_aim_data_len = -1;
+static int hf_aim_signon_challenge_len = -1;
+static int hf_aim_signon_challenge = -1;
 static int hf_aim_fnac_family = -1;
 static int hf_aim_fnac_subtype = -1;
+static int hf_aim_fnac_flags = -1;
+static int hf_aim_fnac_id = -1;
+static int hf_aim_infotype = -1;
+static int hf_aim_buddyname_len = -1;
+static int hf_aim_buddyname = -1;
+static int hf_aim_userinfo_warninglevel = -1;
+static int hf_aim_userinfo_tlvcount = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_aim          = -1;
@@ -97,9 +109,12 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   guint16 family;
   guint16 subtype;
+  guint16 flags;
+  guint32 id;
   guint8 buddyname_length = 0;
   char buddyname[MAX_BUDDYNAME_LENGTH];
   guchar msg[1000];
+  int offset;
 
 /* Set up structures we will need to add the protocol subtree and manage it */
   proto_item *ti;
@@ -155,19 +170,23 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case CHANNEL_SNAC_DATA:
       family = tvb_get_ntohs(tvb, 6);
       subtype = tvb_get_ntohs(tvb, 8);
+      flags = tvb_get_ntohs(tvb, 10);
+      id = tvb_get_ntohl(tvb, 12);
 
       if (check_col(pinfo->cinfo, COL_INFO)) {
         col_add_fstr(pinfo->cinfo, COL_INFO, "SNAC data");
       }
       if( tree )
       {
-        ti1 = proto_tree_add_text(aim_tree, tvb, 6, tvb_length(tvb) - 6, "FNAC");
+        ti1 = proto_tree_add_text(aim_tree, tvb, 6, 10, "FNAC");
         aim_tree_fnac = proto_item_add_subtree(ti1, ett_aim_fnac);
         proto_tree_add_uint(aim_tree_fnac, hf_aim_fnac_family, tvb, 6, 2, family);
         proto_tree_add_uint(aim_tree_fnac, hf_aim_fnac_subtype, tvb, 8, 2, subtype);
+        proto_tree_add_uint(aim_tree_fnac, hf_aim_fnac_flags, tvb, 10, 2, flags);
+        proto_tree_add_uint(aim_tree_fnac, hf_aim_fnac_id, tvb, 12, 4, id);
       }
 
-
+      offset = 16;
 
       if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Family: 0x%04x - Subtype: 0x%04x (unknown)", family, subtype);
 
@@ -209,6 +228,7 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
               case 0x0007:
                 if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Sign-on reply");
+		dissect_aim_signon_reply(tvb, offset, aim_tree);
                 break;
             }
             break;
@@ -317,9 +337,11 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               break;
             case 0x0005:
               if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Request User Information");
+	      dissect_aim_request_user_information(tvb, offset, aim_tree);
               break;
             case 0x0006:
               if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "User Information");
+	      dissect_aim_user_information(tvb, offset, aim_tree);
               break;
             case 0x0007:
               if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Watcher Subrequest");
@@ -555,6 +577,61 @@ static void get_message( guchar *msg, tvbuff_t *tvb, int msg_offset, int msg_len
   }
 }
 
+static void dissect_aim_signon_reply(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+  guint16 challenge_length = 0;
+
+  /* Logon Challenge Length */
+  challenge_length = tvb_get_ntohs(tvb, offset);
+  proto_tree_add_item(tree, hf_aim_signon_challenge_len, tvb, offset, 2, FALSE);
+  offset += 2;
+
+  /* Challenge */
+  proto_tree_add_item(tree, hf_aim_signon_challenge, tvb, offset, challenge_length, FALSE);
+  offset += challenge_length;
+}
+
+static void dissect_aim_request_user_information(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+  guint8 buddyname_length = 0;
+
+  /* Info Type */
+  proto_tree_add_item(tree, hf_aim_infotype, tvb, offset, 2, FALSE);
+  offset += 2;
+
+  /* Buddy Name length */
+  buddyname_length = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(tree, hf_aim_buddyname_len, tvb, offset, 1, FALSE);
+  offset += 1;
+  
+  /* Buddy name */
+  proto_tree_add_item(tree, hf_aim_buddyname, tvb, offset, buddyname_length, FALSE);
+  offset += buddyname_length;
+}
+
+static void dissect_aim_user_information(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+  guint8 buddyname_length = 0;
+  guint16 tlv_count = 0;
+
+  /* Buddy Name length */
+  buddyname_length = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(tree, hf_aim_buddyname_len, tvb, offset, 1, FALSE);
+  offset += 1;
+  
+  /* Buddy name */
+  proto_tree_add_item(tree, hf_aim_buddyname, tvb, offset, buddyname_length, FALSE);
+  offset += buddyname_length;
+
+  /* Warning level */
+  proto_tree_add_item(tree, hf_aim_userinfo_warninglevel, tvb, offset, 2, FALSE);
+  offset += 2;
+
+  /* TLV Count */
+  tlv_count = tvb_get_ntohs(tvb, offset);
+  proto_tree_add_item(tree, hf_aim_userinfo_tlvcount, tvb, offset, 2, FALSE);
+  offset += 2;
+}
 
 /* Register the protocol with Ethereal */
 void
@@ -575,11 +652,38 @@ proto_register_aim(void)
     { &hf_aim_data_len,
       { "Data Field Length", "aim.datalen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
     },
+    { &hf_aim_signon_challenge_len,
+      { "Signon challenge length", "aim.signon.challengelen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+    },
+    { &hf_aim_signon_challenge,
+      { "Signon challenge", "aim.signon.challenge", FT_STRING, BASE_HEX, NULL, 0x0, "", HFILL }
+    },
     { &hf_aim_fnac_family,
       { "FNAC Family ID", "aim.fnac.family", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
     },
     { &hf_aim_fnac_subtype,
       { "FNAC Subtype ID", "aim.fnac.subtype", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_flags,
+      { "FNAC Flags", "aim.fnac.flags", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+    },
+    { &hf_aim_fnac_id,
+      { "FNAC ID", "aim.fnac.id", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }
+    },
+    { &hf_aim_infotype,
+      { "Infotype", "aim.infotype", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+    },
+    { &hf_aim_buddyname_len,
+      { "Buddyname len", "aim.buddynamelen", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
+    },
+    { &hf_aim_buddyname,
+      { "Buddy Name", "aim.buddyname", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }
+    },
+    { &hf_aim_userinfo_warninglevel,
+      { "Warning Level", "aim.userinfo.warninglevel", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+    },
+    { &hf_aim_userinfo_tlvcount,
+      { "TLV Count", "aim.userinfo.tlvcount", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
     },
   };
 

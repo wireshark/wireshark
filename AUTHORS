@@ -1238,6 +1238,7 @@ Devin Heitmueller <dheitmueller[AT]netilla.com> {
 	    types
 	Support for decrypting DCERPC conversations using NTLMSSP
 	    version 1
+	AIM enhancements
 }
 
 Chenjiang Hu <chu[AT]chiaro.com> {
