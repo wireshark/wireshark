@@ -1,6 +1,6 @@
 # Makefile.am
 #
-# $Id: Makefile.am,v 1.3 2001/02/02 04:03:41 gram Exp $
+# $Id: Makefile.am,v 1.4 2001/03/05 22:53:40 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -31,7 +31,7 @@ CLEANFILES = \
 	libftypes.a	\
 	*~
 
-INCLUDES = -I$(srcdir)/../..
+INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/..
 
 libftypes_a_SOURCES =	\
 	ftypes.c	\

@@ -1,6 +1,6 @@
 # Makefile.am
 #
-# $Id: Makefile.am,v 1.8 2001/02/27 20:34:08 gram Exp $
+# $Id: Makefile.am,v 1.9 2001/03/05 22:53:39 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -31,7 +31,7 @@ CLEANFILES = \
 	libdfilter.a		\
 	*~
 
-INCLUDES = -I$(srcdir)/../..  -I$(srcdir)/$(LEMON)
+INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/.. -I$(srcdir)/$(LEMON)
 
 libdfilter_a_SOURCES = \
 	dfilter.c		\

@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.18 2001/01/12 02:35:49 gram Exp $
+$Id: README.win32,v 1.19 2001/03/05 22:53:36 gram Exp $
 
 Running Ethereal, Tethereal, and Editcap on Win32
 =================================================
@@ -22,7 +22,7 @@ Plugins (gryphon.dll and mgcp.dll) can go in:
 	C:\Ethereal\plugins\<version>
 
 Where <version> is the version number, without brackets.
-For example, C:\Ethereal\plugins\0.8.15
+For example, C:\Ethereal\plugins\0.8.16
 
 Yes, the location of plugins needs to be more flexible.
 
@@ -41,7 +41,8 @@ in time:
 
 Ethereal Version		GTK+/GLIB version
 ----------------		-----------------
-0.8.11 and after		20000805
+0.8.16 and after		20001226
+0.8.11 - 0.8.15			20000805
 0.8.9 - 0.8.10			20000416
 0.8.8 and before		19990828
 
@@ -117,9 +118,7 @@ to generate C source. The "special" files and their requisite tools are:
 
 Source				Output			Tool
 ------				------			----
-dfilter-grammar.y		*.[ch]			Bison or Yacc
 dfilter-scanner.l		*.c			Flex
-wiretap/ascend-grammar.y	*.[ch]			Bison or Yacc
 wiretap/ascend-scanner.l	*.c			Flex
 ncp2222.py			packet-ncp2222.c	Python
 
