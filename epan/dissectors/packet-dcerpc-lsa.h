@@ -110,9 +110,9 @@
 #define LSA_LSARADTREPORTSECURITYEVENT		0x51
 
 int
-lsa_dissect_LSA_SECURITY_DESCRIPTOR(tvbuff_t *tvb, int offset,
+lsa_dissect_sec_desc_buf(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
-                             guint8 *drep);
+                             guint8 *drep, int dummy1, guint32 dummy2);
 int
 lsa_dissect_sec_desc_buf_data(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,

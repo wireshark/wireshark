@@ -2220,8 +2220,8 @@ netlogon_dissect_DELTA_USER(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_security_information, NULL);
 
-	offset = lsa_dissect_LSA_SECURITY_DESCRIPTOR(tvb, offset,
-		pinfo, tree, drep);
+	offset = lsa_dissect_sec_desc_buf(tvb, offset,
+		pinfo, tree, drep, 0, 0);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_dummy, 0);
@@ -2309,8 +2309,8 @@ netlogon_dissect_DELTA_DOMAIN(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_security_information, NULL);
 
-	offset = lsa_dissect_LSA_SECURITY_DESCRIPTOR(tvb, offset,
-		pinfo, tree, drep);
+	offset = lsa_dissect_sec_desc_buf(tvb, offset,
+		pinfo, tree, drep, 0, 0);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_dummy, 0);
@@ -2374,8 +2374,8 @@ netlogon_dissect_DELTA_GROUP(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_security_information, NULL);
 
-	offset = lsa_dissect_LSA_SECURITY_DESCRIPTOR(tvb, offset,
-		pinfo, tree, drep);
+	offset = lsa_dissect_sec_desc_buf(tvb, offset,
+		pinfo, tree, drep, 0, 0);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_dummy, 0);
@@ -2579,8 +2579,8 @@ netlogon_dissect_DELTA_ALIAS(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_security_information, NULL);
 
-	offset = lsa_dissect_LSA_SECURITY_DESCRIPTOR(tvb, offset,
-		pinfo, tree, drep);
+	offset = lsa_dissect_sec_desc_buf(tvb, offset,
+		pinfo, tree, drep, 0, 0);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_dummy, 0);
@@ -2775,8 +2775,8 @@ netlogon_dissect_DELTA_POLICY(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_security_information, NULL);
 
-	offset = lsa_dissect_LSA_SECURITY_DESCRIPTOR(tvb, offset,
-		pinfo, tree, drep);
+	offset = lsa_dissect_sec_desc_buf(tvb, offset,
+		pinfo, tree, drep, 0, 0);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_dummy, 0);
@@ -2864,8 +2864,8 @@ netlogon_dissect_DELTA_TRUSTED_DOMAINS(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_security_information, NULL);
 
-	offset = lsa_dissect_LSA_SECURITY_DESCRIPTOR(tvb, offset,
-		pinfo, tree, drep);
+	offset = lsa_dissect_sec_desc_buf(tvb, offset,
+		pinfo, tree, drep, 0, 0);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_dummy, 0);
@@ -2988,8 +2988,8 @@ netlogon_dissect_DELTA_ACCOUNTS(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_security_information, NULL);
 
-	offset = lsa_dissect_LSA_SECURITY_DESCRIPTOR(tvb, offset,
-		pinfo, tree, drep);
+	offset = lsa_dissect_sec_desc_buf(tvb, offset,
+		pinfo, tree, drep, 0, 0);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_dummy, 0);
@@ -3125,8 +3125,8 @@ netlogon_dissect_DELTA_SECRET(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_security_information, NULL);
 
-	offset = lsa_dissect_LSA_SECURITY_DESCRIPTOR(tvb, offset,
-		pinfo, tree, drep);
+	offset = lsa_dissect_sec_desc_buf(tvb, offset,
+		pinfo, tree, drep, 0, 0);
 
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_dummy, 0);
