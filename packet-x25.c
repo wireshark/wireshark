@@ -2,7 +2,7 @@
  * Routines for X.25 packet disassembly
  * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-x25.c,v 1.78 2003/02/28 00:48:06 guy Exp $
+ * $Id: packet-x25.c,v 1.79 2003/03/01 08:50:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1716,8 +1716,25 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					val_to_str(spi, nlpid_vals, "Unknown (0x%02x)"));
 		}
 
+		if (!pinfo->fd->flags.visited) {
+		    /*
+		     * Is there a dissector handle for this SPI?
+		     * If so, assign it to this virtual circuit.
+		     */
+		    dissect = dissector_get_port_handle(x25_subdissector_table, spi);
+		    if (dissect != NULL)
+			x25_hash_add_proto_start(vc, pinfo->fd->num, dissect);
+		}
+
 		/*
-		 * If there's more than one octet of user data, we'll
+		 * If there's only one octet of user data, it's just
+		 * an NLPID; don't try to dissect it.
+		 */
+		if (localoffset + 1 <= tvb_reported_length(tvb))
+		    return;
+
+		/*
+		 * There's more than one octet of user data, so we'll
 		 * dissect it; for some protocols, the NLPID is considered
 		 * to be part of the PDU, so, for those cases, we don't
 		 * skip past it.  For other protocols, we skip the NLPID.
@@ -1731,24 +1748,17 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		case NLPID_SNDCF:
 		    /*
 		     * The NLPID is part of the PDU.  Don't skip it.
+		     * But if it's all there is to the PDU, don't
+		     * bother dissecting it.
 		     */
 		    break;
 
 		default:
 		    /*
 		     * The NLPID isn't part of the PDU - skip it.
+		     * If that means there's nothing to dissect
 		     */
 		    localoffset++;
-		}
-
-		if (!pinfo->fd->flags.visited) {
-		    /*
-		     * Is there a dissector handle for this SPI?
-		     * If so, assign it to this virtual circuit.
-		     */
-		    dissect = dissector_get_port_handle(x25_subdissector_table, spi);
-		    if (dissect != NULL)
-			x25_hash_add_proto_start(vc, pinfo->fd->num, dissect);
 		}
 	    }
 	}
