@@ -704,6 +704,7 @@ DISSECTOR_INCLUDES =	\
 	packet-spray.h	\
 	packet-stat-notify.h	\
 	packet-stat.h	\
+	packet-t38.h	\
 	packet-tacacs.h	\
 	packet-tcap.h	\
 	packet-tcp.h	\

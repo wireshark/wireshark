@@ -53,9 +53,12 @@
 #include "rtp_pt.h"
 #include "packet-rtcp.h"
 
+#include "packet-t38.h"
 
 static dissector_handle_t rtp_handle=NULL;
 static dissector_handle_t rtcp_handle=NULL;
+
+static dissector_handle_t t38_handle=NULL;
 
 static int proto_sdp = -1;
 
@@ -197,6 +200,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 	ipv4_address=0;
 	guint32 	ipv4_port=0;
 	gboolean 	is_rtp=FALSE;
+	gboolean        is_t38=FALSE;
 	gboolean 	is_ipv4_addr=FALSE;
 	struct in_addr	ipaddr;
 	gint		n;
@@ -362,6 +366,9 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    if(transport_info.media_proto[n]!=NULL) {
 		    /* Check if media protocol is RTP */
 		    is_rtp = (strcmp(transport_info.media_proto[n],"RTP/AVP")==0);
+		    /* Check if media protocol is T38 */
+		    is_t38 = ( (strcmp(transport_info.media_proto[n],"UDPTL")==0) || (strcmp(transport_info.media_proto[n],"udptl")==0) );
+
 		    g_free(transport_info.media_proto[n]);
 	    }
 	    if(transport_info.connection_address!=NULL) {
@@ -393,6 +400,15 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				                 "SDP", pinfo->fd->num);
 		    }
 	    }
+	    /* Add t38 conversation, if available */
+	    if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && is_t38 && is_ipv4_addr){
+                    src_addr.type=AT_IPv4;
+                    src_addr.len=4;
+                    src_addr.data=(char *)&ipv4_address;
+                    if(t38_handle){
+                                t38_add_address(pinfo, &src_addr, ipv4_port, 0, "SDP", pinfo->fd->num);
+                    }
+	    }
 	}
 
 	/* Free up 'connection info' strings */
@@ -412,8 +428,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-call_sdp_subdissector(tvbuff_t *tvb, int hf, proto_tree* ti,
-		      transport_info_t *transport_info){
+call_sdp_subdissector(tvbuff_t *tvb, int hf, proto_tree* ti, transport_info_t *transport_info){
   if(hf == hf_owner){
     dissect_sdp_owner(tvb,ti);
   } else if ( hf == hf_connection_info) {
@@ -1148,6 +1163,8 @@ proto_reg_handoff_sdp(void)
 
   rtp_handle = find_dissector("rtp");
   rtcp_handle = find_dissector("rtcp");
+
+  t38_handle = find_dissector("t38");
 
   sdp_handle = find_dissector("sdp");
   dissector_add_string("media_type", "application/sdp", sdp_handle);

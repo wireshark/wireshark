@@ -1,6 +1,7 @@
 /* packet-t38.c
  * Routines for T.38 packet dissection
  * 2003  Hans Viens
+ * 2004  Alejandro Vaquero, add support Conversations for SDP
  *
  * $Id$
  *
@@ -36,7 +37,7 @@
 
 /* TO DO:  
  * - TCP desegmentation is currently not supported for T.38 IFP directly over TCP. 
- * - SDP and H.245 dissectors should be updated to start conversations for T.38 similar to RTP.
+ * - H.245 dissectors should be updated to start conversations for T.38 similar to RTP.
  * - It would be nice if we could dissect the T.30 data.
  * - Sometimes the last octet is not high-lighted when selecting something in the tree. Bug in PER dissector? 
  * - Add support for RTP payload audio/t38 (draft-jones-avt-audio-t38-03.txt), i.e. T38 in RTP packets.
@@ -54,6 +55,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "packet-t38.h"
 #include <epan/prefs.h>
 #include <epan/ipproto.h>
 #include "packet-per.h"
@@ -136,6 +138,11 @@ static int hf_t38_fec_npackets = -1;
 static int hf_t38_fec_data = -1;
 static int hf_t38_fec_data_item = -1;
 
+/* T38 setup fields */
+static int hf_t38_setup        = -1;
+static int hf_t38_setup_frame  = -1;
+static int hf_t38_setup_method = -1;
+
 static gint ett_t38 = -1;
 static gint ett_t38_IFPPacket = -1;
 static gint ett_t38_Type_of_msg = -1;
@@ -149,15 +156,99 @@ static gint ett_t38_error_recovery = -1;
 static gint ett_t38_secondary_ifp_packets = -1;
 static gint ett_t38_fec_info = -1;
 static gint ett_t38_fec_data = -1;
+static gint ett_t38_setup = -1;
 
 static gboolean primary_part = TRUE;
 static guint32 seq_number = 0;
 
+/* Memory chunk for storing conversation and per-packet info */
+static GMemChunk *t38_conversations = NULL;
 
 /* RTP Version is the first 2 bits of the first octet in the UDP payload*/
 #define RTP_VERSION(octet)	((octet) >> 6)
 
 void proto_reg_handoff_t38(void);
+
+static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+/* Preferences bool to control whether or not setup info should be shown */
+static gboolean global_t38_show_setup_info = TRUE;
+
+/* Set up an T38 conversation */
+void t38_add_address(packet_info *pinfo,
+                     address *addr, int port,
+                     int other_port,
+                     gchar *setup_method, guint32 setup_frame_number)
+{
+        address null_addr;
+        conversation_t* p_conv;
+        struct _t38_conversation_info *p_conv_data = NULL;
+
+        /*
+         * If this isn't the first time this packet has been processed,
+         * we've already done this work, so we don't need to do it
+         * again.
+         */
+        if (pinfo->fd->flags.visited)
+        {
+                return;
+        }
+
+        SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
+
+        /*
+         * Check if the ip address and port combination is not
+         * already registered as a conversation.
+         */
+        p_conv = find_conversation( addr, &null_addr, PT_UDP, port, other_port,
+                                NO_ADDR_B | (!other_port ? NO_PORT_B : 0));
+
+        /*
+         * If not, create a new conversation.
+         */
+        if ( ! p_conv ) {
+                p_conv = conversation_new( addr, &null_addr, PT_UDP,
+                                           (guint32)port, (guint32)other_port,
+                                                                   NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
+        }
+
+        /* Set dissector */
+        conversation_set_dissector(p_conv, t38_udp_handle);
+
+        /*
+         * Check if the conversation has data associated with it.
+         */
+        p_conv_data = conversation_get_proto_data(p_conv, proto_t38);
+
+        /*
+         * If not, add a new data item.
+         */
+        if ( ! p_conv_data ) {
+                /* Create conversation data */
+                p_conv_data = g_mem_chunk_alloc(t38_conversations);
+
+                conversation_add_proto_data(p_conv, proto_t38, p_conv_data);
+        }
+
+        /*
+         * Update the conversation data.
+         */
+        strncpy(p_conv_data->method, setup_method, MAX_T38_SETUP_METHOD_SIZE);
+        p_conv_data->method[MAX_T38_SETUP_METHOD_SIZE] = '\0';
+        p_conv_data->frame_number = setup_frame_number;
+}
+
+static void t38_init( void )
+{
+        /* (Re)allocate mem chunk for conversations */
+        if (t38_conversations)
+        {
+                g_mem_chunk_destroy(t38_conversations);
+        }
+        t38_conversations = g_mem_chunk_new("t38_conversations",
+                                            sizeof(struct _t38_conversation_info),
+                                            20 * sizeof(struct _t38_conversation_info),
+                                            G_ALLOC_ONLY);
+}
 
 
 static int
@@ -680,6 +771,12 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    "ITU-T Recommendation T.38");
 	tr=proto_item_add_subtree(it, ett_t38);
 
+        /* Conversation setup info */
+        if (global_t38_show_setup_info)
+        {
+                show_setup_info(tvb, pinfo, tr);
+        }
+
 	if (check_col(pinfo->cinfo, COL_INFO)){
 		col_append_fstr(pinfo->cinfo, COL_INFO, "UDP: UDPTLPacket ");
 	}
@@ -782,6 +879,64 @@ dissect_t38(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
+/* Look for conversation info and display any setup info found */
+void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+        /* Conversation and current data */
+        conversation_t *p_conv = NULL;
+        struct _t38_conversation_info *p_conv_data = NULL;
+
+        /* Use existing packet info if available */
+        p_conv_data = p_get_proto_data(pinfo->fd, proto_t38);
+
+        if (!p_conv_data)
+        {
+                /* First time, get info from conversation */
+                p_conv = find_conversation(&pinfo->net_src, &pinfo->net_dst,
+                                   pinfo->ptype,
+                                   pinfo->srcport, pinfo->destport, NO_ADDR_B);
+                if (p_conv)
+                {
+                        /* Create space for packet info */
+                        struct _t38_conversation_info *p_conv_packet_data;
+                        p_conv_data = conversation_get_proto_data(p_conv, proto_t38);
+
+                        if (p_conv_data) {
+                                /* Save this conversation info into packet info */
+                                p_conv_packet_data = g_mem_chunk_alloc(t38_conversations);
+                                strcpy(p_conv_packet_data->method, p_conv_data->method);
+                                p_conv_packet_data->frame_number = p_conv_data->frame_number;
+                                p_add_proto_data(pinfo->fd, proto_t38, p_conv_packet_data);
+                        }
+                }
+        }
+
+        /* Create setup info subtree with summary info. */
+        if (p_conv_data)
+        {
+                proto_tree *t38_setup_tree;
+                proto_item *ti =  proto_tree_add_string_format(tree, hf_t38_setup, tvb, 0, 0,
+                                                               "",
+                                                               "Stream setup by %s (frame %d)",
+                                                               p_conv_data->method,
+                                                               p_conv_data->frame_number);
+                PROTO_ITEM_SET_GENERATED(ti);
+                t38_setup_tree = proto_item_add_subtree(ti, ett_t38_setup);
+                if (t38_setup_tree)
+                {
+                        /* Add details into subtree */
+                        proto_item* item = proto_tree_add_uint(t38_setup_tree, hf_t38_setup_frame,
+                                                               tvb, 0, 0, p_conv_data->frame_number);
+                        PROTO_ITEM_SET_GENERATED(item);
+                        item = proto_tree_add_string(t38_setup_tree, hf_t38_setup_method,
+                                                     tvb, 0, 0, p_conv_data->method);
+                        PROTO_ITEM_SET_GENERATED(item);
+                }
+        }
+}
+
+
+
 /* Ethereal Protocol Registration */
 void
 proto_register_t38(void)
@@ -848,7 +1003,16 @@ proto_register_t38(void)
         {  &hf_t38_fec_data_item,
             { "t38_fec_data_item", "t38.t38_fec_data_item", FT_BYTES, BASE_HEX,
             NULL, 0, "t38_fec_data_item octet string", HFILL }},
-	};
+	{   &hf_t38_setup,
+	    { "Stream setup", "t38.setup", FT_STRING, BASE_NONE,
+	    NULL, 0x0, "Stream setup, method and frame number", HFILL }},
+	{   &hf_t38_setup_frame,
+            { "Stream frame", "t38.setup-frame", FT_FRAMENUM, BASE_NONE,
+            NULL, 0x0, "Frame that set up this stream", HFILL }},
+        {   &hf_t38_setup_method,
+            { "Stream Method", "t38.setup-method", FT_STRING, BASE_NONE,
+            NULL, 0x0, "Method used to set up this stream", HFILL }},
+        };
 
 	static gint *ett[] =
 	{
@@ -865,10 +1029,11 @@ proto_register_t38(void)
 		&ett_t38_secondary_ifp_packets,
 		&ett_t38_fec_info,
 		&ett_t38_fec_data,
+		&ett_t38_setup,
 	};
 	module_t *t38_module;
 
-	proto_t38 = proto_register_protocol("T38", "T38", "t38");
+	proto_t38 = proto_register_protocol("T.38", "T.38", "t38");
 	proto_register_field_array(proto_t38, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("t38", dissect_t38, proto_t38);
@@ -903,6 +1068,14 @@ proto_register_t38(void)
 		"TPKT used over TCP",
 		"Whether T.38 is used with TPKT for TCP",
 		(gint *)&t38_tpkt_usage,t38_tpkt_options,FALSE);
+
+	prefs_register_bool_preference(t38_module, "show_setup_info",
+                "Show stream setup information",
+                "Where available, show which protocol and frame caused "
+                "this T.38 stream to be created",
+                &global_t38_show_setup_info);
+
+	register_init_routine( &t38_init );
 }
 
 void
