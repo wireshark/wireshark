@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-lmp.c,v 1.8 2002/06/02 23:55:11 gerald Exp $
+ * $Id: packet-lmp.c,v 1.9 2002/06/16 17:08:43 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -880,8 +880,14 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    object_type = val_to_str(class, lmp_class_vals, "Unknown");
 	    proto_tree_add_uint_hidden(lmp_tree, lmp_filter[LMPF_OBJECT], tvb, 
 					    offset, 1, class);
-	    ti = proto_tree_add_item(lmp_tree, lmp_filter[lmp_class_to_filter_num(class)],
+	    if (VALID_CLASS(class)) {
+		ti = proto_tree_add_item(lmp_tree, lmp_filter[lmp_class_to_filter_num(class)],
 	    			     tvb, offset, obj_length, FALSE);
+	    } else {
+		proto_tree_add_protocol_format(lmp_tree, proto_malformed, tvb, offset+1, 1,
+			"Invalid class: %u", class);
+		return;
+	    }
 
 	    lmp_object_tree = proto_item_add_subtree(ti, lmp_class_to_subtree(class));
 
