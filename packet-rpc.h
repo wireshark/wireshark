@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.20 2000/11/21 14:58:07 girlich Exp $
+ * $Id: packet-rpc.h,v 1.21 2000/11/22 00:34:15 guy Exp $
  *
  * (c) 1999 Uwe Girlich
  *
@@ -107,9 +107,6 @@ extern const value_string rpc_auth_flavor[];
 extern void rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table);
 extern void rpc_init_prog(int proto, guint32 prog, int ett);
 extern char *rpc_prog_name(guint32 prog);
-
-extern void init_dissect_rpc();
-extern void cleanup_dissect_rpc();
 
 extern unsigned int rpc_roundup(unsigned int a);
 extern gboolean dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
