@@ -103,7 +103,7 @@ Improve decode algorithm when we have operation name collision.
 
   Original Author
   -------- ------
-  Frank Singleton             <frank.singleton@ericsson.com>
+  Frank Singleton             <frank.singleton[AT]ericsson.com>
 
 
   Contributors

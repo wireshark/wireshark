@@ -181,4 +181,4 @@ of B<Ethereal> can be found at B<http://www.ethereal.com>.
 
 =head1 AUTHORS
 
-  Ashok Narayanan          <ashokn@cisco.com>
+  Ashok Narayanan          <ashokn[AT]cisco.com>

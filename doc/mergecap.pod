@@ -129,7 +129,7 @@ I<tcpdump(8)>, I<pcap(3)>, I<ethereal(1)>, I<editcap(1)>
 =head1 NOTES
 
 B<Mergecap> is based heavily upon B<editcap> by Richard Sharpe
-<sharpe@ns.aus.com> and Guy Harris <guy@alum.mit.edu>.
+<sharpe[AT]ns.aus.com> and Guy Harris <guy[AT]alum.mit.edu>.
 
 B<Mergecap> is part of the B<Ethereal> distribution.  The latest version
 of B<Ethereal> can be found at B<http://www.ethereal.com>.
@@ -138,7 +138,7 @@ of B<Ethereal> can be found at B<http://www.ethereal.com>.
 
   Original Author
   -------- ------
-  Scott Renfro             <scott@renfro.org>
+  Scott Renfro             <scott[AT]renfro.org>
 
 
   Contributors
