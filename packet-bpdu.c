@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.49 2004/01/07 21:14:51 guy Exp $
+ * $Id: packet-bpdu.c,v 1.50 2004/01/08 20:05:20 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  *
@@ -347,11 +347,18 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	     * Version 3 length representing an integral number, from 0
 	     * to 64 inclusive, of MSTI Configuration Messages".
 	     *
-	     * It appears that Cisco's C3550 software (C3550-I5Q3L2-M,
-	     * Version 12.1(12c)EA1) uses the latter interpretation.
+	     * According to mail from a member of the stds-802-1@ieee.org
+	     * list, item 14.4.e.3 is just saying that the length must
+	     * not have a value that implies that there's a partial
+	     * MSTI message in the packet, and that it's in units of
+	     * bytes, not messages.
 	     *
-	     * So if the length is too short, we assume it's the latter
-	     * interpretation.
+	     * However, it appears that Cisco's C3550 software
+	     * (C3550-I5Q3L2-M, Version 12.1(12c)EA1) might be sending out
+	     * lengths in units of messages.
+	     *
+	     * So if the length is too short, we assume it's because it's
+	     * in units of messages, not bytes.
 	     */
 	    if (version_3_length < VERSION_3_STATIC_LENGTH - 2) {
 		set_actual_length(tvb, RST_BPDU_SIZE +
