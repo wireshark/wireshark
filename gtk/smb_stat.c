@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.15 2003/09/15 20:37:37 guy Exp $
+ * $Id: smb_stat.c,v 1.16 2003/09/15 22:16:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,7 +36,6 @@
 #include <string.h>
 #include "menu.h"
 #include "../epan/packet_info.h"
-#include "../epan/filesystem.h"
 #include "../tap.h"
 #include "../epan/value_string.h"
 #include "../smb.h"
@@ -69,10 +68,7 @@ smbstat_reset(void *pss)
 	reset_srt_table_data(&ss->smb_srt_table);
 	reset_srt_table_data(&ss->trans2_srt_table);
 	reset_srt_table_data(&ss->nt_trans_srt_table);
-	if (cfile.displayname)
-		snprintf(title, 255, "SMB Service Response Time statistics: %s", cfile.displayname);
-	else
-		snprintf(title, 255, "SMB Service Response Time statistics");
+	snprintf(title, 255, "SMB Service Response Time statistics: %s", cf_get_display_name(&cfile));
 	gtk_window_set_title(GTK_WINDOW(ss->win), title);
 }
 
@@ -159,10 +155,7 @@ gtk_smbstat_init(char *optarg)
 
 	ss->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(ss->win), 550, 600);
-	if (cfile.displayname)
-		snprintf(title, 255, "SMB Service Response Time statistics: %s", cfile.displayname);
-	else
-		snprintf(title, 255, "SMB Service Response Time statistics");
+	snprintf(title, 255, "SMB Service Response Time statistics: %s", cf_get_display_name(&cfile));
 	gtk_window_set_title(GTK_WINDOW(ss->win), title);
 	SIGNAL_CONNECT(ss->win, "destroy", win_destroy_cb, ss);
 

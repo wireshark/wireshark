@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.25 2003/09/15 20:37:36 guy Exp $
+ * $Id: io_stat.c,v 1.26 2003/09/15 22:16:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,7 +42,6 @@
 #include "menu.h"
 #include "epan/epan_dissect.h"
 #include "epan/packet_info.h"
-#include "epan/filesystem.h"
 #include "../tap.h"
 #include "../register.h"
 #include "simple_dialog.h"
@@ -224,10 +223,7 @@ gtk_iostat_reset(void *g)
 	gio->io->last_interval=0xffffffff;
 	gio->io->max_interval=0;
 
-	if (cfile.displayname)
-		snprintf(title, 255, "IO-Stat: %s", cfile.displayname);
-	else
-		snprintf(title, 255, "IO-Stat");
+	snprintf(title, 255, "IO-Stat: %s", cf_get_display_name(&cfile));
 	gtk_window_set_title(GTK_WINDOW(gio->io->window), title);
 }
 
@@ -1646,10 +1642,7 @@ init_io_stat_window(io_stat_t *io)
 	create_ctrl_area(io, hbox);
 
 	gtk_widget_show(io->window);
-	if (cfile.displayname)
-		snprintf(title, 255, "IO-Stat: %s", cfile.displayname);
-	else
-		snprintf(title, 255, "IO-Stat");
+	snprintf(title, 255, "IO-Stat: %s", cf_get_display_name(&cfile));
 	gtk_window_set_title(GTK_WINDOW(io->window), title);
 }
 

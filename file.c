@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.311 2003/09/15 20:37:36 guy Exp $
+ * $Id: file.c,v 1.312 2003/09/15 22:16:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -151,7 +151,6 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   int         err;
   int         fd;
   struct stat cf_stat;
-  gchar      *displayname;
 
   wth = wtap_open_offline(fname, &err, TRUE);
   if (wth == NULL)
@@ -189,17 +188,6 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
 
   /* If it's a temporary capture buffer file, mark it as not saved. */
   cf->user_saved = !is_tempfile;
-
-  /* Set the name we use in various displays */
-  if (!cf->is_tempfile) {
-    /* Get the last component of the file name, and use that. */
-    displayname = get_basename(cf->filename);
-  } else {
-    /* The file we read is a temporary file from a live capture;
-       we don't mention its name. */
-    displayname = "<capture>";
-  }
-  cf->displayname = g_strdup(displayname);
 
   cf->cd_t      = wtap_file_type(cf->wth);
   cf->count     = 0;
@@ -257,10 +245,6 @@ close_cap_file(capture_file *cf)
     g_free(cf->filename);
     cf->filename = NULL;
   }
-  if (cf->displayname != NULL) {
-    g_free(cf->displayname);
-    cf->displayname = NULL;
-  }
   /* ...which means we have nothing to save. */
   cf->user_saved = FALSE;
 
@@ -308,6 +292,7 @@ close_cap_file(capture_file *cf)
 static void
 set_display_filename(capture_file *cf)
 {
+  gchar  *name_ptr;
   size_t  msg_len;
   static const gchar done_fmt_nodrops[] = " File: %s";
   static const gchar done_fmt_drops[] = " File: %s  Drops: %u";
@@ -315,21 +300,22 @@ set_display_filename(capture_file *cf)
   gchar  *win_name_fmt = "%s - Ethereal";
   gchar  *win_name;
 
+  name_ptr = cf_get_display_name(cf);
   if (cf->drops_known) {
-    msg_len = strlen(cf->displayname) + strlen(done_fmt_drops) + 64;
+    msg_len = strlen(name_ptr) + strlen(done_fmt_drops) + 64;
     done_msg = g_malloc(msg_len);
-    snprintf(done_msg, msg_len, done_fmt_drops, cf->displayname, cf->drops);
+    snprintf(done_msg, msg_len, done_fmt_drops, name_ptr, cf->drops);
   } else {
-    msg_len = strlen(cf->displayname) + strlen(done_fmt_nodrops);
+    msg_len = strlen(name_ptr) + strlen(done_fmt_nodrops);
     done_msg = g_malloc(msg_len);
-    snprintf(done_msg, msg_len, done_fmt_nodrops, cf->displayname);
+    snprintf(done_msg, msg_len, done_fmt_nodrops, name_ptr);
   }
   statusbar_push_file_msg(done_msg);
   g_free(done_msg);
 
-  msg_len = strlen(cf->displayname) + strlen(win_name_fmt) + 1;
+  msg_len = strlen(name_ptr) + strlen(win_name_fmt) + 1;
   win_name = g_malloc(msg_len);
-  snprintf(win_name, msg_len, win_name_fmt, cf->displayname);
+  snprintf(win_name, msg_len, win_name_fmt, name_ptr);
   set_main_window_name(win_name);
   g_free(win_name);
 }
@@ -337,7 +323,7 @@ set_display_filename(capture_file *cf)
 read_status_t
 read_cap_file(capture_file *cf, int *err)
 {
-  gchar      *load_msg, *load_fmt = "%s";
+  gchar      *name_ptr, *load_msg, *load_fmt = "%s";
   size_t      msg_len;
   char       *errmsg;
   char        errmsg_errno[1024+1];
@@ -359,10 +345,11 @@ read_cap_file(capture_file *cf, int *err)
 
   cul_bytes=0;
   reset_tap_listeners();
+  name_ptr = get_basename(cf->filename);
 
-  msg_len = strlen(cf->displayname) + strlen(load_fmt) + 2;
+  msg_len = strlen(name_ptr) + strlen(load_fmt) + 2;
   load_msg = g_malloc(msg_len);
-  snprintf(load_msg, msg_len, load_fmt, cf->displayname);
+  snprintf(load_msg, msg_len, load_fmt, name_ptr);
   statusbar_push_file_msg(load_msg);
 
   /* Update the progress bar when it gets to this value. */
@@ -657,6 +644,27 @@ finish_tail_cap_file(capture_file *cf, int *err)
     return (READ_SUCCESS);
 }
 #endif /* HAVE_LIBPCAP */
+
+gchar *
+cf_get_display_name(capture_file *cf)
+{
+  gchar *displayname;
+
+  /* Return a name to use in displays */
+  if (!cf->is_tempfile && cf->filename != NULL) {
+    /* Get the last component of the file name, and use that. */
+    displayname = get_basename(cf->filename);
+  } else {
+    /* The file we read is a temporary file from a live capture;
+       we don't mention its name.
+
+       XXX - "cf->filename" shouldn't be null here, but this might
+       be called from some tap display routines, and those can
+       be called before the file is opened, which is arguably a bug. */
+    displayname = "<capture>";
+  }
+  return displayname;
+}
 
 typedef struct {
   color_filter_t *colorf;
@@ -2155,7 +2163,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
 		gboolean save_marked, guint save_format)
 {
   gchar        *from_filename;
-  gchar        *save_msg, *save_fmt = " Saving: %s...";
+  gchar        *name_ptr, *save_msg, *save_fmt = " Saving: %s...";
   size_t        msg_len;
   int           err;
   gboolean      do_copy;
@@ -2166,9 +2174,10 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
   guint8        pd[65536];
   struct stat   infile, outfile;
 
-  msg_len = strlen(cf->displayname) + strlen(save_fmt) + 2;
+  name_ptr = get_basename(fname);
+  msg_len = strlen(name_ptr) + strlen(save_fmt) + 2;
   save_msg = g_malloc(msg_len);
-  snprintf(save_msg, msg_len, save_fmt, cf->displayname);
+  snprintf(save_msg, msg_len, save_fmt, name_ptr);
   statusbar_push_file_msg(save_msg);
   g_free(save_msg);
 

@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.105 2003/09/12 02:48:20 sahlberg Exp $
+ * $Id: file.h,v 1.106 2003/09/15 22:16:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,6 +49,7 @@ read_status_t continue_tail_cap_file(capture_file *, int, int *);
 read_status_t finish_tail_cap_file(capture_file *, int *);
 /* size_t read_frame_header(capture_file *); */
 gboolean save_cap_file(char *, capture_file *, gboolean, gboolean, guint);
+gchar *cf_get_display_name(capture_file *);
 
 int filter_packets(capture_file *cf, gchar *dfilter);
 void reftime_packets(capture_file *);

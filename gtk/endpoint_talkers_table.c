@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.18 2003/09/15 20:37:36 guy Exp $
+ * $Id: endpoint_talkers_table.c,v 1.19 2003/09/15 22:16:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,7 +36,6 @@
 #include <gtk/gtk.h>
 #include "compat_macros.h"
 #include "epan/packet_info.h"
-#include "epan/filesystem.h"
 #include "epan/to_str.h"
 #include "endpoint_talkers_table.h"
 #include "image/clist_ascend.xpm"
@@ -206,10 +205,7 @@ reset_ett_table_data(endpoints_table *et)
 	guint32 i;
 	char title[256];
 
-	if (cfile.displayname)
-		snprintf(title, 255, "%s Conversations: %s", et->name, cfile.displayname);
-	else
-		snprintf(title, 255, "%s Conversations", et->name);
+	snprintf(title, 255, "%s Conversations: %s", et->name, cf_get_display_name(&cfile));
 	gtk_window_set_title(GTK_WINDOW(et->win), title);
 
 	/* remove all entries from the clist */
@@ -884,10 +880,7 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 	talkers->name=table_name;
 	talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(talkers->win), 750, 400);
-	if (cfile.displayname)
-		snprintf(title, 255, "%s Conversations: %s", table_name, cfile.displayname);
-	else
-		snprintf(title, 255, "%s Conversations", table_name);
+	snprintf(title, 255, "%s Conversations: %s", table_name, cf_get_display_name(&cfile));
 	gtk_window_set_title(GTK_WINDOW(talkers->win), title);
 
 	SIGNAL_CONNECT(talkers->win, "destroy", ett_win_destroy_cb, talkers);

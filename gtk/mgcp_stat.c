@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.11 2003/09/15 20:37:37 guy Exp $
+ * $Id: mgcp_stat.c,v 1.12 2003/09/15 22:16:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,7 +37,6 @@
 #include <string.h>
 #include "menu.h"
 #include "../epan/packet_info.h"
-#include "../epan/filesystem.h"
 #include "../tap.h"
 #include "../epan/value_string.h"
 #include "../register.h"
@@ -110,10 +109,7 @@ mgcpstat_reset(void *pms)
 	ms->req_dup_num=0;
 	ms->rsp_dup_num=0;
 
-	if (cfile.displayname)
-		snprintf(title, 255, "MGCP SRT Statistics: %s", cfile.displayname);
-	else
-		snprintf(title, 255, "MGCP SRT Statistics");
+	snprintf(title, 255, "MGCP SRT Statistics: %s", cf_get_display_name(&cfile));
 	if (! dlg)
 		dlg=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(dlg), title);
@@ -350,10 +346,7 @@ gtk_mgcpstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	}
 
 	dlg=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	if (cfile.displayname)
-		snprintf(title, 255, "MGCP SRT Statistics: %s", cfile.displayname);
-	else
-		snprintf(title, 255, "MGCP SRT Statistics");
+	snprintf(title, 255, "MGCP SRT Statistics: %s", cf_get_display_name(&cfile));
 	gtk_window_set_title(GTK_WINDOW(dlg), title);
 	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
 	dlg_box=gtk_vbox_new(FALSE, 0);

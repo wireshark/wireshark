@@ -1,7 +1,7 @@
 /* cfile.h
  * capture_file definition & GUI-independent manipulation
  *
- * $Id: cfile.h,v 1.4 2003/09/15 20:37:35 guy Exp $
+ * $Id: cfile.h,v 1.5 2003/09/15 22:16:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,7 +47,6 @@ typedef struct _capture_file {
   gchar       *filename;  /* Name of capture file */
   gboolean     is_tempfile; /* Is capture file a temporary file? */
   gboolean     user_saved;/* If capture file is temporary, has it been saved by user yet? */
-  gchar       *displayname; /* Name used when displaying */
   long         f_len;     /* Length of capture file */
   guint16      cd_t;      /* File type of capture file */
   int          lnk_t;     /* Link-layer type with which to save capture */

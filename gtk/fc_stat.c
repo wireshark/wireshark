@@ -1,7 +1,7 @@
 /* fc_stat.c
  * fc_stat   2003 Ronnie Sahlberg
  *
- * $Id: fc_stat.c,v 1.7 2003/09/15 20:37:36 guy Exp $
+ * $Id: fc_stat.c,v 1.8 2003/09/15 22:16:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,7 +38,6 @@
 #include "../epan/packet_info.h"
 #include "../tap.h"
 #include "../epan/value_string.h"
-#include "../epan/filesystem.h"
 #include "../packet-fc.h"
 #include "../register.h"
 #include "../timestats.h"
@@ -65,10 +64,7 @@ fcstat_reset(void *pfc)
 	char title[256];
 
 	reset_srt_table_data(&fc->fc_srt_table);
-	if (cfile.displayname)
-		snprintf(title, 255, "Fibre Channel Service Response Time statistics: %s", cfile.displayname);
-	else
-		snprintf(title, 255, "Fibre Channel Service Response Time statistics");
+	snprintf(title, 255, "Fibre Channel Service Response Time statistics: %s", cf_get_display_name(&cfile));
 	gtk_window_set_title(GTK_WINDOW(fc->win), title);
 }
 
@@ -141,10 +137,7 @@ gtk_fcstat_init(char *optarg)
 
 	fc->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(fc->win), 550, 400);
-	if (cfile.displayname)
-		snprintf(title, 255, "Fibre Channel Service Response Time statistics: %s", cfile.displayname);
-	else
-		snprintf(title, 255, "Fibre Channel Service Response Time statistics");
+	snprintf(title, 255, "Fibre Channel Service Response Time statistics: %s", cf_get_display_name(&cfile));
 	gtk_window_set_title(GTK_WINDOW(fc->win), title);
 	SIGNAL_CONNECT(fc->win, "destroy", win_destroy_cb, fc);
 
