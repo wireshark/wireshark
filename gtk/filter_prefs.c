@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.34 2002/03/05 11:55:59 guy Exp $
+ * $Id: filter_prefs.c,v 1.35 2002/03/16 22:02:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,6 +54,7 @@
 #define E_FILT_FILTER_TE_KEY        "filter_filter_te"
 #define E_FILT_DBLFUNC_KEY          "filter_dblfunc"
 #define E_FILT_DBLARG_KEY           "filter_dblarg"
+#define E_FILT_DBLACTIVATE_KEY      "filter_dblactivate"
 
 typedef struct _filter_cb_data {
   GList     *fl;
@@ -62,7 +63,8 @@ typedef struct _filter_cb_data {
 
 static GtkWidget *filter_dialog_new(GtkWidget *caller, GtkWidget *filter_te,
     filter_list_type_t list, construct_args_t *construct_args);
-static void filter_dlg_dclick(GtkWidget *dummy, gpointer main_w_arg);
+static void filter_dlg_dclick(GtkWidget *dummy, gpointer main_w_arg,
+			      gpointer activate);
 static void filter_dlg_ok_cb(GtkWidget *ok_bt, gpointer dummy);
 static void filter_dlg_apply_cb(GtkWidget *apply_bt, gpointer dummy);
 static void filter_apply(GtkWidget *main_w);
@@ -479,6 +481,10 @@ filter_dialog_new(GtkWidget *caller _U_, GtkWidget *parent_filter_te,
 
 	gtk_object_set_data(GTK_OBJECT(filter_l), E_FILT_DBLFUNC_KEY, filter_dlg_dclick);
 	gtk_object_set_data(GTK_OBJECT(filter_l), E_FILT_DBLARG_KEY, main_w);
+	/* This is a Boolean, but we make it a non-null pointer for TRUE
+	   and a null pointer for FALSE, as object data is a pointer. */
+	gtk_object_set_data(GTK_OBJECT(filter_l), E_FILT_DBLACTIVATE_KEY,
+	    construct_args->activate_on_ok? "" : NULL);
 
 	fl_entry = get_filter_list_first(list);
 	while (fl_entry != NULL) {
@@ -616,7 +622,7 @@ filter_dialog_new(GtkWidget *caller _U_, GtkWidget *parent_filter_te,
 }
 
 static void
-filter_dlg_dclick(GtkWidget *filter_l, gpointer main_w_arg)
+filter_dlg_dclick(GtkWidget *filter_l, gpointer main_w_arg, gpointer activate)
 {
 	GtkWidget  *main_w = GTK_WIDGET(main_w_arg);
 	GtkWidget  *parent_filter_te =
@@ -633,18 +639,29 @@ filter_dlg_dclick(GtkWidget *filter_l, gpointer main_w_arg)
 		sl = GTK_LIST(filter_l)->selection;
 		if (sl != NULL) {
 			/*
-			 * Yes.  Put it in the text entry widget, and then
-			 * activate that widget to cause the filter we
-			 * put there to be applied.
+			 * Yes.  Is there a filter definition for that filter?
 			 */
 			l_item = GTK_OBJECT(sl->data);
 			flp    = (GList *) gtk_object_get_data(l_item, E_FILT_LIST_ITEM_MODEL_KEY);
 			if (flp) {
+				/*
+				 * Yes - put it in the text entry widget.
+				 */
 				filt = (filter_def *) flp->data;
 				gtk_entry_set_text(GTK_ENTRY(parent_filter_te),
 				    filt->strval);
-				gtk_signal_emit_by_name(GTK_OBJECT(parent_filter_te),
-				    "activate");
+
+				/*
+				 * Are we supposed to cause the filter we
+				 * put there to be applied?
+				 */
+				if (activate != NULL) {
+					/*
+					 * Yes - do so.
+					 */
+					gtk_signal_emit_by_name(GTK_OBJECT(parent_filter_te),
+					    "activate");
+				}
 			}
 		}
 	}
@@ -806,13 +823,15 @@ filter_sel_list_button_cb (GtkWidget *widget, GdkEventButton *event,
     GtkWidget *parent = func_data;
     GtkSignalFunc func;
     gpointer func_arg;
+    gpointer func_activate;
 
     if (GTK_IS_LIST_ITEM(widget) && event->type == GDK_2BUTTON_PRESS) {
         func = gtk_object_get_data(GTK_OBJECT(parent), E_FILT_DBLFUNC_KEY);
         func_arg = gtk_object_get_data(GTK_OBJECT(parent), E_FILT_DBLARG_KEY);
+        func_activate = gtk_object_get_data(GTK_OBJECT(parent), E_FILT_DBLACTIVATE_KEY);
 
         if (func)
-            (*func)(func_data, func_arg);
+            (*func)(func_data, func_arg, func_activate);
     }
 
     return FALSE;
