@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.80 2003/02/05 01:36:54 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.81 2003/02/05 06:55:56 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,6 +22,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+/* TODO list:
+
+ - fix up dissect_SYSTEM_TIME() to take a hf value
+ - audit of item lengths
+
+*/
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -139,6 +146,8 @@ static int hf_spoolss_buffer_size = -1;
 static int hf_spoolss_buffer_data = -1;
 static int hf_spoolss_offset = -1;
 static int hf_spoolss_printername = -1;
+static int hf_spoolss_machinename = -1;
+static int hf_spoolss_notifyname = -1;
 static int hf_spoolss_printerdesc = -1;
 static int hf_spoolss_printercomment = -1;
 static int hf_spoolss_servername = -1;
@@ -157,16 +166,6 @@ static int hf_spoolss_printprocessor = -1;
 static int hf_spoolss_parameters = -1;
 static int hf_spoolss_level = -1;
 static int hf_access_required = -1;
-
-/* Print job */
-
-static int hf_spoolss_jobid = -1;
-static int hf_spoolss_jobpriority = -1;
-static int hf_spoolss_jobposition = -1;
-static int hf_spoolss_jobtotalpages = -1;
-static int hf_spoolss_jobpagesprinted = -1;
-static int hf_spoolss_enumjobs_firstjob = -1;
-static int hf_spoolss_enumjobs_numjobs = -1;
 
 /* SYSTEM_TIME */
 
@@ -377,74 +376,6 @@ static const true_false_string tfs_printer_attributes_published = {
 	"Printer is not published in the directory"
 };
 
-static int hf_spoolss_job_status = -1;
-static int hf_spoolss_job_status_paused = -1;
-static int hf_spoolss_job_status_error = -1;
-static int hf_spoolss_job_status_deleting = -1;
-static int hf_spoolss_job_status_spooling = -1;
-static int hf_spoolss_job_status_printing = -1;
-static int hf_spoolss_job_status_offline = -1;
-static int hf_spoolss_job_status_paperout = -1;
-static int hf_spoolss_job_status_printed = -1;
-static int hf_spoolss_job_status_deleted = -1;
-static int hf_spoolss_job_status_blocked = -1;
-static int hf_spoolss_job_status_user_intervention = -1;
-
-static const true_false_string tfs_job_status_paused = {
-	"Job is paused",
-	"Job is not paused"
-};
-
-static const true_false_string tfs_job_status_error = {
-	"Job has an error",
-	"Job is OK"
-};
-
-static const true_false_string tfs_job_status_deleting = {
-	"Job is being deleted",
-	"Job is not being deleted"
-};
-
-static const true_false_string tfs_job_status_spooling = {
-	"Job is being spooled",
-	"Job is not being spooled"
-};
-
-static const true_false_string tfs_job_status_printing = {
-	"Job is being printed",
-	"Job is not being printed"
-};
-
-static const true_false_string tfs_job_status_offline = {
-	"Job is offline",
-	"Job is not offline"
-};
-
-static const true_false_string tfs_job_status_paperout = {
-	"Job is out of paper",
-	"Job is not out of paper"
-};
-
-static const true_false_string tfs_job_status_printed = {
-	"Job has completed printing",
-	"Job has not completed printing"
-};
-
-static const true_false_string tfs_job_status_deleted = {
-	"Job has been deleted",
-	"Job has not been deleted"
-};
-
-static const true_false_string tfs_job_status_blocked = {
-	"Job has been blocked",
-	"Job has not been blocked"
-};
-
-static const true_false_string tfs_job_status_user_intervention = {
-	"User intervention required",
-	"User intervention not required"
-};
-
 /* Setprinter RPC */
 
 static int hf_spoolss_setprinter_cmd = -1;
@@ -560,12 +491,17 @@ static int hf_spoolss_getprinter_unk29 = -1;
 static int hf_spoolss_getprinter_flags = -1;
 static int hf_spoolss_getprinter_priority = -1;
 static int hf_spoolss_getprinter_default_priority = -1;
-static int hf_spoolss_getprinter_start_time = -1;
-static int hf_spoolss_getprinter_end_time = -1;
 static int hf_spoolss_getprinter_jobs = -1;
 static int hf_spoolss_getprinter_averageppm = -1;
 static int hf_spoolss_getprinter_guid = -1;
 static int hf_spoolss_getprinter_action = -1;
+
+/* Times */
+
+static int hf_spoolss_start_time = -1;
+static int hf_spoolss_end_time = -1;
+static int hf_spoolss_elapsed_time = -1;
+
 
 /* Userlevel */
 
@@ -594,8 +530,13 @@ static int hf_spoolss_secdescbuf_maxlen = -1;
 static int hf_spoolss_secdescbuf_undoc = -1;
 static int hf_spoolss_secdescbuf_len = -1;
 
+static int hf_spoolss_enumjobs_firstjob = -1;
+static int hf_spoolss_enumjobs_numjobs = -1;
+
+/****************************************************************************/
+
 /*
- * New hf index values
+ * New hf index values - I'm in the process of doing a bit of a cleanup -tpot
  */
 
 /* Printer data */
@@ -677,6 +618,28 @@ static int hf_devmode_fields_mediatype = -1;
 static int hf_devmode_fields_dithertype = -1;
 static int hf_devmode_fields_panningwidth = -1;
 static int hf_devmode_fields_panningheight = -1;
+
+/* Print job */
+
+static int hf_job_id = -1;
+static int hf_job_priority = -1;
+static int hf_job_position = -1;
+static int hf_job_totalpages = -1;
+static int hf_job_pagesprinted = -1;
+static int hf_job_size = -1;
+
+static int hf_job_status = -1;
+static int hf_job_status_paused = -1;
+static int hf_job_status_error = -1;
+static int hf_job_status_deleting = -1;
+static int hf_job_status_spooling = -1;
+static int hf_job_status_printing = -1;
+static int hf_job_status_offline = -1;
+static int hf_job_status_paperout = -1;
+static int hf_job_status_printed = -1;
+static int hf_job_status_deleted = -1;
+static int hf_job_status_blocked = -1;
+static int hf_job_status_user_intervention = -1;
 
 /****************************************************************************/
 
@@ -1796,6 +1759,7 @@ static int dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint16 driver_extra;
 	gint16 print_quality;
 	guint32 fields;
+	int struct_start = offset;
 
 	if (di->conformant_run)
 		return offset;	
@@ -1961,6 +1925,8 @@ static int dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			tvb, offset, pinfo, subtree, drep,
 			hf_devmode_driver_extra, driver_extra, NULL);
 			
+	proto_item_set_len(item, offset - struct_start);
+
 	return offset;				  
 }
 
@@ -2005,31 +1971,34 @@ dissect_spoolss_relstr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	proto_item *item;
 	proto_tree *subtree;
-	guint32 relstr_offset, relstr_start, relstr_end, relstr_len;
+	guint32 relstr_offset, relstr_start, relstr_end;
 	char *text;
 
-	item = proto_tree_add_string(tree, hf_index, tvb, offset, 4, "");
+	/* Peek ahead to read the string.  We need this for the 
+           proto_tree_add_string() call so filtering will work. */
 
-	subtree = proto_item_add_subtree(item, ett_RELSTR);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
 				    hf_spoolss_offset, &relstr_offset);
-
-	/* A relative offset of zero is a NULL string */
 
 	relstr_start = relstr_offset + struct_start;
 
 	if (relstr_offset)
 		relstr_end = dissect_spoolss_uint16uni(
-			tvb, relstr_start, pinfo, subtree, drep, &text, NULL);
-	else {
-		text = g_strdup("NULL");
-		relstr_end = offset;
-	}
+			tvb, relstr_start, pinfo, NULL, drep, &text, NULL);
+	else 			/* relstr_offset == 0 is a NULL string */
+		text = g_strdup("");
+		
+	/* OK now add the proto item with the string value */
 
-	relstr_len = relstr_end - relstr_start;
+	item = proto_tree_add_string(tree, hf_index, tvb, offset, 4, text);
+	subtree = proto_item_add_subtree(item, ett_RELSTR);
 
-	proto_item_append_text(item, text);
+	dissect_ndr_uint32(tvb, offset - 4, pinfo, subtree, drep,
+			   hf_spoolss_offset, NULL);
+
+	if (relstr_offset)
+		dissect_spoolss_uint16uni(
+			tvb, relstr_start, pinfo, subtree, drep, NULL, NULL);
 
 	if (data)
 		*data = text;
@@ -2260,6 +2229,61 @@ static int dissect_PRINTER_INFO_1(tvbuff_t *tvb, int offset,
 
 /* Job status */
 
+static const true_false_string tfs_job_status_paused = {
+	"Job is paused",
+	"Job is not paused"
+};
+
+static const true_false_string tfs_job_status_error = {
+	"Job has an error",
+	"Job is OK"
+};
+
+static const true_false_string tfs_job_status_deleting = {
+	"Job is being deleted",
+	"Job is not being deleted"
+};
+
+static const true_false_string tfs_job_status_spooling = {
+	"Job is being spooled",
+	"Job is not being spooled"
+};
+
+static const true_false_string tfs_job_status_printing = {
+	"Job is being printed",
+	"Job is not being printed"
+};
+
+static const true_false_string tfs_job_status_offline = {
+	"Job is offline",
+	"Job is not offline"
+};
+
+static const true_false_string tfs_job_status_paperout = {
+	"Job is out of paper",
+	"Job is not out of paper"
+};
+
+static const true_false_string tfs_job_status_printed = {
+	"Job has completed printing",
+	"Job has not completed printing"
+};
+
+static const true_false_string tfs_job_status_deleted = {
+	"Job has been deleted",
+	"Job has not been deleted"
+};
+
+static const true_false_string tfs_job_status_blocked = {
+	"Job has been blocked",
+	"Job has not been blocked"
+};
+
+static const true_false_string tfs_job_status_user_intervention = {
+	"User intervention required",
+	"User intervention not required"
+};
+
 static gint ett_job_status = -1;
 
 static int
@@ -2271,7 +2295,7 @@ dissect_job_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 status;
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
-				    hf_spoolss_job_status, &status);
+				    hf_job_status, &status);
 
 	item = proto_tree_add_text(tree, tvb, offset - 4, 4,
 				   "Status: 0x%08x", status);
@@ -2279,48 +2303,38 @@ dissect_job_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	subtree = proto_item_add_subtree(item, ett_job_status);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_job_status_user_intervention,
-		tvb, offset - 4, 4, status);
+		subtree, hf_job_status_user_intervention, tvb, offset - 4, 4, 
+		status);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_job_status_blocked,
-		tvb, offset - 4, 4, status);
+		subtree, hf_job_status_blocked, tvb, offset - 4, 4, status);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_job_status_deleted,
-		tvb, offset - 4, 4, status);
+		subtree, hf_job_status_deleted, tvb, offset - 4, 4, status);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_job_status_printed,
-		tvb, offset - 4, 4, status);
+		subtree, hf_job_status_printed, tvb, offset - 4, 4, status);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_job_status_paperout,
-		tvb, offset - 4, 4, status);
+		subtree, hf_job_status_paperout, tvb, offset - 4, 4, status);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_job_status_offline,
-		tvb, offset - 4, 4, status);
+		subtree, hf_job_status_offline, tvb, offset - 4, 4, status);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_job_status_printing,
-		tvb, offset - 4, 4, status);
+		subtree, hf_job_status_printing, tvb, offset - 4, 4, status);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_job_status_spooling,
-		tvb, offset - 4, 4, status);
+		subtree, hf_job_status_spooling, tvb, offset - 4, 4, status);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_job_status_deleting,
-		tvb, offset - 4, 4, status);
+		subtree, hf_job_status_deleting, tvb, offset - 4, 4, status);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_job_status_error,
-		tvb, offset - 4, 4, status);
+		subtree, hf_job_status_error, tvb, offset - 4, 4, status);
 
 	proto_tree_add_boolean(
-		subtree, hf_spoolss_job_status_paused,
-		tvb, offset - 4, 4, status);
+		subtree, hf_job_status_paused, tvb, offset - 4, 4, status);
 
 	return offset;
 }
@@ -2449,8 +2463,7 @@ static int dissect_PRINTER_INFO_2(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, NULL, drep, hf_spoolss_offset, 
 		&devmode_offset);
 
-	dissect_DEVMODE(tvb, devmode_offset - 4, 
-			pinfo, tree, drep);
+	dissect_DEVMODE(tvb, devmode_offset - 4, pinfo, tree, drep);
 
 	offset = dissect_spoolss_relstr(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_sepfile,
@@ -2499,12 +2512,10 @@ static int dissect_PRINTER_INFO_2(tvbuff_t *tvb, int offset,
 		hf_spoolss_getprinter_default_priority, NULL);
 
 	offset = dissect_ndr_uint32(
-		tvb, offset, pinfo, NULL, drep, 
-		hf_spoolss_getprinter_start_time, NULL);
+		tvb, offset, pinfo, NULL, drep, hf_spoolss_start_time, NULL);
 
 	offset = dissect_ndr_uint32(
-		tvb, offset, pinfo, NULL, drep, hf_spoolss_getprinter_end_time,
-		NULL);
+		tvb, offset, pinfo, NULL, drep, hf_spoolss_end_time, NULL);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
@@ -4467,7 +4478,7 @@ dissect_spoolss_JOB_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	subtree = proto_item_add_subtree(item, ett_JOB_INFO_1);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
-				    hf_spoolss_jobid, NULL);
+				    hf_job_id, NULL);
 
 	offset = dissect_spoolss_relstr(
 		tvb, offset, pinfo, subtree, drep, hf_spoolss_printername,
@@ -4499,18 +4510,132 @@ dissect_spoolss_JOB_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_job_status(tvb, offset, pinfo, subtree, drep);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
-				    hf_spoolss_jobpriority, NULL);
+				    hf_job_priority, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
-				    hf_spoolss_jobposition, NULL);
+				    hf_job_position, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
-				    hf_spoolss_jobtotalpages, NULL);
+				    hf_job_totalpages, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
-				    hf_spoolss_jobpagesprinted, NULL);
+				    hf_job_pagesprinted, NULL);
 
 	offset = dissect_SYSTEM_TIME(tvb, offset, pinfo, subtree, drep);
+
+	proto_item_set_len(item, offset - struct_start);
+
+	return offset;
+}
+
+/*
+ * JOB_INFO_2
+ */
+
+static gint ett_JOB_INFO_2;
+
+static int
+dissect_spoolss_JOB_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			   proto_tree *tree, char *drep)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	int struct_start = offset;
+	char *document_name;
+	guint32 devmode_offset, secdesc_offset;
+
+	item = proto_tree_add_text(tree, tvb, offset, 0, "JOB_INFO_2");
+
+	subtree = proto_item_add_subtree(item, ett_JOB_INFO_2);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
+				    hf_job_id, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_printername,
+		struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_machinename,
+		struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_username,
+		struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_documentname,
+		struct_start, &document_name);
+
+	proto_item_append_text(item, ": %s", document_name);
+	g_free(document_name);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_notifyname,
+		struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_datatype,
+		struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_printprocessor,
+		struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_parameters,
+		struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_drivername,
+		struct_start, NULL);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, NULL, drep, hf_spoolss_offset, 
+		&devmode_offset);
+
+	dissect_DEVMODE(
+		tvb, devmode_offset - 4 + struct_start, pinfo, subtree, drep);
+
+	offset = dissect_spoolss_relstr(
+		tvb, offset, pinfo, subtree, drep, hf_spoolss_textstatus,
+		struct_start, NULL);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, NULL, drep, hf_spoolss_offset,
+		&secdesc_offset);
+
+	dissect_nt_sec_desc(
+		tvb, secdesc_offset, subtree, 
+		tvb_length_remaining(tvb, secdesc_offset));
+
+	offset = dissect_job_status(tvb, offset, pinfo, subtree, drep);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep, hf_job_priority, NULL);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep, hf_job_position, NULL);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, NULL, drep, hf_spoolss_start_time, NULL);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, NULL, drep, hf_spoolss_end_time, NULL);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep, hf_job_totalpages, NULL);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep, hf_job_size, NULL);
+
+	offset = dissect_SYSTEM_TIME(tvb, offset, pinfo, subtree, drep);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, NULL, drep, hf_spoolss_elapsed_time, NULL);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, subtree, drep, hf_job_pagesprinted, NULL);
 
 	proto_item_set_len(item, offset - struct_start);
 
@@ -4586,13 +4711,17 @@ static int SpoolssEnumJobs_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		switch(level) {
 		case 1:
 			buffer_offset = dissect_spoolss_JOB_INFO_1(
-				buffer.tvb, buffer_offset, pinfo,
+				buffer.tvb, buffer_offset, pinfo, 
 				buffer.tree, drep);
 			break;
 		case 2:
+			buffer_offset = dissect_spoolss_JOB_INFO_2(
+				buffer.tvb, buffer_offset, pinfo, 
+				buffer.tree, drep);
+			break;
 		default:
 			proto_tree_add_text(
-				buffer.tree, buffer.tvb, buffer_offset, -1,
+				buffer.tree, buffer.tvb, 0, -1,
 				"[Unknown info level %d]", level);
 			goto done;
 		}
@@ -4641,7 +4770,7 @@ static int SpoolssSetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				       FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_jobid, &jobid);
+				    hf_job_id, &jobid);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_level, NULL);
@@ -4691,7 +4820,7 @@ static int SpoolssGetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				       FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_jobid, &jobid);
+				    hf_job_id, &jobid);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_level, &level);
@@ -4986,7 +5115,7 @@ static int SpoolssStartDocPrinter_r(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_spoolss_jobid, NULL);
+				    hf_job_id, NULL);
 
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 				  hf_spoolss_rc, NULL);
@@ -6482,6 +6611,12 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_spoolss_printername,
 		  { "Printer name", "spoolss.printername", FT_STRING, 
 		    BASE_NONE, NULL, 0, "Printer name", HFILL }},
+		{ &hf_spoolss_machinename,
+		  { "Machine name", "spoolss.machinename", FT_STRING, 
+		    BASE_NONE, NULL, 0, "Machine name", HFILL }},
+		{ &hf_spoolss_notifyname,
+		  { "Notify name", "spoolss.notifyname", FT_STRING, 
+		    BASE_NONE, NULL, 0, "Notify name", HFILL }},
 		{ &hf_spoolss_printerdesc,
 		  { "Printer description", "spoolss.printerdesc", FT_STRING, 
 		    BASE_NONE, NULL, 0, "Printer description", HFILL }},
@@ -6545,84 +6680,6 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_spoolss_level,
 		  { "Info level", "spoolss.enumjobs.level", FT_UINT32, BASE_DEC,
 		    NULL, 0x0, "Info level", HFILL }},
-
-		/* Print jobs */
-
-		{ &hf_spoolss_jobid,
-		  { "Job ID", "spoolss.job.id", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Job identification number", HFILL }},
-
-		{ &hf_spoolss_job_status,
-		  { "Job status", "spoolss.job.status", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Job status", HFILL }},
-
-		{ &hf_spoolss_job_status_paused,
-		  { "Paused", "spoolss.job.status.paused", FT_BOOLEAN, 32,
-		    TFS(&tfs_job_status_paused), JOB_STATUS_PAUSED,
-		    "Paused", HFILL }},
-
-		{ &hf_spoolss_job_status_error,
-		  { "Error", "spoolss.job.status.error", FT_BOOLEAN, 32,
-		    TFS(&tfs_job_status_error), JOB_STATUS_ERROR,
-		    "Error", HFILL }},
-
-		{ &hf_spoolss_job_status_deleting,
-		  { "Deleting", "spoolss.job.status.deleting", FT_BOOLEAN, 32,
-		    TFS(&tfs_job_status_deleting), JOB_STATUS_DELETING,
-		    "Deleting", HFILL }},
-
-		{ &hf_spoolss_job_status_spooling,
-		  { "Spooling", "spoolss.job.status.spooling", FT_BOOLEAN, 32,
-		    TFS(&tfs_job_status_spooling), JOB_STATUS_SPOOLING,
-		    "Spooling", HFILL }},
-
-		{ &hf_spoolss_job_status_printing,
-		  { "Printing", "spoolss.job.status.printing", FT_BOOLEAN, 32,
-		    TFS(&tfs_job_status_printing), JOB_STATUS_PRINTING,
-		    "Printing", HFILL }},
-
-		{ &hf_spoolss_job_status_offline,
-		  { "Offline", "spoolss.job.status.offline", FT_BOOLEAN, 32,
-		    TFS(&tfs_job_status_offline), JOB_STATUS_OFFLINE,
-		    "Offline", HFILL }},
-
-		{ &hf_spoolss_job_status_paperout,
-		  { "Paperout", "spoolss.job.status.paperout", FT_BOOLEAN, 32,
-		    TFS(&tfs_job_status_paperout), JOB_STATUS_PAPEROUT,
-		    "Paperout", HFILL }},
-
-		{ &hf_spoolss_job_status_printed,
-		  { "Printed", "spoolss.job.status.printed", FT_BOOLEAN, 32,
-		    TFS(&tfs_job_status_printed), JOB_STATUS_PRINTED,
-		    "Printed", HFILL }},
-
-		{ &hf_spoolss_job_status_deleted,
-		  { "Deleted", "spoolss.job.status.deleted", FT_BOOLEAN, 32,
-		    TFS(&tfs_job_status_deleted), JOB_STATUS_DELETED,
-		    "Deleted", HFILL }},
-
-		{ &hf_spoolss_job_status_blocked,
-		  { "Blocked", "spoolss.job.status.blocked", FT_BOOLEAN, 32,
-		    TFS(&tfs_job_status_blocked), JOB_STATUS_BLOCKED,
-		    "Blocked", HFILL }},
-
-		{ &hf_spoolss_job_status_user_intervention,
-		  { "User intervention", "spoolss.job.status.user_intervention", FT_BOOLEAN, 32,
-		    TFS(&tfs_job_status_user_intervention), JOB_STATUS_USER_INTERVENTION,
-		    "User intervention", HFILL }},
-
-		{ &hf_spoolss_jobpriority,
-		  { "Job priority", "spoolss.job.priority", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Job priority", HFILL }},
-		{ &hf_spoolss_jobposition,
-		  { "Job position", "spoolss.job.position", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Job position", HFILL }},
-		{ &hf_spoolss_jobtotalpages,
-		  { "Job total pages", "spoolss.job.totalpages", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Job total pages", HFILL }},
-		{ &hf_spoolss_jobpagesprinted,
-		  { "Job pages printed", "spoolss.job.pagesprinted", FT_UINT32, BASE_DEC,
-		    NULL, 0x0, "Job pages printed", HFILL }},
 
 		/* SYSTEM_TIME */
 
@@ -7448,6 +7505,18 @@ proto_register_dcerpc_spoolss(void)
 		  { "Length", "secdescbuf.len",
 		    FT_UINT32, BASE_DEC, NULL, 0, "Length", HFILL }},
 
+		{ &hf_spoolss_start_time,
+		  { "Start time", "spoolss.start_time",
+		    FT_UINT32, BASE_DEC, NULL, 0, "Start time", HFILL }},
+
+		{ &hf_spoolss_end_time,
+		  { "End time", "spoolss.end_time",
+		    FT_UINT32, BASE_DEC, NULL, 0, "End time", HFILL }},
+
+		{ &hf_spoolss_elapsed_time,
+		  { "Elapsed time", "spoolss.elapsed_time",
+		    FT_UINT32, BASE_DEC, NULL, 0, "Elapsed time", HFILL }},
+
 		/* 
                  * New hf index values 
                  */
@@ -7838,6 +7907,93 @@ proto_register_dcerpc_spoolss(void)
 		    NULL, 0x0, "Buffer size needed for printerdata data", 
 		    HFILL }},
 
+		/* Print jobs */
+
+		{ &hf_job_id,
+		  { "Job ID", "spoolss.job.id", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, "Job identification number", HFILL }},
+
+		{ &hf_job_status,
+		  { "Job status", "spoolss.job.status", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, "Job status", HFILL }},
+
+		{ &hf_job_status_paused,
+		  { "Paused", "spoolss.job.status.paused", FT_BOOLEAN, 32,
+		    TFS(&tfs_job_status_paused), JOB_STATUS_PAUSED,
+		    "Paused", HFILL }},
+
+		{ &hf_job_status_error,
+		  { "Error", "spoolss.job.status.error", FT_BOOLEAN, 32,
+		    TFS(&tfs_job_status_error), JOB_STATUS_ERROR,
+		    "Error", HFILL }},
+
+		{ &hf_job_status_deleting,
+		  { "Deleting", "spoolss.job.status.deleting", FT_BOOLEAN, 32,
+		    TFS(&tfs_job_status_deleting), JOB_STATUS_DELETING,
+		    "Deleting", HFILL }},
+
+		{ &hf_job_status_spooling,
+		  { "Spooling", "spoolss.job.status.spooling", FT_BOOLEAN, 32,
+		    TFS(&tfs_job_status_spooling), JOB_STATUS_SPOOLING,
+		    "Spooling", HFILL }},
+
+		{ &hf_job_status_printing,
+		  { "Printing", "spoolss.job.status.printing", FT_BOOLEAN, 32,
+		    TFS(&tfs_job_status_printing), JOB_STATUS_PRINTING,
+		    "Printing", HFILL }},
+
+		{ &hf_job_status_offline,
+		  { "Offline", "spoolss.job.status.offline", FT_BOOLEAN, 32,
+		    TFS(&tfs_job_status_offline), JOB_STATUS_OFFLINE,
+		    "Offline", HFILL }},
+
+		{ &hf_job_status_paperout,
+		  { "Paperout", "spoolss.job.status.paperout", FT_BOOLEAN, 32,
+		    TFS(&tfs_job_status_paperout), JOB_STATUS_PAPEROUT,
+		    "Paperout", HFILL }},
+
+		{ &hf_job_status_printed,
+		  { "Printed", "spoolss.job.status.printed", FT_BOOLEAN, 32,
+		    TFS(&tfs_job_status_printed), JOB_STATUS_PRINTED,
+		    "Printed", HFILL }},
+
+		{ &hf_job_status_deleted,
+		  { "Deleted", "spoolss.job.status.deleted", FT_BOOLEAN, 32,
+		    TFS(&tfs_job_status_deleted), JOB_STATUS_DELETED,
+		    "Deleted", HFILL }},
+
+		{ &hf_job_status_blocked,
+		  { "Blocked", "spoolss.job.status.blocked", FT_BOOLEAN, 32,
+		    TFS(&tfs_job_status_blocked), JOB_STATUS_BLOCKED,
+		    "Blocked", HFILL }},
+
+		{ &hf_job_status_user_intervention,
+		  { "User intervention", 
+		    "spoolss.job.status.user_intervention", FT_BOOLEAN, 32,
+		    TFS(&tfs_job_status_user_intervention), 
+		    JOB_STATUS_USER_INTERVENTION, "User intervention", 
+		    HFILL }},
+
+		{ &hf_job_priority,
+		  { "Job priority", "spoolss.job.priority", FT_UINT32, 
+		    BASE_DEC, NULL, 0x0, "Job priority", HFILL }},
+
+		{ &hf_job_position,
+		  { "Job position", "spoolss.job.position", FT_UINT32, 
+		    BASE_DEC, NULL, 0x0, "Job position", HFILL }},
+
+		{ &hf_job_totalpages,
+		  { "Job total pages", "spoolss.job.totalpages", FT_UINT32, 
+		    BASE_DEC, NULL, 0x0, "Job total pages", HFILL }},
+
+		{ &hf_job_pagesprinted,
+		  { "Job pages printed", "spoolss.job.pagesprinted", 
+		    FT_UINT32, BASE_DEC, NULL, 0x0, "Job pages printed", 
+		    HFILL }},
+
+		{ &hf_job_size,
+		  { "Job size", "spoolss.job.size", FT_UINT32, BASE_DEC, 
+		    NULL, 0x0, "Job size", HFILL }},
 	};
 
         static gint *ett[] = {
@@ -7862,6 +8018,7 @@ proto_register_dcerpc_spoolss(void)
 		&ett_FORM_CTR,
 		&ett_FORM_1,
 		&ett_JOB_INFO_1,
+		&ett_JOB_INFO_2,
 		&ett_SEC_DESC_BUF,
 		&ett_SYSTEM_TIME,
 		&ett_DOC_INFO_1,
