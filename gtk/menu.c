@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.73 2002/11/11 15:39:05 oabad Exp $
+ * $Id: menu.c,v 1.74 2002/11/11 18:46:16 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,6 +62,7 @@
 #include "../packet-dcerpc.h"
 #include "dcerpc_stat.h"
 #include "compat_macros.h"
+#include "gtkglobals.h"
 
 GtkWidget *popup_menu_object;
 
@@ -555,47 +556,65 @@ set_menu_object_data (gchar *path, gchar *key, gpointer data) {
 gint
 popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
-	GtkWidget *menu = NULL;
-	GdkEventButton *event_button = NULL;
-	GtkCList *packet_list = NULL;
-	gint row, column;
+    GtkWidget *menu = NULL;
+    GdkEventButton *event_button = NULL;
+    GtkCList *packet_list = NULL;
+    gint row, column;
 
-	if(widget == NULL || event == NULL || data == NULL) {
-		return FALSE;
-	}
+    if(widget == NULL || event == NULL || data == NULL) {
+        return FALSE;
+    }
 
-	/*
-	 * If we ever want to make the menu differ based on what row
-	 * and/or column we're above, we'd use "gtk_clist_get_selection_info()"
-	 * to find the row and column number for the coordinates; a CTree is,
-	 * I guess, like a CList with one column(?) and the expander widget
-	 * as a pixmap.
-	 */
-	/* Check if we are on packet_list object */
-	if (widget == OBJECT_GET_DATA(popup_menu_object, E_MPACKET_LIST_KEY)) {
-	  packet_list=GTK_CLIST(widget);
-	  if (gtk_clist_get_selection_info(GTK_CLIST(packet_list),
-	      ((GdkEventButton *)event)->x,
-	      ((GdkEventButton *)event)->y,&row,&column)) {
-	    OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_ROW_KEY,
+    /*
+     * If we ever want to make the menu differ based on what row
+     * and/or column we're above, we'd use "gtk_clist_get_selection_info()"
+     * to find the row and column number for the coordinates; a CTree is,
+     * I guess, like a CList with one column(?) and the expander widget
+     * as a pixmap.
+     */
+    /* Check if we are on packet_list object */
+    if (widget == OBJECT_GET_DATA(popup_menu_object, E_MPACKET_LIST_KEY)) {
+        packet_list=GTK_CLIST(widget);
+        if (gtk_clist_get_selection_info(GTK_CLIST(packet_list),
+                                         ((GdkEventButton *)event)->x,
+                                         ((GdkEventButton *)event)->y,&row,&column)) {
+            OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_ROW_KEY,
                             GINT_TO_POINTER(row));
-	    OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_COL_KEY,
+            OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_COL_KEY,
                             GINT_TO_POINTER(column));
-	  }
-	}
-	menu = (GtkWidget *)data;
-	if(event->type == GDK_BUTTON_PRESS) {
-		event_button = (GdkEventButton *) event;
+        }
+    }
+    menu = (GtkWidget *)data;
+    if(event->type == GDK_BUTTON_PRESS) {
+        event_button = (GdkEventButton *) event;
 
-		if(event_button->button == 3) {
-			gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL,
-                                       event_button->button,
-                                       event_button->time);
-			SIGNAL_EMIT_STOP_BY_NAME(widget, "button_press_event");
-			return TRUE;
-		}
-	}
-	return FALSE;
+        if(event_button->button == 3) {
+            gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL,
+                           event_button->button,
+                           event_button->time);
+            SIGNAL_EMIT_STOP_BY_NAME(widget, "button_press_event");
+            return TRUE;
+        }
+    }
+#if GTK_MAJOR_VERSION >= 2
+    if (widget == tree_view && event->type == GDK_2BUTTON_PRESS) {
+        GtkTreePath      *path;
+
+        if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget),
+                                          ((GdkEventButton *)event)->x,
+                                          ((GdkEventButton *)event)->y,
+                                          &path, NULL, NULL, NULL))
+        {
+            if (gtk_tree_view_row_expanded(GTK_TREE_VIEW(widget), path))
+                gtk_tree_view_collapse_row(GTK_TREE_VIEW(widget), path);
+            else
+                gtk_tree_view_expand_row(GTK_TREE_VIEW(widget), path,
+                                         FALSE);
+            gtk_tree_path_free(path);
+        }
+    }
+#endif
+    return FALSE;
 }
 
 /* Enable or disable menu items based on whether you have a capture file

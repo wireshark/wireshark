@@ -66,6 +66,7 @@ Remaining problems :
 
 - double click on item in protocol tree doesn't expand or collapse its
   subtree ;
+  ==> Done
 
 - the spacing between lines in the tree view is too big ;
 
