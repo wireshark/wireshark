@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.71 1999/09/23 07:57:16 guy Exp $
+ * $Id: capture.c,v 1.72 1999/09/25 02:02:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -101,7 +101,7 @@ void
 do_capture(void)
 {
   char tmpname[128+1];
-  char c;
+  u_char c;
   int i;
   guint byte_count;
   char *msg;
