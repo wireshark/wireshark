@@ -2,7 +2,8 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2004, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.97 2004/06/02 06:50:28 guy Exp $
+ *
+ * $Id: packet-nfs.c,v 1.98 2004/06/03 04:13:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6757,9 +6758,9 @@ dissect_nfs_change_info4(tvbuff_t *tvb, int offset,
 		if (newftree) {
 			offset = dissect_rpc_bool(tvb, newftree,
 				hf_nfs_change_info4_atomic, offset);
-			offset = dissect_rpc_uint64(tvb, tree, hf_nfs_changeid4_before,
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_changeid4_before,
 				offset);
-			offset = dissect_rpc_uint64(tvb, tree, hf_nfs_changeid4_after,
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_changeid4_after,
 				offset);
 		}
 	}
@@ -6799,6 +6800,8 @@ static const value_string names_open4_result_flags[] = {
 	{ OPEN4_RESULT_MLOCK, "OPEN4_RESULT_MLOCK" },
 #define OPEN4_RESULT_CONFIRM 0x00000002
 	{ OPEN4_RESULT_CONFIRM, "OPEN4_RESULT_CONFIRM" },
+#define OPEN4_RESULT_LOCKTYPE_POSIX 0x00000004
+	{ OPEN4_RESULT_LOCKTYPE_POSIX, "OPEN4_RESULT_LOCKTYPE_POSIX" },
 	{ 0, NULL }
 };
 
@@ -6968,8 +6971,8 @@ dissect_nfs_open_delegation4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item *fitem = NULL;
 
 	delegation_type = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_nfs_open_delegation_type4, tvb, offset+0,
-		4, delegation_type);
+	fitem = proto_tree_add_uint(tree, hf_nfs_open_delegation_type4, tvb, 
+		offset+0, 4, delegation_type);
 	offset += 4;
 
 	if (fitem) {
@@ -8345,11 +8348,11 @@ proto_register_nfs(void)
 			NULL, 0, "nfs.changeid4", HFILL }},
 
 		{ &hf_nfs_changeid4_before, {
-			"changeid", "nfs.changeid4.before", FT_UINT64, BASE_DEC,
+			"changeid (before)", "nfs.changeid4.before", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.changeid4.before", HFILL }},
 
 		{ &hf_nfs_changeid4_after, {
-			"changeid", "nfs.changeid4.after", FT_UINT64, BASE_DEC,
+			"changeid (after)", "nfs.changeid4.after", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.changeid4.after", HFILL }},
 
 		{ &hf_nfs_nfstime4_seconds, {
