@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.33 1999/12/04 08:32:11 guy Exp $
+ * $Id: file.c,v 1.34 1999/12/04 08:51:52 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -250,18 +250,18 @@ const static struct file_type_info {
 	  NULL, NULL }
 };
 
-const char *wtap_file_type_string(wtap *wth)
+const char *wtap_file_type_string(int filetype)
 {
-	if (wth->file_type < 0 || wth->file_type >= WTAP_NUM_ENCAP_TYPES) {
-		g_error("Unknown capture file type %d", wth->file_type);
+	if (filetype < 0 || filetype >= WTAP_NUM_FILE_TYPES) {
+		g_error("Unknown capture file type %d", filetype);
 		return NULL;
 	} else
-		return dump_open_table[wth->file_type].name;
+		return dump_open_table[filetype].name;
 }
 
 gboolean wtap_can_open(int filetype)
 {
-	if (filetype < 0 || filetype >= WTAP_NUM_ENCAP_TYPES
+	if (filetype < 0 || filetype >= WTAP_NUM_FILE_TYPES
 	    || dump_open_table[filetype].dump_open == NULL)
 		return FALSE;
 
@@ -270,7 +270,7 @@ gboolean wtap_can_open(int filetype)
 
 gboolean wtap_can_dump_encap(int filetype, int encap)
 {
-	if (filetype < 0 || filetype >= WTAP_NUM_ENCAP_TYPES
+	if (filetype < 0 || filetype >= WTAP_NUM_FILE_TYPES
 	    || dump_open_table[filetype].can_dump_encap == NULL)
 		return FALSE;
 
@@ -320,7 +320,7 @@ static wtap_dumper* wtap_dump_open_common(FILE *fh, int filetype, int encap,
 {
 	wtap_dumper *wdh;
 
-	if (filetype < 0 || filetype >= WTAP_NUM_ENCAP_TYPES
+	if (filetype < 0 || filetype >= WTAP_NUM_FILE_TYPES
 	    || dump_open_table[filetype].dump_open == NULL) {
 		/* Invalid type, or type we don't know how to write. */
 		*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
