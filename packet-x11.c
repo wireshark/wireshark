@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.36 2002/04/14 22:08:51 guy Exp $
+ * $Id: packet-x11.c,v 1.37 2002/04/14 22:50:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -607,13 +607,6 @@ static const value_string zero_is_none_vals[] = {
 static int next_offset = 0; /* Offset of the next request in the frame */    
 static gboolean little_endian = TRUE;
 
-static struct maskStruct {
-      guint32 _value;
-      int _offset;
-      int _zone;
-      proto_tree *_tree;
-} lastMask = { 0, 0, 0, NULL };
-
 /************************************************************************
  ***                                                                  ***
  ***           F I E L D   D E C O D I N G   M A C R O S              ***
@@ -631,9 +624,9 @@ static struct maskStruct {
 #define BITFIELD(TYPE, position, name) {\
   int unused;\
   int save = *offsetp;\
-  proto_tree_add_item(lastMask._tree, hf_x11_##position##_##name, tvb, lastMask._offset, \
-                      lastMask._zone, little_endian); \
-  if (lastMask._value & proto_registrar_get_nth(hf_x11_##position##_##name) -> bitmask) {\
+  proto_tree_add_item(bitmask_tree, hf_x11_##position##_##name, tvb, bitmask_offset, \
+                      bitmask_size, little_endian); \
+  if (bitmask_value & proto_registrar_get_nth(hf_x11_##position##_##name) -> bitmask) {\
        TYPE(name);\
        unused = save + 4 - *offsetp;\
        if (unused)\
@@ -643,17 +636,32 @@ static struct maskStruct {
 }
 
 #define FLAG(position, name) {\
-       proto_tree_add_boolean(lastMask._tree, hf_x11_##position##_mask##_##name, tvb, lastMask._offset, lastMask._zone, lastMask._value); }
+       proto_tree_add_boolean(bitmask_tree, hf_x11_##position##_mask##_##name, tvb, bitmask_offset, bitmask_size, bitmask_value); }
 
 #define FLAG_IF_NONZERO(position, name) {\
-  if (lastMask._value & proto_registrar_get_nth(hf_x11_##position##_mask##_##name) -> bitmask)\
-       proto_tree_add_boolean(lastMask._tree, hf_x11_##position##_mask##_##name, tvb, lastMask._offset, lastMask._zone, lastMask._value); }
+  if (bitmask_value & proto_registrar_get_nth(hf_x11_##position##_mask##_##name) -> bitmask)\
+       proto_tree_add_boolean(bitmask_tree, hf_x11_##position##_mask##_##name, tvb, bitmask_offset, bitmask_size, bitmask_value); }
 
 #define ATOM(name)     { atom(tvb, offsetp, t, hf_x11_##name); }
 #define BITGRAVITY(name) { gravity(tvb, offsetp, t, #name, hf_x11_##name, "Forget"); }
-#define BITMASK8(name) { bitmask(tvb, offsetp, t, hf_x11_##name##_mask, ett_x11_##name##_mask, 1); }
-#define BITMASK16(name) { bitmask(tvb, offsetp, t, hf_x11_##name##_mask, ett_x11_##name##_mask, 2); }
-#define BITMASK32(name)  { bitmask(tvb, offsetp, t, hf_x11_##name##_mask, ett_x11_##name##_mask, 4); }
+#define BITMASK(name, size) {\
+      proto_item *ti; \
+      guint32 bitmask_value; \
+      int bitmask_offset; \
+      int bitmask_size; \
+      proto_tree *bitmask_tree; \
+      bitmask_value = ((size == 1) ? VALUE8(tvb, *offsetp) : \
+		       ((size == 2) ? VALUE16(tvb, *offsetp) : \
+				      VALUE32(tvb, *offsetp))); \
+      bitmask_offset = *offsetp; \
+      bitmask_size = size; \
+      ti = proto_tree_add_uint(t, hf_x11_##name##_mask, tvb, *offsetp, size, bitmask_value); \
+      bitmask_tree = proto_item_add_subtree(ti, ett_x11_##name##_mask); \
+      *offsetp += size;
+#define ENDBITMASK	}
+#define BITMASK8(name)	BITMASK(name, 1);
+#define BITMASK16(name)	BITMASK(name, 2);
+#define BITMASK32(name) BITMASK(name, 4);
 #define BOOL(name)     (add_boolean(tvb, offsetp, t, hf_x11_##name))
 #define BUTTON(name)   { FIELD8(name); }
 #define CARD8(name)    { FIELD8(name); }
@@ -730,19 +738,6 @@ static void atom(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf)
       proto_tree_add_uint_format(t, hf, tvb, *offsetp, 4, v, "%s: %u (%s)", 
 				 proto_registrar_get_nth(hf) -> name, v, interpretation);
       *offsetp += 4;
-}
-
-static void bitmask(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf, int ett,
-    int size)
-{
-      proto_item *ti;
-
-      lastMask._value = size == 2 ? VALUE16(tvb, *offsetp) : VALUE32(tvb, *offsetp);
-      lastMask._offset = *offsetp;
-      lastMask._zone = size;
-      ti = proto_tree_add_uint(t, hf, tvb, *offsetp, size, lastMask._value);
-      lastMask._tree = proto_item_add_subtree(ti, ett);
-      *offsetp += size; 
 }
 
 static guint32 add_boolean(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf)
@@ -1361,6 +1356,7 @@ static void gcAttributes(tvbuff_t *tvb, int *offsetp, proto_tree *t)
       BITFIELD(CARD16, gc_value_mask, dash_offset);
       BITFIELD(CARD8,  gc_value_mask, gc_dashes);
       BITFIELD(ENUM8,  gc_value_mask, arc_mode);
+      ENDBITMASK;
 }
 
 static void gcMask(tvbuff_t *tvb, int *offsetp, proto_tree *t)
@@ -1389,6 +1385,7 @@ static void gcMask(tvbuff_t *tvb, int *offsetp, proto_tree *t)
       FLAG(gc_value, dash_offset);
       FLAG(gc_value, gc_dashes);
       FLAG(gc_value, arc_mode);
+      ENDBITMASK;
 }
 
 static guint32 requestLength(tvbuff_t *tvb, int *offsetp, proto_tree *t)
@@ -1401,7 +1398,6 @@ static guint32 requestLength(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 
 static void setOfEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 {
-      struct maskStruct save = lastMask;
       BITMASK32(event);
       FLAG(event, KeyPress);
       FLAG(event, KeyRelease);
@@ -1429,12 +1425,11 @@ static void setOfEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t)
       FLAG(event, ColormapChange);
       FLAG(event, OwnerGrabButton);
       FLAG_IF_NONZERO(event, erroneous_bits);
-      lastMask = save;
+      ENDBITMASK;
 }
 
 static void setOfDeviceEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 {
-      struct maskStruct save = lastMask;
       BITMASK32(do_not_propagate);
       FLAG(do_not_propagate, KeyPress);
       FLAG(do_not_propagate, KeyRelease);
@@ -1448,24 +1443,27 @@ static void setOfDeviceEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t)
       FLAG(do_not_propagate, Button5Motion);
       FLAG(do_not_propagate, ButtonMotion);
       FLAG_IF_NONZERO(do_not_propagate, erroneous_bits);
-      lastMask = save;
+      ENDBITMASK;
 }
 
 static void setOfKeyMask(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 {
-      struct maskStruct save = lastMask;
       proto_item *ti;
+      guint32 bitmask_value;
+      int bitmask_offset;
+      int bitmask_size;
+      proto_tree *bitmask_tree;
 
-      lastMask._value = VALUE16(tvb, *offsetp);
-      lastMask._offset = *offsetp;
-      lastMask._zone = 2;
-      if (lastMask._value == 0x8000)
+      bitmask_value = VALUE16(tvb, *offsetp);
+      bitmask_offset = *offsetp;
+      bitmask_size = 2;
+      if (bitmask_value == 0x8000)
 	    proto_tree_add_uint_format(t, hf_x11_modifiers_mask_AnyModifier, tvb, *offsetp, 2, 0x8000,
 				       "modifiers-masks: 0x8000 (AnyModifier)");
       else {
 	    ti = proto_tree_add_uint(t, hf_x11_modifiers_mask, tvb, *offsetp, 2, 
-						 lastMask._value);
-	    lastMask._tree = proto_item_add_subtree(ti, ett_x11_set_of_key_mask);
+						 bitmask_value);
+	    bitmask_tree = proto_item_add_subtree(ti, ett_x11_set_of_key_mask);
 	    FLAG(modifiers, Shift);
 	    FLAG(modifiers, Lock);
 	    FLAG(modifiers, Control);
@@ -1476,13 +1474,11 @@ static void setOfKeyMask(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 	    FLAG(modifiers, Mod5);
 	    FLAG_IF_NONZERO(modifiers, erroneous_bits);
       }
-      lastMask = save;
       *offsetp += 2; 
 }
 
 static void setOfPointerEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 {
-      struct maskStruct save = lastMask;
       BITMASK16(pointer_event);
       FLAG(pointer_event, ButtonPress);
       FLAG(pointer_event, ButtonRelease);
@@ -1498,7 +1494,7 @@ static void setOfPointerEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t)
       FLAG(pointer_event, ButtonMotion);
       FLAG(pointer_event, KeymapState);
       FLAG_IF_NONZERO(pointer_event, erroneous_bits);
-      lastMask = save;
+      ENDBITMASK;
 }
 
 static void string8(tvbuff_t *tvb, int *offsetp, proto_tree *t,
@@ -1555,6 +1551,7 @@ static void windowAttributes(tvbuff_t *tvb, int *offsetp, proto_tree *t)
       BITFIELD(SETofDEVICEEVENT, window_value_mask, do_not_propagate_mask);
       BITFIELD(COLORMAP, window_value_mask, colormap);
       BITFIELD(CURSOR, window_value_mask, cursor);
+      ENDBITMASK;
 }
 
 /************************************************************************
@@ -1680,6 +1677,7 @@ static int dissect_x11_request_loop(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 		  BITFIELD(CARD16, configure_window_mask, border_width);
 		  BITFIELD(WINDOW, configure_window_mask, sibling);
 		  BITFIELD(ENUM8,  configure_window_mask, stack_mode);
+		  ENDBITMASK;
 		  PAD();
 		  break;
 
@@ -2447,6 +2445,7 @@ static int dissect_x11_request_loop(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 		  BITFIELD(ENUM8, keyboard_value_mask, led_mode);
 		  BITFIELD(KEYCODE, keyboard_value_mask, keyboard_key);
 		  BITFIELD(ENUM8, keyboard_value_mask, auto_repeat_mode);
+		  ENDBITMASK;
 		  break;
 
 		case 103: /* GetKeyboardControl */
