@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.22 2003/08/18 21:43:21 guy Exp $
+# $Id: Makefile.am,v 1.23 2003/10/14 01:18:10 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -21,7 +21,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-SUBDIRS = artnet docsis giop gryphon lwres megaco mgcp pcli rtnet
+SUBDIRS = acn artnet docsis giop gryphon lwres megaco mgcp pcli rtnet
 
 plugindir = @plugindir@
 

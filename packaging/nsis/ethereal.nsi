@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.19 2003/10/02 22:28:04 gerald Exp $
+; $Id: ethereal.nsi,v 1.20 2003/10/14 01:18:10 guy Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -175,6 +175,7 @@ SectionEnd
 Section "Plugins"
 ;-------------------------------------------
 SetOutPath $INSTDIR\plugins\${VERSION}
+File "..\..\plugins\acn\acn.dll"
 File "..\..\plugins\artnet\artnet.dll"
 File "..\..\plugins\docsis\docsis.dll"
 File "..\..\plugins\giop\coseventcomm.dll"
