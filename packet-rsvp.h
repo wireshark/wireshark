@@ -1,7 +1,7 @@
 /* packet-rsvp.h
  * Declarations of variables exported by "packet-rsvp.c"
  *
- * $Id: packet-rsvp.h,v 1.10 2002/04/14 23:04:04 guy Exp $
+ * $Id: packet-rsvp.h,v 1.11 2004/06/19 09:48:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,5 +27,6 @@
 
 extern const value_string gmpls_switching_type_str[];
 extern const value_string gmpls_lsp_enc_str[];
+extern const value_string gmpls_protection_cap_str[];
 
 #endif

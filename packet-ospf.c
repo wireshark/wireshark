@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.80 2004/01/06 02:47:40 guy Exp $
+ * $Id: packet-ospf.c,v 1.81 2004/06/19 09:48:49 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -1087,19 +1087,17 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		case MPLS_LINK_LOCAL_ID:
 		case MPLS_LINK_REMOTE_ID:
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-					     "%s: %d (0x%x)", stlv_name,
-					     tvb_get_ntohl(tvb, stlv_offset + 4),
-					     tvb_get_ntohl(tvb, stlv_offset + 4));
+		    			     "Link Local/Remote Identifier");
 		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+		    
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
 					"TLV Type: %u: %s", stlv_type, stlv_name);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
-					stlv_len);
-		    proto_tree_add_item(stlv_tree,
-					stlv_type==MPLS_LINK_LOCAL_ID ?
-					ospf_filter[OSPFF_LS_MPLS_LOCAL_IFID] :
-					ospf_filter[OSPFF_LS_MPLS_REMOTE_IFID],
-					tvb, stlv_offset+4, 4, FALSE);
+					stlv_len);			
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 4, "Local ID: %s",
+					ip_to_str(tvb_get_ptr(tvb, stlv_offset + 4, 4)));
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+8, 4, "Remote ID: %s",
+					ip_to_str(tvb_get_ptr(tvb, stlv_offset + 8, 4)));
 		    break;
 
 		case MPLS_LINK_IF_SWITCHING_DESC:
@@ -1122,6 +1120,30 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 					    tvb_get_ntohieee_float(tvb, stlv_offset + 8 + i*4),
 					    tvb_get_ntohieee_float(tvb, stlv_offset + 8 + i*4) * 8.0);
 		    }
+		    break;
+		case MPLS_LINK_PROTECTION:
+		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
+					     "%s", stlv_name);
+		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
+					"TLV Type: %u: %s", stlv_type, stlv_name);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
+					stlv_len);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 1, "Protection Capability: %s (0x%x)",
+					val_to_str(tvb_get_guint8(tvb,stlv_offset+4), gmpls_protection_cap_str, "Unknown (%d)"),tvb_get_guint8(tvb,stlv_offset+4));
+		    break;
+    		
+		case MPLS_LINK_SHARED_RISK_GROUP:
+		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
+					     "%s", stlv_name);
+		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
+					"TLV Type: %u: %s", stlv_type, stlv_name);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
+					stlv_len);
+		    for (i=0; i < stlv_len; i+=4)
+ 		        proto_tree_add_text(stlv_tree, tvb, stlv_offset+4+i, 4, "Shared Risk Link Group: %u", 
+			                tvb_get_ntohl(tvb,stlv_offset+4+i)); 
 		    break;
 
 		default:

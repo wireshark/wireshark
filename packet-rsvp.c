@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.90 2004/06/19 00:07:22 guy Exp $
+ * $Id: packet-rsvp.c,v 1.91 2004/06/19 09:48:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -554,6 +554,18 @@ const value_string gmpls_switching_type_str[] = {
     {100, "Time-Division-Multiplex Capable (TDM)"},
     {150, "Lambda-Switch Capable (LSC)"},
     {200, "Fiber-Switch Capable (FSC)"},
+    { 0, NULL }
+};
+
+const value_string gmpls_protection_cap_str[] = {
+    { 1, "Extra Traffic"},
+    { 2, "Unprotected"},
+    { 4, "Shared"},
+    { 8, "Dedicated 1:1"},
+    {16, "Dedicated 1+1"},
+    {32, "Enhanced"},
+    {64, "Reserved"},
+    {128,"Reserved"},
     { 0, NULL }
 };
 
