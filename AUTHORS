@@ -2119,6 +2119,10 @@ Rich Coe <Richard.Coe [AT] med.ge.com> {
 	DICOM support
 }
 
+Dominic Béchaz <bdo [AT] zhwin.ch> {
+	IEEE 1588 / PTP support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
