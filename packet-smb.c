@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.123 2001/11/03 00:58:49 guy Exp $
+ * $Id: packet-smb.c,v 1.124 2001/11/03 06:56:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,19 +53,37 @@
 #include "packet-smb-pipe.h"
 
 static int proto_smb = -1;
-
 static int hf_smb_cmd = -1;
-static int hf_smb_status = -1;
-static int hf_smb_errcls = -1;
-static int hf_smb_flags = -1;
-static int hf_smb_flags2 = -1;
-static int hf_smb_tid = -1;
 static int hf_smb_pid = -1;
+static int hf_smb_tid = -1;
 static int hf_smb_uid = -1;
 static int hf_smb_mid = -1;
+static int hf_smb_response_to = -1;
+static int hf_smb_response_in = -1;
+static int hf_smb_nt_status = -1;
+static int hf_smb_error_class = -1;
+static int hf_smb_error_code = -1;
+static int hf_smb_reserved = -1;
+static int hf_smb_flags_lock = -1;
+static int hf_smb_flags_receive_buffer = -1;
+static int hf_smb_flags_caseless = -1;
+static int hf_smb_flags_canon = -1;
+static int hf_smb_flags_oplock = -1;
+static int hf_smb_flags_notify = -1;
+static int hf_smb_flags_request = -1;
+static int hf_smb_flags2_long_names = -1;
+static int hf_smb_flags2_ea = -1;
+static int hf_smb_flags2_sec_sig = -1;
+static int hf_smb_flags2_esn = -1;
+static int hf_smb_flags2_dfs = -1;
+static int hf_smb_flags2_roe = -1;
+static int hf_smb_flags2_nt_error = -1;
+static int hf_smb_flags2_string = -1;
+
 
 static gint ett_smb = -1;
 static gint ett_smb_hdr = -1;
+static gint ett_smb_command = -1;
 static gint ett_smb_fileattributes = -1;
 static gint ett_smb_capabilities = -1;
 static gint ett_smb_aflags = -1;
@@ -85,12 +103,685 @@ static gint ett_smb_lock_type = -1;
 static gint ett_smb_ssetupandxaction = -1;
 static gint ett_smb_optionsup = -1;
 
+static char *decode_smb_name(unsigned char);
+static int dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree, guint8 cmd);
+
+/* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+   These variables and functions are used to match
+   responses with calls
+   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+static GMemChunk *smb_info_chunk = NULL;
+static int smb_info_init_count = 200;
+static GHashTable *smb_info_table = NULL;
+
+static gint
+smb_info_equal(gconstpointer k1, gconstpointer k2)
+{
+	smb_info_t *key1 = (smb_info_t *)k1;
+	smb_info_t *key2 = (smb_info_t *)k2;
+	gint res;
+
+	/* make sure to always compare mid first since this is most
+	   likely to differ ==> shortcircuiting the expression */
+	res= (	(key1->mid==key2->mid)
+		&&	(key1->pid==key2->pid)
+		&&	(key1->uid==key2->uid)
+		&&	(key1->cmd==key2->cmd)
+		&&	(key1->tid==key2->tid)
+		&&	(ADDRESSES_EQUAL(key1->src, key2->src))
+		&&	(ADDRESSES_EQUAL(key1->dst, key2->dst)) );
+
+	return res;
+}
+
+static guint
+smb_info_hash(gconstpointer k)
+{
+	smb_info_t *key = (smb_info_t *)k;
+
+	/* multiplex id is very likely to differ between calls
+	   it should be sufficient for a good distribution of hash
+	   values.
+	*/
+	return key->mid;
+}
+ 
+static gboolean
+free_all_smb_info(gpointer key_arg, gpointer value, gpointer user_data)
+{
+	smb_info_t *key = (smb_info_t *)key_arg;
+
+	if((key->src)&&(key->src->data)){
+		g_free((gpointer)key->src->data);
+		key->src->data = NULL;
+		g_free((gpointer)key->src);
+		key->src = NULL;
+	}
+
+	if((key->dst)&&(key->dst->data)){
+		g_free((gpointer)key->dst->data);
+		key->dst->data = NULL;
+		g_free((gpointer)key->dst);
+		key->dst = NULL;
+	}
+ 
+	return TRUE;
+}
+
+void
+smb_info_init(void)
+{
+	if(smb_info_table){
+		g_hash_table_foreach_remove(smb_info_table,
+			free_all_smb_info, NULL);
+	} else {
+		smb_info_table = g_hash_table_new(smb_info_hash,
+			smb_info_equal);
+	}
+
+	if(smb_info_chunk){
+		g_mem_chunk_destroy(smb_info_chunk);
+	}
+	smb_info_chunk = g_mem_chunk_new("smb_info_chunk",
+		sizeof(smb_info_t),
+		smb_info_init_count*sizeof(smb_info_t),
+		G_ALLOC_ONLY);
+}
+/* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+   End of request/response matching functions
+   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+
+
+
+
+
+
+typedef struct _smb_function {
+       int (*request)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree);
+       int (*response)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree);
+} smb_function;
+
+smb_function smb_dissector[256] = {
+  /* 0x00 */  {NULL, NULL},
+  /* 0x01 */  {NULL, NULL},
+  /* 0x02 */  {NULL, NULL},
+  /* 0x03 */  {NULL, NULL},
+  /* 0x04 */  {NULL, NULL},
+  /* 0x05 */  {NULL, NULL},
+  /* 0x06 */  {NULL, NULL},
+  /* 0x07 */  {NULL, NULL},
+  /* 0x08 */  {NULL, NULL},
+  /* 0x09 */  {NULL, NULL},
+  /* 0x0a */  {NULL, NULL},
+  /* 0x0b */  {NULL, NULL},
+  /* 0x0c */  {NULL, NULL},
+  /* 0x0d */  {NULL, NULL},
+  /* 0x0e */  {NULL, NULL},
+  /* 0x0f */  {NULL, NULL},
+  /* 0x10 */  {NULL, NULL},
+  /* 0x11 */  {NULL, NULL},
+  /* 0x12 */  {NULL, NULL},
+  /* 0x13 */  {NULL, NULL},
+  /* 0x14 */  {NULL, NULL},
+  /* 0x15 */  {NULL, NULL},
+  /* 0x16 */  {NULL, NULL},
+  /* 0x17 */  {NULL, NULL},
+  /* 0x18 */  {NULL, NULL},
+  /* 0x19 */  {NULL, NULL},
+  /* 0x1a */  {NULL, NULL},
+  /* 0x1b */  {NULL, NULL},
+  /* 0x1c */  {NULL, NULL},
+  /* 0x1d */  {NULL, NULL},
+  /* 0x1e */  {NULL, NULL},
+  /* 0x1f */  {NULL, NULL},
+  /* 0x20 */  {NULL, NULL},
+  /* 0x21 */  {NULL, NULL},
+  /* 0x22 */  {NULL, NULL},
+  /* 0x23 */  {NULL, NULL},
+  /* 0x24 */  {NULL, NULL},
+  /* 0x25 */  {NULL, NULL},
+  /* 0x26 */  {NULL, NULL},
+  /* 0x27 */  {NULL, NULL},
+  /* 0x28 */  {NULL, NULL},
+  /* 0x29 */  {NULL, NULL},
+  /* 0x2a */  {NULL, NULL},
+  /* 0x2b */  {NULL, NULL},
+  /* 0x2c */  {NULL, NULL},
+  /* 0x2d */  {NULL, NULL},
+  /* 0x2e */  {NULL, NULL},
+  /* 0x2f */  {NULL, NULL},
+  /* 0x30 */  {NULL, NULL},
+  /* 0x31 */  {NULL, NULL},
+  /* 0x32 */  {NULL, NULL},
+  /* 0x33 */  {NULL, NULL},
+  /* 0x34 */  {NULL, NULL},
+  /* 0x35 */  {NULL, NULL},
+  /* 0x36 */  {NULL, NULL},
+  /* 0x37 */  {NULL, NULL},
+  /* 0x38 */  {NULL, NULL},
+  /* 0x39 */  {NULL, NULL},
+  /* 0x3a */  {NULL, NULL},
+  /* 0x3b */  {NULL, NULL},
+  /* 0x3c */  {NULL, NULL},
+  /* 0x3d */  {NULL, NULL},
+  /* 0x3e */  {NULL, NULL},
+  /* 0x3f */  {NULL, NULL},
+  /* 0x40 */  {NULL, NULL},
+  /* 0x41 */  {NULL, NULL},
+  /* 0x42 */  {NULL, NULL},
+  /* 0x43 */  {NULL, NULL},
+  /* 0x44 */  {NULL, NULL},
+  /* 0x45 */  {NULL, NULL},
+  /* 0x46 */  {NULL, NULL},
+  /* 0x47 */  {NULL, NULL},
+  /* 0x48 */  {NULL, NULL},
+  /* 0x49 */  {NULL, NULL},
+  /* 0x4a */  {NULL, NULL},
+  /* 0x4b */  {NULL, NULL},
+  /* 0x4c */  {NULL, NULL},
+  /* 0x4d */  {NULL, NULL},
+  /* 0x4e */  {NULL, NULL},
+  /* 0x4f */  {NULL, NULL},
+  /* 0x50 */  {NULL, NULL},
+  /* 0x51 */  {NULL, NULL},
+  /* 0x52 */  {NULL, NULL},
+  /* 0x53 */  {NULL, NULL},
+  /* 0x54 */  {NULL, NULL},
+  /* 0x55 */  {NULL, NULL},
+  /* 0x56 */  {NULL, NULL},
+  /* 0x57 */  {NULL, NULL},
+  /* 0x58 */  {NULL, NULL},
+  /* 0x59 */  {NULL, NULL},
+  /* 0x5a */  {NULL, NULL},
+  /* 0x5b */  {NULL, NULL},
+  /* 0x5c */  {NULL, NULL},
+  /* 0x5d */  {NULL, NULL},
+  /* 0x5e */  {NULL, NULL},
+  /* 0x5f */  {NULL, NULL},
+  /* 0x60 */  {NULL, NULL},
+  /* 0x61 */  {NULL, NULL},
+  /* 0x62 */  {NULL, NULL},
+  /* 0x63 */  {NULL, NULL},
+  /* 0x64 */  {NULL, NULL},
+  /* 0x65 */  {NULL, NULL},
+  /* 0x66 */  {NULL, NULL},
+  /* 0x67 */  {NULL, NULL},
+  /* 0x68 */  {NULL, NULL},
+  /* 0x69 */  {NULL, NULL},
+  /* 0x6a */  {NULL, NULL},
+  /* 0x6b */  {NULL, NULL},
+  /* 0x6c */  {NULL, NULL},
+  /* 0x6d */  {NULL, NULL},
+  /* 0x6e */  {NULL, NULL},
+  /* 0x6f */  {NULL, NULL},
+  /* 0x70 */  {NULL, NULL},
+  /* 0x71 */  {NULL, NULL},
+  /* 0x72 */  {NULL, NULL},
+  /* 0x73 */  {NULL, NULL},
+  /* 0x74 */  {NULL, NULL},
+  /* 0x75 */  {NULL, NULL},
+  /* 0x76 */  {NULL, NULL},
+  /* 0x77 */  {NULL, NULL},
+  /* 0x78 */  {NULL, NULL},
+  /* 0x79 */  {NULL, NULL},
+  /* 0x7a */  {NULL, NULL},
+  /* 0x7b */  {NULL, NULL},
+  /* 0x7c */  {NULL, NULL},
+  /* 0x7d */  {NULL, NULL},
+  /* 0x7e */  {NULL, NULL},
+  /* 0x7f */  {NULL, NULL},
+  /* 0x80 */  {NULL, NULL},
+  /* 0x81 */  {NULL, NULL},
+  /* 0x82 */  {NULL, NULL},
+  /* 0x83 */  {NULL, NULL},
+  /* 0x84 */  {NULL, NULL},
+  /* 0x85 */  {NULL, NULL},
+  /* 0x86 */  {NULL, NULL},
+  /* 0x87 */  {NULL, NULL},
+  /* 0x88 */  {NULL, NULL},
+  /* 0x89 */  {NULL, NULL},
+  /* 0x8a */  {NULL, NULL},
+  /* 0x8b */  {NULL, NULL},
+  /* 0x8c */  {NULL, NULL},
+  /* 0x8d */  {NULL, NULL},
+  /* 0x8e */  {NULL, NULL},
+  /* 0x8f */  {NULL, NULL},
+  /* 0x90 */  {NULL, NULL},
+  /* 0x91 */  {NULL, NULL},
+  /* 0x92 */  {NULL, NULL},
+  /* 0x93 */  {NULL, NULL},
+  /* 0x94 */  {NULL, NULL},
+  /* 0x95 */  {NULL, NULL},
+  /* 0x96 */  {NULL, NULL},
+  /* 0x97 */  {NULL, NULL},
+  /* 0x98 */  {NULL, NULL},
+  /* 0x99 */  {NULL, NULL},
+  /* 0x9a */  {NULL, NULL},
+  /* 0x9b */  {NULL, NULL},
+  /* 0x9c */  {NULL, NULL},
+  /* 0x9d */  {NULL, NULL},
+  /* 0x9e */  {NULL, NULL},
+  /* 0x9f */  {NULL, NULL},
+  /* 0xa0 */  {NULL, NULL},
+  /* 0xa1 */  {NULL, NULL},
+  /* 0xa2 */  {NULL, NULL},
+  /* 0xa3 */  {NULL, NULL},
+  /* 0xa4 */  {NULL, NULL},
+  /* 0xa5 */  {NULL, NULL},
+  /* 0xa6 */  {NULL, NULL},
+  /* 0xa7 */  {NULL, NULL},
+  /* 0xa8 */  {NULL, NULL},
+  /* 0xa9 */  {NULL, NULL},
+  /* 0xaa */  {NULL, NULL},
+  /* 0xab */  {NULL, NULL},
+  /* 0xac */  {NULL, NULL},
+  /* 0xad */  {NULL, NULL},
+  /* 0xae */  {NULL, NULL},
+  /* 0xaf */  {NULL, NULL},
+  /* 0xb0 */  {NULL, NULL},
+  /* 0xb1 */  {NULL, NULL},
+  /* 0xb2 */  {NULL, NULL},
+  /* 0xb3 */  {NULL, NULL},
+  /* 0xb4 */  {NULL, NULL},
+  /* 0xb5 */  {NULL, NULL},
+  /* 0xb6 */  {NULL, NULL},
+  /* 0xb7 */  {NULL, NULL},
+  /* 0xb8 */  {NULL, NULL},
+  /* 0xb9 */  {NULL, NULL},
+  /* 0xba */  {NULL, NULL},
+  /* 0xbb */  {NULL, NULL},
+  /* 0xbc */  {NULL, NULL},
+  /* 0xbd */  {NULL, NULL},
+  /* 0xbe */  {NULL, NULL},
+  /* 0xbf */  {NULL, NULL},
+  /* 0xc0 */  {NULL, NULL},
+  /* 0xc1 */  {NULL, NULL},
+  /* 0xc2 */  {NULL, NULL},
+  /* 0xc3 */  {NULL, NULL},
+  /* 0xc4 */  {NULL, NULL},
+  /* 0xc5 */  {NULL, NULL},
+  /* 0xc6 */  {NULL, NULL},
+  /* 0xc7 */  {NULL, NULL},
+  /* 0xc8 */  {NULL, NULL},
+  /* 0xc9 */  {NULL, NULL},
+  /* 0xca */  {NULL, NULL},
+  /* 0xcb */  {NULL, NULL},
+  /* 0xcc */  {NULL, NULL},
+  /* 0xcd */  {NULL, NULL},
+  /* 0xce */  {NULL, NULL},
+  /* 0xcf */  {NULL, NULL},
+  /* 0xd0 */  {NULL, NULL},
+  /* 0xd1 */  {NULL, NULL},
+  /* 0xd2 */  {NULL, NULL},
+  /* 0xd3 */  {NULL, NULL},
+  /* 0xd4 */  {NULL, NULL},
+  /* 0xd5 */  {NULL, NULL},
+  /* 0xd6 */  {NULL, NULL},
+  /* 0xd7 */  {NULL, NULL},
+  /* 0xd8 */  {NULL, NULL},
+  /* 0xd9 */  {NULL, NULL},
+  /* 0xda */  {NULL, NULL},
+  /* 0xdb */  {NULL, NULL},
+  /* 0xdc */  {NULL, NULL},
+  /* 0xdd */  {NULL, NULL},
+  /* 0xde */  {NULL, NULL},
+  /* 0xdf */  {NULL, NULL},
+  /* 0xe0 */  {NULL, NULL},
+  /* 0xe1 */  {NULL, NULL},
+  /* 0xe2 */  {NULL, NULL},
+  /* 0xe3 */  {NULL, NULL},
+  /* 0xe4 */  {NULL, NULL},
+  /* 0xe5 */  {NULL, NULL},
+  /* 0xe6 */  {NULL, NULL},
+  /* 0xe7 */  {NULL, NULL},
+  /* 0xe8 */  {NULL, NULL},
+  /* 0xe9 */  {NULL, NULL},
+  /* 0xea */  {NULL, NULL},
+  /* 0xeb */  {NULL, NULL},
+  /* 0xec */  {NULL, NULL},
+  /* 0xed */  {NULL, NULL},
+  /* 0xee */  {NULL, NULL},
+  /* 0xef */  {NULL, NULL},
+  /* 0xf0 */  {NULL, NULL},
+  /* 0xf1 */  {NULL, NULL},
+  /* 0xf2 */  {NULL, NULL},
+  /* 0xf3 */  {NULL, NULL},
+  /* 0xf4 */  {NULL, NULL},
+  /* 0xf5 */  {NULL, NULL},
+  /* 0xf6 */  {NULL, NULL},
+  /* 0xf7 */  {NULL, NULL},
+  /* 0xf8 */  {NULL, NULL},
+  /* 0xf9 */  {NULL, NULL},
+  /* 0xfa */  {NULL, NULL},
+  /* 0xfb */  {NULL, NULL},
+  /* 0xfc */  {NULL, NULL},
+  /* 0xfd */  {NULL, NULL},
+  /* 0xfe */  {NULL, NULL},
+  /* 0xff */  {NULL, NULL},
+};
+
+
+static int
+dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, int offset, proto_tree *smb_tree, guint8 cmd)
+{
+	int old_offset = offset;
+	smb_info_t *si;
+ 
+	si = pinfo->private_data;
+	if(cmd!=0xff){
+		proto_item *cmd_item;
+		proto_tree *cmd_tree;
+		int (*dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree);
+
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_append_fstr(pinfo->fd, COL_INFO, "%s ",
+				decode_smb_name(cmd));
+		}
+
+		cmd_item = proto_tree_add_text(smb_tree, tvb, offset,
+			0, "%s %s (0x%02x)",
+			decode_smb_name(cmd), 
+			(si->request)?"Request":"Response",
+			cmd);
+
+		cmd_tree = proto_item_add_subtree(cmd_item, ett_smb_command);
+
+		dissector = (si->request)?
+			smb_dissector[cmd].request:smb_dissector[cmd].response;
+
+		if(dissector){
+			offset = (*dissector)(tvb, pinfo, cmd_tree, offset, smb_tree);
+		}
+		proto_item_set_len(cmd_item, offset-old_offset);
+	}
+	return offset;
+}
+
+
+/* NOTE: this value_string array will also be used to access data directly by
+ * index instead of val_to_str() since 
+ * 1, the array will always span every value from 0x00 to 0xff and
+ * 2, smb_cmd_vals[i].strptr  is much cheaper than  val_to_str(i, smb_cmd_vals,)
+ * This means that this value_string array MUST always
+ * 1, contain all entries 0x00 to 0xff
+ * 2, all entries must be in order.
+ */
+static const value_string smb_cmd_vals[] = {
+  { 0x00, "Create Directory" },
+  { 0x01, "Delete Directory" },
+  { 0x02, "Open" },
+  { 0x03, "Create" },
+  { 0x04, "Close" },
+  { 0x05, "Flush" },
+  { 0x06, "Delete" },
+  { 0x07, "Rename" },
+  { 0x08, "Query Information" },
+  { 0x09, "Set Information" },
+  { 0x0A, "Read" },
+  { 0x0B, "Write" },
+  { 0x0C, "Lock Byte Range" },
+  { 0x0D, "Unlock Byte Range" },
+  { 0x0E, "Create Temp" },
+  { 0x0F, "Create New" },
+  { 0x10, "Check Directory" },
+  { 0x11, "Process Exit" },
+  { 0x12, "Seek" },
+  { 0x13, "Lock And Read" },
+  { 0x14, "Write And Unlock" },
+  { 0x15, "unknown-0x15" },
+  { 0x16, "unknown-0x16" },
+  { 0x17, "unknown-0x17" },
+  { 0x18, "unknown-0x18" },
+  { 0x19, "unknown-0x19" },
+  { 0x1A, "Read Raw" },
+  { 0x1B, "Read MPX" },
+  { 0x1C, "Read MPX Secondary" },
+  { 0x1D, "Write Raw" },
+  { 0x1E, "Write MPX" },
+  { 0x1F, "SMBwriteBs" },
+  { 0x20, "Write Complete" },
+  { 0x21, "unknown-0x21" },
+  { 0x22, "Set Information2" },
+  { 0x23, "Query Information2" },
+  { 0x24, "Locking AndX" },
+  { 0x25, "Transaction" },
+  { 0x26, "Transaction Secondary" },
+  { 0x27, "IOCTL" },
+  { 0x28, "IOCTL Secondary" },
+  { 0x29, "Copy" },
+  { 0x2A, "Move" },
+  { 0x2B, "Echo" },
+  { 0x2C, "Write And Close" },
+  { 0x2D, "Open AndX" },
+  { 0x2E, "Read AndX" },
+  { 0x2F, "Write AndX" },
+  { 0x30, "unknown-0x30" },
+  { 0x31, "Close And Tree Discover" },
+  { 0x32, "Transaction2" },
+  { 0x33, "Transaction2 Secondary" },
+  { 0x34, "Find Close2" },
+  { 0x35, "Find Notify Close" },
+  { 0x36, "unknown-0x36" },
+  { 0x37, "unknown-0x37" },
+  { 0x38, "unknown-0x38" },
+  { 0x39, "unknown-0x39" },
+  { 0x3A, "unknown-0x3A" },
+  { 0x3B, "unknown-0x3B" },
+  { 0x3C, "unknown-0x3C" },
+  { 0x3D, "unknown-0x3D" },
+  { 0x3E, "unknown-0x3E" },
+  { 0x3F, "unknown-0x3F" },
+  { 0x40, "unknown-0x40" },
+  { 0x41, "unknown-0x41" },
+  { 0x42, "unknown-0x42" },
+  { 0x43, "unknown-0x43" },
+  { 0x44, "unknown-0x44" },
+  { 0x45, "unknown-0x45" },
+  { 0x46, "unknown-0x46" },
+  { 0x47, "unknown-0x47" },
+  { 0x48, "unknown-0x48" },
+  { 0x49, "unknown-0x49" },
+  { 0x4A, "unknown-0x4A" },
+  { 0x4B, "unknown-0x4B" },
+  { 0x4C, "unknown-0x4C" },
+  { 0x4D, "unknown-0x4D" },
+  { 0x4E, "unknown-0x4E" },
+  { 0x4F, "unknown-0x4F" },
+  { 0x50, "unknown-0x50" },
+  { 0x51, "unknown-0x51" },
+  { 0x52, "unknown-0x52" },
+  { 0x53, "unknown-0x53" },
+  { 0x54, "unknown-0x54" },
+  { 0x55, "unknown-0x55" },
+  { 0x56, "unknown-0x56" },
+  { 0x57, "unknown-0x57" },
+  { 0x58, "unknown-0x58" },
+  { 0x59, "unknown-0x59" },
+  { 0x5A, "unknown-0x5A" },
+  { 0x5B, "unknown-0x5B" },
+  { 0x5C, "unknown-0x5C" },
+  { 0x5D, "unknown-0x5D" },
+  { 0x5E, "unknown-0x5E" },
+  { 0x5F, "unknown-0x5F" },
+  { 0x60, "unknown-0x60" },
+  { 0x61, "unknown-0x61" },
+  { 0x62, "unknown-0x62" },
+  { 0x63, "unknown-0x63" },
+  { 0x64, "unknown-0x64" },
+  { 0x65, "unknown-0x65" },
+  { 0x66, "unknown-0x66" },
+  { 0x67, "unknown-0x67" },
+  { 0x68, "unknown-0x68" },
+  { 0x69, "unknown-0x69" },
+  { 0x6A, "unknown-0x6A" },
+  { 0x6B, "unknown-0x6B" },
+  { 0x6C, "unknown-0x6C" },
+  { 0x6D, "unknown-0x6D" },
+  { 0x6E, "unknown-0x6E" },
+  { 0x6F, "unknown-0x6F" },
+  { 0x70, "Tree Connect" },
+  { 0x71, "Tree Disconnect" },
+  { 0x72, "Negotiate" },
+  { 0x73, "Session Setup AndX" },
+  { 0x74, "Logoff AndX" },
+  { 0x75, "Tree Connect AndX" },
+  { 0x76, "unknown-0x76" },
+  { 0x77, "unknown-0x77" },
+  { 0x78, "unknown-0x78" },
+  { 0x79, "unknown-0x79" },
+  { 0x7A, "unknown-0x7A" },
+  { 0x7B, "unknown-0x7B" },
+  { 0x7C, "unknown-0x7C" },
+  { 0x7D, "unknown-0x7D" },
+  { 0x7E, "unknown-0x7E" },
+  { 0x7F, "unknown-0x7F" },
+  { 0x80, "Query Information Disk" },
+  { 0x81, "Search" },
+  { 0x82, "Find" },
+  { 0x83, "Find Unique" },
+  { 0x84, "SMBfclose" },
+  { 0x85, "unknown-0x85" },
+  { 0x86, "unknown-0x86" },
+  { 0x87, "unknown-0x87" },
+  { 0x88, "unknown-0x88" },
+  { 0x89, "unknown-0x89" },
+  { 0x8A, "unknown-0x8A" },
+  { 0x8B, "unknown-0x8B" },
+  { 0x8C, "unknown-0x8C" },
+  { 0x8D, "unknown-0x8D" },
+  { 0x8E, "unknown-0x8E" },
+  { 0x8F, "unknown-0x8F" },
+  { 0x90, "unknown-0x90" },
+  { 0x91, "unknown-0x91" },
+  { 0x92, "unknown-0x92" },
+  { 0x93, "unknown-0x93" },
+  { 0x94, "unknown-0x94" },
+  { 0x95, "unknown-0x95" },
+  { 0x96, "unknown-0x96" },
+  { 0x97, "unknown-0x97" },
+  { 0x98, "unknown-0x98" },
+  { 0x99, "unknown-0x99" },
+  { 0x9A, "unknown-0x9A" },
+  { 0x9B, "unknown-0x9B" },
+  { 0x9C, "unknown-0x9C" },
+  { 0x9D, "unknown-0x9D" },
+  { 0x9E, "unknown-0x9E" },
+  { 0x9F, "unknown-0x9F" },
+  { 0xA0, "NT Transact" },
+  { 0xA1, "NT Transact Secondary" },
+  { 0xA2, "NT Create AndX" },
+  { 0xA3, "unknown-0xA3" },
+  { 0xA4, "NT Cancel" },
+  { 0xA5, "unknown-0xA5" },
+  { 0xA6, "unknown-0xA6" },
+  { 0xA7, "unknown-0xA7" },
+  { 0xA8, "unknown-0xA8" },
+  { 0xA9, "unknown-0xA9" },
+  { 0xAA, "unknown-0xAA" },
+  { 0xAB, "unknown-0xAB" },
+  { 0xAC, "unknown-0xAC" },
+  { 0xAD, "unknown-0xAD" },
+  { 0xAE, "unknown-0xAE" },
+  { 0xAF, "unknown-0xAF" },
+  { 0xB0, "unknown-0xB0" },
+  { 0xB1, "unknown-0xB1" },
+  { 0xB2, "unknown-0xB2" },
+  { 0xB3, "unknown-0xB3" },
+  { 0xB4, "unknown-0xB4" },
+  { 0xB5, "unknown-0xB5" },
+  { 0xB6, "unknown-0xB6" },
+  { 0xB7, "unknown-0xB7" },
+  { 0xB8, "unknown-0xB8" },
+  { 0xB9, "unknown-0xB9" },
+  { 0xBA, "unknown-0xBA" },
+  { 0xBB, "unknown-0xBB" },
+  { 0xBC, "unknown-0xBC" },
+  { 0xBD, "unknown-0xBD" },
+  { 0xBE, "unknown-0xBE" },
+  { 0xBF, "unknown-0xBF" },
+  { 0xC0, "Open Print File" },
+  { 0xC1, "Write Print File" },
+  { 0xC2, "Close Print File" },
+  { 0xC3, "Get Print Queue" },
+  { 0xC4, "unknown-0xC4" },
+  { 0xC5, "unknown-0xC5" },
+  { 0xC6, "unknown-0xC6" },
+  { 0xC7, "unknown-0xC7" },
+  { 0xC8, "unknown-0xC8" },
+  { 0xC9, "unknown-0xC9" },
+  { 0xCA, "unknown-0xCA" },
+  { 0xCB, "unknown-0xCB" },
+  { 0xCC, "unknown-0xCC" },
+  { 0xCD, "unknown-0xCD" },
+  { 0xCE, "unknown-0xCE" },
+  { 0xCF, "unknown-0xCF" },
+  { 0xD0, "SMBsends" },
+  { 0xD1, "SMBsendb" },
+  { 0xD2, "SMBfwdname" },
+  { 0xD3, "SMBcancelf" },
+  { 0xD4, "SMBgetmac" },
+  { 0xD5, "SMBsendstrt" },
+  { 0xD6, "SMBsendend" },
+  { 0xD7, "SMBsendtxt" },
+  { 0xD8, "SMBreadbulk" },
+  { 0xD9, "SMBwritebulk" },
+  { 0xDA, "SMBwritebulkdata" },
+  { 0xDB, "unknown-0xDB" },
+  { 0xDC, "unknown-0xDC" },
+  { 0xDD, "unknown-0xDD" },
+  { 0xDE, "unknown-0xDE" },
+  { 0xDF, "unknown-0xDF" },
+  { 0xE0, "unknown-0xE0" },
+  { 0xE1, "unknown-0xE1" },
+  { 0xE2, "unknown-0xE2" },
+  { 0xE3, "unknown-0xE3" },
+  { 0xE4, "unknown-0xE4" },
+  { 0xE5, "unknown-0xE5" },
+  { 0xE6, "unknown-0xE6" },
+  { 0xE7, "unknown-0xE7" },
+  { 0xE8, "unknown-0xE8" },
+  { 0xE9, "unknown-0xE9" },
+  { 0xEA, "unknown-0xEA" },
+  { 0xEB, "unknown-0xEB" },
+  { 0xEC, "unknown-0xEC" },
+  { 0xED, "unknown-0xED" },
+  { 0xEE, "unknown-0xEE" },
+  { 0xEF, "unknown-0xEF" },
+  { 0xF0, "unknown-0xF0" },
+  { 0xF1, "unknown-0xF1" },
+  { 0xF2, "unknown-0xF2" },
+  { 0xF3, "unknown-0xF3" },
+  { 0xF4, "unknown-0xF4" },
+  { 0xF5, "unknown-0xF5" },
+  { 0xF6, "unknown-0xF6" },
+  { 0xF7, "unknown-0xF7" },
+  { 0xF8, "unknown-0xF8" },
+  { 0xF9, "unknown-0xF9" },
+  { 0xFA, "unknown-0xFA" },
+  { 0xFB, "unknown-0xFB" },
+  { 0xFC, "unknown-0xFC" },
+  { 0xFD, "unknown-0xFD" },
+  { 0xFE, "SMBinvalid" },
+  { 0xFF, "unknown-0xFF" },
+  { 0x00, NULL },
+};
+
+static char *decode_smb_name(unsigned char cmd)
+{
+  return(smb_cmd_vals[cmd].strptr);
+}
+ 
+
+
+/* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+ * Everything TVBUFFIFIED above this line
+ * XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+
 
 /*
  * Struct passed to each SMB decode routine of info it may need
  */
 
-char *decode_smb_name(unsigned char);
 
 int smb_packet_init_count = 200;
 
@@ -533,347 +1224,6 @@ smb_init_protocol(void)
 }
 
 static void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, proto_tree *, struct smb_info si, int, int);
-
-static const value_string smb_cmd_vals[] = {
-  { 0x00, "SMBcreatedirectory" },
-  { 0x01, "SMBdeletedirectory" },
-  { 0x02, "SMBopen" },
-  { 0x03, "SMBcreate" },
-  { 0x04, "SMBclose" },
-  { 0x05, "SMBflush" },
-  { 0x06, "SMBunlink" },
-  { 0x07, "SMBmv" },
-  { 0x08, "SMBgetatr" },
-  { 0x09, "SMBsetatr" },
-  { 0x0A, "SMBread" },
-  { 0x0B, "SMBwrite" },
-  { 0x0C, "SMBlock" },
-  { 0x0D, "SMBunlock" },
-  { 0x0E, "SMBctemp" },
-  { 0x0F, "SMBmknew" },
-  { 0x10, "SMBchkpth" },
-  { 0x11, "SMBexit" },
-  { 0x12, "SMBlseek" },
-  { 0x13, "SMBlockread" },
-  { 0x14, "SMBwriteunlock" },
-  { 0x1A, "SMBreadBraw" },
-  { 0x1B, "SMBreadBmpx" },
-  { 0x1C, "SMBreadBs" },
-  { 0x1D, "SMBwriteBraw" },
-  { 0x1E, "SMBwriteBmpx" },
-  { 0x1F, "SMBwriteBs" },
-  { 0x20, "SMBwriteC" },
-  { 0x22, "SMBsetattrE" },
-  { 0x23, "SMBgetattrE" },
-  { 0x24, "SMBlockingX" },
-  { 0x25, "SMBtrans" },
-  { 0x26, "SMBtranss" },
-  { 0x27, "SMBioctl" },
-  { 0x28, "SMBioctls" },
-  { 0x29, "SMBcopy" },
-  { 0x2A, "SMBmove" },
-  { 0x2B, "SMBecho" },
-  { 0x2C, "SMBwriteclose" },
-  { 0x2D, "SMBopenX" },
-  { 0x2E, "SMBreadX" },
-  { 0x2F, "SMBwriteX" },
-  { 0x31, "SMBcloseandtreedisc" },
-  { 0x32, "SMBtrans2" },
-  { 0x33, "SMBtrans2secondary" },
-  { 0x34, "SMBfindclose2" },
-  { 0x35, "SMBfindnotifyclose" },
-  { 0x70, "SMBtcon" },
-  { 0x71, "SMBtdis" },
-  { 0x72, "SMBnegprot" },
-  { 0x73, "SMBsesssetupX" },
-  { 0x74, "SMBlogoffX" },
-  { 0x75, "SMBtconX" },
-  { 0x80, "SMBdskattr" },
-  { 0x81, "SMBsearch" },
-  { 0x82, "SMBffirst" },
-  { 0x83, "SMBfunique" },
-  { 0x84, "SMBfclose" },
-  { 0xA0, "SMBnttransact" },
-  { 0xA1, "SMBnttransactsecondary" },
-  { 0xA2, "SMBntcreateX" },
-  { 0xA4, "SMBntcancel" },
-  { 0xC0, "SMBsplopen" },
-  { 0xC1, "SMBsplwr" },
-  { 0xC2, "SMBsplclose" },
-  { 0xC3, "SMBsplretq" },
-  { 0xD0, "SMBsends" },
-  { 0xD1, "SMBsendb" },
-  { 0xD2, "SMBfwdname" },
-  { 0xD3, "SMBcancelf" },
-  { 0xD4, "SMBgetmac" },
-  { 0xD5, "SMBsendstrt" },
-  { 0xD6, "SMBsendend" },
-  { 0xD7, "SMBsendtxt" },
-  { 0xD8, "SMBreadbulk" },
-  { 0xD9, "SMBwritebulk" },
-  { 0xDA, "SMBwritebulkdata" },
-  { 0xFE, "SMBinvalid" },
-  { 0x00, NULL },
-};
-
-char *SMB_names[256] = {
-  "SMBcreatedirectory",
-  "SMBdeletedirectory",
-  "SMBopen",
-  "SMBcreate",
-  "SMBclose",
-  "SMBflush",
-  "SMBunlink",
-  "SMBmv",
-  "SMBgetatr",
-  "SMBsetatr",
-  "SMBread",
-  "SMBwrite",
-  "SMBlock",
-  "SMBunlock",
-  "SMBctemp",
-  "SMBmknew",
-  "SMBchkpth",
-  "SMBexit",
-  "SMBlseek",
-  "SMBlockread",
-  "SMBwriteunlock",
-  "unknown-0x15",
-  "unknown-0x16",
-  "unknown-0x17",
-  "unknown-0x18",
-  "unknown-0x19",
-  "SMBreadBraw",
-  "SMBreadBmpx",
-  "SMBreadBs",
-  "SMBwriteBraw",
-  "SMBwriteBmpx",
-  "SMBwriteBs",
-  "SMBwriteC",
-  "unknown-0x21",
-  "SMBsetattrE",
-  "SMBgetattrE",
-  "SMBlockingX",
-  "SMBtrans",
-  "SMBtranss",
-  "SMBioctl",
-  "SMBioctls",
-  "SMBcopy",
-  "SMBmove",
-  "SMBecho",
-  "SMBwriteclose",
-  "SMBopenX",
-  "SMBreadX",
-  "SMBwriteX",
-  "unknown-0x30",
-  "SMBcloseandtreedisc",
-  "SMBtrans2",
-  "SMBtrans2secondary",
-  "SMBfindclose2",
-  "SMBfindnotifyclose",
-  "unknown-0x36",
-  "unknown-0x37",
-  "unknown-0x38",
-  "unknown-0x39",
-  "unknown-0x3A",
-  "unknown-0x3B",
-  "unknown-0x3C",
-  "unknown-0x3D",
-  "unknown-0x3E",
-  "unknown-0x3F",
-  "unknown-0x40",
-  "unknown-0x41",
-  "unknown-0x42",
-  "unknown-0x43",
-  "unknown-0x44",
-  "unknown-0x45",
-  "unknown-0x46",
-  "unknown-0x47",
-  "unknown-0x48",
-  "unknown-0x49",
-  "unknown-0x4A",
-  "unknown-0x4B",
-  "unknown-0x4C",
-  "unknown-0x4D",
-  "unknown-0x4E",
-  "unknown-0x4F",
-  "unknown-0x50",
-  "unknown-0x51",
-  "unknown-0x52",
-  "unknown-0x53",
-  "unknown-0x54",
-  "unknown-0x55",
-  "unknown-0x56",
-  "unknown-0x57",
-  "unknown-0x58",
-  "unknown-0x59",
-  "unknown-0x5A",
-  "unknown-0x5B",
-  "unknown-0x5C",
-  "unknown-0x5D",
-  "unknown-0x5E",
-  "unknown-0x5F",
-  "unknown-0x60",
-  "unknown-0x61",
-  "unknown-0x62",
-  "unknown-0x63",
-  "unknown-0x64",
-  "unknown-0x65",
-  "unknown-0x66",
-  "unknown-0x67",
-  "unknown-0x68",
-  "unknown-0x69",
-  "unknown-0x6A",
-  "unknown-0x6B",
-  "unknown-0x6C",
-  "unknown-0x6D",
-  "unknown-0x6E",
-  "unknown-0x6F",
-  "SMBtcon",
-  "SMBtdis",
-  "SMBnegprot",
-  "SMBsesssetupX",
-  "SMBlogoffX",
-  "SMBtconX",
-  "unknown-0x76",
-  "unknown-0x77",
-  "unknown-0x78",
-  "unknown-0x79",
-  "unknown-0x7A",
-  "unknown-0x7B",
-  "unknown-0x7C",
-  "unknown-0x7D",
-  "unknown-0x7E",
-  "unknown-0x7F",
-  "SMBdskattr",
-  "SMBsearch",
-  "SMBffirst",
-  "SMBfunique",
-  "SMBfclose",
-  "unknown-0x85",
-  "unknown-0x86",
-  "unknown-0x87",
-  "unknown-0x88",
-  "unknown-0x89",
-  "unknown-0x8A",
-  "unknown-0x8B",
-  "unknown-0x8C",
-  "unknown-0x8D",
-  "unknown-0x8E",
-  "unknown-0x8F",
-  "unknown-0x90",
-  "unknown-0x91",
-  "unknown-0x92",
-  "unknown-0x93",
-  "unknown-0x94",
-  "unknown-0x95",
-  "unknown-0x96",
-  "unknown-0x97",
-  "unknown-0x98",
-  "unknown-0x99",
-  "unknown-0x9A",
-  "unknown-0x9B",
-  "unknown-0x9C",
-  "unknown-0x9D",
-  "unknown-0x9E",
-  "unknown-0x9F",
-  "SMBnttransact",
-  "SMBnttransactsecondary",
-  "SMBntcreateX",
-  "unknown-0xA3",
-  "SMBntcancel",
-  "unknown-0xA5",
-  "unknown-0xA6",
-  "unknown-0xA7",
-  "unknown-0xA8",
-  "unknown-0xA9",
-  "unknown-0xAA",
-  "unknown-0xAB",
-  "unknown-0xAC",
-  "unknown-0xAD",
-  "unknown-0xAE",
-  "unknown-0xAF",
-  "unknown-0xB0",
-  "unknown-0xB1",
-  "unknown-0xB2",
-  "unknown-0xB3",
-  "unknown-0xB4",
-  "unknown-0xB5",
-  "unknown-0xB6",
-  "unknown-0xB7",
-  "unknown-0xB8",
-  "unknown-0xB9",
-  "unknown-0xBA",
-  "unknown-0xBB",
-  "unknown-0xBC",
-  "unknown-0xBD",
-  "unknown-0xBE",
-  "unknown-0xBF",
-  "SMBsplopen",
-  "SMBsplwr",
-  "SMBsplclose",
-  "SMBsplretq",
-  "unknown-0xC4",
-  "unknown-0xC5",
-  "unknown-0xC6",
-  "unknown-0xC7",
-  "unknown-0xC8",
-  "unknown-0xC9",
-  "unknown-0xCA",
-  "unknown-0xCB",
-  "unknown-0xCC",
-  "unknown-0xCD",
-  "unknown-0xCE",
-  "unknown-0xCF",
-  "SMBsends",
-  "SMBsendb",
-  "SMBfwdname",
-  "SMBcancelf",
-  "SMBgetmac",
-  "SMBsendstrt",
-  "SMBsendend",
-  "SMBsendtxt",
-  "SMBreadbulk",
-  "SMBwritebulk",
-  "SMBwritebulkdata",
-  "unknown-0xDB",
-  "unknown-0xDC",
-  "unknown-0xDD",
-  "unknown-0xDE",
-  "unknown-0xDF",
-  "unknown-0xE0",
-  "unknown-0xE1",
-  "unknown-0xE2",
-  "unknown-0xE3",
-  "unknown-0xE4",
-  "unknown-0xE5",
-  "unknown-0xE6",
-  "unknown-0xE7",
-  "unknown-0xE8",
-  "unknown-0xE9",
-  "unknown-0xEA",
-  "unknown-0xEB",
-  "unknown-0xEC",
-  "unknown-0xED",
-  "unknown-0xEE",
-  "unknown-0xEF",
-  "unknown-0xF0",
-  "unknown-0xF1",
-  "unknown-0xF2",
-  "unknown-0xF3",
-  "unknown-0xF4",
-  "unknown-0xF5",
-  "unknown-0xF6",
-  "unknown-0xF7",
-  "unknown-0xF8",
-  "unknown-0xF9",
-  "unknown-0xFA",
-  "unknown-0xFB",
-  "unknown-0xFC",
-  "unknown-0xFD",
-  "SMBinvalid",
-  "unknown-0xFF"
-};
 
 void 
 dissect_unknown_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
@@ -11405,13 +11755,6 @@ static const value_string errcls_types[] = {
   { 0, NULL }
 };
 
-char *decode_smb_name(unsigned char cmd)
-{
-
-  return(SMB_names[cmd]);
-
-}
-
 static const value_string DOS_errors[] = {
   {SMBE_badfunc, "Invalid function (or system call)"},
   {SMBE_badfile, "File not found (pathname error)"},
@@ -12279,342 +12622,392 @@ static const value_string NT_errors[] = {
   { 0,          NULL }
 };
 
+
+
+static const true_false_string tfs_smb_flags_lock = {
+	"Lock&Read, Write&Unlock supported",
+	"Lock&Read, Write&Unlock not supported"
+};
+static const true_false_string tfs_smb_flags_receive_buffer = {
+	"Receive buffer posted",
+	"Receive buffer not posted"
+};
+static const true_false_string tfs_smb_flags_caseless = {
+	"Path names caseless",
+	"Path names case sensitive"
+};
+static const true_false_string tfs_smb_flags_canon = {
+	"Pathnames canonicalized",
+	"Pathnames not canonicalized"
+};
+static const true_false_string tfs_smb_flags_oplock = {
+	"OpLocks requested/granted",
+	"OpLocks not requested/granted"
+};
+static const true_false_string tfs_smb_flags_notify = {
+	"Notify all",
+	"Notify open only"
+};
+static const true_false_string tfs_smb_flags_request = {
+	"Response to client/redirector",
+	"Request to server"
+};
+
+static int
+dissect_smb_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	guint8 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	mask = tvb_get_guint8(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 1,
+			"Flags: 0x%02x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_flags);
+ 	}
+	proto_tree_add_boolean(tree, hf_smb_flags_request,
+		tvb, offset, 1, mask);
+	proto_tree_add_boolean(tree, hf_smb_flags_notify,
+		tvb, offset, 1, mask);
+	proto_tree_add_boolean(tree, hf_smb_flags_oplock,
+		tvb, offset, 1, mask);
+	proto_tree_add_boolean(tree, hf_smb_flags_canon,
+		tvb, offset, 1, mask);
+	proto_tree_add_boolean(tree, hf_smb_flags_caseless,
+		tvb, offset, 1, mask);
+	proto_tree_add_boolean(tree, hf_smb_flags_receive_buffer,
+		tvb, offset, 1, mask);
+	proto_tree_add_boolean(tree, hf_smb_flags_lock,
+		tvb, offset, 1, mask);
+	offset += 1;
+	return offset;
+}
+
+
+ 
+static const true_false_string tfs_smb_flags2_long_names = {
+	"Long file names supported",
+	"Long file names not supported"
+};
+static const true_false_string tfs_smb_flags2_ea = {
+	"Extended attributes supported",
+	"Extended attributes not supported"
+};
+static const true_false_string tfs_smb_flags2_sec_sig = {
+	"Security signatures supported",
+	"Security signatures not supported"
+};
+static const true_false_string tfs_smb_flags2_esn = {
+	"Extended security negotiation supported",
+	"Extended security negotiation not supported"
+};
+static const true_false_string tfs_smb_flags2_dfs = {
+	"Resolve pathnames with DFS",
+	"Don't resolve pathnames with DFS"
+};
+static const true_false_string tfs_smb_flags2_roe = {
+	"Permit reads if execute-only",
+	"Don't permit reads if execute-only"
+};
+static const true_false_string tfs_smb_flags2_nt_error = {
+	"Error codes are NT error codes",
+	"Error codes are DOS error codes"
+};
+static const true_false_string tfs_smb_flags2_string = {
+	"Strings are Unicode",
+	"Strings are ASCII"
+};
+static int
+dissect_smb_flags2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	guint16 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	mask = tvb_get_letohs(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
+			"Flags2: 0x%04x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_flags2);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_flags2_string,
+		tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree, hf_smb_flags2_nt_error,
+		tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree, hf_smb_flags2_roe,
+		tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree, hf_smb_flags2_dfs,
+		tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree, hf_smb_flags2_esn,
+		tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree, hf_smb_flags2_sec_sig,
+		tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree, hf_smb_flags2_ea,
+		tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree, hf_smb_flags2_long_names,
+		tvb, offset, 2, mask);
+ 
+	offset += 2;
+	return offset;
+}
+
+
+
 #define SMB_FLAGS_DIRN 0x80
 
-static gboolean
-dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	int		offset = 0;
-	struct          smb_info si;
-	static const char smb_signature[4] = { 0xFF, 'S', 'M', 'B' };
-	proto_tree      *smb_tree = tree, *smb_hdr_tree = NULL, *flags_tree, *flags2_tree;
-	proto_item      *ti, *tf, *th;
-	guint8          cmd, errcls, errcode1, flags;
-	guint16         flags2, errcode, tid, pid, uid, mid;
-	guint32         status;
-	const u_char	*pd;
-	int             SMB_offset;
 
-	/* OK, is this an SMB message? */
+static gboolean
+dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+{
+	int offset = 0;
+	proto_item *item = NULL, *hitem = NULL;
+	proto_tree *tree = NULL, *htree = NULL;
+	guint8          flags;
+	guint16         flags2;
+	smb_info_t 	si;
+	smb_info_t	*sip;
+	proto_item *cmd_item = NULL;
+	proto_tree *cmd_tree = NULL;
+	int (*dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree);
+
+
+	/* must check that this really is a smb packet */
 	if (!tvb_bytes_exist(tvb, 0, 4))
 	  return FALSE;
-	if (memcmp(tvb_get_ptr(tvb, 0, 4), smb_signature, 4) != 0) {
-	  /* No. */
-	  return FALSE;
+	if( (tvb_get_guint8(tvb, 0) != 0xff)
+	 || (tvb_get_guint8(tvb, 1) != 'S')
+	 || (tvb_get_guint8(tvb, 2) != 'M')
+	 || (tvb_get_guint8(tvb, 3) != 'B') ){
+		return FALSE;
 	}
-
-	/* Yes. */
-	si.unicode = FALSE;
-    	si.ddisp = 0;
-
-	if (check_col(pinfo->fd, COL_PROTOCOL))
+	 
+	if (check_col(pinfo->fd, COL_PROTOCOL)){
 		col_set_str(pinfo->fd, COL_PROTOCOL, "SMB");
-	if (check_col(pinfo->fd, COL_INFO))
+	}
+	if (check_col(pinfo->fd, COL_INFO)){
 		col_clear(pinfo->fd, COL_INFO);
-
-	cmd = tvb_get_guint8(tvb, SMB_hdr_com_offset);
-	if (check_col(pinfo->fd, COL_INFO)) {
-
-	  col_add_fstr(pinfo->fd, COL_INFO, "%s", decode_smb_name(cmd));
-
 	}
 
-	if (tree) {
+	/* start off using the local variable, we will allocate a new one if we
+	   need to*/
+	sip = &si;
+	sip->frame_req = 0;
+	sip->frame_res = 0;
+	sip->mid = tvb_get_letohs(tvb, offset+30);
+	sip->uid = tvb_get_letohs(tvb, offset+28);
+	sip->pid = tvb_get_letohs(tvb, offset+26);
+	sip->tid = tvb_get_letohs(tvb, offset+24);
+	flags2 = tvb_get_letohs(tvb, offset+10);
+	if(flags2 & 0x8000){
+		sip->unicode = TRUE; /* Mark them as Unicode */
+	} else {
+		sip->unicode = FALSE;
+	}
+	flags = tvb_get_guint8(tvb, offset+9);
+	sip->request = !(flags&SMB_FLAGS_DIRN);
+	sip->cmd = tvb_get_guint8(tvb, offset+4);
+	sip->ddisp = 0;
 
-	  ti = proto_tree_add_item(tree, proto_smb, tvb, offset, tvb_length(tvb), FALSE);
-	  smb_tree = proto_item_add_subtree(ti, ett_smb);
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, proto_smb, tvb, offset, 
+			tvb_length_remaining(tvb, 0), FALSE);
+		tree = proto_item_add_subtree(item, ett_smb);
 
-	  th = proto_tree_add_text(smb_tree, NullTVB, offset, 32, "SMB Header");
+		hitem = proto_tree_add_text(tree, tvb, offset, 32, 
+			"SMB Header");
 
-	  smb_hdr_tree = proto_item_add_subtree(th, ett_smb_hdr);
-
-	  /* 0xFFSMB is actually a 1 byte msg type and 3 byte server
-	   * component ... SMB is only one used
-	   */
-
-	  proto_tree_add_text(smb_hdr_tree, tvb, offset, 1, "Message Type: 0xFF");
-	  proto_tree_add_text(smb_hdr_tree, tvb, offset+1, 3, "Server Component: SMB");
-
+		htree = proto_item_add_subtree(hitem, ett_smb_hdr);
 	}
 
+	proto_tree_add_text(htree, tvb, offset, 4, "Server Component: SMB");
 	offset += 4;  /* Skip the marker */
 
-	if (tree) {
 
-	  proto_tree_add_uint(smb_hdr_tree, hf_smb_cmd, tvb, offset, 1, cmd);
-
+	/* store smb_info structure so we can retreive it from the reply */
+	if(sip->request){
+		sip->src = &pinfo->src;
+		sip->dst = &pinfo->dst;
+		if(!pinfo->fd->flags.visited){
+			if( (sip->mid==0)
+			&&  (sip->uid==0)
+			&&  (sip->pid==0)
+			&&  (sip->tid==0) ){
+				/* this is a broadcast SMB packet,
+				   there will not be a reply.
+				   We dont need to do anything */
+				sip->unidir=FALSE;
+			} else {
+				sip->unidir=TRUE;
+				sip = g_mem_chunk_alloc(smb_info_chunk);
+				memcpy(sip, &si, sizeof(smb_info_t));
+				sip->frame_req = pinfo->fd->num;
+				sip->frame_res = 0;
+				sip->src=g_malloc(sizeof(address));
+				COPY_ADDRESS(sip->src, &pinfo->src);
+				sip->dst=g_malloc(sizeof(address));
+				COPY_ADDRESS(sip->dst, &pinfo->dst);
+				g_hash_table_insert(smb_info_table, sip, sip);
+			}
+		}
+	} else {
+		sip->src = &pinfo->dst;
+		sip->dst = &pinfo->src;
+	}
+	sip = g_hash_table_lookup(smb_info_table, sip);
+	if(!sip){
+		sip = &si;
+	}
+	/* need to redo these ones, might have changed if we got a new sip */
+	sip->request = !(flags&SMB_FLAGS_DIRN);
+	if(flags2 & 0x8000){
+		sip->unicode = TRUE; /* Mark them as Unicode */
+	} else {
+		sip->unicode = FALSE;
 	}
 
+	if(sip->request){
+		if(sip->frame_res){
+			proto_tree_add_uint(htree, hf_smb_response_in, tvb, 0, 0, sip->frame_res);
+		}
+	} else {
+		if(!pinfo->fd->flags.visited){
+			sip->frame_res=pinfo->fd->num;
+		}
+		if(sip->frame_req){
+			proto_tree_add_uint(htree, hf_smb_response_to, tvb, 0, 0, sip->frame_req);
+		}
+	}
+
+	/* smb command */
+	proto_tree_add_uint_format(htree, hf_smb_cmd, tvb, offset, 1, sip->cmd, "SMB Command: %s (0x%02x)", decode_smb_name(sip->cmd), sip->cmd);
 	offset += 1;
 
-	/* Get flags2; we need it to know whether the error code is
-	   an NT error code or a DOS error code. */
+	if(flags2 & 0x4000){
+		/* handle NT 32 bit error code */
+		proto_tree_add_uint(htree, hf_smb_nt_status, tvb, offset, 4,
+			tvb_get_letohl(tvb, offset));
+		offset += 4;
+	} else {
+		guint8 errclass;
+		guint16 errcode;
 
-	flags2 = tvb_get_letohs(tvb, 10);
+		/* handle DOS error code & class */
+		errclass = tvb_get_guint8(tvb, offset);
+		proto_tree_add_uint(htree, hf_smb_error_class, tvb, offset, 1,
+			errclass);
+		offset += 1;
 
-	/* Handle error code */
+		/* reserved byte */
+		proto_tree_add_bytes(htree, hf_smb_reserved, tvb, offset, 1, tvb_get_ptr(tvb, offset, 1));
+		offset += 1;
 
-	if (flags2 & 0x4000) {
-
-	    /* handle NT 32 bit error code */
-	    status = tvb_get_letohl(tvb, offset); 
-
-	    if (tree) {
-
-		/*
-		 * XXX - break the value down into severity code,
-		 * customer code, facility, and error?
+		/* error code */
+		/* XXX - the type of this field depends on the value of
+		 * "errcls", so there is isn't a single value_string array
+		 * fo it, so there can't be a single field for it.
 		 */
-		proto_tree_add_uint(smb_hdr_tree, hf_smb_status,
-				    tvb, offset, 4, status);
-
-	    }
-
-	    offset += 4;
-
-	}
-	else {
-	    /* handle DOS error code & class */
-
-	    /* Next, look at the error class, SMB_RETCLASS */
-
-	    errcls = tvb_get_guint8(tvb, offset);
-
-	    if (tree) {
-
-		proto_tree_add_uint(smb_hdr_tree, hf_smb_errcls,
-				    tvb, offset, 1, errcls);
-	    }
-
-	    offset += 1;
-
-	    /* Error code, SMB_HEINFO ... */
-
-	    errcode1 = tvb_get_guint8(tvb, offset);
-
-	    if (tree) {
-
-		proto_tree_add_text(smb_hdr_tree, tvb, offset, 1, "Reserved: %i", errcode1); 
-
-	    }
-
-	    offset += 1;
-
-	    errcode = tvb_get_letohs(tvb, offset); 
-
-	    if (tree) {
-
-		/*
-		 * XXX - the type of this field depends on the value of
-		 * "errcls", so there isn't a single value_string array
-		 * for it, so there can't be a single field for it.
-		 */
-		proto_tree_add_text(smb_hdr_tree, tvb, offset, 2, "Error Code: %s",
-				    decode_smb_error(errcls, errcode));
-
-	    }
-
-	    offset += 2;
+		errcode = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint_format(htree, hf_smb_error_code, tvb,
+			offset, 2, errcode, "Error Code: %s",
+			decode_smb_error(errclass, errcode));
+		offset += 2;
 	}
 
-	/* Now for the flags: Bit 0 = 0 means cmd, 0 = 1 means resp */
+	/* flags */
+	offset = dissect_smb_flags(tvb, pinfo, htree, offset);
 
-	flags = tvb_get_guint8(tvb, offset);
-	si.request = !(flags&SMB_FLAGS_DIRN);
-
-	if (check_col(pinfo->fd, COL_INFO)) {
-
-	  col_append_fstr(pinfo->fd, COL_INFO, " %s", si.request ? "Request" : "Response");
-
-	}
-
-	if (tree) {
-
-	  tf = proto_tree_add_uint(smb_hdr_tree, hf_smb_flags, tvb, offset, 1, flags);
-
-	  flags_tree = proto_item_add_subtree(tf, ett_smb_flags);
-	  proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
-			      decode_boolean_bitfield(flags, 0x01, 8,
-						      "Lock&Read, Write&Unlock supported",
-						      "Lock&Read, Write&Unlock not supported"));
-	  proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
-			      decode_boolean_bitfield(flags, 0x02, 8,
-						      "Receive buffer posted",
-						      "Receive buffer not posted"));
-	  proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
-			      decode_boolean_bitfield(flags, 0x08, 8, 
-						      "Path names caseless",
-						      "Path names case sensitive"));
-	  proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
-			      decode_boolean_bitfield(flags, 0x10, 8,
-						      "Pathnames canonicalized",
-						      "Pathnames not canonicalized"));
-	  proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
-			      decode_boolean_bitfield(flags, 0x20, 8,
-						      "OpLocks requested/granted",
-						      "OpLocks not requested/granted"));
-	  proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
-			      decode_boolean_bitfield(flags, 0x40, 8, 
-						      "Notify all",
-						      "Notify open only"));
-
-	  proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
-			      decode_boolean_bitfield(flags, SMB_FLAGS_DIRN,
-						      8, "Response to client/redirector", "Request to server"));
-
-	}
-
-	offset += 1;
-
-	/* Now put flags2 into the tree */
-
-	if (tree) {
-
-	  tf = proto_tree_add_uint(smb_hdr_tree, hf_smb_flags2, tvb, offset, 2, flags2);
-
-	  flags2_tree = proto_item_add_subtree(tf, ett_smb_flags2);
-	  proto_tree_add_text(flags2_tree, tvb, offset, 2, "%s",
-			      decode_boolean_bitfield(flags2, 0x0001, 16,
-						      "Long file names supported",
-						      "Long file names not supported"));
-	  proto_tree_add_text(flags2_tree, tvb, offset, 2, "%s",
-			      decode_boolean_bitfield(flags2, 0x0002, 16,
-						      "Extended attributes supported",
-						      "Extended attributes not supported"));
-	  proto_tree_add_text(flags2_tree, tvb, offset, 1, "%s",
-			      decode_boolean_bitfield(flags2, 0x0004, 16,
-						      "Security signatures supported",
-						      "Security signatures not supported"));
-	  proto_tree_add_text(flags2_tree, tvb, offset, 2, "%s",
-			      decode_boolean_bitfield(flags2, 0x0800, 16,
-						      "Extended security negotiation supported",
-						      "Extended security negotiation not supported"));
-	  proto_tree_add_text(flags2_tree, tvb, offset, 2, "%s",
-			      decode_boolean_bitfield(flags2, 0x1000, 16, 
-						      "Resolve pathnames with DFS",
-						      "Don't resolve pathnames with DFS"));
-	  proto_tree_add_text(flags2_tree, tvb, offset, 2, "%s",
-			      decode_boolean_bitfield(flags2, 0x2000, 16,
-						      "Permit reads if execute-only",
-						      "Don't permit reads if execute-only"));
-	  proto_tree_add_text(flags2_tree, tvb, offset, 2, "%s",
-			      decode_boolean_bitfield(flags2, 0x4000, 16,
-						      "Error codes are NT error codes",
-						      "Error codes are DOS error codes"));
-	  proto_tree_add_text(flags2_tree, tvb, offset, 2, "%s",
-			      decode_boolean_bitfield(flags2, 0x8000, 16, 
-						      "Strings are Unicode",
-						      "Strings are ASCII"));
-
-	}
-
-	if (flags2 & 0x8000) si.unicode = TRUE; /* Mark them as Unicode */
-
-	offset += 2;
-
-	if (tree) {
-
-	  /*
-	   * The document at
-	   *
-	   *	http://www.samba.org/samba/ftp/specs/smbpub.txt
-	   *
-	   * (a text version of "Microsoft Networks SMB FILE SHARING
-	   * PROTOCOL, Document Version 6.0p") says that:
-	   *
-	   *	the first 2 bytes of these 12 bytes are, for NT Create and X,
-	   *	the "High Part of PID";
-	   *
-	   *	the next four bytes are reserved;
-	   *
-	   *	the next four bytes are, for SMB-over-IPX (with no
-	   *	NetBIOS involved) two bytes of Session ID and two bytes
-	   *	of SequenceNumber.
-	   *
-	   * If we ever implement SMB-over-IPX (which I suspect goes over
-	   * IPX sockets 0x0550, 0x0552, and maybe 0x0554, as per the
-	   * document in question), we'd probably want to have some way
-	   * to determine whether this is SMB-over-IPX or not (which could
-	   * be done by adding a PT_IPXSOCKET port type, having the
-	   * IPX dissector set "pinfo->srcport" and "pinfo->destport",
-	   * and having the SMB dissector check for a port type of
-	   * PT_IPXSOCKET and for "pinfo->match_port" being either
-	   * IPX_SOCKET_NWLINK_SMB_SERVER or IPX_SOCKET_NWLINK_SMB_REDIR
-	   * or, if it also uses 0x0554, IPX_SOCKET_NWLINK_SMB_MESSENGER).
-	   */
-	  proto_tree_add_text(smb_hdr_tree, tvb, offset, 12, "Reserved: 6 WORDS");
-
-	}
-
-	offset += 12;
-
-	/* Now the TID, tree ID */
-
-	tid = tvb_get_letohs(tvb, offset);
-	si.tid = tid;
-
-	if (tree) {
-
-	  proto_tree_add_uint(smb_hdr_tree, hf_smb_tid, tvb, offset, 2, tid); 
-
-	}
-
-	offset += 2;
-
-	/* Now the PID, Process ID */
-
-	pid = tvb_get_letohs(tvb, offset);
-	si.pid = pid;
-
-	if (tree) {
-
-	  proto_tree_add_uint(smb_hdr_tree, hf_smb_pid, tvb, offset, 2, pid); 
-
-	}
-
-	offset += 2;
-
-	/* Now the UID, User ID */
-
-	uid = tvb_get_letohs(tvb, offset);
-	si.uid = uid;
-
-	if (tree) {
-
-	  proto_tree_add_uint(smb_hdr_tree, hf_smb_uid, tvb, offset, 2, uid); 
-
-	}
-	
-	offset += 2;
-
-	/* Now the MID, Multiplex ID */
-
-	mid = tvb_get_letohs(tvb, offset);
-	si.mid = mid;
-
-	if (tree) {
-
-	  proto_tree_add_uint(smb_hdr_tree, hf_smb_mid, tvb, offset, 2, mid); 
-
-	}
-
-	offset += 2;
+	/* flags2 */
+	offset = dissect_smb_flags2(tvb, pinfo, htree, offset);
 
 	/*
-	 * Get old-style information from the tvbuff we've been handed.
+	 * The document at
+	 *
+	 *	http://www.samba.org/samba/ftp/specs/smbpub.txt
+	 *
+	 * (a text version of "Microsoft Networks SMB FILE SHARING
+	 * PROTOCOL, Document Version 6.0p") says that:
+	 *
+	 *	the first 2 bytes of these 12 bytes are, for NT Create and X,
+	 *	the "High Part of PID";
+	 *
+	 *	the next four bytes are reserved;
+	 *
+	 *	the next four bytes are, for SMB-over-IPX (with no
+	 *	NetBIOS involved) two bytes of Session ID and two bytes
+	 *	of SequenceNumber.
+	 *
+	 * If we ever implement SMB-over-IPX (which I suspect goes over
+	 * IPX sockets 0x0550, 0x0552, and maybe 0x0554, as per the
+	 * document in question), we'd probably want to have some way
+	 * to determine whether this is SMB-over-IPX or not (which could
+	 * be done by adding a PT_IPXSOCKET port type, having the
+	 * IPX dissector set "pinfo->srcport" and "pinfo->destport",
+	 * and having the SMB dissector check for a port type of
+	 * PT_IPXSOCKET and for "pinfo->match_port" being either
+	 * IPX_SOCKET_NWLINK_SMB_SERVER or IPX_SOCKET_NWLINK_SMB_REDIR
+	 * or, if it also uses 0x0554, IPX_SOCKET_NWLINK_SMB_MESSENGER).
 	 */
-	tvb_compat(tvb, &pd, &SMB_offset);
-	offset += SMB_offset;
 
-	/* Now vector through the table to dissect them */
+	/* 12 reserved bytes */
+	proto_tree_add_bytes(htree, hf_smb_reserved, tvb, offset, 12, tvb_get_ptr(tvb, offset, 12));
+	offset += 12;
 
-	(dissect[cmd])(pd, offset, pinfo->fd, tree, smb_tree, si,
-		       tvb_length(tvb), SMB_offset);
+	/* TID */
+	proto_tree_add_uint(htree, hf_smb_tid, tvb, offset, 2,
+		sip->tid);
+	offset += 2;
+
+	/* PID */
+	proto_tree_add_uint(htree, hf_smb_pid, tvb, offset, 2,
+		sip->pid);
+	offset += 2;
+
+	/* UID */
+	proto_tree_add_uint(htree, hf_smb_uid, tvb, offset, 2,
+		sip->uid);
+	offset += 2;
+
+	/* MID */
+	proto_tree_add_uint(htree, hf_smb_mid, tvb, offset, 2,
+		sip->mid);
+	offset += 2;
+
+
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_set_str(pinfo->fd, COL_INFO, 
+			(sip->request)? "Request  ":"Response ");
+	}
+
+	if(smb_dissector[sip->cmd].request){ 
+	  /* call smb command dissector */
+	  pinfo->private_data = sip;
+	  dissect_smb_command(tvb, pinfo, parent_tree, offset, tree, sip->cmd);
+	} else {
+	  const u_char *pd;
+	  int SMB_offset;
+	  tvb_compat(tvb, &pd, &SMB_offset);
+	  offset += SMB_offset;
+	  if (check_col(pinfo->fd, COL_INFO)) {
+	    col_append_fstr(pinfo->fd, COL_INFO, "%s ",
+			    decode_smb_name(sip->cmd));
+	  }
+	  (dissect[sip->cmd])(pd, offset, pinfo->fd, parent_tree, tree, si,
+			      tvb_length(tvb), SMB_offset);
+	}
 
 	return TRUE;
 }
 
-/*** External routines called during the registration process */
+
+
+
+
+
+	/* External routines called during the registration process */
 
 extern void register_proto_smb_browse( void);
 extern void register_proto_smb_logon( void);
@@ -12627,37 +13020,116 @@ void
 proto_register_smb(void)
 {
 	static hf_register_info hf[] = {
-	  { &hf_smb_cmd,
-	    { "SMB Command", "smb.cmd",
-	      FT_UINT8, BASE_HEX, VALS(smb_cmd_vals), 0x0, "", HFILL }},
-	  { &hf_smb_status,
-	    { "Status", "smb.status",
-	      FT_UINT32, BASE_HEX, VALS(NT_errors), 0x0, "", HFILL }},
-	  { &hf_smb_errcls,
-	    { "Error Class", "smb.errcls",
-	      FT_UINT8, BASE_HEX, VALS(errcls_types), 0x0, "", HFILL }},
-	  { &hf_smb_flags,
-	    { "Flags", "smb.flags",
-	      FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
-	  { &hf_smb_flags2,
-	    { "Flags2", "smb.flags2",
-	      FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
-	  { &hf_smb_tid,
-	    { "Network Path/Tree ID (TID)", "smb.tid",
-	      FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
-	  { &hf_smb_pid,
-	    { "Process ID (PID)", "smb.pid",
-	      FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
-	  { &hf_smb_uid,
-	    { "User ID (UID)", "smb.uid",
-	      FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
-	  { &hf_smb_mid,
-	    { "Multiplex ID (MID)", "smb.mid",
-	      FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ &hf_smb_cmd,
+		{ "SMB Command", "smb.cmd", FT_UINT8, BASE_HEX,
+		VALS(smb_cmd_vals), 0x0, "SMB Command", HFILL }},
+
+	{ &hf_smb_response_to,
+		{ "Response to", "smb.response_to", FT_UINT32, BASE_DEC,
+		NULL, 0, "This packet is a response to the packet in this frame", HFILL }},
+
+	{ &hf_smb_response_in,
+		{ "Response in", "smb.response_in", FT_UINT32, BASE_DEC,
+		NULL, 0, "The response to this packet is in this packet", HFILL }},
+
+	{ &hf_smb_nt_status,
+		{ "NT Status", "smb.nt_status", FT_UINT32, BASE_HEX,
+		VALS(NT_errors), 0, "NT Status code", HFILL }},
+
+	{ &hf_smb_error_class,
+		{ "Error Class", "smb.error_class", FT_UINT8, BASE_HEX,
+		VALS(errcls_types), 0, "DOS Error Class", HFILL }},
+
+	{ &hf_smb_error_code,
+		{ "Error Code", "smb.error_code", FT_UINT16, BASE_HEX,
+		NULL, 0, "DOS Error Code", HFILL }},
+
+	{ &hf_smb_reserved,
+		{ "Reserved", "smb.reserved", FT_BYTES, BASE_HEX,
+		NULL, 0, "Reserved bytes, must be zero", HFILL }},
+
+	{ &hf_smb_pid,
+		{ "Process ID", "smb.pid", FT_UINT16, BASE_DEC,
+		NULL, 0, "Process ID", HFILL }},
+
+	{ &hf_smb_tid,
+		{ "Tree ID", "smb.tid", FT_UINT16, BASE_DEC,
+		NULL, 0, "Tree ID", HFILL }},
+
+	{ &hf_smb_uid,
+		{ "User ID", "smb.uid", FT_UINT16, BASE_DEC,
+		NULL, 0, "User ID", HFILL }},
+
+	{ &hf_smb_mid,
+		{ "Multiplex ID", "smb.mid", FT_UINT16, BASE_DEC,
+		NULL, 0, "Multiplex ID", HFILL }},
+
+	{ &hf_smb_flags_lock,
+		{ "", "smb.flags.lock", FT_BOOLEAN, 8,
+		TFS(&tfs_smb_flags_lock), 0x01, "Are Lock&Read and Write&Unlock operations supported?", HFILL }},
+
+	{ &hf_smb_flags_receive_buffer,
+		{ "", "smb.flags.receive_buffer", FT_BOOLEAN, 8,
+		TFS(&tfs_smb_flags_receive_buffer), 0x02, "Have receive buffers been reported?", HFILL }},
+
+	{ &hf_smb_flags_caseless,
+		{ "", "smb.flags.caseless", FT_BOOLEAN, 8,
+		TFS(&tfs_smb_flags_caseless), 0x08, "Are pathnames caseless or casesensitive?", HFILL }},
+
+	{ &hf_smb_flags_canon,
+		{ "", "smb.flags.canon", FT_BOOLEAN, 8,
+		TFS(&tfs_smb_flags_canon), 0x10, "Are pathnames canonicalized?", HFILL }},
+
+	{ &hf_smb_flags_oplock,
+		{ "", "smb.flags.oplock", FT_BOOLEAN, 8,
+		TFS(&tfs_smb_flags_oplock), 0x20, "Are oplocks requested/granted?", HFILL }},
+
+	{ &hf_smb_flags_notify,
+		{ "", "smb.flags.notify", FT_BOOLEAN, 8,
+		TFS(&tfs_smb_flags_notify), 0x40, "Notify on open or all?", HFILL }},
+
+	{ &hf_smb_flags_request,
+		{ "", "smb.flags.request", FT_BOOLEAN, 8,
+		TFS(&tfs_smb_flags_request), 0x80, "Is this a request or a response?", HFILL }},
+
+	{ &hf_smb_flags2_long_names,
+		{ "", "smb.flags2.long_names", FT_BOOLEAN, 16,
+		TFS(&tfs_smb_flags2_long_names), 0x0001, "Are long file names supported?", HFILL }},
+
+	{ &hf_smb_flags2_ea,
+		{ "", "smb.flags2.ea", FT_BOOLEAN, 16,
+		TFS(&tfs_smb_flags2_ea), 0x0002, "Are extended attributes supported?", HFILL }},
+
+	{ &hf_smb_flags2_sec_sig,
+		{ "", "smb.flags2.sec_sig", FT_BOOLEAN, 16,
+		TFS(&tfs_smb_flags2_sec_sig), 0x0004, "Are security signatures supported?", HFILL }},
+
+	{ &hf_smb_flags2_esn,
+		{ "", "smb.flags2.esn", FT_BOOLEAN, 16,
+		TFS(&tfs_smb_flags2_esn), 0x0800, "Is extended security negotiation supported?", HFILL }},
+
+	{ &hf_smb_flags2_dfs,
+		{ "", "smb.flags2.dfs", FT_BOOLEAN, 16,
+		TFS(&tfs_smb_flags2_dfs), 0x1000, "Will DFS pathnames be resolved?", HFILL }},
+
+	{ &hf_smb_flags2_roe,
+		{ "", "smb.flags2.roe", FT_BOOLEAN, 16,
+		TFS(&tfs_smb_flags2_roe), 0x2000, "Will reads be allowed for execute only files?", HFILL }},
+
+	{ &hf_smb_flags2_nt_error,
+		{ "", "smb.flags2.error", FT_BOOLEAN, 16,
+		TFS(&tfs_smb_flags2_nt_error), 0x4000, "Are errorcodes NT or DOS format?", HFILL }},
+
+	{ &hf_smb_flags2_string,
+		{ "", "smb.flags2.string", FT_BOOLEAN, 16,
+		TFS(&tfs_smb_flags2_string), 0x8000, "Are strings ASCII or UNICODE?", HFILL }},
+
+
 	};
 	static gint *ett[] = {
 		&ett_smb,
 		&ett_smb_hdr,
+		&ett_smb_command,
 		&ett_smb_fileattributes,
 		&ett_smb_capabilities,
 		&ett_smb_aflags,
@@ -12684,6 +13156,7 @@ proto_register_smb(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_smb, hf, array_length(hf));
 	register_init_routine(&smb_init_protocol);
+	register_init_routine(&smb_info_init);
 
 	register_proto_smb_browse();
 	register_proto_smb_logon();
