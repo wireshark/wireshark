@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.56 1999/10/27 05:34:39 guy Exp $
+# $Id: configure.in,v 1.57 1999/10/28 03:33:19 guy Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -29,7 +29,28 @@ else
   AC_MSG_RESULT(no)
 fi
 
-CFLAGS="$CFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap"
+#
+# Arrange that we search for header files in the source directory
+# and in its "wiretap" subdirectory, as well as in "/usr/local/include",
+# as various packages we use ("libpcap", "zlib", an SNMP library)
+# may have been installed under "/usr/local/include".
+#
+CFLAGS="$CFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap -I/usr/local/include"
+CPPFLAGS="$CPPFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap -I/usr/local/include"
+
+#
+# Arrange that we search for libraries in "/usr/local/lib", and set
+# a "-R" flag as appropriate.
+#
+# XXX - IRIX, and other OSes, may require some flag equivalent to
+# "-R" here.
+#
+LIBS="$LIBS -L/usr/local/lib"
+case "$host_os" in
+  solaris*)
+    LIBS="$LIBS -R/usr/local/lib"
+  ;;
+esac
 
 # Create DATAFILE_DIR #define for config.h
 DATAFILE_DIR=$sysconfdir
