@@ -1,12 +1,11 @@
-/* to_str.h
- * Routines  for utilities to convert various other types to strings.
+/* to_str.c
+ * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.10 2001/07/15 19:14:02 guy Exp $
+ * $Id: to_str.c,v 1.11 2001/08/01 08:27:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -268,26 +267,26 @@ vines_addr_to_str(const guint8 *addrp)
 #define	PLURALIZE(n)	(((n) > 1) ? "s" : "")
 #define	COMMA(do_it)	((do_it) ? ", " : "")
 
-gchar *
-time_secs_to_str(guint32 time)
+/*
+ * Maximum length of a string showing days/hours/minutes/seconds.
+ * (Does not include the terminating '\0'.)
+ */
+#define TIME_SECS_LEN	(8+1+4+2+2+5+2+2+7+2+2+7)
+
+/*
+ * Convert a value in seconds and fractions of a second to a string,
+ * giving time in days, hours, minutes, and seconds, and put the result
+ * into a buffer.
+ * "is_usecs" says that "frac" is microseconds if true and milliseconds
+ * if false.
+ */
+static void
+time_secs_to_str_buf(guint32 time, guint32 frac, gboolean is_usecs,
+			   gchar *buf)
 {
-  static gchar  str[3][8+1+4+2+2+5+2+2+7+2+2+7+1];
-  static gchar *cur, *p;
+  static gchar *p;
   int hours, mins, secs;
   int do_comma;
-
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {  
-    cur = &str[2][0];
-  } else {  
-    cur = &str[0][0];
-  }
-
-  if (time == 0) {
-    sprintf(cur, "0 time");
-    return cur;
-  }
 
   secs = time % 60;
   time /= 60;
@@ -296,7 +295,7 @@ time_secs_to_str(guint32 time)
   hours = time % 24;
   time /= 24;
 
-  p = cur;
+  p = buf;
   if (time != 0) {
     sprintf(p, "%u day%s", time, PLURALIZE(time));
     p += strlen(p);
@@ -315,19 +314,46 @@ time_secs_to_str(guint32 time)
     do_comma = 1;
   } else
     do_comma = 0;
-  if (secs != 0)
-    sprintf(p, "%s%u second%s", COMMA(do_comma), secs, PLURALIZE(secs));
+  if (secs != 0 || frac != 0) {
+    if (frac != 0) {
+      if (is_usecs)
+        sprintf(p, "%s%u.%06u seconds", COMMA(do_comma), secs, frac);
+      else
+        sprintf(p, "%s%u.%03u seconds", COMMA(do_comma), secs, frac);
+    } else
+      sprintf(p, "%s%u second%s", COMMA(do_comma), secs, PLURALIZE(secs));
+  }
+}
+
+gchar *
+time_secs_to_str(guint32 time)
+{
+  static gchar  str[3][TIME_SECS_LEN+1];
+  static gchar *cur;
+
+  if (cur == &str[0][0]) {
+    cur = &str[1][0];
+  } else if (cur == &str[1][0]) {  
+    cur = &str[2][0];
+  } else {  
+    cur = &str[0][0];
+  }
+
+  if (time == 0) {
+    sprintf(cur, "0 time");
+    return cur;
+  }
+
+  time_secs_to_str_buf(time, 0, FALSE, cur);
   return cur;
 }
 
 gchar *
 time_msecs_to_str(guint32 time)
 {
-  static gchar  str[3][8+1+4+2+2+5+2+2+7+2+2+11+1];
-  static gchar *cur, *p;
-  int hours, mins, secs;
+  static gchar  str[3][TIME_SECS_LEN+1+3+1];
+  static gchar *cur;
   int msecs;
-  int do_comma;
 
   if (cur == &str[0][0]) {
     cur = &str[1][0];
@@ -345,38 +371,7 @@ time_msecs_to_str(guint32 time)
   msecs = time % 1000;
   time /= 1000;
 
-  secs = time % 60;
-  time /= 60;
-  mins = time % 60;
-  time /= 60;
-  hours = time % 24;
-  time /= 24;
-
-  p = cur;
-  if (time != 0) {
-    sprintf(p, "%u day%s", time, PLURALIZE(time));
-    p += strlen(p);
-    do_comma = 1;
-  } else
-    do_comma = 0;
-  if (hours != 0) {
-    sprintf(p, "%s%u hour%s", COMMA(do_comma), hours, PLURALIZE(hours));
-    p += strlen(p);
-    do_comma = 1;
-  } else
-    do_comma = 0;
-  if (mins != 0) {
-    sprintf(p, "%s%u minute%s", COMMA(do_comma), mins, PLURALIZE(mins));
-    p += strlen(p);
-    do_comma = 1;
-  } else
-    do_comma = 0;
-  if (secs != 0) {
-    if (msecs != 0)
-      sprintf(p, "%s%u.%03u seconds", COMMA(do_comma), secs, msecs);
-    else
-      sprintf(p, "%s%u second%s", COMMA(do_comma), secs, PLURALIZE(secs));
-  }
+  time_secs_to_str_buf(time, msecs, FALSE, cur);
   return cur;
 }
 
@@ -426,8 +421,6 @@ abs_time_to_str(struct timeval *abs_time)
         return cur;
 }
 
-#define	REL_TIME_LEN	(1+10+1+6+1)
-
 void
 display_signed_time(gchar *buf, int buflen, gint32 sec, gint32 usec)
 {
@@ -446,11 +439,65 @@ display_signed_time(gchar *buf, int buflen, gint32 sec, gint32 usec)
 	snprintf(buf, buflen, "%s%d.%06d", sign, sec, usec);
 }
 
+/*
+ * Display a relative time as days/hours/minutes/seconds.
+ */
 gchar *
 rel_time_to_str(struct timeval *rel_time)
 {
+	static gchar *cur;
+	static char str[3][1+TIME_SECS_LEN+1+6+1];
+	char *p;
+	char *sign;
+	guint32 time;
+	gint32 usec;
+
+	if (cur == &str[0][0]) {
+		cur = &str[1][0];
+	} else if (cur == &str[1][0]) {
+		cur = &str[2][0];
+	} else {
+		cur = &str[0][0];
+	}
+	p = cur;
+
+	/* If the microseconds part of the time stamp is negative,
+	   print its absolute value and, if the seconds part isn't
+	   (the seconds part should be zero in that case), stick
+	   a "-" in front of the entire time stamp. */
+	sign = "";
+	time = rel_time->tv_sec;
+	usec = rel_time->tv_usec;
+	if (time == 0 && usec == 0) {
+		sprintf(cur, "0.000000 seconds");
+		return cur;
+	}
+	if (usec < 0) {
+		usec = -usec;
+		*p++ = '-';
+
+		/*
+		 * We assume here that "rel_time->tv_sec" is negative
+		 * or zero; if it's not, the time stamp is bogus,
+		 * with a positive seconds and negative microseconds.
+		 */
+		time = -rel_time->tv_sec;
+	}
+
+	time_secs_to_str_buf(time, usec, TRUE, p);
+	return cur;
+}
+
+#define REL_TIME_SECS_LEN	(1+10+1+6+1)
+
+/*
+ * Display a relative time as seconds.
+ */
+gchar *
+rel_time_to_secs_str(struct timeval *rel_time)
+{
         static gchar *cur;
-        static char str[3][REL_TIME_LEN];
+        static char str[3][REL_TIME_SECS_LEN];
 
         if (cur == &str[0][0]) {
                 cur = &str[1][0];
@@ -460,8 +507,8 @@ rel_time_to_str(struct timeval *rel_time)
                 cur = &str[0][0];
         }
 
-	display_signed_time(cur, REL_TIME_LEN, rel_time->tv_sec,
-	    rel_time->tv_usec);
+        display_signed_time(cur, REL_TIME_SECS_LEN, rel_time->tv_sec,
+            rel_time->tv_usec);
         return cur;
 }
 

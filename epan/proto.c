@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.30 2001/07/13 00:55:53 guy Exp $
+ * $Id: proto.c,v 1.31 2001/08/01 08:27:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1956,7 +1956,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_RELATIVE_TIME:
 			snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s seconds", hfinfo->name,
-				rel_time_to_str(fvalue_get(fi->value)));
+				rel_time_to_secs_str(fvalue_get(fi->value)));
 			break;
 
 		case FT_IPXNET:
@@ -2964,7 +2964,7 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 
 		case FT_RELATIVE_TIME:
 			value_str =
-			    rel_time_to_str((struct timeval *)fvalue_get(finfo->value));
+			    rel_time_to_secs_str((struct timeval *)fvalue_get(finfo->value));
 			dfilter_len = abbrev_len + strlen(value_str) + 4;
 			buf = g_malloc0(dfilter_len);
 			snprintf(buf, dfilter_len, "%s == %s",

@@ -1,12 +1,11 @@
 /* to_str.h
  * Definitions for utilities to convert various other types to strings.
  *
- * $Id: to_str.h,v 1.3 2001/07/13 00:27:51 guy Exp $
+ * $Id: to_str.h,v 1.4 2001/08/01 08:27:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -56,6 +55,7 @@ gchar*     time_msecs_to_str(guint32);
 gchar*	   abs_time_to_str(struct timeval*);
 void       display_signed_time(gchar *, int, gint32, gint32);
 gchar*	   rel_time_to_str(struct timeval*);
+gchar*	   rel_time_to_secs_str(struct timeval*);
 
 
 char * decode_bitfield_value(char *buf, guint32 val, guint32 mask, int width);
