@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.34 2003/05/23 05:06:49 tpot Exp $
+ * $Id: packet-msproxy.c,v 1.35 2003/07/16 05:39:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -767,6 +767,7 @@ static void dissect_hello_ack(tvbuff_t *tvb, int offset, proto_tree *tree) {
 
 
 
+/* XXX - implement me */
 static void dissect_user_info_ack(tvbuff_t *tvb _U_, int offset,
 	proto_tree *tree _U_) {
 
@@ -821,6 +822,7 @@ static void dissect_auth_1_ack(tvbuff_t *tvb, int offset,
 
 
 
+/* XXX - implement me */
 static void dissect_msproxy_response_4( tvbuff_t *tvb _U_, int offset,
 	proto_tree *tree _U_) {
 
