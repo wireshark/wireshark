@@ -115,6 +115,11 @@ static void setup_gtk_node_pr(stat_node* node) {
 		text[0] = node->name;
 		node->pr->node = gtk_ctree_insert_node(GTK_CTREE(node->st->pr->ctree),
 		    parent, NULL, text, 0, NULL, NULL, NULL, NULL, FALSE, FALSE);
+		if (!parent) {
+			/* Force the children of the root node to be expanded. */
+			gtk_ctree_expand(GTK_CTREE(node->st->pr->ctree),
+			    node->pr->node);
+		}
 	}
 #endif
 }
@@ -165,8 +170,6 @@ static void draw_gtk_tree( void *psp  ) {
 								 gtk_tree_model_get_path(GTK_TREE_MODEL(st->pr->store),
 														 child->pr->iter),
 								 FALSE);
-#else
-		gtk_ctree_expand(GTK_CTREE(st->pr->ctree),child->pr->node);
 #endif
 	}
 
