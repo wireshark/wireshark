@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.68 2004/04/10 09:10:01 ulfl Exp $
+$Id: README.win32,v 1.69 2004/04/18 06:41:42 ulfl Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -90,6 +90,21 @@ you want to compile Ethereal yourself.
 
 Compiling the Ethereal distribution from source
 ===============================================
+
+Compilers
+---------
+MS Visual C++ Version 6
+This is the common compiler used for building Ethereal on win32.
+
+MS Visual C++ Version 7 / VC.NET
+Currently unsupported for two reasons:
+-the licence agreement does NOT allow you to compile GPL code.
+-there are serious problems in using DLL's compiled with MS VC6.
+
+Cygwins GCC
+Although currently still experimental, there is ongoing progress 
+supporting it. See section below for instructions.
+
 
 Automated library download
 --------------------------
