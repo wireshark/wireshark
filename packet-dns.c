@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.98 2003/01/31 06:58:31 guy Exp $
+ * $Id: packet-dns.c,v 1.99 2003/01/31 08:29:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1614,9 +1614,15 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 		 * be an NTLMSSP blob, with no ASN.1 in it, in
 		 * a query.
 		 *
-		 * However, that query got a "Format error" response,
-		 * so perhaps Microsoft had just screwed up in the
-		 * code that constructed the query.
+		 * See
+		 *
+		 * http://www.alternic.org/drafts/drafts-s-t/draft-skwan-gss-tsig-05.html
+		 *
+		 * which might indicate what's going on here.  (The key
+		 * is an output_token from GSS_Init_sec_context.)
+		 *
+		 * How the heck do we know what method is being used,
+		 * so we know how to decode the key?
 		 */
 		gssapi_tvb = tvb_new_subset(
 			tvb, cur_offset, tkey_keylen, tkey_keylen);
