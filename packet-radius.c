@@ -6,7 +6,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.91 2004/02/01 06:56:52 jmayer Exp $
+ * $Id: packet-radius.c,v 1.92 2004/02/05 09:42:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2265,7 +2265,7 @@ rdconvertbufftostr(gchar *dest, tvbuff_t *tvb, int offset, int length)
         dest[totlen+1]=0;
 }
 
-#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
+#if GLIB_MAJOR_VERSION >= 2
 /*
  * XXX - "isprint()" can return "true" for non-ASCII characters, but
  * those don't work with GTK+ 1.3 or later, as they take UTF-8 strings
@@ -2273,6 +2273,10 @@ rdconvertbufftostr(gchar *dest, tvbuff_t *tvb, int offset, int length)
  * characters in all output (both GUI displays and text printouts)
  * in those versions of GTK+, we work around the problem by escaping
  * all characters that aren't printable ASCII.
+ *
+ * We don't know what version of GTK+ we're using, as dissectors don't
+ * use any GTK+ stuff; we use GLib as a proxy for that, with GLib 2.x
+ * implying GTK+ 1.3 or later (we don't support GLib 1.3[.x]).
  */
 #undef isprint
 #define isprint(c) (c >= 0x20 && c < 0x7f)

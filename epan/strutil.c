@@ -1,7 +1,7 @@
 /* strutil.c
  * String utility routines
  *
- * $Id: strutil.c,v 1.17 2004/02/01 04:54:48 jmayer Exp $
+ * $Id: strutil.c,v 1.18 2004/02/05 09:42:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -133,7 +133,7 @@ get_token_len(const guchar *linep, const guchar *lineend,
 
 #define	INITIAL_FMTBUF_SIZE	128
 
-#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
+#if GLIB_MAJOR_VERSION >= 2
 /*
  * XXX - "isprint()" can return "true" for non-ASCII characters, but
  * those don't work with GTK+ 1.3 or later, as they take UTF-8 strings
@@ -141,6 +141,10 @@ get_token_len(const guchar *linep, const guchar *lineend,
  * characters in all output (both GUI displays and text printouts)
  * in those versions of GTK+, we work around the problem by escaping
  * all characters that aren't printable ASCII.
+ *
+ * We don't know what version of GTK+ we're using, as epan doesn't
+ * use any GTK+ stuff; we use GLib as a proxy for that, with GLib 2.x
+ * implying GTK+ 1.3 or later (we don't support GLib 1.3[.x]).
  */
 #undef isprint
 #define isprint(c) (c >= 0x20 && c < 0x7f)
