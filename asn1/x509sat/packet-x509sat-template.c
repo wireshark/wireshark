@@ -44,7 +44,6 @@
 
 /* Initialize the protocol and registered fields */
 int proto_x509sat = -1;
-/*aaa*/
 #include "packet-x509sat-hf.c"
 
 /* Initialize the subtree pointers */
@@ -52,14 +51,12 @@ int proto_x509sat = -1;
 
 #include "packet-x509sat-fn.c"
 
-/*bbb*/
 
 /*--- proto_register_x509sat ----------------------------------------------*/
 void proto_register_x509sat(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-/*ccc*/
 #include "packet-x509sat-hfarr.c"
   };
 
@@ -81,8 +78,6 @@ void proto_register_x509sat(void) {
 /*--- proto_reg_handoff_x509sat -------------------------------------------*/
 void proto_reg_handoff_x509sat(void) {
 #include "packet-x509sat-dis-tab.c"
-
-/*ddd*/
 }
 
 

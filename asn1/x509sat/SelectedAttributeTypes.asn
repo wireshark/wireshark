@@ -129,7 +129,7 @@ UniqueIdentifier ::= BIT STRING
 --   ID            id-at-countryName
 -- }
 
-CountryName ::= PrintableString(SIZE (2)) 
+CountryName ::= PrintableString 
 --   ISO 3166 codes only
 --                                
 -- 
@@ -217,19 +217,20 @@ CountryName ::= PrintableString(SIZE (2))
 -- searchGuide ATTRIBUTE ::= {WITH SYNTAX  Guide
 --                            ID           id-at-searchGuide
 -- }
--- 
+
+-- XXX Asn2eth bug   it can not handle SET for BER, only for PER
 -- Guide ::= SET {
---   objectClass  [0]  OBJECT-CLASS.&id OPTIONAL,
+--   objectClass  [0]  OBJECT IDENTIFIER OPTIONAL,
 --   criteria     [1]  Criteria
 -- }
--- 
--- Criteria ::= CHOICE {
---   type  [0]  CriteriaItem,
---   and   [1]  SET OF Criteria,
---   or    [2]  SET OF Criteria,
---   not   [3]  Criteria
--- }
--- 
+
+Criteria ::= CHOICE {
+  type  [0]  CriteriaItem,
+  and   [1]  SET OF Criteria,
+  or    [2]  SET OF Criteria,
+  not   [3]  Criteria
+}
+
 CriteriaItem ::= CHOICE {
   equality          [0]  AttributeType,
   substrings        [1]  AttributeType,
@@ -242,14 +243,13 @@ CriteriaItem ::= CHOICE {
 --   WITH SYNTAX  EnhancedGuide
 --   ID           id-at-enhancedSearchGuide
 -- }
--- 
--- EnhancedGuide ::= SEQUENCE {
---   objectClass  [0]  OBJECT-CLASS.&id,
---   criteria     [1]  Criteria,
---   subset
---     [2]  INTEGER {baseObject(0), oneLevel(1), wholeSubtree(2)} DEFAULT oneLevel
--- }
--- 
+
+EnhancedGuide ::= SEQUENCE {
+  objectClass  [0]  OBJECT IDENTIFIER,
+  criteria     [1]  Criteria,
+  subset       [2]  INTEGER {baseObject(0), oneLevel(1), wholeSubtree(2)} OPTIONAL
+}
+
 -- businessCategory ATTRIBUTE ::= {
 --   WITH SYNTAX               DirectoryString {ub-business-category}
 --   EQUALITY MATCHING RULE    caseIgnoreMatch
@@ -263,10 +263,9 @@ CriteriaItem ::= CHOICE {
 --   SUBSTRINGS MATCHING RULE  caseIgnoreListSubstringsMatch
 --   ID                        id-at-postalAddress
 -- }
--- 
--- PostalAddress ::=
---   SEQUENCE SIZE (1..ub-postal-line) OF DirectoryString{ub-postal-string}
--- 
+
+PostalAddress ::= SEQUENCE OF DirectoryString
+
 -- collectivePostalAddress ATTRIBUTE ::= {
 --   SUBTYPE OF  postalAddress
 --   COLLECTIVE  TRUE
@@ -361,12 +360,12 @@ TelexNumber ::= SEQUENCE {
 --   SYNTAX  SubstringAssertion
 --   ID      id-mr-facsimileNumberSubstringsMatch
 -- }
--- 
--- FacsimileTelephoneNumber ::= SEQUENCE {
---   telephoneNumber  TelephoneNumber,
---   parameters       G3FacsimileNonBasicParameters OPTIONAL
--- }
--- 
+
+FacsimileTelephoneNumber ::= SEQUENCE {
+  telephoneNumber  TelephoneNumber
+--  parameters       G3FacsimileNonBasicParameters OPTIONAL
+}
+
 -- collectiveFacsimileTelephoneNumber ATTRIBUTE ::= {
 --   SUBTYPE OF  facsimileTelephoneNumber
 --   COLLECTIVE  TRUE
@@ -379,9 +378,9 @@ TelexNumber ::= SEQUENCE {
 --   SUBSTRINGS MATCHING RULE  numericStringSubstringsMatch
 --   ID                        id-at-x121Address
 -- }
--- 
--- X121Address ::= NumericString(SIZE (1..ub-x121-address))
--- 
+
+X121Address ::= NumericString
+
 -- String as defined by ITU-T Rec. X.121
 -- internationalISDNNumber ATTRIBUTE ::= {
 --   WITH SYNTAX               InternationalISDNNumber
@@ -389,10 +388,9 @@ TelexNumber ::= SEQUENCE {
 --   SUBSTRINGS MATCHING RULE  numericStringSubstringsMatch
 --   ID                        id-at-internationalISDNNumber
 -- }
--- 
--- InternationalISDNNumber ::=
---   NumericString(SIZE (1..ub-international-isdn-number))
--- 
+
+InternationalISDNNumber ::= NumericString
+
 -- String complying with ITU-T Rec. E.164 only
 -- collectiveInternationalISDNNumber ATTRIBUTE ::= {
 --   SUBTYPE OF  internationalISDNNumber
@@ -412,9 +410,9 @@ TelexNumber ::= SEQUENCE {
 --   SUBSTRINGS MATCHING RULE  caseIgnoreSubstringsMatch
 --   ID                        id-at-destinationIndicator
 -- }
--- 
--- DestinationIndicator ::= PrintableString(SIZE (1..ub-destination-indicator))
--- 
+
+DestinationIndicator ::= PrintableString
+
 -- communicationsService ATTRIBUTE ::= {
 --   WITH SYNTAX             OBJECT IDENTIFIER
 --   EQUALITY MATCHING RULE  objectIdentifierMatch
@@ -434,13 +432,12 @@ TelexNumber ::= SEQUENCE {
 --   SINGLE VALUE  TRUE
 --   ID            id-at-preferredDeliveryMethod
 -- }
--- 
--- PreferredDeliveryMethod ::=
---   SEQUENCE OF
---     INTEGER {any-delivery-method(0), mhs-delivery(1), physical-delivery(2),
---              telex-delivery(3), teletex-delivery(4), g3-facsimile-delivery(5),
---              g4-facsimile-delivery(6), ia5-terminal-delivery(7),
---              videotex-delivery(8), telephone-delivery(9)}
+
+PreferredDeliveryMethod ::= SEQUENCE OF
+    INTEGER {any-delivery-method(0), mhs-delivery(1), physical-delivery(2),
+             telex-delivery(3), teletex-delivery(4), g3-facsimile-delivery(5),
+             g4-facsimile-delivery(6), ia5-terminal-delivery(7),
+             videotex-delivery(8), telephone-delivery(9)}
 -- 
 -- presentationAddress ATTRIBUTE ::= {
 --   WITH SYNTAX             PresentationAddress
@@ -448,14 +445,14 @@ TelexNumber ::= SEQUENCE {
 --   SINGLE VALUE            TRUE
 --   ID                      id-at-presentationAddress
 -- }
--- 
--- PresentationAddress ::= SEQUENCE {
---   pSelector   [0]  OCTET STRING OPTIONAL,
---   sSelector   [1]  OCTET STRING OPTIONAL,
---   tSelector   [2]  OCTET STRING OPTIONAL,
---   nAddresses  [3]  SET SIZE (1..MAX) OF OCTET STRING
--- }
--- 
+
+PresentationAddress ::= SEQUENCE {
+  pSelector   [0]  OCTET STRING OPTIONAL,
+  sSelector   [1]  OCTET STRING OPTIONAL,
+  tSelector   [2]  OCTET STRING OPTIONAL,
+  nAddresses  [3]  SET OF OCTET STRING
+}
+
 -- supportedApplicationContext ATTRIBUTE ::= {
 --   WITH SYNTAX             OBJECT IDENTIFIER
 --   EQUALITY MATCHING RULE  objectIdentifierMatch
@@ -467,12 +464,12 @@ TelexNumber ::= SEQUENCE {
 --   EQUALITY MATCHING RULE  protocolInformationMatch
 --   ID                      id-at-protocolInformation
 -- }
--- 
--- ProtocolInformation ::= SEQUENCE {
---   nAddress  OCTET STRING,
---   profiles  SET OF OBJECT IDENTIFIER
--- }
--- 
+
+ProtocolInformation ::= SEQUENCE {
+  nAddress  OCTET STRING,
+  profiles  SET OF OBJECT IDENTIFIER
+}
+
 -- distinguishedName ATTRIBUTE ::= {
 --   WITH SYNTAX             DistinguishedName
 --   EQUALITY MATCHING RULE  distinguishedNameMatch
@@ -488,12 +485,12 @@ TelexNumber ::= SEQUENCE {
 --   EQUALITY MATCHING RULE  uniqueMemberMatch
 --   ID                      id-at-uniqueMember
 -- }
--- 
--- NameAndOptionalUID ::= SEQUENCE {
---   dn   DistinguishedName,
---   uid  UniqueIdentifier OPTIONAL
--- }
--- 
+
+NameAndOptionalUID ::= SEQUENCE {
+  dn   DistinguishedName,
+  uid  UniqueIdentifier OPTIONAL
+}
+
 -- owner ATTRIBUTE ::= {SUBTYPE OF  distinguishedName
 --                      ID          id-at-owner
 -- }
@@ -582,12 +579,12 @@ TelexNumber ::= SEQUENCE {
 --   WITH SYNTAX  MultipleMatchingLocalities
 --   ID           id-not-multipleMatchingLocalities
 -- }
--- 
--- MultipleMatchingLocalities ::= SEQUENCE {
---   matchingRuleUsed  MATCHING-RULE.&id OPTIONAL,
---   attributeList     SEQUENCE OF AttributeValueAssertion
--- }
--- 
+
+MultipleMatchingLocalities ::= SEQUENCE {
+  matchingRuleUsed  OBJECT IDENTIFIER OPTIONAL,
+  attributeList     SEQUENCE OF AttributeValueAssertion
+}
+
 -- proposedRelaxation ATTRIBUTE ::= {
 --   WITH SYNTAX  SEQUENCE OF MRMapping
 --   ID           id-not-proposedRelaxation
@@ -614,14 +611,14 @@ TelexNumber ::= SEQUENCE {
 --   SYNTAX  SubstringAssertion
 --   ID      id-mr-caseIgnoreSubstringsMatch
 -- }
--- 
--- SubstringAssertion ::=
---   SEQUENCE OF
---     CHOICE {initial  [0]  DirectoryString{ub-match},
---             any      [1]  DirectoryString{ub-match},
---             final    [2]  DirectoryString{ub-match},
---             control  Attribute
---     } 
+
+SubstringAssertion ::= SEQUENCE OF
+    CHOICE {initial  [0]  DirectoryString,
+            any      [1]  DirectoryString,
+            final    [2]  DirectoryString,
+            control  Attribute
+    } 
+
 --     Used to specify interpretation of the following items 
 -- 
 -- at most one initial and one final component
@@ -660,9 +657,9 @@ TelexNumber ::= SEQUENCE {
 --   SYNTAX  CaseIgnoreListMatch
 --   ID      id-mr-caseIgnoreListMatch
 -- }
--- 
--- CaseIgnoreListMatch ::= SEQUENCE OF DirectoryString{ub-match}
--- 
+
+CaseIgnoreListMatch ::= SEQUENCE OF DirectoryString
+
 -- caseIgnoreListSubstringsMatch MATCHING-RULE ::= {
 --   SYNTAX  SubstringAssertion
 --   ID      id-mr-caseIgnoreListSubstringsMatch
@@ -705,13 +702,12 @@ TelexNumber ::= SEQUENCE {
 --   SYNTAX  OctetSubstringAssertion
 --   ID      id-mr-octetStringSubstringsMatch
 -- }
--- 
--- OctetSubstringAssertion ::=
---   SEQUENCE OF
---     CHOICE {initial  [0]  OCTET STRING,
---             any      [1]  OCTET STRING,
---             final    [2]  OCTET STRING}
--- 
+
+OctetSubstringAssertion ::= SEQUENCE OF
+    CHOICE {initial  [0]  OCTET STRING,
+            any      [1]  OCTET STRING,
+            final    [2]  OCTET STRING}
+
 -- at most one initial and one final component
 -- telephoneNumberMatch MATCHING-RULE ::= {
 --   SYNTAX  TelephoneNumber
@@ -834,12 +830,12 @@ TelexNumber ::= SEQUENCE {
 -- 
 -- ZONAL-MATCHING ::=
 --   MAPPING-BASED-MATCHING{ZonalSelect, TRUE, ZonalResult, zonalMatch.&id}
--- 
--- ZonalSelect ::= SEQUENCE OF AttributeType
--- 
--- ZonalResult ::= ENUMERATED {
---   cannot-select-mapping(0), zero-mappings(2), multiple-mappings(3)}
--- 
+
+ZonalSelect ::= SEQUENCE OF AttributeType
+
+ZonalResult ::= ENUMERATED {
+  cannot-select-mapping(0), zero-mappings(2), multiple-mappings(3)}
+
 -- zonalMatch MATCHING-RULE ::= {
 --   UNIQUE-MATCH-INDICATOR  multipleMatchingLocalities.&id
 --   ID                      id-mr-zonalMatch
@@ -850,8 +846,8 @@ TelexNumber ::= SEQUENCE {
 --   WITH SYNTAX  LanguageContextSyntax
 --   ID           id-avc-language
 -- }
--- 
--- LanguageContextSyntax ::= PrintableString(SIZE (2..3)) 
+
+LanguageContextSyntax ::= PrintableString 
 --        ISO 639-2 codes only
 --                                          
 -- 
@@ -860,91 +856,75 @@ TelexNumber ::= SEQUENCE {
 --   ASSERTED AS  TimeAssertion
 --   ID           id-avc-temporal
 -- }
--- 
--- TimeSpecification ::= SEQUENCE {
---   time
---     CHOICE {absolute
---               SEQUENCE {startTime  [0]  GeneralizedTime OPTIONAL,
---                         endTime    [1]  GeneralizedTime OPTIONAL},
---             periodic  SET OF Period},
---   notThisTime  BOOLEAN DEFAULT FALSE,
---   timeZone     TimeZone OPTIONAL
--- }
--- 
--- Period ::= SEQUENCE {
---   timesOfDay  [0]  SET SIZE (1..MAX) OF DayTimeBand OPTIONAL,
---   days
---     [1]  CHOICE {intDay  SET OF INTEGER,
---                  bitDay
---                    BIT STRING {sunday(0), monday(1), tuesday(2), wednesday(3),
---                                thursday(4), friday(5), saturday(6)},
---                  dayOf   XDayOf} OPTIONAL,
---   weeks
---     [2]  CHOICE {allWeeks  NULL,
---                  intWeek   SET OF INTEGER,
---                  bitWeek
---                    BIT STRING {week1(0), week2(1), week3(2), week4(3), week5(4)}
---   } OPTIONAL,
---   months
---     [3]  CHOICE {allMonths  NULL,
---                  intMonth   SET OF INTEGER,
---                  bitMonth
---                    BIT STRING {january(0), february(1), march(2), april(3),
---                                may(4), june(5), july(6), august(7),
---                                september(8), october(9), november(10),
---                                december(11)}} OPTIONAL,
---   years       [4]  SET OF INTEGER(1000..MAX) OPTIONAL
--- }
--- 
--- XDayOf ::= CHOICE {
---   first   [1]  NamedDay,
---   second  [2]  NamedDay,
---   third   [3]  NamedDay,
---   fourth  [4]  NamedDay,
---   fifth   [5]  NamedDay
--- }
--- 
--- NamedDay ::= CHOICE {
---   intNamedDays
---     ENUMERATED {sunday(1), monday(2), tuesday(3), wednesday(4), thursday(5),
---                 friday(6), saturday(7)},
---   bitNamedDays
---     BIT STRING {sunday(0), monday(1), tuesday(2), wednesday(3), thursday(4),
---                 friday(5), saturday(6)}
--- }
--- 
--- DayTimeBand ::= SEQUENCE {
---   startDayTime  [0]  DayTime DEFAULT {hour 0},
---   endDayTime    [1]  DayTime DEFAULT {hour 23, minute 59, second 59}
--- }
--- 
--- DayTime ::= SEQUENCE {
---   hour    [0]  INTEGER(0..23),
---   minute  [1]  INTEGER(0..59) DEFAULT 0,
---   second  [2]  INTEGER(0..59) DEFAULT 0
--- }
--- 
--- TimeZone ::= INTEGER(-12..12)
--- 
--- TimeAssertion ::= CHOICE {
---   now      NULL,
---   at       GeneralizedTime,
---   between
---     SEQUENCE {startTime  [0]  GeneralizedTime,
---               endTime    [1]  GeneralizedTime OPTIONAL,
---               entirely   BOOLEAN DEFAULT FALSE}
--- }
--- 
+
+TimeSpecification ::= SEQUENCE {
+  time CHOICE {absolute SEQUENCE {
+                           startTime  [0]  GeneralizedTime OPTIONAL,
+                           endTime    [1]  GeneralizedTime OPTIONAL},
+               periodic  SET OF Period},
+  notThisTime  BOOLEAN OPTIONAL,
+  timeZone     TimeZone OPTIONAL
+}
+
+Period ::= SEQUENCE {
+  timesOfDay  [0]  SET OF DayTimeBand OPTIONAL,
+  days        [1]  CHOICE {intDay  SET OF INTEGER,
+                           bitDay BIT STRING {sunday(0), monday(1), tuesday(2), wednesday(3), thursday(4), friday(5), saturday(6)},
+                           dayOf   XDayOf} OPTIONAL,
+  weeks       [2]  CHOICE {allWeeks  NULL,
+                           intWeek   SET OF INTEGER,
+                           bitWeek   BIT STRING {week1(0), week2(1), week3(2), week4(3), week5(4)}
+  } OPTIONAL,
+  months [3]  CHOICE {allMonths  NULL,
+                      intMonth   SET OF INTEGER,
+                      bitMonth   BIT STRING {january(0), february(1), march(2), april(3), may(4), june(5), july(6), august(7), september(8), october(9), november(10), december(11)}} OPTIONAL,
+  years       [4]  SET OF INTEGER OPTIONAL
+}
+
+XDayOf ::= CHOICE {
+  first   [1]  NamedDay,
+  second  [2]  NamedDay,
+  third   [3]  NamedDay,
+  fourth  [4]  NamedDay,
+  fifth   [5]  NamedDay
+}
+
+NamedDay ::= CHOICE {
+  intNamedDays ENUMERATED {sunday(1), monday(2), tuesday(3), wednesday(4), thursday(5), friday(6), saturday(7)},
+  bitNamedDays BIT STRING {sunday(0), monday(1), tuesday(2), wednesday(3), thursday(4), friday(5), saturday(6)}
+}
+
+DayTimeBand ::= SEQUENCE {
+  startDayTime  [0]  DayTime OPTIONAL,
+  endDayTime    [1]  DayTime OPTIONAL
+}
+
+DayTime ::= SEQUENCE {
+  hour    [0]  INTEGER,
+  minute  [1]  INTEGER OPTIONAL,
+  second  [2]  INTEGER OPTIONAL
+}
+
+TimeZone ::= INTEGER
+
+TimeAssertion ::= CHOICE {
+  now      NULL,
+  at       GeneralizedTime,
+  between  SEQUENCE {startTime  [0]  GeneralizedTime,
+                     endTime    [1]  GeneralizedTime OPTIONAL,
+                     entirely   BOOLEAN OPTIONAL}
+}
+
 -- localeContext CONTEXT ::= {
 --   WITH SYNTAX  LocaleContextSyntax
 --   ID           id-avc-locale
 -- }
--- 
--- LocaleContextSyntax ::= CHOICE {
---   localeID1  OBJECT IDENTIFIER,
---   localeID2  DirectoryString{ub-localeContextSyntax}
--- }
--- 
+
+LocaleContextSyntax ::= CHOICE {
+  localeID1  OBJECT IDENTIFIER,
+  localeID2  DirectoryString
+}
+
 -- Object identifier assignments -
 -- object identifiers assigned in other modules are shown in comments
 -- Attributes 

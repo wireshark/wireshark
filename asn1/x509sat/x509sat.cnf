@@ -6,9 +6,39 @@
 #.MODULE_IMPORT
 InformationFramework x509if
 
+#.INCLUDE ../x509if/x509if-exp.cnf
+
 #.EXPORTS
+CaseIgnoreListMatch
+CountryName
+Criteria
+DayTime
+DayTimeBand
+DestinationIndicator
 DirectoryString
+EnhancedGuide
+FacsimileTelephoneNumber
+InternationalISDNNumber
+LanguageContextSyntax
+LocaleContextSyntax
+MultipleMatchingLocalities
+NameAndOptionalUID
+NamedDay
+OctetSubstringAssertion
+Period
+PostalAddress
+PreferredDeliveryMethod
+PresentationAddress
+ProtocolInformation
+SubstringAssertion
+TimeAssertion
+TimeSpecification
+TimeZone
 UniqueIdentifier
+X121Address
+XDayOf
+ZonalResult
+ZonalSelect
 
 #.REGISTER
 CountryName     B "2.5.4.6"    "id-at-countryName"

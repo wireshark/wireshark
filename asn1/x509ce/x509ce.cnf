@@ -10,7 +10,7 @@ SelectedAttributeTypes x509sat
 
 #.INCLUDE ../x509if/x509if-exp.cnf
 #.INCLUDE ../x509af/x509af_exp.cnf
-#.INCLUDE ../x509sat/x509sat_exp.cnf
+#.INCLUDE ../x509sat/x509sat-exp.cnf
 
 #.EXPORTS
 

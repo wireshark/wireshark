@@ -1,4 +1,0 @@
-
-#.IMPORT_TAG
-UniqueIdentifier BER_CLASS_UNI BER_UNI_TAG_BITSTRING
-DirectoryString  BER_CLASS_UNI BER_UNI_TAG_PrintableString
