@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.46 1999/11/22 10:30:22 sharpe Exp $
+ * $Id: packet-smb.c,v 1.47 1999/11/26 06:27:18 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -42,6 +42,7 @@
 #include <time.h>
 #include <string.h>
 #include <glib.h>
+#include <ctype.h>
 #include "packet.h"
 #include "conversation.h"
 #include "smb.h"
@@ -80,6 +81,8 @@ static int proto_lanman = -1;
 static gint ett_lanman = -1;
 static gint ett_lanman_servers = -1;
 static gint ett_lanman_server = -1;
+static gint ett_lanman_shares = -1;
+static gint ett_lanman_share = -1;
 
 /*
  * Struct passed to each SMB decode routine of info it may need
@@ -107,6 +110,7 @@ struct smb_info {
   int tid, uid, mid, pid;   /* Any more?  */
   conversation_t *conversation;
   struct smb_request_val *request_val;
+  int unicode;
 };
 
 GHashTable *smb_request_hash = NULL;
@@ -8916,6 +8920,17 @@ dissect_transact_engine_init(const u_char *pd, const char *param_desc, const cha
 
 }
 
+int get_byte_count(const u_char *pd)
+
+{
+  int count = 0;
+
+  while (pd[pd_p_current] && isdigit(pd[pd_p_current]))
+    count += (int)pd[pd_p_current++] - (int)'0';
+
+  return count;
+}
+
 /* Dissect the next item, if Name is null, call it by its data type  */
 /* We pull out the next item in the appropriate place and display it */
 /* We display the parameters first, then the data, then any auxilliary data */
@@ -8925,7 +8940,8 @@ int dissect_transact_next(u_char *pd, char *Name, int dirn, proto_tree *tree)
   /*  guint8        BParam; */
   guint16       WParam = 0;
   guint32       LParam;
-
+  const char    /**Bytes,*/ *AsciiZ;
+  int           bc;
 
   while (1) {
     switch (in_params) {
@@ -8963,21 +8979,49 @@ int dissect_transact_next(u_char *pd, char *Name, int dirn, proto_tree *tree)
 
       case 'b':  /* A byte or series of bytes */
 
+	bc = get_byte_count(pd + pd_p_current);  /* This is not clean */
+
+	/*Bytes = g_malloc(bc + 1); / * Is this needed ? */
+
+	proto_tree_add_text(tree, pd_p_current, bc, "B%u: %s", format_text(pd + pd_p_current, (bc) ? bc : 1));
+
+	pd_p_current += (bc) ? bc : 1;
+
 	break;
 
       case 'O': /* A null pointer */
+
+	proto_tree_add_text(tree, pd_p_current, 0, "Null Pointer");
 
 	break;
 
       case 'z': /* An AsciiZ string */
 
+	AsciiZ = pd + pd_p_current;
+
+	proto_tree_add_text(tree, pd_p_current, strlen(AsciiZ) + 1, "AsciiZ: %s", AsciiZ);
+
+	pd_p_current += strlen(AsciiZ) + 1;
+
 	break;
 
       case 'F': /* One or more pad bytes */
 
+	bc = get_byte_count(pd);
+
+	proto_tree_add_text(tree, pd_p_current, bc, "Pad%u: %s", format_text(pd + pd_p_current, bc));
+
+	pd_p_current += bc;
+
 	break;
 
       case 'L': /* Receive buffer len: Short */
+
+	WParam = GSHORT(pd, pd_p_current);
+
+	proto_tree_add_text(tree, pd_p_current, 2, "Word: %u", WParam);
+
+	pd_p_current += 2;
 
 	break;
 
@@ -9015,7 +9059,7 @@ void
 dissect_transact_params(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn, int DataOffset, int DataCount, int ParameterOffset, int ParameterCount, const char *TransactName)
 {
   char             *TransactNameCopy;
-  char             *trans_type = NULL, *trans_cmd, *loc_of_slash;
+  char             *trans_type = NULL, *trans_cmd, *loc_of_slash = NULL;
   int              index;
   guint8           Pad2;
   const gchar      *Data;
@@ -9025,9 +9069,11 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd, proto_tree
   /* Should check for error here ... */
 
   strcpy(TransactNameCopy, TransactName);
-  if (TransactNameCopy[0] == '\\')
+  if (TransactNameCopy[0] == '\\') {
     trans_type = TransactNameCopy + 1;  /* Skip the slash */
-  loc_of_slash = strchr(trans_type, '\\');
+    loc_of_slash = strchr(trans_type, '\\');
+  }
+
   if (loc_of_slash) {
     index = loc_of_slash - trans_type;  /* Make it a real index */
     trans_cmd = trans_type + index + 1;
@@ -9036,10 +9082,11 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd, proto_tree
   else
     trans_cmd = NULL;
 
-  if (((strcmp(trans_type, "MAILSLOT") != 0) ||
+  if ((trans_cmd == NULL) ||
+      (((strcmp(trans_type, "MAILSLOT") != 0) ||
        !dissect_mailslot_smb(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, trans_cmd, SMB_offset + DataOffset, DataCount)) &&
       ((strcmp(trans_type, "PIPE") != 0) ||
-       !dissect_pipe_smb(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, trans_cmd, DataOffset, DataCount, ParameterOffset, ParameterCount))) {
+       !dissect_pipe_smb(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, trans_cmd, DataOffset, DataCount, ParameterOffset, ParameterCount)))) {
     
     if (ParameterCount > 0) {
 
@@ -9117,6 +9164,7 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
   guint16       DataDisplacement;
   guint16       DataCount;
   guint16       ByteCount;
+  int           TNlen;
   const char    *TransactName;
   conversation_t *conversation;
   struct smb_request_key   request_key, *new_request_key;
@@ -9401,7 +9449,20 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
 
     /* Build display for: Transact Name */
 
-    TransactName = pd + offset;
+    /* Watch out for Unicode names */
+
+    if (si.unicode) {
+
+      if (offset % 2) offset++;   /* Looks like a pad byte there sometimes */
+
+      TransactName = unicode_to_str(pd + offset, &TNlen);
+      TNlen += 2;
+
+    }
+    else { 
+      TransactName = pd + offset;
+      TNlen = strlen(TransactName) + 1;
+    }
 
     if (request_val -> last_transact_command) g_free(request_val -> last_transact_command);
 
@@ -9418,11 +9479,12 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
 
     if (tree) {
 
-      proto_tree_add_text(tree, offset, strlen(TransactName) + 1, "Transact Name: %s", TransactName);
+      proto_tree_add_text(tree, offset, TNlen, "Transact Name: %s", TransactName);
 
     }
 
-    offset += strlen(TransactName) + 1; /* Skip Transact Name */
+    offset += TNlen; /* Skip Transact Name */
+    if (si.unicode) offset += 2;   /* There are two more extraneous bytes there*/
 
     if (offset % 2) {
 
@@ -9735,6 +9797,77 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
     switch (FunctionCode) {
 
+    case NETSHAREENUM:
+
+      if (check_col(fd, COL_INFO)) {
+
+	col_add_fstr(fd, COL_INFO, "NetShareEnum Request");
+
+      }
+
+      if (tree) {
+
+	ti = proto_tree_add_item(parent, proto_lanman, SMB_offset + ParameterOffset, ParameterCount, NULL);
+	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
+
+	proto_tree_add_text(lanman_tree, loc_offset, 2, "Function Code: NetShareEnum");
+
+      }
+
+      loc_offset += 2;
+
+      ParameterDescriptor = pd + loc_offset;
+
+      if (si.request_val -> last_param_descrip) g_free(si.request_val -> last_param_descrip);
+      si.request_val -> last_param_descrip = g_malloc(strlen(ParameterDescriptor) + 1);
+      if (si.request_val -> last_param_descrip)
+	strcpy(si.request_val -> last_param_descrip, ParameterDescriptor);
+
+      if (tree) {
+
+	proto_tree_add_text(lanman_tree, loc_offset, strlen(ParameterDescriptor) + 1, "Parameter Descriptor: %s", ParameterDescriptor);
+
+      }
+
+      loc_offset += strlen(ParameterDescriptor) + 1;
+
+      ReturnDescriptor = pd + loc_offset;
+
+      if (si.request_val -> last_data_descrip) g_free(si.request_val -> last_data_descrip);
+      si.request_val -> last_data_descrip = g_malloc(strlen(ReturnDescriptor) + 1);
+      if (si.request_val -> last_data_descrip)
+	strcpy(si.request_val -> last_data_descrip, ReturnDescriptor);
+
+      if (tree) {
+
+	proto_tree_add_text(lanman_tree, loc_offset, strlen(ReturnDescriptor) + 1, "Return Descriptor: %s", ReturnDescriptor);
+
+      }
+
+      loc_offset += strlen(ReturnDescriptor) + 1;
+
+      Level = GSHORT(pd, loc_offset);
+      
+      if (tree) {
+
+	proto_tree_add_text(lanman_tree, loc_offset, 2, "Detail Level: %u", Level);
+
+      }
+
+      loc_offset += 2;
+
+      RecvBufLen = GSHORT(pd, loc_offset);
+      
+      if (tree) {
+
+	proto_tree_add_text(lanman_tree, loc_offset, 2, "Receive Buffer Length: %u", RecvBufLen);
+
+      }
+
+      loc_offset += 2;
+      
+      break;
+
     case NETSERVERENUM2:  /* Process a NetServerEnum2 */
 
       if (check_col(fd, COL_INFO)) {
@@ -9831,11 +9964,127 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
     guint16          AvailCount;
     guint32          loc_offset = 0;
     int              i;
-    proto_tree       *server_tree = NULL, *flags_tree = NULL;
+    proto_tree       *server_tree = NULL, *flags_tree = NULL, *share_tree = NULL;
 
     FunctionCode = si.request_val -> last_lanman_cmd;
 
     switch (FunctionCode) {
+
+    case NETSHAREENUM:
+
+      if (check_col(fd, COL_INFO)) {
+
+	col_add_fstr(fd, COL_INFO, "NetShareEnum Response");
+
+      }
+
+      if (tree) {
+
+	ti = proto_tree_add_item(parent, proto_lanman, SMB_offset + ParameterOffset, END_OF_FRAME, NULL);
+	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
+      
+	proto_tree_add_text(lanman_tree, loc_offset, 0, "Function Code: NetShareEnum");
+
+      }
+
+      loc_offset = SMB_offset + ParameterOffset;
+
+      Status = GSHORT(pd, loc_offset);
+
+      if (tree) {
+
+	proto_tree_add_text(lanman_tree, loc_offset, 2, "Status: %u", Status);
+
+      }
+
+      loc_offset += 2;
+
+      Convert = GSHORT(pd, loc_offset);
+
+      if (tree) {
+
+	proto_tree_add_text(lanman_tree, loc_offset, 2, "Convert: %u", Convert);
+
+      }
+
+      loc_offset += 2;
+
+      EntCount = GSHORT(pd, loc_offset);
+
+      if (tree) {
+
+	proto_tree_add_text(lanman_tree, loc_offset, 2, "Entry Count: %u", EntCount);
+
+      }
+
+      loc_offset += 2;
+
+      AvailCount = GSHORT(pd, loc_offset);
+
+      if (tree) {
+
+	proto_tree_add_text(lanman_tree, loc_offset, 2, "Available Entries: %u", AvailCount);
+
+      }
+
+      loc_offset += 2;
+
+      if (tree) {
+
+	ti = proto_tree_add_text(lanman_tree, loc_offset, AvailCount * 20, "Available Shares", NULL);
+
+	share_tree = proto_item_add_subtree(ti, ett_lanman_shares);
+
+      }
+
+      for (i = 1; i <= EntCount; i++) {
+	const gchar *Share = pd + loc_offset;
+	guint32     Flags;
+	const gchar *Comment;
+	proto_tree  *share = NULL;
+	proto_item  *ti = NULL;
+
+	if (tree) {
+
+	  ti = proto_tree_add_text(share_tree, loc_offset, 20, "Share %s", Share);
+	  share = proto_item_add_subtree(ti, ett_lanman_share);
+
+
+	}
+
+	if (tree) {
+	  
+	  proto_tree_add_text(share, loc_offset, strlen(Share) + 1, "Share Name: %s", Share);
+
+	}
+
+	loc_offset += 13;
+
+	loc_offset += 1;  /* Skip the pad ... */
+
+	Flags = GSHORT(pd, loc_offset);
+
+	if (tree) {
+
+	  proto_tree_add_text(share, loc_offset, 2, "Share Type: %u", Flags);
+
+	}
+
+	loc_offset += 2;
+
+	Comment = pd + SMB_offset + DataOffset + GWORD(pd, loc_offset);
+
+	if (tree) {
+
+	  proto_tree_add_text(share, loc_offset, 4, "Share Comment: %s", Comment);
+
+	}
+
+	loc_offset += 4;
+
+      }
+
+      break;
 
     case NETSERVERENUM2:
 
@@ -9897,7 +10146,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
       if (tree) {
 
-	ti = proto_tree_add_text(lanman_tree, loc_offset, 38 * EntCount, "Servers");
+	ti = proto_tree_add_text(lanman_tree, loc_offset, 26 * EntCount, "Servers");
 	if (ti == NULL) { 
 
 	  printf("Null value returned from proto_tree_add_text\n");
@@ -10951,6 +11200,8 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	int             SMB_offset = offset;
 	struct smb_info si;
 
+	si.unicode = 0;
+
 	cmd = pd[offset + SMB_hdr_com_offset];
 
 	if (check_col(fd, COL_PROTOCOL))
@@ -11107,6 +11358,8 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	}
 
+	if (flags2 & 0x8000) si.unicode = 1; /* Mark them as Unicode */
+
 	offset += 2;
 
 	if (tree) {
@@ -11209,7 +11462,9 @@ proto_register_smb(void)
 		&ett_browse_election_desire,
 		&ett_lanman,
 		&ett_lanman_servers,
-		&ett_lanman_server
+		&ett_lanman_server,
+		&ett_lanman_shares,
+		&ett_lanman_share
 	};
 
         proto_smb = proto_register_protocol("Server Message Block Protocol", "smb");

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.45 1999/11/19 13:09:56 gram Exp $
+ * $Id: packet-tcp.c,v 1.46 1999/11/26 06:27:22 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -422,7 +422,7 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
   
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_tcp, offset, hlen, NULL);
+    ti = proto_tree_add_item_format(tree, proto_tcp, offset, hlen, NULL, "Transmission Control Protocol, Src Port: %s (%u), Dst Port: %s (%u), Seq: %u, Ack: %u", get_tcp_port(th.th_sport), th.th_sport, get_tcp_port(th.th_dport), th.th_dport, th.th_seq, th.th_ack);
     tcp_tree = proto_item_add_subtree(ti, ett_tcp);
     proto_tree_add_item_format(tcp_tree, hf_tcp_srcport, offset, 2, th.th_sport,
 	"Source port: %s (%u)", get_tcp_port(th.th_sport), th.th_sport);
