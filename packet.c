@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.107 2000/09/12 08:38:44 guy Exp $
+ * $Id: packet.c,v 1.108 2000/09/13 20:17:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -998,7 +998,7 @@ dissect_packet(union wtap_pseudo_header *pseudo_header, const u_char *pd,
 	proto_tree *fh_tree;
 	proto_item *ti;
 	struct timeval tv;
-	tvbuff_t *tvb;
+	static tvbuff_t *tvb;
 
 	/* Put in frame header information. */
 	if (tree) {
@@ -1040,14 +1040,16 @@ dissect_packet(union wtap_pseudo_header *pseudo_header, const u_char *pd,
 	pi.len = fd->pkt_len;
 	pi.captured_len = fd->cap_len;
 
-	tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);
 	pi.fd = fd;
-	pi.compat_top_tvb = tvb;
 	pi.pseudo_header = pseudo_header;
+	pi.current_proto = "Frame";
 
 	col_set_writable(fd, TRUE);
 
 	TRY {
+		tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);
+		pi.compat_top_tvb = tvb;
+
 		switch (fd->lnk_t) {
 			case WTAP_ENCAP_ETHERNET :
 				dissect_eth(tvb, &pi, tree);

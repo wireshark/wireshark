@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.15 2000/09/11 20:05:13 gram Exp $
+ * $Id: tvbuff.c,v 1.16 2000/09/13 20:17:22 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -278,7 +278,10 @@ tvb_set_real_data(tvbuff_t* tvb, const guint8* data, guint length, gint reported
 {
 	g_assert(tvb->type == TVBUFF_REAL_DATA);
 	g_assert(!tvb->initialized);
-	g_assert(reported_length >= -1);
+
+	if (reported_length < -1) {
+		THROW(ReportedBoundsError);
+	}
 
 	tvb->real_data		= (gpointer) data;
 	tvb->length		= length;
@@ -292,7 +295,12 @@ tvb_new_real_data(const guint8* data, guint length, gint reported_length)
 	tvbuff_t	*tvb;
 
 	tvb = tvb_new(TVBUFF_REAL_DATA);
+
+	CLEANUP_PUSH(tvb_free, tvb);
+
 	tvb_set_real_data(tvb, data, length, reported_length);
+
+	CLEANUP_POP;
 
 	return tvb;
 }
@@ -426,6 +434,10 @@ tvb_set_subset(tvbuff_t *tvb, tvbuff_t *backing,
 	g_assert(tvb->type == TVBUFF_SUBSET);
 	g_assert(!tvb->initialized);
 
+	if (reported_length < -1) {
+		THROW(ReportedBoundsError);
+	}
+
 	check_offset_length(backing, backing_offset, backing_length,
 			&tvb->tvbuffs.subset.offset,
 			&tvb->tvbuffs.subset.length);
@@ -433,7 +445,7 @@ tvb_set_subset(tvbuff_t *tvb, tvbuff_t *backing,
 	tvb_increment_usage_count(backing, 1);
 	tvb->tvbuffs.subset.tvb		= backing;
 	tvb->length			= tvb->tvbuffs.subset.length;
-	g_assert(reported_length >= -1);
+
 	if (reported_length == -1) {
 		tvb->reported_length	= backing->reported_length - tvb->tvbuffs.subset.offset;
 	}
@@ -457,7 +469,12 @@ tvb_new_subset(tvbuff_t *backing, gint backing_offset, gint backing_length, gint
 	tvbuff_t	*tvb;
 
 	tvb = tvb_new(TVBUFF_SUBSET);
+
+	CLEANUP_PUSH(tvb_free, tvb);
+
 	tvb_set_subset(tvb, backing, backing_offset, backing_length, reported_length);
+
+	CLEANUP_POP;
 
 	return tvb;
 }
