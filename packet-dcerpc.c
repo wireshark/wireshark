@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.37 2002/03/10 03:09:48 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.38 2002/03/10 03:11:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -755,7 +755,7 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		/* we got a NULL pointer */
 		if(id==0){
 			proto_tree_add_text(tree, tvb, offset-4, 4,
-				"(NULL pointer)%s",text);
+				"(NULL pointer) %s",text);
 			goto after_ref_id;
 		}
 
