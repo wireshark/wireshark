@@ -1,7 +1,7 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.h,v 1.22 2001/06/01 23:53:49 itojun Exp $
+ * $Id: packet-ipv6.h,v 1.23 2001/06/26 17:31:36 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -159,38 +159,6 @@ struct ip6_dest {
 #define BA_ERR_ID_LEN 136 /* Incorrect interface identifier length */
 #define BA_NO_HA 137 /* Not home agent for this mobile node */
 #define BA_DUPL_ADDR 138 /* Duplicate Address Detection failed */
-
-/* Binding Update flag description */
-static const true_false_string ipv6_mipv6_bu_a_flag_value =
-{
-	"Binding Acknowledgement requested",
-	"Binding Acknowledgement not requested"
-};
-static const true_false_string ipv6_mipv6_bu_h_flag_value =
-{
-	"Home Registration",
-	"No Home Registration"
-};
-static const true_false_string ipv6_mipv6_bu_r_flag_value =
-{
-	"Router",
-	"Not a Router"
-};
-static const true_false_string ipv6_mipv6_bu_d_flag_value =
-{
-	"Perform Duplicate Address Detection",
-	"Do not perform Duplicate Address Detection"
-};
-static const true_false_string ipv6_mipv6_bu_m_flag_value =
-{
-	"MAP Registration",
-	"No MAP Registration"
-};
-static const true_false_string ipv6_mipv6_bu_b_flag_value =
-{
-	"Request for bicasting",
-	"Do not request for bicasting"
-};
 
 /* Routing header */
 struct ip6_rthdr {

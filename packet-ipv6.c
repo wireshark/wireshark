@@ -1,7 +1,7 @@
 /* packet-ipv6.c
- * Routines for IPv6 packet disassembly 
+ * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.59 2001/06/18 02:17:47 guy Exp $
+ * $Id: packet-ipv6.c,v 1.60 2001/06/26 17:31:36 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -14,12 +14,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -85,7 +85,6 @@ static int hf_ipv6_fragment_multiple_tails = -1;
 static int hf_ipv6_fragment_too_long_fragment = -1;
 static int hf_ipv6_fragment_error = -1;
 
-/* BT INSERT BEGIN */
 static int hf_ipv6_mipv6_type = -1;
 static int hf_ipv6_mipv6_length = -1;
 static int hf_ipv6_mipv6_a_flag = -1;
@@ -104,7 +103,6 @@ static int hf_ipv6_mipv6_sub_type = -1;
 static int hf_ipv6_mipv6_sub_length = -1;
 static int hf_ipv6_mipv6_sub_unique_ID = -1;
 static int hf_ipv6_mipv6_sub_alternative_COA = -1;
-/* BT INSERT END */
 
 static gint ett_ipv6 = -1;
 static gint ett_ipv6_fragments = -1;
@@ -135,7 +133,7 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree) {
     proto_tree *rthdr_tree;
 	proto_item *ti;
     char buf[sizeof(struct ip6_rthdr0) + sizeof(struct e_in6_addr) * 23];
-	
+
     tvb_memcpy(tvb, (guint8 *)&rt, offset, sizeof(rt));
     len = (rt.ip6r_len + 1) << 3;
 
@@ -180,7 +178,7 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree) {
 		    );
 	    }
 	}
-  
+
 	/* decode... */
     }
 
@@ -188,7 +186,7 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree) {
 }
 
 static int
-dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
+dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
     guint16 *offlg, guint32 *ident) {
     struct ip6_frag frag;
     int len;
@@ -216,12 +214,12 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			 "Next header: %s (0x%02x)",
 			 ipprotostr(frag.ip6f_nxt), frag.ip6f_nxt);
 
-	#if 0
+#if 0
 	   proto_tree_add_text(rthdr_tree, tvb,
 			 offset + offsetof(struct ip6_frag, ip6f_reserved), 1,
 			 "Reserved: %u",
 			 frag.ip6f_reserved);
-	#endif
+#endif
 
 	   proto_tree_add_text(rthdr_tree, tvb,
 			 offset + offsetof(struct ip6_frag, ip6f_offlg), 2,
@@ -242,403 +240,410 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
     return len;
 }
 
-/* BT INSERT BEGIN */
-static int
-dissect_mipv6_ba(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset) {
-	guint8 status, len=0;
-	gchar status_text[80]="";
-	gboolean sub_options=FALSE;
-
-	proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_type, tvb, offset+len,
-	IP6_MIPv6_OPTION_TYPE_LENGTH, tvb_get_guint8(tvb,offset+len),
-	"Option Type: %u (0x%02x) - Binding Acknowledgement", tvb_get_guint8(tvb,offset+len),
-	tvb_get_guint8(tvb,offset+len));
-  len+=IP6_MIPv6_OPTION_TYPE_LENGTH;
-  if (tvb_get_guint8(tvb,offset+len)>11)
-		sub_options=TRUE;
-  proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_length, tvb, offset+len,
-	IP6_MIPv6_OPTION_LENGTH_LENGTH, tvb_get_guint8(tvb,offset+len));
-  len+=IP6_MIPv6_OPTION_LENGTH_LENGTH;
-	status = tvb_get_guint8(tvb,offset+len);
-	switch (status){
-		case BA_OK:
-			strcpy(status_text,"- Binding Update accepted");
-			break;
-		case BA_REAS_UNSPEC:
-			strcpy(status_text,"- Binding Update was rejected - Reason unspecified");
-			break;
-		case BA_ADMIN_PROH:
-			strcpy(status_text,"- Binding Update was rejected - Administratively prohibited");
-			break;
-		case BA_INSUF_RES:
-			strcpy(status_text,"- Binding Update was rejected - Insufficient resources");
-			break;
-		case BA_NO_HR:
-			strcpy(status_text,"- Binding Update was rejected - Home registration not supported");
-			break;
-		case BA_NO_SUBNET:
-			strcpy(status_text,"- Binding Update was rejected - Not home subnet");
-			break;
-		case BA_ERR_ID_LEN:
-			strcpy(status_text,"- Binding Update was rejected - Incorrect interface identifier length");
-			break;
-		case BA_NO_HA:
-			strcpy(status_text,"- Binding Update was rejected - Not home agent for this mobile node");
-			break;
-		case BA_DUPL_ADDR:
-			strcpy(status_text,"- Binding Update was rejected - Duplicate Address Detection failed");
-			break;
-		default:
-			strcpy(status_text,"");
-			break;
-	}
-  if ((status>128)&&(strlen(status_text)==0))
-		strcpy(status_text,"- Binding Update was rejected");
-	proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_status, tvb, offset+len,
-	IP6_MIPv6_STATUS_LENGTH, tvb_get_guint8(tvb,offset+len),
-	"Status: %u %s", tvb_get_guint8(tvb,offset+len), status_text);
-  len+=IP6_MIPv6_STATUS_LENGTH;
-  proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_sequence_number, tvb, offset+len,
-	IP6_MIPv6_SEQUENCE_NUMBER_LENGTH, tvb_get_ntohs(tvb,offset+len));
-  len+=IP6_MIPv6_SEQUENCE_NUMBER_LENGTH;
-  if (tvb_get_ntohl(tvb,offset+len)==0xffffffff)
-	{
-		proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_life_time, tvb, offset+len,
-		IP6_MIPv6_LIFE_TIME_LENGTH, tvb_get_ntohl(tvb,offset+len),
-		"Life Time: %u - Infinity", tvb_get_ntohl(tvb,offset+len));
-	} else
-	{
-		proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_life_time, tvb, offset+len,
-		IP6_MIPv6_LIFE_TIME_LENGTH, tvb_get_ntohl(tvb,offset+len));
-  }
-  len+=IP6_MIPv6_LIFE_TIME_LENGTH;
-	proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_refresh, tvb, offset+len,
-	IP6_MIPv6_REFRESH_LENGTH, tvb_get_ntohl(tvb,offset+len));
-  len+=IP6_MIPv6_REFRESH_LENGTH;
-  /* sub - options */
-  if (sub_options)
-  {
- 		proto_tree_add_text(dstopt_tree, tvb, offset+len, 1, "Sub-Options");
-	}
-  return len;
-}
+/* Binding Update flag description */
+static const true_false_string ipv6_mipv6_bu_a_flag_value = {
+    "Binding Acknowledgement requested",
+    "Binding Acknowledgement not requested"
+};
+static const true_false_string ipv6_mipv6_bu_h_flag_value = {
+    "Home Registration",
+    "No Home Registration"
+};
+static const true_false_string ipv6_mipv6_bu_r_flag_value = {
+    "Router",
+    "Not a Router"
+};
+static const true_false_string ipv6_mipv6_bu_d_flag_value = {
+    "Perform Duplicate Address Detection",
+    "Do not perform Duplicate Address Detection"
+};
+static const true_false_string ipv6_mipv6_bu_m_flag_value = {
+    "MAP Registration",
+    "No MAP Registration"
+};
+static const true_false_string ipv6_mipv6_bu_b_flag_value = {
+    "Request for bicasting",
+    "Do not request for bicasting"
+};
 
 static int
-dissect_mipv6_bu(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset) {
-	int len=0;
-	gboolean sub_options=FALSE;
+dissect_mipv6_ba(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset)
+{
+    guint8 status, len = 0;
+    const char *status_text;
+    gboolean sub_options = FALSE;
 
-	proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_type, tvb, offset,
-	IP6_MIPv6_OPTION_TYPE_LENGTH, tvb_get_guint8(tvb,offset),
-	"Option Type: %u (0x%02x) - Binding Update", tvb_get_guint8(tvb,offset),
-	tvb_get_guint8(tvb,offset));
-  len+=IP6_MIPv6_OPTION_TYPE_LENGTH;
-  if (tvb_get_guint8(tvb,offset+len)>8)
-  sub_options=TRUE;
-  proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_length, tvb, offset+len,
-  IP6_MIPv6_OPTION_LENGTH_LENGTH, tvb_get_guint8(tvb,offset+len));
-  len+=IP6_MIPv6_OPTION_LENGTH_LENGTH;
-  proto_tree_add_boolean(dstopt_tree, hf_ipv6_mipv6_a_flag, tvb, offset+len,
-  IP6_MIPv6_FLAGS_LENGTH, tvb_get_guint8(tvb, offset+len));
-  proto_tree_add_boolean(dstopt_tree, hf_ipv6_mipv6_h_flag, tvb, offset+len,
-  IP6_MIPv6_FLAGS_LENGTH, tvb_get_guint8(tvb, offset+len));
-  proto_tree_add_boolean(dstopt_tree, hf_ipv6_mipv6_r_flag, tvb, offset+len,
-  IP6_MIPv6_FLAGS_LENGTH, tvb_get_guint8(tvb, offset+len));
-  proto_tree_add_boolean(dstopt_tree, hf_ipv6_mipv6_d_flag, tvb, offset+len,
-  IP6_MIPv6_FLAGS_LENGTH, tvb_get_guint8(tvb, offset+len));
-  proto_tree_add_boolean(dstopt_tree, hf_ipv6_mipv6_m_flag, tvb, offset+len,
-  IP6_MIPv6_FLAGS_LENGTH, tvb_get_guint8(tvb, offset+len));
-  proto_tree_add_boolean(dstopt_tree, hf_ipv6_mipv6_b_flag, tvb, offset+len,
-  IP6_MIPv6_FLAGS_LENGTH, tvb_get_guint8(tvb, offset+len));
-  len+=IP6_MIPv6_FLAGS_LENGTH;
-  proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_prefix_length, tvb, offset+len,
-	IP6_MIPv6_PREFIX_LENGTH_LENGTH, tvb_get_guint8(tvb,offset+len));
-  len+=IP6_MIPv6_PREFIX_LENGTH_LENGTH;
-  proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_sequence_number, tvb, offset+len,
-	IP6_MIPv6_SEQUENCE_NUMBER_LENGTH, tvb_get_ntohs(tvb,offset+len));
-  len+=IP6_MIPv6_SEQUENCE_NUMBER_LENGTH;
-  if (tvb_get_ntohl(tvb,offset+len)==0xffffffff)
-	{
-		proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_life_time, tvb, offset+len,
-		IP6_MIPv6_LIFE_TIME_LENGTH, tvb_get_ntohl(tvb,offset+len),
-		"Life Time: %u - Infinity", tvb_get_ntohl(tvb,offset+len));
-	} else
-	{
-		proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_life_time, tvb, offset+len,
-		IP6_MIPv6_LIFE_TIME_LENGTH, tvb_get_ntohl(tvb,offset+len));
-  }
-  len+=IP6_MIPv6_LIFE_TIME_LENGTH;
-  /* sub - options */
-  if (sub_options)
-  {
- 		proto_tree_add_text(dstopt_tree, tvb, offset+len, 1, "Sub-Options");
-	}
-  return len;
-}
-
-static int
-dissect_mipv6_ha(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset) {
-	int len=0;
-	gboolean sub_options=FALSE;
-
-	proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_type, tvb, offset+len,
-	IP6_MIPv6_OPTION_TYPE_LENGTH, tvb_get_guint8(tvb,offset+len),
-	"Option Type: %u (0x%02x) - Home Address", tvb_get_guint8(tvb,offset+len),
-	tvb_get_guint8(tvb,offset+len));
-  len+=IP6_MIPv6_OPTION_TYPE_LENGTH;
-  if (tvb_get_guint8(tvb,offset+len)>16)
-		sub_options=TRUE;
-  proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_length, tvb, offset+len,
-	IP6_MIPv6_OPTION_LENGTH_LENGTH, tvb_get_guint8(tvb,offset+len));
-  len+=IP6_MIPv6_OPTION_LENGTH_LENGTH;
-  proto_tree_add_ipv6(dstopt_tree, hf_ipv6_mipv6_home_address, tvb, offset+len,
-	IP6_MIPv6_HOME_ADDRESS_LENGTH, tvb_get_ptr(tvb,offset+len,IP6_MIPv6_HOME_ADDRESS_LENGTH));
-  len+=IP6_MIPv6_HOME_ADDRESS_LENGTH;						
-  /* sub - options */
-  if (sub_options)
-  {
- 		proto_tree_add_text(dstopt_tree, tvb, offset+len, 1, "Sub-Options");
-	}
-	return len;
-}
-
-static int
-dissect_mipv6_br(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset) {
-	int len=0;	
-	gboolean sub_options=FALSE;
-
-	proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_type, tvb, offset+len,
-	IP6_MIPv6_OPTION_TYPE_LENGTH, tvb_get_guint8(tvb,offset+len),
-	"Option Type: %u (0x%02x) - Binding Request", tvb_get_guint8(tvb,offset+len),
-	tvb_get_guint8(tvb,offset+len));
-  len+=IP6_MIPv6_OPTION_TYPE_LENGTH;
-  if (tvb_get_guint8(tvb,offset+len)>0)
-		sub_options=TRUE;
-  proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_length, tvb, offset+len,
-	IP6_MIPv6_OPTION_LENGTH_LENGTH, tvb_get_guint8(tvb,offset+len));
-  len+=IP6_MIPv6_OPTION_LENGTH_LENGTH;
-  /* sub - options */
-  if (sub_options)
-  {
- 		proto_tree_add_text(dstopt_tree, tvb, offset+len, 1, "Sub-Options");
-	}
-	return len;
-}
-
-static int
-dissect_mipv6_sub_u(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset) {
-	int len=0;
-					
-	proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_sub_length, tvb, offset+len,
-	IP6_MIPv6_SUB_TYPE_LENGTH, tvb_get_guint8(tvb,offset+len),
-	"Sub-Option Type: %u (0x%02x) - Unique Identifier Sub-Option", tvb_get_guint8(tvb,offset+len),
-	tvb_get_guint8(tvb,offset+len));
-  len+=IP6_MIPv6_SUB_TYPE_LENGTH;
-  proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_sub_length, tvb, offset+len,
-	IP6_MIPv6_SUB_LENGTH_LENGTH, tvb_get_guint8(tvb,offset+len));
-  len+=IP6_MIPv6_SUB_LENGTH_LENGTH;
-  proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_sub_unique_ID, tvb, offset+len,
-	IP6_MIPv6_SUB_UNIQUE_ID_LENGTH, tvb_get_ntohs(tvb,offset+len));
-  len+=IP6_MIPv6_SUB_UNIQUE_ID_LENGTH;						
-	return len;
-}
-
-static int
-dissect_mipv6_sub_a_coa(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset) {
-	int len=0;
-
-	proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_sub_type, tvb, offset+len,
-	IP6_MIPv6_SUB_TYPE_LENGTH, tvb_get_guint8(tvb,offset+len),
-	"Sub-Option Type: %u (0x%02x) - Alternative Care Of Address", tvb_get_guint8(tvb,offset+len),
-	tvb_get_guint8(tvb,offset+len));
-  len+=IP6_MIPv6_SUB_TYPE_LENGTH;
-  proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_sub_length, tvb, offset+len,
-	IP6_MIPv6_SUB_LENGTH_LENGTH, tvb_get_guint8(tvb,offset+len));
-  len+=IP6_MIPv6_SUB_LENGTH_LENGTH;
-  proto_tree_add_ipv6(dstopt_tree, hf_ipv6_mipv6_sub_alternative_COA, tvb, offset+len,
-	IP6_MIPv6_SUB_ALTERNATIVE_COA_LENGTH, tvb_get_ptr(tvb,offset+len,IP6_MIPv6_SUB_ALTERNATIVE_COA_LENGTH));
-  len+=IP6_MIPv6_SUB_ALTERNATIVE_COA_LENGTH;						
-	return len;
-}
-/* BT INSERT END */
-
-static int
-dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree,
-  char *optname) {
-	struct ip6_ext ext;
-  int len;
-  proto_tree *dstopt_tree;
-	proto_item *ti;
-  gint p;
-  guint8 tmp;
-
-	/* BT INSERT BEGIN */
-#if 0
-	tvbuff_t *tvb;
-#endif
-  int mip_offset=0, delta=0;
-  /* BT INSERT END */
-
-  static const value_string rtalertvals[] = {
-	{ IP6OPT_RTALERT_MLD, "MLD" },
-	{ IP6OPT_RTALERT_RSVP, "RSVP" },
-	{ 0, NULL },
-    };
-
-  tvb_memcpy(tvb, (guint8 *)&ext, offset, sizeof(ext));
-  len = (ext.ip6e_len + 1) << 3;
-
-  /* BT INSERT BEGIN */
-#if 0
-	tvb = tvb_create_from_top(offset);
-#endif
-  /* BT INSERT END */
-
-	if (tree) {
-		/* !!! specify length */
-		ti = proto_tree_add_text(tree, tvb, offset, len,
-	    "%s Header ", optname);
-
-		dstopt_tree = proto_item_add_subtree(ti, ett_ipv6);
-
-		proto_tree_add_text(dstopt_tree, tvb,
-		offset + offsetof(struct ip6_ext, ip6e_nxt), 1,
-	  "Next header: %s (0x%02x)", ipprotostr(ext.ip6e_nxt),ext.ip6e_nxt);
-    proto_tree_add_text(dstopt_tree, tvb,
-		offset + offsetof(struct ip6_ext, ip6e_len), 1,
-	  "Length: %u (%d bytes)", ext.ip6e_len, len);
-
-    /* BT INSERT BEGIN */
-    mip_offset=offset;
-    mip_offset+=2;
-    /* BT INSERT END */
-
-		p = offset + 2;
-
-		while (p < offset + len) {
-	  	switch (tvb_get_guint8(tvb, p)) {
-	    	case IP6OPT_PAD1:
-					proto_tree_add_text(dstopt_tree, tvb, p, 1,
-		    	"Pad1");
-					p++;
-          /* BT INSERT BEGIN */
-					mip_offset++;
-          /* BT INSERT END */
-					break;
-	    	case IP6OPT_PADN:
-					tmp = tvb_get_guint8(tvb, p + 1);
-					proto_tree_add_text(dstopt_tree, tvb, p, tmp + 2,
-		    	"PadN: %u bytes", tmp + 2);
-					p += tmp;
-					p += 2;
-          /* BT INSERT BEGIN */
-					mip_offset+=tvb_get_guint8(tvb,mip_offset+1)+2;
-          /* BT INSERT END */
-					break;
-	    	case IP6OPT_JUMBO:
-					tmp = tvb_get_guint8(tvb, p + 1);
-					if (tmp == 4) {
-		    		proto_tree_add_text(dstopt_tree, tvb, p, tmp + 2,
-						"Jumbo payload: %u (%u bytes)",
-						tvb_get_ntohl(tvb, p + 2), tmp + 2);
-					} else {
-		    		proto_tree_add_text(dstopt_tree, tvb, p, tmp + 2,
-						"Jumbo payload: Invalid length (%u bytes)",
-						tmp + 2);
-					}
-					p += tmp;
-					p += 2;
-          /* BT INSERT BEGIN */
-					mip_offset+=tvb_get_guint8(tvb,mip_offset+1)+2;
-          /* BT INSERT END */
-					break;
-	    	case IP6OPT_RTALERT:
-	      	{
-					char *rta;
-
-					tmp = tvb_get_guint8(tvb, p + 1);
-					if (tmp == 2) {
-		    		rta = val_to_str(tvb_get_ntohs(tvb, p + 2), rtalertvals,
-						"Unknown");
-					} else
-		    		rta = "Invalid length";
-					ti = proto_tree_add_text(dstopt_tree, tvb, p , tmp + 2,
-		    			"Router alert: %s (%u bytes)", rta, tmp + 2);
-					p += tmp;
-					p += 2;
-					/* BT INSERT BEGIN */
-					mip_offset+=tvb_get_guint8(tvb,mip_offset+1)+2;
-          /* BT INSERT END */
-					break;
-	      	}
-        /* BT INSERT BEGIN */
-  			case IP6OPT_BINDING_UPDATE :
-       	 	{     	
-            delta=dissect_mipv6_bu(tvb, dstopt_tree, mip_offset);
-						p+=delta;
-						mip_offset+=delta;
-        		break;
-       		}
-  			case IP6OPT_BINDING_ACK :
-       	 	{			
-            delta=dissect_mipv6_ba(tvb, dstopt_tree, mip_offset);
-						p+=delta;
-						mip_offset+=delta;
-						break;			
-					}
-  			case IP6OPT_HOME_ADDRESS :
-       	 	{
-            delta=dissect_mipv6_ha(tvb, dstopt_tree, mip_offset);
-						p+=delta;
-						mip_offset+=delta;
-						break;			
-          }
-  			case IP6OPT_BINDING_REQUEST :
-       	 	{
-	          delta=dissect_mipv6_br(tvb, dstopt_tree, mip_offset);
-						p+=delta;
-						mip_offset+=delta;
-						break;
-					}
-  			case IP6OPT_MIPv6_UNIQUE_ID_SUB :
-       	 	{
-	          delta=dissect_mipv6_sub_u(tvb, dstopt_tree, mip_offset);
-						p+=delta;
-						mip_offset+=delta;
-						break;
-					}
-  			case IP6OPT_MIPv6_ALTERNATIVE_COA_SUB :
-       	 	{
-	          delta=dissect_mipv6_sub_a_coa(tvb, dstopt_tree, mip_offset);
-						p+=delta;
-						mip_offset+=delta;
-						break;
-					}
-        /* BT INSERT END */
-	    	default:
-					p = offset + len;
-					break;
-	   	}
-		}
-
-	/* decode... */
-
-	}
+    proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_type, tvb,
+	offset + len, IP6_MIPv6_OPTION_TYPE_LENGTH,
+	tvb_get_guint8(tvb, offset + len),
+	"Option Type: %u (0x%02x) - Binding Acknowledgement",
+	tvb_get_guint8(tvb, offset + len),
+    tvb_get_guint8(tvb, offset + len));
+    len += IP6_MIPv6_OPTION_TYPE_LENGTH;
+    if (tvb_get_guint8(tvb, offset + len) > 11)
+	sub_options = TRUE;
+    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_length, tvb, offset + len,
+	IP6_MIPv6_OPTION_LENGTH_LENGTH, tvb_get_guint8(tvb, offset + len));
+    len += IP6_MIPv6_OPTION_LENGTH_LENGTH;
+    status = tvb_get_guint8(tvb, offset + len);
+    switch (status) {
+    case BA_OK:
+	status_text = "- Binding Update accepted";
+	break;
+    case BA_REAS_UNSPEC:
+	status_text = "- Binding Update was rejected - Reason unspecified";
+	break;
+    case BA_ADMIN_PROH:
+	status_text = "- Binding Update was rejected - Administratively prohibited";
+	break;
+    case BA_INSUF_RES:
+	status_text = "- Binding Update was rejected - Insufficient resources";
+	break;
+    case BA_NO_HR:
+	status_text = "- Binding Update was rejected - Home registration not supported";
+	break;
+    case BA_NO_SUBNET:
+	status_text = "- Binding Update was rejected - Not home subnet";
+	break;
+    case BA_ERR_ID_LEN:
+	status_text = "- Binding Update was rejected - Incorrect interface identifier length";
+	break;
+    case BA_NO_HA:
+	status_text = "- Binding Update was rejected - Not home agent for this mobile node";
+	break;
+    case BA_DUPL_ADDR:
+	status_text = "- Binding Update was rejected - Duplicate Address Detection failed";
+	break;
+    default:
+	status_text = NULL;
+	break;
+    }
+    if (!status_text) {
+	if (status > 128)
+	    status_text = "- Binding Update was rejected";
+	else
+	    status_text = "";
+    }
+    proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_status,
+	tvb, offset + len, IP6_MIPv6_STATUS_LENGTH,
+	tvb_get_guint8(tvb, offset + len),
+	"Status: %u %s", tvb_get_guint8(tvb, offset + len), status_text);
+    len += IP6_MIPv6_STATUS_LENGTH;
+    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_sequence_number,
+	tvb, offset + len, IP6_MIPv6_SEQUENCE_NUMBER_LENGTH,
+	tvb_get_ntohs(tvb, offset + len));
+    len += IP6_MIPv6_SEQUENCE_NUMBER_LENGTH;
+    if (tvb_get_ntohl(tvb, offset + len) == 0xffffffff) {
+	proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_life_time,
+	    tvb, offset + len, IP6_MIPv6_LIFE_TIME_LENGTH,
+	    tvb_get_ntohl(tvb, offset + len),
+	    "Life Time: %u - Infinity", tvb_get_ntohl(tvb, offset + len));
+    } else {
+	proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_life_time,
+	    tvb, offset + len, IP6_MIPv6_LIFE_TIME_LENGTH,
+	    tvb_get_ntohl(tvb, offset + len));
+    }
+    len += IP6_MIPv6_LIFE_TIME_LENGTH;
+    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_refresh, tvb,
+	offset + len, IP6_MIPv6_REFRESH_LENGTH,
+	tvb_get_ntohl(tvb, offset + len));
+    len += IP6_MIPv6_REFRESH_LENGTH;
+    /* sub - options */
+    if (sub_options)
+	proto_tree_add_text(dstopt_tree, tvb, offset + len, 1, "Sub-Options");
     return len;
 }
 
 static int
-dissect_hopopts(tvbuff_t *tvb, int offset, proto_tree *tree) {
+dissect_mipv6_bu(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset)
+{
+    int len = 0;
+    gboolean sub_options = FALSE;
+
+    proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_type, tvb, offset,
+	IP6_MIPv6_OPTION_TYPE_LENGTH, tvb_get_guint8(tvb, offset),
+	"Option Type: %u (0x%02x) - Binding Update",
+	tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset));
+    len += IP6_MIPv6_OPTION_TYPE_LENGTH;
+    if (tvb_get_guint8(tvb, offset + len) > 8)
+	sub_options = TRUE;
+    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_length, tvb, offset + len,
+	IP6_MIPv6_OPTION_LENGTH_LENGTH, tvb_get_guint8(tvb, offset + len));
+    len += IP6_MIPv6_OPTION_LENGTH_LENGTH;
+    proto_tree_add_boolean(dstopt_tree, hf_ipv6_mipv6_a_flag, tvb, offset + len,
+	IP6_MIPv6_FLAGS_LENGTH, tvb_get_guint8(tvb, offset + len));
+    proto_tree_add_boolean(dstopt_tree, hf_ipv6_mipv6_h_flag, tvb, offset + len,
+	IP6_MIPv6_FLAGS_LENGTH, tvb_get_guint8(tvb, offset + len));
+    proto_tree_add_boolean(dstopt_tree, hf_ipv6_mipv6_r_flag, tvb, offset + len,
+	IP6_MIPv6_FLAGS_LENGTH, tvb_get_guint8(tvb, offset + len));
+    proto_tree_add_boolean(dstopt_tree, hf_ipv6_mipv6_d_flag, tvb, offset + len,
+	IP6_MIPv6_FLAGS_LENGTH, tvb_get_guint8(tvb, offset + len));
+    proto_tree_add_boolean(dstopt_tree, hf_ipv6_mipv6_m_flag, tvb, offset + len,
+	IP6_MIPv6_FLAGS_LENGTH, tvb_get_guint8(tvb, offset + len));
+    proto_tree_add_boolean(dstopt_tree, hf_ipv6_mipv6_b_flag, tvb, offset + len,
+	IP6_MIPv6_FLAGS_LENGTH, tvb_get_guint8(tvb, offset + len));
+    len += IP6_MIPv6_FLAGS_LENGTH;
+    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_prefix_length, tvb,
+	offset + len,
+	IP6_MIPv6_PREFIX_LENGTH_LENGTH, tvb_get_guint8(tvb, offset + len));
+    len += IP6_MIPv6_PREFIX_LENGTH_LENGTH;
+    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_sequence_number, tvb,
+	offset + len, IP6_MIPv6_SEQUENCE_NUMBER_LENGTH,
+	tvb_get_ntohs(tvb, offset + len));
+    len += IP6_MIPv6_SEQUENCE_NUMBER_LENGTH;
+    if (tvb_get_ntohl(tvb, offset + len) == 0xffffffff) {
+    proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_life_time, tvb,
+	offset + len, IP6_MIPv6_LIFE_TIME_LENGTH,
+	tvb_get_ntohl(tvb, offset + len), "Life Time: %u - Infinity",
+	tvb_get_ntohl(tvb, offset + len));
+    } else {
+	proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_life_time, tvb,
+	    offset + len, IP6_MIPv6_LIFE_TIME_LENGTH, tvb_get_ntohl(tvb,
+	    offset + len));
+    }
+    len += IP6_MIPv6_LIFE_TIME_LENGTH;
+    /* sub - options */
+    if (sub_options)
+	proto_tree_add_text(dstopt_tree, tvb, offset + len, 1, "Sub-Options");
+    return len;
+}
+
+static int
+dissect_mipv6_ha(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset)
+{
+    int len = 0;
+    gboolean sub_options = FALSE;
+
+    proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_type, tvb,
+	offset + len, IP6_MIPv6_OPTION_TYPE_LENGTH,
+	tvb_get_guint8(tvb, offset + len),
+	"Option Type: %u (0x%02x) - Home Address",
+	tvb_get_guint8(tvb, offset + len), tvb_get_guint8(tvb, offset + len));
+    len += IP6_MIPv6_OPTION_TYPE_LENGTH;
+    if (tvb_get_guint8(tvb, offset + len) > 16)
+	sub_options = TRUE;
+    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_length, tvb, offset + len,
+	IP6_MIPv6_OPTION_LENGTH_LENGTH, tvb_get_guint8(tvb, offset + len));
+    len += IP6_MIPv6_OPTION_LENGTH_LENGTH;
+    proto_tree_add_ipv6(dstopt_tree, hf_ipv6_mipv6_home_address, tvb,
+	offset + len, IP6_MIPv6_HOME_ADDRESS_LENGTH,
+	tvb_get_ptr(tvb, offset + len, IP6_MIPv6_HOME_ADDRESS_LENGTH));
+    len += IP6_MIPv6_HOME_ADDRESS_LENGTH;
+    /* sub - options */
+    if (sub_options)
+	proto_tree_add_text(dstopt_tree, tvb, offset + len, 1, "Sub-Options");
+    return len;
+}
+
+static int
+dissect_mipv6_br(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset)
+{
+    int len = 0;
+    gboolean sub_options = FALSE;
+
+    proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_type, tvb,
+	offset + len, IP6_MIPv6_OPTION_TYPE_LENGTH,
+	tvb_get_guint8(tvb, offset + len),
+	"Option Type: %u (0x%02x) - Binding Request",
+	tvb_get_guint8(tvb, offset + len), tvb_get_guint8(tvb, offset + len));
+    len += IP6_MIPv6_OPTION_TYPE_LENGTH;
+    if (tvb_get_guint8(tvb, offset + len) > 0)
+	sub_options = TRUE;
+    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_length, tvb, offset + len,
+	IP6_MIPv6_OPTION_LENGTH_LENGTH, tvb_get_guint8(tvb, offset + len));
+    len += IP6_MIPv6_OPTION_LENGTH_LENGTH;
+    /* sub - options */
+    if (sub_options)
+	proto_tree_add_text(dstopt_tree, tvb, offset + len, 1, "Sub-Options");
+    return len;
+}
+
+static int
+dissect_mipv6_sub_u(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset)
+{
+    int len = 0;
+			
+    proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_sub_length, tvb,
+	offset + len, IP6_MIPv6_SUB_TYPE_LENGTH,
+	tvb_get_guint8(tvb, offset + len),
+	"Sub-Option Type: %u (0x%02x) - Unique Identifier Sub-Option",
+	tvb_get_guint8(tvb, offset + len), tvb_get_guint8(tvb, offset + len));
+    len += IP6_MIPv6_SUB_TYPE_LENGTH;
+    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_sub_length, tvb,
+	offset + len, IP6_MIPv6_SUB_LENGTH_LENGTH,
+	tvb_get_guint8(tvb, offset + len));
+    len += IP6_MIPv6_SUB_LENGTH_LENGTH;
+    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_sub_unique_ID, tvb,
+	offset + len, IP6_MIPv6_SUB_UNIQUE_ID_LENGTH,
+	tvb_get_ntohs(tvb, offset + len));
+    len += IP6_MIPv6_SUB_UNIQUE_ID_LENGTH;
+    return len;
+}
+
+static int
+dissect_mipv6_sub_a_coa(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset)
+{
+    int len = 0;
+
+    proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_sub_type, tvb,
+	offset + len, IP6_MIPv6_SUB_TYPE_LENGTH,
+	tvb_get_guint8(tvb, offset + len),
+	"Sub-Option Type: %u (0x%02x) - Alternative Care Of Address",
+	tvb_get_guint8(tvb, offset + len),
+    tvb_get_guint8(tvb, offset + len));
+    len += IP6_MIPv6_SUB_TYPE_LENGTH;
+    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_sub_length, tvb,
+	offset + len, IP6_MIPv6_SUB_LENGTH_LENGTH,
+	tvb_get_guint8(tvb, offset + len));
+    len += IP6_MIPv6_SUB_LENGTH_LENGTH;
+    proto_tree_add_ipv6(dstopt_tree, hf_ipv6_mipv6_sub_alternative_COA, tvb,
+	offset + len, IP6_MIPv6_SUB_ALTERNATIVE_COA_LENGTH,
+	tvb_get_ptr(tvb, offset + len, IP6_MIPv6_SUB_ALTERNATIVE_COA_LENGTH));
+    len += IP6_MIPv6_SUB_ALTERNATIVE_COA_LENGTH;
+    return len;
+}
+
+static const value_string rtalertvals[] = {
+    { IP6OPT_RTALERT_MLD, "MLD" },
+    { IP6OPT_RTALERT_RSVP, "RSVP" },
+    { 0, NULL },
+};
+
+static int
+dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, char *optname)
+{
+    struct ip6_ext ext;
+    int len;
+    proto_tree *dstopt_tree;
+    proto_item *ti;
+    gint p;
+    guint8 tmp;
+    int mip_offset = 0, delta = 0;
+
+    tvb_memcpy(tvb, (guint8 *)&ext, offset, sizeof(ext));
+    len = (ext.ip6e_len + 1) << 3;
+
+    if (tree) {
+	/* !!! specify length */
+	ti = proto_tree_add_text(tree, tvb, offset, len, "%s Header ", optname);
+
+	dstopt_tree = proto_item_add_subtree(ti, ett_ipv6);
+
+	proto_tree_add_text(dstopt_tree, tvb,
+	    offset + offsetof(struct ip6_ext, ip6e_nxt), 1,
+	    "Next header: %s (0x%02x)", ipprotostr(ext.ip6e_nxt), ext.ip6e_nxt);
+	proto_tree_add_text(dstopt_tree, tvb,
+	    offset + offsetof(struct ip6_ext, ip6e_len), 1,
+	    "Length: %u (%d bytes)", ext.ip6e_len, len);
+
+	mip_offset = offset;
+	mip_offset += 2;
+
+	p = offset + 2;
+
+	while (p < offset + len) {
+	    switch (tvb_get_guint8(tvb, p)) {
+	    case IP6OPT_PAD1:
+		proto_tree_add_text(dstopt_tree, tvb, p, 1, "Pad1");
+		p++;
+		mip_offset++;
+		break;
+	    case IP6OPT_PADN:
+		tmp = tvb_get_guint8(tvb, p + 1);
+		proto_tree_add_text(dstopt_tree, tvb, p, tmp + 2,
+		    "PadN: %u bytes", tmp + 2);
+		p += tmp;
+		p += 2;
+		mip_offset += tvb_get_guint8(tvb, mip_offset + 1) + 2;
+		break;
+	    case IP6OPT_JUMBO:
+		tmp = tvb_get_guint8(tvb, p + 1);
+		if (tmp == 4) {
+		    proto_tree_add_text(dstopt_tree, tvb, p, tmp + 2,
+			"Jumbo payload: %u (%u bytes)",
+			tvb_get_ntohl(tvb, p + 2), tmp + 2);
+		} else {
+		    proto_tree_add_text(dstopt_tree, tvb, p, tmp + 2,
+			"Jumbo payload: Invalid length (%u bytes)",
+			tmp + 2);
+		}
+		p += tmp;
+		p += 2;
+		mip_offset += tvb_get_guint8(tvb, mip_offset+1)+2;
+		break;
+	    case IP6OPT_RTALERT:
+	      {
+		char *rta;
+
+		tmp = tvb_get_guint8(tvb, p + 1);
+		if (tmp == 2) {
+		    rta = val_to_str(tvb_get_ntohs(tvb, p + 2), rtalertvals,
+			"Unknown");
+		} else
+		    rta = "Invalid length";
+		ti = proto_tree_add_text(dstopt_tree, tvb, p , tmp + 2,
+		    "Router alert: %s (%u bytes)", rta, tmp + 2);
+		p += tmp;
+		p += 2;
+		mip_offset += tvb_get_guint8(tvb, mip_offset + 1) + 2;
+		break;
+	      }
+	    case IP6OPT_BINDING_UPDATE :
+		delta = dissect_mipv6_bu(tvb, dstopt_tree, mip_offset);
+		p += delta;
+		mip_offset += delta;
+		break;
+	    case IP6OPT_BINDING_ACK :
+		delta = dissect_mipv6_ba(tvb, dstopt_tree, mip_offset);
+		p += delta;
+		mip_offset += delta;
+		break;
+	    case IP6OPT_HOME_ADDRESS :
+		delta = dissect_mipv6_ha(tvb, dstopt_tree, mip_offset);
+		p += delta;
+		mip_offset += delta;
+		break;
+	    case IP6OPT_BINDING_REQUEST :
+		delta = dissect_mipv6_br(tvb, dstopt_tree, mip_offset);
+		p += delta;
+		mip_offset += delta;
+		break;
+	    case IP6OPT_MIPv6_UNIQUE_ID_SUB :
+		delta = dissect_mipv6_sub_u(tvb, dstopt_tree, mip_offset);
+		p += delta;
+		mip_offset += delta;
+		break;
+	    case IP6OPT_MIPv6_ALTERNATIVE_COA_SUB :
+		delta = dissect_mipv6_sub_a_coa(tvb, dstopt_tree, mip_offset);
+		p += delta;
+		mip_offset += delta;
+		break;
+	    default:
+		p = offset + len;
+		break;
+	    }
+	}
+
+	/* decode... */
+    }
+    return len;
+}
+
+static int
+dissect_hopopts(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
     return dissect_opts(tvb, offset, tree, "Hop-by-hop Option");
 }
 
 static int
-dissect_dstopts(tvbuff_t *tvb, int offset, proto_tree *tree) {
+dissect_dstopts(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
     return dissect_opts(tvb, offset, tree, "Destination Option");
 }
 
 static void
-dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
   proto_tree *ipv6_tree = NULL;
   proto_item *ti;
   guint8 nxt;
@@ -663,7 +668,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     col_clear(pinfo->fd, COL_INFO);
 
   offset = 0;
-  tvb_memcpy(tvb, (guint8 *)&ipv6, offset, sizeof(ipv6)); 
+  tvb_memcpy(tvb, (guint8 *)&ipv6, offset, sizeof(ipv6));
 
   pinfo->ipproto = ipv6.ip6_nxt; /* XXX make work TCP follow (ipproto = 6) */
 
@@ -717,10 +722,10 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		offset + offsetof(struct ip6_hdr, ip6_hlim), 1,
 		ipv6.ip6_hlim);
 
-    proto_tree_add_ipv6_hidden(ipv6_tree, hf_ipv6_addr, tvb, 
+    proto_tree_add_ipv6_hidden(ipv6_tree, hf_ipv6_addr, tvb,
 			       offset + offsetof(struct ip6_hdr, ip6_src), 16,
 			       ipv6.ip6_src.s6_addr8);
-    proto_tree_add_ipv6_hidden(ipv6_tree, hf_ipv6_addr, tvb, 
+    proto_tree_add_ipv6_hidden(ipv6_tree, hf_ipv6_addr, tvb,
 			       offset + offsetof(struct ip6_hdr, ip6_dst), 16,
 			       ipv6.ip6_dst.s6_addr8);
 
@@ -817,27 +822,27 @@ again:
 			       plen,
 			       offlg & IP6F_MORE_FRAG);
     } else {
-      ipfd_head=NULL;
+      ipfd_head = NULL;
     }
 
     if (ipfd_head != NULL) {
       fragment_data *ipfd;
-      proto_tree *ft=NULL;
-      proto_item *fi=NULL;
+      proto_tree *ft = NULL;
+      proto_item *fi = NULL;
 
       /* OK, we have the complete reassembled payload. */
       /* show all fragments */
-      fi = proto_tree_add_item(ipv6_tree, hf_ipv6_fragments, 
+      fi = proto_tree_add_item(ipv6_tree, hf_ipv6_fragments,
                 tvb, 0, 0, FALSE);
       ft = proto_item_add_subtree(fi, ett_ipv6_fragments);
-      for (ipfd=ipfd_head->next; ipfd; ipfd=ipfd->next){
+      for (ipfd = ipfd_head->next; ipfd; ipfd = ipfd->next){
         if (ipfd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT
                           |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-          /* this fragment has some flags set, create a subtree 
+          /* this fragment has some flags set, create a subtree
            * for it and display the flags.
            */
-          proto_tree *fet=NULL;
-          proto_item *fei=NULL;
+          proto_tree *fet = NULL;
+          proto_item *fei = NULL;
           int hf;
 
           if (ipfd->flags & (FD_OVERLAPCONFLICT
@@ -846,7 +851,7 @@ again:
           } else {
             hf = hf_ipv6_fragment;
           }
-          fei = proto_tree_add_none_format(ft, hf, 
+          fei = proto_tree_add_none_format(ft, hf,
                    tvb, 0, 0,
                    "Frame:%d payload:%d-%d",
                    ipfd->frame,
@@ -855,28 +860,28 @@ again:
           );
           fet = proto_item_add_subtree(fei, ett_ipv6_fragment);
           if (ipfd->flags&FD_OVERLAP) {
-            proto_tree_add_boolean(fet, 
-                 hf_ipv6_fragment_overlap, tvb, 0, 0, 
+            proto_tree_add_boolean(fet,
+                 hf_ipv6_fragment_overlap, tvb, 0, 0,
                  TRUE);
           }
           if (ipfd->flags&FD_OVERLAPCONFLICT) {
-            proto_tree_add_boolean(fet, 
-                 hf_ipv6_fragment_overlap_conflict, tvb, 0, 0, 
+            proto_tree_add_boolean(fet,
+                 hf_ipv6_fragment_overlap_conflict, tvb, 0, 0,
                  TRUE);
           }
           if (ipfd->flags&FD_MULTIPLETAILS) {
-            proto_tree_add_boolean(fet, 
-                 hf_ipv6_fragment_multiple_tails, tvb, 0, 0, 
+            proto_tree_add_boolean(fet,
+                 hf_ipv6_fragment_multiple_tails, tvb, 0, 0,
                  TRUE);
           }
           if (ipfd->flags&FD_TOOLONGFRAGMENT) {
-            proto_tree_add_boolean(fet, 
-                 hf_ipv6_fragment_too_long_fragment, tvb, 0, 0, 
+            proto_tree_add_boolean(fet,
+                 hf_ipv6_fragment_too_long_fragment, tvb, 0, 0,
                  TRUE);
           }
         } else {
           /* nothing of interest for this fragment */
-          proto_tree_add_none_format(ft, hf_ipv6_fragment, 
+          proto_tree_add_none_format(ft, hf_ipv6_fragment,
                    tvb, 0, 0,
                    "Frame:%d payload:%d-%d",
                    ipfd->frame,
@@ -965,17 +970,16 @@ again:
 }
 
 static void
-dissect_ipv6_none(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-  /* BT INSERT BEGIN */
-  if (hf_ipv6_mipv6_length!=-1) {
-  	if (check_col(pinfo->fd, COL_INFO))
-	  col_add_fstr(pinfo->fd, COL_INFO, "MobileIPv6 Destination Option");
-  } else {
-    /* BT INSERT END */
-    if (check_col(pinfo->fd, COL_INFO))
-      col_add_fstr(pinfo->fd, COL_INFO, "IPv6 no next header");
-  }
-  /* XXX - dissect the payload as padding? */
+dissect_ipv6_none(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    if (hf_ipv6_mipv6_length != -1) {
+	if (check_col(pinfo->fd, COL_INFO))
+	    col_add_fstr(pinfo->fd, COL_INFO, "MobileIPv6 Destination Option");
+    } else {
+	if (check_col(pinfo->fd, COL_INFO))
+	    col_add_fstr(pinfo->fd, COL_INFO, "IPv6 no next header");
+    }
+    /* XXX - dissect the payload as padding? */
 }
 
 void
