@@ -45,4 +45,8 @@ gssapi_init_oid(char *oid, int proto, int ett, dissector_handle_t handle,
 gssapi_oid_value *
 gssapi_lookup_oid(subid_t *oid, guint oid_len);
 
+int wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset, 
+			     packet_info *pinfo, 
+			     proto_tree *tree, guint8 *drep);
+
 #endif /* __PACKET_GSSAPI_H */

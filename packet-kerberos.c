@@ -68,6 +68,9 @@
 #include "packet-dcerpc-netlogon.h"
 #include "packet-dcerpc.h"
 
+#include "asn1.h"		/* for "subid_t" */
+#include "packet-gssapi.h"
+
 #define UDP_PORT_KERBEROS		88
 #define TCP_PORT_KERBEROS		88
 
@@ -3908,11 +3911,6 @@ static int wrap_dissect_gss_kerb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return tvb_length_remaining(tvb, offset);
 }
 
-
-/* from packet-gssapi.c */
-extern int wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset, 
-				    packet_info *pinfo, 
-				    proto_tree *tree, guint8 *drep);
 
 static dcerpc_auth_subdissector_fns gss_kerb_auth_fns = {
 	wrap_dissect_gss_kerb,		        /* Bind */
