@@ -2,7 +2,7 @@
  * Routines for dcerpc endpoint mapper dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-epm.c,v 1.23 2003/11/10 20:22:39 guy Exp $
+ * $Id: packet-dcerpc-epm.c,v 1.24 2003/11/21 08:40:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -235,7 +235,6 @@ epm_dissect_ept_lookup_resp (tvbuff_t *tvb, int offset,
     return offset;
 }
 
-#if 0
 static int
 epm_dissect_uuid (tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
@@ -245,7 +244,6 @@ epm_dissect_uuid (tvbuff_t *tvb, int offset,
                                   hf_epm_uuid, NULL);
     return offset;
 }
-#endif
 
 #define PROTO_ID_OSI_OID	0x00
 #define PROTO_ID_DNA_SESSCTL	0x02
@@ -484,18 +482,10 @@ epm_dissect_ept_map_rqst (tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
-    /* [in] handle_t h */
-    offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
-                                  hf_epm_hnd, NULL);
-
-#if 0
-    /* according to opengroup we should have an uuid pointer here.
-       in my w2k captures i can not see any such thing */
     /* [in, ptr] uuid_p_t object */
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
                              epm_dissect_uuid, NDR_POINTER_PTR,
-                             "UUID pointer:", -1, 1);
-#endif
+                             "UUID pointer:", -1);
 
     /* [in, ptr] twr_p_t map_tower */
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -554,10 +544,6 @@ epm_dissect_ept_insert_rqst (tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
-    /* [in, out] ept_lookup_handle_t *entry_handle */
-    offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
-                                  hf_epm_hnd, NULL);
-
     offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                  hf_epm_num_ents, NULL);
 
@@ -591,9 +577,6 @@ epm_dissect_ept_delete_rqst (tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
-    offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
-                                  hf_epm_hnd, NULL);
-
     offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                  hf_epm_num_ents, NULL);
 
@@ -625,6 +608,7 @@ epm_dissect_ept_lookup_handle_free_rqst (tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
+    /* [in, out] ept_lookup_handle_t *entry_handle */
     offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
                                   hf_epm_hnd, NULL);
 
@@ -636,6 +620,7 @@ epm_dissect_ept_lookup_handle_free_resp (tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
+    /* [in, out] ept_lookup_handle_t *entry_handle */
     offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
                                   hf_epm_hnd, NULL);
 
