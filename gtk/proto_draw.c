@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.88 2004/02/11 01:37:13 guy Exp $
+ * $Id: proto_draw.c,v 1.89 2004/02/20 17:31:00 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,10 @@
 #include <io.h>			/* open/close on win32 */
 #endif
 
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -63,6 +67,12 @@
 #include "compat_macros.h"
 #include "alert_box.h"
 #include "simple_dialog.h"
+
+
+/* Win32 needs the O_BINARY flag for open() */
+#ifndef O_BINARY
+#define O_BINARY	0
+#endif
 
 #define BYTE_VIEW_WIDTH    16
 #define BYTE_VIEW_SEP      8
@@ -740,8 +750,6 @@ add_byte_views(epan_dissect_t *edt, GtkWidget *tree_view,
 	gtk_notebook_set_page(GTK_NOTEBOOK(byte_nb_ptr), 0);
 }
 
-#include <fcntl.h>
-
 static GtkWidget *savehex_dlg=NULL;
 static GtkWidget *file_entry=NULL;
 
@@ -916,7 +924,7 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 		return;
 	}
 
-	fd = open(file, O_WRONLY|O_CREAT|O_TRUNC, 0666);
+	fd = open(file, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
 	if (fd == -1) {
 		open_failure_alert_box(file, errno, TRUE);
 		return;
