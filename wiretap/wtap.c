@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.82 2003/05/15 07:14:45 guy Exp $
+ * $Id: wtap.c,v 1.83 2003/05/16 00:34:33 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -171,7 +171,7 @@ static const struct encap_type_info {
 	{ "Tazmen sniffer protocol", "tzsp" },
 
 	/* WTAP_ENCAP_ENC */
-	{ " OpenBSD enc(4) encapsulating interface", "enc" },
+	{ "OpenBSD enc(4) encapsulating interface", "enc" },
 
 	/* WTAP_ENCAP_PFLOG  */
 	{ "OpenBSD PF Firewall logs", "pflog" },
