@@ -3,7 +3,7 @@
  * Copyright Lucent Technologies 2004
  * Josh Bailey <joshbailey@lucent.com> and Ruud Linders <ruud@lucent.com>
  *
- * $Id: packet-ipdc.c,v 1.2 2004/03/20 05:53:40 guy Exp $
+ * $Id: packet-ipdc.c,v 1.3 2004/03/20 08:01:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,7 +84,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	char *des;
 	char *enum_val;
 	char *tmp_str;
-	char tmp_tag_text[255];
+	char tmp_tag_text[255+1];
 	const value_string *val_ptr;
 	guint32	type;
 	guint len;
@@ -197,13 +197,13 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		type = ipdc_tag_types[i].type;
 
 		tmp_tag = 0;
-		tmp_tag_text[len] = 0;
 
 		switch (type) {
 			/* simple ASCII strings */
 			case ASCII:
 				tmp_str = tvb_memdup(tvb, offset + 2, len);
 				strncpy(tmp_tag_text, tmp_str, len);
+				tmp_tag_text[len] = 0;
 				free(tmp_str);
 				proto_tree_add_text(tag_tree, tvb, offset,
 				len + 2, "0x%2.2x: %s: %s", tag, des,
@@ -240,18 +240,22 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			/* IP addresses */
 			case IPA:
-				if (len >= 4) {
+				if (len == 4) {
 					sprintf(tmp_tag_text, "%u.%u.%u.%u",
 					tvb_get_guint8(tvb, offset + 2),
 					tvb_get_guint8(tvb, offset + 3),
 					tvb_get_guint8(tvb, offset + 4),
 					tvb_get_guint8(tvb, offset + 5));
-				}
-
-				if (len == 6) {
-					sprintf(tmp_tag_text, "%s:%u",
-					tmp_tag_text,
+				} else if (len == 6) {
+					sprintf(tmp_tag_text, "%u.%u.%u.%u:%u",
+					tvb_get_guint8(tvb, offset + 2),
+					tvb_get_guint8(tvb, offset + 3),
+					tvb_get_guint8(tvb, offset + 4),
+					tvb_get_guint8(tvb, offset + 5),
 					tvb_get_ntohs(tvb, offset + 6));
+				} else {
+					sprintf(tmp_tag_text,
+					"Invalid IP address length %u", len);
 				}
 
 				proto_tree_add_text(tag_tree, tvb,
