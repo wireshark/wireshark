@@ -2288,9 +2288,11 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	proto_tree_add_uint (wep_tree, hf_wep_iv, tvb, hdr_len, 3, iv);
 	tvb_memcpy(tvb, iv_buff, hdr_len, 3);
 	is_iv_bad = weak_iv(iv_buff);
-	if (is_iv_bad != -1){
-		proto_tree_add_text(wep_tree,tvb,0,0,"Weak IV for key byte %d", is_iv_bad);
-		proto_tree_add_boolean_hidden(wep_tree,hf_wep_iv_weak,tvb,0,0,1 );
+	if (is_iv_bad != -1) {
+		proto_tree_add_boolean_format (wep_tree, hf_wep_iv_weak,
+					       tvb, 0, 0, TRUE,
+					       "Weak IV for key byte %d",
+					       is_iv_bad);
 	}
       }
       if (tree)
@@ -3508,8 +3510,7 @@ static void init_wepkeys(void) {
  * for a weak IV as specified in FMS section 7.1
  *
  */
-static
-int
+static int
 weak_iv(guchar *iv)
 {
         guchar sum, k;
