@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.13 1999/11/15 14:32:16 nneul Exp $
+ * $Id: packet-rpc.c,v 1.14 1999/11/15 14:57:38 nneul Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -36,6 +36,7 @@
 #include <glib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "packet.h"
 #include "conversation.h"
 #include "packet-rpc.h"
@@ -88,6 +89,16 @@ const value_string rpc_auth_state[6] = {
 
 /* the protocol number */
 static int proto_rpc = -1;
+static int hf_rpc_xid = -1;
+static int hf_rpc_msgtype = -1;
+static int hf_rpc_rpcversion = -1;
+static int hf_rpc_program = -1;
+static int hf_rpc_programversion = -1;
+static int hf_rpc_procedure = -1;
+static int hf_rpc_cred_flavor = -1;
+static int hf_rpc_cred_length = -1;
+static int hf_rpc_verify_flavor = -1;
+static int hf_rpc_verify_length = -1;
 
 
 /* Hash table with info on RPC program numbers */
@@ -723,7 +734,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	msg_type_name = val_to_str(msg_type,rpc_msg_type,"%u");
 	if (rpc_tree) {
 		proto_tree_add_text(rpc_tree,offset+4,4,
-			"msg_type: %s (%u)",
+			"Message Type: %s (%u)",
 			msg_type_name, msg_type);
 	}
 
@@ -1042,5 +1053,40 @@ rpc_init_protocol(void)
 void
 proto_register_rpc(void)
 {
+	static hf_register_info hf[] = {
+		{ &hf_rpc_xid, {
+			"XID", "rpc.xid", FT_UINT32, BASE_HEX,
+			NULL, 0, "XID" }},
+		{ &hf_rpc_msgtype, {
+			"Message Type", "rpc.msgtyp", FT_UINT32, BASE_HEX,
+			NULL, 0, "Message Type" }},
+		{ &hf_rpc_rpcversion, {
+			"RPC Version", "rpc.version", FT_UINT32, BASE_HEX,
+			NULL, 0, "RPC Version" }},
+		{ &hf_rpc_program, {
+			"Program", "rpc.program", FT_UINT32, BASE_HEX,
+			NULL, 0, "Program" }},
+		{ &hf_rpc_programversion, {
+			"Program Version", "rpc.programversion", FT_UINT32, 
+			BASE_HEX, NULL, 0, "Program Version" }},
+		{ &hf_rpc_procedure, {
+			"Procedure", "rpc.procedure", FT_UINT32, BASE_HEX,
+			NULL, 0, "Procedure" }},
+		{ &hf_rpc_cred_flavor, {
+			"Flavor", "rpc.cred.flavor", FT_UINT32, BASE_HEX,
+			NULL, 0, "Flavor" }},
+		{ &hf_rpc_cred_length, {
+			"Length", "rpc.cred.length", FT_UINT32, BASE_HEX,
+			NULL, 0, "Length" }},
+		{ &hf_rpc_verify_flavor, {
+			"Flavor", "rpc.verify.flavor", FT_UINT32, BASE_HEX,
+			NULL, 0, "Flavor" }},
+		{ &hf_rpc_verify_length, {
+			"Length", "rpc.verify.length", FT_UINT32, BASE_HEX,
+			NULL, 0, "Length" }},
+	};
+
+
 	proto_rpc = proto_register_protocol("Remote Procedure Call", "rpc");
+	proto_register_field_array(proto_rpc, hf, array_length(hf));
 }
