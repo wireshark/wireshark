@@ -31,6 +31,14 @@
  *  Packet range widget used for example in the "Save" and "Print" dialogs.
  */
 
+/** Check the validity of a packet_range_t, and put up an alert box if
+ ** it's not valid.
+ *
+ * @param range the range to check
+ * @return a Boolean that's TRUE if it's valid and FALSE if it isn't
+ */
+extern gboolean range_check_validity(packet_range_t *range);
+
 /** Create a new range widget.
  *
  * @param range the range to set

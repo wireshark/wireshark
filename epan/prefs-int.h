@@ -68,14 +68,14 @@ struct preference {
 		gboolean *boolp;
 		gint *enump;
 		char **string;
-		range_t *rangep;
+		range_t **range;
 	} varp;			/* pointer to variable storing the value */
 	union {
 		guint uint;
 		gboolean boolval;
 		gint enumval;
 		char *string;
-		range_t rangeval;
+		range_t *range;
 	} saved_val;		/* original value, when editing from the GUI */
 	union {
 	  guint base;			/* input/output base, for PREF_UINT */

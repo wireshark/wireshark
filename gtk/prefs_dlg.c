@@ -206,8 +206,10 @@ pref_show(pref_t *pref, gpointer user_data)
   {
     char range_string[MAXRANGESTRING];
 
-    pref->saved_val.rangeval = *pref->varp.rangep;
-    range_convert_range(pref->varp.rangep, range_string);
+    if (pref->saved_val.range != NULL)
+      g_free(pref->saved_val.range);
+    pref->saved_val.range = range_copy(*pref->varp.range);
+    range_convert_range(*pref->varp.range, range_string);
     pref->control = create_preference_entry(main_tb, pref->ordinal,
 					    label_string, pref->description,
 					    range_string);
@@ -901,14 +903,15 @@ pref_check(pref_t *pref, gpointer user_data)
   case PREF_RANGE:
     str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
 
-    if (strlen(str_val)) {
-	range_t newrange;
+    if (strlen(str_val) != 0) {
+	range_t *newrange;
 
 	if (range_convert_str(&newrange, str_val, pref->info.max_value) !=
 	    CVT_NO_ERROR) {
 	    *badpref = pref;
 	    return PREFS_SET_SYNTAX_ERR;	/* range was bad */
 	}
+	g_free(newrange);
     }
     break;
 
@@ -988,21 +991,24 @@ pref_fetch(pref_t *pref, gpointer user_data)
 
   case PREF_RANGE:
   {
-    range_t newrange;
+    range_t *newrange;
     convert_ret_t ret;
 
     str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
     ret = range_convert_str(&newrange, str_val, pref->info.max_value);
-#if 0
     if (ret != CVT_NO_ERROR)
+#if 0
       return PREFS_SET_SYNTAX_ERR;	/* range was bad */
+#else
+      return 0;	/* XXX - should fail */
 #endif
 
-    if (!ranges_are_equal(pref->varp.rangep, &newrange))
-    {
+    if (!ranges_are_equal(*pref->varp.range, newrange)) {
       *pref_changed_p = TRUE;
-      *pref->varp.rangep = newrange;
-    }
+      g_free(*pref->varp.range);
+      *pref->varp.range = newrange;
+    } else
+      g_free(newrange);
 
     break;
   }
@@ -1055,6 +1061,10 @@ pref_clean(pref_t *pref, gpointer user_data _U_)
     break;
 
   case PREF_RANGE:
+    if (pref->saved_val.range != NULL) {
+      g_free(pref->saved_val.range);
+      pref->saved_val.range = NULL;
+    }
     break;
 
   case PREF_OBSOLETE:
@@ -1314,10 +1324,10 @@ pref_revert(pref_t *pref, gpointer user_data)
     break;
 
   case PREF_RANGE:
-    if (!ranges_are_equal(pref->varp.rangep, &pref->saved_val.rangeval))
-    {
+    if (!ranges_are_equal(*pref->varp.range, pref->saved_val.range)) {
       *pref_changed_p = TRUE;
-      *pref->varp.rangep = pref->saved_val.rangeval;
+      g_free(*pref->varp.range);
+      *pref->varp.range = range_copy(pref->saved_val.range);
     }
     break;
 

@@ -566,7 +566,7 @@ prefs_register_string_preference(module_t *module, const char *name,
 	 * String preference values should be non-null (as you can't
 	 * keep them null after using the preferences GUI, you can at best
 	 * have them be null strings) and freeable (as we free them
-	 * if we change them.
+	 * if we change them).
 	 *
 	 * If the value is a null pointer, make it a copy of a null
 	 * string, otherwise make it a copy of the value.
@@ -584,7 +584,7 @@ prefs_register_string_preference(module_t *module, const char *name,
  */
 void
 prefs_register_range_preference(module_t *module, const char *name,
-    const char *title, const char *description, range_t *var,
+    const char *title, const char *description, range_t **var,
     guint32 max_value)
 {
 	pref_t *preference;
@@ -593,8 +593,22 @@ prefs_register_range_preference(module_t *module, const char *name,
 					 PREF_RANGE);
 	preference->info.max_value = max_value;
 
-	preference->varp.rangep = var;
-	memset(&preference->saved_val.rangeval, 0, sizeof(preference->saved_val.rangeval));
+
+	/*
+	 * Range preference values should be non-null (as you can't
+	 * keep them null after using the preferences GUI, you can at best
+	 * have them be empty ranges) and freeable (as we free them
+	 * if we change them).
+	 *
+	 * If the value is a null pointer, make it an empty range,
+	 * otherwise make it a copy of the value.
+	 */
+	if (*var == NULL)
+		*var = range_empty();
+	else
+		*var = range_copy(*var);
+	preference->varp.range = var;
+	preference->saved_val.range = NULL;
 }
 
 /*
@@ -2020,18 +2034,19 @@ set_pref(gchar *pref_name, gchar *value)
 
     case PREF_RANGE:
     {
-      range_t newrange;
+      range_t *newrange;
 
       if (range_convert_str(&newrange, value, pref->info.max_value) !=
           CVT_NO_ERROR) {
         /* XXX - distinguish between CVT_SYNTAX_ERROR and
-           CVT_TOO_MANY_SUBRANGES */
+           CVT_NUMBER_TOO_BIG */
         return PREFS_SET_SYNTAX_ERR;	/* number was bad */
       }
 
-      if (!ranges_are_equal(pref->varp.rangep, &newrange)) {
+      if (!ranges_are_equal(*pref->varp.range, newrange)) {
 	module->prefs_changed = TRUE;
-	*pref->varp.rangep = newrange;
+	g_free(*pref->varp.range);
+	*pref->varp.range = newrange;
       }
       break;
     }
@@ -2141,7 +2156,7 @@ write_pref(gpointer data, gpointer user_data)
 
 		fprintf(arg->pf, "# A string denoting an positive integer range (e.g., \"1-20,30-40\").\n");
 		fprintf(arg->pf, "%s.%s: %s\n", arg->module->name, pref->name,
-			range_convert_range(pref->varp.rangep, range_string));
+			range_convert_range(*pref->varp.range, range_string));
 		break;
 	}
 

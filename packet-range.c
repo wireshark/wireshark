@@ -131,7 +131,7 @@ void packet_range_calc(packet_range_t *range) {
 
 
 /* (re-)calculate the user specified packet range counts */
-void packet_range_calc_user(packet_range_t *range) {
+static void packet_range_calc_user(packet_range_t *range) {
   guint32       current_count;
   frame_data    *packet;
 
@@ -142,7 +142,7 @@ void packet_range_calc_user(packet_range_t *range) {
   for(packet = cfile.plist; packet != NULL; packet = packet->next) {
       current_count++;
 
-      if (value_is_in_range(&range->user_range, current_count)) {
+      if (value_is_in_range(range->user_range, current_count)) {
           range->user_range_cnt++;
           if (packet->flags.passed_dfilter) {
             range->displayed_user_range_cnt++;
@@ -157,15 +157,25 @@ void packet_range_init(packet_range_t *range) {
 
   range->process            = range_process_all;
   range->process_filtered   = FALSE;
-  range_init(&range->user_range);
+  range->user_range         = range_empty();
 
   /* calculate all packet range counters */
   packet_range_calc(range);
   packet_range_calc_user(range);
 }
 
+/* check whether the packet range is OK */
+convert_ret_t packet_range_check(packet_range_t *range) {
+  if (range->process == range_process_user_range && range->user_range == NULL) {
+    /* Not valid - return the error. */
+    return range->user_range_status;
+  }
+  return CVT_NO_ERROR;
+}
+
 /* init the processing run */
 void packet_range_process_init(packet_range_t *range) {
+  /* Check that, if an explicit range was selected, it's valid. */
   /* "enumeration" values */
   range->marked_range_active    = FALSE;
   range->selected_done          = FALSE;
@@ -219,7 +229,7 @@ range_process_e packet_range_process_packet(packet_range_t *range, frame_data *f
         }
         break;
     case(range_process_user_range):
-        if (value_is_in_range(&range->user_range, fdata->num) == FALSE) {
+        if (value_is_in_range(range->user_range, fdata->num) == FALSE) {
           return range_process_next;
         }
         break;
@@ -246,8 +256,21 @@ range_process_e packet_range_process_packet(packet_range_t *range, frame_data *f
 
 void packet_range_convert_str(packet_range_t *range, const gchar *es)
 {
-    /* XXX - check for errors */
-    range_convert_str(&range->user_range, es, cfile.count);
+    range_t *new_range;
+    convert_ret_t ret;
+
+    if (range->user_range != NULL)
+        g_free(range->user_range);
+    ret = range_convert_str(&new_range, es, cfile.count);
+    if (ret != CVT_NO_ERROR) {
+        /* range isn't valid */
+        range->user_range                 = NULL;
+        range->user_range_status          = ret;
+        range->user_range_cnt             = 0L;
+        range->displayed_user_range_cnt   = 0L;
+        return;
+    }
+    range->user_range = new_range;
 
     /* calculate new user specified packet range counts */
     packet_range_calc_user(range);

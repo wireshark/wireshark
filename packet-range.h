@@ -49,8 +49,9 @@ typedef struct packet_range_tag {
     packet_range_e  process;            /* which range to process */
     gboolean        process_filtered;   /* captured or filtered packets */
 
-    /* user specified range(s) */
-    range_t         user_range;
+    /* user specified range(s) and, if null, error status */
+    range_t         *user_range;
+    convert_ret_t   user_range_status;
 
     /* calculated values */
     guint32  selected_packet;       /* the currently selected packet */
@@ -82,8 +83,11 @@ typedef enum {
 /* init the range structure */
 extern void packet_range_init(packet_range_t *range);
 
+/* check whether the packet range is OK */
+extern convert_ret_t packet_range_check(packet_range_t *range);
+
 /* init the processing run */
-void packet_range_process_init(packet_range_t *range);
+extern void packet_range_process_init(packet_range_t *range);
 
 /* do we have to process all packets? */
 extern gboolean packet_range_process_all(packet_range_t *range);
