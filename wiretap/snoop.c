@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.35 2001/08/25 02:56:31 guy Exp $
+ * $Id: snoop.c,v 1.36 2001/08/25 03:18:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -521,7 +521,7 @@ int snoop_dump_can_write_encap(int filetype, int encap)
 gboolean snoop_dump_open(wtap_dumper *wdh, int *err)
 {
 	struct snoop_hdr file_hdr;
-	int nwritten;
+	size_t nwritten;
 
 	/* This is a snoop file */
 	wdh->subtype_write = snoop_dump;
@@ -530,7 +530,7 @@ gboolean snoop_dump_open(wtap_dumper *wdh, int *err)
 	/* Write the file header. */
 	nwritten = fwrite(&snoop_magic, 1, sizeof snoop_magic, wdh->fh);
 	if (nwritten != sizeof snoop_magic) {
-		if (nwritten < 0)
+		if (nwritten == 0 && ferror(wdh->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
@@ -542,7 +542,7 @@ gboolean snoop_dump_open(wtap_dumper *wdh, int *err)
 	file_hdr.network = htonl(wtap_encap[wdh->encap]);
 	nwritten = fwrite(&file_hdr, 1, sizeof file_hdr, wdh->fh);
 	if (nwritten != sizeof file_hdr) {
-		if (nwritten < 0)
+		if (nwritten == 0 && ferror(wdh->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;

@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.49 2001/07/13 00:55:58 guy Exp $
+ * $Id: libpcap.c,v 1.50 2001/08/25 03:18:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -916,7 +916,7 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 {
 	guint32 magic;
 	struct pcap_hdr file_hdr;
-	int nwritten;
+	size_t nwritten;
 
 	/* This is a libpcap file */
 	wdh->subtype_write = libpcap_dump;
@@ -945,7 +945,7 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 
 	nwritten = fwrite(&magic, 1, sizeof magic, wdh->fh);
 	if (nwritten != sizeof magic) {
-		if (nwritten < 0)
+		if (nwritten == 0 && ferror(wdh->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
@@ -961,7 +961,7 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 	file_hdr.network = wtap_wtap_encap_to_pcap_encap(wdh->encap);
 	nwritten = fwrite(&file_hdr, 1, sizeof file_hdr, wdh->fh);
 	if (nwritten != sizeof file_hdr) {
-		if (nwritten < 0)
+		if (nwritten == 0 && ferror(wdh->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
@@ -977,8 +977,8 @@ static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err)
 {
 	struct pcaprec_ss990915_hdr rec_hdr;
-	int hdr_size;
-	int nwritten;
+	size_t hdr_size;
+	size_t nwritten;
 
 	rec_hdr.hdr.ts_sec = phdr->ts.tv_sec;
 	rec_hdr.hdr.ts_usec = phdr->ts.tv_usec;
@@ -1045,7 +1045,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
 	nwritten = fwrite(&rec_hdr, 1, hdr_size, wdh->fh);
 	if (nwritten != hdr_size) {
-		if (nwritten < 0)
+		if (nwritten == 0 && ferror(wdh->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
@@ -1053,7 +1053,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	}
 	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
 	if (nwritten != phdr->caplen) {
-		if (nwritten < 0)
+		if (nwritten == 0 && ferror(wdh->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;

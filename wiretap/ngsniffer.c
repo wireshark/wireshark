@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.65 2001/07/15 19:14:03 guy Exp $
+ * $Id: ngsniffer.c,v 1.66 2001/08/25 03:18:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -1149,7 +1149,7 @@ int ngsniffer_dump_can_write_encap(int filetype, int encap)
    failure */
 gboolean ngsniffer_dump_open(wtap_dumper *wdh, int *err)
 {
-    int nwritten;
+    size_t nwritten;
     char buf[6] = {REC_VERS, 0x00, 0x12, 0x00, 0x00, 0x00}; /* version record */
 
     /* This is a sniffer file */
@@ -1163,7 +1163,7 @@ gboolean ngsniffer_dump_open(wtap_dumper *wdh, int *err)
     /* Write the file header. */
     nwritten = fwrite(ngsniffer_magic, 1, sizeof ngsniffer_magic, wdh->fh);
     if (nwritten != sizeof ngsniffer_magic) {
-	if (nwritten < 0)
+	if (nwritten == 0 && ferror(wdh->fh))
 	    *err = errno;
 	else
 	    *err = WTAP_ERR_SHORT_WRITE;
@@ -1171,7 +1171,7 @@ gboolean ngsniffer_dump_open(wtap_dumper *wdh, int *err)
     }
     nwritten = fwrite(buf, 1, 6, wdh->fh);
     if (nwritten != 6) {
-	if (nwritten < 0)
+	if (nwritten == 0 && ferror(wdh->fh))
 	    *err = errno;
 	else
 	    *err = WTAP_ERR_SHORT_WRITE;
@@ -1188,7 +1188,7 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 {
     ngsniffer_dump_t *priv = wdh->dump.ngsniffer;
     struct frame2_rec rec_hdr;
-    int nwritten;
+    size_t nwritten;
     char buf[6];
     double t;
     guint16 t_low, t_med, t_high;
@@ -1232,7 +1232,7 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	version.rsvd[1] = 0;
 	nwritten = fwrite(&version, 1, sizeof version, wdh->fh);
 	if (nwritten != sizeof version) {
-	    if (nwritten < 0)
+	    if (nwritten == 0 && ferror(wdh->fh))
 		*err = errno;
 	    else
 		*err = WTAP_ERR_SHORT_WRITE;
@@ -1248,7 +1248,7 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     buf[5] = 0x00;
     nwritten = fwrite(buf, 1, 6, wdh->fh);
     if (nwritten != 6) {
-	if (nwritten < 0)
+	if (nwritten == 0 && ferror(wdh->fh))
 	    *err = errno;
 	else
 	    *err = WTAP_ERR_SHORT_WRITE;
@@ -1272,7 +1272,7 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     rec_hdr.rsvd = 0;
     nwritten = fwrite(&rec_hdr, 1, sizeof rec_hdr, wdh->fh);
     if (nwritten != sizeof rec_hdr) {
-	if (nwritten < 0)
+	if (nwritten == 0 && ferror(wdh->fh))
 	    *err = errno;
 	else
 	    *err = WTAP_ERR_SHORT_WRITE;
@@ -1280,7 +1280,7 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     }
     nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
     if (nwritten != phdr->caplen) {
-	if (nwritten < 0)
+	if (nwritten == 0 && ferror(wdh->fh))
 	    *err = errno;
 	else
 	    *err = WTAP_ERR_SHORT_WRITE;
@@ -1295,11 +1295,11 @@ static gboolean ngsniffer_dump_close(wtap_dumper *wdh, int *err)
 {
     /* EOF record */
     char buf[6] = {REC_EOF, 0x00, 0x00, 0x00, 0x00, 0x00};
-    int nwritten;
+    size_t nwritten;
 
     nwritten = fwrite(buf, 1, 6, wdh->fh);
     if (nwritten != 6) {
-	if (nwritten < 0)
+	if (nwritten == 0 && ferror(wdh->fh))
 	    *err = errno;
 	else
 	    *err = WTAP_ERR_SHORT_WRITE;

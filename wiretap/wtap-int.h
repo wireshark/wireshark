@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.12 2001/02/13 07:07:17 guy Exp $
+ * $Id: wtap-int.h,v 1.13 2001/08/25 03:18:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -93,8 +93,8 @@ typedef struct {
 	guint32	start_usecs;
 	guint8	version_major;
 	guint32 *frame_table;
-	int	frame_table_size;
-	int	current_frame;
+	guint32	frame_table_size;
+	guint	current_frame;
 } netmon_t;
 
 typedef struct {
@@ -177,8 +177,8 @@ typedef struct {
 	struct timeval first_record_time;
 	guint32	frame_table_offset;
 	guint32	*frame_table;
-	int	frame_table_index;
-	int	frame_table_size;
+	guint	frame_table_index;
+	guint	frame_table_size;
 } netmon_dump_t;
 
 struct wtap_dumper {

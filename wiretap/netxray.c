@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.39 2001/05/09 04:42:27 guy Exp $
+ * $Id: netxray.c,v 1.40 2001/08/25 03:18:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -383,7 +383,7 @@ static gboolean netxray_dump_1_1(wtap_dumper *wdh, const struct wtap_pkthdr *phd
     netxray_dump_t *netxray = wdh->dump.netxray;
     guint32 timestamp;
     struct netxrayrec_1_x_hdr rec_hdr;
-    int nwritten;
+    size_t nwritten;
 
     /* NetXRay/Windows Sniffer files have a capture start date/time
        in the header, in a UNIX-style format, with one-second resolution,
@@ -411,7 +411,7 @@ static gboolean netxray_dump_1_1(wtap_dumper *wdh, const struct wtap_pkthdr *phd
 	
     nwritten = fwrite(&rec_hdr, 1, sizeof(rec_hdr), wdh->fh);
     if (nwritten != sizeof(rec_hdr)) {
-	if (nwritten < 0)
+	if (nwritten == 0 && ferror(wdh->fh))
 	    *err = errno;
 	else
 	    *err = WTAP_ERR_SHORT_WRITE;
@@ -421,7 +421,7 @@ static gboolean netxray_dump_1_1(wtap_dumper *wdh, const struct wtap_pkthdr *phd
     /* write the packet data */	
     nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
     if (nwritten != phdr->caplen) {
-	if (nwritten < 0)
+	if (nwritten == 0 && ferror(wdh->fh))
 	    *err = errno;
 	else
 	    *err = WTAP_ERR_SHORT_WRITE;
@@ -441,7 +441,7 @@ static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
     netxray_dump_t *netxray = wdh->dump.netxray;
     guint32 filelen;
     struct netxray_hdr file_hdr;
-    int nwritten;
+    size_t nwritten;
 
     filelen = ftell(wdh->fh);
 
@@ -451,7 +451,7 @@ static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
     /* Rewrite the file header. */
     nwritten = fwrite(netxray_magic, 1, sizeof netxray_magic, wdh->fh);
     if (nwritten != sizeof netxray_magic) {
-	if (nwritten < 0)
+	if (nwritten == 0 && ferror(wdh->fh))
 	    *err = errno;
 	else
 	    *err = WTAP_ERR_SHORT_WRITE;
@@ -473,7 +473,7 @@ static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
     memcpy(hdr_buf, &file_hdr, sizeof(file_hdr));
     nwritten = fwrite(hdr_buf, 1, sizeof hdr_buf, wdh->fh);
     if (nwritten != sizeof hdr_buf) {
-	if (nwritten < 0)
+	if (nwritten == 0 && ferror(wdh->fh))
 	    *err = errno;
 	else
 	    *err = WTAP_ERR_SHORT_WRITE;

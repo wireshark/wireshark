@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.39 2001/07/15 19:14:03 guy Exp $
+ * $Id: netmon.c,v 1.40 2001/08/25 03:18:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -123,7 +123,7 @@ int netmon_open(wtap *wth, int *err)
 	struct tm tm;
 	int frame_table_offset;
 	guint32 frame_table_length;
-	int frame_table_size;
+	guint32 frame_table_size;
 	guint32 *frame_table;
 #ifdef WORDS_BIGENDIAN
 	unsigned int i;
@@ -474,8 +474,8 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	struct netmonrec_1_x_hdr rec_1_x_hdr;
 	struct netmonrec_2_x_hdr rec_2_x_hdr;
 	char *hdrp;
-	int hdr_size;
-	int nwritten;
+	size_t hdr_size;
+	size_t nwritten;
 	double t;
 	guint32 time_low, time_high;
 
@@ -528,7 +528,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
 	nwritten = fwrite(hdrp, 1, hdr_size, wdh->fh);
 	if (nwritten != hdr_size) {
-		if (nwritten < 0)
+		if (nwritten == 0 && ferror(wdh->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
@@ -536,7 +536,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	}
 	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
 	if (nwritten != phdr->caplen) {
-		if (nwritten < 0)
+		if (nwritten == 0 && ferror(wdh->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
@@ -578,11 +578,11 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 {
 	netmon_dump_t *netmon = wdh->dump.netmon;
-	int n_to_write;
-	int nwritten;
+	size_t n_to_write;
+	size_t nwritten;
 	struct netmon_hdr file_hdr;
 	const char *magicp;
-	int magic_size;
+	size_t magic_size;
 	struct tm *tm;
 
 	/* Write out the frame table.  "netmon->frame_table_index" is
@@ -590,7 +590,7 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 	n_to_write = netmon->frame_table_index * sizeof *netmon->frame_table;
 	nwritten = fwrite(netmon->frame_table, 1, n_to_write, wdh->fh);
 	if (nwritten != n_to_write) {
-		if (nwritten < 0)
+		if (nwritten == 0 && ferror(wdh->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
@@ -626,7 +626,7 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 	}
 	nwritten = fwrite(magicp, 1, magic_size, wdh->fh);
 	if (nwritten != magic_size) {
-		if (nwritten < 0)
+		if (nwritten == 0 && ferror(wdh->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
@@ -659,7 +659,7 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 	    htolel(netmon->frame_table_index * sizeof *netmon->frame_table);
 	nwritten = fwrite(&file_hdr, 1, sizeof file_hdr, wdh->fh);
 	if (nwritten != sizeof file_hdr) {
-		if (nwritten < 0)
+		if (nwritten == 0 && ferror(wdh->fh))
 			*err = errno;
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
