@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.139 2003/11/16 23:17:20 guy Exp $
+ * $Id: packet-rpc.c,v 1.140 2003/12/28 12:43:38 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2814,7 +2814,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			else {
 				pinfo->desegment_offset = offset;
 				pinfo->desegment_len = len - seglen;
-				return -pinfo->desegment_len;
+				return -((gint32) pinfo->desegment_len);
 			}
 		}
 	}

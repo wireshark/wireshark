@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.75 2003/12/21 04:31:56 jmayer Exp $
+ * $Id: packet-giop.c,v 1.76 2003/12/28 12:43:38 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4632,12 +4632,12 @@ static void decode_CodeSets(tvbuff_t *tvb, proto_tree *tree, int *offset,
      the beginning of the context_data sequence.
      Inside get_CDR_ulong(), the calculation will be (offset +(- boundary)) % 4 
      to determine the correct alignment of the short. */
-    code_set_id = get_CDR_ulong(tvb, offset, stream_is_be, -boundary );
+    code_set_id = get_CDR_ulong(tvb, offset, stream_is_be, -((gint32) boundary) );
 
     proto_tree_add_text (tree, tvb, *offset - 4, 4,
                              "char_data: 0x%08x", code_set_id);
 
-    code_set_id = get_CDR_ulong(tvb, offset, stream_is_be, -boundary );
+    code_set_id = get_CDR_ulong(tvb, offset, stream_is_be, -((gint32) boundary) );
 
     proto_tree_add_text (tree, tvb, *offset - 4, 4,
                              "wchar_data: 0x%08x", code_set_id);
@@ -4670,7 +4670,7 @@ static void decode_RTCorbaPriority(tvbuff_t *tvb, proto_tree *tree, int *offset,
      the beginning of the context_data sequence.
      Inside get_CDR_short(), the calculation will be (offset + (- boundary)) % 2
      to determine the correct alignment of the short. */
-  rtpriority = get_CDR_short(tvb, offset, stream_is_be, -boundary );
+  rtpriority = get_CDR_short(tvb, offset, stream_is_be, -((gint32) boundary) );
 
   if(tree) {
     /* Highlight all of context_data except for the first endian byte */ 

@@ -2,7 +2,7 @@
  * Routines for BSSGP (BSS GPRS Protocol ETSI GSM 08.18 version 6.7.1 TS 101 343 ) dissection
  * Copyright 2000, Josef Korelus <jkor@quick.cz>
  *
- * $Id: packet-bssgp.c,v 1.7 2003/11/09 22:13:18 guy Exp $
+ * $Id: packet-bssgp.c,v 1.8 2003/12/28 12:43:38 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1177,7 +1177,7 @@ static int dcd_bssgp_pdu_life(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dp
 			proto_tree_add_uint_format(lft_tree,hf_bssgp_pdu_lifetime,tvb,offset+2,2,lifetime,"PDU Life time: infinite delay (%#.4x centi seconds)", lifetime);
 		}
 		else{
-		        ms_lifetime = lifetime/100;
+		        ms_lifetime = (gfloat) (lifetime/100);
 			proto_item_append_text(ti,"%f",ms_lifetime);
 			proto_tree_add_uint_format(lft_tree,hf_bssgp_pdu_lifetime,tvb,offset+2,2,lifetime,"PDU Life time: %fs (%#.4x centi seconds)", ms_lifetime, lifetime);
 		}	

@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz  security/idl/rpriv.idl
  *
- * $Id: packet-dcerpc-rpriv.c,v 1.6 2003/10/06 08:35:29 guy Exp $
+ * $Id: packet-dcerpc-rpriv.c,v 1.7 2003/12/28 12:43:38 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,7 +56,7 @@ static gint ett_rpriv = -1;
 
 
 static e_uuid_t uuid_rpriv = { 0xb1e338f8, 0x9533, 0x11c9, { 0xa3, 0x4a, 0x08, 0x00, 0x1e, 0x01, 0x9c, 0x1e } };
-static guint16  ver_rpriv = 1.1;
+static guint16  ver_rpriv = (guint16) (1.1);
 
 
 static int

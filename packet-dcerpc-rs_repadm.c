@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz  security/idl/rs_repadm.idl
  *
- * $Id: packet-dcerpc-rs_repadm.c,v 1.4 2003/08/04 02:49:01 tpot Exp $
+ * $Id: packet-dcerpc-rs_repadm.c,v 1.5 2003/12/28 12:43:38 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,7 +50,7 @@ static gint ett_rs_repadm = -1;
 
 
 static e_uuid_t uuid_rs_repadm = { 0x5b8c2fa8, 0xb60b, 0x11c9, { 0xbe, 0x0f, 0x08, 0x00, 0x1e, 0x01, 0x8f, 0xa0 } };
-static guint16  ver_rs_repadm = 1.1;
+static guint16  ver_rs_repadm = (guint16) (1.1);
 
 
 

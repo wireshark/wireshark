@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.47 2003/12/04 05:55:45 gram Exp $
+ * $Id: packet-ldp.c,v 1.48 2003/12/28 12:43:38 ulfl Exp $
  *
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -2173,7 +2173,7 @@ dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 */
 				pinfo->desegment_offset = offset;
 				pinfo->desegment_len = 4 - length_remaining;
-				return -pinfo->desegment_len;
+				return -((gint32) pinfo->desegment_len);
 			}
 		}
 
@@ -2201,7 +2201,7 @@ dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				pinfo->desegment_offset = offset;
 				pinfo->desegment_len =
 				    (plen + 4) - length_remaining;
-				return -pinfo->desegment_len;
+				return -((gint32) pinfo->desegment_len);
 			}
 		}
 

@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.15 2003/12/17 22:13:07 guy Exp $
+ * $Id: rtp_analysis.c,v 1.16 2003/12/28 12:43:40 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -1161,12 +1161,12 @@ static gboolean copy_file(gchar *dest, gint channels, /*gint format,*/ user_data
 			/* since conversation in one way can start later than in the other one, 
 			 * we have to write some silence information for one channel */
 			if (user_data->forward.statinfo.start_time > user_data->reversed.statinfo.start_time) {
-				f_write_silence = 
-					(user_data->forward.statinfo.start_time-user_data->reversed.statinfo.start_time)*8000;
+				f_write_silence = (guint32)
+					((user_data->forward.statinfo.start_time-user_data->reversed.statinfo.start_time)*8000);
 			}
 			else if (user_data->forward.statinfo.start_time < user_data->reversed.statinfo.start_time) {
-				r_write_silence = 
-					(user_data->reversed.statinfo.start_time-user_data->forward.statinfo.start_time)*8000;
+				r_write_silence = (guint32)
+					((user_data->reversed.statinfo.start_time-user_data->forward.statinfo.start_time)*8000);
 			}
 			for(;;) {
 				if(stop_flag) 
