@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.42 2002/05/02 06:33:39 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.43 2002/05/02 06:46:31 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3408,6 +3408,117 @@ lsa_dissect_lsaclosetrusteddomainex_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+lsa_dissect_LSA_TRANSLATED_NAME_EX(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"LSA_TRANSLATED_NAME:");
+		tree = proto_item_add_subtree(item, ett_lsa_translated_name);
+	}
+
+	/* sid type */
+	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+			hf_lsa_sid_type, NULL);
+
+	/* name */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_name, 0);
+
+	/* index */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_index, NULL);
+
+	/* unknown */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_unknown_long, NULL);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
+lsa_dissect_LSA_TRANSLATED_NAME_EX_array(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRANSLATED_NAME_EX);
+
+	return offset;
+}
+static int
+lsa_dissect_LSA_TRANSLATED_NAMES_EX(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* count */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_count, NULL);
+
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			lsa_dissect_LSA_TRANSLATED_NAME_EX_array, NDR_POINTER_UNIQUE,
+			"LSA_TRANSLATED_NAME_EX: pointer", -1, 0);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsalookupsids2_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			dissect_ndr_nt_PSID_ARRAY, NDR_POINTER_REF,
+			"", -1, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRANSLATED_NAMES_EX, NDR_POINTER_REF,
+		"LSA_TRANSLATED_NAMES_EX pointer: names", -1, 0);
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_lsa_info_level, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_num_mapped, NULL);
+
+	/* unknown */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_unknown_long, NULL);
+
+	/* unknown */
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_unknown_long, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsalookupsids2_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_REFERENCED_DOMAIN_LIST, NDR_POINTER_REF,
+		"LSA_REFERENCED_DOMAIN_LIST pointer: domains", -1, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_TRANSLATED_NAMES_EX, NDR_POINTER_REF,
+		"LSA_TRANSLATED_NAMES_EX pointer: names", -1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_num_mapped, NULL);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
 
 
 
@@ -3596,11 +3707,8 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 		lsa_dissect_lsafunction_38_reply },
 #endif
 	{ LSA_LSALOOKUPSIDS2, "LSALOOKUPSIDS2",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsalookupsids2_rqst,
 		lsa_dissect_lsalookupsids2_reply },
-#endif
 	{ LSA_LSALOOKUPNAMES2, "LSALOOKUPNAMES2",
 		lsa_dissect_lsalookupnames2_rqst,
 		lsa_dissect_lsalookupnames2_reply },
