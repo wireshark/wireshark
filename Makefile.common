@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.12 2004/02/11 00:55:26 guy Exp $
+# $Id: Makefile.common,v 1.13 2004/02/11 04:19:02 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -508,6 +508,7 @@ noinst_HEADERS =	\
 	packet-giop.h	\
 	packet-gnutella.h	\
 	packet-gsm_a.h	\
+	packet-gsm_map.h	\
 	packet-gssapi.h	\
 	packet-gtp.h	\
 	packet-h225.h	\

@@ -7,7 +7,7 @@
  * Changed to run on new version of TCAP, many changes for
  * EOC matching, and parameter separation.  (2003)
  *
- * $Id: packet-gsm_map.c,v 1.4 2003/12/21 21:41:10 guy Exp $
+ * $Id: packet-gsm_map.c,v 1.5 2004/02/11 04:19:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,7 +43,10 @@
 #include <string.h>
 
 #include "epan/packet.h"
+#include "tap.h"
 #include "asn1.h"
+
+#include "packet-gsm_map.h"
 
 
 /* OPERATION CODE DEFINITION */
@@ -163,7 +166,7 @@
 #define MAP_OK			0x0
 #define MAP_FAIL		0x1
 
-static const value_string opr_code_strings[] = {
+const value_string gsm_map_opr_code_strings[] = {
 
 /* LOCATION MANAGEMENT */
     { MAP_UPD_LOC,			"Update Location"},
@@ -287,6 +290,9 @@ static const value_string tag_strings[] = {
 
 /* Initialize the protocol and registered fields */
 static int proto_map = -1;
+
+static int gsm_map_tap = -1;
+
 static int hf_map_tag = -1;
 static int hf_map_length = -1;
 static int hf_map_opr_code = -1;
@@ -653,7 +659,7 @@ op_send_auth_info(ASN1_SCK *asn1, proto_tree *tree)
     }
 }
 
-#define	GSM_MAP_NUM_OP (sizeof(opr_code_strings)/sizeof(value_string))
+#define	GSM_MAP_NUM_OP (sizeof(gsm_map_opr_code_strings)/sizeof(value_string))
 static gint ett_op[GSM_MAP_NUM_OP];
 static void (*op_fcn[])(ASN1_SCK *asn1, proto_tree *tree) = {
     NULL,	/* Update Location */
@@ -983,14 +989,27 @@ dissect_map_lnkId(ASN1_SCK *asn1, proto_tree *tree)
 static int
 dissect_map_opr_code(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gint *op_idx_p)
 {
-    guint	saved_offset = 0;
-    guint	len;
-    guint	tag;
-    gint32	val;
-    gchar	*str = NULL;
-    proto_item	*item;
-    proto_tree	*subtree;
-    gboolean	def_len;
+    guint			saved_offset = 0;
+    guint			len;
+    guint			tag;
+    gint32			val;
+    gchar			*str = NULL;
+    proto_item			*item;
+    proto_tree			*subtree;
+    gboolean			def_len;
+    static gsm_map_tap_rec_t	tap_rec[4];
+    static gsm_map_tap_rec_t	*tap_p;
+    static int			tap_current=0;
+
+    /*
+     * set tap record pointer
+     */
+    tap_current++;
+    if (tap_current == 4)
+    {
+	tap_current = 0;
+    }
+    tap_p = &tap_rec[tap_current];
 
     if (check_map_tag(asn1, MAP_OPR_CODE_TAG))
     {
@@ -1004,7 +1023,7 @@ dissect_map_opr_code(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gint 
 	proto_tree_add_int(subtree, hf_map_opr_code, asn1->tvb, saved_offset,
 	    asn1->offset - saved_offset, val);
 
-	str = my_match_strval(val, opr_code_strings, op_idx_p);
+	str = my_match_strval(val, gsm_map_opr_code_strings, op_idx_p);
 
 	if (NULL == str) return(MAP_FAIL);
 
@@ -1012,6 +1031,10 @@ dissect_map_opr_code(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gint 
 	{
 	    col_append_fstr(pinfo->cinfo, COL_INFO,  "%s ", str);
 	}
+
+	tap_p->opr_code_idx = *op_idx_p;
+
+	tap_queue_packet(gsm_map_tap, pinfo, tap_p);
     }
 
     return(MAP_OK);
@@ -1478,7 +1501,7 @@ proto_register_map(void)
 	},
 	{ &hf_map_opr_code,
 	    { "Operation Code",	"map.oprcode",
-	    FT_INT32, BASE_DEC, VALS(opr_code_strings), 0,
+	    FT_INT32, BASE_DEC, VALS(gsm_map_opr_code_strings), 0,
 	    "", HFILL }
 	},
 	{ &hf_map_int,
@@ -1524,6 +1547,8 @@ proto_register_map(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_map, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    gsm_map_tap = register_tap("gsm_map");
 }
 
 void

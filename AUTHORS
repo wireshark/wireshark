@@ -1836,6 +1836,7 @@ Michael Lum <mlum [AT] telostech.com> {
 	Taps for GSM A-interface statistics
 	Tap for ANSI MAP message statistics
 	Tap for ISUP message statistics
+	Tap for GSM MAP message statistics
 }
 
 Shiang-Ming Huang <smhuang [AT] pcs.csie.nctu.edu.tw> {
