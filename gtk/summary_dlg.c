@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.19 2003/09/02 22:10:32 guy Exp $
+ * $Id: summary_dlg.c,v 1.20 2003/12/20 12:03:35 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -145,7 +145,8 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 
   /* Packet size */
-  snprintf(string_buff, SUM_STR_MAX, "Avg. packet size: %.3f bytes", (float) summary.bytes/summary.packet_count);
+  snprintf(string_buff, SUM_STR_MAX, "Avg. packet size: %.3f bytes",
+      summary.packet_count ? (float)summary.bytes/summary.packet_count : 0.0);
   add_string_to_box(string_buff, data_box);
 
   /* Dropped count */
@@ -169,22 +170,24 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     add_string_to_box(string_buff, data_box);
   }
 
-  /* Filter frame */
+  /* Filtered packets frame */
+  filter_fr = gtk_frame_new("Data in filtered packets");
+  gtk_container_add(GTK_CONTAINER(main_vb), filter_fr);
+  gtk_widget_show(filter_fr);
+
+  filter_box = gtk_vbox_new( FALSE, 3);
+  gtk_container_add(GTK_CONTAINER(filter_fr), filter_box);
+  gtk_widget_show(filter_box);
+
   if (summary.dfilter) {
     double seconds;
 
-    seconds = (summary.filtered_stop - summary.filtered_start);
-
-    /* Filtered packets frame */
-    filter_fr = gtk_frame_new("Data in filtered packets");
-    gtk_container_add(GTK_CONTAINER(main_vb), filter_fr);
-    gtk_widget_show(filter_fr);
-
-    filter_box = gtk_vbox_new( FALSE, 3);
-    gtk_container_add(GTK_CONTAINER(filter_fr), filter_box);
-    gtk_widget_show(filter_box);
+    /* Display filter */
+    snprintf(string_buff, SUM_STR_MAX, "Display filter: %s", summary.dfilter);
+    add_string_to_box(string_buff, filter_box);
 
     /* seconds */
+    seconds = (summary.filtered_stop - summary.filtered_start);
     snprintf(string_buff, SUM_STR_MAX, "Between first and last packet: %.3f seconds", seconds);
     add_string_to_box(string_buff, filter_box);
 
@@ -199,7 +202,8 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     }
 
     /* Packet size */
-    snprintf(string_buff, SUM_STR_MAX, "Avg. packet size: %.3f bytes", (float) summary.filtered_bytes/summary.filtered_count);
+    snprintf(string_buff, SUM_STR_MAX, "Avg. packet size: %.3f bytes",
+        summary.filtered_count ? (float) summary.filtered_bytes/summary.filtered_count : 0.0);
     add_string_to_box(string_buff, filter_box);
 
     /* Byte count */
@@ -216,6 +220,10 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 	       summary.filtered_bytes * 8.0 / (seconds * 1000.0 * 1000.0));
       add_string_to_box(string_buff, filter_box);
     }
+  } else {
+    /* Display filter */
+    snprintf(string_buff, SUM_STR_MAX, "Display filter: none");
+    add_string_to_box(string_buff, filter_box);
   }
 
   /* Capture Frame */
@@ -232,14 +240,6 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     snprintf(string_buff, SUM_STR_MAX, "Interface: %s", summary.iface);
   } else {
     sprintf(string_buff, "Interface: unknown");
-  }
-  add_string_to_box(string_buff, capture_box);
-
-  /* Display filter */
-  if (summary.dfilter) {
-    snprintf(string_buff, SUM_STR_MAX, "Display filter: %s", summary.dfilter);
-  } else {
-    sprintf(string_buff, "Display filter: none");
   }
   add_string_to_box(string_buff, capture_box);
 
