@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.91 2004/01/16 01:32:19 obiot Exp $
+ * $Id: packet-http.c,v 1.92 2004/01/17 12:51:00 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1204,7 +1204,7 @@ proto_register_http(void)
 	    &http_desegment_headers);
 	prefs_register_bool_preference(http_module, "desegment_body",
 	    "Trust the \"Content-length:\" header and desegment HTTP "
-	    "bodies spanning multiple TCP segments",
+	    "bodies\nspanning multiple TCP segments",
 	    "Whether the HTTP dissector should use the "
 	    "\"Content-length:\" value to desegment the body "
 	    "of a request spanning multiple TCP segments",

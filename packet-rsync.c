@@ -3,7 +3,7 @@
  * [ very rough, but mininally functional ]
  * Copyright 2003, Brad Hards <bradh@frogmouth.net>
  *
- * $Id: packet-rsync.c,v 1.6 2003/07/08 04:06:26 tpot Exp $
+ * $Id: packet-rsync.c,v 1.7 2004/01/17 12:51:00 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -326,7 +326,7 @@ proto_register_rsync(void)
 				   10,
 				   &glb_rsync_tcp_port);
     prefs_register_bool_preference(rsync_module, "desegment",
-        "Desegment all RSYNC messages spanning multiple TCP segments",
+        "Desegment all RSYNC messages\nspanning multiple TCP segments",
 	"Whether the RSYNC dissector should desegment all messages spanning multiple TCP segments",
 				   &rsync_desegment);
 }

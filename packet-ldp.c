@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.49 2004/01/10 14:57:36 obiot Exp $
+ * $Id: packet-ldp.c,v 1.50 2004/01/17 12:51:00 ulfl Exp $
  *
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -2712,7 +2712,7 @@ proto_register_ldp(void)
 				 10, &global_ldp_udp_port);
 
   prefs_register_bool_preference(ldp_module, "desegment_ldp_messages",
-    "Desegment all LDP messages spanning multiple TCP segments",
+    "Desegment all LDP messages\nspanning multiple TCP segments",
     "Whether the LDP dissector should desegment all messages spanning multiple TCP segments",
     &ldp_desegment);
 }

@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.60 2004/01/05 03:51:28 guy Exp $
+ * $Id: packet-rtsp.c,v 1.61 2004/01/17 12:51:00 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1040,13 +1040,13 @@ proto_register_rtsp(void)
 		"Set the alternate TCP port for RTSP messages",
 		10, &global_rtsp_tcp_alternate_port);
 	prefs_register_bool_preference(rtsp_module, "desegment_headers",
-	    "Desegment all RTSP headers spanning multiple TCP segments",
+	    "Desegment all RTSP headers\nspanning multiple TCP segments",
 	    "Whether the RTSP dissector should desegment all headers "
 	    "of a request spanning multiple TCP segments",
 	    &rtsp_desegment_headers);
 	prefs_register_bool_preference(rtsp_module, "desegment_body",
-	    "Trust the \"Content-length:\" header and desegment RTSP "
-	    "bodies spanning multiple TCP segments",
+	    "Trust the \"Content-length:\" header and\ndesegment RTSP "
+	    "bodies\nspanning multiple TCP segments",
 	    "Whether the RTSP dissector should use the "
 	    "\"Content-length:\" value to desegment the body "
 	    "of a request spanning multiple TCP segments",

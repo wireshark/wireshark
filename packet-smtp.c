@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.35 2003/09/16 17:42:01 guy Exp $
+ * $Id: packet-smtp.c,v 1.36 2004/01/17 12:51:00 ulfl Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -577,7 +577,7 @@ proto_register_smtp(void)
 
   smtp_module = prefs_register_protocol(proto_smtp, NULL);
   prefs_register_bool_preference(smtp_module, "desegment_lines",
-    "Desegment all SMTP command and response lines spanning multiple TCP segments",
+    "Desegment all SMTP command and response lines\nspanning multiple TCP segments",
     "Whether the SMTP dissector should desegment all command and response lines spanning multiple TCP segments",
     &smtp_desegment);
 }

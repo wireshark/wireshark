@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.41 2004/01/07 05:24:36 guy Exp $
+ * $Id: packet-cops.c,v 1.42 2004/01/17 12:50:59 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1546,12 +1546,12 @@ void proto_register_cops(void)
                                  "Set the TCP port for COPS messages",
                                  10,&global_cops_tcp_port);
   prefs_register_bool_preference(cops_module, "desegment",
-                                 "Desegment all COPS messages spanning multiple TCP segments",
+                                 "Desegment all COPS messages\nspanning multiple TCP segments",
                                  "Whether the COPS dissector should desegment all messages spanning multiple TCP segments",
                                  &cops_desegment);
 #ifdef HAVE_NET_SNMP /*enable preference only if compiled with NET-SNMP*/
   prefs_register_bool_preference(cops_module, "typefrommib",
-                                 "Decode COPS-PR ASN.1 types by reading them from PIBs (converted to MIBs)",
+                                 "Decode COPS-PR ASN.1 types by reading them\nfrom PIBs (converted to MIBs)",
                                  "Whether the COPS dissector should decode COPS-PR ASN.1 types based on data types read from packet or PIBs (converted to MIBs)",
                                  &cops_typefrommib);
 #endif /*HAVE_NET_SNMP*/

@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.123 2003/11/16 23:17:22 guy Exp $
+ * $Id: packet-snmp.c,v 1.124 2004/01/17 12:51:00 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2495,7 +2495,7 @@ proto_register_snmp(void)
 	    "List of MIB modules to load (the list is set to environment variable MIBS if the variable is not already set)",
 	    &mib_modules);
 	prefs_register_bool_preference(snmp_module, "desegment",
-	    "Desegment all SNMP-over-TCP messages spanning multiple TCP segments",
+	    "Desegment all SNMP-over-TCP messages\nspanning multiple TCP segments",
 	    "Whether the SNMP dissector should desegment all messages "
 	    "spanning multiple TCP segments",
 	    &snmp_desegment);
