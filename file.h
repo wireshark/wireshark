@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.28 1999/08/10 07:12:52 guy Exp $
+ * $Id: file.h,v 1.29 1999/08/10 07:52:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -75,7 +75,7 @@ typedef struct _capture_file {
    * generic header and a gtk+-speficic header (or the gtk+ definitions are
    * moved to different header files) --gilbert
    */
-  /*guint8      pd[MAX_PACKET_SIZE];*/  /* Packet data */
+  /*guint8       pd[MAX_PACKET_SIZE];*/  /* Packet data */
   guint8       pd[65536];  /* Packet data */
   frame_data  *plist;     /* Packet list */
   frame_data  *plist_end; /* Last packet in list */
