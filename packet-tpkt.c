@@ -7,7 +7,7 @@
  * Routine to dissect RFC 1006 TPKT packet containing OSI TP PDU
  * Copyright 2001, Martin Thomas <Martin_A_Thomas@yahoo.com>
  *
- * $Id: packet-tpkt.c,v 1.16 2002/02/23 21:07:48 guy Exp $
+ * $Id: packet-tpkt.c,v 1.17 2002/03/05 22:15:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -153,7 +153,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 * Yes - is the payload split across segment
 			 * boundaries?
 			 */
-			if (length_remaining < data_len + 4) {
+			if (length_remaining < data_len) {
 				/*
 				 * Yes.  Tell the TCP dissector where
 				 * the data for this message starts in
@@ -162,7 +162,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				 */
 				pinfo->desegment_offset = offset;
 				pinfo->desegment_len =
-				    (data_len + 4) - length_remaining;
+				    data_len - length_remaining;
 				return;
 			}
 		}
@@ -202,6 +202,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* Skip the TPKT header. */
 		offset += 4;
+		data_len -= 4;
 
 		/*
 		 * Construct a tvbuff containing the amount of the payload
