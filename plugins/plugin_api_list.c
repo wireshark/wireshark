@@ -43,7 +43,7 @@
 #include <epan/dissectors/packet-rtcp.h>
 #include "tap.h"
 #include "asn1.h"
-#include "xdlc.h"
+#include <epan/xdlc.h>
 #include <epan/crc16.h>
 
 gint check_col(column_info*, gint);

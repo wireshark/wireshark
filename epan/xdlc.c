@@ -32,7 +32,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "xdlc.h"
+#include <epan/xdlc.h>
 
 const value_string ftype_vals[] = {
     { XDLC_I, "Information frame" },

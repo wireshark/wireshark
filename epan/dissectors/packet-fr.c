@@ -48,7 +48,7 @@
 #include <epan/prefs.h>
 #include "packet-llc.h"
 #include "packet-chdlc.h"
-#include "xdlc.h"
+#include <epan/xdlc.h>
 #include "etypes.h"
 #include "oui.h"
 #include "nlpid.h"

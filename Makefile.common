@@ -58,7 +58,6 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 	t35.h	\
 	tap.h	\
 	x264_prt_id.h	\
-	xdlc.h	\
 	xmlstub.h
 
 # "BUILT_SOURCES" are built before any "make all" or "make check" targets.

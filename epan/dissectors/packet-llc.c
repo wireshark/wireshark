@@ -30,7 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "oui.h"
-#include "xdlc.h"
+#include <epan/xdlc.h>
 #include "etypes.h"
 #include "llcsaps.h"
 #include "bridged_pids.h"

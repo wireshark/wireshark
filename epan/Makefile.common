@@ -58,7 +58,8 @@ LIBETHEREAL_SRC = 		\
 	timestamp.c		\
 	to_str.c		\
 	tvbuff.c		\
-	value_string.c
+	value_string.c		\
+	xdlc.c
 
 LIBETHEREAL_INCLUDES = 		\
 	addr_and_mask.h		\
@@ -106,7 +107,8 @@ LIBETHEREAL_INCLUDES = 		\
 	timestamp.h    		\
 	to_str.h		\
 	tvbuff.h		\
-	value_string.h
+	value_string.h		\
+	xdlc.h
 
 # dissector helpers (needed from the dissectors, but not a dissector itself)
 DISSECTOR_SUPPORT_SRC =	\
@@ -121,6 +123,5 @@ DISSECTOR_SUPPORT_SRC =	\
 	../req_resp_hdrs.c	\
 	../t35.c	\
 	../tap.c	\
-	../xdlc.c	\
 	../xmlstub.c
 
