@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.118 2003/12/02 09:47:22 sahlberg Exp $
+ * $Id: proto.c,v 1.119 2003/12/02 10:23:18 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,7 @@
 #include "int-64bit.h"
 #include "epan_dissect.h"
 #include "slab.h"
+#include "tvbuff.h"
 
 #define cVALS(x) (const value_string*)(x)
 
@@ -1895,11 +1896,7 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	fi->value = fvalue_new(fi->ptr_u.hfinfo->type);
 
 	/* add the data source tvbuff */
-	if (tvb) {
-		fi->ds_tvb = tvb_get_ds_tvb(tvb);
-	} else {
-		fi->ds_tvb = NULL;
-	}
+	fi->ds_tvb=tvb?TVB_GET_DS_TVB(tvb):NULL;
 
 	return fi;
 }

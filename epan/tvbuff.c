@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.51 2003/09/28 21:39:53 guy Exp $
+ * $Id: tvbuff.c,v 1.52 2003/12/02 10:23:18 sahlberg Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -44,67 +44,6 @@
 #include "pint.h"
 #include "tvbuff.h"
 #include "strutil.h"
-
-typedef struct {
-	/* The backing tvbuff_t */
-	tvbuff_t	*tvb;
-
-	/* The offset/length of 'tvb' to which I'm privy */
-	guint		offset;
-	guint		length;
-
-} tvb_backing_t;
-
-typedef struct {
-	GSList		*tvbs;
-
-	/* Used for quick testing to see if this
-	 * is the tvbuff that a COMPOSITE is
-	 * interested in. */
-	guint		*start_offsets;
-	guint		*end_offsets;
-
-} tvb_comp_t;
-
-struct tvbuff {
-	/* Record-keeping */
-	tvbuff_type		type;
-	gboolean		initialized;
-	guint			usage_count;
-	tvbuff_t*		ds_tvb;	  /* data source top-level tvbuff */
-
-	/* The tvbuffs in which this tvbuff is a member
-	 * (that is, a backing tvbuff for a TVBUFF_SUBSET
-	 * or a member for a TVB_COMPOSITE) */
-	GSList			*used_in;
-
-	/* TVBUFF_SUBSET and TVBUFF_COMPOSITE keep track
-	 * of the other tvbuff's they use */
-	union {
-		tvb_backing_t	subset;
-		tvb_comp_t	composite;
-	} tvbuffs;
-
-	/* We're either a TVBUFF_REAL_DATA or a
-	 * TVBUFF_SUBSET that has a backing buffer that
-	 * has real_data != NULL, or a TVBUFF_COMPOSITE
-	 * which has flattened its data due to a call
-	 * to tvb_get_ptr().
-	 */
-	guint8			*real_data;
-
-	/* Length of virtual buffer (and/or real_data). */
-	guint			length;
-
-	/* Reported length. */
-	guint			reported_length;
-
-	/* Offset from beginning of first TVBUFF_REAL. */
-	gint			raw_offset;
-
-	/* Func to call when actually freed */
-	tvbuff_free_cb_t	free_cb;
-};
 
 static guint8*
 ensure_contiguous_no_exception(tvbuff_t *tvb, gint offset, gint length,
@@ -2134,12 +2073,6 @@ gchar *
 tvb_bytes_to_str(tvbuff_t *tvb, gint offset, gint len)
 {
 	return bytes_to_str(tvb_get_ptr(tvb, offset, len), len);
-}
-
-tvbuff_t *
-tvb_get_ds_tvb(tvbuff_t *tvb)
-{
-	return tvb->ds_tvb;
 }
 
 /* Find a needle tvbuff within a haystack tvbuff. */
