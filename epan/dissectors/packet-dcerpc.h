@@ -224,6 +224,9 @@ dcerpc_sub_dissector *dcerpc_get_proto_sub_dissector(e_uuid_t *uuid, guint16 ver
 
 value_string *value_string_from_subdissectors(dcerpc_sub_dissector *sd);
 
+/* try to get protocol name registered for this uuid */
+gchar *dcerpc_get_uuid_name(e_uuid_t *uuid, guint16 ver);
+
 /* Private data structure to pass to DCERPC dissector. This is used to
    pass transport specific information down to the dissector from the
    dissector that parsed this encapsulated calls. 

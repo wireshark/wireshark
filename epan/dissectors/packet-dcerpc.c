@@ -666,6 +666,28 @@ dcerpc_init_uuid (int proto, int ett, e_uuid_t *uuid, guint16 ver,
     hf_info->strings = value_string_from_subdissectors(procs);
 }
 
+
+/* try to get registered name for this uuid */
+gchar *dcerpc_get_uuid_name(e_uuid_t *uuid, guint16 ver)
+{
+    dcerpc_uuid_key key;
+    dcerpc_uuid_value *sub_proto;
+
+
+	/* try to get registered uuid "name" of if_id */
+	key.uuid = *uuid;
+	key.ver = ver;
+
+	if ((sub_proto = g_hash_table_lookup (dcerpc_uuids, &key)) != NULL
+		 && proto_is_protocol_enabled(sub_proto->proto)) {
+
+		return sub_proto->name;
+	}
+
+	return NULL;
+}
+
+
 /* Function to find the name of a registered protocol
  * or NULL if the protocol/version is not known to ethereal.
  */
@@ -2290,7 +2312,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
       }
 
       offset = dissect_dcerpc_uint8 (tvb, offset, pinfo, ctx_tree, hdr->drep,
-                                     hf_dcerpc_cn_num_trans_items, &num_trans_items);
+                                      hf_dcerpc_cn_num_trans_items, &num_trans_items);
 
       /* padding */
       offset += 1;
@@ -2843,7 +2865,7 @@ dcerpc_add_conv_to_bind_table(decode_dcerpc_bind_values_t *binding)
         binding->port_a, 
         binding->port_b, 
         0);
- 
+
     if (!conv) {
         conv = conversation_new (
             &binding->addr_a, 
@@ -2853,7 +2875,7 @@ dcerpc_add_conv_to_bind_table(decode_dcerpc_bind_values_t *binding)
             binding->port_b, 
             0);
     }
-
+    
     bind_value = g_mem_chunk_alloc (dcerpc_bind_value_chunk);
     bind_value->uuid = binding->uuid;
     bind_value->ver = binding->ver;
@@ -3971,23 +3993,23 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 			hdr->seqnum, &hdr->act_id, dcerpc_cl_reassemble_table,
 			hdr->frag_num, stub_length,
 			!(hdr->flags1 & PFCL1_LASTFRAG));
-	if (fd_head != NULL) {
+    if (fd_head != NULL) {
 	    /* We completed reassembly... */
         if(pinfo->fd->num==fd_head->reassembled_in) {
             /* ...and this is the reassembled RPC PDU */
-	    next_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
-	    tvb_set_child_real_data_tvbuff(tvb, next_tvb);
-	    add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
-	    show_fragment_seq_tree(fd_head, &dcerpc_frag_items,
-				   dcerpc_tree, pinfo, next_tvb);
+	    	next_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
+	    	tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+	    	add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
+	    	show_fragment_seq_tree(fd_head, &dcerpc_frag_items,
+					   dcerpc_tree, pinfo, next_tvb);
 
-	    /*
-	     * XXX - authentication info?
-	     */
-	    pinfo->fragmented = FALSE;
-	    dcerpc_try_handoff (pinfo, tree, dcerpc_tree, next_tvb,
-				next_tvb, hdr->drep, di, NULL);
-	} else {
+	    	/*
+	     	 * XXX - authentication info?
+	     	 */
+	    	pinfo->fragmented = FALSE;
+	    	dcerpc_try_handoff (pinfo, tree, dcerpc_tree, next_tvb,
+					next_tvb, hdr->drep, di, NULL);
+		} else {
             /* ...and this isn't the reassembled RPC PDU */
 	        pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_reassembled_in,
 				    tvb, 0, 0, fd_head->reassembled_in);
@@ -4822,7 +4844,7 @@ proto_register_dcerpc (void)
       NULL, 0, "Time between Request and Response for DCE-RPC calls", HFILL }},
 
 	{ &hf_dcerpc_reassembled_in,
-	  { "Reassembled PDU in frame", "dcerpc.reassembled_in", FT_FRAMENUM, BASE_NONE, 
+      { "Reassembled PDU in frame", "dcerpc.reassembled_in", FT_FRAMENUM, BASE_NONE, 
       NULL, 0x0, "The DCE/RPC PDU is completely reassembled in the packet with this number", HFILL }},
 
 	{ &hf_dcerpc_unknown_if_id, 

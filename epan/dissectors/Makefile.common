@@ -194,6 +194,9 @@ DISSECTOR_SRC =	\
 	packet-dcerpc-wkssvc.c	\
 	packet-dcerpc.c	\
 	packet-dcm.c		\
+	packet-dcom.c \
+	packet-dcom-cba.c \
+	packet-dcom-cba-acco.c \
 	packet-ddtp.c	\
 	packet-dec-bpdu.c	\
 	packet-dhcp-failover.c	\
@@ -599,6 +602,7 @@ DISSECTOR_INCLUDES =	\
 	packet-dcerpc-tapi.h	\
 	packet-dcerpc-wkssvc.h	\
 	packet-dcerpc.h	\
+	packet-dcom.h	\
 	packet-ddtp.h	\
 	packet-diameter-defs.h	\
 	packet-diffserv-mpls-common.h	\
