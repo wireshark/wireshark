@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.61 2001/03/13 21:34:23 gram Exp $
+ * $Id: packet-eth.c,v 1.62 2001/03/22 23:22:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -207,12 +207,12 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ENDTRY;
 
     if (check_col(pinfo->fd, COL_INFO)) {
-      col_add_fstr(pinfo->fd, COL_INFO, "IEEE 802.3 %s",
+      col_add_fstr(pinfo->fd, COL_INFO, "IEEE 802.3 Ethernet %s",
 		(is_802_2 ? "" : "Raw "));
     }
     if (tree) {
       ti = proto_tree_add_protocol_format(tree, proto_eth, tvb, 0, ETH_HEADER_SIZE,
-		"IEEE 802.3 %s", (is_802_2 ? "" : "Raw "));
+		"IEEE 802.3 Ethernet %s", (is_802_2 ? "" : "Raw "));
 
       fh_tree = proto_item_add_subtree(ti, ett_ieee8023);
 
