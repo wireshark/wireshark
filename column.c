@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.31 2001/07/11 04:44:58 guy Exp $
+ * $Id: column.c,v 1.32 2001/07/22 21:28:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -389,10 +389,15 @@ get_column_title(gint col) {
   return(cfmt->title);  
 }
 
+/* XXX - needs to handle quote marks inside the quoted string, by
+   backslash-escaping them.
+
+   XXX - does this really belong in "prefs.c", instead, as it has to know
+   about the syntax of the preferences file? */
 #define MAX_FMT_PREF_LEN      1024
 #define MAX_FMT_PREF_LINE_LEN   60
 gchar *
-col_format_to_pref_str() {
+col_format_to_pref_str(void) {
   static gchar  pref_str[MAX_FMT_PREF_LEN] = "";
   GList        *clp = g_list_first(prefs.col_list);
   fmt_data     *cfmt;
