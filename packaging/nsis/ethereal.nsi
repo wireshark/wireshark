@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.33 2003/12/19 23:25:05 guy Exp $
+; $Id: ethereal.nsi,v 1.34 2003/12/22 07:57:43 ulfl Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -138,6 +138,12 @@ File "${GTK_DIR}\lib\gtk-2.0\2.2.0\immodules\im-*.dll"
 SetOutPath $INSTDIR\lib\pango\1.2.0\modules
 File "${GTK_DIR}\lib\pango\1.2.0\modules\pango-*.dll"
 !endif
+SetOutPath $INSTDIR\help
+File "..\..\help\overview.txt"
+File "..\..\help\capture_filters.txt"
+File "..\..\help\display_filters.txt"
+File "..\..\help\well_known.txt"
+File "..\..\help\faq.txt"
 SectionEnd
 
 Section "Tethereal"
