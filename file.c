@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.229 2001/02/01 20:21:13 gram Exp $
+ * $Id: file.c,v 1.230 2001/02/03 06:25:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -575,8 +575,7 @@ finish_tail_cap_file(capture_file *cf, int *err)
 
 typedef struct {
   color_filter_t *colorf;
-  tvbuff_t	*tvb;
-  proto_tree	*protocol_tree;
+  epan_dissect_t *edt;
 } apply_color_filter_args;
 
 /*
@@ -591,7 +590,7 @@ apply_color_filter(gpointer filter_arg, gpointer argp)
   apply_color_filter_args *args = argp;
 
   if (colorf->c_colorfilter != NULL && args->colorf == NULL) {
-    if (dfilter_apply(colorf->c_colorfilter, args->tvb, args->protocol_tree))
+    if (dfilter_apply_edt(colorf->c_colorfilter, args->edt))
       args->colorf = colorf;
   }
 }
@@ -646,7 +645,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   if (cf->dfcode != NULL) {
     if (refilter) {
       if (cf->dfcode != NULL)
-        fdata->flags.passed_dfilter = dfilter_apply(cf->dfcode, edt->tvb, protocol_tree) ? 1 : 0;
+        fdata->flags.passed_dfilter = dfilter_apply_edt(cf->dfcode, edt) ? 1 : 0;
       else
         fdata->flags.passed_dfilter = 1;
     }
@@ -657,8 +656,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
      the color filters. */
   if (fdata->flags.passed_dfilter) {
     if (filter_list != NULL) {
-      args.tvb = edt->tvb;
-      args.protocol_tree = protocol_tree;
+      args.edt = edt;
       g_slist_foreach(filter_list, apply_color_filter, &args);
     }
   }
@@ -780,7 +778,7 @@ read_packet(capture_file *cf, int offset)
   if (cf->rfcode) {
     protocol_tree = proto_tree_create_root();
     edt = epan_dissect_new(pseudo_header, buf, fdata, protocol_tree);
-    passed = dfilter_apply(cf->rfcode, edt->tvb, protocol_tree);
+    passed = dfilter_apply_edt(cf->rfcode, edt);
     proto_tree_free(protocol_tree);
     epan_dissect_free(edt);
   }   
@@ -1449,7 +1447,7 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
         wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
         		cf->pd, fdata->cap_len);
         edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, protocol_tree);
-        frame_matched = dfilter_apply(sfcode, edt->tvb, protocol_tree);
+        frame_matched = dfilter_apply_edt(sfcode, edt);
         proto_tree_free(protocol_tree);
 	epan_dissect_free(edt);
         if (frame_matched) {
@@ -2075,4 +2073,3 @@ copy_binary_file(char *from_filename, char *to_filename)
    done:
       return FALSE;
 }
-
