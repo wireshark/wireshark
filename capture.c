@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.170 2002/02/24 03:33:04 guy Exp $
+ * $Id: capture.c,v 1.171 2002/02/24 09:25:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -172,16 +172,7 @@
 /*
  * Capture options.
  */
-gboolean has_snaplen;
-int snaplen;
-int promisc_mode; /* capture in promiscuous mode */
-int sync_mode;	/* fork a child to do the capture, and sync between them */
-gboolean has_autostop_count;
-int autostop_count;
-gboolean has_autostop_filesize;
-gint32 autostop_filesize;
-gboolean has_autostop_duration;
-gint32 autostop_duration;
+capture_options capture_opts;
 
 static int sync_pipe[2]; /* used to sync father */
 enum PIPES { READ, WRITE }; /* Constants 0 and 1 for READ and WRITE */
@@ -303,12 +294,14 @@ do_capture(char *capfile_name)
   struct pcap_stat stats;
 
   if (capfile_name != NULL) {
-    if (cfile.ringbuffer_on) {
+    if (capture_opts.ringbuffer_on) {
       /* ringbuffer is enabled */
-      cfile.save_file_fd = ringbuf_init(capfile_name, cfile.ringbuffer_num_files);
+      cfile.save_file_fd = ringbuf_init(capfile_name,
+					capture_opts.ringbuffer_num_files);
     } else {
       /* Try to open/create the specified file for use as a capture buffer. */
-      cfile.save_file_fd = open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT, 0600);
+      cfile.save_file_fd = open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT,
+				0600);
     }
     is_tempfile = FALSE;
   } else {
@@ -323,7 +316,7 @@ do_capture(char *capfile_name)
 	"The temporary file to which the capture would be saved (\"%s\")"
 	"could not be opened: %s.", capfile_name, strerror(errno));
     } else {
-      if (cfile.ringbuffer_on) {
+      if (capture_opts.ringbuffer_on) {
         ringbuf_error_cleanup();
       }
       simple_dialog(ESD_TYPE_CRIT, NULL,
@@ -335,7 +328,7 @@ do_capture(char *capfile_name)
   g_assert(cfile.save_file == NULL);
   cfile.save_file = capfile_name;
 
-  if (sync_mode) {	/* do the capture in a child process */
+  if (capture_opts.sync_mode) {	/* do the capture in a child process */
     char ssnap[24];
     char scount[24];			/* need a constant for len of numbers */
     char sautostop_filesize[24];	/* need a constant for len of numbers */
@@ -370,31 +363,31 @@ do_capture(char *capfile_name)
     sprintf(save_file_fd,"%d",cfile.save_file_fd);	/* in lieu of itoa */
     argv = add_arg(argv, &argc, save_file_fd);
 
-    if (has_autostop_count) {
+    if (capture_opts.has_autostop_count) {
       argv = add_arg(argv, &argc, "-c");
-      sprintf(scount,"%d",autostop_count);
+      sprintf(scount,"%d",capture_opts.autostop_count);
       argv = add_arg(argv, &argc, scount);
     }
 
-    if (has_snaplen) {
+    if (capture_opts.has_snaplen) {
       argv = add_arg(argv, &argc, "-s");
-      sprintf(ssnap,"%d",snaplen);
+      sprintf(ssnap,"%d",capture_opts.snaplen);
       argv = add_arg(argv, &argc, ssnap);
     }
 
-    if (has_autostop_filesize) {
+    if (capture_opts.has_autostop_filesize) {
       argv = add_arg(argv, &argc, "-a");
-      sprintf(sautostop_filesize,"filesize:%d",autostop_filesize);
+      sprintf(sautostop_filesize,"filesize:%d",capture_opts.autostop_filesize);
       argv = add_arg(argv, &argc, sautostop_filesize);
     }
 
-    if (has_autostop_duration) {
+    if (capture_opts.has_autostop_duration) {
       argv = add_arg(argv, &argc, "-a");
-      sprintf(sautostop_duration,"duration:%d",autostop_duration);
+      sprintf(sautostop_duration,"duration:%d",capture_opts.autostop_duration);
       argv = add_arg(argv, &argc, sautostop_duration);
     }
 
-    if (!promisc_mode)
+    if (!capture_opts.promisc_mode)
       argv = add_arg(argv, &argc, "-p");
 
 #ifdef _WIN32
@@ -684,7 +677,7 @@ do_capture(char *capfile_name)
     }
     /* We're not doing a capture any more, so we don't have a save
        file. */
-    if (cfile.ringbuffer_on) {
+    if (capture_opts.ringbuffer_on) {
       ringbuf_free();
     } else {
       g_free(cfile.save_file);
@@ -1339,8 +1332,8 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 
   ld.go             = TRUE;
   ld.counts.total   = 0;
-  if (has_autostop_count)
-    ld.max          = autostop_count;
+  if (capture_opts.has_autostop_count)
+    ld.max          = capture_opts.autostop_count;
   else
     ld.max          = 0;	/* no limit */
   ld.err            = 0;	/* no error seen yet */
@@ -1369,8 +1362,10 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
      the error buffer, and check if it's still a null string.  */
   open_err_str[0] = '\0';
   pch = pcap_open_live(cfile.iface,
-		       has_snaplen ? snaplen : WTAP_MAX_PACKET_SIZE,
-		       promisc_mode, CAP_READ_TIMEOUT, open_err_str);
+		       capture_opts.has_snaplen ? capture_opts.snaplen :
+						  WTAP_MAX_PACKET_SIZE,
+		       capture_opts.promisc_mode, CAP_READ_TIMEOUT,
+		       open_err_str);
 
   if (pch == NULL) {
 #ifdef _WIN32
@@ -1483,7 +1478,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 	" that Ethereal doesn't support (data link type %d).", pcap_encap);
     goto error;
   }
-  if (cfile.ringbuffer_on) {
+  if (capture_opts.ringbuffer_on) {
     ld.pdh = ringbuf_init_wtap_dump_fdopen(WTAP_FILE_PCAP, ld.linktype, 
       file_snaplen, &err);
   } else {
@@ -1617,10 +1612,12 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   /* initialize capture stop conditions */ 
   init_capture_stop_conditions();
   /* create stop conditions */
-  if (has_autostop_filesize)
-    cnd_stop_capturesize = cnd_new(CND_CLASS_CAPTURESIZE,(long)autostop_filesize * 1000); 
-  if (has_autostop_duration)
-    cnd_stop_timeout = cnd_new(CND_CLASS_TIMEOUT,(gint32)autostop_duration);
+  if (capture_opts.has_autostop_filesize)
+    cnd_stop_capturesize =
+        cnd_new(CND_CLASS_CAPTURESIZE,(long)capture_opts.autostop_filesize * 1000); 
+  if (capture_opts.has_autostop_duration)
+    cnd_stop_timeout =
+        cnd_new(CND_CLASS_TIMEOUT,(gint32)capture_opts.autostop_duration);
 
   while (ld.go) {
     while (gtk_events_pending()) gtk_main_iteration();
@@ -1706,7 +1703,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     } else if (cnd_stop_capturesize != NULL && cnd_eval(cnd_stop_capturesize, 
                   (guint32)wtap_get_bytes_dumped(ld.pdh))){
       /* Capture file reached its maximum size. */
-      if (cfile.ringbuffer_on) {
+      if (capture_opts.ringbuffer_on) {
         /* Switch to the next ringbuffer file */
         if (ringbuf_switch_file(&cfile, &ld.pdh, &ld.err)) {
           /* File switch succeeded: reset the condition */
@@ -1788,13 +1785,13 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     /* A write failed, so we've already told the user there's a problem;
        if the close fails, there's no point in telling them about that
        as well. */
-    if (cfile.ringbuffer_on) {
+    if (capture_opts.ringbuffer_on) {
       ringbuf_wtap_dump_close(&cfile, &err);
     } else {
       wtap_dump_close(ld.pdh, &err);
     }
    } else {
-    if (cfile.ringbuffer_on) {
+    if (capture_opts.ringbuffer_on) {
       dump_ok = ringbuf_wtap_dump_close(&cfile, &err);
     } else {
       dump_ok = wtap_dump_close(ld.pdh, &err);
@@ -1857,7 +1854,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   return TRUE;
 
 error:
-  if (cfile.ringbuffer_on) {
+  if (capture_opts.ringbuffer_on) {
     /* cleanup ringbuffer */
     ringbuf_error_cleanup();
   } else {

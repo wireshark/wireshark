@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.236 2002/02/24 06:01:03 guy Exp $
+ * $Id: main.c,v 1.237 2002/02/24 09:25:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1163,11 +1163,11 @@ set_autostop_criterion(const char *autostoparg)
     return FALSE;
   }
   if (strcmp(autostoparg,"duration") == 0) {
-    has_autostop_duration = TRUE;
-    autostop_duration = get_positive_int(p,"autostop duration");
+    capture_opts.has_autostop_duration = TRUE;
+    capture_opts.autostop_duration = get_positive_int(p,"autostop duration");
   } else if (strcmp(autostoparg,"filesize") == 0) {
-    has_autostop_filesize = TRUE;
-    autostop_filesize = get_positive_int(p,"autostop filesize");
+    capture_opts.has_autostop_filesize = TRUE;
+    capture_opts.autostop_filesize = get_positive_int(p,"autostop filesize");
   } else {
     return FALSE;
   }
@@ -1297,14 +1297,16 @@ main(int argc, char *argv[])
   prefs = read_prefs(&gpf_open_errno, &gpf_path, &pf_open_errno, &pf_path);
 
 #ifdef HAVE_LIBPCAP
-  has_snaplen = FALSE;
-  snaplen = MIN_PACKET_SIZE;
-  has_autostop_count = FALSE;
-  autostop_count = 1;
-  has_autostop_duration = FALSE;
-  autostop_duration = 1;
-  has_autostop_filesize = FALSE;
-  autostop_filesize = 1;
+  capture_opts.has_snaplen = FALSE;
+  capture_opts.snaplen = MIN_PACKET_SIZE;
+  capture_opts.has_autostop_count = FALSE;
+  capture_opts.autostop_count = 1;
+  capture_opts.has_autostop_duration = FALSE;
+  capture_opts.autostop_duration = 1;
+  capture_opts.has_autostop_filesize = FALSE;
+  capture_opts.autostop_filesize = 1;
+  capture_opts.ringbuffer_on = FALSE;
+  capture_opts.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
 
   /* If this is a capture child process, it should pay no attention
      to the "prefs.capture_prom_mode" setting in the preferences file;
@@ -1314,13 +1316,13 @@ main(int argc, char *argv[])
 
      Otherwise, set promiscuous mode from the preferences setting. */
   if (capture_child)
-    promisc_mode = TRUE;
+    capture_opts.promisc_mode = TRUE;
   else
-    promisc_mode = prefs->capture_prom_mode;
+    capture_opts.promisc_mode = prefs->capture_prom_mode;
 
   /* Set "Update list of packets in real time" mode from the preferences
      setting. */
-  sync_mode = prefs->capture_real_time;
+  capture_opts.sync_mode = prefs->capture_real_time;
 
   /* And do the same for "Automatic scrolling in live capture" mode. */
   auto_scroll_live = prefs->capture_auto_scroll;
@@ -1354,10 +1356,6 @@ main(int argc, char *argv[])
   cfile.has_snap	= FALSE;
   cfile.snap		= WTAP_MAX_PACKET_SIZE;
   cfile.count		= 0;
-#ifdef HAVE_LIBPCAP
-  cfile.ringbuffer_on = FALSE;
-  cfile.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
-#endif
   col_init(&cfile.cinfo, prefs->num_cols);
 
   /* Assemble the compile-time options */
@@ -1438,8 +1436,9 @@ main(int argc, char *argv[])
         break;
       case 'b':        /* Ringbuffer option */
 #ifdef HAVE_LIBPCAP
-        cfile.ringbuffer_on = TRUE;
-        cfile.ringbuffer_num_files = get_positive_int(optarg, "number of ring buffer files");
+        capture_opts.ringbuffer_on = TRUE;
+        capture_opts.ringbuffer_num_files =
+          get_positive_int(optarg, "number of ring buffer files");
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1450,8 +1449,8 @@ main(int argc, char *argv[])
         break;
       case 'c':        /* Capture xxx packets */
 #ifdef HAVE_LIBPCAP
-        has_autostop_count = TRUE;
-        autostop_count = get_positive_int(optarg, "packet count");
+        capture_opts.has_autostop_count = TRUE;
+        capture_opts.autostop_count = get_positive_int(optarg, "packet count");
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1531,7 +1530,7 @@ main(int argc, char *argv[])
         break;
       case 'p':        /* Don't capture in promiscuous mode */
 #ifdef HAVE_LIBPCAP
-	promisc_mode = FALSE;
+	capture_opts.promisc_mode = FALSE;
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1560,8 +1559,8 @@ main(int argc, char *argv[])
         break;
       case 's':        /* Set the snapshot (capture) length */
 #ifdef HAVE_LIBPCAP
-        has_snaplen = TRUE;
-        snaplen = get_positive_int(optarg, "snapshot length");
+        capture_opts.has_snaplen = TRUE;
+        capture_opts.snaplen = get_positive_int(optarg, "snapshot length");
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1569,7 +1568,7 @@ main(int argc, char *argv[])
         break;
       case 'S':        /* "Sync" mode: used for following file ala tail -f */
 #ifdef HAVE_LIBPCAP
-        sync_mode = TRUE;
+        capture_opts.sync_mode = TRUE;
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1676,24 +1675,24 @@ main(int argc, char *argv[])
   }
 
 #ifdef HAVE_LIBPCAP
-  if (cfile.ringbuffer_on) {
+  if (capture_opts.ringbuffer_on) {
     /* Ring buffer works only under certain conditions:
        a) ring buffer does not work with temporary files;
-       b) sync_mode and cfile.ringbuffer_on are mutually exclusive -
+       b) sync_mode and capture_opts.ringbuffer_on are mutually exclusive -
           sync_mode takes precedence;
        c) it makes no sense to enable the ring buffer if the maximum
           file size is set to "infinite". */
     if (cfile.save_file == NULL) {
       fprintf(stderr, "ethereal: Ring buffer requested, but capture isn't being saved to a permanent file.\n");
-      cfile.ringbuffer_on = FALSE;
+      capture_opts.ringbuffer_on = FALSE;
     }
-    if (sync_mode) {
+    if (capture_opts.sync_mode) {
       fprintf(stderr, "ethereal: Ring buffer requested, but an \"Update list of packets in real time\" capture is being done.\n");
-      cfile.ringbuffer_on = FALSE;
+      capture_opts.ringbuffer_on = FALSE;
     }
-    if (!has_autostop_filesize || autostop_filesize == 0) {
+    if (!capture_opts.has_autostop_filesize) {
       fprintf(stderr, "ethereal: Ring buffer requested, but no maximum capture file size was specified.\n");
-      cfile.ringbuffer_on = FALSE;
+      capture_opts.ringbuffer_on = FALSE;
     }
   }
 #endif
@@ -1769,18 +1768,18 @@ main(int argc, char *argv[])
   }
 
 #ifdef HAVE_LIBPCAP
-  if (has_snaplen) {
-    if (snaplen < 1)
-      snaplen = WTAP_MAX_PACKET_SIZE;
-    else if (snaplen < MIN_PACKET_SIZE)
-      snaplen = MIN_PACKET_SIZE;
+  if (capture_opts.has_snaplen) {
+    if (capture_opts.snaplen < 1)
+      capture_opts.snaplen = WTAP_MAX_PACKET_SIZE;
+    else if (capture_opts.snaplen < MIN_PACKET_SIZE)
+      capture_opts.snaplen = MIN_PACKET_SIZE;
   }
   
   /* Check the value range of the ringbuffer_num_files parameter */
-  if (cfile.ringbuffer_num_files < RINGBUFFER_MIN_NUM_FILES)
-    cfile.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
-  else if (cfile.ringbuffer_num_files > RINGBUFFER_MAX_NUM_FILES)
-    cfile.ringbuffer_num_files = RINGBUFFER_MAX_NUM_FILES;
+  if (capture_opts.ringbuffer_num_files < RINGBUFFER_MIN_NUM_FILES)
+    capture_opts.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
+  else if (capture_opts.ringbuffer_num_files > RINGBUFFER_MAX_NUM_FILES)
+    capture_opts.ringbuffer_num_files = RINGBUFFER_MAX_NUM_FILES;
 #endif
   
   rc_file = get_persconffile_path(RC_FILE, FALSE);

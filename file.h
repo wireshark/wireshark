@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.91 2002/02/24 03:33:04 guy Exp $
+ * $Id: file.h,v 1.92 2002/02/24 09:25:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,10 +87,6 @@ typedef struct _capture_file {
   frame_data  *current_frame;  /* Frame data for current frame */
   epan_dissect_t *edt; /* Protocol dissection fo rcurrently selected packet */
   FILE        *print_fh;  /* File we're printing to */
-#ifdef HAVE_LIBPCAP
-  gboolean     ringbuffer_on; /* Ringbuffer option */
-  guint32      ringbuffer_num_files; /* Number of ringbuffer files */
-#endif
 } capture_file;
 
 /* Return values from "read_cap_file()", "continue_tail_cap_file()",

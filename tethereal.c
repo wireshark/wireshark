@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.126 2002/02/24 06:45:13 guy Exp $
+ * $Id: tethereal.c,v 1.127 2002/02/24 09:25:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -153,8 +153,36 @@ capture_file cfile;
 FILE        *data_out_file = NULL;
 ts_type timestamp_type = RELATIVE;
 #ifdef HAVE_LIBPCAP
-static int snaplen = WTAP_MAX_PACKET_SIZE;
-static int promisc_mode = TRUE;
+typedef struct {
+	int snaplen;			/* Maximum captured packet length */
+	int promisc_mode;		/* Capture in promiscuous mode */
+	int autostop_count;		/* Maximum packet count */
+	gboolean has_autostop_duration;	/* TRUE if maximum capture duration
+					   is specified */
+	gint32 autostop_duration;	/* Maximum capture duration */
+	gboolean has_autostop_filesize;	/* TRUE if maximum capture file size
+					   is specified */
+	gint32 autostop_filesize;	/* Maximum capture file size */
+	gboolean ringbuffer_on;		/* TRUE if ring buffer in use */
+	guint32 ringbuffer_num_files;	/* Number of ring buffer files */
+} capture_options;
+
+static capture_options capture_opts = {
+	WTAP_MAX_PACKET_SIZE,		/* snapshot length - default is
+					   infinite, in effect */
+	TRUE,				/* promiscuous mode is the default */
+	0,				/* max packet count - default is 0,
+					   meaning infinite */
+	FALSE,				/* maximum capture duration not
+					   specified by default */
+	0,				/* maximum capture duration */
+	FALSE,				/* maximum capture file size not
+					   specified by default */
+	0,				/* maximum capture file size */
+	FALSE,				/* ring buffer off by default */
+	RINGBUFFER_MIN_NUM_FILES	/* default number of ring buffer
+					   files */
+};
 #endif
 
 static void 
@@ -217,11 +245,6 @@ get_positive_int(const char *string, const char *name)
 }
 
 #ifdef HAVE_LIBPCAP
-static gboolean has_autostop_filesize; /* TRUE if maximum capture file size is specified */
-static gint32 autostop_filesize = 0; /* Maximum capture file size */
-static gboolean has_autostop_duration; /* TRUE if maximum capture duration is specified */
-static gint32 autostop_duration = 0; /* Maximum capture duration */
-
 /*
  * Given a string of the form "<autostop criterion>:<value>", as might appear
  * as an argument to a "-a" option, parse it and set the criterion in
@@ -257,11 +280,11 @@ set_autostop_criterion(const char *autostoparg)
     return FALSE;
   }
   if (strcmp(autostoparg,"duration") == 0) {
-    has_autostop_duration = TRUE;
-    autostop_duration = get_positive_int(p,"autostop duration");
+    capture_opts.has_autostop_duration = TRUE;
+    capture_opts.autostop_duration = get_positive_int(p,"autostop duration");
   } else if (strcmp(autostoparg,"filesize") == 0) {
-    has_autostop_filesize = TRUE;
-    autostop_filesize = get_positive_int(p,"autostop filesize");
+    capture_opts.has_autostop_filesize = TRUE;
+    capture_opts.autostop_filesize = get_positive_int(p,"autostop filesize");
   } else {
     return FALSE;
   }
@@ -292,7 +315,6 @@ main(int argc, char *argv[])
   int                  err;
 #ifdef HAVE_LIBPCAP
   gboolean             capture_filter_specified = FALSE;
-  guint                packet_count = 0;
   GList               *if_list, *if_entry;
   gchar                err_str[PCAP_ERRBUF_SIZE];
 #else
@@ -364,10 +386,6 @@ main(int argc, char *argv[])
   cfile.has_snap	= FALSE;
   cfile.snap		= WTAP_MAX_PACKET_SIZE;
   cfile.count		= 0;
-#ifdef HAVE_LIBPCAP
-  cfile.ringbuffer_on = FALSE;
-  cfile.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
-#endif
   col_init(&cfile.cinfo, prefs->num_cols);
 
   /* Assemble the compile-time options */
@@ -439,8 +457,9 @@ main(int argc, char *argv[])
         break;
       case 'b':        /* Ringbuffer option */
 #ifdef HAVE_LIBPCAP
-        cfile.ringbuffer_on = TRUE;
-        cfile.ringbuffer_num_files = get_positive_int(optarg, "number of ring buffer files");
+        capture_opts.ringbuffer_on = TRUE;
+        capture_opts.ringbuffer_num_files =
+            get_positive_int(optarg, "number of ring buffer files");
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -448,7 +467,8 @@ main(int argc, char *argv[])
         break;
       case 'c':        /* Capture xxx packets */
 #ifdef HAVE_LIBPCAP
-        packet_count = get_positive_int(optarg, "packet count");
+        capture_opts.autostop_count =
+            get_positive_int(optarg, "packet count");
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -555,7 +575,7 @@ main(int argc, char *argv[])
         break;
       case 'p':        /* Don't capture in promiscuous mode */
 #ifdef HAVE_LIBPCAP
-	promisc_mode = 0;
+	capture_opts.promisc_mode = FALSE;
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -569,7 +589,7 @@ main(int argc, char *argv[])
         break;
       case 's':        /* Set the snapshot (capture) length */
 #ifdef HAVE_LIBPCAP
-        snaplen = get_positive_int(optarg, "snapshot length");
+        capture_opts.snaplen = get_positive_int(optarg, "snapshot length");
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -637,12 +657,12 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   /* If they didn't specify a "-w" flag, but specified a maximum capture
      file size, tell them that this doesn't work, and exit. */
-  if (has_autostop_filesize && autostop_filesize != 0 && cfile.save_file == NULL) {
+  if (capture_opts.has_autostop_filesize && cfile.save_file == NULL) {
     fprintf(stderr, "tethereal: Maximum capture file size specified, but capture isn't being saved to a file.\n");
     exit(2);
   }
 
-  if (cfile.ringbuffer_on) {
+  if (capture_opts.ringbuffer_on) {
     /* Ring buffer works only under certain conditions:
        a) ring buffer does not work if you're not saving the capture to
           a file;
@@ -657,7 +677,7 @@ main(int argc, char *argv[])
       fprintf(stderr, "tethereal: Ring buffer requested, but capture isn't being saved in libpcap format.\n");
       exit(2);
     }
-    if (!has_autostop_filesize || autostop_filesize == 0) {
+    if (!capture_opts.has_autostop_filesize) {
       fprintf(stderr, "tethereal: Ring buffer requested, but no maximum capture file size was specified.\n");
       exit(2);
     }
@@ -699,16 +719,16 @@ main(int argc, char *argv[])
   }
 
 #ifdef HAVE_LIBPCAP
-  if (snaplen < 1)
-    snaplen = WTAP_MAX_PACKET_SIZE;
-  else if (snaplen < MIN_PACKET_SIZE)
-    snaplen = MIN_PACKET_SIZE;
+  if (capture_opts.snaplen < 1)
+    capture_opts.snaplen = WTAP_MAX_PACKET_SIZE;
+  else if (capture_opts.snaplen < MIN_PACKET_SIZE)
+    capture_opts.snaplen = MIN_PACKET_SIZE;
   
   /* Check the value range of the ringbuffer_num_files parameter */
-  if (cfile.ringbuffer_num_files < RINGBUFFER_MIN_NUM_FILES)
-    cfile.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
-  else if (cfile.ringbuffer_num_files > RINGBUFFER_MAX_NUM_FILES)
-    cfile.ringbuffer_num_files = RINGBUFFER_MAX_NUM_FILES;
+  if (capture_opts.ringbuffer_num_files < RINGBUFFER_MIN_NUM_FILES)
+    capture_opts.ringbuffer_num_files = RINGBUFFER_MIN_NUM_FILES;
+  else if (capture_opts.ringbuffer_num_files > RINGBUFFER_MAX_NUM_FILES)
+    capture_opts.ringbuffer_num_files = RINGBUFFER_MAX_NUM_FILES;
 #endif
   
   if (rfilter != NULL) {
@@ -770,9 +790,9 @@ main(int argc, char *argv[])
             free_interface_list(if_list);
         }
     }
-    capture(packet_count, out_file_type);
+    capture(capture_opts.autostop_count, out_file_type);
 
-    if (cfile.ringbuffer_on) {
+    if (capture_opts.ringbuffer_on) {
       ringbuf_free();
     }
 #else
@@ -821,8 +841,8 @@ capture(volatile int packet_count, int out_file_type)
      if they succeed; to tell if that's happened, we have to clear
      the error buffer, and check if it's still a null string.  */
   open_err_str[0] = '\0';
-  ld.pch = pcap_open_live(cfile.iface, snaplen, promisc_mode, 1000,
-			  open_err_str);
+  ld.pch = pcap_open_live(cfile.iface, capture_opts.snaplen,
+			  capture_opts.promisc_mode, 1000, open_err_str);
 
   if (ld.pch == NULL) {
     /* Well, we couldn't start the capture. */
@@ -900,9 +920,9 @@ capture(volatile int packet_count, int out_file_type)
                " that Tethereal doesn't support.");
       goto error;
     }
-    if (cfile.ringbuffer_on) {
+    if (capture_opts.ringbuffer_on) {
       cfile.save_file_fd = ringbuf_init(cfile.save_file,
-        cfile.ringbuffer_num_files);
+        capture_opts.ringbuffer_num_files);
       if (cfile.save_file_fd != -1) {
         ld.pdh = ringbuf_init_wtap_dump_fdopen(out_file_type, ld.linktype,
           pcap_snapshot(ld.pch), &err);
@@ -944,12 +964,12 @@ capture(volatile int packet_count, int out_file_type)
   /* initialize capture stop conditions */ 
   init_capture_stop_conditions();
   /* create stop conditions */
-  if (has_autostop_filesize)
+  if (capture_opts.has_autostop_filesize)
     cnd_stop_capturesize = cnd_new((char*)CND_CLASS_CAPTURESIZE,
-                                   (long)autostop_filesize * 1000);
-  if (has_autostop_duration)
+                                   (long)capture_opts.autostop_filesize * 1000);
+  if (capture_opts.has_autostop_duration)
     cnd_stop_timeout = cnd_new((char*)CND_CLASS_TIMEOUT,
-                               (gint32)autostop_duration);
+                               (gint32)capture_opts.autostop_duration);
 
   if (packet_count == 0)
     packet_count = -1; /* infinite capturng */
@@ -971,7 +991,7 @@ capture(volatile int packet_count, int out_file_type)
                             (guint32)wtap_get_bytes_dumped(ld.pdh))) {
       /* We're saving the capture to a file, and the capture file reached
          its maximum size. */
-      if (cfile.ringbuffer_on) {
+      if (capture_opts.ringbuffer_on) {
         /* Switch to the next ringbuffer file */
         if (ringbuf_switch_file(&cfile, &ld.pdh, &err) == TRUE) {
           /* File switch failed: reset the condition */
@@ -1022,7 +1042,7 @@ capture(volatile int packet_count, int out_file_type)
 
   if (cfile.save_file != NULL) {
     /* We're saving to a file or files; close all files. */
-    if (cfile.ringbuffer_on) {
+    if (capture_opts.ringbuffer_on) {
       dump_ok = ringbuf_wtap_dump_close(&cfile, &err);
     } else {
       dump_ok = wtap_dump_close(ld.pdh, &err);
@@ -1034,7 +1054,7 @@ capture(volatile int packet_count, int out_file_type)
   return TRUE;
 
 error:
-  if (cfile.ringbuffer_on) {
+  if (capture_opts.ringbuffer_on) {
     ringbuf_error_cleanup();
   }
   g_free(cfile.save_file);
