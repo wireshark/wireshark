@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.102 2000/08/13 14:08:16 deniel Exp $
+ * $Id: packet-ip.c,v 1.103 2000/09/16 00:48:43 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -63,7 +63,8 @@ static int hf_ip_version = -1;
 static int hf_ip_hdr_len = -1;
 static int hf_ip_dsfield = -1;
 static int hf_ip_dsfield_dscp = -1;
-static int hf_ip_dsfield_cu = -1;
+static int hf_ip_dsfield_ect = -1;
+static int hf_ip_dsfield_ce = -1;
 static int hf_ip_tos = -1;
 static int hf_ip_tos_precedence = -1;
 static int hf_ip_tos_delay = -1;
@@ -225,8 +226,10 @@ typedef struct _e_ip
 
 /* Differentiated Services Field. See RFCs 2474, 2597 and 2598. */
 #define IPDSFIELD_DSCP_MASK     0xFC
+#define IPDSFIELD_ECN_MASK     0x03
 #define IPDSFIELD_DSCP_SHIFT	2
 #define IPDSFIELD_DSCP(dsfield)	(((dsfield)&IPDSFIELD_DSCP_MASK)>>IPDSFIELD_DSCP_SHIFT)
+#define IPDSFIELD_ECN(dsfield)	((dsfield)&IPDSFIELD_ECN_MASK)
 #define IPDSFIELD_DSCP_DEFAULT  0x00
 #define IPDSFIELD_DSCP_CS1      0x08
 #define IPDSFIELD_DSCP_CS2      0x10
@@ -248,7 +251,8 @@ typedef struct _e_ip
 #define IPDSFIELD_DSCP_AF42     0x24
 #define IPDSFIELD_DSCP_AF43     0x26
 #define IPDSFIELD_DSCP_EF       0x2E
-#define IPDSFIELD_CU_MASK	0x03
+#define IPDSFIELD_ECT_MASK	0x02
+#define IPDSFIELD_CE_MASK	0x01
 
 /* IP TOS, superseded by the DS Field, RFC 2474. */
 #define IPTOS_TOS_MASK    0x1E
@@ -866,13 +870,14 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     if (g_ip_dscp_actif) {
       tf = proto_tree_add_uint_format(ip_tree, hf_ip_dsfield, NullTVB, offset + 1, 1, iph.ip_tos,
-	   "Differentiated Services Field: 0x%02x (DSCP 0x%02x: %s)", iph.ip_tos,
+	   "Differentiated Services Field: 0x%02x (DSCP 0x%02x: %s; ECN: 0x%02x)", iph.ip_tos,
 	   IPDSFIELD_DSCP(iph.ip_tos), val_to_str(IPDSFIELD_DSCP(iph.ip_tos), dscp_vals,
-	   "Unknown DSCP"));
+	   "Unknown DSCP"),IPDSFIELD_ECN(iph.ip_tos));
 
       field_tree = proto_item_add_subtree(tf, ett_ip_dsfield);
       proto_tree_add_uint(field_tree, hf_ip_dsfield_dscp, NullTVB, offset + 1, 1, iph.ip_tos);
-      proto_tree_add_uint(field_tree, hf_ip_dsfield_cu, NullTVB, offset + 1, 1, iph.ip_tos);
+      proto_tree_add_uint(field_tree, hf_ip_dsfield_ect, NullTVB, offset + 1, 1, iph.ip_tos);
+      proto_tree_add_uint(field_tree, hf_ip_dsfield_ce, NullTVB, offset + 1, 1, iph.ip_tos);
     } else {
       tf = proto_tree_add_uint_format(ip_tree, hf_ip_tos, NullTVB, offset + 1, 1, iph.ip_tos,
 	  "Type of service: 0x%02x (%s)", iph.ip_tos,
@@ -1329,9 +1334,14 @@ proto_register_ip(void)
 			VALS(dscp_vals), IPDSFIELD_DSCP_MASK,
 			"" }},
 
-		{ &hf_ip_dsfield_cu,
-		{ "Currently Unused",	"ip.dsfield.cu", FT_UINT8, BASE_DEC, NULL,
-			IPDSFIELD_CU_MASK,
+		{ &hf_ip_dsfield_ect,
+		{ "ECN-Capable Transport (ECT)",	"ip.dsfield.ect", FT_UINT8, BASE_DEC, NULL,
+			IPDSFIELD_ECT_MASK,
+			"" }},
+
+		{ &hf_ip_dsfield_ce,
+		{ "ECN-CE",	"ip.dsfield.ce", FT_UINT8, BASE_DEC, NULL,
+			IPDSFIELD_CE_MASK,
 			"" }},
 
 		{ &hf_ip_tos,
