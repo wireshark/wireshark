@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.3 2002/08/19 15:48:28 gerald Exp $
+; $Id: ethereal.nsi,v 1.4 2002/08/20 00:59:39 jmayer Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -72,6 +72,7 @@ File "${COMMON_FILES_GNU}\glib-1.3.dll"
 File "${COMMON_FILES_GNU}\gmodule-1.3.dll"
 File "${COMMON_FILES_GNU}\gnu-intl.dll"
 ;File "${COMMON_FILES_GNU}\zlib.dll"
+File "..\..\FAQ"
 File "..\..\README"
 File "..\..\README.win32"
 File "..\..\manuf"
@@ -164,6 +165,7 @@ Section "Uninstall"
 DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal"
 DeleteRegKey HKEY_LOCAL_MACHINE SOFTWARE\Ethereal
 
+Delete "$INSTDIR\FAQ"
 Delete "$INSTDIR\README*"
 Delete "$INSTDIR\manuf"
 Delete "$INSTDIR\dictionary.dtd"

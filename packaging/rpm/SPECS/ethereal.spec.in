@@ -47,7 +47,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-, root, root)
-%doc AUTHORS COPYING ChangeLog INSTALL NEWS README
+%doc AUTHORS COPYING ChangeLog FAQ INSTALL NEWS README
 %doc README.hpux  README.linux  README.vmware
 %doc README.aix  README.irix  README.tru64  README.win32
 %doc README.bsd
