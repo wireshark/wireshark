@@ -25,12 +25,23 @@
 **   drh@acm.org
 **   http://www.hwaci.com/drh/
 **
-** $Id: lemon.c,v 1.1 2001/02/01 20:21:25 gram Exp $
+** $Id: lemon.c,v 1.2 2001/02/01 21:46:48 guy Exp $
 */
 #include <stdio.h>
 #include <varargs.h>
 #include <string.h>
 #include <ctype.h>
+
+/*
+ * Wrapper around "isupper()", "islower()", etc. to cast the argument to
+ * "unsigned char", so that they at least handle non-ASCII 8-bit characters
+ * (and don't provoke a pile of warnings from GCC).
+ */
+#define safe_isupper(c)	isupper((unsigned char)(c))
+#define safe_islower(c)	islower((unsigned char)(c))
+#define safe_isalpha(c)	isalpha((unsigned char)(c))
+#define safe_isalnum(c)	isalnum((unsigned char)(c))
+#define safe_isspace(c)	isspace((unsigned char)(c))
 
 extern void qsort();
 extern double strtod();
@@ -103,8 +114,8 @@ struct s_options {
 };
 int    optinit(/* char**,struct s_options*,FILE* */);
 int    optnargs(/* void */);
-char  *optarg(/* int */);
-void   opterr(/* int */);
+char  *get_optarg(/* int */);
+void   get_opterr(/* int */);
 void   optprint(/* void */);
 
 /******** From the file "parse.h" *****************************************/
@@ -1257,7 +1268,7 @@ char **argv;
   Symbol_init();
   State_init();
   lem.argv0 = argv[0];
-  lem.filename = optarg(0);
+  lem.filename = get_optarg(0);
   lem.basisflag = basisflag;
   lem.nconflict = 0;
   lem.name = lem.include = lem.arg = lem.tokentype = lem.start = 0;
@@ -1286,7 +1297,7 @@ char **argv;
   qsort(lem.symbols,lem.nsymbol+1,sizeof(struct symbol*),
         (int(*)())Symbolcmpp);
   for(i=0; i<=lem.nsymbol; i++) lem.symbols[i]->index = i;
-  for(i=1; isupper(lem.symbols[i]->name[0]); i++);
+  for(i=1; safe_isupper(lem.symbols[i]->name[0]); i++);
   lem.nterminal = i;
 
   /* Generate a reprint of the grammar, if requested on the command line */
@@ -1684,7 +1695,7 @@ int optnargs(){
   return cnt;
 }
 
-char *optarg(n)
+char *get_optarg(n)
 int n;
 {
   int i;
@@ -1692,7 +1703,7 @@ int n;
   return i>=0 ? argv[i] : 0;
 }
 
-void opterr(n)
+void get_opterr(n)
 int n;
 {
   int i;
@@ -1816,7 +1827,7 @@ struct pstate *psp;
     case WAITING_FOR_DECL_OR_RULE:
       if( x[0]=='%' ){
         psp->state = WAITING_FOR_DECL_KEYWORD;
-      }else if( islower(x[0]) ){
+      }else if( safe_islower(x[0]) ){
         psp->lhs = Symbol_new(x);
         psp->nrhs = 0;
         psp->lhsalias = 0;
@@ -1846,7 +1857,7 @@ to follow the previous rule.");
       }
       break;
     case PRECEDENCE_MARK_1:
-      if( !isupper(x[0]) ){
+      if( !safe_isupper(x[0]) ){
         ErrorMsg(psp->filename,psp->tokenlineno,
           "The precedence symbol must be a terminal.");
         psp->errorcnt++;
@@ -1886,7 +1897,7 @@ to follow the previous rule.");
       }
       break;
     case LHS_ALIAS_1:
-      if( isalpha(x[0]) ){
+      if( safe_isalpha(x[0]) ){
         psp->lhsalias = x;
         psp->state = LHS_ALIAS_2;
       }else{
@@ -1955,7 +1966,7 @@ to follow the previous rule.");
           psp->prevrule = rp;
 	}
         psp->state = WAITING_FOR_DECL_OR_RULE;
-      }else if( isalpha(x[0]) ){
+      }else if( safe_isalpha(x[0]) ){
         if( psp->nrhs>=MAXRHS ){
           ErrorMsg(psp->filename,psp->tokenlineno,
             "Too many symbol on RHS or rule beginning at \"%s\".",
@@ -1977,7 +1988,7 @@ to follow the previous rule.");
       }
       break;
     case RHS_ALIAS_1:
-      if( isalpha(x[0]) ){
+      if( safe_isalpha(x[0]) ){
         psp->alias[psp->nrhs-1] = x;
         psp->state = RHS_ALIAS_2;
       }else{
@@ -1999,7 +2010,7 @@ to follow the previous rule.");
       }
       break;
     case WAITING_FOR_DECL_KEYWORD:
-      if( isalpha(x[0]) ){
+      if( safe_isalpha(x[0]) ){
         psp->declkeyword = x;
         psp->declargslot = 0;
         psp->decllnslot = 0;
@@ -2067,7 +2078,7 @@ to follow the previous rule.");
       }
       break;
     case WAITING_FOR_DESTRUCTOR_SYMBOL:
-      if( !isalpha(x[0]) ){
+      if( !safe_isalpha(x[0]) ){
         ErrorMsg(psp->filename,psp->tokenlineno,
           "Symbol name missing after %destructor keyword");
         psp->errorcnt++;
@@ -2080,7 +2091,7 @@ to follow the previous rule.");
       }
       break;
     case WAITING_FOR_DATATYPE_SYMBOL:
-      if( !isalpha(x[0]) ){
+      if( !safe_isalpha(x[0]) ){
         ErrorMsg(psp->filename,psp->tokenlineno,
           "Symbol name missing after %destructor keyword");
         psp->errorcnt++;
@@ -2095,7 +2106,7 @@ to follow the previous rule.");
     case WAITING_FOR_PRECEDENCE_SYMBOL:
       if( x[0]=='.' ){
         psp->state = WAITING_FOR_DECL_OR_RULE;
-      }else if( isupper(x[0]) ){
+      }else if( safe_isupper(x[0]) ){
         struct symbol *sp;
         sp = Symbol_new(x);
         if( sp->prec>=0 ){
@@ -2113,7 +2124,7 @@ to follow the previous rule.");
       }
       break;
     case WAITING_FOR_DECL_ARG:
-      if( (x[0]=='{' || x[0]=='\"' || isalnum(x[0])) ){
+      if( (x[0]=='{' || x[0]=='\"' || safe_isalnum(x[0])) ){
         if( *(psp->declargslot)!=0 ){
           ErrorMsg(psp->filename,psp->tokenlineno,
             "The argument \"%s\" to declaration \"%%%s\" is not the first.",
@@ -2155,7 +2166,7 @@ struct lemon *gp;
   char *filebuf;
   int filesize;
   int lineno;
-  int c;
+  char c;
   char *cp, *nextcp;
   int startline = 0;
 
@@ -2195,7 +2206,7 @@ struct lemon *gp;
   lineno = 1;
   for(cp=filebuf; (c= *cp)!=0; ){
     if( c=='\n' ) lineno++;              /* Keep track of the line number */
-    if( isspace(c) ){ cp++; continue; }  /* Skip all white space */
+    if( safe_isspace(c) ){ cp++; continue; }  /* Skip all white space */
     if( c=='/' && cp[1]=='/' ){          /* Skip C++ style comments */
       cp+=2;
       while( (c= *cp)!=0 && c!='\n' ) cp++;
@@ -2234,7 +2245,7 @@ struct lemon *gp;
         else if( c=='{' ) level++;
         else if( c=='}' ) level--;
         else if( c=='/' && cp[1]=='*' ){  /* Skip comments */
-          int prevc;
+          char prevc;
           cp = &cp[2];
           prevc = 0;
           while( (c= *cp)!=0 && (c!='/' || prevc!='*') ){
@@ -2247,7 +2258,7 @@ struct lemon *gp;
           while( (c= *cp)!=0 && c!='\n' ) cp++;
           if( c ) lineno++;
 	}else if( c=='\'' || c=='\"' ){    /* String a character literals */
-          int startchar, prevc;
+          char startchar, prevc;
           startchar = c;
           prevc = 0;
           for(cp++; (c= *cp)!=0 && (c!=startchar || prevc=='\\'); cp++){
@@ -2265,8 +2276,8 @@ struct lemon *gp;
       }else{
         nextcp = cp+1;
       }
-    }else if( isalnum(c) ){          /* Identifiers */
-      while( (c= *cp)!=0 && (isalnum(c) || c=='_') ) cp++;
+    }else if( safe_isalnum(c) ){          /* Identifiers */
+      while( (c= *cp)!=0 && (safe_isalnum(c) || c=='_') ) cp++;
       nextcp = cp;
     }else if( c==':' && cp[1]==':' && cp[2]=='=' ){ /* The operator "::=" */
       cp += 3;
@@ -2699,7 +2710,7 @@ int *lineno;
     if( name ){
       for(i=0; line[i]; i++){
         if( line[i]=='P' && strncmp(&line[i],"Parse",5)==0
-          && (i==0 || !isalpha(line[i-1]))
+          && (i==0 || !safe_isalpha(line[i-1]))
         ){
           if( i>iStart ) fprintf(out,"%.*s",i-iStart,&line[iStart]);
           fprintf(out,"%s",name);
@@ -2848,9 +2859,9 @@ int *lineno;
  if( rp->code ){
    fprintf(out,"#line %d \"%s\"\n{",rp->line,lemp->filename);
    for(cp=rp->code; *cp; cp++){
-     if( isalpha(*cp) && (cp==rp->code || !isalnum(cp[-1])) ){
+     if( safe_isalpha(*cp) && (cp==rp->code || !safe_isalnum(cp[-1])) ){
        char saved;
-       for(xp= &cp[1]; isalnum(*xp); xp++);
+       for(xp= &cp[1]; safe_isalnum(*xp); xp++);
        saved = *xp;
        *xp = 0;
        if( rp->lhsalias && strcmp(cp,rp->lhsalias)==0 ){
@@ -2963,9 +2974,9 @@ int mhflag;                 /* True if generating makeheaders output */
     }
     cp = sp->datatype;
     j = 0;
-    while( isspace(*cp) ) cp++;
+    while( safe_isspace(*cp) ) cp++;
     while( *cp ) stddt[j++] = *cp++;
-    while( j>0 && isspace(stddt[j-1]) ) j--;
+    while( j>0 && safe_isspace(stddt[j-1]) ) j--;
     stddt[j] = 0;
     hash = 0;
     for(j=0; stddt[j]; j++){
@@ -3088,8 +3099,8 @@ int mhflag;     /* Output in makeheaders format if true */
   if( lemp->arg && lemp->arg[0] ){
     int i;
     i = strlen(lemp->arg);
-    while( i>=1 && isspace(lemp->arg[i-1]) ) i--;
-    while( i>=1 && isalnum(lemp->arg[i-1]) ) i--;
+    while( i>=1 && safe_isspace(lemp->arg[i-1]) ) i--;
+    while( i>=1 && safe_isalnum(lemp->arg[i-1]) ) i--;
     fprintf(out,"#define %sARGDECL ,%s\n",name,&lemp->arg[i]);  lineno++;
     fprintf(out,"#define %sXARGDECL %s;\n",name,lemp->arg);  lineno++;
     fprintf(out,"#define %sANSIARGDECL ,%s\n",name,lemp->arg);  lineno++;
@@ -3610,7 +3621,7 @@ char *x;
     sp = (struct symbol *)malloc( sizeof(struct symbol) );
     MemoryCheck(sp);
     sp->name = Strsafe(x);
-    sp->type = isupper(*x) ? TERMINAL : NONTERMINAL;
+    sp->type = safe_isupper(*x) ? TERMINAL : NONTERMINAL;
     sp->rule = 0;
     sp->prec = -1;
     sp->assoc = UNK;
