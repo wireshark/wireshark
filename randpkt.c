@@ -4,7 +4,7 @@
  * Creates random packet traces. Useful for debugging sniffers by testing
  * assumptions about the veracity of the data found in the packet.
  *
- * $Id: randpkt.c,v 1.16 2002/10/15 02:29:54 gerald Exp $
+ * $Id: randpkt.c,v 1.17 2002/10/16 14:45:27 gerald Exp $
  *
  * Copyright (C) 1999 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -25,6 +25,10 @@
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
+
+#ifdef NEED_GETOPT_H
+#include "getopt.h"
 #endif
 
 #ifdef HAVE_UNISTD_H
