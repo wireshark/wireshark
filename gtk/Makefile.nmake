@@ -7,6 +7,9 @@ CFLAGS=/MT /DHAVE_CONFIG_H /I.. /I../wiretap \
 	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
 	/I$(PCAP_DIR)\include $(LOCAL_CFLAGS)
 
+{$S}.c{$O}.obj::
+   $(CC) $(CFLAGS) -Fd$O\ -c $<
+
 # gtkclist.obj is not in here because it is gtk+-1.2 code,
 # while the DLL for GTK+ on windows is gtk+-1.3, and there's
 # some functions that have disappeared in gtk+-1.3. I might
