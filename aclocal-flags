@@ -21,7 +21,7 @@
 # "aclocal" will look in that directory twice, and get well and truly
 # confused, reporting a ton of duplicate macro definitions.)
 #
-# $Id: aclocal-flags,v 1.3 2002/03/06 06:33:37 itojun Exp $
+# $Id: aclocal-flags,v 1.4 2002/03/06 06:36:22 itojun Exp $
 #
 
 #
@@ -48,9 +48,9 @@ fi
 # Add the "-I" flag only if neither of those strings are empty, and
 # they're different.
 #
-#if [ ! -z "$aclocal_dir" -a ! -z "$gtk_aclocal_dir" \
-#    -a "$aclocal_dir" != "$gtk_aclocal_dir" ]
-#then
-#	echo "-I $gtk_aclocal_dir"
-#fi
+if [ ! -z "$aclocal_dir" -a ! -z "$gtk_aclocal_dir" \
+    -a "$aclocal_dir" != "$gtk_aclocal_dir" ]
+then
+	echo "-I $gtk_aclocal_dir"
+fi
 exit 0
