@@ -1,7 +1,7 @@
 /* tap-iousers.c
  * iostat   2003 Ronnie Sahlberg
  *
- * $Id: tap-iousers.c,v 1.11 2003/08/24 05:44:38 sahlberg Exp $
+ * $Id: tap-iousers.c,v 1.12 2003/08/25 00:44:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -408,8 +408,7 @@ iousers_draw(io_users_t *iu)
 	guint32 last_frames, max_frames;
 
 	printf("================================================================================\n");
-	printf("IO-USERS Statistics\n");
-	printf("Type:%s\n",iu->type);
+	printf("%s Talkers\n",iu->type);
 	printf("Filter:%s\n",iu->filter?iu->filter:"<No Filter>");
 	printf("                                               |       <-      | |       ->      | |     Total     |\n");
 	printf("                                               | Frames  Bytes | | Frames  Bytes | | Frames  Bytes |\n");
@@ -448,7 +447,7 @@ void
 iousers_init(char *optarg)
 {
 	char *filter=NULL;
-	char *tap_type;
+	char *tap_type, *tap_type_name;
 	static int (*packet_func)(io_users_t *, packet_info *, epan_dissect_t *, void *);
 	io_users_t *iu=NULL;
 	GString *error_string;
@@ -460,6 +459,7 @@ iousers_init(char *optarg)
 			filter=NULL;
 		}
 		tap_type="eth";
+		tap_type_name="Ethernet";
 		packet_func=iousers_eth_packet;
 	} else if(!strncmp(optarg,"talkers,fc",10)){
 		if(optarg[10]==','){
@@ -468,6 +468,7 @@ iousers_init(char *optarg)
 			filter=NULL;
 		}
 		tap_type="fc";
+		tap_type_name="Fibre Channel";
 		packet_func=iousers_fc_packet;
 	} else if(!strncmp(optarg,"talkers,tcp",11)){
 		if(optarg[11]==','){
@@ -476,6 +477,7 @@ iousers_init(char *optarg)
 			filter=NULL;
 		}
 		tap_type="tcp";
+		tap_type_name="TCP";
 		packet_func=iousers_tcpip_packet;
 	} else if(!strncmp(optarg,"talkers,udp",11)){
 		if(optarg[11]==','){
@@ -484,6 +486,7 @@ iousers_init(char *optarg)
 			filter=NULL;
 		}
 		tap_type="udp";
+		tap_type_name="UDP";
 		packet_func=iousers_udpip_packet;
 	} else if(!strncmp(optarg,"talkers,tr",10)){
 		if(optarg[10]==','){
@@ -492,6 +495,7 @@ iousers_init(char *optarg)
 			filter=NULL;
 		}
 		tap_type="tr";
+		tap_type_name="Token Ring";
 		packet_func=iousers_tr_packet;
 	} else if(!strncmp(optarg,"talkers,ipx",11)){
 		if(optarg[11]==','){
@@ -500,6 +504,7 @@ iousers_init(char *optarg)
 			filter=NULL;
 		}
 		tap_type="ipx";
+		tap_type_name="IPX";
 		packet_func=iousers_ipx_packet;
 	} else if(!strncmp(optarg,"talkers,ip",10)){
 		if(optarg[10]==','){
@@ -508,6 +513,7 @@ iousers_init(char *optarg)
 			filter=NULL;
 		}
 		tap_type="ip";
+		tap_type_name="IPv4";
 		packet_func=iousers_ip_packet;
 	} else {
 		fprintf(stderr, "tethereal: invalid \"-z talkers,<type>[,<filter>]\" argument\n");
@@ -525,7 +531,7 @@ iousers_init(char *optarg)
 
 	iu=g_malloc(sizeof(io_users_t));
 	iu->items=NULL;
-	iu->type=tap_type;
+	iu->type=tap_type_name;
 	if(filter){
 		iu->filter=strdup(filter);
 	} else {
