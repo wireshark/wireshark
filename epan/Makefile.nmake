@@ -63,12 +63,12 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 
 
-ftypes::
+ftypes:: config.h
 	cd ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
-dfilter::
+dfilter:: config.h
 	cd dfilter
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
