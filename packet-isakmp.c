@@ -2,7 +2,7 @@
  * Routines for the Internet Security Association and Key Management Protocol (ISAKMP)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.17 2000/05/11 20:36:14 guy Exp $
+ * $Id: packet-isakmp.c,v 1.18 2000/05/17 08:23:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -601,7 +601,7 @@ dissect_transform(const u_char *pd, int offset, frame_data *fd,
       str = atttype2str(type);
     }
 
-    if (pd[offset] & 0xf0) {
+    if (pd[offset] & 0x80) {
       proto_tree_add_text(ntree, NullTVB, offset, 4,
 			  "%s (%u): %s (%u)",
 			  str, type,
