@@ -2,7 +2,7 @@
  * Routines for Token-Ring Media Access Control
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-trmac.c,v 1.9 1999/01/12 17:44:52 gram Exp $
+ * $Id: packet-trmac.c,v 1.10 1999/03/01 18:28:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -264,7 +264,7 @@ dissect_trmac(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 		"Ring Error Monitor" };
 	char		*mv_text;
 
-	mv_length = ntohs(*((guint16*)&pd[offset]));
+	mv_length = pntohs(&pd[offset]);
 
 	if (tree) {
 		ti = add_item_to_tree(GTK_WIDGET(tree), offset, mv_length,
@@ -274,7 +274,7 @@ dissect_trmac(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	}
 
 	/* Interpret the major vector */
-	mv_text = match_strval(pd[offset+3], major_vectors);
+	mv_text = val_to_str(pd[offset+3], major_vectors, "Unknown Major Vector: %d\n");
 
 	/* Summary information */
 	if (check_col(fd, COL_PROTOCOL))

@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.10 1999/02/09 00:35:38 guy Exp $
+ * $Id: packet-tr.c,v 1.11 1999/03/01 18:28:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -397,11 +397,11 @@ add_ring_bridge_pairs(int rcf_len, const u_char *pd, GtkWidget *tree)
 
 	for(j = 1; j < rcf_len; j++) {
 		if (j==1) {
-			segment=ntohs(*((unsigned short*)&pd[16])) >> 4;
+			segment=pntohs(&pd[16]) >> 4;
 			size = sprintf(buffer,"%03X",segment);
 			buff_offset += size;
 		}
-		segment=ntohs(*((unsigned short*)&pd[17+j])) >> 4;
+		segment=pntohs(&pd[17+j]) >> 4;
 		brdgnmb=pd[16+j] & 0x0f;
 		size = sprintf(buffer+buff_offset,"-%01X-%03X",brdgnmb,segment);
 		buff_offset += size;	

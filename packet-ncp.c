@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.c,v 1.7 1998/11/17 04:28:59 gerald Exp $
+ * $Id: packet-ncp.c,v 1.8 1999/03/01 18:28:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -252,7 +252,7 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 		else {
 			add_item_to_tree(ncp_tree, offset+6,		1,
 				"Function Code: %s (%d)",
-				match_strval(request.function, ncp2222_func),
+				val_to_str(request.function, ncp2222_func, "Unknown"),
 				request.function);
 		}
 

@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.6 1999/01/24 21:18:15 hannes Exp $
+ * $Id: packet-cdp.c,v 1.7 1999/03/01 18:28:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,6 +28,7 @@
 
 #include <gtk/gtk.h>
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
