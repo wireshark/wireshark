@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Routines for Gryphon protocol packet disassembly
  *
- * $Id: packet-gryphon.c,v 1.2 1999/12/26 22:37:39 gerald Exp $
+ * $Id: packet-gryphon.c,v 1.3 2000/01/01 21:21:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -207,6 +207,7 @@ void dissector(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    case GY_FT_TEXT:
 	    	break;
 	    default:
+	    	break;
 	    }
 	    if (data < msgend - msgpad) {
 	    	i = msgend - msgpad - data;
@@ -238,7 +239,7 @@ static const val_str_dsp cmds[] = {
 	{CMD_BCAST_OFF, 	"Set broadcasts off", NULL, NULL},
 	{CMD_CARD_SET_SPEED, 	"Set channel baud rate", speed, NULL},
 	{CMD_CARD_GET_SPEED, 	"Get channel baud rate", NULL, speed},
-	{CMD_CARD_SET_FILTER, 	"Set filter (depricated)", cmd_setfilt, NULL},
+	{CMD_CARD_SET_FILTER, 	"Set filter (deprecated)", cmd_setfilt, NULL},
 	{CMD_CARD_GET_FILTER, 	"Get filter", resp_addfilt, cmd_addfilt},
 	{CMD_CARD_TX,    	"Transmit message", decode_data, NULL},
 	{CMD_CARD_TX_LOOP_ON, 	"Set transmit loopback on", NULL, NULL},
