@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-tr.c,v 1.65 2001/11/20 21:59:13 guy Exp $
+ * $Id: packet-tr.c,v 1.66 2001/11/26 04:52:51 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -118,6 +118,7 @@ static const value_string direction_vals[] = {
 
 static dissector_handle_t trmac_handle;
 static dissector_handle_t llc_handle;
+static dissector_handle_t data_handle;
 
 /*
  * DODGY LINUX HACK DODGY LINUX HACK
@@ -527,7 +528,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		default:
 			/* non-MAC, non-LLC, i.e., "Reserved" */
-			dissect_data(next_tvb, 0, pinfo, tree);
+			call_dissector(data_handle,next_tvb, pinfo, tree);
 			break;
 	}
 }
@@ -678,6 +679,7 @@ proto_reg_handoff_tr(void)
 	 */
 	trmac_handle = find_dissector("trmac");
 	llc_handle = find_dissector("llc");
+	data_handle = find_dissector("data");
 
 	dissector_add("wtap_encap", WTAP_ENCAP_TOKEN_RING, dissect_tr,
 	    proto_tr);

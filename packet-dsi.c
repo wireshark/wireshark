@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.3 2001/09/03 10:33:05 guy Exp $
+ * $Id: packet-dsi.c,v 1.4 2001/11/26 04:52:49 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,6 +74,8 @@ static int hf_dsi_length = -1;
 static int hf_dsi_reserved = -1;
 
 static gint ett_dsi = -1;
+
+static dissector_handle_t data_handle;
 
 #define TCP_PORT_DSI			548
 
@@ -383,7 +385,7 @@ dissect_dsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		{
 			proto_tree_add_uint(dsi_tree, hf_dsi_requestid, tvb,
 				0, 0, dsi_requestid);
-			dissect_data(tvb, 0, pinfo, dsi_tree);
+			call_dissector(data_handle,tvb, pinfo, dsi_tree);
 		}else
 		{
 			proto_tree_add_uint(dsi_tree, hf_dsi_flags, tvb,
@@ -399,7 +401,7 @@ dissect_dsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				"Length: %d bytes", dsi_length);
 			proto_tree_add_uint(dsi_tree, hf_dsi_reserved, tvb,
 				offset+12, 4, dsi_reserved);
-			dissect_data(tvb, 16, pinfo, dsi_tree);
+			call_dissector(data_handle,tvb_new_subset(tvb, 16,-1,tvb_reported_length_remaining(tvb,16)), pinfo, dsi_tree);
 		}
 
 	}
@@ -486,5 +488,6 @@ proto_register_dsi(void)
 void
 proto_reg_handoff_dsi(void)
 {
+  data_handle = find_dissector("data");
   dissector_add("tcp.port", TCP_PORT_DSI, dissect_dsi, proto_dsi);
 }

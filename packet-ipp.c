@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-ipp.c,v 1.22 2001/01/11 06:30:54 guy Exp $
+ * $Id: packet-ipp.c,v 1.23 2001/11/26 04:52:50 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,6 +48,8 @@ static int proto_ipp = -1;
 static gint ett_ipp = -1;
 static gint ett_ipp_as = -1;
 static gint ett_ipp_attr = -1;
+
+static dissector_handle_t data_handle;
 
 #define	PRINT_JOB		0x0002
 #define	PRINT_URI		0x0003
@@ -236,7 +238,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset = parse_attributes(tvb, offset, ipp_tree);
 
 		if (tvb_offset_exists(tvb, offset))
-			dissect_data(tvb, offset, pinfo, ipp_tree);
+			call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, ipp_tree);
 	}
 }
 
@@ -568,5 +570,6 @@ proto_reg_handoff_ipp(void)
 	/*
 	 * Register ourselves as running atop HTTP and using port 631.
 	 */
+        data_handle = find_dissector("data");
 	http_dissector_add(631, dissect_ipp, proto_ipp);
 }

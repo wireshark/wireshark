@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.74 2001/10/29 21:13:08 guy Exp $
+ * $Id: packet-rpc.c,v 1.75 2001/11/26 04:52:51 hagbard Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -192,6 +192,8 @@ static gint ett_rpc_verf = -1;
 static gint ett_rpc_gids = -1;
 static gint ett_rpc_gss_data = -1;
 static gint ett_rpc_array = -1;
+
+static dissector_handle_t data_handle;
 
 /* Hash table with info on RPC program numbers */
 static GHashTable *rpc_progs;
@@ -2046,7 +2048,7 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* dissect any remaining bytes (incomplete dissection) as pure data in
 	   the ptree */
-	dissect_data(tvb, offset, pinfo, ptree);
+	call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, ptree);
 
 	return TRUE;
 }
@@ -2405,4 +2407,5 @@ proto_reg_handoff_rpc(void)
 {
 	heur_dissector_add("tcp", dissect_rpc_tcp_heur, proto_rpc);
 	heur_dissector_add("udp", dissect_rpc_heur, proto_rpc);
+	data_handle = find_dissector("data");
 }

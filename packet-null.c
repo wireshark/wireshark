@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.47 2001/11/20 21:59:13 guy Exp $
+ * $Id: packet-null.c,v 1.48 2001/11/26 04:52:50 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,7 +72,7 @@ static const value_string family_vals[] = {
 };
 
 static dissector_handle_t ppp_hdlc_handle;
-
+static dissector_handle_t data_handle;
 void
 capture_null( const u_char *pd, int len, packet_counts *ld )
 {
@@ -284,7 +284,7 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (!dissector_try_port(null_dissector_table, null_header,
 	    next_tvb, pinfo, tree)) {
         /* No sub-dissector found.  Label rest of packet as "Data" */
-        dissect_data(next_tvb, 0, pinfo, tree);
+        call_dissector(data_handle,next_tvb, pinfo, tree);
       }
     }
   }
@@ -323,5 +323,6 @@ proto_reg_handoff_null(void)
 	 * Get a handle for the PPP-in-HDLC-like-framing dissector.
 	 */
 	ppp_hdlc_handle = find_dissector("ppp_hdlc");
+	data_handle = find_dissector("data");
 	dissector_add("wtap_encap", WTAP_ENCAP_NULL, dissect_null, proto_null);
 }

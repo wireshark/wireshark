@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-sna.c,v 1.33 2001/11/15 21:11:01 gram Exp $
+ * $Id: packet-sna.c,v 1.34 2001/11/26 04:52:51 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -119,6 +119,8 @@ static gint ett_sna_rh = -1;
 static gint ett_sna_rh_0 = -1;
 static gint ett_sna_rh_1 = -1;
 static gint ett_sna_rh_2 = -1;
+
+static dissector_handle_t data_handle;
 
 /* Format Identifier */
 static const value_string sna_th_fid_vals[] = {
@@ -378,7 +380,7 @@ dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			th_header_len = dissect_fidf(tvb, th_tree);
 			break;
 		default:
-			dissect_data(tvb, 1, pinfo, tree);
+			call_dissector(data_handle,tvb_new_subset(tvb, 1,-1,tvb_reported_length_remaining(tvb,1)), pinfo, tree);
 	}
 
 	sna_header_len += th_header_len;
@@ -402,7 +404,7 @@ dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tvb_offset_exists(tvb, offset+1)) {
-		dissect_data(tvb, offset, pinfo, tree);
+		call_dissector(data_handle,tvb_new_subset(tvb, offset, -1, tvb_reported_length_remaining(tvb,offset)),pinfo, tree);
 	}
 }
 
@@ -1199,4 +1201,5 @@ proto_reg_handoff_sna(void)
 {
 	dissector_add("llc.dsap", SAP_SNA_PATHCTRL, dissect_sna,
 	    proto_sna);
+	data_handle = find_dissector("data");
 }

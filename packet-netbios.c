@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.40 2001/11/20 21:59:13 guy Exp $
+ * $Id: packet-netbios.c,v 1.41 2001/11/26 04:52:50 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -106,6 +106,8 @@ static gint ett_netb = -1;
 static gint ett_netb_name = -1;
 static gint ett_netb_flags = -1;
 static gint ett_netb_status = -1;
+
+static dissector_handle_t data_handle;
 
 /* The strings for the station type, used by get_netbios_name function;
    many of them came from the file "NetBIOS.txt" in the Zip archive at
@@ -516,7 +518,7 @@ static void dissect_netb_unknown( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle any unknow commands, do nothing */
 
-/*	dissect_data( tvb, offset + NB_COMMAND + 1, pinfo, tree); */
+/*	call_dissector(data_handle, tvb_new_subset(tvb, offset + NB_COMMAND + 1,-1,tvb_reported_length_remaining(tvb,offset_NB_COMMAND + 1)), pinfo, tree); */
 }
 
 
@@ -964,7 +966,7 @@ dissect_netbios_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (!dissector_try_heuristic(netbios_heur_subdissector_list,
 				    tvb, pinfo, tree))
-		dissect_data(tvb, 0, pinfo, tree);
+		call_dissector(data_handle,tvb, pinfo, tree);
 }
 
 static void
@@ -1140,4 +1142,5 @@ void
 proto_reg_handoff_netbios(void)
 {
 	dissector_add("llc.dsap", SAP_NETBIOS, dissect_netbios, proto_netbios);
+	data_handle = find_dissector("data");
 }

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.147 2001/11/21 21:37:25 guy Exp $
+ * $Id: packet-ip.c,v 1.148 2001/11/26 04:52:50 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -117,6 +117,7 @@ static gint ett_ip_fragment  = -1;
 dissector_table_t ip_dissector_table;
 
 static dissector_handle_t ip_handle;
+static dissector_handle_t data_handle;
 
 static int proto_icmp = -1;
 static int hf_icmp_type = -1;
@@ -1103,7 +1104,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->fd, COL_INFO))
       col_add_fstr(pinfo->fd, COL_INFO, "Fragmented IP protocol (proto=%s 0x%02x, off=%u)",
 	ipprotostr(iph.ip_p), iph.ip_p, (iph.ip_off & IP_OFFSET) * 8);
-    dissect_data(tvb, offset, pinfo, tree);
+    call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
     return;
   }
 
@@ -1120,7 +1121,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (check_col(pinfo->fd, COL_INFO))
         col_add_fstr(pinfo->fd, COL_INFO, "%s (0x%02x)", ipprotostr(iph.ip_p), iph.ip_p);
     }
-    dissect_data(next_tvb, 0, pinfo, tree);
+    call_dissector(data_handle,next_tvb, pinfo, tree);
   }
 }
 
@@ -1574,7 +1575,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       case ICMP_ECHOREPLY:
       case ICMP_ECHO:
-	dissect_data(tvb, 8, pinfo, icmp_tree);
+	call_dissector(data_handle,tvb_new_subset(tvb, 8,-1,tvb_reported_length_remaining(tvb,8)), pinfo, icmp_tree);
 	break;
 
       case ICMP_RTRADVERT:
@@ -1591,7 +1592,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dissect_mip_extensions(tvb,8 + i*8, pinfo, icmp_tree);
 	  }
 	} else
-	  dissect_data(tvb, 8, pinfo, icmp_tree);
+	  call_dissector(data_handle,tvb_new_subset(tvb, 8,-1,tvb_reported_length_remaining(tvb,8)), pinfo, icmp_tree);
 	break;
 
       case ICMP_TSTAMP:
@@ -1797,6 +1798,7 @@ proto_register_ip(void)
 void
 proto_reg_handoff_ip(void)
 {
+        data_handle = find_dissector("data");
 	dissector_add("ethertype", ETHERTYPE_IP, dissect_ip, proto_ip);
 	dissector_add("ppp.protocol", PPP_IP, dissect_ip, proto_ip);
 	dissector_add("ppp.protocol", ETHERTYPE_IP, dissect_ip, proto_ip);

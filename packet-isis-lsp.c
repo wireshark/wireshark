@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.20 2001/07/02 00:19:34 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.21 2001/11/26 04:52:50 hagbard Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -85,6 +85,8 @@ static gint ett_isis_lsp_clv_ipv6_reachability = -1; /* CLV 236 */
 static gint ett_isis_lsp_clv_mt = -1;
 static gint ett_isis_lsp_clv_mt_is = -1;
 static gint ett_isis_lsp_part_of_clv_mt_is = -1;
+
+static dissector_handle_t data_handle;
 
 static const char *isis_lsp_attached_bits[] = {
 	"error", "expense", "delay", "default" };
@@ -1613,7 +1615,7 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int		inx, q, some, value, len;
 
 	if (!proto_is_protocol_enabled(proto_isis_lsp)) {
-		dissect_data(tvb, offset, pinfo, tree);
+		call_dissector(data_handle,tvb_new_subset(tvb, offset, -1, tvb_reported_length_remaining(tvb,offset)),pinfo, tree);
 		return;
 	}
 
@@ -1779,4 +1781,9 @@ proto_register_isis_lsp(void) {
 	    "ISIS LSP", "isis_lsp");
 	proto_register_field_array(proto_isis_lsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_isis_lsp(void){
+  data_handle = find_dissector("data");
 }

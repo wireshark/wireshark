@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.39 2001/08/28 08:28:14 guy Exp $
+ * $Id: packet-cdp.c,v 1.40 2001/11/26 04:52:49 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,6 +60,8 @@ static gint ett_cdp = -1;
 static gint ett_cdp_tlv = -1;
 static gint ett_cdp_address = -1;
 static gint ett_cdp_capabilities = -1;
+
+static dissector_handle_t data_handle;
 
 static int
 dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
@@ -355,7 +357,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += length;
 	    }
 	}
-    	dissect_data(tvb, offset, pinfo, cdp_tree);
+    	call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, cdp_tree);
     }
 }
 
@@ -578,6 +580,7 @@ proto_register_cdp(void)
 void
 proto_reg_handoff_cdp(void)
 {
+    data_handle = find_dissector("data");
     dissector_add("llc.cisco_pid", 0x2000, dissect_cdp, proto_cdp);
     dissector_add("chdlctype", 0x2000, dissect_cdp, proto_cdp);
 }

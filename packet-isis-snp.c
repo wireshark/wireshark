@@ -1,7 +1,7 @@
 /* packet-isis-snp.c
  * Routines for decoding isis complete & partial SNP and their payload
  *
- * $Id: packet-isis-snp.c,v 1.10 2001/07/02 00:19:34 guy Exp $
+ * $Id: packet-isis-snp.c,v 1.11 2001/11/26 04:52:50 hagbard Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -59,6 +59,8 @@ static gint ett_isis_psnp = -1;
 static gint ett_isis_psnp_lsp_entries = -1;
 static gint ett_isis_psnp_authentication = -1;
 static gint ett_isis_psnp_clv_unknown = -1;
+
+static dissector_handle_t data_handle;
 
 static void dissect_l1_snp_authentication_clv(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset,
@@ -253,7 +255,7 @@ isis_dissect_isis_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int 		len;
 
 	if (!proto_is_protocol_enabled(proto_isis_csnp)) {
-		dissect_data(tvb, offset, pinfo, tree);
+		call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
 		return;
 	}
 
@@ -334,7 +336,7 @@ isis_dissect_isis_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int 		len;
 
 	if (!proto_is_protocol_enabled(proto_isis_psnp)) {
-		dissect_data(tvb, offset, pinfo, tree);
+		call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
 		return;
 	}
 
@@ -487,4 +489,9 @@ proto_register_isis_psnp(void) {
 	    "ISIS PSNP", "isis_psnp");
 	proto_register_field_array(proto_isis_psnp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_isis_psnp(void){
+  data_handle = find_dissector("data");
 }

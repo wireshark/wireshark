@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.21 2001/08/22 18:00:40 guy Exp $
+ * $Id: packet-isis-hello.c,v 1.22 2001/11/26 04:52:50 hagbard Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -67,6 +67,8 @@ static gint ett_isis_hello_clv_ipv4_int_addr = -1;
 static gint ett_isis_hello_clv_ipv6_int_addr = -1;
 static gint ett_isis_hello_clv_ptp_adj       = -1;
 static gint ett_isis_hello_clv_mt            = -1;
+
+static dissector_handle_t data_handle;
 
 static const value_string isis_hello_circuit_type_vals[] = {
 	{ ISIS_HELLO_TYPE_RESERVED,	"Reserved 0 (discard PDU)"},
@@ -617,7 +619,7 @@ isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	const guint8	*lan_id;
 
 	if (!proto_is_protocol_enabled(proto_isis_hello)) {
-		dissect_data(tvb, offset, pinfo, tree);
+		call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
 		return;
 	}
 
@@ -791,4 +793,9 @@ proto_register_isis_hello(void) {
 	    "ISIS HELLO", "isis_hello");
 	proto_register_field_array(proto_isis_hello, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_isis_hello(void){
+  data_handle = find_dissector("data");
 }

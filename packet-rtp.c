@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.25 2001/09/08 00:43:51 guy Exp $
+ * $Id: packet-rtp.c,v 1.26 2001/11/26 04:52:51 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -100,6 +100,7 @@ static gint ett_hdr_ext   = -1;
 
 static dissector_handle_t h261_handle;
 static dissector_handle_t mpeg1_handle;
+static dissector_handle_t data_handle;
 
 /*
  * Fields in the first octet of the RTP header.
@@ -494,7 +495,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 				 */
 				proto_tree_add_text(rtp_tree, tvb, 0, 0,
 				    "Frame has padding, but not all the frame data was captured");
-				dissect_data(tvb, offset, pinfo, rtp_tree);
+				call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, rtp_tree);
 				return;
 			}
 
@@ -781,6 +782,7 @@ proto_reg_handoff_rtp(void)
 	 */
 	h261_handle = find_dissector("h261");
 	mpeg1_handle = find_dissector("mpeg1");
+	data_handle = find_dissector("data");
 
 	/*
 	 * Register this dissector as one that can be assigned to a

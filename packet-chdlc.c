@@ -1,7 +1,7 @@
 /* packet-chdlc.c
  * Routines for Cisco HDLC packet disassembly
  *
- * $Id: packet-chdlc.c,v 1.5 2001/11/20 21:59:12 guy Exp $
+ * $Id: packet-chdlc.c,v 1.6 2001/11/26 04:52:49 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,8 @@ static int hf_slarp_mysequence = -1;
 static int hf_slarp_yoursequence = -1;
 
 static gint ett_slarp = -1;
+
+static dissector_handle_t data_handle;
 
 /*
  * Protocol types for the Cisco HDLC format.
@@ -133,7 +135,7 @@ chdlctype(guint16 chdlctype, tvbuff_t *tvb, int offset_after_chdlctype,
   if (!dissector_try_port(subdissector_table, chdlctype, next_tvb, pinfo, tree)) {
     if (check_col(pinfo->fd, COL_PROTOCOL))
       col_add_fstr(pinfo->fd, COL_PROTOCOL, "0x%04x", chdlctype);
-    dissect_data(next_tvb, 0, pinfo, tree);
+    call_dissector(data_handle,next_tvb, pinfo, tree);
   }
 }
 
@@ -195,6 +197,7 @@ proto_register_chdlc(void)
 void
 proto_reg_handoff_chdlc(void)
 {
+  data_handle = find_dissector("data");
   dissector_add("wtap_encap", WTAP_ENCAP_CHDLC, dissect_chdlc, proto_chdlc);
 }
 
@@ -271,7 +274,7 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_add_fstr(pinfo->fd, COL_INFO, "Unknown packet type 0x%08X", code);
     if (tree) {
       proto_tree_add_uint(slarp_tree, hf_slarp_ptype, tvb, 0, 4, code);
-      dissect_data(tvb, 4, pinfo, slarp_tree);
+      call_dissector(data_handle,tvb_new_subset(tvb, 4,-1,tvb_reported_length_remaining(tvb,4)), pinfo, slarp_tree);
     }
     break;
   }

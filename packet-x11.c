@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.24 2001/10/26 18:28:16 gram Exp $
+ * $Id: packet-x11.c,v 1.25 2001/11/26 04:52:51 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,6 +71,8 @@ static int proto_x11 = -1;
 /* Initialize the subtree pointers */
 static gint ett_x11 = -1;
 static gint ett_x11_request = -1;
+
+static dissector_handle_t data_handle;
 
 #define TCP_PORT_X11			6000
 #define TCP_PORT_X11_2			6001
@@ -2859,7 +2861,7 @@ dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       little_endian = guess_byte_ordering(tvb, pinfo);
       left = dissect_x11_request_loop(tvb, x11_tree);
       if (left)
-	    dissect_data(tvb, cur_offset, pinfo, x11_tree);
+	    call_dissector(data_handle,tvb_new_subset(tvb, cur_offset,-1, tvb_reported_length_remaining(tvb,cur_offset)), pinfo, x11_tree);
 }
 
 static void
@@ -2884,7 +2886,7 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Code to process the packet goes here */
 
-	    dissect_data(tvb, 0, pinfo, x11_tree);
+	    call_dissector(data_handle,tvb, pinfo, x11_tree);
       }
 }
 
@@ -2943,4 +2945,5 @@ proto_reg_handoff_x11(void)
   dissector_add("tcp.port", TCP_PORT_X11, dissect_x11, proto_x11);
   dissector_add("tcp.port", TCP_PORT_X11_2, dissect_x11, proto_x11);
   dissector_add("tcp.port", TCP_PORT_X11_3, dissect_x11, proto_x11);
+  data_handle = find_dissector("data");
 }

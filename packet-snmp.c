@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.71 2001/09/03 10:33:07 guy Exp $
+ * $Id: packet-snmp.c,v 1.72 2001/11/26 04:52:51 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -222,6 +222,8 @@ static int hf_snmpv3_flags = -1;
 static int hf_snmpv3_flags_auth = -1;
 static int hf_snmpv3_flags_crypt = -1;
 static int hf_snmpv3_flags_report = -1;
+
+static dissector_handle_t data_handle;
 
 #define TH_AUTH   0x01
 #define TH_CRYPT  0x02
@@ -558,7 +560,7 @@ dissect_snmp_parse_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (tree != NULL) {
 		proto_tree_add_text(tree, tvb, offset, 0,
 		    "ERROR: Couldn't parse %s: %s", field_name, errstr);
-		dissect_data(tvb, offset, pinfo, tree);
+		call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
 	}
 }
 
@@ -571,7 +573,7 @@ dissect_snmp_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (tree != NULL) {
 		proto_tree_add_text(tree, tvb, offset, 0, "%s", message);
-		dissect_data(tvb, offset, pinfo, tree);
+		call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
 	}
 }
 
@@ -2309,4 +2311,5 @@ proto_reg_handoff_snmp(void)
 	    proto_snmp);
 	dissector_add("ipx.socket", IPX_SOCKET_SNMP_SINK, dissect_snmp,
 	    proto_snmp);
+	data_handle = find_dissector("data");
 }

@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.21 2001/10/08 14:32:06 nneul Exp $
+ * $Id: packet-tns.c,v 1.22 2001/11/26 04:52:51 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -124,6 +124,8 @@ static gint ett_tns_data = -1;
 static gint ett_tns_data_flag = -1;
 static gint ett_sql = -1;
 
+static dissector_handle_t data_handle;
+
 #define TCP_PORT_TNS			1521
 
 static const value_string tns_type_vals[] = {
@@ -222,7 +224,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	
 	if ( data_tree )
 	{
-		dissect_data(tvb,offset,pinfo,data_tree);
+		call_dissector(data_handle,tvb_new_subset(tvb,offset,-1,tvb_reported_length_remaining(tvb,offset)),pinfo,data_tree);
 	}
 
 	return;
@@ -811,7 +813,7 @@ dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dissect_tns_data(tvb,offset,pinfo,tree,tns_tree);
 			break;
 		default:
-			dissect_data(tvb,offset,pinfo,tns_tree);
+			call_dissector(data_handle,tvb_new_subset(tvb,offset,-1,tvb_reported_length_remaining(tvb,offset)),pinfo,tns_tree);
 	}
 }
 
@@ -1034,4 +1036,5 @@ void
 proto_reg_handoff_tns(void)
 {
 	dissector_add("tcp.port", TCP_PORT_TNS, dissect_tns, proto_tns);
+	data_handle = find_dissector("data");
 }

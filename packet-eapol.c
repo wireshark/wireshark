@@ -1,7 +1,7 @@
 /* packet-eapol.c
  * Routines for EAPOL 802.1X authentication header disassembly
  *
- * $Id: packet-eapol.c,v 1.1 2001/11/06 20:30:39 guy Exp $
+ * $Id: packet-eapol.c,v 1.2 2001/11/26 04:52:49 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,6 +47,8 @@ static int hf_eapol_type = -1;
 static int hf_eapol_len = -1;
 
 static gint ett_eapol = -1;
+
+static dissector_handle_t data_handle;
 
 typedef struct _e_eapol
 {
@@ -106,7 +108,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (eapolh.eapol_type == 0 && next_tvb != NULL) 
       dissect_eap(next_tvb, pinfo, eapol_tree);
   else
-      dissect_data(tvb, 4, pinfo, tree);
+      call_dissector(data_handle,tvb_new_subset(tvb, 4,-1,tvb_reported_length_remaining(tvb,4)), pinfo, tree);
 }
 
 void
@@ -135,5 +137,6 @@ proto_register_eapol(void)
 void
 proto_reg_handoff_eapol(void)
 {
+  data_handle = find_dissector("data");
   dissector_add("ethertype", ETHERTYPE_EAPOL, dissect_eapol, proto_eapol);
 }

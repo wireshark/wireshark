@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.39 2001/11/21 21:37:25 guy Exp $
+ * $Id: packet-clnp.c,v 1.40 2001/11/26 04:52:49 hagbard Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -76,6 +76,8 @@ static int hf_clnp_segment_overlap_conflict = -1;
 static int hf_clnp_segment_multiple_tails = -1;
 static int hf_clnp_segment_too_long_segment = -1;
 static int hf_clnp_segment_error = -1;
+
+static dissector_handle_t data_handle;
 
 /*
  * ISO 8473 OSI CLNP definition (see RFC994)
@@ -714,7 +716,7 @@ static int osi_decode_DR(tvbuff_t *tvb, int offset,
   offset += li + 1;
 
   /* User data */
-  dissect_data(tvb, offset, pinfo, tree);
+  call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
   offset += tvb_length_remaining(tvb, offset);
      /* we dissected all of the containing PDU */
 
@@ -848,10 +850,10 @@ static int osi_decode_DT(tvbuff_t *tvb, int offset,
 		*subdissector_found = TRUE;
 	} else {
 	  /* Fill in other Dissectors using inactive subset here */
-	  dissect_data(next_tvb, 0, pinfo, tree);
+	  call_dissector(data_handle,next_tvb, pinfo, tree);
 	}
   } else
-	dissect_data(next_tvb, 0, pinfo, tree);
+	call_dissector(data_handle,next_tvb, pinfo, tree);
   offset += tvb_length_remaining(tvb, offset);
      /* we dissected all of the containing PDU */
 
@@ -956,7 +958,7 @@ static int osi_decode_ED(tvbuff_t *tvb, int offset,
   offset += li;
 
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-  dissect_data(next_tvb, 0, pinfo, tree);
+  call_dissector(data_handle,next_tvb, pinfo, tree);
 
   offset += tvb_length_remaining(tvb, offset);
      /* we dissected all of the containing PDU */
@@ -1085,7 +1087,7 @@ static int osi_decode_CC(tvbuff_t *tvb, int offset,
   offset += li;
 
   /* User data */
-  dissect_data(tvb, offset, pinfo, tree);
+  call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
   offset += tvb_length_remaining(tvb, offset);
      /* we dissected all of the containing PDU */
 
@@ -1433,7 +1435,7 @@ static int osi_decode_UD(tvbuff_t *tvb, int offset,
   offset += li;
 
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-  dissect_data(next_tvb, 0, pinfo, tree);
+  call_dissector(data_handle,next_tvb, pinfo, tree);
   offset += tvb_length_remaining(tvb, offset);
      /* we dissected all of the containing PDU */
 
@@ -1479,7 +1481,7 @@ static gboolean dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
       if (check_col(pinfo->fd, COL_INFO))
         col_append_str(pinfo->fd, COL_INFO, "Length indicator is zero");
       if (!first_tpdu)
-        dissect_data(tvb, offset, pinfo, tree);
+        call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
       return found_ositp;
     }
 
@@ -1533,7 +1535,7 @@ static gboolean dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
 
     if (new_offset == -1) { /* incorrect TPDU */
       if (!first_tpdu)
-        dissect_data(tvb, offset, pinfo, tree);
+        call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
       break;
     }
 
@@ -1554,7 +1556,7 @@ static gboolean dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_ositp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
 {
   if (!dissect_ositp_internal(tvb, pinfo, tree, FALSE))
-    dissect_data(tvb, 0, pinfo, tree);
+    call_dissector(data_handle,tvb, pinfo, tree);
 }
 
 
@@ -1620,7 +1622,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* return if version not known */
   cnf_vers = tvb_get_guint8(tvb, P_CLNP_VERS);
   if (cnf_vers != ISO8473_V1) {
-    dissect_data(tvb, 0, pinfo, tree);
+    call_dissector(data_handle,tvb, pinfo, tree);
     return;
   }
 
@@ -1959,7 +1961,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* As we haven't reassembled anything, we haven't changed "pi", so
        we don't have to restore it. */
-    dissect_data(tvb, offset, pinfo, tree);
+    call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
     return;
   }
 
@@ -2051,7 +2053,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   if (check_col(pinfo->fd, COL_INFO))
     col_add_fstr(pinfo->fd, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
-  dissect_data(next_tvb, 0, pinfo, tree);
+  call_dissector(data_handle,next_tvb, pinfo, tree);
 
 } /* dissect_clnp */
 
@@ -2195,6 +2197,7 @@ void proto_register_cltp(void)
 void
 proto_reg_handoff_clnp(void)
 {
+        data_handle = find_dissector("data");
 	dissector_add("osinl", NLPID_ISO8473_CLNP, dissect_clnp,
 	    proto_clnp);
 	dissector_add("osinl", NLPID_NULL, dissect_clnp,

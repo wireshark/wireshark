@@ -56,6 +56,8 @@ static int hf_icap_other = -1;
 
 static gint ett_icap = -1;
 
+static dissector_handle_t data_handle;
+
 #define TCP_PORT_ICAP			1344
 static int is_icap_message(const u_char *data, int linelen, icap_type_t *type);
 static void
@@ -224,7 +226,7 @@ is_icap_header:
 
 	datalen = tvb_length_remaining(tvb, offset);
 	if (datalen > 0) {
-		dissect_data(tvb, offset, pinfo, icap_tree);
+		call_dissector(data_handle,tvb_new_subset(tvb, offset, -1, tvb_reported_length_remaining(tvb,offset)), pinfo, icap_tree);
 	}
 }
 
@@ -296,5 +298,6 @@ proto_register_icap(void)
 void
 proto_reg_handoff_icap(void)
 {
+        data_handle = find_dissector("data");
 	dissector_add("tcp.port", TCP_PORT_ICAP, dissect_icap, proto_icap);
 }

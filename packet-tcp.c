@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.116 2001/11/21 21:37:26 guy Exp $
+ * $Id: packet-tcp.c,v 1.117 2001/11/26 04:52:51 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,6 +89,7 @@ static gint ett_tcp_segments = -1;
 static dissector_table_t subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 static conv_dissector_list_t conv_subdissector_list;
+static dissector_handle_t data_handle;
 
 /* TCP structs and definitions */
 
@@ -537,7 +538,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		/*
 		 * Show what's left in the packet as data.
 		 */
-		dissect_data(tvb, deseg_offset, pinfo, tree);
+		call_dissector(data_handle,tvb_new_subset(tvb, deseg_offset,-1,tvb_reported_length_remaining(tvb,deseg_offset)), pinfo, tree);
 	}
 }
 
@@ -797,7 +798,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     return;
 
   /* Oh, well, we don't know this; dissect it as data. */
-  dissect_data(next_tvb, 0, pinfo, tree);
+  call_dissector(data_handle,next_tvb, pinfo, tree);
 }
 
 
@@ -1230,4 +1231,5 @@ void
 proto_reg_handoff_tcp(void)
 {
 	dissector_add("ip.proto", IP_PROTO_TCP, dissect_tcp, proto_tcp);
+	data_handle = find_dissector("data");
 }

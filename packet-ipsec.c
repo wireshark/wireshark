@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.33 2001/11/09 08:16:24 guy Exp $
+ * $Id: packet-ipsec.c,v 1.34 2001/11/26 04:52:50 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,6 +61,8 @@ static int hf_ipcomp_cpi = -1;
 static gint ett_ah = -1;
 static gint ett_esp = -1;
 static gint ett_ipcomp = -1;
+
+static dissector_handle_t data_handle;
 
 struct newah {
 	guint8	ah_nxt;		/* Next Header */
@@ -122,7 +124,7 @@ dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* do lookup with the subdissector table */
     if (!dissector_try_port(ip_dissector_table, nxt, next_tvb, pinfo, next_tree)) {
-      dissect_data(next_tvb, 0, pinfo, next_tree);
+      call_dissector(data_handle,next_tvb, pinfo, next_tree);
     }
 }
 
@@ -228,7 +230,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_uint(esp_tree, hf_esp_sequence, tvb,
 			    offsetof(struct newesp, esp_seq), 4,
 			    (guint32)ntohl(esp.esp_seq));
-	dissect_data(tvb, sizeof(struct newesp), pinfo, esp_tree);
+	call_dissector(data_handle,tvb_new_subset(tvb, sizeof(struct newesp),-1,tvb_reported_length_remaining(tvb,sizeof(struct newesp))), pinfo, esp_tree);
     }
 }
 
@@ -279,7 +281,7 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_uint(ipcomp_tree, hf_ipcomp_cpi, tvb, 
 	    offsetof(struct ipcomp, comp_cpi), 2,
 	    ntohs(ipcomp.comp_cpi));
-	dissect_data(tvb, sizeof(struct ipcomp), pinfo, ipcomp_tree);
+	call_dissector(data_handle,tvb_new_subset(tvb, sizeof(struct ipcomp), -1,tvb_reported_length_remaining(tvb,sizeof(struct ipcomp))),pinfo, ipcomp_tree);
     }
 }
 
@@ -348,6 +350,7 @@ proto_register_ipsec(void)
 void
 proto_reg_handoff_ipsec(void)
 {
+  data_handle = find_dissector("data");
   dissector_add("ip.proto", IP_PROTO_AH, dissect_ah, proto_ah);
   dissector_add("ip.proto", IP_PROTO_ESP, dissect_esp, proto_esp);
   dissector_add("ip.proto", IP_PROTO_IPCOMP, dissect_ipcomp, proto_ipcomp);

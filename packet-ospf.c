@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.48 2001/11/21 02:01:05 guy Exp $
+ * $Id: packet-ospf.c,v 1.49 2001/11/26 04:52:50 hagbard Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -205,6 +205,8 @@ static gint ett_ospf_lsa_mpls = -1;
 static gint ett_ospf_lsa_mpls_router = -1;
 static gint ett_ospf_lsa_mpls_link = -1;
 static gint ett_ospf_lsa_mpls_link_stlv = -1;
+
+static dissector_handle_t data_handle;
 
 static void dissect_ospf_hello(tvbuff_t*, int, proto_tree*, guint8);
 static void dissect_ospf_db_desc(tvbuff_t*, int, proto_tree*, guint8); 
@@ -420,7 +422,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    break;
 
 	default:
-	    dissect_data(tvb, ospf_header_length, pinfo, tree);
+	    call_dissector(data_handle,tvb_new_subset(tvb, ospf_header_length,-1,tvb_reported_length_remaining(tvb,ospf_header_length)), pinfo, tree);
 	    break;
 	}
     }
@@ -1821,4 +1823,5 @@ void
 proto_reg_handoff_ospf(void)
 {
     dissector_add("ip.proto", IP_PROTO_OSPF, dissect_ospf, proto_ospf);
+    data_handle = find_dissector("data");
 }

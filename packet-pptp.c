@@ -2,7 +2,7 @@
  * Routines for the Point-to-Point Tunnelling Protocol (PPTP) (RFC 2637)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-pptp.c,v 1.19 2001/06/18 02:17:50 guy Exp $
+ * $Id: packet-pptp.c,v 1.20 2001/11/26 04:52:51 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,6 +45,8 @@ static int proto_pptp = -1;
 static int hf_pptp_message_type = -1;
 
 static gint ett_pptp = -1;
+
+static dissector_handle_t data_handle;
 
 #define TCP_PORT_PPTP			1723
 
@@ -289,7 +291,7 @@ dissect_pptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (cntrl_type < NUM_CNTRL_TYPES)
       ( *(strfuncs[cntrl_type].func))(tvb, offset, pinfo, pptp_tree);
     else
-      dissect_data(tvb, offset, pinfo, pptp_tree);
+      call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, pptp_tree);
   }
 }
 
@@ -297,7 +299,7 @@ static void
 dissect_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *tree)
 {
-  dissect_data(tvb, offset, pinfo, tree);
+  call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
 }
 
 static void
@@ -829,4 +831,5 @@ void
 proto_reg_handoff_pptp(void)
 {
   dissector_add("tcp.port", TCP_PORT_PPTP, dissect_pptp, proto_pptp);
+  data_handle = find_dissector("data");
 }

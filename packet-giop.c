@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.48 2001/08/28 07:19:47 guy Exp $
+ * $Id: packet-giop.c,v 1.49 2001/11/26 04:52:49 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -465,7 +465,7 @@ static gint ett_giop_fragment = -1;
 static gint ett_giop_scl = -1;	/* ServiceContextList */
 static gint ett_giop_ior = -1;	/* IOR  */
 
-
+static dissector_handle_t data_handle;
 /* GIOP endianess */
 
 static const value_string giop_endianess_vals[] = {
@@ -3896,7 +3896,7 @@ gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 			       header.GIOP_version.major,
 			       header.GIOP_version.minor);
 	}
-      dissect_data (payload_tvb, 0, pinfo, tree);
+      call_dissector(data_handle,payload_tvb, pinfo, tree);
       return TRUE;
     }
 
@@ -4290,6 +4290,7 @@ proto_register_giop (void)
 
 
 void proto_reg_handoff_giop (void) {
+  data_handle = find_dissector("data");
   heur_dissector_add("tcp", dissect_giop, proto_giop);
 }
 

@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.41 2001/11/20 21:59:12 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.42 2001/11/26 04:52:50 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -341,6 +341,7 @@ static gint ett_wep_parameters = -1;
 
 static dissector_handle_t llc_handle;
 static dissector_handle_t ipx_handle;
+static dissector_handle_t data_handle;
 
 /* ************************************************************************* */
 /*            Return the length of the current header (in bytes)             */
@@ -1450,7 +1451,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	    cap_len -= 4 - (pkt_len - cap_len);
 	  pkt_len -= 4;
 	  if (cap_len > 0 && pkt_len > 0)
-	    dissect_data (tvb, hdr_len + 4, pinfo, tree);
+	    call_dissector(data_handle,tvb_new_subset(tvb, hdr_len + 4, -1,tvb_reported_length_remaining(tvb,hdr_len + 4)),pinfo, tree);
 	}
 	return;
     }
@@ -1902,6 +1903,7 @@ proto_reg_handoff_wlan(void)
    */
   llc_handle = find_dissector("llc");
   ipx_handle = find_dissector("ipx");
+  data_handle = find_dissector("data");
 
   dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11, dissect_ieee80211,
 		proto_wlan);

@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.34 2001/11/20 21:59:13 guy Exp $
+ * $Id: packet-vines.c,v 1.35 2001/11/26 04:52:51 hagbard Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -77,6 +77,7 @@ capture_vines(const u_char *pd, int offset, int len, packet_counts *ld)
 }
 
 static dissector_handle_t vines_handle;
+static dissector_handle_t data_handle;
 
 /* AFAIK Vines FRP (Fragmentation Protocol) is used on all media except
  * Ethernet and TR (and probably FDDI) - Fragmentation on these media types
@@ -316,7 +317,7 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 	if (!dissector_try_port(vines_dissector_table, viph.vip_proto,
 	    next_tvb, pinfo, tree))
-		dissect_data(next_tvb, 0, pinfo, tree);
+		call_dissector(data_handle,next_tvb, pinfo, tree);
 }
 
 void
@@ -348,6 +349,7 @@ proto_reg_handoff_vines(void)
 {
 	dissector_add("ethertype", ETHERTYPE_VINES, dissect_vines, proto_vines);
 	dissector_add("ppp.protocol", PPP_VINES, dissect_vines, proto_vines);
+	data_handle = find_dissector("data");
 }
 
 static void
@@ -454,7 +456,7 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    "Window: 0x%04x", viph.vspp_win);
 	}
 	offset += 16; /* sizeof SPP */
-	dissect_data(tvb, offset, pinfo, tree);
+	call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
 }
 
 void

@@ -1,7 +1,7 @@
 /* packet-eap.c
  * Routines for EAP Extensible Authentication Protocol header disassembly
  *
- * $Id: packet-eap.c,v 1.1 2001/11/06 20:30:39 guy Exp $
+ * $Id: packet-eap.c,v 1.2 2001/11/26 04:52:49 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,6 +49,8 @@ static int hf_eap_len = -1;
 static int hf_eap_type = -1;
 
 static gint ett_eap = -1;
+
+static dissector_handle_t data_handle;
 
 typedef struct _e_eap {
     guint8 eap_code;
@@ -118,7 +120,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    eap_type);
     }
     if (len > 5)
-      dissect_data(tvb, 5, pinfo, tree);
+      call_dissector(data_handle,tvb_new_subset(tvb, 5,-1,tvb_reported_length_remaining(tvb,5)), pinfo, tree);
   }
 }
 
@@ -152,5 +154,6 @@ proto_register_eap(void)
 void
 proto_reg_handoff_eap(void)
 {
+  data_handle = find_dissector("data");
   dissector_add("ppp.protocol", PPP_EAP, dissect_eap, proto_eap);
 }

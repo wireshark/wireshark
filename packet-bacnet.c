@@ -2,7 +2,7 @@
  * Routines for BACnet (NPDU) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bacnet.c,v 1.4 2001/06/18 02:17:44 guy Exp $
+ * $Id: packet-bacnet.c,v 1.5 2001/11/26 04:52:49 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,6 +50,7 @@
 #include "packet.h"
 
 static dissector_table_t bacnet_dissector_table;
+static dissector_handle_t data_handle;
 
 static const char*
 bacnet_mesgtyp_name (guint8 bacnet_mesgtyp){
@@ -355,7 +356,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tvb, offset, 2, FALSE);
 			offset += 2;
 			/* attention: doesnt work here because of if(tree) */
-			dissect_data(tvb, offset, pinfo, tree);
+			call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
 		}
 		/* Performance Index (in I-Could-Be-Router-To-Network) */
 		if (bacnet_mesgtyp == BAC_NET_ICB_R) {
@@ -427,7 +428,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (!dissector_try_port(bacnet_dissector_table,
         bacnet_control_net, next_tvb, pinfo, tree)) {
                 /* Unknown function - dissect the payload as data */
-                dissect_data(next_tvb, 0, pinfo, tree);
+                call_dissector(data_handle,next_tvb, pinfo, tree);
         }
 }
 
@@ -602,4 +603,5 @@ proto_reg_handoff_bacnet(void)
 	dissector_add("bvlc.function", 0x09, dissect_bacnet, proto_bacnet);
 	dissector_add("bvlc.function", 0x0a, dissect_bacnet, proto_bacnet);
 	dissector_add("bvlc.function", 0x0b, dissect_bacnet, proto_bacnet);
+	data_handle = find_dissector("data");
 }

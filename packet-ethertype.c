@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.21 2001/11/20 21:59:12 guy Exp $
+ * $Id: packet-ethertype.c,v 1.22 2001/11/26 04:52:49 hagbard Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -42,6 +42,8 @@
 #include "ppptypes.h"
 
 static dissector_table_t ethertype_dissector_table;
+
+static dissector_handle_t data_handle;
 
 const value_string etype_vals[] = {
     {ETHERTYPE_IP,		"IP"				},
@@ -177,7 +179,7 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 	if (!dissector_found) {
 		/* No sub-dissector found.
 		   Label rest of packet as "Data" */
-		dissect_data(next_tvb, 0, pinfo, tree);
+		call_dissector(data_handle,next_tvb, pinfo, tree);
 
 		/* Label protocol */
 		switch (etype) {
@@ -262,4 +264,9 @@ proto_register_ethertype(void)
 {
 	/* subdissector code */
 	ethertype_dissector_table = register_dissector_table("ethertype");
+}
+
+void
+proto_reg_handoff_ethertype(void){
+  data_handle = find_dissector("data");
 }

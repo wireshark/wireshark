@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.67 2001/11/21 21:37:25 guy Exp $
+ * $Id: packet-ipv6.c,v 1.68 2001/11/26 04:52:50 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -104,6 +104,8 @@ static int hf_ipv6_mipv6_sub_alternative_COA = -1;
 static gint ett_ipv6 = -1;
 static gint ett_ipv6_fragments = -1;
 static gint ett_ipv6_fragment  = -1;
+
+static dissector_handle_t data_handle;
 
 /* Reassemble fragmented datagrams */
 static gboolean ipv6_reassemble = FALSE;
@@ -939,7 +941,7 @@ again:
   if (next_tvb == NULL) {
     /* Just show this as a fragment. */
     /* COL_INFO was filled in by "dissect_frag6()" */
-    dissect_data(tvb, offset, pinfo, tree);
+    call_dissector(data_handle,tvb_new_subset(tvb, offset, -1,tvb_reported_length_remaining(tvb,offset)),pinfo, tree);
 
     /* As we haven't reassembled anything, we haven't changed "pi", so
        we don't have to restore it. */
@@ -951,7 +953,7 @@ again:
     /* Unknown protocol */
     if (check_col(pinfo->fd, COL_INFO))
       col_add_fstr(pinfo->fd, COL_INFO, "%s (0x%02x)", ipprotostr(nxt),nxt);
-    dissect_data(next_tvb, 0, pinfo, tree);
+    call_dissector(data_handle,next_tvb, pinfo, tree);
   }
 }
 
@@ -1150,6 +1152,7 @@ proto_register_ipv6(void)
 void
 proto_reg_handoff_ipv6(void)
 {
+  data_handle = find_dissector("data");
   dissector_add("ethertype", ETHERTYPE_IPv6, dissect_ipv6, proto_ipv6);
   dissector_add("ppp.protocol", PPP_IPV6, dissect_ipv6, proto_ipv6);
   dissector_add("ip.proto", IP_PROTO_IPV6, dissect_ipv6, proto_ipv6);

@@ -2,7 +2,7 @@
  * Routines for SMB mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.24 2001/11/19 10:23:38 guy Exp $
+ * $Id: packet-smb-mailslot.c,v 1.25 2001/11/26 04:52:51 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,8 @@ static int hf_size = -1;
 static int hf_name = -1;
 
 static int ett_smb_msp = -1;
+
+static dissector_handle_t data_handle;
 
 #define MAILSLOT_UNKNOWN              0
 #define MAILSLOT_BROWSE               1
@@ -182,7 +184,7 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 		 * message; dissect the latter as data, but indicate
 		 * that we successfully dissected the mailslot stuff.
 		 */
-		dissect_data(tvb, 0, pinfo, parent_tree);
+		call_dissector(data_handle,tvb, pinfo, parent_tree);
 	}
 	return TRUE;
 }
@@ -222,4 +224,10 @@ proto_register_smb_mailslot(void)
 
 	proto_register_field_array(proto_smb_msp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_smb_mailslot(void)
+{
+  data_handle = find_dissector("data");
 }
