@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.210 2003/09/15 23:15:31 guy Exp $
+ * $Id: capture.c,v 1.211 2003/09/15 23:48:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -560,41 +560,7 @@ do_capture(const char *save_file)
       }
       byte_count = byte_count*10 + c - '0';
     }
-    if (c == SP_CAPSTART) {
-      /* Success.  Open the capture file, and set up to read it. */
-      err = cf_start_tail(cfile.save_file, is_tempfile, &cfile);
-      if (err == 0) {
-	/* We were able to open and set up to read the capture file;
-	   arrange that our callback be called whenever it's possible
-	   to read from the sync pipe, so that it's called when
-	   the child process wants to tell us something. */
-#ifdef _WIN32
-	/* Tricky to use pipes in win9x, as no concept of wait.  NT can
-	   do this but that doesn't cover all win32 platforms.  GTK can do
-	   this but doesn't seem to work over processes.  Attempt to do
-	   something similar here, start a timer and check for data on every
-	   timeout. */
-	cap_timer_id = gtk_timeout_add(1000, cap_timer_cb, NULL);
-#else
-	cap_input_id = gtk_input_add_full(sync_pipe[READ],
-				       GDK_INPUT_READ|GDK_INPUT_EXCEPTION,
-				       cap_file_input_cb,
-				       NULL,
-				       (gpointer) &cfile,
-				       NULL);
-#endif
-      } else {
-	/* We weren't able to open the capture file; user has been
-	   alerted. Close the sync pipe. */
-
-	close(sync_pipe[READ]);
-
-	/* Don't unlink the save file - leave it around, for debugging
-	   purposes. */
-	g_free(cfile.save_file);
-	cfile.save_file = NULL;
-      }
-    } else {
+    if (c != SP_CAPSTART) {
       /* Failure - the child process sent us a message indicating
 	 what the problem was. */
       if (byte_count == 0) {
@@ -630,7 +596,43 @@ do_capture(const char *save_file)
 	g_free(cfile.save_file);
 	cfile.save_file = NULL;
       }
+      return FALSE;
     }
+
+    /* The child process started a capture.
+       Attempt to open the capture file and set up to read it. */
+    err = cf_start_tail(cfile.save_file, is_tempfile, &cfile);
+    if (err != 0) {
+      /* We weren't able to open the capture file; user has been
+	 alerted. Close the sync pipe. */
+
+      close(sync_pipe[READ]);
+
+      /* Don't unlink the save file - leave it around, for debugging
+	 purposes. */
+      g_free(cfile.save_file);
+      cfile.save_file = NULL;
+      return FALSE;
+    }
+    /* We were able to open and set up to read the capture file;
+       arrange that our callback be called whenever it's possible
+       to read from the sync pipe, so that it's called when
+       the child process wants to tell us something. */
+#ifdef _WIN32
+    /* Tricky to use pipes in win9x, as no concept of wait.  NT can
+       do this but that doesn't cover all win32 platforms.  GTK can do
+       this but doesn't seem to work over processes.  Attempt to do
+       something similar here, start a timer and check for data on every
+       timeout. */
+    cap_timer_id = gtk_timeout_add(1000, cap_timer_cb, NULL);
+#else
+    cap_input_id = gtk_input_add_full(sync_pipe[READ],
+				      GDK_INPUT_READ|GDK_INPUT_EXCEPTION,
+				      cap_file_input_cb,
+				      NULL,
+				      (gpointer) &cfile,
+				      NULL);
+#endif
   } else {
     /* Not sync mode. */
     capture_succeeded = capture(&stats_known, &stats);
@@ -638,61 +640,81 @@ do_capture(const char *save_file)
       /* DON'T unlink the save file.  Presumably someone wants it. */
       gtk_exit(0);
     }
-    if (capture_succeeded) {
-      /* Capture succeeded; read in the capture file. */
-      if ((err = cf_open(cfile.save_file, is_tempfile, &cfile)) == 0) {
-        /* Set the read filter to NULL. */
-        cfile.rfcode = NULL;
-
-        /* Get the packet-drop statistics.
-
-           XXX - there are currently no packet-drop statistics stored
-           in libpcap captures, and that's what we're reading.
-
-           At some point, we will add support in Wiretap to return
-	   packet-drop statistics for capture file formats that store it,
-	   and will make "cf_read()" get those statistics from Wiretap.
-	   We clear the statistics (marking them as "not known") in
-	   "cf_open()", and "cf_read()" will only fetch them and mark
-	   them as known if Wiretap supplies them, so if we get the
-	   statistics now, after calling "cf_open()" but before calling
-	   "cf_read()", the values we store will be used by "cf_read()".
-
-           If a future libpcap capture file format stores the statistics,
-           we'll put them into the capture file that we write, and will
-	   thus not have to set them here - "cf_read()" will get them from
-	   the file and use them. */
-        if (stats_known) {
-          cfile.drops_known = TRUE;
-
-          /* XXX - on some systems, libpcap doesn't bother filling in
-             "ps_ifdrop" - it doesn't even set it to zero - so we don't
-             bother looking at it.
-
-             Ideally, libpcap would have an interface that gave us
-             several statistics - perhaps including various interface
-             error statistics - and would tell us which of them it
-             supplies, allowing us to display only the ones it does. */
-          cfile.drops = stats.ps_drop;
-        }
-        switch (cf_read(&cfile, &err)) {
-
-        case READ_SUCCESS:
-        case READ_ERROR:
-          /* Just because we got an error, that doesn't mean we were unable
-             to read any of the file; we handle what we could get from the
-             file. */
-          break;
-
-        case READ_ABORTED:
-          /* Exit by leaving the main loop, so that any quit functions
-             we registered get called. */
-          if (gtk_main_level() > 0)
-            gtk_main_quit();
-          return FALSE;
-        }
+    if (!capture_succeeded) {
+      /* We didn't succeed in doing the capture, so we don't have a save
+	 file. */
+      if (capture_opts.ringbuffer_on) {
+	ringbuf_free();
+      } else {
+	g_free(cfile.save_file);
       }
+      cfile.save_file = NULL;
+      return FALSE;
     }
+    /* Capture succeeded; attempt to read in the capture file. */
+    if ((err = cf_open(cfile.save_file, is_tempfile, &cfile)) != 0) {
+      /* We're not doing a capture any more, so we don't have a save
+	 file. */
+      if (capture_opts.ringbuffer_on) {
+	ringbuf_free();
+      } else {
+	g_free(cfile.save_file);
+      }
+      cfile.save_file = NULL;
+      return FALSE;
+    }
+
+    /* Set the read filter to NULL. */
+    cfile.rfcode = NULL;
+
+    /* Get the packet-drop statistics.
+
+       XXX - there are currently no packet-drop statistics stored
+       in libpcap captures, and that's what we're reading.
+
+       At some point, we will add support in Wiretap to return
+       packet-drop statistics for capture file formats that store it,
+       and will make "cf_read()" get those statistics from Wiretap.
+       We clear the statistics (marking them as "not known") in
+       "cf_open()", and "cf_read()" will only fetch them and mark
+       them as known if Wiretap supplies them, so if we get the
+       statistics now, after calling "cf_open()" but before calling
+       "cf_read()", the values we store will be used by "cf_read()".
+
+       If a future libpcap capture file format stores the statistics,
+       we'll put them into the capture file that we write, and will
+       thus not have to set them here - "cf_read()" will get them from
+       the file and use them. */
+    if (stats_known) {
+      cfile.drops_known = TRUE;
+
+      /* XXX - on some systems, libpcap doesn't bother filling in
+         "ps_ifdrop" - it doesn't even set it to zero - so we don't
+         bother looking at it.
+
+         Ideally, libpcap would have an interface that gave us
+         several statistics - perhaps including various interface
+         error statistics - and would tell us which of them it
+         supplies, allowing us to display only the ones it does. */
+      cfile.drops = stats.ps_drop;
+    }
+    switch (cf_read(&cfile, &err)) {
+
+    case READ_SUCCESS:
+    case READ_ERROR:
+      /* Just because we got an error, that doesn't mean we were unable
+         to read any of the file; we handle what we could get from the
+         file. */
+      break;
+
+    case READ_ABORTED:
+      /* Exit by leaving the main loop, so that any quit functions
+         we registered get called. */
+      if (gtk_main_level() > 0)
+        gtk_main_quit();
+      return FALSE;
+    }
+
     /* We're not doing a capture any more, so we don't have a save
        file. */
     if (capture_opts.ringbuffer_on) {
