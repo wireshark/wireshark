@@ -55,4 +55,4 @@ EXCLUDE_SYMLINKS       = NO
 
 EXCLUDE_PATTERNS       = 
 
-@INCLUDE = ../doxygen.cfg
+@INCLUDE = ../doxygen_global.cfg

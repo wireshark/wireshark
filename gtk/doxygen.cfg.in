@@ -62,4 +62,4 @@ EXCLUDE_PATTERNS       =
 
 CHM_FILE               = ethereal-gtk.chm
 
-@INCLUDE = ../doxygen.cfg
+@INCLUDE = ../doxygen_global.cfg
