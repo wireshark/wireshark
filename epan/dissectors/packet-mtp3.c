@@ -465,7 +465,7 @@ dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  mtp3_tap_rec_t	tap_rec;
+  static mtp3_tap_rec_t	tap_rec;
 
   /* Set up structures needed to add the protocol subtree and manage it */
   proto_item *mtp3_item = NULL;
