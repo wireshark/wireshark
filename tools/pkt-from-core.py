@@ -14,6 +14,8 @@ exec_file = None
 core_file = None
 output_file = None
 
+verbose = 0
+
 class BackTrace:
 	re_frame = re.compile(r"^#(?P<num>\d+) ")
 	re_func1 = re.compile(r"^#\d+\s+(?P<func>\w+) \(")
@@ -193,7 +195,8 @@ def run_gdb(*commands):
 
 	# Run gdb
 	cmd = "gdb --nw --quiet --command=%s %s %s" % (fname, exec_file, core_file)
-#	print "Command is %s" % (cmd,)
+	if verbose:
+		print "Invoking %s" % (cmd,)
 	try:
 		pipe = os.popen(cmd)
 	except OSError, err:
@@ -346,49 +349,67 @@ def make_cap_file(pkt_data, lnk_t):
 		sys.exit("text2pcap did not run succesfully.")
 
 
-def run():
+
+
+def try_frame(func_text, cap_len_text, lnk_t_text, data_text):
 
 	# Get the back trace
 	bt_text = run_gdb("bt")
 	bt = BackTrace(bt_text)
-	if not bt.HasFunction("epan_dissect_run"):
-		print "epan_dissect_run() not found in backtrace."
-		print "A packet cannot be pulled from this core."
-		sys.exit(1)
+	if not bt.HasFunction(func_text):
+		print "%s() not found in backtrace." % (func_text,)
+		return 0
+	else:
+		print "%s() found in backtrace." % (func_text,)
 
 	# Figure out where the call to epan_dissect_run is.
-	frame_num = bt.Frame("epan_dissect_run")
+	frame_num = bt.Frame(func_text)
 
 	# Get the capture length
-	cap_len = get_int_from_frame(frame_num, "fd->cap_len")
+	cap_len = get_int_from_frame(frame_num, cap_len_text)
 
 	# Get the encoding type
-	lnk_t = get_int_from_frame(frame_num, "fd->lnk_t")
+	lnk_t = get_int_from_frame(frame_num, lnk_t_text)
 
 	# Get the packet data
-	pkt_data = get_byte_array_from_frame(frame_num, "data", cap_len)
+	pkt_data = get_byte_array_from_frame(frame_num, data_text, cap_len)
 
-#	print "Length=%d" % (cap_len,)
-#	print "Encoding=%d" % (lnk_t,)
-#	print "Data (%d bytes) = %s" % (len(pkt_data), pkt_data)
+	if verbose:
+		print "Length=%d" % (cap_len,)
+		print "Encoding=%d" % (lnk_t,)
+		print "Data (%d bytes) = %s" % (len(pkt_data), pkt_data)
 	make_cap_file(pkt_data, lnk_t)
-	
+	return 1
+
+def run():
+	if try_frame("epan_dissect_run",
+		"fd->cap_len", "fd->lnk_t", "data"):
+		return
+	elif try_frame("add_packet_to_packet_list",
+		"fdata->cap_len", "fdata->lnk_t", "buf"):
+		return
+	else:
+		sys.exit("A packet cannot be pulled from this core.")
+
 
 def usage():
-	print "pkt-from-core.py -w capture_file executable-file (core-file or process-id)"
+	print "pkt-from-core.py [-v] -w capture_file executable-file (core-file or process-id)"
 	print ""
 	print "\tGiven an executable file and a core file, this tool"
 	print "\tuses gdb to retrieve the packet that was being dissected"
 	print "\tat the time ethereal/tethereal stopped running. The packet"
 	print "\tis saved in the capture_file specified by the -w option."
+	print ""
+	print "\t-v : verbose"
 	sys.exit(1)
 
 def main():
 	global exec_file
 	global core_file
 	global output_file
+	global verbose
 
-	optstring = "w:"
+	optstring = "vw:"
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], optstring)
 	except getopt.error:
@@ -397,6 +418,8 @@ def main():
 	for opt, arg in opts:
 		if opt == "-w":
 			output_file = arg
+		elif opt == "-v":
+			verbose = 1
 		else:
 			assert 0
 
