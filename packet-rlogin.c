@@ -2,7 +2,7 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.17 2001/07/03 00:40:48 guy Exp $
+ * $Id: packet-rlogin.c,v 1.18 2001/07/03 00:49:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -248,7 +248,7 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 		user_info_tree = proto_item_add_subtree( user_info_item,
 			ett_rlogin_user_info);
 		proto_tree_add_text(user_info_tree, tvb, offset, str_len,
-				"Server User Name:  %.*s", str_len - 1,
+				"Server User Name: %.*s", str_len - 1,
 				tvb_get_ptr(tvb, offset, str_len - 1));
 		offset += str_len;
 
@@ -257,7 +257,7 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 		 */
 		str_len = tvb_strsize(tvb, offset);
 		proto_tree_add_text(user_info_tree, tvb, offset, str_len,
-				"Client User Name:  %.*s", str_len - 1,
+				"Client User Name: %.*s", str_len - 1,
 				tvb_get_ptr(tvb, offset, str_len - 1));
 		offset += str_len;
 		
@@ -266,7 +266,7 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 		 */
 		str_len = tvb_strsize(tvb, offset);
 		proto_tree_add_text(user_info_tree, tvb, offset, str_len,
-				"Terminal Type/Speed:  %.*s", str_len - 1,
+				"Terminal Type/Speed: %.*s", str_len - 1,
 				tvb_get_ptr(tvb, offset, str_len - 1));
 		offset += str_len;
 	}
@@ -301,11 +301,11 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 			                 ett_rlogin_window);
 
 	        proto_tree_add_text(window_tree, tvb, offset, 2, 
-			"Magic Cookie:  (0xff, 0xff)");
+			"Magic Cookie: (0xff, 0xff)");
 		offset += 2;
 					
 	      	proto_tree_add_text(window_tree, tvb, offset, 2, 
-			"Window size marker:  'ss'");
+			"Window size marker: 'ss'");
 		offset += 2;
 
 	 	proto_tree_add_item(window_tree, hf_window_info_rows, tvb,
@@ -390,7 +390,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				int i;
 				int bytes_to_copy;
 
-				strcat( temp, "Data:");
+				strcat( temp, "Data: ");
 				i = strlen( temp);
 				bytes_to_copy = tvb_length(tvb);
 				if (bytes_to_copy > 128)
