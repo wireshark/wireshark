@@ -1250,8 +1250,8 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 					length + 1, "%s: %s (Not decoded)",
 					hdr_name,
 					format_text(strval, strlen(strval)));
-				g_free(strval);
 			    }
+			    g_free(strval);
 			} else { /* General form with length */
 			    if (peek == 0x1F) { /* Value length in guintvar */
 				guint length_len = 0;
