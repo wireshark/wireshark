@@ -3,7 +3,7 @@
  * Helper routines common to all service response time statistics
  * tap.
  *
- * $Id: service_response_time_table.c,v 1.11 2003/12/04 00:45:39 guy Exp $
+ * $Id: service_response_time_table.c,v 1.12 2004/01/25 18:51:26 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,7 @@
 #include "gtk/find_dlg.h"
 #include "color.h"
 #include "gtk/color_dlg.h"
+#include "main.h"
 
 extern GtkWidget   *main_display_filter_widget;
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
@@ -210,7 +211,7 @@ srt_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	switch(action){
 	case 0:
 		/* match */
-		filter_packets(&cfile, str);
+		main_filter_packets(&cfile, str);
 	case 1:
 		/* prepare */
 		/* do nothing */

@@ -2,7 +2,7 @@
  * Recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: recent.c,v 1.6 2004/01/24 01:02:54 guy Exp $
+ * $Id: recent.c,v 1.7 2004/01/25 18:51:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -244,8 +244,8 @@ read_recent(char **rf_path_return, int *rf_errno_return)
   if ((rf = fopen(rf_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
     read_prefs_file(rf_path, rf, read_set_recent_pair);
-	/* set dfilter combobox to have one empty line at the current position */
-	dfilter_combo_add_recent("");
+	/* set dfilter combobox to have an empty line */
+    dfilter_combo_add_empty();
     fclose(rf);
     g_free(rf_path);
     rf_path = NULL;

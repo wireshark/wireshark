@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.373 2004/01/25 15:10:36 ulfl Exp $
+ * $Id: main.c,v 1.374 2004/01/25 18:51:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -458,7 +458,7 @@ match_selected_cb_do(gpointer data, int action, gchar *text)
 
     /* Run the display filter so it goes in effect. */
     if (action&MATCH_SELECTED_APPLY_NOW)
-	filter_packets(&cfile, new_filter);
+	main_filter_packets(&cfile, new_filter);
 
     /* Free up the new filter text. */
     g_free(new_filter);
@@ -711,8 +711,7 @@ prepare_selected_cb_or_plist_not(GtkWidget *w _U_, gpointer data)
 }
 
 
-
-
+/* XXX: use a preference for this setting! */
 static guint dfilter_combo_max_recent = 10;
 
 /* add a display filter to the combo box */
@@ -766,6 +765,14 @@ dfilter_recent_combo_write_all(FILE *rf) {
   }
 }
 
+/* empty the combobox entry field */
+void
+dfilter_combo_add_empty(void) {
+  GtkWidget *filter_cm = OBJECT_GET_DATA(top_level, E_DFILTER_CM_KEY);
+
+  gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(filter_cm)->entry), "");
+}
+
 
 /* add a display filter coming from the user's recent file to the dfilter combo box */
 gboolean
@@ -783,25 +790,25 @@ dfilter_combo_add_recent(gchar *s) {
 }
 
 
-/* Run the current display filter on the current packet set, and
-   redisplay. */
-static void
-filter_activate_cb(GtkWidget *w, gpointer data)
+/* call filter_packets() and add this filter string to the recent filter list */
+int
+main_filter_packets(capture_file *cf, const gchar *dftext)
 {
-  GtkCombo  *filter_cm = OBJECT_GET_DATA(w, E_DFILTER_CM_KEY);
+  GtkCombo  *filter_cm = OBJECT_GET_DATA(top_level, E_DFILTER_CM_KEY);
   GList     *filter_list = OBJECT_GET_DATA(filter_cm, E_DFILTER_FL_KEY);
   GList     *li;
   gboolean   add_filter = TRUE;
   gboolean   free_filter = TRUE;
   char      *s;
+  int       filter_packets_ret;
 
-  g_assert(data);
-  s = g_strdup(gtk_entry_get_text(GTK_ENTRY(data)));
+
+  s = g_strdup(dftext);
 
   /* GtkCombos don't let us get at their list contents easily, so we maintain
      our own filter list, and feed it to gtk_combo_set_popdown_strings when
      a new filter is added. */
-  if (filter_packets(&cfile, s)) {
+  if ((filter_packets_ret = filter_packets(&cfile, s))) {
     li = g_list_first(filter_list);
     while (li) {
       if (li->data && strcmp(s, li->data) == 0)
@@ -810,6 +817,11 @@ filter_activate_cb(GtkWidget *w, gpointer data)
     }
 
     if (add_filter) {
+      /* trim list size first */
+      while (g_list_length(filter_list) >= dfilter_combo_max_recent) {
+        filter_list = g_list_remove(filter_list, g_list_first(filter_list)->data);
+      }
+
       free_filter = FALSE;
       filter_list = g_list_append(filter_list, s);
       OBJECT_SET_DATA(filter_cm, E_DFILTER_FL_KEY, filter_list);
@@ -819,6 +831,21 @@ filter_activate_cb(GtkWidget *w, gpointer data)
   }
   if (free_filter)
     g_free(s);
+
+  return filter_packets_ret;
+}
+
+
+/* Run the current display filter on the current packet set, and
+   redisplay. */
+static void
+filter_activate_cb(GtkWidget *w, gpointer data)
+{
+  const char *s;
+
+  s = gtk_entry_get_text(GTK_ENTRY(data));
+
+  main_filter_packets(&cfile, s);
 }
 
 /* redisplay with no display filter */
@@ -3405,8 +3432,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
         "Open the \"Display Filter\" dialog, to edit/apply filters", "Private");
 
     filter_cm = gtk_combo_new();
-    filter_list = g_list_append (filter_list, "");
-    gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), filter_list);
+    filter_list = NULL;
     gtk_combo_disable_activate(GTK_COMBO(filter_cm));
     gtk_combo_set_case_sensitive(GTK_COMBO(filter_cm), TRUE);
     OBJECT_SET_DATA(filter_cm, E_DFILTER_FL_KEY, filter_list);

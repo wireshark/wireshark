@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.38 2004/01/25 01:53:24 guy Exp $
+ * $Id: follow_dlg.c,v 1.39 2004/01/25 18:51:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -232,7 +232,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	gtk_entry_set_text(GTK_ENTRY(filter_te), follow_filter);
 
 	/* Run the display filter so it goes in effect. */
-	filter_packets(&cfile, follow_filter);
+	main_filter_packets(&cfile, follow_filter);
 
 	/* Free the filter string, as we're done with it. */
 	g_free(follow_filter);
@@ -729,7 +729,7 @@ follow_filter_out_stream(GtkWidget * w _U_, gpointer data)
     gtk_entry_set_text(GTK_ENTRY(follow_info->filter_te), follow_info->filter_out_filter);
 
     /* Run the display filter so it goes in effect. */
-    filter_packets(&cfile, follow_info->filter_out_filter);
+    main_filter_packets(&cfile, follow_info->filter_out_filter);
 
     /* we force a subsequent close */
     gtk_widget_destroy(follow_info->streamwindow);
