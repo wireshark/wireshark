@@ -75,8 +75,17 @@ static int hf_h263_hmv2 = -1;
 static int hf_h263_vmv2 = -1;
 /* Fields for the data section */
 static int hf_h263_psc = -1;
+static int hf_h263_gbsc = -1;
 static int hf_h263_TR =-1;
-
+static int hf_h263_split_screen_indicator = -1;
+static int hf_h263_document_camera_indicator = -1;
+static int hf_h263_full_picture_freeze_release = -1;
+static int hf_h263_source_format = -1;
+static int hf_h263_payload_picture_coding_type = -1;
+static int hf_h263_opt_unres_motion_vector_mode = -1;
+static int hf_h263_syntax_based_arithmetic_coding_mode = -1;
+static int hf_h263_optional_advanced_prediction_mode = -1;
+static int hf_h263_PB_frames_mode = -1;
 static int hf_h263_data        = -1;
 
 /* Source format types */
@@ -98,6 +107,20 @@ static const value_string srcformat_vals[] =
   { 0,		NULL },
 };
 
+static const true_false_string on_off_flg = {
+  "On",
+  "Off"
+};
+static const true_false_string picture_coding_type_flg = {
+  "INTER (P-picture)",
+  "INTRA (I-picture)"
+};
+
+static const true_false_string PB_frames_mode_flg = {
+  "PB-frame",
+  "Normal I- or P-picture"
+};
+
 /* H.263 fields defining a sub tree */
 static gint ett_h263			= -1;
 static gint ett_h263_payload	= -1;
@@ -111,6 +134,7 @@ dissect_h263( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	unsigned int offset				= 0;
 	unsigned int h263_version		= 0;
 	guint32 data;
+	guint8 octet;
 
 	h263_version = (tvb_get_guint8( tvb, offset ) & 0xc0 ) >> 6;
 
@@ -253,13 +277,56 @@ dissect_h263( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	  /* Check for PSC, PSC is a word of 22 bits. Its value is 0000 0000 0000 0000' 1000 00xx xxxx xxxx. */
 	  data = tvb_get_ntohl(tvb, offset);
-	  if (( data & 0xfffffc00) == 0x00008000 ) { /* PSC found */
-		   proto_tree_add_uint(h263_payload_tree, hf_h263_psc,tvb, offset,3,data);
-		   offset = offset + 2;
-		   proto_tree_add_uint(h263_payload_tree, hf_h263_TR,tvb, offset,2,data);
-			
-	  }
+	  
+	  if (( data & 0xffff8000) == 0x00008000 ) { /* PSC or Group of Block Start Code (GBSC) found */
+		  if (( data & 0xfffffc00) == 0x00008000 ) { /* PSC found */
+			  proto_tree_add_uint(h263_payload_tree, hf_h263_psc,tvb, offset,3,data);
+			  offset = offset + 2;
+			  proto_tree_add_uint(h263_payload_tree, hf_h263_TR,tvb, offset,2,data);
+			  /* Last two bits in the 32 bits fetched
+			   * Bit 1: Always "1", in order to avoid start code emulation. 
+			   * Bit 2: Always "0", for distinction with Recommendation H.261.
+			   */
+			  offset = offset + 2;
+			  /* Bit 3: Split screen indicator, "0" off, "1" on. */
+			  proto_tree_add_item( h263_payload_tree, hf_h263_split_screen_indicator, tvb, offset, 1, FALSE );
+			  /* Bit 4: Document camera indicator, */
+			  proto_tree_add_item( h263_payload_tree, hf_h263_document_camera_indicator, tvb, offset, 1, FALSE );
+			  /* Bit 5: Full Picture Freeze Release, "0" off, "1" on. */
+			  proto_tree_add_item( h263_payload_tree, hf_h263_full_picture_freeze_release, tvb, offset, 1, FALSE );
+			  /* Bits 6-8: Source Format, "000" forbidden, "001" sub-QCIF, "010" QCIF, "011" CIF,
+			   * "100" 4CIF, "101" 16CIF, "110" reserved, "111" extended PTYPE.
+			   */
+			  proto_tree_add_item( h263_payload_tree, hf_h263_source_format, tvb, offset, 1, TRUE );
+			  octet = tvb_get_guint8(tvb,offset);
+			  if (( octet & 0x1c) != 0x1c){
+				  /* Not extended PTYPE */
+				  /* Bit 9: Picture Coding Type, "0" INTRA (I-picture), "1" INTER (P-picture). */
+				  proto_tree_add_item( h263_payload_tree, hf_h263_payload_picture_coding_type, tvb, offset, 1, FALSE );
+				  /* Bit 10: Optional Unrestricted Motion Vector mode (see Annex D), "0" off, "1" on. */
+				  proto_tree_add_item( h263_payload_tree, hf_h263_opt_unres_motion_vector_mode, tvb, offset, 1, FALSE );
+				  offset++;
+				  /* Bit 11: Optional Syntax-based Arithmetic Coding mode (see Annex E), "0" off, "1" on.*/
+				  proto_tree_add_item( h263_payload_tree, hf_h263_syntax_based_arithmetic_coding_mode, tvb, offset, 1, FALSE );
+				  /* Bit 12: Optional Advanced Prediction mode (see Annex F), "0" off, "1" on.*/
+				  proto_tree_add_item( h263_payload_tree, hf_h263_optional_advanced_prediction_mode, tvb, offset, 1, FALSE );
+				  /* Bit 13: Optional PB-frames mode (see Annex G), "0" normal I- or P-picture, "1" PB-frame.*/
+				  proto_tree_add_item( h263_payload_tree, hf_h263_PB_frames_mode, tvb, offset, 1, FALSE );
+			  }
+		  }else{ 
+			  if ((data & 0x00007c00)!= 0) { /* GBSC found */
 
+				/* Group of Block Start Code (GBSC) (17 bits)
+				 * A word of 17 bits. Its value is 0000 0000 0000 0000 1. GOB start codes may be byte aligned. This
+				 * can be achieved by inserting GSTUF before the start code such that the first bit of the start code is
+				 * the first (most significant) bit of a byte.
+				 *
+				 */
+				proto_tree_add_uint(h263_payload_tree, hf_h263_gbsc,tvb, offset,3,data);
+				offset = offset + 2;
+			  }
+		  }
+	  }
 	  proto_tree_add_item( h263_payload_tree, hf_h263_data, tvb, offset, -1, FALSE );
 	}
 }
@@ -545,6 +612,17 @@ proto_register_h263(void)
 				"Picture start Code, PSC", HFILL
 			}
 		},
+		{ &hf_h263_gbsc,
+			{
+				"H.263 Group of Block Start Code",
+				"h263.gbsc",
+				FT_UINT32,
+				BASE_HEX,
+				NULL,
+				0xffff8000,
+				"Group of Block Start Code", HFILL
+			}
+		},
 		{
 			&hf_h263_TR,
 			{
@@ -557,6 +635,115 @@ proto_register_h263(void)
 				"Temporal Reference, TR", HFILL
 			}
 		},
+		{
+			&hf_h263_split_screen_indicator,
+			{
+				"H.263 Split screen indicator",
+				"h263.split_screen_indicator",
+				FT_BOOLEAN,
+				8,
+				TFS(&on_off_flg),
+				0x80,
+				"Split screen indicator", HFILL
+			}
+		},
+		{
+			&hf_h263_document_camera_indicator,
+			{
+				"H.263 Document camera indicator",
+				"h263.document_camera_indicator",
+				FT_BOOLEAN,
+				8,
+				TFS(&on_off_flg),
+				0x40,
+				"Document camera indicator", HFILL
+			}
+		},
+		{
+			&hf_h263_full_picture_freeze_release,
+			{
+				"H.263 Full Picture Freeze Release",
+				"h263.split_screen_indicator",
+				FT_BOOLEAN,
+				8,
+				TFS(&on_off_flg),
+				0x20,
+				"Full Picture Freeze Release", HFILL
+			}
+		},
+		{
+			&hf_h263_source_format,
+			{
+				"H.263 Source Format",
+				"h263.split_screen_indicator",
+				FT_UINT8,
+				BASE_HEX,
+				VALS(srcformat_vals),
+				0x1c,
+				"Source Format", HFILL
+			}
+		},
+		{
+			&hf_h263_payload_picture_coding_type,
+			{
+				"H.263 Picture Coding Type",
+				"h263.picture_coding_type",
+				FT_BOOLEAN,
+				8,
+				TFS(&picture_coding_type_flg),
+				0x02,
+				"Picture Coding Typet", HFILL
+			}
+		},
+		{
+			&hf_h263_opt_unres_motion_vector_mode,
+			{
+				"H.263 Optional Unrestricted Motion Vector mode",
+				"h263.opt_unres_motion_vector_mode",
+				FT_BOOLEAN,
+				8,
+				TFS(&on_off_flg),
+				0x01,
+				"Optional Unrestricted Motion Vector mode", HFILL
+			}
+		},
+		{
+			&hf_h263_syntax_based_arithmetic_coding_mode,
+			{
+				"H.263 Optional Syntax-based Arithmetic Coding mode",
+				"h263.syntax_based_arithmetic_coding_mode",
+				FT_BOOLEAN,
+				8,
+				TFS(&on_off_flg),
+				0x80,
+				"Optional Syntax-based Arithmetic Coding mode", HFILL
+			}
+		},
+		{
+			&hf_h263_optional_advanced_prediction_mode,
+			{
+				"H.263 Optional Advanced Prediction mode",
+				"h263.optional_advanced_prediction_mode",
+				FT_BOOLEAN,
+				8,
+				TFS(&on_off_flg),
+				0x40,
+				"Optional Advanced Prediction mode", HFILL
+			}
+		},
+		{
+			&hf_h263_PB_frames_mode,
+			{
+				"H.263 Optional PB-frames mode",
+				"h263.PB_frames_mode",
+				FT_BOOLEAN,
+				8,
+				TFS(&PB_frames_mode_flg),
+				0x20,
+				"Optional PB-frames mode", HFILL
+			}
+		},
+
 };
 
 	static gint *ett[] =
