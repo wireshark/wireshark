@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.193 2003/01/21 02:12:16 gerald Exp $
+# $Id: configure.in,v 1.194 2003/01/21 20:15:52 jmayer Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -139,6 +139,9 @@ CFLAGS="$CFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap"
 CPPFLAGS="$CPPFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap"
 
 dnl Look in /usr/local for header files and libraries ?
+dnl XXX FIXME don't include /usr/local if it is already in the system
+dnl search path as this causes gcc 3.2 on Linux to complain about a change
+dnl of the system search order for includes
 AC_ARG_ENABLE(usr-local,
 [  --enable-usr-local      look for headers and libs in /usr/local tree.  [default=yes]],enable_usr_local=$enableval,enable_usr_local=yes)
 
