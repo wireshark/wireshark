@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.293 2002/09/20 07:28:20 sharpe Exp $
+ * $Id: packet-smb.c,v 1.294 2002/09/20 07:43:02 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5561,7 +5561,7 @@ static int
 dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8	wc, cmd=0xff;
-	guint16 andxoffset=0, bc;
+	guint16 andxoffset=0, bc, datalen=0;
 	smb_info_t *si;
 
 	WORD_COUNT;
@@ -5592,8 +5592,14 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	/* write count */
+	datalen = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 2, TRUE);
 	offset += 2;
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+				", %u byte%s", datalen,
+				(datalen == 1) ? "" : "s");
 
 	/* remaining */
 	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, TRUE);
