@@ -458,6 +458,7 @@ show_fragment_tree
 sid_name_snooping               DATA
 sid_name_table                  DATA
 smb_cmd_vals                    DATA
+sminmpec_values                 DATA
 string_to_name_resolve
 tap_push_tapped_queue
 tap_queue_init
