@@ -1,0 +1,35 @@
+#
+# $Id$
+#
+
+include ..\..\config.nmake
+include <win32.mak>
+
+############### no need to modify below this line #########
+
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
+	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+	
+.c.obj::
+	$(CC) $(CFLAGS) -Fdxml.pdb -c $<
+	
+LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
+
+!IFDEF ENABLE_LIBETHEREAL
+LINK_PLUGIN_WITH=..\..\epan\libethereal.lib
+CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
+
+OBJECTS=packet-xml.obj xml_lexer.obj xml_plugin.obj
+
+xml.dll xml.exp xml.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
+	link -dll /out:xml.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
+	$(GLIB_LIBS)
+
+!ENDIF
+
+clean:
+	rm -f $(OBJECTS) xml.dll xml.exp xml.lib *.pdb
+
+distclean: clean
+
+maintainer-clean: distclean
