@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.74 2003/01/28 22:51:54 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.75 2003/01/30 05:11:33 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3489,53 +3489,50 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_spoolss_buffer(
 		tvb, offset, pinfo, tree, drep, &buffer);
 
-	if (!buffer.tvb || !tvb_length(buffer.tvb))
-		goto done;
+	if (buffer.tvb) {
+		switch(level) {
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+		case 7:
+			item = proto_tree_add_text(
+				buffer.tree, buffer.tvb, 0, -1,
+				"PRINTER_INFO_%d", level);
+			
+			/* XXX: is the ett value correct here? */
+			
+			subtree = proto_item_add_subtree(item, ett_UNISTR2);
+			break;
+		}
 
-	switch(level) {
-	case 0:
-	case 1:
-	case 2:
-	case 3:
-	case 7:
-		item = proto_tree_add_text(
-			buffer.tree, buffer.tvb, 0, -1,
-			"PRINTER_INFO_%d", level);
-
-		/* XXX: is the ett value correct here? */
-		
-		subtree = proto_item_add_subtree(item, ett_UNISTR2);
-		break;
+		switch(level) {
+		case 0:
+			dissect_PRINTER_INFO_0(
+				buffer.tvb, 0, pinfo, subtree, drep);
+			break;
+		case 1:
+			dissect_PRINTER_INFO_1(
+				buffer.tvb, 0, pinfo, subtree, drep);
+			break;
+		case 2:
+			dissect_PRINTER_INFO_2(
+				buffer.tvb, 0, pinfo, subtree, drep);
+			break;
+		case 3:
+			dissect_PRINTER_INFO_3(
+				buffer.tvb, 0, pinfo, subtree, drep);
+			break;
+		case 7:
+			dissect_PRINTER_INFO_7(
+				buffer.tvb, 0, pinfo, subtree, drep);
+			break;
+		default:
+			proto_tree_add_text(buffer.tree, buffer.tvb, 0, -1,
+					    "[Unknown info level %d]", level);
+			break;
+		}
 	}
-
-	switch(level) {
-	case 0:
-		dissect_PRINTER_INFO_0(
-			buffer.tvb, 0, pinfo, subtree, drep);
-		break;
-	case 1:
-		dissect_PRINTER_INFO_1(
-			buffer.tvb, 0, pinfo, subtree, drep);
-		break;
-	case 2:
-		dissect_PRINTER_INFO_2(
-			buffer.tvb, 0, pinfo, subtree, drep);
-		break;
-	case 3:
-		dissect_PRINTER_INFO_3(
-			buffer.tvb, 0, pinfo, subtree, drep);
-		break;
-	case 7:
-		dissect_PRINTER_INFO_7(
-			buffer.tvb, 0, pinfo, subtree, drep);
-		break;
-	default:
-		proto_tree_add_text(buffer.tree, buffer.tvb, 0, -1,
-				    "[Unknown info level %d]", level);
-		break;
-	}
-
- done:
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_needed, NULL);
@@ -4602,7 +4599,6 @@ static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	BUFFER buffer;
-	int buffer_offset;
 	guint32 level = (guint32)dcv->private_data;
 
 	if (dcv->req_frame != 0)
@@ -4620,29 +4616,27 @@ static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
-	if (!buffer.tvb || !tvb_length(buffer.tvb))
-		goto done;
+	if (buffer.tvb) {
+		int buffer_offset = 0;
 
-	buffer_offset = 0;
-
-	switch(level) {
-	case 1: {
-		int struct_start = buffer_offset;
-
-		buffer_offset = dissect_FORM_REL(
-			buffer.tvb, buffer_offset, pinfo, tree, drep,
-			struct_start);
-		break;
+		switch(level) {
+		case 1: {
+			int struct_start = buffer_offset;
+			
+			buffer_offset = dissect_FORM_REL(
+				buffer.tvb, buffer_offset, pinfo, tree, drep,
+				struct_start);
+			break;
+		}
+			
+		default:
+			proto_tree_add_text(
+				buffer.tree, buffer.tvb, buffer_offset, -1,
+				"[Unknown info level %d]", level);
+			break;
+		}
 	}
 
-	default:
-		proto_tree_add_text(
-			buffer.tree, buffer.tvb, buffer_offset, -1,
-			"[Unknown info level %d]", level);
-		goto done;
-	}
-
- done:
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 				  hf_spoolss_rc, NULL);
 
@@ -4973,7 +4967,6 @@ static int SpoolssGetJob_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	gint32 level = (guint32)dcv->private_data;
 	BUFFER buffer;
-	int buffer_offset;
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0,
@@ -4984,25 +4977,24 @@ static int SpoolssGetJob_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep,
 					&buffer);
 
-	if (!buffer.tvb || !tvb_length(buffer.tvb))
-		goto done;
-
-	buffer_offset = 0;
-
-	switch(level) {
-	case 1:
-		buffer_offset = dissect_spoolss_JOB_INFO_1(
-			buffer.tvb, buffer_offset, pinfo, buffer.tree, drep);
-		break;
-	case 2:
-	default:
-		proto_tree_add_text(
-			buffer.tree, buffer.tvb, buffer_offset, -1,
-			"[Unknown info level %d]", level);
-		goto done;
+	if (buffer.tvb) {
+		int buffer_offset = 0;
+		
+		switch(level) {
+		case 1:
+			buffer_offset = dissect_spoolss_JOB_INFO_1(
+				buffer.tvb, buffer_offset, pinfo, 
+				buffer.tree, drep);
+			break;
+		case 2:
+		default:
+			proto_tree_add_text(
+				buffer.tree, buffer.tvb, buffer_offset, -1,
+				"[Unknown info level %d]", level);
+			break;
+		}
 	}
 
-done:
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_needed, NULL);
 
@@ -5761,20 +5753,22 @@ static int SpoolssGetPrinterDriver2_r(tvbuff_t *tvb, int offset,
 	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep,
 					&buffer);
 
-	switch(level) {
-	case 1:
-		dissect_DRIVER_INFO_1(
-			buffer.tvb, 0, pinfo, buffer.tree, drep);
-		break;
-	case 3:
-		dissect_DRIVER_INFO_3(
-			buffer.tvb, 0, pinfo, buffer.tree, drep);
-		break;
-	default:
-		proto_tree_add_text(
-			buffer.tree, buffer.tvb, 0, -1,
-			"[Unknown info level %d]", level);
-		break;
+	if (buffer.tvb) {
+		switch(level) {
+		case 1:
+			dissect_DRIVER_INFO_1(
+				buffer.tvb, 0, pinfo, buffer.tree, drep);
+			break;
+		case 3:
+			dissect_DRIVER_INFO_3(
+				buffer.tvb, 0, pinfo, buffer.tree, drep);
+			break;
+		default:
+			proto_tree_add_text(
+				buffer.tree, buffer.tvb, 0, -1,
+				"[Unknown info level %d]", level);
+			break;
+		}
 	}
 
 	offset = dissect_ndr_uint32(
