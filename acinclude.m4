@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.49 2003/01/21 21:47:07 jmayer Exp $
+dnl $Id: acinclude.m4,v 1.50 2003/01/27 20:09:06 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -267,14 +267,16 @@ AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 	  # but we may have to look for the header in a "pcap"
 	  # subdirectory of "/usr/include" or "/usr/local/include",
 	  # as some systems apparently put "pcap.h" in a "pcap"
-	  # subdirectory, and we also check "$prefix/include".
+	  # subdirectory, and we also check "$prefix/include" - and
+	  # "$prefix/include/pcap", in case $prefix is set to
+	  # "/usr/include" or "/usr/local/include".
 	  #
 	  # XXX - should we just add "$prefix/include" to the include
 	  # search path and "$prefix/lib" to the library search path?
 	  #
 	  AC_MSG_CHECKING(for extraneous pcap header directories)
 	  found_pcap_dir=""
-	  for pcap_dir in /usr/include/pcap $prefix/include /usr/local/include/pcap
+	  for pcap_dir in /usr/include/pcap $prefix/include/pcap $prefix/include /usr/local/include/pcap
 	  do
 	    if test -d $pcap_dir ; then
 		if test x$pcap_dir != x/usr/include -a x$pcap_dir != x/usr/local/include ; then
