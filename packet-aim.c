@@ -3,7 +3,7 @@
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim.c,v 1.32 2004/03/20 06:14:48 guy Exp $
+ * $Id: packet-aim.c,v 1.33 2004/03/20 20:06:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -268,6 +268,15 @@ typedef struct _aim_tlv {
 #define FAMILY_ICQ_AUTHREQUEST        0x0006
 #define FAMILY_ICQ_AUTHRESPONSE       0x0007
 
+static const value_string aim_flap_channels[] = {
+	{ CHANNEL_NEW_CONN, "New Connection" },
+	{ CHANNEL_SNAC_DATA, "SNAC Data" },
+	{ CHANNEL_FLAP_ERR, "FLAP-Level Error" },
+	{ CHANNEL_CLOSE_CONN, "Close Connection" },
+	{ CHANNEL_KEEP_ALIVE, "Keep Alive" },
+	{ 0, NULL }
+};
+
 static const value_string aim_fnac_family_ids[] = {
   { FAMILY_GENERIC, "Generic" }, 
   { FAMILY_LOCATION, "Location" },
@@ -307,9 +316,9 @@ static const value_string aim_fnac_family_generic[] = {
   { FAMILY_GENERIC_ERROR, "Error" },
   { FAMILY_GENERIC_CLIENTREADY , "Client Ready" },
   { FAMILY_GENERIC_SERVERREADY, "Server Ready" },
-  { FAMILY_GENERIC_SERVICEREQ, "Service Req" },
+  { FAMILY_GENERIC_SERVICEREQ, "Service Request" },
   { FAMILY_GENERIC_REDIRECT, "Redirect" },
-  { FAMILY_GENERIC_RATEINFOREQ, "Rate Info Req" },
+  { FAMILY_GENERIC_RATEINFOREQ, "Rate Info Request" },
   { FAMILY_GENERIC_RATEINFO, "Rate Info" },
   { FAMILY_GENERIC_RATEINFOACK, "Rate Info Ack" },
   { FAMILY_GENERIC_UNKNOWNx09, "Unknown" },
@@ -317,12 +326,12 @@ static const value_string aim_fnac_family_generic[] = {
   { FAMILY_GENERIC_SERVERPAUSE, "Server Pause" },
   { FAMILY_GENERIC_CLIENTPAUSEACK, "Client Pause Ack" },
   { FAMILY_GENERIC_SERVERRESUME, "Server Resume" },
-  { FAMILY_GENERIC_REQSELFINFO, "Self Info Req" },
+  { FAMILY_GENERIC_REQSELFINFO, "Self Info Request" },
   { FAMILY_GENERIC_SELFINFO, "Self Info" },
   { FAMILY_GENERIC_EVIL, "Evil" },
   { FAMILY_GENERIC_SETIDLE, "Set Idle" },
-  { FAMILY_GENERIC_MIGRATIONREQ, "Migration Req" },
-  { FAMILY_GENERIC_MOTD, "MOTD" },
+  { FAMILY_GENERIC_MIGRATIONREQ, "Migration Request" },
+  { FAMILY_GENERIC_MOTD, "Message Of The Day" },
   { FAMILY_GENERIC_SETPRIVFLAGS, "Set Privilege Flags" },
   { FAMILY_GENERIC_WELLKNOWNURL, "Well Known URL" },
   { FAMILY_GENERIC_NOP, "noop" },
@@ -642,6 +651,92 @@ static const value_string aim_snac_location_request_user_info_infotypes[] = {
   { 0, NULL }
 };
 
+#define FAMILY_GENERIC_MOTD_MOTD					   0x000B
+
+static const aim_tlv aim_fnac_family_generic_motd_tlv[] = {
+  { FAMILY_GENERIC_MOTD_MOTD, "Message of the day message", FT_STRING },
+  { 0, "Unknown", 0 }
+};
+
+#define FAMILY_GENERIC_REDIRECT_SERVER_ADDRESS		   0x0005
+#define FAMILY_GENERIC_REDIRECT_AUTH_COOKIE			   0x0006
+#define FAMILY_GENERIC_REDIRECT_FAMILY_ID              0x000D
+
+static const aim_tlv aim_fnac_family_generic_redirect_tlv[] = {
+  { FAMILY_GENERIC_REDIRECT_SERVER_ADDRESS, "Server address and (optional) port", FT_STRING },
+  { FAMILY_GENERIC_REDIRECT_AUTH_COOKIE, "Authorization cookie", FT_STRING },
+  { FAMILY_GENERIC_REDIRECT_FAMILY_ID, "Family ID", FT_UINT16 },
+  { 0, "Unknown", 0 }
+};
+
+#define FAMILY_GENERIC_MOTD_MOTDTYPE_MDT_UPGRADE       0x0001
+#define FAMILY_GENERIC_MOTD_MOTDTYPE_ADV_UPGRADE       0x0002
+#define FAMILY_GENERIC_MOTD_MOTDTYPE_SYS_BULLETIN      0x0003
+#define FAMILY_GENERIC_MOTD_MOTDTYPE_NORMAL            0x0004
+#define FAMILY_GENERIC_MOTD_MOTDTYPE_NEWS              0x0006
+
+static const value_string aim_snac_generic_motd_motdtypes[] = {
+  { FAMILY_GENERIC_MOTD_MOTDTYPE_MDT_UPGRADE, "Mandatory Upgrade Needed Notice" },
+  { FAMILY_GENERIC_MOTD_MOTDTYPE_ADV_UPGRADE, "Advisable Upgrade Notice" },
+  { FAMILY_GENERIC_MOTD_MOTDTYPE_SYS_BULLETIN, "AIM/ICQ Service System Announcements" },
+  { FAMILY_GENERIC_MOTD_MOTDTYPE_NORMAL, "Standard Notice" },
+  { FAMILY_GENERIC_MOTD_MOTDTYPE_NEWS, "News from AOL service" },
+  { 0, NULL }
+};
+
+#define FAMILY_ALL_ERROR_INVALID_HEADER				   0x0001
+#define FAMILY_ALL_ERROR_SERVER_RATE_LIMIT_EXCEEDED    0x0002
+#define FAMILY_ALL_ERROR_CLIENT_RATE_LIMIT_EXCEEDED    0x0003
+#define FAMILY_ALL_ERROR_RECIPIENT_NOT_LOGGED_IN       0x0004
+#define FAMILY_ALL_ERROR_REQUESTED_SERVICE_UNAVAILABLE 0x0005
+#define FAMILY_ALL_ERROR_REQUESTED_SERVICE_NOT_DEFINED 0x0006
+#define FAMILY_ALL_ERROR_OBSOLETE_SNAC				   0x0007
+#define FAMILY_ALL_ERROR_NOT_SUPPORTED_BY_SERVER	   0x0008
+#define FAMILY_ALL_ERROR_NOT_SUPPORTED_BY_CLIENT	   0x0009
+#define FAMILY_ALL_ERROR_REFUSED_BY_CLIENT             0x000a
+#define FAMILY_ALL_ERROR_REPLY_TOO_BIG                 0x000b
+#define FAMILY_ALL_ERROR_RESPONSES_LOST                0x000c
+#define FAMILY_ALL_ERROR_REQUEST_DENIED                0x000d
+#define FAMILY_ALL_ERROR_INCORRECT_SNAC_FORMAT         0x000e
+#define FAMILY_ALL_ERROR_INSUFFICIENT_RIGHTS           0x000f
+#define FAMILY_ALL_ERROR_RECIPIENT_BLOCKED             0x0010
+#define FAMILY_ALL_ERROR_SENDER_TOO_EVIL               0x0011
+#define FAMILY_ALL_ERROR_RECEIVER_TOO_EVIL             0x0012
+#define FAMILY_ALL_ERROR_USER_TEMP_UNAVAILABLE         0x0013
+#define FAMILY_ALL_ERROR_NO_MATCH                      0x0014
+#define FAMILY_ALL_ERROR_LIST_OVERFLOW                 0x0015
+#define FAMILY_ALL_ERROR_REQUEST_AMBIGUOUS             0x0016
+#define FAMILY_ALL_ERROR_SERVER_QUEUE_FULL             0x0017
+#define FAMILY_ALL_ERROR_NOT_WHILE_ON_AOL              0x0018
+
+static const value_string aim_snac_errors[] = {
+  { FAMILY_ALL_ERROR_INVALID_HEADER, "Invalid SNAC Header" },
+  { FAMILY_ALL_ERROR_SERVER_RATE_LIMIT_EXCEEDED, "Server rate limit exceeded" },
+  { FAMILY_ALL_ERROR_CLIENT_RATE_LIMIT_EXCEEDED, "Client rate limit exceeded" },
+  { FAMILY_ALL_ERROR_RECIPIENT_NOT_LOGGED_IN, "Recipient not logged in" },
+  { FAMILY_ALL_ERROR_REQUESTED_SERVICE_UNAVAILABLE, "Requested service unavailable" },
+  { FAMILY_ALL_ERROR_REQUESTED_SERVICE_NOT_DEFINED, "Requested service not defined" },
+  { FAMILY_ALL_ERROR_OBSOLETE_SNAC, "Obsolete SNAC issued" },
+  { FAMILY_ALL_ERROR_NOT_SUPPORTED_BY_SERVER, "Not supported by server" },
+  { FAMILY_ALL_ERROR_NOT_SUPPORTED_BY_CLIENT, "Not supported by client" },
+  { FAMILY_ALL_ERROR_REFUSED_BY_CLIENT, "Refused by client" },
+  { FAMILY_ALL_ERROR_REPLY_TOO_BIG, "Reply too big" },
+  { FAMILY_ALL_ERROR_RESPONSES_LOST, "Responses lost" },
+  { FAMILY_ALL_ERROR_REQUEST_DENIED, "Request denied" },
+  { FAMILY_ALL_ERROR_INCORRECT_SNAC_FORMAT, "Incorrect SNAC format" },
+  { FAMILY_ALL_ERROR_INSUFFICIENT_RIGHTS, "Insufficient rights" },
+  { FAMILY_ALL_ERROR_RECIPIENT_BLOCKED, "Recipient blocked" },
+  { FAMILY_ALL_ERROR_SENDER_TOO_EVIL, "Sender too evil" },
+  { FAMILY_ALL_ERROR_RECEIVER_TOO_EVIL, "Receiver too evil" },
+  { FAMILY_ALL_ERROR_USER_TEMP_UNAVAILABLE, "User temporarily unavailable" },
+  { FAMILY_ALL_ERROR_NO_MATCH, "No match" },
+  { FAMILY_ALL_ERROR_LIST_OVERFLOW, "List overflow" },
+  { FAMILY_ALL_ERROR_REQUEST_AMBIGUOUS, "Request ambiguous" },
+  { FAMILY_ALL_ERROR_SERVER_QUEUE_FULL, "Server queue full" },
+  { FAMILY_ALL_ERROR_NOT_WHILE_ON_AOL, "Not while on AOL" },
+  { 0, NULL }
+};
+
 static int dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static guint get_aim_pdu_len(tvbuff_t *tvb, int offset);
 static void dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -651,8 +746,13 @@ static int get_buddyname( char *name, tvbuff_t *tvb, int len_offset, int name_of
 static void dissect_aim_newconn(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
 static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, 
 			     int offset, proto_tree *tree);
+static void dissect_aim_snac_error(tvbuff_t *tvb, packet_info *pinfo, 
+			     int offset, proto_tree *tree);
 static void dissect_aim_snac_fnac_subtype(tvbuff_t *tvb, int offset, 
 					  proto_tree *tree, guint16 family);
+static void dissect_aim_snac_icq(tvbuff_t *tvb, packet_info *pinfo, 
+				    int offset, proto_tree *tree, 
+				    guint16 subtype);
 static void dissect_aim_snac_signon(tvbuff_t *tvb, packet_info *pinfo, 
 				    int offset, proto_tree *tree, 
 				    guint16 subtype);
@@ -744,6 +844,9 @@ static int hf_aim_snac_location_request_user_info_infotype = -1;
 static int hf_aim_buddyname_len = -1;
 static int hf_aim_buddyname = -1;
 static int hf_aim_userinfo_warninglevel = -1;
+static int hf_aim_snac_generic_motd_motdtype = -1;
+static int hf_aim_snac_generic_servicereq_service = -1;
+static int hf_aim_snac_error = -1;
 static int hf_aim_userinfo_tlvcount = -1;
 
 /* Initialize the subtree pointers */
@@ -751,6 +854,9 @@ static gint ett_aim          = -1;
 static gint ett_aim_fnac     = -1;
 static gint ett_aim_tlv      = -1;
 static gint ett_aim_ssi      = -1;
+static gint ett_aim_generic_clientready = -1;
+static gint ett_aim_generic_clientready_item = -1;
+static gint ett_aim_generic_serverready = -1;
 
 /* desegmentation of AIM over TCP */
 static gboolean aim_desegment = TRUE;
@@ -824,7 +930,7 @@ static void dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(tree, proto_aim, tvb, 0, -1, FALSE);
     aim_tree = proto_item_add_subtree(ti, ett_aim);
     proto_tree_add_uint(aim_tree, hf_aim_cmd_start, tvb, 0, 1, '*');
-    proto_tree_add_uint(aim_tree, hf_aim_channel, tvb, 1, 1, hdr_channel);
+    proto_tree_add_item(aim_tree, hf_aim_channel, tvb, 1, 1, FALSE);
     proto_tree_add_uint(aim_tree, hf_aim_seqno, tvb, 2, 2, hdr_sequence_no);
     proto_tree_add_uint(aim_tree, hf_aim_data_len, tvb, 4, 2, hdr_data_field_length);
 
@@ -832,7 +938,6 @@ static void dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   switch(hdr_channel)
   {
-    /* New connection request */
     case CHANNEL_NEW_CONN:
       dissect_aim_newconn(tvb, pinfo, offset, aim_tree);
       break;
@@ -951,8 +1056,18 @@ static void dissect_aim_newconn(tvbuff_t *tvb, packet_info *pinfo,
 {
   if (check_col(pinfo->cinfo, COL_INFO)) 
     col_add_fstr(pinfo->cinfo, COL_INFO, "New Connection");
+
+  /* 00 00 00 01: FIXME */
   if (tvb_length_remaining(tvb, offset) > 0)
     proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
+}
+
+
+static void dissect_aim_snac_error(tvbuff_t *tvb, packet_info *pinfo, 
+			     int offset, proto_tree *aim_tree)
+{
+    proto_tree_add_item (aim_tree, hf_aim_snac_error,
+			   tvb, offset, 2, FALSE);
 }
 
 static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, 
@@ -1005,7 +1120,6 @@ static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo,
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Family: %s",
 		    val_to_str(family, aim_fnac_family_ids,
 			       "Unknown Family ID=0x%04x"));
-  
   switch(family)
     {
     case FAMILY_SIGNON:
@@ -1032,18 +1146,39 @@ static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo,
     case FAMILY_MESSAGING:
       dissect_aim_snac_messaging(tvb, pinfo, offset, aim_tree, subtype);
       break;
+    case FAMILY_ICQ:
+      dissect_aim_snac_icq(tvb, pinfo, offset, aim_tree, subtype);
+      break;
     case FAMILY_SSI:
       dissect_aim_snac_ssi(tvb, pinfo, offset, aim_tree, subtype);
       break;
     }
 }
 
+static void dissect_aim_snac_icq(tvbuff_t *tvb, packet_info *pinfo, 
+				    int offset, proto_tree *tree, 
+				    guint16 subtype)
+{
+   char *name;
+   if ((name = match_strval(subtype, aim_fnac_family_icq)) != NULL) {
+     if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_fstr(pinfo->cinfo, COL_INFO, name);
+   }
+}
+
 static void dissect_aim_snac_signon(tvbuff_t *tvb, packet_info *pinfo, 
 				    int offset, proto_tree *tree, 
 				    guint16 subtype)
 {
+   char *name;
+   if ((name = match_strval(subtype, aim_fnac_family_signon)) != NULL) {
+     if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_fstr(pinfo->cinfo, COL_INFO, name);
   switch(subtype)
     {
+	case FAMILY_SIGNON_ERROR:
+      dissect_aim_snac_error(tvb, pinfo, offset, tree);
+	  break;
     case FAMILY_SIGNON_LOGON:
       dissect_aim_snac_signon_logon(tvb, pinfo, offset, tree);
       break;
@@ -1056,7 +1191,12 @@ static void dissect_aim_snac_signon(tvbuff_t *tvb, packet_info *pinfo,
     case FAMILY_SIGNON_SIGNON_REPLY:
       dissect_aim_snac_signon_signon_reply(tvb, pinfo, offset, tree);
       break;
-    }
+	default:
+  	  /* Show the undissected payload */
+	  if (tvb_length_remaining(tvb, offset) > 0)
+   		 proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
+      }
+   }
 }
 
 static void dissect_aim_snac_signon_logon(tvbuff_t *tvb, packet_info *pinfo, 
@@ -1131,97 +1271,65 @@ static void dissect_aim_snac_generic(tvbuff_t *tvb, packet_info *pinfo,
 				    int offset, proto_tree *tree, 
 				    guint16 subtype)
 {
+  char *name;
+  proto_item *ti;
+  proto_tree *entry = NULL;
+
+  if ((name = match_strval(subtype, aim_fnac_family_generic)) != NULL) {
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s", name);
+  }
+
   switch(subtype)
     {
-    case FAMILY_GENERIC_ERROR:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Generic Error");
-      break;
-    case FAMILY_GENERIC_CLIENTREADY:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, 
-		     "Client is now online and ready for normal function");
-      break;
-    case FAMILY_GENERIC_SERVERREADY:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, 
-		     "Server is now ready for normal functions");
-      break;
-    case FAMILY_GENERIC_SERVICEREQ:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, 
-		     "Request for new service (server will redirect client)");
-      break;
-    case FAMILY_GENERIC_REDIRECT:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Redirect response");
-      break;
-    case FAMILY_GENERIC_RATEINFOREQ:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Request Rate Information");
-      break;
-    case FAMILY_GENERIC_RATEINFO:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Rate information response");
-      break;
-    case FAMILY_GENERIC_RATEINFOACK:
-      if (check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Rate Information Response Ack");
-      break;
-    case FAMILY_GENERIC_RATECHANGE:
-      if (check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Rate Change");
-      break;
-    case FAMILY_GENERIC_SERVERPAUSE:
-      if (check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Server Pause");
-      break;
-    case FAMILY_GENERIC_SERVERRESUME:
-      if (check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Server Resume");
-      break;
-    case FAMILY_GENERIC_REQSELFINFO:
-      if (check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Request Self Info");
-      break;
-    case FAMILY_GENERIC_SELFINFO:
-      if (check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Self Info");
-      break;
-    case FAMILY_GENERIC_EVIL:
-      if (check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Evil");
-      break;
-    case FAMILY_GENERIC_SETIDLE:
-      if (check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Set Idle");
-      break;
-    case FAMILY_GENERIC_MIGRATIONREQ:
-      if (check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Request Migration");
-      break;
-    case FAMILY_GENERIC_MOTD:
-      if (check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "MOTD");
-      break;
-    case FAMILY_GENERIC_SETPRIVFLAGS:
-      if (check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Set Privilege Flags");
-      break;
-    case FAMILY_GENERIC_WELLKNOWNURL:
-      if (check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Well Known URL");
-      break;
-    case FAMILY_GENERIC_NOP:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "No-op");
-      break;
-    case FAMILY_GENERIC_DEFAULT:
-      if (check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Generic Default");
+	case FAMILY_GENERIC_ERROR:
+	  dissect_aim_snac_error(tvb, pinfo, offset, tree);
+	  break;
+	case FAMILY_GENERIC_CLIENTREADY:
+	   ti = proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Supported services");
+	   entry = proto_item_add_subtree(ti, ett_aim_generic_clientready);
+	   while(tvb_length_remaining(tvb, offset) > 0) {
+			guint16 famnum = tvb_get_ntohs(tvb, offset);
+			char *famname = match_strval(famnum, aim_fnac_family_ids);
+			proto_tree *subentry;
+			ti = proto_tree_add_text(entry, tvb, offset, 2, "%s (0x%x)", famname?famname:"Unknown Family", famnum);
+			offset+=2;
+			
+			subentry = proto_item_add_subtree(ti, ett_aim_generic_clientready_item);
+
+			proto_tree_add_text(entry, tvb, offset, 2, "Version: %u", tvb_get_ntohs(tvb, offset) ); offset += 2;
+			proto_tree_add_text(entry, tvb, offset, 4, "DLL Version: %u", tvb_get_ntoh24(tvb, offset) ); offset += 4;
+	  }
+	  break;
+	case FAMILY_GENERIC_SERVERREADY:
+	   ti = proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Supported services");
+	   entry = proto_item_add_subtree(ti, ett_aim_generic_clientready);
+	   while(tvb_length_remaining(tvb, offset) > 0) {
+			guint16 famnum = tvb_get_ntohs(tvb, offset);
+			char *famname = match_strval(famnum, aim_fnac_family_ids);
+			proto_tree_add_text(entry, tvb, offset, 2, "%s (0x%x)", famname?famname:"Unknown Family", famnum);
+			offset+=2;
+	  }
+	  break;
+	case FAMILY_GENERIC_SERVICEREQ:
+	  proto_tree_add_uint(tree, hf_aim_snac_generic_servicereq_service, tvb, offset, 2, tvb_get_ntohs(tvb, offset) );
+	  offset+=2;
+	  break;
+	case FAMILY_GENERIC_REDIRECT:
+	  while(tvb_length_remaining(tvb, offset) > 0) {
+		offset = dissect_aim_tlv(tvb, pinfo, offset, tree, aim_fnac_family_generic_redirect_tlv);
+	  }
+	  break;
+    case FAMILY_GENERIC_MOTD: 
+	  proto_tree_add_item(tree, hf_aim_snac_generic_motd_motdtype, tvb, offset, 
+			  2, tvb_get_ntohs(tvb, offset));
+	  offset+=2;
+	  while(tvb_length_remaining(tvb, offset) > 0) {
+		offset = dissect_aim_tlv(tvb, pinfo, offset, tree, 
+	 	aim_fnac_family_generic_motd_tlv);
+	  }
       break;
     }
-
   /* Show the undissected payload */
   if (tvb_length_remaining(tvb, offset) > 0)
     proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
@@ -1234,34 +1342,18 @@ static void dissect_aim_snac_buddylist(tvbuff_t *tvb, packet_info *pinfo,
   guint8 buddyname_length = 0;
   char buddyname[MAX_BUDDYNAME_LENGTH + 1];
   guint16 tlv_count = 0;
+  char *name;
+
+  if ((name = match_strval(subtype, aim_fnac_family_buddylist)) != NULL) {
+      if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_fstr(pinfo->cinfo, COL_INFO, name);
+  }
 
   switch(subtype)
     {
-    case FAMILY_BUDDYLIST_ERROR:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Buddylist - Error");
-      break;
-       
-   case FAMILY_BUDDYLIST_REQRIGHTS:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Request Rights information");
-      break;
-      
-    case FAMILY_BUDDYLIST_RIGHTSINFO:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Rights information");
-      break;
-      
-    case FAMILY_BUDDYLIST_ADDBUDDY:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Add to Buddylist");
-      break;
-      
-    case FAMILY_BUDDYLIST_REMBUDDY:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Remove from Buddylist");
-      break;
-      
+	case FAMILY_BUDDYLIST_ERROR:
+      dissect_aim_snac_error(tvb, pinfo, offset, tree);
+	  break;
     case FAMILY_BUDDYLIST_ONCOMING:
       buddyname_length = get_buddyname( buddyname, tvb, offset, offset + 1 );
 
@@ -1331,45 +1423,21 @@ static void dissect_aim_snac_location(tvbuff_t *tvb, packet_info *pinfo,
 				      int offset, proto_tree *tree, 
 				      guint16 subtype)
 {
+	char *name;
+	if ((name = match_strval(subtype, aim_fnac_family_location)) != NULL) {
+      if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_fstr(pinfo->cinfo, COL_INFO, name);
+	}
   switch(subtype)
     {
-    case FAMILY_LOCATION_ERROR:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Location - Error");
-      break;
-    case FAMILY_LOCATION_REQRIGHTS:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Request Rights Information");
-      break;
-    case FAMILY_LOCATION_RIGHTSINFO:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Rights Information");
-      break;
-    case FAMILY_LOCATION_SETUSERINFO:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Set User Information");
-      break;
+	case FAMILY_LOCATION_ERROR:
+      dissect_aim_snac_error(tvb, pinfo, offset, tree);
+	  break;
     case FAMILY_LOCATION_REQUSERINFO:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Request User Information");
       dissect_aim_snac_location_request_user_information(tvb, offset, tree);
       break;
     case FAMILY_LOCATION_USERINFO:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "User Information");
       dissect_aim_snac_location_user_information(tvb, pinfo, offset, tree);
-      break;
-    case FAMILY_LOCATION_WATCHERSUBREQ:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Watcher Subrequest");
-      break;
-    case FAMILY_LOCATION_WATCHERNOT:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Watcher Notification");
-      break;
-    case FAMILY_LOCATION_DEFAULT:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Location Default");
       break;
     }
 }
@@ -1444,21 +1512,11 @@ static void dissect_aim_snac_adverts(tvbuff_t *tvb _U_,
 				     int offset _U_, proto_tree *tree _U_, 
 				     guint16 subtype)
 {
-  switch(subtype)
-    {
-    case FAMILY_ADVERTS_ERROR:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Advertisements - Error");
-      break;
-    case FAMILY_ADVERTS_REQUEST:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Advertisement Request");
-      break;
-    case FAMILY_ADVERTS_DATA:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Advertisement data (GIF)");
-      break;
-    }
+	char *name;
+	if ((name = match_strval(subtype, aim_fnac_family_adverts)) != NULL) {
+      if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_fstr(pinfo->cinfo, COL_INFO, name);
+	}
 
   /* Show the undissected payload */
   if (tvb_length_remaining(tvb, offset) > 0)
@@ -1469,24 +1527,16 @@ static void dissect_aim_snac_userlookup(tvbuff_t *tvb _U_, packet_info *pinfo,
 					int offset _U_, proto_tree *tree _U_, 
 					guint16 subtype)
 {
-  switch(subtype)
-    {
-    case FAMILY_USERLOOKUP_ERROR:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, 
-		     "Search - Error (could be: not found)");
-      break;
-    case FAMILY_USERLOOKUP_SEARCHEMAIL:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, 
-		     "Search for Screen Name by e-mail");
-      break;
-    case FAMILY_USERLOOKUP_SEARCHRESULT:
-      if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Screen Name Search Result");
-      break;
-    }
-
+	char *name;
+	if ((name = match_strval(subtype, aim_fnac_family_userlookup)) != NULL) {
+      if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_fstr(pinfo->cinfo, COL_INFO, name);
+	}
+	switch(subtype) {
+	case FAMILY_USERLOOKUP_ERROR:
+      dissect_aim_snac_error(tvb, pinfo, offset, tree);
+	  break;
+	}
   /* Show the undissected payload */
   if (tvb_length_remaining(tvb, offset) > 0)
     proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
@@ -1499,18 +1549,25 @@ static void dissect_aim_snac_chat(tvbuff_t *tvb, packet_info *pinfo,
   guint8 buddyname_length = 0;
   char buddyname[MAX_BUDDYNAME_LENGTH + 1];
   guchar msg[1000];
+  char *name;
+
+  if ((name = match_strval(subtype, aim_fnac_family_chat)) != NULL) {
+     if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_fstr(pinfo->cinfo, COL_INFO, name);
+  }
 
   switch(subtype)
     {
+	case FAMILY_CHAT_ERROR:
+      dissect_aim_snac_error(tvb, pinfo, offset, tree);
+	  break;
     case FAMILY_CHAT_OUTGOINGMSG:
       /* channel message from client */
       get_message( msg, tvb, 40 + buddyname_length, tvb_length(tvb) 
 		   - 40 - buddyname_length );
       
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Chat Message ");
+      if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
-      }
       break;
       
     case FAMILY_CHAT_INCOMINGMSG:
@@ -1520,7 +1577,6 @@ static void dissect_aim_snac_chat(tvbuff_t *tvb, packet_info *pinfo,
 		   - 36 - buddyname_length );
       
       if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Chat Message ");
 	col_append_fstr(pinfo->cinfo, COL_INFO, "from: %s", buddyname);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
       }
@@ -1540,9 +1596,18 @@ static void dissect_aim_snac_messaging(tvbuff_t *tvb, packet_info *pinfo,
   guint8 buddyname_length = 0;
   char buddyname[MAX_BUDDYNAME_LENGTH + 1];
   guchar msg[1000];
+  char *name;
+
+  if ((name = match_strval(subtype, aim_fnac_family_messaging)) != NULL) {
+     if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_fstr(pinfo->cinfo, COL_INFO, name);
+  }
 
   switch(subtype)
     {    
+	case FAMILY_MESSAGING_ERROR:
+      dissect_aim_snac_error(tvb, pinfo, offset, tree);
+	  break;
     case FAMILY_MESSAGING_OUTGOING:
 
       /* Unknown */
@@ -1556,7 +1621,6 @@ static void dissect_aim_snac_messaging(tvbuff_t *tvb, packet_info *pinfo,
 		   - buddyname_length );
       
       if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Message ");
 	col_append_fstr(pinfo->cinfo, COL_INFO, "to: %s", buddyname);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
       }
@@ -1581,7 +1645,6 @@ static void dissect_aim_snac_messaging(tvbuff_t *tvb, packet_info *pinfo,
 		   - buddyname_length);
       
       if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Message");
 	col_append_fstr(pinfo->cinfo, COL_INFO, " from: %s", buddyname);
 	
 	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
@@ -1599,8 +1662,17 @@ static void dissect_aim_snac_ssi(tvbuff_t *tvb, packet_info *pinfo _U_,
 				 int offset, proto_tree *tree, 
 				 guint16 subtype _U_)
 {
+  char *name;
+
+  if ((name = match_strval(subtype, aim_fnac_family_ssi)) != NULL) {
+     if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_fstr(pinfo->cinfo, COL_INFO, name);
+  }
   switch(subtype)
     {    
+	case FAMILY_SSI_ERROR:
+      dissect_aim_snac_error(tvb, pinfo, offset, tree);
+	  break;
     case FAMILY_SSI_LIST:
       dissect_aim_snac_ssi_list(tvb, pinfo, offset, tree, subtype);
       break;
@@ -1910,7 +1982,7 @@ proto_register_aim(void)
       { "Command Start", "aim.cmd_start", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }
     },
     { &hf_aim_channel,
-      { "Channel ID", "aim.channel", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }
+      { "Channel ID", "aim.channel", FT_UINT8, BASE_HEX, VALS(aim_flap_channels), 0x0, "", HFILL }
     },
     { &hf_aim_seqno,
       { "Sequence Number", "aim.seqno", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
@@ -2037,6 +2109,18 @@ proto_register_aim(void)
     { &hf_aim_userinfo_tlvcount,
       { "TLV Count", "aim.userinfo.tlvcount", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
     },
+	{ &hf_aim_snac_generic_servicereq_service, 
+	  { "Requested Service", "aim.snac.generic.servicereq.service", FT_UINT16,
+		  BASE_HEX, VALS(aim_fnac_family_ids), 0x0, "", HFILL },
+	},
+	{ &hf_aim_snac_generic_motd_motdtype, 
+	  { "MOTD Type", "aim.snac.generic.motd.motdtype", FT_UINT16,
+		  BASE_HEX, VALS(aim_snac_generic_motd_motdtypes), 0x0, "", HFILL },
+	},
+	{ &hf_aim_snac_error,
+	  { "SNAC Error", "aim.snac.error", FT_UINT16,
+		  BASE_HEX, VALS(aim_snac_errors), 0x0, "", HFILL },
+	},
   };
 
 /* Setup protocol subtree array */
@@ -2045,6 +2129,9 @@ proto_register_aim(void)
     &ett_aim_fnac,
     &ett_aim_tlv,
     &ett_aim_ssi,
+	&ett_aim_generic_clientready,
+	&ett_aim_generic_clientready_item,
+	&ett_aim_generic_serverready,
   };
   module_t *aim_module;
 
