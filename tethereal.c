@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.186 2003/06/05 04:47:57 guy Exp $
+ * $Id: tethereal.c,v 1.187 2003/06/13 03:44:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -166,11 +166,13 @@ static void wtap_dispatch_cb_write(guchar *, const struct wtap_pkthdr *, long,
 static void show_capture_file_io_error(const char *, int, gboolean);
 static void wtap_dispatch_cb_print(guchar *, const struct wtap_pkthdr *, long,
     union wtap_pseudo_header *, const guchar *);
+#ifdef HAVE_LIBPCAP
 #ifndef _WIN32
 static void adjust_header(loop_data *, struct pcap_hdr *, struct pcaprec_hdr *);
 static int pipe_open_live(char *, struct pcap_hdr *, loop_data *, char *, int);
 static int pipe_dispatch(int, loop_data *, struct pcap_hdr *, \
                 struct pcaprec_modified_hdr *, guchar *, char *, int);
+#endif /* _WIN32 */
 #endif
 
 capture_file cfile;
@@ -1978,6 +1980,7 @@ wtap_dispatch_cb_write(guchar *user, const struct wtap_pkthdr *phdr,
   gboolean      passed;
   epan_dissect_t *edt;
 
+#ifdef HAVE_LIBPCAP
 #ifdef SIGINFO
   /*
    * Prevent a SIGINFO handler from writing to stdout while we're
@@ -1986,6 +1989,7 @@ wtap_dispatch_cb_write(guchar *user, const struct wtap_pkthdr *phdr,
    */
   infodelay = TRUE;
 #endif /* SIGINFO */
+#endif /* HAVE_LIBPCAP */
 
   cf->count++;
   if (cf->rfcode) {
@@ -2025,6 +2029,7 @@ wtap_dispatch_cb_write(guchar *user, const struct wtap_pkthdr *phdr,
   if (cf->rfcode)
     clear_fdata(&fdata);
 
+#ifdef HAVE_LIBPCAP
 #ifdef SIGINFO
   /*
    * Allow SIGINFO handlers to write.
@@ -2037,6 +2042,7 @@ wtap_dispatch_cb_write(guchar *user, const struct wtap_pkthdr *phdr,
   if (infoprint)
     report_counts();
 #endif /* SIGINFO */
+#endif /* HAVE_LIBPCAP */
 }
 
 static void
@@ -2517,6 +2523,7 @@ fail:
   return (err);
 }
 
+#ifdef HAVE_LIBPCAP
 #ifndef _WIN32
 /* Take care of byte order in the libpcap headers read from pipes.
  * (function taken from wiretap/libpcap.c) */
@@ -2801,4 +2808,5 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
   /* Return here rather than inside the switch to prevent GCC warning */
   return -1;
 }
-#endif
+#endif /* _WIN32 */
+#endif /* HAVE_LIBPCAP */
