@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.370 2003/09/28 00:11:01 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.371 2003/09/29 19:17:34 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5332,6 +5332,7 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	 */
 	/* Amasingly enough, this really is 4 bytes, according to the SNIA spec */
 	maxcnt_high = tvb_get_letohl(tvb, offset);
+	/* XXX Argh! maxcnt_high is guint16 and thus 16 bit -> always false !!! */
 	if(maxcnt_high==0xffffffff){
 		maxcnt_high=0;
 	} else {
