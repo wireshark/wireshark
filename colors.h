@@ -1,7 +1,7 @@
 /* colors.h
  * Definitions for color structures and routines
  *
- * $Id: colors.h,v 1.9 1999/12/19 07:28:35 guy Exp $
+ * $Id: colors.h,v 1.10 1999/12/19 09:22:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,14 +60,11 @@ typedef struct _color_filter {
 extern GSList *filter_list;
 
 typedef struct _colfilter  {
-	GtkWidget  *color_filters;
 	gint      num_of_filters;  /* first num_of_filters rows filled */
 	gint	  row_selected;	   /* row in color_filters that is selected */
 } colfilter;
 
 colfilter *colfilter_new(void);
-
-color_filter_t *color_filter(gint n);
 
 /* ===================== USER INTERFACE ====================== */
 

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.140 1999/12/19 07:28:36 guy Exp $
+ * $Id: file.c,v 1.141 1999/12/19 09:22:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -775,13 +775,38 @@ fill_in_columns(frame_data *fd)
   }
 }
 
+typedef struct {
+  color_filter_t *colorf;
+  proto_tree	*protocol_tree;
+  guint8	*pd;
+} apply_color_filter_args;
+
+/*
+ * If no color filter has been applied, apply this one.
+ * (The "if no color filter has been applied" is to handle the case where
+ * more than one color filter matches the packet.)
+ */
+static void
+apply_color_filter(gpointer filter_arg, gpointer argp)
+{
+  color_filter_t *colorf = filter_arg;
+  apply_color_filter_args *args = argp;
+
+  if (colorf->c_colorfilter != NULL && args->colorf == NULL) {
+    if (dfilter_apply(colorf->c_colorfilter, args->protocol_tree, args->pd))
+      args->colorf = colorf;
+  }
+}
+
 static void
 add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf)
 {
+  apply_color_filter_args args;
   gint          i, row;
-  gint		crow;
-  gint 		color;
   proto_tree   *protocol_tree = NULL;
+
+  /* We don't yet have a color filter to apply. */
+  args.colorf = NULL;
 
   fdata->num = cf->count;
 
@@ -808,29 +833,21 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
   }
 
   /* Apply the filters */
-  if (cf->dfcode != NULL || CFILTERS_CONTAINS_FILTER(cf->colors)) {
-	protocol_tree = proto_tree_create_root();
-	dissect_packet(buf, fdata, protocol_tree);
-	if (cf->dfcode != NULL)
-		fdata->passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, cf->pd);
-	else
-		fdata->passed_dfilter = TRUE;
-	/* Apply color filters. */
-	color = -1;
-        for(crow = 0; cf->colors->num_of_filters && 
-	      crow < cf->colors->num_of_filters; crow++) {
+  if (cf->dfcode != NULL || filter_list != NULL) {
+    protocol_tree = proto_tree_create_root();
+    dissect_packet(buf, fdata, protocol_tree);
+    if (cf->dfcode != NULL)
+      fdata->passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, cf->pd);
+    else
+      fdata->passed_dfilter = TRUE;
 
-            if(color_filter(crow)->c_colorfilter == NULL) {
-		continue;
-	    }
-            if(dfilter_apply(color_filter(crow)->c_colorfilter, protocol_tree,
-		 cf->pd)){
-                color = crow;
-		break;
-            }
-        }
-
-	proto_tree_free(protocol_tree);
+    /* Apply color filters, if we have any. */
+    if (filter_list != NULL) {
+      args.protocol_tree = protocol_tree;
+      args.pd = cf->pd;
+      g_slist_foreach(filter_list, apply_color_filter, &args);
+    }
+    proto_tree_free(protocol_tree);
   }
   else {
 #ifdef HAVE_DLFCN_H
@@ -839,7 +856,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
 #endif
 	dissect_packet(buf, fdata, protocol_tree);
 	fdata->passed_dfilter = TRUE;
-	color = -1;
 #ifdef HAVE_DLFCN_H
 	if (protocol_tree)
 	    proto_tree_free(protocol_tree);
@@ -876,11 +892,11 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
     row = gtk_clist_append(GTK_CLIST(packet_list), fdata->cinfo->col_data);
     fdata->row = row;
 
-    if (filter_list != NULL && (color != -1)){
+    if (filter_list != NULL && (args.colorf != NULL)) {
         gtk_clist_set_background(GTK_CLIST(packet_list), row,
-                   &(color_filter(color)->bg_color));
+                   &args.colorf->bg_color);
         gtk_clist_set_foreground(GTK_CLIST(packet_list), row,
-                   &(color_filter(color)->fg_color));
+                   &args.colorf->fg_color);
     } else {
         gtk_clist_set_background(GTK_CLIST(packet_list), row, &WHITE);
         gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &BLACK);
