@@ -3,7 +3,7 @@
  * Copyright 2002-2003, Tim Potter <tpot@samba.org>
  * Copyright 2002, Jim McDonough <jmcd@samba.org>
  *
- * $Id: packet-dcerpc-lsa-ds.c,v 1.13 2004/01/19 20:10:33 jmayer Exp $
+ * $Id: packet-dcerpc-lsa-ds.c,v 1.14 2004/05/03 19:03:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,7 +36,17 @@
 #include "packet-dcerpc-nt.h"
 #include "smb.h"
 
-#define LSA_DS_DSROLEGETDOMINFO 0x0000
+#define LSA_DS_DSROLERGETDOMINFO 			0x0000
+#define LSA_DS_DSROLER_DNS_NAME_TO_FLAT_NAME 		0x0001
+#define LSA_DS_DSROLER_DC_AS_DC				0x0002
+#define LSA_DS_DSROLER_DC_AS_REPLICA			0x0003
+#define LSA_DS_DSROLER_DEMOTE_DC			0x0004
+#define LSA_DS_DSROLER_GET_DC_OPERATION_PROGRESS	0x0005
+#define LSA_DS_DSROLER_GET_DC_OPERATION_RESULTS		0x0006
+#define LSA_DS_DSROLER_CANCEL				0x0007
+#define LSA_DS_DSROLER_SERVER_SAVE_STATE_FOR_UPGRADE	0x0008
+#define LSA_DS_DSROLER_UPGRADE_DOWNLEVEL_SERVER		0x0009
+#define LSA_DS_DSROLER_ABORT_DOWNLEVEL_SERVER_UPGRADE	0x000a
 
 #define LSA_DS_DSROLE_BASIC_INFO 0x0001
 #define LSA_DS_DSROLE_UPGRADE_STATUS 0x0002
@@ -331,9 +341,29 @@ static e_uuid_t uuid_dcerpc_lsa_ds = {
 static guint16 ver_dcerpc_lsa_ds = 0;
 
 static dcerpc_sub_dissector lsa_ds_dissectors[] = {
-	{ LSA_DS_DSROLEGETDOMINFO, "DsRoleGetDomInfo", 
+	{ LSA_DS_DSROLERGETDOMINFO, "DsRolerGetDomInfo", 
 	  lsa_ds_dissect_role_get_dom_info_rqst, 
 	  lsa_ds_dissect_role_get_dom_info_reply },
+	{ LSA_DS_DSROLER_DNS_NAME_TO_FLAT_NAME, 
+	  "DsRolerDnsNameToFlatName", NULL, NULL },
+	{ LSA_DS_DSROLER_DC_AS_DC, 
+	  "DsRolerDcAsDc", NULL, NULL },
+	{ LSA_DS_DSROLER_DC_AS_REPLICA,
+	  "DsRolerDcAsReplica", NULL, NULL },
+	{ LSA_DS_DSROLER_DEMOTE_DC,
+	  "DsRolerDemoteDc", NULL, NULL },
+	{ LSA_DS_DSROLER_GET_DC_OPERATION_PROGRESS,
+	  "DsRolerGetDcOperationProgress", NULL, NULL },
+	{ LSA_DS_DSROLER_GET_DC_OPERATION_RESULTS,
+	  "DsRolerGetDcOperationResults", NULL, NULL },
+	{ LSA_DS_DSROLER_CANCEL,
+	  "DsRolerCancel", NULL, NULL },
+	{ LSA_DS_DSROLER_SERVER_SAVE_STATE_FOR_UPGRADE, 
+	  "DsRolerServerSaveStateForUpgrade", NULL, NULL },
+	{ LSA_DS_DSROLER_UPGRADE_DOWNLEVEL_SERVER,
+	  "DsRolerUpgradeDownlevelServer", NULL, NULL },
+	{ LSA_DS_DSROLER_ABORT_DOWNLEVEL_SERVER_UPGRADE,
+	  "DsRolerAbortDownlevelServerUpgrade", NULL, NULL },
 	{ 0, NULL, NULL, NULL },
 };
 
