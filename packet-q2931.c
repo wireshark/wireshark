@@ -2,7 +2,7 @@
  * Routines for Q.2931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q2931.c,v 1.4 1999/11/27 02:14:38 guy Exp $
+ * $Id: packet-q2931.c,v 1.5 1999/11/27 04:48:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,7 @@
 #include <string.h>
 #include "packet.h"
 #include "packet-q931.h"
+#include "packet-arp.h"
 
 /*
  * See
@@ -45,7 +46,7 @@
  *
  * for some information on Q.2931, although, alas, not the actual message
  * type and information element values - those I got from the FreeBSD 3.2
- * ATM code.
+ * ATM code, and from Q.2931 (and Q.931) itself.
  */
 
 static int proto_q2931 = -1;
@@ -1381,64 +1382,7 @@ dissect_q2931_number_ie(const u_char *pd, int offset, int len,
 		}
 		ti = proto_tree_add_text(tree, offset, len, "Number");
 		nsap_tree = proto_item_add_subtree(ti, ett_q2931_nsap);
-		switch (pd[offset]) {
-
-		case 0x39:	/* DCC ATM format */
-		case 0xBD:	/* DCC ATM group format */
-			proto_tree_add_text(nsap_tree, offset + 0, 3,
-			    "Data Country Code%s: 0x%04X",
-			    (pd[offset] == 0xBD) ? " (group)" : "",
-			    pntohs(&pd[offset + 1]));
-			proto_tree_add_text(nsap_tree, offset + 3, 10,
-			    "High Order DSP: %s",
-			    bytes_to_str(&pd[offset + 3], 10));
-			proto_tree_add_text(nsap_tree, offset + 13, 6,
-			    "End System Identifier: %s",
-			    bytes_to_str(&pd[offset + 13], 6));
-			proto_tree_add_text(nsap_tree, offset + 19, 1,
-			    "Selector: 0x%02X", pd[offset + 19]);
-			break;
-
-		case 0x47:	/* ICD ATM format */
-		case 0xC5:	/* ICD ATM group format */
-			proto_tree_add_text(nsap_tree, offset + 0, 3,
-			    "International Code Designator%s: 0x%04X",
-			    (pd[offset] == 0xC5) ? " (group)" : "",
-			    pntohs(&pd[offset + 1]));
-			proto_tree_add_text(nsap_tree, offset + 3, 10,
-			    "High Order DSP: %s",
-			    bytes_to_str(&pd[offset + 3], 10));
-			proto_tree_add_text(nsap_tree, offset + 13, 6,
-			    "End System Identifier: %s",
-			    bytes_to_str(&pd[offset + 13], 6));
-			proto_tree_add_text(nsap_tree, offset + 19, 1,
-			    "Selector: 0x%02X", pd[offset + 19]);
-			break;
-
-		case 0x45:	/* E.164 ATM format */
-		case 0xC3:	/* E.164 ATM group format */
-			proto_tree_add_text(nsap_tree, offset + 0, 9,
-			    "E.164 ISDN%s: %s",
-			    (pd[offset] == 0xC3) ? " (group)" : "",
-			    bytes_to_str(&pd[offset + 1], 8));
-			proto_tree_add_text(nsap_tree, offset + 9, 4,
-			    "High Order DSP: %s",
-			    bytes_to_str(&pd[offset + 3], 10));
-			proto_tree_add_text(nsap_tree, offset + 13, 6,
-			    "End System Identifier: %s",
-			    bytes_to_str(&pd[offset + 13], 6));
-			proto_tree_add_text(nsap_tree, offset + 19, 1,
-			    "Selector: 0x%02X", pd[offset + 19]);
-			break;
-
-		default:
-			proto_tree_add_text(nsap_tree, offset, 1,
-			    "Unknown AFI: 0x%02X", pd[offset]);
-			proto_tree_add_text(nsap_tree, offset + 1, len - 1,
-			    "Rest of address: %s",
-			    bytes_to_str(&pd[offset + 1], len - 1));
-			break;
-		}
+		dissect_atm_nsap(pd, offset, len, nsap_tree);
 		break;
 
 	default:

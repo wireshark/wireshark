@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.151 1999/11/23 17:09:58 gram Exp $
+ * $Id: packet.h,v 1.152 1999/11/27 04:48:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -427,10 +427,6 @@ void ethertype(guint16 etype, int offset,
 		const u_char *pd, frame_data *fd, proto_tree *tree,
 		proto_tree *fh_tree, int item_id);
 extern const value_string etype_vals[];
-
-/* These functions are in packet-arp.c */
-gchar *arphrdaddr_to_str(guint8 *ad, int ad_len, guint16 type);
-gchar *arphrdtype_to_str(guint16 hwtype, const char *fmt);
 
 /* ipproto.c */
 extern const char *ipprotostr(int proto);

@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.23 1999/11/27 04:01:43 guy Exp $
+ * $Id: packet-arp.c,v 1.24 1999/11/27 04:48:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "packet-arp.h"
 #include "etypes.h"
 
 static int proto_arp = -1;
@@ -51,12 +52,15 @@ static int hf_arp_src_ether = -1;
 static int hf_arp_src_proto = -1;
 static int hf_arp_dst_ether = -1;
 static int hf_arp_dst_proto = -1;
-static int hf_atmarp_src_atm_num = -1;
+static int hf_atmarp_src_atm_num_e164 = -1;
+static int hf_atmarp_src_atm_num_nsap = -1;
 static int hf_atmarp_src_atm_subaddr = -1;
-static int hf_atmarp_dst_atm_num = -1;
+static int hf_atmarp_dst_atm_num_e164 = -1;
+static int hf_atmarp_dst_atm_num_nsap = -1;
 static int hf_atmarp_dst_atm_subaddr = -1;
 
 static gint ett_arp = -1;
+static gint ett_atmarp_nsap = -1;
 
 /* Definitions taken from Linux "linux/if_arp.h" header file, and from
 
@@ -164,18 +168,44 @@ arpproaddr_to_str(guint8 *ad, int ad_len, guint16 type)
   return bytes_to_str(ad, ad_len);
 }
 
+#define	N_ATMARPNUM_TO_STR_STRINGS	2
+#define	MAX_E164_STR_LEN		20
 static gchar *
 atmarpnum_to_str(guint8 *ad, int ad_tl)
 {
-  int ad_len = ad_tl & ATMARP_LEN_MASK;
+  int           ad_len = ad_tl & ATMARP_LEN_MASK;
+  static gchar  str[N_ATMARPNUM_TO_STR_STRINGS][MAX_E164_STR_LEN+3+1];
+  static int    cur_idx;
+  gchar        *cur;
 
   if (ad_len == 0)
     return "<No address>";
 
-  /*
-   * XXX - break down into subcomponents.
-   */
-  return bytes_to_str(ad, ad_len);
+  if (ad_tl & ATMARP_IS_E164) {
+    /*
+     * I'm assuming this means it's an ASCII (IA5) string.
+     */
+    cur_idx++;
+    if (cur_idx >= N_ATMARPNUM_TO_STR_STRINGS)
+      cur_idx = 0;
+    cur = &str[cur_idx][0];
+    if (ad_len > MAX_E164_STR_LEN) {
+      /* Can't show it all. */
+      memcpy(cur, ad, MAX_E164_STR_LEN);
+      strcpy(&cur[MAX_E164_STR_LEN], "...");
+    } else {
+      memcpy(cur, ad, ad_len);
+      cur[ad_len + 1] = '\0';
+    }
+    return cur;
+  } else {
+    /*
+     * NSAP.
+     *
+     * XXX - break down into subcomponents.
+     */
+    return bytes_to_str(ad, ad_len);
+  }
 }
 
 static gchar *
@@ -245,6 +275,89 @@ arphrdtype_to_str(guint16 hwtype, const char *fmt) {
 #define	ATM_AR_TSL	10
 #define	ATM_AR_TPLN	11
 #define MIN_ATMARP_HEADER_SIZE	12
+
+static void
+dissect_atm_number(const u_char *pd, int offset, int tl, int hf_e164,
+    int hf_nsap, proto_tree *tree)
+{
+	int len = tl & ATMARP_LEN_MASK;
+	proto_item *ti;
+	proto_tree *nsap_tree;
+
+	if (tl & ATMARP_IS_E164)
+		proto_tree_add_item(tree, hf_e164, offset, len, &pd[offset]);
+	else {
+		ti = proto_tree_add_item(tree, hf_nsap, offset, len,
+		    &pd[offset]);
+		if (len >= 20) {
+			nsap_tree = proto_item_add_subtree(ti, ett_atmarp_nsap);
+			dissect_atm_nsap(pd, offset, len, nsap_tree);
+		}
+	}
+}
+
+void
+dissect_atm_nsap(const u_char *pd, int offset, int len, proto_tree *tree)
+{
+	switch (pd[offset]) {
+
+	case 0x39:	/* DCC ATM format */
+	case 0xBD:	/* DCC ATM group format */
+		proto_tree_add_text(tree, offset + 0, 3,
+		    "Data Country Code%s: 0x%04X",
+		    (pd[offset] == 0xBD) ? " (group)" : "",
+		    pntohs(&pd[offset + 1]));
+		proto_tree_add_text(tree, offset + 3, 10,
+		    "High Order DSP: %s",
+		    bytes_to_str(&pd[offset + 3], 10));
+		proto_tree_add_text(tree, offset + 13, 6,
+		    "End System Identifier: %s",
+		    bytes_to_str(&pd[offset + 13], 6));
+		proto_tree_add_text(tree, offset + 19, 1,
+		    "Selector: 0x%02X", pd[offset + 19]);
+		break;
+
+	case 0x47:	/* ICD ATM format */
+	case 0xC5:	/* ICD ATM group format */
+		proto_tree_add_text(tree, offset + 0, 3,
+		    "International Code Designator%s: 0x%04X",
+		    (pd[offset] == 0xC5) ? " (group)" : "",
+		    pntohs(&pd[offset + 1]));
+		proto_tree_add_text(tree, offset + 3, 10,
+		    "High Order DSP: %s",
+		    bytes_to_str(&pd[offset + 3], 10));
+		proto_tree_add_text(tree, offset + 13, 6,
+		    "End System Identifier: %s",
+		    bytes_to_str(&pd[offset + 13], 6));
+		proto_tree_add_text(tree, offset + 19, 1,
+		    "Selector: 0x%02X", pd[offset + 19]);
+		break;
+
+	case 0x45:	/* E.164 ATM format */
+	case 0xC3:	/* E.164 ATM group format */
+		proto_tree_add_text(tree, offset + 0, 9,
+		    "E.164 ISDN%s: %s",
+		    (pd[offset] == 0xC3) ? " (group)" : "",
+		    bytes_to_str(&pd[offset + 1], 8));
+		proto_tree_add_text(tree, offset + 9, 4,
+		    "High Order DSP: %s",
+		    bytes_to_str(&pd[offset + 3], 10));
+		proto_tree_add_text(tree, offset + 13, 6,
+		    "End System Identifier: %s",
+		    bytes_to_str(&pd[offset + 13], 6));
+		proto_tree_add_text(tree, offset + 19, 1,
+		    "Selector: 0x%02X", pd[offset + 19]);
+		break;
+
+	default:
+		proto_tree_add_text(tree, offset, 1,
+		    "Unknown AFI: 0x%02X", pd[offset]);
+		proto_tree_add_text(tree, offset + 1, len - 1,
+		    "Rest of address: %s",
+		    bytes_to_str(&pd[offset + 1], len - 1));
+		break;
+	}
+}
 
 /*
  * RFC 2225 ATMARP - it's just like ARP, except where it isn't.
@@ -409,10 +522,8 @@ dissect_atmarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     proto_tree_add_item(arp_tree, hf_atmarp_tpln, offset + ATM_AR_TPLN, 1,
 			       ar_tpln);
     if (ar_shl != 0)
-      proto_tree_add_item_format(arp_tree, hf_atmarp_src_atm_num, sha_offset,
-			       ar_shl,
-			       &pd[sha_offset],
-			       "Sender ATM number: %s", sha_str);
+      dissect_atm_number(pd, sha_offset, ar_shtl, hf_atmarp_src_atm_num_e164,
+			       hf_atmarp_src_atm_num_nsap, arp_tree);
     if (ar_ssl != 0)
       proto_tree_add_item_format(arp_tree, hf_atmarp_src_atm_subaddr, ssa_offset,
 			       ar_ssl,
@@ -423,10 +534,8 @@ dissect_atmarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			       &pd[spa_offset],
 			       "Sender protocol address: %s", spa_str);
     if (ar_thl != 0)
-      proto_tree_add_item_format(arp_tree, hf_atmarp_dst_atm_num, tha_offset,
-			       ar_thl,
-			       &pd[tha_offset],
-			       "Target ATM number: %s", tha_str);
+      dissect_atm_number(pd, tha_offset, ar_thtl, hf_atmarp_dst_atm_num_e164,
+			       hf_atmarp_dst_atm_num_nsap, arp_tree);
     if (ar_tsl != 0)
       proto_tree_add_item_format(arp_tree, hf_atmarp_dst_atm_subaddr, tsa_offset,
 			       ar_tsl,
@@ -630,8 +739,13 @@ proto_register_arp(void)
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
       	"" }},
 
-    { &hf_atmarp_src_atm_num,
-      { "Sender ATM number",	"arp.src.atm_num",
+    { &hf_atmarp_src_atm_num_e164,
+      { "Sender ATM number (E.164)",	"arp.src.atm_num_e164",
+	FT_STRING,	BASE_NONE,	NULL,	0x0,
+      	"" }},
+
+    { &hf_atmarp_src_atm_num_nsap,
+      { "Sender ATM number (NSAP)",	"arp.src.atm_num_nsap",
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
       	"" }},
 
@@ -650,8 +764,13 @@ proto_register_arp(void)
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
       	"" }},
 
-    { &hf_atmarp_dst_atm_num,
-      { "Target ATM number",	"arp.dst.atm_num",
+    { &hf_atmarp_dst_atm_num_e164,
+      { "Target ATM number (E.164)",	"arp.dst.atm_num_e164",
+	FT_STRING,	BASE_NONE,	NULL,	0x0,
+      	"" }},
+
+    { &hf_atmarp_dst_atm_num_nsap,
+      { "Target ATM number (NSAP)",	"arp.dst.atm_num_nsap",
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
       	"" }},
 
@@ -667,6 +786,7 @@ proto_register_arp(void)
   };
   static gint *ett[] = {
     &ett_arp,
+    &ett_atmarp_nsap,
   };
 
   proto_arp = proto_register_protocol("Address Resolution Protocol", "arp");
