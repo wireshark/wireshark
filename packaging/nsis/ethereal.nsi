@@ -9,6 +9,7 @@
 SetCompressor lzma
 !endif
 
+InstType "Ethereal (EXPERIMENTAL native Windows user interface)"
 !ifdef GTK1_DIR & GTK2_DIR
 InstType "Ethereal (GTK2 user interface)"
 InstType "Ethereal (legacy GTK1 user interface)"
@@ -197,7 +198,7 @@ Section "-Required"
 ; Install for every user
 ;
 !ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2 RO
+SectionIn 1 2 3 RO
 !endif
 SetShellVarContext all
 
@@ -269,7 +270,7 @@ SectionEnd
 Section "Ethereal GTK1" SecEtherealGTK1
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
-SectionIn 2 RO
+SectionIn 3 RO
 !endif
 SetOutPath $INSTDIR
 File "..\..\ethereal.exe"
@@ -282,7 +283,7 @@ SectionEnd
 Section "Ethereal GTK2" SecEtherealGTK2
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 RO
+SectionIn 2 RO
 !endif
 SetOutPath $INSTDIR
 File /oname=ethereal.exe "..\..\ethereal-gtk2.exe"
@@ -317,10 +318,19 @@ File "${GTK_WIMP_DIR}\Theme\gtk-2.0\gtkrc"
 SectionEnd
 !endif
 
+Section "Ethereal Native Win32" SecEtherealNativeWin32
+;-------------------------------------------
+!ifdef GTK1_DIR | GTK2_DIR
+SectionIn 1 RO
+!endif
+SetOutPath $INSTDIR
+File /oname=ethereal.exe "..\..\wethereal.exe"
+SectionEnd
+
 Section "Tethereal" SecTethereal
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
+SectionIn 1 2 3
 !endif
 SetOutPath $INSTDIR
 File "..\..\tethereal.exe"
@@ -330,7 +340,7 @@ SectionEnd
 Section "Editcap" SecEditcap
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
+SectionIn 1 2 3
 !endif
 SetOutPath $INSTDIR
 File "..\..\editcap.exe"
@@ -340,7 +350,7 @@ SectionEnd
 Section "Text2Pcap" SecText2Pcap
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
+SectionIn 1 2 3
 !endif
 SetOutPath $INSTDIR
 File "..\..\text2pcap.exe"
@@ -350,7 +360,7 @@ SectionEnd
 Section "Mergecap" SecMergecap
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
+SectionIn 1 2 3
 !endif
 SetOutPath $INSTDIR
 File "..\..\mergecap.exe"
@@ -360,7 +370,7 @@ SectionEnd
 Section "Capinfo" SecCapinfo
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
+SectionIn 1 2 3
 !endif
 SetOutPath $INSTDIR
 File "..\..\capinfo.exe"
@@ -371,7 +381,7 @@ SectionEnd
 Section "Plugins" SecPlugins
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
+SectionIn 1 2 3
 !endif
 SetOutPath $INSTDIR\plugins\${VERSION}
 File "..\..\plugins\acn\acn.dll"
@@ -399,7 +409,7 @@ SectionEnd
 Section "SNMP MIBs" SecMIBs
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
+SectionIn 1 2 3
 !endif
 SetOutPath $INSTDIR\snmp\mibs
 File "${NET_SNMP_DIR}\mibs\*.txt"
@@ -411,7 +421,7 @@ SectionEnd
 Section "Start Menu Shortcuts" SecShortcuts
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
+SectionIn 1 2 3
 !endif
 SetOutPath $PROFILE
 CreateDirectory "$SMPROGRAMS\Ethereal"
@@ -430,7 +440,7 @@ SectionEnd
 Section "Desktop Icon" SecDesktopIcon
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
+SectionIn 1 2 3
 !endif
 CreateShortCut "$DESKTOP\Ethereal.lnk" "$INSTDIR\ethereal.exe"
 SectionEnd
@@ -438,7 +448,7 @@ SectionEnd
 Section "Associate file extensions to Ethereal" SecFileExtensions
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
+SectionIn 1 2 3
 !endif
 WriteRegStr HKCR ${ETHEREAL_ASSOC} "" "Ethereal file"
 WriteRegStr HKCR "${ETHEREAL_ASSOC}\Shell\open\command" "" '"$INSTDIR\ethereal.exe" "%1"'

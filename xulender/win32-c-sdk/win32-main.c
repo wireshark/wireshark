@@ -1168,7 +1168,7 @@ WinMain( HINSTANCE h_instance, HINSTANCE h_prev_instance, LPSTR lpsz_cmd_line, i
 	wc.lpfnWndProc = win32_main_wnd_proc;
 	wc.style = CS_OWNDC | CS_VREDRAW | CS_HREDRAW;
 	wc.hInstance = h_instance;
-	wc.hIcon = LoadIcon( NULL, IDI_APPLICATION );
+	wc.hIcon = LoadImage(h_instance, "ETHEREAL_ICON", IMAGE_ICON, 16, 16, LR_DEFAULTSIZE);
 	wc.hCursor = LoadCursor( NULL, IDC_ARROW );
 	wc.hbrBackground = (HBRUSH)( COLOR_WINDOW+1 );
 	wc.lpszMenuName = "ETHEREAL_MAIN_MENU";
@@ -1786,6 +1786,27 @@ main_do_quit(void)
     }
 }
 
+HICON
+get_ethereal_icon_small(HWND hwnd) {
+    static HICON eicon = NULL;
+    HINSTANCE    h_instance = (HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE);
+
+    if (eicon == NULL)
+	eicon = LoadImage(h_instance, "ETHEREAL_ICON", IMAGE_ICON, 16, 16, LR_DEFAULTSIZE);
+
+    return eicon;
+}
+
+HICON
+get_ethereal_icon_large(HWND hwnd) {
+    static HICON eicon = NULL;
+    HINSTANCE    h_instance = (HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE);
+
+    if (eicon == NULL)
+	eicon = LoadImage(h_instance, "ETHEREAL_ICON", IMAGE_ICON, 32, 32, LR_DEFAULTSIZE);
+
+    return eicon;
+}
 
 
 /* Routines defined elsewhere that we need to handle */

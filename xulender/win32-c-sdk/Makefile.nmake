@@ -92,7 +92,7 @@ OBJECTS = \
 
 RESOURCES = win32-main.res
 
-RC_FILES = *.rc generated/*.rc win32-main.h win32-file-dlg.h
+RC_FILES = win32-file-dlg.rc win32-main.rc generated/*.rc win32-main.h win32-file-dlg.h
 
 XUL_SCRIPTS = \
 	..\frontendutil.py \
@@ -102,6 +102,11 @@ XUL_SCRIPTS = \
 all: win32-c-sdk.lib $(RESOURCES)
 
 $(GENERATED_OBJECTS): $(XUL_SCRIPTS)
+
+win32-main.rc: win32-main.rc.in ..\..\config.nmake
+	sed -e s/@VERSION@/$(VERSION)/ \
+		-e s/@RC_VERSION@/$(RC_VERSION)/ \
+		< win32-main.rc.in > $@
 
 win32-c-sdk.lib : $(OBJECTS) $(RC_FILES)
 	rm -f $(RESOURCES)

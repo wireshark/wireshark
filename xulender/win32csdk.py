@@ -331,20 +331,19 @@ def win32_gen_dialog(node):
 
 #include "%(header_file_name)s"
 
-HWND g_hw_dlg;
-
 /* Create dialog "%(cur_window_id)s" */
 HWND
 %(varname)s_dialog_create (HWND hw_parent) {
+    HWND hw_dlg;
     HINSTANCE h_instance = (HINSTANCE) GetWindowLong(hw_parent, GWL_HINSTANCE);
 
-    g_hw_dlg = CreateDialog (h_instance, "%(varname)s", hw_parent,
+    hw_dlg = CreateDialog (h_instance, "%(varname)s", hw_parent,
 	%(varname)s_dlg_proc);
 
-    if (!g_hw_dlg)
+    if (!hw_dlg)
 	return NULL;
 
-    return g_hw_dlg;
+    return hw_dlg;
 }
 
 /* Show dialog "%(cur_window_id)s" */
@@ -370,6 +369,9 @@ void
     win32_element_t *cur_box = NULL;
     win32_element_t *cur_el = NULL;
     GList* box_stack = NULL;
+
+    SendMessage(hw_dlg, WM_SETICON, (WPARAM) ICON_SMALL, (LPARAM) get_ethereal_icon_small(hw_dlg));
+    SendMessage(hw_dlg, WM_SETICON, (WPARAM) ICON_BIG, (LPARAM) get_ethereal_icon_large(hw_dlg));
 
     cur_box = win32_hbox_new(hw_dlg, NULL);
     win32_element_set_id(cur_box, "%(cur_window_id)s");
@@ -1162,12 +1164,15 @@ void
  * WNDPROC.
  */
 void
-%(varname)s_handle_wm_create(HWND hw_mainwin) {
+%(varname)s_handle_wm_create(HWND hw_win) {
     win32_element_t *win_hbox, *cur_box = NULL;
     win32_element_t *cur_el = NULL;
     GList* box_stack = NULL;
 
-    win_hbox = win32_hbox_new(hw_mainwin, NULL);
+    SendMessage(hw_win, WM_SETICON, (WPARAM) ICON_SMALL, (LPARAM) get_ethereal_icon_small(hw_win));
+    SendMessage(hw_win, WM_SETICON, (WPARAM) ICON_BIG, (LPARAM) get_ethereal_icon_large(hw_win));
+
+    win_hbox = win32_hbox_new(hw_win, NULL);
     cur_box = win_hbox;
     win32_element_set_id(cur_box, "%(cur_window_id)s");
 
@@ -1191,8 +1196,8 @@ void
 
     cur_hf.write_body('''
 HWND %(varname)s_window_create (HINSTANCE h_instance);
-void %(varname)s_handle_wm_size(HWND hw_mainwin, int width, int height);
-void %(varname)s_handle_wm_create(HWND hw_mainwin);
+void %(varname)s_handle_wm_size(HWND hw_win, int width, int height);
+void %(varname)s_handle_wm_create(HWND hw_win);
 void %(varname)s_window_show(HWND h_wnd, int n_cmd_show);
 void %(varname)s_window_hide(HWND h_wnd, int n_cmd_show);
 
