@@ -1458,6 +1458,7 @@ Richard Urwin <richard[AT]soronlin.org.uk> {
 Prabhakar Krishnan <Prabhakar.Krishnan[AT]netapp.com> {
 	Add item to SMB protocol tree for time between request and
 	    response
+	Dissect NetApp ONTAP file handles
 }
 
 Jim McDonough <jmcd[AT]us.ibm.com> {

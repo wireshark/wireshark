@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.94 2003/09/28 01:52:57 sahlberg Exp $
+ * $Id: packet-nfs.c,v 1.95 2004/02/11 04:34:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,17 @@ static int hf_nfs_procedure_v3 = -1;
 static int hf_nfs_procedure_v4 = -1;
 static int hf_nfs_fh_length = -1;
 static int hf_nfs_fh_hash = -1;
+static int hf_nfs_fh_mount_fileid = -1;
+static int hf_nfs_fh_mount_generation = -1;
+static int hf_nfs_fh_snapid = -1;
+static int hf_nfs_fh_unused = -1;
+static int hf_nfs_fh_flags = -1;
+static int hf_nfs_fh_fileid = -1;
+static int hf_nfs_fh_generation = -1;
+static int hf_nfs_fh_fsid = -1;
+static int hf_nfs_fh_export_fileid = -1;
+static int hf_nfs_fh_export_generation = -1;
+static int hf_nfs_fh_export_snapid = -1;
 static int hf_nfs_fh_fsid_major = -1;
 static int hf_nfs_fh_fsid_minor = -1;
 static int hf_nfs_fh_fsid_inode = -1;
@@ -288,6 +299,9 @@ static int hf_nfs_r_addr = -1;
 
 static gint ett_nfs = -1;
 static gint ett_nfs_fh_encoding = -1;
+static gint ett_nfs_fh_mount = -1;
+static gint ett_nfs_fh_file = -1;
+static gint ett_nfs_fh_export = -1;
 static gint ett_nfs_fh_fsid = -1;
 static gint ett_nfs_fh_xfsid = -1;
 static gint ett_nfs_fh_fn = -1;
@@ -864,6 +878,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 #define FHT_LINUX_KNFSD_LE	2
 #define FHT_LINUX_NFSD_LE	3
 #define FHT_LINUX_KNFSD_NEW	4
+#define FHT_NETAPP		5
 
 static const value_string names_fhtype[] =
 {
@@ -872,6 +887,7 @@ static const value_string names_fhtype[] =
 	{	FHT_LINUX_KNFSD_LE,	"Linux knfsd (little-endian)"		},
 	{	FHT_LINUX_NFSD_LE,	"Linux user-land nfsd (little-endian)"	},
 	{	FHT_LINUX_KNFSD_NEW,	"Linux knfsd (new)"			},
+	{	FHT_NETAPP,		"NetApp file handle"			},
 	{	0,	NULL	}
 };
 
@@ -1181,6 +1197,70 @@ static const value_string fileid_type_names[] = {
 };
 
 static void
+dissect_fhandle_data_NETAPP(tvbuff_t* tvb, int offset, proto_tree *tree,
+    int fhlen _U_)
+{
+	if (tree) {
+		guint32 mount = tvb_get_letohl(tvb, offset + 0);
+		guint32 mount_gen = tvb_get_letohl(tvb, offset + 4);
+		guint16 flags = tvb_get_letohs(tvb, offset + 8);
+		guint8 snapid = tvb_get_guint8(tvb, offset + 10);
+		guint8 unused = tvb_get_guint8(tvb, offset + 11);
+		guint32 inum = tvb_get_ntohl(tvb, offset + 12);
+		guint32 generation = tvb_get_letohl(tvb, offset + 16);
+		guint32 fsid = tvb_get_letohl(tvb, offset + 20);
+		guint32 export = tvb_get_letohl(tvb, offset + 24);
+		guint32 export_snapgen = tvb_get_letohl(tvb, offset + 28);
+		proto_item *item;
+		proto_tree *subtree;
+		char flag_string[128] = "";
+		char *strings[] = { " MNT_PNT", " SNAPDIR", " SNAPDIR_ENT",
+				    " EMPTY", " VBN_ACCESS", " MULTIVOLUME",
+				    " METADATA" };
+		guint16 bit = sizeof(strings) / sizeof(strings[0]);
+		while (bit--)
+			if (flags & (1<<bit))
+				strcat(flag_string, strings[bit]);
+		item = proto_tree_add_text(tree, tvb, offset + 0, 8,
+					   "mount (inode %u)", mount);
+		subtree = proto_item_add_subtree(item, ett_nfs_fh_mount);
+		item = proto_tree_add_uint(subtree, hf_nfs_fh_mount_fileid,
+					   tvb, offset + 0, 4, mount);
+		item = proto_tree_add_uint(subtree, hf_nfs_fh_mount_generation,
+					   tvb, offset + 4, 4, mount_gen);
+		item = proto_tree_add_text(tree, tvb, offset + 8, 16,
+					   "file (inode %u)", inum);
+		subtree = proto_item_add_subtree(item, ett_nfs_fh_file);
+		item = proto_tree_add_uint_format(subtree, hf_nfs_fh_flags,
+						  tvb, offset + 8, 2, flags,
+						  "Flags: %#02x%s", flags,
+						  flag_string);
+		item = proto_tree_add_uint(subtree, hf_nfs_fh_snapid, tvb,
+					   offset + 10, 1, snapid);
+		item = proto_tree_add_uint(subtree, hf_nfs_fh_unused, tvb,
+					   offset + 11, 1, unused);
+		item = proto_tree_add_uint(subtree, hf_nfs_fh_fileid, tvb,
+					   offset + 12, 4, inum);
+		item = proto_tree_add_uint(subtree, hf_nfs_fh_generation, tvb,
+					   offset + 16, 4, generation);
+		item = proto_tree_add_uint(subtree, hf_nfs_fh_fsid, tvb,
+					   offset + 20, 4, fsid);
+		item = proto_tree_add_text(tree, tvb, offset + 24, 8,
+					   "export (inode %u)", export);
+		subtree = proto_item_add_subtree(item, ett_nfs_fh_export);
+		item = proto_tree_add_uint(subtree, hf_nfs_fh_export_fileid,
+					   tvb, offset + 24, 4, export);
+		item = proto_tree_add_uint(subtree,
+					   hf_nfs_fh_export_generation,
+					   tvb, offset + 28, 3,
+					   export_snapgen & 0xffffff);
+		item = proto_tree_add_uint(subtree, hf_nfs_fh_export_snapid,
+					   tvb, offset + 31, 1,
+					   export_snapgen >> 24);
+	}
+}
+
+static void
 dissect_fhandle_data_LINUX_KNFSD_NEW(tvbuff_t* tvb, int offset, proto_tree *tree,
     int fhlen _U_)
 {
@@ -1486,6 +1566,20 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					}
 				}
 			}
+			/* For a NetApp filehandle, the flag bits must
+			   include WAFL_FH_MULTIVOLUME, and the fileid
+			   and generation number need to be nonzero in
+			   the mount point, file, and export. */
+			if ((tvb_get_ntohl(tvb,offset+8) & 0x20000000)
+			    && tvb_get_ntohl(tvb,offset+0)
+			    && tvb_get_ntohl(tvb,offset+4)
+			    && tvb_get_ntohl(tvb,offset+12)
+			    && tvb_get_ntohl(tvb,offset+16)
+			    && tvb_get_ntohl(tvb,offset+24)
+			    && tvb_get_ntohl(tvb,offset+28)) {
+				fhtype=FHT_NETAPP;
+				goto type_ready;
+			}
 			len1 = tvb_get_guint8(tvb,offset+4);
 			if (len1<28 && tvb_bytes_exist(tvb,offset+5,len1)) {
 				int wrong=0;
@@ -1534,6 +1628,10 @@ type_ready:
 		break;
 		case FHT_LINUX_KNFSD_NEW:
 			dissect_fhandle_data_LINUX_KNFSD_NEW (tvb, offset, tree,
+			    fhlen);
+		break;
+		case FHT_NETAPP:
+			dissect_fhandle_data_NETAPP (tvb, offset, tree,
 			    fhlen);
 		break;
 		case FHT_UNKNOWN:
@@ -7610,6 +7708,39 @@ proto_register_nfs(void)
 		{ &hf_nfs_fh_hash, {
 			"hash", "nfs.fh.hash", FT_UINT32, BASE_HEX,
 			NULL, 0, "file handle hash", HFILL }},
+		{ &hf_nfs_fh_mount_fileid, {
+			"fileid", "nfs.fh.mount.fileid", FT_UINT32, BASE_DEC,
+			NULL, 0, "mount point fileid", HFILL }},
+		{ &hf_nfs_fh_mount_generation, {
+			"generation", "nfs.fh.mount.generation", FT_UINT32, BASE_HEX,
+			NULL, 0, "mount point generation", HFILL }},
+		{ &hf_nfs_fh_flags, {
+			"flags", "nfs.fh.flags", FT_UINT16, BASE_HEX,
+			NULL, 0, "file handle flags", HFILL }},
+		{ &hf_nfs_fh_snapid, {
+			"snapid", "nfs.fh.snapid", FT_UINT8, BASE_DEC,
+			NULL, 0, "snapshot ID", HFILL }},
+		{ &hf_nfs_fh_unused, {
+			"unused", "nfs.fh.unused", FT_UINT8, BASE_DEC,
+			NULL, 0, "unused", HFILL }},
+		{ &hf_nfs_fh_fileid, {
+			"fileid", "nfs.fh.fileid", FT_UINT32, BASE_DEC,
+			NULL, 0, "file ID", HFILL }},
+		{ &hf_nfs_fh_generation, {
+			"generation", "nfs.fh.generation", FT_UINT32, BASE_HEX,
+			NULL, 0, "inode generation", HFILL }},
+		{ &hf_nfs_fh_fsid, {
+			"fsid", "nfs.fh.fsid", FT_UINT32, BASE_HEX,
+			NULL, 0, "file system ID", HFILL }},
+		{ &hf_nfs_fh_export_fileid, {
+			"fileid", "nfs.fh.export.fileid", FT_UINT32, BASE_DEC,
+			NULL, 0, "export point fileid", HFILL }},
+		{ &hf_nfs_fh_export_generation, {
+			"generation", "nfs.fh.export.generation", FT_UINT32, BASE_HEX,
+			NULL, 0, "export point generation", HFILL }},
+		{ &hf_nfs_fh_export_snapid, {
+			"snapid", "nfs.fh.export.snapid", FT_UINT8, BASE_DEC,
+			NULL, 0, "export point snapid", HFILL }},
 		{ &hf_nfs_fh_fsid_major, {
 			"major", "nfs.fh.fsid.major", FT_UINT32, BASE_DEC,
 			NULL, 0, "major file system ID", HFILL }},
@@ -7884,7 +8015,7 @@ proto_register_nfs(void)
 			NULL, 0, "nfs.fattr.blocks", HFILL }},
 
 		{ &hf_nfs_fattr_fsid, {
-			"fsid", "nfs.fattr.fsid", FT_UINT32, BASE_DEC,
+			"fsid", "nfs.fattr.fsid", FT_UINT32, BASE_HEX,
 			NULL, 0, "nfs.fattr.fsid", HFILL }},
 
 		{ &hf_nfs_fattr_fileid, {
@@ -7920,7 +8051,7 @@ proto_register_nfs(void)
 			NULL, 0, "nfs.fattr3.rdev", HFILL }},
 
 		{ &hf_nfs_fattr3_fsid, {
-			"fsid", "nfs.fattr3.fsid", FT_UINT64, BASE_DEC,
+			"fsid", "nfs.fattr3.fsid", FT_UINT64, BASE_HEX,
 			NULL, 0, "nfs.fattr3.fsid", HFILL }},
 
 		{ &hf_nfs_fattr3_fileid, {
@@ -8498,6 +8629,9 @@ proto_register_nfs(void)
 		&ett_nfs,
 		&ett_nfs_fh_encoding,
 		&ett_nfs_fh_fsid,
+		&ett_nfs_fh_file,
+		&ett_nfs_fh_mount,
+		&ett_nfs_fh_export,
 		&ett_nfs_fh_xfsid,
 		&ett_nfs_fh_fn,
 		&ett_nfs_fh_xfn,
