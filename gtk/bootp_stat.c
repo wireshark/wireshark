@@ -1,7 +1,7 @@
 /* bootp_stat.c
  * boop_stat   2003 Jean-Michel FAYARD
  *
- * $Id: bootp_stat.c,v 1.19 2004/02/22 18:44:00 ulfl Exp $
+ * $Id: bootp_stat.c,v 1.20 2004/02/22 18:58:35 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -314,7 +314,7 @@ gtk_dhcpstat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	/* Filter entry */
 	filter_entry=gtk_entry_new();
-	WIDGET_SET_SIZE(filter_entry, 300, -2);
+	WIDGET_SET_SIZE(filter_entry, 300, -1);
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, TRUE, TRUE, 0);
 	gtk_widget_show(filter_entry);
 	
