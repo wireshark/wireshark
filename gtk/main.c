@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.111 2000/04/01 11:30:53 guy Exp $
+ * $Id: main.c,v 1.112 2000/04/01 12:03:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -120,7 +120,7 @@
 FILE        *data_out_file = NULL;
 packet_info  pi;
 capture_file cf;
-GtkWidget   *top_level, *file_sel, *packet_list, *tree_view, *byte_view,
+GtkWidget   *top_level, *packet_list, *tree_view, *byte_view,
             *prog_bar, *info_bar, *tv_scrollw, *pkt_scrollw;
 static GtkWidget	*bv_scrollw;
 GdkFont     *m_r_font, *m_b_font;
@@ -1690,7 +1690,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
   filter_bt = gtk_button_new_with_label("Filter:");
   gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
-    GTK_SIGNAL_FUNC(filter_dialog_cb), NULL);
+    GTK_SIGNAL_FUNC(filter_browse_cb), NULL);
   gtk_box_pack_start(GTK_BOX(stat_hbox), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
   

@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.19 2000/02/12 06:46:51 guy Exp $
+ * $Id: capture_dlg.c,v 1.20 2000/04/01 12:03:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,6 +53,7 @@
 #include "capture.h"
 #include "globals.h"
 #include "main.h"
+#include "ui_util.h"
 #include "capture_dlg.h"
 #include "filter_prefs.h"
 #include "simple_dialog.h"
@@ -83,10 +84,21 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w);
 static void
 capture_prep_close_cb(GtkWidget *close_bt, gpointer parent_w);
 
+static void
+capture_prep_destroy_cb(GtkWidget *win, gpointer user_data);
+
+/*
+ * Keep a static pointer to the current "Capture Preferences" window, if
+ * any, so that if somebody tries to do "Capture:Start" while there's
+ * already a "Capture Preferences" window up, we just pop up the existing
+ * one, rather than creating a new one.
+ */
+static GtkWidget *cap_open_w;
+
 void
 capture_prep_cb(GtkWidget *w, gpointer d)
 {
-  GtkWidget     *cap_open_w, *if_cb, *if_lb,
+  GtkWidget     *if_cb, *if_lb,
                 *count_lb, *count_cb, *main_vb, *if_hb, *count_hb,
                 *filter_hb, *filter_bt, *filter_te,
                 *file_hb, *file_bt, *file_te,
@@ -99,6 +111,12 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   int           err;
   char          err_str[PCAP_ERRBUF_SIZE];
 
+  if (cap_open_w != NULL) {
+    /* There's already a "Capture Preferences" dialog box; reactivate it. */
+    reactivate_window(cap_open_w);
+    return;
+  }
+
   if_list = get_interface_list(&err, err_str);
   if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
     simple_dialog(ESD_TYPE_WARN, NULL, "Can't get list of interfaces: %s",
@@ -107,6 +125,8 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   
   cap_open_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(cap_open_w), "Ethereal: Capture Preferences");
+  gtk_signal_connect(GTK_OBJECT(cap_open_w), "destroy",
+	GTK_SIGNAL_FUNC(capture_prep_destroy_cb), NULL);
   
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
@@ -165,7 +185,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   
   filter_bt = gtk_button_new_with_label("Filter:");
   gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
-    GTK_SIGNAL_FUNC(filter_dialog_cb), NULL);
+    GTK_SIGNAL_FUNC(filter_browse_cb), NULL);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
   
@@ -372,6 +392,24 @@ capture_prep_close_cb(GtkWidget *close_bt, gpointer parent_w)
 {
   gtk_grab_remove(GTK_WIDGET(parent_w));
   gtk_widget_destroy(GTK_WIDGET(parent_w));
+}
+
+static void
+capture_prep_destroy_cb(GtkWidget *win, gpointer user_data)
+{
+  GtkWidget *capture_prep_filter_w;
+
+  /* Is there a filter edit/selection dialog associated with this
+     Capture Preferences dialog? */
+  capture_prep_filter_w = gtk_object_get_data(GTK_OBJECT(win), E_FILT_DIALOG_PTR_KEY);
+
+  if (capture_prep_filter_w != NULL) {
+    /* Yes.  Destroy it. */
+    gtk_widget_destroy(capture_prep_filter_w);
+  }
+
+  /* Note that we no longer have a "Capture Preferences" dialog box. */
+  cap_open_w = NULL;
 }
 
 #endif /* HAVE_LIBPCAP */

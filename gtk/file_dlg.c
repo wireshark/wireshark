@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.20 2000/02/12 06:58:41 guy Exp $
+ * $Id: file_dlg.c,v 1.21 2000/04/01 12:03:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,6 +49,7 @@
 #endif
 
 #include "filter_prefs.h"
+#include "ui_util.h"
 
 #ifndef __DIALOG_H__
 #include "simple_dialog.h"
@@ -65,13 +66,28 @@
 #endif
 
 static void file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs);
+static void file_open_destroy_cb(GtkWidget *win, gpointer user_data);
 static void select_file_type_cb(GtkWidget *w, gpointer data);
 static void file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs);
+
+/*
+ * Keep a static pointer to the current "Open Capture File" window, if
+ * any, so that if somebody tries to do "File:Open" while there's already
+ * an "Open Capture File" window up, we just pop up the existing one,
+ * rather than creating a new one.
+ */
+static GtkWidget *file_sel;
 
 /* Open a file */
 void
 file_open_cmd_cb(GtkWidget *w, gpointer data) {
   GtkWidget *filter_hbox, *filter_bt, *filter_te;
+
+  if (file_sel != NULL) {
+    /* There's already an "Open Capture File" dialog box; reactivate it. */
+    reactivate_window(file_sel);
+    return;
+  }
 
   /* XXX - GTK+'s file selection dialog box doesn't let you set the
      initial directory it should show; it always uses the current
@@ -89,6 +105,8 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
 	  chdir(last_open_dir);
 
   file_sel = gtk_file_selection_new ("Ethereal: Open Capture File");
+  gtk_signal_connect(GTK_OBJECT(file_sel), "destroy",
+	GTK_SIGNAL_FUNC(file_open_destroy_cb), NULL);
   
   /* Connect the ok_button to file_open_ok_cb function and pass along a
      pointer to the file selection box widget */
@@ -106,7 +124,7 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
 
   filter_bt = gtk_button_new_with_label("Filter:");
   gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
-    GTK_SIGNAL_FUNC(filter_dialog_cb), NULL);
+    GTK_SIGNAL_FUNC(filter_browse_cb), NULL);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
   
@@ -203,6 +221,24 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
     last_open_dir = NULL;
   }
   g_free(cf_name);
+}
+
+static void
+file_open_destroy_cb(GtkWidget *win, gpointer user_data)
+{
+  GtkWidget *file_open_filter_w;
+
+  /* Is there a filter edit/selection dialog associated with this
+     Open Capture File dialog? */
+  file_open_filter_w = gtk_object_get_data(GTK_OBJECT(win), E_FILT_DIALOG_PTR_KEY);
+
+  if (file_open_filter_w != NULL) {
+    /* Yes.  Destroy it. */
+    gtk_widget_destroy(file_open_filter_w);
+  }
+
+  /* Note that we no longer have a "Open Capture File" dialog box. */
+  file_sel = NULL;
 }
 
 /* Close a file */

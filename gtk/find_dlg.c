@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.7 2000/03/15 08:54:24 guy Exp $
+ * $Id: find_dlg.c,v 1.8 2000/04/01 12:03:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,7 @@
 #include "dfilter.h"
 #include "globals.h"
 
+#include "ui_util.h"
 #include "find_dlg.h"
 #include "filter_prefs.h"
 #include "simple_dialog.h"
@@ -56,15 +57,34 @@ find_frame_ok_cb(GtkWidget *ok_bt, gpointer parent_w);
 static void
 find_frame_close_cb(GtkWidget *close_bt, gpointer parent_w);
 
+static void
+find_frame_destroy_cb(GtkWidget *win, gpointer user_data);
+
+/*
+ * Keep a static pointer to the current "Find Frame" window, if any, so
+ * that if somebody tries to do "Find Frame" while there's already a
+ * "Find Frame" window up, we just pop up the existing one, rather than
+ * creating a new one.
+ */
+static GtkWidget *find_frame_w;
+
 void
 find_frame_cb(GtkWidget *w, gpointer d)
 {
-  GtkWidget     *find_frame_w, *main_vb, *filter_hb, *filter_bt, *filter_te,
+  GtkWidget     *main_vb, *filter_hb, *filter_bt, *filter_te,
                 *direction_hb, *forward_rb, *backward_rb,
                 *bbox, *ok_bt, *cancel_bt;
 
+  if (find_frame_w != NULL) {
+    /* There's already a "Find Frame" dialog box; reactivate it. */
+    reactivate_window(find_frame_w);
+    return;
+  }
+
   find_frame_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(find_frame_w), "Ethereal: Find Frame");
+  gtk_signal_connect(GTK_OBJECT(find_frame_w), "destroy",
+	GTK_SIGNAL_FUNC(find_frame_destroy_cb), NULL);
   
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
@@ -79,7 +99,7 @@ find_frame_cb(GtkWidget *w, gpointer d)
   
   filter_bt = gtk_button_new_with_label("Filter:");
   gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
-    GTK_SIGNAL_FUNC(filter_dialog_cb), NULL);
+    GTK_SIGNAL_FUNC(filter_browse_cb), NULL);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
   
@@ -190,4 +210,22 @@ find_frame_close_cb(GtkWidget *close_bt, gpointer parent_w)
 {
   gtk_grab_remove(GTK_WIDGET(parent_w));
   gtk_widget_destroy(GTK_WIDGET(parent_w));
+}
+
+static void
+find_frame_destroy_cb(GtkWidget *win, gpointer user_data)
+{
+  GtkWidget *find_frame_filter_w;
+
+  /* Is there a filter edit/selection dialog associated with this
+     Find Frame dialog? */
+  find_frame_filter_w = gtk_object_get_data(GTK_OBJECT(win), E_FILT_DIALOG_PTR_KEY);
+
+  if (find_frame_filter_w != NULL) {
+    /* Yes.  Destroy it. */
+    gtk_widget_destroy(find_frame_filter_w);
+  }
+
+  /* Note that we no longer have a "Find Frame" dialog box. */
+  find_frame_w = NULL;
 }

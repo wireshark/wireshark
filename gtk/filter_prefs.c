@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.10 2000/03/28 06:20:08 guy Exp $
+ * $Id: filter_prefs.c,v 1.11 2000/04/01 12:03:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,7 @@
 #include "packet.h"
 #include "file.h"
 #include "util.h"
+#include "ui_util.h"
 #include "prefs_dlg.h"
 
 #define E_FILT_NAME_KEY "filter_name"
@@ -69,9 +70,11 @@ static GtkWidget   *filter_l, *chg_bt, *copy_bt, *del_bt, *name_te, *filter_te, 
 static GList       *fl = NULL;
 
 static void get_filter_list(void);
+static GtkWidget *filter_dialog_new(GtkWidget *caller, GtkWidget *filter_te);
 static void filter_dlg_ok(GtkWidget *ok_bt, gpointer parent_w);
 static void filter_dlg_save(GtkWidget *save_bt, gpointer parent_w);
 static void filter_dlg_cancel(GtkWidget *cancel_bt, gpointer parent_w);
+static void filter_dlg_destroy(GtkWidget *win, gpointer data);
 static void filter_sel_apply_cb(GtkWidget *cancel_bt, gpointer parent_w);
 
 static GtkWidget *filter_prefs_show(GtkWidget *);
@@ -142,9 +145,73 @@ get_filter_list(void)
   g_free(ff_path);
 }
 
-/* the window that pops up for filter editing/applying */
+/* XXX - we can have one global dialog box for editing, and a bunch
+   of dialog boxes associated with browse buttons; we want the dialog
+   boxes associated with browse buttons to at least let you save the
+   current filter, so they have to allow editing; however, how do we
+   arrange that if a change is made to the filter list, other dialog
+   boxes get updated appropriately? */
+
+/* Create a filter dialog for browsing; this is to be used as a callback
+   for a button next to a text entry box, which, when clicked, allows
+   you to browse through the list of filters to select one to be put
+   into the text entry box, and, if you select a filter with this
+   dialog box, enters the text of the filter into a text entry box
+   associated with the button. */
+void
+filter_browse_cb(GtkWidget *w)
+{
+	GtkWidget *caller = gtk_widget_get_toplevel(w);
+	GtkWidget *filter_browse_w;
+	GtkWidget *filter_te;
+
+	/* Has a filter dialog box already been opened for that top-level
+	   widget? */
+	filter_browse_w = gtk_object_get_data(GTK_OBJECT(caller),
+	    E_FILT_DIALOG_PTR_KEY);
+
+	if (filter_browse_w != NULL) {
+		/* Yes.  Just re-activate that dialog box. */
+		reactivate_window(filter_browse_w);
+		return;
+	}
+
+	/* No.  Get the text entry attached to the button. */
+	filter_te = gtk_object_get_data(GTK_OBJECT(w), E_FILT_TE_PTR_KEY);
+
+	/* Now create a new dialog. */
+	filter_browse_w = filter_dialog_new(caller, filter_te);
+
+	/* Set the E_FILT_CALLER_PTR_KEY for the new dialog to point to
+	   our caller. */
+	gtk_object_set_data(GTK_OBJECT(filter_browse_w), E_FILT_CALLER_PTR_KEY,
+	    caller);
+
+	/* Set the E_FILT_DIALOG_PTR_KEY for the caller to point to us */
+	gtk_object_set_data(GTK_OBJECT(caller), E_FILT_DIALOG_PTR_KEY,
+	    filter_browse_w);
+}
+
+static GtkWidget *global_filter_w;
+
+/* Create a filter dialog for editing; this is to be used as a callback
+   for menu items, toolbars, etc.. */
 void
 filter_dialog_cb(GtkWidget *w)
+{
+	/* Has a filter dialog box already been opened for editing? */
+	if (global_filter_w != NULL) {
+		/* Yes.  Just reactivate it. */
+		reactivate_window(global_filter_w);
+		return;
+	}
+
+	/* No.  Create one. */
+	global_filter_w = filter_dialog_new(NULL, NULL);
+}
+
+static GtkWidget *
+filter_dialog_new(GtkWidget *caller, GtkWidget *filter_te)
 {
 	GtkWidget	*main_w,	/* main window */
 			*main_vb,	/* main container */
@@ -152,16 +219,15 @@ filter_dialog_cb(GtkWidget *w)
 			*ok_bt, 	/* ok button */
 			*save_bt, 	/* save button */
 			*cancel_bt;	/* cancel button */ 
-	GtkWidget *filter_te = NULL;	/* filter text entry */
 	GtkWidget *filter_pg = NULL;	/* filter settings box */
-
-	/* get the text entry widget from the caller */
-	if(w != NULL) {
-		filter_te = gtk_object_get_data(GTK_OBJECT(w), E_FILT_TE_PTR_KEY);
-	}
 
 	main_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(main_w), "Ethereal: Filters");
+
+	/* Call a handler when we're destroyed, so we can inform
+	   our caller, if any, that we've been destroyed. */
+	gtk_signal_connect(GTK_OBJECT(main_w), "destroy",
+	    GTK_SIGNAL_FUNC(filter_dlg_destroy), NULL);
 
 	main_vb = gtk_vbox_new(FALSE, 5);
 	gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
@@ -172,7 +238,6 @@ filter_dialog_cb(GtkWidget *w)
 	gtk_box_pack_start(GTK_BOX(main_vb), filter_pg, TRUE, TRUE, 0);
 	gtk_object_set_data(GTK_OBJECT(filter_pg), E_FILT_TE_PTR_KEY, filter_te);
 	gtk_object_set_data(GTK_OBJECT(main_w), E_FILTER_WIDGET_KEY, filter_pg);
-	gtk_widget_show(filter_te);
 
 	bbox = gtk_hbutton_box_new();
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
@@ -202,8 +267,9 @@ filter_dialog_cb(GtkWidget *w)
 	gtk_box_pack_start(GTK_BOX(bbox), cancel_bt, TRUE, TRUE, 0);
 	gtk_widget_show(cancel_bt);
 
-
 	gtk_widget_show(main_w);
+
+	return main_w;
 }
 
 static void
@@ -225,7 +291,33 @@ filter_dlg_cancel(GtkWidget *cancel_bt, gpointer parent_w)
 	filter_prefs_cancel(gtk_object_get_data(GTK_OBJECT(parent_w),  E_FILTER_WIDGET_KEY));
 	gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
-	
+
+static void
+filter_dlg_destroy(GtkWidget *win, gpointer data)
+{
+	GtkWidget *caller;
+
+	/* Get the widget that requested that we be popped up, if any.
+	   (It should arrange to destroy us if it's destroyed, so
+	   that we don't get a pointer to a non-existent window here.) */
+	caller = gtk_object_get_data(GTK_OBJECT(win), E_FILT_CALLER_PTR_KEY);
+
+	if (caller != NULL) {
+		/* Tell it we no longer exist. */
+		gtk_object_set_data(GTK_OBJECT(caller), E_FILT_DIALOG_PTR_KEY,
+		    NULL);
+	} else {
+		/* This is an editing dialog popped up from, for example,
+		   a menu item; note that we no longer have one. */
+		g_assert(win == global_filter_w);
+		global_filter_w = NULL;
+	}
+
+	/* Now nuke this window. */
+	gtk_grab_remove(GTK_WIDGET(win));
+	gtk_widget_destroy(GTK_WIDGET(win));
+}
+
 /* Create and display the filter selection widgets. */
 static GtkWidget *
 filter_prefs_show(GtkWidget *w) {
