@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.42 1999/11/22 06:24:54 gram Exp $
+ * $Id: main.c,v 1.43 1999/11/23 03:50:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,7 +26,6 @@
  *
  * To do:
  * - Graphs
- * - Get AIX to work
  * - Check for end of packet in dissect_* routines.
  * - Playback window
  * - Multiple window support

@@ -18,12 +18,14 @@ Installation Checklist
          need to install a "gtk-devel" .rpm.
 
   [ ] 2. If you want to capture packets, make sure you have libpcap
-         installed.  The latest version can be found at
+         installed.  The latest "official" version can be found at
           
          ftp://ftp.ee.lbl.gov .
 
          Make sure you install the headers ('make install-incl') when you
          install the library.
+
+	 New development of libpcap is occurring at www.tcpdump.org
 
          If you installed libpcap from a binary package, you may have to
          install a "development" package; for example, there's

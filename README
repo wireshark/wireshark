@@ -29,6 +29,7 @@ Ethereal is known to compile and run on the following systems:
   - Sequent PTX v4.4.5  (Nick Williams <njw@sequent.com>)
   - Tru64 UNIX (formerly Digital UNIX) (3.2, 4.0)
   - Irix (version?)
+  - AIX (4.3.2, with a bit of work)
 
 It should run on other systems without too much trouble.
 
