@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.7 2000/06/15 03:48:43 gram Exp $
+ * $Id: packet-x11.c,v 1.8 2000/06/15 04:09:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -795,7 +795,7 @@ static void listOfArc(int hf, int length)
 	    gint16 angle2 = VALUE16(tvb, cur_offset + 10);
 
 	    proto_tree *ttt = proto_tree_add_protocol_format(tt, hf_x11_arc, tvb, cur_offset, 12, 
-							     "arc: %dx%d%+d%+d, angle %d -> %d (%f° -> %f°)",
+							     "arc: %dx%d+%d+%d, angle %d -> %d (%f° -> %f°)",
 							     width, height, x, y, angle1, angle2,
 							     angle1 / 64.0, angle2 / 64.0);
 	    proto_tree_add_int(ttt, hf_x11_arc_x, tvb, cur_offset, 2, x); cur_offset += 2;
@@ -995,7 +995,7 @@ static void listOfRectangle(int hf, int length)
 	    height = VALUE16(tvb, cur_offset + 6);
 
 	    ttt = proto_tree_add_protocol_format(tt, hf_x11_rectangle, tvb, cur_offset, 8, 
-						 "rectangle: %dx%d%+d%+d", width, height, x, y);
+						 "rectangle: %dx%d+%d+%d", width, height, x, y);
 	    proto_tree_add_int(ttt, hf_x11_rectangle_x, tvb, cur_offset, 2, x); cur_offset += 2;
 	    proto_tree_add_int(ttt, hf_x11_rectangle_y, tvb, cur_offset, 2, y); cur_offset += 2;
 	    proto_tree_add_uint(ttt, hf_x11_rectangle_width, tvb, cur_offset, 2, width); cur_offset += 2;
