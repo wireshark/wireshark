@@ -126,6 +126,10 @@ Sets the packet printing and filter options (see L<"Preferences"> below).
 =item Tools:Capture
 
 Initiates a live packet capture (see L<"Capture Preferences"> below).
+A temporary file will be created to hold the capture. The location of the
+file can be chosen by setting your TMPDIR environment variable before
+starting ethereal. Otherwise, the default TMPDIR location is system-dependent,
+but is likely either /var/tmp or /tmp.
 
 =item Tools:Follow TCP Stream
 

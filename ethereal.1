@@ -1,12 +1,13 @@
 .rn '' }`
-''' $RCSfile: ethereal.1,v $$Revision: 1.5 $$Date: 1998/12/29 04:05:34 $
+''' $RCSfile: ethereal.1,v $$Revision: 1.6 $$Date: 1999/04/06 16:35:46 $
 '''
 ''' $Log: ethereal.1,v $
-''' Revision 1.5  1998/12/29 04:05:34  gerald
-''' * Added Joerg Mayer's Vines patch
-''' * Added Joerg to the AUTHORS file
-''' * Added Guy's bitfield decode patch
-''' * Fixed time output
+''' Revision 1.6  1999/04/06 16:35:46  gram
+''' Touch-up fixes to my previous fix of making the packet-capture facility save
+''' to a file unknown to the user first. The manpage has now been updated to reflect
+''' the ability of the user to use the TMPDIR environment variable to change the
+''' location of this capture file. And now the capture file is deleted when
+''' ethereal exits, if the user has not saved the trace file.
 '''
 '''
 .de Sh
@@ -99,7 +100,7 @@
 .nr % 0
 .rr F
 .\}
-.TH ETHEREAL 1 "0.5.0" "18/Nov/98" "The Ethereal Network Analyzer"
+.TH ETHEREAL 1 "perl 5.005, patch 02" "6/Apr/99" "User Contributed Perl Documentation"
 .UC
 .if n .hy 0
 .if n .na
@@ -245,7 +246,11 @@ to disk.
 Sets the initial height of the tree view (top) pane
 .Ip "-t" 4
 Sets the format of the packet timestamp displayed in the packet list
-window.
+window.  The format can be one of \*(L'r\*(R' (relative), \*(L'a\*(R' (absolute), or \*(L'd\*(R'
+(delta).  The relative time is the time elapsed between the first packet
+and the current packet.  The absolute time is the actual date and time the
+packet was captured.  The delta time is the time since the previous packet
+was captured.  The default is relative.
 .Ip "-v" 4
 Prints the version and exits.
 .Ip "-w" 4
@@ -264,6 +269,10 @@ Exits the application.
 Sets the packet printing and filter options (see the section on \fIPreferences\fR below).
 .Ip "Tools:Capture" 4
 Initiates a live packet capture (see the section on \fICapture Preferences\fR below).
+A temporary file will be created to hold the capture. The location of the
+file can be chosen by setting your \s-1TMPDIR\s0 environment variable before
+starting ethereal. Otherwise, the default \s-1TMPDIR\s0 location is system-dependent,
+but is likely either /var/tmp or /tmp.
 .Ip "Tools:Follow \s-1TCP\s0 Stream" 4
 If you have a \s-1TCP\s0 packet selected, it will display the contents of the \s-1TCP\s0
 data stream in a separate window.
@@ -382,15 +391,22 @@ The latest version of \fBethereal\fR can be found at
 \&  -------- ------
 \&  Gerald Combs  <gerald@zing.org>
 .Ve
-.Vb 8
+.Vb 15
 \&  Contributors
 \&  ------------
-\&  Gilbert Ramirez Jr.  <gram@verdict.uthscsa.edu>
-\&  Hannes R. Boehm      <hannes@boehm.org>
-\&  Mike Hall            <mlh@io.com>
-\&  Bobo Rajec           <bobo@bsp-consulting.sk>
-\&  Laurent Deniel       <deniel@worldnet.fr>
-\&  Don Lafontaine       <lafont02@cn.ca>
+\&  Gilbert Ramirez          <gramirez@tivoli.com>
+\&  Hannes R. Boehm          <hannes@boehm.org>
+\&  Mike Hall                <mlh@io.com>
+\&  Bobo Rajec               <bobo@bsp-consulting.sk>
+\&  Laurent Deniel           <deniel@worldnet.fr>
+\&  Don Lafontaine           <lafont02@cn.ca>
+\&  Guy Harris               <guy@netapp.com>
+\&  Simon Wilkinson          <sxw@dcs.ed.ac.uk>
+\&  Joerg Mayer              <jmayer@telemation.de>
+\&  Martin Maciaszek         <fastjack@i-s-o.net>
+\&  Didier Jorand            <Didier.Jorand@alcatel.fr>
+\&  Jun-ichiro itojun Hagino <itojun@iijlab.net>
+\&  Richard Sharpe           <sharpe@ns.aus.com>
 .Ve
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

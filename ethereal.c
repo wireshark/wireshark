@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.29 1999/04/06 16:24:48 gram Exp $
+ * $Id: ethereal.c,v 1.30 1999/04/06 16:35:46 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -473,6 +473,9 @@ tree_view_cb(GtkWidget *w) {
 
 void
 file_quit_cmd_cb (GtkWidget *widget, gpointer data) {
+  if (cf.save_file && !cf.user_saved) {
+	unlink(cf.save_file);
+  }
   gtk_exit(0);
 }
 
