@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.69 2002/06/22 10:24:35 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.70 2002/06/22 23:11:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1565,7 +1565,18 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
      */
     gboolean can_decrypt = FALSE;
     proto_tree *wep_tree = NULL;
+    guint32 iv;
+    guint8 key;
 
+    /*
+     * XXX - pass the IV and key to "try_decrypt_wep()", and have it pass
+     * them to "wep_decrypt()", rather than having "wep_decrypt()" extract
+     * them itself.
+     *
+     * Also, just pass the data *following* the WEP parameters as the
+     * buffer to decrypt.
+     */
+    iv = tvb_get_letoh24(tvb, hdr_len);
     if (tree) {
       proto_item *wep_fields;
 
@@ -1573,19 +1584,15 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 					   "WEP parameters");
 
       wep_tree = proto_item_add_subtree (wep_fields, ett_wep_parameters);
-      proto_tree_add_item (wep_tree, hf_wep_iv, tvb, hdr_len, 3, TRUE);
-
-      proto_tree_add_uint (wep_tree, hf_wep_key, tvb, hdr_len + 3, 1,
-			   COOK_WEP_KEY (tvb_get_guint8 (tvb, hdr_len + 3)));
+      proto_tree_add_uint (wep_tree, hf_wep_iv, tvb, hdr_len, 3, iv);
     }
+    key = COOK_WEP_KEY (tvb_get_guint8 (tvb, hdr_len + 3));
+    if (tree)
+      proto_tree_add_uint (wep_tree, hf_wep_key, tvb, hdr_len + 3, 1, key);
 
     /* Subtract out the length of the IV. */
     len -= 4;
     reported_len -= 4;
-    if (len < 0 || reported_len < 0) {
-      /* We don't have anything beyond the IV. */
-      return;
-    }
 
     /*
      * Well, this packet should, in theory, have an ICV.
