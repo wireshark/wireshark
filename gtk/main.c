@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.63 1999/12/07 06:10:09 guy Exp $
+ * $Id: main.c,v 1.64 1999/12/07 07:12:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -819,11 +819,19 @@ print_usage(void) {
 
   fprintf(stderr, "This is GNU %s %s, compiled with %s\n", PACKAGE,
 	  VERSION, comp_info_str);
+#ifdef HAVE_LIBPCAP
   fprintf(stderr, "%s [-vh] [-kQS] [-b <bold font>] [-B <byte view height>] [-c count]\n",
 	  PACKAGE);
-  fprintf(stderr, "         [-f <filter expression>] [-i interface] [-m <medium font>] [-n]\n");
-  fprintf(stderr, "         [-P <packet list height>] [-r infile] [-s snaplen]\n");
-  fprintf(stderr, "         [-t <time stamp format>] [-T <tree view height>] [-w savefile] \n");
+  fprintf(stderr, "         [-f <capture filter>] [-i interface] [-m <medium font>] [-n]\n");
+  fprintf(stderr, "         [-P <packet list height>] [-r infile] [-R <read filter>]\n");
+  fprintf(stderr, "         [-s snaplen] [-t <time stamp format>] [-T <tree view height>]\n");
+  fprintf(stderr, "         [-w savefile]\n");
+#else
+  fprintf(stderr, "%s [-vh] [-b <bold font>] [-B <byte view height>] [-m <medium font>]\n",
+	  PACKAGE);
+  fprintf(stderr, "         [-n] [-P <packet list height>] [-r infile] [-R <read filter>]\n");
+  fprintf(stderr, "         [-t <time stamp format>] [-T <tree view height>]\n");
+#endif
 }
 
 /* And now our feature presentation... [ fade to music ] */
@@ -838,16 +846,19 @@ main(int argc, char *argv[])
 #ifndef WIN32
   int                  opt;
   extern char         *optarg;
+  gboolean             arg_error = FALSE;
 #endif
 #ifdef HAVE_LIBPCAP
-  extern char         pcap_version[];
+  extern char          pcap_version[];
 #endif
   char                *pf_path;
-  int                 pf_open_errno = 0;
-  int                 err;
+  int                  pf_open_errno = 0;
+  int                  err;
 #ifdef HAVE_LIBPCAP
-  gboolean            start_capture = FALSE;
-  gchar              *save_file = NULL;
+  gboolean             start_capture = FALSE;
+  gchar               *save_file = NULL;
+#else
+  gboolean             capture_option_specified = FALSE;
 #endif
   GtkWidget           *window, *main_vbox, *menubar, *u_pane, *l_pane,
                       *bv_table, *bv_hscroll, *bv_vscroll, *stat_hbox, 
@@ -991,19 +1002,40 @@ main(int argc, char *argv[])
         bv_size = atoi(optarg);
         break;
       case 'c':        /* Capture xxx packets */
-        cf.count = atoi(optarg);
-        break;
 #ifdef HAVE_LIBPCAP
-      case 'f':
-	cf.cfilter = g_strdup(optarg);
-	break;
+        cf.count = atoi(optarg);
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
 #endif
+        break;
+      case 'f':
+#ifdef HAVE_LIBPCAP
+	cf.cfilter = g_strdup(optarg);
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif
+	break;
       case 'h':        /* Print help and exit */
 	print_usage();
 	exit(0);
         break;
       case 'i':        /* Use interface xxx */
+#ifdef HAVE_LIBPCAP
         cf.iface = g_strdup(optarg);
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif
+        break;
+      case 'k':        /* Start capture immediately */
+#ifdef HAVE_LIBPCAP
+        start_capture = TRUE;
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif
         break;
       case 'm':        /* Medium font */
 	medium_font = g_strdup(optarg);
@@ -1011,20 +1043,18 @@ main(int argc, char *argv[])
       case 'n':        /* No name resolution */
 	g_resolving_actif = 0;
 	break;
-#ifdef HAVE_LIBPCAP
-      case 'k':        /* Start capture immediately */
-        start_capture = TRUE;
-        break;
-#endif
       case 'P':        /* Packet list pane height */
         pl_size = atoi(optarg);
         break;
-#ifdef HAVE_LIBPCAP
       case 'Q':        /* Quit after capture (just capture to file) */
+#ifdef HAVE_LIBPCAP
         quit_after_cap = 1;
         start_capture = TRUE;  /*** -Q implies -k !! ***/
-        break;
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
 #endif
+        break;
       case 'r':        /* Read capture file xxx */
 	/* We may set "last_open_dir" to "cf_name", and if we change
 	   "last_open_dir" later, we free the old value, so we have to
@@ -1034,14 +1064,22 @@ main(int argc, char *argv[])
       case 'R':        /* Read file filter */
         rfilter = optarg;
         break;
-#ifdef HAVE_LIBPCAP
       case 's':        /* Set the snapshot (capture) length */
+#ifdef HAVE_LIBPCAP
         cf.snap = atoi(optarg);
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif
         break;
       case 'S':        /* "Sync" mode: used for following file ala tail -f */
+#ifdef HAVE_LIBPCAP
         sync_mode = TRUE;
-        break;
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
 #endif
+        break;
       case 't':        /* Time stamp type */
         if (strcmp(optarg, "r") == 0)
           timestamp_type = RELATIVE;
@@ -1064,21 +1102,36 @@ main(int argc, char *argv[])
         printf("%s %s, with %s\n", PACKAGE, VERSION, comp_info_str);
         exit(0);
         break;
-#ifdef HAVE_LIBPCAP
       case 'w':        /* Write to capture file xxx */
+#ifdef HAVE_LIBPCAP
         save_file = g_strdup(optarg);
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif
 	break;
       case 'W':        /* Write to capture file FD xxx */
+#ifdef HAVE_LIBPCAP
         cf.save_file_fd = atoi(optarg);
-	break;
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
 #endif
+	break;
+      default:
       case '?':        /* Bad flag - print usage message */
-        print_usage();
+        arg_error = TRUE;
         break;
     }
   }
 #endif
 
+#ifndef HAVE_LIBPCAP
+  if (capture_option_specified)
+    fprintf(stderr, "This version of Ethereal was not built with support for capturing packets.\n");
+#endif
+  if (arg_error)
+    print_usage();
 #ifdef HAVE_LIBPCAP
   if (start_capture) {
     if (cf.iface == NULL) {
