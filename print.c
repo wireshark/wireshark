@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.44 2002/04/01 02:00:50 guy Exp $
+ * $Id: print.c,v 1.45 2002/04/02 05:07:36 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -197,10 +197,12 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 		print_hex_data_text(pdata->fh, pd, fi->length, pdata->encoding);
 	}
 
-	/* If we're printing all levels, or if this level is expanded,
-	   recurse into the subtree, if it exists. */
-	g_assert(fi->tree_type >= 0 && fi->tree_type < num_tree_types);
-	if (pdata->print_all_levels || tree_is_expanded[fi->tree_type]) {
+	/* If we're printing all levels, or if this node is one with a
+	   subtree and its subtree is expanded, recurse into the subtree,
+	   if it exists. */
+	g_assert(fi->tree_type >= -1 && fi->tree_type < num_tree_types);
+	if (pdata->print_all_levels ||
+	    (fi->tree_type >= 0 && tree_is_expanded[fi->tree_type])) {
 		if (g_node_n_children(node) > 0) {
 			pdata->level++;
 			g_node_children_foreach(node, G_TRAVERSE_ALL,
