@@ -360,10 +360,11 @@ dissect_ber_integer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 		pi=proto_tree_add_text(tree, tvb, offset, len, "%s : 0x", hfinfo->name);
 		if(pi){
 			for(i=0;i<len;i++){
-				proto_item_append_text(pi,"%02x",tvb_get_guint8(tvb, offset+i));
+				proto_item_append_text(pi,"%02x",tvb_get_guint8(tvb, offset));
+				offset++;
 			}
 		}
-		return 0xdeadbeef;
+		return offset;
 	}
 	if(len>4){
 		header_field_info *hfinfo;
@@ -379,8 +380,8 @@ dissect_ber_integer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 			offset++;
 		}
 		hfinfo = proto_registrar_get_nth(hf_id);
-		proto_tree_add_text(tree, tvb, offset, len, "%s: %" PRIu64, hfinfo->name, val64);
-		return 0xdeadbeef;
+		proto_tree_add_text(tree, tvb, offset-len, len, "%s: %" PRIu64, hfinfo->name, val64);
+		return offset;
 	}
 	
 	val=0;
