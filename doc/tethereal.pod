@@ -836,18 +836,27 @@ protocol name is the same name that would be used in a display filter
 for the protocol.  A B<#> character starts a comment that runs to the
 end of the line.
 
-The F<ethers> file, which is found in the F</etc> directory on
+If the personal F<hosts> file, in F<$HOME/.ethereal/hosts> file on
+UNIX-compatible systems, or the F<%APPDATA%\Ethereal\hosts> file (or, if
+%APPDATA% isn't defined, the F<%USERPROFILE%\Application
+Data\Ethereal\hosts> file) on Windows systems, exists, the entries in
+that file are used to resolve IPv4 and IPv6 addresses before any other
+attempts are made to resolve them.  That file has the standard F<hosts>
+file syntax; each line contains one IP address and name, separated by
+whitespace.
+
+The global F<ethers> file, which is found in the F</etc> directory on
 UNIX-compatible systems, and in the main installation directory (for
 example, F<C:\Program Files\Ethereal>) on Windows systems, is consulted
 to correlate 6-byte hardware addresses to names.  If an address is not
-found in the F<ethers> file, the F<$HOME/.ethereal/ethers> file on
-UNIX-compatible systems, and the F<%APPDATA%\Ethereal\ethers> file (or, if
-%APPDATA% isn't defined, the
+found in the global F<ethers> file, the personal F<ethers> file, in
+F<$HOME/.ethereal/ethers> on UNIX-compatible systems, and in
+F<%APPDATA%\Ethereal\ethers> (or, if %APPDATA% isn't defined, the
 F<%USERPROFILE%\Application Data\Ethereal\ethers> file) on Windows
-systems is consulted next.  Each line contains one hardware
-address and name, separated by whitespace.  The digits of the hardware
-address are separated by either a colon (:), a dash (-), or a period
-(.).  The following three lines are valid lines of an ethers file:
+systems is consulted next.  Each line contains one hardware address and
+name, separated by whitespace.  The digits of the hardware address are
+separated by either a colon (:), a dash (-), or a period (.).  The
+following three lines are valid lines of an F<ethers> file:
 
   ff:ff:ff:ff:ff:ff          Broadcast
   c0-00-ff-ff-ff-ff          TR_broadcast
@@ -875,19 +884,19 @@ address ranges.  That entry, for example, will match addresses from
 00-00-0C-07-AC-00 through 00-00-0C-07-AC-FF.  The mask need not be a
 multiple of 8.
 
-The F<ipxnets> file, which is found in the F</etc> directory on
+The global F<ipxnets> file, which is found in the F</etc> directory on
 UNIX-compatible systems, and in the main installation directory (for
 example, F<C:\Program Files\Ethereal>) on Windows systems, correlates
 4-byte IPX network numbers to names.  If a network number is not found
-in the F<ipxnets> file, the F<$HOME/.ethereal/ipxnets> file on
-UNIX-compatible systems, and the F<%APPDATA%\Ethereal\ipxnets> file (or,
-if %APPDATA% isn't defined, the
-F<%USERPROFILE%\Application Data\Ethereal\ipxnets> file)
-on Windows systems, is consulted next.  The format is the same as the
-F<ethers> file, except that each address if four bytes instead of six. 
+in the global F<ipxnets> file, the personal F<ipxnets> file, in
+F<$HOME/.ethereal/ipxnets> on UNIX-compatible systems, and in
+F<%APPDATA%\Ethereal\ipxnets> (or, if %APPDATA% isn't defined, the
+F<%USERPROFILE%\Application Data\Ethereal\ipxnets> file) on Windows
+systems, is consulted next.  The format is the same as the F<ethers>
+file, except that each address if four bytes instead of six. 
 Additionally, the address can be represented a single hexadecimal
 number, as is more common in the IPX world, rather than four hex octets. 
-For example, these four lines are valid lines of an ipxnets file.
+For example, these four lines are valid lines of an F<ipxnets> file:
 
   C0.A8.2C.00              HR
   c0-a8-1c-00              CEO

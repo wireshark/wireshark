@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 /*
  * Win32 doesn't have SIGALRM (and it's the OS where name lookup calls
@@ -109,12 +110,16 @@
 # include <ws2tcpip.h>
 #endif
 
+#include <glib.h>
+
+#include "report_err.h"
 #include "packet.h"
 #include "ipv6-utils.h"
 #include "addr_resolv.h"
 #include "filesystem.h"
 #include <epan/prefs.h>
 
+#define ENAME_HOSTS		"hosts"
 #define ENAME_ETHERS 		"ethers"
 #define ENAME_IPXNETS 		"ipxnets"
 #define ENAME_MANUF		"manuf"
@@ -1503,7 +1508,6 @@ static guint ipxnet_addr_lookup(const gchar *name, gboolean *success)
 
 } /* ipxnet_addr_lookup */
 
-#ifdef HAVE_GNU_ADNS
 static gboolean
 read_hosts_file (const char *hostspath)
 {
@@ -1569,24 +1573,23 @@ read_hosts_file (const char *hostspath)
   fclose(hf);
   return TRUE;
 } /* read_hosts_file */
-#endif
 
 /*
  *  External Functions
  */
 
-#ifdef HAVE_GNU_ADNS
-
 void
 host_name_lookup_init(void) {
-
-  #ifdef WIN32
-  char *sysroot;
   char *hostspath;
-  static char rootpath[] = "\\system32\\drivers\\etc\\hosts";
-  #endif
-
+#ifdef HAVE_GNU_ADNS
+  /*
+   * We're using GNU ADNS, which doesn't check the system hosts file;
+   * we load that file ourselves.
+   */
 #ifdef WIN32
+  char *sysroot;
+  static char rootpath[] = "\\system32\\drivers\\etc\\hosts";
+
   sysroot = getenv("SYSTEMROOT");
   if (sysroot != NULL) {
     /* The file should be under SYSTEMROOT */
@@ -1620,10 +1623,20 @@ host_name_lookup_init(void) {
         read_hosts_file("c:\\windows\\system32\\drivers\\etc\\hosts");
     }
   }
-#else
+#else /* WIN32 */
   read_hosts_file("/etc/hosts");
-#endif
+#endif /* WIN32 */
+#endif /* HAVE_GNU_ADNS */
 
+  /*
+   * Load the user's hosts file, if they have one.
+   */
+  hostspath = get_persconffile_path(ENAME_HOSTS, FALSE);
+  if (!read_hosts_file(hostspath) && errno != ENOENT) {
+    report_open_failure(hostspath, errno, FALSE);
+  }
+
+#ifdef HAVE_GNU_ADNS
   /* XXX - Any flags we should be using? */
   /* XXX - We could provide config settings for DNS servers, and
            pass them to ADNS with adns_init_strcfg */
@@ -1639,7 +1652,10 @@ host_name_lookup_init(void) {
   }
   gnu_adns_initialized = TRUE;
   adns_currently_queued = 0;
+#endif /* HAVE_GNU_ADNS */
 }
+
+#ifdef HAVE_GNU_ADNS
 
 /* XXX - The ADNS "documentation" isn't very clear:
  * - Do we need to keep our query structures around?
@@ -1712,10 +1728,6 @@ host_name_lookup_cleanup(void) {
 }
 
 #else
-
-void
-host_name_lookup_init(void) {
-}
 
 gint
 host_name_lookup_process(gpointer data _U_) {
