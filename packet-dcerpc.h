@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.13 2002/04/22 09:43:03 guy Exp $
+ * $Id: packet-dcerpc.h,v 1.14 2002/05/07 10:07:55 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -199,6 +199,7 @@ typedef struct _dcerpc_info {
 	guint16 smb_fid;	/* FID for DCERPC over SMB */
 	gboolean request;
 	gboolean conformant_run;
+	gint32 conformant_eaten; /* how many bytes did the conformant run eat?*/
 	guint32 array_max_count;	/* max_count for conformant arrays */
 	guint32 array_max_count_offset;	
 	guint32 array_offset;

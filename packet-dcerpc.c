@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.47 2002/05/02 21:47:47 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.48 2002/05/07 10:07:55 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -492,15 +492,18 @@ dissect_ndr_ucarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 {
 	guint32 i;
 	dcerpc_info *di;
+	int old_offset;
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
 		/* conformant run, just dissect the max_count header */
+		old_offset=offset;
 		di->conformant_run=0;
 		offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 				hf_dcerpc_array_max_count, &di->array_max_count);
 		di->array_max_count_offset=offset-4;
 		di->conformant_run=1;
+		di->conformant_eaten=offset-old_offset;
 	} else {
 		/* we dont dont remember where  in the bytestream this fields was */
 		proto_tree_add_uint(tree, hf_dcerpc_array_max_count, tvb, di->array_max_count_offset, 4, di->array_max_count);
@@ -521,10 +524,12 @@ dissect_ndr_ucvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 {
 	guint32 i;
 	dcerpc_info *di;
+	int old_offset;
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
 		/* conformant run, just dissect the max_count header */
+		old_offset=offset;
 		di->conformant_run=0;
 		offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 				hf_dcerpc_array_max_count, &di->array_max_count);
@@ -536,6 +541,7 @@ dissect_ndr_ucvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				hf_dcerpc_array_actual_count, &di->array_actual_count);
 		di->array_actual_count_offset=offset-4;
 		di->conformant_run=1;
+		di->conformant_eaten=offset-old_offset;
 	} else {
 		/* we dont dont remember where  in the bytestream these fields were */
 		proto_tree_add_uint(tree, hf_dcerpc_array_max_count, tvb, di->array_max_count_offset, 4, di->array_max_count);
@@ -600,6 +606,7 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, char *d
 {
 	int found_new_pointer;
 	dcerpc_info *di;
+	int old_offset;
 
 	di=pinfo->private_data;
 	do{
@@ -622,7 +629,57 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, char *d
 				/* first a run to handle any conformant
 				   array headers */
 				di->conformant_run=1;
+				di->conformant_eaten=0;
+				old_offset = offset;
 				offset = (*(fnct))(tvb, offset, pinfo, NULL, drep);
+
+				g_assert((offset-old_offset)==di->conformant_eaten);
+				/* This is to check for any bugs in the dissectors.
+				 *
+				 * Basically, the NDR representation will store all
+				 * arrays in two blocks, one block with the dimension 
+				 * discreption, like size, number of elements and such,
+				 * and another block that contains the actual data stored
+				 * in the array.
+				 * If the array is embedded directly inside another, 
+				 * encapsulating aggregate type, like a union or struct,
+				 * then these two blocks will be stored at different places
+				 * in the bytestream, with other data between the blocks.
+				 *
+				 * For this reason, all pointers to types (both aggregate
+				 * and scalar, for simplicity no distinction is made)
+				 * will have its dissector called twice.
+				 * The dissector will first be called with conformant_run==1
+				 * in which mode the dissector MUST NOT consume any data from
+				 * the tvbuff (i.e. may not dissect anything) except the
+				 * initial control block for arrays.
+				 * The second time the dissector is called, with 
+				 * conformant_run==0, all other data for the type will be 
+				 * dissected.
+				 *
+				 * All dissect_ndr_<type> dissectors are already prepared
+				 * for this and knows when it should eat data from the tvb
+				 * and when not to, so implementors of dissectors will
+				 * normally not need to worry about this or even know about
+				 * it. However, if a dissector for an aggregate type calls
+				 * a subdissector from outside packet-dcerpc.c, such as
+				 * the dissector in packet-smb.c for NT Security Descriptors
+				 * as an example, then it is VERY important to encapsulate
+				 * this call to an external subdissector with the appropriate
+				 * test for conformant_run, i.e. it will need something like
+				 *
+				 * 	dcerpc_info *di;
+				 *
+				 *	di=pinfo->private_data;
+				 *	if(di->conformant_run){
+				 *		return offset;
+				 *	}
+				 * 
+				 * to make sure it makes the right thing.
+				 * This assert will signal when someone has forgotten to
+				 * make the dissector aware of this requirement.
+				 */
+
 				/* now we dissect the actual pointer */
 				di->conformant_run=0;
 				offset = (*(fnct))(tvb, offset, pinfo, tnpd->tree, drep);
