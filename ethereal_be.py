@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_be.py,v 1.1 2001/06/18 05:27:16 guy Exp $
+# $Id: ethereal_be.py,v 1.2 2001/07/17 18:36:46 guy Exp $
 #
 #    File      : ethereal_be.py
 #
@@ -123,11 +123,20 @@ def run(tree, args):
     ev = EtherealVisitor(st)            # create visitor object
     
     ev.visitAST(tree)                   # go find some operations
+    
+    #
+    # Grab name of main IDL file being compiled.
+    # 
+    # Assumption: Name is of the form   abcdefg.xyz  (eg: CosNaming.idl)
+    #
+
+    nl = string.split(tree.file(),".")[0] # split name of main IDL file using "." as separator
+                                          # and grab first field (eg: CosNaming)
 
     # create a C generator object
     # and generate some C code
-
-    eg = ethereal_gen_C(ev.st, "TEST", "test", "Test Dissector Using GIOP API") 
+    
+    eg = ethereal_gen_C(ev.st, string.upper(nl), string.lower(nl), string.capitalize(nl) + " Dissector Using GIOP API") 
     eg.genCode(ev.oplist)               # pass them onto the C generator
     
 
