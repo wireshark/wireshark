@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.108 2003/11/15 23:48:52 guy Exp $
+ * $Id: menu.c,v 1.109 2003/11/19 00:04:15 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,6 +49,7 @@
 #include "follow_dlg.h"
 #include "decode_as_dlg.h"
 #include "help_dlg.h"
+#include "supported_protos_dlg.h"
 #include "proto_dlg.h"
 #include "proto_hier_stats_dlg.h"
 #include "keys.h"
@@ -238,6 +239,7 @@ static GtkItemFactoryEntry menu_items[] =
                        proto_hier_stats_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/_Help", NULL, help_cb, 0, GTK_STOCK_HELP),
+    ITEM_FACTORY_ENTRY("/Help/_Supported Protocols", NULL, supported_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Help/_About Ethereal...", NULL, about_ethereal,
                        0, NULL, NULL)
