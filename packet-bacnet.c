@@ -2,7 +2,7 @@
  * Routines for BACnet (NPDU) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bacnet.c,v 1.15 2002/11/16 08:55:11 guy Exp $
+ * $Id: packet-bacnet.c,v 1.16 2003/01/23 09:54:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,7 @@
 #include <epan/packet.h>
 
 #include "llcsaps.h"
+#include "arcnet_pids.h"
 
 static dissector_handle_t bacapp_handle;
 static dissector_handle_t data_handle;
@@ -596,6 +597,7 @@ proto_reg_handoff_bacnet(void)
 	dissector_add("bvlc.function", 0x0a, bacnet_handle);
 	dissector_add("bvlc.function", 0x0b, bacnet_handle);
 	dissector_add("llc.dsap", SAP_BACNET, bacnet_handle);
+	dissector_add("arcnet.protocol_id", ARCNET_PROTO_BACNET, bacnet_handle);
 	bacapp_handle = find_dissector("bacapp");
 	data_handle = find_dissector("data");
 }

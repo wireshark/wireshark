@@ -2,7 +2,7 @@
  * Routines for arcnet dissection
  * Copyright 2001-2002, Peter Fales <ethereal@fales-lorenz.net>
  *
- * $Id: packet-arcnet.c,v 1.7 2003/01/23 09:04:54 guy Exp $
+ * $Id: packet-arcnet.c,v 1.8 2003/01/23 09:54:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -182,6 +182,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   case ARCNET_PROTO_IP_1051:
   case ARCNET_PROTO_ARP_1051:
   case ARCNET_PROTO_DIAGNOSE:
+  case ARCNET_PROTO_BACNET:	/* XXX - no fragmentation? */
     /* No fragmentation stuff in the header */
     break;
 

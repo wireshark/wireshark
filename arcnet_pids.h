@@ -2,7 +2,7 @@
  * ARCNET protocol ID values
  * Copyright 2001-2002, Peter Fales <ethereal@fales-lorenz.net>
  *
- * $Id: arcnet_pids.h,v 1.3 2003/01/23 07:28:59 guy Exp $
+ * $Id: arcnet_pids.h,v 1.4 2003/01/23 09:54:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,3 +53,5 @@
 #define ARCNET_PROTO_BANYAN	247	/* Banyan VINES */
 
 #define ARCNET_PROTO_DIAGNOSE	128	/* as per ANSI/ATA 878.1 */
+
+#define ARCNET_PROTO_BACNET	205

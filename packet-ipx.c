@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.117 2002/12/02 23:43:26 guy Exp $
+ * $Id: packet-ipx.c,v 1.118 2003/01/23 09:54:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1082,6 +1082,7 @@ proto_reg_handoff_ipx(void)
 	dissector_add("null.type", BSD_AF_IPX, ipx_handle);
 	dissector_add("gre.proto", ETHERTYPE_IPX, ipx_handle);
         dissector_add("arcnet.protocol_id", ARCNET_PROTO_IPX, ipx_handle);
+        dissector_add("arcnet.protocol_id", ARCNET_PROTO_NOVELL_EC, ipx_handle);
 
 	spx_handle = create_dissector_handle(dissect_spx, proto_spx);
 	dissector_add("ipx.packet_type", IPX_PACKET_TYPE_SPX, spx_handle);
