@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.30 2003/03/01 17:39:53 oabad Exp $
+ * $Id: tcp_graph.c,v 1.31 2003/03/02 22:25:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2558,16 +2558,12 @@ static void graph_select_segment (struct graph *g, int x, int y)
 			case ELMT_RECT:
 				break;
 			case ELMT_LINE:
-				if (line_detect_collision (e, x, y)) {
-					int row = e->parent->num - 1;
-					packet_list_set_selected_row (row);
-				}
+				if (line_detect_collision (e, x, y))
+					goto_frame(&cfile, e->parent->num);
 				break;
 			case ELMT_ARC:
-				if (arc_detect_collision (e, x, y)) {
-					int row = e->parent->num - 1;
-					packet_list_set_selected_row (row);
-				}
+				if (arc_detect_collision (e, x, y))
+					goto_frame(&cfile, e->parent->num);
 				break;
 			default:
 				break;
