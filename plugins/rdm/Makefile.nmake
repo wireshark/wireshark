@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.1 2003/11/17 20:57:14 guy Exp $
+# $Id: Makefile.nmake,v 1.2 2003/11/18 19:18:45 ulfl Exp $
 #
 
 include ..\..\config.nmake
@@ -9,13 +9,13 @@ include ..\..\config.nmake
 CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
-OBJECTS=packet-rtnet.obj 
+OBJECTS=packet-rdm.obj 
 
-rtnet.dll rtnet.exp rtnet.lib : $(OBJECTS) ..\plugin_api.obj
-	link -dll /out:rtnet.dll $(OBJECTS) ..\plugin_api.obj \
+rdm.dll rdm.exp rdm.lib : $(OBJECTS) ..\plugin_api.obj
+	link -dll /out:rdm.dll $(OBJECTS) ..\plugin_api.obj \
 	$(GLIB_LIBS)
 
 clean:
-	rm -f $(OBJECTS) rtnet.dll rtnet.exp rtnet.lib $(PDB_FILE)
+	rm -f $(OBJECTS) rdm.dll rdm.exp rdm.lib $(PDB_FILE)
 
 distclean: clean
