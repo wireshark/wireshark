@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.302 2003/06/09 10:08:04 sahlberg Exp $
+# $Id: Makefile.nmake,v 1.303 2003/06/10 07:20:06 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -452,8 +452,10 @@ ethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(GTK_DIR)\gdk\gdk-$(GTK_VERSION).lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib \
-	$(NET_SNMP_DIR)\win32\lib\libsnmp.lib \
+!IFDEF ADNS_DIR
 	$(ADNS_DIR)\adns_win32\lib\adns_dll.lib
+!ENDIF
+	$(NET_SNMP_DIR)\win32\lib\libsnmp.lib
 #	$(PCAP_DIR)\lib\wpcap.lib
 
 tethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
@@ -462,8 +464,10 @@ tethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib \
-	$(NET_SNMP_DIR)\win32\lib\libsnmp.lib \
+!IFDEF ADNS_DIR
 	$(ADNS_DIR)\adns_win32\lib\adns_dll.lib
+!ENDIF
+	$(NET_SNMP_DIR)\win32\lib\libsnmp.lib
 
 editcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
