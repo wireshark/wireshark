@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.33 1999/10/15 20:46:02 gram Exp $
+ * $Id: dfilter-grammar.y,v 1.34 1999/10/17 14:15:06 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -767,7 +767,6 @@ dfilter_mknode_ipv6_value(char *host)
 	node->fill_array_func = fill_array_ipv6_value;
 	node->check_relation_func = check_relation_ipv6;
 
-	/* XXX should use get_host_ipaddr6 */
 	if (!get_host_ipaddr6(host, (struct e_in6_addr*)&node->value.ipv6[0])) {
 		/* Rather than free the mem_chunk allocation, let it
 		 * stay. It will be cleaned up when "dfilter_compile()"
