@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.98 2000/07/28 16:30:17 gram Exp $
+# $Id: configure.in,v 1.99 2000/07/28 20:03:41 gram Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -26,11 +26,13 @@ AC_PROG_CPP
 AC_PROG_RANLIB
 AC_PROG_YACC
 AM_PROG_LEX
-AC_PATH_PROG(PERL_PATH, perl)
+AC_PATH_PROG(PERL, perl)
 AC_PATH_PROG(LEX, flex)
+AC_PATH_PROG(PYTHON, python)
 
-AC_SUBST(PERL_PATH)
-AC_SUBST(FLEX_PATH)
+AC_SUBST(PERL)
+AC_SUBST(LEX)
+AC_SUBST(PYTHON)
 
 
 # Check for packaging utilities

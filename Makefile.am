@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.216 2000/07/28 16:30:15 gram Exp $
+# $Id: Makefile.am,v 1.217 2000/07/28 20:03:39 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -96,6 +96,7 @@ DISSECTOR_SOURCES = \
 	packet-nbipx.c \
 	packet-nbns.c  \
 	packet-ncp.c   \
+	packet-ncp2222.c   \
 	packet-netbios.c \
 	packet-nfs.c   \
 	packet-nlm.c   \
@@ -200,6 +201,7 @@ noinst_HEADERS = \
 	packet-llc.h   \
 	packet-mount.h \
 	packet-nbipx.h \
+	packet-ncp-int.h \
 	packet-netbios.h \
 	packet-nfs.h   \
 	packet-nlm.h   \
@@ -270,6 +272,7 @@ ETHEREAL_COMMON_SOURCES = \
 	ipv4.c         \
 	ipv4.h         \
 	llcsaps.h      \
+	ncp2222.h	\
 	nlpid.h        \
 	oui.h          \
 	packet.c       \
@@ -286,6 +289,8 @@ ETHEREAL_COMMON_SOURCES = \
 	proto.h        \
 	ps.c           \
 	ps.h           \
+	ptvcursor.c	\
+	ptvcursor.h	\
 	register.c     \
 	register.h     \
 	resolv.c       \
@@ -506,6 +511,7 @@ EXTRA_DIST = \
 	Makefile.nmake		\
 	make-reg-dotc		\
 	manuf                   \
+	ncp2222.py              \
 	print.ps                \
 	README.aix		\
 	README.bsd		\
@@ -563,6 +569,9 @@ editcap.1: doc/editcap.pod
 
 dfilter-scanner.c : dfilter-scanner.l
 	$(LEX) -Pdfilter_ -odfilter-scanner.c $(srcdir)/dfilter-scanner.l
+
+packet-ncp2222.c : ncp2222.py
+	$(PYTHON) $(srcdir)/ncp2222.py > $@
 
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status --recheck

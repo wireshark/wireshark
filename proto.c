@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.71 2000/07/27 06:41:58 gram Exp $
+ * $Id: proto.c,v 1.72 2000/07/28 20:03:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2359,6 +2359,9 @@ proto_registrar_dump(void)
 			case FT_RELATIVE_TIME:
 				enum_name = "FT_RELATIVE_TIME";
 				break;
+			case FT_NSTRING_UINT8:
+				enum_name = "FT_NSTRING_UINT8";
+				break;
 			case FT_STRING:
 				enum_name = "FT_STRING";
 				break;
@@ -2381,8 +2384,7 @@ proto_registrar_dump(void)
 				enum_name = "FT_TEXT_ONLY";
 				break;
 			default:
-				enum_name = "UNKNOWN";
-				break;
+				g_assert_not_reached();
 			}
 			printf("F\t%s\t%s\t%s\t%s\n", hfinfo->name, hfinfo->abbrev,
 				enum_name,parent_hfinfo->abbrev);

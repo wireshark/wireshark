@@ -11,6 +11,8 @@ LOCAL_CFLAGS=-Zi
 LOCAL_LDFLAGS=/DEBUG
 
 PATH=t:\w32-ix86\cygnus\cygwin-b20\H-i586-cygwin32\bin;$(PATH)
+PERL=perl
+PYTHON=python
 LEX=flex
 YACC=bison
 YACC_OPTS=-S t:\w32-ix86\cygnus\cygwin-b20\share\bison.simple 

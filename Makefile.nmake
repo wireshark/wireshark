@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: nmake -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.47 2000/07/27 11:00:48 girlich Exp $
+# $Id: Makefile.nmake,v 1.48 2000/07/28 20:03:40 gram Exp $
 
 include config.nmake
 
@@ -81,6 +81,7 @@ DISSECTOR_SOURCES = \
 	packet-nbipx.c \
 	packet-nbns.c  \
 	packet-ncp.c   \
+	packet-ncp2222.c   \
 	packet-netbios.c \
 	packet-nfs.c   \
 	packet-nlm.c   \
@@ -240,6 +241,9 @@ config.h	: config.h.win32
 
 ps.c	: rdps.exe print.ps
 	rdps print.ps ps.c
+
+packet-ncp2222.c : ncp2222.py
+	$(PYTHON) ncp2222.py > packet-ncp2222.c
 
 dfilter-scanner.obj : dfilter-scanner.c dfilter-grammar.h
 

@@ -1,4 +1,4 @@
-$Id: README,v 1.38 2000/06/08 03:09:26 gram Exp $
+$Id: README,v 1.39 2000/07/28 20:03:40 gram Exp $
 
 General Information
 ------- -----------
@@ -29,7 +29,7 @@ Installation
 
 Ethereal is known to compile and run on the following systems:
 
-  - Linux (2.0.x, 2.1.x, 2.2.x, 2.3.x)
+  - Linux (2.0.x, 2.1.x, 2.2.x, 2.3.x, 2.4.x)
   - Solaris (2.5.1, 2.6, 7)
   - FreeBSD (2.2.5, 2.2.6, 3.1, 3.2, 3.3)
   - Sequent PTX v4.4.5  (Nick Williams <njw@sequent.com>)
@@ -48,6 +48,10 @@ If you decide to modify the yacc grammar or lex scanner, then
 you need "flex" - it cannot be built with vanilla "lex" -
 and either "bison" or the Berkeley "yacc". Your flex
 version must be 2.5.1 or greater. Check this with 'flex -V'.
+
+If you decide to modify the NetWare Core Protocol dissector, you
+will need python, as the data for packet types is stored in a python
+script, ncp2222.py.
 
 You must therefore install Perl, GNU "make", "flex", and either "bison" or
 Berkeley "yacc" on systems that lack them.
@@ -158,6 +162,15 @@ The "Follow TCP Stream" feature only supports TCP over IPv4. Support for TCP
 over IPv6 is planned.
 
 
+NetWare Core Protocol
+---------------------
+There are over 400 different NCP packet types. The NCP dissector does
+not understand all of these; support is being added little by little. If
+you have some NCP packets that are not dissected by Ethereal, send
+a trace file to ethereal-dev@zing.org and if possible, we will add support
+for those packets types.
+
+
 SNMP
 ----
 Ethereal can do some basic decoding of SNMP packets; it can also use an
@@ -214,3 +227,4 @@ Use at your own risk.
 
 Gerald Combs <gerald@zing.org>
 Gilbert Ramirez <gram@xiexie.org>
+Guy Harris <guy@alum.mit.edu>
