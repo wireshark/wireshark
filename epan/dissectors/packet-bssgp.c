@@ -127,6 +127,7 @@ static gint ett_bssgp_msrac_a5_bits = -1;
 static gint ett_bssgp_msrac_multislot_capability = -1;
 static gint ett_bssgp_feature_bitmap = -1;
 static gint ett_bssgp_positioning_data = -1;
+static gint ett_bssgp_tlli = -1;
 
 /* PDU type coding, v6.5.0, table 11.3.26, p 80 */
 #define BSSGP_PDU_DL_UNITDATA                  0x00
@@ -390,8 +391,8 @@ typedef struct {
   char         *name;
   guint8        presence_req;
   int           format;
-  guint16       value_length; /* in bytes (read from capture)*/
-  guint16       total_length; /* as specified, or 0 if unspecified */
+  gint16        value_length; /* in bytes (read from capture)*/
+  gint16        total_length; /* as specified, or 0 if unspecified */
 } bssgp_ie_t;
 
 typedef struct {
@@ -2790,6 +2791,7 @@ decode_iei_routeing_area(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) 
 static void 
 decode_iei_tlli(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
+  proto_tree *tf;
   guint32 tlli;
 
   tlli = tvb_get_ntohl(bi->tvb, bi->offset);
@@ -2797,7 +2799,11 @@ decode_iei_tlli(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   if (bi->bssgp_tree) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     proto_item_append_text(ti, ": %#04x", tlli);
-    proto_tree_add_item_hidden(bi->bssgp_tree, hf_bssgp_tlli, 
+    
+    ti = bssgp_proto_tree_add_ie(ie, bi, bi->offset);
+    tf = proto_item_add_subtree(ti, ett_bssgp_tlli);
+        
+    proto_tree_add_item(tf, hf_bssgp_tlli, 
 			       bi->tvb, bi->offset, 4, BSSGP_LITTLE_ENDIAN);
   }
   bi->offset += 4;
@@ -5786,6 +5792,7 @@ proto_register_bssgp(void)
     &ett_bssgp_msrac_access_capabilities,
     &ett_bssgp_msrac_a5_bits,
     &ett_bssgp_msrac_multislot_capability,
+    &ett_bssgp_tlli,
   };
 
   /* Register the protocol name and description */
