@@ -149,6 +149,7 @@ static const value_string rtcp_app_poc1_reason_code1_vals[] =
 {
 	{  1,   "Floor already in use"},
 	{  2,   "Internal PoC server error"},
+	{  3,	"Only one participant in the group "},
 	{  0,   NULL },
 };
 
@@ -156,6 +157,7 @@ static const value_string rtcp_app_poc1_reason_code2_vals[] =
 {
 	{  1,   "Only one user"},
 	{  2,   "Talk burst too long"},
+	{  3,	"No access to floor"},
 	{  0,   NULL },
 };
 /* RTCP header fields                   */
