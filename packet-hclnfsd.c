@@ -2,7 +2,7 @@
  * Routines for hclnfsd (Hummingbird NFS Daemon) dissection
  * Copyright 2001, Mike Frisch <frisch@hummingbird.com>
  *
- * $Id: packet-hclnfsd.c,v 1.12 2002/04/03 13:24:12 girlich Exp $
+ * $Id: packet-hclnfsd.c,v 1.13 2002/04/25 21:29:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,11 +29,11 @@
 #include "config.h"
 #endif
 
-
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
 
+#include <string.h>
 
 #include "packet-rpc.h"
 #include "packet-nfs.h"
