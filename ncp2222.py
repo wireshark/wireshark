@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.44 2003/02/05 06:24:30 guy Exp $
+$Id: ncp2222.py,v 1.45 2003/02/05 19:03:51 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -3093,8 +3093,8 @@ ObjectType			= val_string16("object_type", "Object Type", [
         [ 0x07a7,       "Backup Exec Job Queue" ],
         [ 0x07a8,       "Backup Exec Job Manager" ],
         [ 0x07a9,       "Backup Exec Job Service" ],
+        [ 0x5555,       "Site Lock" ],
         [ 0x8202,       "NDPS Broker" ],
-        
 ])
 OCRetFlags			= val_string8("o_c_ret_flags", "Open Create Return Flags", [
 	[ 0x00, "No CallBack has been registered (No Op-Lock)" ],
