@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.342 2001/07/03 23:39:55 hagbard Exp $
+# $Id: Makefile.am,v 1.343 2001/07/04 06:25:03 girlich Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -554,7 +554,7 @@ editcap_LDADD = wiretap/libwiretap.a @GLIB_LIBS@
 # Build various header files for the X11 dissector.
 #
 x11-declarations.h x11-register-info.h: x11-fields process-x11-fields.pl
-	$(PERL) process-x11-fields.pl <x11-fields
+	$(PERL) $(srcdir)/process-x11-fields.pl <$(srcdir)/x11-fields
 
 #
 # Build "register.c", which contains a function "register_all_protocols()"
