@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Routines for Gryphon protocol packet disassembly
  *
- * $Id: packet-gryphon.c,v 1.7 2000/03/12 04:48:32 gram Exp $
+ * $Id: packet-gryphon.c,v 1.8 2000/03/15 18:38:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -443,7 +443,7 @@ decode_command (int dst, const u_char **data, const u_char *dataend, int *offset
 {
     int     	    cmd, i;
     proto_tree	    *ft;
-    proto_item	    *pi;
+    proto_item	    *ti;
 
     cmd = (*data)[0];
     proto_tree_add_item_hidden(pt, hf_gryph_cmd, *offset, 1, cmd);
@@ -468,8 +468,8 @@ decode_command (int dst, const u_char **data, const u_char *dataend, int *offset
     BUMP (*offset, *data, 4);
 
     if (cmds[i].cmd_fnct && dataend - *data) {
-	pi = proto_tree_add_text(pt, *offset, dataend - *data, "Data: (%d bytes)", dataend - *data);
-	ft = proto_item_add_subtree(pi, ett_gryphon_command_data);
+	ti = proto_tree_add_text(pt, *offset, dataend - *data, "Data: (%d bytes)", dataend - *data);
+	ft = proto_item_add_subtree(ti, ett_gryphon_command_data);
 	(*(cmds[i].cmd_fnct)) (dst, data, dataend, offset, msglen, ft);
     }
 }
@@ -479,7 +479,7 @@ decode_response (int src, const u_char **data, const u_char *dataend, int *offse
 {
     int     	    cmd, i, j, resp;
     proto_tree	    *ft;
-    proto_item	    *pi;
+    proto_item	    *ti;
 
     cmd = (*data)[0];
     if (cmd > 0x3F)
@@ -512,8 +512,8 @@ decode_response (int src, const u_char **data, const u_char *dataend, int *offse
     BUMP (*offset, *data, 4);
 
     if (cmds[i].rsp_fnct) {
-    pi = proto_tree_add_text(pt, *offset, dataend - *data, "Data: (%d bytes)", dataend - *data);
-    ft = proto_item_add_subtree(pi, ett_gryphon_response_data);
+    ti = proto_tree_add_text(pt, *offset, dataend - *data, "Data: (%d bytes)", dataend - *data);
+    ft = proto_item_add_subtree(ti, ett_gryphon_response_data);
 	(*(cmds[i].rsp_fnct)) (src, data, dataend, offset, msglen, ft);
     }
 }
@@ -877,7 +877,7 @@ resp_register (int src, const u_char **data, const u_char *dataend, int *offset,
 
 void
 resp_config (int src, const u_char **data, const u_char *dataend, int *offset, int msglen, proto_tree *pt) {
-    proto_item	*pi;
+    proto_item	*ti;
     proto_tree	*ft;
     char    	string[33];
     int     	devices;
@@ -918,8 +918,8 @@ resp_config (int src, const u_char **data, const u_char *dataend, int *offset, i
     proto_tree_add_text(pt, *offset+1, 15, "reserved");
     BUMP (*offset, *data, 16);
     for (i = 1; i <= devices; i++) {
-	pi = proto_tree_add_text(pt, *offset, 80, "Channel %d:", i);
-	ft = proto_item_add_subtree(pi, ett_gryphon_cmd_config_device);
+	ti = proto_tree_add_text(pt, *offset, 80, "Channel %d:", i);
+	ft = proto_item_add_subtree(ti, ett_gryphon_cmd_config_device);
 	MEMCPY (string, *data, 20);
 	proto_tree_add_text(ft, *offset, 20, "Driver name: %s", string);
 	BUMP (*offset, *data, 20);
