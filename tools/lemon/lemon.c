@@ -25,7 +25,7 @@
 **   drh@acm.org
 **   http://www.hwaci.com/drh/
 **
-** $Id: lemon.c,v 1.16 2004/01/18 15:53:43 jmayer Exp $
+** $Id: lemon.c,v 1.17 2004/01/25 09:49:50 jmayer Exp $
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -1490,6 +1490,10 @@ static int argindex(int n)
 
 static char emsg[] = "Command line syntax error: ";
 
+typedef void (opt_func_int_t)(int);
+typedef void (opt_func_double_t)(double);
+typedef void (opt_func_string_t)(char*);
+
 /*
 ** Process a flag command line argument.
 */
@@ -1511,7 +1515,7 @@ static int handleflags(int i, FILE *err)
   }else if( op[j].type==OPT_FLAG ){
     *((int*)op[j].arg) = v;
   }else if( op[j].type==OPT_FFLAG ){
-    (*(void(*)())(op[j].arg))(v);
+    ((opt_func_int_t*)(op[j].arg))(v);
   }else{
     if( err ){
       fprintf(err,"%smissing argument on switch.\n",emsg);
@@ -1591,19 +1595,19 @@ static int handleswitch(int i, FILE *err)
         *(double*)(op[j].arg) = dv;
         break;
       case OPT_FDBL:
-        (*(void(*)())(op[j].arg))(dv);
+        ((opt_func_double_t*)(op[j].arg))(dv);
         break;
       case OPT_INT:
         *(int*)(op[j].arg) = lv;
         break;
       case OPT_FINT:
-        (*(void(*)())(op[j].arg))((int)lv);
+        ((opt_func_int_t*)(op[j].arg))(lv);
         break;
       case OPT_STR:
         *(char**)(op[j].arg) = sv;
         break;
       case OPT_FSTR:
-        (*(void(*)())(op[j].arg))(sv);
+        ((opt_func_string_t*)(op[j].arg))(sv);
         break;
     }
   }
