@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.15 1999/08/18 04:41:19 guy Exp $
+ * $Id: file.c,v 1.16 1999/08/18 17:49:34 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -219,8 +219,7 @@ int wtap_dump_close(wtap_dumper *wdh, int *err)
 	if (!(wdh->subtype_close)(wdh, err))
 		ret = 0;
 	errno = WTAP_ERR_CANT_CLOSE;
-	ret = fclose(wdh->fh);
-	if (ret == EOF) {
+	if (fclose(wdh->fh) == EOF) {
 		if (ret) {
 			/* The per-format close function succeeded,
 			   but the fclose didn't.  Save the reason
