@@ -1,7 +1,7 @@
 /* proto_hier_stats.c
  * Routines for calculating statistics based on protocol.
  *
- * $Id: proto_hier_stats.c,v 1.12 2002/03/05 05:58:28 guy Exp $
+ * $Id: proto_hier_stats.c,v 1.13 2002/03/31 20:37:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -239,7 +239,7 @@ ph_stats_new(void)
 }
 
 static gboolean
-stat_node_free(GNode *node, gpointer data)
+stat_node_free(GNode *node, gpointer data _U_)
 {
 	ph_stats_node_t	*stats = node->data;
 
