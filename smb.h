@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.39 2002/05/08 05:15:11 tpot Exp $
+ * $Id: smb.h,v 1.40 2002/05/26 01:30:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -121,9 +121,11 @@
 #define SMBE_nofids 4              /* Too many open files */
 #define SMBE_noaccess 5            /* Access denied */
 #define SMBE_badfid 6              /* Invalid fid */
+#define SMBE_badmcb 7              /* Memory control blocks destroyed */
 #define SMBE_nomem 8               /* Out of memory */
 #define SMBE_badmem 9              /* Invalid memory block address */
 #define SMBE_badenv 10             /* Invalid environment */
+#define SMBE_badformat 11          /* Invalid format */
 #define SMBE_badaccess 12          /* Invalid open mode */
 #define SMBE_baddata 13            /* Invalid data (only from ioctl call) */
 #define SMBE_res 14 
@@ -203,24 +205,25 @@
 
 /* Error codes for the ERRHRD class */
 
-#define SMBE_nowrite 19   /* read only media */
-#define SMBE_badunit 20   /* Unknown device */
-#define SMBE_notready 21  /* Drive not ready */
-#define SMBE_badcmd 22    /* Unknown command */
-#define SMBE_data 23      /* Data (CRC) error */
-#define SMBE_badreq 24    /* Bad request structure length */
-#define SMBE_seek 25
-#define SMBE_badmedia 26
-#define SMBE_badsector 27
-#define SMBE_nopaper 28
-#define SMBE_write 29 
-#define SMBE_read 30 
-#define SMBE_general 31 
-#define SMBE_badshare 32 
-#define SMBE_lock 33 
-#define SMBE_wrongdisk 34
-#define SMBE_FCBunavail 35
-#define SMBE_sharebufexc 36
+#define SMBE_nowrite 19     /* read only media */
+#define SMBE_badunit 20     /* Unknown device */
+#define SMBE_notready 21    /* Drive not ready */
+#define SMBE_badcmd 22      /* Unknown command */
+#define SMBE_data 23        /* Data (CRC) error */
+#define SMBE_badreq 24      /* Bad request structure length */
+#define SMBE_seek 25        /* Seek error */
+#define SMBE_badmedia 26    /* Unknown media type */
+#define SMBE_badsector 27   /* Sector not found */
+#define SMBE_nopaper 28     /* Printer out of paper */
+#define SMBE_write 29       /* Write fault */
+#define SMBE_read 30        /* Read fault */
+#define SMBE_general 31     /* General failure */
+#define SMBE_badshare 32    /* An open conflicts with an existing open */
+#define SMBE_lock 33        /* Lock conflict or invalid mode, or unlock of
+                               lock held by another process */
+#define SMBE_wrongdisk 34   /* The wrong disk was found in a drive */
+#define SMBE_FCBunavail 35  /* No FCBs are available to process request */
+#define SMBE_sharebufexc 36 /* A sharing buffer has been exceeded */
 #define SMBE_diskfull 39
 
 /*
