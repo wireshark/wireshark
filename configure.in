@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.93 2000/07/04 12:09:44 gram Exp $
+# $Id: configure.in,v 1.94 2000/07/06 10:03:43 girlich Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -279,6 +279,15 @@ if test "$ac_cv_func_strerror" = no ; then
 fi
 AC_SUBST(STRERROR_C)
 AC_SUBST(STRERROR_O)
+
+AC_CHECK_FUNC(strcasecmp, STRCASECMP_O="",
+  STRCASECMP_O="strcasecmp.o")
+if test "$ac_cv_func_strcasecmp" = no ; then
+  STRCASECMP_C="strcasecmp.c"
+  STRCASECMP_O="strcasecmp.o"
+fi
+AC_SUBST(STRCASECMP_C)
+AC_SUBST(STRCASECMP_O)
 
 AC_CHECK_FUNC(strncasecmp, STRNCASECMP_O="",
   STRNCASECMP_O="strncasecmp.o")
