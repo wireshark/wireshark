@@ -1,6 +1,6 @@
 /* dftest.c.c
  *
- * $Id: dftest.c,v 1.7 2004/01/19 03:46:41 ulfl Exp $
+ * $Id: dftest.c,v 1.8 2004/02/21 22:00:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -21,7 +21,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -41,17 +40,9 @@
 #include <glib.h>
 #include <epan/epan.h>
 
-#if 0
-#include "globals.h"
-#include <epan/packet.h>
-#include "file.h"
-#include "column.h"
-#include "print.h"
-#include <epan/resolv.h>
-#include <epan/conversation.h>
-#endif
 #include <epan/timestamp.h>
 #include <epan/plugins.h>
+#include <epan/filesystem.h>
 #include "prefs.h"
 #include "util.h"
 #include "epan/dfilter/dfilter.h"
@@ -141,4 +132,27 @@ main(int argc, char **argv)
 
 	epan_cleanup();
 	exit(0);
+}
+
+/*
+ * Open/create errors are reported with an console message in "dftest".
+ */
+void
+report_open_failure(const char *filename, int err, gboolean for_writing)
+{
+  char *errmsg;
+
+  errmsg = g_strdup_printf(file_open_error_message(err, for_writing), filename);
+  fprintf(stderr, "dftest: %s\n", errmsg);
+  g_free(errmsg);
+}
+
+/*
+ * Read errors are reported with an console message in "dftest".
+ */
+void
+report_read_failure(const char *filename, int err)
+{
+  fprintf(stderr, "dftest: An error occurred while reading from the file \"%s\": %s.",
+          filename, strerror(err));
 }
