@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.101 2002/08/22 20:22:22 guy Exp $
+ * $Id: packet-rpc.c,v 1.102 2002/08/22 20:47:10 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1125,9 +1125,6 @@ dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 	seq = tvb_get_ntohl(tvb, offset+4);
 
 	if (tree) {
-		/*
-		 * XXX - is the "GSS Data" a GSS token?
-		 */
 		gitem = proto_tree_add_text(tree, tvb, offset,
 					    4+rounded_length, "GSS Data");
 		gtree = proto_item_add_subtree(gitem, ett_rpc_gss_data);
