@@ -1,6 +1,6 @@
 %{
 /*
- * $Id: scanner.l,v 1.9 2003/08/27 15:23:04 gram Exp $
+ * $Id: scanner.l,v 1.10 2003/10/27 22:45:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -182,7 +182,7 @@ GString* quoted_string = NULL;
         return set_lval(TOKEN_UNPARSED, g_strdup(yytext));
 }
 
-[-[:alnum:]_.:]+	{
+[-\+[:alnum:]_.,:]+	{
 	/* Is it a field name? */
 	header_field_info *hfinfo;
 
