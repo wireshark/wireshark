@@ -563,6 +563,7 @@ va_list args;
             state = 0;
             break;
           case 'd':  /* decimal */
+          case 'i':  /* "integer" (signed decimal) */
             STAR_ARGS(&data);
             if (data.a_long == FOUND)
               d = va_arg(args, long);
