@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.16 2002/02/02 04:02:28 nneul Exp $
+ * $Id: packet-ssl.c,v 1.17 2002/02/07 18:56:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -221,6 +221,7 @@ static const value_string ssl_20_cipher_suites[] = {
     { 0x050080, "SSL2_IDEA_128_CBC_WITH_MD5" },
     { 0x060040, "SSL2_DES_64_CBC_WITH_MD5" },
     { 0x0700c0, "SSL2_DES_192_EDE3_CBC_WITH_MD5" },
+    { 0x080080, "SSL2_RC4_64_WITH_MD5" },
     { 0x000000, "TLS_NULL_WITH_NULL_NULL" },
     { 0x000001, "TLS_RSA_WITH_NULL_MD5" },
     { 0x000002, "TLS_RSA_WITH_NULL_SHA" },
@@ -252,6 +253,8 @@ static const value_string ssl_20_cipher_suites[] = {
     { 0x00001c, "SSL_FORTEZZA_KEA_WITH_NULL_SHA" },
     { 0x00001d, "SSL_FORTEZZA_KEA_WITH_FORTEZZA_CBC_SHA" },
     { 0x00001e, "SSL_FORTEZZA_KEA_WITH_RC4_128_SHA" },
+    { 0x000060, "TLS_RSA_EXPORT1024_WITH_RC4_56_MD5" },
+    { 0x000061, "TLS_RSA_EXPORT1024_WITH_RC2_CBC_56_MD5" },
     { 0x000062, "TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA" },
     { 0x000063, "TLS_DHE_DSS_EXPORT1024_WITH_DES_CBC_SHA" },
     { 0x000064, "TLS_RSA_EXPORT1024_WITH_RC4_56_SHA" },

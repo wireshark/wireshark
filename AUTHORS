@@ -199,6 +199,7 @@ Nathan Neulinger <nneul[AT]umr.edu> {
 	Automake and autoconf updates to handle the current CVS versions
 	    of automake (which will probably eventually become the next
 	    releases of automake and autoconf)
+	Additional cipher suite names for SSL
 }
 
 Tomislav Vujec <tvujec[AT]carnet.hr> {
