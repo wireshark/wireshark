@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.50 2000/09/19 02:25:17 gram Exp $
+ * $Id: packet-snmp.c,v 1.51 2000/10/21 18:52:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,6 +54,7 @@
 #include <glib.h>
 
 #include "packet.h"
+#include "conversation.h"
 #include "etypes.h"
 #include "packet-ipx.h"
 
@@ -1893,7 +1894,35 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 static void
 dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
 {
+	conversation_t  *conversation;
+
 	OLD_CHECK_DISPLAY_AS_DATA(proto_snmp, pd, offset, fd, tree);
+
+	/*
+	 * The first SNMP packet goes to the SNMP port; the second one
+	 * may come from some *other* port, but goes back to the same
+	 * IP address and port as the ones from which the first packet
+	 * came; all subsequent packets presumably go between those two
+	 * IP addresses and ports.
+	 *
+	 * If this packet went to the SNMP port, we check to see if
+	 * there's already a conversation with the source IP address
+	 * and port of this packet, the destination IP address of this
+	 * packet, and any destination UDP port.  If not, we create
+	 * one, with a wildcard UDP port, and give it the SNMP dissector
+	 * as a dissector.
+	 */
+	if (pi.destport == UDP_PORT_SNMP) {
+	  conversation = find_conversation(&pi.src, &pi.dst, PT_UDP,
+					   pi.srcport, 0, NO_DST_PORT);
+	  if (conversation == NULL) {
+	    conversation = conversation_new(&pi.src, &pi.dst, PT_UDP,
+					    pi.srcport, 0, NULL,
+					    NO_DST_PORT);
+	    old_conversation_set_dissector(conversation, dissect_snmp);
+	  }
+	}
+
 	dissect_snmp_pdu(pd, offset, fd, tree, "SNMP", proto_snmp, ett_snmp);
 }
 
