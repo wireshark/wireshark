@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.16 2001/06/18 02:17:51 guy Exp $
+ * $Id: packet-rtcp.c,v 1.17 2001/06/20 04:45:51 guy Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -760,15 +760,15 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 					/* Packet length in 32 bit words MINUS one, 16 bits */
 					proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
 					offset += 2;
-					dissect_rtcp_app( tvb, offset,
+					offset = dissect_rtcp_app( tvb, offset,
 					    pinfo->fd, rtcp_tree, padding_set,
 					    packet_length - 4 );
 					break;
 				case RTCP_FIR:
-					dissect_rtcp_fir( tvb, offset, pinfo->fd, rtcp_tree );
+					offset = dissect_rtcp_fir( tvb, offset, pinfo->fd, rtcp_tree );
 					break;
 				case RTCP_NACK:
-					dissect_rtcp_nack( tvb, offset, pinfo->fd, rtcp_tree );
+					offset = dissect_rtcp_nack( tvb, offset, pinfo->fd, rtcp_tree );
 					break;
 				default:
 					/*

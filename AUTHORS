@@ -700,6 +700,10 @@ Laurent Rabret <laurent.rabret@rd.francetelecom.fr> {
 	PAP support
 }
 
+nuf si <gnippiks@yahoo.com> {
+	RTSP fixes
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
