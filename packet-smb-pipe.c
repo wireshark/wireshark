@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.55 2001/11/26 04:52:51 hagbard Exp $
+ * $Id: packet-smb-pipe.c,v 1.56 2001/11/27 09:37:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2523,7 +2523,7 @@ proto_register_pipe_lanman(void)
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
-static heur_dissector_list_t msrpc_heur_subdissector_list;
+static heur_dissector_list_t smb_transact_heur_subdissector_list;
 
 static gboolean
 dissect_pipe_msrpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree,
@@ -2538,13 +2538,13 @@ dissect_pipe_msrpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	pinfo->private_data = &dcerpc_priv;
 
-	result = dissector_try_heuristic(msrpc_heur_subdissector_list, d_tvb,
+	result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb,
 					 pinfo, parent_tree);
 
 	pinfo->private_data = smb_priv;
 
 	if (!result)
-		call_dissector(data_handle,d_tvb, pinfo, parent_tree);
+		call_dissector(data_handle, d_tvb, pinfo, parent_tree);
 
 	return TRUE;
 }
@@ -2552,7 +2552,7 @@ dissect_pipe_msrpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree,
 void
 proto_register_pipe_msrpc(void)
 {
-	register_heur_dissector_list("msrpc", &msrpc_heur_subdissector_list);
+	register_heur_dissector_list("smb_transact", &smb_transact_heur_subdissector_list);
 }
 
 #define CALL_NAMED_PIPE		0x54
