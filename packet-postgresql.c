@@ -3,7 +3,7 @@
  *
  * Copyright 2004, Edwin Calo <calo@fusemail.com>
  *
- * $Id: packet-postgresql.c,v 1.6 2004/02/19 08:56:50 guy Exp $
+ * $Id: packet-postgresql.c,v 1.7 2004/03/02 01:39:35 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,6 +60,15 @@ static gint ett_postgresql = -1;
  *	http://www.postgresql.org/docs/6.3/interactive/c50.htm
  *
  * for version 1.0 of the protocol.
+ *
+ * It looks like there are two types of PDUs: Old style and new style.
+ * New style PDUs start with a Length guint32, where the high byte is
+ * equal to 0. Old style PDUs start with a single Byte (different from 0)
+ * that contains the type of the PDU.
+ *
+ * The specific types can be found at:
+ * http://www.postgresql.org/docs/7.4/interactive/protocol-message-formats.html
+ * 
  */
 
 static void
