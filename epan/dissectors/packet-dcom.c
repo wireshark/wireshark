@@ -69,8 +69,6 @@
 #include "config.h"
 #endif
 
-#include <string.h>
-
 /*
  * XXX - are the next two includes necessary?
  */
