@@ -2,7 +2,7 @@
  * Routines for FC Fabric Configuration Server
  * Copyright 2001, Dinesh G Dutt <ddutt@andiamo.com>
  *
- * $Id: packet-fcfcs.c,v 1.1 2003/01/14 01:17:44 guy Exp $
+ * $Id: packet-fcfcs.c,v 1.2 2004/02/29 09:02:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -633,7 +633,7 @@ dissect_fcfcs_rpl (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                                  "Platform Name Length: %d", len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, 0);
-            proto_tree_add_item (tree, hf_fcs_platformtype, tvb, offset+259, 1,
+            proto_tree_add_item (tree, hf_fcs_platformtype, tvb, offset+256, 4,
                                  0);
             numelem = tvb_get_ntohl (tvb, offset+260);
             proto_tree_add_text (tree, tvb, offset+260, 4,
@@ -698,7 +698,7 @@ dissect_fcfcs_rplt (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                                  "Platform Name Length: %d", len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, 0);
-            proto_tree_add_item (tree, hf_fcs_platformtype, tvb, offset+259,
+            proto_tree_add_item (tree, hf_fcs_platformtype, tvb, offset+256,
                                  4, 0);
         }
     }
@@ -1108,7 +1108,7 @@ proto_register_fcfcs (void)
           {"Port State", "fcs.port.state", FT_UINT8, BASE_HEX,
            VALS (fc_fcs_port_state_val), 0x0, "", HFILL}},
         { &hf_fcs_platformname,
-          {"Platform Name", "fcs.platform.name", FT_STRING, BASE_HEX, NULL, 0x0,
+          {"Platform Name", "fcs.platform.name", FT_BYTES, BASE_HEX, NULL, 0x0,
            "", HFILL}},
         { &hf_fcs_platformnname,
           {"Platform Node Name", "fcs.platform.nodename", FT_STRING, BASE_HEX,
@@ -1181,5 +1181,4 @@ proto_reg_handoff_fcfcs (void)
 
     data_handle = find_dissector ("data");
 }
-
 
