@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.28 2000/11/09 16:39:59 itojun Exp $
+ * $Id: packet-icmpv6.c,v 1.29 2000/11/09 21:57:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -614,7 +614,7 @@ dissect_rrenum(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	opt_tree = proto_item_add_subtree(tf, ett_icmpv6opt);
 	proto_tree_add_text(opt_tree, NullTVB,
 	    off + offsetof(struct rr_pco_match, rpm_code),
-	    sizeof(match->rpm_code), "OpCode: %s",
+	    sizeof(match->rpm_code), "OpCode: %s (%u)",
 	    val_to_str(match->rpm_code, names_rrenum_matchcode, "Unknown"), 
 	    match->rpm_code);
 	proto_tree_add_text(opt_tree, NullTVB,
