@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, or simply convert from one 
  * format to another format.
  *
- * $Id: editcap.c,v 1.12 2000/08/09 06:00:54 guy Exp $
+ * $Id: editcap.c,v 1.13 2000/12/03 21:11:05 guy Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -170,8 +170,8 @@ void usage()
   int i;
   const char *string;
 
-  fprintf(stderr, "Usage: editcap [-r] [-h] [-v] [-T <encap type>] [-F <capture type>] <infile>\\\n"); 
-  fprintf(stderr, "                <outfile> [ <record#>[-<record#>] ... ]\n");
+  fprintf(stderr, "Usage: editcap [-r] [-h] [-v] [-T <encap type>] [-F <capture type>]\n");
+  fprintf(stderr, "               [-s <snaplen>] <infile> <outfile> [ <record#>[-<record#>] ... ]\n");
   fprintf(stderr, "  where\t-r specifies that the records specified should be kept, not deleted, \n");
   fprintf(stderr, "                           default is to delete\n");
   fprintf(stderr, "       \t-v specifies verbose operation, default is silent\n");
@@ -191,6 +191,8 @@ void usage()
         wtap_file_type_short_string(i), wtap_file_type_string(i));
   }
   fprintf(stderr, "       \t    default is libpcap\n");
+  fprintf(stderr, "       \t-s <snaplen> specifies that packets should be truncated to\n");
+  fprintf(stderr, "       \t   <snaplen> bytes of data\n");
   fprintf(stderr, "\n      \t    A range of records can be specified as well\n");
 }
 
