@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.8 2002/05/29 22:52:53 guy Exp $
+ * $Id: packet-mmse.c,v 1.9 2002/06/03 19:00:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -681,7 +681,7 @@ proto_register_mmse(void)
 	    }
 	},
 	{   &hf_mmse_cc,
-	    {   "Bcc", "mmse.bcc",
+	    {   "Cc", "mmse.cc",
 		FT_STRING, BASE_NONE, NULL, 0x00,
 		"Carbon copy.",
 		HFILL
