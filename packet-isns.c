@@ -7,7 +7,7 @@
  * Copyright 2003, Elipsan, Gareth Bushell <gbushell@elipsan.com>
  * (c) 2004 Ronnie Sahlberg   updates
  *
- * $Id: packet-isns.c,v 1.6 2004/05/13 13:39:47 sahlberg Exp $
+ * $Id: packet-isns.c,v 1.7 2004/05/13 13:49:32 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,6 +84,7 @@ static int hf_isns_payload = -1;
 static int hf_isns_first_pdu = -1;
 static int hf_isns_last_pdu = -1;
 static int hf_isns_replace = -1;
+static int hf_isns_auth = -1;
 static int hf_isns_server = -1;
 static int hf_isns_client = -1;
 
@@ -97,7 +98,6 @@ static int hf_isns_scn_bitmap_object_added                         = -1;
 static int hf_isns_scn_bitmap_object_updated                       = -1;
 static int hf_isns_scn_bitmap_dd_dds_member_removed                = -1;
 static int hf_isns_scn_bitmap_dd_dds_member_added                  = -1;
-static int hf_isns_isnt = -1;
 static int hf_isns_isnt_control = -1;
 static int hf_isns_isnt_initiator = -1;
 static int hf_isns_isnt_target = -1;
@@ -456,6 +456,7 @@ static const value_string isns_attribute_tags[] = {
 /* iSNS flags */
 #define ISNS_FLAGS_CLIENT	0x8000
 #define ISNS_FLAGS_SERVER	0x4000
+#define ISNS_FLAGS_AUTH		0x2000
 #define ISNS_FLAGS_REPLACE	0x1000
 #define ISNS_FLAGS_LAST_PDU	0x0800
 #define ISNS_FLAGS_FIRST_PDU	0x0400
@@ -556,6 +557,11 @@ static const true_false_string isns_flag_replace = {
     "Don't replace"
 };
 
+static const true_false_string isns_flag_auth = {
+    "Authentication Block is PRESENT",
+    "No authentication block"
+};
+
 static const true_false_string isns_flag_server = {
     "Sender is iSNS server",
     "Sender is not iSNS server"
@@ -645,6 +651,7 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	proto_tree_add_boolean(tt, hf_isns_client, tvb, offset+6, 2, flags);
 	proto_tree_add_boolean(tt, hf_isns_server, tvb, offset+6, 2, flags);
+	proto_tree_add_boolean(tt, hf_isns_auth, tvb, offset+6, 2, flags);
 	proto_tree_add_boolean(tt, hf_isns_replace, tvb, offset+6, 2, flags);
 	proto_tree_add_boolean(tt, hf_isns_last_pdu, tvb, offset+6, 2, flags);
 	proto_tree_add_boolean(tt, hf_isns_first_pdu, tvb, offset+6, 2, flags);
@@ -1338,6 +1345,11 @@ void proto_register_isns(void)
 	  { "Server    ","isns.flags.server",
 	    FT_BOOLEAN, 16, TFS(&isns_flag_server), ISNS_FLAGS_SERVER,
 	    "iSNS Server" ,HFILL}
+	},
+	{ &hf_isns_auth,
+	  { "Auth      ","isns.flags.authentication_block",
+	    FT_BOOLEAN, 16, TFS(&isns_flag_auth), ISNS_FLAGS_AUTH,
+	    "is iSNS Authentication Block present?" ,HFILL}
 	},
 	{ &hf_isns_replace,
 	  { "Replace   ","isns.flags.replace",
