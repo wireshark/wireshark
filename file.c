@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.122 1999/11/22 06:24:38 gram Exp $
+ * $Id: file.c,v 1.123 1999/11/25 18:02:05 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1011,7 +1011,7 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
     g_free(fdata);
 }
 
-void
+int
 filter_packets(capture_file *cf, gchar *dftext)
 {
   dfilter *dfcode;
@@ -1026,7 +1026,7 @@ filter_packets(capture_file *cf, gchar *dftext)
     if (dfilter_compile(dftext, &dfcode) != 0) {
       /* The attempt failed; report an error. */
       simple_dialog(ESD_TYPE_WARN, NULL, dfilter_error_msg);
-      return;
+      return 0;
     }
 
     /* Was it empty? */
@@ -1051,6 +1051,7 @@ filter_packets(capture_file *cf, gchar *dftext)
      colored.  (That's how we colorize the display - it's like filtering
      the display, only we don't install a new filter.) */
   colorize_packets(cf);
+  return 1;
 }
 
 void

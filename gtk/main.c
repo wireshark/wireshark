@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.44 1999/11/23 04:43:44 gram Exp $
+ * $Id: main.c,v 1.45 1999/11/25 18:02:25 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -668,9 +668,35 @@ hfinfo_numeric_format(header_field_info *hfinfo)
 static void
 filter_activate_cb(GtkWidget *w, gpointer data)
 {
+  GtkCombo  *filter_cm = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_CM_KEY);
+  GList     *filter_list = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_FL_KEY);
+  GList     *li, *nl = NULL;
+  gboolean   add_filter = TRUE;
+  
   char *s = gtk_entry_get_text(GTK_ENTRY(w));
+  
+  /* GtkCombos don't let us get at their list contents easily, so we maintain
+     our own filter list, and feed it to gtk_combo_set_popdown_strings when
+     a new filter is added. */
+  if (filter_packets(&cf, g_strdup(s))) {
+    li = g_list_first(filter_list);
+    while (li) {
+      if (li->data && strcmp(s, li->data) == 0)
+        add_filter = FALSE;
+      li = li->next;
+    }
 
-  filter_packets(&cf, g_strdup(s));
+    if (add_filter) {
+      filter_list = g_list_append(filter_list, g_strdup(s));
+      li = g_list_first(filter_list);
+      while (li) {
+        nl = g_list_append(nl, strdup(li->data));
+        li = li->next;
+      }
+      gtk_combo_set_popdown_strings(filter_cm, nl);
+      gtk_entry_set_text(GTK_ENTRY(filter_cm->entry), g_list_last(filter_list)->data);
+    }
+  }
 }
 
 /* redisplay with no display filter */
@@ -805,7 +831,9 @@ main(int argc, char *argv[])
 #endif
   GtkWidget           *window, *main_vbox, *menubar, *u_pane, *l_pane,
                       *bv_table, *bv_hscroll, *bv_vscroll, *stat_hbox, 
-                      *tv_scrollw, *filter_bt, *filter_te, *filter_reset;
+                      *tv_scrollw, *filter_bt, *filter_cm, *filter_te,
+                      *filter_reset;
+  GList               *filter_list = NULL;
   GtkStyle            *pl_style;
   GtkAccelGroup       *accel;
   GtkWidget	      *packet_sw;
@@ -1179,12 +1207,18 @@ main(int argc, char *argv[])
   gtk_box_pack_start(GTK_BOX(stat_hbox), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
   
-  filter_te = gtk_entry_new();
+  filter_cm = gtk_combo_new();
+  filter_list = g_list_append (filter_list, "");
+  gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), filter_list);
+  gtk_combo_disable_activate(GTK_COMBO(filter_cm));
+  filter_te = GTK_COMBO(filter_cm)->entry;
   gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
-  gtk_box_pack_start(GTK_BOX(stat_hbox), filter_te, TRUE, TRUE, 3);
+  gtk_object_set_data(GTK_OBJECT(filter_te), E_DFILTER_CM_KEY, filter_cm);
+  gtk_object_set_data(GTK_OBJECT(filter_te), E_DFILTER_FL_KEY, filter_list);
+  gtk_box_pack_start(GTK_BOX(stat_hbox), filter_cm, TRUE, TRUE, 3);
   gtk_signal_connect(GTK_OBJECT(filter_te), "activate",
     GTK_SIGNAL_FUNC(filter_activate_cb), (gpointer) NULL);
-  gtk_widget_show(filter_te);
+  gtk_widget_show(filter_cm);
 
   filter_reset = gtk_button_new_with_label("Reset");
   gtk_object_set_data(GTK_OBJECT(filter_reset), E_DFILTER_TE_KEY, filter_te);

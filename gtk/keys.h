@@ -1,7 +1,7 @@
 /* keys.h
  * Key definitions for various objects
  *
- * $Id: keys.h,v 1.6 1999/09/29 22:19:24 guy Exp $
+ * $Id: keys.h,v 1.7 1999/11/25 18:02:24 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,7 +28,9 @@
 
 /* Keys for gtk_object_set_data */
 
-#define E_DFILTER_TE_KEY          "display_filter_te"
+#define E_DFILTER_TE_KEY          "display_filter_entry"
+#define E_DFILTER_CM_KEY          "display_filter_combo"
+#define E_DFILTER_FL_KEY          "display_filter_list"
 #define E_RFILTER_TE_KEY          "read_filter_te"
 
 #define PRINT_CMD_LB_KEY          "printer_command_label"
