@@ -164,35 +164,35 @@ static const value_string type_values [] = {
 
 /* VarBind types */
 
-#define V_INT		2
-#define V_OSTR		4
-#define V_NULL		5
-#define V_OID		6
-#define V_IPADDR	64
-#define V_COUNTER32	65
-#define V_GAUGE32	66
-#define V_TIMETICK	67
-#define V_OPAQUE	68
-#define V_COUNTER64	70
-#define V_NOSUCHOBJ	128
-#define V_NOSUCHINST	129
-#define V_ENDOFMIB	130
+#define VB_INT		2
+#define VB_OSTR		4
+#define VB_NULL		5
+#define VB_OID		6
+#define VB_IPADDR	64
+#define VB_COUNTER32	65
+#define VB_GAUGE32	66
+#define VB_TIMETICK	67
+#define VB_OPAQUE	68
+#define VB_COUNTER64	70
+#define VB_NOSUCHOBJ	128
+#define VB_NOSUCHINST	129
+#define VB_ENDOFMIB	130
 
 
 static const value_string vtag_values [] = { 
-	{ V_INT,	"Integer" },
- 	{ V_OSTR,	"Octet String" },
- 	{ V_NULL,	"Null" },
- 	{ V_OID	,	"Object Identifier" },
- 	{ V_IPADDR,	"IpAddress" },
- 	{ V_COUNTER32,	"Counter32" },
- 	{ V_GAUGE32,	"Gauge32" },
- 	{ V_TIMETICK,	"TimeTicks" },
- 	{ V_OPAQUE,	"Opaque" },
- 	{ V_COUNTER64,	"Counter64" },
- 	{ V_NOSUCHOBJ,	"noSuchObject" },
- 	{ V_NOSUCHINST,	"noSuchInstance" },
- 	{ V_ENDOFMIB,	"endOfMibView" },
+	{ VB_INT,		"Integer" },
+ 	{ VB_OSTR,		"Octet String" },
+ 	{ VB_NULL,		"Null" },
+ 	{ VB_OID,		"Object Identifier" },
+ 	{ VB_IPADDR,		"IpAddress" },
+ 	{ VB_COUNTER32,		"Counter32" },
+ 	{ VB_GAUGE32,		"Gauge32" },
+ 	{ VB_TIMETICK,		"TimeTicks" },
+ 	{ VB_OPAQUE,		"Opaque" },
+ 	{ VB_COUNTER64,		"Counter64" },
+ 	{ VB_NOSUCHOBJ,		"noSuchObject" },
+ 	{ VB_NOSUCHINST,	"noSuchInstance" },
+ 	{ VB_ENDOFMIB,		"endOfMibView" },
 };
 
 
@@ -433,31 +433,31 @@ int dissect_varbind(tvbuff_t *tvb, proto_tree *tree, int offset, int len, char f
 
 	switch(vtag)
 	{
-     		case  V_OID: 
+     		case  VB_OID: 
 			tlen += dissect_object_id(tvb, subtree, offset + tlen + 4, flags);
 		break;
 
-     		case  V_OPAQUE: 
-     		case  V_OSTR: 
-     		case  V_IPADDR: 
+     		case  VB_OPAQUE: 
+     		case  VB_OSTR: 
+     		case  VB_IPADDR: 
 			tlen += dissect_octet_string(tvb, subtree,offset + tlen + 4,flags);
 		break;
 
-     		case  V_TIMETICK: 
-     		case  V_COUNTER32: 
-     		case  V_INT: 
-    		case  V_GAUGE32: 
+     		case  VB_TIMETICK: 
+     		case  VB_COUNTER32: 
+     		case  VB_INT: 
+    		case  VB_GAUGE32: 
 			tlen += dissect_val32(tvb, subtree,offset + tlen + 4, flags);
 		break;
 
-     		case  V_COUNTER64: 
+     		case  VB_COUNTER64: 
 			tlen += dissect_val64(tvb, subtree,offset + tlen + 4, flags);
 		break;
 
-     		case  V_NULL: 
-     		case  V_NOSUCHOBJ: 
-     		case  V_NOSUCHINST: 
-     		case  V_ENDOFMIB: 
+     		case  VB_NULL: 
+     		case  VB_NOSUCHOBJ: 
+     		case  VB_NOSUCHINST: 
+     		case  VB_ENDOFMIB: 
 		break;
 	} 
 	return tlen + 4;
