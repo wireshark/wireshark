@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.199 2003/09/25 00:08:58 guy Exp $
+ * $Id: tethereal.c,v 1.200 2003/10/09 22:29:52 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1339,6 +1339,11 @@ main(int argc, char *argv[])
     if (!dfilter_compile(rfilter, &rfcode)) {
       fprintf(stderr, "tethereal: %s\n", dfilter_error_msg);
       epan_cleanup();
+#ifdef HAVE_LIBPCAP
+      /* XXX Check for valid capture filter and warn about
+       *     mixing them up in case it's valid.
+       */
+#endif
       exit(2);
     }
   }
@@ -1452,6 +1457,8 @@ capture(int out_file_type)
   struct pcap_stat stats;
   gboolean    write_err;
   gboolean    dump_ok;
+  dfilter_t   *rfcode = NULL;
+
 
   /* Initialize all data structures used for dissection. */
   init_dissection();
@@ -1543,8 +1550,17 @@ capture(int out_file_type)
       netmask = 0;
     }
     if (pcap_compile(ld.pch, &fcode, cfile.cfilter, 1, netmask) < 0) {
-      snprintf(errmsg, sizeof errmsg, "Unable to parse filter string (%s).",
-	pcap_geterr(ld.pch));
+      if (dfilter_compile(cfile.cfilter, &rfcode)) {
+        snprintf(errmsg, sizeof errmsg,
+	  "Unable to parse capture filter string (%s).\n"
+          "  Interestingly enough, this looks like a valid display filter\n"
+	  "  Are you sure you didn't mix them up?",
+	  pcap_geterr(ld.pch));
+      } else {
+        snprintf(errmsg, sizeof errmsg,
+	  "Unable to parse capture filter string (%s).",
+	  pcap_geterr(ld.pch));
+      }
       goto error;
     }
     if (pcap_setfilter(ld.pch, &fcode) < 0) {
