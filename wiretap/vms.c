@@ -1,6 +1,6 @@
 /* vms.c
  *
- * $Id: vms.c,v 1.10 2002/03/05 08:39:29 guy Exp $
+ * $Id: vms.c,v 1.11 2002/03/07 21:08:33 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <mmilgram@arrayinc.com>
@@ -269,7 +269,7 @@ isdumpline( guchar *line )
 {
     int i = 0;
 
-    while (i<VMS_LINE_LENGTH && !isalnum(line[i]))
+    while (i<VMS_LINE_LENGTH && line[i] && !isalnum(line[i]))
         i++;
 
     if (! isxdigit(line[i]))
