@@ -1,5 +1,6 @@
 /* packet-pktc.c
- * Routines for PacketCable (PKTC) Kerberized Key Management packet disassembly
+ * Routines for PacketCable (PKTC) Kerberized Key Management and
+ *              PacketCable (PKTC) MTA FQDN                  packet disassembly
  *
  * References: 
  * [1] PacketCable Security Specification, PKT-SP-SEC-I10-040113, January 13, 
@@ -8,7 +9,7 @@
  * Ronnie Sahlberg 2004
  * Thomas Anders 2004
  *
- * $Id: packet-pktc.c,v 1.7 2004/06/04 11:32:52 sahlberg Exp $
+ * $Id: packet-pktc.c,v 1.8 2004/06/05 02:57:48 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,7 +39,7 @@
 #include "packet-kerberos.h"
 
 #define PKTC_PORT	1293
-#define PKTC_MTAFQDNMAP_PORT	2246
+#define PKTC_MTAFQDN_PORT	2246
 
 static int proto_pktc = -1;
 static gint hf_pktc_app_spec_data = -1;
@@ -67,12 +68,21 @@ static gint hf_pktc_ack_required_flag = -1;
 static gint hf_pktc_sha1_hmac = -1;
 static gint hf_pktc_sec_param_lifetime = -1;
 static gint hf_pktc_grace_period = -1;
-static gint hf_pktc_mtafqdnmap = -1;
+
+static gint hf_pktc_mtafqdn_msgtype = -1;
+static gint hf_pktc_mtafqdn_enterprise = -1;
+static gint hf_pktc_mtafqdn_version = -1;
+static gint hf_pktc_mtafqdn_mac = -1;
+static gint hf_pktc_mtafqdn_pub_key_hash = -1;
+static gint hf_pktc_mtafqdn_manu_cert_revoked = -1;
+static gint hf_pktc_mtafqdn_fqdn = -1;
+static gint hf_pktc_mtafqdn_ip = -1;
 
 static gint ett_pktc = -1;
 static gint ett_pktc_app_spec_data = -1;
 static gint ett_pktc_list_of_ciphersuites = -1;
-static gint ett_pktc_mtafqdnmap = -1;
+
+static gint ett_pktc_mtafqdn = -1;
 
 #define KMMID_WAKEUP		0x01
 #define KMMID_AP_REQUEST	0x02
@@ -107,8 +117,9 @@ static const value_string kmmid_types[] = {
 #define HMAC_SHA1_96   0x02
 
 
-/* Domain of Interpretation */static const value_string doi_types[] = {
-    { DOI_IPSEC		, "IPSec" },
+/* Domain of Interpretation */
+static const value_string doi_types[] = {
+    { DOI_IPSEC                , "IPsec" },
     { DOI_SNMPv3	, "SNMPv3" },
     { 0, NULL }
 };
@@ -120,7 +131,7 @@ static const value_string snmp_authentication_algorithm_vals[] = {
     { 0        , NULL }
 };
 static const value_string snmp_transform_id_vals[] = {
-    { SNMPv3_NULL      , "NULL (no encryption)" },
+    { SNMPv3_NULL      , "NULL" }, /* no encryption */
     { SNMPv3_DES       , "DES" },
     { 0        , NULL }
 };
@@ -132,14 +143,25 @@ static const value_string ipsec_transform_id_vals[] = {
     { ESP_IDEA         , "IDEA" },
     { ESP_CAST         , "CAST" },
     { ESP_BLOWFISH     , "BLOWFISH" },
-    { ESP_NULL         , "NULL (no encryption)" },
+    { ESP_NULL         , "NULL" }, /* no encryption, RFC 2410 */
     { ESP_AES          , "AES-128" },
     { 0	, NULL }
 };
 
 static const value_string ipsec_authentication_algorithm_vals[] = {
-    { HMAC_MD5_96      , "HMAC-MD5-96" },
-    { HMAC_SHA1_96     , "HMAC-SHA-1-96" },
+    { HMAC_MD5_96      , "HMAC-MD5-96" },   /* RFC 2403 */
+    { HMAC_SHA1_96     , "HMAC-SHA-1-96" }, /* RFC 2404 */
+    { 0        , NULL }
+};
+
+/* MTA FQDN Message Types */
+#define PKTC_MTAFQDN_REQ       0x01
+#define PKTC_MTAFQDN_REP       0x02
+#define PKTC_MTAFQDN_ERR       0x03
+static const value_string pktc_mtafqdn_msgtype_vals[] = {
+    { PKTC_MTAFQDN_REQ,        "MTA FQDN Request" },
+    { PKTC_MTAFQDN_REP,        "MTA FQDN Reply" },
+    { PKTC_MTAFQDN_ERR,        "MTA FQDN Error Reply" },
     { 0	, NULL }
 };
 
@@ -237,9 +259,12 @@ dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tre
     }
 
 
-    /* key management message id */
+    /* number of ciphersuites */
     len=tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint(tree, hf_pktc_list_of_ciphersuites_len, tvb, offset, 1, len);
+    if (len>0) {
+      proto_item_append_text(tree, " (%d):", len);
+    }
+    proto_tree_add_uint_hidden(tree, hf_pktc_list_of_ciphersuites_len, tvb, offset, 1, len);
     offset+=1;
 
     switch(doi){
@@ -247,6 +272,7 @@ dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tre
         for(i=0;i<len;i++){
             /* SNMPv3 authentication algorithm */
             proto_tree_add_item(tree, hf_pktc_snmpAuthenticationAlgorithm, tvb, offset, 1, FALSE);
+            proto_item_append_text(tree, " %s", val_to_str(tvb_get_guint8(tvb, offset), snmp_authentication_algorithm_vals, "%0x"));
             offset+=1;
 
             /* SNMPv3 encryption transform id */
@@ -258,10 +284,12 @@ dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tre
         for(i=0;i<len;i++){
             /* IPsec authentication algorithm */
             proto_tree_add_item(tree, hf_pktc_ipsecAuthenticationAlgorithm, tvb, offset, 1, FALSE);
+            proto_item_append_text(tree, " %s", val_to_str(tvb_get_guint8(tvb, offset), ipsec_authentication_algorithm_vals, "%0x"));
             offset+=1;
 
             /* IPsec encryption transform id */
             proto_tree_add_item(tree, hf_pktc_ipsecEncryptionTransformID, tvb, offset, 1, FALSE);
+            proto_item_append_text(tree, "/%s", val_to_str(tvb_get_guint8(tvb, offset), snmp_transform_id_vals, "%0x"));
             offset+=1;
 	}
         break;
@@ -394,7 +422,8 @@ dissect_pktc_rekey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
     /* They really came up with a two-digit year in late 1990s! =8o */
     timestr=tvb_get_ptr(tvb, offset, 13);
     proto_tree_add_string_format(tree, hf_pktc_timestamp, tvb, offset, 13, timestr, 
-				 "Timestamp: %.2s-%.2s-%.2s %.2s:%.2s:%.2s", 
+                                "%s: %.2s-%.2s-%.2s %.2s:%.2s:%.2s", 
+                                proto_registrar_get_name(hf_pktc_timestamp),
 				 timestr, timestr+2, timestr+4, timestr+6, timestr+8, timestr+10);
     offset+=13;
 
@@ -436,49 +465,103 @@ dissect_pktc_error_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 }
 
 static int
-dissect_pktc_appspecificdata(packet_info *pinfo _U_, tvbuff_t *tvb _U_, proto_tree *tree _U_)
+dissect_pktc_mtafqdn_krbsafeuserdata(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree)
 {
-	int offset=0;
-	/*XXX add dissection of the app specific data here */
-	return offset;
+    int offset=0, string_len=0;
+    guint8 msgtype;
+    guint32 bignum;
+    nstime_t ts;
+
+    /* message type */
+    msgtype = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(tree, hf_pktc_mtafqdn_msgtype, tvb, offset, 1, msgtype);
+    offset+=1;
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_set_str(pinfo->cinfo, COL_INFO, 
+                   val_to_str(msgtype, pktc_mtafqdn_msgtype_vals, "MsgType %u"));
+
+    /* enterprise */
+    proto_tree_add_uint(tree, hf_pktc_mtafqdn_enterprise, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
+    offset+=4;
+
+    /* protocol version */
+    proto_tree_add_uint(tree, hf_pktc_mtafqdn_version, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+    offset+=1;
+
+    switch(msgtype) {
+    case PKTC_MTAFQDN_REQ:
+        /* MTA MAC address */
+        proto_tree_add_ether(tree, hf_pktc_mtafqdn_mac, tvb, offset, 6, tvb_get_ptr(tvb, offset, 6));
+       offset+=6;
+
+       /* MTA pub key hash */
+       proto_tree_add_item(tree, hf_pktc_mtafqdn_pub_key_hash, tvb, offset, 20, FALSE);
+       offset+=20;
+
+       /* manufacturer cert revocation time */
+       bignum = tvb_get_ntohl(tvb, offset);
+       ts.secs = bignum;
+       proto_tree_add_time_format(tree, hf_pktc_mtafqdn_manu_cert_revoked, tvb, offset, 4, 
+                                  &ts, "%s: %s",
+                                  proto_registrar_get_name(hf_pktc_mtafqdn_manu_cert_revoked),
+                                  (bignum==0) ? "not revoked" : abs_time_secs_to_str(bignum));
+       break;
+
+    case PKTC_MTAFQDN_REP:
+        /* MTA FQDN */
+        string_len = tvb_length_remaining(tvb, offset) - 4;
+       proto_tree_add_item(tree, hf_pktc_mtafqdn_fqdn, tvb, offset, string_len, FALSE); 
+       offset+=string_len;
+
+        /* MTA IP address */
+       tvb_memcpy(tvb, (guint8 *)&bignum, offset, sizeof(bignum));
+       proto_tree_add_ipv4(tree, hf_pktc_mtafqdn_ip, tvb, offset, 4, bignum);
+
+        break;
+    }
+
+    return offset;
 }
 
 static kerberos_callbacks cb[] = {
-	{ KRB_CBTAG_SAFE_USER_DATA,	dissect_pktc_appspecificdata },
-	{ 0, NULL }
+    { KRB_CBTAG_SAFE_USER_DATA,      dissect_pktc_mtafqdn_krbsafeuserdata },
+    { 0, NULL }
 };
 
 static void
-dissect_pktc_mtafqdnmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_pktc_mtafqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     int offset=0;
-    proto_tree *pktc_mtafqdnmap_tree = NULL;
+    proto_tree *pktc_mtafqdn_tree = NULL;
     proto_item *item = NULL;
-    tvbuff_t *pktc_mtafqdnmap_tvb;
+    tvbuff_t *pktc_mtafqdn_tvb;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKTC");
 
     if (tree) {
         item = proto_tree_add_item(tree, proto_pktc, tvb, 0, 0, FALSE);
-        pktc_mtafqdnmap_tree = proto_item_add_subtree(item, ett_pktc_mtafqdnmap);
+        pktc_mtafqdn_tree = proto_item_add_subtree(item, ett_pktc_mtafqdn);
     }
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "MTAFQDNMAP %s",
-		     pinfo->srcport == pinfo->match_port ? "Reply":"Request");
+        col_add_fstr(pinfo->cinfo, COL_INFO, "MTA FQDN %s",
+                    pinfo->srcport == pinfo->match_port ? "Reply":"Request");
     }
 
+
     /* KRB_AP_RE[QP] */
-    pktc_mtafqdnmap_tvb = tvb_new_subset(tvb, offset, -1, -1); 
-    offset += dissect_kerberos_main(pktc_mtafqdnmap_tvb, pinfo, pktc_mtafqdnmap_tree, FALSE, NULL);
+    pktc_mtafqdn_tvb = tvb_new_subset(tvb, offset, -1, -1); 
+    offset += dissect_kerberos_main(pktc_mtafqdn_tvb, pinfo, pktc_mtafqdn_tree, FALSE, NULL);
 
     /* KRB_SAFE */
-    pktc_mtafqdnmap_tvb = tvb_new_subset(tvb, offset, -1, -1); 
-    offset += dissect_kerberos_main(pktc_mtafqdnmap_tvb, pinfo, pktc_mtafqdnmap_tree, FALSE, cb);
+    pktc_mtafqdn_tvb = tvb_new_subset(tvb, offset, -1, -1); 
+    offset += dissect_kerberos_main(pktc_mtafqdn_tvb, pinfo, pktc_mtafqdn_tree, FALSE, cb);
 
     proto_item_set_len(item, offset);
 }
+
 
 static void
 dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -508,8 +591,9 @@ dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     
     /* version */
     version=tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint(pktc_tree, hf_pktc_version_major, tvb, offset, 1, (version>>4)&0x0f);
-    proto_tree_add_uint(pktc_tree, hf_pktc_version_minor, tvb, offset, 1, (version)&0x0f);
+    proto_tree_add_text(pktc_tree, tvb, offset, 1, "Version: %d.%d", (version>>4)&0x0f, (version)&0x0f);
+    proto_tree_add_uint_hidden(pktc_tree, hf_pktc_version_major, tvb, offset, 1, (version>>4)&0x0f);
+    proto_tree_add_uint_hidden(pktc_tree, hf_pktc_version_minor, tvb, offset, 1, (version)&0x0f);
     offset+=1;
 
     /* fill COL_INFO */
@@ -573,10 +657,10 @@ proto_register_pktc(void)
 	    "Application Specific Data", "pktc.asd", FT_NONE, BASE_HEX,
 	    NULL, 0, "KMMID/DOI application specific data", HFILL }},
 	{ &hf_pktc_list_of_ciphersuites, {
-	    "List of Ciphersuites", "pktc.list_of_ciphersuites", FT_NONE, BASE_HEX,
+            "List of Ciphersuites", "pktc.ciphers", FT_NONE, BASE_HEX,
 	    NULL, 0, "List of Ciphersuites", HFILL }},
 	{ &hf_pktc_list_of_ciphersuites_len, {
-	    "Number of Ciphersuites", "pktc.list_of_ciphersuites.len", FT_UINT8, BASE_DEC,
+            "Number of Ciphersuites", "pktc.ciphers.len", FT_UINT8, BASE_DEC,
 	    NULL, 0, "Number of Ciphersuites", HFILL }},
 	{ &hf_pktc_snmpAuthenticationAlgorithm, {
            "SNMPv3 Authentication Algorithm", "pktc.asd.snmp_auth_alg", FT_UINT8, BASE_HEX,
@@ -633,8 +717,7 @@ proto_register_pktc(void)
         &ett_pktc_list_of_ciphersuites,
     };
 
-    proto_pktc = proto_register_protocol("PacketCable",
-	"PKTC", "pktc");
+    proto_pktc = proto_register_protocol("PacketCable", "PKTC", "pktc");
     proto_register_field_array(proto_pktc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
@@ -648,16 +731,40 @@ proto_reg_handoff_pktc(void)
     dissector_add("udp.port", PKTC_PORT, pktc_handle);
 }
 
+
 void
-proto_register_pktc_mtafqdnmap(void)
+proto_register_pktc_mtafqdn(void)
 {
     static hf_register_info hf[] = {
-	{ &hf_pktc_mtafqdnmap, {
-	    "MTAFQDNMAP", "pktc.mtafqdnmap", FT_BOOLEAN, BASE_NONE,
-	    NULL, 0, "MTAFQDNMAP Message", HFILL }},
+       { &hf_pktc_mtafqdn_msgtype, {
+           "Message Type", "pktc.mtafqdn.msgtype", FT_UINT8, BASE_DEC,
+           VALS(pktc_mtafqdn_msgtype_vals), 0, "MTA FQDN Message Type", HFILL }},
+       { &hf_pktc_mtafqdn_enterprise, {
+           "Enterprise Number", "pktc.mtafqdn.enterprise", FT_UINT32, BASE_DEC,
+           NULL, 0, "Enterprise Number", HFILL }},
+       { &hf_pktc_mtafqdn_version, {
+           "Protocol Version", "pktc.mtafqdn.version", FT_UINT8, BASE_DEC,
+           NULL, 0, "MTA FQDN Protocol Version", HFILL }},
+       /* MTA FQDN REQ */
+       { &hf_pktc_mtafqdn_mac, {
+           "MTA MAC address", "pktc.mtafqdn.mac", FT_ETHER, BASE_NONE,
+           NULL, 0, "MTA MAC address", HFILL }},
+       { &hf_pktc_mtafqdn_pub_key_hash, {
+           "MTA Public Key Hash", "pktc.mtafqdn.pub_key_hash", FT_BYTES, BASE_HEX,
+           NULL, 0, "MTA Public Key Hash (SHA-1)", HFILL }},
+       { &hf_pktc_mtafqdn_manu_cert_revoked, {
+           "Manufacturer Cert Revocation Time", "pktc.mtafqdn.manu_cert_revoked", FT_ABSOLUTE_TIME, BASE_NONE,
+           NULL, 0, "Manufacturer Cert Revocation Time (UTC) or 0 if not revoked", HFILL }},
+       /* MTA FQDN REP */
+       { &hf_pktc_mtafqdn_fqdn, {
+           "MTA FQDN", "pktc.mtafqdn.fqdn", FT_STRING, BASE_NONE,
+           NULL, 0, "MTA FQDN", HFILL }},
+       { &hf_pktc_mtafqdn_ip, {
+           "MTA IP Address", "pktc.mtafqdn.ip", FT_IPv4, BASE_NONE,
+           NULL, 0, "MTA IP Address (all zeros if not supplied)", HFILL }},
     };
     static gint *ett[] = {
-        &ett_pktc_mtafqdnmap,
+        &ett_pktc_mtafqdn,
     };
 
     proto_register_field_array(proto_pktc, hf, array_length(hf));
@@ -665,10 +772,10 @@ proto_register_pktc_mtafqdnmap(void)
 }
 
 void
-proto_reg_handoff_pktc_mtafqdnmap(void)
+proto_reg_handoff_pktc_mtafqdn(void)
 {
-    dissector_handle_t pktc_mtafqdnmap_handle;
+    dissector_handle_t pktc_mtafqdn_handle;
 
-    pktc_mtafqdnmap_handle = create_dissector_handle(dissect_pktc_mtafqdnmap, proto_pktc);
-    dissector_add("udp.port", PKTC_MTAFQDNMAP_PORT, pktc_mtafqdnmap_handle);
+    pktc_mtafqdn_handle = create_dissector_handle(dissect_pktc_mtafqdn, proto_pktc);
+    dissector_add("udp.port", PKTC_MTAFQDN_PORT, pktc_mtafqdn_handle);
 }
