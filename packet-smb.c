@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.153 2001/11/16 09:52:29 guy Exp $
+ * $Id: packet-smb.c,v 1.154 2001/11/16 10:19:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -256,6 +256,8 @@ static int hf_smb_response_mask = -1;
 static int hf_smb_sid = -1;
 static int hf_smb_write_mode_write_through = -1;
 static int hf_smb_write_mode_return_remaining = -1;
+static int hf_smb_write_mode_raw = -1;
+static int hf_smb_write_mode_message_start = -1;
 static int hf_smb_write_mode_connectionless = -1;
 static int hf_smb_resume_key_len = -1;
 static int hf_smb_resume_server_cookie = -1;
@@ -3395,6 +3397,14 @@ static const true_false_string tfs_write_mode_return_remaining = {
 	"RETURN REMAINING (pipe/dev) requested",
 	"DON'T return remaining (pipe/dev)"
 };
+static const true_false_string tfs_write_mode_raw = {
+	"Use WriteRawNamedPipe (pipe)",
+	"DON'T use WriteRawNamedPipe (pipe)"
+};
+static const true_false_string tfs_write_mode_message_start = {
+	"This is the START of a MESSAGE (pipe)",
+	"This is NOT the start of a message (pipe)"
+};
 static const true_false_string tfs_write_mode_connectionless = {
 	"CONNECTIONLESS mode requested",
 	"Connectionless mode NOT requested"
@@ -3414,8 +3424,16 @@ dissect_write_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 		tree = proto_item_add_subtree(item, ett_smb_rawmode);
 	}
 
-	if(bm&0x0008){
+	if(bm&0x0080){
 		proto_tree_add_boolean(tree, hf_smb_write_mode_connectionless,
+			tvb, offset, 2, mask);
+	}
+	if(bm&0x0008){
+		proto_tree_add_boolean(tree, hf_smb_write_mode_message_start,
+			tvb, offset, 2, mask);
+	}
+	if(bm&0x0004){
+		proto_tree_add_boolean(tree, hf_smb_write_mode_raw,
 			tvb, offset, 2, mask);
 	}
 	if(bm&0x0002){
@@ -4562,7 +4580,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 4;
 
 	/* mode */
-	offset = dissect_write_mode(tvb, pinfo, tree, offset, 0x0001);
+	offset = dissect_write_mode(tvb, pinfo, tree, offset, 0x000f);
 
 	/* remaining */
 	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, TRUE);
@@ -13253,6 +13271,14 @@ proto_register_smb(void)
 	{ &hf_smb_write_mode_return_remaining,
 		{ "Return Remaining", "smb.write.mode.return_remaining", FT_BOOLEAN, 16,
 		TFS(&tfs_write_mode_return_remaining), 0x0002, "Return remaining data responses?", HFILL }},
+
+	{ &hf_smb_write_mode_raw,
+		{ "Write Raw", "smb.write.mode.raw", FT_BOOLEAN, 16,
+		TFS(&tfs_write_mode_raw), 0x0004, "Use WriteRawNamedPipe?", HFILL }},
+
+	{ &hf_smb_write_mode_message_start,
+		{ "Message Start", "smb.write.mode.message_start", FT_BOOLEAN, 16,
+		TFS(&tfs_write_mode_message_start), 0x0008, "Is this the start of a message?", HFILL }},
 
 	{ &hf_smb_write_mode_connectionless,
 		{ "Connectionless", "smb.write.mode.connectionless", FT_BOOLEAN, 16,
