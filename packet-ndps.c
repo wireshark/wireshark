@@ -2,7 +2,7 @@
  * Routines for NetWare's NDPS
  * Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ndps.c,v 1.1 2002/09/23 17:14:54 jmayer Exp $
+ * $Id: packet-ndps.c,v 1.2 2002/10/08 19:15:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -573,14 +573,14 @@ spx_datastream(guint8 type)
 static void
 dissect_ndps_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_spx)
 {
-	proto_tree	*ndps_tree;
-	proto_item	*ti;
-	proto_tree	*spx_tree;
-	proto_item	*spxti;
-	tvbuff_t	*next_tvb;
+    proto_tree	*ndps_tree;
+    proto_item	*ti;
+    proto_tree	*spx_tree;
+    proto_item	*spxti;
+    tvbuff_t	*next_tvb;
 	
-    guint8		conn_ctrl;
-	guint8		datastream_type;
+    guint8	conn_ctrl;
+    guint8	datastream_type;
 
     guint16     record_mark;
     guint16     ndps_length;
@@ -599,11 +599,11 @@ dissect_ndps_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     char        *ndps_err_string='\0';
     const char  *ndps_error_val = '\0';
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDPS");
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDPS");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "NDPS ");
+    if (check_col(pinfo->cinfo, COL_INFO))
+	col_set_str(pinfo->cinfo, COL_INFO, "NDPS ");
 	
     if (tree) {
         foffset = 0;
@@ -636,25 +636,25 @@ dissect_ndps_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         }
         else
         {
-		    ti = proto_tree_add_item(tree, proto_ndps, tvb, foffset, -1, FALSE);
-		    ndps_tree = proto_item_add_subtree(ti, ett_ndps);
+	    ti = proto_tree_add_item(tree, proto_ndps, tvb, foffset, -1, FALSE);
+	    ndps_tree = proto_item_add_subtree(ti, ett_ndps);
         }
         if (tvb_length_remaining(tvb, foffset) > 28)
         {
             record_mark = tvb_get_ntohs(tvb, foffset);
-    		proto_tree_add_item(ndps_tree, hf_ndps_record_mark, tvb,
+    	    proto_tree_add_item(ndps_tree, hf_ndps_record_mark, tvb,
     					   foffset, 2, record_mark);
             foffset += 2;
-    		ndps_length = tvb_get_ntohs(tvb, foffset);
-    		proto_tree_add_uint_format(ndps_tree, hf_ndps_length, tvb,
-    					   foffset, 2, ndps_length,
-    					   "Length of NDPS Packet: %d", ndps_length);
+    	    ndps_length = tvb_get_ntohs(tvb, foffset);
+    	    proto_tree_add_uint_format(ndps_tree, hf_ndps_length, tvb,
+    				       foffset, 2, ndps_length,
+    				       "Length of NDPS Packet: %d", ndps_length);
             foffset += 2;
-    		ndps_xid = tvb_get_ntohl(tvb, foffset);
-    		proto_tree_add_uint(ndps_tree, hf_ndps_xid, tvb, foffset, 4, ndps_xid);
-    		foffset += 4;
-    		ndps_packet_type = tvb_get_ntohl(tvb, foffset);
-    		proto_tree_add_item(ndps_tree, hf_ndps_packet_type, tvb, foffset, 4, FALSE);
+ 	    ndps_xid = tvb_get_ntohl(tvb, foffset);
+    	    proto_tree_add_uint(ndps_tree, hf_ndps_xid, tvb, foffset, 4, ndps_xid);
+    	    foffset += 4;
+    	    ndps_packet_type = tvb_get_ntohl(tvb, foffset);
+    	    proto_tree_add_item(ndps_tree, hf_ndps_packet_type, tvb, foffset, 4, FALSE);
             if(ndps_packet_type == 0x00000001)
             {
                 ndps_err_string = "NDPS Reply - Ok";
@@ -664,7 +664,7 @@ dissect_ndps_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
                         ndps_error_val = match_strval(ndps_err, ndps_error_types);
                         if(ndps_error_val == NULL)
                             ndps_error_val = "No Error Message Found";
-                        ndps_err_dec = (0x100000000-ndps_err);
+                        ndps_err_dec = -ndps_err;
                         ndps_err_string = "NDPS Error - (0x%08x), (-%d), %s";
                         if (check_col(pinfo->cinfo, COL_INFO))
                             col_add_fstr(pinfo->cinfo, COL_INFO, ndps_err_string, ndps_err, ndps_err_dec, ndps_error_val);
@@ -678,8 +678,8 @@ dissect_ndps_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
                 }
             }
             foffset += 4;
-    		ndps_rpc_version = tvb_get_ntohl(tvb, foffset);
-    		proto_tree_add_uint(ndps_tree, hf_ndps_rpc_version, tvb, foffset, 4, ndps_rpc_version);
+    	    ndps_rpc_version = tvb_get_ntohl(tvb, foffset);
+    	    proto_tree_add_uint(ndps_tree, hf_ndps_rpc_version, tvb, foffset, 4, ndps_rpc_version);
     
             foffset += 4;
             ndps_prog = tvb_get_ntohl(tvb, foffset);
@@ -727,7 +727,7 @@ dissect_ndps_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
                         ndps_hfname = 0;
                         break;
                 }
-                if(ndps_hfname != 0);
+                if(ndps_hfname != 0)
                 {
                     proto_tree_add_item(ndps_tree, ndps_hfname, tvb, foffset, 4, FALSE);
                     if (ndps_func_string != NULL) 
@@ -737,13 +737,16 @@ dissect_ndps_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
                     }
                 }
             }
-    		next_tvb = tvb_new_subset(tvb, foffset, -1, -1);
-    		call_dissector(ndps_data_handle,next_tvb, pinfo, tree);
+            next_tvb = tvb_new_subset(tvb, foffset, -1, -1);
+            call_dissector(ndps_data_handle,next_tvb, pinfo, tree);
     	}
         else
         {
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_append_str(pinfo->cinfo, COL_INFO, (gchar*) spx_conn_ctrl(conn_ctrl));
+            if (is_spx)
+            {
+                if (check_col(pinfo->cinfo, COL_INFO))
+                    col_append_str(pinfo->cinfo, COL_INFO, (gchar*) spx_conn_ctrl(conn_ctrl));
+            }
         }
     }
 }
@@ -752,7 +755,7 @@ dissect_ndps_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
 static void
 dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_ndps_common(tvb, pinfo, tree, TRUE);
+  dissect_ndps_common(tvb, pinfo, tree, TRUE);
 }
 
 static void
@@ -873,7 +876,7 @@ proto_register_ndps(void)
 
 	static gint *ett[] = {
 		&ett_ndps,
-        &ett_spx,
+		&ett_spx,
 	};
 	
     proto_spx = proto_register_protocol("Sequenced Packet eXchange",
@@ -884,8 +887,7 @@ proto_register_ndps(void)
 	    "NDPS", "ndps");
 	proto_register_field_array(proto_ndps, hf_ndps, array_length(hf_ndps));
 
-    proto_register_subtree_array(ett, array_length(ett));
-
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
@@ -893,8 +895,8 @@ proto_reg_handoff_ndps(void)
 {
 	dissector_handle_t ndps_handle, ndps_tcp_handle, spx_handle;
 
-    ndps_handle = create_dissector_handle(dissect_ndps, proto_ndps);
-    ndps_tcp_handle = create_dissector_handle(dissect_ndps_tcp, proto_ndps);
+	ndps_handle = create_dissector_handle(dissect_ndps, proto_ndps);
+	ndps_tcp_handle = create_dissector_handle(dissect_ndps_tcp, proto_ndps);
 	
 	/*spx_handle = create_dissector_handle(dissect_ndps, proto_spx);
 	dissector_add("ipx.packet_type", IPX_PACKET_TYPE_SPX, spx_handle);*/
@@ -912,5 +914,3 @@ proto_reg_handoff_ndps(void)
 	dissector_add("tcp.port", TCP_PORT_NOTIFY_LISTENER, ndps_tcp_handle);
 	ndps_data_handle = find_dissector("data");
 }
-
-                                                                                                                 
