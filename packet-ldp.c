@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for ldp packet disassembly
  *
- * $Id: packet-ldp.c,v 1.9 2000/12/04 06:05:49 guy Exp $
+ * $Id: packet-ldp.c,v 1.10 2000/12/04 13:40:11 sharpe Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -74,6 +74,7 @@ static int hf_ldp_tlv_fec_wc = -1;
 static int hf_ldp_tlv_fec_af = -1;
 static int hf_ldp_tlv_fec_len = -1;
 static int hf_ldp_tlv_fec_pfval = -1;
+static int hf_ldp_tlv_generic_label = -1;
 
 static int ett_ldp = -1;
 static int ett_ldp_header = -1;
@@ -190,12 +191,16 @@ static const value_string fec_types[] = {
 };
 
 static const value_string fec_af_types[] = {
-  {1, "UNIX"},
-  {2, "Internet (IPv4)"},
-  {3, "X25"},
-  {4, "IPX"},
-  {5, "Appletalk"},
-  {10, "IPv6"},
+  {0, "Reserved"},
+  {1, "IP (IPv4)"},
+  {2, "IP6 (IPv6)"},
+  {3, "NSAP"},
+  {4, "HDLC (8-bit multidrop)"},
+  {5, "BBN 1822"},
+  {6, "802"},
+  {10, "X.121 (X.25, Frame Relay)"},
+  {11, "IPX"},
+  {12, "Appletalk"},
   {0, NULL}
 };
 
@@ -324,6 +329,7 @@ int dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 	default:  /* Unknown */
 
           /* XXX - do all FEC's have a length that's a multiple of 4? */
+          /* Hmmm, don't think so. Will check. RJS. */
 
 	  fec_len -= 4;
 
@@ -336,6 +342,12 @@ int dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
       }
 
       break;;
+
+    case TLV_GENERIC_LABEL:
+
+      proto_tree_add_item(tlv_tree, hf_ldp_tlv_generic_label, tvb, offset + 4, 4, FALSE);
+
+      break;
 
     case TLV_COMMON_HELLO_PARMS:
 
@@ -761,6 +773,9 @@ proto_register_ldp(void)
 
     { &hf_ldp_tlv_fec_pfval,
       { "FEC Element Prefix Value", "ldp.msg.tlv.fec.pfval", FT_UINT32, BASE_HEX, NULL, 0x0, "Forwarding Equivalence Class Element Prefix"}},
+
+    { &hf_ldp_tlv_generic_label,
+      { "Generic Label", "ldp.msg.tlv.label", FT_UINT32, BASE_HEX, NULL, 0x0, "Label Mapping Generic Label"}},
 
   };
   static gint *ett[] = {
