@@ -1558,7 +1558,6 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_tree *tree = NULL;            /* init later, inside if(tree) */
     
     gboolean be;                        /* big endianess */
-    guint32  offset_saved = (*offset);  /* save in case we must back out */
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
        col_set_str(pinfo->cinfo, COL_PROTOCOL, "COSNAMING");
