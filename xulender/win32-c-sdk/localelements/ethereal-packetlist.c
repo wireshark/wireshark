@@ -33,18 +33,21 @@
 #include <windowsx.h>
 #include <commctrl.h>
 
-#include "win32-c-sdk.h"
-#include "win32-globals.h"
-#include "win32-util.h"
-
-#include "ethereal-packetlist.h"
-
 #include <epan/epan.h>
 #include <epan/filesystem.h>
 #include <epan/epan_dissect.h>
 #include <epan/column-utils.h>
 #include "prefs.h"
 #include "column.h"
+#include "color.h"
+#include "color_filters.h"
+
+#include "win32-c-sdk.h"
+#include "win32-globals.h"
+#include "win32-util.h"
+
+#include "ethereal-packetlist.h"
+#include "ui_util.h"
 
 typedef struct _packet_list_item {
     gchar   **text;
@@ -300,6 +303,77 @@ ethereal_packetlist_notify(HWND hw_packetlist, LPARAM l_param, capture_file *cfi
     return 0;
 }
 
+/* mark packets */
+static void
+set_frame_mark(gboolean set, frame_data *frame, gint row) {
+
+    if (row == -1)
+	return;
+
+    if (set) {
+	mark_frame(&cfile, frame);
+	packet_list_set_colors(row, &prefs.gui_marked_fg, &prefs.gui_marked_bg);
+    } else {
+	color_filter_t *cfilter = frame->color_filter;
+
+	unmark_frame(&cfile, frame);
+	/* Restore the color from the matching color filter if any */
+	if (cfilter) { /* The packet matches a color filter */
+	    packet_list_set_colors(row, &cfilter->fg_color, &cfilter->bg_color);
+	} else { /* No color filter match */
+	    packet_list_set_colors(row, NULL, NULL);
+	}
+    }
+
+    RedrawWindow(g_hw_packetlist, NULL, NULL, RDW_INVALIDATE);
+}
+
+/* call this after last set_frame_mark is done */
+static void
+mark_frames_ready(void) {
+//    file_set_save_marked_sensitive();
+//    packets_bar_update();
+}
+
+void
+mark_current_frame() {
+
+    if (cfile.current_frame) {
+	/* XXX hum, should better have a "cfile->current_row" here ... */
+	set_frame_mark(!cfile.current_frame->flags.marked, cfile.current_frame,
+		packet_list_find_row_from_data(cfile.current_frame));
+	mark_frames_ready();
+    }
+}
+
+void
+mark_all_frames(gboolean set) {
+    frame_data *fdata;
+
+    /* XXX: we might need a progressbar here */
+    cfile.marked_count = 0;
+    for (fdata = cfile.plist; fdata != NULL; fdata = fdata->next) {
+	set_frame_mark(set, fdata, packet_list_find_row_from_data(fdata));
+    }
+    mark_frames_ready();
+}
+
+void
+update_marked_frames(void) {
+    frame_data *fdata;
+
+    if (cfile.plist == NULL) return;
+
+    /* XXX: we might need a progressbar here */
+    /* XXX: This (along with mark_all_frames()) could be optimized quite
+     *      a bit if we had a better packet list iterator. */
+    for (fdata = cfile.plist; fdata != NULL; fdata = fdata->next) {
+	if (fdata->flags.marked)
+	    set_frame_mark(TRUE, fdata, g_list_index(first, fdata));
+    }
+    mark_frames_ready();
+}
+
 /* These are defined in ui_util.h */
 
 void
@@ -363,19 +437,35 @@ packet_list_set_colors(gint row, color_t *fg, color_t *bg) {
     packet_list_item *pli;
 
     pli = g_list_nth_data(first, row);
-    if (pli != NULL) {
+    if (pli == NULL)
+	return;
+
+    if (fg != NULL) {
 	if (pli->fg == NULL)
 	    pli->fg = g_malloc(sizeof(color_t));
-	if (pli->bg == NULL)
-	    pli->bg = g_malloc(sizeof(color_t));
 	pli->fg->pixel = fg->pixel;
 	pli->fg->red   = fg->red;
 	pli->fg->green = fg->green;
 	pli->fg->blue  = fg->blue;
+    } else {
+	if (pli->fg != NULL) {
+	    g_free(pli->fg);
+	    pli->fg = NULL;
+	}
+    }
+
+    if (bg != NULL) {
+	if (pli->bg == NULL)
+	    pli->bg = g_malloc(sizeof(color_t));
 	pli->bg->pixel = bg->pixel;
 	pli->bg->red   = bg->red;
 	pli->bg->green = bg->green;
 	pli->bg->blue  = bg->blue;
+    } else {
+	if (pli->bg != NULL) {
+	    g_free(pli->bg);
+	    pli->bg = NULL;
+	}
     }
 }
 

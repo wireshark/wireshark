@@ -95,6 +95,12 @@
 
 LRESULT CALLBACK win32_main_wnd_proc( HWND, UINT, WPARAM, LPARAM);
 
+/** Action to take for reftime_frame_cb() */
+typedef enum {
+    REFTIME_TOGGLE,     /**< toggle ref frame */
+    REFTIME_FIND_NEXT,  /**< find next ref frame */
+    REFTIME_FIND_PREV   /**< find previous ref frame */
+} REFTIME_ACTION_E;
 
 /*
  * XXX - A single, global cfile keeps us from having multiple files open
@@ -120,6 +126,7 @@ static void main_load_window_geometry(HWND hw_mainwin);
 static void main_save_window_geometry(HWND hw_mainwin);
 static void file_save_as_cmd(void);
 static void file_quit_cmd(HWND hw_mainwin);
+static void reftime_frame_cb(REFTIME_ACTION_E action);
 
 #ifdef HAVE_LIBPCAP
 static gboolean list_link_layer_types;
@@ -1463,6 +1470,24 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 		    case IDM_ETHEREAL_MAIN_EDIT_FIND_PREVIOUS:
 			find_previous_next(TRUE);
 			break;
+		    case IDM_ETHEREAL_MAIN_EDIT_TIME_REF_TOGGLE:
+			reftime_frame_cb(REFTIME_TOGGLE);
+			break;
+		    case IDM_ETHEREAL_MAIN_EDIT_TIME_REF_NEXT:
+			reftime_frame_cb(REFTIME_FIND_NEXT);
+			break;
+		    case IDM_ETHEREAL_MAIN_EDIT_TIME_REF_PREV:
+			reftime_frame_cb(REFTIME_FIND_PREV);
+			break;
+		    case IDM_ETHEREAL_MAIN_EDIT_MARK_PACKET:
+			mark_current_frame();
+			break;
+		    case IDM_ETHEREAL_MAIN_EDIT_MARK_ALL_PACKETS:
+			mark_all_frames(TRUE);
+			break;
+		    case IDM_ETHEREAL_MAIN_EDIT_UNMARK_ALL_PACKETS:
+			mark_all_frames(FALSE);
+			break;
 		    case IDM_ETHEREAL_MAIN_EDIT_PREFERENCES:
 			prefs_dialog_init(hw_mainwin);
 			break;
@@ -1890,5 +1915,41 @@ file_quit_cmd(HWND hw_mainwin) {
     } else {
 	/* unchanged file, just exit */
 	main_do_quit();
+    }
+}
+
+/* XXX - Copied verbatim from gtk/main.c */
+/* mark as reference time frame */
+static void
+set_frame_reftime(gboolean set, frame_data *frame, gint row) {
+    if (row == -1)
+	return;
+    if (set) {
+	frame->flags.ref_time=1;
+    } else {
+	frame->flags.ref_time=0;
+    }
+    reftime_packets(&cfile);
+}
+
+/* XXX - Copied (mostly) verbatim from gtk/main.c */
+static void
+reftime_frame_cb(REFTIME_ACTION_E action) {
+
+    switch(action) {
+	case REFTIME_TOGGLE:
+	    if (cfile.current_frame) {
+		/* XXX hum, should better have a "cfile->current_row" here ... */
+		set_frame_reftime(!cfile.current_frame->flags.ref_time,
+			cfile.current_frame,
+			packet_list_find_row_from_data(cfile.current_frame));
+	    }
+	    break;
+	case REFTIME_FIND_NEXT:
+	    find_previous_next_frame_with_filter("frame.ref_time", FALSE);
+	    break;
+	case REFTIME_FIND_PREV:
+	    find_previous_next_frame_with_filter("frame.ref_time", TRUE);
+	    break;
     }
 }

@@ -56,6 +56,8 @@ void win32_export_raw_file (HWND h_wnd);
 /* XXX - This should be moved to win32-print.c, maybe? */
 void print_update_dynamic(HWND dlg_hwnd, print_args_t *args); 
 
+static void file_set_save_marked_sensitive(HWND sf_hwnd);
+
 /* Open dialog defines */
 #define EWFD_FILTER_BTN    1000
 #define EWFD_FILTER_EDIT   1001

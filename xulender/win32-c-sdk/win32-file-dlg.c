@@ -66,7 +66,6 @@ static UINT CALLBACK save_as_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_
 static UINT CALLBACK merge_file_hook_proc(HWND mf_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT CALLBACK export_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
 static UINT CALLBACK export_raw_file_hook_proc(HWND of_hwnd, UINT ui_msg, WPARAM w_param, LPARAM l_param);
-static void file_set_save_marked_sensitive(HWND sf_hwnd);
 static void range_update_dynamics(HWND sf_hwnd, packet_range_t *range);
 static void range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range);
 static void range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t *range);
@@ -971,7 +970,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
  * Called when the "Save As..." dialog box is created and when either
  * the file type or the marked count changes.
  */
-static void
+void
 file_set_save_marked_sensitive(HWND sf_hwnd) {
     HWND     cur_ctrl;
     gboolean enable = TRUE;
