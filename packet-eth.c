@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.81 2003/08/23 09:09:32 sahlberg Exp $
+ * $Id: packet-eth.c,v 1.82 2003/08/24 01:36:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -162,7 +162,7 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   eth_hdr 		*ehdr;
   volatile gboolean	is_802_2;
   proto_tree		*volatile fh_tree = NULL;
-  char			*src_addr, *dst_addr;
+  const char		*src_addr, *dst_addr;
   static eth_hdr 	ehdrs[4];
   static int		ehdr_num=0;
 
