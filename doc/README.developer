@@ -1,14 +1,8 @@
-$Id: README.developer,v 1.42 2001/12/03 04:12:53 guy Exp $
+$Id: README.developer,v 1.43 2001/12/10 06:31:49 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
 variables.
-
-The file is target at creating dissectors based upon tvbuffers.  All 
-new dissector should be written with tvbuffers not with the old style, pd packet
-data pointer, dissectors.  The tvbuffer dissectors improve the handling of short
-packets. See the README.tvbuff for more details on tvbuffers.
-
 
 1. Setting up your protocol dissector code.
 
@@ -85,7 +79,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.42 2001/12/03 04:12:53 guy Exp $"
+The "$Id: README.developer,v 1.43 2001/12/10 06:31:49 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -95,7 +89,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.42 2001/12/03 04:12:53 guy Exp $
+ * $Id: README.developer,v 1.43 2001/12/10 06:31:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -164,8 +158,8 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *PROTOABBREV_tree;
 
 /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->fd, COL_PROTOCOL)) 
-		col_set_str(pinfo->fd, COL_PROTOCOL, "PROTOABBREV");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PROTOABBREV");
     
 /* This field shows up as the "Info" column in the display; you should make
    it, if possible, summarize what's in the packet, so that a user looking
@@ -189,13 +183,13 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    past the end of the packet, so that the Info column doesn't have data
    left over from the previous dissector; do
 
-	if (check_col(pinfo->fd, COL_INFO)) 
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_INFO)) 
+		col_clear(pinfo->cinfo, COL_INFO);
 
    */
 
-	if (check_col(pinfo->fd, COL_INFO)) 
-		col_set_str(pinfo->fd, COL_INFO, "XXX Request");
+	if (check_col(pinfo->cinfo, COL_INFO)) 
+		col_set_str(pinfo->cinfo, COL_INFO, "XXX Request");
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
@@ -427,8 +421,8 @@ that case.
 For example, to set the "Protocol" column
 to "PROTOABBREV":
 
-	if (check_col(pinfo->fd, COL_PROTOCOL)) 
-		col_set_str(pinfo->fd, COL_PROTOCOL, "PROTOABBREV");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PROTOABBREV");
 
 
 1.5.2 The col_add_str function.
@@ -449,8 +443,8 @@ the "Info" field to "<XXX> request, <N> bytes", where "reqtype" is a
 string containing the type of the request in the packet and "n" is an
 unsigned integer containing the number of bytes in the request:
 
-	if (check_col(pinfo->fd, COL_INFO)) 
-		col_add_fstr(pinfo->fd, COL_INFO, "%s request, %u bytes",
+	if (check_col(pinfo->cinfo, COL_INFO)) 
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s request, %u bytes",
 		    reqtype, n);
 
 Don't use 'col_add_fstr' with a format argument of just "%s" -
@@ -1000,7 +994,7 @@ against the parent field, the first byte of the TH.
 
 The code to add the FID to the tree would be;
 
-	guint8 th_0 = pd[offset];
+	guint8 th_0 = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(bf_tree, hf_sna_th_fid, offset, 1, th_0);
 
 Note: we do not do *any* manipulation of th_0 in order to get the FID value.
@@ -1206,35 +1200,6 @@ be passed as arguments to a routine using those strings.)
 
 1.8 Calling Other Dissector 
 
-
-1.8.1 TVBuffer Calling Old Style Dissector 
-
-When a TVBuffer based dissector is calling a old style dissector it must
-create the data structures need to make the call.  The tvb_compat function
-is used to set the pd value and the offset value.
-
-
-void
-dissect_my(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-
-	tvbuff_t	*next_tvb;
-	const guint8	*next_pd;
-	int		next_offset;
-
-/* create new tv_buffer that starts at the current offset */
-	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-
-/* set the pd and offset values need to call next dissector */
-	tvb_compat(next_tvb, &next_pd, &next_offset);
-
-/* call next dissector */
-	dissect_next( next_pd, next_offset, pinfo->fd, tree, 
-			END_OF_FRAME - next_offset);
-
-
-1.8.2 TVBuffer Calling TVBuffer Dissector 
-
 NOTE: This is discussed in the README.tvbuff file.  For more 
 information on tvbuffers consult that file.
 
@@ -1293,28 +1258,6 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* call the next dissector */
 	dissector_next( next_tvb, pinfo, tree);
-
-
-
-1.8.3 Old Style Dissector calling TVBuffer Dissector
-
-When an old style dissector calls a tvbuffer type dissector it must
-create the tvbuffer to pass to the tvbuffer dissector.  This is done
-with the tvb_create_from_top call.  The functions requires one
-parameter, the offset to the start of the data for the next dissector.
-
-An example -
-
-static void
-dissect_my(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-
-	tvbuff_t *tvb;
-	int offset = 0;
-
-/* create the tvbuffer for the next dissector */
-	tvb = tvb_create_from_top(offset);
-
-	dissector_next(tvb, &pi, tree);
 
 
 1.9 Editing Makefile.am and Makefile.nmake to add your dissector.
@@ -1783,7 +1726,7 @@ void *
 p_get_proto_data(frame_data *fd, int proto)
 
 Where: 
-	fd         - The fd pointer in the pinfo structure, usually pinfo->fd
+	fd         - The fd pointer in the pinfo structure, pinfo->fd
 	proto      - Protocol id returned by the proto_register_protocol call during initialization
 	proto_data - pointer to the dissector data.
 
@@ -1832,25 +1775,27 @@ Where: module - Returned by the prefs_register_protocol routine
 	 radio_buttons - Is the enumvals a list of radio buttons?
 
 
-An example from packet-bxxp.c -
+An example from packet-beep.c -
 	
-  proto_bxxp = proto_register_protocol("Blocks eXtensible eXchange Protocol",
-				       "BXXP", "bxxp");
+  proto_beep = proto_register_protocol("Blocks Extensible Exchange Protocol",
+				       "BEEP", "beep");
 
-  /* Register our configuration options for BXXP, particularly our port */
+	...
 
-  bxxp_module = prefs_register_protocol(proto_bxxp, proto_reg_handoff_bxxp);
+  /* Register our configuration options for BEEP, particularly our port */
 
-  prefs_register_uint_preference(bxxp_module, "tcp.port", "BXXP TCP Port",
-				 "Set the port for BXXP messages (if other"
+  beep_module = prefs_register_protocol(proto_beep, proto_reg_handoff_beep);
+
+  prefs_register_uint_preference(beep_module, "tcp.port", "BEEP TCP Port",
+				 "Set the port for BEEP messages (if other"
 				 " than the default of 10288)",
-				 10, &global_bxxp_tcp_port);
+				 10, &global_beep_tcp_port);
 
-  prefs_register_bool_preference(bxxp_module, "strict_header_terminator", 
-				 "BXXP Header Requires CRLF", 
-				 "Specifies that BXXP requires CRLF as a "
+  prefs_register_bool_preference(beep_module, "strict_header_terminator", 
+				 "BEEP Header Requires CRLF", 
+				 "Specifies that BEEP requires CRLF as a "
 				 "terminator, and not just CR or LF",
-				 &global_bxxp_strict_term);
+				 &global_beep_strict_term);
 
 
 3. Plugins
