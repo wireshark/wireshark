@@ -419,6 +419,7 @@ SectionIn 1 2
 !endif
 SetOutPath $INSTDIR\plugins\${VERSION}
 File "..\..\plugins\acn\acn.dll"
+File "..\..\plugins\agentx\agentx.dll"
 File "..\..\plugins\artnet\artnet.dll"
 File "..\..\plugins\asn1\asn1.dll"
 File "..\..\plugins\ciscosm\ciscosm.dll"

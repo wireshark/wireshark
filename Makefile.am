@@ -93,6 +93,7 @@ include Makefile.common
 if HAVE_PLUGINS
 plugin_libs = \
 	plugins/acn/acn.la \
+	plugins/agentx/agentx.la \
 	plugins/artnet/artnet.la \
 	plugins/asn1/asn1.la \
 	plugins/ciscosm/ciscosm.la \
@@ -116,6 +117,7 @@ plugin_libs = \
 if ENABLE_STATIC
 plugin_ldadd = \
 	plugins/acn/packet-acn.o \
+	plugins/agentx/packet-agentx.o \
 	plugins/artnet/packet-artnet.o \
 	plugins/asn1/packet-asn1.o \
 	plugins/ciscosm/packet-sm.o \
@@ -164,6 +166,7 @@ else		# ENABLE_STATIC
 plugin_ldadd = \
 	"-dlopen" self	\
 	"-dlopen" plugins/acn/acn.la \
+	"-dlopen" plugins/agentx/agentx.la \
 	"-dlopen" plugins/artnet/artnet.la \
 	"-dlopen" plugins/asn1/asn1.la \
 	"-dlopen" plugins/ciscosm/ciscosm.la \

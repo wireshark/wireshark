@@ -63,6 +63,7 @@ HELP=../../help/toc \
 	../../help/faq.txt
 
 PLUGINS=../../plugins/acn/acn.dll \
+	../../plugins/agentx/agentx.dll \
 	../../plugins/artnet/artnet.dll \
 	../../plugins/asn1/asn1.dll \
 	../../plugins/ciscosm/ciscosm.dll \
