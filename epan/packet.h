@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.67 2003/06/05 04:47:58 guy Exp $
+ * $Id: packet.h,v 1.68 2003/07/31 18:34:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -141,14 +141,14 @@ extern dissector_table_t register_dissector_table(const char *name,
     char *ui_name, ftenum_t type, int base);
 
 /* Find a dissector table by table name. */
-dissector_table_t find_dissector_table(const char *name);
+extern dissector_table_t find_dissector_table(const char *name);
 
 /* Get the UI name for a sub-dissector table, given its internal name */
 extern char *get_dissector_table_ui_name(const char *name);
 
 /* Get the field type to use when displaying values of the selector for a
    sub-dissector table, given the table's internal name */
-ftenum_t get_dissector_table_type(const char *name);
+extern ftenum_t get_dissector_table_type(const char *name);
 
 /* Get the base to use when displaying values of the selector for a
    sub-dissector table, given the table's internal name */
@@ -271,11 +271,11 @@ extern void postseq_cleanup_all_protocols(void);
  * useful for dissector registration routines which need to compile
  * display filters. dfilters can't initialize itself until all protocols
  * have registereed themselvs. */
-void
+extern void
 register_final_registration_routine(void (*func)(void));
 
 /* Call all the registered "final_registration" routines. */
-void
+extern void
 final_registration_all_protocols(void);
 
 /*

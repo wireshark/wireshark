@@ -207,3 +207,9 @@ typedef void (*addr_except_setup_try) (struct except_stacknode *, struct except_
 typedef void (*addr_col_set_fence) (column_info *, gint);
 typedef guint8 *(*addr_tvb_get_string) (tvbuff_t *, gint, gint);
 typedef guint8 *(*addr_tvb_get_stringz) (tvbuff_t *, gint, gint *);
+typedef dissector_table_t (*addr_find_dissector_table) (const char *);
+typedef dissector_handle_t (*addr_dissector_get_port_handle) (dissector_table_t, guint32);
+typedef char *(*addr_dissector_handle_get_short_name) (dissector_handle_t);
+typedef int (*addr_dissector_handle_get_protocol_index) (dissector_handle_t);
+typedef void (*addr_new_register_dissector) (const char *, new_dissector_t, int);
+typedef dissector_handle_t (*addr_new_create_dissector_handle) (new_dissector_t, int);

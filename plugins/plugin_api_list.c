@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.2 2003/07/18 22:47:18 guy Exp $
+ * $Id: plugin_api_list.c,v 1.3 2003/07/31 18:34:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -341,3 +341,10 @@ void col_set_fence(column_info*, gint);
 
 guint8 *tvb_get_string(tvbuff_t *, gint, gint);
 guint8 *tvb_get_stringz(tvbuff_t *, gint, gint *);
+
+dissector_table_t find_dissector_table(const char *);
+dissector_handle_t dissector_get_port_handle(dissector_table_t, guint32);
+char *dissector_handle_get_short_name(dissector_handle_t);
+int dissector_handle_get_protocol_index(dissector_handle_t);
+void new_register_dissector(const char *, new_dissector_t, int); 
+dissector_handle_t new_create_dissector_handle(new_dissector_t, int);
