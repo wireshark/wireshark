@@ -3,7 +3,7 @@
  * Routines for wbxml dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-wbxml.c,v 1.25 2004/03/02 22:15:30 obiot Exp $
+ * $Id: packet-wbxml.c,v 1.26 2004/03/04 23:16:08 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -296,37 +296,37 @@ static const value_string wbxml_wmlc10_global_cp0[] = {
 /*****         Tag tokens          *****/
 static const value_string wbxml_wmlc10_tags_cp0[] = {
 	/* 0x00 -- 0x04 GLOBAL */
-	/* 0x05 -- 0xE1 */
-	{ 0xE2, "A" },
-	{ 0xE3, "ACCESS" },
-	{ 0xE4, "B" },
-	{ 0xE5, "BIG" },
-	{ 0xE6, "BR" },
-	{ 0xE7, "CARD" },
-	{ 0xE8, "DO" },
-	{ 0xE9, "EM" },
-	{ 0xEA, "FIELDSET" },
-	{ 0xEB, "GO" },
-	{ 0xEC, "HEAD" },
-	{ 0xED, "I" },
-	{ 0xEE, "IMG" },
-	{ 0xEF, "INPUT" },
-	{ 0xF0, "META" },
-	{ 0xF1, "NOOP" },
-	{ 0xF2, "PREV" },
-	{ 0xF3, "ONEVENT" },
-	{ 0xF4, "OPTGROUP" },
-	{ 0xF5, "OPTION" },
-	{ 0xF6, "REFRESH" },
-	{ 0xF7, "SELECT" },
-	{ 0xF8, "SMALL" },
-	{ 0xF9, "STRONG" },
-	{ 0xFA, "TAB" },
-	{ 0xFB, "TEMPLATE" },
-	{ 0xFC, "TIMER" },
-	{ 0xFD, "U" },
-	{ 0xFE, "VAR" },
-	{ 0xFF, "WML" },
+	/* 0x05 -- 0x21 */
+	{ 0x22, "A" },
+	{ 0x23, "ACCESS" },
+	{ 0x24, "B" },
+	{ 0x25, "BIG" },
+	{ 0x26, "BR" },
+	{ 0x27, "CARD" },
+	{ 0x28, "DO" },
+	{ 0x29, "EM" },
+	{ 0x2A, "FIELDSET" },
+	{ 0x2B, "GO" },
+	{ 0x2C, "HEAD" },
+	{ 0x2D, "I" },
+	{ 0x2E, "IMG" },
+	{ 0x2F, "INPUT" },
+	{ 0x30, "META" },
+	{ 0x31, "NOOP" },
+	{ 0x32, "PREV" },
+	{ 0x33, "ONEVENT" },
+	{ 0x34, "OPTGROUP" },
+	{ 0x35, "OPTION" },
+	{ 0x36, "REFRESH" },
+	{ 0x37, "SELECT" },
+	{ 0x38, "SMALL" },
+	{ 0x39, "STRONG" },
+	{ 0x3A, "TAB" },
+	{ 0x3B, "TEMPLATE" },
+	{ 0x3C, "TIMER" },
+	{ 0x3D, "U" },
+	{ 0x3E, "VAR" },
+	{ 0x3F, "WML" },
 
 	{ 0x00, NULL }
 };
