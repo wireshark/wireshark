@@ -1166,10 +1166,10 @@ dissect_execute_cdb_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * sequence number in requests and the reply sequence
 	 * number in replies to identify SCSI tasks.
 	 */
-	conversation = find_conversation(&pinfo->src, &pinfo->dst,
+	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 	    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	if (conversation == NULL) {
-		conversation = conversation_new(&pinfo->src, &pinfo->dst,
+		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	}
 	task_key.conv_id = conversation->index;
@@ -1255,7 +1255,7 @@ dissect_execute_cdb_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * sequence number in requests and the reply sequence
 	 * number in replies to identify SCSI tasks.
 	 */
-	conversation = find_conversation(&pinfo->src, &pinfo->dst,
+	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 	    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	if (conversation != NULL) {
 		task_key.conv_id = conversation->index;

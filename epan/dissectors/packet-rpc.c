@@ -1391,7 +1391,7 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   NFS client *cough) might send retransmissions from a
 		   different port from the original request. */
 		if (pinfo->ptype == PT_TCP) {
-			conversation = find_conversation(&pinfo->src,
+			conversation = find_conversation(pinfo->fd->num, &pinfo->src,
 			    &pinfo->dst, pinfo->ptype, pinfo->srcport,
 			    pinfo->destport, 0);
 		} else {
@@ -1400,7 +1400,7 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 * pointer for the second address argument even
 			 * if you use NO_ADDR_B.
 			 */
-			conversation = find_conversation(&pinfo->src,
+			conversation = find_conversation(pinfo->fd->num, &pinfo->src,
 			    &null_address, pinfo->ptype, pinfo->destport,
 			    0, NO_ADDR_B|NO_PORT_B);
 		}
@@ -1412,11 +1412,11 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			   created a conversation for it in the RPC
 			   dissector. */
 			if (pinfo->ptype == PT_TCP) {
-				conversation = conversation_new(&pinfo->src,
+				conversation = conversation_new(pinfo->fd->num, &pinfo->src,
 				    &pinfo->dst, pinfo->ptype, pinfo->srcport,
 				    pinfo->destport, 0);
 			} else {
-				conversation = conversation_new(&pinfo->src,
+				conversation = conversation_new(pinfo->fd->num, &pinfo->src,
 				    &null_address, pinfo->ptype, pinfo->destport,
 				    0, NO_ADDR2|NO_PORT2);
 			}
@@ -1528,7 +1528,7 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	   NFS client *cough) might send retransmissions from a
 	   different port from the original request. */
 	if (pinfo->ptype == PT_TCP) {
-		conversation = find_conversation(&pinfo->src, &pinfo->dst,
+		conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	} else {
 		/*
@@ -1536,7 +1536,7 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * pointer for the second address argument even
 		 * if you use NO_ADDR_B.
 		 */
-		conversation = find_conversation(&pinfo->dst, &null_address,
+		conversation = find_conversation(pinfo->fd->num, &pinfo->dst, &null_address,
 		    pinfo->ptype, pinfo->srcport, 0, NO_ADDR_B|NO_PORT_B);
 	}
 	if (conversation == NULL) {
@@ -1804,7 +1804,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   NFS client *cough) might send retransmissions from a
 		   different port from the original request. */
 		if (pinfo->ptype == PT_TCP) {
-			conversation = find_conversation(&pinfo->src,
+			conversation = find_conversation(pinfo->fd->num, &pinfo->src,
 			    &pinfo->dst, pinfo->ptype, pinfo->srcport,
 			    pinfo->destport, 0);
 		} else {
@@ -1813,7 +1813,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 * pointer for the second address argument even
 			 * if you use NO_ADDR_B.
 			 */
-			conversation = find_conversation(&pinfo->dst,
+			conversation = find_conversation(pinfo->fd->num, &pinfo->dst,
 			    &null_address, pinfo->ptype, pinfo->srcport,
 			    0, NO_ADDR_B|NO_PORT_B);
 		}
@@ -2039,7 +2039,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   NFS client *cough) might send retransmissions from a
 		   different port from the original request. */
 		if (pinfo->ptype == PT_TCP) {
-			conversation = find_conversation(&pinfo->src,
+			conversation = find_conversation(pinfo->fd->num, &pinfo->src,
 			    &pinfo->dst, pinfo->ptype, pinfo->srcport,
 			    pinfo->destport, 0);
 		} else {
@@ -2048,7 +2048,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 * pointer for the second address argument even
 			 * if you use NO_ADDR_B.
 			 */
-			conversation = find_conversation(&pinfo->src,
+			conversation = find_conversation(pinfo->fd->num, &pinfo->src,
 			    &null_address, pinfo->ptype, pinfo->destport,
 			    0, NO_ADDR_B|NO_PORT_B);
 		}
@@ -2056,11 +2056,11 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			/* It's not part of any conversation - create a new
 			   one. */
 			if (pinfo->ptype == PT_TCP) {
-				conversation = conversation_new(&pinfo->src,
+				conversation = conversation_new(pinfo->fd->num, &pinfo->src,
 				    &pinfo->dst, pinfo->ptype, pinfo->srcport,
 				    pinfo->destport, 0);
 			} else {
-				conversation = conversation_new(&pinfo->src,
+				conversation = conversation_new(pinfo->fd->num, &pinfo->src,
 				    &null_address, pinfo->ptype, pinfo->destport,
 				    0, NO_ADDR2|NO_PORT2);
 			}
@@ -2920,13 +2920,13 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * one, create it.  We know this is running over TCP, so the
 	 * conversation should not wildcard either address or port.
 	 */
-	conversation = find_conversation(&pinfo->src, &pinfo->dst,
+	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 	    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	if (conversation == NULL) {
 		/*
 		 * It's not part of any conversation - create a new one.
 		 */
-		conversation = conversation_new(&pinfo->src, &pinfo->dst,
+		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	}
 	old_rfk.conv_id = conversation->index;

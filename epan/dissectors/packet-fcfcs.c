@@ -843,11 +843,11 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     cthdr.maxres_size = ntohs (cthdr.maxres_size);
 
     if ((opcode != FCCT_MSG_ACC) && (opcode != FCCT_MSG_RJT)) {
-        conversation = find_conversation (&pinfo->src, &pinfo->dst,
+        conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                           pinfo->ptype, pinfo->oxid,
                                           pinfo->rxid, NO_PORT2);
         if (!conversation) {
-            conversation = conversation_new (&pinfo->src, &pinfo->dst,
+            conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                              pinfo->ptype, pinfo->oxid,
                                              pinfo->rxid, NO_PORT2);
         }
@@ -879,7 +879,7 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     else {
         /* Opcode is ACC or RJT */
-        conversation = find_conversation (&pinfo->src, &pinfo->dst,
+        conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                           pinfo->ptype, pinfo->oxid,
                                           pinfo->rxid, NO_PORT2);
         isreq = 0;

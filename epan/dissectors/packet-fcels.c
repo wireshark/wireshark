@@ -1531,12 +1531,12 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         else {
             options = NO_PORT2;
         }
-        conversation = find_conversation (&pinfo->dst, &pinfo->src,
+        conversation = find_conversation (pinfo->fd->num, &pinfo->dst, &pinfo->src,
                                           pinfo->ptype, pinfo->oxid,
                                           pinfo->rxid, options);
             
         if (!conversation) {
-            conversation = conversation_new (&pinfo->dst, &pinfo->src,
+            conversation = conversation_new (pinfo->fd->num, &pinfo->dst, &pinfo->src,
                                              pinfo->ptype, pinfo->oxid,
                                              pinfo->rxid, options);
         }
@@ -1566,7 +1566,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         isreq = FC_ELS_RPLY;
 
         options = NO_PORT2;
-        conversation = find_conversation (&pinfo->dst, &pinfo->src,
+        conversation = find_conversation (pinfo->fd->num, &pinfo->dst, &pinfo->src,
                                           pinfo->ptype, pinfo->oxid,
                                           pinfo->rxid, options);
         if (!conversation) {
@@ -1576,7 +1576,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             addrdata[0] = addrdata[1] = 0;
             addrdata[2] = pinfo->dst.data[2];
             SET_ADDRESS (&dstaddr, AT_FC, 3, addrdata);
-            conversation = find_conversation (&dstaddr, &pinfo->src,
+            conversation = find_conversation (pinfo->fd->num, &dstaddr, &pinfo->src,
                                               pinfo->ptype, pinfo->oxid,
                                               pinfo->rxid, options);
         }
@@ -1584,7 +1584,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (!conversation) {
             /* Finally check for FLOGI with both NO_PORT2 and NO_ADDR2 set */
             options = NO_ADDR2 | NO_PORT2;
-            conversation = find_conversation (&pinfo->src, &pinfo->dst,
+            conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                               pinfo->ptype, pinfo->oxid,
                                               pinfo->rxid, options);
             if (!conversation) {

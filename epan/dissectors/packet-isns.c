@@ -942,19 +942,19 @@ dissect_isns_attr_port(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int
 
         if ((port_type == ISNS_ESI_PORT) || (port_type == ISNS_SCN_PORT)) {
             if (isudp) {
-                conversation = find_conversation (&pinfo->src, &pinfo->dst, PT_UDP,
+                conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
                                                   port, 0, NO_PORT_B);
                 if (conversation == NULL) {
-                    conversation = conversation_new (&pinfo->src, &pinfo->dst,
+                    conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                                      PT_UDP, port, 0, NO_PORT2_FORCE);
                     conversation_set_dissector (conversation, isns_udp_handle);
                 }
             }
             else {
-                conversation = find_conversation (&pinfo->src, &pinfo->dst, PT_TCP,
+                conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_TCP,
                                                   port, 0, NO_PORT_B);
                 if (conversation == NULL) {
-                    conversation = conversation_new (&pinfo->src, &pinfo->dst,
+                    conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                                      PT_TCP, port, 0, NO_PORT2_FORCE);
                     conversation_set_dissector (conversation, isns_tcp_handle);
                 }

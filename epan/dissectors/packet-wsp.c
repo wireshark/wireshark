@@ -4506,10 +4506,10 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			redir_address.len = 4;
 			redir_address.data = (const guint8 *)&address_ipv4;
 			/* Find a conversation based on redir_address and pinfo->dst */
-			conv = find_conversation(&redir_address, &pinfo->dst,
+			conv = find_conversation(pinfo->fd->num, &redir_address, &pinfo->dst,
 			    PT_UDP, port_num, 0, NO_PORT_B);
 			if (conv == NULL) { /* This conversation does not exist yet */
-				conv = conversation_new(&redir_address,
+				conv = conversation_new(pinfo->fd->num, &redir_address,
 				    &pinfo->dst, PT_UDP, port_num, 0, NO_PORT2);
 			}
 			/* Apply WSP dissection to the conversation */
@@ -4542,10 +4542,10 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			redir_address.len = 16;
 			redir_address.data = (const guint8 *)&address_ipv4;
 			/* Find a conversation based on redir_address and pinfo->dst */
-			conv = find_conversation(&redir_address, &pinfo->dst,
+			conv = find_conversation(pinfo->fd->num, &redir_address, &pinfo->dst,
 			    PT_UDP, port_num, 0, NO_PORT_B);
 			if (conv == NULL) { /* This conversation does not exist yet */
-				conv = conversation_new(&redir_address,
+				conv = conversation_new(pinfo->fd->num, &redir_address,
 				    &pinfo->dst, PT_UDP, port_num, 0, NO_PORT2);
 			}
 			/* Apply WSP dissection to the conversation */

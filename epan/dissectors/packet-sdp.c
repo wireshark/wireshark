@@ -214,7 +214,8 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	guint32 	port=0;
 	gboolean 	is_rtp=FALSE;
-	gboolean        is_t38=FALSE;
+	gboolean 	is_t38=FALSE;
+	gboolean 	set_rtp=FALSE;
 	gboolean 	is_ipv4_addr=FALSE;
 	gboolean	is_ipv6_addr=FALSE;
     guint32 	ipaddr[4];
@@ -410,12 +411,13 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 		    }
 	    }
-	    /* Add rtp and rtcp conversation, if available */
+	    /* Add rtp and rtcp conversation, if available (overrides t38 if conversation already set) */
 	    if((!pinfo->fd->flags.visited) && port!=0 && is_rtp && (is_ipv4_addr || is_ipv6_addr)){
 		    src_addr.data=(char *)&ipaddr;
 		    if(rtp_handle){
 				rtp_add_address(pinfo, &src_addr, port, 0,
 	                "SDP", pinfo->fd->num);
+				set_rtp = TRUE;
 		    }
 		    if(rtcp_handle){
 				port++;
@@ -424,8 +426,8 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    }
 	    }
 			
-	    /* Add t38 conversation, if available */
-	    if((!pinfo->fd->flags.visited) && port!=0 && is_t38 && is_ipv4_addr){
+	    /* Add t38 conversation, if available and only if no rtp */
+	    if((!pinfo->fd->flags.visited) && port!=0 && !set_rtp && is_t38 && is_ipv4_addr){
                     src_addr.data=(char *)&ipaddr;
                     if(t38_handle){
                                 t38_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num);

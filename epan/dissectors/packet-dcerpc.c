@@ -2412,10 +2412,10 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
       }
 
       if (!saw_ctx_item) {
-        conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
+        conv = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                                   pinfo->srcport, pinfo->destport, 0);
         if (conv == NULL) {
-            conv = conversation_new (&pinfo->src, &pinfo->dst, pinfo->ptype,
+            conv = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                                      pinfo->srcport, pinfo->destport, 0);
         }
 
@@ -2930,6 +2930,7 @@ dcerpc_add_conv_to_bind_table(decode_dcerpc_bind_values_t *binding)
     conversation_t *conv;
 
     conv = find_conversation (
+        0, 
         &binding->addr_a, 
         &binding->addr_b, 
         binding->ptype, 
@@ -2939,6 +2940,7 @@ dcerpc_add_conv_to_bind_table(decode_dcerpc_bind_values_t *binding)
 
     if (!conv) {
         conv = conversation_new (
+            0, 
             &binding->addr_a, 
             &binding->addr_b, 
             binding->ptype, 
@@ -3030,7 +3032,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
      */
     dissect_dcerpc_cn_auth (tvb, offset, pinfo, dcerpc_tree, hdr, FALSE, &auth_info);
 
-    conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
+    conv = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                               pinfo->srcport, pinfo->destport, 0);
     if (!conv)
         show_stub_data (tvb, offset, dcerpc_tree, &auth_info, TRUE);
@@ -3175,7 +3177,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
      */
     dissect_dcerpc_cn_auth (tvb, offset, pinfo, dcerpc_tree, hdr, FALSE, &auth_info);
 
-    conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
+    conv = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                               pinfo->srcport, pinfo->destport, 0);
 
     if (!conv) {
@@ -3296,7 +3298,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
      */
     dissect_dcerpc_cn_auth (tvb, offset, pinfo, dcerpc_tree, hdr, FALSE, &auth_info);
 
-    conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
+    conv = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                               pinfo->srcport, pinfo->destport, 0);
     if (!conv) {
         /* no point in creating one here, really */
@@ -4522,10 +4524,10 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * activity_id and seqnum.  I haven't seen anywhere that it would
      * make a difference, but for future reference...
      */
-    conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
+    conv = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                               pinfo->srcport, pinfo->destport, 0);
     if (!conv) {
-        conv = conversation_new (&pinfo->src, &pinfo->dst, pinfo->ptype,
+        conv = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                                  pinfo->srcport, pinfo->destport, 0);
     }
 

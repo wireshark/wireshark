@@ -262,11 +262,11 @@ dissect_fcp_cmnd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* by the data that is sent back or sent next by the initiator as part */
     /* of this command. The state is destroyed in the response dissector */
     
-    conversation = find_conversation (&pinfo->src, &pinfo->dst,
+    conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                       pinfo->ptype, pinfo->oxid,
                                       pinfo->rxid, NO_PORT2);
     if (!conversation) {
-        conversation = conversation_new (&pinfo->src, &pinfo->dst,
+        conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                          pinfo->ptype, pinfo->oxid,
                                          pinfo->rxid, NO_PORT2);
     }
@@ -353,7 +353,7 @@ dissect_fcp_data (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     scsi_task_id_t task_key;
 
     /* Retrieve conversation state to determine expected payload */
-    conversation = find_conversation (&pinfo->src, &pinfo->dst,
+    conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                       pinfo->ptype, pinfo->oxid,
                                       pinfo->rxid, NO_PORT2);
     if (conversation) {
@@ -410,7 +410,7 @@ dissect_fcp_rsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Response marks the end of the conversation. So destroy state */
-    conversation = find_conversation (&pinfo->src, &pinfo->dst,
+    conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                       pinfo->ptype, pinfo->oxid,
                                       pinfo->rxid, NO_PORT2);
     if (conversation) {
@@ -494,11 +494,11 @@ dissect_fcp_xfer_rdy (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fcp_conv_key_t ckey, *req_key;
 
     /* Retrieve conversation state to determine expected payload */
-    conversation = find_conversation (&pinfo->src, &pinfo->dst,
+    conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                       pinfo->ptype, pinfo->oxid,
                                       pinfo->rxid, NO_PORT2);
     if (!conversation) {
-        conversation = conversation_new (&pinfo->src, &pinfo->dst,
+        conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                          pinfo->ptype, pinfo->oxid,
                                          pinfo->rxid, NO_PORT2);
     }

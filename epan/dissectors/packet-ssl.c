@@ -843,12 +843,12 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      *       the conv_version, must set the copy in the conversation
      *       in addition to conv_version
      */
-    conversation = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype,
+    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                                      pinfo->srcport, pinfo->destport, 0);
     if (!conversation)
     {
         /* create a new conversation */
-        conversation = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,
+        conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                                         pinfo->srcport, pinfo->destport, 0);
     }
     conv_data = conversation_get_proto_data(conversation, proto_ssl);
@@ -2841,13 +2841,13 @@ ssl_set_conv_version(packet_info *pinfo, guint version)
         return;
     }
 
-    conversation = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype,
+    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                                      pinfo->srcport, pinfo->destport, 0);
 
     if (conversation == NULL)
     {
         /* create a new conversation */
-        conversation = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,
+        conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                                         pinfo->srcport, pinfo->destport, 0);
     }
 

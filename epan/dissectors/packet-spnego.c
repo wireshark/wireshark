@@ -1082,7 +1082,7 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	 * could override that. :-(
 	 */
 
-	if ((conversation = find_conversation(&pinfo->src, &pinfo->dst,
+	if ((conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 					     pinfo->ptype, pinfo->srcport,
 					     pinfo->destport, 0))) {
 
@@ -1294,7 +1294,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	     * If we have a conversation, try to get the handle,
 	     * and if we get one, attach it to the frame.
 	     */
-	    conversation = find_conversation(&pinfo->src, &pinfo->dst,
+	    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 					     pinfo->ptype, pinfo->srcport,
 					     pinfo->destport, 0);
 
@@ -1427,7 +1427,7 @@ dissect_spnego_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	     * If we have a conversation, try to get the handle,
 	     * and if we get one, attach it to the frame.
 	     */
-	    conversation = find_conversation(&pinfo->src, &pinfo->dst,
+	    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 					     pinfo->ptype, pinfo->srcport,
 					     pinfo->destport, 0);
 

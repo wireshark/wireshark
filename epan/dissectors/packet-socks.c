@@ -376,7 +376,7 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	proto_tree      *socks_tree;
 	proto_item      *ti;
 
-	conversation = find_conversation( &pinfo->src, &pinfo->dst, pinfo->ptype,
+	conversation = find_conversation( pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
 		pinfo->srcport, pinfo->destport, 0);
 
 	g_assert( conversation);	/* should always find a conversation */
@@ -435,7 +435,7 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 static void
 new_udp_conversation( socks_hash_entry_t *hash_info, packet_info *pinfo){
 
-	conversation_t *conversation = conversation_new( &pinfo->src, &pinfo->dst,  PT_UDP,
+	conversation_t *conversation = conversation_new( pinfo->fd->num, &pinfo->src, &pinfo->dst,  PT_UDP,
 			hash_info->udp_port, hash_info->port, 0);
 
 	g_assert( conversation);
@@ -1000,11 +1000,11 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		return;
 	}
 
-	conversation = find_conversation( &pinfo->src, &pinfo->dst, pinfo->ptype,
+	conversation = find_conversation( pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
 		pinfo->srcport, pinfo->destport, 0);
 
 	if ( !conversation){
-		conversation = conversation_new( &pinfo->src, &pinfo->dst, pinfo->ptype,
+		conversation = conversation_new( pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
 			pinfo->srcport, pinfo->destport, 0);
 	}
 	hash_info = conversation_get_proto_data(conversation,proto_socks);

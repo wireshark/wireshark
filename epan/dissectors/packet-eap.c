@@ -647,21 +647,21 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    * keep them separate?  (Or is that not going to happen?)
    */
   if (pinfo->destport == pinfo->match_port) {
-    conversation = find_conversation(&pinfo->dst, &pinfo->src,
+    conversation = find_conversation(pinfo->fd->num, &pinfo->dst, &pinfo->src,
 				     pinfo->ptype, pinfo->destport,
 				     0, NO_PORT_B);
   } else {
-    conversation = find_conversation(&pinfo->src, &pinfo->dst,
+    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 				     pinfo->ptype, pinfo->srcport,
 				     0, NO_PORT_B);
   }
   if (conversation == NULL) {
     if (pinfo->destport == pinfo->match_port) {
-      conversation = conversation_new(&pinfo->dst, &pinfo->src,
+      conversation = conversation_new(pinfo->fd->num, &pinfo->dst, &pinfo->src,
 				      pinfo->ptype, pinfo->destport,
 				      0, NO_PORT2);
     } else {
-      conversation = conversation_new(&pinfo->src, &pinfo->dst,
+      conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 				      pinfo->ptype, pinfo->srcport,
 				      0, NO_PORT2);
     }

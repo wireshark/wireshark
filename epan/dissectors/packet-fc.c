@@ -1165,11 +1165,11 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * SEQ_CNT of the first frame in sequence and use this value to
          * determine the actual offset into a frame.
          */
-        conversation = find_conversation (&pinfo->src, &pinfo->dst,
+        conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                           pinfo->ptype, pinfo->oxid,
                                           pinfo->rxid, NO_PORT2);
         if (!conversation) {
-            conversation = conversation_new (&pinfo->src, &pinfo->dst,
+            conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                              pinfo->ptype, pinfo->oxid,
                                              pinfo->rxid, NO_PORT2);
         }

@@ -233,7 +233,7 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		length_remaining = rf_len;
 	next_tvb = tvb_new_subset(tvb, offset, length_remaining, rf_len);
 
-	conv = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype,
+	conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
 		pinfo->srcport, pinfo->destport, 0);
 
 	if (conv &&
@@ -410,10 +410,10 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 				pinfo->fd->num);
 			return;
 		}
-		conv = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype,
+		conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
 			pinfo->srcport, pinfo->destport, 0);
 		if (!conv) {
-			conv = conversation_new(&pinfo->src, &pinfo->dst,
+			conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 				pinfo->ptype, pinfo->srcport, pinfo->destport,
 				0);
 		}

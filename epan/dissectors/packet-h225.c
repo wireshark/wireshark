@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-h225.c                                                            */
+/* .\packet-h225.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h225 -c h225.cnf -s packet-h225-template h225.asn */
 
 /* Input file: packet-h225-template.c */
@@ -171,7 +171,7 @@ static int hf_h225_serviceControl_item = -1;      /* ServiceControlSession */
 static int hf_h225_capacity = -1;                 /* CallCapacity */
 static int hf_h225_featureSet = -1;               /* FeatureSet */
 static int hf_h225_conferenceID = -1;             /* ConferenceIdentifier */
-static int hf_h225_language = -1;                 /* T_language */
+static int hf_h225_language = -1;                 /* Language */
 static int hf_h225_language_item = -1;            /* IA5String_SIZE_1_32 */
 static int hf_h225_connectedAddress = -1;         /* SEQUENCE_OF_AliasAddress */
 static int hf_h225_connectedAddress_item = -1;    /* AliasAddress */
@@ -234,7 +234,6 @@ static int hf_h225_connectionParameters = -1;     /* T_connectionParameters */
 static int hf_h225_connectionType = -1;           /* ScnConnectionType */
 static int hf_h225_numberOfScnConnections = -1;   /* INTEGER_0_65535 */
 static int hf_h225_connectionAggregation = -1;    /* ScnConnectionAggregation */
-static int hf_h225_language1 = -1;                /* T_language1 */
 static int hf_h225_symmetricOperationRequired = -1;  /* NULL */
 static int hf_h225_desiredProtocols = -1;         /* SEQUENCE_OF_SupportedProtocols */
 static int hf_h225_desiredProtocols_item = -1;    /* SupportedProtocols */
@@ -758,7 +757,6 @@ static int hf_h225_noControl = -1;                /* NULL */
 static int hf_h225_irrFrequency = -1;             /* INTEGER_1_65535 */
 static int hf_h225_destinationType = -1;          /* EndpointType */
 static int hf_h225_uuiesRequested = -1;           /* UUIEsRequested */
-static int hf_h225_language2 = -1;                /* T_language2 */
 static int hf_h225_supportedProtocols = -1;       /* SEQUENCE_OF_SupportedProtocols */
 static int hf_h225_supportedProtocols_item = -1;  /* SupportedProtocols */
 static int hf_h225_modifiedSrcInfo = -1;          /* SEQUENCE_OF_AliasAddress */
@@ -885,7 +883,7 @@ static gint ett_h225_SEQUENCE_OF_AliasAddress = -1;
 static gint ett_h225_SEQUENCE_OF_ServiceControlSession = -1;
 static gint ett_h225_CallProceeding_UUIE = -1;
 static gint ett_h225_Connect_UUIE = -1;
-static gint ett_h225_T_language = -1;
+static gint ett_h225_Language = -1;
 static gint ett_h225_Information_UUIE = -1;
 static gint ett_h225_ReleaseComplete_UUIE = -1;
 static gint ett_h225_ReleaseCompleteReason = -1;
@@ -894,7 +892,6 @@ static gint ett_h225_SEQUENCE_OF_CallReferenceValue = -1;
 static gint ett_h225_T_conferenceGoal = -1;
 static gint ett_h225_SEQUENCE_OF_H245Security = -1;
 static gint ett_h225_T_connectionParameters = -1;
-static gint ett_h225_T_language1 = -1;
 static gint ett_h225_SEQUENCE_OF_SupportedProtocols = -1;
 static gint ett_h225_SEQUENCE_OF_FeatureDescriptor = -1;
 static gint ett_h225_SEQUENCE_OF_ExtendedAliasAddress = -1;
@@ -1059,7 +1056,6 @@ static gint ett_h225_CallType = -1;
 static gint ett_h225_CallModel = -1;
 static gint ett_h225_TransportQOS = -1;
 static gint ett_h225_AdmissionConfirm = -1;
-static gint ett_h225_T_language2 = -1;
 static gint ett_h225_UUIEsRequested = -1;
 static gint ett_h225_AdmissionReject = -1;
 static gint ett_h225_AdmissionRejectReason = -1;
@@ -2224,9 +2220,9 @@ dissect_h225_H245TransportAddress(tvbuff_t *tvb, int offset, packet_info *pinfo 
 		src_addr.len=4;
 		src_addr.data=(const guint8 *)&ipv4_address;
 
-		conv=find_conversation(&src_addr, &src_addr, PT_TCP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
+		conv=find_conversation(pinfo->fd->num, &src_addr, &src_addr, PT_TCP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
 		if(!conv){
-			conv=conversation_new(&src_addr, &src_addr, PT_TCP, ipv4_port, ipv4_port, NO_ADDR2|NO_PORT2);
+			conv=conversation_new(pinfo->fd->num, &src_addr, &src_addr, PT_TCP, ipv4_port, ipv4_port, NO_ADDR2|NO_PORT2);
 			conversation_set_dissector(conv, h245_handle);
 		}
 	}
@@ -4389,14 +4385,14 @@ static int dissect_language_item(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 
 static int
-dissect_h225_T_language1(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h225_Language(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_T_language1, dissect_language_item);
+                                   ett_h225_Language, dissect_language_item);
 
   return offset;
 }
-static int dissect_language1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h225_T_language1(tvb, offset, pinfo, tree, hf_h225_language1);
+static int dissect_language(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h225_Language(tvb, offset, pinfo, tree, hf_h225_language);
 }
 
 
@@ -5319,7 +5315,7 @@ static const per_sequence_t Setup_UUIE_sequence[] = {
   { "multipleCalls"               , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_multipleCalls },
   { "maintainConnection"          , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_maintainConnection },
   { "connectionParameters"        , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_connectionParameters },
-  { "language"                    , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_language1 },
+  { "language"                    , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_language },
   { "presentationIndicator"       , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_presentationIndicator },
   { "screeningIndicator"          , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_screeningIndicator },
   { "serviceControl"              , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_serviceControl },
@@ -5404,18 +5400,6 @@ dissect_h225_CallProceeding_UUIE(tvbuff_t *tvb, int offset, packet_info *pinfo _
 }
 static int dissect_callProceeding(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h225_CallProceeding_UUIE(tvb, offset, pinfo, tree, hf_h225_callProceeding);
-}
-
-
-static int
-dissect_h225_T_language(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_T_language, dissect_language_item);
-
-  return offset;
-}
-static int dissect_language(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h225_T_language(tvb, offset, pinfo, tree, hf_h225_language);
 }
 
 static const per_sequence_t Connect_UUIE_sequence[] = {
@@ -7704,18 +7688,6 @@ static int dissect_uuiesRequested(tvbuff_t *tvb, int offset, packet_info *pinfo,
   return dissect_h225_UUIEsRequested(tvb, offset, pinfo, tree, hf_h225_uuiesRequested);
 }
 
-
-static int
-dissect_h225_T_language2(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_T_language2, dissect_language_item);
-
-  return offset;
-}
-static int dissect_language2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h225_T_language2(tvb, offset, pinfo, tree, hf_h225_language2);
-}
-
 static const per_sequence_t AdmissionConfirm_sequence[] = {
   { "requestSeqNum"               , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_requestSeqNum },
   { "bandWidth"                   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_bandWidth },
@@ -7734,7 +7706,7 @@ static const per_sequence_t AdmissionConfirm_sequence[] = {
   { "transportQOS"                , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_transportQOS },
   { "willRespondToIRR"            , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_willRespondToIRR },
   { "uuiesRequested"              , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_uuiesRequested },
-  { "language"                    , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_language2 },
+  { "language"                    , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_language },
   { "alternateTransportAddresses" , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_alternateTransportAddresses },
   { "useSpecifiedTransport"       , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_useSpecifiedTransport },
   { "circuitInfo"                 , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_circuitInfo },
@@ -9240,7 +9212,7 @@ void proto_register_h225(void) {
     { &hf_h225_language,
       { "language", "h225.language",
         FT_NONE, BASE_NONE, NULL, 0,
-        "Connect-UUIE/language", HFILL }},
+        "", HFILL }},
     { &hf_h225_language_item,
       { "Item", "h225.language_item",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -9489,10 +9461,6 @@ void proto_register_h225(void) {
       { "connectionAggregation", "h225.connectionAggregation",
         FT_UINT32, BASE_DEC, VALS(h225_ScnConnectionAggregation_vals), 0,
         "Setup-UUIE/connectionParameters/connectionAggregation", HFILL }},
-    { &hf_h225_language1,
-      { "language", "h225.language",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "Setup-UUIE/language", HFILL }},
     { &hf_h225_symmetricOperationRequired,
       { "symmetricOperationRequired", "h225.symmetricOperationRequired",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11585,10 +11553,6 @@ void proto_register_h225(void) {
       { "uuiesRequested", "h225.uuiesRequested",
         FT_NONE, BASE_NONE, NULL, 0,
         "", HFILL }},
-    { &hf_h225_language2,
-      { "language", "h225.language",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "AdmissionConfirm/language", HFILL }},
     { &hf_h225_supportedProtocols,
       { "supportedProtocols", "h225.supportedProtocols",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -12014,7 +11978,7 @@ void proto_register_h225(void) {
     &ett_h225_SEQUENCE_OF_ServiceControlSession,
     &ett_h225_CallProceeding_UUIE,
     &ett_h225_Connect_UUIE,
-    &ett_h225_T_language,
+    &ett_h225_Language,
     &ett_h225_Information_UUIE,
     &ett_h225_ReleaseComplete_UUIE,
     &ett_h225_ReleaseCompleteReason,
@@ -12023,7 +11987,6 @@ void proto_register_h225(void) {
     &ett_h225_T_conferenceGoal,
     &ett_h225_SEQUENCE_OF_H245Security,
     &ett_h225_T_connectionParameters,
-    &ett_h225_T_language1,
     &ett_h225_SEQUENCE_OF_SupportedProtocols,
     &ett_h225_SEQUENCE_OF_FeatureDescriptor,
     &ett_h225_SEQUENCE_OF_ExtendedAliasAddress,
@@ -12188,7 +12151,6 @@ void proto_register_h225(void) {
     &ett_h225_CallModel,
     &ett_h225_TransportQOS,
     &ett_h225_AdmissionConfirm,
-    &ett_h225_T_language2,
     &ett_h225_UUIEsRequested,
     &ett_h225_AdmissionReject,
     &ett_h225_AdmissionRejectReason,
@@ -12344,13 +12306,13 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 		msg_category = pi->msg_tag / 3;
 		if(pi->msg_tag % 3 == 0) {		/* Request Message */
-			conversation = find_conversation(&pinfo->src,
+			conversation = find_conversation(pinfo->fd->num, &pinfo->src,
 				&pinfo->dst, pinfo->ptype, pinfo->srcport,
 				pinfo->destport, 0);
 
 			if (conversation == NULL) {
 				/* It's not part of any conversation - create a new one. */
-				conversation = conversation_new(&pinfo->src,
+				conversation = conversation_new(pinfo->fd->num, &pinfo->src,
 				    &pinfo->dst, pinfo->ptype, pinfo->srcport,
 				    pinfo->destport, 0);
 
@@ -12417,7 +12379,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   		/* end of request message handling*/
 		}
 		else { 					/* Confirm or Reject Message */
-			conversation = find_conversation(&pinfo->src,
+			conversation = find_conversation(pinfo->fd->num, &pinfo->src,
     				&pinfo->dst, pinfo->ptype, pinfo->srcport,
   				pinfo->destport, 0);
   			if (conversation != NULL) {

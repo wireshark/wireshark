@@ -199,14 +199,14 @@ void t38_add_address(packet_info *pinfo,
          * Check if the ip address and port combination is not
          * already registered as a conversation.
          */
-        p_conv = find_conversation( addr, &null_addr, PT_UDP, port, other_port,
+        p_conv = find_conversation( setup_frame_number, addr, &null_addr, PT_UDP, port, other_port,
                                 NO_ADDR_B | (!other_port ? NO_PORT_B : 0));
 
         /*
          * If not, create a new conversation.
          */
-        if ( ! p_conv ) {
-                p_conv = conversation_new( addr, &null_addr, PT_UDP,
+        if ( !p_conv || p_conv->setup_frame != setup_frame_number) {
+                p_conv = conversation_new( setup_frame_number, addr, &null_addr, PT_UDP,
                                            (guint32)port, (guint32)other_port,
                                                                    NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
         }
@@ -892,7 +892,7 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (!p_conv_data)
         {
                 /* First time, get info from conversation */
-                p_conv = find_conversation(&pinfo->net_src, &pinfo->net_dst,
+                p_conv = find_conversation(pinfo->fd->num, &pinfo->net_src, &pinfo->net_dst,
                                    pinfo->ptype,
                                    pinfo->srcport, pinfo->destport, NO_ADDR_B);
                 if (p_conv)

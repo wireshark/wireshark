@@ -289,9 +289,9 @@ get_tcp_conversation_data(packet_info *pinfo)
 	struct tcp_analysis *tcpd=NULL;
 
 	/* Have we seen this conversation before? */
-	if( (conv=find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0)) == NULL){
+	if( (conv=find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0)) == NULL){
 		/* No this is a new conversation. */
-		conv=conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+		conv=conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	}
 
 	/* check if we have any data for this conversation */

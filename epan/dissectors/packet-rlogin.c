@@ -338,11 +338,11 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint ti_offset;
 
 						/* Lookup this connection*/
-	conversation = find_conversation( &pinfo->src, &pinfo->dst,
+	conversation = find_conversation( pinfo->fd->num, &pinfo->src, &pinfo->dst,
 		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
 	if ( !conversation) {
-		conversation = conversation_new( &pinfo->src, &pinfo->dst,
+		conversation = conversation_new( pinfo->fd->num, &pinfo->src, &pinfo->dst,
 			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	}
 	hash_info = conversation_get_proto_data(conversation, proto_rlogin);

@@ -1794,11 +1794,11 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 	}
 
 	/* make sure we have a conversation for this session */
-        conversation = find_conversation (&pinfo->src, &pinfo->dst,
+        conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                           pinfo->ptype, pinfo->srcport,
                                           pinfo->destport, 0);
         if (!conversation) {
-            conversation = conversation_new (&pinfo->src, &pinfo->dst,
+            conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                              pinfo->ptype, pinfo->srcport,
                                              pinfo->destport, 0);
             iscsi_session=g_mem_chunk_alloc(iscsi_sessions);

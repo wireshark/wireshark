@@ -177,10 +177,10 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (!frame_data) {
 
-      conversation = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype,
+      conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
 				       pinfo->srcport, pinfo->destport, 0);
       if (conversation == NULL) { /* No conversation, create one */
-	conversation = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,
+	conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
 					pinfo->srcport, pinfo->destport, 0);
 
       }

@@ -115,10 +115,10 @@ dissect_xyplex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * requestiong server and the Xyplex host using the
 		 * return_port.
 		 */
-		conversation = find_conversation(&pinfo->src, &pinfo->dst,
+		conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 				  PT_TCP, return_port, 0, NO_PORT_B);
 		if (conversation == NULL) {
-		    conversation = conversation_new(&pinfo->src, &pinfo->dst,
+		    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 				    PT_TCP, return_port, 0, NO_PORT2);
 		    conversation_set_dissector(conversation, xyplex_handle);
 		}

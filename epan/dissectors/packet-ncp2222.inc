@@ -4129,7 +4129,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
     /* Has this already been dissected? */
     if (!pinfo->fd->flags.visited) {
       	/* Find the conversation whence the request would have come. */
-       	conversation = find_conversation(&pinfo->src, &pinfo->dst,
+       	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
        		    PT_NCP, nw_connection, nw_connection, 0);
        	if (conversation != NULL) {
        		/* find the record telling us the request made that caused
@@ -4438,12 +4438,12 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		   to have all packets over the same connection treated
 		   as being part of a single conversation so that we can
 		   let the user select that conversation to be displayed.) */
-		conversation = find_conversation(&pinfo->src, &pinfo->dst,
+		conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 		    PT_NCP, nw_connection, nw_connection, 0);
 
 		if (conversation == NULL) {
 			/* It's not part of any conversation - create a new one. */
-			conversation = conversation_new(&pinfo->src, &pinfo->dst,
+			conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 			    PT_NCP, nw_connection, nw_connection, 0);
 		}
 		request_value = ncp_hash_insert(conversation, sequence, ncp_rec);
@@ -4596,7 +4596,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                         
                         if (!request_value)
                         {
-        		        conversation = find_conversation(&pinfo->src, &pinfo->dst,
+        		        conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
         			    PT_NCP, nw_connection, nw_connection, 0);
         		        if (conversation != NULL) {
         			        /* find the record telling us the request made that caused
@@ -4736,7 +4736,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 	
 	if (!pinfo->fd->flags.visited) {
 		/* Find the conversation whence the request would have come. */
-		conversation = find_conversation(&pinfo->src, &pinfo->dst,
+		conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 			    PT_NCP, nw_connection, nw_connection, 0);
 		if (conversation != NULL) {
 			/* find the record telling us the request made that caused
@@ -8198,11 +8198,11 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
            as being part of a single conversation so that we can
            let the user select that conversation to be displayed.) */
 
-        conversation = find_conversation(&pinfo->src, &pinfo->dst,
+        conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
         	    PT_NCP, nw_connection, nw_connection, 0);
        	if (conversation == NULL) {
        		/* It's not part of any conversation - create a new one. */
-       		conversation = conversation_new(&pinfo->src, &pinfo->dst,
+       		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
        		    PT_NCP, nw_connection, nw_connection, 0);
 	}
                 
@@ -8471,13 +8471,13 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
    		as being part of a single conversation so that we can
    	        let the user select that conversation to be displayed.) */
                 
-       		conversation = find_conversation(&pinfo->src, &pinfo->dst,
+       		conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
        		    PT_NCP, nw_connection, nw_connection, 0);
         
        		if (conversation == NULL) 
                 {
        			/* It's not part of any conversation - create a new one. */
-       			conversation = conversation_new(&pinfo->src, &pinfo->dst,
+       			conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
        			    PT_NCP, nw_connection, nw_connection, 0);
        		}
                 

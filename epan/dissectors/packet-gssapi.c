@@ -167,7 +167,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * We need this later, so lets get it now ...
 	 */
 
-	conversation = find_conversation(&pinfo->src, &pinfo->dst,
+	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 					 pinfo->ptype, pinfo->srcport,
 					 pinfo->destport, 0);
 
@@ -334,7 +334,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 */
 
 		if (!conversation) { /* Create one */
-		  conversation = conversation_new(&pinfo->src,
+		  conversation = conversation_new(pinfo->fd->num, &pinfo->src,
 						  &pinfo->dst, 
 						  pinfo->ptype, 
 						  pinfo->srcport, 

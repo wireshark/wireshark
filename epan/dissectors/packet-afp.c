@@ -3313,12 +3313,12 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (col_info)
 		col_clear(pinfo->cinfo, COL_INFO);
 
-	conversation = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype,
+	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
 		pinfo->srcport, pinfo->destport, 0);
 
 	if (conversation == NULL)
 	{
-		conversation = conversation_new(&pinfo->src, &pinfo->dst,
+		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	}
 

@@ -221,7 +221,7 @@ static gboolean test_bittorrent_packet (tvbuff_t *tvb, packet_info *pinfo,
 		return FALSE;
 	}
 
-	conversation = conversation_new (&pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
 	g_assert(find_dissector("bittorrent"));
 

@@ -226,12 +226,12 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
   conversation_t *conversation;
 
   /* only create a conversation for ATA commands */
-  conversation = find_conversation(&pinfo->src, &pinfo->dst,
+  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                    pinfo->ptype, pinfo->srcport,
                                    pinfo->destport, 0);
   if (conversation == NULL) {
     /* We don't yet have a conversation, so create one. */
-    conversation = conversation_new(&pinfo->src, &pinfo->dst,
+    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                     pinfo->ptype, pinfo->srcport,
                                     pinfo->destport, 0);
   }

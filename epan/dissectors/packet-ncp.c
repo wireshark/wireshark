@@ -355,7 +355,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * packets we will be able to determine if we need 
 		 * to also dissect with a signature.
 		 */
-		conversation = find_conversation(&pinfo->src, &pinfo->dst,
+		conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 		    PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport,
 		    0);
 		if ((ncpiph.length & 0x80000000) ||
@@ -382,7 +382,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					/* It's not part of any conversation
 					 * - create a new one.
 					 */
-					conversation = conversation_new(&pinfo->src,
+					conversation = conversation_new(pinfo->fd->num, &pinfo->src,
 					    &pinfo->dst, PT_NCP,
 					    (guint32) pinfo->srcport,
 					    (guint32) pinfo->destport, 0);
@@ -443,7 +443,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					/* It's not part of any conversation
 					 * - create a new one.
 					 */
-					conversation = conversation_new(&pinfo->src,
+					conversation = conversation_new(pinfo->fd->num, &pinfo->src,
 					    &pinfo->dst, PT_NCP,
 					    (guint32) pinfo->srcport,
 					    (guint32) pinfo->destport, 0);

@@ -220,7 +220,7 @@ dissect_quake_CCREP_ACCEPT
 	conversation_t *c;
 
 	port = tvb_get_letohl(tvb, 0);
-	c = conversation_new( &pinfo->src, &pinfo->dst, PT_UDP, port,
+	c = conversation_new( pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP, port,
 	    pinfo->destport, 0);
 	if (c) {
 		conversation_set_dissector(c, quake_handle);

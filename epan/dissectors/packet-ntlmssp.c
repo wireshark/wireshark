@@ -926,11 +926,11 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
    * Store the flags and the RC4 state information with the conversation,
    * as they're needed in order to dissect subsequent messages.
    */
-  conversation = find_conversation(&pinfo->src, &pinfo->dst,
+  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 				   pinfo->ptype, pinfo->srcport,
 				   pinfo->destport, 0);
   if (!conversation) { /* Create one */
-    conversation = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype, 
+    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, 
 				    pinfo->srcport, pinfo->destport, 0);
   }
 
@@ -1019,7 +1019,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
      * it means this is the first time we've dissected this frame, so
      * we should give it flag info.
      */
-    conversation = find_conversation(&pinfo->src, &pinfo->dst,
+    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 				     pinfo->ptype, pinfo->srcport,
 				     pinfo->destport, 0);
     if (conversation != NULL) {
@@ -1203,7 +1203,7 @@ get_encrypted_state(packet_info *pinfo, int cryptpeer)
   conversation_t *conversation;
   ntlmssp_info *conv_ntlmssp_info;
 
-  conversation = find_conversation(&pinfo->src, &pinfo->dst,
+  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 				   pinfo->ptype, pinfo->srcport,
 				   pinfo->destport, 0);
   if (conversation == NULL) {
@@ -1258,7 +1258,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
     return;
   }
   if (!packet_ntlmssp_info->verifier_decrypted) {
-    conversation = find_conversation(&pinfo->src, &pinfo->dst,
+    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 				     pinfo->ptype, pinfo->srcport,
 				     pinfo->destport, 0);
     if (conversation == NULL) {
@@ -1437,7 +1437,7 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *tvb, int offset,
   
   if (!packet_ntlmssp_info->payload_decrypted) {
     /* Pull the challenge info from the conversation */
-    conversation = find_conversation(&pinfo->src, &pinfo->dst,
+    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 				     pinfo->ptype, pinfo->srcport,
 				     pinfo->destport, 0);
     if (conversation == NULL) {

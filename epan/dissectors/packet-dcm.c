@@ -898,14 +898,14 @@ dissect_dcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32 len, tlen;
     dcmState_t *dcm_data = NULL;
 
-    conv = find_conversation(&pinfo->src, &pinfo->dst,
+    conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 	pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
     if (NULL != conv) 	/* conversation exists */
 			/* do we have any data for this conversation ? */
 	dcm_data = conversation_get_proto_data(conv, proto_dcm);
     else
-	conv = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,
+	conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
 	    pinfo->srcport, pinfo->destport, 0);
 
     if (NULL == dcm_data) {
@@ -950,7 +950,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     char *buf;
     int offset = 0;
 
-    if (NULL == (conv = find_conversation(&pinfo->src, &pinfo->dst,
+    if (NULL == (conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 	pinfo->ptype, pinfo->srcport, pinfo->destport, 0)))
 	return;  /* OOPS */
 

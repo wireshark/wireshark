@@ -462,7 +462,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 * "ftp_ip_address" and "server_port", and
 				 * wildcard everything else?
 				 */
-				conversation = find_conversation(&ftp_ip_address,
+				conversation = find_conversation(pinfo->fd->num, &ftp_ip_address,
 				    &pinfo->dst, PT_TCP, ftp_port, 0,
 				    NO_PORT_B);
 				if (conversation == NULL) {
@@ -489,7 +489,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 * and a new one was opened?
 					 */
 					conversation = conversation_new(
-					    &ftp_ip_address, &pinfo->dst,
+					    pinfo->fd->num, &ftp_ip_address, &pinfo->dst,
 					    PT_TCP, ftp_port, 0, NO_PORT2);
 					conversation_set_dissector(conversation,
 					    ftpdata_handle);

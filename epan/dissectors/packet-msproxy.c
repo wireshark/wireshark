@@ -203,7 +203,7 @@ static void msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree      *msp_tree;
 	proto_item      *ti;
 
-	conversation = find_conversation( &pinfo->src, &pinfo->dst,
+	conversation = find_conversation( pinfo->fd->num, &pinfo->src, &pinfo->dst,
 		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
 	g_assert( conversation);	/* should always find a conversation */
@@ -279,12 +279,12 @@ static void add_msproxy_conversation( packet_info *pinfo,
 		return;
 	}
 
-	conversation = find_conversation( &pinfo->src,
+	conversation = find_conversation( pinfo->fd->num, &pinfo->src,
 		&pinfo->dst, hash_info->proto, hash_info->server_int_port,
 		hash_info->clnt_port, 0);
 
 	if ( !conversation) {
-		conversation = conversation_new( &pinfo->src, &pinfo->dst,
+		conversation = conversation_new( pinfo->fd->num, &pinfo->src, &pinfo->dst,
 			hash_info->proto, hash_info->server_int_port,
 			hash_info->clnt_port, 0);
 	}
@@ -1099,11 +1099,11 @@ static void dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
-	conversation = find_conversation( &pinfo->src, &pinfo->dst,
+	conversation = find_conversation( pinfo->fd->num, &pinfo->src, &pinfo->dst,
 		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
 	if ( !conversation) {
-		conversation = conversation_new( &pinfo->src, &pinfo->dst,
+		conversation = conversation_new( pinfo->fd->num, &pinfo->src, &pinfo->dst,
 			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	}
 	hash_info = conversation_get_proto_data(conversation, proto_msproxy);

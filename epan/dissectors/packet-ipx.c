@@ -716,7 +716,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Not a system packet - check for retransmissions.
 		 */
 		if (!pinfo->fd->flags.visited) {
-			conversation = find_conversation(&pinfo->src,
+			conversation = find_conversation(pinfo->fd->num, &pinfo->src,
 			    &pinfo->dst, PT_NCP, pinfo->srcport,
 			    pinfo->srcport, 0);
 			if (conversation == NULL) {
@@ -724,7 +724,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 * It's not part of any conversation - create
 				 * a new one.
 				 */
-				conversation = conversation_new(&pinfo->src,
+				conversation = conversation_new(pinfo->fd->num, &pinfo->src,
 				    &pinfo->dst, PT_NCP, pinfo->srcport,
 				    pinfo->srcport, 0);
 			}
