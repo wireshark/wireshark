@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.87 2003/08/04 02:49:02 tpot Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.88 2003/08/20 00:09:36 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3772,9 +3772,10 @@ lsa_dissect_LSA_TRUSTED_DOMAIN_INFORMATION_LIST_EX(tvbuff_t *tvb, int offset,
 		"TRUST INFORMATION array:", -1);
 
 	/* max count */
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	/* The original code here was wrong. It now handles these correctly */
+        /*offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_lsa_max_count, NULL);
-
+	*/
 
 	return offset;
 }
