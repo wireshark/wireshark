@@ -8,7 +8,7 @@
  *
  * Copyright 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-m2ua.c,v 1.1 2002/04/14 22:52:49 guy Exp $
+ * $Id: packet-m2ua.c,v 1.2 2002/05/01 08:23:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,11 +35,11 @@
 # include "config.h"
 #endif
 
-// #include <stdio.h>
-// #include <stdlib.h>
+/* #include <stdio.h> */
+/* #include <stdlib.h> */
 
-// #include <string.h>
-// #include <glib.h>
+/* #include <string.h> */
+/* #include <glib.h> */
 
 #include <epan/packet.h>
 
@@ -551,7 +551,7 @@ dissect_m2ua_correlation_identifier_parameter(tvbuff_t *parameter_tvb, proto_tre
 #define DATA_1_MTP3_OFFSET PARAMETER_VALUE_OFFSET
 
 static void
-dissect_m2ua_protocol_data_1_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_m2ua_protocol_data_1_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_item *parameter_item)
 {
   tvbuff_t *payload_tvb;
   guint32 payload_length;
@@ -1047,7 +1047,7 @@ dissect_m2ua_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *
     dissect_m2ua_correlation_identifier_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case PROTOCOL_DATA_1_PARAMETER_TAG:
-    dissect_m2ua_protocol_data_1_parameter(parameter_tvb, pinfo, tree, parameter_tree, parameter_item);
+    dissect_m2ua_protocol_data_1_parameter(parameter_tvb, pinfo, tree, parameter_item);
     break;
   case PROTOCOL_DATA_2_PARAMETER_TAG:
     dissect_m2ua_protocol_data_2_parameter(parameter_tvb, pinfo, tree, parameter_tree, parameter_item);
