@@ -18,12 +18,13 @@ S<[ B<-i> ]>
 S<[ B<-z> ]>
 S<[ B<-h> ]>
 I<capfile>
+I<...>
 
 =head1 DESCRIPTION
 
-B<Capinfos> is a program that reads a saved capture file and returns any
-or all of several statistics about that file.  B<Capinfos> is able to detect
-and read any capture supported by the B<Ethereal> package.
+B<Capinfos> is a program that reads one or more saved capture files and
+returns any or all of several statistics about each file.  B<Capinfos> is
+able to detect and read any capture supported by the B<Ethereal> package.
 
 B<Capinfos> can read the following file formats:
 
@@ -204,3 +205,4 @@ of B<Ethereal> can be found at B<http://www.ethereal.com>.
 
   Contributors
   ------------
+  Gerald Combs         <gerald[AT]ethereal.com>

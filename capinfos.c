@@ -104,17 +104,16 @@ print_stats(capture_info *cf_info)
   start_time_t = (time_t)cf_info->start_time;
   stop_time_t = (time_t)cf_info->stop_time;
 
-  if (cap_file_type) printf("File Type: %s\n", file_type_string);
+  if (cap_file_type) printf("File type: %s\n", file_type_string);
   if (cap_packet_count) printf("Number of packets: %u \n", cf_info->packet_count);
-  if (cap_file_size) printf("File Size: %" PRIu64 " bytes\n", cf_info->filesize);
-  if (cap_data_size) printf("Data Size: %" PRIu64 " bytes\n", cf_info->packet_bytes);
+  if (cap_file_size) printf("File size: %" PRIu64 " bytes\n", cf_info->filesize);
+  if (cap_data_size) printf("Data size: %" PRIu64 " bytes\n", cf_info->packet_bytes);
   if (cap_duration) printf("Capture duration: %f seconds\n", cf_info->duration);
   if (cap_start_time) printf("Start time: %s", ctime (&start_time_t));
   if (cap_end_time) printf("End time: %s", ctime (&stop_time_t));
   if (cap_data_rate_byte) printf("Data rate: %.2f bytes/s\n", cf_info->data_rate);
   if (cap_data_rate_bit) printf("Data rate: %.2f bits/s\n", cf_info->data_rate*8);
   if (cap_packet_size) printf("Average packet size: %.2f bytes\n", cf_info->packet_size);
-
 }
 
 static int 
@@ -307,26 +306,35 @@ int main(int argc, char *argv[])
     usage(TRUE);
     exit(1);
   }
+
+  for (opt = optind; opt < argc; opt++) {
   
-  wth = wtap_open_offline(argv[optind], &err, &err_info, FALSE);
+    wth = wtap_open_offline(argv[opt], &err, &err_info, FALSE);
 
-  if (!wth) {
-    fprintf(stderr, "capinfos: Can't open %s: %s\n", argv[optind],
-        wtap_strerror(err));
-    switch (err) {
+    if (!wth) {
+      fprintf(stderr, "capinfos: Can't open %s: %s\n", argv[opt],
+	wtap_strerror(err));
+      switch (err) {
 
-    case WTAP_ERR_UNSUPPORTED:
-    case WTAP_ERR_UNSUPPORTED_ENCAP:
-    case WTAP_ERR_BAD_RECORD:
-      fprintf(stderr, "(%s)\n", err_info);
-      g_free(err_info);
-      break;
+      case WTAP_ERR_UNSUPPORTED:
+      case WTAP_ERR_UNSUPPORTED_ENCAP:
+      case WTAP_ERR_BAD_RECORD:
+        fprintf(stderr, "(%s)\n", err_info);
+        g_free(err_info);
+        break;
+      }
+      exit(1);
     }
-    exit(1);
-  }
 
-  status = process_cap_file(wth);
+    if (opt > optind)
+      printf("\n");
+    printf("File name: %s\n", argv[opt]);
+    status = process_cap_file(wth);
   
-  wtap_close(wth);
-  return status;
+    wtap_close(wth);
+    if (status)
+      exit(status);
+  }
+  return 0;
 }
+
