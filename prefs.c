@@ -1929,6 +1929,16 @@ set_pref(gchar *pref_name, gchar *value)
           pref = find_preference(new_module, "port_number_udh_means_wsp");
         else if (strcmp(dotp, "try_dissect_1st_fragment") == 0)
           pref = find_preference(new_module, "try_dissect_1st_fragment");
+      } else if (strcmp(module->name, "asn1") == 0) {
+        /* Handle old generic ASN.1 preferences (it's not really a
+           rename, as the new preferences support multiple ports,
+           but we might as well copy them over). */
+        if (strcmp(dotp, "tcp_port") == 0)
+          pref = find_preference(module, "tcp_ports");
+        else if (strcmp(dotp, "udp_port") == 0)
+          pref = find_preference(module, "udp_ports");
+        else if (strcmp(dotp, "sctp_port") == 0)
+          pref = find_preference(module, "sctp_ports");
       }
     }
     if (pref == NULL)
