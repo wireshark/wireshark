@@ -1,4 +1,4 @@
-$Id: TODO,v 1.10 2003/05/16 01:12:55 guy Exp $
+$Id: TODO,v 1.11 2003/05/24 08:43:18 guy Exp $
 
 Things to do:
 =============
@@ -59,8 +59,13 @@ from $SSH_CLIENT). Any takers?
    and currently support, for many protocols running atop TCP and the
    SMB pipe protocol, reassembling the data stream and breaking the
    resulting stream into higher-level packets.  We want to support that
-   for more TCP-based protocols, and might want to reassemble NBDS and
-   OSI COTP fragments as well; there might be other protocols also.
+   for more TCP-based protocols; we might also want to reassemble:
+
+	NBDS
+	OSI COTP
+	PPP Multilink
+
+   and possibly other protocols.
 
 *) I'd like to someday re-write the display filter routines to have a more
 powerful syntax.
