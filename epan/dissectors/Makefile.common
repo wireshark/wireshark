@@ -552,6 +552,7 @@ DISSECTOR_SRC =	\
 	packet-tuxedo.c	\
 	packet-tzsp.c	\
 	packet-ucp.c	\
+	packet-uma.c	\
 	packet-udp.c	\
 	packet-v120.c	\
 	packet-vines.c	\
