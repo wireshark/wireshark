@@ -3,7 +3,7 @@
  *
  * metatech <metatech@flashmail.com>
  *
- * $Id: packet-mq.c,v 1.1 2004/03/16 19:23:24 guy Exp $
+ * $Id: packet-mq.c,v 1.2 2004/03/25 04:44:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -507,24 +507,17 @@ dissect_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*mq_tree = NULL;
 	proto_tree	*mqroot_tree = NULL;
-	proto_item	*ti;
-	conversation_t  *conversation;
+	proto_item	*ti = NULL;
 	gint offset = 0;
 	guint32 structId;
 	guint8 opcode;
+	guint32 iSegmentLength = 0;
 	gboolean bLittleEndian = FALSE;
 	gboolean bPayload = FALSE;
 	gboolean bEBCDIC = FALSE;
 	
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQ");	  	
-	conversation = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	if (conversation == NULL) 
-	{
-		conversation = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-		conversation_set_dissector(conversation, mq_handle);
-	}
-	
-	if (tvb_reported_length(tvb) >= 28)
+	if (tvb_length(tvb) >= 28)
 	{
 		structId = tvb_get_ntohl(tvb, offset);
 		if (structId == MQ_STRUCTID_TSH || structId == MQ_STRUCTID_TSH_EBCDIC)
@@ -551,6 +544,7 @@ dissect_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				mq_tree = proto_item_add_subtree(ti, ett_mq_tsh);
 	
 				proto_tree_add_item(mq_tree, hf_mq_tsh_structid, tvb, offset + 0, 4, FALSE);		
+				iSegmentLength = tvb_get_ntohl(tvb, offset + 4);
 				proto_tree_add_item(mq_tree, hf_mq_tsh_packetlength, tvb, offset + 4, 4, FALSE);
 	
 				bLittleEndian = (tvb_get_guint8(tvb, offset + 8) == MQ_LITTLE_ENDIAN ? TRUE : FALSE);
@@ -621,8 +615,10 @@ dissect_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					}
 
 					/*iSizeCONN = ((iVersionID == 4 || iVersionID == 6) ? 120 : 112);*/ /* guess */
-					/* The iVersionID is available in the previous ID segment, we should keep a state */	
-					iSizeCONN = 112;
+					/* The iVersionID is available in the previous ID segment, we should keep a state 
+					 * Instead we rely on the segment length announced in the TSH */	
+					iSizeCONN = iSegmentLength - iSizeTSH;
+					if (iSizeCONN != 112 && iSizeCONN != 120) iSizeCONN = 120;
 	
 					if (tree)
 					{
@@ -637,7 +633,6 @@ dissect_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						
 					if (tvb_length_remaining(tvb, offset) >= 120)
 					{						
-						iSizeCONN = 120;
 						if (tree)
 						{
 							proto_tree_add_item(mq_tree, hf_mq_conn_unknown2, tvb, offset + 112, 4, bLittleEndian);				
@@ -728,7 +723,6 @@ dissect_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}			
 				else if ((structId == MQ_STRUCTID_UID || structId == MQ_STRUCTID_UID_EBCDIC) && tvb_length_remaining(tvb, offset) >= 28)
 				{
-					guint8 iVersionUID = 0;
 					gint iSizeUID = 0;
 					if (check_col(pinfo->cinfo, COL_INFO)) 
 					{
@@ -741,8 +735,11 @@ dissect_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					}
 	
 					/* iSizeUID = (iVersionID < 5 ? 28 : 132);  guess */
-					/* The iVersionID is available in the previous ID segment, we should keep a state */
-					iSizeUID = 28;
+					/* The iVersionID is available in the previous ID segment, we should keep a state *
+					 * Instead we rely on the segment length announced in the TSH */	
+					iSizeUID = iSegmentLength - iSizeTSH;
+					if (iSizeUID != 28 && iSizeUID != 132) iSizeUID = 132;
+
 					if (tree)
 					{
 						ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeUID, MQ_TEXT_UID);
@@ -755,7 +752,6 @@ dissect_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							
 					if (tvb_length_remaining(tvb, offset) >= 132)
 					{				
-						iSizeUID = 132;
 						if (tree)
 						{
 							proto_tree_add_item(mq_tree, hf_mq_uid_longuserid, tvb, offset + 28, 64, FALSE);
@@ -1032,7 +1028,7 @@ dissect_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 									proto_item_append_text(ti, " (%d bytes)", sizeBUFF);
 								}
 							}
-							offset = tvb_reported_length(tvb);
+							offset = tvb_length(tvb);
 						}
 					}
 				}
@@ -1063,7 +1059,7 @@ dissect_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 dissect_mq_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	if (tvb_reported_length(tvb) >= 28)
+	if (tvb_length(tvb) >= 28)
 	{
 		guint32 structId;
 		guint32 iLength;
@@ -1074,8 +1070,18 @@ dissect_mq_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if ((structId == MQ_STRUCTID_TSH || structId == MQ_STRUCTID_TSH_EBCDIC) 
 			&& (cEndian == MQ_LITTLE_ENDIAN || cEndian == MQ_BIG_ENDIAN)
-			&& iLength == tvb_reported_length(tvb))
+			&& (iLength == tvb_length(tvb)))
 		{
+			/* Register this dissector for this conversation */
+			conversation_t  *conversation = NULL;
+			conversation = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+			if (conversation == NULL) 
+			{
+				conversation = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+			}
+			conversation_set_dissector(conversation, mq_handle);
+
+			/* Dissect the packet */
 			dissect_mq(tvb, pinfo, tree);
 			return TRUE;
 		}
@@ -1175,7 +1181,7 @@ proto_register_mq(void)
       { "Maximum message size", "mq.id.maxmsgsize", FT_UINT32, BASE_DEC, NULL, 0x0, "ID max msg size", HFILL }},
 
     { &hf_mq_id_sequencewrapvalue,
-      { "Sequence wrap value", "mq.id.seqwrap", FT_UINT32, BASE_HEX, NULL, 0x0, "ID seq wrap value", HFILL }},
+      { "Sequence wrap value", "mq.id.seqwrap", FT_UINT32, BASE_DEC, NULL, 0x0, "ID seq wrap value", HFILL }},
 
     { &hf_mq_id_channel,
       { "Channel name", "mq.id.channelname", FT_STRINGZ, BASE_HEX, NULL, 0x0, "ID channel name", HFILL }},
@@ -1490,7 +1496,7 @@ proto_register_mq(void)
       { "Address of first record", "mq.pmo.addrrec", FT_UINT32, BASE_HEX, NULL, 0x0, "PMO address of first record", HFILL }},
 
     { &hf_mq_pmo_responserecptr,
-      { "Address of first response record", "mq.pmo.addrres", FT_UINT32, BASE_HEX, NULL, 0x0, "PMO qddress of first response record", HFILL }}
+      { "Address of first response record", "mq.pmo.addrres", FT_UINT32, BASE_HEX, NULL, 0x0, "PMO address of first response record", HFILL }}
   };
   static gint *ett[] = {
     &ett_mq,
@@ -1523,7 +1529,6 @@ proto_reg_handoff_mq(void)
 	*  known port number, the MQ applications are most often specific to a business application */
 
 	dissector_add("tcp.port", MQ_PORT_TCP, mq_handle);
-	
-	heur_dissector_add("tcp", dissect_mq_heur, proto_mq);
 
+	heur_dissector_add("tcp", dissect_mq_heur, proto_mq);
 }
