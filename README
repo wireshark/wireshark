@@ -1,4 +1,4 @@
-$Id: README,v 1.44 2000/09/21 04:41:05 gram Exp $
+$Id: README,v 1.45 2000/10/08 17:16:29 gerald Exp $
 
 General Information
 ------- -----------
@@ -17,11 +17,11 @@ from the capture.
 
 The official home of Ethereal is
 
-    http://ethereal.zing.org
+    http://www.ethereal.com
 
 The latest distribution can be found in the subdirectory
 
-    http://ethereal.zing.org/distribution
+    http://www.ethereal.com/distribution
 
 
 Installation

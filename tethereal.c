@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.49 2000/10/06 10:10:50 gram Exp $
+ * $Id: tethereal.c,v 1.50 2000/10/08 17:16:29 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -572,7 +572,7 @@ capture(int packet_count, int out_file_type)
 	  "Tethereal may not be able to capture packets.\n"
 	  "\n"
 	  "To fix this, you will need to download the source to Tethereal\n"
-	  "from ethereal.zing.org if you have not already done so, read\n"
+	  "from www.ethereal.com if you have not already done so, read\n"
 	  "the instructions in the \"README.hpux\" file in the source\n"
 	  "distribution, download the source to libpcap if you have not\n"
 	  "already done so, patch libpcap as per the instructions, rebuild\n"

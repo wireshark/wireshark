@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.14 2000/09/29 06:30:31 guy Exp $
+$Id: README.win32,v 1.15 2000/10/08 17:16:29 gerald Exp $
 
 Running Ethereal, Tethereal, and Editcap on Win32
 =================================================
@@ -6,7 +6,7 @@ You need the glib and gtk libraries for running Ethereal.
 
 These packages for win32 can be found at:
 
-	http://ethereal.zing.org/distribution/win32
+	http://www.ethereal.com/distribution/win32
 
 and at the home page for the GTK+ for Win32 project:
 
@@ -25,7 +25,7 @@ glib-*.dll, gmodule-*.dll, gdk-*.dll, and gnu-intl.dll.  As of the
 
 The Win32 Binary distribution, available from
 
-	http://ethereal.zing.org/distribution/win32
+	http://www.ethereal.com/distribution/win32
 
 used different version of the GTK+/GLIB libraries at different points
 in time:
@@ -41,7 +41,7 @@ Capturing Packets
 -----------------
 Remember, if using the the Win32 Binary distribution, available from
 
-	http://ethereal.zing.org/distribution/win32
+	http://www.ethereal.com/distribution/win32
 
 there are two separate packages, one with non-capturing tools, and
 one with capturing tools. Install the appropriate package. The
