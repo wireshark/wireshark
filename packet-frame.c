@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.3 2000/11/29 05:16:15 gram Exp $
+ * $Id: packet-frame.c,v 1.4 2000/12/15 03:30:21 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,7 @@
 static int proto_frame = -1;
 static int hf_frame_arrival_time = -1;
 static int hf_frame_time_delta = -1;
+static int hf_frame_time_relative = -1;
 static int hf_frame_number = -1;
 static int hf_frame_packet_len = -1;
 static int hf_frame_capture_len = -1;
@@ -93,6 +94,12 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_tree_add_time(fh_tree, hf_frame_time_delta, tvb,
 		0, 0, &tv);
 
+	  tv.tv_sec = pinfo->fd->rel_secs;
+	  tv.tv_usec = pinfo->fd->rel_usecs;
+
+	  proto_tree_add_time(fh_tree, hf_frame_time_relative, tvb,
+		0, 0, &tv);
+
 	  proto_tree_add_uint(fh_tree, hf_frame_number, tvb,
 		0, 0, pinfo->fd->num);
 
@@ -144,6 +151,11 @@ proto_register_frame(void)
 
 		{ &hf_frame_time_delta,
 		{ "Time delta from previous packet",	"frame.time_delta", FT_RELATIVE_TIME, BASE_NONE, NULL,
+			0x0,
+			"" }},
+
+		{ &hf_frame_time_relative,
+		{ "Time relative to first packet",	"frame.time_relative", FT_RELATIVE_TIME, BASE_NONE, NULL,
 			0x0,
 			"" }},
 
