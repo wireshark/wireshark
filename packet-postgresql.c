@@ -3,7 +3,7 @@
  *
  * Copyright 2004, Edwin Calo <calo@fusemail.com>
  *
- * $Id: packet-postgresql.c,v 1.5 2004/02/19 08:53:07 guy Exp $
+ * $Id: packet-postgresql.c,v 1.6 2004/02/19 08:56:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,9 +49,17 @@ static gint ett_postgresql = -1;
 /*
  * For a protocol description, see:
  *
- *	http://www.phpfreaks.com/postgresqlmanual/page/protocol-protocol.html
+ *	http://www.postgresql.org/docs/7.4/interactive/protocol.html
  *
- * and subsequent pages.
+ * for version 3.0 of the protocol and
+ *
+ *	http://www.postgresql.org/docs/7.3/interactive/protocol.html
+ *
+ * for version 2.0 of the protocol and
+ *
+ *	http://www.postgresql.org/docs/6.3/interactive/c50.htm
+ *
+ * for version 1.0 of the protocol.
  */
 
 static void
