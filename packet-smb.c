@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.120 2001/09/29 01:44:09 guy Exp $
+ * $Id: packet-smb.c,v 1.121 2001/09/30 23:36:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,6 +55,14 @@
 static int proto_smb = -1;
 
 static int hf_smb_cmd = -1;
+static int hf_smb_status = -1;
+static int hf_smb_errcls = -1;
+static int hf_smb_flags = -1;
+static int hf_smb_flags2 = -1;
+static int hf_smb_tid = -1;
+static int hf_smb_pid = -1;
+static int hf_smb_uid = -1;
+static int hf_smb_mid = -1;
 
 static gint ett_smb = -1;
 static gint ett_smb_hdr = -1;
@@ -548,11 +556,6 @@ static const value_string smb_cmd_vals[] = {
   { 0x12, "SMBlseek" },
   { 0x13, "SMBlockread" },
   { 0x14, "SMBwriteunlock" },
-  { 0x15, "unknown-0x15" },
-  { 0x16, "unknown-0x16" },
-  { 0x17, "unknown-0x17" },
-  { 0x18, "unknown-0x18" },
-  { 0x19, "unknown-0x19" },
   { 0x1A, "SMBreadBraw" },
   { 0x1B, "SMBreadBmpx" },
   { 0x1C, "SMBreadBs" },
@@ -560,7 +563,6 @@ static const value_string smb_cmd_vals[] = {
   { 0x1E, "SMBwriteBmpx" },
   { 0x1F, "SMBwriteBs" },
   { 0x20, "SMBwriteC" },
-  { 0x21, "unknown-0x21" },
   { 0x22, "SMBsetattrE" },
   { 0x23, "SMBgetattrE" },
   { 0x24, "SMBlockingX" },
@@ -575,166 +577,30 @@ static const value_string smb_cmd_vals[] = {
   { 0x2D, "SMBopenX" },
   { 0x2E, "SMBreadX" },
   { 0x2F, "SMBwriteX" },
-  { 0x30, "unknown-0x30" },
   { 0x31, "SMBcloseandtreedisc" },
   { 0x32, "SMBtrans2" },
   { 0x33, "SMBtrans2secondary" },
   { 0x34, "SMBfindclose2" },
   { 0x35, "SMBfindnotifyclose" },
-  { 0x36, "unknown-0x36" },
-  { 0x37, "unknown-0x37" },
-  { 0x38, "unknown-0x38" },
-  { 0x39, "unknown-0x39" },
-  { 0x3A, "unknown-0x3A" },
-  { 0x3B, "unknown-0x3B" },
-  { 0x3C, "unknown-0x3C" },
-  { 0x3D, "unknown-0x3D" },
-  { 0x3E, "unknown-0x3E" },
-  { 0x3F, "unknown-0x3F" },
-  { 0x40, "unknown-0x40" },
-  { 0x41, "unknown-0x41" },
-  { 0x42, "unknown-0x42" },
-  { 0x43, "unknown-0x43" },
-  { 0x44, "unknown-0x44" },
-  { 0x45, "unknown-0x45" },
-  { 0x46, "unknown-0x46" },
-  { 0x47, "unknown-0x47" },
-  { 0x48, "unknown-0x48" },
-  { 0x49, "unknown-0x49" },
-  { 0x4A, "unknown-0x4A" },
-  { 0x4B, "unknown-0x4B" },
-  { 0x4C, "unknown-0x4C" },
-  { 0x4D, "unknown-0x4D" },
-  { 0x4E, "unknown-0x4E" },
-  { 0x4F, "unknown-0x4F" },
-  { 0x50, "unknown-0x50" },
-  { 0x51, "unknown-0x51" },
-  { 0x52, "unknown-0x52" },
-  { 0x53, "unknown-0x53" },
-  { 0x54, "unknown-0x54" },
-  { 0x55, "unknown-0x55" },
-  { 0x56, "unknown-0x56" },
-  { 0x57, "unknown-0x57" },
-  { 0x58, "unknown-0x58" },
-  { 0x59, "unknown-0x59" },
-  { 0x5A, "unknown-0x5A" },
-  { 0x5B, "unknown-0x5B" },
-  { 0x5C, "unknown-0x5C" },
-  { 0x5D, "unknown-0x5D" },
-  { 0x5E, "unknown-0x5E" },
-  { 0x5F, "unknown-0x5F" },
-  { 0x60, "unknown-0x60" },
-  { 0x61, "unknown-0x61" },
-  { 0x62, "unknown-0x62" },
-  { 0x63, "unknown-0x63" },
-  { 0x64, "unknown-0x64" },
-  { 0x65, "unknown-0x65" },
-  { 0x66, "unknown-0x66" },
-  { 0x67, "unknown-0x67" },
-  { 0x68, "unknown-0x68" },
-  { 0x69, "unknown-0x69" },
-  { 0x6A, "unknown-0x6A" },
-  { 0x6B, "unknown-0x6B" },
-  { 0x6C, "unknown-0x6C" },
-  { 0x6D, "unknown-0x6D" },
-  { 0x6E, "unknown-0x6E" },
-  { 0x6F, "unknown-0x6F" },
   { 0x70, "SMBtcon" },
   { 0x71, "SMBtdis" },
   { 0x72, "SMBnegprot" },
   { 0x73, "SMBsesssetupX" },
   { 0x74, "SMBlogoffX" },
   { 0x75, "SMBtconX" },
-  { 0x76, "unknown-0x76" },
-  { 0x77, "unknown-0x77" },
-  { 0x78, "unknown-0x78" },
-  { 0x79, "unknown-0x79" },
-  { 0x7A, "unknown-0x7A" },
-  { 0x7B, "unknown-0x7B" },
-  { 0x7C, "unknown-0x7C" },
-  { 0x7D, "unknown-0x7D" },
-  { 0x7E, "unknown-0x7E" },
-  { 0x7F, "unknown-0x7F" },
   { 0x80, "SMBdskattr" },
   { 0x81, "SMBsearch" },
   { 0x82, "SMBffirst" },
   { 0x83, "SMBfunique" },
   { 0x84, "SMBfclose" },
-  { 0x85, "unknown-0x85" },
-  { 0x86, "unknown-0x86" },
-  { 0x87, "unknown-0x87" },
-  { 0x88, "unknown-0x88" },
-  { 0x89, "unknown-0x89" },
-  { 0x8A, "unknown-0x8A" },
-  { 0x8B, "unknown-0x8B" },
-  { 0x8C, "unknown-0x8C" },
-  { 0x8D, "unknown-0x8D" },
-  { 0x8E, "unknown-0x8E" },
-  { 0x8F, "unknown-0x8F" },
-  { 0x90, "unknown-0x90" },
-  { 0x91, "unknown-0x91" },
-  { 0x92, "unknown-0x92" },
-  { 0x93, "unknown-0x93" },
-  { 0x94, "unknown-0x94" },
-  { 0x95, "unknown-0x95" },
-  { 0x96, "unknown-0x96" },
-  { 0x97, "unknown-0x97" },
-  { 0x98, "unknown-0x98" },
-  { 0x99, "unknown-0x99" },
-  { 0x9A, "unknown-0x9A" },
-  { 0x9B, "unknown-0x9B" },
-  { 0x9C, "unknown-0x9C" },
-  { 0x9D, "unknown-0x9D" },
-  { 0x9E, "unknown-0x9E" },
-  { 0x9F, "unknown-0x9F" },
   { 0xA0, "SMBnttransact" },
   { 0xA1, "SMBnttransactsecondary" },
   { 0xA2, "SMBntcreateX" },
-  { 0xA3, "unknown-0xA3" },
   { 0xA4, "SMBntcancel" },
-  { 0xA5, "unknown-0xA5" },
-  { 0xA6, "unknown-0xA6" },
-  { 0xA7, "unknown-0xA7" },
-  { 0xA8, "unknown-0xA8" },
-  { 0xA9, "unknown-0xA9" },
-  { 0xAA, "unknown-0xAA" },
-  { 0xAB, "unknown-0xAB" },
-  { 0xAC, "unknown-0xAC" },
-  { 0xAD, "unknown-0xAD" },
-  { 0xAE, "unknown-0xAE" },
-  { 0xAF, "unknown-0xAF" },
-  { 0xB0, "unknown-0xB0" },
-  { 0xB1, "unknown-0xB1" },
-  { 0xB2, "unknown-0xB2" },
-  { 0xB3, "unknown-0xB3" },
-  { 0xB4, "unknown-0xB4" },
-  { 0xB5, "unknown-0xB5" },
-  { 0xB6, "unknown-0xB6" },
-  { 0xB7, "unknown-0xB7" },
-  { 0xB8, "unknown-0xB8" },
-  { 0xB9, "unknown-0xB9" },
-  { 0xBA, "unknown-0xBA" },
-  { 0xBB, "unknown-0xBB" },
-  { 0xBC, "unknown-0xBC" },
-  { 0xBD, "unknown-0xBD" },
-  { 0xBE, "unknown-0xBE" },
-  { 0xBF, "unknown-0xBF" },
   { 0xC0, "SMBsplopen" },
   { 0xC1, "SMBsplwr" },
   { 0xC2, "SMBsplclose" },
   { 0xC3, "SMBsplretq" },
-  { 0xC4, "unknown-0xC4" },
-  { 0xC5, "unknown-0xC5" },
-  { 0xC6, "unknown-0xC6" },
-  { 0xC7, "unknown-0xC7" },
-  { 0xC8, "unknown-0xC8" },
-  { 0xC9, "unknown-0xC9" },
-  { 0xCA, "unknown-0xCA" },
-  { 0xCB, "unknown-0xCB" },
-  { 0xCC, "unknown-0xCC" },
-  { 0xCD, "unknown-0xCD" },
-  { 0xCE, "unknown-0xCE" },
-  { 0xCF, "unknown-0xCF" },
   { 0xD0, "SMBsends" },
   { 0xD1, "SMBsendb" },
   { 0xD2, "SMBfwdname" },
@@ -746,43 +612,7 @@ static const value_string smb_cmd_vals[] = {
   { 0xD8, "SMBreadbulk" },
   { 0xD9, "SMBwritebulk" },
   { 0xDA, "SMBwritebulkdata" },
-  { 0xDB, "unknown-0xDB" },
-  { 0xDC, "unknown-0xDC" },
-  { 0xDD, "unknown-0xDD" },
-  { 0xDE, "unknown-0xDE" },
-  { 0xDF, "unknown-0xDF" },
-  { 0xE0, "unknown-0xE0" },
-  { 0xE1, "unknown-0xE1" },
-  { 0xE2, "unknown-0xE2" },
-  { 0xE3, "unknown-0xE3" },
-  { 0xE4, "unknown-0xE4" },
-  { 0xE5, "unknown-0xE5" },
-  { 0xE6, "unknown-0xE6" },
-  { 0xE7, "unknown-0xE7" },
-  { 0xE8, "unknown-0xE8" },
-  { 0xE9, "unknown-0xE9" },
-  { 0xEA, "unknown-0xEA" },
-  { 0xEB, "unknown-0xEB" },
-  { 0xEC, "unknown-0xEC" },
-  { 0xED, "unknown-0xED" },
-  { 0xEE, "unknown-0xEE" },
-  { 0xEF, "unknown-0xEF" },
-  { 0xF0, "unknown-0xF0" },
-  { 0xF1, "unknown-0xF1" },
-  { 0xF2, "unknown-0xF2" },
-  { 0xF3, "unknown-0xF3" },
-  { 0xF4, "unknown-0xF4" },
-  { 0xF5, "unknown-0xF5" },
-  { 0xF6, "unknown-0xF6" },
-  { 0xF7, "unknown-0xF7" },
-  { 0xF8, "unknown-0xF8" },
-  { 0xF9, "unknown-0xF9" },
-  { 0xFA, "unknown-0xFA" },
-  { 0xFB, "unknown-0xFB" },
-  { 0xFC, "unknown-0xFC" },
-  { 0xFD, "unknown-0xFD" },
   { 0xFE, "SMBinvalid" },
-  { 0xFF, "unknown-0xFF" },
   { 0x00, NULL },
 };
 
@@ -12534,10 +12364,8 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * XXX - break the value down into severity code,
 		 * customer code, facility, and error?
 		 */
-		proto_tree_add_text(smb_hdr_tree, tvb, offset, 4,
-				    "Status: %s (0x%08X)",
-				    val_to_str(status, NT_errors, "Unknown"),
-				    status);
+		proto_tree_add_uint(smb_hdr_tree, hf_smb_status,
+				    tvb, offset, 4, status);
 
 	    }
 
@@ -12553,8 +12381,8 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    if (tree) {
 
-		proto_tree_add_text(smb_hdr_tree, tvb, offset, 1, "Error Class: %s", 
-				    val_to_str(errcls, errcls_types, "Unknown Error Class (%x)"));
+		proto_tree_add_uint(smb_hdr_tree, hf_smb_errcls,
+				    tvb, offset, 1, errcls);
 	    }
 
 	    offset += 1;
@@ -12575,6 +12403,11 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    if (tree) {
 
+		/*
+		 * XXX - the type of this field depends on the value of
+		 * "errcls", so there isn't a single value_string array
+		 * for it, so there can't be a single field for it.
+		 */
 		proto_tree_add_text(smb_hdr_tree, tvb, offset, 2, "Error Code: %s",
 				    decode_smb_error(errcls, errcode));
 
@@ -12596,7 +12429,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 
-	  tf = proto_tree_add_text(smb_hdr_tree, tvb, offset, 1, "Flags: 0x%02x", flags);
+	  tf = proto_tree_add_uint(smb_hdr_tree, hf_smb_flags, tvb, offset, 1, flags);
 
 	  flags_tree = proto_item_add_subtree(tf, ett_smb_flags);
 	  proto_tree_add_text(flags_tree, tvb, offset, 1, "%s",
@@ -12636,7 +12469,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 
-	  tf = proto_tree_add_text(smb_hdr_tree, tvb, offset, 2, "Flags2: 0x%04x", flags2);
+	  tf = proto_tree_add_uint(smb_hdr_tree, hf_smb_flags2, tvb, offset, 2, flags2);
 
 	  flags2_tree = proto_item_add_subtree(tf, ett_smb_flags2);
 	  proto_tree_add_text(flags2_tree, tvb, offset, 2, "%s",
@@ -12721,7 +12554,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 
-	  proto_tree_add_text(smb_hdr_tree, tvb, offset, 2, "Network Path/Tree ID (TID): %i (%04x)", tid, tid); 
+	  proto_tree_add_uint(smb_hdr_tree, hf_smb_tid, tvb, offset, 2, tid); 
 
 	}
 
@@ -12734,7 +12567,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 
-	  proto_tree_add_text(smb_hdr_tree, tvb, offset, 2, "Process ID (PID): %i (%04x)", pid, pid); 
+	  proto_tree_add_uint(smb_hdr_tree, hf_smb_pid, tvb, offset, 2, pid); 
 
 	}
 
@@ -12747,7 +12580,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 
-	  proto_tree_add_text(smb_hdr_tree, tvb, offset, 2, "User ID (UID): %i (%04x)", uid, uid); 
+	  proto_tree_add_uint(smb_hdr_tree, hf_smb_uid, tvb, offset, 2, uid); 
 
 	}
 	
@@ -12760,7 +12593,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 
-	  proto_tree_add_text(smb_hdr_tree, tvb, offset, 2, "Multiplex ID (MID): %i (%04x)", mid, mid); 
+	  proto_tree_add_uint(smb_hdr_tree, hf_smb_mid, tvb, offset, 2, mid); 
 
 	}
 
@@ -12795,7 +12628,31 @@ proto_register_smb(void)
 	static hf_register_info hf[] = {
 	  { &hf_smb_cmd,
 	    { "SMB Command", "smb.cmd",
-	      FT_UINT8, BASE_HEX, VALS(smb_cmd_vals), 0x0, "", HFILL }}
+	      FT_UINT8, BASE_HEX, VALS(smb_cmd_vals), 0x0, "", HFILL }},
+	  { &hf_smb_status,
+	    { "Status", "smb.status",
+	      FT_UINT32, BASE_HEX, VALS(NT_errors), 0x0, "", HFILL }},
+	  { &hf_smb_errcls,
+	    { "Error Class", "smb.errcls",
+	      FT_UINT8, BASE_HEX, VALS(errcls_types), 0x0, "", HFILL }},
+	  { &hf_smb_flags,
+	    { "Flags", "smb.flags",
+	      FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+	  { &hf_smb_flags2,
+	    { "Flags2", "smb.flags2",
+	      FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+	  { &hf_smb_tid,
+	    { "Network Path/Tree ID (TID)", "smb.tid",
+	      FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+	  { &hf_smb_pid,
+	    { "Process ID (PID)", "smb.pid",
+	      FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+	  { &hf_smb_uid,
+	    { "User ID (UID)", "smb.uid",
+	      FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+	  { &hf_smb_mid,
+	    { "Multiplex ID (MID)", "smb.mid",
+	      FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_smb,
