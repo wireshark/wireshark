@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.94 2001/11/25 01:28:00 guy Exp $
+ * $Id: packet-ipx.c,v 1.95 2001/11/25 22:51:13 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,6 +98,8 @@ static gint ett_ipxmsg = -1;
 static int proto_ipxmsg = -1;
 static int hf_msg_conn = -1;
 static int hf_msg_sigchar = -1;
+
+static dissector_handle_t data_handle;
 
 static void
 dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -280,7 +282,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (dissector_try_port(ipx_socket_dissector_table, ipx_ssocket,
 	    next_tvb, pinfo, tree))
 		return;
-	dissect_data(next_tvb, 0, pinfo, tree);
+	call_dissector(data_handle,next_tvb, pinfo, tree);
 }
 
 
@@ -363,7 +365,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(spx_tree, hf_spx_all_nr, tvb, 10, 2, FALSE);
 
 		next_tvb = tvb_new_subset(tvb, SPX_HEADER_LEN, -1, -1);
-		dissect_data(next_tvb, 0, pinfo, tree);
+		call_dissector(data_handle,next_tvb, pinfo, tree);
 	}
 }
 
@@ -994,4 +996,5 @@ proto_reg_handoff_ipx(void)
 	    proto_ipxrip);
 	dissector_add("ipx.socket", IPX_SOCKET_IPX_MESSAGE, dissect_ipxmsg,
 	    proto_ipxmsg);
+	data_handle = find_dissector("data");
 }

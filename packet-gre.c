@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.45 2001/10/23 19:02:59 guy Exp $
+ * $Id: packet-gre.c,v 1.46 2001/11/25 22:51:13 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,6 +58,7 @@ static gint ett_gre_flags = -1;
 static gint ett_gre_wccp2_redirect_header = -1;
 
 static dissector_table_t gre_dissector_table;
+static dissector_handle_t data_handle;
 
 /* bit positions for flags in header */
 #define GH_B_C		0x8000
@@ -274,7 +275,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
   if (!dissector_try_port(gre_dissector_table, type, next_tvb, pinfo, tree))
-    dissect_data(next_tvb, 0, pinfo, gre_tree);
+    call_dissector(data_handle,next_tvb, pinfo, gre_tree);
 }
 
 static void
@@ -381,4 +382,5 @@ void
 proto_reg_handoff_gre(void)
 {
 	dissector_add("ip.proto", IP_PROTO_GRE, dissect_gre, proto_gre);
+	data_handle = find_dissector("data");
 }

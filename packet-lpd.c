@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-lpd.c,v 1.29 2001/11/13 23:55:30 gram Exp $
+ * $Id: packet-lpd.c,v 1.30 2001/11/25 22:51:13 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,6 +48,8 @@ static gint ett_lpd = -1;
 enum lpr_type { request, response, unknown };
 
 static gint find_printer_string(tvbuff_t *tvb, int offset);
+
+static dissector_handle_t data_handle;
 
 static void
 dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -132,7 +134,7 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 tvb_format_text(tvb, 1, printer_len));
 			}
 			else {
-				dissect_data(tvb, 0, pinfo, tree);
+				call_dissector(data_handle,tvb, pinfo, tree);
 			}
 		}
 		else if (lpr_packet_type == response) {
@@ -141,11 +143,11 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					"Response: %s", lpd_server_code[code]);
 			}
 			else {
-				dissect_data(tvb, 0, pinfo, tree);
+				call_dissector(data_handle,tvb, pinfo, tree);
 			}
 		}
 		else {
-			dissect_data(tvb, 0, pinfo, tree);
+			call_dissector(data_handle,tvb, pinfo, tree);
 		}
 	}
 }
@@ -193,4 +195,5 @@ void
 proto_reg_handoff_lpd(void)
 {
   dissector_add("tcp.port", TCP_PORT_PRINTER, &dissect_lpd, proto_lpd);
+  data_handle = find_dissector("data");
 }

@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.53 2001/10/01 08:29:34 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.54 2001/11/25 22:51:13 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -82,6 +82,7 @@ static gint ett_nodeinfo_nodebitmap = -1;
 static gint ett_nodeinfo_nodedns = -1;
 
 static dissector_handle_t ipv6_handle;
+static dissector_handle_t data_handle;
 
 static const value_string names_nodeinfo_qtype[] = {
     { NI_QTYPE_NOOP,		"NOOP" },
@@ -173,7 +174,7 @@ dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	pinfo->src = save_src;
 	pinfo->dst = save_dst;
     } else
-	dissect_data(next_tvb, 0, pinfo, tree);
+	call_dissector(data_handle,next_tvb, pinfo, tree);
 }
 
 static void
@@ -796,7 +797,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 nodata:;
 
     /* the rest of data */
-    dissect_data(tvb_new_subset(tvb, offset + off, -1, -1), 0, pinfo, tree);
+    call_dissector(data_handle,tvb_new_subset(tvb, offset + off, -1, -1), pinfo, tree);
 }
 
 static void
@@ -844,7 +845,7 @@ dissect_rrenum(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_text(tree, tvb,
 	offset + offsetof(struct icmp6_router_renum, rr_maxdelay), 2,
 	"Max delay: 0x%04x", pntohs(&rr->rr_maxdelay));
-    dissect_data(tvb_new_subset(tvb, offset + sizeof(*rr), -1, -1), 0, pinfo, tree);	/*XXX*/
+    call_dissector(data_handle,tvb_new_subset(tvb, offset + sizeof(*rr), -1, -1), pinfo, tree);	/*XXX*/
 
     if (rr->rr_code == ICMP6_ROUTER_RENUMBERING_COMMAND) {
 	off = offset + sizeof(*rr);
@@ -1251,7 +1252,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset + offsetof(struct icmp6_hdr, icmp6_seq), 2,
 		"Sequence: 0x%04x", (guint16)ntohs(dp->icmp6_seq));
 	    next_tvb = tvb_new_subset(tvb, offset + sizeof(*dp), -1, -1);
-	    dissect_data(next_tvb, 0, pinfo, icmp6_tree);
+	    call_dissector(data_handle,next_tvb, pinfo, icmp6_tree);
 	    break;
 	case ICMP6_MEMBERSHIP_QUERY:
 	case ICMP6_MEMBERSHIP_REPORT:
@@ -1408,7 +1409,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    break;
 	default:
 	    next_tvb = tvb_new_subset(tvb, offset + sizeof(*dp), -1, -1);
-	    dissect_data(next_tvb, 0, pinfo, tree);
+	    call_dissector(data_handle,next_tvb, pinfo, tree);
 	    break;
 	}
     }
@@ -1459,4 +1460,5 @@ proto_reg_handoff_icmpv6(void)
    * Get a handle for the IPv6 dissector.
    */
   ipv6_handle = find_dissector("ipv6");
+  data_handle = find_dissector("data");
 }

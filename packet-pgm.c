@@ -1,7 +1,7 @@
 /* packet-pgm.c
  * Routines for pgm packet disassembly
  *
- * $Id: packet-pgm.c,v 1.8 2001/11/21 02:01:05 guy Exp $
+ * $Id: packet-pgm.c,v 1.9 2001/11/25 22:51:14 hagbard Exp $
  * 
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -147,6 +147,7 @@ static int hf_pgm_opt_ccfeedbk_acker = -1;
 
 static dissector_table_t subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
+static dissector_handle_t data_handle;
 
 /*
  * As of the time this comment was typed
@@ -568,7 +569,7 @@ decode_pgm_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     return;
 
   /* Oh, well, we don't know this; dissect it as data. */
-  dissect_data(next_tvb, 0, pinfo, tree);
+  call_dissector(data_handle,next_tvb, pinfo, tree);
 
 }
 int 
@@ -1114,7 +1115,8 @@ proto_reg_handoff_pgm(void)
   dissector_add("udp.port", udp_encap_mcast_port, dissect_pgm, proto_pgm);
 
   dissector_add("ip.proto", IP_PROTO_PGM, dissect_pgm, proto_pgm);
-
+  
+  data_handle = find_dissector("data");
 }
 void
 proto_rereg_pgm(void)

@@ -2,7 +2,7 @@
  * Routines for Sinec H1 packet disassembly
  * Gerrit Gehnen <G.Gehnen@atrie.de>
  *
- * $Id: packet-h1.c,v 1.20 2001/06/18 02:17:46 guy Exp $
+ * $Id: packet-h1.c,v 1.21 2001/11/25 22:51:13 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,6 +53,8 @@ static int hf_h1_response_len = -1;
 static int hf_h1_response_value = -1;
 static int hf_h1_empty_len = -1;
 static int hf_h1_empty = -1;
+
+static dissector_handle_t data_handle;
 
 #define EMPTY_BLOCK 	0xFF
 #define OPCODE_BLOCK	0x01
@@ -245,7 +247,7 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	position += tvb_get_guint8(tvb,offset + position + 1);	/* Goto next section */
     }			/* ..while */
   next_tvb = tvb_new_subset(tvb, offset+tvb_get_guint8(tvb,offset+2), -1, -1);
-  dissect_data(next_tvb, 0, pinfo, tree);
+  call_dissector(data_handle,next_tvb, pinfo, tree);
 
   return TRUE;
 }
@@ -318,4 +320,5 @@ void
 proto_reg_handoff_h1(void)
 {
   heur_dissector_add("cotp_is", dissect_h1, proto_h1);
+  data_handle = find_dissector("data");
 }

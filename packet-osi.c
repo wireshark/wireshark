@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: packet-osi.c,v 1.46 2001/09/14 07:10:05 guy Exp $
+ * $Id: packet-osi.c,v 1.47 2001/11/25 22:51:13 hagbard Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -126,6 +126,7 @@ const value_string nlpid_vals[] = {
 };
 
 dissector_table_t osinl_subdissector_table;
+static dissector_handle_t data_handle;
 
 static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
 {
@@ -147,13 +148,13 @@ static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (check_col(pinfo->fd, COL_PROTOCOL)) {
 	col_set_str(pinfo->fd, COL_PROTOCOL, "ESIS (X.25)");
       }
-      dissect_data(tvb, 0, pinfo, tree);
+      call_dissector(data_handle,tvb, pinfo, tree);
       break;
     case NLPID_ISO10747_IDRP:
       if (check_col(pinfo->fd, COL_PROTOCOL)) {
         col_set_str(pinfo->fd, COL_PROTOCOL, "IDRP");
       }
-      dissect_data(tvb, 0, pinfo, tree);
+      call_dissector(data_handle,tvb, pinfo, tree);
       break;
     default:
       if (check_col(pinfo->fd, COL_PROTOCOL)) {
@@ -162,7 +163,7 @@ static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (check_col(pinfo->fd, COL_INFO)) {
 	col_add_fstr(pinfo->fd, COL_INFO, "Unknown ISO protocol (%02x)", nlpid);
       }
-      dissect_data(tvb, 0, pinfo, tree);
+      call_dissector(data_handle,tvb, pinfo, tree);
       break;
   }
 } /* dissect_osi */
@@ -182,4 +183,5 @@ proto_reg_handoff_osi(void)
 	dissector_add("llc.dsap", SAP_OSINL, dissect_osi, -1);
         dissector_add("ppp.protocol", PPP_OSI, dissect_osi, -1);
 	dissector_add("null.type", BSD_AF_ISO, dissect_osi, -1);
+	data_handle = find_dissector("data");
 }

@@ -2,7 +2,7 @@
  * Routines for pop packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-pop.c,v 1.25 2001/06/18 02:17:50 guy Exp $
+ * $Id: packet-pop.c,v 1.26 2001/11/25 22:51:14 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,6 +49,8 @@ static int hf_pop_response = -1;
 static int hf_pop_request = -1;
 
 static gint ett_pop = -1;
+
+static dissector_handle_t data_handle;
 
 #define TCP_PORT_POP			110
 
@@ -113,7 +115,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/*
 			 * Put the whole packet into the tree as data.
 			 */
-			dissect_data(tvb, 0, pinfo, pop_tree);
+			call_dissector(data_handle,tvb, pinfo, pop_tree);
 			return;
 		}
 
@@ -223,4 +225,5 @@ void
 proto_reg_handoff_pop(void)
 {
   dissector_add("tcp.port", TCP_PORT_POP, dissect_pop, proto_pop);
+  data_handle = find_dissector("data");
 }

@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.89 2001/11/20 21:59:13 guy Exp $
+ * $Id: packet-llc.c,v 1.90 2001/11/25 22:51:13 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,6 +65,7 @@ static dissector_handle_t bpdu_handle;
 static dissector_handle_t eth_handle;
 static dissector_handle_t fddi_handle;
 static dissector_handle_t tr_handle;
+static dissector_handle_t data_handle;
 
 typedef void (capture_func_t)(const u_char *, int, int, packet_counts *);
 
@@ -348,10 +349,10 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* do lookup with the subdissector table */
 			if (!dissector_try_port(subdissector_table, dsap,
 			    next_tvb, pinfo, tree)) {
-				dissect_data(next_tvb, 0, pinfo, tree);
+				call_dissector(data_handle,next_tvb, pinfo, tree);
 			}
 		} else {
-			dissect_data(next_tvb, 0, pinfo, tree);
+			call_dissector(data_handle,next_tvb, pinfo, tree);
 		}
 	}
 }
@@ -397,7 +398,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			    pinfo, tree, snap_tree, hf_type, -1);
 		} else {
 			next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
-			dissect_data(next_tvb, 0, pinfo, tree);
+			call_dissector(data_handle,next_tvb, pinfo, tree);
 		}
 		break;
 
@@ -453,7 +454,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 
 		default:
 			next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
-			dissect_data(next_tvb, 0, pinfo, tree);
+			call_dissector(data_handle,next_tvb, pinfo, tree);
 			break;
 		}
 		break;
@@ -474,9 +475,9 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			/* for future reference, 0x0102 is Cisco DRIP */
 			if (!dissector_try_port(cisco_subdissector_table,
 			    etype, next_tvb, pinfo, tree))
-				dissect_data(next_tvb, 0, pinfo, tree);
+				call_dissector(data_handle,next_tvb, pinfo, tree);
 		} else
-			dissect_data(next_tvb, 0, pinfo, tree);
+			call_dissector(data_handle,next_tvb, pinfo, tree);
 		break;
 
 	case OUI_CABLE_BPDU:    /* DOCSIS cable modem spanning tree BPDU */
@@ -494,7 +495,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			    etype);
 		}
 		next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
-		dissect_data(next_tvb, 0, pinfo, tree);
+		call_dissector(data_handle,next_tvb, pinfo, tree);
 		break;
 	}
 }
@@ -566,6 +567,7 @@ proto_reg_handoff_llc(void)
 	eth_handle = find_dissector("eth");
 	fddi_handle = find_dissector("fddi");
 	tr_handle = find_dissector("tr");
+	data_handle = find_dissector("data");
 
 	dissector_add("wtap_encap", WTAP_ENCAP_ATM_RFC1483, dissect_llc,
 	    proto_llc);

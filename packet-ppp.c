@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.76 2001/11/21 02:01:04 guy Exp $
+ * $Id: packet-ppp.c,v 1.77 2001/11/25 22:51:14 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -116,6 +116,7 @@ static gint ett_chap_message		= -1;
 
 static dissector_table_t subdissector_table;
 static dissector_handle_t chdlc_handle;
+static dissector_handle_t data_handle;
 
 /* options */
 static gint ppp_fcs_decode = 0; /* 0 = No FCS, 1 = 16 bit FCS, 2 = 32 bit FCS */
@@ -1640,7 +1641,7 @@ dissect_ppp_common( tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (check_col(pinfo->fd, COL_INFO))
       col_add_fstr(pinfo->fd, COL_INFO, "PPP %s (0x%04x)",
 		   val_to_str(ppp_prot, ppp_vals, "Unknown"), ppp_prot);
-    dissect_data(next_tvb, 0, pinfo, tree);
+    call_dissector(data_handle,next_tvb, pinfo, tree);
   }
 }
 
@@ -2106,6 +2107,7 @@ proto_reg_handoff_ppp(void)
    * Get a handle for the CHDLC dissector.
    */
   chdlc_handle = find_dissector("chdlc");
+  data_handle = find_dissector("data");
 
   dissector_add("wtap_encap", WTAP_ENCAP_PPP, dissect_ppp_hdlc, proto_ppp);
   dissector_add("wtap_encap", WTAP_ENCAP_PPP_WITH_PHDR, dissect_ppp_hdlc, proto_ppp);
