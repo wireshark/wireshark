@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.58 2002/10/15 05:21:02 guy Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.59 2002/11/03 04:39:22 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4158,11 +4158,11 @@ netlogon_dissect_DOMAIN_CONTROLLER_INFO(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"unknown", hf_netlogon_dc_name, -1);
+		"DC Name", hf_netlogon_dc_name, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"unknown", hf_netlogon_dc_address, -1);
+		"DC Address", hf_netlogon_dc_address, 0);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_dc_address_type, NULL);
@@ -4172,36 +4172,24 @@ netlogon_dissect_DOMAIN_CONTROLLER_INFO(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"unknown", hf_netlogon_logon_dom, -1);
+		"Logon Domain", hf_netlogon_logon_dom, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"unknown", hf_netlogon_dns_forest_name, -1);
+		"DNS Forest", hf_netlogon_dns_forest_name, 0);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_flags, NULL);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"unknown", hf_netlogon_dc_site_name, -1);
+		"DC Site", hf_netlogon_dc_site_name, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-		"unknown", hf_netlogon_client_site_name, -1);
+		"Client Site", hf_netlogon_client_site_name, 0);
 
 	proto_item_set_len(item, offset-old_offset);
-	return offset;
-}
-
-static int
-netlogon_dissect_DOMAIN_CONTROLLER_INFO_ptr(tvbuff_t *tvb, int offset,
-			packet_info *pinfo, proto_tree *tree,
-			char *drep)
-{
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_DOMAIN_CONTROLLER_INFO, NDR_POINTER_UNIQUE,
-		"DOMAIN_CONTROLLER_INFO pointer: info", -1, 0);
-
 	return offset;
 }
 
@@ -4782,8 +4770,8 @@ netlogon_dissect_dsrgetdcname2_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_DOMAIN_CONTROLLER_INFO_ptr, NDR_POINTER_REF,
-		"DOMAIN_CONTROLLER_INFO* pointer: info", -1, 0);
+		netlogon_dissect_DOMAIN_CONTROLLER_INFO, NDR_POINTER_UNIQUE,
+		"DOMAIN_CONTROLLER_INFO:", -1, 0);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_netlogon_rc, NULL);
@@ -5056,8 +5044,8 @@ netlogon_dissect_dsrgetdcname_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_DOMAIN_CONTROLLER_INFO_ptr, NDR_POINTER_REF,
-		"DOMAIN_CONTROLLER_INFO* pointer: info", -1, 0);
+		netlogon_dissect_DOMAIN_CONTROLLER_INFO, NDR_POINTER_UNIQUE,
+		"DOMAIN_CONTROLLER_INFO:", -1, 0);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_netlogon_rc, NULL);
@@ -5334,8 +5322,8 @@ netlogon_dissect_function_22_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		netlogon_dissect_DOMAIN_CONTROLLER_INFO_ptr, NDR_POINTER_UNIQUE,
-		"DOMAIN_CONTROLLER_INFO pointer: unknown_DOMAIN_CONTROLLER_INFO", -1, 0);
+		netlogon_dissect_DOMAIN_CONTROLLER_INFO, NDR_POINTER_UNIQUE,
+		"DOMAIN_CONTROLLER_INFO:", -1, 0);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_netlogon_rc, NULL);
