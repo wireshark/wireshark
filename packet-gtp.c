@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.60 2003/09/18 21:38:44 gerald Exp $
+ * $Id: packet-gtp.c,v 1.61 2003/09/18 21:42:45 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1667,7 +1667,7 @@ col_append_str_gtp(column_info *cinfo, gint el, gchar *proto_name) {
 static gchar *
 id_to_str(const guint8 *ad) {
 
-	static gchar	str[17] = "                ";
+	gchar	str[17] = "                ";
 	guint8		bits8to5, bits4to1;
 	int		i;
 	static const	gchar hex_digits[10] = "0123456789";
@@ -1686,22 +1686,22 @@ id_to_str(const guint8 *ad) {
 static gchar *
 imsi_to_str(const guint8 *ad) {
 
-	static gchar	str[17] = "                ";
+	gchar	str[17] = "                ";
 	int		i, j = 0;
-	
+
 	for (i = 0; i < 8; i++) {
 		if ((ad[i] & 0x0F) <= 9) str[j++] = (ad[i] & 0x0F) + 0x30;
 		if (((ad[i] >> 4) & 0x0F) <= 9) str[j++] = ((ad[i] >> 4) & 0x0F) + 0x30;
 	}
 	str[j] = '\0';
-	
+
 	return str;
 }
 
 static gchar *
 msisdn_to_str(const guint8 *ad, int len) {
 
-	static gchar	str[18] = "+                ";
+	gchar	str[18] = "+                ";
 	gchar		*p;
 	guint8		bits8to5, bits4to1;
 	int		i;
@@ -3427,7 +3427,7 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 	/* Will keep the value that will be returned
 	 * */
 	int		retval = 0;
-	
+
 	switch (type) {
 		case 1:
 			length = tvb_get_guint8 (tvb, offset);
@@ -3466,7 +3466,7 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 				proto_tree_add_text (ext_tree_qos, tvb, offset + 3, 1, "Hyphen separator: -");
 				offset++; /* "Get rid" of hyphen */
 			}
-			
+
 			/* Now, we modify offset here and in order to use type later
 			 * effectively.*/
 			offset += 2;
@@ -4975,15 +4975,15 @@ dissect_gtpv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if ((gtpv0_hdr.message == GTP_MSG_TPDU) && gtp_tpdu) {
                 guint8 sub_proto;
-            
+
 		sub_proto = tvb_get_guint8(tvb,GTPv0_HDR_LENGTH);
 
                 if ((sub_proto >= 0x45) &&  (sub_proto <= 0x4e)) {
                     /* this is most likely an IPv4 packet */
                     /* we can exclude 0x40 - 0x44 because the minimum header size is 20 octets */
-                    /* 0x4f is excluded because PPP protocol type "IPv6 header compression" 
-                       with protocol field compression is more likely than a plain IPv4 packet with 60 octet header size */    
-                    
+                    /* 0x4f is excluded because PPP protocol type "IPv6 header compression"
+                       with protocol field compression is more likely than a plain IPv4 packet with 60 octet header size */
+
                     next_tvb = tvb_new_subset(tvb, GTPv0_HDR_LENGTH, -1, -1);
                     call_dissector(ip_handle, next_tvb, pinfo, tree);
                 } else
@@ -5129,9 +5129,9 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 if ((sub_proto >= 0x45) &&  (sub_proto <= 0x4e)) {
                     /* this is most likely an IPv4 packet */
                     /* we can exclude 0x40 - 0x44 because the minimum header size is 20 octets */
-                    /* 0x4f is excluded because PPP protocol type "IPv6 header compression" 
-                       with protocol field compression is more likely than a plain IPv4 packet with 60 octet header size */    
-                    
+                    /* 0x4f is excluded because PPP protocol type "IPv6 header compression"
+                       with protocol field compression is more likely than a plain IPv4 packet with 60 octet header size */
+
                     next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset, -1, -1);
                     call_dissector(ip_handle, next_tvb, pinfo, tree);
                 } else
@@ -5146,7 +5146,7 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
                     if (sub_proto == 0xff) {
                         /* this might be an address field, even it shouldn't be here */
-                        guint8 control_field; 
+                        guint8 control_field;
                         control_field = tvb_get_guint8(tvb,GTPv1_HDR_LENGTH - hdr_offset + 1);
                         if (control_field == 0x03)
                         {
