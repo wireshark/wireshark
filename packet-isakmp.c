@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.64 2003/05/25 19:37:36 guy Exp $
+ * $Id: packet-isakmp.c,v 1.65 2003/05/26 22:53:58 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -181,7 +181,7 @@ static const char *idtypestr[NUM_ID_TYPES] = {
   "KEY_ID"
 };
 
-#define NUM_GRPDESC_TYPES 18
+#define NUM_GRPDESC_TYPES 19
 #define grpdesc2str(t) ((t < NUM_GRPDESC_TYPES) ? grpdescstr[t] : "UNKNOWN-GROUP-DESCRIPTION")
 
 static const char *grpdescstr[NUM_GRPDESC_TYPES] = {
