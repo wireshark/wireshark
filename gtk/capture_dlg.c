@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.107 2004/02/21 22:54:50 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.108 2004/02/23 23:13:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -135,25 +135,43 @@ get_if_name(char *if_text)
 #ifdef WIN32
   /*
    * We cannot assume that the interface name doesn't contain a space;
-   * however, we can assume it begins with "\Device\".  Search forwards
-   * for a backslash; if it's followed by "Device\", stop there,
-   * otherwise keep scanning until we find "\Device\".  If we don't find
-   * it, just return the entire string.
+   * some names on Windows OT do.
+   *
+   * We also can't assume it begins with "\Device\", either, as, on
+   * Windows OT, WinPcap doesn't put "\Device\" in front of the name.
+   *
+   * As I remember, we can't assume that the interface description
+   * doesn't contain a colon, either; I think some do.
+   *
+   * We can probably assume that the interface *name* doesn't contain
+   * a colon, however; if any interface name does contain a colon on
+   * Windows, it'll be time to just get rid of the damn interface
+   * descriptions in the drop-down list, have just the names in the
+   * drop-down list, and have a "Browse..." button to browse for interfaces,
+   * with names, descriptions, IP addresses, blah blah blah available when
+   * possible.
+   *
+   * So we search backwards for a colon.  If we don't find it, just
+   * return the entire string; otherwise, skip the colon and any blanks
+   * after it, and return that string.
    */
    if_name = if_text;
    for (;;) {
-     if_name = strchr(if_name, '\\');
+     if_name = strrchr(if_name, ':');
      if (if_name == NULL)
        return if_text;	/* give up */
-     if (strncmp(if_name + 1, "Device\\", 7) == 0)
-       return if_name;
-     if_name++;
+     if_name++;		/* skip the colon */
+     while (*if_name == ' ')
+       if_name++;
    }
 #else
   /*
    * There's a space between the interface description and name, and
    * the interface name shouldn't have a space in it (it doesn't, on
    * UNIX systems); look backwards in the string for a space.
+   *
+   * (An interface name might, however, contain a colon in it, which
+   * is why we don't use the colon search on UNIX.)
    */
   if_name = strrchr(if_text, ' ');
   if (if_name == NULL) {
