@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.48 2001/01/18 00:13:18 guy Exp $
+ * $Id: packet-rpc.c,v 1.49 2001/01/18 06:33:23 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,7 +55,7 @@
  *
  *	RFC 2695, "Authentication Mechanisms for ONC RPC"
  *
- *	although we don't currently dissec AUTH_DES or AUTH_KERB.
+ *	although we don't currently dissect AUTH_DES or AUTH_KERB.
  */
 
 #define RPC_RM_FRAGLEN  0x7fffffffL
@@ -950,8 +950,11 @@ dissect_rpc_authgss_initres(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
 
 
 static int
-call_dissect_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, dissect_function_t* dissect_function)
+call_dissect_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+	int offset, dissect_function_t* dissect_function, const char *progname)
 {
+	const char *saved_proto;
+
 	if (dissect_function != NULL) {
 		tvbuff_t *next_tvb;
 		const guint8 *next_pd;
@@ -967,9 +970,16 @@ call_dissect_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 		/* with this difference we can switch to/from old offsets */
 		offset_diff = next_offset - offset;
 
+		/* set the current protocol name */
+		saved_proto = pinfo->current_proto;
+		pinfo->current_proto = progname;
+
 		/* call the dissector for the next level */
 		next_offset = dissect_function(next_pd, next_offset,
 					pinfo->fd, tree);
+
+		/* restore the protocol name */
+		pinfo->current_proto = saved_proto;
 
 		/* correct the tvb offset */
 		offset = next_offset - offset_diff;
@@ -981,12 +991,13 @@ call_dissect_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 
 static int
 dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *tree, int offset, dissect_function_t* dissect_function)
+	proto_tree *tree, int offset, dissect_function_t* dissect_function,
+	const char *progname)
 {
 	guint32 length, seq;
 	
 	proto_item *gitem;
-	proto_tree *gtree;
+	proto_tree *gtree = NULL;
 
 	if (!tvb_bytes_exist(tvb, offset, 8)) return offset;
 	length = tvb_get_ntohl(tvb, offset+0);
@@ -1001,10 +1012,11 @@ dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 				    tvb, offset+0, 4, length);
 		proto_tree_add_uint(gtree, hf_rpc_authgss_seq,
 				    tvb, offset+4, 4, seq);
-		if (dissect_function != NULL)
-			/* offset = */
-			call_dissect_function(tvb, pinfo, gtree,
-				offset, dissect_function);
+	}
+	if (dissect_function != NULL) {
+		/* offset = */
+		call_dissect_function(tvb, pinfo, gtree, offset,
+				      dissect_function, progname);
 	}
 	offset += 8 + length;
 	offset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_rpc_authgss_checksum,
@@ -1048,7 +1060,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	unsigned int reject_state;
 
 	char *msg_type_name = NULL;
-	char *progname;
+	char *progname = NULL;
 	char *procname = NULL;
 	static char procname_static[20];
 
@@ -1571,13 +1583,15 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case RPCSEC_GSS_DATA:
 			if (gss_svc == RPCSEC_GSS_SVC_NONE) {
 				offset = call_dissect_function(tvb, 
-						pinfo, ptree, offset, 
-						dissect_function);
+						pinfo, ptree, offset,
+						dissect_function,
+						progname);
 			}
 			else if (gss_svc == RPCSEC_GSS_SVC_INTEGRITY) {
 				offset = dissect_rpc_authgss_integ_data(tvb,
 						pinfo, ptree, offset,
-						dissect_function);
+						dissect_function,
+						progname);
 			}
 			else if (gss_svc == RPCSEC_GSS_SVC_PRIVACY) {
 				offset = dissect_rpc_authgss_priv_data(tvb,
@@ -1585,13 +1599,12 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 			break;
 		default:
-			dissect_function = NULL;
 			break;
 		}
 	}
 	else {
 		offset=call_dissect_function(tvb, pinfo, ptree, offset,
-				dissect_function);
+				dissect_function, progname);
 	}
 
 	/* dissect any remaining bytes (incomplete dissection) as pure data in
