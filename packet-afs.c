@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.24 2000/11/19 16:58:57 gerald Exp $
+ * $Id: packet-afs.c,v 1.25 2000/11/30 14:09:14 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -542,23 +542,17 @@ dissect_fs_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 				OUT_FS_AFSVolSync();
 				break;	
 			case 133: /* Store data */
-				OUT_FS_AFSFetchStatus("Status");
-				OUT_FS_AFSVolSync();
-				break;
 			case 134: /* Store ACL */
-				OUT_FS_AFSFetchStatus("Status");
-				OUT_FS_AFSVolSync();
-				break;
 	 		case 135: /* Store status */
-				OUT_FS_AFSFetchStatus("Status");
-				OUT_FS_AFSVolSync();	
-				break;
 			case 136: /* Remove file */
 				OUT_FS_AFSFetchStatus("Status");
 				OUT_FS_AFSVolSync();
 				break;
 			case 137: /* create file */
-				OUT_FS_AFSFid("New File");
+			case 141: /* make dir */
+			case 161: /* lookup */
+			case 163: /* dfs symlink */
+				OUT_FS_AFSFid((opcode == 137)? "New File" : ((opcode == 141)? "New Directory" : "File"));
 				OUT_FS_AFSFetchStatus("File Status");
 				OUT_FS_AFSFetchStatus("Directory Status");
 				OUT_FS_AFSCallBack();
@@ -571,42 +565,25 @@ dissect_fs_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 				break;
 			case 139: /* symlink */
 				OUT_FS_AFSFid("Symlink");
-				OUT_FS_AFSFetchStatus("Symlink Status");
-				OUT_FS_AFSFetchStatus("Directory Status");
-				OUT_FS_AFSVolSync();
-				break;
 			case 140: /* link */
 				OUT_FS_AFSFetchStatus("Symlink Status");
-				OUT_FS_AFSFetchStatus("Directory Status");
-				OUT_FS_AFSVolSync();
-				break;	
-			case 141: /* make dir */
-				OUT_FS_AFSFid("New Directory");
-				OUT_FS_AFSFetchStatus("File Status");
-				OUT_FS_AFSFetchStatus("Directory Status");
-				OUT_FS_AFSCallBack();
-				OUT_FS_AFSVolSync();
-				break;
 			case 142: /* rmdir */
 				OUT_FS_AFSFetchStatus("Directory Status");
 				OUT_FS_AFSVolSync();
 				break;
 			case 143: /* old set lock */
-				/* nothing returned */
-				break;
 			case 144: /* old extend lock */
-				/* nothing returned */
-				break;
 			case 145: /* old release lock */
+			case 147: /* give up callbacks */
+			case 150: /* set volume status */
+			case 152: /* check token */ 
 				/* nothing returned */
 				break;
 			case 146: /* get statistics */
 				OUT_FS_ViceStatistics();
 				break;
-			case 147: /* give up callbacks */
-				/* nothing returned */
-				break;
 			case 148: /* get volume info */
+			case 154: /* n-get-volume-info */
 				OUT_FS_VolumeInfo();
 				break;
 			case 149: /* get volume status */
@@ -615,20 +592,11 @@ dissect_fs_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 				OUT_STRING(hf_afs_fs_offlinemsg);
 				OUT_STRING(hf_afs_fs_motd);
 				break;
-			case 150: /* set volume status */
-				/* nothing returned */
-				break;
 			case 151: /* root volume */
 				OUT_STRING(hf_afs_fs_volname);
 				break;
-			case 152: /* check token */ 
-				/* nothing returned */
-				break;
 			case 153: /* get time */
 				OUT_TIMESTAMP(hf_afs_fs_timestamp);
-				break;
-			case 154: /* n-get-volume-info */
-				OUT_FS_VolumeInfo();
 				break;
 			case 155: /* bulk status */
 				OUT_FS_AFSBulkStats();
@@ -636,11 +604,7 @@ dissect_fs_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 				OUT_FS_AFSVolSync();
 				break;
 			case 156: /* set lock */
-				OUT_FS_AFSVolSync();
-				break;
 			case 157: /* extend lock */
-				OUT_FS_AFSVolSync();
-				break;
 			case 158: /* release lock */
 				OUT_FS_AFSVolSync();
 				break;
@@ -652,23 +616,9 @@ dissect_fs_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 				OUT_DATE(hf_afs_fs_xstats_timestamp);
 				OUT_FS_AFS_CollData();
 				break;
-			case 161: /* lookup */
-				OUT_FS_AFSFid("File");
-				OUT_FS_AFSFetchStatus("File Status");
-				OUT_FS_AFSFetchStatus("Directory Status");
-				OUT_FS_AFSCallBack();
-				OUT_FS_AFSVolSync();
-				break;
 			case 162: /* flush cps */
 				OUT_UINT(hf_afs_fs_cps_spare2);
 				OUT_UINT(hf_afs_fs_cps_spare3);
-				break;
-			case 163: /* dfs symlink */
-				OUT_FS_AFSFid("File");
-				OUT_FS_AFSFetchStatus("File Status");
-				OUT_FS_AFSFetchStatus("Directory Status");
-				OUT_FS_AFSCallBack();
-				OUT_FS_AFSVolSync();
 				break;
 		}
 	}
