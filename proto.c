@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.14 1999/08/13 23:47:43 gram Exp $
+ * $Id: proto.c,v 1.15 1999/08/14 01:26:38 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -496,7 +496,6 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 		hfinfo->type == FT_VALS_UINT24 || hfinfo->type == FT_VALS_UINT32));
 
 	hfinfo->parent = parent;
-	hfinfo->color = 0;
 
 	/* if we always add and never delete, then id == len - 1 is correct */
 	g_ptr_array_add(gpa_hfinfo, hfinfo);

@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.5 1999/08/01 04:28:09 gram Exp $
+ * $Id: proto.h,v 1.6 1999/08/14 01:26:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -81,7 +81,6 @@ typedef struct header_field_info {
 	struct value_string		*vals;
 	int				id; /* assigned by order of registration */
 	int				parent; /* parent protocol */
-	int				color;  /* for use by GUI code */
 } header_field_info;
 
 /* Used when registering many fields at once */
