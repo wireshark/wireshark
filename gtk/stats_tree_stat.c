@@ -159,7 +159,17 @@ static void draw_gtk_tree( void *psp  ) {
 
 	for (child = st->root.children; child; child = child->next ) {
 		draw_gtk_node(child);
+
+#if GTK_MAJOR_VERSION >= 2
+		gtk_tree_view_expand_row(GTK_TREE_VIEW(st->pr->tree),
+								 gtk_tree_model_get_path(GTK_TREE_MODEL(st->pr->store),
+														 child->pr->iter),
+								 FALSE);
+#else
+		gtk_ctree_expand(GTK_CTREE(st->pr->ctree),child->pr->node);
+#endif
 	}
+
 }
 
 void protect_thread_critical_region(void);
