@@ -2,7 +2,7 @@
  * Routines for SSCOP (Q.2110, Q.SAAL) frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sscop.c,v 1.3 1999/11/19 09:55:38 guy Exp $
+ * $Id: packet-sscop.c,v 1.4 1999/11/23 07:19:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -72,6 +72,8 @@ static gint ett_sscop = -1;
 #define	SSCOP_ER	0x09	/* Error Recovery */
 #define	SSCOP_ERAK	0x0f	/* Error Acknowledge */
 
+#define	SSCOP_S		0x10	/* Source bit in End PDU */
+
 /*
  * XXX - how to distinguish SDP from ER?
  */
@@ -112,7 +114,7 @@ static const value_string sscop_type_vals[] = {
  * PDU, Resynchronization Acknowledge PDU (no N(SQ) in it in Q.SAAL),
  * Error Recovery PDU, Error Recovery Acknoledge PDU (no N(SQ) in it).
  */
-#define	SSCOP_N_SQ	(pi.len - 8)	/* lower 3 bytes thereof */
+#define	SSCOP_N_SQ	(pi.len - 5)	/* One byte */
 #define	SSCOP_N_MR	(pi.len - 4)	/* lower 3 bytes thereof */
 
 /*
@@ -166,12 +168,17 @@ dissect_sscop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     pdu_len = 4;
     break;
 
+  case SSCOP_BGN:
+  case SSCOP_BGAK:
+  case SSCOP_BGREJ:
+  case SSCOP_END:
+  case SSCOP_RS:
 #if 0
   case SSCOP_SDP:
+#endif
     pad_len = (pd[SSCOP_PDU_TYPE] >> 6) & 0x03;
     pdu_len = 8;
     break;
-#endif
 
   case SSCOP_UD:
     pad_len = (pd[SSCOP_PDU_TYPE] >> 6) & 0x03;
@@ -187,18 +194,29 @@ dissect_sscop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     ti = proto_tree_add_item_format(tree, proto_sscop, pi.len - pdu_len,
     					pdu_len, NULL, "SSCOP");
     sscop_tree = proto_item_add_subtree(ti, ett_sscop);
+
+    proto_tree_add_text(sscop_tree, SSCOP_PDU_TYPE, 1,
+			"PDU Type: %s",
+			val_to_str(pdu_type, sscop_type_vals,
+				"Unknown (0x%02x)"));
+
     switch (pdu_type) {
 
     case SSCOP_BGN:
-    case SSCOP_BGAK:
     case SSCOP_RS:
     case SSCOP_ER:
-      proto_tree_add_text(sscop_tree, SSCOP_N_SQ + 1, 3,
-          "N(SQ): %u", pntohl(&pd[SSCOP_N_SQ]) & 0xFFFFFF);
+      proto_tree_add_text(sscop_tree, SSCOP_N_SQ, 1,
+          "N(SQ): %u", pd[SSCOP_N_SQ]);
       proto_tree_add_text(sscop_tree, SSCOP_N_MR + 1, 3,
           "N(MR): %u", pntohl(&pd[SSCOP_N_MR]) & 0xFFFFFF);
       break;
 
+    case SSCOP_END:
+      proto_tree_add_text(sscop_tree, SSCOP_PDU_TYPE, 1,
+          "Source: %s", (pd[SSCOP_PDU_TYPE] & SSCOP_S) ? "SSCOP" : "User");
+      break;
+
+    case SSCOP_BGAK:
     case SSCOP_RSAK:
       proto_tree_add_text(sscop_tree, SSCOP_N_MR + 1, 3,
           "N(MR): %u", pntohl(&pd[SSCOP_N_MR]) & 0xFFFFFF);
@@ -246,11 +264,6 @@ dissect_sscop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
           "N(R): %u", pntohl(&pd[SSCOP_SS_N_R]) & 0xFFFFFF);
       break;
     }
-
-    proto_tree_add_text(sscop_tree, SSCOP_PDU_TYPE, 1,
-			"PDU Type: %s",
-			val_to_str(pdu_type, sscop_type_vals,
-				"Unknown (0x%02x)"));
   }
 
   /*
@@ -262,6 +275,14 @@ dissect_sscop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
   case SSCOP_SD:
   case SSCOP_UD:
+  case SSCOP_BGN:
+  case SSCOP_BGAK:
+  case SSCOP_BGREJ:
+  case SSCOP_END:
+  case SSCOP_RS:
+#if 0
+  case SSCOP_SDP:
+#endif
     if (tree) {
       proto_tree_add_text(sscop_tree, SSCOP_PDU_TYPE, 1,
 			"Pad length: %u", pad_len);
@@ -279,11 +300,12 @@ dissect_sscop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
      * XXX - if more than just Q.2931 uses SSCOP, we need to tell
      * SSCOP what dissector to use here.
      */
-#if 1
-    dissect_q2931(pd, offset, fd, tree);
-#else
-    dissect_data(pd, offset, fd, tree);
-#endif
+    if (pi.len != 0) {
+      if (pdu_type == SSCOP_SD)
+        dissect_q2931(pd, offset, fd, tree);
+      else
+        dissect_data(pd, offset, fd, tree);
+    }
     break;
   }
 }
