@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.99 2002/08/21 21:05:08 guy Exp $
+ * $Id: packet-rpc.c,v 1.100 2002/08/21 21:10:10 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1003,7 +1003,7 @@ dissect_rpc_verf(tvbuff_t* tvb, proto_tree* tree, int offset, int msg_type)
 }
 
 static int
-dissect_rpc_authgss_initarg(tvbuff_t* tvb, proto_tree* tree, int offset)
+dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset)
 {
 	/*
 	 * XXX - should this use the GSS-API token dissector?
@@ -1014,6 +1014,12 @@ dissect_rpc_authgss_initarg(tvbuff_t* tvb, proto_tree* tree, int offset)
 	offset = dissect_rpc_data(tvb, tree, hf_rpc_authgss_token,
 			offset);
 	return offset;
+}
+
+static int
+dissect_rpc_authgss_initarg(tvbuff_t* tvb, proto_tree* tree, int offset)
+{
+	return dissect_rpc_authgss_token(tvb, tree, offset);
 }
 
 static int
@@ -1042,8 +1048,7 @@ dissect_rpc_authgss_initres(tvbuff_t* tvb, proto_tree* tree, int offset)
 				    offset+0, 4, window);
 	offset += 4;
 
-	offset = dissect_rpc_data(tvb, tree, hf_rpc_authgss_token,
-			offset);
+	offset = dissect_rpc_authgss_token(tvb, tree, offset);
 
 	return offset;
 }
