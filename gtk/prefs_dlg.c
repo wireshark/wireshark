@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.62 2003/10/02 21:06:11 guy Exp $
+ * $Id: prefs_dlg.c,v 1.63 2003/10/02 21:18:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -687,8 +687,7 @@ create_preference_radio_buttons(GtkWidget *main_tb, int table_position,
 		button = gtk_radio_button_new_with_label(rb_group,
 		    enum_valp->name);
 		gtk_widget_show(button);
-		if (rb_group == NULL)
-			rb_group = gtk_radio_button_group(GTK_RADIO_BUTTON(button));
+		rb_group = gtk_radio_button_group(GTK_RADIO_BUTTON(button));
 		gtk_box_pack_start(GTK_BOX(radio_button_hbox), button, FALSE,
 		    FALSE, 10);
 		if (enum_valp->value == current_val) {
