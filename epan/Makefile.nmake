@@ -35,10 +35,10 @@ OBJECTS=conversation.obj \
 	tvbuff.obj       \
 
 # For use when making ethereal.dll
-#ethereal.dll ethereal.lib	: ..\config.h $(OBJECTS)
+#ethereal.dll ethereal.lib	: config.h $(OBJECTS)
 #	link /DLL /out:ethereal.dll $(OBJECTS) $(libethereal_LIBS)
 
-ethereal.lib	: ..\config.h $(OBJECTS)
+ethereal.lib	: config.h $(OBJECTS)
 	lib /out:ethereal.lib $(OBJECTS)
 
 dfilter-scanner.obj : dfilter-scanner.c dfilter-grammar.h
@@ -49,8 +49,8 @@ dfilter-scanner.c : dfilter-scanner.l
 dfilter-grammar.c dfilter-grammar.h : dfilter-grammar.y
 	$(YACC) $(YACC_OPTS) -d -p dfilter_ dfilter-grammar.y -o dfilter-grammar.c
 
-..\config.h	: ..\config.h.win32
-	copy ..\config.h.win32 ..\config.h
+config.h	: config.h.win32
+	copy config.h.win32 $@
 
 clean:
 	rm -f $(OBJECTS) ethereal.lib

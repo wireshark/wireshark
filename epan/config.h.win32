@@ -1,0 +1,94 @@
+/* $Id: config.h.win32,v 1.1 2000/10/17 09:25:37 guy Exp $ */
+/* config.h.win32 Generated manually. :-) */
+/* config.h.  Generated automatically by configure.  */
+/* config.h.in.  Generated automatically from configure.in by autoheader.  */
+
+/* Define if you have the ANSI C header files.  */
+#define STDC_HEADERS 1
+
+/* Define if lex declares yytext as a char * by default, not a char[].  */
+#define YYTEXT_POINTER 1
+
+#define HAVE_PLUGINS 1
+
+#define DATAFILE_DIR "/usr/local/etc"
+
+#define NEED_INET_ATON_H 1
+
+#define NEED_INET_V6DEFS_H 1
+
+/* Define if you have the <arpa/inet.h> header file.  */
+/* #undef HAVE_ARPA_INET_H */
+
+/* Define if you have the <arpa/nameser.h> header file.  */
+/* #undef HAVE_ARPA_NAMESER_H */
+
+/* Define if you have the <direct.h> header file.  */
+#define HAVE_DIRECT_H 1
+
+/* Define if you have the <dirent.h> header file.  */
+/* #undef HAVE_DIRENT_H */
+
+/* Define if you have the <dlfcn.h> header file.  */
+/* #undef HAVE_DLFCN_H */
+
+/* Define if you have the <fcntl.h> header file.  */
+#define HAVE_FCNTL_H 1
+
+/* Define if you have the <netdb.h> header file.  */
+/* #undef HAVE_NETDB_H */
+
+/* Define if you have the <netinet/in.h> header file.  */
+/* #define HAVE_NETINET_IN_H 1 */
+
+/* Define if you have the <stdarg.h> header file.  */
+#define HAVE_STDARG_H 1
+
+/* Define if you have the <sys/param.h> header file.  */
+/* #undef HAVE_SYS_PARAM_H */
+
+/* Define if you have the <sys/socket.h> header file.  */
+/* #undef HAVE_SYS_SOCKET_H */
+
+/* Define if you have the <sys/stat.h> header file.  */
+#define HAVE_SYS_STAT_H 1
+
+/* Define if you have the <sys/time.h> header file.  */
+/* #undef HAVE_SYS_TIME_H */
+
+/* Define if you have the <sys/types.h> header file.  */
+#define HAVE_SYS_TYPES_H 1
+
+/* Define if you have the <unistd.h> header file.  */
+/* #undef HAVE_UNISTD_H */
+
+#define HAVE_PLUGINS		1
+#define PLUGINS_NEED_ADDRESS_TABLE 1
+
+#ifndef WIN32
+#define WIN32			1
+#endif
+
+#define HAVE_WINDOWS_H		1
+#define HAVE_WINSOCK_H		1
+#define HAVE_DIRECT_H		1
+#define HAVE_IO_H		1
+#define NEED_GETOPT_H		1
+#define snprintf 		_snprintf
+#define vsnprintf 		_vsnprintf
+#define strcasecmp		stricmp
+#define strncasecmp		strnicmp
+#define open			_open
+#define close			_close
+#define popen			_popen
+#define pclose			_pclose
+
+/* Needed for zlib, according to http://www.winimage.com/zLibDll/ */
+/*#define ZLIB_DLL                1
+#define _WINDOWS                1*/
+
+/* Name of package */
+#define PACKAGE "libethereal.a"
+
+/* Version number of package */
+#define VERSION "0.0.0"
