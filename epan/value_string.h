@@ -1,7 +1,7 @@
 /* value_string.h
  * Definitions for value_string structures and routines
  *
- * $Id: value_string.h,v 1.1 2001/04/01 03:18:41 hagbard Exp $
+ * $Id: value_string.h,v 1.2 2001/11/04 03:55:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,10 +35,10 @@ typedef struct _value_string {
   gchar   *strptr;
 } value_string;
 
-gchar*     match_strval(guint32, const value_string*);
+extern gchar*     match_strval(guint32, const value_string*);
 
-gchar*     val_to_str(guint32, const value_string *, const char *);
-const char *decode_enumerated_bitfield(guint32 val, guint32 mask, int width,
-  const value_string *tab, const char *fmt);
+extern gchar*     val_to_str(guint32, const value_string *, const char *);
+extern const char *decode_enumerated_bitfield(guint32 val, guint32 mask,
+  int width, const value_string *tab, const char *fmt);
 
 #endif /* __VALUE_STRING_H__ */

@@ -1,7 +1,7 @@
 /* conversation.h
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.h,v 1.7 2001/10/31 05:59:19 guy Exp $
+ * $Id: conversation.h,v 1.8 2001/11/04 03:55:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,27 +64,27 @@ typedef struct conversation {
 
 extern void conversation_init(void);
 
-conversation_t *conversation_new(address *addr1, address *addr2,
+extern conversation_t *conversation_new(address *addr1, address *addr2,
     port_type ptype, guint32 port1, guint32 port2, guint options);
 
-conversation_t *find_conversation(address *addr_a, address *addr_b,
+extern conversation_t *find_conversation(address *addr_a, address *addr_b,
     port_type ptype, guint32 port_a, guint32 port_b, guint options);
 
-void conversation_add_proto_data(conversation_t *conv, int proto,
+extern void conversation_add_proto_data(conversation_t *conv, int proto,
     void *proto_data);
-void *conversation_get_proto_data(conversation_t *conv, int proto);
-void conversation_delete_proto_data(conversation_t *conv, int proto);
+extern void *conversation_get_proto_data(conversation_t *conv, int proto);
+extern void conversation_delete_proto_data(conversation_t *conv, int proto);
 
-void conversation_set_dissector(conversation_t *conversation,
+extern void conversation_set_dissector(conversation_t *conversation,
     dissector_t dissector);
-gboolean
+extern gboolean
 try_conversation_dissector(address *addr_a, address *addr_b, port_type ptype,
     guint32 port_a, guint32 port_b, tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree);
 
 /* These routines are used to set undefined values for a conversation */
 
-void conversation_set_port2(conversation_t *conv, guint32 port);
-void conversation_set_addr2(conversation_t *conv, address *addr);
+extern void conversation_set_port2(conversation_t *conv, guint32 port);
+extern void conversation_set_addr2(conversation_t *conv, address *addr);
 
 #endif /* conversation.h */
