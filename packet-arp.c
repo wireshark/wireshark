@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.58 2004/02/28 22:56:35 guy Exp $
+ * $Id: packet-arp.c,v 1.59 2004/06/17 08:32:59 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -670,6 +670,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int         sha_offset, spa_offset, tha_offset, tpa_offset;
   const guint8      *sha_val, *spa_val, *tha_val, *tpa_val;
   gchar       *sha_str, *spa_str, *tha_str, *tpa_str;
+  gboolean    is_gratuitous;
 
   /* Call it ARP, for now, so that if we throw an exception before
      we decide whether it's ARP or RARP or IARP or ATMARP, it shows
@@ -682,14 +683,19 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO))
       col_clear(pinfo->cinfo, COL_INFO);
 
+  /* Hardware Address Type */
   ar_hrd = tvb_get_ntohs(tvb, AR_HRD);
   if (ar_hrd == ARPHRD_ATM2225) {
     call_dissector(atmarp_handle, tvb, pinfo, tree);
     return;
   }
+  /* Protocol Address Type */
   ar_pro = tvb_get_ntohs(tvb, AR_PRO);
+  /* Hardware Address Size */
   ar_hln = tvb_get_guint8(tvb, AR_HLN);
+  /* Protocol Address Size */
   ar_pln = tvb_get_guint8(tvb, AR_PLN);
+  /* Operation */
   ar_op  = tvb_get_ntohs(tvb, AR_OP);
 
   tot_len = MIN_ARP_HEADER_SIZE + ar_hln*2 + ar_pln*2;
@@ -700,9 +706,13 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvb_set_reported_length(tvb, tot_len);
 
   /* Get the offsets of the addresses. */
+  /* Source Hardware Address */
   sha_offset = MIN_ARP_HEADER_SIZE;
+  /* Source Protocol Address */
   spa_offset = sha_offset + ar_hln;
+  /* Target Hardware Address */
   tha_offset = spa_offset + ar_pln;
+  /* Target Protocol Address */
   tpa_offset = tha_offset + ar_hln;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
@@ -726,7 +736,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
+  if (tree || check_col(pinfo->cinfo, COL_INFO)) {
     sha_val = tvb_get_ptr(tvb, sha_offset, ar_hln);
     sha_str = arphrdaddr_to_str(sha_val, ar_hln, ar_hrd);
 
@@ -738,9 +748,19 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_pln);
     tpa_str = arpproaddr_to_str(tpa_val, ar_pln, ar_pro);
+
+    if ((ar_op == ARPOP_REQUEST) && !strcmp(tpa_str, spa_str))
+	is_gratuitous = TRUE;
+    else
+	is_gratuitous = FALSE;
+  }
+  if (check_col(pinfo->cinfo, COL_INFO)) {
     switch (ar_op) {
       case ARPOP_REQUEST:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s", tpa_str, spa_str);
+	if (is_gratuitous)
+          col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Gratuitous arp", tpa_str);
+	else
+          col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s", tpa_str, spa_str);
         break;
       case ARPOP_REPLY:
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s", spa_str, sha_str);
@@ -788,10 +808,12 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (tree) {
-    if ((op_str = match_strval(ar_op, op_vals)))
+    if ((op_str = match_strval(ar_op, op_vals)))  {
+      if (is_gratuitous)
+        op_str = "request/gratuitous arp";
       ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
 					"Address Resolution Protocol (%s)", op_str);
-    else
+    } else
       ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
 				      "Address Resolution Protocol (opcode 0x%04x)", ar_op);
     arp_tree = proto_item_add_subtree(ti, ett_arp);
