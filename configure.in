@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.197 2003/02/28 06:44:57 guy Exp $
+# $Id: configure.in,v 1.198 2003/03/01 04:56:48 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -619,7 +619,7 @@ else
 	fi
 fi
 
-if test "x$have_net_snmp" = "xyes" && test "x$have_ucd_snmp" = "xyes"; then
+if test "x$have_net_snmp" = "xyes" || test "x$have_ucd_snmp" = "xyes"; then
 	AC_DEFINE(HAVE_SOME_SNMP, 1, [Define to if some SNMP support is to be used])
 fi
 
