@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.31 2004/03/23 21:19:57 guy Exp $
+ * $Id: plugin_api_list.c,v 1.32 2004/03/25 09:17:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -415,13 +415,19 @@ void report_read_failure(const char *filename, int err);
 guint32 dissect_per_bit_string(tvbuff_t*, guint32, packet_info*, proto_tree*, int, int, int);
 
 int dissect_ber_identifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint8 *class, gboolean *pc, guint32 *tag);
-int dissect_ber_length(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 *length);
-int dissect_ber_octet_string(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, ber_callback func);
+int dissect_ber_length(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind);
 int dissect_ber_integer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, guint32 *value);
 int dissect_ber_boolean(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);
-int dissect_ber_sequence(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_sequence *seq, gint hf_id, gint ett_id);
 int dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_choice *ch, gint hf_id, gint ett_id);
-int dissect_ber_GeneralString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, char *name_string, int name_len);
-int dissect_ber_sequence_of(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_callback func, gint hf_id, gint ett_id);
 int dissect_ber_generalized_time(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);
-int dissect_ber_bitstring(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, gint hf_id, gint ett_id, unsigned char *bitstring, int bitstring_len, proto_item **it, proto_tree **tr);
+int dissect_ber_sequence(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_sequence *seq, gint hf_id, gint ett_id);
+int dissect_ber_sequence_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_sequence *seq, gint hf_id, gint ett_id);
+int dissect_ber_set_of(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_sequence *seq, gint hf_id, gint ett_id);
+int dissect_ber_octet_string(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **tvb_out);
+int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn_namedbit *named_bits, gint hf_id, gint ett_id, tvbuff_t **tvb_out);
+int dissect_ber_restricted_string(gboolean implicit_tag, guint32 type, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **tvb_out);
+int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, char *value_string);
+int get_ber_identifier(tvbuff_t *tvb, int offset, guint8 *class, gboolean *pc, guint32 *tag);
+int get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind);
+proto_tree* proto_item_get_subtree(proto_item *ti);
+proto_item* proto_tree_get_parent(proto_tree *tree);

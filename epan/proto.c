@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.129 2004/01/03 18:40:08 sharpe Exp $
+ * $Id: proto.c,v 1.130 2004/03/25 09:17:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2172,6 +2172,25 @@ proto_item_add_subtree(proto_item *pi,  gint idx) {
 	g_assert(idx >= 0 && idx < num_tree_types);
 	fi->tree_type = idx;
 	return (proto_tree*) pi;
+}
+
+proto_tree*
+proto_item_get_subtree(proto_item *pi) {
+	field_info *fi;
+
+	if (!pi)
+		return(NULL);
+	fi = PITEM_FINFO(pi);
+	if (fi->tree_type == -1)
+		return(NULL);
+	return (proto_tree*) pi;
+}
+
+proto_item* 
+proto_tree_get_parent(proto_tree *tree) {
+	if (!tree)
+		return (NULL);
+	return (proto_item*) tree;
 }
 
 static gint

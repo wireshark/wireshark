@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.55 2004/01/03 18:40:08 sharpe Exp $
+ * $Id: proto.h,v 1.56 2004/03/25 09:17:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -204,6 +204,12 @@ extern void proto_tree_free(proto_tree *tree);
 
 /* Create a subtree under an existing item; returns tree pointer */
 extern proto_tree* proto_item_add_subtree(proto_item *ti, gint idx);
+
+/* Get a subtree under an item; returns tree pointer */
+extern proto_tree* proto_item_get_subtree(proto_item *ti);
+
+/* Get a parent item of subtree; returns item pointer */
+extern proto_item* proto_tree_get_parent(proto_tree *tree);
 
 extern int
 proto_register_field(char *name, char *abbrev, enum ftenum type, int parent,
