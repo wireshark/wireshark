@@ -1,4 +1,4 @@
-$Id: README,v 1.20 2000/02/17 21:08:14 oabad Exp $
+$Id: README,v 1.21 2000/02/19 08:49:16 guy Exp $
 
 Wiretap is a library that is being developed as a future replacement for
 libpcap, the current standard Unix library for packet capturing. Libpcap
@@ -110,6 +110,10 @@ nettl -tn 0x30000000 -e NS_LS_IP -f tracefile
 nettl -tn 0x30000000 -e SX25l2 -d /dev/x25_0 -f tracefile
 # stop capture. subsystem is NS_LS_IP or SX25L2 :
 nettl -tf -e subsystem
+
+One may be able to specify "-tn pduin pduout" rather than
+"-tn 0x30000000"; the nettl man page for HP-UX 10.30 implies that it
+should work.
 
 Toshiba ISDN Router
 -------------------
