@@ -1,7 +1,7 @@
 /* packet-osi.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-osi.c,v 1.14 2000/01/13 00:41:11 guy Exp $
+ * $Id: packet-osi.c,v 1.15 2000/01/13 05:41:24 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
@@ -1590,6 +1590,7 @@ const value_string nlpid_vals[] = {
 	{ NLPID_ISO10589_ISIS,   "ISIS" },
 	{ NLPID_ISO9542X25_ESIS, "ESIS (X.25)" },
 	{ NLPID_IP,              "IP" },
+	{ NLPID_PPP,             "PPP" },
 	{ 0,                     NULL },
 };
 

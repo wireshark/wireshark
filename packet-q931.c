@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.12 1999/12/14 23:25:17 guy Exp $
+ * $Id: packet-q931.c,v 1.13 2000/01/13 05:41:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 #include <glib.h>
 #include <string.h>
 #include "packet.h"
+#include "nlpid.h"
 #include "packet-q931.h"
 
 /* Q.931 references:
@@ -505,12 +506,6 @@ static const value_string q931_uil3_vals[] = {
 	{ 0,			NULL }
 };
 
-static const value_string q931_uil3_tr_9577_vals[] = {
-	{ 0xCC, "IP" },
-	{ 0xCF, "PPP" },
-	{ 0x00, NULL }
-};
-
 void
 dissect_q931_bearer_capability_ie(const u_char *pd, int offset, int len,
     proto_tree *tree)
@@ -835,7 +830,7 @@ l2_done:
 			add_l3_info |= (octet & 0x0F);
 			proto_tree_add_text(tree, offset, 2,
 			    "Additional layer 3 protocol information: %s",
-			    val_to_str(add_l3_info, q931_uil3_tr_9577_vals,
+			    val_to_str(add_l3_info, nlpid_vals,
 			      "Unknown (0x%02X)"));
 			offset += 2;
 			len -= 2;

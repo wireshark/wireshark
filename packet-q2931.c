@@ -2,7 +2,7 @@
  * Routines for Q.2931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q2931.c,v 1.6 1999/12/29 05:19:59 guy Exp $
+ * $Id: packet-q2931.c,v 1.7 2000/01/13 05:41:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,7 @@
 #include <string.h>
 #include "packet.h"
 #include "oui.h"
+#include "nlpid.h"
 #include "packet-q931.h"
 #include "packet-arp.h"
 
@@ -769,14 +770,6 @@ static const value_string q2931_uil3_vals[] = {
 	{ 0,			NULL }
 };
 
-#define	Q2931_TR_9577_IPI_SNAP	0x80
-static const value_string q2931_uil3_tr_9577_vals[] = {
-	{ 0xCC,                   "IP" },
-	{ 0xCF,                   "PPP" },
-	{ Q2931_TR_9577_IPI_SNAP, "SNAP" },
-	{ 0x00,                   NULL }
-};
-
 static const value_string lane_pid_vals[] = {
 	{ 0x0001, "LE Configuration Direct/Control Direct/Control Distribute" },
 	{ 0x0002, "Ethernet/IEEE 002.3 LE Data Direct" },
@@ -934,11 +927,11 @@ l2_done:
 			add_l3_info |= (pd[offset + 1] & 0x40) >> 6;
 			proto_tree_add_text(tree, offset, 2,
 			    "Additional layer 3 protocol information: %s",
-			    val_to_str(add_l3_info, q2931_uil3_tr_9577_vals,
+			    val_to_str(add_l3_info, nlpid_vals,
 			      "Unknown (0x%02X)"));
 			offset += 2;
 			len -= 2;
-			if (add_l3_info == Q2931_TR_9577_IPI_SNAP) {
+			if (add_l3_info == NLPID_SNAP) {
 				if (len < 6)
 					return;
 				offset += 1;
