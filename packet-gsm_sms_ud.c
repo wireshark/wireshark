@@ -1,7 +1,7 @@
 /* packet-gsm_sms_ud.c
  * Routines for GSM SMS TP-UD (GSM 03.40) dissection
  *
- * $Id: packet-gsm_sms_ud.c,v 1.4 2004/01/27 17:17:31 obiot Exp $
+ * $Id: packet-gsm_sms_ud.c,v 1.5 2004/01/29 21:19:10 obiot Exp $
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
@@ -85,8 +85,8 @@ static int hf_gsm_sms_ud_fragment_overlap = -1;
 static int hf_gsm_sms_ud_fragment_overlap_conflicts = -1;
 static int hf_gsm_sms_ud_fragment_multiple_tails = -1;
 static int hf_gsm_sms_ud_fragment_too_long_fragment = -1;
-static int hf_gsm_sms_ud_fragment_error	= -1;
-static int hf_gsm_sms_ud_reassembled_in	= -1;
+static int hf_gsm_sms_ud_fragment_error = -1;
+static int hf_gsm_sms_ud_reassembled_in = -1;
 /*
  * User Data Header section
  */
@@ -136,6 +136,8 @@ static gboolean port_number_udh_means_wsp = FALSE;
 /* Always try dissecting the 1st fragment of a SM,
  * even if it is not reassembled */
 static gboolean try_dissect_1st_frag = FALSE;
+/* Prevent subdissectors changing column data */
+static gboolean prevent_subdissectors_changing_columns = FALSE;
 
 static dissector_handle_t wsp_handle;
 
@@ -212,9 +214,6 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
 	gboolean ports_available = FALSE;
 
 	udh_len = tvb_get_guint8(tvb, i++);
-#ifdef DEBUG
-printf("udhlen %d\n", udh_len);
-#endif
 	tree = proto_tree_add_uint(sm_tree, hf_gsm_sms_udh_length, tvb, 0, 1, udh_len);
 	tree = proto_item_add_subtree(tree, ett_udh);
 	while (i < udh_len) {
@@ -225,10 +224,11 @@ printf("udhlen %d\n", udh_len);
 		switch (udh) {
 			case 0x00: /* Multiple messages - 8-bit message ID */
 				if (len == 3) {
-					is_fragmented = TRUE;
 					sm_id = tvb_get_guint8(tvb, i++);
 					frags = tvb_get_guint8(tvb, i++);
 					frag  = tvb_get_guint8(tvb, i++);
+					if (frags > 1)
+						is_fragmented = TRUE;
 					proto_item_append_text(subtree,
 							": message %u, part %u of %u", sm_id, frag, frags);
 					subtree = proto_item_add_subtree(subtree,
@@ -250,10 +250,11 @@ printf("udhlen %d\n", udh_len);
 
 			case 0x08: /* Multiple messages - 16-bit message ID */
 				if (len == 4) {
-					is_fragmented = TRUE;
 					sm_id = tvb_get_ntohs(tvb, i); i += 2;
 					frags = tvb_get_guint8(tvb, i++);
 					frag  = tvb_get_guint8(tvb, i++);
+					if (frags > 1)
+						is_fragmented = TRUE;
 					proto_item_append_text(subtree,
 							": message %u, part %u of %u", sm_id, frag, frags);
 					subtree = proto_item_add_subtree(subtree,
@@ -384,6 +385,13 @@ printf("udhlen %d\n", udh_len);
 			 *  - the preference "Always Try Dissection for 1st SM fragment"
 			 *    is switched on, and this is the SM's 1st fragment. */
 			if ( ports_available ) {
+				gboolean disallow_write = FALSE; /* TRUE if we changed writability
+								    of the columns of the summary */
+				if ( prevent_subdissectors_changing_columns && col_get_writable(pinfo->cinfo) ) {
+					disallow_write = TRUE;
+					col_set_writable(pinfo->cinfo, FALSE);
+				}				
+
 				if ( port_number_udh_means_wsp ) {
 					call_dissector (wsp_handle, sm_tvb, pinfo, top_tree);
 				} else {
@@ -398,6 +406,9 @@ printf("udhlen %d\n", udh_len);
 						}
 					}
 				}
+				
+				if ( disallow_write )
+					col_set_writable(pinfo->cinfo, TRUE);
 			} else { /* No ports IE */
 				proto_tree_add_text (sm_tree, sm_tvb, 0, -1,
 						"Short Message body");
@@ -601,6 +612,11 @@ proto_register_gsm_sms_ud(void)
 	    "may be dissected twice (once as a short frame, once in its "
 	    "entirety).",
 	    &try_dissect_1st_frag);
+    prefs_register_bool_preference (gsm_sms_ud_module, "prevent_dissectors_chg_cols",
+    	    "Prevent sub-dissectors from changing column data",
+	    "Prevent sub-dissectors from replacing column data with their "
+	    "own. Eg. Prevent WSP dissector overwriting SMPP information.",
+	    &prevent_subdissectors_changing_columns);
 
     register_dissector("gsm-sms-ud", dissect_gsm_sms_ud, proto_gsm_sms_ud);
 
@@ -614,6 +630,7 @@ proto_reg_handoff_gsm_sms_ud(void)
 	dissector_handle_t gsm_sms_ud_handle;
 	gsm_sms_ud_handle = create_dissector_handle(dissect_gsm_sms_ud,
 			proto_gsm_sms_ud);
+			
 	wsp_handle = find_dissector("wsp-cl");
 	g_assert(wsp_handle);
 }
