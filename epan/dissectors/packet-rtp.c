@@ -199,7 +199,7 @@ void rtp_add_address(packet_info *pinfo,
                      gchar *setup_method, guint32 setup_frame_number)
 {
 	address src_addr;
-	conversation_t* p_conv = NULL;
+	conversation_t* p_conv;
 	struct _rtp_conversation_info *p_conv_data = NULL;
 
 	/*
@@ -218,42 +218,44 @@ void rtp_add_address(packet_info *pinfo,
 
 	/*
 	 * Check if the ip address and port combination is not
-	 * already registered
+	 * already registered as a conversation.
 	 */
 	p_conv = find_conversation( &src_addr, &src_addr, PT_UDP, port, other_port,
                                 NO_ADDR_B | (!other_port ? NO_PORT_B : 0));
 
 	/*
-	 * If not, add
+	 * If not, create a new conversation.
 	 */
 	if ( ! p_conv ) {
-		/* Create conversation data */
-		p_conv_data = g_mem_chunk_alloc(rtp_conversations);
-
-		/* Check length first time we look at method string */
-		strncpy(p_conv_data->method, setup_method,
-		        (strlen(setup_method)+1 <= MAX_RTP_SETUP_METHOD_SIZE) ?
-		             strlen(setup_method)+1 :
-		             MAX_RTP_SETUP_METHOD_SIZE);
-		p_conv_data->method[MAX_RTP_SETUP_METHOD_SIZE] = '\0';
-		p_conv_data->frame_number = setup_frame_number;
-
-		/* Create conversation with this data */
 		p_conv = conversation_new( &src_addr, &src_addr, PT_UDP,
 		                           (guint32)port, (guint32)other_port,
 								   NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
-		conversation_add_proto_data(p_conv, proto_rtp, p_conv_data);
+	}
 
-		/* Set dissector */
-		conversation_set_dissector(p_conv, rtp_handle);
+	/* Set dissector */
+	conversation_set_dissector(p_conv, rtp_handle);
+
+	/*
+	 * Check if the conversation has data associated with it.
+	 */
+	p_conv_data = conversation_get_proto_data(p_conv, proto_rtp);
+
+	/*
+	 * If not, add a new data item.
+	 */
+	if ( ! p_conv_data ) {
+		/* Create conversation data */
+		p_conv_data = g_mem_chunk_alloc(rtp_conversations);
+
+		conversation_add_proto_data(p_conv, proto_rtp, p_conv_data);
 	}
-	else
-	{
-		/* Update existing conversation data */
-		p_conv_data = conversation_get_proto_data(p_conv, proto_rtp);
-		strcpy(p_conv_data->method, setup_method);
-		p_conv_data->frame_number = setup_frame_number;
-	}
+
+	/*
+	 * Update the conversation data.
+	 */
+	strncpy(p_conv_data->method, setup_method, MAX_RTP_SETUP_METHOD_SIZE);
+	p_conv_data->method[MAX_RTP_SETUP_METHOD_SIZE] = '\0';
+	p_conv_data->frame_number = setup_frame_number;
 }
 
 static void rtp_init( void )
