@@ -150,6 +150,14 @@ Sets the default capture file name.
 
 Open, close, or reload a capture file.
 
+=item File:Print
+
+Prints, for all the packets in the current capture, the packet number,
+followed by  a description of each protocol header found in the packet,
+followed by the packet data itself.  Printing options can be set with the
+I<Edit:Preferences> menu item, or in the dialog box popped up by this
+item.
+
 =item File:Print Packet
 
 Print a description of each protocol header found in the packet, followed
