@@ -1,4 +1,7 @@
-$Id: README.irix,v 1.2 2000/02/19 22:00:23 guy Exp $
+$Id: README.irix,v 1.3 2000/04/29 08:45:39 guy Exp $
+
+1. Some problems seen by one person who tried to build Ethereal on IRIX;
+your mileage may vary.
 
 To: ethereal-dev@zing.org
 Subject: Re: [ethereal-dev] Ethereal on SGI
@@ -109,4 +112,130 @@ Problem #3 (same as Problem #1):
 
 > ./ethereal 
 189684:./ethereal: rld: Fatal Error: Cannot Successfully map soname 'libsnmp.so' under any of the filenames /home/rhh/software/gtk+-1.2.3/lib/libsnmp.so:/home/rhh/software/glib-1.2.3/lib/libsnmp.so:/usr/lib32/libsnmp.so:/usr/lib32/internal/libsnmp.so:/lib32/libsnmp.so:/opt/lib32/libsnmp.so: 
+
+2. Patches to libpcap that may be necessary
+
+On IRIX, the libpcap library uses, in "pcap_open_live()", the snapshot
+length passed in, without reducing it to be less than or equal to the
+MTU of the interface.  If the snapshot length is larger than the
+interface MTU, IRIX will return an error; this means that, for example,
+the Ethereal default snapshot length of 65535, chosen so that all of the
+packet is captured, will not work.
+
+Here is a patch to libpcap 0.4 source that should fix that problem.  If
+it doesn't fix the problem, or if it reduces the snapshot length below
+the MTU (so that a snapshot length of 65535 doesn't capture all the data
+in the packets), please report this to ethereal-dev@zing.org, so that
+we know that it didn't work - we'll probably send you debugging patches
+in the hopes of being able to make it work.
+
+diff -c ../libpcap-0.4/pcap-snoop.c ./pcap-snoop.c
+*** ../libpcap-0.4/pcap-snoop.c	Tue Apr  8 21:07:01 1997
+--- ./pcap-snoop.c	Tue Jan 18 00:16:18 2000
+***************
+*** 126,132 ****
+--- 126,135 ----
+  	struct sockaddr_raw sr;
+  	struct snoopfilter sf;
+  	u_int v;
++ 	int ll_hdrlen;
++ 	int snooplen;
+  	pcap_t *p;
++ 	struct ifreq ifr;
+  
+  	p = (pcap_t *)malloc(sizeof(*p));
+  	if (p == NULL) {
+***************
+*** 154,169 ****
+  	}
+  	v = 64 * 1024;
+  	(void)setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char *)&v, sizeof(v));
+- 	if (ioctl(fd, SIOCSNOOPLEN, &snaplen) < 0) {
+- 		sprintf(ebuf, "SIOCSNOOPLEN: %s", pcap_strerror(errno));
+- 		goto bad;
+- 	}
+- 	p->snapshot = snaplen;
+- 	v = 1;
+- 	if (ioctl(fd, SIOCSNOOPING, &v) < 0) {
+- 		sprintf(ebuf, "SIOCSNOOPING: %s", pcap_strerror(errno));
+- 		goto bad;
+- 	}
+  	/*
+  	 * XXX hack - map device name to link layer type
+  	 */
+--- 157,162 ----
+***************
+*** 179,195 ****
+--- 172,242 ----
+  	    strncmp("qaa", device, 3) == 0) {
+  		p->linktype = DLT_EN10MB;
+  		p->offset = RAW_HDRPAD(sizeof(struct ether_header));
++ 		ll_hdrlen = sizeof(struct ether_header);
+  	} else if (strncmp("ipg", device, 3) == 0 ||
+  		   strncmp("rns", device, 3) == 0 ||	/* O2/200/2000 FDDI */
+  		   strncmp("xpi", device, 3) == 0) {
+  		p->linktype = DLT_FDDI;
+  		p->offset = 3;				/* XXX yeah? */
++ 		ll_hdrlen = 13;
+  	} else if (strncmp("ppp", device, 3) == 0) {
+  		p->linktype = DLT_RAW;
++ 		ll_hdrlen = 0;	/* DLT_RAW meaning "no PPP header, just the IP packet"? */
+  	} else if (strncmp("lo", device, 2) == 0) {
+  		p->linktype = DLT_NULL;
++ 		ll_hdrlen = 4;	/* is this just like BSD's loopback device? */
+  	} else {
+  		sprintf(ebuf, "snoop: unknown physical layer type");
++ 		goto bad;
++ 	}
++ #ifdef SIOCGIFMTU
++ 	/*
++ 	 * XXX - IRIX appears to give you an error if you try to set the
++ 	 * capture length to be greater than the MTU, so let's try to get
++ 	 * the MTU first and, if that succeeds, trim the snap length
++ 	 * to be no greater than the MTU.
++ 	 */
++ 	(void)strncpy(ifr.ifr_name, device, sizeof(ifr.ifr_name));
++ 	if (ioctl(fd, SIOCGIFMTU, (char *)&ifr) < 0) {
++ 		sprintf(ebuf, "SIOCGIFMTU: %s", pcap_strerror(errno));
++ 		goto bad;
++ 	}
++ 	/*
++ 	 * OK, we got it.
++ 	 * XXX - some versions of IRIX 6.5 define "ifr_mtu" and have an
++ 	 * "ifru_metric" member of the "ifr_ifru" union in an "ifreq"
++ 	 * structure, others don't.
++ 	 *
++ 	 * I've no idea what's going on, so, if "ifr_mtu" isn't defined,
++ 	 * we define it as "ifr_metric", as using that field appears to
++ 	 * work on the versions that lack "ifr_mtu" (and, on those that
++ 	 * don't lack it, "ifru_metric" and "ifru_mtu" are both "int"
++ 	 * members of the "ifr_ifru" union, which suggests that they
++ 	 * may be interchangeable in this case).
++ 	 */
++ #ifndef ifr_mtu
++ #define ifr_mtu	ifr_metric
++ #endif
++ 	if (snaplen > ifr.ifr_mtu)
++ 		snaplen = ifr.ifr_mtu;
++ #endif
++ 
++ 	/*
++ 	 * The argument to SIOCSNOOPLEN is the number of link-layer
++ 	 * payload bytes to capture - it doesn't count link-layer
++ 	 * header bytes.
++ 	 */
++ 	snooplen = snaplen - ll_hdrlen;
++ 	if (snooplen < 0)
++ 		snooplen = 0;
++ 	if (ioctl(fd, SIOCSNOOPLEN, &snooplen) < 0) {
++ 		sprintf(ebuf, "SIOCSNOOPLEN: %s", pcap_strerror(errno));
++ 		goto bad;
++ 	}
++ 	p->snapshot = snaplen;
++ 	v = 1;
++ 	if (ioctl(fd, SIOCSNOOPING, &v) < 0) {
++ 		sprintf(ebuf, "SIOCSNOOPING: %s", pcap_strerror(errno));
+  		goto bad;
+  	}
+  
 
