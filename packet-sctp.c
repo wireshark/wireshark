@@ -2,15 +2,15 @@
  * Routines for Stream Control Transmission Protocol dissection
  * It should be compilant to
  * - RFC 2960, for basic SCTP support
- * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-addip-sctp-03.txt for the add-IP extension
- * - http://www.sctp.org/draft-ietf-tsvwg-usctp-01.txt for the 'Limited Retransmission' extension
- * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctpcsum-03.txt
+ * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-addip-sctp-05.txt for the add-IP extension
+ * - http://www.ietf.org/internet-drafts/draft-stewart-prsctp-00.txt for the 'Partial Reliability' extension
+ * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctpcsum-07.txt
  * Copyright 2000, 2001, 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  * Still to do (so stay tuned)
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.35 2002/04/16 19:58:53 guy Exp $
+ * $Id: packet-sctp.c,v 1.36 2002/05/18 20:33:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -127,19 +127,10 @@ static int hf_sctp_cause_tsn = -1;
 
 static int hf_sctp_forward_tsn_chunk_tsn = -1;
 
-static int hf_sctp_ustreams_start = -1;
-static int hf_sctp_ustreams_end   = -1;
-
 static int hf_sctp_asconf_ack_serial = -1;
-static int hf_sctp_asconf_ack_correlation_id = -1;
-
 static int hf_sctp_asconf_serial = -1;
-static int hf_sctp_asconf_correlation_id = -1;
-static int hf_sctp_asconf_reserved = -1;
-static int hf_sctp_asconf_addr_type = -1;
-static int hf_sctp_asconf_addr = -1;
-static int hf_sctp_asconf_ipv4_address = -1;
-static int hf_sctp_asconf_ipv6_address = -1;
+static int hf_sctp_correlation_id = -1;
+
 static int hf_sctp_adap_indication = -1;
 static int hf_sctp_abort_chunk_t_bit = -1;
 static dissector_table_t sctp_port_dissector_table;
@@ -158,7 +149,6 @@ static gint ett_sctp_abort_chunk_flags = -1;
 static gint ett_sctp_sack_chunk_gap_block = -1;
 static gint ett_sctp_supported_address_types_parameter = -1;
 static gint ett_sctp_unrecognized_parameter_parameter = -1;
-static gint ett_sctp_unreliable_streams_interval = -1;
 
 #define SCTP_DATA_CHUNK_ID               0
 #define SCTP_INIT_CHUNK_ID               1
@@ -212,7 +202,7 @@ static const value_string sctp_chunk_type_values[] = {
 #define HOSTNAME_ADDRESS_PARAMETER_ID        0x000b
 #define SUPPORTED_ADDRESS_TYPES_PARAMETER_ID 0x000c
 #define ECN_PARAMETER_ID                     0x8000
-#define UNRELIABLE_STREAMS_PARAMETER_ID      0xC000
+#define FORWARD_TSN_SUPPORTED_PARAMETER_ID   0xC000
 #define ADD_IP_ADDRESS_PARAMETER_ID          0xC001
 #define DEL_IP_ADDRESS_PARAMETER_ID          0xC002
 #define ERROR_CAUSE_INDICATION_PARAMETER_ID  0xC003
@@ -230,7 +220,7 @@ static const value_string sctp_parameter_identifier_values[] = {
   { HOSTNAME_ADDRESS_PARAMETER_ID,        "Hostname address" },
   { SUPPORTED_ADDRESS_TYPES_PARAMETER_ID, "Supported address types" },
   { ECN_PARAMETER_ID,                     "ECN" },
-  { UNRELIABLE_STREAMS_PARAMETER_ID,      "Unreliable streams" },
+  { FORWARD_TSN_SUPPORTED_PARAMETER_ID,   "Forward TSN supported" },
   { ADD_IP_ADDRESS_PARAMETER_ID,          "Add IP address" },
   { DEL_IP_ADDRESS_PARAMETER_ID,          "Delete IP address" },
   { ERROR_CAUSE_INDICATION_PARAMETER_ID,  "Error cause indication" },
@@ -298,9 +288,11 @@ static const value_string sctp_parameter_identifier_values[] = {
 #define UNRECOGNIZED_PARAMETERS                    0x08
 #define NO_USER_DATA                               0x09
 #define COOKIE_RECEIVED_WHILE_SHUTTING_DOWN        0x0a
+#define RESTART_WITH_NEW_ADDRESSES                 0x0b
 #define REQUEST_TO_DELETE_LAST_ADDRESS             0x0c
 #define OPERATION_REFUSED_DUE_TO_RESOURCE_SHORTAGE 0X0d
 #define REQUEST_TO_DELETE_SOURCE_ADDRESS           0x0e
+#define ABORT_DUE_TO_ILLEGAL_ASCONF                0x0f
 
 static const value_string sctp_cause_code_values[] = {
   { INVALID_STREAM_IDENTIFIER,                  "Invalid stream identifier" },
@@ -313,9 +305,11 @@ static const value_string sctp_cause_code_values[] = {
   { UNRECOGNIZED_PARAMETERS,                    "Unrecognized parameters" },
   { NO_USER_DATA,                               "No user data" },
   { COOKIE_RECEIVED_WHILE_SHUTTING_DOWN,        "Cookie received while shutting down" },
+  { RESTART_WITH_NEW_ADDRESSES,                 "Restart of an association with new addresses" },
   { REQUEST_TO_DELETE_LAST_ADDRESS,             "Request to delete last address" },
   { OPERATION_REFUSED_DUE_TO_RESOURCE_SHORTAGE, "Operation refused due to resource shortage" },
   { REQUEST_TO_DELETE_SOURCE_ADDRESS,           "Request to delete source address" },
+  { ABORT_DUE_TO_ILLEGAL_ASCONF,                "Association Aborted due to illegal ASCONF-ACK" },
   { 0,                                          NULL } };
 
 #define NOT_SPECIFIED_PROTOCOL_ID  0
@@ -822,44 +816,28 @@ dissect_ecn_parameter(proto_item *parameter_item)
    proto_item_set_text(parameter_item, "ECN parameter");
 }
 
-#define USTREAMS_START_LENGTH    2
-#define USTREAMS_END_LENGTH      2
-#define USTREAMS_INTERVAL_LENGTH (USTREAMS_START_LENGTH + USTREAMS_END_LENGTH)
-
 static void
-dissect_unreliable_streams_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_forward_tsn_supported_parameter(proto_item *parameter_item)
 {  
-    guint16 length, start, end, number_of_intervals, interval_number;
-    proto_item *interval_item;
-    proto_tree *interval_tree;
-    gint interval_offset;
-    
-    length              = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-    number_of_intervals = (length - PARAMETER_HEADER_LENGTH) / USTREAMS_INTERVAL_LENGTH;
-    
-    interval_offset     = PARAMETER_VALUE_OFFSET;
-    for(interval_number = 1; interval_number <= number_of_intervals; interval_number++) {
-      start = tvb_get_ntohs(parameter_tvb, interval_offset);
-      end   = tvb_get_ntohs(parameter_tvb, interval_offset + USTREAMS_START_LENGTH);
-      interval_item = proto_tree_add_text(parameter_tree, parameter_tvb, interval_offset, USTREAMS_INTERVAL_LENGTH, "Unreliable streams (%u-%u)", start, end);
-      interval_tree = proto_item_add_subtree(interval_item, ett_sctp_unreliable_streams_interval);
-      proto_tree_add_uint(interval_tree, hf_sctp_ustreams_start, parameter_tvb, interval_offset, USTREAMS_START_LENGTH, start);
-      proto_tree_add_uint(interval_tree, hf_sctp_ustreams_end,  parameter_tvb, interval_offset + USTREAMS_START_LENGTH, USTREAMS_END_LENGTH, end);
-      interval_offset += USTREAMS_INTERVAL_LENGTH;
-    };
-   proto_item_set_text(parameter_item, "Unreliable streams parameter");
+   proto_item_set_text(parameter_item, "Forward TSN supported parameter");
 }
+
+#define CORRELATION_ID_LENGTH    4
+#define CORRELATION_ID_OFFSET    PARAMETER_VALUE_OFFSET
+#define ADDRESS_PARAMETER_OFFSET (CORRELATION_ID_OFFSET + CORRELATION_ID_LENGTH)
 
 static void
 dissect_add_ip_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
+  guint32 correlation_id;
   guint16 length, parameter_value_length;
   tvbuff_t *address_tvb;
 
   length                 = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  parameter_value_length = length - PARAMETER_HEADER_LENGTH;
-
-  address_tvb            =  tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, parameter_value_length);
+  parameter_value_length = length - PARAMETER_HEADER_LENGTH - CORRELATION_ID_LENGTH;
+  correlation_id         = tvb_get_ntohs(parameter_tvb, CORRELATION_ID_OFFSET);
+  proto_tree_add_uint(parameter_tree, hf_sctp_correlation_id, parameter_tvb, CORRELATION_ID_OFFSET, CORRELATION_ID_LENGTH, correlation_id);
+  address_tvb            =  tvb_new_subset(parameter_tvb, ADDRESS_PARAMETER_OFFSET, parameter_value_length, parameter_value_length);
   dissect_parameter(address_tvb, pinfo, parameter_tree); 
 
   proto_item_set_text(parameter_item, "Add IP address parameter");
@@ -868,13 +846,15 @@ dissect_add_ip_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pr
 static void
 dissect_del_ip_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
+  guint32 correlation_id;
   guint16 length, parameter_value_length;
   tvbuff_t *address_tvb;
 
   length                 = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  parameter_value_length = length - PARAMETER_HEADER_LENGTH;
-
-  address_tvb            =  tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, parameter_value_length);
+  parameter_value_length = length - PARAMETER_HEADER_LENGTH - CORRELATION_ID_LENGTH;
+  correlation_id         = tvb_get_ntohs(parameter_tvb, CORRELATION_ID_OFFSET);
+  proto_tree_add_uint(parameter_tree, hf_sctp_correlation_id, parameter_tvb, CORRELATION_ID_OFFSET, CORRELATION_ID_LENGTH, correlation_id);
+  address_tvb            =  tvb_new_subset(parameter_tvb, ADDRESS_PARAMETER_OFFSET, parameter_value_length, parameter_value_length);
   dissect_parameter(address_tvb, pinfo, parameter_tree); 
 
   proto_item_set_text(parameter_item, "Delete IP address parameter");
@@ -883,11 +863,15 @@ dissect_del_ip_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pr
 static void
 dissect_error_cause_indication_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
+  guint32 correlation_id;
   guint16 length, padding_length, total_length;
   gint offset;
   tvbuff_t *error_cause_tvb;
 
-  offset = PARAMETER_VALUE_OFFSET;
+  correlation_id         = tvb_get_ntohs(parameter_tvb, CORRELATION_ID_OFFSET);
+  proto_tree_add_uint(parameter_tree, hf_sctp_correlation_id, parameter_tvb, CORRELATION_ID_OFFSET, CORRELATION_ID_LENGTH, correlation_id);
+
+  offset = PARAMETER_VALUE_OFFSET + CORRELATION_ID_LENGTH;
   while(tvb_reported_length_remaining(parameter_tvb, offset)) {
     length         = tvb_get_ntohs(parameter_tvb, offset + CAUSE_LENGTH_OFFSET);
     padding_length = nr_of_padding_bytes(length);
@@ -904,22 +888,30 @@ dissect_error_cause_indication_parameter(tvbuff_t *parameter_tvb, packet_info *p
 static void
 dissect_set_primary_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
+  guint32 correlation_id;
   guint16 length, parameter_value_length;
   tvbuff_t *address_tvb;
 
   length                 = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  parameter_value_length = length - PARAMETER_HEADER_LENGTH;
+  parameter_value_length = length - PARAMETER_HEADER_LENGTH - CORRELATION_ID_LENGTH;
 
-  address_tvb            =  tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, parameter_value_length);
+  correlation_id         = tvb_get_ntohs(parameter_tvb, CORRELATION_ID_OFFSET);
+  proto_tree_add_uint(parameter_tree, hf_sctp_correlation_id, parameter_tvb, CORRELATION_ID_OFFSET, CORRELATION_ID_LENGTH, correlation_id);
+  address_tvb            =  tvb_new_subset(parameter_tvb, ADDRESS_PARAMETER_OFFSET, parameter_value_length, parameter_value_length);
   dissect_parameter(address_tvb, pinfo, parameter_tree); 
 
   proto_item_set_text(parameter_item, "Set primary address parameter");
 }
 
 static void
-dissect_success_report_parameter(proto_item *parameter_item)
+dissect_success_report_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-   proto_item_set_text(parameter_item, "Success report parameter");
+  guint32 correlation_id;
+  
+  correlation_id         = tvb_get_ntohs(parameter_tvb, CORRELATION_ID_OFFSET);
+  proto_tree_add_uint(parameter_tree, hf_sctp_correlation_id, parameter_tvb, CORRELATION_ID_OFFSET, CORRELATION_ID_LENGTH, correlation_id);
+  
+  proto_item_set_text(parameter_item, "Success report parameter");
 }
 
 #define ADAP_INDICATION_LENGTH 4
@@ -1005,8 +997,8 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *chunk
   case ECN_PARAMETER_ID:
     dissect_ecn_parameter(parameter_item);
     break;
-  case UNRELIABLE_STREAMS_PARAMETER_ID:
-    dissect_unreliable_streams_parameter(parameter_tvb, parameter_tree, parameter_item);
+  case FORWARD_TSN_SUPPORTED_PARAMETER_ID:
+    dissect_forward_tsn_supported_parameter(parameter_item);
     break;
   case ADD_IP_ADDRESS_PARAMETER_ID:
     dissect_add_ip_address_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
@@ -1021,7 +1013,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *chunk
     dissect_set_primary_address_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;    
   case SUCCESS_REPORT_PARAMETER_ID:
-    dissect_success_report_parameter(parameter_item);
+    dissect_success_report_parameter(parameter_tvb, parameter_tree, parameter_item);
     break; 
   case ADAP_LAYER_INDICATION_PARAMETER_ID:
     dissect_adap_indication_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1812,26 +1804,13 @@ dissect_forward_tsn_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *c
 }
 
 #define SERIAL_NUMBER_LENGTH    4
-#define CORRELATION_ID_LENGTH   4
-#define ASCONF_RESERVED_LENGTH  3
-#define ASCONF_ADDR_TYPE_LENGTH 1
-#define ASCONF_ADDR_LENGTH      16
 #define SERIAL_NUMBER_OFFSET    PARAMETER_VALUE_OFFSET
-
-#define IP_V4_ADDRESS_TYPE      5
-#define IP_V6_ADDRESS_TYPE      6
-
-static const value_string sctp_address_type_values[] = {
-  { IP_V4_ADDRESS_TYPE,         "IP V4 address" },
-  { IP_V6_ADDRESS_TYPE,         "IP V6 address" },
-  { 0,                           NULL } };
 
 static void
 dissect_asconf_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item)
 { 
-  guint32 serial_number, correlation_id, ipv4_address;
+  guint32 serial_number;
   guint offset, length, padding_length, total_length;
-  guint8 addr_type;
   tvbuff_t *parameter_tvb;
 
   if (check_col(pinfo->cinfo, COL_INFO))
@@ -1842,33 +1821,9 @@ dissect_asconf_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *chunk_
     serial_number    = tvb_get_ntohl(chunk_tvb, offset);
     proto_tree_add_uint(chunk_tree, hf_sctp_asconf_serial, chunk_tvb, offset, SERIAL_NUMBER_LENGTH, serial_number);
     offset          += SERIAL_NUMBER_LENGTH;
-    proto_tree_add_bytes(chunk_tree, hf_sctp_asconf_reserved, chunk_tvb, offset, ASCONF_RESERVED_LENGTH, tvb_get_ptr(chunk_tvb, offset, ASCONF_RESERVED_LENGTH));
-    offset          += ASCONF_RESERVED_LENGTH;
-    addr_type = tvb_get_guint8(chunk_tvb, offset);
-    proto_tree_add_uint(chunk_tree, hf_sctp_asconf_addr_type, chunk_tvb, offset, ASCONF_ADDR_TYPE_LENGTH, addr_type);
-    offset          += ASCONF_ADDR_TYPE_LENGTH;
-    switch (addr_type) {
-      case IP_V4_ADDRESS_TYPE:
-        tvb_memcpy(chunk_tvb, (guint8 *)&ipv4_address, offset, IPV4_ADDRESS_LENGTH); 
-        proto_tree_add_ipv4(chunk_tree, hf_sctp_asconf_ipv4_address, chunk_tvb, offset, IPV4_ADDRESS_LENGTH, ipv4_address);
-        proto_tree_add_bytes(chunk_tree, hf_sctp_asconf_addr, chunk_tvb, offset + IPV4_ADDRESS_LENGTH, ASCONF_ADDR_LENGTH - IPV4_ADDRESS_LENGTH,
-                             tvb_get_ptr(chunk_tvb, offset + IPV4_ADDRESS_LENGTH, ASCONF_ADDR_LENGTH - IPV4_ADDRESS_LENGTH));
-        break;
-      case IP_V6_ADDRESS_TYPE:
-          proto_tree_add_ipv6(chunk_tree, hf_sctp_asconf_ipv6_address, chunk_tvb, offset, IPV6_ADDRESS_LENGTH,
-		                          tvb_get_ptr(chunk_tvb, offset, IPV6_ADDRESS_LENGTH));
-        break;
-      default:
-        proto_tree_add_bytes(chunk_tree, hf_sctp_asconf_addr, chunk_tvb, offset, ASCONF_ADDR_LENGTH, tvb_get_ptr(chunk_tvb, offset, ASCONF_ADDR_LENGTH));
-        break;
-    }
-    offset          += ASCONF_ADDR_LENGTH;
     proto_item_set_text(chunk_item, "ASCONF chunk");
     
     while(tvb_reported_length_remaining(chunk_tvb, offset)) {
-      correlation_id = tvb_get_ntohl(chunk_tvb, offset);
-      proto_tree_add_uint(chunk_tree, hf_sctp_asconf_correlation_id, chunk_tvb, offset, CORRELATION_ID_LENGTH, correlation_id);
-      offset        += CORRELATION_ID_LENGTH;
       length         = tvb_get_ntohs(chunk_tvb, offset + PARAMETER_LENGTH_OFFSET);
       padding_length = nr_of_padding_bytes(length);
       total_length   = length + padding_length;
@@ -1884,7 +1839,7 @@ dissect_asconf_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *chunk_
 static void
 dissect_asconf_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item)
 { 
-  guint32 serial_number, correlation_id;
+  guint32 serial_number;
   guint offset, length, padding_length, total_length;
   tvbuff_t *parameter_tvb;
 
@@ -1898,9 +1853,6 @@ dissect_asconf_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *ch
     
     offset = SERIAL_NUMBER_OFFSET + SERIAL_NUMBER_LENGTH;
     while(tvb_reported_length_remaining(chunk_tvb, offset)) {
-      correlation_id = tvb_get_ntohl(chunk_tvb, offset);
-      proto_tree_add_uint(chunk_tree, hf_sctp_asconf_ack_correlation_id, chunk_tvb, offset, CORRELATION_ID_LENGTH, correlation_id);
-      offset        += CORRELATION_ID_LENGTH;
       length         = tvb_get_ntohs(chunk_tvb, offset + PARAMETER_LENGTH_OFFSET);
       padding_length = nr_of_padding_bytes(length);
       total_length   = length + padding_length;
@@ -2402,58 +2354,18 @@ proto_register_sctp(void)
        FT_UINT16, BASE_DEC, NULL, 0x0,          
        "", HFILL }
     }, 
-    {&hf_sctp_ustreams_start,
-     { "Start", "sctp.unreliable_streams.start",
-       FT_UINT16, BASE_DEC, NULL, 0x0,          
-       "", HFILL }
-    }, 
-    {&hf_sctp_ustreams_end,
-     { "End", "sctp.unreliable_streams.end",
-       FT_UINT16, BASE_DEC, NULL, 0x0,          
-       "", HFILL }
-    },     
     {&hf_sctp_asconf_serial,
      { "Serial Number", "sctp.asconf.serial_number",
        FT_UINT32, BASE_HEX, NULL, 0x0,          
        "", HFILL }
     }, 
-    {&hf_sctp_asconf_correlation_id,
-     { "Correlation_id", "sctp.asconf.correlation_id",
-       FT_UINT32, BASE_HEX, NULL, 0x0,          
-       "", HFILL }
-    }, 
-    {&hf_sctp_asconf_reserved,
-     { "Reserved", "sctp.asconf.reserved",
-       FT_BYTES, BASE_NONE, NULL, 0x0,          
-       "", HFILL }
-    }, 
-    {&hf_sctp_asconf_addr_type,
-     { "Address type", "sctp.asconf.address_type",
-       FT_UINT8, BASE_HEX, VALS(sctp_address_type_values), 0x0,          
-       "", HFILL }
-    }, 
-    {&hf_sctp_asconf_addr,
-     { "Address bytes", "sctp.asconf.address_bytes",
-       FT_BYTES, BASE_NONE, NULL, 0x0,          
-       "", HFILL }
-    }, 
-    {&hf_sctp_asconf_ipv4_address,
-     { "IP Version 4 address", "sctp.asconf.ipv4_address",
-       FT_IPv4, BASE_NONE, NULL, 0x0,
-       "", HFILL }
-    },
-    {&hf_sctp_asconf_ipv6_address,
-     { "IP Version 6 address", "sctp.asconf.ipv6_address",
-       FT_IPv6, BASE_NONE, NULL, 0x0,
-       "", HFILL }
-    },
     {&hf_sctp_asconf_ack_serial,
      { "Serial Number", "sctp.asconf_ack.serial_number",
        FT_UINT32, BASE_HEX, NULL, 0x0,          
        "", HFILL }
     }, 
-    {&hf_sctp_asconf_ack_correlation_id,
-     { "Correlation_id", "sctp.asconf_ack.correlation_id",
+    {&hf_sctp_correlation_id,
+     { "Correlation_id", "sctp.correlation_id",
        FT_UINT32, BASE_HEX, NULL, 0x0,          
        "", HFILL }
     },
@@ -2511,7 +2423,6 @@ proto_register_sctp(void)
     &ett_sctp_sack_chunk_gap_block,
     &ett_sctp_supported_address_types_parameter,
     &ett_sctp_unrecognized_parameter_parameter,
-    &ett_sctp_unreliable_streams_interval
   };
   
   static enum_val_t sctp_checksum_options[] = {
