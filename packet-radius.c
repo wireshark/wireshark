@@ -4,7 +4,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.61 2002/05/14 10:40:25 guy Exp $
+ * $Id: packet-radius.c,v 1.62 2002/05/24 03:21:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2470,7 +2470,10 @@ static gchar *rd_value_to_str_2(gchar *dest, e_avphdr *avph, tvbuff_t *tvb,
 
 static gchar *rd_value_to_str(e_avphdr *avph, tvbuff_t *tvb, int offset)
 {
-    vsabuffer[0].str = NULL;
+    int i;
+
+    for (i = 0; i < VSABUFFER; i++)
+	vsabuffer[i].str = NULL;
     rd_value_to_str_2(textbuffer, avph, tvb, offset, radius_attrib);
     return textbuffer;
 }
