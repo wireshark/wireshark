@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.64 2001/10/26 18:28:16 gram Exp $
+ * $Id: packet-ipv6.c,v 1.65 2001/11/15 10:58:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -912,7 +912,6 @@ again:
       /* Save the current value of "pi", and adjust certain fields to
          reflect the new tvbuff. */
       save_pi = pi;
-      pi.compat_top_tvb = next_tvb;
       pi.len = tvb_reported_length(next_tvb);
       pi.captured_len = tvb_length(next_tvb);
       must_restore_pi = TRUE;

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.143 2001/10/31 22:03:53 guy Exp $
+ * $Id: packet-ip.c,v 1.144 2001/11/15 10:58:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1074,7 +1074,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Save the current value of "pi", and adjust certain fields to
          reflect the new tvbuff. */
       save_pi = pi;
-      pi.compat_top_tvb = next_tvb;
       pi.len = tvb_reported_length(next_tvb);
       pi.captured_len = tvb_length(next_tvb);
       must_restore_pi = TRUE;

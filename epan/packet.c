@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.37 2001/10/31 05:59:19 guy Exp $
+ * $Id: packet.c,v 1.38 2001/11/15 10:58:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -189,8 +189,6 @@ dissect_packet(tvbuff_t **p_tvb, union wtap_pseudo_header *pseudo_header,
 		*p_tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len, "Frame");
 	/* Add this tvbuffer into the data_src list */
                 fd->data_src = g_slist_append( fd->data_src, *p_tvb);
-
-		pi.compat_top_tvb = *p_tvb;
 	}
 	CATCH(BoundsError) {
 		g_assert_not_reached();

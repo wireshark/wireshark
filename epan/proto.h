@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.19 2001/10/31 07:47:26 guy Exp $
+ * $Id: proto.h,v 1.20 2001/11/15 10:58:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -117,9 +117,6 @@ typedef struct field_info {
 	gchar				*ds_name;  /* data source name */
 } field_info;
 
-
-/* For use while converting dissectors to use tvbuff's */
-#define NullTVB NULL
 
 /* Sets up memory used by proto routines. Called at program startup */
 extern void proto_init(const char *plugin_dir,

@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.36 2001/11/09 02:04:35 guy Exp $
+ * $Id: packet-clnp.c,v 1.37 2001/11/15 10:58:48 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -1936,7 +1936,6 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Save the current value of "pi", and adjust certain fields to
          reflect the new tvbuff. */
       save_pi = pi;
-      pi.compat_top_tvb = next_tvb;
       pi.len = tvb_reported_length(next_tvb);
       pi.captured_len = tvb_length(next_tvb);
       must_restore_pi = TRUE;

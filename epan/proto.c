@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.41 2001/11/03 11:42:50 guy Exp $
+ * $Id: proto.c,v 1.42 2001/11/15 10:58:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1013,8 +1013,6 @@ proto_tree_set_uint64(field_info *fi, const guint8 *value_ptr, gboolean little_e
 static void
 proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start, gboolean little_endian)
 {
-	/* XXX remove all this when last non-tvbuff dissector is removed*/
-	NullTVB;
 	proto_tree_set_uint64(fi, tvb_get_ptr(tvb, start, 8), little_endian);
 }
 
@@ -1520,12 +1518,7 @@ alloc_field_info(int hfindex, tvbuff_t *tvb, gint start, gint length)
 	fi->value = fvalue_new(fi->hfinfo->type);
 
 	/* add the data source name */
-	/* This has the hack to return a default name for NullTVB. This */
-	/* hack can be removed when all dissectors use tvbuffs */
-	if ( tvb)
-		fi->ds_name = tvb_get_name(tvb);
-	else
-		fi->ds_name = tvb_get_name(pi.compat_top_tvb);
+	fi->ds_name = tvb_get_name(tvb);
 
 	return fi;
 }
