@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-ipp.c,v 1.12 2000/08/13 14:08:17 deniel Exp $
+ * $Id: packet-ipp.c,v 1.13 2000/11/09 10:56:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -586,6 +586,5 @@ proto_reg_handoff_ipp(void)
 
 	   Or should the HTTP dissector decide that the payload is
 	   IPP based on the MIME headers? */
-	old_dissector_add("tcp.port", 631, dissect_http);
+	dissector_add("tcp.port", 631, dissect_http);
 }
-

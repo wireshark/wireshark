@@ -4,7 +4,7 @@
  * Robert Tsai <rtsai@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rsh.c,v 1.4 2000/09/11 16:16:02 gram Exp $
+ * $Id: packet-rsh.c,v 1.5 2000/11/09 10:56:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,57 +48,57 @@ static gint ett_rsh = -1;
 #define TCP_PORT_RSH			514
 
 void
-dissect_rsh(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item	*ti;
 	proto_tree	*rsh_tree;
-	const u_char	*data, *dataend;
-	const u_char	*lineend, *eol;
+	proto_item	*ti;
+	gint		offset = 0;
+	const u_char	*line;
+	gint		next_offset;
 	int		linelen;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_rsh, pd, offset, fd, tree);
+	CHECK_DISPLAY_AS_DATA(proto_rsh, tvb, pinfo, tree);
 
-	data = &pd[offset];
-	dataend = data + END_OF_FRAME;
+	pinfo->current_proto = "RSH";
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "RSH");
-	if (check_col(fd, COL_INFO)) {
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_add_str(pinfo->fd, COL_PROTOCOL, "RSH");
+	if (check_col(pinfo->fd, COL_INFO)) {
 		/* Put the first line from the buffer into the summary. */
-		lineend = find_line_end(data, dataend, &eol);
-		linelen = lineend - data;
-		col_add_str(fd, COL_INFO, format_text(data, linelen));
+		tvb_find_line_end(tvb, offset, -1, &next_offset);
+		linelen = next_offset - offset;	/* include the line terminator */
+		line = tvb_get_ptr(tvb, offset, linelen);
+		col_add_str(pinfo->fd, COL_INFO, format_text(line, linelen));
 	}
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_rsh, NullTVB, offset,
-			END_OF_FRAME, FALSE);
+		ti = proto_tree_add_item(tree, proto_rsh, tvb, offset,
+		    tvb_length_remaining(tvb, offset), FALSE);
 		rsh_tree = proto_item_add_subtree(ti, ett_rsh);
 
-		while (data < dataend) {
+		/*
+		 * Process the packet data, a line at a time.
+		 */
+		while (tvb_length_remaining(tvb, offset)) {
 			/*
 			 * Find the end of the line.
 			 */
-			lineend = find_line_end(data, dataend, &eol);
-			linelen = lineend - data;
+			tvb_find_line_end(tvb, offset, -1, &next_offset);
 
 			/*
 			 * Put this line.
 			 */
-			proto_tree_add_text(rsh_tree, NullTVB, offset,
-				linelen, "%s", format_text(data, linelen));
-			offset += linelen;
-			data = lineend;
+			proto_tree_add_text(rsh_tree, tvb, offset,
+			    next_offset - offset, "%s",
+			    tvb_format_text(tvb, offset, next_offset - offset));
+			offset = next_offset;
 		}
 
-		if (pi.match_port == pi.destport) 
+		if (pinfo->match_port == pinfo->destport) 
 			proto_tree_add_boolean_hidden(rsh_tree, 
-						      hf_rsh_request, NullTVB, 0, 0, 1);
+			    hf_rsh_request, tvb, 0, 0, 1);
 		else
 			proto_tree_add_boolean_hidden(rsh_tree, 
-						      hf_rsh_response, NullTVB, 0, 0, 1);
-
-		if (data < dataend)
-			old_dissect_data(&pd[offset], offset, fd, rsh_tree);
+			    hf_rsh_response, tvb, 0, 0, 1);
 	}
 }
 
@@ -129,5 +129,5 @@ proto_register_rsh(void)
 void
 proto_reg_handoff_rsh(void)
 {
-	old_dissector_add("tcp.port", TCP_PORT_RSH, dissect_rsh);
+	dissector_add("tcp.port", TCP_PORT_RSH, dissect_rsh);
 }

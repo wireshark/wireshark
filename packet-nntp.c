@@ -2,7 +2,7 @@
  * Routines for nntp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-nntp.c,v 1.13 2000/09/11 16:16:02 gram Exp $
+ * $Id: packet-nntp.c,v 1.14 2000/11/09 10:56:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,104 +51,103 @@ static gint ett_nntp = -1;
 #define TCP_PORT_NNTP			119
 
 static void
-dissect_nntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         gchar           *type;
-        proto_tree      *nntp_tree, *ti;
-	const u_char	*data, *dataend;
-	const u_char	*lineend, *eol;
+	proto_tree	*nntp_tree;
+	proto_item	*ti;
+	gint		offset = 0;
+	const u_char	*line;
+	gint		next_offset;
 	int		linelen;
-	int		max_data = pi.captured_len - offset;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_nntp, pd, offset, fd, tree);
+	CHECK_DISPLAY_AS_DATA(proto_nntp, tvb, pinfo, tree);
 
-	data = &pd[offset];
-	dataend = data + END_OF_FRAME;
-	if (dataend > data + max_data)
-		dataend = data + max_data;
-
-        if (pi.match_port == pi.destport)
+        if (pinfo->match_port == pinfo->destport)
         	type = "Request";
         else
         	type = "Response";
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "NNTP");
+	pinfo->current_proto = "NNTP";
 
-	if (check_col(fd, COL_INFO)) {
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_add_str(pinfo->fd, COL_PROTOCOL, "NNTP");
+
+	if (check_col(pinfo->fd, COL_INFO)) {
 		/*
-		 * Put the first line from the buffer into the summary.
+		 * Put the first line from the buffer into the summary
+		 * (but leave out the line terminator).
 		 */
-		lineend = find_line_end(data, dataend, &eol);
-		linelen = eol - data;
-		col_add_fstr(fd, COL_INFO, "%s: %s", type,
-		    format_text(data, linelen));
+		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
+		line = tvb_get_ptr(tvb, offset, linelen);
+		col_add_fstr(pinfo->fd, COL_INFO, "%s: %s", type,
+		    format_text(line, linelen));
 	}
 
 	if (tree) {
+		ti = proto_tree_add_item(tree, proto_nntp, tvb, offset,
+		    tvb_length_remaining(tvb, offset), FALSE);
+		nntp_tree = proto_item_add_subtree(ti, ett_nntp);
 
-	  ti = proto_tree_add_item(tree, proto_nntp, NullTVB, offset, END_OF_FRAME, FALSE);
-	  nntp_tree = proto_item_add_subtree(ti, ett_nntp);
-
-	  if (pi.match_port == pi.destport) {
-	    proto_tree_add_boolean_hidden(nntp_tree, hf_nntp_request, NullTVB, 0, 0, TRUE);
-	  } else {
-	    proto_tree_add_boolean_hidden(nntp_tree, hf_nntp_response, NullTVB, 0, 0, TRUE);
-	  }
-
-	  /*
-	   * Show the request or response as text, a line at a time.
-	   * XXX - for requests, we could display the stuff after the
-	   * first line, if any, based on what the request was, and
-	   * for responses, we could display it based on what the
-	   * matching request was, although the latter requires us to
-	   * know what the matching request was....
-	   */
-	  while (data < dataend) {
-		/*
-		 * Find the end of the line.
-		 */
-		lineend = find_line_end(data, dataend, &eol);
-		linelen = lineend - data;
+		if (pinfo->match_port == pinfo->destport) {
+			proto_tree_add_boolean_hidden(nntp_tree,
+			    hf_nntp_request, tvb, 0, 0, TRUE);
+		} else {
+			proto_tree_add_boolean_hidden(nntp_tree,
+			    hf_nntp_response, tvb, 0, 0, TRUE);
+		}
 
 		/*
-		 * Put this line.
+		 * Show the request or response as text, a line at a time.
+		 * XXX - for requests, we could display the stuff after the
+		 * first line, if any, based on what the request was, and
+		 * for responses, we could display it based on what the
+		 * matching request was, although the latter requires us to
+		 * know what the matching request was....
 		 */
-		proto_tree_add_text(nntp_tree, NullTVB, offset, linelen, "%s",
-		    format_text(data, linelen));
-		offset += linelen;
-		data = lineend;
-	  }
+		while (tvb_length_remaining(tvb, offset)) {
+			/*
+			 * Find the end of the line.
+			 */
+			tvb_find_line_end(tvb, offset, -1, &next_offset);
+
+			/*
+			 * Put this line.
+			 */
+			proto_tree_add_text(nntp_tree, tvb, offset,
+			    next_offset - offset, "%s",
+			    tvb_format_text(tvb, offset, next_offset - offset));
+			offset = next_offset;
+		}
 	}
 }
 
 void
 proto_register_nntp(void)
 {
-  
-  static hf_register_info hf[] = {
-    { &hf_nntp_response,
-      { "Response",           "nntp.response",
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"TRUE if NNTP response" }},
+	static hf_register_info hf[] = {
+	    { &hf_nntp_response,
+	      { "Response",           "nntp.response",
+		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	      	"TRUE if NNTP response" }},
 
-    { &hf_nntp_request,
-      { "Request",            "nntp.request",
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"TRUE if NNTP request" }}
-  };
-  static gint *ett[] = {
-    &ett_nntp,
-  };
+	    { &hf_nntp_request,
+	      { "Request",            "nntp.request",
+		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	      	"TRUE if NNTP request" }}
+	};
+	static gint *ett[] = {
+		&ett_nntp,
+	};
 
-  proto_nntp = proto_register_protocol("Network News Transfer Protocol", 
+	proto_nntp = proto_register_protocol("Network News Transfer Protocol", 
 				       "nntp");
-  proto_register_field_array(proto_nntp, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+	proto_register_field_array(proto_nntp, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_nntp(void)
 {
-  old_dissector_add("tcp.port", TCP_PORT_NNTP, dissect_nntp);
+	dissector_add("tcp.port", TCP_PORT_NNTP, dissect_nntp);
 }

@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.21 2000/10/21 05:52:22 guy Exp $
+ * $Id: packet-rtsp.c,v 1.22 2000/11/09 10:56:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,8 +54,52 @@ static int hf_rtsp_status = -1;
 
 #define TCP_PORT_RTSP			554
 
-static int process_rtsp_request_or_reply(const u_char *data, int offset,
+static void process_rtsp_request(tvbuff_t *tvb, int offset, const u_char *data,
 	int linelen, proto_tree *tree);
+
+static void process_rtsp_reply(tvbuff_t *tvb, int offset, const u_char *data,
+	int linelen, proto_tree *tree);
+
+typedef enum {
+	RTSP_REQUEST,
+	RTSP_REPLY,
+	NOT_RTSP
+} rtsp_type_t;
+
+static const char *rtsp_methods[] = {
+	"DESCRIBE", "ANNOUNCE", "GET_PARAMETER", "OPTIONS",
+	"PAUSE", "PLAY", "RECORD", "REDIRECT", "SETUP",
+	"SET_PARAMETER", "TEARDOWN"
+};
+
+#define RTSP_NMETHODS	(sizeof rtsp_methods / sizeof rtsp_methods[0])
+
+static rtsp_type_t
+is_rtsp_request_or_reply(const u_char *line, int linelen)
+{
+	int		ii;
+
+	/* Is this an RTSP reply? */
+	if (linelen >= 5 && strncasecmp("RTSP/", line, 5) == 0) {
+		/*
+		 * Yes.
+		 */
+		return RTSP_REPLY;
+	}
+
+	/*
+	 * Is this an RTSP request?
+	 * Check whether the line begins with one of the RTSP request
+	 * methods.
+	 */
+	for (ii = 0; ii < RTSP_NMETHODS; ii++) {
+		size_t len = strlen(rtsp_methods[ii]);
+		if (linelen >= len &&
+		    strncasecmp(rtsp_methods[ii], line, len) == 0)
+			return RTSP_REQUEST;
+	}
+	return NOT_RTSP;
+}
 
 static int
 is_content_sdp(const u_char *line, int linelen)
@@ -136,84 +180,104 @@ rtsp_create_conversation(const u_char *trans_begin, const u_char *trans_end)
 	conversation_set_dissector(conv, dissect_rtcp);
 }
 
-static void dissect_rtsp(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree)
+static void
+dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*rtsp_tree;
-	proto_item	*ti;
-	const u_char	*data, *dataend;
-	const u_char	*linep, *lineend, *eol;
+	proto_item	*ti = NULL;
+	gint		offset = 0;
+	const u_char	*line;
+	gint		next_offset;
+	const u_char	*linep, *lineend;
 	int		linelen;
 	u_char		c;
-	int		is_sdp = 0;
-	int		end_offset;
+	int		is_sdp = FALSE;
+	int		datalen;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_rtsp, pd, offset, fd, tree);
+	CHECK_DISPLAY_AS_DATA(proto_rtsp, tvb, pinfo, tree);
 
-	data = &pd[offset];
-	dataend = data + END_OF_FRAME;
-	end_offset = offset + END_OF_FRAME;
+	pinfo->current_proto = "RTSP";
 
 	rtsp_tree = NULL;
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_rtsp, NullTVB, offset, 
-			END_OF_FRAME, FALSE);
+		ti = proto_tree_add_item(tree, proto_rtsp, tvb, offset,
+			tvb_length_remaining(tvb, offset), FALSE);
 		rtsp_tree = proto_item_add_subtree(ti, ett_rtsp);
 	}
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "RTSP");
-	if (check_col(fd, COL_INFO)) {
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_add_str(pinfo->fd, COL_PROTOCOL, "RTSP");
+	if (check_col(pinfo->fd, COL_INFO)) {
 		/*
 		 * Put the first line from the buffer into the summary
-		 * if it's an RTSP request or reply. Otherwise, just call 
-		 * it a continuation.
+		 * if it's an RTSP request or reply (but leave out the
+		 * line terminator).
+		 * Otherwise, just call it a continuation.
 		 */
-		lineend = find_line_end(data, dataend, &eol);
-		linelen = lineend - data;
-		if (process_rtsp_request_or_reply(data, offset, linelen,
-				rtsp_tree)) {
-			col_add_str(fd, COL_INFO,
-			    format_text(data, eol - data));
-		} else
-			col_add_str(fd, COL_INFO, "Continuation");
+		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
+		line = tvb_get_ptr(tvb, offset, linelen);
+		switch (is_rtsp_request_or_reply(line, linelen)) {
+
+		case RTSP_REQUEST:
+		case RTSP_REPLY:
+			col_add_str(pinfo->fd, COL_INFO,
+			    format_text(line, linelen));
+			break;
+
+		default:
+			col_add_str(pinfo->fd, COL_INFO, "Continuation");
+			break;
+		}
 	}
 
-	if (offset >= end_offset)
-		goto bad_len;
-	while (data < dataend) {
+	/*
+	 * Process the packet data, a line at a time.
+	 */
+	while (tvb_length_remaining(tvb, offset)) {
 		/*
 		 * Find the end of the line.
 		 */
-		lineend = find_line_end(data, dataend, &eol);
-		linelen = lineend - data;
+		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
+
+		/*
+		 * Get a buffer that refers to the line.
+		 */
+		line = tvb_get_ptr(tvb, offset, linelen);
+		lineend = line + linelen;
 
 		/*
 		 * OK, does it look like an RTSP request or
 		 * response?
 		 */
-		if (process_rtsp_request_or_reply(data, offset, linelen,
-				rtsp_tree))
+		switch (is_rtsp_request_or_reply(line, linelen)) {
+
+		case RTSP_REQUEST:
+			if (rtsp_tree != NULL)
+				process_rtsp_request(tvb, offset, line, linelen,
+				    rtsp_tree);
 			goto is_rtsp;
+
+		case RTSP_REPLY:
+			if (rtsp_tree != NULL)
+				process_rtsp_reply(tvb, offset, line, linelen,
+				    rtsp_tree);
+			goto is_rtsp;
+
+		case NOT_RTSP:
+			break;
+		}
 
 		/*
 		 * No.  Does it look like a blank line (as would
 		 * appear at the end of an RTSP request)?
 		 */
-		if (linelen == 1) {
-			if (*data == '\n')
-				goto is_rtsp;
-		}
-		if (linelen == 2) {
-			if (strncmp(data, "\r\n", 2) == 0 ||
-			    strncmp(data, "\n\r", 2) == 0)
-				goto is_rtsp;
-		}
+		if (linelen == 0)
+			goto is_rtsp;	/* Yes. */
 
 		/*
 		 * No.  Does it look like a MIME header?
 		 */
-		linep = data;
+		linep = line;
 		while (linep < lineend) {
 			c = *linep++;
 			if (!isprint(c))
@@ -249,8 +313,8 @@ static void dissect_rtsp(const u_char *pd, int offset, frame_data *fd,
 				 * This ends the token; we consider
 				 * this to be a MIME header.
 				 */
-				if (is_content_sdp(data, linelen))
-					is_sdp = 1;
+				if (is_content_sdp(line, linelen))
+					is_sdp = TRUE;
 				goto is_rtsp;
 			}
 		}
@@ -267,103 +331,114 @@ static void dissect_rtsp(const u_char *pd, int offset, frame_data *fd,
 		 * Put this line.
 		 */
 		if (rtsp_tree) {
-			proto_tree_add_text(rtsp_tree, NullTVB, offset, linelen, "%s",
-				format_text(data, linelen));
+			proto_tree_add_text(rtsp_tree, tvb, offset,
+			    next_offset - offset, "%s",
+			    tvb_format_text(tvb, offset, next_offset - offset));
 		}
 		if (linelen > strlen(rtsp_transport) &&
-			strncasecmp(data, rtsp_transport,
+			strncasecmp(line, rtsp_transport,
 				strlen(rtsp_transport)) == 0)
-			rtsp_create_conversation(data, data + linelen);
-		offset += linelen;
-		data = lineend;
+			rtsp_create_conversation(line, line + linelen);
+		offset = next_offset;
 	}
 
+	datalen = tvb_length_remaining(tvb, offset);
 	if (is_sdp) {
-		dissect_sdp(pd, offset, fd, tree);
-		if (check_col(fd, COL_PROTOCOL))
-			col_add_str(fd, COL_PROTOCOL, "RTSP/SDP");
-	}
-	else if (data < dataend) {
-		proto_tree_add_text(rtsp_tree, NullTVB, offset, END_OF_FRAME,
-		    "Data (%d bytes)", END_OF_FRAME);
-	}
-	return;
+		if (datalen > 0) {
+			tvbuff_t *new_tvb = tvb_new_subset(tvb, offset, -1, -1);
+			const guint8 *pd;
 
-bad_len:
-	proto_tree_add_text(rtsp_tree, NullTVB, end_offset, 0,
-		"Unexpected end of packet");
+			/*
+			 * Fix up the top-level item so that it doesn't
+			 * include the SDP stuff.
+			 */
+			if (ti != NULL)
+				proto_item_set_len(ti, offset);
+
+			/*
+			 * Now create a tvbuff for the SDP stuff, and dissect
+			 * it.
+			 */
+			tvb_compat(new_tvb, &pd, &offset);
+			dissect_sdp(pd, offset, pinfo->fd, tree);
+		}
+		if (check_col(pinfo->fd, COL_PROTOCOL))
+			col_add_str(pinfo->fd, COL_PROTOCOL, "RTSP/SDP");
+	} else {
+		if (datalen > 0) {
+			proto_tree_add_text(rtsp_tree, tvb, offset, datalen,
+			    "Data (%d bytes)", datalen);
+		}
+	}
 }
 
-const char *rtsp_methods[] = {
-	"DESCRIBE", "ANNOUNCE", "GET_PARAMETER", "OPTIONS",
-	"PAUSE", "PLAY", "RECORD", "REDIRECT", "SETUP",
-	"SET_PARAMETER", "TEARDOWN"
-};
-const int rtsp_nmethods = sizeof(rtsp_methods) / sizeof(*rtsp_methods);
-
-static int
-process_rtsp_request_or_reply(const u_char *data, int offset, int linelen,
-	proto_tree *tree)
+static void
+process_rtsp_request(tvbuff_t *tvb, int offset, const u_char *data,
+	int linelen, proto_tree *tree)
 {
-	int		ii;
 	const u_char	*lineend = data + linelen;
-
-	/* Reply */
-	if (linelen >= 5 && !strncasecmp("RTSP/", data, 5)) {
-		if (tree) {
-			/* status code */
-			const u_char *status = data;
-			const u_char *status_start;
-			unsigned int status_i = 0;
-			while (status < lineend && !isspace(*status))
-				status++;
-			while (status < lineend && isspace(*status))
-				status++;
-			status_start = status;
-			while (status < lineend && isdigit(*status))
-				status_i = status_i * 10 + *status++ - '0';
-			proto_tree_add_uint_hidden(tree, hf_rtsp_status, NullTVB,
-				offset + (status_start - data),
-				status - status_start, status_i);
-		}
-		return TRUE;
-	}
+	int		ii;
+	const u_char	*url;
+	const u_char	*url_start;
+	u_char		*tmp_url;
 
 	/* Request Methods */
-	for (ii = 0; ii < rtsp_nmethods; ii++) {
+	for (ii = 0; ii < RTSP_NMETHODS; ii++) {
 		size_t len = strlen(rtsp_methods[ii]);
 		if (linelen >= len && !strncasecmp(rtsp_methods[ii], data, len))
 			break;
 	}
-	if (ii == rtsp_nmethods)
-		return FALSE;
-
-	if (tree) {
-		const u_char *url;
-		const u_char *url_start;
-		u_char *tmp_url;
-
-		/* method name */
-		proto_tree_add_string_hidden(tree, hf_rtsp_method, NullTVB, offset,
-			strlen(rtsp_methods[ii]), rtsp_methods[ii]);
-
-		/* URL */
-		url = data;
-		while (url < lineend && !isspace(*url))
-			url++;
-		while (url < lineend && isspace(*url))
-			url++;
-		url_start = url;
-		while (url < lineend && !isspace(*url))
-			url++;
-		tmp_url = g_malloc(url - url_start + 1);
-		memcpy(tmp_url, url_start, url - url_start);
-		tmp_url[url - url_start] = 0;
-		proto_tree_add_string_hidden(tree, hf_rtsp_url, NullTVB,
-			offset + (url_start - data), url - url_start, tmp_url);
-		g_free(tmp_url);
+	if (ii == RTSP_NMETHODS) {
+		/*
+		 * We got here because "is_rtsp_request_or_reply()" returned
+		 * RTSP_REQUEST, so we know one of the request methods
+		 * matched, so we "can't get here".
+		 */
+		g_assert_not_reached();
 	}
-	return TRUE;
+
+	/* Method name */
+	proto_tree_add_string_hidden(tree, hf_rtsp_method, tvb, offset,
+		strlen(rtsp_methods[ii]), rtsp_methods[ii]);
+
+	/* URL */
+	url = data;
+	while (url < lineend && !isspace(*url))
+		url++;
+	while (url < lineend && isspace(*url))
+		url++;
+	url_start = url;
+	while (url < lineend && !isspace(*url))
+		url++;
+	tmp_url = g_malloc(url - url_start + 1);
+	memcpy(tmp_url, url_start, url - url_start);
+	tmp_url[url - url_start] = 0;
+	proto_tree_add_string_hidden(tree, hf_rtsp_url, tvb,
+		offset + (url_start - data), url - url_start, tmp_url);
+	g_free(tmp_url);
+}
+
+static void
+process_rtsp_reply(tvbuff_t *tvb, int offset, const u_char *data,
+	int linelen, proto_tree *tree)
+{
+	const u_char	*lineend = data + linelen;
+	const u_char	*status = data;
+	const u_char	*status_start;
+	unsigned int	status_i;
+
+	/* status code */
+	while (status < lineend && !isspace(*status))
+		status++;
+	while (status < lineend && isspace(*status))
+		status++;
+	status_start = status;
+	status_i = 0;
+	while (status < lineend && isdigit(*status))
+		status_i = status_i * 10 + *status++ - '0';
+	proto_tree_add_uint_hidden(tree, hf_rtsp_status, tvb,
+		offset + (status_start - data),
+		status - status_start, status_i);
 }
 
 void
@@ -390,5 +465,5 @@ proto_register_rtsp(void)
 void
 proto_reg_handoff_rtsp(void)
 {
-	old_dissector_add("tcp.port", TCP_PORT_RTSP, dissect_rtsp);
+	dissector_add("tcp.port", TCP_PORT_RTSP, dissect_rtsp);
 }

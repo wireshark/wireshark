@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.1 2000/09/27 04:54:54 gram Exp $
+ * $Id: tvbuff.h,v 1.2 2000/11/09 10:56:33 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -272,9 +272,23 @@ gint tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffe
  */
 gint tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer);
 
+/*
+ * Given a tvbuff, an offset into the tvbuff, and a length that starts
+ * at that offset (which may be -1 for "all the way to the end of the
+ * tvbuff"), find the end of the (putative) line that starts at the
+ * specified offset in the tvbuff, going no further than the specified
+ * length.
+ *
+ * Return the offset right past the end of the line as the return value,
+ * and return the offset of the EOL character(s) in "*eol".
+ */
+gint tvb_find_line_end(tvbuff_t *tvb, gint offset, int len, gint *eol);
 
 /* Call strncmp after checking if enough chars left, otherwise return -1 */
 gint tvb_strneql(tvbuff_t *tvb, gint offset, guint8 *str, gint size);
+
+/* Call strncasecmp after checking if enough chars left, otherwise return -1 */
+gint tvb_strncaseeql(tvbuff_t *tvb, gint offset, guint8 *str, gint size);
 
 /************** END OF ACCESSORS ****************/
 

@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.2 2000/10/17 08:50:57 guy Exp $
+ * $Id: tvbuff.c,v 1.3 2000/11/09 10:56:33 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -1041,23 +1041,48 @@ tvb_strnlen(tvbuff_t *tvb, gint offset, guint maxlength)
 gint
 tvb_strneql(tvbuff_t *tvb, gint offset, guint8 *str, gint size)
 {
-  guint8 *ptr;
+	guint8 *ptr;
 
-  ptr = ensure_contiguous(tvb, offset, size);
+	ptr = ensure_contiguous(tvb, offset, size);
 
-  if (ptr) {
+	if (ptr) {
+		int cmp = strncmp(ptr, str, size);
 
-    int cmp = strncmp(ptr, str, size);
+		/*
+		 * Return 0 if equal, -1 otherwise.
+		 */
+		return (cmp == 0 ? 0 : -1);
+	} else {
+		/*
+		 * Not enough characters in the tvbuff to match the
+		 * string.
+		 */
+		return -1;
+	}
+}
 
-    return (cmp == 0 ? 0 : -1);  /* Make it -1 if comparison failed */
+/* Call strncasecmp after checking if enough chars left, otherwise return -1 */
+gint
+tvb_strncaseeql(tvbuff_t *tvb, gint offset, guint8 *str, gint size)
+{
+	guint8 *ptr;
 
-  }
-  else {
+	ptr = ensure_contiguous(tvb, offset, size);
 
-    return -1;   /* Not enough chars in the TVB */
+	if (ptr) {
+		int cmp = strncasecmp(ptr, str, size);
 
-  }
-
+		/*
+		 * Return 0 if equal, -1 otherwise.
+		 */
+		return (cmp == 0 ? 0 : -1);
+	} else {
+		/*
+		 * Not enough characters in the tvbuff to match the
+		 * string.
+		 */
+		return -1;
+	}
 }
 
 /*
@@ -1140,4 +1165,104 @@ tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer)
 	else {
 		return len;
 	}
+}
+
+/*
+ * Given a tvbuff, an offset into the tvbuff, and a length that starts
+ * at that offset (which may be -1 for "all the way to the end of the
+ * tvbuff"), find the end of the (putative) line that starts at the
+ * specified offset in the tvbuff, going no further than the specified
+ * length.
+ *
+ * Return the length of the line (not counting the line terminator at
+ * the end), or the amount of data remaining in the buffer if we don't
+ * find a line terminator.
+ *
+ * Set "*next_offset" to the offset of the character past the line
+ * terminator, or past the end of the buffer if we don't find a line
+ * terminator.
+ */
+int
+tvb_find_line_end(tvbuff_t *tvb, gint offset, int len, gint *next_offset)
+{
+	gint eob_offset;
+	gint eol_offset;
+	int linelen;
+
+	if (len == -1)
+		len = tvb_length_remaining(tvb, offset);
+	/*
+	 * XXX - what if "len" is still -1, meaning "offset is past the
+	 * end of the tvbuff"?
+	 */
+	eob_offset = offset + len;
+
+	eol_offset = tvb_find_guint8(tvb, offset, len, '\n');
+	if (eol_offset == -1) {
+		/*
+		 * No LF - line is presumably continued in next packet.
+		 * We pretend the line runs to the end of the tvbuff.
+		 */
+		*next_offset = eob_offset;
+		linelen = eob_offset - offset;
+	} else {
+		/*
+		 * Find the number of bytes between the starting offset
+		 * and the LF.
+		 */
+		linelen = eol_offset - offset;
+
+		/*
+		 * Is the LF at the beginning of the line?
+		 */
+		if (linelen > 0) {
+			/*
+			 * No - is it preceded by a carriage return?
+			 * (Perhaps it's supposed to be, but that's not
+			 * guaranteed....)
+			 */
+			if (tvb_get_guint8(tvb, eol_offset - 1) == '\r') {
+				/*
+				 * Yes.  The EOL starts with the CR;
+				 * don't count it as part of the data
+				 * in the line.
+				 */
+				linelen--;
+			} else {
+				/*
+				 * No.  The EOL starts with the LF.
+				 */
+
+				/*
+				 * I seem to remember that we once saw lines
+				 * ending with LF-CR in an HTTP request or
+				 * response, so check if it's *followed*
+				 * by a carriage return.
+				 *
+				 * XXX - what about <LF><CR> with the <LF>
+				 * not preceded by non-LF/non-CR data?
+				 * Should we check for that, or do we
+				 * run the risk of misinterpreting a
+				 * sequence of multiple <CR><LF> as having
+				 * a bunch of <LF><CR> in it?
+				 */
+				if (eol_offset + 1 < eob_offset &&
+				    tvb_get_guint8(tvb, eol_offset + 1) == '\r') {
+					/*
+					 * It's <non-LF><LF><CR>; say it ends
+					 * with the CR, and skip past the
+					 * LF.
+					 */
+					eol_offset++;
+				}
+			}
+		}
+
+		/*
+		 * Point to the character after the last character.
+		 */
+		eol_offset++;
+		*next_offset = eol_offset;
+	}
+	return linelen;
 }

@@ -2,7 +2,7 @@
  * Routines for telnet packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.17 2000/09/29 19:06:12 guy Exp $
+ * $Id: packet-telnet.c,v 1.18 2000/11/09 10:56:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -121,171 +121,175 @@ static const char *options[] = {
 #define	NOPTIONS	(sizeof options / sizeof options[0])
 
 static int
-telnet_sub_option(proto_tree *telnet_tree, const u_char *pd,
-		int start_offset)
+telnet_sub_option(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
 {
   proto_tree *ti, *option_tree;
   int offset = start_offset;
+  guint8 opt_byte;
   int subneg_len, req;
-  gboolean not_found = TRUE;
   const u_char *opt;
+  guint len;
 
   offset += 2;	/* skip IAC and SB */
 
   /* Figure out the option and type */
-  if (pd[offset] > NOPTIONS)
+  opt_byte = tvb_get_guint8(tvb, offset);
+  if (opt_byte > NOPTIONS)
     opt = "<unknown option>";
   else
-    opt = options[pd[offset]];
+    opt = options[opt_byte];
   offset++;
-  req = pd[offset];
+  req = tvb_get_guint8(tvb, offset);
   offset++;
 
-  while (offset < pi.captured_len && not_found) {  
-    if (pd[offset] == TN_IAC)
-      not_found = FALSE;
-    else
-      offset++;
+  /* Search for an IAC. */
+  len = tvb_length_remaining(tvb, offset);
+  offset = tvb_find_guint8(tvb, offset, len, TN_IAC);
+  if (offset == -1) {
+    /* None found - run to the end of the packet. */
+    offset += len;
   }
 
   subneg_len = offset - start_offset;
 
-  ti = proto_tree_add_text(telnet_tree, NullTVB, start_offset, subneg_len,
+  ti = proto_tree_add_text(telnet_tree, tvb, start_offset, subneg_len,
 			"Suboption Begin: %s", opt);
 
   option_tree = proto_item_add_subtree(ti, ett_telnet_subopt);
 
-  proto_tree_add_text(option_tree, NullTVB, start_offset + 2, 2,
+  proto_tree_add_text(option_tree, tvb, start_offset + 2, 2,
 			"%s %s", (req ? "Send your" : "Here's my"), opt);
 
   if (req == 0) {  /* Add the value */
-    proto_tree_add_text(option_tree, NullTVB, start_offset + 4, subneg_len - 4,
-	"Value: %s", format_text(&pd[start_offset + 4], subneg_len - 4));
+    proto_tree_add_text(option_tree, tvb, start_offset + 4, subneg_len - 4,
+	"Value: %s", tvb_format_text(tvb, start_offset + 4, subneg_len - 4));
   }
   return offset;
 }
 
 static int
-telnet_will_wont_do_dont(proto_tree *telnet_tree, const u_char *pd,
+telnet_will_wont_do_dont(proto_tree *telnet_tree, tvbuff_t *tvb,
 			int start_offset, char *type)
 {
   int offset = start_offset;
+  guint8 opt_byte;
   const char *opt;
 
   offset += 2;	/* skip IAC and WILL,WONT,DO,DONT} */
-  if (pd[offset] > NOPTIONS)
+  opt_byte = tvb_get_guint8(tvb, offset);
+  if (opt_byte > NOPTIONS)
     opt = "<unknown option>";
   else
-    opt = options[pd[offset]];
+    opt = options[opt_byte];
   offset++;
 		      
-  proto_tree_add_text(telnet_tree, NullTVB, start_offset, 3,
+  proto_tree_add_text(telnet_tree, tvb, start_offset, 3,
 			"Command: %s %s", type, opt);
   return offset;
 }
 
 static int
-telnet_command(proto_tree *telnet_tree, const u_char *pd, int start_offset)
+telnet_command(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
 {
   int offset = start_offset;
   u_char optcode;
   
   offset += 1;	/* skip IAC */
-  optcode = pd[offset];
+  optcode = tvb_get_guint8(tvb, offset);
   offset++;
   switch(optcode) {
 
   case TN_EOF:
-    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
+    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
 			"Command: End of File");
     break;
 
   case TN_SUSP:
-    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
+    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
 			"Command: Suspend Current Process");
     break;
 
   case TN_ABORT:
-    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
+    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
 			"Command: Abort Process");
     break;
 
   case TN_EOR:
-    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
+    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
 			"Command: End of Record");
     break;
 
   case TN_SE:
-    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
+    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
 			"Command: Suboption End");
     break;
 
   case TN_NOP:
-    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
+    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
 			"Command: No Operation");
     break;
 
   case TN_DM:
-    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
+    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
 			"Command: Data Mark");
     break;
 
   case TN_BRK:
-    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
+    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
 			"Command: Break");
     break;
 
   case TN_IP:
-    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
+    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
 			"Command: Interrupt Process");
     break;
 
   case TN_AO:
-    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
+    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
 			"Command: Abort Output");
     break;
 
   case TN_AYT:
-    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
+    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
 			"Command: Are You There?");
     break;
 
   case TN_EC:
-    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
+    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
 			"Command: Escape Character");
     break;
 
   case TN_EL:
-    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
+    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
 			"Command: Erase Line");
     break;
 
   case TN_GA:
-    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
+    proto_tree_add_text(telnet_tree, tvb, start_offset, 2,
 			"Command: Go Ahead");
     break;
 
   case TN_SB:
-    offset = telnet_sub_option(telnet_tree, pd, start_offset);
+    offset = telnet_sub_option(telnet_tree, tvb, start_offset);
     break;
 
   case TN_WILL:
-    offset = telnet_will_wont_do_dont(telnet_tree, pd, start_offset,
+    offset = telnet_will_wont_do_dont(telnet_tree, tvb, start_offset,
 					"Will");
     break;
 
   case TN_WONT:
-    offset = telnet_will_wont_do_dont(telnet_tree, pd, start_offset,
+    offset = telnet_will_wont_do_dont(telnet_tree, tvb, start_offset,
 					"Won't");
     break;
 
   case TN_DO:
-    offset = telnet_will_wont_do_dont(telnet_tree, pd, start_offset,
+    offset = telnet_will_wont_do_dont(telnet_tree, tvb, start_offset,
 					"Do");
     break;
 
   case TN_DONT:
-    offset = telnet_will_wont_do_dont(telnet_tree, pd, start_offset,
+    offset = telnet_will_wont_do_dont(telnet_tree, tvb, start_offset,
 					"Don't");
     break;
   }
@@ -294,86 +298,81 @@ telnet_command(proto_tree *telnet_tree, const u_char *pd, int start_offset)
 }
 
 static void
-telnet_add_text(proto_tree *tree, tvbuff_t *tvb, const u_char *pd,
-    int offset, int len)
+telnet_add_text(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
 {
-  const u_char *data, *dataend;
-  const u_char *lineend, *eol;
+  gint next_offset;
   int linelen;
 
-  data = &pd[offset];
-  dataend = data + len;
-  while (data < dataend) {
+  while (len != 0 && tvb_length_remaining(tvb, offset)) {
     /*
      * Find the end of the line.
      */
-    lineend = find_line_end(data, dataend, &eol);
-    linelen = lineend - data;
+    tvb_find_line_end(tvb, offset, len, &next_offset);
+    linelen = next_offset - offset;
 
-    proto_tree_add_text(tree, NullTVB, offset, linelen,
-			"Data: %s", format_text(data, linelen));
+    proto_tree_add_text(tree, tvb, offset, linelen,
+			"Data: %s",
+			tvb_format_text(tvb, offset, linelen));
     offset += linelen;
-    data = lineend;
+    len -= linelen;
   }
 }
 
 static void
-dissect_telnet(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         proto_tree      *telnet_tree, *ti;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_telnet, pd, offset, fd, tree);
+	CHECK_DISPLAY_AS_DATA(proto_telnet, tvb, pinfo, tree);
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "TELNET");
+	pinfo->current_proto = "TELNET";
 
-	if (check_col(fd, COL_INFO))
-	  col_add_fstr(fd, COL_INFO, "Telnet Data ...");
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_add_str(pinfo->fd, COL_PROTOCOL, "TELNET");
+
+	if (check_col(pinfo->fd, COL_INFO))
+		col_add_fstr(pinfo->fd, COL_INFO, "Telnet Data ...");
 
 	if (tree) {
-	  int data_offset;
+	  gint offset = 0;
+	  guint len;
 	  int data_len;
+	  gint iac_offset;
 
-	  ti = proto_tree_add_item(tree, proto_telnet, NullTVB, offset, END_OF_FRAME, FALSE);
+	  ti = proto_tree_add_item(tree, proto_telnet, tvb, offset,
+	    tvb_length_remaining(tvb, offset), FALSE);
 	  telnet_tree = proto_item_add_subtree(ti, ett_telnet);
-
-	  data_offset = offset;
-	  data_len = 0;
 
 	  /*
 	   * Scan through the buffer looking for an IAC byte.
 	   */
-	  while (offset < pi.captured_len) {
-	    if (pd[offset] == TN_IAC) {
+	  while ((len = tvb_length_remaining(tvb, offset)) != 0) {
+	    iac_offset = tvb_find_guint8(tvb, offset, len, TN_IAC);
+	    if (iac_offset != -1) {
 	      /*
 	       * We found an IAC byte.
 	       * If there's any data before it, add that data to the
 	       * tree, a line at a time.
 	       */
-	      if (data_len > 0) {
-	      	telnet_add_text(telnet_tree, NullTVB, pd, data_offset, data_len);
-		data_len = 0;
-		data_offset = offset;
-	      }
+	      data_len = iac_offset - offset;
+	      if (data_len > 0)
+	      	telnet_add_text(telnet_tree, tvb, offset, data_len);
 	      
 	      /*
 	       * Now interpret the command.
 	       */
-	      offset = telnet_command(telnet_tree, pd, offset);
-	      data_offset = offset;
+	      offset = telnet_command(telnet_tree, tvb, iac_offset);
 	    }
 	    else {
-	      data_len++;
-	      offset++;
+	      /*
+	       * We found no IAC byte, so what remains in the buffer
+	       * is the last of the data in the packet.
+	       * Add it to the tree, a line at a time, and then quit.
+	       */
+	      telnet_add_text(telnet_tree, tvb, offset, len);
+	      break;
 	    }
 	  }
-
-	  /*
-	   * We've reached the end of the buffer.
-	   * If there's any data left, add it to the tree.
-	   */
-	  if (data_len > 0)
-	    telnet_add_text(telnet_tree, NullTVB, pd, data_offset, data_len);
 	}
 }
 
@@ -397,5 +396,5 @@ proto_register_telnet(void)
 void
 proto_reg_handoff_telnet(void)
 {
-	old_dissector_add("tcp.port", TCP_PORT_TELNET, dissect_telnet);
+	dissector_add("tcp.port", TCP_PORT_TELNET, dissect_telnet);
 }

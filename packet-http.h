@@ -1,6 +1,6 @@
 /* packet-http.h
  *
- * $Id: packet-http.h,v 1.2 2000/08/11 13:34:12 deniel Exp $
+ * $Id: packet-http.h,v 1.3 2000/11/09 10:56:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,6 +25,6 @@
 #ifndef __PACKET_HTTP_H__
 #define __PACKET_HTTP_H__
 
-void dissect_http(const u_char *, int, frame_data *, proto_tree *);
+void dissect_http(tvbuff_t *, packet_info *, proto_tree *);
 
 #endif

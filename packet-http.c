@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.24 2000/10/19 07:38:01 guy Exp $
+ * $Id: packet-http.c,v 1.25 2000/11/09 10:56:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,75 +62,82 @@ static gint ett_http = -1;
 
 static int is_http_request_or_reply(const u_char *data, int linelen, http_type_t *type);
 
-void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+void
+dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	gboolean	is_ipp = (pi.srcport == 631 || pi.destport == 631);
-	proto_item	*ti;
-	proto_tree	*http_tree;
-	const u_char	*data, *dataend;
-	const u_char	*linep, *lineend, *eol;
+	gboolean	is_ipp = (pinfo->srcport == 631 || pinfo->destport == 631);
+	proto_tree	*http_tree = NULL;
+	proto_item	*ti = NULL;
+	gint		offset = 0;
+	const u_char	*line;
+	gint		next_offset;
+	const u_char	*linep, *lineend;
 	int		linelen;
 	u_char		c;
-	http_type_t     http_type = HTTP_OTHERS;
+	http_type_t     http_type;
+	int		datalen;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_http, pd, offset, fd, tree);
+	CHECK_DISPLAY_AS_DATA(proto_http, tvb, pinfo, tree);
 
-	data = &pd[offset];
-	dataend = data + END_OF_FRAME;
+	pinfo->current_proto = is_ipp ? "IPP" : "HTTP";
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, is_ipp ? "IPP" : "HTTP");
-	if (check_col(fd, COL_INFO)) {
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_add_str(pinfo->fd, COL_PROTOCOL, is_ipp ? "IPP" : "HTTP");
+	if (check_col(pinfo->fd, COL_INFO)) {
 		/*
-		 * Put the first line from the buffer into the summary,
+		 * Put the first line from the buffer into the summary
 		 * if it's an HTTP request or reply (but leave out the
-		 * "\r\n", or whatever, at the end).
+		 * line terminator).
 		 * Otherwise, just call it a continuation.
 		 */
-		lineend = find_line_end(data, dataend, &eol);
-		linelen = eol - data;
-		if (is_http_request_or_reply(data, linelen, &http_type))
-			col_add_str(fd, COL_INFO, format_text(data, linelen));
+		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
+		line = tvb_get_ptr(tvb, offset, linelen);
+		if (is_http_request_or_reply(line, linelen, &http_type))
+			col_add_str(pinfo->fd, COL_INFO,
+			    format_text(line, linelen));
 		else
-			col_add_str(fd, COL_INFO, "Continuation");
+			col_add_str(pinfo->fd, COL_INFO, "Continuation");
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_http, NullTVB, offset, END_OF_FRAME, FALSE);
+		ti = proto_tree_add_item(tree, proto_http, tvb, offset,
+		    tvb_length_remaining(tvb, offset), FALSE);
 		http_tree = proto_item_add_subtree(ti, ett_http);
 
-		while (data < dataend) {
+		/*
+		 * Process the packet data, a line at a time.
+		 */
+		while (tvb_length_remaining(tvb, offset)) {
 			/*
 			 * Find the end of the line.
 			 */
-			lineend = find_line_end(data, dataend, &eol);
-			linelen = lineend - data;
+			linelen = tvb_find_line_end(tvb, offset, -1,
+			    &next_offset);
+
+			/*
+			 * Get a buffer that refers to the line.
+			 */
+			line = tvb_get_ptr(tvb, offset, linelen);
+			lineend = line + linelen;
 
 			/*
 			 * OK, does it look like an HTTP request or
 			 * response?
 			 */
-			if (is_http_request_or_reply(data, linelen, &http_type))
+			if (is_http_request_or_reply(line, linelen, &http_type))
 				goto is_http;
 
 			/*
 			 * No.  Does it look like a blank line (as would
 			 * appear at the end of an HTTP request)?
 			 */
-			if (linelen == 1) {
-				if (*data == '\n')
-					goto is_http;
-			}
-			if (linelen == 2) {
-				if (strncmp(data, "\r\n", 2) == 0 ||
-				    strncmp(data, "\n\r", 2) == 0)
-					goto is_http;
-			}
+			if (linelen == 0)
+				goto is_http;
 
 			/*
 			 * No.  Does it look like a MIME header?
 			 */
-			linep = data;
+			linep = line;
 			while (linep < lineend) {
 				c = *linep++;
 				if (!isprint(c))
@@ -184,35 +191,51 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			/*
 			 * Put this line.
 			 */
-			proto_tree_add_text(http_tree, NullTVB, offset, linelen, "%s",
-			    format_text(data, linelen));
-			offset += linelen;
-			data = lineend;
+			proto_tree_add_text(http_tree, tvb, offset,
+			    next_offset - offset, "%s",
+			    tvb_format_text(tvb, offset, next_offset - offset));
+			offset = next_offset;
 		}
 
 		switch (http_type) {
 
 		case HTTP_RESPONSE:
 			proto_tree_add_boolean_hidden(http_tree, 
-					       hf_http_response, NullTVB, 0, 0, 1);
+			    hf_http_response, tvb, 0, 0, 1);
 			break;
 
 		case HTTP_REQUEST:
 			proto_tree_add_boolean_hidden(http_tree, 
-					       hf_http_request, NullTVB, 0, 0, 1);
+			    hf_http_request, tvb, 0, 0, 1);
 			break;
 
 		case HTTP_OTHERS:
 		default:
 			break;
 		}
+	}
 
-		if (data < dataend) {
-			if (is_ipp)
-				dissect_ipp(pd, offset, fd, tree);
-			else
-				old_dissect_data(&pd[offset], offset, fd, http_tree);
-		}
+	datalen = tvb_length_remaining(tvb, offset);
+	if (datalen > 0) {
+		tvbuff_t *new_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		const guint8 *pd;
+
+		if (is_ipp) {
+			/*
+			 * Fix up the top-level item so that it doesn't
+			 * include the IPP stuff.
+			 */
+			if (ti != NULL)
+				proto_item_set_len(ti, offset);
+
+			/*
+			 * Now create a tvbuff for the IPP stuff, and dissect
+			 * it.
+			 */
+			tvb_compat(new_tvb, &pd, &offset);
+			dissect_ipp(pd, offset, pinfo->fd, tree);
+		} else
+			dissect_data(new_tvb, pinfo, http_tree);
 	}
 }
 
@@ -272,31 +295,31 @@ is_http_request_or_reply(const u_char *data, int linelen, http_type_t *type)
 void
 proto_register_http(void)
 {
+	static hf_register_info hf[] = {
+	    { &hf_http_response,
+	      { "Response",		"http.response",  
+		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		"TRUE if HTTP response" }},
+	    { &hf_http_request,
+	      { "Request",		"http.request",
+		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		"TRUE if HTTP request" }},
+	};
+	static gint *ett[] = {
+		&ett_http,
+	};
 
-  static hf_register_info hf[] = {
-    { &hf_http_response,
-      { "Response",		"http.response",  
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"TRUE if HTTP response" }},
-    { &hf_http_request,
-      { "Request",		"http.request",
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"TRUE if HTTP request" }},
-  };
-  static gint *ett[] = {
-    &ett_http,
-  };
-
-  proto_http = proto_register_protocol("Hypertext Transfer Protocol", "http");
-  proto_register_field_array(proto_http, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+	proto_http = proto_register_protocol("Hypertext Transfer Protocol",
+	    "http");
+	proto_register_field_array(proto_http, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_http(void)
 {
-  old_dissector_add("tcp.port", TCP_PORT_HTTP, dissect_http);
-  old_dissector_add("tcp.port", TCP_ALT_PORT_HTTP, dissect_http);
-  old_dissector_add("tcp.port", TCP_PORT_PROXY_HTTP, dissect_http);
-  old_dissector_add("tcp.port", TCP_PORT_PROXY_ADMIN_HTTP, dissect_http);
+	dissector_add("tcp.port", TCP_PORT_HTTP, dissect_http);
+	dissector_add("tcp.port", TCP_ALT_PORT_HTTP, dissect_http);
+	dissector_add("tcp.port", TCP_PORT_PROXY_HTTP, dissect_http);
+	dissector_add("tcp.port", TCP_PORT_PROXY_ADMIN_HTTP, dissect_http);
 }
