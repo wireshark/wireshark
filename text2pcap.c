@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.29 2004/01/06 02:58:20 guy Exp $
+ * $Id: text2pcap.c,v 1.30 2004/07/04 17:36:53 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -991,7 +991,7 @@ help (char *progname)
             "\n"
             "Usage: %s [-h] [-d] [-q] [-o h|o] [-l typenum] [-e l3pid] [-i proto] \n"
             "          [-m max-packet] [-u srcp,destp] [-T srcp,destp] [-s srcp,destp,tag]\n"
-            "          [-S srcp,destp,tag] [-t timefmt] <input-filename> <output-filename>\n"
+            "          [-S srcp,destp,ppi] [-t timefmt] <input-filename> <output-filename>\n"
             "\n"
             "where <input-filename> specifies input filename (use - for standard input)\n"
             "      <output-filename> specifies output filename (use - for standard output)\n"
