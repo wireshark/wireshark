@@ -1,11 +1,13 @@
 /* packet-radius.c
  * Routines for RADIUS packet disassembly
+ * Copyright 1999 Johan Feyaerts
  *
- * $Id: packet-radius.c,v 1.26 2001/02/19 23:14:02 guy Exp $
+ * $Id: packet-radius.c,v 1.27 2001/02/20 08:10:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Johan Feyaerts
- * Copyright 1999 Johan Feyaerts
+ * By Gerald Combs <gerald@ethereal.com>
+ * Copyright 1998 Gerald Combs
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -479,11 +481,12 @@ guint32 match_numval(guint32 val, const value_value_pair *vs)
 
 static gchar textbuffer[2000];
 
-gchar *rdconvertbufftostr(gchar *dest,int length,const guint8 *pd)
+gchar *rdconvertbufftostr(gchar *dest, tvbuff_t *tvb, int offset, int length)
 {
 /*converts the raw buffer into printable text */
-guint32 i;
-guint32 totlen=0;
+	guint32 i;
+	guint32 totlen=0;
+	guint8 *pd = tvb_get_ptr(tvb, offset, length);
 
         dest[0]='"';
         dest[1]=0;
@@ -510,15 +513,18 @@ gchar *rd_match_strval(guint32 val, const value_string *vs) {
 	return val_to_str(val, vs, "Undefined (%u)");
 }
 
-gchar *rd_value_to_str(e_avphdr *avph,const u_char *pd, int offset)
+gchar *rd_value_to_str(e_avphdr *avph, tvbuff_t *tvb, int offset)
 {
-int print_type;
-gchar *cont;
-guint32 intval;
-value_string *valstrarr;
+  int print_type;
+  gchar *cont;
+  value_string *valstrarr;
+  guint32 intval;
+  guint8 *pd;
+  guint8 tag;
+
 /* prints the values of the attribute value pairs into a text buffer */
   print_type=match_numval(avph->avp_type,radius_printinfo);
-  intval=pntohl(&(pd[offset+2]));
+
   /* Default begin */
   strcpy(textbuffer,"Value:");
   cont=&textbuffer[strlen(textbuffer)];
@@ -526,65 +532,65 @@ value_string *valstrarr;
   {
         case( RADIUS_STRING ):
         case( RADIUS_BINSTRING ):
-		rdconvertbufftostr(cont,avph->avp_length-2,&(pd[offset+2]));
+		rdconvertbufftostr(cont,tvb,offset+2,avph->avp_length-2);
                 break;
         case( RADIUS_INTEGER4 ):
-                sprintf(cont,"%u", intval);
+                sprintf(cont,"%u", tvb_get_ntohl(tvb,offset+2));
                 break;
         case( RADIUS_IP_ADDRESS ):
-                sprintf(cont,"%u.%u.%u.%u",(guint8)pd[offset+2],
-                        (guint8)pd[offset+3],(guint8)pd[offset+4],
-                        (guint8)pd[offset+5]);
+                ip_to_str_buf(tvb_get_ptr(tvb,offset+2,4),cont);
                 break;
         case( RADIUS_SERVICE_TYPE ):
                 valstrarr=radius_service_type_vals;
-                strcpy(cont,rd_match_strval(intval,valstrarr));
+                strcpy(cont,rd_match_strval(tvb_get_ntohl(tvb,offset+2),valstrarr));
                 break;
         case( RADIUS_FRAMED_PROTOCOL ):
                 valstrarr= radius_framed_protocol_vals;
-                strcpy(cont,rd_match_strval(intval,valstrarr));
+                strcpy(cont,rd_match_strval(tvb_get_ntohl(tvb,offset+2),valstrarr));
                 break;
         case( RADIUS_FRAMED_ROUTING ):
                 valstrarr=radius_framed_routing_vals;
-                strcpy(cont,rd_match_strval(intval,valstrarr));
+                strcpy(cont,rd_match_strval(tvb_get_ntohl(tvb,offset+2),valstrarr));
                 break;
         case( RADIUS_FRAMED_COMPRESSION ):
                 valstrarr=radius_framed_compression_vals;
-                strcpy(cont,rd_match_strval(intval,valstrarr));
+                strcpy(cont,rd_match_strval(tvb_get_ntohl(tvb,offset+2),valstrarr));
                 break;
         case( RADIUS_LOGIN_SERVICE ):
                 valstrarr=radius_login_service_vals;
-                strcpy(cont,rd_match_strval(intval,valstrarr));
+                strcpy(cont,rd_match_strval(tvb_get_ntohl(tvb,offset+2),valstrarr));
                 break;
         case( RADIUS_IPX_ADDRESS ):
+                pd = tvb_get_ptr(tvb,offset+2,4);
                 sprintf(cont,"%u:%u:%u:%u",(guint8)pd[offset+2],
                         (guint8)pd[offset+3],(guint8)pd[offset+4],
                         (guint8)pd[offset+5]);
         case( RADIUS_TERMINATING_ACTION ):
                 valstrarr=radius_terminating_action_vals;
-                strcpy(cont,rd_match_strval(intval,valstrarr));
+                strcpy(cont,rd_match_strval(tvb_get_ntohl(tvb,offset+2),valstrarr));
                 break;
         case( RADIUS_ACCOUNTING_STATUS_TYPE ):
                 valstrarr=radius_accounting_status_type_vals;
-                strcpy(cont,rd_match_strval(intval,valstrarr));
+                strcpy(cont,rd_match_strval(tvb_get_ntohl(tvb,offset+2),valstrarr));
                 break;
         case( RADIUS_ACCT_AUTHENTIC ):
                 valstrarr=radius_accounting_authentication_vals;
-                strcpy(cont,rd_match_strval(intval,valstrarr));
+                strcpy(cont,rd_match_strval(tvb_get_ntohl(tvb,offset+2),valstrarr));
                 break;
         case( RADIUS_ACCT_TERMINATE_CAUSE ):
                 valstrarr=radius_acct_terminate_cause_vals;
-                strcpy(cont,rd_match_strval(intval,valstrarr));
+                strcpy(cont,rd_match_strval(tvb_get_ntohl(tvb,offset+2),valstrarr));
                 break;
         case( RADIUS_NAS_PORT_TYPE ):
                 valstrarr=radius_nas_port_type_vals;
-                strcpy(cont,rd_match_strval(intval,valstrarr));
+                strcpy(cont,rd_match_strval(tvb_get_ntohl(tvb,offset+2),valstrarr));
                 break;
 	case( RADIUS_TUNNEL_TYPE ):
 		valstrarr=radius_tunnel_type_vals;
 		/* Tagged ? */
+		intval = tvb_get_ntohl(tvb,offset+2);
 		if (intval >> 24) {
-			sprintf(textbuffer, "Tag:%d, Value:%s",
+			sprintf(textbuffer, "Tag:%u, Value:%s",
 				intval >> 24,
 				rd_match_strval(intval & 0xffffff,valstrarr));
 			break;
@@ -593,9 +599,10 @@ value_string *valstrarr;
 		break;
 	case( RADIUS_TUNNEL_MEDIUM_TYPE ):
 		valstrarr=radius_tunnel_medium_type_vals;
+		intval = tvb_get_ntohl(tvb,offset+2);
 		/* Tagged ? */
 		if (intval >> 24) {
-			sprintf(textbuffer, "Tag:%d, Value:%s",
+			sprintf(textbuffer, "Tag:%u, Value:%s",
 				intval >> 24,
 				rd_match_strval(intval & 0xffffff,valstrarr));
 			break;
@@ -604,23 +611,22 @@ value_string *valstrarr;
 		break;
         case( RADIUS_STRING_TAGGED ):
 		/* Tagged ? */
-		if (pd[offset+2] <= 0x1f) {
-			sprintf(textbuffer, "Tag:%d, Value:",
-					pd[offset+2]);
+		tag = tvb_get_guint8(tvb,offset+2);
+		if (tag <= 0x1f) {
+			sprintf(textbuffer, "Tag:%u, Value:",
+					tag);
 			cont=&textbuffer[strlen(textbuffer)];	
-			rdconvertbufftostr(cont,avph->avp_length-3,
-					&(pd[offset+3]));
+			rdconvertbufftostr(cont,tvb,offset+3,avph->avp_length-3);
 			break;
 		}
-		rdconvertbufftostr(cont,avph->avp_length-2,
-				&(pd[offset+2]));
+		rdconvertbufftostr(cont,tvb,offset+2,avph->avp_length-2);
                 break;
 	case ( RADIUS_VENDOR_SPECIFIC ):
 		valstrarr=radius_vendor_specific_vendors;
 		sprintf(textbuffer,"Vendor:%s, Value:",
-				rd_match_strval(intval,valstrarr));
+				rd_match_strval(tvb_get_ntohl(tvb,offset+2),valstrarr));
 		cont=&textbuffer[strlen(textbuffer)];
-		rdconvertbufftostr(cont,avph->avp_length-6,&(pd[offset+6]));
+		rdconvertbufftostr(cont,tvb,offset+6,avph->avp_length-6);
 		break;
         case( RADIUS_UNKNOWN ):
         default:
@@ -634,8 +640,8 @@ value_string *valstrarr;
 }
 
 
-void dissect_attribute_value_pairs(const u_char *pd, int offset, frame_data
-*fd, proto_tree *tree, int avplength)
+void dissect_attribute_value_pairs(tvbuff_t *tvb, int offset, proto_tree *tree,
+				   int avplength)
 {
 /* adds the attribute value pairs to the tree */
   e_avphdr avph;
@@ -643,23 +649,20 @@ void dissect_attribute_value_pairs(const u_char *pd, int offset, frame_data
   gchar *valstr;
   if (avplength==0)
   {
-        proto_tree_add_text(tree, NullTVB,offset,0,"No Attribute Value Pairs Found");
+        proto_tree_add_text(tree, tvb,offset,0,"No Attribute Value Pairs Found");
         return;
   }
 
   while (avplength > 0 )
   {
 
-     memcpy(&avph,&pd[offset],sizeof(e_avphdr));
+     tvb_memcpy(tvb,(guint8 *)&avph,offset,sizeof(e_avphdr));
      avplength=avplength-avph.avp_length;
      avptpstrval=match_strval(avph.avp_type, radius_attrib_type_vals);
      if (avptpstrval == NULL) avptpstrval="Unknown Type";
-     valstr=rd_value_to_str(&avph, pd, offset);
-     if (!BYTES_ARE_IN_FRAME(offset, avph.avp_length)) {
-	break;
-     }
-     proto_tree_add_text(tree, NullTVB,offset,avph.avp_length,
-        "t:%s(%d) l:%d, %s",
+     valstr=rd_value_to_str(&avph, tvb, offset);
+     proto_tree_add_text(tree, tvb,offset,avph.avp_length,
+        "t:%s(%u) l:%u, %s",
         avptpstrval,avph.avp_type,avph.avp_length,valstr);
      offset=offset+avph.avp_length;
      if (avph.avp_length == 0) {
@@ -668,22 +671,24 @@ void dissect_attribute_value_pairs(const u_char *pd, int offset, frame_data
   }
 }
 
-static void dissect_radius(const u_char *pd, int offset, frame_data *fd, 
-proto_tree
-*tree)
+static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *radius_tree,*avptree;
   proto_item *ti,*avptf;
   int rhlength;
   int rhcode;
   int rhident;
-  int avplength,hdrlength, offsetavp;
+  int avplength,hdrlength;
   e_radiushdr rh;
 
   gchar *codestrval;
 
-  memcpy(&rh,&pd[offset],sizeof(e_radiushdr));
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+        col_set_str(pinfo->fd, COL_PROTOCOL, "RADIUS");
+  if (check_col(pinfo->fd, COL_INFO))
+        col_clear(pinfo->fd, COL_INFO);
 
+  tvb_memcpy(tvb,(guint8 *)&rh,0,sizeof(e_radiushdr));
 
   rhcode= (int)rh.rh_code;
   rhident= (int)rh.rh_ident;
@@ -693,54 +698,44 @@ proto_tree
   {
 	codestrval="Unknown Packet";
   }
-  if (check_col(fd, COL_PROTOCOL))
-        col_set_str(fd, COL_PROTOCOL, "RADIUS");
-  if (check_col(fd, COL_INFO))
+  if (check_col(pinfo->fd, COL_INFO))
   {
-	sprintf(textbuffer,"%s(%d) (id=%d, l=%d)",
+        col_add_fstr(pinfo->fd,COL_INFO,"%s(%d) (id=%d, l=%d)",
 		codestrval, rhcode, rhident, rhlength);
-        col_add_fstr(fd,COL_INFO,textbuffer);
   }
 
   if (tree)
   {
-	
-        ti = proto_tree_add_item(tree,proto_radius, NullTVB, offset, rhlength,
-			FALSE);
+        ti = proto_tree_add_item(tree,proto_radius, tvb, 0, rhlength, FALSE);
 
         radius_tree = proto_item_add_subtree(ti, ett_radius);
 
-	proto_tree_add_uint_format(radius_tree,hf_radius_code, NullTVB, offset,      1,
-                rh.rh_code, "Packet code:0x%01x (%s)",rhcode, codestrval);
-        proto_tree_add_uint_format(radius_tree,hf_radius_id, NullTVB, offset+1, 1,
+	proto_tree_add_uint(radius_tree,hf_radius_code, tvb, 0, 1,
+                rh.rh_code);
+        proto_tree_add_uint_format(radius_tree,hf_radius_id, tvb, 1, 1,
                 rh.rh_ident, "Packet identifier: 0x%01x (%d)",
 			rhident,rhident);         
 
-	proto_tree_add_uint_format(radius_tree, hf_radius_length, NullTVB,
-			offset+2, 2,
-                 (guint16)rhlength, 
-		"Packet length: 0x%02x(%d)",rhlength,rhlength); 
-         proto_tree_add_text(radius_tree, NullTVB, offset+4,
+	proto_tree_add_uint(radius_tree, hf_radius_length, tvb,
+			2, 2, rhlength);
+	proto_tree_add_text(radius_tree, tvb, 4,
 			AUTHENTICATOR_LENGTH,
                          "Authenticator");
    
 	hdrlength=RD_HDR_LENGTH+AUTHENTICATOR_LENGTH;
         avplength= rhlength -hdrlength;
 
-        offsetavp=offset+hdrlength;
-
-
         /* list the attribute value pairs */
 
         avptf = proto_tree_add_text(radius_tree,
-                        NullTVB,offset+hdrlength,avplength,
+                        tvb,hdrlength,avplength,
                         "Attribute value pairs");
         avptree = proto_item_add_subtree(avptf, ett_radius_avp);
 
         if (avptree !=NULL)
         {
-                dissect_attribute_value_pairs( pd,
-                                offsetavp,fd,avptree,avplength);
+                dissect_attribute_value_pairs(tvb, hdrlength,
+                                avptree,avplength);
         }
   }
 }
@@ -750,7 +745,7 @@ proto_register_radius(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_radius_code,
-		{ "Code","radius.code", FT_UINT8, BASE_DEC, NULL, 0x0,
+		{ "Code","radius.code", FT_UINT8, BASE_DEC, VALS(radius_vals), 0x0,
 			"" }},
 
 		{ &hf_radius_id,
@@ -775,12 +770,12 @@ proto_register_radius(void)
 void
 proto_reg_handoff_radius(void)
 {
-	old_dissector_add("udp.port", UDP_PORT_RADIUS, dissect_radius,
+	dissector_add("udp.port", UDP_PORT_RADIUS, dissect_radius,
 	    proto_radius);
-	old_dissector_add("udp.port", UDP_PORT_RADIUS_NEW, dissect_radius,
+	dissector_add("udp.port", UDP_PORT_RADIUS_NEW, dissect_radius,
 	    proto_radius);
-	old_dissector_add("udp.port", UDP_PORT_RADACCT, dissect_radius,
+	dissector_add("udp.port", UDP_PORT_RADACCT, dissect_radius,
 	    proto_radius);
-	old_dissector_add("udp.port", UDP_PORT_RADACCT_NEW, dissect_radius,
+	dissector_add("udp.port", UDP_PORT_RADACCT_NEW, dissect_radius,
 	    proto_radius);
 }

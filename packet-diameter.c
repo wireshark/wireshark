@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.18 2001/02/20 01:20:24 guy Exp $
+ * $Id: packet-diameter.c,v 1.19 2001/02/20 08:10:14 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -177,6 +177,8 @@ static void dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 /* Make entries in Protocol column and Info column on summary display */
 	if (check_col(pinfo->fd, COL_PROTOCOL)) 
 		col_add_str(pinfo->fd, COL_PROTOCOL, "Diameter");
+	if (check_col(pinfo->fd, COL_INFO)) 
+		col_clear(pinfo->fd, COL_INFO);
 	
 	/* Copy our header */
 	tvb_memcpy(tvb, (guint8*) &dh, offset, sizeof(dh));
