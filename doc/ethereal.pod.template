@@ -9,7 +9,6 @@ B<ethereal>
 S<[ B<-B> byte view height ]>
 S<[ B<-b> bold font ]>
 S<[ B<-c> count ]>
-S<[ B<-F> ]>
 S<[ B<-f> filter expression ]>
 S<[ B<-h> ]>
 S<[ B<-i> interface ]> 
@@ -77,12 +76,6 @@ pane that corresponds to the field selected in the protocol tree pane.
 Sets the default number of packets to read when capturing live
 data.
 
-=item -F
-
-Specifies that the live packet capture will be performed in a separate
-process. It is then possible to open/reload the file to display the
-packets actually captured.
-
 =item -f
 
 Sets the capture filter expression.
@@ -134,9 +127,8 @@ the filter are discarded.
 =item -S
 
 Specifies that the live packet capture will be performed in a separate
-process (same as option B<-F>) and that the packet displaying should be
-synchronized with the capture session without human operation 
-(i.e. without load/reload).
+process, and that the packet display will automatically be updated as
+packets are seen.
 
 =item -s
 

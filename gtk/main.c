@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.16 1999/10/02 19:33:14 guy Exp $
+ * $Id: main.c,v 1.17 1999/10/02 19:57:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -442,11 +442,11 @@ print_usage(void) {
 
   fprintf(stderr, "This is GNU %s %s, compiled with %s\n", PACKAGE,
 	  VERSION, comp_info_str);
-  fprintf(stderr, "%s [-vh] [-FkQS] [-b bold font] [-B byte view height] [-c count]\n",
+  fprintf(stderr, "%s [-vh] [-kQS] [-b <bold font>] [-B <byte view height>] [-c count]\n",
 	  PACKAGE);
-  fprintf(stderr, "         [-f \"filter expression\"] [-i interface] [-m medium font] [-n]\n");
-  fprintf(stderr, "         [-P packet list height] [-r infile] [-s snaplen]\n");
-  fprintf(stderr, "         [-t <time stamp format>] [-T tree view height] [-w savefile] \n");
+  fprintf(stderr, "         [-f <filter expression>] [-i interface] [-m <medium font>] [-n]\n");
+  fprintf(stderr, "         [-P <packet list height>] [-r infile] [-s snaplen]\n");
+  fprintf(stderr, "         [-t <time stamp format>] [-T <tree view height>] [-w savefile] \n");
 }
 
 /* And now our feature presentation... [ fade to music ] */
@@ -499,7 +499,7 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_LIBPCAP
   /* Set "capture_child" to indicate whether this is going to be a child
-     process for a "-S" or "-F" capture? */
+     process for a "-S" capture? */
   capture_child = (strcmp(command_name, CHILD_NAME) == 0);
 #endif
 
@@ -556,7 +556,7 @@ main(int argc, char *argv[])
 
 #ifndef WIN32
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "b:B:c:f:Fhi:km:nP:Qr:R:Ss:t:T:w:W:v")) != EOF) {
+  while ((opt = getopt(argc, argv, "b:B:c:f:hi:km:nP:Qr:R:Ss:t:T:w:W:v")) != EOF) {
     switch (opt) {
       case 'b':	       /* Bold font */
 	bold_font = g_strdup(optarg);
@@ -571,9 +571,6 @@ main(int argc, char *argv[])
       case 'f':
 	cf.cfilter = g_strdup(optarg);
 	break;
-      case 'F':	       /* Fork to capture */
-        fork_mode = TRUE;
-        break;
 #endif
       case 'h':        /* Print help and exit */
 	print_usage();
@@ -646,6 +643,9 @@ main(int argc, char *argv[])
         cf.save_file_fd = atoi(optarg);
 	break;
 #endif
+      case '?':        /* Bad flag - print usage message */
+        print_usage();
+        break;
     }
   }
 #endif

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.78 1999/10/02 19:24:18 guy Exp $
+ * $Id: capture.c,v 1.79 1999/10/02 19:57:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -90,9 +90,8 @@
 
 int sync_mode;	/* fork a child to do the capture, and sync between them */
 int sync_pipe[2]; /* used to sync father */
-int fork_mode;	/* fork a child to do the capture */
 int quit_after_cap; /* Makes a "capture only mode". Implies -k */
-gboolean capture_child;	/* if this is the child for "-F"/"-S" */
+gboolean capture_child;	/* if this is the child for "-S" */
 
 static void capture_stop_cb(GtkWidget *, gpointer);
 static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
@@ -148,7 +147,7 @@ do_capture(char *capfile_name)
   cf.save_file = capfile_name;
   cf.user_saved = !is_temp_file;
 
-  if (sync_mode || fork_mode) {	/*  use fork() for capture */
+  if (sync_mode) {	/*  use fork() for capture */
     int  fork_child;
     char ssnap[24];
     char scount[24];	/* need a constant for len of numbers */
@@ -158,97 +157,82 @@ do_capture(char *capfile_name)
     sprintf(scount,"%d",cf.count);
     sprintf(save_file_fd,"%d",cf.save_file_fd);
     signal(SIGCHLD, SIG_IGN);
-    if (sync_mode)
-      pipe(sync_pipe);
+    pipe(sync_pipe);
     if ((fork_child = fork()) == 0) {
       /* args: -i interface specification
        * -w file to write
        * -W file descriptor to write
        * -c count to capture
        * -s snaplen
-       * -S sync mode
        * -m / -b fonts
        * -f "filter expression"
        */
-       if (sync_mode) {
-	 close(1);
-	 dup(sync_pipe[1]);
-	 close(sync_pipe[0]);
-	 execlp(ethereal_path, CHILD_NAME, "-i", cf.iface,
+      close(1);
+      dup(sync_pipe[1]);
+      close(sync_pipe[0]);
+      execlp(ethereal_path, CHILD_NAME, "-i", cf.iface,
 		"-w", cf.save_file, "-W", save_file_fd,
-		"-c", scount, "-s", ssnap, "-S", 
+		"-c", scount, "-s", ssnap, 
 		"-m", medium_font, "-b", bold_font,
 		(cf.cfilter == NULL)? 0 : "-f",
 		(cf.cfilter == NULL)? 0 : cf.cfilter,
 		(const char *)NULL);	
-       }
-       else {
-	 execlp(ethereal_path, CHILD_NAME, "-i", cf.iface,
-		"-w", cf.save_file, "-W", save_file_fd,
-		"-c", scount, "-s", ssnap,
-		"-m", medium_font, "-b", bold_font,
-		(cf.cfilter == NULL)? 0 : "-f",
-		(cf.cfilter == NULL)? 0 : cf.cfilter,
-		(const char *)NULL);
-       }
     }
     else {
-       cf.filename = cf.save_file;
-       if (sync_mode) {
-	 close(sync_pipe[1]);
+      cf.filename = cf.save_file;
+      close(sync_pipe[1]);
 
-	 /* Read a byte count from "sync_pipe[0]", terminated with a
-	    colon; if the count is 0, the child process created the
-	    capture file and we should start reading from it, otherwise
-	    the capture couldn't start and the count is a count of bytes
-	    of error message, and we should display the message. */
-	 byte_count = 0;
-	 for (;;) {
-	   i = read(sync_pipe[0], &c, 1);
-	   if (i == 0) {
-	     /* EOF - the child process died.
-	        XXX - reap it and report the status. */
-	     simple_dialog(ESD_TYPE_WARN, NULL, "Capture child process died");
-	     return;
-	   }
-	   if (c == ';')
-	     break;
-	   if (!isdigit(c)) {
-	     /* Child process handed us crap. */
-	     simple_dialog(ESD_TYPE_WARN, NULL,
-	        "Capture child process sent us a bad message");
-	     return;
-	   }
-	   byte_count = byte_count*10 + c - '0';
-	 }
-	 if (byte_count == 0) {
-	   /* Success. */
-	   err = tail_cap_file(cf.save_file, &cf);
-	   if (err != 0) {
-	     simple_dialog(ESD_TYPE_WARN, NULL,
+      /* Read a byte count from "sync_pipe[0]", terminated with a
+	 colon; if the count is 0, the child process created the
+	 capture file and we should start reading from it, otherwise
+	 the capture couldn't start and the count is a count of bytes
+	 of error message, and we should display the message. */
+      byte_count = 0;
+      for (;;) {
+	i = read(sync_pipe[0], &c, 1);
+	if (i == 0) {
+	  /* EOF - the child process died.
+	     XXX - reap it and report the status. */
+	  simple_dialog(ESD_TYPE_WARN, NULL, "Capture child process died");
+	  return;
+	}
+	if (c == ';')
+	  break;
+	if (!isdigit(c)) {
+	  /* Child process handed us crap. */
+	  simple_dialog(ESD_TYPE_WARN, NULL,
+	     "Capture child process sent us a bad message");
+	  return;
+	}
+	byte_count = byte_count*10 + c - '0';
+      }
+      if (byte_count == 0) {
+	/* Success. */
+	  err = tail_cap_file(cf.save_file, &cf);
+	  if (err != 0) {
+	    simple_dialog(ESD_TYPE_WARN, NULL,
 			file_open_error_message(err, FALSE), cf.save_file);
-	   }
-	 } else {
-	   /* Failure. */
-	   msg = g_malloc(byte_count + 1);
-	   if (msg == NULL) {
-	     simple_dialog(ESD_TYPE_WARN, NULL,
-	        "Capture child process failed, but its error message was too big.");
-	   } else {
-	     i = read(sync_pipe[0], msg, byte_count);
-	     if (i < 0) {
-		simple_dialog(ESD_TYPE_WARN, NULL,
+	  }
+      } else {
+	/* Failure. */
+	msg = g_malloc(byte_count + 1);
+	if (msg == NULL) {
+	  simple_dialog(ESD_TYPE_WARN, NULL,
+		"Capture child process failed, but its error message was too big.");
+	} else {
+	  i = read(sync_pipe[0], msg, byte_count);
+	  if (i < 0) {
+	    simple_dialog(ESD_TYPE_WARN, NULL,
 		  "Capture child process failed: Error %s reading its error message.",
 		  strerror(errno));
-	     } else if (i == 0) {
-		simple_dialog(ESD_TYPE_WARN, NULL,
+	  } else if (i == 0) {
+	    simple_dialog(ESD_TYPE_WARN, NULL,
 		  "Capture child process failed: EOF reading its error message.");
-	     } else
-		simple_dialog(ESD_TYPE_WARN, NULL, msg);
-	     g_free(msg);
-	   }
-	 }
-       }
+	  } else
+	    simple_dialog(ESD_TYPE_WARN, NULL, msg);
+	  g_free(msg);
+	}
+      }
     }
   }
   else {
@@ -376,7 +360,7 @@ capture(void)
     goto error;
   }
 
-  if (capture_child && sync_mode) {
+  if (capture_child) {
     /* Well, we should be able to start capturing.
 
        This is the child process for a sync mode capture, so sync out
@@ -487,7 +471,7 @@ capture(void)
 
       /* do sync here, too */
       fflush(wtap_dump_file(ld.pdh));
-      if (capture_child && sync_mode && ld.sync_packets) {
+      if (capture_child && ld.sync_packets) {
 	/* This is the child process for a sync mode capture, so send
 	   our parent a message saying we've written out "ld.sync_packets"
 	   packets to the capture file. */
@@ -546,7 +530,7 @@ error:
   /* We couldn't even start the capture, so get rid of the capture
      file. */
   unlink(cf.save_file); /* silently ignore error */
-  if (capture_child && sync_mode) {
+  if (capture_child) {
     /* This is the child process for a sync mode capture.
        Send the error message to our parent, so they can display a
        dialog box containing it. */

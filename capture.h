@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.20 1999/10/02 19:24:19 guy Exp $
+ * $Id: capture.h,v 1.21 1999/10/02 19:57:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,14 +28,13 @@
 
 #ifdef HAVE_LIBPCAP
 
-/* Name we give to the child process when doing a "-S" or "-F" capture. */
+/* Name we give to the child process when doing a "-S" capture. */
 #define	CHILD_NAME	"ethereal-capture"
 
-extern int sync_mode;	/* allow sync */
+extern int sync_mode;	/* fork a child to do the capture, and sync between them */
 extern int sync_pipe[2]; /* used to sync father */
-extern int fork_mode;	/* fork a child to do the capture */
 extern int quit_after_cap; /* Makes a "capture only mode". Implies -k */
-extern gboolean capture_child;	/* if this is the child for "-F"/"-S" */
+extern gboolean capture_child;	/* if this is the child for "-S" */
 
 /* Open a specified file, or create a temporary file, and start a capture
    to the file in question. */
