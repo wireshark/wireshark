@@ -1,4 +1,81 @@
-$Id: NEWS,v 1.127 2003/05/02 00:46:18 gerald Exp $
+$Id: NEWS,v 1.128 2003/06/10 01:47:32 gerald Exp $
+
+== June ?, 2003
+
+Ethereal 0.9.13 has been released.
+
+  This release fixes several security issues  discovered by Timo
+  Sirainen and others.  See
+
+    http://www.ethereal.com/appnotes/enpa-sa-00010.html
+
+  for more details.
+
+New and updated features
+
+  Ethereal now supports a system-wide color filter file.
+
+  Support for the GNU ADNS library has been added ADNS allows asynchronous
+  DNS lookups.
+  
+  "Decode As..." functionality has been added to Tethereal via the "-d"
+  flag.
+
+New protocols
+
+distcc,
+MSRPC ATSVC,
+
+Updated protocols
+
+802.11,
+AIM, 
+BGP,
+CLNP,
+COTP,
+CPHA,
+DCERPC,
+DNS,
+EAPOL,
+Ethernet, 
+GSSAPI,
+IP,
+ISAKMP,
+ISIS,
+LDAP,
+LSP,
+M2PA,
+MAPI,
+Modbus,
+NDPS,
+NFS,
+NTLMSSP,
+OpenBSD pflog,
+OSI,
+OSPF,
+PPTP,
+RMCP,
+RMI,
+RPC,
+RTP,
+SCSI,
+SCTP,
+SIP,
+SMB,
+SMPP,
+SNMP,
+SPNEGO,
+TACACS,
+TCP,
+WBXML,
+WSP,
+WTP,
+
+Updated capture file support
+
+  HP-UX nettl, VMS UCX$TRACE, 
+
+
 
 == May 1, 2003
 

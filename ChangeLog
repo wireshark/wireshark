@@ -1,4 +1,205 @@
-$Id: ChangeLog,v 1.22 2003/05/02 00:46:18 gerald Exp $
+$Id: ChangeLog,v 1.23 2003/06/10 01:47:32 gerald Exp $
+
+Overview of changes in Ethereal 0.9.13:
+
+* Fix the endianness of the CCFilehandle NCP (Greg Morris)
+* Add AUTH_GSSAPI support to RPC (Tony Schene, Guy)
+* Various tap display filter fixes and updates (Guy)
+* Enhance SNMP OID display (Laurent)
+* M2PA message type field handling fix (Michael)
+* Add support for versions 02 and 08 to M2PA (Michael)
+* Add GNU ADNS support (Gerald)
+* Fix compilation on systems without ADNS (Guy)
+* Various HP-UX nettl fixes (Mark C. Brown)
+* Handle DNSSEC DO/OK bit in OPT pseudo-RR (Yaniv)
+* More ADNS fixes (Guy)
+* Show DNS MBZ flags as either OK if 0 or incorrect if not 0 (Yaniv)
+* Update NTLMv2 response blob parsing, magic number fixes (Tim)
+* Don't try and dissect a zero length NTLM response as a NTLMv2 response
+  (Tim)
+* Use the Python script to make register.c if we have Python (Guy)
+* Fix variable signedness and size in Modbus (Stephen Shelley, Guy)
+* Add basic authentication support to WSP, other updates (Olivier Biot)
+* Fix OSPF simple password string length (Guy)
+* Fix WTP sub-PDU size presentation in the protocol tree (Olivier)
+* Mark encrypted DCERPC stub data as such (Jean-Baptiste Marchand, Guy)
+* Move NTLMv2 response dissection into common code module (Tim)
+* Add a dissect_ndr_counted_byte_array_cb function to DCERPC NT (Tim)
+* Dissect a ntlmv2 response if found in a samlogon request (Tim)
+* Throw an exception if we have trouble copying a DCERPC string (Guy)
+* Do the "tvb_ensure_bytes_exist()" check, and the check for a zero-length
+  bit string, in the code to process an ASN.1 bit string (Guy)
+* Treat a 6-byte value in a MAPI login reply as an aligned 4-byte value
+  (Guy)
+* Enhance DCERPC NDR string handling (Guy)
+* Put the source and destination addresses in an Ethernet data structure 
+  in the right order (Graeme Hewson)
+* Fix the buddy name length in AIM (Guy)
+* Move dissection of NETLOGON secure channel auth verifier into
+  packet-dcerpc-netlogon.c (Tim)
+* Increment a string length in TACACS to reflect the new behavior of
+  tvb_get_nstringz0() (Guy)
+* Move platform ID values to packet-dcerpc-nt.c (Guy)
+* Fix the call that adds the BGP local preference to the tree (Guy)
+* Add the right decoding for AFP3.1 FPCatSearchExt call (Didier Gautheron)
+* Fix an overflow bug in OSI, check LSP checksums (Laurent Rabret)
+* Add support for the new OpenBSD pflog DLT (Can Erkin Acar)
+* Add support for a systemwide color filter file, close a file handle
+  that had otherwise been left open (Richard Urwin)
+* Use get_datafile_path() in various places in the code (Guy)
+* Implement a ring buffer switch duration (Laurent)
+* Switch from u_int32_t to guint32 in the packet-pflog.c (Guy)
+* Fix a typo in wtap.c (Guy)
+* Squelch some compiler complaints (Guy)
+* Update the TODO list (Guy)
+* Tap SMB packets before we call the dissecotrs (Ronnie)
+* Add support for Solaris keepalives (Ronnie)
+* Add the list of output file format specs to Tethereal's man page (Gerald)
+* More tvb_get_nstringz0() fixes (Gerald)
+* Fix a -z io,users,ip calculations bug (Martin Visser)
+* Fix incorrect tvbuff definition in the WTP PDU concatenation situation
+  (Olivier)
+* Updates to support draft-ietf-idr-bgp-ext-communities (Motonori)
+* Add support for VMS UCX$TRACE output (Martin Warnes)
+* Fix string handling bugs in BGP (Gerald)
+* Clean "dissect_rpc_opaque_data()" up a bit (Guy)
+* Correctly handle short TCP headers (Ronnie)
+* Enhance VMS UCX$TRACE file recognition (Martin Warnes)
+* Lump TCPIPtrace and UCX$TRACE together (Guy)
+* Clean up and simplify the RTP dissector and tap code (Miha Jemec)
+* Make dissect_rpc_opaque_data available to other dissectors (Richard)
+* Improve fragmented TCP packet handling (Guy)
+* Improve TCP error packet handling (Guy)
+* More short TCP length improvements (Guy)
+* Change the interface to dissect_ndr_nt_PSID() (Ronnie)
+* DCERPC sid snooping enhancements (Ronnie)
+* Changes to support NFS RPCSEC_GSS (J. Bruce Field, Richard)
+* Rearrange sid snooping a bit (Ronnie)
+* Prettify some DCERPC SID printing (Ronnie)
+* Add snooping of sid->domain mapping from POLICY_ACCOUNT_DOMAIN_INFO
+  structures (Ronnie)
+* Remove unused include from packet-dcerpc-samr.c (Ronnie)
+* Small RPC fix (Richard)
+* Put some missing contributor addresses in ethereal.pod.template (Guy)
+* A small fix to NFSv4 to properly decode the secinfo response array
+  (Richard)
+* Properly initialize sid_str in packet-smb.c (Tim)
+* Quieten some unused variable warnings in packet-msproxy.c (Tim)
+* Fix typo in name of ett for krb5 auth verifier in DCERPC (Tim)
+* Dissect DCERPC LSA policy handles in place (Tim)
+* Move base64_decode() to a common area (Tim)
+* First changes to properly support RFC1964 (Richard)
+* Dissect SPNEGO GSSAPI GetMIC tokens (Richard)
+* Add an API to get the dissector name from a dissector handle (Guy)
+* Add support for GSSAPI GSS_Wrap tokens (Richard)
+* Note that we should probably do PPP Multilink reassembly in the TODO
+  file (Guy)
+* Distcc support (Brad Hards, Ronnie)
+* Convert unsafe string handling to GStrings in WTP (Gerald)
+* Fix snprintf() return value checking in DNS, 802.11, ISAKMP, and WSP
+  (Gerald)
+* Fix more string-related nits in CLNP, ISIS CLV, and RMI (Gerald)
+* Get rid of the CRs at the ends of lines in packet-distcc.c (Guy)
+* Convert the DNS WKS bitnames variable to a GString (Gerald)
+* Use a GString to store the  ISIS CLV formatted authentication
+  information (Guy)
+* Break out the SPNEGO/GSSAPI request flags (Richard)
+* Add RFC3526 DH MODP groups to ISAKMP (Yaniv)
+* Fix string index errors in 802.11, ISAKMP, RMI, and WSP (Guy)
+* Deal with cases where there's no token ID in a Kerberos blob (Guy)
+* Strings in PPTP are null-padded, not null-terminated (Guy)
+* Null-terminate ASCII string values in "dissect_ndr_cvstring()" (Guy)
+* Fix SCSI string padding (Guy)
+* Fix the definition of ISAKMP NUM_GRPDESC_TYPES (Yaniv)
+* Add ADNS to the "Compiled with" list (Gerald)
+* Make the RTP tap analysis code use create_tempfile() instead of tmpnam()
+  (Gerald)
+* Get rid of a debugging message in packet-dcerpc-spoolss.c (Guy)
+* Fix typoes in packet-dcerpc-samr.c (Guy)
+* Flag fragmented data as such in DCERPC (Guy)
+* Properly seek to the beginning of TCPIPTrace lines (Guy)
+* Fix the declaration of "open_routines[]" in file.c (Graeme)
+* Fix file opening in tap_rtp.c (Gerald)
+* Various BGP fixes (Hannes Gredler)
+* Improve ISIS LSP checksum display (Laurent Rabret)
+* Properly free data in ICMPv6, 802.11, RTCP, and SMB (Laurent)
+* Add the MSRPC ATSVC interface (Jean-Baptiste Marchand)
+* COTP reassembly (Laurent Meyer)
+* Add packet-dcerpc-atsvc.h to Makefile.am (Gerald)
+* Add the MSRPC ATSVC interface to Makefile.nmake (Guy)
+* Fix whitespace handling in SIP (Steven Lass)
+* Decode the base-64 string for HTTP Basic authorization (tz)
+* Some minor updates to LSA (Ronnie)
+* Update SAMR context handle display (Ronnie)
+* Fix an SPNEGO/ASN.1 segfault, enhance the responseToken display (Richard)
+* Dissect a netlogon credential as eight FT_BYTES (Tim)
+* Add GNU ADNS to the Windows build environment (Gerald)
+* Add support for WPA (Wi-Fi Protected Access) key in EAPOL frames and WPA
+  IE in 802.11 beacon and probe response frames (Jeff Liu)
+* CPHA magic number adjustments (Yaniv Kaul)
+* Update the plugin API for Glib/GTK+ 2.2 and have NSIS remove the Start
+  menu entries and desktop icon (Lars Roland)
+* Fix a bug in the SUA global title address parameter, add subdissectors
+  (Niels Koot)
+* Fix up some comments, and move some common GLib 1.2[.x]/2.x code outside
+  #ifdefs in plugins.c (Guy)
+* Handle more than one DCERPC call per frame (Guy)
+* Lots of different NDPS updates and fixes (Guy)
+* Fix UDP error packet handling (Guy)
+* Tweake ISIS CLV string appending (Guy)
+* Improve RMCP packet recognition (Guy)
+* Fix string length checking in tvb_fake_unicode() (Guy)
+* Adjust proto.c to better handle null-padded strings (Guy)
+* More null-padded string fixes (Guy)
+* Improve ASCIIZ string handling in ncp2222.py, other fixes (Guy)
+* DCERPC policy handle hashing improvements (Guy)
+* Add a "-d" flag to tethereal, related changes (Lionel Ains, Guy)
+* Teach the sid snooping how to extract sid->name mappings from
+  SAMR:QueryDispInfo (Ronnie)
+* Fix to make the dcerpc_smb_fetch_pol use the new function argument list
+  (Ronnie)
+* Improve value string handling in MDSHDR (Motonori)
+* Use "=" instead of "==" in an assignment in proto.c (Gerald)
+* Replace bcmp() with memcmp() in 802.11 and add a missing quote to the
+  NSIS definition file (Lars)
+* Make IP frame numbers unsigned (Guy)
+* Don't use "tvb_get_nstringz()" to get string data in SMPP (Guy)
+* Dissect extended attribute lists in SMB trans2 QUERY_FILE_INFORMATION,
+  info level 4 (Tim)
+* Rename SMB's EA length field to EA list length (Tim)
+* Some ATSVC fixes (Jean-Baptiste)
+* Use "tvb_format_text()" to display WBXML strings (Guy)
+* Handle the AFP Unix Privilege bit as defined in the 3.1 spec (Didier)
+* Add an ethertype 0 pref to MDSHDR, other fixes (Dinesh, Guy)
+* Add new supported IDs, fix padding bytes in SCTP (Michael)
+* Fix some typos in SCTP (Michael)
+* Properly specify an unused argument in packet-sctp.c (Guy)
+* Improve SMB TRANS2_SET_{PATH,FILE}_INFORMATION handling (Guy)
+* Add a "--enable-threads" option, which allows to build the gtk+ v2
+  ethereal with or without threads (Olivier)
+* Print an MMSE warning in the protocol tree instead of the console
+  (Gerald)
+* Update SMB informational strings to reflect CIFS 1.0, other fixes (Guy)
+* Clean up the checks for valid SIP requests and responses (Guy)
+* Dissect the SMB 12-byte reserved field (Richard)
+* Fix "tvb_strneql()", "tvb_strncaseeql()", and "tvb_memeql()" not to
+  throw an exception out of hand (Guy)
+* Fix LDAP tree creation (Guy)
+* Clean up Ethereal's command line usage message (Guy)
+* SID name mappings can now be presented in a table by tethereal
+  using the -z smb,sids  command argument (Ronnie)
+* Add a tap listener to present sid to name mappings for tethereal (Ronnie)
+* Fix Tethereal man page command line options and program name (Guy)
+* Fix the display of the high 16 bits of the SMB PID (Guy)
+* 
+
+  Left off at http://www.ethereal.com/lists/ethereal-cvs/200306/msg00063.html
+
+
+
+
+
+
 
 Overview of changes in Ethereal 0.9.12:
 
