@@ -7,7 +7,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h245.c,v 1.41 2003/10/27 22:28:47 guy Exp $
+ * $Id: packet-h245.c,v 1.42 2003/11/22 11:12:19 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -17980,7 +17980,24 @@ dissect_h245_FunctionNotUnderstood(tvbuff_t *tvb, int offset, packet_info *pinfo
 static int
 dissect_h245_signalType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_h245_signalType, 1, 1, "!#*0123456789ABCD", 17);
+	/* XXX this is just wrong.
+         * the definition in the ASN.1 file is :
+	 *   signalType	IA5String (SIZE (1) ^ FROM ("0123456789#*ABCD!"))
+	 * which means the 17 characters are encoded as 8-bit values 
+	 * between 0x00 and 0x10
+         *
+	 * however, captures from real world applications show that
+	 * the field is encoded instead as :
+	 *   signalType	IA5String (SIZE (1))
+	 * ie a single character ascii value from 0x00 to 0xff.
+	 *
+	 * the code is changed under protest.
+	 * i still think it is the one commented out that is the correct one
+	 */
+         /*offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_h245_signalType, 1, 1, "!#*0123456789ABCD", 17);*/
+
+         offset=dissect_per_IA5String(tvb, offset, pinfo, tree, hf_h245_signalType, 1, 1);
+
 
 	return offset;
 }
