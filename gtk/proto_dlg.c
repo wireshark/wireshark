@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.17 2002/11/11 15:39:06 oabad Exp $
+ * $Id: proto_dlg.c,v 1.18 2002/11/11 17:32:42 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -189,7 +189,7 @@ void proto_cb(GtkWidget *w _U_, gpointer data _U_)
 
   dlg_set_cancel(proto_w, cancel_bt);
 
-  gtk_quit_add_destroy(gtk_main_level(), proto_w);
+  gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(proto_w));
   gtk_widget_show(proto_w);
 
 } /* proto_cb */
