@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.68 2003/02/14 07:14:18 guy Exp $
+ * $Id: packet-giop.c,v 1.69 2003/02/15 08:24:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4787,7 +4787,12 @@ void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
     if (seqlen_cd == 0)
       continue;
 
-    /* Skip the byte-order octet */
+    /* "get_CDR_encap_info()" has already processed the byte order octet,
+     * so "*offset" points past it; however, "seqlen_cd" includes the
+     * byte order offset, so update it not to include it, so that
+     * "seqlen_cd" refers to the amount of data remaining in the
+     * encapsulation starting at the offset "*offset".
+     */
     seqlen_cd -= 1;
 
     if (seqlen_cd == 0)
