@@ -2,7 +2,7 @@
  * Routines for NDMP dissection
  * 2001 Ronnie Sahlberg (see AUTHORS for email)
  *
- * $Id: packet-ndmp.c,v 1.26 2004/01/30 10:51:07 sahlberg Exp $
+ * $Id: packet-ndmp.c,v 1.27 2004/03/11 09:54:00 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -226,6 +226,24 @@ static gint ett_ndmp_file_name = -1;
 static gint ett_ndmp_file_stats = -1;
 static gint ett_ndmp_file_invalids = -1;
 static gint ett_ndmp_state_invalids = -1;
+
+
+/* XXX someone should start adding the new stuff from v3, v4 and v5*/
+#define NDMP_PROTOCOL_V2	1
+#define NDMP_PROTOCOL_V3	2
+#define NDMP_PROTOCOL_V4	3
+#define NDMP_PROTOCOL_V5	4
+
+static enum_val_t ndmp_protocol_versions[] = {
+	{ "Version 2",	NDMP_PROTOCOL_V2 },
+	{ "Version 3",	NDMP_PROTOCOL_V3 },
+	{ "Version 4",	NDMP_PROTOCOL_V4 },
+	{ "Version 5",	NDMP_PROTOCOL_V5 },
+	{ NULL, 0 }
+};
+
+static gint ndmp_protocol_version = NDMP_PROTOCOL_V2;
+
 
 struct ndmp_header {
 	guint32	seq;
@@ -1623,6 +1641,12 @@ dissect_mover_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree_add_item(tree, hf_ndmp_window_length, tvb, offset, 8, FALSE);
 	offset += 8;
 
+	/* this is where v2 ends */
+	if(ndmp_protocol_version==NDMP_PROTOCOL_V2){
+		return offset;
+	}
+
+
 	/* ndmp addr */
 	offset=dissect_ndmp_addr(tvb, offset, pinfo, tree);
 
@@ -2248,17 +2272,22 @@ dissect_nlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_rpc_string(tvb, tree,
 			hf_ndmp_bu_destination_dir, offset, NULL);
 
-	/*new name*/
-	offset = dissect_rpc_string(tvb, tree,
+	if(ndmp_protocol_version==NDMP_PROTOCOL_V2){
+		/* just 2 reserved bytes (4 with padding) */
+		offset += 4;
+	} else {
+		/*new name*/
+		offset = dissect_rpc_string(tvb, tree,
 			hf_ndmp_bu_new_name, offset, NULL);
 
-	/*other name*/
-	offset = dissect_rpc_string(tvb, tree,
+		/*other name*/
+		offset = dissect_rpc_string(tvb, tree,
 			hf_ndmp_bu_other_name, offset, NULL);
 
-	/* node */
-	proto_tree_add_item(tree, hf_ndmp_file_node, tvb, offset, 8, FALSE);
-	offset += 8;
+		/* node */
+		proto_tree_add_item(tree, hf_ndmp_file_node, tvb, offset, 8, FALSE);
+		offset += 8;
+	}
 
 	/* fh_info */
 	proto_tree_add_item(tree, hf_ndmp_file_fh_info, tvb, offset, 8, FALSE);
@@ -2272,6 +2301,11 @@ static int
 dissect_data_start_recover_request(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, guint32 seq _U_)
 {
+	if(ndmp_protocol_version==NDMP_PROTOCOL_V2){
+		/* ndmp addr */
+		offset=dissect_ndmp_addr(tvb, offset, pinfo, tree);
+	}
+
 	/* default env */
 	offset = dissect_rpc_array(tvb, pinfo, tree, offset,
 			dissect_default_env, hf_ndmp_butype_default_env);
@@ -3432,6 +3466,13 @@ proto_register_ndmp(void)
 
   /* desegmentation */
   ndmp_module = prefs_register_protocol(proto_ndmp, NULL);
+  prefs_register_enum_preference(ndmp_module,
+	"protocol_version",
+	"Protocol version",
+	"Version of the NDMP protocol",
+	&ndmp_protocol_version,
+	ndmp_protocol_versions,
+	FALSE);
   prefs_register_bool_preference(ndmp_module, "desegment",
   	"Desegment all NDMP messages spanning multiple TCP segments",
   	"Whether the dissector should desegment NDMP messages",
