@@ -2,7 +2,7 @@
  * Definitions for implementation of preference handling routines;
  * used by "friends" of the preferences type.
  *
- * $Id: prefs-int.h,v 1.7 2002/06/16 00:53:17 guy Exp $
+ * $Id: prefs-int.h,v 1.8 2002/06/16 00:58:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,13 +57,13 @@ struct preference {
 	pref_type_t type;	/* type of that preference */
 	union {
 		guint *uint;
-		gboolean *boolean;
+		gboolean *boolp;
 		gint *enump;
 		char **string;
 	} varp;			/* pointer to variable storing the value */
 	union {
 		guint uint;
-		gboolean boolean;
+		gboolean boolval;
 		gint enumval;
 		char *string;
 	} saved_val;		/* original value, when editing from the GUI */
