@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.53 2001/11/25 23:23:34 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.54 2001/11/26 01:22:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2602,6 +2602,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 {
 	smb_info_t *smb_info;
 	smb_transact_info_t *tri;
+	guint sp_len;
 	proto_item *pipe_item = NULL;
 	proto_tree *pipe_tree = NULL;
 	int offset;
@@ -2632,15 +2633,17 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		tri = NULL;
 
 	/*
-	 * Set up a subtree for the pipe data, if there is any.
+	 * Set up a subtree for the pipe protocol.  (It might not contain
+	 * anything.)
 	 */
-	if (sp_tvb != NULL || tvb_length(sp_tvb) != 0 ||
-	    (tri != NULL && tri->function != -1)) {
-		if (tree) {
-			pipe_item = proto_tree_add_item(tree, proto_smb_pipe,
-			    sp_tvb, 0, tvb_length(sp_tvb), FALSE);
-			pipe_tree = proto_item_add_subtree(pipe_item, ett_smb_pipe);
-		}
+	if (sp_tvb != NULL)
+		sp_len = tvb_length(sp_tvb);
+	else
+		sp_len = 0;
+	if (tree) {
+		pipe_item = proto_tree_add_item(tree, proto_smb_pipe,
+		    sp_tvb, 0, sp_len, FALSE);
+		pipe_tree = proto_item_add_subtree(pipe_item, ett_smb_pipe);
 	}
 	offset = 0;
 
@@ -2703,13 +2706,13 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		offset += 2;
 	} else {
 		/*
-		 * This is either a pipe transaction with no setup
-		 * information or a response.
+		 * This is either a response or a pipe transaction with
+		 * no setup information.
 		 *
-		 * In the former case, there is no function or FID.
+		 * In the former case, we can get that information from
+		 * the matching request, if we saw it.
 		 *
-		 * In the latter case, we could get that information from
-		 * the matching request, if we saw it.  (XXX - do that.)
+		 * In the latter case, there is no function or FID.
 		 */
 		if (tri != NULL && tri->function != -1) {
 			function = tri->function;
