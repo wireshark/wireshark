@@ -1,4 +1,23 @@
 ------------------------------------------------------------------------
+r13150 | gerald | 2005-01-20 13:37:05 -0600 (Thu, 20 Jan 2005) | 7 lines
+Changed paths:
+   M /releases/ethereal-0.10.9/epan/dissectors/packet-dnp.c
+
+Copy over r13134:
+
+ Free the chunk of reassembled DNP data iff there was a CRC error;
+ otherwise, we're using it in a tvbuff and shouldn't free it (even if the
+ next level of reassembly isn't complete, so that al_tvb is ultimately
+ null).
+
+------------------------------------------------------------------------
+r13147 | gerald | 2005-01-20 09:32:56 -0600 (Thu, 20 Jan 2005) | 2 lines
+Changed paths:
+   M /releases/ethereal-0.10.9/ChangeLog
+
+Update the ChangeLog.
+
+------------------------------------------------------------------------
 r13146 | gerald | 2005-01-20 09:30:59 -0600 (Thu, 20 Jan 2005) | 4 lines
 Changed paths:
    M /releases/ethereal-0.10.9/make-version.pl
