@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.55 2000/11/19 03:47:36 guy Exp $
+ * $Id: ngsniffer.c,v 1.56 2000/11/29 08:24:14 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -704,6 +704,19 @@ static gboolean ngsniffer_read(wtap *wth, int *err, int *data_offset)
 	}
 
 found:
+	/*
+	 * OK, is the frame data size greater than than what's left of the
+	 * record?
+	 */
+	if (size > length) {
+		/*
+		 * Yes - treat this as an error.
+		 */
+		g_message("ngsniffer: Record length is less than packet size");
+		*err = WTAP_ERR_BAD_RECORD;
+		return FALSE;
+	}
+
 	wth->phdr.len = true_size ? true_size : size;
 	wth->phdr.caplen = size;
 
