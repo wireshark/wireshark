@@ -2,7 +2,7 @@
 *
 * Routine to dissect ISO 8823 OSI Presentation Protocol packets
 *
-* $Id: packet-pres.h,v 1.1 2004/01/13 02:10:25 guy Exp $
+* $Id: packet-pres.h,v 1.2 2004/03/23 19:37:23 guy Exp $
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *
@@ -103,6 +103,7 @@ NO_PSAP_AVAILABLE
 #define   SINGLE_ASN1_TYPE										0xa0
 #define   OCTET_ALIGNED											0xa1
 #define   ARBITRARY												0xa2
+#define		DATA_BLOCK											0x81
 
 /* provider reasons */
 enum

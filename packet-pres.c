@@ -2,7 +2,7 @@
 *
 * Routine to dissect ISO 8823 OSI Presentation Protocol packets
 *
-* $Id: packet-pres.c,v 1.3 2004/03/13 09:27:38 guy Exp $
+* $Id: packet-pres.c,v 1.4 2004/03/23 19:37:23 guy Exp $
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *
@@ -159,6 +159,7 @@ static const value_string presentation_data_values[] =
   {SINGLE_ASN1_TYPE,"Single ASN.1 type"},
   {OCTET_ALIGNED,"Octet aligned"},
   {ARBITRARY,"Arbitrary"},
+  {DATA_BLOCK,"Data block"},
   {0, NULL}
 };
 static const value_string provider_abort_values_vals[] =
@@ -746,7 +747,18 @@ new_item_len+(asn->offset-*offset)+1,
 				}
 					break;
 			case OCTET_ALIGNED:
-				break;
+			case DATA_BLOCK:
+				{
+						proto_item *acse_ms;
+					/*  yes, we have to call ACSE dissector    */
+				acse_ms = proto_tree_add_text(pres_tree_ms, tvb, *offset,new_item_len+(asn->offset-*offset),
+										"User data");
+
+				session->abort_type = DATA_BLOCK;
+					/*  call acse dissector  */
+				call_acse_dissector(tvb,*offset,new_item_len,global_pinfo,global_tree,pres_tree_ms);
+				}
+					break;
 			case SINGLE_ASN1_TYPE:
 
 				{
