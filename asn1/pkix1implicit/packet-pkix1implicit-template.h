@@ -25,7 +25,7 @@
 #ifndef PACKET_PKIX1IMPLICIT_H
 #define PACKET_PKIX1IMPLICIT_H
 
-/*#include "packet-pkix1implicit-exp.h"*/
+#include "packet-pkix1implicit-exp.h"
 
 #endif  /* PACKET_PKIX1IMPLICIT_H */
 
