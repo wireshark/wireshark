@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.36 2001/01/09 06:31:36 guy Exp $
+ * $Id: packet-gre.c,v 1.37 2001/01/09 09:59:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -80,6 +80,7 @@ static const value_string typevals[] = {
 };
 
 static dissector_handle_t ip_handle;
+static dissector_handle_t ipx_handle;
 static dissector_handle_t ppp_handle;
 static dissector_handle_t fr_handle;
 
@@ -273,7 +274,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       call_dissector(ip_handle, next_tvb, pinfo, tree);
       break;
     case GRE_IPX:
-      dissect_ipx(next_tvb, pinfo, tree);
+      call_dissector(ipx_handle, next_tvb, pinfo, tree);
       break;
     case GRE_FR:
       call_dissector(fr_handle, next_tvb, pinfo, tree);
@@ -387,9 +388,10 @@ proto_reg_handoff_gre(void)
 	dissector_add("ip.proto", IP_PROTO_GRE, dissect_gre, proto_gre);
 
 	/*
-	 * Get handles for the IP, PPP, and Frame Relay dissectors.
+	 * Get handles for the IP, IPX, PPP, and Frame Relay dissectors.
 	 */
 	ip_handle = find_dissector("ip");
+	ipx_handle = find_dissector("ipx");
 	ppp_handle = find_dissector("ppp");
 	fr_handle = find_dissector("fr");
 }

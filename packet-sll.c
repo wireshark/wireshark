@@ -1,7 +1,7 @@
 /* packet-sll.c
  * Routines for disassembly of packets from Linux "cooked mode" captures
  *
- * $Id: packet-sll.c,v 1.4 2001/01/09 06:31:43 guy Exp $
+ * $Id: packet-sll.c,v 1.5 2001/01/09 09:59:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -87,6 +87,7 @@ static const value_string ltype_vals[] = {
 	{ 0,			NULL }
 };
 
+static dissector_handle_t ipx_handle;
 static dissector_handle_t llc_handle;
 
 void
@@ -215,7 +216,7 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * Novell IPX inside 802.3 with no 802.2 LLC
 			 * header.
 			 */
-			dissect_ipx(next_tvb, pinfo, tree);
+			call_dissector(ipx_handle, next_tvb, pinfo, tree);
 			break;
 
 		default:
@@ -316,9 +317,10 @@ void
 proto_reg_handoff_sll(void)
 {
 	/*
-	 * Get a handle for the LLC dissector.
+	 * Get handles for the IPX and LLC dissectors.
 	 */
 	llc_handle = find_dissector("llc");
+	ipx_handle = find_dissector("ipx");
 
 	dissector_add("wtap_encap", WTAP_ENCAP_SLL, dissect_sll, proto_sll);
 }

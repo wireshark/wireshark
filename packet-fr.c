@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.4 2001/01/09 06:31:35 guy Exp $
+ * $Id: packet-fr.c,v 1.5 2001/01/09 09:59:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,6 +50,9 @@ static gint hf_fr_fecn  = -1;
 static gint hf_fr_de    = -1;
 static gint hf_fr_proto = -1;
 
+static dissector_handle_t ip_handle;
+static dissector_handle_t ipx_handle;
+
 static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
@@ -95,10 +98,10 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	this is not yet implemented
 */
       case 0x0800:
-	dissect_ip(next_tvb,pinfo,tree);
+	call_dissector(ip_handle,next_tvb,pinfo,tree);
 	break;
       case 0x8137:
-	dissect_ipx(next_tvb,pinfo,tree);
+	call_dissector(ipx_handle,next_tvb,pinfo,tree);
 	break;
       default:
 	dissect_data(next_tvb,0,pinfo,tree);
@@ -146,5 +149,11 @@ void proto_register_fr(void)
 
 void proto_reg_handoff_fr(void)
 {
+  /*
+   * Get handles for the IP and IPX dissectors.
+   */
+  ip_handle = find_dissector("ip");
+  ipx_handle = find_dissector("ipx");
+
   dissector_add("wtap_encap", WTAP_ENCAP_FRELAY, dissect_fr, proto_fr);
 }

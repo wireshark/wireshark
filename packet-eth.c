@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.54 2001/01/09 06:31:35 guy Exp $
+ * $Id: packet-eth.c,v 1.55 2001/01/09 09:59:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,6 +55,7 @@ static gint ett_ieee8023 = -1;
 static gint ett_ether2 = -1;
 
 static dissector_handle_t isl_handle;
+static dissector_handle_t ipx_handle;
 static dissector_handle_t llc_handle;
 
 #define ETH_HEADER_SIZE	14
@@ -302,7 +303,7 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   switch (ethhdr_type) {
     case ETHERNET_802_3:
-      dissect_ipx(next_tvb, pinfo, tree);
+      call_dissector(ipx_handle, next_tvb, pinfo, tree);
       break;
     case ETHERNET_802_2:
       call_dissector(llc_handle, next_tvb, pinfo, tree);
@@ -387,9 +388,10 @@ void
 proto_reg_handoff_eth(void)
 {
 	/*
-	 * Get handles for the ISL and LLC dissectors.
+	 * Get handles for the ISL, IPX, and LLC dissectors.
 	 */
 	isl_handle = find_dissector("isl");
+	ipx_handle = find_dissector("ipx");
 	llc_handle = find_dissector("llc");
 
 	dissector_add("wtap_encap", WTAP_ENCAP_ETHERNET, dissect_eth,

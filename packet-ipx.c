@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.73 2001/01/09 06:31:37 guy Exp $
+ * $Id: packet-ipx.c,v 1.74 2001/01/09 09:59:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -273,7 +273,7 @@ capture_ipx(const u_char *pd, int offset, packet_counts *ld)
 	ld->ipx++;
 }
 
-void
+static void
 dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	tvbuff_t	*next_tvb;
@@ -881,6 +881,8 @@ proto_register_ipx(void)
 	proto_ipx = proto_register_protocol("Internetwork Packet eXchange",
 	    "IPX", "ipx");
 	proto_register_field_array(proto_ipx, hf_ipx, array_length(hf_ipx));
+
+	register_dissector("ipx", dissect_ipx, proto_ipx);
 
 	proto_spx = proto_register_protocol("Sequenced Packet eXchange",
 	    "SPX", "spx");

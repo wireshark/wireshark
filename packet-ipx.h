@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.h,v 1.10 2000/08/11 13:34:11 deniel Exp $
+ * $Id: packet-ipx.h,v 1.11 2001/01/09 09:59:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -145,6 +145,5 @@ gchar* ipxnet_to_string(const guint8 *ad);
 gchar* ipxnet_to_str_punct(const guint32 ad, char punct);
 
 void capture_ipx(const u_char *, int, packet_counts *);
-void dissect_ipx(tvbuff_t *, packet_info *, proto_tree *);
 
 #endif
