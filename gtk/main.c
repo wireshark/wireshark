@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.145 2000/08/21 15:45:33 deniel Exp $
+ * $Id: main.c,v 1.146 2000/08/21 19:36:09 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -458,6 +458,18 @@ packet_list_click_column_cb(GtkCList *clist, gint column, gpointer data)
   gtk_clist_sort(clist);
 }
 
+/* mark packets */
+static void 
+set_frame_mark(gboolean set, frame_data *frame, gint row) {
+  if (frame == NULL || row == -1) return;
+  frame->flags.marked = set;
+  /* XXX need user-configurable colors here */
+  gtk_clist_set_background(GTK_CLIST(packet_list), row,
+			   (set) ? &BLACK : &WHITE);
+  gtk_clist_set_foreground(GTK_CLIST(packet_list), row, 
+			   (set) ? &WHITE : &BLACK); 
+}
+
 static void
 packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data) {
   
@@ -470,17 +482,37 @@ packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data) {
   if (event->type == GDK_BUTTON_PRESS && event_button->button == 2 &&
       gtk_clist_get_selection_info(GTK_CLIST(w), event_button->x, event_button->y,
 				   &row, &column)) {
-    frame_data *fdata;
-    fdata = (frame_data *) gtk_clist_get_row_data(GTK_CLIST(w), row);
-    if (fdata != NULL) {
-      fdata->flags.marked = !fdata->flags.marked;
-      /* XXX need user-configurable colors here */
-      gtk_clist_set_background(GTK_CLIST(packet_list), row,
-			       (fdata->flags.marked) ?&BLACK : &WHITE);
-      gtk_clist_set_foreground(GTK_CLIST(packet_list), row, 
-			       (fdata->flags.marked) ?&WHITE : &BLACK);
-    } 
+    frame_data *fdata = (frame_data *) gtk_clist_get_row_data(GTK_CLIST(w), row);
+    set_frame_mark(!fdata->flags.marked, fdata, row);
   }
+}
+
+void mark_frame_cb(GtkWidget *w, gpointer data) {
+  if (cfile.current_frame) {
+    /* XXX hum, should better have a "cfile->current_row" here ... */
+    set_frame_mark(!cfile.current_frame->flags.marked,
+		   cfile.current_frame, 
+		   gtk_clist_find_row_from_data(GTK_CLIST(packet_list), 
+						cfile.current_frame));
+  }
+}
+
+static void mark_all_frames(gboolean set) {
+  frame_data *fdata;
+  if (cfile.plist == NULL) return;
+  for (fdata = cfile.plist; fdata != NULL; fdata = fdata->next) {
+    set_frame_mark(set,
+		   fdata,
+		   gtk_clist_find_row_from_data(GTK_CLIST(packet_list), fdata));    
+  }
+}
+
+void mark_all_frames_cb(GtkWidget *w, gpointer data) {
+  mark_all_frames(TRUE);
+}
+
+void unmark_all_frames_cb(GtkWidget *w, gpointer data) {
+  mark_all_frames(FALSE);
 }
 
 /* What to do when a list item is selected/unselected */

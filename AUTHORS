@@ -43,7 +43,8 @@ Laurent Deniel       <deniel@worldnet.fr> {
     GUI enhancements (about & help windows)
     Follow TCP stream for IPv6
     Protocol activation/deactivation (Edit:protocols)
-    "Properties..." menu item
+    Ability to mark the frames and associated features
+    "Protocol Properties..." menu item
     Miscellaneous enhancements and fixes
 }
 
