@@ -2,13 +2,16 @@
  * Routines for wbxml dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-wbxml.c,v 1.5 2003/02/14 19:39:54 guy Exp $
+ * $Id: packet-wbxml.c,v 1.6 2003/02/27 02:52:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
- * Wap Binary XML decoding functionality provided by Olivier Biot.
+ * WAP Binary XML decoding functionality provided by Olivier Biot.
+ * 
+ * The WAP specifications are found at the WAP Forum:
+ * http://www.wapforum.org/what/Technical.htm
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -1359,7 +1362,7 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, " (WBXML %s: ",
+		col_append_fstr(pinfo->cinfo, COL_INFO, " (WBXML %s:",
 				match_strval (version, vals_wbxml_versions));
 
 	/* In the interest of speed, if "tree" is NULL, don't do any work not
@@ -2669,23 +2672,25 @@ proto_register_wbxml(void)
 			  "wbxml.version",
 			  FT_UINT8, BASE_HEX,
 			  VALS ( vals_wbxml_versions ), 0x00,
-			  "WBXML version", HFILL }
+			  "WBXML Version", HFILL }
 		},
 
 		{ &hf_wbxml_public_id_known,
 			{ "Public Identifier (known)",
-			  "wbxml.public_id",
+			  "wbxml.public_id.known",
 			  FT_UINT32, BASE_HEX,
 			  VALS ( vals_wbxml_public_ids ), 0x00,
-			  "WBXML Public Identifier (known)", HFILL }
+			  "WBXML Known Public Identifier (integer)",
+			  HFILL }
 		},
 
 		{ &hf_wbxml_public_id_literal,
 			{ "Public Identifier (literal)",
-			  "wbxml.public_id",
+			  "wbxml.public_id.literal",
 			  FT_STRING, BASE_NONE,
 			  NULL, 0x00,
-			  "WBXML Public Identifier (literal)", HFILL }
+			  "WBXML Literal Public Identifier (text string)",
+			  HFILL }
 		},
 
 		{ &hf_wbxml_charset,
