@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.44 2004/05/09 10:03:41 guy Exp $
+ * $Id: packet-mgcp.c,v 1.45 2004/05/23 13:43:13 etxrab Exp $
  *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -110,6 +110,44 @@ static int hf_mgcp_messagecount = -1;
 static int hf_mgcp_dup = -1;
 static int hf_mgcp_req_dup = -1;
 static int hf_mgcp_rsp_dup = -1;
+
+static const value_string mgcp_return_code_vals[] = {
+
+	{100, "The transaction is currently being executed.  An actual completion message will follow on later."},
+	{200, "The requested transaction was executed normally."},
+	{250, "The connection was deleted."},
+	{400, "The transaction could not be executed, due to a transient error."},
+	{401, "The phone is already off hook"},
+	{402, "The phone is already on hook"},
+	{403, "The transaction could not be executed, because the endpoint does not have sufficient resources at this time"},
+	{404, "Insufficient bandwidth at this time"},
+	{500, "The transaction could not be executed, because the endpoint is unknown."},
+	{501, "The transaction could not be executed, because the endpoint is not ready."},
+	{502, "The transaction could not be executed, because the endpoint does not have sufficient resources"},
+	{510, "The transaction could not be executed, because a protocol error was detected."},
+	{511, "The transaction could not be executed, because the command contained an unrecognized extension."},
+	{512, "The transaction could not be executed, because the gateway is not equipped to detect one of the requested events."},
+	{513, "The transaction could not be executed, because the gateway is not equipped to generate one of the requested signals."},
+	{514, "The transaction could not be executed, because the gateway cannot send the specified announcement."},
+	{515, "The transaction refers to an incorrect connection-id (may have been already deleted)"},
+	{516, "The transaction refers to an unknown call-id."},
+	{517, "Unsupported or invalid mode."},
+	{518, "Unsupported or unknown package."},
+	{519, "Endpoint does not have a digit map."},
+	{520, "The transaction could not be executed, because the endpoint is 'restarting'."},
+	{521, "Endpoint redirected to another Call Agent."},
+	{522, "No such event or signal."},
+	{523, "Unknown action or illegal combination of actions"},
+	{524, "Internal inconsistency in LocalConnectionOptions"},
+	{525, "Unknown extension in LocalConnectionOptions"},
+	{526, "Insufficient bandwidth"},
+	{527, "Missing RemoteConnectionDescriptor"},
+	{528, "Incompatible protocol version"},
+	{529, "Internal hardware failure"},
+	{530, "CAS signaling protocol error."},
+	{531, "failure of a grouping of trunks (e.g. facility failure)."},
+	{  0, NULL }
+};
 
 /*
  * Define the trees for mgcp
@@ -475,7 +513,7 @@ proto_register_mgcp(void)
       { "Version", "mgcp.version", FT_STRING, BASE_DEC, NULL, 0x0,
 	"MGCP Version", HFILL }},
     { &hf_mgcp_rsp_rspcode,
-      { "Response Code", "mgcp.rsp.rspcode", FT_STRING, BASE_DEC, NULL, 0x0,
+      { "Response Code", "mgcp.rsp.rspcode", FT_UINT32, BASE_DEC, VALS(mgcp_return_code_vals), 0x0,
 	"Response Code", HFILL }},
     { &hf_mgcp_rsp_rspstring,
       { "Response String", "mgcp.rsp.rspstring", FT_STRING, BASE_DEC, NULL,
@@ -953,6 +991,9 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf){
  * tree - The tree from which to hang the structured information parsed
  *        from the first line of the MGCP message.
  */
+
+ 
+
 static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
 				   proto_tree *tree, mgcp_info_t *mi){
   gint tvb_current_offset,tvb_previous_offset,tvb_len,tvb_current_len;
@@ -965,6 +1006,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
   mgcp_call_info_key *new_mgcp_call_key = NULL;
   mgcp_call_t *mgcp_call = NULL;
   nstime_t delta;
+  gint rspcode = 0;
 
   static address null_address = { AT_NONE, 0, NULL };
   proto_item* (*my_proto_tree_add_string)(proto_tree*, int, tvbuff_t*, gint,
@@ -1009,9 +1051,11 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
 	}
 	else if (is_mgcp_rspcode(tvb,tvb_previous_offset,tvb_current_len)){
 	  mgcp_type = MGCP_RESPONSE;
-	  my_proto_tree_add_string(tree,hf_mgcp_rsp_rspcode, tvb,
+	  rspcode = atoi(code);
+	  proto_tree_add_uint(tree,hf_mgcp_rsp_rspcode, tvb,
 				   tvb_previous_offset, tokenlen,
-				   code);
+				   rspcode);
+
 	}
 	else {
 	  break;
