@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.10 2000/05/08 07:54:53 guy Exp $
+ * $Id: prefs_dlg.c,v 1.11 2000/05/08 07:58:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -56,6 +56,7 @@
 #include "gui_prefs.h"
 #include "util.h"
 #include "ui_util.h"
+#include "dlg_utils.h"
 #include "simple_dialog.h"
 
 static void     prefs_main_ok_cb(GtkWidget *, gpointer);
@@ -169,6 +170,11 @@ prefs_cb(GtkWidget *w, gpointer sp) {
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
   gtk_widget_show(cancel_bt);
+
+  /* Catch the "key_press_event" signal in the window, so that we can catch
+     the ESC key being pressed and act as if the "Cancel" button had
+     been selected. */
+  dlg_set_cancel(prefs_w, cancel_bt);
 
   gtk_widget_show(prefs_w);
 }
