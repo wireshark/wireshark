@@ -1,8 +1,8 @@
 /* packet-dcerpc-messenger.c
- * Routines for SMB \PIPE\messenger packet disassembly
+ * Routines for SMB \PIPE\msgsvc packet disassembly
  * Copyright 2003 Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-messenger.c,v 1.4 2003/08/04 02:49:02 tpot Exp $
+ * $Id: packet-dcerpc-messenger.c,v 1.5 2003/09/27 23:45:25 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,12 @@ static int hf_messenger_client = -1;
 static int hf_messenger_message = -1;
 
 static gint ett_dcerpc_messenger = -1;
+
+
+/* Windows messenger service listens on two endpoints:
+ *   \pipe\msgsvc named pipe
+ *   a dynamic UDP port
+ */
 
 static e_uuid_t uuid_dcerpc_messenger = {
         0x5a7b91f8, 0xff00, 0x11d0,
@@ -87,7 +93,7 @@ messenger_dissect_send_message_reply(tvbuff_t *tvb, int offset, packet_info *pin
 
 
 static dcerpc_sub_dissector dcerpc_messenger_dissectors[] = {
-        {0, "SendMessage", 
+        {0, "NetrSendMessage", 
 		messenger_dissect_send_message_rqst,
 		messenger_dissect_send_message_reply },
         {0, NULL, NULL,  NULL }
