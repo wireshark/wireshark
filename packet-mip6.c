@@ -1,6 +1,6 @@
 /* packet-mip6.c
  *
- * $Id: packet-mip6.c,v 1.1 2003/02/04 20:16:57 guy Exp $
+ * $Id: packet-mip6.c,v 1.2 2003/02/13 22:23:20 guy Exp $
  *
  * Routines for Mobile IPv6 dissection (draft-ietf-mobileip-ipv6-20.txt)
  * Copyright 2003 Oy L M Ericsson Ab <teemu.rinta-aho@ericsson.fi>
@@ -89,7 +89,7 @@ dissect_mip6_brr(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
     proto_item *ti;
 
     if (check_col(pinfo->cinfo, COL_INFO))
-        col_set_str(pinfo->cinfo, COL_INFO, "Binding Error");
+        col_set_str(pinfo->cinfo, COL_INFO, "Binding Refresh Request");
 
     if (mip6_tree) {
         ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF, 
@@ -310,7 +310,7 @@ dissect_mip6_opt_pad1(tvbuff_t *tvb, proto_tree *opts_tree, int offset)
 {
     int len;
 
-    len = (tvb_get_guint8(tvb, offset + 1)) + 2;
+    len = 1;
     proto_tree_add_text(opts_tree, tvb, offset, len, "Pad1");
 
     return offset+len;

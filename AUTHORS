@@ -511,6 +511,7 @@ Santeri Paavolainen <santtu[AT]ssh.com> {
 	"Capture->Stop" menu bar item
 	Improved capture statistics box
 	Make doc/Makefile.am work in POSIXLY_CORRECT environment
+	Mobile IPv6 fixes
 }
 
 Ulrich Kiermayr <uk[AT]ap.univie.ac.at> {
