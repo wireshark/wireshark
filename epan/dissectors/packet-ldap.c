@@ -214,7 +214,7 @@ static guint ldap_call_response_chunk_count = 200;
 static guint
 ldap_info_hash_matched(gconstpointer k)
 {
-  ldap_call_response_t *key = (ldap_call_response_t *)k;
+  const ldap_call_response_t *key = k;
 
   return key->messageId;
 }
@@ -222,8 +222,8 @@ ldap_info_hash_matched(gconstpointer k)
 static gint
 ldap_info_equal_matched(gconstpointer k1, gconstpointer k2)
 {
-  ldap_call_response_t *key1 = (ldap_call_response_t *)k1;
-  ldap_call_response_t *key2 = (ldap_call_response_t *)k2;
+  const ldap_call_response_t *key1 = k1;
+  const ldap_call_response_t *key2 = k2;
 
   if( key1->req_frame && key2->req_frame && (key1->req_frame!=key2->req_frame) ){
     return 0;
@@ -238,7 +238,7 @@ ldap_info_equal_matched(gconstpointer k1, gconstpointer k2)
 static guint
 ldap_info_hash_unmatched(gconstpointer k)
 {
-  ldap_call_response_t *key = (ldap_call_response_t *)k;
+  const ldap_call_response_t *key = k;
 
   return key->messageId;
 }
@@ -246,8 +246,8 @@ ldap_info_hash_unmatched(gconstpointer k)
 static gint
 ldap_info_equal_unmatched(gconstpointer k1, gconstpointer k2)
 {
-  ldap_call_response_t *key1 = (ldap_call_response_t *)k1;
-  ldap_call_response_t *key2 = (ldap_call_response_t *)k2;
+  const ldap_call_response_t *key1 = k1;
+  const ldap_call_response_t *key2 = k2;
 
   return key1->messageId==key2->messageId;
 }
@@ -2529,7 +2529,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
       if (first_time)
       {
         if (check_col(pinfo->cinfo, COL_PROTOCOL))
-          col_set_str(pinfo->cinfo, COL_PROTOCOL, (gchar *)pinfo->current_proto);
+          col_set_str(pinfo->cinfo, COL_PROTOCOL, pinfo->current_proto);
         if (check_col(pinfo->cinfo, COL_INFO))
           col_clear(pinfo->cinfo, COL_INFO);
       }
@@ -2709,7 +2709,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
        */
       if (first_time) {
         if (check_col(pinfo->cinfo, COL_PROTOCOL))
-          col_set_str(pinfo->cinfo, COL_PROTOCOL, (gchar *)pinfo->current_proto);
+          col_set_str(pinfo->cinfo, COL_PROTOCOL, pinfo->current_proto);
         if (check_col(pinfo->cinfo, COL_INFO))
           col_clear(pinfo->cinfo, COL_INFO);
       }
