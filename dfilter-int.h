@@ -2,7 +2,7 @@
  * Definitions for routines common to multiple modules in the display
  * filter code, but not used outside that code.
  *
- * $Id: dfilter-int.h,v 1.3 1999/08/26 06:20:48 gram Exp $
+ * $Id: dfilter-int.h,v 1.4 1999/08/30 16:01:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,7 +45,6 @@ void dfilter_yyerror(char *fmt, ...);
 gboolean check_relation_numeric(gint operand, GArray *a, GArray *b);
 gboolean check_relation_ether(gint operand, GArray *a, GArray *b);
 gboolean check_relation_bytes(gint operand, GArray *a, GArray *b);
-gboolean check_relation_boolean(gint operand, GArray *a, GArray *b);
 
 gboolean fill_array_numeric_value(GNode *gnode, gpointer data);
 gboolean fill_array_numeric_variable(GNode *gnode, gpointer data);
@@ -53,8 +52,6 @@ gboolean fill_array_ether_value(GNode *gnode, gpointer data);
 gboolean fill_array_ether_variable(GNode *gnode, gpointer data);
 gboolean fill_array_bytes_value(GNode *gnode, gpointer data);
 gboolean fill_array_bytes_variable(GNode *gnode, gpointer data);
-gboolean fill_array_boolean_value(GNode *gnode, gpointer data);
-gboolean fill_array_boolean_variable(GNode *gnode, gpointer data);
 
 #ifdef WIN32
 #define boolean truth_value
@@ -96,7 +93,6 @@ typedef struct dfilter_node {
 		gint		variable; /* if type == variable (protocol or header field abbrev) */
 		gint		alternation; /* if type == alternation (& or |) */
 
-		gboolean	boolean;
 		guint32		numeric;
 		struct timeval	abs_time; /* the whole struct, not a pointer */
 		gchar		*string;

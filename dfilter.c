@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.18 1999/08/30 15:51:43 gram Exp $
+ * $Id: dfilter.c,v 1.19 1999/08/30 16:01:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -535,18 +535,6 @@ gboolean fill_array_bytes_variable(GNode *gnode, gpointer data)
 	return FALSE; /* FALSE = do not end traversal of GNode tree */
 }
 
-gboolean fill_array_boolean_variable(GNode *gnode, gpointer data)
-{
-	proto_tree_search_info	*sinfo = (proto_tree_search_info*)data;
-	field_info		*fi = (field_info*) (gnode->data);
-
-	if (fi->hfinfo->id == sinfo->target) {
-		g_array_append_val(sinfo->result.array, fi->value.boolean);
-	}
-
-	return FALSE; /* FALSE = do not end traversal of GNode tree */
-}
-
 gboolean fill_array_numeric_value(GNode *gnode, gpointer data)
 {
 	GArray		*array = (GArray*)data;
@@ -576,17 +564,6 @@ gboolean fill_array_bytes_value(GNode *gnode, gpointer data)
 
 	return FALSE; /* FALSE = do not end traversal of GNode tree */
 }
-
-gboolean fill_array_boolean_value(GNode *gnode, gpointer data)
-{
-	GArray		*array = (GArray*)data;
-	dfilter_node	*dnode = (dfilter_node*) (gnode->data);
-
-	g_array_append_val(array, dnode->value.boolean);
-
-	return FALSE; /* FALSE = do not end traversal of GNode tree */
-}
-
 
 gboolean check_relation_numeric(gint operand, GArray *a, GArray *b)
 {
@@ -757,44 +734,6 @@ gboolean check_relation_bytes(gint operand, GArray *a, GArray *b)
 			}
 		}
 		return FALSE;
-	}
-
-	g_assert_not_reached();
-	return FALSE;
-}
-
-gboolean check_relation_boolean(gint operand, GArray *a, GArray *b)
-{
-	int	i, j, len_a, len_b;
-	guint32	val_a;
-
-	len_a = a->len;
-	len_b = b->len;
-
-
-	switch(operand) {
-	case TOK_EQ:
-		for(i = 0; i < len_a; i++) {
-			val_a = g_array_index(a, guint32, i);
-			for (j = 0; j < len_b; j++) {
-				if (val_a == g_array_index(b, guint32, j))
-					return TRUE;
-			}
-		}
-		return FALSE;
-
-	case TOK_NE:
-		for(i = 0; i < len_a; i++) {
-			val_a = g_array_index(a, guint32, i);
-			for (j = 0; j < len_b; j++) {
-				if (val_a != g_array_index(b, guint32, j))
-					return TRUE;
-			}
-		}
-		return FALSE;
-
-	default:
-		g_assert_not_reached();
 	}
 
 	g_assert_not_reached();
