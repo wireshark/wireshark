@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.39 1999/11/16 11:42:53 guy Exp $
+ * $Id: packet-smb.c,v 1.40 1999/11/16 17:03:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -9219,7 +9219,7 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
     strcpy(TransactNameCopy, TransactName);
     trans_type = TransactNameCopy + 1;  /* Skip the slash */
     loc_of_slash = strchr(trans_type, '\\');
-    if (index) {
+    if (loc_of_slash) {
       index = loc_of_slash - trans_type;  /* Make it a real index */
       trans_cmd = trans_type + index + 1;
       trans_type[index] = '\0';
