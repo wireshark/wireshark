@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.36 1999/06/11 16:44:50 gram Exp $
+ * $Id: ethereal.c,v 1.37 1999/06/12 07:04:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,6 +51,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -546,6 +547,8 @@ main(int argc, char *argv[])
 {
   int                  opt, i;
   extern char         *optarg;
+  char                *pf_path;
+  int                 pf_open_errno = 0;
   GtkWidget           *window, *main_vbox, *menubar, *u_pane, *l_pane,
                       *bv_table, *bv_hscroll, *bv_vscroll, *stat_hbox, 
                       *tv_scrollw, *filter_bt, *filter_te;
@@ -571,7 +574,13 @@ main(int argc, char *argv[])
   gtk_init (&argc, &argv);
   
 
-  prefs = read_prefs();
+  prefs = read_prefs(&pf_path);
+  if (pf_path != NULL) {
+    /* The preferences file exists, but couldn't be opened; "pf_path" is
+       its pathname.  Remember "errno", as that says why the attempt
+       failed. */
+    pf_open_errno = errno;
+  }
     
   /* Initialize the capture file struct */
   cf.plist		= NULL;
@@ -887,6 +896,15 @@ main(int argc, char *argv[])
   ethereal_proto_init();   /* Init anything that needs initializing */
 
   gtk_widget_show(window);
+
+  /* If we failed to open the preferences file, pop up an alert box;
+     we defer it until now, so that the alert box is more likely to
+     come up on top of the main window. */
+  if (pf_path != NULL) {
+      simple_dialog(ESD_TYPE_WARN, NULL,
+        "Can't open preferences file\n\"%s\": %s.", pf_path,
+        strerror(pf_open_errno));
+  }
 
   gtk_main();
 

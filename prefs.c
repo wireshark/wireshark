@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.16 1999/03/01 18:57:01 gram Exp $
+ * $Id: prefs.c,v 1.17 1999/06/12 07:04:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -274,7 +274,7 @@ print.file: /a/very/long/path/
 #define MAX_VAL_LEN  1024
 #define DEF_NUM_COLS    6
 e_prefs *
-read_prefs() {
+read_prefs(char **pf_path_return) {
   enum { START, IN_VAR, PRE_VAL, IN_VAL, IN_SKIP };
   FILE     *pf;
   gchar     cur_var[MAX_VAR_LEN], cur_val[MAX_VAL_LEN];
@@ -311,11 +311,10 @@ read_prefs() {
     sprintf(pf_path, "%s/%s/%s", getenv("HOME"), PF_DIR, PF_NAME);
   }
     
+  *pf_path_return = NULL;
   if ((pf = fopen(pf_path, "r")) == NULL) {
-    if (errno != ENOENT) {
-      simple_dialog(ESD_TYPE_WARN, NULL,
-        "Can't open preferences file\n\"%s\".", pf_path);
-    }
+    if (errno != ENOENT)
+      *pf_path_return = pf_path;
     return &prefs;
   }
     
