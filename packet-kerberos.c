@@ -21,7 +21,7 @@
  *
  *      http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-referrals-03.txt
  *
- * $Id: packet-kerberos.c,v 1.56 2004/04/15 07:47:47 sahlberg Exp $
+ * $Id: packet-kerberos.c,v 1.57 2004/04/15 08:34:21 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -120,6 +120,8 @@ static gint hf_krb_lr_type = -1;
 static gint hf_krb_from = -1;
 static gint hf_krb_till = -1;
 static gint hf_krb_authtime = -1;
+static gint hf_krb_patimestamp = -1;
+static gint hf_krb_pausec = -1;
 static gint hf_krb_lr_time = -1;
 static gint hf_krb_starttime = -1;
 static gint hf_krb_endtime = -1;
@@ -1070,6 +1072,18 @@ dissect_krb5_AP_REP_etype(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 	}
 	return offset;
 }
+static guint32 PA_ENC_TIMESTAMP_etype;
+static int 
+dissect_krb5_PA_ENC_TIMESTAMP_etype(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_integer(pinfo, tree, tvb, offset, hf_krb_etype, &PA_ENC_TIMESTAMP_etype);
+	if(tree){
+		proto_item_append_text(tree, " %s", 
+			val_to_str(PA_ENC_TIMESTAMP_etype, krb5_encryption_types,
+			"%#x"));
+	}
+	return offset;
+}
 
 
 /*
@@ -1314,17 +1328,73 @@ dissect_krb5_seq_number(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 
 
 
+#ifdef HAVE_KERBEROS
+static int 
+dissect_krb5_pausec(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_integer(pinfo, tree, tvb, offset, hf_krb_pausec, NULL);
+	return offset;
+}
+static int 
+dissect_krb5_patimestamp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_generalized_time(pinfo, tree, tvb, offset, hf_krb_patimestamp);
+	return offset;
+}
+static const ber_sequence PA_ENC_TS_ENC_sequence[] = {
+	{ BER_CLASS_CON, 0, 0, dissect_krb5_patimestamp },
+	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_krb5_pausec },
+	{ 0, 0, 0, NULL }
+};
+static int
+dissect_krb5_decrypt_PA_ENC_TIMESTAMP (packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	guint8 *plaintext=NULL;
+	int length;
+
+	length=tvb_length_remaining(tvb, offset);
+
+	/* draft-ietf-krb-wg-kerberos-clarifications-05.txt :
+	 * 7.5.1
+	 * AS-REQ PA_ENC_TIMESTAMP are encrypted with usage 
+	 * == 1
+	 */
+	if(!plaintext){
+		plaintext=decrypt_krb5_data(pinfo, 1, length, tvb_get_ptr(tvb, offset, length), PA_ENC_TIMESTAMP_etype);
+	}
+
+	if(plaintext){
+		tvbuff_t *next_tvb;
+		next_tvb = tvb_new_real_data (plaintext,
+                                          length,
+                                          length);
+		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+            
+		/* Add the decrypted data to the data source list. */
+		add_new_data_source(pinfo, next_tvb, "Decrypted Krb5");
+            
+
+		offset=dissect_ber_sequence(FALSE, pinfo, tree, next_tvb, 0, PA_ENC_TS_ENC_sequence, -1, -1);
+
+	}
+	return offset;
+}
+#endif
+
 
 static int
 dissect_krb5_encrypted_PA_ENC_TIMESTAMP(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_krb_encrypted_PA_ENC_TIMESTAMP, NULL);
+#ifdef HAVE_KERBEROS
+	offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset, hf_krb_encrypted_PA_ENC_TIMESTAMP, dissect_krb5_decrypt_PA_ENC_TIMESTAMP);
+#else
+	offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset, hf_krb_encrypted_PA_ENC_TIMESTAMP, NULL);
+#endif
 	return offset;
-/*qqq*/
 }
 static ber_sequence PA_ENC_TIMESTAMP_sequence[] = {
 	{ BER_CLASS_CON, 0, 0, 
-		dissect_krb5_etype },
+		dissect_krb5_PA_ENC_TIMESTAMP_etype },
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
 		dissect_krb5_kvno },
 	{ BER_CLASS_CON, 2, 0,
@@ -3074,6 +3144,12 @@ proto_register_kerberos(void)
 	{ &hf_krb_authtime, {
 	    "Authtime", "kerberos.authtime", FT_STRING, BASE_NONE,
 	    NULL, 0, "Time of initial authentication", HFILL }},
+	{ &hf_krb_patimestamp, {
+	    "patimestamp", "kerberos.patimestamp", FT_STRING, BASE_NONE,
+	    NULL, 0, "Time of client", HFILL }},
+	{ &hf_krb_pausec, {
+	    "pausec", "kerberos.pausec", FT_UINT32, BASE_DEC,
+	    NULL, 0, "Microsecond component of client time", HFILL }},
 	{ &hf_krb_lr_time, {
 	    "Lr-time", "kerberos.lr_time", FT_STRING, BASE_NONE,
 	    NULL, 0, "Time of LR-entry", HFILL }},
