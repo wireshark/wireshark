@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.44 2001/12/04 23:38:55 guy Exp $
+ * $Id: netmon.c,v 1.45 2002/01/24 23:02:56 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -29,6 +29,7 @@
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "netmon.h"
+#include <netinet/in.h>
 
 /* The file at
  *
@@ -93,7 +94,22 @@ struct netmonrec_2_x_hdr {
 	guint32	incl_len;	/* number of octets captured in file */
 };
 
+/*
+ * The link-layer header on ATM packets.
+ */
+struct netmon_atm_hdr {
+	guint8	dest[6];	/* "Destination address" - what is it? */
+	guint8	src[6];		/* "Source address" - what is it? */
+	guint16	vpi;		/* VPI */
+	guint16	vci;		/* VCI */
+};
+
 static gboolean netmon_read(wtap *wth, int *err, long *data_offset);
+static int netmon_seek_read(wtap *wth, long seek_off,
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int length);
+static int netmon_read_atm_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err);
+static int netmon_read_rec_data(FILE_T fh, u_char *pd, int length, int *err);
 static void netmon_close(wtap *wth);
 static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
@@ -110,14 +126,14 @@ int netmon_open(wtap *wth, int *err)
 		WTAP_ENCAP_ETHERNET,
 		WTAP_ENCAP_TOKEN_RING,
 		WTAP_ENCAP_FDDI_BITSWAPPED,
-		WTAP_ENCAP_UNKNOWN,	/* WAN */
-		WTAP_ENCAP_UNKNOWN,	/* LocalTalk */
-		WTAP_ENCAP_UNKNOWN,	/* "DIX" - should not occur */
-		WTAP_ENCAP_UNKNOWN,	/* ARCNET raw */
-		WTAP_ENCAP_UNKNOWN,	/* ARCNET 878.2 */
-		WTAP_ENCAP_UNKNOWN,	/* ATM */
-		WTAP_ENCAP_UNKNOWN,	/* Wireless WAN */
-		WTAP_ENCAP_UNKNOWN	/* IrDA */
+		WTAP_ENCAP_ATM_SNIFFER,	/* NDIS WAN - this is what's used for ATM */
+		WTAP_ENCAP_UNKNOWN,	/* NDIS LocalTalk */
+		WTAP_ENCAP_UNKNOWN,	/* NDIS "DIX" - should not occur */
+		WTAP_ENCAP_UNKNOWN,	/* NDIS ARCNET raw */
+		WTAP_ENCAP_UNKNOWN,	/* NDIS ARCNET 878.2 */
+		WTAP_ENCAP_UNKNOWN,	/* NDIS ATM (no, this is NOT used for ATM) */
+		WTAP_ENCAP_UNKNOWN,	/* NDIS Wireless WAN */
+		WTAP_ENCAP_UNKNOWN	/* NDIS IrDA */
 	};
 	#define NUM_NETMON_ENCAPS (sizeof netmon_encap / sizeof netmon_encap[0])
 	struct tm tm;
@@ -184,7 +200,7 @@ int netmon_open(wtap *wth, int *err)
 	wth->file_type = file_type;
 	wth->capture.netmon = g_malloc(sizeof(netmon_t));
 	wth->subtype_read = netmon_read;
-	wth->subtype_seek_read = wtap_def_seek_read;
+	wth->subtype_seek_read = netmon_seek_read;
 	wth->subtype_close = netmon_close;
 	wth->file_encap = netmon_encap[hdr.network];
 	wth->snapshot_length = 16384;	/* XXX - not available in header */
@@ -280,6 +296,7 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 {
 	netmon_t *netmon = wth->capture.netmon;
 	guint32	packet_size = 0;
+	guint32 orig_size = 0;
 	int	bytes_read;
 	union {
 		struct netmonrec_1_x_hdr hdr_1_x;
@@ -338,10 +355,12 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 	switch (netmon->version_major) {
 
 	case 1:
+		orig_size = pletohs(&hdr.hdr_1_x.orig_len);
 		packet_size = pletohs(&hdr.hdr_1_x.incl_len);
 		break;
 
 	case 2:
+		orig_size = pletohl(&hdr.hdr_2_x.orig_len);
 		packet_size = pletohl(&hdr.hdr_2_x.incl_len);
 		break;
 	}
@@ -355,18 +374,43 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 		*err = WTAP_ERR_BAD_RECORD;
 		return FALSE;
 	}
-	buffer_assure_space(wth->frame_buffer, packet_size);
-	*data_offset = wth->data_offset;
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
-			packet_size, wth->fh);
 
-	if ((guint32)bytes_read != packet_size) {
-		*err = file_error(wth->fh);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
+	*data_offset = wth->data_offset;
+
+	/*
+	 * If this is an ATM packet, the first
+	 * "sizeof (struct netmon_atm_hdr)" bytes have destination and
+	 * source addresses (6 bytes - MAC addresses of some sort?)
+	 * and the VPI and VCI; read them and generate the pseudo-header
+	 * from them.
+	 */
+	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER) {
+		if (packet_size < sizeof (struct netmon_atm_hdr)) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			g_message("netmon: atmsnoop file has a %u-byte packet, too small to have even an ATM pseudo-header\n",
+			    packet_size);
+			*err = WTAP_ERR_BAD_RECORD;
+			return FALSE;
+		}
+		if (netmon_read_atm_pseudoheader(wth->fh, &wth->pseudo_header,
+		    err) < 0)
+			return FALSE;	/* Read error */
+
+		/*
+		 * Don't count the pseudo-header as part of the packet.
+		 */
+		orig_size -= sizeof (struct netmon_atm_hdr);
+		packet_size -= sizeof (struct netmon_atm_hdr);
+		wth->data_offset += sizeof (struct netmon_atm_hdr);
 	}
+
+	buffer_assure_space(wth->frame_buffer, packet_size);
+	if (netmon_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
+	    packet_size, err) < 0)
+		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
 	t = (double)netmon->start_usecs;
@@ -386,19 +430,86 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 	wth->phdr.ts.tv_sec = netmon->start_secs + secs;
 	wth->phdr.ts.tv_usec = usecs;
 	wth->phdr.caplen = packet_size;
-	switch (netmon->version_major) {
-
-	case 1:
-		wth->phdr.len = pletohs(&hdr.hdr_1_x.orig_len);
-		break;
-
-	case 2:
-		wth->phdr.len = pletohl(&hdr.hdr_2_x.orig_len);
-		break;
-	}
+	wth->phdr.len = orig_size;
 	wth->phdr.pkt_encap = wth->file_encap;
 
 	return TRUE;
+}
+
+static int
+netmon_seek_read(wtap *wth, long seek_off,
+    union wtap_pseudo_header *pseudo_header, u_char *pd, int length)
+{
+	int	ret;
+	int	err;		/* XXX - return this */
+
+	file_seek(wth->random_fh, seek_off, SEEK_SET);
+
+	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER) {
+		ret = netmon_read_atm_pseudoheader(wth->random_fh, pseudo_header,
+		    &err);
+		if (ret < 0) {
+			/* Read error */
+			return ret;
+		}
+	}
+
+	/*
+	 * Read the packet data.
+	 */
+	return netmon_read_rec_data(wth->random_fh, pd, length, &err);
+}
+
+static int
+netmon_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
+    int *err)
+{
+	struct netmon_atm_hdr atm_phdr;
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(&atm_phdr, 1, sizeof (struct netmon_atm_hdr), fh);
+	if (bytes_read != sizeof (struct netmon_atm_hdr)) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
+	}
+
+	pseudo_header->ngsniffer_atm.Vpi = ntohs(atm_phdr.vpi);
+	pseudo_header->ngsniffer_atm.Vci = ntohs(atm_phdr.vci);
+
+	/* We don't have this information */
+	pseudo_header->ngsniffer_atm.channel = 0;
+	pseudo_header->ngsniffer_atm.cells = 0;
+	pseudo_header->ngsniffer_atm.aal5t_u2u = 0;
+	pseudo_header->ngsniffer_atm.aal5t_len = 0;
+	pseudo_header->ngsniffer_atm.aal5t_chksum = 0;
+
+	/*
+	 * Assume it's AAL5; we know nothing more about it.
+	 */
+	pseudo_header->ngsniffer_atm.AppTrafType = ATT_AAL5|ATT_HL_UNKNOWN;
+	pseudo_header->ngsniffer_atm.AppHLType = AHLT_UNKNOWN;
+
+	return 0;
+}
+
+static int
+netmon_read_rec_data(FILE_T fh, u_char *pd, int length, int *err)
+{
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(pd, 1, length, fh);
+
+	if (bytes_read != length) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
+	}
+	return 0;
 }
 
 static void
@@ -422,7 +533,7 @@ static const int wtap_encap[] = {
 	-1,		/* WTAP_ENCAP_ATM_RFC1483 -> unsupported */
 	-1,		/* WTAP_ENCAP_LINUX_ATM_CLIP -> unsupported */
 	-1,		/* WTAP_ENCAP_LAPB -> unsupported*/
-	-1,		/* WTAP_ENCAP_ATM_SNIFFER -> unsupported */
+	4,		/* WTAP_ENCAP_ATM_SNIFFER -> NDIS WAN (*NOT* ATM!) */
 	-1		/* WTAP_ENCAP_NULL -> unsupported */
 };
 #define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
@@ -478,6 +589,8 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	size_t nwritten;
 	double t;
 	guint32 time_low, time_high;
+	struct netmon_atm_hdr atm_hdr;
+	int atm_hdrsize;
 
 	/* NetMon files have a capture start time in the file header,
 	   and have times relative to that in the packet headers;
@@ -488,14 +601,18 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		netmon->got_first_record_time = TRUE;
 	}
 	
+	if (wdh->encap == WTAP_ENCAP_ATM_SNIFFER)
+		atm_hdrsize = 6+6+2+2;
+	else
+		atm_hdrsize = 0;
 	switch (wdh->file_type) {
 
 	case WTAP_FILE_NETMON_1_x:
 		rec_1_x_hdr.ts_delta = htolel(
 		    (phdr->ts.tv_sec - netmon->first_record_time.tv_sec)*1000
 		  + (phdr->ts.tv_usec - netmon->first_record_time.tv_usec + 500)/1000);
-		rec_1_x_hdr.orig_len = htoles(phdr->len);
-		rec_1_x_hdr.incl_len = htoles(phdr->caplen);
+		rec_1_x_hdr.orig_len = htoles(phdr->len + atm_hdrsize);
+		rec_1_x_hdr.incl_len = htoles(phdr->caplen + atm_hdrsize);
 		hdrp = (char *)&rec_1_x_hdr;
 		hdr_size = sizeof rec_1_x_hdr;
 		break;
@@ -513,8 +630,8 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		time_low = t - (time_high*4294967296.0);
 		rec_2_x_hdr.ts_delta_lo = htolel(time_low);
 		rec_2_x_hdr.ts_delta_hi = htolel(time_high);
-		rec_2_x_hdr.orig_len = htolel(phdr->len);
-		rec_2_x_hdr.incl_len = htolel(phdr->caplen);
+		rec_2_x_hdr.orig_len = htolel(phdr->len + atm_hdrsize);
+		rec_2_x_hdr.incl_len = htolel(phdr->caplen + atm_hdrsize);
 		hdrp = (char *)&rec_2_x_hdr;
 		hdr_size = sizeof rec_2_x_hdr;
 		break;
@@ -534,6 +651,26 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 			*err = WTAP_ERR_SHORT_WRITE;
 		return FALSE;
 	}
+
+	if (wdh->encap == WTAP_ENCAP_ATM_SNIFFER) {
+		/*
+		 * Write the ATM header.
+		 * We supply all-zero destination and source addresses.
+		 */
+		memset(&atm_hdr.dest, 0, sizeof atm_hdr.dest);
+		memset(&atm_hdr.src, 0, sizeof atm_hdr.src);
+		atm_hdr.vpi = htons(pseudo_header->ngsniffer_atm.Vpi);
+		atm_hdr.vci = htons(pseudo_header->ngsniffer_atm.Vci);
+		nwritten = fwrite(&atm_hdr, 1, sizeof atm_hdr, wdh->fh);
+		if (nwritten != sizeof atm_hdr) {
+			if (nwritten == 0 && ferror(wdh->fh))
+				*err = errno;
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+			return FALSE;
+		}
+	}
+
 	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
 	if (nwritten != phdr->caplen) {
 		if (nwritten == 0 && ferror(wdh->fh))
@@ -568,7 +705,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	netmon->frame_table[netmon->frame_table_index] =
 	    htolel(netmon->frame_table_offset);
 	netmon->frame_table_index++;
-	netmon->frame_table_offset += hdr_size + phdr->caplen;
+	netmon->frame_table_offset += hdr_size + phdr->caplen + atm_hdrsize;
 
 	return TRUE;
 }
