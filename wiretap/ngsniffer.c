@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.59 2001/01/16 20:12:30 jfoster Exp $
+ * $Id: ngsniffer.c,v 1.60 2001/01/16 20:26:26 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -436,14 +436,17 @@ int ngsniffer_open(wtap *wth, int *err)
 		wth->file_type = WTAP_FILE_NGSNIFFER_UNCOMPRESSED;
 	}
 
-	/* Set encap type before reading header records because the
+	/*
+	 * Set encap type before reading header records because the
 	 * header record may change encap type.
 	 */
 	wth->file_encap = sniffer_encap[version.network];
 
 	/*
 	 * We don't know how to handle the remaining header record types,
-	 * so we just skip them
+	 * so we just skip them - except for REC_HEADER2 records, which
+	 * we look at, for "Internetwork analyzer" captures, to attempt to
+	 * determine what the link-layer encapsulation is.
 	 */
 	if (skip_header_records(wth, err, version.maj_vers) < 0)
 		return -1;
