@@ -1199,7 +1199,7 @@ static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
     file_hdr.nframes = htolel(netxray->nframes);
     file_hdr.start_offset = htolel(CAPTUREFILE_HEADER_SIZE);
     file_hdr.end_offset = htolel(filelen);
-    file_hdr.network = (guint8) htoles(wtap_encap_to_netxray_1_1_encap(wdh->encap));
+    file_hdr.network = wtap_encap_to_netxray_1_1_encap(wdh->encap);
     file_hdr.timelo = htolel(0);
     file_hdr.timehi = htolel(0);
 
@@ -1406,7 +1406,7 @@ static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
     file_hdr.nframes = htolel(netxray->nframes);
     file_hdr.start_offset = htolel(CAPTUREFILE_HEADER_SIZE);
     file_hdr.end_offset = htolel(filelen);
-    file_hdr.network = (guint8) htoles(wtap_encap_to_netxray_2_0_encap(wdh->encap));
+    file_hdr.network = wtap_encap_to_netxray_2_0_encap(wdh->encap);
     file_hdr.timelo = htolel(0);
     file_hdr.timehi = htolel(0);
     switch (wdh->encap) {
