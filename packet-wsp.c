@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.39 2001/10/07 08:37:28 guy Exp $
+ * $Id: packet-wsp.c,v 1.40 2001/10/07 08:49:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -400,7 +400,7 @@ static const value_string vals_field_names[] = {
 	{ FN_SET_COOKIE,           "Set-Cookie" },
 	{ FN_COOKIE,               "Cookie" },
 	{ FN_ENCODING_VERSION,     "Encoding-Version" },
-	{ FN_PROFILE_WARNING,      "Profile-Warning (encoding 1.4)" },
+	{ FN_PROFILE_WARNING14,    "Profile-Warning (encoding 1.4)" },
 	{ FN_CONTENT_DISPOSITION14,"Content-Disposition (encoding 1.4)" },
 	{ FN_X_WAP_SECURITY,       "X-WAP-Security" },
 	{ FN_CACHE_CONTROL14,      "Cache-Control (encoding 1.4)" },
