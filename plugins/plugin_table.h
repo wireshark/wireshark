@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.29 2001/11/04 03:16:47 guy Exp $
+ * $Id: plugin_table.h,v 1.30 2001/11/04 03:37:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -35,6 +35,15 @@ typedef void (*addr_col_append_fstr)(frame_data*, gint, gchar*, ...);
 typedef void (*addr_col_add_str)(frame_data*, gint, const gchar*);
 typedef void (*addr_col_append_str)(frame_data*, gint, gchar*);
 typedef void (*addr_col_set_str)(frame_data*, gint, gchar*);
+
+typedef void (*addr_register_init_routine)(void (*func)(void));
+typedef void (*addr_conv_dissector_add)(const char *, dissector_t, int);
+typedef conversation_t *(*addr_conversation_new)(address *, address *, 
+    port_type, guint32, guint32, guint);
+typedef conversation_t *(*addr_find_conversation)(address *, address *, 
+    port_type, guint32, guint32, guint);
+typedef gchar* (*addr_match_strval)(guint32, const value_string*);
+typedef gchar* (*addr_val_to_str)(guint32, const value_string *, const char *);
 
 typedef int (*addr_proto_register_protocol)(char*, char*, char*);
 typedef void (*addr_proto_register_field_array)(int, hf_register_info*, int);
@@ -196,6 +205,8 @@ typedef guint32 (*addr_get_CDR_wstring)(tvbuff_t *, gchar **, int *, gboolean,
 		int, MessageHeader *);
 
 typedef struct  {
+	packet_info				*p_pi;
+
 	addr_check_col				p_check_col;
 	addr_col_clear				p_col_clear;
 	addr_col_add_fstr			p_col_add_fstr;
@@ -204,7 +215,12 @@ typedef struct  {
 	addr_col_append_str			p_col_append_str;
 	addr_col_set_str			p_col_set_str;
 
-	packet_info				*p_pi;
+	addr_register_init_routine		p_register_init_routine;
+	addr_conv_dissector_add			p_conv_dissector_add;
+	addr_conversation_new			p_conversation_new;
+	addr_find_conversation			p_find_conversation;
+	addr_match_strval			p_match_strval;
+	addr_val_to_str				p_val_to_str;
 
 	addr_proto_register_protocol		p_proto_register_protocol;
 	addr_proto_register_field_array		p_proto_register_field_array;

@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.25 2001/10/29 21:56:50 guy Exp $
+ * $Id: plugin_api.h,v 1.26 2001/11/04 03:37:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -25,13 +25,17 @@
 
 /* Some OSes (Win32) have DLLs that cannot reference symbols in the parent
    executable, so the executable needs to provide a collection of pointers
-   to those functions for the DLL plugin to use. */
+   to global variables and functions for the DLL plugin to use. */
 
-/* #defines for those functions that call through pointers.
-   #defined in this fashion so that the declaration of the functions,
-   from the system header files, turn into declarations of pointers
-   to functions, and the calls to it in plugins, in the plugins, turn
-   into calls through the pointers. */
+/* #defines for those functions that are called through pointers,
+   and global variables that are referred to through pointers.
+
+   #defined in this fashion so that the declaration of the functions
+   and variables, from the system header files, turn into declarations
+   of pointers to functions and variables, and the references to them in
+   plugins, in the plugins, turn into references through the pointers. */
+#define pi				(*p_pi)
+
 #define	check_col			(*p_check_col)
 #define	col_clear			(*p_col_clear)
 #define	col_add_fstr			(*p_col_add_fstr)
@@ -39,6 +43,13 @@
 #define	col_add_str			(*p_col_add_str)
 #define	col_append_str			(*p_col_append_str)
 #define	col_set_str			(*p_col_set_str)
+
+#define register_init_routine		(*p_register_init_routine)
+#define conv_dissector_add		(*p_conv_dissector_add)
+#define conversation_new		(*p_conversation_new)
+#define find_conversation		(*p_find_conversation)
+#define match_strval			(*p_match_strval)
+#define val_to_str			(*p_val_to_str)
 
 #define	proto_register_protocol		(*p_proto_register_protocol)
 #define	proto_register_field_array	(*p_proto_register_field_array)
@@ -176,8 +187,6 @@
 #define get_CDR_wstring			(*p_get_CDR_wstring)
 
 /* GIOP entries End */
-
-#define pi				(*p_pi)
 
 #endif
 

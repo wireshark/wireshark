@@ -862,6 +862,10 @@ Andrew C. Feren <aferen[AT]cetacean.com> {
 	Makefile fix
 }
 
+Tomas Kukosa <tomas.kukosa[AT]anfdata.cz> {
+	Additional routines made available to plugins
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
