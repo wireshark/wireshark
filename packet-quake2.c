@@ -7,7 +7,7 @@
  *	http://www.dgs.monash.edu.au/~timf/bottim/
  *	http://www.opt-sci.Arizona.EDU/Pandora/default.asp
  *
- * $Id: packet-quake2.c,v 1.1 2001/06/21 15:15:57 girlich Exp $
+ * $Id: packet-quake2.c,v 1.2 2001/07/22 18:52:38 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -101,7 +101,7 @@ dissect_quake2_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 
         maxbufsize = MIN((gint)sizeof(text), tvb_length_remaining(tvb, offset));
         len = tvb_get_nstringz0(tvb, offset, maxbufsize, text);
-        if (tree) {
+        if (cl_tree) {
                 proto_tree_add_string(cl_tree, hf_quake2_connectionless_text,
                         tvb, offset, len + 1, text);
         }
