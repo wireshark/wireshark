@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.57 2002/08/02 21:29:39 jmayer Exp $
+ * $Id: plugins.c,v 1.58 2002/08/14 19:18:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -458,6 +458,12 @@ init_plugins(const char *plugin_dir)
 	patable.p_register_dissector_table	= register_dissector_table;
 	patable.p_except_throw			= except_throw;
 	patable.p_dissector_try_port		= dissector_try_port;
+
+	patable.p_conversation_add_proto_data	= conversation_add_proto_data;
+	patable.p_conversation_get_proto_data	= conversation_get_proto_data;
+	patable.p_conversation_delete_proto_data = conversation_delete_proto_data;
+	patable.p_p_add_proto_data		= p_add_proto_data;
+	patable.p_p_get_proto_data		= p_get_proto_data;
 #endif
 
 #ifdef WIN32

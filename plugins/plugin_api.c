@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.40 2002/07/12 22:52:39 guy Exp $
+ * $Id: plugin_api.c,v 1.41 2002/08/14 19:18:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -175,4 +175,10 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_register_dissector_table		= pat->p_register_dissector_table;
 	p_except_throw				= pat->p_except_throw;
 	p_dissector_try_port			= pat->p_dissector_try_port; 
+
+	p_conversation_add_proto_data		= pat->p_conversation_add_proto_data; 
+	p_conversation_get_proto_data		= pat->p_conversation_get_proto_data; 
+	p_conversation_delete_proto_data	= pat->p_conversation_delete_proto_data; 
+	p_p_add_proto_data			= pat->p_p_add_proto_data; 
+	p_p_get_proto_data			= pat->p_p_get_proto_data; 
 }

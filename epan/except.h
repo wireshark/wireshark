@@ -14,7 +14,7 @@
  * into proprietary software; there is no requirement for such software to
  * contain a copyright notice related to this source.
  *
- * $Id: except.h,v 1.2 2001/07/27 16:20:39 gram Exp $
+ * $Id: except.h,v 1.3 2002/08/14 19:18:15 guy Exp $
  * $Name:  $
  */
 
@@ -72,28 +72,28 @@ struct except_stacknode {
 };
 
 /* private functions made external so they can be used in macros */
-void except_setup_clean(struct except_stacknode *,
+extern void except_setup_clean(struct except_stacknode *,
 	struct except_cleanup *, void (*)(void *), void *);
-void except_setup_try(struct except_stacknode *,
+extern void except_setup_try(struct except_stacknode *,
 	struct except_catch *, const except_id_t [], size_t);
-struct except_stacknode *except_pop(void);
+extern struct except_stacknode *except_pop(void);
 
 /* public interface functions */
-int except_init(void);
-void except_deinit(void);
-void except_rethrow(except_t *);
-void except_throw(long, long, const char *);
-void except_throwd(long, long, const char *, void *);
-void except_throwf(long, long, const char *, ...);
-void (*except_unhandled_catcher(void (*)(except_t *)))(except_t *);
-unsigned long except_code(except_t *);
-unsigned long except_group(except_t *);
-const char *except_message(except_t *);
-void *except_data(except_t *);
-void *except_take_data(except_t *);
-void except_set_allocator(void *(*)(size_t), void (*)(void *));
-void *except_alloc(size_t);
-void except_free(void *);
+extern int except_init(void);
+extern void except_deinit(void);
+extern void except_rethrow(except_t *);
+extern void except_throw(long, long, const char *);
+extern void except_throwd(long, long, const char *, void *);
+extern void except_throwf(long, long, const char *, ...);
+extern void (*except_unhandled_catcher(void (*)(except_t *)))(except_t *);
+extern unsigned long except_code(except_t *);
+extern unsigned long except_group(except_t *);
+extern const char *except_message(except_t *);
+extern void *except_data(except_t *);
+extern void *except_take_data(except_t *);
+extern void except_set_allocator(void *(*)(size_t), void (*)(void *));
+extern void *except_alloc(size_t);
+extern void except_free(void *);
 
 #define except_code(E) ((E)->except_id.except_code)
 #define except_group(E) ((E)->except_id.except_group)

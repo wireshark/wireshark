@@ -1,7 +1,7 @@
 /* frame_data.h
  * Definitions for frame_data structures and routines
  *
- * $Id: frame_data.h,v 1.5 2002/06/04 07:03:54 guy Exp $
+ * $Id: frame_data.h,v 1.6 2002/08/14 19:18:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,13 +65,13 @@ typedef struct {
 
 /* Utility routines used by packet*.c */
 
-void       p_add_proto_data(frame_data *, int, void *);
-void       *p_get_proto_data(frame_data *, int);
+extern void p_add_proto_data(frame_data *, int, void *);
+extern void *p_get_proto_data(frame_data *, int);
 
 /* An init routine to be called by epan_init */
-void frame_data_init(void);
+extern void frame_data_init(void);
 
 /* A cleanup routine to be called by epan_cleanup */
-void frame_data_cleanup(void);
+extern void frame_data_cleanup(void);
 
 #endif  /* __FRAME_DATA__ */

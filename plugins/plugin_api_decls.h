@@ -2,7 +2,7 @@
  * Declarations of a list of "p_" names; included in various places
  * to declare them as variables or as function members.
  *
- * $Id: plugin_api_decls.h,v 1.3 2002/07/12 22:52:39 guy Exp $
+ * $Id: plugin_api_decls.h,v 1.4 2002/08/14 19:18:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -214,3 +214,10 @@ addr_decode_enumerated_bitfield		p_decode_enumerated_bitfield;
 addr_register_dissector_table		p_register_dissector_table;
 addr_except_throw			p_except_throw;
 addr_dissector_try_port			p_dissector_try_port;
+
+addr_conversation_add_proto_data	p_conversation_add_proto_data;
+addr_conversation_get_proto_data	p_conversation_get_proto_data;
+addr_conversation_delete_proto_data	p_conversation_delete_proto_data;
+addr_p_add_proto_data			p_p_add_proto_data;
+addr_p_get_proto_data			p_p_get_proto_data;
+
