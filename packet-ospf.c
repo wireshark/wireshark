@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.56 2002/02/14 02:32:14 ashokn Exp $
+ * $Id: packet-ospf.c,v 1.57 2002/02/14 05:23:32 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -908,9 +908,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 					stlv_len);
 		    for (i = 0; i < 8; i++) {
 			proto_tree_add_text(stlv_tree, tvb, stlv_offset+4+(i*4), 4,
-					    "Pri %d: %ld bytes/s (%lld bits/s)", i,
+					    "Pri %d: %ld bytes/s (%.0f bits/s)", i,
 					    tvb_ieee_to_long(tvb, stlv_offset + 4 + i*4),
-					    tvb_ieee_to_long(tvb, stlv_offset + 4 + i*4) * 8);
+					    tvb_ieee_to_long(tvb, stlv_offset + 4 + i*4) * 8.0);
 		    }
 		    break;
 
@@ -946,9 +946,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 						   gmpls_lsp_enc_str, "Unknown (%d)"));
 		    for (i = 0; i < 8; i++) {
 			proto_tree_add_text(stlv_tree, tvb, stlv_offset+8+(i*4), 4,
-					    "Pri %d: %ld bytes/s (%lld bits/s)", i,
+					    "Pri %d: %ld bytes/s (%.0f bits/s)", i,
 					    tvb_ieee_to_long(tvb, stlv_offset + 4 + i*4),
-					    tvb_ieee_to_long(tvb, stlv_offset + 4 + i*4) * 8);
+					    tvb_ieee_to_long(tvb, stlv_offset + 4 + i*4) * 8.0);
 		    }
 		    break;
 
