@@ -24,7 +24,7 @@ back-green	UINT16	DEC		Background green value for a cursor
 back-red	UINT16	DEC		Background red value for a cursor
 background	UINT32	HEX		Background color
 background-pixel	UINT32	HEX	Background color for a window
-background-pixmap	UINT32	DEC	VALS	Background pixmap for a window
+background-pixmap	UINT32	HEX	VALS	Background pixmap for a window
 backing-pixel	UINT32	HEX
 backing-planes	UINT32	HEX
 backing-store	UINT8	DEC	VALS
@@ -36,14 +36,14 @@ bit-plane	UINT32	BIN
 blue		UINT16	DEC
 blues		UINT16	DEC
 border-pixel	UINT32	HEX
-border-pixmap	UINT32	DEC	VALS
+border-pixmap	UINT32	HEX	VALS
 border-width	UINT16	DEC
 button		UINT8	DEC	VALS
 cap-style	UINT8	DEC	VALS
 change-host-mode	UINT8	DEC	VALS(insert_delete)
 cid		UINT32	HEX
 class		UINT8	DEC	VALS
-clip-mask	UINT32	DEC	VALS(zero_is_none)
+clip-mask	UINT32	HEX	VALS(zero_is_none)
 clip-x-origin	INT16	DEC
 clip-y-origin	INT16	DEC
 close-down-mode	UINT8	DEC	VALS
@@ -75,11 +75,11 @@ configure-window-mask	UINT16	HEX
 	sibling		BOOLEAN	16	0x0020
 	stack-mode	BOOLEAN	16	0x0040
 
-confine-to	UINT32	DEC	VALS(zero_is_none)
+confine-to	UINT32	HEX	VALS(zero_is_none)
 contiguous	BOOLEAN	NONE
 coordinate-mode	UINT8	DEC	VALS
 count		UINT8	DEC
-cursor		UINT32	DEC	VALS(zero_is_none)
+cursor		UINT32	HEX	VALS(zero_is_none)
 dash-offset	UINT16	DEC
 dashes		BYTES	NONE
 dashes-length	UINT16	DEC
@@ -185,7 +185,7 @@ foreground	UINT32	HEX
 format		UINT8	DEC
 function	UINT8	DEC	VALS
 gc		UINT32	HEX
-get-property-type	UINT32	DEC	VALS(zero_is_any_property_type)
+get-property-type	UINT32	HEX	VALS(zero_is_any_property_type)
 grab_window	UINT32	HEX
 graphics-exposures	BOOLEAN	NONE
 height		UINT16	DEC
@@ -230,9 +230,9 @@ long-length	UINT32	DEC		The maximum length of the property in bytes
 long-offset	UINT32	DEC		The starting position in the property bytes array
 map		BYTES	NONE
 map-length	UINT8	DEC
-mask		UINT32	DEC	VALS(zero_is_none)
+mask		UINT32	HEX	VALS(zero_is_none)
 mask-char	UINT16	DEC
-mask-font	UINT32	DEC	VALS(zero_is_none)
+mask-font	UINT32	HEX	VALS(zero_is_none)
 max-names	UINT16	DEC
 mid		UINT32	HEX
 mode		UINT8	DEC	VALS
@@ -256,7 +256,7 @@ only-if-exists	BOOLEAN	NONE
 opcode		UINT8	DEC	VALS
 ordering	UINT8	DEC	VALS
 override-redirect	BOOLEAN	NONE	Window manager doesn't manage this window when true
-owner		UINT32	DEC	VALS(zero_is_none)
+owner		UINT32	HEX	VALS(zero_is_none)
 owner-events	BOOLEAN	NONE
 parent		UINT32	HEX
 
@@ -271,7 +271,7 @@ pixel		UINT32	HEX
 pixels		NONE	NONE
 pixels_item	UINT32	HEX
 pixmap		UINT32	HEX
-plane-mask	UINT32	DEC	VALS
+plane-mask	UINT32	HEX	VALS
 planes		UINT16	DEC
 point		NONE	NONE
 points		NONE	NONE
@@ -313,7 +313,7 @@ reds		UINT16	DEC
 request		UINT8	DEC	VALS(opcode)
 requestor	UINT32	HEX
 request-length	UINT16	DEC		Request length
-resource	UINT32	DEC	VALS(all_temporary)
+resource	UINT32	HEX	VALS(all_temporary)
 revert-to	UINT8	DEC	VALS
 save-set-mode	UINT8	DEC	VALS(insert_delete)
 save-under	BOOLEAN	NONE
