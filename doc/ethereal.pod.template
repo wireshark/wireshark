@@ -7,7 +7,6 @@ Ethereal - Interactively browse network traffic
 
 B<ethereal>
 S<[ B<-B> byte view height ]>
-S<[ B<-b> bold font ]>
 S<[ B<-c> count ]>
 S<[ B<-D> ]>
 S<[ B<-f> filter expression ]>
@@ -77,11 +76,6 @@ be unable to read compressed files.
 
 Sets the initial height of the byte view (bottom) pane.
 
-=item -b
-
-Sets the name of the bold font used for the data in the byte view
-pane that corresponds to the field selected in the protocol tree pane.
-
 =item -c
 
 Sets the default number of packets to read when capturing live
@@ -120,7 +114,10 @@ doesn't start the capture.
 
 =item -m
 
-Sets the name of the font used by B<Ethereal> for most text.
+Sets the name of the font used by B<Ethereal> for most text. 
+B<Ethereal> will construct the name of the bold font used for the data
+in the byte view pane that corresponds to the field selected in the
+protocol tree pane from the name of the main text font.
 
 =item -n
 
@@ -487,8 +484,18 @@ desired color.  The new text colors are displayed in a sample window.
 =item GUI Preferences
 
 The I<GUI> page is used to modify small aspects of the GUI to your own
-personal taste. The vertical scrollbars in the three panes can be
-set to be either on the left or the right. The selection bar in the
+personal taste:
+
+=over 6
+
+=item Scrollbars
+
+The vertical scrollbars in the three panes can be set to be either on
+the left or the right. 
+
+=item Selection Bars
+
+The selection bar in the
 packet list and protocol tree can have either a "browse" or "select"
 behavior. If the selection bar has a "browse" behavior, the arrow keys
 will move an outline of the selection bar, allowing you to browse
@@ -496,6 +503,12 @@ the rest of the list or tree without changing the selection
 until you press the space bar. If the selection bar has a "select"
 behavior, the arrow keys will move the selection bar and change
 the selection to the new item in the packet list or protocol tree.
+
+=item Fonts
+
+The "Font..." button lets you select the font to be used for most text.
+
+=back
 
 =item Protocol Preferences
 
