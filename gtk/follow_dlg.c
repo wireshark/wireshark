@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.2 2000/08/09 05:18:45 gram Exp $
+ * $Id: follow_dlg.c,v 1.3 2000/08/09 05:26:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -240,6 +240,7 @@ follow_stream_cb(GtkWidget * w, gpointer data)
 			   GTK_SIGNAL_FUNC(follow_stream_om_both), follow_info);
 	gtk_menu_append(GTK_MENU(stream_menu), stream_mi);
 	gtk_widget_show(stream_mi);
+	follow_info->show_stream = BOTH_HOSTS;
 
 	/* Host 0 --> Host 1 */
 	snprintf(string, sizeof(string), "%s:%s --> %s:%s (%u bytes)",
