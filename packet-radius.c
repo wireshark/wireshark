@@ -6,7 +6,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.85 2003/12/17 02:17:40 guy Exp $
+ * $Id: packet-radius.c,v 1.86 2003/12/17 02:24:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2439,7 +2439,7 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
         case( RADIUS_STRING_TAGGED ):
 		/* Tagged ? */
 		tag = tvb_get_guint8(tvb,offset+2);
-		if (tag <= 0x1f) {
+		if (tag > 0 && tag <= 0x1f) {
 			sprintf(dest, "Tag:%u, Value:",
 					tag);
 			cont=&cont[strlen(cont)];
