@@ -3,7 +3,7 @@
  *
  * Huagang XIE <huagang@intruvert.com>
  *
- * $Id: packet-ssh.c,v 1.6 2003/03/08 22:15:41 gerald Exp $
+ * $Id: packet-ssh.c,v 1.7 2003/04/17 07:39:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -211,8 +211,8 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*ssh_tree = NULL;
 	proto_item	*ti;
 	conversation_t  *conversation=NULL;
-	guint		remain_length;
-	guint		last_offset;
+	gint		remain_length;
+	int		last_offset;
 	guint		this_number,number;
 
 	int		offset = 0;
@@ -308,8 +308,6 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				global_data->req_counter++;
 			}
 		}
-		if (number > 20)	/* XXX prevent endless loop */
-			return;
 				
 		number++;
 		if(this_number == 0)  {
@@ -366,7 +364,7 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 {
 	guint 	plen, padding_length,len;
 	guint8 	msg_code;
-	guint	remain_length=0;
+	guint	remain_length;
 
 	proto_item *ti; 
 	proto_item *ssh1_tree =NULL;
@@ -376,7 +374,13 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 		ssh1_tree = proto_item_add_subtree(ti ,ett_ssh1);
 	}
 	
-	remain_length = tvb_reported_length_remaining(tvb,offset);
+	/*
+	 * We use "tvb_ensure_length_remaining()" to make sure there
+	 * actually *is* data remaining.
+	 *
+	 * This means we're guaranteed that "remain_length" is positive.
+	 */
+	remain_length = tvb_ensure_length_remaining(tvb,offset);
 	if (ssh_desegment && pinfo->can_desegment) {
 		if(remain_length < 4) {
                 	pinfo->desegment_offset = offset;
@@ -467,14 +471,20 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 {
 	guint 	plen,len;
 	guint8	padding_length;
-	guint	remain_length=0;
-	guint 	last_offset=offset;
+	guint	remain_length;
+	int 	last_offset=offset;
 	guint 	msg_code;
 
 	proto_item *tf;
 	proto_item *key_ex_tree =NULL;
 	
-	remain_length = tvb_reported_length_remaining(tvb,offset);
+	/*
+	 * We use "tvb_ensure_length_remaining()" to make sure there
+	 * actually *is* data remaining.
+	 *
+	 * This means we're guaranteed that "remain_length" is positive.
+	 */
+	remain_length = tvb_ensure_length_remaining(tvb,offset);
 	if (ssh_desegment && pinfo->can_desegment) {
 		if(remain_length < 4) {
                 	pinfo->desegment_offset = offset;
@@ -579,7 +589,7 @@ static int
 ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 	       	int offset, proto_tree *tree,int is_response)
 {
-	guint len;
+	gint len;
 
 	len = tvb_reported_length_remaining(tvb,offset);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -599,8 +609,8 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 	       	int offset, proto_tree *tree, int is_response, int * version,
 		gboolean *need_desegmentation)
 {
-	gint	linelen;
 	guint	remain_length;
+	gint	linelen, protolen;
 	
 	/* 
 	 *  If the first packet do not contain the banner, 
@@ -622,13 +632,19 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 	       }
 	}
 	
-	remain_length = tvb_reported_length_remaining(tvb,offset);
+	/*
+	 * We use "tvb_ensure_length_remaining()" to make sure there
+	 * actually *is* data remaining.
+	 *
+	 * This means we're guaranteed that "remain_length" is positive.
+	 */
+	remain_length = tvb_ensure_length_remaining(tvb,offset);
 	/*linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 	 */
 	linelen = tvb_find_guint8(tvb, offset, -1, '\n');
 
 	if (ssh_desegment && pinfo->can_desegment) {
-		if(remain_length < (guint)(linelen-offset) || linelen == -1 ) {
+		if(linelen == -1 || remain_length < (guint)linelen-offset ) {
                 	pinfo->desegment_offset = offset;
                 	pinfo->desegment_len = linelen-remain_length;
                 	*need_desegmentation = TRUE;
@@ -636,21 +652,24 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 		}
 	}
 	if(linelen == -1 ) {
+		/* XXX - reassemble across segment boundaries? */
 		linelen = remain_length;
+		protolen = linelen;
 	} else {
-		linelen = linelen - offset;
+		linelen = linelen - offset + 1;
+		protolen = linelen - 1;
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
   		col_add_fstr(pinfo->cinfo, COL_INFO, "%s Protocol: %s", 
 			is_response?"Server":"Client", 
-			tvb_format_text(tvb,offset,linelen)); 
+			tvb_format_text(tvb,offset,protolen)); 
 	}
 	if (tree ) {
 		ssh_proto_tree_add_item(tree, hf_ssh_protocol,
-		    		tvb, offset, linelen+1, FALSE);
+		    		tvb, offset, linelen, FALSE);
   	}
-	offset+=linelen+1;
+	offset+=linelen;
 	return offset;
 }
 
