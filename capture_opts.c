@@ -81,25 +81,25 @@ capture_opts_init(capture_options *capture_opts, void *cfile)
 }
 
 static int
-get_natural_int(const char *string, const char *name)
+get_natural_int(const char *appname, const char *string, const char *name)
 {
   long number;
   char *p;
 
   number = strtol(string, &p, 10);
   if (p == string || *p != '\0') {
-    fprintf(stderr, "ethereal: The specified %s \"%s\" isn't a decimal number\n",
-	    name, string);
+    fprintf(stderr, "%s: The specified %s \"%s\" isn't a decimal number\n",
+	    appname, name, string);
     exit(1);
   }
   if (number < 0) {
-    fprintf(stderr, "ethereal: The specified %s \"%s\" is a negative number\n",
-	    name, string);
+    fprintf(stderr, "%s: The specified %s \"%s\" is a negative number\n",
+	    appname, name, string);
     exit(1);
   }
   if (number > INT_MAX) {
-    fprintf(stderr, "ethereal: The specified %s \"%s\" is too large (greater than %d)\n",
-	    name, string, INT_MAX);
+    fprintf(stderr, "%s: The specified %s \"%s\" is too large (greater than %d)\n",
+	    appname, name, string, INT_MAX);
     exit(1);
   }
   return number;
@@ -107,15 +107,15 @@ get_natural_int(const char *string, const char *name)
 
 
 static int
-get_positive_int(const char *string, const char *name)
+get_positive_int(const char *appname, const char *string, const char *name)
 {
   long number;
 
-  number = get_natural_int(string, name);
+  number = get_natural_int(appname, string, name);
 
   if (number == 0) {
-    fprintf(stderr, "ethereal: The specified %s is zero\n",
-	    name);
+    fprintf(stderr, "%s: The specified %s is zero\n",
+	    appname, name);
     exit(1);
   }
 
@@ -130,7 +130,7 @@ get_positive_int(const char *string, const char *name)
  * in some fashion.
  */
 static gboolean
-set_autostop_criterion(capture_options *capture_opts, const char *autostoparg)
+set_autostop_criterion(capture_options *capture_opts, const char *appname, const char *autostoparg)
 {
   gchar *p, *colonp;
 
@@ -159,14 +159,14 @@ set_autostop_criterion(capture_options *capture_opts, const char *autostoparg)
   }
   if (strcmp(autostoparg,"duration") == 0) {
     capture_opts->has_autostop_duration = TRUE;
-    capture_opts->autostop_duration = get_positive_int(p,"autostop duration");
+    capture_opts->autostop_duration = get_positive_int(appname, p,"autostop duration");
   } else if (strcmp(autostoparg,"filesize") == 0) {
     capture_opts->has_autostop_filesize = TRUE;
-    capture_opts->autostop_filesize = get_positive_int(p,"autostop filesize");
+    capture_opts->autostop_filesize = get_positive_int(appname, p,"autostop filesize");
   } else if (strcmp(autostoparg,"files") == 0) {
     capture_opts->multi_files_on = TRUE;
     capture_opts->has_autostop_files = TRUE;
-    capture_opts->autostop_files = get_positive_int(p,"autostop files");
+    capture_opts->autostop_files = get_positive_int(appname, p,"autostop files");
   } else {
     return FALSE;
   }
@@ -181,7 +181,7 @@ set_autostop_criterion(capture_options *capture_opts, const char *autostoparg)
  * in some fashion.
  */
 static gboolean
-get_ring_arguments(capture_options *capture_opts, const char *arg)
+get_ring_arguments(capture_options *capture_opts, const char *appname, const char *arg)
 {
   gchar *p = NULL, *colonp;
 
@@ -193,7 +193,7 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
   }
 
   capture_opts->ring_num_files = 
-    get_natural_int(arg, "number of ring buffer files");
+    get_natural_int(appname, arg, "number of ring buffer files");
 
   if (colonp == NULL)
     return TRUE;
@@ -216,7 +216,7 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
   }
 
   capture_opts->has_file_duration = TRUE;
-  capture_opts->file_duration = get_positive_int(p,
+  capture_opts->file_duration = get_positive_int(appname, p,
 						      "ring buffer duration");
 
   *colonp = ':';	/* put the colon back */
@@ -225,7 +225,7 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
 
 
 void
-capture_opt_add(capture_options *capture_opts, int opt, const char *optarg, gboolean *start_capture)
+capture_opts_add_opt(capture_options *capture_opts, const char *appname, int opt, const char *optarg, gboolean *start_capture)
 {
 #ifdef _WIN32
     int i;
@@ -233,22 +233,22 @@ capture_opt_add(capture_options *capture_opts, int opt, const char *optarg, gboo
 
     switch(opt) {
     case 'a':        /* autostop criteria */
-        if (set_autostop_criterion(capture_opts, optarg) == FALSE) {
-          fprintf(stderr, "ethereal: Invalid or unknown -a flag \"%s\"\n", optarg);
+        if (set_autostop_criterion(capture_opts, appname, optarg) == FALSE) {
+          fprintf(stderr, "%s: Invalid or unknown -a flag \"%s\"\n", appname, optarg);
           exit(1);
         }
         break;
     case 'b':        /* Ringbuffer option */
         capture_opts->multi_files_on = TRUE;
         capture_opts->has_ring_num_files = TRUE;
-        if (get_ring_arguments(capture_opts, optarg) == FALSE) {
-          fprintf(stderr, "ethereal: Invalid or unknown -b arg \"%s\"\n", optarg);
+        if (get_ring_arguments(capture_opts, appname, optarg) == FALSE) {
+          fprintf(stderr, "%s: Invalid or unknown -b arg \"%s\"\n", appname, optarg);
           exit(1);
         }
         break;
     case 'c':        /* Capture xxx packets */
         capture_opts->has_autostop_packets = TRUE;
-        capture_opts->autostop_packets = get_positive_int(optarg, "packet count");
+        capture_opts->autostop_packets = get_positive_int(appname, optarg, "packet count");
         break;
     case 'f':        /* capture filter */
         if (capture_opts->cfilter)
@@ -274,7 +274,7 @@ capture_opt_add(capture_options *capture_opts, int opt, const char *optarg, gboo
         break;
     case 's':        /* Set the snapshot (capture) length */
         capture_opts->has_snaplen = TRUE;
-        capture_opts->snaplen = get_positive_int(optarg, "snapshot length");
+        capture_opts->snaplen = get_positive_int(appname, optarg, "snapshot length");
         break;
     case 'S':        /* "Sync" mode: used for following file ala tail -f */
         capture_opts->sync_mode = TRUE;
@@ -289,8 +289,8 @@ capture_opt_add(capture_options *capture_opts, int opt, const char *optarg, gboo
 #ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
         capture_opts->linktype = pcap_datalink_name_to_val(optarg);
         if (capture_opts->linktype == -1) {
-          fprintf(stderr, "ethereal: The specified data link type \"%s\" isn't valid\n",
-                  optarg);
+          fprintf(stderr, "%s: The specified data link type \"%s\" isn't valid\n",
+                  appname, optarg);
           exit(1);
         }
 #else /* HAVE_PCAP_DATALINK_NAME_TO_VAL */
@@ -304,7 +304,7 @@ capture_opt_add(capture_options *capture_opts, int opt, const char *optarg, gboo
         /* associate stdout with pipe */
         i = atoi(optarg);
         if (dup2(i, 1) < 0) {
-          fprintf(stderr, "Unable to dup pipe handle\n");
+          fprintf(stderr, "%s: Unable to dup pipe handle\n", appname);
           exit(1);
         }
         break;

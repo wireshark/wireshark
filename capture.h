@@ -93,7 +93,7 @@ extern void
 capture_opts_init(capture_options *capture_opts, void *cfile);
 
 extern void
-capture_opt_add(capture_options *capture_opts, int opt, const char *optarg, gboolean *start_capture);
+capture_opts_add_opt(capture_options *capture_opts, const char *appname, int opt, const char *optarg, gboolean *start_capture);
 
 /** 
  * Open a specified file, or create a temporary file, and start a capture

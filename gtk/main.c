@@ -1877,7 +1877,7 @@ main(int argc, char *argv[])
       case 'Z':        /* Write to pipe FD XXX */
 #endif /* _WIN32 */
 #ifdef HAVE_LIBPCAP
-        capture_opt_add(capture_opts, opt, optarg, &start_capture);
+        capture_opts_add_opt(capture_opts, "ethereal", opt, optarg, &start_capture);
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1888,7 +1888,7 @@ main(int argc, char *argv[])
        * the error flags for the user in the non-libpcap case.
        */
       case 'W':        /* Write to capture file FD xxx */
-        capture_opt_add(capture_opts, opt, optarg, &start_capture);
+        capture_opts_add_opt(capture_opts, "ethereal", opt, optarg, &start_capture);
 	break;
 #endif
 

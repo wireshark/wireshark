@@ -169,51 +169,8 @@ typedef struct _loop_data {
 static loop_data ld;
 
 #ifdef HAVE_LIBPCAP
-#if 0
-typedef struct {
-    gchar    *cfilter;              /* Capture filter string */
-    gchar    *iface;                /* the network interface to capture from */
-    int      snaplen;               /* Maximum captured packet length */
-    int      promisc_mode;          /* Capture in promiscuous mode */
-    int      autostop_packets;        /* Maximum packet count */
-    gboolean has_autostop_duration; /* TRUE if maximum capture duration
-                                       is specified */
-    gint32   autostop_duration;     /* Maximum capture duration */
-    gboolean has_autostop_filesize; /* TRUE if maximum capture file size
-                                       is specified */
-    gint32   autostop_filesize;     /* Maximum capture file size */
-    gboolean multi_files_on;        /* TRUE if ring buffer in use */
-    guint32  ring_num_files;        /* Number of ring buffer files */
-    gboolean has_file_duration;     /* TRUE if ring duration specified */
-    gint32   file_duration;         /* Switch file after n seconds */
-    int      linktype;              /* Data link type to use, or -1 for
-                                       "use default" */
-} capture_options;
-
-static capture_options capture_opts = {
-    "",                             /* No capture filter string specified */
-    NULL,                           /* Default is "pick the first interface" */
-    WTAP_MAX_PACKET_SIZE,           /* snapshot length - default is
-                                       infinite, in effect */
-    TRUE,                           /* promiscuous mode is the default */
-    0,                              /* max packet count - default is 0,
-                                       meaning infinite */
-    FALSE,                          /* maximum capture duration not
-                                       specified by default */
-    0,                              /* maximum capture duration */
-    FALSE,                          /* maximum capture file size not
-                                       specified by default */
-    0,                              /* maximum capture file size */
-    FALSE,                          /* ring buffer off by default */
-    RINGBUFFER_MIN_NUM_FILES,       /* default number of ring buffer files */
-    FALSE,                          /* Switch ring file after some */
-    0,                              /* specified time is off by default */
-    -1                              /* Default to not change link type */
-};
-#endif /* 0 */
 static capture_options capture_opts;
 
-static gboolean list_link_layer_types;
 
 #ifdef SIGINFO
 static gboolean infodelay;	/* if TRUE, don't print capture info in SIGINFO handler */
@@ -704,6 +661,7 @@ main(int argc, char *argv[])
   char                *p;
   gchar                err_str[PCAP_ERRBUF_SIZE];
   gchar               *cant_get_if_list_errstr;
+  gboolean             list_link_layer_types;
 #else
   gboolean             capture_option_specified = FALSE;
 #endif
@@ -846,7 +804,7 @@ main(int argc, char *argv[])
       case 's':        /* Set the snapshot (capture) length */
       case 'y':        /* Set the pcap data link type */
 #ifdef HAVE_LIBPCAP
-        capture_opt_add(&capture_opts, opt, optarg, &start_capture);
+        capture_opts_add_opt(&capture_opts, "tethereal", opt, optarg, &start_capture);
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
