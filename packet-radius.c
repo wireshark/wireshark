@@ -1,7 +1,7 @@
 /* packet-radius.c
  * Routines for RADIUS packet disassembly
  *
- * $Id: packet-radius.c,v 1.7 2000/03/12 04:47:48 gram Exp $
+ * $Id: packet-radius.c,v 1.8 2000/03/20 18:30:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -129,7 +129,11 @@ typedef struct _value_value_pair {
 #define RD_TP_NAS_PORT_TYPE 61
 #define RD_TP_PORT_LIMIT 62
 #define RD_TP_LOGIN_LAT_PORT 63
-
+#define RD_TP_TUNNEL_TYPE 64
+#define RD_TP_TUNNEL_MEDIUM_TYPE 65
+#define RD_TP_TUNNEL_CLIENT_ENDPOINT 66
+#define RD_TP_TUNNEL_SERVER_ENDPOINT 67
+#define RD_TP_TUNNEL_ASSIGNMENT_ID 82
 
 #define AUTHENTICATOR_LENGTH 16
 #define RD_HDR_LENGTH 4
@@ -151,6 +155,9 @@ typedef struct _value_value_pair {
 #define RADIUS_ACCT_AUTHENTIC 14
 #define RADIUS_ACCT_TERMINATE_CAUSE 15
 #define RADIUS_NAS_PORT_TYPE 16
+#define RADIUS_TUNNEL_TYPE 17
+#define RADIUS_TUNNEL_MEDIUM_TYPE 18
+#define RADIUS_STRING_TAGGED 19
 
 static value_string radius_vals[] = {
  {RADIUS_ACCESS_REQUEST, "Access Request"},
@@ -250,6 +257,39 @@ static value_string radius_acct_terminate_cause_vals[]=
 {18,"Host Request"},
 {0,NULL}};
 
+static value_string radius_tunnel_type_vals[]=
+{{1,"PPTP"},
+{2,"L2F"},
+{3,"L2TP"},
+{4,"ATMP"},
+{5,"VTP"},
+{6,"AH"},
+{7,"IP-IP-Encap"},
+{8,"MIN-IP-IP"},
+{9,"ESP"},
+{10,"GRE"},
+{11,"DVS"},
+{12,"IP-IP"},
+{0,NULL}};
+
+static value_string radius_tunnel_medium_type_vals[]=
+{{1,"IP"},
+{2,"IP6"},
+{3,"NSAP"},
+{4,"HDLC"},
+{5,"BBN"},
+{6,"IEEE-802"},
+{7,"E-163"},
+{8,"E-164"},
+{9,"F-69"},
+{10,"X-121"},
+{11,"IPX"},
+{12,"Appletalk"},
+{13,"Decnet4"},
+{14,"Vines"},
+{15,"E-164-NSAP"},
+{0,NULL}};
+
 static value_string radius_nas_port_type_vals[]=
 {{0, "Async"},
 {1, "Sync"},
@@ -324,6 +364,11 @@ static value_value_pair radius_printinfo[] = {
 { RD_TP_NAS_PORT_TYPE, RADIUS_NAS_PORT_TYPE},
 { RD_TP_PORT_LIMIT, RADIUS_INTEGER4},
 { RD_TP_LOGIN_LAT_PORT, RADIUS_BINSTRING},
+{ RD_TP_TUNNEL_TYPE, RADIUS_TUNNEL_TYPE},
+{ RD_TP_TUNNEL_MEDIUM_TYPE, RADIUS_TUNNEL_MEDIUM_TYPE},
+{ RD_TP_TUNNEL_CLIENT_ENDPOINT, RADIUS_STRING_TAGGED},
+{ RD_TP_TUNNEL_SERVER_ENDPOINT, RADIUS_STRING_TAGGED},
+{ RD_TP_TUNNEL_ASSIGNMENT_ID, RADIUS_STRING_TAGGED},
 {0,0},
 };
 
@@ -383,6 +428,11 @@ static value_string radius_attrib_type_vals[] = {
 { RD_TP_NAS_PORT_TYPE, "NAS Port Type"},
 { RD_TP_PORT_LIMIT, "Port Limit"},
 { RD_TP_LOGIN_LAT_PORT, "Login LAT Port"},
+{ RD_TP_TUNNEL_TYPE, "Tunnel Type"},
+{ RD_TP_TUNNEL_MEDIUM_TYPE, "Tunnel Medium Type"},
+{ RD_TP_TUNNEL_CLIENT_ENDPOINT, "Tunnel Client Endpoint"},
+{ RD_TP_TUNNEL_SERVER_ENDPOINT, "Tunnel Server Endpoint"},
+{ RD_TP_TUNNEL_ASSIGNMENT_ID, "Tunnel Assignment ID"},
 {0,NULL},
 };
 
@@ -497,6 +547,42 @@ value_string *valstrarr;
         case( RADIUS_NAS_PORT_TYPE ):
                 valstrarr=radius_nas_port_type_vals;
                 result=match_strval(intval,valstrarr);
+                break;
+	case( RADIUS_TUNNEL_TYPE ):
+		valstrarr=radius_tunnel_type_vals;
+		/* Tagged ? */
+		if (intval >> 24) {
+			sprintf(textbuffer, "%s (Tag: %d)",
+				match_strval(intval & 0xffffff,valstrarr),
+				intval >> 24);
+			result=textbuffer;	
+			break;
+		}
+		result=match_strval(intval,valstrarr);
+		break;
+	case( RADIUS_TUNNEL_MEDIUM_TYPE ):
+		valstrarr=radius_tunnel_medium_type_vals;
+		/* Tagged ? */
+		if (intval >> 24) {
+			sprintf(textbuffer, "%s (Tag: %d)",
+				match_strval(intval & 0xffffff,valstrarr),
+				intval >> 24);
+			result=textbuffer;	
+			break;
+		}
+		result=match_strval(intval,valstrarr);
+		break;
+        case( RADIUS_STRING_TAGGED ):
+		/* Tagged ? */
+		if (pd[offset+2] <= 0x1f) {
+			result=rdconvertbufftostr(avph->avp_length-3,
+					&(pd[offset+3]));
+			sprintf(&textbuffer[strlen(textbuffer)]," (Tag: %d)",
+					pd[offset+2]);
+			break;
+		}
+		result=rdconvertbufftostr(avph->avp_length-2,
+				&(pd[offset+2]));
                 break;
         case( RADIUS_UNKNOWN ):
         default:
