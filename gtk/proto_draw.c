@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.102 2004/05/31 12:06:28 ulfl Exp $
+ * $Id: proto_draw.c,v 1.103 2004/06/01 01:01:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -791,13 +791,6 @@ static void
 savehex_dlg_destroy_cb(void)
 {
         savehex_dlg = NULL;
-}
-
-static void
-savehex_browse_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
-{
-    file_selection_browse(file_bt, file_te, 
-        "Ethereal: Export Selected Packet Bytes", FILE_SELECTION_SAVE);
 }
 
 /* save the current highlighted hex data */
