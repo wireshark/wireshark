@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.43 2004/03/04 19:31:20 ulfl Exp $
+ * $Id: capture.h,v 1.44 2004/03/13 22:49:30 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,6 +31,9 @@
 #define	CHILD_NAME	"ethereal-capture"
 
 typedef struct {
+#ifdef _WIN32
+    int buffer_size;        /* the capture buffer size (MB) */
+#endif
 	gboolean has_snaplen;		/* TRUE if maximum capture packet
 					   length is specified */
 	int snaplen;			/* Maximum captured packet length */

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.245 2004/03/04 21:27:55 ulfl Exp $
+ * $Id: capture.c,v 1.246 2004/03/13 22:49:30 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1516,6 +1516,20 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 		       open_err_str);
 
   if (pch != NULL) {
+#ifdef _WIN32
+    /* try to set the capture buffer size */
+    if (pcap_setbuff(pch, capture_opts.buffer_size * 1024 * 1024) != 0) {
+        simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
+          "%sCouldn't set the capture buffer size!%s\n"
+          "\n"
+          "The capture buffer size of %luMB seems to be too high for your machine,\n"
+          "the default of 1MB will be used.\n"
+          "\n"
+          "Nonetheless, the capture is started.\n",
+          simple_dialog_primary_start(), simple_dialog_primary_end(), capture_opts.buffer_size);
+    }
+#endif
+
     /* setting the data link type only works on real interfaces */
     if (capture_opts.linktype != -1) {
       set_linktype_err_str = set_pcap_linktype(pch, cfile.iface,

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.414 2004/03/13 15:15:25 ulfl Exp $
+ * $Id: main.c,v 1.415 2004/03/13 22:49:30 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2010,6 +2010,9 @@ main(int argc, char *argv[])
   capture_opts.has_snaplen = FALSE;
   capture_opts.snaplen = MIN_PACKET_SIZE;
   capture_opts.linktype = -1;
+#ifdef _WIN32
+  capture_opts.buffer_size = 1;
+#endif
 
   capture_opts.has_autostop_packets = FALSE;
   capture_opts.autostop_packets = 1;

@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.120 2004/03/06 11:10:14 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.121 2004/03/13 22:49:30 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,6 +60,9 @@
 #define E_CAP_SNAP_CB_KEY           "cap_snap_cb"
 #define E_CAP_LT_OM_KEY             "cap_lt_om"
 #define E_CAP_LT_OM_LABEL_KEY       "cap_lt_om_label"
+#ifdef _WIN32
+#define E_CAP_BUFFER_SIZE_SB_KEY    "cap_buffer_size_sb"
+#endif
 #define E_CAP_SNAP_SB_KEY           "cap_snap_sb"
 #define E_CAP_PROMISC_KEY           "cap_promisc"
 #define E_CAP_FILT_KEY              "cap_filter_te"
@@ -466,6 +469,10 @@ capture_prep(void)
   int           err;
   int           row;
   char          err_str[PCAP_ERRBUF_SIZE];
+#ifdef _WIN32
+  GtkAdjustment *buffer_size_adj;
+  GtkWidget     *buffer_size_lb, *buffer_size_sb;
+#endif
 
   if (cap_open_w != NULL) {
     /* There's already a "Capture Options" dialog box; reactivate it. */
@@ -568,6 +575,22 @@ capture_prep(void)
   gtk_box_pack_start (GTK_BOX(linktype_hb), linktype_om, FALSE, FALSE, 0);
   SIGNAL_CONNECT(GTK_ENTRY(GTK_COMBO(if_cb)->entry), "changed",
                  capture_prep_interface_changed_cb, linktype_om);
+
+#ifdef _WIN32
+  buffer_size_lb = gtk_label_new("Buffer size:");
+  gtk_box_pack_start (GTK_BOX(linktype_hb), buffer_size_lb, FALSE, FALSE, 0);
+
+  buffer_size_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) capture_opts.buffer_size,
+    1, 65535, 1.0, 10.0, 0.0);
+  buffer_size_sb = gtk_spin_button_new (buffer_size_adj, 0, 0);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON (buffer_size_sb), (gfloat) capture_opts.buffer_size);
+  gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (buffer_size_sb), TRUE);
+  WIDGET_SET_SIZE(buffer_size_sb, 80, -1);
+  gtk_box_pack_start (GTK_BOX(linktype_hb), buffer_size_sb, FALSE, FALSE, 0);
+
+  buffer_size_lb = gtk_label_new("megabyte(s)");
+  gtk_box_pack_start (GTK_BOX(linktype_hb), buffer_size_lb, FALSE, FALSE, 0);
+#endif
 
   /* Promiscuous mode row */
   promisc_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
@@ -876,6 +899,9 @@ capture_prep(void)
   OBJECT_SET_DATA(cap_open_w, E_CAP_SNAP_CB_KEY, snap_cb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_SNAP_SB_KEY, snap_sb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_LT_OM_KEY, linktype_om);
+#ifdef _WIN32
+  OBJECT_SET_DATA(cap_open_w, E_CAP_BUFFER_SIZE_SB_KEY, buffer_size_sb);
+#endif
   OBJECT_SET_DATA(cap_open_w, E_CAP_PROMISC_KEY, promisc_cb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_FILT_KEY,  filter_te);
   OBJECT_SET_DATA(cap_open_w, E_CAP_FILE_TE_KEY,  file_te);
@@ -1109,6 +1135,9 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
             *file_duration_cb, *file_duration_sb, *file_duration_om,
             *stop_files_cb, *stop_files_sb,
             *m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
+#ifdef _WIN32
+  GtkWidget *buffer_size_sb;
+#endif
   gchar *entry_text;
   gchar *if_text;
   gchar *if_name;
@@ -1123,6 +1152,9 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   snap_cb   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SNAP_CB_KEY);
   snap_sb   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SNAP_SB_KEY);
   linktype_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_LT_OM_KEY);
+#ifdef _WIN32
+  buffer_size_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_BUFFER_SIZE_SB_KEY);
+#endif
   promisc_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_PROMISC_KEY);
   filter_te = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILT_KEY);
   file_te   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILE_TE_KEY);
@@ -1168,6 +1200,11 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
 
   capture_opts.linktype =
       GPOINTER_TO_INT(OBJECT_GET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY));
+
+#ifdef _WIN32
+  capture_opts.buffer_size = 
+    gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(buffer_size_sb));
+#endif
 
   capture_opts.has_snaplen =
     gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(snap_cb));

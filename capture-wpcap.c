@@ -3,7 +3,7 @@
  * time, so that we only need one Ethereal binary and one Tethereal binary
  * for Windows, regardless of whether WinPcap is installed or not.
  *
- * $Id: capture-wpcap.c,v 1.8 2004/01/05 19:31:42 ulfl Exp $
+ * $Id: capture-wpcap.c,v 1.9 2004/03/13 22:49:29 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,6 +70,7 @@ static int     (*p_pcap_findalldevs) (pcap_if_t **, char *);
 static void    (*p_pcap_freealldevs) (pcap_if_t *);
 #endif
 static const char *(*p_pcap_lib_version) (void);
+static int     (*p_pcap_setbuff) (pcap_t *, int dim);
 
 typedef struct {
 	const char	*name;
@@ -102,6 +103,7 @@ load_wpcap(void)
 		SYM(pcap_freealldevs, TRUE),
 #endif
 		SYM(pcap_lib_version, TRUE),
+		SYM(pcap_setbuff, TRUE),
 		{ NULL, NULL, FALSE }
 	};
 
@@ -247,6 +249,13 @@ pcap_freealldevs(pcap_if_t *a)
 	p_pcap_freealldevs(a);
 }
 #endif
+
+/* setbuff is win32 specific! */
+int pcap_setbuff(pcap_t *a, int b)
+{
+	g_assert(has_wpcap);
+	return p_pcap_setbuff(a, b);
+}
 
 /*
  * This will use "pcap_findalldevs()" if we have it, otherwise it'll
