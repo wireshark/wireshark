@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.42 2003/08/28 04:46:13 guy Exp $
+ * $Id: reassemble.c,v 1.43 2003/09/25 01:50:41 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1537,7 +1537,7 @@ show_fragment(fragment_data *fd, int offset, const fragment_items *fit,
 		fei = proto_tree_add_uint_format(ft, hf,
 			tvb, offset, fd->len,
 			fd->frame,
-			"Frame:%u payload:%u-%u",
+			"Frame: %u, payload: %u-%u",
 			fd->frame,
 			offset,
 			offset+fd->len-1);
@@ -1571,7 +1571,7 @@ show_fragment(fragment_data *fd, int offset, const fragment_items *fit,
 		proto_tree_add_uint_format(ft, *(fit->hf_fragment),
 			tvb, offset, fd->len,
 			fd->frame,
-			"Frame:%u payload:%u-%u",
+			"Frame: %u, payload: %u-%u",
 			fd->frame,
 			offset,
 			offset+fd->len-1
