@@ -39,6 +39,15 @@
 #include "packet-rx.h"
 #include <epan/addr_resolv.h>
 
+/*
+ * See
+ *
+ *	http://web.mit.edu/kolya/afs/rx/rx-spec
+ *
+ * XXX - is the "Epoch" really a UN*X time?  The high-order bit, according
+ * to that spec, is a flag bit.
+ */
+
 #define UDP_PORT_RX_LOW		7000
 #define UDP_PORT_RX_HIGH	7009
 #define UDP_PORT_RX_AFS_BACKUPS	7021
