@@ -1,7 +1,7 @@
 /* progress_dlg.c
  * Routines for progress-bar (modal) dialog
  *
- * $Id: progress_dlg.c,v 1.1 2000/07/03 08:36:52 guy Exp $
+ * $Id: progress_dlg.c,v 1.2 2000/07/03 19:42:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -59,8 +59,8 @@ static void cancel_cb(GtkWidget *w, gpointer data);
 void *
 create_progress_dlg(gchar *title, gboolean *stop_flag)
 {
-	GtkWidget *dlg_w, *main_vb, *title_al, *title_lb, *prog_bar,
-		  *cancel_al, *cancel_bt;
+	GtkWidget *dlg_w, *main_vb, *title_lb, *prog_bar, *cancel_al,
+		  *cancel_bt;
 
 	dlg_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(dlg_w), title);
@@ -75,15 +75,14 @@ create_progress_dlg(gchar *title, gboolean *stop_flag)
 
 	/*
 	 * Put the title here as a label indicating what we're
-	 * doing; stick it on the left, by putting it inside a
-	 * GtkAlignment.
+	 * doing; set its alignment and padding so it's aligned on the
+	 * left.
 	 */
-	title_al = gtk_alignment_new(0.0, 0.0, 0.0, 0.0);
 	title_lb = gtk_label_new(title);
-	gtk_container_add(GTK_CONTAINER(title_al), title_lb);
-	gtk_box_pack_start(GTK_BOX(main_vb), title_al, FALSE, TRUE, 3);
+	gtk_box_pack_start(GTK_BOX(main_vb), title_lb, FALSE, TRUE, 3);
+	gtk_misc_set_alignment(GTK_MISC(title_lb), 0.0, 0.0);
+	gtk_misc_set_padding(GTK_MISC(title_lb), 0.0, 0.0);
 	gtk_widget_show(title_lb);
-	gtk_widget_show(title_al);
 
 	/*
 	 * The progress bar.
