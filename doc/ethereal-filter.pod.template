@@ -238,6 +238,29 @@ You can create complex concatenations of slices using the comma operator:
 
 	field[1,3-5,9:] == 01:03:04:05:09:0a:0b
 
+=head2 Bit field operations
+
+It is also possible to define tests with bit field operations. Currently the
+following bit field operation is supported:
+
+    bitwise_and, &	Bitwise AND
+
+The bitwise AND operation allows testing if one or more bits are set.
+Bitwise AND operates on integer protocol fields and slices.
+
+When testing for TCP SYN packets, once can write:
+
+    tcp.flags & 0x02
+
+Similarly, filtering for all WSP GET and extended GET methods is achieved with:
+
+    wsp.pdu_type & 0x40
+
+When using slices, the bit mask must be specified as byte string, and it must
+have the same number of bytes as the slice itself, as in:
+
+    ip[42:2] & 40:ff
+
 =head2 Logical expressions
 
 All the above tests can be combined together with logical expressions. 
