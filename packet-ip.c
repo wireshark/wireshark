@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.66 1999/12/09 21:58:04 guy Exp $
+ * $Id: packet-ip.c,v 1.67 1999/12/13 05:09:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -650,7 +650,7 @@ dissect_ip_tcp_options(const u_char *opd, int offset, guint length,
            option length. */
         proto_tree_add_text(opt_tree, offset,      2,
               "%s (with too-short option length = %u byte%s)", name,
-              plurality(len, "", "s"));
+              len, plurality(len, "", "s"));
         return;
       } else if (len - 2 > length) {
         /* Bogus - option goes past the end of the header. */
