@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.157 2003/11/25 08:19:33 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.158 2003/12/08 20:58:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3643,11 +3643,7 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     tvbuff_t *next_tvb;
 
     if (check_col (pinfo->cinfo, COL_INFO))
-        col_append_fstr (pinfo->cinfo, COL_INFO, " UNKUUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x rpcver: %u opnum: %u",
-                     di->call_data->uuid.Data1, di->call_data->uuid.Data2, di->call_data->uuid.Data3, di->call_data->uuid.Data4[0],
-                     di->call_data->uuid.Data4[1], di->call_data->uuid.Data4[2], di->call_data->uuid.Data4[3],
-                     di->call_data->uuid.Data4[4], di->call_data->uuid.Data4[5], di->call_data->uuid.Data4[6],
-                     di->call_data->uuid.Data4[7], di->call_data->ver, di->call_data->opnum );
+        col_append_fstr (pinfo->cinfo, COL_INFO, " opnum: %u", di->call_data->opnum );
 
     length = tvb_length_remaining (tvb, offset);
     reported_length = tvb_reported_length_remaining (tvb, offset);
@@ -3667,6 +3663,16 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     if( (!dcerpc_reassemble) || !(hdr->flags1 & PFCL1_FRAG) ||
 		!tvb_bytes_exist(tvb, offset, stub_length) ){
 	if(hdr->frag_num == 0) {
+
+
+    if (check_col (pinfo->cinfo, COL_INFO))
+        col_append_fstr (pinfo->cinfo, COL_INFO, " UNKUUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x rpcver: %u",
+                     di->call_data->uuid.Data1, di->call_data->uuid.Data2, di->call_data->uuid.Data3, di->call_data->uuid.Data4[0],
+                     di->call_data->uuid.Data4[1], di->call_data->uuid.Data4[2], di->call_data->uuid.Data4[3],
+                     di->call_data->uuid.Data4[4], di->call_data->uuid.Data4[5], di->call_data->uuid.Data4[6],
+                     di->call_data->uuid.Data4[7], di->call_data->ver);
+
+
 	    /* First fragment, possibly the only fragment */
 
 	    /*
