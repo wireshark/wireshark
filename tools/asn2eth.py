@@ -66,6 +66,9 @@ oid_names = {
   '2/ms' : 9,
 }
 
+def asn2c(id):
+  return id.replace('-', '_').replace('.', '_')
+
 class LexError(Exception): pass
 class ParseError(Exception): pass
 
@@ -372,14 +375,14 @@ class EthCtx:
     return encp
 
   # API type
-  def Org(self): return not self.new
-  def New(self): return self.new
+  def OAPI(self): return not self.new
+  def NAPI(self): return self.new
   def Per(self): return self.encoding == 'per'
-  def OPer(self): return self.Org() and self.Per()
-  def NPer(self): return self.New() and self.Per()
+  def OPer(self): return self.OAPI() and self.Per()
+  def NPer(self): return self.NAPI() and self.Per()
   def Ber(self): return self.encoding == 'ber'
-  def OBer(self): return self.Org() and self.Ber()
-  def NBer(self): return self.New() and self.Ber()
+  def OBer(self): return self.OAPI() and self.Ber()
+  def NBer(self): return self.NAPI() and self.Ber()
 
   def dbg(self, d):
     if (self.dbgopt.find(d) >= 0):
@@ -454,7 +457,7 @@ class EthCtx:
     if len(ident.split('/')) > 1:
       self.type[ident]['tname'] = val.eth_tname()
     else:
-      self.type[ident]['tname'] = ident.replace('-', '_')
+      self.type[ident]['tname'] = asn2c(ident)
     self.type[ident]['export'] = self.conform.use_item('EXPORTS', ident)
     self.type[ident]['user_def'] = self.conform.use_item('USER_DEFINED', ident)
     self.type[ident]['no_emit'] = self.conform.use_item('NO_EMIT', ident)
@@ -481,7 +484,7 @@ class EthCtx:
     self.value_ord.append(ident)
 
   #--- eth_reg_field ----------------------------------------------------------
-  def eth_reg_field(self, ident, type, idx='', parent=None, impl=False, pdu=False):
+  def eth_reg_field(self, ident, type, idx='', parent=None, impl=False, pdu=None):
     #print "eth_reg_field(ident='%s', type='%s')" % (ident, type)
     if self.field.has_key(ident):
       raise "Duplicate field for " + ident
@@ -498,7 +501,7 @@ class EthCtx:
 
   #--- eth_prepare ------------------------------------------------------------
   def eth_prepare(self):
-    self.eproto = self.proto.replace('-', '_').replace('.', '_')
+    self.eproto = asn2c(self.proto)
     #--- types -------------------
     self.eth_type = {}
     self.eth_type_ord = []
@@ -509,7 +512,7 @@ class EthCtx:
     for t in self.type_imp:
       nm = t
       self.eth_type[nm] = { 'import' : self.type[t]['import'], 
-                            'proto' : self.type[t]['proto'].replace('-', '_').replace('.', '_'),
+                            'proto' : asn2c(self.type[t]['proto']),
                             'attr' : {}, 'ref' : []}
       self.type[t]['ethname'] = nm
     for t in self.type_ord:
@@ -522,7 +525,7 @@ class EthCtx:
           nm = 'T_' + t.split('/')[-2] + t.split('/')[-1]
         else:
           nm = 'T_' + t.split('/')[-1]
-        nm = nm.replace('-', '_')
+        nm = asn2c(nm)
         if self.eth_type.has_key(nm):
           if self.eth_type_dupl.has_key(nm):
             self.eth_type_dupl[nm].append(t)
@@ -587,15 +590,15 @@ class EthCtx:
     self.eth_value_ord = []
 
     for v in self.value_imp:
-      nm = v.replace('-', '_')
+      nm = asn2c(v)
       self.eth_value[nm] = { 'import' : self.value[v]['import'], 
-                             'proto' : self.value[v]['proto'].replace('-', '_').replace('.', '_'), 
+                             'proto' : asn2c(self.value[v]['proto']), 
                              'ref' : []}
       self.value[v]['ethname'] = nm
     for v in self.value_ord:
-      nm = v.replace('-', '_')
+      nm = asn2c(v)
       self.eth_value[nm] = { 'import' : None, 
-                             'proto' : self.value[v]['proto'].replace('-', '_').replace('.', '_'),
+                             'proto' : asn2c(self.value[v]['proto']),
                              'export' : self.value[v]['export'], 'ref' : [v] }
       if isinstance (self.value[v]['value'], Value):
         self.eth_value[nm]['value'] = self.value[v]['value'].to_str()
@@ -617,10 +620,11 @@ class EthCtx:
       else:
         nm = f.split('/')[-1]
         name = nm
-      name += self.field[f]['idx']
-      abbrev = nm.replace('-', '_')
+      if (self.NAPI()):
+        name += self.field[f]['idx']
+      abbrev = asn2c(nm)
       nm = self.conform.use_item('FIELD_RENAME', f, val_dflt=nm)
-      nm = nm.replace('-', '_')
+      nm = asn2c(nm)
       if (self.field[f]['pdu']): 
         nm += '_PDU'
       t = self.field[f]['type']
@@ -953,8 +957,7 @@ class EthCtx:
         par=(('FALSE', 'tvb', '0', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
       else:
         par=(('tvb', '0', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
-      out += self.eth_fn_call('dissect_%s_%s' % (self.eth_type[t]['proto'], t), ret='',
-                              par=par)
+      out += self.eth_fn_call('dissect_%s_%s' % (self.eth_type[t]['proto'], t), par=par)
       out += '}\n'
       return out
     #end out_pdu()
@@ -1012,6 +1015,63 @@ class EthCtx:
     fempty = pos == fx.tell()
     self.output.file_close(fx, discard=fempty)
 
+  #--- eth_output_dis_hnd -----------------------------------------------------
+  def eth_output_dis_hnd(self):
+    fx = self.output.file_open('dis-hnd')
+    fempty = True
+    for f in self.eth_hfpdu_ord:
+      pdu = self.eth_hf[f]['pdu']
+      if (pdu and pdu['reg'] and not pdu['hidden']):
+        dis = self.proto
+        if (pdu['reg'] != '.'):
+          dis += '.' + pdu['reg']
+        fx.write('static dissector_handle_t %s_handle;\n' % (asn2c(dis)))
+        fempty = False
+    fx.write('\n')
+    self.output.file_close(fx, discard=fempty)
+
+  #--- eth_output_dis_reg -----------------------------------------------------
+  def eth_output_dis_reg(self):
+    fx = self.output.file_open('dis-reg')
+    fempty = True
+    for f in self.eth_hfpdu_ord:
+      pdu = self.eth_hf[f]['pdu']
+      if (pdu and pdu['reg']):
+        dis = self.proto
+        if (pdu['reg'] != '.'):
+          dis += '.' + pdu['reg']
+        ret = ''
+        if (not pdu['hidden']):
+          ret = '%s_handle = ' % (asn2c(dis))
+        fx.write('  %sregister_dissector("%s", dissect_%s, proto_%s);\n' % (ret, dis, f, self.eproto))
+        fempty = False
+    fx.write('\n')
+    self.output.file_close(fx, discard=fempty)
+
+  #--- eth_output_dis_tab -----------------------------------------------------
+  def eth_output_dis_tab(self):
+    fx = self.output.file_open('dis-tab')
+    fempty = True
+    for f in self.eth_hfpdu_ord:
+      pdu = self.eth_hf[f]['pdu']
+      if (pdu and pdu.has_key('rtype')):
+        if (pdu['rtype'] in ('NUM', 'STR')):
+          rstr = ''
+          if (pdu['rtype'] == 'STR'): rstr = '_string'
+          if (pdu and pdu['reg'] and not pdu['hidden']):
+            dis = self.proto
+            if (pdu['reg'] != '.'): dis += '.' + pdu['reg']
+            hnd = '%s_handle' % (asn2c(dis))
+          else:
+            hnd = 'create_dissector_handle(dissect_%s, proto_%s)' % (f, self.eproto)
+          fx.write(' dissector_add%s("%s", %s, %s);\n' % (rstr, pdu['rtable'], pdu['rport'], hnd))
+        elif (pdu['rtype'] in ('BER', 'PER')):
+          fx.write(' register_%s_oid_dissector(%s, dissect_%s, proto_%s, %s);\n' % (pdu['rtype'].lower(), pdu['roid'], f, self.eproto, pdu['roidname']))
+        fempty = False
+    fx.write('\n')
+    self.output.file_close(fx, discard=fempty)
+
+  #--- dupl_report -----------------------------------------------------
   def dupl_report(self):
     # types
     tmplist = self.eth_type_dupl.keys()
@@ -1224,22 +1284,41 @@ class EthCnf:
         if not par: continue
         flag = 0x03
         if (len(par)>=2):
-          if (par[1] == 'WITH_VALS'):
-            flag = 0x03
-          elif (par[1] == 'WITHOUT_VALS'):
-            flag = 0x01
-          elif (par[1] == 'ONLY_VALS'):
-            flag = 0x02
-          else:
-            warnings.warn_explicit("Unknown parameter value '%s'" % (par[1]), UserWarning, fn, lineno)
+          if (par[1] == 'WITH_VALS'):      flag = 0x03
+          elif (par[1] == 'WITHOUT_VALS'): flag = 0x01
+          elif (par[1] == 'ONLY_VALS'):    flag = 0x02
+          else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[1]), UserWarning, fn, lineno)
         self.add_item(ctx, par[0], flag=flag, fn=fn, lineno=lineno)
       elif ctx == 'PDU':
         if empty.match(line): continue
-        par = get_par(line, 1, 2, fn=fn, lineno=lineno)
+        par = get_par(line, 1, 5, fn=fn, lineno=lineno)
         if not par: continue
-        reg = None
+        (reg, hidden) = (None, False)
         if (len(par) > 1): reg = par[1]
-        self.add_item('PDU', par[0], attr={'reg' : reg}, fn=fn, lineno=lineno)
+        if (reg and reg[0]=='@'): (reg, hidden) = (reg[1:], True)
+        attr = {'reg' : reg, 'hidden' : hidden}
+        rtype = None
+        if (len(par)>=3):
+          if (par[2] in ('N', 'NUM')):   rtype = 'NUM'; (pmin, pmax) = (2, 2)
+          elif (par[2] in ('S', 'STR')): rtype = 'STR'; (pmin, pmax) = (2, 2)
+          elif (par[2] in ('B', 'BER')): rtype = 'BER'; (pmin, pmax) = (1, 2)
+          elif (par[2] in ('P', 'PER')): rtype = 'PER'; (pmin, pmax) = (1, 2)
+          else: warnings.warn_explicit("Unknown registration type '%s'" % (par[2]), UserWarning, fn, lineno)
+        if (rtype and ((len(par)-3) < pmin)):
+          warnings.warn_explicit("Too few parameters for %s registration type. At least %d parameters are required" % (rtype, pmin), UserWarning, fn, lineno)
+          rtype = None
+        if (rtype and ((len(par)-3) > pmax)):
+          warnings.warn_explicit("Too many parameters for %s registration type. Only %d parameters are allowed" % (rtype, pmax), UserWarning, fn, lineno)
+        if (rtype):
+          attr['rtype'] = rtype
+          if (rtype in ('NUM', 'STR')): 
+            attr['rtable'] = par[3]
+            attr['rport'] = par[4]
+          elif (rtype in ('BER', 'PER')): 
+            attr['roid'] = par[3]
+            attr['roidname'] = '""'
+            if (len(par)>=5): attr['roidname'] = par[4]
+        self.add_item('PDU', par[0], attr=attr, fn=fn, lineno=lineno)
       elif ctx == 'MODULE_IMPORT':
         if empty.match(line): continue
         par = get_par(line, 2, 2, fn=fn, lineno=lineno)
@@ -1622,13 +1701,15 @@ class Constraint (Node):
 
 
 class Module (Node):
-    def to_python (self, ctx):
-        ctx.tag_def = self.tag_def.dfl_tag
-        return """#%s
+  def to_python (self, ctx):
+    ctx.tag_def = self.tag_def.dfl_tag
+    return """#%s
 %s""" % (self.ident, self.body.to_python (ctx))
 
-    def to_eth (self, ectx):
-        self.body.to_eth(ectx)
+  def to_eth (self, ectx):
+    if (not ectx.proto):
+      ectx.proto = self.ident.val
+    self.body.to_eth(ectx)
 
 class Module_Body (Node):
     def to_python (self, ctx):
@@ -2743,7 +2824,7 @@ class IntegerType (Type):
       body = ectx.eth_fn_call('dissect_ber_integer', ret='offset',
                               par=(('pinfo', 'tree', 'tvb', 'offset', 'hf_index', 'NULL'),))
     elif (not self.HasConstraint()):
-      if (ectx.New()):
+      if (ectx.NAPI()):
         body = ectx.eth_fn_call('dissect_pern_integer', ret='offset',
                                 par=(('tvb', 'offset', 'pinfo', 'tree'),
                                      ('hf_index', 'item', 'private_data'),
@@ -2765,7 +2846,7 @@ class IntegerType (Type):
         ext = 'TRUE'
       else:
         ext = 'FALSE'
-      if (ectx.New()):
+      if (ectx.NAPI()):
         body = ectx.eth_fn_call('dissect_pern_constrained_integer', ret='offset',
                                 par=(('tvb', 'offset', 'pinfo', 'tree'),
                                      ('hf_index', 'item', 'private_data'),
@@ -4086,6 +4167,8 @@ def eth_do_module (ast, ectx):
       for c in ectx.eth_dep_cycle:
         print ' -> '.join(c)
     ectx.dupl_report()
+    if (not ectx.output.outnm):
+      ectx.output.outnm = ectx.proto
     ectx.eth_output_hf()
     ectx.eth_output_ett()
     ectx.eth_output_types()
@@ -4096,6 +4179,9 @@ def eth_do_module (ast, ectx):
       ectx.eth_output_expcnf()
     ectx.eth_output_val()
     ectx.eth_output_valexp()
+    ectx.eth_output_dis_hnd()
+    ectx.eth_output_dis_reg()
+    ectx.eth_output_dis_tab()
     ectx.conform.unused_report()
 
 import time
@@ -4124,7 +4210,7 @@ asn2eth [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file
                t - tables
   -b         : BER (default is PER)
   -X         : original dissector API (see Note)
-  -p proto   : protocol name (default is basename of <input_file> without extension)
+  -p proto   : protocol name (default is module-name from input_file)
   -o name    : output files name core (default is <proto>)
   -O dir     : output directory
   -c conform_file : conformation file
@@ -4151,12 +4237,12 @@ def eth_main():
   output = EthOut()
   ectx = EthCtx(conform, output)
   ectx.encoding = 'per'
-  ectx.proto = os.path.splitext(os.path.basename(fn))[0].lower()
+  ectx.proto = None
   ectx.new = True
   ectx.dbgopt = ''
   ectx.new = True
   ectx.expcnf = False
-  ectx.output.outnm = ectx.proto
+  ectx.output.outnm = None
   ectx.output.single_file = None
   for o, a in opts:
     if o in ("-h", "-?"):
@@ -4165,7 +4251,6 @@ def eth_main():
       ectx.encoding = 'ber'
     if o in ("-p",):
       ectx.proto = a
-      ectx.output.outnm = ectx.proto
     if o in ("-c",):
       ectx.conform.read(a)
     if o in ("-X",):
