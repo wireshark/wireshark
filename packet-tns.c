@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.13 2001/02/03 08:21:47 guy Exp $
+ * $Id: packet-tns.c,v 1.14 2001/04/19 23:02:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -298,7 +298,7 @@ void proto_register_tns(void)
 			"Request", "tns.request", FT_BOOLEAN, BASE_NONE, 
 			NULL, 0x0, "TRUE if TNS request" }},
 		{ &hf_tns_length, { 	
-			"Packet Length", "tns.length", FT_UINT32, BASE_NONE, 
+			"Packet Length", "tns.length", FT_UINT32, BASE_DEC, 
 			NULL, 0x0, "Length of TNS packet" }},
 		{ &hf_tns_packet_checksum, { 	
 			"Packet Checksum", "tns.packet_checksum", FT_UINT16, BASE_HEX, 
@@ -322,7 +322,7 @@ void proto_register_tns(void)
 			"Reserved Byte", "tns.reserved_byte", FT_BYTES, BASE_HEX, 
 			NULL, 0x0, "Reserved Byte" }},
 		{ &hf_tns_packet_type, { 	
-			"Packet Type", "tns.type", FT_UINT8, BASE_NONE, 
+			"Packet Type", "tns.type", FT_UINT8, BASE_DEC, 
 			VALS(tns_type_vals), 0x0, "Type of TNS packet" }}	
 	};
 

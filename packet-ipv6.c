@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.53 2001/04/17 06:43:18 guy Exp $
+ * $Id: packet-ipv6.c,v 1.54 2001/04/19 23:02:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -869,15 +869,15 @@ proto_register_ipv6(void)
 				"" }},
     { &hf_ipv6_mipv6_sub_type,
       { "Sub-Option Type ",		"ipv6.mipv6_sub_type",
-				FT_UINT8, BASE_NONE, NULL, 0x0,
+				FT_UINT8, BASE_DEC, NULL, 0x0,
 				"" }},
     { &hf_ipv6_mipv6_sub_length,
       { "Sub-Option Length ",		"ipv6.mipv6_sub_length",
-				FT_UINT8, BASE_NONE, NULL, 0x0,
+				FT_UINT8, BASE_DEC, NULL, 0x0,
 				"" }},
     { &hf_ipv6_mipv6_sub_unique_ID,
       { "Unique Identifier ",		"ipv6.mipv6_sub_unique_ID",
-				FT_UINT16, BASE_NONE, NULL, 0x0,
+				FT_UINT16, BASE_DEC, NULL, 0x0,
 				"" }},
     { &hf_ipv6_mipv6_sub_alternative_COA,
       { "Alternative Care of Address ",		"ipv6.mipv6_sub_alternative_COA",

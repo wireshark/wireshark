@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.83 2001/04/17 06:43:18 guy Exp $
+ * $Id: packet-ipx.c,v 1.84 2001/04/19 23:02:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -766,12 +766,12 @@ proto_register_ipx(void)
 	static hf_register_info hf_ipxmsg[] = {
 		{ &hf_msg_conn,
 		{ "Connection Number",			"ipxmsg.conn", 
-		  FT_UINT8,	BASE_NONE,	NULL,	0x0,
+		  FT_UINT8,	BASE_DEC,	NULL,	0x0,
 		  "Connection Number" }},
 
 		{ &hf_msg_sigchar,
 		{ "Signature Char",			"ipxmsg.sigchar", 
-		  FT_UINT8,	BASE_NONE,	VALS(ipxmsg_sigchar_vals),	0x0,
+		  FT_UINT8,	BASE_DEC,	VALS(ipxmsg_sigchar_vals),	0x0,
 		  "Signature Char" }}
 	};
 

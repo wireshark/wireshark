@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.27 2001/03/22 16:24:14 gram Exp $
+ * $Id: packet-sna.c,v 1.28 2001/04/19 23:02:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -885,7 +885,7 @@ proto_register_sna(void)
 			"Format Identification" }},
 
                 { &hf_sna_th_mpf,
-                { "Mapping Field",		"sna.th.mpf", FT_UINT8, BASE_NONE, VALS(sna_th_mpf_vals), 0x0c,
+                { "Mapping Field",		"sna.th.mpf", FT_UINT8, BASE_DEC, VALS(sna_th_mpf_vals), 0x0c,
 			"The Mapping Field specifies whether the information field"
 			" associated with the TH is a complete or partial BIU." }},
 
@@ -908,7 +908,7 @@ proto_register_sna(void)
 			"" }},
 
                 { &hf_sna_th_snf,
-                { "Sequence Number Field",	"sna.th.snf", FT_UINT16, BASE_NONE, NULL, 0x0,
+                { "Sequence Number Field",	"sna.th.snf", FT_UINT16, BASE_DEC, NULL, 0x0,
 			"The Sequence Number Field contains a numerical identifier for"
 			" the associated BIU."}},
 

@@ -2,7 +2,7 @@
  * Routines for who protocol (see man rwhod)
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-who.c,v 1.15 2001/01/22 08:03:46 guy Exp $
+ * $Id: packet-who.c,v 1.16 2001/04/19 23:02:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -289,7 +289,7 @@ proto_register_who(void)
 			"" }},
 
 		{ &hf_who_idle,
-		{ "Time Idle", "who.idle", FT_UINT32, BASE_NONE, NULL, 0x0,
+		{ "Time Idle", "who.idle", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"" }},
 	};
 

@@ -3,7 +3,7 @@
  * 
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-mpls.c,v 1.18 2001/04/17 06:43:19 guy Exp $
+ * $Id: packet-mpls.c,v 1.19 2001/04/19 23:02:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -89,7 +89,7 @@ static int mpls_filter[MPLSF_MAX];
 static hf_register_info mplsf_info[] = {
 
 /*    {&mpls_filter[MPLSF_PACKET], 
-     {"MPLS Label Switched Packet", "mpls", FT_UINT8, BASE_NONE, NULL, 0x0, 
+     {"MPLS Label Switched Packet", "mpls", FT_UINT8, BASE_DEC, NULL, 0x0, 
       "" }},*/
 
     {&mpls_filter[MPLSF_LABEL], 

@@ -3,7 +3,7 @@
  *
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-zebra.c,v 1.10 2001/03/13 21:34:24 gram Exp $
+ * $Id: packet-zebra.c,v 1.11 2001/04/19 23:02:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -611,7 +611,7 @@ proto_register_zebra(void)
 	"Destination IPv6 field" }},
     { &hf_zebra_nexthopnum,
       { "Nexthop Number",	"zebra.nexthopnum",
-	FT_UINT8, BASE_NONE, NULL, 0x0,
+	FT_UINT8, BASE_DEC, NULL, 0x0,
 	"Number of nexthops in route" }},
     { &hf_zebra_nexthop4,
       { "Nexthop",		"zebra.nexthop4",

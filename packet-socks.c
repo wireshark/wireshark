@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.18 2001/01/10 10:59:11 guy Exp $
+ * $Id: packet-socks.c,v 1.19 2001/04/19 23:02:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1113,7 +1113,7 @@ proto_register_socks( void){
     
 
 		{ &hf_socks_ver,
-			{ "Version", "socks.ver", FT_UINT8, BASE_NONE, NULL,
+			{ "Version", "socks.ver", FT_UINT8, BASE_DEC, NULL,
 			 	0x0, ""
 			}
 		},

@@ -1,7 +1,7 @@
 /* packet-isl.c
  * Routines for Cisco ISL Ethernet header disassembly
  *
- * $Id: packet-isl.c,v 1.23 2001/01/21 22:10:22 guy Exp $
+ * $Id: packet-isl.c,v 1.24 2001/04/19 23:02:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -284,10 +284,10 @@ proto_register_isl(void)
 	{ "Destination",	"isl.dst", FT_ETHER, BASE_NONE, NULL, 0x0,
 		"Destination Address" }},
 	{ &hf_isl_type,
-	{ "Type",		"isl.type", FT_UINT8, BASE_NONE,
+	{ "Type",		"isl.type", FT_UINT8, BASE_DEC,
 		VALS(type_vals), 0xF0, "Type" }},
 	{ &hf_isl_user_eth,
-	{ "User",		"isl.user_eth", FT_UINT8, BASE_NONE,
+	{ "User",		"isl.user_eth", FT_UINT8, BASE_DEC,
 		VALS(ether_user_vals), 0x0F, "Priority (for Ethernet)" }},
 	{ &hf_isl_user,
 	{ "User",		"isl.user", FT_UINT8, BASE_HEX, NULL, 0x0F,

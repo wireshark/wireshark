@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTLS component of WAP traffic.
  * 
- * $Id: packet-wtls.c,v 1.6 2001/04/18 20:01:17 guy Exp $
+ * $Id: packet-wtls.c,v 1.7 2001/04/19 23:02:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1064,14 +1064,14 @@ proto_register_wtls(void)
 		{ &hf_wtls_record,
 			{ 	"Record",           
 				"wsp.wtls.record",
-				 FT_UINT8, BASE_NONE, VALS ( wtls_vals_record_type ), 0x0f,
+				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_record_type ), 0x0f,
 				"Record" 
 			}
 		},
 		{ &hf_wtls_record_type,
 			{ 	"Record Type",           
 				"wsp.wtls.rec_type",
-				 FT_UINT8, BASE_NONE, VALS ( wtls_vals_record_type ), 0x0f,
+				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_record_type ), 0x0f,
 				"Record Type" 
 			}
 		},
