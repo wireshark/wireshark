@@ -77,6 +77,7 @@ static gint recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
 #define GUI_FILEOPEN_DIR_KEY	"fileopen_directory"
 #define GUI_ASK_UNSAVED_KEY     "ask_unsaved"
 #define GUI_WEBBROWSER_KEY	    "webbrowser"
+#define GUI_FIND_WRAP_KEY       "find_wrap"
 
 #define GUI_TOOLBAR_STYLE_KEY	"toolbar_style"
 
@@ -125,6 +126,13 @@ static const enum_val_t filter_toolbar_placement_vals[] = {
 static const enum_val_t highlight_style_vals[] = {
   	{ "FALSE", "Bold",     FALSE },
   	{ "TRUE",  "Inverse",  TRUE },
+	{ NULL,    NULL,       0 }
+};
+
+
+static const enum_val_t find_wrap_vals[] = {
+  	{ "FALSE", "No Wrap",  FALSE },
+  	{ "TRUE",  "Wrap",     TRUE },
 	{ NULL,    NULL,       0 }
 };
 
@@ -182,7 +190,7 @@ gui_prefs_show(void)
 #endif
 	GtkWidget *fileopen_rb, *fileopen_dir_te, *toolbar_style_om;
     GtkWidget *filter_toolbar_placement_om;
-	GtkWidget *recent_files_count_max_te, *ask_unsaved_cb;
+	GtkWidget *recent_files_count_max_te, *ask_unsaved_cb, *find_wrap_cb;
     GtkWidget *webbrowser_te;
 	GtkWidget *save_position_cb, *save_size_cb, *save_maximized_cb;
 #if GTK_MAJOR_VERSION < 2
@@ -321,6 +329,11 @@ gui_prefs_show(void)
 	    "Ask for unsaved capture files:", NULL, prefs.gui_ask_unsaved);
 	OBJECT_SET_DATA(main_vb, GUI_ASK_UNSAVED_KEY, ask_unsaved_cb);
 
+    /* do we want to wrap when searching for data? */
+	find_wrap_cb = create_preference_check_button(main_tb, pos++,
+	    "Wrap to end/beginning of file during a find:", NULL, prefs.gui_find_wrap);
+	OBJECT_SET_DATA(main_vb, GUI_FIND_WRAP_KEY, find_wrap_cb);
+
 	/* Webbrowser */
     if(browser_needs_pref()) {
 	    webbrowser_te = create_preference_entry(main_tb, pos++, 
@@ -432,6 +445,9 @@ gui_prefs_fetch(GtkWidget *w)
     prefs.gui_ask_unsaved = 
 	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w, GUI_ASK_UNSAVED_KEY));
 
+    prefs.gui_find_wrap = 
+	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w, GUI_FIND_WRAP_KEY));
+    
     if(browser_needs_pref()) {
 		g_free(prefs.gui_webbrowser);
 	    prefs.gui_webbrowser = g_strdup(gtk_entry_get_text(

@@ -2491,21 +2491,44 @@ find_packet(capture_file *cf,
            * we need an API for popping up alert boxes with
            * {Verb} and "Cancel".
            */
-          simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-                        "%sBeginning of capture exceeded!%s\n\n"
-                        "Search is continued from the end of the capture.",
-                        simple_dialog_primary_start(), simple_dialog_primary_end());
-          fdata = cf->plist_end;	/* wrap around */
+
+          if (prefs.gui_find_wrap)
+          {
+              simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
+                            "%sBeginning of capture exceeded!%s\n\n"
+                            "Search is continued from the end of the capture.",
+                            simple_dialog_primary_start(), simple_dialog_primary_end());
+              fdata = cf->plist_end;	/* wrap around */
+          }
+          else
+          {
+              simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
+                            "%sBeginning of capture exceeded!%s\n\n"
+                            "Try searching forwards.",
+                            simple_dialog_primary_start(), simple_dialog_primary_end());
+              fdata = start_fd;        /* stay on previous packet */
+          }
         }
       } else {
         /* Go on to the next frame. */
         fdata = fdata->next;
         if (fdata == NULL) {
-          simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-                        "%sEnd of capture exceeded!%s\n\n"
-                        "Search is continued from the start of the capture.",
-                        simple_dialog_primary_start(), simple_dialog_primary_end());
-          fdata = cf->plist;	/* wrap around */
+          if (prefs.gui_find_wrap)
+          {
+              simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
+                            "%sEnd of capture exceeded!%s\n\n"
+                            "Search is continued from the start of the capture.",
+                            simple_dialog_primary_start(), simple_dialog_primary_end());
+              fdata = cf->plist;	/* wrap around */
+          }
+          else
+          {
+              simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
+                            "%sEnd of capture exceeded!%s\n\n"
+                            "Try searching backwards.",
+                            simple_dialog_primary_start(), simple_dialog_primary_end());
+              fdata = start_fd;     /* stay on previous packet */
+          }
         }
       }
 
