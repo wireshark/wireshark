@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.10 2002/01/04 21:20:20 guy Exp $
+# $Id: Makefile.nmake,v 1.11 2002/03/20 19:45:51 gram Exp $
 #
 #
 # NSIS is a free packager/installer/uninstaller program for Win32.
@@ -27,7 +27,7 @@ PLUGINS=../../plugins/mgcp/mgcp.dll	\
 
 DELIVERABLES=$(EXE) $(DLL) $(DOC) $(GPL) $(PLUGINS) 
 
-ethereal-setup.exe : ethereal.nsi $(DELIVERABLES)
+ethereal-setup-$(VERSION).exe : ethereal.nsi $(DELIVERABLES)
 	$(MAKENSIS) ethereal.nsi
 
 ethereal.nsi : ethereal.nsi.in
@@ -36,7 +36,7 @@ ethereal.nsi : ethereal.nsi.in
 		< ethereal.nsi.in > ethereal.nsi
 
 clean:
-	rm -f ethereal.nsi ethereal-setup.exe
+	rm -f ethereal.nsi ethereal-setup-$(VERSION).exe
 
 $(DOC):
 	cd ../../doc

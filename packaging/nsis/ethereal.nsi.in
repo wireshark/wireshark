@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi.in,v 1.12 2002/01/04 06:57:09 guy Exp $
+; $Id: ethereal.nsi.in,v 1.13 2002/03/20 19:45:51 gram Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -10,7 +10,7 @@
 Name "Ethereal"
 
 ; The file to write
-OutFile "ethereal-setup.exe"
+OutFile "ethereal-setup-@VERSION@.exe"
 
 ; Icon of installer
 Icon "..\..\image\ethereal.ico"
