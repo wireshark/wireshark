@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.53 2001/06/18 01:49:17 guy Exp $
+ * $Id: prefs.c,v 1.54 2001/07/22 21:27:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -368,49 +368,71 @@ prefs_register_modules(void)
 {
 }
 
-/* Parse through a list of comma-separated, quoted strings.  Return a
-   list of the string data */
+/* Parse through a list of comma-separated, possibly quoted strings.
+   Return a list of the string data. */
 static GList *
-get_string_list(gchar *str) {
-  enum { PRE_QUOT, IN_QUOT, POST_QUOT };
-
-  gint      state = PRE_QUOT, i = 0, j = 0;
-  gboolean  backslash = FALSE;
+get_string_list(gchar *str)
+{
+  gint      i = 0, j = 0;
+  gboolean  in_quot = FALSE, backslash = FALSE;
   gchar     cur_c, *slstr = NULL;
   GList    *sl = NULL;
-  
-  while ((cur_c = str[i]) != '\0') {
+
+  /* Allocate a buffer for the first string.   */
+  slstr = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+  j = 0;
+
+  for (;;) {
+    cur_c = str[i];
+    if (cur_c == '\0') {
+      /* It's the end of the input, so it's the end of the string we
+         were working on, and there's no more input. */
+      if (in_quot || backslash) {
+        /* We were in the middle of a quoted string or backslash escape,
+           and ran out of characters; that's an error.  */
+        g_free(slstr);
+        clear_string_list(sl);
+        return NULL;
+      }
+      slstr[j] = '\0';
+      sl = g_list_append(sl, slstr);
+      break;
+    }
     if (cur_c == '"' && ! backslash) {
-      switch (state) {
-        case PRE_QUOT:
-          state = IN_QUOT;
-          slstr = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
-          j = 0;
-          break;
-        case IN_QUOT:
-          state  = POST_QUOT;
-          slstr[j] = '\0';
-          sl = g_list_append(sl, slstr);
-          break;
-        case POST_QUOT:
-          clear_string_list(sl);
-          return NULL;
-          break;
-        default:
-          break;
+      if (!in_quot) {
+        /* We're not in the middle of a quoted string, and we saw a
+           quotation mark; we're now quoting.  */
+        in_quot = TRUE;
+      } else {
+        /* We're in the middle of a quoted string, and we saw a quotation
+           mark; we're no longer quoting.   */
+        in_quot = FALSE;
       }
     } else if (cur_c == '\\' && ! backslash) {
+      /* We saw a backslash, and the previous character wasn't a
+         backslash; escape the next character.  */
       backslash = TRUE;
-    } else if (cur_c == ',' && state == POST_QUOT) {
-      state = PRE_QUOT;
-    } else if (state == IN_QUOT && j < COL_MAX_LEN) {
-      slstr[j] = str[i];
-      j++;
+    } else if (cur_c == ',' && ! in_quot && ! backslash) {
+      /* We saw a comma, and we're not in the middle of a quoted string
+         and it wasn't preceded by a backslash; it's the end of
+         the string we were working on...  */
+      slstr[j] = '\0';
+      sl = g_list_append(sl, slstr);
+
+      /* ...and the beginning of a new string.  */
+      slstr = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+      j = 0;
+    } else {
+      /* It's a character to be put into a string; do so if there's room.  */
+      if (j < COL_MAX_LEN) {
+        slstr[j] = cur_c;
+        j++;
+      }
+
+      /* If it was backslash-escaped, we're done with the backslash escape.  */
+      backslash = FALSE;
     }
     i++;
-  }
-  if (state != POST_QUOT) {
-    clear_string_list(sl);
   }
   return(sl);
 }
@@ -969,21 +991,26 @@ set_pref(gchar *pref_name, gchar *value)
     if (prefs.pr_cmd) g_free(prefs.pr_cmd);
     prefs.pr_cmd = g_strdup(value);
   } else if (strcmp(pref_name, PRS_COL_FMT) == 0) {
-    if ((col_l = get_string_list(value)) && (g_list_length(col_l) % 2) == 0) {
-      free_col_info(&prefs);
-      prefs.col_list = NULL;
-      llen             = g_list_length(col_l);
-      prefs.num_cols   = llen / 2;
-      col_l = g_list_first(col_l);
-      while(col_l) {
-        cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
-        cfmt->title    = g_strdup(col_l->data);
-        col_l          = col_l->next;
-        cfmt->fmt      = g_strdup(col_l->data);
-        col_l          = col_l->next;
-        prefs.col_list = g_list_append(prefs.col_list, cfmt);
-      }
-      /* To do: else print some sort of error? */
+    col_l = get_string_list(value);
+    if (col_l == NULL)
+      return PREFS_SET_SYNTAX_ERR;
+    if ((g_list_length(col_l) % 2) != 0) {
+      /* A title didn't have a matching format.  */
+      clear_string_list(col_l);
+      return PREFS_SET_SYNTAX_ERR;
+    }
+    free_col_info(&prefs);
+    prefs.col_list = NULL;
+    llen             = g_list_length(col_l);
+    prefs.num_cols   = llen / 2;
+    col_l = g_list_first(col_l);
+    while(col_l) {
+      cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
+      cfmt->title    = g_strdup(col_l->data);
+      col_l          = col_l->next;
+      cfmt->fmt      = g_strdup(col_l->data);
+      col_l          = col_l->next;
+      prefs.col_list = g_list_append(prefs.col_list, cfmt);
     }
     clear_string_list(col_l);
   } else if (strcmp(pref_name, PRS_STREAM_CL_FG) == 0) {
