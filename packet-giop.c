@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.36 2001/06/19 18:50:33 guy Exp $
+ * $Id: packet-giop.c,v 1.37 2001/06/23 19:14:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -294,7 +294,9 @@
 #include <ctype.h>
 #include <glib.h>
 #include <math.h>
+#ifdef NEED_STRERROR_H
 #include "strerror.h"
+#endif
 
 #include "packet.h"
 #include "packet-giop.h"
