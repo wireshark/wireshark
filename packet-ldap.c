@@ -1,7 +1,9 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.49 2002/11/25 19:20:42 guy Exp $
+ * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
+ *
+ * $Id: packet-ldap.c,v 1.50 2002/11/27 04:59:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,8 +67,10 @@
 #include "asn1.h"
 #include "prefs.h"
 #include <epan/conversation.h>
+#include "packet-frame.h"
 
 static int proto_ldap = -1;
+static int hf_ldap_sasl_buffer_length = -1;
 static int hf_ldap_length = -1;
 static int hf_ldap_message_id = -1;
 static int hf_ldap_message_type = -1;
@@ -130,8 +134,9 @@ static dissector_handle_t gssapi_handle;
  * authentication mechanism strings.
  */
 typedef struct ldap_auth_info_t {
-  guint auth_type;	/* authentication type */
-  char *auth_mech;	/* authentication mechanism */
+  guint auth_type;		/* authentication type */
+  char *auth_mech;		/* authentication mechanism */
+  guint32 first_auth_frame;	/* first frame that would use a security layer */
   struct ldap_auth_info_t *next;
 } ldap_auth_info_t;
 
@@ -904,6 +909,7 @@ static void dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree,
       auth_info = g_mem_chunk_alloc(ldap_auth_info_chunk);
       auth_info->auth_type = tag;
       auth_info->auth_mech = mechanism;
+      auth_info->first_auth_frame = 0;	/* not known until we see the bind reply */
       conversation_add_proto_data(conversation, proto_ldap, auth_info);
       auth_info->next = auth_info_items;
       auth_info_items = auth_info;
@@ -999,6 +1005,33 @@ static void dissect_ldap_response_bind(ASN1_SCK *a, proto_tree *tree,
           /* XXX - what about LDAP_AUTH_SIMPLE? */
 
         case LDAP_AUTH_SASL:
+          /*
+           * All frames after this are assumed to use a security layer.
+           *
+           * XXX - won't work if there's another reply, with the security
+           * layer, starting in the same TCP segment that ends this
+           * reply, but as LDAP is a request/response protocol, and
+           * as the client probably can't start using authentication until
+           * it gets the bind reply and the server won't send a reply until
+           * it gets a request, that probably won't happen.
+           *
+           * XXX - that assumption is invalid; it's not clear where the
+           * hell you find out whether there's any security layer.  In
+           * one capture, we have two GSS-SPNEGO negotiations, both of
+           * which select MS KRB5, and the only differences in the tokens
+           * is in the RC4-HMAC ciphertext.  The various
+           * draft-ietf--cat-sasl-gssapi-NN.txt drafts seem to imply
+           * that the RFC 2222 spoo with the bitmask and maximum
+           * output message size stuff is done - but where does that
+           * stuff show up?  Is it in the ciphertext, which means it's
+           * presumably encrypted?
+           *
+           * Grrr.  We have to do a gross heuristic, checking whether the
+	   * putative LDAP message begins with 0x00 or not, making the
+	   * assumption that we won't have more than 2^24 bytes of
+	   * encapsulated stuff.
+           */
+          auth_info->first_auth_frame = pinfo->fd->num + 1;
           if (auth_info->auth_mech != NULL &&
               strcmp(auth_info->auth_mech, "GSS-SPNEGO") == 0) {
             /*
@@ -1399,9 +1432,13 @@ static void dissect_ldap_request_abandon(ASN1_SCK *a, proto_tree *tree,
 }
 
 static void
-dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ldap_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                     proto_tree *ldap_tree, gboolean first_time)
 {
-  proto_tree *ldap_tree = NULL, *ti, *msg_tree = NULL;
+  int message_id_start;
+  int message_id_length;
+  proto_item *ti;
+  proto_tree *msg_tree = NULL;
   guint messageLength;
   guint messageId;
   int next_offset;
@@ -1410,221 +1447,451 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint opLen;
   ASN1_SCK a;
   int start;
-  gboolean first_time = TRUE;
   int ret;
 
-  asn1_open(&a, tvb, 0);
+  asn1_open(&a, tvb, offset);
 
-  while (tvb_reported_length_remaining(tvb, a.offset) > 0)
+  ret = read_sequence(&a, &messageLength);
+  if (ret != ASN1_ERR_NOERROR)
   {
-    int message_id_start;
-    int message_id_length;
-    int message_start;
+    if (first_time)
+    {
+      if (check_col(pinfo->cinfo, COL_INFO))
+      {
+        col_add_fstr(pinfo->cinfo, COL_INFO,
+                    "Invalid LDAP message (Can't parse sequence header: %s)",
+                    asn1_err_to_str(ret));
+      }
+    }
+    if (ldap_tree)
+    {
+      proto_tree_add_text(ldap_tree, tvb, offset, -1,
+			  "Invalid LDAP message (Can't parse sequence header: %s)",
+			  asn1_err_to_str(ret));
+    }
+    return;
+  }
+
+  message_id_start = a.offset;
+  ret = read_integer(&a, 0, hf_ldap_message_id, 0, &messageId, ASN1_INT);
+  if (ret != ASN1_ERR_NOERROR)
+  {
+    if (first_time && check_col(pinfo->cinfo, COL_INFO))
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Invalid LDAP packet (Can't parse Message ID: %s)",
+                   asn1_err_to_str(ret));
+    if (ldap_tree)
+      proto_tree_add_text(ldap_tree, tvb, message_id_start, 1,
+                          "Invalid LDAP packet (Can't parse Message ID: %s)",
+                          asn1_err_to_str(ret));
+      return;
+  }
+  message_id_length = a.offset - message_id_start;
+
+  start = a.offset;
+  asn1_id_decode(&a, &protocolOpCls, &protocolOpCon, &protocolOpTag);
+  if (protocolOpCls != ASN1_APL)
+    typestr = "Bad message type (not Application)";
+  else
+    typestr = val_to_str(protocolOpTag, msgTypes, "Unknown message type (%u)");
+
+  if (first_time)
+  {
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_add_fstr(pinfo->cinfo, COL_INFO, "MsgId=%u MsgType=%s",
+		   messageId, typestr);
+  }
+
+  if (ldap_tree)
+  {
+    proto_tree_add_uint_hidden(ldap_tree, hf_ldap_message_id, tvb, message_id_start, message_id_length, messageId);
+    proto_tree_add_uint_hidden(ldap_tree, hf_ldap_message_type, tvb,
+			       start, a.offset - start, protocolOpTag);
+    ti = proto_tree_add_text(ldap_tree, tvb, message_id_start, messageLength, "Message: Id=%u  %s", messageId, typestr);
+    msg_tree = proto_item_add_subtree(ti, ett_ldap_message);
+  }
+  start = a.offset;
+  if (read_length(&a, msg_tree, hf_ldap_message_length, &opLen) != ASN1_ERR_NOERROR)
+    return;
+
+  if (protocolOpCls != ASN1_APL)
+  {
+    if (ldap_tree)
+    {
+      proto_tree_add_text(msg_tree, a.tvb, a.offset, opLen,
+			  "%s", typestr);
+    }
+  }
+  else
+  {
+    switch (protocolOpTag)
+    {
+     case LDAP_REQ_BIND:
+      dissect_ldap_request_bind(&a, msg_tree, tvb, pinfo);
+      break;
+     case LDAP_REQ_UNBIND:
+      /* Nothing to dissect */
+      break;
+     case LDAP_REQ_SEARCH:
+      if (ldap_tree)
+        dissect_ldap_request_search(&a, msg_tree);
+      break;
+     case LDAP_REQ_MODIFY:
+      if (ldap_tree)
+        dissect_ldap_request_modify(&a, msg_tree);
+      break;
+     case LDAP_REQ_ADD:
+      if (ldap_tree)
+        dissect_ldap_request_add(&a, msg_tree);
+      break;
+     case LDAP_REQ_DELETE:
+      if (ldap_tree)
+        dissect_ldap_request_delete(&a, msg_tree, start, opLen);
+      break;
+     case LDAP_REQ_MODRDN:
+      if (ldap_tree)
+        dissect_ldap_request_modifyrdn(&a, msg_tree, opLen);
+      break;
+     case LDAP_REQ_COMPARE:
+      if (ldap_tree)
+        dissect_ldap_request_compare(&a, msg_tree);
+      break;
+     case LDAP_REQ_ABANDON:
+      if (ldap_tree)
+        dissect_ldap_request_abandon(&a, msg_tree, start, opLen);
+      break;
+     case LDAP_RES_BIND:
+      dissect_ldap_response_bind(&a, msg_tree, start, opLen, tvb, pinfo);
+      break;
+     case LDAP_RES_SEARCH_ENTRY:
+      if (ldap_tree)
+        dissect_ldap_response_search_entry(&a, msg_tree);
+      break;
+     case LDAP_RES_SEARCH_RESULT:
+     case LDAP_RES_MODIFY:
+     case LDAP_RES_ADD:
+     case LDAP_RES_DELETE:
+     case LDAP_RES_MODRDN:
+     case LDAP_RES_COMPARE:
+      if (ldap_tree)
+        dissect_ldap_result(&a, msg_tree);
+      break;
+     default:
+      if (ldap_tree)
+      {
+        proto_tree_add_text(msg_tree, a.tvb, a.offset, opLen,
+                            "Unknown LDAP operation (%u)", protocolOpTag);
+      }
+      break;
+    }
+  }
+
+  /*
+   * XXX - what if "next_offset" is past the offset of the next top-level
+   * sequence?  Show that as an error?
+   */
+  asn1_close(&a, &next_offset);	/* XXX - use the new value of next_offset? */
+}
+
+static void
+dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  int offset = 0;
+  gboolean first_time = FALSE;
+  conversation_t *conversation;
+  ldap_auth_info_t *auth_info;
+  gboolean doing_sasl_security = FALSE;
+  guint length_remaining;
+  guint32 sasl_length;
+  guint32 message_data_len;
+  proto_item *ti;
+  proto_tree *ldap_tree;
+  ASN1_SCK a;
+  int ret;
+  guint messageLength;
+  int messageOffset;
+  guint headerLength;
+  guint length;
+  tvbuff_t *next_tvb;
+
+  /*
+   * Do we have a conversation for this connection?
+   */
+  conversation = find_conversation(&pinfo->src, &pinfo->dst,
+                                   pinfo->ptype, pinfo->srcport,
+                                   pinfo->destport, 0);
+  if (conversation != NULL) {
+    /*
+     * Yes - do we have any authentication mechanism for it?
+     */
+    auth_info = conversation_get_proto_data(conversation, proto_ldap);
+    if (auth_info != NULL) {
+      /*
+       * Yes - what's the authentication type?
+       */
+      switch (auth_info->auth_type) {
+
+      case LDAP_AUTH_SASL:
+        /*
+         * It's SASL; are we using a security layer?
+         */
+        if (auth_info->first_auth_frame != 0 &&
+            pinfo->fd->num >= auth_info->first_auth_frame)
+          doing_sasl_security = TRUE;	/* yes */
+      }
+    }
+  }
+
+  while (tvb_reported_length_remaining(tvb, offset) > 0) {
+    /*
+     * This will throw an exception if we don't have any data left.
+     * That's what we want.  (See "tcp_dissect_pdus()", which is
+     * similar, but doesn't have to deal with the SASL issues.
+     * XXX - can we make "tcp_dissect_pdus()" provide enough information
+     * to the "get_pdu_len" routine so that we could have one dealing
+     * with the SASL issues, have that routine deal with SASL and
+     * ASN.1, and just use "tcp_dissect_pdus()"?)
+     */
+    length_remaining = tvb_ensure_length_remaining(tvb, offset);
 
     /*
-     * XXX - should handle the initial sequence specifier split across
-     * segment boundaries.
+     * Might we be doing a SASL security layer and, if so, *are* we doing
+     * one?
+     *
+     * Just because we've seen a bind reply for SASL, that doesn't mean
+     * that we're using a SASL security layer; I've seen captures in
+     * which some SASL negotiations lead to a security layer being used
+     * and other negotiations don't, and it's not obvious what's different
+     * in the two negotiations.  Therefore, we assume that if the first
+     * byte is 0, it's a length for a SASL security layer (that way, we
+     * never reassemble more than 16 megabytes, protecting us from
+     * chewing up *too* much memory), and otherwise that it's an LDAP
+     * message (actually, if it's an LDAP message it should begin with 0x30,
+     * but we want to parse garbage as LDAP messages rather than really
+     * huge lengths).
      */
-    message_start = a.offset;
-    /*
-     * If TCP and LDAP desegmentation is enabled:
-     * Force the the TCP dissector to read into the next LDAP packet
-     * if the initial Universal Class Tag: "Sequence Of" header is not
-     * complete within this TCP packet. I required at least 6 bytes
-     * for the header which allows for a 4 byte length (ASN.1 BER)
-     */
-    if (ldap_desegment && pinfo->can_desegment) {
-      if (tvb_reported_length_remaining(tvb, a.offset) >= 6)
-        ret = read_sequence(&a, &messageLength);
-      else {
-        pinfo->desegment_offset = message_start;
-        pinfo->desegment_len = 6;
+    if (doing_sasl_security && tvb_get_guint8(tvb, offset) == 0) {
+      /*
+       * Yes.  The frame begins with a 4-byte big-endian length.
+       * Can we do reassembly?
+       */
+      if (ldap_desegment && pinfo->can_desegment) {
+        /*
+         * Yes - is the SASL length split across segment boundaries?
+         */
+        if (length_remaining < 4) {
+          /*
+           * Yes.  Tell the TCP dissector where the data for this message
+           * starts in the data it handed us, and how many more bytes we
+           * need, and return.
+           */
+          pinfo->desegment_offset = offset;
+          pinfo->desegment_len = 4 - length_remaining;
+          return;
+        }
+      }
+
+      /*
+       * Get the SASL length, which is the length of data in the buffer
+       * following the length (i.e., it's 4 less than the total length).
+       *
+       * XXX - do we need to reassemble buffers?  For now, we
+       * assume that each LDAP message is entirely contained within
+       * a buffer.
+       */
+      sasl_length = tvb_get_ntohl(tvb, offset);
+      message_data_len = sasl_length + 4;
+      if (message_data_len < 4) {
+        /*
+         * The message length was probably so large that the total length
+	 * overflowed.
+         *
+         * Report this as an error.
+         */
+        show_reported_bounds_error(tvb, pinfo, tree);
         return;
       }
-    } else {
-      ret = read_sequence(&a, &messageLength);
-    }
-    if (ret != ASN1_ERR_NOERROR)
-    {
+
+      /*
+       * Can we do reassembly?
+       */
+      if (ldap_desegment && pinfo->can_desegment) {
+        /*
+         * Yes - is the buffer split across segment boundaries?
+         */
+        if (length_remaining < message_data_len) {
+          /*
+           * Yes.  Tell the TCP dissector where the data for this message
+           * starts in the data it handed us, and how many more bytes we
+           * need, and return.
+           */
+          pinfo->desegment_offset = offset;
+          pinfo->desegment_len = message_data_len - length_remaining;
+          return;
+        }
+      }
+
+      /*
+       * Construct a tvbuff containing the amount of the payload we have
+       * available.  Make its reported length the amount of data in the PDU.
+       *
+       * XXX - if reassembly isn't enabled. the subdissector will throw a
+       * BoundsError exception, rather than a ReportedBoundsError exception.
+       * We really want a tvbuff where the length is "length", the reported
+       * length is "plen", and the "if the snapshot length were infinite"
+       * length is the minimum of the reported length of the tvbuff handed
+       * to us and "plen", with a new type of exception thrown if the offset
+       * is within the reported length but beyond that third length, with
+       * that exception getting the "Unreassembled Packet" error.
+       */
+      length = length_remaining;
+      if (length > message_data_len)
+        length = message_data_len;
+      next_tvb = tvb_new_subset(tvb, offset, length, message_data_len);
+
+      /*
+       * If this is the first PDU, set the Protocol column and clear the
+       * Info column.
+       */
       if (first_time)
       {
         if (check_col(pinfo->cinfo, COL_PROTOCOL))
           col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDAP");
         if (check_col(pinfo->cinfo, COL_INFO))
-        {
-          col_add_fstr(pinfo->cinfo, COL_INFO,
-                      "Invalid LDAP message (Can't parse sequence header: %s)",
-                      asn1_err_to_str(ret));
-        }
+          col_clear(pinfo->cinfo, COL_INFO);
       }
+
+      /*
+       * XXX - for now, just show the SASL length and payload; we
+       * eventually should show the GSS-API GSS_Wrap token and
+       * dissect the stuff after it as an LDAP message.
+       */
       if (tree)
       {
-        ti = proto_tree_add_item(tree, proto_ldap, tvb, message_start, -1,
-			         FALSE);
+        ti = proto_tree_add_item(tree, proto_ldap, next_tvb, 0, -1, FALSE);
         ldap_tree = proto_item_add_subtree(ti, ett_ldap);
-        proto_tree_add_text(ldap_tree, tvb, message_start, -1,
-			    "Invalid LDAP message (Can't parse sequence header: %s)",
-			    asn1_err_to_str(ret));
+
+        proto_tree_add_uint(ldap_tree, hf_ldap_sasl_buffer_length, tvb, 0, 4,
+                            sasl_length);
+        proto_tree_add_text(ldap_tree, tvb, 4, -1, "SASL buffer");
       }
-      break;
-    }
-
-    /*
-     * Desegmentation check.
-     */
-    if (ldap_desegment) {
-	if (pinfo->can_desegment
-	    && messageLength > (guint)tvb_length_remaining(tvb, a.offset)) {
-	    /*
-	     * This frame doesn't have all of the data for this message,
-	     * but we can do reassembly on it.
-	     *
-	     * Tell the TCP dissector where the data for this message
-	     * starts in the data it handed us, and how many more bytes
-	     * we need, and return.
-	     */
-	    pinfo->desegment_offset = message_start;
-	    pinfo->desegment_len = messageLength -
-	        tvb_length_remaining(tvb, a.offset);
-	    return;
-	}
-    }
-    next_offset = a.offset + messageLength;
-
-    if (first_time)
-    {
-      if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDAP");
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
-    }
-
-    if (tree)
-    {
-      ti = proto_tree_add_item(tree, proto_ldap, tvb, message_start,
-			       next_offset - message_start, FALSE);
-      ldap_tree = proto_item_add_subtree(ti, ett_ldap);
-    }
-
-    message_id_start = a.offset;
-    ret = read_integer(&a, 0, hf_ldap_message_id, 0, &messageId, ASN1_INT);
-    if (ret != ASN1_ERR_NOERROR)
-    {
-      if (first_time && check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Invalid LDAP packet (Can't parse Message ID: %s)",
-                    asn1_err_to_str(ret));
-      if (ldap_tree)
-        proto_tree_add_text(ldap_tree, tvb, message_id_start, 1,
-                            "Invalid LDAP packet (Can't parse Message ID: %s)",
-                            asn1_err_to_str(ret));
-      break;
-    }
-    message_id_length = a.offset - message_id_start;
-
-    start = a.offset;
-    asn1_id_decode(&a, &protocolOpCls, &protocolOpCon, &protocolOpTag);
-    if (protocolOpCls != ASN1_APL)
-      typestr = "Bad message type (not Application)";
-    else
-      typestr = val_to_str(protocolOpTag, msgTypes, "Unknown message type (%u)");
-
-    if (first_time)
-    {
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "MsgId=%u MsgType=%s",
-		     messageId, typestr);
-      first_time = FALSE;
-    }
-
-    if (ldap_tree)
-    {
-      proto_tree_add_uint_hidden(ldap_tree, hf_ldap_message_id, tvb, message_id_start, message_id_length, messageId);
-      proto_tree_add_uint_hidden(ldap_tree, hf_ldap_message_type, tvb,
-			         start, a.offset - start, protocolOpTag);
-      ti = proto_tree_add_text(ldap_tree, tvb, message_id_start, messageLength, "Message: Id=%u  %s", messageId, typestr);
-      msg_tree = proto_item_add_subtree(ti, ett_ldap_message);
-    }
-    start = a.offset;
-    if (read_length(&a, msg_tree, hf_ldap_message_length, &opLen) != ASN1_ERR_NOERROR)
-      return;
-
-    if (protocolOpCls != ASN1_APL)
-    {
-      if (ldap_tree)
-      {
-        proto_tree_add_text(msg_tree, a.tvb, a.offset, opLen,
-			    "%s", typestr);
-      }
-    }
-    else
-    {
-      switch (protocolOpTag)
-      {
-       case LDAP_REQ_BIND:
-        dissect_ldap_request_bind(&a, msg_tree, tvb, pinfo);
-        break;
-       case LDAP_REQ_UNBIND:
-        /* Nothing to dissect */
-        break;
-       case LDAP_REQ_SEARCH:
-        if (ldap_tree)
-          dissect_ldap_request_search(&a, msg_tree);
-        break;
-       case LDAP_REQ_MODIFY:
-        if (ldap_tree)
-          dissect_ldap_request_modify(&a, msg_tree);
-        break;
-       case LDAP_REQ_ADD:
-        if (ldap_tree)
-          dissect_ldap_request_add(&a, msg_tree);
-        break;
-       case LDAP_REQ_DELETE:
-        if (ldap_tree)
-          dissect_ldap_request_delete(&a, msg_tree, start, opLen);
-        break;
-       case LDAP_REQ_MODRDN:
-        if (ldap_tree)
-          dissect_ldap_request_modifyrdn(&a, msg_tree, opLen);
-        break;
-       case LDAP_REQ_COMPARE:
-        if (ldap_tree)
-          dissect_ldap_request_compare(&a, msg_tree);
-        break;
-       case LDAP_REQ_ABANDON:
-        if (ldap_tree)
-          dissect_ldap_request_abandon(&a, msg_tree, start, opLen);
-        break;
-       case LDAP_RES_BIND:
-        dissect_ldap_response_bind(&a, msg_tree, start, opLen, tvb, pinfo);
-        break;
-       case LDAP_RES_SEARCH_ENTRY:
-        if (ldap_tree)
-          dissect_ldap_response_search_entry(&a, msg_tree);
-        break;
-       case LDAP_RES_SEARCH_RESULT:
-       case LDAP_RES_MODIFY:
-       case LDAP_RES_ADD:
-       case LDAP_RES_DELETE:
-       case LDAP_RES_MODRDN:
-       case LDAP_RES_COMPARE:
-        if (ldap_tree)
-          dissect_ldap_result(&a, msg_tree);
-        break;
-       default:
-        if (ldap_tree)
-        {
-          proto_tree_add_text(msg_tree, a.tvb, a.offset, opLen,
-                              "Unknown LDAP operation (%u)", protocolOpTag);
+      offset += message_data_len;
+    } else {
+      /*
+       * No, we're not doing a SASL security layer.  The frame begins
+       * with a "Sequence Of" header.
+       * Can we do reassembly?
+       */
+      if (ldap_desegment && pinfo->can_desegment) {
+        /*
+         * Yes - is the "Sequence Of" header split across segment
+         * boundaries?  We require at least 6 bytes for the header
+         * which allows for a 4 byte length (ASN.1 BER).
+         */
+        if (length_remaining < 6) {
+          pinfo->desegment_offset = offset;
+          pinfo->desegment_len = 6 - length_remaining;
+          return;
         }
-        break;
       }
+
+      /*
+       * OK, try to read the "Sequence Of" header; this gets the total
+       * length of the LDAP message.
+       */
+      asn1_open(&a, tvb, offset);
+      ret = read_sequence(&a, &messageLength);
+      asn1_close(&a, &messageOffset);
+
+      if (ret == ASN1_ERR_NOERROR) {
+      	/*
+      	 * Add the length of the "Sequence Of" header to the message
+      	 * length.
+      	 */
+      	headerLength = messageOffset - offset;
+      	messageLength += headerLength;
+        if (messageLength < headerLength) {
+          /*
+           * The message length was probably so large that the total length
+           * overflowed.
+           *
+           * Report this as an error.
+           */
+          show_reported_bounds_error(tvb, pinfo, tree);
+          return;
+        }
+      } else {
+      	/*
+      	 * We couldn't parse the header; just make it the amount of data
+      	 * remaining in the tvbuff, so we'll give up on this segment
+      	 * after attempting to parse the message - there's nothing more
+      	 * we can do.  "dissect_ldap_message()" will display the error.
+      	 */
+      	messageLength = length_remaining;
+      }
+
+      /*
+       * Can we do reassembly?
+       */
+      if (ldap_desegment && pinfo->can_desegment) {
+        /*
+         * Yes - is the message split across segment boundaries?
+         */
+        if (length_remaining < messageLength) {
+	  /*
+	   * Yes.  Tell the TCP dissector where the data for this message
+	   * starts in the data it handed us, and how many more bytes
+	   * we need, and return.
+	   */
+	  pinfo->desegment_offset = offset;
+	  pinfo->desegment_len = messageLength - length_remaining;
+	  return;
+        }
+      }
+
+      /*
+       * If this is the first PDU, set the Protocol column and clear the
+       * Info column.
+       */
+      if (first_time) {
+        if (check_col(pinfo->cinfo, COL_PROTOCOL))
+          col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDAP");
+        if (check_col(pinfo->cinfo, COL_INFO))
+          col_clear(pinfo->cinfo, COL_INFO);
+      }
+
+      /*
+       * Construct a tvbuff containing the amount of the payload we have
+       * available.  Make its reported length the amount of data in the
+       * LDAP message.
+       *
+       * XXX - if reassembly isn't enabled. the subdissector will throw a
+       * BoundsError exception, rather than a ReportedBoundsError exception.
+       * We really want a tvbuff where the length is "length", the reported
+       * length is "plen", and the "if the snapshot length were infinite"
+       * length is the minimum of the reported length of the tvbuff handed
+       * to us and "plen", with a new type of exception thrown if the offset
+       * is within the reported length but beyond that third length, with
+       * that exception getting the "Unreassembled Packet" error.
+       */
+      length = length_remaining;
+      if (length > messageLength)
+        length = messageLength;
+      next_tvb = tvb_new_subset(tvb, offset, length, messageLength);
+
+      /*
+       * Now dissect the LDAP message.
+       */
+      if (tree) {
+        ti = proto_tree_add_item(tree, proto_ldap, next_tvb, 0, -1, FALSE);
+        ldap_tree = proto_item_add_subtree(ti, ett_ldap);
+      } else
+        ldap_tree = NULL;
+      dissect_ldap_message(next_tvb, 0, pinfo, ldap_tree, first_time);
+
+      offset += messageLength;
     }
 
-    /*
-     * XXX - what if "a.offset" is past the offset of the next top-level
-     * sequence?  Show that as an error?
-     */
-    a.offset = next_offset;
+    first_time = FALSE;
   }
 }
 
@@ -1719,6 +1986,11 @@ proto_register_ldap(void)
   };
 
   static hf_register_info hf[] = {
+    { &hf_ldap_sasl_buffer_length,
+      { "SASL Buffer Length",	"ldap.sasl_buffer_length",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"SASL Buffer Length", HFILL }},
+
     { &hf_ldap_length,
       { "Length",		"ldap.length",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
