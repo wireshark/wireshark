@@ -1,10 +1,10 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.34 2001/05/27 04:50:51 guy Exp $
+ * $Id: packet-atm.c,v 1.35 2001/05/27 07:46:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * 
@@ -57,6 +57,8 @@ static dissector_handle_t eth_handle;
 static dissector_handle_t tr_handle;
 static dissector_handle_t llc_handle;
 static dissector_handle_t sscop_handle;
+static dissector_handle_t lane_handle;
+static dissector_handle_t ilmi_handle;
 
 /*
  * See
@@ -373,14 +375,10 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
+dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   tvbuff_t	*next_tvb;
   tvbuff_t	*next_tvb_le_client;
-
-  CHECK_DISPLAY_AS_DATA(proto_atm_lane, tvb, pinfo, tree);
-
-  pinfo->current_proto = "ATM LANE";
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_set_str(pinfo->fd, COL_PROTOCOL, "ATM LANE");
@@ -418,6 +416,12 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_data(next_tvb, 0, pinfo, tree);
     break;
   }
+}
+
+static void
+dissect_ilmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_snmp_pdu(tvb, 0, pinfo, tree, "ILMI", proto_ilmi, ett_ilmi);
 }
 
 /* AAL types */
@@ -730,12 +734,11 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
     case ATT_HL_LANE:
-      dissect_lane(tvb, pinfo, tree);
+      call_dissector(lane_handle, tvb, pinfo, tree);
       break;
 
     case ATT_HL_ILMI:
-      CHECK_DISPLAY_AS_DATA(proto_ilmi, tvb, pinfo, tree);
-      dissect_snmp_pdu(tvb, 0, pinfo, tree, "ILMI", proto_ilmi, ett_ilmi);
+      call_dissector(ilmi_handle, tvb, pinfo, tree);
       break;
 
     default:
@@ -779,23 +782,31 @@ proto_register_atm(void)
 	};
 	proto_atm = proto_register_protocol("ATM", "ATM", "atm");
 	proto_register_field_array(proto_atm, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+
 	proto_ilmi = proto_register_protocol("ILMI", "ILMI", "ilmi");
+
+	register_dissector("ilmi", dissect_ilmi, proto_ilmi);
+
 	proto_atm_lane = proto_register_protocol("ATM LAN Emulation",
 	    "ATM LANE", "lane");
-	proto_register_subtree_array(ett, array_length(ett));
+
+	register_dissector("lane", dissect_lane, proto_atm_lane);
 }
 
 void
 proto_reg_handoff_atm(void)
 {
 	/*
-	 * Get handles for the Ethernet, Token Ring, LLC, and SSCOP
-	 * dissectors.
+	 * Get handles for the Ethernet, Token Ring, LLC, SSCOP, LANE,
+	 * and ILMI dissectors.
 	 */
 	eth_handle = find_dissector("eth");
 	tr_handle = find_dissector("tr");
 	llc_handle = find_dissector("llc");
 	sscop_handle = find_dissector("sscop");
+	lane_handle = find_dissector("lane");
+	ilmi_handle = find_dissector("ilmi");
 
 	dissector_add("wtap_encap", WTAP_ENCAP_ATM_SNIFFER, dissect_atm,
 	    proto_atm);
