@@ -614,6 +614,7 @@ static int hf_smb_unix_file_nlinks = -1;
 static int hf_smb_unix_file_link_dest = -1;
 static int hf_smb_unix_find_file_nextoffset = -1;
 static int hf_smb_unix_find_file_resumekey = -1;
+static int hf_smb_network_unknown = -1;
 
 static gint ett_smb = -1;
 static gint ett_smb_hdr = -1;
@@ -9980,6 +9981,37 @@ dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
 	return offset;
 }
 
+/* This dissects the standard four Windows timestamps ...
+ */
+static int
+dissect_smb_standard_timestamps(tvbuff_t *tvb,
+    packet_info *pinfo _U_, proto_tree *tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	/* create time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_create_time);
+	*bcp -= 8;
+
+	/* access time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_access_time);
+	*bcp -= 8;
+
+	/* last write time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_nt_64bit_time(tvb, tree, offset,
+		hf_smb_last_write_time);
+	*bcp -= 8;
+
+	/* last change time */
+	CHECK_BYTE_COUNT_SUBR(8);
+	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_change_time);
+	*bcp -= 8;
+
+	*trunc = FALSE;
+	return offset;
+}
 
 /* this dissects the SMB_INFO_STANDARD
    as described in 4.2.16.1
@@ -10138,26 +10170,11 @@ static int
 dissect_4_2_16_4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
-	/* create time */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_create_time);
-	*bcp -= 8;
 
-	/* access time */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_access_time);
-	*bcp -= 8;
-
-	/* last write time */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset,
-		hf_smb_last_write_time);
-	*bcp -= 8;
-
-	/* last change time */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_change_time);
-	*bcp -= 8;
+	offset = dissect_smb_standard_timestamps(tvb, pinfo, tree, offset, bcp, trunc);
+	if (*trunc) {
+	  return offset;
+	}
 
 	/* File Attributes */
 	CHECK_BYTE_COUNT_SUBR(4);
@@ -10540,6 +10557,43 @@ dissect_4_2_16_13(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	return offset;
 }
 
+/* this dissects the SMB_QUERY_FILE_NETWORK_OPEN_INFO
+*/
+static int
+dissect_smb_query_file_network_open_info(tvbuff_t *tvb, 
+    packet_info *pinfo, proto_tree *tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+
+	offset = dissect_smb_standard_timestamps(tvb, pinfo, tree, offset, bcp, trunc);
+        if (*trunc) {
+          return offset;
+        }
+
+	/* allocation size */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* end of file */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* File Attributes */
+	CHECK_BYTE_COUNT_SUBR(4);
+	offset = dissect_file_attributes(tvb, tree, offset, 4);
+	*bcp -= 4;
+
+        /* Unknown, possibly count of network accessors ... */
+        CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_network_unknown, tvb, offset, 4, TRUE);
+        COUNT_BYTES_SUBR(4);
+
+	*trunc = FALSE;
+	return offset;
+}
+
 /* this dissects the SMB_SET_FILE_DISPOSITION_INFO
    as described in 4.2.19.2
 */
@@ -10708,6 +10762,9 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		offset = dissect_4_2_16_11(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
+        case 1034:     /* SMB_FILE_NETWORK_OPEN_INFO */
+                offset = dissect_smb_query_file_network_open_info(tvb, pinfo, tree, offset, bcp, &trunc);
+                break;
 	case 0x0200:	/* Query File Unix Basic*/
 		offset = dissect_4_2_16_12(tvb, pinfo, tree, offset, bcp, 
 					   &trunc);
@@ -11730,26 +11787,10 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
 
-	/* create time */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_create_time);
-	*bcp -= 8;
-
-	/* access time */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_access_time);
-	*bcp -= 8;
-
-	/* last write time */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset,
-		hf_smb_last_write_time);
-	*bcp -= 8;
-
-	/* last change time */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_change_time);
-	*bcp -= 8;
+	offset = dissect_smb_standard_timestamps(tvb, pinfo, tree, offset, bcp, trunc);
+        if (*trunc) {
+          return offset;
+        }
 
 	/* end of file */
 	CHECK_BYTE_COUNT_SUBR(8);
@@ -17171,6 +17212,10 @@ proto_register_smb(void)
 	{ &hf_smb_unix_find_file_resumekey,
 	  { "Resume key", "smb.unix.find_file.resume_key", FT_UINT32, BASE_DEC,
 	    NULL, 0, "", HFILL }},
+
+        { &hf_smb_network_unknown,
+          { "Unknown field", "smb.unknown", FT_UINT32, BASE_HEX,
+            NULL, 0, "", HFILL }},
 	};
 
 	static gint *ett[] = {
