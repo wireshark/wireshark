@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.165 2002/10/25 03:13:07 guy Exp $
+ * $Id: tethereal.c,v 1.166 2002/10/31 20:24:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1144,11 +1144,11 @@ capture(int out_file_type)
     cnd_stop_timeout = cnd_new((char*)CND_CLASS_TIMEOUT,
                                (gint32)capture_opts.autostop_duration);
 
-  if (!setjmp(ld.stopenv))
+  if (!setjmp(ld.stopenv)) {
     ld.go = TRUE;
-  else
+    ld.packet_count = 0;
+  } else
     ld.go = FALSE;
-  ld.packet_count = 0;
   while (ld.go) {
     /* We need to be careful with automatic variables defined in the
        outer scope which are changed inside the loop.  Most compilers
