@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.1 2002/08/31 09:55:21 oabad Exp $
+ * $Id: main.c,v 1.2 2002/09/04 22:19:42 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -134,6 +134,7 @@
 #include "ui_util.h"
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
+#include "../tap.h"
 
 #ifdef WIN32
 #include "capture-wpcap.h"
@@ -1210,6 +1211,21 @@ set_autostop_criterion(const char *autostoparg)
 }
 #endif
 
+gpointer
+update_thread(gpointer data _U_)
+{
+	while(1){
+		struct timeval tv1, tv2;
+		gettimeofday(&tv1, NULL);
+		draw_tap_listeners(FALSE);
+		do{
+			g_thread_yield();
+			gettimeofday(&tv2, NULL);
+		}while(tv2.tv_sec<(tv1.tv_sec+2));
+	}
+	return NULL;
+}
+
 /* And now our feature presentation... [ fade to music ] */
 int
 main(int argc, char *argv[])
@@ -1349,6 +1365,19 @@ main(int argc, char *argv[])
             }
         }
         exit(0);
+    }
+
+    /* if we have thread support via glib2 try to start the low level
+       thread to update applications asynchronously
+     */
+    if(GLIB_MAJOR_VERSION>=2){
+#ifdef G_THREADS_ENABLED
+        GThread *ut;
+        g_thread_init(NULL);
+        gdk_threads_init();
+        ut=g_thread_create(update_thread, NULL, FALSE, NULL);
+        g_thread_set_priority(ut, G_THREAD_PRIORITY_LOW);
+#endif
     }
 
     /* Set the current locale according to the program environment.

@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.1 2002/08/31 09:55:22 oabad Exp $
+ * $Id: menu.c,v 1.2 2002/09/04 22:19:42 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,6 +59,7 @@
 #include <epan/plugins.h>
 #include "tcp_graph.h"
 #include <epan/epan_dissect.h>
+#include "gtk2-rpcstat.h"
 
 GtkWidget *popup_menu_object;
 
@@ -172,6 +173,9 @@ static GtkItemFactoryEntry menu_items[] =
   {"/_Tools/TCP Stream Analysis/RTT Graph", NULL, GTK_MENU_FUNC (tcp_graph_cb), 3, NULL, NULL },
   {"/Tools/_Summary", NULL, GTK_MENU_FUNC(summary_open_cb), 0, NULL, NULL },
   {"/Tools/Protocol Hierarchy Statistics", NULL, GTK_MENU_FUNC(proto_hier_stats_cb), 0, NULL, NULL },
+  {"/Tools/Statistics", NULL, NULL, 0, "<Branch>", NULL },
+  {"/Tools/Statistics/ONC-RPC", NULL, NULL, 0, "<Branch>", NULL },
+  {"/Tools/Statistics/ONC-RPC/RTT", NULL, GTK_MENU_FUNC(gtk2_rpcstat_cb), 0, NULL, NULL },
   {"/_Help", NULL, NULL, 0, "<LastBranch>", NULL  },
   {"/Help/_Help", NULL, GTK_MENU_FUNC(help_cb), 0, "<StockItem>", GTK_STOCK_HELP },
   {"/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL },
