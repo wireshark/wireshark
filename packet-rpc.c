@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.14 1999/11/15 14:57:38 nneul Exp $
+ * $Id: packet-rpc.c,v 1.15 1999/11/15 17:16:51 nneul Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -91,14 +91,24 @@ const value_string rpc_auth_state[6] = {
 static int proto_rpc = -1;
 static int hf_rpc_xid = -1;
 static int hf_rpc_msgtype = -1;
-static int hf_rpc_rpcversion = -1;
+static int hf_rpc_version = -1;
+static int hf_rpc_version_min = -1;
+static int hf_rpc_version_max = -1;
 static int hf_rpc_program = -1;
 static int hf_rpc_programversion = -1;
+static int hf_rpc_programversion_min = -1;
+static int hf_rpc_programversion_max = -1;
 static int hf_rpc_procedure = -1;
-static int hf_rpc_cred_flavor = -1;
-static int hf_rpc_cred_length = -1;
-static int hf_rpc_verify_flavor = -1;
-static int hf_rpc_verify_length = -1;
+static int hf_rpc_auth_flavor = -1;
+static int hf_rpc_auth_length = -1;
+static int hf_rpc_auth_machinename = -1;
+static int hf_rpc_auth_stamp = -1;
+static int hf_rpc_auth_uid = -1;
+static int hf_rpc_auth_gid = -1;
+static int hf_rpc_state_accept = -1;
+static int hf_rpc_state_reply = -1;
+static int hf_rpc_state_reject = -1;
+static int hf_rpc_state_auth = -1;
 
 
 /* Hash table with info on RPC program numbers */
@@ -368,48 +378,7 @@ char* name, char* type)
 #define RPC_STRING_MAXBUF 2048
 
 int
-dissect_rpc_string(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
-{
-	proto_item *string_item;
-	proto_tree *string_tree = NULL;
-
-	guint32 string_length;
-	guint32 string_fill;
-	guint32 string_length_full;
-	char string_buffer[RPC_STRING_MAXBUF];
-
-	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
-	string_length = EXTRACT_UINT(pd,offset+0);
-	string_length_full = rpc_roundup(string_length);
-	string_fill = string_length_full - string_length;
-	if (!BYTES_ARE_IN_FRAME(offset+4,string_length_full)) return offset;
-	if (string_length>=sizeof(string_buffer)) return offset;
-	memcpy(string_buffer,pd+offset+4,string_length);
-	string_buffer[string_length] = '\0';
-	if (tree) {
-		string_item = proto_tree_add_text(tree,offset+0,
-			4+string_length_full,
-			"%s: %s", name, string_buffer);
-		if (string_item) {
-			string_tree = proto_item_add_subtree(string_item, ETT_RPC_STRING);
-		}
-	}
-	if (string_tree) {
-		proto_tree_add_text(string_tree,offset+0,4,
-			"length: %u", string_length);
-		proto_tree_add_text(string_tree,offset+4,string_length,
-			"text: %s", string_buffer);
-		if (string_fill)
-			proto_tree_add_text(string_tree,offset+4+string_length,string_fill,
-				"fill bytes: opaque data");
-	}
-
-	offset += 4 + string_length_full;
-	return offset;
-}
-
-int
-dissect_rpc_string_item(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int hfindex)
+dissect_rpc_string(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int hfindex)
 {
 	proto_item *string_item;
 	proto_tree *string_tree = NULL;
@@ -467,10 +436,10 @@ dissect_rpc_auth( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	/* if (!BYTES_ARE_IN_FRAME(offset+8,full_length)) return; */
 
 	if (tree) {
-		proto_tree_add_text(tree,offset+0,4,
-		"Flavor: %s (%u)", val_to_str(flavor,rpc_auth_flavor,"Unknown"),flavor);
-		proto_tree_add_text(tree,offset+4,4,
-			"Length: %u", length);
+		proto_tree_add_item(tree, hf_rpc_auth_flavor, offset+0, 4,
+			flavor);
+		proto_tree_add_item(tree, hf_rpc_auth_length, offset+4, 4,
+			length);
 	}
 
 	offset += 8;
@@ -489,31 +458,32 @@ dissect_rpc_auth( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return;
 			stamp = EXTRACT_UINT(pd,offset+0);
 			if (tree)
-				proto_tree_add_text(tree,offset+0,4,
-					"stamp: 0x%08x", stamp);
+				proto_tree_add_item(tree, hf_rpc_auth_stamp,
+					offset+0, 4, stamp);
 			offset += 4;
 
-			offset = dissect_rpc_string(pd,offset,fd,tree,"machinename");
+			offset = dissect_rpc_string(pd,offset,fd,
+				tree,hf_rpc_auth_machinename);
 
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return;
 			uid = EXTRACT_UINT(pd,offset+0);
 			if (tree)
-				proto_tree_add_text(tree,offset+0,4,
-					"uid: %u", uid);
+				proto_tree_add_item(tree, hf_rpc_auth_uid,
+					offset+0, 4, uid);
 			offset += 4;
 
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return;
 			gid = EXTRACT_UINT(pd,offset+0);
 			if (tree)
-				proto_tree_add_text(tree,offset+0,4,
-					"gid: %u", gid);
+				proto_tree_add_item(tree, hf_rpc_auth_gid,
+					offset+0, 4, gid);
 			offset += 4;
 
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return;
 			gids_count = EXTRACT_UINT(pd,offset+0);
 			if (tree) {
 				gitem = proto_tree_add_text(tree, offset, 4+gids_count*4,
-				"gids");
+				"Auxilliary GIDs");
 				gtree = proto_item_add_subtree(gitem, ETT_RPC_GIDS);
 			}
 			offset += 4;
@@ -521,8 +491,8 @@ dissect_rpc_auth( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			for (gids_i = 0 ; gids_i < gids_count ; gids_i++) {
 				gids_entry = EXTRACT_UINT(pd,offset+0);
 				if (gtree)
-				proto_tree_add_text(gtree, offset, 4, 
-					"%u", gids_entry);
+				proto_tree_add_item(gtree, hf_rpc_auth_gid,
+					offset, 4, gids_entry);
 				offset+=4;
 			}
 			/* how can I NOW change the gitem to print a list with
@@ -611,7 +581,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	unsigned int xid;
 	unsigned int rpcvers;
-	unsigned int prog;
+	unsigned int prog = 0;
 	unsigned int vers = 0;
 	unsigned int proc = 0;
 	int	proto = 0;
@@ -727,15 +697,14 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	xid      = EXTRACT_UINT(pd,offset+0);
 	if (rpc_tree) {
-		proto_tree_add_text(rpc_tree,offset+0,4,
-			"XID: 0x%x (%u)", xid, xid);
+		proto_tree_add_item_format(rpc_tree,hf_rpc_xid,
+			offset+0, 4, xid, "XID: 0x%x (%u)", xid, xid);
 	}
 
 	msg_type_name = val_to_str(msg_type,rpc_msg_type,"%u");
 	if (rpc_tree) {
-		proto_tree_add_text(rpc_tree,offset+4,4,
-			"Message Type: %s (%u)",
-			msg_type_name, msg_type);
+		proto_tree_add_item(rpc_tree, hf_rpc_msgtype,
+			offset+4, 4, msg_type);
 	}
 
 	offset += 8;
@@ -749,14 +718,15 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 		rpcvers = EXTRACT_UINT(pd,offset+0);
 		if (rpc_tree) {
-			proto_tree_add_text(rpc_tree,offset+0,4,
-				"RPC Version: %u", rpcvers);
+			proto_tree_add_item(rpc_tree,
+				hf_rpc_version, offset+0, 4, rpcvers);
 		}
 
 		prog = EXTRACT_UINT(pd,offset+4);
 		
 		if (rpc_tree) {
-			proto_tree_add_text(rpc_tree,offset+4,4,
+			proto_tree_add_item_format(rpc_tree,
+				hf_rpc_program, offset+4, 4, prog,
 				"Program: %s (%u)", progname, prog);
 		}
 		
@@ -770,8 +740,8 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			return TRUE;
 		vers = EXTRACT_UINT(pd,offset+8);
 		if (rpc_tree) {
-			proto_tree_add_text(rpc_tree,offset+8,4,
-				"Program Version: %u",vers);
+			proto_tree_add_item(rpc_tree,
+				hf_rpc_programversion, offset+8, 4, vers);
 		}
 
 		if (!BYTES_ARE_IN_FRAME(offset+12,4))
@@ -795,7 +765,8 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			procname = procname_static;
 		}
 		if (rpc_tree) {
-			proto_tree_add_text(rpc_tree,offset+12,4,
+			proto_tree_add_item_format(rpc_tree,
+				hf_rpc_procedure, offset+12, 4, prog,
 				"Procedure: %s (%u)", procname, proc);
 		}
 
@@ -905,12 +876,13 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		}
 
 		if (rpc_tree) {
-			proto_tree_add_text(rpc_tree,0,0,
-				"Program: %s (%u)", 
-				progname, prog);
-			proto_tree_add_text(rpc_tree,0,0,
-				"Program Version: %u", vers);
-			proto_tree_add_text(rpc_tree,0,0,
+			proto_tree_add_item_format(rpc_tree,
+				hf_rpc_program, 0, 0, prog,
+				"Program: %s (%u)", progname, prog);
+			proto_tree_add_item(rpc_tree,
+				hf_rpc_programversion, 0, 0, vers);
+			proto_tree_add_item_format(rpc_tree,
+				hf_rpc_procedure, 0, 0, prog,
 				"Procedure: %s (%u)", procname, proc);
 		}
 
@@ -924,10 +896,8 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			return TRUE;
 		reply_state = EXTRACT_UINT(pd,offset+0);
 		if (rpc_tree) {
-			proto_tree_add_text(rpc_tree,offset+0, 4,
-				"Reply State: %s (%u)",
-				val_to_str(reply_state,rpc_reply_state,"Unknown"),
-				reply_state);
+			proto_tree_add_item(rpc_tree, hf_rpc_state_reply,
+				offset+0, 4, reply_state);
 		}
 		offset += 4;
 
@@ -937,10 +907,8 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				return TRUE;
 			accept_state = EXTRACT_UINT(pd,offset+0);
 			if (rpc_tree) {
-				proto_tree_add_text(rpc_tree,offset+0, 4,
-					"Accept State: %s (%u)", 
-					val_to_str(accept_state,rpc_accept_state,"Unknown"),
-					accept_state);
+				proto_tree_add_item(rpc_tree, hf_rpc_state_accept,
+					offset+0, 4, accept_state);
 			}
 			offset += 4;
 			switch (accept_state) {
@@ -954,14 +922,12 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 					vers_low = EXTRACT_UINT(pd,offset+0);
 					vers_high = EXTRACT_UINT(pd,offset+4);
 					if (rpc_tree) {
-						proto_tree_add_text(rpc_tree,
-							offset+0, 4,
-							"min. Program Version: %u",
-							vers_low);
-						proto_tree_add_text(rpc_tree,
-							offset+4, 4,
-							"max. Program Version: %u",
-							vers_high);
+						proto_tree_add_item(rpc_tree,
+							hf_rpc_programversion_min,
+							offset+0, 4, vers_low);
+						proto_tree_add_item(rpc_tree,
+							hf_rpc_programversion_max,
+							offset+4, 4, vers_high);
 					}
 					offset += 8;
 				break;
@@ -974,9 +940,8 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				return TRUE;
 			reject_state = EXTRACT_UINT(pd,offset+0);
 			if (rpc_tree) {
-				proto_tree_add_text(rpc_tree, offset+0, 4,
-					"Reject State: %s (%u)",
-					val_to_str(reject_state,rpc_reject_state,"Unknown"),
+				proto_tree_add_item(rpc_tree,
+					hf_rpc_state_reject, offset+0, 4,
 					reject_state);
 			}
 			offset += 4;
@@ -987,14 +952,12 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				vers_low = EXTRACT_UINT(pd,offset+0);
 				vers_high = EXTRACT_UINT(pd,offset+4);
 				if (rpc_tree) {
-					proto_tree_add_text(rpc_tree,
-						offset+0, 4,
-						"min. RPC Version: %u",
-						vers_low);
-					proto_tree_add_text(rpc_tree,
-						offset+4, 4,
-						"max. RPC Version: %u",
-						vers_high);
+					proto_tree_add_item(rpc_tree,
+						hf_rpc_version_min,
+						offset+0, 4, vers_low);
+					proto_tree_add_item(rpc_tree,
+						hf_rpc_version_max,
+						offset+4, 4, vers_high);
 				}
 				offset += 8;
 			} else if (reject_state==AUTH_ERROR) {
@@ -1002,10 +965,8 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 					return TRUE;
 				auth_state = EXTRACT_UINT(pd,offset+0);
 				if (rpc_tree) {
-					proto_tree_add_text(rpc_tree,
-						offset+0, 4,
-						"Authentication error: %s (%u)",
-						val_to_str(auth_state,rpc_auth_state,"Unknown"),
+					proto_tree_add_item(rpc_tree,
+						hf_rpc_state_auth, offset+0, 4,
 						auth_state);
 				}
 				offset += 4;
@@ -1024,9 +985,18 @@ dissect_rpc_prog:
 	/* create here the program specific sub-tree */
 	if (tree) {
 		pitem = proto_tree_add_item(tree, proto, offset, END_OF_FRAME);
-		if (pitem)
+		if (pitem) {
 			ptree = proto_item_add_subtree(pitem, ett);
 		}
+
+		if (ptree) {
+			proto_tree_add_item(ptree,
+				hf_rpc_programversion, 0, 0, vers);
+			proto_tree_add_item_format(ptree,
+				hf_rpc_procedure, 0, 0, prog,
+				"Procedure: %s (%u)", procname, proc);
+		}
+	}
 
 	/* call a specific dissection */
 	if (dissect_function != NULL) {
@@ -1058,32 +1028,62 @@ proto_register_rpc(void)
 			"XID", "rpc.xid", FT_UINT32, BASE_HEX,
 			NULL, 0, "XID" }},
 		{ &hf_rpc_msgtype, {
-			"Message Type", "rpc.msgtyp", FT_UINT32, BASE_HEX,
-			NULL, 0, "Message Type" }},
-		{ &hf_rpc_rpcversion, {
-			"RPC Version", "rpc.version", FT_UINT32, BASE_HEX,
+			"Message Type", "rpc.msgtyp", FT_UINT32, BASE_DEC,
+			VALS(rpc_msg_type), 0, "Message Type" }},
+		{ &hf_rpc_state_reply, {
+			"Reply State", "rpc.replystat", FT_UINT32, BASE_DEC,
+			VALS(rpc_reply_state), 0, "Reply State" }},
+		{ &hf_rpc_state_accept, {
+			"Accept State", "rpc.state_accept", FT_UINT32, BASE_DEC,
+			VALS(rpc_accept_state), 0, "Accept State" }},
+		{ &hf_rpc_state_reject, {
+			"Reject State", "rpc.state_reject", FT_UINT32, BASE_DEC,
+			VALS(rpc_reject_state), 0, "Reject State" }},
+		{ &hf_rpc_state_auth, {
+			"Auth State", "rpc.state_auth", FT_UINT32, BASE_DEC,
+			VALS(rpc_auth_state), 0, "Auth State" }},
+		{ &hf_rpc_version, {
+			"RPC Version", "rpc.version", FT_UINT32, BASE_DEC,
 			NULL, 0, "RPC Version" }},
+		{ &hf_rpc_version_min, {
+			"RPC Version (Minimum)", "rpc.version.min", FT_UINT32, 
+			BASE_DEC, NULL, 0, "Program Version (Minimum)" }},
+		{ &hf_rpc_version_max, {
+			"RPC Version (Maximum)", "rpc.version.max", FT_UINT32, 
+			BASE_DEC, NULL, 0, "RPC Version (Maximum)" }},
 		{ &hf_rpc_program, {
-			"Program", "rpc.program", FT_UINT32, BASE_HEX,
+			"Program", "rpc.program", FT_UINT32, BASE_DEC,
 			NULL, 0, "Program" }},
 		{ &hf_rpc_programversion, {
 			"Program Version", "rpc.programversion", FT_UINT32, 
-			BASE_HEX, NULL, 0, "Program Version" }},
+			BASE_DEC, NULL, 0, "Program Version" }},
+		{ &hf_rpc_programversion_min, {
+			"Program Version (Minimum)", "rpc.programversion.min", FT_UINT32, 
+			BASE_DEC, NULL, 0, "Program Version (Minimum)" }},
+		{ &hf_rpc_programversion_max, {
+			"Program Version (Maximum)", "rpc.programversion.max", FT_UINT32, 
+			BASE_DEC, NULL, 0, "Program Version (Maximum)" }},
 		{ &hf_rpc_procedure, {
-			"Procedure", "rpc.procedure", FT_UINT32, BASE_HEX,
+			"Procedure", "rpc.procedure", FT_UINT32, BASE_DEC,
 			NULL, 0, "Procedure" }},
-		{ &hf_rpc_cred_flavor, {
-			"Flavor", "rpc.cred.flavor", FT_UINT32, BASE_HEX,
-			NULL, 0, "Flavor" }},
-		{ &hf_rpc_cred_length, {
-			"Length", "rpc.cred.length", FT_UINT32, BASE_HEX,
+		{ &hf_rpc_auth_flavor, {
+			"Flavor", "rpc.auth.flavor", FT_UINT32, BASE_DEC,
+			VALS(rpc_auth_flavor), 0, "Flavor" }},
+		{ &hf_rpc_auth_length, {
+			"Length", "rpc.auth.length", FT_UINT32, BASE_DEC,
 			NULL, 0, "Length" }},
-		{ &hf_rpc_verify_flavor, {
-			"Flavor", "rpc.verify.flavor", FT_UINT32, BASE_HEX,
-			NULL, 0, "Flavor" }},
-		{ &hf_rpc_verify_length, {
-			"Length", "rpc.verify.length", FT_UINT32, BASE_HEX,
-			NULL, 0, "Length" }},
+		{ &hf_rpc_auth_stamp, {
+			"Stamp", "rpc.auth.stamp", FT_UINT32, BASE_HEX,
+			NULL, 0, "Stamp" }},
+		{ &hf_rpc_auth_uid, {
+			"UID", "rpc.auth.uid", FT_UINT32, BASE_DEC,
+			NULL, 0, "UID" }},
+		{ &hf_rpc_auth_gid, {
+			"GID", "rpc.auth.gid", FT_UINT32, BASE_DEC,
+			NULL, 0, "GID" }},
+		{ &hf_rpc_auth_machinename, {
+			"Machine Name", "rpc.auth.machinename", FT_STRING, 
+			BASE_DEC, NULL, 0, "Machine Name" }},
 	};
 
 

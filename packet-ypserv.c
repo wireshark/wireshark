@@ -1,7 +1,7 @@
 /* packet-ypserv.c
  * Routines for ypserv dissection
  *
- * $Id: packet-ypserv.c,v 1.4 1999/11/12 15:12:23 nneul Exp $
+ * $Id: packet-ypserv.c,v 1.5 1999/11/15 17:16:51 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -51,7 +51,7 @@ int dissect_domain_call(const u_char *pd, int offset, frame_data *fd,
 {
 	if ( tree )
 	{
-		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_ypserv_domain);
+		offset = dissect_rpc_string(pd,offset,fd,tree,hf_ypserv_domain);
 	}
 	
 	return offset;
@@ -78,9 +78,9 @@ int dissect_next_call(const u_char *pd, int offset, frame_data *fd,
 {
 	if ( tree )
 	{
-		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_ypserv_domain);
-		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_ypserv_map);
-		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_ypserv_key);
+		offset = dissect_rpc_string(pd,offset,fd,tree,hf_ypserv_domain);
+		offset = dissect_rpc_string(pd,offset,fd,tree,hf_ypserv_map);
+		offset = dissect_rpc_string(pd,offset,fd,tree,hf_ypserv_key);
 	}
 	
 	return offset;
@@ -91,8 +91,8 @@ int dissect_first_call(const u_char *pd, int offset, frame_data *fd,
 {
 	if ( tree )
 	{
-		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_ypserv_domain);
-		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_ypserv_map);
+		offset = dissect_rpc_string(pd,offset,fd,tree,hf_ypserv_domain);
+		offset = dissect_rpc_string(pd,offset,fd,tree,hf_ypserv_map);
 	}
 	
 	return offset;
@@ -103,9 +103,9 @@ int dissect_match_call(const u_char *pd, int offset, frame_data *fd,
 {
 	if ( tree )
 	{
-		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_ypserv_domain);
-		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_ypserv_map);
-		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_ypserv_key);
+		offset = dissect_rpc_string(pd,offset,fd,tree,hf_ypserv_domain);
+		offset = dissect_rpc_string(pd,offset,fd,tree,hf_ypserv_map);
+		offset = dissect_rpc_string(pd,offset,fd,tree,hf_ypserv_key);
 	}
 	
 	return offset;
@@ -122,7 +122,7 @@ int dissect_match_reply(const u_char *pd, int offset, frame_data *fd,
 			offset, 4, pntohl(&pd[offset]));
 		offset += 4;
 
-		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_ypserv_value);
+		offset = dissect_rpc_string(pd,offset,fd,tree,hf_ypserv_value);
 	}
 	
 	return offset;
@@ -139,8 +139,8 @@ int dissect_firstnext_reply(const u_char *pd, int offset, frame_data *fd,
 			offset, 4, pntohl(&pd[offset]));
 		offset += 4;
 
-		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_ypserv_value);
-		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_ypserv_key);	}
+		offset = dissect_rpc_string(pd,offset,fd,tree,hf_ypserv_value);
+		offset = dissect_rpc_string(pd,offset,fd,tree,hf_ypserv_key);	}
 	
 	return offset;
 }
