@@ -4,7 +4,7 @@
  *
  * Copied from packet-h225.c and packet-h245.c
  *
- * $Id: packet-h450.c,v 1.6 2003/10/27 22:28:48 guy Exp $
+ * $Id: packet-h450.c,v 1.7 2003/11/16 22:33:19 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1103,7 +1103,7 @@ proto_register_h4501(void)
       { "opcode", "h4501.opcode", FT_INT32, BASE_DEC,
       VALS(localOpcode_vals), 0, "local", HFILL }},
    { &hf_h4501_globalCode,
-      { "global", "h4501.global", FT_BYTES, BASE_HEX,
+      { "global", "h4501.global", FT_STRING, BASE_HEX,
       NULL, 0, "global", HFILL }},
    { &hf_h4501_opcode,
       { "opcode", "h4501.opcode", FT_UINT32, BASE_DEC,
