@@ -2,7 +2,7 @@
  * Routines for SMB \\PIPE\\samr packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-samr.c,v 1.10 2002/02/10 23:51:44 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.11 2002/02/11 08:19:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1985,28 +1985,18 @@ samr_dissect_PSID_ARRAY(tvbuff_t *tvb, int offset,
 }
 
 static int
-samr_dissect_pindex(tvbuff_t *tvb, int offset, 
-                             packet_info *pinfo, proto_tree *parent_tree,
+samr_dissect_index(tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
 	int old_offset=offset;
 	dcerpc_info *di;
 
 	di=pinfo->private_data;
 
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
-			"SID");
-		tree = proto_item_add_subtree(item, ett_samr_user_dispinfo_1);
-	}
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+			di->hf_index, NULL);
 
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_pointer_long, NDR_POINTER_UNIQUE,
-			di->hf_index);
-
-	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
 
@@ -2017,7 +2007,7 @@ samr_dissect_INDEX_ARRAY_value (tvbuff_t *tvb, int offset,
                              char *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
-			samr_dissect_pindex);
+			samr_dissect_index);
 
 	return offset;
 }
@@ -2044,7 +2034,7 @@ samr_dissect_INDEX_ARRAY(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_count, &count);
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_INDEX_ARRAY_value, NDR_POINTER_UNIQUE,
 			di->hf_index);
 
@@ -3255,6 +3245,16 @@ samr_dissect_UNICODE_STRING_ARRAY_name(tvbuff_t *tvb, int offset,
 }
 
 static int
+samr_dissect_UNICODE_STRING_ARRAY_names(tvbuff_t *tvb, int offset, 
+			packet_info *pinfo, proto_tree *tree,
+			char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			samr_dissect_UNICODE_STRING_ARRAY_name);
+	return offset;
+}
+
+static int
 samr_dissect_UNICODE_STRING_ARRAY(tvbuff_t *tvb, int offset, 
 			packet_info *pinfo, proto_tree *parent_tree,
 			char *drep)
@@ -3272,8 +3272,9 @@ samr_dissect_UNICODE_STRING_ARRAY(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_samr_count, NULL);
 
-	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
-			samr_dissect_UNICODE_STRING_ARRAY_name);
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			samr_dissect_UNICODE_STRING_ARRAY_names, NDR_POINTER_UNIQUE,
+			-1);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -3291,8 +3292,8 @@ samr_dissect_lookup_rids_reply(tvbuff_t *tvb, int offset,
 			samr_dissect_UNICODE_STRING_ARRAY, NDR_POINTER_REF,
 			hf_samr_rid);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_MEMBER_ARRAY_types, NDR_POINTER_REF,
-			-1);
+			samr_dissect_INDEX_ARRAY, NDR_POINTER_REF,
+			hf_samr_type);
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_samr_rc, NULL);
 

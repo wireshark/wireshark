@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.10 2002/01/29 09:13:28 guy Exp $
+ * $Id: packet-dcerpc.h,v 1.11 2002/02/11 08:19:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -200,8 +200,11 @@ typedef struct _dcerpc_info {
 	gboolean request;
 	gboolean conformant_run;
 	guint32 array_max_count;	/* max_count for conformant arrays */
+	guint32 array_max_count_offset;	
 	guint32 array_offset;
+	guint32 array_offset_offset;
 	guint32 array_actual_count;	
+	guint32 array_actual_count_offset;	
 	int hf_index;
 	dcerpc_call_value *call_data;
 } dcerpc_info;

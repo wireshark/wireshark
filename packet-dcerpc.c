@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.31 2002/02/10 23:51:44 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.32 2002/02/11 08:19:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -407,7 +407,7 @@ dissect_dcerpc_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 
     if (tree) {
-        proto_tree_add_item (tree, hfindex, tvb, offset, 4, (drep[0] & 0x10));
+        proto_tree_add_item(tree, hfindex, tvb, offset, 8, (drep[0] & 0x10));
     }
 
     return offset+8;
@@ -467,10 +467,11 @@ dissect_ndr_ucarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		di->conformant_run=0;
 		offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 				hf_dcerpc_array_max_count, &di->array_max_count);
+		di->array_max_count_offset=offset-4;
 		di->conformant_run=1;
 	} else {
 		/* we dont dont remember where  in the bytestream this fields was */
-		proto_tree_add_uint(tree, hf_dcerpc_array_max_count, tvb, 0, 0, di->array_max_count);
+		proto_tree_add_uint(tree, hf_dcerpc_array_max_count, tvb, di->array_max_count_offset, 4, di->array_max_count);
 
 		/* real run, dissect the elements */
 		for(i=0;i<di->array_max_count;i++){
@@ -495,16 +496,19 @@ dissect_ndr_ucvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		di->conformant_run=0;
 		offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 				hf_dcerpc_array_max_count, &di->array_max_count);
+		di->array_max_count_offset=offset-4;
 		offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 				hf_dcerpc_array_offset, &di->array_offset);
+		di->array_offset_offset=offset-4;
 		offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 				hf_dcerpc_array_actual_count, &di->array_actual_count);
+		di->array_actual_count_offset=offset-4;
 		di->conformant_run=1;
 	} else {
 		/* we dont dont remember where  in the bytestream these fields were */
-		proto_tree_add_uint(tree, hf_dcerpc_array_max_count, tvb, 0, 0, di->array_max_count);
-		proto_tree_add_uint(tree, hf_dcerpc_array_offset, tvb, 0, 0, di->array_offset);
-		proto_tree_add_uint(tree, hf_dcerpc_array_actual_count, tvb, 0, 0, di->array_actual_count);
+		proto_tree_add_uint(tree, hf_dcerpc_array_max_count, tvb, di->array_max_count_offset, 4, di->array_max_count);
+		proto_tree_add_uint(tree, hf_dcerpc_array_offset, tvb, di->array_offset_offset, 4, di->array_offset);
+		proto_tree_add_uint(tree, hf_dcerpc_array_actual_count, tvb, di->array_actual_count_offset, 4, di->array_actual_count);
 
 		/* real run, dissect the elements */
 		for(i=0;i<di->array_actual_count;i++){
