@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.11 1999/12/13 19:59:29 gram Exp $
+ * $Id: packet-rsvp.c,v 1.12 2000/01/24 03:33:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -422,7 +422,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	while (len + sizeof(rsvp_header) < msg_length) {
 	    obj = (rsvp_object *)&pd[offset];
 	    obj_length = pntohs(pd+offset);
-	    if (offset + obj_length > fd->cap_len) {
+	    if (!BYTES_ARE_IN_FRAME(offset, obj_length)) {
 		proto_tree_add_text(rsvp_tree, offset, 1, 
 				 "Further data not captured");
 		break;

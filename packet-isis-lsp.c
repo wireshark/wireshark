@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.2 2000/01/15 00:22:32 gram Exp $
+ * $Id: packet-isis-lsp.c,v 1.3 2000/01/24 03:33:32 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -790,10 +790,10 @@ isis_dissect_isis_lsp(int lsp_type, int header_length,
 
 	hlen = sizeof(*ilp);
 
-	if (fd->cap_len < (offset + hlen)) {
+	if (!BYTES_ARE_IN_FRAME(offset, hlen)) {
 		isis_dissect_unknown(offset, hlen, tree, fd,
 			"not enough capture data for header (%d vs %d)",
-			 hlen, offset - fd->cap_len);
+			hlen, END_OF_FRAME);
 		return;
 	}
 	
@@ -801,7 +801,7 @@ isis_dissect_isis_lsp(int lsp_type, int header_length,
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_isis_lsp,
-			offset, fd->cap_len - offset, NULL);
+			offset, END_OF_FRAME, NULL);
 		lsp_tree = proto_item_add_subtree(ti, ett_isis_lsp);
 		proto_tree_add_item(lsp_tree, hf_isis_lsp_pdu_length,
 			offset, 2, pntohs(&ilp->isis_lsp_pdu_length));

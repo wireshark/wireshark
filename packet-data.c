@@ -2,7 +2,7 @@
  * Routines for raw data (default case)
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-data.c,v 1.13 2000/01/22 06:22:13 guy Exp $
+ * $Id: packet-data.c,v 1.14 2000/01/24 03:33:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,9 +41,9 @@
 int proto_data = -1;
 
 void
-dissect_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-
-	if (fd->cap_len > offset && tree) {
+dissect_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	if (IS_DATA_IN_FRAME(offset) && tree) {
 		proto_tree_add_item_format(tree, proto_data, offset,
 			END_OF_FRAME, NULL, "Data (%d byte%s)", END_OF_FRAME,
 			plurality(END_OF_FRAME, "", "s"));

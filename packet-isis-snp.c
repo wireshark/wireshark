@@ -1,7 +1,7 @@
 /* packet-isis-snp.c
  * Routines for decoding isis complete & partial SNP and their payload
  *
- * $Id: packet-isis-snp.c,v 1.1 1999/12/15 04:34:19 guy Exp $
+ * $Id: packet-isis-snp.c,v 1.2 2000/01/24 03:33:32 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -242,10 +242,10 @@ isis_dissect_isis_csnp(int type, int header_length, const u_char *pd,
 
 	hlen = sizeof(*ilp);
 
-	if (fd->cap_len < (offset + hlen)) {
+	if (!BYTES_ARE_IN_FRAME(offset, hlen)) {
 		isis_dissect_unknown(offset, hlen, tree, fd,
 			"not enough capture data for header (%d vs %d)",
-			 hlen, offset - fd->cap_len);
+			 hlen, END_OF_FRAME);
 		return;
 	}
 	
@@ -253,7 +253,7 @@ isis_dissect_isis_csnp(int type, int header_length, const u_char *pd,
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_isis_csnp,
-			offset, fd->cap_len - offset, NULL);
+			offset, END_OF_FRAME, NULL);
 		csnp_tree = proto_item_add_subtree(ti, ett_isis_csnp);
 		proto_tree_add_item(csnp_tree, hf_isis_csnp_pdu_length,
 			offset, 2, pntohs(&ilp->isis_csnp_pdu_length));
@@ -316,10 +316,10 @@ isis_dissect_isis_psnp(int type, int header_length, const u_char *pd,
 
 	hlen = sizeof(*ilp);
 
-	if (fd->cap_len < (offset + hlen)) {
+	if (!BYTES_ARE_IN_FRAME(offset, hlen)) {
 		isis_dissect_unknown(offset, hlen, tree, fd,
 			"not enough capture data for header (%d vs %d)",
-			 hlen, offset - fd->cap_len);
+			 hlen, END_OF_FRAME);
 		return;
 	}
 	
@@ -327,7 +327,7 @@ isis_dissect_isis_psnp(int type, int header_length, const u_char *pd,
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_isis_psnp,
-			offset, fd->cap_len - offset, NULL);
+			offset, END_OF_FRAME, NULL);
 		psnp_tree = proto_item_add_subtree(ti, ett_isis_psnp);
 		proto_tree_add_item(psnp_tree, hf_isis_psnp_pdu_length,
 			offset, 2, pntohs(&ilp->isis_psnp_pdu_length));

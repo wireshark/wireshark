@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly, core
  * bits.
  *
- * $Id: packet-isis.c,v 1.2 2000/01/13 06:07:52 guy Exp $
+ * $Id: packet-isis.c,v 1.3 2000/01/24 03:33:31 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -95,18 +95,18 @@ isis_dissect_unknown(int offset,guint length,proto_tree *tree,frame_data *fd,
 		char *fmat, ...){
 	va_list	ap;
 
-	if ( offset > fd->cap_len ) {
+	if ( !IS_DATA_IN_FRAME(offset) ) {
 		/* 
 		 * big oops   They were off the end of the packet already.
 		 * Just ignore this one.
 		 */
 		return;
 	}
-	if ( (offset + length) > fd->cap_len ) {
+	if ( !BYTES_ARE_IN_FRAME(offset, length) ) {
 		/* 
 		 * length will take us past eop.  Truncate length.
 		 */
-		length = offset - fd->cap_len;
+		length = END_OF_FRAME;
 	}
 
 	va_start(ap, fmat);
@@ -178,17 +178,17 @@ dissect_isis(const u_char *pd, int offset, frame_data *fd,
 	proto_item *ti;
 	proto_tree *isis_tree = NULL;
 
-	if (fd->cap_len < offset + sizeof(*ihdr)) {
+	if (!BYTES_ARE_IN_FRAME(offset, sizeof(*ihdr))) {
 		isis_dissect_unknown(offset, sizeof(*ihdr), tree, fd,
 			"not enough capture data for header (%d vs %d)",
-			sizeof(*ihdr), offset - fd->cap_len);
+			sizeof(*ihdr), END_OF_FRAME);
 		return;
 	}
 
 	ihdr = (isis_hdr_t *) &pd[offset];
 
 	if (ihdr->isis_version != ISIS_REQUIRED_VERSION){
-		isis_dissect_unknown(offset, fd->cap_len, tree, fd,
+		isis_dissect_unknown(offset, END_OF_FRAME, tree, fd,
 			"Unknown ISIS version (%d vs %d)",
 			ihdr->isis_version, ISIS_REQUIRED_VERSION );
 		return;
@@ -197,7 +197,7 @@ dissect_isis(const u_char *pd, int offset, frame_data *fd,
 	
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_isis, offset, 
-			fd->cap_len - offset, NULL );
+			END_OF_FRAME, NULL );
 		isis_tree = proto_item_add_subtree(ti, ett_isis);
 		proto_tree_add_item(isis_tree, hf_isis_irpd, offset, 1,
 			ihdr->isis_irpd );
@@ -277,7 +277,7 @@ dissect_isis(const u_char *pd, int offset, frame_data *fd,
 			ihdr->isis_header_length, pd, offset, fd, isis_tree);
 		break;
 	default:
-		isis_dissect_unknown(offset, offset - fd->cap_len, tree, fd,
+		isis_dissect_unknown(offset, END_OF_FRAME, tree, fd,
 			"unknown ISIS packet type" );
 	}
 } /* dissect_isis */

@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.1 1999/12/15 04:34:17 guy Exp $
+ * $Id: packet-isis-hello.c,v 1.2 2000/01/24 03:33:33 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -427,10 +427,10 @@ isis_dissect_isis_hello(int hello_type, int header_length,
 		hlen = sizeof(*ihp);
 	}
 
-	if (fd->cap_len < (offset + hlen)) {
+	if (!BYTES_ARE_IN_FRAME(offset, hlen)) {
 		isis_dissect_unknown(offset, hlen, tree, fd,
 			"not enough capture data for header (%d vs %d)",
-			hlen, offset - fd->cap_len);
+			hlen, END_OF_FRAME);
 		return;
 	}
 
@@ -438,7 +438,7 @@ isis_dissect_isis_hello(int hello_type, int header_length,
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_isis_hello,
-			offset, fd->cap_len - offset, NULL);
+			offset, END_OF_FRAME, NULL);
 		hello_tree = proto_item_add_subtree(ti, ett_isis_hello);
 		proto_tree_add_item_format(hello_tree, 
 			hf_isis_hello_circuit_reserved,

@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.9 1999/12/05 22:59:55 guy Exp $
+ * $Id: packet-icq.c,v 1.10 2000/01/24 03:33:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -1991,12 +1991,9 @@ dissect_icqv5Client(const u_char *pd,
     guint16 pktsize = -1;	/* The size of the ICQ content */
     u_char decr_pd[1600];	/* Decrypted content, size should be dynamic */
     
-    pktsize = fd->pkt_len - offset;
+    pktsize = END_OF_FRAME;
     /* First copy the memory, we don't want to overwrite the old content */
     memcpy(decr_pd, &pd[offset], pktsize);
-    if (fd->pkt_len > fd->cap_len) {
-	pktsize -= (fd->pkt_len - fd->cap_len);
-    }
     if (pktsize>0x14) {
 	key = get_v5key(decr_pd, pktsize);
 	decrypt_v5(decr_pd, pktsize, key);

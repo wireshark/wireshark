@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.47 2000/01/23 08:55:33 guy Exp $
+ * $Id: packet-ipx.c,v 1.48 2000/01/24 03:33:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -638,7 +638,7 @@ dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			proto_tree_add_text(rip_tree, offset, 2, "Unknown RIP packet type");
 		}
 
-		for (cursor = offset + 2; cursor < fd->cap_len; cursor += 8) {
+		for (cursor = offset + 2; cursor < pi.captured_len; cursor += 8) {
 			memcpy(&route.network, &pd[cursor], 4);
 			route.hops = pntohs(&pd[cursor+4]);
 			route.ticks = pntohs(&pd[cursor+6]);
@@ -787,7 +787,7 @@ dissect_ipxsap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		if (query.query_type == IPX_SAP_GENERAL_RESPONSE ||
 				query.query_type == IPX_SAP_NEAREST_RESPONSE) { /* responses */
 
-			for (cursor = offset + 2; (cursor + 64) <= fd->cap_len; cursor += 64) {
+			for (cursor = offset + 2; (cursor + 64) <= pi.captured_len; cursor += 64) {
 				server.server_type = pntohs(&pd[cursor]);
 				memcpy(server.server_name, &pd[cursor+2], 48);
 				memcpy(&server.server_network, &pd[cursor+50], 4);

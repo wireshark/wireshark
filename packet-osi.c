@@ -1,7 +1,7 @@
 /* packet-osi.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-osi.c,v 1.17 2000/01/20 19:16:33 guy Exp $
+ * $Id: packet-osi.c,v 1.18 2000/01/24 03:33:31 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
@@ -1354,7 +1354,7 @@ void dissect_cotp(const u_char *pd, int offset, frame_data *fd,
   int status = -1;
 
   if (((li = pd[offset + P_LI]) == 0) ||
-      (offset + P_LI + li + 1 > fd->cap_len)) {
+      (!BYTES_ARE_IN_FRAME(offset, P_LI + li + 1))) {
     dissect_data(pd, offset, fd, tree);
     return;
   }
@@ -1462,7 +1462,7 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
     return;
   } 
  
-  if (fd->cap_len < offset + sizeof(clnp)) {
+  if (!BYTES_ARE_IN_FRAME(offset, sizeof(clnp))) {
     dissect_data(pd, offset, fd, tree);
     return;
   }
@@ -1510,7 +1510,7 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
 
   /* stop here if header is not complete */
 
-  if (fd->cap_len < offset + clnp.cnf_hdr_len) {
+  if (!BYTES_ARE_IN_FRAME(offset, clnp.cnf_hdr_len)) {
     dissect_data(pd, offset, fd, tree);
     return;
   }
@@ -1577,7 +1577,7 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
 
   offset = first_offset + clnp.cnf_hdr_len;
 
-  if (offset == fd->cap_len)
+  if (!IS_DATA_IN_FRAME(offset))
     return;
 
   /* continue with COTP if any */
