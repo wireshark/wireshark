@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.18 2001/06/14 09:34:14 guy Exp $
+ * $Id: packet-rtp.c,v 1.19 2001/06/14 22:34:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -455,6 +455,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 			hdr_extension = tvb_get_ntohs( tvb, offset );
 			proto_tree_add_uint( rtp_tree, hf_rtp_length, tvb,
 			    offset, 2, hdr_extension);
+			offset += 2;
 			if ( hdr_extension > 0 ) {
 				ti = proto_tree_add_text(rtp_tree, tvb, offset, csrc_count * 4, "Header extensions");
 				/* I'm re-using the old tree variable here
