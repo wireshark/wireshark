@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.219 2000/09/11 22:43:02 sharpe Exp $
+ * $Id: file.c,v 1.220 2000/09/12 03:27:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -974,15 +974,10 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
 
     if (redissect) {
       /* Since all state for the frame was destroyed, mark the frame
-       * as not visited, and null out the pointer to the per-frame
+       * as not visited, free the GSList referring to the state
        * data (the per-frame data itself was freed by
-       * "init_all_protocols()"). */
+       * "init_all_protocols()"), and null out the GSlist pointer. */
       fdata->flags.visited = 0;
-
-      /* If there is any per-frame data, delete that, as what it points to 
-       * has gone as well.
-       */
-
       if (fdata->pfd) {
 	g_slist_free(fdata->pfd);
       }
@@ -1010,6 +1005,9 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
        until it finishes.  Should we just stick them with that? */
     for (; fdata != NULL; fdata = fdata->next) {
       fdata->flags.visited = 0;
+      if (fdata->pfd) {
+	g_slist_free(fdata->pfd);
+      }
       fdata->pfd = NULL;
     }
   }
