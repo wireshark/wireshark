@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h245.c                                                            */
+/* ./packet-h245.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h245 -c h245.cnf -s packet-h245-template h245.asn */
 
 /* Input file: packet-h245-template.c */
@@ -14966,6 +14966,8 @@ dissect_h245_MasterSlaveDeterminationRelease(tvbuff_t *tvb, int offset, packet_i
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                 ett_h245_MasterSlaveDeterminationRelease, MasterSlaveDeterminationRelease_sequence);
 
+
+  h245_pi.msg_type = H245_MastSlvDetRls;
   return offset;
 }
 static int dissect_masterSlaveDeterminationRelease(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {

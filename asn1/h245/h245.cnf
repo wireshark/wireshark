@@ -179,9 +179,9 @@ OpenLogicalChannel
   h245_pi.msg_type = H245_TermCapSetRjc;
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_FTR H245_MastSlvDetRls
+#.FN_FTR MasterSlaveDeterminationRelease
 
-  h245_pi.msg_type = H245_TermCapSetRjc;
+  h245_pi.msg_type = H245_MastSlvDetRls;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR TerminalCapabilitySet
