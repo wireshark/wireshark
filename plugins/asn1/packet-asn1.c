@@ -90,7 +90,6 @@
 
 #ifdef DISSECTOR_WITH_GUI
 #include <gtk/gtk.h>
-#include "ui_util.h"
 #endif
 
 #include <ipproto.h>
@@ -110,6 +109,7 @@ G_MODULE_EXPORT const gchar version[] = VERSION;
 
 #define TCP_PORT_ASN1 801
 #define UDP_PORT_ASN1 801
+#define SCTP_PORT_ASN1 801
 
 void proto_reg_handoff_asn1(void);
 
@@ -131,10 +131,22 @@ static int ett_seq[MAX_NEST];
  * Global variables associated with the preferences for asn1
  */
 
+#ifdef JUST_ONE_PORT
 static guint global_tcp_port_asn1 = TCP_PORT_ASN1;
 static guint global_udp_port_asn1 = UDP_PORT_ASN1;
+static guint global_sctp_port_asn1 = SCTP_PORT_ASN1;
 static guint tcp_port_asn1 = TCP_PORT_ASN1;
 static guint udp_port_asn1 = UDP_PORT_ASN1;
+static guint sctp_port_asn1 = SCTP_PORT_ASN1;
+#else
+static char *global_tcp_ports_asn1 = NULL;
+static char *global_udp_ports_asn1 = NULL;
+static char *global_sctp_ports_asn1 = NULL;
+
+static GSList *tcp_ports_asn1 = 0;
+static GSList *udp_ports_asn1 = 0;
+static GSList *sctp_ports_asn1 = 0;
+#endif /* JUST_ONE_PORT */
 
 static gboolean asn1_desegment = TRUE;
 static char *asn1_filename = NULL;
@@ -356,6 +368,38 @@ char *tbl_types_ethereal_txt[] = {
 		       /* 19 */ "FT_NONE",	/* TBL_INVALID */		
 };
 
+typedef struct _PDUinfo PDUinfo;
+struct _PDUinfo {
+	guint type;
+	char *name;
+	char *typename;
+	char *fullname;
+	guchar tclass;
+	guint tag;
+	guint flags;
+	GNode *reference;
+	gint typenum;
+	gint basetype;		/* parent type */
+	gint mytype;		/* original type number, typenum may have gone through a reference */
+	gint value_id;		/* ethereal field id for the value in this PDU */
+	gint type_id;		/* ethereal field id for the type of this PDU */
+	hf_register_info value_hf; /* ethereal field info for this value */
+};
+
+
+/* bits in the flags collection */
+#define PDU_OPTIONAL	 1
+#define PDU_IMPLICIT	 2
+#define PDU_NAMEDNUM 	 4
+#define PDU_REFERENCE    8
+#define PDU_TYPEDEF   0x10
+#define PDU_ANONYMOUS 0x20
+#define PDU_TYPETREE  0x40
+
+#define PDU_CHOICE    0x08000000   /* manipulated by the PDUname routine */
+
+guint PDUinfo_initflags = 0;	/* default flags for newly allocated PDUinfo structs */
+
 /* description of PDU properties as passed from the matching routine
  * to the decoder and GUI.
  */
@@ -563,6 +607,100 @@ g_strcmp(gconstpointer a, gconstpointer b)
 	return strcmp(a, b);
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/* WARNING   WARNING   WARNING   WARNING   WARNING   WARNING */
+/*							     */
+/* Most of the following routine is guesswork in order to    */
+/* speed up resynchronisation if the dissector lost the      */
+/* encoding due to incomplete captures, or a capture that    */
+/* starts in the middle of a fragmented ip packet            */
+/* If this poses to many problems, these settings can be     */
+/* made part of the protocol settings in the user interface  */
+/*************************************************************/
+
+/* check length for a reasonable value, return a corrected value */
+int checklength(int len, int def, int cls, int tag, char *lenstr, int strmax)
+{
+	int newlen = len;
+
+	if ( ! def) {
+		snprintf(lenstr, strmax, "indefinite");
+		return len;
+	}
+
+	if (len < 0)		/* negative ..... */
+		newlen = 4;
+
+	if (cls != ASN1_UNI) {	/* don't know about the tags */
+		if (len > 131071)
+			newlen = 64;
+	} else {
+		switch (tag) {
+		case ASN1_EOC:	/* End Of Contents    */
+		case ASN1_NUL:	/* Null               */
+			newlen = 0;
+			break;
+		case ASN1_BOL:	/* Boolean            */
+			newlen = 1;
+			break;
+		case ASN1_INT:	/* Integer            */
+		case ASN1_ENUM:	/* Enumerated         */
+			if (len > 8)
+				newlen = 4;
+			break;
+		case ASN1_BTS:	/* Bit String         */
+			if (len > 8)
+				newlen = 4;
+			break;
+		case ASN1_OTS:	/* Octet String       */
+		case ASN1_NUMSTR: /* Numerical String   */
+		case ASN1_PRNSTR: /* Printable String   */
+		case ASN1_TEXSTR: /* Teletext String    */
+		case ASN1_VIDSTR: /* Video String       */
+		case ASN1_IA5STR: /* IA5 String         */
+		case ASN1_GRASTR: /* Graphical String   */
+		case ASN1_VISSTR: /* Visible String     */
+		case ASN1_GENSTR: /* General String     */
+		if (len > 65535)
+			newlen = 32;
+		break;
+		case ASN1_OJI:		/* Object Identifier  */
+		case ASN1_OJD:		/* Description	      */
+		case ASN1_EXT:		/* External           */
+			if (len > 64)
+				newlen = 16;
+			break;
+		case ASN1_REAL:		/* Real               */
+			if (len >16)
+				newlen = 8;
+			break;
+		case ASN1_SEQ:		/* Sequence           */
+		case ASN1_SET:		/* Set                */
+			if (len > 65535)
+				newlen = 64;
+			break;
+		case ASN1_UNITIM:	/* Universal Time     */
+		case ASN1_GENTIM:	/* General Time       */
+			if (len > 32)
+				newlen = 15;
+			break;
+
+		default:
+			if (len > 131071)
+				newlen = 64;
+			break;                                                  
+		}
+	}
+
+	if (newlen != len) {
+		/* a change was needed.... */
+		snprintf(lenstr, strmax, "%d(changed from %d)", newlen, len);
+	} else {
+		snprintf(lenstr, strmax, "%d", len);
+	}
+	return newlen;
+}
+
 guint decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint len, proto_tree *pt, int level);
 void PDUreset(int count, int counr2);
 
@@ -575,7 +713,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   char tagstr[BUFLS];
   char headstr[BUFLL];
   char offstr[BUFLS];
-  char *name;
+  char *name, *tname;
   volatile guint boffset;
   volatile int i = 0;		/* PDU counter */
   proto_tree * volatile ti = 0, * volatile ti2 = 0, *asn1_tree, *tree2;
@@ -625,17 +763,17 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   PDUreset(pcount, 0);		/* arguments are just for debugging */
   getPDUprops(&props, boffset, cls, tag, con);
   name = props.name;
+  tname = props.typename;
+
+  len = checklength(len, def, cls, tag, lenstr, sizeof(lenstr));
 
   if (asn1_debug) {
-	  if (def) {
-		  snprintf(lenstr, sizeof(lenstr), "%d", len);
-	  } else {
-		  strncpy(lenstr, "indefinite", sizeof(lenstr) );
-	  }
+
 	  snprintf(tagstr, sizeof(tagstr), "%ctag%d", tag_class[cls], tag);
 
-	  snprintf(headstr, sizeof(headstr), "first%s: %s %d %s, %s, %s, len=%s, off=%d, size=%d ",
+	  snprintf(headstr, sizeof(headstr), "first%s: (%s)%s %d %s, %s, %s, len=%s, off=%d, size=%d ",
 		   offstr,
+		   tname,
 		   name,   
 		   pcount,
 		   asn1_cls[cls],
@@ -650,9 +788,9 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		  snprintf(tagstr, sizeof(tagstr), "%ctag%d", tag_class[cls], tag);
 		  name = ((cls == ASN1_UNI) && (tag < 32)) ? asn1_tag[tag] : tagstr;
 	  }
-	  snprintf(headstr, sizeof(headstr), "first pdu%s: %s ", offstr, name );
+	  snprintf(headstr, sizeof(headstr), "first pdu%s: (%s)%s ", offstr, tname, name );
   }
-  
+
   /* Set the info column */
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_add_str(pinfo->cinfo, COL_INFO, headstr );
@@ -675,6 +813,9 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	tree2 = proto_item_add_subtree(ti, ett_asn1);
 	
+	proto_tree_add_item_hidden(tree2, ((PDUinfo *)PDUtree->data)->value_id, tvb, boffset,
+				   def? (int) (offset - boffset + len) :  -1, TRUE);
+
 	offset = boffset; /* the first packet */
         while((i < MAXPDU) && (tvb_length_remaining(tvb, offset) > 0)) {
 	    ti2 = 0;
@@ -687,16 +828,15 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    PDUreset(pcount, i+1);
 	    getPDUprops(&props, boffset, cls, tag, con);
 	    name = props.name;
+	    tname = props.typename;
 	    
 	    if (!def)
 		    len = tvb_length_remaining(tvb, offset);
 
+	    len = checklength(len, def, cls, tag, lenstr, sizeof(lenstr));
+
 	    if (asn1_debug) {
-		    if (def) {
-			    snprintf(lenstr, sizeof(lenstr), "%d", len);
-		    } else {
-			    strncpy(lenstr, "indefinite", sizeof(lenstr));
-		    }
+
 		    snprintf(tagstr, sizeof(tagstr), "%ctag%d", tag_class[cls], tag);
 
 		    snprintf(headstr, sizeof(headstr), "%s, %s, %s, len=%s, off=%d, remaining=%d",
@@ -710,13 +850,13 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		    if (props.value_id == -1)
 			    ti2 = proto_tree_add_text(tree2, tvb, boffset,
 						      def? (int) (offset - boffset + len) :  -1,
-						      "%s: %s %d-%d %s", current_pduname, name,
-						      pcount, i+1, headstr);
+						      "%s: (%s)%s %d-%d %s", current_pduname,
+						      tname, name, pcount, i+1, headstr);
 		    else {
 			    ti2 = proto_tree_add_none_format(tree2, props.value_id, tvb, boffset,
 						      def? (int) (offset - boffset + len) :  -1,
-						      "%s: %s %d-%d %s ~", current_pduname, name,
-						      pcount, i+1, headstr);
+						      "%s: (%s)%s %d-%d %s ~", current_pduname,
+						      tname, name, pcount, i+1, headstr);
 
 			     if (props.type_id != -1)
 			         proto_tree_add_item_hidden(tree2, props.type_id, tvb, boffset,
@@ -731,11 +871,11 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		    if (props.value_id == -1)
 			    ti2 = proto_tree_add_text(tree2, tvb, boffset,
 						      def? (int) (offset - boffset + len) :  -1,
-						      "%s: %s", current_pduname, name);
+						      "%s: (%s)%s", current_pduname, tname, name);
 		    else {
 			    ti2 = proto_tree_add_none_format(tree2, props.value_id, tvb, boffset,
 						      def? (int) (offset - boffset + len) :  -1,
-						      "%s: %s ~", current_pduname, name);
+						      "%s: (%s)%s ~", current_pduname, tname, name);
 			    if (props.type_id != -1)
 			  	proto_tree_add_item_hidden(tree2, props.type_id, tvb, boffset,
 			   			      def? (int) (offset - boffset + len) :  -1, TRUE);
@@ -749,7 +889,9 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 #endif /* NEST */
 
 	    if (!def) len++; /* make sure we get an exception if we run off the end! */
+
 	    offset = decode_asn1_sequence(tvb, offset, len, asn1_tree, 1);
+
 	    proto_item_set_len(ti2, offset - boffset); /* mark length for hex display */
 
 	    i++; /* one more full message handled */
@@ -845,11 +987,12 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		  snprintf(tagbuf, sizeof(tagbuf), "%ctag%d", tag_class[cls], tag);
 		  tagstr = tagbuf;
 	  }
+
+	  len = checklength(len, def, cls, tag, lenbuf, sizeof(lenbuf));
+
 	  if (def) {
-		  snprintf(lenbuf, sizeof(lenbuf), "%d", len);
 		  snprintf(nnbuf, sizeof(nnbuf), "NN%d", len);
 	  } else {
-		  strncpy(lenbuf, "indefinite", sizeof(lenbuf));
 		  strncpy(nnbuf, "NN-", sizeof(nnbuf));
 		  		/* make sure we get an exception if we run off the end! */
 		  len = tvb_length_remaining(tvb, offset) + 1;
@@ -1600,7 +1743,7 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 			snprintf(lenbuf, sizeof(lenbuf), "%d", len);
 		} else {
 			strncpy(lenbuf, "indefinite", sizeof(lenbuf));
-			len = tvb_length_remaining(tvb, offset);;
+			len = tvb_length_remaining(tvb, offset);
 		}
 
 		switch(cls) {
@@ -1905,7 +2048,7 @@ get_asn1_oid(guint want_tag, guint offset)
 				asn1_oid_value_decode(&asn1, len, &oid, &con);
 				oid = g_realloc(oid, con + sizeof(guint)); /* prepend the length */
 				memmove(&oid[1], oid, con*sizeof(guint));
-				oid[0] = con;;
+				oid[0] = con;
 				return oid;
 			} else
 				ret = ASN1_ERR_LENGTH_NOT_DEFINITE;
@@ -2574,7 +2717,8 @@ static char eol[] = "\r\n";
 	if (logf) {
 	fputs(message, logf);
 	fputs(eol, logf);
-}
+        fflush(logf);   /* debugging ... */
+        }
 }
 
 void
@@ -2616,7 +2760,7 @@ read_asn1_type_table(char *filename)
 	
 	data = g_malloc(size);
 	if (fread(data, size, 1, f) < 1) {
-		report_read_failure(filename, errno);
+		g_warning("error reading %s, %s", filename, strerror(errno));
 	}
 	fclose(f);
 
@@ -2658,37 +2802,6 @@ read_asn1_type_table(char *filename)
 	debug_dump_TT();  
 }
 
-typedef struct _PDUinfo PDUinfo;
-struct _PDUinfo {
-	guint type;
-	char *name;
-	char *typename;
-	char *fullname;
-	guchar tclass;
-	guint tag;
-	guint flags;
-	GNode *reference;
-	gint typenum;
-	gint basetype;		/* parent type */
-	gint mytype;		/* original type number, typenum may have gone through a reference */
-	gint value_id;		/* ethereal field id for the value in this PDU */
-	gint type_id;		/* ethereal field id for the type of this PDU */
-	hf_register_info value_hf; /* ethereal field info for this value */
-};
-
-
-/* bits in the flags collection */
-#define PDU_OPTIONAL	 1
-#define PDU_IMPLICIT	 2
-#define PDU_NAMEDNUM 	 4
-#define PDU_REFERENCE    8
-#define PDU_TYPEDEF   0x10
-#define PDU_ANONYMOUS 0x20
-#define PDU_TYPETREE  0x40
-
-#define PDU_CHOICE    0x08000000   /* manipulated by the PDUname routine */
-
-guint PDUinfo_initflags = 0;	/* default flags for newly allocated PDUinfo structs */
 
 #define CHECKTYPE(p,x) {if (((TBLTag *)(p)->data)->type != (x)) \
         g_warning("**** unexpected type %s, want %s, at line %d", \
@@ -2719,6 +2832,11 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 	PDUinfo *p = (PDUinfo *)pdu->data, *p1;
 	guint nvals;
 	value_string *v;
+
+	if (n > 40) {  /* don't believe this....! ...... stop recursion ...... */
+		g_warning("****tbl_typeref: n>40, return [recursion too deep] ****************");
+		return;
+	}
 	
 	CHECKTYPE(tree, TBLTYPE_TypeDef);
 
@@ -2775,9 +2893,13 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 		
 		if (p->tclass==CLASSREF) {
 			TypeRef *tr;
+			int i = p->basetype;
 			/* CLASSREF....., get it defined using type of the reference */
 
-			tr = &typeDef_names[p->tag];
+			/* p->basetype may be -1 .... ? XXX */
+			if (i == -1)
+				i = p->tag;
+			tr = &typeDef_names[i];
 			if (asn1_verbose)
 				g_message("%*s*refer2 to type#%d %s, %p", n*2, empty,
 					  p->tag, tr->name, tr->pdu);
@@ -2882,7 +3004,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 	value_string *v;
 
 	if (n > 40) {  /* don't believe this....! ...... stop recursion ...... */
-		g_warning("**** n>40, return [recursion too deep] ****************");
+		g_warning("****tbl_type: n>40, return [recursion too deep] ****************");
 		return;
 	}
 
@@ -2892,8 +3014,8 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 	pdu1 = pdu;		/* save start location for append */
 	while (list) {		/* handle all entries */
 		if (asn1_verbose)
-			g_message("%*s+handle a %s", n*2, empty,
-				  data_types[((TBLTag *)list->data)->type]);
+			g_message("%*s+handle a %s, list=%p", n*2, empty,
+				  data_types[((TBLTag *)list->data)->type], list);
 
 		if (((TBLTag *)list->data)->type == TBLTYPE_Range) { /* ignore this ..... */
 			list = g_node_next_sibling(list);
@@ -2902,7 +3024,11 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 				break;
 		}
 
-		if (((TBLTag *)list->data)->type != TBLTYPE_TypeRef) { 
+		/******* change to positive comparation, but leave comment for reference */
+		// if (((TBLTag *)list->data)->type != TBLTYPE_TypeRef) { 
+		//	CHECKTYPE(list, TBLTYPE_Type);
+
+                if (((TBLTag *)list->data)->type == TBLTYPE_Type) { 
 			CHECKTYPE(list, TBLTYPE_Type);
 
 			p = g_malloc0(sizeof(PDUinfo));
@@ -2925,7 +3051,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 			p->name = ((TBLType *)list->data)->fieldName;
 			
 			ni = fullindex;
-			ni += sprintf(&fieldname[ni], ".%s", p->name);
+			ni += snprintf(&fieldname[ni], sizeof(fieldname) - ni, ".%s", p->name);
 			p->fullname = g_strdup(fieldname);
 			
 			/* initialize field info */
@@ -3016,6 +3142,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 		case TBL_SETOF:
 		case TBL_CHOICE:
 			CHECKTYPE(q, TBLTYPE_Tag);
+			q = g_node_first_child(list);
 			tbl_type(n+1, pdu, q, ni);
 			break;
 			
@@ -3687,9 +3814,12 @@ create_message_window()
 			    FALSE, FALSE, 0);
 	g_free(text);
 
-	sw = scrolled_window_new(NULL, NULL);
+	sw = gtk_scrolled_window_new (NULL, NULL);
 	gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (sw),
-					     GTK_SHADOW_IN);
+					     GTK_SHADOW_ETCHED_IN);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (sw),
+					GTK_POLICY_AUTOMATIC,
+					GTK_POLICY_AUTOMATIC);
 	gtk_box_pack_start (GTK_BOX (vbox), sw, TRUE, TRUE, 0);
 
 	model = gtk_tree_store_new(N_COLUMNS, G_TYPE_STRING, G_TYPE_INT, G_TYPE_INT,
@@ -3978,7 +4108,7 @@ PDUreset(int count, int count2)
 
 	if (PDUtree) {
 		pos.node = PDUtree; /* root of the tree */
-		pos.name = GETNAME;;
+		pos.name = GETNAME;
 		pos.type = GETTYPE | TBL_REPEAT;
 		pos.offset = 0;
 		PUSHNODE(pos);
@@ -4633,6 +4763,142 @@ getPDUenum(PDUprops *props, guint offset, guint cls, guint tag, guint value)
 
 #endif /* READSYNTAX */
 
+/* * * * * * * * * * * * * * * * * * * * * * * * */
+/* Routines to handle parsing a list of ports    */
+/* * * * * * * * * * * * * * * * * * * * * * * * */
+
+#define SKIPWHITE(_s) { while(isspace(*(_s))) { (_s)++; } }
+
+/* insert error text in front of spec
+ * with a delimeter we can recognize on next attempt
+ */
+void insert_error(gchar *s, int len, gchar *err, guint mark)
+{
+	gchar *news;
+	guint slen;
+
+	news = malloc(len);
+	slen = strlen(s);
+	
+	mark = (mark < slen) ? mark : slen; /* clamp mark within the string */
+
+	snprintf(news, len, "[%s] %.*s|%s", err, (int)mark, s, s + mark);
+	strncpy(s, news, len);
+	free(news);
+}
+
+/* parse a range of port numbers: a,b-c,d
+ */
+GSList *parse_port_range(gchar *s, int len)
+{
+	GSList *list = NULL;
+	guint n, count, fill, fillstart = 0;
+	gchar *es, *orgs;
+
+	count = fill = 0;
+
+	if (s == 0) return 0;
+
+	orgs = es = s;
+
+	SKIPWHITE(es);
+	if (*es == '[')	{	/* an old error message */
+		while(*es != ']') { es++; };
+		es++;
+		SKIPWHITE(es);
+	}
+	memmove(orgs, es, strlen(es)+1); /* remove old error message */
+
+	es = orgs;
+
+	while(1) {
+		s = es;
+		SKIPWHITE(s);	/* for better position of error indicator */
+		n = strtoul(s, &es, 0);
+		if ( (s == es) ||	/* no character processed */
+		     (n > 0xffff) ) { 	/* port number out of range */
+			/* syntax error */
+			if (s == es) es++; /* err indicator after error pos */
+			insert_error(orgs, len, "syntax error", es - orgs);
+			g_slist_free (list);
+			return 0;
+		} else {	/* OK, have a port number */
+			if (fill) { /* create a range of numbers */
+				fill = 0;
+				while(++fillstart < n) {
+					list = g_slist_append (list, GINT_TO_POINTER (fillstart));
+					count++;
+					if (count > 100) {
+						insert_error(orgs, len, "too many ports", es - orgs);
+						g_slist_free (list);
+						return 0;
+					}
+				}
+			}
+			list = g_slist_append (list, GINT_TO_POINTER (n));
+			count++;
+
+			SKIPWHITE(es);
+
+			if (isdigit(*es))
+				continue; /* a missig comma is OK */
+
+			switch(*es++) {
+			case ',':	 /* on to the next port number */
+				continue;
+			case '-':	 /* start a port range */
+				fill = 1;
+				fillstart = n;
+				continue;
+			case '\0':	/* OK, finished */
+				break;
+			default:	/* some error */
+				insert_error(orgs, len, "invalid character", es - orgs);
+				g_slist_free (list);
+				return 0;
+			}
+			break;
+		}
+	}
+	return list;
+}
+
+/* build text representation of given port list
+ */
+void show_port_range(GSList *list, gchar *buf, int len)
+{
+	gchar delim = 0;
+	int this, last, size;
+
+	last = -2;
+	size = 0;
+	while(list) {
+		this = GPOINTER_TO_INT(list->data);
+		if ((last+1) == this) {
+			delim = '-';
+			last++;
+		} else {
+			if (delim == '-') {
+				size += snprintf(&buf[size], len - size, "%c%d", delim, last);
+				delim = ',';
+			}
+			if (delim)
+				buf[size++] = delim;
+			size += snprintf(&buf[size], len - size, "%d", this);
+			delim = ',';
+			last = this;
+		}
+		list = g_slist_next(list);
+
+	}
+
+	if (delim == '-')
+		size += snprintf(&buf[size], len - size, "%c%d", delim, last);
+}
+
+/* end of port list management routines */
+
+
 void 
 proto_register_asn1(void) {
 
@@ -4651,6 +4917,8 @@ proto_register_asn1(void) {
   };
 
   static gint *ett[1+MAX_NEST+MAXPDU];
+
+  char tmpstr[64];
 
   module_t *asn1_module;
   int i, j;
@@ -4677,16 +4945,49 @@ proto_register_asn1(void) {
 
   asn1_module = prefs_register_protocol(proto_asn1,
 					proto_reg_handoff_asn1);
+#ifdef JUST_ONE_PORT
   prefs_register_uint_preference(asn1_module, "tcp_port",
 				 "ASN.1 TCP Port",
 				 "The TCP port on which "
-				 "ASN.1 packets will be read",
+				 "ASN.1 messages will be read",
 				 10, &global_tcp_port_asn1);
   prefs_register_uint_preference(asn1_module, "udp_port",
 				 "ASN.1 UDP Port",
 				 "The UDP port on which "
-				 "ASN.1 packets will be read",
+				 "ASN.1 messages will be read",
 				 10, &global_udp_port_asn1);
+  prefs_register_uint_preference(asn1_module, "sctp_port",
+				 "ASN.1 SCTP Port",
+				 "The SCTP port on which "
+				 "ASN.1 messages will be read",
+				 10, &global_sctp_port_asn1);
+#else
+  snprintf(tmpstr, sizeof(tmpstr), "%d", TCP_PORT_ASN1);
+  global_tcp_ports_asn1 = strdup(tmpstr);
+  
+  snprintf(tmpstr, sizeof(tmpstr), "%d", UDP_PORT_ASN1);
+  global_udp_ports_asn1 = strdup(tmpstr);
+  
+  snprintf(tmpstr, sizeof(tmpstr), "%d", SCTP_PORT_ASN1);
+  global_sctp_ports_asn1 = strdup(tmpstr);
+  
+  prefs_register_string_preference(asn1_module, "tcp_ports",
+				 "ASN.1 TCP Ports",
+				 "The TCP ports on which "
+				 "ASN.1 messages will be read",
+				 &global_tcp_ports_asn1);
+  prefs_register_string_preference(asn1_module, "udp_ports",
+				 "ASN.1 UDP Ports",
+				 "The UDP ports on which "
+				 "ASN.1 messages will be read",
+				 &global_udp_ports_asn1);
+  prefs_register_string_preference(asn1_module, "sctp_ports",
+				 "ASN.1 SCTP Ports",
+				 "The SCTP ports on which "
+				 "ASN.1 messages will be read",
+				 &global_sctp_ports_asn1);
+#endif /* JUST_ONE_PORT */
+
   prefs_register_bool_preference(asn1_module, "desegment_messages",
 				 "Desegment TCP",
 				 "Desegment ASN.1 messages that span TCP segments",
@@ -4723,11 +5024,12 @@ proto_register_asn1(void) {
 				 "ASN.1 debug mode",
 				 "Extra output useful for debuging",
 				 &asn1_debug);
-
+/*
   prefs_register_bool_preference(asn1_module, "message_win",
 				 "Show ASN.1 tree",
 				 "show full message description",
 				 &asn1_message_win);
+*/
   prefs_register_bool_preference(asn1_module, "verbose_log",
 				 "Write very verbose log",
 				 "log to file $TMP/" ASN1LOGFILE,
@@ -4740,27 +5042,104 @@ void
 proto_reg_handoff_asn1(void) {
   static int asn1_initialized = FALSE;
   static dissector_handle_t asn1_handle;
+  GSList *list;
+  gint len;
 
   pcount = 0;
 
-  if (asn1_verbose) g_message("prefs change: tcpport=%d, udpport=%d, desegnment=%d, asn1file=%s, "
-		  "pduname=%s, first_offset=%d, debug=%d, msg_win=%d, verbose=%d",
-  	  global_tcp_port_asn1, global_udp_port_asn1, asn1_desegment, asn1_filename,
-	  asn1_pduname, first_pdu_offset, asn1_debug, asn1_message_win, asn1_verbose);
+#ifdef JUST_ONE_PORT
+  if (asn1_verbose) g_message("prefs change: tcpport=%d, udpport=%d, sctpport=%d, desegnment=%d, "
+		"asn1file=%s, pduname=%s, first_offset=%d, debug=%d, msg_win=%d, verbose=%d",
+  	  global_tcp_port_asn1, global_udp_port_asn1, global_sctp_port_asn1, asn1_desegment,
+	  asn1_filename, asn1_pduname, first_pdu_offset, asn1_debug, asn1_message_win, asn1_verbose);
+#else
+  if (asn1_verbose) g_message("prefs change: tcpports=%s, udpports=%s, sctpports=%s, desegnment=%d, "
+		"asn1file=%s, pduname=%s, first_offset=%d, debug=%d, msg_win=%d, verbose=%d",
+  	  global_tcp_ports_asn1, global_udp_ports_asn1, global_sctp_ports_asn1, asn1_desegment,
+	  asn1_filename, asn1_pduname, first_pdu_offset, asn1_debug, asn1_message_win, asn1_verbose);
+#endif /* JUST_ONE_PORT */
 
   if(!asn1_initialized) {
     asn1_handle = create_dissector_handle(dissect_asn1,proto_asn1);
     asn1_initialized = TRUE;
-  } else {
+  } else {	/* clean up ports and their lists */
+#ifdef JUST_ONE_PORT
     dissector_delete("tcp.port", tcp_port_asn1, asn1_handle);
     dissector_delete("udp.port", udp_port_asn1, asn1_handle);
+    dissector_delete("sctp.port", sctp_port_asn1, asn1_handle);
+#else
+    list = tcp_ports_asn1;
+    while (list) {
+	    dissector_delete("tcp.port", GPOINTER_TO_INT(list->data), asn1_handle);
+	    list = g_slist_next(list);
+    }
+    g_slist_free(tcp_ports_asn1);
+
+    list = udp_ports_asn1;
+    while (list) {
+	    dissector_delete("udp.port", GPOINTER_TO_INT(list->data), asn1_handle);
+	    list = g_slist_next(list);
+    }
+    g_slist_free(udp_ports_asn1);
+    
+    list = sctp_ports_asn1;
+    while (list) {
+	    dissector_delete("sctp.port", GPOINTER_TO_INT(list->data), asn1_handle);
+	    list = g_slist_next(list);
+    }
+    g_slist_free(sctp_ports_asn1);
+#endif /* JUST_ONE_PORT */
   }
 
+#ifdef JUST_ONE_PORT
   tcp_port_asn1 = global_tcp_port_asn1;
   udp_port_asn1 = global_udp_port_asn1;
-  
+  sctp_port_asn1 = global_sctp_port_asn1;
+
   dissector_add("tcp.port", global_tcp_port_asn1, asn1_handle);
   dissector_add("udp.port", global_udp_port_asn1, asn1_handle);
+  dissector_add("sctp.port", global_sctp_port_asn1, asn1_handle);
+#else
+  len = strlen(global_tcp_ports_asn1) + 32; /* extra for possible error message */
+  global_tcp_ports_asn1 = realloc(global_tcp_ports_asn1, len);
+  tcp_ports_asn1 = parse_port_range(global_tcp_ports_asn1, len);
+  if (tcp_ports_asn1)		/* no error, normalize presentation */
+	  show_port_range(tcp_ports_asn1, global_tcp_ports_asn1, len);
+  else
+	  g_message("tcp_ports: %s\n", global_tcp_ports_asn1);
+
+  len = strlen(global_udp_ports_asn1) + 32; /* extra for possible error message */
+  global_udp_ports_asn1 = realloc(global_udp_ports_asn1, len);
+  udp_ports_asn1 = parse_port_range(global_udp_ports_asn1, len);
+  if (udp_ports_asn1)		/* no error, normalize presentation */
+	  show_port_range(udp_ports_asn1, global_udp_ports_asn1, len);
+  else
+	  g_message("udp_ports: %s\n", global_udp_ports_asn1);
+
+  len = strlen(global_sctp_ports_asn1) + 32; /* extra for possible error message */
+  global_sctp_ports_asn1 = realloc(global_sctp_ports_asn1, len);
+  sctp_ports_asn1 = parse_port_range(global_sctp_ports_asn1, len);
+  if (sctp_ports_asn1)		/* no error, normalize presentation */
+	  show_port_range(sctp_ports_asn1, global_sctp_ports_asn1, len);
+  else
+	  g_message("sctp_ports: %s\n", global_sctp_ports_asn1);
+
+  list = tcp_ports_asn1;
+  while (list) {
+	  dissector_add("tcp.port", GPOINTER_TO_INT(list->data), asn1_handle);
+	  list = g_slist_next(list);
+  }
+  list = udp_ports_asn1;
+  while (list) {
+	  dissector_add("udp.port", GPOINTER_TO_INT(list->data), asn1_handle);
+	  list = g_slist_next(list);
+  }
+  list = sctp_ports_asn1;
+  while (list) {
+	  dissector_add("sctp.port", GPOINTER_TO_INT(list->data), asn1_handle);
+	  list = g_slist_next(list);
+  }
+#endif /* JUST_ONE_PORT */
 
   if ( g_strcmp(asn1_filename, current_asn1) != 0) { /* new defintions, parse it */
 	  /* !!! should be postponed until we really need it !!! */
