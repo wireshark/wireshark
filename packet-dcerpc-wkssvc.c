@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.10 2003/04/27 06:23:16 sharpe Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.11 2003/04/29 21:06:27 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -245,10 +245,12 @@ static int wkssvc_dissect_netrqueryinfo_reply(tvbuff_t *tvb, int offset,
 }
 
 static dcerpc_sub_dissector dcerpc_wkssvc_dissectors[] = {
-        { WKS_QUERY_INFO, "NetWkstaGetInfo", 
+        { WKS_NetWkstaGetInfo, "NetWkstaGetInfo", 
 	  wkssvc_dissect_netrqueryinfo_rqst, 
 	  wkssvc_dissect_netrqueryinfo_reply},
-
+        { WKS_NetWkstaEnumUsers, "NetWkstaEnumUsers",
+	  NULL,
+ 	  NULL},
         {0, NULL, NULL,  NULL }
 };
 

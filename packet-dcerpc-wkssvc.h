@@ -1,8 +1,9 @@
 /* packet-dcerpc-wkssvc.h
  * Routines for SMB \PIPE\wkssvc packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
+ * Copyright 2002, Richard Sharpe <rsharpe@richardsharpe.org>
  *
- * $Id: packet-dcerpc-wkssvc.h,v 1.4 2002/08/28 21:00:12 jmayer Exp $
+ * $Id: packet-dcerpc-wkssvc.h,v 1.5 2003/04/29 21:06:27 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,6 +29,6 @@
 
 /* Functions available on the WKSSVC pipe.  From Samba, include/rpc_wkssvc.h */
 
-#define WKS_QUERY_INFO    0x00
-
+#define WKS_NetWkstaGetInfo    0x00
+#define WKS_NetWkstaEnumUsers  0x02
 #endif /* packet-dcerpc-wkssvc.h */
