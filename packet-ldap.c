@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.40 2002/03/03 01:26:01 guy Exp $
+ * $Id: packet-ldap.c,v 1.41 2002/03/31 22:17:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -940,7 +940,6 @@ static void dissect_ldap_request_modifyrdn(ASN1_SCK *a, proto_tree *tree,
 		guint length)
 {
   int start = a->offset;
-  int ret;
 
   if (read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
     return;
