@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.35 2003/10/14 21:26:37 jmayer Exp $
+ * $Id: packet-sdp.c,v 1.36 2003/11/17 21:52:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,9 +30,18 @@
 #include <string.h>
 #include <ctype.h>
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/conversation.h>
 #include <epan/strutil.h>
+
+static dissector_handle_t rtp_handle=NULL;
+static dissector_handle_t rtcp_handle=NULL;
 
 static int proto_sdp = -1;
 
@@ -121,20 +130,30 @@ static int ett_sdp_session_attribute = -1;
 static int ett_sdp_media = -1;
 static int ett_sdp_media_attribute = -1;
 
+typedef struct {
+	char *media_port;
+	char *media_proto;
+	char *connection_address;
+	char *connection_type;
+} transport_info_t;
+
 /* static functions */
 
-static void call_sdp_subdissector(tvbuff_t *tvb, int hf, proto_tree* ti);
+static void call_sdp_subdissector(tvbuff_t *tvb, int hf, proto_tree* ti,
+				  transport_info_t *transport_info);
 
 /* Subdissector functions */
 static void dissect_sdp_owner(tvbuff_t *tvb, proto_item* ti);
-static void dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti);
+static void dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
+					transport_info_t *transport_info);
 static void dissect_sdp_bandwidth(tvbuff_t *tvb, proto_item *ti);
 static void dissect_sdp_time(tvbuff_t *tvb, proto_item* ti);
 static void dissect_sdp_repeat_time(tvbuff_t *tvb, proto_item* ti);
 static void dissect_sdp_timezone(tvbuff_t *tvb, proto_item* ti);
 static void dissect_sdp_encryption_key(tvbuff_t *tvb, proto_item * ti);
 static void dissect_sdp_session_attribute(tvbuff_t *tvb, proto_item *ti);
-static void dissect_sdp_media(tvbuff_t *tvb, proto_item *ti);
+static void dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
+			      transport_info_t *transport_info);
 static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item *ti);
 
 static void
@@ -152,6 +171,21 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int             tokenoffset;
 	int             hf = -1;
 	char            *string;
+
+	address 	src_addr;
+	conversation_t 	*conv=NULL;
+
+	transport_info_t transport_info;
+	guint32 	ipv4_address=0;
+	guint32 	ipv4_port=0;
+	gboolean 	is_rtp=FALSE;
+	gboolean 	is_ipv4_addr=FALSE;
+	struct in_addr	ipaddr;
+
+	transport_info.media_port=NULL;
+	transport_info.media_proto=NULL;
+	transport_info.connection_address=NULL;
+	transport_info.connection_type=NULL;
 
 	/*
 	 * As RFC 2327 says, "SDP is purely a format for session
@@ -285,8 +319,64 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		g_free(string);
 		call_sdp_subdissector(tvb_new_subset(tvb,offset+tokenoffset,
 						     linelen-tokenoffset,-1),
-				      hf,sub_ti);
+				      hf,sub_ti,&transport_info),
 		offset = next_offset;
+	}
+
+
+	/* Now look, if we have strings collected.
+	 * Try to convert ipv4 address and port into binary format,
+	 * so we can use them to detect rtp and rtcp streams.
+	 * Don't forget to free the strings!
+	 */
+
+	if(transport_info.media_port!=NULL) {
+		ipv4_port = atol(transport_info.media_port);
+		g_free(transport_info.media_port);
+	}
+	if(transport_info.media_proto!=NULL) {
+		/* Check if media protocol is RTP */
+		is_rtp = (strcmp(transport_info.media_proto,"RTP/AVP")==0);
+		g_free(transport_info.media_proto);
+	}
+	if(transport_info.connection_address!=NULL) {
+		if(transport_info.connection_type!=NULL &&
+		    strcmp(transport_info.connection_type,"IP4")==0) {
+			if(inet_aton(transport_info.connection_address, &ipaddr)
+			    !=0 ) {
+				/* connection_address could be converted to a valid ipv4 address*/
+				is_ipv4_addr=TRUE;
+				ipv4_address = ipaddr.s_addr;
+			}
+		}
+		g_free(transport_info.connection_address);
+	}
+	if(transport_info.connection_type!=NULL) {
+		g_free(transport_info.connection_type);
+	}
+
+	/* Add rtp and rtcp conversation, if available */
+	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && is_rtp && is_ipv4_addr){
+		src_addr.type=AT_IPv4;
+		src_addr.len=4;
+		src_addr.data=(char *)&ipv4_address;
+
+		if(rtp_handle){
+			conv=find_conversation(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
+			if(!conv){
+				conv=conversation_new(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
+				conversation_set_dissector(conv, rtp_handle);
+			}
+		}
+
+		if(rtcp_handle){
+			ipv4_port++;
+			conv=find_conversation(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
+			if(!conv){
+				conv=conversation_new(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
+				conversation_set_dissector(conv, rtcp_handle);
+			}
+		}
 	}
 
 	datalen = tvb_length_remaining(tvb, offset);
@@ -297,11 +387,12 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-call_sdp_subdissector(tvbuff_t *tvb, int hf, proto_tree* ti){
+call_sdp_subdissector(tvbuff_t *tvb, int hf, proto_tree* ti,
+		      transport_info_t *transport_info){
   if(hf == hf_owner){
     dissect_sdp_owner(tvb,ti);
   } else if ( hf == hf_connection_info) {
-    dissect_sdp_connection_info(tvb,ti);
+    dissect_sdp_connection_info(tvb,ti,transport_info);
   } else if ( hf == hf_bandwidth) {
     dissect_sdp_bandwidth(tvb,ti);
   } else if ( hf == hf_time) {
@@ -315,7 +406,7 @@ call_sdp_subdissector(tvbuff_t *tvb, int hf, proto_tree* ti){
   } else if ( hf == hf_session_attribute ){
     dissect_sdp_session_attribute(tvb,ti);
   } else if ( hf == hf_media ) {
-    dissect_sdp_media(tvb,ti);
+    dissect_sdp_media(tvb,ti,transport_info);
   } else if ( hf == hf_media_attribute ){
     dissect_sdp_media_attribute(tvb,ti);
   }
@@ -387,7 +478,8 @@ dissect_sdp_owner(tvbuff_t *tvb, proto_item *ti){
 }
 
 static void
-dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti){
+dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
+			    transport_info_t *transport_info){
   proto_tree *sdp_connection_info_tree;
   gint offset,next_offset,tokenlen;
 
@@ -414,6 +506,8 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti){
   if( next_offset == -1 )
     return;
   tokenlen = next_offset - offset;
+  /* Save connection address type */
+  transport_info->connection_type = tvb_get_string(tvb, offset, tokenlen);
 
   proto_tree_add_item(sdp_connection_info_tree,
 		      hf_connection_info_address_type,tvb,
@@ -421,12 +515,19 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti){
   offset = next_offset + 1;
 
   /* Find the connection address */
+  /* XXX - what if there's a <number of addresses> value? */
   next_offset = tvb_find_guint8(tvb,offset,-1,'/');
   if( next_offset == -1){
     tokenlen = -1;	/* end of tvbuff */
+    /* Save connection address */
+    transport_info->connection_address =
+        tvb_get_string(tvb, offset, tvb_length_remaining(tvb, offset));
   } else {
     tokenlen = next_offset - offset;
+    /* Save connection address */
+    transport_info->connection_address = tvb_get_string(tvb, offset, tokenlen);
   }
+
   proto_tree_add_item(sdp_connection_info_tree,
 		      hf_connection_info_connection_address, tvb,
 		      offset,tokenlen,FALSE);
@@ -637,7 +738,8 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, proto_item * ti){
 }
 
 static void
-dissect_sdp_media(tvbuff_t *tvb, proto_item *ti){
+dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
+		  transport_info_t *transport_info){
   proto_tree *sdp_media_tree;
   gint offset, next_offset, tokenlen;
 
@@ -667,6 +769,8 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti){
 
   if(next_offset != -1){
     tokenlen = next_offset - offset;
+    /* Save port info */
+    transport_info->media_port = tvb_get_string(tvb, offset, tokenlen);
 
     proto_tree_add_item(sdp_media_tree, hf_media_port, tvb,
 			offset, tokenlen, FALSE);
@@ -684,6 +788,8 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti){
     if(next_offset == -1)
       return;
     tokenlen = next_offset - offset;
+    /* Save port info */
+    transport_info->media_port = tvb_get_string(tvb, offset, tokenlen);
 
     /* XXX Remember Port */
     proto_tree_add_item(sdp_media_tree, hf_media_port, tvb,
@@ -697,6 +803,8 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti){
     return;
 
   tokenlen = next_offset - offset;
+  /* Save port protocol */
+  transport_info->media_proto = tvb_get_string(tvb, offset, tokenlen);
 
   /* XXX Remember Protocol */
   proto_tree_add_item(sdp_media_tree, hf_media_proto, tvb,
@@ -722,7 +830,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti){
    *         We need to find out the address of the other side first and it
    *         looks like that info can be found in SIP headers only.
    */
- 
+
 }
 
 static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti){
@@ -986,4 +1094,11 @@ proto_register_sdp(void)
    * on Windows without stuffing it into the Big Transfer Vector).
    */
   register_dissector("sdp", dissect_sdp, proto_sdp);
+}
+
+void
+proto_reg_handoff_sdp(void)
+{
+	rtp_handle = find_dissector("rtp");
+	rtcp_handle = find_dissector("rtcp");
 }
