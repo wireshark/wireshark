@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.26 2002/05/25 13:57:19 gram Exp $
+$Id: ncp2222.py,v 1.27 2002/06/07 15:33:37 gram Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -2781,8 +2781,7 @@ NDSRequestFlags 		= bitfield16("nds_request_flags", "NDS Request Flags", [
 ])	
 NDSVerb				= val_string16("nds_verb", "NDS Verb", [
 ])
-
-NDSNewVerb				= val_string16("nds_new_verb", "NDS Verb", [
+NDSNewVerb			= val_string16("nds_new_verb", "NDS Verb", [
 ])
 NDSVersion			= uint32("nds_version", "NDS Version")
 NDSCRC				= uint32("nds_crc", "NDS CRC")
@@ -2796,9 +2795,12 @@ NetAddress                      = nbytes32("address", "Address")
 NetStatus                       = uint16("net_status", "Network Status")
 NetWareAccessHandle		= bytes("netware_access_handle", "NetWare Access Handle", 6)
 NetworkAddress			= uint32("network_address", "Network Address")
+NetworkAddress.Display("BASE_HEX")
 NetworkNodeAddress		= bytes("network_node_address", "Network Node Address", 6)
 NetworkNumber                   = uint32("network_number", "Network Number")
+NetworkNumber.Display("BASE_HEX")
 NetworkSocket			= uint16("network_socket", "Network Socket")
+NetworkSocket.Display("BASE_HEX")
 NewAccessRights 		= bitfield16("new_access_rights_mask", "New Access Rights", [
 	bf_boolean16(0x0001, "new_access_rights_read", "Read"),
 	bf_boolean16(0x0002, "new_access_rights_write", "Write"),
@@ -9798,46 +9800,58 @@ def define_ncp2222():
 		rec( 8, 4, FileHandle ),
 		rec( 12, 1, OpenCreateAction ),
 		rec( 13, 1, Reserved ),
-                srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
-                srec( PadDSSpaceAllocate, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 0)" ),
-                srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 1)" ),
-                srec( PadAttributes, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 0)" ),
-                srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 1)" ),
-                srec( PadDataStreamSize, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 0)" ),
-                srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 1)" ),
-                srec( PadTotalStreamSize, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 0)" ),
-                srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 1)" ),
-                srec( PadCreationInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 0)" ),
-                srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 1)" ),
-                srec( PadModifyInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 0)" ),
-                srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 1)" ),
-                srec( PadArchiveInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 0)" ),
-                srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 1)" ),
-                srec( PadRightsInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 0)" ),
-                srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 1)" ),
-                srec( PadDirEntry, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 0)" ),
-                srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 1)" ),
-                srec( PadEAInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 0)" ),
-                srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 1)" ),
-                srec( PadNSInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 0)" ),
-                srec( FileNameStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_fname == 1)" ),
+                srec( DSSpaceAllocateStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
+                srec( PadDSSpaceAllocate, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 0)" ),
+                srec( AttributesStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 1)" ),
+                srec( PadAttributes, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 0)" ),
+                srec( DataStreamSizeStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 1)" ),
+                srec( PadDataStreamSize, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 0)" ),
+                srec( TotalStreamSizeStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 1)" ),
+                srec( PadTotalStreamSize, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 0)" ),
+                srec( CreationInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 1)" ),
+                srec( PadCreationInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 0)" ),
+                srec( ModifyInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 1)" ),
+                srec( PadModifyInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 0)" ),
+                srec( ArchiveInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 1)" ),
+                srec( PadArchiveInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 0)" ),
+                srec( RightsInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 1)" ),
+                srec( PadRightsInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 0)" ),
+                srec( DirEntryStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 1)" ),
+                srec( PadDirEntry, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 0)" ),
+                srec( EAInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 1)" ),
+                srec( PadEAInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 0)" ),
+                srec( NSInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 1)" ),
+                srec( PadNSInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 0)" ),
                 srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_alloc  == 1)" ),
                 srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_attr == 1)" ),
                 srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_size == 1)" ),
                 srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_tspace == 1)" ),
-                srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_create == 1)" ),
-                srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_mod == 1)" ),
-                srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_arch == 1)" ),
-                srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_rights == 1)" ),
-                srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_dir == 1)" ),
                 srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_eattr == 1)" ),
+                srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_mod == 1)" ),
+                srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_create == 1)" ),
+                srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_arch == 1)" ),
+                srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_dir == 1)" ),
+                srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_rights == 1)" ),
                 srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_ns == 1)" ),
-                srec( FileNameStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_fname == 1)" ),
+                srec( ReferenceIDStruct, req_cond="ncp.ret_info_mask_id == 1" ), 
+                srec( NSAttributeStruct, req_cond="ncp.ret_info_mask_ns_attr == 1" ),
+                srec( DStreamActual, req_cond="ncp.ret_info_mask_actual == 1" ),
+                srec( DStreamLogical, req_cond="ncp.ret_info_mask_logical == 1" ),
+                srec( LastUpdatedInSecondsStruct, req_cond="ncp.ext_info_update == 1" ), 
+                srec( DOSNameStruct, req_cond="ncp.ext_info_dos_name == 1" ), 
+                srec( FlushTimeStruct, req_cond="ncp.ext_info_flush == 1" ), 
+                srec( ParentBaseIDStruct, req_cond="ncp.ext_info_parental == 1" ), 
+                srec( MacFinderInfoStruct, req_cond="ncp.ext_info_mac_finder == 1" ), 
+                srec( SiblingCountStruct, req_cond="ncp.ext_info_sibling == 1" ), 
+                srec( EffectiveRightsStruct, req_cond="ncp.ext_info_effective == 1" ), 
+                srec( MacTimeStruct, req_cond="ncp.ext_info_mac_date == 1" ),
+                srec( LastAccessedTimeStruct, req_cond="ncp.ext_info_access == 1" ), 
+                srec( FileNameStruct, req_cond="ncp.ret_info_mask_fname == 1" ),
         ])
 	pkt.ReqCondSizeVariable()
-	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+        pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5702, 87/02
 	pkt = NCP(0x5702, "Initialize Search", 'file', has_length=0)
 	pkt.Request( (18,272), [
@@ -9856,7 +9870,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5703, 87/03
 	pkt = NCP(0x5703, "Search for File or Subdirectory", 'file', has_length=0)
 	pkt.Request((26, 280), [
@@ -9910,7 +9924,7 @@ def define_ncp2222():
 	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5704, 87/04
 	pkt = NCP(0x5704, "Rename Or Move a File or Subdirectory", 'file', has_length=0)
 	pkt.Request((28, 536), [
@@ -9931,7 +9945,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9200, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5705, 87/05
 	pkt = NCP(0x5705, "Scan File or Subdirectory for Trustees", 'file', has_length=0)
 	pkt.Request((24, 278), [
@@ -9952,7 +9966,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5706, 87/06
 	pkt = NCP(0x5706, "Obtain File or SubDirectory Information", 'file', has_length=0)
 	pkt.Request((24,278), [
@@ -10019,7 +10033,7 @@ def define_ncp2222():
 	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5707, 87/07
 	pkt = NCP(0x5707, "Modify File or Subdirectory DOS Information", 'file', has_length=0)
 	pkt.Request((62,316), [
@@ -10053,7 +10067,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5708, 87/08
 	pkt = NCP(0x5708, "Delete a File or Subdirectory", 'file', has_length=0)
 	pkt.Request((20,274), [
@@ -10069,7 +10083,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5709, 87/09
 	pkt = NCP(0x5709, "Set Short Directory Handle", 'file', has_length=0)
 	pkt.Request((20,274), [
@@ -10086,7 +10100,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/570A, 87/10
 	pkt = NCP(0x570A, "Add Trustee Set to File or Subdirectory", 'file', has_length=0)
 	pkt.Request((31,285), [
@@ -10105,7 +10119,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfc01, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfc01, 0xfd00, 0xff16])
 	# 2222/570B, 87/11
 	pkt = NCP(0x570B, "Delete Trustee Set from File or SubDirectory", 'file', has_length=0)
 	pkt.Request((27,281), [
@@ -10122,7 +10136,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/570C, 87/12
 	pkt = NCP(0x570C, "Allocate Short Directory Handle", 'file', has_length=0)
 	pkt.Request((20,274), [
@@ -10142,7 +10156,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5710, 87/16
 	pkt = NCP(0x5710, "Scan Salvageable Files", 'file', has_length=0)
 	pkt.Request((26,280), [
@@ -10203,7 +10217,7 @@ def define_ncp2222():
 	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5711, 87/17
 	pkt = NCP(0x5711, "Recover Salvageable File", 'file', has_length=0)
 	pkt.Request((23,277), [
@@ -10217,7 +10231,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5712, 87/18
 	pkt = NCP(0x5712, "Purge Salvageable Files", 'file', has_length=0)
 	pkt.Request(22, [
@@ -10230,7 +10244,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5713, 87/19
 	pkt = NCP(0x5713, "Get Name Space Information", 'file', has_length=0)
 	pkt.Request(18, [
@@ -10259,7 +10273,7 @@ def define_ncp2222():
         pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5714, 87/20
 	pkt = NCP(0x5714, "Search for File or Subdirectory Set", 'file', has_length=0)
 	pkt.Request((28, 282), [
@@ -10327,7 +10341,7 @@ def define_ncp2222():
 	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5715, 87/21
 	pkt = NCP(0x5715, "Get Path String from Short Directory Handle", 'file', has_length=0)
 	pkt.Request(10, [
@@ -10359,7 +10373,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5717, 87/23
 	pkt = NCP(0x5717, "Query Name Space Information Format", 'file', has_length=0)
 	pkt.Request(10, [
@@ -10377,7 +10391,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5718, 87/24
 	pkt = NCP(0x5718, "Get Name Spaces Loaded List from Volume Number", 'file', has_length=0)
 	pkt.Request(10, [
@@ -10390,7 +10404,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5719, 87/25
 	pkt = NCP(0x5719, "Set Name Space Information", 'file', has_length=0)
 	pkt.Request(531, [
@@ -10405,7 +10419,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8b00, 0x8d00, 0x8f00, 0x9001,
-			     0x9600, 0x9804, 0x9b03, 0x9c03, 0xfd00,
+			     0x9600, 0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00,
 			     0xff16])
 	# 2222/571A, 87/26
 	pkt = NCP(0x571A, "Get Huge Name Space Information", 'file', has_length=0)
@@ -10422,7 +10436,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8b00, 0x8d00, 0x8f00, 0x9001,
-			     0x9600, 0x9804, 0x9b03, 0x9c03, 0xfd00,
+			     0x9600, 0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00,
 			     0xff16])
 	# 2222/571B, 87/27
 	pkt = NCP(0x571B, "Set Huge Name Space Information", 'file', has_length=0)
@@ -10440,7 +10454,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8b00, 0x8d00, 0x8f00, 0x9001,
-			     0x9600, 0x9804, 0x9b03, 0x9c03, 0xfd00,
+			     0x9600, 0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00,
 			     0xff16])
 	# 2222/571C, 87/28
 	pkt = NCP(0x571C, "Get Full Path String", 'file', has_length=0)
@@ -10466,7 +10480,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8b00, 0x8d00, 0x8f00, 0x9001,
-			     0x9600, 0x9804, 0x9b03, 0x9c03, 0xfd00,
+			     0x9600, 0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00,
 			     0xff16])
 	# 2222/571D, 87/29
 	pkt = NCP(0x571D, "Get Effective Directory Rights", 'file', has_length=0)
@@ -10523,7 +10537,7 @@ def define_ncp2222():
 	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/571E, 87/30
 	pkt = NCP(0x571E, "Open/Create File or Subdirectory", 'file', has_length=0)
 	pkt.Request((34, 288), [
@@ -10586,7 +10600,7 @@ def define_ncp2222():
 	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/571F, 87/31
 	pkt = NCP(0x571F, "Get File Information", 'file', has_length=0)
 	pkt.Request(16, [
@@ -10607,7 +10621,7 @@ def define_ncp2222():
         pkt.ReqCondSizeVariable()
         pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5720, 87/32
 	pkt = NCP(0x5720, "Open/Create File or Subdirectory with Callback", 'file', has_length=0)
 	pkt.Request((30, 284), [
@@ -10667,7 +10681,7 @@ def define_ncp2222():
 	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5721, 87/33
 	pkt = NCP(0x5721, "Open/Create File or Subdirectory II with Callback", 'file', has_length=0)
 	pkt.Request((34, 288), [
@@ -10719,7 +10733,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5722, 87/34
 	pkt = NCP(0x5722, "Open CallBack Control (Op-Lock)", 'file', has_length=0)
 	pkt.Request(13, [
@@ -10751,7 +10765,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5724, 87/36
 	pkt = NCP(0x5724, "Log File", 'file', has_length=0)
 	pkt.Request((28, 282), [
@@ -10771,7 +10785,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5725, 87/37
 	pkt = NCP(0x5725, "Release File", 'file', has_length=0)
 	pkt.Request((20, 274), [
@@ -10787,7 +10801,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5726, 87/38
 	pkt = NCP(0x5726, "Clear File", 'file', has_length=0)
 	pkt.Request((20, 274), [
@@ -10803,7 +10817,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5727, 87/39
 	pkt = NCP(0x5727, "Get Directory Disk Space Restriction", 'file', has_length=0)
 	pkt.Request((19, 273), [
@@ -10878,7 +10892,7 @@ def define_ncp2222():
 	pkt.ReqCondSizeVariable()
         pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5729, 87/41
 	pkt = NCP(0x5729, "Scan Salvageable Files", 'file', has_length=0)
 	pkt.Request((24,278), [
@@ -10902,7 +10916,7 @@ def define_ncp2222():
         pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/572A, 87/42
 	pkt = NCP(0x572A, "Purge Salvageable File List", 'file', has_length=0)
 	pkt.Request(28, [
@@ -10920,7 +10934,7 @@ def define_ncp2222():
         ])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/572B, 87/43
 	pkt = NCP(0x572B, "Revoke File Handle Rights", 'file', has_length=0)
 	pkt.Request(17, [
@@ -10935,7 +10949,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/572C, 87/44
 	pkt = NCP(0x572C, "Update File Handle Rights", 'file', has_length=0)
 	pkt.Request(24, [
@@ -10953,7 +10967,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5801, 8801
 	pkt = NCP(0x5801, "Query Volume Audit Status", "auditing", has_length=0)
 	pkt.Request(12, [
@@ -11383,12 +11397,12 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000, 0x8100, 0xfb04, 0xfe0c])
 	# 2222/6802, 104/02
 	pkt = NCP(0x6802, "Send NDS Fragmented Request/Reply", "nds", has_length=0)
-	pkt.Request(20, [
+	pkt.Request(26, [
 		rec( 8, 4, FraggerHandle ),
 		rec( 12, 4, FragSize ),
 		rec( 16, 4, TotalRequest ),
-#		rec( 20, 4, NDSFlags ),
-#		rec( 24, 2, NDSVerb, LE ),
+		rec( 20, 4, NDSFlags ),
+		rec( 24, 2, NDSVerb, LE ),
 #                rec( 26, 2, Reserved2),
 #                srec(NDS8Struct, req_cond="ncp.nds_verb==0x00fe"),
 #                srec(NDS7Struct, req_cond="ncp.nds_verb!=0x00fe"),
