@@ -2,7 +2,7 @@
  * Helpers for ASN.1/BER dissection
  * Ronnie Sahlberg (C) 2004
  *
- * $Id: packet-ber.c,v 1.2 2004/02/26 12:02:45 sahlberg Exp $
+ * $Id: packet-ber.c,v 1.3 2004/03/01 09:11:23 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -169,6 +169,10 @@ dissect_ber_octet_string(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 	offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
 	offset=dissect_ber_length(pinfo, tree, tvb, offset, &len);
 	end_offset=offset+len;
+
+	if(!len){
+		return end_offset;
+	}
 
 	/* sanity check: we only handle Constructed Universal Sequences */
 	if( (class!=BER_CLASS_UNI)
