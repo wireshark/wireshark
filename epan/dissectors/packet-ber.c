@@ -452,6 +452,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 		if( (class!=BER_CLASS_UNI) 
 		  ||((tag<BER_UNI_TAG_NumericString)&&(tag!=BER_UNI_TAG_OCTETSTRING)&&(tag!=BER_UNI_TAG_UTF8String)) ){
 	    	    proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", class, pc, tag);
+				*out_tvb=NULL;
 			return end_offset;
 		}
 	} else {
