@@ -4802,7 +4802,7 @@ getPDUenum(PDUprops *props, guint offset, guint cls, guint tag, guint value)
 /* Routines to handle parsing a list of ports    */
 /* * * * * * * * * * * * * * * * * * * * * * * * */
 
-#define SKIPWHITE(_s) { while(isspace(*(_s))) { (_s)++; } }
+#define SKIPWHITE(_s) { while(isspace((guchar)*(_s))) { (_s)++; } }
 
 /* insert error text in front of spec
  * with a delimeter we can recognize on next attempt
@@ -4875,7 +4875,7 @@ static GSList *parse_port_range(gchar *s, int len)
 
 			SKIPWHITE(es);
 
-			if (isdigit(*es))
+			if (isdigit((guchar)*es))
 				continue; /* a missig comma is OK */
 
 			switch(*es++) {

@@ -761,7 +761,7 @@ follow_print_text(char *buffer, int nchars, gboolean is_server _U_, void *arg)
     for (i = 0; i < nchars; i++) {
         if (buffer[i] == '\n' || buffer[i] == '\r')
             continue;
-        if (! isprint(buffer[i])) {
+        if (! isprint((guchar)buffer[i])) {
             buffer[i] = '.';
         }
     }
