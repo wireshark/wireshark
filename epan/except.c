@@ -30,23 +30,6 @@
 static const char rcsid[] = "$Id$";
 #endif
 
-#define group except_group
-#define code except_code
-#define id except_id
-#define message except_message
-#define dyndata except_dyndata
-#define func except_func
-#define context except_context
-#define id except_id
-#define size except_size
-#define obj except_obj
-#define jmp except_jmp
-#define down except_down
-#define type except_type
-#define catcher except_catcher
-#define cleanup except_cleanup
-#define info except_info
-
 #ifdef KAZLIB_POSIX_THREADS
 
 #include <pthread.h>
@@ -168,8 +151,10 @@ void except_deinit(void)
 
 static int match(const volatile except_id_t *thrown, const except_id_t *caught)
 {
-    int group_match = (caught->group == XCEPT_GROUP_ANY || caught->group == thrown->group);
-    int code_match = (caught->code == XCEPT_CODE_ANY || caught->code == thrown->code);
+    int group_match = (caught->except_group == XCEPT_GROUP_ANY || \
+	caught->except_group == thrown->except_group);
+    int code_match = (caught->except_code == XCEPT_CODE_ANY || \
+	caught->except_code == thrown->except_code);
 
     return group_match && code_match;
 }
@@ -178,24 +163,25 @@ static void do_throw(except_t *except)
 {
     struct except_stacknode *top;
 
-    assert (except->id.group != 0 && except->id.code != 0);
+    assert (except->except_id.except_group != 0 && \
+	except->except_id.except_code != 0);
 
-    for (top = get_top(); top != 0; top = top->down) {
-	if (top->type == XCEPT_CLEANUP) {
-	    top->info.cleanup->func(top->info.cleanup->context);
+    for (top = get_top(); top != 0; top = top->except_down) {
+	if (top->except_type == XCEPT_CLEANUP) {
+	    top->except_info.except_cleanup->except_func(top->except_info.except_cleanup->except_context);
 	} else {
-	    struct except_catch *catcher = top->info.catcher;
-	    const except_id_t *pi = catcher->id;
+	    struct except_catch *catcher = top->except_info.except_catcher;
+	    const except_id_t *pi = catcher->except_id;
 	    size_t i;
 
-	    assert (top->type == XCEPT_CATCHER);
-	    except_free(catcher->obj.dyndata);
+	    assert (top->except_type == XCEPT_CATCHER);
+	    except_free(catcher->except_obj.except_dyndata);
 
-	    for (i = 0; i < catcher->size; pi++, i++) {
-		if (match(&except->id, pi)) {
-		    catcher->obj = *except;
+	    for (i = 0; i < catcher->except_size; pi++, i++) {
+		if (match(&except->except_id, pi)) {
+		    catcher->except_obj = *except;
 		    set_top(top);
-		    longjmp(catcher->jmp, 1);
+		    longjmp(catcher->except_jmp, 1);
 		}
 	    }
 	}
@@ -209,41 +195,42 @@ static void do_throw(except_t *except)
 static void unhandled_catcher(except_t *except)
 {
     fprintf(stderr, "Unhandled exception (\"%s\", group=%ld, code=%ld)\n",
-	    except->message, except->id.group, except->id.code);
+	    except->except_message, except->except_id.except_group,
+	    except->except_id.except_code);
     abort();
 }
 
 static void stack_push(struct except_stacknode *node)
 {
-    node->down = get_top();
+    node->except_down = get_top();
     set_top(node);
 }
 
 void except_setup_clean(struct except_stacknode *esn,
 	struct except_cleanup *ecl, void (*cleanf)(void *), void *context)
 {
-    esn->type = XCEPT_CLEANUP;
-    ecl->func = cleanf;
-    ecl->context = context;
-    esn->info.cleanup = ecl;
+    esn->except_type = XCEPT_CLEANUP;
+    ecl->except_func = cleanf;
+    ecl->except_context = context;
+    esn->except_info.except_cleanup = ecl;
     stack_push(esn);
 }
 
 void except_setup_try(struct except_stacknode *esn,
 	struct except_catch *ech, const except_id_t id[], size_t size)
 {
-   ech->id = id;
-   ech->size = size;
-   ech->obj.dyndata = 0;
-   esn->type = XCEPT_CATCHER;
-   esn->info.catcher = ech;
+   ech->except_id = id;
+   ech->except_size = size;
+   ech->except_obj.except_dyndata = 0;
+   esn->except_type = XCEPT_CATCHER;
+   esn->except_info.except_catcher = ech;
    stack_push(esn);
 }
 
 struct except_stacknode *except_pop(void)
 {
     struct except_stacknode *top = get_top();
-    set_top(top->down);
+    set_top(top->except_down);
     return top;
 }
 
@@ -251,9 +238,9 @@ void except_rethrow(except_t *except)
 {
     struct except_stacknode *top = get_top();
     assert (top != 0);
-    assert (top->type == XCEPT_CATCHER);
-    assert (&top->info.catcher->obj == except);
-    set_top(top->down);
+    assert (top->except_type == XCEPT_CATCHER);
+    assert (&top->except_info.except_catcher->except_obj == except);
+    set_top(top->except_down);
     do_throw(except);
 }
 
@@ -261,10 +248,10 @@ void except_throw(long group, long code, const char *msg)
 {
     except_t except;
 
-    except.id.group = group;
-    except.id.code = code;
-    except.message = msg;
-    except.dyndata = 0;
+    except.except_id.except_group = group;
+    except.except_id.except_code = code;
+    except.except_message = msg;
+    except.except_dyndata = 0;
 
     do_throw(&except);
 }
@@ -273,10 +260,10 @@ void except_throwd(long group, long code, const char *msg, void *data)
 {
     except_t except;
 
-    except.id.group = group;
-    except.id.code = code;
-    except.message = msg;
-    except.dyndata = data;
+    except.except_id.except_group = group;
+    except.except_id.except_code = code;
+    except.except_message = msg;
+    except.except_dyndata = data;
 
     do_throw(&except);
 }
@@ -306,28 +293,28 @@ void (*except_unhandled_catcher(void (*new_catcher)(except_t *)))(except_t *)
 
 unsigned long except_code(except_t *ex)
 {
-    return ex->id.code;
+    return ex->except_id.except_code;
 }
 
 unsigned long except_group(except_t *ex)
 {
-    return ex->id.group;
+    return ex->except_id.except_group;
 }
 
 const char *except_message(except_t *ex)
 {
-    return ex->message;
+    return ex->except_message;
 }
 
 void *except_data(except_t *ex)
 {
-    return ex->dyndata;
+    return ex->except_dyndata;
 }
 
 void *except_take_data(except_t *ex)
 {
-    void *data = ex->dyndata;
-    ex->dyndata = 0;
+    void *data = ex->except_dyndata;
+    ex->except_dyndata = 0;
     return data;
 }
 
