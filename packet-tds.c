@@ -2,7 +2,7 @@
  * Routines for TDS NetLib dissection
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  *
- * $Id: packet-tds.c,v 1.1 2002/08/19 21:33:29 jmayer Exp $
+ * $Id: packet-tds.c,v 1.2 2002/08/20 02:04:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -650,6 +650,9 @@ netlib_read_header(tvbuff_t *tvb, guint offset, struct _netlib_data *nl_data)
 		return FALSE;
 	}
 	if (nl_data->packet_last!=0 && nl_data->packet_last!=1) {
+		return FALSE;
+	}
+	if (nl_data->packet_size == 0) {
 		return FALSE;
 	}
 	/*
