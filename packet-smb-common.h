@@ -2,7 +2,7 @@
  * Routines for SMB packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-common.h,v 1.22 2003/05/09 01:41:28 tpot Exp $
+ * $Id: packet-smb-common.h,v 1.23 2003/05/15 02:14:00 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,14 +58,36 @@ int dissect_smb_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_d
 int dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, 
 		   char *name, char **sid_str);
 
-/* Stuff for dissecting NT access masks */
+/* 
+ * Stuff for dissecting NT access masks 
+ */
 
 typedef void (nt_access_mask_fn_t)(tvbuff_t *tvb, gint offset,
 				   proto_tree *tree, guint32 access);
 
+/* Map generic access permissions to specific permissions */
+
+struct generic_mapping {
+	guint32 generic_read;
+	guint32 generic_write;
+	guint32 generic_execute;
+	guint32 generic_all;
+};
+
+/* Map standard access permissions to specific permissions */
+
+struct standard_mapping {
+	guint32 std_read;
+	guint32 std_write;
+	guint32 std_execute;
+	guint32 std_all;
+};
+
 struct access_mask_info {
 	char *specific_rights_name;
 	nt_access_mask_fn_t *specific_rights_fn;
+	struct generic_mapping *generic_mapping;
+	struct standard_mapping *standard_mapping;
 };
 
 int

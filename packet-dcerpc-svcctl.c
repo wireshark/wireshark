@@ -3,7 +3,7 @@
  * Copyright 2003, Tim Potter <tpot@samba.org>
  * Copyright 2003, Ronnie Sahlberg,  added function dissectors
  *
- * $Id: packet-dcerpc-svcctl.c,v 1.7 2003/04/28 04:44:54 tpot Exp $
+ * $Id: packet-dcerpc-svcctl.c,v 1.8 2003/05/15 02:14:00 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -97,7 +97,9 @@ svcctl_scm_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
 
 struct access_mask_info svcctl_scm_access_mask_info = {
 	"SVCCTL",
-	svcctl_scm_specific_rights
+	svcctl_scm_specific_rights,
+	NULL,			/* Generic mapping table */
+	NULL			/* Standard mapping table */
 };
 
 /*

@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.85 2003/04/28 04:44:53 tpot Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.86 2003/05/15 02:14:00 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -246,7 +246,9 @@ specific_rights_connect(tvbuff_t *tvb, gint offset, proto_tree *tree,
 
 struct access_mask_info samr_connect_access_mask_info = {
 	"SAMR connect",
-	specific_rights_connect
+	specific_rights_connect,
+	NULL,			    /* Generic rights mapping */
+	NULL                        /* Standard rights mapping */
 };
 
 /* Dissect domain specific access rights */
@@ -314,7 +316,9 @@ specific_rights_domain(tvbuff_t *tvb, gint offset, proto_tree *tree,
 
 struct access_mask_info samr_domain_access_mask_info = {
 	"SAMR domain",
-	specific_rights_domain
+	specific_rights_domain,
+	NULL,			/* Generic mapping table */
+	NULL			/* Standard mapping table */
 };
 
 /* Dissect user specific access rights */
@@ -382,7 +386,9 @@ specific_rights_user(tvbuff_t *tvb, gint offset, proto_tree *tree,
 
 struct access_mask_info samr_user_access_mask_info = {
 	"SAMR user",
-	specific_rights_user
+	specific_rights_user,
+	NULL,			/* Generic mapping table */
+	NULL			/* Standard mapping table */
 };
 
 /* Dissect alias specific access rights */
@@ -420,7 +426,9 @@ specific_rights_alias(tvbuff_t *tvb, gint offset, proto_tree *tree,
 
 struct access_mask_info samr_alias_access_mask_info = {
 	"SAMR alias",
-	specific_rights_alias
+	specific_rights_alias,
+	NULL,			/* Generic mapping table */
+	NULL			/* Standard mapping table */
 };
 
 /* Dissect group specific access rights */
@@ -458,7 +466,9 @@ specific_rights_group(tvbuff_t *tvb, gint offset, proto_tree *tree,
 
 struct access_mask_info samr_group_access_mask_info = {
 	"SAMR group",
-	specific_rights_group
+	specific_rights_group,
+	NULL,			/* Generic mapping table */
+	NULL			/* Standard mapping table */
 };
 
 int

@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.76 2003/04/28 04:44:53 tpot Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.77 2003/05/15 02:14:00 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -348,7 +348,9 @@ lsa_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
 
 struct access_mask_info lsa_access_mask_info = {
 	"LSA",			/* Name of specific rights */
-	lsa_specific_rights	/* Dissection function */
+	lsa_specific_rights,	/* Dissection function */
+	NULL,			/* Generic mapping table */
+	NULL			/* Standard mapping table */
 };
 
 int

@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.338 2003/05/09 01:41:28 tpot Exp $
+ * $Id: packet-smb.c,v 1.339 2003/05/15 02:14:00 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7248,13 +7248,58 @@ static int hf_access_specific_2 = -1;
 static int hf_access_specific_1 = -1;
 static int hf_access_specific_0 = -1;
 
+/* Map generic permissions to specific permissions */
+
+static void map_generic_access(guint32 *access_mask, 
+			       struct generic_mapping *mapping)
+{
+	if (*access_mask & GENERIC_READ_ACCESS) {
+		*access_mask &= ~GENERIC_READ_ACCESS;
+		*access_mask |= mapping->generic_read;
+	}
+
+	if (*access_mask & GENERIC_WRITE_ACCESS) {
+		*access_mask &= ~GENERIC_WRITE_ACCESS;
+		*access_mask |= mapping->generic_write;
+	}
+
+	if (*access_mask & GENERIC_EXECUTE_ACCESS) {
+		*access_mask &= ~GENERIC_EXECUTE_ACCESS;
+		*access_mask |= mapping->generic_execute;
+	}
+
+	if (*access_mask & GENERIC_ALL_ACCESS) {
+		*access_mask &= ~GENERIC_ALL_ACCESS;
+		*access_mask |= mapping->generic_all;
+	}
+}
+
+/* Map standard permissions to specific permissions */
+
+static void map_standard_access(guint32 *access_mask,
+				struct standard_mapping *mapping)
+{
+	if (*access_mask & READ_CONTROL_ACCESS) {
+		*access_mask &= ~READ_CONTROL_ACCESS;
+		*access_mask |= mapping->std_read;
+	}
+
+	if (*access_mask & (DELETE_ACCESS|WRITE_DAC_ACCESS|WRITE_OWNER_ACCESS|
+			    SYNCHRONIZE_ACCESS)) {
+		*access_mask &= ~(DELETE_ACCESS|WRITE_DAC_ACCESS|
+				  WRITE_OWNER_ACCESS|SYNCHRONIZE_ACCESS);
+		*access_mask |= mapping->std_all;
+	}
+
+}
+
 int
 dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		       proto_tree *tree, char *drep, int hfindex,
 		       struct access_mask_info *ami)
 {
 	proto_item *item;
-	proto_tree *subtree, *generic, *standard, *specific;
+	proto_tree *subtree, *generic_tree, *standard_tree, *specific_tree;
 	guint32 access;
 
 	if (drep != NULL) {
@@ -7287,22 +7332,23 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				   "Generic rights: 0x%08x",
 				   access & GENERIC_RIGHTS_MASK);
 
-	generic = proto_item_add_subtree(item, ett_nt_access_mask_generic);
+	generic_tree = proto_item_add_subtree(
+		item, ett_nt_access_mask_generic);
 
 	proto_tree_add_boolean(
-		generic, hf_access_generic_read, tvb, offset - 4, 4,
+		generic_tree, hf_access_generic_read, tvb, offset - 4, 4,
 		access);
 
 	proto_tree_add_boolean(
-		generic, hf_access_generic_write, tvb, offset - 4, 4,
+		generic_tree, hf_access_generic_write, tvb, offset - 4, 4,
 		access);
 
 	proto_tree_add_boolean(
-		generic, hf_access_generic_execute, tvb, offset - 4, 4,
+		generic_tree, hf_access_generic_execute, tvb, offset - 4, 4,
 		access);
 
 	proto_tree_add_boolean(
-		generic, hf_access_generic_all, tvb, offset - 4, 4,
+		generic_tree, hf_access_generic_all, tvb, offset - 4, 4,
 		access);
 
 	/* Reserved (??) */
@@ -7323,26 +7369,27 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				   "Standard rights: 0x%08x",
 				   access & STANDARD_RIGHTS_MASK);
 
-	standard = proto_item_add_subtree(item, ett_nt_access_mask_standard);
+	standard_tree = proto_item_add_subtree(
+		item, ett_nt_access_mask_standard);
 
 	proto_tree_add_boolean(
-		standard, hf_access_standard_synchronise, tvb, offset - 4, 4,
-		access);
+		standard_tree, hf_access_standard_synchronise, tvb, 
+		offset - 4, 4, access);
 
 	proto_tree_add_boolean(
-		standard, hf_access_standard_write_owner, tvb, offset - 4, 4,
-		access);
+		standard_tree, hf_access_standard_write_owner, tvb, 
+		offset - 4, 4, access);
 
 	proto_tree_add_boolean(
-		standard, hf_access_standard_write_dac, tvb, offset - 4, 4,
-		access);
+		standard_tree, hf_access_standard_write_dac, tvb, 
+		offset - 4, 4, access);
 
 	proto_tree_add_boolean(
-		standard, hf_access_standard_read_control, tvb, offset - 4, 4,
-		access);
+		standard_tree, hf_access_standard_read_control, tvb, 
+		offset - 4, 4, access);
 
 	proto_tree_add_boolean(
-		standard, hf_access_standard_delete, tvb, offset - 4, 4,
+		standard_tree, hf_access_standard_delete, tvb, offset - 4, 4,
 		access);
 
 	/* Specific access rights.  Call the specific_rights_fn
@@ -7359,75 +7406,96 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 					   "Specific rights: 0x%08x",
 					   access & SPECIFIC_RIGHTS_MASK);
 
-	specific = proto_item_add_subtree(item, ett_nt_access_mask_specific);
+	specific_tree = proto_item_add_subtree(
+		item, ett_nt_access_mask_specific);
 
 	if (ami && ami->specific_rights_fn) {
-		ami->specific_rights_fn(tvb, offset - 4, specific, access);
+		guint32 mapped_access = access;
+		proto_tree *specific_mapped;
+
+		specific_mapped = proto_item_add_subtree(
+			item, ett_nt_access_mask_specific);
+
+		ami->specific_rights_fn(
+			tvb, offset - 4, specific_tree, access);
+
+		if (ami->generic_mapping)
+			map_generic_access(&access, ami->generic_mapping);
+		
+		if (ami->standard_mapping)
+			map_standard_access(&access, ami->standard_mapping);
+
+		if (access != mapped_access) {
+			ami->specific_rights_fn(
+				tvb, offset - 4, specific_mapped, 
+				mapped_access);
+		}
+		
 		return offset;
 	}
 
 	proto_tree_add_boolean(
-		specific, hf_access_specific_15, tvb, offset - 4, 4,
+		specific_tree, hf_access_specific_15, tvb, offset - 4, 4,
 		access);
 
 	proto_tree_add_boolean(
-		specific, hf_access_specific_14, tvb, offset - 4, 4,
+		specific_tree, hf_access_specific_14, tvb, offset - 4, 4,
 		access);
 
 	proto_tree_add_boolean(
-		specific, hf_access_specific_13, tvb, offset - 4, 4,
+		specific_tree, hf_access_specific_13, tvb, offset - 4, 4,
 		access);
 
 	proto_tree_add_boolean(
-		specific, hf_access_specific_12, tvb, offset - 4, 4,
+		specific_tree, hf_access_specific_12, tvb, offset - 4, 4,
 		access);
 
 	proto_tree_add_boolean(
-		specific, hf_access_specific_11, tvb, offset - 4, 4,
+		specific_tree, hf_access_specific_11, tvb, offset - 4, 4,
 		access);
 
 	proto_tree_add_boolean(
-		specific, hf_access_specific_10, tvb, offset - 4, 4,
+		specific_tree, hf_access_specific_10, tvb, offset - 4, 4,
 		access);
 
 	proto_tree_add_boolean(
-		specific, hf_access_specific_9, tvb, offset - 4, 4,
+		specific_tree, hf_access_specific_9, tvb, offset - 4, 4,
 		access);
 
 	proto_tree_add_boolean(
-		specific, hf_access_specific_8, tvb, offset - 4, 4,
+		specific_tree, hf_access_specific_8, tvb, offset - 4, 4,
 		access);
 
 	proto_tree_add_boolean(
-		specific, hf_access_specific_7, tvb, offset - 4, 4,
+		specific_tree, hf_access_specific_7, tvb, offset - 4, 4,
 		access);
 
 	proto_tree_add_boolean(
-		specific, hf_access_specific_6, tvb, offset - 4, 4,
+		specific_tree, hf_access_specific_6, tvb, offset - 4, 4,
 		access);
 
 	proto_tree_add_boolean(
-		specific, hf_access_specific_5, tvb, offset - 4, 4,
+		specific_tree, hf_access_specific_5, tvb, offset - 4, 4,
 		access);
 
 	proto_tree_add_boolean(
-		specific, hf_access_specific_4, tvb, offset - 4, 4,
+		specific_tree, hf_access_specific_4, tvb, offset - 4, 4,
 		access);
 
 	proto_tree_add_boolean(
-		specific, hf_access_specific_3, tvb, offset - 4, 4,
+		specific_tree, hf_access_specific_3, tvb, offset - 4, 4,
 		access);
 
 	proto_tree_add_boolean(
-		specific, hf_access_specific_2, tvb, offset - 4, 4,
+		specific_tree, hf_access_specific_2, tvb, offset - 4, 4,
 		access);
 
 	proto_tree_add_boolean(
-		specific, hf_access_specific_1, tvb, offset - 4, 4,
+		specific_tree, hf_access_specific_1, tvb, offset - 4, 4,
 		access);
 
 	proto_tree_add_boolean(
-		specific, hf_access_specific_0, tvb, offset - 4, 4,
+		specific_tree, hf_access_specific_0, tvb, offset - 4, 4,
 		access);
 
 	return offset;
