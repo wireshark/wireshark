@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.52 2002/04/24 21:53:47 guy Exp $
+$Id: README.developer,v 1.53 2002/06/18 20:25:12 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -68,6 +68,29 @@ will not work with all compilers - you have to do
 
 with some statement, even if it's a null statement, after the label.
 
+Don't use "bzero()", "bcopy()", or "bcmp()"; instead, use the ANSI C
+routines
+
+	"memset()" (with zero as the second argument, so that it sets
+	all the bytes to zero);
+
+	"memcpy()" or "memmove()" (note that the first and second
+	arguments to "memcpy()" are in the reverse order to the
+	arguments to "bcopy()"; note also that "bcopy()" is typically
+	guaranteed to work on overlapping memory regions, while
+	"memcpy()" isn't, so if you may be copying from one region to a
+	region that overlaps it, use "memmove()", not "memcpy()" - but
+	"memcpy()" might be faster as a result of not guaranteeing
+	correct operation on overlapping memory regions);
+
+	and "memcmp()" (note that "memcmp()" returns 0, 1, or -1, doing
+	an ordered comparison, rather than just returning 0 for "equal"
+	and 1 for "not equal").
+
+Not all platforms necessarily have "bzero()"/"bcopy()"/"bcmp()", and
+those that do might not declare them in the header file on which they're
+declared on your platform.
+
 1.1.2 Name convention.
 
 Ethereal uses the underscore_convention rather than the InterCapConvention for
@@ -105,7 +128,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.52 2002/04/24 21:53:47 guy Exp $"
+The "$Id: README.developer,v 1.53 2002/06/18 20:25:12 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -115,7 +138,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.52 2002/04/24 21:53:47 guy Exp $
+ * $Id: README.developer,v 1.53 2002/06/18 20:25:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
