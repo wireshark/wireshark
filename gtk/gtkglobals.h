@@ -1,7 +1,7 @@
 /* gtkglobals.h
  * GTK-related Global defines, etc.
  *
- * $Id: gtkglobals.h,v 1.20 2002/11/03 17:38:33 oabad Exp $
+ * $Id: gtkglobals.h,v 1.21 2002/12/31 21:49:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,20 +41,13 @@ void set_plist_font(PangoFontDescription *font);
 void set_plist_sel_browse(gboolean);
 
 #ifdef _WIN32
-/* It appears that isprint() is not working well
- * with gtk+'s text widget. By narrowing down what
- * we print, the ascii portion of the hex display works.
- * MSVCRT's isprint() returns true on values like 0xd2,
- * which cause the GtkTextWidget to go wacko.
- *
- * (I.e., whilst non-ASCII characters are considered printable
- * in the locale in which Ethereal is running - which they might
- * well be, if, for example, the locale supports ISO Latin 1 -
- * GTK+'s text widget on Windows doesn't seem to handle them
- * correctly.)
- *
- * This is a quick fix for the symptom, not the
- * underlying problem.
+/*
+ * XXX - "isprint()" can return "true" for non-ASCII characters, but
+ * those don't work with GTK+ on Windows, as GTK+ on Windows assumes
+ * UTF-8 strings.  Until we fix up Ethereal to properly handle
+ * non-ASCII characters in all output (both GUI displays and text
+ * printouts) on all platforms including Windows, we work around
+ * the problem by escaping all characters that aren't printable ASCII.
  */
 #undef isprint
 #define isprint(c) (c >= 0x20 && c <= 0x7f)
