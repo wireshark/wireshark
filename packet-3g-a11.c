@@ -8,7 +8,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-3g-a11.c,v 1.3 2004/03/05 22:22:51 jmayer Exp $
+ * $Id: packet-3g-a11.c,v 1.4 2004/03/10 23:42:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -215,10 +215,24 @@ static const value_string a11_ext_stypes[]= {
   {0, NULL},
 };
 
-static const value_string a11_nvse_srvopt[]= {
+static const value_string a11_ext_nvose_srvopt[]= {
   {0x0021, "3G High Speed Packet Data"},
+  {0x003C, "Link Layer Assisted Header Removal"},
   {0x003D, "Link Layer Assisted RObust Header Compression"},
   {0, NULL},
+};
+
+static const value_string a11_ext_nvose_pdsn_code[]= {
+  {0xc1, "Connection Release - reason unspecified"},
+  {0xc2, "Connection Release - PPP time-out"},
+  {0xc3, "Connection Release - registration time-out"},
+  {0xc4, "Connection Release - PDSN error"},
+  {0xc5, "Connection Release - inter-PCF handoff"},
+  {0xc6, "Connection Release - inter-PDSN handoff"},
+  {0xc7, "Connection Release - PDSN OAM&P intervention"},
+  {0xc8, "Connection Release - accounting error"},
+  {0xca, "Connection Release - user (NAI) failed authentication"},
+  {0x00, NULL},
 };
 
 static const value_string a11_ext_dormant[]= {
@@ -271,17 +285,21 @@ static const struct radius_attribute attrs[]={
   {"MSID",                    31, -1, 15, ATTR_TYPE_MSID},
   {"Serving PCF",             26,  9,  4, ATTR_TYPE_IPV4},
   {"BSID",                    26, 10, 12, ATTR_TYPE_STR},
-  {"ESN",                     26, 52,  4, ATTR_TYPE_INT},
+  {"ESN",                     26, 52, 15, ATTR_TYPE_STR},
   {"User Zone",               26, 11,  4, ATTR_TYPE_INT},
-  {"Forward Mux Option",      26, 12,  4, ATTR_TYPE_INT},
-  {"Reverse Mux Option",      26, 13,  4, ATTR_TYPE_INT},
+  {"Forward FCH Mux Option",  26, 12,  4, ATTR_TYPE_INT},
+  {"Reverse FCH Mux Option",  26, 13,  4, ATTR_TYPE_INT},
   {"Service Option",          26, 16,  4, ATTR_TYPE_INT},
   {"Forward Traffic Type",    26, 17,  4, ATTR_TYPE_INT},
   {"Reverse Traffic Type",    26, 18,  4, ATTR_TYPE_INT},
-  {"Fundamental Frame Size",  26, 19,  4, ATTR_TYPE_INT},
-  {"Forward Fundamental RC",  26, 20,  4, ATTR_TYPE_INT},
-  {"Reverse Fundamental RC",  26, 21,  4, ATTR_TYPE_INT},
+  {"FCH Frame Size",          26, 19,  4, ATTR_TYPE_INT},
+  {"Forward FCH RC",          26, 20,  4, ATTR_TYPE_INT},
+  {"Reverse FCH RC",          26, 21,  4, ATTR_TYPE_INT},
   {"DCCH Frame Size 0/5/20",  26, 50,  4, ATTR_TYPE_INT},
+  {"Forward DCCH Mux Option", 26, 84,  4, ATTR_TYPE_INT},
+  {"Reverse DCCH Mux Option", 26, 85,  4, ATTR_TYPE_INT},
+  {"Forward DCCH RC",         26, 86,  4, ATTR_TYPE_INT},
+  {"Reverse DCCH RC",         26, 87,  4, ATTR_TYPE_INT},
   {"Airlink Priority",        26, 39,  4, ATTR_TYPE_INT},
   {"Active Connection Time",  26, 49,  4, ATTR_TYPE_INT},
   {"Mobile Orig/Term Ind.",   26, 45,  4, ATTR_TYPE_INT},
@@ -1022,12 +1040,12 @@ void proto_register_a11(void)
 	  },
 	  { &hf_a11_vse_pdit,
 		 { "PDSN Code",                      "a11.ext.code",
-			FT_UINT8, BASE_HEX, NULL, 0,
+			FT_UINT8, BASE_HEX, VALS(a11_ext_nvose_pdsn_code), 0,
 			"PDSN Code.", HFILL }
 	  },
 	  { &hf_a11_vse_srvopt,
 		 { "Service Option",                      "a11.ext.srvopt",
-			FT_UINT16, BASE_HEX, NULL, 0,
+			FT_UINT16, BASE_HEX, VALS(a11_ext_nvose_srvopt), 0,
 			"Servie Option.", HFILL }
 	  },
 	  { &hf_a11_vse_mnsrid,
