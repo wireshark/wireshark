@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.64 2003/11/04 20:22:21 guy Exp $
+ * $Id: prefs_dlg.c,v 1.65 2003/11/04 20:33:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1341,6 +1341,8 @@ properties_cb(GtkWidget *w, gpointer dummy)
        page_num++) {
     /* Get the module for this page. */
     page_module = OBJECT_GET_DATA(frame, E_PAGE_MODULE_KEY);
+    if (page_module == NULL)
+      continue;	/* It doesn't have one. */
     if (page_module == p.module) {
       /* We found it.  Select that page. */
       gtk_notebook_set_page(GTK_NOTEBOOK(notebook), page_num);
