@@ -114,6 +114,14 @@ typedef struct _e_ospf_summary_lsa {
     guint32	network_mask;
 } e_ospf_summary_lsa;
 
+typedef struct _e_ospf_asexternal_lsa {
+    guint8	options;
+    guint8      metric[3];
+    guint32	gateway;
+    guint32 	external_tag;
+} e_ospf_asexternal_lsa;
+
+
 void dissect_ospf_hello(const u_char*, int, frame_data*, GtkTree*);
 void dissect_ospf_db_desc(const u_char*, int, frame_data*, GtkTree*); 
 void dissect_ospf_ls_req(const u_char*, int, frame_data*, GtkTree*); 
@@ -122,6 +130,6 @@ void dissect_ospf_ls_ack(const u_char*, int, frame_data*, GtkTree*);
 
 /* dissect_ospf_lsa returns the length of the LSA 
  * if disassemble_body is set to FALSE (e.g. in LSA ACK 
- * packets), the header length is returned
+ * packets), the LSA-header length is returned (20)
  */
 int dissect_ospf_lsa(const u_char*, int, frame_data*, GtkTree*, int disassemble_body); 
