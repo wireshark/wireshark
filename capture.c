@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.126 2000/09/17 03:20:03 guy Exp $
+ * $Id: capture.c,v 1.127 2000/09/21 04:41:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -988,7 +988,7 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr)
     case WTAP_ENCAP_FDDI_BITSWAPPED:
       capture_fddi(pd, &ld->counts);
       break;
-    case WTAP_ENCAP_TR:
+    case WTAP_ENCAP_TOKEN_RING:
       capture_tr(pd, 0, &ld->counts);
       break;
     case WTAP_ENCAP_NULL:
@@ -1578,7 +1578,7 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
     case WTAP_ENCAP_FDDI_BITSWAPPED:
       capture_fddi(pd, &ld->counts);
       break;
-    case WTAP_ENCAP_TR:
+    case WTAP_ENCAP_TOKEN_RING:
       capture_tr(pd, 0, &ld->counts);
       break;
     case WTAP_ENCAP_NULL:

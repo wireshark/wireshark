@@ -1,6 +1,6 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.12 2000/09/07 05:34:20 gram Exp $
+ * $Id: toshiba.c,v 1.13 2000/09/21 04:41:37 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -327,8 +327,8 @@ parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
 		case 'D':
 			if (wth)
 				wth->phdr.pkt_encap = WTAP_ENCAP_LAPD;
-			pseudo_header->lapd.from_network_to_user = 
-				(direction[0] == 'R' ? TRUE : FALSE );
+			pseudo_header->p2p.sent = 
+				(direction[0] == 'T' ? TRUE : FALSE );
 			break;
 			
 		default:

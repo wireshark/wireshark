@@ -4,7 +4,7 @@
  * Creates random packet traces. Useful for debugging sniffers by testing
  * assumptions about the veracity of the data found in the packet.
  *
- * $Id: randpkt.c,v 1.8 2000/06/11 15:54:03 gerald Exp $
+ * $Id: randpkt.c,v 1.9 2000/09/21 04:41:09 gram Exp $
  *
  * Copyright (C) 1999 by Gilbert Ramirez <gram@xiexie.org>
  * 
@@ -215,7 +215,7 @@ pkt_example examples[] = {
 		PKT_IP,		pkt_ip,		WTAP_ENCAP_ETHERNET,	array_length(pkt_ip) },
 
 	{ "llc", "Logical Link Control",
-		PKT_LLC,	pkt_llc,	WTAP_ENCAP_TR,		array_length(pkt_llc) },
+		PKT_LLC,	pkt_llc,	WTAP_ENCAP_TOKEN_RING,	array_length(pkt_llc) },
 
 	{ "nbns", "NetBIOS-over-TCP Name Service",
 		PKT_NBNS,	pkt_nbns,	WTAP_ENCAP_ETHERNET,	array_length(pkt_nbns) },
@@ -224,10 +224,10 @@ pkt_example examples[] = {
 		PKT_SYSLOG,	pkt_syslog,	WTAP_ENCAP_ETHERNET,	array_length(pkt_syslog) },
 
 	{ "tcp", "Transmission Control Protocol",
-		PKT_TCP,	pkt_tcp,	WTAP_ENCAP_TR,		array_length(pkt_tcp) },
+		PKT_TCP,	pkt_tcp,	WTAP_ENCAP_TOKEN_RING,	array_length(pkt_tcp) },
 
 	{ "tr",	 "Token-Ring",
-		PKT_TR,		NULL,		WTAP_ENCAP_TR,		0 },
+		PKT_TR,		NULL,		WTAP_ENCAP_TOKEN_RING,	0 },
 
 	{ "udp", "User Datagram Protocol",
 		PKT_UDP,	pkt_udp,	WTAP_ENCAP_ETHERNET,	array_length(pkt_udp) }

@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.25 2000/09/07 05:34:10 gram Exp $
+ * $Id: lanalyzer.c,v 1.26 2000/09/21 04:41:30 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -167,7 +167,7 @@ int lanalyzer_open(wtap *wth, int *err)
 						wth->file_encap = WTAP_ENCAP_ETHERNET;
 						break;
 					case BOARD_325TR:
-						wth->file_encap = WTAP_ENCAP_TR;
+						wth->file_encap = WTAP_ENCAP_TOKEN_RING;
 						break;
 					default:
 						g_message("lanalyzer: board type %u unknown",

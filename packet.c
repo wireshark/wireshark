@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.108 2000/09/13 20:17:21 gram Exp $
+ * $Id: packet.c,v 1.109 2000/09/21 04:41:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -102,12 +102,21 @@ static int hf_frame_time_delta = -1;
 static int hf_frame_number = -1;
 static int hf_frame_packet_len = -1;
 static int hf_frame_capture_len = -1;
+static int hf_frame_p2p_dir = -1;
 static int proto_short = -1;
 static int proto_malformed = -1;
 
 static gint ett_frame = -1;
 
 static void display_signed_time(gchar *, int, gint32, gint32);
+
+
+static const value_string p2p_dirs[] = {
+	{ P2P_DIR_SENT,	"Sent" },
+	{ P2P_DIR_RECV, "Received" },
+	{ 0, NULL }
+};
+	
 
 /* Protocol-specific data attched to a frame_data structure - protocol
    index and opaque pointer. */
@@ -939,6 +948,7 @@ void blank_packetinfo(void)
   pi.srcport  = 0;
   pi.destport = 0;
   pi.current_proto = "<Missing Protocol Name>";
+  pi.p2p_dir = P2P_DIR_UNKNOWN;
 }
 
 /* Do all one-time initialization. */
@@ -1000,6 +1010,14 @@ dissect_packet(union wtap_pseudo_header *pseudo_header, const u_char *pd,
 	struct timeval tv;
 	static tvbuff_t *tvb;
 
+	blank_packetinfo();
+
+	if (fd->lnk_t == WTAP_ENCAP_LAPD ||
+			fd->lnk_t == WTAP_ENCAP_PPP_WITH_PHDR) {
+
+		pi.p2p_dir = pseudo_header->p2p.sent ? P2P_DIR_SENT : P2P_DIR_RECV;
+	}
+
 	/* Put in frame header information. */
 	if (tree) {
 	  ti = proto_tree_add_protocol_format(tree, proto_frame, NullTVB, 0, fd->cap_len,
@@ -1030,9 +1048,14 @@ dissect_packet(union wtap_pseudo_header *pseudo_header, const u_char *pd,
 	  proto_tree_add_uint_format(fh_tree, hf_frame_capture_len, NullTVB,
 		0, 0, fd->cap_len, "Capture Length: %d byte%s", fd->cap_len,
 		plurality(fd->cap_len, "", "s"));
+
+	  /* Check for existences of P2P pseudo header */
+	  if (fd->lnk_t == WTAP_ENCAP_LAPD || fd->lnk_t == WTAP_ENCAP_PPP_WITH_PHDR) {
+		  proto_tree_add_uint(fh_tree, hf_frame_p2p_dir, NullTVB,
+				  0, 0, pi.p2p_dir);
+	  }
 	}
 
-	blank_packetinfo();
 
 	/* Set the initial payload to the packet length, and the initial
 	   captured payload to the capture length (other protocols may
@@ -1060,13 +1083,14 @@ dissect_packet(union wtap_pseudo_header *pseudo_header, const u_char *pd,
 			case WTAP_ENCAP_FDDI_BITSWAPPED :
 				dissect_fddi(tvb, &pi, tree, TRUE);
 				break;
-			case WTAP_ENCAP_TR :
+			case WTAP_ENCAP_TOKEN_RING :
 				dissect_tr(tvb, &pi, tree);
 				break;
 			case WTAP_ENCAP_NULL :
 				dissect_null(tvb, &pi, tree);
 				break;
 			case WTAP_ENCAP_PPP :
+			case WTAP_ENCAP_PPP_WITH_PHDR :
 				dissect_ppp(tvb, &pi, tree);
 				break;
 			case WTAP_ENCAP_LAPB :
@@ -1202,6 +1226,10 @@ proto_register_frame(void)
 
 		{ &hf_frame_capture_len,
 		{ "Capture Frame Length",	"frame.cap_len", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"" }},
+
+		{ &hf_frame_p2p_dir,
+		{ "Point-to-Point Direction",	"frame.p2p_dir", FT_UINT8, BASE_DEC, VALS(p2p_dirs), 0x0,
 			"" }},
 	};
 	static gint *ett[] = {

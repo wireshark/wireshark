@@ -1,6 +1,6 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.2 2000/09/19 17:35:08 gram Exp $
+ * $Id: pppdump.c,v 1.3 2000/09/21 04:41:35 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  * 
@@ -197,7 +197,7 @@ pppdump_open(wtap *wth, int *err)
 
 	state->offset = 5; 
 	file_seek(wth->fh, 5, SEEK_SET); 
-	wth->file_encap = WTAP_ENCAP_PPP; 
+	wth->file_encap = WTAP_ENCAP_PPP_WITH_PHDR; 
 	wth->file_type = WTAP_FILE_PPPDUMP; 
 
 	wth->snapshot_length = 8192; /* just guessing */ 
@@ -254,7 +254,9 @@ pppdump_read(wtap *wth, int *err, int *data_offset)
 	wth->phdr.caplen	= num_bytes;
 	wth->phdr.ts.tv_sec	= state->timestamp;
 	wth->phdr.ts.tv_usec	= state->tenths * 100000;
-	wth->phdr.pkt_encap	= WTAP_ENCAP_PPP;
+	wth->phdr.pkt_encap	= WTAP_ENCAP_PPP_WITH_PHDR;
+
+	wth->pseudo_header.p2p.sent = (direction == DIRECTION_SENT ? TRUE : FALSE);
 
 	return TRUE;
 }
@@ -540,6 +542,8 @@ pppdump_seek_read (wtap *wth,
 	if (len != num_bytes) {
 		return -1;
 	}
+
+	pseudo_header->p2p.sent = (pid->dir == DIRECTION_SENT ? TRUE : FALSE);
 
 	return 0;
 }

@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lapd.c,v 1.13 2000/08/13 14:08:24 deniel Exp $
+ * $Id: packet-lapd.c,v 1.14 2000/09/21 04:41:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -106,19 +106,19 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	sapi = (address & LAPD_SAPI) >> LAPD_SAPI_SHIFT;
 	lapd_header_len = 2;	/* address */
 
-	if (pinfo->pseudo_header->lapd.from_network_to_user) {
-		is_response = cr ? FALSE : TRUE;
-		if(check_col(pinfo->fd, COL_RES_DL_DST))
-		    col_add_str(pinfo->fd, COL_RES_DL_DST, "User");
-		if(check_col(pinfo->fd, COL_RES_DL_SRC))
-		    col_add_str(pinfo->fd, COL_RES_DL_SRC, "Network");
-	}
-	else {
+	if (pinfo->pseudo_header->p2p.sent) {
 		is_response = cr ? TRUE : FALSE;
 		if(check_col(pinfo->fd, COL_RES_DL_DST))
 			col_add_str(pinfo->fd, COL_RES_DL_DST, "Network");
 		if(check_col(pinfo->fd, COL_RES_DL_SRC))
 			col_add_str(pinfo->fd, COL_RES_DL_SRC, "User");
+	}
+	else {
+		is_response = cr ? FALSE : TRUE;
+		if(check_col(pinfo->fd, COL_RES_DL_DST))
+		    col_add_str(pinfo->fd, COL_RES_DL_DST, "User");
+		if(check_col(pinfo->fd, COL_RES_DL_SRC))
+		    col_add_str(pinfo->fd, COL_RES_DL_SRC, "Network");
 	}
 
 

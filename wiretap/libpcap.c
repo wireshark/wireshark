@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.42 2000/09/17 07:50:35 guy Exp $
+ * $Id: libpcap.c,v 1.43 2000/09/21 04:41:31 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -95,7 +95,7 @@ static const struct {
 	 */
 	{ 0,		WTAP_ENCAP_NULL },	/* null encapsulation */
 	{ 1,		WTAP_ENCAP_ETHERNET },
-	{ 6,		WTAP_ENCAP_TR },	/* IEEE 802 Networks - assume token ring */
+	{ 6,		WTAP_ENCAP_TOKEN_RING },	/* IEEE 802 Networks - assume token ring */
 	{ 7,		WTAP_ENCAP_ARCNET },
 	{ 8,		WTAP_ENCAP_SLIP },
 	{ 9,		WTAP_ENCAP_PPP },

@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.31 2000/09/19 05:12:11 guy Exp $
+ * $Id: snoop.c,v 1.32 2000/09/21 04:41:36 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -125,7 +125,7 @@ int snoop_open(wtap *wth, int *err)
 	static const int snoop_encap[] = {
 		WTAP_ENCAP_ETHERNET,	/* IEEE 802.3 */
 		WTAP_ENCAP_UNKNOWN,	/* IEEE 802.4 Token Bus */
-		WTAP_ENCAP_TR,
+		WTAP_ENCAP_TOKEN_RING,
 		WTAP_ENCAP_UNKNOWN,	/* IEEE 802.6 Metro Net */
 		WTAP_ENCAP_ETHERNET,
 		WTAP_ENCAP_UNKNOWN,	/* HDLC */
@@ -405,7 +405,7 @@ snoop_read_rec_data(FILE_T fh, u_char *pd, int length, int *err)
 static const int wtap_encap[] = {
 	-1,		/* WTAP_ENCAP_UNKNOWN -> unsupported */
 	0x04,		/* WTAP_ENCAP_ETHERNET -> DL_ETHER */
-	0x02,		/* WTAP_ENCAP_TR -> DL_TPR */
+	0x02,		/* WTAP_ENCAP_TOKEN_RING -> DL_TPR */
 	-1,		/* WTAP_ENCAP_SLIP -> unsupported */
 	-1,		/* WTAP_ENCAP_PPP -> unsupported */
 	0x08,		/* WTAP_ENCAP_FDDI -> DL_FDDI */

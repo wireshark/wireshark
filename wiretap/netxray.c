@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.31 2000/09/07 05:34:14 gram Exp $
+ * $Id: netxray.c,v 1.32 2000/09/21 04:41:32 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -110,7 +110,7 @@ int netxray_open(wtap *wth, int *err)
 	double t;
 	static const int netxray_encap[] = {
 		WTAP_ENCAP_ETHERNET,
-		WTAP_ENCAP_TR,
+		WTAP_ENCAP_TOKEN_RING,
 		WTAP_ENCAP_FDDI_BITSWAPPED,
 		WTAP_ENCAP_ETHERNET,	/* WAN(PPP), but shaped like ethernet */
 		WTAP_ENCAP_UNKNOWN,	/* LocalTalk */
@@ -310,7 +310,7 @@ netxray_close(wtap *wth)
 static const int wtap_encap[] = {
     -1,		/* WTAP_ENCAP_UNKNOWN -> unsupported */
     0,		/* WTAP_ENCAP_ETHERNET -> NDIS Ethernet */
-    1,		/* WTAP_ENCAP_TR -> NDIS Token Ring */
+    1,		/* WTAP_ENCAP_TOKEN_RING -> NDIS Token Ring */
     -1,		/* WTAP_ENCAP_SLIP -> unsupported */
     -1,		/* WTAP_ENCAP_PPP -> unsupported */
     2,		/* WTAP_ENCAP_FDDI -> NDIS FDDI */

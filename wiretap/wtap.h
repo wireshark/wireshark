@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.80 2000/09/19 17:22:11 gram Exp $
+ * $Id: wtap.h,v 1.81 2000/09/21 04:41:37 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -78,7 +78,7 @@
 #define WTAP_ENCAP_PER_PACKET			-1
 #define WTAP_ENCAP_UNKNOWN			0
 #define WTAP_ENCAP_ETHERNET			1
-#define WTAP_ENCAP_TR				2
+#define WTAP_ENCAP_TOKEN_RING			2
 #define WTAP_ENCAP_SLIP				3
 #define WTAP_ENCAP_PPP				4
 #define WTAP_ENCAP_FDDI				5
@@ -93,9 +93,10 @@
 #define WTAP_ENCAP_ASCEND			14
 #define WTAP_ENCAP_LAPD				15
 #define WTAP_ENCAP_V120				16
+#define WTAP_ENCAP_PPP_WITH_PHDR		17
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			17
+#define WTAP_NUM_ENCAP_TYPES			18
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we
@@ -185,10 +186,11 @@ struct ascend_phdr {
 	guint32	task;			/* Task number */
 };
 
-/* Packet "pseudo-header" information for LAPD capture files. */
-struct lapd_phdr {
-	gboolean	from_network_to_user;
+
+struct p2p_phdr {
+	gboolean	sent; /* TRUE=sent, FALSE=received */
 };
+
 
 /*
  * Bits in AppTrafType.
@@ -246,7 +248,7 @@ union wtap_pseudo_header {
 	struct x25_phdr			x25;
 	struct ngsniffer_atm_phdr	ngsniffer_atm;
 	struct ascend_phdr		ascend;
-	struct lapd_phdr		lapd;
+	struct p2p_phdr			p2p;
 };
 
 struct wtap_pkthdr {

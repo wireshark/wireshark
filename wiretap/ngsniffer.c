@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.51 2000/09/07 05:34:16 gram Exp $
+ * $Id: ngsniffer.c,v 1.52 2000/09/21 04:41:33 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -291,7 +291,7 @@ int ngsniffer_open(wtap *wth, int *err)
 	guint16	start_date;
 	guint16	start_time;
 	static const int sniffer_encap[] = {
-		WTAP_ENCAP_TR,
+		WTAP_ENCAP_TOKEN_RING,
 		WTAP_ENCAP_ETHERNET,
 		WTAP_ENCAP_ARCNET,
 		WTAP_ENCAP_UNKNOWN,	/* StarLAN */
@@ -893,7 +893,7 @@ static void ngsniffer_close(wtap *wth)
 static const int wtap_encap[] = {
     -1,		/* WTAP_ENCAP_UNKNOWN -> unsupported */
     1,		/* WTAP_ENCAP_ETHERNET */
-    0,		/* WTAP_ENCAP_TR */
+    0,		/* WTAP_ENCAP_TOKEN_RING */
     -1,		/* WTAP_ENCAP_SLIP -> unsupported */
     7,		/* WTAP_ENCAP_PPP -> Internetwork analyzer (synchronous) FIXME ! */
     -1,		/* WTAP_ENCAP_FDDI -> unsupported */

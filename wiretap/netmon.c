@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.33 2000/09/07 05:34:12 gram Exp $
+ * $Id: netmon.c,v 1.34 2000/09/21 04:41:32 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -108,7 +108,7 @@ int netmon_open(wtap *wth, int *err)
 	static const int netmon_encap[] = {
 		WTAP_ENCAP_UNKNOWN,
 		WTAP_ENCAP_ETHERNET,
-		WTAP_ENCAP_TR,
+		WTAP_ENCAP_TOKEN_RING,
 		WTAP_ENCAP_FDDI_BITSWAPPED,
 		WTAP_ENCAP_UNKNOWN,	/* WAN */
 		WTAP_ENCAP_UNKNOWN,	/* LocalTalk */
@@ -412,7 +412,7 @@ netmon_close(wtap *wth)
 static const int wtap_encap[] = {
 	-1,		/* WTAP_ENCAP_UNKNOWN -> unsupported */
 	1,		/* WTAP_ENCAP_ETHERNET -> NDIS Ethernet */
-	2,		/* WTAP_ENCAP_TR -> NDIS Token Ring */
+	2,		/* WTAP_ENCAP_TOKEN_RING -> NDIS Token Ring */
 	-1,		/* WTAP_ENCAP_SLIP -> unsupported */
 	-1,		/* WTAP_ENCAP_PPP -> unsupported */
 	3,		/* WTAP_ENCAP_FDDI -> NDIS FDDI */

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.201 2000/09/11 16:16:12 gram Exp $
+ * $Id: packet.h,v 1.202 2000/09/21 04:41:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -148,6 +148,10 @@ typedef enum {
   PT_NCP		/* NCP connection */
 } port_type;
 
+#define P2P_DIR_UNKNOWN	-1
+#define P2P_DIR_SENT	0
+#define P2P_DIR_RECV	1
+
 typedef struct _packet_info {
   const char *current_proto;	/* name of protocol currently being dissected */
   frame_data *fd;
@@ -168,6 +172,7 @@ typedef struct _packet_info {
   guint32 match_port;
   int     iplen;
   int     iphdrlen;
+  int	  p2p_dir;
 } packet_info;
 
 extern packet_info pi;
