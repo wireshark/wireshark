@@ -849,23 +849,21 @@ int dissect_aim_buddyname(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
                        proto_tree *tree)
 {
   guint8 buddyname_length = 0;
-  char *buddyname;
   proto_item *ti = NULL;
   proto_tree *buddy_tree = NULL;
 
   buddyname_length = tvb_get_guint8(tvb, offset);
   offset++;
-  buddyname = tvb_get_string(tvb, offset, buddyname_length);
 
   if(tree) {
       ti = proto_tree_add_text(tree, tvb, offset-1, 1+buddyname_length,
                                "Buddy: %s",
-                               format_text(buddyname, buddyname_length));
+                               tvb_format_text(tvb, offset, buddyname_length));
       buddy_tree = proto_item_add_subtree(ti, ett_aim_buddyname);
+      proto_tree_add_item(buddy_tree, hf_aim_buddyname_len, tvb, offset-1, 1, FALSE);
+      proto_tree_add_item(buddy_tree, hf_aim_buddyname, tvb, offset, buddyname_length, FALSE);
   }
 
-   proto_tree_add_item(buddy_tree, hf_aim_buddyname_len, tvb, offset-1, 1, FALSE);
-   proto_tree_add_item(buddy_tree, hf_aim_buddyname, tvb, offset, buddyname_length, FALSE);
    return offset+buddyname_length;
 }
 
