@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.80 2003/05/20 03:01:21 gerald Exp $
+ * $Id: packet-bgp.c,v 1.81 2003/05/28 20:59:46 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -117,16 +117,35 @@ static const value_string bgpnotify_minor_3[] = {
     { 0, NULL },
 };
 
+/* draft-ietf-idr-cease-subcode-02 */
+static const value_string bgpnotify_minor_6[] = {
+    { 1,                        "Maximum Number of Prefixes Reached"},
+    { 2,                        "Administratively Shutdown"},
+    { 3,                        "Peer Unconfigured"},
+    { 4,                        "Administratively Reset"},
+    { 5,                        "Connection Rejected"},
+    { 6,                        "Other Configuration Change"},
+    { 7,                        "Connection Collision Resolution"},
+    { 0, NULL},
+};
+
 static const value_string bgpnotify_minor_7[] = {
     { 1, "Invalid Action Value" },
     { 2, "Invalid Capability Length" },
     { 3, "Malformed Capability Value" },
-    { 4, "Unsopported Capability Code" },
+    { 4, "Unsupported Capability Code" },
     { 0, NULL },
 };
 
 static const value_string *bgpnotify_minor[] = {
-    NULL, bgpnotify_minor_1, bgpnotify_minor_2, bgpnotify_minor_3,
+    NULL,
+    bgpnotify_minor_1, /* open */
+    bgpnotify_minor_2, /* update */
+    bgpnotify_minor_3, /* notification */
+    NULL,              /* hold-timer expired */
+    NULL,              /* FSM error */
+    bgpnotify_minor_6, /* cease */
+    bgpnotify_minor_7  /* capability */
 };
 
 static const value_string bgpattr_origin[] = {
