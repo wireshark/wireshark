@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.187 2003/06/13 03:44:36 guy Exp $
+ * $Id: tethereal.c,v 1.188 2003/06/22 16:06:03 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -255,7 +255,7 @@ print_usage(gboolean print_ver)
 
 #ifdef HAVE_LIBPCAP
 static int
-get_positive_int(const char *string, const char *name)
+get_natural_int(const char *string, const char *name)
 {
   long number;
   char *p;
@@ -271,16 +271,27 @@ get_positive_int(const char *string, const char *name)
 	    name);
     exit(1);
   }
-  if (number == 0) {
-    fprintf(stderr, "tethereal: The specified %s is zero\n",
-	    name);
-    exit(1);
-  }
   if (number > INT_MAX) {
     fprintf(stderr, "tethereal: The specified %s is too large (greater than %d)\n",
 	    name, INT_MAX);
     exit(1);
   }
+  return number;
+}
+
+static int
+get_positive_int(const char *string, const char *name)
+{
+  long number;
+
+  number = get_natural_int(string, name);
+
+  if (number == 0) {
+    fprintf(stderr, "tethereal: The specified %s is zero\n",
+	    name);
+    exit(1);
+  }
+
   return number;
 }
 
@@ -350,7 +361,7 @@ get_ring_arguments(const char *arg)
   }
 
   capture_opts.ringbuffer_num_files = 
-    get_positive_int(arg, "number of ring buffer files");
+    get_natural_int(arg, "number of ring buffer files");
 
   if (colonp == NULL)
     return TRUE;

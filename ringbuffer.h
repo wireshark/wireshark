@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: ringbuffer.h,v 1.2 2002/08/28 21:00:41 jmayer Exp $
+ * $Id: ringbuffer.h,v 1.3 2003/06/22 16:06:03 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,13 +27,15 @@
 
 #ifdef HAVE_LIBPCAP
 
+#include <stdio.h>
 #include "file.h"
 #include "wiretap/wtap.h"
 
+#define RINGBUFFER_UNLIMITED_FILES 0
 /* minimum number of ringbuffer files */
-#define RINGBUFFER_MIN_NUM_FILES 2
+#define RINGBUFFER_MIN_NUM_FILES 0
 /* maximum number of ringbuffer files */
-#define RINGBUFFER_MAX_NUM_FILES MIN(10,FOPEN_MAX)
+#define RINGBUFFER_MAX_NUM_FILES 1024
 
 int ringbuf_init(const char *capture_name, guint num_files);
 wtap_dumper* ringbuf_init_wtap_dump_fdopen(int filetype, int linktype,

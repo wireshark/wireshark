@@ -1,7 +1,7 @@
 /* ringbuffer.c
  * Routines for packet capture windows
  *
- * $Id: ringbuffer.c,v 1.6 2002/09/22 16:17:41 gerald Exp $
+ * $Id: ringbuffer.c,v 1.7 2003/06/22 16:06:03 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -20,6 +20,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+/*
+ * <laurent.deniel@free.fr>
+ *
+ * Almost completely rewritten in order to:
+ * 
+ * - be able to use a unlimited number of ringbuffer files
+ * - close the current file and open (truncating) the next file at switch
+ * - set the final file name once open (or reopen)
+ * - avoid the deletion of files that could not be truncated (can't arise now)
+ *   and do not erase empty files
+ *
+ * The idea behind that is to remove the limitation of the maximum # of 
+ * ringbuffer files being less than the maximum # of open fd per process
+ * and to be able to reduce the amount of virtual memory usage (having only
+ * one file open at most) or the amount of file system usage (by truncating
+ * the files at switch and not the capture stop, and by closing them which 
+ * makes possible their move or deletion after a switch).
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -63,38 +83,85 @@
 
 /* Ringbuffer file structure */
 typedef struct _rb_file {
-  gchar*        name;
-  int           fd;
-  time_t        creation_time;
-  gboolean      is_new;
-  guint16       number;
-  wtap_dumper*  pdh;
-  long          start_pos;
+  gchar		*name;
 } rb_file;
 
 /* Ringbuffer data structure */
 typedef struct _ringbuf_data {
-  rb_file*      files;
-  guint         num_files;      /* Number of ringbuffer files */
-  guint         curr_file_num;  /* Number of the current file */
-  gchar*        fprefix;        /* Filename prefix */
-  gchar*        fsuffix;        /* Filename suffix */
+  rb_file      *files;
+  guint         num_files;           /* Number of ringbuffer files */
+  guint         curr_file_num;       /* Number of the current file */
+  gchar        *fprefix;             /* Filename prefix */
+  gchar        *fsuffix;             /* Filename suffix */
+  gboolean      unlimited;           /* TRUE if unlimited number of files */
+  int           filetype;
+  int           linktype;
+  int           snaplen;
+  guint16       number;
+  int           fd;		     /* Current ringbuffer file descriptor */
+  wtap_dumper  *pdh;  
 } ringbuf_data;
 
-/* Create the ringbuffer data structure */
 static ringbuf_data rb_data;
 
+static int ringbuf_open_file(rb_file *rfile, int *err)
+{
+  char    filenum[5+1];
+  char    timestr[14+1];
+  time_t  current_time;
+
+  if (rfile->name != NULL) {
+    if (rb_data.unlimited == FALSE) {
+      /* remove old file (if any, so ignore error) */
+      unlink(rfile->name);
+    }
+    g_free(rfile->name);
+  }
+
+#ifdef _WIN32
+  _tzset();
+#endif
+  current_time = time(NULL);
+
+  rb_data.number++;
+
+  snprintf(filenum, sizeof(filenum), "%05d", rb_data.number);
+  strftime(timestr, sizeof(timestr), "%Y%m%d%H%M%S", localtime(&current_time));
+  rfile->name = g_strconcat(rb_data.fprefix, "_", filenum, "_", timestr,
+			    rb_data.fsuffix, NULL);
+
+  if (rfile->name == NULL) {
+    *err = ENOMEM;
+    return -1;
+  }
+
+  rb_data.fd = open(rfile->name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT, 0600);
+
+  if (rb_data.fd == -1 && err != NULL) {
+    *err = errno;
+  }
+
+  return rb_data.fd;
+}
+
 /*
- * Initialize the ringbuffer data structure
+ * Initialize the ringbuffer data structures
  */
 int
 ringbuf_init(const char *capfile_name, guint num_files)
 {
-  int          save_file_fd;
   unsigned int i;
   char        *pfx;
   gchar       *save_file;
-  char         save_file_num[3+1];
+
+  rb_data.files = NULL;
+  rb_data.curr_file_num = 0;
+  rb_data.fprefix = NULL;
+  rb_data.fsuffix = NULL;
+  rb_data.unlimited = FALSE;
+  rb_data.fd = -1;
+  rb_data.pdh = NULL;
+  rb_data.number = 0;
 
   /* just to be sure ... */
   if (num_files <= RINGBUFFER_MAX_NUM_FILES) {
@@ -109,29 +176,8 @@ ringbuf_init(const char *capfile_name, guint num_files)
     return -1;
   }
 
-  /* Open the initial file */
-  save_file_fd = open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT, 0600);
-  if (save_file_fd == -1) {
-    /* open failed */
-    return -1;
-  }
+  /* set file name prefix/suffix */
 
-  /* allocate memory */
-  rb_data.files = (rb_file *)calloc(num_files, sizeof(rb_file));
-  if (rb_data.files == NULL) {
-    /* could not allocate memory */
-    return -1;
-  }
-
-  /* initialize */
-  rb_data.fprefix = NULL;
-  rb_data.fsuffix = NULL;
-  for (i=0; i<rb_data.num_files; i++) {
-    rb_data.files[i].name = NULL;
-    rb_data.files[i].fd = -1;
-  }
-
-  /* get file name prefix/suffix */
   save_file = g_strdup(capfile_name);
   pfx = strrchr(save_file,'.');
   if (pfx != NULL) {
@@ -146,87 +192,46 @@ ringbuf_init(const char *capfile_name, guint num_files)
   g_free(save_file);
   save_file = NULL;
 
-#ifdef _WIN32
-  _tzset();
-#endif
-  /* save the initial file parameters */
-  rb_data.files[0].name = g_strdup(capfile_name);
-  rb_data.files[0].fd = save_file_fd;
-  rb_data.files[0].creation_time = time(NULL);
-  rb_data.files[0].number = 0;
-  rb_data.files[0].is_new = TRUE;
+  /* allocate rb_file structures (only one if unlimited since there is no
+     need to save all file names in that case) */
 
-  /* create the other files */
-  for (i=1; i<rb_data.num_files; i++) {
-    /* create a file name */
-    snprintf(save_file_num,3+1,"%03d",i);
-    save_file = g_strconcat(capfile_name, ".", save_file_num, NULL);
-    /* open the file */
-    save_file_fd = open(save_file, O_RDWR|O_BINARY|O_TRUNC|O_CREAT, 0600);
-    if (save_file_fd != -1) {
-      rb_data.files[i].name = save_file;
-      rb_data.files[i].fd = save_file_fd;
-      rb_data.files[i].creation_time = time(NULL);
-      rb_data.files[i].number = i;
-      rb_data.files[i].is_new = TRUE;
-    } else {
-      /* could not open a file  */
-      ringbuf_error_cleanup();
-      return -1;
-    }
+  if (num_files == RINGBUFFER_UNLIMITED_FILES) {
+    rb_data.unlimited = TRUE;
+    rb_data.num_files = 1;
   }
 
-  /* done */
-  rb_data.curr_file_num = 0;
-  return rb_data.files[0].fd;
+  rb_data.files = g_malloc(rb_data.num_files * sizeof(rb_file));
+  if (rb_data.files == NULL) {
+    return -1;
+  }
+
+  for (i=0; i < rb_data.num_files; i++) {
+    rb_data.files[i].name = NULL;
+  }
+
+  /* create the first file */
+  if (ringbuf_open_file(&rb_data.files[0], NULL) == -1) {
+    ringbuf_error_cleanup();
+    return -1;
+  }
+
+  return rb_data.fd;
 }
 
 /*
- * Calls wtap_dump_fdopen() for all ringbuffer files
+ * Calls wtap_dump_fdopen() for the current ringbuffer file
  */
 wtap_dumper*
-ringbuf_init_wtap_dump_fdopen(int filetype, int linktype,
-  int snaplen, int *err)
+ringbuf_init_wtap_dump_fdopen(int filetype, int linktype, int snaplen, int *err)
 {
-  unsigned int  i;
-  FILE         *fh;
 
-  for (i=0; i<rb_data.num_files; i++) {
-    rb_data.files[i].pdh = wtap_dump_fdopen(rb_data.files[i].fd, filetype,
-      linktype, snaplen, err);
-    if (rb_data.files[i].pdh == NULL) {
-      /* could not open file */
-      return NULL;
-    } else {
-      /*
-       * Flush out the capture file header, as written by "wtap_dump_fdopen()".
-       *
-       * XXX - this relies on Wiretap writing out data sequentially,
-       * and writing the entire capture file header when the file
-       * is created.  That happens to be true for libpcap files,
-       * which are Ethereal's native capture files, and which are
-       * therefore the capture file types we're writing, but is not
-       * true for all the capture file types Wiretap can write.
-       */
-      fh = wtap_dump_file(rb_data.files[i].pdh);
-      if (fflush(fh) == EOF) {
-        if (err != NULL) {
-          *err = errno;
-        }
-        return NULL;
-      }
-      if ((rb_data.files[i].start_pos = ftell(fh)) < 0) {
-        if (err != NULL) {
-          *err = errno;
-        }
-        return NULL;
-      }
-      clearerr(fh);
-    }
-  }
-  /* done */
-  rb_data.files[0].is_new = FALSE;
-  return rb_data.files[0].pdh;
+  rb_data.filetype = filetype;
+  rb_data.linktype = linktype;
+  rb_data.snaplen  = snaplen;
+
+  rb_data.pdh = wtap_dump_fdopen(rb_data.fd, filetype, linktype, snaplen, err);
+
+  return rb_data.pdh;
 }
 
 /*
@@ -235,189 +240,62 @@ ringbuf_init_wtap_dump_fdopen(int filetype, int linktype,
 gboolean
 ringbuf_switch_file(capture_file *cf, wtap_dumper **pdh, int *err)
 {
-  int   next_file_num;
-  FILE *fh;
-  gboolean err_on_next = FALSE;
+  int     next_file_num;
+  rb_file *next_rfile = NULL;
 
-  /* flush the current file */
-  fh = wtap_dump_file(rb_data.files[rb_data.curr_file_num].pdh);
-  clearerr(fh);
-  errno = WTAP_ERR_CANT_CLOSE;
-  if (fflush(fh) == EOF) {
-    if (err != NULL) {
-      *err = errno;
-    }
+  /* close current file */
+
+  if (!wtap_dump_close(rb_data.pdh, err)) {
+    close(rb_data.fd);
+    rb_data.fd = -1;
     return FALSE;
   }
 
-  /* get the next file number */
-  next_file_num = (rb_data.curr_file_num + 1) % rb_data.num_files;
-  /* prepare the file if it was already used */
-  if (!rb_data.files[next_file_num].is_new) {
-    /* rewind to the position after the file header */
-    fh = wtap_dump_file(rb_data.files[next_file_num].pdh);
-    if (fseek(fh, rb_data.files[next_file_num].start_pos, SEEK_SET) < 0) {
-      *err = errno;
-      /* Don't return straight away: have caller report correct save_file */
-      err_on_next = TRUE;
-    }
-    wtap_set_bytes_dumped(rb_data.files[next_file_num].pdh,
-      rb_data.files[next_file_num].start_pos);
-    /* set the absolute file number */
-    rb_data.files[next_file_num].number += rb_data.num_files;
+  rb_data.pdh = NULL;
+  rb_data.fd  = -1;
+
+  /* get the next file number and open it */
+
+  next_file_num = (rb_data.curr_file_num + 1) % rb_data.num_files;  
+  next_rfile = &rb_data.files[next_file_num];
+
+  if (ringbuf_open_file(next_rfile, err) == -1) {
+    return FALSE;
   }
-#ifdef _WIN32
-  _tzset();
-#endif
-  rb_data.files[next_file_num].creation_time = time(NULL);
+
+  if (ringbuf_init_wtap_dump_fdopen(rb_data.filetype, rb_data.linktype,
+				    rb_data.snaplen, err) == NULL) {
+    return FALSE;
+  }
+
   /* switch to the new file */
-  cf->save_file = rb_data.files[next_file_num].name;
-  cf->save_file_fd = rb_data.files[next_file_num].fd;
-  (*pdh) = rb_data.files[next_file_num].pdh;
-  /* mark the file as used */
-  rb_data.files[next_file_num].is_new = FALSE;
-  /* finally set the current file number */
   rb_data.curr_file_num = next_file_num;
-
-  if (err_on_next)
-    return FALSE;
+  cf->save_file = next_rfile->name;
+  cf->save_file_fd = rb_data.fd;
+  (*pdh) = rb_data.pdh;
 
   return TRUE;
 }
 
 /*
- * Calls wtap_dump_close() for all ringbuffer files
+ * Calls wtap_dump_close() for the current ringbuffer file
  */
 gboolean
 ringbuf_wtap_dump_close(capture_file *cf, int *err)
 {
-  gboolean     ret_val;
-  gboolean     data_captured = TRUE;
-  unsigned int i;
-  long         curr_pos;
-  long         curr_file_curr_pos = 0;  /* Initialise to avoid GCC warning */
-  gchar       *new_name;
-  char         filenum[5+1];
-  char         timestr[14+1];
-  FILE        *fh;
+  gboolean  ret_val = TRUE;
 
-  /* assume success */
-  ret_val = TRUE;
-  /* close all files */
-  for (i=0; i<rb_data.num_files; i++) {
-    fh = wtap_dump_file(rb_data.files[i].pdh);
-    clearerr(fh);
+  /* close current file */
 
-    /* Get the current file position */
-    if ((curr_pos = ftell(fh)) < 0) {
-      if (err != NULL) {
-        *err = errno;
-      }
-      ret_val = FALSE;
-      /* If the file's not a new one, remove it as it hasn't been truncated
-         and thus contains garbage at the end.
-         If the file is a new one, it contains only the dump header, so
-         remove it too. */
-      close(rb_data.files[i].fd);
-      unlink(rb_data.files[i].name);
-      /* Set name for caller's error message */
-      cf->save_file = rb_data.files[i].name;
-      continue;
-    }
-
-    if (i == rb_data.curr_file_num)
-      curr_file_curr_pos = curr_pos;
-
-    /* If buffer 0 is empty and the ring hasn't wrapped,
-       no data has been captured. */
-    if (i == 0 && curr_pos == rb_data.files[0].start_pos &&
-        rb_data.files[0].number == 0)
-      data_captured = FALSE;
-
-    /* Flush the file */
-    errno = WTAP_ERR_CANT_CLOSE;
-    if (fflush(fh) == EOF) {
-      if (err != NULL) {
-        *err = errno;
-      }
-      ret_val = FALSE;
-      close(rb_data.files[i].fd);
-      unlink(rb_data.files[i].name);
-      cf->save_file = rb_data.files[i].name;
-      continue;
-    }
-
-    /* Truncate the file to the current size. This must be done in order
-       to get rid of the 'garbage' packets at the end of the file from
-       previous usage */
-    if (!rb_data.files[i].is_new) {
-      if (ftruncate(rb_data.files[i].fd, curr_pos) != 0) {
-        /* could not truncate the file */
-        if (err != NULL) {
-          *err = errno;
-        }
-        ret_val = FALSE;
-        /* remove the file since it contains garbage at the end */
-        close(rb_data.files[i].fd);
-        unlink(rb_data.files[i].name);
-        cf->save_file = rb_data.files[i].name;
-        continue;
-      }
-    }
-    /* close the file */
-    if (!wtap_dump_close(rb_data.files[i].pdh, err)) {
-      /* error only if it is a used file */
-      if (curr_pos > rb_data.files[i].start_pos) {
-        ret_val = FALSE;
-        /* Don't unlink it; maybe the user can salvage it. */
-        cf->save_file = rb_data.files[i].name;
-        continue;
-      }
-    }
-
-    /* Rename buffers which have data and delete empty buffers --
-       except if no data at all has been captured we need to keep
-       the empty first buffer. */
-    if (curr_pos > rb_data.files[i].start_pos ||
-         (i == 0 && !data_captured)) {
-      /* rename the file */
-      snprintf(filenum,5+1,"%05d",rb_data.files[i].number);
-      strftime(timestr,14+1,"%Y%m%d%H%M%S",
-        localtime(&(rb_data.files[i].creation_time)));
-      new_name = g_strconcat(rb_data.fprefix,"_", filenum, "_", timestr,
-        rb_data.fsuffix, NULL);
-      if (rename(rb_data.files[i].name, new_name) != 0) {
-        /* save the latest error */
-        if (err != NULL) {
-          *err = errno;
-        }
-        ret_val = FALSE;
-        cf->save_file = rb_data.files[i].name;
-        g_free(new_name);
-      } else {
-        g_free(rb_data.files[i].name);
-        rb_data.files[i].name = new_name;
-      }
-    } else {
-      /* this file is empty - remove it */
-      unlink(rb_data.files[i].name);
-    }
+  if (!wtap_dump_close(rb_data.pdh, err)) {
+    close(rb_data.fd);
+    ret_val = FALSE;
   }
 
-  if (ret_val) {
-    /* Make the current file the save file, or if it's empty apart from
-       the header, make the previous file the save file (assuming data
-       has been captured). */
-    if (curr_file_curr_pos ==
-        rb_data.files[rb_data.curr_file_num].start_pos &&
-        data_captured) {
-      if (rb_data.curr_file_num > 0)
-        rb_data.curr_file_num -= 1;
-      else
-        rb_data.curr_file_num = rb_data.num_files - 1;
-    }
-    cf->save_file = rb_data.files[rb_data.curr_file_num].name;
-  }
+  rb_data.pdh = NULL;
+  rb_data.fd  = -1;
+
+  cf->save_file = rb_data.files[rb_data.curr_file_num].name;
   return ret_val;
 }
 
@@ -431,14 +309,22 @@ ringbuf_free()
 
   if (rb_data.files != NULL) {
     for (i=0; i < rb_data.num_files; i++) {
-      g_free(rb_data.files[i].name);
-      rb_data.files[i].name = NULL;
+      if (rb_data.files[i].name != NULL) {
+	g_free(rb_data.files[i].name);
+	rb_data.files[i].name = NULL;
+      }
     }
-    free(rb_data.files);
+    g_free(rb_data.files);
     rb_data.files = NULL;
   }
-  g_free(rb_data.fprefix);
-  g_free(rb_data.fsuffix);
+  if (rb_data.fprefix != NULL) {
+    g_free(rb_data.fprefix);
+    rb_data.fprefix = NULL;
+  }
+  if (rb_data.fsuffix != NULL) {
+    g_free(rb_data.fsuffix);
+    rb_data.fsuffix = NULL;
+  }
 }
 
 /*
@@ -449,25 +335,21 @@ ringbuf_error_cleanup(void)
 {
   unsigned int i;
 
-  if (rb_data.files == NULL) {
-    ringbuf_free();
-    return;
+  /* try to close via wtap */
+  if (rb_data.pdh != NULL) {
+    if (wtap_dump_close(rb_data.pdh, NULL)) {
+      rb_data.fd = -1;
+    }
+    rb_data.pdh = NULL;
   }
 
-  for (i=0; i<rb_data.num_files; i++) {
-    /* try to close via wtap */
-    if (rb_data.files[i].pdh != NULL) {
-      if (wtap_dump_close(rb_data.files[i].pdh, NULL)) {
-        /* done */
-        rb_data.files[i].fd = -1;
-      }
-    }
-    /* close directly if still open */
-    if (rb_data.files[i].fd != -1) {
-      close(rb_data.files[i].fd);
-    }
-    /* remove the other files, the initial file will be handled
-       by the calling funtion */
+  /* close directly if still open */
+  if (rb_data.fd != -1) {
+    close(rb_data.fd);
+    rb_data.fd = -1;
+  }
+
+  for (i=0; i < rb_data.num_files; i++) {
     if (rb_data.files[i].name != NULL) {
       unlink(rb_data.files[i].name);
     }

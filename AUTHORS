@@ -47,6 +47,7 @@ Laurent Deniel       <laurent.deniel[AT]free.fr> {
     Protocol activation/deactivation (Edit:protocols)
     Ability to mark the frames and associated features
     "Protocol Properties..." menu item
+    Ring buffer rework
     Miscellaneous enhancements and fixes
 }
 

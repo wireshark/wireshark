@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.297 2003/06/09 07:54:11 guy Exp $
+ * $Id: main.c,v 1.298 2003/06/22 16:07:23 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1208,7 +1208,7 @@ show_version(void)
 }
 
 static int
-get_positive_int(const char *string, const char *name)
+get_natural_int(const char *string, const char *name)
 {
   long number;
   char *p;
@@ -1224,16 +1224,27 @@ get_positive_int(const char *string, const char *name)
 	    name, string);
     exit(1);
   }
-  if (number == 0) {
-    fprintf(stderr, "ethereal: The specified %s \"%s\" is zero\n",
-            name, string);
-    exit(1);
-  }
   if (number > INT_MAX) {
     fprintf(stderr, "ethereal: The specified %s \"%s\" is too large (greater than %d)\n",
 	    name, string, INT_MAX);
     exit(1);
   }
+  return number;
+}
+
+static int
+get_positive_int(const char *string, const char *name)
+{
+  long number;
+
+  number = get_natural_int(string, name);
+
+  if (number == 0) {
+    fprintf(stderr, "ethereal: The specified %s is zero\n",
+	    name);
+    exit(1);
+  }
+
   return number;
 }
 
@@ -1304,7 +1315,7 @@ get_ring_arguments(const char *arg)
   }
 
   capture_opts.ringbuffer_num_files = 
-    get_positive_int(arg, "number of ring buffer files");
+    get_natural_int(arg, "number of ring buffer files");
 
   if (colonp == NULL)
     return TRUE;
