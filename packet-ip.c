@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.49 1999/10/02 15:55:28 deniel Exp $
+ * $Id: packet-ip.c,v 1.50 1999/10/02 16:21:07 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -79,7 +79,9 @@ static int hf_igmp_checksum = -1;
 static int hf_igmp_group = -1;
 
 static int proto_icmp = -1;
-
+static int hf_icmp_type = -1;
+static int hf_icmp_code = -1;
+static int hf_icmp_checksum = -1;
 
 /* ICMP structs and definitions */
 typedef struct _e_icmp {
@@ -1003,12 +1005,18 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   if (tree) {
     ti = proto_tree_add_item(tree, proto_icmp, offset, 4, NULL);
     icmp_tree = proto_item_add_subtree(ti, ETT_ICMP);
-    proto_tree_add_text(icmp_tree, offset,      1, "Type: %d (%s)",
-      ih.icmp_type, type_str);
-    proto_tree_add_text(icmp_tree, offset +  1, 1, "Code: %d %s",
-      ih.icmp_code, code_str);
-    proto_tree_add_text(icmp_tree, offset +  2, 2, "Checksum: 0x%04x",
-      cksum);
+    proto_tree_add_item_format(icmp_tree, hf_icmp_type, offset,      1, 
+			       ih.icmp_type,
+			       "Type: %d (%s)",
+			       ih.icmp_type, type_str);
+    proto_tree_add_item_format(icmp_tree, hf_icmp_code,	offset +  1, 1, 
+			       ih.icmp_code,
+			       "Code: %d %s",
+			       ih.icmp_code, code_str);
+    proto_tree_add_item_format(icmp_tree, hf_icmp_checksum, offset +  2, 2, 
+			       cksum,
+			       "Checksum: 0x%04x",
+			       cksum);
 
     /* Decode the second 4 bytes of the packet. */
     switch (ih.icmp_type) {
@@ -1257,5 +1265,17 @@ proto_register_ip(void)
 void
 proto_register_icmp(void)
 {
-	proto_icmp = proto_register_protocol ("Internet Control Message Protocol", "icmp");
+  static hf_register_info hf[] = {
+    
+    { &hf_icmp_type,
+      { "Type",		"icmp.type",		FT_UINT8,	NULL }},
+    { &hf_icmp_code,
+      { "Code",		"icmp.code",		FT_UINT8,	NULL }},    
+    { &hf_icmp_checksum,
+      { "Checksum",	"icmp.checksum",	FT_UINT16,	NULL }}
+  };
+  
+  proto_icmp = proto_register_protocol ("Internet Control Message Protocol", 
+					"icmp");
+  proto_register_field_array(proto_icmp, hf, array_length(hf));
 }
