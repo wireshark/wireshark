@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.41 1999/08/28 02:33:47 gram Exp $
+ * $Id: packet-ip.c,v 1.42 1999/08/28 03:56:03 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -737,7 +737,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       iph.ip_id);
 
     flags = (iph.ip_off & (IP_DF|IP_MF)) >> 12;
-    tf = proto_tree_add_item_format(ip_tree, hf_ip_flags, offset +  6, 2, flags,
+    tf = proto_tree_add_item_format(ip_tree, hf_ip_flags, offset +  6, 1, flags,
 		   "Flags: 0x%x", flags);
     field_tree = proto_item_add_subtree(tf, ETT_IP_OFF);
     proto_tree_add_text(field_tree, offset + 6, 2, "%s",
@@ -1190,7 +1190,7 @@ proto_register_ip(void)
 		{ "Source or Destination Address", "ip.addr", FT_IPv4, NULL }},
 
 		{ &hf_ip_flags,
-		{ "Flags",		"ip.flags", FT_UINT16, NULL }},
+		{ "Flags",		"ip.flags", FT_UINT8, NULL }},
 
 		{ &hf_ip_frag_offset,
 		{ "Fragment offset",	"ip.frag_offset", FT_UINT16, NULL }},
