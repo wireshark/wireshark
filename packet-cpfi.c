@@ -5,7 +5,7 @@
  *
  * Copyright 2003, Dave Sclarsky <dave_sclarsky[AT]cnt.com>
  *
- * $Id: packet-cpfi.c,v 1.2 2003/11/19 04:02:03 guy Exp $
+ * $Id: packet-cpfi.c,v 1.3 2003/11/19 04:05:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,8 +61,8 @@ void proto_reg_handoff_cpfi(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_cpfi = -1;
-static int cpfi_configured_udp_port = CPFI_DEFAULT_UDP_PORT;
-static int cpfi_current_udp_port;
+static guint cpfi_configured_udp_port = CPFI_DEFAULT_UDP_PORT;
+static guint cpfi_current_udp_port;
 static int hf_cpfi_word_one = -1;
 static int hf_cpfi_word_two = -1;
 /* SOF word 1: */
