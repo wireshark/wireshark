@@ -2,7 +2,7 @@
  * Routines for Stream Control Transmission Protocol dissection
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sctp.c,v 1.20 2001/08/28 08:28:14 guy Exp $
+ * $Id: packet-sctp.c,v 1.21 2001/10/23 20:14:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -645,7 +645,7 @@ dissect_supported_address_types_parameter(tvbuff_t *parameter_tvb, proto_tree *p
     address_type = tvb_get_ntohs(parameter_tvb, offset);
     proto_tree_add_uint_format(address_list_tree, hf_sctp_supported_address_types_parameter,
 			       parameter_tvb, offset, SUPPORTED_ADDRESS_TYPE_PARAMETER_ADDRESS_TYPE_LENGTH,
-			       address_type, "Supported address type: %u (%s)",
+			       address_type, "Supported address type: 0x%04x (%s)",
 			       address_type, val_to_str(address_type, sctp_parameter_identifier_values, "unknown"));
     offset += SUPPORTED_ADDRESS_TYPE_PARAMETER_ADDRESS_TYPE_LENGTH;
   };
@@ -695,10 +695,9 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *chunk_tree)
 	val_to_str(type, sctp_parameter_identifier_values, "Unknown"));
   parameter_tree = proto_item_add_subtree(parameter_item, ett_sctp_chunk_parameter);
  
-  proto_tree_add_uint_format(parameter_tree, hf_sctp_chunk_parameter_type, 
-			     parameter_tvb, PARAMETER_TYPE_OFFSET, PARAMETER_TYPE_LENGTH,
-			     type, "Parameter type: %u (%s)",
-			     type, val_to_str(type, sctp_parameter_identifier_values, "unknown"));
+  proto_tree_add_uint(parameter_tree, hf_sctp_chunk_parameter_type, 
+		      parameter_tvb, PARAMETER_TYPE_OFFSET, PARAMETER_TYPE_LENGTH,
+		      type);
   proto_tree_add_uint(parameter_tree, hf_sctp_chunk_parameter_length, 
 		      parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH,
 		      length);
@@ -774,11 +773,9 @@ dissect_missing_mandatory_parameters_cause(tvbuff_t *cause_tvb, proto_tree *caus
   offset = CAUSE_FIRST_MISSING_PARAMETER_TYPE_OFFSET;
   for(missing_parameter_number = 1; missing_parameter_number <= number_of_missing_parameters; missing_parameter_number++) {
     parameter_type = tvb_get_ntohs(cause_tvb, offset);
-    proto_tree_add_uint_format(cause_tree, hf_sctp_cause_missing_parameter_type,
-			       cause_tvb, offset, CAUSE_MISSING_PARAMETER_TYPE_LENGTH,
-			       parameter_type, "Missing parameter type: %u (%s)",
-			       parameter_type, 
-			       val_to_str(parameter_type, sctp_parameter_identifier_values, "unknown"));
+    proto_tree_add_uint(cause_tree, hf_sctp_cause_missing_parameter_type,
+			cause_tvb, offset, CAUSE_MISSING_PARAMETER_TYPE_LENGTH,
+			parameter_type);
     offset +=  CAUSE_MISSING_PARAMETER_TYPE_LENGTH;
   };
 
@@ -824,7 +821,7 @@ dissect_unresolvable_address_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, 
   dissect_parameter(parameter_tvb, cause_tree);
   parameter_type = tvb_get_ntohs(parameter_tvb, PARAMETER_TYPE_OFFSET);
  
-  proto_item_set_text(cause_item, "Error cause reporting unresolvable address of type %u (%s)",
+  proto_item_set_text(cause_item, "Error cause reporting unresolvable address of type 0x%04x (%s)",
 		      parameter_type, val_to_str(parameter_type, sctp_parameter_identifier_values, "unknown") );
 }
 
@@ -931,10 +928,9 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
 				   "BAD ERROR CAUSE");
   cause_tree = proto_item_add_subtree(cause_item, ett_sctp_chunk_cause);
  
-  proto_tree_add_uint_format(cause_tree, hf_sctp_cause_code, 
-			     cause_tvb, CAUSE_CODE_OFFSET, CAUSE_CODE_LENGTH,
-			     code, "Cause code: %u (%s)",
-			     code, val_to_str(code, sctp_cause_code_values, "unknown"));
+  proto_tree_add_uint(cause_tree, hf_sctp_cause_code, 
+		      cause_tvb, CAUSE_CODE_OFFSET, CAUSE_CODE_LENGTH,
+		      code);
   proto_tree_add_uint(cause_tree, hf_sctp_cause_length, 
 		      cause_tvb, CAUSE_LENGTH_OFFSET, CAUSE_LENGTH_LENGTH,
 		      length);
@@ -1053,10 +1049,9 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 			chunk_tvb, 
 			DATA_CHUNK_STREAM_SEQ_NUMBER_OFFSET, DATA_CHUNK_STREAM_SEQ_NUMBER_LENGTH,
 			stream_seq_number);
-    proto_tree_add_uint_format(chunk_tree, hf_sctp_data_chunk_payload_proto_id, 
-			       chunk_tvb, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_LENGTH,
-			       payload_proto_id, "Payload protocol identifier: %u (%s)",
-			       payload_proto_id, val_to_str(payload_proto_id, sctp_payload_proto_id_values, "unknown"));
+    proto_tree_add_uint(chunk_tree, hf_sctp_data_chunk_payload_proto_id, 
+			chunk_tvb, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_LENGTH,
+			payload_proto_id);
     proto_item_set_text(chunk_item, "DATA chunk with TSN %u (%u:%u) containing %u byte%s of payload",
 			tsn, stream_id, stream_seq_number, 
 			payload_length, plurality(payload_length, "", "s"));
@@ -1510,10 +1505,9 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
     chunk_tree   = proto_item_add_subtree(chunk_item, ett_sctp_chunk);
     
     /* then insert the chunk header components into the protocol tree */
-    proto_tree_add_uint_format(chunk_tree, hf_sctp_chunk_type, 
-			       chunk_tvb, CHUNK_TYPE_OFFSET, CHUNK_TYPE_LENGTH,
-			       type, "Identifier: %u (%s)",
-			       type, val_to_str(type, sctp_chunk_type_values, "unknown"));
+    proto_tree_add_uint(chunk_tree, hf_sctp_chunk_type, 
+			chunk_tvb, CHUNK_TYPE_OFFSET, CHUNK_TYPE_LENGTH,
+			type);
     flags_item = proto_tree_add_uint(chunk_tree, hf_sctp_chunk_flags, 
 				     chunk_tvb, CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH,
 				     flags);
@@ -1712,7 +1706,7 @@ proto_register_sctp(void)
     },
     { &hf_sctp_chunk_type,
       { "Identifier", "sctp.chunk_type",
-	FT_UINT8, BASE_DEC, NULL, 0x0,          
+	FT_UINT8, BASE_DEC, VALS(sctp_chunk_type_values), 0x0,          
 	"", HFILL }
     },
     { &hf_sctp_chunk_flags,
@@ -1771,8 +1765,8 @@ proto_register_sctp(void)
        "", HFILL }
     },
     {&hf_sctp_data_chunk_payload_proto_id,
-     { "Payload Protocol identifier", "sctp.payload_proto_id",
-	FT_UINT32, BASE_HEX, NULL, 0x0,          
+     { "Payload protocol identifier", "sctp.payload_proto_id",
+	FT_UINT32, BASE_DEC, VALS(sctp_payload_proto_id_values), 0x0,          
 	"", HFILL }
     },
     {&hf_sctp_data_chunk_e_bit,
@@ -1847,7 +1841,7 @@ proto_register_sctp(void)
     },
     {&hf_sctp_chunk_parameter_type,
      { "Parameter type", "sctp.parameter.type",
-       FT_UINT16, BASE_HEX, NULL, 0x0,          
+       FT_UINT16, BASE_HEX, VALS(sctp_parameter_identifier_values), 0x0,
        "", HFILL }
     },
     {&hf_sctp_chunk_parameter_length,
@@ -1882,7 +1876,7 @@ proto_register_sctp(void)
     }, 
     {&hf_sctp_cause_code,
      { "Cause code", "sctp.cause.code",
-       FT_UINT16, BASE_DEC, NULL, 0x0,          
+       FT_UINT16, BASE_HEX, VALS(sctp_cause_code_values), 0x0,          
        "", HFILL }
     },
     {&hf_sctp_cause_length,
@@ -1901,8 +1895,8 @@ proto_register_sctp(void)
        "", HFILL }
     }, 
     {&hf_sctp_cause_missing_parameter_type,
-     { "Missing parameters type", "sctp.cause.missing_parameter_type",
-       FT_UINT16, BASE_DEC, NULL, 0x0,          
+     { "Missing parameter type", "sctp.cause.missing_parameter_type",
+       FT_UINT16, BASE_HEX, VALS(sctp_parameter_identifier_values), 0x0,
        "", HFILL }
     },
     {&hf_sctp_cause_measure_of_staleness,
