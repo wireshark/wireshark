@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.8 1998/11/17 04:29:02 gerald Exp $
+ * $Id: packet-ospf.c,v 1.9 1999/01/17 09:30:05 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -95,7 +95,7 @@ dissect_ospf(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 							   (packet_type != NULL ?
 							     packet_type :
 							     "Unknown"));
-	add_item_to_tree(ospf_header_tree, offset + 2 , 2, "Packet Legth: %d", 
+	add_item_to_tree(ospf_header_tree, offset + 2 , 2, "Packet Length: %d", 
 	                                                   ntohs(ospfh.length));
 	add_item_to_tree(ospf_header_tree, offset + 4 , 4, "Source OSPF Router ID: %s", 
 
@@ -105,7 +105,8 @@ dissect_ospf(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	} else {
 	   add_item_to_tree(ospf_header_tree, offset + 8 , 4, "Area ID: %s", ip_to_str((guint8 *) &(ospfh.area)));
 	}
-	add_item_to_tree(ospf_header_tree, offset + 12 , 2, "Packet Checksum");
+	add_item_to_tree(ospf_header_tree, offset + 12 , 2, "Packet Checksum: 0x%x",
+	      ntohs(ospfh.checksum));
 	switch( ntohs(ospfh.auth_type) ) {
 	    case OSPF_AUTH_NONE:
 	         add_item_to_tree(ospf_header_tree, offset + 14 , 2, "Auth Type: none");
@@ -168,7 +169,7 @@ dissect_ospf_hello(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) 
 
 
 	add_item_to_tree(ospf_hello_tree, offset , 4, "Network Mask: %s",  ip_to_str((guint8 *) &ospfhello.network_mask));
-	add_item_to_tree(ospf_hello_tree, offset + 4, 2, "Hello Intervall: %d seconds",  ntohs(ospfhello.hellointervall));
+	add_item_to_tree(ospf_hello_tree, offset + 4, 2, "Hello Interval: %d seconds",  ntohs(ospfhello.hellointervall));
 
 	/* ATTENTION !!! no check for length of options string */
 	options_offset=0;
@@ -195,7 +196,7 @@ dissect_ospf_hello(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) 
 
 	add_item_to_tree(ospf_hello_tree, offset + 6, 1, "Options: %d (%s)",  ospfhello.options, options);
 	add_item_to_tree(ospf_hello_tree, offset + 7, 1, "Router Priority: %d",  ospfhello.priority);
-	add_item_to_tree(ospf_hello_tree, offset + 8, 4, "RouterDeadIntervall: %ld seconds",  (long)ntohl(ospfhello.dead_interval));
+	add_item_to_tree(ospf_hello_tree, offset + 8, 4, "Router Dead Interval: %ld seconds",  (long)ntohl(ospfhello.dead_interval));
 	add_item_to_tree(ospf_hello_tree, offset + 12, 4, "Designated Router: %s",  ip_to_str((guint8 *) &ospfhello.drouter));
 	add_item_to_tree(ospf_hello_tree, offset + 16, 4, "Backup Designated Router: %s",  ip_to_str((guint8 *) &ospfhello.bdrouter));
 
