@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.50 2001/12/10 00:25:27 guy Exp $
+ * $Id: packet-giop.c,v 1.51 2001/12/15 20:40:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3008,19 +3008,25 @@ dissect_reply_body (tvbuff_t *tvb, u_int offset, packet_info *pinfo,
       break;
       
     case LOCATION_FORWARD:
-      g_warning("giop: We don't yet dissect LOCATION_FORWARD\n");
+      decode_IOR(tvb, pinfo, tree, &offset, GIOP_HEADER_SIZE, stream_is_big_endian);
 
       break;
 
     case LOCATION_FORWARD_PERM:
-      g_warning("giop: We don't yet dissect LOCATION_FORWARD_PERM\n");
+      decode_IOR(tvb, pinfo, tree, &offset, GIOP_HEADER_SIZE, stream_is_big_endian);
 
       break;
 
-    case NEEDS_ADDRESSING_MODE:
-      g_warning("giop: We don't yet dissect NEEDS_ADDRESSING_MODE\n");
+    case NEEDS_ADDRESSING_MODE: {
+      guint16 addr_disp;
+      addr_disp = get_CDR_ushort(tvb, &offset, stream_is_big_endian, GIOP_HEADER_SIZE);
+      if(tree) {
+        proto_tree_add_text (tree, tvb, offset -2, 2,
+			     "AddressingDisposition: %u", addr_disp);
+      }
 
       break;
+    }
 
     default:
       

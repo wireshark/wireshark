@@ -1273,6 +1273,7 @@ B<http://www.ethereal.com>.
   Tom Nisbet               <Tnisbet[AT]VisualNetworks.com>
   Darren New               <dnew[AT]san.rr.com>
   Pavel Mores              <pvl[AT]uh.cz>
+  Bernd Becker             <bb[AT]bernd-becker.de>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
