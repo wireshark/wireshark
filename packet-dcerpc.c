@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.166 2004/04/24 16:47:47 ulfl Exp $
+ * $Id: packet-dcerpc.c,v 1.167 2004/05/04 06:14:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1864,7 +1864,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 
         if (sub_item) {
             sub_tree = proto_item_add_subtree (sub_item, sub_proto->ett);
-			proto_item_append_text(sub_item, ", %s", name);
+            proto_item_append_text(sub_item, ", %s", name);
         }
 
         /*
@@ -4132,10 +4132,17 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree) {
         nstime_t server_boot;
-	    server_boot.secs  = hdr.server_boot;
-	    server_boot.nsecs = 0;
 
-        proto_tree_add_time (dcerpc_tree, hf_dcerpc_dg_server_boot, tvb, offset, 4, &server_boot);
+        server_boot.secs  = hdr.server_boot;
+        server_boot.nsecs = 0;
+
+        if (hdr.server_boot == 0)
+            proto_tree_add_time_format (dcerpc_tree, hf_dcerpc_dg_server_boot,
+                                        tvb, offset, 4, &server_boot,
+                                        "Server boot time: Unknown (0)");
+        else
+            proto_tree_add_time (dcerpc_tree, hf_dcerpc_dg_server_boot,
+                                 tvb, offset, 4, &server_boot);
     }
     offset += 4;
 
