@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.52 2003/01/31 18:45:04 guy Exp $
+ * $Id: packet-gtp.c,v 1.53 2003/02/07 19:57:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3956,7 +3956,8 @@ static int
 decode_gtp_tft(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	guint16		length, port1, port2, tos;
-	guint8		tft_flags, tft_code, no_packet_filters, i, pf_id, pf_eval, pf_len, pf_content_id, pf_offset, proto, spare;
+	guint8		tft_flags, tft_code, no_packet_filters, i, pf_id, pf_eval, pf_len, pf_content_id, proto, spare;
+	guint		pf_offset;
 	guint32		mask_ipv4, addr_ipv4, ipsec_id, label;
 	struct	e_in6_addr addr_ipv6, mask_ipv6;
 	proto_tree	*ext_tree_tft, *ext_tree_tft_pf, *ext_tree_tft_flags;
