@@ -2,7 +2,7 @@
  * Routines for GSM MobileApplication packet dissection
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id: packet-gsm_map_asn1-template.c 12203 2004-10-05 09:18:55Z guy $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -894,4 +894,3 @@ void proto_reg_handoff_gsm_map(void) {
     dissector_add("tcap.itu_ssn", 8, map_handle);
     dissector_add("tcap.itu_ssn", 9, map_handle);
 }
-

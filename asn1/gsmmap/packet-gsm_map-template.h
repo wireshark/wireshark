@@ -2,7 +2,7 @@
  * Routines for GSM MAP packet dissection
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id: packet-gsm_map_asn1-template.c 12203 2004-10-05 09:18:55Z guy $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,4 +40,3 @@ ETH_VAR_IMPORT const value_string gsm_map_opr_code_strings[];
 /* #include "packet-gsm_map-exp.h"*/
 
 #endif  /* PACKET_GSM_MAP_H */
-
