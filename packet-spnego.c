@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.21 2002/08/31 20:50:08 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.22 2002/08/31 22:22:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -522,7 +522,7 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	next_level_dissector = NULL; /* FIXME: Is this right? */
 
-	if (value) next_level_dissector = find_dissector(value->name);
+	if (value) next_level_dissector = value->handle;
 
 	/*
 	 * Now, we need to save this in per proto info in the
@@ -872,14 +872,16 @@ proto_register_spnego(void)
 
 	proto_register_field_array(proto_spnego, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	register_dissector("spnego", dissect_spnego, proto_spnego);
 }
 
 void
 proto_reg_handoff_spnego(void)
 {
+	dissector_handle_t spnego_handle;
+
 	/* Register protocol with GSS-API module */
 
-	gssapi_init_oid("1.3.6.1.5.5.2", proto_spnego, ett_spnego, "spnego");
+	spnego_handle = create_dissector_handle(dissect_spnego, proto_spnego);
+	gssapi_init_oid("1.3.6.1.5.5.2", proto_spnego, ett_spnego,
+	    spnego_handle);
 }

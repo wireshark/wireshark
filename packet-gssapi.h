@@ -2,7 +2,7 @@
  * Dissector for GSS-API tokens as described in rfc2078, section 3.1
  * Copyright 2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-gssapi.h,v 1.4 2002/08/29 05:26:45 sharpe Exp $
+ * $Id: packet-gssapi.h,v 1.5 2002/08/31 22:22:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,7 +31,7 @@
 typedef struct _gssapi_oid_value {
 	int proto;
 	int ett;
-	gchar *name;
+	dissector_handle_t handle;
 	gchar *comment;  /* For the comment */
 } gssapi_oid_value;
 
@@ -42,6 +42,6 @@ extern GHashTable *gssapi_oids;
 /* Function prototypes */
 
 void
-gssapi_init_oid(char *oid, int proto, int ett, char *name);
+gssapi_init_oid(char *oid, int proto, int ett, dissector_handle_t handle);
 
 #endif /* __PACKET_GSSAPI_H */

@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.27 2002/08/30 10:05:26 guy Exp $
+ * $Id: packet-kerberos.c,v 1.28 2002/08/31 22:22:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1380,7 +1380,8 @@ proto_reg_handoff_kerberos(void)
     dissector_add("udp.port", UDP_PORT_KERBEROS, kerberos_handle);
     dissector_add("tcp.port", TCP_PORT_KERBEROS, kerberos_handle);
 
-    gssapi_init_oid("1.2.840.48018.1.2.2", proto_kerberos, ett_kerberos, "kerberos5");
+    gssapi_init_oid("1.2.840.48018.1.2.2", proto_kerberos, ett_kerberos,
+                    kerberos_handle);
 }
 
 /*

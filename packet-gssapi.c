@@ -2,7 +2,7 @@
  * Dissector for GSS-API tokens as described in rfc2078, section 3.1
  * Copyright 2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-gssapi.c,v 1.13 2002/08/31 20:50:08 sharpe Exp $
+ * $Id: packet-gssapi.c,v 1.14 2002/08/31 22:22:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,14 +73,14 @@ gssapi_oid_hash(gconstpointer k)
 }
 
 void
-gssapi_init_oid(char *oid, int proto, int ett, char *name)
+gssapi_init_oid(char *oid, int proto, int ett, dissector_handle_t handle)
 {
 	char *key = g_strdup(oid);
 	gssapi_oid_value *value = g_malloc(sizeof(*value));
 
 	value->proto = proto;
 	value->ett = ett;
-	value->name = g_strdup(name);
+	value->handle = handle;
 
 	g_hash_table_insert(gssapi_oids, key, value);
 }
@@ -259,7 +259,7 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		oid_subtree = proto_item_add_subtree(sub_item, value->ett);
 		*/
 
-		handle = find_dissector(value->name);
+		handle = value->handle;
 
 		if (handle) {
 			tvbuff_t *oid_tvb;
