@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, or simply convert from one 
  * format to another format.
  *
- * $Id: editcap.c,v 1.7 2000/04/12 21:51:27 gram Exp $
+ * $Id: editcap.c,v 1.8 2000/04/17 14:52:32 gram Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
   int i, err;
   callback_arg args;
   extern char *optarg;
-  extern int optind, opterr, optopt;
+  extern int optind;
   char opt;
 
   /* Process the options first */
