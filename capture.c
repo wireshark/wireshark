@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.190 2002/09/09 20:38:56 guy Exp $
+ * $Id: capture.c,v 1.191 2002/09/22 16:17:41 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1367,7 +1367,8 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   unsigned int i;
   static const char capstart_msg = SP_CAPSTART;
   char        errmsg[4096+1];
-  gboolean    dump_ok;
+  gboolean    write_ok;
+  gboolean    close_ok;
   fd_set      set1;
   struct timeval timeout;
   struct {
@@ -1900,31 +1901,29 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
       popup_errmsg(errmsg);
 #endif
 
-  if (ld.err != 0) {
+  if (ld.err == 0)
+    write_ok = TRUE;
+  else {
     get_capture_file_io_error(errmsg, sizeof(errmsg), cfile.save_file, ld.err,
 			      FALSE);
     popup_errmsg(errmsg);
-
-    /* A write failed, so we've already told the user there's a problem;
-       if the close fails, there's no point in telling them about that
-       as well. */
-    if (capture_opts.ringbuffer_on) {
-      ringbuf_wtap_dump_close(&cfile, &err);
-    } else {
-      wtap_dump_close(ld.pdh, &err);
-    }
-   } else {
-    if (capture_opts.ringbuffer_on) {
-      dump_ok = ringbuf_wtap_dump_close(&cfile, &err);
-    } else {
-      dump_ok = wtap_dump_close(ld.pdh, &err);
-    }
-    if (!dump_ok) {
-      get_capture_file_io_error(errmsg, sizeof(errmsg), cfile.save_file, err,
-				TRUE);
-      popup_errmsg(errmsg);
-    }
+    write_ok = FALSE;
   }
+
+  if (capture_opts.ringbuffer_on) {
+    close_ok = ringbuf_wtap_dump_close(&cfile, &err);
+  } else {
+    close_ok = wtap_dump_close(ld.pdh, &err);
+  }
+  /* If we've displayed a message about a write error, there's no point
+     in displaying another message about an error on close. */
+  if (!close_ok && write_ok) {
+    get_capture_file_io_error(errmsg, sizeof(errmsg), cfile.save_file, err,
+		TRUE);
+    popup_errmsg(errmsg);
+  }
+  /* Set write_ok to mean the write and the close were successful. */
+  write_ok = (write_ok && close_ok);
 
 #ifndef _WIN32
   /*
@@ -1967,7 +1966,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   gtk_grab_remove(GTK_WIDGET(cap_w));
   gtk_widget_destroy(GTK_WIDGET(cap_w));
 
-  return TRUE;
+  return write_ok;
 
 error:
   if (capture_opts.ringbuffer_on) {

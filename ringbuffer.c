@@ -1,7 +1,7 @@
 /* ringbuffer.c
  * Routines for packet capture windows
  *
- * $Id: ringbuffer.c,v 1.5 2002/08/28 21:00:41 jmayer Exp $
+ * $Id: ringbuffer.c,v 1.6 2002/09/22 16:17:41 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -292,7 +292,10 @@ gboolean
 ringbuf_wtap_dump_close(capture_file *cf, int *err)
 {
   gboolean     ret_val;
+  gboolean     data_captured = TRUE;
   unsigned int i;
+  long         curr_pos;
+  long         curr_file_curr_pos = 0;  /* Initialise to avoid GCC warning */
   gchar       *new_name;
   char         filenum[5+1];
   char         timestr[14+1];
@@ -304,6 +307,33 @@ ringbuf_wtap_dump_close(capture_file *cf, int *err)
   for (i=0; i<rb_data.num_files; i++) {
     fh = wtap_dump_file(rb_data.files[i].pdh);
     clearerr(fh);
+
+    /* Get the current file position */
+    if ((curr_pos = ftell(fh)) < 0) {
+      if (err != NULL) {
+        *err = errno;
+      }
+      ret_val = FALSE;
+      /* If the file's not a new one, remove it as it hasn't been truncated
+         and thus contains garbage at the end.
+         If the file is a new one, it contains only the dump header, so
+         remove it too. */
+      close(rb_data.files[i].fd);
+      unlink(rb_data.files[i].name);
+      /* Set name for caller's error message */
+      cf->save_file = rb_data.files[i].name;
+      continue;
+    }
+
+    if (i == rb_data.curr_file_num)
+      curr_file_curr_pos = curr_pos;
+
+    /* If buffer 0 is empty and the ring hasn't wrapped,
+       no data has been captured. */
+    if (i == 0 && curr_pos == rb_data.files[0].start_pos &&
+        rb_data.files[0].number == 0)
+      data_captured = FALSE;
+
     /* Flush the file */
     errno = WTAP_ERR_CANT_CLOSE;
     if (fflush(fh) == EOF) {
@@ -311,15 +341,9 @@ ringbuf_wtap_dump_close(capture_file *cf, int *err)
         *err = errno;
       }
       ret_val = FALSE;
-      /* If the file's not a new one, remove it as it hasn't been truncated
-         and thus contains garbage at the end.
-
-         We don't remove it if it's new - it's incomplete, but at least
-         the stuff before the incomplete record is usable. */
       close(rb_data.files[i].fd);
-      if (!rb_data.files[i].is_new) {
-        unlink(rb_data.files[i].name);
-      }
+      unlink(rb_data.files[i].name);
+      cf->save_file = rb_data.files[i].name;
       continue;
     }
 
@@ -327,7 +351,7 @@ ringbuf_wtap_dump_close(capture_file *cf, int *err)
        to get rid of the 'garbage' packets at the end of the file from
        previous usage */
     if (!rb_data.files[i].is_new) {
-      if (ftruncate(rb_data.files[i].fd,ftell(fh)) != 0) {
+      if (ftruncate(rb_data.files[i].fd, curr_pos) != 0) {
         /* could not truncate the file */
         if (err != NULL) {
           *err = errno;
@@ -336,17 +360,26 @@ ringbuf_wtap_dump_close(capture_file *cf, int *err)
         /* remove the file since it contains garbage at the end */
         close(rb_data.files[i].fd);
         unlink(rb_data.files[i].name);
+        cf->save_file = rb_data.files[i].name;
         continue;
       }
     }
     /* close the file */
     if (!wtap_dump_close(rb_data.files[i].pdh, err)) {
       /* error only if it is a used file */
-      if (!rb_data.files[i].is_new) {
+      if (curr_pos > rb_data.files[i].start_pos) {
         ret_val = FALSE;
+        /* Don't unlink it; maybe the user can salvage it. */
+        cf->save_file = rb_data.files[i].name;
+        continue;
       }
     }
-    if (!rb_data.files[i].is_new) {
+
+    /* Rename buffers which have data and delete empty buffers --
+       except if no data at all has been captured we need to keep
+       the empty first buffer. */
+    if (curr_pos > rb_data.files[i].start_pos ||
+         (i == 0 && !data_captured)) {
       /* rename the file */
       snprintf(filenum,5+1,"%05d",rb_data.files[i].number);
       strftime(timestr,14+1,"%Y%m%d%H%M%S",
@@ -359,18 +392,32 @@ ringbuf_wtap_dump_close(capture_file *cf, int *err)
           *err = errno;
         }
         ret_val = FALSE;
+        cf->save_file = rb_data.files[i].name;
         g_free(new_name);
       } else {
         g_free(rb_data.files[i].name);
         rb_data.files[i].name = new_name;
       }
     } else {
-      /* this file has never been used - remove it */
+      /* this file is empty - remove it */
       unlink(rb_data.files[i].name);
     }
   }
-  /* make the current file the save file */
-  cf->save_file = rb_data.files[rb_data.curr_file_num].name;
+
+  if (ret_val) {
+    /* Make the current file the save file, or if it's empty apart from
+       the header, make the previous file the save file (assuming data
+       has been captured). */
+    if (curr_file_curr_pos ==
+        rb_data.files[rb_data.curr_file_num].start_pos &&
+        data_captured) {
+      if (rb_data.curr_file_num > 0)
+        rb_data.curr_file_num -= 1;
+      else
+        rb_data.curr_file_num = rb_data.num_files - 1;
+    }
+    cf->save_file = rb_data.files[rb_data.curr_file_num].name;
+  }
   return ret_val;
 }
 
