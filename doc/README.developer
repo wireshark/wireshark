@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.36 2001/09/14 07:10:09 guy Exp $
+$Id: README.developer,v 1.37 2001/10/16 01:57:12 gerald Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -85,7 +85,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.36 2001/09/14 07:10:09 guy Exp $"
+The "$Id: README.developer,v 1.37 2001/10/16 01:57:12 gerald Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -95,7 +95,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.36 2001/09/14 07:10:09 guy Exp $
+ * $Id: README.developer,v 1.37 2001/10/16 01:57:12 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1339,8 +1339,9 @@ address:port combinations.  A conversation is not sensitive to the direction of
 the packet.  The same conversation will be returned for a packet bound from
 ServerA:1000 to ClientA:2000 and the packet from ClientA:2000 to ServerA:1000.
 
-There are two routine that you will use to work with a conversation:
-conversation_new and find_conversation.
+There are five routines that you will use to work with a conversation:
+conversation_new, find_conversation, conversation_add_proto_data,
+conversation_get_proto_data, and conversation_delete_proto_data.
 
 
 2.2.1 The conversation_init function.
@@ -1349,29 +1350,28 @@ This is an internal routine for the conversation code.  As such the you
 will not have to call this routine.  Just be aware that this routine is
 called at the start of each capture and before the packets are filtered
 with a display filter.  The routine will destroy all stored
-conversations.  This routine does NOT clean up any data pointers that is
+conversations.  This routine does NOT clean up any data pointers that are
 passed in the conversation_new 'data' variable.  You are responsible for
 this clean up if you pass a malloc'ed pointer in this variable.
 
-See item 2.2.4 for more information about the 'data' pointer.
+See item 2.2.7 for more information about the 'data' pointer.
 
 
 2.2.2 The conversation_new function.
 
 This routine will create a new conversation based upon two address/port
 pairs.  If you want to associate with the conversation a pointer to a
-private data structure it should be passed in the conversation_new
-'data' variable.  The ptype variable is used to differentiate between
+private data structure you must use the conversation_add_proto_data
+function.  The ptype variable is used to differentiate between
 conversations over different protocols, i.e. TCP and UDP.  The options
-variable is used to define a conversation that will accept any
-destination address and/or port.  Set options = 0 if the destination
-port and address are know when conversation_new is called.  See section
-2.4 for more information on usage of the options parameter.
+variable is used to define a conversation that will accept any destination
+address and/or port.  Set options = 0 if the destination port and address
+are know when conversation_new is called.  See section 2.4 for more
+information on usage of the options parameter.
 
 The conversation_new prototype:
 	conversation_t *conversation_new(address *addr1, address *addr2,
-	    port_type ptype, guint32 port1, guint32 port2, void *data,
-	    guint options);
+	    port_type ptype, guint32 port1, guint32 port2, guint options);
 
 Where:
 	address* addr1 	= first data packet address
@@ -1379,7 +1379,6 @@ Where:
 	port_type ptype = port type, this is defined in packet.h
 	guint32 port1	= first data packet port
 	guint32 port2	= second data packet port
- 	void *data	= dissector data structure
 	guint options	= conversation options, NO_ADDR2 and/or NO_PORT2
 
 "addr1" and "port1" are the first address/port pair; "addr2" and "port2"
@@ -1400,7 +1399,7 @@ doesn't specify the addresses and ports of both sides.
 
 2.2.3 The find_conversation function.
 
-Call this routine to lookup a conversation.  If no conversation is found,
+Call this routine to look up a conversation.  If no conversation is found,
 the routine will return a NULL value.
 
 The find_conversation prototype:
@@ -1435,7 +1434,69 @@ any "wildcarded" address and the "port_b" port will be treated as
 matching any "wildcarded" port.
 
 
-2.2.4 The example conversation code with GMemChunk's
+2.2.4 The conversation_add_proto_data function.
+
+Once you have created a conversation with conversation_new, you can
+associate data with it using this function.
+
+The conversation_add_proto_data prototype:
+
+	void conversation_add_proto_data(conversation_t *conv, int proto,
+	    void *proto_data);
+
+Where:
+	conversation_t *conv = the conversation in question
+	int proto	     = registered protocol number
+	void *data	     = dissector data structure
+
+"conversation" is the value returned by conversation_new.  "proto" is a
+unique protocol number created with proto_register_protocol.  Protocols
+are typically registered in the proto_register_XXXX section of your
+dissector.  "data" is a pointer to the data you wish to associate with the
+conversation.  Using the protocol number allows several dissectors to
+associate data with a given conversation.
+
+
+2.2.5 The conversation_get_protocol_data function.
+
+After you have located a conversation with find_conversation, you can use
+this function to retrieve any data associated with it.
+
+The conversation_get_protocol_data prototype:
+
+	void *conversation_get_protocol_data(conversation_t *conv, int proto);
+
+Where:
+	conversation_t *conv = the conversation in question
+	int proto	     = registered protocol number
+	
+"conversation" is the conversation created with conversation_new.  "proto"
+is a unique protocol number acreated with proto_register_protocol,
+typically in the proto_register_XXXX portion of a dissector.  The function
+returns a pointer to the data requested, or NULL if no data was found.
+
+
+2.2.6 The conversation_delete_proto_data function.
+
+After you are finished with a conversation, you can remove your assocation
+with this function.  Please note that ONLY the conversation entry is
+removed.  If you have allocated any memory for your data, you must free it
+as well.
+
+The conversation_delete_proto_data prototype:
+
+	void conversation_delete_proto_data(conversation_t *conv, int proto);
+	
+Where:
+	conversation_t *conv = the conversation in question
+	int proto	     = registered protocol number
+
+"conversation" is the conversation created with conversation_new.  "proto"
+is a unique protocol number acreated with proto_register_protocol,
+typically in the proto_register_XXXX portion of a dissector.
+
+
+2.2.7 The example conversation code with GMemChunk's
 
 For a conversation between two IP addresses and ports you can use this as an
 example.  This example uses the GMemChunk to allocate memory and stores the data
@@ -1458,6 +1519,9 @@ typedef struct {
 /* the GMemChunk base structure */
 static GMemChunk *my_vals = NULL;
 
+/* Registered protocol number
+static int my_proto = -1;
+
 
 /********************* in the dissector routine *********************/
 
@@ -1474,7 +1538,8 @@ conversation = find_conversation( &pinfo->src, &pinfo->dst, pinfo->ptype,
 
 /* if conversation found get the data pointer that you stored */
 if ( conversation)
-    data_ptr = (my_entry_t*)conversation->data;
+    data_ptr = (my_entry_t*)conversation_get_proto_data(conversation,
+    	    my_proto);
 else {
 
     /* new conversation create local data structure */
@@ -1486,7 +1551,8 @@ else {
     /* create the conversation with your data pointer  */
 
     conversation_new( &pinfo->src, &pinfo->dst, pinfo->ptype,
-	    pinfo->srcport, pinfo->destport, (void*)data_ptr, 0);
+	    pinfo->srcport, pinfo->destport, 0);
+    conversation_add_proto_data(conversation, my_proto, (void *) data_ptr;
 }
 
 /* at this point the conversation data is ready */
@@ -1518,15 +1584,18 @@ my_dissector_init( void){
 
 register_init_routine( &my_dissector_init);
 
+my_proto = proto_register_protocol("My Protocol", "My Protocol", "my_proto");
 
-2.2.4 The example conversation code using conversation index field
 
-Sometimes the conversation isn't enough to define a unique data storage value
-for the network traffic.  For example if you are storing information about requests
-carried in a conversation, the request may have an identifier that is used to 
-define the request. In this case the conversation and the identifier are required
-to find the data storage pointer.  You can use the conversation data structure
-index value to uniquely define the conversation.  
+2.2.8 The example conversation code using conversation index field
+
+Sometimes the conversation isn't enough to define a unique data storage
+value for the network traffic.  For example if you are storing information
+about requests carried in a conversation, the request may have an
+identifier that is used to  define the request. In this case the
+conversation and the identifier are required to find the data storage
+pointer.  You can use the conversation data structure index value to
+uniquely define the conversation.  
 
 See packet-afs.c for an example of how to use the conversation index.  In
 this dissector multiple requests are sent in the same conversation.  To store
@@ -1763,4 +1832,4 @@ Gilbert Ramirez <gram@xiexie.org>
 Jeff Foster <jfoste@woodward.com>
 Olivier Abad <oabad@cybercable.fr>
 Laurent Deniel <deniel@worldnet.fr>
-
+Gerald Combs <gerald@ethereal.com>
