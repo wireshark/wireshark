@@ -585,6 +585,13 @@ ber_sequence_try_again:
 		count=seq->func(pinfo, tree, next_tvb, 0);
 		seq++;
 		offset = hoffset+count;
+		/* if it was optional  and no bytes were eaten,
+		   just try again.
+		*/
+		if((count==0)&&(seq->flags&BER_FLAGS_OPTIONAL)){
+				goto ber_sequence_try_again;
+		}
+
 /* XXX this whole ifdef block should be removed after a while  when I
  * see that there isnt too many other things that broke.
  * ifdef added after release 0.10.7.
