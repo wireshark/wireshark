@@ -44,6 +44,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/strutil.h>
 #include "packet-wap.h"
 #include "packet-wsp.h"
 /* #include "packet-mmse.h" */		/* We autoregister	*/
@@ -1172,7 +1173,8 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 				hf_mmse_prev_sent_by,
 				tvb, offset - 1, 1 + count + length,
 				strval, "%s (Forwarded-count=%u)",
-				strval, fwd_count);
+				format_text(strval, strlen(strval)),
+				fwd_count);
 			subtree = proto_item_add_subtree(ti,
 				ett_mmse_hdr_details);
 			proto_tree_add_uint(subtree,
@@ -1208,7 +1210,8 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 				hf_mmse_prev_sent_date,
 				tvb, offset - 1, 1 + count + length,
 				strval, "%s (Forwarded-count=%u)",
-				strval, fwd_count);
+				format_text(strval, strlen(strval)),
+				fwd_count);
 			subtree = proto_item_add_subtree(ti,
 				ett_mmse_hdr_details);
 			proto_tree_add_uint(subtree,
@@ -1245,7 +1248,8 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			    if (tree) {
 				proto_tree_add_text(mmse_tree, tvb, offset - 1,
 					length + 1, "%s: %s (Not decoded)",
-					hdr_name, strval);
+					hdr_name,
+					format_text(strval, strlen(strval)));
 				g_free(strval);
 			    }
 			} else { /* General form with length */
@@ -1282,7 +1286,9 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 				    length + length2,
 				    (const char *) tvb_get_ptr(
 					    tvb, offset, length + length2),
-				    "%s: %s", strval, strval2);
+				    "%s: %s",
+				    format_text(strval, strlen(strval)),
+				    format_text(strval2, strlen(strval2)));
 			}
 			g_free(strval2);
 			offset += length + length2;
