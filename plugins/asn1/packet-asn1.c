@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id: packet-asn1.c,v 1.11 2003/12/16 21:02:11 ulfl Exp $
+ * $Id: packet-asn1.c,v 1.12 2003/12/21 04:38:41 jmayer Exp $
  *
  * A plugin for:
  *
@@ -221,7 +221,7 @@ typedef enum {	/* copied from .../snacc/c-lib/boot/tbl.h */
 	TBL_reserved,		/* this sequence has been visited */
 	TBL_CHOICE_immediate,	/* immediate choice, no next */
 
-	TBL_INVALID,		/* incorrect value for this enum */
+	TBL_INVALID		/* incorrect value for this enum */
 } TBLTypeId;
 
 /* Universal tags mapped to snacc ASN.1 table types */
@@ -1772,7 +1772,7 @@ enum _tbl_t {
 	TBLTYPE_Type,
 	TBLTYPE_TypeRef,
 	TBLTYPE_NamedNumber,
-	TBLTYPE_Range,
+	TBLTYPE_Range
 };
 typedef enum _tbl_t tbl_t;
 /* text for 'tbl_t' type for debugging */
@@ -1789,7 +1789,7 @@ enum _TBLTypeContent_t {
 	TBLTYPETYPE_None,
 	TBLTYPETYPE_Primitive,
 	TBLTYPETYPE_Elements,
-	TBLTYPETYPE_TypeRef,
+	TBLTYPETYPE_TypeRef
 };
 typedef enum _TBLTypeContent_t TBLTypeContent_t;
 
