@@ -1,5 +1,5 @@
 /* 
- * $Id: ftype-bytes.c,v 1.11 2002/05/09 23:50:32 gram Exp $
+ * $Id: ftype-bytes.c,v 1.12 2002/05/10 02:44:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -713,7 +713,7 @@ ftype_register_bytes(void)
 	};
 
 	ftype_register(FT_BYTES, &bytes_type);
-	ftype_register(FT_UINT_BYTES, &bytes_type);
+	ftype_register(FT_UINT_BYTES, &uint_bytes_type);
 	ftype_register(FT_ETHER, &ether_type);
 	ftype_register(FT_IPv6, &ipv6_type);
 	ftype_register(FT_UINT64, &u64_type);
