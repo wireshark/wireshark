@@ -48,12 +48,11 @@
 #define SPNEGO_mechToken 2
 #define SPNEGO_mechListMIC 3
 #define SPNEGO_negResult 0
-#define SPNEGO_accept_completed 0
-#define SPNEGO_accept_incomplete 1
-#define SPNEGO_reject 2
 #define SPNEGO_supportedMech 1
 #define SPNEGO_responseToken 2
-#define SPNEGO_mechListMIC 3
+#define SPNEGO_negResult_accept_completed 0
+#define SPNEGO_negResult_accept_incomplete 1
+#define SPNEGO_negResult_accept_reject 2
 
 static int proto_spnego = -1;
 
@@ -281,11 +280,6 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	while (len1) {
 
-	  /*
-	   * Another context header ... It could be MechTypeList, but that
-	   * is optional, Hmmm ... what if it was empty?
-	   */
-
 	  ret = asn1_header_decode(hnd, &cls, &con, &tag, &def, &len);
 
 	  if (ret != ASN1_ERR_NOERROR) {
@@ -420,7 +414,54 @@ dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		goto done;
 	}
 
-	/* Just add the blob so far ... */
+	offset = hnd->offset;
+
+	len -= 2; /* Account for the Header above ... */
+
+	while (len1) {
+
+	  ret = asn1_header_decode(hnd, &cls, &con, &tag, &def, &len);
+
+	  if (ret != ASN1_ERR_NOERROR) {
+	    dissect_parse_error(tvb, offset, pinfo, subtree,
+				"SPNEGO context header", ret);
+	    goto done;
+	  }
+
+	  if (!(cls == ASN1_CTX && con == ASN1_CON)) {
+	    proto_tree_add_text(
+				subtree, tvb, offset, 0,
+				"Unknown header (cls=%d, con=%d, tag=%d)",
+				cls, con, tag);
+	    goto done;
+	  }
+
+	  /* Should be one of the fields */
+
+	  switch (tag) {
+
+	  case SPNEGO_negResult:
+
+	    break;
+
+	  case SPNEGO_supportedMech:
+
+	    break;
+
+	  case SPNEGO_responseToken:
+
+	    break;
+
+	  case SPNEGO_mechListMIC:
+
+	    break;
+
+	  default:
+
+	    break;
+	  }
+
+	}
 
  done:
 	return offset;
