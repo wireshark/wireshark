@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.36 2003/03/06 09:01:47 sahlberg Exp $
+ * $Id: packet-mgcp.c,v 1.37 2003/03/06 19:15:09 guy Exp $
  *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -1024,6 +1024,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
       if(tokennum == 1){
       	transid = g_malloc(tokenlen);
         transid = tvb_format_text(tvb,tvb_previous_offset,tokenlen);
+        /* XXX - what if this isn't a valid text string? */
         mi->transid = atol(transid);
 	my_proto_tree_add_string(tree,hf_mgcp_transid, tvb,
 				 tvb_previous_offset, tokenlen,
@@ -1146,7 +1147,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
 					mi->is_duplicate = TRUE;   
 					if (check_col(pinfo->cinfo, COL_INFO)) {
 						col_append_fstr(pinfo->cinfo, COL_INFO,
-							", Duplicate Response %ld",mi->transid);
+							", Duplicate Response %u",mi->transid);
 						if (tree) {
 							proto_tree_add_uint_hidden(tree,
 								hf_mgcp_dup, tvb, 0,0, mi->transid);
@@ -1222,7 +1223,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
 			mi->is_duplicate = TRUE;
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO,
-					", Duplicate Request %ld",mi->transid);	
+					", Duplicate Request %u",mi->transid);	
 				if (tree) {
 					proto_tree_add_uint_hidden(tree, 
 						hf_mgcp_dup, tvb, 0,0, mi->transid);
