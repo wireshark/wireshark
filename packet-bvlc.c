@@ -2,7 +2,7 @@
  * Routines for BACnet/IP (BVLL, BVLC) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bvlc.c,v 1.13 2002/08/28 21:00:08 jmayer Exp $
+ * $Id: packet-bvlc.c,v 1.14 2004/01/27 03:49:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -106,7 +106,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 bvlc_function;
 	guint16 bvlc_length;
 	guint16 packet_length;
-	guint8 npdu_length;
+	guint npdu_length;
 	guint16 bvlc_result;
 	tvbuff_t *next_tvb;
 
@@ -275,7 +275,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	next_tvb = tvb_new_subset(tvb,bvlc_length,-1,npdu_length);
 	/* Code from Guy Harris */
 	if (!dissector_try_port(bvlc_dissector_table,
-	bvlc_function, next_tvb, pinfo, tree)) {
+	    bvlc_function, next_tvb, pinfo, tree)) {
 		/* Unknown function - dissect the paylod as data */
 		call_dissector(data_handle,next_tvb, pinfo, tree);
 	}
