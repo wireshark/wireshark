@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.33 2002/09/22 15:46:41 gerald Exp $
+$Id: ncp2222.py,v 1.34 2002/09/25 00:36:58 jmayer Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -5137,6 +5137,7 @@ def define_errors():
     
     	errors[0x7f00] = "Lock Waiting"
     	errors[0x8000] = "Lock fail"
+        errors[0x8001] = "File in Use"
     
     	errors[0x8100] = "A file handle could not be allocated by the file server"
     	errors[0x8101] = "Out of File Handles"
@@ -5155,8 +5156,8 @@ def define_errors():
     	errors[0x8701] = "Create Filename Error"
     
     	errors[0x8800] = "Invalid file handle"
-    	errors[0x8900] = "Unauthorized to search this directory"
-    	errors[0x8a00] = "Unauthorized to delete this directory"
+    	errors[0x8900] = "Unauthorized to search this file/directory"
+    	errors[0x8a00] = "Unauthorized to delete this file/directory"
     	errors[0x8b00] = "Unauthorized to rename a file in this directory"
     
     	errors[0x8c00] = "No set privileges"
@@ -5874,6 +5875,7 @@ static int hf_nds_new_part_id = -1;
 static int hf_nds_child_part_id = -1;
 static int hf_nds_master_part_id = -1;
 static int hf_nds_target_name = -1;
+static int hf_nds_super = -1;
 
 
 	"""
@@ -7256,6 +7258,9 @@ proto_register_ncp2222(void)
     
     { &hf_nds_base, 
     { "Base Class", "ncp.nds_base", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_super, 
+    { "Super Class", "ncp.nds_super", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
     
     { &hf_nds_entry_info, 
     { "Entry Information", "ncp.nds_entry_info", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
@@ -11364,7 +11369,7 @@ def define_ncp2222():
                 srec( FileNameStruct, req_cond="ncp.ret_info_mask_fname == 1" ),
         ])
 	pkt.ReqCondSizeVariable()
-        pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+        pkt.CompletionCodes([0x0000, 0x8001, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8900, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xa500, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5702, 87/02
@@ -11609,7 +11614,7 @@ def define_ncp2222():
 	], info_str=(Path, "Delete: %s", "/%s"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,  
-			     0x8701, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9600,
+			     0x8701, 0x8a00, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5709, 87/09
 	pkt = NCP(0x5709, "Set Short Directory Handle", 'file', has_length=0)
@@ -12504,6 +12509,13 @@ def define_ncp2222():
 		rec( 8, 4, FileHandle, BE ),
 		rec( 12, 4, EffectiveRights ),
 	])
+	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
+	# 2222/5742, 87/66
+	pkt = NCP(0x5742, "Novell Advanced Auditing Service (NAAS)", 'auditing', has_length=0)
+	pkt.Request(8)
+	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])

@@ -5,7 +5,7 @@
  * Modified to decode server op-lock
  * & NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp.c,v 1.69 2002/09/22 15:46:42 gerald Exp $
+ * $Id: packet-ncp.c,v 1.70 2002/09/25 00:37:01 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -82,7 +82,7 @@ static int hf_ncp_slot = -1;
 static int hf_ncp_control_code = -1;
 static int hf_ncp_fragment_handle = -1;
 static int hf_lip_echo = -1;
-static int hf_ping_version = -1;
+/*static int hf_ping_version = -1;*/
 
 gint ett_ncp = -1;
 gint ett_nds = -1;
@@ -90,7 +90,7 @@ static gint ett_ncp_system_flags = -1;
 
 /* desegmentation of NCP over TCP */
 static gboolean ncp_desegment = TRUE;
-static ncp_nds_true = FALSE;
+/*static int ncp_nds_true = FALSE;*/
 
 static dissector_handle_t data_handle;
 
@@ -399,11 +399,12 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
             }
         }
+    
+	case NCP_POSITIVE_ACK:		/* Positive Acknowledgement */
     case NCP_SERVICE_REQUEST:	/* Server NCP Request */
     case NCP_SERVICE_REPLY:		/* Server NCP Reply */
 	case NCP_WATCHDOG:		    /* Watchdog Packet */
 	case NCP_DEALLOCATE_SLOT:	/* Deallocate Slot Request */
-	case NCP_POSITIVE_ACK:		/* Positive Acknowledgement */
 	default:
 		proto_tree_add_uint(ncp_tree, hf_ncp_seq,	tvb, commhdr + 2, 1, header.sequence);
 		proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
