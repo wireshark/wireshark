@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.88 2003/11/19 01:45:26 guy Exp $
+ * $Id: packet-wsp.c,v 1.89 2003/11/19 09:43:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1158,9 +1158,7 @@ static void add_multipart_data (proto_tree *, tvbuff_t *);
 
 static void add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type);
 static void add_capability_vals(tvbuff_t *, gboolean, int, guint, guint, char *, size_t);
-static value_type_t get_value_type_len (tvbuff_t *, int, guint *, int *, int *);
 static guint get_uintvar (tvbuff_t *, guint, guint);
-static gint get_integer (tvbuff_t *, guint, guint, value_type_t, guint *);
 
 
 
@@ -4964,82 +4962,6 @@ add_capability_vals(tvbuff_t *tvb, gboolean add_string, int offsetStr,
 	valString[i] = '\0';
 }
 
-static value_type_t
-get_value_type_len (tvbuff_t *tvb, int offset, guint *valueLen,
-    int *valueOffset, int *nextOffset)
-{
-	guint8 peek;
-	guint32 len;
-	guint count;
-
-	/* Get value part of header */
-	peek = tvb_get_guint8 (tvb, offset);
-	if (peek <= 30)
-	{
-		/*
-		 * The value follows "peek", and is "peek" octets long.
-		 */
-#ifdef DEBUG
-		fprintf (stderr, "dissect_wsp: Looking for %d octets\n", peek);
-#endif
-		len = peek;
-		*valueLen = len;	/* Length of value */
-		offset++;		/* Skip the length */
-		*valueOffset = offset;	/* Offset of value */
-		offset += len;		/* Skip the value */
-		*nextOffset = offset;	/* Offset after value */
-		return VALUE_LEN_SUPPLIED;
-	}
-	else if (peek == 31)
-	{
-		/*
-		 * A uintvar giving the length of the value follows
-		 * "peek", and the value follows that.
-		 */
-#ifdef DEBUG
-		fprintf (stderr, "dissect_wsp: Looking for uintvar octets\n");
-#endif
-		offset++;		/* Skip the uintvar indicator */
-		count = 0;		/* Initialise count */
-		len = tvb_get_guintvar (tvb, offset, &count);
-		*valueLen = len;	/* Length of value */
-		offset += count;	/* Skip the length */
-		*valueOffset = offset;	/* Offset of value */
-		offset += len;		/* Skip the value */
-		*nextOffset = offset;	/* Offset after value */
-		return VALUE_LEN_SUPPLIED;
-	}
-	else if (peek <= 127)
-	{
-		/*
-		 * The value is a NUL-terminated string, and "peek"
-		 * is the first octet of the string.
-		 */
-#ifdef DEBUG
-		fprintf (stderr, "dissect_wsp: Looking for NUL-terminated string\n");
-#endif
-		len = tvb_strsize (tvb, offset);
-		*valueLen = len;	/* Length of value */
-		*valueOffset = offset;	/* Offset of value */
-		offset += len;		/* Skip the value */
-		*nextOffset = offset;	/* Offset after value */
-		return VALUE_IS_TEXT_STRING;
-	}
-	else
-	{
-		/*
-		 * "peek", with the 8th bit stripped off, is the value.
-		 */
-#ifdef DEBUG
-		fprintf (stderr, "dissect_wsp: Value is %d\n", (peek & 0x7F));
-#endif
-		*valueLen = peek & 0x7F; /* Return the value itself */
-		*valueOffset = offset;	/* Offset of value */
-		offset++;		/* Skip the value */
-		*nextOffset = offset;	/* Offset after value */
-		return VALUE_IN_LEN;
-	}
-}
 
 static guint
 get_uintvar (tvbuff_t *tvb, guint offset, guint offsetEnd)
@@ -5049,7 +4971,7 @@ get_uintvar (tvbuff_t *tvb, guint offset, guint offsetEnd)
 
 	do
 	{
-       		octet = tvb_get_guint8 (tvb, offset);
+		octet = tvb_get_guint8 (tvb, offset);
 		offset++;
 		value <<= 7;
 		value += octet & 0x7f;
@@ -5221,50 +5143,6 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb)
 	}
 }
 
-static gint
-get_integer (tvbuff_t *tvb, guint offset, guint valueLength,
-    value_type_t valueType, guint *value)
-{
-	if (valueType == VALUE_IS_TEXT_STRING) {
-		/*
-		 * Not valid.
-		 */
-		return -1;
-	}
-
-	if (valueType == VALUE_IN_LEN) {
-		/*
-		 * Short-integer.
-		 */
-		*value = valueLength;
-		return 0;
-	}
-
-	/*
-	 * Long-integer.
-	 */
-	switch (valueLength)
-	{
-		case 1:
-			*value = tvb_get_guint8(tvb, offset);
-			break;
-		case 2:
-			*value = tvb_get_ntohs(tvb, offset);
-			break;
-		case 3:
-		        *value = tvb_get_ntoh24(tvb, offset);
-			break;
-		case 4:
-			*value = tvb_get_ntohl(tvb, offset);
-			break;
-		default:
-		        /* TODO: Need to read peek octets */
-		        *value = 0;
-		        fprintf (stderr, "dissect_wsp: get_integer size %u NYI\n", valueLength);
-	        	break;
-	}
-	return 0;
-}
 
 /* Register the protocol with Ethereal */
 void
