@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.101 2001/08/11 17:46:06 guy Exp $
+ * $Id: packet-smb.c,v 1.102 2001/08/11 18:26:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -9924,24 +9924,24 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd,
   tvbuff_t         *next_tvb;
   tvbuff_t         *setup_tvb;
 
-  if (!TransactName)
-    return;
+  if (TransactName != NULL) {
+    /* Should check for error here ... */
 
-  /* Should check for error here ... */
+    TransactNameCopy = g_strdup(TransactName);
 
-  TransactNameCopy = g_strdup(TransactName);
+    if (TransactNameCopy[0] == '\\') {
+      trans_type = TransactNameCopy + 1;  /* Skip the slash */
+      loc_of_slash = trans_type ? strchr(trans_type, '\\') : NULL;
+    }
 
-  if (TransactNameCopy[0] == '\\') {
-    trans_type = TransactNameCopy + 1;  /* Skip the slash */
-    loc_of_slash = trans_type ? strchr(trans_type, '\\') : NULL;
-  }
-
-  if (loc_of_slash) {
-    index = loc_of_slash - trans_type;  /* Make it a real index */
-    trans_cmd = trans_type + index + 1;
-    trans_type[index] = '\0';
-  }
-  else
+    if (loc_of_slash) {
+      index = loc_of_slash - trans_type;  /* Make it a real index */
+      trans_cmd = trans_type + index + 1;
+      trans_type[index] = '\0';
+    }
+    else
+      trans_cmd = NULL;
+  } else
     trans_cmd = NULL;
 
   pinfo = &pi;
