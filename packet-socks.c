@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.25 2001/10/29 21:45:12 jfoster Exp $
+ * $Id: packet-socks.c,v 1.26 2001/10/30 10:40:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -279,8 +279,8 @@ static char *get_command_name( guint Number){
 }
 
 
-static int 
-display_address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+static int display_address(tvbuff_t *tvb, int offset,
+		packet_info *pinfo, proto_tree *tree) {
 
 /* decode and display the v5 address, return offset of next byte */
 
@@ -294,8 +294,8 @@ display_address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 	++offset;
 
 	if ( a_type == 1){		/* IPv4 address */
-		proto_tree_add_ipv4( tree, hf_socks_ip_dst, tvb, offset,
-					4, tvb_get_letohl(tvb, offset));
+		proto_tree_add_item( tree, hf_socks_ip_dst, tvb, offset,
+					4, FALSE);
 		offset += 4;
 	}	
 	else if ( a_type == 3){	/* domain name address */
@@ -304,8 +304,8 @@ display_address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 			"Remote name");
 	}
 	else if ( a_type == 4){	/* IPv6 address */
-		proto_tree_add_ipv6( tree, hf_socks_ip6_dst, tvb, offset,
-				4, tvb_get_ptr(tvb, offset, 16));
+		proto_tree_add_item( tree, hf_socks_ip6_dst, tvb, offset,
+				16, FALSE);
 		offset += 16;
 	}
 
@@ -325,7 +325,8 @@ static int get_address_v5(tvbuff_t *tvb, int offset,
 	if ( a_type == 1){ 		/* IPv4 address */
 	   
 	   	if ( hash_info)
-			hash_info->dst_addr = tvb_get_letohl(tvb, offset);
+	   		tvb_memcpy(tvb, (guint8 *)&hash_info->dst_addr,
+	   		    offset, 4);
 		offset += 4;
 	}
 		
@@ -353,7 +354,6 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	conversation_t *conversation;
 	proto_tree      *socks_tree;
 	proto_item      *ti;
-//XX	tvbuff_t        *tvb;
 	
 	conversation = find_conversation( &pinfo->src, &pinfo->dst, pinfo->ptype,
 		pinfo->srcport, pinfo->destport, 0);
@@ -397,14 +397,14 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 /* set pi src/dst port and call the udp sub-dissector lookup */
 
-	if ( pi.srcport == hash_info->port) 		
+	if ( pinfo->srcport == hash_info->port) 		
        		ptr = &pinfo->destport;
    	else
     		ptr = &pinfo->srcport;
 
         *ptr = hash_info->udp_remote_port;
    	
-	decode_udp_ports( tvb, offset, &pi, tree, pi.srcport, pi.destport);
+	decode_udp_ports( tvb, offset, &pi, tree, pinfo->srcport, pinfo->destport);
  
         *ptr = hash_info->udp_port;
 
@@ -429,7 +429,8 @@ new_udp_conversation( socks_hash_entry_t *hash_info, packet_info *pinfo){
 /**************** Protocol Tree Display routines  ******************/
 
 void
-display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent, proto_tree *tree, socks_hash_entry_t *hash_info) {
+display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree *parent, proto_tree *tree, socks_hash_entry_t *hash_info) {
 
 
 /* Display the protocol tree for the V5 version. This routine uses the	*/
@@ -455,21 +456,24 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pare
 		++offset;
 
 						/* Do remote port	*/
-		proto_tree_add_uint( tree, hf_socks_dstport, tvb, offset, 2,
-				tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item( tree, hf_socks_dstport, tvb, offset, 2,
+				FALSE);
 		offset += 2;
 
 						/* Do destination address */
-		proto_tree_add_ipv4( tree, hf_socks_ip_dst, tvb, offset,
-				4, tvb_get_letohl(tvb, offset));
+		proto_tree_add_item( tree, hf_socks_ip_dst, tvb, offset,
+				4, FALSE);
 
 		offset += 4;
 
 /*XXX check this, needs to do length checking	 */		
+/* Should perhaps do TCP reassembly as well */
+		if ( tvb_offset_exists(tvb, offset)) {
 						/* display user name 	*/
 			proto_tree_add_string( tree, hf_user_name, tvb, offset, 
 				strlen( tvb_get_ptr(tvb, offset, -1)) + 1,
 				tvb_get_ptr(tvb, offset, -1));
+		}
 
 	}
 				/*Display command response from server*/
@@ -486,19 +490,23 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pare
 		++offset;
 
 						/* Do remote port	*/
-		proto_tree_add_uint( tree, hf_socks_dstport, tvb, offset, 2,
-				tvb_get_ntohs(tvb, offset));
-		offset += 2;;
+		proto_tree_add_item( tree, hf_socks_dstport, tvb, offset, 2,
+				FALSE);
+		offset += 2;
 						/* Do remote address	*/
-		proto_tree_add_ipv4( tree, hf_socks_ip_dst, tvb, offset, 4,
-			tvb_get_letohl(tvb, offset));
+		proto_tree_add_item( tree, hf_socks_ip_dst, tvb, offset, 4,
+			FALSE);
 	}
 	
 	else if ( compare_packet( hash_info->v4_user_name_row)){
 			 
-/*XXX check this, needs to do length checking	 */		
-		proto_tree_add_text( tree, tvb, offset, strlen( tvb_get_ptr(tvb, offset, -1)),
+/*XXX check this, needs to do length checking	 */
+/* Should perhaps do TCP reassembly as well */
+		if ( tvb_offset_exists(tvb, offset)) {
+			proto_tree_add_text( tree, tvb, offset,
+				strlen( tvb_get_ptr(tvb, offset, -1)),
 				"User Name: %s", tvb_get_ptr(tvb, offset, -1));
+		}
 	}
 }			
 
@@ -614,7 +622,8 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 static guint 
-state_machine_v4( socks_hash_entry_t *hash_info, tvbuff_t *tvb, int offset, packet_info *pinfo) {
+state_machine_v4( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
+	int offset, packet_info *pinfo) {
 
 /* Decode V4 protocol.  This is done on the first pass through the 	*/
 /* list.  Based upon the current state, decode the packet and determine	*/
@@ -633,7 +642,8 @@ state_machine_v4( socks_hash_entry_t *hash_info, tvbuff_t *tvb, int offset, pack
 		if ( hash_info->command == CONNECT_COMMAND)						
 			hash_info->port =  tvb_get_ntohs(tvb, offset + 2);
 						/* get remote address	*/
-		hash_info->dst_addr = tvb_get_letohl(tvb, offset + 4);
+
+		tvb_memcpy(tvb, (guint8 *)&hash_info->dst_addr, offset + 4, 4);
 		
 						/* save the packet pointer */
 		hash_info->connect_row = get_packet_ptr;
@@ -643,8 +653,8 @@ state_machine_v4( socks_hash_entry_t *hash_info, tvbuff_t *tvb, int offset, pack
 
 		offset += 8;
 		
-		if ( offset == pinfo->len) 		/* if no user name 	*/
-						/* change state 	*/
+		if ( !tvb_offset_exists(tvb, offset)) 	/* if no user name */
+							/* change state */
 			hash_info->state = V4UserNameWait;
 		
 			
@@ -652,7 +662,7 @@ state_machine_v4( socks_hash_entry_t *hash_info, tvbuff_t *tvb, int offset, pack
 		
 		if ( !hash_info->dst_addr){ 		/* if no dest address */
 							/* if more data */
-			if ( hash_info->connect_offset < pinfo->len ) {
+			if ( tvb_offset_exists(tvb, hash_info->connect_offset)) {
 /*XXX copy remote name here ??? */
 				hash_info->state = Connecting;
 			}
@@ -693,7 +703,8 @@ state_machine_v4( socks_hash_entry_t *hash_info, tvbuff_t *tvb, int offset, pack
 
 
 static void 
-state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb, int offset, packet_info *pinfo) {
+state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
+	int offset, packet_info *pinfo) {
 
 /* Decode V5 protocol.  This is done on the first pass through the 	*/
 /* list.  Based upon the current state, decode the packet and determine	*/
@@ -875,11 +886,11 @@ static void call_next_dissector(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, socks_hash_entry_t *hash_info) {
 
 /* Display the results for PING and TRACERT extensions or		*/
-/* Call TCP  dissector for the port that was passed during the	    	*/
+/* Call TCP dissector for the port that was passed during the	    	*/
 /* connect process  						     	*/
-/* Load pointer to pi.XXXport depending upon the direction, change   	*/
-/* pi port to the remote port, call next dissecotr to decode the     	*/
-/* payload, and restore the pi port after that is done.		     	*/
+/* Load pointer to pinfo->XXXport depending upon the direction,		*/
+/* change pinfo port to the remote port, call next dissecotr to decode	*/
+/* the payload, and restore the pinfo port after that is done.		*/
 
 	guint32 *ptr;
  
