@@ -1,7 +1,7 @@
 /* packet-stat.c
  * Routines for stat dissection
  *
- * $Id: packet-stat.c,v 1.4 2000/01/07 22:05:40 guy Exp $
+ * $Id: packet-stat.c,v 1.5 2000/04/04 06:46:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -81,7 +81,11 @@ proto_register_stat(void)
 	proto_register_field_array(proto_stat, hf, array_length(hf));
 #endif
 	proto_register_subtree_array(ett, array_length(ett));
+}
 
+void
+proto_reg_handoff_stat(void)
+{
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_stat, STAT_PROGRAM, ett_stat);
 	/* Register the procedure tables */

@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.4 2000/01/07 22:05:34 guy Exp $
+ * $Id: packet-nlm.c,v 1.5 2000/04/04 06:46:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -81,11 +81,13 @@ proto_register_nlm(void)
 
 	proto_nlm = proto_register_protocol("Network Lock Manager Protocol", "nlm");
 	proto_register_subtree_array(ett, array_length(ett));
+}
 
+void
+proto_reg_handoff_nlm(void)
+{
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nlm, NLM_PROGRAM, ett_nlm);
 	/* Register the procedure table */
 	rpc_init_proc_table(NLM_PROGRAM, 3, nlm3_proc);
 }
-
-

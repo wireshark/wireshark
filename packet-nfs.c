@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.25 2000/03/23 00:38:11 guy Exp $
+ * $Id: packet-nfs.c,v 1.26 2000/04/04 06:46:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -3147,7 +3147,11 @@ proto_register_nfs(void)
 	proto_nfs = proto_register_protocol("Network File System", "nfs");
 	proto_register_field_array(proto_nfs, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
 
+void
+proto_reg_handoff_nfs(void)
+{
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nfs, NFS_PROGRAM, ett_nfs);
 	/* Register the procedure tables */

@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.28 2000/03/12 04:47:49 gram Exp $
+ * $Id: packet-rpc.c,v 1.29 2000/04/04 06:46:27 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -269,22 +269,6 @@ char *rpc_prog_name(guint32 prog)
 /* end of Hash array with program names */
 /*--------------------------------------*/
 
-
-/*
- * Init the hash tables. It will be called from ethereal_proto_init().
- * ethereal_proto_init() calls later proto_init(), which calls 
- * register_all_protocols().
- * The proto_register_<some rpc program> functions use these hash tables
- * here, so we need this order!
- */
-void
-init_dissect_rpc()
-{
-	rpc_progs = g_hash_table_new(rpc_prog_hash, rpc_prog_equal);
-	rpc_procs = g_hash_table_new(rpc_proc_hash, rpc_proc_equal);
-}
-
- 
 /* static array, first quick implementation, I'll switch over to GList soon */ 
 rpc_call_info rpc_call_table[RPC_CALL_TABLE_LENGTH];
 guint32 rpc_call_index = 0;
@@ -1345,4 +1329,18 @@ proto_register_rpc(void)
 	proto_register_field_array(proto_rpc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_init_routine(&rpc_init_protocol);
+
+	/*
+	 * Init the hash tables.  Dissectors for RPC protocols must
+	 * have a "handoff registration" routine that registers the
+	 * protocol with RPC; they must not do it in their protocol
+	 * registration routine, as their protocol registration
+	 * routine might be called before this routine is called and
+	 * thus might be called before the hash tables are initialized,
+	 * but it's guaranteed that all protocol registration routines
+	 * will be called before any handoff registration routines
+	 * are called.
+	 */
+	rpc_progs = g_hash_table_new(rpc_prog_hash, rpc_prog_equal);
+	rpc_procs = g_hash_table_new(rpc_proc_hash, rpc_proc_equal);
 }

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.22 2000/04/03 09:41:14 guy Exp $
+ * $Id: tethereal.c,v 1.23 2000/04/04 06:46:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -125,7 +125,6 @@ ts_type timestamp_type = RELATIVE;
 /* call initialization routines at program startup time */
 static void
 ethereal_proto_init(void) {
-  init_dissect_rpc();
   proto_init();
   dfilter_init();
 #ifdef HAVE_PLUGINS

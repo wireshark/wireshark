@@ -1,7 +1,7 @@
 /* packet-bootparams.c
  * Routines for bootparams dissection
  *
- * $Id: packet-bootparams.c,v 1.8 2000/01/22 05:49:07 guy Exp $
+ * $Id: packet-bootparams.c,v 1.9 2000/04/04 06:46:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -181,10 +181,13 @@ proto_register_bootparams(void)
 	proto_bootparams = proto_register_protocol("Boot Parameters", "bootparams");
 	proto_register_field_array(proto_bootparams, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
 
+void
+proto_reg_handoff_bootparams(void)
+{
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_bootparams, BOOTPARAMS_PROGRAM, ett_bootparams);
 	/* Register the procedure tables */
 	rpc_init_proc_table(BOOTPARAMS_PROGRAM, 1, bootparams1_proc);
 }
-

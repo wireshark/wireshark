@@ -1,7 +1,7 @@
 /* packet-ypserv.c
  * Routines for ypserv dissection
  *
- * $Id: packet-ypserv.c,v 1.8 2000/01/22 05:49:05 guy Exp $
+ * $Id: packet-ypserv.c,v 1.9 2000/04/04 06:46:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -243,7 +243,11 @@ proto_register_ypserv(void)
 	proto_ypserv = proto_register_protocol("Yellow Pages Service", "ypserv");
 	proto_register_field_array(proto_ypserv, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
 
+void
+proto_reg_handoff_ypserv(void)
+{
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_ypserv, YPSERV_PROGRAM, ett_ypserv);
 	/* Register the procedure tables */

@@ -1,7 +1,7 @@
 /* packet-ypxfr.c
  * Routines for ypxfr dissection
  *
- * $Id: packet-ypxfr.c,v 1.3 2000/01/07 22:05:42 guy Exp $
+ * $Id: packet-ypxfr.c,v 1.4 2000/04/04 06:46:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -59,10 +59,13 @@ proto_register_ypxfr(void)
 
 	proto_ypxfr = proto_register_protocol("Yellow Pages Transfer", "ypxfr");
 	proto_register_subtree_array(ett, array_length(ett));
+}
 
+void
+proto_reg_handoff_ypxfr(void)
+{
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_ypxfr, YPXFR_PROGRAM, ett_ypxfr);
 	/* Register the procedure tables */
 	rpc_init_proc_table(YPXFR_PROGRAM, 1, ypxfr1_proc);
 }
-

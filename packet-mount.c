@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.12 2000/03/20 22:52:43 gram Exp $
+ * $Id: packet-mount.c,v 1.13 2000/04/04 06:46:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -693,7 +693,11 @@ proto_register_mount(void)
 	proto_mount = proto_register_protocol("Mount Service", "mount");
 	proto_register_field_array(proto_mount, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
 
+void
+proto_reg_handoff_mount(void)
+{
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_mount, MOUNT_PROGRAM, ett_mount);
 	/* Register the procedure tables */

@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.13 2000/03/12 04:47:48 gram Exp $
+ * $Id: packet-portmap.c,v 1.14 2000/04/04 06:46:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -456,7 +456,11 @@ proto_register_portmap(void)
 	proto_portmap = proto_register_protocol("Portmap", "portmap");
 	proto_register_field_array(proto_portmap, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
 
+void
+proto_reg_handoff_portmap(void)
+{
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_portmap, PORTMAP_PROGRAM, ett_portmap);
 	/* Register the procedure tables */

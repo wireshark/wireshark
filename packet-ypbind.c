@@ -1,7 +1,7 @@
 /* packet-ypbind.c
  * Routines for ypbind dissection
  *
- * $Id: packet-ypbind.c,v 1.4 2000/01/07 22:05:42 guy Exp $
+ * $Id: packet-ypbind.c,v 1.5 2000/04/04 06:46:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -69,7 +69,11 @@ proto_register_ypbind(void)
 
 	proto_ypbind = proto_register_protocol("Yellow Pages Bind", "ypbind");
 	proto_register_subtree_array(ett, array_length(ett));
+}
 
+void
+proto_reg_handoff_ypbind(void)
+{
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_ypbind, YPBIND_PROGRAM, ett_ypbind);
 	/* Register the procedure tables */

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.113 2000/04/03 09:41:31 guy Exp $
+ * $Id: main.c,v 1.114 2000/04/04 06:46:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1071,7 +1071,6 @@ file_quit_cmd_cb (GtkWidget *widget, gpointer data)
 /* call initialization routines at program startup time */
 static void
 ethereal_proto_init(void) {
-  init_dissect_rpc();
   proto_init();
   dfilter_init();
 #ifdef HAVE_PLUGINS
