@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.124 2004/03/29 22:40:57 guy Exp $
+ * $Id: capture_dlg.c,v 1.125 2004/04/08 08:05:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -171,13 +171,35 @@ get_if_name(char *if_text)
    * return the entire string; otherwise, skip the colon and any blanks
    * after it, and return that string.
    */
-   if_name = strrchr(if_text, ':');
-   if (if_name == NULL) {
-     if_name = if_text;
-   } else {
-     if_name++;
-     while (*if_name == ' ')
-       if_name++;
+   if_name = if_text + strlen(if_text);
+   for (;;) {
+     if (if_name == if_text) {
+       /* We're at the beginning of the string; return it. */
+       break;
+     }
+     if_name--;
+     if (*if_name == ':') {
+       /*
+        * We've found a colon.
+        * Unfortunately, a colon is used in the string "rpcap://",
+        * which is used in case of a remote capture.
+        * So we'll check to make sure the colon isn't followed by "//";
+        * it'll be followed by a blank if it separates the description
+        * and the interface name.  (We don't wire in "rpcap", in case we
+        * support other protocols in the same syntax.)
+        */
+       if (strncmp(if_name, "://", 3) != 0) {
+         /*
+          * OK, we've found a colon not followed by "//".  Skip blanks
+          * following it.
+          */
+         if_name++;
+         while (*if_name == ' ')
+           if_name++;
+         break;
+       }
+     }
+     /* Keep looking for a colon not followed by "//". */
    }
 #else
   /*
