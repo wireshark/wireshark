@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.43 2002/04/23 06:06:03 guy Exp $
+ * $Id: packet-x11.c,v 1.44 2002/05/16 19:29:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -667,9 +667,9 @@ static const value_string zero_is_none_vals[] = {
       int bitmask_offset; \
       int bitmask_size; \
       proto_tree *bitmask_tree; \
-      bitmask_value = ((size == 1) ? VALUE8(tvb, *offsetp) : \
-		       ((size == 2) ? VALUE16(tvb, *offsetp) : \
-				      VALUE32(tvb, *offsetp))); \
+      bitmask_value = ((size == 1) ? (guint32)VALUE8(tvb, *offsetp) : \
+		       ((size == 2) ? (guint32)VALUE16(tvb, *offsetp) : \
+			              (guint32)VALUE32(tvb, *offsetp))); \
       bitmask_offset = *offsetp; \
       bitmask_size = size; \
       ti = proto_tree_add_uint(t, hf_x11_##name##_mask, tvb, *offsetp, size, bitmask_value); \

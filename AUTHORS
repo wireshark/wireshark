@@ -1197,6 +1197,7 @@ Ruud Linders <ruud[AT]lucent.com> {
 Andrew Esh <Andrew.Esh[AT]tricord.com> {
 	Support for interest level 1003 and 1007 in
 	    TRANS2_QUERY_FS_INFORMATION
+	Fix a compiler warning
 }
 
 Greg Morris <GMORRIS[AT]novell.com> {
