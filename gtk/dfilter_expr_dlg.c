@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.8 2001/02/01 22:21:30 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.9 2001/02/01 22:33:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -251,10 +251,11 @@ show_relations(GtkWidget *relation_label, GtkWidget *relation_list,
 	default:
 		/*
 		 * Add the supported relations.
-		 * XXX - pick something better than "is present"
-		 * for protocols.
 		 */
-		add_relation_list(relation_list, "is present");
+		if (ftype == FT_PROTOCOL)
+			add_relation_list(relation_list, "has this protocol");
+		else
+			add_relation_list(relation_list, "is present");
 		if (ftype_can_eq(ftype))
 			add_relation_list(relation_list, "==");
 		if (ftype_can_ne(ftype))
@@ -276,7 +277,7 @@ show_relations(GtkWidget *relation_label, GtkWidget *relation_list,
 	}
 
 	/*
-	 * Are range supported?  If so, show the range stuff,
+	 * Are ranges supported?  If so, show the range stuff,
 	 * otherwise hide it.
 	 */
 	if (ftype_can_slice(ftype)) {
