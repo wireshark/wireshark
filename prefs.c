@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.70 2001/11/04 02:50:19 guy Exp $
+ * $Id: prefs.c,v 1.71 2001/11/08 02:54:31 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -134,7 +134,7 @@ prefs_register_module(const char *name, const char *title,
 	 */
 	for (p = name; *p != '\0'; p++)
 		g_assert(isascii(*p) &&
-		    (islower(*p) || isdigit(*p) || *p == '_'));
+		    (islower(*p) || isdigit(*p) || *p == '_' || *p == '.'));
 
 	/*
 	 * Make sure there's not already a module with that
