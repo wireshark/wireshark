@@ -299,7 +299,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * and do body desegmentation if we've been told to and
 		 * we find a Content-Length header.
 		 */
-		if (!req_resp_hdrs_do_reassembly(tvb, pinfo,
+		if (!req_resp_hdrs_do_reassembly(tvb, offset, pinfo,
 		    http_desegment_headers, http_desegment_body)) {
 			/*
 			 * More data needed for desegmentation.

@@ -30,7 +30,7 @@
  * Optionally do reassembly of the request/response line, headers, and body.
  */
 extern gboolean
-req_resp_hdrs_do_reassembly(tvbuff_t *tvb, packet_info *pinfo,
+req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
     gboolean desegment_headers, gboolean desegment_body);
 
 #endif

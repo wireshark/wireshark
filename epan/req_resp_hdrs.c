@@ -38,10 +38,9 @@
  * Optionally do reassembly of the request/response line, headers, and body.
  */
 gboolean
-req_resp_hdrs_do_reassembly(tvbuff_t *tvb, packet_info *pinfo,
+req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
     gboolean desegment_headers, gboolean desegment_body)
 {
-	gint		offset = 0;
 	gint		next_offset;
 	gint		next_offset_sav;
 	gint		length_remaining, reported_length_remaining;

@@ -510,6 +510,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int			value_offset;
 	int			value_len;
 	e164_info_t		e164_info;
+
 	/*
 	 * Is this a request or response?
 	 *
@@ -520,6 +521,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	first_linelen = tvb_find_line_end(tvb, offset,
 	    tvb_ensure_length_remaining(tvb, offset), &next_offset,
 	    FALSE);
+
 	/*
 	 * Is the first line a request or response?
 	 */
@@ -533,7 +535,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * and do body desegmentation if we've been told to and
 		 * we find a Content-Length header.
 		 */
-		if (!req_resp_hdrs_do_reassembly(tvb, pinfo,
+		if (!req_resp_hdrs_do_reassembly(tvb, offset, pinfo,
 		    rtsp_desegment_headers, rtsp_desegment_body)) {
 			/*
 			 * More data needed for desegmentation.
