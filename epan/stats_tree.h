@@ -122,7 +122,7 @@ extern int tick_pivot(stats_tree* st,
  * with_children=TRUE to indicate that the created node will be a parent
  */
 typedef enum _manip_node_mode { MN_INCREASE, MN_SET } manip_node_mode;
-extern guint8* manip_stat_node(manip_node_mode mode,
+extern int manip_stat_node(manip_node_mode mode,
 							   stats_tree* st,
 							   const guint8* name,
 							   int parent_id,

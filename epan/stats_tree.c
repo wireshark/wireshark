@@ -437,7 +437,7 @@ extern int create_node_with_parent_name(stats_tree* st,
  * using parent_name as parent node.
  * with_hash=TRUE to indicate that the created node will have a parent
  */
-extern guint8* manip_stat_node(manip_node_mode mode, stats_tree* st, const guint8* name, int parent_id, gboolean with_hash, gint value) {
+extern int manip_stat_node(manip_node_mode mode, stats_tree* st, const guint8* name, int parent_id, gboolean with_hash, gint value) {
 	stat_node* node = NULL;
 	stat_node* parent = NULL;
 	
@@ -462,9 +462,9 @@ extern guint8* manip_stat_node(manip_node_mode mode, stats_tree* st, const guint
 	}
 	
 	if (node) 
-		return node->name;
+		return node->id;
 	else
-		return NULL;
+		return -1;
 }
 
 
