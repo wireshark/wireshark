@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.112 2002/05/28 02:39:15 guy Exp $
+ * $Id: wtap.h,v 1.113 2002/06/07 07:47:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -387,36 +387,38 @@ int wtap_pcap_encap_to_wtap_encap(int encap);
  * Wiretap error codes.
  */
 #define	WTAP_ERR_NOT_REGULAR_FILE		-1
-	/* The file being opened for reading isn't a plain file */
-#define	WTAP_ERR_FILE_UNKNOWN_FORMAT		-2
+	/* The file being opened for reading isn't a plain file (or pipe) */
+#define	WTAP_ERR_RANDOM_OPEN_PIPE		-2
+	/* The file is being opened for random access and it's a pipe */
+#define	WTAP_ERR_FILE_UNKNOWN_FORMAT		-3
 	/* The file being opened is not a capture file in a known format */
-#define	WTAP_ERR_UNSUPPORTED			-3
+#define	WTAP_ERR_UNSUPPORTED			-4
 	/* Supported file type, but there's something in the file we
 	   can't support */
-#define	WTAP_ERR_CANT_OPEN			-4
+#define	WTAP_ERR_CANT_OPEN			-5
 	/* The file couldn't be opened, reason unknown */
-#define	WTAP_ERR_UNSUPPORTED_FILE_TYPE		-5
+#define	WTAP_ERR_UNSUPPORTED_FILE_TYPE		-6
 	/* Wiretap can't save files in the specified format */
-#define	WTAP_ERR_UNSUPPORTED_ENCAP		-6
+#define	WTAP_ERR_UNSUPPORTED_ENCAP		-7
 	/* Wiretap can't read or save files in the specified format with the
 	   specified encapsulation */
-#define	WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED	-7
+#define	WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED	-8
 	/* The specified format doesn't support per-packet encapsulations */
-#define	WTAP_ERR_CANT_CLOSE			-8
+#define	WTAP_ERR_CANT_CLOSE			-9
 	/* The file couldn't be closed, reason unknown */
-#define	WTAP_ERR_CANT_READ			-9
+#define	WTAP_ERR_CANT_READ			-10
 	/* An attempt to read failed, reason unknown */
-#define	WTAP_ERR_SHORT_READ			-10
+#define	WTAP_ERR_SHORT_READ			-11
 	/* An attempt to read read less data than it should have */
-#define	WTAP_ERR_BAD_RECORD			-11
+#define	WTAP_ERR_BAD_RECORD			-12
 	/* We read an invalid record */
-#define	WTAP_ERR_SHORT_WRITE			-12
+#define	WTAP_ERR_SHORT_WRITE			-13
 	/* An attempt to write wrote less data than it should have */
-#define	WTAP_ERR_UNC_TRUNCATED			-13
+#define	WTAP_ERR_UNC_TRUNCATED			-14
 	/* Sniffer compressed data was oddly truncated */
-#define	WTAP_ERR_UNC_OVERFLOW			-14
+#define	WTAP_ERR_UNC_OVERFLOW			-15
 	/* Uncompressing Sniffer data would overflow buffer */
-#define	WTAP_ERR_UNC_BAD_OFFSET			-15
+#define	WTAP_ERR_UNC_BAD_OFFSET			-16
 	/* LZ77 compressed data has bad offset to string */
 
 /* Errors from zlib; zlib error Z_xxx turns into Wiretap error

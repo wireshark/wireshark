@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.276 2002/06/04 07:03:44 guy Exp $
+ * $Id: file.c,v 1.277 2002/06/07 07:47:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1907,6 +1907,11 @@ file_open_error_message(int err, gboolean for_writing)
 
   case WTAP_ERR_NOT_REGULAR_FILE:
     errmsg = "The file \"%s\" is a \"special file\" or socket or other non-regular file.";
+    break;
+
+  case WTAP_ERR_RANDOM_OPEN_PIPE:
+    /* Seen only when opening a capture file for reading. */
+    errmsg = "The file \"%s\" is a pipe or FIFO; Ethereal cannot read pipe or FIFO files.";
     break;
 
   case WTAP_ERR_FILE_UNKNOWN_FORMAT:

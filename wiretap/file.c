@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.91 2002/06/07 07:27:34 guy Exp $
+ * $Id: file.c,v 1.92 2002/06/07 07:47:57 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -179,11 +179,33 @@ wtap* wtap_open_offline(const char *filename, int *err, gboolean do_random)
 		*err = errno;
 		return NULL;
 	}
-	if (! S_ISREG(statb.st_mode) && ! S_ISFIFO(statb.st_mode)) {
-		if (S_ISDIR(statb.st_mode))
-			*err = EISDIR;
-		else
-			*err = WTAP_ERR_NOT_REGULAR_FILE;
+	if (S_ISFIFO(statb.st_mode)) {
+		/*
+		 * Opens of FIFOs are allowed only when not opening
+		 * for random access.
+		 *
+		 * XXX - currently, we do seeking when trying to find
+		 * out the file type, so we don't actually support
+		 * opening FIFOs.  However, we may eventually
+		 * do buffering that allows us to do at least some
+		 * file type determination even on pipes, so we
+		 * allow FIFO opens and let things fail later when
+		 * we try to seek.
+		 */
+		if (do_random) {
+			*err = WTAP_ERR_RANDOM_OPEN_PIPE;
+			return NULL;
+		}
+	} else if (S_ISDIR(statb.st_mode)) {
+		/*
+		 * Return different errors for "this is a directory"
+		 * and "this is some random special file type", so
+		 * the user can get a potentially more helpful error.
+		 */
+		*err = EISDIR;
+		return NULL;
+	} else if (! S_ISREG(statb.st_mode)) {
+		*err = WTAP_ERR_NOT_REGULAR_FILE;
 		return NULL;
 	}
 
