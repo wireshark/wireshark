@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.14 2001/02/16 21:44:54 gram Exp $
+ * $Id: packet-diameter.c,v 1.15 2001/02/16 22:53:07 gram Exp $
  *
  * Copyright (c) 2000 by David Frascone <chaos@mindspring.com>
  *
@@ -299,6 +299,8 @@ static char *customValCheck(int code, int value)
 	return NULL;
 }
 
+#define BUFLEN 1024
+
 static gchar *rd_value_to_str(e_avphdr *avph,const u_char *pd, int offset)
 {
 	int print_type;
@@ -306,7 +308,7 @@ static gchar *rd_value_to_str(e_avphdr *avph,const u_char *pd, int offset)
 	guint32 intval;
 	int dataLen;
 	char *valstr;
-	static char buffer[1024 + 7]; /* 7 = strlen("Value: ") */
+	static char buffer[BUFLEN + 7 + 1]; /* 7 = "Value: ", 1 = NUL */
 
 	dataLen = avph->avp_length - sizeof(e_avphdr);
 
@@ -318,7 +320,7 @@ static gchar *rd_value_to_str(e_avphdr *avph,const u_char *pd, int offset)
 	if (dataLen < 0) {
 		return "Data Length too small.";
 	}
-	else if (dataLen >= sizeof(buffer)) {
+	else if (dataLen > BUFLEN) {
 		return "Data Length too big.";
 	}
 
@@ -327,7 +329,7 @@ static gchar *rd_value_to_str(e_avphdr *avph,const u_char *pd, int offset)
 	print_type=match_numval(avph->avp_type,diameter_printinfo);
 	/* Default begin */
 	sprintf(buffer,"Value: ");
-	cont=&buffer[strlen(buffer)];
+	cont=&buffer[7];
 	switch(print_type)
 		{
 		case DIAMETER_COMPLEX:
