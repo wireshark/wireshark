@@ -6,7 +6,7 @@
  *
  * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-sccp.c,v 1.2 2002/03/05 00:09:21 guy Exp $
+ * $Id: packet-sccp.c,v 1.3 2002/03/06 17:56:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -902,7 +902,12 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
     /* Dissect SSN (if present) */
     if (ssni) {
       ssn = tvb_get_guint8(tvb, offset);
-      called ? called_ssn : calling_ssn = ssn;
+      if (called) {
+	      called_ssn = ssn;
+      }
+      else {
+	      calling_ssn = ssn;
+      }
 
       proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
 					    : hf_sccp_calling_ssn,
@@ -944,7 +949,12 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
     /* Dissect SSN (if present) */
     if (ssni) {
       ssn = tvb_get_guint8(tvb, offset);
-      called ? called_ssn : calling_ssn = ssn;
+      if (called) {
+	      called_ssn = ssn;
+      }
+      else {
+	      calling_ssn = ssn;
+      }
 
       proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
 					    : hf_sccp_calling_ssn,
