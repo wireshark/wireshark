@@ -5,7 +5,7 @@
  * AVPs.  If libxml is in the LD_LIBRARY_PATH, and dictionary.xml exists,
  * then it will not be used.
  *
- * $Id: packet-diameter-defs.h,v 1.6 2001/11/01 21:52:44 guy Exp $
+ * $Id: packet-diameter-defs.h,v 1.7 2002/03/05 00:21:02 guy Exp $
  * Generated: Fri Feb 23 13:04:15 2001
  */
 
@@ -408,6 +408,9 @@ static value_string diameter_command_code_vals[] = {
 	/* Mip Protocol */
 	{262, "Home-Agent-MIP"},
 	{260, "AA-Mobile-Node"},
+	/* Nasreq Protocol */
+	{265, "AA"},
+	{268, "Diameter-EAP"},
 	{0, (char *)NULL}
 };
 

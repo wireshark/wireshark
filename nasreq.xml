@@ -2,8 +2,8 @@
 
 	<application id="1" name="NASREQ Application" uri="ftp://ftp.ietf.org/internet-drafts/draft-calhoun-diameter-nasreq-06.txt">
 
-		<command name="AA-Request" code="260" vendor-id="None"/>
-		<command name="AA-Answer" code="260" vendor-id="None"/>
+		<command name="AA" code="265" vendor-id="None"/>
+		<command name="Diameter-EAP" code="268" vendor-id="None"/>
 
 		<!-- ************************* RADIUS AVPs ************************ -->
 		<avp name="User-Name" code="1">
