@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.261 2004/05/13 22:25:25 jmayer Exp $
+# $Id: configure.in,v 1.262 2004/05/15 21:56:08 guy Exp $
 #
 AC_INIT(etypes.h)
 
@@ -659,8 +659,11 @@ if test "x$netsnmpconfig" != "xno" ; then
 		AC_PATH_PROG(NETSNMPCONFIG,net-snmp-config)
 	else
 		NETSNMPCONFIG=$netsnmpconfig
-		if test ! -x $NETSNMPCONFIG ; then
-			AC_MSG_ERROR(Invalid net-snmp-config: $NETSNMPCONFIG)
+		if test ! -x $NETSNMPCONFIG -o ! -f $NETSNMPCONFIG ; then
+		        NETSNMPCONFIG=$netsnmpconfig/bin/net-snmp-config
+			if test ! -x $NETSNMPCONFIG -o ! -f $NETSNMPCONFIG ; then
+				AC_MSG_ERROR(Invalid net-snmp-config: $netsnmpconfig)
+			fi
 		fi
 	fi
 else
