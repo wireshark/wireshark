@@ -400,6 +400,7 @@ Yaniv Kaul <ykaul[AT]netvision.net.il> {
 	Enhancements to ISAKMP
 	CPHA support
 	DCERPC OXID operation #5 dissection
+	TDS enhancements
 }
 
 Paul Ionescu <paul[AT]acorp.ro> {
