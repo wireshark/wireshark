@@ -1,6 +1,7 @@
 /* packet-isup.c
  * Routines for ISUP dissection
  * Copyright 2001, Martina Obermeier <martina.obermeier@icn.siemens.de>
+ * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  * Modified 2003-09-10 by Anders Broman
  *		<anders.broman@ericsson.com>
  * Inserted routines for BICC dissection according to Q.765.5 Q.1902 Q.1970 Q.1990,
@@ -8,7 +9,7 @@
  * Modified 2004-01-10 by Anders Broman to add abillity to dissect
  * Content type application/ISUP RFC 3204 used in SIP-T
  *
- * $Id: packet-isup.c,v 1.45 2004/01/13 23:11:19 guy Exp $
+ * $Id: packet-isup.c,v 1.46 2004/01/15 02:23:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1139,6 +1140,7 @@ static const true_false_string isup_Sequence_ind_value = {
 #define DC_8BIT_MASK 0x0C
 #define FE_8BIT_MASK 0x30
 #define GF_8BIT_MASK 0x60
+#define HG_8BIT_MASK 0xC0
 #define GFE_8BIT_MASK 0x70
 #define DCBA_8BIT_MASK 0x0F
 #define EDCBA_8BIT_MASK 0x1F
@@ -1218,8 +1220,13 @@ static int hf_isup_screening_indicator = -1;
 static int hf_isup_screening_indicator_enhanced = -1;
 static int hf_isup_called_party_odd_address_signal_digit = -1;
 static int hf_isup_calling_party_odd_address_signal_digit = -1;
-static int hf_isup_called_party_even_address_signal_digit = -1;
-static int hf_isup_calling_party_even_address_signal_digit = -1;
+static int hf_isup_called_party_even_address_signal_digit		= -1;
+static int hf_isup_calling_party_even_address_signal_digit		= -1;
+
+static int hf_isup_OECD_inf_ind						= -1;
+static int hf_isup_IECD_inf_ind						= -1;
+static int hf_isup_OECD_req_ind						= -1;
+static int hf_isup_IECD_req_ind						= -1;
 
 static int hf_isup_calling_party_address_request_indicator = -1;
 static int hf_isup_info_req_holding_indicator = -1;
@@ -1853,10 +1860,16 @@ dissect_isup_call_reference_parameter(tvbuff_t *parameter_tvb, proto_tree *param
   Dissector Parameter Access Transport - no detailed dissection since defined in Rec. Q.931
  */
 static void
-dissect_isup_access_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_isup_access_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree,
+			 proto_item *parameter_item, packet_info *pinfo)
 { guint length = tvb_reported_length(parameter_tvb);
-  proto_tree_add_text(parameter_tree, parameter_tvb, 0, -1, "Access transport parameter field (-> Q.931)");
-  proto_item_set_text(parameter_item, "Access transport, see Q.931 (%u byte%s length)", length , plurality(length, "", "s"));
+  gint offset = 0;
+  proto_tree_add_text(parameter_tree, parameter_tvb, 0, -1, 
+	  "Access transport parameter field (-> Q.931)");
+  
+  dissect_q931_IEs(parameter_tvb, pinfo, NULL, parameter_tree, FALSE, offset);
+
+  proto_item_set_text(parameter_item, "Access transport (%u byte%s length)", length , plurality(length, "", "s"));
 }
 
 /* dissect x.213 NSAP coded Address */
@@ -3423,7 +3436,7 @@ static void
 dissect_isup_user_service_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 { guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "User service information (-> Q.931 Bearer_capability)");
-  proto_item_set_text(parameter_item, "User service information, see Q.931 (%u byte%s length)", length , plurality(length, "", "s"));
+  proto_item_set_text(parameter_item, "User service information,(%u byte%s length)", length , plurality(length, "", "s"));
   dissect_q931_bearer_capability_ie(parameter_tvb,
 					    0, length,
 					    parameter_tree);
@@ -3658,7 +3671,11 @@ static void
 dissect_isup_user_service_information_prime_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 { guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "User service information prime (-> Q.931)");
-  proto_item_set_text(parameter_item, "User service information prime, see Q.931 (%u byte%s length)", length , plurality(length, "", "s"));
+  dissect_q931_bearer_capability_ie(parameter_tvb,
+					    0, length,
+					    parameter_tree);
+
+  proto_item_set_text(parameter_item, "User service information prime, (%u byte%s length)", length , plurality(length, "", "s"));
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Propagation delay counter
@@ -3701,9 +3718,15 @@ dissect_isup_service_activation_parameter(tvbuff_t *parameter_tvb, proto_tree *p
  */
 static void
 dissect_isup_user_teleservice_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{ guint length = tvb_length(parameter_tvb);
-  proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "User teleservice information (-> Q.931)");
-  proto_item_set_text(parameter_item, "User teleservice information, see Q.931");
+{ 
+  guint length = tvb_length(parameter_tvb);
+  proto_tree_add_text(parameter_tree, parameter_tvb, 0, length,
+	  "User teleservice information (-> Q.931)");
+
+  dissect_q931_high_layer_compat_ie(parameter_tvb, 0, length, parameter_tree);
+
+  proto_item_set_text(parameter_item, 
+	  "User teleservice information");
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Transmission medium requirement used
@@ -3732,12 +3755,57 @@ dissect_isup_call_diversion_information_parameter(tvbuff_t *parameter_tvb, proto
 /* ------------------------------------------------------------------
   Dissector Parameter Echo control  information
  */
+static const value_string OECD_inf_ind_vals[] = {
+	{0x00, "no information"},
+	{0x01, "outgoing echo control device not included and not available"},
+	{0x02, "outgoing echo control device included"},
+	{0x03, "outgoing echo control device not included but available"},
+	{ 0,	NULL }
+};
+static const value_string IECD_inf_ind_vals[] = {
+	{0x00, "no information"},
+	{0x01, "incomming echo control device not included and not available"},
+	{0x02, "incomming echo control device included"},
+	{0x03, "incomming echo control device not included but available"},
+	{ 0,	NULL }
+};
+
+static const value_string OECD_req_ind_vals[] = {
+	{0x00, "no information"},
+	{0x01, "outgoing echo control device activation request"},
+	{0x02, "outgoing echo control device deactivation request"},
+	{0x03, "spare"},
+	{ 0,	NULL }
+};
+
+static const value_string IECD_req_ind_vals[] = {
+	{0x00, "no information"},
+	{0x01, "incomming echo control device activation request"},
+	{0x02, "incomming echo control device deactivation request"},
+	{0x03, "spare"},
+	{ 0,	NULL }
+};
+
 static void
 dissect_isup_echo_control_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 { guint8 indicator;
-
+  gint offset = 0;
   indicator = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_text(parameter_tree, parameter_tvb, 0, ECHO_CONTROL_INFO_LENGTH, "Echo control information: 0x%x (refer to 3.19/Q.763 for detailed decoding)", indicator);
+  proto_tree_add_text(parameter_tree, parameter_tvb, 0, ECHO_CONTROL_INFO_LENGTH,
+	  "Echo control information: 0x%x", indicator);
+
+  proto_tree_add_uint(parameter_tree, hf_isup_OECD_inf_ind, 
+                parameter_tvb, offset, 1, indicator );
+
+  proto_tree_add_uint(parameter_tree, hf_isup_IECD_inf_ind, 
+                parameter_tvb, offset, 1, indicator );
+
+  proto_tree_add_uint(parameter_tree, hf_isup_OECD_req_ind, 
+                parameter_tvb, offset, 1, indicator );
+
+  proto_tree_add_uint(parameter_tree, hf_isup_IECD_req_ind, 
+                parameter_tvb, offset, 1, indicator );
+
   proto_item_set_text(parameter_item, "Echo control information: 0x%x", indicator);
 }
 /* ------------------------------------------------------------------
@@ -4469,7 +4537,7 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *p
 	  dissect_isup_transmission_medium_requirement_parameter(parameter_tvb, parameter_tree, parameter_item);
 	  break;
 	case PARAM_TYPE_ACC_TRANSP:
-	  dissect_isup_access_transport_parameter(parameter_tvb, parameter_tree, parameter_item);
+	  dissect_isup_access_transport_parameter(parameter_tvb, parameter_tree, parameter_item, pinfo);
 	  break;
 	case PARAM_TYPE_CALLED_PARTY_NR:
 	  dissect_isup_called_party_number_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -5871,6 +5939,26 @@ proto_register_isup(void)
 		{ &hf_isup_calling_party_address_response_indicator,
 			{ "Calling party address response indicator",  "isup.calling_party_address_response_indicator",
 			FT_UINT16, BASE_HEX, VALS(isup_calling_party_address_response_ind_value), BA_16BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_OECD_inf_ind,
+			{ "OECD information indicator",  "isup.OECD_inf_ind_vals",
+			FT_UINT8, BASE_HEX, VALS(OECD_inf_ind_vals), BA_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_IECD_inf_ind,
+			{ "IECD information indicator",  "isup.IECD_inf_ind_vals",
+			FT_UINT8, BASE_HEX, VALS(IECD_inf_ind_vals), DC_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_OECD_req_ind,
+			{ "OECD request indicator",  "isup.OECD_req_ind_vals",
+			FT_UINT8, BASE_HEX, VALS(OECD_req_ind_vals), FE_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_IECD_req_ind,
+			{ "IECD request indicator",  "isup.IECD_req_ind_vals",
+			FT_UINT8, BASE_HEX, VALS(IECD_req_ind_vals), HG_8BIT_MASK,
 			"", HFILL }},
 
 		{ &hf_isup_hold_provided_indicator,

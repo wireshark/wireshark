@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.63 2003/11/10 08:14:07 sahlberg Exp $
+ * $Id: packet-q931.c,v 1.64 2004/01/15 02:23:18 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -2273,15 +2273,6 @@ dissect_q931_ia5_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree,
 	}
 }
 
-static const value_string q931_codeset_vals[] = {
-	{ 0x00, "Q.931 information elements" },
-	{ 0x04, "Information elements for ISO/IEC use" },
-	{ 0x05, "Information elements for national use" },
-	{ 0x06, "Information elements specific to the local network" },
-	{ 0x07, "User-specific information elements" },
-	{ 0x00, NULL },
-};
-
 static void
 dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean is_tpkt)
@@ -2289,15 +2280,9 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int		offset = 0;
 	proto_tree	*q931_tree = NULL;
 	proto_item	*ti;
-	proto_tree	*ie_tree = NULL;
 	guint8		call_ref_len;
 	guint8		call_ref[15];
 	guint8		message_type;
-	guint8		info_element;
-	guint16		info_element_len;
-	int		codeset, locked_codeset;
-	gboolean	non_locking_shift;
-	tvbuff_t	*h225_tvb, *next_tvb;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Q.931");
@@ -2338,12 +2323,36 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/*
 	 * And now for the information elements....
 	 */
+	dissect_q931_IEs(tvb, pinfo, tree, q931_tree,is_tpkt, offset);
+}
+
+static const value_string q931_codeset_vals[] = {
+	{ 0x00, "Q.931 information elements" },
+	{ 0x04, "Information elements for ISO/IEC use" },
+	{ 0x05, "Information elements for national use" },
+	{ 0x06, "Information elements specific to the local network" },
+	{ 0x07, "User-specific information elements" },
+	{ 0x00, NULL },
+};
+
+void
+dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    proto_tree *q931_tree, gboolean is_tpkt, int offset)
+{
+	proto_item	*ti;
+	proto_tree	*ie_tree = NULL;
+	guint8		info_element;
+	guint16		info_element_len;
+	int		codeset, locked_codeset;
+	gboolean	non_locking_shift;
+	tvbuff_t	*h225_tvb, *next_tvb;
+
 	codeset = locked_codeset = 0;	/* start out in codeset 0 */
 	non_locking_shift = TRUE;
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		info_element = tvb_get_guint8(tvb, offset);
 
-		 /* Check for the codeset shift */
+		/* Check for the codeset shift */
 		if ((info_element & Q931_IE_SO_MASK) &&
 		    ((info_element & Q931_IE_SO_IDENTIFIER_MASK) == Q931_IE_SHIFT)) {
 			non_locking_shift = info_element & Q931_IE_SHIFT_NON_LOCKING;
