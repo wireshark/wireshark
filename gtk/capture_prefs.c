@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.9 2002/03/05 11:55:58 guy Exp $
+ * $Id: capture_prefs.c,v 1.10 2002/05/23 15:56:05 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,12 +138,9 @@ capture_prefs_fetch(GtkWidget *w)
 		g_free(prefs.capture_device);
 		prefs.capture_device = NULL;
 	}
-	if_text =
-	    g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry)));
-	if_name = strtok(if_text, " \t");
-	if (if_name != NULL)
-		prefs.capture_device = g_strdup(if_name);
-	g_free(if_text);
+
+	if_text = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry));
+	prefs.capture_device = g_strdup(if_text);
 
 	prefs.capture_prom_mode = GTK_TOGGLE_BUTTON (promisc_cb)->active;
 
