@@ -1,7 +1,7 @@
 /* pcap-util.c
  * Utility routines for packet capture
  *
- * $Id: pcap-util.c,v 1.4 2002/03/31 21:05:11 guy Exp $
+ * $Id: pcap-util.c,v 1.5 2002/04/01 03:55:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -394,13 +394,37 @@ get_interface_list(int *err, char *err_str) {
   char newname[255];
   int i, j, done;
   
+  /* On Windows pcap_lookupdev is implemented by calling
+   * PacketGetAdapterNames.  According to the documentation I can find
+   * (http://winpcap.polito.it/docs/dll.htm#PacketGetAdapterNames)
+   * this means that:
+   *
+   * On Windows 95x, pcap_lookupdev returns an ASCII string with the
+   * names of the adapters separated by a single ASCII "\0", a double
+   * "\0", followed by the descriptions of the adapters separated by a
+   * single ASCII "\0" . The string is terminated by a double "\0".
+   *
+   * On Windows NTx, pcap_lookupdev returns the names of the adapters,
+   * in UNICODE format, separated by a single UNICODE "\0" (i.e. 2
+   * ASCII "\0"), a double UNICODE "\0", followed by the descriptions
+   * of the adapters, in ASCII format, separated by a single ASCII
+   * "\0" . The string is terminated by a double ASCII "\0".
+   */
   names = (wchar_t *)pcap_lookupdev(err_str);
   i = done = 0;
 
   if (names) {
+	  char* desc = 0;
+	  int desc_pos = 0;
+
 	  if (names[0]<256) { 
 		  /* If names[0] is less than 256 it means the first byte is 0
 		     This implies that we are using unicode characters */
+	          while(*(names+desc_pos) || *(names+desc_pos-1))
+		  	desc_pos++;
+		  desc_pos++;	/* Step over the extra '\0' */
+		  desc = (char*)(names + desc_pos); /* cast *after* addition */
+
 		  do 
 		  { 
 			  j = 0; 
@@ -409,6 +433,14 @@ get_interface_list(int *err, char *err_str) {
 			  i++; 
 			  if (names[i] == 0) 
 				  done = 1; 
+
+			  newname[j++] = ' '; 
+			  newname[j++] = '('; 
+			  while (*desc) {
+			    newname[j++] = *desc++; 
+			  }
+			  desc++; 
+			  newname[j++] = ')'; 
 			  newname[j++] = 0; 
 			  il = g_list_append(il, g_strdup(newname)); 
 		  } while (!done); 
@@ -416,15 +448,26 @@ get_interface_list(int *err, char *err_str) {
 	  else { 
 		  /* Otherwise we are in Windows 95/98 and using ascii(8 bit)
 		     characters */
+	          win95names=(char *)names; 
+		  while(*(win95names+desc_pos) || *(win95names+desc_pos-1))
+		  	desc_pos++;
+		  desc_pos++;	/* Step over the extra '\0' */
+		  desc = win95names + desc_pos;
+
 		  do 
 		  { 
-			  win95names=(char *)names; 
 			  j = 0; 
 			  while (win95names[i] != 0) 
 				  newname[j++] = win95names[i++]; 
 			  i++; 
 			  if (win95names[i] == 0) 
 				  done = 1; 
+			  newname[j++] = ' '; 
+			  newname[j++] = '('; 
+			  while (*desc) {
+			    newname[j++] = *desc++; 
+			  }
+			  newname[j++] = ')'; 
 			  newname[j++] = 0; 
 			  il = g_list_append(il, g_strdup(newname)); 
 		  } while (!done); 
