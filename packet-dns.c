@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.47 2000/07/21 01:29:04 guy Exp $
+ * $Id: packet-dns.c,v 1.48 2000/07/21 01:40:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -144,7 +144,7 @@ static gint ett_t_key_flags = -1;
    the ones with "???", and for the Microsoft WINS and WINS-R RRs, for
    which one should look at
 
-http://www.windows.com/windows2000/en/server/help/default.asp?url=/windows2000/en/server/help/sag_DNS_imp_UsingWinsLookup.htm
+http://www.windows.com/windows2000/en/server/help/sag_DNS_imp_UsingWinsLookup.htm
    
    and
    
