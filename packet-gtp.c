@@ -2,7 +2,7 @@
  * Routines for GTP dissection
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *
- * $Id: packet-gtp.c,v 1.6 2001/06/18 02:17:46 guy Exp $
+ * $Id: packet-gtp.c,v 1.7 2001/08/13 00:56:18 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -302,7 +302,7 @@ static const value_string message_type[] = {
 static const value_string gtp_ext_val[] = {
 	{ GTP_EXT_CAUSE,	"Cause of operation" },
 	{ GTP_EXT_IMSI,		"IMSI" },
-	{ GTP_EXT_RAI,		"Routeing Area Identity" },
+	{ GTP_EXT_RAI,		"Routing Area Identity" },
 	{ GTP_EXT_TLLI,		"Temporary Logical Link Identity" },
 	{ GTP_EXT_PTMSI,	"Packet TMSI" },
 	{ GTP_EXT_QOS,		"Quality of Service" },

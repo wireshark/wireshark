@@ -2,10 +2,10 @@
  * Routines for the decode of ISO/OSI option part 
  * Covers:
  * ISO  8473 CLNP (ConnectionLess Mode Network Service Protocol)
- * ISO 10589 ISIS (Intradomain Routeing Information Exchange Protocol)
- * ISO  9542 ESIS (End System To Intermediate System Routeing Exchange Protocol)
+ * ISO 10589 ISIS (Intradomain Routing Information Exchange Protocol)
+ * ISO  9542 ESIS (End System To Intermediate System Routing Exchange Protocol)
  *
- * $Id: packet-osi-options.c,v 1.7 2001/04/23 04:19:40 guy Exp $
+ * $Id: packet-osi-options.c,v 1.8 2001/08/13 00:56:18 sharpe Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -88,7 +88,7 @@
 
 #define OSI_OPT_RFD_GENERAL         0x00
 #define OSI_OPT_RFD_ADDRESS         0x80
-#define OSI_OPT_RFD_SOURCE_ROUTEING 0x90
+#define OSI_OPT_RFD_SOURCE_ROUTING  0x90
 #define OSI_OPT_RFD_LIFETIME        0xa0
 #define OSI_OPT_RFD_PDU_DISCARDED   0xb0
 #define OSI_OPT_RFD_REASSEMBLY      0xc0
@@ -144,9 +144,9 @@ static const value_string osi_opt_rfd_address[] = {
         { 0,    NULL} };
      
 static const value_string osi_opt_rfd_src_route[] = {
-        { 0x00, "Unspecified source routeing error"},
-        { 0x01, "Syntax error in source routeing field"},
-        { 0x02, "Unknown address in source routeing field"},
+        { 0x00, "Unspecified source routing error"},
+        { 0x01, "Syntax error in source routing field"},
+        { 0x02, "Unknown address in source routing field"},
         { 0x03, "Path not acceptable"},
         { 0,    NULL} };
      
@@ -159,7 +159,7 @@ static const value_string osi_opt_rfd_discarded[] = {
         { 0x00, "Unsupported option not specified"},
         { 0x01, "Unsupported protocol version"},
         { 0x02, "Unsupported security option"},
-        { 0x03, "Unsupported source routeing option"},
+        { 0x03, "Unsupported source routing option"},
         { 0x04, "Unsupported recording of route option"},
         { 0,    NULL} };
      
@@ -244,8 +244,8 @@ dissect_option_route( u_char parm_type, u_char offset, u_char parm_len,
 
     ti = proto_tree_add_text( tree, tvb, offset + next_hop, netl, 
             "Source Routing: %s   ( Next Hop Highlighted In Data Buffer )",
-            (tvb_get_guint8(tvb, offset) == 0) ? "Partial Source Routeing" :
-                                                 "Complete Source Routeing"  ); 
+            (tvb_get_guint8(tvb, offset) == 0) ? "Partial Source Routing" :
+                                                 "Complete Source Routing"  ); 
   }
   else {
     last_hop = tvb_get_guint8(tvb, offset + 1 );
@@ -255,8 +255,8 @@ dissect_option_route( u_char parm_type, u_char offset, u_char parm_len,
 
     ti = proto_tree_add_text( tree, tvb, offset + next_hop, netl,
             "Record of Route: %s : %s",
-            (tvb_get_guint8(tvb, offset) == 0) ? "Partial Source Routeing" :
-                                                 "Complete Source Routeing" ,
+            (tvb_get_guint8(tvb, offset) == 0) ? "Partial Source Routing" :
+                                                 "Complete Source Routing" ,
             val_to_str( last_hop, osi_opt_route, "Unknown (0x%x" ) );
     if ( 255 == last_hop ) 
       this_hop = parm_len + 1;   /* recording terminated, nothing to show */
@@ -287,7 +287,7 @@ dissect_option_rfd( const u_char error, const u_char field, u_char offset,
   char   *format_string[] = 
              { "Reason for discard {General}        : %s, in field %u",
                "Reason for discard {Address}        : %s, in field %u",
-               "Reason for discard {Source Routeing}: %s, in field %u",
+               "Reason for discard {Source Routing}: %s, in field %u",
                "Reason for discard {Lifetime}       : %s, in field %u",
                "Reason for discard {PDU discarded}  : %s, in field %u",
                "Reason for discard {Reassembly}     : %s, in field %u"
@@ -305,7 +305,7 @@ dissect_option_rfd( const u_char error, const u_char field, u_char offset,
                          val_to_str( error & OSI_OPT_RFD_SUB_MASK,
                                osi_opt_rfd_address, "Unknown (0x%x)"), field );
   }
-  else if ( OSI_OPT_RFD_SOURCE_ROUTEING == error_class ) {
+  else if ( OSI_OPT_RFD_SOURCE_ROUTING == error_class ) {
     proto_tree_add_text( tree, tvb, offset + field, 1, format_string[2],
                          val_to_str( error & OSI_OPT_RFD_SUB_MASK,
                              osi_opt_rfd_src_route, "Unknown (0x%x)"), field );

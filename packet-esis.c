@@ -1,8 +1,8 @@
 /* packet-esis.c
  * Routines for ISO/OSI End System to Intermediate System  
- * Routeing Exchange Protocol ISO 9542.
+ * Routing Exchange Protocol ISO 9542.
  *
- * $Id: packet-esis.c,v 1.16 2001/06/18 02:17:46 guy Exp $
+ * $Id: packet-esis.c,v 1.17 2001/08/13 00:56:18 sharpe Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
