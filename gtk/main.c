@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.383 2004/01/31 18:32:36 ulfl Exp $
+ * $Id: main.c,v 1.384 2004/02/01 02:59:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1585,7 +1585,6 @@ GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
     gchar     *cf_name, *cf_name_ori;
     gpointer  dialog;
 
-
     if (info == DND_TARGET_URL) {
         /* DND_TARGET_URL on Win32:
          * The selection_data->data is a single string, containing one or more URI's,
@@ -1605,10 +1604,19 @@ GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
         /* replace trailing CR NL simply with zeroes */
         g_strdelimit(cf_name, "\r\n", '\0');
 
-        /* remove uri header */ 
+        /*
+         * Remove URI header.
+         * XXX - at least on UNIX, these are probably absolute pathnames,
+         * meaning the last "/" shouldn't be removed.  Should we look for
+         * "file:" followed by an arbitrary number of "/"es, and remove
+         * all but the last "/"?
+         * And what about Windows?
+         */ 
         if (strncmp("file:///", cf_name, 8) == 0) {
             cf_name += 8;
-        };
+        } else if (strncmp("file:", cf_name, 5) == 0) {
+            cf_name += 5;
+        }
 
         /* we need a clean name for later call to g_free() */
         cf_name = strdup(cf_name);
