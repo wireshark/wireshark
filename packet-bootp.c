@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-bootp.c,v 1.3 1998/09/17 03:29:26 gram Exp $
+ * $Id: packet-bootp.c,v 1.4 1998/09/22 18:59:53 gram Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -460,7 +460,7 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree)
 		/* Boot file */
 		if (pd[offset+108]) {
 			add_item_to_tree(bp_tree, offset + 108, 128,
-				"Boot file nme: %s", &pd[offset+108]);
+				"Boot file name: %s", &pd[offset+108]);
 		}
 		else {
 			add_item_to_tree(bp_tree, offset + 108, 128,
