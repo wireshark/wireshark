@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.20 1999/12/12 01:51:47 guy Exp $
+ * $Id: packet-snmp.c,v 1.21 1999/12/14 05:59:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -59,75 +59,89 @@
    /*
     * UCD SNMP.
     */
-#  define CMU_COMPATIBLE	/* get the SMI_ type definitions */
 #  include <ucd-snmp/asn1.h>
-#  include <ucd-snmp/snmp.h>
 #  include <ucd-snmp/snmp_api.h>
 #  include <ucd-snmp/snmp_impl.h>
 #  include <ucd-snmp/mib.h>
+
+   /*
+    * Define values "sprint_value()" expects.
+    */
+#  define VALTYPE_INTEGER	ASN_INTEGER
+#  define VALTYPE_COUNTER	ASN_COUNTER
+#  define VALTYPE_GAUGE		ASN_GAUGE
+#  define VALTYPE_TIMETICKS	ASN_TIMETICKS
+#  define VALTYPE_STRING	ASN_OCTET_STR
+#  define VALTYPE_IPADDR	ASN_IPADDRESS
+#  define VALTYPE_OPAQUE	ASN_OPAQUE
+#  define VALTYPE_NSAP		ASN_NSAP
+#  define VALTYPE_OBJECTID	ASN_OBJECT_ID
+#  define VALTYPE_BITSTR	ASN_BIT_STR
+#  define VALTYPE_COUNTER64	ASN_COUNTER64
 # elif defined(HAVE_SNMP_SNMP_H)
    /*
     * CMU SNMP.
     */
 #  include <snmp/snmp.h>
-# endif
 
- /*
-  * Now undo all the definitions they "helpfully" gave us, so we don't get
-  * complaints about redefining them.
-  *
-  * Why, oh why, is there no library that provides code to
-  *
-  *	1) read MIB files;
-  *
-  *	2) translate object IDs into names;
-  *
-  *	3) let you find out, for a given object ID, what the type, enum
-  *	   values, display hint, etc. are;
-  *
-  * in a *simple* fashion, without assuming that your code is part of an
-  * SNMP agent or client that wants a pile of definitions of PDU types,
-  * etc.?  Is it just that 99 44/100% of the code that uses an SNMP library
-  * *is* part of an agent or client, and really *does* need that stuff,
-  * and *doesn't* need the interfaces we want?
-  */
-# undef SNMP_MSG_GET
-# undef SNMP_MSG_GETNEXT
-# undef SNMP_MSG_RESPONSE
-# undef SNMP_MSG_SET
-# undef SNMP_MSG_TRAP
-# undef SNMP_MSG_GETBULK
-# undef SNMP_MSG_INFORM
-# undef SNMP_MSG_TRAP2
-# undef SNMP_MSG_REPORT
-# undef SNMP_ERR_NOERROR
-# undef SNMP_ERR_TOOBIG
-# undef SNMP_ERR_NOSUCHNAME
-# undef SNMP_ERR_BADVALUE
-# undef SNMP_ERR_READONLY
-# undef SNMP_ERR_NOACCESS
-# undef SNMP_ERR_WRONGTYPE
-# undef SNMP_ERR_WRONGLENGTH
-# undef SNMP_ERR_WRONGENCODING
-# undef SNMP_ERR_WRONGVALUE
-# undef SNMP_ERR_NOCREATION
-# undef SNMP_ERR_INCONSISTENTVALUE
-# undef SNMP_ERR_RESOURCEUNAVAILABLE
-# undef SNMP_ERR_COMMITFAILED
-# undef SNMP_ERR_UNDOFAILED
-# undef SNMP_ERR_AUTHORIZATIONERROR
-# undef SNMP_ERR_NOTWRITABLE
-# undef SNMP_ERR_INCONSISTENTNAME
-# undef SNMP_TRAP_COLDSTART
-# undef SNMP_TRAP_WARMSTART
-# undef SNMP_TRAP_LINKDOWN
-# undef SNMP_TRAP_LINKUP
-# undef SNMP_TRAP_EGPNEIGHBORLOSS
-# undef SNMP_TRAP_ENTERPRISESPECIFIC
-# undef SNMP_TRAP_AUTHFAIL
-# undef SNMP_NOSUCHOBJECT
-# undef SNMP_NOSUCHINSTANCE
-# undef SNMP_ENDOFMIBVIEW
+   /*
+    * Define values "sprint_value()" expects.
+    */
+#  define VALTYPE_INTEGER	SMI_INTEGER
+#  define VALTYPE_COUNTER	SMI_COUNTER32
+#  define VALTYPE_GAUGE		SMI_GAUGE32
+#  define VALTYPE_TIMETICKS	SMI_TIMETICKS
+#  define VALTYPE_STRING	SMI_STRING
+#  define VALTYPE_IPADDR	SMI_IPADDRESS
+#  define VALTYPE_OPAQUE	SMI_OPAQUE
+#  define VALTYPE_NSAP		SMI_STRING
+#  define VALTYPE_OBJECTID	SMI_OBJID
+#  define VALTYPE_BITSTR	ASN_BIT_STR
+#  define VALTYPE_COUNTER64	SMI_COUNTER64
+  /*
+   * Now undo all the definitions they "helpfully" gave us, so we don't get
+   * complaints about redefining them.
+   *
+   * Why, oh why, is there no library that provides code to
+   *
+   *	1) read MIB files;
+   *
+   *	2) translate object IDs into names;
+   *
+   *	3) let you find out, for a given object ID, what the type, enum
+   *	   values, display hint, etc. are;
+   *
+   * in a *simple* fashion, without assuming that your code is part of an
+   * SNMP agent or client that wants a pile of definitions of PDU types,
+   * etc.?  Is it just that 99 44/100% of the code that uses an SNMP library
+   * *is* part of an agent or client, and really *does* need that stuff,
+   * and *doesn't* need the interfaces we want?
+   */
+#  undef SNMP_ERR_NOERROR
+#  undef SNMP_ERR_TOOBIG
+#  undef SNMP_ERR_NOSUCHNAME
+#  undef SNMP_ERR_BADVALUE
+#  undef SNMP_ERR_READONLY
+#  undef SNMP_ERR_NOACCESS
+#  undef SNMP_ERR_WRONGTYPE
+#  undef SNMP_ERR_WRONGLENGTH
+#  undef SNMP_ERR_WRONGENCODING
+#  undef SNMP_ERR_WRONGVALUE
+#  undef SNMP_ERR_NOCREATION
+#  undef SNMP_ERR_INCONSISTENTVALUE
+#  undef SNMP_ERR_RESOURCEUNAVAILABLE
+#  undef SNMP_ERR_COMMITFAILED
+#  undef SNMP_ERR_UNDOFAILED
+#  undef SNMP_ERR_AUTHORIZATIONERROR
+#  undef SNMP_ERR_NOTWRITABLE
+#  undef SNMP_ERR_INCONSISTENTNAME
+#  undef SNMP_TRAP_COLDSTART
+#  undef SNMP_TRAP_WARMSTART
+#  undef SNMP_TRAP_LINKDOWN
+#  undef SNMP_TRAP_LINKUP
+#  undef SNMP_TRAP_EGPNEIGHBORLOSS
+#  undef SNMP_TRAP_ENTERPRISESPECIFIC
+# endif
 #endif
 
 #include "asn1.h"
@@ -423,51 +437,51 @@ format_value(gchar *buf, struct variable_list *variable, subid_t *variable_oid,
 	switch (vb_type) {
 
 	case SNMP_INTEGER:
-		variable->type = SMI_INTEGER;
+		variable->type = VALTYPE_INTEGER;
 		break;
 
 	case SNMP_COUNTER:
-		variable->type = SMI_COUNTER32;
+		variable->type = VALTYPE_COUNTER;
 		break;
 
 	case SNMP_GAUGE:
-		variable->type = SMI_GAUGE32;
+		variable->type = VALTYPE_GAUGE;
 		break;
 
 	case SNMP_TIMETICKS:
-		variable->type = SMI_TIMETICKS;
+		variable->type = VALTYPE_TIMETICKS;
 		break;
 
 	case SNMP_OCTETSTR:
-		variable->type = SMI_STRING;
+		variable->type = VALTYPE_STRING;
 		break;
 
 	case SNMP_IPADDR:
-		variable->type = SMI_IPADDRESS;
+		variable->type = VALTYPE_IPADDR;
 		break;
 
 	case SNMP_OPAQUE:
-		variable->type = SMI_OPAQUE;
+		variable->type = VALTYPE_OPAQUE;
 		break;
 
 	case SNMP_NSAP:
 #ifdef ASN_NSAP
 		variable->type = ASN_NSAP;
 #else
-		variable->type = SMI_STRING;
+		variable->type = VALTYPE_STRING;
 #endif
 		break;
 
 	case SNMP_OBJECTID:
-		variable->type = SMI_OBJID;
+		variable->type = VALTYPE_OBJECTID;
 		break;
 
 	case SNMP_BITSTR:
-		variable->type = ASN_BIT_STR;
+		variable->type = VALTYPE_BITSTR;
 		break;
 
 	case SNMP_COUNTER64:
-		variable->type = SMI_COUNTER64;
+		variable->type = VALTYPE_COUNTER64;
 		break;
 	}
 	variable->val_len = vb_length;
