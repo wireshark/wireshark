@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.33 2001/07/22 21:50:46 guy Exp $
+ * $Id: column.c,v 1.34 2001/07/22 21:56:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -388,55 +388,3 @@ get_column_title(gint col) {
 
   return(cfmt->title);  
 }
-
-/* XXX - needs to handle quote marks inside the quoted string, by
-   backslash-escaping them.
-
-   XXX - does this really belong in "prefs.c", instead, as it has to know
-   about the syntax of the preferences file? */
-#define MAX_FMT_PREF_LEN      1024
-#define MAX_FMT_PREF_LINE_LEN   60
-gchar *
-col_format_to_pref_str(void) {
-  static gchar  pref_str[MAX_FMT_PREF_LEN] = "";
-  GList        *clp = g_list_first(prefs.col_list);
-  fmt_data     *cfmt;
-  int           cur_pos = 0, cur_len = 0, fmt_len;
-  
-  while (clp) {
-    cfmt = (fmt_data *) clp->data;
-    
-    fmt_len = strlen(cfmt->title) + 4;
-    if ((fmt_len + cur_len) < (MAX_FMT_PREF_LEN - 1)) {
-      if ((fmt_len + cur_pos) > MAX_FMT_PREF_LINE_LEN) {
-        cur_len--;
-        cur_pos = 0;
-	        pref_str[cur_len] = '\n'; cur_len++;
-        pref_str[cur_len] = '\t'; cur_len++;
-      }
-      sprintf(&pref_str[cur_len], "\"%s\", ", cfmt->title);
-      cur_len += fmt_len;
-      cur_pos += fmt_len;
-    }
-
-    fmt_len = strlen(cfmt->fmt) + 4;
-    if ((fmt_len + cur_len) < (MAX_FMT_PREF_LEN - 1)) {
-      if ((fmt_len + cur_pos) > MAX_FMT_PREF_LINE_LEN) {
-        cur_len--;
-        cur_pos = 0;
-        pref_str[cur_len] = '\n'; cur_len++;
-        pref_str[cur_len] = '\t'; cur_len++;
-      }
-      sprintf(&pref_str[cur_len], "\"%s\", ", cfmt->fmt);
-      cur_len += fmt_len;
-      cur_pos += fmt_len;
-    }
-    
-    clp = clp->next;
-  }
-  
-  if (cur_len > 2)
-    pref_str[cur_len - 2] = '\0';
-
-  return(pref_str);
-}    

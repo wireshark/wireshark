@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.55 2001/07/22 21:50:46 guy Exp $
+ * $Id: prefs.c,v 1.56 2001/07/22 21:56:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -436,6 +436,56 @@ get_string_list(gchar *str)
   }
   return(sl);
 }
+
+/* XXX - needs to handle quote marks inside the quoted string, by
+   backslash-escaping them.  */
+#define MAX_FMT_PREF_LEN      1024
+#define MAX_FMT_PREF_LINE_LEN   60
+static gchar *
+put_string_list(GList *sl)
+{
+  static gchar  pref_str[MAX_FMT_PREF_LEN] = "";
+  GList        *clp = g_list_first(sl);
+  fmt_data     *cfmt;
+  int           cur_pos = 0, cur_len = 0, fmt_len;
+  
+  while (clp) {
+    cfmt = (fmt_data *) clp->data;
+    
+    fmt_len = strlen(cfmt->title) + 4;
+    if ((fmt_len + cur_len) < (MAX_FMT_PREF_LEN - 1)) {
+      if ((fmt_len + cur_pos) > MAX_FMT_PREF_LINE_LEN) {
+        cur_len--;
+        cur_pos = 0;
+	        pref_str[cur_len] = '\n'; cur_len++;
+        pref_str[cur_len] = '\t'; cur_len++;
+      }
+      sprintf(&pref_str[cur_len], "\"%s\", ", cfmt->title);
+      cur_len += fmt_len;
+      cur_pos += fmt_len;
+    }
+
+    fmt_len = strlen(cfmt->fmt) + 4;
+    if ((fmt_len + cur_len) < (MAX_FMT_PREF_LEN - 1)) {
+      if ((fmt_len + cur_pos) > MAX_FMT_PREF_LINE_LEN) {
+        cur_len--;
+        cur_pos = 0;
+        pref_str[cur_len] = '\n'; cur_len++;
+        pref_str[cur_len] = '\t'; cur_len++;
+      }
+      sprintf(&pref_str[cur_len], "\"%s\", ", cfmt->fmt);
+      cur_len += fmt_len;
+      cur_pos += fmt_len;
+    }
+    
+    clp = clp->next;
+  }
+  
+  if (cur_len > 2)
+    pref_str[cur_len - 2] = '\0';
+
+  return(pref_str);
+}    
 
 void
 clear_string_list(GList *sl) {
@@ -1400,7 +1450,7 @@ write_prefs(char **pf_path_return)
 
   fprintf (pf, "# Packet list column format.  Each pair of strings consists "
     "of a column title \n# and its format.\n"
-    "%s: %s\n\n", PRS_COL_FMT, col_format_to_pref_str());
+    "%s: %s\n\n", PRS_COL_FMT, put_string_list(prefs.col_list));
 
   fprintf (pf, "# TCP stream window color preferences.  Each value is a six "
     "digit hexadecimal value in the form rrggbb.\n");

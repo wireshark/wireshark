@@ -1,7 +1,7 @@
 /* column.h
  * Definitions for column handling routines
  *
- * $Id: column.h,v 1.7 2000/01/10 01:43:48 guy Exp $
+ * $Id: column.h,v 1.8 2001/07/22 21:56:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,7 +44,6 @@ void                 get_column_format_matches(gboolean *, gint);
 gint                 get_column_format_from_str(gchar *);
 enum col_resize_type get_column_resize_type(gint);
 gchar               *get_column_title(gint);
-gchar               *col_format_to_pref_str(void);
 char                *get_column_longest_string(gint);
 gint                 get_column_char_width(gint format);
 
