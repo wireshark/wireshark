@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.61 2004/02/21 10:29:52 guy Exp $
+ * $Id: packet-diameter.c,v 1.62 2004/03/05 22:25:23 obiot Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -206,11 +206,14 @@ static gint ett_diameter_avp = -1;
 static gint ett_diameter_avp_flags = -1;
 static gint ett_diameter_avpinfo = -1;
 
-static int gbl_diameterTcpPort=TCP_PORT_DIAMETER;
-static int gbl_diameterSctpPort=SCTP_PORT_DIAMETER;
+static guint gbl_diameterTcpPort=TCP_PORT_DIAMETER;
+static guint gbl_diameterSctpPort=SCTP_PORT_DIAMETER;
 
 /* desegmentation of Diameter over TCP */
 static gboolean gbl_diameter_desegment = TRUE;
+
+/* Allow zero as a valid application ID */
+static gboolean allow_zero_as_app_id = FALSE;
 
 #define DICT_FN  "diameter/dictionary.xml"
 static gchar *gbl_diameterDictionary;
@@ -523,8 +526,8 @@ dictionaryAddApplication(char *name, int id)
 {
   ApplicationId *entry;
 
-  if (!name || (id <= 0)) {
-	g_warning( "Diameter Error: Inavlid application (name=%p, id=%d)",
+  if (!name || (id < 0) || (id == 0 && !allow_zero_as_app_id)) {
+	g_warning( "Diameter Error: Invalid application (name=%p, id=%d)",
 			   name, id);
 	return (-1);
   } /* Sanity Checks */
@@ -655,7 +658,7 @@ xmlDictionaryParseSegment(xmlNodePtr cur, int base)
 static int
 xmlDictionaryParse(xmlNodePtr cur)
 {
-  /* We should expect a base protocol, followed by multiple applicaitons */
+  /* We should expect a base protocol, followed by multiple applications */
   while (cur != NULL) {
 	if (strcasecmp(cur->name, "base") == 0) {
 	  /* Base protocol.  Descend and parse */
@@ -664,6 +667,8 @@ xmlDictionaryParse(xmlNodePtr cur)
 	  /* Application.  Descend and parse */
 	  xmlDictionaryParseSegment(cur, 0);
 	} else if (strcasecmp(cur->name, "text") == 0) {
+	  /* Ignore text */
+	} else if (strcasecmp(cur->name, "comment") == 0) {
 	  /* Ignore text */
 	} else {
 	  g_warning( "Diameter: XML Expecting a base or an application  (got \"%s\")",
@@ -1906,7 +1911,12 @@ proto_register_diameter(void)
 								   "Desegment all Diameter messages\nspanning multiple TCP segments",
 								   "Whether the Diameter dissector should desegment all messages spanning multiple TCP segments",
 								   &gbl_diameter_desegment);
-
+	/* Allow zero as valid application ID */
+	prefs_register_bool_preference(diameter_module, "allow_zero_as_app_id",
+			"Allow 0 as valid application ID",
+			"If set, the value 0 (zero) can be used as a valid "
+			"application ID. This is used in experimental cases.",
+			&allow_zero_as_app_id);
 	/* Register some preferences we no longer support, so we can report
 	   them as obsolete rather than just illegal. */
 	prefs_register_obsolete_preference(diameter_module, "udp.port");
