@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.75 2003/12/28 12:50:42 ulfl Exp $
+ * $Id: proto_draw.c,v 1.76 2004/01/07 20:14:17 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,6 +59,7 @@
 #include "ui_util.h"
 #include "gtkglobals.h"
 #include "compat_macros.h"
+#include "simple_dialog.h"
 
 #define BYTE_VIEW_WIDTH    16
 #define BYTE_VIEW_SEP      8
@@ -801,7 +802,7 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 	gtk_widget_show(file_entry);
 
 	/* File Browse button */
-	file_bt = gtk_button_new_with_label("Browse:");
+	file_bt = gtk_button_new_with_label("Browse");
 	SIGNAL_CONNECT(file_bt, "clicked", select_file_cb,
 		       "Ethereal: Save Highlighted Data to File");
 
@@ -872,14 +873,17 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 	file = (char *)gtk_entry_get_text(GTK_ENTRY(file_entry));
 
 	if (!file ||! *file) {
-	  return;    /* XXX, put up an error box */
+      simple_dialog(ESD_TYPE_WARN, NULL, "Please enter a filename!");
+	  return;
 	}
 
 	/* Must check if file name exists first */
 
 	bv = get_notebook_bv_ptr(byte_nb_ptr);
 	if (bv == NULL) {
-	        return; /* none ... should complain */
+      /* shouldn't happen */
+      simple_dialog(ESD_TYPE_WARN, NULL, "Could not find the corresponding text window!");
+	  return;
 	}
 	/*
 	 * Retrieve the info we need 
@@ -889,13 +893,13 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 	data_p = get_byte_view_data_and_length(GTK_WIDGET(bv), &len);
 
 	if (data_p == NULL || start == -1 || start > end) {
-	  printf("No data to save\n"); /* XXX put up an error box */
+        simple_dialog(ESD_TYPE_WARN, NULL, "No data selected to save!");
 		return;
 	}
 
 	fd = open(file, O_WRONLY|O_CREAT|O_TRUNC, 0666);
-	if (fd == -1) {  /* XXX - put up an error dialog */
-		perror(file);
+	if (fd == -1) {
+        simple_dialog(ESD_TYPE_WARN, NULL, "Could not open file: \"%s\" - %s!", file, strerror(errno));
 		return;
 	}
 	write(fd, data_p + start, end - start);
