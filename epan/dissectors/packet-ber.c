@@ -766,9 +766,16 @@ ber_sequence_try_again:
 				goto ber_sequence_try_again;
 			}
 			if ( seq->class == BER_CLASS_UNI){
-				proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in SEQUENCE  expected class:%d (%s) tag:%d but found class:%d tag:%d",seq->class,val_to_str(seq->class,ber_class_codes,"Unknown"),seq->tag,val_to_str(seq->tag,ber_uni_tag_codes,"Unknown"),class,tag);
+				proto_tree_add_text(tree, tvb, offset, len,
+				    "BER Error: Wrong field in SEQUENCE  expected class:%d (%s) tag:%d (%s) but found class:%d tag:%d",
+				    seq->class,val_to_str(seq->class,ber_class_codes,"Unknown"),
+				    seq->tag,val_to_str(seq->tag,ber_uni_tag_codes,"Unknown"),
+				    class,tag);
 			}else{
-				proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in SEQUENCE  expected class:%d (%s) tag:%d(%s) but found class:%d tag:%d",seq->class,val_to_str(seq->class,ber_class_codes,"Unknown"),seq->tag,class,tag);
+				proto_tree_add_text(tree, tvb, offset, len,
+				    "BER Error: Wrong field in SEQUENCE  expected class:%d (%s) tag:%d but found class:%d tag:%d",
+				    seq->class,val_to_str(seq->class,ber_class_codes,"Unknown"),
+				    seq->tag,class,tag);
 			}
 			seq++;
 			offset=eoffset;
