@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.57 2000/05/11 08:15:14 gram Exp $
+ * $Id: packet-ipx.c,v 1.58 2000/05/19 19:48:01 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -140,6 +140,7 @@ struct server_info {
 	http://developer.novell.com/engsup/sample/tids/dsoc1b/dsoc1b.htm
 */
 
+#define IPX_SOCKET_PING_CISCO           0x0002 /* In cisco this is set with: ipx ping-default cisco */
 #define IPX_SOCKET_NCP			0x0451
 #define IPX_SOCKET_SAP			0x0452
 #define IPX_SOCKET_IPXRIP		0x0453
@@ -156,10 +157,13 @@ struct server_info {
 #define IPX_SOCKET_WIDE_AREA_ROUTER	0x9001
 #define IPX_SOCKET_SNMP_AGENT           0x900F /* RFC 1906 */
 #define IPX_SOCKET_SNMP_SINK            0x9010 /* RFC 1906 */
+#define IPX_SOCKET_PING_NOVELL          0x9086 /* In cisco this is set with: ipx ping-default novell */
 #define IPX_SOCKET_TCP_TUNNEL           0x9091 /* RFC 1791 */
 #define IPX_SOCKET_UDP_TUNNEL           0x9092 /* RFC 1791 */
 
 static struct port_info	ports[] = {
+
+	{ IPX_SOCKET_PING_CISCO, NULL, "CISCO PING" },
 	{ IPX_SOCKET_NCP,			dissect_ncp,
 				"NCP" },
 	{ IPX_SOCKET_SAP,			dissect_ipxsap,
@@ -181,7 +185,7 @@ static struct port_info	ports[] = {
 	{ IPX_SOCKET_IPX_MESSAGE, dissect_ipxmsg, "IPX Message" },
 	{ IPX_SOCKET_SNMP_AGENT, dissect_snmp, "SNMP Agent" },
 	{ IPX_SOCKET_SNMP_SINK,	dissect_snmp, "SNMP Sink" },
-
+	{ IPX_SOCKET_PING_NOVELL, NULL,	"NOVELL PING" },
 	{ IPX_SOCKET_UDP_TUNNEL, NULL, "UDP Tunnel" },
 	{ IPX_SOCKET_TCP_TUNNEL, NULL, "TCP Tunnel" },
 	{ IPX_SOCKET_TCP_TUNNEL, NULL, "TCP Tunnel" },
