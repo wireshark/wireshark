@@ -14,6 +14,7 @@ S<[ B<-e> l3pid ]>
 S<[ B<-i> proto ]>
 S<[ B<-u> srcport,destport ]>
 S<[ B<-s> srcport,destport,tag ]>
+S<[ B<-S> srcport,destport,tag ]>
 S<[ B<-t> timefmt ]>
 I<infile>
 I<outfile>
@@ -140,8 +141,13 @@ Include dummy SCTP headers before each packet.  Specify the source and
 destination SCTP ports, and verification tag, for the packet in decimal. 
 Use this option if your dump is the SCTP payload of a packet but does not
 include any SCTP, IP or Ethernet headers.  Note that this automatically
-includes appropriate Ethernet and IP headers with each packet.  The SCTP
-checksum will be set to 0, rather than being calculated.
+includes appropriate Ethernet and IP headers with each packet.  A CRC32C
+checksum will be put into the SCTP header.
+
+=item -S srcport,destport,tag
+
+Like B<-s>, but it also includes the DATA chunk header, for input files
+that contain only the SCTP payload.
 
 =item -t timefmt
 
