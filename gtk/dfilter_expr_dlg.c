@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.51 2004/02/12 22:24:28 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.52 2004/03/06 11:16:19 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,6 +68,7 @@
 #define E_DFILTER_EXPR_RANGE_ENTRY_KEY		"dfilter_expr_range_entry"
 #define E_DFILTER_EXPR_VALUE_LABEL_KEY		"dfilter_expr_value_label"
 #define E_DFILTER_EXPR_VALUE_ENTRY_KEY		"dfilter_expr_value_entry"
+#define E_DFILTER_EXPR_VALUE_LIST_LABEL_KEY "dfilter_expr_value_list_label"
 #define E_DFILTER_EXPR_VALUE_LIST_KEY		"dfilter_expr_value_list"
 #define E_DFILTER_EXPR_VALUE_LIST_SW_KEY	"dfilter_expr_value_list_sw"
 #define E_DFILTER_EXPR_ACCEPT_BT_KEY		"dfilter_expr_accept_bt"
@@ -91,7 +92,8 @@ static void add_value_list_item(GtkWidget *value_list, gchar *string,
                                 gpointer data);
 static void display_value_fields(header_field_info *hfinfo,
                                  gboolean is_comparison, GtkWidget *value_label,
-                                 GtkWidget *value_entry, GtkWidget *value_list,
+                                 GtkWidget *value_entry, 
+                                 GtkWidget *value_list_label, GtkWidget *value_list,
                                  GtkWidget *value_list_scrolled_win,
                                  GtkWidget *range_label,
                                  GtkWidget *range_entry);
@@ -120,6 +122,8 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
                                              E_DFILTER_EXPR_VALUE_LABEL_KEY);
     GtkWidget *value_entry = OBJECT_GET_DATA(window,
                                              E_DFILTER_EXPR_VALUE_ENTRY_KEY);
+    GtkWidget *value_list_label = OBJECT_GET_DATA(window,
+                                            E_DFILTER_EXPR_VALUE_LIST_LABEL_KEY);
     GtkWidget *value_list = OBJECT_GET_DATA(window,
                                             E_DFILTER_EXPR_VALUE_LIST_KEY);
     GtkWidget *value_list_scrolled_win = OBJECT_GET_DATA(window,
@@ -232,7 +236,7 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
      * The relation we start out with is never a comparison.
      */
     display_value_fields(hfinfo, FALSE, value_label, value_entry,
-                         value_list, value_list_scrolled_win, range_label, range_entry);
+                         value_list_label, value_list, value_list_scrolled_win, range_label, range_entry);
 
     /*
      * XXX - in browse mode, there always has to be something
@@ -348,6 +352,8 @@ relation_list_sel_cb(GtkTreeSelection *sel, gpointer user_data _U_)
         OBJECT_GET_DATA(window, E_DFILTER_EXPR_VALUE_LABEL_KEY);
     GtkWidget *value_entry =
         OBJECT_GET_DATA(window, E_DFILTER_EXPR_VALUE_ENTRY_KEY);
+    GtkWidget *value_list_label =
+        OBJECT_GET_DATA(window, E_DFILTER_EXPR_VALUE_LIST_LABEL_KEY);
     GtkWidget *value_list =
         OBJECT_GET_DATA(window, E_DFILTER_EXPR_VALUE_LIST_KEY);
     GtkWidget *value_list_scrolled_win =
@@ -383,7 +389,7 @@ relation_list_sel_cb(GtkTreeSelection *sel, gpointer user_data _U_)
      */
     display_value_fields(hfinfo,
                          !relation_is_presence_test(item_str),
-                         value_label, value_entry, value_list,
+                         value_label, value_entry, value_list_label, value_list,
                          value_list_scrolled_win, range_label, range_entry);
 #if GTK_MAJOR_VERSION >= 2
     g_free(item_str);
@@ -531,7 +537,8 @@ add_value_list_item(GtkWidget *value_list, gchar *string, gpointer data)
 static void
 display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
                      GtkWidget *value_label, GtkWidget *value_entry,
-                     GtkWidget *value_list _U_,
+                     GtkWidget *value_list_label,
+                     GtkWidget  *value_list _U_,
                      GtkWidget *value_list_scrolled_win, GtkWidget *range_label,
                      GtkWidget *range_entry)
 {
@@ -565,7 +572,7 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 		 * The relation is a comparison; display the entry for
 		 * the value with which to compare.
 		 */
-		gtk_widget_show(value_entry);
+        gtk_widget_set_sensitive(value_entry, TRUE);
 
 		/*
 		 * We're showing the entry; show the label as well.
@@ -576,7 +583,7 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 		 * The relation isn't a comparison; there's no value with
 		 * which to compare, so don't show the entry for it.
 		 */
-		gtk_widget_hide(value_entry);
+        gtk_widget_set_sensitive(value_entry, FALSE);
 	}
 
 	switch (hfinfo->type) {
@@ -590,7 +597,7 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 			 * (The list of values contains the strings for
 			 * "true" and "false".)
 			 */
-			gtk_widget_show_all(value_list_scrolled_win);
+            gtk_widget_set_sensitive(value_list_scrolled_win, TRUE);
 
 			/*
 			 * We're showing the value list; show the label as
@@ -603,7 +610,7 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 			 * the entry for the value; don't show the
 			 * list of names for values, either.
 			 */
-			gtk_widget_hide_all(value_list_scrolled_win);
+            gtk_widget_set_sensitive(value_list_scrolled_win, FALSE);
 		}
 		break;
 
@@ -626,7 +633,7 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 				 * which to compare; show the list of
 				 * names for values as well.
 				 */
-				gtk_widget_show_all(value_list_scrolled_win);
+                gtk_widget_set_sensitive(value_list_scrolled_win, TRUE);
 
 				/*
 				 * We're showing the entry; show the label
@@ -639,14 +646,14 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 				 * the entry for the value; don't show the
 				 * list of names for values, either.
 				 */
-				gtk_widget_hide_all(value_list_scrolled_win);
+                gtk_widget_set_sensitive(value_list_scrolled_win, FALSE);
 			}
 		} else {
 			/*
 			 * There is no list of names for values, so don't
 			 * show it.
 			 */
-			gtk_widget_hide_all(value_list_scrolled_win);
+            gtk_widget_set_sensitive(value_list_scrolled_win, FALSE);
 		}
 		break;
 
@@ -654,25 +661,28 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 		/*
 		 * There is no list of names for values; hide the list.
 		 */
-		gtk_widget_hide_all(value_list_scrolled_win);
+        gtk_widget_set_sensitive(value_list_scrolled_win, FALSE);
 		break;
 	}
 
-	if (show_value_label)
-		gtk_widget_show(value_label);
-	else
-		gtk_widget_hide(value_label);
+    if (show_value_label) {
+        gtk_widget_set_sensitive(value_list_label, TRUE);
+        gtk_widget_set_sensitive(value_label, TRUE);
+    } else {
+        gtk_widget_set_sensitive(value_list_label, FALSE);
+        gtk_widget_set_sensitive(value_label, FALSE);
+    }
 
 	/*
 	 * Is this a comparison, and are ranges supported by this type?
 	 * If both are true, show the range stuff, otherwise hide it.
 	 */
 	if (is_comparison && ftype_can_slice(hfinfo->type)) {
-		gtk_widget_show(range_label);
-		gtk_widget_show(range_entry);
+        gtk_widget_set_sensitive(range_label, TRUE);
+        gtk_widget_set_sensitive(range_entry, TRUE);
 	} else {
-		gtk_widget_hide(range_label);
-		gtk_widget_hide(range_entry);
+        gtk_widget_set_sensitive(range_label, FALSE);
+        gtk_widget_set_sensitive(range_entry, FALSE);
 	}
 }
 
@@ -1095,7 +1105,8 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     GtkWidget *relation_label, *relation_list, *relation_list_scrolled_win;
     GtkWidget *range_label, *range_entry;
     GtkWidget *value_vb;
-    GtkWidget *value_label, *value_entry, *value_list_scrolled_win, *value_list;
+    GtkWidget *value_label, *value_entry;
+    GtkWidget *value_list_label, *value_list_scrolled_win, *value_list;
     GtkWidget *list_bb, *accept_bt, *close_bt;
     header_field_info       *hfinfo;
     int i;
@@ -1263,6 +1274,11 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     value_entry = gtk_entry_new();
     gtk_box_pack_start(GTK_BOX(value_vb), value_entry, FALSE, FALSE, 0);
     gtk_widget_show(value_entry);
+
+    value_list_label = gtk_label_new("Predefined values:");
+    gtk_misc_set_alignment(GTK_MISC(value_list_label), 0.0, 0.0);
+    gtk_box_pack_start(GTK_BOX(value_vb), value_list_label, FALSE, FALSE, 0);
+    gtk_widget_show(value_list_label);
 
     value_list_scrolled_win = scrolled_window_new(NULL, NULL);
     gtk_box_pack_start(GTK_BOX(value_vb), value_list_scrolled_win, TRUE,
@@ -1469,6 +1485,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     OBJECT_SET_DATA(window, E_DFILTER_EXPR_VALUE_LABEL_KEY, value_label);
     OBJECT_SET_DATA(window, E_DFILTER_EXPR_VALUE_ENTRY_KEY, value_entry);
     OBJECT_SET_DATA(window, E_DFILTER_EXPR_VALUE_LIST_KEY, value_list);
+    OBJECT_SET_DATA(window, E_DFILTER_EXPR_VALUE_LIST_LABEL_KEY, value_list_label);
     OBJECT_SET_DATA(window, E_DFILTER_EXPR_VALUE_LIST_SW_KEY,
                     value_list_scrolled_win);
     OBJECT_SET_DATA(window, E_DFILTER_EXPR_ACCEPT_BT_KEY, accept_bt);
@@ -1497,5 +1514,5 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
      */
     SIGNAL_CONNECT(filter_te, "destroy", dfilter_expr_dlg_cancel_cb, window);
 
-    gtk_widget_show(window);
+    gtk_widget_show_all(window);
 }
