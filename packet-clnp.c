@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.81 2004/01/28 22:14:19 ulfl Exp $
+ * $Id: packet-clnp.c,v 1.82 2004/02/18 06:51:13 guy Exp $
  * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -39,6 +39,7 @@
 #include "packet-isis.h"
 #include "packet-esis.h"
 #include "nlpid.h"
+#include "ipproto.h"
 
 /* protocols and fields */
 
@@ -2294,6 +2295,15 @@ void proto_register_cotp(void)
 
   /* XXX - what about CLTP and proto_cltp? */
   register_dissector("ositp", dissect_ositp, proto_cotp);
+}
+
+void
+proto_reg_handoff_cotp(void)
+{
+  dissector_handle_t ositp_handle;
+
+  ositp_handle = find_dissector("ositp");
+  dissector_add("ip.proto", IP_PROTO_TP, ositp_handle);
 }
 
 void proto_register_cltp(void)
