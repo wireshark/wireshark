@@ -21,6 +21,8 @@ libtool
 ps.c
 randpkt
 rdps
+register.c
 stamp-h
 stamp-h.in
-register.c
+tethereal
+tethereal.1

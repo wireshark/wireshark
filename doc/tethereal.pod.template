@@ -1,0 +1,374 @@
+
+=head1 NAME
+
+Tethereal - Dump and analyze network traffic
+
+=head1 SYNOPSYS
+
+B<tethereal>
+S<[ B<-c> count ]>
+S<[ B<-f> filter expression ]>
+S<[ B<-h> ]>
+S<[ B<-i> interface ]> 
+S<[ B<-n> ]>
+S<[ B<-r> infile ]>
+S<[ B<-R> filter expression ]>
+S<[ B<-s> snaplen ]>
+S<[ B<-t> time stamp format ]>
+S<[ B<-v> ]>
+S<[ B<-V> ]>
+S<[ B<-w> savefile]>
+
+=head1 DESCRIPTION
+
+B<Tethereal> is a network protocol analyzer.  It lets you capture packet
+data from a live network, either printing a decoded form of those
+packets to the standard output or saving the captured packets to a file,
+and lets you print a decoded form of packets from a previously saved
+capture file.  B<Tethereal> knows how to read B<libpcap>
+capture files, including those of B<tcpdump>.  In addition, B<Tethereal> can
+read capture files from B<snoop> (including B<Shomiti>) and B<atmsnoop>,
+B<LanAlyzer>, uncompressed B<Sniffer>, Microsoft B<Network Monitor>,
+AIX's B<iptrace>, B<NetXray>, B<Sniffer Pro>, B<RADCOM>'s WAN/LAN
+analyzer, B<Lucent/Ascend> router debug output, HP-UX's B<nettl>, and
+the dump output from B<Toshiba's> ISDN routers.  There is no need to
+tell B<Tethereal> what type of file you are reading; it will determine the
+file type by itself.  B<Tethereal> is also capable of reading any of these
+file formats if they are compressed using gzip.  B<Tethereal> recognizes
+this directly from the file; the '.gz' extension is not required for
+this purpose.
+
+By default, when printing a decoded form of packets, B<Tethereal> prints
+a summary line giving a time stamp for the packet, the source and
+destination address for the packet, the top-level protocol for the
+packet that B<Tethereal> understands, and a summary of the packet's
+contents for that protocol.  It can also print a protocol tree, showing
+all the fields of all protocols in the packet.
+
+Read filters in B<Tethereal>, which allow you to select which packets
+are to be decoded when reading a saved capture file, are very powerful;
+more fields are filterable in B<Tethereal> than in other protocol
+analyzers, and the syntax you can use to create your filters is richer. 
+As B<Tethereal> progresses, expect more and more protocol fields to be
+allowed in read filters.
+
+Packet capturing is performed with the pcap library.  The capture filter
+syntax follows the rules of the pcap library.  This syntax is different
+from the read filter syntax.
+
+Compressed file support uses (and therefore requires) the zlib library. 
+If the zlib library is not present, B<Tethereal> will compile, but will
+be unable to read compressed files.
+
+=head1 OPTIONS
+
+=over 4
+
+=item -c
+
+Sets the default number of packets to read when capturing live
+data.
+
+=item -f
+
+Sets the capture filter expression.
+
+=item -h
+
+Prints the version and options and exits.
+
+=item -i
+
+Sets the name of the interface to use for live packet capture.  It
+should match one of the names listed in "B<netstat -i>" or "B<ifconfig -a>".
+
+=item -n
+
+Disables network object name resolution (such as hostname, TCP and UDP port
+names).
+
+=item -r
+
+Reads packet data from I<file>.
+
+=item -R
+
+Causes the specified filter (which uses the syntax of read filters,
+rather than that of capture filters) to be applied, when a capture file
+is read, to all packets read from the capture file; packets not matching
+the filter are discarded.
+
+=item -s
+
+Sets the default snapshot length to use when capturing live data. 
+No more than I<snaplen> bytes of each network packet will be read into
+memory, or saved to disk.
+
+=item -t
+
+Sets the format of the packet timestamp printed in summary lines.
+The format can be one of 'r' (relative), 'a' (absolute), or 'd'
+(delta).  The relative time is the time elapsed between the first packet
+and the current packet.  The absolute time is the actual date and time the
+packet was captured.  The delta time is the time since the previous packet
+was captured.  The default is relative.
+
+=item -v
+
+Prints the version and exits.
+
+=item -V
+
+Causes B<Tethereal> to print a protocol tree for each packet rather than
+a one-line summary of the packet.
+
+=item -w
+
+Sets the default capture file name.
+
+=back
+
+=head1 CAPTURE FILTER SYNTAX
+
+See manual page of tcpdump(8).
+
+=head1 READ FILTER SYNTAX
+
+Read filters help you remove the noise from a packet trace and let you
+see only the packets that interest you.  If a packet meets the
+requirements expressed in your read filter, then it is printed.  Read
+filters let you compare the fields within a protocol against a specific
+value, compare fields against fields, and to check the existence of
+specified fields or protocols.
+
+The simplest read filter allows you to check for the existence of a
+protocol or field.  If you want to see all packets which contain the IPX
+protocol, the filter would be "ipx".  (Without the quotation marks) To
+see all packets that contain a Token-Ring RIF field, use "tr.rif".
+
+Fields can also be compared against values.  The comparison operators
+can be expressed either through C-like symbols, or through English-like
+abbreviations:
+
+    eq, ==    Equal
+    ne, !=    Not equal
+    gt, >     Greater than
+    lt, <     Less Than
+    ge, >=    Greater than or Equal to
+    le, <=    Less than or Equal to
+
+Furthermore, each protocol field is typed. The types are:
+
+    Unsigned integer (either 8-bit, 16-bit, 24-bit, or 32-bit)
+    Signed integer (either 8-bit, 16-bit, 24-bit, or 32-bit)
+    Boolean
+    Ethernet address (6 bytes)
+    Byte string (n-number of bytes)
+    IPv4 address
+    IPv6 address
+    IPX network number
+    String (text)
+    Double-precision floating point number
+
+An integer may be expressed in decimal, octal, or hexadecimal notation. 
+The following three read filters are equivalent:
+
+    frame.pkt_len > 10
+    frame.pkt_len > 012
+    frame.pkt_len > 0xa
+
+Boolean values are either true or false.  However, a boolean field is
+present in a protocol decode only if its value is true.  If the value is
+false, the field is not presence.  You can therefore check the truth
+value of a boolean field by simply checking for its existence, that is,
+by naming the field.  For example, a token-ring packet's source route
+field is boolean.  To find any source-routed packets, the read filter
+is simply:
+
+    tr.sr
+
+Non source-routed packets can be found with the negation of that filter:
+
+    ! tr.sr
+
+Ethernet addresses, as well as a string of bytes, are represented in hex
+digits.  The hex digits may be separated by colons, periods, or hyphens:
+
+    fddi.dst eq ff:ff:ff:ff:ff:ff
+    ipx.srcnode == 0.0.0.0.0.1
+    eth.src == aa-aa-aa-aa-aa-aa
+
+If a string of bytes contains only one byte, then it is represented as
+an unsigned integer.  That is, if you are testing for hex value 'ff' in
+a one-byte byte-string, you must compare it agains '0xff' and not 'ff'. 
+
+IPv4 addresses can be represented in either dotted decimal notation, or
+by using the hostname:
+
+    ip.dst eq www.mit.edu
+    ip.src == 192.168.1.1
+
+IPv4 address can be compared with the same logical relations as numbers:
+eq, ne, gt, ge, lt, and le.  The IPv4 address is stored in host order,
+so you do not have to worry about how the endianness of an IPv4 address
+when using it in a read filter.
+
+Classless InterDomain Routing (CIDR) notation can be used to test if an
+IPv4 address is in a certain subnet.  For example, this read filter
+will find all packets in the 129.111 Class-B network:
+
+    ip.addr == 129.111.0.0/16
+
+Remember, the number after the slash represents the number of bits used
+to represent the network.  CIDR notation can also be used with
+hostnames, in this example of finding IP addresses on the same Class C
+network as 'sneezy':
+
+    ip.addr eq sneezy/24
+
+The CIDR notation can only be used on IP addresses or hostnames, not in
+variable names.  So, a read filter like "ip.src/24 == ip.dst/24" is
+not valid.  (yet)
+
+IPX networks are represented by unsigned 32-bit integers.  Most likely
+you will be using hexadecimal when testing for IPX network values:
+
+    ipx.srcnet == 0xc0a82c00
+
+A substring operator also exists.  You can check the substring
+(byte-string) of any protocol or field.  For example, you can filter on
+the vendor portion of an ethernet address (the first three bytes) like
+this:
+
+    eth.src[0:3] == 00:00:83
+
+Or more simply, since the number of bytes is inherent in the byte-string
+you provide, you can provide just the offset.  The previous example can
+be stated like this:
+
+    eth.src[0] == 00:00:83
+
+In fact, the only time you need to explicitly provide a length is when
+you don't provide a byte-string, and are comparing fields against
+fields:
+
+    fddi.src[0:3] == fddi.dst[0:3]
+
+If the length of your byte-string is only one byte, then it must be
+represented in the same way as an unsigned 8-bit integer:
+
+    llc[3] == 0xaa
+
+You can use the substring operator on a protocol name, too.  And
+remember, the "frame" protocol encompasses the entire packet, allowing
+you to look at the nth byte of a packet regardless of its frame type
+(Ethernet, token-ring, etc.).
+
+    token[0:5] ne 0.0.0.1.1
+    ipx[0:2] == ff:ff
+    llc[3:1] eq 0xaa
+
+Offsets for byte-strings can also be negative, in which case the
+negative number indicates the number of bytes from the end of the field
+or protocol that you are testing.  Here's how to check the last 4 bytes
+of a frame:
+
+    frame[-4] == 0.1.2.3
+
+or
+
+    frame[-4:4] == 0.1.2.3
+
+All the above tests can be combined together with logical expressions. 
+These too are expressable in C-like syntax or with English-like
+abbreviations:
+
+    and, &&   Logical AND
+    or, ||    Logical OR
+    xor, ^^   Logical XOR
+    not, !    Logical NOT
+
+Expressions can be grouped by parentheses as well.  The following are
+all valid read filter expression:
+
+    tcp.port == 80 and ip.src == 192.168.2.1
+    not llc
+    (ipx.srcnet == 0xbad && ipx.srnode == 0.0.0.0.0.1) || ip
+    tr.dst[0:3] == 0.6.29 xor tr.src[0:3] == 0.6.29
+
+A special caveat must be given regarding fields that occur more than
+once per packet.  "ip.addr" occurs twice per IP packet, once for the
+source address, and once for the destination address.  Likewise,
+tr.rif.ring fields can occur more than once per packet.  The following
+two expressions are not equivalent:
+
+        ip.addr ne 192.168.4.1
+    not ip.addr eq 192.168.4.1
+
+The first filter says "show me all packets where an ip.addr exists that
+does not equal 192.168.4.1".  That is, as long as one ip.addr in the
+packet does not equal 192.168.44.1, the packet passes the display
+filter.  The second filter "don't show me any packets that have at least
+one ip.addr field equal to 192.168.4.1".  If one ip.addr is 192.168.4.1,
+the packet does not pass.  If B<neither> ip.addr fields is 192.168.4.1,
+then the packet passes.
+
+It is easy to think of the 'ne' and 'eq' operators as having an implict
+"exists" modifier when dealing with multiply-recurring fields.  "ip.addr
+ne 192.168.4.1" can be thought of as "there exists an ip.addr that does
+not equal 192.168.4.1".
+
+Be careful with multiply-recurring fields; they can be confusing.
+
+The following is a table of protocol and protocol fields that are
+filterable in B<Tethereal>.  The abbreviation of the protocol or field is
+given.  This abbreviation is what you use in the read filter.  The
+type of the field is also given.
+
+=insert_dfilter_table
+
+=head1 FILES
+
+B</etc/ethers> is consulted to correlate 6-byte hardware addresses to
+names.  If an address is not found in B</etc/ethers>, the
+B<$HOME/.ethereal/ethers> file is consulted next.  Each line contains
+one hardware address and name, separated by whitespace.  The digits of
+the hardware address are separated by either a colon (:), a dash (-), or
+a period (.).  The following three lines are valid lines of an ethers
+file:
+
+  ff:ff:ff:ff:ff:ff          Broadcast
+  c0-00-ff-ff-ff-ff          TR_broadcast
+  00.00.00.00.00.00          Zero_broadcast
+
+B</usr/local/etc/manuf> matches the 3-byte vendor portion of a 6-byte
+hardware address with the manufacturer's name.  The format of the file
+is the same as the B</etc/ethers> file, except that each address is
+three bytes instead of six.
+
+B</etc/ipxnets> and B<$HOME/.ethereal/ipxnets> correlate 4-byte IPX
+network numbers to names.  The format is the same as the B</etc/ethers>
+file, except that each address if four bytes instead of six. 
+Additionally, the address can be represented a single hexadecimal
+number, as is more common in the IPX world, rather than four hex octets. 
+For example, these four lines are valid lines of an ipxnets file.
+
+  C0.A8.2C.00              HR
+  c0-a8-1c-00              CEO
+  00:00:BE:EF              IT_Server1
+  110f                     FileServer3
+
+=head1 SEE ALSO
+
+L<ethereal(1)>, L<tcpdump(8)>, L<pcap(3)>
+
+=head1 NOTES
+
+B<Tethereal> is part of the B<Ethereal> distribution.  The latest version
+of B<Ethereal> can be found at B<http://ethereal.zing.org>.
+
+=head1 AUTHORS
+
+B<Tethereal> uses the same packet dissection code that B<Ethereal> does,
+as well as using many other modules from B<Ethereal>; see the list of
+authors in the B<Ethereal> man page for a list of authors of that code.

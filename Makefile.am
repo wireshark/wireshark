@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.149 2000/01/13 00:41:10 guy Exp $
+# $Id: Makefile.am,v 1.150 2000/01/14 06:45:51 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -22,9 +22,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-bin_PROGRAMS = ethereal editcap
+bin_PROGRAMS = ethereal editcap tethereal
 
-man_MANS = ethereal.1 editcap.1
+man_MANS = ethereal.1 editcap.1 tethereal.1
 
 sysconf_DATA = manuf
 
@@ -179,14 +179,10 @@ DISSECTOR_SOURCES = \
 	packet-ypxfr.c \
 	packet-ypxfr.h 
 
-ethereal_SOURCES = \
+ETHEREAL_COMMON_SOURCES = \
 	alignment.h    \
 	asn1.c         \
 	asn1.h         \
-	capture.c      \
-	capture.h      \
-	colors.c       \
-	colors.h       \
 	column.c       \
 	column.h       \
 	conversation.c \
@@ -198,16 +194,12 @@ ethereal_SOURCES = \
 	dfilter.h      \
 	ethertype.c    \
 	etypes.h       \
-	file.c         \
-	file.h         \
 	follow.c       \
 	follow.h       \
-	globals.h      \
 	inet_v6defs.h  \
 	ipproto.c      \
 	ipv4.c         \
 	ipv4.h         \
-	menu.h         \
 	nlpid.h        \
 	oui.h          \
 	packet.c       \
@@ -226,17 +218,28 @@ ethereal_SOURCES = \
 	register.h     \
 	resolv.c       \
 	resolv.h       \
-	simple_dialog.h \
 	smb.h          \
-	summary.c      \
-	summary.h      \
 	timestamp.h    \
 	util.c         \
 	util.h         \
-	ui_util.h      \
 	xdlc.c         \
-	xdlc.h         \
-	$(DISSECTOR_SOURCES)
+	xdlc.h
+
+ethereal_SOURCES = \
+	$(DISSECTOR_SOURCES) \
+	$(ETHEREAL_COMMON_SOURCES) \
+	capture.c      \
+	capture.h      \
+	colors.c       \
+	colors.h       \
+	file.c         \
+	file.h         \
+	globals.h      \
+	menu.h         \
+	simple_dialog.h \
+	summary.c      \
+	summary.h      \
+	ui_util.h
 
 EXTRA_ethereal_SOURCES = \
 	dfilter-grammar.c \
@@ -278,6 +281,16 @@ ethereal_LDADD = \
 	"-dlopen" plugins/gryphon/gryphon.la @GTK_LIBS@
 
 ethereal_LDFLAGS = -export-dynamic
+
+tethereal_SOURCES = \
+	$(DISSECTOR_SOURCES) \
+	$(ETHEREAL_COMMON_SOURCES) \
+	tethereal.c
+tethereal_DEPENDENCIES = wiretap/libwiretap.a
+tethereal_LDADD = wiretap/libwiretap.a	\
+	@SNMP_A@			\
+	@LIBLTDL@ "-dlopen" self	\
+	"-dlopen" plugins/gryphon/gryphon.la @GLIB_LIBS@ -lm
 
 editcap_SOURCES = editcap.c
 editcap_DEPENDENCIES = wiretap/libwiretap.a
@@ -377,6 +390,10 @@ SUBDIRS = wiretap gtk plugins libltdl @ethereal_SUBDIRS@
 ethereal.1: ethereal doc/ethereal.pod.template
 	(cd doc ; \
 	$(MAKE) ../ethereal.1 )
+
+tethereal.1: tethereal doc/tethereal.pod.template
+	(cd doc ; \
+	$(MAKE) ../tethereal.1 )
 
 editcap.1: doc/editcap.pod
 	(cd doc ; \

@@ -2,3 +2,4 @@ Makefile.in
 Makefile
 dfilter2pod
 ethereal.pod
+tethereal.pod
