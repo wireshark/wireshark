@@ -1,12 +1,14 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.41 2004/05/13 17:24:16 obiot Exp $
+ * $Id: packet-rtcp.c,v 1.42 2004/05/31 19:35:53 etxrab Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
  *
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <h323@ramdyne.nl>
+ *
+ * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +38,7 @@
  * port number, but there is a registered port available, port 5005
  * See Annex B of ITU-T Recommendation H.225.0, section B.7
  *
+ * See also http://www.iana.org/assignments/rtp-parameters
  */
 
 
@@ -74,11 +77,13 @@ static const value_string rtcp_version_vals[] =
 };
 
 /* RTCP packet types according to Section A.11.1 */
+/* And http://www.iana.org/assignments/rtp-parameters */
 #define RTCP_SR   200
 #define RTCP_RR   201
 #define RTCP_SDES 202
 #define RTCP_BYE  203
 #define RTCP_APP  204
+#define RTCP_XR	  207
 /* Supplemental H.261 specific RTCP packet types according to Section C.3.5 */
 #define RTCP_FIR  192
 #define RTCP_NACK 193
@@ -92,6 +97,7 @@ static const value_string rtcp_packet_type_vals[] =
 	{ RTCP_APP,  "Application specific" },
 	{ RTCP_FIR,  "Full Intra-frame Request (H.261)" },
 	{ RTCP_NACK, "Negative Acknowledgement (H.261)" },
+	{ RTCP_XR,	 "Extended report"},
 	{ 0,         NULL },
 };
 
@@ -105,6 +111,7 @@ static const value_string rtcp_packet_type_vals[] =
 #define RTCP_SDES_TOOL   6
 #define RTCP_SDES_NOTE   7
 #define RTCP_SDES_PRIV   8
+#define RTCP_SDES_H323_CADDR   9
 
 static const value_string rtcp_sdes_type_vals[] =
 {
@@ -117,9 +124,35 @@ static const value_string rtcp_sdes_type_vals[] =
 	{ RTCP_SDES_TOOL,  "TOOL (name/version of source app)" },
 	{ RTCP_SDES_NOTE,  "NOTE (note about source)" },
 	{ RTCP_SDES_PRIV,  "PRIV (private extensions)" },
+	{ RTCP_SDES_H323_CADDR,"H323-CADDR (H.323 callable address)"},
 	{ 0,               NULL },
 };
+/* RTCP Application PoC1 Value strings */
+static const value_string rtcp_app_poc1_floor_cnt_type_vals[] =
+{
+	{  0,   "Floor Request"},
+	{  1,   "Floor Grant"},
+	{  2,   "Floor Taken"},
+	{  3,   "Floor Deny"},
+	{  4,   "Floor Release"},
+	{  5,   "Floor Idle"},
+	{  6,   "Floor Revoke"},
+	{  0,               NULL },
+};
 
+static const value_string rtcp_app_poc1_reason_code1_vals[] =
+{
+	{  1,   "Floor already in use"},
+	{  2,   "Internal PoC server error"},
+	{  0,               NULL },
+};
+
+static const value_string rtcp_app_poc1_reason_code2_vals[] =
+{
+	{  1,   "Only one user"},
+	{  2,   "Talk burst too long"},
+	{ 0,               NULL },
+};
 /* RTCP header fields                   */
 static int proto_rtcp                = -1;
 static int hf_rtcp_version           = -1;
@@ -158,14 +191,24 @@ static int hf_rtcp_fsn               = -1;
 static int hf_rtcp_blp               = -1;
 static int hf_rtcp_padding_count     = -1;
 static int hf_rtcp_padding_data      = -1;
+static int hf_rtcp_app_PoC1_subtype			= -1; 
+static int hf_rtcp_app_poc1_sip_uri			= -1;
+static int hf_rtcp_app_poc1_disp_name		= -1;
+static int hf_rtcp_app_poc1_last_pkt_seq_no = -1;
+static int hf_rtcp_app_poc1_reason_code1	= -1;
+static int hf_rtcp_app_poc1_item_len		= -1;
+static int hf_rtcp_app_poc1_reason1_phrase	= -1;
+static int hf_rtcp_app_poc1_reason_code2	= -1;
+static int hf_rtcp_app_poc1_additionalinfo	= -1;
 
 /* RTCP fields defining a sub tree */
-static gint ett_rtcp           = -1;
-static gint ett_ssrc           = -1;
-static gint ett_ssrc_item      = -1;
-static gint ett_ssrc_ext_high  = -1;
-static gint ett_sdes           = -1;
-static gint ett_sdes_item      = -1;
+static gint ett_rtcp			= -1;
+static gint ett_ssrc			= -1;
+static gint ett_ssrc_item		= -1;
+static gint ett_ssrc_ext_high	= -1;
+static gint ett_sdes			= -1;
+static gint ett_sdes_item		= -1;
+static gint ett_PoC1			= -1;
 
 static address fake_addr;
 static int heur_init = FALSE;
@@ -329,11 +372,20 @@ dissect_rtcp_fir( tvbuff_t *tvb, int offset, proto_tree *tree )
 }
 
 static int
-dissect_rtcp_app( tvbuff_t *tvb, int offset, proto_tree *tree,
-    unsigned int padding, unsigned int packet_len )
+dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree,
+    unsigned int padding, unsigned int packet_len, guint rtcp_subtype )
 {
 	unsigned int counter = 0;
 	char ascii_name[5];
+	guint sdes_type		= 0;
+	guint item_len		= 0;
+	guint items_start_offset;
+	proto_tree *PoC1_tree;
+	proto_item *PoC1_item;
+
+	/* XXX If more application types are to be dissected it may be useful to use a table like in packet-sip.c */ 
+	static const char app_name_str[] = "PoC1";
+
 
 	/* SSRC / CSRC */
 	proto_tree_add_uint( tree, hf_rtcp_ssrc_source, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
@@ -347,21 +399,110 @@ dissect_rtcp_app( tvbuff_t *tvb, int offset, proto_tree *tree,
 	ascii_name[4] = '\0';
 	proto_tree_add_string( tree, hf_rtcp_name_ascii, tvb, offset, 4,
 	    ascii_name );
-	offset += 4;
-	packet_len -= 4;
+	if ( strncasecmp(ascii_name,app_name_str,4 ) != 0 ){ /* Not PoC1 */
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO,"( %s ) subtype=%u",ascii_name, rtcp_subtype);
+		offset += 4;
+		packet_len -= 4;
+		/* Applications specific data */
+		if ( padding ) {
+			/* If there's padding present, we have to remove that from the data part
+			* The last octet of the packet contains the length of the padding
+			*/
+			packet_len -= tvb_get_guint8( tvb, offset + packet_len - 1 );
+		}
+		proto_tree_add_item( tree, hf_rtcp_app_data, tvb, offset, packet_len, FALSE );
+		offset += packet_len;
 
-	/* Applications specific data */
-	if ( padding ) {
-		/* If there's padding present, we have to remove that from the data part
-		 * The last octet of the packet contains the length of the padding
-		 */
-		packet_len -= tvb_get_guint8( tvb, offset + packet_len - 1 );
+		return offset;
+	}else{/* PoC1 Application */
+		proto_item *item;
+		item = proto_tree_add_uint( tree, hf_rtcp_app_PoC1_subtype, tvb, offset - 8, 1, rtcp_subtype );
+		PROTO_ITEM_SET_GENERATED(item);
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO,"(%s) subtype=%s",ascii_name,
+				val_to_str(rtcp_subtype,rtcp_app_poc1_floor_cnt_type_vals,"unknown (%u)") );
+		offset += 4;
+		packet_len -= 4;
+		/* Applications specific data */
+		if ( padding ) {
+			/* If there's padding present, we have to remove that from the data part
+			* The last octet of the packet contains the length of the padding
+			*/
+			packet_len -= tvb_get_guint8( tvb, offset + packet_len - 1 );
+		}
+		/* Create a subtree for the PoC1 Application items; we don't yet know
+		   the length */
+		items_start_offset = offset;
+
+		PoC1_item = proto_tree_add_text(tree, tvb, offset, packet_len,
+		    "PoC1 Application specific data");
+		PoC1_tree = proto_item_add_subtree( PoC1_item, ett_PoC1 );
+
+
+		proto_tree_add_item( PoC1_tree, hf_rtcp_app_data, tvb, offset, packet_len, FALSE );
+		switch ( rtcp_subtype ) {
+			case 2:
+				sdes_type = tvb_get_guint8( tvb, offset );
+				proto_tree_add_item( PoC1_tree, hf_rtcp_ssrc_type, tvb, offset, 1, FALSE );
+				offset++;
+				packet_len--;
+				/* Item length, 8 bits */
+				item_len = tvb_get_guint8( tvb, offset );
+				proto_tree_add_item( PoC1_tree, hf_rtcp_ssrc_length, tvb, offset, 1, FALSE );
+				offset++;
+				packet_len--;
+				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_sip_uri, tvb, offset, item_len, FALSE );
+				offset = offset + item_len;
+				packet_len = packet_len - item_len;
+				sdes_type = tvb_get_guint8( tvb, offset );
+				proto_tree_add_item( PoC1_tree, hf_rtcp_ssrc_type, tvb, offset, 1, FALSE );
+				offset++;
+				packet_len--;
+				/* Item length, 8 bits */
+				item_len = tvb_get_guint8( tvb, offset );
+				proto_tree_add_item( PoC1_tree, hf_rtcp_ssrc_length, tvb, offset, 1, FALSE );
+				offset++;
+				packet_len--;
+				if ( item_len != 0 )
+					proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_disp_name, tvb, offset, item_len, FALSE );
+				offset = offset + item_len;
+				packet_len = packet_len - item_len;
+				break;
+			case 3:				
+				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_reason_code1, tvb, offset, 1, FALSE );
+				offset++;
+				packet_len--;
+				/* Item length, 8 bits */
+				item_len = tvb_get_guint8( tvb, offset );
+				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_item_len, tvb, offset, 1, FALSE );
+				offset++;
+				packet_len--;
+				if ( item_len != 0 )
+					proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_reason1_phrase, tvb, offset, item_len, FALSE );
+				offset = offset + item_len;
+				packet_len = packet_len - item_len;
+				break;
+			case 4:				
+				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_last_pkt_seq_no, tvb, offset, 2, FALSE );
+			    proto_tree_add_text(PoC1_tree, tvb, offset + 2, 2, "Padding 2 bytes");
+			    offset += 4;
+				packet_len-=4;
+				break;
+			case 6:				
+				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_reason_code2, tvb, offset, 2, FALSE );
+				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_additionalinfo, tvb, offset + 2, 2, FALSE );
+			    offset += 4;
+				packet_len-=4;
+				break;
+			default:
+				break;
+		}
+		offset += packet_len;
+		return offset;
 	}
-	proto_tree_add_item( tree, hf_rtcp_app_data, tvb, offset, packet_len, FALSE );
-	offset += packet_len;
-
-	return offset;
 }
+
 
 static int
 dissect_rtcp_bye( tvbuff_t *tvb, int offset, proto_tree *tree,
@@ -635,6 +776,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	unsigned int packet_type = 0;
 	unsigned int offset      = 0;
 	guint16 packet_length    = 0;
+	guint rtcp_subtype		 = 0;
 
 	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
 		col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTCP" );
@@ -658,6 +800,9 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 				break;
 			case RTCP_APP:
 				col_set_str( pinfo->cinfo, COL_INFO, "Application defined");
+				break;
+			case RTCP_XR:
+				col_set_str( pinfo->cinfo, COL_INFO, "Extended report");
 				break;
 			case RTCP_FIR:
 				col_set_str( pinfo->cinfo, COL_INFO, "Full Intra-frame Request (H.261)");
@@ -754,6 +899,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 					break;
 				case RTCP_APP:
 					/* Subtype, 5 bits */
+					rtcp_subtype = elem_count;
 					proto_tree_add_uint( rtcp_tree, hf_rtcp_subtype, tvb, offset, 1, elem_count );
 					offset++;
 					/* Packet type, 8 bits */
@@ -762,9 +908,9 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 					/* Packet length in 32 bit words MINUS one, 16 bits */
 					proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
 					offset += 2;
-					offset = dissect_rtcp_app( tvb, offset,
+					offset = dissect_rtcp_app( tvb, pinfo, offset,
 					    rtcp_tree, padding_set,
-					    packet_length - 4 );
+					    packet_length - 4, rtcp_subtype );
 					break;
 				case RTCP_FIR:
 					offset = dissect_rtcp_fir( tvb, offset, rtcp_tree );
@@ -1150,6 +1296,115 @@ proto_register_rtcp(void)
 			}
 		},
 		{
+			&hf_rtcp_app_PoC1_subtype,
+			{
+				"Subtype",
+				"rtcp.app.PoC1.subtype",
+				FT_UINT8,
+				BASE_DEC,
+				VALS(rtcp_app_poc1_floor_cnt_type_vals),
+				0x0,
+				"", HFILL
+			}
+		},
+
+		{
+			&hf_rtcp_app_poc1_sip_uri,
+		{
+				"SIP URI",
+				"rtcp.app.poc1.sip.uri",
+				FT_STRING,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_disp_name,
+		{
+				"Display Name",
+				"rtcp.app.poc1.disp.name",
+				FT_STRING,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_last_pkt_seq_no,
+		{
+				"Seq. no of last RTP packet",
+				"rtcp.app.poc1.last.pkt.seq.no",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_reason_code1,
+		{
+				"Reason code",
+				"rtcp.app.poc1.reason.code",
+				FT_UINT8,
+				BASE_DEC,
+				VALS(rtcp_app_poc1_reason_code2_vals),
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_item_len,
+		{
+				"Item length",
+				"rtcp.app.poc1.item.len",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_reason1_phrase,
+		{
+				"Reason Phrase",
+				"rtcp.app.poc1.reason.phrase",
+				FT_STRING,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_reason_code2,
+		{
+				"Reason code",
+				"rtcp.app.poc1.reason.code",
+				FT_UINT16,
+				BASE_DEC,
+				VALS(rtcp_app_poc1_reason_code2_vals),
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_additionalinfo,
+		{
+				"additional information",
+				"rtcp.app.poc1.add.info",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
 			&hf_rtcp_fsn,
 			{
 				"First sequence number",
@@ -1207,6 +1462,7 @@ proto_register_rtcp(void)
 		&ett_ssrc_ext_high,
 		&ett_sdes,
 		&ett_sdes_item,
+		&ett_PoC1,
 	};
 
 
