@@ -1,7 +1,7 @@
 /* display.c
  * Routines for packet display windows
  *
- * $Id: display.c,v 1.4 1999/06/21 19:04:34 gram Exp $
+ * $Id: display.c,v 1.5 1999/06/22 03:39:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -162,7 +162,7 @@ display_opt_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 
-  redisplay_packets(&cf);
+  change_time_formats(&cf);
 }
 
 static void

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.27 1999/06/19 01:14:51 guy Exp $
+ * $Id: packet.c,v 1.28 1999/06/22 03:39:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -495,7 +495,53 @@ check_col(frame_data *fd, gint el) {
   return FALSE;
 }
 
-/* To do: Add check_col checks to the pinfo_add* routines */
+/* To do: Add check_col checks to the col_add* routines */
+
+static void
+col_add_abs_time(frame_data *fd, gint el)
+{
+  struct tm *tmp;
+  time_t then;
+
+  then = fd->abs_secs;
+  tmp = localtime(&then);
+  col_add_fstr(fd, el, "%02d:%02d:%02d.%04ld",
+    tmp->tm_hour,
+    tmp->tm_min,
+    tmp->tm_sec,
+    (long)fd->abs_usecs/100);
+}
+
+static void
+col_add_rel_time(frame_data *fd, gint el)
+{
+  col_add_fstr(fd, el, "%d.%06d", fd->rel_secs, fd->rel_usecs);
+}
+
+static void
+col_add_delta_time(frame_data *fd, gint el)
+{
+  col_add_fstr(fd, el, "%d.%06d", fd->del_secs, fd->del_usecs);
+}
+
+/* Add "command-line-specified" time. */
+void
+col_add_cls_time(frame_data *fd)
+{
+  switch (timestamp_type) {
+    case ABSOLUTE:
+      col_add_abs_time(fd, COL_CLS_TIME);
+      break;
+
+    case RELATIVE:
+      col_add_rel_time(fd, COL_CLS_TIME);
+      break;
+
+    case DELTA:
+      col_add_delta_time(fd, COL_CLS_TIME);
+      break;
+  }
+}
 
 /* Adds a vararg list to a packet info string. */
 void
@@ -547,42 +593,14 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 	time_t then;
 
 	/* Put in frame header information. */
-	if (check_col(fd, COL_CLS_TIME)) {
-	  switch (timestamp_type) {
-	    case ABSOLUTE:
-	      then = fd->abs_secs;
-	      tmp = localtime(&then);
-	      col_add_fstr(fd, COL_CLS_TIME, "%02d:%02d:%02d.%04ld",
-		tmp->tm_hour,
-		tmp->tm_min,
-		tmp->tm_sec,
-		(long)fd->abs_usecs/100);
-	      break;
-
-	    case RELATIVE:
-	      col_add_fstr(fd, COL_CLS_TIME, "%d.%06d", fd->rel_secs, fd->rel_usecs);
-	      break;
-
-	    case DELTA:
-	      col_add_fstr(fd, COL_CLS_TIME, "%d.%06d", fd->del_secs, fd->del_usecs);
-	      break;
-	  }
-	}
-	if (check_col(fd, COL_ABS_TIME)) {
-	  then = fd->abs_secs;
-	  tmp = localtime(&then);
-	  col_add_fstr(fd, COL_ABS_TIME, "%02d:%02d:%02d.%04ld",
-	    tmp->tm_hour,
-	    tmp->tm_min,
-	    tmp->tm_sec,
-	    (long)fd->abs_usecs/100);
-	}
-	if (check_col(fd, COL_REL_TIME)) {
-	    col_add_fstr(fd, COL_REL_TIME, "%d.%06d", fd->rel_secs, fd->rel_usecs);
-	}
-	if (check_col(fd, COL_DELTA_TIME)) {
-	    col_add_fstr(fd, COL_DELTA_TIME, "%d.%06d", fd->del_secs, fd->del_usecs);
-	}
+	if (check_col(fd, COL_CLS_TIME))
+	  col_add_cls_time(fd);
+	if (check_col(fd, COL_ABS_TIME))
+	  col_add_abs_time(fd, COL_ABS_TIME);
+	if (check_col(fd, COL_REL_TIME))
+	  col_add_rel_time(fd, COL_REL_TIME);
+	if (check_col(fd, COL_DELTA_TIME))
+	  col_add_delta_time(fd, COL_DELTA_TIME);
 
 	if (tree) {
 	  ti = proto_tree_add_item(tree, 0, fd->cap_len,

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.31 1999/06/19 03:22:46 guy Exp $
+ * $Id: file.c,v 1.32 1999/06/22 03:39:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -501,10 +501,8 @@ tail_cap_file(char *fname, capture_file *cf) {
 }
 
 static void
-add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf)
+compute_time_stamps(frame_data *fdata, capture_file *cf)
 {
-  gint          i, row, col_width;
-
   /* If we don't have the time stamp of the first packet, it's because this
      is the first packet.  Save the time stamp of this packet as the time
      stamp of the first packet. */
@@ -540,6 +538,50 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
   }
   lastsec = fdata->abs_secs;
   lastusec = fdata->abs_usecs;
+}
+
+static void
+change_time_format_in_packet_list(frame_data *fdata, capture_file *cf)
+{
+  gint          i, col_width;
+
+  /* XXX - there really should be a way of checking "cf->cinfo" for this;
+     the answer isn't going to change from packet to packet, so we should
+     simply skip all the "change_time_formats()" work if we're not
+     changing anything. */
+  fdata->cinfo = &cf->cinfo;
+  if (!check_col(fdata, COL_CLS_TIME)) {
+    /* There are no columns that show the time in the "command-line-specified"
+       format, so there's nothing we need to do. */
+    return;
+  }
+
+  compute_time_stamps(fdata, cf);
+
+  for (i = 0; i < fdata->cinfo->num_cols; i++) {
+    fdata->cinfo->col_data[i][0] = '\0';
+  }
+  col_add_cls_time(fdata);
+  for (i = 0; i < fdata->cinfo->num_cols; i++) {
+    if (fdata->cinfo->fmt_matx[i][COL_CLS_TIME]) {
+      /* This is one of the columns that shows the time in
+         "command-line-specified" format; update it. */
+      col_width = gdk_string_width(pl_style->font, fdata->cinfo->col_data[i]);
+      if (col_width > fdata->cinfo->col_width[i])
+        fdata->cinfo->col_width[i] = col_width;
+      gtk_clist_set_text(GTK_CLIST(packet_list), cf->count - 1, i,
+			  fdata->cinfo->col_data[i]);
+    }
+  }
+  fdata->cinfo = NULL;
+}
+
+static void
+add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf)
+{
+  gint          i, row, col_width;
+
+  compute_time_stamps(fdata, cf);
 
   fdata->cinfo = &cf->cinfo;
   for (i = 0; i < fdata->cinfo->num_cols; i++) {
@@ -592,7 +634,7 @@ pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
 }
 
 static void
-redisplay_packets_cb(gpointer data, gpointer user_data)
+filter_packets_cb(gpointer data, gpointer user_data)
 {
   frame_data *fd = data;
   capture_file *cf = user_data;
@@ -607,7 +649,7 @@ redisplay_packets_cb(gpointer data, gpointer user_data)
 }
 
 void
-redisplay_packets(capture_file *cf)
+filter_packets(capture_file *cf)
 {
   /* Freeze the packet list while we redo it, so we don't get any
      screen updates while it happens. */
@@ -615,6 +657,49 @@ redisplay_packets(capture_file *cf)
 
   /* Clear it out. */
   gtk_clist_clear(GTK_CLIST(packet_list));
+
+  /*
+   * Iterate through the list of packets, calling a routine
+   * to run the filter on the packet, see if it matches, and
+   * put it in the display list if so.
+   *
+   * XXX - we don't yet have anything to run a filter on a packet;
+   * this code awaits the arrival of display filter code.
+   */
+  firstsec = 0;
+  firstusec = 0;
+  lastsec = 0;
+  lastusec = 0;
+  cf->count = 0;
+  g_list_foreach(cf->plist, filter_packets_cb, cf);
+
+  /* Unfreeze the packet list. */
+  gtk_clist_thaw(GTK_CLIST(packet_list));
+}
+
+static void
+change_time_formats_cb(gpointer data, gpointer user_data)
+{
+  frame_data *fd = data;
+  capture_file *cf = user_data;
+
+  cf->cur = fd;
+  cf->count++;
+
+  change_time_format_in_packet_list(fd, cf);
+}
+
+/* Scan through the packet list and change all columns that use the
+   "command-line-specified" time stamp format to use the current
+   value of that format. */
+void
+change_time_formats(capture_file *cf)
+{
+  int i;
+
+  /* Freeze the packet list while we redo it, so we don't get any
+     screen updates while it happens. */
+  gtk_clist_freeze(GTK_CLIST(packet_list));
 
   /* Zero out the column widths. */
   init_col_widths(cf);
@@ -629,10 +714,16 @@ redisplay_packets(capture_file *cf)
   lastsec = 0;
   lastusec = 0;
   cf->count = 0;
-  g_list_foreach(cf->plist, redisplay_packets_cb, cf);
+  g_list_foreach(cf->plist, change_time_formats_cb, cf);
 
-  /* Set the column widths. */
-  set_col_widths(cf);
+  /* Set the column widths of those columns that show the time in
+     "command-line-specified" format. */
+  for (i = 0; i < cf->cinfo.num_cols; i++) {
+    if (cf->cinfo.fmt_matx[i][COL_CLS_TIME]) {
+      gtk_clist_set_column_width(GTK_CLIST(packet_list), i,
+        cf->cinfo.col_width[i]);
+    }
+  }
 
   /* Unfreeze the packet list. */
   gtk_clist_thaw(GTK_CLIST(packet_list));
