@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.21 2001/01/03 06:55:30 guy Exp $
+ * $Id: packet-ntp.c,v 1.22 2001/01/06 09:42:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -196,12 +196,12 @@ static gint ett_ntp = -1;
 static gint ett_ntp_flags = -1;
 
 /* ntp_fmt_ts - converts NTP timestamp to human readable string.
- * tsdata - 64bit timestamp (IN)
+ * reftime - 64bit timestamp (IN)
  * buff - string buffer for result (OUT)
  * returns pointer to filled buffer.
  */
 static char *
-ntp_fmt_ts(unsigned char * reftime, char* buff)
+ntp_fmt_ts(guint8 *reftime, char* buff)
 {
 	guint32 tempstmp, tempfrac;
 	time_t temptime;
@@ -225,109 +225,136 @@ ntp_fmt_ts(unsigned char * reftime, char* buff)
 }
 		
 /* dissect_ntp - dissects NTP packet data
- * pd - pointer to packet data (IN)
- * offset - offset of NTP data in pd (IN)
- * fd - frame data
+ * tvb - tvbuff for packet data (IN)
+ * pinfo - packet info
  * proto_tree - resolved protocol tree
  */
 static void
-dissect_ntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree      *ntp_tree, *flags_tree;
 	proto_item	*ti, *tf;
-	struct ntp_packet *pkt;
-	gchar buff[NTP_TS_SIZE];
-	int i;
+	guint8		flags;
+	guint8		stratum;
+	guint8		ppoll;
+	gint8		precision;
+	double		rootdelay;
+	double		rootdispersion;
+	guint8		*refid;
+	guint8		*reftime;
+	guint8		*org;
+	guint8		*rec;
+	guint8		*xmt;
+	gchar		buff[NTP_TS_SIZE];
+	int		i;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_ntp, pd, offset, fd, tree);
+	CHECK_DISPLAY_AS_DATA(proto_ntp, tvb, pinfo, tree);
 
-	/* get at least a full packet structure */
-	if ( !BYTES_ARE_IN_FRAME(offset, 48) ) /* 48 without keyid or mac */
-		return;
+	pinfo->current_proto = "NTP";
 
-	pkt = (struct ntp_packet *) &pd[offset];
-	
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "NTP");
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "NTP");
 
-	if (check_col(fd, COL_INFO))
-		col_set_str(fd, COL_INFO, "NTP");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_set_str(pinfo->fd, COL_INFO, "NTP");
 
 	if (tree) {
 		/* Adding NTP item and subtree */
-		ti = proto_tree_add_item(tree, proto_ntp, NullTVB, offset, END_OF_FRAME, FALSE);
+		ti = proto_tree_add_item(tree, proto_ntp, tvb, 0,
+		    tvb_length(tvb), FALSE);
 		ntp_tree = proto_item_add_subtree(ti, ett_ntp);
-		tf = proto_tree_add_bytes(ntp_tree, hf_ntp_flags, NullTVB, offset, 1, pkt->flags);
+
+		flags = tvb_get_guint8(tvb, 0);
+		tf = proto_tree_add_uint(ntp_tree, hf_ntp_flags, tvb, 0, 1,
+		    flags);
 
 		/* Adding flag subtree and items */
 		flags_tree = proto_item_add_subtree(tf, ett_ntp_flags);
-		proto_tree_add_uint_format(flags_tree, hf_ntp_flags_li, NullTVB, offset, 1,
-					   *pkt->flags & NTP_LI_MASK,
-					   decode_enumerated_bitfield(*pkt->flags, NTP_LI_MASK,
-				           sizeof(pkt->flags) * 8, li_types, "Leap Indicator: %s"));
-		proto_tree_add_uint_format(flags_tree, hf_ntp_flags_vn, NullTVB, offset, 1,
-					   *pkt->flags & NTP_VN_MASK,
-					   decode_enumerated_bitfield(*pkt->flags, NTP_VN_MASK,
-				           sizeof(pkt->flags) * 8, ver_nums, "Version number: %s"));
-		proto_tree_add_uint_format(flags_tree, hf_ntp_flags_mode, NullTVB, offset, 1,
-					   *pkt->flags & NTP_MODE_MASK,
-					   decode_enumerated_bitfield(*pkt->flags, NTP_MODE_MASK,
-				           sizeof(pkt->flags) * 8, mode_types, "Mode: %s"));
+		proto_tree_add_uint_format(flags_tree, hf_ntp_flags_li, tvb, 0, 1,
+					   flags & NTP_LI_MASK,
+					   decode_enumerated_bitfield(flags, NTP_LI_MASK,
+					   8, li_types, "Leap Indicator: %s"));
+		proto_tree_add_uint_format(flags_tree, hf_ntp_flags_vn, tvb, 0, 1,
+					   flags & NTP_VN_MASK,
+					   decode_enumerated_bitfield(flags, NTP_VN_MASK,
+				           8, ver_nums, "Version number: %s"));
+		proto_tree_add_uint_format(flags_tree, hf_ntp_flags_mode, tvb, 0, 1,
+					   flags & NTP_MODE_MASK,
+					   decode_enumerated_bitfield(flags, NTP_MODE_MASK,
+				           8, mode_types, "Mode: %s"));
 
 		/* Stratum, 1byte field represents distance from primary source
 		 */
-		if (*pkt->stratum == 0) {
-			strcpy (buff, "Peer Clock Stratum: unspecified or unavailable (%d)");
-		} else if (*pkt->stratum == 1) {
-			strcpy (buff, "Peer Clock Stratum: primary reference (%d)");
-		} else if ((*pkt->stratum >= 2) && (*pkt->stratum <= 15)) {
-			strcpy (buff, "Peer Clock Stratum: secondary reference (%d)");
+		stratum = tvb_get_guint8(tvb, 1);
+		if (stratum == 0) {
+			strcpy (buff, "Peer Clock Stratum: unspecified or unavailable (%u)");
+		} else if (stratum == 1) {
+			strcpy (buff, "Peer Clock Stratum: primary reference (%u)");
+		} else if ((stratum >= 2) && (stratum <= 15)) {
+			strcpy (buff, "Peer Clock Stratum: secondary reference (%u)");
 		} else {
-			strcpy (buff, "Peer Clock Stratum: reserved: %d");
+			strcpy (buff, "Peer Clock Stratum: reserved: %u");
 		}
-		proto_tree_add_bytes_format(ntp_tree, hf_ntp_stratum, NullTVB, offset+1, 1, pkt->stratum,
-					   buff, (int) *pkt->stratum);
-		/* Poll interval, 1byte field indicating the maximum interval between
-		 * successive messages, in seconds to the nearest power of two.
+		proto_tree_add_uint_format(ntp_tree, hf_ntp_stratum, tvb, 1, 1,
+					   stratum, buff, stratum);
+		/* Poll interval, 1byte field indicating the maximum interval
+		 * between successive messages, in seconds to the nearest
+		 * power of two.
 		 */
-		proto_tree_add_bytes_format(ntp_tree, hf_ntp_ppoll, NullTVB, offset+2, 1, pkt->ppoll,
-					   (((*pkt->ppoll >= 4) && (*pkt->ppoll <= 16)) ? 
-					   "Peer Pooling Interval: %d (%d sec)" :
-					   "Peer Pooling Interval: invalid (%d)"), (int) *pkt->ppoll,
-					   1 << *pkt->ppoll);
+		ppoll = tvb_get_guint8(tvb, 2);
+		proto_tree_add_uint_format(ntp_tree, hf_ntp_ppoll, tvb, 2, 1,
+					   ppoll,
+					   (((ppoll >= 4) && (ppoll <= 16)) ? 
+					   "Peer Pooling Interval: %u (%u sec)" :
+					   "Peer Pooling Interval: invalid (%u)"),
+					   ppoll,
+					   1 << ppoll);
+
 		/* Precision, 1byte field indicating the precision of the
 		 * local clock, in seconds to the nearest power of two.
 		 */
-		proto_tree_add_bytes_format(ntp_tree, hf_ntp_precision, NullTVB, offset+3, 1, pkt->precision,
-					   "Peer Clock Precision: %8.6f sec", pow(2, *pkt->precision));
-		/* Root Delay is a 32-bit signed fixed-point number indicating the
-		 * total roundtrip delay to the primary reference source, in seconds
-		 * with fraction point between bits 15 and 16.
+		precision = tvb_get_guint8(tvb, 3);
+		proto_tree_add_uint_format(ntp_tree, hf_ntp_precision, tvb, 3, 1,
+					   precision,
+					   "Peer Clock Precision: %8.6f sec",
+					   pow(2, precision));
+
+		/* Root Delay is a 32-bit signed fixed-point number indicating
+		 * the total roundtrip delay to the primary reference source,
+		 * in seconds with fraction point between bits 15 and 16.
 		 */
-		proto_tree_add_bytes_format(ntp_tree, hf_ntp_rootdelay, NullTVB, offset+4, 4, pkt->rootdelay,
+		rootdelay = ((gint16)tvb_get_ntohs(tvb, 4)) +
+				(tvb_get_ntohs(tvb, 6) / 65536.0);
+		proto_tree_add_double_format(ntp_tree, hf_ntp_rootdelay, tvb, 4, 4,
+					   rootdelay,
 					   "Root Delay: %9.4f sec",
-					   ((gint32) pntohs(pkt->rootdelay)) +
-					   pntohs(pkt->rootdelay + 2) / 65536.0);
+					   rootdelay);
+
 		/* Root Dispersion, 32-bit unsigned fixed-point number indicating
 		 * the nominal error relative to the primary reference source, in
 		 * seconds with fraction point between bits 15 and 16.
 		 */
-		proto_tree_add_bytes_format(ntp_tree, hf_ntp_rootdispersion, NullTVB, offset+8, 4, pkt->rootdispersion,
+		rootdispersion = ((gint16)tvb_get_ntohs(tvb, 8)) +
+					(tvb_get_ntohs(tvb, 10) / 65536.0);
+		proto_tree_add_double_format(ntp_tree, hf_ntp_rootdispersion, tvb, 8, 4,
+					   rootdispersion,
 					   "Clock Dispersion: %9.4f sec",
-					   ((gint32) pntohs(pkt->rootdispersion)) +
-					   pntohs(pkt->rootdispersion + 2) / 65536.0);
-		/* Now, there is a problem with secondary servers.  Standards asks
-		 * from stratum-2 - stratum-15 servers to set this to the low order
-		 * 32 bits of the latest transmit timestamp of the reference source.
-		 * But, all V3 and V4 servers set this to IP adress of their higher
-		 * level server. My decision was to resolve this address.
+					   rootdispersion);
+
+		/* Now, there is a problem with secondary servers.  Standards
+		 * asks from stratum-2 - stratum-15 servers to set this to the
+		 * low order 32 bits of the latest transmit timestamp of the
+		 * reference source.
+		 * But, all V3 and V4 servers set this to IP adress of their
+		 * higher level server. My decision was to resolve this address.
 		 */
-		if (*pkt->stratum <= 1) {
+		refid = tvb_get_ptr(tvb, 12, 4);
+		if (stratum <= 1) {
 			snprintf (buff, sizeof buff,
 			    "Unindentified reference source '%.4s'",
-			    pkt->refid); 
+			    refid);
 			for (i = 0; primary_sources[i].id; i++) {
-				if (memcmp (pkt->refid, primary_sources[i].id,
+				if (memcmp (refid, primary_sources[i].id,
 				    4) == 0) {
 					strcpy (buff, primary_sources[i].data);
 					break;
@@ -335,46 +362,61 @@ dissect_ntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			}
 		} else {
 			buff[sizeof(buff) - 1] = '\0';
-			strncpy (buff, get_hostname (pntohl(pkt->refid)), sizeof(buff));
+			strncpy (buff, get_hostname (tvb_get_ntohl(tvb, 12)),
+			    sizeof(buff));
 			if (buff[sizeof(buff) - 1] != '\0')
 				strcpy(&buff[sizeof(buff) - 4], "...");
 		}
-		proto_tree_add_bytes_format(ntp_tree, hf_ntp_refid, NullTVB, offset+12, 4, pkt->refid,
+		proto_tree_add_bytes_format(ntp_tree, hf_ntp_refid, tvb, 12, 4,
+					   refid,
 					   "Reference Clock ID: %s", buff);
+
 		/* Reference Timestamp: This is the time at which the local clock was
 		 * last set or corrected.
 		 */
-		proto_tree_add_bytes_format(ntp_tree, hf_ntp_reftime, NullTVB, offset+16, 8, pkt->reftime,
+		reftime = tvb_get_ptr(tvb, 16, 8);
+		proto_tree_add_bytes_format(ntp_tree, hf_ntp_reftime, tvb, 16, 8,
+					   reftime,
 				           "Reference Clock Update Time: %s", 
-					   ntp_fmt_ts(pkt->reftime, buff));
+					   ntp_fmt_ts(reftime, buff));
+
 		/* Originate Timestamp: This is the time at which the request departed
 		 * the client for the server.
 		 */
-		proto_tree_add_bytes_format(ntp_tree, hf_ntp_org, NullTVB, offset+24, 8, pkt->org,
+		org = tvb_get_ptr(tvb, 24, 8);
+		proto_tree_add_bytes_format(ntp_tree, hf_ntp_org, tvb, 24, 8,
+					   org,
 				           "Originate Time Stamp: %s", 
-					   ntp_fmt_ts(pkt->org, buff));
+					   ntp_fmt_ts(org, buff));
 		/* Receive Timestamp: This is the time at which the request arrived at
 		 * the server.
 		 */
-		proto_tree_add_bytes_format(ntp_tree, hf_ntp_rec, NullTVB, offset+32, 8, pkt->rec,
+		rec = tvb_get_ptr(tvb, 32, 8);
+		proto_tree_add_bytes_format(ntp_tree, hf_ntp_rec, tvb, 32, 8,
+					   rec,
 				           "Receive Time Stamp: %s", 
-					   ntp_fmt_ts(pkt->rec, buff));
+					   ntp_fmt_ts(rec, buff));
 		/* Transmit Timestamp: This is the time at which the reply departed the
 		 * server for the client.
 		 */
-		proto_tree_add_bytes_format(ntp_tree, hf_ntp_xmt, NullTVB, offset+40, 8, pkt->xmt,
+		xmt = tvb_get_ptr(tvb, 40, 8);
+		proto_tree_add_bytes_format(ntp_tree, hf_ntp_xmt, tvb, 40, 8,
+					   xmt,
 				           "Transmit Time Stamp: %s", 
-					   ntp_fmt_ts(pkt->xmt, buff));
+					   ntp_fmt_ts(xmt, buff));
 
-		/* When the NTP authentication scheme is implemented, the Key Identifier
-		 * and Message Digest fields contain the message authentication code
-		 * (MAC) information defined in Appendix C of RFC-1305. Will print this as
-		 * hex code for now.
+		/* When the NTP authentication scheme is implemented, the
+		 * Key Identifier and Message Digest fields contain the
+		 * message authentication code (MAC) information defined in
+		 * Appendix C of RFC-1305. Will print this as hex code for now.
 		 */
-		if ( BYTES_ARE_IN_FRAME(offset, 50) )
-			proto_tree_add_bytes(ntp_tree, hf_ntp_keyid, NullTVB, offset+48, 4, pkt->keyid);
-		if ( BYTES_ARE_IN_FRAME(offset, 53) )
-			proto_tree_add_bytes(ntp_tree, hf_ntp_mac, NullTVB, offset+52, END_OF_FRAME, pkt->mac);
+		if ( tvb_reported_length_remaining(tvb, 48) >= 4 )
+			proto_tree_add_item(ntp_tree, hf_ntp_keyid, tvb, 48, 4,
+					   FALSE);
+		if ( tvb_reported_length_remaining(tvb, 52) > 0 )
+			proto_tree_add_item(ntp_tree, hf_ntp_mac, tvb, 52,
+					   tvb_reported_length_remaining(tvb, 52),
+					   FALSE);
 
 	}
 }
@@ -383,61 +425,62 @@ void
 proto_register_ntp(void)
 {
 	static hf_register_info hf[] = {
-			{ &hf_ntp_flags, {	
-				"Flags", "ntp.flags", FT_BYTES, BASE_HEX, 
-				NULL, 0, "Flags (Leap/Version/Mode)" }},
-			{ &hf_ntp_flags_li, {
-				"Leap Indicator", "ntp.flags.li", FT_UINT8, BASE_DEC,
-				VALS(li_types), 0, "Leap Indicator" }},
-			{ &hf_ntp_flags_vn, {
-				"Version number", "ntp.flags.vn", FT_UINT8, BASE_DEC,
-				VALS(ver_nums), 0, "Version number" }},
-			{ &hf_ntp_flags_mode, {
-				"Leap Indicator", "ntp.flags.mode", FT_UINT8, BASE_DEC,
-				VALS(mode_types), 0, "Leap Indicator" }},
-			{ &hf_ntp_stratum, {	
-				"Peer Clock Stratum", "ntp.stratum", FT_BYTES, BASE_DEC, 
-				NULL, 0, "Peer Clock Stratum" }},
-			{ &hf_ntp_ppoll, {	
-				"Peer Polling Interval", "ntp.ppoll", FT_BYTES, BASE_DEC, 
-				NULL, 0, "Peer Polling Interval" }},
-			{ &hf_ntp_precision, {	
-				"Peer Clock Precision", "ntp.precision", FT_BYTES, BASE_DEC, 
-				NULL, 0, "Peer Clock Precision" }},
-			{ &hf_ntp_rootdelay, {	
-				"Root Delay", "ntp.rootdelay", FT_BYTES, BASE_DEC, 
-				NULL, 0, "Root Delay" }},
-			{ &hf_ntp_rootdispersion, {	
-				"Clock Dispersion", "ntp.rootdispersion", FT_BYTES, BASE_DEC, 
-				NULL, 0, "Clock Dispersion" }},
-			{ &hf_ntp_refid, {	
-				"Reference Clock ID", "ntp.refid", FT_BYTES, BASE_NONE, 
-				NULL, 0, "Reference Clock ID" }},
-			{ &hf_ntp_reftime, {	
-				"Reference Clock Update Time", "ntp.reftime", FT_BYTES, BASE_NONE, 
-				NULL, 0, "Reference Clock Update Time" }},
-			{ &hf_ntp_org, {	
-				"Originate Time Stamp", "ntp.org", FT_BYTES, BASE_NONE, 
-				NULL, 0, "Originate Time Stamp" }},
-			{ &hf_ntp_rec, {	
-				"Receive Time Stamp", "ntp.rec", FT_BYTES, BASE_NONE, 
-				NULL, 0, "Receive Time Stamp" }},
-			{ &hf_ntp_xmt, {	
-				"Transmit Time Stamp", "ntp.xmt", FT_BYTES, BASE_NONE, 
-				NULL, 0, "Transmit Time Stamp" }},
-			{ &hf_ntp_keyid, {	
-				"Key ID", "ntp.keyid", FT_BYTES, BASE_HEX, 
-				NULL, 0, "Key ID" }},
-			{ &hf_ntp_mac, {	
-				"Message Authentication Code", "ntp.mac", FT_BYTES, BASE_HEX, 
-				NULL, 0, "Message Authentication Code" }},
+		{ &hf_ntp_flags, {	
+			"Flags", "ntp.flags", FT_UINT8, BASE_HEX, 
+			NULL, 0, "Flags (Leap/Version/Mode)" }},
+		{ &hf_ntp_flags_li, {
+			"Leap Indicator", "ntp.flags.li", FT_UINT8, BASE_DEC,
+			VALS(li_types), 0, "Leap Indicator" }},
+		{ &hf_ntp_flags_vn, {
+			"Version number", "ntp.flags.vn", FT_UINT8, BASE_DEC,
+			VALS(ver_nums), 0, "Version number" }},
+		{ &hf_ntp_flags_mode, {
+			"Leap Indicator", "ntp.flags.mode", FT_UINT8, BASE_DEC,
+			VALS(mode_types), 0, "Leap Indicator" }},
+		{ &hf_ntp_stratum, {	
+			"Peer Clock Stratum", "ntp.stratum", FT_UINT8, BASE_DEC,
+			NULL, 0, "Peer Clock Stratum" }},
+		{ &hf_ntp_ppoll, {	
+			"Peer Polling Interval", "ntp.ppoll", FT_UINT8, BASE_DEC, 
+			NULL, 0, "Peer Polling Interval" }},
+		{ &hf_ntp_precision, {	
+			"Peer Clock Precision", "ntp.precision", FT_UINT8, BASE_DEC, 
+			NULL, 0, "Peer Clock Precision" }},
+		{ &hf_ntp_rootdelay, {	
+			"Root Delay", "ntp.rootdelay", FT_DOUBLE, BASE_DEC,
+			NULL, 0, "Root Delay" }},
+		{ &hf_ntp_rootdispersion, {	
+			"Clock Dispersion", "ntp.rootdispersion", FT_DOUBLE, BASE_DEC, 
+			NULL, 0, "Clock Dispersion" }},
+		{ &hf_ntp_refid, {	
+			"Reference Clock ID", "ntp.refid", FT_BYTES, BASE_NONE, 
+			NULL, 0, "Reference Clock ID" }},
+		{ &hf_ntp_reftime, {	
+			"Reference Clock Update Time", "ntp.reftime", FT_BYTES, BASE_NONE, 
+			NULL, 0, "Reference Clock Update Time" }},
+		{ &hf_ntp_org, {	
+			"Originate Time Stamp", "ntp.org", FT_BYTES, BASE_NONE, 
+			NULL, 0, "Originate Time Stamp" }},
+		{ &hf_ntp_rec, {	
+			"Receive Time Stamp", "ntp.rec", FT_BYTES, BASE_NONE, 
+			NULL, 0, "Receive Time Stamp" }},
+		{ &hf_ntp_xmt, {	
+			"Transmit Time Stamp", "ntp.xmt", FT_BYTES, BASE_NONE, 
+			NULL, 0, "Transmit Time Stamp" }},
+		{ &hf_ntp_keyid, {	
+			"Key ID", "ntp.keyid", FT_BYTES, BASE_HEX, 
+			NULL, 0, "Key ID" }},
+		{ &hf_ntp_mac, {	
+			"Message Authentication Code", "ntp.mac", FT_BYTES, BASE_HEX, 
+			NULL, 0, "Message Authentication Code" }},
         };
 	static gint *ett[] = {
 		&ett_ntp,
 		&ett_ntp_flags,
 	};
 
-	proto_ntp = proto_register_protocol("Network Time Protocol", "NTP", "ntp");
+	proto_ntp = proto_register_protocol("Network Time Protocol", "NTP",
+	    "ntp");
 	proto_register_field_array(proto_ntp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
@@ -445,6 +488,6 @@ proto_register_ntp(void)
 void
 proto_reg_handoff_ntp(void)
 {
-	old_dissector_add("udp.port", UDP_PORT_NTP, dissect_ntp);
-	old_dissector_add("tcp.port", TCP_PORT_NTP, dissect_ntp);
+	dissector_add("udp.port", UDP_PORT_NTP, dissect_ntp);
+	dissector_add("tcp.port", TCP_PORT_NTP, dissect_ntp);
 }

@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TIME Option Extension
  *
- * $Id: packet-time.c,v 1.10 2001/01/03 06:55:34 guy Exp $
+ * $Id: packet-time.c,v 1.11 2001/01/06 09:42:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,31 +42,35 @@ static gint ett_time = -1;
 #define UDP_PORT_TIME    37
 
 static void
-dissect_time(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree	*time_tree;
   proto_item	*ti;
 
-  OLD_CHECK_DISPLAY_AS_DATA(proto_time, pd, offset, fd, tree);
+  CHECK_DISPLAY_AS_DATA(proto_time, tvb, pinfo, tree);
   
-  if (check_col(fd, COL_PROTOCOL))
-    col_set_str(fd, COL_PROTOCOL, "TIME");
+  pinfo->current_proto = "TIME";
+
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_set_str(pinfo->fd, COL_PROTOCOL, "TIME");
   
-  if (check_col(fd, COL_INFO)) {
-    col_add_fstr(fd, COL_INFO, "TIME %s", pi.srcport == UDP_PORT_TIME? "Response":"Request");
+  if (check_col(pinfo->fd, COL_INFO)) {
+    col_add_fstr(pinfo->fd, COL_INFO, "TIME %s",
+		 pinfo->srcport == UDP_PORT_TIME? "Response":"Request");
   }
   
   if (tree) {
     
-    ti = proto_tree_add_item(tree, proto_time, NullTVB, offset, END_OF_FRAME, FALSE);
+    ti = proto_tree_add_item(tree, proto_time, tvb, 0,
+			     tvb_length(tvb), FALSE);
     time_tree = proto_item_add_subtree(ti, ett_time);
     
-    proto_tree_add_text(time_tree, NullTVB, offset, 0,
-			pi.srcport==37? "Type: Response":"Type: Request");
-    if (pi.srcport == 37) { 
-      guint32 delta_seconds = pntohl(pd+offset);
-      proto_tree_add_text(time_tree, NullTVB, offset, 4,
-			  " %u seconds since midnight 1 January 1900 GMT",
+    proto_tree_add_text(time_tree, tvb, 0, 0,
+			pinfo->srcport==UDP_PORT_TIME? "Type: Response":"Type: Request");
+    if (pinfo->srcport == UDP_PORT_TIME) { 
+      guint32 delta_seconds = tvb_get_ntohl(tvb, 0);
+      proto_tree_add_text(time_tree, tvb, 0, 4,
+			  "%u seconds since midnight 1 January 1900 GMT",
 			  delta_seconds);
     }
   }
@@ -94,5 +98,5 @@ proto_register_time(void)
 void
 proto_reg_handoff_time(void)
 {
-  old_dissector_add("udp.port", UDP_PORT_TIME, dissect_time);
+  dissector_add("udp.port", UDP_PORT_TIME, dissect_time);
 }
