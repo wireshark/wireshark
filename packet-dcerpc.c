@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.67 2002/07/10 06:16:14 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.68 2002/07/11 04:46:32 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,10 +95,13 @@ static const true_false_string flags_set_truth = {
  */
 #define DCE_C_RPC_AUTHN_PROTOCOL_NONE		0
 #define DCE_C_RPC_AUTHN_PROTOCOL_KRB5		1
+#define DCE_C_RPC_AUTHN_PROTOCOL_SNEGO          9
 #define DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP	10
+
 static const value_string authn_protocol_vals[] = {
 	{ DCE_C_RPC_AUTHN_PROTOCOL_NONE,    "None" },
 	{ DCE_C_RPC_AUTHN_PROTOCOL_KRB5,    "Kerberos 5" },
+	{ DCE_C_RPC_AUTHN_PROTOCOL_SNEGO,   "Snego" },
 	{ DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP, "NTLMSSP" },
 	{ 0, NULL }
 };
