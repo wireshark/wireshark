@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.9 2002/01/25 08:35:59 guy Exp $
+ * $Id: packet-dcerpc.h,v 1.10 2002/01/29 09:13:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -107,6 +107,9 @@ int dissect_dcerpc_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int dissect_dcerpc_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                            proto_tree *tree, char *drep, 
                            int hfindex, guint32 *pdata);
+int dissect_dcerpc_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                           proto_tree *tree, char *drep, 
+                           int hfindex, unsigned char *pdata);
 
 
 /*
@@ -121,6 +124,9 @@ int dissect_ndr_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int dissect_ndr_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, char *drep, 
                         int hfindex, guint32 *pdata);
+int dissect_ndr_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                        proto_tree *tree, char *drep, 
+                        int hfindex, unsigned char *pdata);
 int dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, char *drep, 
                         int hfindex, e_uuid_t *pdata);
@@ -142,6 +148,12 @@ int dissect_ndr_pointer (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int dissect_ndr_ucarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, char *drep, 
                         dcerpc_dissect_fnct_t *fnct);
+
+/* dissect a NDR unidimensional conformant and varying array */
+int dissect_ndr_ucvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                        proto_tree *tree, char *drep, 
+                        dcerpc_dissect_fnct_t *fnct);
+
 
 
 typedef struct _dcerpc_sub_dissector {
@@ -186,6 +198,10 @@ typedef struct _dcerpc_info {
 	guint32 call_id;	/* Context id for this call */
 	guint16 smb_fid;	/* FID for DCERPC over SMB */
 	gboolean request;
+	gboolean conformant_run;
+	guint32 array_max_count;	/* max_count for conformant arrays */
+	guint32 array_offset;
+	guint32 array_actual_count;	
 	int hf_index;
 	dcerpc_call_value *call_data;
 } dcerpc_info;

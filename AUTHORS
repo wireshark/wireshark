@@ -571,9 +571,7 @@ Ronnie Sahlberg <sahlberg[AT]optushome.com.au> {
 	NDMPv3 support
 	Add time between request and reply as a field to ONC RPC replies
 	File handle to file name resolution in NFS and realted protocols
-	In DCE RPC dissector, add support for finding the response that
-	    matches a request
-	NDR pointer handling in DCE RPC
+	DCE RPC enhancements
 	SAMR updates
 }
 

@@ -2,7 +2,7 @@
  * Routines for DCERPC NDR dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-ndr.c,v 1.4 2002/01/25 08:35:59 guy Exp $
+ * $Id: packet-dcerpc-ndr.c,v 1.5 2002/01/29 09:13:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,6 +50,14 @@ dissect_ndr_uint8 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                    proto_tree *tree, char *drep, 
                    int hfindex, guint8 *pdata)
 {
+    dcerpc_info *di;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
+
     /* no alignment needed */
     return dissect_dcerpc_uint8 (tvb, offset, pinfo, 
                                  tree, drep, hfindex, pdata);
@@ -60,6 +68,15 @@ dissect_ndr_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     proto_tree *tree, char *drep, 
                     int hfindex, guint16 *pdata)
 {
+    dcerpc_info *di;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
+
+
     if (offset % 2) {
         offset++;
     }
@@ -72,10 +89,39 @@ dissect_ndr_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     proto_tree *tree, char *drep, 
                     int hfindex, guint32 *pdata)
 {
+    dcerpc_info *di;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
+
+
     if (offset % 4) {
         offset += 4 - (offset % 4);
     }
     return dissect_dcerpc_uint32 (tvb, offset, pinfo, 
+                                  tree, drep, hfindex, pdata);
+}
+
+int
+dissect_ndr_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                    proto_tree *tree, char *drep, 
+                    int hfindex, unsigned char *pdata)
+{
+    dcerpc_info *di;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
+
+    if (offset % 4) {
+        offset += 4 - (offset % 4);
+    }
+    return dissect_dcerpc_uint64 (tvb, offset, pinfo, 
                                   tree, drep, hfindex, pdata);
 }
 
@@ -85,6 +131,13 @@ dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     int hfindex, e_uuid_t *pdata)
 {
     e_uuid_t uuid;
+    dcerpc_info *di;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
 
     /* uuid's are aligned to 4 bytes, due to initial uint32 in struct */
     if (offset % 4) {
@@ -113,6 +166,13 @@ dissect_ndr_ctx_hnd (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                      int hfindex, e_ctx_hnd *pdata)
 {
     e_ctx_hnd ctx_hnd;
+    dcerpc_info *di;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
 
     if (offset % 4) {
         offset += 4 - (offset % 4);

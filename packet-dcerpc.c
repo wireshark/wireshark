@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.27 2002/01/25 08:35:59 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.28 2002/01/29 09:13:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -170,6 +170,8 @@ static int hf_dcerpc_dg_seqnum = -1;
 static int hf_dcerpc_dg_server_boot = -1;
 static int hf_dcerpc_dg_if_ver = -1;
 static int hf_dcerpc_array_max_count = -1;
+static int hf_dcerpc_array_offset = -1;
+static int hf_dcerpc_array_actual_count = -1;
 
 static gint ett_dcerpc = -1;
 static gint ett_dcerpc_cn_flags = -1;
@@ -388,6 +390,29 @@ dissect_dcerpc_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     return offset+4;
 }
 
+int
+dissect_dcerpc_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                       proto_tree *tree, char *drep, 
+                       int hfindex, unsigned char *pdata)
+{
+    if(pdata){
+      tvb_memcpy(tvb, pdata, offset, 8);
+      if(drep[0] & 0x10){/* XXX this might be the wrong way around */
+	unsigned char data;
+	data=pdata[0];pdata[0]=pdata[7];pdata[7]=data;
+	data=pdata[1];pdata[1]=pdata[6];pdata[6]=data;
+	data=pdata[2];pdata[2]=pdata[5];pdata[5]=data;
+	data=pdata[3];pdata[3]=pdata[4];pdata[4]=data;
+      }
+    }
+
+    if (tree) {
+        proto_tree_add_item (tree, hfindex, tvb, offset, 4, (drep[0] & 0x10));
+    }
+
+    return offset+8;
+}
+
 /*
  * a couple simpler things
  */
@@ -425,19 +450,58 @@ dcerpc_tvb_get_uuid (tvbuff_t *tvb, gint offset, char *drep, e_uuid_t *uuid)
 }
 
 
+
 /* NDR arrays */
 /* function to dissect a unidimensional conformant array */
 int 
 dissect_ndr_ucarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                        proto_tree *tree, char *drep, 
-                        dcerpc_dissect_fnct_t *fnct)
+		proto_tree *tree, char *drep, 
+		dcerpc_dissect_fnct_t *fnct)
 {
 	guint32 i, count;
+	dcerpc_info *di;
 
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_dcerpc_array_max_count, &count);
-	for(i=0;i<count;i++){
-		offset = (*fnct)(tvb, offset, pinfo, tree, drep);
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/* conformant run, just dissect the max_count header */
+		di->conformant_run=0;
+		offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+				hf_dcerpc_array_max_count, &di->array_max_count);
+		di->conformant_run=1;
+	} else {
+		/* real run, dissect the elements */
+		for(i=0;i<di->array_max_count;i++){
+			offset = (*fnct)(tvb, offset, pinfo, tree, drep);
+		}
+	}
+
+	return offset;
+}
+/* function to dissect a unidimensional conformant and varying array */
+int 
+dissect_ndr_ucvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+		proto_tree *tree, char *drep, 
+		dcerpc_dissect_fnct_t *fnct)
+{
+	guint32 i, count;
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/* conformant run, just dissect the max_count header */
+		di->conformant_run=0;
+		offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+				hf_dcerpc_array_max_count, &di->array_max_count);
+		offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+				hf_dcerpc_array_offset, &di->array_offset);
+		offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+				hf_dcerpc_array_actual_count, &di->array_actual_count);
+		di->conformant_run=1;
+	} else {
+		/* real run, dissect the elements */
+		for(i=0;i<di->array_actual_count;i++){
+			offset = (*fnct)(tvb, offset, pinfo, tree, drep);
+		}
 	}
 
 	return offset;
@@ -464,8 +528,13 @@ typedef struct ndr_pointer_data {
 } ndr_pointer_data_t;
 
 static void
-init_ndr_pointer_list(void)
+init_ndr_pointer_list(packet_info *pinfo)
 {
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	di->conformant_run=0;
+
 	while(ndr_pointer_list){
 		ndr_pointer_data_t *npd;
 	
@@ -504,6 +573,13 @@ dissect_deferred_pointers(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 				tnpd->fnct=NULL;
 				ndr_pointer_list_pos=i+1;
 				di->hf_index=tnpd->hf_index;
+
+				/* first a run to handle any conformant
+				   array headers */
+				di->conformant_run=1;
+				offset = (*(fnct))(tvb, offset, pinfo, NULL, drep);
+				/* now we dissect the actual pointer */
+				di->conformant_run=0;
 				offset = (*(fnct))(tvb, offset, pinfo, tnpd->tree, drep);
 				break;
 			}
@@ -583,6 +659,16 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, char *drep, 
                         dcerpc_dissect_fnct_t *fnct, int type, int hf_index)
 {
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/* this call was only for dissecting the header for any
+		   embedded conformant array. we will not parse any
+		   pointers in this mode.
+		*/
+		return offset;
+	}
 
 	/*TOP LEVEL REFERENCE POINTER*/
 	if( pointers_are_top_level
@@ -705,6 +791,8 @@ after_ref_id:
 	return offset;
 }
 
+
+
 static int
 dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
                     proto_tree *dcerpc_tree,
@@ -777,7 +865,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
         pinfo->current_proto = sub_proto->name;
 	pinfo->private_data = (void *)info;
 
-	init_ndr_pointer_list();
+	init_ndr_pointer_list(pinfo);
         offset = sub_dissect (tvb, offset, pinfo, sub_tree, drep);
 
         pinfo->current_proto = saved_proto;
@@ -2023,6 +2111,12 @@ proto_register_dcerpc (void)
           { "Opnum", "dcerpc.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_array_max_count,
           { "Max Count", "dcerpc.array.max_count", FT_UINT32, BASE_DEC, NULL, 0x0, "Maximum Count: Number of elements in the array", HFILL }},
+
+        { &hf_dcerpc_array_offset,
+          { "Offset", "dcerpc.array.offset", FT_UINT32, BASE_DEC, NULL, 0x0, "Offset for first element in array", HFILL }},
+
+        { &hf_dcerpc_array_actual_count,
+          { "Actual Count", "dcerpc.array.actual_count", FT_UINT32, BASE_DEC, NULL, 0x0, "Actual Count: Actual number of elements in the array", HFILL }},
 
 
     };
