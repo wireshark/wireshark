@@ -2,7 +2,7 @@
  * Routines for dcerpc endpoint mapper dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-epm.c,v 1.21 2003/08/04 02:49:03 tpot Exp $
+ * $Id: packet-dcerpc-epm.c,v 1.22 2003/10/20 20:18:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -240,37 +240,64 @@ epm_dissect_uuid (tvbuff_t *tvb, int offset,
 }
 #endif
 
-
+#define PROTO_ID_OSI_OID	0x00
+#define PROTO_ID_DNA_SESSCTL	0x02
+#define PROTO_ID_DNA_SESSCTL_V3	0x03
+#define PROTO_ID_DNA_NSP	0x04
+#define PROTO_ID_OSI_TP4	0x05
+#define PROTO_ID_OSI_CLNS	0x06
+#define PROTO_ID_TCP		0x07
+#define PROTO_ID_UDP		0x08
+#define PROTO_ID_IP		0x09
+#define PROTO_ID_RPC_CL		0x0a
+#define PROTO_ID_RPC_CO		0x0b
+#define PROTO_ID_UUID		0x0d
+#define PROTO_ID_NAMED_PIPES	0x0f
+#define PROTO_ID_NAMED_PIPES_2	0x10
+#define PROTO_ID_NETBIOS	0x11
+#define PROTO_ID_NETBEUI	0x12
+#define PROTO_ID_NETWARE_SPX	0x13
+#define PROTO_ID_NETWARE_IPX	0x14
+#define PROTO_ID_ATALK_STREAM	0x16
+#define PROTO_ID_ATALK_DATAGRAM	0x17
+#define PROTO_ID_ATALK		0x18
+#define PROTO_ID_NETBIOS_2	0x19
+#define PROTO_ID_VINES_SPP	0x1a
+#define PROTO_ID_VINES_IPC	0x1b
+#define PROTO_ID_STREETTALK	0x1c
+#define PROTO_ID_UNIX_DOMAIN	0x20
+#define PROTO_ID_NULL		0x21
+#define PROTO_ID_NETBIOS_3	0x22
 
 static const value_string proto_id_vals[] = {
-	{ 0x00,	"OSI OID"},
-	{ 0x0d,	"UUID"},
-	{ 0x05,	"OSI TP4"},
-	{ 0x06,	"OSI CLNS or DNA Routing"},
-	{ 0x07,	"DOD TCP"},
-	{ 0x08,	"DOD UDP"},
-	{ 0x09,	"DOD IP"},
-	{ 0x0a,	"RPC connectionless protocol"},
-	{ 0x0b,	"RPC connection-oriented protocol"},
-	{ 0x02,	"DNA Session Control"},
-	{ 0x03,	"DNA Session Control V3"},
-	{ 0x04,	"DNA NSP Transport"},
-	{ 0x0f, "Named Pipes"}, 
-	{ 0x10,	"Named Pipes"},
-	{ 0x11,	"NetBIOS"},
-	{ 0x12,	"NetBEUI"},
-	{ 0x13,	"Netware SPX"},
-	{ 0x14,	"Netware IPX"},
-	{ 0x16,	"Appletalk Stream"},
-	{ 0x17,	"Appletalk Datagram"},
-	{ 0x18,	"Appletalk"},
-	{ 0x19,	"NetBIOS"},
-	{ 0x1a,	"Vines SPP"},
-	{ 0x1b,	"Vines IPC"},
-	{ 0x1c,	"StreetTalk"},
-	{ 0x20,	"Unix Domain Socket"},
-	{ 0x21,	"null"},
-	{ 0x22,	"NetBIOS"},
+	{ PROTO_ID_OSI_OID,		"OSI OID"},
+	{ PROTO_ID_DNA_SESSCTL,		"DNA Session Control"},
+	{ PROTO_ID_DNA_SESSCTL_V3,	"DNA Session Control V3"},
+	{ PROTO_ID_DNA_NSP,		"DNA NSP Transport"},
+	{ PROTO_ID_OSI_TP4,		"OSI TP4"},
+	{ PROTO_ID_OSI_CLNS,		"OSI CLNS or DNA Routing"},
+	{ PROTO_ID_TCP,			"DOD TCP"},
+	{ PROTO_ID_UDP,			"DOD UDP"},
+	{ PROTO_ID_IP,			"DOD IP"},
+	{ PROTO_ID_RPC_CL,		"RPC connectionless protocol"},
+	{ PROTO_ID_RPC_CO,		"RPC connection-oriented protocol"},
+	{ PROTO_ID_UUID,		"UUID"},
+	{ PROTO_ID_NAMED_PIPES,		"Named Pipes"}, 
+	{ PROTO_ID_NAMED_PIPES_2,	"Named Pipes"},
+	{ PROTO_ID_NETBIOS,		"NetBIOS"},
+	{ PROTO_ID_NETBEUI,		"NetBEUI"},
+	{ PROTO_ID_NETWARE_SPX,		"Netware SPX"},
+	{ PROTO_ID_NETWARE_IPX,		"Netware IPX"},
+	{ PROTO_ID_ATALK_STREAM,	"Appletalk Stream"},
+	{ PROTO_ID_ATALK_DATAGRAM,	"Appletalk Datagram"},
+	{ PROTO_ID_ATALK,		"Appletalk"},
+	{ PROTO_ID_NETBIOS_2,		"NetBIOS"},
+	{ PROTO_ID_VINES_SPP,		"Vines SPP"},
+	{ PROTO_ID_VINES_IPC,		"Vines IPC"},
+	{ PROTO_ID_STREETTALK,		"StreetTalk"},
+	{ PROTO_ID_UNIX_DOMAIN,		"Unix Domain Socket"},
+	{ PROTO_ID_NULL,		"null"},
+	{ PROTO_ID_NETBIOS_3,		"NetBIOS"},
 	{ 0, NULL},
 };
 
@@ -314,8 +341,9 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
         proto_tree_add_uint(tr, hf_epm_tower_proto_id, tvb, offset, 1, proto_id);
 
         switch(proto_id){
-        case 0x0d: /* UUID */
+        case PROTO_ID_UUID:
             dcerpc_tvb_get_uuid (tvb, offset+1, drep, &uuid);
+
             proto_tree_add_string_format (tr, hf_epm_uuid, tvb, offset+1, 16, "",
                           "UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                           uuid.Data1, uuid.Data2, uuid.Data3,
@@ -324,8 +352,23 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
                           uuid.Data4[4], uuid.Data4[5],
                           uuid.Data4[6], uuid.Data4[7]);
             proto_tree_add_text(tr, tvb, offset+17, 2, "Version %d.%d", tvb_get_guint8(tvb, offset+18), tvb_get_guint8(tvb, offset+17));
-            break;
-        }
+
+	    {
+	        guint16 version = tvb_get_ntohs(tvb, offset+17);
+		char *service = dcerpc_get_proto_name(&uuid, version);
+		if (service)
+		    proto_item_append_text(tr, "UUID: %s", service);
+		else
+		    proto_item_append_text(tr, "UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x Version %d.%d", uuid.Data1, uuid.Data2, uuid.Data3,
+					   uuid.Data4[0], uuid.Data4[1],
+					   uuid.Data4[2], uuid.Data4[3],
+					   uuid.Data4[4], uuid.Data4[5],
+					   uuid.Data4[6], uuid.Data4[7],
+					   tvb_get_guint8(tvb, offset+18), 
+					   tvb_get_guint8(tvb, offset+17));
+	    }
+	    break;
+	}
         offset += len;
 
         len = tvb_get_letohs(tvb, offset);
@@ -333,35 +376,41 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
         offset += 2;
 
         switch(proto_id){
-        case 0x07: /* TCP this one is always big endian */
+
+        case PROTO_ID_TCP: /* this one is always big endian */
             proto_tree_add_item(tr, hf_epm_proto_tcp_port, tvb, offset, 2, FALSE);
             proto_item_append_text(tr, "TCP Port:%d", tvb_get_ntohs(tvb, offset));
             break;
 
-        case 0x08: /* UDP this one is always big endian */
+        case PROTO_ID_UDP: /* this one is always big endian */
             proto_tree_add_item(tr, hf_epm_proto_udp_port, tvb, offset, 2, FALSE);
             proto_item_append_text(tr, "UDP Port:%d", tvb_get_ntohs(tvb, offset));
             break;
 
-        case 0x09: /* IP this one is always big endian */
+        case PROTO_ID_IP: /* this one is always big endian */
             proto_tree_add_item(tr, hf_epm_proto_ip, tvb, offset, 4, TRUE);
             proto_item_append_text(tr, "IP:%s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
             break;
 
-        case 0x0f: /* \\PIPE\xxx   named pipe */
+	case PROTO_ID_RPC_CO:
+	    proto_item_append_text(tr, "RPC connection-oriented protocol");
+	    break;
+
+        case PROTO_ID_NAMED_PIPES: /* \\PIPE\xxx   named pipe */
             proto_tree_add_item(tr, hf_epm_proto_named_pipes, tvb, offset, len, TRUE);
             proto_item_append_text(tr, "NamedPipe:%*s",MIN(len,tvb_length_remaining(tvb, offset)), tvb_get_ptr(tvb, offset, -1)); 
             break;
 
-        case 0x10: /* PIPENAME  named pipe */
+        case PROTO_ID_NAMED_PIPES_2: /* PIPENAME  named pipe */
             proto_tree_add_item(tr, hf_epm_proto_named_pipes, tvb, offset, len, TRUE);
             proto_item_append_text(tr, "PIPE:%*s",MIN(len,tvb_length_remaining(tvb, offset)), tvb_get_ptr(tvb, offset, -1)); 
             break;
 
-        case 0x11: /* \\NETBIOS   netbios name */
+        case PROTO_ID_NETBIOS: /* \\NETBIOS   netbios name */
             proto_tree_add_item(tr, hf_epm_proto_netbios_name, tvb, offset, len, TRUE);
             proto_item_append_text(tr, "NetBIOS:%*s",MIN(len,tvb_length_remaining(tvb, offset)), tvb_get_ptr(tvb, offset, -1)); 
             break;
+
         default:
             if(len){
                 proto_tree_add_text(tr, tvb, offset, len, "not decoded yet");
