@@ -2,7 +2,7 @@
  * h225 message counter for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: h225_counter.c,v 1.12 2004/02/13 00:53:35 guy Exp $
+ * $Id: h225_counter.c,v 1.13 2004/02/22 18:44:01 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -519,11 +519,7 @@ void
 register_tap_listener_gtk_h225counter(void)
 {
 	register_ethereal_tap("h225,counter", gtk_h225counter_init);
-}
 
-void
-register_tap_menu_gtk_h225counter(void)
-{
-	register_tap_menu_item("_Statistics/Watch protocol/ITU-T H.225...",
+	register_tap_menu_item("ITU-T H.225/Watch Protocol...", REGISTER_TAP_LAYER_APPLICATION,
 	    gtk_tap_dfilter_dlg_cb, NULL, NULL, &(h225_counter_dlg));
 }

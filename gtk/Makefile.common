@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.6 2004/02/20 09:09:11 guy Exp $
+# $Id: Makefile.common,v 1.7 2004/02/22 18:44:02 ulfl Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -46,7 +46,6 @@ ETHEREAL_GTK_SRC = \
 	file_dlg.c	\
 	filter_prefs.c	\
 	find_dlg.c	\
-	follow_dlg.c	\
 	goto_dlg.c	\
 	gtk_stat_util.c	\
 	gui_prefs.c	\
@@ -73,7 +72,6 @@ ETHEREAL_GTK_SRC = \
 	summary_dlg.c	\
 	supported_protos_dlg.c	\
 	tap_dfilter_dlg.c	\
-	tcp_graph.c	\
 	toolbar.c	\
 	ui_util.c
 
@@ -92,6 +90,7 @@ ETHEREAL_TAP_SRC = \
 	endpoint_talkers_tr.c	\
 	endpoint_talkers_udpip.c	\
 	fc_stat.c	\
+	follow_dlg.c	\
 	gsm_a_stat.c	\
 	gsm_map_stat.c	\
 	h225_counter.c	\
@@ -113,5 +112,6 @@ ETHEREAL_TAP_SRC = \
 	rpc_stat.c	\
 	rtp_analysis.c	\
 	rtp_stream_dlg.c	\
+	tcp_graph.c	\
 	smb_stat.c	\
 	wsp_stat.c

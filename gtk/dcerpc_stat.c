@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.49 2004/02/13 00:53:34 guy Exp $
+ * $Id: dcerpc_stat.c,v 1.50 2004/02/22 18:44:00 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -676,11 +676,7 @@ void
 register_tap_listener_gtkdcerpcstat(void)
 {
 	register_ethereal_tap("dcerpc,srt,", gtk_dcerpcstat_init);
-}
 
-void
-register_tap_menu_gtkdcerpcstat(void)
-{
-	register_tap_menu_item("_Statistics/Service Response Time/DCE-RPC...",
+	register_tap_menu_item("DCE-RPC (Service Response Time...)", REGISTER_TAP_LAYER_APPLICATION,
 	    gtk_dcerpcstat_cb, NULL, NULL, NULL);
 }

@@ -1,7 +1,7 @@
 /* endpoint_talkers_ip.c
  * endpoint_talkers_ip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_ip.c,v 1.23 2004/02/11 04:28:47 guy Exp $
+ * $Id: endpoint_talkers_ip.c,v 1.24 2004/02/22 18:44:00 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,18 +75,11 @@ gtk_ip_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 
 
 void
-register_tap_menu_ip_talkers(void)
-{
-	register_tap_menu_item("_Statistics/Conversation List/IPv4",
-	    gtk_ip_endpoints_cb, NULL, NULL, NULL);
-}
-
-
-
-
-void
 register_tap_listener_ip_talkers(void)
 {
 	register_ethereal_tap("conv,ip", gtk_ip_talkers_init);
+
+	register_tap_menu_item("IP/Conversation List (IPv4)", REGISTER_TAP_LAYER_NETWORK,
+	    gtk_ip_endpoints_cb, NULL, NULL, NULL);
 }
 

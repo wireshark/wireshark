@@ -1,7 +1,7 @@
 /* http_stat.c
  * http_stat   2003 Jean-Michel FAYARD
  *
- * $Id: http_stat.c,v 1.20 2004/02/13 00:53:35 guy Exp $
+ * $Id: http_stat.c,v 1.21 2004/02/22 18:44:02 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -603,11 +603,7 @@ void
 register_tap_listener_gtkhttpstat(void)
 {
 	register_ethereal_tap("http,stat,", gtk_httpstat_init);
-}
 
-void
-register_tap_menu_gtkhttpstat(void)
-{
-	register_tap_menu_item("_Statistics/Watch protocol/HTTP...",
+	register_tap_menu_item("HTTP (Watch Protocol)", REGISTER_TAP_LAYER_APPLICATION,
 	    gtk_httpstat_cb, NULL, NULL, NULL);
 }

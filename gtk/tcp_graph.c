@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.51 2004/02/13 00:53:36 guy Exp $
+ * $Id: tcp_graph.c,v 1.52 2004/02/22 18:44:03 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,6 +49,8 @@
 #include "etypes.h"
 #include "ppptypes.h"
 #include "dlg_utils.h"
+#include <epan/epan_dissect.h>
+#include "tap_menu.h"
 
 /* from <net/ethernet.h> */
 struct ether_header {
@@ -539,10 +541,11 @@ static char helptext[] =
 ";
 #endif
 
-void tcp_graph_cb (GtkWidget *w _U_, gpointer data _U_, guint graph_type)
+void tcp_graph_cb (GtkWidget *w _U_, gpointer data, guint callback_action /*graph_type*/ _U_)
 {
 	struct segment current;
 	struct graph *g;
+    guint graph_type = GPOINTER_TO_INT(data);
 
 	debug(DBS_FENTRY) puts ("tcp_graph_cb()");
 
@@ -3961,3 +3964,24 @@ static int rint (double x)
 	return(i);
 }
 #endif
+
+
+gboolean tcp_graph_selected_packet_enabled(frame_data *current_frame, epan_dissect_t *edt) 
+{
+    return current_frame != NULL ? (edt->pi.ipproto == IP_PROTO_TCP) : FALSE;
+}
+
+
+void
+register_tap_listener_tcp_graph(void)
+{
+    register_tap_menu_item("TCP/Stream Analysis/Time-Sequence Graph (Stevens)", REGISTER_TAP_LAYER_TRANSPORT,
+        tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(0));
+    register_tap_menu_item("TCP/Stream Analysis/Time-Sequence Graph (tcptrace)", REGISTER_TAP_LAYER_TRANSPORT,
+        tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(1));
+    register_tap_menu_item("TCP/Stream Analysis/Throughput Graph", REGISTER_TAP_LAYER_TRANSPORT,
+        tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(2));
+    register_tap_menu_item("TCP/Stream Analysis/Round Trip Time Graph", REGISTER_TAP_LAYER_TRANSPORT,
+        tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(3));
+}
+

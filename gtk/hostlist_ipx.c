@@ -1,7 +1,7 @@
 /* hostlist_ipx.c   2004 Ian Schorr
  * modified from endpoint_talkers_ipx.c   2003 Ronnie Sahlberg
  *
- * $Id: hostlist_ipx.c,v 1.1 2004/02/20 09:09:11 guy Exp $
+ * $Id: hostlist_ipx.c,v 1.2 2004/02/22 18:44:02 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,18 +81,11 @@ gtk_ipx_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 
 
 void
-register_tap_menu_ipx_hostlist(void)
-{
-	register_tap_menu_item("_Statistics/Host List/IPX",
-	    gtk_ipx_hostlist_cb, NULL, NULL, NULL);
-}
-
-
-
-
-void
 register_tap_listener_ipx_hostlist(void)
 {
 	register_ethereal_tap("conv,ipx", gtk_ipx_hostlist_init);
+
+	register_tap_menu_item("IPX/Host List", REGISTER_TAP_LAYER_NETWORK,
+	    gtk_ipx_hostlist_cb, NULL, NULL, NULL);
 }
 

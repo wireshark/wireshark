@@ -1,7 +1,7 @@
 /* endpoint_talkers_fc.c
  * endpoint_talkers_fc   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_fc.c,v 1.22 2004/02/11 04:28:47 guy Exp $
+ * $Id: endpoint_talkers_fc.c,v 1.23 2004/02/22 18:44:00 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,18 +77,11 @@ gtk_fc_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 
 
 void
-register_tap_menu_fc_talkers(void)
-{
-	register_tap_menu_item("_Statistics/Conversation List/Fibre Channel",
-	    gtk_fc_endpoints_cb, NULL, NULL, NULL);
-}
-
-
-
-
-void
 register_tap_listener_fc_talkers(void)
 {
 	register_ethereal_tap("conv,fc", gtk_fc_talkers_init);
+
+	register_tap_menu_item("Fibre Channel/Conversation List", REGISTER_TAP_LAYER_DATA_LINK,
+	    gtk_fc_endpoints_cb, NULL, NULL, NULL);
 }
 

@@ -1,7 +1,7 @@
 /* hostlist_eth.c   2004 Ian Schorr
  * modified from endpoint_talkers_eth.c   2003 Ronnie Sahlberg
  *
- * $Id: hostlist_eth.c,v 1.1 2004/02/20 09:09:11 guy Exp $
+ * $Id: hostlist_eth.c,v 1.2 2004/02/22 18:44:01 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,18 +81,11 @@ gtk_eth_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 
 
 void
-register_tap_menu_eth_hostlist(void)
-{
-	register_tap_menu_item("_Statistics/Host List/Ethernet",
-	    gtk_eth_hostlist_cb, NULL, NULL, NULL);
-}
-
-
-
-
-void
 register_tap_listener_eth_hostlist(void)
 {
 	register_ethereal_tap("conv,eth", gtk_eth_hostlist_init);
+
+	register_tap_menu_item("Ethernet/Host List", REGISTER_TAP_LAYER_DATA_LINK,
+	    gtk_eth_hostlist_cb, NULL, NULL, NULL);
 }
 

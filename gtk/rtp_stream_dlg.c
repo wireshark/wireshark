@@ -1,7 +1,7 @@
 /* rtp_stream_dlg.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream_dlg.c,v 1.14 2004/02/11 04:17:04 guy Exp $
+ * $Id: rtp_stream_dlg.c,v 1.15 2004/02/22 18:44:03 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -824,8 +824,8 @@ void rtpstream_launch(GtkWidget *w _U_, gpointer data _U_)
 
 /****************************************************************************/
 void
-register_tap_menu_rtp_stream(void)
+register_tap_listener_rtp_stream_dlg(void)
 {
-	register_tap_menu_item("_Statistics/RTP Streams/Show All...",
+	register_tap_menu_item("RTP/Show All Streams...", REGISTER_TAP_LAYER_APPLICATION,
 	    rtpstream_launch, NULL, NULL, NULL);
 }

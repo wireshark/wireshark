@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: isup_stat.c,v 1.17 2004/02/18 04:11:42 jmayer Exp $
+ * $Id: isup_stat.c,v 1.18 2004/02/22 18:44:02 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -472,11 +472,7 @@ register_tap_listener_gtkisup_stat(void)
 
 	exit(1);
     }
-}
 
-
-void
-register_tap_menu_gtkisup_stat(void)
-{
-    register_tap_menu_item("_Statistics/ISUP Message Type", isup_stat_gtk_cb, NULL, NULL, NULL);
+    register_tap_menu_item("ISUP (Message Types)", REGISTER_TAP_LAYER_APPLICATION,
+        isup_stat_gtk_cb, NULL, NULL, NULL);
 }

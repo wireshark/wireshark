@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.46 2004/02/13 00:53:35 guy Exp $
+ * $Id: follow_dlg.c,v 1.47 2004/02/22 18:44:01 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,6 +64,8 @@
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
 #include "compat_macros.h"
+#include "ipproto.h"
+#include "tap_menu.h"
 
 /* Show Stream */
 typedef enum {
@@ -1014,3 +1016,20 @@ follow_save_as_destroy_cb(GtkWidget * win _U_, gpointer data)
 	/* Note that we no longer have a dialog box. */
 	follow_info->follow_save_as_w = NULL;
 }
+
+
+
+gboolean follow_stream_selected_packet_enabled(frame_data *current_frame, epan_dissect_t *edt) 
+{
+  return current_frame != NULL ? (edt->pi.ipproto == IP_PROTO_TCP) : FALSE;
+}
+
+
+void
+register_tap_listener_follow_stream(void)
+{
+    register_tap_menu_item("TCP/Follow Stream", REGISTER_TAP_LAYER_TRANSPORT,
+        follow_stream_cb, follow_stream_selected_packet_enabled, NULL, NULL);
+}
+
+    

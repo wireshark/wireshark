@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.166 2004/02/20 18:43:59 ulfl Exp $
+ * $Id: menu.c,v 1.167 2004/02/22 18:44:02 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,6 +76,22 @@ extern void savehex_cb(GtkWidget * w, gpointer data _U_);
 
 static void
 clear_menu_recent_capture_file_cmd_cb(GtkWidget *w, gpointer unused _U_);
+
+typedef struct _menu_item {
+	char	*name;
+    gint    layer;
+	gboolean enabled;
+    GtkItemFactoryCallback callback;
+    gpointer callback_data;
+	gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *);
+	gboolean (*selected_tree_row_enabled)(field_info *);
+	GList *children;
+} menu_item_t;
+
+static GList *tap_menu_tree_root = NULL;
+
+static void 
+merge_all_tap_menus(GList *node);
 
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
 
@@ -276,20 +292,6 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Analyze/_User Specified Decodes...", NULL,
                        decode_show_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/_Follow TCP Stream", NULL, follow_stream_cb,
-                       0, NULL, NULL),
-/*  {"/Analyze/Graph", NULL, NULL, 0, NULL}, future use */
-    ITEM_FACTORY_ENTRY("/Analyze/_TCP Stream Analysis", NULL, NULL,
-                       0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/TCP Stream Analysis/Time-Sequence Graph (Stevens)",
-                       NULL, tcp_graph_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/TCP Stream Analysis/Time-Sequence Graph (tcptrace)",
-                       NULL, tcp_graph_cb, 1, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/TCP Stream Analysis/Throughput Graph", NULL,
-                       tcp_graph_cb, 2, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/TCP Stream Analysis/Round Trip Time Graph", NULL,
-                       tcp_graph_cb, 3, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Analyze/Summar_y", NULL, summary_open_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/Protocol _Hierarchy Statistics", NULL,
                        proto_hier_stats_cb, 0, NULL, NULL),
@@ -442,7 +444,6 @@ main_menu_new(GtkAccelGroup ** table) {
 
 static void
 menus_init(void) {
-
   if (initialize) {
     initialize = FALSE;
 
@@ -469,7 +470,8 @@ menus_init(void) {
     /* main */
     main_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
     gtk_item_factory_create_items_ac(main_menu_factory, nmenu_items, menu_items, NULL, 2);
-    register_all_tap_menus();	/* must be done after creating the main menu */
+
+    merge_all_tap_menus(tap_menu_tree_root);
 
     /* Initialize enabled/disabled state of menu items */
     set_menus_for_unsaved_capture_file(FALSE);
@@ -491,17 +493,47 @@ menus_init(void) {
   }
 }
 
-typedef struct _menu_item {
-	char	*name;
-	gboolean enabled;
-	gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *);
-	gboolean (*selected_tree_row_enabled)(field_info *);
-	struct _menu_item *parent;
-	struct _menu_item *children;
-	struct _menu_item *next;
-} menu_item_t;
 
-static menu_item_t tap_menu_tree_root;
+gint tap_menu_item_add_compare(gconstpointer a, gconstpointer b)
+{
+    return strcmp(
+        ((const menu_item_t *) a)->name, 
+        ((const menu_item_t *) b)->name);
+}
+
+
+/* add a menuitem below the current node */
+GList * tap_menu_item_add(
+    gint layer, 
+    char *name, 
+    GtkItemFactoryCallback callback,
+    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *),
+    gboolean (*selected_tree_row_enabled)(field_info *),
+    gpointer callback_data,
+	GList *curnode)
+{
+    menu_item_t *curr;
+	menu_item_t *child;
+
+
+	child = g_malloc(sizeof (menu_item_t));
+    child->layer            = layer;
+	child->name             = name;
+    child->callback         = callback;
+	child->selected_packet_enabled = selected_packet_enabled;
+	child->selected_tree_row_enabled = selected_tree_row_enabled;
+    child->callback_data    = callback_data;
+	child->enabled          = FALSE;
+    child->children         = NULL;
+
+    /* insert the new child node into the parent */
+    curr = curnode->data;
+    curr->children = g_list_insert_sorted(curr->children, child, tap_menu_item_add_compare);
+
+    /* return the new node */
+    /* XXX: improve this */
+    return g_list_find(curr->children, child);
+}
 
 /*
  * Add a new menu item for a tap.
@@ -525,27 +557,53 @@ static menu_item_t tap_menu_tree_root;
  * is selected and, if one is, on the tree row) and FALSE if not.
  */
 void
-register_tap_menu_item(char *name, GtkItemFactoryCallback callback,
+register_tap_menu_item(
+    char *name, 
+    gint layer, 
+    GtkItemFactoryCallback callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *),
     gboolean (*selected_tree_row_enabled)(field_info *),
     gpointer callback_data)
 {
 	static const char toolspath[] = "/Analyze/";
+	/*char *toolspath; */
 	char *p;
 	char *menupath;
 	size_t menupathlen;
-	GtkItemFactoryEntry *entry;
-	menu_item_t *curnode, *child;
+	menu_item_t *child;
+    GList *curnode;
+    GList *childnode;
 
 	/*
 	 * The menu path must be relative.
 	 */
 	g_assert(*name != '/');
 
+#if 0
+    switch(layer) {
+    case(REGISTER_TAP_LAYER_GENERIC): toolspath = "/Analyze/"; break;
+    case(REGISTER_TAP_LAYER_PHYSICAL): toolspath = "/Physical/"; break;
+    case(REGISTER_TAP_LAYER_DATA_LINK): toolspath = "/Link/"; break;
+    case(REGISTER_TAP_LAYER_NETWORK): toolspath = "/Network/"; break;
+    case(REGISTER_TAP_LAYER_TRANSPORT): toolspath = "/Transport/"; break;
+    case(REGISTER_TAP_LAYER_SESSION): toolspath = "/Session/"; break;
+    case(REGISTER_TAP_LAYER_PRESENTATION): toolspath = "/Presentation/"; break;
+    case(REGISTER_TAP_LAYER_APPLICATION): toolspath = "/Application/"; break;
+    default:
+        g_assert(0);
+    }
+#endif
+
+    /* add the (empty) root node, if not already done */
+    if(tap_menu_tree_root == NULL) {
+    	child = g_malloc0(sizeof (menu_item_t));
+        tap_menu_tree_root = g_list_append(NULL, child);
+    }
+
 	/*
 	 * Create any submenus required.
 	 */
-	curnode = &tap_menu_tree_root;
+	curnode = tap_menu_tree_root;
 	p = name;
 	while ((p = strchr(p, '/')) != NULL) {
 		/*
@@ -555,7 +613,7 @@ register_tap_menu_item(char *name, GtkItemFactoryCallback callback,
 		 *
 		 * Construct the absolute path name of that subtree.
 		 */
-		menupathlen = sizeof toolspath + (p - name);
+		menupathlen = strlen(toolspath) + 1 + (p - name);
 		menupath = g_malloc(menupathlen);
 		strcpy(menupath, toolspath);
 		strncat(menupath, name, p - name);
@@ -564,39 +622,26 @@ register_tap_menu_item(char *name, GtkItemFactoryCallback callback,
 		 * Does there exist an entry with that path at this
 		 * level of the Analyze menu tree?
 		 */
-		for (child = curnode->children; child != NULL;
-		    child = child->next) {
+        child = curnode->data;
+		for (childnode = child->children; childnode != NULL; childnode = childnode->next) {
+            child = childnode->data;
 			if (strcmp(child->name, menupath) == 0)
 				break;
 		}
-		if (child == NULL) {
+		if (childnode == NULL) {
 			/*
 			 * No.  Create such an item as a subtree, and
 			 * add it to the Tools menu tree.
 			 */
-			entry = g_malloc0(sizeof (GtkItemFactoryEntry));
-			entry->path = menupath;
-			entry->item_type = "<Branch>";
-			gtk_item_factory_create_item(main_menu_factory, entry,
-			    NULL, 2);
-			set_menu_sensitivity(main_menu_factory, menupath,
-			    FALSE);	/* no children yet */
-			child = g_malloc(sizeof (menu_item_t));
-			child->name = menupath;
-			child->selected_packet_enabled = NULL;
-			child->selected_tree_row_enabled = NULL;
-			child->enabled = FALSE;	/* no children yet */
-			child->parent = curnode;
-			child->children = NULL;
-			child->next = curnode->children;
-			curnode->children = child;
+            childnode = tap_menu_item_add(
+                layer, menupath, NULL, NULL ,NULL, NULL, curnode);
 		} else {
 			/*
-			 * Yes.  We don't need "menupath" any more.
+			 * Yes.  We don't need this "menupath" any longer.
 			 */
 			g_free(menupath);
 		}
-		curnode = child;
+		curnode = childnode;
 
 		/*
 		 * Skip over the '/' we found.
@@ -606,12 +651,8 @@ register_tap_menu_item(char *name, GtkItemFactoryCallback callback,
 
 	/*
 	 * Construct the main menu path for the menu item.
-	 *
-	 * "sizeof toolspath" includes the trailing '\0', so the sum
-	 * of that and the length of "name" is enough to hold a string
-	 * containing their concatenation.
-	 */
-	menupathlen = sizeof toolspath + strlen(name);
+     */
+	menupathlen = strlen(toolspath) + 1 + strlen(name);
 	menupath = g_malloc(menupathlen);
 	strcpy(menupath, toolspath);
 	strcat(menupath, name);
@@ -620,21 +661,100 @@ register_tap_menu_item(char *name, GtkItemFactoryCallback callback,
 	 * Construct an item factory entry for the item, and add it to
 	 * the main menu.
 	 */
-	entry = g_malloc0(sizeof (GtkItemFactoryEntry));
-	entry->path = menupath;
-	entry->callback = callback;
-	gtk_item_factory_create_item(main_menu_factory, entry, callback_data, 2);
-	set_menu_sensitivity(main_menu_factory, menupath, FALSE); /* no capture file yet */
-	child = g_malloc(sizeof (menu_item_t));
-	child->name = menupath;
-	child->enabled = FALSE;	/* no capture file yet, hence no taps yet */
-	child->selected_packet_enabled = selected_packet_enabled;
-	child->selected_tree_row_enabled = selected_tree_row_enabled;
-	child->parent = curnode;
-	child->children = NULL;
-	child->next = curnode->children;
-	curnode->children = child;
+    tap_menu_item_add(
+        layer, menupath, callback, 
+        selected_packet_enabled, selected_tree_row_enabled, 
+        callback_data, curnode);
 }
+
+
+guint merge_tap_menus_layered(GList *node, gint layer) {
+	GtkItemFactoryEntry *entry;
+	GList       *child;
+    guint       added = 0;
+    menu_item_t *node_data = node->data;
+
+	/*
+	 * Is this a leaf node or an interior node?
+	 */
+	if (node_data->children == NULL) {
+		/*
+		 * It's a leaf node.
+		 */
+
+	    /*
+	     * The root node doesn't correspond to a menu tree item; it
+	     * has a null name pointer.
+	     */
+	    if (node_data->name != NULL && layer == node_data->layer) {
+	        entry = g_malloc0(sizeof (GtkItemFactoryEntry));
+	        entry->path = node_data->name;
+	        entry->callback = node_data->callback;
+	        gtk_item_factory_create_item(main_menu_factory, entry, node_data->callback_data, 2);
+	        set_menu_sensitivity(main_menu_factory, node_data->name, FALSE); /* no capture file yet */
+            added++;
+        }
+	} else {
+		/*
+		 * It's an interior node; call
+		 * "merge_tap_menus_layered()" on all its children 
+		 */
+
+	    /*
+	     * The root node doesn't correspond to a menu tree item; it
+	     * has a null name pointer.
+	     */
+	    if (node_data->name != NULL && layer == node_data->layer) {
+            entry = g_malloc0(sizeof (GtkItemFactoryEntry));
+		    entry->path = node_data->name;
+		    entry->item_type = "<Branch>";
+		    gtk_item_factory_create_item(main_menu_factory, entry,
+			    NULL, 2);
+		    set_menu_sensitivity(main_menu_factory, node_data->name,
+			    FALSE);	/* no children yet */
+            added++;
+        }
+
+		for (child = node_data->children; child != NULL; child =
+		    child->next) {
+			added += merge_tap_menus_layered(child, layer);
+		}
+	}
+
+    return added;
+}
+
+
+void merge_all_tap_menus(GList *node) {
+	GtkItemFactoryEntry *entry;
+	static char toolspath[] = "/Analyze/";
+
+    entry = g_malloc0(sizeof (GtkItemFactoryEntry));
+	entry->path = toolspath;
+	entry->item_type = "<Separator>";
+
+    /* 
+     * merge only the menu items of the specific layer,
+     * and then append a seperator
+     */
+    if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_GENERIC))
+	    gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+    if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_PHYSICAL))
+	    gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+    if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_DATA_LINK))
+	    gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+    if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_NETWORK))
+	    gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+    if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_TRANSPORT))
+	    gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+    if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_SESSION))
+	    gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+    if (merge_tap_menus_layered(node, REGISTER_TAP_LAYER_PRESENTATION))
+	    gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+    merge_tap_menus_layered(node, REGISTER_TAP_LAYER_APPLICATION);
+}
+
+
 
 /*
  * Enable/disable menu sensitivity.
@@ -1323,16 +1443,17 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
 /* Enable or disable menu items based on whether you have some captured
    packets. */
 static gboolean
-walk_menu_tree_for_captured_packets(menu_item_t *node,
+walk_menu_tree_for_captured_packets(GList *node,
     gboolean have_captured_packets)
 {
-	gboolean is_enabled;
-	menu_item_t *child;
+	gboolean    is_enabled;
+	GList       *child;
+    menu_item_t *node_data = node->data;
 
 	/*
 	 * Is this a leaf node or an interior node?
 	 */
-	if (node->children == NULL) {
+	if (node_data->children == NULL) {
 		/*
 		 * It's a leaf node.
 		 *
@@ -1355,11 +1476,11 @@ walk_menu_tree_for_captured_packets(menu_item_t *node,
 		 * selected, that's OK.
 		 * XXX - that should be done better.
 		 */
-		if (node->selected_packet_enabled == NULL &&
-		    node->selected_tree_row_enabled == NULL)
-			node->enabled = TRUE;
+		if (node_data->selected_packet_enabled == NULL &&
+		    node_data->selected_tree_row_enabled == NULL)
+			node_data->enabled = TRUE;
 		else
-			node->enabled = FALSE;
+			node_data->enabled = FALSE;
 	} else {
 		/*
 		 * It's an interior node; call
@@ -1371,24 +1492,24 @@ walk_menu_tree_for_captured_packets(menu_item_t *node,
 		 * Which is a better UI choice?
 		 */
 		is_enabled = FALSE;
-		for (child = node->children; child != NULL; child =
+		for (child = node_data->children; child != NULL; child =
 		    child->next) {
 			if (walk_menu_tree_for_captured_packets(child,
 			    have_captured_packets))
 				is_enabled = TRUE;
 		}
-		node->enabled = is_enabled;
+		node_data->enabled = is_enabled;
 	}
 
 	/*
 	 * The root node doesn't correspond to a menu tree item; it
 	 * has a null name pointer.
 	 */
-	if (node->name != NULL) {
-		set_menu_sensitivity(main_menu_factory, node->name,
-		    node->enabled);
+	if (node_data->name != NULL) {
+		set_menu_sensitivity(main_menu_factory, node_data->name,
+		    node_data->enabled);
 	}
-	return node->enabled;
+	return node_data->enabled;
 }
 
 void
@@ -1425,7 +1546,7 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
   set_menu_sensitivity(main_menu_factory, "/Analyze/Protocol Hierarchy Statistics", 
       have_captured_packets);
       
-  walk_menu_tree_for_captured_packets(&tap_menu_tree_root,
+  walk_menu_tree_for_captured_packets(tap_menu_tree_root,
       have_captured_packets);
   set_toolbar_for_captured_packets(have_captured_packets);
   packets_bar_update();
@@ -1434,16 +1555,17 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
 /* Enable or disable menu items based on whether a packet is selected and,
    if so, on the properties of the packet. */
 static gboolean
-walk_menu_tree_for_selected_packet(menu_item_t *node, frame_data *fd,
+walk_menu_tree_for_selected_packet(GList *node, frame_data *fd,
     epan_dissect_t *edt)
 {
 	gboolean is_enabled;
-	menu_item_t *child;
+	GList *child;
+    menu_item_t *node_data = node->data;
 
 	/*
 	 * Is this a leaf node or an interior node?
 	 */
-	if (node->children == NULL) {
+	if (node_data->children == NULL) {
 		/*
 		 * It's a leaf node.
 		 *
@@ -1456,8 +1578,8 @@ walk_menu_tree_for_selected_packet(menu_item_t *node, frame_data *fd,
 		 * call it and set the item's enabled/disabled status
 		 * based on its return value.
 		 */
-		if (node->selected_packet_enabled != NULL)
-			node->enabled = node->selected_packet_enabled(fd, edt);
+		if (node_data->selected_packet_enabled != NULL)
+			node_data->enabled = node_data->selected_packet_enabled(fd, edt);
 	} else {
 		/*
 		 * It's an interior node; call
@@ -1469,23 +1591,23 @@ walk_menu_tree_for_selected_packet(menu_item_t *node, frame_data *fd,
 		 * Which is a better UI choice?
 		 */
 		is_enabled = FALSE;
-		for (child = node->children; child != NULL; child =
+		for (child = node_data->children; child != NULL; child =
 		    child->next) {
 			if (walk_menu_tree_for_selected_packet(child, fd, edt))
 				is_enabled = TRUE;
 		}
-		node->enabled = is_enabled;
+		node_data->enabled = is_enabled;
 	}
 
 	/*
 	 * The root node doesn't correspond to a menu tree item; it
 	 * has a null name pointer.
 	 */
-	if (node->name != NULL) {
-		set_menu_sensitivity(main_menu_factory, node->name,
-		    node->enabled);
+	if (node_data->name != NULL) {
+		set_menu_sensitivity(main_menu_factory, node_data->name,
+		    node_data->enabled);
 	}
-	return node->enabled;
+	return node_data->enabled;
 }
 
 void
@@ -1515,8 +1637,6 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Show Packet In New Window",
       cf->current_frame != NULL);
-  set_menu_sensitivity(main_menu_factory, "/Analyze/Follow TCP Stream",
-      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
   set_menu_sensitivity(NULL, "/Follow TCP Stream",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
   set_menu_sensitivity(main_menu_factory, "/Analyze/Decode As...",
@@ -1525,14 +1645,12 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL && decode_as_ok());
   set_menu_sensitivity(tree_view_menu_factory, "/Resolve Name",
       cf->current_frame != NULL && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
-  set_menu_sensitivity(main_menu_factory, "/Analyze/TCP Stream Analysis",
-      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
   set_menu_sensitivity(packet_list_menu_factory, "/Match",
       cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Prepare",
       cf->current_frame != NULL);
 
-  walk_menu_tree_for_selected_packet(&tap_menu_tree_root, cf->current_frame,
+  walk_menu_tree_for_selected_packet(tap_menu_tree_root, cf->current_frame,
       cf->edt);
   packets_bar_update();
 }
@@ -1540,15 +1658,16 @@ set_menus_for_selected_packet(capture_file *cf)
 /* Enable or disable menu items based on whether a tree row is selected
    and, if so, on the properties of the tree row. */
 static gboolean
-walk_menu_tree_for_selected_tree_row(menu_item_t *node, field_info *fi)
+walk_menu_tree_for_selected_tree_row(GList *node, field_info *fi)
 {
 	gboolean is_enabled;
-	menu_item_t *child;
+	GList *child;
+    menu_item_t *node_data = node->data;
 
 	/*
 	 * Is this a leaf node or an interior node?
 	 */
-	if (node->children == NULL) {
+	if (node_data->children == NULL) {
 		/*
 		 * It's a leaf node.
 		 *
@@ -1561,8 +1680,8 @@ walk_menu_tree_for_selected_tree_row(menu_item_t *node, field_info *fi)
 		 * call it and set the item's enabled/disabled status
 		 * based on its return value.
 		 */
-		if (node->selected_tree_row_enabled != NULL)
-			node->enabled = node->selected_tree_row_enabled(fi);
+		if (node_data->selected_tree_row_enabled != NULL)
+			node_data->enabled = node_data->selected_tree_row_enabled(fi);
 	} else {
 		/*
 		 * It's an interior node; call
@@ -1574,23 +1693,23 @@ walk_menu_tree_for_selected_tree_row(menu_item_t *node, field_info *fi)
 		 * Which is a better UI choice?
 		 */
 		is_enabled = FALSE;
-		for (child = node->children; child != NULL; child =
+		for (child = node_data->children; child != NULL; child =
 		    child->next) {
 			if (walk_menu_tree_for_selected_tree_row(child, fi))
 				is_enabled = TRUE;
 		}
-		node->enabled = is_enabled;
+		node_data->enabled = is_enabled;
 	}
 
 	/*
 	 * The root node doesn't correspond to a menu tree item; it
 	 * has a null name pointer.
 	 */
-	if (node->name != NULL) {
-		set_menu_sensitivity(main_menu_factory, node->name,
-		    node->enabled);
+	if (node_data->name != NULL) {
+		set_menu_sensitivity(main_menu_factory, node_data->name,
+		    node_data->enabled);
 	}
-	return node->enabled;
+	return node_data->enabled;
 }
 
 void
@@ -1640,5 +1759,5 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  FALSE);
   }
 
-  walk_menu_tree_for_selected_tree_row(&tap_menu_tree_root, cf->finfo_selected);
+  walk_menu_tree_for_selected_tree_row(tap_menu_tree_root, cf->finfo_selected);
 }

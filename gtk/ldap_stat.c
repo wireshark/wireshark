@@ -1,7 +1,7 @@
 /* ldap_stat.c
  * ldap_stat   2003 Ronnie Sahlberg
  *
- * $Id: ldap_stat.c,v 1.13 2004/02/13 00:53:35 guy Exp $
+ * $Id: ldap_stat.c,v 1.14 2004/02/22 18:44:02 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -347,11 +347,7 @@ void
 register_tap_listener_gtkldapstat(void)
 {
 	register_ethereal_tap("ldap,srt", gtk_ldapstat_init);
-}
 
-void
-register_tap_menu_gtkldapstat(void)
-{
-	register_tap_menu_item("_Statistics/Service Response Time/LDAP...",
+	register_tap_menu_item("LDAP (Service Response Time...)", REGISTER_TAP_LAYER_APPLICATION,
 	    gtk_ldapstat_cb, NULL, NULL, NULL);
 }

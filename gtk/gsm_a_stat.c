@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: gsm_a_stat.c,v 1.13 2004/02/11 04:28:48 guy Exp $
+ * $Id: gsm_a_stat.c,v 1.14 2004/02/22 18:44:01 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -690,33 +690,28 @@ register_tap_listener_gtkgsm_a_stat(void)
 
 	exit(1);
     }
-}
 
-
-void
-register_tap_menu_gtkgsm_a_stat(void)
-{
-    register_tap_menu_item("_Statistics/GSM A-Interface/BSSMAP",
+    register_tap_menu_item("GSM/A-Interface BSSMAP", REGISTER_TAP_LAYER_APPLICATION,
 	gsm_a_stat_gtk_bssmap_cb, NULL, NULL, NULL);
 
-    register_tap_menu_item("_Statistics/GSM A-Interface/DTAP/Mobility Management",
+    register_tap_menu_item("GSM/A-Interface DTAP/Mobility Management", REGISTER_TAP_LAYER_APPLICATION,
 	gsm_a_stat_gtk_dtap_mm_cb, NULL, NULL, NULL);
 
-    register_tap_menu_item("_Statistics/GSM A-Interface/DTAP/Radio Resource Management",
+    register_tap_menu_item("GSM/A-Interface DTAP/Radio Resource Management", REGISTER_TAP_LAYER_APPLICATION,
 	gsm_a_stat_gtk_dtap_rr_cb, NULL, NULL, NULL);
 
-    register_tap_menu_item("_Statistics/GSM A-Interface/DTAP/Call Control",
+    register_tap_menu_item("GSM/A-Interface DTAP/Call Control", REGISTER_TAP_LAYER_APPLICATION,
 	gsm_a_stat_gtk_dtap_cc_cb, NULL, NULL, NULL);
 
-    register_tap_menu_item("_Statistics/GSM A-Interface/DTAP/GPRS Mobility Management",
+    register_tap_menu_item("GSM/A-Interface DTAP/GPRS Mobility Management", REGISTER_TAP_LAYER_APPLICATION,
 	gsm_a_stat_gtk_dtap_gmm_cb, NULL, NULL, NULL);
 
-    register_tap_menu_item("_Statistics/GSM A-Interface/DTAP/Short Message Service",
+    register_tap_menu_item("GSM/A-Interface DTAP/Short Message Service", REGISTER_TAP_LAYER_APPLICATION,
 	gsm_a_stat_gtk_dtap_sms_cb, NULL, NULL, NULL);
 
-    register_tap_menu_item("_Statistics/GSM A-Interface/DTAP/GPRS Session Management",
+    register_tap_menu_item("GSM/A-Interface DTAP/GPRS Session Management", REGISTER_TAP_LAYER_APPLICATION,
 	gsm_a_stat_gtk_dtap_sm_cb, NULL, NULL, NULL);
 
-    register_tap_menu_item("_Statistics/GSM A-Interface/DTAP/Supplementary Services",
+    register_tap_menu_item("GSM/A-Interface DTAP/Supplementary Services", REGISTER_TAP_LAYER_APPLICATION,
 	gsm_a_stat_gtk_dtap_ss_cb, NULL, NULL, NULL);
 }

@@ -1,7 +1,7 @@
 /* endpoint_talkers_eth.c
  * endpoint_talkers_eth   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_eth.c,v 1.22 2004/02/11 04:28:47 guy Exp $
+ * $Id: endpoint_talkers_eth.c,v 1.23 2004/02/22 18:44:00 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,18 +77,11 @@ gtk_eth_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 
 
 void
-register_tap_menu_eth_talkers(void)
-{
-	register_tap_menu_item("_Statistics/Conversation List/Ethernet",
-	    gtk_eth_endpoints_cb, NULL, NULL, NULL);
-}
-
-
-
-
-void
 register_tap_listener_eth_talkers(void)
 {
 	register_ethereal_tap("conv,eth", gtk_eth_talkers_init);
+
+	register_tap_menu_item("Ethernet/Conversation List", REGISTER_TAP_LAYER_DATA_LINK,
+	    gtk_eth_endpoints_cb, NULL, NULL, NULL);
 }
 

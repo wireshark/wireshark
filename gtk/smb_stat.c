@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.36 2004/02/13 00:53:36 guy Exp $
+ * $Id: smb_stat.c,v 1.37 2004/02/22 18:44:03 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -352,11 +352,7 @@ void
 register_tap_listener_gtksmbstat(void)
 {
 	register_ethereal_tap("smb,srt", gtk_smbstat_init);
-}
 
-void
-register_tap_menu_gtksmbstat(void)
-{
-	register_tap_menu_item("_Statistics/Service Response Time/SMB...",
+	register_tap_menu_item("SMB (Service Response Time...)", REGISTER_TAP_LAYER_APPLICATION,
 	    gtk_smbstat_cb, NULL, NULL, NULL);
 }

@@ -1,7 +1,7 @@
 /* tap_menu.h
  * Menu definitions for use by taps
  *
- * $Id: tap_menu.h,v 1.1 2004/02/11 04:17:05 guy Exp $
+ * $Id: tap_menu.h,v 1.2 2004/02/22 18:44:03 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,10 +51,23 @@ extern "C" {
  * whether a tree row is selected and, if one is, on the tree row) and
  * FALSE if not.
  */
-extern void register_tap_menu_item(char *name, GtkItemFactoryCallback callback,
+extern void register_tap_menu_item(
+    char *name, 
+    gint layer,
+    GtkItemFactoryCallback callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *),
     gboolean (*selected_tree_row_enabled)(field_info *),
     gpointer callback_data);
+
+/* XXX: would it better to use an enum here? */
+#define REGISTER_TAP_LAYER_GENERIC      0
+#define REGISTER_TAP_LAYER_PHYSICAL     1   /* currently unused */
+#define REGISTER_TAP_LAYER_DATA_LINK    2
+#define REGISTER_TAP_LAYER_NETWORK      3
+#define REGISTER_TAP_LAYER_TRANSPORT    4
+#define REGISTER_TAP_LAYER_SESSION      5   /* currently unused */
+#define REGISTER_TAP_LAYER_PRESENTATION 6   /* currently unused */
+#define REGISTER_TAP_LAYER_APPLICATION  7
 
 #ifdef __cplusplus
 }

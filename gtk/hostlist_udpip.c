@@ -1,7 +1,7 @@
 /* hostlist_udpip.c   2004 Ian Schorr
  * modified from endpoint_talkers_udpip.c   2003 Ronnie Sahlberg
  *
- * $Id: hostlist_udpip.c,v 1.1 2004/02/20 09:09:12 guy Exp $
+ * $Id: hostlist_udpip.c,v 1.2 2004/02/22 18:44:02 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,18 +81,11 @@ gtk_udpip_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 
 
 void
-register_tap_menu_udpip_hostlist(void)
-{
-	register_tap_menu_item("_Statistics/Host List/UDP (IPv4 IPv6)",
-	    gtk_udpip_hostlist_cb, NULL, NULL, NULL);
-}
-
-
-
-
-void
 register_tap_listener_udpip_hostlist(void)
 {
 	register_ethereal_tap("conv,udp", gtk_udpip_hostlist_init);
+
+	register_tap_menu_item("UDP/Host List (IPv4 & IPv6)", REGISTER_TAP_LAYER_TRANSPORT,
+	    gtk_udpip_hostlist_cb, NULL, NULL, NULL);
 }
 

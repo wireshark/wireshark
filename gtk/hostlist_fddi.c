@@ -1,7 +1,7 @@
 /* hostlist_fddi.c   2004 Ian Schorr
  * modified from endpoint_talkers_fddi.c   2003 Ronnie Sahlberg
  *
- * $Id: hostlist_fddi.c,v 1.1 2004/02/20 09:09:11 guy Exp $
+ * $Id: hostlist_fddi.c,v 1.2 2004/02/22 18:44:01 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,18 +81,11 @@ gtk_fddi_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 
 
 void
-register_tap_menu_fddi_hostlist(void)
-{
-	register_tap_menu_item("_Statistics/Host List/FDDI",
-	    gtk_fddi_hostlist_cb, NULL, NULL, NULL);
-}
-
-
-
-
-void
 register_tap_listener_fddi_hostlist(void)
 {
 	register_ethereal_tap("conv,fddi", gtk_fddi_hostlist_init);
+
+	register_tap_menu_item("FDDI/Host List", REGISTER_TAP_LAYER_DATA_LINK,
+	    gtk_fddi_hostlist_cb, NULL, NULL, NULL);
 }
 

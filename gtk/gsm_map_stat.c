@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: gsm_map_stat.c,v 1.2 2004/02/18 04:11:42 jmayer Exp $
+ * $Id: gsm_map_stat.c,v 1.3 2004/02/22 18:44:01 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -478,11 +478,7 @@ register_tap_listener_gtkgsm_map_stat(void)
 
 	exit(1);
     }
-}
 
-
-void
-register_tap_menu_gtkgsm_map_stat(void)
-{
-    register_tap_menu_item("_Statistics/GSM MAP Operation", gsm_map_stat_gtk_cb, NULL, NULL, NULL);
+    register_tap_menu_item("GSM/MAP Operation",  REGISTER_TAP_LAYER_APPLICATION,
+        gsm_map_stat_gtk_cb, NULL, NULL, NULL);
 }
