@@ -1,0 +1,156 @@
+# Makefile.common
+#     Contains the stuff from Makefile.am and Makefile.nmake that is
+#     a) common to both files and
+#     b) portable between both files
+#
+# $Id $
+#
+# Ethereal - Network traffic analyzer
+# By Gerald Combs <gerald@ethereal.com>
+# Copyright 1998 Gerald Combs
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+
+#
+# ethclist.obj is not in here because it is currently gtk+-1.2-only
+# code, while the DLL for GTK+ on Windows is gtk+-1.3.
+#
+ETHEREAL_GTK_SRC = \
+	capture_combo_utils.c \
+	capture_dlg.c \
+	capture_prefs.c \
+	capture_info_dlg.c \
+	color_dlg.c    \
+	color_filters.c \
+	color_utils.c  \
+	colors.c	\
+	column_prefs.c	\
+	decode_as_dlg.c \
+	dfilter_expr_dlg.c \
+	dlg_utils.c	\
+	endpoint_talkers_table.c \
+	ethereal-tap-register.c \
+	file_dlg.c \
+	filter_prefs.c \
+	find_dlg.c \
+	follow_dlg.c \
+	goto_dlg.c \
+	gtk_stat_util.c	\
+	gui_prefs.c	\
+	help_dlg.c \
+	main.c 	\
+	menu.c 	\
+	nameres_prefs.c \
+	packet_list.c \
+	packet_win.c	\
+	plugins_dlg.c	\
+	prefs_dlg.c \
+	print_dlg.c \
+	print_prefs.c  \
+	progress_dlg.c \
+	proto_dlg.c \
+	proto_draw.c \
+	proto_hier_stats_dlg.c	\
+	recent.c    \
+	rtp_stream.c    \
+	service_response_time_table.c	\
+	simple_dialog.c \
+	stream_prefs.c \
+	summary_dlg.c \
+	supported_protos_dlg.c \
+	tap_dfilter_dlg.c \
+	tcp_graph.c \
+	toolbar.c       \
+	ui_util.c
+
+
+ETHEREAL_TAP_SRC = \
+	ansi_a_stat.c   \
+	ansi_map_stat.c \
+	bootp_stat.c    \
+	dcerpc_stat.c	\
+	endpoint_talkers_eth.c	\
+	endpoint_talkers_fc.c	\
+	endpoint_talkers_fddi.c	\
+	endpoint_talkers_ip.c	\
+	endpoint_talkers_ipx.c	\
+	endpoint_talkers_tcpip.c	\
+	endpoint_talkers_tr.c	\
+	endpoint_talkers_udpip.c	\
+	fc_stat.c	\
+	gsm_a_stat.c    \
+	h225_counter.c	\
+	h225_ras_srt.c	\
+	http_stat.c	\
+	io_stat.c	\
+	isup_stat.c     \
+	ldap_stat.c	\
+	mgcp_stat.c	\
+	rpc_stat.c	\
+	rpc_progs.c	\
+	smb_stat.c	\
+	rtp_analysis.c  \
+	rtp_stream_dlg.c \
+	wsp_stat.c
+
+
+noinst_GTK_HEADERS = \
+	capture_combo_utils.h \
+	capture_dlg.h	\
+	capture_prefs.h	\
+	color_dlg.h	\
+	color_filters.h	\
+	color_utils.h	\
+	colors.h	\
+	column_prefs.h	\
+	compat_macros.h	\
+	decode_as_dlg.h	\
+	dfilter_expr_dlg.h \
+	dlg_utils.h	\
+	endpoint_talkers_table.h \
+	file_dlg.h	\
+	filter_prefs.h	\
+	follow_dlg.h	\
+	find_dlg.h	\
+	gtkglobals.h	\
+	goto_dlg.h	\
+	gtk_stat_util.h \
+	gui_prefs.h	\
+	help_dlg.h	\
+	keys.h		\
+	main.h		\
+	menu.h		\
+	nameres_prefs.h	\
+	packet_list.h	\
+	packet_win.h	\
+	prefs_dlg.h	\
+	print_prefs.h	\
+	proto_dlg.h	\
+	proto_draw.h	\
+	proto_hier_stats_dlg.h	\
+	recent.h	\
+	rtp_analysis.h	\
+	rtp_stream.h	\
+	rtp_stream_dlg.h \
+	service_response_time_table.h	\
+	stream_prefs.h	\
+	summary_dlg.h   \
+	supported_protos_dlg.h   \
+	tap_dfilter_dlg.h \
+	tcp_graph.h     \
+	toolbar.h       \
+	ui_util.h
+

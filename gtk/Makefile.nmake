@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.71 2004/01/21 19:21:28 ulfl Exp $
+# $Id: Makefile.nmake,v 1.72 2004/01/22 18:08:58 ulfl Exp $
 
 include ..\config.nmake
 
@@ -18,100 +18,30 @@ CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 .c.obj::
    $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
-ETHEREAL_TAP_SRC = \
-	ansi_a_stat.c   \
-	ansi_map_stat.c \
-	bootp_stat.c    \
-	dcerpc_stat.c	\
-	endpoint_talkers_eth.c	\
-	endpoint_talkers_fc.c	\
-	endpoint_talkers_fddi.c	\
-	endpoint_talkers_ip.c	\
-	endpoint_talkers_ipx.c	\
-	endpoint_talkers_tcpip.c	\
-	endpoint_talkers_tr.c	\
-	endpoint_talkers_udpip.c	\
-	fc_stat.c	\
-	gsm_a_stat.c    \
-	h225_counter.c	\
-	h225_ras_srt.c	\
-	http_stat.c	\
-	io_stat.c	\
-	isup_stat.c     \
-	ldap_stat.c	\
-	mgcp_stat.c	\
-	rpc_stat.c	\
-	rpc_progs.c	\
-	smb_stat.c	\
-	rtp_analysis.c  \
-	rtp_stream_dlg.c \
-	wsp_stat.c
+include Makefile.common
+
+
+# if you add files here, be sure to include them also in Makefile.am EXTRA_DIST
+ETHEREAL_WIN32_GTK_SRC = \
+	$(ETHEREAL_GTK_SRC) \
+	print_mswin.c
+
 
 ETHEREAL_TAP_OBJECTS = $(ETHEREAL_TAP_SRC:.c=.obj)
 
-#
-# ethclist.obj is not in here because it is currently gtk+-1.2-only
-# code, while the DLL for GTK+ on Windows is gtk+-1.3.
-#
-OBJECTS = \
-	capture_combo_utils.obj \
-	capture_dlg.obj \
-	capture_prefs.obj \
-	capture_info_dlg.obj \
-	color_dlg.obj    \
-	color_filters.obj \
-	column_prefs.obj \
-	colors.obj       \
-	color_utils.obj  \
-	decode_as_dlg.obj \
-	dfilter_expr_dlg.obj \
-	dlg_utils.obj	\
-	endpoint_talkers_table.obj \
-	ethereal-tap-register.obj \
-	file_dlg.obj \
-	filter_prefs.obj \
-	find_dlg.obj \
-	follow_dlg.obj \
-	goto_dlg.obj \
-	gui_prefs.obj \
-	gtk_stat_util.obj	\
-	help_dlg.obj \
-	main.obj 	\
-	menu.obj 	\
-	nameres_prefs.obj \
-	packet_list.obj \
-	packet_win.obj	\
-	plugins_dlg.obj	\
-	prefs_dlg.obj \
-	print_dlg.obj \
-	print_mswin.obj \
-	print_prefs.obj  \
-	progress_dlg.obj \
-	proto_dlg.obj \
-	proto_draw.obj \
-	proto_hier_stats_dlg.obj	\
-	recent.obj    \
-	rtp_stream.obj    \
-	service_response_time_table.obj	\
-	simple_dialog.obj \
-	stream_prefs.obj \
-	summary_dlg.obj \
-	supported_protos_dlg.obj \
-	tap_dfilter_dlg.obj \
-	tcp_graph.obj \
-	ui_util.obj	\
-	toolbar.obj \
-	$(ETHEREAL_TAP_OBJECTS)
 
-libui.lib	: ..\config.h $(OBJECTS)
-	lib /out:libui.lib $(OBJECTS)
+ETHEREAL_WIN32_GTK_OBJECTS = $(ETHEREAL_WIN32_GTK_SRC:.c=.obj)
+	
+
+libui.lib	: ..\config.h $(ETHEREAL_WIN32_GTK_OBJECTS) $(ETHEREAL_TAP_OBJECTS)
+	lib /out:libui.lib $(ETHEREAL_WIN32_GTK_OBJECTS) $(ETHEREAL_TAP_OBJECTS)
 
 ethereal-tap-register.c: $(ETHEREAL_TAP_SRC) ../make-tapreg-dotc
 	@echo Making ethereal-tap-register.c
 	@$(SH) ../make-tapreg-dotc ethereal-tap-register.c . $(ETHEREAL_TAP_SRC)
 
 clean:
-	rm -f $(OBJECTS) libui.lib $(PDB_FILE)
+	rm -f $(ETHEREAL_WIN32_GTK_OBJECTS) $(ETHEREAL_TAP_OBJECTS) libui.lib $(PDB_FILE)
 
 distclean: clean
 	rm -f ethereal-tap-register.c

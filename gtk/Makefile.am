@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for the GTK interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.87 2004/01/21 19:21:28 ulfl Exp $
+# $Id: Makefile.am,v 1.88 2004/01/22 18:08:58 ulfl Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -21,40 +21,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+include Makefile.common
+
 noinst_LIBRARIES = libui.a
 
 CLEANFILES = \
 	libui.a		\
 	*~
-
-ETHEREAL_TAP_SRC = \
-	ansi_a_stat.c   \
-	ansi_map_stat.c \
-	bootp_stat.c    \
-	dcerpc_stat.c	\
-	endpoint_talkers_eth.c	\
-	endpoint_talkers_fc.c	\
-	endpoint_talkers_fddi.c	\
-	endpoint_talkers_ip.c	\
-	endpoint_talkers_ipx.c	\
-	endpoint_talkers_tcpip.c	\
-	endpoint_talkers_tr.c	\
-	endpoint_talkers_udpip.c	\
-	fc_stat.c	\
-	gsm_a_stat.c    \
-	h225_counter.c  \
-	h225_ras_srt.c	\
-	http_stat.c	\
-	io_stat.c	\
-	isup_stat.c     \
-	ldap_stat.c	\
-	mgcp_stat.c	\
-	rpc_stat.c	\
-	rpc_progs.c	\
-	smb_stat.c	\
-	rtp_analysis.c  \
-	rtp_stream_dlg.c \
-	wsp_stat.c
 
 ethereal-tap-register.c: $(ETHEREAL_TAP_SRC) $(top_srcdir)/make-tapreg-dotc
 	@echo Making ethereal-tap-register.c
@@ -62,198 +35,20 @@ ethereal-tap-register.c: $(ETHEREAL_TAP_SRC) $(top_srcdir)/make-tapreg-dotc
 
 if USE_GTK2
 libui_a_SOURCES = \
-	capture_combo_utils.c \
-	capture_combo_utils.h \
-	capture_dlg.c	\
-	capture_dlg.h	\
-	capture_prefs.c	\
-	capture_prefs.h	\
-	capture_info_dlg.c \
-	color_dlg.c	\
-	color_dlg.h	\
-	color_filters.c	\
-	color_filters.h	\
-	color_utils.c	\
-	color_utils.h	\
-	colors.c	\
-	colors.h	\
-	column_prefs.c	\
-	column_prefs.h	\
-	compat_macros.h	\
-	decode_as_dlg.c	\
-	decode_as_dlg.h	\
-	dfilter_expr_dlg.c \
-	dfilter_expr_dlg.h \
-	dlg_utils.c	\
-	dlg_utils.h	\
-	endpoint_talkers_table.c \
-	endpoint_talkers_table.h \
-	ethereal-tap-register.c \
-	file_dlg.c	\
-	file_dlg.h	\
-	filter_prefs.c	\
-	filter_prefs.h	\
-	find_dlg.c	\
-	find_dlg.h	\
-	follow_dlg.c	\
-	follow_dlg.h	\
-	goto_dlg.c	\
-	goto_dlg.h	\
-	gtkglobals.h	\
-	gtk_stat_util.c \
-	gtk_stat_util.h \
-	gui_prefs.c	\
-	gui_prefs.h	\
-	help_dlg.c	\
-	help_dlg.h	\
-	keys.h		\
-	main.c		\
-	main.h		\
-	menu.c		\
-	menu.h		\
-	nameres_prefs.c	\
-	nameres_prefs.h	\
-	packet_list.c	\
-	packet_list.h	\
-	packet_win.c	\
-	packet_win.h	\
-	plugins_dlg.c	\
-	prefs_dlg.c	\
-	prefs_dlg.h	\
-	print_dlg.c	\
-	print_prefs.c   \
-	print_prefs.h	\
-	progress_dlg.c	\
-	proto_dlg.c	\
-	proto_dlg.h	\
-	proto_draw.c	\
-	proto_draw.h	\
-	proto_hier_stats_dlg.h	\
-	proto_hier_stats_dlg.c	\
-	recent.c	\
-	recent.h	\
-	rtp_analysis.h	\
-	rtp_stream.c    \
-	rtp_stream.h	\
-	rtp_stream_dlg.h \
-	service_response_time_table.c	\
-	service_response_time_table.h	\
-	simple_dialog.c	\
-	stream_prefs.c	\
-	stream_prefs.h	\
-	summary_dlg.c   \
-	summary_dlg.h   \
-	supported_protos_dlg.c   \
-	supported_protos_dlg.h   \
-	tap_dfilter_dlg.c \
-	tap_dfilter_dlg.h \
-	tcp_graph.c     \
-	tcp_graph.h     \
-	toolbar.c       \
-	toolbar.h       \
-	ui_util.c       \
-	ui_util.h	\
+	$(ETHEREAL_GTK_SRC) \
+	$(noinst_GTK_HEADERS) \
 	$(ETHEREAL_TAP_SRC)
 else
 libui_a_SOURCES = \
-	capture_combo_utils.c \
-	capture_combo_utils.h \
-	capture_dlg.c	\
-	capture_dlg.h	\
-	capture_prefs.c	\
-	capture_prefs.h	\
-	capture_info_dlg.c \
-	color_dlg.c	\
-	color_dlg.h	\
-	color_filters.c	\
-	color_filters.h	\
-	color_utils.c	\
-	color_utils.h	\
-	colors.c	\
-	colors.h	\
-	column_prefs.c	\
-	column_prefs.h	\
-	decode_as_dlg.c	\
-	decode_as_dlg.h	\
-	dfilter_expr_dlg.c \
-	dfilter_expr_dlg.h \
-	dlg_utils.c	\
-	dlg_utils.h	\
-	endpoint_talkers_table.c \
-	endpoint_talkers_table.h \
 	ethclist.c	\
 	ethclist.h	\
-	ethereal-tap-register.c \
-	file_dlg.c	\
-	file_dlg.h	\
-	filter_prefs.c	\
-	filter_prefs.h	\
-	find_dlg.c	\
-	find_dlg.h	\
-	follow_dlg.c	\
-	follow_dlg.h	\
-	goto_dlg.c	\
-	goto_dlg.h	\
-	gtkglobals.h	\
-	gtk_stat_util.c \
-	gtk_stat_util.h \
-	gui_prefs.c	\
-	gui_prefs.h	\
-	help_dlg.c	\
-	help_dlg.h	\
-	keys.h		\
-	main.c		\
-	main.h		\
-	menu.c		\
-	menu.h		\
-	nameres_prefs.c	\
-	nameres_prefs.h	\
-	packet_list.c	\
-	packet_list.h	\
-	packet_win.c	\
-	packet_win.h	\
-	plugins_dlg.c	\
-	prefs_dlg.c	\
-	prefs_dlg.h	\
-	print_dlg.c	\
-	print_prefs.c   \
-	print_prefs.h	\
-	progress_dlg.c	\
-	proto_dlg.c	\
-	proto_dlg.h	\
-	proto_draw.c	\
-	proto_draw.h	\
-	proto_hier_stats_dlg.h	\
-	proto_hier_stats_dlg.c	\
-	recent.c	\
-	recent.h	\
-	rtp_analysis.h	\
-	rtp_stream.c    \
-	rtp_stream.h	\
-	rtp_stream_dlg.h \
-	service_response_time_table.c	\
-	service_response_time_table.h	\
-	simple_dialog.c	\
-	stream_prefs.c	\
-	stream_prefs.h	\
-	summary_dlg.c   \
-	summary_dlg.h   \
-	supported_protos_dlg.c   \
-	supported_protos_dlg.h   \
-	tap_dfilter_dlg.c \
-	tap_dfilter_dlg.h \
-	tcp_graph.c     \
-	tcp_graph.h     \
-	toolbar.c       \
-	toolbar.h       \
-	ui_util.c       \
-	ui_util.h	\
+	$(ETHEREAL_GTK_SRC) \
+	$(noinst_GTK_HEADERS) \
 	$(ETHEREAL_TAP_SRC)
 endif
 
 EXTRA_DIST = \
 	Makefile.nmake \
-	compat_macros.h \
 	print_mswin.c  \
 	print_mswin.h
 
