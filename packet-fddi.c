@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
- * $Id: packet-fddi.c,v 1.60 2003/01/26 19:35:24 deniel Exp $
+ * $Id: packet-fddi.c,v 1.61 2003/06/10 19:34:36 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,8 +33,10 @@
 #include <glib.h>
 #include <epan/bitswap.h>
 #include <epan/packet.h>
+#include "prefs.h"
 #include "packet-fddi.h"
 #include "packet-llc.h"
+
 #include <epan/resolv.h>
 
 static int proto_fddi = -1;
@@ -49,6 +51,10 @@ static int hf_fddi_addr = -1;
 
 static gint ett_fddi = -1;
 static gint ett_fddi_fc = -1;
+
+static gboolean fddi_padding = FALSE;
+
+#define FDDI_PADDING		((fddi_padding) ? 3 : 0)
 
 /* FDDI Frame Control values */
 
@@ -140,13 +146,13 @@ capture_fddi(const guchar *pd, int len, packet_counts *ld)
 {
   int        offset = 0, fc;
 
-  if (!BYTES_ARE_IN_FRAME(0, len, FDDI_HEADER_SIZE)) {
+  if (!BYTES_ARE_IN_FRAME(0, len, FDDI_HEADER_SIZE + FDDI_PADDING)) {
     ld->other++;
     return;
   }
-  offset = FDDI_HEADER_SIZE;
+  offset = FDDI_PADDING + FDDI_HEADER_SIZE;
 
-  fc = (int) pd[FDDI_P_FC];
+  fc = (int) pd[FDDI_P_FC+FDDI_PADDING];
 
   switch (fc) {
 
@@ -266,44 +272,44 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FDDI");
 
-  fc = (int) tvb_get_guint8(tvb, FDDI_P_FC);
+  fc = (int) tvb_get_guint8(tvb, FDDI_P_FC + FDDI_PADDING);
   fc_str = fddifc_to_str(fc);
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO, fc_str);
 
   if (tree) {
-    ti = proto_tree_add_protocol_format(tree, proto_fddi, tvb, 0, FDDI_HEADER_SIZE,
+    ti = proto_tree_add_protocol_format(tree, proto_fddi, tvb, 0, FDDI_HEADER_SIZE+FDDI_PADDING,
 		"Fiber Distributed Data Interface, %s", fc_str);
     fh_tree = proto_item_add_subtree(ti, ett_fddi);
-    ti = proto_tree_add_uint_format(fh_tree, hf_fddi_fc, tvb, FDDI_P_FC, 1, fc,
+    ti = proto_tree_add_uint_format(fh_tree, hf_fddi_fc, tvb, FDDI_P_FC + FDDI_PADDING, 1, fc,
         "Frame Control: 0x%02x (%s)", fc, fc_str);
     fc_tree = proto_item_add_subtree(ti, ett_fddi_fc);
-    proto_tree_add_uint(fc_tree, hf_fddi_fc_clf, tvb, FDDI_P_FC, 1, fc);
+    proto_tree_add_uint(fc_tree, hf_fddi_fc_clf, tvb, FDDI_P_FC + FDDI_PADDING, 1, fc);
     switch (fc & FDDI_FC_CLFF) {
 
     case FDDI_FC_SMT:
-      proto_tree_add_uint(fc_tree, hf_fddi_fc_smt_subtype, tvb, FDDI_P_FC, 1, fc);
+      proto_tree_add_uint(fc_tree, hf_fddi_fc_smt_subtype, tvb, FDDI_P_FC + FDDI_PADDING, 1, fc);
       break;
 
     case FDDI_FC_MAC:
       if (fc != FDDI_FC_RT)
-        proto_tree_add_uint(fc_tree, hf_fddi_fc_mac_subtype, tvb, FDDI_P_FC, 1, fc);
+        proto_tree_add_uint(fc_tree, hf_fddi_fc_mac_subtype, tvb, FDDI_P_FC + FDDI_PADDING, 1, fc);
       break;
 
     case FDDI_FC_LLC_ASYNC:
       if (!(fc & FDDI_FC_ASYNC_R))
-        proto_tree_add_uint(fc_tree, hf_fddi_fc_prio, tvb, FDDI_P_FC, 1, fc);
+        proto_tree_add_uint(fc_tree, hf_fddi_fc_prio, tvb, FDDI_P_FC + FDDI_PADDING, 1, fc);
       break;
     }
   }
 
   /* Extract the destination address, possibly bit-swapping it. */
   if (bitswapped)
-    swap_mac_addr(dst, tvb_get_ptr(tvb, FDDI_P_DHOST, 6));
+    swap_mac_addr(dst, tvb_get_ptr(tvb, FDDI_P_DHOST + FDDI_PADDING, 6));
   else
-    memcpy(dst, tvb_get_ptr(tvb, FDDI_P_DHOST, 6), sizeof dst);
-  swap_mac_addr(dst_swapped, tvb_get_ptr(tvb, FDDI_P_DHOST, 6));
+    memcpy(dst, tvb_get_ptr(tvb, FDDI_P_DHOST + FDDI_PADDING, 6), sizeof dst);
+  swap_mac_addr(dst_swapped, tvb_get_ptr(tvb, FDDI_P_DHOST + FDDI_PADDING, 6));
 
   /* XXX - copy them to some buffer associated with "pi", rather than
      just making "dst" static? */
@@ -311,20 +317,20 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   SET_ADDRESS(&pinfo->dst, AT_ETHER, 6, &dst[0]);
 
   if (fh_tree) {
-    proto_tree_add_ether(fh_tree, hf_fddi_dst, tvb, FDDI_P_DHOST, 6, dst);
-    proto_tree_add_ether_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_DHOST, 6, dst);
+    proto_tree_add_ether(fh_tree, hf_fddi_dst, tvb, FDDI_P_DHOST + FDDI_PADDING, 6, dst);
+    proto_tree_add_ether_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_DHOST + FDDI_PADDING, 6, dst);
 
     /* hide some bit-swapped mac address fields in the proto_tree, just in case */
-    proto_tree_add_ether_hidden(fh_tree, hf_fddi_dst, tvb, FDDI_P_DHOST, 6, dst_swapped);
-    proto_tree_add_ether_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_DHOST, 6, dst_swapped);
+    proto_tree_add_ether_hidden(fh_tree, hf_fddi_dst, tvb, FDDI_P_DHOST + FDDI_PADDING, 6, dst_swapped);
+    proto_tree_add_ether_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_DHOST + FDDI_PADDING, 6, dst_swapped);
   }
 
   /* Extract the source address, possibly bit-swapping it. */
   if (bitswapped)
-    swap_mac_addr(src, tvb_get_ptr(tvb, FDDI_P_SHOST, 6));
+    swap_mac_addr(src, tvb_get_ptr(tvb, FDDI_P_SHOST + FDDI_PADDING, 6));
   else
-    memcpy(src, tvb_get_ptr(tvb, FDDI_P_SHOST, 6), sizeof src);
-  swap_mac_addr(src_swapped, tvb_get_ptr(tvb, FDDI_P_SHOST, 6));
+    memcpy(src, tvb_get_ptr(tvb, FDDI_P_SHOST + FDDI_PADDING, 6), sizeof src);
+  swap_mac_addr(src_swapped, tvb_get_ptr(tvb, FDDI_P_SHOST + FDDI_PADDING, 6));
 
   /* XXX - copy them to some buffer associated with "pi", rather than
      just making "src" static? */
@@ -332,15 +338,15 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   SET_ADDRESS(&pinfo->src, AT_ETHER, 6, &src[0]);
 
   if (fh_tree) {
-      proto_tree_add_ether(fh_tree, hf_fddi_src, tvb, FDDI_P_SHOST, 6, src);
-      proto_tree_add_ether_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_SHOST, 6, src);
+      proto_tree_add_ether(fh_tree, hf_fddi_src, tvb, FDDI_P_SHOST + FDDI_PADDING, 6, src);
+      proto_tree_add_ether_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_SHOST + FDDI_PADDING, 6, src);
 
       /* hide some bit-swapped mac address fields in the proto_tree, just in case */
-      proto_tree_add_ether_hidden(fh_tree, hf_fddi_src, tvb, FDDI_P_SHOST, 6, src_swapped);
-      proto_tree_add_ether_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_SHOST, 6, src_swapped);
+      proto_tree_add_ether_hidden(fh_tree, hf_fddi_src, tvb, FDDI_P_SHOST + FDDI_PADDING, 6, src_swapped);
+      proto_tree_add_ether_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_SHOST + FDDI_PADDING, 6, src_swapped);
   }
 
-  next_tvb = tvb_new_subset(tvb, FDDI_HEADER_SIZE, -1, -1);
+  next_tvb = tvb_new_subset(tvb, FDDI_HEADER_SIZE + FDDI_PADDING, -1, -1);
 
   switch (fc) {
 
@@ -433,6 +439,8 @@ proto_register_fddi(void)
 		&ett_fddi_fc,
 	};
 
+	module_t *fddi_module;
+
 	proto_fddi = proto_register_protocol("Fiber Distributed Data Interface",
 	    "FDDI", "fddi");
 	proto_register_field_array(proto_fddi, hf, array_length(hf));
@@ -443,6 +451,14 @@ proto_register_fddi(void)
 	 * We assume the MAC addresses in them aren't bitswapped.
 	 */
 	register_dissector("fddi", dissect_fddi_not_bitswapped, proto_fddi);
+
+	fddi_module = prefs_register_protocol(proto_fddi, NULL);
+	prefs_register_bool_preference(fddi_module, "padding",
+		"Add 3-byte padding to all FDDI packets",
+		"Whether the FDDI dissector should add 3-byte padding to all "
+		"captured FDDI packets (useful with e.g. Tru64 UNIX tcpdump)",
+		&fddi_padding);
+
 }
 
 void
