@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.94 2004/02/01 06:49:22 jmayer Exp $
+ * $Id: packet-http.c,v 1.95 2004/02/21 01:31:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,6 +67,8 @@ static int hf_http_proxy_authorization = -1;
 static int hf_http_www_authenticate = -1;
 static int hf_http_content_type = -1;
 static int hf_http_content_length = -1;
+static int hf_http_content_encoding = -1;
+static int hf_http_transfer_encoding = -1;
 
 static gint ett_http = -1;
 static gint ett_http_ntlmssp = -1;
@@ -117,6 +119,8 @@ typedef struct {
 	char	*content_type;
 	char	*content_type_parameters;
 	long	content_length;	/* XXX - make it 64-bit? */
+	char	*content_encoding;
+	char	*transfer_encoding;
 } headers_t;
 
 static int is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
@@ -173,11 +177,17 @@ cleanup_headers(void *arg)
 {
 	headers_t *headers = arg;
 
-	g_free(headers->content_type);
+	if (headers->content_type != NULL)
+		g_free(headers->content_type);
 	/*
 	 * The content_type_parameters field actually points into the
-	 * content_type headers, so don't attempt at freeing it twice.
+	 * content_type headers, so don't free it, as that'll double-free
+	 * some memory.
 	 */
+	if (headers->content_encoding != NULL)
+		g_free(headers->content_encoding);
+	if (headers->transfer_encoding != NULL)
+		g_free(headers->transfer_encoding);
 }
 
 /*
@@ -302,6 +312,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	headers.content_type = NULL;	/* content type not known yet */
 	headers.content_type_parameters = NULL;	/* content type parameters too */
 	headers.content_length = -1;	/* content length not known yet */
+	headers.content_encoding = NULL; /* content encoding not known yet */
+	headers.transfer_encoding = NULL; /* transfer encoding not known yet */
 	saw_req_resp_or_header = FALSE;	/* haven't seen anything yet */
 	CLEANUP_PUSH(cleanup_headers, &headers);
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
@@ -596,6 +608,38 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    reported_datalen);
 
 		/*
+		 * Handle content encodings other than "identity" (which
+		 * shouldn't appear in a Content-Encoding header, but
+		 * we handle it in any case).
+		 */
+		if (headers.content_encoding != NULL &&
+		    strcasecmp(headers.content_encoding, "identity") != 0) {
+			/*
+			 * We currently can't handle, for example, "gzip",
+			 * "compress", or "deflate"; just handle them as
+			 * data for now.
+			 */
+			call_dissector(data_handle, next_tvb, pinfo,
+			    http_tree);
+			goto body_dissected;
+		}
+
+		/*
+		 * Handle transfer encodings other than "identity".
+		 */
+		if (headers.transfer_encoding != NULL &&
+		    strcasecmp(headers.transfer_encoding, "identity") != 0) {
+			/*
+			 * We currently can't handle, for example, "chunked",
+			 * "gzip", "compress", or "deflate"; just handle them
+			 * as data for now.
+			 */
+			call_dissector(data_handle, next_tvb, pinfo,
+			    http_tree);
+			goto body_dissected;
+		}
+
+		/*
 		 * Do subdissector checks.
 		 *
 		 * First, check whether some subdissector asked that they
@@ -652,9 +696,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    http_tree);
 		}
 
+	body_dissected:
 		/*
 		 * Do *not* attempt at freeing the private data;
-		 * it may be in use by subdissectors
+		 * it may be in use by subdissectors.
 		 */
 		if (save_private_data)
 			pinfo->private_data = save_private_data;
@@ -875,6 +920,8 @@ typedef struct {
 #define HDR_AUTHENTICATE	2
 #define HDR_CONTENT_TYPE	3
 #define HDR_CONTENT_LENGTH	4
+#define HDR_CONTENT_ENCODING	5
+#define HDR_TRANSFER_ENCODING	6
 
 static const header_info headers[] = {
 	{ "Authorization", &hf_http_authorization, HDR_AUTHORIZATION },
@@ -883,6 +930,8 @@ static const header_info headers[] = {
 	{ "WWW-Authenticate", &hf_http_www_authenticate, HDR_AUTHENTICATE },
 	{ "Content-Type", &hf_http_content_type, HDR_CONTENT_TYPE },
 	{ "Content-Length", &hf_http_content_length, HDR_CONTENT_LENGTH },
+	{ "Content-Encoding", &hf_http_content_encoding, HDR_CONTENT_ENCODING },
+	{ "Transfer-Encoding", &hf_http_transfer_encoding, HDR_TRANSFER_ENCODING },
 };
 
 static void
@@ -1011,6 +1060,22 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			if (eh_ptr->content_length < 0 || p == value ||
 			    (*up != '\0' && !isspace(*up)))
 				eh_ptr->content_length = -1;	/* not valid */
+			break;
+
+		case HDR_CONTENT_ENCODING:
+			if (eh_ptr->content_encoding != NULL)
+				g_free(eh_ptr->content_encoding);
+			eh_ptr->content_encoding = g_malloc(value_len + 1);
+			memcpy(eh_ptr->content_encoding, value, value_len);
+			eh_ptr->content_encoding[value_len] = '\0';
+			break;
+
+		case HDR_TRANSFER_ENCODING:
+			if (eh_ptr->transfer_encoding != NULL)
+				g_free(eh_ptr->transfer_encoding);
+			eh_ptr->transfer_encoding = g_malloc(value_len + 1);
+			memcpy(eh_ptr->transfer_encoding, value, value_len);
+			eh_ptr->transfer_encoding[value_len] = '\0';
 			break;
 		}
 
@@ -1188,6 +1253,14 @@ proto_register_http(void)
 	      { "Content-Length",	"http.content_length",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Content-Length header", HFILL }},
+	    { &hf_http_content_encoding,
+	      { "Content-Encoding",	"http.content_encoding",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Content-Encoding header", HFILL }},
+	    { &hf_http_transfer_encoding,
+	      { "Transfer-Encoding",	"http.transfer_encoding",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Transfer-Encoding header", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_http,
