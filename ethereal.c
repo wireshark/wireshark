@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.16 1998/12/22 00:41:24 gram Exp $
+ * $Id: ethereal.c,v 1.17 1998/12/22 05:52:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -137,8 +137,11 @@ void
 follow_stream_cb( GtkWidget *w, gpointer data ) {
   char filename1[128];
   GtkWidget *streamwindow, *box, *text, *vscrollbar, *table;
-  GtkWidget *filter_te = gtk_object_get_data(GTK_OBJECT(w),
-    E_DFILTER_TE_KEY);
+  GtkWidget *filter_te = NULL;
+
+  if (w)
+  	filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
+
   if( pi.ipproto == 6 ) {
     /* we got tcp so we can follow */
     /* check to see if we are using a filter */
@@ -149,7 +152,8 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
     }
     /* create a new one and set the display filter entry accordingly */
     cf.dfilter = build_follow_filter( &pi );
-    gtk_entry_set_text(GTK_ENTRY(filter_te), cf.dfilter);
+    if (filter_te)
+	    gtk_entry_set_text(GTK_ENTRY(filter_te), cf.dfilter);
     /* reload so it goes in effect. Also we set data_out_file which 
        tells the tcp code to output the data */
     close_cap_file( &cf, info_bar, file_ctx);

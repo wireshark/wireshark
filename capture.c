@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.13 1998/12/17 05:42:19 gram Exp $
+ * $Id: capture.c,v 1.14 1998/12/22 05:52:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -293,7 +293,7 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
   gtk_widget_show(cancel_bt);
 
-  /* Attach pointers to needed widges to the capture prefs window/object */
+  /* Attach pointers to needed widgets to the capture prefs window/object */
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_IFACE_KEY, if_cb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_FILT_KEY,  filter_te);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_FILE_KEY,  file_te);
