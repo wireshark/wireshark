@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.86 2000/05/22 18:09:34 guy Exp $
+ * $Id: packet-ip.c,v 1.87 2000/05/24 07:51:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -927,7 +927,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_item(field_tree, hf_ip_flags_mf, NullTVB, offset + 6, 1, flags),
 
     proto_tree_add_item(ip_tree, hf_ip_frag_offset, NullTVB, offset +  6, 2,
-      iph.ip_off & IP_OFFSET);
+      (iph.ip_off & IP_OFFSET)*8);
     proto_tree_add_item(ip_tree, hf_ip_ttl, NullTVB, offset +  8, 1, iph.ip_ttl);
     proto_tree_add_uint_format(ip_tree, hf_ip_proto, NullTVB, offset +  9, 1, iph.ip_p,
 	"Protocol: %s (0x%02x)", ipprotostr(iph.ip_p), iph.ip_p);
@@ -968,7 +968,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       col_add_str(fd, COL_PROTOCOL, "IP");
     if (check_col(fd, COL_INFO))
       col_add_fstr(fd, COL_INFO, "Fragmented IP protocol (proto=%s 0x%02x, off=%u)",
-	ipprotostr(iph.ip_p), iph.ip_p, iph.ip_off & IP_OFFSET);
+	ipprotostr(iph.ip_p), iph.ip_p, (iph.ip_off & IP_OFFSET) * 8);
     dissect_data(pd, offset, fd, tree);
     return;
   }
