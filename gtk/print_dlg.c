@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.74 2004/04/25 16:04:13 ulfl Exp $
+ * $Id: print_dlg.c,v 1.75 2004/04/25 21:46:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -506,7 +506,8 @@ open_print_dialog(char *title, output_action_e action, print_args_t *args)
     printer_lb = gtk_label_new("... export as Packet Details Markup Language (XML) file.");
     break;
   default:
-      g_assert_not_reached();
+    g_assert_not_reached();
+    printer_lb = NULL;	/* squelch compiler complaint */
   }
   if(printer_lb) {
     gtk_box_pack_start(GTK_BOX(printer_vb), printer_lb, FALSE, FALSE, 0);
