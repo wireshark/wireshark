@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.5 2000/04/13 20:39:38 gram Exp $
+ * $Id: packet_win.c,v 1.6 2000/05/18 08:32:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -170,7 +170,9 @@ create_new_window ( char *Title, gint tv_size, gint bv_size){
   DataPtr->pd = g_malloc(DataPtr->cap_len);
   memcpy(DataPtr->pd, cf.pd, DataPtr->cap_len);
   DataPtr->protocol_tree = proto_tree_create_root();
+  proto_tree_is_visible = TRUE;
   dissect_packet(DataPtr->pd, cf.current_frame, DataPtr->protocol_tree);
+  proto_tree_is_visible = FALSE;
   DataPtr->main = main_w;
   DataPtr->tv_scrollw = tv_scrollw;
   DataPtr->tree_view = tree_view;

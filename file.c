@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.186 2000/05/15 01:50:14 guy Exp $
+ * $Id: file.c,v 1.187 2000/05/18 08:31:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -312,7 +312,6 @@ read_cap_file(capture_file *cf)
 #endif
 
   freeze_clist(cf);
-  proto_tree_is_visible = FALSE;
   success = wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf, &err);
   /* Set the file encapsulation type now; we don't know what it is until
      we've looked at all the packets, as we don't know until then whether
@@ -817,8 +816,6 @@ colorize_packets(capture_file *cf)
   prevsec = 0;
   prevusec = 0;
 
-  proto_tree_is_visible = FALSE;
-
   /* Update the progress bar when it gets to this value. */
   progbar_nextstep = 0;
   /* When we reach the value that triggers a progress bar update,
@@ -951,7 +948,10 @@ print_packets(capture_file *cf, print_args_t *print_args)
   }
 
   print_separator = FALSE;
-  proto_tree_is_visible = TRUE;
+
+  /* The protocol tree will be "visible", i.e., printed, only if we're
+     not printing a summary. */
+  proto_tree_is_visible = !print_args->print_summary;
 
   /* Update the progress bar when it gets to this value. */
   progbar_nextstep = 0;
@@ -1063,6 +1063,9 @@ print_packets(capture_file *cf, print_args_t *print_args)
   gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), 0);
 
   cf->print_fh = NULL;
+
+  proto_tree_is_visible = FALSE;
+
   return TRUE;
 }
 
@@ -1165,8 +1168,6 @@ find_packet(capture_file *cf, dfilter *sfcode)
        it matches, and stop if so.  */
     count = 0;
     fdata = start_fd;
-
-    proto_tree_is_visible = FALSE;
 
     /* Update the progress bar when it gets to this value. */
     progbar_nextstep = 0;
@@ -1323,6 +1324,7 @@ select_packet(capture_file *cf, int row)
   cf->protocol_tree = proto_tree_create_root();
   proto_tree_is_visible = TRUE;
   dissect_packet(cf->pd, cf->current_frame, cf->protocol_tree);
+  proto_tree_is_visible = FALSE;
 
   /* Display the GUI protocol tree and hex dump. */
   clear_tree_and_hex_views();

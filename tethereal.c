@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.26 2000/04/14 05:39:43 gram Exp $
+ * $Id: tethereal.c,v 1.27 2000/05/18 08:35:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -857,6 +857,10 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr, int offset,
 
   cf->count++;
 
+  /* The protocol tree will be "visible", i.e., printed, only if we're
+     not printing a summary. */
+  proto_tree_is_visible = verbose;
+
   fill_in_fdata(&fdata, cf, phdr, offset);
 
   passed = TRUE;
@@ -912,6 +916,8 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   }
   if (protocol_tree != NULL)
     proto_tree_free(protocol_tree);
+
+  proto_tree_is_visible = FALSE;
 }
 
 char *

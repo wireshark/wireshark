@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.64 2000/05/11 08:15:59 gram Exp $
+ * $Id: proto.c,v 1.65 2000/05/18 08:31:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -155,7 +155,7 @@ int		num_tree_types;
  * By setting this correctly, the proto_tree creation is sped up by not
  * having to call vsnprintf and copy strings around.
  */
-gboolean proto_tree_is_visible = TRUE;
+gboolean proto_tree_is_visible = FALSE;
 
 /* initialize data structures and register protocols and fields */
 void
