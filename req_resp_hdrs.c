@@ -2,7 +2,7 @@
  * Routines handling protocols with a request/response line, headers,
  * a blank line, and an optional body.
  *
- * $Id: req_resp_hdrs.c,v 1.1 2003/12/23 02:29:11 guy Exp $
+ * $Id: req_resp_hdrs.c,v 1.2 2003/12/24 09:50:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, packet_info *pinfo,
 	gint		offset = 0;
 	gint		next_offset;
 	gint		next_offset_sav;
+	gint		length_remaining, reported_length_remaining;
 	int		linelen;
 	long int	content_length;
 	gboolean	content_length_found = FALSE;
@@ -89,11 +90,19 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, packet_info *pinfo,
 		for (;;) {
 			next_offset_sav = next_offset;
 
+			length_remaining = tvb_length_remaining(tvb,
+			    next_offset);
+			reported_length_remaining =
+			    tvb_reported_length_remaining(tvb, next_offset);
+
 			/*
 			 * Request one more byte if there're no
-			 * bytes left.
+			 * bytes left in the reported data (if there're
+			 * bytes left in the reported data, but not in
+			 * the available data, requesting more bytes
+			 * won't help, as those bytes weren't captured).
 			 */
-			if (tvb_offset_exists(tvb, next_offset) == FALSE) {
+			if (reported_length_remaining < 1) {
 				pinfo->desegment_offset = offset;
 				pinfo->desegment_len = 1;
 				return FALSE;
@@ -105,7 +114,8 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, packet_info *pinfo,
 			 */
 			linelen = tvb_find_line_end(tvb, next_offset,
 			    -1, &next_offset, TRUE);
-			if (linelen == -1) {
+			if (linelen == -1 &&
+			    length_remaining >= reported_length_remaining) {
 				/*
 				 * Not enough data; ask for one more
 				 * byte.
@@ -154,11 +164,22 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, packet_info *pinfo,
 	if (desegment_body && content_length_found) {
 		/* next_offset has been set because content-length was found */
 		if (!tvb_bytes_exist(tvb, next_offset, content_length)) {
-			gint length = tvb_length_remaining(tvb, next_offset);
-			if (length == -1)
-				length = 0;
+			length_remaining = tvb_length_remaining(tvb,
+			    next_offset);
+			reported_length_remaining =
+			    tvb_reported_length_remaining(tvb, next_offset);
+			if (length_remaining < reported_length_remaining) {
+				/*
+				 * It's a waste of time asking for more
+				 * data, because that data wasn't captured.
+				 */
+				return TRUE;
+			}
+			if (length_remaining == -1)
+				length_remaining = 0;
 			pinfo->desegment_offset = offset;
-			pinfo->desegment_len = content_length - length;
+			pinfo->desegment_len =
+			    content_length - length_remaining;
 			return FALSE;
 		}
 	}

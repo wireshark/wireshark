@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.81 2003/12/23 02:29:11 guy Exp $
+ * $Id: packet-http.c,v 1.82 2003/12/24 09:50:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -218,8 +218,11 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * is not longer than what's in the buffer, so the
 	 * "tvb_get_ptr()" call won't throw an exception.
 	 */
-	first_linelen = tvb_find_line_end(tvb, offset, -1, &next_offset,
-	    FALSE);
+	first_linelen = tvb_find_line_end(tvb, offset,
+	    tvb_ensure_length_remaining(tvb, offset), &next_offset,
+	    TRUE);
+	if (first_linelen < 0)
+		return -1;
 	line = tvb_get_ptr(tvb, offset, first_linelen);
 	http_type = HTTP_OTHERS;	/* type not known yet */
 	is_request_or_reply = is_http_request_or_reply(line, first_linelen,
@@ -292,12 +295,15 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	headers.content_type = NULL;	/* content type not known yet */
 	headers.content_length = -1;	/* content length not known yet */
 	CLEANUP_PUSH(cleanup_headers, &headers);
-	while (tvb_offset_exists(tvb, offset)) {
+	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 		/*
 		 * Find the end of the line.
 		 */
-		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset,
+		linelen = tvb_find_line_end(tvb, offset,
+		    tvb_ensure_length_remaining(tvb, offset), &next_offset,
 		    FALSE);
+		if (linelen < 0)
+			return -1;
 
 		/*
 		 * Get a buffer that refers to the line.
