@@ -1,7 +1,7 @@
 /* endpoint_talkers_tcpip.c
  * endpoint_talkers_tcpip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_tcpip.c,v 1.7 2003/08/26 01:46:23 guy Exp $
+ * $Id: endpoint_talkers_tcpip.c,v 1.8 2003/08/27 12:10:21 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -127,6 +127,17 @@ gtk_tcpip_talkers_init(char *optarg)
 	GtkWidget *label;
 	GString *error_string;
 	char title[256];
+	/* XXX crap, once again we get visibility of the type of transport */
+	/* XXX fixme or fix the api to make ipv6 work */
+	static char *filter_names[] = {
+		"ip.addr",
+		"ip.src",
+		"ip.dst",
+		"tcp.port",
+		"tcp.srcport",
+		"tcp.dstport"
+		};
+
 
 	if(!strncmp(optarg,"talkers,tcp,",12)){
 		filter=optarg+12;
@@ -155,7 +166,7 @@ gtk_tcpip_talkers_init(char *optarg)
 	/* We must display TOP LEVEL Widget before calling init_ett_table() */
 	gtk_widget_show(tcpip_talkers->win);
 
-	init_ett_table(&tcpip_talkers->talkers, vbox, tcpip_port_to_str);
+	init_ett_table(&tcpip_talkers->talkers, vbox, tcpip_port_to_str, filter_names);
 
 	error_string=register_tap_listener("tcp", tcpip_talkers, filter, tcpip_talkers_reset, tcpip_talkers_packet, tcpip_talkers_draw);
 	if(error_string){

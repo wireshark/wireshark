@@ -1,7 +1,7 @@
 /* endpoint_talkers_tr.c
  * endpoint_talkers_tr   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_tr.c,v 1.6 2003/08/26 01:46:23 guy Exp $
+ * $Id: endpoint_talkers_tr.c,v 1.7 2003/08/27 12:10:21 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -110,6 +110,14 @@ gtk_tr_talkers_init(char *optarg)
 	GtkWidget *label;
 	GString *error_string;
 	char title[256];
+	static char *filter_names[] = {
+		"tr.addr",
+		"tr.src",
+		"tr.dst",
+		NULL,
+		NULL,
+		NULL
+		};
 
 	if(!strncmp(optarg,"talkers,tr,",11)){
 		filter=optarg+11;
@@ -138,7 +146,7 @@ gtk_tr_talkers_init(char *optarg)
 	/* We must display TOP LEVEL Widget before calling init_ett_table() */
 	gtk_widget_show(tr_talkers->win);
 
-	init_ett_table(&tr_talkers->talkers, vbox, NULL);
+	init_ett_table(&tr_talkers->talkers, vbox, NULL, filter_names);
 
 	error_string=register_tap_listener("tr", tr_talkers, filter, tr_talkers_reset, tr_talkers_packet, tr_talkers_draw);
 	if(error_string){

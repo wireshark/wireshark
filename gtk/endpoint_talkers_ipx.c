@@ -1,7 +1,7 @@
 /* endpoint_talkers_ipx.c
  * endpoint_talkers_ipx   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_ipx.c,v 1.4 2003/08/26 01:46:22 guy Exp $
+ * $Id: endpoint_talkers_ipx.c,v 1.5 2003/08/27 12:10:21 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -110,6 +110,14 @@ gtk_ipx_talkers_init(char *optarg)
 	GtkWidget *label;
 	GString *error_string;
 	char title[256];
+	static char *filter_names[] = {
+		"ipx.node",
+		"ipx.src.node",
+		"ipx.dst.node",
+		NULL,
+		NULL,
+		NULL
+		};
 
 	if(!strncmp(optarg,"talkers,ipx,",12)){
 		filter=optarg+12;
@@ -138,7 +146,7 @@ gtk_ipx_talkers_init(char *optarg)
 	/* We must display TOP LEVEL Widget before calling init_ett_table() */
 	gtk_widget_show(ipx_talkers->win);
 
-	init_ett_table(&ipx_talkers->talkers, vbox, NULL);
+	init_ett_table(&ipx_talkers->talkers, vbox, NULL, filter_names);
 
 	error_string=register_tap_listener("ipx", ipx_talkers, filter, ipx_talkers_reset, ipx_talkers_packet, ipx_talkers_draw);
 	if(error_string){
