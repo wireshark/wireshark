@@ -18,7 +18,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.62 2004/03/30 18:55:46 guy Exp $
+ * $Id: packet-sip.c,v 1.63 2004/04/03 22:33:45 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -535,7 +535,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         while (tvb_reported_length_remaining(tvb, offset) > 0) {
                 gint line_end_offset;
                 gint colon_offset;
-                gint semicolon_offset;
+                gint parameter_offset;
 		gint content_type_len, content_type_parameter_str_len;
                 gint header_len;
                 gint hf_index;
@@ -744,11 +744,19 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						    tvb_format_text(tvb, offset, linelen));
 					}
 					content_type_len = value_len;
-					semicolon_offset = tvb_find_guint8(tvb, value_offset,linelen, ';');
-					if ( semicolon_offset != -1) {
-						content_type_len = semicolon_offset - value_offset;
-						content_type_parameter_str_len = line_end_offset - (semicolon_offset + 1);
-						content_type_parameter_str = tvb_get_string(tvb, semicolon_offset + 1,
+					parameter_offset = tvb_find_guint8(tvb, value_offset,linelen, ';');
+					if ( parameter_offset != -1) {
+					/*
+					 * Skip whitespace after the semicolon.
+					 */
+					while (parameter_offset < line_end_offset
+					    && ((c = tvb_get_guint8(tvb,
+						    value_offset)) == ' '
+					      || c == '\t'))
+						parameter_offset++;
+						content_type_len = parameter_offset - value_offset;
+						content_type_parameter_str_len = line_end_offset - (parameter_offset + 1);
+						content_type_parameter_str = tvb_get_string(tvb, parameter_offset + 1,
 								content_type_parameter_str_len);
 					}
 					media_type_str = tvb_get_string(tvb, value_offset, content_type_len);
