@@ -784,25 +784,28 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 		# needed after the library *and* to cache all that
 		# information.
 		#
-		ac_save_LIBS="$LIBS"
+		ethereal_save_LIBS="$LIBS"
+		found_sprint_realloc_objid=no
 		for extras in "" "-L/usr/kerberos/lib -ldes425" "-lkstat"
 		do
 			LIBS="-lsnmp $extras $SOCKET_LIBS $NSL_LIBS $SSL_LIBS"
 			AC_TRY_LINK(
-			[
-			],
-			[
+			    [
+			    ],
+			    [
 				sprint_realloc_objid();
-			],
-			[
+			    ],
+			    [
 				#
 				# We found "sprint_realloc_objid()",
 				# and required the libraries in
 				# extras as well.
 				#
 				SNMP_LIBS="-lsnmp $extras"; break;
-			],
-			[
+				found_sprint_realloc_objid=yes
+				break
+			    ],
+			    [
 				#
 				# The link failed.  If they didn't ask
 				# for SSL, try linking with -lcrypto
@@ -828,9 +831,9 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 						AC_MSG_ERROR([UCD SNMP requires -lcrypto but --with-ssl not specified])
 					    ])
 				fi
-			])
+			    ])
 		done
-		LIBS=$ac_save_LIBS
+		LIBS="$ethereal_save_LIBS"
 
 		#
 		# If we didn't find "sprint_realloc_objid()", fail.
@@ -838,7 +841,7 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 		# with "sprint_realloc_objid()", or they may need to
 		# specify "--with-ssl".
 		#
-		if test "$ac_cv_lib_snmp_sprint_realloc_objid" = no; then
+		if test "$found_snmp_sprint_realloc_objid" = no; then
 		    AC_MSG_ERROR([UCD SNMP header files found, but sprint_realloc_objid not found in SNMP library.])
 		fi
 
@@ -1029,51 +1032,80 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 		# library, as it's probably not present.
 		#
 		want_krb5=no
+		AC_MSG_RESULT(Heimdal header not found - disabling dissection for some kerberos data in packet decoding)
 	      fi
 	    fi
 	  ])
 
-	if test "x$want_krb5" != "xno" -a "x$ac_krb5_version" = "xHEIMDAL"
+	if test "x$want_krb5" != "xno"
 	then
 	    #
 	    # Well, we at least have the krb5 header file.
-	    # Check whether we have krb5_kt_resolve - and whether
-	    # we need to link with -lresolv when linking with
-	    # the Kerberos library.
+	    # Check whether this is Heimdal.
 	    #
-	    for extras in "" "-lresolv"
-	    do
-		AC_CHECK_LIB(krb5, krb5_kt_resolve,
-		[
-		    if test "x$krb5_dir" != "x"
-		    then
-			#
-			# Put the "-I" and "-L" flags for krb5 at
-			# the beginning of CFLAGS, CPPFLAGS,
-			# LDFLAGS, and LIBS.
-			#
-			KRB5_LIBS="-L$krb5_dir/lib $KRB5_LIBS"
-		    fi
-		    KRB5_LIBS="$KRB5_LIBS $extras"
-		    AC_DEFINE(HAVE_KERBEROS, 1, [Define to use kerberos])
-		    AC_DEFINE(HAVE_HEIMDAL_KERBEROS, 1, [Define to use heimdal kerberos])
-		    break
-		],, $KRB5_LIBS $extras)
-	    done
-	    if test "$ac_cv_lib_krb5_krb5_kt_resolve" = no
+	    AC_MSG_CHECKING(whether the Kerberos library is Heimdal)
+	    if test "x$ac_krb5_version" = "xHEIMDAL"
 	    then
 		#
-		# We didn't find "krb5_kt_resolve()" in the
-		# Kerberos library, even when we tried linking
-		# with -lresolv; we can't link with kerberos.
+		# Yes.
+		# Check whether we have krb5_kt_resolve - and whether
+		# we need to link with -lresolv when linking with
+		# the Kerberos library.
 		#
-		# Restore the versions of CFLAGS and CPPFLAGS
-		# from before we added the flags for Kerberos.
-		#
-		CFLAGS="$ethereal_save_CFLAGS"
-		CPPFLAGS="$ethereal_save_CPPFLAGS"
-		KRB5_LIBS=""
-		want_krb5=no
+		AC_MSG_RESULT(yes)
+		ethereal_save_LIBS="$LIBS"
+		found_krb5_kt_resolve=no
+		for extras in "" "-lresolv"
+		do
+		    LIBS="$KRB5_LIBS $extras"
+		    if test -z "$extras"
+		    then
+			AC_MSG_CHECKING([whether Heimdal includes krb_k5_resolve])
+		    else
+			AC_MSG_CHECKING([whether Heimdal includes krb_k5_resolve (linking with $extras)])
+		    fi
+		    AC_TRY_LINK(
+			[
+			],
+			[
+			    krb5_kt_resolve();
+			],
+			[
+			    #
+			    # We found "krb5_kt_resolve()", and required
+			    # the libraries in extras as well.
+			    #
+			    AC_MSG_RESULT(yes)
+			    KRB5_LIBS="$LIBS"
+			    AC_DEFINE(HAVE_KERBEROS, 1, [Define to use kerberos])
+			    AC_DEFINE(HAVE_HEIMDAL_KERBEROS, 1, [Define to use heimdal kerberos])
+			    found_krb5_kt_resolve=yes
+			    break
+			],
+			[
+			    AC_MSG_RESULT(no)
+			])
+		done
+		if test "$found_krb5_kt_resolve" = no
+		then
+		    #
+		    # We didn't find "krb5_kt_resolve()" in the
+		    # Kerberos library, even when we tried linking
+		    # with -lresolv; we can't link with kerberos.
+		    #
+		    # Restore the versions of CFLAGS and CPPFLAGS
+		    # from before we added the flags for Kerberos.
+		    #
+		    AC_MSG_RESULT(usable Heimdal not found - disabling dissection for some kerberos data in packet decoding)
+		    CFLAGS="$ethereal_save_CFLAGS"
+		    CPPFLAGS="$ethereal_save_CPPFLAGS"
+		    LIBS="$ethereal_save_LIBS"
+		    KRB5_LIBS=""
+		    want_krb5=no
+		fi
+	    else
+		AC_MSG_RESULT(no)
+		AC_MSG_RESULT(Heimdal not found - disabling dissection for some kerberos data in packet decoding)
 	    fi
 	else
 	    #
@@ -1082,7 +1114,6 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	    # XXX - if they did ask for it, should we fail and tell
 	    # them that the Kerberos library they have isn't one we can
 	    # use?
-	    #
 	    #
 	    # Restore the versions of CFLAGS and CPPFLAGS
 	    # from before we added the flags for Kerberos.

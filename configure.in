@@ -922,9 +922,6 @@ if test "x$want_krb5" = "xno" ; then
 else
 	AC_MSG_RESULT(yes)
 	AC_ETHEREAL_KRB5_CHECK
-	if test "x$want_krb5" = "xno" ; then
-		AC_MSG_RESULT(heimdal not found - disabling dissection for some kerberos data in packet decoding)
-	fi
 fi
 
 
