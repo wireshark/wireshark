@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.259 2002/05/16 23:36:43 guy Exp $
+ * $Id: packet-smb.c,v 1.260 2002/05/23 12:23:29 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -13523,6 +13523,7 @@ const value_string NT_errors[] = {
   { 0x80000024, "STATUS_SERVER_HAS_OPEN_HANDLES" },
   { 0x80000025, "STATUS_ALREADY_DISCONNECTED" },
   { 0x80000026, "STATUS_LONGJUMP" },
+  { 0x80040111, "MAPI_E_LOGON_FAILED" },
   { 0x80090300, "SEC_E_INSUFFICIENT_MEMORY" },
   { 0x80090301, "SEC_E_INVALID_HANDLE" },
   { 0x80090302, "SEC_E_UNSUPPORTED_FUNCTION" },

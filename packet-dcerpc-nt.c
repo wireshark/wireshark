@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.35 2002/05/15 03:28:43 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.36 2002/05/23 12:23:29 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -542,28 +542,28 @@ dissect_ndr_nt_STRING_string (tvbuff_t *tvb, int offset,
 	}
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_nt_str_len, &len);
+                                     hf_nt_str_max_len, &max_len);
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_nt_str_off, &off);
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_nt_str_max_len, &max_len);
+                                     hf_nt_str_len, &len);
 
 	old_offset=offset;
 	hfi = proto_registrar_get_nth(di->hf_index);
 
 	switch(hfi->type){
 	case FT_STRING:
-		offset = prs_uint8s(tvb, offset, pinfo, tree, max_len,
+		offset = prs_uint8s(tvb, offset, pinfo, tree, len,
 			&text_offset, NULL);
-		text = tvb_get_ptr(tvb, text_offset, max_len);
+		text = tvb_get_ptr(tvb, text_offset, len);
 		proto_tree_add_string_format(tree, di->hf_index, 
 			tvb, old_offset, offset-old_offset,
 			text, "%s: %s", hfi->name, text);
 		break;
 	case FT_BYTES:
 		text = NULL;
-		proto_tree_add_item(tree, di->hf_index, tvb, offset, max_len, FALSE);
-		offset += max_len;
+		proto_tree_add_item(tree, di->hf_index, tvb, offset, len, FALSE);
+		offset += len;
 		break;
 	default:
 		text = NULL;

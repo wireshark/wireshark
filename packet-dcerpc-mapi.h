@@ -2,7 +2,7 @@
  * Routines for MS Exchange MAPI dissection
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-mapi.h,v 1.1 2002/05/23 10:00:19 sahlberg Exp $
+ * $Id: packet-dcerpc-mapi.h,v 1.2 2002/05/23 12:23:29 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,5 +28,6 @@
 
 #define MAPI_LOGON		0x00
 #define MAPI_LOGOFF		0x01
+#define MAPI_UNKNOWN_02		0x02
 
 #endif 
