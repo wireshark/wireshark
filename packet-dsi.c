@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.26 2003/04/15 05:45:02 guy Exp $
+ * $Id: packet-dsi.c,v 1.27 2003/12/08 20:36:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -480,10 +480,13 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32		dsi_length;
 	guint32		dsi_reserved;
 	struct		aspinfo aspinfo;
+	gint            col_info;
+	
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DSI");
-	if (check_col(pinfo->cinfo, COL_INFO))
+	col_info = check_col(pinfo->cinfo, COL_INFO);
+	if (col_info)
 		col_clear(pinfo->cinfo, COL_INFO);
 
 	dsi_flags = tvb_get_guint8(tvb, 0);
@@ -493,7 +496,7 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dsi_length = tvb_get_ntohl(tvb, 8);
 	dsi_reserved = tvb_get_ntohl(tvb, 12);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
+	if (col_info) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s (%u)",
 			val_to_str(dsi_flags, flag_vals,
 				   "Unknown flag (0x%02x)"),
@@ -580,6 +583,15 @@ static guint
 get_dsi_pdu_len(tvbuff_t *tvb, int offset)
 {
 	guint32 plen;
+	guint8	dsi_flags,dsi_command;
+
+	dsi_flags = tvb_get_guint8(tvb, offset);
+	dsi_command = tvb_get_guint8(tvb, offset+ 1);
+	if ( dsi_flags > DSIFL_MAX || !dsi_command || dsi_command > DSIFUNC_MAX) 
+	{
+	    /* it's not a known dsi pdu start sequence */
+	    return tvb_length_remaining(tvb, offset);
+	}
 
 	/*
 	 * Get the length of the DSI packet.
