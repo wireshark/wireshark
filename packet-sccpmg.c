@@ -8,7 +8,7 @@
  *
  * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-sccpmg.c,v 1.5 2003/04/22 13:47:38 tuexen Exp $
+ * $Id: packet-sccpmg.c,v 1.6 2003/09/04 14:30:18 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -285,8 +285,17 @@ dissect_sccpmg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *sccpmg_tree = NULL;
 
 	/* Make entry in the Protocol column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCPMG");
+  switch(mtp3_standard) {
+    case ITU_STANDARD:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCPMG (Int. ITU)");
+      break;
+    case ANSI_STANDARD:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCPMG (ANSI)");
+      break;
+    case CHINESE_ITU_STANDARD:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCPMG (Chin. ITU)");
+      break;
+  };      
 
 	/* In the interest of speed, if "tree" is NULL, don't do any work not
 	   necessary to generate protocol tree items. */

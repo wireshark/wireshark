@@ -10,7 +10,7 @@
  *
  * Copyright 2003, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-mtp3mg.c,v 1.7 2003/05/01 21:42:56 guy Exp $
+ * $Id: packet-mtp3mg.c,v 1.8 2003/09/04 14:30:18 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -848,8 +848,17 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *mtp3mg_tree = NULL;
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3MG");
+    switch(mtp3_standard) {
+      case ITU_STANDARD:
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3MG (Int. ITU)");
+        break;
+      case ANSI_STANDARD:
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3MG (ANSI)");
+        break;
+      case CHINESE_ITU_STANDARD:
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3MG (Chin. ITU)");
+        break;
+    };      
 
     if (tree) {
 	/* create display subtree for the protocol */
