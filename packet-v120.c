@@ -2,7 +2,7 @@
  * Routines for v120 frame disassembly
  * Bert Driehuis <driehuis@playbeing.org>
  *
- * $Id: packet-v120.c,v 1.2 1999/12/12 23:08:20 guy Exp $
+ * $Id: packet-v120.c,v 1.3 1999/12/14 06:21:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,10 +43,14 @@
 static int proto_v120 = -1;
 static int hf_v120_address = -1;
 static int hf_v120_control = -1;
+static int hf_v120_header = -1;
 
 static gint ett_v120 = -1;
 static gint ett_v120_address = -1;
 static gint ett_v120_control = -1;
+static gint ett_v120_header = -1;
+
+void dissect_v120_header(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 
 void
 dissect_v120(const u_char *pd, frame_data *fd, proto_tree *tree)
@@ -99,37 +103,87 @@ dissect_v120(const u_char *pd, frame_data *fd, proto_tree *tree)
 	ti = proto_tree_add_item_format(tree, proto_v120, 0, v120len, NULL,
 					    "V.120");
 	v120_tree = proto_item_add_subtree(ti, ett_v120);
-	addr = pd[0] << 8 | pd[1];
+	addr = pd[1] << 8 | pd[0];
 	sprintf(info, "LLI: %d C/R: %s",
 			((pd[0] & 0xfc) << 5) | ((pd[1] & 0xfe) >> 1),
 			pd[0] & 0x02 ? "R" : "C");
 	tc = proto_tree_add_item_format(v120_tree, ett_v120_address,
 			0, 2,
-			"Address field: %s (0x%02X)", info, addr);
+			"Address field: %s", info);
 	address_tree = proto_item_add_subtree(tc, ett_v120_address);
 	proto_tree_add_text(address_tree, 0, 2,
-		    decode_boolean_bitfield(addr, 0x0200, 2*8,
+		    decode_boolean_bitfield(addr, 0x0002, 2*8,
 			"Response", "Command"), NULL);
 	sprintf(info, "LLI: %d", ((pd[0] & 0xfc) << 5) | ((pd[1] & 0xfe) >> 1));
 	proto_tree_add_text(address_tree, 0, 2,
-		    decode_numeric_bitfield(addr, 0xfcfe, 2*8, info));
+		    decode_numeric_bitfield(addr, 0xfefc, 2*8, info));
 	proto_tree_add_text(address_tree, 0, 2,
-		    decode_boolean_bitfield(addr, 0x0100, 2*8,
+		    decode_boolean_bitfield(addr, 0x0001, 2*8,
 			"EA0 = 1 (Error)", "EA0 = 0"), NULL);
 	proto_tree_add_text(address_tree, 0, 2,
-		    decode_boolean_bitfield(addr, 0x01, 2*8,
+		    decode_boolean_bitfield(addr, 0x0100, 2*8,
 			"EA1 = 1", "EA1 = 0 (Error)"), NULL);
-	/* TODO: parse octets 4 & 5. Not that they're used in
-	   practice, but it looks so professional. */
+	if (v120len == 5)
+		dissect_v120_header(pd, 4, fd, v120_tree);
     }
     else
-        v120_tree = NULL;
+	v120_tree = NULL;
     dissect_xdlc_control(pd, 2, fd, v120_tree, hf_v120_control,
 	    ett_v120_control, is_response, v120len == 3 ? FALSE : TRUE);
-
-    /* not end of frame ==> X.25 */
 }
 
+void
+dissect_v120_header(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	char info[80];
+	int header_len, nbits;
+	int header;
+	proto_tree *h_tree, *tc;
+
+	if (pd[offset] & 0x80) {
+		header_len = 1;
+		header = pd[offset];
+	} else {
+		header_len = 2;
+		header = pd[offset] | pd[offset + 1] << 8;
+	}
+	nbits = header_len * 8;
+	sprintf(info, "Header: B: %d F: %d", pd[offset] & 0x02 ? 1:0,
+			pd[offset] & 0x01 ? 1:0);
+	tc = proto_tree_add_item_format(tree, ett_v120_header,
+			offset, header_len,
+			"Header octet: %s (0x%02X)", info, pd[offset]);
+	h_tree = proto_item_add_subtree(tc, ett_v120_header);
+	proto_tree_add_text(h_tree, offset, header_len,
+		    decode_boolean_bitfield(header, 0x80, nbits,
+			"No extension octet", "Extension octet follows"), NULL);
+	proto_tree_add_text(h_tree, offset, header_len,
+		    decode_boolean_bitfield(header, 0x40, nbits,
+			"Break condition", "No break condition"), NULL);
+	sprintf(info, "Error control C1/C2: %d", (header & 0x0c) >> 2);
+	proto_tree_add_text(h_tree, offset, header_len,
+		    decode_numeric_bitfield(header, 0x0c, nbits, info));
+	proto_tree_add_text(h_tree, offset, header_len,
+		    decode_boolean_bitfield(header, 0x02, nbits,
+			"Segmentation bit B", "No segmentation bit B"), NULL);
+	proto_tree_add_text(h_tree, offset, header_len,
+		    decode_boolean_bitfield(header, 0x01, nbits,
+			"Segmentation bit F", "No segmentation bit F"), NULL);
+	if (header_len == 2) {
+		proto_tree_add_text(h_tree, offset, header_len,
+		    decode_boolean_bitfield(header, 0x8000, nbits,
+			"E", "E bit not set (Error)"), NULL);
+		proto_tree_add_text(h_tree, offset, header_len,
+		    decode_boolean_bitfield(header, 0x4000, nbits,
+			"DR", "No DR"), NULL);
+		proto_tree_add_text(h_tree, offset, header_len,
+		    decode_boolean_bitfield(header, 0x2000, nbits,
+			"SR", "No SR"), NULL);
+		proto_tree_add_text(h_tree, offset, header_len,
+		    decode_boolean_bitfield(header, 0x1000, nbits,
+			"RR", "No RR"), NULL);
+	}
+}
 void
 proto_register_v120(void)
 {
@@ -140,11 +194,15 @@ proto_register_v120(void)
 	{ &hf_v120_control,
 	  { "Control Field", "v120.control", FT_STRING, BASE_NONE, NULL, 0x0,
 	  	"" }},
+	{ &hf_v120_header,
+	  { "Header Field", "v120.header", FT_STRING, BASE_NONE, NULL, 0x0,
+	  	"" }},
     };
     static gint *ett[] = {
         &ett_v120,
         &ett_v120_address,
         &ett_v120_control,
+        &ett_v120_header,
     };
 
     proto_v120 = proto_register_protocol ("Async data over ISDN (V.120)", "v120");
