@@ -1732,6 +1732,10 @@ Lionel Ains <lains [AT] gmx.net> {
 	"-d" flag for decode-as support in Tethereal
 }
 
+Joakim Wiberg <jow [AT] hms-networks.com> {
+	Support for Common Industrial Protocol over IP
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
