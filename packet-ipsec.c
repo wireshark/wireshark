@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.8 1999/10/15 05:46:18 itojun Exp $
+ * $Id: packet-ipsec.c,v 1.9 1999/10/17 08:33:23 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -98,7 +98,7 @@ int
 dissect_ah(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
     proto_tree *ah_tree;
-	proto_item *ti;
+    proto_item *ti;
     struct newah ah;
     int advance;
 
@@ -121,18 +121,14 @@ dissect_ah(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    "Next Header: %s (0x%02x)", ipprotostr(ah.ah_nxt), ah.ah_nxt);
 	proto_tree_add_text(ah_tree, offset + offsetof(struct newah, ah_len), 1,
 	    "Length: %d", ah.ah_len << 2);
-	proto_tree_add_item_format(ah_tree, hf_ah_spi,
-				   offset + offsetof(struct newah, ah_spi), 4,
-				   (guint32)ntohl(ah.ah_spi),
-				   "SPI: 0x%08x",
-				   (guint32)ntohl(ah.ah_spi));
-	proto_tree_add_item_format(ah_tree, hf_ah_sequence,
-				   offset + offsetof(struct newah, ah_seq), 4,
-				   (guint32)ntohl(ah.ah_seq),
-				   "Sequence?: 0x%08x",
-				   (guint32)ntohl(ah.ah_seq));
+	proto_tree_add_item(ah_tree, hf_ah_spi,
+			    offset + offsetof(struct newah, ah_spi), 4,
+			    (guint32)ntohl(ah.ah_spi));
+	proto_tree_add_item(ah_tree, hf_ah_sequence,
+			    offset + offsetof(struct newah, ah_seq), 4,
+			    (guint32)ntohl(ah.ah_seq));
 	proto_tree_add_text(ah_tree, offset + sizeof(ah), (ah.ah_len - 1) << 2,
-	    "ICV");
+			    "ICV");
     }
 
     /* start of the new header (could be a extension header) */
@@ -142,7 +138,7 @@ dissect_ah(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 void
 dissect_esp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-	proto_tree *esp_tree;
+    proto_tree *esp_tree;
     proto_item *ti;
     struct newesp esp;
 
@@ -166,16 +162,12 @@ dissect_esp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     if(tree) {
 	ti = proto_tree_add_item(tree, proto_esp, offset, END_OF_FRAME, NULL);
 	esp_tree = proto_item_add_subtree(ti, ETT_ESP);
-	proto_tree_add_item_format(esp_tree, hf_esp_spi, 
-				   offset + offsetof(struct newesp, esp_spi), 4,
-				   (guint32)ntohl(esp.esp_spi),
-				   "SPI: 0x%08x", 
-				   (guint32)ntohl(esp.esp_spi));
-	proto_tree_add_item_format(esp_tree, hf_esp_sequence,
-				   offset + offsetof(struct newesp, esp_seq), 4,
-				   (guint32)ntohl(esp.esp_seq),
-				   "Sequence?: 0x%08x", 
-				   (guint32)ntohl(esp.esp_seq));
+	proto_tree_add_item(esp_tree, hf_esp_spi, 
+			    offset + offsetof(struct newesp, esp_spi), 4,
+			    (guint32)ntohl(esp.esp_spi));
+	proto_tree_add_item(esp_tree, hf_esp_sequence,
+			    offset + offsetof(struct newesp, esp_seq), 4,
+			    (guint32)ntohl(esp.esp_seq));
 	dissect_data(pd, offset + sizeof(struct newesp), fd, esp_tree);
     }
 }
