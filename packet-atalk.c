@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.35 2000/05/22 18:09:33 guy Exp $
+ * $Id: packet-atalk.c,v 1.36 2000/05/28 22:59:17 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -80,6 +80,8 @@ static gint ett_rtmp_tuple = -1;
 static gint ett_ddp = -1;
 static gint ett_pstring = -1;
 
+static dissector_table_t ddp_dissector_table;
+
 /* P = Padding, H = Hops, L = Len */
 #if BYTE_ORDER == BIG_ENDIAN
  /* PPHHHHLL LLLLLLLL */
@@ -98,14 +100,6 @@ typedef struct _e_ddp {
   guint8	type;
 } e_ddp;
 
-#define DDP_RTMPDATA	0x01
-#define DDP_NBP		0x02
-#define DDP_ATP		0x03
-#define DDP_AEP		0x04
-#define DDP_RTMPREQ	0x05
-#define DDP_ZIP		0x06
-#define DDP_ADSP	0x07
-#define DDP_EIGRP	0x58
 #define DDP_HEADER_SIZE 13
 
 gchar *
@@ -423,23 +417,8 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   offset += DDP_HEADER_SIZE;
 
-  switch ( ddp.type ) {
-    case DDP_EIGRP:
-      dissect_eigrp(pd, offset, fd, tree);
-      break;
-    case DDP_NBP:
-      dissect_nbp(pd, offset, fd, tree);
-      break;
-    case DDP_RTMPREQ:
-      dissect_rtmp_request(pd, offset, fd, tree);
-      break;
-    case DDP_RTMPDATA:
-      dissect_rtmp_data(pd, offset, fd, tree);
-      break;
-    default:
-      dissect_data(pd, offset, fd, tree);
-      break;
-  }
+  if (!dissector_try_port(ddp_dissector_table, ddp.type, pd, offset, fd, tree))
+    dissect_data(pd, offset, fd, tree);
 }
 
 void
@@ -562,11 +541,17 @@ proto_register_atalk(void)
   proto_register_field_array(proto_rtmp, hf_rtmp, array_length(hf_rtmp));
 
   proto_register_subtree_array(ett, array_length(ett));
+
+  /* subdissector code */
+  ddp_dissector_table = register_dissector_table("ddp.type");
 }
 
 void
 proto_reg_handoff_atalk(void)
 {
-	dissector_add("ethertype", ETHERTYPE_ATALK, dissect_ddp);
-	dissector_add("ppp.protocol", PPP_AT, dissect_ddp);
+  dissector_add("ethertype", ETHERTYPE_ATALK, dissect_ddp);
+  dissector_add("ppp.protocol", PPP_AT, dissect_ddp);
+  dissector_add("ddp.type", DDP_NBP, dissect_nbp);
+  dissector_add("ddp.type", DDP_RTMPREQ, dissect_rtmp_request);
+  dissector_add("ddp.type", DDP_RTMPDATA, dissect_rtmp_data);
 }

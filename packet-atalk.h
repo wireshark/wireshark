@@ -1,7 +1,7 @@
 /* packet-atalk.h
  * Definitions for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.h,v 1.2 2000/02/15 21:01:59 gram Exp $
+ * $Id: packet-atalk.h,v 1.3 2000/05/28 22:59:18 guy Exp $
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,6 +27,18 @@ struct atalk_ddp_addr {
 	guint8	node;
 	guint8	port;
 };
+
+/*
+ * DDP packet types.
+ */
+#define DDP_RTMPDATA	0x01
+#define DDP_NBP		0x02
+#define DDP_ATP		0x03
+#define DDP_AEP		0x04
+#define DDP_RTMPREQ	0x05
+#define DDP_ZIP		0x06
+#define DDP_ADSP	0x07
+#define DDP_EIGRP	0x58
 
 /*
  * Routine to take a DDP address and generate a string.
