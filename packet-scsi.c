@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.9 2002/04/14 23:04:04 guy Exp $
+ * $Id: packet-scsi.c,v 1.10 2002/06/13 07:36:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1279,7 +1279,7 @@ dissect_scsi_evpd (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     proto_item *ti;
     guint pcode, plen, i, idlen;
     guint8 flags;
-    char str[32];
+    char str[256+1];
 
     if (tree) {
         pcode = tvb_get_guint8 (tvb, offset+1);
@@ -1343,7 +1343,7 @@ dissect_scsi_evpd (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             break;
         case SCSI_EVPD_DEVSERNUM:
             str[0] = '\0';
-            tvb_get_nstringz0 (tvb, offset, plen, str);
+            tvb_get_nstringz0 (tvb, offset, MIN(plen, sizeof(str) - 1), str);
             proto_tree_add_text (evpd_tree, tvb, offset, plen,
                                  "Product Serial Number: %s", str);
             break;
