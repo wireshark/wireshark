@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.78 2002/08/07 02:54:22 guy Exp $
+ * $Id: packet-nfs.c,v 1.79 2002/08/08 22:15:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4979,6 +4979,8 @@ static const value_string names_fattr4[] = {
 	{	FATTR4_TIME_MODIFY, "FATTR4_TIME_MODIFY"	},
 #define FATTR4_TIME_MODIFY_SET     54
 	{	FATTR4_TIME_MODIFY_SET, "FATTR4_TIME_MODIFY_SET"	},
+#define FATTR4_MOUNTED_ON_FILEID   55
+	{	FATTR4_MOUNTED_ON_FILEID, "FATTR4_MOUNTED_ON_FILEID"	},
 	{	0,	NULL	}
 };
 
