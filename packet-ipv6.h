@@ -1,7 +1,7 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.h,v 1.21 2001/04/23 03:56:57 guy Exp $
+ * $Id: packet-ipv6.h,v 1.22 2001/06/01 23:53:49 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -101,10 +101,20 @@ struct ip6_dest {
 #define IP6OPT_JUMBO		0xC2	/* 11 0 00010 = 194 */
 #define IP6OPT_JUMBO_LEN	6
 #define IP6OPT_RTALERT		0x05	/* 00 0 00101 */
+
 #define IP6OPT_RTALERT_LEN	4
 #define IP6OPT_RTALERT_MLD	0	/* Datagram contains MLD message */
 #define IP6OPT_RTALERT_RSVP	1	/* Datagram contains RSVP message */
+#define IP6OPT_RTALERT_ACTNET	2	/* contains an Active Networks msg */
 #define IP6OPT_MINLEN		2
+
+#define IP6OPT_BINDING_UPDATE	0xC6  /* 11 0 00110 */
+#define IP6OPT_BINDING_ACK	0x07  /* 00 0 00111 */
+#define IP6OPT_BINDING_REQUEST	0x08  /* 00 0 01000 */
+#define IP6OPT_HOME_ADDRESS	0xC9  /* 11 0 01001 */
+#define IP6OPT_EID		0x8a  /* 10 0 01010 */
+#define IP6OPT_MIPv6_UNIQUE_ID_SUB 0x02  /* 00 0 00010 */
+#define IP6OPT_MIPv6_ALTERNATIVE_COA_SUB 0x04  /* 00 0 00100 */
 
 #define IP6OPT_TYPE(o)		((o) & 0xC0)
 #define IP6OPT_TYPE_SKIP	0x00
@@ -113,15 +123,6 @@ struct ip6_dest {
 #define IP6OPT_TYPE_ICMP	0xC0
 
 #define IP6OPT_MUTABLE		0x20
-
-/* BT INSERT BEGIN  */
-/* Mobile IP option types and sub-option types*/
-#define IP6OPT_BINDING_UPDATE 0xC6  /* 11 0 00110 */
-#define IP6OPT_BINDING_ACK 0x07  /* 00 0 00111 */
-#define IP6OPT_BINDING_REQUEST 0x08  /* 00 0 01000 */
-#define IP6OPT_HOME_ADDRESS 0xC9  /* 11 0 01001 */
-#define IP6OPT_MIPv6_UNIQUE_ID_SUB 0x02  /* 00 0 00010 */
-#define IP6OPT_MIPv6_ALTERNATIVE_COA_SUB 0x04  /* 00 0 00100 */
 
 /* MIPv6 Lifetime */
 #define MIP_INFINITY 0xffffffff /* Infinity lifetime */
@@ -190,7 +191,6 @@ static const true_false_string ipv6_mipv6_bu_b_flag_value =
 	"Request for bicasting",
 	"Do not request for bicasting"
 };
-/* BT INSERT END */
 
 /* Routing header */
 struct ip6_rthdr {
@@ -357,6 +357,19 @@ struct nd_router_advert {	/* router advertisement */
 #define nd_ra_flags_reserved	nd_ra_hdr.icmp6_data8[1]
 #define ND_RA_FLAG_MANAGED	0x80
 #define ND_RA_FLAG_OTHER	0x40
+#define ND_RA_FLAG_HOME_AGENT	0x20
+
+/*
+ * Router preference values based on draft-draves-ipngwg-router-selection-01.
+ * These are non-standard definitions.
+ */
+#define ND_RA_FLAG_RTPREF_MASK	0x18 /* 00011000 */
+
+#define ND_RA_FLAG_RTPREF_HIGH	0x08 /* 00001000 */
+#define ND_RA_FLAG_RTPREF_MEDIUM	0x00 /* 00000000 */
+#define ND_RA_FLAG_RTPREF_LOW	0x18 /* 00011000 */
+#define ND_RA_FLAG_RTPREF_RSV	0x10 /* 00010000 */
+
 #define nd_ra_router_lifetime	nd_ra_hdr.icmp6_data16[1]
 
 struct nd_neighbor_solicit {	/* neighbor solicitation */
@@ -406,11 +419,11 @@ struct nd_opt_hdr {		/* Neighbor discovery option header */
 #define ND_OPT_TARGET_LINKADDR		2
 #define ND_OPT_PREFIX_INFORMATION	3
 #define ND_OPT_REDIRECTED_HEADER	4
-/* BT INSERT BEGIN */
-#define ND_OPT_ADVERTISEMENT_INTERVAL	7
-#define ND_OPT_HOME_AGENT_INFORMATION	8
-/* BT INSERT END */
 #define ND_OPT_MTU			5
+#define ND_OPT_ADVINTERVAL		7
+#define ND_OPT_HOMEAGENT_INFO		8
+/* draft-ietf-ipngwg-router-preference, not officially assigned yet */
+#define ND_OPT_ROUTE_INFO		9
 
 struct nd_opt_prefix_info {	/* prefix information */
 	guint8	nd_opt_pi_type;
@@ -425,6 +438,8 @@ struct nd_opt_prefix_info {	/* prefix information */
 
 #define ND_OPT_PI_FLAG_ONLINK		0x80
 #define ND_OPT_PI_FLAG_AUTO		0x40
+#define ND_OPT_PI_FLAG_ROUTER		0x20
+#define ND_OPT_PI_FLAG_SITEPREF		0x10
 
 struct nd_opt_rd_hdr {         /* redirected header */
 	guint8	nd_opt_rh_type;
@@ -440,7 +455,7 @@ struct nd_opt_mtu {		/* MTU option */
 	guint16	nd_opt_mtu_reserved;
 	guint32	nd_opt_mtu_mtu;
 };
-/* BT INSERT BEGIN */
+
 struct nd_opt_adv_int {		/* Advertisement Interval option */
 	guint8	nd_opt_adv_int_type;
 	guint8	nd_opt_adv_int_len;
@@ -456,7 +471,15 @@ struct nd_opt_ha_info {		/* Home Agent Information option */
 	guint16	nd_opt_ha_info_ha_life;
 };
 
-/* BT INSERT END */
+struct nd_opt_route_info {	/* route info */
+	guint8	nd_opt_rti_type;
+	guint8	nd_opt_rti_len;
+	guint8	nd_opt_rti_prefixlen;
+	guint8	nd_opt_rti_flags;
+	guint32	nd_opt_rti_lifetime;
+	/* prefix follows */
+};
+
 /*
  * icmp6 node information
  */

@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.43 2001/05/27 04:14:53 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.44 2001/06/01 23:53:48 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -97,6 +97,13 @@ static const value_string names_rrenum_matchcode[] = {
     { 0,			NULL }
 };
 
+static const value_string names_router_pref[] = {
+        { ND_RA_FLAG_RTPREF_HIGH,	"High" }, 
+        { ND_RA_FLAG_RTPREF_MEDIUM,	"Meidum" }, 
+        { ND_RA_FLAG_RTPREF_LOW,	"Low" }, 
+        { ND_RA_FLAG_RTPREF_RSV,	"Reserved" }, 
+};
+
 static void
 dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
@@ -158,11 +165,19 @@ dissect_icmpv6opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 
 again:
     if ((int)tvb_reported_length(tvb) <= offset)
-            return; /* No more options left */
+	return; /* No more options left */
 
     opt = &nd_opt_hdr;
     tvb_memcpy(tvb, (guint8 *)opt, offset, sizeof *opt);
     len = opt->nd_opt_len << 3;
+
+    if (len == 0) {
+	proto_tree_add_text(icmp6opt_tree, tvb,
+			    offset + offsetof(struct nd_opt_hdr, nd_opt_len), 1,
+			    "Invalid option length: %u",
+			    opt->nd_opt_len);
+	return; /* we must not try to decode this */
+    }
 
     /* !!! specify length */
     ti = proto_tree_add_text(tree, tvb, offset, len, "ICMPv6 options");
@@ -184,14 +199,13 @@ again:
     case ND_OPT_MTU:
 	typename = "MTU";
 	break;
-    case ND_OPT_ADVERTISEMENT_INTERVAL:
+    case ND_OPT_ADVINTERVAL:
 	typename = "Advertisement Interval";
 	break;
-    case ND_OPT_HOME_AGENT_INFORMATION:
+    case ND_OPT_HOMEAGENT_INFO:
 	typename = "Home Agent Information";
 	break;
     default:
-
 	typename = "Unknown";
 	break;
     }
@@ -221,6 +235,7 @@ again:
 	}
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + sizeof(*opt), len, "Link-layer address: %s", t);
+	free(t);
 	break;
       }
     case ND_OPT_PREFIX_INFORMATION:
@@ -240,15 +255,18 @@ again:
 	field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
 	proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 	    decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
-		    0x80, 8, "Onlink", "Not onlink"));
+		    ND_OPT_PI_FLAG_ONLINK, 8, "Onlink", "Not onlink"));
 	proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 	    decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
-		    0x40, 8, "Auto", "Not auto"));
-  /* BT INSERT BEGIN */
+		    ND_OPT_PI_FLAG_AUTO, 8, "Auto", "Not auto"));
 	proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 	    decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
-		    0x20, 8, "Router Address", "Not router address"));
-  /* BT INSERT END */
+		    ND_OPT_PI_FLAG_ROUTER, 8,
+		    "Router Address", "Not router address"));
+	proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+	    decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
+		    ND_OPT_PI_FLAG_SITEPREF, 8,
+		    "Site prefix", "Not site prefix"));
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_valid_time),
 	    4, "Valid lifetime: 0x%08x",
@@ -272,16 +290,18 @@ again:
 	    offset + offsetof(struct nd_opt_mtu, nd_opt_mtu_mtu), 4,
 	    "MTU: %u", tvb_get_ntohl(tvb, offset + offsetof(struct nd_opt_mtu, nd_opt_mtu_mtu)));
 	break;
-	/* BT INSERT BEGIN */
-    case ND_OPT_ADVERTISEMENT_INTERVAL:
+    case ND_OPT_ADVINTERVAL:
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + offsetof(struct nd_opt_adv_int, nd_opt_adv_int_advint), 4,
 	    "Advertisement Interval: %d",
 	    tvb_get_ntohl(tvb, offset + offsetof(struct nd_opt_adv_int, nd_opt_adv_int_advint)));
 	break;
-    case ND_OPT_HOME_AGENT_INFORMATION:
+    case ND_OPT_HOMEAGENT_INFO:
       {
-	struct nd_opt_ha_info *pi = (struct nd_opt_ha_info *)opt;
+	struct nd_opt_ha_info pibuf, *pi;
+
+	pi = &pibuf;
+	tvb_memcpy(tvb, (guint8 *)pi, offset, sizeof *pi);
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + offsetof(struct nd_opt_ha_info, nd_opt_ha_info_ha_pref),
 	    2, "Home Agent Preference: %d",
@@ -292,15 +312,62 @@ again:
 	    pntohs(&pi->nd_opt_ha_info_ha_life));
 	break;
       }
-	/* BT INSERT END */
-    }
+    case ND_OPT_ROUTE_INFO:
+      {
+	struct nd_opt_route_info ribuf, *ri;
+	struct e_in6_addr in6;
+	int l;
+	u_int32_t lifetime;
 
-    if (opt->nd_opt_len == 0) {
-        proto_tree_add_text(icmp6opt_tree, tvb,
-                            offset + offsetof(struct nd_opt_hdr, nd_opt_len), 1,
-                            "Invalid option length: %u",
-                            opt->nd_opt_len);
-        return;
+	ri = &ribuf;
+	tvb_memcpy(tvb, (guint8 *)ri, offset, sizeof *ri);
+	memset(&in6, 0, sizeof(in6));
+	switch (ri->nd_opt_rti_len) {
+	case 1:
+	    l = 0;
+	    break;
+	case 2:
+	    tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof(*ri), l = 8);
+	    break;
+	case 3:
+	    tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof(*ri), l = 16);
+	    break;
+	default:
+	    l = -1;
+	    break;
+	}
+	if (l >= 0) {
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+		offset + offsetof(struct nd_opt_route_info, nd_opt_rti_prefixlen),
+		1, "Prefix length: %u", ri->nd_opt_rti_prefixlen);
+	    tf = proto_tree_add_text(icmp6opt_tree, tvb,
+		offset + offsetof(struct nd_opt_route_info, nd_opt_rti_flags),
+		1, "Flags: 0x%02x", ri->nd_opt_rti_flags);
+	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
+	    proto_tree_add_text(field_tree, tvb,
+		offset + offsetof(struct nd_opt_route_info, nd_opt_rti_flags),
+		1, "%s",
+		decode_enumerated_bitfield(ri->nd_opt_rti_flags,
+		    ND_RA_FLAG_RTPREF_MASK, 8, names_router_pref,
+		    "Router preference: %s"));
+	    lifetime = pntohl(&ri->nd_opt_rti_lifetime);
+	    if (lifetime == 0xffffffff)
+		proto_tree_add_text(icmp6opt_tree, tvb,
+		    offset + offsetof(struct nd_opt_route_info, nd_opt_rti_lifetime),
+		    sizeof(ri->nd_opt_rti_lifetime), "Lifetime: infinity");
+	    else
+		proto_tree_add_text(icmp6opt_tree, tvb,
+		    offset + offsetof(struct nd_opt_route_info, nd_opt_rti_lifetime),
+		    sizeof(ri->nd_opt_rti_lifetime), "Lifetime: %u", lifetime);
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+		offset + sizeof(*ri), l, "Prefix: %s", ip6_to_str(&in6));
+	} else {
+	    proto_tree_add_text(icmp6opt_tree, tvb,
+		offset + offsetof(struct nd_opt_hdr, nd_opt_len), 1,
+		"Invalid option length: %u", opt->nd_opt_len);
+	}
+	break;
+      }
     }
 
     offset += (opt->nd_opt_len << 3);
@@ -1144,15 +1211,17 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
 	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 		decode_boolean_bitfield(ra_flags,
-			0x80, 8, "Managed", "Not managed"));
+			ND_RA_FLAG_MANAGED, 8, "Managed", "Not managed"));
 	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 		decode_boolean_bitfield(ra_flags,
-			0x40, 8, "Other", "Not other"));
-    /* BT INSERT BEGIN */
+			ND_RA_FLAG_OTHER, 8, "Other", "Not other"));
 	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 		decode_boolean_bitfield(ra_flags,
-			0x20, 8, "Home Agent", "Not Home Agent"));		
-    /* BT INSERT END */
+			ND_RA_FLAG_HOME_AGENT, 8,
+			"Home Agent", "Not Home Agent"));		
+	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+		decode_enumerated_bitfield(ra_flags, ND_RA_FLAG_RTPREF_MASK, 8,
+		names_router_pref, "Router preference: %s"));
 	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + offsetof(struct nd_router_advert, nd_ra_router_lifetime),
 		2, "Router lifetime: %u",
