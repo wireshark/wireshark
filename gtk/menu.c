@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.186 2004/05/02 21:16:09 ulfl Exp $
+ * $Id: menu.c,v 1.187 2004/05/03 23:34:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -207,16 +207,17 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Edit/_Preferences...", "<shift><control>P", prefs_cb,
                              0, GTK_STOCK_PREFERENCES),
+    ITEM_FACTORY_STOCK_ENTRY("/Edit/_Coloring Rules...", NULL, color_display_cb,
+                       0, GTK_STOCK_SELECT_COLOR),
     ITEM_FACTORY_ENTRY("/_View", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/View/_Show", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Show/Main Toolbar", NULL, main_toolbar_show_cb, 0, "<CheckItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Show/Filter Toolbar", NULL, filter_toolbar_show_cb, 0, "<CheckItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Show/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Show/Packet List", NULL, packet_list_show_cb, 0, "<CheckItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Show/Packet Details", NULL, tree_view_show_cb, 0, "<CheckItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Show/Packet Bytes", NULL, byte_view_show_cb, 0, "<CheckItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Show/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Show/Status Bar", NULL, statusbar_show_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/_Main Toolbar", NULL, main_toolbar_show_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/_Filter Toolbar", NULL, filter_toolbar_show_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/_Status Bar", NULL, statusbar_show_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Packet _List", NULL, packet_list_show_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Packet _Details", NULL, tree_view_show_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Packet _Bytes", NULL, byte_view_show_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/View/_Time Display Format", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/View/Time Display Format/Time of Day", NULL, timestamp_absolute_cb, 
                         0, "<RadioItem>", NULL),
@@ -226,19 +227,19 @@ static GtkItemFactoryEntry menu_items[] =
                         0, "/View/Time Display Format/Time of Day", NULL),
     ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds Since Previous Packet", NULL, timestamp_delta_cb, 
                         0, "/View/Time Display Format/Time of Day", NULL),
-    ITEM_FACTORY_ENTRY("/View/_Name Resolution", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Name Resol_ution", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _MAC Layer", NULL, name_resolution_mac_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _Network Layer", NULL, name_resolution_network_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _Transport Layer", NULL, name_resolution_transport_cb, 0, "<CheckItem>", NULL),
 #ifdef HAVE_LIBPCAP
-    ITEM_FACTORY_ENTRY("/View/Auto Scroll in _Live Capture", NULL, auto_scroll_live_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Auto Scroll in Li_ve Capture", NULL, auto_scroll_live_cb, 0, "<CheckItem>", NULL),
 #endif
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/View/Zoom In", "<control>plus", view_zoom_in_cb,
+    ITEM_FACTORY_STOCK_ENTRY("/View/_Zoom In", "<control>plus", view_zoom_in_cb,
                              0, GTK_STOCK_ZOOM_IN),
-    ITEM_FACTORY_STOCK_ENTRY("/View/Zoom Out", "<control>minus", view_zoom_out_cb,
+    ITEM_FACTORY_STOCK_ENTRY("/View/Zoom _Out", "<control>minus", view_zoom_out_cb,
                              0, GTK_STOCK_ZOOM_OUT),
-    ITEM_FACTORY_STOCK_ENTRY("/View/Normal Size", "<control>equal", view_zoom_100_cb,
+    ITEM_FACTORY_STOCK_ENTRY("/View/_Normal Size", "<control>equal", view_zoom_100_cb,
                              0, GTK_STOCK_ZOOM_100),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/View/Collapse _All", NULL, collapse_all_cb,
@@ -246,9 +247,6 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/View/_Expand All", NULL, expand_all_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/View/Expand Tree", NULL, expand_tree_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/View/_Coloring Rules...", NULL, color_display_cb,
-                       0, GTK_STOCK_SELECT_COLOR),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/View/Show Packet in New _Window", NULL,
                        new_window_cb, 0, NULL, NULL),
@@ -1276,23 +1274,23 @@ void
 menu_recent_read_finished(void) {
     GtkWidget *menu = NULL;
 
-    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Main Toolbar");
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Main Toolbar");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.main_toolbar_show);
 
-    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Filter Toolbar");
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Filter Toolbar");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.filter_toolbar_show);
 
-    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Packet List");
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Status Bar");
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.statusbar_show);
+
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Packet List");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.packet_list_show);
 
-    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Packet Details");
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Packet Details");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.tree_view_show);
 
-    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Packet Bytes");
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Packet Bytes");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.byte_view_show);
-
-    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Status Bar");
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.statusbar_show);
 
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Name Resolution/Enable for MAC Layer");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), g_resolv_flags & RESOLV_MAC);
