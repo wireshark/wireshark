@@ -2,7 +2,7 @@
  * File read and write routines for Visual Networks cap files.
  * Copyright (c) 2001, Tom Nisbet  tnisbet@visualnetworks.com
  *
- * $Id: visual.c,v 1.13 2003/10/01 07:11:48 guy Exp $
+ * $Id: visual.c,v 1.14 2003/10/25 07:17:28 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -187,7 +187,7 @@ int visual_open(wtap *wth, int *err)
         break;
 
     case 22:
-        encap = WTAP_ENCAP_CHDLC;
+        encap = WTAP_ENCAP_CHDLC_WITH_PHDR;
         break;
 
     case 32:
@@ -307,7 +307,7 @@ static gboolean visual_read(wtap *wth, int *err, long *data_offset)
     /* Fill in the encapsulation.  Visual files have a media type in the
        file header and an encapsulation type in each packet header.  Files
        with a media type of HDLC can be either Cisco EtherType or PPP. */
-    if ((wth->file_encap == WTAP_ENCAP_CHDLC) && (vpkt_hdr.encap_hint == 14))
+    if ((wth->file_encap == WTAP_ENCAP_CHDLC_WITH_PHDR) && (vpkt_hdr.encap_hint == 14))
         wth->phdr.pkt_encap = WTAP_ENCAP_PPP_WITH_PHDR;
     else
         wth->phdr.pkt_encap = wth->file_encap;
@@ -383,7 +383,7 @@ static void visual_set_pseudo_header(int encap, struct visual_pkt_hdr *vpkt_hdr,
         pseudo_header->eth.fcs_len = -1;
         break;
 
-    case WTAP_ENCAP_CHDLC:
+    case WTAP_ENCAP_CHDLC_WITH_PHDR:
     case WTAP_ENCAP_PPP_WITH_PHDR:
         pseudo_header->p2p.sent = (packet_status & PS_SENT) ? TRUE : FALSE;
         break;
@@ -411,7 +411,7 @@ int visual_dump_can_write_encap(int encap)
     case WTAP_ENCAP_ETHERNET:
     case WTAP_ENCAP_TOKEN_RING:
     case WTAP_ENCAP_LAPB:
-    case WTAP_ENCAP_CHDLC:
+    case WTAP_ENCAP_CHDLC_WITH_PHDR:
     case WTAP_ENCAP_FRELAY_WITH_PHDR:
     case WTAP_ENCAP_PPP:
     case WTAP_ENCAP_PPP_WITH_PHDR:
@@ -517,7 +517,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     case WTAP_ENCAP_PPP_WITH_PHDR:
         vpkt_hdr.encap_hint = 14;
         break;
-    case WTAP_ENCAP_CHDLC:      /* HDLC Router */
+    case WTAP_ENCAP_CHDLC_WITH_PHDR:      /* HDLC Router */
         vpkt_hdr.encap_hint = 13;
         break;
     case WTAP_ENCAP_FRELAY_WITH_PHDR:     /* Frame Relay Auto-detect */
@@ -536,7 +536,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     packet_status = 0;
     switch (wdh->encap)
     {
-    case WTAP_ENCAP_CHDLC:
+    case WTAP_ENCAP_CHDLC_WITH_PHDR:
         packet_status |= (pseudo_header->p2p.sent ? PS_SENT : 0x00);
         break;
 
@@ -668,7 +668,7 @@ static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
 
     case WTAP_ENCAP_PPP:        /* PPP is differentiated from CHDLC in PktHdr */
     case WTAP_ENCAP_PPP_WITH_PHDR:
-    case WTAP_ENCAP_CHDLC:
+    case WTAP_ENCAP_CHDLC_WITH_PHDR:
         vfile_hdr.media_type = htoles(22);
         break;
 

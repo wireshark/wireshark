@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.111 2003/10/01 07:11:48 guy Exp $
+ * $Id: ngsniffer.c,v 1.112 2003/10/25 07:17:27 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1667,7 +1667,7 @@ static int infer_pkt_encap(const guint8 *pd, int len)
 			/*
 			 * Cisco HDLC.
 			 */
-			return WTAP_ENCAP_CHDLC;
+			return WTAP_ENCAP_CHDLC_WITH_PHDR;
 		}
 	}
 
@@ -1701,7 +1701,7 @@ static int fix_pseudo_header(int encap, const guint8 *pd, int len,
 		switch (encap) {
 
 		case WTAP_ENCAP_WFLEET_HDLC:
-		case WTAP_ENCAP_CHDLC:
+		case WTAP_ENCAP_CHDLC_WITH_PHDR:
 		case WTAP_ENCAP_PPP_WITH_PHDR:
 			if (pseudo_header->x25.flags == 0)
 				pseudo_header->p2p.sent = TRUE;

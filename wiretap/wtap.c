@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.83 2003/05/16 00:34:33 guy Exp $
+ * $Id: wtap.c,v 1.84 2003/10/25 07:17:28 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -175,6 +175,9 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_PFLOG  */
 	{ "OpenBSD PF Firewall logs", "pflog" },
+
+	/* WTAP_ENCAP_CHDLC_WITH_PHDR */
+	{ "Cisco HDLC with Directional Info", "chdlc-with-direction" },
 };
 
 /* Name that should be somewhat descriptive. */
