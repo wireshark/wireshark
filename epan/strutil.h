@@ -137,7 +137,7 @@ guint8 * convert_string_to_hex(const char *string, size_t *nbytes);
 /** Prep a string for case-sensitive vs case-insensitive searching.
  *
  * @param string The search string
- * @param case_sensitive TRUE if case-sensitive, FALSE if not
+ * @param case_insensitive TRUE if case-insensitive, FALSE if not
  * @return A direct copy of the string if it's a case-sensitive search and
  * an uppercased version if not.  In either case the string must be g_free()d
  * by the caller.

@@ -90,7 +90,7 @@ url_page_action(url_page_action_e action);
  * @param action the page to show
  */
 extern void
-url_page_cb(GtkWidget *w _U_, url_page_action_e action);
+url_page_cb(GtkWidget *widget _U_, url_page_action_e action);
 
 /** User requested one of the html pages by menu.
  *

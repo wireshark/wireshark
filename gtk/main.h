@@ -238,7 +238,7 @@ extern gboolean main_filter_packets(capture_file *cf, const gchar *dftext,
     gboolean force);
 
 /** Open a new file coming from drag and drop.
- * @param cf_name the new capture filename
+ * @param selection_data the selection data reported from GTK
  */
 extern void dnd_open_file_cmd(GtkSelectionData *selection_data);
 
