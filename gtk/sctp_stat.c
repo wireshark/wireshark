@@ -335,8 +335,8 @@ gint sctp_assoc_vtag_cmp(gconstpointer aa, gconstpointer bb)
 gint sctp_assoc_address_cmp(gconstpointer aa, gconstpointer bb)
 {
 GList *srclist, *dstlist;
-const struct _sctp_tmp_info* a = aa; //tmp_info
-const struct _sctp_assoc_info* b = bb; //info
+const struct _sctp_tmp_info* a = aa; /* tmp_info */
+const struct _sctp_assoc_info* b = bb; /* info */
 struct sockaddr_storage *store=NULL;
 struct sockaddr_storage *srcstore=NULL;
 struct sockaddr_storage *dststore=NULL;

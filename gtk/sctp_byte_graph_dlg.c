@@ -276,13 +276,13 @@ guint32 diff, i, size=0, start, end;
 		diff=g_array_index(array, struct tsn_sort, i).secs*1000000+g_array_index(array, struct tsn_sort, i).usecs-u_data->io->min_x;
 		start=g_array_index(array, struct tsn_sort, i).offset;
 		end = start + g_array_index(array, struct tsn_sort, i).length;
-		//printf("i=%u, start=%u, end=%u\n",i, start, end);
+		/* printf("i=%u, start=%u, end=%u\n",i, start, end); */
 		if (start>=min_tsn)
-		gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
-			(guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff),
-			(guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(start,min_tsn))*u_data->io->y_interval)),
-			(guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff),
-			(guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(end,min_tsn))*u_data->io->y_interval)));
+			gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
+				(guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff),
+				(guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(start,min_tsn))*u_data->io->y_interval)),
+				(guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff),
+				(guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(end,min_tsn))*u_data->io->y_interval)));
 
 	}
 
@@ -315,7 +315,7 @@ gfloat dis;
 	{
 		if (u_data->io->tmp==FALSE)
 		{
-			if (u_data->assoc->sort_tsn1!=NULL)// || u_data->assoc->sack1!=NULL)
+			if (u_data->assoc->sort_tsn1!=NULL)/* || u_data->assoc->sack1!=NULL) */
 				u_data->io->max_y=u_data->io->tmp_max_tsn1 - u_data->io->tmp_min_tsn1;
 			else
 				u_data->io->max_y= 0;
@@ -331,7 +331,7 @@ gfloat dis;
 	{
 		if (u_data->io->tmp==FALSE)
 		{
-			if (u_data->assoc->tsn2!=NULL)// || u_data->assoc->sack2!=NULL)
+			if (u_data->assoc->tsn2!=NULL)/* || u_data->assoc->sack2!=NULL) */
 					u_data->io->max_y=u_data->io->tmp_max_tsn2 -u_data->io->tmp_min_tsn2;
 			else
 				u_data->io->max_y= 0;
@@ -348,7 +348,7 @@ gfloat dis;
 		u_data->io->draw_area->allocation.height);
 
 	distance=5;
-	//x_axis
+	/* x_axis */
 	gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc, LEFT_BORDER+u_data->io->offset,u_data->io->pixmap_height-BOTTOM_BORDER,u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset, u_data->io->pixmap_height-BOTTOM_BORDER);
 	gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset, u_data->io->pixmap_height-BOTTOM_BORDER, u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset-5, u_data->io->pixmap_height-BOTTOM_BORDER-5);
 	gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset, u_data->io->pixmap_height-BOTTOM_BORDER, u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset-5, u_data->io->pixmap_height-BOTTOM_BORDER+5);
@@ -525,7 +525,7 @@ gfloat dis;
 
 	distance=5;
 
-	//y-axis
+	/* y-axis */
 	gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc, LEFT_BORDER,TOP_BORDER-u_data->io->offset,LEFT_BORDER,u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset);
 	gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,LEFT_BORDER,TOP_BORDER-u_data->io->offset, LEFT_BORDER-5, TOP_BORDER-u_data->io->offset+5);
 	gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,LEFT_BORDER,TOP_BORDER-u_data->io->offset, LEFT_BORDER+5, TOP_BORDER-u_data->io->offset+5);
@@ -962,7 +962,7 @@ static void init_sctp_graph_window(struct sctp_udata *u_data)
 	gtk_signal_connect(GTK_OBJECT(u_data->io->draw_area),"button_press_event",(GtkSignalFunc)on_button_press, u_data);
 	gtk_signal_connect(GTK_OBJECT(u_data->io->draw_area),"button_release_event",(GtkSignalFunc)on_button_release, u_data);
 	gtk_widget_set_events(u_data->io->draw_area, GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_EXPOSURE_MASK);
-	//dlg_set_cancel(u_data->io->window, bt_close);
+	/* dlg_set_cancel(u_data->io->window, bt_close); */
 	
 
     gtk_widget_show(u_data->io->window);

@@ -353,8 +353,8 @@ int h245conversations_packet(h323conversations_tapinfo_t *tapinfo _U_, packet_in
 		a = (h323_conversations_info_t*)(list->data);
 		g_memmove(&src, pinfo->src.data, 4);
 		g_memmove(&dst, pinfo->dst.data, 4);
-		//src = *(pinfo->src.data);
-		//dst = *(pinfo->dst.data);
+		/* src = *(pinfo->src.data); */
+		/* dst = *(pinfo->dst.data); */
 		srcp = pinfo->srcport;
 		dstp = pinfo->destport;
 		p_transport = pinfo->ipproto;

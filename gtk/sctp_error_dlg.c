@@ -45,7 +45,7 @@ static GtkWidget *sctp_error_dlg=NULL;
 static GtkWidget *clist = NULL;
 static GList *last_list = NULL;
 static sctp_error_info_t* selected_packet = NULL;/* current selection */
-//static sctp_assoc_info_t* selected_assoc = NULL;
+/*static sctp_assoc_info_t* selected_assoc = NULL; */
 extern GtkWidget *main_display_filter_widget;
 
 
@@ -261,7 +261,7 @@ GList *list;
 
 printf("dlg_show\n");
 
-	//selected_assoc=(sctp_assoc_info_t*)get_selected_assoc();
+	/* selected_assoc=(sctp_assoc_info_t*)get_selected_assoc(); */
 	list =assoc->error_info_list;
 	if (sctp_error_dlg != NULL) {
 		/* There's already a dialog box; reactivate it. */
