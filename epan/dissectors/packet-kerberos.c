@@ -1886,15 +1886,16 @@ dissect_krb5_seq_number(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 
 
 static int
-dissect_krb5_pausec(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
-{
-	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_pausec, NULL);
-	return offset;
-}
-static int
 dissect_krb5_patimestamp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 	offset=dissect_ber_GeneralizedTime(FALSE, pinfo, tree, tvb, offset, hf_krb_patimestamp);
+	return offset;
+}
+#ifdef HAVE_KERBEROS
+static int
+dissect_krb5_pausec(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_krb_pausec, NULL);
 	return offset;
 }
 static const ber_sequence_t PA_ENC_TS_ENC_sequence[] = {
@@ -1902,7 +1903,6 @@ static const ber_sequence_t PA_ENC_TS_ENC_sequence[] = {
 	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_krb5_pausec },
 	{ 0, 0, 0, NULL }
 };
-#ifdef HAVE_KERBEROS
 static int
 dissect_krb5_decrypt_PA_ENC_TIMESTAMP (packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
