@@ -1,10 +1,10 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.1 2001/04/19 23:39:27 guy Exp $
+ * $Id: packet-dcerpc.h,v 1.2 2001/07/11 01:25:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  * 
  * This program is free software; you can redistribute it and/or
@@ -88,6 +88,17 @@ guint16 dcerpc_tvb_get_ntohs (tvbuff_t *tvb, gint offset, char *drep);
 guint32 dcerpc_tvb_get_ntohl (tvbuff_t *tvb, gint offset, char *drep);
 void dcerpc_tvb_get_uuid (tvbuff_t *tvb, gint offset, char *drep, e_uuid_t *uuid);
 
+typedef int (dcerpc_dissect_fnct_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+
+typedef struct _dcerpc_sub_dissector {
+    guint16 num;
+    gchar   *name;
+    dcerpc_dissect_fnct_t *dissect_rqst;
+    dcerpc_dissect_fnct_t *dissect_resp;
+} dcerpc_sub_dissector;
+
+/* registration function for subdissectors */
+void dcerpc_init_uuid (int proto, int ett, e_uuid_t *uuid, guint16 ver, dcerpc_sub_dissector *procs);
 
 
 #endif /* packet-dcerpc.h */
