@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *   decode srvsvc calls where Samba knows them ...
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.15 2002/06/08 10:58:46 guy Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.16 2002/06/15 10:24:24 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -665,7 +665,7 @@ srvsvc_dissect_SHARE_INFO(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 }
 
 static int
-srvsvc_dissect_netshareenum_all_rqst(tvbuff_t *tvb, int offset, 
+srvsvc_dissect_netshareenum_rqst(tvbuff_t *tvb, int offset, 
 				     packet_info *pinfo, proto_tree *tree, 
 				     char *drep)
 {
@@ -690,7 +690,7 @@ srvsvc_dissect_netshareenum_all_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-srvsvc_dissect_netshareenum_all_reply(tvbuff_t *tvb, int offset, 
+srvsvc_dissect_netshareenum_reply(tvbuff_t *tvb, int offset, 
 				      packet_info *pinfo, proto_tree *tree, 
 				      char *drep)
 {
@@ -715,30 +715,56 @@ srvsvc_dissect_netshareenum_all_reply(tvbuff_t *tvb, int offset,
 }
 
 static dcerpc_sub_dissector dcerpc_srvsvc_dissectors[] = {
-        { SRV_NETCONNENUM, "SRV_NETCONNENUM", NULL, NULL },
-        { SRV_NETFILEENUM, "SRV_NETFILEENUM", NULL, NULL },
-        { SRV_NETSESSENUM, "SRV_NETSESSENUM", NULL, NULL },
-        { SRV_NET_SHARE_ADD, "SRV_NET_SHARE_ADD", NULL, NULL },
-        { SRV_NETSHAREENUM_ALL, "SRV_NETSHAREENUM_ALL", 
-	  srvsvc_dissect_netshareenum_all_rqst,
-	  srvsvc_dissect_netshareenum_all_reply},
-        { SRV_NET_SHARE_GET_INFO, "SRV_NET_SHARE_GET_INFO", 
-	  srvsvc_dissect_net_share_get_info_rqst,
-	  srvsvc_dissect_net_share_get_info_reply},
-        { SRV_NET_SHARE_SET_INFO, "SRV_NET_SHARE_SET_INFO", NULL, NULL },
-        { SRV_NET_SHARE_DEL, "SRV_NET_SHARE_DEL", NULL, NULL },
-        { SRV_NET_SRV_GET_INFO, "SRV_NET_SRV_GET_INFO", 
-	  srvsvc_dissect_net_srv_get_info_rqst, 
-	  srvsvc_dissect_net_srv_get_info_reply},
-        { SRV_NET_SRV_SET_INFO, "SRV_NET_SRV_SET_INFO", NULL, NULL },
-        { SRV_NET_DISK_ENUM, "SRV_NET_DISK_ENUM", NULL, NULL },
-        { SRV_NET_REMOTE_TOD, "SRV_NET_REMOTE_TOD", NULL, NULL },
-        { SRV_NET_NAME_VALIDATE, "SRV_NET_NAME_VALIDATE", NULL, NULL },
-        { SRV_NETSHAREENUM, "SRV_NETSHAREENUM", NULL, NULL },
-        { SRV_NETFILEQUERYSECDESC, "SRV_NETFILEQUERYSECDESC", NULL, NULL },
-        { SRV_NETFILESETSECDESC, "SRV_NETFILESETSECDESC", NULL, NULL },
-
-        {0, NULL, NULL,  NULL }
+	{SRV_NETRCHARDEVENUM,		"NetrCharDevEnum", NULL, NULL},
+	{SRV_NETRCHARDEVGETINFO,	"NetrCharDevGetInfo", NULL, NULL},
+	{SRV_NETRCHARDEVCONTROL,	"NetrCharDevControl", NULL, NULL},
+	{SRV_NETRCHARDEVQENUM,		"NetrCharDevQEnum", NULL, NULL},
+	{SRV_NETRCHARDEVQGETINFO,	"NetrCharDevQGetInfo", NULL, NULL},
+	{SRV_NETRCHARDEVQSETINFO,	"NetrCharDevQSetInfo", NULL, NULL},
+	{SRV_NETRCHARDEVQPURGE,		"NetrCharDevQPurge", NULL, NULL},
+	{SRV_NETRCHARDEVQPURGESELF,	"NetrCharDevQPurgeSelf", NULL, NULL},
+	{SRV_NETRCONNECTIONENUM,	"NetrConnectionEnum", NULL, NULL},
+	{SRV_NETRFILEENUM,		"NetrFileEnum", NULL, NULL},
+	{SRV_NETRFILEGETINFO,		"NetrFileGetInfo", NULL, NULL},
+	{SRV_NETRFILECLOSE,		"NetrFileClose", NULL, NULL},
+	{SRV_NETRSESSIONENUM,		"NetrSessionEnum", NULL, NULL},
+	{SRV_NETRSESSIONDEL,		"NetrSessionDel", NULL, NULL},
+	{SRV_NETRSHAREADD,		"NetrShareAdd", NULL, NULL},
+	{SRV_NETRSHAREENUM,		"NetrShareEnum",
+		srvsvc_dissect_netshareenum_rqst,
+		srvsvc_dissect_netshareenum_reply},
+	{SRV_NETRSHAREGETINFO,		"NetrShareGetInfo",
+		srvsvc_dissect_net_share_get_info_rqst,
+		srvsvc_dissect_net_share_get_info_reply},
+	{SRV_NETRSHARESETINFO,		"NetrShareSetInfo", NULL, NULL},
+	{SRV_NETRSHAREDEL,		"NetrShareDel", NULL, NULL},
+	{SRV_NETRSHAREDELSTICKY,	"NetrShareDelSticky", NULL, NULL},
+	{SRV_NETRSHARECHECK,		"NetrShareCheck", NULL, NULL},
+	{SRV_NETRSERVERGETINFO,		"NetrServerGetInfo",
+		srvsvc_dissect_net_srv_get_info_rqst, 
+		srvsvc_dissect_net_srv_get_info_reply},
+	{SRV_NETRSERVERSETINFO,		"NetrServerSetInfo", NULL, NULL},
+	{SRV_NETRSERVERDISKENUM,	"NetrServerDiskEnum", NULL, NULL},
+	{SRV_NETRSERVERSTATISTICSGET,	"NetrServerStatisticsGet", NULL, NULL},
+	{SRV_NETRSERVERTRANSPORTADD,	"NetrServerTransportAdd", NULL, NULL},
+	{SRV_NETRSERVERTRANSPORTENUM,	"NetrServerTransportEnum", NULL, NULL},
+	{SRV_NETRSERVERTRANSPORTDEL,	"NetrServerTransportDel", NULL, NULL},
+	{SRV_NETRREMOTETOD,		"NetrRemoteTOD", NULL, NULL},
+	{SRV_NETRSERVERSETSERVICEBITS,	"NetrServerSetServiceBits", NULL, NULL},
+	{SRV_NETRPRPATHTYPE,		"NetrpPathType", NULL, NULL},
+	{SRV_NETRPRPATHCANONICALIZE,	"NetrpPathCanonicalize", NULL, NULL},
+	{SRV_NETRPRPATHCOMPARE,		"NetrpPathCompare", NULL, NULL},
+	{SRV_NETRPRNAMEVALIDATE,	"NetrpNameValidate", NULL, NULL},
+	{SRV_NETRPRNAMECANONICALIZE,	"NetrpNameCanonicalize", NULL, NULL},
+	{SRV_NETRPRNAMECOMPARE,		"NetrpNameCompare", NULL, NULL},
+	{SRV_NETRSHAREENUMSTICKY,	"NetrShareEnumSticky", NULL, NULL},
+	{SRV_NETRSHAREDELSTART,		"NetrShareDelStart", NULL, NULL},
+	{SRV_NETRSHAREDELCOMMIT,	"NetrShareDelCommit", NULL, NULL},
+	{SRV_NETRPGETFILESECURITY,	"NetrpGetFileSecurity", NULL, NULL},
+	{SRV_NETRPSETFILESECURITY,	"NetrpSetFileSecurity", NULL, NULL},
+	{SRV_NETRSERVERTRANSPORTADDEX,	"NetrServerTransportAddEx", NULL, NULL},
+	{SRV_NETRSERVERSETSERVICEBITS,	"NetrServerSetServiceBits", NULL, NULL},
+	{0, NULL, NULL, NULL}
 };
 
 static const value_string platform_id_vals[] = {

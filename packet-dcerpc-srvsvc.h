@@ -1,8 +1,13 @@
 /* packet-dcerpc-srvsvc.h
  * Routines for SMB \PIPE\srvsvc packet disassembly
+ * initial version
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-srvsvc.h,v 1.3 2001/12/16 20:08:22 guy Exp $
+ * 2002, Ronnie Sahlberg.
+ *  Rewrote entire file with a complete and correct list of all
+ *  function names.  Ronnie Sahlberg
+ *
+ * $Id: packet-dcerpc-srvsvc.h,v 1.4 2002/06/15 10:24:25 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,23 +31,48 @@
 #ifndef __PACKET_DCERPC_SRVSVC_H
 #define __PACKET_DCERPC_SRVSVC_H
 
-/* Functions available on the SRVSVC pipe.  From Samba, include/rpc_srvsvc.h */
+#define SRV_NETRCHARDEVENUM		0x00
+#define SRV_NETRCHARDEVGETINFO		0x01
+#define SRV_NETRCHARDEVCONTROL		0x02
+#define SRV_NETRCHARDEVQENUM		0x03
+#define SRV_NETRCHARDEVQGETINFO		0x04
+#define SRV_NETRCHARDEVQSETINFO		0x05
+#define SRV_NETRCHARDEVQPURGE		0x06
+#define SRV_NETRCHARDEVQPURGESELF	0x07
+#define SRV_NETRCONNECTIONENUM		0x08
+#define SRV_NETRFILEENUM		0x09
+#define SRV_NETRFILEGETINFO		0x0a
+#define SRV_NETRFILECLOSE		0x0b
+#define SRV_NETRSESSIONENUM		0x0c
+#define SRV_NETRSESSIONDEL		0x0d
+#define SRV_NETRSHAREADD		0x0e
+#define SRV_NETRSHAREENUM		0x0f
+#define SRV_NETRSHAREGETINFO		0x10
+#define SRV_NETRSHARESETINFO		0x11
+#define SRV_NETRSHAREDEL		0x12
+#define SRV_NETRSHAREDELSTICKY		0x13
+#define SRV_NETRSHARECHECK		0x14
+#define SRV_NETRSERVERGETINFO		0x15
+#define SRV_NETRSERVERSETINFO		0x16
+#define SRV_NETRSERVERDISKENUM		0x17
+#define SRV_NETRSERVERSTATISTICSGET	0x18
+#define SRV_NETRSERVERTRANSPORTADD	0x19
+#define SRV_NETRSERVERTRANSPORTENUM	0x1a
+#define SRV_NETRSERVERTRANSPORTDEL	0x1b
+#define SRV_NETRREMOTETOD		0x1c
+#define SRV_NETRSERVERSETSERVICEBITS	0x1d
+#define SRV_NETRPRPATHTYPE		0x1e
+#define SRV_NETRPRPATHCANONICALIZE	0x1f
+#define SRV_NETRPRPATHCOMPARE		0x20
+#define SRV_NETRPRNAMEVALIDATE		0x21
+#define SRV_NETRPRNAMECANONICALIZE	0x22
+#define SRV_NETRPRNAMECOMPARE		0x23
+#define SRV_NETRSHAREENUMSTICKY		0x24
+#define SRV_NETRSHAREDELSTART		0x25
+#define SRV_NETRSHAREDELCOMMIT		0x26
+#define SRV_NETRPGETFILESECURITY	0x27
+#define SRV_NETRPSETFILESECURITY	0x28
+#define SRV_NETRSERVERTRANSPORTADDEX	0x29
+#define SRV_NETRSERVERSETSERVICEBITS	0x2a
 
-#define SRV_NETCONNENUM        0x08
-#define SRV_NETFILEENUM        0x09
-#define SRV_NETSESSENUM        0x0c
-#define SRV_NET_SHARE_ADD      0x0e
-#define SRV_NETSHAREENUM_ALL   0x0f
-#define SRV_NET_SHARE_GET_INFO 0x10
-#define SRV_NET_SHARE_SET_INFO 0x11
-#define SRV_NET_SHARE_DEL      0x12
-#define SRV_NET_SRV_GET_INFO   0x15
-#define SRV_NET_SRV_SET_INFO   0x16
-#define SRV_NET_DISK_ENUM      0x17
-#define SRV_NET_REMOTE_TOD     0x1c
-#define SRV_NET_NAME_VALIDATE  0x21
-#define SRV_NETSHAREENUM       0x24
-#define SRV_NETFILEQUERYSECDESC 0x27
-#define SRV_NETFILESETSECDESC	0x28
-
-#endif /* packet-dcerpc-srvsvc.h */
+#endif
