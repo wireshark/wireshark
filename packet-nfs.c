@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.82 2002/10/23 21:17:02 guy Exp $
+ * $Id: packet-nfs.c,v 1.83 2002/10/24 20:55:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,9 @@
 
 static int proto_nfs = -1;
 
+static int hf_nfs_procedure_v2 = -1;
+static int hf_nfs_procedure_v3 = -1;
+static int hf_nfs_procedure_v4 = -1;
 static int hf_nfs_fh_length = -1;
 static int hf_nfs_fh_hash = -1;
 static int hf_nfs_fh_fsid_major = -1;
@@ -2468,6 +2471,29 @@ static const vsff nfs2_proc[] = {
 	dissect_nfs2_fhandle_call,	dissect_nfs2_statfs_reply },
 	{ 0,NULL,NULL,NULL }
 };
+
+static const value_string nfsv2_proc_vals[] = {
+	{ 0,	"NULL" },
+	{ 1,	"GETATTR" },
+	{ 2,	"SETATTR" },
+	{ 3,	"ROOT" },
+	{ 4,	"LOOKUP" },
+	{ 5,	"READLINK" },
+	{ 6,	"READ" },
+	{ 7,	"WRITECACHE" },
+	{ 8,	"WRITE" },
+	{ 9,	"CREATE" },
+	{ 10,	"REMOVE" },
+	{ 11,	"RENAME" },
+	{ 12,	"LINK" },
+	{ 13,	"SYMLINK" },
+	{ 14,	"MKDIR" },
+	{ 15,	"RMDIR" },
+	{ 16,	"READDIR" },
+	{ 17,	"STATFS" },
+	{ 0,	NULL }
+};
+
 /* end of NFS Version 2 */
 
 
@@ -6624,6 +6650,33 @@ static const vsff nfs3_proc[] = {
 	dissect_nfs3_commit_call,	dissect_nfs3_commit_reply },
 	{ 0,NULL,NULL,NULL }
 };
+
+static const value_string nfsv3_proc_vals[] = {
+	{ 0,	"NULL" },
+	{ 1,	"GETATTR" },
+	{ 2,	"SETATTR" },
+	{ 3,	"LOOKUP" },
+	{ 4,	"ACCESS" },
+	{ 5,	"READLINK" },
+	{ 6,	"READ" },
+	{ 7,	"WRITE" },
+	{ 8,	"CREATE" },
+	{ 9,	"MKDIR" },
+	{ 10,	"SYMLINK" },
+	{ 11,	"MKNOD" },
+	{ 12,	"REMOVE" },
+	{ 13,	"RMDIR" },
+	{ 14,	"RENAME" },
+	{ 15,	"LINK" },
+	{ 16,	"READDIR" },
+	{ 17,	"READDIRPLUS" },
+	{ 18,	"FSSTAT" },
+	{ 19,	"FSINFO" },
+	{ 20,	"PATHCONF" },
+	{ 21,	"COMMIT" },
+	{ 0,	NULL }
+};
+
 /* end of NFS Version 3 */
 
 static const vsff nfs4_proc[] = {
@@ -6634,6 +6687,11 @@ static const vsff nfs4_proc[] = {
 	{ 0, NULL, NULL, NULL }
 };
 
+static const value_string nfsv4_proc_vals[] = {
+	{ 0, "NULL" },
+	{ 1, "COMPOUND" },
+	{ 0, NULL }
+};
 
 static struct true_false_string yesno = { "Yes", "No" };
 
@@ -6642,6 +6700,15 @@ void
 proto_register_nfs(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_nfs_procedure_v2, {
+			"V2 Procedure", "nfs.procedure_v2", FT_UINT32, BASE_DEC,
+			VALS(nfsv2_proc_vals), 0, "V2 Procedure", HFILL }},
+		{ &hf_nfs_procedure_v3, {
+			"V3 Procedure", "nfs.procedure_v3", FT_UINT32, BASE_DEC,
+			VALS(nfsv3_proc_vals), 0, "V3 Procedure", HFILL }},
+		{ &hf_nfs_procedure_v4, {
+			"V4 Procedure", "nfs.procedure_v4", FT_UINT32, BASE_DEC,
+			VALS(nfsv4_proc_vals), 0, "V4 Procedure", HFILL }},
 		{ &hf_nfs_fh_length, {
 			"length", "nfs.fh.length", FT_UINT32, BASE_DEC,
 			NULL, 0, "file handle length", HFILL }},
@@ -7659,7 +7726,7 @@ proto_reg_handoff_nfs(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nfs, NFS_PROGRAM, ett_nfs);
 	/* Register the procedure tables */
-	rpc_init_proc_table(NFS_PROGRAM, 2, nfs2_proc, -1);
-	rpc_init_proc_table(NFS_PROGRAM, 3, nfs3_proc, -1);
-	rpc_init_proc_table(NFS_PROGRAM, 4, nfs4_proc, -1);
+	rpc_init_proc_table(NFS_PROGRAM, 2, nfs2_proc, hf_nfs_procedure_v2);
+	rpc_init_proc_table(NFS_PROGRAM, 3, nfs3_proc, hf_nfs_procedure_v3);
+	rpc_init_proc_table(NFS_PROGRAM, 4, nfs4_proc, hf_nfs_procedure_v4);
 }
