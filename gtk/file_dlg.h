@@ -1,7 +1,7 @@
 /* file_dlg.h
  * Definitions for dialog boxes for handling files
  *
- * $Id: file_dlg.h,v 1.11 2004/06/01 17:33:36 ulfl Exp $
+ * $Id: file_dlg.h,v 1.12 2004/06/04 20:05:30 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,6 +27,7 @@
 
 /** @file
  *  "Open" / "Close" / "Save" / "Save As" / etc dialog boxes.
+ *  @ingroup dialog_group
  */
 
 /** the action to take, after save has been done */

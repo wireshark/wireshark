@@ -1,7 +1,7 @@
 /* color_dlg.h
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.h,v 1.5 2004/06/01 20:28:04 ulfl Exp $
+ * $Id: color_dlg.h,v 1.6 2004/06/04 20:05:30 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,6 +28,7 @@
 
 /** @file
  *  "Colorize Display" dialog box.
+ *  @ingroup dialog_group
  */
 
 /** User requested the "Colorize Display" dialog box by menu or toolbar.

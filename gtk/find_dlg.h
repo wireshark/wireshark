@@ -1,7 +1,7 @@
 /* find_dlg.h
  * Definitions for "find frame" window
  *
- * $Id: find_dlg.h,v 1.7 2004/06/01 21:56:03 ulfl Exp $
+ * $Id: find_dlg.h,v 1.8 2004/06/04 20:05:31 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,6 +28,7 @@
 
 /** @file
  *  "Find" dialog box and related functions.
+ *  @ingroup dialog_group
  */
 
 /** User requested the "Find" dialog box by menu or toolbar.

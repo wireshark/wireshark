@@ -1,7 +1,7 @@
 /* rtp_stream.h
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream.h,v 1.6 2004/06/02 22:13:04 ulfl Exp $
+ * $Id: rtp_stream.h,v 1.7 2004/06/04 20:05:31 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -33,6 +33,7 @@
 
 /** @file
  *  ??? 
+ *  @ingroup dialog_group
  *  @todo what's this?
  */
 

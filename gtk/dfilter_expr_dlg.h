@@ -1,7 +1,7 @@
 /* dfilter_expr_dlg.h
  * Definitions for dialog boxes for display filter expression construction
  *
- * $Id: dfilter_expr_dlg.h,v 1.3 2004/06/01 20:28:04 ulfl Exp $
+ * $Id: dfilter_expr_dlg.h,v 1.4 2004/06/04 20:05:30 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,6 +28,7 @@
 
 /** @file
  *  "Add Expression" dialog box.
+ *  @ingroup dialog_group
  */
 
 /** User requested the "Add Expression" dialog box by menu or toolbar.

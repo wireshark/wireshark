@@ -1,7 +1,7 @@
 /* about_dlg.h
  * Declarations of routines for the "About" dialog
  *
- * $Id: about_dlg.h,v 1.2 2004/06/01 20:28:04 ulfl Exp $
+ * $Id: about_dlg.h,v 1.3 2004/06/04 20:05:30 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,6 +27,7 @@
 
 /** @file
  *  "About" dialog box.
+ *  @ingroup dialog_group
  */
 
 /** User requested the "About" dialog box by menu or toolbar.

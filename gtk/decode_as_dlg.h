@@ -1,6 +1,6 @@
 /* decode_as_dlg.h
  *
- * $Id: decode_as_dlg.h,v 1.5 2004/06/01 20:28:04 ulfl Exp $
+ * $Id: decode_as_dlg.h,v 1.6 2004/06/04 20:05:30 ulfl Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -28,6 +28,7 @@
 
 /** @file
  *  "Decode As" / "User Specified Decodes" dialog box.
+ *  @ingroup dialog_group
  */
 
 /** User requested the "Decode As" dialog box by menu or toolbar.

@@ -1,7 +1,7 @@
 /* gtkglobals.h
  * GTK-related Global defines, etc.
  *
- * $Id: gtkglobals.h,v 1.27 2004/06/04 17:16:57 ulfl Exp $
+ * $Id: gtkglobals.h,v 1.28 2004/06/04 20:05:31 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,20 +33,10 @@
  *
  * See Modules for a list of submodules.
  *
- * Additional info pages:
- *
- * - @ref howto_window_page
- *
- */
-
-/** @defgroup helpers_group General purpose helpers
- *
- * There are some general purpose helper files.
  */
 
 /** @file
  *  GTK global definitions. For example a pointer to the main application window.
- *  @ingroup helpers_group
  */
 
 /** application window */

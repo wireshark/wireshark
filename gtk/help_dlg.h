@@ -1,6 +1,6 @@
 /* help_dlg.h
  *
- * $Id: help_dlg.h,v 1.7 2004/06/01 17:33:36 ulfl Exp $
+ * $Id: help_dlg.h,v 1.8 2004/06/04 20:05:31 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -29,6 +29,7 @@
 
 /** @file
  * "Help" dialog box.
+ *  @ingroup dialog_group
  */
 
 /** User requested the "Help" dialog box by menu or toolbar.

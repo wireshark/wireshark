@@ -1,7 +1,7 @@
 /* prefs_dlg.h
  * Definitions for preference handling routines
  *
- * $Id: prefs_dlg.h,v 1.11 2004/06/02 18:44:10 ulfl Exp $
+ * $Id: prefs_dlg.h,v 1.12 2004/06/04 20:05:31 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,8 +25,42 @@
 #ifndef __PREFS_DLG_H__
 #define __PREFS_DLG_H__
 
+/** @defgroup prefs_group Preferences
+ * 
+ *  All GUI related preferences things. Please note, that some GUI related things 
+ *  are saved in the recent file, which is processed in recent.h.
+ *
+ *  The Preference dialog has the following page submodules:
+   @dot
+  digraph prefs_pages {
+      node [shape=record, fontname=Helvetica, fontsize=10];
+      dialog [ label="Preferences dialog" URL="\ref prefs_dlg.h"];
+      ui [ label="User Interface" URL="\ref gui_prefs.h"];
+      layout [ label="UI: Layout" URL="\ref layout_prefs.h"];
+      columns [ label="UI: Columns" URL="\ref column_prefs.h"];
+      font [ label="UI: Font" URL="\ref gui_prefs.h"];
+      colors [ label="UI: Colors" URL="\ref stream_prefs.h"];
+      capture [ label="Capture" URL="\ref capture_prefs.h"];
+      print [ label="Printing" URL="\ref print_prefs.h"];
+      nameres [ label="Name resolution" URL="\ref nameres_prefs.h"];
+      protocols [ label="Protocols" URL="\ref prefs_dlg.h"];
+      dialog -> ui [ arrowhead="open", style="solid" ];
+      dialog -> layout [ arrowhead="open", style="solid" ];
+      dialog -> columns [ arrowhead="open", style="solid" ];
+      dialog -> font [ arrowhead="open", style="solid" ];
+      dialog -> colors [ arrowhead="open", style="solid" ];
+      dialog -> capture [ arrowhead="open", style="solid" ];
+      dialog -> print [ arrowhead="open", style="solid" ];
+      dialog -> nameres [ arrowhead="open", style="solid" ];
+      dialog -> protocols [ arrowhead="open", style="solid" ];
+  }
+  @enddot
+ */
+
 /** @file
  * "Preferences" and "Protocol properties" dialog boxes.
+ *  @ingroup dialog_group
+ *  @ingroup prefs_group
  */
 
 /** Show the preferences dialog.

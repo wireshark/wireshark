@@ -1,7 +1,7 @@
 /* capture_dlg.h
  * Definitions for packet capture windows
  *
- * $Id: capture_dlg.h,v 1.5 2004/06/01 17:33:35 ulfl Exp $
+ * $Id: capture_dlg.h,v 1.6 2004/06/04 20:05:30 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,6 +28,7 @@
 
 /** @file
  *  "Capture Options" dialog box.
+ *  @ingroup dialog_group
  */
 
 /** User requested the "Capture Options" dialog box by menu or toolbar.

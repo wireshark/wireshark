@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.h,v 1.5 2004/06/01 21:56:04 ulfl Exp $
+ * $Id: follow_dlg.h,v 1.6 2004/06/04 20:05:31 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,6 +27,7 @@
 
 /** @file
  *  "Follow TCP Stream" dialog box.
+ *  @ingroup dialog_group
  */
 
 /** User requested the "Follow TCP Stream" dialog box by menu or toolbar.

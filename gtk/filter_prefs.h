@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.h,v 1.19 2004/06/01 17:33:36 ulfl Exp $
+ * $Id: filter_prefs.h,v 1.20 2004/06/04 20:05:31 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  * @todo rename this and the corresponding .c file to filter_dlg to reflect current implementation
+ * @ingroup dialog_group
  */
 
 /**

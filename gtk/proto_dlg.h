@@ -1,6 +1,6 @@
 /* proto_dlg.h
  *
- * $Id: proto_dlg.h,v 1.4 2004/06/02 20:14:51 ulfl Exp $
+ * $Id: proto_dlg.h,v 1.5 2004/06/04 20:05:31 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -29,6 +29,7 @@
 
 /** @file
  *  "Enabled Protocols" dialog box.
+ *  @ingroup dialog_group
  */
 
 /** Show the enabled protocols dialog.

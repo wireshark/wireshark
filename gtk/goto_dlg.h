@@ -1,7 +1,7 @@
 /* goto_dlg.h
  * Definitions for "go to frame" window
  *
- * $Id: goto_dlg.h,v 1.3 2004/06/01 17:33:36 ulfl Exp $
+ * $Id: goto_dlg.h,v 1.4 2004/06/04 20:05:31 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,6 +28,7 @@
 
 /** @file
  * "Go To" dialog box and similar functions.
+ *  @ingroup dialog_group
  */
 
 /** User requested the "Go To" dialog box by menu or toolbar.
