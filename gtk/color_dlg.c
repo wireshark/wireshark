@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.50 2004/05/27 19:59:48 ulfl Exp $
+ * $Id: color_dlg.c,v 1.51 2004/05/31 13:35:49 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1575,7 +1575,6 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
 
 
   GTK_WIDGET_SET_FLAGS (color_sel_help, GTK_CAN_DEFAULT);
-  SIGNAL_CONNECT(color_sel_win, "destroy", color_sel_cancel_cb, color_sel_win);
 
   SIGNAL_CONNECT(color_sel_ok, "clicked", color_sel_ok_cb, color_sel_win);
   SIGNAL_CONNECT(color_sel_cancel, "clicked", color_sel_cancel_cb, color_sel_win);
