@@ -46,7 +46,7 @@ RequestedInfo/subscriberState      subscriberStateFlag
  digit_str = unpack_digits(parameter_tvb, 0);
 
  proto_tree_add_string(tree, hf_gsm_map_imsi_digits, parameter_tvb, 0, -1, digit_str);
- g_free(digit_str);
+ 
 
 
 #.END
