@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.5 2000/03/03 06:19:50 guy Exp $
+$Id: README.developer,v 1.6 2000/03/03 06:39:10 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a protocol dissector and the use some of the important functions and variables 
@@ -46,7 +46,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.5 2000/03/03 06:19:50 guy Exp $" in the comment will be updated by CVS when the file is
+The "$Id: README.developer,v 1.6 2000/03/03 06:39:10 guy Exp $" in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
@@ -55,7 +55,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.5 2000/03/03 06:19:50 guy Exp $
+ * $Id: README.developer,v 1.6 2000/03/03 06:39:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -217,12 +217,73 @@ dissect_PROTOABBREV(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
 1.4 Functions to handle columns in the traffic summary window.
 
-check_col
-col_add_str
+The topmost pane of the main window is a list of the packets in the
+capture, possibly filtered by a display filter.
 
-1.4.1 The check_col function.
+Each line corresponds to a packet, and has one or more columns, as
+configured by the user.
 
-1.4.2 The col_add_str function.
+Many of the columns are handled by code outside individual dissectors;
+most dissectors need only specify the value to put in the "Protocol" and
+"Info" columns.
+
+Columns are specified by COL_ values; the COL_ value for the "Protocol"
+field, typically giving an abbreviated name for the protocol (but not
+the all-lower-case abbreviation used elsewhere) is COL_PROTOCOL, and the
+COL_ value for the "Info" field, giving a summary of the contents of the
+packet for that protocol, is COL_INFO. 
+
+A value for a column should only be added if the user specified that it
+be displayed; to check whether a given column is to be displayed, call
+'col_info' with the COL_ value for that field as an argument - it will
+return TRUE if the column is to be displayed and FALSE if it is not to
+be displayed.
+
+The value for a column can be specified with one of several functions,
+all of which take the 'fd' argument to the dissector as their first
+argument, and the COL_ value for the column as their second argument.
+
+1.4.1 The col_add_str function.
+
+'col_add_str' takes a string as its third argument, and sets the value
+for the column to that value.  For example, to set the "Protocol" column
+to "PROTOABBREV":
+
+	if (check_col(fd, COL_PROTOCOL)) 
+		col_add_str(fd, COL_PROTOCOL, "PROTOABBREV");
+
+1.4.2 The col_add_fstr function.
+
+'col_add_fstr' takes a 'printf'-style format string as its third
+argument, and 'printf'-style arguments corresponding to '%' format
+values in that string as its subsequent arguments.  For example, to set
+the "Info" field to "<XXX> request, <N> bytes", where "reqtype" is a
+string containing the type of the request in the packet and "n" is an
+unsigned integer containing the number of bytes in the request:
+
+	if (check_col(fd, COL_INFO)) 
+		col_add_fstr(fd, COL_INFO, "%s request, %u bytes",
+		    reqtype, n);
+
+1.4.3 The col_append_str function.
+
+Sometimes the value of a column, especially the "Info" column, can't be
+conveniently constructed at a single point in the dissection process;
+for example, it might contain small bits of information from many of the
+fields in the packet.  'col_append_str' takes, as arguments, the same
+arguments as 'col_add_str', but the string is appended to the end of the
+current value for the column, rather than replacing the value for that
+column.  (Note that no blank separates the appended string from the
+string to which it is appended; if you want a blank there, you must add
+it yourself as part of the string being appended.)
+
+1.4.4 The col_append_fstr function.
+
+'col_append_fstr' is to 'col_add_fstr' as 'col_append_str' is to
+'col_add_str' - it takes, as arguments, the same arguments as
+'col_add_fstr', but the formatted string is appended to the end of the
+current value for the column, rather than replacing the value for that
+column.
 
 1.5 Constructing the protocol tree.
 
