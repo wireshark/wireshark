@@ -1,4 +1,123 @@
 ------------------------------------------------------------------------
+r12753 | gerald | 2004-12-14 14:25:11 -0600 (Tue, 14 Dec 2004) | 19 lines
+Changed paths:
+   M /releases/ethereal-0.10.8/AUTHORS
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-gsm_sms.c
+
+Copy revisions from the trunk:
+
+r12718:
+
+ From Victor Stratan:
+ 
+ GSM SMS fixes:
+ 
+  - Made Timezone view human readable based on 3GPP TS 23.040 V6.5.0 (9.2.3.11).
+ 
+  - TP-UDHI field - located within bit no 6 one more place was left over from
+    previous patch by Viorel Suman made on 9 Dec 2004.
+
+r12750:
+
+ From Victor Stratan: correct offset calculation and add TP-PID decoding
+ in SMS-SUBMIT-REPORT decoding based on 3GPP TS 23.040 V6.5.0 9.2.3.11.
+
+
+------------------------------------------------------------------------
+r12752 | gerald | 2004-12-14 14:06:17 -0600 (Tue, 14 Dec 2004) | 12 lines
+Changed paths:
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-bssgp.c
+
+Copy revisions from the trunk:
+
+r12717:
+
+Fix another lengt issue, and comment out some other faulty code - to
+tired to fix it now.
+
+r12727:
+
+Add IMSI to the tree if it's built.
+
+
+------------------------------------------------------------------------
+r12714 | gerald | 2004-12-10 12:26:12 -0600 (Fri, 10 Dec 2004) | 2 lines
+Changed paths:
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-bssgp.c
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-cops.c
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-dcerpc-pn-io.c
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-gsm_a.c
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-gsm_sms.c
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-pn-rt.c
+
+Copy over revisions 12710 - 12713 from the trunk.
+
+------------------------------------------------------------------------
+r12709 | gerald | 2004-12-09 17:26:33 -0600 (Thu, 09 Dec 2004) | 2 lines
+Changed paths:
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-cops.c
+
+Copy over r12708 from the trunk.
+
+------------------------------------------------------------------------
+r12707 | gerald | 2004-12-09 16:18:49 -0600 (Thu, 09 Dec 2004) | 14 lines
+Changed paths:
+   M /releases/ethereal-0.10.8/AUTHORS
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-windows-common.c
+
+From Brian Caswell:
+
+The ACL parser will attempt to decode as many ACE structures as are
+specified in the ACL structure.  If the number of ACE structures is
+sufficiently large with one of the ACE structures specifying a size of
+0, then the ACL parser will parse that ACE structure repeatedly,
+eventually causing a denial of service to Ethereal.
+
+I've attached a diff against HEAD that corrects the problem.  The diff
+also corrects a few decoding errors in the NT ACL & ACE structures.  A
+pcap is attached that reproduces the problem.
+
+This is a duplicate checkin of r12706 from the main trunk.
+
+------------------------------------------------------------------------
+r12705 | gerald | 2004-12-09 16:01:22 -0600 (Thu, 09 Dec 2004) | 2 lines
+Changed paths:
+   M /releases/ethereal-0.10.8/AUTHORS
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-aim.c
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-aoe.c
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-bssgp.c
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-dcerpc-pn-io.c
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-etheric.c
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-gsm_sms.c
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-ipmi.c
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-isup.c
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-isup.h
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-pn-dcp.c
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-pn-rt.c
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-radius.c
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-tds.c
+   M /releases/ethereal-0.10.8/epan/dissectors/packet-x25.c
+   M /releases/ethereal-0.10.8/wiretap/libpcap.c
+
+Copy over revisions 12685 - 12704 from the main trunk.
+
+------------------------------------------------------------------------
+r12684 | gerald | 2004-12-07 16:28:01 -0600 (Tue, 07 Dec 2004) | 2 lines
+Changed paths:
+   A /releases/ethereal-0.10.8 (from /trunk:12683)
+
+Create the 0.10.8 release branch.
+
+------------------------------------------------------------------------
+r12683 | gerald | 2004-12-07 16:26:10 -0600 (Tue, 07 Dec 2004) | 2 lines
+Changed paths:
+   M /trunk/ChangeLog
+   M /trunk/config.nmake
+   M /trunk/configure.in
+
+Updates for 0.10.8.
+
+------------------------------------------------------------------------
 r12682 | guy | 2004-12-07 15:09:05 -0600 (Tue, 07 Dec 2004) | 7 lines
 Changed paths:
    M /trunk/epan/dissectors/packet-gsm_a.c
