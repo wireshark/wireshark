@@ -284,7 +284,7 @@ gsm_a_dtap_msg_ss_strings       DATA
 gsm_a_pd_str                    DATA
 gsm_map_opr_code_strings        DATA
 g_resolv_flags                  DATA
-h323_message_body_vals          DATA
+T_h323_message_body_vals          DATA
 have_tap_listeners
 heur_dissector_add
 hf_frame_arrival_time           DATA
