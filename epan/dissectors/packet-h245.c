@@ -9262,7 +9262,7 @@ guint32 value_len;
 	tvb_memcpy(tvb, (char *)&ipv4_address, value_offset, 4);
 
   if ( media_control_channel )
-	tvb_memcpy(tvb, (char *)&ipv4_address, value_offset, 4);
+	tvb_memcpy(tvb, (char *)&rtcp_ipv4_address, value_offset, 4);
 
 
   return offset;
