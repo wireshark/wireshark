@@ -2172,7 +2172,7 @@ static void dissect_icq(tvbuff_t *tvb,
       dissect_icqv2(tvb, pinfo, tree);
       break;
   default:
-      fprintf(stderr, "ICQ: Unknown version (%d)\n", version);
+      fprintf(stderr, "ICQ: Unknown version (0x%x)\n", version);
       break;
   }
 }
