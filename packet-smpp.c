@@ -2,7 +2,7 @@
  * Routines for Short Message Peer to Peer dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-smpp.c,v 1.1 2001/12/03 20:18:29 guy Exp $
+ * $Id: packet-smpp.c,v 1.2 2001/12/04 06:35:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,7 +79,6 @@ static int hf_smpp_interface_version		= -1;
 static int hf_smpp_addr_ton			= -1;
 static int hf_smpp_addr_npi			= -1;
 static int hf_smpp_address_range		= -1;
-static int hf_smpp_sc_interface_version		= -1;
 static int hf_smpp_service_type			= -1;
 static int hf_smpp_source_addr_ton		= -1;
 static int hf_smpp_source_addr_npi		= -1;
@@ -743,7 +742,6 @@ smpp_handle_dlist_resp(proto_tree *tree, tvbuff_t *tvb, int *offset)
     guint8	 entries;
     int		 tmpoff = *offset;
     proto_item	*sub_tree = NULL;
-    guint8	 dest_flag;
 
     if ((entries = tvb_get_guint8(tvb, tmpoff++)))
     {
@@ -1060,8 +1058,6 @@ static void
 outbind(proto_tree *tree, tvbuff_t *tvb)
 {
     int		 offset = 0;
-    guint8	 field;
-    guint8	 major, minor;
 
     smpp_handle_string(tree, tvb, hf_smpp_system_id, &offset);
     smpp_handle_string(tree, tvb, hf_smpp_password, &offset);
