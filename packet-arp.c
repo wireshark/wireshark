@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.24 1999/11/27 04:48:12 guy Exp $
+ * $Id: packet-arp.c,v 1.25 1999/12/07 15:38:20 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -123,20 +123,20 @@ static gint ett_atmarp_nsap = -1;
 #endif
 
 static const value_string op_vals[] = {
-  {ARPOP_REQUEST,  "ARP request" },
-  {ARPOP_REPLY,    "ARP reply"   },
-  {ARPOP_RREQUEST, "RARP request"},
-  {ARPOP_RREPLY,   "RARP reply"  },
-  {ARPOP_IREQUEST, "Inverse ARP request"},
-  {ARPOP_IREPLY,   "Inverse ARP reply"  },
+  {ARPOP_REQUEST,  "request" },
+  {ARPOP_REPLY,    "reply"   },
+  {ARPOP_RREQUEST, "reverse request"},
+  {ARPOP_RREPLY,   "reverse reply"  },
+  {ARPOP_IREQUEST, "inverse request"},
+  {ARPOP_IREPLY,   "inverse reply"  },
   {0,              NULL          } };
 
 static const value_string atmop_vals[] = {
-  {ARPOP_REQUEST,  "ATMARP request" },
-  {ARPOP_REPLY,    "ATMARP reply"   },
-  {ARPOP_IREQUEST, "Inverse ATMARP request"},
-  {ARPOP_IREPLY,   "Inverse ATMARP reply"  },
-  {ATMARPOP_NAK,   "ATMARP NAK"  },
+  {ARPOP_REQUEST,  "request" },
+  {ARPOP_REPLY,    "reply"   },
+  {ARPOP_IREQUEST, "inverse request"},
+  {ARPOP_IREPLY,   "inverse reply"  },
+  {ATMARPOP_NAK,   "nak"  },
   {0,              NULL          } };
 
 #define	ATMARP_IS_E164	0x40	/* bit in shtl/thtl for E.164 format */
@@ -497,11 +497,13 @@ dissect_atmarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   if (tree) {
     if ((op_str = match_strval(ar_op, atmop_vals)))
       ti = proto_tree_add_item_format(tree, proto_arp, offset, tot_len,
-				      NULL, op_str);
+				      NULL, 
+					"ATM Address Resolution Protocol (%s)", 
+					op_str);
     else
       ti = proto_tree_add_item_format(tree, proto_arp, offset, tot_len,
 				      NULL,
-				      "Unknown ATMARP (opcode 0x%04x)", ar_op);
+				      "ATM Address Resolution Protocol (opcode 0x%04x)", ar_op);
     arp_tree = proto_item_add_subtree(ti, ett_arp);
     proto_tree_add_item(arp_tree, hf_arp_hard_type, offset + ATM_AR_HRD, 2,
 			       ar_hrd);
@@ -640,11 +642,12 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   if (tree) {
     if ((op_str = match_strval(ar_op, op_vals)))
       ti = proto_tree_add_item_format(tree, proto_arp, offset, tot_len,
-				      NULL, op_str);
+				      NULL, 
+					"Address Resolution Protocol (%s)", op_str);
     else
       ti = proto_tree_add_item_format(tree, proto_arp, offset, tot_len,
 				      NULL,
-				      "Unknown ARP (opcode 0x%04x)", ar_op);
+				      "Address Resolution Protocol (opcode 0x%04x)", ar_op);
     arp_tree = proto_item_add_subtree(ti, ett_arp);
     proto_tree_add_item(arp_tree, hf_arp_hard_type, offset + AR_HRD, 2,
 			       ar_hrd);

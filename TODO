@@ -1,4 +1,4 @@
-$Id: TODO,v 1.2 1999/12/04 06:15:31 gram Exp $
+$Id: TODO,v 1.3 1999/12/07 15:38:19 nneul Exp $
 
 Things to do:
 =============
@@ -47,3 +47,10 @@ it under?)
 
 15. Display filters: add regexes to strings and byte ranges
 
+16. Atalk NBP dissector - see netatalk sources for structure defs (nneul)
+
+17. Krb dissector - standard krb4 - from tcpdump (nneul)
+
+18. Krb5 dissector - from scratch, need to use ASN.1 code (nneul)
+
+19. IRC dissector
