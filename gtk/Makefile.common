@@ -35,7 +35,6 @@ ETHEREAL_GTK_SRC = \
 	capture_info_dlg.c	\
 	capture_prefs.c	\
 	color_dlg.c	\
-	color_filters.c	\
 	color_utils.c	\
 	colors.c	\
 	column_prefs.c	\

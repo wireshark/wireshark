@@ -50,7 +50,7 @@
 #include "recent.h"
 #include "color.h"
 #include "../ui_util.h"
-#include "gtk/color_filters.h"
+#include "color_filters.h"
 #include "gtk/color_dlg.h"
 #ifdef HAVE_LIBPCAP
 #include "capture_dlg.h"
