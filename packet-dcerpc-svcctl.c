@@ -3,7 +3,7 @@
  * Copyright 2003, Tim Potter <tpot@samba.org>
  * Copyright 2003, Ronnie Sahlberg,  added function dissectors
  *
- * $Id: packet-dcerpc-svcctl.c,v 1.2 2003/04/27 02:03:19 sahlberg Exp $
+ * $Id: packet-dcerpc-svcctl.c,v 1.3 2003/04/27 02:33:02 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,6 +48,7 @@ static int hf_svcctl_scm_rights_lock = -1;
 static int hf_svcctl_scm_rights_query_lock_status = -1;
 static int hf_svcctl_scm_rights_modify_boot_config = -1;
 static int hf_svcctl_hnd = -1;
+static int hf_svcctl_lock = -1;
 static int hf_svcctl_rc = -1;
 
 static gint ett_dcerpc_svcctl = -1;
@@ -75,10 +76,11 @@ svcctl_scm_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
 }
 
 /*
- * IDL SC_HANDLE OpenSCManager(
+ * IDL long OpenSCManager(
  * IDL      [in] [string] [unique] char *MachineName,
  * IDL      [in] [string] [unique] char *DatabaseName,
  * IDL      [in] long access_mask,
+ * IDL      [out] SC_HANDLE handle,
  * IDL );
  */
 static int
@@ -218,14 +220,95 @@ svcctl_dissect_CloseServiceHandle_reply(tvbuff_t *tvb, int offset,
 
 
 
+/*
+ * IDL long LockServiceDatabase(
+ * IDL      [in] SC_HANDLE dbhandle,
+ * IDL      [out] SC_HANDLE lock,
+ * IDL );
+ */
+static int
+svcctl_dissect_LockServiceDatabase_rqst(tvbuff_t *tvb, int offset, 
+				  packet_info *pinfo, proto_tree *tree,
+				  char *drep)
+{
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_svcctl_hnd, NULL,
+		FALSE, TRUE);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}
+static int
+svcctl_dissect_LockServiceDatabase_reply(tvbuff_t *tvb, int offset, 
+				  packet_info *pinfo, proto_tree *tree,
+				  char *drep)
+{
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_svcctl_lock, NULL,
+		TRUE, FALSE);
+
+	offset = dissect_doserror(
+		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}
+
+
+
+/*
+ * IDL long UnlockServiceDatabase(
+ * IDL      [in][out] SC_HANDLE lock,
+ * IDL );
+ */
+static int
+svcctl_dissect_UnlockServiceDatabase_rqst(tvbuff_t *tvb, int offset, 
+				  packet_info *pinfo, proto_tree *tree,
+				  char *drep)
+{
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_svcctl_lock, NULL,
+		FALSE, TRUE);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}
+static int
+svcctl_dissect_UnlockServiceDatabase_reply(tvbuff_t *tvb, int offset, 
+				  packet_info *pinfo, proto_tree *tree,
+				  char *drep)
+{
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_svcctl_lock, NULL,
+		TRUE, FALSE);
+
+	offset = dissect_doserror(
+		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}
+
+
+
+
 static dcerpc_sub_dissector dcerpc_svcctl_dissectors[] = {
 	{ SVC_CLOSE_SERVICE_HANDLE, "CloseServiceHandle", 
 		svcctl_dissect_CloseServiceHandle_rqst, 
 		svcctl_dissect_CloseServiceHandle_reply  },
 	{ SVC_STOP_SERVICE, "Stop", NULL, NULL },
 	{ SVC_DELETE, "Delete", NULL, NULL },
-	{ SVC_UNKNOWN_3, "Unknown 0x03", NULL, NULL },
+	{ SVC_LOCK_SERVICE_DATABASE, "LockServiceDatabase",
+		svcctl_dissect_LockServiceDatabase_rqst, 
+		svcctl_dissect_LockServiceDatabase_reply  },
 	{ SVC_GET_SVC_SEC, "Get security", NULL, NULL },
+	{ SVC_UNLOCK_SERVICE_DATABASE, "UnlockServiceDatabase",
+		svcctl_dissect_UnlockServiceDatabase_rqst, 
+		svcctl_dissect_UnlockServiceDatabase_reply  },
 	{ SVC_CHANGE_SVC_CONFIG, "Change config", NULL, NULL },
 	{ SVC_ENUM_SVCS_STATUS, "Enum status", NULL, NULL },
 	{ SVC_OPEN_SC_MAN, "Open SC Manager", NULL, NULL },
@@ -244,8 +327,9 @@ static const value_string svcctl_opnum_vals[] = {
 	{ SVC_CLOSE_SERVICE_HANDLE, "CloseService_handle" },
 	{ SVC_STOP_SERVICE, "Stop" },
 	{ SVC_DELETE, "Delete" },
-	{ SVC_UNKNOWN_3, "Unknown 0x03" },
+	{ SVC_LOCK_SERVICE_DATABASE, "LockServiceDatabase" },
 	{ SVC_GET_SVC_SEC, "Get security" },
+	{ SVC_UNLOCK_SERVICE_DATABASE, "UnockServiceDatabase" },
 	{ SVC_CHANGE_SVC_CONFIG, "Change config" },
 	{ SVC_ENUM_SVCS_STATUS, "Enum status" },
 	{ SVC_OPEN_SC_MAN, "Open SC Manager" },
@@ -295,6 +379,9 @@ proto_register_dcerpc_svcctl(void)
 	  { &hf_svcctl_hnd,
 	    { "Context Handle", "svcctl.hnd", FT_BYTES, BASE_NONE,
 	      NULL, 0x0, "SVCCTL Context handle", HFILL }},
+	  { &hf_svcctl_lock,
+	    { "Lock", "svcctl.lock", FT_BYTES, BASE_NONE,
+	      NULL, 0x0, "SVCCTL Database Lock", HFILL }},
 	  { &hf_svcctl_rc,
 	    { "Return code", "svcctl.rc", FT_UINT32, BASE_HEX,
 	      VALS(DOS_errors), 0x0, "SVCCTL return code", HFILL }},
