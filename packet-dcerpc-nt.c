@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.43 2002/08/21 21:29:22 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.44 2002/08/22 01:13:12 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -929,9 +929,8 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	/* Generic access rights */
 
 	item = proto_tree_add_text(subtree, tvb, offset - 4, 4,
-				   "Generic rights");
-
-	proto_item_append_text(item, ": 0x%08x", access & GENERIC_RIGHTS_MASK);
+				   "Generic rights: 0x%08x",
+				   access & GENERIC_RIGHTS_MASK);
 
 	generic = proto_item_add_subtree(item, ett_nt_access_mask_generic);
 
@@ -966,9 +965,8 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	/* Standard access rights */
 
 	item = proto_tree_add_text(subtree, tvb, offset - 4, 4,
-				   "Standard rights");
-
-	proto_item_append_text(item, ": 0x%08x", access & STANDARD_RIGHTS_MASK);
+				   "Standard rights: 0x%08x",
+				   access & STANDARD_RIGHTS_MASK);
 
 	standard = proto_item_add_subtree(item, ett_nt_access_mask_standard);
 
@@ -997,17 +995,13 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	   boring fashion. */
 
 	item = proto_tree_add_text(subtree, tvb, offset - 4, 4,
-				   "Specific rights");
-
-	proto_item_append_text(item, ": 0x%08x", access & SPECIFIC_RIGHTS_MASK);
+				   "Specific rights: 0x%08x",
+				   access & SPECIFIC_RIGHTS_MASK);
 
 	specific = proto_item_add_subtree(item, ett_nt_access_mask_specific);
 
 	if (specific_rights_fn) {
-
-		offset = specific_rights_fn(
-			tvb, offset - 4, specific, access);
-
+		specific_rights_fn(tvb, offset - 4, specific, access);
 		return offset;
 	}
 

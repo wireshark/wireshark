@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.55 2002/08/21 21:31:15 tpot Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.56 2002/08/22 01:13:12 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -398,7 +398,7 @@ static gint hf_set_audit_requirements = -1;
 static gint hf_server_admin = -1;
 static gint hf_lookup_names = -1;
 
-static int 
+static void
 lsa_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
 		    guint32 access)
 {
@@ -445,8 +445,6 @@ lsa_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
 	proto_tree_add_boolean(
 		tree, hf_view_local_info,
 		tvb, offset, 4, access);
-
-	return offset;
 }
 
 static int

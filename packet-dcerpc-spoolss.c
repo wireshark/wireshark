@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.48 2002/08/21 21:31:14 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.49 2002/08/22 01:13:13 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1825,11 +1825,9 @@ static int prs_PRINTER_DEFAULT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = prs_DEVMODE_CTR(tvb, offset, pinfo, subtree,
 				 &child_dp_list, NULL);
 		
-	dissect_nt_access_mask(
+	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, subtree, &drep, hf_access_required,
 		spoolss_specific_rights);
-
-	offset += 4;
 
 	offset = prs_referents(tvb, offset, pinfo, subtree, dp_list,
 			       &child_dp_list, NULL);

@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.55 2002/08/21 21:31:15 tpot Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.56 2002/08/22 01:13:12 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -208,7 +208,7 @@ static gint hf_access_connect_unknown_08 = -1;
 static gint hf_access_connect_enum_domains = -1;
 static gint hf_access_connect_open_domain = -1;
 
-static int
+static void
 specific_rights_connect(tvbuff_t *tvb, gint offset, proto_tree *tree,
 			guint32 access)
 {
@@ -235,8 +235,6 @@ specific_rights_connect(tvbuff_t *tvb, gint offset, proto_tree *tree,
 	proto_tree_add_boolean(
 		tree, hf_access_connect_unknown_01, 
 		tvb, offset, 4, access);
-
-	return offset;
 }
 
 /* Dissect domain specific access rights */
@@ -253,7 +251,7 @@ static gint hf_access_domain_enum_accounts = -1;
 static gint hf_access_domain_open_account = -1;
 static gint hf_access_domain_set_info3 = -1;
 
-static int
+static void
 specific_rights_domain(tvbuff_t *tvb, gint offset, proto_tree *tree,
 		       guint32 access)
 {
@@ -300,9 +298,7 @@ specific_rights_domain(tvbuff_t *tvb, gint offset, proto_tree *tree,
 	proto_tree_add_boolean(
 		tree, hf_access_domain_lookup_info1, 
 		tvb, offset, 4, access);
-	
-	return offset;
-}
+	}
 
 /* Dissect user specific access rights */
 
@@ -318,7 +314,7 @@ static gint hf_access_user_get_groups = -1;
 static gint hf_access_user_unknown_200 = -1;
 static gint hf_access_user_unknown_400 = -1;
 
-static int
+static void
 specific_rights_user(tvbuff_t *tvb, gint offset, proto_tree *tree,
 		     guint32 access)
 {
@@ -365,8 +361,6 @@ specific_rights_user(tvbuff_t *tvb, gint offset, proto_tree *tree,
 	proto_tree_add_boolean(
 		tree, hf_access_user_get_name_etc, 
 		tvb, offset, 4, access);
-
-	return offset;
 }
 
 /* Dissect alias specific access rights */
@@ -377,7 +371,7 @@ static gint hf_access_alias_get_members = -1;
 static gint hf_access_alias_lookup_info = -1;
 static gint hf_access_alias_set_info = -1;
 
-static int
+static void
 specific_rights_alias(tvbuff_t *tvb, gint offset, proto_tree *tree,
 		      guint32 access)
 {
@@ -400,8 +394,6 @@ specific_rights_alias(tvbuff_t *tvb, gint offset, proto_tree *tree,
 	proto_tree_add_boolean(
 		tree, hf_access_alias_add_member, 
 		tvb, offset, 4, access);	
-
-	return offset;
 }
 
 /* Dissect group specific access rights */
@@ -412,7 +404,7 @@ static gint hf_access_group_add_member = -1;
 static gint hf_access_group_remove_member = -1;
 static gint hf_access_group_get_members = -1;
 
-static int
+static void
 specific_rights_group(tvbuff_t *tvb, gint offset, proto_tree *tree,
 		      guint32 access)
 {
@@ -435,9 +427,7 @@ specific_rights_group(tvbuff_t *tvb, gint offset, proto_tree *tree,
 	proto_tree_add_boolean(
 		tree, hf_access_group_lookup_info, 
 		tvb, offset, 4, access);	
-	
-	return offset;
-}
+}	
 
 int
 dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, 
@@ -1770,9 +1760,6 @@ samr_dissect_create_user2_in_domain_reply(tvbuff_t *tvb, int offset,
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access_granted,
 		specific_rights_user);
-
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_samr_unknown_long, NULL);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_rid, NULL);
