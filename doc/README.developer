@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.10 2000/04/06 06:38:24 guy Exp $
+$Id: README.developer,v 1.11 2000/04/25 08:55:11 gram Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a protocol dissector and the use some of the important functions and variables 
@@ -57,7 +57,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.10 2000/04/06 06:38:24 guy Exp $" in the comment will be updated by CVS when the file is
+The "$Id: README.developer,v 1.11 2000/04/25 08:55:11 gram Exp $" in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
@@ -66,7 +66,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.10 2000/04/06 06:38:24 guy Exp $
+ * $Id: README.developer,v 1.11 2000/04/25 08:55:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -612,15 +612,16 @@ If the Boolean field is to be displayed as "False" or "True", the
 
 bitmask
 -------
-If the field is not a bitfield, then bitmask should be set to 0.
-If it is a bitfield, then the bitmask is the mask which will
+If the field is a bitfield, then the bitmask is the mask which will
 leave only the bits needed to make the field when ANDed with a value.
 The proto_tree routines will calculate 'bitshift' automatically
-from 'bitmask', by finding the first set bit in the bitmask.
+from 'bitmask', by finding the rightmost set bit in the bitmask.
+If the field is not a bitfield, then bitmask should be set to 0.
 
 blurb
 -----
-This is a string giving a sentence or two description of the field.
+This is a string giving a proper description of the field.
+It should be at least one grammatically complete sentence.
 It is meant to provide a more detailed description of the field than the
 name alone provides. This information will be used in the man page, and
 in a future GUI display-filter creation tool. We might also add tooltips
@@ -645,7 +646,7 @@ the protocol that is the parent of the fields. Here is a complete example:
 			0xf0, "Field A represents Apples" }},
 
 		{ &hf_field_b,
-		{ "Field B",	"proto.field_a", FT_UINT16, BASE_DEC, VALS(vs),
+		{ "Field B",	"proto.field_b", FT_UINT16, BASE_DEC, VALS(vs),
 			0x0, "Field B represents Bananas" }}
 	};
 
