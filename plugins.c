@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.2 1999/12/09 20:55:36 oabad Exp $
+ * $Id: plugins.c,v 1.3 2000/01/04 20:37:07 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,6 +30,8 @@
 #ifdef HAVE_DLFCN_H
 
 #include <time.h>
+#include <dirent.h>
+#include <string.h>
 
 #include "globals.h"
 
@@ -37,6 +39,11 @@
 
 /* linked list of all plugins */
 plugin *plugin_list;
+
+static gchar std_plug_dir[] = "/usr/lib/ethereal/plugins/0.8";
+static gchar local_plug_dir[] = "/usr/local/lib/ethereal/plugins/0.8";
+static gchar *user_plug_dir = NULL;
+static gchar *plugin_status_file = NULL;
 
 /*
  * add a new plugin to the list
@@ -200,6 +207,204 @@ plugin_replace_filter(const gchar *name, const gchar *version,
 	    return;
 	}
 	pt_plug = pt_plug->next;
+    }
+}
+
+/*
+ * save plugin status, returns 0 on success, -1 on failure:
+ * file format :
+ * for each plugin, two lines are saved :
+ * plugin_name plugin_version [0|1]    (0: disabled, 1: enabled)
+ * filter_string
+ *
+ * Ex :
+ * gryphon.so 0.8.0 1
+ * tcp.port == 7000
+ */
+int
+save_plugin_status()
+{
+    gchar  *plugin_status_file;
+    FILE   *statusfile;
+    plugin *pt_plug;
+
+    plugin_status_file = (gchar *)g_malloc(strlen(getenv("HOME")) + 26);
+    sprintf(plugin_status_file, "%s/.ethereal/plugins.status", getenv("HOME"));
+    statusfile=fopen(plugin_status_file, "w");
+    if (!statusfile) return -1;
+
+    pt_plug = plugin_list;
+    while (pt_plug)
+    {
+	fprintf(statusfile,"%s %s %s\n%s\n", pt_plug->name, pt_plug->version,
+		(pt_plug->enabled ? "1" : "0"), pt_plug->filter_string);
+	pt_plug = pt_plug->next;
+    }
+    fclose(statusfile);
+    return 0;
+}
+
+/*
+ * Check if the status of this plugin has been saved.
+ * If necessary, enable the plugin, and change the filter.
+ */
+static void
+check_plugin_status(gchar *name, gchar *version, lt_dlhandle handle,
+	            gchar *filter_string, FILE *statusfile)
+{
+    gchar   *ref_string;
+    guint16  ref_string_len;
+    gchar    line[512];
+    void   (*proto_init)();
+    dfilter *filter;
+
+    if (!statusfile) return;
+
+    ref_string = (gchar *)g_malloc(strlen(name) + strlen(version) + 2);
+    ref_string_len = sprintf(ref_string, "%s %s", name, version);
+
+    while (!feof(statusfile))
+    {
+	if (fgets(line, 512, statusfile) == NULL) return;
+	if (strncmp(line, ref_string, ref_string_len) != 0) { /* not the right plugin */
+	    if (fgets(line, 512, statusfile) == NULL) return;
+	}
+	else { /* found the plugin */
+	    if (line[ref_string_len+1] == '1') {
+		enable_plugin(name, version);
+		proto_init = (void (*)())lt_dlsym(handle, "proto_init");
+		if (proto_init)
+		    proto_init();
+	    }
+
+	    if (fgets(line, 512, statusfile) == NULL) return;
+	    if (line[strlen(line)-1] == '\n') line[strlen(line)-1] = '\0';
+	    /* only compile the new filter if it is different from the default */
+	    if (strcmp(line, filter_string) && dfilter_compile(line, &filter) == 0)
+		plugin_replace_filter(name, version, line, filter);
+	    return;
+	}
+    }
+}
+
+static void
+plugins_scan_dir(const char *dirname)
+{
+    DIR           *dir;             /* scanned directory */
+    struct dirent *file;            /* current file */
+    gchar          filename[512];   /* current file name */
+    lt_dlhandle    handle;          /* handle returned by dlopen */
+    gchar         *name;
+    gchar         *version;
+    gchar         *protocol;
+    gchar         *filter_string;
+    gchar         *dot;
+    dfilter       *filter = NULL;
+    void         (*dissector) (const u_char *, int, frame_data *, proto_tree *);
+    int            cr;
+    FILE          *statusfile;
+
+#define LT_LIB_EXT ".la"
+
+    if (!plugin_status_file)
+    {
+	plugin_status_file = (gchar *)g_malloc(strlen(getenv("HOME")) + 26);
+	sprintf(plugin_status_file, "%s/.ethereal/plugins.status", getenv("HOME"));
+    }
+    statusfile = fopen(plugin_status_file, "r");
+
+    if ((dir = opendir(dirname)) != NULL)
+    {
+	while ((file = readdir(dir)) != NULL)
+	{
+	    /* don't try to open "." and ".." */
+	    if (!(strcmp(file->d_name, "..") &&
+		  strcmp(file->d_name, "."))) continue;
+
+            /* skip anything but .la */
+            dot = strrchr(file->d_name, '.');
+            if (dot == NULL || ! strcmp(dot, LT_LIB_EXT)) continue;
+
+	    sprintf(filename, "%s/%s", dirname, file->d_name);
+
+	    if ((handle = lt_dlopen(filename)) == NULL) continue;
+	    name = (gchar *)file->d_name;
+	    if ((version = (gchar *)lt_dlsym(handle, "version")) == NULL)
+	    {
+		lt_dlclose(handle);
+		continue;
+	    }
+	    if ((protocol = (gchar *)lt_dlsym(handle, "protocol")) == NULL)
+	    {
+		lt_dlclose(handle);
+		continue;
+	    }
+	    if ((filter_string = (gchar *)lt_dlsym(handle, "filter_string")) == NULL)
+	    {
+		lt_dlclose(handle);
+		continue;
+	    }
+	    if (dfilter_compile(filter_string, &filter) != 0) {
+		lt_dlclose(handle);
+		continue;
+	    }
+	    if ((dissector = (void (*)(const u_char *, int,
+				frame_data *,
+				proto_tree *)) lt_dlsym(handle, "dissector")) == NULL)
+	    {
+		if (filter != NULL)
+		    dfilter_destroy(filter);
+		lt_dlclose(handle);
+		continue;
+	    }
+
+	    if ((cr = add_plugin(handle, g_strdup(file->d_name), version,
+				 protocol, filter_string, filter, dissector)))
+	    {
+		if (cr == EEXIST)
+		    fprintf(stderr, "The plugin : %s, version %s\n"
+			    "was found in multiple directories\n", name, version);
+		else
+		    fprintf(stderr, "Memory allocation problem\n"
+			    "when processing plugin %s, version %sn",
+			    name, version);
+		if (filter != NULL)
+		    dfilter_destroy(filter);
+		lt_dlclose(handle);
+		continue;
+	    }
+	    if (statusfile) {
+		check_plugin_status(file->d_name, version, handle,
+			            filter_string, statusfile);
+		rewind(statusfile);
+	    }
+	}
+	closedir(dir);
+    }
+    if (statusfile) fclose(statusfile);
+}
+
+/*
+ * init plugins
+ */
+void
+init_plugins()
+{
+    if (plugin_list == NULL)      /* ensure init_plugins is only run once */
+    {
+	plugins_scan_dir(std_plug_dir);
+	plugins_scan_dir(local_plug_dir);
+        if ((strcmp(std_plug_dir, PLUGIN_DIR) != 0) &&
+            (strcmp(local_plug_dir, PLUGIN_DIR) != 0))
+        {
+          plugins_scan_dir(PLUGIN_DIR);
+        }
+	if (!user_plug_dir)
+	{
+	    user_plug_dir = (gchar *)g_malloc(strlen(getenv("HOME")) + 19);
+	    sprintf(user_plug_dir, "%s/.ethereal/plugins", getenv("HOME"));
+	}
+	plugins_scan_dir(user_plug_dir);
     }
 }
 

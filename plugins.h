@@ -1,7 +1,7 @@
 /* plugins.h
  * definitions for plugins structures
  *
- * $Id: plugins.h,v 1.3 1999/12/26 22:37:19 gerald Exp $
+ * $Id: plugins.h,v 1.4 2000/01/04 20:37:07 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -52,5 +52,7 @@ void *disable_plugin(const gchar *, const gchar *);
 void *find_plugin(const gchar *, const gchar *);
 gboolean is_enabled(const gchar *, const gchar *);
 void plugin_replace_filter(const gchar *, const gchar *, const gchar *, dfilter *);
+int save_plugin_status();
+void init_plugins();
 
 #endif /* __PLUGINS_H__ */

@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.8 2000/01/03 20:18:25 oabad Exp $
+ * $Id: plugins_dlg.c,v 1.9 2000/01/04 20:37:18 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,10 +31,8 @@
 
 #include <errno.h>
 #include <sys/types.h>
-#include <dirent.h>
 #include <stdlib.h>
 #include <string.h>
-#include <dlfcn.h>
 
 #include "globals.h"
 #include "plugins.h"
@@ -46,13 +44,10 @@ static gint selected_row;
 static gchar *selected_name;
 static gchar *selected_version;
 static gchar *selected_enabled;
-static gchar std_plug_dir[] = "/usr/lib/ethereal/plugins/0.8";
-static gchar local_plug_dir[] = "/usr/local/lib/ethereal/plugins/0.8";
-static gchar *user_plug_dir = NULL;
 
 static void plugins_close_cb(GtkWidget *, gpointer);
+static void plugins_save_cb(GtkWidget *, gpointer);
 static void plugins_scan(GtkWidget *);
-static void plugins_scan_dir(const char *);
 static void plugins_clist_select_cb(GtkWidget *, gint, gint,
 	GdkEventButton *, gpointer);
 static void plugins_clist_unselect_cb(GtkWidget *, gint, gint,
@@ -79,6 +74,7 @@ tools_plugins_cmd_cb(GtkWidget *widget, gpointer data)
     GtkWidget *filter_bn;
     GtkWidget *main_hbnbox;
     GtkWidget *close_bn;
+    GtkWidget *save_bn;
     gchar     *titles[] = {"Name", "Description", "Version", "Enabled"};
 
     plugins_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -125,7 +121,7 @@ tools_plugins_cmd_cb(GtkWidget *widget, gpointer data)
     frame_vbnbox = gtk_vbutton_box_new();
     gtk_box_pack_start(GTK_BOX(frame_hbox), frame_vbnbox, FALSE, TRUE, 0);
     gtk_container_set_border_width(GTK_CONTAINER(frame_vbnbox), 20);
-    gtk_button_box_set_layout(GTK_BUTTON_BOX(frame_vbnbox), GTK_BUTTONBOX_START);
+    gtk_button_box_set_layout(GTK_BUTTON_BOX(frame_vbnbox), GTK_BUTTONBOX_SPREAD);
     gtk_widget_show(frame_vbnbox);
 
     enable_bn = gtk_button_new_with_label("Enable");
@@ -147,6 +143,7 @@ tools_plugins_cmd_cb(GtkWidget *widget, gpointer data)
     main_hbnbox = gtk_hbutton_box_new();
     gtk_box_pack_start(GTK_BOX(main_vbox), main_hbnbox, FALSE, TRUE, 0);
     gtk_container_set_border_width(GTK_CONTAINER(main_hbnbox), 10);
+    gtk_button_box_set_layout(GTK_BUTTON_BOX(main_hbnbox), GTK_BUTTONBOX_SPREAD);
     gtk_widget_show(main_hbnbox);
 
     close_bn = gtk_button_new_with_label("Close");
@@ -154,6 +151,12 @@ tools_plugins_cmd_cb(GtkWidget *widget, gpointer data)
     gtk_widget_show(close_bn);
     gtk_signal_connect(GTK_OBJECT(close_bn), "clicked",
 	    GTK_SIGNAL_FUNC(plugins_close_cb), GTK_OBJECT(plugins_window));
+
+    save_bn = gtk_button_new_with_label("Save status");
+    gtk_container_add(GTK_CONTAINER(main_hbnbox), save_bn);
+    gtk_widget_show(save_bn);
+    gtk_signal_connect(GTK_OBJECT(save_bn), "clicked",
+	    GTK_SIGNAL_FUNC(plugins_save_cb), GTK_OBJECT(plugins_window));
 
     gtk_widget_show(plugins_window);
 
@@ -179,23 +182,6 @@ plugins_scan(GtkWidget *clist)
     plugin *pt_plug;
     gchar  *plugent[4];               /* new entry added in clist */
 
-    if (plugin_list == NULL)          /* first intialisation */
-    {
-	plugins_scan_dir(std_plug_dir);
-	plugins_scan_dir(local_plug_dir);
-        if ((strcmp(std_plug_dir, PLUGIN_DIR) != 0) &&
-            (strcmp(local_plug_dir, PLUGIN_DIR) != 0))
-        {
-          plugins_scan_dir(PLUGIN_DIR);
-        }
-	if (!user_plug_dir)
-	{
-	    user_plug_dir = (gchar *)g_malloc(strlen(getenv("HOME")) + 19);
-	    sprintf(user_plug_dir, "%s/.ethereal/plugins", getenv("HOME"));
-	}
-	plugins_scan_dir(user_plug_dir);
-    }
-
     pt_plug = plugin_list;
     while (pt_plug)
     {
@@ -209,91 +195,18 @@ plugins_scan(GtkWidget *clist)
 }
 
 static void
-plugins_scan_dir(const char *dirname)
-{
-    DIR           *dir;             /* scanned directory */
-    struct dirent *file;            /* current file */
-    gchar          filename[512];   /* current file name */
-    lt_dlhandle    handle;          /* handle returned by dlopen */
-    gchar         *name;
-    gchar         *version;
-    gchar         *protocol;
-    gchar         *filter_string;
-    gchar         *dot;
-    dfilter       *filter = NULL;
-    void         (*dissector) (const u_char *, int, frame_data *, proto_tree *);
-    int            cr;
-
-#define LT_LIB_EXT ".la"
-
-    if ((dir = opendir(dirname)) != NULL)
-    {
-	while ((file = readdir(dir)) != NULL)
-	{
-	    /* don't try to open "." and ".." */
-	    if (!(strcmp(file->d_name, "..") &&
-		  strcmp(file->d_name, "."))) continue;
-
-            /* skip anything but .la */
-            dot = strrchr(file->d_name, '.');
-            if (dot == NULL || ! strcmp(dot, LT_LIB_EXT)) continue;
-
-	    sprintf(filename, "%s/%s", dirname, file->d_name);
-
-	    if ((handle = lt_dlopen(filename)) == NULL) continue;
-	    name = (gchar *)file->d_name;
-	    if ((version = (gchar *)lt_dlsym(handle, "version")) == NULL)
-	    {
-		dlclose(handle);
-		continue;
-	    }
-	    if ((protocol = (gchar *)lt_dlsym(handle, "protocol")) == NULL)
-	    {
-		dlclose(handle);
-		continue;
-	    }
-	    if ((filter_string = (gchar *)lt_dlsym(handle, "filter_string")) == NULL)
-	    {
-		dlclose(handle);
-		continue;
-	    }
-	    if (dfilter_compile(filter_string, &filter) != 0) {
-		dlclose(handle);
-		continue;
-	    }
-	    if ((dissector = (void (*)(const u_char *, int,
-				frame_data *,
-				proto_tree *)) lt_dlsym(handle, "dissector")) == NULL)
-	    {
-		if (filter != NULL)
-		    dfilter_destroy(filter);
-		dlclose(handle);
-		continue;
-	    }
-
-	    if ((cr = add_plugin(handle, g_strdup(file->d_name), version,
-				 protocol, filter_string, filter, dissector)))
-	    {
-		if (cr == EEXIST)
-		    simple_dialog(ESD_TYPE_WARN, NULL, "The plugin : %s, version %s\n"
-			"was found in multiple directories", name, version);
-		else
-		    simple_dialog(ESD_TYPE_WARN, NULL, "Memory allocation problem");
-		if (filter != NULL)
-		    dfilter_destroy(filter);
-		dlclose(handle);
-		continue;
-	    }
-	}
-	closedir(dir);
-    }
-}
-
-static void
 plugins_close_cb(GtkWidget *close_bt, gpointer parent_w)
 {
     gtk_grab_remove(GTK_WIDGET(parent_w));
     gtk_widget_destroy(GTK_WIDGET(parent_w));
+}
+
+static void
+plugins_save_cb(GtkWidget *close_bt, gpointer parent_w)
+{
+    if (save_plugin_status())
+	simple_dialog(ESD_TYPE_WARN, NULL, "Can't open ~/.ethereal/plugins.status\n"
+		                           "for writing");
 }
 
 void plugins_clist_select_cb(GtkWidget *clist, gint row, gint column,
@@ -419,7 +332,7 @@ plugins_filter_cb(GtkWidget *button, gpointer clist)
 }
 
 static void
-filter_ok_cb(GtkWidget *close_bt, gpointer parent_w)
+filter_ok_cb(GtkWidget *button, gpointer parent_w)
 {
     GtkWidget *filter_entry;
     gchar     *filter_string;
@@ -442,14 +355,14 @@ filter_ok_cb(GtkWidget *close_bt, gpointer parent_w)
 }
 
 static void
-filter_cancel_cb(GtkWidget *close_bt, gpointer parent_w)
+filter_cancel_cb(GtkWidget *button, gpointer parent_w)
 {
     gtk_grab_remove(GTK_WIDGET(parent_w));
     gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
 
 static void
-filter_default_cb(GtkWidget *close_bt, gpointer parent_w)
+filter_default_cb(GtkWidget *button, gpointer parent_w)
 {
     GtkWidget *filter_entry;
     gchar     *filter_string;

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.80 2000/01/03 06:59:21 guy Exp $
+ * $Id: main.c,v 1.81 2000/01/04 20:37:16 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -104,6 +104,7 @@
 #include "dfilter.h"
 #include "keys.h"
 #include "gtkglobals.h"
+#include "plugins.h"
 
 FILE        *data_out_file = NULL;
 packet_info  pi;
@@ -853,6 +854,7 @@ ethereal_proto_init(void) {
   proto_init();
   init_dissect_udp();
   dfilter_init();
+  init_plugins();
 }
 
 static void
