@@ -63,6 +63,8 @@ static int hf_http_response = -1;
 static int hf_http_request = -1;
 static int hf_http_basic = -1;
 static int hf_http_request_method = -1;
+static int hf_http_request_uri = -1;
+static int hf_http_request_version = -1;
 static int hf_http_response_code = -1;
 static int hf_http_authorization = -1;
 static int hf_http_proxy_authenticate = -1;
@@ -241,7 +243,8 @@ cleanup_headers(void *arg)
 /*
  * TODO: remove this ugly global variable.
  *
- * XXX - we leak "http_info_value_t" structures.
+ * XXX - we leak "http_info_value_t" structures.  Should we add a reference
+ *       counter?
  * XXX - this gets overwritten if there's more than one HTTP request or
  * reply in the tvbuff.
  */
@@ -915,7 +918,29 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static void
 basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int req_strlen)
 {
+	gint start, end;
 	proto_tree_add_item(tree, hf_http_request_method, tvb, 0, req_strlen, FALSE);
+
+	start = end = req_strlen + 1;
+	
+	while (tvb_length_remaining(tvb, end) > 0) {
+		if (tvb_get_guint8(tvb, end) == ' ' && end > start) {
+			proto_tree_add_item(tree, hf_http_request_uri, tvb, start, end - start, FALSE);
+			break;
+		}
+		end++;
+	}
+	
+	if (end > start) {
+		start = end;
+		while (tvb_length_remaining(tvb, end) > 0) {
+			if (tvb_get_guint8(tvb, end) == '\r' && end > start) {
+				proto_tree_add_item(tree, hf_http_request_version, tvb, start, end - start, FALSE);
+				break;
+			}
+			end++;
+		}
+	}				
 }
 
 static void
@@ -1655,6 +1680,14 @@ proto_register_http(void)
 	      { "Request Method",	"http.request.method",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Request Method", HFILL }},
+	    { &hf_http_request_uri,
+	      { "Request URI",	"http.request.uri",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Request-URI", HFILL }},
+	    { &hf_http_request_version,
+	      { "Request Version",	"http.request.version",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Request HTTP-Version", HFILL }},
 	    { &hf_http_response_code,
 	      { "Response Code",	"http.response.code",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
