@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.26 2000/09/07 05:34:18 gram Exp $
+ * $Id: radcom.c,v 1.27 2000/11/13 23:00:55 oabad Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -81,7 +81,7 @@ int radcom_open(wtap *wth, int *err)
 	guint32 sec;
 	struct tm tm;
 	char byte;
-	char encap_magic[7] = {0x54, 0x43, 0x50, 0x00, 0x42, 0x43, 0x09};
+	char encap_magic[4] = {0x00, 0x42, 0x43, 0x09};
 	char search_encap[7];
 
 	/* Read in the string that should be at the start of a RADCOM file */
@@ -121,8 +121,6 @@ int radcom_open(wtap *wth, int *err)
 		}
 		wth->data_offset += 1;
 	}
-	file_seek(wth->fh, 1, SEEK_CUR);
-	wth->data_offset += 1;
 
 	/* Get capture start time */
 	errno = WTAP_ERR_CANT_READ;
@@ -154,20 +152,20 @@ int radcom_open(wtap *wth, int *err)
 	wth->data_offset += sizeof(struct frame_date);
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(search_encap, 1, 7, wth->fh);
-	if (bytes_read != 7) {
+	bytes_read = file_read(search_encap, 1, 4, wth->fh);
+	if (bytes_read != 4) {
 		goto read_error;
 	}
-	wth->data_offset += 7;
-	while (memcmp(encap_magic, search_encap, 7)) {
-		file_seek(wth->fh, -6, SEEK_CUR);
-		wth->data_offset -= 6;
+	wth->data_offset += 4;
+	while (memcmp(encap_magic, search_encap, 4)) {
+		file_seek(wth->fh, -3, SEEK_CUR);
+		wth->data_offset -= 3;
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = file_read(search_encap, 1, 7, wth->fh);
-		if (bytes_read != 7) {
+		bytes_read = file_read(search_encap, 1, 4, wth->fh);
+		if (bytes_read != 4) {
 			goto read_error;
 		}
-		wth->data_offset += 7;
+		wth->data_offset += 4;
 	}
 	file_seek(wth->fh, 12, SEEK_CUR);
 	wth->data_offset += 12;
