@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.18 1999/08/18 15:29:06 gram Exp $
+ * $Id: util.c,v 1.19 1999/08/23 05:02:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,6 +43,14 @@
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
 #endif
 
 #ifdef NEED_SNPRINTF_H
@@ -201,6 +209,8 @@ try_tempfile(char *namebuf, int namebuflen, const char *dir, const char *pfx)
 {
 	static const char suffix[] = "XXXXXXXXXX";
 	int namelen = strlen(namebuf) + strlen(pfx) + sizeof suffix;
+	mode_t old_umask;
+	int tmp_fd;
 
 	if (namebuflen < namelen) {
 		errno = ENAMETOOLONG;
@@ -209,7 +219,17 @@ try_tempfile(char *namebuf, int namebuflen, const char *dir, const char *pfx)
 	strcpy(namebuf, dir);
 	strcat(namebuf, pfx);
 	strcat(namebuf, suffix);
-	return mkstemp(namebuf);
+
+	/* The Single UNIX Specification doesn't say that "mkstemp()"
+	   creates the temporary file with mode rw-------, so we
+	   won't assume that all UNIXes will do so; instead, we set
+	   the umask to 0077 to take away all group and other
+	   permissions, attempt to create the file, and then put
+	   the umask back. */
+	old_umask = umask(0077);
+	tmp_fd = mkstemp(namebuf);
+	umask(old_umask);
+	return tmp_fd;
 }
 
 static char *tmpdir = NULL;
