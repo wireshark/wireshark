@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.108 2003/02/07 20:09:33 guy Exp $
+ * $Id: packet-ppp.c,v 1.109 2003/04/28 04:03:24 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2205,9 +2205,14 @@ dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 			  tvb_get_guint8(tvb, offset + 2));
       break;
     case BAP_PHONE_DELTA_SUBOPT_SUBSC_NUM:
-      tvb_get_nstringz0(tvb, offset + 2, subopt_len - 2, buf);
-      proto_tree_add_text(suboption_tree, tvb, offset + 2, subopt_len - 2,
+      if (subopt_len >= 2) {
+        tvb_get_nstringz0(tvb, offset + 2, subopt_len - 2, buf);
+        proto_tree_add_text(suboption_tree, tvb, offset + 2, subopt_len - 2,
 			  "Subscriber Number: %s", buf);
+      } else {
+        proto_tree_add_text(suboption_tree, tvb, offset + 1, 1,
+			  "Invalid suboption length: %u", subopt_len);
+      }
       break;
     case BAP_PHONE_DELTA_SUBOPT_PHONENUM_SUBADDR:
       tvb_get_nstringz0(tvb, offset + 2, subopt_len - 2, buf);
