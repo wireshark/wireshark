@@ -236,6 +236,7 @@ Heikki Vatiainen <hessu@cs.tut.fi> {
 	Support for Enter/Return toggling expansion of selected protocol
 	    tree item
 	IGMP fixes and multicast traceroute support
+	MSDP support
 }
 
 Greg Hankins <gregh@twoguys.org> {
