@@ -1,4 +1,4 @@
-$Id: README,v 1.19 1999/11/26 20:49:28 gram Exp $
+$Id: README,v 1.20 2000/02/17 21:08:14 oabad Exp $
 
 Wiretap is a library that is being developed as a future replacement for
 libpcap, the current standard Unix library for packet capturing. Libpcap
@@ -99,7 +99,17 @@ Gerald
 
 HP-UX nettl
 -----------
-Olivier
+nettl is used on HP-UX to trace various streams based subsystems.  Wiretap
+can read nettl files containing IP frames (NS_LS_IP subsystem) and LAPB
+frames (SX25L2 subsystem). It has been tested with files generated on
+HP-UX 9.04 and 10.20.
+Use the following commands to generate a trace :
+# IP capture. 0x30000000 means PDU in and PDU out :
+nettl -tn 0x30000000 -e NS_LS_IP -f tracefile
+# X25 capture. You must specify an interface :
+nettl -tn 0x30000000 -e SX25l2 -d /dev/x25_0 -f tracefile
+# stop capture. subsystem is NS_LS_IP or SX25L2 :
+nettl -tf -e subsystem
 
 Toshiba ISDN Router
 -------------------
