@@ -1,7 +1,7 @@
 /* rtp_stream.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream.c,v 1.3 2003/11/20 23:34:31 guy Exp $
+ * $Id: rtp_stream.c,v 1.4 2003/11/21 19:24:00 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -242,7 +242,7 @@ int rtpstream_packet(rtpstream_tapinfo_t *tapinfo _U_, packet_info *pinfo, epan_
 				(pinfo->fd->abs_usecs + 1000000 - tapinfo->filter_stream_fwd->start_usec)/1000
 				+ (pinfo->fd->abs_secs - tapinfo->filter_stream_fwd->start_sec - 1)*1000;
 			sample.header.frame_length = rtpinfo->info_data_len;
-			sample.frame = cfile.pd + pinfo->fd->pkt_len - rtpinfo->info_data_len;
+			sample.frame = rtpinfo->info_data;
 			rtp_write_sample(&sample, tapinfo->save_file);
 		}
 	}
