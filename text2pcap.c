@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.17 2002/06/23 10:32:18 guy Exp $
+ * $Id: text2pcap.c,v 1.18 2002/06/30 20:28:54 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -128,45 +128,45 @@
 /*--- Options --------------------------------------------------------------------*/
 
 /* Debug level */
-int debug = 0; 
+static int debug = 0; 
 /* Be quiet */
-int quiet = FALSE;
+static int quiet = FALSE;
 
 /* Dummy Ethernet header */
-int hdr_ethernet = FALSE;
-unsigned long hdr_ethernet_proto = 0;
+static int hdr_ethernet = FALSE;
+static unsigned long hdr_ethernet_proto = 0;
 
 /* Dummy IP header */
-int hdr_ip = FALSE;
-unsigned long hdr_ip_proto = 0;
+static int hdr_ip = FALSE;
+static unsigned long hdr_ip_proto = 0;
 
 /* Dummy UDP header */
-int hdr_udp = FALSE;
-unsigned long hdr_udp_dest = 0;
-unsigned long hdr_udp_src = 0;
+static int hdr_udp = FALSE;
+static unsigned long hdr_udp_dest = 0;
+static unsigned long hdr_udp_src = 0;
 
 /* Dummy SCTP header */
-int hdr_sctp = FALSE;
-unsigned long hdr_sctp_src  = 0;
-unsigned long hdr_sctp_dest = 0;
-unsigned long hdr_sctp_tag  = 0;
+static int hdr_sctp = FALSE;
+static unsigned long hdr_sctp_src  = 0;
+static unsigned long hdr_sctp_dest = 0;
+static unsigned long hdr_sctp_tag  = 0;
 
 /* Dummy DATA chunk header */
-int hdr_data_chunk = FALSE;
-unsigned char  hdr_data_chunk_type = 0;
-unsigned char  hdr_data_chunk_bits = 3;
-unsigned long  hdr_data_chunk_tsn  = 0;
-unsigned short hdr_data_chunk_sid  = 0;
-unsigned short hdr_data_chunk_ssn  = 0;
-unsigned long  hdr_data_chunk_ppid = 0;
+static int hdr_data_chunk = FALSE;
+static unsigned char  hdr_data_chunk_type = 0;
+static unsigned char  hdr_data_chunk_bits = 3;
+static unsigned long  hdr_data_chunk_tsn  = 0;
+static unsigned short hdr_data_chunk_sid  = 0;
+static unsigned short hdr_data_chunk_ssn  = 0;
+static unsigned long  hdr_data_chunk_ppid = 0;
 
 
 /*--- Local date -----------------------------------------------------------------*/
 
 /* This is where we store the packet currently being built */
 #define MAX_PACKET 64000
-unsigned char packet_buf[MAX_PACKET];
-unsigned long curr_offset = 0;
+static unsigned char packet_buf[MAX_PACKET];
+static unsigned long curr_offset = 0;
 
 /* This buffer contains strings present before the packet offset 0 */
 #define PACKET_PREAMBLE_MAX_LEN	2048
@@ -174,8 +174,8 @@ static unsigned char packet_preamble[PACKET_PREAMBLE_MAX_LEN+1];
 static int packet_preamble_len = 0;
 
 /* Number of packets read and written */
-unsigned long num_packets_read = 0;
-unsigned long num_packets_written = 0;
+static unsigned long num_packets_read = 0;
+static unsigned long num_packets_written = 0;
 
 /* Time code of packet, derived from packet_preamble */
 static unsigned long ts_sec  = 0;
@@ -183,16 +183,16 @@ static unsigned long ts_usec = 0;
 static char *ts_fmt = NULL;
 
 /* Input file */
-char *input_filename;
-FILE *input_file = NULL;
+static char *input_filename;
+static FILE *input_file = NULL;
 /* Output file */
-char *output_filename;
-FILE *output_file = NULL;
+static char *output_filename;
+static FILE *output_file = NULL;
 
 /* Offset base to parse */
-unsigned long offset_base = 16;
+static unsigned long offset_base = 16;
 
-FILE *yyin;
+static FILE *yyin;
 
 /* ----- State machine -----------------------------------------------------------*/
 
@@ -204,16 +204,16 @@ typedef enum {
     READ_BYTE,        /* Just read a byte */
     READ_TEXT,        /* Just read text - ignore until EOL */
 } parser_state_t;
-parser_state_t state = INIT;
+static parser_state_t state = INIT;
 
-const char *state_str[] = {"Init", 
+static const char *state_str[] = {"Init", 
                            "Start-of-line", 
                            "Offset",
                            "Byte",
                            "Text"
 };
 
-const char *token_str[] = {"",
+static const char *token_str[] = {"",
                            "Byte", 
                            "Offset",
                            "Directive",
@@ -229,7 +229,7 @@ typedef struct {
     unsigned short l3pid;
 } hdr_ethernet_t;
 
-hdr_ethernet_t HDR_ETHERNET = {
+static hdr_ethernet_t HDR_ETHERNET = {
     {0x01, 0x01, 0x01, 0x01, 0x01, 0x01}, 
     {0x02, 0x02, 0x02, 0x02, 0x02, 0x02},
     0};
@@ -248,7 +248,7 @@ typedef struct {
     unsigned long dest_addr;
 } hdr_ip_t;
 
-hdr_ip_t HDR_IP = {0x45, 0, 0, 0x3412, 0, 0, 0xff, 0, 0, 0x01010101, 0x02020202};
+static hdr_ip_t HDR_IP = {0x45, 0, 0, 0x3412, 0, 0, 0xff, 0, 0, 0x01010101, 0x02020202};
 
 typedef struct {
     unsigned short source_port;
@@ -257,7 +257,7 @@ typedef struct {
     unsigned short checksum;
 } hdr_udp_t;
 
-hdr_udp_t HDR_UDP = {0, 0, 0, 0};
+static hdr_udp_t HDR_UDP = {0, 0, 0, 0};
 
 typedef struct {
     unsigned short src_port;
@@ -266,7 +266,7 @@ typedef struct {
     unsigned long  checksum;
 } hdr_sctp_t;
 
-hdr_sctp_t HDR_SCTP = {0, 0, 0, 0};
+static hdr_sctp_t HDR_SCTP = {0, 0, 0, 0};
 
 typedef struct {
     unsigned char  type;
@@ -278,9 +278,9 @@ typedef struct {
     unsigned long  ppid;
 } hdr_data_chunk_t;
 
-hdr_data_chunk_t HDR_DATA_CHUNK = {0, 0, 0, 0, 0, 0, 0};
+static hdr_data_chunk_t HDR_DATA_CHUNK = {0, 0, 0, 0, 0, 0, 0};
 
-char tempbuf[64];
+static char tempbuf[64];
 
 /*----------------------------------------------------------------------
  * Stuff for writing a PCap file
@@ -307,7 +307,7 @@ struct pcaprec_hdr {
 };
 
 /* Link-layer type; see net/bpf.h for details */
-unsigned long pcap_link_type = 1;   /* Default is DLT-EN10MB */
+static unsigned long pcap_link_type = 1;   /* Default is DLT-EN10MB */
 
 /*----------------------------------------------------------------------
  * Parse a single hex number

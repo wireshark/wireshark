@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, adjust timestamps, or
  * simply convert from one format to another format.
  *
- * $Id: editcap.c,v 1.23 2002/06/23 10:32:13 guy Exp $
+ * $Id: editcap.c,v 1.24 2002/06/30 20:28:54 guy Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -53,8 +53,8 @@ struct time_adjustment {
   int is_negative;
 };
 
-struct select_item selectfrm[100];
-int max_selected = -1;
+static struct select_item selectfrm[100];
+static int max_selected = -1;
 static int count = 1;
 static int keep_em = 0;
 static int out_file_type = WTAP_FILE_PCAP;   /* default to "libpcap"   */
@@ -65,7 +65,7 @@ static struct time_adjustment time_adj = {{0, 0}, 0}; /* no adjustment */
 
 /* Add a selection item, a simple parser for now */
 
-void add_selection(char *sel) 
+static void add_selection(char *sel) 
 {
   char *locn;
   char *next;
@@ -105,7 +105,7 @@ void add_selection(char *sel)
 
 /* Was the record selected? */
 
-int selected(int recno)
+static int selected(int recno)
 {
   int i = 0;
 
@@ -272,7 +272,7 @@ set_time_adjustment(char *optarg)
   time_adj.tv.tv_usec = val;
 }
 
-void usage()
+static void usage()
 {
   int i;
   const char *string;
