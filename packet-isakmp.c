@@ -3,7 +3,7 @@
  * (ISAKMP) (RFC 2408)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.41 2001/08/30 02:23:17 guy Exp $
+ * $Id: packet-isakmp.c,v 1.42 2001/08/31 19:47:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,7 @@
 #endif
 
 #include <stdio.h>
+#include <string.h>
 
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
