@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.39 2004/01/05 15:27:35 ulfl Exp $
+; $Id: ethereal.nsi,v 1.40 2004/01/26 21:12:41 ulfl Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -10,7 +10,7 @@
 Name "Ethereal"
 
 ; The file to write
-OutFile "ethereal-setup-${VERSION}.exe"
+OutFile "${DEST}-setup-${VERSION}.exe"
 
 ; Icon of installer and uninstaller
 Icon "..\..\image\ethereal.ico"
@@ -168,7 +168,7 @@ SectionEnd
 Section "Ethereal" SecEthereal
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File "..\..\ethereal.exe"
+File "..\..\${DEST}.exe"
 File "..\..\doc\ethereal.html"
 File "..\..\doc\ethereal-filter.html"
 !ifndef GTK2

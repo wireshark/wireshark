@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.397 2004/01/24 20:01:35 ulfl Exp $
+# $Id: Makefile.nmake,v 1.398 2004/01/26 21:12:40 ulfl Exp $
 
 include config.nmake
 include <win32.mak>
@@ -168,6 +168,18 @@ EXECUTABLES=ethereal.exe ethereal2.exe tethereal.exe editcap.exe mergecap.exe te
 RESOURCES=image\ethereal.res image\tethereal.res image\editcap.res image\mergecap.res image\text2pcap.res
 
 all: tools wiretap epan image $(EXECUTABLES) $(RESOURCES) doc
+
+packaging: all
+	cd packaging
+	cd nsis
+!IFDEF GTK1_DIR
+	nmake -f makefile.nmake GTK1="USE"
+!ENDIF
+!IFDEF GTK2_DIR
+	nmake -f makefile.nmake GTK2="USE"
+!ENDIF
+	cd ..
+	cd ..
 
 $(RESOURCES): image
 
