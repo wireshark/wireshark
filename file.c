@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.130 1999/12/01 20:12:32 gram Exp $
+ * $Id: file.c,v 1.131 1999/12/04 06:27:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -435,7 +435,7 @@ continue_tail_cap_file(capture_file *cf, int to_read)
   wtap_loop(cf->wth, to_read, wtap_dispatch_cb, (u_char *) cf, &err);
 
   gtk_clist_thaw(GTK_CLIST(packet_list));
-  if (auto_scroll_live)
+  if (auto_scroll_live && cf->plist_end != NULL)
     gtk_clist_moveto(GTK_CLIST(packet_list), 
 		       cf->plist_end->row, -1, 1.0, 1.0);
   return err;
@@ -451,7 +451,7 @@ finish_tail_cap_file(capture_file *cf)
   wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf, &err);
 
   thaw_clist(cf);
-  if (auto_scroll_live)
+  if (auto_scroll_live && cf->plist_end != NULL)
     gtk_clist_moveto(GTK_CLIST(packet_list), 
 		       cf->plist_end->row, -1, 1.0, 1.0);
 
