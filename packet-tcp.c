@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.182 2003/03/03 02:59:23 sharpe Exp $
+ * $Id: packet-tcp.c,v 1.183 2003/03/03 03:16:36 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -109,6 +109,8 @@ static int hf_tcp_option_wscale = -1;
 static int hf_tcp_option_wscale_val = -1;
 static int hf_tcp_option_sack_perm = -1;
 static int hf_tcp_option_sack = -1;
+static int hf_tcp_option_sack_sle = -1;
+static int hf_tcp_option_sack_sre = -1;
 static int hf_tcp_option_echo = -1;
 static int hf_tcp_option_echo_reply = -1;
 static int hf_tcp_option_time_stamp = -1;
@@ -1589,8 +1591,12 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
     optlen -= 4;
     proto_tree_add_boolean_hidden(field_tree, hf_tcp_option_sack, tvb, 
 				  offset, 8, TRUE);
-    proto_tree_add_text(field_tree, tvb, offset,      8,
-        "left edge = %u, right edge = %u", leftedge, rightedge);
+    proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_sle, tvb, 
+			       offset, 8, leftedge, 
+			       "left edge = %u", leftedge);
+    proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_sre, tvb, 
+			       offset, 8, rightedge, 
+			       "right edge = %u", rightedge);
     tcp_info_append_uint(pinfo, "SLE", leftedge);
     tcp_info_append_uint(pinfo, "SRE", rightedge);
     offset += 8;
@@ -2350,6 +2356,12 @@ proto_register_tcp(void)
 		{ &hf_tcp_option_sack,
 		  { "TCP Sack Option", "tcp.options.sack", FT_BOOLEAN, 
 		    BASE_NONE, NULL, 0x0, "TCP Sack Option", HFILL}},
+		{ &hf_tcp_option_sack_sle,
+		  {"TCP Sack Left Edge", "tcp.options.sack_le", FT_UINT32,
+		   BASE_DEC, NULL, 0x0, "TCP Sack Left Edge", HFILL}},
+		{ &hf_tcp_option_sack_sre,
+		  {"TCP Sack Right Edge", "tcp.options.sack_re", FT_UINT32,
+		   BASE_DEC, NULL, 0x0, "TCP Sack Right Edge", HFILL}},
 		{ &hf_tcp_option_echo,
 		  { "TCP Echo Option", "tcp.options.echo", FT_BOOLEAN, 
 		    BASE_NONE, NULL, 0x0, "TCP Sack Echo", HFILL}},
