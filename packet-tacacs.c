@@ -2,7 +2,7 @@
  * Routines for cisco tacacs/xtacacs/tacacs+ packet dissection
  * Copyright 2001, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-tacacs.c,v 1.14 2001/07/11 07:03:45 guy Exp $
+ * $Id: packet-tacacs.c,v 1.15 2001/07/11 16:03:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -372,7 +372,13 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(tacplus_tree, hf_tacplus_seqno, tvb, 2, 1,
 		    FALSE);
 		flags = tvb_get_guint8(tvb,3);
-		tf = proto_tree_add_uint(tacplus_tree, hf_tacplus_flags, tvb, 3, 1,
+		tf = proto_tree_add_uint_format(tacplus_tree, hf_tacplus_flags,
+		    tvb, 3, 1, flags,
+		    "Flags: %s, %s (0x%02x)",
+		    (flags&FLAGS_UNENCRYPTED) ? "Unencrypted payload" :
+						"Encrypted payload",
+		    (flags&FLAGS_SINGLE) ? "Single connection" :
+					   "Multiple Connections",
 		    flags);
 		flags_tree = proto_item_add_subtree(tf, ett_tacplus_flags);
 		proto_tree_add_boolean(flags_tree, hf_tacplus_flags_payload_type,
