@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.469 2002/09/05 09:27:50 sahlberg Exp $
+# $Id: Makefile.am,v 1.470 2002/09/06 22:45:40 sahlberg Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -557,12 +557,15 @@ ETHEREAL_COMMON_SRC = \
 	bridged_pids.h \
 	capture_stop_conditions.c   \
 	capture_stop_conditions.h   \
+	cfile.c         \
+	cfile.h         \
 	color.h        \
 	column.c       \
 	column.h       \
 	conditions.c   \
 	conditions.h   \
 	etypes.h       \
+	file.h         \
 	follow.c       \
 	follow.h       \
 	format-oid.h   \
@@ -620,11 +623,12 @@ ethereal_SOURCES = \
 	capture.c      \
 	capture.h      \
 	file.c         \
-	file.h         \
 	filters.c      \
 	filters.h      \
 	globals.h      \
 	menu.h         \
+	\
+	\
 	progress_dlg.h \
 	proto_hier_stats.h	\
 	proto_hier_stats.c	\
@@ -641,11 +645,12 @@ ethereal_static_SOURCES = \
 	capture.c      \
 	capture.h      \
 	file.c         \
-	file.h         \
 	filters.c      \
 	filters.h      \
 	globals.h      \
 	menu.h         \
+	\
+	\
 	progress_dlg.h \
 	proto_hier_stats.h	\
 	proto_hier_stats.c	\

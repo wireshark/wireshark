@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.156 2002/09/05 09:27:50 sahlberg Exp $
+ * $Id: tethereal.c,v 1.157 2002/09/06 22:45:40 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -390,25 +390,7 @@ main(int argc, char *argv[])
   load_wpcap();
 #endif
 
-  /* Initialize the capture file struct */
-  cfile.plist		= NULL;
-  cfile.plist_end	= NULL;
-  cfile.wth		= NULL;
-  cfile.filename	= NULL;
-  cfile.user_saved	= FALSE;
-  cfile.is_tempfile	= FALSE;
-  cfile.rfcode		= NULL;
-  cfile.dfilter		= NULL;
-  cfile.dfcode		= NULL;
-#ifdef HAVE_LIBPCAP
-  cfile.cfilter		= g_strdup("");
-#endif
-  cfile.iface		= NULL;
-  cfile.save_file	= NULL;
-  cfile.save_file_fd	= -1;
-  cfile.has_snap	= FALSE;
-  cfile.snap		= WTAP_MAX_PACKET_SIZE;
-  cfile.count		= 0;
+  init_cap_file(&cfile);
 
   /* Assemble the compile-time options */
   comp_info_str = g_string_new("");
