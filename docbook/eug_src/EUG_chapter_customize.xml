@@ -690,7 +690,15 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
       will pop up the Preferences dialog box as shown in 
       <xref linkend="ChCustGUIPrefPage"/>, with the "User Interface" page as 
 	  default. On the left side is a tree where you can select the page to be 
-	  shown. XXX - add detailed descriptions of all the preferences pages.
+	  shown.
+	  <note><title>Note!</title>
+	  <para>
+	  Preference settings are added frequently. For a recent explanation of 
+	  the preference pages and their settings have a look at the 
+	  <command>Ethereal Wiki Preferences page</command> at <ulink 
+	  url="&EtherealWikiPreferencesPage;">&EtherealWikiPreferencesPage;</ulink>.
+      </para>
+      </note>
 	  <warning>
 		<title>Warning!</title>
 		<para>
@@ -725,98 +733,10 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 		</listitem>
 	</itemizedlist>
     </para>
-	<section><title>The "User Interface" page</title>
     <figure id="ChCustGUIPrefPage">
-      <title>The "User Interface" preferences page</title>
+      <title>The preferences dialog box</title>
       <graphic entityref="EtherealGUIPreferences" format="PNG"/>
     </figure>
-	<para>
-	      This page allows you to configure various characteristics 
-	      of the GUI.
-	</para>
-	</section>
-	<section><title>The "User Interface: Layout" page</title>
-    <figure id="ChCustGUILayoutPrefPage">
-      <title>The "User Interface: Layout" preferences page</title>
-      <graphic entityref="EtherealGUILayoutPreferences" format="PNG"/>
-    </figure>
-	<para>
-	This page selects the GUI layout of the main window.
-	</para>
-	</section>
-	<section><title>The "User Interface: Columns" page</title>
-	<para>
-    <figure id="ChCustGUIColumnsPrefPage">
-      <title>The "User Interface: Columns" preferences page</title>
-      <graphic entityref="EtherealGUIColumnsPreferences" format="PNG"/>
-    </figure>
-	      This page allows you to select which columns appear in the 
-	      "Packet List" Pane.
-	    </para>
-		<note><title>Note!</title>
-		<para>
-		Unlike all other preference changes, you will have to save the 
-		preferences and restart Ethereal in order for column changes to 
-		take effect! 
-		</para>
-		</note>
-	</section>
-
-	<section><title>The "User Interface: Font" page</title>
-	<para>
-    <figure id="ChCustGUIFontPrefPage">
-      <title>The "User Interface: Font" preferences page</title>
-      <graphic entityref="EtherealGUIFontPreferences" format="PNG"/>
-    </figure>
-	      This page allows you to select which font to use.
-	    </para>
-	</section>
-
-	<section><title>The "User Interface: Colors" page</title>
-	<para>
-    <figure id="ChCustGUIColrsPrefPage">
-      <title>The "User Interface: Colors" preferences page</title>
-      <graphic entityref="EtherealGUIColorsPreferences" format="PNG"/>
-    </figure>
-	      This page allows you to select which colors to use.
-	    </para>
-	</section>
-
-	<section><title>The "Capture" page</title>
-	<para>
-    <figure id="ChCustCapturePrefPage">
-      <title>The "Capture" preferences page</title>
-      <graphic entityref="EtherealCapturePreferences" format="PNG"/>
-    </figure>
-	      This page allows you to select some defaults for the capture options dialog.
-	    </para>
-	</section>
-
-	<section><title>The "Printing" page</title>
-	<para>
-    <figure id="ChCustPrintingPrefPage">
-      <title>The "Printing" preferences page</title>
-      <graphic entityref="EtherealPrintingPreferences" format="PNG"/>
-    </figure>
-	      This page allows you to select some defaults for the print dialog.
-	    </para>
-	</section>
-
-	<section><title>The "Name Resolution" page</title>
-	<para>
-    <figure id="ChCustNameResolutionPrefPage">
-      <title>The "Name Resolution" preferences page</title>
-      <graphic entityref="EtherealNameResolutionPreferences" format="PNG"/>
-    </figure>
-	      This page allows you to select some defaults for the name resolution.
-	    </para>
-	</section>
-
-	<section id="ChCustProtocolsPrefPages"><title>The "Protocols" pages</title>
-	<para>
-	These pages allows you to select settings for various protocols.
-	</para>
-	</section>
   </section>
   
 </chapter>

@@ -80,6 +80,8 @@ Ethereal Info
   <!ENTITY EtherealFAQPage "&EtherealWebSite;/faq.html">
   <!ENTITY EtherealFAQPromiscPage "&EtherealWebSite;/faq#promiscsniff">
   <!ENTITY EtherealMediaPage "&EtherealWebSite;/media.html">
+  <!ENTITY EtherealWikiPage "http://wiki.ethereal.com">
+  <!ENTITY EtherealWikiPreferencesPage "&EtherealWikiPage;/Preferences">
 
   <!ENTITY EtherealDevMailList "ethereal-dev[AT]ethereal.com">
   <!ENTITY EtherealUsersMailList "ethereal-users[AT]ethereal.com">

@@ -214,7 +214,7 @@
 	    <para>The menu item takes you to the preferences dialog and selects 
 		the page corresponding to the protocol if there are settings 
 		associated with the highlighted field. More information on preferences 
-		can be found in <xref linkend="ChCustProtocolsPrefPages"/>.
+		can be found in <xref linkend="ChCustPreferencesSection"/>.
 		</para>
 		</entry>
 	      </row>

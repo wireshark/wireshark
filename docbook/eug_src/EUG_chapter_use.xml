@@ -124,7 +124,7 @@
 	  <tip><title>Tip!</title>
 	  <para>
 	  The layout of the main window can be customized by changing preference settings. 
-	  See <xref linkend="ChCustGUILayoutPrefPage"/> for details!
+	  See <xref linkend="ChCustPreferencesSection"/> for details!
 	  </para>
 	  </tip>
     </para>
@@ -1669,7 +1669,7 @@
     <para>
 	There are a lot of different columns available. Which columns are 
 	displayed can be selected by preference settings, see 
-	<xref linkend="ChCustGUIColumnsPrefPage"/>.
+	<xref linkend="ChCustPreferencesSection"/>.
     </para>
     <para>
 	The default columns will show:
