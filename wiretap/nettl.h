@@ -1,6 +1,6 @@
 /* nettl.h
  *
- * $Id: nettl.h,v 1.11 2004/03/27 11:16:54 guy Exp $
+ * $Id: nettl.h,v 1.12 2004/04/02 08:27:26 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -80,6 +80,12 @@
 #define NETTL_SUBSYS_IGELAN		0xFC
 #define NETTL_SUBSYS_IETHER		0xFD
 
+/* FDDI cards */
+#define NETTL_SUBSYS_PCI_FDDI		0xB0
+
+/* Token Ring cards */
+#define NETTL_SUBSYS_TOKEN		0x1F
+#define NETTL_SUBSYS_PCI_TR		0xBB
 
 int nettl_open(wtap *wth, int *err, gchar **err_info);
 

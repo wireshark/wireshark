@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.35 2004/03/27 11:16:53 guy Exp $
+ * $Id: nettl.c,v 1.36 2004/04/02 08:27:26 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -202,6 +202,21 @@ static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
     wth->data_offset += ret;
 
     /*
+     * If the per-file encapsulation isn't known, set it to this
+     * packet's encapsulation.
+     *
+     * If it *is* known, and it isn't this packet's encapsulation,
+     * set it to WTAP_ENCAP_PER_PACKET, as this file doesn't
+     * have a single encapsulation for all packets in the file.
+     */
+    if (wth->file_encap == WTAP_ENCAP_UNKNOWN)
+	wth->file_encap = wth->phdr.pkt_encap;
+    else {
+	if (wth->file_encap != wth->phdr.pkt_encap)
+	    wth->file_encap = WTAP_ENCAP_PER_PACKET;
+    }
+
+    /*
      * Read the packet data.
      */
     buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
@@ -280,20 +295,27 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	case NETTL_SUBSYS_INTL100 :
 	case NETTL_SUBSYS_IGELAN :
 	case NETTL_SUBSYS_IETHER :
+        case NETTL_SUBSYS_PCI_FDDI :
+        case NETTL_SUBSYS_TOKEN :
+        case NETTL_SUBSYS_PCI_TR :
 	case NETTL_SUBSYS_NS_LS_IP :
 	case NETTL_SUBSYS_NS_LS_LOOPBACK :
 	case NETTL_SUBSYS_NS_LS_TCP :
 	case NETTL_SUBSYS_NS_LS_UDP :
 	case NETTL_SUBSYS_NS_LS_ICMP :
 	    if( (encap[3] == NETTL_SUBSYS_NS_LS_IP)
-	    ||  (encap[3] == NETTL_SUBSYS_NS_LS_LOOPBACK)
-	    ||  (encap[3] == NETTL_SUBSYS_NS_LS_UDP)
-	    ||  (encap[3] == NETTL_SUBSYS_NS_LS_TCP) ){
+	     || (encap[3] == NETTL_SUBSYS_NS_LS_LOOPBACK)
+	     || (encap[3] == NETTL_SUBSYS_NS_LS_UDP)
+	     || (encap[3] == NETTL_SUBSYS_NS_LS_TCP) ) {
 		phdr->pkt_encap = WTAP_ENCAP_RAW_IP;
 	    } else if (encap[3] == NETTL_SUBSYS_NS_LS_ICMP) {
 		phdr->pkt_encap = WTAP_ENCAP_UNKNOWN;
+	    } else if (encap[3] == NETTL_SUBSYS_PCI_FDDI) {
+		phdr->pkt_encap = WTAP_ENCAP_FDDI;
+	    } else if( (encap[3] == NETTL_SUBSYS_PCI_TR)
+		    || (encap[3] == NETTL_SUBSYS_TOKEN) ) {
+		phdr->pkt_encap = WTAP_ENCAP_TOKEN_RING;
 	    } else {
-		wth->file_encap = WTAP_ENCAP_ETHERNET;
 		phdr->pkt_encap = WTAP_ENCAP_ETHERNET;
 		/* We assume there's no FCS in this frame. */
 		pseudo_header->eth.fcs_len = 0;
@@ -329,12 +351,34 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		offset += 4;
 	    }
 
-	    length = pntohl(&ip_hdr.length);
-	    if (length <= 0) return 0;
-	    phdr->len = length;
-	    length = pntohl(&ip_hdr.caplen);
-	    phdr->caplen = length;
-
+	    /* PCI FDDI has an extra 3 bytes of padding */
+	    if (encap[3] == NETTL_SUBSYS_PCI_FDDI) {
+		bytes_read = file_read(dummy, 1, 3, fh);
+		if (bytes_read != 3) {
+		    *err = file_error(fh);
+		    if (*err != 0)
+			return -1;
+		    if (bytes_read != 0) {
+			*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		    }
+		    return 0;
+		}
+		offset += 3;
+		length = pntohl(&ip_hdr.length);
+		if (length <= 0)
+			return 0;
+		phdr->len = length - 3;
+		length = pntohl(&ip_hdr.caplen);
+		phdr->caplen = length - 3;
+	    } else {
+		length = pntohl(&ip_hdr.length);
+		if (length <= 0)
+		    return 0;
+		phdr->len = length;
+		length = pntohl(&ip_hdr.caplen);
+		phdr->caplen = length;
+	    }
 
 	    phdr->ts.tv_sec = pntohl(&ip_hdr.sec);
 	    phdr->ts.tv_usec = pntohl(&ip_hdr.usec);
@@ -436,7 +480,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    phdr->ts.tv_sec = pntohl(&lapb_hdr.sec);
 	    phdr->ts.tv_usec = pntohl(&lapb_hdr.usec);
 	    pseudo_header->x25.flags =
-	        (lapb_hdr.from_dce & 0x20 ? FROM_DCE : 0x00);
+		(lapb_hdr.from_dce & 0x20 ? FROM_DCE : 0x00);
 	    break;
 	default:
 	    *err = WTAP_ERR_UNSUPPORTED_ENCAP;
