@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.196 2003/05/21 06:28:03 guy Exp $
+ * $Id: packet-tcp.c,v 1.197 2003/06/04 08:45:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2418,6 +2418,13 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
+  /*
+   * XXX - what, if any, of this should we do if this is included in an
+   * error packet?  It might be nice to see the details of the packet
+   * that caused the ICMP error, but it might not be nice to have the
+   * dissector update state based on it.
+   * Also, we probably don't want to run TCP taps on those packets.
+   */
   if (length_remaining != 0) {
     if (tcph->th_flags & TH_RST) {
       /*
