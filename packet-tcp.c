@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.160 2002/09/18 12:08:28 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.161 2002/10/17 02:19:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -743,6 +743,8 @@ typedef struct _tcp_segment_key {
 	address *dst;
 	guint32 seq;
 	/* xxx */
+	guint16 sport;
+	guint16 dport;
 	guint32 start_seq;
 	guint32 tot_len;
 	guint32 first_frame;
@@ -771,7 +773,7 @@ tcp_segment_hash(gconstpointer k)
 {
 	tcp_segment_key *key = (tcp_segment_key *)k;
 
-	return key->seq;
+	return key->seq+key->sport;
 }
 
 static gint
@@ -783,6 +785,8 @@ tcp_segment_equal(gconstpointer k1, gconstpointer k2)
 	return ( ( (key1->seq==key2->seq)
 		 &&(ADDRESSES_EQUAL(key1->src, key2->src))
 		 &&(ADDRESSES_EQUAL(key1->dst, key2->dst))
+		 &&(key1->sport==key2->sport)
+		 &&(key1->dport==key2->dport)
 		 ) ? TRUE:FALSE);
 }
 
@@ -837,7 +841,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		proto_tree *tree, proto_tree *tcp_tree)
 {
 	struct tcpinfo *tcpinfo = pinfo->private_data;
-	fragment_data *ipfd_head;
+	fragment_data *ipfd_head=NULL;
 	tcp_segment_key old_tsk, *tsk;
 	gboolean must_desegment = FALSE;
 	gboolean called_dissector = FALSE;
@@ -868,6 +872,8 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	*/
 	old_tsk.src = &pinfo->src;
 	old_tsk.dst = &pinfo->dst;
+	old_tsk.sport = sport;
+	old_tsk.dport = dport;
 	old_tsk.seq = seq;
 	tsk = g_hash_table_lookup(tcp_segment_table, &old_tsk);
 
@@ -876,7 +882,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		   a higher-level PDU. This means we must desegment it.
 		   Add it to the defragmentation lists.
 		*/
-		ipfd_head = fragment_add(tvb, offset, pinfo, tsk->start_seq,
+		ipfd_head = fragment_add(tvb, offset, pinfo, tsk->first_frame,
 			tcp_fragment_table,
 			seq - tsk->start_seq,
 			nxtseq - seq,
@@ -1001,7 +1007,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				 * being a new higher-level PDU that also
 				 * needs desegmentation).
 				 */
-				fragment_set_partial_reassembly(pinfo,tsk->start_seq,tcp_fragment_table);
+				fragment_set_partial_reassembly(pinfo,tsk->first_frame,tcp_fragment_table);
 				tsk->tot_len = tvb_reported_length(next_tvb) + pinfo->desegment_len;
 
 				/*
@@ -1148,11 +1154,13 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		tsk->start_seq = tsk->seq;
 		tsk->tot_len = nxtseq - tsk->start_seq + pinfo->desegment_len;
 		tsk->first_frame = pinfo->fd->num;
+		tsk->sport=sport;
+		tsk->dport=dport;
 		g_hash_table_insert(tcp_segment_table, tsk, tsk);
 
 		/* Add portion of segment unprocessed by the subdissector
 		   to defragmentation lists */
-		fragment_add(tvb, deseg_offset, pinfo, tsk->start_seq,
+		fragment_add(tvb, deseg_offset, pinfo, tsk->first_frame,
 		    tcp_fragment_table,
 		    tsk->seq - tsk->start_seq,
 		    nxtseq - tsk->start_seq,
