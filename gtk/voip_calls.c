@@ -37,6 +37,8 @@
 # include "config.h"
 #endif
 
+#include <string.h>
+
 #include "graph_analysis.h"
 #include "voip_calls.h"
 #include "voip_calls_dlg.h"

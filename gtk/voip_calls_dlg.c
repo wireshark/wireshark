@@ -37,6 +37,9 @@
 #  include <config.h>
 #endif
 
+#include <string.h>
+#include <ctype.h>
+
 #include "register.h"
 
 #include "graph_analysis.h"
