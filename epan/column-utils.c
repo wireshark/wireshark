@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.20 2002/10/18 21:40:13 guy Exp $
+ * $Id: column-utils.c,v 1.21 2002/10/18 22:10:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -478,7 +478,12 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
     break;
 
   case AT_DLCI:
-    /* XXX - handle AT_DLCI */
+    snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u",
+      *(guint16 *)addr);
+    pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
+    strcpy(pinfo->cinfo->col_expr[col], "fr.dlci");
+    pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
+    strcpy(pinfo->cinfo->col_expr_val[col],pinfo->cinfo->col_buf[col]);
     break;
 
   case AT_ARCNET:
