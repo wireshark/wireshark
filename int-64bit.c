@@ -1,8 +1,8 @@
 /* int-64bit.c
- * Routines for handling of 64bit integers
+ * Routines for handling of 64-bit integers
  * 2001 Ronnie Sahlberg
  *
- * $Id: int-64bit.c,v 1.1 2001/10/29 21:13:07 guy Exp $
+ * $Id: int-64bit.c,v 1.2 2001/10/29 21:53:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,7 +42,7 @@
 /* this must be signed. if it is not clear why, please dont
    modify the functions in this file. it will break.
 */
-static signed char u64val[64][U64STRLEN] =
+static const signed char u64val[64][U64STRLEN] =
 {
 /* 1  */	{ 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
 /* 2  */	{ 2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },
@@ -120,7 +120,7 @@ static signed char u64val[64][U64STRLEN] =
    diplayfilters are entered.
 */
 char *
-u64toa(unsigned char *u64ptr)
+u64toa(const unsigned char *u64ptr)
 {
 	unsigned char acc[U64STRLEN]; /* accumulator */
 	int i,j,k,pos;
@@ -186,7 +186,7 @@ u64toa(unsigned char *u64ptr)
 
 /* like memcmp but compares in reverse */
 static int
-revcmp(signed char *s1, signed char *s2, int len)
+revcmp(const signed char *s1, const signed char *s2, int len)
 {
 	int i;
 
@@ -205,11 +205,11 @@ revcmp(signed char *s1, signed char *s2, int len)
 
 
 unsigned char *
-atou64(char *u64str, unsigned char *u64int)
+atou64(const char *u64str, unsigned char *u64int)
 {
 	signed char res[U64STRLEN]; /* residual */
 	int i,j,len;
-	char *strp;
+	const char *strp;
 
 	if(!u64str){
 		return NULL;
@@ -268,7 +268,7 @@ atou64(char *u64str, unsigned char *u64int)
 }
 
 char *
-u64toh(unsigned char *u64ptr)
+u64toh(const unsigned char *u64ptr)
 {
 	static char str[19], *strp;
 	static char ntoh[] = {'0','1','2','3','4','5','6','7',
@@ -306,10 +306,11 @@ ntoh(unsigned char h)
 }
 
 unsigned char *
-htou64(char *u64str, unsigned char *u64int)
+htou64(const char *u64str, unsigned char *u64int)
 {
 	int i,len;
-	char str[16], *strp;
+	char str[16];
+	const char *strp;
 
 	if(!u64str){
 		return NULL;

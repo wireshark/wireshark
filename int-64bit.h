@@ -1,7 +1,7 @@
 /* int-64bit.h
- * Handling of 64bit integers 
+ * Handling of 64-bit integers 
  *
- * $Id: int-64bit.h,v 1.1 2001/10/29 21:13:07 guy Exp $
+ * $Id: int-64bit.h,v 1.2 2001/10/29 21:53:58 guy Exp $
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,10 +21,15 @@
 #ifndef _INT_64BIT_H_
 #define _INT_64BIT_H_
 
-char *u64toa(unsigned char *u64ptr);
-unsigned char *atou64(char *u64str, unsigned char *u64int);
-char *u64toh(unsigned char *u64ptr);
-unsigned char *htou64(char *u64str, unsigned char *u64int);
+/*
+ * Routines to convert between 64-bit integers, represented as
+ * arrays of 8 bytes in network byte order (bit-endian), and ASCII strings
+ * giving integer values in decimal or hexadecimal.
+ */
+char *u64toa(const unsigned char *u64ptr);
+unsigned char *atou64(const char *u64str, unsigned char *u64int);
+char *u64toh(const unsigned char *u64ptr);
+unsigned char *htou64(const char *u64str, unsigned char *u64int);
 
 
 #endif
