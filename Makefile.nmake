@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.323 2003/08/17 00:54:24 guy Exp $
+# $Id: Makefile.nmake,v 1.324 2003/08/21 18:00:21 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -393,6 +393,7 @@ TETHEREAL_TAP_SRC = \
 TETHEREAL_TAP_OBJECTS = $(TETHEREAL_TAP_SRC:.c=.obj)
 
 ETHEREAL_COMMON_OBJECTS = \
+	adler32.obj      \
 	afn.obj          \
 	asn1.obj         \
 	capture_stop_conditions.obj \

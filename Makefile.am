@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.608 2003/08/17 00:54:24 guy Exp $
+# $Id: Makefile.am,v 1.609 2003/08/21 18:00:20 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -688,6 +688,8 @@ noinst_HEADERS = \
 	packet-ypxfr.h
 
 ETHEREAL_COMMON_SRC = \
+	adler32.c      \
+	adler32.h      \
 	afn.c          \
 	afn.h          \
 	aftypes.h      \

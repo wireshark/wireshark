@@ -7,7 +7,7 @@ proper helper routines
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.10 2003/07/31 10:26:35 sahlberg Exp $
+ * $Id: packet-per.c,v 1.11 2003/08/21 18:00:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -257,7 +257,7 @@ DEBUG_ENTRY("dissect_per_sequence_of");
 guint32
 dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
-	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index, min_len, max_len);
+	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index, min_len, max_len, NULL, NULL);
 
 	return offset;
 }
@@ -501,7 +501,7 @@ DEBUG_ENTRY("dissect_per_set_of");
 
 /* this function reads a OBJECT IDENTIFIER */
 guint32
-dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index)
+dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, char *value_string)
 {
 	int i,count;
 	char str[256],*strp;
@@ -559,6 +559,10 @@ NOT_DECODED_YET("too long octet_string");
 	*strp=0;
 
 	proto_tree_add_string(tree, hf_index, tvb, (offset>>3)-count, count, str);
+
+	if (value_string) {
+		strcpy(value_string, str);
+	}
 
 	return offset;
 }
@@ -1271,12 +1275,12 @@ DEBUG_ENTRY("dissect_per_sequence");
    hf_index can either be a FT_BYTES or an FT_STRING
 */
 guint32
-dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
+dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len, guint32 *value_offset, guint32 *value_len)
 {
 	guint32 length;
 	header_field_info *hfi;
 
-	hfi=proto_registrar_get_nth(hf_index);
+	hfi = (hf_index==-1) ? NULL : proto_registrar_get_nth(hf_index);
 
 DEBUG_ENTRY("dissect_per_octet_string");
 	/* 16.5 if the length is 0 bytes there will be no encoding */
@@ -1306,10 +1310,18 @@ DEBUG_ENTRY("dissect_per_octet_string");
 			}
 		}
 
-		if(hfi->type==FT_STRING){
-			proto_tree_add_string(tree, hf_index, tvb, old_offset>>3, min_len+(offset&0x07)?1:0, bytes);
-		} else {
-			proto_tree_add_bytes(tree, hf_index, tvb, old_offset>>3, min_len+(offset&0x07)?1:0, bytes);
+		if (hfi) {
+			if(hfi->type==FT_STRING){
+				proto_tree_add_string(tree, hf_index, tvb, old_offset>>3, min_len+(offset&0x07)?1:0, bytes);
+			} else {
+				proto_tree_add_bytes(tree, hf_index, tvb, old_offset>>3, min_len+(offset&0x07)?1:0, bytes);
+			}
+		}
+		if (value_offset) {
+			*value_offset = old_offset>>3;
+		}
+		if (value_len) {
+			*value_len = min_len+(offset&0x07)?1:0;
 		}
 		return offset;
 	}
@@ -1322,10 +1334,18 @@ DEBUG_ENTRY("dissect_per_octet_string");
 
 	/* 16.7 if length is fixed and less than to 64k*/
 	if((min_len==max_len)&&(min_len<65536)){
-		if(hfi->type==FT_STRING){
-			proto_tree_add_string(tree, hf_index, tvb, offset>>3, min_len, tvb_get_ptr(tvb, offset>>3, min_len));
-		} else {
-			proto_tree_add_bytes(tree, hf_index, tvb, offset>>3, min_len, tvb_get_ptr(tvb, offset>>3, min_len));
+		if (hfi) {
+			if(hfi->type==FT_STRING){
+				proto_tree_add_string(tree, hf_index, tvb, offset>>3, min_len, tvb_get_ptr(tvb, offset>>3, min_len));
+			} else {
+				proto_tree_add_bytes(tree, hf_index, tvb, offset>>3, min_len, tvb_get_ptr(tvb, offset>>3, min_len));
+			}
+		}
+		if (value_offset) {
+			*value_offset = offset>>3;
+		}
+		if (value_len) {
+			*value_len = min_len;
 		}
 		offset+=min_len*8;
 		return offset;
@@ -1340,11 +1360,19 @@ DEBUG_ENTRY("dissect_per_octet_string");
 		offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_octet_string_length, &length);
 	}
 	if(length){
-		if(hfi->type==FT_STRING){
-			proto_tree_add_string(tree, hf_index, tvb, offset>>3, length, tvb_get_ptr(tvb, offset>>3, length));
-		} else {
-			proto_tree_add_bytes(tree, hf_index, tvb, offset>>3, length, tvb_get_ptr(tvb, offset>>3, length));
+		if (hfi) {
+			if(hfi->type==FT_STRING){
+				proto_tree_add_string(tree, hf_index, tvb, offset>>3, length, tvb_get_ptr(tvb, offset>>3, length));
+			} else {
+				proto_tree_add_bytes(tree, hf_index, tvb, offset>>3, length, tvb_get_ptr(tvb, offset>>3, length));
+			}
 		}
+	}
+	if (value_offset) {
+		*value_offset = offset>>3;
+	}
+	if (value_len) {
+		*value_len = length;
 	}
 	offset+=length*8;
 
