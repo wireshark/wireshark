@@ -4,7 +4,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.55 2002/04/14 23:04:04 guy Exp $
+ * $Id: packet-radius.c,v 1.56 2002/05/06 00:49:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -283,7 +283,7 @@ static value_string radius_vendor_specific_vendors[]=
 
 /*
 references:
-	'dictoinary.cisco' file from FreeRADIUS 
+	'dictionary.cisco' file from FreeRADIUS 
 		http://www.freeradius.org
 		radiusd/raddb/dictionary.cisco
 
@@ -673,14 +673,14 @@ static value_value_pair radius_printinfo[] = {
 { RD_TP_FRAMED_ROUTE, RADIUS_STRING},
 { RD_TP_FRAMED_IPX_NETWORK, RADIUS_IPX_ADDRESS},
 { RD_TP_STATE, RADIUS_BINSTRING},
-{ RD_TP_CLASS, RADIUS_BINSTRING},
+{ RD_TP_CLASS, RADIUS_STRING},
 { RD_TP_VENDOR_SPECIFIC, RADIUS_VENDOR_SPECIFIC},
 { RD_TP_SESSION_TIMEOUT, RADIUS_INTEGER4},
 { RD_TP_IDLE_TIMEOUT, RADIUS_INTEGER4},
 { RD_TP_TERMINATING_ACTION, RADIUS_TERMINATING_ACTION},
-{ RD_TP_CALLED_STATION_ID, RADIUS_BINSTRING},
-{ RD_TP_CALLING_STATION_ID, RADIUS_BINSTRING},
-{ RD_TP_NAS_IDENTIFIER, RADIUS_BINSTRING},
+{ RD_TP_CALLED_STATION_ID, RADIUS_STRING},
+{ RD_TP_CALLING_STATION_ID, RADIUS_STRING},
+{ RD_TP_NAS_IDENTIFIER, RADIUS_STRING},
 { RD_TP_PROXY_STATE, RADIUS_BINSTRING},
 { RD_TP_LOGIN_LAT_SERVICE, RADIUS_BINSTRING},
 { RD_TP_LOGIN_LAT_NODE, RADIUS_BINSTRING},
@@ -867,7 +867,7 @@ static guint32 match_numval(guint32 val, const value_value_pair *vs)
 
 static gchar textbuffer[2000];
 
-static gchar *
+static void
 rdconvertbufftostr(gchar *dest, tvbuff_t *tvb, int offset, int length)
 {
 /*converts the raw buffer into printable text */
@@ -887,13 +887,33 @@ rdconvertbufftostr(gchar *dest, tvbuff_t *tvb, int offset, int length)
                 }
                 else
                 {
-                        sprintf(&(dest[totlen]), "\\%03u", pd[i]);
+                        sprintf(&(dest[totlen]), "\\%03o", pd[i]);
                         totlen=totlen+strlen(&(dest[totlen]));
                 }
         }
         dest[totlen]='"';
         dest[totlen+1]=0;
-        return dest;
+}
+
+static void
+rdconvertbufftobinstr(gchar *dest, tvbuff_t *tvb, int offset, int length)
+{
+/*converts the raw buffer into printable text */
+	guint32 i;
+	guint32 totlen=0;
+	const guint8 *pd = tvb_get_ptr(tvb, offset, length);
+	static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
+				      '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
+
+        for (i=0; i < (guint32)length; i++)
+        {
+		dest[totlen] = hex[pd[i] >> 4];
+		totlen++;
+		dest[totlen] = hex[pd[i] & 0xF];
+		totlen++;
+        }
+        dest[totlen]='\0';
 }
 
 static gchar *rd_match_strval(guint32 val, const value_string *vs) {
@@ -921,8 +941,10 @@ static gchar *rd_value_to_str(e_avphdr *avph, tvbuff_t *tvb, int offset)
   switch(print_type)
   {
         case( RADIUS_STRING ):
-        case( RADIUS_BINSTRING ):
 		rdconvertbufftostr(cont,tvb,offset+2,avph->avp_length-2);
+                break;
+        case( RADIUS_BINSTRING ):
+		rdconvertbufftobinstr(cont,tvb,offset+2,avph->avp_length-2);
                 break;
         case( RADIUS_INTEGER4 ):
                 sprintf(cont,"%u", tvb_get_ntohl(tvb,offset+2));
