@@ -378,7 +378,7 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
 	guint16	u16TypeDescLen;
 	guint32	u32ArraySize2;
 	guint32	u32Idx2;
-	guint16 u16VarType2;
+	guint16 u16VarType2 = -1;
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
@@ -479,7 +479,7 @@ dissect_ICBAAccoServer_Connect_resp(tvbuff_t *tvb, int offset,
 	guint32 u32Pointer;
 	guint32 u32ArraySize;
 	guint32 u32HResult;
-	guint32 u32Idx;
+	guint32 u32Idx = 1;
 	guint32 u32ProvID;
 	proto_item *sub_item;
 	proto_tree *sub_tree;
@@ -499,7 +499,7 @@ dissect_ICBAAccoServer_Connect_resp(tvbuff_t *tvb, int offset,
 							&u32ArraySize);
 
 		/* array of CONNECTOUTs */
-		u32Idx = 1;
+		u32Idx;
 		while(u32ArraySize--) {
 			sub_item = proto_tree_add_item(tree, hf_cba_connectout, tvb, offset, 8, FALSE);
 			sub_tree = proto_item_add_subtree(sub_item, ett_cba_connectout);
@@ -870,7 +870,7 @@ dissect_ICBAAccoServerSRT_Connect_rqst(tvbuff_t *tvb, int offset,
 	guint16	u16TypeDescLen;
 	guint32 u32ArraySize2;
 	guint32 u32Idx2;
-	guint16 u16VarType2;
+	guint16 u16VarType2 = -1;
 	guint16 u16VarType;
 	guint32 u32ConsID;
 	guint16	u16RecordLength;
@@ -972,7 +972,7 @@ dissect_ICBAAccoServerSRT_Connect_resp(tvbuff_t *tvb, int offset,
 {
 	guint32 u32Pointer;
 	guint32 u32ArraySize;
-	guint32 u32Idx;
+	guint32 u32Idx = 1;
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	guint32 u32SubStart;
@@ -990,7 +990,7 @@ dissect_ICBAAccoServerSRT_Connect_resp(tvbuff_t *tvb, int offset,
 							&u32ArraySize);
 
 		/* array of CONNECTOUTs */
-		u32Idx = 1;
+		u32Idx;
 		while(u32ArraySize--) {
 			sub_item = proto_tree_add_item(tree, hf_cba_connectout, tvb, offset, 8, FALSE);
 			sub_tree = proto_item_add_subtree(sub_item, ett_cba_connectout);
@@ -1556,7 +1556,7 @@ dissect_ICBAAccoMgt_AddConnections_rqst(tvbuff_t *tvb, int offset,
 			u32VariableOffset = dissect_dcom_VARIANT(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 							hf_cba_acco_conn_epsilon);
 		}
-		proto_item_append_text(sub_item, "[%u]: ConsItem=\"%s\" ProvItem=\"%s\" %s", 
+		proto_item_append_text(sub_item, "[%u]: ConsItem=\"%s\" ProvItem=\"%s\" %s Pers=%u", 
 			u32Idx, szConsItem, szProvItem,
 			val_to_str(u16Persistence, cba_persist_vals, "Unknown (0x%02x)"), u16Persistence);
 		proto_item_set_len(sub_item, offset - u32SubStart);
@@ -1585,7 +1585,7 @@ dissect_ICBAAccoMgt_AddConnections_resp(tvbuff_t *tvb, int offset,
 	guint32 u32ConsID;
 	guint16 u16ConnVersion;
 	guint32 u32HResult;
-	guint32 u32Count;
+	guint32 u32Count = 0;
 	guint32 u32Idx;
 	proto_item *sub_item;
 	proto_tree *sub_tree;
@@ -2014,9 +2014,6 @@ dissect_ICBAAccoMgt2_DiagConsConnections_resp(tvbuff_t *tvb, int offset,
 	guint32	u32SubStart;
 	guint32 u32Idx;
 	guint32 u32VariableOffset;
-	gchar 	szProv[1000] = { 0 };
-	gchar 	szProvItem[1000] = { 0 };
-	gchar 	szConsItem[1000] = { 0 };
 	guint32	u32ConnErrorState;
 
 
