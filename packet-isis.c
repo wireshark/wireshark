@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly, core
  * bits.
  *
- * $Id: packet-isis.c,v 1.21 2001/06/18 02:17:48 guy Exp $
+ * $Id: packet-isis.c,v 1.22 2001/07/02 00:19:34 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -82,38 +82,27 @@ static const value_string isis_vals[] = {
  *	that we make sure we don't go off the end of the bleedin packet here!
  *
  * Input
- * 	unt offset : Current offset into packet data.
- * 	int len : length of to dump.
+ *	tvbuff_t * : tvbuffer for packet data
+ *	packet_info * : info for current packet
  *	proto_tree * : tree of display data.  May be NULL.
- *	frame_data * fd : frame data
+ *	int : current offset into packet data
  *	char * : format text
  *
  * Output:
  *	void (may modify proto tree)
  */
 void
-isis_dissect_unknown(int offset,guint length,proto_tree *tree,frame_data *fd,
-		char *fmat, ...){
+isis_dissect_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
+	int offset, char *fmat, ...)
+{
 	va_list	ap;
 
-	if ( !IS_DATA_IN_FRAME(offset) ) {
-		/* 
-		 * big oops   They were off the end of the packet already.
-		 * Just ignore this one.
-		 */
-		return;
-	}
-	if ( !BYTES_ARE_IN_FRAME(offset, length) ) {
-		/* 
-		 * length will take us past eop.  Truncate length.
-		 */
-		length = END_OF_FRAME;
-	}
-
 	va_start(ap, fmat);
-	proto_tree_add_text_valist(tree, NullTVB, offset, length, fmat, ap);
+	proto_tree_add_text_valist(tree, tvb, offset, 
+		tvb_length_remaining(tvb, offset), fmat, ap);
 	va_end(ap);
 }
+
 /*
  * Name: dissect_isis()
  * 
@@ -122,71 +111,65 @@ isis_dissect_unknown(int offset,guint length,proto_tree *tree,frame_data *fd,
  *	main isis tree data and call the sub-protocols as needed.
  *
  * Input:
- *	u_char * : packet data
- *	int : offset into packet where we are (packet_data[offset]== start
- *		of what we care about)
- *	frame_data * : frame data (whole packet with extra info)
+ *	tvbuff_t * : tvbuffer for packet data
+ *	packet_info * : info for current packet
  *	proto_tree * : tree of display data.  May be NULL.
  *
  * Output:
  *	void, but we will add to the proto_tree if it is not NULL.
  */
 static void
-dissect_isis(const u_char *pd, int offset, frame_data *fd, 
-		proto_tree *tree) {
-	isis_hdr_t *ihdr;
+dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	isis_hdr_t ihdr;
 	proto_item *ti;
 	proto_tree *isis_tree = NULL;
 	int id_length;
+	int offset = 0;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_isis, pd, offset, fd, tree);
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "ISIS");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_clear(pinfo->fd, COL_INFO);
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "ISIS");
+	tvb_memcpy(tvb, (guint8 *)&ihdr, offset, sizeof(isis_hdr_t));
 
-	if (!BYTES_ARE_IN_FRAME(offset, sizeof(*ihdr))) {
-		isis_dissect_unknown(offset, sizeof(*ihdr), tree, fd,
-			"not enough capture data for header (%d vs %d)",
-			sizeof(*ihdr), END_OF_FRAME);
-		return;
-	}
-
-	ihdr = (isis_hdr_t *) &pd[offset];
-
-	if (ihdr->isis_version != ISIS_REQUIRED_VERSION){
-		isis_dissect_unknown(offset, END_OF_FRAME, tree, fd,
+	if (ihdr.isis_version != ISIS_REQUIRED_VERSION){
+		isis_dissect_unknown(tvb, pinfo, tree, offset,
 			"Unknown ISIS version (%d vs %d)",
-			ihdr->isis_version, ISIS_REQUIRED_VERSION );
+			ihdr.isis_version, ISIS_REQUIRED_VERSION);
 		return;
 	}
 	
 	
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_isis, NullTVB, offset, 
-			END_OF_FRAME, FALSE );
+		ti = proto_tree_add_item(tree, proto_isis, tvb, offset, 
+			tvb_length_remaining(tvb, 0), FALSE );
+
 		isis_tree = proto_item_add_subtree(ti, ett_isis);
-		proto_tree_add_uint(isis_tree, hf_isis_irpd, NullTVB, offset, 1,
-			ihdr->isis_irpd );
-		proto_tree_add_uint(isis_tree, hf_isis_header_length, NullTVB,
-			offset + 1, 1, ihdr->isis_header_length );
-		proto_tree_add_uint(isis_tree, hf_isis_version, NullTVB,
-			offset + 2, 1, ihdr->isis_version );
-		proto_tree_add_uint(isis_tree, hf_isis_system_id_length, NullTVB,
-			offset + 3, 1, ihdr->isis_system_id_len );
-		proto_tree_add_uint_format(isis_tree, hf_isis_type, NullTVB,
-			offset + 4, 1, ihdr->isis_type,
+
+		proto_tree_add_uint(isis_tree, hf_isis_irpd, tvb, offset, 1,
+			ihdr.isis_irpd );
+		proto_tree_add_uint(isis_tree, hf_isis_header_length, tvb,
+			offset + 1, 1, ihdr.isis_header_length );
+		proto_tree_add_uint(isis_tree, hf_isis_version, tvb,
+			offset + 2, 1, ihdr.isis_version );
+		proto_tree_add_uint(isis_tree, hf_isis_system_id_length, tvb,
+			offset + 3, 1, ihdr.isis_system_id_len );
+		proto_tree_add_uint_format(isis_tree, hf_isis_type, tvb,
+			offset + 4, 1, ihdr.isis_type,
 			"PDU Type           : %s (R:%s%s%s)",
-			val_to_str(ihdr->isis_type & ISIS_TYPE_MASK, isis_vals,
+			val_to_str(ihdr.isis_type & ISIS_TYPE_MASK, isis_vals,
 		   		   "Unknown (0x%x)"),
-			(ihdr->isis_type & ISIS_R8_MASK) ? "1" : "0",
-			(ihdr->isis_type & ISIS_R7_MASK) ? "1" : "0",
-			(ihdr->isis_type & ISIS_R6_MASK) ? "1" : "0");
-		proto_tree_add_uint(isis_tree, hf_isis_version2, NullTVB,
-			offset + 5, 1, ihdr->isis_version2 );
-		proto_tree_add_uint(isis_tree, hf_isis_reserved, NullTVB,
-			offset + 6, 1, ihdr->isis_reserved );
-		proto_tree_add_uint(isis_tree, hf_isis_max_area_adr, NullTVB,
-			offset + 7, 1, ihdr->isis_max_area_adr );
+			(ihdr.isis_type & ISIS_R8_MASK) ? "1" : "0",
+			(ihdr.isis_type & ISIS_R7_MASK) ? "1" : "0",
+			(ihdr.isis_type & ISIS_R6_MASK) ? "1" : "0");
+		proto_tree_add_uint(isis_tree, hf_isis_version2, tvb,
+			offset + 5, 1, ihdr.isis_version2 );
+		proto_tree_add_uint(isis_tree, hf_isis_reserved, tvb,
+			offset + 6, 1, ihdr.isis_reserved );
+		proto_tree_add_uint(isis_tree, hf_isis_max_area_adr, tvb,
+			offset + 7, 1, ihdr.isis_max_area_adr );
 	}
 
 
@@ -195,16 +178,16 @@ dissect_isis(const u_char *pd, int offset, frame_data *fd,
 	 * here.  First, dump the name into info column, and THEN
 	 * dispatch the sub-type.
 	 */
-	if (check_col(fd, COL_INFO)) {
-		col_add_str(fd, COL_INFO, val_to_str ( 
-			ihdr->isis_type&ISIS_TYPE_MASK, isis_vals,
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_add_str(pinfo->fd, COL_INFO, val_to_str ( 
+			ihdr.isis_type&ISIS_TYPE_MASK, isis_vals,
 			"Unknown (0x%x)" ) );
 	}
 
 	/*
 	 * Interpret the system ID length.
 	 */
-	id_length = ihdr->isis_system_id_len;
+	id_length = ihdr.isis_system_id_len;
 	if (id_length == 0)
 		id_length = 6;	/* zero means 6-octet ID field length */
 	else if (id_length == 255) {
@@ -216,56 +199,32 @@ dissect_isis(const u_char *pd, int offset, frame_data *fd,
 	/*
 	 * Advance offset (we are past the header).
 	 */
-	offset += sizeof(*ihdr);
-	switch (ihdr->isis_type) {
+	offset += sizeof(ihdr);
+	switch (ihdr.isis_type) {
 	case ISIS_TYPE_L1_HELLO:
-		isis_dissect_isis_hello(ISIS_TYPE_L1_HELLO, 
-			ihdr->isis_header_length, id_length,
-			pd, offset, fd, isis_tree);
-		break;
 	case ISIS_TYPE_L2_HELLO:
-		isis_dissect_isis_hello(ISIS_TYPE_L2_HELLO, 
-			ihdr->isis_header_length, id_length,
-			pd, offset, fd, isis_tree);
-		break;
 	case ISIS_TYPE_PTP_HELLO:
-		isis_dissect_isis_hello(ISIS_TYPE_PTP_HELLO, 
-			ihdr->isis_header_length, id_length,
-			pd, offset, fd, isis_tree);
+		isis_dissect_isis_hello(tvb, pinfo, isis_tree, offset,
+			ihdr.isis_type, ihdr.isis_header_length, id_length);
 		break;
 	case ISIS_TYPE_L1_LSP:
-		isis_dissect_isis_lsp(ISIS_TYPE_L1_LSP,
-			ihdr->isis_header_length, id_length,
-			pd, offset, fd, isis_tree);
-		break;
 	case ISIS_TYPE_L2_LSP:
-		isis_dissect_isis_lsp(ISIS_TYPE_L2_LSP,
-			ihdr->isis_header_length, id_length,
-			pd, offset, fd, isis_tree);
+		isis_dissect_isis_lsp(tvb, pinfo, isis_tree, offset,
+			ihdr.isis_type, ihdr.isis_header_length, id_length);
 		break;
 	case ISIS_TYPE_L1_CSNP:
-		isis_dissect_isis_csnp(ISIS_TYPE_L1_CSNP, 
-			ihdr->isis_header_length, id_length,
-			pd, offset, fd, isis_tree);
-		break;
 	case ISIS_TYPE_L2_CSNP:
-		isis_dissect_isis_csnp(ISIS_TYPE_L2_CSNP,
-			ihdr->isis_header_length, id_length,
-			pd, offset, fd, isis_tree);
+		isis_dissect_isis_csnp(tvb, pinfo, isis_tree, offset,
+			ihdr.isis_type, ihdr.isis_header_length, id_length);
 		break;
 	case ISIS_TYPE_L1_PSNP:
-		isis_dissect_isis_psnp(ISIS_TYPE_L1_PSNP, 
-			ihdr->isis_header_length, id_length,
-			pd, offset, fd, isis_tree);
-		break;
 	case ISIS_TYPE_L2_PSNP:
-		isis_dissect_isis_psnp(ISIS_TYPE_L2_PSNP,
-			ihdr->isis_header_length, id_length,
-			pd, offset, fd, isis_tree);
+		isis_dissect_isis_psnp(tvb, pinfo, isis_tree, offset,
+			ihdr.isis_type, ihdr.isis_header_length, id_length);
 		break;
 	default:
-		isis_dissect_unknown(offset, END_OF_FRAME, tree, fd,
-			"unknown ISIS packet type" );
+		isis_dissect_unknown(tvb, pinfo, tree, offset,
+			"Unknown ISIS packet type");
 	}
 } /* dissect_isis */
 
@@ -337,5 +296,5 @@ proto_register_isis(void) {
 void
 proto_reg_handoff_isis(void)
 {
-    old_dissector_add("osinl", NLPID_ISO10589_ISIS, dissect_isis, proto_isis);
+    dissector_add("osinl", NLPID_ISO10589_ISIS, dissect_isis, proto_isis);
 }

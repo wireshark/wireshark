@@ -1,7 +1,7 @@
 /* packet-isis-lsp.h
  * Defines and such for LSP and their CLV decodes
  *
- * $Id: packet-isis-lsp.h,v 1.8 2001/06/23 19:45:12 guy Exp $
+ * $Id: packet-isis-lsp.h,v 1.9 2001/07/02 00:19:34 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -110,10 +110,10 @@
  * Published API functions.  NOTE, this are "local" API functions and
  * are only valid from with isis decodes.
  */
-extern void isis_dissect_isis_lsp(int hello_type, int header_length,
-	int id_length, const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree);
-extern void isis_lsp_decode_lsp_id(char *tstr, proto_tree *tree,
-	const u_char *pd, int offset, int id_length);
+extern void isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, int offset,
+	int hello_type, int header_length, int id_length);
+extern void isis_lsp_decode_lsp_id(tvbuff_t *tvb, packet_info *pinfo, 
+	proto_tree *tree, int offset, char *tstr, int id_length);
 
 #endif /* _PACKET_ISIS_LSP_H */

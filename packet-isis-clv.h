@@ -1,7 +1,7 @@
 /* packet-isis-clv.h
  * Declares for common clv decoding functions.
  *
- * $Id: packet-isis-clv.h,v 1.6 2001/06/23 19:45:12 guy Exp $
+ * $Id: packet-isis-clv.h,v 1.7 2001/07/02 00:19:34 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -34,33 +34,38 @@ typedef struct {
 	int	optcode;		/* code for option */
 	char	*tree_text;		/* text for fold out */
 	gint	*tree_id;		/* id for add_item */
-	void	(*dissect)(const u_char *pd, int offset, guint length,
-			int id_length, frame_data *fd, proto_tree *tree );
+	void	(*dissect)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+				int offset, int id_length, int length);
 } isis_clv_handle_t;
 
 /*
  * Published API functions.  NOTE, this are "local" API functions and
  * are only valid from with isis decodes.
  */
-extern void isis_dissect_clvs(const isis_clv_handle_t *opts, int len,
-	int id_length, const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree, int unknown_ett_handle );
-extern void isis_dissect_area_address_clv(const u_char *pd, int offset,
-                guint length, frame_data *fd, proto_tree *tree );
-extern void isis_dissect_metric(proto_tree *tree, int offset, guint8 value,
-                char *pstr, int force_supported, gint tree_id );
-extern void isis_dissect_authentication_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree, char *meaning);
-extern void isis_dissect_ip_int_clv(const u_char *pd, int offset,
-		guint length, frame_data *fd, proto_tree *tree, gint tree_id );
-extern void isis_dissect_ipv6_int_clv(const u_char *pd, int offset,
-		guint length, frame_data *fd, proto_tree *tree, gint tree_id );
-extern void isis_dissect_nlpid_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree );
-extern void isis_dissect_hostname_clv(const u_char *pd, int offset, 
-                guint length, frame_data *fd, proto_tree *tree );
-extern void isis_dissect_mt_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree, gint tree_id );
-extern void isis_dissect_te_router_id_clv(const u_char *pd, int offset, 
-		guint length, frame_data *fd, proto_tree *tree, gint tree_id );
+extern void isis_dissect_clvs(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, int offset, 
+	const isis_clv_handle_t *opts, int len,	int id_length,
+	int unknown_tree_id);
+
+extern void isis_dissect_nlpid_clv(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, int offset, int length);
+extern void isis_dissect_te_router_id_clv(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, int offset, int length, int tree_id);
+extern void isis_dissect_ipv6_int_clv(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, int offset, int length, int tree_id);
+extern void isis_dissect_ip_int_clv(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, int offset, int length, int tree_id);
+extern void isis_dissect_mt_clv(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, int offset, int length, int tree_id);
+extern void isis_dissect_hostname_clv(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, int offset, int length);
+extern void isis_dissect_authentication_clv(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, int offset, int length, char *meaning);
+extern void isis_dissect_area_address_clv(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, int offset, int length);
+
+extern void isis_dissect_metric(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, int offset,
+	guint8 value, char *pstr, int force_supported);
+
 #endif /* _PACKET_ISIS_CLV_H */

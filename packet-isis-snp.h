@@ -1,7 +1,7 @@
 /* packet-isis-snp.h
  * Defines and such for CSNP, PSNP, and their payloads
  *
- * $Id: packet-isis-snp.h,v 1.2 2000/06/19 08:33:50 guy Exp $
+ * $Id: packet-isis-snp.h,v 1.3 2001/07/02 00:19:34 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -66,9 +66,11 @@
  * Published API functions.  NOTE, this are "local" API functions and
  * are only valid from with isis decodes.
  */
-extern void isis_dissect_isis_csnp(int type, int header_length, int id_length,
-	const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
-extern void isis_dissect_isis_psnp(int type, int header_length, int id_length,
-        const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
+extern void isis_dissect_isis_csnp(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, int offset,
+	int type, int header_length, int id_length);
+extern void isis_dissect_isis_psnp(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, int offset,
+	int type, int header_length, int id_length);
 
 #endif /* _PACKET_ISIS_CSNP_H */

@@ -536,6 +536,7 @@ Ronnie Sahlberg <rsahlber@bigpond.net.au> {
 	DVMRP support
 	MRDISC support
 	MSNIP support
+	Tvbuffified ISIS dissector
 }
 
 Borosa Tomislav <tomislav.borosa@SIEMENS.HR> {
