@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.44 1999/09/18 15:44:41 deniel Exp $
+ * $Id: packet.c,v 1.45 1999/09/29 22:19:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -56,6 +56,7 @@
 #endif
 
 #include "packet.h"
+#include "print.h"
 #include "file.h"
 
 extern capture_file  cf;

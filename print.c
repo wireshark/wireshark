@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.20 1999/09/12 20:23:33 guy Exp $
+ * $Id: print.c,v 1.21 1999/09/29 22:19:13 guy Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -43,11 +43,10 @@
 #include "ps.h"
 
 static void proto_tree_print_node_text(GNode *node, gpointer data);
-static void dumpit (FILE *fh, register const u_char *cp, register u_int length);
 static void proto_tree_print_node_ps(GNode *node, gpointer data);
 static void ps_clean_string(unsigned char *out, const unsigned char *in,
 			int outbuf_size);
-static void dumpit_ps (FILE *fh, register const u_char *cp, register u_int length);
+static void print_hex_data_ps(FILE *fh, register const u_char *cp, register u_int length);
 
 extern int proto_data; /* in packet-data.c */
 
@@ -57,6 +56,7 @@ typedef struct {
 	FILE		*fh;
 	const guint8	*pd;
 	gboolean	print_all_levels;
+	gboolean	print_hex_for_data;
 } print_data;
 
 FILE *open_print_dest(int to_file, const char *dest)
@@ -93,7 +93,7 @@ void print_finale(FILE *fh)
 		print_ps_finale(fh);
 }
 
-void proto_tree_print(gboolean print_one_packet, gboolean print_all_levels,
+void proto_tree_print(gboolean print_one_packet, print_args_t *print_args,
     GNode *protocol_tree, const u_char *pd, frame_data *fd, FILE *fh)
 {
 	print_data data;
@@ -102,7 +102,10 @@ void proto_tree_print(gboolean print_one_packet, gboolean print_all_levels,
 	data.level = 0;
 	data.fh = fh;
 	data.pd = pd;
-	data.print_all_levels = print_all_levels;
+	data.print_all_levels = print_args->expand_all;
+	data.print_hex_for_data = !print_args->print_hex;
+	    /* If we're printing the entire packet in hex, don't
+	       print uninterpreted data fields in hex as well. */
 
 	/* XXX - printing multiple frames in PostScript looks as if it's
 	   tricky - you have to deal with page boundaries, I think -
@@ -157,9 +160,10 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 	/* Print the text */
 	fprintf(pdata->fh, "%s%s\n", space, label_ptr);
 
-	/* If it's uninterpreted data, dump it. */
-	if (fi->hfinfo->id == proto_data)
-		dumpit(pdata->fh, &pdata->pd[fi->start], fi->length);
+	/* If it's uninterpreted data, dump it (unless our caller will
+	   be printing the entire packet in hex). */
+	if (fi->hfinfo->id == proto_data && pdata->print_hex_for_data)
+		print_hex_data(pdata->fh, &pdata->pd[fi->start], fi->length);
 
 	/* If we're printing all levels, or if this level is expanded,
 	   recurse into the subtree, if it exists. */
@@ -175,8 +179,7 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 
 /* This routine was created by Dan Lasley <DLASLEY@PROMUS.com>, and
 only slightly modified for ethereal by Gilbert Ramirez. */
-static
-void dumpit (FILE *fh, register const u_char *cp, register u_int length)
+void print_hex_data(FILE *fh, register const u_char *cp, register u_int length)
 {
         register int ad, i, j, k;
         u_char c;
@@ -239,7 +242,7 @@ void proto_tree_print_node_ps(GNode *node, gpointer data)
 	/* If it's uninterpreted data, dump it. */
 	if (fi->hfinfo->id == proto_data) {
 		print_ps_hex(pdata->fh);
-		dumpit_ps(pdata->fh, &pdata->pd[fi->start], fi->length);
+		print_hex_data_ps(pdata->fh, &pdata->pd[fi->start], fi->length);
 	}
 
 	/* Recurse into the subtree, if it exists */
@@ -280,7 +283,7 @@ void ps_clean_string(unsigned char *out, const unsigned char *in,
 }
 
 static
-void dumpit_ps (FILE *fh, register const u_char *cp, register u_int length)
+void print_hex_data_ps(FILE *fh, register const u_char *cp, register u_int length)
 {
         register int ad, i, j, k;
         u_char c;

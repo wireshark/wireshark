@@ -1,7 +1,7 @@
 /* globals.h
  * Global defines, etc.
  *
- * $Id: globals.h,v 1.7 1999/09/26 14:39:12 deniel Exp $
+ * $Id: globals.h,v 1.8 1999/09/29 22:19:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,10 @@
 
 #ifndef __GTK_H__
 #include <gtk/gtk.h>
+#endif
+
+#ifndef __PRINT_H__
+#include "print.h"
 #endif
 
 #ifndef __FILE_H__

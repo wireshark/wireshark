@@ -1,7 +1,7 @@
 /* keys.h
  * Key definitions for various objects
  *
- * $Id: keys.h,v 1.5 1999/09/12 23:54:09 guy Exp $
+ * $Id: keys.h,v 1.6 1999/09/29 22:19:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,8 +36,5 @@
 #define PRINT_FILE_BT_KEY         "printer_file_button"
 #define PRINT_FILE_TE_KEY         "printer_file_entry"
 #define PRINT_DEST_RB_KEY         "printer_destination_radio_button"
-#define PRINT_SUMMARY_RB_KEY      "printer_summary_radio_button"
-#define PRINT_EXPAND_ALL_RB_KEY   "printer_expand_all_radio_button"
-#define PRINT_AS_DISPLAYED_RB_KEY "printer_as_displayed_radio_button"
 
 #endif

@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.6 1999/09/12 23:54:09 guy Exp $
+ * $Id: print_dlg.c,v 1.7 1999/09/29 22:19:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -63,6 +63,11 @@ static void print_close_cb(GtkWidget *close_bt, gpointer parent_w);
  */
 static int     print_to_file;
 
+#define PRINT_SUMMARY_RB_KEY      "printer_summary_radio_button"
+#define PRINT_HEX_CB_KEY          "printer_hex_check_button"
+#define PRINT_EXPAND_ALL_RB_KEY   "printer_expand_all_radio_button"
+#define PRINT_AS_DISPLAYED_RB_KEY "printer_as_displayed_radio_button"
+
 /* Print the capture */
 void
 file_print_cmd_cb(GtkWidget *widget, gpointer data)
@@ -79,7 +84,7 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   GtkWidget     *file_bt_hb, *file_bt, *file_te;
   GSList        *dest_grp;
   GtkWidget     *options_hb;
-  GtkWidget     *summary_vb, *summary_rb, *detail_rb;
+  GtkWidget     *print_type_vb, *summary_rb, *detail_rb, *hex_cb;
   GSList        *summary_grp;
   GtkWidget     *expand_vb, *expand_all_rb, *as_displayed_rb;
   GSList        *expand_grp;
@@ -202,24 +207,30 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_widget_show(options_hb);
 
   /* Vertical box into which to put the "Print summary"/"Print detail"
-     radio buttons. */
-  summary_vb = gtk_vbox_new(FALSE, 5);
-  gtk_container_border_width(GTK_CONTAINER(summary_vb), 5);
-  gtk_container_add(GTK_CONTAINER(options_hb), summary_vb);
-  gtk_widget_show(summary_vb);
+     radio buttons and the "Print hex" check button. */
+  print_type_vb = gtk_vbox_new(FALSE, 5);
+  gtk_container_border_width(GTK_CONTAINER(print_type_vb), 5);
+  gtk_container_add(GTK_CONTAINER(options_hb), print_type_vb);
+  gtk_widget_show(print_type_vb);
 
   /* "Print summary"/"Print detail" radio buttons */
   summary_rb = gtk_radio_button_new_with_label(NULL, "Print summary");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(summary_rb), FALSE);
   summary_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(summary_rb));
-  gtk_container_add(GTK_CONTAINER(summary_vb), summary_rb);
+  gtk_container_add(GTK_CONTAINER(print_type_vb), summary_rb);
   gtk_widget_show(summary_rb);
   detail_rb = gtk_radio_button_new_with_label(summary_grp, "Print detail");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(detail_rb), TRUE);
   gtk_signal_connect(GTK_OBJECT(detail_rb), "toggled",
 			GTK_SIGNAL_FUNC(print_cmd_toggle_detail), NULL);
-  gtk_container_add(GTK_CONTAINER(summary_vb), detail_rb);
+  gtk_container_add(GTK_CONTAINER(print_type_vb), detail_rb);
   gtk_widget_show(detail_rb);
+  
+  /* "Print hex" check button. */
+  hex_cb = gtk_check_button_new_with_label("Print hex data");
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(hex_cb), FALSE);
+  gtk_container_add(GTK_CONTAINER(print_type_vb), hex_cb);
+  gtk_widget_show(hex_cb);
 
   /* Vertical box into which to put the "Expand all levels"/"Print as displayed"
      radio buttons. */
@@ -256,6 +267,7 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_CMD_TE_KEY, cmd_te);
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_FILE_TE_KEY, file_te);
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_SUMMARY_RB_KEY, summary_rb);
+  gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_HEX_CB_KEY, hex_cb);
   gtk_object_set_data(GTK_OBJECT(ok_bt), PRINT_EXPAND_ALL_RB_KEY, expand_all_rb);
   gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
     GTK_SIGNAL_FUNC(print_ok_cb), GTK_OBJECT(print_w));
@@ -382,6 +394,10 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   print_args.print_summary = GTK_TOGGLE_BUTTON (button)->active;
 
   button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(ok_bt),
+                                              PRINT_HEX_CB_KEY);
+  print_args.print_hex = GTK_TOGGLE_BUTTON (button)->active;
+
+  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(ok_bt),
                                               PRINT_EXPAND_ALL_RB_KEY);
   print_args.expand_all = GTK_TOGGLE_BUTTON (button)->active;
 
@@ -418,15 +434,20 @@ print_close_cb(GtkWidget *close_bt, gpointer parent_w)
 void
 file_print_packet_cmd_cb(GtkWidget *widget, gpointer data) {
   FILE *fh;
+  print_args_t print_args;
 
   switch (prefs.pr_dest) {
 
   case PR_DEST_CMD:
     fh = popen(prefs.pr_cmd, "w");
+    print_args.to_file = FALSE;
+    print_args.dest = prefs.pr_cmd;
     break;
 
   case PR_DEST_FILE:
     fh = fopen(prefs.pr_file, "w");
+    print_args.to_file = TRUE;
+    print_args.dest = prefs.pr_file;
     break;
 
   default:
@@ -450,8 +471,12 @@ file_print_packet_cmd_cb(GtkWidget *widget, gpointer data) {
   }
 
   print_preamble(fh);
-  proto_tree_print(TRUE, TRUE, (GNode*) cf.protocol_tree, cf.pd, cf.fd, fh);
+  print_args.print_summary = FALSE;
+  print_args.print_hex = FALSE;
+  print_args.expand_all = TRUE;
+  proto_tree_print(TRUE, &print_args, (GNode*) cf.protocol_tree, cf.pd,
+		cf.fd, fh);
   print_finale(fh);
-  close_print_dest(prefs.pr_dest == PR_DEST_FILE, fh);
+  close_print_dest(print_args.to_file, fh);
 }
 

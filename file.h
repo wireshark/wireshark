@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.46 1999/09/23 04:38:52 ashokn Exp $
+ * $Id: file.h,v 1.47 1999/09/29 22:19:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -132,16 +132,6 @@ void close_cap_file(capture_file *, void *, guint);
 int  read_cap_file(capture_file *);
 int  tail_cap_file(char *, capture_file *);
 /* size_t read_frame_header(capture_file *); */
-
-typedef struct {
-  gboolean	to_file;	/* TRUE if we're printing to a file */
-  char		*dest;		/* if printing to file, pathname;
-				   if not, command string */
-  gboolean	print_summary;	/* TRUE if we should just print summary;
-				   FALSE if we should print protocol tree. */
-  gboolean	expand_all;	/* TRUE if we should expand all levels;
-				   FALSE if we should expand as displayed. */
-} print_args_t;
 
 int print_packets(capture_file *cf, print_args_t *print_args);
 void filter_packets(capture_file *);

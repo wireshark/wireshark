@@ -1,7 +1,7 @@
 /* display.c
  * Routines for packet display windows
  *
- * $Id: display.c,v 1.11 1999/09/26 14:39:11 deniel Exp $
+ * $Id: display.c,v 1.12 1999/09/29 22:19:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -76,11 +76,11 @@
 # include <sys/sockio.h>
 #endif
 
+#include "globals.h"
 #include "timestamp.h"
 #include "packet.h"
 #include "file.h"
 #include "display.h"
-#include "globals.h"
 
 extern capture_file  cf;
 extern GtkWidget *packet_list;

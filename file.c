@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.99 1999/09/29 14:41:34 gram Exp $
+ * $Id: file.c,v 1.100 1999/09/29 22:19:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -871,10 +871,15 @@ print_packets(capture_file *cf, print_args_t *print_args)
         dissect_packet(cf->pd, fd, protocol_tree);
 
         /* Print the information in that tree. */
-        proto_tree_print(FALSE, print_args->expand_all, (GNode *)protocol_tree,
+        proto_tree_print(FALSE, print_args, (GNode *)protocol_tree,
 			cf->pd, fd, cf->print_fh);
 
         proto_tree_free(protocol_tree);
+
+	if (print_args->print_hex) {
+	  /* Print the full packet data as hex. */
+	  print_hex_data(cf->print_fh, cf->pd, fd->cap_len);
+	}
 
         /* Print a blank line if we print anything after this. */
         print_separator = TRUE;
