@@ -49,13 +49,16 @@
 
 /* Initialize the protocol and registered fields */
 int proto_x509if = -1;
-int hf_x509if_ATADV_attribute_id = -1;
+int hf_x509if_object_identifier_id = -1;
 
 /*--- Included file: packet-x509if-hf.c ---*/
 
 static int hf_x509if_rdnSequence = -1;            /* RDNSequence */
 static int hf_x509if_RDNSequence_item = -1;       /* RelativeDistinguishedName */
 static int hf_x509if_RelativeDistinguishedName_item = -1;  /* AttributeTypeAndDistinguishedValue */
+static int hf_x509if_type = -1;                   /* T_type */
+static int hf_x509if_value = -1;                  /* T_value */
+static int hf_x509if_primaryDistinguished = -1;   /* BOOLEAN */
 /* named bits */
 static int hf_x509if_AllowedSubset_baseObject = -1;
 static int hf_x509if_AllowedSubset_oneLevel = -1;
@@ -78,6 +81,8 @@ static gint ett_x509if_AllowedSubset = -1;
 /*--- End of included file: packet-x509if-ett.c ---*/
 
 
+static char object_identifier_id[64]; /*64 chars should be long enough? */
+
 
 static const ber_sequence Attribute_sequence[] = {
   /*  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_hf_x509if_type },*/
@@ -93,37 +98,6 @@ dissect_x509if_Attribute(gboolean implicit_tag, tvbuff_t *tvb, int offset, packe
   return offset;
 }
 
-
-
-static char ATADV_attribute_id[64]; /*64 chars should be long enough? */
-static int 
-dissect_hf_x509if_ATADV_attribute_id(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) 
-{
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_x509if_ATADV_attribute_id, ATADV_attribute_id);
-  return offset;
-}
-static int 
-dissect_hf_x509if_ATADV_attribute_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) 
-{
-  offset=call_ber_oid_callback(ATADV_attribute_id, tvb, offset, pinfo, tree);
-  return offset;
-}
-
-static const ber_sequence AttributeTypeAndDistinguishedValue_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_hf_x509if_ATADV_attribute_id },
-  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_hf_x509if_ATADV_attribute_value },
-  /*XXX  missing stuff here */
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_x509if_AttributeTypeAndDistinguishedValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                AttributeTypeAndDistinguishedValue_sequence, hf_index, ett_x509if_AttributeTypeAndDistinguishedValue);
-
-  return offset;
-}
 
 
 /*--- Included file: packet-x509if-fn.c ---*/
@@ -148,6 +122,57 @@ dissect_x509if_AttributeType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
   return offset;
 }
 
+
+static int
+dissect_x509if_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_x509if_object_identifier_id, object_identifier_id);
+
+
+  return offset;
+}
+static int dissect_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_T_type(FALSE, tvb, offset, pinfo, tree, hf_x509if_type);
+}
+
+
+static int
+dissect_x509if_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+
+
+  return offset;
+}
+static int dissect_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_T_value(FALSE, tvb, offset, pinfo, tree, hf_x509if_value);
+}
+
+
+static int
+dissect_x509if_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_boolean(pinfo, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+static int dissect_primaryDistinguished(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_BOOLEAN(FALSE, tvb, offset, pinfo, tree, hf_x509if_primaryDistinguished);
+}
+
+static const ber_sequence AttributeTypeAndDistinguishedValue_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_type },
+  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_value },
+  { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_primaryDistinguished },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509if_AttributeTypeAndDistinguishedValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                AttributeTypeAndDistinguishedValue_sequence, hf_index, ett_x509if_AttributeTypeAndDistinguishedValue);
+
+  return offset;
+}
 static int dissect_RelativeDistinguishedName_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_AttributeTypeAndDistinguishedValue(FALSE, tvb, offset, pinfo, tree, hf_x509if_RelativeDistinguishedName_item);
 }
@@ -267,10 +292,10 @@ void proto_register_x509if(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-    { &hf_x509if_ATADV_attribute_id,
-      { "Attribute Id", "x509if.attribute.id",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "Attribute Id", HFILL }},
+    { &hf_x509if_object_identifier_id, 
+      { "Id", "x509if.id", FT_STRING, BASE_NONE, NULL, 0,
+	"Object identifier Id", HFILL }},
+			 
 
 /*--- Included file: packet-x509if-hfarr.c ---*/
 
@@ -286,6 +311,18 @@ void proto_register_x509if(void) {
       { "Item", "x509if.RelativeDistinguishedName_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "RelativeDistinguishedName/_item", HFILL }},
+    { &hf_x509if_type,
+      { "type", "x509if.type",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "AttributeTypeAndDistinguishedValue/type", HFILL }},
+    { &hf_x509if_value,
+      { "value", "x509if.value",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AttributeTypeAndDistinguishedValue/value", HFILL }},
+    { &hf_x509if_primaryDistinguished,
+      { "primaryDistinguished", "x509if.primaryDistinguished",
+        FT_BOOLEAN, 8, NULL, 0,
+        "AttributeTypeAndDistinguishedValue/primaryDistinguished", HFILL }},
     { &hf_x509if_AllowedSubset_baseObject,
       { "baseObject", "x509if.baseObject",
         FT_BOOLEAN, 8, NULL, 0x80,
