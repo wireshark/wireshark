@@ -12,7 +12,7 @@
  * - support for reassembly
  * - error checking mode 
  *
- * $Id: packet-sctp.c,v 1.58 2003/06/08 15:59:26 tuexen Exp $
+ * $Id: packet-sctp.c,v 1.59 2003/08/02 01:00:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -156,6 +156,7 @@ static int hf_pktdrop_chunk_data_field = -1;
 
 static dissector_table_t sctp_port_dissector_table;
 static dissector_table_t sctp_ppi_dissector_table;
+static heur_dissector_list_t sctp_heur_subdissector_list;
 
 static module_t *sctp_module;
 
@@ -1206,10 +1207,18 @@ dissect_error_causes(tvbuff_t *causes_tvb, packet_info *pinfo, proto_tree *tree)
  * Code to actually dissect the packets
 */
 
+static gboolean try_heuristic_first = FALSE;
+
 static gboolean
 dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, guint32 ppi)
 {
   guint32 low_port, high_port;
+
+  if (try_heuristic_first) {
+    /* do lookup with the heuristic subdissector table */
+    if (dissector_try_heuristic(sctp_heur_subdissector_list, payload_tvb, pinfo, tree))
+       return TRUE;
+  }
 
   /* Do lookups with the subdissector table.
 
@@ -1244,6 +1253,13 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
       dissector_try_port(sctp_port_dissector_table, high_port, payload_tvb, pinfo, tree))
     return TRUE;
 
+  if (!try_heuristic_first) {
+    /* do lookup with the heuristic subdissector table */
+    if (dissector_try_heuristic(sctp_heur_subdissector_list, payload_tvb, pinfo, tree))
+       return TRUE;
+  }
+
+  /* Oh, well, we don't know this; dissect it as data. */
   call_dissector(data_handle, payload_tvb, pinfo, tree);
   return TRUE;
 }
@@ -2170,9 +2186,16 @@ proto_register_sctp(void)
   proto_sctp = proto_register_protocol("Stream Control Transmission Protocol", "SCTP", "sctp");
   sctp_module = prefs_register_protocol(proto_sctp, NULL);
   prefs_register_enum_preference(sctp_module, "checksum", "Checksum type",
-                         "The type of checksum used in SCTP packets", &sctp_checksum, sctp_checksum_options, FALSE);
-  prefs_register_bool_preference(sctp_module, "show_always_control_chunks", "Show always control chunks", "Show always SCTP control chunks in the Info column", &show_always_control_chunks);
-
+                         "The type of checksum used in SCTP packets",
+                         &sctp_checksum, sctp_checksum_options, FALSE);
+  prefs_register_bool_preference(sctp_module, "show_always_control_chunks",
+                         "Show always control chunks",
+                         "Show always SCTP control chunks in the Info column",
+                         &show_always_control_chunks);
+  prefs_register_bool_preference(sctp_module, "try_heuristic_first",
+                         "Try heuristic sub-dissectors first",
+                         "Try to decode a packet using an heuristic sub-dissector before using a sub-dissector registered to a specific port or PPI",
+                         &try_heuristic_first);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sctp, hf, array_length(hf));
@@ -2181,7 +2204,7 @@ proto_register_sctp(void)
   /* subdissector code */
   sctp_port_dissector_table = register_dissector_table("sctp.port", "SCTP port", FT_UINT16, BASE_DEC);
   sctp_ppi_dissector_table  = register_dissector_table("sctp.ppi",  "SCTP payload protocol identifier", FT_UINT32, BASE_HEX);
-
+  register_heur_dissector_list("sctp", &sctp_heur_subdissector_list);
 }
 
 void
