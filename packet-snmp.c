@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.115 2003/09/08 20:21:04 guy Exp $
+ * $Id: packet-snmp.c,v 1.116 2003/09/08 20:45:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,8 +57,6 @@
 #include "packet-frame.h"
 
 #ifdef HAVE_SOME_SNMP
-/*Default MIB Modules to load"*/
-#define DEF_MIB_MODULES "IP-MIB:IF-MIB:TCP-MIB:UDP-MIB:SNMPv2-MIB:RFC1213-MIB:UCD-SNMP-MIB"
 
 #ifdef HAVE_NET_SNMP
 # include <net-snmp/net-snmp-config.h>
@@ -118,7 +116,10 @@
 
 static int proto_snmp = -1;
 
-static gchar *mib_modules = NULL;
+/* Default MIB modules to load */
+#define DEF_MIB_MODULES "IP-MIB:IF-MIB:TCP-MIB:UDP-MIB:SNMPv2-MIB:RFC1213-MIB:UCD-SNMP-MIB"
+
+static gchar *mib_modules = DEF_MIB_MODULES;
 static gboolean display_oid = TRUE;
 
 static gint ett_snmp = -1;
@@ -2351,6 +2352,7 @@ proto_register_snmp(void)
 	char *mib_path;
 #define MIB_PATH_APPEND "snmp\\mibs"
 #endif
+	gchar *tmp_mib_modules;
 
 	static hf_register_info hf[] = {
 		{ &hf_snmp_version,
@@ -2450,6 +2452,16 @@ proto_register_snmp(void)
 		"Whether the SNMP OID should be shown in the info column",
 		&display_oid);
 
+	/*
+	 * Set the default value of "mib_modules".
+	 *
+	 * If the MIBS environment variable is set, make its value
+	 * the value of "mib_modules", otherwise, set "mib_modules"
+	 * to DEF_MIB_MODULES.
+	 */
+	tmp_mib_modules = getenv("MIBS");
+	if (tmp_mib_modules != NULL)
+		mib_modules = tmp_mib_modules;
 	prefs_register_string_preference(snmp_module, "mib_modules",
 	    "MIB modules to load",
 	    "List of MIB modules to load (the list is set to environment variable MIBS if the variable is not already set)",
@@ -2465,9 +2477,6 @@ void
 proto_reg_handoff_snmp(void)
 {
 	dissector_handle_t snmp_tcp_handle;
-#ifdef HAVE_SOME_SNMP
-	gchar *tmp_mib_modules;
-#endif
 
 	dissector_add("udp.port", UDP_PORT_SNMP, snmp_handle);
 	dissector_add("udp.port", UDP_PORT_SNMP_TRAP, snmp_handle);
@@ -2482,31 +2491,14 @@ proto_reg_handoff_snmp(void)
 
 	data_handle = find_dissector("data");
 
-#ifdef HAVE_SOME_SNMP
 	/*
-	 * Load MIBs.  We can't do this in the register routine, as we
-	 * need the value of the "mib_modules" preference, and
-	 * preferences aren't read until all dissector register routines
-	 * have been called (so that all dissector preferences have
-	 * been registered.
+	 * Process preference settings.
 	 *
-	 * If the mib_modules preference isn't set:
-	 *
-	 *	if the MIBS environment variable is set to a value other
-	 *	than an empty string, make its value the value of
-	 *	"mib_modules";
-	 *
-	 *	otherwise, set it to DEF_MIB_MODULES.
+	 * We can't do this in the register routine, as preferences aren't
+	 * read until all dissector register routines have been called (so
+	 * that all dissector preferences have been registered).
 	 */
-	if (mib_modules == NULL) {
-		tmp_mib_modules = getenv("MIBS");
-		if (tmp_mib_modules != NULL)
-			mib_modules = g_strdup(tmp_mib_modules);
-		else
-			mib_modules = g_strdup(DEF_MIB_MODULES);
-	}
 	process_prefs();
-#endif /* HAVE_SOME_SNMP */
 }
 
 void
