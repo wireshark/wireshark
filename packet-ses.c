@@ -2,7 +2,7 @@
 *
 * Routine to dissect ISO 8327-1 OSI Session Protocol packets
 *
-* $Id: packet-ses.c,v 1.1 2003/11/11 08:29:33 guy Exp $
+* $Id: packet-ses.c,v 1.2 2003/11/11 20:33:53 guy Exp $
 *
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *
@@ -316,6 +316,8 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 	switch (param_type)
 	{
 	case Called_SS_user_Reference:
+		if (param_len == 0)
+			return;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -325,6 +327,8 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		break;
 
 	case Calling_SS_user_Reference:
+		if (param_len == 0)
+			return;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -334,6 +338,8 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		break;
 
 	case Common_Reference:
+		if (param_len == 0)
+			return;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -343,6 +349,8 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		break;
 
 	case Additional_Reference_Information:
+		if (param_len == 0)
+			return;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -352,6 +360,13 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		break;
 
 	case Token_Item:
+		if (param_len != 1)
+		{
+			proto_tree_add_text(param_tree, tvb, offset,
+			    param_len, "Length is %u, should be 1",
+			    param_len);
+			return;
+		}
 		if (tree)
 		{
 			guint8       flags;
@@ -376,6 +391,13 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		break;
 
 	case Transport_Disconnect:
+		if (param_len != 1)
+		{
+			proto_tree_add_text(param_tree, tvb, offset,
+			    param_len, "Length is %u, should be 1",
+			    param_len);
+			return;
+		}
 		if (tree)
 		{
 			guint8       flags;
@@ -419,6 +441,13 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		break;
 
 	case Protocol_Options:
+		if (param_len != 1)
+		{
+			proto_tree_add_text(param_tree, tvb, offset,
+			    param_len, "Length is %u, should be 1",
+			    param_len);
+			return;
+		}
 		if (tree)
 		{
 			guint8       flags;
@@ -438,6 +467,13 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		break;
 
 	case Session_Requirement:
+		if (param_len != 2)
+		{
+			proto_tree_add_text(param_tree, tvb, offset,
+			    param_len, "Length is %u, should be 2",
+			    param_len);
+			return;
+		}
 		if (tree)
 		{
 			guint16       flags;
@@ -491,6 +527,13 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		break;
 
 	case TSDU_Maximum_Size:
+		if (param_len != 4)
+		{
+			proto_tree_add_text(param_tree, tvb, offset,
+			    param_len, "Length is %u, should be 4",
+			    param_len);
+			return;
+		}
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -503,6 +546,13 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		break;
 
 	case Version_Number:
+		if (param_len != 1)
+		{
+			proto_tree_add_text(param_tree, tvb, offset,
+			    param_len, "Length is %u, should be 1",
+			    param_len);
+			return;
+		}
 		if (tree)
 		{
 			guint8       flags;
@@ -523,6 +573,8 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		break;
 
 	case Initial_Serial_Number:
+		if (param_len == 0)
+			return;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -532,6 +584,13 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		break;
 
 	case EnclosureItem:
+		if (param_len != 1)
+		{
+			proto_tree_add_text(param_tree, tvb, offset,
+			    param_len, "Length is %u, should be 1",
+			    param_len);
+			return;
+		}
 		if (tree)
 		{
 			guint8       flags;
@@ -552,6 +611,13 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		break;
 
 	case Token_Setting_Item:
+		if (param_len != 1)
+		{
+			proto_tree_add_text(param_tree, tvb, offset,
+			    param_len, "Length is %u, should be 1",
+			    param_len);
+			return;
+		}
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -584,6 +650,13 @@ does not exceed 65 539 octets if Protocol Version 2 has been selected.
 	128 + 5:	Rejection by the SPM; reason not specified.
 	128 + 6:	Rejection by the SPM; implementation restriction stated in the 
 PICS.    */
+		if (param_len < 1)
+		{
+			proto_tree_add_text(param_tree, tvb, offset,
+			    param_len, "Length is %u, should be >= 1",
+			    param_len);
+			return;
+		}
 		if (tree)
 		{
 			guint8      reason_code;
@@ -603,6 +676,8 @@ PICS.    */
 		break;
 
 	case Calling_Session_Selector:
+		if (param_len == 0)
+			return;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -612,6 +687,8 @@ PICS.    */
 		break;
 
 	case Called_Session_Selector:
+		if (param_len == 0)
+			return;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -621,6 +698,8 @@ PICS.    */
 		break;
 
 	case Second_Serial_Number:
+		if (param_len == 0)
+			return;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -630,6 +709,8 @@ PICS.    */
 		break;
 
 	case Second_Initial_Serial_Number:
+		if (param_len == 0)
+			return;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -639,6 +720,8 @@ PICS.    */
 		break;
 
 	case Large_Initial_Serial_Number:
+		if (param_len == 0)
+			return;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
@@ -648,6 +731,8 @@ PICS.    */
 		break;
 
 	case Large_Second_Initial_Serial_Number:
+		if (param_len == 0)
+			return;
 		if (tree)
 		{
 			proto_tree_add_item(param_tree,
