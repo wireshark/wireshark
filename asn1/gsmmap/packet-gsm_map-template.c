@@ -97,6 +97,8 @@ static gint ett_gsm_map_GSMMAPPDU = -1;
 #include "packet-gsm_map-ett.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
+static dissector_handle_t data_handle;
+
 /* Preferenc settings default */
 static guint tcap_itu_ssn1 = 6;
 static guint tcap_itu_ssn2 = 7;
@@ -109,6 +111,7 @@ static guint global_tcap_itu_ssn3 = 8;
 static guint global_tcap_itu_ssn4 = 9;
 
 /* Global variables */
+
 static proto_tree *top_tree;
 int application_context_version;
 gint protocolId;
@@ -227,8 +230,10 @@ const value_string gsm_map_opr_code_strings[] = {
   {  59, "processUnstructuredSS-Request" },
   {  60, "unstructuredSS-Request" },
   {  61, "unstructuredSS-Notify" },
+  {  62, "anyTimeSubscriptionInterrogation" },
   {  63, "informServiceCentre" },
   {  64, "alertServiceCentre" },
+  {  65, "anyTimeModification" },
   {  66, "readyForSM" },
   {  67, "purgeMS" },
   {  68, "prepareHandover" },
@@ -518,12 +523,18 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case 61: /*unstructuredSS-Notify*/
     offset=dissect_gsm_map_Ussd_Arg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
+  case 62: /*AnyTimeSubscriptionInterrogation*/
+	  offset=dissect_gsm_map_AnyTimeSubscriptionInterrogationArg(FALSE, tvb, offset, pinfo, tree, -1);
+	  break;
   case 63: /*informServiceCentre*/
     offset=dissect_gsm_map_InformServiceCentreArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 64: /*alertServiceCentre*/
     offset=dissect_gsm_map_AlertServiceCentreArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
+  case 65: /*AnyTimeModification*/
+	  offset=dissect_gsm_map_AnyTimeModificationArg(FALSE, tvb, offset, pinfo, tree, -1);
+	  break;
   case 66: /*readyForSM*/
     offset=dissect_gsm_map_ReadyForSM_Arg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
@@ -704,6 +715,12 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     /* TRUE ? */
     proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
     break;
+  case 62: /*AnyTimeSubscriptionInterrogation*/
+	  offset=dissect_gsm_map_AnyTimeSubscriptionInterrogationRes(FALSE, tvb, offset, pinfo, tree, -1);
+	  break;
+  case 65: /*AnyTimeModification*/
+	  offset=dissect_gsm_map_AnyTimeModificationRes(FALSE, tvb, offset, pinfo, tree, -1);
+	  break;
   case 66: /*readyForSM*/
     offset=dissect_gsm_map_ReadyForSM_Res(FALSE, tvb, offset, pinfo, tree, -1);
     break;
@@ -1102,6 +1119,7 @@ void proto_reg_handoff_gsm_map(void) {
 	static int map_prefs_initialized = FALSE;
 
     map_handle = create_dissector_handle(dissect_gsm_map, proto_gsm_map);
+	data_handle = find_dissector("data");
 
 	if (!map_prefs_initialized) {
 		map_prefs_initialized = TRUE;

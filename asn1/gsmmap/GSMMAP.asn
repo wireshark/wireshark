@@ -51,14 +51,14 @@ Vlr-Capability ::= SEQUENCE {
             lcsCapabilitySet2  (1 ), 
             lcsCapabilitySet3  (2 ), 
             lcsCapabilitySet4  (3 )} (  SIZE (2 .. 16 ) ) OPTIONAL, 
-         offeredCamel4CSIs                             [6] IMPLICIT BIT STRING {
-            ocsi  (0 ), 
-            dcsi  (1 ), 
-            vtcsi  (2 ), 
-            tcsi  (3 ), 
-            mtsmscsi  (4 ), 
-            mgcsi  (5 ), 
-            psienhancements  (6 )} (  SIZE (7 .. 16 ) ) OPTIONAL} 
+            offeredCamel4CSIs                             [6] IMPLICIT BIT STRING {
+            o-csi  (0 ), 
+            d-csi  (1 ), 
+            vt-csi  (2 ), 
+            t-csi  (3 ), 
+            mt-sms-csi  (4 ), 
+            mg-csi  (5 ), 
+            psi-enhancements  (6 )} (  SIZE (7 .. 16 ) ) OPTIONAL} 
 
 Imsi ::= OCTET STRING 
 Lmsi ::= OCTET STRING ( SIZE( 4 ) )
@@ -99,7 +99,7 @@ PrivateExtensionList ::= SEQUENCE OF PrivateExtension
 
 PrivateExtension ::=  SEQUENCE {
   extId      OBJECT IDENTIFIER,  -- MAP-EXTENSION .&extensionId
-  extType    OCTET STRING OPTIONAL -- { @extId   }
+  extType    ANY OPTIONAL -- { @extId   }
 } 
 
 
@@ -1898,19 +1898,7 @@ AnyTimeSubscriptionInterrogationRes ::= SEQUENCE {
          ... } OPTIONAL, 
       camel-SubscriptionInfo       [4] IMPLICIT SEQUENCE {
          o-CSI                               [0] IMPLICIT O-CSI OPTIONAL, 
-         o-BcsmCamelTDP-CriteriaList         [1] IMPLICIT SEQUENCE  (  SIZE (1 .. 10 ) ) OF
-            SEQUENCE {
-               o-BcsmTriggerDetectionPoint   ENUMERATED {
-                  collectedInfo         (2 ), 
-                  ... , 
-                  routeSelectFailure    (4 )}, 
-               destinationNumberCriteria     [0] IMPLICIT DestinationNumberCriteria OPTIONAL, 
-               basicServiceCriteria          [1] IMPLICIT BasicServiceCriteria OPTIONAL, 
-               callTypeCriteria              [2] IMPLICIT CallTypeCriteria OPTIONAL, 
-               ... , 
-               o-CauseValueCriteria          [3] IMPLICIT O-CauseValueCriteria OPTIONAL, 
-               extensionContainer            [4] IMPLICIT ExtensionContainer OPTIONAL
-			   } OPTIONAL, 
+         o-BcsmCamelTDP-CriteriaList         [1] IMPLICIT O-BcsmCamelTDP-CriteriaList OPTIONAL, 
          d-CSI                               [2] IMPLICIT SEQUENCE {
             dp-AnalysedInfoCriteriaList   [0] IMPLICIT Dp-AnalysedInfoCriteriaList OPTIONAL, 
             camelCapabilityHandling       [1] IMPLICIT INTEGER ( 1 .. 16 ) OPTIONAL, 
@@ -2052,10 +2040,7 @@ AnyTimeSubscriptionInterrogationRes ::= SEQUENCE {
             csiActive                 [2] IMPLICIT NULL OPTIONAL} OPTIONAL, 
          o-IM-BcsmCamelTDP-CriteriaList      [19] IMPLICIT SEQUENCE  (  SIZE (1 .. 10 ) ) OF
             SEQUENCE {
-               o-BcsmTriggerDetectionPoint   ENUMERATED {
-                  collectedInfo         (2 ), 
-                  ... , 
-                  routeSelectFailure    (4 )}, 
+               o-BcsmTriggerDetectionPoint   BcsmTriggerDetectionPoint, 
                destinationNumberCriteria     [0] IMPLICIT DestinationNumberCriteria OPTIONAL, 
                basicServiceCriteria          [1] IMPLICIT BasicServiceCriteria OPTIONAL, 
                callTypeCriteria              [2] IMPLICIT CallTypeCriteria OPTIONAL, 
@@ -2237,6 +2222,10 @@ AnyTimeModificationArg ::= SEQUENCE {
          ... } OPTIONAL}
 
 --   RESULT     SEQUENCE {
+AnyTimeModificationRes ::= SEQUENCE {
+
+
+}
 ModifyNotificationToCSE ::= ENUMERATED {
             deactivate    (0 ), 
             activate      (1 )}
