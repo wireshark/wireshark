@@ -61,7 +61,7 @@ NONGENERATED_C_FILES = \
 	wtap.c
 
 # Header files that are not generated from other files
-HEADER_FILES = \
+NONGENERATED_HEADER_FILES = \
 	5views.h		\
 	airopeek9.h		\
 	ascend.h		\
