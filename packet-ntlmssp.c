@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.30 2002/11/08 06:02:18 guy Exp $
+ * $Id: packet-ntlmssp.c,v 1.31 2002/11/10 09:38:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -156,6 +156,8 @@ static int hf_ntlmssp_address_list_server_nb = -1;
 static int hf_ntlmssp_address_list_domain_nb = -1;
 static int hf_ntlmssp_address_list_server_dns = -1;
 static int hf_ntlmssp_address_list_domain_dns = -1;
+static int hf_ntlmssp_verf_vers = -1;
+static int hf_ntlmssp_verf_body = -1;
 
 static gint ett_ntlmssp = -1;
 static gint ett_ntlmssp_negotiate_flags = -1;
@@ -765,6 +767,55 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } ENDTRY;
 }
 
+/*
+ * See page 45 of "DCE/RPC over SMB" by Luke Kenneth Casson Leighton.
+ */
+static void
+dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  volatile int offset = 0;
+  proto_tree *volatile ntlmssp_tree = NULL;
+  proto_item *tf = NULL;
+
+  /* Setup a new tree for the NTLMSSP payload */
+  if (tree) {
+    tf = proto_tree_add_item (tree,
+			      hf_ntlmssp,
+			      tvb, offset, -1, FALSE);
+
+    ntlmssp_tree = proto_item_add_subtree (tf,
+					   ett_ntlmssp);
+  }
+
+  /*
+   * Catch the ReportedBoundsError exception; the stuff we've been
+   * handed doesn't necessarily run to the end of the packet, it's
+   * an item inside a packet, so if it happens to be malformed (or
+   * we, or a dissector we call, has a bug), so that an exception
+   * is thrown, we want to report the error, but return and let
+   * our caller dissect the rest of the packet.
+   *
+   * If it gets a BoundsError, we can stop, as there's nothing more
+   * in the packet after our blob to see, so we just re-throw the
+   * exception.
+   */
+  TRY {
+    /* Version number */
+    proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_verf_vers,
+			 tvb, offset, 4, TRUE);
+    offset += 4;
+
+    /* Encrypted body */
+    proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_verf_body,
+			 tvb, offset, 12, TRUE);
+    offset += 12; 
+  } CATCH(BoundsError) {
+    RETHROW;
+  } CATCH(ReportedBoundsError) {
+    show_reported_bounds_error(tvb, pinfo, tree);
+  } ENDTRY;
+}
+
 static void
 ntlmssp_init_protocol(void)
 {
@@ -917,7 +968,12 @@ proto_register_ntlmssp(void)
     { &hf_ntlmssp_address_list_server_dns,
       { "Server DNS Name", "ntlmssp.challenge.addresslist.serverdns", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
     { &hf_ntlmssp_address_list_domain_dns,
-      { "Domain DNS Name", "ntlmssp.challenge.addresslist.domaindns", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }}
+      { "Domain DNS Name", "ntlmssp.challenge.addresslist.domaindns", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+    { &hf_ntlmssp_verf_vers,
+      { "Version Number", "ntlmssp.verf.vers", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_ntlmssp_verf_body,
+      { "Verifier Body", "ntlmssp.verf.body", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }}
 
   };
 
@@ -940,6 +996,7 @@ proto_register_ntlmssp(void)
   register_init_routine(&ntlmssp_init_protocol);
 
   register_dissector("ntlmssp", dissect_ntlmssp, proto_ntlmssp);
+  register_dissector("ntlmssp_verf", dissect_ntlmssp_verf, proto_ntlmssp);
 }
 
 void

@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.86 2002/11/05 21:41:26 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.87 2002/11/10 09:38:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -404,9 +404,8 @@ static gint ett_dcerpc_fragments = -1;
 static gint ett_dcerpc_fragment = -1;
 static gint ett_decrpc_krb5_auth_verf = -1;
 
-static dissector_handle_t ntlmssp_handle;
-static dissector_handle_t gssapi_handle;
-static dissector_handle_t gssapi_verf_handle;
+static dissector_handle_t ntlmssp_handle, ntlmssp_verf_handle;
+static dissector_handle_t gssapi_handle, gssapi_verf_handle;
 
 static const fragment_items dcerpc_frag_items = {
 	&ett_dcerpc_fragments,
@@ -1516,6 +1515,19 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 	     * The authentication data are a verifier.
 	     */
 	    switch (auth_type) {
+
+	    case DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP: {
+		/* NTLMSSP */
+		tvbuff_t *ntlmssp_tvb;
+
+		ntlmssp_tvb = tvb_new_subset(tvb, offset, hdr->auth_len,
+					     hdr->auth_len);
+
+		call_dissector(ntlmssp_verf_handle, ntlmssp_tvb, pinfo,
+			       dcerpc_tree);
+
+		break;
+	    }
 
 	    case DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO: {
 		/* SPNEGO (rfc2478) */
@@ -3806,6 +3818,7 @@ proto_reg_handoff_dcerpc (void)
     heur_dissector_add ("udp", dissect_dcerpc_dg, proto_dcerpc);
     heur_dissector_add ("smb_transact", dissect_dcerpc_cn_bs, proto_dcerpc);
     ntlmssp_handle = find_dissector("ntlmssp");
+    ntlmssp_verf_handle = find_dissector("ntlmssp_verf");
     gssapi_handle = find_dissector("gssapi");
     gssapi_verf_handle = find_dissector("gssapi_verf");
 }
