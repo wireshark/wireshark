@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.32 2002/02/27 10:03:08 guy Exp $
+ * $Id: packet-bpdu.c,v 1.33 2002/03/19 09:00:44 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -58,12 +58,34 @@
 #define BPDU_MAX_AGE            29
 #define BPDU_HELLO_TIME         31
 #define BPDU_FORWARD_DELAY      33
+#define BPDU_VERSION_1_LENGTH	35
+
+#define BPDU_SIZE		35
+#define RST_BPDU_SIZE		36
+
+/* Flag bits */
+
+#define BPDU_FLAGS_TCACK		0x80
+#define BPDU_FLAGS_AGREEMENT		0x40
+#define BPDU_FLAGS_FORWARDING		0x20
+#define BPDU_FLAGS_LEARNING		0x10
+#define BPDU_FLAGS_PORT_ROLE_MASK	0x0C
+#define BPDU_FLAGS_PORT_ROLE_SHIFT	2
+#define BPDU_FLAGS_PROPOSAL		0x02
+#define BPDU_FLAGS_TC			0x01
 
 static int proto_bpdu = -1;
 static int hf_bpdu_proto_id = -1;
 static int hf_bpdu_version_id = -1;
 static int hf_bpdu_type = -1;
 static int hf_bpdu_flags = -1;
+static int hf_bpdu_flags_tcack = -1;
+static int hf_bpdu_flags_agreement = -1;
+static int hf_bpdu_flags_forwarding = -1;
+static int hf_bpdu_flags_learning = -1;
+static int hf_bpdu_flags_port_role = -1;
+static int hf_bpdu_flags_proposal = -1;
+static int hf_bpdu_flags_tc = -1;
 static int hf_bpdu_root_mac = -1;
 static int hf_bpdu_root_cost = -1;
 static int hf_bpdu_bridge_mac = -1;
@@ -72,18 +94,55 @@ static int hf_bpdu_msg_age = -1;
 static int hf_bpdu_max_age = -1;
 static int hf_bpdu_hello_time = -1;
 static int hf_bpdu_forward_delay = -1;
+static int hf_bpdu_version_1_length = -1;
 
 static gint ett_bpdu = -1;
+static gint ett_bpdu_flags = -1;
 
 static dissector_handle_t gvrp_handle;
 static dissector_handle_t gmrp_handle;
 static dissector_handle_t data_handle;
 
+static const value_string protocol_id_vals[] = {
+	{ 0, "Spanning Tree Protocol" },
+	{ 0, NULL }
+};
+
+#define BPDU_TYPE_CONF			0x00
+#define BPDU_TYPE_RST			0x02
+#define BPDU_TYPE_TOPOLOGY_CHANGE	0x80
+
+static const value_string bpdu_type_vals[] = {
+	{ BPDU_TYPE_CONF,            "Configuration" },
+	{ BPDU_TYPE_RST,             "Rapid Spanning Tree" },
+	{ BPDU_TYPE_TOPOLOGY_CHANGE, "Topology Change Notification" },
+	{ 0,                         NULL }
+};
+
+static const value_string role_vals[] = {
+	{ 1, "Alternate or Backup" },
+	{ 2, "Root" },
+	{ 3, "Designated" },
+	{ 0, NULL }
+};
+
+static const char initial_sep[] = " (";
+static const char cont_sep[] = ", ";
+
+#define APPEND_BOOLEAN_FLAG(flag, item, string) \
+	if(flag){							\
+		if(item)						\
+			proto_item_append_text(item, string, sep);	\
+		sep = cont_sep;						\
+	}
+
 static void
-dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
       guint16 protocol_identifier;
       guint8  protocol_version_identifier;
       guint8  bpdu_type;
+      int bpdu_size;
       guint8  flags;
       guint16 root_identifier_bridge_priority;
       const guint8  *root_identifier_mac;
@@ -99,8 +158,11 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       double forward_delay;
       
       proto_tree *bpdu_tree;
-      proto_item *ti;
+      proto_item *bpdu_item;
+      proto_tree *flags_tree;
+      proto_item *flags_item;
       guint8	rstp_bpdu;
+      const char *sep;
 
       /* GARP application frames require special interpretation of the
          destination address field; otherwise, they will be mistaken as
@@ -156,7 +218,10 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       }
 
       bpdu_type = tvb_get_guint8(tvb, BPDU_TYPE);
-      if (bpdu_type == 0 || bpdu_type == 0x02) {
+      switch (bpdu_type) {
+
+      case BPDU_TYPE_CONF:
+      case BPDU_TYPE_RST:
 	    flags = tvb_get_guint8(tvb, BPDU_FLAGS);
 	    root_identifier_bridge_priority = tvb_get_ntohs(tvb,
 	        BPDU_ROOT_IDENTIFIER);
@@ -164,7 +229,9 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    root_identifier_mac_str = ether_to_str(root_identifier_mac);
 	    root_path_cost = tvb_get_ntohl(tvb, BPDU_ROOT_PATH_COST);
 	    port_identifier = tvb_get_ntohs(tvb, BPDU_PORT_IDENTIFIER);
-      } else {
+	    break;
+
+      default:
 	    /* Squelch GCC complaints. */
 	    flags = 0;
 	    root_identifier_bridge_priority = 0;
@@ -172,38 +239,48 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    root_identifier_mac_str = NULL;
 	    root_path_cost = 0;
 	    port_identifier = 0;
+	    break;
       }
 
       if (check_col(pinfo->cinfo, COL_INFO)) {
-	    if (bpdu_type == 0)
+	    switch (bpdu_type) {
+
+	    case BPDU_TYPE_CONF:
 		  col_add_fstr(pinfo->cinfo, COL_INFO, "Conf. %sRoot = %d/%s  Cost = %d  Port = 0x%04x", 
 			       flags & 0x1 ? "TC + " : "",
 			       root_identifier_bridge_priority, root_identifier_mac_str, root_path_cost,
 			       port_identifier);
-	    else if (bpdu_type == 0x80)
+		  break;
+
+	    case BPDU_TYPE_TOPOLOGY_CHANGE:
 		  col_add_fstr(pinfo->cinfo, COL_INFO, "Topology Change Notification");
-            else if (bpdu_type == 0x02)
+		  break;
+
+	    case BPDU_TYPE_RST:
 		  col_add_fstr(pinfo->cinfo, COL_INFO, "RST. %sRoot = %d/%s  Cost = %d  Port = 0x%04x", 
 			       flags & 0x1 ? "TC + " : "",
 			       root_identifier_bridge_priority, root_identifier_mac_str, root_path_cost,
 			       port_identifier);
-            else
-                  col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown");
+		  break;
+
+	    default:
+		  col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown BPDU type (%u)",
+			       bpdu_type);
+                  break;
+            }
       }
 
+      bpdu_size =  (bpdu_type == BPDU_TYPE_RST) ? RST_BPDU_SIZE : BPDU_SIZE;
+      set_actual_length(tvb, bpdu_size);
+
       if (tree) {
-	    ti = proto_tree_add_protocol_format(tree, proto_bpdu, tvb, 0, 35,
-			    	"Spanning Tree Protocol");
-	    bpdu_tree = proto_item_add_subtree(ti, ett_bpdu);
+	    bpdu_item = proto_tree_add_protocol_format(tree, proto_bpdu, tvb,
+				0, bpdu_size, "Spanning Tree Protocol");
+	    bpdu_tree = proto_item_add_subtree(bpdu_item, ett_bpdu);
 
 	    protocol_identifier = tvb_get_ntohs(tvb, BPDU_IDENTIFIER);
-	    proto_tree_add_uint_format(bpdu_tree, hf_bpdu_proto_id, tvb,
-				       BPDU_IDENTIFIER, 2, 
-				       protocol_identifier,
-				       "Protocol Identifier: 0x%04x (%s)", 
-				       protocol_identifier,
-				       protocol_identifier == 0 ? 
-				       "Spanning Tree" : "Unknown Protocol");
+	    proto_tree_add_uint(bpdu_tree, hf_bpdu_proto_id, tvb,
+				BPDU_IDENTIFIER, 2, protocol_identifier);
 
 	    protocol_version_identifier = tvb_get_guint8(tvb, BPDU_VERSION_IDENTIFIER);
 	    proto_tree_add_uint(bpdu_tree, hf_bpdu_version_id, tvb, 
@@ -219,67 +296,65 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		  "   (Warning: this version of Ethereal only knows about versions 0 & 2)");
                 break;
             }
-	    proto_tree_add_uint_format(bpdu_tree, hf_bpdu_type, tvb,
+	    proto_tree_add_uint(bpdu_tree, hf_bpdu_type, tvb,
 				       BPDU_TYPE, 1, 
-				       bpdu_type,
-				       "BPDU Type: 0x%02x (%s)", 
-				       bpdu_type,
-				       bpdu_type == 0 ? "Configuration" :
-				       bpdu_type == 0x80 ?
-                                       "Topology Change Notification" :
-                                       bpdu_type == 0x02 ? "RST" : "Unknown");
+				       bpdu_type);
 
-	    if (bpdu_type != 0 && bpdu_type != 0x02) {
+	    if (bpdu_type != BPDU_TYPE_CONF && bpdu_type != BPDU_TYPE_RST) {
 	      call_dissector(data_handle,tvb_new_subset(tvb, BPDU_TYPE + 1,-1,tvb_reported_length_remaining(tvb,BPDU_TYPE + 1)), pinfo, tree);
 	      return;
 	    }
 
-            rstp_bpdu = (bpdu_type == 0x02);
+            rstp_bpdu = (bpdu_type == BPDU_TYPE_RST);
 	    bridge_identifier_bridge_priority = tvb_get_ntohs(tvb, BPDU_BRIDGE_IDENTIFIER);
 	    bridge_identifier_mac = tvb_get_ptr(tvb, BPDU_BRIDGE_IDENTIFIER + 2, 6);
 	    bridge_identifier_mac_str = ether_to_str(bridge_identifier_mac);
-	    message_age = tvb_get_ntohs(tvb, BPDU_MESSAGE_AGE) / 256.0;
-	    max_age = tvb_get_ntohs(tvb, BPDU_MAX_AGE) / 256.0;
-	    hello_time = tvb_get_ntohs(tvb, BPDU_HELLO_TIME) / 256.0;
-	    forward_delay = tvb_get_ntohs(tvb, BPDU_FORWARD_DELAY) / 256.0;
 
-	    proto_tree_add_uint(bpdu_tree, hf_bpdu_flags, tvb, 
+	    flags_item = proto_tree_add_uint(bpdu_tree, hf_bpdu_flags, tvb, 
 				BPDU_FLAGS, 1, flags);
-	    if (flags & 0x01)
-		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   .... ...1  Topology Change");
-
+	    flags_tree = proto_item_add_subtree(flags_item, ett_bpdu_flags);
+	    sep = initial_sep;
+	    APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TCACK, flags_item,
+				"%sTopology Change Acknowledgment");
+	    proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tcack, tvb,
+				BPDU_FLAGS, 1, flags);
             if (rstp_bpdu) {
-              guint8 port_role;
+	      APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_AGREEMENT, flags_item,
+				  "%sAgreement");
+	      proto_tree_add_boolean(flags_tree, hf_bpdu_flags_agreement, tvb,
+				  BPDU_FLAGS, 1, flags);
+	      APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_FORWARDING, flags_item,
+				  "%sForwarding");
+	      proto_tree_add_boolean(flags_tree, hf_bpdu_flags_forwarding, tvb,
+				  BPDU_FLAGS, 1, flags);
+	      APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_LEARNING, flags_item,
+				  "%sLearning");
+	      proto_tree_add_boolean(flags_tree, hf_bpdu_flags_learning, tvb,
+				  BPDU_FLAGS, 1, flags);
+	      if (flags_item) {
+		guint8 port_role;
 
-	      if (flags & 0x02)
-		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   .... ..1.  Proposal");
-              port_role = (flags & 0x0c) >> 2;
-              switch (port_role) {
-                case 0:
-		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   .... 00..  Unknown");
-                  break;
-                case 1:
-		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   .... 01..  Alternate or Backup");
-                  break;
-                case 2:
-		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   .... 10..  Root");
-                  break;
-                case 3:
-		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   .... 11..  Designated");
-                  break;
-                default:
-		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   .... ??..  Invalid");
-                  break;
-              }
-	      if (flags & 0x10)
-		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   ...1 ....  learning");
-	      if (flags & 0x20)
-		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   ..1. ....  Forawding");
-	      if (flags & 0x40)
-		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   .1.. ....  Agreement");
+		port_role = (flags & BPDU_FLAGS_PORT_ROLE_MASK) >> BPDU_FLAGS_PORT_ROLE_SHIFT;
+		proto_item_append_text(flags_item, "%sPort Role: %s", sep,
+				       val_to_str(port_role, role_vals,
+						  "Unknown (%u)"));
+	      }
+	      sep = cont_sep;
+	      proto_tree_add_uint(flags_tree, hf_bpdu_flags_port_role, tvb,
+				  BPDU_FLAGS, 1, flags);
+	      APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_PROPOSAL, flags_item,
+				  "%sProposal");
+	      proto_tree_add_boolean(flags_tree, hf_bpdu_flags_proposal, tvb,
+				  BPDU_FLAGS, 1, flags);
             }
-	    if (flags & 0x80)
-		  proto_tree_add_text(bpdu_tree, tvb, BPDU_FLAGS, 1, "   1... ....  Topology Change Acknowledgment");
+	    APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TC, flags_item,
+				"%sTopology Change");
+	    proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tc, tvb,
+				BPDU_FLAGS, 1, flags);
+	    if (sep != initial_sep) {
+	      /* We put something in; put in the terminating ")" */
+	      proto_item_append_text(flags_item, ")");
+	    }
 
 	    proto_tree_add_ether_hidden(bpdu_tree, hf_bpdu_root_mac, tvb,
 				       BPDU_ROOT_IDENTIFIER + 2, 6,
@@ -303,20 +378,33 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    proto_tree_add_uint(bpdu_tree, hf_bpdu_port_id, tvb,
 				BPDU_PORT_IDENTIFIER, 2, 
 				port_identifier);
+	    message_age = tvb_get_ntohs(tvb, BPDU_MESSAGE_AGE) / 256.0;
 	    proto_tree_add_double(bpdu_tree, hf_bpdu_msg_age, tvb,
 				BPDU_MESSAGE_AGE, 2, 
 				message_age);
+	    max_age = tvb_get_ntohs(tvb, BPDU_MAX_AGE) / 256.0;
 	    proto_tree_add_double(bpdu_tree, hf_bpdu_max_age, tvb,
 				BPDU_MAX_AGE, 2, 
 				max_age);
+	    hello_time = tvb_get_ntohs(tvb, BPDU_HELLO_TIME) / 256.0;
 	    proto_tree_add_double(bpdu_tree, hf_bpdu_hello_time, tvb,
 				BPDU_HELLO_TIME, 2, 
 				hello_time);
+	    forward_delay = tvb_get_ntohs(tvb, BPDU_FORWARD_DELAY) / 256.0;
 	    proto_tree_add_double(bpdu_tree, hf_bpdu_forward_delay, tvb,
 				BPDU_FORWARD_DELAY, 2, 
 				forward_delay);
+            if (rstp_bpdu) {
+	      proto_tree_add_item(bpdu_tree, hf_bpdu_version_1_length, tvb,
+				BPDU_VERSION_1_LENGTH, 1, FALSE);
+	    }
       }
 }
+
+static const true_false_string yesno = {  
+	"Yes",
+	"No"
+};
 
 void
 proto_register_bpdu(void)
@@ -325,19 +413,47 @@ proto_register_bpdu(void)
   static hf_register_info hf[] = {
     { &hf_bpdu_proto_id,
       { "Protocol Identifier",		"stp.protocol",
-	FT_UINT16,	BASE_HEX,	NULL,	0x0,
+	FT_UINT16,	BASE_HEX,	VALS(&protocol_id_vals), 0x0,
       	"", HFILL }},
     { &hf_bpdu_version_id,
       { "Protocol Version Identifier",	"stp.version",
 	FT_UINT8,	BASE_DEC,	NULL,	0x0,
       	"", HFILL }},
     { &hf_bpdu_type,
-      { "BPDU type",			"stp.type",
-	FT_UINT8,	BASE_HEX,	NULL,	0x0,
+      { "BPDU Type",			"stp.type",
+	FT_UINT8,	BASE_HEX,	VALS(&bpdu_type_vals),	0x0,
       	"", HFILL }},
     { &hf_bpdu_flags,
       { "BPDU flags",			"stp.flags",
 	FT_UINT8,	BASE_HEX,	NULL,	0x0,
+      	"", HFILL }},
+    { &hf_bpdu_flags_tcack,
+      { "Topology Change Acknowledgment",  "stp.flags.tcack",
+	FT_BOOLEAN,	8,		TFS(&yesno),	BPDU_FLAGS_TCACK,
+      	"", HFILL }},
+    { &hf_bpdu_flags_agreement,
+      { "Agreement",			"stp.flags.agreement",
+	FT_BOOLEAN,	8,		TFS(&yesno),	BPDU_FLAGS_AGREEMENT,
+      	"", HFILL }},
+    { &hf_bpdu_flags_forwarding,
+      { "Forwarding",			"stp.flags.forwarding",
+	FT_BOOLEAN,	8,		TFS(&yesno),	BPDU_FLAGS_FORWARDING,
+      	"", HFILL }},
+    { &hf_bpdu_flags_learning,
+      { "Learning",			"stp.flags.learning",
+	FT_BOOLEAN,	8,		TFS(&yesno),	BPDU_FLAGS_LEARNING,
+      	"", HFILL }},
+    { &hf_bpdu_flags_port_role,
+      { "Port Role",			"stp.flags.port_role",
+	FT_UINT8,	BASE_DEC,	VALS(role_vals),	BPDU_FLAGS_PORT_ROLE_MASK,
+      	"", HFILL }},
+    { &hf_bpdu_flags_proposal,
+      { "Proposal",			"stp.flags.proposal",
+	FT_BOOLEAN,	8,		TFS(&yesno),	BPDU_FLAGS_PROPOSAL,
+      	"", HFILL }},
+    { &hf_bpdu_flags_tc,
+      { "Topology Change",		"stp.flags.tc",
+	FT_BOOLEAN,	8,		TFS(&yesno),	BPDU_FLAGS_TC,
       	"", HFILL }},
     { &hf_bpdu_root_mac,
       { "Root Identifier",		"stp.root.hw",
@@ -371,9 +487,14 @@ proto_register_bpdu(void)
       { "Forward Delay",		"stp.forward",
 	FT_DOUBLE,	BASE_NONE,	NULL,	0x0,
       	"", HFILL }},
+    { &hf_bpdu_version_1_length,
+      { "Version 1 Length",		"stp.version_1_length",
+	FT_UINT8,	BASE_DEC,	NULL,	0x0,
+      	"", HFILL }},
   };
   static gint *ett[] = {
     &ett_bpdu,
+    &ett_bpdu_flags,
   };
 
   proto_bpdu = proto_register_protocol("Spanning Tree Protocol", "STP", "stp");
