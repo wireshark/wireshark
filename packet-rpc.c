@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.142 2004/04/03 00:29:08 sahlberg Exp $
+ * $Id: packet-rpc.c,v 1.143 2004/04/07 03:57:34 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1751,6 +1751,10 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				 */
 				int proto_rpc_unknown_program;
 				char *NAME, *Name, *name;
+				static const vsff unknown_proc[] = {
+					{ 0,"NULL",NULL,NULL },
+					{ 0,NULL,NULL,NULL }
+				};
 
 				NAME=g_malloc(36);
 				Name=g_malloc(32);
@@ -1761,6 +1765,8 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				proto_rpc_unknown_program = proto_register_protocol(NAME, Name, name);
 
 				rpc_init_prog(proto_rpc_unknown_program, rpc_prog_key.prog, ett_rpc_unknown_program);
+				rpc_init_proc_table(rpc_prog_key.prog, tvb_get_ntohl(tvb, offset + 16), unknown_proc, hf_rpc_procedure);
+
 			}
 		}
 		if( (rpc_prog = g_hash_table_lookup(rpc_progs, &rpc_prog_key)) == NULL) {
