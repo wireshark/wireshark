@@ -2,7 +2,7 @@
  * Routines for Vendor Specific Encodings dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-vendor.c,v 1.5 2003/12/13 02:45:30 guy Exp $
+ * $Id: packet-vendor.c,v 1.6 2003/12/13 03:18:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -110,8 +110,8 @@ dissect_vsif (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
   guint32 value;
   gint vsif_len;
 
-/* get the total length of the VSIF TLV */
-  vsif_len = tvb_length_remaining (tvb, 0);
+/* get the reported length of the VSIF TLV */
+  vsif_len = tvb_reported_length_remaining (tvb, 0);
 
 /* The first TLV in the VSIF encodings must be type 0x08 (Vendor ID) and
  * length 3.
@@ -133,8 +133,7 @@ dissect_vsif (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
   if (tree)
     {
       it =
-	proto_tree_add_protocol_format (tree, proto_docsis_vsif, tvb, 0,
-					tvb_length_remaining (tvb, 0),
+	proto_tree_add_protocol_format (tree, proto_docsis_vsif, tvb, 0, -1,
 					"VSIF Encodings");
       vsif_tree = proto_item_add_subtree (it, ett_docsis_vsif);
       proto_tree_add_item (vsif_tree, hf_docsis_vsif_vendorid, tvb, 2, 3, FALSE);

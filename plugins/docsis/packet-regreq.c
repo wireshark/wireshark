@@ -2,7 +2,7 @@
  * Routines for Registration Request dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-regreq.c,v 1.5 2003/05/28 14:52:52 gerald Exp $
+ * $Id: packet-regreq.c,v 1.6 2003/12/13 03:18:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,11 +58,9 @@ dissect_regreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   proto_item *it;
   proto_tree *regreq_tree;
   guint16 sid;
-  guint16 tlv_data_len;
   tvbuff_t *next_tvb;
 
   sid = tvb_get_ntohs (tvb, 0);
-  tlv_data_len = tvb_length_remaining (tvb, 2);
 
   if (check_col (pinfo->cinfo, COL_INFO))
     {
@@ -74,14 +72,13 @@ dissect_regreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   if (tree)
     {
       it =
-	proto_tree_add_protocol_format (tree, proto_docsis_regreq, tvb, 0,
-					tvb_length_remaining (tvb, 0),
+	proto_tree_add_protocol_format (tree, proto_docsis_regreq, tvb, 0, -1,
 					"Registration Request");
       regreq_tree = proto_item_add_subtree (it, ett_docsis_regreq);
       proto_tree_add_item (regreq_tree, hf_docsis_regreq_sid, tvb, 0, 2,
 			   FALSE);
       /* Call Dissector for Appendix C TlV's */
-      next_tvb = tvb_new_subset (tvb, 2, tlv_data_len, tlv_data_len);
+      next_tvb = tvb_new_subset (tvb, 2, -1, -1);
       call_dissector (docsis_tlv_handle, next_tvb, pinfo, regreq_tree);
     }
 

@@ -2,7 +2,7 @@
  * Routines for Dynamic Service Delete Request dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-dsdreq.c,v 1.5 2003/05/28 14:52:52 gerald Exp $
+ * $Id: packet-dsdreq.c,v 1.6 2003/12/13 03:18:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,12 +59,10 @@ dissect_dsdreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   proto_item *it;
   proto_tree *dsdreq_tree;
-  guint16 tlv_data_len;
   guint16 transid;
   tvbuff_t *next_tvb;
 
   transid = tvb_get_ntohs (tvb, 0);
-  tlv_data_len = tvb_length_remaining (tvb, 8);
 
   if (check_col (pinfo->cinfo, COL_INFO))
     {
@@ -75,8 +73,7 @@ dissect_dsdreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   if (tree)
     {
       it =
-	proto_tree_add_protocol_format (tree, proto_docsis_dsdreq, tvb, 0,
-					tvb_length_remaining (tvb, 0),
+	proto_tree_add_protocol_format (tree, proto_docsis_dsdreq, tvb, 0, -1,
 					"DSD Request");
       dsdreq_tree = proto_item_add_subtree (it, ett_docsis_dsdreq);
       proto_tree_add_item (dsdreq_tree, hf_docsis_dsdreq_tranid, tvb, 0, 2,
@@ -87,7 +84,7 @@ dissect_dsdreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			   FALSE);
 
       /* Call Dissector for Appendix C TLV's */
-      next_tvb = tvb_new_subset (tvb, 8, tlv_data_len, tlv_data_len);
+      next_tvb = tvb_new_subset (tvb, 8, -1, -1);
       call_dissector (docsis_tlv_handle, next_tvb, pinfo, dsdreq_tree);
     }
 }

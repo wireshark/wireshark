@@ -2,7 +2,7 @@
  * Routines for Registration Response Message dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-regrsp.c,v 1.6 2003/05/28 14:52:52 gerald Exp $
+ * $Id: packet-regrsp.c,v 1.7 2003/12/13 03:18:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,13 +61,11 @@ dissect_regrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   proto_item *it;
   proto_tree *regrsp_tree;
   guint16 sid;
-  guint16 tlv_data_len;
   guint8 response;
   tvbuff_t *next_tvb;
 
   sid = tvb_get_ntohs (tvb, 0);
   response = tvb_get_guint8 (tvb, 2);
-  tlv_data_len = tvb_length_remaining (tvb, 3);
 
   if (check_col (pinfo->cinfo, COL_INFO))
     {
@@ -80,8 +78,7 @@ dissect_regrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   if (tree)
     {
       it =
-	proto_tree_add_protocol_format (tree, proto_docsis_regrsp, tvb, 0,
-					tvb_length_remaining (tvb, 0),
+	proto_tree_add_protocol_format (tree, proto_docsis_regrsp, tvb, 0, -1,
 					"Registration Response");
       regrsp_tree = proto_item_add_subtree (it, ett_docsis_regrsp);
       proto_tree_add_item (regrsp_tree, hf_docsis_regrsp_sid, tvb, 0, 2,
@@ -89,7 +86,7 @@ dissect_regrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       proto_tree_add_item (regrsp_tree, hf_docsis_regrsp_response, tvb, 2, 1,
 			   FALSE);
       /* Call Dissector for Appendix C TLV's */
-      next_tvb = tvb_new_subset (tvb, 3, tlv_data_len, tlv_data_len);
+      next_tvb = tvb_new_subset (tvb, 3, -1, -1);
       call_dissector (docsis_tlv_handle, next_tvb, pinfo, regrsp_tree);
     }
 

@@ -2,7 +2,7 @@
  * Routines for Dynamic Service Addition Response dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-dsarsp.c,v 1.5 2003/05/28 14:52:52 gerald Exp $
+ * $Id: packet-dsarsp.c,v 1.6 2003/12/13 03:18:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,13 +60,11 @@ dissect_dsarsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   proto_item *it;
   proto_tree *dsarsp_tree;
   guint16 transid;
-  guint16 tlv_data_len;
   guint8 response;
   tvbuff_t *next_tvb;
 
   transid = tvb_get_ntohs (tvb, 0);
   response = tvb_get_guint8 (tvb, 2);
-  tlv_data_len = tvb_length_remaining (tvb, 3);
 
   if (check_col (pinfo->cinfo, COL_INFO))
     {
@@ -79,8 +77,7 @@ dissect_dsarsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   if (tree)
     {
       it =
-	proto_tree_add_protocol_format (tree, proto_docsis_dsarsp, tvb, 0,
-					tvb_length_remaining (tvb, 0),
+	proto_tree_add_protocol_format (tree, proto_docsis_dsarsp, tvb, 0, -1,
 					"DSA Response");
       dsarsp_tree = proto_item_add_subtree (it, ett_docsis_dsarsp);
       proto_tree_add_item (dsarsp_tree, hf_docsis_dsarsp_tranid, tvb, 0, 2,
@@ -89,7 +86,7 @@ dissect_dsarsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			   FALSE);
 
       /* Call dissector for Appendix C TLV's */
-      next_tvb = tvb_new_subset (tvb, 3, tlv_data_len, tlv_data_len);
+      next_tvb = tvb_new_subset (tvb, 3, -1, -1);
       call_dissector (docsis_tlv_handle, next_tvb, pinfo, dsarsp_tree);
     }
 

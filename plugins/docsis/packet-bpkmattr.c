@@ -2,7 +2,7 @@
  * Routines for Baseline Privacy Key Management Attributes dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-bpkmattr.c,v 1.6 2003/09/09 07:17:00 guy Exp $
+ * $Id: packet-bpkmattr.c,v 1.7 2003/12/13 03:18:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -153,8 +153,8 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
   guint8 type;
   guint16 length;
-  guint16 pos = 0;
-  guint16 total_len;
+  int pos = 0;
+  gint total_len;
   proto_item *cmid_it, *tekp_it, *scap_it;
   proto_item *saqry_it, *dnld_it, *sadsc_it;
   proto_tree *cmid_tree, *tekp_tree, *scap_tree;
@@ -162,7 +162,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   tvbuff_t *cmid_tvb, *tekp_tvb, *scap_tvb;
   tvbuff_t *saqry_tvb, *dnld_tvb, *sadsc_tvb;
 
-  total_len = tvb_length_remaining (tvb, 0);
+  total_len = tvb_reported_length_remaining (tvb, 0);
   while (pos < total_len)
     {
       type = tvb_get_guint8 (tvb, pos++);
@@ -376,8 +376,7 @@ dissect_bpkmattr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   if (tree)
     {
       it =
-	proto_tree_add_protocol_format (tree, proto_docsis_bpkmattr, tvb, 0,
-					tvb_length_remaining (tvb, 0),
+	proto_tree_add_protocol_format (tree, proto_docsis_bpkmattr, tvb, 0, -1,
 					"BPKM Attributes");
       bpkmattr_tree = proto_item_add_subtree (it, ett_docsis_bpkmattr);
       dissect_attrs (tvb, pinfo, bpkmattr_tree);

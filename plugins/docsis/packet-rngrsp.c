@@ -2,7 +2,7 @@
  * Routines for Ranging Response Message dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-rngrsp.c,v 1.5 2003/05/28 14:52:52 gerald Exp $
+ * $Id: packet-rngrsp.c,v 1.6 2003/12/13 03:18:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -133,7 +133,8 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   proto_item *it;
   proto_tree *rngrsp_tree;
   guint8 tlvtype, tlvlen;
-  guint16 pos, length;
+  int pos;
+  gint length;
   guint8 upchid;
   guint16 sid;
   gint8 pwr;
@@ -158,8 +159,7 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   if (tree)
     {
       it =
-	proto_tree_add_protocol_format (tree, proto_docsis_rngrsp, tvb, 0,
-					tvb_length_remaining (tvb, 0),
+	proto_tree_add_protocol_format (tree, proto_docsis_rngrsp, tvb, 0, -1,
 					"Ranging Response");
       rngrsp_tree = proto_item_add_subtree (it, ett_docsis_rngrsp);
       proto_tree_add_item (rngrsp_tree, hf_docsis_rngrsp_sid, tvb, 0, 2,
@@ -167,7 +167,7 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       proto_tree_add_item (rngrsp_tree, hf_docsis_rngrsp_upstream_chid, tvb,
 			   2, 1, FALSE);
 
-      length = tvb_length_remaining (tvb, 0);
+      length = tvb_reported_length_remaining (tvb, 0);
       pos = 3;
       while (pos < length)
 	{

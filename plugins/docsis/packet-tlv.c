@@ -2,7 +2,7 @@
  * Routines to Dissect Appendix C TLV's
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-tlv.c,v 1.15 2003/12/13 02:38:33 guy Exp $
+ * $Id: packet-tlv.c,v 1.16 2003/12/13 03:18:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1783,14 +1783,13 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
 
   proto_item *it;
   proto_tree *tlv_tree;
-  guint16 total_len;
   int pos = 0;
+  gint total_len;
   guint8 type, length;
   guint16 x;
   tvbuff_t *vsif_tvb;
 
-  total_len = tvb_length_remaining (tvb, 0);
-
+  total_len = tvb_reported_length_remaining (tvb, 0);
 
   if (tree)
     {

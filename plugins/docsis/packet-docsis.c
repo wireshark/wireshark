@@ -2,7 +2,7 @@
  * Routines for docsis dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-docsis.c,v 1.16 2003/11/12 23:17:37 guy Exp $
+ * $Id: packet-docsis.c,v 1.17 2003/12/13 03:18:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -321,7 +321,8 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   guint8 hdrlen;
   guint16 len_sid;
   tvbuff_t *next_tvb, *mgt_tvb;
-  guint16 pdulen, captured_length, framelen;
+  gint pdulen, captured_length;
+  guint16 framelen;
   gboolean isfrag = FALSE;
 
 /* Set up structures needed to add the protocol subtree and manage it */
@@ -497,33 +498,33 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }
 
 /* If this protocol has a sub-dissector call it here, see section 1.8 */
-  if ((fctype == FCTYPE_PACKET) && (len_sid > mac_parm))
+  switch (fctype)
     {
-      next_tvb = tvb_new_subset (tvb, hdrlen, captured_length, pdulen);
-      call_dissector (eth_handle, next_tvb, pinfo, tree);
-      if (concatlen > 0)
+    case FCTYPE_PACKET:
+      if (pdulen >= 0)
 	{
-	  concatlen = concatlen - framelen;
-	  concatpos += framelen;
+	  if (pdulen > 0)
+	    {
+	      next_tvb = tvb_new_subset (tvb, hdrlen, captured_length, pdulen);
+	      call_dissector (eth_handle, next_tvb, pinfo, tree);
+	    }
+	  if (concatlen > 0)
+	    {
+	      concatlen = concatlen - framelen;
+	      concatpos += framelen;
+	    }
 	}
-    }
-
-  if ((fctype == FCTYPE_PACKET) && (pdulen == 0))
-    {
-      if (concatlen > 0)
-        {
-          concatlen = concatlen - framelen;
-          concatpos += framelen;
-        }
-    }
-  if (fctype == FCTYPE_MACSPC)
-    {
+      break;
+    case FCTYPE_MACSPC:
       switch (fcparm)
 	{
 	case 0x00:
 	case 0x01:
-	  mgt_tvb = tvb_new_subset (tvb, hdrlen, captured_length, pdulen);
-	  call_dissector (docsis_mgmt_handle, mgt_tvb, pinfo, tree);
+	  if (pdulen > 0)
+	    {
+	      mgt_tvb = tvb_new_subset (tvb, hdrlen, captured_length, pdulen);
+	      call_dissector (docsis_mgmt_handle, mgt_tvb, pinfo, tree);
+	    }
 	  if (concatlen > 0)
 	    {
 	      concatlen = concatlen - framelen;
@@ -537,8 +538,11 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  /* For Fragmentation Frames simply dissect using the data
 	   * dissector as we don't handle them yet
 	   */
-	  mgt_tvb = tvb_new_subset (tvb, hdrlen, captured_length, pdulen);
-	  call_dissector (data_handle, mgt_tvb, pinfo, tree);
+	  if (pdulen > 0)
+	    {
+	      mgt_tvb = tvb_new_subset (tvb, hdrlen, captured_length, pdulen);
+	      call_dissector (data_handle, mgt_tvb, pinfo, tree);
+	    }
 	  if (concatlen > 0)
 	    {
 	      concatlen = concatlen - framelen;
@@ -563,6 +567,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	    col_set_str (pinfo->cinfo, COL_INFO, "Concatenated Frame");
 	  break;
 	}
+      break;
     }
 }
 

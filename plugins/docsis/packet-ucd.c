@@ -2,7 +2,7 @@
  * Routines for UCD Message dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-ucd.c,v 1.6 2003/09/09 06:59:35 guy Exp $
+ * $Id: packet-ucd.c,v 1.7 2003/12/13 03:18:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -151,17 +151,17 @@ static const value_string last_cw_len_vals[] = {
 static void
 dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  guint16 pos, endtlvpos;
+  int pos, endtlvpos;
   guint8 type, length;
   guint8 tlvlen, tlvtype;
   proto_tree *ucd_tree;
   proto_item *ucd_item;
   proto_tree *tlv_tree;
   proto_item *tlv_item;
-  guint16 len;
+  gint len;
   guint8 upchid, symrate;
 
-  len = tvb_length_remaining (tvb, 0);
+  len = tvb_reported_length_remaining (tvb, 0);
   upchid = tvb_get_guint8 (tvb, 0);
 
   /* if the upstream Channel ID is 0 then this is for Telephony Return) */
@@ -181,8 +181,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   if (tree)
     {
       ucd_item =
-	proto_tree_add_protocol_format (tree, proto_docsis_ucd, tvb, 0,
-					tvb_length_remaining (tvb, 0),
+	proto_tree_add_protocol_format (tree, proto_docsis_ucd, tvb, 0, -1,
 					"UCD Message");
       ucd_tree = proto_item_add_subtree (ucd_item, ett_docsis_ucd);
       proto_tree_add_item (ucd_tree, hf_docsis_ucd_upstream_chid, tvb, 0, 1,

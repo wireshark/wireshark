@@ -2,7 +2,7 @@
  * Routines for Dynamic Service Delete Response dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-dsdrsp.c,v 1.5 2003/05/28 14:52:52 gerald Exp $
+ * $Id: packet-dsdrsp.c,v 1.6 2003/12/13 03:18:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,8 +75,7 @@ dissect_dsdrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   if (tree)
     {
       it =
-	proto_tree_add_protocol_format (tree, proto_docsis_dsdrsp, tvb, 0,
-					tvb_length_remaining (tvb, 0),
+	proto_tree_add_protocol_format (tree, proto_docsis_dsdrsp, tvb, 0, -1,
 					"DSD Response");
       dsdrsp_tree = proto_item_add_subtree (it, ett_docsis_dsdrsp);
       proto_tree_add_item (dsdrsp_tree, hf_docsis_dsdrsp_tranid, tvb, 0, 2,
