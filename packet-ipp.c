@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-ipp.c,v 1.33 2002/08/28 21:00:17 jmayer Exp $
+ * $Id: packet-ipp.c,v 1.34 2003/01/28 22:02:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -140,9 +140,9 @@ static const value_string status_vals[] = {
 
 static int parse_attributes(tvbuff_t *tvb, int offset, proto_tree *tree);
 static proto_tree *add_integer_tree(proto_tree *tree, tvbuff_t *tvb,
-    int offset, int name_length, int value_length);
+    int offset, int name_length, int value_length, guint8 tag);
 static void add_integer_value(gchar *tag_desc, proto_tree *tree,
-    tvbuff_t *tvb, int offset, int name_length, int value_length);
+    tvbuff_t *tvb, int offset, int name_length, int value_length, guint8 tag);
 static proto_tree *add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb,
     int offset, int name_length, int value_length);
 static void add_octetstring_value(gchar *tag_desc, proto_tree *tree,
@@ -384,10 +384,10 @@ parse_attributes(tvbuff_t *tvb, int offset, proto_tree *tree)
 					 */
 					attr_tree = add_integer_tree(as_tree,
 					    tvb, offset, name_length,
-					    value_length);
+					    value_length, tag);
 				}
 				add_integer_value(tag_desc, attr_tree, tvb,
-				    offset, name_length, value_length);
+				    offset, name_length, value_length, tag);
 				break;
 
 			case TAG_TYPE_OCTETSTRING:
@@ -427,39 +427,99 @@ parse_attributes(tvbuff_t *tvb, int offset, proto_tree *tree)
 	return offset;
 }
 
+static const value_string bool_vals[] = {
+	{ 0x00, "false" },
+	{ 0x01, "true" },
+	{ 0,    NULL }
+};
+
 static proto_tree *
 add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
-    int name_length, int value_length)
+    int name_length, int value_length, guint8 tag)
 {
 	proto_item *ti;
+	guint8 bool_val;
 
-	if (value_length != 4) {
+	switch (tag) {
+
+	case TAG_BOOLEAN:
+		if (value_length != 1) {
+			ti = proto_tree_add_text(tree, tvb, offset,
+			    1 + 2 + name_length + 2 + value_length,
+			    "%.*s: Invalid boolean (length is %u, should be 1)",
+			    name_length,
+			    tvb_get_ptr(tvb, offset + 1 + 2, name_length),
+			    value_length);
+		} else {
+			bool_val = tvb_get_guint8(tvb,
+			    offset + 1 + 2 + name_length + 2);
+			ti = proto_tree_add_text(tree, tvb, offset,
+			    1 + 2 + name_length + 2 + value_length,
+			    "%.*s: %s",
+			    name_length,
+			    tvb_get_ptr(tvb, offset + 1 + 2, name_length),
+			    val_to_str(bool_val, bool_vals, "Unknown (0x%02x)"));
+		}
+		break;
+
+	case TAG_INTEGER:
+	case TAG_ENUM:
+		if (value_length != 4) {
+			ti = proto_tree_add_text(tree, tvb, offset,
+			    1 + 2 + name_length + 2 + value_length,
+			    "%.*s: Invalid integer (length is %u, should be 4)",
+			    name_length,
+			    tvb_get_ptr(tvb, offset + 1 + 2, name_length),
+			    value_length);
+		} else {
+			ti = proto_tree_add_text(tree, tvb, offset,
+			    1 + 2 + name_length + 2 + value_length,
+			    "%.*s: %u",
+			    name_length,
+			    tvb_get_ptr(tvb, offset + 1 + 2, name_length),
+			    tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2));
+		}
+		break;
+
+	default:
 		ti = proto_tree_add_text(tree, tvb, offset,
 		    1 + 2 + name_length + 2 + value_length,
-		    "%.*s: Invalid integer (length is %u, should be 4)",
+		    "%.*s: Unknown integer type 0x%02x",
 		    name_length,
 		    tvb_get_ptr(tvb, offset + 1 + 2, name_length),
-		    value_length);
-	} else {
-		ti = proto_tree_add_text(tree, tvb, offset,
-		    1 + 2 + name_length + 2 + value_length,
-		    "%.*s: %u",
-		    name_length,
-		    tvb_get_ptr(tvb, offset + 1 + 2, name_length),
-		    tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2));
+		    tag);
+		break;
 	}
 	return proto_item_add_subtree(ti, ett_ipp_attr);
 }
 
 static void
 add_integer_value(gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
-    int offset, int name_length, int value_length)
+    int offset, int name_length, int value_length, guint8 tag)
 {
+	guint8 bool_val;
+
 	offset = add_value_head(tag_desc, tree, tvb, offset, name_length,
 	    value_length);
-	if (value_length == 4) {
-		proto_tree_add_text(tree, tvb, offset, value_length,
-		    "Value: %u", tvb_get_ntohl(tvb, offset));
+
+	switch (tag) {
+
+	case TAG_BOOLEAN:
+		if (value_length == 1) {
+			bool_val = tvb_get_guint8(tvb, offset);
+			proto_tree_add_text(tree, tvb, offset, value_length,
+			    "Value: %s",
+			    val_to_str(bool_val, bool_vals, "Unknown (0x%02x)"));
+		}
+		break;
+
+	case TAG_INTEGER:
+	case TAG_ENUM:
+		if (value_length == 4) {
+			proto_tree_add_text(tree, tvb, offset, value_length,
+			    "Value: %u", tvb_get_ntohl(tvb, offset));
+		}
+		break;
 	}
 }
 
