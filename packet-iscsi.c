@@ -5,7 +5,7 @@
  * Conforms to the protocol described in: draft-ietf-ips-iscsi-06.txt
  * Optionally, supports the protocol described in: draft-ietf-ips-iscsi-03.txt
  *
- * $Id: packet-iscsi.c,v 1.4 2001/06/02 08:13:04 guy Exp $
+ * $Id: packet-iscsi.c,v 1.5 2001/06/04 05:32:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -499,29 +499,18 @@ static gint addTextKeys(proto_tree *tt, tvbuff_t *tvb, gint offset, guint32 text
     return offset;
 }
 
-static gint dissectCDB(proto_tree *tt, tvbuff_t *tvb, gint offset, gint cdbLen) {
-    guint8 cdb0 = tvb_get_guint8(tvb, offset);
-    switch(cdb0) {
-    case 0x08:	/* READ_6 */
-#if 0
-	proto_tree_add_uint(tt, hf_iscsi_SCSICommand_CDB0, tvb, offset, 1, cdb0);
-#endif
-    default:
-	proto_tree_add_bytes(tt, hf_iscsi_SCSICommand_CDB, tvb, offset, cdbLen, tvb_get_ptr(tvb, offset, cdbLen));
-    }
-    return offset + cdbLen;
-}
-
 /* Code to actually dissect the packets */
 static gboolean
 dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
-    gint offset = 0;
     guint32 data_segment_len;
     guint8 opcode;
-    const char *opcode_str;
+    guint offset = 0;
+    guint cdb_offset = offset + 32; /* offset of CDB from start of PDU */
+    const char *opcode_str = NULL;
+    char *scsi_command_name = NULL;
     guint32 packet_len = tvb_length_remaining(tvb, offset);
 
     /* quick check to see if the packet is long enough to contain a
@@ -554,23 +543,37 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     if (check_col(pinfo->fd, COL_PROTOCOL))
 	col_set_str(pinfo->fd, COL_PROTOCOL, "iSCSI");
 
-
     if (check_col(pinfo->fd, COL_INFO)) {
 
 	col_add_str(pinfo->fd, COL_INFO, (char *)opcode_str);
 
 	if((opcode & 0xbf) == 0x01) {
-	    const char *scsiCommandName = match_strval(tvb_get_guint8(tvb, offset + 32),
-						       iscsi_scsi_cdb0);
-	    if(scsiCommandName != NULL)
-		col_append_fstr(pinfo->fd, COL_INFO, " (%s)", scsiCommandName);
+	    /* SCSI Command */
+	    guint8 cdb0 = tvb_get_guint8(tvb, cdb_offset);
+	    scsi_command_name = match_strval(cdb0, iscsi_scsi_cdb0);
+	    if(cdb0 == 0x08 || cdb0 == 0x0a) {
+		/* READ_6 and WRITE_6 */
+		guint lba = tvb_get_ntohl(tvb, cdb_offset) & 0x1fffff;
+		guint len = tvb_get_guint8(tvb, cdb_offset + 4);
+		col_append_fstr(pinfo->fd, COL_INFO, " (%s LBA 0x%06x len 0x%02x)", scsi_command_name, lba, len);
+	    }
+	    else if(cdb0 == 0x28 || cdb0 == 0x2a) {
+		/* READ_10 and WRITE_10 */
+		guint lba = tvb_get_ntohl(tvb, cdb_offset + 2);
+		guint len = tvb_get_ntohs(tvb, cdb_offset + 7);
+		col_append_fstr(pinfo->fd, COL_INFO, " (%s LBA 0x%08x len 0x%04x)", scsi_command_name, lba, len);
+	    }
+	    else if(scsi_command_name != NULL)
+		col_append_fstr(pinfo->fd, COL_INFO, " (%s)", scsi_command_name);
 	}
 	else if(enable_03_mode && opcode == 0x81) {
+	    /* SCSI Command Response */
 	    const char *blurb = match_strval(tvb_get_guint8(tvb, offset + 36), iscsi_scsi_statuses);
 	    if(blurb != NULL)
 		col_append_fstr(pinfo->fd, COL_INFO, " (%s)", blurb);
 	}
 	else if(!enable_03_mode && opcode == 0xc1) {
+	    /* SCSI Command Response */
 	    const char *blurb = NULL;
 	    if(tvb_get_guint8(tvb, offset + 1) & 0x01)
 		blurb = match_strval(tvb_get_guint8(tvb, offset + 3), iscsi_scsi_statuses);
@@ -699,12 +702,39 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    proto_tree_add_uint(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, tvb_get_ntohl(tvb, offset + 24));
 	    proto_tree_add_uint(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, tvb_get_ntohl(tvb, offset + 28));
 	    {
-		guint8 cdb0 = tvb_get_guint8(tvb, offset + 32);
-		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_SCSICommand_CDB0, tvb, offset + 32, 1, cdb0);
-		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_CDB);
-		dissectCDB(tt, tvb, offset + 32, 16 + tvb_get_guint8(tvb, offset + 3) * 4);
+		/* dissect a little of the CDB for the most common
+		 * commands */
+		guint8 cdb0 = tvb_get_guint8(tvb, cdb_offset);
+		gint cdb_len = 16;
+		proto_item *tf;
+		if(enable_03_mode) {
+		    cdb_len += tvb_get_guint8(tvb, offset + 3) * 4;
+		}
+		else {
+		    /* FIXME - extended CDB */
+		}
+		if(scsi_command_name == NULL)
+		    scsi_command_name = match_strval(cdb0, iscsi_scsi_cdb0);
+		if(cdb0 == 0x08 || cdb0 == 0x0a) {
+		    /* READ_6 and WRITE_6 */
+		    guint lba = tvb_get_ntohl(tvb, cdb_offset) & 0x1fffff;
+		    guint len = tvb_get_guint8(tvb, cdb_offset + 4);
+		    tf = proto_tree_add_uint_format(ti, hf_iscsi_SCSICommand_CDB0, tvb, cdb_offset, cdb_len, cdb0, "CDB: %s LBA 0x%06x len 0x%02x", scsi_command_name, lba, len);
+		}
+		else if(cdb0 == 0x28 || cdb0 == 0x2a) {
+		    /* READ_10 and WRITE_10 */
+		    guint lba = tvb_get_ntohl(tvb, cdb_offset + 2);
+		    guint len = tvb_get_ntohs(tvb, cdb_offset + 7);
+		    tf = proto_tree_add_uint_format(ti, hf_iscsi_SCSICommand_CDB0, tvb, cdb_offset, cdb_len, cdb0, "CDB: %s LBA 0x%08x len 0x%04x", scsi_command_name, lba, len);
+		}
+		else
+		    tf = proto_tree_add_uint(ti, hf_iscsi_SCSICommand_CDB0, tvb, cdb_offset, cdb_len, cdb0);
+		{
+		    proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_CDB);
+		    proto_tree_add_bytes(tt, hf_iscsi_SCSICommand_CDB, tvb, cdb_offset, cdb_len, tvb_get_ptr(tvb, cdb_offset, cdb_len));
+		}
+		offset = cdb_offset + cdb_len;
 	    }
-	    offset += 48;
 	}
 	else if((enable_03_mode && opcode == 0x81) ||
 		(!enable_03_mode && opcode == 0xc1)) {
