@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.17 2001/05/27 21:34:05 guy Exp $
+ * $Id: tvbuff.c,v 1.18 2001/07/02 07:11:40 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -1217,7 +1217,10 @@ tvb_strnlen(tvbuff_t *tvb, gint offset, guint maxlength)
  * Implement strneql etc
  */
 
-/* Call strncmp after checking if enough chars left, otherwise return -1 */
+/*
+ * Call strncmp after checking if enough chars left, returning 0 if
+ * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
+ */
 gint
 tvb_strneql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size)
 {
@@ -1241,7 +1244,10 @@ tvb_strneql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size)
 	}
 }
 
-/* Call strncasecmp after checking if enough chars left, otherwise return -1 */
+/*
+ * Call strncasecmp after checking if enough chars left, returning 0 if
+ * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
+ */
 gint
 tvb_strncaseeql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size)
 {
@@ -1251,6 +1257,33 @@ tvb_strncaseeql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size)
 
 	if (ptr) {
 		int cmp = strncasecmp(ptr, str, size);
+
+		/*
+		 * Return 0 if equal, -1 otherwise.
+		 */
+		return (cmp == 0 ? 0 : -1);
+	} else {
+		/*
+		 * Not enough characters in the tvbuff to match the
+		 * string.
+		 */
+		return -1;
+	}
+}
+
+/*
+ * Call memcmp after checking if enough chars left, returning 0 if
+ * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
+ */
+gint
+tvb_memeql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size)
+{
+	guint8 *ptr;
+
+	ptr = ensure_contiguous(tvb, offset, size);
+
+	if (ptr) {
+		int cmp = memcmp(ptr, str, size);
 
 		/*
 		 * Return 0 if equal, -1 otherwise.

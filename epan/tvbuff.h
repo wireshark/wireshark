@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.13 2001/05/27 21:34:05 guy Exp $
+ * $Id: tvbuff.h,v 1.14 2001/07/02 07:11:40 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -351,11 +351,23 @@ gint tvb_find_line_end(tvbuff_t *tvb, gint offset, int len, gint *eol);
 gint tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
     gint *next_offset);
 
-/* Call strncmp after checking if enough chars left, otherwise return -1 */
+/*
+ * Call strncmp after checking if enough chars left, returning 0 if
+ * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
+ */
 gint tvb_strneql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size);
 
-/* Call strncasecmp after checking if enough chars left, otherwise return -1 */
+/*
+ * Call strncasecmp after checking if enough chars left, returning 0 if
+ * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
+ */
 gint tvb_strncaseeql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size);
+
+/*
+ * Call memcmp after checking if enough chars left, returning 0 if
+ * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
+ */
+gint tvb_memeql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size);
 
 /*
  * Format a bunch of data from a tvbuff as bytes, returning a pointer

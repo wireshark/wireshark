@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.47 2001/06/18 02:17:46 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.48 2001/07/02 07:11:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -472,8 +472,6 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
     guint16 flags;
     char dname[MAXDNAME];
     guint8 ipaddr[4];
-    const u_char *pd;
-    int top_level_offset;
 
     ni = &icmp6_nodeinfo;
     tvb_memcpy(tvb, (guint8 *)ni, offset, sizeof *ni);
@@ -582,11 +580,8 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	    off = tvb_length_remaining(tvb, offset);
 	    break;
 	case ICMP6_NI_SUBJ_FQDN:
-	    /* XXXX - clean this up when packet-dns.c has been tvbuffified */
-	    tvb_compat(tvb, &pd, &top_level_offset);
-	    l = get_dns_name(pd, top_level_offset + offset + sizeof(*ni),
-	    	top_level_offset + offset + sizeof(*ni),
-		dname, sizeof(dname));
+	    l = get_dns_name(tvb, offset + sizeof(*ni),
+	    	offset + sizeof(*ni), dname, sizeof(dname));
 	    if (tvb_bytes_exist(tvb, offset + sizeof(*ni) + l, 1) &&
 	        tvb_get_guint8(tvb, offset + sizeof(*ni) + l) == 0) {
 		l++;
@@ -663,15 +658,13 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 		tvb_length_remaining(tvb, offset),
 		"DNS labels");
 	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_nodedns);
-	    /* XXXX - clean this up when packet-dns.c has been tvbuffified */
-	    tvb_compat(tvb, &pd, &top_level_offset);
 	    j = offset + sizeof (*ni) + sizeof(guint32);
 	    while (j < tvb_length(tvb)) {
-		l = get_dns_name(pd, top_level_offset + j,
-		   top_level_offset + offset + sizeof (*ni) + sizeof(guint32),
+		l = get_dns_name(tvb, j,
+		   offset + sizeof (*ni) + sizeof(guint32),
 		   dname,sizeof(dname));
-		if (tvb_bytes_exist(tvb, top_level_offset + j + l, 1) &&
-		    tvb_get_guint8(tvb, top_level_offset + j + l) == 0) {
+		if (tvb_bytes_exist(tvb, j + l, 1) &&
+		    tvb_get_guint8(tvb, j + l) == 0) {
 		    l++;
 		    proto_tree_add_text(field_tree, tvb, j, l,
 			"DNS label: %s (truncated)", dname);
