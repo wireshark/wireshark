@@ -1,7 +1,7 @@
 /* print.h
  * Definitions for printing packet analysis trees.
  *
- * $Id: print.h,v 1.41 2004/04/22 17:03:20 ulfl Exp $
+ * $Id: print.h,v 1.42 2004/04/24 23:13:46 ulfl Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -29,10 +29,14 @@
 
 #include <epan/packet.h>
 
-#define PR_FMT_TEXT 0
-#define PR_FMT_PS   1
-#define PR_FMT_PDML 2
-#define PR_FMT_PSML 3
+
+/* print output format */
+typedef enum {
+  PR_FMT_TEXT,    /* plain text */
+  PR_FMT_PS,      /* postscript */
+  PR_FMT_PSML,    /* packet summary markup language */
+  PR_FMT_PDML     /* packet data markup language */
+} print_format_e;
 
 /* print_range, enum which frames should be printed */
 typedef enum {
@@ -51,7 +55,7 @@ typedef enum {
 } print_dissections_e;
 
 typedef struct {
-  gint		format;		/* plain text, PostScript or PDML */
+  print_format_e    format;		/* plain text, PostScript, PDML, ... */
   gboolean	to_file;	/* TRUE if we're printing to a file */
   char		*dest;		/* if printing to file, pathname;
 				   if not, command string */
@@ -70,13 +74,13 @@ typedef struct {
 
 FILE *open_print_dest(int to_file, const char *dest);
 gboolean close_print_dest(int to_file, FILE *fh);
-void print_preamble(FILE *fh, gint format, gchar *filename);
-void print_packet_header(FILE *fh, gint format, guint32 number, gchar *summary);
-void print_formfeed(FILE *fh, gint format);
-void print_finale(FILE *fh, gint format);
+void print_preamble(FILE *fh, print_format_e format, gchar *filename);
+void print_packet_header(FILE *fh, print_format_e format, guint32 number, gchar *summary);
+void print_formfeed(FILE *fh, print_format_e format);
+void print_finale(FILE *fh, print_format_e format);
 void proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
     FILE *fh);
-void print_hex_data(FILE *fh, gint format, epan_dissect_t *edt);
-void print_line(FILE *fh, int indent, gint format, char *line);
+void print_hex_data(FILE *fh, print_format_e format, epan_dissect_t *edt);
+void print_line(FILE *fh, int indent, print_format_e format, char *line);
 
 #endif /* print.h */

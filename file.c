@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.377 2004/04/22 17:03:20 ulfl Exp $
+ * $Id: file.c,v 1.378 2004/04/24 23:13:45 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -131,15 +131,6 @@ static   gboolean copy_binary_file(char *from_filename, char *to_filename);
    XXX - is this the right number? */
 #define	FRAME_DATA_CHUNK_SIZE	1024
 
-typedef struct {
-	int		level;
-	FILE		*fh;
-	GSList		*src_list;
-	gboolean	print_all_levels;
-	gboolean	print_hex_for_data;
-	char_enc	encoding;
-	gint		format;		/* text or PostScript */
-} print_data;
 
 int
 cf_open(char *fname, gboolean is_tempfile, capture_file *cf)

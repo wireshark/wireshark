@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.70 2004/04/22 21:40:48 ulfl Exp $
+ * $Id: print_dlg.c,v 1.71 2004/04/24 23:13:46 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -82,6 +82,8 @@ static gint	print_format;
 static gchar * print_file;
 static gchar * print_cmd;
 
+#define PRINT_RANGE_KEY           "printer_range"
+
 #define PRINT_PS_RB_KEY           "printer_ps_radio_button"
 #define PRINT_PDML_RB_KEY         "printer_pdml_radio_button"
 #define PRINT_PSML_RB_KEY         "printer_psml_radio_button"
@@ -103,9 +105,6 @@ static gchar * print_cmd;
  * up, we just pop up the existing one, rather than creating a new one.
  */
 static GtkWidget *print_w;
-
-static packet_range_t range;
-
 
 
 /* Print the capture */
@@ -143,6 +142,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   GtkTooltips   *tooltips;
 
+  packet_range_t *range;
 
   if (print_w != NULL) {
     /* There's already a "Print" dialog box; reactivate it. */
@@ -151,7 +151,8 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   }
 
   /* init the packet range */
-  packet_range_init(&range);
+  range = g_malloc(sizeof(packet_range_t));
+  packet_range_init(range);
 
   /* get settings from preferences only once */
   if(print_prefs_init == FALSE) {
@@ -304,7 +305,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_box_pack_start(GTK_BOX(packet_hb), range_fr, FALSE, FALSE, 0);
   gtk_widget_show(range_fr);
 
-  range_tb = range_new(&range
+  range_tb = range_new(range
 #if GTK_MAJOR_VERSION < 2
   , accel_group
 #endif
@@ -327,7 +328,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   summary_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Packet summary line", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(summary_cb), FALSE);
   SIGNAL_CONNECT(summary_cb, "clicked", print_cmd_toggle_detail, print_w);
-  gtk_tooltips_set_tip (tooltips, summary_cb, ("Print a packet summary line, like in the packet list"), NULL);
+  gtk_tooltips_set_tip (tooltips, summary_cb, ("Output of a packet summary line, like in the packet list"), NULL);
   gtk_container_add(GTK_CONTAINER(format_vb), summary_cb);
   gtk_widget_show(summary_cb);
 
@@ -336,7 +337,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   details_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Packet details:", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(details_cb), TRUE);
   SIGNAL_CONNECT(details_cb, "clicked", print_cmd_toggle_detail, print_w);
-  gtk_tooltips_set_tip (tooltips, details_cb, ("Print the selected packet details (protocol tree)."), NULL);
+  gtk_tooltips_set_tip (tooltips, details_cb, ("Output format of the selected packet details (protocol tree)."), NULL);
   gtk_container_add(GTK_CONTAINER(format_vb), details_cb);
   gtk_widget_show(details_cb);
 
@@ -359,19 +360,19 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   /* "All collapsed"/"As displayed"/"All Expanded" radio buttons */
   collapse_all_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "All co_llapsed", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(collapse_all_rb), FALSE);
-  gtk_tooltips_set_tip (tooltips, collapse_all_rb, ("Print packet details tree \"collapsed\""), NULL);
+  gtk_tooltips_set_tip (tooltips, collapse_all_rb, ("Output of the packet details tree \"collapsed\""), NULL);
   gtk_container_add(GTK_CONTAINER(details_vb), collapse_all_rb);
   gtk_widget_show(collapse_all_rb);
 
   as_displayed_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(collapse_all_rb, "As displa_yed", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(as_displayed_rb), TRUE);
-  gtk_tooltips_set_tip (tooltips, as_displayed_rb, ("Print packet details tree \"as displayed\""), NULL);
+  gtk_tooltips_set_tip (tooltips, as_displayed_rb, ("Output of the packet details tree \"as displayed\""), NULL);
   gtk_container_add(GTK_CONTAINER(details_vb), as_displayed_rb);
   gtk_widget_show(as_displayed_rb);
 
   expand_all_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(collapse_all_rb, "All e_xpanded", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(expand_all_rb), FALSE);
-  gtk_tooltips_set_tip (tooltips, expand_all_rb, ("Print packet details tree \"expanded\""), NULL);
+  gtk_tooltips_set_tip (tooltips, expand_all_rb, ("Output of the packet details tree \"expanded\""), NULL);
   gtk_container_add(GTK_CONTAINER(details_vb), expand_all_rb);
   gtk_widget_show(expand_all_rb);
 
@@ -379,7 +380,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   hex_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Packet bytes", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(hex_cb), FALSE);
   SIGNAL_CONNECT(hex_cb, "clicked", print_cmd_toggle_detail, print_w);
-  gtk_tooltips_set_tip (tooltips, hex_cb, ("Add hexdump of packet data"), NULL);
+  gtk_tooltips_set_tip (tooltips, hex_cb, ("Add a hexdump of the packet data"), NULL);
   gtk_container_add(GTK_CONTAINER(format_vb), hex_cb);
   gtk_widget_show(hex_cb);
 
@@ -391,8 +392,8 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   /* "Each packet on a new page" check button. */
   formfeed_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Each packet on a new page", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(formfeed_cb), FALSE);
-  gtk_tooltips_set_tip (tooltips, formfeed_cb, ("When checked, a new page will be used for each packet printed. "
-      "This is done by adding a formfeed (or similar) between the packet printouts."), NULL);
+  gtk_tooltips_set_tip (tooltips, formfeed_cb, ("When checked, a new page will be used for each packet. "
+      "This is done by adding a formfeed (or similar) between the packet outputs."), NULL);
   gtk_container_add(GTK_CONTAINER(format_vb), formfeed_cb);
   gtk_widget_show(formfeed_cb);
 
@@ -424,6 +425,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   OBJECT_SET_DATA(ok_bt, PRINT_CMD_TE_KEY, cmd_te);
 #endif
 
+  OBJECT_SET_DATA(ok_bt, PRINT_RANGE_KEY, range);
   OBJECT_SET_DATA(ok_bt, PRINT_FILE_TE_KEY, file_te);
   OBJECT_SET_DATA(ok_bt, PRINT_SUMMARY_CB_KEY, summary_cb);
   OBJECT_SET_DATA(ok_bt, PRINT_DETAILS_CB_KEY, details_cb);
@@ -433,6 +435,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   OBJECT_SET_DATA(ok_bt, PRINT_HEX_CB_KEY, hex_cb);
   OBJECT_SET_DATA(ok_bt, PRINT_FORMFEED_CB_KEY, formfeed_cb);
   SIGNAL_CONNECT(ok_bt, "clicked", print_ok_cb, print_w);
+  gtk_tooltips_set_tip (tooltips, ok_bt, ("Start printing"), NULL);
   gtk_widget_grab_default(ok_bt);
 
   cancel_bt  = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
@@ -621,7 +624,8 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_FORMFEED_CB_KEY);
   print_args.print_formfeed = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
 
-  print_args.range = range;
+
+  print_args.range = *((packet_range_t *)OBJECT_GET_DATA(ok_bt, PRINT_RANGE_KEY));
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 
@@ -671,6 +675,7 @@ static void
 print_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 {
   GtkWidget *fs;
+  gpointer  range;
 
   /* Is there a file selection dialog associated with this
      Print File dialog? */
@@ -680,6 +685,9 @@ print_destroy_cb(GtkWidget *win, gpointer user_data _U_)
     /* Yes.  Destroy it. */
     gtk_widget_destroy(fs);
   }
+
+  range = OBJECT_GET_DATA(win, PRINT_RANGE_KEY);
+  g_free(range);
 
   /* Note that we no longer have a "Print" dialog box. */
   print_w = NULL;

@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.78 2004/04/22 17:03:20 ulfl Exp $
+ * $Id: print.c,v 1.79 2004/04/24 23:13:46 ulfl Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -49,7 +49,7 @@
 static void proto_tree_print_node(proto_node *node, gpointer data);
 static void proto_tree_print_node_pdml(proto_node *node, gpointer data);
 static void print_hex_data_buffer(FILE *fh, register const guchar *cp,
-    register guint length, char_enc encoding, gint format);
+    register guint length, char_enc encoding, print_format_e format);
 static void ps_clean_string(unsigned char *out, const unsigned char *in,
 			int outbuf_size);
 static void print_escaped_xml(FILE *fh, char *unescaped_string);
@@ -534,7 +534,7 @@ print_pdml_geninfo(proto_tree *tree, print_data *pdata)
 }
 
 
-void print_hex_data(FILE *fh, gint format, epan_dissect_t *edt)
+void print_hex_data(FILE *fh, print_format_e format, epan_dissect_t *edt)
 {
 	gboolean multiple_sources;
 	GSList *src_le;
@@ -597,7 +597,7 @@ void print_hex_data(FILE *fh, gint format, epan_dissect_t *edt)
 
 static void
 print_hex_data_buffer(FILE *fh, register const guchar *cp,
-    register guint length, char_enc encoding, gint format)
+    register guint length, char_enc encoding, print_format_e format)
 {
 	register unsigned int ad, i, j, k, l;
 	guchar c;
@@ -704,7 +704,7 @@ void ps_clean_string(unsigned char *out, const unsigned char *in,
 
 /* Some formats need stuff at the beginning of the output */
 void
-print_preamble(FILE *fh, gint format, gchar *filename)
+print_preamble(FILE *fh, print_format_e format, gchar *filename)
 {
 	char		psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
 
@@ -740,7 +740,7 @@ print_preamble(FILE *fh, gint format, gchar *filename)
 }
 
 void
-print_packet_header(FILE *fh, gint format, guint32 number, gchar *summary) {
+print_packet_header(FILE *fh, print_format_e format, guint32 number, gchar *summary) {
 	char		psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
 
     
@@ -767,7 +767,7 @@ print_packet_header(FILE *fh, gint format, guint32 number, gchar *summary) {
 }
 
 void
-print_formfeed(FILE *fh, gint format) {
+print_formfeed(FILE *fh, print_format_e format) {
     switch(format) {
     case(PR_FMT_TEXT):
 		fputs("\f", fh);
@@ -788,7 +788,7 @@ print_formfeed(FILE *fh, gint format) {
 
 /* Some formats need stuff at the end of the output */
 void
-print_finale(FILE *fh, gint format)
+print_finale(FILE *fh, print_format_e format)
 {
     switch(format) {
     case(PR_FMT_TEXT):
@@ -809,7 +809,7 @@ print_finale(FILE *fh, gint format)
 }
 
 void
-print_line(FILE *fh, int indent, gint format, char *line)
+print_line(FILE *fh, int indent, print_format_e format, char *line)
 {
 	char		space[MAX_INDENT+1];
 	int		i;

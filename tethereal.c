@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.237 2004/04/22 17:03:20 ulfl Exp $
+ * $Id: tethereal.c,v 1.238 2004/04/24 23:13:46 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -121,7 +121,7 @@ static gboolean verbose;
 static gboolean print_hex;
 static gboolean line_buffered;
 static guint32 cum_bytes = 0;
-static int print_format;
+static print_format_e print_format;
 
 #ifdef HAVE_LIBPCAP
 typedef struct _loop_data {
