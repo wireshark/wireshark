@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.386 2004/02/01 20:28:11 ulfl Exp $
+ * $Id: main.c,v 1.387 2004/02/01 22:43:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1196,7 +1196,11 @@ main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer
 }
 
 static void
-main_load_window_geometry(GtkWidget *widget)
+main_load_window_geometry(GtkWidget *widget
+#if GTK_MAJOR_VERSION < 2
+	_U_
+#endif
+)
 {
     /* as we now have the geometry from the recent file, set it */
     if (prefs.gui_geometry_save_position) {
