@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.9 1999/10/04 15:00:20 gram Exp $
+ * $Id: colors.c,v 1.10 1999/10/05 04:33:59 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,9 +51,8 @@ GdkColor 	proto_colors[MAXCOLORS];
 GdkColormap*	sys_cmap;
 
 static gchar *titles[2] = { "Name", "Filter String" };
-GdkColor	color_light_gray = { 0, 45000, 45000, 45000 };
-GdkColor	WHITE = { 0,65535, 65535, 65535};
-GdkColor	BLACK = { 0, 0, 0, 0};
+GdkColor	WHITE = { 0, 65535, 65535, 65535 };
+GdkColor	BLACK = { 0, 0, 0, 0 };
 
 /* This structure is used to allow you to compile in default colors if
  * you wish.  They can be later changed by a user.
@@ -189,6 +188,7 @@ read_filters(capture_file *cf)
 {
 	/* TODO: Lots more syntax checking on the file */
 	/* I hate these fixed length names! TODO: make more dynamic */
+	/* XXX - buffer overflow possibility here */
 	gchar name[256],filter[256], buf[1024];
 	guint16 fg_r, fg_g, fg_b, bg_r, bg_g, bg_b;
 	GdkColor fg_color, bg_color;
@@ -197,6 +197,8 @@ read_filters(capture_file *cf)
 	FILE *f;
 	gchar *path;
 	gchar *fname = PF_DIR "/colorfilters";
+	dfilter *temp_dfilter;
+
 	/* decide what file to open (from dfilter code) */
 
 	/* should only be called by colors_init.
@@ -235,14 +237,18 @@ read_filters(capture_file *cf)
 		name, filter, &bg_r, &bg_g, &bg_b, &fg_r, &fg_g, &fg_b) == 8){
 		/* we got a filter */
 
-            new_color_filter(cf->colors, name, filter);
-	    color_filter(cf,i)->c_colorfilter = dfilter_new();
-	    if(dfilter_compile((color_filter(cf,i)->c_colorfilter),filter) != 0){
+            /* test the dfilter before putting it into the list of color dfilters */
+	    /*if(dfilter_compile((color_filter(cf,i)->c_colorfilter),filter) != 0){*/
+	    temp_dfilter = dfilter_new();
+	    if(dfilter_compile(temp_dfilter, filter) != 0){
 		simple_dialog(ESD_TYPE_WARN, NULL,
 		 "Could not compile filter %s from saved filters because\n%s",
 		 name, dfilter_error_msg);
+		dfilter_destroy(temp_dfilter);
 		continue;
 	    }
+            new_color_filter(cf->colors, name, filter);
+	    color_filter(cf,i)->c_colorfilter = temp_dfilter;
 	    cf->colors->num_of_filters++;
 	    fg_color.red = fg_r;
 	    fg_color.green = fg_g;
@@ -516,8 +522,11 @@ colorize_fg_cb                         (GtkButton       *button,
                                         gpointer         user_data)
 {
   colfilter *filter;
+  color_filter_t * cof;
+
   filter = (colfilter *)user_data; /* UNUSED */
-  create_color_sel_win(&cf);
+  cof = color_filter(&cf, filter->row_selected);
+  create_color_sel_win(&cf, &cof->fg_color);
   bg_set_flag = 0;
 
 }
@@ -528,8 +537,11 @@ colorize_bg_cb                         (GtkButton       *button,
                                         gpointer         user_data)
 {
   colfilter *filter;
+  color_filter_t * cof;
+
   filter = (colfilter *)user_data; /* UNUSED */
-  create_color_sel_win(&cf);
+  cof = color_filter(&cf, filter->row_selected);
+  create_color_sel_win(&cf, &cof->bg_color);
   bg_set_flag = 1;
 
 }
@@ -1040,7 +1052,7 @@ create_colorize_win (capture_file *cf,
 }
 
 GtkWidget*
-create_color_sel_win (capture_file *cf)
+create_color_sel_win (capture_file *cf, GdkColor * color)
 {
   GtkWidget *color_sel_win;
   GtkWidget *color_sel_ok;
@@ -1050,6 +1062,18 @@ create_color_sel_win (capture_file *cf)
   color_sel_win = gtk_color_selection_dialog_new (("Choose color"));
   gtk_object_set_data (GTK_OBJECT (color_sel_win), "color_sel_win", color_sel_win);
   gtk_container_set_border_width (GTK_CONTAINER (color_sel_win), 10);
+
+  if (color != NULL) {
+    gdouble cols[3];
+
+    cols[0] = (gdouble)color->red / 65536.0;
+    cols[1] = (gdouble)color->green / 65536.0;
+    cols[2] = (gdouble)color->blue / 65536.0;
+
+    gtk_color_selection_set_color(
+		    GTK_COLOR_SELECTION(
+			    GTK_COLOR_SELECTION_DIALOG(color_sel_win)->colorsel), cols);
+  }
 
   color_sel_ok = GTK_COLOR_SELECTION_DIALOG (color_sel_win)->ok_button;
   gtk_object_set_data (GTK_OBJECT (color_sel_win), "color_sel_ok", color_sel_ok);

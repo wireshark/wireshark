@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.102 1999/09/30 16:24:07 gram Exp $
+ * $Id: file.c,v 1.103 1999/10/05 04:34:00 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1127,6 +1127,9 @@ select_packet(capture_file *cf, int row)
     if (fd->row == row)
       break;
   }
+
+  g_assert(fd != NULL);
+
   cf->fd = fd;
 
   /* Remember the ordinal number of that frame. */
