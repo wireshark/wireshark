@@ -9,7 +9,7 @@
  * Copyright 2001, Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Updated for ANSI and Chinese ITU support by Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-mtp3.c,v 1.29 2004/06/27 17:14:27 tuexen Exp $
+ * $Id: packet-mtp3.c,v 1.30 2004/07/01 09:35:32 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,7 +89,7 @@ static dissector_table_t mtp3_sio_dissector_table;
 typedef enum {
   ITU_PC_STRUCTURE_NONE    = 1,
   ITU_PC_STRUCTURE_3_8_3   = 2,
-  ITU_PC_STRUCTURE_4_3_4_3 = 3,
+  ITU_PC_STRUCTURE_4_3_4_3 = 3
 } ITU_PC_Structure_Type;
 
 ITU_PC_Structure_Type itu_pc_structure = ITU_PC_STRUCTURE_NONE;
@@ -228,7 +228,7 @@ mtp3_pc_to_str(const guint32 pc)
 }
 
 gboolean
-mtp3_pc_structured()
+mtp3_pc_structured(void)
 {
   if ((mtp3_standard == ITU_STANDARD) && (itu_pc_structure == ITU_PC_STRUCTURE_NONE))
     return FALSE;

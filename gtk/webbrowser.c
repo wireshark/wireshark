@@ -60,7 +60,7 @@ static gchar*   strreplace       (const gchar      *string,
 #endif
 
 gboolean
-browser_needs_pref()
+browser_needs_pref(void)
 {
 #ifdef MUST_LAUNCH_BROWSER_OURSELVES
     return TRUE;

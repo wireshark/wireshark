@@ -1,6 +1,6 @@
 /* packet-mtp3.h
  *
- * $Id: packet-mtp3.h,v 1.7 2004/06/27 17:14:28 tuexen Exp $
+ * $Id: packet-mtp3.h,v 1.8 2004/07/01 09:35:32 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,7 +67,7 @@ typedef struct _mtp3_tap_rec_t {
 extern void     mtp3_addr_to_str_buf(const guint8 *data, gchar *buf);
 extern void     mtp3_pc_to_str_buf(const guint32 pc, gchar *buf);
 extern gchar*   mtp3_pc_to_str(const guint32 pc);
-extern gboolean mtp3_pc_structured();
+extern gboolean mtp3_pc_structured(void);
 
 
 /*
