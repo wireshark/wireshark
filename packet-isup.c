@@ -9,7 +9,7 @@
  * Modified 2004-01-10 by Anders Broman to add abillity to dissect
  * Content type application/ISUP RFC 3204 used in SIP-T
  *
- * $Id: packet-isup.c,v 1.52 2004/03/05 10:29:35 guy Exp $
+ * $Id: packet-isup.c,v 1.53 2004/03/06 02:35:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2839,7 +2839,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 	proto_item	*bat_ase_item, *bat_ase_element_item, *bat_ase_iwfa_item;
 	guint8 identifier,compatibility_info,content, BCTP_Indicator_field_1, BCTP_Indicator_field_2;
 	guint8 sdp_length, tempdata, element_no, number_of_indicators;
-	guint8 iwfa[32], diagnostic_len;
+	guint8 diagnostic_len;
 	guint8 length_ind_len;
 	guint tempdata16;
 	guint content_len, length_indicator;
@@ -2932,9 +2932,8 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 
 			break;
 			case INTERWORKING_FUNCTION_ADDRESS :           	
-				tvb_memcpy(parameter_tvb, iwfa, offset, content_len);        	
-				bat_ase_iwfa_item = proto_tree_add_bytes(bat_ase_element_tree, hf_bat_ase_biwfa, parameter_tvb, offset, content_len,
-							    iwfa);
+				bat_ase_iwfa_item = proto_tree_add_item(bat_ase_element_tree, hf_bat_ase_biwfa, parameter_tvb, offset, content_len,
+							    FALSE);
 				bat_ase_iwfa_tree = proto_item_add_subtree(bat_ase_iwfa_item , ett_bat_ase_iwfa);
 				dissect_nsap(parameter_tvb, offset, content_len, bat_ase_iwfa_tree);
 
@@ -6487,10 +6486,9 @@ proto_register_isup(void)
 			"IPv4 address", HFILL }},
 
 		{ &hf_nsap_ipv6_addr,
-		  { "IWFA IPv6 Address", "nsap.ipv6_addr",
-	  	  FT_IPv6, BASE_NONE, NULL, 0x0,
-	   	 "IPv4 address", HFILL}},
-
+			{ "IWFA IPv6 Address", "nsap.ipv6_addr",
+			FT_IPv6, BASE_NONE, NULL, 0x0,
+			"IPv6 address", HFILL}},
 
 		{ &hf_iana_icp,
 			{ "IANA ICP",  "nsap.iana_icp",
