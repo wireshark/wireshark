@@ -285,6 +285,13 @@ void win32_element_set_enabled(win32_element_t *el, gboolean active);
  */
 win32_element_t *win32_element_find_child(win32_element_t *el, gchar *id);
 
+/** Check to see if an element's HWND is visible.
+ *
+ * @param el The element in question.
+ * @return TRUE if visible, FALSE otherwise.
+ */
+gboolean win32_element_is_visible(win32_element_t *el);
+
 /*
  * Handle WM_COMMAND for various elements.
  */

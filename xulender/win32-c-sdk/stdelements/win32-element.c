@@ -20,23 +20,23 @@ static GData *g_identifier_list = NULL;
 
 void
 win32_identifier_init(void) {
-	if (! g_identifier_list)
-		g_datalist_init(&g_identifier_list);
+    if (! g_identifier_list)
+	    g_datalist_init(&g_identifier_list);
 }
 
 void
 win32_identifier_set_str(const gchar* id, gpointer data) {
-	g_datalist_set_data(&g_identifier_list, id, data);
+    g_datalist_set_data(&g_identifier_list, id, data);
 }
 
 gpointer
 win32_identifier_get_str(const gchar *id) {
-	return (g_datalist_get_data(&g_identifier_list, id));
+    return (g_datalist_get_data(&g_identifier_list, id));
 }
 
 void
 win32_identifier_remove_str(const gchar *id) {
-	g_datalist_remove_data(&g_identifier_list, id);
+    g_datalist_remove_data(&g_identifier_list, id);
 }
 
 
@@ -177,7 +177,7 @@ win32_element_set_id(win32_element_t *el, gchar *id) {
 LONG
 win32_element_get_width(win32_element_t *el) {
 
-    g_assert(el != NULL);
+    win32_element_assert(el);
 
     return win32_element_hwnd_get_width(el->h_wnd);
 }
@@ -190,6 +190,10 @@ win32_element_hwnd_get_width(HWND hwnd) {
     RECT wr;
 
     win32_element_hwnd_assert(hwnd);
+
+    if (! IsWindowVisible(hwnd))
+	return 0;
+
     GetWindowRect(hwnd, &wr);
     return wr.right - wr.left;
 }
@@ -199,7 +203,8 @@ win32_element_hwnd_get_width(HWND hwnd) {
  */
 LONG
 win32_element_get_height(win32_element_t *el) {
-    g_assert(el != NULL);
+
+    win32_element_assert(el);
 
     return win32_element_hwnd_get_height(el->h_wnd);
 }
@@ -212,6 +217,10 @@ win32_element_hwnd_get_height(HWND hwnd) {
     RECT wr;
 
     win32_element_hwnd_assert(hwnd);
+
+    if (! IsWindowVisible(hwnd))
+	return 0;
+
     GetWindowRect(hwnd, &wr);
     return wr.bottom - wr.top;
 }
@@ -271,6 +280,9 @@ win32_element_intrinsic_width(win32_element_t *el) {
 
     win32_element_assert(el);
 
+    if (! win32_element_is_visible(el))
+	return 0;
+
     if (el->type == BOX_GRID)
 	return win32_grid_intrinsic_width(el);
 
@@ -310,6 +322,9 @@ win32_element_intrinsic_height(win32_element_t *el) {
     GList *contents;
 
     win32_element_assert(el);
+
+    if (! win32_element_is_visible(el))
+	return 0;
 
     if (el->type == BOX_GRID)
 	return win32_grid_intrinsic_height(el);
@@ -407,6 +422,16 @@ win32_element_find_child(win32_element_t *el, gchar *id) {
     }
 
     return NULL;
+}
+
+gboolean
+win32_element_is_visible(win32_element_t *el) {
+    win32_element_assert(el);
+
+    if (IsWindowVisible(el->h_wnd))
+	return TRUE;
+
+    return FALSE;
 }
 
 void win32_element_handle_wm_command(UINT msg, WPARAM w_param, LPARAM l_param) {

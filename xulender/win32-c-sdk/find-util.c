@@ -100,7 +100,6 @@ find_packet_dialog_dlg_proc(HWND hw_find, UINT msg, WPARAM w_param, LPARAM l_par
 	    find_packet_dialog_handle_wm_initdialog(hw_find);
 	    dlg_box = (win32_element_t *) GetWindowLong(hw_find, GWL_USERDATA);
 	    win32_element_assert (dlg_box);
-	    win32_element_resize(dlg_box, -1, -1);
 	    return 0;
 	    break;
 	case WM_COMMAND:
@@ -133,8 +132,7 @@ find_dlg_find (win32_element_t *find_btn) {
     dfilter_t       *sfcode;
     gboolean         found_packet;
 
-    if (!find_dlg)
-	find_dlg = find_dialog_init();
+    find_dlg = find_dialog_init();
 
     win32_element_assert(find_dlg);
 

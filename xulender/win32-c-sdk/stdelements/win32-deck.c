@@ -206,7 +206,7 @@ win32_deck_set_selectedpanel(win32_element_t *deck, win32_element_t *panel) {
     GList           *contents;
     deck_data_t     *dd;
     win32_element_t *cur_el;
-    gint             count = 0;
+    gint             count = 0, width, height;
 
     win32_element_assert(deck);
     dd = (deck_data_t *) win32_element_get_data(deck, WIN32_DECK_DATA);
@@ -216,6 +216,9 @@ win32_deck_set_selectedpanel(win32_element_t *deck, win32_element_t *panel) {
 	cur_el = (win32_element_t *) contents->data;
 	if (cur_el == panel) {
 	    ShowWindow(cur_el->h_wnd, SW_SHOW);
+	    width = win32_element_get_width(cur_el);
+	    height = win32_element_get_height(cur_el);
+	    win32_element_resize(cur_el, width, height);
 	    dd->selectedindex = count;
 	    dd->selectedpanel = cur_el;
 	} else {

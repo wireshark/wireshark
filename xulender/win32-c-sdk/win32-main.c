@@ -1205,11 +1205,15 @@ WinMain( HINSTANCE h_instance, HINSTANCE h_prev_instance, LPSTR lpsz_cmd_line, i
 	/* Size the window before it's displayed. */
 	main_load_window_geometry(g_hw_mainwin);
 
+	main_widgets_show_or_hide();
+
 	ethereal_main_window_show(g_hw_mainwin, n_cmd_show);
 
 	menus_init(g_hw_mainwin);
 
 	toolbar_new();
+
+	menu_update_view_items();
 
 	main_window_update();
 
@@ -1524,6 +1528,61 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 			prefs_dialog_init(hw_mainwin);
 			break;
 
+		    case IDM_ETHEREAL_MAIN_VIEW_MAIN_TOOLBAR:
+			recent.main_toolbar_show = ! recent.main_toolbar_show;
+			menu_update_view_items();
+			main_widgets_show_or_hide();
+			break;
+		    case IDM_ETHEREAL_MAIN_VIEW_FILTER_TOOLBAR:
+			recent.filter_toolbar_show = ! recent.filter_toolbar_show;
+			menu_update_view_items();
+			main_widgets_show_or_hide();
+			break;
+		    case IDM_ETHEREAL_MAIN_VIEW_STATUSBAR:
+			recent.statusbar_show = ! recent.statusbar_show;
+			menu_update_view_items();
+			main_widgets_show_or_hide();
+			break;
+		    case IDM_ETHEREAL_MAIN_VIEW_PACKET_LIST:
+			recent.packet_list_show = ! recent.packet_list_show;
+			menu_update_view_items();
+			main_widgets_show_or_hide();
+			break;
+		    case IDM_ETHEREAL_MAIN_VIEW_PACKET_DETAILS:
+			recent.tree_view_show = ! recent.tree_view_show;
+			menu_update_view_items();
+			main_widgets_show_or_hide();
+			break;
+		    case IDM_ETHEREAL_MAIN_VIEW_PACKET_BYTES:
+			recent.byte_view_show = ! recent.byte_view_show;
+			menu_update_view_items();
+			main_widgets_show_or_hide();
+			break;
+		    case IDM_ETHEREAL_MAIN_VIEW_TIMEDF_TOD:
+			menu_toggle_timestamps(TS_ABSOLUTE);
+			break;
+		    case IDM_ETHEREAL_MAIN_VIEW_TIMEDF_DATOD:
+			menu_toggle_timestamps(TS_ABSOLUTE_WITH_DATE);
+			break;
+		    case IDM_ETHEREAL_MAIN_VIEW_TIMEDF_SECSBEG:
+			menu_toggle_timestamps(TS_RELATIVE);
+			break;
+		    case IDM_ETHEREAL_MAIN_VIEW_TIMEDF_SECSPREV:
+			menu_toggle_timestamps(TS_DELTA);
+			break;
+		    case IDM_ETHEREAL_MAIN_VIEW_NAMERES_MAC:
+		    case IDM_ETHEREAL_MAIN_VIEW_NAMERES_NETWORK:
+		    case IDM_ETHEREAL_MAIN_VIEW_NAMERES_TRANSPORT:
+			menu_toggle_name_resolution(hw_mainwin, w_param);
+			break;
+		    case IDM_ETHEREAL_MAIN_VIEW_AUTOSCROLL:
+			menu_toggle_auto_scroll();
+			break;
+		    case IDM_ETHEREAL_MAIN_VIEW_RELOAD:
+		    case IDB_MAIN_TOOLBAR_RELOAD:
+			cf_reload();
+			break;
+
 		    case IDM_ETHEREAL_MAIN_VIEW_COLORING:
 		    case IDB_MAIN_TOOLBAR_COLOR_DLG:
 			coloring_rules_dialog_init(hw_mainwin);
@@ -1546,11 +1605,6 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 			break;
 		    case IDM_ETHEREAL_MAIN_EXIT:
 			file_quit_cmd(hw_mainwin);
-			break;
-		    case IDM_ETHEREAL_MAIN_VIEW_NAMERES_MAC:
-		    case IDM_ETHEREAL_MAIN_VIEW_NAMERES_NETWORK:
-		    case IDM_ETHEREAL_MAIN_VIEW_NAMERES_TRANSPORT:
-			menu_toggle_name_resolution(hw_mainwin, w_param);
 			break;
 		    default:
 			if (w_param >= IDM_RECENT_FILE_START && w_param < IDM_RECENT_FILE_START + prefs.gui_recent_files_count_max) {
@@ -1941,6 +1995,74 @@ main_load_window_geometry(HWND hw_mainwin) {
 
     window_set_geometry(hw_mainwin, &geom);
     /* XXX - Size our panes */
+}
+
+void
+main_widgets_show_or_hide() {
+    win32_element_t *cur_el;
+    RECT             wr;
+
+    cur_el = win32_identifier_get_str("main-toolbox");
+    win32_element_assert(cur_el);
+    ShowWindow(cur_el->h_wnd, recent.main_toolbar_show ? SW_SHOW : SW_HIDE);
+
+    /*
+     * Show the status hbox if either:
+     *
+     *    1) we're showing the filter toolbar and we want it in the status
+     *       line
+     *
+     * or
+     *
+     *    2) we're showing the status bar.
+     */
+    cur_el = win32_identifier_get_str("main-status-hbox");
+    win32_element_assert(cur_el);
+    if ((recent.filter_toolbar_show && prefs.filter_toolbar_show_in_statusbar) ||
+	     recent.statusbar_show) {
+	ShowWindow(cur_el->h_wnd, SW_SHOW);
+    } else {
+	ShowWindow(cur_el->h_wnd, SW_HIDE);
+    }
+
+    cur_el = win32_identifier_get_str("main-statusbar");
+    win32_element_assert(cur_el);
+    ShowWindow(cur_el->h_wnd, recent.statusbar_show ? SW_SHOW : SW_HIDE);
+
+    cur_el = win32_identifier_get_str("main-filter");
+    win32_element_assert(cur_el);
+    ShowWindow(cur_el->h_wnd, recent.filter_toolbar_show ? SW_SHOW : SW_HIDE);
+
+    cur_el = win32_identifier_get_str("main-packetlist");
+    win32_element_assert(cur_el);
+    ShowWindow(cur_el->h_wnd, recent.packet_list_show ? SW_SHOW : SW_HIDE);
+
+    cur_el = win32_identifier_get_str("main-splitter-pltv");
+    win32_element_assert(cur_el);
+    if (recent.packet_list_show && recent.tree_view_show)
+	ShowWindow(cur_el->h_wnd, SW_SHOW);
+    else
+	ShowWindow(cur_el->h_wnd, SW_HIDE);
+
+    cur_el = win32_identifier_get_str("main-treeview");
+    win32_element_assert(cur_el);
+    ShowWindow(cur_el->h_wnd, recent.tree_view_show ? SW_SHOW : SW_HIDE);
+
+    cur_el = win32_identifier_get_str("main-splitter-tvbv");
+    win32_element_assert(cur_el);
+    if (recent.packet_list_show || (recent.tree_view_show && recent.byte_view_show))
+	ShowWindow(cur_el->h_wnd, SW_SHOW);
+    else
+	ShowWindow(cur_el->h_wnd, SW_HIDE);
+
+    cur_el = win32_identifier_get_str("main-byteview");
+    win32_element_assert(cur_el);
+    ShowWindow(cur_el->h_wnd, recent.byte_view_show ? SW_SHOW : SW_HIDE);
+
+    cur_el = win32_identifier_get_str("main-vbox");
+    win32_element_assert(cur_el);
+    GetWindowRect(cur_el->h_wnd, &wr);
+    win32_element_resize(cur_el, wr.right - wr.left, wr.bottom - wr.top);
 }
 
 static void

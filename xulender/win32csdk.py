@@ -352,7 +352,12 @@ HWND
 /* Show dialog "%(cur_window_id)s" */
 void
 %(varname)s_dialog_show (HWND hw_dlg) {
+    win32_element_t *dlg_el = (win32_element_t *) GetWindowLong(hw_dlg, GWL_USERDATA);
+
+    win32_element_assert(dlg_el);
+
     ShowWindow(hw_dlg, SW_SHOW);
+    win32_element_resize(dlg_el, -1, -1);
 }
 
 /* Hide dialog "%(cur_window_id)s" */
@@ -827,7 +832,11 @@ def win32_gen_spacer(node):
 def win32_gen_splitter(node):
     cur_cf.write_body('''
     /* Begin <splitter> */
-    win32_box_add_splitter(cur_box, -1, cur_box->orient);
+    cur_el = win32_box_add_splitter(cur_box, -1, cur_box->orient);
+''')
+    get_element_attributes(node)
+
+    cur_cf.write_body('''
     /* End <splitter> */
 ''')
 
@@ -936,8 +945,8 @@ def win32_gen_toolbar(node):
 
 def win32_gen_toolbar_end(node):
     cur_cf.write_body('''
-    win32_statusbarpanel_apply_styles(cur_el);
-    /* End <statusbarpanel> */
+    SendMessage(cur_el->h_wnd, TB_AUTOSIZE, 0, 0);
+    /* End <toolbar> */
 ''')
 
 #
@@ -972,10 +981,26 @@ def win32_gen_toolbarbutton(node):
     cur_cf.write_body('''
     /* Begin <toolbarbutton> */
     win32_toolbar_add_button(cur_el, %(id)s, %(label)s);
+    /* End <toolbarbutton> */
 ''' % {
 	'id': id,
 	'label': label
     })
+
+#
+# <toolbarseparator>
+#
+def win32_gen_toolbarseparator(node):
+    # <toolbarbutton>s MUST be a child of <toolbar>
+    # XXX - Move to xulender.py
+    if node.parentNode.nodeName != 'toolbar':
+	raise CodeGenerationError
+
+    cur_cf.write_body('''
+    /* Begin <toolbarseparator> */
+    win32_toolbar_add_separator(cur_el);
+    /* End <toolbarseparator> */
+''')
 
 
 #
@@ -1309,8 +1334,8 @@ def win32_gen_window_end(node):
     cur_cf.write_body('''
     /* Set our initial size */
     win32_element_resize(win_hbox,
-	win32_element_get_width(win_hbox),
-	win32_element_get_height(win_hbox));
+    win32_element_get_width(win_hbox),
+    win32_element_get_height(win_hbox));
     /* End <window> */
 }
 

@@ -62,7 +62,6 @@ about_dialog_init(HWND hw_parent) {
 	descr = win32_description_new(about_vbox->h_wnd, line->str);
 	win32_box_add(about_vbox, descr, i++);
 
-	win32_element_resize(about_dlg, -1, -1);
     }
     about_dialog_dialog_show(about_dlg->h_wnd);
 }
@@ -77,7 +76,6 @@ about_dialog_dlg_proc(HWND hw_about, UINT msg, WPARAM w_param, LPARAM l_param)
 	    about_dialog_handle_wm_initdialog(hw_about);
 	    dlg_box = (win32_element_t *) GetWindowLong(hw_about, GWL_USERDATA);
 	    win32_element_assert (dlg_box);
-	    win32_element_resize(dlg_box, -1, -1);
 	    return 0;
 	    break;
 	case WM_COMMAND:

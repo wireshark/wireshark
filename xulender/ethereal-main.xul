@@ -473,42 +473,54 @@
 
   </menubar>
 
-  <vbox flex="1">
+  <vbox id="main-vbox" flex="1">
 
-    <toolbox>
-      <toolbar id="main-toolbar">
+    <toolbox id="main-toolbox">
+      <toolbar id="main-toolbar" flex="1">
         <toolbarbutton command="main-toolbar.capture-start" />
         <toolbarbutton command="main-toolbar.capture-stop" />
-        <toolbarspacer />
+        <toolbarseparator />
         <toolbarbutton command="main-toolbar.open" />
         <toolbarbutton command="main-toolbar.save" />
         <toolbarbutton command="main-toolbar.save-as" />
         <toolbarbutton command="main-toolbar.close" />
         <toolbarbutton command="main-toolbar.reload" />
         <toolbarbutton command="main-toolbar.print" />
-        <toolbarspacer />
+        <toolbarseparator />
         <toolbarbutton command="main-toolbar.find" />
         <toolbarbutton command="main-toolbar.find-next" />
         <toolbarbutton command="main-toolbar.find-prev" />
-        <toolbarspacer />
+        <toolbarseparator />
         <toolbarbutton command="main-toolbar.goto-num" />
         <toolbarbutton command="main-toolbar.goto-first" />
         <toolbarbutton command="main-toolbar.goto-last" />
-        <toolbarspacer />
+        <toolbarseparator />
         <toolbarbutton command="main-toolbar.zoom-in" />
         <toolbarbutton command="main-toolbar.zoom-out" />
         <toolbarbutton command="main-toolbar.zoom-norm" />
-        <toolbarspacer />
+        <toolbarseparator />
         <toolbarbutton command="main-toolbar.cap-filt" />
         <toolbarbutton command="main-toolbar.disp-filt" />
         <toolbarbutton command="main-toolbar.color-dlg" />
         <toolbarbutton command="main-toolbar.prefs" />
-        <toolbarspacer />
+        <toolbarseparator />
         <toolbarbutton command="main-toolbar.help" />
       </toolbar>
     </toolbox>
 
-    <hbox>
+    <!--
+      This should be a <toolbox>/<toolbar> construct.  However, 
+      
+      - I'm having a hard time getting rid of the bitmaps in text-only
+        buttons.  (The easy way requires IE 5.  The hard way is to make
+        them owner-drawn.)
+      - I don't like flat buttons, since they look like text, not
+	buttons. You have to hover over them in order to reveal their
+	true identity.
+      - Adding a <menulist> to a toolbar might make it more trouble
+        than it's worth.
+    -->
+    <hbox id="main-filter">
       <button label="Filter:" />
       <ethereal:combobox id="dfilter-entry" flex="1"/>
       <button
@@ -521,21 +533,23 @@
       />
     </hbox>
 
-    <ethereal:packetlist flex="1" />
+    <ethereal:packetlist id="main-packetlist" flex="1" />
 
-    <splitter />
+    <splitter id="main-splitter-pltv" />
 
     <ethereal:treeview id="main-treeview" flex="1" />
 
-    <splitter />
+    <splitter id="main-splitter-tvbv" />
 
     <ethereal:byteview id="main-byteview" flex="1" />
 
-    <statusbar>
-      <statusbarpanel id="main-info-bar" flex="4" />
-      <splitter />
-      <statusbarpanel id="main-packets-bar" flex="1" />
-    </statusbar>
+    <hbox id="main-status-hbox">
+      <statusbar id="main-statusbar" flex="1">
+	<statusbarpanel id="main-info-bar" flex="4" />
+	<splitter />
+	<statusbarpanel id="main-packets-bar" flex="1" />
+      </statusbar>
+    </hbox>
 
   </vbox>
 

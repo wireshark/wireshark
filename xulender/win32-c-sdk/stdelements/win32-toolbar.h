@@ -13,4 +13,9 @@ win32_element_t * win32_toolbar_new(HWND);
  */
 void win32_toolbar_add_button(win32_element_t *toolbar, gint id, gchar *label);
 
+/*
+ * Add a separator to a toolbar.
+ */
+void win32_toolbar_add_separator(win32_element_t *toolbar);
+
 #endif /* win32-toolbar.h */

@@ -57,7 +57,7 @@ win32_toolbox_new(HWND hw_toolbox, HWND hw_parent) {
 	UpdateWindow(toolbox->h_wnd);
     }
 
-    toolbox->orient = BOX_ORIENT_VERTICAL;
+//    toolbox->orient = BOX_ORIENT_VERTICAL;
 
     /* Attach the box address to our HWND. */
     SetWindowLong(toolbox->h_wnd, GWL_USERDATA, (LONG) toolbox);

@@ -44,6 +44,7 @@ static recent_count = 0;
 
 #define MAINWIN_FILE_OPEN_RECENT_POS 1
 #define MAINWIN_EDIT_TIME_REF_POS 4
+#define MAINWIN_VIEW_TIMEDF_POS 8
 #define MAINWIN_VIEW_NAMERES_POS 9
 #define MAINWIN_ANALYZE_AAF_POS 1
 #define MAINWIN_ANALYZE_PAF_POS 2
@@ -181,7 +182,7 @@ void set_menus_for_capture_file(gboolean have_capture_file) {
     EnableMenuItem(file_menu, IDM_ETHEREAL_MAIN_CLOSE, enable | MF_BYCOMMAND);
     EnableMenuItem(file_menu, IDM_ETHEREAL_MAIN_SAVE_AS, enable | MF_BYCOMMAND);
     EnableMenuItem(file_menu, IDM_ETHEREAL_MAIN_EXPORT_FILE, enable | MF_BYCOMMAND);
-    EnableMenuItem(file_menu, IDM_ETHEREAL_MAIN_VIEW_RELOAD, enable | MF_BYCOMMAND);
+    EnableMenuItem(view_menu, IDM_ETHEREAL_MAIN_VIEW_RELOAD, enable | MF_BYCOMMAND);
 
     set_toolbar_for_capture_file(have_capture_file);
     packets_bar_update();
@@ -354,7 +355,7 @@ void set_menus_for_selected_tree_row(capture_file *cf) {
 	EnableMenuItem(analyze_menu, MAINWIN_ANALYZE_PAF_POS, MF_GRAYED | MF_BYPOSITION);
 	// XXX - Tree view "Apply as" & "Prepare as"
 	// XXX - Tree view "Protocol Prefs"
-	EnableMenuItem(view_menu, IDM_ETHEREAL_MAIN_VIEW_EXPANDTREE, MF_GRAYED | MF_BYPOSITION);
+	EnableMenuItem(view_menu, IDM_ETHEREAL_MAIN_VIEW_EXPANDTREE, MF_GRAYED | MF_BYCOMMAND);
 	// XXX - Tree view "expand tree"
     }
 
@@ -391,39 +392,20 @@ menu_recent_file_write_all(FILE *rf) {
 void
 menu_name_resolution_changed(HWND hw_mainwin) {
     HMENU        mainwin_menu, view_menu, nr_menu;
-    MENUITEMINFO mii;
 
     mainwin_menu = GetMenu(hw_mainwin);
     view_menu = GetSubMenu(mainwin_menu, MAINWIN_VIEW_POS);
     nr_menu = GetSubMenu(view_menu, MAINWIN_VIEW_NAMERES_POS);
 
     if (nr_menu) {
-	ZeroMemory(&mii, sizeof(mii));
-	mii.cbSize = sizeof(mii);
-	mii.fMask = MIIM_STATE;
-	if (g_resolv_flags & RESOLV_MAC)
-	    mii.fState = MFS_CHECKED;
-	else
-	    mii.fState = MFS_UNCHECKED;
-	SetMenuItemInfo(nr_menu, IDM_ETHEREAL_MAIN_VIEW_NAMERES_MAC, FALSE, &mii);
+	CheckMenuItem(nr_menu, IDM_ETHEREAL_MAIN_VIEW_NAMERES_MAC,
+		g_resolv_flags & RESOLV_MAC ? MF_CHECKED : MF_UNCHECKED);
 
-	ZeroMemory(&mii, sizeof(mii));
-	mii.cbSize = sizeof(mii);
-	mii.fMask = MIIM_STATE;
-	if (g_resolv_flags & RESOLV_NETWORK)
-	    mii.fState = MFS_CHECKED;
-	else
-	    mii.fState = MFS_UNCHECKED;
-	SetMenuItemInfo(nr_menu, IDM_ETHEREAL_MAIN_VIEW_NAMERES_NETWORK, FALSE, &mii);
+	CheckMenuItem(nr_menu, IDM_ETHEREAL_MAIN_VIEW_NAMERES_NETWORK,
+		g_resolv_flags & RESOLV_NETWORK ? MF_CHECKED : MF_UNCHECKED);
 
-	ZeroMemory(&mii, sizeof(mii));
-	mii.cbSize = sizeof(mii);
-	mii.fMask = MIIM_STATE;
-	if (g_resolv_flags & RESOLV_TRANSPORT)
-	    mii.fState = MFS_CHECKED;
-	else
-	    mii.fState = MFS_UNCHECKED;
-	SetMenuItemInfo(nr_menu, IDM_ETHEREAL_MAIN_VIEW_NAMERES_TRANSPORT, FALSE, &mii);
+	CheckMenuItem(nr_menu, IDM_ETHEREAL_MAIN_VIEW_NAMERES_TRANSPORT,
+		g_resolv_flags & RESOLV_TRANSPORT ? MF_CHECKED : MF_UNCHECKED);
     }
 }
 
@@ -452,6 +434,127 @@ menu_toggle_name_resolution(HWND hw_mainwin, guint menu_id) {
     }
     menu_name_resolution_changed(hw_mainwin);
 }
+
+/* The recent file has been read, update the menu correspondingly */
+void
+menu_update_view_items(void) {
+    HMENU mainwin_menu, view_menu, tf_menu;
+    UINT  check_item;
+
+    mainwin_menu = GetMenu(g_hw_mainwin);
+    view_menu = GetSubMenu(mainwin_menu, MAINWIN_VIEW_POS);
+    tf_menu = GetSubMenu(view_menu, MAINWIN_VIEW_TIMEDF_POS);
+
+    if (view_menu) {
+	CheckMenuItem(view_menu, IDM_ETHEREAL_MAIN_VIEW_MAIN_TOOLBAR,
+		recent.main_toolbar_show ? MF_CHECKED : MF_UNCHECKED);
+
+	CheckMenuItem(view_menu, IDM_ETHEREAL_MAIN_VIEW_FILTER_TOOLBAR,
+		recent.filter_toolbar_show ? MF_CHECKED : MF_UNCHECKED);
+
+	CheckMenuItem(view_menu, IDM_ETHEREAL_MAIN_VIEW_STATUSBAR,
+		recent.statusbar_show ? MF_CHECKED : MF_UNCHECKED);
+
+	CheckMenuItem(view_menu, IDM_ETHEREAL_MAIN_VIEW_PACKET_LIST,
+		recent.packet_list_show ? MF_CHECKED : MF_UNCHECKED);
+
+	CheckMenuItem(view_menu, IDM_ETHEREAL_MAIN_VIEW_PACKET_DETAILS,
+		recent.tree_view_show ? MF_CHECKED : MF_UNCHECKED);
+
+	CheckMenuItem(view_menu, IDM_ETHEREAL_MAIN_VIEW_PACKET_BYTES,
+		recent.byte_view_show ? MF_CHECKED : MF_UNCHECKED);
+    }
+
+    menu_name_resolution_changed(g_hw_mainwin);
+
+#ifdef HAVE_LIBPCAP
+    CheckMenuItem(view_menu, IDM_ETHEREAL_MAIN_VIEW_AUTOSCROLL,
+	    auto_scroll_live ? MF_CHECKED : MF_UNCHECKED);
+#endif
+
+//    main_widgets_rearrange();
+
+    /* don't change the time format, if we had a command line value */
+    if (get_timestamp_setting() != TS_NOT_SET) {
+	recent.gui_time_format = get_timestamp_setting();
+    }
+
+    if (tf_menu) {
+	switch(recent.gui_time_format) {
+	    case(TS_ABSOLUTE):
+		check_item = IDM_ETHEREAL_MAIN_VIEW_TIMEDF_TOD;
+		break;
+	    case(TS_ABSOLUTE_WITH_DATE):
+		check_item = IDM_ETHEREAL_MAIN_VIEW_TIMEDF_DATOD;
+		break;
+	    case(TS_RELATIVE):
+		check_item = IDM_ETHEREAL_MAIN_VIEW_TIMEDF_SECSBEG;
+		break;
+	    case(TS_DELTA):
+		check_item = IDM_ETHEREAL_MAIN_VIEW_TIMEDF_SECSPREV;
+		break;
+	    default:
+		g_assert_not_reached();
+	}
+	CheckMenuRadioItem(tf_menu, IDM_ETHEREAL_MAIN_VIEW_TIMEDF_TOD,
+		IDM_ETHEREAL_MAIN_VIEW_TIMEDF_SECSPREV, check_item, MF_BYCOMMAND);
+	recent.gui_time_format = -1;
+    }
+}
+
+void
+menu_toggle_timestamps(ts_type ts_t) {
+    HMENU mainwin_menu, view_menu, tf_menu;
+    UINT  check_item;
+
+    mainwin_menu = GetMenu(g_hw_mainwin);
+    view_menu = GetSubMenu(mainwin_menu, MAINWIN_VIEW_POS);
+    tf_menu = GetSubMenu(view_menu, MAINWIN_VIEW_TIMEDF_POS);
+
+    if (tf_menu) {
+	switch(ts_t) {
+	    case(TS_ABSOLUTE):
+		check_item = IDM_ETHEREAL_MAIN_VIEW_TIMEDF_TOD;
+		break;
+	    case(TS_ABSOLUTE_WITH_DATE):
+		check_item = IDM_ETHEREAL_MAIN_VIEW_TIMEDF_DATOD;
+		break;
+	    case(TS_RELATIVE):
+		check_item = IDM_ETHEREAL_MAIN_VIEW_TIMEDF_SECSBEG;
+		break;
+	    case(TS_DELTA):
+		check_item = IDM_ETHEREAL_MAIN_VIEW_TIMEDF_SECSPREV;
+		break;
+	    default:
+		g_assert_not_reached();
+	}
+	CheckMenuRadioItem(tf_menu, IDM_ETHEREAL_MAIN_VIEW_TIMEDF_TOD,
+		IDM_ETHEREAL_MAIN_VIEW_TIMEDF_SECSPREV, check_item, MF_BYCOMMAND);
+    }
+    if (recent.gui_time_format != ts_t) {
+	set_timestamp_setting(ts_t);
+	recent.gui_time_format = ts_t;
+	change_time_formats(&cfile);
+    }
+}
+
+/* XXX - We need to synchronize this with the capture and prefs dialogs.
+ *       This needs to be done in the GTK+ code as well. */
+#ifdef HAVE_LIBPCAP
+void
+menu_toggle_auto_scroll() {
+    HMENU mainwin_menu, view_menu;
+
+    mainwin_menu = GetMenu(g_hw_mainwin);
+    view_menu = GetSubMenu(mainwin_menu, MAINWIN_VIEW_POS);
+
+    auto_scroll_live = ! auto_scroll_live;
+    if (view_menu) {
+	CheckMenuItem(view_menu, IDM_ETHEREAL_MAIN_VIEW_AUTOSCROLL,
+		auto_scroll_live ? MF_CHECKED : MF_UNCHECKED);
+    }
+}
+#endif
 
 /*
  * Private routines

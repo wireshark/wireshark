@@ -74,7 +74,6 @@ coloring_rules_dialog_dlg_proc(HWND hw_cr, UINT msg, WPARAM w_param, LPARAM l_pa
 	    coloring_rules_dialog_handle_wm_initdialog(hw_cr);
 	    dlg_box = (win32_element_t *) GetWindowLong(hw_cr, GWL_USERDATA);
 	    win32_element_assert (dlg_box);
-	    win32_element_resize(dlg_box, -1, -1);
 	    return 0;
 	    break;
 	case WM_COMMAND:
@@ -352,7 +351,6 @@ edit_color_filter_dialog_dlg_proc(HWND hw_cf, UINT msg, WPARAM w_param, LPARAM l
 	    edit_color_filter_dialog_handle_wm_initdialog(hw_cf);
 	    dlg_box = (win32_element_t *) GetWindowLong(hw_cf, GWL_USERDATA);
 	    win32_element_assert (dlg_box);
-	    win32_element_resize(dlg_box, -1, -1);
 	    return 0;
 	    break;
 	case WM_COMMAND:

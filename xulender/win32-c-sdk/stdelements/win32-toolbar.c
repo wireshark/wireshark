@@ -16,6 +16,14 @@
 
 static LRESULT CALLBACK win32_toolbar_wnd_proc(HWND hw_toolbar, UINT msg, WPARAM w_param, LPARAM l_param);
 
+/* XXX - This may force us to require IE 5.
+ * http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/toolbar/structures/tbbutton.asp?frame=true&hidetoc=true
+ * I can't find any other way of making a text-only button, however.
+ */
+#ifndef I_IMAGENONE
+# define I_IMAGENONE -2
+#endif
+
 /* Structures */
 
 
@@ -63,22 +71,35 @@ win32_toolbar_new(HWND hw_parent) {
 
 void
 win32_toolbar_add_button(win32_element_t *toolbar, gint id, gchar *label) {
-    TBBUTTON tbb;
-
-    /* XXX - Insert the label text if it's non-null */
+    TBBUTTON  tbb;
 
     win32_element_assert(toolbar);
 
+    ZeroMemory(&tbb, sizeof(tbb));
     tbb.iBitmap = 0;
     tbb.idCommand = id;
     tbb.fsState = TBSTATE_ENABLED;
     tbb.fsStyle = TBSTYLE_BUTTON;
-    tbb.dwData = 0;
-    tbb.iString = 0;
+    if (label) {
+	tbb.iBitmap = I_IMAGENONE;
+	tbb.fsStyle |= TBSTYLE_LIST;
+	tbb.iString = (int) label;
+    }
 
     SendMessage(toolbar->h_wnd, TB_ADDBUTTONS, (WPARAM) 1, (LPARAM) &tbb);
+}
 
-    SendMessage(toolbar->h_wnd, TB_AUTOSIZE, 0, 0);
+void
+win32_toolbar_add_separator(win32_element_t *toolbar) {
+    TBBUTTON tbb;
+
+    win32_element_assert(toolbar);
+
+    ZeroMemory(&tbb, sizeof(tbb));
+    tbb.fsState = TBSTATE_ENABLED;
+    tbb.fsStyle = TBSTYLE_SEP;
+
+    SendMessage(toolbar->h_wnd, TB_ADDBUTTONS, (WPARAM) 1, (LPARAM) &tbb);
 }
 
 

@@ -350,8 +350,6 @@ capture_info_update(capture_info *cinfo) {
 	    pct(*info->counts[i].value_ptr, cinfo->counts->total));
 	SetWindowText(info->counts[i].percent_ds->h_wnd, label_str);
     }
-// XXX - Fix resizing.
-//    win32_element_resize(info->cap_info_dlg, -1, -1);
 }
 
 /* destroy the capture info dialog again */

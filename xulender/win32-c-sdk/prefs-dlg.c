@@ -190,7 +190,6 @@ prefs_dialog_init(HWND parent) {
 	win32_element_assert(prefs_dlg);
 	hw_prefs = prefs_dlg->h_wnd;
     }
-    win32_element_resize(prefs_dlg, -1, -1);
     preferences_dialog_dialog_show(hw_prefs);
 }
 
@@ -681,7 +680,6 @@ preferences_dialog_dlg_proc(HWND hw_prefs, UINT msg, WPARAM w_param, LPARAM l_pa
 	    preferences_dialog_handle_wm_initdialog(hw_prefs);
 	    dlg_box = (win32_element_t *) GetWindowLong(hw_prefs, GWL_USERDATA);
 	    win32_element_assert (dlg_box);
-	    win32_element_resize(dlg_box, -1, -1);
 	    return 0;
 	    break;
 	case WM_COMMAND:

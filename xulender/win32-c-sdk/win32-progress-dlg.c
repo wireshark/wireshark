@@ -285,7 +285,6 @@ progress_dialog_dlg_proc(HWND hw_progress, UINT msg, WPARAM w_param, LPARAM l_pa
 	    progress_dialog_handle_wm_initdialog(hw_progress);
 	    dlg_box = (win32_element_t *) GetWindowLong(hw_progress, GWL_USERDATA);
 	    win32_element_assert (dlg_box);
-	    win32_element_resize(dlg_box, -1, -1);
 	    return 0;
 	    break;
 	case WM_COMMAND:

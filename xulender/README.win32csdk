@@ -32,6 +32,8 @@ Bugs/Caveats/To-dos
 - Elements are currently crammed together with no spacing in between.  We
   could fix this by adding CSS support.
 
+- After hiding an element, the window doesn't adjust itself correctly.
+
 
 Window Creation Example
 

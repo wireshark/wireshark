@@ -235,7 +235,8 @@ win32_box_add_splitter(win32_element_t *box, int pos, win32_box_orient_t orienta
 	RegisterClass(&wc);
     }
 
-    splitter->h_wnd = CreateWindow(
+    splitter->h_wnd = CreateWindowEx(
+	WS_EX_WINDOWEDGE,
 	name,
 	name,
 	WS_CHILD | WS_VISIBLE,
@@ -284,13 +285,13 @@ win32_element_resize (win32_element_t *el, int set_width, int set_height) {
     win32_element_t *cur_el;
     GList *contents;
     gfloat total_flex;
-    gboolean force_top = FALSE, horizontal;
+    gboolean force_max = FALSE, horizontal;
     RECT wr, cr;
 
     win32_element_assert(el);
 
     if (set_width < 0 && set_height < 0)
-	force_top = TRUE;
+	force_max = TRUE;
 
     if (set_width < 0) {
 	set_width = win32_element_intrinsic_width(el);
@@ -303,7 +304,7 @@ win32_element_resize (win32_element_t *el, int set_width, int set_height) {
     if (GetParent(el->h_wnd) != NULL) { /* We're a client window. */
 	SetWindowPos(el->h_wnd, HWND_TOP, 0, 0, set_width, set_height,
 		SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
-    } else if (force_top) {
+    } else if (force_max) {
 	MoveWindow(el->h_wnd, wr.left, wr.top,
 	    set_width + (wr.right - wr.left) - (cr.right - cr.left),
 	    set_height + (wr.bottom - wr.top) - (cr.bottom - cr.top),
@@ -343,9 +344,11 @@ win32_element_resize (win32_element_t *el, int set_width, int set_height) {
 	flex_dim = set_height - static_dim - y - el->frame_bottom;
     }
 
-    contents = g_list_first(el->contents);
-    while (contents != NULL) {
+    for (contents = g_list_first(el->contents); contents != NULL; contents = g_list_next(contents)) {
 	cur_el = (win32_element_t *) contents->data;
+	if (! win32_element_is_visible(cur_el)) {
+	    continue;
+	}
 	if (horizontal) { /* Trundle along in the y direction */
 	    if (cur_el->flex > 0.0 && total_flex > 0) {
 		width = (int) (cur_el->flex * flex_dim / total_flex);
@@ -367,7 +370,6 @@ win32_element_resize (win32_element_t *el, int set_width, int set_height) {
 	} else {
 	    y += height;
 	}
-	contents = g_list_next(contents);
     }
 }
 
@@ -453,11 +455,10 @@ win32_box_flex_total(win32_element_t *box) {
     win32_element_assert(box);
     g_assert(box->type == BOX_BOX || box->type == BOX_GROUPBOX);
 
-    contents = g_list_first(box->contents);
-    while (contents) {
+    for (contents = g_list_first(box->contents); contents != NULL; contents = g_list_next(contents)) {
 	cur_el = (win32_element_t *) contents->data;
-	total += cur_el->flex;
-	contents = g_list_next(contents);
+	if (win32_element_is_visible(cur_el))
+	    total += cur_el->flex;
     }
     return total;
 }
@@ -474,14 +475,12 @@ win32_box_static_dim(win32_element_t *box) {
     win32_element_assert(box);
     g_assert(box->type == BOX_BOX || box->type == BOX_GROUPBOX);
 
-    contents = g_list_first(box->contents);
-
     /*
      * XXX - The intrinsic width is accumulated because we might run into
      * a situation where a box is sized before its minimum width has been
      * set.  This may not be the best place to do this.
      */
-    while (contents) {
+    for (contents = g_list_first(box->contents); contents != NULL; contents = g_list_next(contents)) {
 	cur_el = (win32_element_t *) contents->data;
 	if (cur_el->flex == 0.0) {
 	    if (box->orient == BOX_ORIENT_HORIZONTAL) {
@@ -492,7 +491,6 @@ win32_box_static_dim(win32_element_t *box) {
 		intrinsic_dim += win32_element_intrinsic_height(cur_el);
 	    }
 	}
-	contents = g_list_next(contents);
     }
 
     if (intrinsic_dim > total)
@@ -513,9 +511,10 @@ win32_box_flexible_dim(win32_element_t *box) {
     win32_element_assert(box);
     g_assert(box->type == BOX_BOX || box->type == BOX_GROUPBOX);
 
-    contents = g_list_first(box->contents);
-    while (contents) {
+    for (contents = g_list_first(box->contents); contents != NULL; contents = g_list_next(contents)) {
 	cur_el = (win32_element_t *) contents->data;
+	if (! win32_element_is_visible(cur_el))
+	    continue;
 	if (cur_el->flex > 0.0) {
 	    if (box->orient == BOX_ORIENT_HORIZONTAL) {
 		total += win32_element_get_width(cur_el);
@@ -523,7 +522,6 @@ win32_box_flexible_dim(win32_element_t *box) {
 		total += win32_element_get_height(cur_el);
 	    }
 	}
-	contents = g_list_next(contents);
     }
     return total;
 }
@@ -690,20 +688,27 @@ win32_splitter_lbutton_up(HWND hwnd, UINT i_msg, WPARAM w_param, LPARAM l_param)
 
     splitter_drag_mode = FALSE;
 
-
     /* Find the box we're attached to */
     box = (win32_element_t *) GetWindowLong(hwnd, GWL_USERDATA);
     win32_element_assert(box);
 
     /* Reposition our element */
     if (cur_splitter != NULL) {
+	/* Search for the previous and next items that are visible and aren't
+	   splitters, and latch on to them. */
 	contents = g_list_find(box->contents, (gpointer) cur_splitter);
-	tmp_item = g_list_previous(contents);
-	if (tmp_item != NULL)
+	for (tmp_item = g_list_previous(contents); tmp_item != NULL; tmp_item = g_list_previous(tmp_item)) {
 	    prev_el = (win32_element_t *) tmp_item->data;
-	tmp_item = g_list_next(contents);
-	if (tmp_item != NULL)
+	    if (win32_element_is_visible(prev_el) && prev_el->type != BOX_SPLITTER)
+		break;
+	    prev_el = NULL;
+	}
+	for (tmp_item = g_list_next(contents); tmp_item != NULL; tmp_item = g_list_next(tmp_item)) {
 	    next_el = (win32_element_t *) tmp_item->data;
+	    if (win32_element_is_visible(next_el) && next_el->type != BOX_SPLITTER)
+		break;
+	    next_el = NULL;
+	}
 
 	tot_dynamic = win32_box_flexible_dim(box);
 
@@ -748,7 +753,7 @@ win32_splitter_lbutton_up(HWND hwnd, UINT i_msg, WPARAM w_param, LPARAM l_param)
 	contents = g_list_first(box->contents);
 	while (contents != NULL) {
 	    cur_el = (win32_element_t *) contents->data;
-	    if (cur_el->flex > 0.0) {
+	    if (cur_el->flex > 0.0 && win32_element_is_visible(cur_el)) {
 		if (horizontal) {
 		    cur_el->flex = (float) (win32_element_get_width(cur_el) * 100.0 / tot_dynamic);
 		} else {
