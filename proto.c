@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.36 1999/10/12 19:47:44 gram Exp $
+ * $Id: proto.c,v 1.37 1999/10/12 22:51:58 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -616,9 +616,11 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		 */
 		case FT_UINT8:
 		case FT_UINT16:
+		case FT_UINT24:
 		case FT_UINT32:
 		case FT_INT8:
 		case FT_INT16:
+		case FT_INT24:
 		case FT_INT32:
 			if (hfinfo->bitmask) {
 				if (hfinfo->strings) {
