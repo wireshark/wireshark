@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.1 1999/07/27 04:43:01 gram Exp $
+# $Id: autogen.sh,v 1.2 1999/07/27 05:19:10 gram Exp $
 
 DIE=0
 PROJECT="Ethereal"
@@ -10,15 +10,15 @@ PROJECT="Ethereal"
 (autoconf --version) < /dev/null > /dev/null 2>&1 || {
 	echo
 	echo "You must have autoconf installed to compile $PROJECT."
-	echo "Download the appropriate package for your distribution,"
+	echo "Download the appropriate package for your distribution/OS,"
 	echo "or get the source tarball at ftp://ftp.gnu.org/pub/gnu/"
 	DIE=1
 }
 
 (automake --version) < /dev/null > /dev/null 2>&1 || {
 	echo
-	echo "You must have autoconf installed to compile $PROJECT."
-	echo "Download the appropriate package for your distribution,"
+	echo "You must have automake installed to compile $PROJECT."
+	echo "Download the appropriate package for your distribution/OS,"
 	echo "or get the source tarball at ftp://ftp.gnu.org/pub/gnu/"
 	DIE=1
 }
