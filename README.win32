@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.70 2004/04/18 10:16:19 obiot Exp $
+$Id: README.win32,v 1.71 2004/06/14 22:38:57 ulfl Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -100,6 +100,7 @@ MS Visual C++ Version 7 / VC.NET
 Currently unsupported for two reasons:
 -the licence agreement does NOT allow you to compile GPL code.
 -there are serious problems in using DLL's compiled with MS VC6.
+See section "Problems with MS Visual C++ Version 7 / VC.NET" below.
 
 Cygwin GCC
 Ethereal can entirely be built with cygwin GCC. However the built binaries will
@@ -434,6 +435,21 @@ C:\Program Files\Ethereal\share\themes\Default\gtk-2.0\gtkrc
 
 After (re-)starting Ethereal, you should now see it's widgets in the modern 
 WinXP style on your screen.
+
+
+Problems with MS Visual C++ Version 7 / VC.NET
+----------------------------------------------
+Beside licensing problems with these compilers, there are known problems with DLL's.
+If Ethereal is compiled with MSVC Version 7, there are conflicts in the MSVCRT DLL's,
+The MSVCRT.DLL includes the standard ANSI-C functions like fopen, malloc, etc.. MSVCRT.DLL
+is shipped with the MSVC 6 compiler versions, and dynamically linked to prebuild DLL's like 
+the one's for gtk, glib and such. The MSVC 7 compiler now uses and ships MSVCRT71.DLL with 
+it, which is incompatible with MSVCRT.DLL. So when using the MSVC 7 compiler, some parts of
+the Ethereal code uses MSVCRT71.DLL, and some others (indirectly from e.g. the gtk DLL) will
+use MSVCRT.DLL. This will result in incorrect file handles and such.
+
+The same problem seems to apply on all MSVC compilers after version 6, like the
+"Microsoft Visual C++ Toolkit 2003".
 
 
 Instructions for Cygwin
