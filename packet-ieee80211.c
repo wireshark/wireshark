@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.114 2004/07/06 19:22:43 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.115 2004/07/07 04:48:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,6 +124,8 @@ static char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 #define COOK_ASSOC_ID(x)      ((x) & 0x3FFF)
 #define COOK_FRAGMENT_NUMBER(x) ((x) & 0x000F)
 #define COOK_SEQUENCE_NUMBER(x) (((x) & 0xFFF0) >> 4)
+#define COOK_QOS_PRIORITY(x)    ((x) & 0x0007)
+#define COOK_QOS_ACK_POLICY(x)  (((x) & 0x0060) >> 5)
 #define COOK_FLAGS(x)           (((x) & 0xFF00) >> 8)
 #define COOK_DS_STATUS(x)       ((x) & 0x3)
 #define COOK_WEP_KEY(x)       (((x) & 0xC0) >> 6)
@@ -177,6 +179,7 @@ static char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 #define MGT_DISASS           0x0A	/* Management - Disassociation             */
 #define MGT_AUTHENTICATION   0x0B	/* Management - Authentication             */
 #define MGT_DEAUTHENTICATION 0x0C	/* Management - Deauthentication           */
+#define MGT_ACTION           0x0D	/* Management - Action */
 
 #define CTRL_PS_POLL         0x1A	/* Control - power-save poll               */
 #define CTRL_RTS             0x1B	/* Control - request to send               */
@@ -193,6 +196,8 @@ static char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 #define DATA_CF_ACK_NOD      0x25	/* Data - CF ack (no data)                 */
 #define DATA_CF_POLL_NOD     0x26       /* Data - Data + CF poll (No data)         */
 #define DATA_CF_ACK_POLL_NOD 0x27	/* Data - CF ack + CF poll (no data)       */
+#define DATA_QOS_DATA        0x28	/* Data - QoS Data                         */
+#define DATA_QOS_NULL        0x2c	/* Data - QoS Null                         */
 
 #define DATA_ADDR_T1         0
 #define DATA_ADDR_T2         (FLAG_FROM_DS << 8)
@@ -221,6 +226,12 @@ static char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 #define FIELD_REASON_CODE     0x08
 #define FIELD_ASSOC_ID        0x09
 #define FIELD_STATUS_CODE     0x0A
+#define FIELD_CATEGORY_CODE   0x0B	/* Management action category */
+#define FIELD_ACTION_CODE     0x0C	/* Management action code */
+#define FIELD_DIALOG_TOKEN    0x0D	/* Management action dialog token */
+#define FIELD_WME_ACTION_CODE	0x0E	/* Management notification action code */
+#define FIELD_WME_DIALOG_TOKEN	0x0F	/* Management notification dialog token */
+#define FIELD_WME_STATUS_CODE	0x10	/* Management notification setup response status code */
 
 /* ************************************************************************* */
 /*        Logical field codes (IEEE 802.11 encoding of tags)                 */
@@ -244,6 +255,7 @@ static char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 
 #define WPA_OUI	"\x00\x50\xF2"
 #define RSN_OUI "\x00\x0F\xAC"
+#define WME_OUI "\x00\x50\xF2"
 
 #define PMKID_LEN 16
 
@@ -262,6 +274,7 @@ static const value_string frame_type_subtype_vals[] = {
 	{MGT_DISASS,           "Dissassociate"},
 	{MGT_AUTHENTICATION,   "Authentication"},
 	{MGT_DEAUTHENTICATION, "Deauthentication"},
+	{MGT_ACTION,           "Action"},
 	{CTRL_PS_POLL,         "Power-Save poll"},
 	{CTRL_RTS,             "Request-to-send"},
 	{CTRL_CTS,             "Clear-to-send"},
@@ -276,7 +289,47 @@ static const value_string frame_type_subtype_vals[] = {
 	{DATA_CF_ACK_NOD,      "Data + Acknowledgement (No data)"},
 	{DATA_CF_POLL_NOD,     "Data + CF-Poll (No data)"},
 	{DATA_CF_ACK_POLL_NOD, "Data + CF-Acknowledgement/Poll (No data)"},
+	{DATA_QOS_DATA,        "QoS Data"},
+	{DATA_QOS_NULL,        "QoS Null (No data)"},
 	{0,                    NULL}
+};
+
+/* ************************************************************************* */
+/*                             802.1D Tag Names                              */
+/* ************************************************************************* */
+static const char *qos_tags[8] = {
+	"Best Effort",
+	"Background",
+	"Spare",
+	"Excellent Effort",
+	"Controlled Load",
+	"Video",
+	"Voice",
+	"Network Control"
+};
+
+/* ************************************************************************* */
+/*                 WME Access Category Names (by 802.1D Tag)                 */
+/* ************************************************************************* */
+static const char *qos_acs[8] = {
+	"Best Effort",
+	"Background",
+	"Background",
+	"Video",
+	"Video",
+	"Video",
+	"Voice",
+	"Voice"
+};
+
+/* ************************************************************************* */
+/*                   WME Access Category Names (by WME ACI)                  */
+/* ************************************************************************* */
+static const char *wme_acs[4] = {
+	"Best Effort",
+	"Background",
+	"Video",
+	"Voice",
 };
 
 static int proto_wlan = -1;
@@ -330,6 +383,12 @@ static int hf_addr = -1;	/* Source or destination address subfield */
 
 
 /* ************************************************************************* */
+/*                Header values for QoS control field                        */
+/* ************************************************************************* */
+static int hf_qos_priority = -1;
+static int hf_qos_ack_policy = -1;
+
+/* ************************************************************************* */
 /*                Header values for sequence number field                    */
 /* ************************************************************************* */
 static int hf_frag_number = -1;
@@ -366,6 +425,11 @@ static int ff_beacon_interval = -1;	/* 16 bit Beacon interval            */
 static int ff_assoc_id = -1;	/* 16 bit AID field                          */
 static int ff_reason = -1;	/* 16 bit reason code                        */
 static int ff_status_code = -1;	/* Status code                               */
+static int ff_category_code = -1;	/* 8 bit Category code */
+static int ff_action_code = -1;		/* 8 bit Action code */
+static int ff_dialog_token = -1;	/* 8 bit Dialog token */
+static int ff_wme_action_code = -1;	/* Management notification action code */
+static int ff_wme_status_code = -1;	/* Management notification setup response status code */
 
 /* ************************************************************************* */
 /*            Flags found in the capability field (fixed field)              */
@@ -419,6 +483,7 @@ static gint ett_fragment = -1;
 static gint ett_80211_mgt = -1;
 static gint ett_fixed_parameters = -1;
 static gint ett_tagged_parameters = -1;
+static gint ett_qos_parameters = -1;
 static gint ett_wep_parameters = -1;
 
 static gint ett_rsn_cap_tree = -1;
@@ -448,6 +513,8 @@ static dissector_handle_t data_handle;
 static int
 find_header_length (guint16 fcf)
 {
+  int len;
+
   switch (COOK_FRAME_TYPE (fcf)) {
 
   case MGT_FRAME:
@@ -469,8 +536,17 @@ find_header_length (guint16 fcf)
     return 4;	/* XXX */
 
   case DATA_FRAME:
-    return (COOK_ADDR_SELECTOR(fcf) == DATA_ADDR_T4) ? DATA_LONG_HDR_LEN :
-						       DATA_SHORT_HDR_LEN;
+    len = (COOK_ADDR_SELECTOR(fcf) == DATA_ADDR_T4) ? DATA_LONG_HDR_LEN :
+						      DATA_SHORT_HDR_LEN;
+    switch (COMPOSE_FRAME_TYPE (fcf)) {
+
+    case DATA_QOS_DATA:
+    case DATA_QOS_NULL:
+      return len + 2;
+
+    default:
+      return len;
+    }
   default:
     return 4;	/* XXX */
   }
@@ -506,6 +582,7 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
     case DATA_CF_ACK:		/* Data with ACK */
     case DATA_CF_POLL:
     case DATA_CF_ACK_POLL:
+    case DATA_QOS_DATA:
       if (fixed_length_header)
         hdr_length = DATA_LONG_HDR_LEN;
       else
@@ -696,6 +773,26 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
     case FIELD_STATUS_CODE:
       proto_tree_add_item (tree, ff_status_code, tvb, offset, 2, TRUE);
       break;
+
+    case FIELD_CATEGORY_CODE:
+      proto_tree_add_item (tree, ff_category_code, tvb, offset, 1, TRUE);
+      break;
+
+    case FIELD_ACTION_CODE:
+      proto_tree_add_item (tree, ff_action_code, tvb, offset, 1, TRUE);
+      break;
+
+    case FIELD_DIALOG_TOKEN:
+      proto_tree_add_item (tree, ff_dialog_token, tvb, offset, 1, TRUE);
+      break;
+
+    case FIELD_WME_ACTION_CODE:
+      proto_tree_add_item (tree, ff_wme_action_code, tvb, offset, 1, TRUE);
+      break;
+
+    case FIELD_WME_STATUS_CODE:
+      proto_tree_add_item (tree, ff_wme_status_code, tvb, offset, 1, TRUE);
+      break;
     }
 }
 
@@ -740,6 +837,7 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
       char out_buff[SHORT_STR], *pos;
       guint i;
 	
+      /* Wi-Fi Protected Access (WPA) Information Element */
       if (tag_val_off + 6 <= tag_len && !memcmp(tag_val, WPA_OUI"\x01", 4)) {
         snprintf(out_buff, SHORT_STR, "WPA IE, type %u, version %u",
                   tag_val[tag_val_off + 3], pletohs(&tag_val[tag_val_off + 4]));
@@ -801,8 +899,99 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
         if (tag_val_off < tag_len)
           proto_tree_add_string(tree, tag_interpretation, tvb,
                                  offset, tag_len - tag_val_off, "Not interpreted");
-      } else if (tag_val_off + 4 <= tag_len &&
-		 !memcmp(tag_val, RSN_OUI"\x04", 4)) {
+      } else if (tag_val_off + 7 <= tag_len && !memcmp(tag_val, WME_OUI"\x02\x00", 5)) {
+      /* Wireless Multimedia Enhancements (WME) Information Element */
+        snprintf(out_buff, SHORT_STR, "WME IE: type %u, subtype %u, version %u, parameter set %u",
+		 tag_val[tag_val_off + 3], tag_val[tag_val_off + 4], tag_val[tag_val_off + 5],
+		 tag_val[tag_val_off + 6]);
+        proto_tree_add_string(tree, tag_interpretation, tvb, offset, 7, out_buff);
+      } else if (tag_val_off + 24 <= tag_len && !memcmp(tag_val, WME_OUI"\x02\x01", 5)) {
+      /* Wireless Multimedia Enhancements (WME) Parameter Element */
+        snprintf(out_buff, SHORT_STR, "WME PE: type %u, subtype %u, version %u, parameter set %u",
+		 tag_val[tag_val_off + 3], tag_val[tag_val_off + 4], tag_val[tag_val_off + 5],
+		 tag_val[tag_val_off + 6]);
+        proto_tree_add_string(tree, tag_interpretation, tvb, offset, 7, out_buff);
+	offset += 8;
+	tag_val_off += 8;
+	for (i = 0; i < 4; i++) {
+	  snprintf(out_buff, SHORT_STR, "WME AC Parameters: ACI %u (%s), Admission Control %sMandatory, AIFSN %u, ECWmin %u, ECWmax %u, TXOP %u",
+		   (tag_val[tag_val_off] & 0x60) >> 5,
+		   wme_acs[(tag_val[tag_val_off] & 0x60) >> 5],
+		   (tag_val[tag_val_off] & 0x10) ? "" : "not ",
+		   tag_val[tag_val_off] & 0x0f,
+		   tag_val[tag_val_off + 1] & 0x0f,
+		   (tag_val[tag_val_off + 1] & 0xf0) >> 4,
+		   tvb_get_letohs(tvb, offset + 2));
+	  proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
+	  offset += 4;
+	  tag_val_off += 4;
+	}
+      } else if (tag_val_off + 56 <= tag_len && !memcmp(tag_val, WME_OUI"\x02\x02", 5)) {
+      /* Wireless Multimedia Enhancements (WME) TSPEC Element */
+	guint16 ts_info, msdu_size, surplus_bandwidth;
+	const char *direction[] = { "Uplink", "Downlink", "Reserved", "Bi-directional" };
+	const value_string fields[] = {
+	  {12, "Minimum Service Interval"},
+	  {16, "Maximum Service Interval"},
+	  {20, "Inactivity Interval"},
+	  {24, "Service Start Time"},
+	  {28, "Minimum Data Rate"},
+	  {32, "Mean Data Rate"},
+	  {36, "Maximum Burst Size"},
+	  {40, "Minimum PHY Rate"},
+	  {44, "Peak Data Rate"},
+	  {48, "Delay Bound"},
+	  {0, NULL}
+	};
+	char *field;
+
+        snprintf(out_buff, SHORT_STR, "WME TSPEC: type %u, subtype %u, version %u",
+		 tag_val[tag_val_off + 3], tag_val[tag_val_off + 4], tag_val[tag_val_off + 5]);
+        proto_tree_add_string(tree, tag_interpretation, tvb, offset, 6, out_buff);
+	offset += 6;
+	tag_val_off += 6;
+
+	ts_info = tvb_get_letohs(tvb, offset);
+	snprintf(out_buff, SHORT_STR, "WME TS Info: Priority %u (%s) (%s), Contention-based access %sset, %s",
+		 (ts_info >> 11) & 0x7, qos_tags[(ts_info >> 11) & 0x7], qos_acs[(ts_info >> 11) & 0x7],
+		 (ts_info & 0x0080) ? "" : "not ",
+		 direction[(ts_info >> 5) & 0x3]);
+	proto_tree_add_string(tree, tag_interpretation, tvb, offset, 2, out_buff);
+	offset += 2;
+	tag_val_off += 2;
+
+	msdu_size = tvb_get_letohs(tvb, offset);
+	snprintf(out_buff, SHORT_STR, "WME TSPEC: %s MSDU Size %u",
+		 (msdu_size & 0x8000) ? "Fixed" : "Nominal", msdu_size & 0x7fff);
+	proto_tree_add_string(tree, tag_interpretation, tvb, offset, 2, out_buff);
+	offset += 2;
+	tag_val_off += 2;
+
+	snprintf(out_buff, SHORT_STR, "WME TSPEC: Maximum MSDU Size %u", tvb_get_letohs(tvb, offset));
+	proto_tree_add_string(tree, tag_interpretation, tvb, offset, 2, out_buff);
+	offset += 2;
+	tag_val_off += 2;
+
+	while ((field = val_to_str(tag_val_off, fields, NULL))) {
+	  snprintf(out_buff, SHORT_STR, "WME TSPEC: %s %u", field, tvb_get_letohl(tvb, offset));
+	  proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
+	  offset += 4;
+	  tag_val_off += 4;
+	  if (tag_val_off == 52)
+	    break;
+	}
+
+	surplus_bandwidth = tvb_get_letohs(tvb, offset);
+	snprintf(out_buff, SHORT_STR, "WME TSPEC: Surplus Bandwidth Allowance Factor %u.%u",
+		 (surplus_bandwidth >> 13) & 0x7, (surplus_bandwidth & 0x1fff));
+	offset += 2;
+	tag_val_off += 2;
+
+	snprintf(out_buff, SHORT_STR, "WME TSPEC: Medium Time %u", tvb_get_letohs(tvb, offset));
+	proto_tree_add_string(tree, tag_interpretation, tvb, offset, 2, out_buff);
+	offset += 2;
+	tag_val_off += 2;		 
+      } else if (tag_val_off + 4 <= tag_len && !memcmp(tag_val, RSN_OUI"\x04", 4)) {
 	/* IEEE 802.11i / Key Data Encapsulation / Data Type=4 - PMKID.
 	 * This is only used within EAPOL-Key frame Key Data. */
 	pos = out_buff;
@@ -1383,6 +1572,40 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 2);
 	  add_fixed_field (fixed_tree, tvb, 0, FIELD_REASON_CODE);
 	  break;
+
+
+	case MGT_ACTION:
+	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 3);
+	  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+
+	  switch (tvb_get_guint8(tvb, 0))
+	    {
+
+	    case 17:	/* Management notification frame */
+	      add_fixed_field (fixed_tree, tvb, 1, FIELD_WME_ACTION_CODE);
+	      add_fixed_field (fixed_tree, tvb, 2, FIELD_DIALOG_TOKEN);
+	      add_fixed_field (fixed_tree, tvb, 3, FIELD_WME_STATUS_CODE);
+
+	      offset = 4;	/* Size of fixed fields */
+
+	      tagged_parameter_tree_len =
+		tvb_reported_length_remaining(tvb, offset);
+	      if (tagged_parameter_tree_len != 0)
+		{
+		  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
+							   tagged_parameter_tree_len);
+
+		  ieee_80211_add_tagged_parameters (tvb, offset, tagged_tree,
+						    tagged_parameter_tree_len);
+		}
+	      break;
+
+	    default:	/* Management action frame */
+	      add_fixed_field (fixed_tree, tvb, 1, FIELD_ACTION_CODE);
+	      add_fixed_field (fixed_tree, tvb, 2, FIELD_DIALOG_TOKEN);
+	      break;
+	    }
+	  break;
 	}
     }
 }
@@ -1907,6 +2130,29 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	}
     }
 
+  if (tree && (frame_type_subtype == DATA_QOS_DATA || frame_type_subtype == DATA_QOS_NULL)) {
+      proto_item *qos_fields;
+      proto_tree *qos_tree;
+
+      guint16 qos_control, qos_priority, qos_ack_policy;
+
+      qos_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len - 2, 2,
+				       "QoS parameters");
+      qos_tree = proto_item_add_subtree (qos_fields, ett_qos_parameters);
+
+      qos_control = tvb_get_letohs(tvb, hdr_len - 2);
+      qos_priority = COOK_QOS_PRIORITY(qos_control);
+      qos_ack_policy = COOK_QOS_ACK_POLICY(qos_control);
+      proto_tree_add_uint_format (qos_tree, hf_qos_priority, tvb,
+				  hdr_len - 2, 2, qos_priority,
+				  "Priority: %d (%s) (%s)",
+				  qos_priority, qos_tags[qos_priority], qos_acs[qos_priority]);
+      proto_tree_add_uint_format (qos_tree, hf_qos_ack_policy, tvb,
+				  hdr_len - 2, 2, qos_ack_policy,
+				  "Ack Policy: %d (%sAcknowledge)", 
+				  qos_ack_policy, qos_ack_policy ? "Do not " : "");
+  }
+
   /*
    * Only management and data frames have a body, so we don't have
    * anything more to do for other types of frames.
@@ -1928,6 +2174,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	case DATA_CF_ACK_NOD:
 	case DATA_CF_POLL_NOD:
 	case DATA_CF_ACK_POLL_NOD:
+	case DATA_QOS_NULL:
 	  return;
 	}
 	break;
@@ -2497,6 +2744,29 @@ proto_register_ieee80211 (void)
     {0x00, NULL}
   };
 
+  static const value_string category_codes[] = {
+    {0x11, "Management notification frame"},
+    {0x00, NULL}
+  };
+
+  static const value_string action_codes[] = {
+    {0x00, NULL}
+  };
+
+  static const value_string wme_action_codes[] = {
+    {0x00, "Setup request"},
+    {0x01, "Setup response"},
+    {0x02, "Teardown"},
+    {0x00, NULL}
+  };
+
+  static const value_string wme_status_codes[] = {
+    {0x00, "Admission accepted"},
+    {0x01, "Invalid parameters"},
+    {0x03, "Refused"},
+    {0x00, NULL}
+  };
+
   static hf_register_info hf[] = {
     {&hf_data_rate,
      {"Data Rate", "wlan.data_rate", FT_UINT8, BASE_DEC, NULL, 0,
@@ -2609,6 +2879,14 @@ proto_register_ieee80211 (void)
     {&hf_seq_number,
      {"Sequence number", "wlan.seq", FT_UINT16, BASE_DEC, NULL, 0,
       "Sequence number", HFILL }},
+
+    {&hf_qos_priority,
+     {"Priority", "wlan.qos.priority", FT_UINT16, BASE_DEC, NULL, 0,
+      "802.1D Tag", HFILL }},
+
+    {&hf_qos_ack_policy,
+     {"Ack Policy", "wlan.qos.ack", FT_UINT16, BASE_DEC, NULL, 0,
+      "Ack Policy", HFILL }},
 
     {&hf_fcs,
      {"Frame check sequence", "wlan.fcs", FT_UINT32, BASE_HEX,
@@ -2786,6 +3064,30 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_HEX, VALS (&status_codes), 0,
       "Status of requested event", HFILL }},
 
+    {&ff_category_code,
+     {"Category code", "wlan_mgt.fixed.category_code",
+      FT_UINT16, BASE_HEX, VALS (&category_codes), 0,
+      "Management action category", HFILL }},
+
+    {&ff_action_code,
+     {"Action code", "wlan_mgt.fixed.action_code",
+      FT_UINT16, BASE_HEX, VALS (&action_codes), 0,
+      "Management action code", HFILL }},
+
+    {&ff_dialog_token,
+     {"Dialog token", "wlan_mgt.fixed.dialog_token",
+      FT_UINT16, BASE_HEX, NULL, 0, "Management action dialog token", HFILL }},
+
+    {&ff_wme_action_code,
+     {"Action code", "wlan_mgt.fixed.action_code",
+      FT_UINT16, BASE_HEX, VALS (&wme_action_codes), 0,
+      "Management notification action code", HFILL }},
+
+    {&ff_wme_status_code,
+     {"Status code", "wlan_mgt.fixed.status_code",
+      FT_UINT16, BASE_HEX, VALS (&wme_status_codes), 0,
+      "Management notification setup response status code", HFILL }},
+
     {&tag_number,
      {"Tag", "wlan_mgt.tag.number",
       FT_UINT8, BASE_DEC, VALS(tag_num_vals), 0,
@@ -2835,6 +3137,7 @@ proto_register_ieee80211 (void)
     &ett_80211_mgt,
     &ett_fixed_parameters,
     &ett_tagged_parameters,
+    &ett_qos_parameters,
     &ett_wep_parameters,
     &ett_cap_tree,
     &ett_rsn_cap_tree,

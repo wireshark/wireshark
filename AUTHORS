@@ -2162,6 +2162,10 @@ Jon Oberheide           <jon [AT] oberheide.org> {
 	giFT support
 }
 
+Henry Ptasinski		<henryp [AT] broadcom.com> {
+	Support for 802.11e WME/QoS info
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 
