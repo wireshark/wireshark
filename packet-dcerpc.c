@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.90 2002/12/11 19:50:24 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.91 2002/12/14 23:44:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2550,11 +2550,6 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (hdr.ptype > 19)
         return -1;
 
-    if (check_col (pinfo->cinfo, COL_PROTOCOL))
-        col_set_str (pinfo->cinfo, COL_PROTOCOL, "DCERPC");
-    if (check_col (pinfo->cinfo, COL_INFO))
-        col_add_str (pinfo->cinfo, COL_INFO, pckt_vals[hdr.ptype].strptr);
-
     hdr.flags = tvb_get_guint8 (tvb, offset++);
     tvb_memcpy (tvb, (guint8 *)hdr.drep, offset, sizeof (hdr.drep));
     offset += sizeof (hdr.drep);
@@ -2573,8 +2568,12 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
         return 0;	/* desegmentation required */
     }
 
+    if (check_col (pinfo->cinfo, COL_PROTOCOL))
+        col_set_str (pinfo->cinfo, COL_PROTOCOL, "DCERPC");
     if (check_col (pinfo->cinfo, COL_INFO))
-        col_append_fstr (pinfo->cinfo, COL_INFO, ": call_id: %u", hdr.call_id);
+        col_add_fstr (pinfo->cinfo, COL_INFO, "%s: call_id: %u",
+	    pckt_vals[hdr.ptype].strptr, hdr.call_id);
+
     if (tree) {
       offset = start_offset;
         ti = proto_tree_add_item (tree, proto_dcerpc, tvb, offset, hdr.frag_len, FALSE);
