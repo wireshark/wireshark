@@ -464,7 +464,11 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 			ber_last_created_item = it;
 		}
 		if (out_tvb) {
-			*out_tvb = tvb_new_subset(tvb, offset, len, len);
+			if(len<=tvb_length_remaining(tvb, offset)){
+				*out_tvb = tvb_new_subset(tvb, offset, len, len);
+			} else {
+				*out_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));
+			}
 		}
 	}
 	return end_offset;
@@ -706,7 +710,6 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 		offset = get_ber_length(tvb, offset, &len, &ind_field);
 		eoffset = offset + len;
-
 ber_sequence_try_again:
 		/* have we run out of known entries in the sequence ?*/
 		if (!seq->func) {
@@ -769,8 +772,10 @@ ber_sequence_try_again:
 		}
 		
 		/* call the dissector for this field */
-		if(ind_field){
-			/* creating a subtvb for indefinite length,  just
+		if(ind_field 
+		|| ((eoffset-hoffset)>tvb_length_remaining(tvb, hoffset)) ){
+			/* If the field is indefinite (i.e. we dont know the
+			 * length) of if the tvb is short, then just
 			 * give it all of the tvb and hope for the best.
 			 */
 			next_tvb = tvb_new_subset(tvb, hoffset, tvb_length_remaining(tvb,hoffset), tvb_length_remaining(tvb,hoffset));
@@ -1454,7 +1459,11 @@ int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree 
 			}
 		}
 		if (out_tvb) {
-			*out_tvb = tvb_new_subset(tvb, offset, len, 8*len-pad);
+			if(len<=tvb_length_remaining(tvb, offset)){
+				*out_tvb = tvb_new_subset(tvb, offset, len, len);
+			} else {
+				*out_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));
+			}
 		}
 	}
 
