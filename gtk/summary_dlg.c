@@ -192,7 +192,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Capture */
   add_string_to_table(table, &row, "", "");
-  add_string_to_table_sensitive(table, &row, "Capture", "", (gboolean) summary.iface);
+  add_string_to_table_sensitive(table, &row, "Capture", "", (summary.iface != NULL));
 
   /* interface */
   if (summary.iface) {
@@ -200,7 +200,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   } else {
     g_snprintf(string_buff, SUM_STR_MAX, "unknown");
   }
-  add_string_to_table_sensitive(table, &row, "Interface:", string_buff, (gboolean) summary.iface);
+  add_string_to_table_sensitive(table, &row, "Interface:", string_buff, (summary.iface) != NULL);
 
   /* Dropped count */
   if (summary.drops_known) {
@@ -208,7 +208,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   } else {
     g_snprintf(string_buff, SUM_STR_MAX, "unknown");
   }
-  add_string_to_table_sensitive(table, &row, "Dropped packets:", string_buff, (gboolean) summary.iface);
+  add_string_to_table_sensitive(table, &row, "Dropped packets:", string_buff, (summary.iface != NULL));
 
 #ifdef HAVE_LIBPCAP
   /* Capture filter */
@@ -221,7 +221,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
       g_snprintf(string_buff, SUM_STR_MAX, "unknown");
     }
   }
-  add_string_to_table_sensitive(table, &row, "Capture filter:", string_buff, (gboolean) summary.iface);
+  add_string_to_table_sensitive(table, &row, "Capture filter:", string_buff, (summary.iface != NULL));
 #endif
 
 

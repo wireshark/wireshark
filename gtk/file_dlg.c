@@ -157,7 +157,7 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     gtk_label_set_text(GTK_LABEL(label), "-");
 
     if(!cf_name) {
-        return FALSE;
+        return NULL;
     }
 
     label = OBJECT_GET_DATA(prev, PREVIEW_FILENAME_KEY);
@@ -166,7 +166,7 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     if (test_for_directory(cf_name) == EISDIR) {
         label = OBJECT_GET_DATA(prev, PREVIEW_FORMAT_KEY);
         gtk_label_set_text(GTK_LABEL(label), "directory");
-        return FALSE;
+        return NULL;
     }
 
     wth = wtap_open_offline(cf_name, &err, &err_info, TRUE);
@@ -177,13 +177,13 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
         } else {
             gtk_label_set_text(GTK_LABEL(label), "error opening file");
         }
-        return FALSE;
+        return NULL;
     }
 
     /* Find the size of the file. */
     if (fstat(wtap_fd(wth), &cf_stat) < 0) {
         wtap_close(wth);
-        return FALSE;
+        return NULL;
     }
 
     /* size */
@@ -339,7 +339,7 @@ file_open_entry_changed(GtkWidget *w _U_, gpointer file_sel)
 
     /* set the filename to the preview */
     wth = preview_set_filename(prev, cf_name);
-    have_preview = (gboolean) wth;
+    have_preview = (wth != NULL);
 
     /* make the preview widget sensitive */
     gtk_widget_set_sensitive(prev, have_preview);

@@ -66,8 +66,8 @@ static void adjust_menus(void) {
 
     if(history_current) {
         set_menus_for_packet_history(
-            (gboolean) g_list_previous(history_current), 
-            (gboolean) g_list_next(history_current));
+            (g_list_previous(history_current) != NULL),
+            (g_list_next(history_current) != NULL));
     } else {
         /* we don't have any history */
         set_menus_for_packet_history(FALSE, FALSE);
