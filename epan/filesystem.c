@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.23 2003/05/15 07:44:54 guy Exp $
+ * $Id: filesystem.c,v 1.24 2003/09/15 19:04:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,6 +98,7 @@ get_basename(char *path)
 {
 	char *filename;
 
+	g_assert(path != NULL);
 	filename = find_last_pathname_separator(path);
 	if (filename == NULL) {
 		/*
@@ -124,6 +125,7 @@ get_dirname(char *path)
 {
 	char *separator;
 
+	g_assert(path != NULL);
 	separator = find_last_pathname_separator(path);
 	if (separator == NULL) {
 		/*

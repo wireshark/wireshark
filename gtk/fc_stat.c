@@ -1,7 +1,7 @@
 /* fc_stat.c
  * fc_stat   2003 Ronnie Sahlberg
  *
- * $Id: fc_stat.c,v 1.5 2003/09/05 10:26:44 sahlberg Exp $
+ * $Id: fc_stat.c,v 1.6 2003/09/15 19:05:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,7 +65,10 @@ fcstat_reset(void *pfc)
 	char title[256];
 
 	reset_srt_table_data(&fc->fc_srt_table);
-	snprintf(title, 255, "Fibre Channel Service Response Time statistics : %s", get_basename(cfile.filename));
+	if (cfile.filename)
+		snprintf(title, 255, "Fibre Channel Service Response Time statistics : %s", get_basename(cfile.filename));
+	else
+		snprintf(title, 255, "Fibre Channel Service Response Time statistics");
 	gtk_window_set_title(GTK_WINDOW(fc->win), title);
 }
 
@@ -138,7 +141,10 @@ gtk_fcstat_init(char *optarg)
 
 	fc->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(fc->win), 550, 400);
-	snprintf(title, 255, "Fibre Channel Service Response Time statistics : %s", get_basename(cfile.filename));
+	if (cfile.filename)
+		snprintf(title, 255, "Fibre Channel Service Response Time statistics : %s", get_basename(cfile.filename));
+	else
+		snprintf(title, 255, "Fibre Channel Service Response Time statistics");
 	gtk_window_set_title(GTK_WINDOW(fc->win), title);
 	SIGNAL_CONNECT(fc->win, "destroy", win_destroy_cb, fc);
 
