@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.10 2000/01/24 03:33:34 guy Exp $
+ * $Id: packet-icq.c,v 1.11 2000/03/07 05:30:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -611,7 +611,7 @@ proto_add_icq_attr(proto_tree* tree, /* The tree to add to */
 	proto_tree_add_text(tree,
 			    offset,
 			    sizeof(guint16),
-			    "Length: %d", len);
+			    "Length: %u", len);
 	return -1;
     }
 			    
@@ -623,7 +623,7 @@ proto_add_icq_attr(proto_tree* tree, /* The tree to add to */
     proto_tree_add_text(tree,
 			offset,
 			sizeof(guint16) + len,
-			"%s[%d]: %s", descr, len, data);
+			"%s[%u]: %s", descr, len, data);
     g_free(data);
 
     return len + sizeof(guint16);
@@ -675,7 +675,7 @@ icqv5_decode_msgType(proto_tree* tree,
     ti = proto_tree_add_text(tree,
 			     offset ,
 			     2,
-			     "Type: %d (%s)", msgType, findMsgType(msgType));
+			     "Type: %u (%s)", msgType, findMsgType(msgType));
     /* Create a new subtree */
     subtree = proto_item_add_subtree(ti, ett_icq_body_parts);
 
@@ -683,7 +683,7 @@ icqv5_decode_msgType(proto_tree* tree,
     case 0xffff:           /* Field unknown */
 	break;
     default:
-	fprintf(stderr, "Unknown msgType: %d (%04x)\n", msgType, msgType);
+	fprintf(stderr, "Unknown msgType: %u (%04x)\n", msgType, msgType);
 	break;
     case MSG_TEXT:
 	msgText = g_malloc(left + 1);
@@ -759,7 +759,7 @@ icqv5_decode_msgType(proto_tree* tree,
 	proto_tree_add_text(subtree,
 			    offset + OFF_MSG_LEN,
 			    1,
-			    "Authorization: (%d) %s",auth_suc,
+			    "Authorization: (%u) %s",auth_suc,
 			    (auth_suc==0)?"Denied":"Allowed");
 	proto_tree_add_text(subtree,
 			    offset + OFF_MSG_LEN + 1,
@@ -919,7 +919,7 @@ icqv5_cmd_ack(proto_tree* tree,/* Tree to put the data in */
 	proto_tree_add_text(subtree,
 			    offset + CMD_ACK_RANDOM,
 			    4,
-			    "Random: 0x%08lx", random);
+			    "Random: 0x%08x", random);
     }
 }
 
@@ -959,12 +959,12 @@ icqv5_cmd_rand_search(proto_tree* tree,       /* Tree to put the data in */
 	    proto_tree_add_text(subtree,
 				offset + CMD_RAND_SEARCH_GROUP,
 				4,
-				"Group: (%d) %s", group, groups[group-1]);
+				"Group: (%u) %s", group, groups[group-1]);
 	else
 	    proto_tree_add_text(subtree,
 				offset + CMD_RAND_SEARCH_GROUP,
 				4,
-				"Group: (%d)", group);
+				"Group: (%u)", group);
     }
 }
 
@@ -989,7 +989,7 @@ icqv5_cmd_ack_messages(proto_tree* tree,/* Tree to put the data in */
 	proto_tree_add_text(subtree,
 			    offset + CMD_ACK_MESSAGES_RANDOM,
 			    4,
-			    "Random: 0x%08lx", random);
+			    "Random: 0x%08x", random);
     }
 }
 
@@ -1014,7 +1014,7 @@ icqv5_cmd_keep_alive(proto_tree* tree,/* Tree to put the data in */
 	proto_tree_add_text(subtree,
 			    offset + CMD_KEEP_ALIVE_RANDOM,
 			    4,
-			    "Random: 0x%08lx", random);
+			    "Random: 0x%08x", random);
     }
 }
 
@@ -1024,28 +1024,13 @@ icqv5_cmd_send_text_code(proto_tree* tree,/* Tree to put the data in */
 			 int offset,              /* Offset from the start of the packet to the content */
 			 int size)                  /* Number of chars left to do */
 {
-    proto_tree* subtree;
-    proto_item* ti;
-    gint16 len = -1;
+    proto_tree* subtree = NULL;
+    proto_item* ti = NULL;
+    guint16 len = 0;
     guint16 x1 = -1;
-    char* text = NULL;
+    char* text;
     int left = size;		/* The amount of data left to analyse */
 
-    if (left>=sizeof(gint16)) {
-	len = pletohs(pd+CMD_SEND_TEXT_CODE_LEN);
-	left -= sizeof(gint16);
-    }
-    if (len>=0) {
-	len = MIN(len, left);
-	text = g_malloc(len+1);
-	memcpy(text, pd + CMD_SEND_TEXT_CODE_TEXT, len);
-	text[len] = '\0';
-	left -= len;
-    }
-    if (left>=sizeof(gint16)) {
-	x1 = pletohs(pd + size - left);
-	left -= sizeof(gint16);
-    }
     if (tree){
 	ti = proto_tree_add_item_format(tree,
 					hf_icq_cmd,
@@ -1053,22 +1038,46 @@ icqv5_cmd_send_text_code(proto_tree* tree,/* Tree to put the data in */
 					left,
 					CMD_KEEP_ALIVE,
 					"Body");
+    }
+
+    if (left<sizeof(guint16))
+	return;
+    len = pletohs(pd+CMD_SEND_TEXT_CODE_LEN);
+    left -= sizeof(gint16);
+    if (tree){
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree,
 			    offset + CMD_SEND_TEXT_CODE_LEN,
 			    2,
 			    "Length: %d", len);
-	proto_tree_add_text(subtree,
+    }
+
+    if (len>0) {
+	len = MIN(len, left);
+	text = g_malloc(len+1);
+	memcpy(text, pd + CMD_SEND_TEXT_CODE_TEXT, len);
+	text[len] = '\0';
+	left -= len;
+	if (tree){
+	    proto_tree_add_text(subtree,
 			    offset + CMD_SEND_TEXT_CODE_TEXT,
 			    len,
 			    "Text: %s",text);
+	}
+	g_free(text);
+    }
+
+    if (left<sizeof(gint16))
+	return;
+
+    x1 = pletohs(pd + size - left);
+    left -= sizeof(gint16);
+    if (tree){
 	proto_tree_add_text(subtree,
 			    offset + CMD_SEND_TEXT_CODE_TEXT + len,
 			    2,
 			    "X1: 0x%04x", x1);
     }
-    if (text!=NULL)
-	g_free(text);
 }
 
 static void
@@ -1093,7 +1102,7 @@ icqv5_cmd_add_to_list(proto_tree* tree,/* Tree to put the data in */
 	proto_tree_add_text(subtree,
 			    offset + CMD_ADD_TO_LIST_UIN,
 			    4,
-			    "UIN: %ld", uin);
+			    "UIN: %u", uin);
     }
 }
 
@@ -1163,11 +1172,11 @@ icqv5_cmd_send_msg(proto_tree* tree,
 	proto_tree_add_text(subtree,
 			    offset + CMD_SEND_MSG_RECV_UIN,
 			    4,
-			    "Receiver UIN: %ld", receiverUIN);
+			    "Receiver UIN: %u", receiverUIN);
 	proto_tree_add_text(subtree,
 			    offset + CMD_SEND_MSG_MSG_LEN,
 			    2,
-			    "Length: %d", msgLen);
+			    "Length: %u", msgLen);
 
 	icqv5_decode_msgType(subtree,
 			     pd + CMD_SEND_MSG_MSG_TYPE,
@@ -1225,12 +1234,12 @@ icqv5_cmd_login(proto_tree* tree,
 	    proto_tree_add_text(subtree,
 				offset + CMD_LOGIN_TIME,
 				4,
-				"Time: %d = %s", theTime, ctime(&theTime));
+				"Time: %ld = %s", (long)theTime, ctime(&theTime));
 	if (port!=-1)
 	    proto_tree_add_text(subtree,
 				offset + CMD_LOGIN_PORT,
 				4,
-				"Port: %d", port);
+				"Port: %u", port);
 	if ((passwdLen!=-1) && (password!=NULL))
 	    proto_tree_add_text(subtree,
 				offset + CMD_LOGIN_PASSLEN,
@@ -1278,7 +1287,7 @@ icqv5_cmd_contact_list(proto_tree* tree,
 	proto_tree_add_text(subtree,
 			    offset + CMD_CONTACT_LIST,
 			    1,
-			    "Number of uins: %d", num);
+			    "Number of uins: %u", num);
 	/*
 	 * A sequence of num times UIN follows
 	 */
@@ -1291,7 +1300,7 @@ icqv5_cmd_contact_list(proto_tree* tree,
 		proto_tree_add_text(subtree,
 				    offset,
 				    4,
-				    "UIN[%d]: %ld",i,uin);
+				    "UIN[%d]: %u",i,uin);
 		p += 4;
 		offset += 4;
 		left -= 4;
@@ -1433,7 +1442,7 @@ icqv5_srv_user_online(proto_tree* tree,/* Tree to put the data in */
 	proto_tree_add_text(subtree,
 			    offset + SRV_USER_ONL_UIN,
 			    4,
-			    "UIN: %d", uin);
+			    "UIN: %u", uin);
 	proto_tree_add_text(subtree,
 			    offset + SRV_USER_ONL_IP,
 			    4,
@@ -1441,7 +1450,7 @@ icqv5_srv_user_online(proto_tree* tree,/* Tree to put the data in */
 	proto_tree_add_text(subtree,
 			    offset + SRV_USER_ONL_PORT,
 			    4,
-			    "Port: %d", port);
+			    "Port: %u", port);
 	proto_tree_add_text(subtree,
 			    offset + SRV_USER_ONL_REALIP,
 			    4,
@@ -1481,7 +1490,7 @@ icqv5_srv_user_offline(proto_tree* tree,/* Tree to put the data in */
 	proto_tree_add_text(subtree,
 			    offset + SRV_USER_OFFLINE_UIN,
 			    4,
-			    "UIN: %d", uin);
+			    "UIN: %u", uin);
     }
 }
 
@@ -1513,7 +1522,7 @@ icqv5_srv_multi(proto_tree* tree,/* Tree to put the data in */
 	proto_tree_add_text(subtree,
 			    offset + SRV_MULTI_NUM,
 			    1,
-			    "Number of pkts: %d", num);
+			    "Number of pkts: %u", num);
 	/*
 	 * A sequence of num times ( pktsize, packetData) follows
 	 */
@@ -1606,7 +1615,7 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 	    proto_tree_add_text(sstree,
 				offset + size - left,
 				sizeof(guint16),
-				"Length: %d", pktLen);
+				"Length: %u", pktLen);
 	    
 	    p += sizeof(guint16); left -= sizeof(guint16);
 	}
@@ -1638,7 +1647,7 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 	    proto_tree_add_text(sstree,
 				offset + size - left,
 				sizeof(guint32),
-				"UIN: %ld", uin);
+				"UIN: %u", uin);
 	    p+=sizeof(guint32);left-=sizeof(guint32);
 
 	    for ( ; *d!=NULL; d++) {
@@ -1738,7 +1747,7 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 	    proto_tree_add_text(sstree,
 				offset + size - left,
 				sizeof(guint32),
-				"UIN: %ld", uin);
+				"UIN: %u", uin);
 	    p+=sizeof(guint32);left-=sizeof(guint32);
 #endif
 	    
@@ -1771,7 +1780,7 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 	    proto_tree_add_text(sstree,
 				offset + size - left,
 				sizeof(guint16),
-				"Countrycode: %d", country);
+				"Countrycode: %u", country);
 	    p+=sizeof(guint16); left-=sizeof(guint16);
 	    /* Get the timezone setting */
 	    if (left<sizeof(unsigned char))
@@ -1780,7 +1789,7 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 	    proto_tree_add_text(sstree,
 				offset + size - left,
 				sizeof(unsigned char),
-				"Timezone: %d", user_timezone);
+				"Timezone: %u", user_timezone);
 	    p++; left--;
 	    /* Get the authorize setting */
 	    if (left<sizeof(unsigned char))
@@ -1789,7 +1798,7 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 	    proto_tree_add_text(sstree,
 				offset + size - left,
 				sizeof(unsigned char),
-				"Authorization: (%d) %s",
+				"Authorization: (%u) %s",
 				auth, (auth==0)?"No":"Yes");
 	    p++; left--;
 	    /* Get the webaware setting */
@@ -1799,7 +1808,7 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 	    proto_tree_add_text(sstree,
 				offset + size - left,
 				sizeof(unsigned char),
-				"Webaware: (%d) %s",
+				"Webaware: (%u) %s",
 				auth, (auth==0)?"No":"Yes");
 	    p++; left--;
 	    /* Get the authorize setting */
@@ -1809,7 +1818,7 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 	    proto_tree_add_text(sstree,
 				offset + size - left,
 				sizeof(unsigned char),
-				"HideIP: (%d) %s",
+				"HideIP: (%u) %s",
 				auth, (auth==0)?"No":"Yes");
 	    p++; left--;
 	    break;
@@ -1853,7 +1862,7 @@ icqv5_srv_recv_message(proto_tree* tree,      /* Tree to put the data in */
 				       offset + SRV_RECV_MSG_UIN,
 				       sizeof(guint32),
 				       uin,
-				       "UIN: %d", uin);
+				       "UIN: %u", uin);
 	    left -= sizeof(guint32);
 	} else
 	    return;
@@ -1867,7 +1876,7 @@ icqv5_srv_recv_message(proto_tree* tree,      /* Tree to put the data in */
 	    proto_tree_add_text(subtree,
 				offset + SRV_RECV_MSG_YEAR,
 				sizeof(guint16) + 4*sizeof(unsigned char),
-				"Time: %d-%d-%d %02d:%02d",
+				"Time: %u-%u-%u %02u:%02u",
 				day, month, year, hour, minute);
 	    
 	    left -= (sizeof(guint16)+4*sizeof(unsigned char));
@@ -1912,7 +1921,7 @@ icqv5_srv_rand_user(proto_tree* tree,      /* Tree to put the data in */
 	proto_tree_add_text(subtree,
 			    offset + SRV_RAND_USER_UIN,
 			    sizeof(guint32),
-			    "UIN: %ld", uin);
+			    "UIN: %u", uin);
 	left -= sizeof(guint32);
 	/* guint32 IP */
 	if (left<sizeof(guint32))
@@ -1930,7 +1939,7 @@ icqv5_srv_rand_user(proto_tree* tree,      /* Tree to put the data in */
 	proto_tree_add_text(subtree,
 			    offset + SRV_RAND_USER_UIN,
 			    sizeof(guint32),
-			    "Port: %ld", port);
+			    "Port: %u", port);
 	left -= sizeof(guint32);
 	/* guint32 realIP */			    
 	if (left<sizeof(guint32))
@@ -1957,7 +1966,7 @@ icqv5_srv_rand_user(proto_tree* tree,      /* Tree to put the data in */
 	proto_tree_add_text(subtree,
 			    offset + SRV_RAND_USER_STATUS,
 			    sizeof(guint32),
-			    "Status: (%ld) %s", status, findStatus(status));
+			    "Status: (%u) %s", status, findStatus(status));
 	/* guint16 tcpVersion */
 	if (left<sizeof(guint16))
 	    return;
@@ -1965,7 +1974,7 @@ icqv5_srv_rand_user(proto_tree* tree,      /* Tree to put the data in */
 	proto_tree_add_text(subtree,
 			    offset + SRV_RAND_USER_TCP_VER,
 			    sizeof(guint16),
-			    "TCPVersion: %d", tcpVer);
+			    "TCPVersion: %u", tcpVer);
 	left -= sizeof(guint16);
     }
 }
@@ -2015,7 +2024,7 @@ dissect_icqv5Client(const u_char *pd,
 				 proto_icq,
 				 offset,
 				 pktsize, NULL,
-				 "ICQv5 %s (len %d)",
+				 "ICQv5 %s (len %u)",
 				 findClientCmd(cmd),
 				 pktsize);
         icq_tree = proto_item_add_subtree(ti, ett_icq);
@@ -2046,7 +2055,7 @@ dissect_icqv5Client(const u_char *pd,
 				   offset+ICQ5_CL_UIN,
 				   4,
 				   uin,
-				   "UIN: %ld (0x%08X)",
+				   "UIN: %u (0x%08X)",
 				   uin, uin);
 	proto_tree_add_text(icq_header_tree,
 			    offset + ICQ5_CL_SEQNUM1,
@@ -2135,7 +2144,7 @@ dissect_icqv5Client(const u_char *pd,
 				       offset+ICQ5_CL_CMD,
 				       2,
 				       cmd,
-				       "Command: %d (%s)",
+				       "Command: %u (%s)",
 				       cmd, findClientCmd(cmd));
 	    fprintf(stderr,"Missing: %s\n", findClientCmd(cmd));
 	    break;
@@ -2190,7 +2199,7 @@ dissect_icqv5Server(const u_char *pd,
 					proto_icq,
 					offset,
 					pktsize, NULL,
-					"ICQv5 %s (len %d)",
+					"ICQv5 %s (len %u)",
 					findServerCmd(cmd),
 					pktsize);
 	
@@ -2226,7 +2235,7 @@ dissect_icqv5Server(const u_char *pd,
 				   offset+ICQ5_SRV_UIN,
 				   4,
 				   uin,
-				   "UIN: %ld",
+				   "UIN: %u",
 				   uin);
 	proto_tree_add_item_format(icq_header_tree,
 				   hf_icq_checkcode,
@@ -2305,7 +2314,7 @@ dissect_icqv5Server(const u_char *pd,
 				       offset + ICQ5_SRV_CMD,
 				       2,
 				       cmd,
-				       "Command: %d (%s)",
+				       "Command: %u (%s)",
 				       cmd, findServerCmd(cmd));
 	    fprintf(stderr,"Missing: %s\n", findServerCmd(cmd));
 	    break;
