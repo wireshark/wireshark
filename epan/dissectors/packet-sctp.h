@@ -35,6 +35,7 @@ struct _sctp_info {
   gboolean adler32_correct;
   gboolean crc32c_calculated;
   gboolean crc32c_correct;
+  gboolean checksum_zero;
   guint32 verification_tag;
   guint32 number_of_tvbs;
   tvbuff_t *tvb[MAXIMUM_NUMBER_OF_TVBS];

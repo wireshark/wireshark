@@ -1965,7 +1965,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
   if (padding_length > 0)
     proto_tree_add_item(chunk_tree, hf_chunk_padding, chunk_tvb, CHUNK_HEADER_OFFSET + length, padding_length, NETWORK_BYTE_ORDER);
 
-  if (useinfo && ((type == SCTP_DATA_CHUNK_ID) || show_always_control_chunks))
+  if (useinfo && ((type == SCTP_DATA_CHUNK_ID) || show_always_control_chunks) && check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_fence(pinfo->cinfo, COL_INFO);
 
   return result;
@@ -2033,6 +2033,8 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
 
   length    = tvb_length(tvb);
   checksum  = tvb_get_ntohl(tvb, CHECKSUM_OFFSET);
+  sctp_info.checksum_zero = (checksum == 0);
+  
   switch(sctp_checksum) {
   case SCTP_CHECKSUM_NONE:
     break;
