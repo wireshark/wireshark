@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.13 2000/07/29 03:20:51 sharpe Exp $
+ * $Id: filter_prefs.c,v 1.14 2000/08/05 07:02:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,14 +71,15 @@ static GtkWidget   *filter_l, *chg_bt, *copy_bt, *del_bt, *name_te, *filter_te, 
 static GList       *fl = NULL;
 
 static void get_filter_list(void);
-static GtkWidget *filter_dialog_new(GtkWidget *caller, GtkWidget *filter_te);
+static GtkWidget *filter_dialog_new(GtkWidget *caller, GtkWidget *filter_te,
+    gboolean wants_apply_button);
 static void filter_dlg_ok(GtkWidget *ok_bt, gpointer parent_w);
 static void filter_dlg_save(GtkWidget *save_bt, gpointer parent_w);
 static void filter_dlg_cancel(GtkWidget *cancel_bt, gpointer parent_w);
 static void filter_dlg_destroy(GtkWidget *win, gpointer data);
 static void filter_sel_apply_cb(GtkWidget *cancel_bt, gpointer parent_w);
 
-static GtkWidget *filter_prefs_show(GtkWidget *);
+static GtkWidget *filter_prefs_show(GtkWidget *, gboolean);
 static void       filter_sel_list_cb(GtkWidget *, gpointer);
 static void       filter_sel_new_cb(GtkWidget *, gpointer);
 static void       filter_sel_chg_cb(GtkWidget *, gpointer);
@@ -158,9 +159,15 @@ get_filter_list(void)
    you to browse through the list of filters to select one to be put
    into the text entry box, and, if you select a filter with this
    dialog box, enters the text of the filter into a text entry box
-   associated with the button. */
+   associated with the button.
+
+   If "wants_apply_button" is non-null, hitting <Enter> in the text entry
+   box causes the filter in that box to be applied to something, so
+   the filter dialog should have an "Apply" button that causes the
+   selected filter to be put into the text entry box and the text
+   entry box activated; otherwise, no "Apply" button need apply. */
 void
-filter_browse_cb(GtkWidget *w)
+filter_browse_cb(GtkWidget *w, gpointer wants_apply_button)
 {
 	GtkWidget *caller = gtk_widget_get_toplevel(w);
 	GtkWidget *filter_browse_w;
@@ -181,7 +188,8 @@ filter_browse_cb(GtkWidget *w)
 	filter_te = gtk_object_get_data(GTK_OBJECT(w), E_FILT_TE_PTR_KEY);
 
 	/* Now create a new dialog. */
-	filter_browse_w = filter_dialog_new(caller, filter_te);
+	filter_browse_w = filter_dialog_new(caller, filter_te,
+	    (wants_apply_button != NULL));
 
 	/* Set the E_FILT_CALLER_PTR_KEY for the new dialog to point to
 	   our caller. */
@@ -212,11 +220,12 @@ filter_dialog_cb(GtkWidget *w)
 	/* No.  Create one. */
 	/* But first, get the text entry attached to the button. */
 	filter_te = gtk_object_get_data(GTK_OBJECT(w), E_FILT_TE_PTR_KEY);
-	global_filter_w = filter_dialog_new(NULL, filter_te);
+	global_filter_w = filter_dialog_new(NULL, filter_te, TRUE);
 }
 
 static GtkWidget *
-filter_dialog_new(GtkWidget *caller, GtkWidget *filter_te)
+filter_dialog_new(GtkWidget *caller, GtkWidget *filter_te,
+    gboolean wants_apply_button)
 {
 	GtkWidget	*main_w,	/* main window */
 			*main_vb,	/* main container */
@@ -239,7 +248,7 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *filter_te)
 	gtk_container_add(GTK_CONTAINER(main_w), main_vb);
 	gtk_widget_show(main_vb);
 
-	filter_pg = filter_prefs_show(filter_te);
+	filter_pg = filter_prefs_show(filter_te, wants_apply_button);
 	gtk_box_pack_start(GTK_BOX(main_vb), filter_pg, TRUE, TRUE, 0);
 	gtk_object_set_data(GTK_OBJECT(filter_pg), E_FILT_TE_PTR_KEY, filter_te);
 	gtk_object_set_data(GTK_OBJECT(main_w), E_FILTER_WIDGET_KEY, filter_pg);
@@ -325,7 +334,7 @@ filter_dlg_destroy(GtkWidget *win, gpointer data)
 
 /* Create and display the filter selection widgets. */
 static GtkWidget *
-filter_prefs_show(GtkWidget *w) {
+filter_prefs_show(GtkWidget *w, gboolean wants_apply_button) {
   GtkWidget  *main_vb, *top_hb, *list_bb, *new_bt, *filter_sc,
              *nl_item, *nl_lb, *middle_hb, *name_lb, *bottom_hb,
              *filter_lb;
@@ -382,12 +391,15 @@ filter_prefs_show(GtkWidget *w) {
   gtk_container_add(GTK_CONTAINER(list_bb), del_bt);
   gtk_widget_show(del_bt);
 
-  apply_bt = gtk_button_new_with_label("Apply");
-  gtk_widget_set_sensitive(apply_bt, FALSE);
-  gtk_signal_connect(GTK_OBJECT(apply_bt), "clicked",
-    GTK_SIGNAL_FUNC(filter_sel_apply_cb), w);
-  gtk_container_add(GTK_CONTAINER(list_bb), apply_bt);
-  gtk_widget_show(apply_bt);
+  if (wants_apply_button) {
+    apply_bt = gtk_button_new_with_label("Apply");
+    gtk_widget_set_sensitive(apply_bt, FALSE);
+    gtk_signal_connect(GTK_OBJECT(apply_bt), "clicked",
+      GTK_SIGNAL_FUNC(filter_sel_apply_cb), w);
+    gtk_container_add(GTK_CONTAINER(list_bb), apply_bt);
+    gtk_widget_show(apply_bt);
+  } else
+    apply_bt = NULL;
 
   filter_sc = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(filter_sc),
@@ -493,7 +505,8 @@ filter_sel_list_cb(GtkWidget *l, gpointer data) {
     gtk_widget_set_sensitive(chg_bt, sensitivity);
     gtk_widget_set_sensitive(copy_bt, sensitivity);
     gtk_widget_set_sensitive(del_bt, sensitivity);
-    gtk_widget_set_sensitive(apply_bt, sensitivity);
+    if (apply_bt != NULL)
+      gtk_widget_set_sensitive(apply_bt, sensitivity);
   }
 }
 
