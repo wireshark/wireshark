@@ -101,8 +101,8 @@ static int hf_bootp_fqdn_rcode1 = -1;
 static int hf_bootp_fqdn_rcode2 = -1;
 static int hf_bootp_fqdn_name = -1;
 static int hf_bootp_fqdn_asciiname = -1;
-static int hf_bootp_pkt_mdc_len = -1;
-static int hf_bootp_pkt_cm_len = -1;
+static int hf_bootp_pkt_mtacap_len = -1;
+static int hf_bootp_docsis_cmcap_len = -1;
 
 static gint ett_bootp = -1;
 static gint ett_bootp_flags = -1;
@@ -164,6 +164,7 @@ static const true_false_string flag_set_broadcast = {
 
 /* PacketCable definitions */
 #define PACKETCABLE_MTA_CAP10 "pktc1.0:"
+#define PACKETCABLE_MTA_CAP15 "pktc1.5:"
 #define PACKETCABLE_CM_CAP11  "docsis1.1:"
 #define PACKETCABLE_CM_CAP20  "docsis2.0:"
 
@@ -192,7 +193,7 @@ static int bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb,
     int optp);
 static void dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb,
        int voff, int len);
-static void dissect_packetcable_cm_cap(proto_tree *v_tree, tvbuff_t *tvb,
+static void dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb,
        int voff, int len);
 static int dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp);
 static int dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp, int revision);
@@ -781,13 +782,14 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
 			"Option %d: %s = \"%s\"", code, text,
 			tvb_format_stringzpad(tvb, voff+2, consumed-2));
-		if (tvb_memeql(tvb, voff+2, PACKETCABLE_MTA_CAP10, strlen(PACKETCABLE_MTA_CAP10)) == 0) {
+		if ((tvb_memeql(tvb, voff+2, PACKETCABLE_MTA_CAP10, strlen(PACKETCABLE_MTA_CAP10)) == 0) ||
+			(tvb_memeql(tvb, voff+2, PACKETCABLE_MTA_CAP15, strlen(PACKETCABLE_MTA_CAP10)) == 0)) {
 			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 			dissect_packetcable_mta_cap(v_tree, tvb, voff+2, vlen);
 		} else if (tvb_memeql(tvb, voff+2, PACKETCABLE_CM_CAP11, strlen(PACKETCABLE_CM_CAP11)) == 0 ||
 				tvb_memeql(tvb, voff+2, PACKETCABLE_CM_CAP20, strlen(PACKETCABLE_CM_CAP20)) == 0 ) {
 			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-			dissect_packetcable_cm_cap(v_tree, tvb, voff+2, vlen);
+			dissect_docsis_cm_cap(v_tree, tvb, voff+2, vlen);
 		}
 		break;
 
@@ -1536,7 +1538,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 }
 
 
-/* PakcetCable Multimedia Terminal Adapter device capabilities (option 60).
+/* PacketCable Multimedia Terminal Adapter device capabilities (option 60).
    Ref: PKT-SP-I05-021127 sections 8.2 and 10 */
 
 #define PKT_MDC_TLV_OFF 10
@@ -1561,13 +1563,20 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 #define PKT_MDC_SILENCE_LC		0x3063  /* "0c" */
 #define PKT_MDC_ECHO_CANCEL		0x3044  /* "0D" */
 #define PKT_MDC_ECHO_CANCEL_LC		0x3064  /* "0d" */
-#define PKT_MDC_RSVP			0x3145  /* "0E" */
-#define PKT_MDC_RSVP_LC			0x3165  /* "0e" */
-#define PKT_MDC_UGS_AD			0x3146  /* "0F" */
-#define PKT_MDC_UGS_AD_LC		0x3166  /* "0f" */
+#define PKT_MDC_RSVP			0x3045  /* "0E" */
+#define PKT_MDC_RSVP_LC			0x3065  /* "0e" */
+#define PKT_MDC_UGS_AD			0x3046  /* "0F" */
+#define PKT_MDC_UGS_AD_LC		0x3066  /* "0f" */
 #define PKT_MDC_IF_INDEX		0x3130  /* "10" */
 #define PKT_MDC_FLOW_LOG		0x3131  /* "11" */
 #define PKT_MDC_PROV_FLOWS		0x3132	/* "12" */
+/* PacketCable 1.5: */
+#define PKT_MDC_T38_VERSION		0x3133	/* "13" */
+#define	PKT_MDC_T38_EC			0x3134	/* "14" */
+#define	PKT_MDC_RFC2833_DTMF		0x3135	/* "15" */
+#define PKT_MDC_VOICE_METRICS		0x3136	/* "16" */
+#define	PKT_MDC_MIBS			0x3137	/* "17" */
+#define	PKT_MDC_MGPI			0x3138	/* "18" */
 
 static const value_string pkt_mdc_type_vals[] = {
 	{ PKT_MDC_VERSION,		"PacketCable Version" },
@@ -1587,19 +1596,26 @@ static const value_string pkt_mdc_type_vals[] = {
 	{ PKT_MDC_SILENCE_LC,		"Silence Suppression Support" },
 	{ PKT_MDC_ECHO_CANCEL,		"Echo Cancellation Support" },
 	{ PKT_MDC_ECHO_CANCEL_LC,	"Echo Cancellation Support" },
-	{ PKT_MDC_RSVP,			"RSVP Support" },
-	{ PKT_MDC_RSVP_LC,		"RSVP Support" },
+	{ PKT_MDC_RSVP,			"RSVP Support/ Reserved" },
+	{ PKT_MDC_RSVP_LC,		"RSVP Support/ Reserved" },
 	{ PKT_MDC_UGS_AD,		"UGS-AD Support" },
 	{ PKT_MDC_UGS_AD_LC,		"UGS-AD Support" },
 	{ PKT_MDC_IF_INDEX,		"MTA's \"ifIndex\" starting number in \"ifTable\"" },
 	{ PKT_MDC_FLOW_LOG,		"Provisioning Flow Logging Support" },
 	{ PKT_MDC_PROV_FLOWS,		"Supported Provisioning Flows" },
+	/* PacketCable 1.5: */
+	{ PKT_MDC_T38_VERSION,		"T38 Version Support" },
+	{ PKT_MDC_T38_EC,		"T38 Error Correction Support" },
+	{ PKT_MDC_RFC2833_DTMF,		"RFC 2833 DTMF Support" },
+	{ PKT_MDC_VOICE_METRICS,	"Voice Metrics Support" },
+	{ PKT_MDC_MIBS,			"MIB Support" },
+	{ PKT_MDC_MGPI,			"Multiple Grants Per Interval Support" },
 	{ 0,					NULL }
 };
 
 static const value_string pkt_mdc_version_vals[] = {
 	{ 0x3030,	"PacketCable 1.0" },
-	{ 0x3031,	"PacketCable 1.1" },
+	{ 0x3031,	"PacketCable 1.1/1.5" }, /* 1.5 replaces 1.1-1.3 */
 	{ 0x3032,	"PacketCable 1.2" },
 	{ 0x3033,	"PacketCable 1.3" },
 	{ 0,		NULL }
@@ -1612,7 +1628,7 @@ static const value_string pkt_mdc_boolean_vals[] = {
 };
 
 static const value_string pkt_mdc_codec_vals[] = {
-	{ 0x3031,	"other" },
+	{ 0x3031,	"other" },           /* "01" */
 	{ 0x3032,	"unknown" },
 	{ 0x3033,	"G.729" },
 	{ 0x3034,	"reserved" },
@@ -1620,14 +1636,44 @@ static const value_string pkt_mdc_codec_vals[] = {
 	{ 0x3036,	"PCMU" },
 	{ 0x3037,	"G.726-32" },
 	{ 0x3038,	"G.728" },
-	{ 0x3039,	"PCMA" },
-	{ 0x3041,	"G.726-16" },
+	{ 0x3039,	"PCMA" },            /* "09" */
+	{ 0x3041,	"G.726-16" },        /* "0A" */
 	{ 0x3042,	"G.726-24" },
 	{ 0x3043,	"G.726-40" },
+	{ 0x3044,	"iLBC" },
+	{ 0x3045,	"BV16" },
+	{ 0x3046,	"telephone-event" }, /* "0F" */
 	{ 0,		NULL }
 };
 
-/* PacketCable Cable Modem device capabilities (option 60). */
+static const value_string pkt_mdc_t38_version_vals[] = {
+	{ 0x3030,	"Unsupported" },
+	{ 0x3031,	"T.38 Version Zero" }, /* default */
+	{ 0x3032,	"T.38 Version One" },
+	{ 0x3033,	"T.38 Version Two" },
+	{ 0x3035,	"T.38 Version Three" },
+	{ 0,		NULL }
+};
+
+static const value_string pkt_mdc_t38_ec_vals[] = {
+	{ 0x3030,	"None" },
+	{ 0x3031,	"Redundancy" }, /* default */
+	{ 0x3032,	"FEC" },
+	{ 0,		NULL }
+};
+
+static const value_string pkt_mdc_mibs_vals[] = {
+	{ 0x3030,	"PacketCable 1.0" },
+	{ 0x3031,	"PacketCable 1.5" },
+	{ 0x3032,	"Reserved" },
+	{ 0x3033,	"Reserved" },
+	{ 0x3034,	"Reserved" },
+	{ 0x3035,	"IETF" },
+	{ 0,		NULL }
+};
+
+/* DOCSIS Cable Modem device capabilities (option 60). */
+/* XXX we should rename all PKT_CM_* variables to DOCSIS_CM_* */
 #define PKT_CM_TLV_OFF 12
 
 #define PKT_CM_CONCAT_SUP	0x3031  /* "01" */
@@ -1665,8 +1711,9 @@ static const value_string pkt_cm_type_vals[] = {
 };
 
 static const value_string pkt_cm_version_vals[] = {
-	{ 0x3030,	"DOCSIS 1.1" },
-	{ 0x3031,	"DOCSIS 2.0" },
+	{ 0x3030,	"DOCSIS 1.0" },
+	{ 0x3031,	"DOCSIS 1.1" },
+	{ 0x3032,	"DOCSIS 2.0" },
 	{ 0,		NULL }
 };
 
@@ -1702,31 +1749,31 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 		tlv_str = g_string_new("");
 
 	tvb_memcpy (tvb, asc_val, off, 2);
-	if (sscanf(asc_val, "%uhx", &tlv_len) != 1) {
+	if (sscanf(asc_val, "%x", &tlv_len) != 1) {
 		proto_tree_add_text(v_tree, tvb, off, len - off,
 			"Bogus length: %s", asc_val);
 		return;
 	} else {
-		proto_tree_add_uint_format(v_tree, hf_bootp_pkt_mdc_len, tvb, off, 2,
+		proto_tree_add_uint_format(v_tree, hf_bootp_pkt_mtacap_len, tvb, off, 2,
 				tlv_len, "MTA DC Length: %d", tlv_len);
 		off += 2;
 
 		while ((int) off - voff < len) {
 			/* Type */
 			raw_val = tvb_get_ntohs (tvb, off);
-			g_string_sprintf(tlv_str, "Type: %s (0x%.2s), ",
-					val_to_str(raw_val, pkt_mdc_type_vals, "unknown"),
-					tvb_get_ptr(tvb, off, 2));
+			g_string_sprintf(tlv_str, "0x%.2s: %s = ",
+					tvb_get_ptr(tvb, off, 2),
+					val_to_str(raw_val, pkt_mdc_type_vals, "unknown"));
 
 			/* Length */
 			tvb_memcpy(tvb, asc_val, off + 2, 2);
-			if (sscanf(asc_val, "%uhx", &tlv_len) != 1) {
+			if (sscanf(asc_val, "%x", &tlv_len) != 1) {
 				proto_tree_add_text(v_tree, tvb, off, len - off,
-							"Bogus length: %s", asc_val);
+							"[Bogus length: %s]", asc_val);
 				return;
 			} else {
 				/* Value(s) */
-				g_string_sprintfa(tlv_str, "Length: %d, Value: ", tlv_len);
+				/*g_string_sprintfa(tlv_str, "Length: %d, Value: ", tlv_len);*/
 
 				switch (raw_val) {
 					case PKT_MDC_VERSION:
@@ -1757,6 +1804,8 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 					case PKT_MDC_UGS_AD:
 					case PKT_MDC_UGS_AD_LC:
 					case PKT_MDC_FLOW_LOG:
+					case PKT_MDC_RFC2833_DTMF:
+					case PKT_MDC_VOICE_METRICS:
 						raw_val = tvb_get_ntohs(tvb, off + 4);
 						g_string_sprintfa(tlv_str, "%s (%.2s)",
 								val_to_str(raw_val, pkt_mdc_boolean_vals, "unknown"),
@@ -1777,6 +1826,24 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 						flow_val_str[4] = '\0';
 						flow_val = strtoul(flow_val_str, NULL, 16);
 						g_string_sprintfa(tlv_str, "0x%04lx", flow_val);
+						break;
+					case PKT_MDC_T38_VERSION:
+						raw_val = tvb_get_ntohs(tvb, off + 4);
+						g_string_sprintfa(tlv_str, "%s (%.2s)",
+								val_to_str(raw_val, pkt_mdc_t38_version_vals, "unknown"),
+								tvb_get_ptr(tvb, off + 4, 2) );
+						break;
+					case PKT_MDC_T38_EC:
+						raw_val = tvb_get_ntohs(tvb, off + 4);
+						g_string_sprintfa(tlv_str, "%s (%.2s)",
+								val_to_str(raw_val, pkt_mdc_t38_ec_vals, "unknown"),
+								tvb_get_ptr(tvb, off + 4, 2) );
+						break;
+					case PKT_MDC_MIBS:
+						raw_val = tvb_get_ntohs(tvb, off + 4);
+						g_string_sprintfa(tlv_str, "%s (%.2s)",
+								val_to_str(raw_val, pkt_mdc_mibs_vals, "unknown"),
+								tvb_get_ptr(tvb, off + 4, 2) );
 						break;
 					case PKT_MDC_VENDOR_TLV:
 					default:
@@ -1802,7 +1869,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 }
 
 static void
-dissect_packetcable_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
+dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 {
 	unsigned long raw_val;
 	guint off = PKT_CM_TLV_OFF + voff;
@@ -1814,32 +1881,32 @@ dissect_packetcable_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 		tlv_str = g_string_new("");
 
 	tvb_memcpy (tvb, asc_val, off, 2);
-	if (sscanf(asc_val, "%uhx", &tlv_len) != 1) {
+	if (sscanf(asc_val, "%x", &tlv_len) != 1) {
 		proto_tree_add_text(v_tree, tvb, off, len - off,
 				    "Bogus length: %s", asc_val);
 		return;
 	} else {
-		proto_tree_add_uint_format(v_tree, hf_bootp_pkt_cm_len, tvb, off, 2,
+		proto_tree_add_uint_format(v_tree, hf_bootp_docsis_cmcap_len, tvb, off, 2,
 				tlv_len, "CM DC Length: %d", tlv_len);
 		off += 2;
 
 		while ((int) off - voff < len) {
 			/* Type */
 			raw_val = tvb_get_ntohs (tvb, off);
-			g_string_sprintf(tlv_str, "Type: %s (%.2s), ",
-					val_to_str(raw_val, pkt_cm_type_vals, "unknown"),
-					tvb_get_ptr(tvb, off, 2));
+			g_string_sprintf(tlv_str, "0x%.2s: %s = ",
+					tvb_get_ptr(tvb, off, 2),
+					val_to_str(raw_val, pkt_cm_type_vals, "unknown"));
 
 			/* Length */
 			tvb_memcpy(tvb, asc_val, off + 2, 2);
-			if (sscanf(asc_val, "%uhx", &tlv_len) != 1) {
+			if (sscanf(asc_val, "%x", &tlv_len) != 1) {
 				proto_tree_add_text(v_tree, tvb, off, len - off,
-							"Bogus length: %s", asc_val);
+							"[Bogus length: %s]", asc_val);
 				return;
 			} else {
 				/* Value(s) */
-				g_string_sprintfa(tlv_str, "Length: %d, Value%s: ", tlv_len,
-						plurality(tlv_len, "", "s") );
+				/*g_string_sprintfa(tlv_str, "Length: %d, Value%s: ", tlv_len,
+						plurality(tlv_len, "", "s") );*/
 
 				switch (raw_val) {
 					case PKT_CM_CONCAT_SUP:
@@ -2607,14 +2674,14 @@ proto_register_bootp(void)
         BASE_NONE,		NULL,			0x0,
       	"Name to register via ddns", HFILL }},
 
-    { &hf_bootp_pkt_mdc_len,
-      { "MTA DC Length",	"bootp.vendor.pkt.mdc_len",
+    { &hf_bootp_pkt_mtacap_len,
+      { "PacketCable MTA Device Capabilities Length",	"bootp.vendor.pktc.mtacap_len",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "PacketCable MTA Device Capabilities Length", HFILL }},
-    { &hf_bootp_pkt_cm_len,
-      { "CM DC Length",	"bootp.vendor.pkt.cm_len",
+    { &hf_bootp_docsis_cmcap_len,
+      { "DOCSIS CM Device Capabilities Length",	"bootp.vendor.docsis.cmcap_len",
         FT_UINT8, BASE_DEC, NULL, 0x0,
-        "PacketCable Cable Modem Device Capabilities Length", HFILL }},
+        "DOCSIS Cable Modem Device Capabilities Length", HFILL }},
   };
 
   static gint *ett[] = {
