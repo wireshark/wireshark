@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.62 2002/10/17 20:05:04 guy Exp $
+$Id: README.developer,v 1.63 2002/11/01 09:41:36 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -91,11 +91,16 @@ routines
 
 	and "memcmp()" (note that "memcmp()" returns 0, 1, or -1, doing
 	an ordered comparison, rather than just returning 0 for "equal"
-	and 1 for "not equal").
+	and 1 for "not equal", as "bcmp()" does).
 
 Not all platforms necessarily have "bzero()"/"bcopy()"/"bcmp()", and
 those that do might not declare them in the header file on which they're
 declared on your platform.
+
+Don't use "index()" or "rindex()"; instead, use the ANSI C equivalents,
+"strchr()" and "strrchr()".  Not all platforms necessarily have
+"index()" or "rindex()", and those that do might not declare them in the
+header file on which they're declared on your platform.
 
 Don't fetch data from packets by getting a pointer to data in the packet
 with "tvb_get_ptr()", casting that pointer to a pointer to a structure,
@@ -144,7 +149,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.62 2002/10/17 20:05:04 guy Exp $"
+The "$Id: README.developer,v 1.63 2002/11/01 09:41:36 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -154,7 +159,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.62 2002/10/17 20:05:04 guy Exp $
+ * $Id: README.developer,v 1.63 2002/11/01 09:41:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
