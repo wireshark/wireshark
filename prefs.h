@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.34 2001/11/04 02:50:19 guy Exp $
+ * $Id: prefs.h,v 1.35 2001/12/31 04:41:48 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,6 +31,9 @@
 
 #define PR_DEST_CMD  0
 #define PR_DEST_FILE 1
+
+#define DEF_WIDTH 750
+#define DEF_HEIGHT 550
 
 /* 32 types are sufficient (as are 640k of RAM) */
 /* FIXME: Maybe MANUF/m, IP/i, IP6/6, IPX/x, UDP+TCP/t etc would be
@@ -67,6 +70,12 @@ typedef struct _e_prefs {
   gchar   *gui_font_name;
   color_t  gui_marked_fg;
   color_t  gui_marked_bg;
+  gboolean gui_geometry_save_position;
+  gboolean gui_geometry_save_size;
+  gint     gui_geometry_main_x;
+  gint     gui_geometry_main_y;
+  gint     gui_geometry_main_width;
+  gint     gui_geometry_main_height;
   guint32  name_resolve;
   gboolean capture_prom_mode;
   gboolean capture_real_time;

@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.74 2001/12/08 01:45:35 guy Exp $
+ * $Id: prefs.c,v 1.75 2001/12/31 04:41:48 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -785,17 +785,23 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
      */
     prefs.gui_font_name = g_strdup("-*-fixed-medium-r-semicondensed-*-*-120-*-*-*-*-iso8859-1");
 #endif
-    prefs.gui_marked_fg.pixel = 65535;
-    prefs.gui_marked_fg.red   = 65535;
-    prefs.gui_marked_fg.green = 65535;
-    prefs.gui_marked_fg.blue  = 65535;
-    prefs.gui_marked_bg.pixel =     0;
-    prefs.gui_marked_bg.red   =     0;
-    prefs.gui_marked_bg.green =     0;
-    prefs.gui_marked_bg.blue  =     0;
+    prefs.gui_marked_fg.pixel        =     65535;
+    prefs.gui_marked_fg.red          =     65535;
+    prefs.gui_marked_fg.green        =     65535;
+    prefs.gui_marked_fg.blue         =     65535;
+    prefs.gui_marked_bg.pixel        =         0;
+    prefs.gui_marked_bg.red          =         0;
+    prefs.gui_marked_bg.green        =         0;
+    prefs.gui_marked_bg.blue         =         0;
+    prefs.gui_geometry_save_position =         0;
+    prefs.gui_geometry_save_size     =         1;
+    prefs.gui_geometry_main_x        =        20;
+    prefs.gui_geometry_main_y        =        20;
+    prefs.gui_geometry_main_width    = DEF_WIDTH;
+    prefs.gui_geometry_main_height   =        -1;
 
 /* set the default values for the capture dialog box */
-    prefs.capture_prom_mode   =  TRUE;
+    prefs.capture_prom_mode   = TRUE;
     prefs.capture_real_time   = FALSE;
     prefs.capture_auto_scroll = FALSE;
     prefs.name_resolve        = PREFS_RESOLV_ALL;
@@ -1049,6 +1055,12 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_FONT_NAME "gui.font_name"
 #define PRS_GUI_MARKED_FG "gui.marked_frame.fg"
 #define PRS_GUI_MARKED_BG "gui.marked_frame.bg"
+#define PRS_GUI_GEOMETRY_SAVE_POSITION "gui.geometry.save.position"
+#define PRS_GUI_GEOMETRY_SAVE_SIZE     "gui.geometry.save.size"
+#define PRS_GUI_GEOMETRY_MAIN_X        "gui.geometry.main.x"
+#define PRS_GUI_GEOMETRY_MAIN_Y        "gui.geometry.main.y"
+#define PRS_GUI_GEOMETRY_MAIN_WIDTH    "gui.geometry.main.width"
+#define PRS_GUI_GEOMETRY_MAIN_HEIGHT   "gui.geometry.main.height"
 
 /*
  * This applies to more than just captures, so it's not "capture.name_resolve";
@@ -1286,6 +1298,28 @@ set_pref(gchar *pref_name, gchar *value)
     prefs.gui_marked_bg.red   = RED_COMPONENT(cval);
     prefs.gui_marked_bg.green = GREEN_COMPONENT(cval);
     prefs.gui_marked_bg.blue  = BLUE_COMPONENT(cval);
+  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_SAVE_POSITION) == 0) {
+    if (strcasecmp(value, "true") == 0) {
+	    prefs.gui_geometry_save_position = TRUE;
+    }
+    else {
+	    prefs.gui_geometry_save_position = FALSE;
+    }
+  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_SAVE_SIZE) == 0) {
+    if (strcasecmp(value, "true") == 0) {
+	    prefs.gui_geometry_save_size = TRUE;
+    }
+    else {
+	    prefs.gui_geometry_save_size = FALSE;
+    }
+  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_X) == 0) {
+    prefs.gui_geometry_main_x = strtol(value, NULL, 10);
+  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_Y) == 0) {
+    prefs.gui_geometry_main_y = strtol(value, NULL, 10);
+  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_WIDTH) == 0) {
+    prefs.gui_geometry_main_width = strtol(value, NULL, 10);
+  } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_MAIN_HEIGHT) == 0) {
+    prefs.gui_geometry_main_height = strtol(value, NULL, 10);
 
 /* handle the capture options */ 
   } else if (strcmp(pref_name, PRS_CAP_PROM_MODE) == 0) {
@@ -1683,6 +1717,22 @@ write_prefs(const char **pf_path_return)
     (prefs.gui_marked_bg.green * 255 / 65535),
     (prefs.gui_marked_bg.blue * 255 / 65535));
 
+  fprintf(pf, "\n# Save window position at exit? TRUE/FALSE\n");
+  fprintf(pf, PRS_GUI_GEOMETRY_SAVE_POSITION ": %s\n",
+		  prefs.gui_geometry_save_position == TRUE ? "TRUE" : "FALSE");
+
+  fprintf(pf, "\n# Save window size at exit? TRUE/FALSE\n");
+  fprintf(pf, PRS_GUI_GEOMETRY_SAVE_SIZE ": %s\n",
+		  prefs.gui_geometry_save_size == TRUE ? "TRUE" : "FALSE");
+
+  fprintf(pf, "\n# Main window geometry. Decimal integers.\n");
+  fprintf(pf, PRS_GUI_GEOMETRY_MAIN_X ": %d\n", prefs.gui_geometry_main_x);
+  fprintf(pf, PRS_GUI_GEOMETRY_MAIN_Y ": %d\n", prefs.gui_geometry_main_y);
+  fprintf(pf, PRS_GUI_GEOMETRY_MAIN_WIDTH ": %d\n",
+  		  prefs.gui_geometry_main_width);
+  fprintf(pf, PRS_GUI_GEOMETRY_MAIN_HEIGHT ": %d\n",
+  		  prefs.gui_geometry_main_height);
+
   fprintf(pf, "\n# Resolve addresses to names? TRUE/FALSE/{list of address types to resolve}\n");
   fprintf(pf, PRS_NAME_RESOLVE ": %s\n",
 		  name_resolve_to_string(prefs.name_resolve));
@@ -1744,6 +1794,12 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_font_name = g_strdup(src->gui_font_name);
   dest->gui_marked_fg = src->gui_marked_fg;
   dest->gui_marked_bg = src->gui_marked_bg;
+  dest->gui_geometry_save_position = src->gui_geometry_save_position;
+  dest->gui_geometry_save_size = src->gui_geometry_save_size;
+  dest->gui_geometry_main_x = src->gui_geometry_main_x;
+  dest->gui_geometry_main_y = src->gui_geometry_main_y;
+  dest->gui_geometry_main_width = src->gui_geometry_main_width;
+  dest->gui_geometry_main_height = src->gui_geometry_main_height;
 /*  values for the capture dialog box */
   dest->capture_prom_mode = src->capture_prom_mode;
   dest->capture_real_time = src->capture_real_time;

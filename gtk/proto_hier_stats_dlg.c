@@ -1,6 +1,6 @@
 /* proto_hier_stats_dlg.c
  *
- * $Id: proto_hier_stats_dlg.c,v 1.5 2001/12/12 21:38:59 gerald Exp $
+ * $Id: proto_hier_stats_dlg.c,v 1.6 2001/12/31 04:41:50 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -157,11 +157,8 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
 	/* Fill in the data. */
 	fill_in_ctree(tree, ps);
 
-	/* Try to size the CTree to a good initial size.
-	 * 5 is a magic number that I pulled out off my hat.
-	 * Using DEF_WIDTH is pretty bogus, too. */
 	height = GTK_CLIST(tree)->rows * (GTK_CLIST(tree)->row_height + 5);
-	gtk_widget_set_usize(tree, DEF_WIDTH, height);
+	gtk_widget_set_usize(tree, 500, height);
 
 
 	gtk_container_add(GTK_CONTAINER(sw), tree);

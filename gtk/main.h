@@ -1,7 +1,7 @@
 /* main.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.24 2001/11/21 23:16:26 gram Exp $
+ * $Id: main.h,v 1.25 2001/12/31 04:41:50 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,8 +37,6 @@
  */
 #define RC_FILE "gtkrc"
 
-#define DEF_WIDTH 750
-#define DEF_HEIGHT 550
 #ifdef HAVE_LIBPCAP
 #define DEF_READY_MESSAGE " Ready to load or capture"
 #else
