@@ -254,6 +254,7 @@ DISSECTOR_SRC =	\
 	packet-h225.c	\
 	packet-h235.c	\
 	packet-h245.c	\
+	packet-h248.c	\
 	packet-h261.c	\
 	packet-h263.c	\
 	packet-h450.c	\
@@ -615,6 +616,7 @@ DISSECTOR_INCLUDES =	\
 	packet-h225.h	\
 	packet-h235.h	\
 	packet-h245.h	\
+	packet-h248.h	\
 	packet-hclnfsd.h	\
 	packet-hpext.h	\
 	packet-http.h	\
