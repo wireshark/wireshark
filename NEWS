@@ -46,7 +46,7 @@ New and updated features
 
 New protocol support
 
-  AMR, CRMF, JXTA, PKIXCMP, PROFINET CBA, RMT ALC, RMT NORM
+  ALC, AMR, CRMF, JXTA, NORM, PKIXCMP, PROFINET CBA
 
 Updated protocol support
 
