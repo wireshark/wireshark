@@ -878,12 +878,14 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
     } else {
       tokenlen = next_offset - offset;
     }
-
-    media_format = tvb_get_string(tvb, offset, tokenlen);
-    if (!strcmp(transport_info->media_proto[transport_info->media_count], "RTP/AVP")) {
-		proto_tree_add_string(sdp_media_tree, hf_media_format, tvb,
-					offset, tokenlen, val_to_str(atol(media_format), rtp_payload_type_vals, "%u"));
-	} else {
+    
+    if (strcmp(transport_info->media_proto[transport_info->media_count],
+               "RTP/AVP") == 0) {
+      media_format = tvb_get_string(tvb, offset, tokenlen);
+      proto_tree_add_string(sdp_media_tree, hf_media_format, tvb, offset,
+                             tokenlen, val_to_str(atol(media_format), rtp_payload_type_vals, "%u"));
+      g_free(media_format);
+    } else {
       proto_tree_add_item(sdp_media_tree, hf_media_format, tvb,
 			  offset, tokenlen, FALSE);
     }
