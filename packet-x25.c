@@ -2,7 +2,7 @@
  * Routines for X.25 packet disassembly
  * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-x25.c,v 1.76 2003/01/31 03:17:47 guy Exp $
+ * $Id: packet-x25.c,v 1.77 2003/02/16 20:55:10 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1003,7 +1003,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    byte1 = tvb_get_guint8(tvb, *offset+1);
 		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
 			    "Length : %u", byte1);
-		    byte2 = tvb_get_guint8(tvb, *offset+2);
+		    byte2 = tvb_get_guint8(tvb, *offset+2) & 0x3F;
 		    proto_tree_add_text(fac_subtree, tvb, *offset+2, 1,
 			    "Number of semi-octets in DTE address : %u", byte2);
 		    for (i = 0; i < byte2; i++) {
@@ -1036,7 +1036,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    byte1 = tvb_get_guint8(tvb, *offset+1);
 		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
 			    "Length : %u", byte1);
-		    byte2 = tvb_get_guint8(tvb, *offset+2);
+		    byte2 = tvb_get_guint8(tvb, *offset+2) & 0x3F;
 		    proto_tree_add_text(fac_subtree, tvb, *offset+2, 1,
 			    "Number of semi-octets in DTE address : %u", byte2);
 		    for (i = 0; i < byte2; i++) {
