@@ -1,7 +1,7 @@
 /* packet-pgm.h
  * Declarations for pgm packet disassembly
  *
- * $Id: packet-pgm.h,v 1.4 2001/07/21 10:27:13 guy Exp $
+ * $Id: packet-pgm.h,v 1.5 2001/08/02 17:05:00 guy Exp $
  * 
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -91,7 +91,17 @@ const size_t PGM_NAK_SZ = sizeof(pgm_type)+sizeof(pgm_nak_t);
 	(_p)->src_afi = ntohs((_p)->src_afi); \
 	(_p)->src_res = ntohs((_p)->src_res); \
 	(_p)->grp_afi = ntohs((_p)->grp_afi); \
-	(_p)->grp_res = ntohs((_p)->grp_res); \
+	(_p)->grp_res = ntohs((_p)->grp_res)
+
+/* The PGM ACK header (PGMCC) */
+typedef struct {
+	nlong_t rx_max_sqn;      /* RX_MAX sequence number */
+	nlong_t bitmap;          /* Received Packet Bitmap */
+} pgm_ack_t;
+const size_t PGM_ACK_SZ = sizeof(pgm_type)+sizeof(pgm_ack_t);
+#define ack_ntoh(_p) \
+	(_p)->rx_max_sqn = ntohl((_p)->rx_max_sqn); \
+	(_p)->bitmap = ntohl((_p)->bitmap)
 
 /* constants for hdr types */
 #if defined(PGM_SPEC_01_PCKTS)
@@ -103,13 +113,14 @@ const size_t PGM_NAK_SZ = sizeof(pgm_type)+sizeof(pgm_nak_t);
 #define PGM_NNAK_PCKT  0x21
 #define PGM_NCF_PCKT 0x30
 #else
-/* spec-02 types (as well as spec-04) */
+/* spec-02 types (as well as spec-04+) */
 #define PGM_SPM_PCKT  0x00
 #define PGM_ODATA_PCKT  0x04
 #define PGM_RDATA_PCKT  0x05
 #define PGM_NAK_PCKT  0x08
 #define PGM_NNAK_PCKT  0x09
 #define PGM_NCF_PCKT 0x0A
+#define PGM_ACK_PCKT 0x0D
 #endif /* PGM_SPEC_01_PCKTS */
 
 /* port swapping on NAK and NNAKs or not (default is to swap) */
@@ -134,6 +145,8 @@ const size_t PGM_NAK_SZ = sizeof(pgm_type)+sizeof(pgm_nak_t);
 #define PGM_OPT_PARITY_PRM 0x08
 #define PGM_OPT_PARITY_GRP 0x09
 #define PGM_OPT_CURR_TGSIZE 0x0A
+#define PGM_OPT_PGMCC_DATA  0x12
+#define PGM_OPT_PGMCC_FEEDBACK  0x13
 
 const nchar_t PGM_OPT_INVALID = 0x7F;
 
@@ -204,5 +217,27 @@ typedef struct {
 	nchar_t res;
 	nlong_t prm_atgsz;
 } pgm_opt_curr_tgsize_t;
+
+typedef struct {
+	nchar_t type;
+	nchar_t len;
+	nchar_t opx;
+	nchar_t res;
+	nlong_t tsp;
+	nshort_t acker_afi;
+	nshort_t res2;
+	nlong_t acker;
+} pgm_opt_pgmcc_data_t;
+
+typedef struct {
+	nchar_t type;
+	nchar_t len;
+	nchar_t opx;
+	nchar_t res;
+	nlong_t tsp;
+	nshort_t acker_afi;
+	nshort_t loss_rate;
+	nlong_t acker;
+} pgm_opt_pgmcc_feedback_t;
 
 #endif /* _PACKET_PGM_H */

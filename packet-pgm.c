@@ -1,7 +1,7 @@
 /* packet-pgm.c
  * Routines for pgm packet disassembly
  *
- * $Id: packet-pgm.c,v 1.5 2001/07/21 10:27:12 guy Exp $
+ * $Id: packet-pgm.c,v 1.6 2001/08/02 17:05:00 guy Exp $
  * 
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -51,6 +51,7 @@
 #include "ipproto.h"
 #include "resolv.h"
 #include "strutil.h"
+#include "conversation.h"
 
 #include "proto.h"
 
@@ -65,10 +66,12 @@ static int ett_pgm_opts = -1;
 static int ett_pgm_spm = -1;
 static int ett_pgm_data = -1;
 static int ett_pgm_nak = -1;
+static int ett_pgm_ack = -1;
 static int ett_pgm_opts_join = -1;
 static int ett_pgm_opts_parityprm = -1;
 static int ett_pgm_opts_paritygrp = -1;
 static int ett_pgm_opts_naklist = -1;
+static int ett_pgm_opts_ccdata = -1;
 
 static int hf_pgm_main_sport = -1;
 static int hf_pgm_main_dport = -1;
@@ -96,6 +99,8 @@ static int hf_pgm_nak_src = -1;
 static int hf_pgm_nak_grpafi = -1;
 static int hf_pgm_nak_grpres = -1;
 static int hf_pgm_nak_grp = -1;
+static int hf_pgm_ack_sqn = -1;
+static int hf_pgm_ack_bitmap = -1;
 
 static int hf_pgm_opt_type = -1;
 static int hf_pgm_opt_len = -1;
@@ -123,6 +128,21 @@ static int hf_pgm_opt_curr_tgsize_prmatgsz = -1;
 
 static int hf_pgm_opt_nak_res = -1;
 static int hf_pgm_opt_nak_list = -1;
+
+static int hf_pgm_opt_ccdata_res = -1;
+static int hf_pgm_opt_ccdata_tsp = -1;
+static int hf_pgm_opt_ccdata_afi = -1;
+static int hf_pgm_opt_ccdata_res2 = -1;
+static int hf_pgm_opt_ccdata_acker = -1;
+
+static int hf_pgm_opt_ccfeedbk_res = -1;
+static int hf_pgm_opt_ccfeedbk_tsp = -1;
+static int hf_pgm_opt_ccfeedbk_afi = -1;
+static int hf_pgm_opt_ccfeedbk_lossrate = -1;
+static int hf_pgm_opt_ccfeedbk_acker = -1;
+
+static dissector_table_t subdissector_table;
+static heur_dissector_list_t heur_subdissector_list;
 
 /*
  * As of the time this comment was typed
@@ -174,6 +194,32 @@ optsstr(nchar_t opts)
 	}
 	return(msg);
 }
+static char *
+paritystr(nchar_t parity)
+{
+	static char msg[256];
+	char *p = msg, *str;
+
+	if (parity == 0)
+		return("");
+
+	if (parity & PGM_OPT_PARITY_PRM_PRO){
+		sprintf(p, "Pro-active");
+		p += strlen("Pro-active");
+	}
+	if (parity & PGM_OPT_PARITY_PRM_OND){
+		if (p != msg)
+			str = ",On-demand";
+		else
+			str = "On-demand";
+		sprintf(p, str);
+		p += strlen(str);
+	}
+	if (p == msg) {
+		sprintf(p, "0x%x", parity);
+	}
+	return(msg);
+}
 
 static const value_string opt_vals[] = {
 	{ PGM_OPT_LENGTH,      "Length" },
@@ -188,6 +234,8 @@ static const value_string opt_vals[] = {
 	{ PGM_OPT_PARITY_PRM,  "ParityPrm" },
 	{ PGM_OPT_PARITY_GRP,  "ParityGrp" },
 	{ PGM_OPT_CURR_TGSIZE, "CurrTgsiz" },
+	{ PGM_OPT_PGMCC_DATA,  "CcData" },
+	{ PGM_OPT_PGMCC_FEEDBACK, "CcFeedBack" },
 	{ 0,                   NULL }
 };
 
@@ -245,16 +293,16 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_join);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type, 
-				tvb, offset, 1, optdata.type);
+				tvb, offset, 1, genopts.type);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb, 
-				offset+1, 1, optdata.len);
+				offset+1, 1, genopts.len);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, tvb, 
-				offset+2, 1, optdata.opx);
+				offset+2, 1, genopts.opx);
 
-			proto_tree_add_uint_format(opt_tree, hf_pgm_opt_join_res, tvb, 
-				offset+3, 1, optdata.opx, "Reserved: 0x%x", optdata.res);
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_join_res, tvb, 
+				offset+3, 1, optdata.res);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_join_minjoin, tvb, 
 				offset+4, 4, ntohl(optdata.opt_join_min));
@@ -268,16 +316,17 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_parityprm);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type, 
-				tvb, offset, 1, optdata.type);
+				tvb, offset, 1, genopts.type);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb, 
-				offset+1, 1, optdata.len);
+				offset+1, 1, genopts.len);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, 
-				tvb, offset+2, 1, optdata.opx);
+				tvb, offset+2, 1, genopts.opx);
 
-			proto_tree_add_uint(opt_tree, hf_pgm_opt_parity_prm_po, tvb, 
-				offset+3, 1, optdata.po);
+			proto_tree_add_uint_format(opt_tree, hf_pgm_opt_parity_prm_po, tvb, 
+				offset+3, 1, optdata.po, "Parity Parameters: %s (0x%x)",
+				paritystr(optdata.po), optdata.po);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_parity_prm_prmtgsz,
 				tvb, offset+4, 4, ntohl(optdata.prm_tgsz));
@@ -291,13 +340,13 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_paritygrp);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type, 
-				tvb, offset, 1, optdata.type);
+				tvb, offset, 1, genopts.type);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb, 
-				offset+1, 1, optdata.len);
+				offset+1, 1, genopts.len);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, 
-				tvb, offset+2, 1, optdata.opx);
+				tvb, offset+2, 1, genopts.opx);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_parity_grp_res, tvb, 
 				offset+3, 1, optdata.res);
@@ -317,13 +366,13 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_naklist);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type, tvb, 
-				offset, 1, optdata.type);
+				offset, 1, genopts.type);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb, 
-				offset+1, 1, optdata.len);
+				offset+1, 1, genopts.len);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, 
-				tvb, offset+2, 1, optdata.opx);
+				tvb, offset+2, 1, genopts.opx);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_nak_res, tvb, 
 				offset+3, 1, optdata.res);
@@ -370,11 +419,110 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			}
 			break;
 		}
+		case PGM_OPT_PGMCC_DATA:{
+			pgm_opt_pgmcc_data_t optdata;
+
+			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
+			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_ccdata);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type, 
+				tvb, offset, 1, genopts.type);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb, 
+				offset+1, 1, genopts.len);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, 
+				tvb, offset+2, 1, genopts.opx);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccdata_res, tvb, 
+				offset+3, 1, optdata.res);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccdata_tsp, tvb, 
+				offset+4, 4, optdata.tsp);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccdata_afi, tvb, 
+				offset+8, 2, ntohs(optdata.acker_afi));
+
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccdata_res2, tvb, 
+				offset+10, 2, ntohs(optdata.res2));
+
+			switch (ntohs(optdata.acker_afi)) {
+
+			case AFNUM_INET:
+				proto_tree_add_ipv4(opt_tree, hf_pgm_opt_ccdata_acker,
+				    tvb, offset+12, 4, optdata.acker);
+				break;
+
+			default:
+				/*
+				 * XXX - the header is variable-length,
+				 * as the length of the NLA depends on
+				 * its AFI.
+				 *
+				 * However, our structure for it is
+				 * fixed-length, and assumes it's a 4-byte
+				 * IPv4 address.
+				 */
+				break;
+			}
+
+			break;
+		}
+		case PGM_OPT_PGMCC_FEEDBACK:{
+			pgm_opt_pgmcc_feedback_t optdata;
+
+			tvb_memcpy(tvb, (guint8 *)&optdata, offset, sizeof(optdata));
+			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_ccdata);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_type, 
+				tvb, offset, 1, genopts.type);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_len, tvb, 
+				offset+1, 1, genopts.len);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_genopt_opx, 
+				tvb, offset+2, 1, genopts.opx);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccfeedbk_res, tvb, 
+				offset+3, 1, optdata.res);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccfeedbk_tsp, tvb, 
+				offset+4, 4, optdata.tsp);
+
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccfeedbk_afi, tvb, 
+				offset+8, 2, ntohs(optdata.acker_afi));
+
+			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccfeedbk_lossrate, tvb, 
+				offset+10, 2, ntohs(optdata.loss_rate));
+
+			switch (ntohs(optdata.acker_afi)) {
+
+			case AFNUM_INET:
+				proto_tree_add_ipv4(opt_tree, hf_pgm_opt_ccfeedbk_acker,
+				    tvb, offset+12, 4, optdata.acker);
+				break;
+
+			default:
+				/*
+				 * XXX - the header is variable-length,
+				 * as the length of the NLA depends on
+				 * its AFI.
+				 *
+				 * However, our structure for it is
+				 * fixed-length, and assumes it's a 4-byte
+				 * IPv4 address.
+				 */
+				break;
+			}
+
+			break;
+		}
 		}
 		offset += genopts.len;
 		opts.total_len -= genopts.len;
 
 	}
+	return ;
 }
 
 static const value_string type_vals[] = {
@@ -384,9 +532,72 @@ static const value_string type_vals[] = {
 	{ PGM_NAK_PCKT,   "NAK" },
 	{ PGM_NNAK_PCKT,  "NNAK" },
 	{ PGM_NCF_PCKT,   "NCF" },
+	{ PGM_ACK_PCKT,   "ACK" },
 	{ 0,              NULL }
 };
+/* Determine if there is a sub-dissector and call it.  This has been */
+/* separated into a stand alone routine to other protocol dissectors */
+/* can call to it, ie. socks	*/
 
+void
+decode_pgm_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree *tree, pgm_type *pgmhdr)
+{
+  tvbuff_t *next_tvb;
+  int found = 0;
+
+  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+
+  /* do lookup with the subdissector table */
+  found = dissector_try_port(subdissector_table, pgmhdr->sport, 
+			next_tvb, pinfo, tree);
+  if (found)
+	return;
+
+  found = dissector_try_port(subdissector_table, pgmhdr->dport, 
+			next_tvb, pinfo, tree);
+  if (found)
+	return;
+
+  /* do lookup with the heuristic subdissector table */
+  if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree))
+    return;
+
+  /* Oh, well, we don't know this; dissect it as data. */
+  dissect_data(next_tvb, 0, pinfo, tree);
+
+}
+int 
+total_size(tvbuff_t *tvb, pgm_type *hdr)
+{
+	int bytes = sizeof(pgm_type);
+	pgm_opt_length_t opts;
+
+	switch(hdr->type) {
+	case PGM_SPM_PCKT:
+		bytes += sizeof(pgm_spm_t);
+		break;
+
+	case PGM_RDATA_PCKT:
+	case PGM_ODATA_PCKT:
+		bytes += sizeof(pgm_data_t);
+		break;
+
+	case PGM_NAK_PCKT:
+	case PGM_NNAK_PCKT:
+	case PGM_NCF_PCKT:
+		bytes += sizeof(pgm_nak_t);
+		break;
+	case PGM_ACK_PCKT:
+		bytes += sizeof(pgm_ack_t);
+		break;
+	}
+	if ((hdr->opts & PGM_OPT)) {
+		tvb_memcpy(tvb, (guint8 *)&opts, bytes, sizeof(opts));
+		bytes += ntohs(opts.total_len);
+	}
+	return(bytes);
+}
 /*
  * dissect_pgm - The dissector for Pragmatic General Multicast
  */
@@ -401,10 +612,13 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pgm_spm_t spm;
 	pgm_data_t data;
 	pgm_nak_t nak;
+	pgm_ack_t ack;
 	int offset = 0;
 	guint hlen, plen;
 	proto_item *ti;
 	const char *pktname;
+	char *gsi;
+	int isdata = 0;
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "PGM");
@@ -421,20 +635,15 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	pktname = val_to_str(pgmhdr.type, type_vals, "Unknown (0x%02x)");
 
+	gsi = bytes_to_str(pgmhdr.gsi, 6);
 	switch(pgmhdr.type) {
 	case PGM_SPM_PCKT:
 		plen = sizeof(pgm_spm_t);
 		tvb_memcpy(tvb, (guint8 *)&spm, sizeof(pgm_type), plen);
 		spm_ntoh(&spm);
 		if (check_col(pinfo->fd, COL_INFO)) {
-			/*
-			 * XXX - this is correct only if spm.path_afi
-			 * is AFNUM_INET; it's not correct for, say
-			 * AFNUM_INET6.
-			 */
 			col_add_fstr(pinfo->fd, COL_INFO,
-			    "SPM: sqn 0x%x path %s", spm.sqn,
-			    get_hostname(spm.path));
+				"%-5s sqn 0x%x gsi %s", pktname, spm.sqn, gsi);
 		}
 		break;
 
@@ -445,9 +654,10 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		data_ntoh(&data);
 		if (check_col(pinfo->fd, COL_INFO)) {
 			col_add_fstr(pinfo->fd, COL_INFO,
-			    "%s: sqn 0x%x tsdulen %d", pktname, data.sqn, 
+			    "%-5s sqn 0x%x gsi %s tsdulen %d", pktname, data.sqn, gsi,
 			    pgmhdr.tsdulen);
 		}
+		isdata = 1;
 		break;
 
 	case PGM_NAK_PCKT:
@@ -458,9 +668,16 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		nak_ntoh(&nak);
 		if (check_col(pinfo->fd, COL_INFO)) {
 			col_add_fstr(pinfo->fd, COL_INFO,
-			    "%s: sqn 0x%x src %s grp %s", pktname, nak.sqn, 
-			    get_hostname(nak.src),
-			    get_hostname(nak.grp));
+				"%-5s sqn 0x%x gsi %s", pktname, nak.sqn, gsi);
+		}
+		break;
+	case PGM_ACK_PCKT:
+		plen = sizeof(pgm_ack_t);
+		tvb_memcpy(tvb, (guint8 *)&ack, sizeof(pgm_type), plen);
+		ack_ntoh(&ack);
+		if (check_col(pinfo->fd, COL_INFO)) {
+			col_add_fstr(pinfo->fd, COL_INFO,
+			    "%-5s sqn 0x%x gsi %s", pktname, ack.rx_max_sqn, gsi);
 		}
 		break;
 
@@ -470,7 +687,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_protocol_format(tree, proto_pgm, 
-			tvb, offset, hlen,
+			tvb, offset, total_size(tvb, &pgmhdr),
 			"Pragmatic General Multicast: Type %s"
 			    " SrcPort %u, DstPort %u, GSI %s", pktname,
 			pgmhdr.sport, pgmhdr.dport,
@@ -551,7 +768,9 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 
 		case PGM_RDATA_PCKT:
-		case PGM_ODATA_PCKT:
+		case PGM_ODATA_PCKT: {
+			tvbuff_t *next_tvb;
+
 			type_tree = proto_item_add_subtree(tf, ett_pgm_data);
 
 			proto_tree_add_uint(type_tree, hf_pgm_spm_sqn, tvb, 
@@ -559,16 +778,15 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_uint(type_tree, hf_pgm_spm_trail, tvb, 
 				offset+4, 4, data.trail);
 
-			if ((pgmhdr.opts & PGM_OPT) == TRUE) {
-				offset += plen;
-				dissect_pgmopts(tvb, offset, type_tree, pktname);
-			}
-			/*
-			 * Now see if there are any sub-dissectors, of so call them
-			 */
-			decode_tcp_ports(tvb, offset, pinfo, tree, 
-				pgmhdr.sport, pgmhdr.dport);
+			if ((pgmhdr.opts & PGM_OPT) == FALSE)
+				break;
+			offset += plen;
+
+			dissect_pgmopts(tvb, offset, type_tree, pktname);
+
 			break;
+		}
+
 
 		case PGM_NAK_PCKT:
 		case PGM_NNAK_PCKT:
@@ -599,7 +817,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 * fixed-length, and assumes it's a 4-byte
 				 * IPv4 address.
 				 */
-				return;
+				break;
 			}
 
 			proto_tree_add_uint(type_tree, hf_pgm_nak_grpafi, tvb, 
@@ -634,8 +852,30 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dissect_pgmopts(tvb, offset, type_tree, pktname);
 
 			break;
+		case PGM_ACK_PCKT:
+			type_tree = proto_item_add_subtree(tf, ett_pgm_ack);
+
+			proto_tree_add_uint(type_tree, hf_pgm_ack_sqn, tvb, 
+				offset, 4, ack.rx_max_sqn);
+			proto_tree_add_uint(type_tree, hf_pgm_ack_bitmap, tvb, 
+				offset+4, 4, ack.bitmap);
+
+			if ((pgmhdr.opts & PGM_OPT) == FALSE)
+				break;
+			offset += plen;
+
+			dissect_pgmopts(tvb, offset, type_tree, pktname);
+
+			break;
 		}
 
+	}
+	if (isdata) {
+		/*
+		 * Now see if there are any sub-dissectors, if so call them
+		 */
+		offset = total_size(tvb, &pgmhdr);
+		decode_pgm_ports(tvb, offset, pinfo, tree, &pgmhdr);
 	}
 	pktname = NULL;
 }
@@ -682,8 +922,8 @@ proto_register_pgm(void)
       { "Global Source Identifier", "pgm.hdr.gsi", FT_BYTES, BASE_HEX, 
 	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_main_tsdulen,
-      { "Transport Service Data Unit Length", "pgm.hdr.tsdulen", FT_UINT16, BASE_DEC,
-	  NULL, 0x0, "", HFILL }},
+      { "Transport Service Data Unit Length", "pgm.hdr.tsdulen", FT_UINT16, 
+	  BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pgm_spm_sqn,
       { "Sequence number", "pgm.spm.sqn", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, "", HFILL }},
@@ -729,6 +969,12 @@ proto_register_pgm(void)
     { &hf_pgm_nak_grp,
       { "Multicast Group NLA", "pgm.nak.grp", FT_IPv4, BASE_NONE,
 	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_ack_sqn,
+      { "Maximum Received Sequence Number", "pgm.ack.maxsqn", FT_UINT32, 
+	  BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pgm_ack_bitmap,
+      { "Packet Bitmap", "pgm.ack.bitmap", FT_UINT32, BASE_HEX, 
+	  NULL, 0x0, "", HFILL }},
     { &hf_pgm_opt_type,
       { "Type", "pgm.opts.type", FT_UINT8, BASE_HEX,
           VALS(opt_vals), 0x0, "", HFILL }},
@@ -748,7 +994,7 @@ proto_register_pgm(void)
       { "Option Extensibility Bits", "pgm.genopts.opx", FT_UINT8, BASE_HEX,
           VALS(opx_vals), 0x0, "", HFILL }},
     { &hf_pgm_opt_parity_prm_po,
-      { "Pro-Active Parity", "pgm.opts.parity_prm.op", FT_UINT8, BASE_HEX,
+      { "Parity Parameters", "pgm.opts.parity_prm.op", FT_UINT8, BASE_HEX,
           NULL, 0x0, "", HFILL }},
     { &hf_pgm_opt_parity_prm_prmtgsz,
       { "Transmission Group Size", "pgm.opts.parity_prm.prm_grp",
@@ -773,6 +1019,36 @@ proto_register_pgm(void)
     { &hf_pgm_opt_nak_list,
       { "List", "pgm.opts.nak.list", FT_BYTES, BASE_NONE,
           NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_ccdata_res,
+      { "Reserved", "pgm.opts.ccdata.res", FT_UINT8, BASE_DEC,
+          NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_ccdata_tsp,
+      { "Time Stamp", "pgm.opts.ccdata.tstamp", FT_UINT16, BASE_HEX,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_ccdata_afi,
+      { "Acker AFI", "pgm.opts.ccdata.afi", FT_UINT16, BASE_DEC,
+	  VALS(afn_vals), 0x0, "", HFILL }},
+    { &hf_pgm_opt_ccdata_res2,
+      { "Reserved", "pgm.opts.ccdata.res2", FT_UINT16, BASE_DEC,
+          NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_ccdata_acker,
+      { "Acker", "pgm.opts.ccdata.acker", FT_IPv4, BASE_NONE,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_ccfeedbk_res,
+      { "Reserved", "pgm.opts.ccdata.res", FT_UINT8, BASE_DEC,
+          NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_ccfeedbk_tsp,
+      { "Time Stamp", "pgm.opts.ccdata.tstamp", FT_UINT16, BASE_HEX,
+	  NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_ccfeedbk_afi,
+      { "Acker AFI", "pgm.opts.ccdata.afi", FT_UINT16, BASE_DEC,
+	  VALS(afn_vals), 0x0, "", HFILL }},
+    { &hf_pgm_opt_ccfeedbk_lossrate,
+      { "Loss Rate", "pgm.opts.ccdata.lossrate", FT_UINT16, BASE_HEX,
+          NULL, 0x0, "", HFILL }},
+    { &hf_pgm_opt_ccfeedbk_acker,
+      { "Acker", "pgm.opts.ccdata.acker", FT_IPv4, BASE_NONE,
+	  NULL, 0x0, "", HFILL }},
   };
   static gint *ett[] = {
     &ett_pgm,
@@ -780,11 +1056,13 @@ proto_register_pgm(void)
 	&ett_pgm_spm,
 	&ett_pgm_data,
 	&ett_pgm_nak,
+	&ett_pgm_ack,
 	&ett_pgm_opts,
 	&ett_pgm_opts_join,
 	&ett_pgm_opts_parityprm,
 	&ett_pgm_opts_paritygrp,
 	&ett_pgm_opts_naklist,
+	&ett_pgm_opts_ccdata,
   };
 
   proto_pgm = proto_register_protocol("Pragmatic General Multicast",
@@ -792,6 +1070,10 @@ proto_register_pgm(void)
 
   proto_register_field_array(proto_pgm, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+	/* subdissector code */
+  subdissector_table = register_dissector_table("pgm.port");
+  register_heur_dissector_list("pgm", &heur_subdissector_list);
 
 }
 
