@@ -13,7 +13,7 @@ Ethereal 0.10.6 has been released.
 
     http://www.ethereal.com/lists/ethereal-users/200408/msg00059.html
 
-  A new comman-line utility called "capinfo" has been added to the
+  A new command-line utility called "capinfo" has been added to the
   distribution which prints statistics about capture files.  
 
 New and updated features
