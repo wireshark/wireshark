@@ -641,6 +641,9 @@ void proto_register_camel(void) {
 
   proto_register_field_array(proto_camel, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  register_ber_oid_name("0.4.0.0.1.0.50.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-gsmssf-to-gsmscf(50) version2(1)" );
+  register_ber_oid_name("0.4.0.0.1.0.51.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-assist-handoff-gsmssf-to-gsmscf(51) version2(1)" );
+  register_ber_oid_name("0.4.0.0.1.0.52.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network|umts-Network(1) applicationContext(0) cap-gsmSRF-to-gsmscf(52) version2(1)" );
 
   /* Register our configuration options, particularly our ssn:s */
   /* Set default SSNs */
