@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.7 1999/08/13 23:47:40 gram Exp $
+ * $Id: dfilter-scanner.l,v 1.8 1999/08/14 06:24:27 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -96,19 +96,19 @@ hexsep		[-:\.]
 [\t\n ]+	/* ignore whitespace */
 
 
-and|\&\&	{ yylval.operand = TOK_AND; return TOK_AND; }
-or|\|\|		{ yylval.operand = TOK_OR; return TOK_OR; }
-not|\!		{ yylval.operand = TOK_NOT; return TOK_NOT; }
-xor|\^\^	{ yylval.operand = TOK_XOR; return TOK_XOR; }
-eq|\=\=		{ yylval.operand = TOK_EQ; return TOK_EQ; }
-ne|\!\=		{ yylval.operand = TOK_NE; return TOK_NE; }
-gt|\>		{ yylval.operand = TOK_GT; return TOK_GT; }
-ge|\>\=		{ yylval.operand = TOK_GE; return TOK_GE; }
-lt|\<		{ yylval.operand = TOK_LT; return TOK_LT; }
-le|\<\=		{ yylval.operand = TOK_LE; return TOK_LE; }
+and|\&\&	{ dfilter_lval.operand = TOK_AND; return TOK_AND; }
+or|\|\|		{ dfilter_lval.operand = TOK_OR; return TOK_OR; }
+not|\!		{ dfilter_lval.operand = TOK_NOT; return TOK_NOT; }
+xor|\^\^	{ dfilter_lval.operand = TOK_XOR; return TOK_XOR; }
+eq|\=\=		{ dfilter_lval.operand = TOK_EQ; return TOK_EQ; }
+ne|\!\=		{ dfilter_lval.operand = TOK_NE; return TOK_NE; }
+gt|\>		{ dfilter_lval.operand = TOK_GT; return TOK_GT; }
+ge|\>\=		{ dfilter_lval.operand = TOK_GE; return TOK_GE; }
+lt|\<		{ dfilter_lval.operand = TOK_LT; return TOK_LT; }
+le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 
-true		{ yylval.operand = TOK_TRUE; return TOK_TRUE; }
-false		{ yylval.operand = TOK_FALSE; return TOK_FALSE; }
+true		{ dfilter_lval.operand = TOK_TRUE; return TOK_TRUE; }
+false		{ dfilter_lval.operand = TOK_FALSE; return TOK_FALSE; }
 
 \[{whitespace}*-?[0-9]+{whitespace}*:{whitespace}*[0-9]+{whitespace}*\] { /* range [ x : y ] */
 
@@ -118,7 +118,7 @@ false		{ yylval.operand = TOK_FALSE; return TOK_FALSE; }
 
 	/* Get the offset from the string */
 	if ((p = strtok(s, ":"))) {
-		yylval.byte_range.offset = strtol(p, NULL, 10);
+		dfilter_lval.byte_range.offset = strtol(p, NULL, 10);
 	}
 	else {
 		g_free(byterange_string);
@@ -127,7 +127,7 @@ false		{ yylval.operand = TOK_FALSE; return TOK_FALSE; }
 
 	/* Get the Length from the string */
 	if ((p = strtok(NULL, "]"))) {
-		yylval.byte_range.length = strtoul(p, NULL, 10);
+		dfilter_lval.byte_range.length = strtoul(p, NULL, 10);
 	}
 	else {
 		g_free(byterange_string);
@@ -140,38 +140,38 @@ false		{ yylval.operand = TOK_FALSE; return TOK_FALSE; }
 
 ({hex}{hexsep}){1,2}{hex} {		/* small byte array */
 
-	yylval.bytes = byte_str_to_guint8_array(yytext);
+	dfilter_lval.bytes = byte_str_to_guint8_array(yytext);
 	return T_VAL_BYTES;
 }	
 
 ({hex}{hexsep}){3}{hex} {		/* possibly IPv4 address (e.g., 0.0.0.0) */
 
-	yylval.id = g_strdup(yytext);
+	dfilter_lval.id = g_strdup(yytext);
 	return T_VAL_UNQUOTED_STRING;
 }	
 
 ({hex}{hexsep}){4}{hex} {		/* small byte array */
 
-	yylval.bytes = byte_str_to_guint8_array(yytext);
+	dfilter_lval.bytes = byte_str_to_guint8_array(yytext);
 	return T_VAL_BYTES;
 }	
 
 ({hex}{hexsep}){5}{hex} {		/* possibly Ether Hardware Address */
 
-	/* it's faster to copy six bytes to yylval than to create a GByteArray
+	/* it's faster to copy six bytes to dfilter_lval than to create a GByteArray
 	 * structure and append 6 bytes. That means I'll have to handle this
 	 * overloaded meaning of 6 bytes == 1 ether in the parser (what happens
 	 * when a T_VAL_ETHER is passed when an expression expects a T_VAL_BYTES?),
 	 * but the speed of processing T_VAL_ETHER's makes up for the added
 	 * complexity.
 	 */
-	ether_str_to_guint8_array(yytext, yylval.ether);
+	ether_str_to_guint8_array(yytext, dfilter_lval.ether);
 	return T_VAL_ETHER;
 }	
 
 ({hex}{hexsep}){6,}{hex} {		/* large byte array */
 
-	yylval.bytes = byte_str_to_guint8_array(yytext);
+	dfilter_lval.bytes = byte_str_to_guint8_array(yytext);
 	return T_VAL_BYTES;
 }	
 
@@ -179,13 +179,13 @@ false		{ yylval.operand = TOK_FALSE; return TOK_FALSE; }
 
 	int retval = 0;
 	enum ftenum ftype;
-	yylval.variable = dfilter_lookup_token(yytext);
-	if (yylval.variable == 0) {
-		yylval.id = g_strdup(yytext);
+	dfilter_lval.variable = dfilter_lookup_token(yytext);
+	if (dfilter_lval.variable == 0) {
+		dfilter_lval.id = g_strdup(yytext);
 		return T_VAL_UNQUOTED_STRING;
 	}
 	
-	ftype = proto_registrar_get_ftype(yylval.variable);
+	ftype = proto_registrar_get_ftype(dfilter_lval.variable);
 	switch (ftype) {
 		case FT_UINT8:
 		case FT_VALS_UINT8:
@@ -227,18 +227,18 @@ false		{ yylval.operand = TOK_FALSE; return TOK_FALSE; }
 }
 
 [0-9]+ {				/* decimal or octal values */
-	yylval.id = g_strdup(yytext);
+	dfilter_lval.id = g_strdup(yytext);
 	return T_VAL_UNQUOTED_STRING;
 }
 
 
 0[xX][A-Fa-f0-9]+ {			/* hex values */
-	yylval.id = g_strdup(yytext);
+	dfilter_lval.id = g_strdup(yytext);
 	return T_VAL_UNQUOTED_STRING;
 }
 
 [0-9\:\.]+ {
-	yylval.id = g_strdup(yytext);
+	dfilter_lval.id = g_strdup(yytext);
 	return T_VAL_UNQUOTED_STRING;
 }
 

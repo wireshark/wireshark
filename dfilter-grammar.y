@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.9 1999/08/13 23:47:39 gram Exp $
+ * $Id: dfilter-grammar.y,v 1.10 1999/08/14 06:24:26 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,8 +25,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#define yylex dfilter_lex
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -43,7 +41,7 @@
 #include <glib.h>
 #endif
 
-#include <string.h> /* during testing */
+#include <string.h>
 
 #ifndef _STDLIB_H
 #include <stdlib.h>

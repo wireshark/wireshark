@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.9 1999/08/13 23:47:40 gram Exp $
+ * $Id: dfilter.c,v 1.10 1999/08/14 06:24:27 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,7 +53,7 @@
 #include "dfilter-int.h"
 #include "dfilter-grammar.h"
 
-int yyparse(void); /* yacc entry-point */
+int dfilter_parse(void); /* yacc entry-point */
 
 #define DFILTER_LEX_ABBREV_OFFSET	2000
 
@@ -126,7 +126,7 @@ dfilter_compile(dfilter *df, gchar *dfilter_text)
 	global_df = df;
 
 	/* The magic happens right here. */
-	retval = yyparse();
+	retval = dfilter_parse();
 
 	/* clean up lex */
 	dfilter_scanner_cleanup();
@@ -209,7 +209,7 @@ clear_byte_array(gpointer data, gpointer user_data)
 }
 
 void
-yyerror(char *s)
+dfilter_error(char *s)
 {
 /*	fprintf(stderr, "%s\n", s);
 	Do not report the error, just let yyparse() return 1 */
@@ -218,8 +218,9 @@ yyerror(char *s)
 void
 dfilter_yyerror(char *fmt, ...)
 {
+	/* XXX - is this cool? check for mem leak */
 	global_df->dftree = NULL;
-	yyerror(fmt);
+	dfilter_error(fmt);
 }
 
 /* lookup an abbreviation in our token tree, returing the ID #

@@ -4,7 +4,8 @@ man_MANS = ethereal.1
 
 sysconf_DATA = manuf
 
-YFLAGS=-d
+# Any POSIX-compatible YACC should honor the -p flag
+YFLAGS=-d -p dfilter_
 
 ethereal_SOURCES = \
 	alignment.h    \
