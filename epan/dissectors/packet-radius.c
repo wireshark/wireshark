@@ -3696,6 +3696,10 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
                 sprintf(cont,"%u:%u:%u:%u",pd[0],pd[1],pd[2],pd[3]);
 		break;
 
+        case( RADIUS_UNKNOWN ):
+                strcpy(cont,"Unknown Value Type");
+                break;
+
         case( RADIUS_STRING_TAGGED ):
 		/* Tagged ? */
                 if (avph->avp_length > 2) {
@@ -3759,6 +3763,39 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 				}
 			}
 		} while (vsa_length > vsa_len && vsa_index < VSABUFFER);
+		break;
+
+        case( RADIUS_TIMESTAMP ):
+                if (!avp_length_check(cont, avph, 4))
+                  return;
+		timeval=tvb_get_ntohl(tvb,offset+2);
+		sprintf(cont,"%d (%s)", timeval, abs_time_secs_to_str(timeval));
+		break;
+
+        case( RADIUS_INTEGER4_TAGGED ):
+                if (!avp_length_check(cont, avph, 5))
+                  return;
+		tag = tvb_get_guint8(tvb,offset+2);
+		intval = tvb_get_ntoh24(tvb,offset+3);
+		/* Tagged ? */
+		if (tag) {
+			if (attr_info->vs != NULL) {
+				sprintf(dest, "Tag:%u, Value:%s(%u)",
+					tag,
+					rd_match_strval(intval, attr_info->vs),
+					intval);
+			} else {
+				sprintf(dest, "Tag:%u, Value:%u",
+					tag, intval);
+			}
+		} else {
+	        	if (attr_info->vs != NULL)
+				sprintf(cont, "%s(%u)",
+					rd_match_strval(intval, attr_info->vs),
+					intval);
+			else
+				sprintf(cont,"%u", intval);
+		}
 		break;
 
 	case( COSINE_VPI_VCI ):
@@ -3976,39 +4013,6 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 
 		break;
 
-
-        case( RADIUS_TIMESTAMP ):
-		timeval=tvb_get_ntohl(tvb,offset+2);
-		sprintf(cont,"%d (%s)", timeval, abs_time_secs_to_str(timeval));
-		break;
-
-        case( RADIUS_INTEGER4_TAGGED ):
-		tag = tvb_get_guint8(tvb,offset+2);
-		intval = tvb_get_ntoh24(tvb,offset+3);
-		/* Tagged ? */
-		if (tag) {
-			if (attr_info->vs != NULL) {
-				sprintf(dest, "Tag:%u, Value:%s(%u)",
-					tag,
-					rd_match_strval(intval, attr_info->vs),
-					intval);
-			} else {
-				sprintf(dest, "Tag:%u, Value:%u",
-					tag, intval);
-			}
-		} else {
-	        	if (attr_info->vs != NULL)
-				sprintf(cont, "%s(%u)",
-					rd_match_strval(intval, attr_info->vs),
-					intval);
-			else
-				sprintf(cont,"%u", intval);
-		}
-		break;
-
-        case( RADIUS_UNKNOWN ):
-                strcpy(cont,"Unknown Value Type");
-                break;
         default:
         	g_assert_not_reached();
   }
