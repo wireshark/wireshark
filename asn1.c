@@ -1,7 +1,7 @@
 /* asn1.c
  * Routines for ASN.1 BER dissection
  *
- * $Id: asn1.c,v 1.19 2003/05/10 02:00:41 guy Exp $
+ * $Id: asn1.c,v 1.20 2003/06/24 06:05:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -607,6 +607,7 @@ asn1_bits_decode ( ASN1_SCK *asn1, int enc_len, guchar **bits,
     int eoc;
     guchar *ptr;
 
+    eoc = asn1->offset + enc_len;
     *bits = NULL;
     ret = asn1_octet_decode (asn1, unused);
     if (ret != ASN1_ERR_NOERROR)
@@ -634,7 +635,6 @@ asn1_bits_decode ( ASN1_SCK *asn1, int enc_len, guchar **bits,
 	*bits = g_malloc (1);
     }
 
-    eoc = asn1->offset + enc_len;
     ptr = *bits;
     while (asn1->offset < eoc) {
         ret = asn1_octet_decode (asn1, (guchar *)ptr++);
