@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h225.c,v 1.17 2003/10/17 07:45:20 sahlberg Exp $
+ * $Id: packet-h225.c,v 1.18 2003/10/17 08:01:51 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5333,6 +5333,12 @@ dissect_h225_EndPointType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 	return offset;
 }
 static int 
+dissect_h225_destinationType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_destinationType, ett_h225_EndPointType, EndPointType_sequence);
+	return offset;
+}
+static int 
 dissect_h225_terminalType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_terminalType, ett_h225_EndPointType, EndPointType_sequence);
@@ -5518,12 +5524,6 @@ static int
 dissect_h225_EndPoint(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_EndPoint, ett_h225_EndPoint, EndPoint_sequence);
-	return offset;
-}
-static int 
-dissect_h225_destinationType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h225_destinationType, ett_h225_EndPoint, EndPoint_sequence);
 	return offset;
 }
 
