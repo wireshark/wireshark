@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.93 2003/05/27 07:44:54 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.94 2003/05/30 23:44:13 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3978,8 +3978,8 @@ samr_dissect_query_groupmem_rqst(tvbuff_t *tvb, int offset,
 				 packet_info *pinfo, proto_tree *tree,
 				 char *drep)
 {
-        offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
-                                      hf_samr_hnd, NULL);
+        offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_samr_hnd, NULL, FALSE, FALSE);
 
         return offset;
 }
@@ -4297,8 +4297,8 @@ samr_dissect_shutdown_sam_server_rqst(tvbuff_t *tvb, int offset,
 				      packet_info *pinfo, proto_tree *tree,
 				      char *drep)
 {
-        offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
-                                      hf_samr_hnd, NULL);
+        offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_samr_hnd, NULL, FALSE, FALSE);
 
         return offset;
 }
@@ -4319,8 +4319,8 @@ samr_dissect_delete_dom_group_rqst(tvbuff_t *tvb, int offset,
 				   packet_info *pinfo, proto_tree *tree,
 				   char *drep)
 {
-        offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
-                                      hf_samr_hnd, NULL);
+        offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_samr_hnd, NULL, FALSE, FALSE);
 
         return offset;
 }
@@ -4369,8 +4369,8 @@ samr_dissect_delete_dom_alias_rqst(tvbuff_t *tvb, int offset,
 				   packet_info *pinfo, proto_tree *tree,
 				   char *drep)
 {
-        offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
-                                      hf_samr_hnd, NULL);
+        offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_samr_hnd, NULL, FALSE, FALSE);
 
         return offset;
 }
