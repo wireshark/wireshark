@@ -1,0 +1,21 @@
+$Id: README.macos,v 1.1 2004/03/15 02:04:08 jmayer Exp $
+
+This file tries to help building Ethereal for MacOS X
+
+The changes to enable libwiretap and libethereal being built as shared
+libraries have broken shared gtk1 builds on MacOS X. It seems that the
+gtk1 libs don't work when linked into a shared library. The alternative
+to build Ethereal as one big statically linked binary isn't working
+either (and may never have worked on this OS).
+
+The way out of this situation is to use gtk2 and associated libraries
+which is known to work in this constellation:
+
+        GLib 2.2.3
+        Pango 1.2.5
+        GTK+ 2.2.3
+        ATK 1.2.4
+
+and the corresponding dependencies. In case you also have gtk1 installed,
+you will need to run configure with the "--enable-gtk2" argument.
+
