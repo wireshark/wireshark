@@ -582,7 +582,7 @@ dissect_ntlmssp_negotiate_flags (tvbuff_t *tvb, int offset,
 }
 
 /* Dissect a NTLM response. This is documented at
-   http://ubiqx.org/cifs/SMB.html#8, para 2.8.5.3 */
+   http://ubiqx.org/cifs/SMB.html#SMB.8, para 2.8.5.3 */
 
 /* Name types */
 
