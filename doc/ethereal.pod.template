@@ -236,6 +236,10 @@ Allows you to search forward or backward, starting with the currently
 selected packet (or the most recently selected packet, if no packet is
 selected), for a packet matching a given display filter.
 
+=item Display:Go To Frame
+
+Allows you to go to a particular numbered packet.
+
 =item Display:Collapse All
 
 Collapses the protocol tree branches.
