@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.89 2002/10/24 06:17:34 guy Exp $
+ * $Id: packet-ipv6.c,v 1.90 2002/10/25 23:23:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,11 +124,91 @@ static GHashTable *ipv6_fragment_table = NULL;
 void
 capture_ipv6(const guchar *pd, int offset, int len, packet_counts *ld)
 {
-        ld->ipv6++;
-	/* FIXME: We should count the actual ipv6 payload by protocol,
-	 *	but it looks like we need to replicate quite a few
-	 *	parts of the dissection stuff.
-	 */
+  guint8 nxt;
+  int advance;
+
+  if (!BYTES_ARE_IN_FRAME(offset, len, 4+4+16+16)) {
+    ld->other++;
+    return;
+  }
+  nxt = pd[offset+6];		/* get the "next header" value */
+  offset += 4+4+16+16;		/* skip past the IPv6 header */
+  len -= 4+4+16+16;
+
+again:
+   switch (nxt) {
+   case IP_PROTO_HOPOPTS:
+   case IP_PROTO_ROUTING:
+   case IP_PROTO_DSTOPTS:
+     if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
+       ld->other++;
+       return;
+     }
+     nxt = pd[offset];
+     advance = (pd[offset+1] + 1) << 3;
+     if (!BYTES_ARE_IN_FRAME(offset, len, advance)) {
+       ld->other++;
+       return;
+     }
+     offset += advance;
+     len -= advance;
+     goto again;
+   case IP_PROTO_FRAGMENT:
+     if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
+       ld->other++;
+       return;
+     }
+     nxt = pd[offset];
+     advance = 8;
+     if (!BYTES_ARE_IN_FRAME(offset, len, advance)) {
+       ld->other++;
+       return;
+     }
+     offset += advance;
+     len -= advance;
+     goto again;
+   case IP_PROTO_AH:
+     if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
+       ld->other++;
+       return;
+     }
+     nxt = pd[offset];
+     advance = 8 + ((pd[offset+1] - 1) << 2);
+     if (!BYTES_ARE_IN_FRAME(offset, len, advance)) {
+       ld->other++;
+       return;
+     }
+     offset += advance;
+     len -= advance;
+     goto again;
+   }
+
+  switch(nxt) {
+    case IP_PROTO_SCTP:
+      ld->sctp++;
+      break;
+    case IP_PROTO_TCP:
+      ld->tcp++;
+      break;
+    case IP_PROTO_UDP:
+      ld->udp++;
+      break;
+    case IP_PROTO_ICMP:
+    case IP_PROTO_ICMPV6:	/* XXX - separate counters? */
+      ld->icmp++;
+      break;
+    case IP_PROTO_OSPF:
+      ld->ospf++;
+      break;
+    case IP_PROTO_GRE:
+      ld->gre++;
+      break;
+    case IP_PROTO_VINES:
+      ld->vines++;
+      break;
+    default:
+      ld->other++;
+  }
 }
 
 static void
@@ -217,7 +297,7 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
     }
     if (tree) {
 	   ti = proto_tree_add_text(tree, tvb, offset, len,
-			   "Fragmention Header");
+			   "Fragmentation Header");
 	   rthdr_tree = proto_item_add_subtree(ti, ett_ipv6);
 
 	   proto_tree_add_text(rthdr_tree, tvb,

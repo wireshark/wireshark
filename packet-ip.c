@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.175 2002/10/24 06:17:34 guy Exp $
+ * $Id: packet-ip.c,v 1.176 2002/10/25 23:23:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -356,6 +356,7 @@ capture_ip(const guchar *pd, int offset, int len, packet_counts *ld) {
       ld->udp++;
       break;
     case IP_PROTO_ICMP:
+    case IP_PROTO_ICMPV6:	/* XXX - separate counters? */
       ld->icmp++;
       break;
     case IP_PROTO_OSPF:
