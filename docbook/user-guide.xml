@@ -218,23 +218,23 @@ FILE SECTION
 
 
 <!-- These are the actual files that make up the document -->
-  <!ENTITY BookMetaInformation SYSTEM "ug-src/EUG_meta_info.xml">
-  <!ENTITY Preface SYSTEM  "ug-src/EUG_preface.xml">
-  <!ENTITY ChapterIntroduction SYSTEM "ug-src/EUG_chapter_introduction.xml">
-  <!ENTITY ChapterBuildInstall SYSTEM "ug-src/EUG_chapter_build_install.xml">
-  <!ENTITY ChapterUse SYSTEM "ug-src/EUG_chapter_use.xml">
-  <!ENTITY ChapterCapture SYSTEM "ug-src/EUG_chapter_capture.xml">
-  <!ENTITY ChapterIo SYSTEM "ug-src/EUG_chapter_io.xml">
-  <!ENTITY ChapterWork SYSTEM "ug-src/EUG_chapter_work.xml">
-  <!ENTITY ChapterAdvanced SYSTEM "ug-src/EUG_chapter_advanced.xml">
-  <!ENTITY ChapterStatistics SYSTEM "ug-src/EUG_chapter_statistics.xml">
-  <!ENTITY ChapterCustomize SYSTEM "ug-src/EUG_chapter_customize.xml">
-  <!ENTITY ChapterTroubleshoot SYSTEM "ug-src/EUG_chapter_troubleshoot.xml">
-  <!ENTITY AppMessages SYSTEM "ug-src/EUG_app_messages.xml">
-  <!ENTITY AppFiles SYSTEM "ug-src/EUG_app_files.xml">
-  <!ENTITY AppProtocols SYSTEM   "ug-src/EUG_app_protocols.xml">
-  <!ENTITY AppHowItWorks SYSTEM "ug-src/EUG_app_howitworks.xml">
-  <!ENTITY AppTools SYSTEM "ug-src/EUG_app_tools.xml">
+  <!ENTITY BookMetaInformation SYSTEM "eug_src/EUG_meta_info.xml">
+  <!ENTITY Preface SYSTEM  "eug_src/EUG_preface.xml">
+  <!ENTITY ChapterIntroduction SYSTEM "eug_src/EUG_chapter_introduction.xml">
+  <!ENTITY ChapterBuildInstall SYSTEM "eug_src/EUG_chapter_build_install.xml">
+  <!ENTITY ChapterUse SYSTEM "eug_src/EUG_chapter_use.xml">
+  <!ENTITY ChapterCapture SYSTEM "eug_src/EUG_chapter_capture.xml">
+  <!ENTITY ChapterIo SYSTEM "eug_src/EUG_chapter_io.xml">
+  <!ENTITY ChapterWork SYSTEM "eug_src/EUG_chapter_work.xml">
+  <!ENTITY ChapterAdvanced SYSTEM "eug_src/EUG_chapter_advanced.xml">
+  <!ENTITY ChapterStatistics SYSTEM "eug_src/EUG_chapter_statistics.xml">
+  <!ENTITY ChapterCustomize SYSTEM "eug_src/EUG_chapter_customize.xml">
+  <!ENTITY ChapterTroubleshoot SYSTEM "eug_src/EUG_chapter_troubleshoot.xml">
+  <!ENTITY AppMessages SYSTEM "eug_src/EUG_app_messages.xml">
+  <!ENTITY AppFiles SYSTEM "eug_src/EUG_app_files.xml">
+  <!ENTITY AppProtocols SYSTEM   "eug_src/EUG_app_protocols.xml">
+  <!ENTITY AppHowItWorks SYSTEM "eug_src/EUG_app_howitworks.xml">
+  <!ENTITY AppTools SYSTEM "eug_src/EUG_app_tools.xml">
   <!ENTITY AppGPL SYSTEM    "GPL_appendix.xml">
   <!ENTITY ProtoList SYSTEM    "protocols.xml">
 

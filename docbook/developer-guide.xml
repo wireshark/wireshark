@@ -64,17 +64,17 @@ FILE SECTION
 
 <!-- These are the actual files that make up the document -->
 
-  <!ENTITY BookMetaInformation SYSTEM "dg-src/EDG_meta_info.xml">
-  <!ENTITY Preface SYSTEM "dg-src/EDG_preface.xml">
-  <!ENTITY EnvIntroduction SYSTEM "dg-src/EDG_chapter_env_intro.xml">
-  <!ENTITY Tools SYSTEM "dg-src/EDG_chapter_tools.xml">
-  <!ENTITY Libraries SYSTEM "dg-src/EDG_chapter_libraries.xml">
-  <!ENTITY Sources SYSTEM "dg-src/EDG_chapter_sources.xml">
+  <!ENTITY BookMetaInformation SYSTEM "edg_src/EDG_meta_info.xml">
+  <!ENTITY Preface SYSTEM "edg_src/EDG_preface.xml">
+  <!ENTITY EnvIntroduction SYSTEM "edg_src/EDG_chapter_env_intro.xml">
+  <!ENTITY Tools SYSTEM "edg_src/EDG_chapter_tools.xml">
+  <!ENTITY Libraries SYSTEM "edg_src/EDG_chapter_libraries.xml">
+  <!ENTITY Sources SYSTEM "edg_src/EDG_chapter_sources.xml">
   
-  <!ENTITY BuildIntroduction SYSTEM "dg-src/EDG_chapter_build_intro.xml">
-  <!ENTITY HowEtherealWorks SYSTEM "dg-src/EDG_chapter_works.xml">
-  <!ENTITY Dissection SYSTEM "dg-src/EDG_chapter_dissection.xml">
-  <!ENTITY UserInterface SYSTEM "dg-src/EDG_chapter_userinterface.xml">
+  <!ENTITY BuildIntroduction SYSTEM "edg_src/EDG_chapter_build_intro.xml">
+  <!ENTITY HowEtherealWorks SYSTEM "edg_src/EDG_chapter_works.xml">
+  <!ENTITY Dissection SYSTEM "edg_src/EDG_chapter_dissection.xml">
+  <!ENTITY UserInterface SYSTEM "edg_src/EDG_chapter_userinterface.xml">
 
   <!ENTITY AppGPL SYSTEM    "GPL_appendix.xml">
 
