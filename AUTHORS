@@ -395,6 +395,7 @@ Graham Bloice           <graham.bloice[AT]trihedral.com> {
 	Support for inverse video rather than boldface highlighting of
 	    the bytes, in the hex dump window, corresponding to a selected
 	    field
+	Support for DNP
 }
 
 Ralf Schneider          <ralf.schneider[AT]alcatel.se> {

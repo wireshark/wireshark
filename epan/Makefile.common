@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.27 2004/05/25 10:09:04 sahlberg Exp $
+# $Id: Makefile.common,v 1.28 2004/06/04 00:12:12 sahlberg Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -179,6 +179,7 @@ DISSECTOR_SRC =	\
 	../packet-diffserv-mpls-common.c	\
 	../packet-distcc.c	\
 	../packet-dlsw.c	\
+	../packet-dnp.c	\
 	../packet-dns.c	\
 	../packet-dsi.c	\
 	../packet-dvmrp.c	\
