@@ -3012,6 +3012,7 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       length_remaining -= hdr_length;
       length -= pid_field;
 
+      tvb_ensure_bytes_exist (tvb,offset,length);
       sub_ti = proto_tree_add_text(sub_tree,tvb,offset,length,"Information Field");
       info_tree = proto_item_add_subtree(sub_ti,ett_pppmux_subframe_info);
 
