@@ -1,7 +1,7 @@
 /* packet-ypserv.c
  * Routines for ypserv dissection
  *
- * $Id: packet-ypserv.c,v 1.3 1999/11/11 20:18:46 nneul Exp $
+ * $Id: packet-ypserv.c,v 1.4 1999/11/12 15:12:23 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -43,6 +43,7 @@ static int hf_ypserv_servesdomain = -1;
 static int hf_ypserv_map = -1;
 static int hf_ypserv_key = -1;
 static int hf_ypserv_value = -1;
+static int hf_ypserv_status = -1;
 
 /* Dissect a domain call */
 int dissect_domain_call(const u_char *pd, int offset, frame_data *fd,
@@ -59,14 +60,15 @@ int dissect_domain_call(const u_char *pd, int offset, frame_data *fd,
 int dissect_domain_reply(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
+	if ( !BYTES_ARE_IN_FRAME(offset, 4)) return offset;
+
 	if ( tree )
 	{
-		if ( !BYTES_ARE_IN_FRAME(offset, 1)) return offset;
 		proto_tree_add_item(tree, hf_ypserv_servesdomain,
 			offset, 4, pntohl(&pd[offset]));
-        offset += 4;
 	}
-	
+
+	offset += 4;	
 	return offset;
 }
 
@@ -108,6 +110,41 @@ int dissect_match_call(const u_char *pd, int offset, frame_data *fd,
 	
 	return offset;
 }
+
+int dissect_match_reply(const u_char *pd, int offset, frame_data *fd,
+	proto_tree *tree)
+{
+	if ( !BYTES_ARE_IN_FRAME(offset, 4)) return offset;
+
+	if ( tree )
+	{
+		proto_tree_add_item(tree, hf_ypserv_status,
+			offset, 4, pntohl(&pd[offset]));
+		offset += 4;
+
+		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_ypserv_value);
+	}
+	
+	return offset;
+}
+
+int dissect_firstnext_reply(const u_char *pd, int offset, frame_data *fd,
+	proto_tree *tree)
+{
+	if ( !BYTES_ARE_IN_FRAME(offset, 4)) return offset;
+
+	if ( tree )
+	{
+		proto_tree_add_item(tree, hf_ypserv_status,
+			offset, 4, pntohl(&pd[offset]));
+		offset += 4;
+
+		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_ypserv_value);
+		offset = dissect_rpc_string_item(pd,offset,fd,tree,hf_ypserv_key);	}
+	
+	return offset;
+}
+
 
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: take the generic one. */
@@ -152,15 +189,15 @@ const vsff ypserv2_proc[] = {
     { YPPROC_DOMAIN_NONACK, "DOMAIN_NONACK",
 		dissect_domain_call, dissect_domain_reply },
     { YPPROC_FIRST, "FIRST",        
-		dissect_first_call, NULL },
+		dissect_first_call, dissect_firstnext_reply },
     { YPPROC_MAPLIST,   "MAPLIST",      
 		NULL, NULL },
     { YPPROC_MASTER,    "MASTER",       
 		NULL, NULL },
     { YPPROC_MATCH, "MATCH",        
-		dissect_match_call, NULL },
+		dissect_match_call, dissect_match_reply },
     { YPPROC_NEXT,  "NEXT",     
-		dissect_next_call, NULL },
+		dissect_next_call, dissect_firstnext_reply },
     { YPPROC_ORDER, "ORDER",        
 		NULL, NULL },
     { YPPROC_XFR,   "XFR",      
@@ -173,13 +210,16 @@ const vsff ypserv2_proc[] = {
 void
 proto_register_ypserv(void)
 {
+	static struct true_false_string okfailed = { "Ok", "Failed" };
+	static struct true_false_string yesno = { "Yes", "No" };
+		
 	static hf_register_info hf[] = {
 		{ &hf_ypserv_domain, {
 			"Domain", "ypserv.domain", FT_STRING, BASE_DEC,
 			NULL, 0, "Domain" }},
 		{ &hf_ypserv_servesdomain, {
 			"Serves Domain", "ypserv.servesdomain", FT_BOOLEAN, BASE_DEC,
-			NULL, 0, "Serves Domain" }},
+			&yesno, 0, "Serves Domain" }},
 		{ &hf_ypserv_map, {
 			"Map Name", "ypserv.map", FT_STRING, BASE_DEC,
 			NULL, 0, "Map Name" }},
@@ -189,6 +229,9 @@ proto_register_ypserv(void)
 		{ &hf_ypserv_value, {
 			"Value", "ypserv.value", FT_STRING, BASE_DEC,
 			NULL, 0, "Value" }},
+		{ &hf_ypserv_status, {
+			"Status", "ypserv.status", FT_BOOLEAN, BASE_DEC,
+			&okfailed , 0, "Status" }},
 	};
 
 	proto_ypserv = proto_register_protocol("Yellow Pages Service", "ypserv");

@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.8 1999/11/11 21:22:00 nneul Exp $
+ * $Id: packet-rpc.c,v 1.9 1999/11/12 15:12:23 nneul Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -358,7 +358,7 @@ char* name, char* type)
 
 
 /* arbitrary limit */
-#define RPC_STRING_MAXBUF 1024
+#define RPC_STRING_MAXBUF 2048
 
 int
 dissect_rpc_string(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, char* name)
