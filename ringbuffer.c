@@ -97,13 +97,17 @@ typedef struct _ringbuf_data {
   int           filetype;
   int           linktype;
   int           snaplen;
-  guint16       number;
+
   int           fd;		     /* Current ringbuffer file descriptor */
   wtap_dumper  *pdh;  
 } ringbuf_data;
 
 static ringbuf_data rb_data;
 
+
+/*
+ * create the next filename and open a new binary file with that name 
+ */
 static int ringbuf_open_file(rb_file *rfile, int *err)
 {
   char    filenum[5+1];
@@ -123,9 +127,7 @@ static int ringbuf_open_file(rb_file *rfile, int *err)
 #endif
   current_time = time(NULL);
 
-  rb_data.number++;
-
-  snprintf(filenum, sizeof(filenum), "%05d", rb_data.number);
+  snprintf(filenum, sizeof(filenum), "%05d", rb_data.curr_file_num + 1 /*.number*/);
   strftime(timestr, sizeof(timestr), "%Y%m%d%H%M%S", localtime(&current_time));
   rfile->name = g_strconcat(rb_data.fprefix, "_", filenum, "_", timestr,
 			    rb_data.fsuffix, NULL);
@@ -161,7 +163,6 @@ ringbuf_init(const char *capfile_name, guint num_files)
   rb_data.unlimited = FALSE;
   rb_data.fd = -1;
   rb_data.pdh = NULL;
-  rb_data.number = 0;
 
   /* just to be sure ... */
   if (num_files <= RINGBUFFER_MAX_NUM_FILES) {
