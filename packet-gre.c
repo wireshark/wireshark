@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.12 1999/12/12 03:05:56 guy Exp $
+ * $Id: packet-gre.c,v 1.13 1999/12/14 00:27:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -198,17 +198,18 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       }
     }
 
-    if (is_wccp2) {
-    	proto_tree_add_text(gre_tree, offset, sizeof(guint32), "WCCPv2 Data");
-    	offset += 4;
-    }
-
     switch (type) {
       case GRE_PPP:
-	dissect_payload_ppp(pd, offset, fd, tree);
+        dissect_payload_ppp(pd, offset, fd, tree);
  	break;
       case GRE_IP:
+        dissect_ip(pd, offset, fd, tree);
+        break;
       case GRE_WCCP:
+        if (is_wccp2) {
+          proto_tree_add_text(gre_tree, offset, sizeof(guint32), "WCCPv2 Data");
+          offset += 4;
+        }
         dissect_ip(pd, offset, fd, tree);
         break;
       default:
