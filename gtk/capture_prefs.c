@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.18 2003/09/08 21:44:42 guy Exp $
+ * $Id: capture_prefs.c,v 1.19 2003/09/09 04:44:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include "prefs.h"
 #include "prefs_dlg.h"
 #include "ui_util.h"
+#include "dlg_utils.h"
 #include "simple_dialog.h"
 #include "pcap-util.h"
 #include "main.h"
@@ -236,13 +237,9 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_window_set_title(GTK_WINDOW(ifopts_edit_dlg), 
 			"Ethereal: Preferences: Interface Options");
 	SIGNAL_CONNECT(ifopts_edit_dlg, "destroy", ifopts_edit_destroy_cb, NULL);
+	SIGNAL_CONNECT(ifopts_edit_dlg, "realize", window_icon_realize_cb, NULL);
 	gtk_container_border_width(GTK_CONTAINER(GTK_DIALOG(ifopts_edit_dlg)->vbox),
 			5);
-	
-	/*
-	 * XXX - What code can be put here, or somewhere else, to get the Ethereal 
-	 *		 icon loaded for this window?
-	 */
 	
 	/* create old options frame */
 	old_opts_fr = gtk_frame_new("Previously saved options");
@@ -385,7 +382,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	/* Catch the "key_press_event" signal in the window, so that we can
 	   catch the ESC key being pressed and act as if the "Cancel" button
 	   had been selected. */
-	/*dlg_set_cancel(ifopts_edit_dlg, cancel_bt);*/
+	dlg_set_cancel(ifopts_edit_dlg, cancel_bt);
 	
 	gtk_widget_show(ifopts_edit_dlg);
 }
