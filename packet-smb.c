@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.315 2003/03/25 09:41:41 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.316 2003/04/03 05:43:59 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7281,7 +7281,8 @@ static int hf_access_specific_0 = -1;
 int
 dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		       proto_tree *tree, char *drep, int hfindex,
-		       nt_access_mask_fn_t *specific_rights_fn)
+		       nt_access_mask_fn_t *specific_rights_fn,
+		       char *specific_rights_name)
 {
 	proto_item *item;
 	proto_tree *subtree, *generic, *standard, *specific;
@@ -7379,9 +7380,15 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	   pointer if we have one, otherwise just display bits 0-15 in
 	   boring fashion. */
 
-	item = proto_tree_add_text(subtree, tvb, offset - 4, 4,
-				   "Specific rights: 0x%08x",
-				   access & SPECIFIC_RIGHTS_MASK);
+	if (specific_rights_name)
+		item = proto_tree_add_text(subtree, tvb, offset - 4, 4,
+					   "%s specific rights: 0x%08x",
+					   specific_rights_name,
+					   access & SPECIFIC_RIGHTS_MASK);
+	else
+		item = proto_tree_add_text(subtree, tvb, offset - 4, 4,
+					   "Specific rights: 0x%08x",
+					   access & SPECIFIC_RIGHTS_MASK);
 
 	specific = proto_item_add_subtree(item, ett_nt_access_mask_specific);
 
@@ -7462,7 +7469,8 @@ static int hf_smb_access_mask = -1;
 static int
 dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		  proto_tree *parent_tree, char *drep,
-		  nt_access_mask_fn_t *specific_rights_fn)
+		  nt_access_mask_fn_t *specific_rights_fn,
+		  char *specific_rights_name)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7494,7 +7502,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* access mask */
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_smb_access_mask, 
-		specific_rights_fn);
+		specific_rights_fn, specific_rights_name);
 
 	/* SID */
 	offset = dissect_nt_sid(tvb, offset, tree, "ACE", &sid_str);
@@ -7517,7 +7525,8 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       proto_tree *parent_tree, char *drep, char *name,
-	       nt_access_mask_fn_t *specific_rights_fn)
+	       nt_access_mask_fn_t *specific_rights_fn,
+	       char *specific_rights_name)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7552,7 +7561,8 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	  while(num_aces--){
 	    offset=dissect_nt_v2_ace(
-		    tvb, offset, pinfo, tree, drep, specific_rights_fn);
+		    tvb, offset, pinfo, tree, drep, specific_rights_fn,
+		    specific_rights_name);
 	  }
 	}
 
@@ -7663,7 +7673,8 @@ dissect_nt_sec_desc_type(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 int
 dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    proto_tree *parent_tree, char *drep, int len, 
-		    nt_access_mask_fn_t *specific_rights_fn)
+		    nt_access_mask_fn_t *specific_rights_fn,
+		    char *specific_rights_name)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7729,13 +7740,15 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	  /* sacl */
 	  if(sacl_offset){
 	    dissect_nt_acl(tvb, old_offset+sacl_offset, pinfo, tree, 
-			   drep, "System (SACL)", specific_rights_fn);
+			   drep, "System (SACL)", specific_rights_fn,
+			   specific_rights_name);
 	  }
 
 	  /* dacl */
 	  if(dacl_offset){
 	    dissect_nt_acl(tvb, old_offset+dacl_offset, pinfo, tree, 
-			   drep, "User (DACL)", specific_rights_fn);
+			   drep, "User (DACL)", specific_rights_fn,
+			   specific_rights_name);
 	  }
 
 	}
@@ -7822,7 +7835,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		if(ntd->sd_len){
 		        offset = dissect_nt_sec_desc(
 				tvb, offset, pinfo, tree, NULL, ntd->sd_len, 
-				NULL);
+				NULL, NULL);
 		}
 
 		/* extended attributes */
@@ -7840,7 +7853,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		break;
 	case NT_TRANS_SSD:
 		offset = dissect_nt_sec_desc(
-			tvb, offset, pinfo, tree, NULL, bc, NULL);
+			tvb, offset, pinfo, tree, NULL, bc, NULL, NULL);
 		break;
 	case NT_TRANS_NOTIFY:
 		break;
@@ -8342,7 +8355,7 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 		 * somewhere.
 		 */
 		offset = dissect_nt_sec_desc(
-			tvb, offset, pinfo, tree, NULL, len, NULL);
+			tvb, offset, pinfo, tree, NULL, len, NULL, NULL);
 		break;
 	}
 	case NT_TRANS_GET_USER_QUOTA:

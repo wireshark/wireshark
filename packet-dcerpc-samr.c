@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.82 2003/03/11 22:51:51 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.83 2003/04/03 05:43:58 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1140,7 +1140,7 @@ samr_dissect_connect2_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
-		specific_rights_connect);
+		specific_rights_connect, "SAMR connect");
 
 	return offset;
 }
@@ -1161,7 +1161,7 @@ samr_dissect_connect4_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
-		specific_rights_connect);
+		specific_rights_connect, "SAMR connect");
 
 	return offset;
 }
@@ -1350,7 +1350,7 @@ samr_dissect_open_domain_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
-		specific_rights_domain);
+		specific_rights_domain, "SAMR domain");
 
         offset = dissect_ndr_pointer_cb(
 		tvb, offset, pinfo, tree, drep, dissect_ndr_nt_SID, 
@@ -1470,7 +1470,7 @@ samr_dissect_create_alias_in_domain_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
-		specific_rights_alias);
+		specific_rights_alias, "SAMR alias");
 
 	return offset;
 }
@@ -2011,7 +2011,7 @@ samr_dissect_create_user2_in_domain_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
-		specific_rights_user);
+		specific_rights_user, "SAMR user");
 
 	return offset;
 }
@@ -2030,7 +2030,7 @@ samr_dissect_create_user2_in_domain_reply(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access_granted,
-		specific_rights_user);
+		specific_rights_user, "SAMR user");
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_rid, NULL);
@@ -4518,7 +4518,7 @@ samr_dissect_open_group_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
-		specific_rights_group);
+		specific_rights_group, "SAMR group");
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_rid, &rid);
@@ -4573,7 +4573,7 @@ samr_dissect_open_alias_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
-		specific_rights_alias);
+		specific_rights_alias, "SAMR alias");
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_rid, &rid);
@@ -4657,7 +4657,7 @@ samr_dissect_create_group_in_domain_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
-		specific_rights_group);
+		specific_rights_group, "SAMR group");
 
 	return offset;
 }
