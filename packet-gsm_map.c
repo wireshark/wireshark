@@ -7,7 +7,7 @@
  * Changed to run on new version of TCAP, many changes for
  * EOC matching, and parameter separation.  (2003)
  *
- * $Id: packet-gsm_map.c,v 1.5 2004/02/11 04:19:02 guy Exp $
+ * $Id: packet-gsm_map.c,v 1.6 2004/02/20 10:49:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,13 +122,13 @@
 #define MAP_SS_INV_NOTIFY		72	/* SS Invocation Notify */
 
 /* SMS MANAGEMENT */
-#define MAP_MO_FWD_SM			46	/* Forward Short Message */
-#define MAP_MT_FWD_SM			44	/* MT-Fwd SM */
+#define MAP_MO_FWD_SM			46	/* Mobile Originated Forward Short Message */
+#define MAP_MT_FWD_SM			44	/* Mobile Terminated Forward Short Message */
 #define MAP_ROUTE_INFO_SM		45	/* Routing Info for SM */
 #define MAP_SM_DEL_STAT			47	/* Report SM Delivery Status */
 #define MAP_INFORM_SC			63	/* Inform Service Center */
 #define MAP_ALERT_SC			64	/* Alert Service Center */
-#define MAP_SM_READY			66	/* SM Ready */
+#define MAP_SM_READY			66	/* Ready for Short Message */
 #define MAP_NOTE_SUB_PRES		48	/* Note Subscriber Present */
 #define MAP_ALERT_SC_W_RES		49	/* Alert SC Without Result */
 
@@ -269,7 +269,7 @@ const value_string gsm_map_opr_code_strings[] = {
     { MAP_SEND_ROUTE_INFO_FOR_LCS,	"Send Routing Info For LCS"},
     { MAP_SUB_LOC_REP,			"Subscriber Location Report"},
 
-    { 0,				NULL},
+    { 0,				NULL}
 };
 
 /* TCAP component type */
@@ -285,13 +285,20 @@ static const value_string tag_strings[] = {
     { MAP_TC_RE,		"RetErr" },
     { MAP_TC_REJECT,		"Reject" },
     { MAP_TC_RRN,		"RetRes(Not Last)" },
-    { 0,			NULL},
+    { 0,			NULL }
 };
+
+#define MAP_EOC_LEN	2 /* 0x00 0x00 */
 
 /* Initialize the protocol and registered fields */
 static int proto_map = -1;
 
 static int gsm_map_tap = -1;
+
+static dissector_table_t sms_dissector_table;	/* SMS TPDU */
+
+static packet_info *g_pinfo;
+static proto_tree *g_tree;
 
 static int hf_map_tag = -1;
 static int hf_map_length = -1;
@@ -307,25 +314,20 @@ static gint ett_params = -1;
 static gint ett_problem = -1;
 static gint ett_opr_code = -1;
 
-static const value_string param_1_strings[] = {
-    { 0x04,	"IMSI" },
-    { 0x81,	"msc-Number" },
-    { 0,	NULL },
-};
-
-
 typedef struct dgt_set_t
 {
     unsigned char out[15];
 }
 dgt_set_t;
 
+#ifdef MLUM
 static dgt_set_t Dgt_tbcd = {
     {
   /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
      '0','1','2','3','4','5','6','7','8','9','?','B','C','*','#'
     }
 };
+#endif
 
 static dgt_set_t Dgt_msid = {
     {
@@ -335,7 +337,43 @@ static dgt_set_t Dgt_msid = {
 };
 
 
+/* FORWARD DECLARATIONS */
+
+static int dissect_map_eoc(ASN1_SCK *asn1, proto_tree *tree);
+
 /* FUNCTIONS */
+
+static int
+find_eoc(ASN1_SCK *asn1)
+{
+    guint	saved_offset;
+    guint	tag;
+    guint	len;
+    gboolean	def_len;
+
+    saved_offset = asn1->offset;
+
+    while (!asn1_eoc(asn1, -1))
+    {
+	asn1_id_decode1(asn1, &tag);
+	asn1_length_decode(asn1, &def_len, &len);
+
+	if (def_len)
+	{
+	    asn1->offset += len;
+	}
+	else
+	{
+	    asn1->offset += find_eoc(asn1);
+	    asn1_eoc_decode(asn1, -1);
+	}
+    }
+
+    len = asn1->offset - saved_offset;
+    asn1->offset = saved_offset;
+
+    return(len);
+}
 
 /*
  * Unpack BCD input pattern into output ASCII pattern
@@ -401,7 +439,6 @@ my_match_strval(guint32 val, const value_string *vs, gint *idx)
     return(NULL);
 }
 
-
 static gboolean
 check_map_tag(ASN1_SCK *asn1, guint tag)
 {
@@ -419,6 +456,105 @@ check_map_tag(ASN1_SCK *asn1, guint tag)
     return(tag == real_tag);
 }
 
+static int
+dissect_map_params(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
+{
+    guint	orig_offset, saved_offset, len_offset;
+    guint	tag, len;
+    gboolean	def_len = FALSE;
+    proto_item	*item;
+    proto_tree	*subtree;
+
+    orig_offset = asn1->offset;
+
+    while ((tvb_length_remaining(asn1->tvb, asn1->offset) > 0) &&
+	(!check_map_tag(asn1, 0)))
+    {
+	if ((exp_len != 0) &&
+	    ((asn1->offset - orig_offset) >= exp_len))
+	{
+	    break;
+	}
+
+	saved_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+	len_offset = asn1->offset;
+	asn1_length_decode(asn1, &def_len, &len);
+
+	if (tag == MAP_SEQ_TAG)
+	{
+	    item =
+		proto_tree_add_text(tree, asn1->tvb,
+		    saved_offset, -1, "Sequence");
+
+	    subtree = proto_item_add_subtree(item, ett_params);
+
+	    proto_tree_add_uint_format(subtree, hf_map_tag, asn1->tvb,
+		saved_offset, len_offset - saved_offset, tag, "Sequence Tag");
+
+	    if (def_len)
+	    {
+		proto_tree_add_uint(subtree, hf_map_length, asn1->tvb,
+		    len_offset, asn1->offset - len_offset, len);
+	    }
+	    else
+	    {
+		proto_tree_add_text(subtree, asn1->tvb,
+		    len_offset, asn1->offset - len_offset, "Length: Indefinite");
+
+		len = find_eoc(asn1);
+	    }
+
+	    proto_item_set_len(item, (asn1->offset - saved_offset) + len +
+		(def_len ? 0 : MAP_EOC_LEN));
+
+	    dissect_map_params(asn1, subtree, len);
+
+	    if (!def_len)
+	    {
+		dissect_map_eoc(asn1, subtree);
+	    }
+	    continue;
+	}
+
+	if (!def_len)
+	{
+	    proto_tree_add_uint_format(tree, hf_map_tag, asn1->tvb,
+		saved_offset, len_offset - saved_offset, tag, "Parameter Tag");
+
+	    proto_tree_add_text(tree, asn1->tvb,
+		len_offset, asn1->offset - len_offset, "Length: Indefinite");
+
+	    len = find_eoc(asn1);
+
+	    dissect_map_params(asn1, tree, len);
+
+	    dissect_map_eoc(asn1, tree);
+	    continue;
+	}
+
+	item =
+	    proto_tree_add_text(tree, asn1->tvb,
+		saved_offset, (asn1->offset - saved_offset) + len, "Parameter");
+
+	subtree = proto_item_add_subtree(item, ett_param);
+
+	proto_tree_add_uint_format(subtree, hf_map_tag, asn1->tvb,
+	    saved_offset, len_offset - saved_offset, tag, "Parameter Tag");
+
+	proto_tree_add_uint(subtree, hf_map_length, asn1->tvb,
+	    len_offset, asn1->offset - len_offset, len);
+
+	proto_tree_add_text(subtree, asn1->tvb,
+	    asn1->offset, len, "Parameter Data");
+
+	asn1->offset += len;
+    }
+
+    return(MAP_OK);
+}
+
+
 /* PARAMETERS */
 
 static void
@@ -435,6 +571,32 @@ param_imsi(ASN1_SCK *asn1, proto_tree *tree, guint len)
 
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, len, "IMSI %s", bigbuf);
+}
+
+static void
+param_lmsi(ASN1_SCK *asn1, proto_tree *tree, guint len)
+{
+    guint	saved_offset;
+    gint32	value;
+
+    saved_offset = asn1->offset;
+    asn1_int32_value_decode(asn1, len, &value);
+
+    proto_tree_add_text(tree, asn1->tvb,
+	saved_offset, len, "LMSI 0x%04x", value);
+}
+
+static void
+param_boolean(ASN1_SCK *asn1, proto_tree *tree, guint len)
+{
+    guint	saved_offset;
+    gint32	value;
+
+    saved_offset = asn1->offset;
+    asn1_int32_value_decode(asn1, len, &value);
+
+    proto_tree_add_text(tree, asn1->tvb,
+	saved_offset, len, "%s (0x%x)", value ? "TRUE" : "FALSE", value);
 }
 
 static void
@@ -506,13 +668,308 @@ param_AddressString(ASN1_SCK *asn1, proto_tree *tree, guint len)
 	"BCD Digits %s", bigbuf);
 }
 
+static gchar *param_1_strings[] = {
+    "imsi",
+    "lmsi",
+    "msisdn",
+    "serviceCentreAddressDA",
+    "serviceCentreAddressOA",
+    "serviceCentreAddress",
+    "msc-Number",
+    "SignalInfo",
+    "Boolean",
+    "locationInfoWithLMSI",
+    "networkNode-Number"
+};
+
+typedef enum
+{
+    GSM_MAP_P_IMSI,			/* IMSI */
+    GSM_MAP_P_LMSI,			/* LMSI */
+    GSM_MAP_P_MSISDN,			/* MSISDN */
+    GSM_MAP_P_SC_ADDR_DA,		/* Service Centre Address DA */
+    GSM_MAP_P_SC_ADDR_OA,		/* Service Centre Address OA */
+    GSM_MAP_P_SC_ADDR,			/* Service Centre Address */
+    GSM_MAP_P_MSC_NUMBER,		/* MSC Number */
+    GSM_MAP_P_SIG_INFO,			/* Signal Info */
+    GSM_MAP_P_BOOL,			/* Boolean */
+    GSM_MAP_P_LIWLMSI,			/* Location Information with LMSI */
+    GSM_MAP_P_NETNODE_NUM,		/* Network Node Number */
+    GSM_MAP_P_NONE			/* NONE */
+}
+param_idx_t;
+
 #define	NUM_PARAM_1 (sizeof(param_1_strings)/sizeof(value_string))
 static gint ett_param_1[NUM_PARAM_1];
 static void (*param_1_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len) = {
-    param_imsi,			/* IMSI */
-    param_AddressString,	/* msc-Number */
-    NULL,			/* NONE */
+    param_imsi,				/* IMSI */
+    param_lmsi,				/* LMSI */
+    param_AddressString,		/* MSISDN */
+    param_AddressString,		/* Service Centre Address DA */
+    param_AddressString,		/* Service Centre Address OA */
+    param_AddressString,		/* Service Centre Address */
+    param_AddressString,		/* MSC Number */
+    NULL,				/* Signal Info */
+    param_boolean,			/* Boolean */
+    NULL,				/* Location Information with LMSI */
+    param_AddressString,		/* Network Node Number */
+    NULL				/* NONE */
 };
+
+
+#define	GSM_MAP_PARAM_DISPLAY(Gtree, Goffset, Gtag, Ga1, Ga2) \
+    { \
+	gchar		*_str = NULL; \
+	gint		_ett_param_idx; \
+	guint		_len_offset; \
+	guint		_len; \
+	void		(*_param_fcn)(ASN1_SCK *asn1, proto_tree *tree, guint len) = NULL; \
+	proto_tree	*_subtree; \
+	proto_item	*_item; \
+	gboolean	_def_len; \
+ \
+	_len_offset = asn1->offset; \
+	asn1_length_decode(asn1, &_def_len, &_len); \
+\
+	if (!_def_len) \
+	{ \
+	    _len = find_eoc(asn1);\
+	} \
+\
+	if (Ga1 == GSM_MAP_P_NONE) \
+	{ \
+	    _str = "Parameter Tag"; \
+	    _ett_param_idx = ett_param; \
+	    _param_fcn = NULL; \
+	} \
+	else \
+	{ \
+	    _str = param_1_strings[Ga1]; \
+	    _ett_param_idx = ett_param_1[Ga1]; \
+	    _param_fcn = param_1_fcn[Ga1]; \
+	} \
+ \
+	_item = \
+	    proto_tree_add_text(Gtree, asn1->tvb, Goffset, \
+		(asn1->offset - Goffset) + _len + \
+		(_def_len ? 0 : MAP_EOC_LEN), Ga2); \
+ \
+	_subtree = proto_item_add_subtree(_item, _ett_param_idx); \
+ \
+	proto_tree_add_uint_format(_subtree, hf_map_tag, asn1->tvb, \
+	    Goffset, _len_offset - Goffset, Gtag, _str); \
+ \
+	if (_def_len) \
+	{ \
+	    proto_tree_add_uint(_subtree, hf_map_length, asn1->tvb, \
+		_len_offset, asn1->offset - _len_offset, _len); \
+	} \
+	else \
+	{ \
+	    proto_tree_add_text(_subtree, asn1->tvb, \
+		_len_offset, asn1->offset - _len_offset, "Length: Indefinite"); \
+	} \
+ \
+	if (_param_fcn == NULL) \
+	{ \
+	    proto_tree_add_text(_subtree, asn1->tvb, \
+		asn1->offset, _len, "Parameter Data"); \
+ \
+	    asn1->offset += _len; \
+	} \
+	else \
+	{ \
+	    (*_param_fcn)(asn1, _subtree, _len); \
+	} \
+\
+	if (!_def_len) \
+	{ \
+	    dissect_map_eoc(asn1, Gtree); \
+	} \
+    }
+
+
+static void
+param_SM_RP_DA(ASN1_SCK *asn1, proto_tree *tree)
+{
+    guint	saved_offset;
+    guint	tag;
+    gint	idx;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    switch (tag)
+    {
+    case 0x80:	/* IMSI */
+	idx = GSM_MAP_P_IMSI;
+	break;
+
+    case 0x81:	/* LMSI */
+	idx = GSM_MAP_P_LMSI;
+	break;
+
+    case 0x84:	/* AddressString */
+	idx = GSM_MAP_P_SC_ADDR_DA;
+	break;
+
+    default:
+	idx = GSM_MAP_P_NONE;
+	break;
+    }
+
+    GSM_MAP_PARAM_DISPLAY(tree, saved_offset, tag, idx, "SM-RP-DA");
+}
+
+
+static void
+param_SM_RP_OA(ASN1_SCK *asn1, proto_tree *tree)
+{
+    guint	saved_offset;
+    guint	tag;
+    gint	idx;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    switch (tag)
+    {
+    case 0x82:	/* MSISDN */
+	idx = GSM_MAP_P_MSISDN;
+	break;
+
+    case 0x84:	/* AddressString */
+	idx = GSM_MAP_P_SC_ADDR_DA;
+	break;
+
+    default:
+	idx = GSM_MAP_P_NONE;
+	break;
+    }
+
+    GSM_MAP_PARAM_DISPLAY(tree, saved_offset, tag, idx, "SM-RP-OA");
+}
+
+
+static void
+param_SM_RP_UI(ASN1_SCK *asn1, proto_tree *tree)
+{
+    guint	saved_offset, len_offset;
+    guint	tag, len;
+    gboolean	def_len = FALSE;
+    gchar	*str = NULL;
+    proto_item	*item;
+    proto_tree	*subtree;
+    gint	ett_param_idx;
+    tvbuff_t	*tpdu_tvb;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+    len_offset = asn1->offset;
+    asn1_length_decode(asn1, &def_len, &len);
+
+    str = param_1_strings[GSM_MAP_P_SIG_INFO];
+    ett_param_idx = ett_param_1[GSM_MAP_P_SIG_INFO];
+
+    item =
+	proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "SM-RP-UI");
+
+    subtree = proto_item_add_subtree(item, ett_param_idx);
+
+    proto_tree_add_uint_format(subtree, hf_map_tag, asn1->tvb,
+	saved_offset, len_offset - saved_offset, tag, str);
+
+    if (def_len)
+    {
+	proto_tree_add_uint(subtree, hf_map_length, asn1->tvb,
+	    len_offset, asn1->offset - len_offset, len);
+    }
+    else
+    {
+	proto_tree_add_text(subtree, asn1->tvb,
+	    len_offset, asn1->offset - len_offset, "Length: Indefinite");
+
+	len = find_eoc(asn1);
+    }
+
+    proto_item_set_len(item, (asn1->offset - saved_offset) + len +
+	(def_len ? 0 : MAP_EOC_LEN));
+
+    proto_tree_add_text(subtree, asn1->tvb, asn1->offset, len, "TPDU");
+
+    /*
+     * dissect the embedded TPDU message
+     */
+    tpdu_tvb = tvb_new_subset(asn1->tvb, asn1->offset, len, len);
+
+    dissector_try_port(sms_dissector_table, 0, tpdu_tvb, g_pinfo, g_tree);
+
+    asn1->offset += len;
+
+    if (!def_len)
+    {
+	dissect_map_eoc(asn1, subtree);
+    }
+}
+
+
+
+static void
+param_LWI_LMSI(ASN1_SCK *asn1, proto_tree *tree)
+{
+    guint	saved_offset, len_offset;
+    guint	tag, len;
+    gboolean	def_len = FALSE;
+    gchar	*str = NULL;
+    proto_item	*item;
+    proto_tree	*subtree;
+    gint	ett_param_idx;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+    len_offset = asn1->offset;
+    asn1_length_decode(asn1, &def_len, &len);
+
+    str = param_1_strings[GSM_MAP_P_LIWLMSI];
+    ett_param_idx = ett_param_1[GSM_MAP_P_LIWLMSI];
+
+    item =
+	proto_tree_add_text(tree, asn1->tvb, saved_offset, -1,
+	    "LOCATION INFO WITH LMSI");
+
+    subtree = proto_item_add_subtree(item, ett_param_idx);
+
+    proto_tree_add_uint_format(subtree, hf_map_tag, asn1->tvb,
+	saved_offset, len_offset - saved_offset, tag, str);
+
+    if (def_len)
+    {
+	proto_tree_add_uint(subtree, hf_map_length, asn1->tvb,
+	    len_offset, asn1->offset - len_offset, len);
+    }
+    else
+    {
+	proto_tree_add_text(subtree, asn1->tvb,
+	    len_offset, asn1->offset - len_offset, "Length: Indefinite");
+
+	len = find_eoc(asn1);
+    }
+
+    proto_item_set_len(item, (asn1->offset - saved_offset) + len +
+	(def_len ? 0 : MAP_EOC_LEN));
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_NETNODE_NUM, "NETWORK NODE NUMBER");
+
+    dissect_map_params(asn1, subtree, len - (asn1->offset - saved_offset));
+
+    if (!def_len)
+    {
+	dissect_map_eoc(asn1, subtree);
+    }
+}
 
 
 /* MESSAGES */
@@ -520,142 +977,386 @@ static void (*param_1_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len) = {
 static void
 op_send_auth_info(ASN1_SCK *asn1, proto_tree *tree)
 {
-    void	(*param_fcn)(ASN1_SCK *asn1, proto_tree *tree, guint len) = NULL;
-    guint	off_tree[100], saved_offset, len_offset;
-    int		num_seq;
+    guint	saved_offset, len_offset;
     guint	tag, len;
     gboolean	def_len = FALSE;
-    proto_item	*item_tree[100], *item;
-    proto_tree	*seq_tree[100], *use_tree, *subtree;
-    gchar	*str = NULL;
-    gint	ett_param_idx, idx;
+    proto_item	*item;
+    proto_tree	*subtree;
 
-    num_seq = 0;
-    use_tree = tree;
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
 
-    while ((tvb_length_remaining(asn1->tvb, asn1->offset) > 0) &&
-	(!check_map_tag(asn1, 0)))
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    if (tag != MAP_SEQ_TAG)
     {
-	saved_offset = asn1->offset;
-	asn1_id_decode1(asn1, &tag);
-	len_offset = asn1->offset;
-	asn1_length_decode(asn1, &def_len, &len);
+	GSM_MAP_PARAM_DISPLAY(tree, saved_offset, tag, GSM_MAP_P_IMSI, "IMSI");
 
-	if (tag == MAP_SEQ_TAG)
-	{
-	    item =
-		proto_tree_add_text(use_tree, asn1->tvb,
-		    saved_offset, -1, "Sequence");
+	return;
+    }
 
-	    subtree = proto_item_add_subtree(item, ett_params);
+    len_offset = asn1->offset;
+    asn1_length_decode(asn1, &def_len, &len);
 
-	    proto_tree_add_uint_format(subtree, hf_map_tag, asn1->tvb,
-		saved_offset, len_offset - saved_offset, tag, "Sequence Tag");
+    item =
+	proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Sequence");
 
-	    if (!def_len)
-	    {
-		proto_tree_add_text(subtree, asn1->tvb,
-		    len_offset, asn1->offset - len_offset, "Length: Indefinite");
+    subtree = proto_item_add_subtree(item, ett_params);
 
-		seq_tree[num_seq] = subtree;
-		item_tree[num_seq] = item;
-		off_tree[num_seq] = saved_offset;
-		num_seq++;
-	    }
-	    else
-	    {
-		proto_tree_add_uint(subtree, hf_map_length, asn1->tvb,
-		    len_offset, asn1->offset - len_offset, len);
+    proto_tree_add_uint_format(subtree, hf_map_tag, asn1->tvb,
+	saved_offset, len_offset - saved_offset, tag, "Sequence Tag");
 
-		proto_item_set_len(item, (asn1->offset - saved_offset) + len);
-	    }
+    if (def_len)
+    {
+	proto_tree_add_uint(subtree, hf_map_length, asn1->tvb,
+	    len_offset, asn1->offset - len_offset, len);
+    }
+    else
+    {
+	proto_tree_add_text(subtree, asn1->tvb,
+	    len_offset, asn1->offset - len_offset, "Length: Indefinite");
 
-	    use_tree = subtree;
-	    continue;
-	}
+	len = find_eoc(asn1);
+    }
 
-	if (!def_len)
-	{
-	    proto_tree_add_uint_format(use_tree, hf_map_tag, asn1->tvb,
-		saved_offset, len_offset - saved_offset, tag, "Parameter Tag");
-	    proto_tree_add_text(use_tree, asn1->tvb,
-		len_offset, asn1->offset - len_offset, "Length: Indefinite");
+    proto_item_set_len(item, (asn1->offset - saved_offset) + len +
+	(def_len ? 0 : MAP_EOC_LEN));
 
-	    seq_tree[num_seq] = use_tree;
-	    item_tree[num_seq] = NULL;
-	    num_seq++;
-	    continue;
-	}
-	else
-	{
-#ifdef MLUM
-	    /*
-	     * XXX
-	     * how do you recognize the correct parameters here ?
-	     */
-	    str = my_match_strval((guint32) tag, param_1_strings, &idx);
-#else
-	    str = NULL;
-	    idx = 0;
-#endif
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
 
-	    if (str == NULL)
-	    {
-		str = "Parameter";
-		ett_param_idx = ett_param;
-		param_fcn = NULL;
-	    }
-	    else
-	    {
-		ett_param_idx = ett_param_1[idx];
-		param_fcn = param_1_fcn[idx];
-	    }
+    GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_IMSI, "IMSI");
 
-	    item =
-		proto_tree_add_text(use_tree, asn1->tvb,
-		    saved_offset, -1, str);
+    dissect_map_params(asn1, subtree, len - (asn1->offset - saved_offset));
 
-	    subtree = proto_item_add_subtree(item, ett_param_idx);
+    if (!def_len)
+    {
+	dissect_map_eoc(asn1, subtree);
+    }
+}
 
-	    proto_tree_add_uint_format(subtree, hf_map_tag, asn1->tvb,
-		saved_offset, len_offset - saved_offset, tag, "Parameter Tag");
+static void
+op_mo_forward_sm(ASN1_SCK *asn1, proto_tree *tree)
+{
+    guint	saved_offset, len_offset;
+    guint	tag, len;
+    gboolean	def_len = FALSE;
+    proto_item	*item;
+    proto_tree	*subtree;
 
-	    proto_tree_add_uint(subtree, hf_map_length, asn1->tvb,
-		len_offset, asn1->offset - len_offset, len);
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
 
-	    proto_item_set_len(item, (asn1->offset - saved_offset) + len);
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+    len_offset = asn1->offset;
+    asn1_length_decode(asn1, &def_len, &len);
 
-	    if (param_fcn == NULL)
-	    {
-		proto_tree_add_text(subtree, asn1->tvb,
-		    asn1->offset, len, "Parameter Data");
+    if (tag != MAP_SEQ_TAG)
+    {
+	/*
+	 * Hmmm, unexpected
+	 */
+	return;
+    }
 
-		asn1->offset += len;
-	    }
-	    else
-	    {
-		(*param_fcn)(asn1, subtree, len);
-	    }
-	}
+    item =
+	proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Sequence");
 
-	if (tvb_length_remaining(asn1->tvb, asn1->offset) <=0) break;
+    subtree = proto_item_add_subtree(item, ett_params);
 
-	while ((num_seq > 0) &&
-	    asn1_eoc(asn1, -1))
-	{
-	    saved_offset = asn1->offset;
-	    asn1_eoc_decode(asn1, -1);
+    proto_tree_add_uint_format(subtree, hf_map_tag, asn1->tvb,
+	saved_offset, len_offset - saved_offset, tag, "Sequence Tag");
 
-	    proto_tree_add_text(seq_tree[num_seq-1], asn1->tvb,
-		saved_offset, asn1->offset - saved_offset, "End of Contents");
+    if (def_len)
+    {
+	proto_tree_add_uint(subtree, hf_map_length, asn1->tvb,
+	    len_offset, asn1->offset - len_offset, len);
+    }
+    else
+    {
+	proto_tree_add_text(subtree, asn1->tvb,
+	    len_offset, asn1->offset - len_offset, "Length: Indefinite");
 
-	    if (item_tree[num_seq-1] != NULL)
-	    {
-		proto_item_set_len(item_tree[num_seq-1], asn1->offset - off_tree[num_seq-1]);
-	    }
+	len = find_eoc(asn1);
+    }
 
-	    num_seq--;
-	}
+    proto_item_set_len(item, (asn1->offset - saved_offset) + len +
+	(def_len ? 0 : MAP_EOC_LEN));
+
+    saved_offset = asn1->offset;
+
+    param_SM_RP_DA(asn1, subtree);
+
+    param_SM_RP_OA(asn1, subtree);
+
+    param_SM_RP_UI(asn1, subtree);
+
+    dissect_map_params(asn1, subtree, len - (asn1->offset - saved_offset));
+
+    if (!def_len)
+    {
+	dissect_map_eoc(asn1, subtree);
+    }
+}
+
+static void
+op_mt_forward_sm(ASN1_SCK *asn1, proto_tree *tree)
+{
+    guint	saved_offset, len_offset;
+    guint	tag, len;
+    gboolean	def_len = FALSE;
+    proto_item	*item;
+    proto_tree	*subtree;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+    len_offset = asn1->offset;
+    asn1_length_decode(asn1, &def_len, &len);
+
+    if (tag != MAP_SEQ_TAG)
+    {
+	/*
+	 * Hmmm, unexpected
+	 */
+	return;
+    }
+
+    item =
+	proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Sequence");
+
+    subtree = proto_item_add_subtree(item, ett_params);
+
+    proto_tree_add_uint_format(subtree, hf_map_tag, asn1->tvb,
+	saved_offset, len_offset - saved_offset, tag, "Sequence Tag");
+
+    if (def_len)
+    {
+	proto_tree_add_uint(subtree, hf_map_length, asn1->tvb,
+	    len_offset, asn1->offset - len_offset, len);
+    }
+    else
+    {
+	proto_tree_add_text(subtree, asn1->tvb,
+	    len_offset, asn1->offset - len_offset, "Length: Indefinite");
+
+	len = find_eoc(asn1);
+    }
+
+    proto_item_set_len(item, (asn1->offset - saved_offset) + len +
+	(def_len ? 0 : MAP_EOC_LEN));
+
+    saved_offset = asn1->offset;
+
+    param_SM_RP_DA(asn1, subtree);
+
+    param_SM_RP_OA(asn1, subtree);
+
+    param_SM_RP_UI(asn1, subtree);
+
+    dissect_map_params(asn1, subtree, len - (asn1->offset - saved_offset));
+
+    if (!def_len)
+    {
+	dissect_map_eoc(asn1, subtree);
+    }
+}
+
+static void
+op_forward_sm_rr(ASN1_SCK *asn1, proto_tree *tree)
+{
+    guint	saved_offset, len_offset;
+    guint	tag, len;
+    gboolean	def_len = FALSE;
+    proto_item	*item;
+    proto_tree	*subtree;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+    len_offset = asn1->offset;
+    asn1_length_decode(asn1, &def_len, &len);
+
+    if (tag != MAP_SEQ_TAG)
+    {
+	/*
+	 * Hmmm, unexpected
+	 */
+	return;
+    }
+
+    item =
+	proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Sequence");
+
+    subtree = proto_item_add_subtree(item, ett_params);
+
+    proto_tree_add_uint_format(subtree, hf_map_tag, asn1->tvb,
+	saved_offset, len_offset - saved_offset, tag, "Sequence Tag");
+
+    if (def_len)
+    {
+	proto_tree_add_uint(subtree, hf_map_length, asn1->tvb,
+	    len_offset, asn1->offset - len_offset, len);
+    }
+    else
+    {
+	proto_tree_add_text(subtree, asn1->tvb,
+	    len_offset, asn1->offset - len_offset, "Length: Indefinite");
+
+	len = find_eoc(asn1);
+    }
+
+    proto_item_set_len(item, (asn1->offset - saved_offset) + len +
+	(def_len ? 0 : MAP_EOC_LEN));
+
+    saved_offset = asn1->offset;
+
+    param_SM_RP_UI(asn1, subtree);
+
+    dissect_map_params(asn1, subtree, len - (asn1->offset - saved_offset));
+
+    if (!def_len)
+    {
+	dissect_map_eoc(asn1, subtree);
+    }
+}
+
+static void
+op_send_rti_sm(ASN1_SCK *asn1, proto_tree *tree)
+{
+    guint	saved_offset, len_offset;
+    guint	tag, len;
+    gboolean	def_len = FALSE;
+    proto_item	*item;
+    proto_tree	*subtree;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+    len_offset = asn1->offset;
+    asn1_length_decode(asn1, &def_len, &len);
+
+    if (tag != MAP_SEQ_TAG)
+    {
+	/*
+	 * Hmmm, unexpected
+	 */
+	return;
+    }
+
+    item =
+	proto_tree_add_text(tree, asn1->tvb,
+	    saved_offset, -1, "Sequence");
+
+    subtree = proto_item_add_subtree(item, ett_params);
+
+    proto_tree_add_uint_format(subtree, hf_map_tag, asn1->tvb,
+	saved_offset, len_offset - saved_offset, tag, "Sequence Tag");
+
+    if (def_len)
+    {
+	proto_tree_add_uint(subtree, hf_map_length, asn1->tvb,
+	    len_offset, asn1->offset - len_offset, len);
+    }
+    else
+    {
+	proto_tree_add_text(subtree, asn1->tvb,
+	    len_offset, asn1->offset - len_offset, "Length: Indefinite");
+
+	len = find_eoc(asn1);
+    }
+
+    proto_item_set_len(item, (asn1->offset - saved_offset) + len +
+	(def_len ? 0 : MAP_EOC_LEN));
+
+    len_offset = asn1->offset;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_MSISDN, "MSISDN");
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_BOOL, "SM-RP-PRI");
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_SC_ADDR, "Service Centre Address");
+
+    dissect_map_params(asn1, subtree, len - (asn1->offset - len_offset));
+
+    if (!def_len)
+    {
+	dissect_map_eoc(asn1, subtree);
+    }
+}
+
+static void
+op_send_rti_sm_rr(ASN1_SCK *asn1, proto_tree *tree)
+{
+    guint	saved_offset, len_offset;
+    guint	tag, len;
+    gboolean	def_len = FALSE;
+    proto_item	*item;
+    proto_tree	*subtree;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0) return;
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+    len_offset = asn1->offset;
+    asn1_length_decode(asn1, &def_len, &len);
+
+    if (tag != MAP_SEQ_TAG)
+    {
+	/*
+	 * Hmmm, unexpected
+	 */
+	return;
+    }
+
+    item =
+	proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Sequence");
+
+    subtree = proto_item_add_subtree(item, ett_params);
+
+    proto_tree_add_uint_format(subtree, hf_map_tag, asn1->tvb,
+	saved_offset, len_offset - saved_offset, tag, "Sequence Tag");
+
+    if (def_len)
+    {
+	proto_tree_add_uint(subtree, hf_map_length, asn1->tvb,
+	    len_offset, asn1->offset - len_offset, len);
+    }
+    else
+    {
+	proto_tree_add_text(subtree, asn1->tvb,
+	    len_offset, asn1->offset - len_offset, "Length: Indefinite");
+
+	len = find_eoc(asn1);
+    }
+
+    proto_item_set_len(item, (asn1->offset - saved_offset) + len +
+	(def_len ? 0 : MAP_EOC_LEN));
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &tag);
+
+    GSM_MAP_PARAM_DISPLAY(subtree, saved_offset, tag, GSM_MAP_P_IMSI, "IMSI");
+
+    param_LWI_LMSI(asn1, subtree);
+
+    dissect_map_params(asn1, subtree, len - (asn1->offset - saved_offset));
+
+    if (!def_len)
+    {
+	dissect_map_eoc(asn1, subtree);
     }
 }
 
@@ -716,9 +1417,9 @@ static void (*op_fcn[])(ASN1_SCK *asn1, proto_tree *tree) = {
     NULL,	/* Begin Subscriber Activity */
     NULL,	/* Process Unstructured SS Data */
     NULL,	/* SS Invocation Notification */
-    NULL,	/* MO Forward SM */
-    NULL,	/* MT Forward SM */
-    NULL,	/* Send Routing Info For SM */
+    op_mo_forward_sm,	/* MO Forward SM */
+    op_mt_forward_sm,	/* MT Forward SM */
+    op_send_rti_sm,	/* Send Routing Info For SM */
     NULL,	/* Report SM Delivery Status */
     NULL,	/* Inform Service Center */
     NULL,	/* Alert Service Center */
@@ -740,7 +1441,90 @@ static void (*op_fcn[])(ASN1_SCK *asn1, proto_tree *tree) = {
     NULL,	/* Send Routing Info For LCS */
     NULL,	/* Subscriber Location Report */
 
-    NULL,	/* NONE */
+    NULL	/* NONE */
+};
+
+static gint ett_op_rr[GSM_MAP_NUM_OP];
+static void (*op_fcn_rr[])(ASN1_SCK *asn1, proto_tree *tree) = {
+    NULL,	/* Update Location */
+    NULL,	/* Cancel Location */
+    NULL,	/* Purge MS */
+    NULL,	/* Send Identification */
+    NULL,	/* Update GPRS Location */
+    NULL,	/* Detach IMSI */
+    NULL,	/* Note MM Event */
+    NULL,	/* Prepare Handover */
+    NULL,	/* Prepare Subsequent Handover */
+    NULL,	/* Perform Handover */
+    NULL,	/* Perform Subsequent Handover */
+    NULL,	/* Send End Signal */
+    NULL,	/* Process Access Signalling */
+    NULL,	/* Forward Access Signalling */
+    NULL,	/* Send Authentication Info */
+    NULL,	/* Authentication Failure Report */
+    NULL,	/* Check IMEI */
+    NULL,	/* Reset */
+    NULL,	/* Restore Data */
+    NULL,	/* Forward Check SS Indication */
+    NULL,	/* Activate Trace Mode */
+    NULL,	/* Deactivate Trace Mode */
+    NULL,	/* Send IMSI */
+    NULL,	/* Trace Subscriber Activity */
+    NULL,	/* Note Internal Handover */
+    NULL,	/* Send Routing Info */
+    NULL,	/* Provide Roaming Number */
+    NULL,	/* Provide SIWFS Number */
+    NULL,	/* SIWFS Signalling Modify */
+    NULL,	/* Resume Call Handling */
+    NULL,	/* Set Reporting State */
+    NULL,	/* Status Report */
+    NULL,	/* Remote User Free */
+    NULL,	/* Prepare Group Call */
+    NULL,	/* Send Group Call End Signalling */
+    NULL,	/* Process Group Call Signalling */
+    NULL,	/* Forward Group Call Signalling */
+    NULL,	/* IST Alert */
+    NULL,	/* IST Command */
+    NULL,	/* Register SS */
+    NULL,	/* Erase SS */
+    NULL,	/* Activate SS */
+    NULL,	/* Deactivate SS */
+    NULL,	/* Interogate SS */
+    NULL,	/* Process Unstructured SS Request */
+    NULL,	/* Unstructured SS Request */
+    NULL,	/* Unstructured SS Notify */
+    NULL,	/* Register Password */
+    NULL,	/* Get Password */
+    NULL,	/* Register CC Entry */
+    NULL,	/* Erase CC Entry */
+    NULL,	/* Begin Subscriber Activity */
+    NULL,	/* Process Unstructured SS Data */
+    NULL,	/* SS Invocation Notification */
+    op_forward_sm_rr,	/* MO Forward SM */
+    op_forward_sm_rr,	/* MT Forward SM */
+    op_send_rti_sm_rr,	/* Send Routing Info For SM */
+    NULL,	/* Report SM Delivery Status */
+    NULL,	/* Inform Service Center */
+    NULL,	/* Alert Service Center */
+    NULL,	/* Ready For SM */
+    NULL,	/* Note Subscriber Present */
+    NULL,	/* Alert SC Without Result */
+    NULL,	/* Insert Subscriber Data */
+    NULL,	/* Delete Subscriber Data */
+    NULL,	/* Provide Subscriber Info */
+    NULL,	/* Any Time Interrogation */
+    NULL,	/* Send Parameters */
+    NULL,	/* Any Time Subscription Interrogation */
+    NULL,	/* Any Time Modification */
+    NULL,	/* Note Subscriber Data Modified */
+    NULL,	/* Send Routing Info For GPRS */
+    NULL,	/* Failure Report */
+    NULL,	/* Note MS Present For GPRS */
+    NULL,	/* Provide Subscriber Location */
+    NULL,	/* Send Routing Info For LCS */
+    NULL,	/* Subscriber Location Report */
+
+    NULL	/* NONE */
 };
 
 
@@ -845,8 +1629,8 @@ dissect_map_invokeId(ASN1_SCK *asn1, proto_tree *tree)
 static void
 dissect_map_problem(ASN1_SCK *asn1, proto_tree *tree)
 {
-    guint	orig_offset, saved_offset = 0;
-    guint	len, tag_len;
+    guint	orig_offset, saved_offset, len_offset;
+    guint	len;
     guint	tag;
     proto_tree	*subtree;
     proto_item	*item = NULL;
@@ -858,16 +1642,22 @@ dissect_map_problem(ASN1_SCK *asn1, proto_tree *tree)
     orig_offset = asn1->offset;
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
-    tag_len = asn1->offset - saved_offset;
+
+    len_offset = asn1->offset;
+    asn1_length_decode(asn1, &def_len, &len);
 
     item =
-	proto_tree_add_text(tree, asn1->tvb,
-	    saved_offset, -1, "Problem Code");
+	proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Problem Code");
 
     subtree = proto_item_add_subtree(item, ett_problem);
 
-    dissect_map_len(asn1, subtree, &def_len, &len);
-    proto_item_set_len(item, (asn1->offset - saved_offset) + len);
+    if (!def_len)
+    {
+	len = find_eoc(asn1);
+    }
+
+    proto_item_set_len(item, (asn1->offset - saved_offset) + len +
+	(def_len ? 0 : MAP_EOC_LEN));
 
     if (len != 1)
     {
@@ -875,6 +1665,12 @@ dissect_map_problem(ASN1_SCK *asn1, proto_tree *tree)
 	    asn1->offset, len, "Unknown encoding of Problem Code");
 
 	asn1->offset += len;
+
+	if (!def_len)
+	{
+	    asn1_eoc_decode(asn1, -1);
+	}
+
 	return;
     }
 
@@ -948,10 +1744,21 @@ dissect_map_problem(ASN1_SCK *asn1, proto_tree *tree)
     }
 
     proto_tree_add_uint_format(subtree, hf_map_tag, asn1->tvb,
-	orig_offset, tag_len, tag, type_str);
+	orig_offset, len_offset - orig_offset, tag, type_str);
 
-    proto_tree_add_text(subtree, asn1->tvb,
-	saved_offset, 1, "Problem Specifier %s", str);
+    if (def_len)
+    {
+	proto_tree_add_uint(subtree, hf_map_length, asn1->tvb,
+	    len_offset, saved_offset - len_offset, len);
+    }
+    else
+    {
+	proto_tree_add_text(subtree, asn1->tvb,
+	    len_offset, saved_offset - len_offset, "Length: Indefinite");
+    }
+
+    proto_tree_add_text(subtree, asn1->tvb, saved_offset, 1,
+	"Problem Specifier %s", str);
 }
 
 
@@ -989,7 +1796,7 @@ dissect_map_lnkId(ASN1_SCK *asn1, proto_tree *tree)
 static int
 dissect_map_opr_code(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gint *op_idx_p)
 {
-    guint			saved_offset = 0;
+    guint			opr_offset = 0, saved_offset = 0;
     guint			len;
     guint			tag;
     gint32			val;
@@ -1013,15 +1820,25 @@ dissect_map_opr_code(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gint 
 
     if (check_map_tag(asn1, MAP_OPR_CODE_TAG))
     {
-	tag = -1;
-	dissect_map_tag(asn1, tree, &tag, "Operation Code", &item);
+	opr_offset = asn1->offset;
+	item =
+	    proto_tree_add_text(tree, asn1->tvb, opr_offset, -1,
+		"Operation Code");
 	subtree = proto_item_add_subtree(item, ett_opr_code);
+
+	tag = -1;
+	asn1_id_decode1(asn1, &tag);
+	proto_tree_add_uint_format(subtree, hf_map_tag, asn1->tvb,
+	    opr_offset, asn1->offset - opr_offset, tag, "Operation Code Tag");
+
 	dissect_map_len(asn1, subtree, &def_len, &len);
 
 	saved_offset = asn1->offset;
 	asn1_int32_value_decode(asn1, len, &val);
 	proto_tree_add_int(subtree, hf_map_opr_code, asn1->tvb, saved_offset,
 	    asn1->offset - saved_offset, val);
+
+	proto_item_set_len(item, asn1->offset - opr_offset);
 
 	str = my_match_strval(val, gsm_map_opr_code_strings, op_idx_p);
 
@@ -1035,118 +1852,6 @@ dissect_map_opr_code(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gint 
 	tap_p->opr_code_idx = *op_idx_p;
 
 	tap_queue_packet(gsm_map_tap, pinfo, tap_p);
-    }
-
-    return(MAP_OK);
-}
-
-
-static int
-dissect_map_params(ASN1_SCK *asn1, proto_tree *tree)
-{
-    guint	off_tree[100], saved_offset, len_offset;
-    int		num_seq;
-    guint	tag, len;
-    gboolean	def_len = FALSE;
-    proto_item	*item_tree[100], *item;
-    proto_tree	*seq_tree[100], *use_tree, *subtree;
-
-    num_seq = 0;
-    use_tree = tree;
-
-    while ((tvb_length_remaining(asn1->tvb, asn1->offset) > 0) &&
-	(!check_map_tag(asn1, 0)))
-    {
-	saved_offset = asn1->offset;
-	asn1_id_decode1(asn1, &tag);
-	len_offset = asn1->offset;
-	asn1_length_decode(asn1, &def_len, &len);
-
-	if (tag == MAP_SEQ_TAG)
-	{
-	    item =
-		proto_tree_add_text(use_tree, asn1->tvb,
-		    saved_offset, -1, "Sequence");
-
-	    subtree = proto_item_add_subtree(item, ett_params);
-
-	    proto_tree_add_uint_format(subtree, hf_map_tag, asn1->tvb,
-		saved_offset, len_offset - saved_offset, tag, "Sequence Tag");
-
-	    if (!def_len)
-	    {
-		proto_tree_add_text(subtree, asn1->tvb,
-		    len_offset, asn1->offset - len_offset, "Length: Indefinite");
-
-		seq_tree[num_seq] = subtree;
-		item_tree[num_seq] = item;
-		off_tree[num_seq] = saved_offset;
-		num_seq++;
-	    }
-	    else
-	    {
-		proto_tree_add_uint(subtree, hf_map_length, asn1->tvb,
-		    len_offset, asn1->offset - len_offset, len);
-
-		proto_item_set_len(item, (asn1->offset - saved_offset) + len);
-	    }
-
-	    use_tree = subtree;
-	    continue;
-	}
-
-	if (!def_len)
-	{
-	    proto_tree_add_uint_format(use_tree, hf_map_tag, asn1->tvb,
-		saved_offset, len_offset - saved_offset, tag, "Parameter Tag");
-	    proto_tree_add_text(use_tree, asn1->tvb,
-		len_offset, asn1->offset - len_offset, "Length: Indefinite");
-
-	    seq_tree[num_seq] = use_tree;
-	    item_tree[num_seq] = NULL;
-	    num_seq++;
-	    continue;
-	}
-	else
-	{
-	    item =
-		proto_tree_add_text(use_tree, asn1->tvb,
-		    saved_offset, -1, "Parameter");
-
-	    subtree = proto_item_add_subtree(item, ett_param);
-
-	    proto_tree_add_uint_format(subtree, hf_map_tag, asn1->tvb,
-		saved_offset, len_offset - saved_offset, tag, "Parameter Tag");
-
-	    proto_tree_add_uint(subtree, hf_map_length, asn1->tvb,
-		len_offset, asn1->offset - len_offset, len);
-
-	    proto_item_set_len(item, (asn1->offset - saved_offset) + len);
-
-	    proto_tree_add_text(subtree, asn1->tvb,
-		asn1->offset, len, "Parameter Data");
-
-	    asn1->offset += len;
-	}
-
-	if (tvb_length_remaining(asn1->tvb, asn1->offset) <=0) break;
-
-	while ((num_seq > 0) &&
-	    asn1_eoc(asn1, -1))
-	{
-	    saved_offset = asn1->offset;
-	    asn1_eoc_decode(asn1, -1);
-
-	    proto_tree_add_text(seq_tree[num_seq-1], asn1->tvb,
-		saved_offset, asn1->offset - saved_offset, "End of Contents");
-
-	    if (item_tree[num_seq-1] != NULL)
-	    {
-		proto_item_set_len(item_tree[num_seq-1], asn1->offset - off_tree[num_seq-1]);
-	    }
-
-	    num_seq--;
-	}
     }
 
     return(MAP_OK);
@@ -1183,7 +1888,7 @@ static void
 dissect_map_invoke(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree	*subtree;
-    guint	saved_offset = 0;
+    guint	orig_offset, saved_offset;
     guint	len;
     guint	tag;
     proto_item	*item;
@@ -1191,19 +1896,22 @@ dissect_map_invoke(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree)
     gboolean	def_len;
     int		ret;
 
+    orig_offset = asn1->offset;
     saved_offset = asn1->offset;
     ret = asn1_id_decode1(asn1, &tag);
-    item = proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Components");
-    subtree = proto_item_add_subtree(item, ett_components);
-    proto_tree_add_uint_format(subtree, hf_map_tag, asn1->tvb, saved_offset, asn1->offset - saved_offset,
-					    tag, "Invoke Type Tag");
+
+    item =
+	proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Component");
+
+    subtree =
+	proto_item_add_subtree(item, ett_components);
+
+    proto_tree_add_uint_format(subtree, hf_map_tag, asn1->tvb, saved_offset,
+	asn1->offset - saved_offset, tag, "Invoke Type Tag");
 
     dissect_map_len(asn1, subtree, &def_len, &len);
 
-    if (def_len)
-    {
-	proto_item_set_len(item, (asn1->offset - saved_offset) + len);
-    }
+    saved_offset = asn1->offset;
 
     dissect_map_invokeId(asn1, subtree);
 
@@ -1211,12 +1919,21 @@ dissect_map_invoke(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree)
 
     if (dissect_map_opr_code(asn1, pinfo, subtree, &op_idx) == MAP_OK)
     {
+	if (def_len)
+	{
+	    len -= asn1->offset - saved_offset;
+	}
+	else
+	{
+	    len = find_eoc(asn1);
+	}
+
 	/*
 	 * decode elements
 	 */
 	if (op_fcn[op_idx] == NULL)
 	{
-	    dissect_map_params(asn1, subtree);
+	    dissect_map_params(asn1, subtree, len);
 	}
 	else
 	{
@@ -1228,6 +1945,8 @@ dissect_map_invoke(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree)
     {
 	dissect_map_eoc(asn1, subtree);
     }
+
+    proto_item_set_len(item, asn1->offset - orig_offset);
 }
 
 
@@ -1236,48 +1955,105 @@ dissect_map_rr(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gchar *str)
 {
     guint	tag, len, comp_len;
     gint	op_idx;
-    guint	saved_offset;
-    proto_item	*item, *null_item;
-    proto_tree	*subtree;
+    guint	orig_offset, saved_offset, len_offset;
+    proto_item	*seq_item, *item;
+    proto_tree	*seq_subtree, *subtree;
     gboolean	def_len;
     gboolean	comp_def_len;
 
     tag = -1;
+    orig_offset = asn1->offset;
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    item = proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Components");
+    item =
+	proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Component");
 
-    subtree = proto_item_add_subtree(item, ett_components);
+    subtree =
+	proto_item_add_subtree(item, ett_components);
 
     proto_tree_add_uint_format(subtree, hf_map_tag, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset, tag, str);
 
     dissect_map_len(asn1, subtree, &comp_def_len, &comp_len);
 
-    if (comp_def_len)
-    {
-	proto_item_set_len(item, (asn1->offset - saved_offset) + comp_len);
-    }
+    saved_offset = asn1->offset;
 
     dissect_map_invokeId(asn1, subtree);
 
-    if (check_map_tag(asn1, MAP_SEQ_TAG))
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0)
     {
-	tag = -1;
-	dissect_map_tag(asn1, subtree, &tag, "Sequence Tag", &null_item);
-	dissect_map_len(asn1, subtree, &def_len, &len);
+	proto_item_set_len(item, asn1->offset - orig_offset);
+
+	return;
     }
 
-    if (dissect_map_opr_code(asn1, pinfo, subtree, &op_idx) == MAP_OK)
+    saved_offset = asn1->offset;
+
+    tag = -1;
+    asn1_id_decode1(asn1, &tag);
+
+    if (tag == MAP_SEQ_TAG)
     {
-	dissect_map_params(asn1, subtree);
+	len_offset = asn1->offset;
+	asn1_length_decode(asn1, &def_len, &len);
+
+	seq_item =
+	    proto_tree_add_text(subtree, asn1->tvb, saved_offset, -1, "Sequence");
+
+	seq_subtree = proto_item_add_subtree(seq_item, ett_params);
+
+	proto_tree_add_uint_format(seq_subtree, hf_map_tag, asn1->tvb,
+	    saved_offset, len_offset - saved_offset, tag, "Sequence Tag");
+
+	if (def_len)
+	{
+	    proto_tree_add_uint(seq_subtree, hf_map_length, asn1->tvb,
+		len_offset, asn1->offset - len_offset, len);
+	}
+	else
+	{
+	    proto_tree_add_text(seq_subtree, asn1->tvb,
+		len_offset, asn1->offset - len_offset, "Length: Indefinite");
+
+	    len = find_eoc(asn1);
+	}
+
+	proto_item_set_len(seq_item,
+	    (asn1->offset - saved_offset) + len +
+	    (def_len ? 0 : MAP_EOC_LEN));
+
+	saved_offset = asn1->offset;
+
+	if (dissect_map_opr_code(asn1, pinfo, seq_subtree, &op_idx) == MAP_OK)
+	{
+	    len -= asn1->offset - saved_offset;
+
+	    /*
+	     * decode elements
+	     */
+	    if (op_fcn_rr[op_idx] == NULL)
+	    {
+		dissect_map_params(asn1, seq_subtree, len);
+	    }
+	    else
+	    {
+		(*op_fcn_rr[op_idx])(asn1, seq_subtree);
+	    }
+	}
+
+	if (!def_len)
+	{
+	    dissect_map_eoc(asn1, seq_subtree);
+	}
     }
 
     if (!comp_def_len)
     {
 	dissect_map_eoc(asn1, subtree);
     }
+
+    proto_item_set_len(item, asn1->offset - orig_offset);
 }
 
 
@@ -1285,30 +2061,32 @@ static int
 dissect_map_re(ASN1_SCK *asn1, proto_tree *tree)
 {
     guint	tag, len, comp_len;
-    guint	saved_offset;
+    guint	orig_offset, saved_offset;
     proto_item	*item, *null_item;
     proto_tree	*subtree;
-    gboolean	def_len;
+    gboolean	comp_def_len, def_len;
 
     tag = -1;
+    orig_offset = asn1->offset;
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    item = proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Components");
+    item = proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Component");
 
     subtree = proto_item_add_subtree(item, ett_components);
 
     proto_tree_add_uint_format(subtree, hf_map_tag, asn1->tvb, saved_offset, asn1->offset - saved_offset,
 	tag, "Return Error Type Tag");
 
-    dissect_map_len(asn1, subtree, &def_len, &comp_len);
+    dissect_map_len(asn1, subtree, &comp_def_len, &comp_len);
 
-    if (def_len)
+    if (!comp_def_len)
     {
-	proto_item_set_len(item, (asn1->offset - saved_offset) + comp_len);
+	comp_len = find_eoc(asn1);
     }
 
     saved_offset = asn1->offset;
+
     dissect_map_invokeId(asn1, subtree);
 
 #define MAP_LOCAL_ERR_CODE_TAG 0x2
@@ -1328,19 +2106,29 @@ dissect_map_re(ASN1_SCK *asn1, proto_tree *tree)
 	proto_tree_add_text(subtree, asn1->tvb, asn1->offset, comp_len,
 	    "Unknown Error Code");
 
-	asn1->offset += (comp_len - (asn1->offset - saved_offset));
+	asn1->offset += comp_len;
+
+	if (!comp_def_len)
+	{
+	    dissect_map_eoc(asn1, subtree);
+	}
+
+	proto_item_set_len(item, asn1->offset - orig_offset);
+
 	return(MAP_OK);
     }
 
     dissect_map_len(asn1, subtree, &def_len, &len);
     dissect_map_integer(asn1, subtree, len, "Error Code:");
 
-    dissect_map_params(asn1, subtree);
+    dissect_map_params(asn1, subtree, comp_len - (asn1->offset - saved_offset));
 
     if (!def_len)
     {
 	dissect_map_eoc(asn1, subtree);
     }
+
+    proto_item_set_len(item, asn1->offset - orig_offset);
 
     return(MAP_OK);
 }
@@ -1360,7 +2148,7 @@ dissect_map_reject(ASN1_SCK *asn1, proto_tree *tree)
     saved_offset = asn1->offset;
     asn1_id_decode1(asn1, &tag);
 
-    item = proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Components");
+    item = proto_tree_add_text(tree, asn1->tvb, saved_offset, -1, "Component");
 
     subtree = proto_item_add_subtree(item, ett_components);
 
@@ -1369,11 +2157,6 @@ dissect_map_reject(ASN1_SCK *asn1, proto_tree *tree)
 
     dissect_map_len(asn1, subtree, &def_len, &len);
 
-    if (def_len)
-    {
-	proto_item_set_len(item, (asn1->offset - saved_offset) + len);
-    }
-
     dissect_map_invokeId(asn1, subtree);
     dissect_map_problem(asn1, subtree);
 
@@ -1381,6 +2164,8 @@ dissect_map_reject(ASN1_SCK *asn1, proto_tree *tree)
     {
 	dissect_map_eoc(asn1, subtree);
     }
+
+    proto_item_set_len(item, asn1->offset - saved_offset);
 }
 
 
@@ -1464,6 +2249,9 @@ dissect_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (tree)
     {
+	g_pinfo = pinfo;
+	g_tree = tree;
+
 	/* create display subtree for the protocol */
 	ti = proto_tree_add_item(tree, proto_map, tvb, 0, -1, FALSE);
 
@@ -1513,7 +2301,7 @@ proto_register_map(void)
 
     /* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_PARAMS	7
-    static gint *ett[NUM_INDIVIDUAL_PARAMS+GSM_MAP_NUM_OP+NUM_PARAM_1];
+    static gint *ett[NUM_INDIVIDUAL_PARAMS+(GSM_MAP_NUM_OP*2)+NUM_PARAM_1];
 
     memset((void *) ett, 0, sizeof(ett));
 
@@ -1533,6 +2321,12 @@ proto_register_map(void)
 	ett[last_offset] = &ett_op[i];
     }
 
+    for (i=0; i < GSM_MAP_NUM_OP; i++, last_offset++)
+    {
+	ett_op_rr[i] = -1;
+	ett[last_offset] = &ett_op_rr[i];
+    }
+
     for (i=0; i < NUM_PARAM_1; i++, last_offset++)
     {
 	ett_param_1[i] = -1;
@@ -1547,6 +2341,10 @@ proto_register_map(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_map, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    sms_dissector_table =
+	register_dissector_table("gsm_map.sms_tpdu", "GSM SMS TPDU",
+	FT_UINT8, BASE_DEC);
 
     gsm_map_tap = register_tap("gsm_map");
 }
