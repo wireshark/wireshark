@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.168 2001/11/26 09:58:38 guy Exp $
+ * $Id: packet-smb.c,v 1.169 2001/11/26 10:05:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -10732,6 +10732,14 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		COUNT_BYTES(padcnt);
 	}
 	if(dc){
+		/*
+		 * XXX - should we just take the minimum of "bc" and
+		 * "dc", and use that, at least if this is the final
+		 * transaction?  I've seen packets where the byte count
+		 * doesn't seem to include all the data that the data
+		 * count claims should be there, although the extra
+		 * byte might be padding.
+		 */
 		CHECK_BYTE_COUNT(dc);
 
 /*qqq*/
@@ -10741,6 +10749,9 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		   If someone ever finds an Transaction command which needs
 		   reassembly of parameters as well, then we will have to
 		   add that here.
+
+		   XXX - is this done even if we don't have all the data
+		   for this SMB (e.g., if we have a short frame)?
 		*/
 		if(smb_trans_reassembly){
 			if( (dd>0 || (dd+dc)<td) ){
