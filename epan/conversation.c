@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.5 2000/11/18 07:00:31 guy Exp $
+ * $Id: conversation.c,v 1.6 2000/11/18 11:47:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -671,62 +671,6 @@ conversation_set_dissector(conversation_t *conversation,
 {
 	conversation->is_old_dissector = FALSE;
 	conversation->dissector.new_d = dissector;
-}
-
-/*
- * Given source and destination addresses and ports for a packet,
- * search for a conversational dissector.
- * If found, call it and return TRUE, otherwise return FALSE.
- *
- * Will search for a exact match (src & dst), then search for wild
- * card matches: try to match any port on the destination address first,
- * then try to match any address on the port, then try to match any 
- * address and any port. 
- */
-gboolean
-old_try_conversation_dissector(address *src, address *dst, port_type ptype,
-    guint32 src_port, guint32 dst_port, const u_char *pd, int offset,
-    frame_data *fd, proto_tree *tree)
-{
-	conversation_t *conversation;
-	tvbuff_t *tvb;
-
-	conversation = find_conversation(src, dst, ptype, src_port, dst_port, 0);
-
-	if (conversation == NULL)
-		conversation = find_conversation(src, dst, ptype, src_port, dst_port, NO_DST_ADDR);
-
-	if (conversation == NULL)
-		conversation = find_conversation(src, dst, ptype, src_port, dst_port, NO_DST_PORT);
-
-	if (conversation == NULL)
-		conversation = find_conversation(src, dst, ptype, src_port, dst_port,
-		    NO_DST_PORT | NO_DST_ADDR);
-
-	if (conversation != NULL) {
-		if (conversation->is_old_dissector) {
-			if (conversation->dissector.old_d == NULL)
-				return FALSE;
-			(*conversation->dissector.old_d)(pd, offset, fd, tree);
-		} else {
-			if (conversation->dissector.new_d == NULL)
-				return FALSE;
-
-			/*
-			 * Old dissector calling new dissector; use
-			 * "tvb_create_from_top()" to remap.
-			 *
-			 * XXX - what about the "pd" argument?  Do
-			 * any dissectors not just pass that along and
-			 * let the "offset" argument handle stepping
-			 * through the packet?
-			 */
-			tvb = tvb_create_from_top(offset);
-			(*conversation->dissector.new_d)(tvb, &pi, tree);
-		}
-		return TRUE;
-	}
-	return FALSE;
 }
 
 /*

@@ -1,7 +1,7 @@
 /* conversation.h
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.h,v 1.3 2000/10/21 09:54:12 guy Exp $
+ * $Id: conversation.h,v 1.4 2000/11/18 11:47:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -70,10 +70,6 @@ void old_conversation_set_dissector(conversation_t *conversation,
     old_dissector_t dissector);
 void conversation_set_dissector(conversation_t *conversation,
     dissector_t dissector);
-gboolean
-old_try_conversation_dissector(address *src, address *dst, port_type ptype,
-    guint32 src_port, guint32 dst_port, const u_char *pd, int offset,
-    frame_data *fd, proto_tree *tree);
 gboolean
 try_conversation_dissector(address *src, address *dst, port_type ptype,
     guint32 src_port, guint32 dst_port, tvbuff_t *tvb, packet_info *pinfo,

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.5 2000/11/15 07:07:46 guy Exp $
+ * $Id: packet.c,v 1.6 2000/11/18 11:47:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1339,38 +1339,6 @@ heur_dissector_add(const char *name, heur_dissector_t dissector)
 
 	/* do the table insertion */
 	*sub_dissectors = g_slist_append(*sub_dissectors, (gpointer)dtbl_entry);
-}
-
-gboolean
-old_dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
-    const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
-{
-	GSList *entry;
-	heur_dtbl_entry_t *dtbl_entry;
-	tvbuff_t *tvb = NULL;
-
-	for (entry = sub_dissectors; entry != NULL; entry = g_slist_next(entry)) {
-		dtbl_entry = (heur_dtbl_entry_t *)entry->data;
-		if (dtbl_entry->is_old_dissector) {
-			if ((*dtbl_entry->dissector.old)(pd, offset, fd, tree))
-				return TRUE;
-		} else {
-			/*
-			 * Old dissector calling new dissector; use
-			 * "tvb_create_from_top()" to remap.
-			 *
-			 * XXX - what about the "pd" argument?  Do
-			 * any dissectors not just pass that along and
-			 * let the "offset" argument handle stepping
-			 * through the packet?
-			 */
-			if (tvb == NULL)
-				tvb = tvb_create_from_top(offset);
-			if ((*dtbl_entry->dissector.new)(tvb, &pi, tree))
-				return TRUE;
-		}
-	}
-	return FALSE;
 }
 
 gboolean

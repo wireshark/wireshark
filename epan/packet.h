@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.8 2000/11/18 10:51:07 guy Exp $
+ * $Id: packet.h,v 1.9 2000/11/18 11:47:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -244,8 +244,6 @@ void heur_dissector_add(const char *name, heur_dissector_t dissector);
 /* Try all the dissectors in a given heuristic dissector list until
    we find one that recognizes the protocol, in which case we return
    TRUE, or we run out of dissectors, in which case we return FALSE. */
-gboolean old_dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
-    const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 gboolean dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
