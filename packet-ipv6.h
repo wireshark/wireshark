@@ -1,7 +1,7 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.h,v 1.16 2000/11/11 10:23:41 guy Exp $
+ * $Id: packet-ipv6.h,v 1.17 2000/12/14 08:35:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -172,6 +172,81 @@ struct ip6_frag {
 #define IP6F_OFF_MASK		0xfff8	/* mask out offset from _offlg */
 #define IP6F_RESERVED_MASK	0x0006	/* reserved bits in ip6f_offlg */
 #define IP6F_MORE_FRAG		0x0001	/* more-fragments flag */
+
+/*
+ * Mobile IPv6
+ */
+#define IP6OPT_BINDING_UPDATE	0xC6	/* 11 0 00110 */
+#define IP6OPT_BINDING_ACK	0x07	/* 00 0 00111 */
+#define IP6OPT_BINDING_REQ	0x08	/* 00 0 01000 */
+#define IP6OPT_HOME_ADDRESS	0xC9	/* 11 0 01001 */
+#define IP6OPT_EID		0x8A	/* 10 0 01010 */
+#define IP6SUBOPT_UNIQUE_ID	0x02	/* Unique Id */
+#define IP6SUBOPT_ALTERNATE_COA	0x04	/* Alternate CoA */
+
+/* Binding Update Option */
+struct ip6_opt_binding_update {
+	guint8	ip6bu_type;
+	guint8	ip6bu_len;
+	guint8	ip6bu_flags;
+#define IP6_BU_ACK	0x80		/* Request a binding ack */
+#define IP6_BU_HOME	0x40		/* Home Registration */
+#define IP6_BU_COA	0x20		/* Care-of-address present in option */
+#define IP6_BU_ROUTER	0x10		/* Sending mobile node is a router */
+	guint8	ip6bu_prefixlen;
+	guint16	ip6bu_seqno;
+	guint32	ip6bu_lifetime;
+	/* followed by sub-options */
+};
+
+/* Binding Ack Option */
+struct ip6_opt_binding_ack {
+	guint8	ip6ba_type;
+	guint8	ip6ba_len;
+	guint8	ip6ba_status;
+#define IP6_BINDING_ACK_OK		0	/* Binding Update accepted */
+#define IP6_BINDING_ACK_EUNKNOWN	128	/* Reason unspecified */
+#define IP6_BINDING_ACK_EPERM		130	/* Administratively prohib. */
+#define IP6_BINDING_ACK_EAGAIN		131	/* Insufficient resources */
+#define IP6_BINDING_ACK_EHOMENOSUPPORT	132	/* Home registration */
+#define IP6_BINDING_ACK_ENOTHOMESUBNET	133	/* Not home subnet */
+#define IP6_BINDING_ACK_EBADIFLEN	136	/* Incorrect interface id len */
+#define IP6_BINDING_ACK_ENOTHOME	137	/* Not home agent for this MN */
+	guint16	ip6ba_seqno;
+	guint32	ip6ba_lifetime;
+	guint32	ip6ba_refresh;
+	/* followed by sub-options */
+};
+
+/* Binding Request Option */
+struct ip6_opt_binding_request {
+	guint8	ip6br_type;
+	guint8	ip6br_len;
+	/* followed by sub-options */
+};
+
+/* Home Address Option */
+struct ip6_opt_home_address {
+	guint8	ip6ha_type;
+	guint8	ip6ha_len;
+	struct e_in6_addr ip6ha_ha;		/* Home Address */
+	/* followed by sub-options */
+};
+
+/* Unique Identifier sub-option */
+struct ip6_subopt_unique_id {
+	guint8	ip6ui_type;
+	guint8	ip6ui_len;
+	guint16	ip6ui_id;			/* Unique Identifier */
+};
+
+/* Alternate CoA sub-option */
+struct ip6_subopt_alternate_coa {
+	guint8	ip6acoa_type;
+	guint8	ip6acoa_len;
+	struct e_in6_addr coa;			/* Alternate CoA */
+};
+
 
 /*
  * Definition for ICMPv6.

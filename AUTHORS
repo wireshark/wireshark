@@ -458,6 +458,10 @@ Burke Lau <burke_lau@agilent.com> {
 	MPLS-over-PPP support
 }
 
+Martti Kuparinen <martti.kuparinen@nomadiclab.com> {
+	Mobile IPv6 support
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

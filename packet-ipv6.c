@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.46 2000/11/19 08:53:58 guy Exp $
+ * $Id: packet-ipv6.c,v 1.47 2000/12/14 08:35:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -264,6 +264,34 @@ dissect_opts(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		p += 2;
 		break;
 	      }
+	    case IP6OPT_BINDING_UPDATE:
+		proto_tree_add_text(dstopt_tree, NullTVB, p - pd, p[1] + 2,
+		    "Mobile IPv6 Binding Update");
+		p += p[1];
+		p += 2;
+		break;
+	    case IP6OPT_BINDING_ACK:
+		proto_tree_add_text(dstopt_tree, NullTVB, p - pd, p[1] + 2,
+		    "Mobile IPv6 Binding Acknowledgement");
+		p += p[1];
+		p += 2;
+		break;
+	    case IP6OPT_BINDING_REQ:
+		proto_tree_add_text(dstopt_tree, NullTVB, p - pd, p[1] + 2,
+		    "Mobile IPv6 Binding Request");
+		p += p[1];
+		p += 2;
+		break;
+	    case IP6OPT_HOME_ADDRESS:
+		proto_tree_add_text(dstopt_tree, NullTVB, p - pd, p[1] + 2,
+		    "Mobile IPv6 Home Address");
+		p += p[1];
+		p += 2;
+		break;
+	    case IP6OPT_EID:
+		p += p[1];
+		p += 2;
+		break;
 	    default:
 		p = (u_char *)(pd + offset + len);
 		break;

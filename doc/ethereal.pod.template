@@ -1008,6 +1008,7 @@ B<http://www.ethereal.com>.
   Kevin Shi                <techishi@ms22.hinet.net>
   Mike Frisch              <mfrisch@saturn.tlug.org>
   Burke Lau                <burke_lau@agilent.com>
+  Martti Kuparinen         <martti.kuparinen@nomadiclab.com>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
