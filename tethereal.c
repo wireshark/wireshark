@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.146 2002/06/30 20:26:45 guy Exp $
+ * $Id: tethereal.c,v 1.147 2002/07/07 21:52:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -403,7 +403,6 @@ main(int argc, char *argv[])
   cfile.has_snap	= FALSE;
   cfile.snap		= WTAP_MAX_PACKET_SIZE;
   cfile.count		= 0;
-  col_init(&cfile.cinfo, prefs->num_cols);
 
   /* Assemble the compile-time options */
   comp_info_str = g_string_new("");
@@ -742,7 +741,7 @@ main(int argc, char *argv[])
 
   /* Notify all registered modules that have had any of their preferences
      changed either from one of the preferences file or from the command
-     line that its preferences have changed. */
+     line that their preferences have changed. */
   prefs_apply_all();
 
 #ifndef HAVE_LIBPCAP
@@ -755,6 +754,7 @@ main(int argc, char *argv[])
   }
 
   /* Build the column format array */  
+  col_init(&cfile.cinfo, prefs->num_cols);
   for (i = 0; i < cfile.cinfo.num_cols; i++) {
     cfile.cinfo.col_fmt[i] = get_column_format(i);
     cfile.cinfo.col_title[i] = g_strdup(get_column_title(i));

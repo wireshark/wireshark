@@ -1311,6 +1311,11 @@ Nix <nix[AT]esperi.demon.co.uk> {
 	Expand the plugin directory path at install time
 }
 
+Liviu Daia <Liviu.Daia[AT]imar.ro> {
+	Fix to eliminate crash when setting "column.format" preference
+	    from the command line
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

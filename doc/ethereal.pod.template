@@ -1459,6 +1459,7 @@ B<http://www.ethereal.com>.
   Anand V. Narwani         <anarwani[AT]cisco.com>
   Christopher K. St. John  <cks[AT]distributopia.com>
   Nix                      <nix[AT]esperi.demon.co.uk>
+  Liviu Daia               <Liviu.Daia[AT]imar.ro>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
