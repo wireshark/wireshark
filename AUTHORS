@@ -1,11 +1,11 @@
 Original Author
 -------- ------
-Gerald Combs  <gerald[AT]ethereal.com>
+Gerald Combs            <gerald[AT]ethereal.com>
 
 
 Contributors
 ------------
-Gilbert Ramirez      <gram[AT]alumni.rice.edu> {
+Gilbert Ramirez         <gram[AT]alumni.rice.edu> {
 	Wiretap
 	Printing
 	Token-Ring, TR MAC
@@ -18,7 +18,7 @@ Gilbert Ramirez      <gram[AT]alumni.rice.edu> {
 	Miscellaneous enhancements and fixes
 }
 
-Hannes R. Boehm      <hannes[AT]boehm.org> {
+Hannes R. Boehm         <hannes[AT]boehm.org> {
     http://hannes.boehm.org/
 
     OSPFv2 
@@ -26,15 +26,15 @@ Hannes R. Boehm      <hannes[AT]boehm.org> {
     CDP (Cisco Discovery Protocol Version 1)
 }
 
-Mike Hall            <mike [AT] hallzone.net> {
+Mike Hall               <mike [AT] hallzone.net> {
     TCP Follow
 }
 
-Bobo Rajec           <bobo[AT]bsp-consulting.sk> {
+Bobo Rajec              <bobo[AT]bsp-consulting.sk> {
     DNS protocol support
 }
 
-Laurent Deniel       <laurent.deniel[AT]free.fr> {
+Laurent Deniel          <laurent.deniel[AT]free.fr> {
     Name resolution
     Ethernet/Manufacturer files support
     FDDI support
@@ -52,12 +52,12 @@ Laurent Deniel       <laurent.deniel[AT]free.fr> {
     Miscellaneous enhancements and fixes
 }
 
-Don Lafontaine       <lafont02[AT]cn.ca> {
+Don Lafontaine          <lafont02[AT]cn.ca> {
     Banyan Vines support
     IGRP support
 }
 
-Guy Harris           <guy[AT]alum.mit.edu> {
+Guy Harris              <guy[AT]alum.mit.edu> {
     DNS and NetBIOS Name Service enhancements
     Bitfield decoding
     IP and TCP option decoding
@@ -69,11 +69,11 @@ Guy Harris           <guy[AT]alum.mit.edu> {
     Miscellaneous enhancements and fixes
 }
 
-Simon Wilkinson      <sxw[AT]dcs.ed.ac.uk> {
+Simon Wilkinson         <sxw[AT]dcs.ed.ac.uk> {
 	AppleTalk support
 }
 
-Jörg Mayer      <jmayer[AT]loplof.de> {
+Jörg Mayer              <jmayer[AT]loplof.de> {
 	Banyan Vines support
 	NTP fixes
 	DHCP support for Intel PXEclient DHCP requests
@@ -98,11 +98,11 @@ Jörg Mayer      <jmayer[AT]loplof.de> {
 	Fix some small memleaks found by valgrind
 }
 
-Martin Maciaszek <fastjack[AT]i-s-o.net> {
+Martin Maciaszek        <fastjack[AT]i-s-o.net> {
 	RPM .spec file
 }
 
-Didier Jorand <Didier.Jorand[AT]alcatel.fr> {
+Didier Jorand           <Didier.Jorand[AT]alcatel.fr> {
 	SNMP support
 	TCP SEQ/ACK analysis bugfix for sequence number wrapping.
 }
@@ -118,7 +118,7 @@ Jun-ichiro itojun Hagino <itojun[AT]itojun.org> {
 	BGP (Border Gateway Protocol) support
 }
 
-Richard Sharpe <sharpe[AT]ns.aus.com> {
+Richard Sharpe          <sharpe[AT]ns.aus.com> {
 	TFTP, FTP, POP, Telnet support
 	Infrastructure changes for the benefit of TFTP
 	SMB support
@@ -127,20 +127,20 @@ Richard Sharpe <sharpe[AT]ns.aus.com> {
 	MS RPC WKSSVC dissector
 }
 
-John McDermott <jjm[AT]jkintl.com> {
+John McDermott          <jjm[AT]jkintl.com> {
 	Packet coloring support
 	Pseudo-real-time capture
 }
 
-Jeff Jahr <jjahr[AT]shastanets.com> {
+Jeff Jahr               <jjahr[AT]shastanets.com> {
 	PPP over Ethernet (PPPoe)
 }
 
-Brad Robel-Forrest <bradr[AT]watchguard.com> {
+Brad Robel-Forrest      <bradr[AT]watchguard.com> {
 	ISAKMP, GRE, PPTP
 }
 
-Ashok Narayanan <ashokn[AT]cisco.com> {
+Ashok Narayanan         <ashokn[AT]cisco.com> {
 	RSVP
 	Match Selected functionality
 	Support for reading compressed capture files
@@ -148,20 +148,20 @@ Ashok Narayanan <ashokn[AT]cisco.com> {
 	Link Management Protocol
 }
 
-Aaron Hillegass <aaron[AT]classmax.com> {
+Aaron Hillegass         <aaron[AT]classmax.com> {
 	Summary dialogue
 }
 
-Jason Lango <jal[AT]netapp.com> {
+Jason Lango             <jal[AT]netapp.com> {
 	RTSP, SDP
 	RTCP fixes
 }
 
-Johan Feyaerts <Johan.Feyaerts[AT]siemens.com> {
+Johan Feyaerts          <Johan.Feyaerts[AT]siemens.com> {
 	RADIUS
 }
 
-Olivier Abad <oabad[AT]noos.fr> {
+Olivier Abad            <oabad[AT]noos.fr> {
 	X.25 support in iptrace files and Sniffer files
 	Support for files from RADCOM WAN/LAN analyzers
 	    and HP-UX nettl traces
@@ -171,12 +171,12 @@ Olivier Abad <oabad[AT]noos.fr> {
 	Support for writing NetXRay 2.x (Windows Sniffer) format captures
 }
 
-Thierry Andry <Thierry.Andry[AT]advalvas.be> {
+Thierry Andry           <Thierry.Andry[AT]advalvas.be> {
 	Linux ATM Classical IP support
 	More filterable fields in SNMP
 }
 
-Jeff Foster <jfoste[AT]woodward.com> {
+Jeff Foster             <jfoste[AT]woodward.com> {
 	NetBEUI/NBF support (NetBIOS atop 802.2 LLC, the
 	    original NetBIOS encapsulation)
 	SMB Mailslot and Netlogin protocol support
@@ -197,17 +197,17 @@ Jeff Foster <jfoste[AT]woodward.com> {
 	    to do it all)
 }
 
-Peter Torvals <petertv[AT]xoommail.com> {
+Peter Torvals           <petertv[AT]xoommail.com> {
 	Internet Cache Protocol support
 }
 
-Christophe Tronche <ch.tronche[AT]computer.org> {
+Christophe Tronche      <ch.tronche[AT]computer.org> {
 	http://tronche.com/
 	BPDU (spanning tree protocol) support
 	X11 requests support
 }
 
-Nathan Neulinger <nneul[AT]umr.edu> {
+Nathan Neulinger        <nneul[AT]umr.edu> {
 	Yahoo Messenger YHOO protocol, and Yahoo Pager (YPNS?) protocol
 	    support
 	NTP (Network Time Protocol) support
@@ -228,15 +228,15 @@ Nathan Neulinger <nneul[AT]umr.edu> {
 	Linux IPVS Synchronization Daemon support
 }
 
-Tomislav Vujec <tvujec[AT]carnet.hr> {
+Tomislav Vujec          <tvujec[AT]carnet.hr> {
 	Additional NTP support
 }
 
-Kojak <kojak[AT]bigwig.net> {
+Kojak                   <kojak[AT]bigwig.net> {
 	ICQ support
 }
 
-Uwe Girlich <Uwe.Girlich[AT]philosys.de> {
+Uwe Girlich             <Uwe.Girlich[AT]philosys.de> {
 	ONC RPC support
 	NFS support
 	Mount Protocol support started
@@ -250,11 +250,11 @@ Uwe Girlich <Uwe.Girlich[AT]philosys.de> {
 	Interbase dissector
 }
 
-Warren Young <tangent[AT]mail.com> {
+Warren Young            <tangent[AT]mail.com> {
 	"Print" button support in "Tools:Follow TCP Stream" window
 }
 
-Heikki Vatiainen <hessu[AT]cs.tut.fi> {
+Heikki Vatiainen        <hessu[AT]cs.tut.fi> {
 	Cisco Auto-RP protocol support
 	SAP (Session Announcement Protocol) support
 	VRRP (Virtual Router Redundancy)
@@ -279,13 +279,13 @@ Heikki Vatiainen <hessu[AT]cs.tut.fi> {
 	Documentation improvements
 }
 
-Greg Hankins <gregh[AT]twoguys.org> {
+Greg Hankins            <gregh[AT]twoguys.org> {
 	http://www.twoguys.org/~gregh
 
 	updates to BGP (Border Gateway Protocol) support
 }
 
-Jerry Talkington <jtalkington[AT]users.sourceforge.net> {
+Jerry Talkington        <jtalkington[AT]users.sourceforge.net> {
 	tvb_uncompress()/HTTP Content-Encoding decompression
 	HTTP chunked encoding dissection
 	updates to HTTP support
@@ -294,65 +294,65 @@ Jerry Talkington <jtalkington[AT]users.sourceforge.net> {
 	Right-mouse-button menu support
 }
 
-Dave Chapeskie <dchapes[AT]ddm.on.ca> {
+Dave Chapeskie          <dchapes[AT]ddm.on.ca> {
 	updates to ISAKMP support
 }
 
-James Coe <jammer[AT]cin.net> {
+James Coe               <jammer[AT]cin.net> {
 	SRVLOC (Service Location Protocol) support
 	NCP over IP support
 }
 
-Bert Driehuis <driehuis[AT]playbeing.org> {
+Bert Driehuis           <driehuis[AT]playbeing.org> {
 	I4B (ISDN for BSD) wiretap module
 	V.120
 }
 
-Stuart Stanley <stuarts[AT]mxmail.net> {
+Stuart Stanley          <stuarts[AT]mxmail.net> {
 	ISIS on CLNP support
 }
 
-John Thomes <john[AT]ensemblecom.com> {
+John Thomes             <john[AT]ensemblecom.com> {
 	L2TP support
 }
 
-Laurent Cazalet <laurent.cazalet[AT]mailclub.net> {
+Laurent Cazalet         <laurent.cazalet[AT]mailclub.net> {
 	updates to L2TP support
 }
 
-Thomas Parvais <thomas.parvais[AT]advalvas.be> {
+Thomas Parvais          <thomas.parvais[AT]advalvas.be> {
 	updates to L2TP support
 }
 
-Gerrit Gehnen <G.Gehnen[AT]atrie.de> {
+Gerrit Gehnen           <G.Gehnen[AT]atrie.de> {
 	support for "Inactive Subset" of ISO CLNP
 	Decoding of OSI COTP TSAPs as text when they're plain text
 	Sinec H1 protocol support
 }
 
-Craig Newell <craign[AT]cheque.uq.edu.au> {
+Craig Newell            <craign[AT]cheque.uq.edu.au> {
 	TFTP options (RFC 2347) support
 }
 
-Ed Meaney <emeaney[AT]cisco.com> {
+Ed Meaney               <emeaney[AT]cisco.com> {
 	Win32 support
 }
 
-Dietmar Petras <DPetras[AT]ELSA.de> {
+Dietmar Petras          <DPetras[AT]ELSA.de> {
 	Time protocol support
 	Fix to handling of SNMPv2 TRAP PDUs
 }
 
-Fred Reimer <fwr[AT]ga.prestige.net> {
+Fred Reimer             <fwr[AT]ga.prestige.net> {
 	TCP segment length in TCP packet summary
 }
 
-Florian Lohoff <flo[AT]rfc822.org> {
+Florian Lohoff          <flo[AT]rfc822.org> {
 	Various enhancements to RADIUS support
 	Fixes to L2TP result and error code dissection
 }
 
-Jochen Friedrich <jochen+ethereal[AT]scram.de> {
+Jochen Friedrich        <jochen+ethereal[AT]scram.de> {
 	SNA improvements
 	Fix to IPv6 fragment handling
 	SMUX and SNMPv3 support
@@ -364,26 +364,26 @@ Jochen Friedrich <jochen+ethereal[AT]scram.de> {
 	SNMP over HP extended 802.2 LLC support
 }
 
-Paul Welchinski <paul.welchinski[AT]telusplanet.net> {
+Paul Welchinski         <paul.welchinski[AT]telusplanet.net> {
 	Fixes to Win32 packet capture code
 }
 
-Doug Nazar <nazard[AT]dragoninc.on.ca> {
+Doug Nazar              <nazard[AT]dragoninc.on.ca> {
 	LDAP support
 }
 
-Andreas Sikkema <h323 [AT] ramdyne.nl> {
+Andreas Sikkema         <h323 [AT] ramdyne.nl> {
 	Fixes to SMB dissector
 	Fixes to capture file handling on Win32
 	RTCP, RTP, TPKT (RFC 1006), H.261
 	Q.931 enhancements
 }
 
-Mark Muhlestein <mmm[AT]netapp.com> {
+Mark Muhlestein         <mmm[AT]netapp.com> {
 	CIFS-over-TCP support
 }
 
-Graham Bloice <graham.bloice[AT]trihedral.com> {
+Graham Bloice           <graham.bloice[AT]trihedral.com> {
 	Win32 icon for Ethereal, and Win32 resource-compiler files to
 	    add version/copyright/etc. information to Win32 executables
 	Support for sorting columns in the summary by clicking on them
@@ -395,12 +395,12 @@ Graham Bloice <graham.bloice[AT]trihedral.com> {
 	    field
 }
 
-Ralf Schneider <ralf.schneider[AT]alcatel.se> {
+Ralf Schneider          <ralf.schneider[AT]alcatel.se> {
 	Enhancements to OSI CLNP, CLTP, and ISIS support
 	OSI ESIS support
 }
 
-Yaniv Kaul <ykaul[AT]netvision.net.il> {
+Yaniv Kaul              <ykaul[AT]netvision.net.il> {
 	Enhancements to ISAKMP
 	CPHA support
 	DCERPC OXID operation #5 dissection
@@ -408,7 +408,7 @@ Yaniv Kaul <ykaul[AT]netvision.net.il> {
 	DCERPC: Resolve UUID to interface names on win32 platforms
 }
 
-Paul Ionescu <paul[AT]acorp.ro> {
+Paul Ionescu            <paul[AT]acorp.ro> {
 	IPX-over-GRE support
 	EIGRP support
 	Cisco IGRP support
@@ -423,29 +423,29 @@ Paul Ionescu <paul[AT]acorp.ro> {
 	DLSw support
 }
 
-Mark Burton <markb[AT]ordern.com> {
+Mark Burton             <markb[AT]ordern.com> {
 	Assorted SMB fixes and enhancements
 	iSCSI support
 }
 
-Stefan Raab <sraab[AT]cisco.com> {
+Stefan Raab             <sraab[AT]cisco.com> {
 	Mobile IP
 }
 
-Mark Clayton <clayton[AT]shore.net> {
+Mark Clayton            <clayton[AT]shore.net> {
 	Support for capturing on ATM interfaces on Linux
 }
 
-Michael Rozhavsky <mike[AT]tochna.technion.ac.il> {
+Michael Rozhavsky       <mike[AT]tochna.technion.ac.il> {
 	OSPF enhancements
 	CRLDP support
 }
 
-Dug Song <dugsong[AT]monkey.org> {
+Dug Song                <dugsong[AT]monkey.org> {
 	RPCSEC_GSS credential/verifier dissection for ONC RPC
 }
 
-Michael Tuexen <Michael.Tuexen [AT] fh-muenster.de> {
+Michael Tuexen          <Michael.Tuexen [AT] fh-muenster.de> {
 	SCTP support
 	M3UA support
 	ISDN Q.921-User Adaptation Layer (IUA) support
@@ -461,15 +461,15 @@ Michael Tuexen <Michael.Tuexen [AT] fh-muenster.de> {
 	Fix SCTP port number for M2PA
 }
 
-Bruce Korb <bkorb[AT]sco.com> {
+Bruce Korb              <bkorb[AT]sco.com> {
 	Improved autogen.sh script
 }
 
-Jose Pedro Oliveira <jpo[AT]di.uminho.pt> {
+Jose Pedro Oliveira     <jpo[AT]di.uminho.pt> {
 	DHCP enhancements
 }
 
-David Frascone <dave[AT]frascone.com> {
+David Frascone          <dave[AT]frascone.com> {
 	DIAMETER support
 	Bug fixes and enhancements to Mobile IP
 	Support for Mobile IP's use of ICMP Router Advertisements
@@ -477,44 +477,44 @@ David Frascone <dave[AT]frascone.com> {
 	LWAPP support
 }
 
-Peter Kjellerstedt <pkj[AT]axis.com> {
+Peter Kjellerstedt      <pkj[AT]axis.com> {
 	SRVLOC fixes
 	ICQ enhancements
 	autogen.sh fixes
 }
 
-Phil Techau <phil_t[AT]altavista.net> {
+Phil Techau             <phil_t[AT]altavista.net> {
 	Added "col_append_str()"
 	Signed integer support in display filters and in the protocol tree
 	BOOTP fixes
 	Additional NTP reference clock identifiers
 }
 
-Wes Hardaker <hardaker[AT]users.sourceforge.net> {
+Wes Hardaker            <hardaker[AT]users.sourceforge.net> {
 	Kerberos 5 support
 	occasional ucd-snmp/net-snmp help.
 }
 
-Robert Tsai <rtsai[AT]netapp.com> {
+Robert Tsai             <rtsai[AT]netapp.com> {
 	Rsh support
 	Support for embedded newlines in SDP fields
 	Support for leading LWS in RTSP headers
 }
 
-Craig Metz <cmetz[AT]inner.net> {
+Craig Metz              <cmetz[AT]inner.net> {
 	OSPF type 7 LSA dissection
 }
 
-Per Flock <per.flock[AT]axis.com> {
+Per Flock               <per.flock[AT]axis.com> {
 	A6 and DNAME resource record support
 	RFC 2673 bitstring label support
 }
 
-Jack Keane <jkeane[AT]OpenReach.com> {
+Jack Keane              <jkeane[AT]OpenReach.com> {
 	ISAKMP fixes to handle malformed packets
 }
 
-Brian Wellington <bwelling[AT]xbill.org> {
+Brian Wellington        <bwelling[AT]xbill.org> {
 	Support for DNS CERT, KX, TSIG, and TKEY records
 	Support for NOTIFY and UPDATE DNS opcodes
 	Support for YXDOMAIN, YXRRSSET, NXRRRSET, NOTAUTH, NOTZONE, and
@@ -522,51 +522,51 @@ Brian Wellington <bwelling[AT]xbill.org> {
 	Partial support for DNS-over-TCP
 }
 
-Santeri Paavolainen <santtu[AT]ssh.com> {
+Santeri Paavolainen     <santtu[AT]ssh.com> {
 	"Capture->Stop" menu bar item
 	Improved capture statistics box
 	Make doc/Makefile.am work in POSIXLY_CORRECT environment
 	Mobile IPv6 fixes
 }
 
-Ulrich Kiermayr <uk[AT]ap.univie.ac.at> {
+Ulrich Kiermayr         <uk[AT]ap.univie.ac.at> {
 	ECN Extension support
 }
 
-Neil Hunter <neil.hunter[AT]energis-squared.com> {
+Neil Hunter             <neil.hunter[AT]energis-squared.com> {
 	WAP support
 }
 
-Ralf Holzer <ralf[AT]well.com> {
+Ralf Holzer             <ralf[AT]well.com> {
 	AIM/OSCAR support
 }
 
-Craig Rodrigues <rodrigc [AT] attbi.com> {
+Craig Rodrigues         <rodrigc [AT] attbi.com> {
 	GIOP 1.2 support and other GIOP enhancements
 	Handle current versions of RPM, which compress man pages
 	Real-time CORBA priority value support
 }
 
-Ed Warnicke <hagbard[AT]physics.rutgers.edu> {
+Ed Warnicke             <hagbard[AT]physics.rutgers.edu> {
 	MGCP dissector plugin
 	PCLI ( Packet Cable Lawful Intercept ) dissector plugin
 }
 
-Johan Jorgensen <johan.jorgensen[AT]axis.com> {
+Johan Jorgensen         <johan.jorgensen[AT]axis.com> {
 	IEEE 802.11 support
 }
 
-Frank Singleton <frank.singleton[AT]ericsson.com> {
+Frank Singleton         <frank.singleton[AT]ericsson.com> {
 	Short integer CDR support for GIOP
 	Support for protocols running atop GIOP
 	GIOP CosNaming support
 }
 
-Kevin Shi <techishi[AT]ms22.hinet.net> {
+Kevin Shi               <techishi[AT]ms22.hinet.net> {
 	GVRP support
 }
 
-Mike Frisch <mfrisch[AT]isurfer.ca> {
+Mike Frisch             <mfrisch[AT]isurfer.ca> {
 	NFSv4 support
 	HCLNFSD support
 	rquota support
@@ -577,28 +577,28 @@ Mike Frisch <mfrisch[AT]isurfer.ca> {
 	NFS_ACL support
 }
 
-Burke Lau <burke_lau[AT]agilent.com> {
+Burke Lau               <burke_lau[AT]agilent.com> {
 	PPP FCS checking
 	Cisco HDLC support in PPP dissector
 	MPLS-over-PPP support
 }
 
-Martti Kuparinen <martti.kuparinen[AT]iki.fi> {
+Martti Kuparinen        <martti.kuparinen[AT]iki.fi> {
 	Mobile IPv6 support
 	HMIPv6 support
 }
 
-David Hampton <dhampton[AT]mac.com> {
+David Hampton           <dhampton[AT]mac.com> {
 	Support for HTTP methods added by GENA (the uPnP protocol)
 	Support for the HTTP-based SSDP protocol
 	"Decode As" dialog
 }
 
-Kent Engström <kent[AT]unit.liu.se> {
+Kent Engström           <kent[AT]unit.liu.se> {
 	CDP VTP Management Domain item support
 }
 
-Ronnie Sahlberg <ronnie_sahlberg[AT]ozemail.com.au> {
+Ronnie Sahlberg         <ronnie_sahlberg[AT]ozemail.com.au> {
 	NLM dissector enhancements
 	Mount dissector enhancements
 	Support for status monitor protocol and status monitor callback
@@ -650,37 +650,37 @@ Ronnie Sahlberg <ronnie_sahlberg[AT]ozemail.com.au> {
 	PacketCable protocol
 }
 
-Borosa Tomislav <tomislav.borosa[AT]SIEMENS.HR> {
+Borosa Tomislav         <tomislav.borosa[AT]SIEMENS.HR> {
 	Updates to mobile IPv6
 }
 
-Alexandre P. Ferreira <alexandref[AT]tcoip.com.br> {
+Alexandre P. Ferreira   <alexandref[AT]tcoip.com.br> {
 	WTLS support
 	WSP fixes and enhancements
 }
 
-Simharajan Srishylam <Simharajan.Srishylam[AT]netapp.com> {
+Simharajan Srishylam    <Simharajan.Srishylam[AT]netapp.com> {
 	Assorted WCCP2 enhancements
 	ICAP support
 }
 
-Greg Kilfoyle <gregk[AT]redback.com> {
+Greg Kilfoyle           <gregk[AT]redback.com> {
 	BOOTP option 82 (Relay Agent Information option) support
 }
 
-James E. Flemer <jflemer[AT]acm.jhu.edu> {
+James E. Flemer         <jflemer[AT]acm.jhu.edu> {
 	Hidden Boolean fields set if the IP or ICMP checksums are bad
 }
 
-Peter Lei <peterlei[AT]cisco.com> {
+Peter Lei               <peterlei[AT]cisco.com> {
 	RFC 3024 reverse tunneling support for the Mobile IP dissector
 }
 
-Thomas Gimpel <thomas.gimpel[AT]ferrari.de> {
+Thomas Gimpel           <thomas.gimpel[AT]ferrari.de> {
 	Fixes to the Q.931 dissector
 }
 
-Albert Chin <china[AT]thewrittenword.com> {
+Albert Chin             <china[AT]thewrittenword.com> {
 	Fixes to Lemon to get it to compile on platforms (such as some
 	    versions of Tru64 UNIX) that define TRUE and FALSE
 	Fixes for various non-GCC compiler warnings
@@ -690,36 +690,36 @@ Albert Chin <china[AT]thewrittenword.com> {
 	Autoconf/automake cleanups
 }
 
-Charles Levert <charles[AT]comm.polymtl.ca> {
+Charles Levert          <charles[AT]comm.polymtl.ca> {
 	CUPS browsing protocol support
 }
 
-Todd Sabin <tas[AT]webspan.net> {
+Todd Sabin              <tas[AT]webspan.net> {
 	DCE RPC support
 	Cleaned up "get_column_format_matches()"
 	Skeleton NSPI dissector
 }
 
-Eduardo Pérez Ureta <eperez[AT]dei.inf.uc3m.es> {
+Eduardo Pérez Ureta     <eperez[AT]dei.inf.uc3m.es> {
 	GUI fixes
 }
 
-Martin Thomas <martin_a_thomas[AT]yahoo.com> {
+Martin Thomas           <martin_a_thomas[AT]yahoo.com> {
 	Support for TPKT being used for its original purpose (TCP port
 	    102, containing OSI transport layer PDUs)
 	Handle address lengths based on TOA bit in X.25
 }
 
-Hartmut Mueller <hartmut[AT]wendolene.ping.de> {
+Hartmut Mueller         <hartmut[AT]wendolene.ping.de> {
 	BACNET support
 }
 
-Michal Melerowicz <Michal.Melerowicz[AT]nokia.com> {
+Michal Melerowicz       <Michal.Melerowicz[AT]nokia.com> {
 	GTP support
 	GTPv1 support and GTPv0 improvements
 }
 
-Hannes Gredler <hannes[AT]juniper.net> {
+Hannes Gredler          <hannes[AT]juniper.net> {
 	OSI network layer over PPP support
 	Many IS-IS enhancements
 	Juniper Networks vendor ID in RADIUS dissector
@@ -734,11 +734,11 @@ Hannes Gredler <hannes[AT]juniper.net> {
 	Bi-directional Fault Detection (BFD) support
 }
 
-Inoue <inoue[AT]ainet.or.jp> {
+Inoue                   <inoue[AT]ainet.or.jp> {
 	Preference dialog crash fix
 }
 
-Olivier Biot <ethereal[AT]tiscali.be> {
+Olivier Biot            <ethereal[AT]tiscali.be> {
 	Various WTP fixes and enhancements
 	Rewrite of much of WSP
 	WBXML/WMLC support
@@ -756,24 +756,24 @@ Olivier Biot <ethereal[AT]tiscali.be> {
 	Generic media dissector (in analogy to the data dissector)
 }
 
-Patrick Wolfe <pjw[AT]zocalo.cellular.ameritech.com> {
+Patrick Wolfe           <pjw[AT]zocalo.cellular.ameritech.com> {
 	WTLS client and trusted key ID handling enhancements
 }
 
-Martin Held <Martin.Held[AT]icn.siemens.de> {
+Martin Held             <Martin.Held[AT]icn.siemens.de> {
 	RANAP support
 }
 
-Riaan Swart <rswart[AT]cs.sun.ac.za> {
+Riaan Swart             <rswart[AT]cs.sun.ac.za> {
 	Modbus/TCP support
 }
 
-Christian Lacunza <celacunza[AT]gmx.net> {
+Christian Lacunza       <celacunza[AT]gmx.net> {
 	Command-line option to control automatic scrolling in "Update
 	    list of packets in real time" captures
 }
 
-Scott Renfro <scott[AT]renfro.org> {
+Scott Renfro            <scott[AT]renfro.org> {
 	LDAP checks for invalid packets
 	"-t" flag for editcap, to adjust timestamps in frames
 	SSL/TLS support
@@ -783,7 +783,7 @@ Scott Renfro <scott[AT]renfro.org> {
 	   example)
 }
 
-Juan Toledo <toledo[AT]users.sourceforge.net> {
+Juan Toledo             <toledo[AT]users.sourceforge.net> {
 	Passive FTP support
 }
 
@@ -795,15 +795,15 @@ Jean-Christian Pennetier <jeanchristian.pennetier[AT]rd.francetelecom.fr> {
 	Assorted other ISIS fixes
 }
 
-Jian Yu <bgp4news[AT]yahoo.com> {
+Jian Yu                 <bgp4news[AT]yahoo.com> {
 	BGP enhancements
 }
 
-Eran Mann <emann[AT]opticalaccess.com> {
+Eran Mann               <emann[AT]opticalaccess.com> {
 	Fix to LDP prefix FEC dissection for IPv4
 }
 
-Andy Hood <ajhood [AT] fl.net.au> {
+Andy Hood               <ajhood [AT] fl.net.au> {
 	"--with-ssl" configuration option, to use if UCD SNMP is
 	   compiled with crypto support and needs -lcrypto
 	On Solaris, with GCC, add flags to reduce warnings from
@@ -812,28 +812,28 @@ Andy Hood <ajhood [AT] fl.net.au> {
 	AODV6 dissector compile fixes for AIX
 }
 
-Randy McEoin <rmceoin[AT]pe.net> {
+Randy McEoin            <rmceoin[AT]pe.net> {
 	Appletalk Data Stream Interface (used by AFP-over-TCP) support
 	Xyplex protocol support
 }
 
-Edgar Iglesias <edgar.iglesias[AT]axis.com> {
+Edgar Iglesias          <edgar.iglesias[AT]axis.com> {
 	Fix to TCP reassembly code for retransmitted data
 }
 
-Martina Obermeier <Martina.Obermeier[AT]icn.siemens.de> {
+Martina Obermeier       <Martina.Obermeier[AT]icn.siemens.de> {
 	ISUP (ISDN User Part, ITU-T recommendation Q.763) support
 }
 
-Javier Achirica <achirica[AT]ttd.net> {
+Javier Achirica         <achirica[AT]ttd.net> {
 	IEEE 802.11 bug fixes and WEP support
 }
 
-B. Johannessen <bob[AT]havoq.com> {
+B. Johannessen          <bob[AT]havoq.com> {
 	Gnutella support
 }
 
-Thierry Pelle <thierry.pelle[AT]laposte.net> {
+Thierry Pelle           <thierry.pelle[AT]laposte.net> {
 	MP-BGP message support
 	Redback vendor-specific items for RADIUS and L2TP
 	IPv6CP support
@@ -843,7 +843,7 @@ Francisco Javier Cabello <fjcabello[AT]vtools.es> {
 	RFC 2250 MPEG1 support
 }
 
-Laurent Rabret <laurent.rabret[AT]rd.francetelecom.fr> {
+Laurent Rabret          <laurent.rabret[AT]rd.francetelecom.fr> {
 	LCP-over Ethernet and IPCP-over-Ethernet support (to handle
 	    captures on Windows; PPP packets show up as Ethernet
 	    packets, courtesy of NDISWAN, and apparently internal-to-PPP
@@ -854,11 +854,11 @@ Laurent Rabret <laurent.rabret[AT]rd.francetelecom.fr> {
 	ISIS fixes and enhancements
 }
 
-nuf si <gnippiks[AT]yahoo.com> {
+nuf si                  <gnippiks[AT]yahoo.com> {
 	RTSP fixes
 }
 
-Jeff Morriss <jeff.morriss[AT]ulticom.com> {
+Jeff Morriss            <jeff.morriss[AT]ulticom.com> {
 	M2PA support
 	Support for ANSI flavor of MTP3
 	SCCP support
@@ -869,7 +869,7 @@ Jeff Morriss <jeff.morriss[AT]ulticom.com> {
 	ISUP tweaks
 }
 
-Aamer Akhter <aakhter[AT]cisco.com> {
+Aamer Akhter            <aakhter[AT]cisco.com> {
 	Support for draft-rosen-vpn-ospf-bgp-mpls
 	Support for additional BGP extended communities
 	LDP support for draft-martini-l2circuit-trans-mpls, LDP status
@@ -880,27 +880,27 @@ Aamer Akhter <aakhter[AT]cisco.com> {
 	LDP PWE updates
 }
 
-Pekka Savola <pekkas[AT]netcore.fi> {
+Pekka Savola            <pekkas[AT]netcore.fi> {
 	Autoconf support for glibc IPv6 support
 }
 
-David Eisner <cradle[AT]Glue.umd.edu> {
+David Eisner            <cradle[AT]Glue.umd.edu> {
 	NCP-over-IP bug fix
 }
 
-Steve Dickson <steved[AT]talarian.com> {
+Steve Dickson           <steved[AT]talarian.com> {
 	PGM (Pragmatic General Multicast) support
 }
 
-Markus Seehofer <mseehofe[AT]nt.hirschmann.de> {
+Markus Seehofer         <mseehofe[AT]nt.hirschmann.de> {
 	GMRP support
 }
 
-Lee Berger <lberger[AT]roy.org> {
+Lee Berger              <lberger[AT]roy.org> {
 	Fix to FT_UINT_STRING handling
 }
 
-Motonori Shindo <mshindo[AT]mshindo.net> {
+Motonori Shindo         <mshindo[AT]mshindo.net> {
 	Shiva PAP, EAP, and CBCP negotiation in LCP Callback Operation
 	    support in PPP dissector
 	Support for decoding additional data, for CHAP, in LCP
@@ -932,15 +932,15 @@ Motonori Shindo <mshindo[AT]mshindo.net> {
 	Key Information dissection in EAPOL-Key messages
 }
 
-Terje Krogdahl <tekr[AT]nextra.com> {
+Terje Krogdahl          <tekr[AT]nextra.com> {
 	Additional AVPs, and Event-Timestamp support, in RADIUS
 }
 
-Jean-Francois Mule <jfm[AT]cablelabs.com> {
+Jean-Francois Mule      <jfm[AT]cablelabs.com> {
 	Additional SIP methods
 }
 
-Thomas Wittwer <thomas.wittwer[AT]iclip.ch> {
+Thomas Wittwer          <thomas.wittwer[AT]iclip.ch> {
 	HTTP dissector registered by name
 	"prefs_register_string_preference()" made available to plugins
 	Remove unnecessary calls to "prefs_module_foreach()"
@@ -948,20 +948,20 @@ Thomas Wittwer <thomas.wittwer[AT]iclip.ch> {
 	    capture duration
 }
 
-Matthias Nyffenegger <matthias.nyffenegger[AT]iclip.ch> {
+Matthias Nyffenegger    <matthias.nyffenegger[AT]iclip.ch> {
 	Support for stopping capture at specified capture file size or
 	    capture duration
 }
 
-Palle Lyckegaard <Palle[AT]lyckegaard.dk> {
+Palle Lyckegaard        <Palle[AT]lyckegaard.dk> {
 	OSPFv3 support
 }
 
-Nicolas Balkota <balkota[AT]mac.com> {
+Nicolas Balkota         <balkota[AT]mac.com> {
 	GTPv1 support and GTPv0 improvements
 }
 
-Tom Uijldert <Tom.Uijldert[AT]cmg.nl> {
+Tom Uijldert            <Tom.Uijldert[AT]cmg.nl> {
 	WTP fixes
 	MMSE support
 	Push-traffic dissecting for WSP/WTLS
@@ -972,7 +972,7 @@ Tom Uijldert <Tom.Uijldert[AT]cmg.nl> {
 	WTP TPI dissection
 }
 
-Akira Endoh <endoh[AT]netmarks.co.jp> {
+Akira Endoh             <endoh[AT]netmarks.co.jp> {
 	Support for dissecting multiple BGP capabilities
 	Sync PPP protocol names with the IANA database
 	MPLSCP, CDPCP, and CDP over PPP support
@@ -985,7 +985,7 @@ Akira Endoh <endoh[AT]netmarks.co.jp> {
 	IGAP support
 }
 
-Graeme Hewson <graeme.hewson[AT]oracle.com> {
+Graeme Hewson           <graeme.hewson[AT]oracle.com> {
 	Additional Ascend codes, and IETF codes, for Radius
 	Fix various capture problems
 	Add some sanity checks to DNS dissector to avoid loops
@@ -994,14 +994,14 @@ Graeme Hewson <graeme.hewson[AT]oracle.com> {
 	Make dialog box pop up only after a minimum period of time
 }
 
-Pasi Eronen <pe[at]iki.fi> {
+Pasi Eronen             <pe[at]iki.fi> {
 	Patches to the dcerpc dissector for data representation decoding
 	XDMCP support
 	Support for PCT cipher suites and record layer in SSL
 	Dissect the packet inside an LCP Protocol-Reject message
 }
 
-Georg von Zezschwitz <gvz[AT]2scale.net> {
+Georg von Zezschwitz    <gvz[AT]2scale.net> {
 	WSP fixes
 	Support for concatenated PDUs
 	Put URL of WSP GET/POST in the Info column
@@ -1009,33 +1009,33 @@ Georg von Zezschwitz <gvz[AT]2scale.net> {
 	Implement attributes of WSP Suspend/Resume
 }
 
-Steffen Weinreich <steve[AT]weinreich.org> {
+Steffen Weinreich       <steve[AT]weinreich.org> {
 	UCP fixes
 }
 
-Marc Milgram <mmilgram[AT]arrayinc.com> {
+Marc Milgram            <mmilgram[AT]arrayinc.com> {
 	VMS TCPIPtrace wiretap module
 	DBS Etherwatch wiretap module
 }
 
-Gordon McKinney <gordon[AT]night-ray.com> {
+Gordon McKinney         <gordon[AT]night-ray.com> {
 	Enhanced Ethereal icon for Windows
 	Support for time stamping packets in text2pcap
 	Fix to text2pcap to handle colons after offset field
 	Make IP-over-PPP work with the TCP graph code
 }
 
-Pavel Novotny <Pavel.Novotny[AT]icn.siemens.de> {
+Pavel Novotny           <Pavel.Novotny[AT]icn.siemens.de> {
 	Additional items for RADIUS tunnels
 }
 
-Shinsuke Suzuki <suz[AT]kame.net> {
+Shinsuke Suzuki         <suz[AT]kame.net> {
 	DHCPv6 and PIM enhancements
 	IPv6 payload for GRE
 	MLDv2 enhancements
 }
 
-Andrew C. Feren <aferen[AT]cetacean.com> {
+Andrew C. Feren         <aferen[AT]cetacean.com> {
 	Makefile fix
 	Solaris packaging fixes
 	Add ifdefs to the top-level Makefile.nmake to avoid using
@@ -1046,7 +1046,7 @@ Andrew C. Feren <aferen[AT]cetacean.com> {
 	    "Interface:" on Windows
 }
 
-Tomas Kukosa <tomas.kukosa [AT] siemens.com> {
+Tomas Kukosa            <tomas.kukosa [AT] siemens.com> {
 	Additional routines made available to plugins
 	Support in Wiretap for DLT_HHDLC
 	Fix to summary-printing code to handle reallocated line buffer
@@ -1054,18 +1054,18 @@ Tomas Kukosa <tomas.kukosa [AT] siemens.com> {
 	Reassembly of segmented Q.931 messages
 }
 
-Andreas Stockmeier <a.stockmeier[AT]avm.de> {
+Andreas Stockmeier      <a.stockmeier[AT]avm.de> {
 	IPCOMP transformation and ID_IPV4_ADDR_SUBNET for ISAKMP
 	Fix the file dialog box code to use "g_strdup()", not "strdup()"
 	    to copy strings
 }
 
-Pekka Nikander <pekka.nikander[AT]nomadiclab.com> {
+Pekka Nikander          <pekka.nikander[AT]nomadiclab.com> {
 	IEEE 802.1x, a/k/a EAPOL
 	PPP/EAPOL EAP support
 }
 
-Hamish Moffatt <hamish[AT]cloud.net.au> {
+Hamish Moffatt          <hamish[AT]cloud.net.au> {
 	MPLS support for handling either IPv4 or IPv6 as the payload
 	    protocol type
 	Win32 Makefile fixes
@@ -1073,12 +1073,12 @@ Hamish Moffatt <hamish[AT]cloud.net.au> {
 	Fix ethereal.nsi.in for recent versions of NSIS
 }
 
-Kazushi Sugyo <k-sugyou[AT]nwsl.mesh.ad.jp> {
+Kazushi Sugyo           <k-sugyou[AT]nwsl.mesh.ad.jp> {
 	Fix to display of AH length field
 	Fix to code to scan the SIOCGIFCONF list
 }
 
-Tim Potter <tpot[AT]samba.org> {
+Tim Potter              <tpot[AT]samba.org> {
 	Support for DCE RPC atop SMB
 	Support for several Microsoft DCE RPC services used with SMB
 	Added code to call request and reply subdissectors in DCE RPC
@@ -1091,32 +1091,32 @@ Tim Potter <tpot[AT]samba.org> {
 	NT SID dissection
 }
 
-Raghu Angadi <rangadi[AT]inktomi.com> {
+Raghu Angadi            <rangadi[AT]inktomi.com> {
 	WCCP capability info dissection bug fix
 }
 
-Taisuke Sasaki <sasaki[AT]soft.net.fujitsu.co.jp> {
+Taisuke Sasaki          <sasaki[AT]soft.net.fujitsu.co.jp> {
 	OSPF fixes
 }
 
-Tim Newsham <newsham[AT]lava.net> {
+Tim Newsham             <newsham[AT]lava.net> {
 	Support for 802.11+Prism II monitor-mode link-layer headers
 }
 
-Tom Nisbet <Tnisbet[AT]VisualNetworks.com> {
+Tom Nisbet              <Tnisbet[AT]VisualNetworks.com> {
 	Support for reading Visual Networks traffic capture files
 	SLIMP3 protocol version 2 support
 }
 
-Darren New <dnew[AT]san.rr.com> {
+Darren New              <dnew[AT]san.rr.com> {
 	BXXP dissector modified to be a BEEP dissector
 }
 
-Pavel Mores <pvl[AT]uh.cz> {
+Pavel Mores             <pvl[AT]uh.cz> {
 	TCP time-sequence, round-trip time, and throughput graphs
 }
 
-Bernd Becker <bb[AT]bernd-becker.de> {
+Bernd Becker            <bb[AT]bernd-becker.de> {
 	Support for LOCATION_FORWARD, LOCATION_FORWARD_PERM and
 	    NEEDS_ADDRESSING_MODE replies in GIOP
 	ethereal_gen.py cleanups
@@ -1126,20 +1126,20 @@ Bernd Becker <bb[AT]bernd-becker.de> {
 	GIOP fixes
 }
 
-Heinz Prantner <Heinz.Prantner[AT]radisys.com> {
+Heinz Prantner          <Heinz.Prantner[AT]radisys.com> {
 	M2TP support
 }
 
-Irfan Khan <ikhan[AT]qualcomm.com> {
+Irfan Khan              <ikhan[AT]qualcomm.com> {
 	pppdump reader fixes
 	Van Jacobson decompression support for PPP
 }
 
-Jayaram V.R <vjayar[AT]cisco.com> {
+Jayaram V.R             <vjayar[AT]cisco.com> {
 	PPP multiplexing support
 }
 
-Dinesh Dutt <ddutt[AT]cisco.com> {
+Dinesh Dutt             <ddutt[AT]cisco.com> {
 	SCSI dissector, for use by iSCSI and other protocols that
 	    transport SCSI operations
 	Fibre Channel (over IP) support, and support for various
@@ -1149,11 +1149,11 @@ Dinesh Dutt <ddutt[AT]cisco.com> {
 	Cisco MDS switch internal FC-inside-Ethernet dissector
 }
 
-Nagarjuna Venna <nvenna[AT]Brixnet.com> {
+Nagarjuna Venna         <nvenna[AT]Brixnet.com> {
 	Only display the reason in BYE RTCP packets if it's present
 }
 
-Jirka Novak <j.novak[AT]netsystem.cz> {
+Jirka Novak             <j.novak[AT]netsystem.cz> {
 	Support for generating filter expressions based on packet list
 	    column values
 	Support for adding filter expressions generated from column or
@@ -1163,38 +1163,38 @@ Jirka Novak <j.novak[AT]netsystem.cz> {
 	    hex and ASCII data
 }
 
-Ricardo Barroetaveña <rbarroetavena[AT]veufort.com> {
+Ricardo Barroetaveña    <rbarroetavena[AT]veufort.com> {
 	Enhanced LDP support
 	Support TCP reassembly requiring multiple steps (e.g.,
 	    reassemble the PDU header to get the length of the PDU, then
 	    reassemble the PDU based on that length)
 }
 
-Alan Harrison <alanharrison[AT]mail.com> {
+Alan Harrison           <alanharrison[AT]mail.com> {
 	Fixes to EtherPeek file reader code
 }
 
-Mike Frantzen <frantzen[AT]w4g.org> {
+Mike Frantzen           <frantzen[AT]w4g.org> {
 	Support for capturing on, and reading captures from, OpenBSD
 	    firewall logging virtual interface
 }
 
-Charlie Duke <cduke[AT]fvc.com> {
+Charlie Duke            <cduke[AT]fvc.com> {
 	Added routines to the plugin table
 }
 
-Alfred Arnold <Alfred.Arnold[AT]elsa.de> {
+Alfred Arnold           <Alfred.Arnold[AT]elsa.de> {
 	IAPP support
 }
 
-Dermot Bradley <dermot.bradley[AT]openwave.com> {
+Dermot Bradley          <dermot.bradley[AT]openwave.com> {
 	Support for Openwave-specific WSP headers
 	Support for Openwave-specific WSP field names
 	Support for additional WSP content types from Openwave
 	Support for additional WSP language values
 }
 
-Adam Sulmicki <adam[AT]cfar.umd.edu> {
+Adam Sulmicki           <adam[AT]cfar.umd.edu> {
 	Add more type values for EAP.
 	Fix off-by-one bug when displaying Code of EAP message.
 	Additional AVPs for RADIUS, and making RD_TP_CONNECT_INFO a
@@ -1206,27 +1206,27 @@ Adam Sulmicki <adam[AT]cfar.umd.edu> {
 	Other EAP enhancements
 }
 
-Kari Tiirikainen <kari.tiirikainen[AT]nokia.com> {
+Kari Tiirikainen        <kari.tiirikainen[AT]nokia.com> {
 	COPS-PR extension support
 	Support for reading MIBs containing converted PIBs in COPS
 	    dissector
 }
 
-John Mackenzie <John.A.Mackenzie[AT]t-online.de> {
+John Mackenzie          <John.A.Mackenzie[AT]t-online.de> {
 	Put missing initializations of table entries in "plugins.c"
 	Register GIOP dissector as a UDP heuristic dissector
 }
 
-Peter Valchev <pvalchev[AT]openbsd.org> {
+Peter Valchev           <pvalchev[AT]openbsd.org> {
 	Fix editcap to assign the result of "getopt()" to an "int" and
 	   to check "getopt()"s return value with -1 rather than EOF
 }
 
-Alex Rozin <Arozin[AT]mrv.com> {
+Alex Rozin              <Arozin[AT]mrv.com> {
 	Support for IEEE 802.1w RST BPDUs
 }
 
-Jouni Malinen <jkmaline[AT]cc.hut.fi> {
+Jouni Malinen           <jkmaline[AT]cc.hut.fi> {
 	802.11 authentication frame dissection bug fix
 	Fix offset of challenge element in 802.11 dissector
 	Show fragmented 802.11 frames as fragments
@@ -1235,38 +1235,38 @@ Jouni Malinen <jkmaline[AT]cc.hut.fi> {
 	802.11i enhancements
 }
 
-Paul E. Erkkila <pee[AT]erkkila.org> {
+Paul E. Erkkila         <pee[AT]erkkila.org> {
 	Skinny Client Control Protocol enhancements
 }
 
-Jakob Schlyter <jakob[AT]openbsd.org> {
+Jakob Schlyter          <jakob[AT]openbsd.org> {
 	SIP method additions
 }
 
-Jim Sienicki <sienicki[AT]issanni.com> {
+Jim Sienicki            <sienicki[AT]issanni.com> {
 	Additional vendor (Issani) for Radius
 	Issani VSA support for Radius
 }
 
-Steven French <sfrench[AT]us.ibm.com> {
+Steven French           <sfrench[AT]us.ibm.com> {
 	Add names for some additional spool service RPCs
 	Decode NT Rename SMB
 }
 
-Diana Eichert <deicher[AT]sandia.gov> {
+Diana Eichert           <deicher[AT]sandia.gov> {
 	"-q" flag to Tethereal to suppress packet count display
 }
 
-Blair Cooper <blair[AT]teamon.com> {
+Blair Cooper            <blair[AT]teamon.com> {
 	WebDAV support
 }
 
-Kikuchi Ayamura <ayamura[AT]ayamura.org> {
+Kikuchi Ayamura         <ayamura[AT]ayamura.org> {
 	Include <ucd-snmp/ucd-snmp-config.h> to fix IRIX compilation
 	    problems
 }
 
-Didier Gautheron <dgautheron[AT]magic.fr> {
+Didier Gautheron        <dgautheron[AT]magic.fr> {
 	X11 bug fix
 	AppleTalk Transaction Protocol, AppleTalk Stream Protocol, and
 	    AppleTalk Filing Protocol support
@@ -1286,19 +1286,19 @@ Didier Gautheron <dgautheron[AT]magic.fr> {
 	Don't update the progress bar too often (only every 100ms)
 }
 
-Phil Williams <csypbw[AT]comp.leeds.ac.uk> {
+Phil Williams           <csypbw[AT]comp.leeds.ac.uk> {
 	Support for looking up fields by name
 }
 
-Kevin Humphries <khumphries[AT]networld.com> {
+Kevin Humphries         <khumphries[AT]networld.com> {
 	Additional PIM hello options support
 }
 
-Erik Nordström <erik.nordstrom[AT]it.uu.se> {
+Erik Nordström          <erik.nordstrom[AT]it.uu.se> {
 	AODV dissection support
 }
 
-Devin Heitmueller <dheitmueller[AT]netilla.com> {
+Devin Heitmueller       <dheitmueller[AT]netilla.com> {
 	Additional RAP error code
 	Give the user a warning if they click "New" in the filter list
 	    editing code without having specified a filter name and string
@@ -1319,24 +1319,24 @@ Devin Heitmueller <dheitmueller[AT]netilla.com> {
 	YMSG desegmentation
 }
 
-Chenjiang Hu <chu[AT]chiaro.com> {
+Chenjiang Hu            <chu[AT]chiaro.com> {
 	ISIS bug fix for dissecting unreserved bandwidths
 }
 
-Kan Sasaki <sasaki[AT]fcc.ad.jp> {
+Kan Sasaki              <sasaki[AT]fcc.ad.jp> {
 	VSA decoding and other changes to RADIUS
 }
 
-Stefan Wenk <stefan.wenk[AT]gmx.at> {
+Stefan Wenk             <stefan.wenk[AT]gmx.at> {
 	SIP heuristic dissector
 	Filterable header fields in SIP dissector
 }
 
-Ruud Linders <ruud[AT]lucent.com> {
+Ruud Linders            <ruud[AT]lucent.com> {
 	Report errors from "g_module_open()"
 }
 
-Andrew Esh <Andrew.Esh[AT]tricord.com> {
+Andrew Esh              <Andrew.Esh[AT]tricord.com> {
 	Support for additional interest levels in
 	    TRANS2_QUERY_FS_INFORMATION, and fix handling of level 1022
 	    to treat the file name as always being in Unicode
@@ -1344,59 +1344,59 @@ Andrew Esh <Andrew.Esh[AT]tricord.com> {
 	Typo fix in iSCSI dissector
 }
 
-Greg Morris <GMORRIS[AT]novell.com> {
+Greg Morris             <GMORRIS[AT]novell.com> {
 	NCP - NetWare Core Protocol
 	NDPS - Novell Distributed Print System
 	"Find Frame" code to search for text or binary data
 	SRVLOC-over-TCP support
 }
 
-Dirk Steinberg <dws[AT]dirksteinberg.de> {
+Dirk Steinberg          <dws[AT]dirksteinberg.de> {
 	Fixes to BGP problems
 }
 
-Kari Heikkila <kari.o.heikkila[AT]nokia.com> {
+Kari Heikkila           <kari.o.heikkila[AT]nokia.com> {
 	Fix for WTP PDUs not containing user data
 }
 
-Olivier Dreux <Olivier.Dreux[AT]alcatel.fr> {
+Olivier Dreux           <Olivier.Dreux[AT]alcatel.fr> {
 	Add PPP support to GTP
 }
 
-Michael Stiller <ms[AT]2scale.net> {
+Michael Stiller         <ms[AT]2scale.net> {
 	Java RMI protocol support
 }
 
-Antti Tuominen <ajtuomin[AT]tml.hut.fi> {
+Antti Tuominen          <ajtuomin[AT]tml.hut.fi> {
 	AODV6 support
 }
 
-Martin Gignac <lmcgign[AT]mobilitylab.net> {
+Martin Gignac           <lmcgign[AT]mobilitylab.net> {
 	Various MMSE fixes
 }
 
-John Wells <wells[AT]ieee.org> {
+John Wells              <wells[AT]ieee.org> {
 	MIP fix.
 }
 
-Loic Tortay <tortay[AT]cc.in2p3.fr> {
+Loic Tortay             <tortay[AT]cc.in2p3.fr> {
 	Display AFS KAUTH information
 }
 
-Steve Housley <Steve_Housley[AT]eur.3com.com> {
+Steve Housley           <Steve_Housley[AT]eur.3com.com> {
 	802.3ad LACP support
 }
 
-Peter Hawkins <peter[AT]hawkins.emu.id.au> {
+Peter Hawkins           <peter[AT]hawkins.emu.id.au> {
 	Various bounds-check fixes
 }
 
-Bill Fumerola <billf[AT]FreeBSD.org> {
+Bill Fumerola           <billf[AT]FreeBSD.org> {
 	Recognize "Option negotiated failed" error in TFTP
 	Rewritten Cisco NetFlow protocol support
 }
 
-Chris Waters <chris[AT]waters.co.nz> {
+Chris Waters            <chris[AT]waters.co.nz> {
 	Don't use "bool" as a variable name or structure member, as it's
 	    a C++ keyword
 	Check 802.11 FCS if present
@@ -1409,12 +1409,12 @@ Chris Waters <chris[AT]waters.co.nz> {
 	MSN Messenger support
 }
 
-Solomon Peachy <pizza[AT]shaftnet.org> {
+Solomon Peachy          <pizza[AT]shaftnet.org> {
 	WEP support and other mangling of the 802.11 dissector
 	Support for new "wlancap" 802.11 extra-information header
 }
 
-Jaime Fournier <Jaime.Fournier [AT] hush.com> {
+Jaime Fournier          <Jaime.Fournier [AT] hush.com> {
 	Handle DCE RPC connectionless CANCEL PDUs with no body
 	DCE/RPC stub dissectors for RSEC_LOGIN, RS_ACCT, RS_ATTR, RS_MISC, 
 		RS_PGO, RS_REPLIST, RS_UNIX, RPRIV, ROVERRIDE, RS_REPADM,
@@ -1428,20 +1428,20 @@ Jaime Fournier <Jaime.Fournier [AT] hush.com> {
 	DCE RPC EPM version 4 support
 }
 
-Markus Steinmann <ms[AT]seh.de> {
+Markus Steinmann        <ms[AT]seh.de> {
 	Add IPX SAP for SEH's InterCon Printserver
 	Support for writing LANalyzer files
 }
 
-Tsutomu Mieno <iitom[AT]utouto.com> {
+Tsutomu Mieno           <iitom[AT]utouto.com> {
 	DHCPv6 updates
 }
 
-Yasuhiro Shirasaki <yasuhiro[AT]gnome.gr.jp> {
+Yasuhiro Shirasaki      <yasuhiro[AT]gnome.gr.jp> {
 	DHCPv6 updates
 }
 
-Anand V. Narwani <anand[AT]narwani.org> {
+Anand V. Narwani        <anand[AT]narwani.org> {
 	gtk/Makefile.am fix
 	DOCSIS support, including support for "Ethernet" captures where
 	    the raw frame is a DOCSIS frame rather than an Ethernet
@@ -1454,76 +1454,76 @@ Christopher K. St. John <cks[AT]distributopia.com> {
 	Apache JServ Protocol v1.3 support
 }
 
-Nix <nix[AT]esperi.demon.co.uk> {
+Nix                     <nix[AT]esperi.demon.co.uk> {
 	Don't add "-I/usr/include" to CFLAGS or CPPFLAGS
 	Expand the plugin directory path at install time
 }
 
-Liviu Daia <Liviu.Daia[AT]imar.ro> {
+Liviu Daia              <Liviu.Daia[AT]imar.ro> {
 	Fix to eliminate crash when setting "column.format" preference
 	    from the command line
 }
 
-Richard Urwin <richard[AT]soronlin.org.uk> {
+Richard Urwin           <richard[AT]soronlin.org.uk> {
 	Developer documentation fixes and updates
 	Support for a system-wide color filter file and color filter
 	    import and export
 }
 
-Prabhakar Krishnan <Prabhakar.Krishnan[AT]netapp.com> {
+Prabhakar Krishnan      <Prabhakar.Krishnan[AT]netapp.com> {
 	Add item to SMB protocol tree for time between request and
 	    response
 	Dissect NetApp ONTAP file handles
 }
 
-Jim McDonough <jmcd[AT]us.ibm.com> {
+Jim McDonough           <jmcd[AT]us.ibm.com> {
 	Enhancements to SMB and the DCE RPC-based protocols used by SMB
 	NTLMSSP updates
 }
 
-Sergei Shokhor <sshokhor[AT]uroam.com> {
+Sergei Shokhor          <sshokhor[AT]uroam.com> {
 	Bugfix for EPM
 }
 
-Hidetaka Ogawa <ogawa[AT]bs2.qnes.nec.co.jp> {
+Hidetaka Ogawa          <ogawa[AT]bs2.qnes.nec.co.jp> {
 	Fix PPP FCS computation to include address and control field if
 	    present
 }
 
-Jan Kratochvil <short[AT]ucw.cz> {
+Jan Kratochvil          <short[AT]ucw.cz> {
 	Fix to MMSE handling of strings with specified character set
 }
 
-Alfred Koebler <ak[AT]icon-sult.de> {
+Alfred Koebler          <ak[AT]icon-sult.de> {
 	Support for interpreting Ethernet captures as CheckPoint
 	    FireWall-1 monitor files (those files look like snoop
 	    files for Ethernet)
 }
 
-Vassilii Khachaturov <Vassilii.Khachaturov[AT]comverse.com> {
+Vassilii Khachaturov    <Vassilii.Khachaturov[AT]comverse.com> {
 	Put protocol blurbs into tables generated with the "-G fields"
 	    flag
 }
 
-Bill Studenmund <wrstuden[AT]wasabisystems.com> {
+Bill Studenmund         <wrstuden[AT]wasabisystems.com> {
 	Fix handling of SCSI mode sense
 }
 
-Brian Bruns <camber[AT]ais.org> {
+Brian Bruns             <camber[AT]ais.org> {
 	TDS
 }
 
-Flavio Poletti <flavio[AT]polettix.it> {
+Flavio Poletti          <flavio[AT]polettix.it> {
 	Fix bug in decoding of maximum uplink and downlink rate in GTP
 	    v1
 	Handle 3GPP QoS in RADIUS messages
 }
 
-Marcus Haebler <haeblerm[AT]yahoo.com> {
+Marcus Haebler          <haeblerm[AT]yahoo.com> {
 	Handle a sub-protocol field of 0x00 as PPP
 }
 
-Ulf Lamping <ulf.lamping[AT]web.de> {
+Ulf Lamping             <ulf.lamping[AT]web.de> {
 	Put "bytes" after the byte counts for the frame sizes in the
 	    top-level item for the "Frame" protocol
 	Put the source and destination MAC addresses into the top-level
@@ -1539,33 +1539,33 @@ Ulf Lamping <ulf.lamping[AT]web.de> {
 	Redesign of the print dialog
 }
 
-Matthew Smart <smart[AT]monkey.org> {
+Matthew Smart           <smart[AT]monkey.org> {
 	Original Cisco NetFlow protocol support
 	Partial NetFlow V9 support
 }
 
-Luke Howard <lukeh[AT]au.padl.com> {
+Luke Howard             <lukeh[AT]au.padl.com> {
 	NETLOGON bugfix for LogonGetDomainInfo
 	Various NETLOGON fixes
 }
 
-PC Drew <drewpc[AT]ibsncentral.com> {
+PC Drew                 <drewpc[AT]ibsncentral.com> {
 	Dissector for the FIX protocol
 }
 
-Renzo Tomas <renzo.toma [AT] xs4all.nl> {
+Renzo Tomas             <renzo.toma [AT] xs4all.nl> {
 	Skinny bugfix for configStat and serverRes
 }
 
-Clive A Stubbings <eth [AT] vjet.demon.co.uk> {
+Clive A Stubbings       <eth [AT] vjet.demon.co.uk> {
 	802.1s Multiple Spanning Tree Protocol
 }
 
-Steve Langasek <vorlon [AT] netexpress.net> {
+Steve Langasek          <vorlon [AT] netexpress.net> {
 	Support for MS SQL 7 authentication in TDS
 }
 
-Brad Hards <bhards[AT]bigpond.net.au> {
+Brad Hards              <bhards[AT]bigpond.net.au> {
 	Support for SRVLOC v2
 	Support for mDNS/LLMNR "cache flush" bit
 	Label mDNS and DNS differently in the Protocol column
@@ -1577,32 +1577,32 @@ Brad Hards <bhards[AT]bigpond.net.au> {
 	Initial Laplink support
 }
 
-cjs 2895 <cjs2895[AT]hotmail.com> {
+cjs 2895                <cjs2895[AT]hotmail.com> {
 	Compile fixes for IBM's C compiler for AIX
 }
 
-Lutz Jaenicke <Lutz.Jaenicke [AT] aet.TU-Cottbus.DE> {
+Lutz Jaenicke           <Lutz.Jaenicke [AT] aet.TU-Cottbus.DE> {
 	Fix an "htonl()" to use "g_htonl()"
 }
 
-Senthil Kumar Nagappan <sknagappan [AT] yahoo.com> {
+Senthil Kumar Nagappan  <sknagappan [AT] yahoo.com> {
 	Small SCSI dissector fix
 }
 
-Jason House <jhouse [AT] mitre.org> {
+Jason House             <jhouse [AT] mitre.org> {
 	Win32 compilation fixes
 	TAP support for TCP protocol
 }
 
-Peter Fales <psfales [AT] lucent.com> {
+Peter Fales             <psfales [AT] lucent.com> {
 	ARCNET support
 }
 
-Fritz Budiyanto <fritzb88 [AT] yahoo.com> {
+Fritz Budiyanto         <fritzb88 [AT] yahoo.com> {
 	Assorted GTP fixes
 }
 
-Jean-Baptiste Marchand <Jean-Baptiste.Marchand [AT] hsc.fr> {
+Jean-Baptiste Marchand  <Jean-Baptiste.Marchand [AT] hsc.fr> {
 	Make it possible to filter on UUIDs
 	Fix typo in README.developer
 	Added an MSRPC (DCERPC) atsvc dissector
@@ -1616,7 +1616,7 @@ Jean-Baptiste Marchand <Jean-Baptiste.Marchand [AT] hsc.fr> {
 	MS Eventlog support.
 }
 
-Andreas Trauer <andreas.trauer [AT] siemens.com> {
+Andreas Trauer          <andreas.trauer [AT] siemens.com> {
 	GTP enhancements
 	Add subtrees for each link in a Router-LSA in an OSPF LS Update
 	    packet
@@ -1624,7 +1624,7 @@ Andreas Trauer <andreas.trauer [AT] siemens.com> {
 	    Received LCP CONFREQ, Last Sent LCP CONFREQ
 }
 
-Ronald Henderson <Ronald.Henderson [AT] CognicaseUSA.com> {
+Ronald Henderson        <Ronald.Henderson [AT] CognicaseUSA.com> {
 	In LDAP dissector, handle Sequence Of header being split across
 	    TCP segments
 	Support for colored graphs in Gtk1 version of IO_STAT
@@ -1637,7 +1637,7 @@ Ronald Henderson <Ronald.Henderson [AT] CognicaseUSA.com> {
 	    are UTF-8 but the strings we give it wouldn't be UTF-8
 }
 
-Brian Ginsbach <ginsbach [AT] cray.com> {
+Brian Ginsbach          <ginsbach [AT] cray.com> {
 	"dissect_rpc_bytes()" routine to allow fixed-length opaque data
 	    to be dissected
 	Support for SGI's variant of the ONC RPC mount protocol
@@ -1646,33 +1646,33 @@ Brian Ginsbach <ginsbach [AT] cray.com> {
 	    identifiers
 }
 
-Dave Richards <d_m_richards [AT] attbi.com> {
+Dave Richards           <d_m_richards [AT] attbi.com> {
 	BACNET over 802.2
 	BACNET-over-ARCNET fix (it's really BACNET-over-802.2-over-ARCNET)
 }
 
-Martin Regner <martin.regner [AT] chello.se> {
+Martin Regner           <martin.regner [AT] chello.se> {
 	RPC bug fix
 	PIM bug fixes
 }
 
-Jason Greene <jason [AT] inetgurus.net> {
+Jason Greene            <jason [AT] inetgurus.net> {
 	Fix for LDAPv3 modrdn requests
 }
 
-Marco Molteni <mmolteni [AT] cisco.com> {
+Marco Molteni           <mmolteni [AT] cisco.com> {
 	Fix a comment to reflect reality
 }
 
-James Harris <jharris [AT] fourhorsemen.org> {
+James Harris            <jharris [AT] fourhorsemen.org> {
 	RADIUS user password decryption
 }
 
-rmkml <rmkml [AT] wanadoo.fr> {
+rmkml                   <rmkml [AT] wanadoo.fr> {
 	Support for capturing from a pipe in Tethereal
 }
 
-Anders Broman <anders.broman [AT] ericsson.com> {
+Anders Broman           <anders.broman [AT] ericsson.com> {
 	Additional SCTP payload protocol identifiers
 	Assorted ISUP enhancements
 	MEGACO updates and fixes
@@ -1681,43 +1681,43 @@ Anders Broman <anders.broman [AT] ericsson.com> {
 	E.164 number dissector
 }
 
-Christian Falckenberg <christian.falckenberg [AT] nortelnetworks.com> {
+Christian Falckenberg   <christian.falckenberg [AT] nortelnetworks.com> {
 	Initial MEGACO support
 	GPRS SNDCP support
 }
 
-Huagang Xie <xie [AT] lids.org> {
+Huagang Xie             <xie [AT] lids.org> {
 	MySQL support
 	SSH support
 }
 
-cfs 2895 <cjs2895 [AT] hotmail.com> {
+cfs 2895                <cjs2895 [AT] hotmail.com> {
 	Fix configure check for pcap_version
 }
 
-Pasi Kovanen <Pasi.Kovanen [AT] tahoenetworks.fi> {
+Pasi Kovanen            <Pasi.Kovanen [AT] tahoenetworks.fi> {
 	Display flow label IE in GTP v0 in hex
 }
 
-Teemu Rinta-aho <teemu.rinta-aho [AT] nomadiclab.com> {
+Teemu Rinta-aho         <teemu.rinta-aho [AT] nomadiclab.com> {
 	Draft 20 MIPv6 support
 }
 
-Martijn Schipper <martijn.schipper [AT] intersil.com> {
+Martijn Schipper        <martijn.schipper [AT] intersil.com> {
 	Fix for tag for 802.11g ERP Information field
 }
 
-Wayne Parrott <wayne_p [AT] pacific.net.au> {
+Wayne Parrott           <wayne_p [AT] pacific.net.au> {
 	Yahoo Messenger YMSG protocol support
 }
 
-Laurent Meyer <laurent.meyer6 [AT] wanadoo.fr> {
+Laurent Meyer           <laurent.meyer6 [AT] wanadoo.fr> {
 	X.25 reassembly
 	Filterable fields in COTP
 	COTP reassembly
 }
 
-Lars Roland <Lars.Roland [AT] gmx.net> {
+Lars Roland             <Lars.Roland [AT] gmx.net> {
 	MGCP request/response matching and MGCP statistics tap
 	Common routines for use by statistics taps
 	H.225 message and reason tag counter taps and Service Response
@@ -1726,49 +1726,49 @@ Lars Roland <Lars.Roland [AT] gmx.net> {
 	Support for building libethereal.dll with MSVC
 }
 
-Miha Jemec <m.jemec [AT] iskratel.si> {
+Miha Jemec              <m.jemec [AT] iskratel.si> {
 	Support to follow a RTP stream and save it as a file.
 	Support for G.711 codec
 	Original RTP analysis tap
 }
 
-Markus Friedl <markus [AT] openbsd.org> {
+Markus Friedl           <markus [AT] openbsd.org> {
 	Support for OpenBSD Encapsulating Device
 	Support for Ethernet-within-IP encapsulation
 	Remove duplicate SSH code
 }
 
-Todd Montgomery <tmontgom [AT] tibco.com> {
+Todd Montgomery         <tmontgom [AT] tibco.com> {
 	Update PGM to RFC 3208
 }
 
-emre <emre [AT] flash.net> {
+emre                    <emre [AT] flash.net> {
 	"Filter out this stream" feature for Follow TCP Stream
 }
 
-Stephen Shelley <steve.shelley [AT] attbi.com> {
+Stephen Shelley         <steve.shelley [AT] attbi.com> {
 	Full payload dissection of compliance levels 0, 1 and 2 function
 	    codes for Modbus/TCP
 }
 
-Erwin Rol <erwin [AT] erwinrol.com> {
+Erwin Rol               <erwin [AT] erwinrol.com> {
 	ArtNET support
 	RTNET support
 	ACN support
 	ENTTEC and RDM support
 }
 
-Duncan Laurie <duncan [AT] sun.com> {
+Duncan Laurie           <duncan [AT] sun.com> {
 	IPMI-over-LAN support (IPMI, RMCP, partial ASF)
 }
 
-Tony Schene <schene [AT] pcisys.net> {
+Tony Schene             <schene [AT] pcisys.net> {
 	Initial stub Kerberos kadmin support
 	Kerberos-over-TCP support
 	AUTH_GSSAPI support
 }
 
-Matthijs Melchior <mmelchior [AT] xs4all.nl> {
+Matthijs Melchior       <mmelchior [AT] xs4all.nl> {
 	TCP support in text2pcap
 	Support for automatically generating all declarations and
 	    definitions for plugin ABI from a single file
@@ -1777,69 +1777,69 @@ Matthijs Melchior <mmelchior [AT] xs4all.nl> {
 	Generic ASN.1 dissection plugin
 }
 
-Garth Bushell <gbushell [AT] elipsan.com> {
+Garth Bushell           <gbushell [AT] elipsan.com> {
 	iSNS support
 }
 
-Mark C. Brown <mbrown [AT] nosila.net> {
+Mark C. Brown           <mbrown [AT] nosila.net> {
 	Improvements to code that reads HP-UX nettl files
 }
 
-Can Erkin Acar <canacar [AT] eee.metu.edu.tr> {
+Can Erkin Acar          <canacar [AT] eee.metu.edu.tr> {
 	Support for new DLT_PFLOG format
 }
 
-Martin Warnes <martin.warnes [AT] ntlworld.com> {
+Martin Warnes           <martin.warnes [AT] ntlworld.com> {
 	Support for VMS UCX$TRACE output in wiretap
 }
 
-J Bruce Fields <bfields [AT] fieldses.org> {
+J Bruce Fields          <bfields [AT] fieldses.org> {
 	Some work on packet_rpc.c to support RPCSEC_GSS
 }
 
-tz <tz1 [AT] mac.com> {
+tz                      <tz1 [AT] mac.com> {
 	Decode the base-64 string for HTTP Basic authorization
 }
 
-Jeff Liu <jqliu [AT] broadcom.com> {
+Jeff Liu                <jqliu [AT] broadcom.com> {
 	WPA and WPA IE support
 }
 
-Niels Koot <Niels.Koot [AT] logicacmg.com> {
+Niels Koot              <Niels.Koot [AT] logicacmg.com> {
 	Support for subdissectors in SUA
 	Assorted SUA fixes
 	DBS Etherwatch file reader enhancements
 }
 
-Lionel Ains <lains [AT] gmx.net> {
+Lionel Ains             <lains [AT] gmx.net> {
 	"-d" flag for decode-as support in Tethereal
 }
 
-Joakim Wiberg <jow [AT] hms-networks.com> {
+Joakim Wiberg           <jow [AT] hms-networks.com> {
 	Support for Common Industrial Protocol over IP
 }
 
-Jeff Rizzo <riz [AT] boogers.sf.ca.us> {
+Jeff Rizzo              <riz [AT] boogers.sf.ca.us> {
 	sFlow support
 }
 
-Christoph Wiest <ch.wiest [AT] tesionmail.de> {
+Christoph Wiest         <ch.wiest [AT] tesionmail.de> {
 	Redo MEGACO dissector to more fully parse text-format messages
 }
 
-Xuan Zhang <xz [AT] aemail4u.com> {
+Xuan Zhang              <xz [AT] aemail4u.com> {
 	eDonkey support
 }
 
-Thierry Martin <thierry.martin [AT] accellent-group.com> {
+Thierry Martin          <thierry.martin [AT] accellent-group.com> {
 	Support for reading files from Accellent 5Views LAN agents
 }
 
-Oleg Terletsky <oleg.terletsky [AT] comverse.com> {
+Oleg Terletsky          <oleg.terletsky [AT] comverse.com> {
 	LWRES support
 }
 
-Michael Lum <mlum [AT] telostech.com> {
+Michael Lum             <mlum [AT] telostech.com> {
 	Support for saving list of disabled protocols
 	ANSI TCAP support
 	ANSI MAP support
@@ -1865,11 +1865,11 @@ Michael Lum <mlum [AT] telostech.com> {
 	Tap for MTP3 MSU statistics and summary
 }
 
-Shiang-Ming Huang <smhuang [AT] pcs.csie.nctu.edu.tw> {
+Shiang-Ming Huang       <smhuang [AT] pcs.csie.nctu.edu.tw> {
 	STUN (RFC 3489) support
 }
 
-Tony Lindstrom <tony.lindstrom [AT] ericsson.com> {
+Tony Lindstrom          <tony.lindstrom [AT] ericsson.com> {
 	Updates of DHCPV6 dissector to draft-ietf-dhc-dhcpv6-28,
 	    draft-ietf-dhc-dhcpv6-opt-prefix-delegation-04, and
 	    draft-ietf-dhc-dhcpv6-opt-dnsconfig-03, and addition of NIS
@@ -1878,84 +1878,84 @@ Tony Lindstrom <tony.lindstrom [AT] ericsson.com> {
 	    draft-ietf-dhc-dhcpv6-opt-timeconfig-02
 }
 
-Niklas Ogren <niklas.ogren [AT] 71.se> {
+Niklas Ogren            <niklas.ogren [AT] 71.se> {
 	H.263 support for RTP
 }
 
-Jesper Peterson <jesper [AT] endace.com> {
+Jesper Peterson         <jesper [AT] endace.com> {
 	Cisco HDLC FCS support
 	Support for reading Endace ERF files
 }
 
-Giles Scott <giles.scott1 [AT] btinternet.com> {
+Giles Scott             <giles.scott1 [AT] btinternet.com> {
 	Nortel/SynOptics Network Management Protocol support
 	Alteon/Nortel Transparent Proxy Control Protocol support
 }
 
-Vincent Jardin <vincent.jardin [AT] 6wind.com> {
+Vincent Jardin          <vincent.jardin [AT] 6wind.com> {
 	Support for TEREDO
 }
 
-Jean-Michel Fayard <jean-michel.fayard [AT] moufrei.de> {
+Jean-Michel Fayard      <jean-michel.fayard [AT] moufrei.de> {
 	Show in Tools:Summary window statistics about packets that
 	    passed the current display filter
 	BOOTP/DHCP, HTTP, and WSP statistics taps
 }
 
-Josef Korelus <jkor [AT] quick.cz> {
+Josef Korelus           <jkor [AT] quick.cz> {
 	GPRS Network Service-over-Frame-Relay support
 	GPRS BSSGP support
 	GPRS LLC support
 }
 
-Brian K. Teravskis <Brian_Teravskis [AT] Cargill.com> {
+Brian K. Teravskis      <Brian_Teravskis [AT] Cargill.com> {
 	Support for saving RTP analysis data in CSV form
 }
 
-Nathan Jennings <njen [AT] bellsouth.net> {
+Nathan Jennings         <njen [AT] bellsouth.net> {
 	Support for user-supplied interface descriptions
 	Support for hiding interfaces in drop-down list in capture
 	    dialog
 }
 
-Hans Viens <hviens [AT] mediatrix.com> {
+Hans Viens              <hviens [AT] mediatrix.com> {
 	T.38 Support
 }
 
-Kevin A. Noll <knoll [AT] poss.com> {
+Kevin A. Noll           <knoll [AT] poss.com> {
 	RFC 2833 RTP Events support
 }
 
-Emanuele Caratti <wiz [AT] libero.it> {
+Emanuele Caratti        <wiz [AT] libero.it> {
 	Full TACACS+ dissection
 }
 
-Graeme Reid <graeme.reid [AT] norwoodsystems.com> {
+Graeme Reid             <graeme.reid [AT] norwoodsystems.com> {
 	H.450 support
 }
 
-Lars Ruoff <lars.ruoff [AT] sxb.bsf.alcatel.fr> {
+Lars Ruoff              <lars.ruoff [AT] sxb.bsf.alcatel.fr> {
 	Rewritten RTP analysis tap
 }
 
-Samuel Qu <samuel.qu [AT] utstar.com> {
+Samuel Qu               <samuel.qu [AT] utstar.com> {
 	ITU TCAP support
 }
 
-Baktha Muralitharan <muralidb [AT] cisco.com> {
+Baktha Muralitharan     <muralidb [AT] cisco.com> {
 	Link Management Protocol (LMP) fixes
 }
 
-Loïc Minier <lool [AT] dooz.org> {
+Loïc Minier             <lool [AT] dooz.org> {
 	HTTP header and payload desegmentation
 }
 
-Marcel Holtmann <marcel [AT] holtmann.org> {
+Marcel Holtmann         <marcel [AT] holtmann.org> {
 	Support for reading Linux Bluez Bluetooth stack "hcidump -w"
 	    traces
 }
 
-Scott Emberley <scotte [AT] netinst.com> {
+Scott Emberley          <scotte [AT] netinst.com> {
 	Support for reading Network Instruments version 9 capture files
 }
 
@@ -1963,150 +1963,150 @@ Brian Fundakowski Feldman <bfeldman [AT] fla.fujitsu.com> {
 	Support for setting link-layer type when capturing
 }
 
-Yuriy Sidelnikov <ysidelnikov [AT] hotmail.com> {
+Yuriy Sidelnikov        <ysidelnikov [AT] hotmail.com> {
 	ISO 8327-1 Session Protocol support
 	ISO 8823 Presentation Protocol support
 	ISO 10035-1 ACSE support
 	ISO 8571 FTAM support
 }
 
-Matthias Drochner <M.Drochner [AT] fz-juelich.de> {
+Matthias Drochner       <M.Drochner [AT] fz-juelich.de> {
 	Support for mode 6 and mode 7 control packets, and NTP4 autokey
 	    extension data, in NTP
 }
 
-Dave Sclarsky <dave_sclarsky [AT] cnt.com> {
+Dave Sclarsky           <dave_sclarsky [AT] cnt.com> {
 	CPFI support
 }
 
-Scott Hovis <scott.hovis [AT] ums.msfc.nasa.gov> {
+Scott Hovis             <scott.hovis [AT] ums.msfc.nasa.gov> {
 	CCSDS (Consultative Committee for Space Data Systems) support
 }
 
-David Fort <david.fort [AT] irisa.fr> {
+David Fort              <david.fort [AT] irisa.fr> {
 	DNS DS RR support
 	MLDv2 report message decoding
 }
 
-Martijn Schipper <mschipper [AT] globespanvirata.com> {
+Martijn Schipper        <mschipper [AT] globespanvirata.com> {
 	Support for reading AiroPeek files in V9 capture file format
 	(AiroPeek 2.x)
 }
 
-Felix Fei <felix.fei [AT] utstar.com> {
+Felix Fei               <felix.fei [AT] utstar.com> {
 	GSM MAP support
 }
 
-Christoph Neusch <christoph.neusch [AT] nortelnetworks.com> {
+Christoph Neusch        <christoph.neusch [AT] nortelnetworks.com> {
 	V5UA support
 }
 
-Jan Kiszka <jan.kiszka [AT] web.de> {
+Jan Kiszka              <jan.kiszka [AT] web.de> {
 	IrDA support
 }
 
-Joshua Craig Douglas <jdouglas [AT] enterasys.com> {
+Joshua Craig Douglas    <jdouglas [AT] enterasys.com> {
 	Enterasys Interswitch Message Protocol (ISMP)
 	Enterasys Discovery Protocol (EDP) (ISMP subprotocol)
 }
 
-Dick Gooris <gooris [AT] lucent.com> {
+Dick Gooris             <gooris [AT] lucent.com> {
 	Added packet range selections in the save(as) dialog
 	PacketCable support in the COPS dissector
 }
 
-Michael Shuldman <michaels [AT] inet.no> {
+Michael Shuldman        <michaels [AT] inet.no> {
 	X11 replies, events and errors (matched to their request)
 }
 
-Tadaaki Nagao <nagao [AT] iij.ad.jp> {
+Tadaaki Nagao           <nagao [AT] iij.ad.jp> {
 	Added a global version of disabled_protos
 }
 
-Aaron Woo <woo [AT] itd.nrl.navy.mil> {
+Aaron Woo               <woo [AT] itd.nrl.navy.mil> {
 	Optimized Link State Routing Protocol (OLSR)
 }
 
-Chris Wilson <chris [AT] mxtelecom.com> {
+Chris Wilson            <chris [AT] mxtelecom.com> {
 	SMPP dissection of concatenated PDUs
 	Separate GSM SMS User Data dissector from the SMPP dissector
 }
 
-Rolf Fiedler <Rolf.Fiedler [AT] Innoventif.com> {
+Rolf Fiedler            <Rolf.Fiedler [AT] Innoventif.com> {
 	ISDN TEI management frame support
 	Support for reading EyeSDN USB S0 trace files
 }
 
-Alastair Maw <ethereal [AT] almaw.com> {
+Alastair Maw            <ethereal [AT] almaw.com> {
 	IAX2 support
 }
 
-Sam Leffler <sam [AT] errno.com> {
+Sam Leffler             <sam [AT] errno.com> {
 	Support for Radiotap 802.11 radio header (header used by FreeBSD
 	   5.2 and later and by NetBSD-current
 }
 
-Martin Mathieson <martin [AT] arca-technologies.com> {
+Martin Mathieson        <martin [AT] arca-technologies.com> {
 	SIP sipfrag support
 	SIP statistics tap
 }
 
-Christian Wagner <Christian.Wagner [AT] stud.uni-karlsruhe.de> {
+Christian Wagner        <Christian.Wagner [AT] stud.uni-karlsruhe.de> {
 	Soul Seek (slsk) protocol support
 }
 
-Edwin Calo <calo [AT] fusemail.com> {
+Edwin Calo              <calo [AT] fusemail.com> {
 	Extract strings from a Postgresql datastream
 }
 
-Ian Schorr <ischorr [AT] comcast.net> {
+Ian Schorr              <ischorr [AT] comcast.net> {
 	"Host list" taps
 }
 
-Rowan McFarland <rmcfarla[AT]cisco.com> {
+Rowan McFarland         <rmcfarla[AT]cisco.com> {
 	Support for Cisco CallManager 4.x in Skinny, CAST support.
 }
 
-John Engelhart <johne [AT] zang.com> {
+John Engelhart          <johne [AT] zang.com> {
 	CDP Hello packet support
 }
 
-Ryuji Somegawa <ryuji-so [AT] is.aist-nara.ac.jp> {
+Ryuji Somegawa          <ryuji-so [AT] is.aist-nara.ac.jp> {
 	CDMA2000 A11 support
 }
 
-metatech <metatech [AT] flashmail.com> {
+metatech                <metatech [AT] flashmail.com> {
 	IBM WebSphere MQ protocol support
 	IBM MQ Programmable Command Formats protocol support
 	Initial BEA Tuxedo protocol support
 }
 
-Brian Wheeler <Brian.Wheeler [AT] arrisi.com> {
+Brian Wheeler           <Brian.Wheeler [AT] arrisi.com> {
 	DOCSIS 2.0 support
 }
 
-Josh Bailey <joshbailey [AT] lucent.com> {
+Josh Bailey             <joshbailey [AT] lucent.com> {
 	IPDC support
 }
 
-Jelmer Vernooij <jelmer [AT] samba.org> {
+Jelmer Vernooij         <jelmer [AT] samba.org> {
 	AIM enhancements
 }
 
-Duncan Sargeant <dunc-ethereal-dev [AT] rcpt.to> {
+Duncan Sargeant         <dunc-ethereal-dev [AT] rcpt.to> {
 	Cisco SS7 RUDP, RLM, and Session Management support
 }
 
-Love Hörnquist Åstrand <lha [AT] it.su.se> {
+Love Hörnquist Åstrand  <lha [AT] it.su.se> {
 	HAVE_HEIMDAL_KERBEROS support to allow Ethereal to use heimdal 
 	libraries to decrypt kerberos encrypted blobs.
 }
 
-Lukas Pokorny <maskis [AT] seznam.cz> {
+Lukas Pokorny           <maskis [AT] seznam.cz> {
 	RTPS (Real-Time Publish-Subscribe) support
 }
 
-Carlos Pignataro <cpignata [AT] cisco.com> {
+Carlos Pignataro        <cpignata [AT] cisco.com> {
 	Graceful Restart Mechanism for LDP [RFC3478]
 	Fault Tolerance for LDP [RFC3479]
 	Other LDP enhancements
@@ -2119,71 +2119,72 @@ Carlos Pignataro <cpignata [AT] cisco.com> {
 	MPLS in Generic Routing Encapsulation (GRE)
 }
 
-Thomas Anders <thomas.anders [AT] blue-cable.de> {
+Thomas Anders           <thomas.anders [AT] blue-cable.de> {
 	PacketCable DHCP options
 }
 
-Rich Coe <Richard.Coe [AT] med.ge.com> {
+Rich Coe                <Richard.Coe [AT] med.ge.com> {
 	DICOM support
 }
 
-Dominic Béchaz <bdo [AT] zhwin.ch> {
+Dominic Béchaz          <bdo [AT] zhwin.ch> {
 	IEEE 1588 / PTP support
 }
 
-Thomas Anders <thomas.anders [AT] blue-cable.de> {
+Thomas Anders           <thomas.anders [AT] blue-cable.de> {
 	PacketCable updates and enhancements
 }
 
+
 And assorted fixes and enhancements by the people listed above and by:
 
-	Pavel Roskin <proski [AT] gnu.org>
-	Georgi Guninski <guninski [AT] guninski.com>
-	Jason Copenhaver <jcopenha [AT] typedef.org>
-	Eric Perie <eric.perie [AT] colubris.com>
-	David Yon <yon [AT] tacticalsoftware.com>
-	Marcio Franco <franco.marcio [AT] rd.francetelecom.fr>
-	Kaloian Stoilov <kalkata [AT] yahoo.com>
-	Steven Lass <stevenlass [AT] mail.com>
-	Gregory Stark <gsstark [AT] mit.edu>
-	Darren Steele <steeley [AT] steeley.co.uk>
-	<smhuang [AT] pcs.csie.nctu.edu.tw>
-	Michael Kopp <michael.kopp [AT] isarnet.de>
-	Bernd Leibing <bernd.leibing [AT] kiz.uni-ulm.de>
-	Chris Heath <chris [AT] heathens.co.nz>
-	Gisle Vanem <giva [AT] bgnett.no>
-	Ritchie <ritchie [AT] tipsybottle.com>
-	Aki Immonen <aki.immonen [AT] golftalma.fi>
-	David E. Weekly <david [AT] weekly.org>
-	Steve Ford <sford [AT] geeky-boy.com>
-	Masaki Chikama <masaki-c [AT] is.aist-nara.ac.jp>
-	Mohammad Hanif <mhanif [AT] nexthop.com>
-	Eric Wedel <ewedel [AT] bluearc.com>
-	Reinhard Speyerer <rspmn [AT] arcor.de>
-	Patrick Kursawe <phosphan [AT] gentoo.org>
-	Arsen Chaloyan <achaloyan [AT] yahoo.com>
-	<melerski [AT] poczta.onet.pl>
-	Arnaud Jacques <webmaster [AT] securiteinfo.com>
-	D. Manzella <manzella [AT] lucent.com>
-	Jari Mustajarvi <jari.mustajarvi [AT] nokia.com>
-	Joost Yervante Damad <Joost.Damad [AT] siemens.com>
-	Pierre Juhen <pierre.juhen [AT] wanadoo.fr>
-	David Richards <drichards [AT] alum.mit.edu>
-	Shusaku Ueda <ueda [AT] sra.co.jp>
-	Jonathan Perkins <jonathan.perkins [AT] ipaccess.com>
-	Holger Schurig <h.schurig [AT] mn-logistik.de>
-	Peter J. Creath <peter-ethereal [AT] creath.net>
-	Magnus Hansson <mah [AT] hms.se>
-	Pavel Kankovsky <kan [AT] dcit.cz>
-	Nick Black <dank [AT] reflexsecurity.com>
-	Bill Guyton <guyton [AT] bguyton.com>
-	Chernishov Yury <Chernishov [AT] iskrauraltel.ru>
-	Thomas Palmer <Thomas.Palmer [AT] Gunter.AF.mil>
-	Jon Oberheide <jon [AT] focalhost.com>
-	Clinton Work <clinton [AT] scripty.com>
-	Joe Marcus Clarke <marcus [AT] marcuscom.com>
-	Kendy Kutzner <kutzner[AT]tm.uka.de>
-	James H. Cloos Jr. <cloos [AT] jhcloos.com>
+Pavel Roskin            <proski [AT] gnu.org>
+Georgi Guninski         <guninski [AT] guninski.com>
+Jason Copenhaver        <jcopenha [AT] typedef.org>
+Eric Perie              <eric.perie [AT] colubris.com>
+David Yon               <yon [AT] tacticalsoftware.com>
+Marcio Franco           <franco.marcio [AT] rd.francetelecom.fr>
+Kaloian Stoilov         <kalkata [AT] yahoo.com>
+Steven Lass             <stevenlass [AT] mail.com>
+Gregory Stark           <gsstark [AT] mit.edu>
+Darren Steele           <steeley [AT] steeley.co.uk>
+                        <smhuang [AT] pcs.csie.nctu.edu.tw>
+Michael Kopp            <michael.kopp [AT] isarnet.de>
+Bernd Leibing           <bernd.leibing [AT] kiz.uni-ulm.de>
+Chris Heath             <chris [AT] heathens.co.nz>
+Gisle Vanem             <giva [AT] bgnett.no>
+Ritchie                 <ritchie [AT] tipsybottle.com>
+Aki Immonen             <aki.immonen [AT] golftalma.fi>
+David E. Weekly         <david [AT] weekly.org>
+Steve Ford              <sford [AT] geeky-boy.com>
+Masaki Chikama          <masaki-c [AT] is.aist-nara.ac.jp>
+Mohammad Hanif          <mhanif [AT] nexthop.com>
+Eric Wedel              <ewedel [AT] bluearc.com>
+Reinhard Speyerer       <rspmn [AT] arcor.de>
+Patrick Kursawe         <phosphan [AT] gentoo.org>
+Arsen Chaloyan          <achaloyan [AT] yahoo.com>
+                        <melerski [AT] poczta.onet.pl>
+Arnaud Jacques          <webmaster [AT] securiteinfo.com>
+D. Manzella             <manzella [AT] lucent.com>
+Jari Mustajarvi         <jari.mustajarvi [AT] nokia.com>
+Joost Yervante Damad    <Joost.Damad [AT] siemens.com>
+Pierre Juhen            <pierre.juhen [AT] wanadoo.fr>
+David Richards          <drichards [AT] alum.mit.edu>
+Shusaku Ueda            <ueda [AT] sra.co.jp>
+Jonathan Perkins        <jonathan.perkins [AT] ipaccess.com>
+Holger Schurig          <h.schurig [AT] mn-logistik.de>
+Peter J. Creath         <peter-ethereal [AT] creath.net>
+Magnus Hansson          <mah [AT] hms.se>
+Pavel Kankovsky         <kan [AT] dcit.cz>
+Nick Black              <dank [AT] reflexsecurity.com>
+Bill Guyton             <guyton [AT] bguyton.com>
+Chernishov Yury         <Chernishov [AT] iskrauraltel.ru>
+Thomas Palmer           <Thomas.Palmer [AT] Gunter.AF.mil>
+Jon Oberheide           <jon [AT] focalhost.com>
+Clinton Work            <clinton [AT] scripty.com>
+Joe Marcus Clarke       <marcus [AT] marcuscom.com>
+Kendy Kutzner           <kutzner[AT]tm.uka.de>
+James H. Cloos Jr.      <cloos [AT] jhcloos.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
