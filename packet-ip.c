@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.133 2001/05/23 03:33:58 gerald Exp $
+ * $Id: packet-ip.c,v 1.134 2001/06/05 05:54:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1304,8 +1304,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           } else {
             hf = hf_ip_fragment;
           }
-          fei = proto_tree_add_string_format(ft, hf, 
-                   tvb, 0, 0, 0,
+          fei = proto_tree_add_none_format(ft, hf, 
+                   tvb, 0, 0,
                    "Frame:%d payload:%d-%d",
                    ipfd->frame,
                    ipfd->offset,
@@ -1334,8 +1334,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           }
         } else {
           /* nothing of interest for this fragment */
-          proto_tree_add_string_format(ft, hf_ip_fragment, 
-                   tvb, 0, 0, 0,
+          proto_tree_add_none_format(ft, hf_ip_fragment, 
+                   tvb, 0, 0,
                    "Frame:%d payload:%d-%d",
                    ipfd->frame,
                    ipfd->offset,
@@ -1833,15 +1833,15 @@ proto_register_ip(void)
 			"Fragment contained data past end of packet" }},
 
 		{ &hf_ip_fragment_error,
-		{ "Defragmentation error",	"ip.fragment.error", FT_STRING, BASE_DEC, NULL, 0x0,
+		{ "Defragmentation error", "ip.fragment.error", FT_NONE, BASE_NONE, NULL, 0x0,
 			"Defragmentation error due to illegal fragments" }},
 
 		{ &hf_ip_fragment,
-		{ "IP Fragment", "ip.fragment", FT_STRING, BASE_DEC, NULL, 0x0,
+		{ "IP Fragment", "ip.fragment", FT_NONE, BASE_NONE, NULL, 0x0,
 			"IP Fragment" }},
 
 		{ &hf_ip_fragments,
-		{ "IP Fragments", "ip.fragments", FT_STRING, BASE_DEC, NULL, 0x0,
+		{ "IP Fragments", "ip.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
 			"IP Fragments" }},
 	};
 	static gint *ett[] = {
