@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.142 2000/08/21 01:52:57 guy Exp $
+ * $Id: main.c,v 1.143 2000/08/21 08:09:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -610,66 +610,27 @@ set_plist_sel_browse(gboolean val)
 		gtk_clist_set_selection_mode(GTK_CLIST(packet_list), GTK_SELECTION_BROWSE);
 	}
 }
-
-/* Set the selection mode of a given packet tree window. */
-void
-set_ptree_sel_browse(GtkWidget *tv, gboolean val)
-{
-	/* Yeah, GTK uses "browse" in the case where we do not, but oh well. I think
-	 * "browse" in Ethereal makes more sense than "SINGLE" in GTK+ */
-	if (val) {
-		gtk_clist_set_selection_mode(GTK_CLIST(tv), GTK_SELECTION_SINGLE);
-	}
-	else {
-		gtk_clist_set_selection_mode(GTK_CLIST(tv), GTK_SELECTION_BROWSE);
-	}
-}
-
-/* Set the selection mode of all packet tree windows. */
-void
-set_ptree_sel_browse_all(gboolean val)
-{
-	set_ptree_sel_browse(tree_view, val);
-	set_ptree_sel_browse_packet_wins(val);
-}
-
-/* Set the line style of a given packet tree window. */
-void
-set_ptree_line_style(GtkWidget *tv, gint style)
-{
-	/* I'm using an assert here since the preferences code limits
-	 * the user input, both in the GUI and when reading the preferences file.
-	 * If the value is incorrect, it's a program error, not a user-initiated error.
-	 */
-	g_assert(style >= GTK_CTREE_LINES_NONE && style <= GTK_CTREE_LINES_TABBED);
-	gtk_ctree_set_line_style( GTK_CTREE(tv), style );
-}
-
-/* Set the line style of all packet tree window. */
-void
-set_ptree_line_style_all(gint style)
-{
-	set_ptree_line_style(tree_view, style);
-	set_ptree_line_style_packet_wins(style);
-}
-
-/* Set the expander style of a given packet tree window. */
-void
-set_ptree_expander_style(GtkWidget *tv, gint style)
-{
-	/* I'm using an assert here since the preferences code limits
-	 * the user input, both in the GUI and when reading the preferences file.
-	 * If the value is incorrect, it's a program error, not a user-initiated error.
-	 */
-	g_assert(style >= GTK_CTREE_EXPANDER_NONE && style <= GTK_CTREE_EXPANDER_CIRCULAR);
-	gtk_ctree_set_expander_style( GTK_CTREE(tv), style );
-}
 	
+/* Set the font of the packet list window. */
 void
-set_ptree_expander_style_all(gint style)
+set_plist_font(GdkFont *font)
 {
-	set_ptree_expander_style(tree_view, style);
-	set_ptree_expander_style_packet_wins(style);
+	GtkStyle *style;
+	int i;
+
+	style = gtk_style_new();
+	gdk_font_unref(style->font);
+	style->font = font;
+	gdk_font_ref(font);
+
+	gtk_widget_set_style(packet_list, style);
+
+	/* Compute static column sizes to use during a "-S" capture, so that
+ 	   the columns don't resize during a live capture. */
+	for (i = 0; i < cfile.cinfo.num_cols; i++) {
+		cfile.cinfo.col_width[i] = gdk_string_width(font,
+			get_column_longest_string(get_column_format(i)));
+	}
 }
 
 static gboolean
@@ -1391,7 +1352,6 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
                       *filter_bt, *filter_cm, *filter_te,
                       *filter_reset;
   GList               *filter_list = NULL;
-  GtkStyle            *pl_style;
   GtkAccelGroup       *accel;
   int			i;
 
@@ -1439,10 +1399,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_container_add(GTK_CONTAINER(pkt_scrollw), packet_list);
   
   set_plist_sel_browse(prefs->gui_plist_sel_browse);
-  pl_style = gtk_style_new();
-  gdk_font_unref(pl_style->font);
-  pl_style->font = m_r_font;
-  gtk_widget_set_style(packet_list, pl_style);
+  set_plist_font(m_r_font);
   gtk_widget_set_name(packet_list, "packet list");
   gtk_signal_connect (GTK_OBJECT (packet_list), "click_column",
     GTK_SIGNAL_FUNC(packet_list_click_column_cb), NULL);
@@ -1458,11 +1415,6 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     if (cfile.cinfo.col_fmt[i] == COL_NUMBER)
       gtk_clist_set_column_justification(GTK_CLIST(packet_list), i, 
         GTK_JUSTIFY_RIGHT);
-
-    /* Save static column sizes to use during a "-S" capture, so that
-       the columns don't resize during a live capture. */
-    cfile.cinfo.col_width[i] = gdk_string_width(pl_style->font,
-			        get_column_longest_string(get_column_format(i)));
   }
   gtk_widget_set_usize(packet_list, -1, pl_size);
   gtk_signal_connect_object(GTK_OBJECT(packet_list), "button_press_event",
@@ -1471,6 +1423,9 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_widget_show(packet_list);
 
   /* Tree view */
+  item_style = gtk_style_new();
+  gdk_font_unref(item_style->font);
+  item_style->font = m_r_font;
   create_tree_view(tv_size, prefs, l_pane, &tv_scrollw, &tree_view,
 			prefs->gui_scrollbar_on_right);
   gtk_signal_connect(GTK_OBJECT(tree_view), "tree-select-row",
@@ -1480,10 +1435,6 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_signal_connect_object(GTK_OBJECT(tree_view), "button_press_event",
     GTK_SIGNAL_FUNC(popup_menu_handler), gtk_object_get_data(GTK_OBJECT(popup_menu_object), PM_TREE_VIEW_KEY));
   gtk_widget_show(tree_view);
-
-  item_style = gtk_style_new();
-  gdk_font_unref(item_style->font);
-  item_style->font = m_r_font;
 
   /* Byte view. */
   create_byte_view(bv_size, l_pane, &byte_view, &bv_scrollw,

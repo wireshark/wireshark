@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.21 2000/08/20 07:53:31 guy Exp $
+ * $Id: prefs.h,v 1.22 2000/08/21 08:09:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -145,8 +145,30 @@ void prefs_pref_foreach(module_t *module, pref_cb callback, gpointer user_data);
  */
 void prefs_register_modules(void);
 
+/* Read the preferences file, fill in "prefs", and return a pointer to it.
+
+   If we got an error (other than "it doesn't exist") trying to read
+   the global preferences file, stuff the errno into "*gpf_errno_return"
+   and a pointer to the path of the file into "*gpf_path_return", and
+   return NULL.
+
+   If we got an error (other than "it doesn't exist") trying to read
+   the user's preferences file, stuff the errno into "*pf_errno_return"
+   and a pointer to the path of the file into "*pf_path_return", and
+   return NULL. */
 e_prefs *read_prefs(int *, char **, int *, char **);
+
+/* Write out "prefs" to the user's preferences file, and return 0.
+
+   If we got an error, stuff a pointer to the path of the preferences file
+   into "*pf_path_return", and return the errno. */
 int write_prefs(char **);
+
+/* Copy a set of preferences. */
+void copy_prefs(e_prefs *dest, e_prefs *src);
+
+/* Free a set of preferences. */
+void free_prefs(e_prefs *pr);
 
 /*
  * Given a string of the form "<pref name>:<pref value>", as might appear

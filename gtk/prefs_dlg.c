@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.20 2000/08/17 07:56:42 guy Exp $
+ * $Id: prefs_dlg.c,v 1.21 2000/08/21 08:09:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -64,6 +64,7 @@
 #include "prefs-int.h"
 
 static void     prefs_main_ok_cb(GtkWidget *, gpointer);
+static void     prefs_main_apply_cb(GtkWidget *, gpointer);
 static void     prefs_main_save_cb(GtkWidget *, gpointer);
 static void     prefs_main_cancel_cb(GtkWidget *, gpointer);
 static gboolean prefs_main_delete_cb(GtkWidget *, gpointer);
@@ -89,6 +90,13 @@ static GtkWidget *notebook;
  * creating a new one.
  */
 static GtkWidget *prefs_w;
+
+/*
+ * Save the value of the preferences as of when the preferences dialog
+ * box was first popped up, so we can revert to those values if the
+ * user selects "Cancel".
+ */
+static e_prefs saved_prefs;
 
 static void
 pref_show(pref_t *pref, gpointer user_data)
@@ -241,7 +249,7 @@ module_prefs_show(module_t *module, gpointer user_data)
 void
 prefs_cb(GtkWidget *w, gpointer dummy) {
   GtkWidget *main_vb, *top_hb, *bbox, *prefs_nb,
-            *ok_bt, *save_bt, *cancel_bt;
+            *ok_bt, *apply_bt, *save_bt, *cancel_bt;
   GtkWidget *print_pg, *column_pg, *stream_pg, *gui_pg, *label;
 
   if (prefs_w != NULL) {
@@ -249,6 +257,10 @@ prefs_cb(GtkWidget *w, gpointer dummy) {
     reactivate_window(prefs_w);
     return;
   }
+
+  /* Save the current preferences, so we can revert to those values
+     if the user presses "Cancel". */
+  copy_prefs(&saved_prefs, &prefs);
 
   prefs_w = dlg_window_new();
   gtk_window_set_title(GTK_WINDOW(prefs_w), "Ethereal: Preferences");
@@ -313,6 +325,13 @@ prefs_cb(GtkWidget *w, gpointer dummy) {
   gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
   gtk_widget_show(ok_bt);
+
+  apply_bt = gtk_button_new_with_label ("Apply");
+  gtk_signal_connect(GTK_OBJECT(apply_bt), "clicked",
+    GTK_SIGNAL_FUNC(prefs_main_apply_cb), GTK_OBJECT(prefs_w));
+  GTK_WIDGET_SET_FLAGS(apply_bt, GTK_CAN_DEFAULT);
+  gtk_box_pack_start(GTK_BOX (bbox), apply_bt, TRUE, TRUE, 0);
+  gtk_widget_show(apply_bt);
 
   save_bt = gtk_button_new_with_label ("Save");
   gtk_signal_connect(GTK_OBJECT(save_bt), "clicked",
@@ -470,14 +489,52 @@ prefs_main_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 {
   gboolean must_redissect = FALSE;
 
-  printer_prefs_ok(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
-  column_prefs_ok(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
-  stream_prefs_ok(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
-  gui_prefs_ok(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+  /* Fetch the preferences (i.e., make sure all the values set in all of
+     the preferences panes have been copied to "prefs" and the registered
+     preferences). */
+  printer_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
+  column_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
+  stream_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
+  gui_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+  prefs_module_foreach(module_prefs_fetch, &must_redissect);
+
+  /* Now apply those preferences. */
+  printer_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
+  column_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
+  stream_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
+  gui_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+  prefs_apply_all();
+
+  /* Now destroy the "Preferences" dialog. */
+  gtk_widget_destroy(GTK_WIDGET(parent_w));
+
+  if (must_redissect) {
+    /* Redissect all the packets, and re-evaluate the display filter. */
+    redissect_packets(&cfile);
+  }
+}
+
+static void
+prefs_main_apply_cb(GtkWidget *apply_bt, gpointer parent_w)
+{
+  gboolean must_redissect = FALSE;
+
+  /* Fetch the preferences (i.e., make sure all the values set in all of
+     the preferences panes have been copied to "prefs" and the registered
+     preferences). */
+  printer_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
+  column_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
+  stream_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
+  gui_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+  prefs_module_foreach(module_prefs_fetch, &must_redissect);
+
+  /* Now apply those preferences. */
+  printer_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
+  column_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
+  stream_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
+  gui_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
   prefs_module_foreach(module_prefs_fetch, &must_redissect);
   prefs_apply_all();
-  prefs_module_foreach(module_prefs_clean, NULL);
-  gtk_widget_destroy(GTK_WIDGET(parent_w));
 
   if (must_redissect) {
     /* Redissect all the packets, and re-evaluate the display filter. */
@@ -489,23 +546,46 @@ static void
 prefs_main_save_cb(GtkWidget *save_bt, gpointer parent_w)
 {
   gboolean must_redissect = FALSE;
-
   int err;
   char *pf_path;
 
-  printer_prefs_save(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
-  column_prefs_save(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
-  stream_prefs_save(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
-  gui_prefs_save(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+  /* Fetch the preferences (i.e., make sure all the values set in all of
+     the preferences panes have been copied to "prefs" and the registered
+     preferences). */
+  printer_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
+  column_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
+  stream_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
+  gui_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
   prefs_module_foreach(module_prefs_fetch, &must_redissect);
-  prefs_apply_all();
-  prefs_module_foreach(module_prefs_clean, NULL);
+
+  /* Write the preferencs out. */
   err = write_prefs(&pf_path);
   if (err != 0) {
      simple_dialog(ESD_TYPE_WARN, NULL,
       "Can't open preferences file\n\"%s\": %s.", pf_path,
       strerror(err));
   }
+
+  /* Now apply those preferences.
+     XXX - should we do this?  The user didn't click "OK" or "Apply".
+     However:
+
+	1) by saving the preferences they presumably indicate that they
+	   like them;
+
+	2) the next time they fire Ethereal up, those preferences will
+	   apply;
+
+	3) we'd have to buffer "must_redissect" so that if they do
+	   "Apply" after this, we know we have to redissect;
+
+	4) we did apply the protocol preferences, at least, in the past. */
+  printer_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
+  column_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
+  stream_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
+  gui_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+  prefs_module_foreach(module_prefs_fetch, &must_redissect);
+  prefs_apply_all();
 
   if (must_redissect) {
     /* Redissect all the packets, and re-evaluate the display filter. */
@@ -579,11 +659,21 @@ prefs_main_cancel_cb(GtkWidget *cancel_bt, gpointer parent_w)
 {
   gboolean must_redissect = FALSE;
 
-  printer_prefs_cancel(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
-  column_prefs_cancel(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
-  stream_prefs_cancel(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
-  gui_prefs_cancel(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+  /* Free up the current preferences and copy the saved preferences to the
+     current preferences. */
+  free_prefs(&prefs);
+  copy_prefs(&prefs, &saved_prefs);
+
+  /* Now revert the registered preferences. */
   prefs_module_foreach(module_prefs_revert, &must_redissect);
+
+  /* Now apply the reverted-to preferences. */
+  printer_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
+  column_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
+  stream_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
+  gui_prefs_apply(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
+  prefs_apply_all();
+
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 
   if (must_redissect) {
@@ -592,21 +682,30 @@ prefs_main_cancel_cb(GtkWidget *cancel_bt, gpointer parent_w)
   }
 }
 
+/* Treat this as a cancel, by calling "prefs_main_cancel_cb()".
+   XXX - that'll destroy the Preferences dialog; will that upset
+   a higher-level handler that says "OK, we've been asked to delete
+   this, so destroy it"? */
 static gboolean
 prefs_main_delete_cb(GtkWidget *prefs_w, gpointer dummy)
 {
-  printer_prefs_delete(gtk_object_get_data(GTK_OBJECT(prefs_w), E_PRINT_PAGE_KEY));
-  column_prefs_delete(gtk_object_get_data(GTK_OBJECT(prefs_w), E_COLUMN_PAGE_KEY));
-  stream_prefs_delete(gtk_object_get_data(GTK_OBJECT(prefs_w), E_STREAM_PAGE_KEY));
-  gui_prefs_delete(gtk_object_get_data(GTK_OBJECT(prefs_w), E_GUI_PAGE_KEY));
+  prefs_main_cancel_cb(NULL, prefs_w);
   return FALSE;
 }
 
 static void
 prefs_main_destroy_cb(GtkWidget *win, gpointer user_data)
 {
-  /* XXX - call the delete callback?  Or move its stuff here and
-     get rid of it? */
+  /* Let the preference tabs clean up anything they've done. */
+  printer_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w), E_PRINT_PAGE_KEY));
+  column_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w), E_COLUMN_PAGE_KEY));
+  stream_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w), E_STREAM_PAGE_KEY));
+  gui_prefs_destroy(gtk_object_get_data(GTK_OBJECT(prefs_w), E_GUI_PAGE_KEY));
+
+  /* Free up the saved preferences (both for "prefs" and for registered
+     preferences). */
+  free_prefs(&saved_prefs);
+  prefs_module_foreach(module_prefs_clean, NULL);
 
   /* Note that we no longer have a "Preferences" dialog box. */
   prefs_w = NULL;

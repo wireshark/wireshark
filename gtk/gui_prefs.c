@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.6 2000/08/20 07:53:43 guy Exp $
+ * $Id: gui_prefs.c,v 1.7 2000/08/21 08:09:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,6 +35,7 @@
 #include "prefs_dlg.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
+#include "proto_draw.h"
 
 static void scrollbar_menu_item_cb(GtkWidget *w, gpointer data);
 static void plist_sel_browse_cb(GtkWidget *w, gpointer data);
@@ -44,13 +45,6 @@ static void ptree_expander_style_cb(GtkWidget *w, gpointer data);
 static void font_browse_cb(GtkWidget *w, gpointer data);
 static void font_browse_ok_cb(GtkWidget *w, GtkFontSelectionDialog *fs);
 static void font_browse_destroy(GtkWidget *win, gpointer data);
-
-static gboolean temp_gui_scrollbar_on_right;
-static gboolean temp_gui_plist_sel_browse;
-static gboolean temp_gui_ptree_sel_browse;
-static gint temp_gui_ptree_line_style;
-static gint temp_gui_ptree_expander_style;
-static gchar *temp_gui_font_name;
 
 #define E_FONT_DIALOG_PTR_KEY	"font_dialog_ptr"
 #define E_FONT_CALLER_PTR_KEY	"font_caller_ptr"
@@ -62,13 +56,6 @@ gui_prefs_show(void)
 	GtkWidget	*menu_item_false, *menu_item_true,
 			*menu_item_0, *menu_item_1, *menu_item_2, *menu_item_3,
 			*scrollbar_menu, *scrollbar_option_menu, *font_bt;
-
-	temp_gui_scrollbar_on_right = prefs.gui_scrollbar_on_right;
-	temp_gui_plist_sel_browse = prefs.gui_plist_sel_browse;
-	temp_gui_ptree_sel_browse = prefs.gui_ptree_sel_browse;
-	temp_gui_ptree_line_style = prefs.gui_ptree_line_style;
-	temp_gui_ptree_expander_style = prefs.gui_ptree_expander_style;
-	temp_gui_font_name = g_strdup(prefs.gui_font_name);
 
 	/* Main vertical box */
 	main_vb = gtk_vbox_new(FALSE, 5);
@@ -104,7 +91,7 @@ gui_prefs_show(void)
 	gtk_option_menu_set_menu( GTK_OPTION_MENU(scrollbar_option_menu),
 			scrollbar_menu );
 	gtk_option_menu_set_history( GTK_OPTION_MENU(scrollbar_option_menu),
-			temp_gui_scrollbar_on_right);
+			prefs.gui_scrollbar_on_right);
 	gtk_table_attach_defaults( GTK_TABLE(main_tb), scrollbar_option_menu,
 			1, 2, 0, 1 );
 
@@ -131,7 +118,7 @@ gui_prefs_show(void)
 	gtk_option_menu_set_menu( GTK_OPTION_MENU(scrollbar_option_menu),
 			scrollbar_menu );
 	gtk_option_menu_set_history( GTK_OPTION_MENU(scrollbar_option_menu),
-			temp_gui_plist_sel_browse);
+			prefs.gui_plist_sel_browse);
 	gtk_table_attach_defaults( GTK_TABLE(main_tb), scrollbar_option_menu,
 			1, 2, 1, 2 );
 
@@ -158,7 +145,7 @@ gui_prefs_show(void)
 	gtk_option_menu_set_menu( GTK_OPTION_MENU(scrollbar_option_menu),
 			scrollbar_menu );
 	gtk_option_menu_set_history( GTK_OPTION_MENU(scrollbar_option_menu),
-			temp_gui_ptree_sel_browse);
+			prefs.gui_ptree_sel_browse);
 	gtk_table_attach_defaults( GTK_TABLE(main_tb), scrollbar_option_menu,
 			1, 2, 2, 3 );
 
@@ -193,7 +180,7 @@ gui_prefs_show(void)
 	gtk_option_menu_set_menu( GTK_OPTION_MENU(scrollbar_option_menu),
 			scrollbar_menu );
 	gtk_option_menu_set_history( GTK_OPTION_MENU(scrollbar_option_menu),
-			temp_gui_ptree_line_style);
+			prefs.gui_ptree_line_style);
 	gtk_table_attach_defaults( GTK_TABLE(main_tb), scrollbar_option_menu,
 			1, 2, 3, 4 );
 
@@ -228,7 +215,7 @@ gui_prefs_show(void)
 	gtk_option_menu_set_menu( GTK_OPTION_MENU(scrollbar_option_menu),
 			scrollbar_menu );
 	gtk_option_menu_set_history( GTK_OPTION_MENU(scrollbar_option_menu),
-			temp_gui_ptree_expander_style);
+			prefs.gui_ptree_expander_style);
 	gtk_table_attach_defaults( GTK_TABLE(main_tb), scrollbar_option_menu,
 			1, 2, 4, 5 );
 
@@ -250,8 +237,7 @@ scrollbar_menu_item_cb(GtkWidget *w, gpointer data)
 {
 	gboolean	value = GPOINTER_TO_INT(data);
 
-	temp_gui_scrollbar_on_right = value;
-	set_scrollbar_placement_all(value);
+	prefs.gui_scrollbar_on_right = value;
 }
 
 static void
@@ -259,8 +245,7 @@ plist_sel_browse_cb(GtkWidget *w, gpointer data)
 {
 	gboolean	value = GPOINTER_TO_INT(data);
 
-	temp_gui_plist_sel_browse = value;
-	set_plist_sel_browse(value);
+	prefs.gui_plist_sel_browse = value;
 }
 
 static void
@@ -268,8 +253,7 @@ ptree_sel_browse_cb(GtkWidget *w, gpointer data)
 {
 	gboolean	value = GPOINTER_TO_INT(data);
 
-	temp_gui_ptree_sel_browse = value;
-	set_ptree_sel_browse_all(value);
+	prefs.gui_ptree_sel_browse = value;
 }
 
 static void
@@ -277,8 +261,7 @@ ptree_line_style_cb(GtkWidget *w, gpointer data)
 {
 	gint	value = GPOINTER_TO_INT(data);
 
-	temp_gui_ptree_line_style = value;
-	set_ptree_line_style_all(value);
+	prefs.gui_ptree_line_style = value;
 }
 
 static void
@@ -286,8 +269,7 @@ ptree_expander_style_cb(GtkWidget *w, gpointer data)
 {
 	gint	value = GPOINTER_TO_INT(data);
 
-	temp_gui_ptree_expander_style = value;
-	set_ptree_expander_style_all(value);
+	prefs.gui_ptree_expander_style = value;
 }
 
 /* XXX - need a way to set this on the fly, so that a font change takes
@@ -373,9 +355,9 @@ font_browse_cb(GtkWidget *w, gpointer data)
 static void
 font_browse_ok_cb(GtkWidget *w, GtkFontSelectionDialog *fs)
 {
-	if (temp_gui_font_name != NULL)
-		g_free(temp_gui_font_name);
-	temp_gui_font_name =
+	if (prefs.gui_font_name != NULL)
+		g_free(prefs.gui_font_name);
+	prefs.gui_font_name =
 	    g_strdup(gtk_font_selection_dialog_get_font_name(
 	      GTK_FONT_SELECTION_DIALOG(fs)));
 
@@ -405,51 +387,40 @@ font_browse_destroy(GtkWidget *win, gpointer data)
 }
 
 void
-gui_prefs_ok(GtkWidget *w)
+gui_prefs_fetch(GtkWidget *w)
 {
-	prefs.gui_scrollbar_on_right = temp_gui_scrollbar_on_right;
-	prefs.gui_plist_sel_browse = temp_gui_plist_sel_browse;
-	prefs.gui_ptree_sel_browse = temp_gui_ptree_sel_browse;
-	prefs.gui_ptree_line_style = temp_gui_ptree_line_style;
-	prefs.gui_ptree_expander_style = temp_gui_ptree_expander_style;
-	if (prefs.gui_font_name != NULL)
-		g_free(prefs.gui_font_name);
-	prefs.gui_font_name = g_strdup(temp_gui_font_name);
-
-	gui_prefs_delete(w);
 }
 
 void
-gui_prefs_save(GtkWidget *w)
+gui_prefs_apply(GtkWidget *w)
 {
-	gui_prefs_ok(w);
-}
+	GdkFont *font;
 
-void
-gui_prefs_cancel(GtkWidget *w)
-{
-	/* Reset GUI preference values back to what the
-	 * current preferences says they should be */
-	temp_gui_scrollbar_on_right = prefs.gui_scrollbar_on_right;
-	temp_gui_plist_sel_browse = prefs.gui_plist_sel_browse;
-	temp_gui_ptree_sel_browse = prefs.gui_ptree_sel_browse;
-	temp_gui_ptree_line_style = prefs.gui_ptree_line_style;
-	temp_gui_ptree_expander_style = prefs.gui_ptree_expander_style;
-	if (temp_gui_font_name != NULL)
-		g_free(temp_gui_font_name);
-	temp_gui_font_name = g_strdup(prefs.gui_font_name);
+	font = gdk_font_load(prefs.gui_font_name);
+	if (font == NULL) {
+		/* XXX - make this a dialog box, and don't let them
+		   continue! */
+		fprintf(stderr, "Can't open font %s\n", prefs.gui_font_name);
+	}
 
 	set_scrollbar_placement_all(prefs.gui_scrollbar_on_right);
 	set_plist_sel_browse(prefs.gui_plist_sel_browse);
 	set_ptree_sel_browse_all(prefs.gui_ptree_sel_browse);
 	set_ptree_line_style_all(prefs.gui_ptree_line_style);
 	set_ptree_expander_style_all(prefs.gui_ptree_expander_style);
-
-	gui_prefs_delete(w);
+	if (font != NULL) {
+		set_plist_font(font);
+		set_ptree_font_all(font);
+#if 0
+		gdk_font_unref(m_r_font);
+		m_r_font = font;
+		/* Do the windows that directly use m_r_font here. */
+#endif
+	}
 }
 
 void
-gui_prefs_delete(GtkWidget *w)
+gui_prefs_destroy(GtkWidget *w)
 {
 	GtkWidget *caller = gtk_widget_get_toplevel(w);
 	GtkWidget *fs;
@@ -461,10 +432,5 @@ gui_prefs_delete(GtkWidget *w)
 	if (fs != NULL) {
 		/* Yes.  Destroy it. */
 		gtk_widget_destroy(fs);
-	}
-
-	if (temp_gui_font_name != NULL) {
-		g_free(temp_gui_font_name);
-		temp_gui_font_name = NULL;
 	}
 }

@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.11 2000/08/17 07:56:42 guy Exp $
+ * $Id: packet_win.c,v 1.12 2000/08/21 08:09:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -264,49 +264,4 @@ destroy_packet_wins(void)
 		DataPtr = (struct PacketWinData *)(detail_windows->data);
 		gtk_widget_destroy(DataPtr->main);
 	}
-}
-
-static void
-set_ptree_sel_browse_cb(gpointer data, gpointer user_data)
-{
-	struct PacketWinData *DataPtr = (struct PacketWinData *)data;
-
-	set_ptree_sel_browse(DataPtr->tree_view, *(gboolean *)user_data);
-}
-
-/* Set the selection mode of all the popup packet windows. */
-void
-set_ptree_sel_browse_packet_wins(gboolean val)
-{
-	g_list_foreach(detail_windows, set_ptree_sel_browse_cb, &val);
-}
-
-static void
-set_ptree_line_style_cb(gpointer data, gpointer user_data)
-{
-	struct PacketWinData *DataPtr = (struct PacketWinData *)data;
-
-	set_ptree_line_style(DataPtr->tree_view, *(gint *)user_data);
-}
-
-/* Set the selection mode of all the popup packet windows. */
-void
-set_ptree_line_style_packet_wins(gint style)
-{
-	g_list_foreach(detail_windows, set_ptree_line_style_cb, &style);
-}
-
-static void
-set_ptree_expander_style_cb(gpointer data, gpointer user_data)
-{
-	struct PacketWinData *DataPtr = (struct PacketWinData *)data;
-
-	set_ptree_expander_style(DataPtr->tree_view, *(gint *)user_data);
-}
-
-/* Set the selection mode of all the popup packet windows. */
-void
-set_ptree_expander_style_packet_wins(gint style)
-{
-	g_list_foreach(detail_windows, set_ptree_expander_style_cb, &style);
 }

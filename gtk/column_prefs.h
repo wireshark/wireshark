@@ -1,7 +1,7 @@
 /* gui_prefs.h
  * Definitions for column preferences window
  *
- * $Id: column_prefs.h,v 1.1 2000/01/10 01:43:58 guy Exp $
+ * $Id: column_prefs.h,v 1.2 2000/08/21 08:09:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -24,7 +24,6 @@
  */
 
 GtkWidget           *column_prefs_show(void);
-void                 column_prefs_ok(GtkWidget *);
-void                 column_prefs_save(GtkWidget *);
-void                 column_prefs_cancel(GtkWidget *);
-void                 column_prefs_delete(GtkWidget *);
+void                 column_prefs_fetch(GtkWidget *);
+void                 column_prefs_apply(GtkWidget *);
+void                 column_prefs_destroy(GtkWidget *);

@@ -1,7 +1,7 @@
 /* print_prefs.c
  * Dialog boxes for preferences for printing
  *
- * $Id: print_prefs.c,v 1.6 2000/08/11 13:33:01 deniel Exp $
+ * $Id: print_prefs.c,v 1.7 2000/08/21 08:09:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -234,35 +234,30 @@ printer_opts_fs_destroy_cb(GtkWidget *win, gpointer data)
 }
 
 void
-printer_prefs_ok(GtkWidget *w)
+printer_prefs_fetch(GtkWidget *w)
 {
-	if(prefs.pr_cmd) g_free(prefs.pr_cmd);
+	if (prefs.pr_cmd)
+		g_free(prefs.pr_cmd);
 	prefs.pr_cmd =  
-		g_strdup(gtk_entry_get_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(w),
-    PRINT_CMD_TE_KEY))));
+		g_strdup(gtk_entry_get_text(
+		    GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(w),
+		      PRINT_CMD_TE_KEY))));
 
-	if(prefs.pr_file) g_free(prefs.pr_file);
+	if (prefs.pr_file)
+		g_free(prefs.pr_file);
 	prefs.pr_file =  
-		g_strdup(gtk_entry_get_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(w),
-    PRINT_FILE_TE_KEY))));
-
-	printer_prefs_delete(w);
+		g_strdup(gtk_entry_get_text(
+		    GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(w),
+		      PRINT_FILE_TE_KEY))));
 }
 
 void
-printer_prefs_save(GtkWidget *w)
+printer_prefs_apply(GtkWidget *w)
 {
-	printer_prefs_ok(w);
 }
 
 void
-printer_prefs_cancel(GtkWidget *w)
-{
-	printer_prefs_delete(w);
-}
-
-void
-printer_prefs_delete(GtkWidget *w)
+printer_prefs_destroy(GtkWidget *w)
 {
   GtkWidget *caller = gtk_widget_get_toplevel(w);
   GtkWidget *fs;

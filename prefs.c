@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.37 2000/08/20 07:53:31 guy Exp $
+ * $Id: prefs.c,v 1.38 2000/08/21 08:09:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,6 +62,7 @@
 static int    set_pref(gchar*, gchar*);
 static GList *get_string_list(gchar *);
 static void   clear_string_list(GList *);
+static void   free_col_info(e_prefs *);
 
 #define PF_NAME "preferences"
 
@@ -465,6 +466,17 @@ print.file: /a/very/long/path/
 
 static void read_prefs_file(const char *pf_path, FILE *pf);
 
+/* Read the preferences file, fill in "prefs", and return a pointer to it.
+
+   If we got an error (other than "it doesn't exist") trying to read
+   the global preferences file, stuff the errno into "*gpf_errno_return"
+   and a pointer to the path of the file into "*gpf_path_return", and
+   return NULL.
+
+   If we got an error (other than "it doesn't exist") trying to read
+   the user's preferences file, stuff the errno into "*pf_errno_return"
+   and a pointer to the path of the file into "*pf_path_return", and
+   return NULL. */
 e_prefs *
 read_prefs(int *gpf_errno_return, char **gpf_path_return,
 	   int *pf_errno_return, char **pf_path_return)
@@ -780,13 +792,8 @@ set_pref(gchar *pref_name, gchar *value)
     prefs.pr_cmd = g_strdup(value);
   } else if (strcmp(pref_name, PRS_COL_FMT) == 0) {
     if ((col_l = get_string_list(value)) && (g_list_length(col_l) % 2) == 0) {
-      while (prefs.col_list) {
-        cfmt = prefs.col_list->data;
-        g_free(cfmt->title);
-        g_free(cfmt->fmt);
-        g_free(cfmt);
-        prefs.col_list = g_list_remove_link(prefs.col_list, prefs.col_list);
-      }
+      free_col_info(&prefs);
+      prefs.col_list = NULL;
       llen             = g_list_length(col_l);
       prefs.num_cols   = llen / 2;
       col_l = g_list_first(col_l);
@@ -1005,6 +1012,10 @@ write_module_prefs(gpointer data, gpointer user_data)
 	g_list_foreach(arg.module->prefs, write_pref, &arg);
 }
 
+/* Write out "prefs" to the user's preferences file, and return 0.
+
+   If we got an error, stuff a pointer to the path of the preferences file
+   into "*pf_path_return", and return the errno. */
 int
 write_prefs(char **pf_path_return)
 {
@@ -1113,4 +1124,71 @@ write_prefs(char **pf_path_return)
      rename that file on top of the old one only if there are not I/O
      errors. */
   return 0;
+}
+
+/* Copy a set of preferences. */
+void
+copy_prefs(e_prefs *dest, e_prefs *src)
+{
+  fmt_data *src_cfmt, *dest_cfmt;
+  GList *entry;
+
+  dest->pr_format = src->pr_format;
+  dest->pr_dest = src->pr_dest;
+  dest->pr_file = g_strdup(src->pr_file);
+  dest->pr_cmd = g_strdup(src->pr_cmd);
+  dest->col_list = NULL;
+  for (entry = src->col_list; entry != NULL; entry = g_list_next(entry)) {
+    src_cfmt = entry->data;
+    dest_cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
+    dest_cfmt->title = g_strdup(src_cfmt->title);
+    dest_cfmt->fmt = g_strdup(src_cfmt->fmt);
+    dest->col_list = g_list_append(dest->col_list, dest_cfmt);
+  }
+  dest->num_cols = src->num_cols;
+  dest->st_client_fg = src->st_client_fg;
+  dest->st_client_bg = src->st_client_bg;
+  dest->st_server_fg = src->st_server_fg;
+  dest->st_server_bg = src->st_server_bg;
+  dest->gui_scrollbar_on_right = src->gui_scrollbar_on_right;
+  dest->gui_plist_sel_browse = src->gui_plist_sel_browse;
+  dest->gui_ptree_sel_browse = src->gui_ptree_sel_browse;
+  dest->gui_ptree_line_style = src->gui_ptree_line_style;
+  dest->gui_ptree_expander_style = src->gui_ptree_expander_style;
+  dest->gui_font_name = g_strdup(src->gui_font_name);
+}
+
+/* Free a set of preferences. */
+void
+free_prefs(e_prefs *pr)
+{
+  if (pr->pr_file != NULL) {
+    g_free(pr->pr_file);
+    pr->pr_file = NULL;
+  }
+  if (pr->pr_cmd != NULL) {
+    g_free(pr->pr_cmd);
+    pr->pr_cmd = NULL;
+  }
+  free_col_info(pr);
+  if (pr->gui_font_name != NULL) {
+    g_free(pr->gui_font_name);
+    pr->gui_font_name = NULL;
+  }
+}
+
+static void
+free_col_info(e_prefs *pr)
+{
+  fmt_data *cfmt;
+
+  while (pr->col_list != NULL) {
+    cfmt = pr->col_list->data;
+    g_free(cfmt->title);
+    g_free(cfmt->fmt);
+    g_free(cfmt);
+    pr->col_list = g_list_remove_link(pr->col_list, pr->col_list);
+  }
+  g_list_free(pr->col_list);
+  pr->col_list = NULL;
 }

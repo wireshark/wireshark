@@ -1,7 +1,7 @@
 /* gtkpacket.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.17 2000/04/27 20:39:21 guy Exp $
+ * $Id: proto_draw.c,v 1.18 2000/08/21 08:09:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -190,6 +190,133 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
   }
 }
 
+/* List of all protocol tree widgets, so we can globally set the selection
+   mode, line style, expander style, and font of all of them. */
+static GList *ptree_widgets;
+
+/* Add a protocol tree widget to the list of protocol tree widgets. */
+static void forget_ptree_widget(GtkWidget *ptreew, gpointer data);
+
+void
+remember_ptree_widget(GtkWidget *ptreew)
+{
+  ptree_widgets = g_list_append(ptree_widgets, ptreew);
+
+  /* Catch the "destroy" event on the widget, so that we remove it from
+     the list when it's destroyed. */
+  gtk_signal_connect(GTK_OBJECT(ptreew), "destroy",
+		     GTK_SIGNAL_FUNC(forget_ptree_widget), NULL);
+}
+
+/* Remove a scrolled window from the list of scrolled windows. */
+static void
+forget_ptree_widget(GtkWidget *ptreew, gpointer data)
+{
+  ptree_widgets = g_list_remove(ptree_widgets, ptreew);
+}
+
+/* Set the selection mode of a given packet tree window. */
+static void
+set_ptree_sel_browse(GtkWidget *ptreew, gboolean val)
+{
+	/* Yeah, GTK uses "browse" in the case where we do not, but oh well.
+	   I think "browse" in Ethereal makes more sense than "SINGLE" in
+	   GTK+ */
+	if (val) {
+		gtk_clist_set_selection_mode(GTK_CLIST(ptreew),
+		    GTK_SELECTION_SINGLE);
+	}
+	else {
+		gtk_clist_set_selection_mode(GTK_CLIST(ptreew),
+		    GTK_SELECTION_BROWSE);
+	}
+}
+
+static void
+set_ptree_sel_browse_cb(gpointer data, gpointer user_data)
+{
+	set_ptree_sel_browse((GtkWidget *)data, *(gboolean *)user_data);
+}
+
+/* Set the selection mode of all packet tree windows. */
+void
+set_ptree_sel_browse_all(gboolean val)
+{
+	g_list_foreach(ptree_widgets, set_ptree_sel_browse_cb, &val);
+}
+
+/* Set the line style of a given packet tree window. */
+static void
+set_ptree_line_style(GtkWidget *ptreew, gint style)
+{
+	/* I'm using an assert here since the preferences code limits
+	 * the user input, both in the GUI and when reading the preferences file.
+	 * If the value is incorrect, it's a program error, not a user-initiated error.
+	 */
+	g_assert(style >= GTK_CTREE_LINES_NONE && style <= GTK_CTREE_LINES_TABBED);
+	gtk_ctree_set_line_style(GTK_CTREE(ptreew), style);
+}
+
+static void
+set_ptree_line_style_cb(gpointer data, gpointer user_data)
+{
+	set_ptree_line_style((GtkWidget *)data, *(gint *)user_data);
+}
+
+/* Set the line style of all packet tree window. */
+void
+set_ptree_line_style_all(gint style)
+{
+	g_list_foreach(ptree_widgets, set_ptree_line_style_cb, &style);
+}
+
+/* Set the expander style of a given packet tree window. */
+static void
+set_ptree_expander_style(GtkWidget *ptreew, gint style)
+{
+	/* I'm using an assert here since the preferences code limits
+	 * the user input, both in the GUI and when reading the preferences file.
+	 * If the value is incorrect, it's a program error, not a user-initiated error.
+	 */
+	g_assert(style >= GTK_CTREE_EXPANDER_NONE && style <= GTK_CTREE_EXPANDER_CIRCULAR);
+	gtk_ctree_set_expander_style(GTK_CTREE(ptreew), style);
+}
+
+static void
+set_ptree_expander_style_cb(gpointer data, gpointer user_data)
+{
+	set_ptree_expander_style((GtkWidget *)data, *(gint *)user_data);
+}
+	
+void
+set_ptree_expander_style_all(gint style)
+{
+	g_list_foreach(ptree_widgets, set_ptree_expander_style_cb, &style);
+}
+
+static void
+set_ptree_style_cb(gpointer data, gpointer user_data)
+{
+	gtk_widget_set_style((GtkWidget *)data, (GtkStyle *)user_data);
+}
+	
+void
+set_ptree_font_all(GdkFont *font)
+{
+	GtkStyle *style;
+
+	style = gtk_style_new();
+	gdk_font_unref(style->font);
+	style->font = font;
+	gdk_font_ref(font);
+
+	g_list_foreach(ptree_widgets, set_ptree_style_cb, style);
+
+	/* Now nuke the old style and replace it with the new one. */
+	gtk_style_unref(item_style);
+	item_style = style;
+}
+
 void
 create_tree_view(gint tv_size, e_prefs *prefs, GtkWidget *pane,
 		GtkWidget **tv_scrollw_p, GtkWidget **tree_view_p, int pos)
@@ -214,6 +341,8 @@ create_tree_view(gint tv_size, e_prefs *prefs, GtkWidget *pane,
   set_ptree_sel_browse(tree_view, prefs->gui_ptree_sel_browse);
   set_ptree_line_style(tree_view, prefs->gui_ptree_line_style);
   set_ptree_expander_style(tree_view, prefs->gui_ptree_expander_style);
+  gtk_widget_set_style(tree_view, item_style);
+  remember_ptree_widget(tree_view);
 
   *tree_view_p = tree_view;
   *tv_scrollw_p = tv_scrollw;
@@ -334,7 +463,6 @@ proto_tree_draw_node(GNode *node, gpointer data)
 			is_leaf, is_expanded );
 
 	gtk_ctree_node_set_row_data( GTK_CTREE(info.ctree), parent, fi );
-	gtk_ctree_node_set_row_style( GTK_CTREE(info.ctree), parent, item_style);
 
 	if (!is_leaf) {
 		info.ctree_node = parent;

@@ -1,7 +1,7 @@
 /* stream_prefs.c
  * Dialog boxes for preferences for the stream window
  *
- * $Id: stream_prefs.c,v 1.2 2000/08/11 13:33:00 deniel Exp $
+ * $Id: stream_prefs.c,v 1.3 2000/08/21 08:09:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -183,29 +183,20 @@ copy_color_vals(GdkColor *target, GdkColor *source)
 }
 
 void
-stream_prefs_ok(GtkWidget *w)
+stream_prefs_fetch(GtkWidget *w)
 {
   copy_color_vals(&prefs.st_client_fg, &tcolors[CFG_IDX]);
   copy_color_vals(&prefs.st_client_bg, &tcolors[CBG_IDX]);
   copy_color_vals(&prefs.st_server_fg, &tcolors[SFG_IDX]);
   copy_color_vals(&prefs.st_server_bg, &tcolors[SBG_IDX]);
-
-  stream_prefs_delete(w);
 }
 
 void
-stream_prefs_save(GtkWidget *w)
+stream_prefs_apply(GtkWidget *w)
 {
-  stream_prefs_ok(w);
 }
 
 void
-stream_prefs_cancel(GtkWidget *w)
-{
-  stream_prefs_delete(w);
-}
-
-void
-stream_prefs_delete(GtkWidget *w)
+stream_prefs_destroy(GtkWidget *w)
 {
 }

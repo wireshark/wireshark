@@ -1,7 +1,7 @@
 /* gui_prefs.h
  * Definitions for GUI preferences window
  *
- * $Id: gui_prefs.h,v 1.2 2000/08/11 13:32:58 deniel Exp $
+ * $Id: gui_prefs.h,v 1.3 2000/08/21 08:09:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,9 +27,8 @@
 #define __GUI_PREFS_H__
 
 GtkWidget *gui_prefs_show(void);
-void gui_prefs_ok(GtkWidget *w);
-void gui_prefs_save(GtkWidget *w);
-void gui_prefs_cancel(GtkWidget *w);
-void gui_prefs_delete(GtkWidget *w);
+void gui_prefs_fetch(GtkWidget *w);
+void gui_prefs_apply(GtkWidget *w);
+void gui_prefs_destroy(GtkWidget *w);
 
 #endif

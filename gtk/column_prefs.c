@@ -1,7 +1,7 @@
 /* column_prefs.c
  * Dialog box for column preferences
  *
- * $Id: column_prefs.c,v 1.2 2000/08/11 13:33:04 deniel Exp $
+ * $Id: column_prefs.c,v 1.3 2000/08/21 08:09:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -340,23 +340,15 @@ column_set_fmt_cb(GtkWidget *w, gpointer data) {
 }
 
 void
-column_prefs_ok(GtkWidget *w) {
-
-  column_prefs_delete(w);
+column_prefs_fetch(GtkWidget *w) {
 }
 
 void
-column_prefs_save(GtkWidget *w) {
+column_prefs_apply(GtkWidget *w) {
 }
 
 void
-column_prefs_cancel(GtkWidget *w) {
-
-  column_prefs_delete(w);
-}
-
-void
-column_prefs_delete(GtkWidget *w) {
+column_prefs_destroy(GtkWidget *w) {
  
   /* Let the list cb know we're about to destroy the widget tree, so it */
   /* doesn't operate on widgets that don't exist. */  
