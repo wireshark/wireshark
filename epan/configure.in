@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.16 2001/12/23 21:11:24 gerald Exp $
+# $Id: configure.in,v 1.17 2002/01/30 23:01:31 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -20,6 +20,11 @@ dnl Check for CPU / vendor / OS
 AC_CANONICAL_HOST
 
 dnl Checks for programs.
+AC_ARG_WITH(gcc, [  --without-gcc           don't use gcc])
+if test -z "$CC" -a "$with_gcc" = no ; then
+    CC=cc
+    export CC
+fi
 AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_YACC
