@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.45 2004/04/16 19:36:36 guy Exp $
+ * $Id: color_dlg.c,v 1.46 2004/04/17 01:12:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1115,7 +1115,7 @@ color_clear_cb(GtkWidget *widget, gpointer data _U_) {
     gpointer  dialog;
 
     /* ask user, if he/she is really sure */
-    dialog = simple_dialog(ESD_TYPE_WARN, ESD_BTN_CLEAR | ESD_BTN_CANCEL, 
+    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTN_CLEAR | ESD_BTN_CANCEL, 
                 PRIMARY_TEXT_START "Remove all your personal color settings?" PRIMARY_TEXT_END "\n\n"
                 "This will revert the color settings to global defaults.\n\n"
                 "Are you really sure?");
