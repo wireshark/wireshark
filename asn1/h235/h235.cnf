@@ -2,7 +2,7 @@
 # H235-SECURITY-MESSAGES conformation file
 # 2004  Tomas Kukosa
 
-# $Id: h235.cnf,v 1.1 2004/05/24 08:42:29 sahlberg Exp $
+# $Id: h235.cnf,v 1.2 2004/06/03 08:35:44 guy Exp $
 
 #.EXPORTS
 
@@ -11,9 +11,18 @@ ENCRYPTEDxxx
 HASHEDxxx
 TimeStamp
 ClearToken
-CryptoToken WITH_VALS
-AuthenticationMechanism WITH_VALS
+CryptoToken
+AuthenticationMechanism
 
+#.NO_EMIT
+
+ECGDSASignature
+PwdCertToken
+KeySignedMaterial
+H235CertificateSignature
+ReturnSig
+KeySyncMaterial
+ 
 #.FIELD_RENAME
 
 TypedCertificate/certificate           certificatedata
