@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.29 2001/08/21 08:16:54 guy Exp $
+ * $Id: plugins.c,v 1.30 2001/08/21 09:11:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -451,13 +451,14 @@ init_plugins(const char *plugin_dir)
 		 * so that you use the plugins from the build tree?
 		 */
 		install_plugin_dir =
-		    "C:\\Program Files\\Ethereal\\plugins\\" VERSION;
+		    g_strdup("C:\\Program Files\\Ethereal\\plugins\\" VERSION);
 	}
 
 	/*
 	 * Scan that directory.
 	 */
 	plugins_scan_dir(install_plugin_dir);
+	g_free(install_plugin_dir);
 #else
 	/*
 	 * XXX - why not just scan "plugin_dir"?  That's where we
