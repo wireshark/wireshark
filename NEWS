@@ -1,3 +1,18 @@
+Overview of changes in Ethereal 0.5.1:
+* Updated Vines support (Joerg Mayer)
+* Bitfield decoding (Guy)
+* GTK+ 1.1/1.2 support (Gilbert, Gerald)
+* Make TCP info more verbose (Gerald)
+* Fix resize problems w/main window (Gerald)
+
+Overview of changes in Ethereal 0.5.0:
+* Initial release of wiretap library (Gilbert)
+* Sun C compiler fixes (Laurent)
+* Enhanced PPP support (Guy)
+* OMG CORBA GIOP/IIOP support (Laurent)
+* Configurable columns (Gerald)
+* Lots of other fixes and enhancements
+
 Overview of changes in Ethereal 0.4.1:
 * Copious amount of fixes (Guy)
 * Minor fixes to the filter prefs dialog (Gerald)

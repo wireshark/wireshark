@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.12 1998/11/17 04:28:54 gerald Exp $
+ * $Id: packet-ip.c,v 1.13 1998/12/29 04:05:35 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,6 +43,7 @@
 #include "packet.h"
 #include "etypes.h"
 #include "resolv.h"
+#include "util.h"
 
 extern packet_info pi;
 
@@ -391,7 +392,16 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
                                              {IP_PROTO_UDP,  "UDP" },
                                              {IP_PROTO_OSPF, "OSPF"},
                                              {0,             NULL  } };
-
+  static const value_string precedence_vals[] = {
+		  { IPTOS_PREC_ROUTINE,         "routine"              },
+		  { IPTOS_PREC_PRIORITY,        "priority"             },
+		  { IPTOS_PREC_IMMEDIATE,       "immediate"            },
+		  { IPTOS_PREC_FLASH,           "flash"                },
+		  { IPTOS_PREC_FLASHOVERRIDE,   "flash override"       },
+		  { IPTOS_PREC_CRITIC_ECP,      "CRITIC/ECP"           },
+		  { IPTOS_PREC_INTERNETCONTROL, "internetwork control" },
+		  { IPTOS_PREC_NETCONTROL,      "network control"      },
+		  { 0,                          NULL                   } };
 
   /* To do: check for runts, errs, etc. */
   /* Avoids alignment problems on many architectures. */
@@ -458,12 +468,39 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     add_subtree(ti, ip_tree, ETT_IP);
     add_item_to_tree(ip_tree, offset,      1, "Version: %d", iph.ip_v);
     add_item_to_tree(ip_tree, offset,      1, "Header length: %d bytes", hlen); 
-    add_item_to_tree(ip_tree, offset +  1, 1, "Type of service: 0x%02x (%s)",
+    tf = add_item_to_tree(ip_tree, offset +  1, 1, "Type of service: 0x%02x (%s)",
       iph.ip_tos, tos_str);
+    field_tree = gtk_tree_new();
+    add_subtree(tf, field_tree, ETT_IP_TOS);
+    add_item_to_tree(field_tree, offset + 1, 1, "%s",
+       decode_enumerated_bitfield(iph.ip_tos, IPTOS_PREC_MASK,
+                                   sizeof (iph.ip_tos)*8, precedence_vals,
+                                   "%s precedence"));
+    add_item_to_tree(field_tree, offset + 1, 1, "%s",
+       decode_boolean_bitfield(iph.ip_tos, IPTOS_LOWDELAY,
+                sizeof (iph.ip_tos)*8, "low delay", "normal delay"));
+    add_item_to_tree(field_tree, offset + 1, 1, "%s",
+       decode_boolean_bitfield(iph.ip_tos, IPTOS_THROUGHPUT,
+            sizeof (iph.ip_tos)*8, "high throughput", "normal throughput"));
+    add_item_to_tree(field_tree, offset + 1, 1, "%s",
+       decode_boolean_bitfield(iph.ip_tos, IPTOS_RELIABILITY,
+            sizeof (iph.ip_tos)*8, "high reliability", "normal reliability"));
+    add_item_to_tree(field_tree, offset + 1, 1, "%s",
+       decode_boolean_bitfield(iph.ip_tos, IPTOS_LOWCOST,
+            sizeof (iph.ip_tos)*8, "low cost", "normal cost"));
     add_item_to_tree(ip_tree, offset +  2, 2, "Total length: %d", iph.ip_len);
     add_item_to_tree(ip_tree, offset +  4, 2, "Identification: 0x%04x",
       iph.ip_id);
-    /* To do: add flags */
+    tf = add_item_to_tree(ip_tree, offset +  6, 2, "Flags: 0x%x",
+      (iph.ip_off & (IP_DF|IP_MF)) >> 12);
+    field_tree = gtk_tree_new();
+    add_subtree(tf, field_tree, ETT_IP_OFF);
+    add_item_to_tree(field_tree, offset + 6, 2, "%s",
+      decode_boolean_bitfield(iph.ip_off >> 8, IP_DF >> 8, 8, "don't fragment",
+                                           "may fragment"));
+    add_item_to_tree(field_tree, offset + 6, 2, "%s",
+      decode_boolean_bitfield(iph.ip_off >> 8, IP_MF >> 8, 8, "more fragments",
+                                           "last fragment"));
     add_item_to_tree(ip_tree, offset +  6, 2, "Fragment offset: %d",
       iph.ip_off & IP_OFFSET);
     add_item_to_tree(ip_tree, offset +  8, 1, "Time to live: %d",

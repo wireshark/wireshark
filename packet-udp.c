@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.10 1998/12/21 03:42:22 gerald Exp $
+ * $Id: packet-udp.c,v 1.11 1998/12/29 04:05:36 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -107,6 +107,10 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	  break;
     case UDP_PORT_IPX: /* RFC 1234 */
       dissect_ipx(pd, offset, fd, tree);
+      break;
+    case UDP_PORT_VINES:
+      /* FIXME: AFAIK, src and dst port must be the same */
+      dissect_vines_frp(pd, offset, fd, tree);
       break;
     default:
       dissect_data(pd, offset, fd, tree);

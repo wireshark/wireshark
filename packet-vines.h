@@ -1,13 +1,14 @@
 /* packet-vines.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet-vines.h,v 1.1 1998/09/17 02:37:46 gerald Exp $
+ * $Id: packet-vines.h,v 1.2 1998/12/29 04:05:36 gerald Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
+ * Joerg Mayer <jmayer@telemation.de>
  *
  * 
  * This program is free software; you can redistribute it and/or
@@ -25,35 +26,57 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/* Information about VINES can be found in
+ *
+ * VINES Protocol Definition
+ * Order Number: DA254-00
+ * Banyan Systems incorporated
+ * February 1990
+ * Part Number: 092093-000
+ */
 
 #ifndef __PACKETVINES_H__
 #define __PACKETVINES_H__
 
 /* VINES IP structs and definitions */
 
+enum {
+  VIP_PROTO_IPC = 1,	 /* Interprocess Communications Protocol (IPC) */
+  VIP_PROTO_SPP = 2,	/* Sequenced Packet Protcol (SPP) */
+  VIP_PROTO_ARP = 4,	/* Address Resolution Protocol (ARP) */
+  VIP_PROTO_RTP = 5,	/* Routing Update Protocol (RTP) / SRTP (Sequenced RTP) */
+  VIP_PROTO_ICP = 6	/* Internet Control Protocol (ICP) */
+};
+
 typedef struct _e_vip {
-  guint16 vip_sum;
-  guint16 vip_len;
-  guint8  vip_tos;
-  guint8  vip_proto;    /* 2 = VSPP */
+  guint16 vip_chksum;
+  guint16 vip_pktlen;
+  guint8  vip_tctl;	/* Transport Control */
+  guint8  vip_proto;
   guint32 vip_dnet;
   guint16 vip_dsub;
   guint32 vip_snet;
   guint16 vip_ssub;
-
 } e_vip;
 
 /* VINES SPP structs and definitions */
 
+enum {
+  VSPP_PKTTYPE_DATA = 1,	/* User Data */
+  VSPP_PKTTYPE_DISC = 3,	/* Diconnect Request */
+  VSPP_PKTTYPE_PROBE = 4,	/* Probe (retransmit) */
+  VSPP_PKTTYPE_ACK = 5		/* Acknowledgement */
+};
+
 typedef struct _e_vspp {
   guint16 vspp_sport;
   guint16 vspp_dport;
-  guint8  vspp_pkttype; /* 5=ack 1=data */
-  guint8  vspp_tos;  /* Unused with type 5 packets */
-  guint16 vspp_lclid;
-  guint16 vspp_rmtid;
-  guint16 vspp_seq; 
-  guint16 vspp_ack;
+  guint8  vspp_pkttype;
+  guint8  vspp_control;
+  guint16 vspp_lclid;	/* Local Connection ID */
+  guint16 vspp_rmtid;	/* Remote Connection ID */
+  guint16 vspp_seqno;	/* Sequence Number */
+  guint16 vspp_ack;	/* Acknowledgement Number */
   guint16 vspp_win;
 } e_vspp;
 

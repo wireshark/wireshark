@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.6 1998/12/22 07:07:09 gram Exp $
+ * $Id: column.c,v 1.7 1998/12/29 04:05:33 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -67,10 +67,11 @@ static void   column_set_fmt_cb(GtkWidget *, gpointer);
    string */
 static gchar *
 col_format_to_string(gint fmt) {
-  gchar *slist[] = { "%m", "%t", "%t", "%t", "%s", "%rs", "%us", "%hs",
-                     "%rhs", "%uhs", "%ns", "%rns", "%uns", "%d", "%rd",
-                     "%ud", "%hd", "%rhd", "%uhd", "%nd", "%rnd", "%und",
-                     "%S", "%rS", "%uS", "%D", "%rD", "%uD", "%p", "%i" };
+  gchar *slist[] = { "%m", "%t", "%Rt", "%At", "%Tt", "%s", "%rs", "%us",
+                     "%hs", "%rhs", "%uhs", "%ns", "%rns", "%uns", "%d",
+                     "%rd", "%ud", "%hd", "%rhd", "%uhd", "%nd", "%rnd",
+                     "%und", "%S", "%rS", "%uS", "%D", "%rD", "%uD", "%p",
+                     "%i" };
   
   if (fmt < 0 || fmt > NUM_COL_FMTS)
     return NULL;
@@ -82,7 +83,7 @@ col_format_to_string(gint fmt) {
   description */
 static gchar *
 col_format_desc(gint fmt) {
-  gchar *dlist[] = { "Number", "Relative time", "Absolute time",
+  gchar *dlist[] = { "Number", "Time", "Relative time", "Absolute time",
                      "Delta time", "Source address", "Src addr (resolved)",
                      "Src addr (unresolved)", "Hardware src addr",
                      "Hw src addr (resolved)", "Hw src addr (unresolved)",
@@ -115,6 +116,19 @@ get_column_format_matches(gboolean *fmt_list, gint format) {
       fmt_list[i] = TRUE;
     /* Get any formats lower down on the chain */
     switch (format) {
+      case COL_CLS_TIME:
+        switch (timestamp_type) {
+          case ABSOLUTE:
+            fmt_list[COL_ABS_TIME] = TRUE;
+            break;
+          case DELTA:
+            fmt_list[COL_DELTA_TIME] = TRUE;
+            break;
+          default:
+            fmt_list[COL_REL_TIME] = TRUE;
+            break;
+        }
+        break;
       case COL_DEF_SRC:
         fmt_list[COL_RES_DL_SRC] = TRUE;
         fmt_list[COL_RES_NET_SRC] = TRUE;
@@ -174,6 +188,12 @@ get_column_width(gint format, GdkFont *font) {
     case COL_NUMBER:
       return (gdk_string_width(font, "0") * 7);
       break;
+    case COL_CLS_TIME:
+      if (timestamp_type == COL_ABS_TIME)
+        return (gdk_string_width(font, "00:00:00.000000"));
+      else
+        return (gdk_string_width(font, "0000.000000"));
+      break;
     case COL_ABS_TIME:
       return (gdk_string_width(font, "00:00:00.000000"));
       break;
@@ -218,7 +238,12 @@ get_column_width(gint format, GdkFont *font) {
       break;
   }
 }
-    
+
+#define TIME_DEF 0
+#define TIME_REL 1
+#define TIME_ABS 2
+#define TIME_DEL 3
+
 #define RES_DEF  0
 #define RES_DO   1
 #define RES_DONT 2
@@ -240,13 +265,13 @@ get_column_format(gint col) {
 static gint
 get_column_format_from_str(gchar *str) {
   gchar *cptr = str;
-  gint      res_off = RES_DEF, addr_off = ADDR_DEF;
+  gint      res_off = RES_DEF, addr_off = ADDR_DEF, time_off = TIME_DEF;
 
   /* To do: Make this parse %-formatted strings "for real" */
   while (*cptr != '\0') {
     switch (*cptr) {
       case 't':  /* To do: fix for absolute and delta */
-        return COL_REL_TIME;
+        return COL_CLS_TIME + time_off;
         break;
       case 'm':
         return COL_NUMBER;
@@ -280,6 +305,15 @@ get_column_format_from_str(gchar *str) {
         break;
       case 'n':
         addr_off = ADDR_NET;
+        break;
+      case 'R':
+        time_off = TIME_REL;
+        break;
+      case 'A':
+        time_off = TIME_ABS;
+        break;
+      case 'T':
+        time_off = TIME_DEL;
         break;
     }
     cptr++;

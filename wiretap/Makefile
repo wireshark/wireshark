@@ -99,7 +99,7 @@ libwiretap_a_LIBADD =
 libwiretap_a_OBJECTS =  buffer.o file.o lanalyzer.o libpcap.o \
 ngsniffer.o snoop.o wtap.o
 AR = ar
-CFLAGS = -g -O2 -I/usr/lib/glib/include -I/usr/X11R6/include
+CFLAGS = -Wall -g -O2 -I/usr/lib/glib/include -I/usr/X11R6/include
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
 LINK = $(CC) $(CFLAGS) $(LDFLAGS) -o $@
 DIST_COMMON =  README AUTHORS COPYING ChangeLog INSTALL Makefile.am \

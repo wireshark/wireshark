@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.18 1998/12/27 20:47:53 gerald Exp $
+ * $Id: ethereal.c,v 1.19 1998/12/29 04:05:34 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -81,6 +81,8 @@ gchar        comp_info_str[256];
 
 ts_type timestamp_type = RELATIVE;
 
+GtkStyle *item_style;
+
 #define E_DFILTER_TE_KEY "display_filter_te"
 
 /* About Ethereal window */
@@ -98,7 +100,8 @@ about_ethereal( GtkWidget *w, gpointer data ) {
 		"Laurent Deniel      <deniel@worldnet.fr>\n"
 		"Don Lafontaine      <lafont02@cn.ca>\n"
 		"Guy Harris          <guy@netapp.com>\n"
-		"Simon Wilkinson     <sxw@dcs.ed.ac.uk>\n\n"
+		"Simon Wilkinson     <sxw@dcs.ed.ac.uk>\n"
+		"Joerg Mayer         <jmayer@telemation.de>\n\n"
 		"See http://ethereal.zing.org for more information",
                 VERSION, comp_info_str);
 }
@@ -306,7 +309,7 @@ packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
     fd = (frame_data *) l->data;
     fseek(cf.fh, fd->file_off, SEEK_SET);
     fread(cf.pd, sizeof(guint8), fd->cap_len, cf.fh);
-    dissect_packet(cf.pd, 0, 0, fd, GTK_TREE(tree_view));
+    dissect_packet(cf.pd, fd, GTK_TREE(tree_view));
     packet_hex_print(GTK_TEXT(byte_view), cf.pd, fd->cap_len, -1, -1);
   }
   gtk_text_thaw(GTK_TEXT(byte_view));
@@ -438,18 +441,6 @@ main(int argc, char *argv[])
   cf.cinfo.col_data = (gchar **) g_malloc(sizeof(gchar *) *
     cf.cinfo.num_cols);
 
-  col_fmt   = (gint *) g_malloc(sizeof(gint) * cf.cinfo.num_cols);
-  col_title = (gchar **) g_malloc(sizeof(gchar *) * cf.cinfo.num_cols);
-  
-  for (i = 0; i < cf.cinfo.num_cols; i++) {
-    col_fmt[i]   = get_column_format(i);
-    col_title[i] = g_strdup(get_column_title(i));
-    cf.cinfo.fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) *
-      NUM_COL_FMTS);
-    get_column_format_matches(cf.cinfo.fmt_matx[i], col_fmt[i]);
-    cf.cinfo.col_data[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
-  }
-
   /* Assemble the compile-time options */
   snprintf(comp_info_str, 256,
 #ifdef GTK_MAJOR_VERSION
@@ -528,7 +519,20 @@ main(int argc, char *argv[])
 	break;
     }
   }
+
+  /* Build the column format array */  
+  col_fmt   = (gint *) g_malloc(sizeof(gint) * cf.cinfo.num_cols);
+  col_title = (gchar **) g_malloc(sizeof(gchar *) * cf.cinfo.num_cols);
   
+  for (i = 0; i < cf.cinfo.num_cols; i++) {
+    col_fmt[i]   = get_column_format(i);
+    col_title[i] = g_strdup(get_column_title(i));
+    cf.cinfo.fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) *
+      NUM_COL_FMTS);
+    get_column_format_matches(cf.cinfo.fmt_matx[i], col_fmt[i]);
+    cf.cinfo.col_data[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+  }
+
   if (cf.snap < 1)
     cf.snap = 4096;
   else if (cf.snap < 68)
@@ -640,6 +644,10 @@ main(int argc, char *argv[])
   gtk_signal_connect(GTK_OBJECT(tree_view), "selection_changed",
     GTK_SIGNAL_FUNC(tree_view_cb), NULL);
   gtk_widget_show(tree_view);
+
+  item_style = gtk_style_new();
+  gdk_font_unref(item_style->font);
+  item_style->font = m_r_font;
 
   /* Byte view */
   bv_table = gtk_table_new (2, 2, FALSE);

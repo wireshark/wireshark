@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.14 1998/12/21 03:39:27 gerald Exp $
+ * $Id: packet.c,v 1.15 1998/12/29 04:05:36 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -149,6 +149,12 @@ packet_hex_print(GtkText *bv, guchar *pd, gint len, gint bstart, gint blen) {
   }
 }
 
+static void
+set_item_style(GtkWidget *widget, gpointer dummy)
+{
+  gtk_widget_set_style(widget, item_style);
+}
+
 GtkWidget *
 add_item_to_tree(GtkWidget *tree, gint start, gint len,
   gchar *format, ...) {
@@ -162,6 +168,7 @@ add_item_to_tree(GtkWidget *tree, gint start, gint len,
   va_start(ap, format);
   vsnprintf(label_str, 256, format, ap);
   ti = gtk_tree_item_new_with_label(label_str);
+  gtk_container_foreach(GTK_CONTAINER(ti), set_item_style, NULL);
   gtk_object_set_data(GTK_OBJECT(ti), E_TREEINFO_START_KEY, (gpointer) start);
   gtk_object_set_data(GTK_OBJECT(ti), E_TREEINFO_LEN_KEY, (gpointer) len);
   gtk_tree_append(GTK_TREE(tree), ti);
@@ -298,8 +305,7 @@ static const char *mon_names[12] = {
 
 /* this routine checks the frame type from the cf structure */
 void
-dissect_packet(const u_char *pd, guint32 ts_secs, guint32 ts_usecs,
-  frame_data *fd, GtkTree *tree)
+dissect_packet(const u_char *pd, frame_data *fd, GtkTree *tree)
 {
 	GtkWidget *fh_tree, *ti;
 	struct tm *tmp;
@@ -307,18 +313,19 @@ dissect_packet(const u_char *pd, guint32 ts_secs, guint32 ts_usecs,
 
 	/* Put in frame header information. */
 	if (check_col(fd, COL_ABS_TIME)) {
-	  if (timestamp_type == ABSOLUTE) {
-	    then = fd->secs;
-	    tmp = localtime(&then);
-	    col_add_fstr(fd, COL_ABS_TIME, "%02d:%02d:%02d.%04ld",
-	      tmp->tm_hour,
-	      tmp->tm_min,                                                      
-	      tmp->tm_sec,
-	      (long)fd->usecs/100);
-	  }
-        }
+	  then = fd->abs_secs;
+	  tmp = localtime(&then);
+	  col_add_fstr(fd, COL_ABS_TIME, "%02d:%02d:%02d.%04ld",
+	    tmp->tm_hour,
+	    tmp->tm_min,                                                      
+	    tmp->tm_sec,
+	    (long)fd->abs_usecs/100);
+  }
 	if (check_col(fd, COL_REL_TIME)) {
-	    col_add_fstr(fd, COL_REL_TIME, "%d.%06d", ts_secs, ts_usecs);
+	    col_add_fstr(fd, COL_REL_TIME, "%d.%06d", fd->rel_secs, fd->rel_usecs);
+	}
+	if (check_col(fd, COL_DELTA_TIME)) {
+	    col_add_fstr(fd, COL_DELTA_TIME, "%d.%06d", fd->del_secs, fd->del_usecs);
 	}
 
 	if (tree) {
@@ -328,7 +335,7 @@ dissect_packet(const u_char *pd, guint32 ts_secs, guint32 ts_usecs,
 
 	  fh_tree = gtk_tree_new();
 	  add_subtree(ti, fh_tree, ETT_FRAME);
-	  then = fd->secs;
+	  then = fd->abs_secs;
 	  tmp = localtime(&then);
 	  add_item_to_tree(fh_tree, 0, 0,
 	    "Frame arrived on %s %2d, %d %02d:%02d:%02d.%04ld",
@@ -338,7 +345,7 @@ dissect_packet(const u_char *pd, guint32 ts_secs, guint32 ts_usecs,
 	    tmp->tm_hour,
 	    tmp->tm_min,                                                      
 	    tmp->tm_sec,
-	    (long)fd->usecs/100);
+	    (long)fd->abs_usecs/100);
 
 	  add_item_to_tree(fh_tree, 0, 0, "Total frame length: %d bytes",
 	    fd->pkt_len);

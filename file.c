@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.14 1998/12/17 05:42:23 gram Exp $
+ * $Id: file.c,v 1.15 1998/12/29 04:05:35 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -65,7 +65,7 @@
 extern GtkWidget *packet_list, *prog_bar, *info_bar, *byte_view, *tree_view;
 extern guint      file_ctx;
 
-static guint32 ssec, susec;
+static guint32 firstsec, firstusec;
 static guint32 lastsec, lastusec;
 
 #ifdef WITH_WIRETAP
@@ -131,7 +131,7 @@ open_cap_file(char *fname, capture_file *cf) {
   } else {
     cf->plist = g_list_first(cf->plist);
   }
-  ssec = 0, susec = 0;
+  firstsec = 0, firstusec = 0;
   lastsec = 0, lastusec = 0;
  
 #ifndef WITH_WIRETAP
@@ -173,24 +173,8 @@ open_cap_file(char *fname, capture_file *cf) {
     cf->snap  = pcap_snapshot(cf->pfh);
     cf->lnk_t = pcap_datalink(cf->pfh);
   } else if (ntohl(magic[0]) == SNOOP_MAGIC_1 && ntohl(magic[1]) == SNOOP_MAGIC_2) {
-    /* Snoop file */
     simple_dialog(ESD_TYPE_WARN, NULL, "The snoop format is not yet supported.");
     return 1;
-    /*
-    fread(&sfh, sizeof(snoop_file_hdr), 1, cf->fh);
-    cf->cd_t = CD_SNOOP;
-    cf->vers = ntohl(sfh.vers);
-    if (cf->vers < SNOOP_MIN_VERSION || cf->vers > SNOOP_MAX_VERSION) {
-      g_warning("ethereal:open_cap_file:%s:bad snoop file version(%d)",
-        fname, cf->vers);
-      return 1;
-    }
-    switch (ntohl(sfh.s_lnk_t)) {
-      case 4:
-        cf->lnk_t = DLT_EN10MB;
-        break;
-    }
-    */
   }
   
   if (cf->cd_t == CD_UNKNOWN) {
@@ -329,7 +313,6 @@ pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
   frame_data   *fdata;
   gint          i, row;
   capture_file *cf = (capture_file *) user;
-  guint32 tssecs, tsusecs;
   
   while (gtk_events_pending())
     gtk_main_iteration();
@@ -345,59 +328,52 @@ pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
 #else
   fdata->file_off = ftell(cf->fh) - phdr->caplen;
 #endif
-  fdata->secs     = phdr->ts.tv_sec;
-  fdata->usecs    = phdr->ts.tv_usec;
+  fdata->abs_secs  = phdr->ts.tv_sec;
+  fdata->abs_usecs = phdr->ts.tv_usec;
 
   /* If we don't have the time stamp of the first packet, it's because this
      is the first packet.  Save the time stamp of this packet as the time
      stamp of the first packet. */
-  if (!ssec && !susec) {
-    ssec  = fdata->secs;
-    susec = fdata->usecs;
+  if (!firstsec && !firstusec) {
+    firstsec  = fdata->abs_secs;
+    firstusec = fdata->abs_usecs;
   }
 
   /* Do the same for the time stamp of the previous packet. */
   if (!lastsec && !lastusec) {
-    lastsec  = fdata->secs;
-    lastusec = fdata->usecs;
+    lastsec  = fdata->abs_secs;
+    lastusec = fdata->abs_usecs;
   }
 
   /* Get the time elapsed between the first packet and this packet. */
-  cf->esec = fdata->secs - ssec;
-  if (susec <= fdata->usecs) {
-    cf->eusec = fdata->usecs - susec;
+  cf->esec = fdata->abs_secs - firstsec;
+  if (firstusec <= fdata->abs_usecs) {
+    cf->eusec = fdata->abs_usecs - firstusec;
   } else {
-    cf->eusec = (fdata->usecs + 1000000) - susec;
+    cf->eusec = (fdata->abs_usecs + 1000000) - firstusec;
     cf->esec--;
   }
-
-  /* Compute the time stamp. */
-  switch (timestamp_type) {
-    case RELATIVE:	/* Relative to the first packet */
-      tssecs = cf->esec;
-      tsusecs = cf->eusec;
-      break;
-    case DELTA:		/* Relative to the previous packet */
-      tssecs = fdata->secs - lastsec;
-      if (lastusec <= fdata->usecs) {
-	tsusecs = fdata->usecs - lastusec;
-      } else {
-	tsusecs = (fdata->usecs + 1000000) - lastusec;
-	tssecs--;
-      }
-      break;
-    default:		/* Absolute time, or bogus timestamp_type value */
-      tssecs = 0;	/* Not used */
-      tsusecs = 0;
-      break;
+  fdata->rel_secs = cf->esec;
+  fdata->rel_usecs = cf->eusec;
+  
+  /* Do the same for the previous packet */
+  fdata->del_secs = fdata->abs_secs - lastsec;
+  if (lastusec <= fdata->abs_usecs) {
+    fdata->del_usecs = fdata->abs_usecs - lastusec;
+  } else {
+    fdata->del_usecs = (fdata->abs_usecs + 1000000) - lastusec;
+    fdata->del_secs--;
   }
+  lastsec = fdata->abs_secs;
+  lastusec = fdata->abs_usecs;
+
   fdata->cinfo = &cf->cinfo;
   for (i = 0; i < fdata->cinfo->num_cols; i++) {
     fdata->cinfo->col_data[i][0] = '\0';
   }
   if (check_col(fdata, COL_NUMBER))
     col_add_fstr(fdata, COL_NUMBER, "%d", cf->count);
-  dissect_packet(buf, tssecs, tsusecs, fdata, NULL);
+  dissect_packet(buf, fdata, NULL);
   row = gtk_clist_append(GTK_CLIST(packet_list), fdata->cinfo->col_data);
   fdata->cinfo = NULL;
 
@@ -408,69 +384,3 @@ pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
   }
   cf->plist = cf->plist->next;
 }
-
-/* Uncomment when we handle snoop files again.
-
-size_t
-read_frame_header(capture_file *cf) {
-  snoop_frame_hdr  shdr;
-  pcap_frame_hdr   phdr;
-  gint16           pkt_len, cap_len;
-  guint32          secs, usecs;
-  frame_data      *fdata;
-  size_t           err;
-
-  if ((cf->cd_t == CD_PCAP_BE) || (cf->cd_t == CD_PCAP_LE)) {
-    err = fread((char *)&phdr, sizeof(pcap_frame_hdr), 1, cf->fh);
-    if (!err) { return err; }
-    fdata = (frame_data *) g_malloc(sizeof(frame_data));
-    if (cf->swap) {
-      pkt_len = SWAP32(phdr.pkt_len);
-      cap_len = SWAP32(phdr.cap_len);
-      secs    = SWAP32(phdr.tm.tv_sec);
-      usecs   = SWAP32(phdr.tm.tv_usec);
-    } else {
-      pkt_len = phdr.pkt_len;
-      cap_len = phdr.cap_len;
-      secs    = phdr.tm.tv_sec;
-      usecs   = phdr.tm.tv_usec;
-    }
-  } else if (cf->cd_t == CD_SNOOP) {
-    err = fread(&shdr, sizeof(snoop_frame_hdr), 1, cf->fh);
-    fdata = (frame_data *) g_malloc(sizeof(frame_data));
-    if (!err) { return err; }
-    pkt_len = ntohl(shdr.inc_len);
-    cap_len = ntohl(shdr.pr_len) - 24;
-    secs    = ntohl(shdr.secs);
-    usecs   = ntohl(shdr.usecs);
-    shdr.drops  = ntohl(shdr.drops);
-    if (!ssec && !susec) { ssec = secs; susec = usecs; }
-    cf->drops = shdr.drops;
-    cf->esec = secs - ssec;
-    if (susec < shdr.usecs) {
-      cf->eusec = usecs - susec;
-    } else {
-      cf->eusec = susec - usecs;
-      cf->esec--;
-    }
-  }
-  cf->cur = fdata;
-  fdata->pkt_len = pkt_len;
-  fdata->cap_len = cap_len;
-  fdata->secs    = secs;
-  fdata->usecs   = usecs;
-  g_list_append(cf->plist, (gpointer) fdata);
-  if (!ssec && !susec) {
-    ssec  = secs;
-    susec = usecs;
-  }
-  cf->esec = secs - ssec;
-  if (susec < usecs) {
-    cf->eusec = usecs - susec;
-  } else {
-    cf->eusec = susec - usecs;
-    cf->esec--;
-  }
-  return err;
-}
-*/

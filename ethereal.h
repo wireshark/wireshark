@@ -1,7 +1,7 @@
 /* ethereal.h
  * Global defines, etc.
  *
- * $Id: ethereal.h,v 1.9 1998/12/17 05:42:22 gram Exp $
+ * $Id: ethereal.h,v 1.10 1998/12/29 04:05:35 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,7 +94,8 @@ typedef struct _selection_info {
  */
 enum {
   COL_NUMBER,         /* Packet list item number */
-  COL_REL_TIME,       /* Relative time (default) */
+  COL_CLS_TIME,       /* Command line-specified time (default relative) */
+  COL_REL_TIME,       /* Relative time */
   COL_ABS_TIME,       /* Absolute time */
   COL_DELTA_TIME,     /* Delta time */
   COL_DEF_SRC,        /* Source address */
@@ -136,6 +137,8 @@ typedef enum {
 } ts_type;
 
 extern ts_type timestamp_type;
+
+extern GtkStyle *item_style;
 
 void about_ethereal( GtkWidget *, gpointer);
 void file_sel_ok_cb(GtkWidget *, GtkFileSelection *);

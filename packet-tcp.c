@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.11 1998/12/21 03:58:00 gerald Exp $
+ * $Id: packet-tcp.c,v 1.12 1998/12/29 04:05:35 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,6 +43,7 @@
 #include "packet.h"
 #include "resolv.h"
 #include "follow.h"
+#include "util.h"
 
 extern FILE* data_out_file;
 extern packet_info pi;
@@ -319,7 +320,27 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
       add_item_to_tree(tcp_tree, offset +  8, 4, "Acknowledgement number: %u",
         th.th_ack);
     add_item_to_tree(tcp_tree, offset + 12, 1, "Header length: %u bytes", hlen);
-    add_item_to_tree(tcp_tree, offset + 13, 1, "Flags: %s", flags);
+     tf = add_item_to_tree(tcp_tree, offset + 13, 1, "Flags: 0x%x", th.th_flags);
+     field_tree = gtk_tree_new();
+     add_subtree(tf, field_tree, ETT_TCP_FLAGS);
+     add_item_to_tree(field_tree, offset + 13, 1, "%s",
+       decode_boolean_bitfield(th.th_flags, TH_URG, sizeof (th.th_flags)*8,
+                         "Urgent pointer", "No urgent pointer"));
+     add_item_to_tree(field_tree, offset + 13, 1, "%s",
+       decode_boolean_bitfield(th.th_flags, TH_ACK, sizeof (th.th_flags)*8,
+                         "Acknowledgment", "No acknowledgment"));
+     add_item_to_tree(field_tree, offset + 13, 1, "%s",
+       decode_boolean_bitfield(th.th_flags, TH_PUSH, sizeof (th.th_flags)*8,
+                         "Push", "No push"));
+     add_item_to_tree(field_tree, offset + 13, 1, "%s",
+       decode_boolean_bitfield(th.th_flags, TH_RST, sizeof (th.th_flags)*8,
+                         "Reset", "No reset"));
+     add_item_to_tree(field_tree, offset + 13, 1, "%s",
+       decode_boolean_bitfield(th.th_flags, TH_SYN, sizeof (th.th_flags)*8,
+                         "Syn", "No Syn"));
+     add_item_to_tree(field_tree, offset + 13, 1, "%s",
+       decode_boolean_bitfield(th.th_flags, TH_FIN, sizeof (th.th_flags)*8,
+                         "Fin", "No Fin"));
     add_item_to_tree(tcp_tree, offset + 14, 2, "Window size: %u", th.th_win);
     add_item_to_tree(tcp_tree, offset + 16, 2, "Checksum: 0x%04x", th.th_sum);
     if (th.th_flags & TH_URG)

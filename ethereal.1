@@ -1,10 +1,12 @@
 .rn '' }`
-''' $RCSfile: ethereal.1,v $$Revision: 1.4 $$Date: 1998/10/13 02:10:53 $
+''' $RCSfile: ethereal.1,v $$Revision: 1.5 $$Date: 1998/12/29 04:05:34 $
 '''
 ''' $Log: ethereal.1,v $
-''' Revision 1.4  1998/10/13 02:10:53  gerald
-''' * Pod page update
-''' * Minor tweaks to the filter prefs
+''' Revision 1.5  1998/12/29 04:05:34  gerald
+''' * Added Joerg Mayer's Vines patch
+''' * Added Joerg to the AUTHORS file
+''' * Added Guy's bitfield decode patch
+''' * Fixed time output
 '''
 '''
 .de Sh
@@ -97,7 +99,7 @@
 .nr % 0
 .rr F
 .\}
-.TH ETHEREAL 1 "0.4.0" "12/Oct/98" "The Ethereal Network Analyzer"
+.TH ETHEREAL 1 "0.5.0" "18/Nov/98" "The Ethereal Network Analyzer"
 .UC
 .if n .hy 0
 .if n .na
@@ -255,7 +257,7 @@ Open, close, or reload a capture file.
 .Ip "File:Print Packet" 4
 Print a description of each protocol header found in the packet, followed
 by the packet data itself.  Printing options can be set with the
-\fIEdit:Menu Options\fR menu item.
+\fIEdit:Preferences\fR menu item.
 .Ip "File:Quit" 4
 Exits the application.
 .Ip "Edit:Preferences" 4
@@ -309,7 +311,7 @@ entry box is the command to send files to (usually \fBlpr\fR), and the
 \fIFile:\fR entry box lets you enter the name of the file you wish to save
 to.  Additinally, you can select the \fIFile:\fR button to browse the file
 system for a particular save file.
-.Ip "Filters" 10
+.Ip "Filter Preferences" 10
 The \fIFilters\fR page lets you create and modify filters, and set the
 default filter to use when capturing data or opening a capture file.
 .Sp
@@ -317,22 +319,44 @@ The \fIFilter name\fR entry specifies a descriptive name for a filter, e.g.
 \fBWeb and \s-1DNS\s0 traffic\fR.  The \fIFilter string\fR entry is the text that
 actually describes the filtering action to take, as described above.The
 dialog buttons perform the following actions:
-.Ip "New" 18
+.Ip "New" 16
 If there is text in the two entry boxes, it creates a new associated list
 item.
-.Ip "Change" 18
+.Ip "Change" 16
 Modifies the currently selected list item to match what's in the entry
 boxes.
-.Ip "Copy" 18
+.Ip "Copy" 16
 Makes a copy of the currently selected list item.
-.Ip "Delete" 18
+.Ip "Delete" 16
 Deletes the currently selected list item.
-.Ip "\s-1OK\s0" 18
+.Ip "\s-1OK\s0" 16
 Sets the currently selected list item as the active filter.  If  nothing
 is selected, turns filtering off.
-.Ip "Save" 18
+.Ip "Save" 16
 Saves the current filter list in \fI$\s-1HOME\s0/.ethereal/filters\fR.
-.Ip "Cancel" 18
+.Ip "Cancel" 16
+Closes the dialog without making any changes.
+.Ip "Column Preferences" 10
+The \fIColumns\fR page lets you specify the number, title, and format
+of each column in the packet list.
+.Sp
+The \fIColumn title\fR entry is used to specify the title of the column
+displayed at the top of the packet list.  The type of data that the column
+displays can be specified using the \fIColumn format\fR option menu.  The row
+of buttons on the left perform the following actions:
+.Ip "New" 16
+Adds a new column to the list.
+.Ip "Change" 16
+Modifies the currently selected list item.
+.Ip "Delete" 16
+Deletes the currently selected list item.
+.Ip "Up / Down" 16
+Moves the selected list item up or down one position.
+.Ip "\s-1OK\s0" 16
+Currently has no effect.
+.Ip "Save" 16
+Saves the current column format as the default.
+.Ip "Cancel" 16
 Closes the dialog without making any changes.
 .Ip "Capture Preferences" 4
 The \fICapture Preferences\fR dialog lets you specify various parameters for
@@ -438,7 +462,7 @@ routine to be used.
 
 .IX Item "Printing Preferences"
 
-.IX Item "Filters"
+.IX Item "Filter Preferences"
 
 .IX Item "New"
 
@@ -447,6 +471,22 @@ routine to be used.
 .IX Item "Copy"
 
 .IX Item "Delete"
+
+.IX Item "\s-1OK\s0"
+
+.IX Item "Save"
+
+.IX Item "Cancel"
+
+.IX Item "Column Preferences"
+
+.IX Item "New"
+
+.IX Item "Change"
+
+.IX Item "Delete"
+
+.IX Item "Up / Down"
 
 .IX Item "\s-1OK\s0"
 

@@ -83,7 +83,11 @@ Sets the initial height of the tree view (top) pane
 =item -t
 
 Sets the format of the packet timestamp displayed in the packet list
-window.
+window.  The format can be one of 'r' (relative), 'a' (absolute), or 'd'
+(delta).  The relative time is the time elapsed between the first packet
+and the current packet.  The absolute time is the actual date and time the
+packet was captured.  The delta time is the time since the previous packet
+was captured.  The default is relative.
 
 =item -v
 
@@ -184,7 +188,7 @@ I<File:> entry box lets you enter the name of the file you wish to save
 to.  Additinally, you can select the I<File:> button to browse the file
 system for a particular save file.
 
-=item Filters
+=item Filter Preferences
 
 The I<Filters> page lets you create and modify filters, and set the
 default filter to use when capturing data or opening a capture file.
@@ -194,7 +198,7 @@ B<Web and DNS traffic>.  The I<Filter string> entry is the text that
 actually describes the filtering action to take, as described above.The
 dialog buttons perform the following actions:
 
-=over 8
+=over 6
 
 =item New
 
@@ -222,6 +226,48 @@ is selected, turns filtering off.
 =item Save
 
 Saves the current filter list in F<$HOME/.ethereal/filters>.
+
+=item Cancel
+
+Closes the dialog without making any changes.
+
+=back
+
+=item Column Preferences
+
+The I<Columns> page lets you specify the number, title, and format
+of each column in the packet list.
+
+The I<Column title> entry is used to specify the title of the column
+displayed at the top of the packet list.  The type of data that the column
+displays can be specified using the I<Column format> option menu.  The row
+of buttons on the left perform the following actions:
+
+=over 6
+
+=item New
+
+Adds a new column to the list.
+
+=item Change
+
+Modifies the currently selected list item.
+
+=item Delete
+
+Deletes the currently selected list item.
+
+=item Up / Down
+
+Moves the selected list item up or down one position.
+
+=item OK
+
+Currently has no effect.
+
+=item Save
+
+Saves the current column format as the default.
 
 =item Cancel
 

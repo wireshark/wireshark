@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.8 1998/12/22 05:52:51 gram Exp $
+ * $Id: util.c,v 1.9 1998/12/29 04:05:37 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,6 +44,7 @@
 # include "snprintf.h"
 #endif
 
+#include "packet.h"
 #include "util.h"
 
 #include "image/icon-excl.xpm"
@@ -164,4 +165,84 @@ simple_dialog_cancel_cb(GtkWidget *w, gpointer win) {
   if (btn_mask)
     *btn_mask = ESD_BTN_CANCEL;
   gtk_widget_destroy(GTK_WIDGET(win));
+}
+
+/* Generate, into "buf", a string showing the bits of a bitfield.
+   Return a pointer to the character after that string. */
+static char *
+decode_bitfield_value(char *buf, guint32 val, guint32 mask, int width)
+{
+  int i;
+  guint32 bit;
+  char *p;
+
+  i = 0;
+  p = buf;
+  bit = 1 << (width - 1);
+  for (;;) {
+    if (mask & bit) {
+      /* This bit is part of the field.  Show its value. */
+      if (val & bit)
+        *p++ = '1';
+      else
+        *p++ = '0';
+    } else {
+      /* This bit is not part of the field. */
+      *p++ = '.';
+    }
+    bit >>= 1;
+    i++;
+    if (i >= width)
+      break;
+    if (i % 4 == 0)
+      *p++ = ' ';
+  }
+  strcpy(p, " = ");
+  p += 3;
+  return p;
+}
+
+/* Generate a string describing a Boolean bitfield (a one-bit field that
+   says something is either true of false). */
+const char *
+decode_boolean_bitfield(guint32 val, guint32 mask, int width,
+    const char *truedesc, const char *falsedesc)
+{
+  static char buf[1025];
+  char *p;
+
+  p = decode_bitfield_value(buf, val, mask, width);
+  if (val & mask)
+    strcpy(p, truedesc);
+  else
+    strcpy(p, falsedesc);
+  return buf;
+}
+
+/* Generate a string describing an enumerated bitfield (an N-bit field
+   with various specific values having particular names). */
+const char *
+decode_enumerated_bitfield(guint32 val, guint32 mask, int width,
+    const value_string *tab, const char *fmt)
+{
+  static char buf[1025];
+  char *p;
+
+  p = decode_bitfield_value(buf, val, mask, width);
+  sprintf(p, fmt, val_to_str(val & mask, tab, "Unknown"));
+  return buf;
+}
+
+/* Generate a string describing a numeric bitfield (an N-bit field whose
+   value is just a number). */
+const char *
+decode_numeric_bitfield(guint32 val, guint32 mask, int width,
+    const char *fmt)
+{
+  static char buf[1025];
+  char *p;
+
+  p = decode_bitfield_value(buf, val, mask, width);
+  sprintf(p, fmt, val & mask);
+  return buf;
 }

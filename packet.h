@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.28 1998/12/19 00:12:23 hannes Exp $
+ * $Id: packet.h,v 1.29 1998/12/29 04:05:36 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -69,12 +69,16 @@ typedef struct _column_info {
 #define COL_MAX_LEN 256
 
 typedef struct _frame_data {
-  guint32      pkt_len;  /* Packet length */
-  guint32      cap_len;  /* Amount actually captured */
-  guint32      secs;     /* Seconds */
-  guint32      usecs;    /* Microseconds */
-  long         file_off; /* File offset */
-  column_info *cinfo;    /* Column formatting information */
+  guint32      pkt_len;   /* Packet length */
+  guint32      cap_len;   /* Amount actually captured */
+  guint32      rel_secs;  /* Relative seconds */
+  guint32      rel_usecs; /* Relative microseconds */
+  guint32      abs_secs;  /* Absolute seconds */
+  guint32      abs_usecs; /* Absolute microseconds */
+  guint32      del_secs;  /* Delta seconds */
+  guint32      del_usecs; /* Delta microseconds */
+  long         file_off;  /* File offset */
+  column_info *cinfo;     /* Column formatting information */
 } frame_data;
 
 typedef struct _packet_info {
@@ -365,6 +369,7 @@ typedef struct _e_udphdr {
 #define UDP_PORT_NBNS	137
 #define UDP_PORT_NBDGM	138
 #define UDP_PORT_RIP    520
+#define UDP_PORT_VINES	573
 
 /* TCP Ports */
 
@@ -391,10 +396,13 @@ enum {
 	ETT_IP_OPTION_SEC,
 	ETT_IP_OPTION_ROUTE,
 	ETT_IP_OPTION_TIMESTAMP,
+	ETT_IP_TOS,
+	ETT_IP_OFF,
 	ETT_UDP,
 	ETT_TCP,
 	ETT_TCP_OPTIONS,
 	ETT_TCP_OPTION_SACK,
+	ETT_TCP_FLAGS,
 	ETT_ICMP,
 	ETT_IGMP,
 	ETT_IPX,
@@ -421,8 +429,13 @@ enum {
 	ETT_IPv6,
 	ETT_CLNP,
 	ETT_COTP,
+	ETT_VINES_FRP,
 	ETT_VINES,
-	ETT_VSPP,
+	ETT_VINES_ARP,
+	ETT_VINES_ICP,
+	ETT_VINES_IPC,
+	ETT_VINES_RTP,
+	ETT_VINES_SPP,
 	ETT_IPXRIP,
 	ETT_IPXSAP,
 	ETT_IPXSAP_SERVER,
@@ -501,8 +514,7 @@ void       col_add_str(frame_data *, gint, gchar *);
 
 /* Routines in packet.c */
 
-void dissect_packet(const u_char *, guint32 ts_secs, guint32 ts_usecs,
-  frame_data *, GtkTree *);
+void dissect_packet(const u_char *, frame_data *, GtkTree *);
 void add_subtree(GtkWidget *, GtkWidget*, gint);
 void expand_tree(GtkWidget *, gpointer);
 void collapse_tree(GtkWidget *, gpointer);
@@ -553,7 +565,12 @@ void dissect_tcp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_trmac(const u_char *, int, frame_data *, GtkTree *);
 void dissect_udp(const u_char *, int, frame_data *, GtkTree *);
 void dissect_vines(const u_char *, int, frame_data *, GtkTree *);
-void dissect_vspp(const u_char *, int, frame_data *, GtkTree *);
+void dissect_vines_arp(const u_char *, int, frame_data *, GtkTree *);
+void dissect_vines_frp(const u_char *, int, frame_data *, GtkTree *);
+void dissect_vines_icp(const u_char *, int, frame_data *, GtkTree *);
+void dissect_vines_ipc(const u_char *, int, frame_data *, GtkTree *);
+void dissect_vines_rtp(const u_char *, int, frame_data *, GtkTree *);
+void dissect_vines_spp(const u_char *, int, frame_data *, GtkTree *);
 
 /* These functions are in ethertype.c */
 gchar *ethertype_to_str(guint16 etype, const char *fmt);
