@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.60 2002/04/14 23:22:21 guy Exp $
+ * $Id: packet-rsvp.c,v 1.61 2002/04/24 20:06:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,7 +28,7 @@
  * NOTES
  *
  * This module defines routines to disassemble RSVP packets, as defined in
- * RFC 2205. All objects from RC2205 are supported, in IPv4 and IPv6 mode.
+ * RFC 2205. All objects from RFC2205 are supported, in IPv4 and IPv6 mode.
  * In addition, the Integrated Services traffic specification objects
  * defined in RFC2210 are also supported. 
  *
@@ -69,7 +69,6 @@
 #include <epan/tvbuff.h>
 #include <epan/packet.h>
 #include "in_cksum.h"
-#include "ieee-float.h"
 #include "etypes.h"
 #include "ipproto.h"
 
@@ -1571,26 +1570,26 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						param_id,
 						tvb_get_ntohs(tvb, offset2+2));
 			    proto_tree_add_text(tspec_tree, tvb, offset2+4, 4,
-						"Token bucket rate: %ld", 
-						tvb_ieee_to_long(tvb, offset2+4));
+						"Token bucket rate: %f", 
+						tvb_get_ntohieee_float(tvb, offset2+4));
 			    proto_tree_add_text(tspec_tree, tvb, offset2+8, 4,
-						"Token bucket size: %ld", 
-						tvb_ieee_to_long(tvb, offset2+8));
+						"Token bucket size: %f", 
+						tvb_get_ntohieee_float(tvb, offset2+8));
 			    proto_tree_add_text(tspec_tree, tvb, offset2+12, 4,
-						"Peak data rate: %ld", 
-						tvb_ieee_to_long(tvb, offset2+12));
+						"Peak data rate: %f", 
+						tvb_get_ntohieee_float(tvb, offset2+12));
 			    proto_tree_add_text(tspec_tree, tvb, offset2+16, 4,
 						"Minimum policed unit [m]: %u", 
 						tvb_get_ntohl(tvb, offset2+16));
 			    proto_tree_add_text(tspec_tree, tvb, offset2+20, 4,
 						"Maximum packet size [M]: %u", 
 						tvb_get_ntohl(tvb, offset2+20));
-			    proto_item_append_text(ti, "Token Bucket, %lu bytes/sec. ", 
-						   tvb_ieee_to_long(tvb, offset2+4));
-			    proto_item_append_text(ti2, "Rate=%lu Burst=%lu Peak=%lu m=%u M=%u", 
-						   tvb_ieee_to_long(tvb, offset2+4),
-						   tvb_ieee_to_long(tvb, offset2+8),
-						   tvb_ieee_to_long(tvb, offset2+12),
+			    proto_item_append_text(ti, "Token Bucket, %f bytes/sec. ", 
+						   tvb_get_ntohieee_float(tvb, offset2+4));
+			    proto_item_append_text(ti2, "Rate=%f Burst=%f Peak=%f m=%u M=%u", 
+						   tvb_get_ntohieee_float(tvb, offset2+4),
+						   tvb_get_ntohieee_float(tvb, offset2+8),
+						   tvb_get_ntohieee_float(tvb, offset2+12),
 						   tvb_get_ntohl(tvb, offset2+16),
 						   tvb_get_ntohl(tvb, offset2+20));
 			    break;
@@ -1748,26 +1747,26 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						param_id,
 						tvb_get_ntohs(tvb, offset2+2));
 			    proto_tree_add_text(flowspec_tree, tvb, offset2+4, 4,
-						"Token bucket rate: %ld", 
-						tvb_ieee_to_long(tvb, offset2+4));
+						"Token bucket rate: %f", 
+						tvb_get_ntohieee_float(tvb, offset2+4));
 			    proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
-						"Token bucket size: %ld", 
-						tvb_ieee_to_long(tvb, offset2+8));
+						"Token bucket size: %f", 
+						tvb_get_ntohieee_float(tvb, offset2+8));
 			    proto_tree_add_text(flowspec_tree, tvb, offset2+12, 4,
-						"Peak data rate: %ld", 
-						tvb_ieee_to_long(tvb, offset2+12));
+						"Peak data rate: %f", 
+						tvb_get_ntohieee_float(tvb, offset2+12));
 			    proto_tree_add_text(flowspec_tree, tvb, offset2+16, 4,
 						"Minimum policed unit [m]: %u", 
 						tvb_get_ntohl(tvb, offset2+16));
 			    proto_tree_add_text(flowspec_tree, tvb, offset2+20, 4,
 						"Maximum packet size [M]: %u", 
 						tvb_get_ntohl(tvb, offset2+20));
-			    proto_item_append_text(ti, "Token Bucket, %lu bytes/sec. ", 
-						   tvb_ieee_to_long(tvb, offset2+4));
-			    proto_item_append_text(ti2, "Rate=%lu Burst=%lu Peak=%lu m=%u M=%u", 
-						   tvb_ieee_to_long(tvb, offset2+4),
-						   tvb_ieee_to_long(tvb, offset2+8),
-						   tvb_ieee_to_long(tvb, offset2+12),
+			    proto_item_append_text(ti, "Token Bucket, %f bytes/sec. ", 
+						   tvb_get_ntohieee_float(tvb, offset2+4));
+			    proto_item_append_text(ti2, "Rate=%f Burst=%f Peak=%f m=%u M=%u", 
+						   tvb_get_ntohieee_float(tvb, offset2+4),
+						   tvb_get_ntohieee_float(tvb, offset2+8),
+						   tvb_get_ntohieee_float(tvb, offset2+12),
 						   tvb_get_ntohl(tvb, offset2+16),
 						   tvb_get_ntohl(tvb, offset2+20));
 			    break;
@@ -1793,15 +1792,15 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						tvb_get_ntohs(tvb, offset2+2));
 			    
 			    proto_tree_add_text(flowspec_tree, tvb, offset2+4, 4,
-						"Rate: %ld", 
-						tvb_ieee_to_long(tvb, offset2+4));
+						"Rate: %f", 
+						tvb_get_ntohieee_float(tvb, offset2+4));
 			    proto_tree_add_text(flowspec_tree, tvb, offset2+8, 4,
 						"Slack term: %u", 
 						tvb_get_ntohl(tvb, offset2+8));
-			    proto_item_append_text(ti, "RSpec, %lu bytes/sec. ", 
-						   tvb_ieee_to_long(tvb, offset2+4));
-			    proto_item_append_text(ti2, "R=%lu, s=%u", 
-						   tvb_ieee_to_long(tvb, offset2+4),
+			    proto_item_append_text(ti, "RSpec, %f bytes/sec. ", 
+						   tvb_get_ntohieee_float(tvb, offset2+4));
+			    proto_item_append_text(ti2, "R=%f, s=%u", 
+						   tvb_get_ntohieee_float(tvb, offset2+4),
 						   tvb_get_ntohl(tvb, offset2+8));
 			    break;
 
@@ -1925,9 +1924,9 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* IEEE float */
 				proto_tree_add_text(adspec_tree, tvb, offset2,
 						    (phdr_length+1)<<2,
-						    "%s - %lu (type %u, length %u)",
+						    "%s - %f (type %u, length %u)",
 						    str,
-						    tvb_ieee_to_long(tvb, offset2+4),
+						    tvb_get_ntohieee_float(tvb, offset2+4),
 						    id, phdr_length);
 				break;
 			    default: 
