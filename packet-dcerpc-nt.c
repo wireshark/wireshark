@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.13 2002/03/11 00:15:20 sahlberg Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.14 2002/03/12 08:16:41 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -464,7 +464,10 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
 	proto_tree_add_string(tree, di->hf_index, tvb, old_offset,
 		offset-old_offset, text);
 
-	if(tree){
+	/* need to test di->levels before doing the proto_item_append_text()
+	   since netlogon has these objects as top level objects in its representation
+	   and trying to append to the tree object in that case will dump core */
+	if(tree && (di->levels>-1)){
 		proto_item_append_text(tree, ": %s", text);
 		if(di->levels>-1){
 			tree=tree->parent;
