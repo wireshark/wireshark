@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs.c,v 1.55 2003/12/27 03:45:45 guy Exp $
+ * $Id: packet-afs.c,v 1.56 2004/01/19 18:36:32 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,7 +48,7 @@
 #include "packet-afs-defs.h"
 #include "packet-afs-macros.h"
 
-#define GETSTR tvb_get_ptr(tvb,offset,tvb_ensure_length_remaining(tvb,offset))
+#define GETSTR ((const char *)tvb_get_ptr(tvb,offset,tvb_ensure_length_remaining(tvb,offset)))
 
 #define VALID_OPCODE(opcode) ((opcode >= OPCODE_LOW && opcode <= OPCODE_HIGH) || \
 		(opcode >= VOTE_LOW && opcode <= VOTE_HIGH) || \

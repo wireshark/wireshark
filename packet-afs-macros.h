@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs-macros.h,v 1.22 2003/01/18 02:18:39 guy Exp $
+ * $Id: packet-afs-macros.h,v 1.23 2004/01/19 18:36:32 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -112,9 +112,9 @@
 /* Output a rx style string, up to a maximum length first
    4 bytes - length, then char data */
 #define OUT_RXString(field) \
-	{	int i,len; \
+	{	guint32 i,len; \
 		char *tmp; \
-		const char *p; \
+		const guint8 *p; \
 		i = tvb_get_ntohl(tvb, offset); \
 		offset += 4; \
 		p = tvb_get_ptr(tvb,offset,i); \
