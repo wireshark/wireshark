@@ -1,6 +1,6 @@
 /* Getopt for GNU.
 
-   $Id: getopt.c,v 1.2 2000/04/12 21:51:28 gram Exp $
+   $Id: getopt.c,v 1.3 2000/11/08 19:57:39 guy Exp $
 
    NOTE: getopt is now part of the C library, so if you don't know what
    "Keep this file name-space clean" means, talk to roland@gnu.ai.mit.edu
