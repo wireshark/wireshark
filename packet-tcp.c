@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.193 2003/05/20 10:14:20 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.194 2003/05/21 05:43:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2080,7 +2080,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gint       fpos = 0, i;
   guint      bpos;
   guint      optlen;
-  guint32    nxtseq;
+  guint32    nxtseq = 0;
   guint      reported_len;
   vec_t      cksum_vec[4];
   guint32    phdr[2];
@@ -2146,43 +2146,35 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tcph->th_win = tvb_get_ntohs(tvb, offset + 14);
   tcph->th_hlen = hi_nibble(th_off_x2) * 4;  /* TCP header length, in bytes */
 
+  /*
+   * If we've been handed an IP fragment, we don't know how big the TCP
+   * segment is, so don't do anything that requires that we know that.
+   */
   reported_len = tvb_reported_length(tvb);
 
-  /* make nmap happy.  nmap sends out tcp segments that are fragmented at the
-     ip layer with the first fragment only containing the first 16 bytes of
-     the normal 20 byte tcp header.
-     TCP segments should not be fragmented at the ip layer normally so this
-     would probably either be nmap in action fingerprinting someone
-     or a tcp layer bug.
-  */
-  if (reported_len<20 || (reported_len<tcph->th_hlen)){
-    proto_tree_add_text(tcp_tree, tvb, offset, 0,
-        "Short segment. Segment/fragment does not contain a full TCP header (might be NMAP or someone else deliberately sending unusual packets)");
-    return;
+  if (!pinfo->fragmented) {
+    /* Compute the length of data in this segment. */
+    tcph->th_seglen = reported_len - tcph->th_hlen;
+
+    if (tree) { /* Add the seglen as an invisible field */
+
+      proto_tree_add_uint_hidden(ti, hf_tcp_len, tvb, offset, 4, tcph->th_seglen);
+
+    }
+
+    /* handle TCP seq# analysis parse all new segments we see */
+    if(tcp_analyze_seq){
+        if(!(pinfo->fd->flags.visited)){
+            tcp_analyze_sequence_number(pinfo, tcph->th_seq, tcph->th_ack, tcph->th_seglen, tcph->th_flags, tcph->th_win);
+        }
+        if(tcp_relative_seq){
+            tcp_get_relative_seq_ack(pinfo->fd->num, &(tcph->th_seq), &(tcph->th_ack));
+        }
+    }
+
+    /* Compute the sequence number of next octet after this segment. */
+    nxtseq = tcph->th_seq + tcph->th_seglen;
   }
-
-  /* Compute the length of data in this segment. */
-  tcph->th_seglen = reported_len - tcph->th_hlen;
-
-  if (tree) { /* Add the seglen as an invisible field */
-
-    proto_tree_add_uint_hidden(ti, hf_tcp_len, tvb, offset, 4, tcph->th_seglen);
-
-  }
-
-  /* handle TCP seq# analysis parse all new segments we see */
-  if(tcp_analyze_seq){
-      if(!(pinfo->fd->flags.visited)){
-          tcp_analyze_sequence_number(pinfo, tcph->th_seq, tcph->th_ack, tcph->th_seglen, tcph->th_flags, tcph->th_win);
-      }
-      if(tcp_relative_seq){
-          tcp_get_relative_seq_ack(pinfo->fd->num, &(tcph->th_seq), &(tcph->th_ack));
-      }
-  }
-
-
-  /* Compute the sequence number of next octet after this segment. */
-  nxtseq = tcph->th_seq + tcph->th_seglen;
 
   if (check_col(pinfo->cinfo, COL_INFO) || tree) {
     for (i = 0; i < 8; i++) {
@@ -2228,11 +2220,16 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (tree) {
-    if (tcp_summary_in_tree)
-      proto_item_append_text(ti, ", Ack: %u, Len: %u", tcph->th_ack, tcph->th_seglen);
+    if (tcp_summary_in_tree) {
+      proto_item_append_text(ti, ", Ack: %u", tcph->th_ack);
+      if (!pinfo->fragmented)
+        proto_item_append_text(ti, ", Len: %u", tcph->th_seglen);
+    }
     proto_item_set_len(ti, tcph->th_hlen);
-    if (nxtseq != tcph->th_seq) {
-      proto_tree_add_uint(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq);
+    if (!pinfo->fragmented) {
+      if (nxtseq != tcph->th_seq) {
+        proto_tree_add_uint(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq);
+      }
     }
     if (tcph->th_flags & TH_ACK)
       proto_tree_add_uint(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, tcph->th_ack);
@@ -2363,8 +2360,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } else
     tcpinfo.urgent = FALSE;
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, " Len=%u", tcph->th_seglen);
+  if (!pinfo->fragmented) {
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_append_fstr(pinfo->cinfo, COL_INFO, " Len=%u", tcph->th_seglen);
+  }
 
   /* Decode TCP options, if any. */
   if (tree && tcph->th_hlen > TCPH_MIN_LEN) {
@@ -2385,16 +2384,18 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      (it could be an ACK-only packet) */
   length_remaining = tvb_length_remaining(tvb, offset);
 
-  if( data_out_file ) {
-    reassemble_tcp( tcph->th_seq,		/* sequence number */
-        tcph->th_seglen,			/* data length */
-        tvb_get_ptr(tvb, offset, length_remaining),	/* data */
-        length_remaining,		/* captured data length */
-        ( tcph->th_flags & TH_SYN ),		/* is syn set? */
-        &pinfo->net_src,
-	&pinfo->net_dst,
-	pinfo->srcport,
-	pinfo->destport);
+  if (!pinfo->fragmented) {
+    if( data_out_file ) {
+      reassemble_tcp( tcph->th_seq,		/* sequence number */
+          tcph->th_seglen,			/* data length */
+          tvb_get_ptr(tvb, offset, length_remaining),	/* data */
+          length_remaining,		/* captured data length */
+          ( tcph->th_flags & TH_SYN ),		/* is syn set? */
+          &pinfo->net_src,
+          &pinfo->net_dst,
+          pinfo->srcport,
+          pinfo->destport);
+    }
   }
 
   if (length_remaining != 0) {
