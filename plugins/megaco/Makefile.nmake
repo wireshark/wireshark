@@ -13,7 +13,7 @@ LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 
 !IFDEF LINK_PLUGINS_WITH_LIBETHEREAL
 LINK_PLUGIN_WITH=..\..\epan\libethereal.lib
-CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB $(CFLAGS)
+CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
 !ELSE
 LINK_PLUGIN_WITH=..\plugin_api.obj
 !ENDIF
@@ -25,6 +25,6 @@ megaco.dll megaco.exp megaco.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
 	$(GLIB_LIBS)
 
 clean:
-	rm -f $(OBJECTS) megaco.dll megaco.exp megaco.lib $(PDB_FILE)
+	rm -f $(OBJECTS) megaco.dll megaco.exp megaco.lib *.pdb
 
 distclean: clean
