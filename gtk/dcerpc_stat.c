@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.14 2003/09/02 08:27:23 sahlberg Exp $
+ * $Id: dcerpc_stat.c,v 1.15 2003/09/05 00:48:58 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -282,6 +282,10 @@ static GtkWidget *vers_label, *vers_opt, *vers_menu;
 static GtkWidget *filter_box;
 static GtkWidget *filter_label, *filter_entry;
 static GtkWidget *start_button;
+static dcerpc_uuid_key *current_uuid_key=NULL;
+static dcerpc_uuid_value *current_uuid_value=NULL;
+static dcerpc_uuid_key *new_uuid_key=NULL;
+static dcerpc_uuid_value *new_uuid_value=NULL;
 
 
 static void
@@ -355,21 +359,67 @@ dcerpcstat_program_select(GtkWidget *item _U_, gpointer key)
 }
 
 
-static void *
-dcerpcstat_list_programs(gpointer *key, gpointer *value, gpointer *user_data _U_)
+static void 
+dcerpcstat_add_program_to_menu(dcerpc_uuid_key *k, dcerpc_uuid_value *v)
 {
-	dcerpc_uuid_key *k=(dcerpc_uuid_key *)key;
-	dcerpc_uuid_value *v=(dcerpc_uuid_value *)value;
-	GtkWidget *menu_item;
+	GtkWidget *program_menu_item;
 
-	menu_item=gtk_menu_item_new_with_label(v->name);
-	SIGNAL_CONNECT(menu_item, "activate", dcerpcstat_program_select, k);
+	program_menu_item=gtk_menu_item_new_with_label(v->name);
+	SIGNAL_CONNECT(program_menu_item, "activate", dcerpcstat_program_select, k);
 
-	gtk_widget_show(menu_item);
-	gtk_menu_append(GTK_MENU(prog_menu), menu_item);
+	gtk_widget_show(program_menu_item);
+	gtk_menu_append(GTK_MENU(prog_menu), program_menu_item);
 
 	if(!dcerpc_uuid_program){
 		dcerpc_uuid_program=&k->uuid;
+	}
+
+	return;
+}
+
+static void *
+dcerpcstat_find_next_program(gpointer *key, gpointer *value, gpointer *user_data _U_)
+{
+	dcerpc_uuid_key *k=(dcerpc_uuid_key *)key;
+	dcerpc_uuid_value *v=(dcerpc_uuid_value *)value;
+
+	/* first time called, just set new_uuid to this one */
+	if((current_uuid_key==NULL)&&(new_uuid_key==NULL)){
+		new_uuid_key=k;
+		new_uuid_value=v;
+		return NULL;
+	}
+
+	/* if we havent got a current one yet, just check the new
+	   and scan for the first one alphabetically  */
+	if(current_uuid_key==NULL){
+		if(strcmp(new_uuid_value->name, v->name)>0){
+			new_uuid_key=k;
+			new_uuid_value=v;
+			return NULL;
+		}
+		return NULL;
+	}
+
+	/* searching for the next one we are only interested in those
+	   that sorts alphabetically after the current one */
+	if(strcmp(current_uuid_value->name, v->name)>=0){
+		/* this one doesnt so just skip it */
+		return NULL;
+	}
+
+	/* is it the first potential new entry? */
+	if(new_uuid_key==NULL){
+		new_uuid_key=k;
+		new_uuid_value=v;
+		return NULL;
+	}
+
+	/* does it sort before the current new one? */
+	if(strcmp(new_uuid_value->name, v->name)>0){
+		new_uuid_key=k;
+		new_uuid_value=v;
+		return NULL;
 	}
 
 	return NULL;
@@ -420,7 +470,20 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	/* Program menu */
 	prog_opt=gtk_option_menu_new();
 	prog_menu=gtk_menu_new();
-	g_hash_table_foreach(dcerpc_uuids, (GHFunc)dcerpcstat_list_programs, NULL);
+	current_uuid_key=NULL;
+	current_uuid_value=NULL;
+	do {
+		new_uuid_key=NULL;
+		new_uuid_value=NULL;
+		g_hash_table_foreach(dcerpc_uuids, (GHFunc)dcerpcstat_find_next_program, NULL);
+		if(new_uuid_key){
+			dcerpcstat_add_program_to_menu(new_uuid_key, new_uuid_value);
+		}
+		current_uuid_key=new_uuid_key;
+		current_uuid_value=new_uuid_value;
+	} while(new_uuid_key!=NULL);
+
+
 	gtk_option_menu_set_menu(GTK_OPTION_MENU(prog_opt), prog_menu);
 	gtk_box_pack_start(GTK_BOX(prog_box), prog_opt, TRUE, TRUE, 0);
 	gtk_widget_show(prog_opt);
