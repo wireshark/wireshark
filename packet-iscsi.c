@@ -2,7 +2,7 @@
  * Routines for iSCSI dissection
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
  *
- * $Id: packet-iscsi.c,v 1.36 2002/08/02 23:35:51 jmayer Exp $
+ * $Id: packet-iscsi.c,v 1.37 2002/08/20 22:33:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1434,7 +1434,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		  ~(X_BIT | I_BIT) :
 		  ~I_BIT)) == ISCSI_OPCODE_SCSI_COMMAND) {
         /* SCSI Command */
-        dissect_scsi_cdb (tvb, pinfo, tree, cdb_offset, 16);
+        dissect_scsi_cdb (tvb, pinfo, tree, cdb_offset, 16, SCSI_DEV_UNKNOWN);
     }
     else if (opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
         if (scsi_status == 0x2) {

@@ -1,7 +1,7 @@
 /* packet-scsi.h
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.h,v 1.3 2002/02/13 01:17:58 guy Exp $
+ * $Id: packet-scsi.h,v 1.4 2002/08/20 22:33:17 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,10 +27,38 @@
 
 extern const value_string scsi_status_val[];
 
+/*
+ * SCSI Device Types.
+ *
+ * These can be supplied to the dissection routines if the caller happens
+ * to know the device type (e.g., NDMP assumes that a "jukebox" is a
+ * media changer, SCSI_DEV_SMC, and a "tape" is a sequential access device,
+ * SCSI_DEV_SSC).
+ *
+ * If the caller doesn't know the device type, it supplies SCSI_DEV_UNKNOWN.
+ */
+#define SCSI_DEV_UNKNOWN   -1
+#define SCSI_DEV_SBC       0x0
+#define SCSI_DEV_SSC       0x1
+#define SCSI_DEV_PRNT      0x2
+#define SCSI_DEV_PROC      0x3
+#define SCSI_DEV_WORM      0x4
+#define SCSI_DEV_CDROM     0x5
+#define SCSI_DEV_SCAN      0x6
+#define SCSI_DEV_OPTMEM    0x7
+#define SCSI_DEV_SMC       0x8
+#define SCSI_DEV_COMM      0x9
+#define SCSI_DEV_RAID      0xC
+#define SCSI_DEV_SES       0xD
+#define SCSI_DEV_RBC       0xE
+#define SCSI_DEV_OCRW      0xF
+#define SCSI_DEV_OSD       0x11
+
 /* Function Decls; functions invoked by SAM-2 transport protocols such as
  * FCP/iSCSI
  */
-void dissect_scsi_cdb (tvbuff_t *, packet_info *, proto_tree *, guint, guint);
+void dissect_scsi_cdb (tvbuff_t *, packet_info *, proto_tree *, guint, guint,
+                       gint);
 void dissect_scsi_rsp (tvbuff_t *, packet_info *, proto_tree *);
 void dissect_scsi_payload (tvbuff_t *, packet_info *, proto_tree *, guint,
                            gboolean, guint32);

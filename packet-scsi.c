@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.14 2002/08/20 03:21:42 guy Exp $
+ * $Id: packet-scsi.c,v 1.15 2002/08/20 22:33:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -519,23 +519,6 @@ static const value_string scsi_persresv_type_val[] = {
     {7, "Excl Access, Registrants Only"},
     {0, NULL},
 };
-
-/* SCSI Device Types */
-#define SCSI_DEV_SBC       0x0
-#define SCSI_DEV_SSC       0x1
-#define SCSI_DEV_PRNT      0x2
-#define SCSI_DEV_PROC      0x3
-#define SCSI_DEV_WORM      0x4
-#define SCSI_DEV_CDROM     0x5
-#define SCSI_DEV_SCAN      0x6
-#define SCSI_DEV_OPTMEM    0x7
-#define SCSI_DEV_SMC       0x8
-#define SCSI_DEV_COMM      0x9
-#define SCSI_DEV_RAID      0xC
-#define SCSI_DEV_SES       0xD
-#define SCSI_DEV_RBC       0xE
-#define SCSI_DEV_OCRW      0xF
-#define SCSI_DEV_OSD       0x11
 
 static const value_string scsi_devtype_val[] = {
     {SCSI_DEV_SBC   , "Direct Access Device"},
@@ -1100,7 +1083,21 @@ typedef struct _scsi_task_data {
     guint8 flags;               /* used by SCSI Inquiry */
 } scsi_task_data_t;
 
-/* The next two data structures are used to track SCSI device type */
+/*
+ * The next two data structures are used to track SCSI device type.
+ *
+ * XXX - it might not be sufficient to use the address of the server
+ * to which SCSI CDBs are being sent to identify the device, as
+ *
+ *	1) a server might have multiple targets or logical units;
+ *
+ *	2) a server might make a different logical unit refer to
+ *	   different devices for different clients;
+ *
+ * so we should really base this on the connection index for the
+ * connection and on a device identifier supplied to us by our caller,
+ * not on a network-layer address.
+ */
 typedef struct _scsi_devtype_key {
     address devid;
 } scsi_devtype_key_t;
@@ -1230,8 +1227,31 @@ scsi_end_task (packet_info *pinfo)
  * Protocol initialization
  */
 static void
+free_devtype_key_dev_info(gpointer key_arg, gpointer value_arg _U_,
+    gpointer user_data _U_)
+{
+	scsi_devtype_key_t *key = key_arg;
+
+	if (key->devid.data != NULL) {
+		g_free((gpointer)key->devid.data);
+		key->devid.data = NULL;
+	}
+}
+
+static void
 scsi_init_protocol(void)
 {
+	/*
+	 * First, free up the data for the addresses attached to
+	 * scsi_devtype_key_t structures.  Do so before we free
+	 * those structures or destroy the hash table in which
+	 * they're stored.
+	 */
+	if (scsidev_req_hash != NULL) {
+		g_hash_table_foreach(scsidev_req_hash, free_devtype_key_dev_info,
+		    NULL);
+	}
+
 	if (scsi_req_keys)
             g_mem_chunk_destroy(scsi_req_keys);
 	if (scsi_req_vals)
@@ -1392,16 +1412,15 @@ dissect_scsi_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (!isreq && (cdata == NULL || !(cdata->flags & 0x3))) {
         /*
-         * INQUIRY response; add device type to list of known devices &
-         * their types if not already known.
+         * INQUIRY response with device type information; add device type
+         * to list of known devices & their types if not already known.
          *
-         * XXX - this assumes that the source address of the INQUIRY
-         * reply uniquely identifies the device; that isn't the case, as,
-         * for example, for iSCSI you could have more than one target
-         * or LUN at a given IP address, and for NDMP more than one
-         * device can be opened and closed in the same session.
+         * We don't use COPY_ADDRESS because "dkey.devid" isn't
+         * persistent, and therefore it can point to the stuff
+         * in "pinfo->src".  (Were we to use COPY_ADDRESS, we'd
+         * have to free the address data it allocated before we return.)
          */
-        COPY_ADDRESS (&(dkey.devid), &(pinfo->src));
+        dkey.devid = pinfo->src;
         devdata = (scsi_devtype_data_t *)g_hash_table_lookup (scsidev_req_hash,
                                                               &dkey);
         if (!devdata) {
@@ -2685,7 +2704,7 @@ dissect_scsi_ssc2_read6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
         proto_tree_add_text (tree, tvb, offset, 1,
                              "SILI: %u, FIXED: %u",
                              (flags & 0x02) >> 1, flags & 0x01);
-        proto_tree_add_item (tree, hf_scsi_rdwr6_xferlen, tvb, offset+1, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_rdwr6_xferlen, tvb, offset+1, 3, 0);
         flags = tvb_get_guint8 (tvb, offset+4);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
                                     flags,
@@ -2710,7 +2729,8 @@ dissect_scsi_ssc2_write6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
         flags = tvb_get_guint8 (tvb, offset);
         proto_tree_add_text (tree, tvb, offset, 1,
                              "FIXED: %u", flags & 0x01);
-        proto_tree_add_item (tree, hf_scsi_rdwr6_xferlen, tvb, offset+1, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_rdwr6_xferlen, tvb, offset+1, 3,
+                             FALSE);
         flags = tvb_get_guint8 (tvb, offset+4);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
                                     flags,
@@ -2987,7 +3007,7 @@ dissect_scsi_snsinfo (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 void
 dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                  guint start, guint cdblen)
+                  guint start, guint cdblen, gint devtype_arg)
 {
     int offset = start;
     proto_item *ti;
@@ -3002,24 +3022,27 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     
     opcode = tvb_get_guint8 (tvb, offset);
 
-    /*
-     * Try to look up the device data for this device.
-     *
-     * XXX - this assumes that the destination address of the request
-     * uniquely identifies the device; that isn't the case, as,
-     * for example, for iSCSI you could have more than one target
-     * or LUN at a given IP address, and for NDMP more than one
-     * device can be opened and closed in the same session.
-     */
-    COPY_ADDRESS (&(dkey.devid), &pinfo->dst);
-
-    devdata = (scsi_devtype_data_t *)g_hash_table_lookup (scsidev_req_hash,
-                                                          &dkey);
-    if (devdata != NULL) {
-        devtype = devdata->devtype;
-    }
+    if (devtype_arg != SCSI_DEV_UNKNOWN)
+        devtype = devtype_arg;
     else {
-        devtype = (scsi_device_type)scsi_def_devtype;
+        /*
+         * Try to look up the device data for this device.
+         *
+         * We don't use COPY_ADDRESS because "dkey.devid" isn't
+         * persistent, and therefore it can point to the stuff
+         * in "pinfo->src".  (Were we to use COPY_ADDRESS, we'd
+         * have to free the address data it allocated before we return.)
+         */
+        dkey.devid = pinfo->dst;
+
+        devdata = (scsi_devtype_data_t *)g_hash_table_lookup (scsidev_req_hash,
+                                                              &dkey);
+        if (devdata != NULL) {
+            devtype = devdata->devtype;
+        }
+        else {
+            devtype = (scsi_device_type)scsi_def_devtype;
+        }
     }
 
     if ((valstr = match_strval (opcode, scsi_spc2_val)) == NULL) {
@@ -3097,6 +3120,10 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                             tvb_get_guint8 (tvb, offset),
                                             "Opcode: %s (0x%02x)", valstr,
                                             opcode);
+            }
+            else {
+                /* "Can't happen" */
+                g_assert_not_reached();
             }
         }
         else {

@@ -2,7 +2,7 @@
  * Routines for NDMP dissection
  * 2001 Ronnie Sahlberg (see AUTHORS for email)
  *
- * $Id: packet-ndmp.c,v 1.21 2002/08/02 23:35:54 jmayer Exp $
+ * $Id: packet-ndmp.c,v 1.22 2002/08/20 22:33:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -420,7 +420,6 @@ static const value_string msg_vals[] = {
 	{NDMP_MOVER_CONNECT, 		"MOVER_CONNECT"},
 	{0, NULL}
 };
-
 
 static int
 dissect_connect_open_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
@@ -1051,7 +1050,8 @@ dissect_execute_cdb_flags(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 static int
-dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree)
+dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *parent_tree, gint devtype)
 {
 	proto_item* item = NULL;
 	proto_tree* tree = NULL;
@@ -1072,7 +1072,7 @@ dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	offset += 4;
 
 	if (cdb_len != 0) {
-		dissect_scsi_cdb(tvb, pinfo, tree, offset, cdb_len);
+		dissect_scsi_cdb(tvb, pinfo, tree, offset, cdb_len, devtype);
 		offset += cdb_len_full;
 	}
 
@@ -1111,9 +1111,24 @@ dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	return offset;
 }
 
+/*
+ * XXX - we assume that NDMP_SCSI_EXECUTE_CDB requests only go to SCSI Media
+ * Changer devices and NDMP_TAPE_EXECUTE_CDB only go to SCSI Sequential
+ * Access devices.
+ *
+ * If that's not the case, we'll have to use the SCSI dissector's mechanisms
+ * for saving inquiry data for devices, and use inquiry data when available.
+ * Unfortunately, that means we need to save the name of the device, and
+ * use it as a device identifier; as the name isn't available in the
+ * NDMP_SCSI_EXECUTE_CDB or NDMP_TAPE_EXECUTE_CDB messages, that means
+ * we need to remember the currently-opened "SCSI" and "TAPE" devices
+ * from NDMP_SCSI_OPEN and NDMP_TAPE_OPEN, and attach to all frames
+ * that are the ones that trigger the dissection of NDMP_SCSI_EXECUTE_CDB
+ * or NDMP_TAPE_EXECUTE_CDB requests pointers to those names.
+ */
 static int
 dissect_execute_cdb_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, guint32 seq)
+    proto_tree *tree, guint32 seq, gint devtype)
 {
 	conversation_t *conversation;
 	scsi_task_id_t task_key;
@@ -1132,7 +1147,7 @@ dissect_execute_cdb_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	task_key.conv_id = conversation->index;
 	task_key.task_id = seq;
-        pinfo->private_data = &task_key;
+	pinfo->private_data = &task_key;
         
 	/* flags */
 	offset = dissect_execute_cdb_flags(tvb, offset, pinfo, tree);
@@ -1146,13 +1161,29 @@ dissect_execute_cdb_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset += 4;
 
 	/* CDB */
-	offset = dissect_execute_cdb_cdb(tvb, offset, pinfo, tree);
+	offset = dissect_execute_cdb_cdb(tvb, offset, pinfo, tree, devtype);
 
 	/* dataout */
 	offset = dissect_execute_cdb_payload(tvb, offset, pinfo, tree,
 	    "Data out", hf_ndmp_execute_cdb_dataout_len, TRUE);
 
 	return offset;
+}
+
+static int
+dissect_execute_cdb_request_mc(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree, guint32 seq)
+{
+	return dissect_execute_cdb_request(tvb, offset, pinfo, tree, seq,
+	    SCSI_DEV_SMC);
+}
+
+static int
+dissect_execute_cdb_request_tape(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree, guint32 seq)
+{
+	return dissect_execute_cdb_request(tvb, offset, pinfo, tree, seq,
+	    SCSI_DEV_SSC);
 }
 
 static int
@@ -2441,7 +2472,7 @@ static const ndmp_command ndmp_commands[] = {
 	{NDMP_SCSI_RESET_BUS, 		
 		NULL, dissect_error},
 	{NDMP_SCSI_EXECUTE_CDB,
-		dissect_execute_cdb_request, dissect_execute_cdb_reply},
+		dissect_execute_cdb_request_mc, dissect_execute_cdb_reply},
 	{NDMP_TAPE_OPEN, 		
 		dissect_tape_open_request, dissect_error},
 	{NDMP_TAPE_CLOSE, 		
@@ -2455,7 +2486,7 @@ static const ndmp_command ndmp_commands[] = {
 	{NDMP_TAPE_READ, 	
 		dissect_tape_read_request, dissect_tape_read_reply},
 	{NDMP_TAPE_EXECUTE_CDB,
-		dissect_execute_cdb_request, dissect_execute_cdb_reply},
+		dissect_execute_cdb_request_tape, dissect_execute_cdb_reply},
 	{NDMP_DATA_GET_STATE, 		
 		NULL, dissect_data_get_state_reply},
 	{NDMP_DATA_START_BACKUP,
