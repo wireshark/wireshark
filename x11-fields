@@ -3,7 +3,7 @@
 #
 # Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
 #
-# $Id: x11-fields,v 1.8 2003/01/31 05:15:23 guy Exp $
+# $Id: x11-fields,v 1.9 2003/07/09 05:23:50 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -42,8 +42,8 @@ arc		NONE	NONE
 	height	UINT16	DEC
 	angle1	INT16	DEC
 	angle2	INT16	DEC
-	mode	UINT8	DEC	VALS	Tell us if we're drawing an arc or a pie
 
+arc-mode	UINT8	DEC	VALS	Tell us if we're drawing an arc or a pie
 atom		UINT32	HEX
 authorization-protocol-name-length	UINT16	DEC
 authorization-protocol-name	STRING	HEX
