@@ -1047,6 +1047,8 @@ Dermot Bradley <dermot.bradley[AT]openwave.com> {
 Adam Sulmicki <adam[AT]cfar.umd.edu> {
 	Add more type values for EAP.
 	Fix off-by-one bug when displaying Code of EAP message.
+	Additional AVPs for RADIUS, and making RD_TP_CONNECT_INFO a
+	    RADIUS_STRING rather than a RADIUS_STRING_TAGGED
 }
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
