@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.32 2002/04/17 08:30:17 guy Exp $
+ * $Id: packet-wtp.c,v 1.33 2002/05/27 20:33:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -437,7 +437,8 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	   it, if possible, summarize what's in the packet, so that a user looking
 	   at the list of packets can tell what type of packet it is. */
 	if (check_col(pinfo->cinfo, COL_INFO) &&
-	    (tvb_length_remaining(tvb, offCur + cbHeader + vHeader) <= 0)) {
+	    ((tvb_length_remaining(tvb, offCur + cbHeader + vHeader) <= 0) || 
+	     (pdut == ACK) || (pdut==NEGATIVE_ACK) || (pdut==ABORT)) ) {
 #ifdef DEBUG
 		fprintf( stderr, "dissect_wtp: (6) About to set info_col header to %s\n", szInfo );
 #endif
@@ -574,10 +575,11 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif
 	}
 	/*
-	 * Any remaining data ought to be WSP data,
-	 * so hand off (defragmented) to the WSP dissector
+	 * Any remaining data ought to be WSP data (if not WTP ACK, NACK
+	 * or ABORT pdu), so hand off (defragmented) to the WSP dissector
 	 */
-	if (tvb_length_remaining(tvb, offCur + cbHeader + vHeader) > 0)
+	if ( (tvb_length_remaining(tvb, offCur + cbHeader + vHeader) > 0) && 
+	      ! ((pdut==ACK) || (pdut==NEGATIVE_ACK) || (pdut==ABORT)))
 	{
 		int	dataOffset = offCur + cbHeader + vHeader;
 		guint32 dataLen = tvb_length_remaining(tvb, offCur + cbHeader + vHeader);
