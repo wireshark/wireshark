@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.25 2000/02/19 08:00:06 guy Exp $
+ * $Id: iptrace.c,v 1.26 2000/03/30 21:41:11 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -351,7 +351,7 @@ wtap_encap_ift(unsigned int  ift)
 /* 0x9 */	WTAP_ENCAP_TR,		/* IFT_ISO88025 */
 /* 0xa */	WTAP_ENCAP_UNKNOWN,	/* IFT_ISO88026 */
 /* 0xb */	WTAP_ENCAP_UNKNOWN,	/* IFT_STARLAN */
-/* 0xc */	WTAP_ENCAP_UNKNOWN,	/* IFT_P10 */
+/* 0xc */	WTAP_ENCAP_RAW_IP,	/* IFT_P10, IBM SP switch */
 /* 0xd */	WTAP_ENCAP_UNKNOWN,	/* IFT_P80 */
 /* 0xe */	WTAP_ENCAP_UNKNOWN,	/* IFT_HY */
 /* 0xf */	WTAP_ENCAP_FDDI_BITSWAPPED,	/* IFT_FDDI */
