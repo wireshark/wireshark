@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.40 2002/08/28 20:40:45 jmayer Exp $
+ * $Id: tvbuff.c,v 1.41 2003/02/24 01:22:26 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -1615,6 +1615,41 @@ tvb_memeql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size)
 		 */
 		return -1;
 	}
+}
+
+/* Convert a string from Unicode to ASCII.  At the moment we fake it by
+ * assuming all characters are ASCII  )-:  The caller must free the
+ * result returned.  The len parameter is the number of guint16's to
+ * convert from Unicode. */
+char *
+tvb_fake_unicode(tvbuff_t *tvb, int offset, int len, gboolean little_endian)
+{
+	char *buffer;
+	int i;
+	guint16 character;
+
+	/* Make sure we have enough data before allocating the buffer,
+	   so we don't blow up if the length is huge.
+	   We do so by attempting to fetch the last character; it'll
+	   throw an exception if it's past the end.
+
+           The byte order we use to fetch it is irrelevant here. */
+	tvb_get_letohs(tvb, offset + 2*(len - 1));
+
+	/* We know we won't throw an exception, so we don't have to worry
+	   about leaking this buffer. */
+	buffer = g_malloc(len + 1);
+
+	for (i = 0; i < len; i++) {
+		character = little_endian ? tvb_get_letohs(tvb, offset)
+					  : tvb_get_ntohs(tvb, offset);
+		buffer[i] = character & 0xff;
+		offset += 2;
+	}
+
+	buffer[len] = 0;
+
+	return buffer;
 }
 
 /*

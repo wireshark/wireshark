@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.29 2002/08/28 20:40:45 jmayer Exp $
+ * $Id: tvbuff.h,v 1.30 2003/02/24 01:22:30 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -305,6 +305,13 @@ extern guint tvb_strsize(tvbuff_t *tvb, gint offset);
  * of tvbuff.
  * Returns -1 if 'maxlength' reached before finding EOS. */
 extern gint tvb_strnlen(tvbuff_t*, gint offset, guint maxlength);
+
+/* Convert a string from Unicode to ASCII.  At the moment we fake it by
+ * assuming all characters are ASCII  )-:  The caller must free the
+ * result returned.  The len parameter is the number of guint16's to
+ * convert from Unicode. */
+extern char *tvb_fake_unicode(tvbuff_t *tvb, int offset, int len,
+                              gboolean little_endian);
 
 /*
  * Format the data in the tvb from offset for size ...

@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.30 2003/02/10 02:06:28 tpot Exp $
+ * $Id: packet-dcerpc.h,v 1.31 2003/02/24 01:22:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -190,8 +190,6 @@ int dissect_ndr_ucvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 int dissect_ndr_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                            proto_tree *tree, char *drep);
-
-char *fake_unicode(tvbuff_t *tvb, int offset, int len);
 
 int dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 			 proto_tree *tree, char *drep, int size_is,

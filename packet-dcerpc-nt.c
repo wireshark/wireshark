@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.67 2003/02/08 09:41:44 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.68 2003/02/24 01:22:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -682,8 +682,9 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	if ((end_offset - start_offset) <= 12)
 		return;		/* XXX: Use unistr2 dissector instead? */
 
-	s = fake_unicode(
-		tvb, start_offset + 12, (end_offset - start_offset - 12) / 2);
+	s = tvb_fake_unicode(
+		tvb, start_offset + 12, (end_offset - start_offset - 12) / 2,
+		TRUE);
 
 	/* Append string to COL_INFO */
 

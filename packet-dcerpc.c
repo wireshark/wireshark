@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.109 2003/02/21 04:31:38 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.110 2003/02/24 01:22:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -962,39 +962,6 @@ dissect_ndr_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* For dissecting arrays that are to be interpreted as strings.  */
 
-/* Convert a string from little-endian unicode to ascii.  At the moment we
-   fake it by taking every odd byte.  )-:  The caller must free the
-   result returned.  The len parameter is the number of guint16's to
-   convert from unicode. */
-
-char *
-fake_unicode(tvbuff_t *tvb, int offset, int len)
-{
-	char *buffer;
-	int i;
-	guint16 character;
-
-	/* Make sure we have enough data before allocating the buffer,
-	   so we don't blow up if the length is huge.
-	   We do so by attempting to fetch the last character; it'll
-	   throw an exception if it's past the end. */
-	tvb_get_letohs(tvb, offset + 2*(len - 1));
-
-	/* We know we won't throw an exception, so we don't have to worry
-	   about leaking this buffer. */
-	buffer = g_malloc(len + 1);
-
-	for (i = 0; i < len; i++) {
-		character = tvb_get_letohs(tvb, offset);
-		buffer[i] = character & 0xff;
-		offset += 2;
-	}
-
-	buffer[len] = 0;
-
-	return buffer;
-}
-
 /* Dissect an NDR conformant varying string of elements.
    The length of each element is given by the 'size_is' parameter;
    the elements are assumed to be characters or wide characters.
@@ -1046,7 +1013,8 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset += size_is - (offset % size_is);
 
     if (size_is == sizeof(guint16)) {
-            s = fake_unicode(tvb, offset, buffer_len / 2);
+            /* XXX - use drep to determine the byte order? */
+            s = tvb_fake_unicode(tvb, offset, buffer_len / 2, TRUE);
             /*
              * XXX - we don't support a string type with Unicode
              * characters, so if this is a string item, we make

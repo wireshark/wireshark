@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.89 2003/02/14 06:23:45 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.90 2003/02/24 01:22:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -575,7 +575,7 @@ static int dissect_printerdata_data(tvbuff_t *tvb, int offset,
 		
 		switch(type) {
 		case DCERPC_REG_SZ: {
-			char *data = fake_unicode(tvb, offset - size, size/2);
+			char *data = tvb_fake_unicode(tvb, offset - size, size/2, TRUE);
 			
 			proto_item_append_text(item, ": %s", data);
 
@@ -944,7 +944,7 @@ static int SpoolssSetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 /* Yet another way to represent a unicode string - sheesh. This function
    dissects a NULL terminate unicode string at the current offset and
    returns the (char *) equivalent.  This really should return UTF8 or
-   something but we use fake_unicode() instead. */
+   something but we use tvb_fake_unicode() instead. */
 
 /* XXX - "name" should be an hf_ value for an FT_STRING. */
 static int
@@ -961,7 +961,7 @@ dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	/* Get remaining data in buffer as a string */
 
 	remaining = tvb_length_remaining(tvb, offset) / 2;
-	text = fake_unicode(tvb, offset, remaining);
+	text = tvb_fake_unicode(tvb, offset, remaining, TRUE);
 	len = strlen(text);
 
 	proto_tree_add_text(tree, tvb, offset, len * 2, "%s: %s",
@@ -5442,8 +5442,8 @@ static void cb_notify_str_postprocess(packet_info *pinfo _U_,
 
 	len = tvb_get_letohl(tvb, start_offset);
 
-	s = fake_unicode(
-		tvb, start_offset + 4, (end_offset - start_offset - 4) / 2);
+	s = tvb_fake_unicode(
+		tvb, start_offset + 4, (end_offset - start_offset - 4) / 2, TRUE);
 
 	/* Append string to upper-level proto_items */
 
