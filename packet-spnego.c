@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.22 2002/08/31 22:22:29 guy Exp $
+ * $Id: packet-spnego.c,v 1.23 2002/09/03 16:45:31 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -275,8 +275,8 @@ dissect_spnego_mechListMIC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	   */
 	 
 	  proto_tree_add_text(tree, tvb, offset + 4, len1 - 4,
-			      "mechListMIC: %s\n",
-			      tvb_format_text(tvb, offset + 4, len1 - 4));
+			      "mechListMIC: %s",
+			      tvb_format_text(tvb, offset + 4, len1 - 4), len1);
 
 	  /* Naughty ... but we have to adjust for what we never took */
 
