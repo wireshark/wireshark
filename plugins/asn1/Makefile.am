@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/asn1
 #
-# $Id: Makefile.am,v 1.2 2003/11/17 22:34:23 guy Exp $
+# $Id: Makefile.am,v 1.3 2003/12/04 22:37:52 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -33,7 +33,7 @@ asn1_la_LDFLAGS = -module -avoid-version
 # Libs must be cleared, or else libtool won't create a shared module.
 # If your module needs to be linked against any particular libraries,
 # add them here.
-LIBS =
+LIBS = $(GLIB_LIBS)
 
 packet-asn1-static.o:	packet-asn1.c moduleinfo.h
 	$(LTCOMPILE) -c -o packet-asn1-static.o -D__ETHEREAL_STATIC__ $(srcdir)/packet-asn1.c 
