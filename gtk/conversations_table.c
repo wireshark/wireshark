@@ -208,33 +208,33 @@ typedef struct column_arrows {
 
 
 static void
-reset_ct_table_data(conversations_table *et)
+reset_ct_table_data(conversations_table *ct)
 {
     guint32 i;
     char title[256];
 
-    if(et->page_lb) {
+    if(ct->page_lb) {
         g_snprintf(title, 255, "Conversations: %s", cf_get_display_name(&cfile));
-        gtk_window_set_title(GTK_WINDOW(et->win), title);
-        g_snprintf(title, 255, "%s", et->name);
-        gtk_label_set_text(GTK_LABEL(et->page_lb), title);
-        gtk_widget_set_sensitive(et->page_lb, FALSE);
+        gtk_window_set_title(GTK_WINDOW(ct->win), title);
+        g_snprintf(title, 255, "%s", ct->name);
+        gtk_label_set_text(GTK_LABEL(ct->page_lb), title);
+        gtk_widget_set_sensitive(ct->page_lb, FALSE);
     } else {
-        g_snprintf(title, 255, "%s Conversations: %s", et->name, cf_get_display_name(&cfile));
-        gtk_window_set_title(GTK_WINDOW(et->win), title);
+        g_snprintf(title, 255, "%s Conversations: %s", ct->name, cf_get_display_name(&cfile));
+        gtk_window_set_title(GTK_WINDOW(ct->win), title);
     }
 
     /* remove all entries from the clist */
-    gtk_clist_clear(et->table);
+    gtk_clist_clear(ct->table);
 
-    /* delete all endpoints */
-    for(i=0;i<et->num_endpoints;i++){
-        g_free((gpointer)et->endpoints[i].src_address.data);
-        g_free((gpointer)et->endpoints[i].dst_address.data);
+    /* delete all conversations */
+    for(i=0;i<ct->num_conversations;i++){
+        g_free((gpointer)ct->conversations[i].src_address.data);
+        g_free((gpointer)ct->conversations[i].dst_address.data);
     }
-    g_free(et->endpoints);
-    et->endpoints=NULL;
-    et->num_endpoints=0;
+    g_free(ct->conversations);
+    ct->conversations=NULL;
+    ct->num_conversations=0;
 }
 
 
@@ -356,7 +356,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 {
 	int action, type, direction;
 	int selection;
-	conversations_table *et = (conversations_table *)callback_data;
+	conversations_table *ct = (conversations_table *)callback_data;
 	char dirstr[128];
 	char str[256];
 	const char *current_filter;
@@ -367,31 +367,31 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 	direction=callback_action&0xff;
 
 
-	selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(et->table)->selection, 0));
-	if(selection>=(int)et->num_endpoints){
+	selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(ct->table)->selection, 0));
+	if(selection>=(int)ct->num_conversations){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No conversation selected");
 		return;
 	}
 	/* translate it back from row index to index in enndpoint array */
-	selection=GPOINTER_TO_INT(gtk_clist_get_row_data(et->table, selection));
+	selection=GPOINTER_TO_INT(gtk_clist_get_row_data(ct->table, selection));
 
-	sport=ct_port_to_str(et->endpoints[selection].port_type, et->endpoints[selection].src_port);
-	dport=ct_port_to_str(et->endpoints[selection].port_type, et->endpoints[selection].dst_port);
+	sport=ct_port_to_str(ct->conversations[selection].port_type, ct->conversations[selection].src_port);
+	dport=ct_port_to_str(ct->conversations[selection].port_type, ct->conversations[selection].dst_port);
 
 	switch(direction){
 	case 0:
 		/* A <-> B */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s && %s==%s %s%s%s%s",
-			ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_ADDRESS),
-			address_to_str(&et->endpoints[selection].src_address),
+			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
+			address_to_str(&ct->conversations[selection].src_address),
 			sport?" && ":"",
-			sport?ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_PORT):"",
+			sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_PORT):"",
 			sport?"==":"",
 			sport?sport:"",
-			ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_ADDRESS),
-			address_to_str(&et->endpoints[selection].dst_address),
+			ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
+			address_to_str(&ct->conversations[selection].dst_address),
 			dport?" && ":"",
-			dport?ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_PORT):"",
+			dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_PORT):"",
 			dport?"==":"",
 			dport?dport:""
 		);
@@ -399,16 +399,16 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 	case 1:
 		/* A --> B */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s && %s==%s %s%s%s%s",
-			ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_ADDRESS),
-			address_to_str(&et->endpoints[selection].src_address),
+			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
+			address_to_str(&ct->conversations[selection].src_address),
 			sport?" && ":"",
-			sport?ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_PORT):"",
+			sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_PORT):"",
 			sport?"==":"",
 			sport?sport:"",
-			ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_ADDRESS),
-			address_to_str(&et->endpoints[selection].dst_address),
+			ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
+			address_to_str(&ct->conversations[selection].dst_address),
 			dport?" && ":"",
-			dport?ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_PORT):"",
+			dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_PORT):"",
 			dport?"==":"",
 			dport?dport:""
 		);
@@ -416,16 +416,16 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 	case 2:
 		/* A <-- B */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s && %s==%s %s%s%s%s",
-			ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_ADDRESS),
-			address_to_str(&et->endpoints[selection].src_address),
+			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
+			address_to_str(&ct->conversations[selection].src_address),
 			sport?" && ":"",
-			sport?ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_PORT):"",
+			sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_PORT):"",
 			sport?"==":"",
 			sport?sport:"",
-			ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_ADDRESS),
-			address_to_str(&et->endpoints[selection].dst_address),
+			ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
+			address_to_str(&ct->conversations[selection].dst_address),
 			dport?" && ":"",
-			dport?ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_PORT):"",
+			dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_PORT):"",
 			dport?"==":"",
 			dport?dport:""
 		);
@@ -433,10 +433,10 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 	case 3:
 		/* A <-> ANY */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
-			ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_ADDRESS),
-			address_to_str(&et->endpoints[selection].src_address),
+			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
+			address_to_str(&ct->conversations[selection].src_address),
 			sport?" && ":"",
-			sport?ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_PORT):"",
+			sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_PORT):"",
 			sport?"==":"",
 			sport?sport:""
 		);
@@ -444,10 +444,10 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 	case 4:
 		/* A --> ANY */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
-			ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_ADDRESS),
-			address_to_str(&et->endpoints[selection].src_address),
+			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
+			address_to_str(&ct->conversations[selection].src_address),
 			sport?" && ":"",
-			sport?ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_PORT):"",
+			sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_PORT):"",
 			sport?"==":"",
 			sport?sport:""
 		);
@@ -455,10 +455,10 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 	case 5:
 		/* A <-- ANY */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
-			ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_ADDRESS),
-			address_to_str(&et->endpoints[selection].src_address),
+			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
+			address_to_str(&ct->conversations[selection].src_address),
 			sport?" && ":"",
-			sport?ct_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_PORT):"",
+			sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_PORT):"",
 			sport?"==":"",
 			sport?sport:""
 		);
@@ -466,10 +466,10 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 	case 6:
 		/* B <-> ANY */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
-			ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_ADDRESS),
-			address_to_str(&et->endpoints[selection].dst_address),
+			ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
+			address_to_str(&ct->conversations[selection].dst_address),
 			dport?" && ":"",
-			dport?ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_PORT):"",
+			dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_PORT):"",
 			dport?"==":"",
 			dport?dport:""
 		);
@@ -477,10 +477,10 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 	case 7:
 		/* B --> ANY */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
-			ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_ADDRESS),
-			address_to_str(&et->endpoints[selection].dst_address),
+			ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
+			address_to_str(&ct->conversations[selection].dst_address),
 			dport?" && ":"",
-			dport?ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_PORT):"",
+			dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_PORT):"",
 			dport?"==":"",
 			dport?dport:""
 		);
@@ -488,10 +488,10 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 	case 8:
 		/* B <-- ANY */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
-			ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_ADDRESS),
-			address_to_str(&et->endpoints[selection].dst_address),
+			ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
+			address_to_str(&ct->conversations[selection].dst_address),
 			dport?" && ":"",
-			dport?ct_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_PORT):"",
+			dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_PORT):"",
 			dport?"==":"",
 			dport?dport:""
 		);
@@ -560,7 +560,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 }
 
 static gint
-ct_show_popup_menu_cb(void *widg _U_, GdkEvent *event, conversations_table *et)
+ct_show_popup_menu_cb(void *widg _U_, GdkEvent *event, conversations_table *ct)
 {
 	GdkEventButton *bevent = (GdkEventButton *)event;
     gint row;
@@ -571,14 +571,14 @@ ct_show_popup_menu_cb(void *widg _U_, GdkEvent *event, conversations_table *et)
      * "Normally button 1 is the left mouse button, 2 is the middle button, and 3 is the right button" */
 	if(event->type==GDK_BUTTON_PRESS && bevent->button==3){
         /* if this is a right click on one of our columns, select it and popup the context menu */
-        if(gtk_clist_get_selection_info(et->table,
+        if(gtk_clist_get_selection_info(ct->table,
                                           (gint) (((GdkEventButton *)event)->x),
                                           (gint) (((GdkEventButton *)event)->y),
                                              &row, &column)) {
-            gtk_clist_unselect_all(et->table);
-            gtk_clist_select_row(et->table, row, -1);
+            gtk_clist_unselect_all(ct->table);
+            gtk_clist_select_row(ct->table, row, -1);
 
-		    gtk_menu_popup(GTK_MENU(et->menu), NULL, NULL, NULL, NULL,
+		    gtk_menu_popup(GTK_MENU(ct->menu), NULL, NULL, NULL, NULL,
 			    bevent->button, bevent->time);
         }
     }
@@ -919,143 +919,143 @@ static GtkItemFactoryEntry ct_list_menu_items[] =
 };
 
 static void
-ct_create_popup_menu(conversations_table *et)
+ct_create_popup_menu(conversations_table *ct)
 {
 	GtkItemFactory *item_factory;
 
 	item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
 
-	gtk_item_factory_create_items_ac(item_factory, sizeof(ct_list_menu_items)/sizeof(ct_list_menu_items[0]), ct_list_menu_items, et, 2);
+	gtk_item_factory_create_items_ac(item_factory, sizeof(ct_list_menu_items)/sizeof(ct_list_menu_items[0]), ct_list_menu_items, ct, 2);
 
-	et->menu = gtk_item_factory_get_widget(item_factory, "<main>");
-	SIGNAL_CONNECT(et->table, "button_press_event", ct_show_popup_menu_cb, et);
+	ct->menu = gtk_item_factory_get_widget(item_factory, "<main>");
+	SIGNAL_CONNECT(ct->table, "button_press_event", ct_show_popup_menu_cb, ct);
 }
 
 
 /* XXX should freeze/thaw table here and in the srt thingy? */
 static void
-draw_ct_table_addresses(conversations_table *et)
+draw_ct_table_addresses(conversations_table *ct)
 {
     guint32 i;
     int j;
 
 
-    for(i=0;i<et->num_endpoints;i++){
+    for(i=0;i<ct->num_conversations;i++){
         char *entry;
         char *port;
         address_type  at;
         guint32 pt;
 
-        j=gtk_clist_find_row_from_data(et->table, (gpointer)i);
+        j=gtk_clist_find_row_from_data(ct->table, (gpointer)i);
 
-        at = et->endpoints[i].src_address.type;
-        if(!et->resolve_names) at = AT_NONE;
+        at = ct->conversations[i].src_address.type;
+        if(!ct->resolve_names) at = AT_NONE;
         switch(at) {
         case(AT_IPv4):
-            entry=get_hostname((*(guint *)et->endpoints[i].src_address.data));
+            entry=get_hostname((*(guint *)ct->conversations[i].src_address.data));
             break;
         case(AT_ETHER):
-            entry=get_ether_name(et->endpoints[i].src_address.data);
+            entry=get_ether_name(ct->conversations[i].src_address.data);
             break;
         default:
-            entry=address_to_str(&et->endpoints[i].src_address);
+            entry=address_to_str(&ct->conversations[i].src_address);
         }
-        gtk_clist_set_text(et->table, j, 0, entry);
+        gtk_clist_set_text(ct->table, j, 0, entry);
 
-        pt = et->endpoints[i].port_type;
-        if(!et->resolve_names) pt = PT_NONE;
+        pt = ct->conversations[i].port_type;
+        if(!ct->resolve_names) pt = PT_NONE;
         switch(pt) {
         case(PT_TCP):
-            entry=get_tcp_port(et->endpoints[i].src_port);
+            entry=get_tcp_port(ct->conversations[i].src_port);
             break;
         case(PT_UDP):
-            entry=get_udp_port(et->endpoints[i].src_port);
+            entry=get_udp_port(ct->conversations[i].src_port);
             break;
         default:
-            port=ct_port_to_str(et->endpoints[i].port_type, et->endpoints[i].src_port);
+            port=ct_port_to_str(ct->conversations[i].port_type, ct->conversations[i].src_port);
             entry=port?port:"";
         }
-        gtk_clist_set_text(et->table, j, 1, entry);
+        gtk_clist_set_text(ct->table, j, 1, entry);
 
-        at = et->endpoints[i].dst_address.type;
-        if(!et->resolve_names) at = AT_NONE;
+        at = ct->conversations[i].dst_address.type;
+        if(!ct->resolve_names) at = AT_NONE;
         switch(at) {
         case(AT_IPv4):
-            entry=get_hostname((*(guint *)et->endpoints[i].dst_address.data));
+            entry=get_hostname((*(guint *)ct->conversations[i].dst_address.data));
             break;
         case(AT_ETHER):
-            entry=get_ether_name(et->endpoints[i].dst_address.data);
+            entry=get_ether_name(ct->conversations[i].dst_address.data);
             break;
         default:
-            entry=address_to_str(&et->endpoints[i].dst_address);
+            entry=address_to_str(&ct->conversations[i].dst_address);
         }
-        gtk_clist_set_text(et->table, j, 2, entry);
+        gtk_clist_set_text(ct->table, j, 2, entry);
 
         switch(pt) {
         case(PT_TCP):
-            entry=get_tcp_port(et->endpoints[i].dst_port);
+            entry=get_tcp_port(ct->conversations[i].dst_port);
             break;
         case(PT_UDP):
-            entry=get_udp_port(et->endpoints[i].dst_port);
+            entry=get_udp_port(ct->conversations[i].dst_port);
             break;
         default:
-            port=ct_port_to_str(et->endpoints[i].port_type, et->endpoints[i].dst_port);
+            port=ct_port_to_str(ct->conversations[i].port_type, ct->conversations[i].dst_port);
             entry=port?port:"";
         }
-        gtk_clist_set_text(et->table, j, 3, entry);
+        gtk_clist_set_text(ct->table, j, 3, entry);
     }
 }
 
 
 static void
-draw_ct_table_data(conversations_table *et)
+draw_ct_table_data(conversations_table *ct)
 {
     guint32 i;
     int j;
     char title[256];
 
-    /* Freeze the Endpoint table since quite a few changes will occur */
-    gtk_clist_freeze(et->table);
+    /* Freeze the table since quite a few changes will occur */
+    gtk_clist_freeze(ct->table);
 
-    if (et->page_lb) {
-        if(et->num_endpoints) {
-            g_snprintf(title, 255, "%s: %u", et->name, et->num_endpoints);
+    if (ct->page_lb) {
+        if(ct->num_conversations) {
+            g_snprintf(title, 255, "%s: %u", ct->name, ct->num_conversations);
         } else {
-            g_snprintf(title, 255, "%s", et->name);
+            g_snprintf(title, 255, "%s", ct->name);
         }
-        gtk_label_set_text(GTK_LABEL(et->page_lb), title);
-        gtk_widget_set_sensitive(et->page_lb, et->num_endpoints);
+        gtk_label_set_text(GTK_LABEL(ct->page_lb), title);
+        gtk_widget_set_sensitive(ct->page_lb, ct->num_conversations);
     }
 
-    for(i=0;i<et->num_endpoints;i++){
+    for(i=0;i<ct->num_conversations;i++){
         char str[16];
 
-        j=gtk_clist_find_row_from_data(et->table, (gpointer)i);
+        j=gtk_clist_find_row_from_data(ct->table, (gpointer)i);
 
-        g_snprintf(str, 16, "%u", et->endpoints[i].tx_frames+et->endpoints[i].rx_frames);
-        gtk_clist_set_text(et->table, j, 4, str);
-        g_snprintf(str, 16, "%u", et->endpoints[i].tx_bytes+et->endpoints[i].rx_bytes);
-        gtk_clist_set_text(et->table, j, 5, str);
-
-
-        g_snprintf(str, 16, "%u", et->endpoints[i].tx_frames);
-        gtk_clist_set_text(et->table, j, 6, str);
-        g_snprintf(str, 16, "%u", et->endpoints[i].tx_bytes);
-        gtk_clist_set_text(et->table, j, 7, str);
+        g_snprintf(str, 16, "%u", ct->conversations[i].tx_frames+ct->conversations[i].rx_frames);
+        gtk_clist_set_text(ct->table, j, 4, str);
+        g_snprintf(str, 16, "%u", ct->conversations[i].tx_bytes+ct->conversations[i].rx_bytes);
+        gtk_clist_set_text(ct->table, j, 5, str);
 
 
-        g_snprintf(str, 16, "%u", et->endpoints[i].rx_frames);
-        gtk_clist_set_text(et->table, j, 8, str);
-        g_snprintf(str, 16, "%u", et->endpoints[i].rx_bytes);
-        gtk_clist_set_text(et->table, j, 9, str);
+        g_snprintf(str, 16, "%u", ct->conversations[i].tx_frames);
+        gtk_clist_set_text(ct->table, j, 6, str);
+        g_snprintf(str, 16, "%u", ct->conversations[i].tx_bytes);
+        gtk_clist_set_text(ct->table, j, 7, str);
+
+
+        g_snprintf(str, 16, "%u", ct->conversations[i].rx_frames);
+        gtk_clist_set_text(ct->table, j, 8, str);
+        g_snprintf(str, 16, "%u", ct->conversations[i].rx_bytes);
+        gtk_clist_set_text(ct->table, j, 9, str);
 
     }
-    gtk_clist_sort(et->table);
+    gtk_clist_sort(ct->table);
 
     /* update table, so resolved addresses will be shown now */
-    draw_ct_table_addresses(et);
+    draw_ct_table_addresses(ct);
 
-    gtk_clist_thaw(et->table);
+    gtk_clist_thaw(ct->table);
 }
 
 
@@ -1141,8 +1141,8 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
 
     SIGNAL_CONNECT(conversations->table, "click-column", ct_click_column_cb, col_arrows);
 
-    conversations->num_endpoints=0;
-    conversations->endpoints=NULL;
+    conversations->num_conversations=0;
+    conversations->conversations=NULL;
 
     /* hide srcport and dstport if we don't use ports */
     if(hide_ports){
@@ -1389,7 +1389,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
 
 void
-add_conversation_table_data(conversations_table *et, address *src, address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, SAT_E sat, int port_type)
+add_conversation_table_data(conversations_table *ct, address *src, address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, SAT_E sat, int port_type)
 {
     address *addr1, *addr2;
     guint32 port1, port2;
@@ -1424,10 +1424,10 @@ add_conversation_table_data(conversations_table *et, address *src, address *dst,
     /* XXX should be optimized to allocate n extra entries at a time
        instead of just one */
     /* if we dont have any entries at all yet */
-    if(et->endpoints==NULL){
-        et->endpoints=g_malloc(sizeof(conversation_t));
-        et->num_endpoints=1;
-        conversation=&et->endpoints[0];
+    if(ct->conversations==NULL){
+        ct->conversations=g_malloc(sizeof(conversation_t));
+        ct->num_conversations=1;
+        conversation=&ct->conversations[0];
         conversation_idx=0;
         new_conversation=TRUE;
     }
@@ -1435,14 +1435,14 @@ add_conversation_table_data(conversations_table *et, address *src, address *dst,
     /* try to find it among the existing known conversations */
     if(conversation==NULL){
         guint32 i;
-        for(i=0;i<et->num_endpoints;i++){
-            if(  (!CMP_ADDRESS(&et->endpoints[i].src_address, addr1))&&(!CMP_ADDRESS(&et->endpoints[i].dst_address, addr2))&&(et->endpoints[i].src_port==port1)&&(et->endpoints[i].dst_port==port2) ){
-                conversation=&et->endpoints[i];
+        for(i=0;i<ct->num_conversations;i++){
+            if(  (!CMP_ADDRESS(&ct->conversations[i].src_address, addr1))&&(!CMP_ADDRESS(&ct->conversations[i].dst_address, addr2))&&(ct->conversations[i].src_port==port1)&&(ct->conversations[i].dst_port==port2) ){
+                conversation=&ct->conversations[i];
                 conversation_idx=i;
                 break;
             }
-            if( (!CMP_ADDRESS(&et->endpoints[i].src_address, addr2))&&(!CMP_ADDRESS(&et->endpoints[i].dst_address, addr1))&&(et->endpoints[i].src_port==port2)&&(et->endpoints[i].dst_port==port1) ){
-                conversation=&et->endpoints[i];
+            if( (!CMP_ADDRESS(&ct->conversations[i].src_address, addr2))&&(!CMP_ADDRESS(&ct->conversations[i].dst_address, addr1))&&(ct->conversations[i].src_port==port2)&&(ct->conversations[i].dst_port==port1) ){
+                conversation=&ct->conversations[i];
                 conversation_idx=i;
                 break;
             }
@@ -1453,10 +1453,10 @@ add_conversation_table_data(conversations_table *et, address *src, address *dst,
        and we have to allocate it and append it to the end of the list */
     if(conversation==NULL){
         new_conversation=TRUE;
-        et->num_endpoints++;
-        et->endpoints=g_realloc(et->endpoints, et->num_endpoints*sizeof(conversation_t));
-        conversation=&et->endpoints[et->num_endpoints-1];
-        conversation_idx=et->num_endpoints-1;
+        ct->num_conversations++;
+        ct->conversations=g_realloc(ct->conversations, ct->num_conversations*sizeof(conversation_t));
+        conversation=&ct->conversations[ct->num_conversations-1];
+        conversation_idx=ct->num_conversations-1;
     }
 
     /* if this is a new conversation we need to initialize the struct */
@@ -1487,8 +1487,8 @@ add_conversation_table_data(conversations_table *et, address *src, address *dst,
         char *entries[NUM_COLS];
         char frames[16],bytes[16],txframes[16],txbytes[16],rxframes[16],rxbytes[16];
 
-	  /* Freeze the endpoint table while performing updates */
-        gtk_clist_freeze(et->table);
+	  /* Freeze the table while performing updates */
+        gtk_clist_freeze(ct->table);
 
         /* these values will be filled by call to draw_ct_table_addresses() below */
         entries[0] = "";
@@ -1511,10 +1511,10 @@ add_conversation_table_data(conversations_table *et, address *src, address *dst,
         g_snprintf(rxbytes, 16, "%u", conversation->rx_bytes);
         entries[9]=rxbytes;
 
-        gtk_clist_insert(et->table, conversation_idx, entries);
-        gtk_clist_set_row_data(et->table, conversation_idx, (gpointer) conversation_idx);
+        gtk_clist_insert(ct->table, conversation_idx, entries);
+        gtk_clist_set_row_data(ct->table, conversation_idx, (gpointer) conversation_idx);
 
-        gtk_clist_thaw(et->table);
+        gtk_clist_thaw(ct->table);
     }
 }
 
