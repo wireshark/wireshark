@@ -785,6 +785,8 @@ Motonori Shindo <mshindo[AT]mshindo.net> {
 	L2TP Dissconnect Cause Information AVP support
 	PPP CCP support
 	PPP compressed packet support
+	Cooperative Route Filtering Capability support in BGP
+	Route Refresh Message bug fix in BGP
 }
 
 Terje Krogdahl <tekr[AT]nextra.com> {

@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.47 2001/09/13 22:06:54 guy Exp $
+ * $Id: packet-bgp.c,v 1.48 2001/11/03 21:25:12 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -195,6 +195,21 @@ static const value_string bgpattr_nlri_safi[] = {
     { SAFNUM_MPLS_LABEL, "MPLS Labeled Prefix"},
     { SAFNUM_LBVPNIP, "Labeled VPN-IPv4" },        /* draft-rosen-rfc2547bis-03 */
     { 0, NULL },
+};
+
+/* ORF Type, draft-ietf-idr-route-filter-04.txt */
+static const value_string orf_type_vals[] = {
+    { 2,	"Communities ORF-Type" },
+    { 3,	"Extended Communities ORF-Type" },
+    { 0,	NULL },
+};
+
+/* ORF Send/Receive, draft-ietf-idr-route-filter-04.txt */
+static const value_string orf_send_recv_vals[] = {
+    { 1,	"Receive" },
+    { 2,	"Send" },
+    { 3,	"Both" },
+    { 0,	NULL },
 };
 
 /* Maximal size of an IP address string */
@@ -491,6 +506,9 @@ dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
     proto_tree      *subtree1; /* subtree for an option */
     proto_tree      *subtree2; /* subtree for an option */
     proto_tree      *subtree3; /* subtree for an option */
+    guint8          orfnum;    /* number of ORFs */
+    guint8          orftype;        /* ORF Type */
+    guint8          orfsendrecv;    /* ORF Send/Receive */
 
     /* snarf OPEN message */
     tvb_memcpy(tvb, bgpo.bgpo_marker, offset, BGP_MIN_OPEN_MSG_SIZE);
@@ -636,6 +654,60 @@ dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
                                  (clen == 1) ? "byte" : "bytes");
 			}
 			p += clen;
+			break;
+		    case BGP_CAPABILITY_COOPERATIVE_ROUTE_FILTERING:
+			ti = proto_tree_add_text(subtree1, tvb, p - 2,
+                             2 + clen,
+                             "Cooperative route filtering capability (%u %s)",
+                             2 + clen, (clen == 1) ? "byte" : "bytes");
+			subtree2 = proto_item_add_subtree(ti, ett_bgp_option);
+			proto_tree_add_text(subtree2, tvb, p - 2,
+                             1, "Capability code: Cooperative route filtering (%d)",
+                             ctype);
+			proto_tree_add_text(subtree2, tvb, p - 1,
+			     1, "Capability length: %u %s", clen,
+			     (clen == 1) ? "byte" : "bytes");
+			ti = proto_tree_add_text(subtree2, tvb, p,
+                             clen, "Capability value");
+			subtree3 = proto_item_add_subtree(ti, ett_bgp_option);
+			/* AFI */
+			i = tvb_get_ntohs(tvb, p);
+			proto_tree_add_text(subtree3, tvb, p,
+			     2, "Address family identifier: %s (%u)",
+                             val_to_str(i, afn_vals, "Unknown"), i);
+			p += 2;
+			/* Reserved */
+			proto_tree_add_text(subtree3, tvb, p, 
+			     1, "Reserved: 1 byte");
+			p++;
+			/* SAFI */
+			i = tvb_get_guint8(tvb, p);
+			proto_tree_add_text(subtree3, tvb, p,
+			     1, "Subsequent address family identifier: %s (%u)",
+			     val_to_str(i, bgpattr_nlri_safi,
+			     i >= 128 ? "Vendor specific" : "Unknown"), i);
+			p++;
+			/* Number of ORFs */
+			orfnum = tvb_get_guint8(tvb, p);
+			proto_tree_add_text(subtree3, tvb, p,
+					    1, "Number of ORFs: %u", orfnum);
+			p++;
+			for (i=0; i<orfnum; i++) {
+			    /* ORF Type */
+			    orftype = tvb_get_guint8(tvb, p);
+			    proto_tree_add_text(subtree3, tvb, p,
+				1, "ORF Type: %s (%u)",
+				val_to_str(orftype, orf_type_vals,"Unknown"),
+				orftype);
+			    p++;
+			    /* Send/Receive */
+			    orfsendrecv = tvb_get_guint8(tvb, p);
+			    proto_tree_add_text(subtree3, tvb, p,
+				1, "Send/Receive: %s (%u)",
+				val_to_str(orfsendrecv, orf_send_recv_vals, 
+				"Uknown"), orfsendrecv);
+			    p++;
+			}
 			break;
 		    /* unknown capability */
 		    default:
@@ -1558,12 +1630,12 @@ dissect_bgp_route_refresh(tvbuff_t *tvb, int offset, proto_tree *tree)
                         val_to_str(i, afn_vals, "Unknown"), i);
     offset += 2;
     /* Reserved */
-    proto_tree_add_text(tree, tvb, offset + BGP_HEADER_SIZE + 2, 1, 
+    proto_tree_add_text(tree, tvb, offset + BGP_HEADER_SIZE, 1, 
                         "Reserved: 1 byte");
     offset++;
     /* SAFI */
-    i = tvb_get_guint8(tvb, offset);
-    proto_tree_add_text(tree, tvb, offset + BGP_HEADER_SIZE + 3, 1, 
+    i = tvb_get_guint8(tvb, offset + BGP_HEADER_SIZE);
+    proto_tree_add_text(tree, tvb, offset + BGP_HEADER_SIZE, 1, 
                         "Subsequent address family identifier: %s (%u)",
                         val_to_str(i, bgpattr_nlri_safi,
                         i >= 128 ? "Vendor specific" : "Unknown"),
