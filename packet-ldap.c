@@ -3,7 +3,7 @@
  *
  * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
  *
- * $Id: packet-ldap.c,v 1.55 2003/04/29 02:15:32 guy Exp $
+ * $Id: packet-ldap.c,v 1.56 2003/06/09 07:45:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -114,7 +114,6 @@ static int hf_ldap_message_modify_delete = -1;
 static int hf_ldap_message_abandon_msgid = -1;
 
 static gint ett_ldap = -1;
-static gint ett_ldap_message = -1;
 static gint ett_ldap_gssapi_token = -1;
 static gint ett_ldap_referrals = -1;
 static gint ett_ldap_attribute = -1;
@@ -1438,8 +1437,6 @@ dissect_ldap_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
   int message_id_start;
   int message_id_length;
-  proto_item *ti;
-  proto_tree *msg_tree = NULL;
   guint messageLength;
   guint messageId;
   int next_offset;
@@ -1504,68 +1501,66 @@ dissect_ldap_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
   if (ldap_tree)
   {
-    ti = proto_tree_add_text(ldap_tree, tvb, message_id_start, messageLength, "Message: Id=%u  %s", messageId, typestr);
-    msg_tree = proto_item_add_subtree(ti, ett_ldap_message);
-    proto_tree_add_uint(msg_tree, hf_ldap_message_id, tvb, message_id_start, message_id_length, messageId);
-    proto_tree_add_uint(msg_tree, hf_ldap_message_type, tvb,
-			       start, a.offset - start, protocolOpTag);
-  }
-  start = a.offset;
-  if (read_length(&a, msg_tree, hf_ldap_message_length, &opLen) != ASN1_ERR_NOERROR)
-    return;
-
-  if (protocolOpCls != ASN1_APL)
-  {
-    if (ldap_tree)
+    proto_tree_add_uint(ldap_tree, hf_ldap_message_id, tvb, message_id_start, message_id_length, messageId);
+    if (protocolOpCls == ASN1_APL)
     {
-      proto_tree_add_text(msg_tree, a.tvb, a.offset, opLen,
+      proto_tree_add_uint(ldap_tree, hf_ldap_message_type, tvb,
+			  start, a.offset - start, protocolOpTag);
+    }
+    else
+    {
+      proto_tree_add_text(ldap_tree, tvb, start, a.offset - start,
 			  "%s", typestr);
     }
   }
-  else
+  start = a.offset;
+  if (read_length(&a, ldap_tree, hf_ldap_message_length, &opLen) != ASN1_ERR_NOERROR)
+    return;
+
+  if (protocolOpCls == ASN1_APL)
   {
     switch (protocolOpTag)
     {
      case LDAP_REQ_BIND:
-      dissect_ldap_request_bind(&a, msg_tree, tvb, pinfo);
+      dissect_ldap_request_bind(&a, ldap_tree, tvb, pinfo);
       break;
      case LDAP_REQ_UNBIND:
       /* Nothing to dissect */
       break;
      case LDAP_REQ_SEARCH:
       if (ldap_tree)
-        dissect_ldap_request_search(&a, msg_tree);
+        dissect_ldap_request_search(&a, ldap_tree);
       break;
      case LDAP_REQ_MODIFY:
       if (ldap_tree)
-        dissect_ldap_request_modify(&a, msg_tree);
+        dissect_ldap_request_modify(&a, ldap_tree);
       break;
      case LDAP_REQ_ADD:
       if (ldap_tree)
-        dissect_ldap_request_add(&a, msg_tree);
+        dissect_ldap_request_add(&a, ldap_tree);
       break;
      case LDAP_REQ_DELETE:
       if (ldap_tree)
-        dissect_ldap_request_delete(&a, msg_tree, start, opLen);
+        dissect_ldap_request_delete(&a, ldap_tree, start, opLen);
       break;
      case LDAP_REQ_MODRDN:
       if (ldap_tree)
-        dissect_ldap_request_modifyrdn(&a, msg_tree, opLen);
+        dissect_ldap_request_modifyrdn(&a, ldap_tree, opLen);
       break;
      case LDAP_REQ_COMPARE:
       if (ldap_tree)
-        dissect_ldap_request_compare(&a, msg_tree);
+        dissect_ldap_request_compare(&a, ldap_tree);
       break;
      case LDAP_REQ_ABANDON:
       if (ldap_tree)
-        dissect_ldap_request_abandon(&a, msg_tree, start, opLen);
+        dissect_ldap_request_abandon(&a, ldap_tree, start, opLen);
       break;
      case LDAP_RES_BIND:
-      dissect_ldap_response_bind(&a, msg_tree, start, opLen, tvb, pinfo);
+      dissect_ldap_response_bind(&a, ldap_tree, start, opLen, tvb, pinfo);
       break;
      case LDAP_RES_SEARCH_ENTRY:
       if (ldap_tree)
-        dissect_ldap_response_search_entry(&a, msg_tree);
+        dissect_ldap_response_search_entry(&a, ldap_tree);
       break;
      case LDAP_RES_SEARCH_RESULT:
      case LDAP_RES_MODIFY:
@@ -1574,12 +1569,12 @@ dissect_ldap_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
      case LDAP_RES_MODRDN:
      case LDAP_RES_COMPARE:
       if (ldap_tree)
-        dissect_ldap_result(&a, msg_tree);
+        dissect_ldap_result(&a, ldap_tree);
       break;
      default:
       if (ldap_tree)
       {
-        proto_tree_add_text(msg_tree, a.tvb, a.offset, opLen,
+        proto_tree_add_text(ldap_tree, a.tvb, a.offset, opLen,
                             "Unknown LDAP operation (%u)", protocolOpTag);
       }
       break;
@@ -2191,7 +2186,6 @@ proto_register_ldap(void)
 
   static gint *ett[] = {
     &ett_ldap,
-    &ett_ldap_message,
     &ett_ldap_gssapi_token,
     &ett_ldap_referrals,
     &ett_ldap_attribute
