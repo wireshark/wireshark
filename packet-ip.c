@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.127 2001/03/15 09:11:00 guy Exp $
+ * $Id: packet-ip.c,v 1.128 2001/03/28 06:20:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -790,7 +790,7 @@ static void
 dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   e_ip       iph;
-  proto_tree *ip_tree, *field_tree;
+  proto_tree *ip_tree = NULL, *field_tree;
   proto_item *ti, *tf;
   int        offset = 0;
   guint      hlen, optlen, len, payload_len, reported_payload_len, padding;
@@ -839,13 +839,26 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
-  /* XXX - check to make sure this is at least IPH_MIN_LEN. */
   hlen = lo_nibble(iph.ip_v_hl) * 4;	/* IP header length, in bytes */
-  
+
   if (tree) {
     ti = proto_tree_add_item(tree, proto_ip, tvb, offset, hlen, FALSE);
     ip_tree = proto_item_add_subtree(ti, ett_ip);
+  }
 
+  if (hlen < IPH_MIN_LEN) {
+    if (check_col(pinfo->fd, COL_INFO))
+      col_add_fstr(pinfo->fd, COL_INFO, "Bogus IP header length (%u, must be at least %u)",
+	hlen, IPH_MIN_LEN);
+    if (tree) {
+      proto_tree_add_uint_format(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen,
+	"Header length: %u bytes (bogus, must be at least %u)", hlen,
+	IPH_MIN_LEN);
+    }
+    return;
+  }
+  
+  if (tree) {
     proto_tree_add_uint(ip_tree, hf_ip_version, tvb, offset, 1, hi_nibble(iph.ip_v_hl));
     proto_tree_add_uint_format(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen,
 	"Header length: %u bytes", hlen);
