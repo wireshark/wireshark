@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.199 2003/07/16 00:04:21 guy Exp $
+ * $Id: packet-tcp.c,v 1.200 2003/07/24 21:11:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1995,6 +1995,8 @@ static const ip_tcp_opt tcpopts[] = {
 /* separated into a stand alone routine to other protocol dissectors */
 /* can call to it, ie. socks	*/
 
+static gboolean try_heuristic_first = FALSE;
+
 void
 decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, int src_port, int dst_port, guint32 nxtseq)
@@ -2009,7 +2011,6 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     offset=scan_for_next_pdu(pinfo, offset, seq, nxtseq);
   }
 
-
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
 /* determine if this packet is part of a conversation and call dissector */
@@ -2018,6 +2019,12 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   if (try_conversation_dissector(&pinfo->src, &pinfo->dst, PT_TCP,
 		src_port, dst_port, next_tvb, pinfo, tree))
     goto end_decode_tcp_ports;
+
+  if (try_heuristic_first) {
+    /* do lookup with the heuristic subdissector table */
+    if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree))
+       goto end_decode_tcp_ports;
+  }
 
   /* Do lookups with the subdissector table.
      We try the port number with the lower value first, followed by the
@@ -2044,15 +2051,15 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   if (low_port != 0 &&
       dissector_try_port(subdissector_table, low_port, next_tvb, pinfo, tree))
     goto end_decode_tcp_ports;
-
   if (high_port != 0 &&
       dissector_try_port(subdissector_table, high_port, next_tvb, pinfo, tree))
     goto end_decode_tcp_ports;
 
-  /* do lookup with the heuristic subdissector table */
-  if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree))
-    goto end_decode_tcp_ports;
-
+  if (!try_heuristic_first) {
+    /* do lookup with the heuristic subdissector table */
+    if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree))
+       goto end_decode_tcp_ports;
+  }
 
   /* Oh, well, we don't know this; dissect it as data. */
   call_dissector(data_handle,next_tvb, pinfo, tree);
@@ -2716,15 +2723,15 @@ proto_register_tcp(void)
 	tcp_module = prefs_register_protocol(proto_tcp, NULL);
 	prefs_register_bool_preference(tcp_module, "summary_in_tree",
 	    "Show TCP summary in protocol tree",
-"Whether the TCP summary line should be shown in the protocol tree",
+	    "Whether the TCP summary line should be shown in the protocol tree",
 	    &tcp_summary_in_tree);
 	prefs_register_bool_preference(tcp_module, "check_checksum",
 	    "Check the validity of the TCP checksum when possible",
-"Whether to check the validity of the TCP checksum",
+	    "Whether to check the validity of the TCP checksum",
 	    &tcp_check_checksum);
 	prefs_register_bool_preference(tcp_module, "desegment_tcp_streams",
 	    "Allow subdissector to desegment TCP streams",
-"Whether subdissector can request TCP streams to be desegmented",
+	    "Whether subdissector can request TCP streams to be desegmented",
 	    &tcp_desegment);
 	prefs_register_bool_preference(tcp_module, "analyze_sequence_numbers",
 	    "Analyze TCP sequence numbers",
@@ -2734,6 +2741,10 @@ proto_register_tcp(void)
 	    "Use relative sequence numbers",
 	    "Make the TCP dissector use relative sequence numbers instead of absolute ones. To use this option you must also enable \"Analyze TCP sequence numbers\".",
 	    &tcp_relative_seq);
+	prefs_register_bool_preference(tcp_module, "try_heuristic_first",
+	    "Try heuristic sub-dissectors first",
+	    "Try to decode a packet using an heuristic sub-dissector before using a sub-dissector registered to a specific port",
+	    &try_heuristic_first);
 
 	register_init_routine(tcp_analyze_seq_init);
 	register_init_routine(tcp_desegment_init);

@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.108 2003/06/04 08:43:30 guy Exp $
+ * $Id: packet-udp.c,v 1.109 2003/07/24 21:11:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -69,6 +69,8 @@ static dissector_handle_t data_handle;
 /* separated into a stand alone routine to other protocol dissectors */
 /* can call to it, ie. socks	*/
 
+static gboolean try_heuristic_first = FALSE;
+
 void
 decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, int uh_sport, int uh_dport)
@@ -84,6 +86,12 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   if (try_conversation_dissector(&pinfo->src, &pinfo->dst, PT_UDP,
 		uh_sport, uh_dport, next_tvb, pinfo, tree))
     return;
+
+  if (try_heuristic_first) {
+    /* do lookup with the heuristic subdissector table */
+    if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree))
+      return;
+  }
 
   /* Do lookups with the subdissector table.
      We try the port number with the lower value first, followed by the
@@ -115,9 +123,11 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
       dissector_try_port(udp_dissector_table, high_port, next_tvb, pinfo, tree))
     return;
 
-  /* do lookup with the heuristic subdissector table */
-  if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree))
-    return;
+  if (!try_heuristic_first) {
+    /* do lookup with the heuristic subdissector table */
+    if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree))
+      return;
+  }
 
   call_dissector(data_handle,next_tvb, pinfo, tree);
 }
@@ -304,9 +314,13 @@ proto_register_udp(void)
 	/* Register configuration preferences */
 	udp_module = prefs_register_protocol(proto_udp, NULL);
 	prefs_register_bool_preference(udp_module, "summary_in_tree",
-	"Show UDP summary in protocol tree",
-	"Whether the UDP summary line should be shown in the protocol tree",
-	&udp_summary_in_tree);
+	    "Show UDP summary in protocol tree",
+	    "Whether the UDP summary line should be shown in the protocol tree",
+	    &udp_summary_in_tree);
+	prefs_register_bool_preference(udp_module, "try_heuristic_first",
+	    "Try heuristic sub-dissectors first",
+	    "Try to decode a packet using an heuristic sub-dissector before using a sub-dissector registered to a specific port",
+	    &try_heuristic_first);
 }
 
 void
