@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.126 2003/12/06 06:09:12 gram Exp $
+ * $Id: proto.c,v 1.127 2003/12/24 11:07:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1956,6 +1956,9 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		switch (hfinfo->type) {
 
 		case FT_PROTOCOL:
+			*length = tvb_length_remaining(tvb, start);
+			break;
+
 		case FT_NONE:
 		case FT_BYTES:
 		case FT_STRING:
