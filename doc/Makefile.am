@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal documentation
 #
-# $Id: Makefile.am,v 1.15 2002/09/29 19:10:07 gerald Exp $
+# $Id: Makefile.am,v 1.16 2003/02/12 08:55:19 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -25,46 +25,46 @@
 # capture when $(VERSION) changes.
 
 ../ethereal.1: ethereal.pod ../config.h
-	$(POD2MAN) ethereal.pod                     \
+	$(POD2MAN)                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
-	> ../ethereal.1
+	 ethereal.pod > ../ethereal.1
 
 ethereal.pod: ethereal.pod.template  ../ethereal
 	../ethereal -G fields | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/ethereal.pod.template > ethereal.pod
 
 ../tethereal.1: tethereal.pod ../config.h
-	$(POD2MAN) tethereal.pod                     \
+	$(POD2MAN)                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
-	> ../tethereal.1
+	tethereal.pod > ../tethereal.1
 
 tethereal.pod: tethereal.pod.template  ../tethereal
 	../tethereal -G fields | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/tethereal.pod.template > tethereal.pod
 
 ../editcap.1: editcap.pod ../config.h
-	$(POD2MAN) $(srcdir)/editcap.pod                     \
+	$(POD2MAN)                      \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
-	> ../editcap.1
+	$(srcdir)/editcap.pod > ../editcap.1
 
 ../idl2eth.1: idl2eth.pod ../config.h
-	$(POD2MAN) $(srcdir)/idl2eth.pod                     \
+	$(POD2MAN)                      \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
-	> ../idl2eth.1
+	$(srcdir)/idl2eth.pod > ../idl2eth.1
 
 ../mergecap.1: mergecap.pod ../config.h
-	$(POD2MAN) $(srcdir)/mergecap.pod                     \
+	$(POD2MAN)                      \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
-	> ../mergecap.1
+	$(srcdir)/mergecap.pod > ../mergecap.1
 
 ../text2pcap.1: text2pcap.pod ../config.h
-	$(POD2MAN) $(srcdir)/text2pcap.pod                     \
+	$(POD2MAN)                      \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
-	> ../text2pcap.1
+	$(srcdir)/text2pcap.pod > ../text2pcap.1
 
 CLEANFILES =	\
 	ethereal.pod	\
