@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.32 2001/08/04 19:57:30 guy Exp $
+ * $Id: proto.c,v 1.33 2001/08/28 08:28:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -291,9 +291,9 @@ proto_registrar_get_nth(int hfindex)
 }
 
 
-/* Add a node with no text */
-proto_item *
-proto_tree_add_notext(proto_tree *tree, tvbuff_t *tvb, gint start, gint length)
+/* Add a text-only node, leaving it to our caller to fill the text in */
+static proto_item *
+proto_tree_add_text_node(proto_tree *tree, tvbuff_t *tvb, gint start, gint length)
 {
 	proto_item	*pi;
 
@@ -312,7 +312,7 @@ proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length,
 	proto_item	*pi;
 	va_list		ap;
 
-	pi = proto_tree_add_notext(tree, tvb, start, length);
+	pi = proto_tree_add_text_node(tree, tvb, start, length);
 	if (pi == NULL)
 		return(NULL);
 
@@ -330,7 +330,7 @@ proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
 {
 	proto_item	*pi;
 
-	pi = proto_tree_add_notext(tree, tvb, start, length);
+	pi = proto_tree_add_text_node(tree, tvb, start, length);
 	if (pi == NULL)
 		return(NULL);
 
@@ -348,7 +348,7 @@ proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
 	proto_item	*pi;
 	va_list		ap;
 
-	pi = proto_tree_add_notext(tree, NULL, 0, 0);
+	pi = proto_tree_add_text_node(tree, NULL, 0, 0);
 	if (pi == NULL)
 		return(NULL);
 

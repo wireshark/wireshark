@@ -2,7 +2,7 @@
  * Routines for Stream Control Transmission Protocol dissection
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sctp.c,v 1.19 2001/07/03 04:56:46 guy Exp $
+ * $Id: packet-sctp.c,v 1.20 2001/08/28 08:28:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -246,7 +246,7 @@ static const value_string sctp_parameter_identifier_values[] = {
 #define COOKIE_RECEIVED_WHILE_SHUTTING_DOWN    0x0a
 
 static const value_string sctp_cause_code_values[] = {
-  { INVALID_STREAM_IDENTIFIER,           "Invalid stream idetifier" },
+  { INVALID_STREAM_IDENTIFIER,           "Invalid stream identifier" },
   { MISSING_MANDATORY_PARAMETERS,        "Missing mandator parameter" },
   { STALE_COOKIE_ERROR,                  "Stale cookie error" },
   { OUT_OF_RESOURCE,                     "Out of resource" },
@@ -690,7 +690,9 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *chunk_tree)
   padding_length = nr_of_padding_bytes(length);
   total_length   = length + padding_length;
    
-  parameter_item = proto_tree_add_notext(chunk_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, total_length);
+  parameter_item = proto_tree_add_text(chunk_tree, parameter_tvb,
+	PARAMETER_HEADER_OFFSET, total_length, "%s parameter",
+	val_to_str(type, sctp_parameter_identifier_values, "Unknown"));
   parameter_tree = proto_item_add_subtree(parameter_item, ett_sctp_chunk_parameter);
  
   proto_tree_add_uint_format(parameter_tree, hf_sctp_chunk_parameter_type, 
@@ -924,8 +926,9 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
   padding_length = nr_of_padding_bytes(length);
   total_length   = length + padding_length;
 
-  cause_item = proto_tree_add_notext(chunk_tree, cause_tvb, CAUSE_HEADER_OFFSET, total_length);
-  proto_item_set_text(cause_item, "BAD ERROR CAUSE");
+  cause_item = proto_tree_add_text(chunk_tree, cause_tvb,
+				   CAUSE_HEADER_OFFSET, total_length,
+				   "BAD ERROR CAUSE");
   cause_tree = proto_item_add_subtree(cause_item, ett_sctp_chunk_cause);
  
   proto_tree_add_uint_format(cause_tree, hf_sctp_cause_code, 

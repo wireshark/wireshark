@@ -1,12 +1,11 @@
 /* packet-vtp.c
  * Routines for the disassembly of Cisco's Virtual Trunking Protocol
  *
- * $Id: packet-vtp.c,v 1.14 2001/06/18 02:17:54 guy Exp $
+ * $Id: packet-vtp.c,v 1.15 2001/08/28 08:28:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -271,7 +270,6 @@ dissect_vlan_info(tvbuff_t *tvb, int offset, proto_tree *tree)
 	guint8 vlan_name_len;
 	guint8 type;
 	int length;
-	char *type_str;
 	proto_tree *tlv_tree;
 
 	vlan_info_len = tvb_get_guint8(tvb, offset);
@@ -345,11 +343,11 @@ dissect_vlan_info(tvbuff_t *tvb, int offset, proto_tree *tree)
 	while (vlan_info_left > 0) {
 		type = tvb_get_guint8(tvb, offset + 0);
 		length = tvb_get_guint8(tvb, offset + 1);
-		type_str = val_to_str(type, vlan_tlv_type_vals,
-		    "Unknown (0x%04x)");
 
-		ti = proto_tree_add_notext(vlan_info_tree, tvb, offset,
-		    2 + length*2);
+		ti = proto_tree_add_text(vlan_info_tree, tvb, offset,
+		    2 + length*2, "%s",
+		    val_to_str(type, vlan_tlv_type_vals,
+		      "Unknown TLV type: 0x%02x"));
 		tlv_tree = proto_item_add_subtree(ti, ett_vtp_tlv);
 		proto_tree_add_uint(tlv_tree, hf_vtp_vlan_tlvtype, tvb, offset,
 		    1, type);
@@ -588,7 +586,6 @@ dissect_vlan_info_tlv(tvbuff_t *tvb, int offset, int length,
 		break;
 
 	default:
-		proto_item_set_text(ti, "Unknown TLV type: 0x%02x", type);
 		proto_tree_add_text(tree, tvb, offset, length, "Data");
 		break;
 	}

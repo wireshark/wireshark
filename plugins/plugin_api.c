@@ -1,11 +1,10 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.20 2001/07/22 10:12:11 guy Exp $
+ * $Id: plugin_api.c,v 1.21 2001/08/28 08:28:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,7 +19,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -98,7 +96,6 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_proto_tree_add_int_hidden		= pat->p_proto_tree_add_int_hidden;
 	p_proto_tree_add_int_format		= pat->p_proto_tree_add_int_format;
 	p_proto_tree_add_text			= pat->p_proto_tree_add_text;
-	p_proto_tree_add_notext			= pat->p_proto_tree_add_notext;
 	p_tvb_new_subset			= pat->p_tvb_new_subset;
 	p_tvb_length				= pat->p_tvb_length;
 	p_tvb_length_remaining			= pat->p_tvb_length_remaining;

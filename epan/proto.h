@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.14 2001/07/22 10:25:49 guy Exp $
+ * $Id: proto.h,v 1.15 2001/08/28 08:28:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -445,10 +445,6 @@ proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, co
 proto_item *
 proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
 	gint length, const char *format, va_list ap);
-
-/* Add a node with no text */
-proto_item *
-proto_tree_add_notext(proto_tree *tree, tvbuff_t *tvb, gint start, gint length);
 
 
 /* Useful for quick debugging. Also sends string to STDOUT, so don't

@@ -1,11 +1,10 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.21 2001/07/22 10:12:11 guy Exp $
+ * $Id: plugin_table.h,v 1.22 2001/08/28 08:28:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,7 +19,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
@@ -109,7 +107,6 @@ typedef proto_item* (*addr_proto_tree_add_int_hidden)(proto_tree*, int, tvbuff_t
 typedef proto_item* (*addr_proto_tree_add_int_format)(proto_tree*, int, tvbuff_t*, gint, gint, gint32, const char*, ...);
 
 typedef proto_item* (*addr_proto_tree_add_text)(proto_tree*, tvbuff_t*, gint, gint, const char*, ...);
-typedef proto_item* (*addr_proto_tree_add_notext)(proto_tree*, tvbuff_t*, gint, gint);
 
 typedef tvbuff_t* (*addr_tvb_new_subset)(tvbuff_t*, gint, gint, gint);
 
@@ -248,7 +245,6 @@ typedef struct  {
 	addr_proto_tree_add_int_hidden		p_proto_tree_add_int_hidden;
 	addr_proto_tree_add_int_format		p_proto_tree_add_int_format;
 	addr_proto_tree_add_text		p_proto_tree_add_text;
-	addr_proto_tree_add_notext		p_proto_tree_add_notext;
 
 	addr_tvb_new_subset			p_tvb_new_subset;
 

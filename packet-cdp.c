@@ -2,12 +2,11 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.38 2001/06/20 05:18:36 guy Exp $
+ * $Id: packet-cdp.c,v 1.39 2001/08/28 08:28:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * 
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -384,7 +383,7 @@ dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 
     if (length < 1)
         return -1;
-    ti = proto_tree_add_notext(tree, tvb, offset, length);
+    ti = proto_tree_add_text(tree, tvb, offset, length, "Truncated address");
     address_tree = proto_item_add_subtree(ti, ett_cdp_address);
     protocol_type = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(address_tree, tvb, offset, 1, "Protocol type: %s",
@@ -392,10 +391,8 @@ dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
     offset += 1;
     length -= 1;
 
-    if (length < 1) {
-        proto_item_set_text(ti, "Truncated address");
+    if (length < 1)
 	return -1;
-    }
     protocol_length = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(address_tree, tvb, offset, 1, "Protocol length: %u",
 			protocol_length);
@@ -403,7 +400,6 @@ dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
     length -= 1;
 
     if (length < protocol_length) {
-        proto_item_set_text(ti, "Truncated address");
         if (length != 0) {
             proto_tree_add_text(address_tree, tvb, offset, length,
               "Protocol: %s (truncated)",
@@ -424,10 +420,8 @@ dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
     offset += protocol_length;
     length -= protocol_length;
 
-    if (length < 2) {
-        proto_item_set_text(ti, "Truncated address");
+    if (length < 2)
 	return -1;
-    }
     address_length = tvb_get_ntohs(tvb, offset);
     proto_tree_add_text(address_tree, tvb, offset, 2, "Address length: %u",
 			address_length);
@@ -435,7 +429,6 @@ dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
     length -= 2;
 
     if (length < address_length) {
-        proto_item_set_text(ti, "Truncated address");
         if (length != 0) {
             proto_tree_add_text(address_tree, tvb, offset, length,
               "Address: %s (truncated)",

@@ -1,11 +1,10 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.20 2001/07/22 10:12:11 guy Exp $
+ * $Id: plugin_api.h,v 1.21 2001/08/28 08:28:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,7 +19,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
@@ -100,7 +98,6 @@
 #define	proto_tree_add_int_hidden	(*p_proto_tree_add_int_hidden)
 #define	proto_tree_add_int_format	(*p_proto_tree_add_int_format)
 #define	proto_tree_add_text		(*p_proto_tree_add_text)
-#define	proto_tree_add_notext		(*p_proto_tree_add_notext)
 
 #define tvb_new_subset			(*p_tvb_new_subset)
 

@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.70 2001/07/02 07:29:03 guy Exp $
+ * $Id: packet-dns.c,v 1.71 2001/08/28 08:28:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -793,8 +793,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
   if (fd != NULL)
     col_append_fstr(fd, COL_INFO, " %s", type_name);
   if (dns_tree != NULL) {
-    trr = proto_tree_add_notext(dns_tree, tvb, offset,
-				(data_offset - data_start) + data_len);
+    trr = proto_tree_add_text(dns_tree, tvb, offset,
+				(data_offset - data_start) + data_len,
+				"%s: type %s, class %s",
+				name, type_name, class_name);
     if (type != T_OPT) {
       rr_tree = add_rr_to_tree(trr, ett_dns_rr, tvb, offset, name, name_len,
 		     long_type_name, class_name, ttl, data_len);

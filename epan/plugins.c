@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.30 2001/08/21 09:11:59 guy Exp $
+ * $Id: plugins.c,v 1.31 2001/08/28 08:28:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -352,7 +352,6 @@ init_plugins(const char *plugin_dir)
 	patable.p_proto_tree_add_int_hidden	= proto_tree_add_int_hidden;
 	patable.p_proto_tree_add_int_format	= proto_tree_add_int_format;
 	patable.p_proto_tree_add_text		= proto_tree_add_text;
-	patable.p_proto_tree_add_notext		= proto_tree_add_notext;
 
 	patable.p_tvb_new_subset		= tvb_new_subset;
 

@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.32 2001/07/20 23:38:30 guy Exp $
+$Id: README.developer,v 1.33 2001/08/28 08:28:16 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -85,7 +85,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.32 2001/07/20 23:38:30 guy Exp $"
+The "$Id: README.developer,v 1.33 2001/08/28 08:28:16 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -95,7 +95,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.32 2001/07/20 23:38:30 guy Exp $
+ * $Id: README.developer,v 1.33 2001/08/28 08:28:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -942,9 +942,6 @@ protocol or field labels to the proto_tree:
 	proto_item*
 	proto_tree_add_text(tree, start, length, format, ...);
 
-	proto_item*
-	proto_tree_add_notext(tree, start, length);
-
 The 'tree' argument is the tree to which the item is to be added.  The
 'start' argument is the offset from the beginning of the frame (not the
 offset from the beginning of the part of the packet belonging to this
@@ -1107,49 +1104,46 @@ format; it is not added automatically as in proto_tree_add_item().
 
 proto_tree_add_text()
 ---------------------
-The fourth function, proto_tree_add_text(), is used to add a label to
-the GUI tree.  It will contain no value, so it is not searchable in the
-display filter process.  This function was needed in the transition from
-the old-style proto_tree to this new-style proto_tree so that Ethereal
-would still decode all protocols w/o being able to filter on all
-protocols and fields.  Otherwise we would have had to cripple Ethereal's
-functionality while we converted all the old-style proto_tree calls to
-the new-style proto_tree calls.
+proto_tree_add_text() is used to add a label to the GUI tree.  It will
+contain no value, so it is not searchable in the display filter process. 
+This function was needed in the transition from the old-style proto_tree
+to this new-style proto_tree so that Ethereal would still decode all
+protocols w/o being able to filter on all protocols and fields. 
+Otherwise we would have had to cripple Ethereal's functionality while we
+converted all the old-style proto_tree calls to the new-style proto_tree
+calls.
 
 This can also be used for items with subtrees, which may not have values
 themselves - the items in the subtree are the ones with values.
 
-proto_tree_add_notext()
------------------------
-The fifth function, proto_tree_add_notext(), is used to add an item to
-the logical tree that will have only a label, and no value (so it is not
-searchable in the display filter process), but that doesn't yet have a
-label, either.  This is for items where the value is to be filled in
-later.  This is typically used for an item with a subtree, where the
-label is to contain a summary of the subtree, with the values of some of
-the fields in the subtree shown in the label of the item for the subtree
-as a whole; the item can be created as a placeholder, with the label
-added when the dissection is complete - and, if the dissection doesn't
-complete because the packet is too short and not all the required fields
-are present, the label could be set to something indicating this.
-
-The text is set by 'proto_item_set_text()':
+For a subtree, the label on the subtree might reflect some of the items
+in the subtree.  This means the label can't be set until at least some
+of the items in the subtree have been dissected.  To do this, use
+'proto_item_set_text()':
 
 	void
 	proto_tree_set_text(proto_item *ti, ...);
 
 which takes as an argument the value returned by
-'proto_tree_add_notext()', a 'printf'-style format string, and a set of
+'proto_tree_add_text()', a 'printf'-style format string, and a set of
 arguments corresponding to '%' format items in that string.  For
 example, early in the dissection, one might do:
 
-	ti = proto_tree_add_notext(tree, offset, length);
+	ti = proto_tree_add_text(tree, offset, length, <label>);
 
 and later do
 
 	proto_item_set_text(ti, "%s: %s", type, value);
 
-after the "type" and "value" fields have been extracted and dissected.
+after the "type" and "value" fields have been extracted and dissected. 
+<label> would be a label giving what information about the subtree is
+available without dissecting any of the data in the subtree.
+
+Note that an exception might thrown when trying to extract the values of
+the items used to set the label, if not all the bytes of the item are
+available.  Thus, one should set the text of the item as soon as all the
+values used to set it have been extracted, rather than setting it only
+after the entire subtree has been dissected.
 
 1.7 Utility routines
 
