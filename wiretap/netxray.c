@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.38 2001/03/23 23:16:29 guy Exp $
+ * $Id: netxray.c,v 1.39 2001/05/09 04:42:27 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -50,13 +50,21 @@ struct netxray_hdr {
 	guint32	end_offset;	/* offset after last packet in capture */
 	guint32 xxy[3];		/* unknown */
 	guint16	network;	/* datalink type */
-	guint8	xxz[6];
+	guint8	xxz[2];
+	guint8	timeunit;	/* encodes length of a tick */
+	guint8	xxa[3];
 	guint32	timelo;		/* lower 32 bits of time stamp of capture start */
 	guint32	timehi;		/* upper 32 bits of time stamp of capture start */
 	/*
 	 * XXX - other stuff.
 	 */
 };
+
+/*
+ * # of ticks that equal 1 second
+ */
+static double TpS[] = { 1e6, 1193000.0, 1193180.0 };
+#define NUM_NETXRAY_TIMEUNITS (sizeof TpS / sizeof TpS[0])
 
 /* Version number strings. */
 static const char vers_1_0[] = {
@@ -167,7 +175,13 @@ int netxray_open(wtap *wth, int *err)
 		file_type = WTAP_FILE_NETXRAY_1_1;
 	} else if (memcmp(hdr.version, vers_2_001, sizeof vers_2_001) == 0
 	    || memcmp(hdr.version, vers_2_002, sizeof vers_2_002) == 0) {
-		timeunit = 1193180.0;
+		if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS) {
+			g_message("netxray: Unknown timeunit %u",
+				  hdr.timeunit);
+			*err = WTAP_ERR_UNSUPPORTED;
+			return -1;
+		}
+		timeunit = TpS[hdr.timeunit];
 		version_major = 2;
 		file_type = WTAP_FILE_NETXRAY_2_00x;
 	} else {
