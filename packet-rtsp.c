@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.52 2003/12/22 08:58:22 guy Exp $
+ * $Id: packet-rtsp.c,v 1.53 2003/12/22 23:37:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -109,22 +109,72 @@ static int
 dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
+	guint		length_remaining;
 	proto_tree	*rtspframe_tree;
 	proto_item	*ti;
 	int		orig_offset;
 	guint8		rf_start;	/* always RTSP_FRAMEHDR */
 	guint8		rf_chan;        /* interleaved channel id */
 	guint16		rf_len;         /* packet length */
-	gint		framelen;
 	tvbuff_t	*next_tvb;
 	conversation_t	*conv;
 	rtsp_conversation_data_t	*data;
 	dissector_handle_t		dissector;
 
+	/*
+	 * This will throw an exception if we don't have any data left.
+	 * That's what we want.  (See "tcp_dissect_pdus()", which is
+	 * similar.)
+	 */
+	length_remaining = tvb_ensure_length_remaining(tvb, offset);
+
+	/*
+	 * Can we do reassembly?
+	 */
+	if (rtsp_desegment_headers && pinfo->can_desegment) {
+		/*
+		 * Yes - would an RTSP multiplexed header starting at
+		 * this offset be split across segment boundaries?
+		 */
+		if (length_remaining < 4) {
+			/*
+			 * Yes.  Tell the TCP dissector where the data
+			 * for this message starts in the data it handed
+			 * us, and how many more bytes we need, and return.
+			 */
+			pinfo->desegment_offset = offset;
+			pinfo->desegment_len = 4 - length_remaining;
+			return -1;
+		}
+	}
+
+	/*
+	 * Get the "$", channel, and length from the header.
+	 */
 	orig_offset = offset;
 	rf_start = tvb_get_guint8(tvb, offset);
 	rf_chan = tvb_get_guint8(tvb, offset+1);
 	rf_len = tvb_get_ntohs(tvb, offset+2);
+
+	/*
+	 * Can we do reassembly?
+	 */
+	if (rtsp_desegment_body && pinfo->can_desegment) {
+		/*
+		 * Yes - is the header + encapsulated packet split
+		 * across segment boundaries?
+		 */
+		if (length_remaining < 4U + rf_len) {
+			/*
+			 * Yes.  Tell the TCP dissector where the data
+			 * for this message starts in the data it handed
+			 * us, and how many more bytes we need, and return.
+			 */
+			pinfo->desegment_offset = offset;
+			pinfo->desegment_len = 4U + rf_len - length_remaining;
+			return -1;
+		}
+	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -168,10 +218,9 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * We'd want a BoundsError exception to be thrown, so
 	 * that a Short Frame would be reported.
 	 */
-	framelen = tvb_length_remaining(tvb, offset);
-	if (framelen > rf_len)
-		framelen = rf_len;
-	next_tvb = tvb_new_subset(tvb, offset, framelen, rf_len);
+	if (length_remaining > rf_len)
+		length_remaining = rf_len;
+	next_tvb = tvb_new_subset(tvb, offset, length_remaining, rf_len);
 
 	conv = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype,
 		pinfo->srcport, pinfo->destport, 0);
