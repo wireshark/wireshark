@@ -340,7 +340,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	static tr_hdr trh_arr[4];
 	static int trh_current=0;
-	tr_hdr *trh;
+	tr_hdr *volatile trh;
 
 	/* non-source-routed version of source addr */
 	static guint8		trn_shost_nonsr[6];

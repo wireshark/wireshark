@@ -164,7 +164,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int fcs_len)
 {
   proto_item		*ti;
-  eth_hdr 		*ehdr;
+  eth_hdr 		*volatile ehdr;
   volatile gboolean	is_802_2;
   proto_tree		*volatile fh_tree = NULL;
   const char		*src_addr, *dst_addr;

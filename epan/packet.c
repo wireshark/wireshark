@@ -389,8 +389,9 @@ call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
  */
 static int
 call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
-    packet_info *pinfo, proto_tree *tree)
+    packet_info *pinfo_arg, proto_tree *tree)
 {
+	packet_info *volatile pinfo = pinfo_arg;
 	const char *saved_proto;
 	guint16 saved_can_desegment;
 	volatile int ret;
