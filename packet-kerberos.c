@@ -14,7 +14,7 @@
  *
  *	http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-03.txt
  *
- * $Id: packet-kerberos.c,v 1.43 2004/01/20 19:24:42 jmayer Exp $
+ * $Id: packet-kerberos.c,v 1.44 2004/01/20 20:32:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -428,7 +428,7 @@ static void show_krb_recordmark(proto_tree *kerberos_tree, tvbuff_t *tvb,
 static guint kerberos_rm_to_reclen(guint krb_rm);
 static void dissect_kerberos_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo,
 				proto_tree *tree);
-static guint get_krb_pdu_len(tvbuff_t *tvb, guint offset);
+static guint get_krb_pdu_len(tvbuff_t *tvb, int offset);
 
 static const char *
 to_error_str(int ret) {
@@ -656,7 +656,7 @@ kerberos_rm_to_reclen(guint krb_rm)
 }
 
 static guint
-get_krb_pdu_len(tvbuff_t *tvb, guint offset)
+get_krb_pdu_len(tvbuff_t *tvb, int offset)
 {
     guint krb_rm;
     gint pdulen;
