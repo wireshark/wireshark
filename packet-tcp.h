@@ -1,6 +1,6 @@
 /* packet-tcp.h
  *
- * $Id: packet-tcp.h,v 1.12 2002/08/28 21:00:36 jmayer Exp $
+ * $Id: packet-tcp.h,v 1.13 2002/12/17 11:49:32 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,6 +23,29 @@
 
 #ifndef __PACKET_TCP_H__
 #define __PACKET_TCP_H__
+
+/* TCP flags */
+#define TH_FIN  0x01
+#define TH_SYN  0x02
+#define TH_RST  0x04
+#define TH_PUSH 0x08
+#define TH_ACK  0x10
+#define TH_URG  0x20
+#define TH_ECN  0x40
+#define TH_CWR  0x80
+
+
+/* the tcp header structure, passed to tap listeners */
+struct tcpheader {
+	guint32 th_seq;
+	guint32 th_ack;
+	guint32 th_seglen;
+	guint16 th_win;
+	guint16 th_sport;
+	guint16 th_dport;
+	guint8  th_hlen;
+	guint8  th_flags;
+};
 
 /*
  * Private data passed from the TCP dissector to subdissectors.

@@ -1487,6 +1487,7 @@ Senthil Kumar Nagappan <sknagappan [AT] yahoo.com> {
 
 Jason House <jhouse [AT] mitre.org> {
 	Win32 compilation fixes
+	TAP support for TCP protocol
 }
 
 Peter Fales <psfales [AT] lucent.com> {
