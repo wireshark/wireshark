@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.29 2000/06/12 08:47:33 guy Exp $
+ * $Id: packet-nfs.c,v 1.30 2000/07/13 05:48:50 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,7 +41,23 @@
 
 static int proto_nfs = -1;
 
-
+static int hf_nfs_fh_fsid_major = -1;
+static int hf_nfs_fh_fsid_minor = -1;
+static int hf_nfs_fh_xfsid_major = -1;
+static int hf_nfs_fh_xfsid_minor = -1;
+static int hf_nfs_fh_fstype = -1;
+static int hf_nfs_fh_fn = -1;
+static int hf_nfs_fh_fn_len = -1;
+static int hf_nfs_fh_fn_inode = -1;
+static int hf_nfs_fh_fn_generation = -1;
+static int hf_nfs_fh_xfn = -1;
+static int hf_nfs_fh_xfn_len = -1;
+static int hf_nfs_fh_xfn_inode = -1;
+static int hf_nfs_fh_xfn_generation = -1;
+static int hf_nfs_fh_dentry = -1;
+static int hf_nfs_fh_dev = -1;
+static int hf_nfs_fh_xdev = -1;
+static int hf_nfs_fh_dirinode = -1;
 static int hf_nfs_stat = -1;
 static int hf_nfs_name = -1;
 static int hf_nfs_readlink_data = -1;
@@ -90,6 +106,10 @@ static int hf_nfs_pathconf_case_preserving = -1;
 
 
 static gint ett_nfs = -1;
+static gint ett_nfs_fh_fsid = -1;
+static gint ett_nfs_fh_xfsid = -1;
+static gint ett_nfs_fh_fn = -1;
+static gint ett_nfs_fh_xfn = -1;
 static gint ett_nfs_fhandle = -1;
 static gint ett_nfs_timeval = -1;
 static gint ett_nfs_mode = -1;
@@ -118,6 +138,347 @@ static gint ett_nfs_wcc_attr = -1;
 static gint ett_nfs_wcc_data = -1;
 static gint ett_nfs_access = -1;
 static gint ett_nfs_fsinfo_properties = -1;
+
+
+/* file handle dissection */
+
+
+const value_string names_fhtype[] =
+{
+#define FHT_UNKNOWN	0
+	{	FHT_UNKNOWN,	"unknown"	},
+#define FHT_SVR4	1
+	{	FHT_SVR4,	"System V R4"	},
+#define FHT_LINUXLE	2
+	{	FHT_LINUXLE,	"Linux knfsd (little-endian)"	},
+	{		0,	NULL		}
+};
+
+
+/* SVR4: checked with ReliantUNIX (5.43, 5.44, 5.45) */
+
+void
+dissect_fhandle_data_SVR4(tvbuff_t* tvb, proto_tree *tree, int fhlen)
+{
+	guint32 nof = 0;
+
+	/* file system id */
+	{
+	guint32 fsid_O;
+	guint32 fsid_L;
+	guint32 temp;
+	guint32 fsid_major;
+	guint32 fsid_minor;
+
+	fsid_O = nof;
+	fsid_L = 4;
+	temp = tvb_get_ntohl(tvb, fsid_O);
+	fsid_major = ( temp>>18 ) &  0x3fff; /* 14 bits */
+	fsid_minor = ( temp     ) & 0x3ffff; /* 18 bits */
+	if (tree) {
+		proto_item* fsid_item = NULL;
+		proto_tree* fsid_tree = NULL;
+	
+		fsid_item = proto_tree_add_text(tree, tvb,
+			fsid_O, fsid_L, 
+			"file system ID: %d,%d", fsid_major, fsid_minor);
+		if (fsid_item) {
+			fsid_tree = proto_item_add_subtree(fsid_item, 
+					ett_nfs_fh_fsid);
+			proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_major,
+				tvb, fsid_O,   2, fsid_major);
+			proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_minor,
+				tvb, fsid_O+1, 3, fsid_minor);
+		}
+	}
+	nof = fsid_O + fsid_L;
+	}
+
+	/* file system type */
+	{
+	guint32 fstype_O;
+	guint32 fstype_L;
+	guint32 fstype;
+
+	fstype_O = nof;
+	fstype_L = 4;
+	fstype = tvb_get_ntohl(tvb, fstype_O);
+	if (tree) {
+		proto_tree_add_uint(tree, hf_nfs_fh_fstype, tvb,
+			fstype_O, fstype_L, fstype);
+	}
+	nof = fstype_O + fstype_L;
+	}
+
+	/* file number */
+	{
+	guint32 fn_O;
+	guint32 fn_len_O;
+	guint32 fn_len_L;
+	guint32 fn_len;
+	guint32 fn_data_O;
+	guint32 fn_data_inode_O;
+	guint32 fn_data_inode_L;
+	guint32 inode;
+	guint32 fn_data_gen_O;
+	guint32 fn_data_gen_L;
+	guint32 gen;
+	guint32 fn_L;
+	
+	fn_O = nof;
+	fn_len_O = fn_O;
+	fn_len_L = 2;
+	fn_len = tvb_get_ntohs(tvb, fn_len_O);
+	fn_data_O = fn_O + fn_len_L;
+	fn_data_inode_O = fn_data_O + 2;
+	fn_data_inode_L = 4;
+	inode = tvb_get_ntohl(tvb, fn_data_inode_O);
+	fn_data_gen_O = fn_data_inode_O + fn_data_inode_L;
+	fn_data_gen_L = 4;
+	gen = tvb_get_ntohl(tvb, fn_data_gen_O);
+	fn_L = fn_len_L + fn_len;
+	if (tree) {
+		proto_item* fn_item = NULL;
+		proto_tree* fn_tree = NULL;
+	
+		fn_item = proto_tree_add_uint(tree, hf_nfs_fh_fn, tvb,
+			fn_O, fn_L, inode);
+		if (fn_item) {
+			fn_tree = proto_item_add_subtree(fn_item, 
+					ett_nfs_fh_fn);
+			proto_tree_add_uint(fn_tree, hf_nfs_fh_fn_len,
+				tvb, fn_len_O, fn_len_L, fn_len);
+			proto_tree_add_uint(fn_tree, hf_nfs_fh_fn_inode,
+				tvb, fn_data_inode_O, fn_data_inode_L, inode);
+			proto_tree_add_uint(fn_tree, hf_nfs_fh_fn_generation,
+				tvb, fn_data_gen_O, fn_data_gen_L, gen);
+		}
+	}
+	nof = fn_O + fn_len_L + fn_len;
+	}
+
+	/* exported file number */
+	{
+	guint32 xfn_O;
+	guint32 xfn_len_O;
+	guint32 xfn_len_L;
+	guint32 xfn_len;
+	guint32 xfn_data_O;
+	guint32 xfn_data_inode_O;
+	guint32 xfn_data_inode_L;
+	guint32 xinode;
+	guint32 xfn_data_gen_O;
+	guint32 xfn_data_gen_L;
+	guint32 xgen;
+	guint32 xfn_L;
+	
+	xfn_O = nof;
+	xfn_len_O = xfn_O;
+	xfn_len_L = 2;
+	xfn_len = tvb_get_ntohs(tvb, xfn_len_O);
+	xfn_data_O = xfn_O + xfn_len_L;
+	xfn_data_inode_O = xfn_data_O + 2;
+	xfn_data_inode_L = 4;
+	xinode = tvb_get_ntohl(tvb, xfn_data_inode_O);
+	xfn_data_gen_O = xfn_data_inode_O + xfn_data_inode_L;
+	xfn_data_gen_L = 4;
+	xgen = tvb_get_ntohl(tvb, xfn_data_gen_O);
+	xfn_L = xfn_len_L + xfn_len;
+	if (tree) {
+		proto_item* xfn_item = NULL;
+		proto_tree* xfn_tree = NULL;
+	
+		xfn_item = proto_tree_add_uint(tree, hf_nfs_fh_xfn, tvb,
+			xfn_O, xfn_L, xinode);
+		if (xfn_item) {
+			xfn_tree = proto_item_add_subtree(xfn_item, 
+					ett_nfs_fh_xfn);
+			proto_tree_add_uint(xfn_tree, hf_nfs_fh_xfn_len,
+				tvb, xfn_len_O, xfn_len_L, xfn_len);
+			proto_tree_add_uint(xfn_tree, hf_nfs_fh_xfn_inode,
+				tvb, xfn_data_inode_O, xfn_data_inode_L, xinode);
+			proto_tree_add_uint(xfn_tree, hf_nfs_fh_xfn_generation,
+				tvb, xfn_data_gen_O, xfn_data_gen_L, xgen);
+		}
+	}
+	}
+}
+
+
+/* Checked with RedHat Linux 6.2 (kernel 2.2.14 knfsd) */
+
+void
+dissect_fhandle_data_LINUXLE(tvbuff_t* tvb, proto_tree *tree, int fhlen)
+{
+	guint32 dentry;
+	guint32 inode;
+	guint32 dirinode;
+	guint32 temp;
+	guint32 fsid_major;
+	guint32 fsid_minor;
+	guint32 xfsid_major;
+	guint32 xfsid_minor;
+	guint32 xinode;
+	guint32 gen;
+
+	dentry   = tvb_get_letohl(tvb, 0);
+	inode    = tvb_get_letohl(tvb, 4);
+	dirinode = tvb_get_letohl(tvb, 8);
+	temp     = tvb_get_letohs (tvb,12);
+	fsid_major = (temp >> 8) & 0xff;
+	fsid_minor = (temp     ) & 0xff;
+	temp     = tvb_get_letohs(tvb,16);
+	xfsid_major = (temp >> 8) & 0xff;
+	xfsid_minor = (temp     ) & 0xff;
+	xinode   = tvb_get_letohl(tvb,20);
+	gen      = tvb_get_letohl(tvb,24);
+
+	if (tree) {
+		proto_tree_add_uint(tree, hf_nfs_fh_dentry,
+			tvb, 0, 4, dentry);
+		proto_tree_add_uint(tree, hf_nfs_fh_fn_inode,
+			tvb, 4, 4, inode);
+		proto_tree_add_uint(tree, hf_nfs_fh_dirinode,
+			tvb, 8, 4, dirinode);
+
+		/* file system id (device) */
+		{
+		proto_item* fsid_item = NULL;
+		proto_tree* fsid_tree = NULL;
+
+		fsid_item = proto_tree_add_text(tree, tvb,
+			12, 4, 
+			"file system ID: %d,%d", fsid_major, fsid_minor);
+		if (fsid_item) {
+			fsid_tree = proto_item_add_subtree(fsid_item, 
+					ett_nfs_fh_fsid);
+			proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_major,
+				tvb, 13, 1, fsid_major);
+			proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_minor,
+				tvb, 12, 1, fsid_minor);
+		}
+		}
+
+		/* exported file system id (device) */
+		{
+		proto_item* xfsid_item = NULL;
+		proto_tree* xfsid_tree = NULL;
+
+		xfsid_item = proto_tree_add_text(tree, tvb,
+			16, 4, 
+			"exported file system ID: %d,%d", xfsid_major, xfsid_minor);
+		if (xfsid_item) {
+			xfsid_tree = proto_item_add_subtree(xfsid_item, 
+					ett_nfs_fh_xfsid);
+			proto_tree_add_uint(xfsid_tree, hf_nfs_fh_xfsid_major,
+				tvb, 17, 1, xfsid_major);
+			proto_tree_add_uint(xfsid_tree, hf_nfs_fh_xfsid_minor,
+				tvb, 16, 1, xfsid_minor);
+		}
+		}
+
+		proto_tree_add_uint(tree, hf_nfs_fh_xfn_inode,
+			tvb, 20, 4, xinode);
+		proto_tree_add_uint(tree, hf_nfs_fh_fn_generation,
+			tvb, 24, 4, gen);
+	}
+}
+
+
+static void
+dissect_fhandle_data_unknown(tvbuff_t *tvb, proto_tree *tree, int fhlen)
+{
+	int offset;
+
+	int sublen;
+	int bytes_left;
+	gboolean first_line;
+
+	offset = 0;
+
+	bytes_left = fhlen;
+	first_line = TRUE;
+	while (bytes_left != 0) {
+		sublen = 16;
+		if (sublen > bytes_left)
+			sublen = bytes_left;
+		proto_tree_add_text(tree, tvb, offset, sublen,
+					"%s%s",
+					first_line ? "data: " :
+					             "      ",
+					bytes_to_str(tvb_get_ptr(tvb,offset,sublen),sublen));
+		bytes_left -= sublen;
+		offset += sublen;
+		first_line = FALSE;
+	}
+}
+
+
+static void
+dissect_fhandle_data(const u_char *pd, int offset, frame_data* fd, proto_tree *tree, int fhlen)
+{
+	int fhtype = FHT_UNKNOWN;
+	tvbuff_t *realtvb;
+	tvbuff_t *tvb;
+
+	/* Make use of the new tvbuf code.
+	   There is no way to get the packet_info here. So  we have to
+	   create a totally new tvbuf. */
+	realtvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);
+	tvb = tvb_new_subset(realtvb, offset, 
+				fd->cap_len - offset,
+				fd->pkt_len - offset);
+
+	/* filehandle too long */
+	if (fhlen>64) goto type_ready;
+	/* Not all bytes there. Any attemtpt to decduce the type would be
+	   senseless. */
+	if (!tvb_bytes_exist(tvb,0,fhlen)) goto type_ready;
+		
+	/* calculate (heuristically) fhtype */
+	switch (fhlen) {
+		case 32: {
+			guint32 len1;
+			guint32 len2;
+			if (tvb_get_ntohs(tvb,4) == 0) {
+				len1= tvb_get_ntohs(tvb,8);
+				if (tvb_bytes_exist(tvb,10+len1,2)) {
+						len2 = tvb_get_ntohs(tvb,10+len1);
+						if (fhlen==12+len1+len2) {
+							fhtype=FHT_SVR4;
+							goto type_ready;
+						}
+				}
+			}
+			if (tvb_get_ntohl(tvb,28) == 0) {
+				if (tvb_get_ntohs(tvb,14) == 0) {
+					if (tvb_get_ntohs(tvb,18) == 0) {
+						fhtype=FHT_LINUXLE;
+						goto type_ready;
+					}
+				}
+			}
+		} break;
+	}
+
+type_ready:
+
+	proto_tree_add_text(tree, tvb, 0, 0, 
+		"type: %s", val_to_str(fhtype, names_fhtype, "Unknown"));
+
+	switch (fhtype) {
+		case FHT_SVR4:
+			dissect_fhandle_data_SVR4   (tvb, tree, fhlen);
+		break;
+		case FHT_LINUXLE:
+			dissect_fhandle_data_LINUXLE(tvb, tree, fhlen);
+		break;
+		case FHT_UNKNOWN:
+		default:
+			dissect_fhandle_data_unknown(tvb, tree, fhlen);
+		break;
+	}
+}
 
 
 /***************************/
@@ -228,29 +589,6 @@ char* name)
 	return offset;
 }
 
-static void
-dissect_fhandle_data(const u_char *pd, int offset, proto_tree *tree, int fhlen)
-{
-	int sublen;
-	int bytes_left;
-	gboolean first_line;
-
-	bytes_left = fhlen;
-	first_line = TRUE;
-	while (bytes_left != 0) {
-		sublen = 16;
-		if (sublen > bytes_left)
-			sublen = bytes_left;
-		proto_tree_add_text(tree, NullTVB, offset, sublen,
-					"%s%s",
-					first_line ? "data: " :
-					             "      ",
-					bytes_to_str(&pd[offset], sublen));
-		bytes_left -= sublen;
-		offset += sublen;
-		first_line = FALSE;
-	}
-}
 
 /* RFC 1094, Page 15 */
 int
@@ -267,7 +605,7 @@ dissect_fhandle(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, 
 	}
 
 	if (ftree)
-		dissect_fhandle_data(pd, offset, ftree, FHSIZE);
+		dissect_fhandle_data(pd, offset, fd, ftree, FHSIZE);
 
 	offset += FHSIZE;
 	return offset;
@@ -1307,7 +1645,7 @@ dissect_nfs_fh3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, 
 	if (ftree) {
 		proto_tree_add_text(ftree, NullTVB,offset+0,4,
 					"length: %u", fh3_len);
-		dissect_fhandle_data(pd, offset+4, ftree, fh3_len);
+		dissect_fhandle_data(pd, offset+4, fd, ftree, fh3_len);
 	}
 	offset += 4 + fh3_len_full;
 	return offset;
@@ -2936,6 +3274,57 @@ void
 proto_register_nfs(void)
 {
 	static hf_register_info hf[] = {
+		{ &hf_nfs_fh_fsid_major, {
+			"major", "nfs.fh.fsid.major", FT_UINT32, BASE_DEC,
+			NULL, 0, "major file system ID" }},
+		{ &hf_nfs_fh_fsid_minor, {
+			"minor", "nfs.fh.fsid.minor", FT_UINT32, BASE_DEC,
+			NULL, 0, "minor file system ID" }},
+		{ &hf_nfs_fh_xfsid_major, {
+			"exported major", "nfs.fh.xfsid.major", FT_UINT32, BASE_DEC,
+			NULL, 0, "exported major file system ID" }},
+		{ &hf_nfs_fh_xfsid_minor, {
+			"exported minor", "nfs.fh.xfsid.minor", FT_UINT32, BASE_DEC,
+			NULL, 0, "exported minor file system ID" }},
+		{ &hf_nfs_fh_fstype, {
+			"file system type", "nfs.fh.fstype", FT_UINT32, BASE_DEC,
+			NULL, 0, "file system type" }},
+		{ &hf_nfs_fh_fn, {
+			"file number", "nfs.fh.fn", FT_UINT32, BASE_DEC,
+			NULL, 0, "file number" }},
+		{ &hf_nfs_fh_fn_len, {
+			"length", "nfs.fh.fn.len", FT_UINT32, BASE_DEC,
+			NULL, 0, "file number length" }},
+		{ &hf_nfs_fh_fn_inode, {
+			"inode", "nfs.fh.fn.inode", FT_UINT32, BASE_DEC,
+			NULL, 0, "file number inode" }},
+		{ &hf_nfs_fh_fn_generation, {
+			"generation", "nfs.fh.fn.generation", FT_UINT32, BASE_DEC,
+			NULL, 0, "file number generation" }},
+		{ &hf_nfs_fh_xfn, {
+			"exported file number", "nfs.fh.xfn", FT_UINT32, BASE_DEC,
+			NULL, 0, "exported file number" }},
+		{ &hf_nfs_fh_xfn_len, {
+			"length", "nfs.fh.xfn.len", FT_UINT32, BASE_DEC,
+			NULL, 0, "exported file number length" }},
+		{ &hf_nfs_fh_xfn_inode, {
+			"exported inode", "nfs.fh.xfn.inode", FT_UINT32, BASE_DEC,
+			NULL, 0, "exported file number inode" }},
+		{ &hf_nfs_fh_xfn_generation, {
+			"generation", "nfs.fh.xfn.generation", FT_UINT32, BASE_DEC,
+			NULL, 0, "exported file number generation" }},
+		{ &hf_nfs_fh_dentry, {
+			"dentry", "nfs.fh.dentry", FT_UINT32, BASE_HEX,
+			NULL, 0, "dentry (cookie)" }},
+		{ &hf_nfs_fh_dev, {
+			"device", "nfs.fh.dev", FT_UINT32, BASE_DEC,
+			NULL, 0, "device" }},
+		{ &hf_nfs_fh_xdev, {
+			"exported device", "nfs.fh.xdev", FT_UINT32, BASE_DEC,
+			NULL, 0, "exported device" }},
+		{ &hf_nfs_fh_dirinode, {
+			"directory inode", "nfs.fh.dirinode", FT_UINT32, BASE_DEC,
+			NULL, 0, "directory inode" }},
 		{ &hf_nfs_stat, {
 			"Status", "nfs.status2", FT_UINT32, BASE_DEC,
 			VALS(names_nfs_stat), 0, "Reply status" }},
@@ -3075,6 +3464,10 @@ proto_register_nfs(void)
 
 	static gint *ett[] = {
 		&ett_nfs,
+		&ett_nfs_fh_fsid,
+		&ett_nfs_fh_xfsid,
+		&ett_nfs_fh_fn,
+		&ett_nfs_fh_xfn,
 		&ett_nfs_fhandle,
 		&ett_nfs_timeval,
 		&ett_nfs_mode,
