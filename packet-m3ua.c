@@ -9,7 +9,7 @@
  *
  * Copyright 2000, 2001, 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-m3ua.c,v 1.17 2002/03/28 21:48:46 guy Exp $
+ * $Id: packet-m3ua.c,v 1.18 2002/05/01 00:09:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -802,7 +802,7 @@ dissect_m3ua_user_cause_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter
 }
 
 static void
-dissect_m3ua_protocol_data_1_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_m3ua_protocol_data_1_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_item *parameter_item)
 {
   guint16 length, protocol_data_length;
   tvbuff_t *payload_tvb;
@@ -1322,7 +1322,7 @@ dissect_m3ua_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tre
     dissect_m3ua_network_appearance_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case V6_PROTOCOL_DATA_1_PARAMETER_TAG:
-    dissect_m3ua_protocol_data_1_parameter(parameter_tvb, pinfo, tree, parameter_tree, parameter_item);
+    dissect_m3ua_protocol_data_1_parameter(parameter_tvb, pinfo, tree, parameter_item);
     break;
   case V6_PROTOCOL_DATA_2_PARAMETER_TAG:
     dissect_m3ua_protocol_data_2_parameter(parameter_tvb, pinfo, tree, parameter_tree, parameter_item);
