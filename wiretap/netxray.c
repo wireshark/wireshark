@@ -1,20 +1,20 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.58 2002/07/29 06:09:59 guy Exp $
+ * $Id: netxray.c,v 1.59 2002/08/28 20:30:45 jmayer Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -294,7 +294,7 @@ int netxray_open(wtap *wth, int *err)
 	if (file_seek(wth->fh, pletohl(&hdr.start_offset), SEEK_SET, err) == -1) {
 		g_free(wth->capture.netxray);
 		return -1;
-	}	
+	}
 	wth->data_offset = pletohl(&hdr.start_offset);
 
 	return 1;
@@ -615,7 +615,7 @@ static gboolean netxray_dump_1_1(wtap_dumper *wdh,
     rec_hdr.timehi = htolel(0);
     rec_hdr.orig_len = htoles(phdr->len);
     rec_hdr.incl_len = htoles(phdr->caplen);
-	
+
     nwritten = fwrite(&rec_hdr, 1, sizeof(rec_hdr), wdh->fh);
     if (nwritten != sizeof(rec_hdr)) {
 	if (nwritten == 0 && ferror(wdh->fh))
@@ -625,7 +625,7 @@ static gboolean netxray_dump_1_1(wtap_dumper *wdh,
 	return FALSE;
     }
 
-    /* write the packet data */	
+    /* write the packet data */
     nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
     if (nwritten != phdr->caplen) {
 	if (nwritten == 0 && ferror(wdh->fh))
@@ -634,7 +634,7 @@ static gboolean netxray_dump_1_1(wtap_dumper *wdh,
 	    *err = WTAP_ERR_SHORT_WRITE;
 	return FALSE;
     }
-	
+
     netxray->nframes++;
 
     return TRUE;
@@ -690,7 +690,7 @@ static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
 	}
 	return FALSE;
     }
-	
+
     return TRUE;
 }
 
@@ -779,7 +779,7 @@ static gboolean netxray_dump_2_0(wtap_dumper *wdh,
 	return FALSE;
     }
 
-    /* write the packet data */	
+    /* write the packet data */
     nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
     if (nwritten != phdr->caplen) {
 	if (nwritten == 0 && ferror(wdh->fh))
@@ -788,7 +788,7 @@ static gboolean netxray_dump_2_0(wtap_dumper *wdh,
 	    *err = WTAP_ERR_SHORT_WRITE;
 	return FALSE;
     }
-	
+
     netxray->nframes++;
 
     return TRUE;
@@ -844,6 +844,6 @@ static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
 	}
 	return FALSE;
     }
-	
+
     return TRUE;
 }

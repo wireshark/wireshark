@@ -1,20 +1,20 @@
 /* csids.c
  *
- * $Id: csids.c,v 1.14 2002/06/07 07:27:34 guy Exp $
+ * $Id: csids.c,v 1.15 2002/08/28 20:30:44 jmayer Exp $
  *
  * Copyright (c) 2000 by Mike Hall <mlh@io.com>
  * Copyright (c) 2000 by Cisco Systems
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -32,10 +32,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* 
+/*
  * This module reads the output from the Cisco Secure Intrustion Detection
- * System iplogging facility. The term iplogging is misleading since this 
- * logger will only output TCP. There is no link layer information. 
+ * System iplogging facility. The term iplogging is misleading since this
+ * logger will only output TCP. There is no link layer information.
  * Packet format is 4 byte timestamp (seconds since epoch), and a 4 byte size
  * of data following for that packet.
  *
@@ -58,21 +58,21 @@ struct csids_header {
 /* XXX - return -1 on I/O error and actually do something with 'err'. */
 int csids_open(wtap *wth, int *err)
 {
-  /* There is no file header. There is only a header for each packet 
-   * so we read a packet header and compare the caplen with iplen. They 
+  /* There is no file header. There is only a header for each packet
+   * so we read a packet header and compare the caplen with iplen. They
    * should always be equal except with the wierd byteswap version.
-   * 
-   * THIS IS BROKEN-- anytime the caplen is 0x0101 or 0x0202 up to 0x0505 
-   * this will byteswap it. I need to fix this. XXX --mlh 
+   *
+   * THIS IS BROKEN-- anytime the caplen is 0x0101 or 0x0202 up to 0x0505
+   * this will byteswap it. I need to fix this. XXX --mlh
    */
 
   int tmp,iplen,bytesRead;
-  
+
   gboolean byteswap = FALSE;
   struct csids_header hdr;
   bytesRead=0;
 
-  /* check the file to make sure it is a csids file. */ 
+  /* check the file to make sure it is a csids file. */
   bytesRead = file_read( &hdr, 1, sizeof( struct csids_header), wth->fh );
   if( bytesRead != sizeof( struct csids_header) ) {
     *err = file_error( wth->fh );
@@ -121,17 +121,17 @@ int csids_open(wtap *wth, int *err)
     }
   } else {
     byteswap = FALSE;
-  } 
+  }
 
   /* no file header. So reset the fh to 0 so we can read the first packet */
   if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
     return -1;
 
-  wth->data_offset = 0; 
+  wth->data_offset = 0;
   wth->capture.csids = g_malloc(sizeof(csids_t));
   wth->capture.csids->byteswapped = byteswap;
-  wth->file_encap = WTAP_ENCAP_RAW_IP; 
-  wth->file_type = WTAP_FILE_CSIDS; 
+  wth->file_encap = WTAP_ENCAP_RAW_IP;
+  wth->file_type = WTAP_FILE_CSIDS;
   wth->snapshot_length = 0; /* not known */
   wth->subtype_read = csids_read;
   wth->subtype_seek_read = csids_seek_read;
@@ -164,7 +164,7 @@ static gboolean csids_read(wtap *wth, int *err, long *data_offset)
   /* Make sure we have enough room for the packet */
   buffer_assure_space(wth->frame_buffer, hdr.caplen);
   buf = buffer_start_ptr(wth->frame_buffer);
-  
+
   bytesRead = file_read( buf, 1, hdr.caplen, wth->fh );
   if( bytesRead != hdr.caplen ) {
     *err = file_error( wth->fh );
@@ -172,7 +172,7 @@ static gboolean csids_read(wtap *wth, int *err, long *data_offset)
       *err = WTAP_ERR_SHORT_READ;
     return FALSE;
   }
-  
+
   wth->data_offset += hdr.caplen;
 
   wth->phdr.len = hdr.caplen;
@@ -219,7 +219,7 @@ csids_seek_read (wtap *wth,
   }
   hdr.seconds = pntohl(&hdr.seconds);
   hdr.caplen = pntohs(&hdr.caplen);
-  
+
   if( len != hdr.caplen ) {
     *err = WTAP_ERR_BAD_RECORD;
     return FALSE;
@@ -243,7 +243,7 @@ csids_seek_read (wtap *wth,
     swap++;
     *(swap) = BSWAP16(*swap); /* ip flags and fragoff */
   }
-  
+
   return TRUE;
 }
 

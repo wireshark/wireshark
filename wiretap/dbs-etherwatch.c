@@ -1,20 +1,20 @@
 /* dbs-etherwatch.c
  *
- * $Id: dbs-etherwatch.c,v 1.8 2002/06/07 07:27:34 guy Exp $
+ * $Id: dbs-etherwatch.c,v 1.9 2002/08/28 20:30:44 jmayer Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <mmilgram@arrayinc.com>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -134,7 +134,7 @@ static gboolean dbs_etherwatch_check_file_type(wtap *wth, int *err)
 	char	buf[DBS_ETHERWATCH_LINE_LENGTH];
 	int	line, byte;
 	unsigned int reclen, i, level;
-	
+
 	buf[DBS_ETHERWATCH_LINE_LENGTH-1] = 0;
 
 	for (line = 0; line < DBS_ETHERWATCH_HEADER_LINES_TO_CHECK; line++) {
@@ -367,7 +367,7 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset) {
 	rec[26] = '\0';
 	s = rec + 21;
 	value = strtol(s, NULL, 10);
-	
+
 	if (value != byte_offset) {
 		return FALSE;
 	}

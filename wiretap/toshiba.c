@@ -1,20 +1,20 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.24 2002/06/07 07:27:35 guy Exp $
+ * $Id: toshiba.c,v 1.25 2002/08/28 20:30:45 jmayer Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -357,10 +357,10 @@ parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
 		case 'D':
 			if (wth)
 				wth->phdr.pkt_encap = WTAP_ENCAP_LAPD;
-			pseudo_header->p2p.sent = 
+			pseudo_header->p2p.sent =
 				(direction[0] == 'T' ? TRUE : FALSE );
 			break;
-			
+
 		default:
 			if (wth)
 				wth->phdr.pkt_encap = WTAP_ENCAP_ETHERNET;
@@ -375,7 +375,7 @@ parse_toshiba_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
 {
 	char	line[TOSHIBA_LINE_LENGTH];
 	int	i, hex_lines;
-	
+
 	/* Calculate the number of hex dump lines, each
 	 * containing 16 bytes of data */
 	hex_lines = pkt_len / 16 + ((pkt_len % 16) ? 1 : 0);

@@ -2,21 +2,21 @@
  * File read and write routines for Visual Networks cap files.
  * Copyright (c) 2001, Tom Nisbet  tnisbet@visualnetworks.com
  *
- * $Id: visual.c,v 1.10 2002/07/29 06:09:59 guy Exp $
+ * $Id: visual.c,v 1.11 2002/08/28 20:30:45 jmayer Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -228,7 +228,7 @@ static gboolean visual_read(wtap *wth, int *err, long *data_offset)
     /* Check for the end of the packet data.  Note that a check for file EOF
        will not work because there are index values stored after the last
        packet's data. */
-    if (visual->current_pkt > visual->num_pkts) 
+    if (visual->current_pkt > visual->num_pkts)
     {
         *err = 0;   /* it's just an EOF, not an error */
         return FALSE;
@@ -238,10 +238,10 @@ static gboolean visual_read(wtap *wth, int *err, long *data_offset)
     /* Read the packet header. */
     errno = WTAP_ERR_CANT_READ;
     bytes_read = file_read(&vpkt_hdr, 1, phdr_size, wth->fh);
-    if (bytes_read != phdr_size) 
+    if (bytes_read != phdr_size)
     {
         *err = file_error(wth->fh);
-        if (*err == 0 && bytes_read != 0) 
+        if (*err == 0 && bytes_read != 0)
         {
             *err = WTAP_ERR_SHORT_READ;
         }
@@ -251,7 +251,7 @@ static gboolean visual_read(wtap *wth, int *err, long *data_offset)
 
     /* Read the packet data. */
     packet_size = pletohs(&vpkt_hdr.incl_len);
-    if (packet_size > WTAP_MAX_PACKET_SIZE) 
+    if (packet_size > WTAP_MAX_PACKET_SIZE)
     {
         /* Probably a corrupt capture file; don't blow up trying
           to allocate space for an immensely-large packet. */
@@ -266,7 +266,7 @@ static gboolean visual_read(wtap *wth, int *err, long *data_offset)
     bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
             packet_size, wth->fh);
 
-    if (bytes_read != (int) packet_size) 
+    if (bytes_read != (int) packet_size)
     {
         *err = file_error(wth->fh);
         if (*err == 0)
@@ -329,7 +329,7 @@ static void visual_close(wtap *wth)
 /* Read packet data for random access.
    This gets the packet data and rebuilds the pseudo header so that
    the direction flag works. */
-static gboolean visual_seek_read (wtap *wth, long seek_off, 
+static gboolean visual_seek_read (wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err)
 {
     struct visual_pkt_hdr vpkt_hdr;
@@ -383,7 +383,7 @@ static gboolean visual_seek_read (wtap *wth, long seek_off,
 }
 
 
-/* Check for media types that may be written in Visual file format. 
+/* Check for media types that may be written in Visual file format.
    Returns 0 if the specified encapsulation type is supported,
    an error indication otherwise. */
 int visual_dump_can_write_encap(int encap)
@@ -472,7 +472,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
        file header.  Each packet has a capture time (in msec) relative
        to the file start time.  Use the time of the first packet as the
        file start time. */
-    if (visual->index_table_index == 0) 
+    if (visual->index_table_index == 0)
     {
         /* This is the first packet.  Save its start time as the file time. */
         visual->start_time = phdr->ts.tv_sec;
@@ -481,7 +481,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         visual->index_table = g_malloc(1024 * sizeof *visual->index_table);
         visual->index_table_size = 1024;
     }
-    
+
     /* Calculate milliseconds since capture start. */
     delta_msec = phdr->ts.tv_usec / 1000;
     delta_msec += (phdr->ts.tv_sec - visual->start_time) * 1000;
@@ -495,20 +495,20 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     switch (wdh->encap)
     {
     case WTAP_ENCAP_ETHERNET:   /* Ethernet */
-        vpkt_hdr.encap_hint = 2;    
+        vpkt_hdr.encap_hint = 2;
         break;
     case WTAP_ENCAP_TOKEN_RING: /* Token Ring */
-        vpkt_hdr.encap_hint = 3;    
+        vpkt_hdr.encap_hint = 3;
         break;
     case WTAP_ENCAP_PPP:        /* PPP */
     case WTAP_ENCAP_PPP_WITH_PHDR:
-        vpkt_hdr.encap_hint = 14;   
+        vpkt_hdr.encap_hint = 14;
         break;
     case WTAP_ENCAP_CHDLC:      /* HDLC Router */
-        vpkt_hdr.encap_hint = 13;   
+        vpkt_hdr.encap_hint = 13;
         break;
     case WTAP_ENCAP_FRELAY:     /* Frame Relay Auto-detect */
-        vpkt_hdr.encap_hint = 12;   
+        vpkt_hdr.encap_hint = 12;
         break;
     case WTAP_ENCAP_LAPB:       /* Unknown */
     default:
@@ -537,7 +537,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
     /* Write the packet header. */
     nwritten = fwrite(&vpkt_hdr, 1, hdr_size, wdh->fh);
-    if (nwritten != hdr_size) 
+    if (nwritten != hdr_size)
     {
         if (nwritten == 0 && ferror(wdh->fh))
             *err = errno;
@@ -548,7 +548,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
     /* Write the packet data */
     nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
-    if (nwritten != phdr->caplen) 
+    if (nwritten != phdr->caplen)
     {
         if (nwritten == 0 && ferror(wdh->fh))
             *err = errno;
@@ -558,7 +558,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     }
 
     /* Store the frame offset in the index table. */
-    if (visual->index_table_index >= visual->index_table_size) 
+    if (visual->index_table_index >= visual->index_table_size)
     {
         /* End of table reached.  Reallocate with a larger size */
         visual->index_table_size *= 2;
@@ -597,7 +597,7 @@ static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
         /* Write the index table to the file. */
         n_to_write = visual->index_table_index * sizeof *visual->index_table;
         nwritten = fwrite(visual->index_table, 1, n_to_write, wdh->fh);
-        if (nwritten != n_to_write) 
+        if (nwritten != n_to_write)
         {
             if (err != NULL)
             {
@@ -652,7 +652,7 @@ static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
 
     /* Write the file header following the magic bytes. */
     nwritten = fwrite(&vfile_hdr, 1, sizeof vfile_hdr, wdh->fh);
-    if (nwritten != sizeof vfile_hdr) 
+    if (nwritten != sizeof vfile_hdr)
     {
         if (err != NULL)
         {

@@ -1,6 +1,6 @@
 /* lanalyzer.h
  *
- * $Id: lanalyzer.h,v 1.7 2002/07/16 07:15:08 guy Exp $
+ * $Id: lanalyzer.h,v 1.8 2002/08/28 20:30:44 jmayer Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -69,7 +69,7 @@ typedef guint16 TimeStamp[3];  /* 0.5 microseconds since start of trace */
  *       } Time;
  */
 
-/* 
+/*
  * typedef struct {
  *       guint16     rx_channels;
  *       guint16     rx_errors;

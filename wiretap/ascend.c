@@ -1,20 +1,20 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.30 2002/06/07 07:27:34 guy Exp $
+ * $Id: ascend.c,v 1.31 2002/08/28 20:30:44 jmayer Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -50,17 +50,17 @@
    around quite a bit, otherwise I'd put a more specific URL here.
 
    Example 'wandsess' output data:
-   
+
 RECV-iguana:241:(task: B02614C0, time: 1975432.85) 49 octets @ 8003BD94
-  [0000]: FF 03 00 3D C0 06 CA 22 2F 45 00 00 28 6A 3B 40 
-  [0010]: 00 3F 03 D7 37 CE 41 62 12 CF 00 FB 08 20 27 00 
-  [0020]: 50 E4 08 DD D7 7C 4C 71 92 50 10 7D 78 67 C8 00 
-  [0030]: 00 
+  [0000]: FF 03 00 3D C0 06 CA 22 2F 45 00 00 28 6A 3B 40
+  [0010]: 00 3F 03 D7 37 CE 41 62 12 CF 00 FB 08 20 27 00
+  [0020]: 50 E4 08 DD D7 7C 4C 71 92 50 10 7D 78 67 C8 00
+  [0030]: 00
 XMIT-iguana:241:(task: B04E12C0, time: 1975432.85) 53 octets @ 8009EB16
-  [0000]: FF 03 00 3D C0 09 1E 31 21 45 00 00 2C 2D BD 40 
-  [0010]: 00 7A 06 D8 B1 CF 00 FB 08 CE 41 62 12 00 50 20 
-  [0020]: 29 7C 4C 71 9C 9A 6A 93 A4 60 12 22 38 3F 10 00 
-  [0030]: 00 02 04 05 B4 
+  [0000]: FF 03 00 3D C0 09 1E 31 21 45 00 00 2C 2D BD 40
+  [0010]: 00 7A 06 D8 B1 CF 00 FB 08 CE 41 62 12 00 50 20
+  [0020]: 29 7C 4C 71 9C 9A 6A 93 A4 60 12 22 38 3F 10 00
+  [0030]: 00 02 04 05 B4
 
     Example 'wdd' output data:
 
@@ -80,8 +80,8 @@ WD_DIALOUT_DISP: chunk 2515EE type IP.
 
   Note that a maximum of eight rows will be displayed (for a maximum of
   128 bytes), no matter what the octet count is.
-  
-  When reading a packet, the module prepends an ascend_pkt_hdr to the 
+
+  When reading a packet, the module prepends an ascend_pkt_hdr to the
   data.
 
  */
@@ -264,7 +264,7 @@ int ascend_open(wtap *wth, int *err)
      found it. */
   wth->capture.ascend->next_packet_seek_start = offset;
 
-  /* MAXen and Pipelines report the time since reboot.  In order to keep 
+  /* MAXen and Pipelines report the time since reboot.  In order to keep
      from reporting packet times near the epoch, we subtract the first
      packet's timestamp from the capture file's ctime, which gives us an
      offset that we can apply to each packet.
@@ -290,7 +290,7 @@ static gboolean ascend_read(wtap *wth, int *err, long *data_offset)
   ascend_pkthdr header;
 
   /* (f)lex reads large chunks of the file into memory, so file_tell() doesn't
-     give us the correct location of the packet.  Instead, we seek to the 
+     give us the correct location of the packet.  Instead, we seek to the
      offset after the header of the previous packet and try to find the next
      packet.  */
   if (file_seek(wth->fh, wth->capture.ascend->next_packet_seek_start,

@@ -1,19 +1,19 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.23 2002/07/16 09:41:32 guy Exp $
+ * $Id: pppdump.c,v 1.24 2002/08/28 20:30:45 jmayer Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -88,7 +88,7 @@ Daniel Thompson (STMicroelectronics) <daniel.thompson@st.com>
 #define PPPD_TIME_STEP_SHORT	0x06
 #define PPPD_RESET_TIME		0x07
 
-/* this buffer must be at least (2*PPPD_MTU) + sizeof(ppp_header) + sizeof(lcp_header) + 
+/* this buffer must be at least (2*PPPD_MTU) + sizeof(ppp_header) + sizeof(lcp_header) +
  * sizeof(ipcp_header). PPPD_MTU is *very* rarely larger than 1500 so this value is fine
  */
 #define PPPD_BUF_SIZE		8192
@@ -242,7 +242,7 @@ init_state(pppdump_t *state)
 	state->offset = 0x100000; /* to detect errors during development */
 }
 
-	
+
 int
 pppdump_open(wtap *wth, int *err)
 {
@@ -284,12 +284,12 @@ pppdump_open(wtap *wth, int *err)
 	init_state(state);
 
 	state->offset = 5;
-	wth->file_encap = WTAP_ENCAP_PPP_WITH_PHDR; 
-	wth->file_type = WTAP_FILE_PPPDUMP; 
+	wth->file_encap = WTAP_ENCAP_PPP_WITH_PHDR;
+	wth->file_type = WTAP_FILE_PPPDUMP;
 
-	wth->snapshot_length = PPPD_BUF_SIZE; /* just guessing */ 
-	wth->subtype_read = pppdump_read; 
-	wth->subtype_seek_read = pppdump_seek_read; 
+	wth->snapshot_length = PPPD_BUF_SIZE; /* just guessing */
+	wth->subtype_read = pppdump_read;
+	wth->subtype_seek_read = pppdump_seek_read;
 	wth->subtype_close = pppdump_close;
 
 	state->seek_state = g_malloc(sizeof(pppdump_t));
@@ -619,7 +619,7 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 					return TRUE;
 				}
 				/* if 0 bytes written, keep looping */
-				
+
 				break;
 
 			case PPPD_SEND_DELIM:

@@ -1,20 +1,20 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.30 2002/07/29 06:09:59 guy Exp $
+ * $Id: nettl.c,v 1.31 2002/08/28 20:30:45 jmayer Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -87,14 +87,14 @@ indicate the real and captured length of the packet (order unknown)
 The values 0x00000074 at positions 0x0000a0 and 0x0000a4 seems to indicate
 the same number as positions 0x0000c8 and 0x0000ca but added with 24.
 Perhaps we have here two layers of headers.
-The first layer is fixed and consists of all the bytes from 0x000084 up to and 
+The first layer is fixed and consists of all the bytes from 0x000084 up to and
 including 0x0000c3 which is a generic header for all packets captured from any
 device. This header might be of fixed size 64 bytes and there might be something in
 it which indicates the type of the next header which is link type specific.
 Following this header there is another header for the 100baseT interface which
 in this case is 24 bytes long spanning positions 0x0000c4 to 0x0000db.
 
-When someone reports that the loading of the captures breaks, we can compare 
+When someone reports that the loading of the captures breaks, we can compare
 this header above with what he/she got to learn how to distinguish between different
 types of link specific headers.
 
@@ -107,7 +107,7 @@ The header for 100baseT seems to be
 	0-3	unknown
 	4-5	length1   these are probably total/captured len. unknown which.
 	6-7	length2
-	8-11	unknown	
+	8-11	unknown
 	12-15	secs
 	16-19	100 x nsec
 	20-23	unknown
@@ -275,16 +275,16 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	case NETTL_SUBSYS_NS_LS_UDP :
 	case 0xb9:	/* XXX unknown encapsulation name */
 	case NETTL_SUBSYS_NS_LS_ICMP :
-	    if( (encap[3] == NETTL_SUBSYS_NS_LS_IP) 
-	    ||  (encap[3] == NETTL_SUBSYS_NS_LS_LOOPBACK) 
-	    ||  (encap[3] == NETTL_SUBSYS_NS_LS_UDP) 
+	    if( (encap[3] == NETTL_SUBSYS_NS_LS_IP)
+	    ||  (encap[3] == NETTL_SUBSYS_NS_LS_LOOPBACK)
+	    ||  (encap[3] == NETTL_SUBSYS_NS_LS_UDP)
 	    ||  (encap[3] == NETTL_SUBSYS_NS_LS_TCP) ){
-		phdr->pkt_encap = WTAP_ENCAP_RAW_IP; 
+		phdr->pkt_encap = WTAP_ENCAP_RAW_IP;
 	    } else if (encap[3] == NETTL_SUBSYS_NS_LS_ICMP) {
-		phdr->pkt_encap = WTAP_ENCAP_UNKNOWN; 
+		phdr->pkt_encap = WTAP_ENCAP_UNKNOWN;
 	    } else {
 		wth->file_encap = WTAP_ENCAP_ETHERNET;
-		phdr->pkt_encap = WTAP_ENCAP_ETHERNET; 
+		phdr->pkt_encap = WTAP_ENCAP_ETHERNET;
 	    }
 
 	    bytes_read = file_read(&ip_hdr, 1, sizeof ip_hdr, fh);
@@ -322,7 +322,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    phdr->len = length;
 	    phdr->caplen = length;
 
-	    
+
 	    phdr->ts.tv_sec = pntohl(&ip_hdr.sec);
 	    /* this filed is in units of 0.1 us for HPUX 11 */
 	    if (wth->capture.nettl->is_hpux_11) {
@@ -365,7 +365,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    /* XXX we dont know how to identify this as ehternet frames, so
 	       we assumes everything is. We will crash and burn for anything else */
 	    /* for encapsulated 100baseT we do this */
-	    phdr->pkt_encap = WTAP_ENCAP_ETHERNET; 
+	    phdr->pkt_encap = WTAP_ENCAP_ETHERNET;
 	    bytes_read = file_read(&drv_eth_hdr, 1, sizeof drv_eth_hdr, fh);
 	    if (bytes_read != sizeof drv_eth_hdr) {
 		*err = file_error(fh);
@@ -384,7 +384,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    phdr->len = length;
 	    phdr->caplen = length;
 
-	    
+
 	    phdr->ts.tv_sec = pntohl(&ip_hdr.sec);
 	    /* this filed is in units of 0.1 us for HPUX 11 */
 	    if (wth->capture.nettl->is_hpux_11) {

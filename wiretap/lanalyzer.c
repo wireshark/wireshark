@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.36 2002/07/29 06:09:58 guy Exp $
+ * $Id: lanalyzer.c,v 1.37 2002/08/28 20:30:44 jmayer Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -377,7 +377,7 @@ lanalyzer_close(wtap *wth)
 static int swrite(const void* what, guint size, FILE *hd)
 {
 	size_t nwritten;
-	
+
 	nwritten = fwrite(what, 1, size, hd);
 	if (nwritten != size) {
 		if (nwritten == 0 && ferror(hd))
@@ -419,7 +419,7 @@ static int s0write(guint cnt, FILE *hd)
 static int s8write(const guint8 s8, FILE *hd)
 {
 	size_t nwritten;
-	
+
 	nwritten = fwrite(&s8, 1, 1, hd);
 	if (nwritten != 1) {
 		if (nwritten == 0 && ferror(hd))
@@ -436,7 +436,7 @@ static int s8write(const guint8 s8, FILE *hd)
 static int s16write(const guint16 s16, FILE *hd)
 {
 	size_t nwritten;
-	
+
 	nwritten = fwrite(&s16, 1, 2, hd);
 	if (nwritten != 2) {
 		if (nwritten == 0 && ferror(hd))
@@ -453,7 +453,7 @@ static int s16write(const guint16 s16, FILE *hd)
 static int s32write(const guint32 s32, FILE *hd)
 {
 	size_t nwritten;
-	
+
 	nwritten = fwrite(&s32, 1, 4, hd);
 	if (nwritten != 4) {
 		if (nwritten == 0 && ferror(hd))

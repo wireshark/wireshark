@@ -1,20 +1,20 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.84 2002/07/29 06:09:59 guy Exp $
+ * $Id: ngsniffer.c,v 1.85 2002/08/28 20:30:45 jmayer Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -614,7 +614,7 @@ skip_header_records(wtap *wth, int *err, gint16 version)
 
 			/*
 			 * XXX - what about LAPB and LAPD?  At least one
-			 * X.25 capture has a type of NET_HDLC, but one 
+			 * X.25 capture has a type of NET_HDLC, but one
 			 * might also consider LAPD to be an HDLC
 			 * variant; if it also has a type of NET_HDLC,
 			 * we'd have to look at some other data to
@@ -1581,7 +1581,7 @@ static gboolean ngsniffer_dump_close(wtap_dumper *wdh, int *err)
    Return value is the number of bytes in outbuf on return.
 */
 static int
-SnifferDecompress( unsigned char * inbuf, size_t inlen, 
+SnifferDecompress( unsigned char * inbuf, size_t inlen,
                        unsigned char * outbuf, size_t outlen, int *err )
 {
    unsigned char * pin = inbuf;
@@ -1642,7 +1642,7 @@ SnifferDecompress( unsigned char * inbuf, size_t inlen,
                     Run length is the low nybble of the first code byte.
                     Byte to repeat immediately follows.
                     Total code size: 2 bytes.
-                */    
+                */
                 length = code_low + 3;
                 /* If length would put us past end of output, avoid overflow */
                 if ( pout + length > pout_end )
@@ -1657,12 +1657,12 @@ SnifferDecompress( unsigned char * inbuf, size_t inlen,
                 break;
             case 1  :   /* RLE long runs */
                 /*
-                    Low 4 bits of run length is the low nybble of the 
-                    first code byte, upper 8 bits of run length is in 
+                    Low 4 bits of run length is the low nybble of the
+                    first code byte, upper 8 bits of run length is in
                     the next byte.
                     Byte to repeat immediately follows.
                     Total code size: 3 bytes.
-                */    
+                */
                 length = code_low + ((unsigned int)(*pin++) << 4) + 19;
                 /* If we are already at end of input, there is no byte
                    to repeat */
@@ -1684,12 +1684,12 @@ SnifferDecompress( unsigned char * inbuf, size_t inlen,
                 break;
             case 2  :   /* LZ77 long strings */
                 /*
-                    Low 4 bits of offset to string is the low nybble of the 
-                    first code byte, upper 8 bits of offset is in 
+                    Low 4 bits of offset to string is the low nybble of the
+                    first code byte, upper 8 bits of offset is in
                     the next byte.
                     Length of string immediately follows.
                     Total code size: 3 bytes.
-                */    
+                */
                 offset = code_low + ((unsigned int)(*pin++) << 4) + 3;
                 /* If we are already at end of input, there is no byte
                    to repeat */
@@ -1720,12 +1720,12 @@ SnifferDecompress( unsigned char * inbuf, size_t inlen,
                 break;
             default :   /* (3 to 15): LZ77 short strings */
                 /*
-                    Low 4 bits of offset to string is the low nybble of the 
-                    first code byte, upper 8 bits of offset is in 
+                    Low 4 bits of offset to string is the low nybble of the
+                    first code byte, upper 8 bits of offset is in
                     the next byte.
                     Length of string to repeat is overloaded into code_type.
                     Total code size: 2 bytes.
-                */    
+                */
                 offset = code_low + ((unsigned int)(*pin++) << 4) + 3;
                 /* Check if offset would put us back past begin of buffer */
                 if ( pout - offset < outbuf )
@@ -1863,7 +1863,7 @@ ng_file_read(void *buffer, size_t elementsize, size_t numelements, wtap *wth,
 		return -1;
 	    bytes_left = comp_stream->nbytes - comp_stream->nextout;
 	}
-   	    
+
 	bytes_to_copy = copybytes;
 	if (bytes_to_copy > bytes_left)
 	    bytes_to_copy = bytes_left;

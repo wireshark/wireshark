@@ -1,6 +1,6 @@
 /* vms.c
  *
- * $Id: vms.c,v 1.13 2002/06/07 07:27:35 guy Exp $
+ * $Id: vms.c,v 1.14 2002/08/28 20:30:45 jmayer Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <mmilgram@arrayinc.com>
@@ -146,7 +146,7 @@ static gboolean vms_check_file_type(wtap *wth, int *err)
     int    line, byte;
     unsigned int reclen, i, level;
     long mpos;
-   
+
     buf[VMS_LINE_LENGTH-1] = 0;
 
     for (line = 0; line < VMS_HEADER_LINES_TO_CHECK; line++) {
@@ -442,12 +442,12 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset,
     int        value;
     static int offsets[16] = {39,37,35,33,28,26,24,22,17,15,13,11,6,4,2,0};
     char lbuf[3] = {0,0,0};
-   
+
 
     /* Get the byte_offset directly from the record */
     s = rec;
     value = strtoul(s + 45 + in_off, NULL, 16);
-   
+
     if (value != byte_offset) {
         return FALSE;
     }

@@ -1,23 +1,23 @@
 /* cosine.c
  *
- * $Id: cosine.c,v 1.4 2002/08/16 00:41:39 guy Exp $
+ * $Id: cosine.c,v 1.5 2002/08/28 20:30:44 jmayer Exp $
  *
  * CoSine IPNOS L2 debug output parsing
  * Copyright (c) 2002 by Motonori Shindo <mshindo@mshindo.net>
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -38,102 +38,102 @@
 
 /*
 
-  IPNOS: CONFIG VPN(100) VR(1.1.1.1)# diags 
-  ipnos diags: Control (1/0) :: layer-2 ? 
-  Registered commands for area "layer-2" 
-      apply-pkt-log-profile  Configure packet logging on an interface 
-      create-pkt-log-profile  Set packet-log-profile to be used for packet logging (see layer-2 pkt-log) 
-      detail                Get Layer 2 low-level details 
+  IPNOS: CONFIG VPN(100) VR(1.1.1.1)# diags
+  ipnos diags: Control (1/0) :: layer-2 ?
+  Registered commands for area "layer-2"
+      apply-pkt-log-profile  Configure packet logging on an interface
+      create-pkt-log-profile  Set packet-log-profile to be used for packet logging (see layer-2 pkt-log)
+      detail                Get Layer 2 low-level details
 
-  ipnos diags: Control (1/0) :: layer-2 create ? 
+  ipnos diags: Control (1/0) :: layer-2 create ?
       create-pkt-log-profile  <pkt-log-profile-id ctl-tx-trace-length ctl-rx-trace-length data-tx-trace-length data-rx-trace-length pe-logging-or-control-blade>
 
-  ipnos diags: Control (1/0) :: layer-2 create 1 32 32 0 0 0 
-  ipnos diags: Control (1/0) :: layer-2 create 2 32 32 100 100 0 
-  ipnos diags: Control (1/0) :: layer-2 apply ?              
-      apply-pkt-log-profile  <slot port channel subif pkt-log-profile-id> 
+  ipnos diags: Control (1/0) :: layer-2 create 1 32 32 0 0 0
+  ipnos diags: Control (1/0) :: layer-2 create 2 32 32 100 100 0
+  ipnos diags: Control (1/0) :: layer-2 apply ?
+      apply-pkt-log-profile  <slot port channel subif pkt-log-profile-id>
 
-  ipnos diags: Control (1/0) :: layer-2 apply 3 0x0701 100 0 1 
-  Successfully applied packet-log-profile on LI 
+  ipnos diags: Control (1/0) :: layer-2 apply 3 0x0701 100 0 1
+  Successfully applied packet-log-profile on LI
 
-  -- Note that only the control packets are logged because the data packet size parameters are 0 in profile 1 
-  IPNOS: CONFIG VPN(200) VR(3.3.3.3)# ping 20.20.20.43 
-  vpn 200 : [max tries 4, timeout 5 seconds, data length 64 bytes, ttl 255] 
-  ping #1 ok, RTT 0.000 seconds 
-  ping #2 ok, RTT 0.000 seconds 
-  ping #3 ok, RTT 0.000 seconds 
-  ping #4 ok, RTT 0.000 seconds 
-  [finished] 
+  -- Note that only the control packets are logged because the data packet size parameters are 0 in profile 1
+  IPNOS: CONFIG VPN(200) VR(3.3.3.3)# ping 20.20.20.43
+  vpn 200 : [max tries 4, timeout 5 seconds, data length 64 bytes, ttl 255]
+  ping #1 ok, RTT 0.000 seconds
+  ping #2 ok, RTT 0.000 seconds
+  ping #3 ok, RTT 0.000 seconds
+  ping #4 ok, RTT 0.000 seconds
+  [finished]
 
   IPNOS: CONFIG VPN(200) VR(3.3.3.3)# 2000-2-1,18:19:46.8:  l2-tx (PPP:3/7/1:100), Length:16, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4000, 0x0]
 
-    
-  2000-2-1,18:19:46.8:  l2-rx (PPP:3/7/1:100), Length:16, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4001, 0x30000] 
-    
-  2000-2-1,18:19:46.8:  l2-tx (PPP:3/7/1:100), Length:16, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4000, 0x0] 
-    
-  2000-2-1,18:19:46.8:  l2-rx (PPP:3/7/1:100), Length:16, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4001, 0x8030000] 
 
-  ipnos diags: Control (1/0) :: layer-2 apply 3 0x0701 100 0 0 
-  Successfully applied packet-log-profile on LI 
-  ipnos diags: Control (1/0) :: layer-2 apply 3 0x0701 100 0 2 
-  Successfully applied packet-log-profile on LI 
+  2000-2-1,18:19:46.8:  l2-rx (PPP:3/7/1:100), Length:16, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4001, 0x30000]
 
-  -- Note that both control and data packets are logged because the data packet size parameter is 100 in profile 2 
+  2000-2-1,18:19:46.8:  l2-tx (PPP:3/7/1:100), Length:16, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4000, 0x0]
+
+  2000-2-1,18:19:46.8:  l2-rx (PPP:3/7/1:100), Length:16, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4001, 0x8030000]
+
+  ipnos diags: Control (1/0) :: layer-2 apply 3 0x0701 100 0 0
+  Successfully applied packet-log-profile on LI
+  ipnos diags: Control (1/0) :: layer-2 apply 3 0x0701 100 0 2
+  Successfully applied packet-log-profile on LI
+
+  -- Note that both control and data packets are logged because the data packet size parameter is 100 in profile 2
      Please ignore the event-log messages getting mixed up with the ping command
   ping 20.20.20.43 cou2000-2-1,18:20:17.0:  l2-tx (PPP:3/7/1:100), Length:16, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4000, 0x0]
 
-          00 D0 D8 D2 FF 03 C0 21  09 29 00 08 6B 60 84 AA 
-    
-  2000-2-1,18:20:17.0:  l2-rx (PPP:3/7/1:100), Length:16, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4001, 0x30000] 
-          00 D0 D8 D2 FF 03 C0 21  09 29 00 08 6D FE FA AA 
-    
-  2000-2-1,18:20:17.0:  l2-tx (PPP:3/7/1:100), Length:16, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4000, 0x0] 
-          00 D0 D8 D2 FF 03 C0 21  0A 29 00 08 6B 60 84 AA 
-    
-  2000-2-1,18:20:17.0:  l2-rx (PPP:3/7/1:100), Length:16, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4001, 0x8030000] 
-          00 D0 D8 D2 FF 03 C0 21  0A 29 00 08 6D FE FA AA 
-    
-  nt 1 length 500 
-  vpn 200 : [max tries 1, timeout 5 seconds, data length 500 bytes, ttl 255] 
-  2000-2-1,18:20:24.1:  l2-tx (PPP:3/7/1:100), Length:536, Pro:1, Off:8, Pri:7, RM:0, Err:0 [0x4070, 0x801] 
-          00 D0 D8 D2 FF 03 00 21  45 00 02 10 00 27 00 00 
-          FF 01 69 51 14 14 14 22  14 14 14 2B 08 00 AD B8 
-          00 03 00 01 10 11 12 13  14 15 16 17 18 19 1A 1B 
-          1C 1D 1E 1F 20 21 22 23  24 25 26 27 28 29 2A 2B 
-          2C 2D 2E 2F 30 31 32 33  34 35 36 37 38 39 3A 3B 
-          3C 3D 3E 3F 40 41 42 43  44 45 46 47 48 49 4A 4B 
-          4C 4D 4E 4F 
-    
-  ping #1 ok, RTT 0.010 seconds 
-  2000-2-1,18:20:24.1:  l2-rx (PPP:3/7/1:100), Length:536, Pro:1, Off:8, Pri:7, RM:0, Err:0 [0x4071, 0x30801] 
-          00 D0 D8 D2 FF 03 00 21  45 00 02 10 00 23 00 00 
-          FF 01 69 55 14 14 14 2B  14 14 14 22 00 00 B5 B8 
-          00 03 00 01 10 11 12 13  14 15 16 17 18 19 1A 1B 
-          1C 1D 1E 1F 20 21 22 23  24 25 26 27 28 29 2A 2B 
-          2C 2D 2E 2F 30 31 32 33  34 35 36 37 38 39 3A 3B 
-          3C 3D 3E 3F 40 41 42 43  44 45 46 47 48 49 4A 4B 
-          4C 4D 4E 4F 
-    
-  [finished] 
+          00 D0 D8 D2 FF 03 C0 21  09 29 00 08 6B 60 84 AA
+
+  2000-2-1,18:20:17.0:  l2-rx (PPP:3/7/1:100), Length:16, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4001, 0x30000]
+          00 D0 D8 D2 FF 03 C0 21  09 29 00 08 6D FE FA AA
+
+  2000-2-1,18:20:17.0:  l2-tx (PPP:3/7/1:100), Length:16, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4000, 0x0]
+          00 D0 D8 D2 FF 03 C0 21  0A 29 00 08 6B 60 84 AA
+
+  2000-2-1,18:20:17.0:  l2-rx (PPP:3/7/1:100), Length:16, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4001, 0x8030000]
+          00 D0 D8 D2 FF 03 C0 21  0A 29 00 08 6D FE FA AA
+
+  nt 1 length 500
+  vpn 200 : [max tries 1, timeout 5 seconds, data length 500 bytes, ttl 255]
+  2000-2-1,18:20:24.1:  l2-tx (PPP:3/7/1:100), Length:536, Pro:1, Off:8, Pri:7, RM:0, Err:0 [0x4070, 0x801]
+          00 D0 D8 D2 FF 03 00 21  45 00 02 10 00 27 00 00
+          FF 01 69 51 14 14 14 22  14 14 14 2B 08 00 AD B8
+          00 03 00 01 10 11 12 13  14 15 16 17 18 19 1A 1B
+          1C 1D 1E 1F 20 21 22 23  24 25 26 27 28 29 2A 2B
+          2C 2D 2E 2F 30 31 32 33  34 35 36 37 38 39 3A 3B
+          3C 3D 3E 3F 40 41 42 43  44 45 46 47 48 49 4A 4B
+          4C 4D 4E 4F
+
+  ping #1 ok, RTT 0.010 seconds
+  2000-2-1,18:20:24.1:  l2-rx (PPP:3/7/1:100), Length:536, Pro:1, Off:8, Pri:7, RM:0, Err:0 [0x4071, 0x30801]
+          00 D0 D8 D2 FF 03 00 21  45 00 02 10 00 23 00 00
+          FF 01 69 55 14 14 14 2B  14 14 14 22 00 00 B5 B8
+          00 03 00 01 10 11 12 13  14 15 16 17 18 19 1A 1B
+          1C 1D 1E 1F 20 21 22 23  24 25 26 27 28 29 2A 2B
+          2C 2D 2E 2F 30 31 32 33  34 35 36 37 38 39 3A 3B
+          3C 3D 3E 3F 40 41 42 43  44 45 46 47 48 49 4A 4B
+          4C 4D 4E 4F
+
+  [finished]
 
   IPNOS: CONFIG VPN(200) VR(3.3.3.3)# 2000-2-1,18:20:27.0:  l2-tx (PPP:3/7/1:100), Length:16, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4000, 0x0]
 
-          00 D0 D8 D2 FF 03 C0 21  09 2A 00 08 6B 60 84 AA 
-    
-  2000-2-1,18:20:27.0:  l2-rx (PPP:3/7/1:100), Length:16, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4001, 0x30000] 
-          00 D0 D8 D2 FF 03 C0 21  09 2A 00 08 6D FE FA AA 
-    
-  2000-2-1,18:20:27.0:  l2-tx (PPP:3/7/1:100), Length:16, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4000, 0x0] 
-          00 D0 D8 D2 FF 03 C0 21  0A 2A 00 08 6B 60 84 AA 
-    
-  2000-2-1,18:20:27.0:  l2-rx (PPP:3/7/1:100), Length:16, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4001, 0x30000] 
-          00 D0 D8 D2 FF 03 C0 21  0A 2A 00 08 6D FE FA AA 
-    
+          00 D0 D8 D2 FF 03 C0 21  09 2A 00 08 6B 60 84 AA
 
-  ipnos diags: Control (1/0) :: layer-2 apply 3 0x0701 100 0 0 
-  Successfully applied packet-log-profile on LI 
-  ipnos diags: Control (1/0) :: 
+  2000-2-1,18:20:27.0:  l2-rx (PPP:3/7/1:100), Length:16, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4001, 0x30000]
+          00 D0 D8 D2 FF 03 C0 21  09 2A 00 08 6D FE FA AA
+
+  2000-2-1,18:20:27.0:  l2-tx (PPP:3/7/1:100), Length:16, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4000, 0x0]
+          00 D0 D8 D2 FF 03 C0 21  0A 2A 00 08 6B 60 84 AA
+
+  2000-2-1,18:20:27.0:  l2-rx (PPP:3/7/1:100), Length:16, Pro:0, Off:0, Pri:0, RM:0, Err:0 [0x4001, 0x30000]
+          00 D0 D8 D2 FF 03 C0 21  0A 2A 00 08 6D FE FA AA
+
+
+  ipnos diags: Control (1/0) :: layer-2 apply 3 0x0701 100 0 0
+  Successfully applied packet-log-profile on LI
+  ipnos diags: Control (1/0) ::
 
  */
 
@@ -158,11 +158,11 @@
 #define COSINE_HDR_MAGIC_STR2	"l2-rx"
 
 /* Magic text for start of packet */
-#define COSINE_REC_MAGIC_STR1	COSINE_HDR_MAGIC_STR1	
+#define COSINE_REC_MAGIC_STR1	COSINE_HDR_MAGIC_STR1
 #define COSINE_REC_MAGIC_STR2	COSINE_HDR_MAGIC_STR2
 
 #define COSINE_HEADER_LINES_TO_CHECK	200
-#define COSINE_LINE_LENGTH        	240	
+#define COSINE_LINE_LENGTH        	240
 
 #define COSINE_MAX_PACKET_LEN	65536
 
@@ -171,16 +171,16 @@ static long cosine_seek_next_packet(wtap *wth, int *err, char *hdr);
 static gboolean cosine_check_file_type(wtap *wth, int *err);
 static gboolean cosine_read(wtap *wth, int *err, long *data_offset);
 static gboolean cosine_seek_read(wtap *wth, long seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, 
+	union wtap_pseudo_header *pseudo_header, guint8 *pd,
 	int len, int *err);
-static int parse_cosine_rec_hdr(wtap *wth, const char *line, 
+static int parse_cosine_rec_hdr(wtap *wth, const char *line,
 	union wtap_pseudo_header *pseudo_header, int *err);
 static int parse_cosine_hex_dump(FILE_T fh, int pkt_len, guint8* buf,
 	int *err);
 static int parse_single_hex_dump_line(char* rec, guint8 *buf,
 	guint byte_offset);
 
-/* Returns TRUE if the line appears to be an empty line. Otherwise it 
+/* Returns TRUE if the line appears to be an empty line. Otherwise it
    returns FALSE. */
 static gboolean empty_line(const guchar *line)
 {
@@ -194,12 +194,12 @@ static gboolean empty_line(const guchar *line)
 	}
 	if (*line == '\0')
 		return TRUE;
-	else 
+	else
 		return FALSE;
 }
 
 /* Seeks to the beginning of the next packet, and returns the
-   byte offset. Copy the header line to hdr. Returns -1 on failure, 
+   byte offset. Copy the header line to hdr. Returns -1 on failure,
    and sets "*err" to the error and set hdr as NULL. */
 static long cosine_seek_next_packet(wtap *wth, int *err, char *hdr)
 {
@@ -215,7 +215,7 @@ static long cosine_seek_next_packet(wtap *wth, int *err, char *hdr)
 			return -1;
 		}
 		if (file_gets(buf, sizeof(buf), wth->fh) != NULL) {
-			if (strstr(buf, COSINE_REC_MAGIC_STR1) || 
+			if (strstr(buf, COSINE_REC_MAGIC_STR1) ||
 			    strstr(buf, COSINE_REC_MAGIC_STR2)) {
 				strncpy(hdr, buf, COSINE_LINE_LENGTH-1);
 				hdr[COSINE_LINE_LENGTH-1] = '\0';
@@ -226,9 +226,9 @@ static long cosine_seek_next_packet(wtap *wth, int *err, char *hdr)
 				/* We got an EOF. */
 				*err = 0;
 			} else {
-				/* We (presumably) got an error (there's no 
-				   equivalent to "ferror()" in zlib, alas, 
-				   so we don't have a wrapper to check for 
+				/* We (presumably) got an error (there's no
+				   equivalent to "ferror()" in zlib, alas,
+				   so we don't have a wrapper to check for
 				   an error). */
 				*err = file_error(wth->fh);
 			}
@@ -240,7 +240,7 @@ static long cosine_seek_next_packet(wtap *wth, int *err, char *hdr)
 }
 
 /* Look through the first part of a file to see if this is
- * a CoSine L2 debug output. 
+ * a CoSine L2 debug output.
  *
  * Returns TRUE if it is, FALSE if it isn't or if we get an I/O error;
  * if we get an I/O error, "*err" will be set to a non-zero value.
@@ -356,7 +356,7 @@ cosine_seek_read (wtap *wth, long seek_off,
 		return FALSE;
 	}
 
-	if (parse_cosine_rec_hdr(NULL, line, pseudo_header, err) == -1) { 
+	if (parse_cosine_rec_hdr(NULL, line, pseudo_header, err) == -1) {
 		*err = file_error(wth->random_fh);
 		if (*err == 0) {
 			*err = WTAP_ERR_BAD_RECORD;
@@ -381,14 +381,14 @@ parse_cosine_rec_hdr(wtap *wth, const char *line, union wtap_pseudo_header *pseu
 	char	if_name[COSINE_MAX_IF_NAME_LEN], direction[6];
 	struct	tm tm;
 
-	if (sscanf(line, "%d-%d-%d,%d:%d:%d.%d:", 
+	if (sscanf(line, "%d-%d-%d,%d:%d:%d.%d:",
 		   &yy, &mm, &dd, &hr, &min, &sec, &csec) == 7) {
 		/* appears to be output to a control blade */
-		num_items_scanned = sscanf(line, 
+		num_items_scanned = sscanf(line,
 		   "%d-%d-%d,%d:%d:%d.%d: %5s (%127[A-Za-z0-9/:]), Length:%d, Pro:%d, Off:%d, Pri:%d, RM:%d, Err:%d [%x, %x]",
 			&yy, &mm, &dd, &hr, &min, &sec, &csec,
-				   direction, if_name, &pkt_len, 
-				   &pro, &off, &pri, &rm, &error, 
+				   direction, if_name, &pkt_len,
+				   &pro, &off, &pri, &rm, &error,
 				   &code1, &code2);
 
 		if (num_items_scanned != 17) {
@@ -397,10 +397,10 @@ parse_cosine_rec_hdr(wtap *wth, const char *line, union wtap_pseudo_header *pseu
 		}
 	} else {
 		/* appears to be output to PE */
-		num_items_scanned = sscanf(line, 
+		num_items_scanned = sscanf(line,
 		   "%5s (%127[A-Za-z0-9/:]), Length:%d, Pro:%d, Off:%d, Pri:%d, RM:%d, Err:%d [%x, %x]",
-				   direction, if_name, &pkt_len, 
-				   &pro, &off, &pri, &rm, &error, 
+				   direction, if_name, &pkt_len,
+				   &pro, &off, &pri, &rm, &error,
 				   &code1, &code2);
 
 		if (num_items_scanned != 10) {
@@ -410,7 +410,7 @@ parse_cosine_rec_hdr(wtap *wth, const char *line, union wtap_pseudo_header *pseu
 		yy = mm = dd = hr = min = sec = csec = 0;
 	}
 
-	if (wth) { 
+	if (wth) {
 		tm.tm_year = yy - 1900;
 		tm.tm_mon = mm - 1;
 		tm.tm_mday = dd;
@@ -422,8 +422,8 @@ parse_cosine_rec_hdr(wtap *wth, const char *line, union wtap_pseudo_header *pseu
 		wth->phdr.ts.tv_usec = csec * 10000;
 		wth->phdr.len = pkt_len;
 		wth->phdr.pkt_encap = WTAP_ENCAP_COSINE;
-	} 
-	/* XXX need to handle other encapsulations like Cisco HDLC, 
+	}
+	/* XXX need to handle other encapsulations like Cisco HDLC,
 	   Frame Relay and ATM */
 	if (strncmp(if_name, "TEST:", 5) == 0) {
 		pseudo_header->cosine.encap = COSINE_ENCAP_TEST;
@@ -448,8 +448,8 @@ parse_cosine_rec_hdr(wtap *wth, const char *line, union wtap_pseudo_header *pseu
 		pseudo_header->cosine.direction = COSINE_DIR_TX;
 	} else if (strncmp(direction, "l2-rx", 5) == 0) {
 		pseudo_header->cosine.direction = COSINE_DIR_RX;
-	} 
-	strncpy(pseudo_header->cosine.if_name, if_name, 
+	}
+	strncpy(pseudo_header->cosine.if_name, if_name,
 		COSINE_MAX_IF_NAME_LEN - 1);
 	pseudo_header->cosine.pro = pro;
 	pseudo_header->cosine.off = off;
@@ -467,7 +467,7 @@ parse_cosine_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
 {
 	char	line[COSINE_LINE_LENGTH];
 	int	i, hex_lines, n, caplen = 0;
-	
+
 	/* Calculate the number of hex dump lines, each
 	 * containing 16 bytes of data */
 	hex_lines = pkt_len / 16 + ((pkt_len % 16) ? 1 : 0);
@@ -499,20 +499,20 @@ parse_cosine_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
  *
  * Returns number of bytes successfully read, -1 if bad.  */
 static int
-parse_single_hex_dump_line(char* rec, guint8 *buf, guint byte_offset) 
+parse_single_hex_dump_line(char* rec, guint8 *buf, guint byte_offset)
 {
 	int num_items_scanned, i;
 	unsigned int bytes[16];
 
-	num_items_scanned = sscanf(rec, "%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x", 
-			       &bytes[0], &bytes[1], &bytes[2], &bytes[3], 
+	num_items_scanned = sscanf(rec, "%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x",
+			       &bytes[0], &bytes[1], &bytes[2], &bytes[3],
 			       &bytes[4], &bytes[5], &bytes[6], &bytes[7],
-			       &bytes[8], &bytes[9], &bytes[10], &bytes[11], 
+			       &bytes[8], &bytes[9], &bytes[10], &bytes[11],
 			       &bytes[12], &bytes[13], &bytes[14], &bytes[15]);
 	if (num_items_scanned == 0)
 		return -1;
 
-	if (num_items_scanned > 16) 
+	if (num_items_scanned > 16)
 		num_items_scanned = 16;
 
 	for (i=0; i<num_items_scanned; i++) {

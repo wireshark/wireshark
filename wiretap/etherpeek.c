@@ -2,21 +2,21 @@
  * Routines for opening EtherPeek (and TokenPeek?) files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.21 2002/07/29 06:09:58 guy Exp $
+ * $Id: etherpeek.c,v 1.22 2002/08/28 20:30:44 jmayer Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -51,11 +51,11 @@ typedef struct etherpeek_v567_header {
 	guint32 timeDate;
 	guint32 timeStart;
 	guint32 timeStop;
-	guint32 mediaType;  /* Media Type Ethernet=0 Token Ring = 1 */ 
+	guint32 mediaType;  /* Media Type Ethernet=0 Token Ring = 1 */
 	guint32 physMedium; /* Physical Medium native=0 802.1=1 */
 	guint32 appVers;    /* App Version Number Maj.Min.Bug.Build */
 	guint32 linkSpeed;  /* Link Speed Bits/sec */
-	guint32 reserved[3]; 
+	guint32 reserved[3];
 } etherpeek_v567_header_t;
 #define ETHERPEEK_V567_HDR_SIZE 48
 
@@ -251,7 +251,7 @@ int etherpeek_open(wtap *wth, int *err)
 			 */
 			return 0;
 		}
-		
+
 
 		/*
 		 * Assume this is a V5, V6 or V7 *Peek file, and byte
