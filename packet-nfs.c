@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.31 2000/07/13 13:09:25 girlich Exp $
+ * $Id: packet-nfs.c,v 1.32 2000/08/03 19:27:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -571,12 +571,17 @@ const value_string names_nfs_stat[] =
 	{	6,	"ERR_NX_IO" },
 	{	13,	"ERR_ACCES" },
 	{	17,	"ERR_EXIST" },
+	{	18,	"ERR_XDEV" },	/* not in spec, but can happen */
 	{	19,	"ERR_NODEV" },
 	{	20,	"ERR_NOTDIR" },
 	{	21,	"ERR_ISDIR" },
+	{	22,	"ERR_INVAL" },	/* not in spec, but I think it can happen */
+	{	26,	"ERR_TXTBSY" },	/* not in spec, but I think it can happen */
 	{	27,	"ERR_FBIG" },
 	{	28,	"ERR_NOSPC" },
 	{	30,	"ERR_ROFS" },
+	{	31,	"ERR_MLINK" },	/* not in spec, but can happen */
+	{	45,	"ERR_OPNOTSUPP" }, /* not in spec, but I think it can happen */
 	{	63,	"ERR_NAMETOOLONG" },
 	{	66,	"ERR_NOTEMPTY" },
 	{	69,	"ERR_DQUOT" },
