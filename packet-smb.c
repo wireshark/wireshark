@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.296 2002/11/05 19:44:51 sharpe Exp $
+ * $Id: packet-smb.c,v 1.297 2002/11/08 05:51:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -661,8 +661,7 @@ static gint ett_smb_ace = -1;
 static gint ett_smb_ace_flags = -1;
 static gint ett_smb_sec_desc_type = -1;
 static gint ett_smb_quotaflags = -1;
-static gint ett_smb_gssapi = -1;
-static gint ett_smb_ntlmssp = -1;
+static gint ett_smb_secblob = -1;
 
 static dissector_handle_t gssapi_handle = NULL;
 static dissector_handle_t ntlmssp_handle = NULL;
@@ -2305,7 +2304,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 				proto_tree *gssapi_tree;
 
 				gssapi_tree = proto_item_add_subtree(
-					blob_item, ett_smb_gssapi);
+					blob_item, ett_smb_secblob);
 
 				gssapi_tvb = tvb_new_subset(
 					tvb, offset, bc, bc);
@@ -5713,7 +5712,10 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 		if(sbloblen){
 			tvbuff_t *blob_tvb;
+			proto_tree *blob_tree;
 
+			blob_tree = proto_item_add_subtree(blob_item, 
+							   ett_smb_secblob);
                         CHECK_BYTE_COUNT(sbloblen);
 
 			blob_tvb = tvb_new_subset(tvb, offset, sbloblen, 
@@ -5722,22 +5724,13 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			if (si && si->ct && si->ct->raw_ntlmssp && 
 			    !strncmp("NTLMSSP", 
 				     tvb_get_ptr(tvb, offset, 7), 7)) {
-			  proto_tree *ntlmssp_tree;
-
-			  ntlmssp_tree = proto_item_add_subtree(blob_item, 
-							       ett_smb_ntlmssp);
 			  call_dissector(ntlmssp_handle, blob_tvb, pinfo,
-					 ntlmssp_tree);
+					 blob_tree);
 
 			}
 			else {
-			  proto_tree *gssapi_tree;
-			
-			  gssapi_tree = proto_item_add_subtree(blob_item, 
-							       ett_smb_gssapi);
-
 			  call_dissector(gssapi_handle, blob_tvb, 
-					 pinfo, gssapi_tree);
+					 pinfo, blob_tree);
 			}
 
 			COUNT_BYTES(sbloblen);
@@ -5931,7 +5924,10 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 		if(sbloblen){
 			tvbuff_t *blob_tvb;
+			proto_tree *blob_tree;
 
+			blob_tree = proto_item_add_subtree(blob_item, 
+							   ett_smb_secblob);
                         CHECK_BYTE_COUNT(sbloblen);
 
 			blob_tvb = tvb_new_subset(tvb, offset, sbloblen, 
@@ -5940,22 +5936,13 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 			if (si && si->ct && si->ct->raw_ntlmssp && 
 			    !strncmp("NTLMSSP", 
 				     tvb_get_ptr(tvb, offset, 7), 7)) {
-			  proto_tree *ntlmssp_tree;
-
-			  ntlmssp_tree = proto_item_add_subtree(blob_item, 
-							       ett_smb_ntlmssp);
 			  call_dissector(ntlmssp_handle, blob_tvb, pinfo,
-					 ntlmssp_tree);
+					 blob_tree);
 
 			}
 			else {
-			  proto_tree *gssapi_tree;
-
-			  gssapi_tree = proto_item_add_subtree(blob_item, 
-							       ett_smb_gssapi);
-
 			  call_dissector(gssapi_handle, blob_tvb, pinfo, 
-					 gssapi_tree);
+					 blob_tree);
 
 			}
 
@@ -17814,9 +17801,8 @@ proto_register_smb(void)
 		&ett_smb_ace_flags,
 		&ett_smb_sec_desc_type,
 		&ett_smb_quotaflags,
-		&ett_smb_gssapi,
+		&ett_smb_secblob,
 		&ett_smb_mac_support_flags,
-		&ett_smb_ntlmssp,
 	};
 	module_t *smb_module;
 
