@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.13 1999/07/31 11:21:05 deniel Exp $
+ * $Id: follow.c,v 1.14 1999/07/31 13:55:16 deniel Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -50,6 +50,9 @@ extern FILE* data_out_file;
 
 gboolean incomplete_tcp_stream = FALSE;
 
+static u_long  ip_address[2];
+static u_int   tcp_port[2];
+
 static int check_fragments( int );
 static void write_packet_data( const u_char *, int );
 
@@ -72,6 +75,10 @@ build_follow_filter( packet_info *pi ) {
     free( buf );
     return NULL;
   }
+  ip_address[0] = pi->ip_src;
+  ip_address[1] = pi->ip_dst;
+  tcp_port[0] = pi->srcport;
+  tcp_port[1] = pi->destport;
   return buf;
 }
 
@@ -84,11 +91,19 @@ static u_long seq[2];
 static u_long src[2] = { 0, 0 };
 
 void 
-reassemble_tcp( u_long sequence, u_long length, const char* data, u_long data_length, int synflag, u_long srcx ) {
+reassemble_tcp( u_long sequence, u_long length, const char* data, u_long data_length, int synflag, u_long srcx, u_long dstx, u_int srcport, u_int dstport ) {
   int src_index, j, first = 0;
   u_long newseq;
   tcp_frag *tmp_frag;
   src_index = -1;
+
+  /* first check if this packet should be processed */
+  if ((srcx != ip_address[0] && srcx != ip_address[1]) ||
+      (dstx != ip_address[0] && dstx != ip_address[1]) ||
+      (srcport != tcp_port[0] && srcport != tcp_port[1]) ||
+      (dstport != tcp_port[0] && dstport != tcp_port[1]))
+    return;
+
   /* first we check to see if we have seen this src ip before. */
   for( j=0; j<2; j++ ) {
     if( src[j] == srcx ) {
@@ -225,6 +240,8 @@ reset_tcp_reassembly() {
   for( i=0; i<2; i++ ) {
     seq[i] = 0;
     src[i] = 0;
+    ip_address[i] = 0;
+    tcp_port[i] = 0;
     current = frags[i];
     while( current ) {
       next = current->next;

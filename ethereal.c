@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.69 1999/07/31 13:10:18 deniel Exp $
+ * $Id: ethereal.c,v 1.70 1999/07/31 13:55:15 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -223,6 +223,7 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
       g_free( cf.dfilter );
       cf.dfilter = NULL;
     }
+    reset_tcp_reassembly();
     /* create a new one and set the display filter entry accordingly */
     cf.dfilter = build_follow_filter( &pi );
     if (filter_te)
@@ -234,7 +235,6 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
     if( data_out_file == NULL ) {
       fprintf( stderr, "Could not open tmp file %s\n", filename1 );
     }
-    reset_tcp_reassembly();
     /* Compile the filter */
     if (dfilter_compile(cf.dfilter, &cf.dfcode) != 0) {
       simple_dialog(ESD_TYPE_WARN, NULL,
