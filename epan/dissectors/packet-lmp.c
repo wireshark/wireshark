@@ -1457,7 +1457,12 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    "Data (%d bytes)", tvb_get_guint8(tvb, offset2+l+1));
 			break;
 		    }
-		    l += tvb_get_guint8(tvb, offset2+l+1);
+            if (tvb_get_guint8(tvb, offset2+l+1) != 0) {
+		        l += tvb_get_guint8(tvb, offset2+l+1);
+            } else {
+                /* XXX - prevent an endless loop here, but what's the right way to do instead? */
+                return tvb_length(tvb);
+            }
 		}
 
 		break;
