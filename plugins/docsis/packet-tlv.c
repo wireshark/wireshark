@@ -2,7 +2,7 @@
  * Routines to Dissect Appendix C TLV's
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-tlv.c,v 1.11 2003/05/28 14:52:52 gerald Exp $
+ * $Id: packet-tlv.c,v 1.12 2003/09/09 19:14:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,7 +42,7 @@
 #include "packet-tlv.h"
 
 /* This module will dissect the Appendix C TLV's.  Please see:
- * http://www.cablemodem.com/specifications.html
+ * http://www.cablemodem.com/specifications/specifications.html
  *
  * The main dissector is dissect_tlv.  This routine will dissect
  * top level TLV's and call sub-dissectors for the sub-TLV's.
