@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.61 2003/09/24 00:47:37 guy Exp $
+ * $Id: prefs_dlg.c,v 1.62 2003/10/02 21:06:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -115,7 +115,13 @@ struct ct_struct {
   gboolean     is_protocol;
 };
 
-static void
+static guint
+pref_exists(pref_t *pref _U_, gpointer user_data _U_)
+{
+  return 1;
+}
+
+static guint
 pref_show(pref_t *pref, gpointer user_data)
 {
   GtkWidget *main_tb = user_data;
@@ -199,6 +205,8 @@ pref_show(pref_t *pref, gpointer user_data)
     break;
   }
   g_free(label_string);
+
+  return 0;
 }
 
 #define MAX_TREE_NODE_NAME_LEN 64
@@ -216,6 +224,25 @@ module_prefs_show(module_t *module, gpointer user_data)
   GtkTreeStore     *model;
   GtkTreeIter      iter;
 #endif
+
+  /*
+   * Is this module a subtree, with modules underneath it?
+   */
+  if (!module->is_subtree) {
+    /*
+     * No.
+     * Does it have any preferences (other than possibly obsolete ones)?
+     */
+    if (prefs_pref_foreach(module, pref_exists, NULL) == 0) {
+      /*
+       * No.  Don't put the module into the preferences window.
+       * XXX - we should do the same for subtrees; if a subtree has
+       * nothing under it that will be displayed, don't put it into
+       * the window.
+       */
+      return;
+    }
+  }
 
   /*
    * Add this module to the tree.
@@ -263,8 +290,7 @@ module_prefs_show(module_t *module, gpointer user_data)
     prefs_module_list_foreach(module->prefs, module_prefs_show, &child_cts);
   } else {
     /*
-     * No.
-     * Create a notebook page for it.
+     * No.  Create a notebook page for it.
      */
 
     /* Frame */
@@ -819,7 +845,7 @@ create_preference_entry(GtkWidget *main_tb, int table_position,
 	return entry;
 }
 
-static void
+static guint
 pref_fetch(pref_t *pref, gpointer user_data)
 {
   char *str_val;
@@ -882,6 +908,7 @@ pref_fetch(pref_t *pref, gpointer user_data)
     g_assert_not_reached();
     break;
   }
+  return 0;
 }
 
 static void
@@ -901,7 +928,7 @@ module_prefs_fetch(module_t *module, gpointer user_data)
     *must_redissect_p = TRUE;
 }
 
-static void
+static guint
 pref_clean(pref_t *pref, gpointer user_data _U_)
 {
   switch (pref->type) {
@@ -926,6 +953,7 @@ pref_clean(pref_t *pref, gpointer user_data _U_)
     g_assert_not_reached();
     break;
   }
+  return 0;
 }
 
 static void
@@ -1120,7 +1148,7 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
   }
 }
 
-static void
+static guint
 pref_revert(pref_t *pref, gpointer user_data)
 {
   gboolean *pref_changed_p = user_data;
@@ -1161,6 +1189,7 @@ pref_revert(pref_t *pref, gpointer user_data)
     g_assert_not_reached();
     break;
   }
+  return 0;
 }
 
 static void

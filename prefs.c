@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.107 2003/09/10 23:55:52 guy Exp $
+ * $Id: prefs.c,v 1.108 2003/10/02 21:06:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -575,43 +575,39 @@ prefs_register_obsolete_preference(module_t *module, const char *name)
 	register_preference(module, name, NULL, NULL, PREF_OBSOLETE);
 }
 
-typedef struct {
-	pref_cb callback;
-	gpointer user_data;
-} pref_cb_arg_t;
-
-static void
-do_pref_callback(gpointer data, gpointer user_data)
-{
-	pref_t *pref = data;
-	pref_cb_arg_t *arg = user_data;
-
-	if (pref->type == PREF_OBSOLETE) {
-		/*
-		 * This preference is no longer supported; it's not a
-		 * real preference, so we don't call the callback for
-		 * it (i.e., we treat it as if it weren't found in the
-		 * list of preferences, and we weren't called in the
-		 * first place).
-		 */
-		return;
-	}
-
-	(*arg->callback)(pref, arg->user_data);
-}
-
 /*
  * Call a callback function, with a specified argument, for each preference
  * in a given module.
+ *
+ * If any of the callbacks return a non-zero value, stop and return that
+ * value, otherwise return 0.
  */
-void
+guint
 prefs_pref_foreach(module_t *module, pref_cb callback, gpointer user_data)
 {
-	pref_cb_arg_t arg;
+	GList *elem;
+	pref_t *pref;
+	guint ret;
 
-	arg.callback = callback;
-	arg.user_data = user_data;
-	g_list_foreach(module->prefs, do_pref_callback, &arg);
+	for (elem = g_list_first(module->prefs); elem != NULL;
+	    elem = g_list_next(elem)) {
+		pref = elem->data;
+		if (pref->type == PREF_OBSOLETE) {
+			/*
+			 * This preference is no longer supported; it's
+			 * not a real preference, so we don't call the
+			 * callback for it (i.e., we treat it as if it
+			 * weren't found in the list of preferences,
+			 * and we weren't called in the first place).
+			 */
+			continue;
+		}
+
+		ret = (*callback)(pref, user_data);
+		if (ret != 0)
+			return ret;
+	}
+	return 0;
 }
 
 /*

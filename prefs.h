@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.46 2003/09/10 23:55:52 guy Exp $
+ * $Id: prefs.h,v 1.47 2003/10/02 21:06:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -212,13 +212,16 @@ extern void prefs_register_string_preference(module_t *module, const char *name,
 extern void prefs_register_obsolete_preference(module_t *module,
     const char *name);
 
-typedef void (*pref_cb)(pref_t *pref, gpointer user_data);
+typedef guint (*pref_cb)(pref_t *pref, gpointer user_data);
 
 /*
  * Call a callback function, with a specified argument, for each preference
  * in a given module.
+ *
+ * If any of the callbacks return a non-zero value, stop and return that
+ * value, otherwise return 0.
  */
-extern void prefs_pref_foreach(module_t *module, pref_cb callback,
+extern guint prefs_pref_foreach(module_t *module, pref_cb callback,
     gpointer user_data);
 
 /*
