@@ -1,7 +1,7 @@
 /* main.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.51 2004/06/04 17:16:57 ulfl Exp $
+ * $Id: main.h,v 1.52 2004/06/17 16:35:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -248,27 +248,6 @@ extern void packets_bar_update(void);
 #ifdef _WIN32
 /** Win32 only: Create a console. Beware: cannot be closed again. */
 extern void create_console(void);
-#endif
-
-/** Return value from font_apply() */
-typedef enum {
-	FA_SUCCESS,             /**< function succeeded */
-	FA_FONT_NOT_RESIZEABLE, /**< the choosen font isn't resizable */
-	FA_FONT_NOT_AVAILABLE   /**< the choosen font isn't available */
-} fa_ret_t;
-
-/** Applies a new font. Will also redraw the screen.
- *
- * @return if the new font could be set or not
- */
-extern fa_ret_t font_apply(void);
-#if GTK_MAJOR_VERSION < 2
-/* Try to convert a font name to it's bold version.
- *
- * @param the font to convert
- * @return the bold font
- */
-char *font_boldify(const char *font_name);
 #endif
 
 #endif /* __MAIN_H__ */

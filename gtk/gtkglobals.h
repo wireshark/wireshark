@@ -1,7 +1,7 @@
 /* gtkglobals.h
  * GTK-related Global defines, etc.
  *
- * $Id: gtkglobals.h,v 1.29 2004/06/05 12:12:13 ulfl Exp $
+ * $Id: gtkglobals.h,v 1.30 2004/06/17 16:35:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,24 +53,6 @@ extern GtkWidget *byte_nb_ptr;
 
 /** The filter text entry in the filter toolbar. */
 extern GtkWidget   *main_display_filter_widget;
-
-#if GTK_MAJOR_VERSION < 2
-/** Normal font. */
-extern GdkFont   *m_r_font;
-/** Bold font. */
-extern GdkFont   *m_b_font;
-/** Font height. */
-extern guint      m_font_height;
-/** Font width. */
-extern guint      m_font_width;
-/** Widget style (font, color, ...). */
-extern GtkStyle  *item_style;
-#else
-/** Normal font. */
-extern PangoFontDescription *m_r_font;
-/** Bold font. */
-extern PangoFontDescription *m_b_font;
-#endif
 
 #if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
 /**

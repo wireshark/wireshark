@@ -1,7 +1,7 @@
 /* packet_list.h
  * Declarations of GTK+-specific routines for managing the packet list.
  *
- * $Id: packet_list.h,v 1.4 2004/06/04 17:16:58 ulfl Exp $
+ * $Id: packet_list.h,v 1.5 2004/06/17 16:35:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,19 +79,11 @@ extern void update_marked_frames(void);
 extern gboolean packet_list_get_event_row_column(GtkWidget *widget,
     GdkEventButton *event_button, gint *row, gint *column);
 
-#if GTK_MAJOR_VERSION < 2
 /** Set the font of the packet list.
  *
  * @param font the new font
  */
-extern void set_plist_font(GdkFont *font);
-#else
-/** Set the font of the packet list.
- *
- * @param font the new font
- */
-extern void set_plist_font(PangoFontDescription *font);
-#endif
+extern void set_plist_font(FONT_TYPE *font);
 
 /** Set the selection mode of the packet list window.
  *

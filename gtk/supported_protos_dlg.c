@@ -2,7 +2,7 @@
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
- * $Id: supported_protos_dlg.c,v 1.11 2004/05/23 23:24:06 ulfl Exp $
+ * $Id: supported_protos_dlg.c,v 1.12 2004/06/17 16:35:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,7 @@
 #include "ui_util.h"
 #include "compat_macros.h"
 #include "dlg_utils.h"
+#include "font_utils.h"
 
 
 
@@ -247,13 +248,13 @@ static void supported_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
 static void insert_text(GtkWidget *w, const char *buffer, int nchars)
 {
 #if GTK_MAJOR_VERSION < 2
-    gtk_text_insert(GTK_TEXT(w), m_r_font, NULL, NULL, buffer, nchars);
+    gtk_text_insert(GTK_TEXT(w), user_font_get_regular(), NULL, NULL, buffer, nchars);
 #else
     GtkTextBuffer *buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(w));
     GtkTextIter    iter;
 
     gtk_text_buffer_get_end_iter(buf, &iter);
-    gtk_widget_modify_font(w, m_r_font);
+    gtk_widget_modify_font(w, user_font_get_regular());
     if (!g_utf8_validate(buffer, -1, NULL))
         printf("Invalid utf8 encoding: %s\n", buffer);
     gtk_text_buffer_insert(buf, &iter, buffer, nchars);
@@ -318,7 +319,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
     len = g_snprintf(buffer, BUFF_LEN, proto_supported, count);
 #if GTK_MAJOR_VERSION < 2
     maxlen2 = len;
-    width = gdk_string_width(m_r_font, buffer);
+    width = gdk_string_width(user_font_get_regular(), buffer);
     insert_text(w, buffer, maxlen2);
 #else
     insert_text(w, buffer, len);
@@ -340,7 +341,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 #if GTK_MAJOR_VERSION < 2
 	    if (len > maxlen2) {
 		    maxlen2 = len;
-		    if ((len = gdk_string_width(m_r_font, buffer)) > width)
+		    if ((len = gdk_string_width(user_font_get_regular(), buffer)) > width)
 			    width = len;
 	    }
 	    insert_text(w, buffer, strlen(buffer));
@@ -351,7 +352,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
     }
 
 #if GTK_MAJOR_VERSION < 2
-    height = (3 + nb_lines) * m_font_height;
+    height = (3 + nb_lines) * user_font_get_regular_height();
     WIDGET_SET_SIZE(w, 20 + width, 20 + height);
 #endif
     break;
@@ -381,7 +382,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 
 #if GTK_MAJOR_VERSION < 2
     maxlen3 = strlen(dfilter_supported);
-    width = gdk_string_width(m_r_font, dfilter_supported);
+    width = gdk_string_width(user_font_get_regular(), dfilter_supported);
     insert_text(w, dfilter_supported, maxlen3);
 #else
     insert_text(w, dfilter_supported, strlen(dfilter_supported));
@@ -424,7 +425,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 #if GTK_MAJOR_VERSION < 2
 		    if (len > maxlen3) {
 			    maxlen3 = len;
-			    if ((len = gdk_string_width(m_r_font, buffer)) > width)
+			    if ((len = gdk_string_width(user_font_get_regular(), buffer)) > width)
 				    width = len;
 		    }
 		    insert_text(w, buffer, strlen(buffer));
@@ -438,7 +439,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
     insert_text(w, buffer, len);
 
 #if GTK_MAJOR_VERSION < 2
-    height = (5 + nb_lines) * m_font_height;
+    height = (5 + nb_lines) * user_font_get_regular_height();
     WIDGET_SET_SIZE(w, 20 + width, 20 + height);
 #endif
     break;

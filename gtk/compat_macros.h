@@ -1,7 +1,7 @@
 /* compat_macros.h
  * GTK-related Global defines, etc.
  *
- * $Id: compat_macros.h,v 1.19 2004/06/05 10:27:38 ulfl Exp $
+ * $Id: compat_macros.h,v 1.20 2004/06/17 16:35:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -242,6 +242,10 @@ dlg_toggle_button_new_with_label_with_mnemonic(label_text, accel_group)
 /** tag(s) end for first row of simple_dialog (and others). */
 #define PRIMARY_TEXT_END ""
 
+#define FONT_TYPE GdkFont
+
+/*************************************************************************/
+
 #else /* GTK_MAJOR_VERSION >= 2 */
 
 #define SIGNAL_CONNECT(widget, name, callback, arg) \
@@ -324,6 +328,8 @@ gtk_toggle_button_new_with_mnemonic(label_text)
 
 #define PRIMARY_TEXT_START "<span weight=\"bold\" size=\"larger\">"
 #define PRIMARY_TEXT_END "</span>"
+
+#define FONT_TYPE PangoFontDescription
 
 #endif /* GTK_MAJOR_VERSION */
 

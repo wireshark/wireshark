@@ -1,6 +1,6 @@
 /* text_page.c
  *
- * $Id: text_page.c,v 1.2 2004/06/07 19:49:37 guy Exp $
+ * $Id: text_page.c,v 1.3 2004/06/17 16:35:26 ulfl Exp $
  *
  * Ulf Lamping
  *
@@ -34,11 +34,10 @@
 
 #include "epan/filesystem.h"
 #include "text_page.h"
-#include "gtkglobals.h"
 #include "ui_util.h"
 #include "compat_macros.h"
 #include "simple_dialog.h"
-
+#include "font_utils.h"
 
 #define TEXT_KEY        "txt_key"
 
@@ -103,13 +102,13 @@ static void text_page_insert(GtkWidget *page, const char *buffer, int nchars)
     GtkWidget *txt = OBJECT_GET_DATA(page, TEXT_KEY);
 
 #if GTK_MAJOR_VERSION < 2
-    gtk_text_insert(GTK_TEXT(txt), m_r_font, NULL, NULL, buffer, nchars);
+    gtk_text_insert(GTK_TEXT(txt), user_font_get_regular(), NULL, NULL, buffer, nchars);
 #else
     GtkTextBuffer *buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(txt));
     GtkTextIter    iter;
 
     gtk_text_buffer_get_end_iter(buf, &iter);
-    gtk_widget_modify_font(GTK_WIDGET(txt), m_r_font);
+    gtk_widget_modify_font(GTK_WIDGET(txt), user_font_get_regular());
     if (!g_utf8_validate(buffer, -1, NULL))
         printf("Invalid utf8 encoding: %s\n", buffer);
     gtk_text_buffer_insert(buf, &iter, buffer, nchars);

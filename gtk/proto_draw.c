@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.104 2004/06/01 17:33:37 ulfl Exp $
+ * $Id: proto_draw.c,v 1.105 2004/06/17 16:35:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,6 +68,7 @@
 #include "alert_box.h"
 #include "simple_dialog.h"
 #include "progress_dlg.h"
+#include "font_utils.h"
 
 
 /* Win32 needs the O_BINARY flag for open() */
@@ -85,6 +86,11 @@
 #define E_BYTE_VIEW_START_KEY     "byte_view_start"
 #define E_BYTE_VIEW_END_KEY       "byte_view_end"
 #define E_BYTE_VIEW_ENCODE_KEY    "byte_view_encode"
+
+
+#if GTK_MAJOR_VERSION < 2
+GtkStyle *item_style = NULL;
+#endif
 
 /* gtk_tree_view_expand_to_path doesn't exist in gtk+ v2.0 so we must include it
  * when building with this version (taken from gtk+ v2.2.4) */
@@ -492,8 +498,8 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
      * which text column/row the user selected. This could be off
      * if the bold version of the font is bigger than the
      * regular version of the font. */
-    column = (int) ((bv->hadj->value + event->x) / m_font_width);
-    row = (int) ((bv->vadj->value + event->y) / m_font_height);
+    column = (int) ((bv->hadj->value + event->x) / user_font_get_regular_width());
+    row = (int) ((bv->vadj->value + event->y) / user_font_get_regular_height());
 #else
     /* get the row/column selected */
     gtk_text_view_window_to_buffer_coords(bv,
@@ -715,13 +721,13 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
   gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(byte_view), FALSE);
   buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(byte_view));
   style = gtk_widget_get_style(GTK_WIDGET(byte_view));
-  gtk_text_buffer_create_tag(buf, "plain", "font-desc", m_r_font, NULL);
+  gtk_text_buffer_create_tag(buf, "plain", "font-desc", user_font_get_regular(), NULL);
   gtk_text_buffer_create_tag(buf, "reverse",
-                             "font-desc", m_r_font,
+                             "font-desc", user_font_get_regular(),
                              "foreground-gdk", &style->text[GTK_STATE_SELECTED],
                              "background-gdk", &style->base[GTK_STATE_SELECTED],
                              NULL);
-  gtk_text_buffer_create_tag(buf, "bold", "font-desc", m_b_font, NULL);
+  gtk_text_buffer_create_tag(buf, "bold", "font-desc", user_font_get_bold(), NULL);
 #endif
   OBJECT_SET_DATA(byte_view, E_BYTE_VIEW_TVBUFF_KEY, tvb);
   gtk_container_add(GTK_CONTAINER(byte_scrollw), byte_view);
@@ -1078,7 +1084,7 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
     /* Display with inverse video ? */
 #if GTK_MAJOR_VERSION < 2
     if (prefs.gui_hex_dump_highlight_style) {
-      gtk_text_insert(bv, m_r_font, &BLACK, &WHITE, line, -1);
+      gtk_text_insert(bv, user_font_get_regular(), &BLACK, &WHITE, line, -1);
       /* Do we start in reverse? */
       reverse = i >= bstart && i < bend;
       fg = reverse ? &WHITE : &BLACK;
@@ -1098,7 +1104,7 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
 	newreverse = i >= bstart && i < bend;
 	/* Have we gone from reverse to plain? */
 	if (reverse && (reverse != newreverse)) {
-	  gtk_text_insert(bv, m_r_font, fg, bg, line, cur);
+	  gtk_text_insert(bv, user_font_get_regular(), fg, bg, line, cur);
 	  fg = &BLACK;
 	  bg = &WHITE;
 	  cur = 0;
@@ -1113,7 +1119,7 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
 	}
 	/* Have we gone from plain to reversed? */
 	if (!reverse && (reverse != newreverse)) {
-	  gtk_text_insert(bv, m_r_font, fg, bg, line, cur);
+	  gtk_text_insert(bv, user_font_get_regular(), fg, bg, line, cur);
 	  fg = &WHITE;
 	  bg = &BLACK;
 	  cur = 0;
@@ -1121,11 +1127,11 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
 	reverse = newreverse;
       }
       /* Print remaining part of line */
-      gtk_text_insert(bv, m_r_font, fg, bg, line, cur);
+      gtk_text_insert(bv, user_font_get_regular(), fg, bg, line, cur);
       cur = 0;
       /* Print some space at the end of the line */
       line[cur++] = ' '; line[cur++] = ' '; line[cur++] = ' ';
-      gtk_text_insert(bv, m_r_font, &BLACK, &WHITE, line, cur);
+      gtk_text_insert(bv, user_font_get_regular(), &BLACK, &WHITE, line, cur);
       cur = 0;
 
       /* Print the ASCII bit */
@@ -1153,7 +1159,7 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
 	newreverse = i >= bstart && i < bend;
 	/* Have we gone from reverse to plain? */
 	if (reverse && (reverse != newreverse)) {
-	  gtk_text_insert(bv, m_r_font, fg, bg, line, cur);
+	  gtk_text_insert(bv, user_font_get_regular(), fg, bg, line, cur);
 	  fg = &BLACK;
 	  bg = &WHITE;
 	  cur = 0;
@@ -1166,7 +1172,7 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
 	}
 	/* Have we gone from plain to reversed? */
 	if (!reverse && (reverse != newreverse)) {
-	  gtk_text_insert(bv, m_r_font, fg, bg, line, cur);
+	  gtk_text_insert(bv, user_font_get_regular(), fg, bg, line, cur);
 	  fg = &WHITE;
 	  bg = &BLACK;
 	  cur = 0;
@@ -1174,16 +1180,16 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
 	reverse = newreverse;
       }
       /* Print remaining part of line */
-      gtk_text_insert(bv, m_r_font, fg, bg, line, cur);
+      gtk_text_insert(bv, user_font_get_regular(), fg, bg, line, cur);
       cur = 0;
       line[cur++] = '\n';
       line[cur]   = '\0';
-      gtk_text_insert(bv, m_r_font, &BLACK, &WHITE, line, -1);
+      gtk_text_insert(bv, user_font_get_regular(), &BLACK, &WHITE, line, -1);
     }
     else {
-      gtk_text_insert(bv, m_r_font, NULL, NULL, line, -1);
+      gtk_text_insert(bv, user_font_get_regular(), NULL, NULL, line, -1);
       /* Do we start in bold? */
-      cur_font = (i >= bstart && i < bend) ? m_b_font : m_r_font;
+      cur_font = (i >= bstart && i < bend) ? user_font_get_bold() : user_font_get_regular();
       j   = i;
       k   = i + BYTE_VIEW_WIDTH;
       cur = 0;
@@ -1200,7 +1206,7 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
 	/* insert a space every BYTE_VIEW_SEP bytes */
 	if( ( i % BYTE_VIEW_SEP ) == 0 ) line[cur++] = ' ';
 	/* Did we cross a bold/plain boundary? */
-	new_font = (i >= bstart && i < bend) ? m_b_font : m_r_font;
+	new_font = (i >= bstart && i < bend) ? user_font_get_bold() : user_font_get_regular();
 	if (cur_font != new_font) {
 	  gtk_text_insert(bv, cur_font, NULL, NULL, line, cur);
 	  cur_font = new_font;
@@ -1213,7 +1219,7 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
       cur = 0;
       i = j;
       /* Print the ASCII bit */
-      cur_font = (i >= bstart && i < bend) ? m_b_font : m_r_font;
+      cur_font = (i >= bstart && i < bend) ? user_font_get_bold() : user_font_get_regular();
       while (i < k) {
 	if (i < len) {
 	  if (encoding == CHAR_ASCII) {
@@ -1233,7 +1239,7 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
 	/* insert a space every BYTE_VIEW_SEP bytes */
 	if( ( i % BYTE_VIEW_SEP ) == 0 ) line[cur++] = ' ';
 	/* Did we cross a bold/plain boundary? */
-	new_font = (i >= bstart && i < bend) ? m_b_font : m_r_font;
+	new_font = (i >= bstart && i < bend) ? user_font_get_bold() : user_font_get_regular();
 	if (cur_font != new_font) {
 	  gtk_text_insert(bv, cur_font, NULL, NULL, line, cur);
 	  cur_font = new_font;
@@ -1372,7 +1378,7 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
     float scrollval;
 
     linenum = bstart / BYTE_VIEW_WIDTH;
-    scrollval = MIN(linenum * m_font_height,
+    scrollval = MIN(linenum * user_font_get_regular_height(),
 		    bv->vadj->upper - bv->vadj->page_size);
 
     gtk_adjustment_set_value(bv->vadj, scrollval);
@@ -1528,13 +1534,8 @@ set_ptree_font_cb(gpointer data, gpointer user_data)
 }
 #endif
 
-#if GTK_MAJOR_VERSION < 2
 void
-set_ptree_font_all(GdkFont *font)
-#else
-void
-set_ptree_font_all(PangoFontDescription *font)
-#endif
+set_ptree_font_all(FONT_TYPE *font)
 {
 #if GTK_MAJOR_VERSION < 2
     GtkStyle *style;
@@ -1650,9 +1651,15 @@ main_tree_view_new(e_prefs *prefs, GtkWidget **tree_view_p)
   gtk_container_add( GTK_CONTAINER(tv_scrollw), tree_view );
   set_ptree_sel_browse(tree_view, prefs->gui_ptree_sel_browse);
 #if GTK_MAJOR_VERSION < 2
+  if(item_style == NULL) {
+      item_style = gtk_style_new();
+      gdk_font_unref(item_style->font);
+      item_style->font = user_font_get_regular();
+  }
+
   gtk_widget_set_style(tree_view, item_style);
 #else
-  gtk_widget_modify_font(tree_view, m_r_font);
+  gtk_widget_modify_font(tree_view, user_font_get_regular());
 #endif
   remember_ptree_widget(tree_view);
 

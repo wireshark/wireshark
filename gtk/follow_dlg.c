@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.65 2004/06/01 17:33:36 ulfl Exp $
+ * $Id: follow_dlg.c,v 1.66 2004/06/17 16:35:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,7 +48,6 @@
 #include "dlg_utils.h"
 #include "keys.h"
 #include "globals.h"
-#include "gtkglobals.h"
 #include "main.h"
 #include "alert_box.h"
 #include "simple_dialog.h"
@@ -63,6 +62,7 @@
 #include "ipproto.h"
 #include "tap_menu.h"
 #include "print_mswin.h"
+#include "font_utils.h"
 
 /* Show Stream */
 typedef enum {
@@ -924,12 +924,12 @@ follow_add_to_gtk_text(char *buffer, int nchars, gboolean is_server,
     	color_t_to_gdkcolor(&bg, &prefs.st_client_bg);
     }
 #if GTK_MAJOR_VERSION < 2
-    gtk_text_insert(GTK_TEXT(text), m_r_font, &fg, &bg, buffer, nchars);
+    gtk_text_insert(GTK_TEXT(text), user_font_get_regular(), &fg, &bg, buffer, nchars);
 #else
     gtk_text_buffer_get_end_iter(buf, &iter);
     tag = gtk_text_buffer_create_tag(buf, NULL, "foreground-gdk", &fg,
                                      "background-gdk", &bg, "font-desc",
-                                     m_r_font, NULL);
+                                     user_font_get_regular(), NULL);
     convbuf = g_locale_to_utf8(buffer, nchars, NULL, &outbytes, NULL);
     gtk_text_buffer_insert_with_tags(buf, &iter, convbuf, outbytes, tag,
                                      NULL);

@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.63 2004/06/10 10:09:58 guy Exp $
+ * $Id: tcp_graph.c,v 1.64 2004/06/17 16:35:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -320,11 +320,7 @@ struct graph {
 	GtkWidget *drawing_area;
         GtkWidget *text;	/* text widget for seg list - probably
                                  * temporary */
-#if GTK_MAJOR_VERSION < 2
-	GdkFont *font;			/* font used for annotations etc. */
-#else
-	PangoFontDescription *font;	/* font used for annotations etc. */
-#endif
+	FONT_TYPE *font;	/* font used for annotations etc. */
 	GdkGC *fg_gc;
 	GdkGC *bg_gc;
 	GdkPixmap *title_pixmap;

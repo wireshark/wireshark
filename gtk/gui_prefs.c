@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.71 2004/05/27 16:50:15 ulfl Exp $
+ * $Id: gui_prefs.c,v 1.72 2004/06/17 16:35:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,7 @@
 #include "compat_macros.h"
 #include "toolbar.h"
 #include "recent.h"
+#include "font_utils.h"
 
 static gint fetch_enum_value(gpointer control, const enum_val_t *enumvals);
 static gint fileopen_dir_changed_cb(GtkWidget *myentry _U_, GdkEvent *event, gpointer parent_w);
@@ -333,12 +334,6 @@ static gboolean
 font_fetch(void)
 {
 	gchar   *font_name;
-#if GTK_MAJOR_VERSION < 2
-	gchar   *bold_font_name;
-	GdkFont *new_r_font, *new_b_font;
-#else
-	PangoFontDescription *new_r_font, *new_b_font;
-#endif
 
 	font_name = g_strdup(gtk_font_selection_get_font_name(
 	      GTK_FONT_SELECTION(font_browse_w)));
@@ -351,53 +346,12 @@ font_fetch(void)
 		return FALSE;
 	}
 
-#if GTK_MAJOR_VERSION < 2
-	/* Get the name that the boldface version of that font would have. */
-	bold_font_name = font_boldify(font_name);
+    if(user_font_test(font_name)) {
+    	new_font_name = font_name;
+        return TRUE;
+    }
 
-	/* Now load those fonts, just to make sure we can. */
-	new_r_font = gdk_font_load(font_name);
-#else
-	new_r_font = pango_font_description_from_string(font_name);
-#endif
-	if (new_r_font == NULL) {
-		/* Oops, that font didn't work.
-		   Tell the user, but don't tear down the font selection
-		   dialog, so that they can try again. */
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		   "The font you selected cannot be loaded.");
-
-		g_free(font_name);
-#if GTK_MAJOR_VERSION < 2
-		g_free(bold_font_name);
-#endif
-		return FALSE;
-	}
-
-#if GTK_MAJOR_VERSION < 2
-	new_b_font = gdk_font_load(bold_font_name);
-#else
-	new_b_font = pango_font_description_copy(new_r_font);
-	pango_font_description_set_weight(new_b_font, PANGO_WEIGHT_BOLD);
-#endif
-	if (new_b_font == NULL) {
-		/* Oops, that font didn't work.
-		   Tell the user, but don't tear down the font selection
-		   dialog, so that they can try again. */
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		   "The font you selected doesn't have a boldface version.");
-
-		g_free(font_name);
-#if GTK_MAJOR_VERSION < 2
-		g_free(bold_font_name);
-		gdk_font_unref(new_r_font);
-#else
-		pango_font_description_free(new_r_font);
-#endif
-		return FALSE;
-	}
-
-	new_font_name = font_name;
+    g_free(font_name);
 	return TRUE;
 }
 
@@ -485,13 +439,13 @@ gui_prefs_apply(GtkWidget *w _U_)
 
 	if (font_changed) {
 		/* This redraws the hex dump windows. */
-		switch (font_apply()) {
+		switch (user_font_apply()) {
 
 		case FA_SUCCESS:
 			break;
 
 		case FA_FONT_NOT_RESIZEABLE:
-			/* "font_apply()" popped up an alert box. */
+			/* "user_font_apply()" popped up an alert box. */
 			/* turn off zooming - font can't be resized */
 			recent.gui_zoom_level = 0;
 			break;

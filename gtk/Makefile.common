@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.14 2004/06/05 09:57:10 ulfl Exp $
+# $Id: Makefile.common,v 1.15 2004/06/17 16:35:25 ulfl Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -26,7 +26,7 @@
 
 #
 # ethclist.obj is not in here because it is currently gtk+-1.2-only
-# code, while the DLL for GTK+ on Windows is gtk+-1.3.
+# code, while the DLL for GTK+ on Windows is gtk+-1.3 or gtk+-2.x.
 #
 ETHEREAL_GTK_SRC = \
 	about_dlg.c	\
@@ -48,6 +48,7 @@ ETHEREAL_GTK_SRC = \
 	filter_prefs.c	\
 	find_dlg.c	\
 	follow_dlg.c	\
+	font_utils.c	\
 	goto_dlg.c	\
 	gtk_stat_util.c	\
 	gui_prefs.c	\

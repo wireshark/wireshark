@@ -1,7 +1,7 @@
 /* packet_list.c
  * packet list related functions   2002 Olivier Abad
  *
- * $Id: packet_list.c,v 1.20 2004/06/05 10:27:38 ulfl Exp $
+ * $Id: packet_list.c,v 1.21 2004/06/17 16:35:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,8 @@
 #include "file_dlg.h"
 #include "packet_list.h"
 #include "keys.h"
+#include "font_utils.h"
+
 #include <epan/timestamp.h>
 
 #include "image/clist_ascend.xpm"
@@ -443,13 +445,8 @@ set_plist_sel_browse(gboolean val)
 }
 
 /* Set the font of the packet list window. */
-#if GTK_MAJOR_VERSION < 2
 void
-set_plist_font(GdkFont *font)
-#else
-void
-set_plist_font(PangoFontDescription *font)
-#endif
+set_plist_font(FONT_TYPE *font)
 {
 	int i;
 	gint col_width;
@@ -504,7 +501,7 @@ packet_list_new(e_prefs *prefs)
     gtk_container_add(GTK_CONTAINER(pkt_scrollw), packet_list);
 
     set_plist_sel_browse(prefs->gui_plist_sel_browse);
-    set_plist_font(m_r_font);
+    set_plist_font(user_font_get_regular());
     gtk_widget_set_name(packet_list, "packet list");
     SIGNAL_CONNECT(packet_list, "select-row", packet_list_select_cb, NULL);
     SIGNAL_CONNECT(packet_list, "unselect-row", packet_list_unselect_cb, NULL);
