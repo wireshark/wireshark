@@ -432,12 +432,12 @@ which to save it.
 
 =item File:Print
 
-Print, for all the packets in the current capture, either the summary
-line for the packet or the protocol tree view of the packet; when
-printing the protocol tree view, the hex dump of the packet can be
-printed as well.  Printing options can be set with the
-I<Edit:Preferences> menu item, or in the dialog box popped up by this
-item.
+Print, for all the packets in the current capture, or for only the
+marked packets in the current capture, either the summary line for the
+packet or the protocol tree view of the packet; when printing the
+protocol tree view, the hex dump of the packet can be printed as well. 
+Printing options can be set with the I<Edit:Preferences> menu item, or
+in the dialog box popped up by this item.
 
 =item File:Print Packet
 
@@ -455,6 +455,10 @@ Search forward or backward, starting with the currently selected packet
 (or the most recently selected packet, if no packet is selected).  Search
 criteria can be a display filter expression, a string of hexadecimal 
 digits, or a text string.
+
+When searching for a text string, you can search the packet data, or you
+can search the text in the Info column in the packet list pane or in the
+protocol tree pane.
 
 Hexadecimal digits can be separated by colons, periods, or dashes.
 Text string searches can be ASCII or Unicode (or both), and may be
