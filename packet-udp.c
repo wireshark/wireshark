@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.35 1999/11/16 11:43:01 guy Exp $
+ * $Id: packet-udp.c,v 1.36 1999/11/17 02:17:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -82,6 +82,7 @@ typedef struct _e_udphdr {
 #define UDP_PORT_RADACCT_NEW 1813
 #define UDP_PORT_ICP    3130
 #define UDP_PORT_ICQ	4000
+#define UDP_PORT_SAP	9875
 #define UDP_PORT_RX_LOW 7000
 #define UDP_PORT_RX_HIGH 7009
 #define UDP_PORT_RX_AFS_BACKUPS 7021
@@ -171,6 +172,7 @@ void init_dissect_udp(void) {
 
   udp_hash_add(UDP_PORT_BOOTPS, dissect_bootp);
   udp_hash_add(UDP_PORT_TFTP, dissect_tftp);
+  udp_hash_add(UDP_PORT_SAP, dissect_sap);
 
 }
 

@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.32 1999/11/16 11:42:36 guy Exp $
+ * $Id: packet-ipx.c,v 1.33 1999/11/17 02:17:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -94,7 +94,7 @@ static void
 dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 
 static void
-dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
+dissect_ipxsap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 
 typedef	void	(dissect_func_t)(const u_char *, int, frame_data *, proto_tree *);
 
@@ -139,7 +139,7 @@ struct server_info {
 static struct port_info	ports[] = {
 	{ IPX_SOCKET_NCP,			dissect_ncp,
 				"NCP" },
-	{ IPX_SOCKET_SAP,			dissect_sap,
+	{ IPX_SOCKET_SAP,			dissect_ipxsap,
 				"SAP" },
 	{ IPX_SOCKET_IPXRIP,			dissect_ipxrip,
 				"RIP" },
@@ -628,7 +628,7 @@ server_type(guint16 type)
 }
 
 static void
-dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_ipxsap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	proto_tree	*sap_tree, *s_tree;
 	proto_item	*ti;

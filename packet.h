@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.142 1999/11/16 11:43:05 guy Exp $
+ * $Id: packet.h,v 1.143 1999/11/17 02:17:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -362,6 +362,7 @@ void dissect_ripng(const u_char *, int, frame_data *, proto_tree *);
 void dissect_rsvp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_rtsp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_rx(const u_char *, int, frame_data *, proto_tree *);
+void dissect_sap(const u_char *, int, frame_data *, proto_tree *);
 void dissect_sdp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_sna(const u_char *, int, frame_data *, proto_tree *);
 void dissect_snmp(const u_char *, int, frame_data *, proto_tree *);
