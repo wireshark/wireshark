@@ -3,7 +3,7 @@
  * Helper routines common to all service response time statistics
  * tap.
  *
- * $Id: service_response_time_table.c,v 1.17 2004/04/07 04:31:32 sahlberg Exp $
+ * $Id: service_response_time_table.c,v 1.18 2004/05/07 12:15:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -253,33 +253,33 @@ srt_show_popup_menu_cb(void *widg _U_, GdkEvent *event, srt_stat_table *rst)
 static GtkItemFactoryEntry srt_list_menu_items[] =
 {
 	/* Match */
-	ITEM_FACTORY_ENTRY("/Match Display Filter", NULL, NULL, 0, "<Branch>", NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Selected", NULL,
+	ITEM_FACTORY_ENTRY("/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL),
+	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected", NULL,
 		srt_select_filter_cb, 0*256+0, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Not Selected", NULL,
+	ITEM_FACTORY_ENTRY("/Apply as Filter/... not Selected", NULL,
 		srt_select_filter_cb, 0*256+1, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/And Selected", NULL,
+	ITEM_FACTORY_ENTRY("/Apply as Filter/.. and Selected", NULL,
 		srt_select_filter_cb, 0*256+2, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Selected", NULL,
+	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected", NULL,
 		srt_select_filter_cb, 0*256+3, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/And Not Selected", NULL,
+	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected", NULL,
 		srt_select_filter_cb, 0*256+4, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Not Selected", NULL,
+	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected", NULL,
 		srt_select_filter_cb, 0*256+5, NULL, NULL),
 
 	/* Prepare */
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter", NULL, NULL, 0, "<Branch>", NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Selected", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL),
+	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected", NULL,
 		srt_select_filter_cb, 1*256+0, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Not Selected", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected", NULL,
 		srt_select_filter_cb, 1*256+1, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Selected", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected", NULL,
 		srt_select_filter_cb, 1*256+2, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Selected", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected", NULL,
 		srt_select_filter_cb, 1*256+3, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Not Selected", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected", NULL,
 		srt_select_filter_cb, 1*256+4, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Not Selected", NULL,
+	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected", NULL,
 		srt_select_filter_cb, 1*256+5, NULL, NULL),
 
 	/* Find Frame */

@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table.c   2003 Ronnie Sahlberg
  * Helper routines common to all host list taps.
  *
- * $Id: hostlist_table.c,v 1.10 2004/05/03 22:15:21 ulfl Exp $
+ * $Id: hostlist_table.c,v 1.11 2004/05/07 12:15:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -363,10 +363,23 @@ static gint
 hostlist_show_popup_menu_cb(void *widg _U_, GdkEvent *event, hostlist_table *et)
 {
 	GdkEventButton *bevent = (GdkEventButton *)event;
+    gint row;
+    gint column;
 
+    /* To qoute the "Gdk Event Structures" doc:
+     * "Normally button 1 is the left mouse button, 2 is the middle button, and 3 is the right button" */
 	if(event->type==GDK_BUTTON_PRESS && bevent->button==3){
-		gtk_menu_popup(GTK_MENU(et->menu), NULL, NULL, NULL, NULL, 
-			bevent->button, bevent->time);
+        /* if this is a right click on one of our columns, select it and popup the context menu */
+        if(gtk_clist_get_selection_info(et->table,
+                                          (gint) (((GdkEventButton *)event)->x),
+                                          (gint) (((GdkEventButton *)event)->y),
+                                             &row, &column)) {
+            gtk_clist_unselect_all(et->table);
+            gtk_clist_select_row(et->table, row, -1);
+
+		    gtk_menu_popup(GTK_MENU(et->menu), NULL, NULL, NULL, NULL, 
+			    bevent->button, bevent->time);
+        }
 	}
 
 	return FALSE;
@@ -375,33 +388,33 @@ hostlist_show_popup_menu_cb(void *widg _U_, GdkEvent *event, hostlist_table *et)
 static GtkItemFactoryEntry hostlist_list_menu_items[] =
 {
 	/* Match */
-	ITEM_FACTORY_ENTRY("/Match Display Filter", NULL, NULL, 0, "<Branch>", NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL),
+	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected", NULL, 
 		hostlist_select_filter_cb, 0*256+0, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Not Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected", NULL, 
 		hostlist_select_filter_cb, 0*256+1, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/And Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected", NULL, 
 		hostlist_select_filter_cb, 0*256+2, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected", NULL, 
 		hostlist_select_filter_cb, 0*256+3, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/And Not Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected", NULL, 
 		hostlist_select_filter_cb, 0*256+4, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Match Display Filter/Or Not Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected", NULL, 
 		hostlist_select_filter_cb, 0*256+5, NULL, NULL),
 
 	/* Prepare */
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter", NULL, NULL, 0, "<Branch>", NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL),
+	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected", NULL, 
 		hostlist_select_filter_cb, 1*256+0, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Not Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected", NULL, 
 		hostlist_select_filter_cb, 1*256+1, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected", NULL, 
 		hostlist_select_filter_cb, 1*256+2, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected", NULL, 
 		hostlist_select_filter_cb, 1*256+3, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/And Not Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected", NULL, 
 		hostlist_select_filter_cb, 1*256+4, NULL, NULL),
-	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Not Selected", NULL, 
+	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected", NULL, 
 		hostlist_select_filter_cb, 1*256+5, NULL, NULL),
 
 	/* Find Frame */

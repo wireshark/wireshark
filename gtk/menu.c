@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.191 2004/05/04 21:08:03 guy Exp $
+ * $Id: menu.c,v 1.192 2004/05/07 12:15:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -275,31 +275,31 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/_Analyze", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Analyze/_Display Filters...", NULL, dfilter_dialog_cb,
                        0, ETHEREAL_STOCK_DISPLAY_FILTER),
-    ITEM_FACTORY_ENTRY("/Analyze/_Match", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Match/_Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/Appl_y as Filter", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/Analyze/Apply as Filter/_Selected", NULL,
                        match_selected_cb_replace_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Match/_Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/Apply as Filter/_Not Selected", NULL,
                        match_selected_cb_not_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Match/_And Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/Apply as Filter/... _and Selected", NULL,
                        match_selected_cb_and_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Match/_Or Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/Apply as Filter/... _or Selected", NULL,
                        match_selected_cb_or_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Match/A_nd Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/Apply as Filter/... a_nd not Selected", NULL,
                        match_selected_cb_and_ptree_not, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Match/O_r Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/Apply as Filter/... o_r not Selected", NULL,
                        match_selected_cb_or_ptree_not, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/_Prepare", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Prepare/_Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/_Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/Analyze/Prepare a Filter/_Selected", NULL,
                        prepare_selected_cb_replace_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Prepare/_Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/Prepare a Filter/_Not Selected", NULL,
                        prepare_selected_cb_not_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Prepare/_And Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/Prepare a Filter/... _and Selected", NULL,
                        prepare_selected_cb_and_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Prepare/_Or Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/Prepare a Filter/... _or Selected", NULL,
                        prepare_selected_cb_or_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Prepare/A_nd Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/Prepare a Filter/... a_nd not Selected", NULL,
                        prepare_selected_cb_and_ptree_not, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/Prepare/O_r Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/Prepare a Filter/... o_r not Selected", NULL,
                        prepare_selected_cb_or_ptree_not, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Analyze/_Enabled Protocols...", "<shift><control>R", proto_cb, 0, NULL, NULL),
@@ -348,31 +348,31 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
     ITEM_FACTORY_ENTRY("/Time Reference/Set Time Reference (toggle)", NULL, reftime_frame_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Time Reference/Find Next", NULL, reftime_frame_cb, 1, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Time Reference/Find Previous", NULL, reftime_frame_cb, 2, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Match", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Match/_Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/Apply as Filter/_Selected", NULL,
                        match_selected_cb_replace_plist, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Match/_Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Apply as Filter/_Not Selected", NULL,
                        match_selected_cb_not_plist, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Match/_And Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Apply as Filter/... _and Selected", NULL,
                        match_selected_cb_and_plist, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Match/_Or Selected", NULL, match_selected_cb_or_plist,
+    ITEM_FACTORY_ENTRY("/Apply as Filter/... _or Selected", NULL, match_selected_cb_or_plist,
                        0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Match/A_nd Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Apply as Filter/... a_nd not Selected", NULL,
                        match_selected_cb_and_plist_not, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Match/O_r Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Apply as Filter/... o_r not Selected", NULL,
                        match_selected_cb_or_plist_not, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Prepare", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Prepare/_Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/Prepare a Filter/_Selected", NULL,
                        prepare_selected_cb_replace_plist, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Prepare/_Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Prepare a Filter/_Not Selected", NULL,
                        prepare_selected_cb_not_plist, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Prepare/_And Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Prepare a Filter/... _and Selected", NULL,
                        prepare_selected_cb_and_plist, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Prepare/_Or Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Prepare a Filter/... _or Selected", NULL,
                        prepare_selected_cb_or_plist, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Prepare/A_nd Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Prepare a Filter/... a_nd not Selected", NULL,
                        prepare_selected_cb_and_plist_not, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Prepare/O_r Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Prepare a Filter/... o_r not Selected", NULL,
                        prepare_selected_cb_or_plist_not, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Coloring Rules...", NULL, color_display_cb,
@@ -396,31 +396,31 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Protocol Properties...", NULL, properties_cb,
                        0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Match", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Match/_Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/Apply as Filter/_Selected", NULL,
                        match_selected_cb_replace_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Match/_Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Apply as Filter/_Not Selected", NULL,
                        match_selected_cb_not_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Match/_And Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Apply as Filter/... _and Selected", NULL,
                        match_selected_cb_and_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Match/_Or Selected", NULL, match_selected_cb_or_ptree,
+    ITEM_FACTORY_ENTRY("/Apply as Filter/... _or Selected", NULL, match_selected_cb_or_ptree,
                        0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Match/A_nd Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Apply as Filter/... a_nd not Selected", NULL,
                        match_selected_cb_and_ptree_not, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Match/O_r Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Apply as Filter/... o_r not Selected", NULL,
                        match_selected_cb_or_ptree_not, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Prepare", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Prepare/_Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/Prepare a Filter/_Selected", NULL,
                        prepare_selected_cb_replace_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Prepare/_Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Prepare a Filter/_Not Selected", NULL,
                        prepare_selected_cb_not_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Prepare/_And Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Prepare a Filter/... _and Selected", NULL,
                        prepare_selected_cb_and_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Prepare/_Or Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Prepare a Filter/... _or Selected", NULL,
                        prepare_selected_cb_or_ptree, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Prepare/A_nd Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Prepare a Filter/... a_nd not Selected", NULL,
                        prepare_selected_cb_and_ptree_not, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Prepare/O_r Not Selected", NULL,
+    ITEM_FACTORY_ENTRY("/Prepare a Filter/... o_r not Selected", NULL,
                        prepare_selected_cb_or_ptree_not, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Collapse All", NULL, collapse_all_cb, 0, NULL, NULL),
@@ -1671,9 +1671,9 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL && decode_as_ok());
   set_menu_sensitivity(tree_view_menu_factory, "/Resolve Name",
       cf->current_frame != NULL && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
-  set_menu_sensitivity(packet_list_menu_factory, "/Match",
+  set_menu_sensitivity(packet_list_menu_factory, "/Apply as Filter",
       cf->current_frame != NULL);
-  set_menu_sensitivity(packet_list_menu_factory, "/Prepare",
+  set_menu_sensitivity(packet_list_menu_factory, "/Prepare a Filter",
       cf->current_frame != NULL);
 
   walk_menu_tree_for_selected_packet(tap_menu_tree_root, cf->current_frame,
@@ -1762,13 +1762,13 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  "/Go/Go to Corresponding Packet", hfinfo->type == FT_FRAMENUM);
 	set_menu_sensitivity(tree_view_menu_factory,
 	  "/Go to Corresponding Packet", hfinfo->type == FT_FRAMENUM);
-	set_menu_sensitivity(main_menu_factory, "/Analyze/Match",
+	set_menu_sensitivity(main_menu_factory, "/Analyze/Apply as Filter",
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
-	set_menu_sensitivity(tree_view_menu_factory, "/Match",
+	set_menu_sensitivity(tree_view_menu_factory, "/Apply as Filter",
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
-	set_menu_sensitivity(main_menu_factory, "/Analyze/Prepare",
+	set_menu_sensitivity(main_menu_factory, "/Analyze/Prepare a Filter",
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
-	set_menu_sensitivity(tree_view_menu_factory, "/Prepare",
+	set_menu_sensitivity(tree_view_menu_factory, "/Prepare a Filter",
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Properties...",
 	  properties);
@@ -1779,10 +1779,10 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	    "/Go/Go to Corresponding Packet", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory,
 	    "/Go to Corresponding Packet", FALSE);
-	set_menu_sensitivity(main_menu_factory, "/Analyze/Match", FALSE);
-	set_menu_sensitivity(tree_view_menu_factory, "/Match", FALSE);
-	set_menu_sensitivity(main_menu_factory, "/Analyze/Prepare", FALSE);
-	set_menu_sensitivity(tree_view_menu_factory, "/Prepare", FALSE);
+	set_menu_sensitivity(main_menu_factory, "/Analyze/Apply as Filter", FALSE);
+	set_menu_sensitivity(tree_view_menu_factory, "/Apply as Filter", FALSE);
+	set_menu_sensitivity(main_menu_factory, "/Analyze/Prepare a Filter", FALSE);
+	set_menu_sensitivity(tree_view_menu_factory, "/Prepare a Filter", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Properties...",
 	  FALSE);
 	set_menu_sensitivity(main_menu_factory, "/View/Expand Tree", FALSE);
