@@ -333,7 +333,7 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * Adjust the length of this tvbuff to include only the Vines IP
 	 * datagram.
 	 */
-	set_actual_length(tvb, viph.vip_pktlen);
+	set_actual_length(tvb, viph.vip_pktlen < 18 ? 18 : viph.vip_pktlen);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_vines_ip, tvb,
