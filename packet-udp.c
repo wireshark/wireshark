@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.62 2000/04/14 05:39:43 gram Exp $
+ * $Id: packet-udp.c,v 1.63 2000/04/14 06:17:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -74,7 +74,6 @@ typedef struct _e_udphdr {
 /* UDP Ports -> should go in packet-udp.h */
 
 #define UDP_PORT_TFTP    69
-#define UDP_PORT_RIP    520
 #define UDP_PORT_NCP    524
 #define UDP_PORT_VINES	573
 #define UDP_PORT_RX_LOW 7000
@@ -131,10 +130,7 @@ decode_udp_ports( const u_char *pd, int offset, frame_data *fd,
 
   /* XXX - we should do all of this through the table of ports. */
 #define PORT_IS(port)	(uh_sport == port || uh_dport == port)
-  if (PORT_IS(UDP_PORT_RIP)) {
-      /* we should check the source port too (RIP: UDP src and dst port 520) */
-      dissect_rip(pd, offset, fd, tree);
-  } else if (PORT_IS(UDP_PORT_NCP))
+  if (PORT_IS(UDP_PORT_NCP))
       dissect_ncp(pd, offset, fd, tree); /* XXX -- need to handle nw_server_address */
   else if ((uh_sport >= UDP_PORT_RX_LOW && uh_sport <= UDP_PORT_RX_HIGH) ||
 	(uh_dport >= UDP_PORT_RX_LOW && uh_dport <= UDP_PORT_RX_HIGH) ||

@@ -2,7 +2,7 @@
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.13 1999/11/16 11:42:50 guy Exp $
+ * $Id: packet-rip.c,v 1.14 2000/04/14 06:17:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,6 +38,8 @@
 #include "packet.h"
 #include "packet-rip.h"
 
+#define UDP_PORT_RIP    520
+
 static int proto_rip = -1;
 
 static gint ett_rip = -1;
@@ -48,7 +50,7 @@ static void dissect_ip_rip_vektor(guint8 version,
 static void dissect_rip_authentication(const e_rip_authentication *rip_authentication,
   int offset, proto_tree *tree);
 
-void 
+static void 
 dissect_rip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     e_riphdr rip_header;
     e_rip_entry rip_entry;
@@ -195,4 +197,10 @@ proto_register_rip(void)
         proto_rip = proto_register_protocol("Routing Information Protocol", "rip");
  /*       proto_register_field_array(proto_rip, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_rip(void)
+{
+	dissector_add("udp.port", UDP_PORT_RIP, dissect_rip);
 }
