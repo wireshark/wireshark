@@ -966,6 +966,7 @@ Akira Endoh <endoh[AT]netmarks.co.jp> {
 	RSVP support for draft-ietf-mpls-nodeid-subobject-00.txt, and
 	    other bug fixes and enhancements
 	Diffserv MPLS signaling protocol support
+	IGAP support
 }
 
 Graeme Hewson <graeme.hewson[AT]oracle.com> {

@@ -1,7 +1,7 @@
 /* packet-igmp.c   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for IGMP packet disassembly
  *
- * $Id: packet-igmp.c,v 1.24 2003/07/24 20:46:26 guy Exp $
+ * $Id: packet-igmp.c,v 1.25 2003/12/10 19:21:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,7 +30,7 @@
 	draft-ietf-idmr-igmp-v3-07	Version 3
 
 	Size in bytes for each packet
-	type	RFC988	RFC1054	RFC2236 RFC????  DVMRP  MRDISC  MSNIP
+	type	RFC988	RFC1054	RFC2236 RFC????  DVMRP  MRDISC  MSNIP  IGAP
 	        v0      v1      v2      v3       v1/v3
 	0x01      20
 	0x02      20
@@ -50,7 +50,9 @@
 	0x24                                            >=8a    8b
 	0x25                                            4a      >=8b
 	0x26                                            4a
-
+	0x40                                                           ??c
+	0x41                                                           ??c
+	0x42                                                           ??c
 
    * Differs in second byte of protocol. Always 0 in V1
 
@@ -86,6 +88,11 @@
 	0x23, 0x24 are sent with ip.dst==224.0.0.22
 	0x25 is sent as unicast.
 
+   c IGAP Protocol  see packet-igap.c
+
+        IGAP : Internet Group membership Authentication Protocol
+	draft-hayashi-igap-03.txt
+
 */
 
 #ifdef HAVE_CONFIG_H
@@ -107,6 +114,7 @@
 #include "packet-pim.h"
 #include "packet-mrdisc.h"
 #include "packet-msnip.h"
+#include "packet-igap.h"
 
 static int proto_igmp = -1;
 static int hf_type = -1;
@@ -879,6 +887,12 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		if (!memcmp(pinfo->dst.data, &dst, 4)) {
 			offset = dissect_mrdisc(tvb, pinfo, parent_tree, offset);
 		}
+		break;
+
+	case IGMP_IGAP_JOIN:
+	case IGMP_IGAP_QUERY:
+	case IGMP_IGAP_LEAVE:
+		offset = dissect_igap(tvb, pinfo, parent_tree, offset);
 		break;
 
 	default:

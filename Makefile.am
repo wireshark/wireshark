@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.665 2003/12/09 18:49:30 guy Exp $
+# $Id: Makefile.am,v 1.666 2003/12/10 19:21:55 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -262,6 +262,7 @@ DISSECTOR_SRC = \
 	packet-icq.c   \
 	packet-ieee80211.c \
 	packet-ieee8023.c \
+	packet-igap.c  \
 	packet-igmp.c  \
 	packet-igrp.c  \
 	packet-imap.c   \
@@ -674,6 +675,7 @@ noinst_HEADERS = \
 	packet-http.h  \
 	packet-ieee80211.h \
 	packet-ieee8023.h \
+	packet-igap.h  \
 	packet-igmp.h  \
 	packet-ip.h    \
 	packet-ipfc.h  \
