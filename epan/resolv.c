@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.26 2002/09/09 19:38:11 guy Exp $
+ * $Id: resolv.c,v 1.27 2002/09/10 10:12:34 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -739,7 +739,7 @@ static void add_manuf_name(guint8 *addr, unsigned int mask, guchar *name)
      well-known-address table, creating that table if necessary. */
   wka_tp = wka_table[mask];
   if (wka_tp == NULL)
-    wka_tp = wka_table[mask] = g_malloc(sizeof *wka_table[mask]);
+    wka_tp = wka_table[mask] = g_malloc0(sizeof *wka_table[mask]);
 
   hash_idx = hash_eth_wka(addr, mask);
 
