@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.1 2002/09/07 10:02:32 sahlberg Exp $
+ * $Id: rpc_stat.c,v 1.2 2002/09/27 11:07:10 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,7 @@
 
 #include <gtk/gtk.h>
 #include "epan/packet_info.h"
+#include "simple_dialog.h"
 #include "tap.h"
 #include "rpc_stat.h"
 #include "packet-rpc.h"
@@ -268,13 +269,15 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 /* When called, this function will create a new instance of gtk2-rpcstat.
  */
 void
-gtk_rpcstat_init(guint32 program, guint32 version)
+gtk_rpcstat_init(guint32 program, guint32 version, char *filter)
 {
 	rpcstat_t *rs;
 	guint32 i;
 	char title_string[60];
+	char filter_string[256];
 	GtkWidget *vbox;
 	GtkWidget *stat_label;
+	GtkWidget *filter_label;
 	GtkWidget *tmp;
 
 	rpc_program=program;
@@ -297,6 +300,11 @@ gtk_rpcstat_init(guint32 program, guint32 version)
 	stat_label=gtk_label_new(title_string);
 	gtk_box_pack_start(GTK_BOX(vbox), stat_label, FALSE, FALSE, 0);
 	gtk_widget_show(stat_label);
+
+	snprintf(filter_string,255,"Filter:%s",filter?filter:"");
+	filter_label=gtk_label_new(filter_string);
+	gtk_box_pack_start(GTK_BOX(vbox), filter_label, FALSE, FALSE, 0);
+	gtk_widget_show(filter_label);
 
 
 	rpc_min_proc=-1;
@@ -373,23 +381,19 @@ gtk_rpcstat_init(guint32 program, guint32 version)
 
 	gtk_widget_show(rs->table);
 
-	if(register_tap_listener("rpc", rs, NULL, (void*)rpcstat_reset, (void*)rpcstat_packet, (void*)rpcstat_draw)){
+	if(register_tap_listener("rpc", rs, filter, (void*)rpcstat_reset, (void*)rpcstat_packet, (void*)rpcstat_draw)){
+		char str[256];
 		/* error, we failed to attach to the tap. clean up */
+		snprintf(str,255,"Could not attach to tap using filter:%s",filter?filter:"");
+		simple_dialog(ESD_TYPE_WARN, NULL, str);
 		g_free(rs->procedures);
 		g_free(rs);
-		/* XXX print some error string */
+		return;
 	}
 
 
 	gtk_widget_show_all(rs->win);
 }
-
-static void
-rpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
-{
-	gtk_rpcstat_init(rpc_program, rpc_version);
-}
-
 
 
 
@@ -398,7 +402,22 @@ static GtkWidget *dlg=NULL, *dlg_box;
 static GtkWidget *prog_box;
 static GtkWidget *prog_label, *prog_opt, *prog_menu;
 static GtkWidget *vers_label, *vers_opt, *vers_menu;
+static GtkWidget *filter_box;
+static GtkWidget *filter_label, *filter_entry;
 static GtkWidget *start_button;
+
+
+static void
+rpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
+{
+	char *filter;
+
+	filter=(char *)gtk_entry_get_text(GTK_ENTRY(filter_entry));
+	if(filter[0]==0){
+		filter=NULL;
+	}
+	gtk_rpcstat_init(rpc_program, rpc_version, filter);
+}
 
 
 static void
@@ -533,6 +552,22 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	gtk_box_pack_start(GTK_BOX(dlg_box), prog_box, TRUE, TRUE, 0);
 	gtk_widget_show(prog_box);
+
+
+	/* filter box */
+	filter_box=gtk_hbox_new(FALSE, 10);
+	/* Filter label */
+	gtk_container_set_border_width(GTK_CONTAINER(filter_box), 10);
+	filter_label=gtk_label_new("Filter:");
+	gtk_box_pack_start(GTK_BOX(filter_box), filter_label, FALSE, FALSE, 0);
+	gtk_widget_show(filter_label);
+
+	filter_entry=gtk_entry_new_with_max_length(250);
+	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, FALSE, FALSE, 0);
+	gtk_widget_show(filter_entry);
+	
+	gtk_box_pack_start(GTK_BOX(dlg_box), filter_box, TRUE, TRUE, 0);
+	gtk_widget_show(filter_box);
 
 
 	/* the start button */

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.264 2002/09/23 19:09:49 oabad Exp $
+ * $Id: main.c,v 1.265 2002/09/27 11:07:10 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1643,17 +1643,22 @@ main(int argc, char *argv[])
             if(!strncmp(optarg,"rpc,",4)){
               if(!strncmp(optarg,"rpc,rtt,",8)){
                 int rpcprogram, rpcversion;
-                if(sscanf(optarg,"rpc,rtt,%d,%d",&rpcprogram,&rpcversion)==2){
-                  gtk_rpcstat_init(rpcprogram,rpcversion);
+                int pos=0;
+                if(sscanf(optarg,"rpc,rtt,%d,%d,%n",&rpcprogram,&rpcversion,&pos)==2){
+                  if(pos){
+                    gtk_rpcstat_init(rpcprogram,rpcversion,optarg+pos);
+                  } else {
+                    gtk_rpcstat_init(rpcprogram,rpcversion,NULL);
+                  }
                 } else {
-                  fprintf(stderr, "ethereal: invalid \"-z rpc,rtt,<program>,<version>\" argument\n");
+                  fprintf(stderr, "ethereal: invalid \"-z rpc,rtt,<program>,<version>[,<filter>]\" argument\n");
                   exit(1);
                 }
               } else if(!strncmp(optarg,"rpc,programs",12)){
                 gtk_rpcprogs_init();
               } else {
                 fprintf(stderr, "ethereal: invalid -z argument. Argument must be one of:\n");
-                fprintf(stderr, "   \"-z rpc,rtt,<program>,<version>\"\n");
+                fprintf(stderr, "   \"-z rpc,rtt,<program>,<version>[,<filter>]\"\n");
                 fprintf(stderr, "   \"-z rpc,programs\"\n");
                 exit(1);
               }

@@ -272,12 +272,17 @@ Get B<Ethereal> to collect various types of statistics and display the result
 in a window that updates in semi-real time.
 Currently implemented statistics are:
 
-B<-z> rpc,rtt,I<program>,I<version>
+B<-z> rpc,rtt,I<program>,I<version>[,<filter>]
 
 Collect call/reply RTT data for I<program>/I<version>.  Data collected
 is number of calls for each procedure, MinRTT, MaxRTT and AvgRTT. 
 Example: use B<-z rpc,rtt,100003,3> to collect data for NFS v3.  This
 option can be used multiple times on the command line. 
+
+If the optional filter string is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z rpc,rtt,100003,3,nfs.fh.hash==0x12345678> to collect NFS v3
+RTT statistics for a specific file.
 
 B<-z> rpc,programs
 
@@ -541,7 +546,19 @@ and display B<Procedure>, B<Number of Calls>, B<Minimum RTT>, B<Maximum RTT> and
 These windows opened will update in semi-real time to reflect changes when
 doing live captures or when reading new capture files into B<Ethereal>.
 
-This feature is only availabe for the Gtk2 version of B<Ethereal>.
+This dialog will also allow an optional filter string to be used.
+If an optional filter string is used only such ONC-RPC request/response pairs 
+that match that filter will be used to calculate the statistics. If no filter 
+string is specified all request/response pairs will be used.
+
+Before the statistics are recalculated you must reread the capture file or start a new capture. You can also regenerate the statistics by just applying an empty display filter causing ethereal to reread the packet list.
+
+=item Tools:Statistics:ONC-RPC:Programs
+
+This dialog will open a window showing aggregated RTT statistics for all
+ONC-RPC Programs/versions that exist in the capture file.
+
+Before the statistics are recalculated you must reread the capture file or start a new capture. You can also regenerate the statistics by just applying an empty display filter causing ethereal to reread the packet list.
 
 =head2 WINDOWS
 

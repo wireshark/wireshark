@@ -1,7 +1,7 @@
 /* tap-rpcstat.c
  * rpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-rpcstat.c,v 1.2 2002/09/26 01:13:02 sahlberg Exp $
+ * $Id: tap-rpcstat.c,v 1.3 2002/09/27 11:06:59 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,6 +57,7 @@ typedef struct _rpc_procedure_t {
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _rpcstat_t {
 	char *prog;
+	char *filter;
 	guint32 program;
 	guint32 version;
 	guint32 num_procedures;
@@ -211,6 +212,7 @@ rpcstat_draw(rpcstat_t *rs)
 	printf("\n");
 	printf("===================================================================\n");
 	printf("%s Version %d RTT Statistics:\n", rs->prog, rs->version);
+	printf("Filter: %s\n",rs->filter?rs->filter:"");
 	printf("Procedure        Calls   Min RTT   Max RTT   Avg RTT\n");
 	for(i=0;i<rs->num_procedures;i++){
 		/* scale it to units of 10us.*/
@@ -282,7 +284,12 @@ rpcstat_init(guint32 program, guint32 version, char *filter)
 	rs->prog=rpc_prog_name(program);
 	rs->program=program;
 	rs->version=version;
-
+	if(filter){
+		rs->filter=g_malloc(strlen(filter)+1);
+		strcpy(rs->filter, filter);
+	} else {
+		rs->filter=NULL;
+	}
 	rpc_program=program;
 	rpc_version=version;
 	rpc_min_proc=-1;
@@ -321,6 +328,7 @@ rpcstat_init(guint32 program, guint32 version, char *filter)
 	if(register_tap_listener("rpc", rs, filter, (void*)rpcstat_reset, (void*)rpcstat_packet, (void*)rpcstat_draw)){
 		/* error, we failed to attach to the tap. clean up */
 		g_free(rs->procedures);
+		g_free(rs->filter);
 		g_free(rs);
 
 		fprintf(stderr,"tethereal: rpcstat_init() failed to attach to tap.\n");

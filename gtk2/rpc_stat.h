@@ -1,7 +1,7 @@
 /* rpc_stat.h
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.h,v 1.1 2002/09/07 09:28:05 sahlberg Exp $
+ * $Id: rpc_stat.h,v 1.2 2002/09/27 11:07:16 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,7 +25,7 @@
 #ifndef __RPCSTAT_H__
 #define __RPCSTAT_H__
 
-void gtk_rpcstat_init(guint32 program, guint32 version);
+void gtk_rpcstat_init(guint32 program, guint32 version, char *filter);
 void gtk_rpcstat_cb(GtkWidget *w, gpointer d);
 
 #endif
