@@ -30,6 +30,10 @@
 #endif
 
 #include <string.h>
+
+#include <glib.h>
+
+#include <epan/packet.h>
 #include "packet-smb-common.h"
 #include "packet-smb-mailslot.h"
 #include "packet-smb-browse.h"

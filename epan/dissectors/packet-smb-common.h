@@ -28,18 +28,6 @@
 #ifndef __PACKET_SMB_COMMON_H__
 #define __PACKET_SMB_COMMON_H__
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
-
-#include <stdio.h>
-
-#include <time.h>
-#include <string.h>
-#include <glib.h>
-#include <ctype.h>
-#include <epan/packet.h>
-#include <epan/conversation.h>
 #include "smb.h"
 
 int dissect_smb_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
