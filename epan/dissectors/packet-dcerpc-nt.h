@@ -47,6 +47,15 @@ extern const value_string platform_id_vals[];
 		} \
 	  } \
 	}
+#define ALIGN_TO_2_BYTES \
+	{ dcerpc_info *xzdi; \
+	  xzdi=pinfo->private_data; \
+	  if(!xzdi->conformant_run) { \
+		if(offset&0x01) { \
+			offset=(offset&0xfffffffe)+2; \
+		} \
+	  } \
+	}
 
 int
 dissect_ndr_counted_string_cb(tvbuff_t *tvb, int offset,
