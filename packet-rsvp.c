@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.17 2000/03/13 05:19:50 ashokn Exp $
+ * $Id: packet-rsvp.c,v 1.18 2000/03/14 06:03:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -961,8 +961,9 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 		    memcpy(&ip_addr, pd+offset2+8, 4);
 		    proto_tree_add_text(rsvp_object_tree, offset2+8, 4, 
-					"Extended Tunnel ID: %d (%s)", 
-					ntohl(ip_addr), ip_to_str(pd+offset2+8));
+					"Extended Tunnel ID: %lu (%s)", 
+					(unsigned long)ntohl(ip_addr),
+					ip_to_str(pd+offset2+8));
 		    proto_tree_add_item_hidden(rsvp_object_tree, rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID], 
 					offset2+8, 4, ip_addr);
 		    break;

@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.24 2000/03/12 04:47:54 gram Exp $
+ * $Id: proto.h,v 1.25 2000/03/14 06:03:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -208,12 +208,12 @@ proto_tree_add_protocol_format(proto_tree *tree, int hfindex, gint start,
 #if __GNUC__ == 2
 proto_item *
 proto_tree_add_bytes_format(proto_tree *tree, int hfindex, gint start,
-	gint length, guint8* start_ptr, const char *format, ...)
+	gint length, const guint8* start_ptr, const char *format, ...)
 	__attribute__((format (printf, 6, 7)));
 #else
 proto_item *
 proto_tree_add_bytes_format(proto_tree *tree, int hfindex, gint start,
-	gint length, guint8* start_ptr, const char *format, ...);
+	gint length, const guint8* start_ptr, const char *format, ...);
 #endif
 
 #if __GNUC__ == 2
@@ -274,12 +274,12 @@ proto_tree_add_ether_format(proto_tree *tree, int hfindex, gint start,
 #if __GNUC__ == 2
 proto_item *
 proto_tree_add_string_format(proto_tree *tree, int hfindex, gint start,
-	gint length, char* value, const char *format, ...)
+	gint length, const char* value, const char *format, ...)
 	__attribute__((format (printf, 6, 7)));
 #else
 proto_item *
 proto_tree_add_string_format(proto_tree *tree, int hfindex, gint start,
-	gint length, char* value, const char *format, ...);
+	gint length, const char* value, const char *format, ...);
 #endif
 
 #if __GNUC__ == 2

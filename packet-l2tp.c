@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.4 2000/03/12 04:47:41 gram Exp $
+ * $Id: packet-l2tp.c,v 1.5 2000/03/14 06:03:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -448,7 +448,7 @@ void dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 				memcpy(&long_type,(tmp_ptr+=8),sizeof(unsigned long));
             			long_type = htonl(long_type);
 				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, offset + 6, 1,
-				  rhcode, " TIE_BREAKER %l 0x%x", long_type,long_type );
+				  rhcode, " TIE_BREAKER %lu 0x%lx", long_type,long_type );
 				break;
 
 			case FIRMWARE_REVISION:

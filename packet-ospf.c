@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.20 2000/03/09 18:31:51 ashokn Exp $
+ * $Id: packet-ospf.c,v 1.21 2000/03/14 06:03:23 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -556,13 +556,13 @@ void dissect_ospf_lsa_mpls(const u_char *pd,
 		case MPLS_LINK_MAX_BW:
 		case MPLS_LINK_MAX_RES_BW:
 		    ti = proto_tree_add_text(tlv_tree, offset+link_len, stlv_len+4, 
-					     "%s: %d", stlv_name, 
+					     "%s: %ld", stlv_name, 
 					     pieee_to_long(pd + offset + link_len + 4));
 		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
 		    proto_tree_add_text(stlv_tree, offset+link_len, 2, 
 					"TLV Type: %d: %s", stlv_type, stlv_name);
 		    proto_tree_add_text(stlv_tree, offset+link_len+2, 2, "TLV Length: %d", stlv_len);
-		    proto_tree_add_text(stlv_tree, offset+link_len+4, 4, "%s: %d", stlv_name, 
+		    proto_tree_add_text(stlv_tree, offset+link_len+4, 4, "%s: %ld", stlv_name, 
 					pieee_to_long(pd + offset + link_len + 4));
 		    break;
 		    
@@ -575,7 +575,7 @@ void dissect_ospf_lsa_mpls(const u_char *pd,
 		    proto_tree_add_text(stlv_tree, offset+link_len+2, 2, "TLV Length: %d", stlv_len);
 		    for (i=0; i<8; i++) 
 			proto_tree_add_text(stlv_tree, offset+link_len+4+(i*4), 4, 
-					    "Pri %d: %d", i,
+					    "Pri %d: %ld", i,
 					    pieee_to_long(pd + offset + link_len + 4 + i*4));
 		    break;
 		    

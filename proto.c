@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.55 2000/03/12 04:47:54 gram Exp $
+ * $Id: proto.c,v 1.56 2000/03/14 06:03:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -106,11 +106,11 @@ proto_tree_add_pi(proto_tree *tree, int hfindex, gint start, gint length,
 static void
 proto_tree_set_value(field_info *fi, gint length, va_list ap);
 static void
-proto_tree_set_bytes(field_info *fi, guint8* start_ptr, gint length);
+proto_tree_set_bytes(field_info *fi, const guint8* start_ptr, gint length);
 static void
 proto_tree_set_time(field_info *fi, struct timeval *value_ptr);
 static void
-proto_tree_set_string(field_info *fi, char* value);
+proto_tree_set_string(field_info *fi, const char* value);
 static void
 proto_tree_set_ether(field_info *fi, guint8* value);
 static void
@@ -463,7 +463,7 @@ proto_tree_add_protocol_format(proto_tree *tree, int hfindex, gint start, gint l
 /* Add a FT_BYTES to a proto_tree */
 proto_item *
 proto_tree_add_bytes_format(proto_tree *tree, int hfindex, gint start, gint length,
-		guint8 *start_ptr, const char *format, ...)
+		const guint8 *start_ptr, const char *format, ...)
 {
 	proto_item		*pi;
 	va_list			ap;
@@ -487,7 +487,7 @@ proto_tree_add_bytes_format(proto_tree *tree, int hfindex, gint start, gint leng
 
 /* Set the FT_BYTES value */
 static void
-proto_tree_set_bytes(field_info *fi, guint8* start_ptr, gint length)
+proto_tree_set_bytes(field_info *fi, const guint8* start_ptr, gint length)
 {
 
 	/* This g_malloc'ed memory is freed in
@@ -629,7 +629,7 @@ proto_tree_set_ipv6(field_info *fi, guint8* value_ptr)
 /* Add a FT_STRING to a proto_tree */
 proto_item *
 proto_tree_add_string_format(proto_tree *tree, int hfindex, gint start, gint length,
-		char* value, const char *format, ...)
+		const char* value, const char *format, ...)
 {
 	proto_item		*pi;
 	va_list			ap;
@@ -653,7 +653,7 @@ proto_tree_add_string_format(proto_tree *tree, int hfindex, gint start, gint len
 
 /* Set the FT_STRING value */
 static void
-proto_tree_set_string(field_info *fi, char* value)
+proto_tree_set_string(field_info *fi, const char* value)
 {
 	/* This g_strdup'ed memory is freed in proto_tree_free_node() */
 	fi->value.string = g_strdup(value);
@@ -760,7 +760,7 @@ proto_item *
 proto_tree_add_uint_format(proto_tree *tree, int hfindex, gint start, gint length,
 		guint32 value, const char *format, ...)
 {
-	proto_item		*pi;
+	proto_item		*pi = NULL;
 	va_list			ap;
 	field_info		*new_fi;
 	header_field_info	*hfinfo;

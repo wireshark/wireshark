@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.29 2000/03/12 04:47:40 gram Exp $
+ * $Id: packet-ipv6.c,v 1.30 2000/03/14 06:03:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -308,7 +308,7 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     proto_tree_add_ipv6_format(ipv6_tree, hf_ipv6_src,
 		offset + offsetof(struct ip6_hdr, ip6_src), 16,
-		&ipv6.ip6_src,
+		(guint8 *)&ipv6.ip6_src,
 #ifdef INET6
 		"Source address: %s (%s)",
 		get_hostname6(&ipv6.ip6_src),
@@ -319,7 +319,7 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     proto_tree_add_ipv6_format(ipv6_tree, hf_ipv6_dst,
 		offset + offsetof(struct ip6_hdr, ip6_dst), 16,
-		&ipv6.ip6_dst,
+		(guint8 *)&ipv6.ip6_dst,
 #ifdef INET6
 		"Destination address: %s (%s)",
 		get_hostname6(&ipv6.ip6_dst),
