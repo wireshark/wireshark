@@ -954,7 +954,7 @@ draw_ct_table_address(conversations_table *ct, int conversation_idx)
     if(!ct->resolve_names)
         entry=address_to_str(&ct->conversations[conversation_idx].src_address);
     else {
-        entry=get_addr_name(&ct->conversations[conversation_idx].src_address.data);
+        entry=get_addr_name(&ct->conversations[conversation_idx].src_address);
         if(!entry)
             entry=address_to_str(&ct->conversations[conversation_idx].src_address);
     }
@@ -978,7 +978,7 @@ draw_ct_table_address(conversations_table *ct, int conversation_idx)
     if(!ct->resolve_names)
         entry=address_to_str(&ct->conversations[conversation_idx].dst_address);
     else {
-        entry=get_addr_name(&ct->conversations[conversation_idx].dst_address.data);
+        entry=get_addr_name(&ct->conversations[conversation_idx].dst_address);
         if(!entry)
             entry=address_to_str(&ct->conversations[conversation_idx].dst_address);
     }
