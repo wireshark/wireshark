@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.69 2001/10/16 04:58:24 guy Exp $
+ * $Id: file.c,v 1.70 2001/10/18 20:29:56 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -60,6 +60,7 @@
 #include "csids.h"
 #include "pppdump.h"
 #include "etherpeek.h"
+#include "vms.h"
 
 /* The open_file_* routines should return:
  *
@@ -107,6 +108,7 @@ static int (*open_routines[])(wtap *, int *) = {
 	toshiba_open,
 	i4btrace_open,
 	csids_open,
+	vms_open,
 };
 
 #define	N_FILE_TYPES	(sizeof open_routines / sizeof open_routines[0])
@@ -365,6 +367,10 @@ static const struct file_type_info {
 	/* WTAP_FILE_ETHERPEEK_MAC_V7 */
 	{ "Etherpeek trace (Macintosh V7)", NULL,
 	  NULL, NULL },
+
+	/* WTAP_FILE_VMS */
+	{ "TCPIPtrace (VMS)", NULL,
+	  NULL, NULL},
 };
 
 /* Name that should be somewhat descriptive. */

@@ -829,6 +829,10 @@ Steffen Weinreich <steve[AT]weinreich.org> {
 	UCP fixes
 }
 
+Marc Milgram <mmilgram[AT]arrayinc.com> {
+    VMS TCPIPtrace wiretap module
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
