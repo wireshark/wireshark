@@ -9,7 +9,6 @@
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -2066,11 +2065,11 @@ proto_register_v5ua(void)
 			   FT_UINT8,    BASE_HEX, NULL,                             0xfe,
 			   "", HFILL } },
 		{ &hf_efa,
-			{ "Envelope Function Ardess","v5ua.efa",
+			{ "Envelope Function Address","v5ua.efa",
 			   FT_UINT16,   BASE_DEC, VALS(efa_values),                 0x0,
 			   "", HFILL } },
 		{ &hf_spare_efa,
-			{ "Envelope Function Ardess (spare)","v5ua.efa",
+			{ "Envelope Function Address (spare)","v5ua.efa",
 			   FT_UINT16,   BASE_DEC, NULL,                             ~7,
 			   "", HFILL } },
 		{ &hf_asp_reason,
@@ -2197,7 +2196,7 @@ proto_register_v5ua(void)
 			   FT_UINT8,    BASE_HEX, VALS(l3_pulse_type_values),       0x0,
 			   "", HFILL } },
 		{&hf_l3_suppression_indicator,
-			{ "Supression indicator",  "v5ua.l3_suppression_indicator",
+			{ "Suppression indicator",  "v5ua.l3_suppression_indicator",
 			   FT_UINT8,    BASE_HEX, VALS(l3_suppression_indication_values),0x60,
 			   "", HFILL } },
 		{&hf_l3_pulse_duration,
