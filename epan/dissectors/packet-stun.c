@@ -267,7 +267,7 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_item(att_tree, stun_att_error_number, tvb, offset+3, 1, FALSE);
 					if (att_length < 5)
 						break;
-					proto_tree_add_item(att_tree, stun_att_error_reason, tvb, offset+8, (att_length-4), FALSE);
+					proto_tree_add_item(att_tree, stun_att_error_reason, tvb, offset+4, (att_length-4), FALSE);
 					break;
 				
 				case UNKNOWN_ATTRIBUTES:
