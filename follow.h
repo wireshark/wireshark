@@ -1,6 +1,6 @@
 /* follow.h
  *
- * $Id: follow.h,v 1.13 2002/08/28 21:00:06 jmayer Exp $
+ * $Id: follow.h,v 1.14 2004/01/23 01:42:45 jmayer Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -32,14 +32,6 @@
 #define MAX_IPADDR_LEN	16
 
 extern gboolean incomplete_tcp_stream;
-
-typedef struct _tcp_frag {
-  gulong              seq;
-  gulong              len;
-  gulong              data_len;
-  guchar             *data;
-  struct _tcp_frag   *next;
-} tcp_frag;
 
 typedef struct _tcp_stream_chunk {
   guint8      src_addr[MAX_IPADDR_LEN];

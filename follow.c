@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.33 2003/07/06 00:30:40 guy Exp $
+ * $Id: follow.c,v 1.34 2004/01/23 01:42:45 jmayer Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -38,6 +38,16 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "follow.h"
+
+#define MAX_IPADDR_LEN  16
+
+typedef struct _tcp_frag {
+  gulong              seq;
+  gulong              len;
+  gulong              data_len;
+  gchar              *data;
+  struct _tcp_frag   *next;
+} tcp_frag;
 
 FILE* data_out_file = NULL;
 
