@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.113 2003/11/29 06:09:53 sharpe Exp $
+ * $Id: menu.c,v 1.114 2003/11/29 06:15:05 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -380,7 +380,7 @@ static GtkItemFactoryEntry hexdump_menu_items[] =
     ITEM_FACTORY_ENTRY("/Decode As...", NULL, decode_as_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Display Filters...", NULL, dfilter_dialog_cb,
                        0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Save highlighted data...", NULL, savehex_cb,
+    ITEM_FACTORY_ENTRY("/Save Highlighted Data...", NULL, savehex_cb,
                        0, NULL, NULL)
 };
 
