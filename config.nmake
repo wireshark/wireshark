@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.57 2003/08/19 02:16:25 guy Exp $
+# $Id: config.nmake,v 1.58 2003/08/24 23:25:40 gerald Exp $
 
 VERSION=0.9.14
 #
@@ -34,7 +34,7 @@ GLIB_VERSION=2.0
 GLIB_DIR=C:\ethereal-win32-libs\glib
 GTK_DIR=C:\ethereal-win32-libs\gtk+
 
-ZLIB_DIR=C:\ethereal-win32-libs\zlib
+ZLIB_DIR=C:\ethereal-win32-libs\zlib-114
 PCAP_DIR=C:\ethereal-win32-libs\WPdpack
 NET_SNMP_DIR=C:\ethereal-win32-libs\net-snmp-5.0.6
 
