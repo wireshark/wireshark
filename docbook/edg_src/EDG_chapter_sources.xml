@@ -914,6 +914,79 @@ diff -c -r1.5 dlnames.c
 	</para>
   </section>
 
+  <section id="ChSrcAdd">
+	<title>Add a new file to the Subversion repository</title>
+	<para>
+	The "usual" way to commit new files is described in <xref 
+	linkend="ChSrcCommit"/>. However, the following might be of interest for 
+	the "normal" developer as well.
+	</para>
+	<note><title>Note!</title>
+	<para>
+	This action is only possible/allowed by the ethereal core developers who 
+	have write access to the Subversion repository. It is put in here, to have 
+	all information in one place.
+	</para>
+	</note>
+	<para>
+	If you (as a core developer) need to add a file to the SVN repository, 
+	then you need to perform the following steps:
+	<orderedlist>
+	<listitem>
+	<para>
+	Add the Ethereal boilerplate to the new file(s).
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+	Add a line to each new file, containing the following text (case is 
+	important, so don't write ID or id or iD):
+<programlisting>
+$Id$
+</programlisting>
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+	Add the new file(s) to the repository:
+	</para>
+	<para>
+	<prompt>$</prompt> 
+	<userinput>svn add new_file</userinput>
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+	Set the line ending property to "native" for the new file(s):
+	</para>
+	<para>
+	<prompt>$</prompt> 
+	<userinput>svn propset svn:eol-style native new_file</userinput>
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+	Set version keyword to "Id" for the new file(s):
+	</para>
+	<para>
+	<prompt>$</prompt> 
+	<userinput>svn propset svn:keywords Id new_file</userinput>
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+	Commit your changes, including the added file(s).
+	</para>
+	<para>
+	<prompt>$</prompt> 
+	<userinput>svn commit new_file other_files_you_modified</userinput>
+	</para>
+	</listitem>
+	</orderedlist>
+	Don't forget a brief description of the reason for the commit, so other
+	developers don't need to read the diff in order to know what has changed.
+	</para>
+  </section>
   <section id="ChSrcBinary">
 	<title>Binary packaging</title>
 	<para>
