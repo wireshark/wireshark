@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all host talkers taps.
  *
- * $Id: hostlist_table.h,v 1.1 2004/02/20 09:09:12 guy Exp $
+ * $Id: hostlist_table.h,v 1.2 2004/05/02 21:16:08 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,7 @@ typedef struct _hostlist_talker_t {
 typedef struct _hostlist_table {
 	char *name;
 	GtkWidget *win;
+	GtkWidget *page_lb;
 	GtkWidget *scrolled_window;
 	GtkCList *table;
 	GtkItemFactory *item_factory;
@@ -47,7 +48,9 @@ typedef struct _hostlist_table {
 	hostlist_talker_t *hosts;
 } hostlist_table;
 
-void init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
+extern void register_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
+
+extern void init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
 
 #define SAT_NONE		0
 #define SAT_ETHER		1

@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table.c   2003 Ronnie Sahlberg
  * Helper routines common to all host list taps.
  *
- * $Id: hostlist_table.c,v 1.8 2004/05/02 15:23:42 ulfl Exp $
+ * $Id: hostlist_table.c,v 1.9 2004/05/02 21:16:08 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -145,8 +145,16 @@ reset_hostlist_table_data(hostlist_table *hosts)
 	guint32 i;
 	char title[256];
 
-	g_snprintf(title, 255, "%s: %s", hosts->name, cf_get_display_name(&cfile));
-	gtk_window_set_title(GTK_WINDOW(hosts->win), title);
+    if(hosts->page_lb) {
+	    g_snprintf(title, 255, "Endpoints: %s", cf_get_display_name(&cfile));
+		gtk_window_set_title(GTK_WINDOW(hosts->win), title);
+	    g_snprintf(title, 255, "%s", hosts->name);
+		gtk_label_set_text(GTK_LABEL(hosts->page_lb), title);
+        gtk_widget_set_sensitive(hosts->page_lb, FALSE);
+    } else {
+	    g_snprintf(title, 255, "%s Endpoints: %s", hosts->name, cf_get_display_name(&cfile));
+		gtk_window_set_title(GTK_WINDOW(hosts->win), title);
+    }
 
 	/* remove all entries from the clist */
 	for(i=0;i<hosts->num_hosts;i++){
@@ -276,7 +284,7 @@ hostlist_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint c
 
 	selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(hl->table)->selection, 0));
 	if(selection>=(int)hl->num_hosts){
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No conversation selected");
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No hostlist selected");
 		return;
 	}
 	/* translate it back from row index to index in hostlist array */
@@ -430,6 +438,17 @@ draw_hostlist_table_data(hostlist_table *hl)
 {
 	guint32 i;
 	int j;
+	char title[256];
+
+    if (hl->page_lb) {
+        if(hl->num_hosts) {
+	        g_snprintf(title, 255, "%s: %u", hl->name, hl->num_hosts);
+        } else {
+	        g_snprintf(title, 255, "%s", hl->name);
+        }
+		gtk_label_set_text(GTK_LABEL(hl->page_lb), title);
+        gtk_widget_set_sensitive(hl->page_lb, hl->num_hosts);
+    }
 
 	for(i=0;i<hl->num_hosts;i++){
 		char str[16];
@@ -457,44 +476,22 @@ draw_hostlist_table_data(hostlist_table *hl)
 	gtk_clist_sort(hl->table);
 }
 
-void
-init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
+gboolean
+init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
 {
 	int i;
 	column_arrows *col_arrows;
-	GdkBitmap *ascend_bm, *descend_bm;
-	GdkPixmap *ascend_pm, *descend_pm;
 	GtkStyle *win_style;
 	GtkWidget *column_lb;
 	GString *error_string;
-	hostlist_table *hosttable;
-	GtkWidget *vbox;
 	GtkWidget *label;
-    GtkWidget *bbox;
-    GtkWidget *close_bt;
 	char title[256];
 	char *default_titles[] = { "Address", "Port", "Frames", "Bytes", "Tx Frames", "Tx Bytes", "Rx Frames", "Rx Bytes" };
 
 
-	hosttable=g_malloc(sizeof(hostlist_table));
-
-	hosttable->name=table_name;
-	g_snprintf(title, 255, "%s: %s", table_name, cf_get_display_name(&cfile));
-    hosttable->win = dlg_window_new(title);
-	gtk_window_set_default_size(GTK_WINDOW(hosttable->win), 750, 400);
-
-
-	SIGNAL_CONNECT(hosttable->win, "destroy", hostlist_win_destroy_cb, hosttable);
-
-	vbox=gtk_vbox_new(FALSE, 3);
-	gtk_container_add(GTK_CONTAINER(hosttable->win), vbox);
-	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
-
-	label=gtk_label_new(table_name);
+	g_snprintf(title, 255, "%s Endpoints", table_name);
+	label=gtk_label_new(title);
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
-
-	/* We must display TOP LEVEL Widget before calling init_hostlist_table() */
-	gtk_widget_show_all(hosttable->win);
 
 
 	hosttable->scrolled_window=scrolled_window_new(NULL, NULL);
@@ -504,14 +501,6 @@ init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char 
 
 	col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * NUM_COLS);
 	win_style = gtk_widget_get_style(hosttable->scrolled_window);
-	ascend_pm = gdk_pixmap_create_from_xpm_d(hosttable->scrolled_window->window,
-			&ascend_bm,
-			&win_style->bg[GTK_STATE_NORMAL],
-			(gchar **)clist_ascend_xpm);
-	descend_pm = gdk_pixmap_create_from_xpm_d(hosttable->scrolled_window->window,
-			&descend_bm,
-			&win_style->bg[GTK_STATE_NORMAL],
-			(gchar **)clist_descend_xpm);
 	for (i = 0; i < NUM_COLS; i++) {
 		col_arrows[i].table = gtk_table_new(2, 2, FALSE);
 		gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
@@ -519,9 +508,9 @@ init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char 
 		gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
 		gtk_widget_show(column_lb);
 
-		col_arrows[i].ascend_pm = gtk_pixmap_new(ascend_pm, ascend_bm);
+		col_arrows[i].ascend_pm = xpm_to_widget((const char **) clist_ascend_xpm);
 		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm, 1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		col_arrows[i].descend_pm = gtk_pixmap_new(descend_pm, descend_bm);
+		col_arrows[i].descend_pm = xpm_to_widget((const char **) clist_descend_xpm);
 		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
 		/* make total frames be the default sort order */
 		if (i == 4) {
@@ -573,8 +562,43 @@ init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char 
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
 		g_string_free(error_string, TRUE);
 		g_free(hosttable);
-		return;
+		return FALSE;
 	}
+
+    return TRUE;
+}
+
+
+void
+init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
+{
+	hostlist_table *hosttable;
+	char title[256];
+    GtkWidget *vbox;
+    GtkWidget *bbox;
+    GtkWidget *close_bt;
+    gboolean ret;
+
+    
+    hosttable=g_malloc(sizeof(hostlist_table));
+
+	hosttable->name=table_name;
+	g_snprintf(title, 255, "%s Endpoints: %s", table_name, cf_get_display_name(&cfile));
+	hosttable->win=dlg_window_new(title);
+	hosttable->page_lb=NULL;
+	gtk_window_set_default_size(GTK_WINDOW(hosttable->win), 750, 400);
+
+	SIGNAL_CONNECT(hosttable->win, "destroy", hostlist_win_destroy_cb, hosttable);
+
+	vbox=gtk_vbox_new(FALSE, 3);
+	gtk_container_add(GTK_CONTAINER(hosttable->win), vbox);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
+
+    ret = init_hostlist_table_page(hosttable, vbox, hide_ports, table_name, tap_name, filter, packet_func);
+    if(ret == FALSE) {
+		g_free(hosttable);
+        return;
+    }
 
 	/* Button row. */
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
@@ -592,9 +616,151 @@ init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char 
 	gtk_widget_show_all(hosttable->win);
 	retap_packets(&cfile);
 
-    /* after retapping, immediately redraw table */
+    /* after retapping, redraw table */
     draw_hostlist_table_data(hosttable);
 }
+
+
+static void
+hostlist_win_destroy_notebook_cb(GtkWindow *win _U_, gpointer data)
+{
+    void ** pages = data;
+    int page;
+
+    /* first "page" contains the number of pages */
+    for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {
+        hostlist_win_destroy_cb(NULL, pages[page]);
+    }
+}
+
+
+
+
+hostlist_table *
+init_hostlist_notebook_page_cb(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
+{
+    gboolean ret;
+    GtkWidget *page_vbox;
+	hostlist_table *hosttable;
+
+    hosttable=g_malloc(sizeof(hostlist_table));
+	hosttable->name=table_name;
+
+    page_vbox=gtk_vbox_new(FALSE, 6);
+    hosttable->win = page_vbox;
+	gtk_container_set_border_width(GTK_CONTAINER(page_vbox), 6);
+
+    ret = init_hostlist_table_page(hosttable, page_vbox, hide_ports, table_name, tap_name, filter, packet_func);
+    if(ret == FALSE) {
+		g_free(hosttable);
+        return NULL;
+    }
+
+    return hosttable;
+}
+
+
+typedef struct {
+    gboolean hide_ports;    /* hide TCP / UDP port columns */
+    char *table_name;       /* GUI output name */
+    char *tap_name;         /* internal name */
+    char *filter;           /* display filter string (unused) */
+    void *packet_func;      /* function to be called for new incoming packets */
+} register_hostlist_t;
+
+
+GSList *registered_hostlist_tables = NULL;
+
+void
+register_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func)
+{
+    register_hostlist_t *table;
+
+    table = g_malloc(sizeof(register_hostlist_t));
+
+    table->hide_ports   = hide_ports;
+    table->table_name   = table_name;
+    table->tap_name     = tap_name;
+    table->filter       = filter;
+    table->packet_func  = packet_func;
+
+    registered_hostlist_tables = g_slist_append(registered_hostlist_tables, table);
+}
+
+
+void
+init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+	hostlist_table *hosttable;
+	char title[256];
+    GtkWidget *vbox;
+    GtkWidget *bbox;
+    GtkWidget *close_bt;
+    GtkWidget *win;
+    int page;
+    void ** pages;
+    GtkWidget *nb;
+    GtkWidget *page_lb;
+    GSList  *current_table;
+    register_hostlist_t *registered;
+
+
+    pages = g_malloc(sizeof(void *) * (g_slist_length(registered_hostlist_tables) + 1));
+
+	g_snprintf(title, 255, "Endpoints: %s", cf_get_display_name(&cfile));
+	win=dlg_window_new(title);
+	gtk_window_set_default_size(GTK_WINDOW(win), 750, 400);
+
+	SIGNAL_CONNECT(win, "destroy", hostlist_win_destroy_notebook_cb, pages);
+
+    vbox=gtk_vbox_new(FALSE, 6);
+	gtk_container_add(GTK_CONTAINER(win), vbox);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
+
+    nb = gtk_notebook_new();
+	gtk_container_add(GTK_CONTAINER(vbox), nb);
+
+    page = 0;
+
+    current_table = registered_hostlist_tables;
+    while(current_table) {
+        registered = current_table->data;
+        page_lb = gtk_label_new("");
+        hosttable = init_hostlist_notebook_page_cb(registered->hide_ports, registered->table_name, registered->tap_name, 
+            registered->filter, registered->packet_func);
+        gtk_notebook_append_page(GTK_NOTEBOOK(nb), hosttable->win, page_lb);
+        hosttable->win = win;
+	    hosttable->page_lb = page_lb;
+        pages[++page] = hosttable;
+
+        current_table = g_slist_next(current_table);
+    }
+
+    pages[0] = GINT_TO_POINTER(page);
+
+	/* Button row. */
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+
+	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, win);
+	gtk_widget_grab_default(close_bt);
+
+	/* Catch the "key_press_event" signal in the window, so that we can 
+	   catch the ESC key being pressed and act as if the "Close" button had
+	   been selected. */
+	dlg_set_cancel(win, close_bt);
+
+	gtk_widget_show_all(win);
+	retap_packets(&cfile);
+
+    /* after retapping, redraw table */
+    for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {
+        draw_hostlist_table_data(pages[page]);
+    }
+}
+
+
 
 void 
 add_hostlist_table_data(hostlist_table *hl, address *addr, guint32 src_port, gboolean sender, int num_frames, int num_bytes, int sat, int port_type)

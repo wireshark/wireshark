@@ -1,7 +1,7 @@
 /* hostlist_fc.c   2004 Ian Schorr
  * modified from endpoint_talkers_fc.c   2003 Ronnie Sahlberg
  *
- * $Id: hostlist_fc.c,v 1.5 2004/02/23 20:28:30 ulfl Exp $
+ * $Id: hostlist_fc.c,v 1.6 2004/05/02 21:16:08 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,5 +87,7 @@ register_tap_listener_fc_hostlist(void)
 
 	register_tap_menu_item("Fibre Channel", REGISTER_TAP_GROUP_ENDPOINT_LIST,
 	    gtk_fc_hostlist_cb, NULL, NULL, NULL);
+
+	register_hostlist_table(TRUE, "Fibre Channel", "fc", NULL /*filter*/, (void *)fc_hostlist_packet);
 }
 

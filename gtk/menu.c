@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.185 2004/05/02 17:25:10 ulfl Exp $
+ * $Id: menu.c,v 1.186 2004/05/02 21:16:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,6 +74,7 @@ GtkWidget *popup_menu_object;
 
 extern void savehex_cb(GtkWidget * w, gpointer data _U_);
 extern void init_ett_notebook_cb(GtkWidget *w _U_, gpointer d _U_);
+extern void init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_);
 
 static void
 clear_menu_recent_capture_file_cmd_cb(GtkWidget *w, gpointer unused _U_);
@@ -316,6 +317,8 @@ static GtkItemFactoryEntry menu_items[] =
                        proto_hier_stats_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Statistics/Conversations", NULL,
                        init_ett_notebook_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Statistics/Endpoints", NULL,
+                       init_hostlist_notebook_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/_Contents", "F1", help_cb, 0, GTK_STOCK_HELP),
     ITEM_FACTORY_ENTRY("/Help/_Supported Protocols", NULL, supported_cb, 0, NULL, NULL),
