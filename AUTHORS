@@ -1537,6 +1537,8 @@ Brian Ginsbach <ginsbach [AT] cray.com> {
 	    to be dissected
 	Support for SGI's variant of the ONC RPC mount protocol
 	Support for additional snoop file encapsulations in UNICOS/mp
+	Symbolic names for Fibre Channel Network Address Authority
+	    identifiers
 }
 
 Dave Richards <d_m_richards [AT] attbi.com> {

@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.22 2002/12/10 07:39:48 guy Exp $
+ * $Id: to_str.c,v 1.23 2003/01/21 05:04:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -553,6 +553,18 @@ fc_to_str(const guint8 *ad)
     return bytestring_to_str (ad, 3, '.');
 }
 
+/* FC Network Header Network Address Authority Identifiers */
+
+#define FC_NH_NAA_IEEE		1	/* IEEE 802.1a */
+#define FC_NH_NAA_IEEE_E	2	/* IEEE Exteneded */
+#define FC_NH_NAA_LOCAL		3
+#define FC_NH_NAA_IP		4	/* 32-bit IP address */
+#define FC_NH_NAA_IEEE_R	5	/* IEEE Registered */
+#define FC_NH_NAA_IEEE_R_E	6	/* IEEE Registered Exteneded */
+/* according to FC-PH 3 draft these are now reclaimed and reserved */
+#define FC_NH_NAA_CCITT_INDV	12	/* CCITT 60 bit individual address */
+#define FC_NH_NAA_CCITT_GRP	14	/* CCITT 60 bit group address */
+
 gchar *
 fcwwn_to_str (const guint8 *ad)
 {
@@ -564,13 +576,17 @@ fcwwn_to_str (const guint8 *ad)
     
     fmt = (ad[0] & 0xF0) >> 4;
 
-    if ((fmt == 1) || (fmt == 2)) {
+    switch (fmt) {
+
+    case FC_NH_NAA_IEEE:
+    case FC_NH_NAA_IEEE_E:
         memcpy (oui, &ad[2], 6);
         sprintf (ethstr, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x (%s)", ad[0], 
                  ad[1], ad[2], ad[3], ad[4], ad[5], ad[6], ad[7],
                  get_manuf_name (oui));
-    }
-    else if (fmt == 5) {
+        break;
+
+    case FC_NH_NAA_IEEE_R:
         oui[0] = ((ad[0] & 0x0F) << 4) | ((ad[1] & 0xF0) >> 4);
         oui[1] = ((ad[1] & 0x0F) << 4) | ((ad[2] & 0xF0) >> 4);
         oui[2] = ((ad[2] & 0x0F) << 4) | ((ad[3] & 0xF0) >> 4);
@@ -581,10 +597,12 @@ fcwwn_to_str (const guint8 *ad)
         sprintf (ethstr, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x (%s)", ad[0],
                  ad[1], ad[2], ad[3], ad[4], ad[5], ad[6], ad[7],
                  get_manuf_name (oui));
-    }
-    else {
+        break;
+
+    default:
         sprintf (ethstr, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", ad[0],
                  ad[1], ad[2], ad[3], ad[4], ad[5], ad[6], ad[7]);
+        break;
     }
     return (ethstr);
 }
