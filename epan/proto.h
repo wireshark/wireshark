@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.23 2001/12/03 04:00:15 guy Exp $
+ * $Id: proto.h,v 1.24 2001/12/07 03:39:26 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,12 +35,14 @@
 # include <winsock.h>
 #endif
 
+#include <glib.h>
+
 #include "ipv4.h"
 #include "nstime.h"
 #include "tvbuff.h"
 #include "ftypes/ftypes.h"
 
-/* needs glib.h */
+
 typedef GNode proto_tree;
 typedef GNode proto_item;
 struct value_string;
@@ -517,9 +519,7 @@ extern gint proto_registrar_get_length(int n);
 extern gboolean proto_check_for_protocol_or_field(proto_tree* tree, int id);
 
 /* Return GPtrArray* of field_info pointers for all hfindex that appear in
- * tree. Assume that a field will only appear under its registered parent's
- * subtree, and that the parent's subtree is a child of the
- * [empty] root node. */
+ * tree. */
 extern GPtrArray* proto_get_finfo_ptr_array(proto_tree *tree, int hfindex);
 
 /* Dumps a glossary of the protocol and field registrations to STDOUT */
