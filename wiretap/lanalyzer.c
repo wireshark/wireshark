@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.3 1998/11/23 04:40:21 gram Exp $
+ * $Id: lanalyzer.c,v 1.4 1998/11/23 15:48:38 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -186,7 +186,7 @@ int lanalyzer_read(wtap *wth)
 	x = 4.0 * (double)(1<<30);
 	t = (double)time_low+(double)(time_med)*65536.0 +
 		(double)time_high*x;
-	t = t/1000000.0 /** 0.5*/; /* t = # of secs */
+	t = t/1000000.0 * 0.5; /* t = # of secs */
 
 	wth->phdr.ts.tv_sec = (long)t;
 	wth->phdr.ts.tv_usec = (unsigned long)((t-(double)(wth->phdr.ts.tv_sec))
