@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.80 1999/10/12 06:19:58 gram Exp $
+# $Id: Makefile.am,v 1.81 1999/10/12 23:12:02 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -104,6 +104,8 @@ ethereal_SOURCES = \
 	packet-raw.c   \
 	packet-rip.c   \
 	packet-rip.h   \
+	packet-ripng.c \
+	packet-ripng.h \
 	packet-rsvp.c  \
 	packet-rsvp.h  \
 	packet-rtsp.c  \

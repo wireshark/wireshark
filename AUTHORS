@@ -76,6 +76,7 @@ Didier Jorand <Didier.Jorand@alcatel.fr> {
 
 Jun-ichiro itojun Hagino <itojun@iijlab.net> {
 	IPv6 support
+	RIPng support
 }
 
 Richard Sharpe <sharpe@ns.aus.com> {

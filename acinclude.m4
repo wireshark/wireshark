@@ -149,7 +149,7 @@ yes
 	if test "$v6lib" != "none"; then
 		for dir in $v6libdir /usr/local/v6/lib /usr/local/lib; do
 			if test -d $dir -a -f $dir/lib$v6lib.a; then
-				LIBS="-L$dir -l$v6lib $LIBS"
+				LIBS="-L$dir $LIBS -l$v6lib"
 				break
 			fi
 		done

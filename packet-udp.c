@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.26 1999/10/12 06:20:19 gram Exp $
+ * $Id: packet-udp.c,v 1.27 1999/10/12 23:12:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,6 +71,7 @@ typedef struct _e_udphdr {
 #define UDP_PORT_SNMP   161
 #define UDP_PORT_ISAKMP	500
 #define UDP_PORT_RIP    520
+#define UDP_PORT_RIPNG  521
 #define UDP_PORT_VINES	573
 #define UDP_PORT_RADIUS 1645
 #define UDP_PORT_RADIUS_NEW 1812
@@ -231,7 +232,9 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
  else if (PORT_IS(UDP_PORT_RIP)) {
       /* we should check the source port too (RIP: UDP src and dst port 520) */
       dissect_rip(pd, offset, fd, tree);
- } else if (PORT_IS(UDP_PORT_NBNS))
+ } else if (PORT_IS(UDP_PORT_RIPNG))
+      dissect_ripng(pd, offset, fd, tree);
+ else if (PORT_IS(UDP_PORT_NBNS))
       dissect_nbns(pd, offset, fd, tree);
  else if (PORT_IS(UDP_PORT_NBDGM))
       dissect_nbdgm(pd, offset, fd, tree);
