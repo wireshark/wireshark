@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.49 2001/11/26 04:52:50 hagbard Exp $
+ * $Id: packet-ospf.c,v 1.50 2001/11/28 06:44:43 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -237,8 +237,9 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8  version;
     guint8  packet_type;
     guint16 ospflen;
-    vec_t cksum_vec[2];
+    vec_t cksum_vec[4];
     int cksum_vec_len;
+    guint32 phdr[2];
     guint16 cksum, computed_cksum;
     guint length, reported_length;
     guint16 auth_type;
@@ -305,24 +306,54 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(ospf_header_tree, tvb, 12, 2,
 		    "Packet Checksum: 0x%04x (none)", cksum);
 	} else if (!pinfo->fragmented && length >= reported_length
-		&& length >= ospf_header_length) {
+		&& length >= ospf_header_length
+		&& (version == OSPF_VERSION_2 || version == OSPF_VERSION_3)) {
 	    /* The packet isn't part of a fragmented datagram and isn't
-	       truncated, so we can checksum it. */
+	       truncated, and we know how to checksum this version of
+	       OSPF, so we can checksum it. */
 
-	    /* Header, not including the authentication data (the OSPF
-	       checksum excludes the 64-bit authentication field (which is an OSPFv2-only field)). */
-	    cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, 16);
-	    cksum_vec[0].len = 16;
-	    if (length > ospf_header_length) {
-		/* Rest of the packet, again not including the
-		   authentication data. */
-		reported_length -= ospf_header_length;
-		cksum_vec[1].ptr = tvb_get_ptr(tvb, ospf_header_length, reported_length);
-		cksum_vec[1].len = reported_length;
-		cksum_vec_len = 2;
-	    } else {
-		/* There's nothing but a header. */
-		cksum_vec_len = 1;
+	    switch (version) {
+
+	    case OSPF_VERSION_2:
+		/* Header, not including the authentication data (the OSPFv2
+		   checksum excludes the 64-bit authentication field). */
+		cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, 16);
+		cksum_vec[0].len = 16;
+		if (length > ospf_header_length) {
+		    /* Rest of the packet, again not including the
+		       authentication data. */
+		    reported_length -= ospf_header_length;
+		    cksum_vec[1].ptr = tvb_get_ptr(tvb, ospf_header_length, reported_length);
+		    cksum_vec[1].len = reported_length;
+		    cksum_vec_len = 2;
+		} else {
+		    /* There's nothing but a header. */
+		    cksum_vec_len = 1;
+		}
+		break;
+
+	    case OSPF_VERSION_3:
+		/* IPv6-style checksum, covering the entire OSPF packet
+		   and a prepended IPv6 pseudo-header. */
+
+		/* Set up the fields of the pseudo-header. */
+		cksum_vec[0].ptr = pinfo->src.data;
+		cksum_vec[0].len = pinfo->src.len;
+		cksum_vec[1].ptr = pinfo->dst.data;
+		cksum_vec[1].len = pinfo->dst.len;
+		cksum_vec[2].ptr = (const guint8 *)&phdr;
+	        phdr[0] = htonl(ospflen);
+	        phdr[1] = htonl(IP_PROTO_OSPF);
+	        cksum_vec[2].len = 8;
+
+		cksum_vec[3].ptr = tvb_get_ptr(tvb, 0, reported_length);
+		cksum_vec[3].len = reported_length;
+		cksum_vec_len = 4;
+		break;
+
+	    default:
+		g_assert_not_reached();
+		cksum_vec_len = 0;
 	    }
 	    computed_cksum = in_cksum(cksum_vec, cksum_vec_len);
 	    if (computed_cksum == 0) {
