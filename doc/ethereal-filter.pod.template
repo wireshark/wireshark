@@ -1,0 +1,43 @@
+=head1 NAME
+
+ethereal-filter - Filter packets from a set of captured packets
+
+=head1 SYNOPSYS
+
+B<ethereal> [other options]
+S<[ B<-R> "filter expression" ]>
+
+B<tethereal> [other options]
+S<[ B<-R> "filter expression" ]>
+
+=head1 DESCRIPTION
+
+ethereal(1) and tethereal(1) can filter on many protocols and protocol
+fields. The following section lists all of them. The abbreviation of the
+protocol or field is given. This abbreviation is what you use in the
+read filter.  The type of the field is also given. For detailed
+information on how to apply these filters, see the ethereal(1) or
+tethereal(1) manpage.
+
+=head1 READ FILTER PROTOCOL FIELDS
+
+=insert_dfilter_table
+
+=head1 NOTES
+
+The B<ethereal-filters> manpage is part of the B<Ethereal> distribution.
+The latest version of B<Ethereal> can be found at
+B<http://www.ethereal.com>.
+
+This manpage does not describe the capture filter syntax, which is
+different. See the tcpdump(8) manpage for a description of capture
+filters.
+
+=head1 SEE ALSO
+
+I<ethereal(1)>, I<tethereal(1)>, I<editcap(1)>, I<tcpdump(8)>, I<pcap(3)>
+
+head1 AUTHORS
+
+See the list of authors in the B<Ethereal> man page for a list of authors of
+that code.

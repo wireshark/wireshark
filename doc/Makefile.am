@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal documentation
 #
-# $Id: Makefile.am,v 1.17 2003/02/27 00:09:53 guy Exp $
+# $Id: Makefile.am,v 1.18 2003/10/01 14:59:40 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -30,17 +30,20 @@
 	--release=$(VERSION)			 \
 	 ethereal.pod > ../ethereal.1
 
-ethereal.pod: ethereal.pod.template  ../ethereal
-	../ethereal -G fields | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/ethereal.pod.template > ethereal.pod
-
 ../tethereal.1: tethereal.pod ../config.h
 	$(POD2MAN)                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
 	tethereal.pod > ../tethereal.1
 
-tethereal.pod: tethereal.pod.template  ../tethereal
-	../tethereal -G fields | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/tethereal.pod.template > tethereal.pod
+../ethereal-filter.4: ethereal-filter.pod ../config.h
+	$(POD2MAN)                     \
+	--center="The Ethereal Network Analyzer" \
+	--release=$(VERSION)			 \
+	ethereal-filter.pod > ../ethereal-filter.4
+
+ethereal-filter.pod: ethereal-filter.pod.template  ../tethereal
+	../tethereal -G fields | $(PERL) ../dfilter2pod.pl ../ethereal-filter.pod.template > ethereal-filter.pod
 
 ../editcap.1: editcap.pod ../config.h
 	$(POD2MAN)                      \
@@ -66,9 +69,11 @@ tethereal.pod: tethereal.pod.template  ../tethereal
 	--release=$(VERSION)			 \
 	$(srcdir)/text2pcap.pod > ../text2pcap.1
 
-CLEANFILES =	\
-	ethereal.pod	\
-	tethereal.pod	\
+CLEANFILES =		\
+	ethereal-filter.pod \
+	../ethereal-filter.4 \
+	../ethereal.1	\
+	../tethereal.1	\
 	../ethereal.1	\
 	../editcap.1	\
 	../mergecap.1	\

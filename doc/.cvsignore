@@ -1,7 +1,7 @@
 Makefile.in
 Makefile
 dfilter2pod
-ethereal.pod
-tethereal.pod
+ethereal-filter.pod
 *.1
+*.4
 *.html
