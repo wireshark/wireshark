@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.141 2004/01/20 21:20:29 guy Exp $
+ * $Id: menu.c,v 1.142 2004/01/21 06:41:03 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,6 +89,10 @@ static void timestamp_absolute_cb(GtkWidget *w _U_, gpointer d _U_);
 static void timestamp_absolute_date_cb(GtkWidget *w _U_, gpointer d _U_);
 static void timestamp_relative_cb(GtkWidget *w _U_, gpointer d _U_);
 static void timestamp_delta_cb(GtkWidget *w _U_, gpointer d _U_);
+static void name_resolution_mac_cb(GtkWidget *w _U_, gpointer d _U_);
+static void name_resolution_network_cb(GtkWidget *w _U_, gpointer d _U_);
+static void name_resolution_transport_cb(GtkWidget *w _U_, gpointer d _U_);
+static void auto_scroll_live_cb(GtkWidget *w _U_, gpointer d _U_);
 
 /* This is the GtkItemFactoryEntry structure used to generate new menus.
        Item 1: The menu path. The letter after the underscore indicates an
@@ -203,15 +207,13 @@ static GtkItemFactoryEntry menu_items[] =
                         0, "/View/Time Display Format/Time of day", NULL),
     ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds since previous capture", NULL, timestamp_delta_cb, 
                         0, "/View/Time Display Format/Time of day", NULL),
-#if 0
     ITEM_FACTORY_ENTRY("/View/_Name Resolution", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable MAC", NULL, NULL, 0, "<CheckItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable Network", NULL, NULL, 0, "<CheckItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable Transport", NULL, NULL, 0, "<CheckItem>", NULL),
-#else
-    ITEM_FACTORY_ENTRY("/View/_Options...", NULL, display_opt_cb,
-                       0, NULL, NULL),
-#endif
+    ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _MAC layer", NULL, name_resolution_mac_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _Network layer", NULL, name_resolution_mac_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Name Resolution/Enable for _Transport layer", NULL, name_resolution_transport_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Auto scroll in live capture", NULL, auto_scroll_live_cb, 0, "<CheckItem>", NULL),
+/*    ITEM_FACTORY_ENTRY("/View/_Options...", NULL, display_opt_cb,
+                       0, NULL, NULL),*/
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/View/Zoom In", "<control>plus", view_zoom_in_cb,
                              0, GTK_STOCK_ZOOM_IN),
@@ -1021,6 +1023,42 @@ timestamp_delta_cb(GtkWidget *w _U_, gpointer d _U_)
     }
 }
 
+static void 
+name_resolution_mac_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    if (GTK_CHECK_MENU_ITEM(w)->active) {
+        g_resolv_flags |= RESOLV_MAC;
+    } else {
+        g_resolv_flags &= ~RESOLV_MAC;
+    }
+}
+
+static void 
+name_resolution_network_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    if (GTK_CHECK_MENU_ITEM(w)->active) {
+        g_resolv_flags |= RESOLV_NETWORK;
+    } else {
+        g_resolv_flags &= ~RESOLV_NETWORK;
+    }
+}
+
+static void 
+name_resolution_transport_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    if (GTK_CHECK_MENU_ITEM(w)->active) {
+        g_resolv_flags |= RESOLV_TRANSPORT;
+    } else {
+        g_resolv_flags &= ~RESOLV_TRANSPORT;
+    }
+}
+
+static void 
+auto_scroll_live_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    auto_scroll_live = GTK_CHECK_MENU_ITEM(w)->active;
+}
+
 
 /* the recent file read has finished, update the menu corresponding */
 void
@@ -1044,6 +1082,18 @@ menu_recent_read_finished(void) {
 
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Show/Status Bar");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.statusbar_show);
+
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Name Resolution/Enable for MAC layer");
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), g_resolv_flags & RESOLV_MAC);
+
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Name Resolution/Enable for Network layer");
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), g_resolv_flags & RESOLV_NETWORK);
+
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Name Resolution/Enable for Transport layer");
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), g_resolv_flags & RESOLV_TRANSPORT);
+
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Auto scroll in live capture");
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), auto_scroll_live);
 
     main_widgets_rearrange();
 
