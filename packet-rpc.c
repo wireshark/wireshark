@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.113 2002/12/19 02:58:43 guy Exp $
+ * $Id: packet-rpc.c,v 1.114 2002/12/31 07:49:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3105,11 +3105,11 @@ proto_register_rpc(void)
 			"Fragment contained data past end of packet", HFILL }},
 
 		{ &hf_rpc_fragment_error,
-		{ "Defragmentation error", "rpc.fragment.error", FT_NONE, BASE_NONE, NULL, 0x0,
+		{ "Defragmentation error", "rpc.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"Defragmentation error due to illegal fragments", HFILL }},
 
 		{ &hf_rpc_fragment,
-		{ "RPC Fragment", "rpc.fragment", FT_NONE, BASE_NONE, NULL, 0x0,
+		{ "RPC Fragment", "rpc.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"RPC Fragment", HFILL }},
 
 		{ &hf_rpc_fragments,
