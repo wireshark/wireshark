@@ -1084,6 +1084,7 @@ B<http://www.ethereal.com>.
   Eduardo Pérez Ureta      <eperez@dei.inf.uc3m.es>
   Martin Thomas            <martin_a_thomas@yahoo.com>
   Hartmut Mueller          <hartmut@wendolene.ping.de>
+  Michal Melerowicz        <Michal.Melerowicz@nokia.com>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
