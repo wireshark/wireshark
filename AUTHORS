@@ -1836,6 +1836,10 @@ Nathan Jennings <njen [AT] bellsouth.net> {
 	    dialog
 }
 
+Hans Viens <hviens [AT] mediatrix.com> {
+	T.38 Support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
