@@ -744,6 +744,7 @@ Olivier Biot <Olivier.Biot[AT]siemens.com> {
 	Dissector for message/http media type
 	Generic line-based textual data dissector
 	Multipart media dissector
+	Display filter operator: bitwise_and
 }
 
 Patrick Wolfe <pjw[AT]zocalo.cellular.ameritech.com> {
