@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.37 2000/11/19 08:53:54 guy Exp $
+ * $Id: packet-arp.c,v 1.38 2000/11/30 10:42:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,12 +43,16 @@ static int proto_arp = -1;
 static int hf_arp_hard_type = -1;
 static int hf_arp_proto_type = -1;
 static int hf_arp_hard_size = -1;
-static int hf_atmarp_shtl = -1;
+static int hf_atmarp_sht = -1;
+static int hf_atmarp_shl = -1;
+static int hf_atmarp_sst = -1;
 static int hf_atmarp_ssl = -1;
 static int hf_arp_proto_size = -1;
 static int hf_arp_opcode = -1;
 static int hf_atmarp_spln = -1;
-static int hf_atmarp_thtl = -1;
+static int hf_atmarp_tht = -1;
+static int hf_atmarp_thl = -1;
+static int hf_atmarp_tst = -1;
 static int hf_atmarp_tsl = -1;
 static int hf_atmarp_tpln = -1;
 static int hf_arp_src_ether = -1;
@@ -64,6 +68,7 @@ static int hf_atmarp_dst_atm_subaddr = -1;
 
 static gint ett_arp = -1;
 static gint ett_atmarp_nsap = -1;
+static gint ett_atmarp_tl = -1;
 
 /* Definitions taken from Linux "linux/if_arp.h" header file, and from
 
@@ -142,8 +147,8 @@ static const value_string atmop_vals[] = {
   {ATMARPOP_NAK,   "nak"  },
   {0,              NULL          } };
 
-#define	ATMARP_IS_E164	0x40	/* bit in shtl/thtl for E.164 format */
-#define	ATMARP_LEN_MASK	0x3F	/* length of address in shtl/thtl */
+#define	ATMARP_IS_E164	0x40	/* bit in type/length for E.164 format */
+#define	ATMARP_LEN_MASK	0x3F	/* length of {sub}address in type/length */
 
 gchar *
 arphrdaddr_to_str(guint8 *ad, int ad_len, guint16 type)
@@ -173,6 +178,7 @@ arpproaddr_to_str(guint8 *ad, int ad_len, guint16 type)
 
 #define	N_ATMARPNUM_TO_STR_STRINGS	2
 #define	MAX_E164_STR_LEN		20
+
 static gchar *
 atmarpnum_to_str(guint8 *ad, int ad_tl)
 {
@@ -212,12 +218,20 @@ atmarpnum_to_str(guint8 *ad, int ad_tl)
 }
 
 static gchar *
-atmarpsubaddr_to_str(guint8 *ad, int ad_len)
+atmarpsubaddr_to_str(guint8 *ad, int ad_tl)
 {
+  int           ad_len = ad_tl & ATMARP_LEN_MASK;
+
   if (ad_len == 0)
     return "<No address>";
 
   /*
+   * E.164 isn't considered legal in subaddresses (RFC 2225 says that
+   * a null or unknown ATM address is indicated by setting the length
+   * to 0, in which case the type must be ignored; we've seen some
+   * captures in which the length of a subaddress is 0 and the type
+   * is E.164).
+   *
    * XXX - break down into subcomponents?
    */
   return bytes_to_str(ad, ad_len);
@@ -271,11 +285,11 @@ arphrdtype_to_str(guint16 hwtype, const char *fmt) {
 #define	ATM_AR_HRD	0
 #define	ATM_AR_PRO	2
 #define	ATM_AR_SHTL	4
-#define	ATM_AR_SSL	5
+#define	ATM_AR_SSTL	5
 #define	ATM_AR_OP	6
 #define	ATM_AR_SPLN	8
 #define	ATM_AR_THTL	9
-#define	ATM_AR_TSL	10
+#define	ATM_AR_TSTL	10
 #define	ATM_AR_TPLN	11
 #define MIN_ATMARP_HEADER_SIZE	12
 
@@ -373,14 +387,14 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16     ar_hrd;
   guint16     ar_pro;
   guint8      ar_shtl;
-  guint8      ar_sht;
   guint8      ar_shl;
+  guint8      ar_sstl;
   guint8      ar_ssl;
   guint16     ar_op;
   guint8      ar_spln;
   guint8      ar_thtl;
-  guint8      ar_tht;
   guint8      ar_thl;
+  guint8      ar_tstl;
   guint8      ar_tsl;
   guint8      ar_tpln;
   int         tot_len;
@@ -393,6 +407,8 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8      *tha_val, *tsa_val, *tpa_val;
   gchar       *sha_str, *ssa_str, *spa_str;
   gchar       *tha_str, *tsa_str, *tpa_str;
+  proto_tree  *tl_tree;
+  proto_item  *tl;
 
   CHECK_DISPLAY_AS_DATA(proto_arp, tvb, pinfo, tree);
 
@@ -401,19 +417,19 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ar_hrd = tvb_get_ntohs(tvb, ATM_AR_HRD);
   ar_pro = tvb_get_ntohs(tvb, ATM_AR_PRO);
   ar_shtl = tvb_get_guint8(tvb, ATM_AR_SHTL);
-  ar_sht = ar_shtl & ATMARP_IS_E164;
   ar_shl = ar_shtl & ATMARP_LEN_MASK;
-  ar_ssl = tvb_get_guint8(tvb, ATM_AR_SSL);
+  ar_sstl = tvb_get_guint8(tvb, ATM_AR_SSTL);
+  ar_ssl = ar_sstl & ATMARP_LEN_MASK;
   ar_op  = tvb_get_ntohs(tvb, AR_OP);
   ar_spln = tvb_get_guint8(tvb, ATM_AR_SPLN);
   ar_thtl = tvb_get_guint8(tvb, ATM_AR_THTL);
-  ar_tht = ar_thtl & ATMARP_IS_E164;
   ar_thl = ar_thtl & ATMARP_LEN_MASK;
-  ar_tsl = tvb_get_guint8(tvb, ATM_AR_TSL);
+  ar_tstl = tvb_get_guint8(tvb, ATM_AR_TSTL);
+  ar_tsl = ar_tstl & ATMARP_LEN_MASK;
   ar_tpln = tvb_get_guint8(tvb, ATM_AR_TPLN);
 
-  tot_len = MIN_ATMARP_HEADER_SIZE + ar_shtl + ar_ssl + ar_spln +
-				ar_thtl + ar_tsl + ar_tpln;
+  tot_len = MIN_ATMARP_HEADER_SIZE + ar_shl + ar_ssl + ar_spln +
+				ar_thl + ar_tsl + ar_tpln;
   
   /* Adjust the length of this tvbuff to include only the ARP datagram.
      Our caller may use that to determine how much of its packet
@@ -433,7 +449,7 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ssa_offset = sha_offset + ar_shl;
   if (ar_ssl != 0) {
     ssa_val = tvb_get_ptr(tvb, ssa_offset, ar_ssl);
-    ssa_str = atmarpsubaddr_to_str(ssa_val, ar_ssl);
+    ssa_str = atmarpsubaddr_to_str(ssa_val, ar_sstl);
   } else {
     ssa_val = NULL;
     ssa_str = NULL;
@@ -455,7 +471,7 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tsa_offset = tha_offset + ar_thl;
   if (ar_tsl != 0) {
     tsa_val = tvb_get_ptr(tvb, tsa_offset, ar_tsl);
-    tsa_str = atmarpsubaddr_to_str(tsa_val, ar_tsl);
+    tsa_str = atmarpsubaddr_to_str(tsa_val, ar_tstl);
   } else {
     tsa_val = NULL;
     tsa_str = NULL;
@@ -532,35 +548,82 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
 				      "ATM Address Resolution Protocol (opcode 0x%04x)", ar_op);
     arp_tree = proto_item_add_subtree(ti, ett_arp);
+
     proto_tree_add_uint(arp_tree, hf_arp_hard_type, tvb, ATM_AR_HRD, 2, ar_hrd);
+
     proto_tree_add_uint(arp_tree, hf_arp_proto_type, tvb, ATM_AR_PRO, 2,ar_pro);
-    proto_tree_add_uint(arp_tree, hf_atmarp_shtl, tvb, ATM_AR_SHTL, 1, ar_shtl);
-    proto_tree_add_uint(arp_tree, hf_atmarp_ssl, tvb, ATM_AR_SSL, 1, ar_ssl);
+
+    tl = proto_tree_add_text(arp_tree, tvb, ATM_AR_SHTL, 1,
+			       "Sender ATM number type/length: %s/%u",
+			       (ar_shtl & ATMARP_IS_E164 ?
+			          "E.164" :
+				  "ATM Forum NSAPA"),
+			       ar_shl);
+    tl_tree = proto_item_add_subtree(tl, ett_atmarp_tl);
+    proto_tree_add_boolean(tl_tree, hf_atmarp_sht, tvb, ATM_AR_SHTL, 1, ar_shtl);
+    proto_tree_add_uint(tl_tree, hf_atmarp_shl, tvb, ATM_AR_SHTL, 1, ar_shtl);
+
+    tl = proto_tree_add_text(arp_tree, tvb, ATM_AR_SSTL, 1,
+			       "Sender ATM subaddress type/length: %s/%u",
+			       (ar_sstl & ATMARP_IS_E164 ?
+			          "E.164" :
+				  "ATM Forum NSAPA"),
+			       ar_ssl);
+    tl_tree = proto_item_add_subtree(tl, ett_atmarp_tl);
+    proto_tree_add_boolean(tl_tree, hf_atmarp_sst, tvb, ATM_AR_SSTL, 1, ar_sstl);
+    proto_tree_add_uint(tl_tree, hf_atmarp_ssl, tvb, ATM_AR_SSTL, 1, ar_sstl);
+
     proto_tree_add_uint(arp_tree, hf_arp_opcode, tvb, AR_OP,  2, ar_op);
+
     proto_tree_add_uint(arp_tree, hf_atmarp_spln, tvb, ATM_AR_SPLN, 1, ar_spln);
-    proto_tree_add_uint(arp_tree, hf_atmarp_thtl, tvb, ATM_AR_THTL, 1, ar_thtl);
-    proto_tree_add_uint(arp_tree, hf_atmarp_tsl, tvb, ATM_AR_TSL, 1, ar_tsl);
+
+    tl = proto_tree_add_text(arp_tree, tvb, ATM_AR_THTL, 1,
+			       "Target ATM number type/length: %s/%u",
+			       (ar_thtl & ATMARP_IS_E164 ?
+			          "E.164" :
+				  "ATM Forum NSAPA"),
+			       ar_thl);
+    tl_tree = proto_item_add_subtree(tl, ett_atmarp_tl);
+    proto_tree_add_boolean(tl_tree, hf_atmarp_tht, tvb, ATM_AR_THTL, 1, ar_thtl);
+    proto_tree_add_uint(tl_tree, hf_atmarp_thl, tvb, ATM_AR_THTL, 1, ar_thtl);
+
+    tl = proto_tree_add_text(arp_tree, tvb, ATM_AR_TSTL, 1,
+			       "Target ATM subaddress type/length: %s/%u",
+			       (ar_tstl & ATMARP_IS_E164 ?
+			          "E.164" :
+				  "ATM Forum NSAPA"),
+			       ar_tsl);
+    tl_tree = proto_item_add_subtree(tl, ett_atmarp_tl);
+    proto_tree_add_boolean(tl_tree, hf_atmarp_tst, tvb, ATM_AR_TSTL, 1, ar_tstl);
+    proto_tree_add_uint(tl_tree, hf_atmarp_tsl, tvb, ATM_AR_TSTL, 1, ar_tstl);
+
     proto_tree_add_uint(arp_tree, hf_atmarp_tpln, tvb, ATM_AR_TPLN, 1, ar_tpln);
+
     if (ar_shl != 0)
       dissect_atm_number(tvb, sha_offset, ar_shtl, hf_atmarp_src_atm_num_e164,
 			       hf_atmarp_src_atm_num_nsap, arp_tree);
+
     if (ar_ssl != 0)
       proto_tree_add_bytes_format(arp_tree, hf_atmarp_src_atm_subaddr, tvb, ssa_offset,
 			       ar_ssl,
 			       ssa_val,
 			       "Sender ATM subaddress: %s", ssa_str);
+
     if (ar_spln != 0)
       proto_tree_add_bytes_format(arp_tree, hf_arp_src_proto, tvb, spa_offset, ar_spln,
 			       spa_val,
 			       "Sender protocol address: %s", spa_str);
+
     if (ar_thl != 0)
       dissect_atm_number(tvb, tha_offset, ar_thtl, hf_atmarp_dst_atm_num_e164,
 			       hf_atmarp_dst_atm_num_nsap, arp_tree);
+
     if (ar_tsl != 0)
       proto_tree_add_bytes_format(arp_tree, hf_atmarp_dst_atm_subaddr, tvb, tsa_offset,
 			       ar_tsl,
 			       tsa_val,
 			       "Target ATM subaddress: %s", tsa_str);
+
     if (ar_tpln != 0)
       proto_tree_add_bytes_format(arp_tree, hf_arp_dst_proto, tvb, tpa_offset, ar_tpln,
 			       tpa_val,
@@ -719,6 +782,8 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_arp(void)
 {
+  static struct true_false_string type_bit = { "E.164", "ATM Forum NSAPA" };
+
   static hf_register_info hf[] = {
     { &hf_arp_hard_type,
       { "Hardware type",		"arp.hw.type",	 
@@ -735,14 +800,24 @@ proto_register_arp(void)
 	FT_UINT8,	BASE_DEC,	NULL,	0x0,
       	"" }},
 
-    { &hf_atmarp_shtl,
-      { "Sender ATM number type and length",	"arp.src.htl",	
-	FT_UINT8,	BASE_DEC,	NULL,	0x0,
+    { &hf_atmarp_sht,
+      { "Sender ATM number type",	"arp.src.htype",
+	FT_BOOLEAN,	8,		&type_bit,	ATMARP_IS_E164,
+      	"" }},
+
+    { &hf_atmarp_shl,
+      { "Sender ATM number length",	"arp.src.hlen",
+	FT_UINT8,	BASE_DEC,	NULL,		ATMARP_LEN_MASK,
+      	"" }},
+
+    { &hf_atmarp_sst,
+      { "Sender ATM subaddress type",	"arp.src.stype",
+	FT_BOOLEAN,	8,		&type_bit,	ATMARP_IS_E164,
       	"" }},
 
     { &hf_atmarp_ssl,
       { "Sender ATM subaddress length",	"arp.src.slen",
-	FT_UINT8,	BASE_DEC,	NULL,	0x0,
+	FT_UINT8,	BASE_DEC,	NULL,		ATMARP_LEN_MASK,
       	"" }},
 
     { &hf_arp_proto_size,
@@ -760,14 +835,24 @@ proto_register_arp(void)
 	FT_UINT8,	BASE_DEC,	NULL,	0x0,
       	"" }},
 
-    { &hf_atmarp_thtl,
-      { "Target ATM number type and length",	"arp.dst.htl",
-	FT_UINT8,	BASE_DEC,	NULL,	0x0,
+    { &hf_atmarp_tht,
+      { "Target ATM number type",	"arp.dst.htype",
+	FT_BOOLEAN,	8,		&type_bit,	ATMARP_IS_E164,
+      	"" }},
+
+    { &hf_atmarp_thl,
+      { "Target ATM number length",	"arp.dst.hlen",
+	FT_UINT8,	BASE_DEC,	NULL,		ATMARP_LEN_MASK,
+      	"" }},
+
+    { &hf_atmarp_tst,
+      { "Target ATM subaddress type",	"arp.dst.stype",
+	FT_BOOLEAN,	8,		&type_bit,	ATMARP_IS_E164,
       	"" }},
 
     { &hf_atmarp_tsl,
       { "Target ATM subaddress length",	"arp.dst.slen",
-	FT_UINT8,	BASE_DEC,	NULL,	0x0,
+	FT_UINT8,	BASE_DEC,	NULL,		ATMARP_LEN_MASK,
       	"" }},
 
     { &hf_atmarp_tpln,
@@ -828,6 +913,7 @@ proto_register_arp(void)
   static gint *ett[] = {
     &ett_arp,
     &ett_atmarp_nsap,
+    &ett_atmarp_tl,
   };
 
   proto_arp = proto_register_protocol("Address Resolution Protocol", "arp");
