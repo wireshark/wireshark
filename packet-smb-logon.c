@@ -2,7 +2,7 @@
  * Routines for SMB net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.31 2003/04/03 02:57:48 tpot Exp $
+ * $Id: packet-smb-logon.c,v 1.32 2003/05/01 18:11:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -750,7 +750,10 @@ dissect_smb_sam_logon_resp(tvbuff_t *tvb, packet_info *pinfo _U_,
 #define LOGON_SAM_RESPONSE_DURING_LOGON		0x14
 #define LOGON_SAM_USER_UNKNOWN			0x15
 #define LOGON_SAM_INTERROGATE_RESPONSE		0x16
-#define LOGON_LAST_CMD				0x17
+#define LOGON_SAM_AD_USER_UNKNOWN		0x17
+#define LOGON_SAM_UNKNOWN_18			0x18
+#define LOGON_SAM_AD_LOGON_RESPONSE		0x19
+#define LOGON_LAST_CMD				0x20
 
 static const value_string commands[] = {
 	{LOGON_LM10_LOGON_REQUEST,	"LM1.0/LM2.0 LOGON Request"},
@@ -776,6 +779,9 @@ static const value_string commands[] = {
 	{LOGON_SAM_RESPONSE_DURING_LOGON,"SAM Response during LOGON pause"},
 	{LOGON_SAM_USER_UNKNOWN,	"SAM Response - user unknown"},
 	{LOGON_SAM_INTERROGATE_RESPONSE,"SAM Response to Interrogate Request"},
+	{LOGON_SAM_AD_USER_UNKNOWN,	"SAM Active Directory Response - user unknown"},
+	{LOGON_SAM_UNKNOWN_18,		"SAM unknown command 0x18"},
+	{LOGON_SAM_AD_LOGON_RESPONSE,	"Active Directory Response to SAM LOGON request"},
 	{0,	NULL}
 };
 
@@ -802,8 +808,11 @@ static int (*dissect_smb_logon_cmds[])(tvbuff_t *tvb, packet_info *pinfo, proto_
 	dissect_smb_sam_logon_req,  /* 0x12 (SAM LOGON request )	*/
 	dissect_smb_sam_logon_resp, /* 0x13 (SAM LOGON response)	*/
 	dissect_smb_unknown,        /* 0x14 (SAM Response during LOGON Pause) */
-	dissect_smb_unknown,        /* 0x15 (SAM Response User Unknown)      */
-	dissect_smb_unknown,        /* 0x16 (SAM Response to Interrogate)   */
+	dissect_smb_unknown,        /* 0x15 (SAM Response User Unknown)	*/
+	dissect_smb_unknown,        /* 0x16 (SAM Response to Interrogate)*/
+	dissect_smb_unknown,        /* 0x17 (SAM AD response User Unknown*/
+	dissect_smb_unknown,        /* 0x18 (Unknown command)		*/
+	dissect_smb_unknown         /* 0x19 (SAM LOGON AD response)	*/
 };
 
 
