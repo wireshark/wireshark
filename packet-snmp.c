@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.82 2002/03/06 03:52:13 guy Exp $
+ * $Id: packet-snmp.c,v 1.83 2002/03/10 22:18:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,8 +51,6 @@
 # include <netinet/in.h>
 #endif
 
-#define MAX_STRING_LEN 2048	/* TBC */
-
 #ifdef linux
 #include <dlfcn.h>
 #endif
@@ -65,141 +63,29 @@
 #include "etypes.h"
 #include "packet-ipx.h"
 
-#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
- /*
-  * UCD or CMU SNMP?
-  */
-# if defined(HAVE_UCD_SNMP_SNMP_H)
-   /*
-    * UCD SNMP.
-    */
-#  include <ucd-snmp/asn1.h>
-#  include <ucd-snmp/snmp_api.h>
-#  include <ucd-snmp/snmp_impl.h>
-#  include <ucd-snmp/mib.h>
+#ifdef HAVE_UCD_SNMP_SNMP_H
+# include <ucd-snmp/asn1.h>
+# include <ucd-snmp/snmp_api.h>
+# include <ucd-snmp/snmp_impl.h>
+# include <ucd-snmp/mib.h>
+# include <ucd-snmp/default_store.h>
+# include <ucd-snmp/tools.h>
 
    /*
-    * Sigh.  UCD SNMP 4.1.1 makes "snmp_set_suffix_only()" a macro
-    * that calls "ds_set_int()" with the first two arguments
-    * being DS_LIBRARY_ID and DS_LIB_PRINT_SUFFIX_ONLY; this means that,
-    * when building with 4.1.1, we need to arrange that
-    * <ucd-snmp/default_store.h> is included, to define those two values
-    * and to declare "ds_int()".
-    *
-    * However:
-    *
-    *	1) we can't include it on earlier versions (at least not 3.6.2),
-    *	   as it doesn't exist in those versions;
-    *
-    *	2) we don't want to include <ucd-snmp/ucd-snmp-includes.h>,
-    *	   as that includes <ucd-snmp/snmp.h>, and that defines a whole
-    *	   bunch of values that we also define ourselves.
-    *
-    * So we only include it if "snmp_set_suffix_only" is defined as
-    * a macro.
+    * Define values "sprint_realloc_value()" expects.
     */
-#  ifdef snmp_set_suffix_only
-#   include <ucd-snmp/default_store.h>
-#  endif
+# define VALTYPE_INTEGER	ASN_INTEGER
+# define VALTYPE_COUNTER	ASN_COUNTER
+# define VALTYPE_GAUGE		ASN_GAUGE
+# define VALTYPE_TIMETICKS	ASN_TIMETICKS
+# define VALTYPE_STRING		ASN_OCTET_STR
+# define VALTYPE_IPADDR		ASN_IPADDRESS
+# define VALTYPE_OPAQUE		ASN_OPAQUE
+# define VALTYPE_NSAP		ASN_NSAP
+# define VALTYPE_OBJECTID	ASN_OBJECT_ID
+# define VALTYPE_BITSTR		ASN_BIT_STR
+# define VALTYPE_COUNTER64	ASN_COUNTER64
 
-   /*
-    * XXX - for now, we assume all versions of UCD SNMP have it.
-    */
-#  define HAVE_SPRINT_VALUE
-
-   /*
-    * Define values "sprint_value()" expects.
-    */
-#  define VALTYPE_INTEGER	ASN_INTEGER
-#  define VALTYPE_COUNTER	ASN_COUNTER
-#  define VALTYPE_GAUGE		ASN_GAUGE
-#  define VALTYPE_TIMETICKS	ASN_TIMETICKS
-#  define VALTYPE_STRING	ASN_OCTET_STR
-#  define VALTYPE_IPADDR	ASN_IPADDRESS
-#  define VALTYPE_OPAQUE	ASN_OPAQUE
-#  define VALTYPE_NSAP		ASN_NSAP
-#  define VALTYPE_OBJECTID	ASN_OBJECT_ID
-#  define VALTYPE_BITSTR	ASN_BIT_STR
-#  define VALTYPE_COUNTER64	ASN_COUNTER64
-
-#  ifdef RED_HAT_MODIFIED_UCD_SNMP
-#    include <ucd-snmp/parse.h>
-#  endif
-
-
-# elif defined(HAVE_SNMP_SNMP_H)
-   /*
-    * CMU SNMP.
-    */
-#  include <snmp/snmp.h>
-
-   /*
-    * Some older versions of CMU SNMP may lack these values (e.g., the
-    * "libsnmp3.6" package for Debian, which is based on some old
-    * CMU SNMP, perhaps 1.0); for now, we assume they also lack
-    * "sprint_value()".
-    */
-#  ifdef SMI_INTEGER
-#   define HAVE_SPRINT_VALUE
-    /*
-     * Define values "sprint_value()" expects.
-     */
-#   define VALTYPE_INTEGER	SMI_INTEGER
-#   define VALTYPE_COUNTER	SMI_COUNTER32
-#   define VALTYPE_GAUGE	SMI_GAUGE32
-#   define VALTYPE_TIMETICKS	SMI_TIMETICKS
-#   define VALTYPE_STRING	SMI_STRING
-#   define VALTYPE_IPADDR	SMI_IPADDRESS
-#   define VALTYPE_OPAQUE	SMI_OPAQUE
-#   define VALTYPE_NSAP		SMI_STRING
-#   define VALTYPE_OBJECTID	SMI_OBJID
-#   define VALTYPE_BITSTR	ASN_BIT_STR
-#   define VALTYPE_COUNTER64	SMI_COUNTER64
-#  endif
-  /*
-   * Now undo all the definitions they "helpfully" gave us, so we don't get
-   * complaints about redefining them.
-   *
-   * Why, oh why, is there no library that provides code to
-   *
-   *	1) read MIB files;
-   *
-   *	2) translate object IDs into names;
-   *
-   *	3) let you find out, for a given object ID, what the type, enum
-   *	   values, display hint, etc. are;
-   *
-   * in a *simple* fashion, without assuming that your code is part of an
-   * SNMP agent or client that wants a pile of definitions of PDU types,
-   * etc.?  Is it just that 99 44/100% of the code that uses an SNMP library
-   * *is* part of an agent or client, and really *does* need that stuff,
-   * and *doesn't* need the interfaces we want?
-   */
-#  undef SNMP_ERR_NOERROR
-#  undef SNMP_ERR_TOOBIG
-#  undef SNMP_ERR_NOSUCHNAME
-#  undef SNMP_ERR_BADVALUE
-#  undef SNMP_ERR_READONLY
-#  undef SNMP_ERR_NOACCESS
-#  undef SNMP_ERR_WRONGTYPE
-#  undef SNMP_ERR_WRONGLENGTH
-#  undef SNMP_ERR_WRONGENCODING
-#  undef SNMP_ERR_WRONGVALUE
-#  undef SNMP_ERR_NOCREATION
-#  undef SNMP_ERR_INCONSISTENTVALUE
-#  undef SNMP_ERR_RESOURCEUNAVAILABLE
-#  undef SNMP_ERR_COMMITFAILED
-#  undef SNMP_ERR_UNDOFAILED
-#  undef SNMP_ERR_AUTHORIZATIONERROR
-#  undef SNMP_ERR_NOTWRITABLE
-#  undef SNMP_ERR_INCONSISTENTNAME
-#  undef SNMP_TRAP_COLDSTART
-#  undef SNMP_TRAP_WARMSTART
-#  undef SNMP_TRAP_LINKDOWN
-#  undef SNMP_TRAP_LINKUP
-#  undef SNMP_TRAP_EGPNEIGHBORLOSS
-#  undef SNMP_TRAP_ENTERPRISESPECIFIC
-# endif
 #endif
 
 #include "asn1.h"
@@ -581,50 +467,39 @@ format_oid(subid_t *oid, guint oid_length)
 	return result;
 }
 
-#ifdef HAVE_SPRINT_VALUE
-static gchar *
+#ifdef HAVE_UCD_SNMP_SNMP_H
+static u_char *
 check_var_length(guint vb_length, guint required_length)
 {
-	gchar *buf;
+	u_char *buf;
 	static const char badlen_fmt[] = "Length is %u, should be %u";
 
 	if (vb_length != required_length) {
 		/* Enough room for the largest "Length is XXX,
 		   should be XXX" message - 10 digits for each
 		   XXX. */
-		buf = g_malloc(sizeof badlen_fmt + 10 + 10);
+		buf = malloc(sizeof badlen_fmt + 10 + 10);
 		sprintf(buf, badlen_fmt, vb_length, required_length);
 		return buf;
 	}
 	return NULL;	/* length is OK */
 }
 
-static gchar *
+static u_char *
 format_var(struct variable_list *variable, subid_t *variable_oid,
     guint variable_oid_length, gushort vb_type, guint vb_length)
 {
-	gchar *buf;
+	u_char *buf;
+	size_t buf_len;
+	size_t out_len;
 
 	switch (vb_type) {
-
-	case SNMP_INTEGER:
-	case SNMP_COUNTER:
-	case SNMP_GAUGE:
-	case SNMP_TIMETICKS:
-		/* We don't know how long this will be, but let's guess it
-		   fits within 128 characters; that should be enough for an
-		   integral value plus some sort of type indication. */
-		buf = g_malloc(128);
-		break;
 
 	case SNMP_IPADDR:
 		/* Length has to be 4 bytes. */
 		buf = check_var_length(vb_length, 4);
 		if (buf != NULL)
 			return buf;	/* it's not 4 bytes */
-		/* We don't know how long this will be, but let's guess it
-		   fits within 128 characters plus 4 characters per octet. */
-		buf = g_malloc(128 + 4*vb_length);
 		break;
 
 	case SNMP_COUNTER64:
@@ -632,31 +507,9 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 		buf = check_var_length(vb_length, 8);
 		if (buf != NULL)
 			return buf;	/* it's not 8 bytes */
-		/* We don't know how long this will be, but let's guess it
-		   fits within 128 characters plus 4 characters per octet. */
-		buf = g_malloc(128 + 4*vb_length);
-		break;
-
-	case SNMP_OCTETSTR:
-	case SNMP_OPAQUE:
-	case SNMP_NSAP:
-	case SNMP_BITSTR:
-		/* We don't know how long this will be, but let's guess it
-		   fits within 128 characters plus 4 characters per octet. */
-		buf = g_malloc(128 + 4*vb_length);
-		break;
-
-	case SNMP_OBJECTID:
-		/* We don't know how long this will be, but let's guess it
-		   fits within 128 characters plus 32 characters per subid
-		   (10 digits plus period, or a subid name). */
-		buf = g_malloc(1024 + 32*vb_length);
 		break;
 
 	default:
-		/* Should not happen. */
-		g_assert_not_reached();
-		buf = NULL;
 		break;
 	}
 
@@ -712,20 +565,22 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 	}
 	variable->val_len = vb_length;
 
-# ifdef RED_HAT_MODIFIED_UCD_SNMP
-	sprint_value(binit(NULL, buf, sizeof(buf)), variable_oid,
+	/*
+	 * XXX - check for "malloc" and "sprint_realloc_objid()" failure.
+	 */
+	buf_len = 256;
+	buf = malloc(buf_len);
+	*buf = '\0';
+	out_len = 0;
+	sprint_realloc_value(&buf, &buf_len, &out_len, 1,  variable_oid,
 	    variable_oid_length, variable);
-# else
-	sprint_value(buf, variable_oid, variable_oid_length, variable);
-# endif
 	return buf;
 }
 #endif
 
 static int
 snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
-    guint variable_oid_length, ASN1_SCK *asn1, int offset, guint *lengthp,
-    gboolean unsafe)
+    guint variable_oid_length, ASN1_SCK *asn1, int offset, guint *lengthp)
 {
 	int start;
 	guint length;
@@ -746,12 +601,10 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 
 	gchar *vb_display_string;
 
-#ifdef HAVE_SPRINT_VALUE
+#ifdef HAVE_UCD_SNMP_SNMP_H
 	struct variable_list variable;
-#if defined(HAVE_UCD_SNMP_SNMP_H)
 	long value;
-#endif
-#endif	/* HAVE_SPRINT_VALUE */
+#endif	/* HAVE_UCD_SNMP_SNMP_H */
 	unsigned int i;
 	gchar *buf;
 	int len;
@@ -785,27 +638,22 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			return ret;
 		length = asn1->offset - start;
 		if (snmp_tree) {
-#ifdef HAVE_SPRINT_VALUE
-			if (!unsafe) {
-#if defined(HAVE_UCD_SNMP_SNMP_H)
-				value = vb_integer_value;
-				variable.val.integer = &value;
-#elif defined(HAVE_SNMP_SNMP_H)
-				variable.val.integer = &vb_integer_value;
-#endif
-				vb_display_string = format_var(&variable,
-				    variable_oid, variable_oid_length, vb_type,
-				    vb_length);
-				proto_tree_add_text(snmp_tree, asn1->tvb, offset,
-				    length,
-				    "Value: %s", vb_display_string);
-				g_free(vb_display_string);
-				break;	/* we added formatted version to the tree */
-			}
-#endif /* HAVE_SPRINT_VALUE */
-			proto_tree_add_text(snmp_tree, asn1->tvb, offset, length,
+#ifdef HAVE_UCD_SNMP_SNMP_H
+			value = vb_integer_value;
+			variable.val.integer = &value;
+			vb_display_string = format_var(&variable,
+			    variable_oid, variable_oid_length, vb_type,
+			    vb_length);
+			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
+			    length,
+			    "Value: %s", vb_display_string);
+			g_free(vb_display_string);
+#else /* HAVE_UCD_SNMP_SNMP_H */
+			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
+			    length,
 			    "Value: %s: %d (%#x)", vb_type_name,
 			    vb_integer_value, vb_integer_value);
+#endif /* HAVE_UCD_SNMP_SNMP_H */
 		}
 		break;
 
@@ -818,27 +666,22 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			return ret;
 		length = asn1->offset - start;
 		if (snmp_tree) {
-#ifdef HAVE_SPRINT_VALUE
-			if (!unsafe) {
-#if defined(HAVE_UCD_SNMP_SNMP_H)
-				value = vb_uinteger_value;
-				variable.val.integer = &value;
-#elif defined(HAVE_SNMP_SNMP_H)
-				variable.val.integer = &vb_uinteger_value;
-#endif
-				vb_display_string = format_var(&variable,
-				    variable_oid, variable_oid_length, vb_type,
-				    vb_length);
-				proto_tree_add_text(snmp_tree, asn1->tvb, offset,
-				    length,
-				    "Value: %s", vb_display_string);
-				g_free(vb_display_string);
-				break;	/* we added formatted version to the tree */
-			}
-#endif /* HAVE_SPRINT_VALUE */
-			proto_tree_add_text(snmp_tree, asn1->tvb, offset, length,
+#ifdef HAVE_UCD_SNMP_SNMP_H
+			value = vb_uinteger_value;
+			variable.val.integer = &value;
+			vb_display_string = format_var(&variable,
+			    variable_oid, variable_oid_length, vb_type,
+			    vb_length);
+			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
+			    length,
+			    "Value: %s", vb_display_string);
+			g_free(vb_display_string);
+#else /* HAVE_UCD_SNMP_SNMP_H */
+			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
+			    length,
 			    "Value: %s: %u (%#x)", vb_type_name,
 			    vb_uinteger_value, vb_uinteger_value);
+#endif /* HAVE_UCD_SNMP_SNMP_H */
 		}
 		break;
 
@@ -854,19 +697,16 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			return ret;
 		length = asn1->offset - start;
 		if (snmp_tree) {
-#ifdef HAVE_SPRINT_VALUE
-			if (!unsafe) {
-				variable.val.string = vb_octet_string;
-				vb_display_string = format_var(&variable,
-				    variable_oid, variable_oid_length, vb_type,
-				    vb_length);
-				proto_tree_add_text(snmp_tree, asn1->tvb, offset,
-				    length,
-				    "Value: %s", vb_display_string);
-				g_free(vb_display_string);
-				break;	/* we added formatted version to the tree */
-			}
-#endif /* HAVE_SPRINT_VALUE */
+#ifdef HAVE_UCD_SNMP_SNMP_H
+			variable.val.string = vb_octet_string;
+			vb_display_string = format_var(&variable,
+			    variable_oid, variable_oid_length, vb_type,
+			    vb_length);
+			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
+			    length,
+			    "Value: %s", vb_display_string);
+			g_free(vb_display_string);
+#else /* HAVE_UCD_SNMP_SNMP_H */
 			/*
 			 * If some characters are not printable, display
 			 * the string as bytes.
@@ -891,16 +731,19 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 					    vb_octet_string[i]);
 					buf += len;
 				}
-				proto_tree_add_text(snmp_tree, asn1->tvb, offset, length,
+				proto_tree_add_text(snmp_tree, asn1->tvb, offset,
+				    length,
 				    "Value: %s: %s", vb_type_name,
 				    vb_display_string);
 				g_free(vb_display_string);
 			} else {
-				proto_tree_add_text(snmp_tree, asn1->tvb, offset, length,
+				proto_tree_add_text(snmp_tree, asn1->tvb, offset,
+				    length,
 				    "Value: %s: %.*s", vb_type_name,
 				    (int)vb_length,
 				    SAFE_STRING(vb_octet_string));
 			}
+#endif /* HAVE_UCD_SNMP_SNMP_H */
 		}
 		g_free(vb_octet_string);
 		break;
@@ -923,21 +766,20 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			return ret;
 		length = asn1->offset - start;
 		if (snmp_tree) {
-#ifdef HAVE_SPRINT_VALUE
-			if (!unsafe) {
-				variable.val.objid = vb_oid;
-				vb_display_string = format_var(&variable,
-				    variable_oid, variable_oid_length, vb_type,
-				    vb_length);
-				proto_tree_add_text(snmp_tree, asn1->tvb, offset,
-				    length,
-				    "Value: %s", vb_display_string);
-				break;	/* we added formatted version to the tree */
-			}
-#endif /* HAVE_SPRINT_VALUE */
+#ifdef HAVE_UCD_SNMP_SNMP_H
+			variable.val.objid = vb_oid;
+			vb_display_string = format_var(&variable,
+			    variable_oid, variable_oid_length, vb_type,
+			    vb_length);
+			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
+			    length,
+			    "Value: %s", vb_display_string);
+#else /* HAVE_UCD_SNMP_SNMP_H */
 			vb_display_string = format_oid(vb_oid, vb_oid_length);
-			proto_tree_add_text(snmp_tree, asn1->tvb, offset, length,
+			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
+			    length,
 			    "Value: %s: %s", vb_type_name, vb_display_string);
+#endif /* HAVE_UCD_SNMP_SNMP_H */
 			g_free(vb_display_string);
 		}
 		g_free(vb_oid);
@@ -1012,10 +854,11 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint variable_length;
 	subid_t *variable_oid;
 	guint variable_oid_length;
-#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
-	gchar vb_oid_string[MAX_STRING_LEN]; /* TBC */
+#ifdef HAVE_UCD_SNMP_SNMP_H
+	u_char *vb_oid_string;
+	size_t vb_oid_string_len;
+	size_t vb_oid_out_len;
 #endif
-	gboolean unsafe;
 
 	int ret;
 	guint cls, con, tag;
@@ -1109,20 +952,25 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 		if (tree) {
 			oid_string = format_oid(enterprise, enterprise_length);
-#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
-# ifdef RED_HAT_MODIFIED_UCD_SNMP
-			sprint_objid(binit(NULL, vb_oid_string, sizeof(vb_oid_string)), 
-			    enterprise, enterprise_length);
-# else
-			sprint_objid(vb_oid_string, enterprise,
+#ifdef HAVE_UCD_SNMP_SNMP_H
+			/*
+			 * XXX - check for "malloc" and
+			 * "sprint_realloc_objid()" failure.
+			 */
+			vb_oid_string_len = 256;
+			vb_oid_string = malloc(vb_oid_string_len);
+			*vb_oid_string = '\0';
+			vb_oid_out_len = 0;
+			sprint_realloc_objid(&vb_oid_string, &vb_oid_string_len,
+			    &vb_oid_out_len, 1, enterprise,
 			    enterprise_length);
-# endif
 			proto_tree_add_text(tree, tvb, offset, length,
 			    "Enterprise: %s (%s)", oid_string, vb_oid_string);
-#else /* defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H) */
+			free(vb_oid_string);
+#else /* HAVE_UCD_SNMP_SNMP_H */
 			proto_tree_add_text(tree, tvb, offset, length,
 			    "Enterprise: %s", oid_string);
-#endif /* defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H) */
+#endif /* HAVE_UCD_SNMP_SNMP_H */
 			g_free(oid_string);
 		}
 		g_free(enterprise);
@@ -1268,54 +1116,31 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 		sequence_length += length;
 
-		unsafe = FALSE;
 		if (tree) {
 			oid_string = format_oid(variable_oid,
 			    variable_oid_length);
 			
-#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
-# ifdef RED_HAT_MODIFIED_UCD_SNMP
-			sprint_objid(binit(NULL, vb_oid_string, sizeof(vb_oid_string)), 
-			    variable_oid, variable_oid_length);
-# else
-			sprint_objid(vb_oid_string, variable_oid,
+#ifdef HAVE_UCD_SNMP_SNMP_H
+			/*
+			 * XXX - check for "malloc" and
+			 * "sprint_realloc_objid()" failure.
+			 */
+			vb_oid_string_len = 256;
+			vb_oid_string = malloc(vb_oid_string_len);
+			*vb_oid_string = '\0';
+			vb_oid_out_len = 0;
+			sprint_realloc_objid(&vb_oid_string, &vb_oid_string_len,
+			    &vb_oid_out_len, 1, variable_oid,
 			    variable_oid_length);
-# endif
 			proto_tree_add_text(tree, tvb, offset, sequence_length,
 			    "Object identifier %d: %s (%s)", vb_index,
 			    oid_string, vb_oid_string);
-#ifdef HAVE_SNMP_SNMP_H
-			/*
-			 * CMU SNMP has a bug wherein "sprint_value()"
-			 * calls "get_symbol()", passing it the
-			 * OID supplied, to get an information about the
-			 * variable, and blithely assumes that it will
-			 * never get a null pointer back and dereferences
-			 * the resulting pointer.
-			 *
-			 * Not true.  If there's nothing in the MIB
-			 * about *any* of the components of the OID,
-			 * it'll return a null pointer.
-			 *
-			 * So we have to check for that, and pass
-			 * down to "snmp_variable_decode" a flag
-			 * saying "don't pass this to 'sprint_value()'.
-			 *
-			 * We check for that by looking for a decoded
-			 * OID string beginning with "." followed by a
-			 * digit, meaning it couldn't even find any
-			 * symbolic representation for the very
-			 * beginning of the OID string.
-			 */
-			if (vb_oid_string[0] == '.' &&
-			    isdigit((guchar)vb_oid_string[1]))
-				unsafe = TRUE;
-#endif /* HAVE_SNMP_SNMP_H */
-#else /* defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H) */
+			free(vb_oid_string);
+#else /* HAVE_UCD_SNMP_SNMP_H */
 			proto_tree_add_text(tree, tvb, offset, sequence_length,
 			    "Object identifier %d: %s", vb_index,
 			    oid_string);
-#endif /* defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H) */
+#endif /* HAVE_UCD_SNMP_SNMP_H */
 			g_free(oid_string);
 		}
 		offset += sequence_length;
@@ -1323,8 +1148,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				
 		/* Parse the variable's value */
 		ret = snmp_variable_decode(tree, variable_oid,
-		    variable_oid_length, &asn1, offset, &length,
-		    unsafe);
+		    variable_oid_length, &asn1, offset, &length);
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    "variable", ret);
@@ -2178,12 +2002,6 @@ dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_snmp(void)
 {
-#if defined(HAVE_UCD_SNMP_SNMP_H) && defined(linux)
-	void *libsnmp_handle;
-	int (*snmp_set_suffix_only_p)(int);
-	int (*ds_set_int_p)(int, int, int);
-#endif
-
         static hf_register_info hf[] = {
 		{ &hf_snmpv3_flags,
 		{ "SNMPv3 Flags", "snmpv3.flags", FT_UINT8, BASE_HEX, NULL,
@@ -2208,119 +2026,10 @@ proto_register_snmp(void)
 		&ett_secur,
 	};
 
-#if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
-	/* UCD or CMU SNMP */
-	init_mib();
 #ifdef HAVE_UCD_SNMP_SNMP_H
-#ifdef linux
-	/* As per the comment near the beginning of the file, UCD SNMP 4.1.1
-	   changed "snmp_set_suffix_only()" from a function to a macro,
-	   removing "snmp_set_suffix_only()" from the library; this means
-	   that binaries that call "snmp_set_suffix_only()" and
-	   that are linked against shared libraries from earlier versions
-	   of the UCD SNMP library won't run with shared libraries from
-	   4.1.1.
-
-	   This is a problem on Red Hat Linux, as pre-6.2 releases
-	   came with pre-4.1.1 UCD SNMP, while 6.2 comes the 4.1.1.
-	   Versions of Ethereal built on pre-6.2 releases don't run
-	   on 6.2, and the current Ethereal RPMs are built on pre-6.2
-	   releases, causing problems when users running 6.2 download
-	   them and try to use them.
-
-	   Building the releases on 6.2 isn't necessarily the answer,
-	   as "snmp_set_suffix_only()" expands to a call to "ds_set_int()"
-	   with a second argument not supported by at least some pre-4.1.1
-	   versions of the library - it appears that the 4.0.1 library,
-	   at least, checks for invalid arguments and returns an error
-	   rather than stomping random memory, but that means that you
-	   won't get get OIDs displayed as module-name::sub-OID.
-
-	   So we use a trick similar to one I've seen mentioned as
-	   used in Windows applications to let you build binaries
-	   that run on many different versions of Windows 9x and
-	   Windows NT, that use features present on later versions
-	   if run on those later versions, but that avoid calling,
-	   when run on older versions, routines not present on those
-	   older versions.
-
-	   I.e., we load "libsnmp.so.0" with "dlopen()", and call
-	   "dlsym()" to try to find "snmp_set_suffix_only()"; if we
-	   don't find it, we make the appropriate call to
-	   "ds_set_int()" instead.  (We load "libsnmp.so.0" rather
-	   than "libsnmp.so" because, at least on RH 6.2, "libsnmp.so"
-	   exists only if you've loaded the libsnmp development package,
-	   which makes "libsnmp.so" a symlink to "libsnmp.so.0"; we
-	   don't want to force users to install it or to make said
-	   symlink by hand.)
-
-	   We do this only on Linux, for now, as we've only seen the
-	   problem on Red Hat; it may show up on other OSes that bundle
-	   UCD SNMP, or on OSes where it's not bundled but for which
-	   binary packages are built that link against a shared version
-	   of the UCD SNMP library.  If we run into one of those, we
-	   can do this under those OSes as well, *if* "dlopen()" makes
-	   the run-time linker use the same search rules as it uses when
-	   loading libraries with which the application is linked.
-
-	   (Perhaps we could use the GLib wrappers for run-time linking,
-	   *if* they're thin enough; however, as this code is currently
-	   used only on Linux, we don't worry about that for now.) */
-
-	libsnmp_handle = dlopen("libsnmp.so.0", RTLD_LAZY|RTLD_GLOBAL);
-	if (libsnmp_handle == NULL) {
-		/* We didn't find "libsnmp.so.0".
-
-		   This could mean that there is no SNMP shared library
-		   on this system, in which case we were linked statically,
-		   in which case whatever call the following line of code
-		   makes will presumably work, as we have the routine it
-		   calls wired into our binary.  (If we were linked
-		   dynamically with "-lsnmp", we would have failed to
-		   start.)
-
-		   It could also mean that there is an SNMP shared library
-		   on this system, but it's called something other than
-		   "libsnmp.so.0"; so far, we've seen the problem we're
-		   working around only on systems where the SNMP shared
-		   library is called "libsnmp.so.0", so we assume for now
-		   that systems with shared SNMP libraries named something
-		   other than "libsnmp.so.0" have an SNMP library that's
-		   not 4.1.1. */
-		snmp_set_suffix_only(2);
-	} else {
-		/* OK, we have it loaded.  Do we have
-		   "snmp_set_suffix_only()"? */
-		snmp_set_suffix_only_p = dlsym(libsnmp_handle,
-		    "snmp_set_suffix_only");
-		if (snmp_set_suffix_only_p != NULL) {
-			/* Yes - call it. */
-			(*snmp_set_suffix_only_p)(2);
-		} else {
-			/* No; do we have "ds_set_int()"? */
-			ds_set_int_p = dlsym(libsnmp_handle, "ds_set_int");
-			if (ds_set_int_p != NULL) {
-				/* Yes - cal it with DS_LIBRARY_ID,
-				   DS_LIB_PRINT_SUFFIX_ONLY, and 2 as
-				   arguments.
-
-				   We do *not* use DS_LIBRARY_ID or
-				   DS_LIB_PRINT_SUFFIX_ONLY by name, so that
-				   we don't require that Ethereal be built
-				   with versions of UCD SNMP that include
-				   that value; instead, we use their values
-				   in UCD SNMP 4.1.1, which are 0 and 4,
-				   respectively. */
-				(*ds_set_int_p)(0, 4, 2);
-			}
-		}
-		dlclose(libsnmp_handle);
-	}
-#else /* linux */
+	init_mib();
 	snmp_set_suffix_only(2);
-#endif /* linux */
 #endif /* HAVE_UCD_SNMP_SNMP_H */
-#endif /* defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H) */
         proto_snmp = proto_register_protocol("Simple Network Management Protocol",
 	    "SNMP", "snmp");
         proto_smux = proto_register_protocol("SNMP Multiplex Protocol",

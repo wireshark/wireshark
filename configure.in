@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.156 2002/03/03 23:59:27 gerald Exp $
+# $Id: configure.in,v 1.157 2002/03/10 22:18:12 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -499,50 +499,28 @@ AC_SUBST(SSL_LIBS)
 
 dnl SNMP Check
 AC_ARG_ENABLE(snmp,
-[  --enable-snmp           use SNMP library, if available.  [default=no]],,enable_snmp=no)
+[  --enable-snmp           use UCD SNMP/NET-SNMP library, if available.  [default=yes]],,enable_snmp=yes)
 
 SNMP_LIBS=''
-AC_MSG_CHECKING(whether to use SNMP library if available)
+AC_MSG_CHECKING(whether to use UCD SNMP library if available)
 if test "x$enable_snmp" = "xno" ; then
 	AC_MSG_RESULT(no)
 else
 	AC_MSG_RESULT(yes)
 	AC_ETHEREAL_UCDSNMP_CHECK
-	AC_CHECK_HEADERS(ucd-snmp/snmp.h ucd-snmp/version.h snmp/snmp.h snmp/version.h)
-
-	#
-	# If we found both UCD and CMU SNMP headers, die, as both
-	# packages install the SNMP library as "libsnmp", so either
-	# only one of them is present or they're in different
-	# directories, and we run the risk of picking up the headers
-	# from one and the library from another.
-	#
-	if test "$ac_cv_header_ucd_snmp_snmp_h" = yes -a \
-	   "$ac_cv_header_snmp_snmp_h" = yes ; then
-	    AC_MSG_ERROR([Both UCD and CMU SNMP libraries found - uninstall one of them.])
-	fi
-	
-	#
-	# Look for the string 'sbuf' in ucd-snmp/mib.h.  If found, assume
-	# we've encountered a Red Hat-modified version of UCD SNMP.
-	#
-	# XXX - Check for 'binit()' in parse.h
-	#
-	AC_EGREP_HEADER(sprint_objid.*sbuf, ucd-snmp/mib.h, 
-	  AC_DEFINE(RED_HAT_MODIFIED_UCD_SNMP))
-
+	AC_CHECK_HEADERS(ucd-snmp/snmp.h ucd-snmp/version.h)
 
 	#
 	# This may require "-lkstat" on Solaris, sigh.
 	#
-	AC_CHECK_LIB(snmp, sprint_objid,
+	AC_CHECK_LIB(snmp, sprint_realloc_objid,
 	  SNMP_LIBS=-lsnmp,
 	  [
 	    #
 	    # Throw away the cached "we didn't find it" answer.
 	    #
-	    unset ac_cv_lib_snmp_sprint_objid
-	    AC_CHECK_LIB(snmp, sprint_objid,
+	    unset ac_cv_lib_snmp_sprint_realloc_objid
+	    AC_CHECK_LIB(snmp, sprint_realloc_objid,
 	      [
 		#
 		# Throw away the cached "we found it" answer, so that if
@@ -556,7 +534,7 @@ else
 		# are needed after the library *and* to cache all that
 		# information.
 		#
-		unset ac_cv_lib_snmp_sprint_objid
+		unset ac_cv_lib_snmp_sprint_realloc_objid
 		SNMP_LIBS="-lsnmp -lkstat"
 	      ],,$SOCKET_LIBS $NSL_LIBS $SSL_LIBS -lkstat
 	    )
@@ -564,14 +542,14 @@ else
 	)
 
 	#
-	# If we have SNMP header files but didn't find "sprint_objid()",
-	# fail, as there's something wrong (perhaps the user needs to
-	# specify "--with-ssl").
+	# If we have UCD SNMP header files but didn't find
+	# "sprint_realloc_objid()", fail.  Either the user needs a
+	# newer version of UCD SNMP with "sprint_realloc_objid()",
+	# or they may need to specify "--with-ssl".
 	#
-	if test '(' "$ac_cv_header_ucd_snmp_snmp_h" = yes -o \
-	   "$ac_cv_header_snmp_snmp_h" = yes ')' -a \
-	   "$ac_cv_lib_snmp_sprint_objid" = no; then
-	    AC_MSG_ERROR([SNMP header files found, but sprint_objid not found in SNMP library.])
+	if test "$ac_cv_header_ucd_snmp_snmp_h" = yes -a \
+	   "$ac_cv_lib_snmp_sprint_realloc_objid" = no; then
+	    AC_MSG_ERROR([UCD SNMP header files found, but sprint_realloc_objid not found in SNMP library.])
 	fi
 fi
 AC_SUBST(SNMP_LIBS)
