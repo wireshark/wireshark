@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.47 2002/08/31 05:31:42 sharpe Exp $
+ * $Id: smb.h,v 1.48 2003/01/22 00:40:31 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,6 +27,9 @@
 #define _SMB_H
 
 /* SMB command codes, from the SNIA CIFS spec. */
+extern const value_string smb_cmd_vals[];
+extern const value_string trans2_cmd_vals[];
+extern const value_string nt_cmd_vals[];
 
 #define SMB_COM_CREATE_DIRECTORY		0x00
 #define SMB_COM_DELETE_DIRECTORY		0x01
@@ -222,6 +225,18 @@
 #define SMBE_FCBunavail 35  /* No FCBs are available to process request */
 #define SMBE_sharebufexc 36 /* A sharing buffer has been exceeded */
 #define SMBE_diskfull 39
+
+/* the information we need to keep around for NT transatcion commands */
+typedef struct {
+	int subcmd;
+} smb_nt_transact_info_t;
+
+/* the information we need to keep around for transaction2 commands */
+typedef struct {
+	int subcmd;
+	int info_level;
+	gboolean resume_keys; /* if "return resume" keys set in T2 FIND_FIRST request */
+} smb_transact2_info_t;
 
 /*
  * The information we need to save about a request in order to show the

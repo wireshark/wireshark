@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.302 2002/12/31 04:24:18 sharpe Exp $
+ * $Id: packet-smb.c,v 1.303 2003/01/22 00:40:30 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,7 @@
 #include <epan/strutil.h>
 #include "prefs.h"
 #include "reassemble.h"
+#include "tap.h"
 
 #include "packet-smb-common.h"
 #include "packet-smb-mailslot.h"
@@ -663,6 +664,9 @@ static gint ett_smb_sec_desc_type = -1;
 static gint ett_smb_quotaflags = -1;
 static gint ett_smb_secblob = -1;
 
+
+static int smb_tap = -1;
+
 static dissector_handle_t gssapi_handle = NULL;
 static dissector_handle_t ntlmssp_handle = NULL;
 
@@ -912,26 +916,8 @@ smb_saved_info_hash_matched(gconstpointer k)
 	return key->frame + key->pid_mid;
 }
 
-/*
- * The information we need to save about an NT Transaction request in order
- * to dissect the reply.
- */
-typedef struct {
-	int subcmd;
-} smb_nt_transact_info_t;
-
 static GMemChunk *smb_nt_transact_info_chunk = NULL;
 static int smb_nt_transact_info_init_count = 200;
-
-/*
- * The information we need to save about a Transaction2 request in order
- * to dissect the reply.
- */
-typedef struct {
-	int subcmd;
-	int info_level;
-	gboolean resume_keys;	/* if "return resume" keys set in T2 FIND_FIRST request */
-} smb_transact2_info_t;
 
 static GMemChunk *smb_transact2_info_chunk = NULL;
 static int smb_transact2_info_init_count = 200;
@@ -6311,7 +6297,7 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 #define NT_TRANS_QSD		6
 #define NT_TRANS_GET_USER_QUOTA	7
 #define NT_TRANS_SET_USER_QUOTA 8
-static const value_string nt_cmd_vals[] = {
+const value_string nt_cmd_vals[] = {
 	{NT_TRANS_CREATE,		"NT CREATE"},
 	{NT_TRANS_IOCTL,		"NT IOCTL"},
 	{NT_TRANS_SSD,			"NT SET SECURITY DESC"},
@@ -9136,7 +9122,7 @@ dissect_nt_cancel_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
 
 
-static const value_string trans2_cmd_vals[] = {
+const value_string trans2_cmd_vals[] = {
 	{ 0x00,		"OPEN2" },
 	{ 0x01,		"FIND_FIRST2" },
 	{ 0x02,		"FIND_NEXT2" },
@@ -13625,7 +13611,7 @@ dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *s
  * 1, contain all entries 0x00 to 0xff
  * 2, all entries must be in order.
  */
-static const value_string smb_cmd_vals[] = {
+const value_string smb_cmd_vals[] = {
   { 0x00, "Create Directory" },
   { 0x01, "Delete Directory" },
   { 0x02, "Open" },
@@ -15266,7 +15252,9 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree *tree = NULL, *htree = NULL;
 	guint8          flags;
 	guint16         flags2;
-	smb_info_t 	si;
+	static smb_info_t 	si_arr[20];
+	static int si_counter=0;
+	smb_info_t 		*si;
 	smb_saved_info_t *sip = NULL;
 	smb_saved_info_key_t key;
 	smb_saved_info_key_t *new_key;
@@ -15276,6 +15264,12 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	guint32 pid_mid;
 	conversation_t *conversation;
 	nstime_t ns;
+
+	si_counter++;
+	if(si_counter==20){
+		si_counter=0;
+	}
+	si=&si_arr[si_counter];
 
 	top_tree=parent_tree;
 
@@ -15299,22 +15293,22 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	/* start off using the local variable, we will allocate a new one if we
 	   need to*/
-	si.cmd = tvb_get_guint8(tvb, offset+4);
+	si->cmd = tvb_get_guint8(tvb, offset+4);
 	flags = tvb_get_guint8(tvb, offset+9);
-	si.request = !(flags&SMB_FLAGS_DIRN);
+	si->request = !(flags&SMB_FLAGS_DIRN);
 	flags2 = tvb_get_letohs(tvb, offset+10);
 	if(flags2 & 0x8000){
-		si.unicode = TRUE; /* Mark them as Unicode */
+		si->unicode = TRUE; /* Mark them as Unicode */
 	} else {
-		si.unicode = FALSE;
+		si->unicode = FALSE;
 	}
-	si.tid = tvb_get_letohs(tvb, offset+24);
-	si.pid = tvb_get_letohs(tvb, offset+26);
-	si.uid = tvb_get_letohs(tvb, offset+28);
-	si.mid = tvb_get_letohs(tvb, offset+30);
-	pid_mid = (si.pid << 16) | si.mid;
-	si.info_level = -1;
-	si.info_count = -1;
+	si->tid = tvb_get_letohs(tvb, offset+24);
+	si->pid = tvb_get_letohs(tvb, offset+26);
+	si->uid = tvb_get_letohs(tvb, offset+28);
+	si->mid = tvb_get_letohs(tvb, offset+30);
+	pid_mid = (si->pid << 16) | si->mid;
+	si->info_level = -1;
+	si->info_count = -1;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, proto_smb, tvb, offset,
@@ -15340,37 +15334,37 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	}
 	/* see if we already have the smb data for this conversation */
-	si.ct=conversation_get_proto_data(conversation, proto_smb);
-	if(!si.ct){
+	si->ct=conversation_get_proto_data(conversation, proto_smb);
+	if(!si->ct){
 		/* No, not yet. create it and attach it to the conversation */
-		si.ct = g_mem_chunk_alloc(conv_tables_chunk);
-		conv_tables = g_slist_prepend(conv_tables, si.ct);
-		si.ct->matched= g_hash_table_new(smb_saved_info_hash_matched,
+		si->ct = g_mem_chunk_alloc(conv_tables_chunk);
+		conv_tables = g_slist_prepend(conv_tables, si->ct);
+		si->ct->matched= g_hash_table_new(smb_saved_info_hash_matched,
 			smb_saved_info_equal_matched);
-		si.ct->unmatched= g_hash_table_new(smb_saved_info_hash_unmatched,
+		si->ct->unmatched= g_hash_table_new(smb_saved_info_hash_unmatched,
 			smb_saved_info_equal_unmatched);
-		si.ct->dcerpc_fid_to_frame=g_hash_table_new(
+		si->ct->dcerpc_fid_to_frame=g_hash_table_new(
 			smb_saved_info_hash_unmatched,
 			smb_saved_info_equal_unmatched);
-		si.ct->tid_service=g_hash_table_new(
+		si->ct->tid_service=g_hash_table_new(
 			smb_saved_info_hash_unmatched,
 			smb_saved_info_equal_unmatched);
-		conversation_add_proto_data(conversation, proto_smb, si.ct);
+		conversation_add_proto_data(conversation, proto_smb, si->ct);
 	}
 
-	if( (si.request)
-	    &&  (si.mid==0)
-	    &&  (si.uid==0)
-	    &&  (si.pid==0)
-	    &&  (si.tid==0) ){
+	if( (si->request)
+	    &&  (si->mid==0)
+	    &&  (si->uid==0)
+	    &&  (si->pid==0)
+	    &&  (si->tid==0) ){
 		/* this is a broadcast SMB packet, there will not be a reply.
 		   We dont need to do anything
 		*/
-		si.unidir = TRUE;
-	} else if( (si.cmd==SMB_COM_NT_CANCEL)     /* NT Cancel */
-		   ||(si.cmd==SMB_COM_TRANSACTION_SECONDARY)   /* Transaction Secondary */
-		   ||(si.cmd==SMB_COM_TRANSACTION2_SECONDARY)   /* Transaction2 Secondary */
-		   ||(si.cmd==SMB_COM_NT_TRANSACT_SECONDARY)){ /* NT Transaction Secondary */
+		si->unidir = TRUE;
+	} else if( (si->cmd==SMB_COM_NT_CANCEL)     /* NT Cancel */
+		   ||(si->cmd==SMB_COM_TRANSACTION_SECONDARY)   /* Transaction Secondary */
+		   ||(si->cmd==SMB_COM_TRANSACTION2_SECONDARY)   /* Transaction2 Secondary */
+		   ||(si->cmd==SMB_COM_NT_TRANSACT_SECONDARY)){ /* NT Transaction Secondary */
 		/* Ok, we got a special request type. This request is either
 		   an NT Cancel or a continuation relative to a real request
 		   in an earlier packet.  In either case, we don't expect any
@@ -15389,7 +15383,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		   in it.
 		*/
 
-		si.unidir = TRUE;  /*we dont expect an answer to this one*/
+		si->unidir = TRUE;  /*we dont expect an answer to this one*/
 
 		if(!pinfo->fd->flags.visited){
 			/* try to find which original call we match and if we
@@ -15403,12 +15397,12 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			   last seen MID matching ours is the right one.
 			   This can fail but is better than nothing
 			*/
-			sip=g_hash_table_lookup(si.ct->unmatched, (void *)pid_mid);
+			sip=g_hash_table_lookup(si->ct->unmatched, (void *)pid_mid);
 			if(sip!=NULL){
 				new_key = g_mem_chunk_alloc(smb_saved_info_key_chunk);
 				new_key->frame = pinfo->fd->num;
 				new_key->pid_mid = pid_mid;
-				g_hash_table_insert(si.ct->matched, new_key,
+				g_hash_table_insert(si->ct->matched, new_key,
 				    sip);
 			}
 		} else {
@@ -15417,7 +15411,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			*/
 			key.frame = pinfo->fd->num;
 			key.pid_mid = pid_mid;
-			sip=g_hash_table_lookup(si.ct->matched, &key);
+			sip=g_hash_table_lookup(si->ct->matched, &key);
 			if(sip==NULL){
 			/*
 			  We didn't find it.
@@ -15430,7 +15424,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 
 		if(sip && sip->frame_req){
-			switch(si.cmd){
+			switch(si->cmd){
 			case SMB_COM_NT_CANCEL:
 				proto_tree_add_uint(htree, hf_smb_cancel_to,
 						    tvb, 0, 0, sip->frame_req);
@@ -15443,7 +15437,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				break;
 			}
 		} else {
-			switch(si.cmd){
+			switch(si->cmd){
 			case SMB_COM_NT_CANCEL:
 				proto_tree_add_text(htree, tvb, 0, 0,
 						    "Cancellation to: <unknown frame>");
@@ -15457,13 +15451,13 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			}
 		}
 	} else { /* normal bidirectional request or response */
-		si.unidir = FALSE;
+		si->unidir = FALSE;
 
 		if(!pinfo->fd->flags.visited){
 			/* first see if we find an unmatched smb "equal" to
 			   the current one
 			*/
-			sip=g_hash_table_lookup(si.ct->unmatched, (void *)pid_mid);
+			sip=g_hash_table_lookup(si->ct->unmatched, (void *)pid_mid);
 			if(sip!=NULL){
 				gboolean cmd_match=FALSE;
 
@@ -15473,26 +15467,26 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				 * that's another valid type of reply
 				 * to that command.
 				 */
-				if(si.cmd==sip->cmd){
+				if(si->cmd==sip->cmd){
 					cmd_match=TRUE;
 				}
-				else if(si.cmd==SMB_COM_NT_CANCEL){
+				else if(si->cmd==SMB_COM_NT_CANCEL){
 					cmd_match=TRUE;
 				}
-				else if((si.cmd==SMB_COM_TRANSACTION_SECONDARY)
+				else if((si->cmd==SMB_COM_TRANSACTION_SECONDARY)
 				     && (sip->cmd==SMB_COM_TRANSACTION)){
 					cmd_match=TRUE;
 				}
-				else if((si.cmd==SMB_COM_TRANSACTION2_SECONDARY)
+				else if((si->cmd==SMB_COM_TRANSACTION2_SECONDARY)
 				     && (sip->cmd==SMB_COM_TRANSACTION2)){
 					cmd_match=TRUE;
 				}
-				else if((si.cmd==SMB_COM_NT_TRANSACT_SECONDARY)
+				else if((si->cmd==SMB_COM_NT_TRANSACT_SECONDARY)
 				     && (sip->cmd==SMB_COM_NT_TRANSACT)){
 					cmd_match=TRUE;
 				}
 
-				if( (si.request) || (!cmd_match) ) {
+				if( (si->request) || (!cmd_match) ) {
 					/* If we are processing an SMB request but there was already
 					   another "identical" smb resuest we had not matched yet.
 					   This must mean that either we have a retransmission or that the
@@ -15507,7 +15501,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 					   SMBs of different cmds but with identical MID and PID values and
 					   if ethereal lost the first reply and the second request.
 					*/
-					g_hash_table_remove(si.ct->unmatched, (void *)pid_mid);
+					g_hash_table_remove(si->ct->unmatched, (void *)pid_mid);
 					sip=NULL; /* XXX should free it as well */
 				} else {
 					/* we have found a response to some request we have seen earlier.
@@ -15520,7 +15514,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 						new_key = g_mem_chunk_alloc(smb_saved_info_key_chunk);
 						new_key->frame = sip->frame_res;
 						new_key->pid_mid = pid_mid;
-						g_hash_table_insert(si.ct->matched, new_key, sip);
+						g_hash_table_insert(si->ct->matched, new_key, sip);
 					} else {
 						/* we have already seen another response to this one, but
 						   register it anyway so we see which request it matches
@@ -15528,28 +15522,28 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 						new_key = g_mem_chunk_alloc(smb_saved_info_key_chunk);
 						new_key->frame = pinfo->fd->num;
 						new_key->pid_mid = pid_mid;
-						g_hash_table_insert(si.ct->matched, new_key, sip);
+						g_hash_table_insert(si->ct->matched, new_key, sip);
 					}
 				}
 			}
-			if(si.request){
+			if(si->request){
 				sip = g_mem_chunk_alloc(smb_saved_info_chunk);
 				sip->frame_req = pinfo->fd->num;
 				sip->frame_res = 0;
 				sip->req_time.secs=pinfo->fd->abs_secs;
 				sip->req_time.nsecs=pinfo->fd->abs_usecs*1000;
 				sip->flags = 0;
-				if(g_hash_table_lookup(si.ct->tid_service, (void *)si.tid)
+				if(g_hash_table_lookup(si->ct->tid_service, (void *)si->tid)
 				    == (void *)TID_IPC) {
 					sip->flags |= SMB_SIF_TID_IS_IPC;
 				}
-				sip->cmd = si.cmd;
+				sip->cmd = si->cmd;
 				sip->extra_info = NULL;
-				g_hash_table_insert(si.ct->unmatched, (void *)pid_mid, sip);
+				g_hash_table_insert(si->ct->unmatched, (void *)pid_mid, sip);
 				new_key = g_mem_chunk_alloc(smb_saved_info_key_chunk);
 				new_key->frame = sip->frame_req;
 				new_key->pid_mid = pid_mid;
-				g_hash_table_insert(si.ct->matched, new_key, sip);
+				g_hash_table_insert(si->ct->matched, new_key, sip);
 			}
 		} else {
 			/* we have seen this packet before; check the
@@ -15562,14 +15556,14 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			*/
 			key.frame = pinfo->fd->num;
 			key.pid_mid = pid_mid;
-			sip=g_hash_table_lookup(si.ct->matched, &key);
+			sip=g_hash_table_lookup(si->ct->matched, &key);
 		}
 	}
 
 	/*
 	 * Pass the "sip" on to subdissectors through "si".
 	 */
-	si.sip = sip;
+	si->sip = sip;
 
 	if (sip != NULL) {
 		/*
@@ -15577,7 +15571,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		 * this is a response or the frame with the response to this
 		 * frame - if we know the frame number (i.e., it's not 0).
 		 */
-		if(si.request){
+		if(si->request){
 			if (sip->frame_res != 0)
 				proto_tree_add_uint(htree, hf_smb_response_in, tvb, 0, 0, sip->frame_res);
 		} else {
@@ -15596,7 +15590,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	/* smb command */
-	proto_tree_add_uint_format(htree, hf_smb_cmd, tvb, offset, 1, si.cmd, "SMB Command: %s (0x%02x)", decode_smb_name(si.cmd), si.cmd);
+	proto_tree_add_uint_format(htree, hf_smb_cmd, tvb, offset, 1, si->cmd, "SMB Command: %s (0x%02x)", decode_smb_name(si->cmd), si->cmd);
 	offset += 1;
 
 	if(flags2 & 0x4000){
@@ -15671,26 +15665,26 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset += 12;
 
 	/* TID */
-	proto_tree_add_uint(htree, hf_smb_tid, tvb, offset, 2, si.tid);
+	proto_tree_add_uint(htree, hf_smb_tid, tvb, offset, 2, si->tid);
 	offset += 2;
 
 	/* PID */
-	proto_tree_add_uint(htree, hf_smb_pid, tvb, offset, 2, si.pid);
+	proto_tree_add_uint(htree, hf_smb_pid, tvb, offset, 2, si->pid);
 	offset += 2;
 
 	/* UID */
-	proto_tree_add_uint(htree, hf_smb_uid, tvb, offset, 2, si.uid);
+	proto_tree_add_uint(htree, hf_smb_uid, tvb, offset, 2, si->uid);
 	offset += 2;
 
 	/* MID */
-	proto_tree_add_uint(htree, hf_smb_mid, tvb, offset, 2, si.mid);
+	proto_tree_add_uint(htree, hf_smb_mid, tvb, offset, 2, si->mid);
 	offset += 2;
 
-	pinfo->private_data = &si;
-        dissect_smb_command(tvb, pinfo, offset, tree, si.cmd, TRUE);
+	pinfo->private_data = si;
+        dissect_smb_command(tvb, pinfo, offset, tree, si->cmd, TRUE);
 
 	/* Append error info from this packet to info string. */
-	if (!si.request && check_col(pinfo->cinfo, COL_INFO)) {
+	if (!si->request && check_col(pinfo->cinfo, COL_INFO)) {
 		if (flags2 & 0x4000) {
 			/*
 			 * The status is an NT status code; was there
@@ -15721,6 +15715,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		}
 	}
 
+	tap_queue_packet(smb_tap, pinfo, si);
 	return TRUE;
 }
 
@@ -17832,6 +17827,7 @@ proto_register_smb(void)
 		&smb_dcerpc_reassembly);
 	register_init_routine(smb_trans_reassembly_init);
 	register_init_routine(smb_dcerpc_reassembly_init);
+	smb_tap = register_tap("smb");
 }
 
 void

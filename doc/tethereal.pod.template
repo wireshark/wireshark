@@ -405,6 +405,27 @@ Data collected is number of calls for each protocol/version, MinRTT,
 MaxRTT and AvgRTT. 
 This option can only be used once on the command line.
 
+B<-z> smb,rtt[,I<filter>]
+
+Collect call/reply RTT data for SMB.  Data collected
+is number of calls for each SMB command, MinRTT, MaxRTT and AvgRTT. 
+Example: use B<-z smb,rtt>.
+The data will be presented as separate tables for all normal SMB commands,
+all Transaction2 commands and all NT Transaction commands.
+Only those commands that are seen in the capture will have its stats
+displayed.
+Only the first command in a xAndX command chain will be used in the
+calculation.  So for common SessionSetupAndX + TreeConnectAndX chains,
+only the SessionSetupAndX call will be used in the statistics.
+This is a flaw that might be fixed in the future.
+
+This option can be used multiple times on the command line. 
+
+If the optional filterstring is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z "smb,rtt,ip.addr==1.2.3.4"> to only collect stats for
+SMB packets echanged by the host at IP address 1.2.3.4 .
+
 
 =back
 
