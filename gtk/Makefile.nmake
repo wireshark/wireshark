@@ -2,7 +2,7 @@ include ..\config.nmake
 
 ############### no need to modify below this line #########
 
-CFLAGS=/DHAVE_CONFIG_H /I.. /I../wiretap \
+CFLAGS=/MT /DHAVE_CONFIG_H /I.. /I../wiretap \
 	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)/gmodule \
 	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
 	/I$(PCAP_DIR)\include $(LOCAL_CFLAGS)
@@ -41,3 +41,6 @@ libui.lib	: ..\config.h $(OBJECTS)
 
 ..\config.h	: ..\config.h.win32
 	copy ..\config.h.win32 ..\config.h
+
+clean:
+	rm -f $(OBJECTS) libui.lib

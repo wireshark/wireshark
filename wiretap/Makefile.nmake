@@ -3,7 +3,7 @@ include ..\config.nmake
 
 ############### no need to modify below this line #########
 
-CFLAGS=/DHAVE_CONFIG_H /I$(GLIB_DIR) $(LOCAL_CFLAGS)
+CFLAGS=/MT /DHAVE_CONFIG_H /I$(GLIB_DIR) $(LOCAL_CFLAGS)
 
 OBJECTS=ascend-grammar.obj \
 	ascend-scanner.obj \
@@ -39,3 +39,5 @@ ascend-scanner.c : ascend-scanner.l
 config.h	: config.h.win32
 	copy config.h.win32 $@
 
+clean :
+	rm -f $(OBJECTS) libwtap.lib
