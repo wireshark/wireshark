@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.274 2002/11/10 11:36:39 oabad Exp $
+ * $Id: main.c,v 1.275 2002/11/10 11:41:45 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1410,7 +1410,7 @@ main(int argc, char *argv[])
 #endif
   gint                 desk_x, desk_y;
   gboolean             prefs_write_needed = FALSE;
-  ethereal_tap_list   *tli;
+  ethereal_tap_list   *tli = NULL;
   gchar               *tap_opt = NULL;
 
 #define OPTSTRING_INIT "a:b:B:c:f:hi:klm:nN:o:pP:Qr:R:Ss:t:T:w:vz:"
@@ -2134,13 +2134,8 @@ main(int argc, char *argv[])
     set_menus_for_capture_file(FALSE);
 
     /* open tap windows after creating the main window to avoid GTK warnings */
-    if (tap_opt) {
-      for(tli=tap_list;tli;tli=tli->next){
-        if(!strncmp(tli->cmd,tap_opt,strlen(tli->cmd))){
-          (*tli->func)(tap_opt);
-          break;
-        }
-      }
+    if (tap_opt && tli) {
+      (*tli->func)(tap_opt);
       g_free(tap_opt);
     }
 
