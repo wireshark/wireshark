@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.50 2002/08/28 21:03:47 jmayer Exp $
+ * $Id: file_dlg.c,v 1.51 2002/09/05 18:47:45 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,17 +26,7 @@
 #include "config.h"
 #endif
 
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-#ifdef HAVE_DIRECT_H
-#include <direct.h>
-#endif
-
-#include <string.h>
-
-#include <glib.h>
+#include <gtk/gtk.h>
 
 #include <epan/filesystem.h>
 

@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.1 2002/08/31 09:55:22 oabad Exp $
+ * $Id: ui_util.c,v 1.2 2002/09/05 18:48:52 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,8 +25,6 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include <glib.h>
 
 #include <gtk/gtk.h>
 

@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.1 2002/08/31 09:55:22 oabad Exp $
+ * $Id: summary_dlg.c,v 1.2 2002/09/05 18:48:52 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,8 +30,6 @@
 
 #include <gtk/gtk.h>
 
-#include <stdio.h>
-#include <string.h>
 #include <wtap.h>
 
 #ifdef NEED_SNPRINTF_H

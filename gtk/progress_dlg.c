@@ -1,7 +1,7 @@
 /* progress_dlg.c
  * Routines for progress-bar (modal) dialog
  *
- * $Id: progress_dlg.c,v 1.14 2002/08/28 22:28:43 guy Exp $
+ * $Id: progress_dlg.c,v 1.15 2002/09/05 18:47:47 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,6 +26,7 @@
 # include "config.h"
 #endif
 
+#include <gtk/gtk.h>
 #include "gtkglobals.h"
 #include "dlg_utils.h"
 #include "progress_dlg.h"

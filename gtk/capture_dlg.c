@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.71 2002/08/28 21:03:45 jmayer Exp $
+ * $Id: capture_dlg.c,v 1.72 2002/09/05 18:47:44 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,16 +28,8 @@
 
 #ifdef HAVE_LIBPCAP
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <gtk/gtk.h>
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-#include <time.h>
 
 #include <pcap.h>
 

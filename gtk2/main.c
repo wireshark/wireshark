@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.3 2002/09/05 06:46:38 sahlberg Exp $
+ * $Id: main.c,v 1.4 2002/09/05 18:48:51 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,30 +41,12 @@
 
 #include <gtk/gtk.h>
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-#include <errno.h>
-
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
 
 #ifdef HAVE_IO_H
 #include <io.h> /* open/close on win32 */
 #endif
-
-#ifdef HAVE_DIRECT_H
-#include <direct.h>
-#endif
-
-#include <signal.h>
 
 #ifdef HAVE_LIBPCAP
 #include <pcap.h>

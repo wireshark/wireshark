@@ -1,6 +1,6 @@
 /* proto_hier_stats_dlg.h
  *
- * $Id: proto_hier_stats_dlg.h,v 1.1 2002/08/31 09:55:22 oabad Exp $
+ * $Id: proto_hier_stats_dlg.h,v 1.2 2002/09/05 18:48:52 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,6 +22,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __PROTO_HIER_STATS_DLG_H__
+#define __PROTO_HIER_STATS_DLG_H__
 
 void
 proto_hier_stats_cb(GtkWidget *w, gpointer d);
+
+#endif

@@ -1,7 +1,7 @@
 /* stream_prefs.c
  * Dialog boxes for preferences for the stream window
  *
- * $Id: stream_prefs.c,v 1.1 2002/08/31 09:55:22 oabad Exp $
+ * $Id: stream_prefs.c,v 1.2 2002/09/05 18:48:52 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,7 +26,6 @@
 #include "config.h"
 #endif
 
-#include <errno.h>
 #include <gtk/gtk.h>
 
 #include "color.h"

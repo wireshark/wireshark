@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.29 2002/08/28 21:03:46 jmayer Exp $
+ * $Id: display_opts.c,v 1.30 2002/09/05 18:47:45 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,20 +27,6 @@
 #endif
 
 #include <gtk/gtk.h>
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-#include <time.h>
-
-#ifdef HAVE_SYS_SOCKIO_H
-# include <sys/sockio.h>
-#endif
 
 #include "globals.h"
 #include <epan/resolv.h>

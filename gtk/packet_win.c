@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.39 2002/08/28 21:03:48 jmayer Exp $
+ * $Id: packet_win.c,v 1.40 2002/09/05 18:47:46 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,13 +37,7 @@
 
 #include <gtk/gtk.h>
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
 
 #include <epan/epan.h>
 #include "main.h"

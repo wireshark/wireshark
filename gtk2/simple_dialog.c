@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.1 2002/08/31 09:55:22 oabad Exp $
+ * $Id: simple_dialog.c,v 1.2 2002/09/05 18:48:52 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,11 +27,8 @@
 # include "config.h"
 #endif
 
-#include <glib.h>
-
 #include <gtk/gtk.h>
 
-#include <stdarg.h>
 #include <stdio.h>
 
 #ifdef NEED_SNPRINTF_H

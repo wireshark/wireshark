@@ -1,7 +1,7 @@
 /* gtkglobals.h
  * GTK-related Global defines, etc.
  *
- * $Id: gtkglobals.h,v 1.18 2002/08/28 21:03:48 jmayer Exp $
+ * $Id: gtkglobals.h,v 1.19 2002/09/05 18:47:46 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,10 +24,6 @@
 
 #ifndef __GTKGLOBALS_H__
 #define __GTKGLOBALS_H__
-
-#ifndef __GTK_H__
-#include <gtk/gtk.h>
-#endif
 
 extern GtkWidget   *top_level, *packet_list, *tree_view, *byte_nb_ptr;
 extern GdkFont     *m_r_font, *m_b_font;

@@ -2,7 +2,7 @@
  * Utilities for converting between "toolkit-independent" and GDK
  * notions of color
  *
- * $Id: color_utils.c,v 1.1 2002/08/31 09:55:21 oabad Exp $
+ * $Id: color_utils.c,v 1.2 2002/09/05 18:48:51 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,8 +27,6 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
-#include <glib.h>
 
 #include <gtk/gtk.h>
 

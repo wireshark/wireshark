@@ -33,8 +33,6 @@
 #include <winspool.h>
 #endif
 
-#include <stdio.h>
-
 BOOL CALLBACK abort_proc( HDC hDC, int Error );
 HDC get_printer_dc(void);
 void init_doc_struct( DOCINFO* di, char* docname);

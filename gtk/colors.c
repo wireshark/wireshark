@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.23 2002/08/28 21:03:46 jmayer Exp $
+ * $Id: colors.c,v 1.24 2002/09/05 18:47:44 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,15 +30,10 @@
 
 #include <gtk/gtk.h>
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
-
-#include <errno.h>
 
 #include <epan/filesystem.h>
 
-#include "gtk/main.h"
 #include <epan/packet.h>
 #include "colors.h"
 #include "file.h"

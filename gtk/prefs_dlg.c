@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.52 2002/08/28 21:03:49 jmayer Exp $
+ * $Id: prefs_dlg.c,v 1.53 2002/09/05 18:47:47 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,18 +28,7 @@
 
 #include <gtk/gtk.h>
 
-#include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <errno.h>
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
 
 #include <epan/filesystem.h>
 

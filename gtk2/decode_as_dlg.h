@@ -1,6 +1,6 @@
-/* decode_as_dlg.c
+/* decode_as_dlg.h
  *
- * $Id: decode_as_dlg.h,v 1.1 2002/08/31 09:55:21 oabad Exp $
+ * $Id: decode_as_dlg.h,v 1.2 2002/09/05 18:48:51 jmayer Exp $
  *
  * Routines to modify dissector tables on the fly.
  *

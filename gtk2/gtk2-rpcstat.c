@@ -1,7 +1,7 @@
 /* gtk2-rpcstat.c
  * rpcstat   2002 Ronnie Sahlberg
  *
- * $Id: gtk2-rpcstat.c,v 1.2 2002/09/05 06:46:38 sahlberg Exp $
+ * $Id: gtk2-rpcstat.c,v 1.3 2002/09/05 18:48:51 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,15 +32,7 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#include <string.h>
 #include <gtk/gtk.h>
-#include <gdk/gdk.h>
 #include "epan/packet_info.h"
 #include "tap.h"
 #include "tap-rpcstat.h"

@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.2 2002/09/01 09:46:54 oabad Exp $
+ * $Id: find_dlg.c,v 1.3 2002/09/05 18:48:51 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,12 +28,6 @@
 #endif
 
 #include <gtk/gtk.h>
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-#include <glib.h>
 
 #include <epan/proto.h>
 #include <epan/dfilter/dfilter.h>

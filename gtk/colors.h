@@ -1,7 +1,7 @@
 /* colors.h
  * Definitions for color structures and routines
  *
- * $Id: colors.h,v 1.8 2002/08/28 21:03:46 jmayer Exp $
+ * $Id: colors.h,v 1.9 2002/09/05 18:47:45 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,11 +23,6 @@
  */
 #ifndef  __COLORS_H__
 #define  __COLORS_H__
-
-#include  <epan/proto.h>
-#include  <epan/dfilter/dfilter.h>
-#include <gtk/gtk.h>
-#include  <epan/epan.h>
 
 #define MAXCOLORS	255
 #define MAX_COLOR_FILTER_NAME_LEN 33

@@ -1,7 +1,7 @@
 /* goto_dlg.c
  * Routines for "go to frame" window
  *
- * $Id: goto_dlg.c,v 1.1 2002/08/31 09:55:21 oabad Exp $
+ * $Id: goto_dlg.c,v 1.2 2002/09/05 18:48:51 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,14 +28,6 @@
 #endif
 
 #include <gtk/gtk.h>
-
-#include <stdlib.h>
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-#include <glib.h>
 
 #include <epan/proto.h>
 #include "globals.h"

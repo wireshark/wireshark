@@ -1,7 +1,7 @@
 /* gtk2-rpcstat.h
  * rpcstat   2002 Ronnie Sahlberg
  *
- * $Id: gtk2-rpcstat.h,v 1.1 2002/09/04 22:18:12 sahlberg Exp $
+ * $Id: gtk2-rpcstat.h,v 1.2 2002/09/05 18:48:51 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,8 +22,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __GTK2_RPCSTAT_H__
+#define __GTK2_RPCSTAT_H__
+
 void gtk2_rpcstat_init(guint32 program, guint32 version);
 void gtk2_rpcstat_cb(GtkWidget *w, gpointer d);
 
-
-
+#endif

@@ -1,7 +1,7 @@
 /* column_prefs.c
  * Dialog box for column preferences
  *
- * $Id: column_prefs.c,v 1.1 2002/08/31 09:55:21 oabad Exp $
+ * $Id: column_prefs.c,v 1.2 2002/09/05 18:48:51 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,9 +26,7 @@
 #include "config.h"
 #endif
 
-#include <errno.h>
 #include <gtk/gtk.h>
-#include <string.h>
 
 #include "globals.h"
 #include "column_prefs.h"

@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.2 2002/08/31 11:17:43 jmayer Exp $
+ * $Id: capture_prefs.c,v 1.3 2002/09/05 18:48:51 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,8 +28,6 @@
 
 #ifdef HAVE_LIBPCAP
 
-#include <string.h>
-#include <errno.h>
 #include <gtk/gtk.h>
 
 #include <pcap.h>
