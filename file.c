@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.319 2003/09/25 08:31:52 guy Exp $
+ * $Id: file.c,v 1.320 2003/10/26 03:09:03 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -657,7 +657,11 @@ cf_get_display_name(capture_file *cf)
   /* Return a name to use in displays */
   if (!cf->is_tempfile) {
     /* Get the last component of the file name, and use that. */
-    displayname = get_basename(cf->filename);
+    if (cf->filename){
+      displayname = get_basename(cf->filename);
+    } else {
+      displayname="<no file>";
+    }
   } else {
     /* The file we read is a temporary file from a live capture;
        we don't mention its name. */

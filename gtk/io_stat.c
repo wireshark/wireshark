@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.45 2003/10/15 13:10:54 sahlberg Exp $
+ * $Id: io_stat.c,v 1.46 2003/10/26 03:09:03 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -476,19 +476,20 @@ get_it_value(io_stat_t *io, int graph_id, int idx)
 	return value;
 }
 
+
 static void
-print_time_scale_string(char *buf, guint32 t, gboolean print_unit)
+print_time_scale_string(char *buf, guint32 t)
 {
 	if(t>=10000000){
-		sprintf(buf, "%d%s",t/1000000,print_unit?"s ":"  ");
+		sprintf(buf, "%ds",t/1000000);
 	} else if(t>=1000000){
-		sprintf(buf, "%d.%03d%s",t/1000000,(t%1000000)/1000,print_unit?"s ":"  ");
+		sprintf(buf, "%d.%03ds",t/1000000,(t%1000000)/1000);
 	} else if(t>=10000){
-		sprintf(buf, "%d%s",t/1000,print_unit?"ms":"  ");
+		sprintf(buf, "%dms",t/1000);
 	} else if(t>=1000){
-		sprintf(buf, "%d.%03d%s",t/1000,t%1000,print_unit?"ms":"  ");
+		sprintf(buf, "%d.%03dms",t/1000,t%1000);
 	} else {
-		sprintf(buf, "%d%s",t,print_unit?"us":"  ");
+		sprintf(buf, "%dus",t);
 	}
 }
 
@@ -643,7 +644,7 @@ gtk_iostat_draw(void *g)
 	 * top y scale label will be the widest one
 	 */
 	if(draw_y_as_time){
-		print_time_scale_string(label_string, max_y, TRUE);
+		print_time_scale_string(label_string, max_y);
 	} else {
 		sprintf(label_string,"%d", max_y);
 	}
@@ -691,10 +692,12 @@ gtk_iostat_draw(void *g)
 			io->pixmap_width-right_x_border+1+xwidth, 
 			io->pixmap_height-bottom_y_border-draw_height*i/10);
 		/* draw the label */
-		if(draw_y_as_time){
-			print_time_scale_string(label_string, (max_y*i/10), i==10);
-		} else {
-			sprintf(label_string,"%d", max_y*i/10);
+		if(i==10){
+			if(draw_y_as_time){
+				print_time_scale_string(label_string, (max_y*i/10));
+			} else {
+				sprintf(label_string,"%d", max_y*i/10);
+			}
 		}
 #if GTK_MAJOR_VERSION < 2
                 lwidth=gdk_string_width(font, label_string);
