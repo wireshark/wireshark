@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.41 2003/01/22 06:26:33 guy Exp $
+ * $Id: column.c,v 1.42 2003/01/27 20:45:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,28 +62,52 @@ col_format_to_string(gint fmt) {
 
 /* Given a format number (as defined in packet.h), returns its
   description */
+static gchar *dlist[NUM_COL_FMTS] = {
+	"Number",
+	"Time (command line specified)",
+	"Relative time",
+	"Absolute time",
+	"Absolute date and time",
+	"Delta time",
+	"Source address",
+	"Src addr (resolved)",
+	"Src addr (unresolved)",
+	"Hardware src addr",
+	"Hw src addr (resolved)",
+	"Hw src addr (unresolved)",
+	"Network src addr",
+	"Net src addr (resolved)",
+	"Net src addr (unresolved)",
+	"Destination address",
+	"Dest addr (resolved)",
+	"Dest addr (unresolved)",
+	"Hardware dest addr",
+	"Hw dest addr (resolved)",
+	"Hw dest addr (unresolved)",
+	"Network dest addr",
+	"Net dest addr (resolved)",
+	"Net dest addr (unresolved)",
+	"Source port",
+	"Src port (resolved)",
+	"Src port (unresolved)",
+	"Destination port",
+	"Dest port (resolved)",
+	"Dest port (unresolved)",
+	"Protocol",
+	"Information",
+	"Packet length (bytes)" ,
+	"OXID",
+	"RXID",
+	"FW-1 monitor if/direction",
+	"Circuit ID",
+	"Src PortIdx",
+	"Dst PortIdx",
+	"VSAN",
+};
+
 gchar *
 col_format_desc(gint fmt) {
-  gchar *dlist[] = { "Number", "Time (command line specified)",
-                     "Relative time", "Absolute time",
-		     "Absolute date and time", "Delta time",
-                     "Source address", "Src addr (resolved)",
-                     "Src addr (unresolved)", "Hardware src addr",
-                     "Hw src addr (resolved)", "Hw src addr (unresolved)",
-                     "Network src addr", "Net src addr (resolved)",
-                     "Net src addr (unresolved)", "Destination address",
-                     "Dest addr (resolved)", "Dest addr (unresolved)",
-                     "Hardware dest addr", "Hw dest addr (resolved)",
-                     "Hw dest addr (unresolved)", "Network dest addr",
-                     "Net dest addr (resolved)", "Net dest addr (unresolved)",
-                     "Source port", "Src port (resolved)",
-                     "Src port (unresolved)", "Destination port",
-                     "Dest port (resolved)", "Dest port (unresolved)",
-                     "Protocol", "Information", "Packet length (bytes)" ,
-                     "OXID", "RXID", "FW-1 monitor if/direction",
-                     "Circuit ID"
-                     "Src PortIdx", "Dst PortIdx", "VSAN",};
-
+  g_assert((fmt >= 0) && (fmt < NUM_COL_FMTS));
   return(dlist[fmt]);
 }
 
