@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.135 2003/07/16 05:26:19 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.136 2003/07/18 06:07:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -499,9 +499,11 @@ static void dissect_auth_verf(tvbuff_t *auth_tvb, packet_info *pinfo,
 
 	switch (hdr->ptype) {
 	case PDU_BIND:
+	case PDU_ALTER:
 		fn = auth_fns->bind_fn;
 		break;
 	case PDU_BIND_ACK:
+	case PDU_ALTER_ACK:
 		fn = auth_fns->bind_ack_fn;
 		break;
 	case PDU_AUTH3:
