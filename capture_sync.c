@@ -216,7 +216,7 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
     char scount[24];			/* need a constant for len of numbers */
     char sautostop_filesize[24];	/* need a constant for len of numbers */
     char sautostop_duration[24];	/* need a constant for len of numbers */
-    char save_file_fd[24];
+    char save_file_fd_str[24];
 #ifndef _WIN32
     char errmsg[1024+1];
 #endif
@@ -249,8 +249,8 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
     argv = sync_pipe_add_arg(argv, &argc, capture_opts->save_file);
 
     argv = sync_pipe_add_arg(argv, &argc, "-W");
-    sprintf(save_file_fd,"%d",capture_opts->save_file_fd);	/* in lieu of itoa */
-    argv = sync_pipe_add_arg(argv, &argc, save_file_fd);
+    sprintf(save_file_fd_str,"%d",capture_opts->save_file_fd);	/* in lieu of itoa */
+    argv = sync_pipe_add_arg(argv, &argc, save_file_fd_str);
 
     if (capture_opts->has_autostop_packets) {
       argv = sync_pipe_add_arg(argv, &argc, "-c");
