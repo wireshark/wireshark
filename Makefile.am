@@ -162,7 +162,7 @@ SUBDIRS = wiretap gtk @SUBDIRS@
 
 ethereal.1: ethereal doc/ethereal.pod.template
 	(cd doc ; \
-	make ../ethereal.1 )
+	$(MAKE) ../ethereal.1 )
 
 dfilter-scanner.c : dfilter-scanner.l
 	$(LEX) -Pdfilter_ -t $(srcdir)/dfilter-scanner.l > dfilter-scanner.c

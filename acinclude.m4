@@ -190,3 +190,45 @@ AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 	AC_CHECK_LIB(pcap, pcap_open_offline,, AC_MSG_ERROR(Library libpcap not found.))
 ])
 
+#
+# AC_ETHEREAL_UCDSNMP_CHECK
+#
+AC_DEFUN(AC_ETHEREAL_UCDSNMP_CHECK,
+[
+	want_ucdsnmp=yes
+
+	AC_ARG_WITH(ucdsnmp,
+	--with-ucdsnmp=<directory>   use UCD SNMP client library, [
+	if test $withval = no
+	then
+		want_ucdsnmp=no
+	else
+		want_ucdsnmp=yes
+		ucdsnmp_user_dir=$withval
+	fi
+	])
+
+	if test $want_ucdsnmp = yes
+	then
+		ucdsnmpdir=""
+
+		for d in $ucdsnmp_user_dir $prefix
+		do
+			AC_MSG_CHECKING($d)
+
+			if test x$d != x/usr/local && test -f $d/include/ucd-snmp/snmp.h
+			then
+				AC_MSG_RESULT(found ucd-snmp in $d)
+				ucdsnmpdir=$d
+				break
+			fi
+		done
+
+		if test x$ucdsnmpdir != x
+		then
+			AC_MSG_RESULT(added $d to paths)
+			CFLAGS="$CFLAGS -I${ucdsnmpdir}/include/ucdsnmp"
+			LIBS="$LIBS -L${ucdsnmpdir}/lib"
+		fi
+	fi
+])
