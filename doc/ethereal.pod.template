@@ -151,12 +151,17 @@ Print the version and options and exit.
 
 =item -i
 
-Set the name of the network interface or pipe to use for live packet capture.
+Set the name of the network interface or pipe to use for live packet
+capture.
+
 Network interface names should match one of the names listed in
-"B<tethereal -D>".  If you're using Unix, "B<netstat -i>" or "B<ifconfig -a>"
-should also work.
-Pipe names should be either the name of a FIFO (named pipe) or ``-'' to read
-data from the standard input. Data read from pipes must be in libpcap format.
+"B<tethereal -D>".  If you're using Unix, "B<netstat -i>" or "B<ifconfig
+-a>" might also work to list interface names, although not all versions
+of Unix support the B<-a> flag to B<ifconfig>.
+
+Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
+read data from the standard input.  Data read from pipes must be in
+standard libpcap format.
 
 =item -k
 
@@ -1677,6 +1682,7 @@ B<http://www.ethereal.com>.
   Jason Greene             <jason [AT] inetgurus.net>
   Marco Molteni            <mmolteni [AT] cisco.com>
   James Harris             <jharris [AT] fourhorsemen.org>
+  rmkml                    <rmkml [AT] wanadoo.fr>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.171 2002/12/02 23:43:30 guy Exp $
+ * $Id: tethereal.c,v 1.172 2002/12/29 22:40:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,6 +50,10 @@
 #ifdef HAVE_LIBPCAP
 #include <pcap.h>
 #include <setjmp.h>
+#endif
+
+#ifdef HAVE_SYS_STAT_H
+# include <sys/stat.h>
 #endif
 
 #ifdef HAVE_LIBZ
@@ -107,6 +111,7 @@
 
 #ifdef HAVE_LIBPCAP
 #include <wiretap/wtap-capture.h>
+#include <wiretap/libpcap.h>
 #endif
 
 #ifdef WIN32
@@ -126,11 +131,21 @@ static gboolean line_buffered;
 typedef struct _loop_data {
   gboolean       go;           /* TRUE as long as we're supposed to keep capturing */
   gint           linktype;
+  gboolean       from_pipe;    /* TRUE if we are capturing data from a pipe */
   pcap_t        *pch;
   wtap_dumper   *pdh;
   jmp_buf        stopenv;
   gboolean       output_to_pipe;
   int            packet_count;
+  gboolean       modified;     /* TRUE if data in the pipe uses modified pcap headers */
+  gboolean       byte_swapped; /* TRUE if data in the pipe is byte swapped */
+  unsigned int   bytes_to_read, bytes_read; /* Used by pipe_dispatch */
+  enum {
+         STATE_EXPECT_REC_HDR, STATE_READ_REC_HDR,
+         STATE_EXPECT_DATA,     STATE_READ_DATA
+       } pipe_state;
+
+  enum { PIPOK, PIPEOF, PIPERR, PIPNEXIST } pipe_err;
 } loop_data;
 
 static loop_data ld;
@@ -160,6 +175,10 @@ static void wtap_dispatch_cb_write(guchar *, const struct wtap_pkthdr *, long,
 static void show_capture_file_io_error(const char *, int, gboolean);
 static void wtap_dispatch_cb_print(guchar *, const struct wtap_pkthdr *, long,
     union wtap_pseudo_header *, const guchar *);
+static void adjust_header(loop_data *, struct pcap_hdr *, struct pcaprec_hdr *);
+static int pipe_open_live(char *, struct pcap_hdr *, loop_data *, char *, int);
+static int pipe_dispatch(int, loop_data *, struct pcap_hdr *, \
+                struct pcaprec_modified_hdr *, guchar *, char *, int);
 
 capture_file cfile;
 ts_type timestamp_type = RELATIVE;
@@ -729,7 +748,7 @@ main(int argc, char *argv[])
   ld.output_to_pipe = FALSE;
 #endif
   if (cfile.save_file != NULL) {
-    if (!strcmp(cfile.save_file, "-")) {
+    if (strcmp(cfile.save_file, "-") == 0) {
       /* stdout */
       g_free(cfile.save_file);
       cfile.save_file = g_strdup("");
@@ -944,6 +963,8 @@ main(int argc, char *argv[])
 static int
 capture(int out_file_type)
 {
+  int         pcap_encap;
+  int         file_snaplen;
   gchar       open_err_str[PCAP_ERRBUF_SIZE];
   gchar       lookup_net_err_str[PCAP_ERRBUF_SIZE];
   bpf_u_int32 netnum, netmask;
@@ -959,6 +980,10 @@ capture(int out_file_type)
 #ifndef _WIN32
   static const char ppamsg[] = "can't find PPA for ";
   char       *libpcap_warn;
+  volatile int pipe_fd = -1;
+  struct pcap_hdr hdr;
+  struct pcaprec_modified_hdr rechdr;
+  guchar pcap_data[WTAP_MAX_PACKET_SIZE];
 #endif
   struct pcap_stat stats;
   gboolean    write_err;
@@ -994,6 +1019,14 @@ capture(int out_file_type)
 	"support capturing on PPP/WAN interfaces in Windows NT/2000.\n",
 	open_err_str);
 #else
+    /* try to open cfile.iface as a pipe */
+    pipe_fd = pipe_open_live(cfile.iface, &hdr, &ld, errmsg, sizeof errmsg);
+
+    if (pipe_fd == -1) {
+
+      if (ld.pipe_err == PIPNEXIST) {
+        /* Pipe doesn't exist, so output message for interface */
+
       /* If we got a "can't find PPA for XXX" message, warn the user (who
          is running Ethereal on HP-UX) that they don't have a version
 	 of libpcap that properly handles HP-UX (libpcap 0.6.x and later
@@ -1018,10 +1051,19 @@ capture(int out_file_type)
       "Please check to make sure you have sufficient permissions, and that\n"
       "you have the proper interface specified.%s", open_err_str, libpcap_warn);
 #endif
-    goto error;
+      }
+      /*
+       * Else pipe (or file) does exist and pipe_open_live() has
+       * filled in errmsg
+       */
+      goto error;
+    } else
+      /* pipe_open_live() succeeded; don't want
+         error message from pcap_open_live() */
+      open_err_str[0] = '\0';
   }
 
-  if (cfile.cfilter) {
+  if (cfile.cfilter && !ld.from_pipe) {
     /* A capture filter was specified; set it up. */
     if (pcap_lookupnet(cfile.iface, &netnum, &netmask, lookup_net_err_str) < 0) {
       /*
@@ -1045,8 +1087,18 @@ capture(int out_file_type)
     }
   }
 
-  ld.linktype = wtap_pcap_encap_to_wtap_encap(get_pcap_linktype(ld.pch,
-	cfile.iface));
+  /* Set up to write to the capture file. */
+#ifndef _WIN32
+  if (ld.from_pipe) {
+    pcap_encap = hdr.network;
+    file_snaplen = hdr.snaplen;
+  } else
+#endif
+  {
+    pcap_encap = get_pcap_linktype(ld.pch, cfile.iface);
+    file_snaplen = pcap_snapshot(ld.pch);
+  }
+  ld.linktype = wtap_pcap_encap_to_wtap_encap(pcap_encap);
   if (cfile.save_file != NULL) {
     /* Set up to write to the capture file. */
     if (ld.linktype == WTAP_ENCAP_UNKNOWN) {
@@ -1179,9 +1231,16 @@ capture(int out_file_type)
          each packet. */
       pcap_cnt = 1;
     }
-    inpkts = pcap_dispatch(ld.pch, pcap_cnt, capture_pcap_cb, (guchar *) &ld);
+#ifndef _WIN32
+    if (ld.from_pipe) {
+      inpkts = pipe_dispatch(pipe_fd, &ld, &hdr, &rechdr, pcap_data,
+        errmsg, sizeof errmsg);
+    } else
+#endif
+      inpkts = pcap_dispatch(ld.pch, pcap_cnt, capture_pcap_cb, (guchar *) &ld);
     if (inpkts < 0) {
-      /* Error from "pcap_dispatch()". */
+      /* Error from "pcap_dispatch()", or error or "no more packets" from
+         "pipe_dispatch(). */
       ld.go = FALSE;
     } else if (cnd_stop_timeout != NULL && cnd_eval(cnd_stop_timeout)) {
       /* The specified capture time has elapsed; stop the capture. */
@@ -1240,8 +1299,15 @@ capture(int out_file_type)
 
   /* If we got an error while capturing, report it. */
   if (inpkts < 0) {
-    fprintf(stderr, "tethereal: Error while capturing packets: %s\n",
-	pcap_geterr(ld.pch));
+    if (ld.from_pipe) {
+      if (ld.pipe_err == PIPERR) {
+        fprintf(stderr, "tethereal: Error while capturing packets: %s\n",
+	  errmsg);
+      }
+    } else {
+      fprintf(stderr, "tethereal: Error while capturing packets: %s\n",
+	  pcap_geterr(ld.pch));
+    }
   }
 
   if (volatile_err == 0)
@@ -1264,21 +1330,28 @@ capture(int out_file_type)
       show_capture_file_io_error(cfile.save_file, err, TRUE);
   }
 
-  /* Get the capture statistics, and, if any packets were dropped, report
-     that. */
-  if (pcap_stats(ld.pch, &stats) >= 0) {
-    if (stats.ps_drop != 0) {
-      fprintf(stderr, "%u packets dropped\n", stats.ps_drop);
+#ifndef _WIN32
+  if (ld.from_pipe && pipe_fd >= 0)
+    close(pipe_fd);
+  else
+#endif
+  {
+    /* Get the capture statistics, and, if any packets were dropped, report
+       that. */
+    if (pcap_stats(ld.pch, &stats) >= 0) {
+      if (stats.ps_drop != 0) {
+        fprintf(stderr, "%u packets dropped\n", stats.ps_drop);
+      }
+    } else {
+      fprintf(stderr, "tethereal: Can't get packet-drop statistics: %s\n",
+	  pcap_geterr(ld.pch));
     }
-  } else {
-    fprintf(stderr, "tethereal: Can't get packet-drop statistics: %s\n",
-	pcap_geterr(ld.pch));
+    pcap_close(ld.pch);
   }
+
   /* Report the number of captured packets if not reported during capture
      and we are saving to a file. */
   report_counts();
-
-  pcap_close(ld.pch);
 
   return TRUE;
 
@@ -1289,8 +1362,16 @@ error:
   g_free(cfile.save_file);
   cfile.save_file = NULL;
   fprintf(stderr, "tethereal: %s\n", errmsg);
+#ifndef WIN32
+  if (ld.from_pipe) {
+    if (pipe_fd >= 0)
+      close(pipe_fd);
+  } else
+#endif
+  {
   if (ld.pch != NULL)
     pcap_close(ld.pch);
+  }
 
   return FALSE;
 }
@@ -2139,4 +2220,288 @@ fail:
 	   fname);
   fprintf(stderr, "tethereal: %s\n", err_msg);
   return (err);
+}
+
+/* Take care of byte order in the libpcap headers read from pipes.
+ * (function taken from wiretap/libpcap.c) */
+static void
+adjust_header(loop_data *ld, struct pcap_hdr *hdr, struct pcaprec_hdr *rechdr)
+{
+  if (ld->byte_swapped) {
+    /* Byte-swap the record header fields. */
+    rechdr->ts_sec = BSWAP32(rechdr->ts_sec);
+    rechdr->ts_usec = BSWAP32(rechdr->ts_usec);
+    rechdr->incl_len = BSWAP32(rechdr->incl_len);
+    rechdr->orig_len = BSWAP32(rechdr->orig_len);
+  }
+
+  /* In file format version 2.3, the "incl_len" and "orig_len" fields were
+     swapped, in order to match the BPF header layout.
+
+     Unfortunately, some files were, according to a comment in the "libpcap"
+     source, written with version 2.3 in their headers but without the
+     interchanged fields, so if "incl_len" is greater than "orig_len" - which
+     would make no sense - we assume that we need to swap them.  */
+  if (hdr->version_major == 2 &&
+      (hdr->version_minor < 3 ||
+       (hdr->version_minor == 3 && rechdr->incl_len > rechdr->orig_len))) {
+    guint32 temp;
+
+    temp = rechdr->orig_len;
+    rechdr->orig_len = rechdr->incl_len;
+    rechdr->incl_len = temp;
+  }
+}
+
+/* Mimic pcap_open_live() for pipe captures
+ * We check if "pipename" is "-" (stdin) or a FIFO, open it, and read the
+ * header.
+ * N.B. : we can't read the libpcap formats used in RedHat 6.1 or SuSE 6.3
+ * because we can't seek on pipes (see wiretap/libpcap.c for details) */
+static int
+pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
+                 char *errmsg, int errmsgl)
+{
+  struct stat pipe_stat;
+  int         fd;
+  guint32     magic;
+  int         b;
+  unsigned int bytes_read;
+
+  /*
+   * XXX Ethereal blocks until we return
+   */
+  if (strcmp(pipename, "-") == 0)
+    fd = 0; /* read from stdin */
+  else {
+    if (stat(pipename, &pipe_stat) < 0) {
+      if (errno == ENOENT || errno == ENOTDIR)
+        ld->pipe_err = PIPNEXIST;
+      else {
+        snprintf(errmsg, errmsgl,
+          "The capture session could not be initiated "
+          "due to error on pipe: %s", strerror(errno));
+        ld->pipe_err = PIPERR;
+      }
+      return -1;
+    }
+    if (! S_ISFIFO(pipe_stat.st_mode)) {
+      if (S_ISCHR(pipe_stat.st_mode)) {
+        /*
+         * Assume the user specified an interface on a system where
+         * interfaces are in /dev.  Pretend we haven't seen it.
+         */
+         ld->pipe_err = PIPNEXIST;
+      } else {
+        snprintf(errmsg, errmsgl,
+            "The capture session could not be initiated because\n"
+            "\"%s\" is neither an interface nor a pipe", pipename);
+        ld->pipe_err = PIPERR;
+      }
+      return -1;
+    }
+    fd = open(pipename, O_RDONLY);
+    if (fd == -1) {
+      snprintf(errmsg, errmsgl,
+          "The capture session could not be initiated "
+          "due to error on pipe open: %s", strerror(errno));
+      ld->pipe_err = PIPERR;
+      return -1;
+    }
+  }
+
+  ld->from_pipe = TRUE;
+
+  /* read the pcap header */
+  bytes_read = 0;
+  while (bytes_read < sizeof magic) {
+    b = read(fd, ((char *)&magic)+bytes_read, sizeof magic-bytes_read);
+    if (b <= 0) {
+      if (b == 0)
+        snprintf(errmsg, errmsgl, "End of file on pipe during open");
+      else
+        snprintf(errmsg, errmsgl, "Error on pipe during open: %s",
+          strerror(errno));
+      goto error;
+    }
+    bytes_read += b;
+  }
+
+  switch (magic) {
+  case PCAP_MAGIC:
+    /* Host that wrote it has our byte order, and was running
+       a program using either standard or ss990417 libpcap. */
+    ld->byte_swapped = FALSE;
+    ld->modified = FALSE;
+    break;
+  case PCAP_MODIFIED_MAGIC:
+    /* Host that wrote it has our byte order, but was running
+       a program using either ss990915 or ss991029 libpcap. */
+    ld->byte_swapped = FALSE;
+    ld->modified = TRUE;
+    break;
+  case PCAP_SWAPPED_MAGIC:
+    /* Host that wrote it has a byte order opposite to ours,
+       and was running a program using either standard or
+       ss990417 libpcap. */
+    ld->byte_swapped = TRUE;
+    ld->modified = FALSE;
+    break;
+  case PCAP_SWAPPED_MODIFIED_MAGIC:
+    /* Host that wrote it out has a byte order opposite to
+       ours, and was running a program using either ss990915
+       or ss991029 libpcap. */
+    ld->byte_swapped = TRUE;
+    ld->modified = TRUE;
+    break;
+  default:
+    /* Not a "libpcap" type we know about. */
+    snprintf(errmsg, errmsgl, "Unrecognized libpcap format");
+    goto error;
+  }
+
+  /* Read the rest of the header */
+  bytes_read = 0;
+  while (bytes_read < sizeof(struct pcap_hdr)) {
+    b = read(fd, ((char *)hdr)+bytes_read,
+          sizeof(struct pcap_hdr) - bytes_read);
+    if (b <= 0) {
+      if (b == 0)
+        snprintf(errmsg, errmsgl, "End of file on pipe during open");
+      else
+        snprintf(errmsg, errmsgl, "Error on pipe during open: %s",
+          strerror(errno));
+      goto error;
+    }
+    bytes_read += b;
+  }
+
+  if (ld->byte_swapped) {
+    /* Byte-swap the header fields about which we care. */
+    hdr->version_major = BSWAP16(hdr->version_major);
+    hdr->version_minor = BSWAP16(hdr->version_minor);
+    hdr->snaplen = BSWAP32(hdr->snaplen);
+    hdr->network = BSWAP32(hdr->network);
+  }
+
+  if (hdr->version_major < 2) {
+    snprintf(errmsg, errmsgl, "Unable to read old libpcap format");
+    goto error;
+  }
+
+  ld->pipe_state = STATE_EXPECT_REC_HDR;
+  ld->pipe_err = PIPOK;
+  return fd;
+
+error:
+  ld->pipe_err = PIPERR;
+  close(fd);
+  return -1;
+
+}
+/* We read one record from the pipe, take care of byte order in the record
+ * header, write the record in the capture file, and update capture statistics. */
+
+static int
+pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
+                struct pcaprec_modified_hdr *rechdr, guchar *data,
+                char *errmsg, int errmsgl)
+{
+  struct pcap_pkthdr phdr;
+  int b;
+  enum { PD_REC_HDR_READ, PD_DATA_READ, PD_PIPE_EOF, PD_PIPE_ERR,
+          PD_ERR } result;
+
+  switch (ld->pipe_state) {
+
+  case STATE_EXPECT_REC_HDR:
+    ld->bytes_to_read = ld->modified ?
+      sizeof(struct pcaprec_modified_hdr) : sizeof(struct pcaprec_hdr);
+    ld->bytes_read = 0;
+    ld->pipe_state = STATE_READ_REC_HDR;
+    /* Fall through */
+
+  case STATE_READ_REC_HDR:
+    b = read(fd, ((char *)rechdr)+ld->bytes_read,
+      ld->bytes_to_read - ld->bytes_read);
+    if (b <= 0) {
+      if (b == 0)
+        result = PD_PIPE_EOF;
+      else
+        result = PD_PIPE_ERR;
+      break;
+    }
+    if ((ld->bytes_read += b) < ld->bytes_to_read)
+        return 0;
+    result = PD_REC_HDR_READ;
+    break;
+
+  case STATE_EXPECT_DATA:
+    ld->bytes_read = 0;
+    ld->pipe_state = STATE_READ_DATA;
+    /* Fall through */
+
+  case STATE_READ_DATA:
+    b = read(fd, data+ld->bytes_read, rechdr->hdr.incl_len - ld->bytes_read);
+    if (b <= 0) {
+      if (b == 0)
+        result = PD_PIPE_EOF;
+      else
+        result = PD_PIPE_ERR;
+      break;
+    }
+    if ((ld->bytes_read += b) < rechdr->hdr.incl_len)
+      return 0;
+    result = PD_DATA_READ;
+    break;
+
+  default:
+    snprintf(errmsg, errmsgl, "pipe_dispatch: invalid state");
+    result = PD_ERR;
+
+  } /* switch (ld->pipe_state) */
+
+  /*
+   * We've now read as much data as we were expecting, so process it.
+   */
+  switch (result) {
+
+  case PD_REC_HDR_READ:
+    /* We've read the header. Take care of byte order. */
+    adjust_header(ld, hdr, &rechdr->hdr);
+    if (rechdr->hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
+      snprintf(errmsg, errmsgl, "Frame %u too long (%d bytes)",
+        ld->packet_count+1, rechdr->hdr.incl_len);
+      break;
+    }
+    ld->pipe_state = STATE_EXPECT_DATA;
+    return 0;
+
+  case PD_DATA_READ:
+    /* Fill in a "struct pcap_pkthdr", and process the packet. */
+    phdr.ts.tv_sec = rechdr->hdr.ts_sec;
+    phdr.ts.tv_usec = rechdr->hdr.ts_usec;
+    phdr.caplen = rechdr->hdr.incl_len;
+    phdr.len = rechdr->hdr.orig_len;
+
+    capture_pcap_cb((guchar *)ld, &phdr, data);
+
+    ld->pipe_state = STATE_EXPECT_REC_HDR;
+    return 1;
+
+  case PD_PIPE_EOF:
+    ld->pipe_err = PIPEOF;
+    return -1;
+
+  case PD_PIPE_ERR:
+    snprintf(errmsg, errmsgl, "Error reading from pipe: %s",
+      strerror(errno));
+    /* Fall through */
+  case PD_ERR:
+    break;
+  }
+
+  ld->pipe_err = PIPERR;
+  /* Return here rather than inside the switch to prevent GCC warning */
+  return -1;
 }

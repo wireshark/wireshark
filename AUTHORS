@@ -1547,6 +1547,10 @@ James Harris <jharris [AT] fourhorsemen.org> {
 	RADIUS user password decryption
 }
 
+rmkml <rmkml [AT] wanadoo.fr> {
+	Support for capturing from a pipe in Tethereal
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

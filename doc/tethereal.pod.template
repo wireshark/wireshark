@@ -189,14 +189,22 @@ Print the version and options and exits.
 
 =item -i
 
-Set the name of the network interface to use for live packet capture.  It
-should match one of the names listed in "B<tethereal -D>" (described
-above).  If you're using Unix, "B<netstat -i>" or "B<ifconfig -a>" should
-also work.  If no interface is specified, B<Tethereal> searches the list
-of interfaces, choosing the first non-loopback interface if there are any
+Set the name of the network interface or pipe to use for live packet
+capture. 
+
+Network interface names should match one of the names listed in
+"B<tethereal -D>" (described above).  If you're using Unix, "B<netstat
+-i>" or "B<ifconfig -a>" might also work to list interface names,
+although not all versions of Unix support the B<-a> flag to B<ifconfig>.
+If no interface is specified, B<Tethereal> searches the list of
+interfaces, choosing the first non-loopback interface if there are any
 non-loopback interfaces, and choosing the first loopback interface if
 there are no non-loopback interfaces; if there are no interfaces,
 B<Tethereal> reports an error and doesn't start the capture.
+
+Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
+read data from the standard input.  Data read from pipes must be in
+standard libpcap format.
 
 =item -l
 
