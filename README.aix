@@ -1,10 +1,20 @@
-After much work and toil, Craig Rodrigues was able to compile libpcap and Ethereal
-on AIX 4.3.2. His odyssey is document in various e-mails at
-http://ethereal.zing.org/lists/ethereal-dev/199911/
+After much work and toil, Craig Rodrigues was able to compile libpcap
+and Ethereal on AIX 4.3.2.  His odyssey is document in various e-mails
+at http://ethereal.zing.org/lists/ethereal-dev/199911/
 
-Here are a few excerpts.
+Here are a few excerpts.  Note that, to configure "libpcap" to use DLPI
+rather than BPF (which it'll apparently use by default on AIX),
+specifying the flag
 
+	--with-pcap=dlpi
 
+to the "configure" script for "libpcap" should do the trick.
+
+The source code changes to Ethereal mentioned below should be in the
+current source tree.  The changes to GTK+ aren't in 1.2.6; they may
+appear in a later release (the configure script file was accepted by the
+GTK+ folks, as per Craig's mail; the "-lgdk" problem may require more
+work).
 
 Subject: Re: [ethereal-dev] Re: [ethereal-users] Problems compiling 0.7.7 under AIX 4.3.2 
 From: Gilbert Ramirez <gram@xiexie.org> 
@@ -262,4 +272,48 @@ Craig Rodrigues
 http://www.gis.net/~craigr    
 rodrigc@mediaone.net          
 
+Date: Thu, 11 Nov 1999 23:47:02 -0500
+From: Craig Rodrigues <rodrigc@mediaone.net>
+To: ethereal-dev@zing.org
+Subject: Re: [ethereal-dev] AIX: gtk problem solved, now an ethereal  problem
 
+On Thu, Nov 11, 1999 at 11:50:23AM -0800, Guy Harris wrote:
+> > The only differences between gtkclist.c in the gtk distribution and
+> > gtkclist.c in the ethereal distribution relate to the ROW_ELEMENT
+> > macro.  It looks like an optimization for retrieving the GList item
+> > when the requested row is the last row in the list.
+> 
+> Yup - as per my other mail, Ethereal does that rather a lot when
+> building the CList, and the optimization changes quadratic behavior to
+> linear behavior.
+> 
+> > Any ideas why this causes trouble?
+> 
+> Mismatches between the layouts of data structures as declared in the
+> "gtk/gtk*.h" files in the Ethereal source tree and the layouts as
+> declared in the header files in the GTK+ source (either due to header
+> file differences - although the header files appear to be identical to
+> the GTK+ 1.2.6 ones - or due to compiler behavior differences)?
+
+I tried stepping things through the debugger, and constantly
+hit the same segfault inside gdk_string_width(), line 308 of gdkfont.c
+
+Fails on line: switch(font->type),
+where *font is: (type = -1, ascent = -1, descent = -1)
+
+Stack trace:
+gdk_string_width(font = 0x7caf01a4, string = "../"), line 308 in "gdkfont.c"
+gtk_file_selection_populate(fs = 0x20094468, rel_path = "", try_complete = 0), line 1341 in "gtkfilesel.c"
+gtk_file_selection_init(filesel = 0x20094468), line 513 in "gtkfilesel.c"
+gtk_type_new(0xc315), line 403 in "gtktypeutils.c"
+gtk_file_selection_new(title = "Ethereal: Open Capture File"), line 524 in "gtkfilesel.c"
+file_open_cmd_cb(0x200640f4, 0x0), line 79 in "file_dlg.c"
+
+Removing gtkclist.o from libui.a and recompiling removed this problem.
+
+Any ideas?  I'm stumped.
+
+-- 
+Craig Rodrigues        
+http://www.gis.net/~craigr    
+rodrigc@mediaone.net          
