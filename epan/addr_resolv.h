@@ -60,14 +60,32 @@ extern gchar *g_pipxnets_path;
 /* Set the flags controlling what names to resolve */
 extern void resolv_set_flags(guint32 flags);
 
-/* get_tcp_port returns the UDP port name or "%u" if not found */
+/*
+ * get_udp_port() returns the port name corresponding to that UDP port,
+ * or the port number as a string if not found.
+ */
 extern gchar *get_udp_port(guint port);
 
-/* get_tcp_port returns the TCP port name or "%u" if not found */
+/*
+ * get_tcp_port() returns the port name corresponding to that TCP port,
+ * or the port number as a string if not found.
+ */
 extern gchar *get_tcp_port(guint port);
 
-/* get_sctp_port returns the SCTP port name or "%u" if not found */
+/*
+ * get_sctp_port() returns the port name corresponding to that SCTP port,
+ * or the port number as a string if not found.
+ */
 extern gchar *get_sctp_port(guint port);
+
+/*
+ * For address types that support name resolution, and for AT_STRINGZ,
+ * "get_addr_name()" returns the name corresponding to the address,
+ * or a string for the address if not found.
+ *
+ * For other address types, it returns a null pointer.
+ */
+const gchar *get_addr_name(address *addr);
 
 /*
  * Asynchronous host name lookup initialization, processing, and cleanup

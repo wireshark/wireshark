@@ -1869,6 +1869,32 @@ extern gchar *get_sctp_port(guint port)
 
 } /* get_sctp_port */
 
+const gchar *get_addr_name(address *addr)
+{
+  guint32 ipv4_addr;
+  struct e_in6_addr ipv6_addr;
+
+  switch (addr->type) {
+
+  case AT_ETHER:
+    return get_ether_name(addr->data);
+
+  case AT_IPv4:
+    memcpy(&ipv4_addr, addr->data, sizeof ipv4_addr);
+    return get_hostname(ipv4_addr);
+
+  case AT_IPv6:
+    memcpy(&ipv6_addr.s6_addr, addr->data, sizeof ipv6_addr.s6_addr);
+    return get_hostname6(&ipv6_addr);
+
+  case AT_STRINGZ:
+    return addr->data;
+
+  default:
+    return NULL;
+  }
+}
+
 extern gchar *get_ether_name(const guint8 *addr)
 {
   if (!(g_resolv_flags & RESOLV_MAC))

@@ -574,7 +574,7 @@ static void
 col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
 	     gboolean is_src)
 {
-  guint32 ipv4_addr;
+  const char *addr_string;
   struct e_in6_addr ipv6_addr;
 
   pinfo->cinfo->col_expr[col][0] = '\0';
@@ -582,37 +582,12 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
   if (addr->type == AT_NONE)
     return;	/* no address, nothing to do */
   if (is_res) {
-    switch (addr->type) {
-
-    case AT_ETHER:
-      strncpy(pinfo->cinfo->col_buf[col], get_ether_name(addr->data), COL_MAX_LEN);
+    addr_string = get_addr_name(addr);
+    if (addr_string != NULL) {
+      strncpy(pinfo->cinfo->col_buf[col], addr_string, COL_MAX_LEN);
       pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
-      break;
-
-    case AT_IPv4:
-      memcpy(&ipv4_addr, addr->data, sizeof ipv4_addr);
-      strncpy(pinfo->cinfo->col_buf[col], get_hostname(ipv4_addr), COL_MAX_LEN);
-      pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
-      break;
-
-    case AT_IPv6:
-      memcpy(&ipv6_addr.s6_addr, addr->data, sizeof ipv6_addr.s6_addr);
-      strncpy(pinfo->cinfo->col_buf[col], get_hostname6(&ipv6_addr), COL_MAX_LEN);
-      pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
-      break;
-
-    case AT_STRINGZ:
-      /* XXX - should be done in "address_to_str_buf()", but that routine
-         doesn't know COL_MAX_LEN; it should be changed to take the
-         maximum length as an argument. */
-      strncpy(pinfo->cinfo->col_buf[col], addr->data, COL_MAX_LEN);
-      pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
-      break;
-
-    default:
+    } else
       address_to_str_buf(addr, pinfo->cinfo->col_buf[col]);
-      break;
-    }
   } else {
     switch (addr->type) {
 

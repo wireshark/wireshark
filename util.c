@@ -56,6 +56,7 @@ typedef int mode_t;	/* for win32 */
 #endif /* __MINGW32__ */
 #endif /* HAVE_IO_H */
 
+#include <epan/address.h>
 #include <epan/addr_resolv.h>
 
 /*

@@ -38,6 +38,7 @@
 #include <glib.h>
 
 #include <epan/filesystem.h>
+#include <epan/address.h>
 #include <epan/addr_resolv.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>

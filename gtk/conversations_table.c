@@ -944,25 +944,19 @@ ct_create_popup_menu(conversations_table *ct)
 static void
 draw_ct_table_address(conversations_table *ct, int conversation_idx)
 {
-    char *entry;
+    const char *entry;
     char *port;
-    address_type  at;
     guint32 pt;
     int rownum;
 
     rownum=gtk_clist_find_row_from_data(ct->table, (gpointer)conversation_idx);
 
-    at = ct->conversations[conversation_idx].src_address.type;
-    if(!ct->resolve_names) at = AT_NONE;
-    switch(at) {
-    case(AT_IPv4):
-        entry=get_hostname((*(guint *)ct->conversations[conversation_idx].src_address.data));
-        break;
-    case(AT_ETHER):
-        entry=get_ether_name(ct->conversations[conversation_idx].src_address.data);
-        break;
-    default:
+    if(!ct->resolve_names)
         entry=address_to_str(&ct->conversations[conversation_idx].src_address);
+    else {
+        entry=get_addr_name(&ct->conversations[conversation_idx].src_address.data);
+        if(!entry)
+            entry=address_to_str(&ct->conversations[conversation_idx].src_address);
     }
     gtk_clist_set_text(ct->table, rownum, 0, entry);
 
@@ -981,17 +975,12 @@ draw_ct_table_address(conversations_table *ct, int conversation_idx)
     }
     gtk_clist_set_text(ct->table, rownum, 1, entry);
 
-    at = ct->conversations[conversation_idx].dst_address.type;
-    if(!ct->resolve_names) at = AT_NONE;
-    switch(at) {
-    case(AT_IPv4):
-        entry=get_hostname((*(guint *)ct->conversations[conversation_idx].dst_address.data));
-        break;
-    case(AT_ETHER):
-        entry=get_ether_name(ct->conversations[conversation_idx].dst_address.data);
-        break;
-    default:
+    if(!ct->resolve_names)
         entry=address_to_str(&ct->conversations[conversation_idx].dst_address);
+    else {
+        entry=get_addr_name(&ct->conversations[conversation_idx].dst_address.data);
+        if(!entry)
+            entry=address_to_str(&ct->conversations[conversation_idx].dst_address);
     }
     gtk_clist_set_text(ct->table, rownum, 2, entry);
 

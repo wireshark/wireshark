@@ -194,8 +194,8 @@ hostlist_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 	char *text2 = NULL;
 	int i1, i2;
 
-	GtkCListRow *row1 = (GtkCListRow *) ptr1;
-	GtkCListRow *row2 = (GtkCListRow *) ptr2;
+	const GtkCListRow *row1 = ptr1;
+	const GtkCListRow *row2 = ptr2;
 
 	text1 = GTK_CELL_TEXT (row1->cell[clist->sort_column])->text;
 	text2 = GTK_CELL_TEXT (row2->cell[clist->sort_column])->text;
@@ -457,25 +457,19 @@ hostlist_create_popup_menu(hostlist_table *hl)
 static void
 draw_hostlist_table_address(hostlist_table *hl, int hostlist_idx)
 {
-    char *entry;
+    const char *entry;
     char *port;
-    address_type  at;
     guint32 pt;
     int rownum;
 
     rownum=gtk_clist_find_row_from_data(hl->table, (gpointer)hostlist_idx);
 
-    at = hl->hosts[hostlist_idx].address.type;
-    if(!hl->resolve_names) at = AT_NONE;
-    switch(at) {
-    case(AT_IPv4):
-        entry=get_hostname((*(guint *)hl->hosts[hostlist_idx].address.data));
-        break;
-    case(AT_ETHER):
-        entry=get_ether_name(hl->hosts[hostlist_idx].address.data);
-        break;
-    default:
+    if(!hl->resolve_names)
         entry=address_to_str(&hl->hosts[hostlist_idx].address);
+    else {
+        entry=get_addr_name(&hl->hosts[hostlist_idx].address);
+        if(!entry)
+            entry=address_to_str(&hl->hosts[hostlist_idx].address);
     }
     gtk_clist_set_text(hl->table, rownum, 0, entry);
 

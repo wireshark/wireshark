@@ -202,7 +202,7 @@ ata_cmd_equal_matched(gconstpointer k1, gconstpointer k2)
 static guint
 ata_cmd_hash_unmatched(gconstpointer k)
 {
-  ata_info_t *key = (ata_info_t *)k;
+  const ata_info_t *key = (ata_info_t *)k;
 
   return key->tag;
 }
@@ -210,8 +210,8 @@ ata_cmd_hash_unmatched(gconstpointer k)
 static gint
 ata_cmd_equal_unmatched(gconstpointer k1, gconstpointer k2)
 {
-  ata_info_t *key1 = (ata_info_t *)k1;
-  ata_info_t *key2 = (ata_info_t *)k2;
+  const ata_info_t *key1 = (ata_info_t *)k1;
+  const ata_info_t *key2 = (ata_info_t *)k2;
 
   return (key1->tag==key2->tag)&&(key1->conversation==key2->conversation);
 }

@@ -61,7 +61,7 @@ typedef struct _tap_packet_t {
 	struct _tap_packet_t *next;
 	int tap_id;
 	packet_info *pinfo;
-	void *tap_specific_data;
+	const void *tap_specific_data;
 } tap_packet_t;
 static tap_packet_t *tap_packet_list_free=NULL;
 static tap_packet_t *tap_packet_list_queue=NULL;
@@ -167,7 +167,7 @@ register_tap(char *name)
    to by the tap specific data pointer.
 */
 void 
-tap_queue_packet(int tap_id, packet_info *pinfo, void *tap_specific_data)
+tap_queue_packet(int tap_id, packet_info *pinfo, const void *tap_specific_data)
 {
 	tap_packet_t *tpt;
 
