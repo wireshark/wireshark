@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-sna.c,v 1.47 2003/07/09 04:33:05 guy Exp $
+ * $Id: packet-sna.c,v 1.48 2003/07/18 05:12:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -379,10 +379,6 @@ static const true_false_string sna_rh_lcci_truth =
 /* Response Type Indicator */
 static const true_false_string sna_rh_rti_truth =
 	{ "Negative", "Positive" };
-
-/* Exception Response Indicator */
-static const true_false_string sna_rh_eri_truth =
-	{ "Exception", "Definite" };
 
 /* Queued Response Indicator */
 static const true_false_string sna_rh_qri_truth =
@@ -3214,7 +3210,7 @@ proto_register_sna(void)
 
 		{ &hf_sna_rh_eri,
 		{ "Exception Response Indicator", "sna.rh.eri", FT_BOOLEAN,
-		    8, TFS(&sna_rh_eri_truth), 0x10, "", HFILL }},
+		    8, NULL, 0x10, "", HFILL }},
 
 		{ &hf_sna_rh_rti,
 		{ "Response Type Indicator", "sna.rh.rti", FT_BOOLEAN,
