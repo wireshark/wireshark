@@ -66,13 +66,10 @@ static int enable_bogosity_filter = TRUE;
 static guint32 bogus_pdu_data_length_threshold = 256 * 1024;
 
 static int enableDataDigests = FALSE;
-static int enableHeaderDigests = FALSE;
 
 static int dataDigestIsCRC32 = TRUE;
-static int headerDigestIsCRC32 = TRUE;
 
 static int dataDigestSize = 4;
-static int headerDigestSize = 4;
 
 static guint iscsi_port = 3260;
 
@@ -94,7 +91,6 @@ static int hf_iscsi_async_message_data = -1;
 static int hf_iscsi_vendor_specific_data = -1;
 static int hf_iscsi_Opcode = -1;
 static int hf_iscsi_Flags = -1;
-static int hf_iscsi_HeaderDigest = -1;
 static int hf_iscsi_HeaderDigest32 = -1;
 static int hf_iscsi_DataDigest = -1;
 static int hf_iscsi_DataDigest32 = -1;
@@ -198,10 +194,13 @@ static gint ett_iscsi_Flags = -1;
 static gint ett_iscsi_ISID = -1;
 /* #endif */
 
-
+#define ISCSI_HEADER_DIGEST_AUTO	0
+#define ISCSI_HEADER_DIGEST_NONE	1
+#define ISCSI_HEADER_DIGEST_CRC32	2
 /* this structure contains session wide state for all iscsi sessions */
 typedef struct _iscsi_session_t {
-	guint32	conv_idx;			/* unique ID for conversation */
+	guint32	conv_idx;	/* unique ID for conversation */
+	guint32 header_digest;
 } iscsi_session_t;
 static GHashTable *iscsi_session_table = NULL;
 static GMemChunk *iscsi_sessions = NULL;
@@ -751,26 +750,23 @@ addTextKeys(proto_tree *tt, tvbuff_t *tvb, gint offset, guint32 text_len) {
 }
 
 static gint
-handleHeaderDigest(proto_item *ti, tvbuff_t *tvb, guint offset, int headerLen) {
+handleHeaderDigest(iscsi_session_t *iscsi_session, proto_item *ti, tvbuff_t *tvb, guint offset, int headerLen) {
     int available_bytes = tvb_length_remaining(tvb, offset);
-    if(enableHeaderDigests) {
-	if(headerDigestIsCRC32) {
-	    if(available_bytes >= (headerLen + 4)) {
-		guint32 crc = ~calculateCRC32(tvb_get_ptr(tvb, offset, headerLen), headerLen, CRC32C_PRELOAD);
-		guint32 sent = tvb_get_ntohl(tvb, offset + headerLen);
-		if(crc == sent) {
-		    proto_tree_add_uint_format(ti, hf_iscsi_HeaderDigest32, tvb, offset + headerLen, 4, sent, "HeaderDigest: 0x%08x (Good CRC32)", sent);
-		}
-		else {
-		    proto_tree_add_uint_format(ti, hf_iscsi_HeaderDigest32, tvb, offset + headerLen, 4, sent, "HeaderDigest: 0x%08x (Bad CRC32, should be 0x%08x)", sent, crc);
-		}
+
+    switch(iscsi_session->header_digest){
+    case ISCSI_HEADER_DIGEST_CRC32:
+	if(available_bytes >= (headerLen + 4)) {
+	    guint32 crc = ~calculateCRC32(tvb_get_ptr(tvb, offset, headerLen), headerLen, CRC32C_PRELOAD);
+	    guint32 sent = tvb_get_ntohl(tvb, offset + headerLen);
+	    if(crc == sent) {
+		proto_tree_add_uint_format(ti, hf_iscsi_HeaderDigest32, tvb, offset + headerLen, 4, sent, "HeaderDigest: 0x%08x (Good CRC32)", sent);
+	    } else {
+		proto_tree_add_uint_format(ti, hf_iscsi_HeaderDigest32, tvb, offset + headerLen, 4, sent, "HeaderDigest: 0x%08x (Bad CRC32, should be 0x%08x)", sent, crc);
+printf("bad digest\n");
 	    }
-	    return offset + headerLen + 4;
 	}
-	if(available_bytes >= (headerLen + headerDigestSize)) {
-	    proto_tree_add_item(ti, hf_iscsi_HeaderDigest, tvb, offset + headerLen, headerDigestSize, FALSE);
-	}
-	return offset + headerLen + headerDigestSize;
+	return offset + headerLen + 4;
+        break;
     }
     return offset + headerLen;
 }
@@ -1075,7 +1071,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_TargetTransferTag, tvb, offset + 20, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
-	    offset = handleHeaderDigest(ti, tvb, offset, 48);
+	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
 	    offset = handleDataSegment(ti, tvb, offset, data_segment_len, end_offset, hf_iscsi_ping_data);
     } else if(opcode == ISCSI_OPCODE_NOP_IN) {
 	    /* NOP In */
@@ -1089,7 +1085,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, FALSE);
-	    offset = handleHeaderDigest(ti, tvb, offset, 48);
+	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
 	    offset = handleDataSegment(ti, tvb, offset, data_segment_len, end_offset, hf_iscsi_ping_data);
     } else if(opcode == ISCSI_OPCODE_SCSI_COMMAND) {
 	    /* SCSI Command */
@@ -1119,7 +1115,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		    /* FIXME - disssect AHS? */
 		    proto_tree_add_item(ti, hf_iscsi_AHS, tvb, offset + 48, ahsLen, FALSE);
 		}
-		offset = handleHeaderDigest(ti, tvb, offset, 48 + ahsLen);
+		offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48 + ahsLen);
 	    }
 	    offset = handleDataSegment(ti, tvb, offset, data_segment_len, end_offset, hf_iscsi_immediate_data);
     } else if(opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
@@ -1155,7 +1151,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		proto_tree_add_item(ti, hf_iscsi_SCSIResponse_BidiReadResidualCount, tvb, offset + 40, 4, FALSE);
 		proto_tree_add_item(ti, hf_iscsi_SCSIResponse_ResidualCount, tvb, offset + 44, 4, FALSE);
 	    }
-	    offset = handleHeaderDigest(ti, tvb, offset, 48);
+	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
 	    /* do not update offset here because the data segment is
 	     * dissected below */
 	    handleDataDigest(ti, tvb, offset, paddedDataSegmentLength);
@@ -1172,7 +1168,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_RefCmdSN, tvb, offset + 32, 4, FALSE);
-	    offset = handleHeaderDigest(ti, tvb, offset, 48);
+	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
     } else if(opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION_RESPONSE) {
 	    /* Task Management Function Response */
 	    proto_tree_add_item(ti, hf_iscsi_TaskManagementFunction_Response, tvb, offset + 2, 1, FALSE);
@@ -1187,7 +1183,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, FALSE);
-	    offset = handleHeaderDigest(ti, tvb, offset, 48);
+	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
     } else if(opcode == ISCSI_OPCODE_LOGIN_COMMAND) {
 	    /* Login Command */
 	    int digestsActive = 0;
@@ -1254,7 +1250,11 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    }
 	    proto_tree_add_item(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
-	    offset += 48;
+	    if(digestsActive){
+		offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
+	    } else {
+		offset += 48;
+	    }
 	    offset = handleDataSegmentAsTextKeys(ti, tvb, offset, data_segment_len, end_offset, digestsActive);
     } else if(opcode == ISCSI_OPCODE_LOGIN_RESPONSE) {
 	    /* Login Response */
@@ -1317,7 +1317,11 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_Login_Status, tvb, offset + 36, 2, FALSE);
-	    offset += 48;
+	    if(digestsActive){
+		offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
+	    } else {
+		offset += 48;
+	    }
 	    offset = handleDataSegmentAsTextKeys(ti, tvb, offset, data_segment_len, end_offset, digestsActive);
     } else if(opcode == ISCSI_OPCODE_TEXT_COMMAND) {
 	    /* Text Command */
@@ -1342,7 +1346,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_TargetTransferTag, tvb, offset + 20, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
-	    offset = handleHeaderDigest(ti, tvb, offset, 48);
+	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
 	    offset = handleDataSegmentAsTextKeys(ti, tvb, offset, data_segment_len, end_offset, TRUE);
     } else if(opcode == ISCSI_OPCODE_TEXT_RESPONSE) {
 	    /* Text Response */
@@ -1368,7 +1372,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, FALSE);
-	    offset = handleHeaderDigest(ti, tvb, offset, 48);
+	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
 	    offset = handleDataSegmentAsTextKeys(ti, tvb, offset, data_segment_len, end_offset, TRUE);
     } else if(opcode == ISCSI_OPCODE_SCSI_DATA_OUT) {
 	    /* SCSI Data Out (write) */
@@ -1389,7 +1393,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_DataSN, tvb, offset + 36, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_BufferOffset, tvb, offset + 40, 4, FALSE);
-	    offset = handleHeaderDigest(ti, tvb, offset, 48);
+	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
 	    /* do not update offset here because the data segment is
 	     * dissected below */
 	    handleDataDigest(ti, tvb, offset, paddedDataSegmentLength);
@@ -1434,7 +1438,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT09) {
 		proto_tree_add_item(ti, hf_iscsi_SCSIData_ResidualCount, tvb, offset + 44, 4, FALSE);
 	    }
-	    offset = handleHeaderDigest(ti, tvb, offset, 48);
+	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
 	    /* do not update offset here because the data segment is
 	     * dissected below */
 	    handleDataDigest(ti, tvb, offset, paddedDataSegmentLength);
@@ -1460,7 +1464,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    }
 	    proto_tree_add_item(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
-	    offset = handleHeaderDigest(ti, tvb, offset, 48);
+	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
     } else if(opcode == ISCSI_OPCODE_LOGOUT_RESPONSE) {
 	    /* Logout Response */
 	    proto_tree_add_item(ti, hf_iscsi_Logout_Response, tvb, offset + 2, 1, FALSE);
@@ -1474,7 +1478,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_Time2Wait, tvb, offset + 40, 2, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_Time2Retain, tvb, offset + 42, 2, FALSE);
-	    offset = handleHeaderDigest(ti, tvb, offset, 48);
+	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
     } else if(opcode == ISCSI_OPCODE_SNACK_REQUEST) {
 	    /* SNACK Request */
 	    {
@@ -1504,7 +1508,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		proto_tree_add_item(ti, hf_iscsi_BegRun, tvb, offset + 40, 4, FALSE);
 		proto_tree_add_item(ti, hf_iscsi_RunLength, tvb, offset + 44, 4, FALSE);
 	    }
-	    offset = handleHeaderDigest(ti, tvb, offset, 48);
+	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
     } else if(opcode == ISCSI_OPCODE_R2T) {
 	    /* R2T */
 	    if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT09) {
@@ -1520,7 +1524,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_R2TSN, tvb, offset + 36, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_BufferOffset, tvb, offset + 40, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_DesiredDataLength, tvb, offset + 44, 4, FALSE);
-	    offset = handleHeaderDigest(ti, tvb, offset, 48);
+	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
     } else if(opcode == ISCSI_OPCODE_ASYNC_MESSAGE) {
 	    /* Asynchronous Message */
 	    if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT09) {
@@ -1536,7 +1540,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_Parameter1, tvb, offset + 38, 2, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_Parameter2, tvb, offset + 40, 2, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_Parameter3, tvb, offset + 42, 2, FALSE);
-	    offset = handleHeaderDigest(ti, tvb, offset, 48);
+	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
 	    offset = handleDataSegment(ti, tvb, offset, data_segment_len, end_offset, hf_iscsi_async_message_data);
     } else if(opcode == ISCSI_OPCODE_REJECT) {
 	    /* Reject */
@@ -1549,7 +1553,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_DataSN, tvb, offset + 36, 4, FALSE);
-	    offset = handleHeaderDigest(ti, tvb, offset, 48);
+	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
 	    offset = handleDataSegment(ti, tvb, offset, data_segment_len, end_offset, hf_iscsi_error_pdu_data);
     } else if(opcode == ISCSI_OPCODE_VENDOR_SPECIFIC_I0 ||
 		opcode == ISCSI_OPCODE_VENDOR_SPECIFIC_I1 ||
@@ -1562,7 +1566,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		proto_tree_add_item(ti, hf_iscsi_TotalAHSLength, tvb, offset + 4, 1, FALSE);
 	    }
 	    proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
-	    offset = handleHeaderDigest(ti, tvb, offset, 48);
+	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
 	    offset = handleDataSegment(ti, tvb, offset, data_segment_len, end_offset, hf_iscsi_vendor_specific_data);
     }
 
@@ -1773,11 +1777,8 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 	if((pduLen & 3) != 0)
 	    pduLen += 4 - (pduLen & 3);
 
-	if(digestsActive && enableHeaderDigests) {
-	    if(headerDigestIsCRC32)
+	if(digestsActive) {
 		pduLen += 4;
-	    else
-		pduLen += headerDigestSize;
 	}
 
 	if(digestsActive && data_segment_len > 0 && enableDataDigests) {
@@ -1797,6 +1798,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
                                              pinfo->destport, 0);
             iscsi_session=g_mem_chunk_alloc(iscsi_sessions);
             iscsi_session->conv_idx=conversation->index;
+            iscsi_session->header_digest=ISCSI_HEADER_DIGEST_AUTO;
             g_hash_table_insert(iscsi_session_table, iscsi_session, iscsi_session);
         }
         if(!iscsi_session){
@@ -1807,10 +1809,21 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
             if(!iscsi_session){
                 iscsi_session=g_mem_chunk_alloc(iscsi_sessions);
                 iscsi_session->conv_idx=conversation->index;
+                iscsi_session->header_digest=ISCSI_HEADER_DIGEST_AUTO;
                 g_hash_table_insert(iscsi_session_table, iscsi_session, iscsi_session);
             }
         }
-/*qqq  header digest autodetection should go in here */
+        /* try to autodetect if header digest is used or not */
+	if(digestsActive && (available_bytes>=52) && (iscsi_session->header_digest==ISCSI_HEADER_DIGEST_AUTO) ){
+            guint32 crc;
+		/* we have enough data to test if HeaderDigest is enabled */
+            crc= ~calculateCRC32(tvb_get_ptr(tvb, offset, 48), 48, CRC32C_PRELOAD);
+            if(crc==tvb_get_ntohl(tvb,48)){
+                iscsi_session->header_digest=ISCSI_HEADER_DIGEST_CRC32;
+            } else {
+                iscsi_session->header_digest=ISCSI_HEADER_DIGEST_NONE;
+            }
+	}
 
 
 	/*
@@ -1968,11 +1981,6 @@ proto_register_iscsi(void)
 	  { "VendorSpecificData", "iscsi.vendorspecificdata",
 	    FT_BYTES, BASE_HEX, NULL, 0,
 	    "Vendor Specific Data", HFILL }
-	},
-	{ &hf_iscsi_HeaderDigest,
-	  { "HeaderDigest", "iscsi.headerdigest",
-	    FT_BYTES, BASE_HEX, NULL, 0,
-	    "Header Digest", HFILL }
 	},
 	{ &hf_iscsi_HeaderDigest32,
 	  { "HeaderDigest", "iscsi.headerdigest32",
@@ -2492,33 +2500,17 @@ proto_register_iscsi(void)
 				       &iscsi_port);
 
 	prefs_register_bool_preference(iscsi_module,
-				       "enable_header_digests",
-				       "Enable header digests",
-				       "When enabled, pdus are assumed to contain a header digest",
-				       &enableHeaderDigests);
-	prefs_register_bool_preference(iscsi_module,
 				       "enable_data_digests",
 				       "Enable data digests",
 				       "When enabled, pdus are assumed to contain a data digest",
 				       &enableDataDigests);
 
 	prefs_register_bool_preference(iscsi_module,
-				       "header_digest_is_crc32c",
-				       "Header digest is CRC32C",
-				       "When enabled, header digests are assumed to be CRC32C",
-				       &headerDigestIsCRC32);
-	prefs_register_bool_preference(iscsi_module,
 				       "data_digest_is_crc32c",
 				       "Data digest is CRC32C",
 				       "When enabled, data digests are assumed to be CRC32C",
 				       &dataDigestIsCRC32);
 
-	prefs_register_uint_preference(iscsi_module,
-				       "header_digest_size",
-				       "Header digest size",
-				       "The size of a header digest (bytes)",
-				       10,
-				       &headerDigestSize);
 	prefs_register_uint_preference(iscsi_module,
 				       "data_digest_size",
 				       "Data digest size",
