@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.15 2001/07/03 09:53:22 guy Exp $
+ * $Id: packet-wtp.c,v 1.16 2001/07/20 04:39:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -430,7 +430,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * Called directly from UDP.
  * Put "WTP+WSP" into the "Protocol" column.
  */
-static void
+void
 dissect_wtp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	if (check_col(pinfo->fd, COL_PROTOCOL))

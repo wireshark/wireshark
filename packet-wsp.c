@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.23 2001/07/03 09:53:21 guy Exp $
+ * $Id: packet-wsp.c,v 1.24 2001/07/20 04:39:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,6 +54,7 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
+#include "conversation.h"
 #include "packet-wap.h"
 #include "packet-wsp.h"
 
@@ -113,12 +114,26 @@ static int hf_wsp_header_transfer_encoding		= HF_EMPTY;
 static int hf_wsp_header_transfer_encoding_str	= HF_EMPTY;
 static int hf_wsp_header_via					= HF_EMPTY;
 
+static int hf_wsp_redirect_flags			= HF_EMPTY;
+static int hf_wsp_redirect_permanent			= HF_EMPTY;
+static int hf_wsp_redirect_reuse_security_session	= HF_EMPTY;
+static int hf_wsp_redirect_afl				= HF_EMPTY;
+static int hf_wsp_redirect_afl_bearer_type_included	= HF_EMPTY;
+static int hf_wsp_redirect_afl_port_number_included	= HF_EMPTY;
+static int hf_wsp_redirect_afl_address_len		= HF_EMPTY;
+static int hf_wsp_redirect_bearer_type			= HF_EMPTY;
+static int hf_wsp_redirect_port_num			= HF_EMPTY;
+static int hf_wsp_redirect_ipv4_addr			= HF_EMPTY;
+static int hf_wsp_redirect_addr				= HF_EMPTY;
+
 /* Initialize the subtree pointers */
 static gint ett_wsp 							= ETT_EMPTY;
 static gint ett_header 							= ETT_EMPTY;
 static gint ett_headers							= ETT_EMPTY;
 static gint ett_capabilities					= ETT_EMPTY;
 static gint ett_content_type					= ETT_EMPTY;
+static gint ett_redirect_flags				= ETT_EMPTY;
+static gint ett_redirect_afl				= ETT_EMPTY;
 
 /* Handle for WMLC dissector */
 static dissector_handle_t wmlc_handle;
@@ -388,6 +403,24 @@ static const value_string vals_transfer_encoding[] = {
 };
 
 /*
+ * Redirect flags.
+ */
+#define PERMANENT_REDIRECT	0x80
+#define REUSE_SECURITY_SESSION	0x40
+
+/*
+ * Redirect address flags and length.
+ */
+#define BEARER_TYPE_INCLUDED	0x80
+#define PORT_NUMBER_INCLUDED	0x40
+#define ADDRESS_LEN		0x3f
+
+static const true_false_string yes_no_truth = { 
+	"Yes" ,
+	"No"
+};
+
+/*
  * Windows appears to define DELETE.
  */
 #ifdef DELETE
@@ -433,8 +466,111 @@ static void add_capabilities (proto_tree *tree, tvbuff_t *tvb);
 static guint get_uintvar (tvbuff_t *, guint, guint);
 
 /* Code to actually dissect the packets */
+
+/* Code to actually dissect the packets */
 static void
-dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree, dissector_t dissector)
+{
+	guint8 flags;
+	proto_item *ti;
+	proto_tree *flags_tree;
+	guint8 address_flags_len;
+	int address_len;
+	proto_tree *atf_tree;
+	guint8 bearer_type;
+	guint16 port_num = 0;
+	guint32 address_ipv4 = 0;
+	address redir_address;
+	conversation_t *conv;
+
+	flags = tvb_get_guint8 (tvb, offset);
+	if (tree) {
+		ti = proto_tree_add_uint (tree, hf_wsp_redirect_flags,
+		    tvb, offset, 1, flags);
+		flags_tree = proto_item_add_subtree (ti, ett_redirect_flags);
+		proto_tree_add_boolean (flags_tree, hf_wsp_redirect_permanent,
+		    tvb, offset, 1, flags);
+		proto_tree_add_boolean (flags_tree, hf_wsp_redirect_reuse_security_session,
+		    tvb, offset, 1, flags);
+	}
+	offset++;
+	while (tvb_reported_length_remaining (tvb, offset) > 0) {
+		address_flags_len = tvb_get_guint8 (tvb, offset);
+		if (tree) {
+			ti = proto_tree_add_uint (tree, hf_wsp_redirect_afl,
+			    tvb, offset, 1, address_flags_len);
+			atf_tree = proto_item_add_subtree (ti, ett_redirect_afl);
+			proto_tree_add_boolean (atf_tree, hf_wsp_redirect_afl_bearer_type_included,
+			    tvb, offset, 1, address_flags_len);
+			proto_tree_add_boolean (atf_tree, hf_wsp_redirect_afl_port_number_included,
+			    tvb, offset, 1, address_flags_len);
+			proto_tree_add_uint (atf_tree, hf_wsp_redirect_afl_address_len,
+			    tvb, offset, 1, address_flags_len);
+		}
+		offset++;
+		if (address_flags_len & BEARER_TYPE_INCLUDED) {
+			if (tree) {
+				proto_tree_add_item (tree, hf_wsp_redirect_bearer_type,
+				    tvb, offset, 1, bo_little_endian);
+			}
+			offset++;
+		}
+		if (address_flags_len & PORT_NUMBER_INCLUDED) {
+			port_num = tvb_get_ntohs (tvb, offset);
+			if (tree) {
+				proto_tree_add_uint (tree, hf_wsp_redirect_port_num,
+				    tvb, offset, 2, port_num);
+			}
+			offset += 2;
+		} else {
+			/*
+			 * Redirecting to the same server port number as was
+			 * being used, i.e. the source port number of this
+			 * redirect.
+			 */
+			port_num = pinfo->srcport;
+		}
+		address_len = address_flags_len & ADDRESS_LEN;
+		switch (address_len) {
+
+		case 0:		/* no address? */
+			break;
+
+		case 4:		/* we assume this is IPv4 */
+			tvb_memcpy(tvb, (guint8 *)&address_ipv4, offset, 4);
+			if (tree) {
+				proto_tree_add_ipv4 (tree, hf_wsp_redirect_ipv4_addr,
+				    tvb, offset, 4, address_ipv4);
+			}
+
+			redir_address.type = AT_IPv4;
+			redir_address.len = 4;
+			redir_address.data = (const guint8 *)&address_ipv4;
+			conv = find_conversation(&redir_address, &pinfo->dst, 
+			    PT_UDP, port_num, 0, NO_PORT_B);
+			if (conv == NULL) {
+				conv = conversation_new(&redir_address, &pinfo->dst,
+				    PT_UDP, port_num, 0, NULL, NO_PORT2);
+			}
+			conversation_set_dissector(conv, dissector);
+			break;
+
+		case 16:	/* XXX - handle this as IPv6? */
+		default:
+			if (tree) {
+				proto_tree_add_item (tree, hf_wsp_redirect_addr,
+				    tvb, offset, address_len, bo_little_endian);
+			}
+			break;
+		}
+		offset += address_len;
+	}
+}
+
+static void
+dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    dissector_t dissector)
 {
 	frame_data *fdata = pinfo->fd;
 	int offset = 0;
@@ -456,7 +592,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Set up structures we will need to add the protocol subtree and manage it */
 	proto_item *ti;
-	proto_tree *wsp_tree;
+	proto_tree *wsp_tree = NULL;
 /*	proto_tree *wsp_header_fixed; */
 	
 /* This field shows up as the "Info" column in the display; you should make
@@ -495,169 +631,187 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Code to process the packet goes here */
 /*
-			wsp_header_fixed = proto_item_add_subtree(ti, ett_header );
+		wsp_header_fixed = proto_item_add_subtree(ti, ett_header );
 */
 
-			/* Add common items: only TID and PDU Type */
+		/* Add common items: only TID and PDU Type */
 
-			/* If this is connectionless, then the TID Field is always first */
-			if (	(pinfo->match_port == UDP_PORT_WSP) ||
-					(pinfo->match_port == UDP_PORT_WTLS_WSP))
-			{
-				ti = proto_tree_add_item (wsp_tree, hf_wsp_header_tid,tvb,
-					0,1,bo_little_endian);
+		/* If this is connectionless, then the TID Field is always first */
+		if (	(pinfo->match_port == UDP_PORT_WSP) ||
+				(pinfo->match_port == UDP_PORT_WTLS_WSP))
+		{
+			ti = proto_tree_add_item (wsp_tree, hf_wsp_header_tid,tvb,
+				0,1,bo_little_endian);
+		}
+
+		ti = proto_tree_add_item(
+				wsp_tree, 		/* tree */
+				hf_wsp_header_pdu_type, /* id */
+				tvb, 
+				offset, 		/* start of high light */
+				1,			/* length of high light */
+				bo_little_endian	/* value */
+		     );
+	}
+	offset++;
+
+	switch (pdut)
+	{
+		case CONNECT:
+			if (tree) {
+				ti = proto_tree_add_item (wsp_tree, hf_wsp_version_major,tvb,offset,1,bo_little_endian);
+				ti = proto_tree_add_item (wsp_tree, hf_wsp_version_minor,tvb,offset,1,bo_little_endian);
+				offset++;
+				capabilityStart = offset;
+				count = 0;	/* Initialise count */
+				capabilityLength = tvb_get_guintvar (tvb, offset, &count);
+				offset += count;
+				ti = proto_tree_add_uint (wsp_tree, hf_wsp_capability_length,tvb,capabilityStart,count,capabilityLength);
+
+				headerStart = offset;
+				count = 0;	/* Initialise count */
+				headerLength = tvb_get_guintvar (tvb, offset, &count);
+				offset += count;
+				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,headerLength);
+				if (capabilityLength > 0)
+				{
+					tmp_tvb = tvb_new_subset (tvb, offset, capabilityLength, capabilityLength);
+					add_capabilities (wsp_tree, tmp_tvb);
+					offset += capabilityLength;
+				}
+
+				if (headerLength > 0)
+				{
+					tmp_tvb = tvb_new_subset (tvb, offset, headerLength, headerLength);
+					add_headers (wsp_tree, tmp_tvb);
+				}
 			}
 
-			ti = proto_tree_add_item(
-					wsp_tree, 		/* tree */
-					hf_wsp_header_pdu_type, 	/* id */
-					tvb, 
-					offset++, 			/* start of high light */
-					1,				/* length of high light */
-					bo_little_endian				/* value */
-			     );
+			break;
 
-			switch (pdut)
-			{
-				case CONNECT:
-					ti = proto_tree_add_item (wsp_tree, hf_wsp_version_major,tvb,offset,1,bo_little_endian);
-					ti = proto_tree_add_item (wsp_tree, hf_wsp_version_minor,tvb,offset,1,bo_little_endian);
-					offset++;
-					capabilityStart = offset;
-					count = 0;	/* Initialise count */
-					capabilityLength = tvb_get_guintvar (tvb, offset, &count);
-					offset += count;
-					ti = proto_tree_add_uint (wsp_tree, hf_wsp_capability_length,tvb,capabilityStart,count,capabilityLength);
+		case CONNECTREPLY:
+			if (tree) {
+				count = 0;	/* Initialise count */
+				value = tvb_get_guintvar (tvb, offset, &count);
+				ti = proto_tree_add_uint (wsp_tree, hf_wsp_server_session_id,tvb,offset,count,value);
+				offset += count;
 
-					headerStart = offset;
-					count = 0;	/* Initialise count */
-					headerLength = tvb_get_guintvar (tvb, offset, &count);
-					offset += count;
-					ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,headerLength);
-					if (capabilityLength > 0)
-					{
-						tmp_tvb = tvb_new_subset (tvb, offset, capabilityLength, capabilityLength);
-						add_capabilities (wsp_tree, tmp_tvb);
-						offset += capabilityLength;
-					}
+				capabilityStart = offset;
+				count = 0;	/* Initialise count */
+				capabilityLength = tvb_get_guintvar (tvb, offset, &count);
+				offset += count;
+				ti = proto_tree_add_uint (wsp_tree, hf_wsp_capability_length,tvb,capabilityStart,count,capabilityLength);
 
-					if (headerLength > 0)
-					{
-						tmp_tvb = tvb_new_subset (tvb, offset, headerLength, headerLength);
-						add_headers (wsp_tree, tmp_tvb);
-					}
+				headerStart = offset;
+				count = 0;	/* Initialise count */
+				headerLength = tvb_get_guintvar (tvb, offset, &count);
+				offset += count;
+				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,headerLength);
+				if (capabilityLength > 0)
+				{
+					tmp_tvb = tvb_new_subset (tvb, offset, capabilityLength, capabilityLength);
+					add_capabilities (wsp_tree, tmp_tvb);
+					offset += capabilityLength;
+				}
 
-					break;
+				if (headerLength > 0)
+				{
 
-				case CONNECTREPLY:
-					count = 0;	/* Initialise count */
-					value = tvb_get_guintvar (tvb, offset, &count);
-					ti = proto_tree_add_uint (wsp_tree, hf_wsp_server_session_id,tvb,offset,count,value);
-					offset += count;
-
-					capabilityStart = offset;
-					count = 0;	/* Initialise count */
-					capabilityLength = tvb_get_guintvar (tvb, offset, &count);
-					offset += count;
-					ti = proto_tree_add_uint (wsp_tree, hf_wsp_capability_length,tvb,capabilityStart,count,capabilityLength);
-
-					headerStart = offset;
-					count = 0;	/* Initialise count */
-					headerLength = tvb_get_guintvar (tvb, offset, &count);
-					offset += count;
-					ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,headerLength);
-					if (capabilityLength > 0)
-					{
-						tmp_tvb = tvb_new_subset (tvb, offset, capabilityLength, capabilityLength);
-						add_capabilities (wsp_tree, tmp_tvb);
-						offset += capabilityLength;
-					}
-
-					if (headerLength > 0)
-					{
-
-						/*
-						ti = proto_tree_add_item (wsp_tree, hf_wsp_headers_section,tvb,offset,headerLength,bo_little_endian);
-						wsp_headers = proto_item_add_subtree( ti, ett_headers );
-						*/
-						tmp_tvb = tvb_new_subset (tvb, offset, headerLength, headerLength);
-						add_headers (wsp_tree, tmp_tvb);
-					}
-
-					break;
-
-				case DISCONNECT:
-					count = 0;	/* Initialise count */
-					value = tvb_get_guintvar (tvb, offset, &count);
-					ti = proto_tree_add_uint (wsp_tree, hf_wsp_server_session_id,tvb,offset,count,value);
-					break;
-
-				case GET:
-					count = 0;	/* Initialise count */
-					/* Length of URI and size of URILen field */
-					value = tvb_get_guintvar (tvb, offset, &count);
-					nextOffset = offset + count;
-					add_uri (wsp_tree, tvb, offset, nextOffset);
-					offset += (value+count); /* VERIFY */
-					tmp_tvb = tvb_new_subset (tvb, offset, -1, -1);
+					/*
+					ti = proto_tree_add_item (wsp_tree, hf_wsp_headers_section,tvb,offset,headerLength,bo_little_endian);
+					wsp_headers = proto_item_add_subtree( ti, ett_headers );
+					*/
+					tmp_tvb = tvb_new_subset (tvb, offset, headerLength, headerLength);
 					add_headers (wsp_tree, tmp_tvb);
-					break;
-
-				case POST:
-					uriStart = offset;
-					count = 0;	/* Initialise count */
-					uriLength = tvb_get_guintvar (tvb, offset, &count);
-					headerStart = uriStart+count;
-					count = 0;	/* Initialise count */
-					headersLength = tvb_get_guintvar (tvb, headerStart, &count);
-					offset = headerStart + count;
-
-					add_uri (wsp_tree, tvb, uriStart, offset);
-					offset += uriLength;
-
-					ti = proto_tree_add_item (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,bo_little_endian);
-
-					contentTypeStart = offset;
-					nextOffset = add_content_type (wsp_tree, tvb, offset, &contentType);
-
-					/* Add headers subtree that will hold the headers fields */
-					/* Runs from nextOffset for value-(length of content-type field)*/
-					headerLength = headersLength-(nextOffset-contentTypeStart);
-					tmp_tvb = tvb_new_subset (tvb, nextOffset, headerLength, headerLength);
-					add_headers (wsp_tree, tmp_tvb);
-
-					/* TODO: Post DATA */
-					/* Runs from start of headers+headerLength to end of frame */
-					offset = nextOffset+headerLength;
-					tmp_tvb = tvb_new_subset (tvb, offset, tvb_reported_length (tvb)-offset, tvb_reported_length (tvb)-offset);
-					add_post_data (wsp_tree, tmp_tvb, contentType);
-					break;
-
-				case REPLY:
-					ti = proto_tree_add_item (wsp_tree, hf_wsp_header_status,tvb,offset,1,bo_little_endian);
-					count = 0;	/* Initialise count */
-					value = tvb_get_guintvar (tvb, offset+1, &count);
-					nextOffset = offset + 1 + count;
-					ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,offset+1,count,value);
-
-					contentTypeStart = nextOffset;
-					nextOffset = add_content_type (wsp_tree, tvb, nextOffset, &contentType);
-
-					/* Add headers subtree that will hold the headers fields */
-					/* Runs from nextOffset for value-(length of content-type field)*/
-					headerLength = value-(nextOffset-contentTypeStart);
-					tmp_tvb = tvb_new_subset (tvb, nextOffset, headerLength, headerLength);
-					add_headers (wsp_tree, tmp_tvb);
-					offset += count+value+1;
-
-					/* TODO: Data - decode WMLC */
-					/* Runs from offset+1+count+value+1 to end of frame */
-					if (offset < tvb_reported_length (tvb))
-					{
-						ti = proto_tree_add_item (wsp_tree, hf_wsp_reply_data,tvb,offset,tvb_length_remaining(tvb, offset),bo_little_endian);
-					}
-					break;
+				}
 			}
+
+			break;
+
+		case REDIRECT:
+			dissect_redirect(tvb, offset, pinfo, wsp_tree,
+			  dissector);
+			break;
+
+		case DISCONNECT:
+			if (tree) {
+				count = 0;	/* Initialise count */
+				value = tvb_get_guintvar (tvb, offset, &count);
+				ti = proto_tree_add_uint (wsp_tree, hf_wsp_server_session_id,tvb,offset,count,value);
+			}
+			break;
+
+		case GET:
+			if (tree) {
+				count = 0;	/* Initialise count */
+				/* Length of URI and size of URILen field */
+				value = tvb_get_guintvar (tvb, offset, &count);
+				nextOffset = offset + count;
+				add_uri (wsp_tree, tvb, offset, nextOffset);
+				offset += (value+count); /* VERIFY */
+				tmp_tvb = tvb_new_subset (tvb, offset, -1, -1);
+				add_headers (wsp_tree, tmp_tvb);
+			}
+			break;
+
+		case POST:
+			if (tree) {
+				uriStart = offset;
+				count = 0;	/* Initialise count */
+				uriLength = tvb_get_guintvar (tvb, offset, &count);
+				headerStart = uriStart+count;
+				count = 0;	/* Initialise count */
+				headersLength = tvb_get_guintvar (tvb, headerStart, &count);
+				offset = headerStart + count;
+
+				add_uri (wsp_tree, tvb, uriStart, offset);
+				offset += uriLength;
+
+				ti = proto_tree_add_item (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,bo_little_endian);
+
+				contentTypeStart = offset;
+				nextOffset = add_content_type (wsp_tree, tvb, offset, &contentType);
+
+				/* Add headers subtree that will hold the headers fields */
+				/* Runs from nextOffset for value-(length of content-type field)*/
+				headerLength = headersLength-(nextOffset-contentTypeStart);
+				tmp_tvb = tvb_new_subset (tvb, nextOffset, headerLength, headerLength);
+				add_headers (wsp_tree, tmp_tvb);
+
+				/* TODO: Post DATA */
+				/* Runs from start of headers+headerLength to end of frame */
+				offset = nextOffset+headerLength;
+				tmp_tvb = tvb_new_subset (tvb, offset, tvb_reported_length (tvb)-offset, tvb_reported_length (tvb)-offset);
+				add_post_data (wsp_tree, tmp_tvb, contentType);
+			}
+			break;
+
+		case REPLY:
+			if (tree) {
+				ti = proto_tree_add_item (wsp_tree, hf_wsp_header_status,tvb,offset,1,bo_little_endian);
+				count = 0;	/* Initialise count */
+				value = tvb_get_guintvar (tvb, offset+1, &count);
+				nextOffset = offset + 1 + count;
+				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,offset+1,count,value);
+
+				contentTypeStart = nextOffset;
+				nextOffset = add_content_type (wsp_tree, tvb, nextOffset, &contentType);
+
+				/* Add headers subtree that will hold the headers fields */
+				/* Runs from nextOffset for value-(length of content-type field)*/
+				headerLength = value-(nextOffset-contentTypeStart);
+				tmp_tvb = tvb_new_subset (tvb, nextOffset, headerLength, headerLength);
+				add_headers (wsp_tree, tmp_tvb);
+				offset += count+value+1;
+
+				/* TODO: Data - decode WMLC */
+				/* Runs from offset+1+count+value+1 to end of frame */
+				if (offset < tvb_reported_length (tvb))
+				{
+					ti = proto_tree_add_item (wsp_tree, hf_wsp_reply_data,tvb,offset,tvb_length_remaining(tvb, offset),bo_little_endian);
+				}
+			}
+			break;
 	}
 }
 
@@ -671,7 +825,7 @@ dissect_wsp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "WSP" );
 
-	dissect_wsp_common(tvb, pinfo, tree);
+	dissect_wsp_common(tvb, pinfo, tree, dissect_wsp_fromudp);
 }
 
 /*
@@ -682,7 +836,10 @@ dissect_wsp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_wsp_fromwap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_wsp_common(tvb, pinfo, tree);
+	/*
+	 * XXX - what about WTLS->WTP->WSP?
+	 */
+	dissect_wsp_common(tvb, pinfo, tree, dissect_wtp_fromudp);
 }
 
 static void
@@ -2116,6 +2273,87 @@ proto_register_wsp(void)
 				"Post Data", HFILL
 			}
 		},
+		{ &hf_wsp_redirect_flags,
+			{ 	"Flags",
+				"wsp.redirect_flags",
+				 FT_UINT8, BASE_HEX, NULL, 0x00,
+				"Redirect Flags", HFILL
+			}
+		},
+		{ &hf_wsp_redirect_permanent,
+			{ 	"Permanent Redirect",
+				"wsp.redirect_flags.permanent",
+				 FT_BOOLEAN, 8, TFS(&yes_no_truth), PERMANENT_REDIRECT,
+				"Permanent Redirect", HFILL
+			}
+		},
+		{ &hf_wsp_redirect_reuse_security_session,
+			{ 	"Reuse Security Session",
+				"wsp.redirect_flags.reuse_security_session",
+				 FT_BOOLEAN, 8, TFS(&yes_no_truth), REUSE_SECURITY_SESSION,
+				"Permanent Redirect", HFILL
+			}
+		},
+		{ &hf_wsp_redirect_afl,
+			{ 	"Flags/Length",
+				"wsp.redirect_afl",
+				 FT_UINT8, BASE_HEX, NULL, 0x00,
+				"Redirect Address Flags/Length", HFILL
+			}
+		},
+		{ &hf_wsp_redirect_afl_bearer_type_included,
+			{ 	"Bearer Type Included",
+				"wsp.redirect_afl.bearer_type_included",
+				 FT_BOOLEAN, 8, TFS(&yes_no_truth), BEARER_TYPE_INCLUDED,
+				"Redirect Address bearer type included", HFILL
+			}
+		},
+		{ &hf_wsp_redirect_afl_port_number_included,
+			{ 	"Port Number Included",
+				"wsp.redirect_afl.port_number_included",
+				 FT_BOOLEAN, 8, TFS(&yes_no_truth), PORT_NUMBER_INCLUDED,
+				"Redirect Address port number included", HFILL
+			}
+		},
+		{ &hf_wsp_redirect_afl_address_len,
+			{ 	"Address Len",
+				"wsp.redirect_afl.address_len",
+				 FT_UINT8, BASE_DEC, NULL, ADDRESS_LEN,
+				"Redirect Address Length", HFILL
+			}
+		},
+		{ &hf_wsp_redirect_bearer_type,
+			/*
+			 * XXX - the values are specified in the WDP
+			 * specification.
+			 */
+			{ 	"Bearer Type",
+				"wsp.redirect_bearer_type",
+				 FT_UINT8, BASE_DEC, NULL, 0x0,
+				"Redirect Bearer Type", HFILL
+			}
+		},
+		{ &hf_wsp_redirect_port_num,
+			{ 	"Port Number",
+				"wsp.redirect_port_num",
+				 FT_UINT16, BASE_DEC, NULL, 0x0,
+				"Redirect Port Number", HFILL
+			}
+		},
+		{ &hf_wsp_redirect_ipv4_addr,
+			{ 	"IP Address",
+				"wsp.redirect_ipv4_addr",
+				 FT_IPv4, BASE_NONE, NULL, 0x0,
+				"Redirect Address (IP)", HFILL
+			}
+		},
+		{ &hf_wsp_redirect_addr,
+			{ 	"Address",
+				"wsp.redirect_addr",
+				 FT_BYTES, BASE_NONE, NULL, 0x0,
+				"Redirect Address", HFILL
+			}
+		},
 	};
 	
 /* Setup protocol subtree array */
@@ -2125,6 +2363,8 @@ proto_register_wsp(void)
 		&ett_headers,
 		&ett_capabilities,
 		&ett_content_type,
+		&ett_redirect_flags,
+		&ett_redirect_afl,
 	};
 
 /* Register the protocol name and description */
