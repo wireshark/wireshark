@@ -8,7 +8,7 @@
  * Data Coding Scheme decoding for GSM (SMS and CBS),
  * provided by Olivier Biot.
  *
- * $Id: packet-smpp.c,v 1.21 2003/12/12 23:47:42 obiot Exp $
+ * $Id: packet-smpp.c,v 1.22 2003/12/19 22:31:40 guy Exp $
  *
  * Note on SMS Message reassembly
  * ------------------------------
@@ -1429,10 +1429,11 @@ parse_sm_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo)
 	tvbuff_t *sm_tvb = NULL;
 	proto_item *subtree, *tree;
 	guint8 udh_len, udh, len;
-	guint8 sm_len = tvb_reported_length (tvb);
-	guint8 sm_data_len;
+	guint sm_len = tvb_reported_length (tvb);
+	guint sm_data_len;
 	guint32 i = 0;
 	/* Multiple Messages UDH */
+	gboolean is_fragmented = FALSE;
 	fragment_data *fd_sm = NULL;
 	guint16 sm_id = 0, frags = 0, frag = 0;
 	gboolean save_fragmented = FALSE, try_sm_reassemble = FALSE;
@@ -1443,7 +1444,6 @@ parse_sm_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo)
 	udh_len = tvb_get_guint8(tvb, i++);
 	tree = proto_tree_add_uint(sm_tree, hf_smpp_udh_length, tvb, 0, 1, udh_len);
 	tree = proto_item_add_subtree(tree, ett_udh);
-	sm_data_len = sm_len - (1 + udh_len);
 	while (i < udh_len) {
 		udh = tvb_get_guint8(tvb, i++);
 		len = tvb_get_guint8(tvb, i++);
@@ -1452,6 +1452,7 @@ parse_sm_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo)
 		switch (udh) {
 			case 0x00: /* Multiple messages - 8-bit message ID */
 				if (len == 3) {
+					is_fragmented = TRUE;
 					sm_id = tvb_get_guint8(tvb, i++);
 					frags = tvb_get_guint8(tvb, i++);
 					frag  = tvb_get_guint8(tvb, i++);
@@ -1476,6 +1477,7 @@ parse_sm_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo)
 
 			case 0x08: /* Multiple messages - 16-bit message ID */
 				if (len == 4) {
+					is_fragmented = TRUE;
 					sm_id = tvb_get_ntohs(tvb, i); i += 2;
 					frags = tvb_get_guint8(tvb, i++);
 					frag  = tvb_get_guint8(tvb, i++);
@@ -1544,8 +1546,30 @@ parse_sm_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo)
 	if (tvb_reported_length_remaining(tvb, i) <= 0)
 		return; /* No more data */
 
-	/* Try reassembling the packets */
-	if ( frags && tvb_bytes_exist (tvb, i, sm_data_len) ) {
+	/*
+	 * XXX - where does the "1" come from?  If it weren't there,
+	 * "sm_data_len" would, I think, be the same as
+	 * "tvb_reported_length_remaining(tvb, i)".
+	 *
+	 * I think that the above check ensures that "sm_len" won't
+	 * be less than or equal to "udh_len", so it ensures that
+	 * "sm_len" won't be less than "1 + udh_len", so we don't
+	 * have to worry about "sm_data_len" being negative.
+	 */
+	sm_data_len = sm_len - (1 + udh_len);
+	if (sm_data_len == 0)
+		return;	/* no more data */
+
+	/*
+	 * Try reassembling the packets.
+	 * XXX - fragment numbers are 1-origin, but the fragment number
+	 * field could be 0.
+	 * Should we flag a fragmented message with a fragment number field
+	 * of 0?
+	 * What if the fragment count is 0?  Should we flag that as well?
+	 */
+	if ( is_fragmented && frag != 0 && frags != 0 &&
+	    tvb_bytes_exist (tvb, i, sm_data_len) ) {
 		try_sm_reassemble = TRUE;
 		save_fragmented = pinfo->fragmented;
 		pinfo->fragmented = TRUE;
@@ -1556,14 +1580,10 @@ parse_sm_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo)
 				frag-1, /* guint32 fragment sequence number */
 				sm_data_len, /* guint32 fragment length */
 				(frag != frags)); /* More fragments? */
+		sm_tvb = process_reassembled_data(tvb, i, pinfo,
+		    "Reassembled Short Message", fd_sm, &sm_frag_items,
+		    NULL, sm_tree);
 		if (fd_sm) { /* Reassembled */
-			sm_tvb = tvb_new_real_data (fd_sm->data, fd_sm->len, fd_sm->len);
-			tvb_set_child_real_data_tvbuff (tvb, sm_tvb);
-			add_new_data_source (pinfo, sm_tvb, "Reassembled Short Message");
-			pinfo->fragmented = FALSE;
-			/* Show all fragments */
-			show_fragment_seq_tree (fd_sm, &sm_frag_items,
-					sm_tree, pinfo, sm_tvb);
 			if (check_col (pinfo->cinfo, COL_INFO))
 				col_append_str (pinfo->cinfo, COL_INFO,
 						" (Short Message Reassembled)");
