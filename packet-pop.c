@@ -2,7 +2,7 @@
  * Routines for pop packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-pop.c,v 1.17 2000/08/13 14:08:37 deniel Exp $
+ * $Id: packet-pop.c,v 1.18 2000/11/10 08:02:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,7 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
+#include "strutil.h"
 
 static int proto_pop = -1;
 static int hf_pop_response = -1;
@@ -51,86 +52,139 @@ static gint ett_pop = -1;
 
 #define TCP_PORT_POP			110
 
-static gboolean is_continuation(const u_char *data);
+static gboolean response_is_continuation(const u_char *data);
 	
 static void
-dissect_pop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-        proto_tree      *pop_tree, *ti;
-	gchar          rr[50], rd[1500];
-	int i1 = (u_char *)strchr(pd + offset, ' ') - (pd + offset); /* Where is that space */
-	int i2;
-	int max_data = pi.captured_len - offset;
+        gboolean        is_request;
+        gboolean	is_continuation;
+        proto_tree      *pop_tree;
+	proto_item	*ti;
+	gint		offset = 0;
+	const u_char	*line;
+	gint		next_offset;
+	int		linelen;
+	int		tokenlen;
+	const u_char	*next_token;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_pop, pd, offset, fd, tree);
+	CHECK_DISPLAY_AS_DATA(proto_pop, tvb, pinfo, tree);
 
-	memset(rr, '\0', sizeof(rr));
-	memset(rd, '\0', sizeof(rd));
+	pinfo->current_proto = "POP";
 
-	if ((i1 > max_data) || (i1 <= 0)) {
-	  
-	  i1 = max_data;
-	  strncpy(rr, pd + offset, MIN(max_data - 2, sizeof(rr) - 1));
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_add_str(pinfo->fd, COL_PROTOCOL, "POP");
 
+	/*
+	 * Find the end of the first line.
+	 */
+	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
+	line = tvb_get_ptr(tvb, offset, linelen);
+
+	if (pinfo->match_port == pinfo->destport) {
+		is_request = TRUE;
+		is_continuation = FALSE;
+	} else {
+		is_request = FALSE;
+		is_continuation = response_is_continuation(line);
 	}
-	else {
 
-	  strncpy(rr, pd + offset, MIN(i1, sizeof(rr) - 1));
-	  i2 = ((u_char *)strchr(pd + offset + i1 + 1, '\r') - (pd + offset)) - i1 - 1;
-	  if (i2 > max_data - i1 - 1 || i2 <= 0) {
-	    i2 = ((u_char *)strchr(pd + offset + i1 + 1, '\n') - (pd + offset)) - i1 - 1;
-	    if (i2 > max_data - i1 - 1 || i2 <= 0)
-	      i2 = max_data - i1 - 1;
-	  }
-	  strncpy(rd, pd + offset + i1 + 1, MIN(i2, sizeof(rd) - 1));
-	}
-
-	if (check_col(fd, COL_PROTOCOL))
-	  col_add_str(fd, COL_PROTOCOL, "POP");
-
-	if (check_col(fd, COL_INFO)) {
-	  /*
-	   * Do it like HTTP does.
-	   * Put the first line from the buffer into the summary,
-	   * if it's an POP request or reply.
-	   * Otherwise, just call it a continuation.
-	   */
-	  if (pi.match_port == pi.srcport && is_continuation(pd+offset))
-	    col_add_str(fd, COL_INFO, "Continuation");
-	  else
-	    col_add_fstr(fd, COL_INFO, "%s: %s %s", (pi.match_port == pi.destport)? "Request" : "Response", rr, rd);	  
+	if (check_col(pinfo->fd, COL_INFO)) {
+		/*
+		 * Put the first line from the buffer into the summary
+		 * if it's a POP request or reply (but leave out the
+		 * line terminator).
+		 * Otherwise, just call it a continuation.
+		 */
+		if (is_continuation)
+			col_add_str(pinfo->fd, COL_INFO, "Continuation");
+		else
+			col_add_fstr(pinfo->fd, COL_INFO, "%s: %s",
+			    is_request ? "Request" : "Response",
+			    format_text(line, linelen));
 	}
 
 	if (tree) {
+		ti = proto_tree_add_item(tree, proto_pop, tvb, offset,
+		    tvb_length_remaining(tvb, offset), FALSE);
+		pop_tree = proto_item_add_subtree(ti, ett_pop);
 
-	  ti = proto_tree_add_item(tree, proto_pop, NullTVB, offset, END_OF_FRAME, FALSE);
-	  pop_tree = proto_item_add_subtree(ti, ett_pop);
+		if (is_continuation) {
+			/*
+			 * Put the whole packet into the tree as data.
+			 */
+			dissect_data(tvb, pinfo, pop_tree);
+			return;
+		}
 
-	  if (pi.match_port == pi.destport) { /* Request */
-	    proto_tree_add_boolean_hidden(pop_tree, hf_pop_request, NullTVB, offset, i1, TRUE);
-	    proto_tree_add_text(pop_tree, NullTVB, offset, i1, "Request: %s", rr);
+		if (is_request) {
+			proto_tree_add_boolean_hidden(pop_tree,
+			    hf_pop_request, tvb, 0, 0, TRUE);
+		} else {
+			proto_tree_add_boolean_hidden(pop_tree,
+			    hf_pop_response, tvb, 0, 0, TRUE);
+		}
 
-	    if (strlen(rd) != 0)
-	      proto_tree_add_text(pop_tree, NullTVB, offset + i1 + 1, END_OF_FRAME, "Request Arg: %s", rd);
+		/*
+		 * Extract the first token, and, if there is a first
+		 * token, add it as the request or reply code.
+		 */
+		tokenlen = get_token_len(line, line + linelen, &next_token);
+		if (tokenlen != 0) {
+			if (is_request) {
+				proto_tree_add_text(pop_tree, tvb, offset,
+				    tokenlen, "Request: %s",
+				    format_text(line, tokenlen));
+			} else {
+				proto_tree_add_text(pop_tree, tvb, offset,
+				    tokenlen, "Response: %s",
+				    format_text(line, tokenlen));
+			}
+			offset += next_token - line;
+			linelen -= next_token - line;
+			line = next_token;
+		}
 
-	  }
-	  else {
-	    proto_tree_add_boolean_hidden(pop_tree, hf_pop_response, NullTVB, offset, i1, TRUE);
+		/*
+		 * Add the rest of the first line as request or
+		 * reply data.
+		 */
+		if (linelen != 0) {
+			if (is_request) {
+				proto_tree_add_text(pop_tree, tvb, offset,
+				    linelen, "Request Arg: %s",
+				    format_text(line, linelen));
+			} else {
+				proto_tree_add_text(pop_tree, tvb, offset,
+				    linelen, "Response Arg: %s",
+				    format_text(line, linelen));
+			}
+		}
+		offset = next_offset;
 
-	    if (is_continuation(pd+offset))
-	      old_dissect_data(pd, offset, fd, pop_tree);
-	    else {
-	      proto_tree_add_text(pop_tree, NullTVB, offset, i1, "Response: %s", rr);
+		/*
+		 * Show the rest of the request or response as text,
+		 * a line at a time.
+		 */
+		while (tvb_length_remaining(tvb, offset)) {
+			/*
+			 * Find the end of the line.
+			 */
+			linelen = tvb_find_line_end(tvb, offset, -1,
+			    &next_offset);
 
-	      if (strlen(rd) != 0)
-	      proto_tree_add_text(pop_tree, NullTVB, offset + i1 + 1, END_OF_FRAME, "Response Arg: %s", rd);
-	    }
-	  }
-
+			/*
+			 * Put this line.
+			 */
+			proto_tree_add_text(pop_tree, tvb, offset,
+			    next_offset - offset, "%s",
+			    tvb_format_text(tvb, offset, next_offset - offset));
+			offset = next_offset;
+		}
 	}
 }
 
-static gboolean is_continuation(const u_char *data)
+static gboolean response_is_continuation(const u_char *data)
 {
   if (strncmp(data, "+OK", strlen("+OK")) == 0)
     return FALSE;
@@ -168,5 +222,5 @@ proto_register_pop(void)
 void
 proto_reg_handoff_pop(void)
 {
-  old_dissector_add("tcp.port", TCP_PORT_POP, dissect_pop);
+  dissector_add("tcp.port", TCP_PORT_POP, dissect_pop);
 }

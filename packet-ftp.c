@@ -2,7 +2,7 @@
  * Routines for ftp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-ftp.c,v 1.20 2000/11/05 05:49:02 sharpe Exp $
+ * $Id: packet-ftp.c,v 1.21 2000/11/10 08:02:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,143 +61,190 @@ static gint ett_ftp_data = -1;
 #define TCP_PORT_FTP			21
 
 static void
-dissect_ftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-        proto_tree      *ftp_tree, *ti;
-	gchar          rr[50], rd[1500];
-	int i1 = (u_char *)strchr(pd + offset, ' ') - (pd + offset); /* Where is that space */
-	int i2;
-	int max_data = pi.captured_len - offset;
+        gboolean        is_request;
+        proto_tree      *ftp_tree;
+	proto_item	*ti;
+	gint		offset = 0;
+	const u_char	*line;
+	gint		next_offset;
+	int		linelen;
+	int		tokenlen;
+	const u_char	*next_token;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_ftp, pd, offset, fd, tree);
+	CHECK_DISPLAY_AS_DATA(proto_ftp, tvb, pinfo, tree);
 
-	memset(rr, '\0', sizeof(rr));
-	memset(rd, '\0', sizeof(rd));
+	if (pinfo->match_port == pinfo->destport)
+		is_request = TRUE;
+	else
+		is_request = FALSE;
 
-	if (i1 >= 0) {
+	pinfo->current_proto = "FTP";
 
-	  /* Hmmm, check if there was no space in there ... */
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_add_str(pinfo->fd, COL_PROTOCOL, "FTP");
 
-	  if (i1 > max_data) {
+	/*
+	 * Find the end of the first line.
+	 */
+	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
+	line = tvb_get_ptr(tvb, offset, linelen);
 
-	    i1 = max_data;  /* Make things below work */
-	    strncpy(rr, pd + offset, MIN(max_data - 2, sizeof(rr) - 1));
-
-	  }
-	  else {
-
-	    strncpy(rr, pd + offset, MIN(i1, sizeof(rr) - 1));
-	    i2 = ((u_char *)strchr(pd + offset + i1 + 1, '\r') - (pd + offset)) - i1 - 1;
-	    if (i2 > max_data - i1 - 1 || i2 < 0) {
-	      i2 = max_data - i1 - 1;
-	    }
-
-	    strncpy(rd, pd + offset + i1 + 1, MIN(i2, sizeof(rd) - 1));
-	  }
-	}
-	else { 
-
-	  i1 = max_data;
-	  strncpy(rr, pd + offset, MIN(max_data - 2, sizeof(rr) - 1));  /* Lazy, CRLF */
-
-	}
-
-	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "FTP");
-
-	if (check_col(fd, COL_INFO)) {
-
-	  col_add_fstr(fd, COL_INFO, "%s: %s %s", (pi.match_port == pi.destport)? "Request" : "Response", rr, rd);
-
+	if (check_col(pinfo->fd, COL_INFO)) {
+		/*
+		 * Put the first line from the buffer into the summary.
+		 * (but leave out the line terminator).
+		 */
+		col_add_fstr(pinfo->fd, COL_INFO, "%s: %s",
+		    is_request ? "Request" : "Response",
+		    format_text(line, linelen));
 	}
 
 	if (tree) {
+		ti = proto_tree_add_item(tree, proto_ftp, tvb, offset,
+		    tvb_length_remaining(tvb, offset), FALSE);
+		ftp_tree = proto_item_add_subtree(ti, ett_ftp);
 
-	  ti = proto_tree_add_item(tree, proto_ftp, NullTVB, offset, END_OF_FRAME, FALSE);
-	  ftp_tree = proto_item_add_subtree(ti, ett_ftp);
+		if (is_request) {
+			proto_tree_add_boolean_hidden(ftp_tree,
+			    hf_ftp_request, tvb, 0, 0, TRUE);
+			proto_tree_add_boolean_hidden(ftp_tree,
+			    hf_ftp_response, tvb, 0, 0, FALSE);
+		} else {
+			proto_tree_add_boolean_hidden(ftp_tree,
+			    hf_ftp_request, tvb, 0, 0, FALSE);
+			proto_tree_add_boolean_hidden(ftp_tree,
+			    hf_ftp_response, tvb, 0, 0, TRUE);
+		}
 
-	  if (pi.match_port == pi.destport) { /* Request */
+		/*
+		 * Extract the first token, and, if there is a first
+		 * token, add it as the request or reply code.
+		 */
+		tokenlen = get_token_len(line, line + linelen, &next_token);
+		if (tokenlen != 0) {
+			if (is_request) {
+				proto_tree_add_string_format(ftp_tree,
+				    hf_ftp_request_command, tvb, offset,
+				    tokenlen, line, "Request: %s",
+				    format_text(line, tokenlen));
+			} else {
+				proto_tree_add_uint_format(ftp_tree,
+				    hf_ftp_response_code, tvb, offset,
+				    tokenlen, atoi(line), "Response: %s",
+				    format_text(line, tokenlen));
+			}
+			offset += next_token - line;
+			linelen -= next_token - line;
+			line = next_token;
+		}
 
-	    proto_tree_add_boolean_hidden(ftp_tree, hf_ftp_request, NullTVB,
-				       offset, i1, TRUE);
-	    proto_tree_add_boolean_hidden(ftp_tree, hf_ftp_response, NullTVB,
-				       offset, i1, FALSE);
-	    proto_tree_add_string_format(ftp_tree, hf_ftp_request_command, NullTVB,
-				       offset, i1, rr, "Request: %s", rr);
-	    proto_tree_add_string_format(ftp_tree, hf_ftp_request_data, NullTVB,
-				       offset + i1 + 1, END_OF_FRAME, 
-				       rd, "Request Arg: %s", rd);
-	  }
-	  else {
+		/*
+		 * Add the rest of the first line as request or
+		 * reply data.
+		 */
+		if (linelen != 0) {
+			if (is_request) {
+				proto_tree_add_string_format(ftp_tree,
+				    hf_ftp_request_data, tvb, offset,
+				    linelen, line, "Request Arg: %s",
+				    format_text(line, linelen));
+			} else {
+				proto_tree_add_string_format(ftp_tree,
+				    hf_ftp_response_data, tvb, offset,
+				    linelen, line, "Response Arg: %s",
+				    format_text(line, linelen));
+			}
+		}
+		offset = next_offset;
 
-	    proto_tree_add_boolean_hidden(ftp_tree, hf_ftp_request, NullTVB,
-				       offset, i1, FALSE);
-	    proto_tree_add_boolean_hidden(ftp_tree, hf_ftp_response, NullTVB,
-				       offset, i1, TRUE);
-	    proto_tree_add_uint_format(ftp_tree, hf_ftp_response_code, NullTVB, 
-				       offset, i1, 
-				       atoi(rr), "Response: %s", rr);
-	    proto_tree_add_string_format(ftp_tree, hf_ftp_response_data, NullTVB,
-				       offset + i1 + 1, END_OF_FRAME,
-				       rd, "Response Arg: %s", rd);
-	  }
+		/*
+		 * Show the rest of the request or response as text,
+		 * a line at a time.
+		 */
+		while (tvb_length_remaining(tvb, offset)) {
+			/*
+			 * Find the end of the line.
+			 */
+			linelen = tvb_find_line_end(tvb, offset, -1,
+			    &next_offset);
 
+			/*
+			 * Put this line.
+			 */
+			proto_tree_add_text(ftp_tree, tvb, offset,
+			    next_offset - offset, "%s",
+			    tvb_format_text(tvb, offset, next_offset - offset));
+			offset = next_offset;
+		}
 	}
 }
 
 static void
-dissect_ftpdata(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         proto_tree      *ti, *ftp_data_tree;
+        int		data_length;
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "FTP-DATA");
+	pinfo->current_proto = "FTP-DATA";
 
-	if (check_col(fd, COL_INFO)) {
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_add_str(pinfo->fd, COL_PROTOCOL, "FTP-DATA");
 
-	  col_add_fstr(fd, COL_INFO, "FTP Data: %u bytes", pi.captured_len - offset);
-
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_add_fstr(pinfo->fd, COL_INFO, "FTP Data: %u bytes",
+		    tvb_length(tvb));
 	}
 
 	if (tree) {
+		data_length = tvb_length(tvb);
 
-	  ti = proto_tree_add_item(tree, proto_ftp_data, NullTVB, offset, END_OF_FRAME, FALSE);
+		ti = proto_tree_add_item(tree, proto_ftp_data, tvb, 0,
+		    data_length, FALSE);
+		ftp_data_tree = proto_item_add_subtree(ti, ett_ftp_data);
 
-	  ftp_data_tree = proto_item_add_subtree(ti, ett_ftp_data);
-
-	  ti = proto_tree_add_text(ftp_data_tree, NullTVB, offset, END_OF_FRAME,
-				   "FTP Data: %s", 
-				   format_text(&pd[offset], pi.captured_len - offset));
-
+		/*
+		 * XXX - if this is binary data, it'll produce
+		 * a *really* long line.
+		 */
+		proto_tree_add_text(ftp_data_tree, tvb, 0, data_length,
+		    "FTP Data: %s", tvb_format_text(tvb, 0, data_length));
 	}
 }
 
 void
 proto_register_ftp(void)
 {
-  static hf_register_info hf[] = {
+    static hf_register_info hf[] = {
     { &hf_ftp_response,
-      { "Response",           "ftp.response",		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"" }},
+      { "Response",           "ftp.response",
+      	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+      	"TRUE if FTP response" }},
 
     { &hf_ftp_request,
-      { "Request",            "ftp.request",		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"" }},
+      { "Request",            "ftp.request",
+      	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+      	"TRUE if FTP request" }},
 
     { &hf_ftp_request_command,
-      { "Request command",    "ftp.request.command",	FT_STRING,  BASE_NONE, NULL, 0x0,
+      { "Request command",    "ftp.request.command",
+      	FT_STRING,  BASE_NONE, NULL, 0x0,
       	"" }},
 
     { &hf_ftp_request_data,
-      { "Request data",	      "ftp.request.data",	FT_STRING,  BASE_NONE, NULL, 0x0,
+      { "Request data",	      "ftp.request.data",
+      	FT_STRING,  BASE_NONE, NULL, 0x0,
       	"" }},
 
     { &hf_ftp_response_code,
-      { "Response code",      "ftp.response.code",	FT_UINT8,   BASE_DEC, NULL, 0x0,
+      { "Response code",      "ftp.response.code",
+      	FT_UINT8,   BASE_DEC, NULL, 0x0,
       	"" }},
 
     { &hf_ftp_response_data,
-      { "Response data",      "ftp.reponse.data",	FT_STRING,  BASE_NONE, NULL, 0x0,
+      { "Response data",      "ftp.reponse.data",
+      	FT_STRING,  BASE_NONE, NULL, 0x0,
       	"" }}
   };
   static gint *ett[] = {
@@ -214,7 +261,6 @@ proto_register_ftp(void)
 void
 proto_reg_handoff_ftp(void)
 {
-	old_dissector_add("tcp.port", TCP_PORT_FTPDATA, &dissect_ftpdata);
-	old_dissector_add("tcp.port", TCP_PORT_FTP, &dissect_ftp);
+  dissector_add("tcp.port", TCP_PORT_FTPDATA, &dissect_ftpdata);
+  dissector_add("tcp.port", TCP_PORT_FTP, &dissect_ftp);
 }
-
