@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.78 2003/10/11 00:10:58 guy Exp $
+ * $Id: packet-wsp.c,v 1.79 2003/10/28 17:59:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -669,11 +669,11 @@ static const value_string vals_content_types[] = {
 	{ 0x08, "text/vnd.wap.wml" },
 	{ 0x09, "text/vnd.wap.wmlscript" },
 	{ 0x0A, "text/vnd.wap.channel" },
-	{ 0x0B, "Multipart/*" },
-	{ 0x0C, "Multipart/mixed" },
-	{ 0x0D, "Multipart/form-data" },
-	{ 0x0E, "Multipart/byteranges" },
-	{ 0x0F, "Multipart/alternative" },
+	{ 0x0B, "multipart/*" },
+	{ 0x0C, "multipart/mixed" },
+	{ 0x0D, "multipart/form-data" },
+	{ 0x0E, "multipart/byteranges" },
+	{ 0x0F, "multipart/alternative" },
 	{ 0x10, "application/*" },
 	{ 0x11, "application/java-vm" },
 	{ 0x12, "application/x-www-form-urlencoded" },
@@ -4192,7 +4192,7 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
 			add_post_variable (sub_tree, tvb, variableStart, variableEnd, valueStart, offset);
 		}
 	}
-	else if ((contentType == 0x22) || (contentType == 0x23) || (contentType == 0x23) || (contentType == 0x24) ||
+	else if ((contentType == 0x22) || (contentType == 0x23) || (contentType == 0x24) ||
 		 (contentType == 0x25) || (contentType == 0x26) || (contentType == 0x33))
 	{
 		add_multipart_data(sub_tree, tvb);
