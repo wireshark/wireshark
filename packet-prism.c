@@ -9,7 +9,7 @@
  *
  * By Tim Newsham
  *
- * $Id: packet-prism.c,v 1.14 2004/07/06 23:47:21 guy Exp $
+ * $Id: packet-prism.c,v 1.15 2004/07/07 04:17:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,22 +53,21 @@ static int hf_prism_msglen = -1;
 /*
  * A value from the header.
  *
- * It appears, at least from looking at
- *
- *	http://www.jms1.net/wlan/prism2sta.c
- *
- * which implements the station functionality for the linux-wlan
- * (liux-wlan-ng?) Prism II driver, that:
+ * It appears from looking at the linux-wlan-ng and Prism II HostAP
+ * drivers, and various patches to the orinoco_cs drivers to add
+ * Prism headers, that:
  *
  *	the "did" identifies what the value is (i.e., what it's the value
  *	of);
  *
- *	"status" can be 0 if the value is present or some other value if
- *	it's absent;
+ *	"status" is 0 if the value is present or 1 if it's absent;
  *
  *	"len" is the length of the value (always 4, in that code);
  *
  *	"data" is the value of the data (or 0 if not present).
+ *
+ * Note: all of those values are in the *host* byte order of the machine
+ * on which the capture was written.
  */
 struct val_80211 {
     unsigned int did;
@@ -89,17 +88,17 @@ struct val_80211 {
  *	"silence value" is "the total power observed just before the
  *	start of the frame".
  *
- * According to
+ * None of the drivers I looked at supply the "rssi" or "sq" value,
+ * but they do supply "signal" and "noise" values, along with a "rate"
+ * value that's 1/5 of the raw value from what is presumably a raw
+ * HFA384x frame descriptor, with the comment "set to 802.11 units",
+ * which presumably means the units are 500 Kb/s.
  *
- *	http://www.jms1.net/wlan/prism2sta.c
- *
- * the linux-wlan (linux-wlan-ng?) Prism II driver doesn't supply the
- * RSSI or "sq" (Signal Quality?) value, but does supply "signal" and
- * "noise" values, along with a "rate" value that's 1/5 of the raw value
- * from what is presumably a raw HFA384x frame descriptor, with the
- * comment "set to 802.11 units".
- *
- * The Orinoco driver doesn't appear to supply them, either.
+ * I infer from the current NetBSD "wi" driver that "signal" and "noise"
+ * are adjusted dBm values, with the dBm value having 100 added to it
+ * for the Prism II cards (although the NetBSD code has an XXX comment
+ * for the #define for WI_PRISM_DBM_OFFSET) and 149 (with no XXX comment)
+ * for the Orinoco cards.
  */
 struct prism_hdr {
     unsigned int msgcode, msglen;
@@ -172,12 +171,14 @@ capture_prism(const guchar *pd, int offset, int len, packet_counts *ld)
         offset += (size)
 #define INTFIELD(size, name, str)	IFHELP(size, name, name, str)
 #define VALFIELD(name, str) \
-        if(tree) {						  \
-            proto_tree_add_uint_format(prism_tree, hf_prism_ ## name ## _data, \
-                tvb, offset, 12, hdr.name.data,				   \
-                str ": 0x%x (DID 0x%x, Status 0x%x, Length 0x%x)",	   \
-                hdr.name.data, hdr.name.did,				   \
-                hdr.name.status, hdr.name.len);				   \
+        if (hdr.name.status == 0) {				  \
+            if(tree) {						  \
+                proto_tree_add_uint_format(prism_tree, hf_prism_ ## name ## _data, \
+                    tvb, offset, 12, hdr.name.data,			   \
+                    str ": 0x%x (DID 0x%x, Status 0x%x, Length 0x%x)",	   \
+                    hdr.name.data, hdr.name.did,			   \
+                    hdr.name.status, hdr.name.len);			   \
+            }								   \
         }								   \
         offset += 12
 
@@ -229,27 +230,33 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     VALFIELD(hosttime, "Host Time");
     VALFIELD(mactime, "MAC Time");
     VALFIELD(channel, "Channel");
-    VALFIELD(rssi, "RSSI");
-    if (check_col(pinfo->cinfo, COL_RSSI)) {
-      col_add_fstr(pinfo->cinfo, COL_RSSI, "%d",
-		   hdr.rssi.data);
+    if (hdr.rate.status == 0) {
+      if (check_col(pinfo->cinfo, COL_RSSI))
+        col_add_fstr(pinfo->cinfo, COL_RSSI, "%d", hdr.rssi.data);
+      if (tree) {
+        proto_tree_add_uint_format(prism_tree, hf_prism_rssi_data,
+            tvb, offset, 12, hdr.rssi.data,
+            "RSSI: 0x%x (DID 0x%x, Status 0x%x, Length 0x%x)",
+            hdr.rssi.data, hdr.rssi.did, hdr.rssi.status, hdr.rssi.len);
+      }
     }
-
+    offset += 12;
     VALFIELD(sq, "SQ");
     VALFIELD(signal, "Signal");
     VALFIELD(noise, "Noise");
-    if (check_col(pinfo->cinfo, COL_TX_RATE)) {
-      col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
-		   hdr.rate.data / 2, hdr.rate.data & 1 ? 5 : 0);
-    }
-    if (tree) {
-        proto_tree_add_uint_format(prism_tree, hf_prism_rate_data,
-                tvb, offset, 12, hdr.rate.data,
-                "Data Rate: %u.%u Mb/s",
-                hdr.rate.data / 2, hdr.rate.data & 1 ? 5 : 0);
+    if (hdr.rate.status == 0) {
+      if (check_col(pinfo->cinfo, COL_TX_RATE)) {
+        col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
+                  hdr.rate.data / 2, hdr.rate.data & 1 ? 5 : 0);
+      }
+      if (tree) {
+          proto_tree_add_uint_format(prism_tree, hf_prism_rate_data,
+                  tvb, offset, 12, hdr.rate.data,
+                  "Data Rate: %u.%u Mb/s",
+                  hdr.rate.data / 2, hdr.rate.data & 1 ? 5 : 0);
+      }
     }
     offset += 12;
-    VALFIELD(rate, "Rate");
     VALFIELD(istx, "IsTX");
     VALFIELD(frmlen, "Frame Length");
 
