@@ -2,7 +2,7 @@
  * Routines for Ethernet header disassembly of FW1 "monitor" files
  * Copyright 2002, Alfred Koebler <ak@icon-sult.de>
  *
- * $Id: packet-fw1.c,v 1.2 2002/08/08 09:33:26 guy Exp $
+ * $Id: packet-fw1.c,v 1.3 2002/08/08 21:42:05 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Alfred Koebler <ak@icon-sult.de>
@@ -78,14 +78,6 @@
 #endif
 
 #include <string.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 
 #include <glib.h>
 #include <epan/packet.h>
