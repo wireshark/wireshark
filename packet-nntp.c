@@ -2,7 +2,7 @@
  * Routines for nntp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-nntp.c,v 1.4 1999/08/18 00:57:52 guy Exp $
+ * $Id: packet-nntp.c,v 1.5 1999/10/17 14:46:40 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -42,6 +42,8 @@
 #include "packet.h"
 
 static int proto_nntp = -1;
+static int hf_nntp_response = -1;
+static int hf_nntp_request = -1;
 
 void
 dissect_nntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
@@ -81,6 +83,12 @@ dissect_nntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	  ti = proto_tree_add_item(tree, proto_nntp, offset, END_OF_FRAME, NULL);
 	  nntp_tree = proto_item_add_subtree(ti, ETT_NNTP);
 
+	  if (pi.match_port == pi.destport) {
+	    proto_tree_add_item_hidden(nntp_tree, hf_nntp_request, 0, 0, TRUE);
+	  } else {
+	    proto_tree_add_item_hidden(nntp_tree, hf_nntp_response, 0, 0, TRUE);
+	  }
+
 	  /*
 	   * Show the request or response as text, a line at a time.
 	   * XXX - for requests, we could display the stuff after the
@@ -110,11 +118,21 @@ dissect_nntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 void
 proto_register_nntp(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "nntp.abbreviation", TYPE, VALS_POINTER }},
-        };*/
+  
+  static hf_register_info hf[] = {
+    { &hf_nntp_response,
+      { "Response",           "nntp.response",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+      	"TRUE if NNTP response" }},
 
-        proto_nntp = proto_register_protocol("Network News Transfer Protocol", "nntp");
- /*       proto_register_field_array(proto_nntp, hf, array_length(hf));*/
+    { &hf_nntp_request,
+      { "Request",            "nntp.request",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+      	"TRUE if NNTP request" }}
+  };
+
+  proto_nntp = proto_register_protocol("Network News Transfer Protocol", 
+				       "nntp");
+  proto_register_field_array(proto_nntp, hf, array_length(hf));
+
 }
