@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.34 1999/05/12 06:04:46 gram Exp $
+ * $Id: ethereal.c,v 1.35 1999/06/11 15:30:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -132,6 +132,8 @@ about_ethereal( GtkWidget *w, gpointer data ) {
 		"Jun-ichiro itojun Hagino <itojun@iijlab.net>\n"
 		"Richard Sharpe           <sharpe@ns.aus.com>\n"
 		"John McDermott           <jjm@jkintl.com>\n"
+		"Jeff Jahr                <jjahr@shastanets.com>\n"
+		"Brad Robel-Forrest       <bradr@watchguard.com>\n"
 
 		"\nSee http://ethereal.zing.org for more information",
                 VERSION, comp_info_str);

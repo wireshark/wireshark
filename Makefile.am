@@ -37,8 +37,9 @@ ethereal_SOURCES = \
 	packet-fddi.c  \
 	packet-ftp.c   \
 	packet-giop.c  \
+	packet-gre.c   \
 	packet-http.c  \
-	packet-icmpv6.c \
+	packet-icmpv6.c\
 	packet-ip.c    \
 	packet-ip.h    \
 	packet-ipsec.c \
@@ -46,6 +47,7 @@ ethereal_SOURCES = \
 	packet-ipv6.h  \
 	packet-ipx.c   \
 	packet-ipx.h   \
+	packet-isakmp.c\
 	packet-llc.c   \
 	packet-lpd.c   \
 	packet-nbipx.c \
@@ -59,12 +61,14 @@ ethereal_SOURCES = \
 	packet-ospf.h  \
 	packet-pop.c   \
 	packet-ppp.c   \
+	packet-pppoe.c \
+	packet-pptp.c  \
 	packet-raw.c   \
 	packet-rip.c   \
 	packet-rip.h   \
 	packet-smb.c   \
 	packet-tcp.c   \
-	packet-telnet.c \
+	packet-telnet.c\
 	packet-tftp.c  \
 	packet-tr.c    \
 	packet-trmac.c \

@@ -1,3 +1,7 @@
+Overview of changes in Ethereal 0.6.3:
+* PPPoE (PPP over Ethernet) added (Jeff Jahr)
+* ISAKMP, GRE, PPTP added (Brad Robel-Forrest)
+
 Overview of changes in Ethereal 0.6.2:
 * Almost-real-time capture and display (John, Laurent)
 * Initial support for SMB (Richard)

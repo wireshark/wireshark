@@ -1,7 +1,7 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.4 1998/12/19 00:12:20 hannes Exp $
+ * $Id: etypes.h,v 1.5 1999/06/11 15:30:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -77,5 +77,14 @@
 #ifndef ETHERTYPE_LOOP
 #define ETHERTYPE_LOOP 0x9000 	/* used for layer 2 testing (do i see my own frames on the wire) */
 #endif
+
+#ifndef ETHERTYPE_PPPOED
+#define ETHERTYPE_PPPOED 0x8863 /* PPPoE Discovery Protocol */
+#endif
+
+#ifndef ETHERTYPE_PPPOES
+#define ETHERTYPE_PPPOES 0x8864 /* PPPoE Session Protocol */
+#endif
+
 
 #endif /* etypes.h */

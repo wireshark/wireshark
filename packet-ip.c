@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.23 1999/05/20 02:41:22 guy Exp $
+ * $Id: packet-ip.c,v 1.24 1999/06/11 15:30:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -202,6 +202,9 @@ capture_ip(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
       break;
     case IP_PROTO_OSPF:
       ld->ospf++;
+      break;
+    case IP_PROTO_GRE:
+      ld->gre++;
       break;
     default:
       ld->other++;
@@ -586,6 +589,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     case IP_PROTO_TCP:
     case IP_PROTO_UDP:
     case IP_PROTO_OSPF:
+    case IP_PROTO_GRE:
     case IP_PROTO_ESP:
     case IP_PROTO_AH:
     case IP_PROTO_IPV6:
@@ -741,6 +745,9 @@ again:
       nxt = pd[offset];
       offset += advance;
       goto again;
+    case IP_PROTO_GRE:
+      dissect_gre(pd, offset, fd, tree);
+      break;
     case IP_PROTO_ESP:
       dissect_esp(pd, offset, fd, tree);
       break;

@@ -362,6 +362,10 @@ B<http://ethereal.zing.org>.
   Jun-ichiro itojun Hagino <itojun@iijlab.net>
   Richard Sharpe           <sharpe@ns.aus.com>
   John McDermott           <jjm@jkintl.com> 
+  Jeff Jahr                <jjahr@shastanets.com>
+  Brad Robel-Forrest       <bradr@watchguard.com>
+
+Brad Robel-Forrest <bradr@watchguard.com> {
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

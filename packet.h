@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.56 1999/05/13 16:42:43 gram Exp $
+ * $Id: packet.h,v 1.57 1999/06/11 15:30:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,6 +84,7 @@ typedef struct _packet_counts {
   gint           tcp;
   gint           udp;
   gint           ospf;
+  gint           gre;
   gint           other;
   gint           total;
 } packet_counts;
@@ -174,6 +175,9 @@ enum {
 	ETT_DNS_QD,
 	ETT_DNS_ANS,
 	ETT_DNS_RR,
+	ETT_ISAKMP,
+	ETT_ISAKMP_FLAGS,
+	ETT_ISAKMP_PAYLOAD,
 	ETT_RIP,
 	ETT_RIP_VEC,
 	ETT_OSPF,
@@ -236,6 +240,14 @@ enum {
 	ETT_SMB_CAPS,
 	ETT_SMB_RAWMODE,
 	ETT_SMB_AFLAGS,
+	ETT_PPTP,
+	ETT_GRE,
+	ETT_GRE_FLAGS,
+ 	ETT_PPPOED,
+ 	ETT_PPPOED_TAGS,
+ 	ETT_PPPOES,
+ 	ETT_LCP,
+ 	ETT_IPCP,
 	NUM_TREE_TYPES	/* last item number plus one */
 };
 
@@ -374,6 +386,9 @@ void dissect_nwlink_dg(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_osi(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ospf(const u_char *, int, frame_data *, proto_tree *);
 void dissect_ospf_hello(const u_char *, int, frame_data *, proto_tree *);
+void dissect_pppoed(const u_char *, int, frame_data *, proto_tree *);
+void dissect_pppoes(const u_char *, int, frame_data *, proto_tree *);
+void dissect_isakmp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_rip(const u_char *, int, frame_data *, proto_tree *);
 void dissect_snmp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_tcp(const u_char *, int, frame_data *, proto_tree *);
@@ -387,6 +402,7 @@ void dissect_vines_icp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_vines_ipc(const u_char *, int, frame_data *, proto_tree *);
 void dissect_vines_rtp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_vines_spp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_payload_ppp(const u_char *, int, frame_data *, proto_tree *);
 
 void dissect_ftp(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_ftpdata(const u_char *, int, frame_data *, proto_tree *, int);
@@ -395,6 +411,8 @@ void dissect_nntp(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_pop(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_smb(const u_char *, int, frame_data *, proto_tree *, int);
 void dissect_telnet(const u_char *, int, frame_data *, proto_tree *, int);
+void dissect_pptp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_gre(const u_char *, int, frame_data *, proto_tree *);
 
 void init_dissect_udp(void);
 

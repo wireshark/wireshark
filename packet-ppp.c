@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.10 1999/03/23 03:14:43 gram Exp $
+ * $Id: packet-ppp.c,v 1.11 1999/06/11 15:30:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -67,6 +67,116 @@ typedef struct _e_ppphdr {
 #define PPP_CHAP	0xc223	/* Cryptographic Handshake Auth. Protocol */
 #define PPP_CBCP	0xc029	/* Callback Control Protocol */
 
+
+static const value_string ppp_vals[] = {
+	{PPP_IP,        "IP"             },
+	{PPP_AT,        "Appletalk"      },
+	{PPP_IPX,       "Netware IPX/SPX"},
+	{PPP_VJC_COMP,	"VJ compressed TCP"},
+	{PPP_VJC_UNCOMP,"VJ uncompressed TCP"}, 
+	{PPP_VINES,     "Vines"          },
+	{PPP_IPV6,      "IPv6"           },
+	{PPP_COMP,		  "compressed packet" },
+	{PPP_IPCP,		  "IP Control Protocol" },
+	{PPP_ATCP,		  "AppleTalk Control Protocol" },
+	{PPP_IPXCP,	    "IPX Control Protocol" },
+	{PPP_CCP,		    "Compression Control Protocol" },
+	{PPP_LCP,		    "Link Control Protocol" },
+	{PPP_PAP,		    "Password Authentication Protocol"  },
+	{PPP_LQR,		    "Link Quality Report protocol" },
+	{PPP_CHAP,		  "Cryptographic Handshake Auth. Protocol" },
+	{PPP_CBCP,		  "Callback Control Protocol" },
+	{0,             NULL            } };
+
+/* CP (LCP, IPCP, etc.) codes.
+ * from pppd fsm.h 
+ */
+#define CONFREQ   1 /* Configuration Request */
+#define CONFACK   2 /* Configuration Ack */
+#define CONFNAK   3 /* Configuration Nak */
+#define CONFREJ   4 /* Configuration Reject */
+#define TERMREQ   5 /* Termination Request */
+#define TERMACK   6 /* Termination Ack */
+#define CODEREJ   7 /* Code Reject */
+
+static const value_string cp_vals[] = {
+	{CONFREQ,    "Configuration Request " },
+	{CONFACK,    "Configuration Ack " },
+	{CONFNAK,    "Configuration Nak " },
+	{CONFREJ,    "Configuration Reject " },
+	{TERMREQ,    "Termination Request " },
+	{TERMACK,    "Termination Ack " },
+	{CODEREJ,    "Code Reject " },
+	{0,             NULL            } };
+
+/*
+ * LCP-specific packet types.
+ */
+#define PROTREJ   8 /* Protocol Reject */
+#define ECHOREQ   9 /* Echo Request */
+#define ECHOREP   10  /* Echo Reply */
+#define DISCREQ   11  /* Discard Request */
+#define CBCP_OPT  6 /* Use callback control protocol */
+
+static const value_string lcp_vals[] = {
+	{CONFREQ,    "Configuration Request " },
+	{CONFACK,    "Configuration Ack " },
+	{CONFNAK,    "Configuration Nak " },
+	{CONFREJ,    "Configuration Reject " },
+	{TERMREQ,    "Termination Request " },
+	{TERMACK,    "Termination Ack " },
+	{CODEREJ,    "Code Reject " },
+	{PROTREJ, "Protocol Reject " },
+	{ECHOREQ, "Echo Request " },
+	{ECHOREP, "Echo Reply " },
+	{DISCREQ, "Discard Request " },
+	{CBCP_OPT, "Use callback control protocol" },
+	{0,             NULL            } };
+
+/*
+ * Options.  (LCP)
+ */
+#define CI_MRU    1 /* Maximum Receive Unit */
+#define CI_ASYNCMAP 2 /* Async Control Character Map */
+#define CI_AUTHTYPE 3 /* Authentication Type */
+#define CI_QUALITY  4 /* Quality Protocol */
+#define CI_MAGICNUMBER  5 /* Magic Number */
+#define CI_PCOMPRESSION 7 /* Protocol Field Compression */
+#define CI_ACCOMPRESSION 8  /* Address/Control Field Compression */
+#define CI_CALLBACK 13  /* callback */
+
+static const value_string lcp_opt_vals[] = {
+	{CI_MRU,          "Maximum Receive Unit" },
+	{CI_ASYNCMAP,     "Async Control Character Map" },
+	{CI_AUTHTYPE,     "Authentication Type" },
+	{CI_QUALITY,      "Quality Protocol" },
+	{CI_MAGICNUMBER,  "Magic Number" },
+	{CI_PCOMPRESSION, "Protocol Field Compression" },
+	{CI_ACCOMPRESSION,"Address/Control Field Compression" },
+	{CI_CALLBACK,     "callback" },
+	{0,             NULL            } };
+
+/*
+ * Options.  (IPCP)
+ */
+#define CI_ADDRS  1 /* IP Addresses */
+#define CI_COMPRESSTYPE 2 /* Compression Type */
+#define CI_ADDR   3
+#define CI_MS_DNS1  129 /* Primary DNS value */
+#define CI_MS_WINS1 130 /* Primary WINS value */
+#define CI_MS_DNS2  131 /* Secondary DNS value */
+#define CI_MS_WINS2 132 /* Secondary WINS value */
+
+static const value_string ipcp_opt_vals[] = {
+	{CI_ADDRS,       "IP Addresses" },
+	{CI_COMPRESSTYPE,"Compression Type" },
+	{CI_ADDR,        "Address" }, 
+	{CI_MS_DNS1,     "Primary DNS value" },
+	{CI_MS_WINS1,    "Primary WINS value" },
+	{CI_MS_DNS2,     "Secondary DNS value" },
+	{CI_MS_WINS2,    "Secondary WINS value" },
+	{0,             NULL            } };
+
 void
 capture_ppp( const u_char *pd, guint32 cap_len, packet_counts *ld ) {
   switch (pntohs(&pd[2])) {
@@ -75,6 +185,131 @@ capture_ppp( const u_char *pd, guint32 cap_len, packet_counts *ld ) {
       break;
     default:
       ld->other++;
+      break;
+  }
+}
+
+void
+dissect_ipcp( const u_char *pd, int offset, frame_data *fd, proto_tree *tree ) {
+  proto_tree *fh_tree;
+  proto_item *ti;
+
+	int ipcpcode;
+	int ipcpid;
+	int optionslength;
+
+	ipcpcode = pd[0+offset];
+	ipcpid = pd[1+offset];
+	optionslength= pntohs(&pd[2+offset]);
+	
+	if(check_col(fd, COL_INFO))
+		col_add_fstr(fd, COL_INFO, "IPCP %s", 
+			val_to_str(ipcpcode, cp_vals, "Unknown"));
+
+  if(tree) {
+    ti = proto_tree_add_item(tree, 0+offset, 4, "IP Control Protocol" );
+    fh_tree = proto_tree_new();
+    proto_item_add_subtree(ti, fh_tree, ETT_IPCP);
+    proto_tree_add_item(fh_tree, 0+offset, 1, "Code: %s (0x%02x)",
+      val_to_str(ipcpcode, cp_vals, "Unknown"), ipcpcode);
+    proto_tree_add_item(fh_tree, 1+offset, 1, "Identifier: 0x%02x",
+			ipcpid);
+    proto_tree_add_item(fh_tree, 2+offset, 2, "Length: %d",
+			optionslength);
+  }
+
+  switch (ipcpcode) {
+		/* decode lcp options here. */
+    default:
+      dissect_data(pd, 4+offset, fd, tree);
+      break;
+  }
+}
+
+void
+dissect_lcp( const u_char *pd, int offset, frame_data *fd, proto_tree *tree ) {
+  proto_tree *fh_tree;
+  proto_item *ti;
+
+	int lcpcode;
+	int lcpid;
+	int optionslength;
+
+	lcpcode = pd[0+offset];
+	lcpid = pd[1+offset];
+	optionslength= pntohs(&pd[2+offset]);
+	
+	if(check_col(fd, COL_INFO))
+		col_add_fstr(fd, COL_INFO, "LCP %s", 
+			val_to_str(lcpcode, lcp_vals, "Unknown"));
+
+  if(tree) {
+    ti = proto_tree_add_item(tree, 0+offset, 4, "Link Control Protocol" );
+    fh_tree = proto_tree_new();
+    proto_item_add_subtree(ti, fh_tree, ETT_LCP);
+    proto_tree_add_item(fh_tree, 0+offset, 1, "Code: %s (0x%02x)",
+      val_to_str(lcpcode, lcp_vals, "Unknown"), lcpcode);
+    proto_tree_add_item(fh_tree, 1+offset, 1, "Identifier: 0x%02x",
+			lcpid);
+    proto_tree_add_item(fh_tree, 2+offset, 2, "Length: %d",
+			optionslength);
+  }
+
+  switch (lcpcode) {
+		/* decode lcp options here. */
+    default:
+      dissect_data(pd, 4+offset, fd, tree);
+      break;
+  }
+}
+
+void
+dissect_payload_ppp( const u_char *pd, int offset, frame_data *fd, proto_tree *tree ) {
+  e_ppphdr   ph;
+  proto_tree *fh_tree;
+  proto_item *ti;
+
+/*  ph.ppp_addr = pd[0+offset]; */
+/* ph.ppp_ctl  = pd[1+offset]; */
+  ph.ppp_prot = pntohs(&pd[0+offset]);
+
+  /* populate a tree in the second pane with the status of the link
+     layer (ie none) */
+  if(tree) {
+    ti = proto_tree_add_item(tree, 0+offset, 2, "Point-to-Point Protocol" );
+    fh_tree = proto_tree_new();
+    proto_item_add_subtree(ti, fh_tree, ETT_PPP);
+    proto_tree_add_item(fh_tree, 0+offset, 2, "Protocol: %s (0x%04x)",
+      val_to_str(ph.ppp_prot, ppp_vals, "Unknown"), ph.ppp_prot);
+  }
+
+  switch (ph.ppp_prot) {
+    case PPP_IP:
+      dissect_ip(pd, 2+offset, fd, tree);
+      break;
+    case PPP_AT:
+      dissect_ddp(pd, 2+offset, fd, tree);
+      break;
+    case PPP_IPX:
+      dissect_ipx(pd, 2+offset, fd, tree);
+      break;
+    case PPP_VINES:
+      dissect_vines(pd, 2+offset, fd, tree);
+      break;
+    case PPP_IPV6:
+      dissect_ipv6(pd, 2+offset, fd, tree);
+      break;
+    case PPP_LCP:
+      dissect_lcp(pd, 2+offset, fd, tree);
+      break;
+    case PPP_IPCP:
+      dissect_ipcp(pd, 2+offset, fd, tree);
+      break;
+    default:
+      dissect_data(pd, 2+offset, fd, tree);
+      if (check_col(fd, COL_INFO))
+        col_add_fstr(fd, COL_INFO, "PPP %s (0x%04x)", 
+					val_to_str(ph.ppp_prot, ppp_vals, "Unknown"), ph.ppp_prot);
       break;
   }
 }
@@ -99,14 +334,15 @@ dissect_ppp( const u_char *pd, frame_data *fd, proto_tree *tree ) {
 
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
-  if(check_col(fd, COL_RES_DL_SRC))
-    col_add_str(fd, COL_RES_DL_SRC, "N/A" );
-  if(check_col(fd, COL_RES_DL_DST))
-    col_add_str(fd, COL_RES_DL_DST, "N/A" );
-  if(check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "N/A" );
-  if(check_col(fd, COL_INFO))
-    col_add_str(fd, COL_INFO, "PPP" );
+
+	 if(check_col(fd, COL_RES_DL_SRC))
+	   col_add_str(fd, COL_RES_DL_SRC, "N/A" );
+	 if(check_col(fd, COL_RES_DL_DST))
+	   col_add_str(fd, COL_RES_DL_DST, "N/A" );
+	 if(check_col(fd, COL_PROTOCOL))
+	   col_add_str(fd, COL_PROTOCOL, "N/A" );
+	 if(check_col(fd, COL_INFO))
+	   col_add_str(fd, COL_INFO, "PPP" );
 
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
