@@ -7,7 +7,7 @@
  * This file is based on packet-aim.c, which is
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-skinny.c,v 1.1 2001/10/11 16:01:10 guy Exp $
+ * $Id: packet-skinny.c,v 1.2 2001/10/11 16:01:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -265,7 +265,7 @@ proto_register_skinny(void)
     /* FIXME: Enable use of message name ???  */
     { &hf_skinny_messageid,
       { "Message ID", "skinny.messageid",
-		// FIXME: FT_UINT32, BASE_HEX, VALS(message_id), 0x0,
+		/* FIXME: FT_UINT32, BASE_HEX, VALS(message_id), 0x0, */
 		FT_UINT32, BASE_HEX, NULL, 0x0,
 		"The function requested/done with this message.",
 		HFILL }
