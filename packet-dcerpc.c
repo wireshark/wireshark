@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.38 2002/03/10 03:11:10 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.39 2002/03/16 22:54:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,6 +126,7 @@ static int hf_dcerpc_cn_bind_trans_id = -1;
 static int hf_dcerpc_cn_bind_trans_ver = -1;
 static int hf_dcerpc_cn_alloc_hint = -1;
 static int hf_dcerpc_cn_sec_addr_len = -1;
+static int hf_dcerpc_cn_sec_addr = -1;
 static int hf_dcerpc_cn_num_results = -1;
 static int hf_dcerpc_cn_ack_result = -1;
 static int hf_dcerpc_cn_ack_reason = -1;
@@ -1189,6 +1190,8 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerp
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_sec_addr_len, &sec_addr_len);
+    proto_tree_add_item (dcerpc_tree, hf_dcerpc_cn_sec_addr, tvb, offset,
+                         sec_addr_len, FALSE);
     offset += sec_addr_len;
 
     if (offset % 4) {
@@ -2112,6 +2115,8 @@ proto_register_dcerpc (void)
           { "Alloc hint", "dcerpc.cn_alloc_hint", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_cn_sec_addr_len,
           { "Scndry Addr len", "dcerpc.cn_sec_addr_len", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+        { &hf_dcerpc_cn_sec_addr,
+          { "Scndry Addr", "dcerpc.cn_sec_addr", FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_cn_num_results,
           { "Num results", "dcerpc.cn_num_results", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_cn_ack_result,
