@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.22 1999/10/12 06:20:05 gram Exp $
+ * $Id: packet-fddi.c,v 1.23 1999/10/16 19:36:56 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -304,7 +304,7 @@ void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree,
 
       /* hide some bit-swapped mac address fields in the proto_tree, just in case */
       proto_tree_add_item_hidden(fh_tree, hf_fddi_dst, FDDI_P_DHOST, 6, dst_swapped);
-      proto_tree_add_item_hidden(fh_tree, hf_fddi_dst, FDDI_P_SHOST, 6, src_swapped);
+      proto_tree_add_item_hidden(fh_tree, hf_fddi_src, FDDI_P_SHOST, 6, src_swapped);
 
   }
   switch (fc) {
