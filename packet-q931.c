@@ -2,7 +2,9 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.17 2000/08/13 14:08:38 deniel Exp $
+ * $Id: packet-q931.c,v 1.18 2000/10/19 06:45:10 guy Exp $
+ *
+ * Modified by Andreas Sikkema for possible use with H.323
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,6 +41,11 @@
 #include "nlpid.h"
 #include "packet-q931.h"
 
+#ifdef H323
+#include "packet-tpkt.h"
+#include "packet-h225.h"
+#endif
+
 /* Q.931 references:
  *
  * http://www.acacia-net.com/Clarinet/Protocol/q9313svn.htm
@@ -63,6 +70,7 @@ static gint ett_q931_ie = -1;
 /*
  * Q.931 message types.
  */
+#define	Q931_ESCAPE		0x00
 #define	Q931_ALERTING		0x01
 #define	Q931_CALL_PROCEEDING	0x02
 #define	Q931_CONNECT		0x07
@@ -98,6 +106,7 @@ static gint ett_q931_ie = -1;
 #define	Q931_STATUS_ENQUIRY	0x75
 
 static const value_string q931_message_type_vals[] = {
+  { Q931_ESCAPE,		"ESCAPE" },
 	{ Q931_ALERTING,		"ALERTING" },
 	{ Q931_CALL_PROCEEDING,		"CALL PROCEEDING" },
 	{ Q931_CONNECT,			"CONNECT" },
@@ -506,6 +515,46 @@ static const value_string q931_uil3_vals[] = {
 	{ 0,			NULL }
 };
 
+/*
+ * XXX - should this (or, rather, a routine to return a string containing
+ * the stuff we put after "Protocol discriminator:") be in "packet-osi.c"?
+ *
+ * I.e., is the convention that 16-63 and 80-254 are for network-layer
+ * or layer-3 protocols, and 64-79 are for national use, specific to
+ * Q.931 (and maybe Q.2931), or is it a more general ISO standard?
+ */
+static void 
+dissect_q931_protocol_discriminator(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	unsigned int discriminator = tvb_get_guint8(tvb, offset);
+	char *nlpid_string;
+
+	nlpid_string = match_strval(discriminator, nlpid_vals);
+	if (nlpid_string != NULL) {
+		proto_tree_add_uint_format(tree, hf_q931_discriminator,
+			 tvb, offset, 1, discriminator,
+			 "Protocol discriminator: %s", nlpid_string);
+	} else {
+		if ((discriminator >= 16 && discriminator < 63)
+		    || ((discriminator >= 80) && (discriminator < 254))) {
+			proto_tree_add_uint_format(tree, hf_q931_discriminator,
+			    tvb, offset, 1, discriminator,
+			    "Protocol discriminator: Network layer or layer 3 protocol (0x%02X)",
+			    discriminator);
+		} else if (discriminator >= 64 && discriminator <= 79) {
+			proto_tree_add_uint_format(tree, hf_q931_discriminator,
+			    tvb, offset, 1, discriminator,
+			    "Protocol discriminator: National use (0x%02X)",
+			    discriminator);
+		} else {
+			proto_tree_add_uint_format(tree, hf_q931_discriminator,
+			    tvb, offset, 1, discriminator,
+			    "Protocol discriminator: Reserved (0x%02X)",
+			    discriminator);
+		}
+	}
+}
+
 void
 dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
@@ -699,7 +748,7 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 			proto_tree_add_text(tree, tvb, offset, 1,
 			    "Modem type: %s",
 			      val_to_str(modem_type, q931_l1_modem_type_vals,
-			      NULL));
+			      "Unknown (0x%02X)"));
 		}
 		offset += 1;
 		len -= 1;
@@ -1004,7 +1053,7 @@ dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
 		proto_tree_add_text(tree, tvb, offset, 1,
 		    "Recommendation: %s",
 		    val_to_str(octet & 0x7F, q931_cause_recommendation_vals,
-		      "Unknown (0x%X)"));
+		      "Unknown (0x%02X)"));
 		offset += 1;
 		len -= 1;
 	}
@@ -1015,7 +1064,7 @@ dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "Cause value: %s",
 	    val_to_str(octet & 0x7F, q931_cause_code_vals,
-	      "Unknown (0x%X)"));
+	      "Unknown (0x%02X)"));
 	offset += 1;
 	len -= 1;
 
@@ -1148,7 +1197,7 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 		proto_tree_add_text(tree, tvb, offset, 1,
 		    "Channel selection: %s",
 		    val_to_str(octet & 0x03, q931_not_basic_channel_selection_vals,
-		      NULL));
+		      "Unknown (0x%X)"));
 	} else {
 		proto_tree_add_text(tree, tvb, offset, 1,
 		    "Channel selection: %s",
@@ -1210,7 +1259,7 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 		    "%s type: %s",
 		    (octet & Q931_IS_SLOT_MAP) ? "Map element" : "Channel",
 		    val_to_str(octet & 0x0F, q931_element_type_vals,
-		    "Unknown (0x%02X)"));
+		        "Unknown (0x%02X)"));
 
 		/*
 		 * XXX - dump the channel number or slot map.
@@ -1327,9 +1376,8 @@ dissect_q931_ns_facilities_ie(tvbuff_t *tvb, int offset, int len,
 			netid_len = len;
 		if (netid_len != 0) {
 			proto_tree_add_text(tree, tvb, offset, netid_len,
-			    "Network identification: %.*s",
-			    netid_len,
-			    tvb_get_ptr(tvb, offset, netid_len));
+			    "Network identification: %s",
+			    tvb_format_text(tvb, offset, netid_len));
 			offset += netid_len;
 			len -= netid_len;
 		}
@@ -1431,7 +1479,8 @@ dissect_q931_signal_ie(tvbuff_t *tvb, int offset, int len,
 	}
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "Signal: %s",
-	    val_to_str(tvb_get_guint8(tvb, offset), q931_signal_vals, "Unknown (0x%02X)"));
+	    val_to_str(tvb_get_guint8(tvb, offset), q931_signal_vals,
+	        "Unknown (0x%02X)"));
 }
 
 /*
@@ -1463,20 +1512,20 @@ dissect_q931_information_rate_ie(tvbuff_t *tvb, int offset, int len,
 	}
 	proto_tree_add_text(tree, tvb, offset + 0, 1,
 	    "Incoming information rate: %s",
-	    val_to_str(tvb_get_guint8(tvb, offset + 0) & 0x1F, q931_throughput_class_vals,
-	      "Unknown (0x%02X)"));
+	    val_to_str(tvb_get_guint8(tvb, offset + 0) & 0x1F,
+	      q931_throughput_class_vals, "Unknown (0x%02X)"));
 	proto_tree_add_text(tree, tvb, offset + 1, 1,
 	    "Outgoing information rate: %s",
-	    val_to_str(tvb_get_guint8(tvb, offset + 1) & 0x1F, q931_throughput_class_vals,
-	      "Unknown (0x%02X)"));
+	    val_to_str(tvb_get_guint8(tvb, offset + 1) & 0x1F,
+	      q931_throughput_class_vals, "Unknown (0x%02X)"));
 	proto_tree_add_text(tree, tvb, offset + 2, 1,
 	    "Minimum incoming information rate: %s",
-	    val_to_str(tvb_get_guint8(tvb, offset + 2) & 0x1F, q931_throughput_class_vals,
-	      "Unknown (0x%02X)"));
+	    val_to_str(tvb_get_guint8(tvb, offset + 2) & 0x1F,
+	      q931_throughput_class_vals, "Unknown (0x%02X)"));
 	proto_tree_add_text(tree, tvb, offset + 3, 1,
 	    "Minimum outgoing information rate: %s",
-	    val_to_str(tvb_get_guint8(tvb, offset + 3) & 0x1F, q931_throughput_class_vals,
-	      "Unknown (0x%02X)"));
+	    val_to_str(tvb_get_guint8(tvb, offset + 3) & 0x1F,
+	      q931_throughput_class_vals, "Unknown (0x%02X)"));
 }
 
 static int
@@ -1620,8 +1669,7 @@ dissect_q931_pl_binary_parameters_ie(tvbuff_t *tvb, int offset, int len,
 	octet = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "Fast select: %s",
-	    val_to_str(octet & 0x18, q931_fast_selected_vals,
-	      NULL));
+	    val_to_str(octet & 0x18, q931_fast_selected_vals, NULL));
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "%s",
 	    (octet & 0x04) ? "No request/request denied" :
@@ -1690,15 +1738,15 @@ dissect_q931_cug_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree)
 		return;
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "CUG indication: %s",
-	    val_to_str(tvb_get_guint8(tvb, offset) & 0x07, q931_cug_indication_vals,
-	      "Unknown (0x%02X)"));
+	    val_to_str(tvb_get_guint8(tvb, offset) & 0x07,
+	      q931_cug_indication_vals, "Unknown (0x%02X)"));
 	offset += 1;
 	len -= 1;
 
 	if (len == 0)
 		return;
-	proto_tree_add_text(tree, tvb, offset, len, "CUG index code: %.*s", len,
-	    tvb_get_ptr(tvb, offset, len));
+	proto_tree_add_text(tree, tvb, offset, len, "CUG index code: %s",
+	    tvb_format_text(tvb, offset, len));
 }
 
 /*
@@ -1717,8 +1765,8 @@ dissect_q931_reverse_charge_ind_ie(tvbuff_t *tvb, int offset, int len,
 		return;
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "Reverse charging indication: %s",
-	    val_to_str(tvb_get_guint8(tvb, offset) & 0x07, q931_reverse_charging_indication_vals,
-	      "Unknown (0x%02X)"));
+	    val_to_str(tvb_get_guint8(tvb, offset) & 0x07,
+	      q931_reverse_charging_indication_vals, "Unknown (0x%02X)"));
 }
 
 /*
@@ -1823,8 +1871,8 @@ dissect_q931_number_ie(tvbuff_t *tvb, int offset, int len,
 
 	if (len == 0)
 		return;
-	proto_tree_add_text(tree, tvb, offset, len, "Number: %.*s",
-	    len, tvb_get_ptr(tvb, offset, len));
+	proto_tree_add_text(tree, tvb, offset, len, "Number: %s",
+	    tvb_format_text(tvb, offset, len));
 }
 
 /*
@@ -1889,8 +1937,8 @@ dissect_q931_restart_indicator_ie(tvbuff_t *tvb, int offset, int len,
 	}
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "Restart indicator: %s",
-	    val_to_str(tvb_get_guint8(tvb, offset) & 0x07, q931_restart_indicator_class_vals,
-	      "Unknown (0x%02X)"));
+	    val_to_str(tvb_get_guint8(tvb, offset) & 0x07,
+	      q931_restart_indicator_class_vals, "Unknown (0x%02X)"));
 }
 
 /*
@@ -1958,7 +2006,7 @@ dissect_q931_high_layer_compat_ie(tvbuff_t *tvb, int offset, int len,
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "High layer characteristics identification: %s",
 	    val_to_str(characteristics, q931_high_layer_characteristics_vals,
-	      NULL));
+	     "Unknown (0x%02X)"));
 	offset += 1;
 	len -= 1;
 
@@ -1969,13 +2017,15 @@ dissect_q931_high_layer_compat_ie(tvbuff_t *tvb, int offset, int len,
 		if (characteristics == Q931_AUDIOVISUAL) {
 			proto_tree_add_text(tree, tvb, offset, 1,
 			    "Extended audiovisual characteristics identification: %s",
-			    val_to_str(octet & 0x7F, q931_audiovisual_characteristics_vals,
-			      NULL));
+			    val_to_str(octet & 0x7F,
+			      q931_audiovisual_characteristics_vals,
+			      "Unknown (0x%02X)"));
 		} else {
 			proto_tree_add_text(tree, tvb, offset, 1,
 			    "Extended high layer characteristics identification: %s",
-			    val_to_str(octet & 0x7F, q931_high_layer_characteristics_vals,
-			      NULL));
+			    val_to_str(octet & 0x7F,
+			      q931_high_layer_characteristics_vals,
+			      "Unknown (0x%02X)"));
 		}
 	}
 }
@@ -2018,8 +2068,8 @@ dissect_q931_user_user_ie(tvbuff_t *tvb, int offset, int len,
 	switch (octet) {
 
 	case Q931_PROTOCOL_DISCRIMINATOR_IA5:
-		proto_tree_add_text(tree, tvb, offset, len, "User information: %.*s",
-		    len, tvb_get_ptr(tvb, offset, len));
+		proto_tree_add_text(tree, tvb, offset, len, "User information: %s",
+		    tvb_format_text(tvb, offset, len));
 		break;
 
 	default:
@@ -2037,8 +2087,8 @@ dissect_q931_ia5_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree,
     char *label)
 {
 	if (len != 0) {
-		proto_tree_add_text(tree, tvb, offset, len, "%s: %.*s", label, len,
-		    tvb_get_ptr(tvb, offset, len));
+		proto_tree_add_text(tree, tvb, offset, len, "%s: %s", label,
+		    tvb_format_text(tvb, offset, len));
 	}
 }
 
@@ -2051,8 +2101,9 @@ static const value_string q931_codeset_vals[] = {
 	{ 0x00, NULL },
 };
 
-void
-dissect_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gboolean
+q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    gboolean started_heuristic)
 {
 	int		offset = 0;
 	guint		reported_length;
@@ -2063,13 +2114,107 @@ dissect_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		call_ref[15];
 	guint8		message_type;
 	guint8		info_element;
-	guint8		info_element_len;
-	int		codeset;
+	guint16		info_element_len;
+	int		codeset; 
 	gboolean	non_locking_shift;
+	guint8		protocol_discriminator;
 
-	CHECK_DISPLAY_AS_DATA(proto_q931, tvb, pinfo, tree);
+#ifdef H323
+	tvbuff_t	*h225_tvb;
+	gboolean	is_h323_h225 = FALSE;
+	/*
+	 * It is very much possible to find a TPKT header here
+	 * TPKT is defined in RFC 1009 as a wrapper around ISO
+	 * defined protocols. There could even be several TPKT
+	 * wrapped messages in one TCP data field...
+	 * XXXXXXXX THIS IS NOT IMPLEMENTED YET!!! XXXXXXXXXXX
+	 *
+	 * For Q.931 related messages this is easy. If a 
+	 * protocol discriminator is found with a value of 3
+	 * and it's the first discriminator in the Q.931 
+	 * message one can safely assume it to be a TPKT 
+	 * header. See also Q.931 Table 4-1/Q.931 
+	 */
+#endif
 
-	pinfo->current_proto = "Q.931";
+	protocol_discriminator = tvb_get_guint8( tvb, offset );
+	    /* Keep the protocol discriminator for later use */
+
+#ifdef H323
+	if ( started_heuristic ) {
+		/*
+		 * The heuristic Q.931 message should conform to this
+		 */
+		if ( protocol_discriminator != NLPID_Q_931 ) 
+			return FALSE;
+
+		if ( ! is_tpkt( tvb, &offset ) ) 
+			return FALSE;
+
+		if ( tvb_length_remaining( tvb, offset ) <= 3 ) 
+			return FALSE;
+	}
+
+	/* 
+	 * The first byte should be < 8 (3 is TPKT, rest is Q.931)
+	 */
+	if ( protocol_discriminator < 8 ) {
+		/*
+		 * The minimum length of a Q.931 message is 3:
+		 * 1 byte for the protocol discriminator,
+		 * 1 for the call_reference length,
+		 * and one for the message type.
+		 */
+		if ( tvb_length_remaining( tvb, offset ) <= 3 ) 
+			return FALSE;
+
+		/* 
+		 * OK, there are a couple of bytes available, but is there 
+		 * also a protocol discriminator?
+		 */
+		if ( tvb_length_remaining( tvb, offset ) > 3 ) {
+			/* Reread the protocol discriminator */
+			protocol_discriminator =
+			    tvb_get_guint8( tvb, offset + 4);
+		} else {
+		      /* No discriminator available */
+		      protocol_discriminator = 0;
+		}
+
+		/*
+		 * If it's not H.323 related Q.931 no heuristic action needed
+ 		 * Dangerous, there might be other uses for this code.....
+		 */
+		if ( ( started_heuristic ) && (protocol_discriminator != 8 ) ) 
+			return FALSE;
+
+		/*
+		 * Always check if it's a real TPKT message
+		 */
+		if ( ! is_tpkt( tvb, &offset ) ) 
+			return FALSE;
+
+		dissect_tpkt( tvb, &offset, pinfo, tree );
+
+		/*
+		 * Reset the current_proto variable because dissect_tpkt
+		 * messed with it
+		 */
+		if ( started_heuristic )
+			pinfo->current_proto = "Q.931 HEUR";
+		else 
+			pinfo->current_proto = "Q.931";
+	}
+#endif
+
+	/*
+	 * The minimum length of a Q.931 message is
+	 * 3, 1 byte for the protocol discr. 1 for the call_reference length,
+	 * and one for the message type.
+	 */
+	if ( tvb_length_remaining( tvb, offset ) <= 3 ) {
+		return FALSE;
+	}
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_add_str(pinfo->fd, COL_PROTOCOL, "Q.931");
@@ -2079,7 +2224,7 @@ dissect_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    tvb_length(tvb), FALSE);
 		q931_tree = proto_item_add_subtree(ti, ett_q931);
 
-		proto_tree_add_uint(q931_tree, hf_q931_discriminator, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+		dissect_q931_protocol_discriminator( tvb, offset, q931_tree );
 	}
 	offset += 1;
 	call_ref_len = tvb_get_guint8(tvb, offset) & 0xF;	/* XXX - do as a bit field? */
@@ -2195,20 +2340,72 @@ dissect_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Variable-length IE.
 		 */
+#ifndef H323
 		info_element_len = tvb_get_guint8(tvb, offset + 1);
-		if (q931_tree != NULL) {
-			ti = proto_tree_add_text(q931_tree, tvb, offset,
-			    1+1+info_element_len, "%s",
-			    val_to_str(info_element, q931_info_element_vals,
-			      "Unknown information element (0x%02X)"));
-			ie_tree = proto_item_add_subtree(ti, ett_q931_ie);
-			proto_tree_add_text(ie_tree, tvb, offset, 1,
-			    "Information element: %s",
-			    val_to_str(info_element, q931_info_element_vals,
-			      "Unknown (0x%02X)"));
-			proto_tree_add_text(ie_tree, tvb, offset + 1, 1,
-			    "Length: %u", info_element_len);
+#else
+		/* 
+		 * According to page 18 from Recommendation H.225.0 :
+		 * " Length of user-user contents contents
+		 * - Shall be 2 octets instead of 1 (as in Figure 4-36/Q.931)"
+		 * 
+		 * This will be true for all messages going to / from TCP port
+		 * 1720 and with the first and fourth octet of the user-user 
+		 * IE having the values 0x7E and 0x05 resp.
+		 * See http://www.mbuf.org/~moto/h323/h323decoder.html
+		 *
+		 */
 
+		if ( ( tvb_get_guint8( tvb, offset ) == 0x7E ) && 
+		   ( tvb_get_guint8( tvb, offset + 3 ) == 0x05 ) && 
+		   /* ( ( pi.srcport == 1720 ) || ( pi.destport == 1720 ) ) && */
+		   ( protocol_discriminator == NLPID_Q_931 ) )  {
+			info_element_len = tvb_get_ntohs( tvb, offset + 1 );
+			is_h323_h225 = TRUE;
+			if ( tree == NULL ) {
+				h225_tvb = tvb_new_subset( tvb, offset + 4, info_element_len - 1, info_element_len - 1 );
+				dissect_h225_cs( h225_tvb, pinfo, tree );
+				/*
+				 * Skip the 4 bytes of the element header and then the element itself
+				 */
+				offset += 4;
+				offset += info_element_len - 1;
+			}
+		} else {
+			info_element_len = tvb_get_guint8( tvb, offset + 1 );
+		}
+#endif
+		if (q931_tree != NULL) {
+#ifdef H323
+			if (is_h323_h225) {
+				ti = proto_tree_add_text(q931_tree, tvb, offset,
+				    1+1+1, "%s",
+				    val_to_str(info_element,
+				      q931_info_element_vals,
+				      "Unknown information element (0x%02X)"));
+				ie_tree = proto_item_add_subtree(ti,
+				    ett_q931_ie);
+				proto_tree_add_text(ie_tree, tvb, offset, 1,
+				    "Information element: %s",
+				    val_to_str(info_element,
+				      q931_info_element_vals, "Unknown (0x%02X)"));
+				proto_tree_add_text(ie_tree, tvb, offset + 1,
+				    2, "Length: %u", info_element_len);
+			} else {
+#endif
+				ti = proto_tree_add_text(q931_tree, tvb, offset,
+				    1+1+info_element_len, "%s",
+				    val_to_str(info_element, q931_info_element_vals,
+				      "Unknown information element (0x%02X)"));
+					ie_tree = proto_item_add_subtree(ti, ett_q931_ie);
+				proto_tree_add_text(ie_tree, tvb, offset, 1,
+				    "Information element: %s",
+				    val_to_str(info_element, q931_info_element_vals,
+				      "Unknown (0x%02X)"));
+				proto_tree_add_text(ie_tree, tvb, offset + 1, 1,
+				    "Length: %u", info_element_len);
+#ifdef H323
+			}
+#endif
 			switch (info_element) {
 
 			case Q931_IE_SEGMENTED_MESSAGE:
@@ -2339,8 +2536,28 @@ dissect_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			case Q931_IE_USER_USER:
-				dissect_q931_user_user_ie(tvb,
-				    offset + 2, info_element_len, ie_tree);
+#ifdef H323
+				if (is_h323_h225) {
+					h225_tvb = tvb_new_subset(tvb,
+					    offset + 4, info_element_len - 1,
+					    info_element_len - 1);
+					dissect_h225_cs(h225_tvb, pinfo, tree);
+					offset += 3;
+					proto_tree_add_text(ie_tree, tvb,
+					    offset, 1,
+					    "Protocol discriminator: %s",
+					    val_to_str(tvb_get_guint8(tvb, offset),
+					      q931_protocol_discriminator_vals,
+					      "Unknown (0x%02x)"));
+					offset += info_element_len;
+				} else {
+#endif
+					dissect_q931_user_user_ie(tvb,
+					    offset + 2, info_element_len,
+					    ie_tree);
+#ifdef H323
+				}
+#endif
 				break;
 
 			default:
@@ -2356,6 +2573,29 @@ dissect_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (non_locking_shift)
 			codeset = 0;
 	}
+
+	/*
+	 * Heuristic should return TRUE if it get's here.
+	 */
+
+	return TRUE;
+
+}
+
+#ifdef H323
+gboolean
+dissect_q931_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	pinfo->current_proto = "Q.931 HEUR";
+	return q931_dissector(tvb, pinfo, tree, TRUE);
+}
+#endif
+
+void
+dissect_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	pinfo->current_proto = "Q.931";
+	q931_dissector(tvb, pinfo, tree, FALSE);
 }
 
 void
@@ -2387,4 +2627,13 @@ proto_register_q931(void)
 	proto_q931 = proto_register_protocol ("Q.931", "q931");
 	proto_register_field_array (proto_q931, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+}
+
+void
+proto_reg_handoff_q931(void)
+{
+#ifdef H323
+	heur_dissector_add("tcp", dissect_q931_heur);
+#endif
 }

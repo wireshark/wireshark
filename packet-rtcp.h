@@ -1,9 +1,10 @@
 /* packet-rtcp.h
- * Declarations for RTCP packet disassembly
  *
- * Jason Lango <jal@netapp.com>
- *
- * $Id: packet-rtcp.h,v 1.2 2000/08/11 13:34:01 deniel Exp $
+ * Routines for RTCP dissection
+ * RTCP = Real-time Transport Control Protocol
+ * 
+ * Copyright 2000, Philips Electronics N.V.
+ * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,9 +26,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PACKET_RTCP_H__
-#define __PACKET_RTCP_H__
-
-void dissect_rtcp(const u_char *, int, frame_data *, proto_tree *);
-
-#endif
+void     rtcp_add_address   ( const unsigned char* ip_addr, int prt );
+gboolean dissect_rtcp_heur  ( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree );
+void     dissect_rtcp       ( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree );
+void     proto_register_rtcp( void );

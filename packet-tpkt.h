@@ -1,10 +1,9 @@
-/* packet-rtp.h
+/* packet-tpkt.h
  *
- * Routines for RTP dissection
- * RTP = Real time Transport Protocol
- * 
+ * Routines for TPKT dissection
+ *
  * Copyright 2000, Philips Electronics N.V.
- * Written by Andreas Sikkema <andreas.sikkema@philips.com>
+ * Andreas Sikkema <andreas.sikkema@philips.com>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,7 +25,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-void     rtp_add_address   ( const unsigned char* ip_addr, int prt );
-gboolean dissect_rtp_heur  ( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree );
-void     dissect_rtp       ( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree );
-void     proto_register_rtp( void );
+int is_tpkt( tvbuff_t *tvb, unsigned int* offset );
+int dissect_tpkt( tvbuff_t *tvb, unsigned int* offset, packet_info *pinfo, proto_tree *tree );
+void proto_register_tpkt( void );

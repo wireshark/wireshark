@@ -124,7 +124,7 @@ Aaron Hillegass <aaron@classmax.com> {
 }
 
 Jason Lango <jal@netapp.com> {
-	RTSP, SDP, RTCP, RTP
+	RTSP, SDP
 }
 
 Johan Feyaerts <Johan.Feyaerts@siemens.atea.be> {
@@ -203,7 +203,7 @@ Heikki Vatiainen <hessu@cs.tut.fi> {
 	VRRP (Virtual Router Redundancy)
 	HSRP (Hot Standby Router Protocol)
 	option to control whether to interpret the IPv4 TOS field as
-	such or as the DiffServ field
+	    such or as the DiffServ field
 	COPS
 }
 
@@ -295,6 +295,7 @@ Doug Nazar <nazard@dragoninc.on.ca> {
 Andreas Sikkema <andreas.sikkema@philips.com> {
 	Fixes to SMB dissector
 	Fixes to capture file handling on Win32
+	RTCP, RTP, TPKT (RFC 1006), H.261
 }
 
 Mark Muhlestein <mmm@netapp.com> {
@@ -307,10 +308,10 @@ Graham Bloice <graham.bloice@trihedral.com> {
 	Support for sorting columns in the summary by clicking on them
 	Win32 Makefile improvements
 	Support for "Update list of packets in real time" during capture
-	on Win32
+	    on Win32
 	Support for inverse video rather than boldface highlighting of
-	the bytes, in the hex dump window, corresponding to a selected
-	field
+	    the bytes, in the hex dump window, corresponding to a selected
+	    field
 }
 
 Ralf Schneider <ralf.schneider@alcatel.se> {

@@ -1,9 +1,10 @@
 /* packet-rtcp.c
- * Routines for RTCP packet disassembly
  *
- * Jason Lango <jal@netapp.com>
- *
- * $Id: packet-rtcp.c,v 1.5 2000/09/11 16:16:02 gram Exp $
+ * Routines for RTCP dissection
+ * RTCP = Real-time Transport Control Protocol
+ * 
+ * Copyright 2000, Philips Electronics N.V.
+ * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,436 +24,1172 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+/*
+ * This dissector tries to dissect the RTCP protocol according to Annex A
+ * of ITU-T Recommendation H.225.0 (02/98) and RFC 1889
+ * H.225.0 literally copies RFC 1889, but omitting a few sections.
  *
+ * RTCP traffic is handled by an uneven UDP portnumber. This can be any 
+ * port number, but there is a registered port available, port 5005
+ * See Annex B of ITU-T Recommendation H.225.0, section B.7
  *
  */
 
-#include "config.h"
 
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
+#ifdef HAVE_CONFIG_H
+# include "config.h"
 #endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-
-#include <string.h>
-#include <ctype.h>
 
 #include <glib.h>
 #include "packet.h"
+
+#ifdef HAVE_SYS_TYPES_H
+#  include <sys/types.h>
+#endif
+
+#ifdef HAVE_NETINET_IN_H
+#  include <netinet/in.h>
+#endif
+
+#include <stdio.h>
+#include <string.h>
+
 #include "packet-rtcp.h"
-#include "strutil.h"
+/* #include "packet-ntp.h" */
+#include "conversation.h"
 
-static int proto_rtcp = -1;
+/* Version is the first 2 bits of the first octet*/
+#define RTCP_VERSION(octet)	((octet) >> 6)
 
-static gint ett_rtcp = -1;
+/* Padding is the third bit; no need to shift, because true is any value
+   other than 0! */
+#define RTCP_PADDING(octet)	((octet) & 0x20)
 
-#define _RTCP_FLAG_BITS(hdr, s, n) \
-	((u_int)(((hdr)->rtcp_flag_bits >> (8 - (s) - (n))) & ((1 << (n)) - 1)))
-#define RTCP_VERSION(hdr)	_RTCP_FLAG_BITS(hdr, 0, 2)
-#define RTCP_PADDING(hdr)	_RTCP_FLAG_BITS(hdr, 2, 1)
-#define RTCP_COUNT(hdr)		_RTCP_FLAG_BITS(hdr, 3, 5)
+/* Receiver/ Sender count is the 5 last bits  */
+#define RTCP_COUNT(octet)	((octet) & 0x1F)
 
-#define RTCP_TYPE_SR		200	/* Sender Report */
-#define RTCP_TYPE_RR		201	/* Receiver Report */
-#define RTCP_TYPE_SDES		202	/* Source Description */
-#define RTCP_TYPE_BYE		203	/* Goodbye */
-#define RTCP_TYPE_APP		204	/* Application-defined */
-
-typedef struct rtcp_hdr {
-	guint8	rtcp_flag_bits;
-	guint8	rtcp_type;		/* packet type */
-	guint16	rtcp_length;		/* length in 32 bit words minus 1 */
-} rtcp_hdr_t;
-
-typedef struct rtcp_report {
-	guint32	rtcp_rr_ssrc;		/* SSRC of source */
-	guint8	rtcp_rr_flt;		/* fraction lost */
-	guint8	rtcp_rr_cplthi;		/* hi-byte of cplt */
-	guint16	rtcp_rr_cplt;		/* cumulative packets lost */
-	guint32	rtcp_rr_xhiseq;		/* extended highest seq num rcvd */
-	guint32	rtcp_rr_jitter;		/* interarrival jitter */
-	guint32	rtcp_rr_lsr;		/* middle bits of last SR timestamp */
-	guint32	rtcp_rr_dlsr;		/* delay since last SR */
-} rtcp_report_t;
-
-static int
-dissect_rtcp_report(rtcp_hdr_t *hdr, int sn, const u_char *pd, int offset,
-	int start_packet, int end_packet, proto_tree *rtcp_tree)
+static const value_string rtcp_version_vals[] = 
 {
-	int		end_offset = offset + END_OF_FRAME;
-	rtcp_report_t	rep;
-
-	if (offset >= end_offset)
-		return -1;
-
-	memcpy(&rep, &pd[offset], sizeof(rtcp_report_t) <= END_OF_FRAME ?
-		sizeof(rtcp_report_t) : END_OF_FRAME);
-
-	rep.rtcp_rr_ssrc = ntohl(rep.rtcp_rr_ssrc);
-	rep.rtcp_rr_cplt = ntohs(rep.rtcp_rr_cplt);
-	rep.rtcp_rr_xhiseq = ntohl(rep.rtcp_rr_xhiseq);
-	rep.rtcp_rr_jitter = ntohl(rep.rtcp_rr_jitter);
-	rep.rtcp_rr_lsr = ntohl(rep.rtcp_rr_lsr);
-	rep.rtcp_rr_dlsr = ntohl(rep.rtcp_rr_dlsr);
-
-	if ((offset + sizeof(rtcp_report_t)) > end_offset) {
-		proto_tree_add_text(rtcp_tree, NullTVB, offset, 0,
-			"Warning: Bad packet length -- "
-			"data might be incorrect");
-	}
-
-	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4,
-		"Source %d SSRC: %u", sn + 1, rep.rtcp_rr_ssrc);
-	offset += 4;
-
-	proto_tree_add_text(rtcp_tree, NullTVB, offset, 1,
-		"Fraction lost: %u / 256", (unsigned) rep.rtcp_rr_flt);
-	offset += 1;
-
-	proto_tree_add_text(rtcp_tree, NullTVB, offset, 3,
-		"Cumulative Packets Lost: %lu",
-		(((unsigned long) rep.rtcp_rr_cplthi) << 16) +
-		(unsigned long) rep.rtcp_rr_cplt);
-	offset += 3;
-
-	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4,
-		"Extended Highest Seq #: %lu",
-		(unsigned long) rep.rtcp_rr_xhiseq);
-	offset += 4;
-
-	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4,
-		"Jitter: %lu", (unsigned long) rep.rtcp_rr_jitter);
-	offset += 4;
-
-	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4,
-		"Last SR timestamp (middle): %lu",
-		(unsigned long) rep.rtcp_rr_lsr);
-	offset += 4;
-
-	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4,
-		"Delay Since Last SR: %lu",
-		(unsigned long) rep.rtcp_rr_dlsr);
-	offset += 4;
-
-	return offset;
-}
-
-typedef struct rtcp_rr {
-	guint32	rtcp_rr_ssrc;
-} rtcp_rr_t;
-
-static int
-dissect_rtcp_rr(rtcp_hdr_t *hdr, const u_char *pd, int offset,
-	int start_packet, int end_packet, proto_tree *rtcp_tree)
-{
-	int		end_offset = offset + END_OF_FRAME; 
-	rtcp_rr_t	rr;
-	int		sn;
-
-	memcpy(&rr, &pd[offset], sizeof(rtcp_rr_t) < END_OF_FRAME ?
-		sizeof(rtcp_rr_t) : END_OF_FRAME);
-	rr.rtcp_rr_ssrc = ntohl(rr.rtcp_rr_ssrc);
-
-	if ((offset + sizeof(rtcp_rr_t)) >= end_offset)
-		return -1;
-	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4, "Sender SSRC: %u",
-		rr.rtcp_rr_ssrc);
-	offset += 4;
-
-	for (sn = 0; sn < RTCP_COUNT(hdr); sn++) {
-		offset = dissect_rtcp_report(hdr, sn, pd, offset, start_packet,
-			end_packet, rtcp_tree);
-	}
-
-	return offset;
-}
-
-typedef struct rtcp_sr {
-	guint32	rtcp_sr_ssrc;
-	guint32	rtcp_sr_ntp_hi;		/* MSW of NTP timestamp */
-	guint32	rtcp_sr_ntp_lo;		/* LSW of NTP timestamp */
-	guint32	rtcp_sr_rtp_time;	/* RTP timestamp */
-	guint32	rtcp_sr_npackets;	/* sender's packet count */
-	guint32	rtcp_sr_nbytes;		/* sender's octet count */
-} rtcp_sr_t;
-
-static int
-dissect_rtcp_sr(rtcp_hdr_t *hdr, const u_char *pd, int offset,
-	int start_packet, int end_packet, proto_tree *rtcp_tree)
-{
-	int		end_offset = offset + END_OF_FRAME; 
-	rtcp_sr_t	sr;
-	int		sn;
-
-	memcpy(&sr, &pd[offset], sizeof(rtcp_sr_t) < END_OF_FRAME ?
-		sizeof(rtcp_sr_t) : END_OF_FRAME);
-	sr.rtcp_sr_ssrc = ntohl(sr.rtcp_sr_ssrc);
-	sr.rtcp_sr_ntp_hi = ntohl(sr.rtcp_sr_ntp_hi);
-	sr.rtcp_sr_ntp_lo = ntohl(sr.rtcp_sr_ntp_lo);
-	sr.rtcp_sr_rtp_time = ntohl(sr.rtcp_sr_rtp_time);
-	sr.rtcp_sr_npackets = ntohl(sr.rtcp_sr_npackets);
-	sr.rtcp_sr_nbytes = ntohl(sr.rtcp_sr_nbytes);
-
-	if ((offset + sizeof(rtcp_sr_t)) > end_offset) {
-		proto_tree_add_text(rtcp_tree, NullTVB, offset, 0,
-			"Warning: Bad packet length -- "
-			"data might be incorrect");
-	}
-
-	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4, "Sender's SSRC: %u",
-		sr.rtcp_sr_ssrc);
-	offset += 4;
-	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4, "NTP timestamp, MSW: %u",
-		sr.rtcp_sr_ntp_hi);
-	offset += 4;
-	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4, "NTP timestamp, LSW: %u",
-		sr.rtcp_sr_ntp_lo);
-	offset += 4;
-	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4, "RTP timestamp: %u",
-		sr.rtcp_sr_rtp_time);
-	offset += 4;
-	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4, "Sender's packet count: %u",
-		sr.rtcp_sr_npackets);
-	offset += 4;
-	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4, "Sender's octet count: %u",
-		sr.rtcp_sr_nbytes);
-	offset += 4;
-
-	for (sn = 0; sn < RTCP_COUNT(hdr); sn++) {
-		offset = dissect_rtcp_report(hdr, sn, pd, offset, start_packet,
-			end_packet, rtcp_tree);
-	}
-
-	return offset;
-}
-
-static struct rtcp_chunk_type {
-	int		type;
-	const char	*name;
-} rtcp_chunk_types[] = {
-	{ 1, "CNAME (user and domain)" },
-	{ 2, "NAME (common name)" },
-	{ 3, "EMAIL (e-mail address)" },
-	{ 4, "PHONE (phone number)" },
-	{ 5, "LOC (geographic location)" },
-	{ 6, "TOOL (name/version of source app)" },
-	{ 7, "NOTE (note about source)" },
-	{ 8, "PRIV (private extensions)" },
-	{ 0, 0 }
+	{ 0, "Old VAT Version" },
+	{ 1, "First Draft Version" },
+	{ 2, "RFC 1889 Version" },
+	{ 0, NULL },
 };
 
-static struct rtcp_chunk_type *
-rtcp_find_chunk_type(int type)
+/* RTCP packet types according to Section A.11.1 */
+#define RTCP_SR   200
+#define RTCP_RR   201
+#define RTCP_SDES 202
+#define RTCP_BYE  203
+#define RTCP_APP  204
+/* Supplemental H.261 specific RTCP packet types according to Section C.3.5 */
+#define RTCP_FIR  192
+#define RTCP_NACK 193
+
+static const value_string rtcp_packet_type_vals[] = 
 {
-	struct rtcp_chunk_type *tt = rtcp_chunk_types;
-	static struct rtcp_chunk_type unk = { 0, "UNKNOWN" };
-	for (; tt->type; tt++) {
-		if (type == tt->type)
-			return tt;
-	}
-	return &unk;
-}
+	{ RTCP_SR,   "Sender Report" },
+	{ RTCP_RR,   "Receiver Report" },
+	{ RTCP_SDES, "Source description" },
+	{ RTCP_BYE,  "Goodbye" },
+	{ RTCP_APP,  "Application specific" },
+	{ RTCP_FIR,  "Full Intra-frame Request (H.261)" },
+	{ RTCP_NACK, "Negative Acknowledgement (H.261)" },
+	{ 0,         NULL },
+};
 
-static int
-dissect_rtcp_sdes_chunk(rtcp_hdr_t *hdr, int cn, const u_char *pd, int offset,
-	int start_packet, int end_packet, proto_tree *rtcp_tree)
+/* RTCP SDES types (Section A.11.2) */
+#define RTCP_SDES_END    0
+#define RTCP_SDES_CNAME  1
+#define RTCP_SDES_NAME   2
+#define RTCP_SDES_EMAIL  3
+#define RTCP_SDES_PHONE  4
+#define RTCP_SDES_LOC    5
+#define RTCP_SDES_TOOL   6
+#define RTCP_SDES_NOTE   7
+#define RTCP_SDES_PRIV   8
+
+static const value_string rtcp_sdes_type_vals[] = 
 {
-	unsigned	type;
-	unsigned	len;
-	struct rtcp_chunk_type *ctype;
+	{ RTCP_SDES_END,   "END" },
+	{ RTCP_SDES_CNAME, "CNAME (user and domain)" },
+	{ RTCP_SDES_NAME,  "NAME (common name)" },
+	{ RTCP_SDES_EMAIL, "EMAIL (e-mail address)" },
+	{ RTCP_SDES_PHONE, "PHONE (phone number)" },
+	{ RTCP_SDES_LOC,   "LOC (geographic location)" },
+	{ RTCP_SDES_TOOL,  "TOOL (name/version of source app)" },
+	{ RTCP_SDES_NOTE,  "NOTE (note about source)" },
+	{ RTCP_SDES_PRIV,  "PRIV (private extensions)" },
+	{ 0,               NULL },
+};
 
-	if ((offset + 4) > end_packet)
-		return -1;
-	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4, "Chunk %d SSRC: %u",
-		cn + 1, pntohl(&pd[offset]));
-	offset += 4;
+/* RTCP header fields                   */
+static int proto_rtcp                = -1;
+static int hf_rtcp_version           = -1;
+static int hf_rtcp_padding           = -1;
+static int hf_rtcp_rc                = -1;
+static int hf_rtcp_sc                = -1;
+static int hf_rtcp_pt                = -1;
+static int hf_rtcp_length            = -1;
+static int hf_rtcp_ssrc_sender       = -1;
+static int hf_rtcp_ntp               = -1;
+static int hf_rtcp_rtp_timestamp     = -1;
+static int hf_rtcp_sender_pkt_cnt    = -1;
+static int hf_rtcp_sender_oct_cnt    = -1;
+static int hf_rtcp_ssrc_source       = -1;
+static int hf_rtcp_ssrc_fraction     = -1;
+static int hf_rtcp_ssrc_cum_nr       = -1;
+/* First the 32 bit number, then the split 
+ * up 16 bit values */
+/* These two are added to a subtree */
+static int hf_rtcp_ssrc_ext_high_seq = -1;
+static int hf_rtcp_ssrc_high_seq     = -1;
+static int hf_rtcp_ssrc_high_cycles  = -1;
+static int hf_rtcp_ssrc_jitter       = -1;
+static int hf_rtcp_ssrc_lsr          = -1;
+static int hf_rtcp_ssrc_dlsr         = -1;
+static int hf_rtcp_ssrc_csrc         = -1;
+static int hf_rtcp_ssrc_type         = -1;
+static int hf_rtcp_ssrc_length       = -1;
+static int hf_rtcp_ssrc_text         = -1;
+static int hf_rtcp_ssrc_prefix_len   = -1;
+static int hf_rtcp_ssrc_prefix_string= -1;
+static int hf_rtcp_subtype           = -1;
+static int hf_rtcp_name_ascii        = -1;
+static int hf_rtcp_app_data          = -1;
+static int hf_rtcp_fsn               = -1;
+static int hf_rtcp_blp               = -1;
+static int hf_rtcp_padding_count     = -1;
+static int hf_rtcp_padding_data      = -1;
 
-	for (;;) {
-		if ((offset + 1) > end_packet)
-			return -1;
+/* RTCP fields defining a sub tree */
+static gint ett_rtcp           = -1;
+static gint ett_ssrc           = -1;
+static gint ett_ssrc_item      = -1;
+static gint ett_ssrc_ext_high  = -1;
+static gint ett_sdes           = -1;
+static gint ett_sdes_item      = -1;
 
-		type = pd[offset];
-		if (type == 0) {
-			int pad_start = offset;
-			offset++;
-			/* NULL terminator -- align to next 32 bit boundary */
-			if ((offset - start_packet) & 3) {
-				offset += 4 - ((offset - start_packet) & 3);
-			}
-			proto_tree_add_text(rtcp_tree, NullTVB, pad_start,
-				offset - pad_start,
-				"(end of chunk and alignment padding)");
-			break;
-		}
+static address fake_addr;
+static int heur_init = FALSE;
 
-		ctype = rtcp_find_chunk_type(type);
+static char rtcp_proto[] = "RTCP";
 
-		proto_tree_add_text(rtcp_tree, NullTVB, offset, 1, "Chunk type: %s",
-			ctype->name);
-		offset++;
-
-		if ((offset + 1) > end_packet)
-			return -1;
-
-		len = pd[offset];
-		proto_tree_add_text(rtcp_tree, NullTVB, offset, 1, "Chunk length: %u",
-			(unsigned) len);
-		offset++;
-
-		if ((offset + len) > end_packet)
-			return -1;
-
-		proto_tree_add_text(rtcp_tree, NullTVB, offset, len, "Chunk string: %s",
-			format_text(&pd[offset], len));
-		offset += len;
-	}
-	return offset;
-}
-
-static int
-dissect_rtcp_sdes(rtcp_hdr_t *hdr, const u_char *pd, int offset,
-	int start_packet, int end_packet, proto_tree *rtcp_tree)
+void rtcp_add_address( const unsigned char* ip_addr, int prt )
 {
-	int		cn;
+	address src_addr;
+	conversation_t* pconv = ( conversation_t* ) NULL;
 
-	for (cn = 0; cn < RTCP_COUNT(hdr); cn++) {
-		offset = dissect_rtcp_sdes_chunk(hdr, cn, pd, offset,
-			start_packet, end_packet, rtcp_tree);
-	}
-	return offset;
-}
-
-static int
-dissect_one_rtcp(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree)
-{
-	proto_tree	*rtcp_tree;
-	proto_item	*ti;
-	const u_char	*data, *dataend;
-	int		end_offset;
-	int		start_packet;
-	int		end_packet;
-	rtcp_hdr_t	hdr;
-	const char	*ptype;
-
-	data = &pd[offset];
-	dataend = data + END_OF_FRAME;
-	start_packet = offset;
-	end_offset = offset + END_OF_FRAME;
-
-	ti = proto_tree_add_item(tree, proto_rtcp, NullTVB, offset, END_OF_FRAME, FALSE);
-	rtcp_tree = proto_item_add_subtree(ti, ett_rtcp);
-
-	memcpy(&hdr, data, END_OF_FRAME < sizeof(rtcp_hdr_t) ?
-		END_OF_FRAME : sizeof(rtcp_hdr_t));
-	hdr.rtcp_length = ntohs(hdr.rtcp_length);
-
-	if (offset >= end_offset)
-		return -1;
-	proto_tree_add_text(rtcp_tree, NullTVB, offset, 1, "Version: %u (%s)",
-		RTCP_VERSION(&hdr),
-		RTCP_VERSION(&hdr) == 3 ? "New Unknown Version" :
-		RTCP_VERSION(&hdr) == 2 ? "RFC 1889 Version" :
-		RTCP_VERSION(&hdr) == 1 ? "First Draft Version" :
-		"Old Vat Version");
-	proto_tree_add_text(rtcp_tree, NullTVB, offset, 1, "Padding: %u",
-		RTCP_PADDING(&hdr));
-	proto_tree_add_text(rtcp_tree, NullTVB, offset, 1, "Count: %u",
-		RTCP_COUNT(&hdr));
-	offset++;
-
-	if (offset >= end_offset)
-		return -1;
-	switch (hdr.rtcp_type) {
-	case RTCP_TYPE_SR:	ptype = "SR: Sender Report"; break;
-	case RTCP_TYPE_RR:	ptype = "RR: Receiver Report"; break;
-	case RTCP_TYPE_SDES:	ptype =	"SDES: Source Description"; break;
-	case RTCP_TYPE_BYE:	ptype = "BYE: Goodbye"; break;
-	case RTCP_TYPE_APP:	ptype = "APP: Application-defined"; break;
-	default:		ptype = "Unknown"; break;
-	}
-	proto_tree_add_text(rtcp_tree, NullTVB, offset, 1, "Type: %u (%s)",
-		(u_int) hdr.rtcp_type, ptype);
-	offset++;
-
-	if (offset >= end_offset)
-		return -1;
-	proto_tree_add_text(rtcp_tree, NullTVB, offset, 2, "Length / 4 - 1: %u",
-		(unsigned) hdr.rtcp_length);
-	offset += 2;
+	src_addr.type = AT_IPv4;
+	src_addr.len = 4;
+	src_addr.data = ip_addr;
 
 	/*
-	 * Don't add 1 to length, since it's accounted for above.
+	 * The first time the function is called let the udp dissector
+	 * know that we're interested in traffic
 	 */
-	end_packet = offset + hdr.rtcp_length * 4;
-
-	switch (hdr.rtcp_type) {
-	case RTCP_TYPE_RR:
-		offset = dissect_rtcp_rr(&hdr, pd, offset, start_packet,
-			end_packet, rtcp_tree);
-		break;
-	case RTCP_TYPE_SR:
-		offset = dissect_rtcp_sr(&hdr, pd, offset, start_packet,
-			end_packet, rtcp_tree);
-		break;
-	case RTCP_TYPE_SDES:
-		offset = dissect_rtcp_sdes(&hdr, pd, offset, start_packet,
-			end_packet, rtcp_tree);
-		break;
-	default:
-		proto_tree_add_text(rtcp_tree, NullTVB, offset, END_OF_FRAME,
-			"TYPE NOT HANDLED YET");
-		offset = end_packet;
-		break;
+	if ( ! heur_init ) {
+		heur_dissector_add( "udp", dissect_rtcp_heur );
+		heur_init = TRUE;
 	}
 
-	if (offset > 0 && offset < end_packet) {
-		proto_tree_add_text(rtcp_tree, NullTVB, offset, end_packet - offset,
-			"Extra data (%d bytes)", end_packet - offset);
+	/*
+	 * Check if the ip address and port combination is not 
+	 * already registered
+	 */
+	pconv = find_conversation( &src_addr, &fake_addr, PT_UDP, prt, 0 );
+
+	/*
+	 * If not, add
+	 */
+	if ( ! pconv ) {
+		conversation_new( &src_addr, &fake_addr, PT_UDP, (guint32) prt, (guint32) 0, (void*) rtcp_proto );
 	}
-	if (offset < 0)
-		return offset;
-	return end_packet;
+
+}
+
+#if 0
+static void rtcp_init( void ) 
+{
+	unsigned char* tmp_data;
+	int i;
+
+	/* Create a fake adddress... */
+	fake_addr.type = AT_IPv4;
+	fake_addr.len = 4;
+
+	tmp_data = malloc( fake_addr.len );
+	for ( i = 0; i < fake_addr.len; i++) {
+		tmp_data[i] = 0;
+	}
+	fake_addr.data = tmp_data;
+}
+#endif
+
+gboolean
+dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+{
+	/* This is a heuristic dissector, which means we get all the UDP
+	 * traffic not sent to a known dissector and not claimed by
+	 * a heuristic dissector called before us!
+	 * So we first check if the frame is really meant for us.
+	 */
+	conversation_t* pconv;
+	if ( ( pconv = find_conversation( &pi.src, &fake_addr, pi.ptype, pi.srcport, 0 ) ) == NULL ) {
+		/*
+		 * The source ip:port combination was not what we were looking for, check the destination
+		 */
+		if ( ( pconv = find_conversation( &pi.dst, &fake_addr, pi.ptype, pi.destport, 0 ) ) == NULL ) {
+			return FALSE;
+		}
+	}
+
+
+	/*
+	 * An RTCP conversation always contains data
+	 */
+	if ( pconv->data == NULL )
+		return FALSE;
+
+	/*
+	 * An RTCP conversation data always contains "RTCP"
+	 */
+	if ( strcmp( pconv->data, rtcp_proto ) != 0 )
+		return FALSE;
+
+	/*
+	 * The message is a valid RTCP message!
+	 */
+	dissect_rtcp( tvb, pinfo, tree );
+
+	return TRUE;
+}
+
+
+static int
+dissect_rtcp_nack( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree )
+{
+	/* Packet type = FIR (H261) */
+	proto_tree_add_uint( tree, hf_rtcp_rc, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 31 );
+	offset++;
+	/* Packet type, 8 bits  = APP */
+	proto_tree_add_item( tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
+	offset++;
+
+	/* Packet length in 32 bit words minus one */
+	proto_tree_add_uint( tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+	offset += 2;
+
+	/* SSRC  */
+	proto_tree_add_uint( tree, hf_rtcp_ssrc_source, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+	offset += 4;
+	
+	/* FSN, 16 bits */
+	proto_tree_add_uint( tree, hf_rtcp_fsn, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+	offset += 2;
+
+	/* BLP, 16 bits */
+	proto_tree_add_uint( tree, hf_rtcp_blp, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+	offset += 2;
+
+	return offset;
+}
+
+static int
+dissect_rtcp_fir( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree )
+{
+	/* Packet type = FIR (H261) */
+	proto_tree_add_uint( tree, hf_rtcp_rc, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 31 );
+	offset++;
+	/* Packet type, 8 bits  = APP */
+	proto_tree_add_item( tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
+	offset++;
+
+	/* Packet length in 32 bit words minus one */
+	proto_tree_add_uint( tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+	offset += 2;
+
+	/* SSRC  */
+	proto_tree_add_uint( tree, hf_rtcp_ssrc_source, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+	offset += 4;
+	
+	return offset;
+}
+
+static int
+dissect_rtcp_app( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
+    unsigned int padding, unsigned int packet_len )
+{
+	unsigned int counter = 0;
+	char ascii_name[5];
+
+	/* SSRC / CSRC */
+	proto_tree_add_uint( tree, hf_rtcp_ssrc_source, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+	offset += 4;
+	packet_len -= 4;
+
+	/* Name (ASCII) */
+	for( counter = 0; counter < 4; counter++ )
+	    ascii_name[ counter ] = tvb_get_guint8( tvb, offset + counter );
+	/* strncpy( ascii_name, pd + offset, 4 ); */
+	ascii_name[4] = '\0';
+	proto_tree_add_string( tree, hf_rtcp_name_ascii, tvb, offset, 4,
+	    ascii_name );
+	offset += 4;
+	packet_len -= 4;
+
+	/* Applications specific data */
+	if ( padding ) {
+		/* If there's padding present, we have to remove that from the data part 
+		 * The last octet of the packet contains the length of the padding
+		 */
+		packet_len -= tvb_get_guint8( tvb, offset + packet_len - 1 );
+	}
+	proto_tree_add_item( tree, hf_rtcp_app_data, tvb, offset, packet_len, FALSE );
+	offset += packet_len;
+
+	return offset;
+}
+
+static int
+dissect_rtcp_bye( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
+    int count )
+{
+	unsigned int chunk          = 1;
+	unsigned int reason_length  = 0;
+	unsigned int counter = 0;
+	char* reason_text = NULL;
+
+	while ( chunk <= count ) {
+		/* source identifier, 32 bits */
+		proto_tree_add_uint( tree, hf_rtcp_ssrc_source, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+		offset += 4;
+	}
+
+	/* Bye reason consists of an 8 bit length l and a string with length l */
+	reason_length = tvb_get_guint8( tvb, offset );
+	proto_tree_add_item( tree, hf_rtcp_ssrc_length, tvb, offset, 1, FALSE );
+	offset++;
+
+	reason_text = ( char* ) malloc( reason_length + 1 );
+	for ( counter = 0; counter < reason_length; counter++ ) reason_text[ counter ] = tvb_get_guint8( tvb, offset + counter );
+	/* strncpy( reason_text, pd + offset, reason_length ); */
+	reason_text[ reason_length ] = '\0';
+	proto_tree_add_string( tree, hf_rtcp_ssrc_text, tvb, offset, reason_length, reason_text );
+	free( reason_text );
+	offset += reason_length;
+
+	return offset;
+
+}
+
+static int
+dissect_rtcp_sdes( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
+    int count )
+{
+	unsigned int chunk          = 1;
+	proto_item *sdes_item;
+	proto_tree *sdes_tree;
+	proto_tree *sdes_item_tree;
+	proto_item *ti;
+	int start_offset;
+	int items_start_offset;
+	guint32 ssrc;
+	unsigned int item_len       = 0;
+	unsigned int sdes_type      = 0;
+	unsigned int counter        = 0;
+	unsigned int prefix_len     = 0;
+	char *prefix_string = NULL;
+	
+	while ( chunk <= count ) {
+		/* Create a subtree for this chunk; we don't yet know
+		   the length. */
+		start_offset = offset;
+
+		ssrc = tvb_get_ntohl( tvb, offset );
+		sdes_item = proto_tree_add_text(tree, tvb, offset, 0,
+		    "Chunk %u, SSRC/CSRC %u", chunk, ssrc);
+		sdes_tree = proto_item_add_subtree( sdes_item, ett_sdes );
+
+		/* SSRC_n source identifier, 32 bits */
+		proto_tree_add_uint( sdes_tree, hf_rtcp_ssrc_source, tvb, offset, 4, ssrc );
+		offset += 4;
+
+		/* Create a subtree for the SDES items; we don't yet know
+		   the length */	
+		items_start_offset = offset;
+		ti = proto_tree_add_text(sdes_tree, tvb, offset, 0,
+		    "SDES items" );
+		sdes_item_tree = proto_item_add_subtree( ti, ett_sdes_item );
+		
+		/*
+		 * Not every message is ended with "null" bytes, so check for
+		 * end of frame instead.
+		 */
+		while ( ( tvb_get_guint8( tvb, offset ) != RTCP_SDES_END )
+		    && ( tvb_length_remaining( tvb, offset) >= 2 ) ) {
+		/* while ( ( pd[ offset ] != RTCP_SDES_END ) && ( BYTES_ARE_IN_FRAME( offset, 2 ) ) ) { */
+			/* ID, 8 bits */
+			sdes_type = tvb_get_guint8( tvb, offset );
+			proto_tree_add_item( sdes_item_tree, hf_rtcp_ssrc_type, tvb, offset, 1, FALSE );
+			offset++;
+
+			/* Item length, 8 bits */
+			item_len = tvb_get_guint8( tvb, offset );
+			proto_tree_add_item( sdes_item_tree, hf_rtcp_ssrc_length, tvb, offset, 1, FALSE );
+			offset++;
+
+			if ( sdes_type == RTCP_SDES_PRIV ) {
+				/* PRIV adds two items between the SDES length
+				 * and value - an 8 bit length giving the
+				 * length of a "prefix string", and the string.
+				 */
+				prefix_len = tvb_get_guint8( tvb, offset );
+				proto_tree_add_item( sdes_item_tree, hf_rtcp_ssrc_prefix_len, tvb, offset, 1, FALSE );
+				offset++;
+
+				prefix_string = ( char * ) malloc( prefix_len + 1 );
+				for ( counter = 0; counter < prefix_len; counter++ )
+					prefix_string[ counter ] =
+					    tvb_get_guint8( tvb, offset + counter );
+				/* strncpy( prefix_string, pd + offset, prefix_len ); */
+				prefix_string[ prefix_len ] = '\0';
+				proto_tree_add_string( sdes_item_tree, hf_rtcp_ssrc_prefix_string, tvb, offset, prefix_len, prefix_string );
+				free( prefix_string );
+				offset += prefix_len;
+			}
+			prefix_string = ( char * ) malloc( item_len + 1 );
+			for ( counter = 0; counter < item_len; counter++ )
+			    prefix_string[ counter ] =
+			        tvb_get_guint8( tvb, offset + counter );
+			/* strncpy( prefix_string, pd + offset, item_len ); */
+			prefix_string[ item_len] = 0;
+			proto_tree_add_string( sdes_item_tree, hf_rtcp_ssrc_text, tvb, offset, item_len, prefix_string );
+			free( prefix_string );
+			offset += item_len;
+		}
+
+		/* Set the length of the items subtree. */
+		proto_item_set_len(ti, offset - items_start_offset);
+
+		/* 32 bits = 4 bytes, so..... 
+		 * If offset % 4 != 0, we divide offset by 4, add one and then 
+		 * multiply by 4 again to reach the boundary
+		 */
+		if ( offset % 4 != 0 )
+			offset = ((offset / 4) + 1 ) * 4;
+
+		/* Set the length of this chunk. */
+		proto_item_set_len(sdes_item, offset - start_offset);
+
+		chunk++;
+	}
+
+
+	return offset;
+}
+
+static int
+dissect_rtcp_rr( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
+    int count )
+{
+	unsigned int counter = 1;
+	proto_tree *ssrc_tree = (proto_tree*) NULL;
+	proto_tree *ssrc_sub_tree = (proto_tree*) NULL;
+	proto_tree *high_sec_tree = (proto_tree*) NULL;
+	proto_item *ti = (proto_item*) NULL;
+	guint8 rr_flt;
+	unsigned int cum_nr = 0;
+
+	while ( counter <= count ) {
+		/* Create a new subtree for a length of 24 bytes */
+		ti = proto_tree_add_text(tree, tvb, offset, 24,
+		    "Source %u", counter );
+		ssrc_tree = proto_item_add_subtree( ti, ett_ssrc );
+		
+		/* SSRC_n source identifier, 32 bits */
+		proto_tree_add_uint( ssrc_tree, hf_rtcp_ssrc_source, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+		offset += 4;
+	
+		ti = proto_tree_add_text(ssrc_tree, tvb, offset, 20, "SSRC contents" );
+		ssrc_sub_tree = proto_item_add_subtree( ti, ett_ssrc_item );
+
+		/* Fraction lost, 8bits */
+		rr_flt = tvb_get_guint8( tvb, offset );
+		proto_tree_add_uint_format( ssrc_sub_tree, hf_rtcp_ssrc_fraction, tvb,
+		    offset, 1, rr_flt, "Fraction lost: %u / 256", rr_flt );
+		offset++;
+
+		/* Cumulative number of packets lost, 24 bits */
+		cum_nr = tvb_get_ntohl( tvb, offset ) >> 8;
+		proto_tree_add_uint( ssrc_sub_tree, hf_rtcp_ssrc_cum_nr, tvb,
+		    offset, 3, cum_nr );
+		offset += 3;
+
+		/* Extended highest sequence nr received, 32 bits
+		 * Just for the sake of it, let's add another subtree
+		 * because this might be a little clearer
+		 */
+		ti = proto_tree_add_uint( ssrc_tree, hf_rtcp_ssrc_ext_high_seq,
+		    tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+		high_sec_tree = proto_item_add_subtree( ti, ett_ssrc_ext_high );
+		/* Sequence number cycles */
+		proto_tree_add_uint( high_sec_tree, hf_rtcp_ssrc_high_cycles,
+		    tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+		offset += 2;
+		/* highest sequence number received */
+		proto_tree_add_uint( high_sec_tree, hf_rtcp_ssrc_high_seq,
+		    tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+		offset += 2;
+
+		/* Interarrival jitter */
+		proto_tree_add_uint( ssrc_tree, hf_rtcp_ssrc_jitter, tvb,
+		    offset, 4, tvb_get_ntohl( tvb, offset ) );
+		offset += 4;
+
+		/* Last SR timestamp */
+		proto_tree_add_uint( ssrc_tree, hf_rtcp_ssrc_lsr, tvb,
+		    offset, 4, tvb_get_ntohl( tvb, offset ) );
+		offset += 4;
+
+		/* Delay since last SR timestamp */
+		proto_tree_add_uint( ssrc_tree, hf_rtcp_ssrc_dlsr, tvb,
+		    offset, 4, tvb_get_ntohl( tvb, offset ) );
+		offset += 4;
+		counter++;
+	}
+
+	return offset;
+}
+
+static int
+dissect_rtcp_sr( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
+    int count )
+{
+	/* gchar buff[ NTP_TS_SIZE ];
+	char* ptime = tvb_get_ptr( tvb, offset, 8 );
+	*/
+
+	/* Retreive the NTP timestamp. Using the NTP dissector for this */
+	/*ntp_fmt_ts( ptime, buff );
+	proto_tree_add_string_format( tree, hf_rtcp_ntp, tvb, offset, 8, ( const char* ) &buff, "NTP timestamp: %s", &buff );
+	free( ptime ); ??????????????????????????????????????????????????????????????????
+	*/
+
+	proto_tree_add_text( tree, tvb, offset, 8, "Timestamp, format unknown" );
+	offset += 8;
+	/* RTP timestamp, 32 bits */
+	proto_tree_add_uint( tree, hf_rtcp_rtp_timestamp, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+	offset += 4;
+	/* Sender's packet count, 32 bits */
+	proto_tree_add_uint( tree, hf_rtcp_sender_pkt_cnt, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+	offset += 4;
+	/* Sender's octet count, 32 bits */
+	proto_tree_add_uint( tree, hf_rtcp_sender_oct_cnt, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+	offset += 4;
+
+	/* The rest of the packet is equal to the RR packet */
+	if ( count > 0 )
+		offset = dissect_rtcp_rr( tvb, offset, fd, tree, count );
+
+	return offset;
 }
 
 void
-dissect_rtcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
-	int		end_offset;
+	proto_item *ti           = NULL;
+	proto_tree *rtcp_tree    = NULL;
+	unsigned int temp_byte   = 0;
+	unsigned int padding_set = 0;
+	unsigned int elem_count  = 0;
+	unsigned int packet_type = 0;
+	unsigned int offset      = 0;
+	guint16 packet_length    = 0;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_rtcp, pd, offset, fd, tree);
+	pinfo->current_proto = "RTCP";
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "RTCP");
-
-	if (!tree)
-		return;
-
-	end_offset = offset + END_OF_FRAME;
-	while (offset > 0 && offset < end_offset) {
-		offset = dissect_one_rtcp(pd, offset, fd, tree);
+	if ( check_col( pinfo->fd, COL_PROTOCOL ) )   {
+		col_add_str( pinfo->fd, COL_PROTOCOL, "RTCP" );
 	}
-	if (offset < 0) {
-		proto_tree_add_text(tree, NullTVB, end_offset, 0,
-			"Unexpected end of packet");
+	
+	if ( check_col( pinfo->fd, COL_INFO) ) {
+		/* The second octet contains the packet type */
+		/* switch ( pd[ offset + 1 ] ) { */
+		switch ( tvb_get_guint8( tvb, 1 ) ) {
+			case RTCP_SR:
+				col_add_str( pinfo->fd, COL_INFO, "Sender Report");
+				break;
+			case RTCP_RR:
+				col_add_str( pinfo->fd, COL_INFO, "Receiver Report");
+				break;
+			case RTCP_SDES:
+				col_add_str( pinfo->fd, COL_INFO, "Source Description");
+				break;
+			case RTCP_BYE:
+				col_add_str( pinfo->fd, COL_INFO, "Goodbye");
+				break;
+			case RTCP_APP:
+				col_add_str( pinfo->fd, COL_INFO, "Application defined");
+				break;
+			case RTCP_FIR:
+				col_add_str( pinfo->fd, COL_INFO, "Full Intra-frame Request (H.261)");
+				break;
+			case RTCP_NACK:
+				col_add_str( pinfo->fd, COL_INFO, "Negative Acknowledgement (H.261)");
+				break;
+			default:
+				col_add_str( pinfo->fd, COL_INFO, "Unknown packet type");
+				break;
+		}
+	}
+
+	if ( tree ) {
+
+		/* 
+		 * Check if there are at least 4 bytes left in the frame, 
+		 * the last 16 bits of those is the length of the current 
+		 * RTCP message. The last compound message contains padding,
+		 * that enables us to break from the while loop.
+		 */
+		/* while ( BYTES_ARE_IN_FRAME( offset, 4 ) ) { */
+		while ( tvb_length_remaining( tvb, offset) >= 4 ) {
+			/* 
+			 * First retreive the packet_type
+			 */
+			packet_type = tvb_get_guint8( tvb, offset + 1 );
+
+			/*
+			 * Check if it's a valid type
+			 */
+			if ( ( packet_type < 192 ) || ( packet_type >  204 ) )
+				break;
+			
+			/*
+			 * get the packet-length for the complete RTCP packet
+			 */
+			packet_length = ( tvb_get_ntohs( tvb, offset + 2 ) + 1 ) * 4;
+
+			ti = proto_tree_add_item(tree, proto_rtcp, tvb, offset, packet_length, FALSE ); 
+			rtcp_tree = proto_item_add_subtree( ti, ett_rtcp );
+
+			temp_byte = tvb_get_guint8( tvb, offset );
+
+			proto_tree_add_uint( rtcp_tree, hf_rtcp_version, tvb,
+			    offset, 1, RTCP_VERSION( temp_byte ) );
+			padding_set = RTCP_PADDING( temp_byte );
+			proto_tree_add_boolean( rtcp_tree, hf_rtcp_padding, tvb,
+			    offset, 1, padding_set );
+			elem_count = RTCP_COUNT( temp_byte );
+
+			switch ( packet_type ) {
+				case RTCP_SR:
+				case RTCP_RR:
+					/* Receiver report count, 5 bits */
+					proto_tree_add_uint( rtcp_tree, hf_rtcp_rc, tvb, offset, 1, elem_count );
+					offset++;
+					/* Packet type, 8 bits */
+					proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
+					offset++;
+					/* Packet length in 32 bit words MINUS one, 16 bits */
+					proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+					offset += 2;
+					/* Sender Synchronization source, 32 bits */
+					proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+					offset += 4;
+
+					if ( packet_type == RTCP_SR ) offset = dissect_rtcp_sr( tvb, offset, pinfo->fd, rtcp_tree, elem_count );
+					else offset = dissect_rtcp_rr( tvb, offset, pinfo->fd, rtcp_tree, elem_count );
+					break;
+				case RTCP_SDES:
+					/* Source count, 5 bits */
+					proto_tree_add_uint( rtcp_tree, hf_rtcp_sc, tvb, offset, 1, elem_count );
+					offset++;
+					/* Packet type, 8 bits */
+					proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
+					offset++;
+					/* Packet length in 32 bit words MINUS one, 16 bits */
+					proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+					offset += 2;
+					offset = dissect_rtcp_sdes( tvb, offset, pinfo->fd, rtcp_tree, elem_count );
+					break;
+				case RTCP_BYE:
+					/* Source count, 5 bits */
+					proto_tree_add_uint( rtcp_tree, hf_rtcp_sc, tvb, offset, 1, elem_count );
+					offset++;
+					/* Packet type, 8 bits */
+					proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
+					offset++;
+					/* Packet length in 32 bit words MINUS one, 16 bits */
+					proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+					offset += 2;
+					offset = dissect_rtcp_bye( tvb, offset, pinfo->fd, rtcp_tree, elem_count );
+					break;
+				case RTCP_APP:
+					/* Subtype, 5 bits */
+					proto_tree_add_uint( rtcp_tree, hf_rtcp_subtype, tvb, offset, 1, elem_count );
+					offset++;
+					/* Packet type, 8 bits */
+					proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
+					offset++;
+					/* Packet length in 32 bit words MINUS one, 16 bits */
+					proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+					offset += 2;
+					dissect_rtcp_app( tvb, offset,
+					    pinfo->fd, rtcp_tree, padding_set,
+					    packet_length - 4 );
+					break;
+				case RTCP_FIR:
+					dissect_rtcp_fir( tvb, offset, pinfo->fd, rtcp_tree );
+					break;
+				case RTCP_NACK:
+					dissect_rtcp_nack( tvb, offset, pinfo->fd, rtcp_tree );
+					break;
+				default:
+					/*
+					 * To prevent endless loops in case of an unknown message type
+					 * increase offset. Some time the while will end :-)
+					 */
+					offset++;
+					break;
+			}
+		}
+		/* If the padding bit is set, the last octet of the 
+		 * packet contains the length of the padding 
+		 * We only have to check for this at the end of the LAST RTCP message
+		 */
+		if ( padding_set ) {
+			/* If everything went according to plan offset should now point to the 
+			 * first octet of the padding 
+			 */
+			proto_tree_add_item( rtcp_tree, hf_rtcp_padding_data, tvb, offset, tvb_length_remaining( tvb, offset) - 1, FALSE );
+			offset += tvb_length_remaining( tvb, offset) - 1;
+			proto_tree_add_item( rtcp_tree, hf_rtcp_padding_count, tvb, offset, 1, FALSE );
+		}
 	}
 }
 
 void
 proto_register_rtcp(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "rtcp.abbreviation", TYPE, VALS_POINTER }},
-        };*/
-	static gint *ett[] = {
+	static hf_register_info hf[] = 
+	{
+		{ 
+			&hf_rtcp_version,
+			{ 
+				"Version", 
+				"rtcp.version", 
+				FT_UINT8, 
+				BASE_DEC, 
+				VALS(rtcp_version_vals), 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_padding,
+			{ 
+				"Padding", 
+				"rtcp.padding", 
+				FT_BOOLEAN, 
+				BASE_NONE, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_rc,
+			{ 
+				"Reception report count", 
+				"rtcp.rc", 
+				FT_UINT8, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_sc,
+			{ 
+				"Source count", 
+				"rtcp.sc", 
+				FT_UINT8, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_pt,
+			{ 
+				"Packet type", 
+				"rtcp.pt", 
+				FT_UINT8, 
+				BASE_DEC, 
+				VALS( rtcp_packet_type_vals ), 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_length,
+			{ 
+				"Length", 
+				"rtcp.length", 
+				FT_UINT16, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_ssrc_sender,
+			{ 
+				"Sender SSRC", 
+				"rtcp.senderssrc", 
+				FT_UINT32, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_ntp,
+			{ 
+				"NTP timestamp", 
+				"rtcp.timestamp.ntp", 
+				FT_STRING, 
+				BASE_NONE, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_rtp_timestamp,
+			{ 
+				"RTP timestamp", 
+				"rtcp.timestamp.rtp", 
+				FT_UINT32, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_sender_pkt_cnt,
+			{ 
+				"Sender's packet count", 
+				"rtcp.sender.packetcount", 
+				FT_UINT32, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_sender_oct_cnt,
+			{ 
+				"Sender's octet count", 
+				"rtcp.sender.octetcount", 
+				FT_UINT32, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_ssrc_source,
+			{ 
+				"Identifier", 
+				"rtcp.ssrc.identifier", 
+				FT_UINT32, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_ssrc_fraction,
+			{ 
+				"Fraction lost", 
+				"rtcp.ssrc.fraction", 
+				FT_UINT8, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_ssrc_cum_nr,
+			{ 
+				"Cumulative number of packets lost", 
+				"rtcp.ssrc.cum_nr", 
+				FT_UINT32, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_ssrc_ext_high_seq,
+			{ 
+				"Extended highest sequence number received", 
+				"rtcp.ssrc.ext_high", 
+				FT_UINT32, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_ssrc_high_seq,
+			{ 
+				"Highest sequence number received", 
+				"rtcp.ssrc.high_seq", 
+				FT_UINT16, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_ssrc_high_cycles,
+			{ 
+				"Sequence number cycles count", 
+				"rtcp.ssrc.high_cycles", 
+				FT_UINT16, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_ssrc_jitter,
+			{ 
+				"Interarrival jitter", 
+				"rtcp.ssrc.jitter", 
+				FT_UINT32, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_ssrc_lsr,
+			{ 
+				"Last SR timestamp", 
+				"rtcp.ssrc.lsr", 
+				FT_UINT32, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_ssrc_dlsr,
+			{ 
+				"Delay since last SR timestamp", 
+				"rtcp.ssrc.dlsr", 
+				FT_UINT32, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_ssrc_csrc,
+			{ 
+				"SSRC / CSRC identifier", 
+				"rtcp.sdes.ssrc_csrc", 
+				FT_UINT32, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_ssrc_type,
+			{ 
+				"Type", 
+				"rtcp.sdes.type", 
+				FT_UINT8, 
+				BASE_DEC, 
+				VALS( rtcp_sdes_type_vals ), 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_ssrc_length,
+			{ 
+				"Length", 
+				"rtcp.sdes.length", 
+				FT_UINT32, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_ssrc_text,
+			{ 
+				"Text", 
+				"rtcp.sdes.text", 
+				FT_STRING, 
+				BASE_NONE, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_ssrc_prefix_len,
+			{ 
+				"Prefix length", 
+				"rtcp.sdes.prefix.length", 
+				FT_UINT8, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_ssrc_prefix_string,
+			{ 
+				"Prefix string", 
+				"rtcp.sdes.prefix.string", 
+				FT_STRING, 
+				BASE_NONE, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_subtype,
+			{ 
+				"Subtype", 
+				"rtcp.app.subtype", 
+				FT_UINT8, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_name_ascii,
+			{ 
+				"Name (ASCII)", 
+				"rtcp.app.name", 
+				FT_STRING, 
+				BASE_NONE, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_app_data,
+			{ 
+				"Application specific data", 
+				"rtcp.app.data", 
+				FT_BYTES, 
+				BASE_NONE, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_fsn,
+			{ 
+				"First sequence number", 
+				"rtcp.nack.fsn", 
+				FT_UINT16, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_blp,
+			{ 
+				"Bitmask of following lost packets", 
+				"rtcp.nack.blp", 
+				FT_UINT16, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_padding_count,
+			{ 
+				"Padding count", 
+				"rtcp.padding.count", 
+				FT_UINT8, 
+				BASE_DEC, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+		{ 
+			&hf_rtcp_padding_data,
+			{ 
+				"Padding data", 
+				"rtcp.padding.data", 
+				FT_BYTES, 
+				BASE_NONE, 
+				NULL, 
+				0x0,
+				"" 
+			}
+		},
+};
+	
+	static gint *ett[] = 
+	{
 		&ett_rtcp,
+		&ett_ssrc,
+		&ett_ssrc_item,
+		&ett_ssrc_ext_high,
+		&ett_sdes,
+		&ett_sdes_item,
 	};
 
-	proto_rtcp = proto_register_protocol("RTP Control Protocol", "rtcp");
- /*       proto_register_field_array(proto_rtcp, hf, array_length(hf));*/
+
+	proto_rtcp = proto_register_protocol("Real-time Transport Control Protocol", "rtcp");
+	proto_register_field_array(proto_rtcp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+#if 0
+	register_init_routine( &rtcp_init );
+#endif
 }

@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.19 2000/09/30 05:46:27 guy Exp $
+ * $Id: packet-rtsp.c,v 1.20 2000/10/19 06:45:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -126,14 +126,14 @@ rtsp_create_conversation(const u_char *trans_begin, const u_char *trans_end)
 
 	conv = conversation_new(&pi.src, &pi.dst, PT_UDP, s_data_port,
 		c_data_port, 0);
-	old_conversation_set_dissector(conv, dissect_rtp);
+	conversation_set_dissector(conv, dissect_rtp);
 
 	if (!c_mon_port || !s_mon_port)
 		return;
 
 	conv = conversation_new(&pi.src, &pi.dst, PT_UDP, s_mon_port,
 		c_mon_port, 0);
-	old_conversation_set_dissector(conv, dissect_rtcp);
+	conversation_set_dissector(conv, dissect_rtcp);
 }
 
 static void dissect_rtsp(const u_char *pd, int offset, frame_data *fd,
