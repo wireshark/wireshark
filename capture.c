@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.36 1999/07/28 02:40:16 gerald Exp $
+ * $Id: capture.c,v 1.37 1999/07/28 20:17:14 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -413,6 +413,7 @@ capture(void) {
   ld.max          = cf.count;
   ld.linktype     = DLT_NULL;
   ld.sync_time    = 0;
+  ld.sync_packets = 0;
   ld.counts.tcp   = 0;
   ld.counts.udp   = 0;
   ld.counts.ospf  = 0;
@@ -614,14 +615,21 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   if (ld->pdh) pcap_dump((u_char *) ld->pdh, phdr, pd);
   
   cur_time = time(NULL);
+
+  ld->sync_packets ++;
+
   if (cur_time > *sync_time) {
     /* sync every second */
     *sync_time = cur_time;
     fflush((FILE *)ld->pdh);
-    if (sync_mode) 
-      write(1, "D", 1);
+    if (sync_mode && ld->sync_packets) {
+      char tmp[20];
+      sprintf(tmp, "%d*", ld->sync_packets);
+      write(1, tmp, strlen(tmp));
+      ld->sync_packets = 0;
+    }
   }
-
+  
   switch (ld->linktype) {
     case DLT_EN10MB :
       capture_eth(pd, phdr->caplen, &ld->counts);

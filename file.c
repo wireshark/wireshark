@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.49 1999/07/28 03:38:42 guy Exp $
+ * $Id: file.c,v 1.50 1999/07/28 20:17:15 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -261,7 +261,10 @@ void
 cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
   
   capture_file *cf = (capture_file *)data;
-  char buffer[256];
+  char buffer[256], *p = buffer, *q = buffer;
+  int  nread;
+  int  to_read = 0;
+  gboolean exit_loop = FALSE;
 
   /* avoid reentrancy problems and stack overflow */
   gtk_input_remove(cap_input_id);
@@ -283,7 +286,7 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
      and do it only if we have to? */
   fseek(cf->wth->fh, 0, SEEK_CUR);
 
-  if (read(sync_pipe[0], buffer, 256) <= 0) {
+  if ((nread = read(sync_pipe[0], buffer, 256)) <= 0) {
 
     /* The child has closed the sync pipe, meaning it's not going to be
        capturing any more packets.  Read what remains of the capture file,
@@ -309,9 +312,28 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
     return;
   }
 
-  gtk_clist_freeze(GTK_CLIST(packet_list));
-  wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf);      
+  buffer[nread] = '\0';
 
+  while(!exit_loop) {
+    /* look for (possibly multiple) '*' */
+    switch (*q) {
+    case '*' :
+      to_read += atoi(p);
+      p = q + 1; 
+      q++;
+      break;
+    case '\0' :
+      /* XXX should handle the case of a pipe full (i.e. no star found) */
+      exit_loop = TRUE;
+      break;
+    default :
+      q++;
+      break;
+    } 
+  }
+
+  gtk_clist_freeze(GTK_CLIST(packet_list));
+  wtap_loop(cf->wth, to_read, wtap_dispatch_cb, (u_char *) cf);      
   gtk_clist_thaw(GTK_CLIST(packet_list));
 
   /* restore pipe handler */
@@ -322,9 +344,11 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
 				     (gpointer) cf,
 				     NULL);
 
+#if 0
+  /* XXX tail_timeout feature to be removed */
   /* only useful in case of low amount of captured data */
   tail_timeout_id = gtk_timeout_add(TAIL_TIMEOUT, tail_timeout_cb, (gpointer) cf);
-
+#endif
 }
 
 gint
