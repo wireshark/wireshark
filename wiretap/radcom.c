@@ -70,6 +70,7 @@ int radcom_open(wtap *wth, int *err)
 	}
 
 	fseek(wth->fh, 0x8B, SEEK_SET);
+	wth->data_offset = 0x8B;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(&byte, 1, 1, wth->fh);
 	if (bytes_read != 1) {
@@ -79,6 +80,7 @@ int radcom_open(wtap *wth, int *err)
 		}
 		return 0;
 	}
+	wth->data_offset += 1;
 	while (byte) {
 		errno = WTAP_ERR_CANT_READ;
 		bytes_read = fread(&byte, 1, 1, wth->fh);
@@ -89,8 +91,10 @@ int radcom_open(wtap *wth, int *err)
 			}
 			return 0;
 		}
+		wth->data_offset += 1;
 	}
 	fseek(wth->fh, 1, SEEK_CUR);
+	wth->data_offset += 1;
 
 	/* Get capture start time */
 	errno = WTAP_ERR_CANT_READ;
@@ -102,6 +106,7 @@ int radcom_open(wtap *wth, int *err)
 		}
 		return 0;
 	}
+	wth->data_offset += sizeof(struct frame_date);
 
 	/* This is a radcom file */
 	wth->file_type = WTAP_FILE_RADCOM;
@@ -109,36 +114,42 @@ int radcom_open(wtap *wth, int *err)
 	wth->subtype_read = radcom_read;
 	wth->snapshot_length = 16384;	/* not available in header, only in frame */
 
-	tm.tm_year = start_date.year-1900;
+	tm.tm_year = pletohs(&start_date.year)-1900;
 	tm.tm_mon = start_date.month-1;
 	tm.tm_mday = start_date.day;
 	tm.tm_hour = start_date.sec/3600;
 	tm.tm_min = (start_date.sec%3600)/60;
-	tm.tm_sec = start_date.sec%60;
+	tm.tm_sec = pletohl(&start_date.sec)%60;
 	tm.tm_isdst = -1;
 	wth->capture.radcom->start = mktime(&tm);
 
 	fseek(wth->fh, sizeof(struct frame_date), SEEK_CUR);
+	wth->data_offset += sizeof(struct frame_date);
 
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(search_encap, 1, 7, wth->fh);
 	if (bytes_read != 7) {
 		goto read_error;
 	}
+	wth->data_offset += 7;
 	while (memcmp(encap_magic, search_encap, 7)) {
 		fseek(wth->fh, -6, SEEK_CUR);
+		wth->data_offset -= 6;
 		errno = WTAP_ERR_CANT_READ;
 		bytes_read = fread(search_encap, 1, 7, wth->fh);
 		if (bytes_read != 7) {
 			goto read_error;
 		}
+		wth->data_offset += 7;
 	}
 	fseek(wth->fh, 12, SEEK_CUR);
+	wth->data_offset += 12;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = fread(search_encap, 1, 4, wth->fh);
 	if (bytes_read != 4) {
 		goto read_error;
 	}
+	wth->data_offset += 4;
 	if (!memcmp(search_encap, "LAPB", 4))
 		wth->file_encap = WTAP_ENCAP_LAPB;
 	else if (!memcmp(search_encap, "Ethe", 4))
@@ -167,10 +178,10 @@ int radcom_open(wtap *wth, int *err)
 
 	if (wth->file_encap == WTAP_ENCAP_ETHERNET) {
 		fseek(wth->fh, 294, SEEK_CUR);
-		wth->data_offset = 294;
+		wth->data_offset += 294;
 	} else if (wth->file_encap == WTAP_ENCAP_LAPB) {
 		fseek(wth->fh, 297, SEEK_CUR);
-		wth->data_offset = 297;
+		wth->data_offset += 297;
 	}
 
 	return 1;
@@ -215,6 +226,7 @@ static int radcom_read(wtap *wth, int *err)
 		return 0;
 	}
 	wth->data_offset += 2;
+	length = pletohs(&length);
 
 	if (wth->file_encap == WTAP_ENCAP_LAPB)
 		length -= 2; /* FCS */
@@ -235,15 +247,15 @@ static int radcom_read(wtap *wth, int *err)
 	}
 	wth->data_offset += sizeof(struct frame_date);
 
-	tm.tm_year = date.year-1900;
+	tm.tm_year = pletohs(&date.year)-1900;
 	tm.tm_mon = date.month-1;
 	tm.tm_mday = date.day;
 	tm.tm_hour = date.sec/3600;
 	tm.tm_min = (date.sec%3600)/60;
-	tm.tm_sec = date.sec%60;
+	tm.tm_sec = pletohl(&date.sec)%60;
 	tm.tm_isdst = -1;
 	wth->phdr.ts.tv_sec = mktime(&tm);
-	wth->phdr.ts.tv_usec = date.usec;
+	wth->phdr.ts.tv_usec = pletohl(&date.usec);
 
 	fseek(wth->fh, 6, SEEK_CUR);
 	wth->data_offset += 6;
@@ -260,6 +272,7 @@ static int radcom_read(wtap *wth, int *err)
 	wth->phdr.pseudo_header.x25.flags = (dce & 0x1) ? 0x00 : 0x80;
 
 	fseek(wth->fh, 9, SEEK_CUR);
+	wth->data_offset += 9;
 
 	/*
 	 * Read the packet data.
