@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Routines for Gryphon protocol packet disassembly
  *
- * $Id: packet-gryphon.c,v 1.3 2000/01/01 21:21:20 guy Exp $
+ * $Id: packet-gryphon.c,v 1.4 2000/01/08 19:37:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -28,6 +28,8 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#include "moduleinfo.h"
 
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>

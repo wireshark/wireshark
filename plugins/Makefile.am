@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.1 1999/12/26 22:38:07 gerald Exp $
+# $Id: Makefile.am,v 1.2 2000/01/08 19:36:38 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -24,4 +24,4 @@
 
 SUBDIRS = gryphon
 
-plugindir = $(prefix)/@PACKAGE@/plugins
+plugindir = @PLUGIN_DIR@

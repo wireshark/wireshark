@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.144 2000/01/07 09:10:12 guy Exp $
+# $Id: Makefile.am,v 1.145 2000/01/08 19:36:10 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -252,17 +252,30 @@ EXTRA_ethereal_SOURCES = \
 	inet_pton.c     \
 	inet_ntop.c
 
-ethereal_DEPENDENCIES = @SNPRINTF_O@ @STRERROR_O@ \
-	@STRNCASECMP_O@ @MKSTEMP_O@ @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@\
-	wiretap/libwiretap.a gtk/libui.a \
-	@LIBLTDL@ \
+# Optional objects that I know how to build. These will be
+# linked into the ethereal executable.
+ethereal_optional_objects = @SNPRINTF_O@ @STRERROR_O@  @STRNCASECMP_O@ @MKSTEMP_O@ \
+	@INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ 
+
+# Additional libs that I know how to build. These will be
+# linked into the ethereal executable.
+ethereal_additional_libs = wiretap/libwiretap.a gtk/libui.a
+
+# This is the automake dependency variable for the executable
+ethereal_DEPENDENCIES = \
+	$(ethereal_optional_objects)	\
+	$(ethereal_additional_libs)	\
+	@LIBTDL@
 	plugins/gryphon/gryphon.la
-ethereal_LDADD = @SNPRINTF_O@ @STRERROR_O@ \
-	@STRNCASECMP_O@ @MKSTEMP_O@ @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@\
-	wiretap/libwiretap.a gtk/libui.a \
-	@SNMP_A@ \
-	@LIBLTDL@ "-dlopen" self \
+
+# This automake variable adds to the link-line for the executable
+ethereal_LDADD = \
+	$(ethereal_optional_objects)	\
+	$(ethereal_additional_libs)	\
+	@SNMP_A@			\
+	@LIBLTDL@ "-dlopen" self	\
 	"-dlopen" plugins/gryphon/gryphon.la
+
 ethereal_LDFLAGS = -export-dynamic
 
 
