@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.27 2002/07/14 00:40:07 guy Exp $
+ * $Id: packet-smtp.c,v 1.28 2002/07/14 08:27:34 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -359,8 +359,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       ti = proto_tree_add_item(tree, proto_smtp, tvb, offset, -1, FALSE);
       smtp_tree = proto_item_add_subtree(ti, ett_smtp);
-      proto_tree_add_boolean_hidden(smtp_tree, (request ? hf_smtp_req : hf_smtp_rsp),
-				    tvb, offset, 4, TRUE);
       if (request) {
 
 	/* 
@@ -436,6 +434,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    cmdlen = 4;
 	  else
 	    cmdlen = linelen;
+	  proto_tree_add_boolean_hidden(smtp_tree, hf_smtp_req, tvb,
+					0, 0, TRUE);
 	  proto_tree_add_item(smtp_tree, hf_smtp_req_command, tvb,
 			      offset, cmdlen, FALSE);
 	  if (linelen > 5) {
@@ -452,6 +452,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * Process the response, a line at a time, until we hit a line
 	 * that doesn't have a continuation indication on it.
 	 */
+	proto_tree_add_boolean_hidden(smtp_tree, hf_smtp_rsp, tvb,
+					0, 0, TRUE);
 
 	while (tvb_offset_exists(tvb, offset)) {
 
