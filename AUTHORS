@@ -252,6 +252,7 @@ Ed Meaney <emeaney@altiga.com> {
 
 Dietmar Petras <DPetras@ELSA.de> {
 	Time protocol support
+	Fix to handling of SNMPv2 TRAP PDUs
 }
 
 Fred Reimer <fwr@ga.prestige.net> {

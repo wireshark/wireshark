@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.24 2000/02/20 03:32:29 guy Exp $
+ * $Id: packet-snmp.c,v 1.25 2000/03/15 07:05:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -908,9 +908,11 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 	case SNMP_MSG_GETNEXT:
 	case SNMP_MSG_RESPONSE:
 	case SNMP_MSG_SET:
-	/* XXX - are they like V1 non-trap PDUs? */
+	/* XXX - we should dissect non-repeaters and max-repetitions
+	   as those two INTEGER values in a SNMP_MSG_GETBULK PDU */
 	case SNMP_MSG_GETBULK:
 	case SNMP_MSG_INFORM:
+	case SNMP_MSG_TRAP2:
 		/* request id */
 		ret = asn1_uint32_decode (&asn1, &request_id, &length);
 		if (ret != ASN1_ERR_NOERROR) {
