@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.14 2001/10/24 07:18:37 guy Exp $
+ * $Id: filesystem.c,v 1.15 2001/10/24 09:22:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -352,7 +352,7 @@ get_persconffile_dir(void)
 		userprofiledir = getenv("USERPROFILE");
 		if (userprofiledir != NULL) {
 			pf_dir = g_malloc(strlen(userprofiledir) +
-			   strlen("Application Data" + strlen(PF_DIR) + 3);
+			    strlen("Application Data") + strlen(PF_DIR) + 3);
 			sprintf(pf_dir,
 			    "%s" G_DIR_SEPARATOR_S "Application Data" G_DIR_SEPARATOR_S "%s",
 			    userprofiledir, PF_DIR);
@@ -403,6 +403,9 @@ int
 create_persconffile_dir(char **pf_dir_path_return)
 {
 	const char *pf_dir_path;
+#ifdef WIN32
+	char *pf_dir_path_copy, *pf_dir_parent_path;
+#endif
 	struct stat s_buf;
 	int ret;
 
@@ -499,6 +502,8 @@ get_home_dir(void)
 		 */
 		home = "C:";
 	}
+
+	return home;
 }
 #endif
 
@@ -536,7 +541,7 @@ get_persconffile_path(const char *filename, gboolean for_writing)
 			old_path = (gchar *) g_malloc(strlen(get_home_dir()) +
 			    strlen(".ethereal") + strlen(filename) + 3);
 			sprintf(old_path,
-			    "%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR ".ethereal",
+			    "%s" G_DIR_SEPARATOR_S ".ethereal" G_DIR_SEPARATOR_S "%s",
 			    get_home_dir(), filename);
 			if (stat(old_path, &s_buf) == 0) {
 				/*
@@ -550,4 +555,4 @@ get_persconffile_path(const char *filename, gboolean for_writing)
 #endif
 
 	return path;
-}		
+}
