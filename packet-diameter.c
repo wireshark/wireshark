@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.26 2001/08/04 19:50:33 guy Exp $
+ * $Id: packet-diameter.c,v 1.27 2001/10/29 21:13:07 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -753,14 +753,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 		}
 		break;
 	  case DIAMETER_UNSIGNED64:
-		{
-		  guint64 data;
-		  memcpy(&data, dataBuffer, 8);
-		  /* data = ntohll(data); */
-		  proto_tree_add_int_format(avpi_tree, hf_diameter_avp_data_uint64,
-									tvb, offset, avpDataLength, data,
-									"Value: 0x%016llx (%llu)", data, data );
-		}
+		proto_tree_add_item(avpi_tree, hf_diameter_avp_data_uint64, tvb, offset, 8, FALSE);
 		break;
 
 	  case DIAMETER_TIME:
@@ -919,7 +912,7 @@ proto_register_diameter(void)
 		  { "AVP Vendor Id","diameter.avp.vendorId", FT_UINT32, BASE_DEC,
 		    NULL, 0x0, "", HFILL }},
 		{ &hf_diameter_avp_data_uint64,
-		  { "AVP Data","diameter.avp.data.uint64", FT_UINT32, BASE_DEC,
+		  { "AVP Data","diameter.avp.data.uint64", FT_UINT64, BASE_DEC,
 		    NULL, 0x0, "", HFILL }},
 		{ &hf_diameter_avp_data_int64,
 		  { "AVP Data","diameter.avp.data.int64", FT_INT32, BASE_DEC,

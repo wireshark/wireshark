@@ -1,5 +1,5 @@
 /* 
- * $Id: ftype-bytes.c,v 1.5 2001/03/03 00:33:24 guy Exp $
+ * $Id: ftype-bytes.c,v 1.6 2001/10/29 21:13:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,10 +29,11 @@
 #include <string.h>
 #include <ctype.h>
 #include "resolv.h"
+#include "../../int-64bit.h"
 
 #define ETHER_LEN	6
 #define IPv6_LEN	16
-
+#define U64_LEN		8
 
 static void
 bytes_fvalue_new(fvalue_t *fv)
@@ -45,6 +46,7 @@ bytes_fvalue_free(fvalue_t *fv)
 {
 	if (fv->value.bytes) {
 		g_byte_array_free(fv->value.bytes, TRUE);
+		fv->value.bytes=NULL;
 	}
 }
 
@@ -75,6 +77,13 @@ ipv6_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
 	g_assert(!already_copied);
 	common_fvalue_set(fv, value, IPv6_LEN);
+}
+
+static void
+u64_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
+{
+	g_assert(!already_copied);
+	common_fvalue_set(fv, value, U64_LEN);
 }
 
 static gpointer
@@ -221,6 +230,20 @@ ipv6_from_string(fvalue_t *fv, char *s, LogFunc log)
 	}
 
 	ipv6_fvalue_set(fv, buffer, FALSE);
+	return TRUE;
+}
+
+static gboolean
+u64_from_string(fvalue_t *fv, char *s, LogFunc log)
+{
+	guint8	buffer[8];
+
+	if (atou64(s, buffer) == NULL) {
+		log("\"%s\" is not a valid integer", s);
+		return FALSE;
+	}
+
+	u64_fvalue_set(fv, buffer, FALSE);
 	return TRUE;
 }
 
@@ -422,7 +445,35 @@ ftype_register_bytes(void)
 		slice,
 	};
 
+	static ftype_t u64_type = {
+		"FT_UINT64",
+		"Unsigned 64-bit integer",
+		U64_LEN,
+		bytes_fvalue_new,
+		bytes_fvalue_free,
+		u64_from_string,
+
+		u64_fvalue_set,
+		NULL,
+		NULL,
+
+		value_get,
+		NULL,
+		NULL,
+
+		cmp_eq,
+		cmp_ne,
+		cmp_gt,
+		cmp_ge,
+		cmp_lt,
+		cmp_le,
+
+		len,
+		slice,
+	};
+
 	ftype_register(FT_BYTES, &bytes_type);
 	ftype_register(FT_ETHER, &ether_type);
 	ftype_register(FT_IPv6, &ipv6_type);
+	ftype_register(FT_UINT64, &u64_type);
 }

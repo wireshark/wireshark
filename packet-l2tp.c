@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.26 2001/10/19 09:12:53 guy Exp $
+ * $Id: packet-l2tp.c,v 1.27 2001/10/29 21:13:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,6 +47,7 @@ static int hf_l2tp_avp_hidden = -1;
 static int hf_l2tp_avp_length = -1;
 static int hf_l2tp_avp_vendor_id = -1;
 static int hf_l2tp_avp_type = -1;
+static int hf_l2tp_tie_breaker = -1;
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -617,17 +618,7 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 
 		case TIE_BREAKER:
-			/*
-			 * XXX - 64-bit values aren't supported on
-			 * platforms/compilers where "guint64" isn't
-			 * supported, and, even on those platforms,
-			 * there's no *printf standard for the format
-			 * to use when printing those values, so we print it
-			 * as a string of hex digits.
-			 */
-			proto_tree_add_text(l2tp_avp_tree, tvb, index, 8,
-			  "Tie Breaker: %s",
-			  tvb_bytes_to_str(tvb, index, 8));
+			proto_tree_add_item(l2tp_avp_tree, hf_l2tp_tie_breaker, tvb, index, 8, FALSE);
 			break;
 
 		case FIRMWARE_REVISION:
@@ -1053,6 +1044,11 @@ proto_register_l2tp(void)
 		{ &hf_l2tp_avp_type,
 		{ "Type", "lt2p.avp.type", FT_UINT16, BASE_DEC, VALS(avp_type_vals), 0,
 			"AVP Type", HFILL }},
+
+		{ &hf_l2tp_tie_breaker,
+		{ "Tie Breaker", "lt2p.tie_breaker", FT_UINT64, BASE_HEX, NULL, 0,
+			"Tie Breaker", HFILL }},
+
 	};
 
 	static gint *ett[] = {

@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.5 2001/09/14 07:23:34 guy Exp $
+ * $Id: ftypes.h,v 1.6 2001/10/29 21:13:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,6 +39,7 @@ enum ftenum {
 	FT_UINT16,
 	FT_UINT24,	/* really a UINT32, but displayed as 3 hex-digits if FD_HEX*/
 	FT_UINT32,
+	FT_UINT64,
 	FT_INT8,
 	FT_INT16,
 	FT_INT24,
@@ -131,7 +132,6 @@ typedef struct {
 		gchar		*string;
 		GByteArray	*bytes;
 		ipv4_addr	ipv4;
-		guint8		ipv6[16];
 		nstime_t	time;
 		tvbuff_t	*tvb;
 	} value;

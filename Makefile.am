@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.371 2001/10/11 16:01:10 guy Exp $
+# $Id: Makefile.am,v 1.372 2001/10/29 21:13:07 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -422,6 +422,8 @@ ETHEREAL_COMMON_SRC = \
 	greproto.h     \
 	in_cksum.c     \
 	in_cksum.h     \
+	int-64bit.c	\
+	int-64bit.h	\
 	ipproto.c      \
 	ipproto.h      \
 	llcsaps.h      \

@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.73 2001/10/29 20:49:28 guy Exp $
+ * $Id: packet-rpc.c,v 1.74 2001/10/29 21:13:08 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -456,19 +456,12 @@ int
 dissect_rpc_uint64(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 int hfindex, int offset)
 {
-	guint32 value_low;
-	guint32 value_high;
+	header_field_info	*hfinfo;
 
-	value_high = tvb_get_ntohl(tvb, offset + 0);
-	value_low  = tvb_get_ntohl(tvb, offset + 4);
-
-	if (tree) {
-		if (value_high)
-			proto_tree_add_text(tree, tvb, offset, 8,
-				"%s: 0x%x%08x", proto_registrar_get_name(hfindex), value_high, value_low);
-		else
-			proto_tree_add_uint(tree, hfindex, tvb, offset, 8, value_low);
-	}
+	hfinfo = proto_registrar_get_nth(hfindex);
+	g_assert(hfinfo->type == FT_UINT64);
+	if (tree)
+		proto_tree_add_item(tree, hfindex, tvb, offset, 8, FALSE);
 
 	return offset + 8;
 }

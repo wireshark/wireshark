@@ -3,7 +3,7 @@
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2001, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
  *
- * $Id: packet-nfs.c,v 1.58 2001/10/29 20:49:27 guy Exp $
+ * $Id: packet-nfs.c,v 1.59 2001/10/29 21:13:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6080,7 +6080,7 @@ proto_register_nfs(void)
 			NULL, 0, "Directory Cookie", HFILL }},
 
 		{ &hf_nfs_readdir_entry3_fileid, {
-			"File ID", "nfs.readdir.entry3.fileid", FT_UINT32, BASE_DEC,
+			"File ID", "nfs.readdir.entry3.fileid", FT_UINT64, BASE_DEC,
 			NULL, 0, "File ID", HFILL }},
 
 		{ &hf_nfs_readdir_entry3_name, {
@@ -6088,11 +6088,11 @@ proto_register_nfs(void)
 			NULL, 0, "Name", HFILL }},
 
 		{ &hf_nfs_readdir_entry3_cookie, {
-			"Cookie", "nfs.readdir.entry3.cookie", FT_UINT32, BASE_DEC,
+			"Cookie", "nfs.readdir.entry3.cookie", FT_UINT64, BASE_DEC,
 			NULL, 0, "Directory Cookie", HFILL }},
 
 		{ &hf_nfs_readdirplus_entry_fileid, {
-			"File ID", "nfs.readdirplus.entry.fileid", FT_UINT32, BASE_DEC,
+			"File ID", "nfs.readdirplus.entry.fileid", FT_UINT64, BASE_DEC,
 			NULL, 0, "Name", HFILL }},
 
 		{ &hf_nfs_readdirplus_entry_name, {
@@ -6100,7 +6100,7 @@ proto_register_nfs(void)
 			NULL, 0, "Name", HFILL }},
 
 		{ &hf_nfs_readdirplus_entry_cookie, {
-			"Cookie", "nfs.readdirplus.entry.cookie", FT_UINT32, BASE_DEC,
+			"Cookie", "nfs.readdirplus.entry.cookie", FT_UINT64, BASE_DEC,
 			NULL, 0, "Directory Cookie", HFILL }},
 
 		{ &hf_nfs_readdir_eof, {
@@ -6165,7 +6165,7 @@ proto_register_nfs(void)
 			"dtpref", "nfs.fsinfo.dtpref", FT_UINT32, BASE_DEC,
 			NULL, 0, "Preferred READDIR request", HFILL }},
 		{ &hf_nfs_fsinfo_maxfilesize, {
-			"maxfilesize", "nfs.fsinfo.maxfilesize", FT_UINT32, BASE_DEC,
+			"maxfilesize", "nfs.fsinfo.maxfilesize", FT_UINT64, BASE_DEC,
 			NULL, 0, "Maximum file size", HFILL }},
 		{ &hf_nfs_fsinfo_properties, {
 			"Properties", "nfs.fsinfo.propeties", FT_UINT32, BASE_HEX,
@@ -6246,11 +6246,11 @@ proto_register_nfs(void)
 			NULL, 0, "nfs.fattr3.gid", HFILL }},
 
 		{ &hf_nfs_fattr3_size, {
-			"size", "nfs.fattr3.size", FT_UINT32, BASE_DEC,
+			"size", "nfs.fattr3.size", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fattr3.size", HFILL }},
 
 		{ &hf_nfs_fattr3_used, {
-			"used", "nfs.fattr3.used", FT_UINT32, BASE_DEC,
+			"used", "nfs.fattr3.used", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fattr3.used", HFILL }},
 
 		{ &hf_nfs_fattr3_rdev, {
@@ -6258,19 +6258,19 @@ proto_register_nfs(void)
 			NULL, 0, "nfs.fattr3.rdev", HFILL }},
 
 		{ &hf_nfs_fattr3_fsid, {
-			"fsid", "nfs.fattr3.fsid", FT_UINT32, BASE_DEC,
+			"fsid", "nfs.fattr3.fsid", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fattr3.fsid", HFILL }},
 
 		{ &hf_nfs_fattr3_fileid, {
-			"fileid", "nfs.fattr3.fileid", FT_UINT32, BASE_DEC,
+			"fileid", "nfs.fattr3.fileid", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fattr3.fileid", HFILL }},
 
 		{ &hf_nfs_wcc_attr_size, {
-			"size", "nfs.wcc_attr.size", FT_UINT32, BASE_DEC,
+			"size", "nfs.wcc_attr.size", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.wcc_attr.size", HFILL }},
 
 		{ &hf_nfs_set_size3_size, {
-			"size", "nfs.set_size3.size", FT_UINT32, BASE_DEC,
+			"size", "nfs.set_size3.size", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.set_size3.size", HFILL }},
 
 		{ &hf_nfs_uid3, {
@@ -6282,11 +6282,11 @@ proto_register_nfs(void)
 			NULL, 0, "nfs.gid3", HFILL }},
 
 		{ &hf_nfs_cookie3, {
-			"cookie", "nfs.cookie3", FT_UINT32, BASE_DEC,
+			"cookie", "nfs.cookie3", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.cookie3", HFILL }},
 
 		{ &hf_nfs_offset3, {
-			"offset", "nfs.offset3", FT_UINT32, BASE_DEC,
+			"offset", "nfs.offset3", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.offset3", HFILL }},
 
 		{ &hf_nfs_count3, {
@@ -6302,27 +6302,27 @@ proto_register_nfs(void)
 			NULL, 0, "nfs.count3_dircount", HFILL }},
 
 		{ &hf_nfs_fsstat3_resok_tbytes, {
-			"tbytes", "nfs.fsstat3_resok.tbytes", FT_UINT32, BASE_DEC,
+			"tbytes", "nfs.fsstat3_resok.tbytes", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fsstat3_resok.tbytes", HFILL }},
 
 		{ &hf_nfs_fsstat3_resok_fbytes, {
-			"fbytes", "nfs.fsstat3_resok.fbytes", FT_UINT32, BASE_DEC,
+			"fbytes", "nfs.fsstat3_resok.fbytes", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fsstat3_resok.fbytes", HFILL }},
 
 		{ &hf_nfs_fsstat3_resok_abytes, {
-			"abytes", "nfs.fsstat3_resok.abytes", FT_UINT32, BASE_DEC,
+			"abytes", "nfs.fsstat3_resok.abytes", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fsstat3_resok.abytes", HFILL }},
 
 		{ &hf_nfs_fsstat3_resok_tfiles, {
-			"tfiles", "nfs.fsstat3_resok.tfiles", FT_UINT32, BASE_DEC,
+			"tfiles", "nfs.fsstat3_resok.tfiles", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fsstat3_resok.tfiles", HFILL }},
 
 		{ &hf_nfs_fsstat3_resok_ffiles, {
-			"ffiles", "nfs.fsstat3_resok.ffiles", FT_UINT32, BASE_DEC,
+			"ffiles", "nfs.fsstat3_resok.ffiles", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fsstat3_resok.ffiles", HFILL }},
 
 		{ &hf_nfs_fsstat3_resok_afiles, {
-			"afiles", "nfs.fsstat3_resok.afiles", FT_UINT32, BASE_DEC,
+			"afiles", "nfs.fsstat3_resok.afiles", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fsstat3_resok.afiles", HFILL }},
 
 		/* NFSv4 */
@@ -6348,7 +6348,7 @@ proto_register_nfs(void)
 			NULL, 0, "Tag", HFILL }},
 
 		{ &hf_nfs_clientid4, {
-			"clientid", "nfs.clientid", FT_UINT32, BASE_DEC,
+			"clientid", "nfs.clientid", FT_UINT64, BASE_DEC,
 			NULL, 0, "Client ID", HFILL }},
 
 		{ &hf_nfs_ace4, {
@@ -6504,11 +6504,11 @@ proto_register_nfs(void)
 			BASE_NONE, &yesno, 0, "nfs.data_follows", HFILL }},
 
 		{ &hf_nfs_stateid4, {
-			"stateid", "nfs.stateid4", FT_UINT32, BASE_DEC,
+			"stateid", "nfs.stateid4", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.stateid4", HFILL }},
 
 		{ &hf_nfs_offset4, {
-			"offset", "nfs.offset4", FT_UINT32, BASE_DEC,
+			"offset", "nfs.offset4", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.offset4", HFILL }},
 
 		{ &hf_nfs_specdata1, {
@@ -6528,15 +6528,15 @@ proto_register_nfs(void)
 			NULL, 0, "nfs.reclaim4", HFILL }},
 
 		{ &hf_nfs_length4, {
-			"length", "nfs.length4", FT_UINT32, BASE_DEC,
+			"length", "nfs.length4", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.length4", HFILL }},
 
 		{ &hf_nfs_changeid4, {
-			"changeid", "nfs.changeid4", FT_UINT32, BASE_DEC,
+			"changeid", "nfs.changeid4", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.changeid4", HFILL }},
 
 		{ &hf_nfs_nfstime4_seconds, {
-			"seconds", "nfs.nfstime4.seconds", FT_UINT32, BASE_DEC,
+			"seconds", "nfs.nfstime4.seconds", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.nfstime4.seconds", HFILL }},
 
 		{ &hf_nfs_nfstime4_nseconds, {
@@ -6544,11 +6544,11 @@ proto_register_nfs(void)
 			NULL, 0, "nfs.nfstime4.nseconds", HFILL }},
 
 		{ &hf_nfs_fsid4_major, {
-			"fsid4.major", "nfs.fsid4.major", FT_UINT32, BASE_DEC,
+			"fsid4.major", "nfs.fsid4.major", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.nfstime4.fsid4.major", HFILL }},
 
 		{ &hf_nfs_fsid4_minor, {
-			"fsid4.minor", "nfs.fsid4.minor", FT_UINT32, BASE_DEC,
+			"fsid4.minor", "nfs.fsid4.minor", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fsid4.minor", HFILL }},
 
 		{ &hf_nfs_acetype4, {
@@ -6564,7 +6564,7 @@ proto_register_nfs(void)
 			NULL, 0, "nfs.acemask4", HFILL }},
 
 		{ &hf_nfs_fattr4_size, {
-			"size", "nfs.fattr4.size", FT_UINT32, BASE_DEC,
+			"size", "nfs.fattr4.size", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fattr4.size", HFILL }},
 
 		{ &hf_nfs_fattr4_lease_time, {
@@ -6576,23 +6576,23 @@ proto_register_nfs(void)
 			NULL, 0, "nfs.fattr4.aclsupport", HFILL }},
 
 		{ &hf_nfs_fattr4_fileid, {
-			"fileid", "nfs.fattr4.fileid", FT_UINT32, BASE_DEC,
+			"fileid", "nfs.fattr4.fileid", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fattr4.fileid", HFILL }},
 
 		{ &hf_nfs_fattr4_files_avail, {
-			"files_avail", "nfs.fattr4.files_avail", FT_UINT32, BASE_DEC,
+			"files_avail", "nfs.fattr4.files_avail", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fattr4.files_avail", HFILL }},
 
 		{ &hf_nfs_fattr4_files_free, {
-			"files_free", "nfs.fattr4.files_free", FT_UINT32, BASE_DEC,
+			"files_free", "nfs.fattr4.files_free", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fattr4.files_free", HFILL }},
 
 		{ &hf_nfs_fattr4_files_total, {
-			"files_total", "nfs.fattr4.files_total", FT_UINT32, BASE_DEC,
+			"files_total", "nfs.fattr4.files_total", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fattr4.files_total", HFILL }},
 
 		{ &hf_nfs_fattr4_maxfilesize, {
-			"maxfilesize", "nfs.fattr4.maxfilesize", FT_UINT32, BASE_DEC,
+			"maxfilesize", "nfs.fattr4.maxfilesize", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fattr4.maxfilesize", HFILL }},
 
 		{ &hf_nfs_fattr4_maxlink, {
@@ -6628,55 +6628,55 @@ proto_register_nfs(void)
 			NULL, 0, "nfs.eof", HFILL }},
 
 		{ &hf_nfs_fattr4_maxread, {
-			"maxread", "nfs.fattr4.maxread", FT_UINT32, BASE_DEC,
+			"maxread", "nfs.fattr4.maxread", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fattr4.maxread", HFILL }},
 
 		{ &hf_nfs_fattr4_maxwrite, {
-			"maxwrite", "nfs.fattr4.maxwrite", FT_UINT32, BASE_DEC,
+			"maxwrite", "nfs.fattr4.maxwrite", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fattr4.maxwrite", HFILL }},
 
 		{ &hf_nfs_fattr4_quota_hard, {
-			"quota_hard", "nfs.fattr4.quota_hard", FT_UINT32, BASE_DEC,
+			"quota_hard", "nfs.fattr4.quota_hard", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fattr4.quota_hard", HFILL }},
 
 		{ &hf_nfs_fattr4_quota_soft, {
-			"quota_soft", "nfs.fattr4.quota_soft", FT_UINT32, BASE_DEC,
+			"quota_soft", "nfs.fattr4.quota_soft", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fattr4.quota_soft", HFILL }},
 
 		{ &hf_nfs_fattr4_quota_used, {
-			"quota_used", "nfs.fattr4.quota_used", FT_UINT32, BASE_DEC,
+			"quota_used", "nfs.fattr4.quota_used", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fattr4.quota_used", HFILL }},
 
 		{ &hf_nfs_fattr4_space_avail, {
-			"space_avail", "nfs.fattr4.space_avail", FT_UINT32, BASE_DEC,
+			"space_avail", "nfs.fattr4.space_avail", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fattr4.space_avail", HFILL }},
 
 		{ &hf_nfs_fattr4_space_free, {
-			"space_free", "nfs.fattr4.space_free", FT_UINT32, BASE_DEC,
+			"space_free", "nfs.fattr4.space_free", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fattr4.space_free", HFILL }},
 
 		{ &hf_nfs_fattr4_space_total, {
-			"space_total", "nfs.fattr4.space_total", FT_UINT32, BASE_DEC,
+			"space_total", "nfs.fattr4.space_total", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fattr4.space_total", HFILL }},
 
 		{ &hf_nfs_fattr4_space_used, {
-			"space_used", "nfs.fattr4.space_used", FT_UINT32, BASE_DEC,
+			"space_used", "nfs.fattr4.space_used", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fattr4.space_used", HFILL }},
 
 		{ &hf_nfs_stateid4_delegate_stateid, {
-			"delegate_stateid", "nfs.delegate_stateid", FT_UINT32, BASE_DEC,
+			"delegate_stateid", "nfs.delegate_stateid", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.delegate_stateid", HFILL }},
 
 		{ &hf_nfs_verifier4, {
-			"verifier", "nfs.verifier4", FT_UINT32, BASE_DEC,
+			"verifier", "nfs.verifier4", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.verifier4", HFILL }},
 
 		{ &hf_nfs_cookie4, {
-			"cookie", "nfs.cookie4", FT_UINT32, BASE_DEC,
+			"cookie", "nfs.cookie4", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.cookie4", HFILL }},
 
 		{ &hf_nfs_cookieverf4, {
-			"cookieverf", "nfs.cookieverf4", FT_UINT32, BASE_DEC,
+			"cookieverf", "nfs.cookieverf4", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.cookieverf4", HFILL }},
 
 		{ &hf_nfs_cb_location, {
@@ -6692,7 +6692,7 @@ proto_register_nfs(void)
 			BASE_NONE, &yesno, 0, "nfs.recall4", HFILL }},
 
 		{ &hf_nfs_filesize, {
-			"filesize", "nfs.filesize", FT_UINT32, BASE_DEC,
+			"filesize", "nfs.filesize", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.filesize", HFILL }},
 
 		{ &hf_nfs_count4, {

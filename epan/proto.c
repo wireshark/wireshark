@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.37 2001/10/26 17:29:09 gram Exp $
+ * $Id: proto.c,v 1.38 2001/10/29 21:13:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,7 @@
 #include "plugins.h"
 #include "ipv6-utils.h"
 #include "proto.h"
+#include "../int-64bit.h"
 
 #define cVALS(x) (const value_string*)(x)
 
@@ -52,6 +53,7 @@ proto_tree_free_node(GNode *node, gpointer data);
 
 static void fill_label_boolean(field_info *fi, gchar *label_str);
 static void fill_label_uint(field_info *fi, gchar *label_str);
+static void fill_label_uint64(field_info *fi, gchar *label_str);
 static void fill_label_enumerated_uint(field_info *fi, gchar *label_str);
 static void fill_label_enumerated_bitfield(field_info *fi, gchar *label_str);
 static void fill_label_numeric_bitfield(field_info *fi, gchar *label_str);
@@ -80,6 +82,10 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap);
 
 static void
 proto_tree_set_protocol_tvb(field_info *fi, tvbuff_t *tvb);
+static void
+proto_tree_set_uint64b(field_info *fi, const guint8 *value_ptr, gboolean little_endian);
+static void
+proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start, gboolean little_endian);
 static void
 proto_tree_set_bytes(field_info *fi, const guint8* start_ptr, gint length);
 static void
@@ -483,6 +489,11 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		case FT_UINT32:
 			proto_tree_set_uint(new_fi,
 			    get_uint_value(tvb, start, length, little_endian));
+			break;
+
+		case FT_UINT64:
+			g_assert(length == 8);
+			proto_tree_set_uint64_tvb(new_fi, tvb, start, little_endian);
 			break;
 
 		/* XXX - make these just FT_INT? */
@@ -979,6 +990,30 @@ static void
 proto_tree_set_ipv6_tvb(field_info *fi, tvbuff_t *tvb, gint start)
 {
 	proto_tree_set_ipv6(fi, tvb_get_ptr(tvb, start, 16));
+}
+
+static void
+proto_tree_set_uint64(field_info *fi, const guint8 *value_ptr, gboolean little_endian)
+{
+	if(little_endian){
+		unsigned char buffer[8];
+		int i;
+
+		for(i=0;i<8;i++){
+			buffer[i]=value_ptr[7-i];
+		}
+		fvalue_set(fi->value, (gpointer)buffer, FALSE);
+	} else {
+		fvalue_set(fi->value, (gpointer)value_ptr, FALSE);
+	}
+}
+
+static void
+proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start, gboolean little_endian)
+{
+	/* XXX remove all this when last non-tvbuff dissector is removed*/
+	NullTVB;
+	proto_tree_set_uint64(fi, tvb_get_ptr(tvb, start, 8), little_endian);
 }
 
 /* Add a FT_STRING to a proto_tree */
@@ -1954,6 +1989,10 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			}
 			break;
 
+		case FT_UINT64:
+			fill_label_uint64(fi, label_str);
+			break;
+
 		case FT_INT8:
 		case FT_INT16:
 		case FT_INT24:
@@ -2029,6 +2068,30 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 					ftype_name(hfinfo->type));
 			g_assert_not_reached();
 			break;
+	}
+}
+
+static void
+fill_label_uint64(field_info *fi, gchar *label_str)
+{
+	unsigned char *bytes;
+	header_field_info *hfinfo = fi->hfinfo;
+
+	bytes=fvalue_get(fi->value);
+	switch(hfinfo->display){
+	case BASE_DEC:
+		snprintf(label_str, ITEM_LABEL_LENGTH,
+			"%s: %s", hfinfo->name,
+			u64toa(bytes));
+		break;
+	case BASE_HEX:
+		snprintf(label_str, ITEM_LABEL_LENGTH,
+			"%s: %s", hfinfo->name,
+			u64toh(bytes));
+		break;
+	default:
+		g_assert_not_reached();
+		;
 	}
 }
 
@@ -2875,6 +2938,7 @@ proto_can_match_selected(field_info *finfo)
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
+		case FT_UINT64:
 		case FT_INT8:
 		case FT_INT16:
 		case FT_INT24:
@@ -2939,6 +3003,14 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 			buf = g_malloc0(dfilter_len);
 			format = hfinfo_numeric_format(hfinfo);
 			snprintf(buf, dfilter_len, format, hfinfo->abbrev, fvalue_get_integer(finfo->value));
+			break;
+
+		case FT_UINT64:
+			stringified = u64toa(fvalue_get(finfo->value));
+			dfilter_len = abbrev_len + 4 + strlen(stringified) +1;
+			buf = g_malloc0(dfilter_len);
+			snprintf(buf, dfilter_len, "%s == %s", hfinfo->abbrev,
+					stringified);
 			break;
 
 		case FT_IPv4:

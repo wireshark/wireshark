@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.20 2001/09/14 06:48:30 guy Exp $
+ * $Id: packet-nlm.c,v 1.21 2001/10/29 21:13:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,7 +68,9 @@ static int hf_nlm_lock_caller_name = -1;
 static int hf_nlm_lock_owner = -1;
 static int hf_nlm_lock_svid = -1;
 static int hf_nlm_lock_l_offset = -1;
+static int hf_nlm_lock_l_offset64 = -1;
 static int hf_nlm_lock_l_len = -1;
+static int hf_nlm_lock_l_len64 = -1;
 static int hf_nlm_reclaim = -1;
 static int hf_nlm_stat = -1;
 static int hf_nlm_state = -1;
@@ -172,8 +174,8 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version, i
 	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, hf_nlm_lock_svid, offset);
 
 	if (version == 4) {
-		offset = dissect_rpc_uint64(tvb, pinfo, lock_tree, hf_nlm_lock_l_offset, offset);
-		offset = dissect_rpc_uint64(tvb, pinfo, lock_tree, hf_nlm_lock_l_len, offset);
+		offset = dissect_rpc_uint64(tvb, pinfo, lock_tree, hf_nlm_lock_l_offset64, offset);
+		offset = dissect_rpc_uint64(tvb, pinfo, lock_tree, hf_nlm_lock_l_len64, offset);
 	}
 	else {
 		offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, hf_nlm_lock_l_offset, offset);
@@ -285,9 +287,9 @@ dissect_nlm_test_res(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (version == 4) {
 		offset = dissect_rpc_uint64(tvb, pinfo, lock_tree,
-		    hf_nlm_lock_l_offset, offset);
+		    hf_nlm_lock_l_offset64, offset);
 		offset = dissect_rpc_uint64(tvb, pinfo, lock_tree,
-		    hf_nlm_lock_l_len, offset);
+		    hf_nlm_lock_l_len64, offset);
 	}
 	else {
 		offset = dissect_rpc_uint32(tvb, pinfo, lock_tree,
@@ -708,9 +710,15 @@ proto_register_nlm(void)
 		{ &hf_nlm_lock_svid, {
 			"svid", "nlm.lock.svid", FT_UINT32, BASE_DEC,
 			NULL, 0, "svid", HFILL }},
+		{ &hf_nlm_lock_l_offset64, {
+			"l_offset", "nlm.lock.l_offset", FT_UINT64, BASE_DEC,
+			NULL, 0, "l_offset", HFILL }},
 		{ &hf_nlm_lock_l_offset, {
 			"l_offset", "nlm.lock.l_offset", FT_UINT32, BASE_DEC,
 			NULL, 0, "l_offset", HFILL }},
+		{ &hf_nlm_lock_l_len64, {
+			"l_len", "nlm.lock.l_len", FT_UINT64, BASE_DEC,
+			NULL, 0, "l_len", HFILL }},
 		{ &hf_nlm_lock_l_len, {
 			"l_len", "nlm.lock.l_len", FT_UINT32, BASE_DEC,
 			NULL, 0, "l_len", HFILL }},

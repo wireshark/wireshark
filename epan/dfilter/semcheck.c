@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.4 2001/03/02 17:04:23 gram Exp $
+ * $Id: semcheck.c,v 1.5 2001/10/29 21:13:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,6 +53,7 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 		case FT_IPv4:
 		case FT_IPv6:
 		case FT_IPXNET:
+		case FT_UINT64:
 			return a == b;
 
 		case FT_ETHER:
