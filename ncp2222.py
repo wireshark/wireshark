@@ -25,7 +25,7 @@ http://developer.novell.com/ndk/doc/ncp/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.53 2003/02/11 08:47:22 guy Exp $
+$Id: ncp2222.py,v 1.54 2003/02/19 21:47:45 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -5217,7 +5217,7 @@ def define_errors():
     	errors[0x9804] = "Disk Map Error"
     
     	errors[0x9900] = "The file server has run out of directory space on the affected volume"
-    	errors[0x9a00] = "The request attempted to rename the affected file to another volume"
+    	errors[0x9a00] = "Invalid request to rename the affected file to another volume"
     
     	errors[0x9b00] = "DirHandle is not associated with a valid directory path"
     	errors[0x9b01] = "A resulting directory handle is not associated with a valid directory path"
@@ -5250,6 +5250,7 @@ def define_errors():
             
     	errors[0xa800] = "Invalid Support Module ID"
         errors[0xa801] = "No Auditing Access Rights"
+        errors[0xa802] = "No Access Rights"
             
     	errors[0xbe00] = "Invalid Data Stream"
     	errors[0xbf00] = "Requests for this name space are not valid on this volume"
@@ -5301,6 +5302,7 @@ def define_errors():
     	errors[0xd501] = "No queue job"
     	errors[0xd502] = "The job associated with JobNumber does not exist in this queue"
     	errors[0xd503] = "Inspect Failure"
+        errors[0xd504] = "Unknown NCP Extension Number"
     
     	errors[0xd600] = "The file server does not allow unencrypted passwords"
     	errors[0xd601] = "No job right"
@@ -5399,8 +5401,9 @@ def define_errors():
     	errors[0xfb06] = "Unknown Request"
         errors[0xfb07] = "Invalid Subfunction Request"
         errors[0xfb08] = "Attempt to use an invalid parameter (drive number, path, or flag value) during a set drive path call"
-        errors[0xfb09] = "NMAS not installed on this server, NCP NOT Supported"
+        errors[0xfb09] = "NMAS not running on this server, NCP NOT Supported"
         errors[0xfb0a] = "Station Not Logged In"
+        errors[0xfb0b] = "Secret Store not running on this server, NCP Not supported"
     
     	errors[0xfc00] = "The message queue cannot accept another message"
     	errors[0xfc01] = "The trustee associated with ObjectId does not exist"
@@ -5518,6 +5521,7 @@ def produce_code():
 #include <epan/conversation.h>
 #include "ptvcursor.h"
 #include "packet-ncp-int.h"
+#include <epan/strutil.h>
 
 /* Function declarations for functions used in proto_register_ncp2222() */
 static void ncp_init_protocol(void);
@@ -5964,6 +5968,24 @@ static int hf_nds_os_ver = -1;
 static int hf_nds_lic_flags = -1;
 static int hf_nds_ds_time = -1;
 static int hf_nds_ping_version = -1;
+static int hf_nds_search_scope = -1;
+static int hf_nds_num_objects = -1;
+static int hf_bit1siflags = -1;
+static int hf_bit2siflags = -1;
+static int hf_bit3siflags = -1;
+static int hf_bit4siflags = -1;
+static int hf_bit5siflags = -1;
+static int hf_bit6siflags = -1;
+static int hf_bit7siflags = -1;
+static int hf_bit8siflags = -1;
+static int hf_bit9siflags = -1;
+static int hf_bit10siflags = -1;
+static int hf_bit11siflags = -1;
+static int hf_bit12siflags = -1;
+static int hf_bit13siflags = -1;
+static int hf_bit14siflags = -1;
+static int hf_bit15siflags = -1;
+static int hf_bit16siflags = -1;
 
 
 	"""
@@ -7617,8 +7639,63 @@ proto_register_ncp2222(void)
     { &hf_nds_ping_version,
 	{ "Ping Version", "ncp.nds_ping_version", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 
+    { &hf_nds_search_scope,
+	{ "Search Scope", "ncp.nds_search_scope", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
 
-  
+    { &hf_nds_num_objects,
+	{ "Number of Objects to Search", "ncp.nds_num_objects", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+
+        { &hf_bit1siflags, 
+        { "Names", "ncp.bit1siflags", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+
+        { &hf_bit2siflags, 
+        { "Names and Values", "ncp.bit2siflags", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+                     
+        { &hf_bit3siflags, 
+        { "Effective Privileges", "ncp.bit3siflags", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        
+        { &hf_bit4siflags, 
+        { "Value Info", "ncp.bit4siflags", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        
+        { &hf_bit5siflags, 
+        { "Abbreviated Value", "ncp.bit5siflags", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        
+        { &hf_bit6siflags, 
+        { "Not Defined", "ncp.bit6siflags", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        
+        { &hf_bit7siflags, 
+        { "Not Defined", "ncp.bit7siflags", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        
+        { &hf_bit8siflags, 
+        { "Not Defined", "ncp.bit8siflags", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        
+        { &hf_bit9siflags, 
+        { "Expanded Class", "ncp.bit9siflags", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        
+        { &hf_bit10siflags, 
+        { "Not Defined", "ncp.bit10siflags", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        
+        { &hf_bit11siflags, 
+        { "Not Defined", "ncp.bit11siflags", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        
+        { &hf_bit12siflags, 
+        { "Not Defined", "ncp.bit12siflags", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        
+        { &hf_bit13siflags, 
+        { "Not Defined", "ncp.bit13siflags", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        
+        { &hf_bit14siflags, 
+        { "Not Defined", "ncp.bit14siflags", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        
+        { &hf_bit15siflags, 
+        { "Not Defined", "ncp.bit15siflags", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        
+        { &hf_bit16siflags, 
+        { "Not Defined", "ncp.bit16siflags", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+
+
+
  """                
 	# Print the registration code for the hf variables
 	for var in sorted_vars:
@@ -7990,7 +8067,7 @@ def define_ncp2222():
 	pkt = NCP(0x1502, "Disable Broadcasts", 'message')
 	pkt.Request(10)
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000])
+	pkt.CompletionCodes([0x0000, 0xfb0a])
 
 	# 2222/1503, 21/03
 	pkt = NCP(0x1503, "Enable Broadcasts", 'message')
@@ -9425,7 +9502,7 @@ def define_ncp2222():
 		rec( -1, (1,255), Path ),
 	], info_str=(QueueName, "Create Queue: %s", ", %s"))
 	pkt.Reply(12, [
-		rec( 8, 4, QueueID, BE ),
+		rec( 8, 4, QueueID ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9600, 0x9900, 0xd000, 0xd100,
 			     0xd200, 0xd300, 0xd400, 0xd500, 0xd601,
@@ -9434,7 +9511,7 @@ def define_ncp2222():
 	# 2222/1765, 23/101
 	pkt = NCP(0x1765, "Destroy Queue", 'qms')
 	pkt.Request(14, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 	])
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x9900, 0xd000, 0xd100, 0xd200,
@@ -9443,10 +9520,10 @@ def define_ncp2222():
 	# 2222/1766, 23/102
 	pkt = NCP(0x1766, "Read Queue Current Status", 'qms')
 	pkt.Request(14, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 	])
 	pkt.Reply(20, [
-		rec( 8, 4, QueueID, BE ),
+		rec( 8, 4, QueueID ),
 		rec( 12, 1, QueueStatus ),
 		rec( 13, 1, CurrentEntries ),
 		rec( 14, 1, CurrentServers, var="x" ),
@@ -9459,7 +9536,7 @@ def define_ncp2222():
 	# 2222/1767, 23/103
 	pkt = NCP(0x1767, "Set Queue Current Status", 'qms')
 	pkt.Request(15, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 1, QueueStatus ),
 	])
 	pkt.Reply(8)
@@ -9470,7 +9547,7 @@ def define_ncp2222():
 	# 2222/1768, 23/104
 	pkt = NCP(0x1768, "Create Queue Job And File", 'qms')
 	pkt.Request(264, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
                 rec( 14, 250, JobStruct ),
 	])
 	pkt.Reply(62, [
@@ -9497,7 +9574,7 @@ def define_ncp2222():
 	# 2222/1769, 23/105
 	pkt = NCP(0x1769, "Close File And Start Queue Job", 'qms')
 	pkt.Request(16, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 2, JobNumber, BE ),
 	])
 	pkt.Reply(8)
@@ -9507,7 +9584,7 @@ def define_ncp2222():
 	# 2222/176A, 23/106
 	pkt = NCP(0x176A, "Remove Job From Queue", 'qms')
 	pkt.Request(16, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 2, JobNumber, BE ),
 	])
 	pkt.Reply(8)
@@ -9517,7 +9594,7 @@ def define_ncp2222():
 	# 2222/176B, 23/107
 	pkt = NCP(0x176B, "Get Queue Job List", 'qms')
 	pkt.Request(14, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 	])
 	pkt.Reply(12, [
 		rec( 8, 2, JobCount, BE, var="x" ),
@@ -9529,7 +9606,7 @@ def define_ncp2222():
 	# 2222/176C, 23/108
 	pkt = NCP(0x176C, "Read Queue Job Entry", 'qms')
 	pkt.Request(16, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 2, JobNumber, BE ),
 	])
 	pkt.Reply(258, [
@@ -9550,7 +9627,7 @@ def define_ncp2222():
 	# 2222/176E, 23/110
 	pkt = NCP(0x176E, "Change Queue Job Position", 'qms')
 	pkt.Request(17, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 2, JobNumber, BE ),
 		rec( 16, 1, NewPosition ),
 	])
@@ -9560,7 +9637,7 @@ def define_ncp2222():
 	# 2222/176F, 23/111
 	pkt = NCP(0x176F, "Attach Queue Server To Queue", 'qms')
 	pkt.Request(14, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 	])
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x9900, 0xd000, 0xd100, 0xd200,
@@ -9570,7 +9647,7 @@ def define_ncp2222():
 	# 2222/1770, 23/112
 	pkt = NCP(0x1770, "Detach Queue Server From Queue", 'qms')
 	pkt.Request(14, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 	])
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x9900, 0xd000, 0xd100, 0xd200,
@@ -9579,7 +9656,7 @@ def define_ncp2222():
 	# 2222/1771, 23/113
 	pkt = NCP(0x1771, "Service Queue Job", 'qms')
 	pkt.Request(16, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 2, ServiceType, BE ),
 	])
 	pkt.Reply(62, [
@@ -9605,7 +9682,7 @@ def define_ncp2222():
 	# 2222/1772, 23/114
 	pkt = NCP(0x1772, "Finish Servicing Queue Job", 'qms')
 	pkt.Request(20, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 2, JobNumber, BE ),
 		rec( 16, 4, ChargeInformation, BE ),
 	])
@@ -9616,7 +9693,7 @@ def define_ncp2222():
 	# 2222/1773, 23/115
 	pkt = NCP(0x1773, "Abort Servicing Queue Job", 'qms')
 	pkt.Request(16, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 2, JobNumber, BE ),
 	])
 	pkt.Reply(8)		
@@ -9626,7 +9703,7 @@ def define_ncp2222():
 	# 2222/1774, 23/116
 	pkt = NCP(0x1774, "Change To Client Rights", 'qms')
 	pkt.Request(16, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 2, JobNumber, BE ),
 	])
 	pkt.Reply(8)		
@@ -9643,7 +9720,7 @@ def define_ncp2222():
 	# 2222/1776, 23/118
 	pkt = NCP(0x1776, "Read Queue Server Current Status", 'qms')
 	pkt.Request(19, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 4, ServerID, BE ),
 		rec( 18, 1, ServerStation ),
 	])
@@ -9656,7 +9733,7 @@ def define_ncp2222():
 	# 2222/1777, 23/119
 	pkt = NCP(0x1777, "Set Queue Server Current Status", 'qms')
 	pkt.Request(78, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 64, ServerStatusRecord ),
 	])
 	pkt.Reply(8)
@@ -9666,11 +9743,11 @@ def define_ncp2222():
 	# 2222/1778, 23/120
 	pkt = NCP(0x1778, "Get Queue Job File Size", 'qms')
 	pkt.Request(16, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 2, JobNumber, BE ),
 	])
 	pkt.Reply(20, [
-		rec( 8, 4, QueueID, BE ),
+		rec( 8, 4, QueueID ),
 		rec( 12, 4, JobNumberLong ),
 		rec( 16, 4, FileSize, BE ),
 	])
@@ -9680,7 +9757,7 @@ def define_ncp2222():
 	# 2222/1779, 23/121
 	pkt = NCP(0x1779, "Create Queue Job And File", 'qms')
 	pkt.Request(264, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
                 rec( 14, 250, JobStruct ),
 	])
 	pkt.Reply(94, [
@@ -9692,7 +9769,7 @@ def define_ncp2222():
 	# 2222/177A, 23/122
 	pkt = NCP(0x177A, "Read Queue Job Entry", 'qms')
 	pkt.Request(18, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 4, JobNumberLong ),
 	])
 	pkt.Reply(258, [
@@ -9704,7 +9781,7 @@ def define_ncp2222():
 	# 2222/177B, 23/123
 	pkt = NCP(0x177B, "Change Queue Job Entry", 'qms')
 	pkt.Request(264, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
                 rec( 14, 250, JobStruct ),
 	])
 	pkt.Reply(8)		
@@ -9714,7 +9791,7 @@ def define_ncp2222():
 	# 2222/177C, 23/124
 	pkt = NCP(0x177C, "Service Queue Job", 'qms')
 	pkt.Request(16, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 2, ServiceType ),
 	])
 	pkt.Reply(94, [
@@ -9726,10 +9803,10 @@ def define_ncp2222():
 	# 2222/177D, 23/125
 	pkt = NCP(0x177D, "Read Queue Current Status", 'qms')
 	pkt.Request(14, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 	])
 	pkt.Reply(32, [
-		rec( 8, 4, QueueID, BE ),
+		rec( 8, 4, QueueID ),
 		rec( 12, 1, QueueStatus ),
 		rec( 13, 3, Reserved3 ),
 		rec( 16, 4, CurrentEntries ),
@@ -9743,7 +9820,7 @@ def define_ncp2222():
 	# 2222/177E, 23/126
 	pkt = NCP(0x177E, "Set Queue Current Status", 'qms')
 	pkt.Request(15, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 1, QueueStatus ),
 	])
 	pkt.Reply(8)
@@ -9753,7 +9830,7 @@ def define_ncp2222():
 	# 2222/177F, 23/127
 	pkt = NCP(0x177F, "Close File And Start Queue Job", 'qms')
 	pkt.Request(18, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 4, JobNumberLong ),
 	])
 	pkt.Reply(8)
@@ -9763,7 +9840,7 @@ def define_ncp2222():
 	# 2222/1780, 23/128
 	pkt = NCP(0x1780, "Remove Job From Queue", 'qms')
 	pkt.Request(18, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 4, JobNumberLong ),
 	])
 	pkt.Reply(8)
@@ -9773,7 +9850,7 @@ def define_ncp2222():
 	# 2222/1781, 23/129
 	pkt = NCP(0x1781, "Get Queue Job List", 'qms')
 	pkt.Request(18, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 4, JobNumberLong ),
 	])
 	pkt.Reply(20, [
@@ -9787,7 +9864,7 @@ def define_ncp2222():
 	# 2222/1782, 23/130
 	pkt = NCP(0x1782, "Change Job Priority", 'qms')
 	pkt.Request(22, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 4, JobNumberLong ),
 		rec( 18, 4, Priority ),
 	])
@@ -9798,7 +9875,7 @@ def define_ncp2222():
 	# 2222/1783, 23/131
 	pkt = NCP(0x1783, "Finish Servicing Queue Job", 'qms')
 	pkt.Request(22, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 4, JobNumberLong ),
 		rec( 18, 4, ChargeInformation ),
 	])
@@ -9809,7 +9886,7 @@ def define_ncp2222():
 	# 2222/1784, 23/132
 	pkt = NCP(0x1784, "Abort Servicing Queue Job", 'qms')
 	pkt.Request(18, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 4, JobNumberLong ),
 	])
 	pkt.Reply(8)		
@@ -9819,7 +9896,7 @@ def define_ncp2222():
 	# 2222/1785, 23/133
 	pkt = NCP(0x1785, "Change To Client Rights", 'qms')
 	pkt.Request(18, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 4, JobNumberLong ),
 	])
 	pkt.Reply(8)		
@@ -9829,7 +9906,7 @@ def define_ncp2222():
 	# 2222/1786, 23/134
 	pkt = NCP(0x1786, "Read Queue Server Current Status", 'qms')
 	pkt.Request(22, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 4, ServerID, BE ),
 		rec( 18, 4, ServerStation ),
 	])
@@ -9842,11 +9919,11 @@ def define_ncp2222():
 	# 2222/1787, 23/135
 	pkt = NCP(0x1787, "Get Queue Job File Size", 'qms')
 	pkt.Request(18, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 4, JobNumberLong ),
 	])
 	pkt.Reply(20, [
-		rec( 8, 4, QueueID, BE ),
+		rec( 8, 4, QueueID ),
 		rec( 12, 4, JobNumberLong ),
 		rec( 16, 4, FileSize, BE ),
 	])
@@ -9856,9 +9933,9 @@ def define_ncp2222():
 	# 2222/1788, 23/136
 	pkt = NCP(0x1788, "Move Queue Job From Src Q to Dst Q", 'qms')
 	pkt.Request(22, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 4, JobNumberLong ),
-		rec( 18, 4, DstQueueID, BE ),
+		rec( 18, 4, DstQueueID ),
 	])
 	pkt.Reply(12, [
 		rec( 8, 4, JobNumberLong ),
@@ -9867,7 +9944,7 @@ def define_ncp2222():
 	# 2222/1789, 23/137
 	pkt = NCP(0x1789, "Get Queue Jobs From Form List", 'qms')
 	pkt.Request(24, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 4, QueueStartPosition ),
 		rec( 18, 4, FormTypeCnt, var="x" ),
 		rec( 22, 2, FormType, repeat="x" ),
@@ -9881,7 +9958,7 @@ def define_ncp2222():
 	# 2222/178A, 23/138
 	pkt = NCP(0x178A, "Service Queue Job By Form List", 'qms')
 	pkt.Request(24, [
-		rec( 10, 4, QueueID, BE ),
+		rec( 10, 4, QueueID ),
 		rec( 14, 4, QueueStartPosition ),
 		rec( 18, 4, FormTypeCnt, var= "x" ),
 		rec( 22, 2, FormType, repeat="x" ),
@@ -11223,13 +11300,13 @@ def define_ncp2222():
 	pkt.Reply(8)
 		# The following value is Unicode
 		#[ 8, (1, 255), ReplyBuffer ],
-	pkt.CompletionCodes([0x0000, 0xee00, 0xfe00])
+	pkt.CompletionCodes([0x0000, 0xd504, 0xee00, 0xfe00])
 	# 2222/3B, 59
 	pkt = NCP(0x3B, "Commit File", 'file', has_length=0 )
 	pkt.Request(14, [
 		rec( 7, 1, Reserved ),
 		rec( 8, 6, FileHandle ),
-	])
+	], info_str=(FileHandle, "Commit File - 0x%s", ", %s"))
 	pkt.Reply(8)	
 	pkt.CompletionCodes([0x0000, 0x8800, 0x9804, 0xff00])
 	# 2222/3E, 62
@@ -11318,7 +11395,7 @@ def define_ncp2222():
 	pkt.Request(14, [
 		rec( 7, 1, Reserved ),
 		rec( 8, 6, FileHandle ),
-	])
+	], info_str=(FileHandle, "Close File - 0x%s", ", %s"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8800, 0xff1a])
 	# 2222/43, 67
@@ -11383,9 +11460,10 @@ def define_ncp2222():
 			     0xff16])
 	# 2222/47, 71
 	pkt = NCP(0x47, "Get Current Size of File", 'file')
-	pkt.Request(13, [
-		rec( 7, 6, FileHandle ),
-	])
+	pkt.Request(14, [
+        rec(7, 1, Reserved ),
+		rec( 8, 6, FileHandle ),
+	], info_str=(FileHandle, "Get Current Size of File - 0x%s", ", %s"))
 	pkt.Reply(12, [
 		rec( 8, 4, FileSize, BE ),
 	])
@@ -11396,12 +11474,12 @@ def define_ncp2222():
 		rec( 7, 1, Reserved ),
 		rec( 8, 6, FileHandle ),
 		rec( 14, 4, FileOffset, BE ), 
-		rec( 18, 2, MaxBytes, BE ),	
-	])
+		rec( 18, 2, MaxBytes, BE ),	                           
+	], info_str=(FileHandle, "Read From File - 0x%s", ", %s"))
 	pkt.Reply(10, [ 
 		rec( 8, 2, NumBytes, BE ),	
 	])
-	pkt.CompletionCodes([0x0000, 0x8300, 0x8800, 0x9300, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x8300, 0x8800, 0x9300, 0xff1b])
 	# 2222/49, 73
 	pkt = NCP(0x49, "Write to a File", 'file')
 	pkt.Request(20, [
@@ -11409,7 +11487,7 @@ def define_ncp2222():
 		rec( 8, 6, FileHandle ),
 		rec( 14, 4, FileOffset, BE ),
 		rec( 18, 2, MaxBytes, BE ),	
-	])
+	], info_str=(FileHandle, "Write to a File - 0x%s", ", %s"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x0104, 0x8300, 0x8800, 0x9400, 0x9500, 0xa201, 0xff1b])
 	# 2222/4A, 74
@@ -11434,7 +11512,7 @@ def define_ncp2222():
 		rec( 8, 6, FileHandle ),
 		rec( 14, 2, FileTime, BE ),
 		rec( 16, 2, FileDate, BE ),
-	])
+	], info_str=(FileHandle, "Set Time and Date Stamp for File - 0x%s", ", %s"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8800, 0x9600])
 	# 2222/4C, 76
@@ -11524,7 +11602,7 @@ def define_ncp2222():
 	pkt.Request(17, [
 		rec( 7, 6, FileHandle ),
 		rec( 13, 4, FileOffset ),
-	])
+	], info_str=(FileHandle, "Get Sparse File Data Block Bitmap for File - 0x%s", ", %s"))
 	pkt.Reply(528, [
 		rec( 8, 4, AllocationBlockSize ),
 		rec( 12, 4, Reserved4 ),
@@ -11684,7 +11762,7 @@ def define_ncp2222():
 	pkt.ReqCondSizeVariable()
         pkt.CompletionCodes([0x0000, 0x8001, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8900, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa500, 0xbf00, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa500, 0xa802, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5702, 87/02
 	pkt = NCP(0x5702, "Initialize Search", 'file', has_length=0)
 	pkt.Request( (18,272), [
@@ -11790,7 +11868,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9200, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
+			     0x9804, 0x9a00, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5705, 87/05
 	pkt = NCP(0x5705, "Scan File or Subdirectory for Trustees", 'file', has_length=0)
 	pkt.Request((24, 278), [
@@ -11878,7 +11956,7 @@ def define_ncp2222():
 	pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8900, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa802, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5707, 87/07
 	pkt = NCP(0x5707, "Modify File or Subdirectory DOS Information", 'file', has_length=0)
 	pkt.Request((62,316), [
@@ -11911,7 +11989,7 @@ def define_ncp2222():
 	], info_str=(Path, "Modify DOS Information for: %s", "/%s"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
-			     0x8701, 0x8c01, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x8701, 0x8c01, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5708, 87/08
 	pkt = NCP(0x5708, "Delete a File or Subdirectory", 'file', has_length=0)
@@ -11927,7 +12005,7 @@ def define_ncp2222():
 	], info_str=(Path, "Delete: %s", "/%s"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,  
-			     0x8701, 0x8a00, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9600,
+			     0x8701, 0x8900, 0x8a00, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5709, 87/09
 	pkt = NCP(0x5709, "Set Short Directory Handle", 'file', has_length=0)
@@ -13206,17 +13284,24 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
+    # 2222/5C, 91
+	pkt = NCP(0x5B, "NMAS Graded Authentication", 'comm')
+	#Need info on this packet structure
+	pkt.Request(7)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
+			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
 	# 2222/5C, 92
 	pkt = NCP(0x5C, "SecretStore Services", 'file')
 	#Need info on this packet structure and SecretStore Verbs
 	pkt.Request(7)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
-			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
-                             
 	# 2222/5E, 94   
-	pkt = NCP(0x5e, "NMAS Communications Packet", 'comm')
+	pkt = NCP(0x5E, "NMAS Communications Packet", 'comm')
 	pkt.Request(7)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0xfb09])
@@ -13245,15 +13330,15 @@ def define_ncp2222():
 	# 2222/65, 101
 	pkt = NCP(0x65, "Packet Burst Connection Request", 'comm')
 	pkt.Request(25, [
-		rec( 7, 4, LocalConnectionID ),
-		rec( 11, 4, LocalMaxPacketSize ),
-		rec( 15, 2, LocalTargetSocket ),
-		rec( 17, 4, LocalMaxSendSize ),
-		rec( 21, 4, LocalMaxRecvSize ),
+		rec( 7, 4, LocalConnectionID, BE ),
+		rec( 11, 4, LocalMaxPacketSize, BE ),
+		rec( 15, 2, LocalTargetSocket, BE ),
+		rec( 17, 4, LocalMaxSendSize, BE ),
+		rec( 21, 4, LocalMaxRecvSize, BE ),
 	])
 	pkt.Reply(16, [
-		rec( 8, 4, RemoteTargetID ),
-		rec( 12, 4, RemoteMaxPacketSize ),
+		rec( 8, 4, RemoteTargetID, BE ),
+		rec( 12, 4, RemoteMaxPacketSize, BE ),
 	])
 	pkt.CompletionCodes([0x0000])
 	# 2222/66, 102

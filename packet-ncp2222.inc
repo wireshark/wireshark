@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.50 2003/02/08 03:06:06 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.51 2003/02/19 21:47:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -174,6 +174,14 @@ static const value_string class_def_type[] = {
         { 0x0003, "Return Class Name, Flag, and ASN.1 identifier" },
         { 0x0004, "Return Class Name, Flag, Definition, Super Class, and ACL" },
         { 0x0005, "Return Class Name, Flag, Creation Timestamp, Modification Timestamp, Definition, and ACL" },
+        { 0,	NULL }
+};
+
+static const value_string nds_search_scope[] = {
+        { 0x0000, "Examine the base object only" },
+        { 0x0001, "Search the immediate subordinates of the base object" },
+        { 0x0002, "Search the base object and all its subordinates" },
+        { 0x0003, "Search the base objects and all objects in its partition (Implemented in NDS 8)" },
         { 0,	NULL }
 };
 
@@ -495,7 +503,7 @@ static const value_string nds_reply_errors[] = {
         { 0xfffffd0d, "(-755) Invalid Synchronization Data" },
         { 0xfffffd0c, "(-756) Stream Exists" },
         { 0xfffffd0b, "(-757) Auxiliary Has Containment" },
-        { 0xfffffd0a, "(-758) Auxiliary Not Containere" },
+        { 0xfffffd0a, "(-758) Auxiliary Not Container" },
         { 0xfffffd09, "(-759) Auxiliary Not Effective" },
         { 0xfffffd08, "(-760) Auxiliary On Alias" },
         { 0xfffffd07, "(-761) Have Seen State" },
@@ -513,6 +521,60 @@ static const value_string nds_reply_errors[] = {
         { 0xfffffcfb, "(-773) Iterator Syntax" },
         { 0xfffffcfa, "(-774) Repairing DIB" },
         { 0xfffffcf9, "(-775) Invalid OID Format" },
+        { 0xfffffcf8, "(-776) Attempted to perform an NDS operation, and the DS agent on this server is closing" },
+        { 0xfffffcf7, "(-777) Attempted to modify an object's attribute that is not stored on the sparse replica" },
+        { 0xfffffcf6, "(-778) VpVector and VpvUser which must be correlated, are out of sync" },
+        { 0xfffffcf5, "(-779) Error Cannot Go Remote" },
+        { 0xfffffcf4, "(-780) Request not Supported" },
+        { 0xfffffcf3, "(-781) Entry Not Local" },
+        { 0xfffffcf2, "(-782) Root Unreachable" },
+        { 0xfffffcf1, "(-783) VRDIM Not Initialized" },
+        { 0xfffffcf0, "(-784) Wait Timeout" },
+        { 0xfffffcef, "(-785) DIB Error" },
+        { 0xfffffcee, "(-786) DIB IO Failure" },
+        { 0xfffffced, "(-787) Illegal Schema Attribute" },
+        { 0xfffffcec, "(-788) Error Schema Partition" },
+        { 0xfffffceb, "(-789) Invalid Template" },
+        { 0xfffffcea, "(-790) Error Opening File" },
+        { 0xfffffce9, "(-791) Error Direct Opening File" },
+        { 0xfffffce8, "(-792) Error Creating File" },
+        { 0xfffffce7, "(-793) Error Direct Creating File" },
+        { 0xfffffce6, "(-794) Error Reading File" },
+        { 0xfffffce5, "(-795) Error Direct Reading File" },
+        { 0xfffffce4, "(-796) Error Writing File" },
+        { 0xfffffce3, "(-797) Error Direct Writing File" },
+        { 0xfffffce2, "(-798) Error Positioning in File" },
+        { 0xfffffce1, "(-799) Error Getting File Size" },
+        { 0xffffe88f, "(-6001) Error Truncating File" },
+        { 0xffffe88e, "(-6002) Error Parsing File Name" },
+        { 0xffffe88d, "(-6003) Error Closing File" },
+        { 0xffffe88c, "(-6004) Error Getting File Info" },
+        { 0xffffe88b, "(-6005) Error Expanding File" },
+        { 0xffffe88a, "(-6006) Error Getting Free Blocks" },
+        { 0xffffe889, "(-6007) Error Checking File Existence" },
+        { 0xffffe888, "(-6008) Error Deleting File" },
+        { 0xffffe887, "(-6009) Error Renaming File" },
+        { 0xffffe886, "(-6010) Error Initializing IO System" },
+        { 0xffffe885, "(-6011) Error Flushing File" },
+        { 0xffffe884, "(-6012) Error Setting Up for Read" },
+        { 0xffffe883, "(-6013) Error Setting up for Write" },
+        { 0xffffe882, "(-6014) Error Old View" },
+        { 0xffffe881, "(-6015) Server in Skulk" },
+        { 0xffffe880, "(-6016) Error Returning Partial Results" },
+        { 0xffffe87f, "(-6017) No Such Schema" },
+        { 0xffffe87e, "(-6018) Serial Number Mismatch" },
+        { 0xffffe87d, "(-6019) Bad Referal Database Serial Number" },
+        { 0xffffe87c, "(-6020) Bad Referal Serial Number" },
+        { 0xffffe87b, "(-6021) Invalid File Sequence" },
+        { 0xffffe87a, "(-6022) Error Referal Trans Gap" },
+        { 0xffffe879, "(-6023) Bad Referal File Number" },
+        { 0xffffe878, "(-6024) Referal File Not Found" },
+        { 0xffffe877, "(-6025) Error Backup Active" },
+        { 0xffffe876, "(-6026) Referal Device Full" },
+        { 0xffffe875, "(-6027) Unsupported Version" },
+        { 0xffffe874, "(-6028) Error Must Wait Checkpoint" },
+        { 0xffffe873, "(-6029) Attribute Maintenance in Progress" },
+        { 0xffffe872, "(-6030) Error Abort Transaction" },
         { 0xffff0000, "Ok" },
         { 0x0000, "Ok" },
 	{ 0,	NULL }
@@ -1429,14 +1491,14 @@ get_info_type(const gchar* check_string)
         
         for (i = 0 ; i < length-1 ; i++ ) {
                 char_val = check_string[i+1];
-                if (check_string[i] == 0x25 && check_string[i+1] == 0x64) {
+                if (check_string[i] == 0x25 && check_string[i+1] == 0x64) {   /* %d Digits*/
                         return 0;
                 } 
-                if ( check_string[i] == 0x25 && check_string[i+1] == 0x78) {
+                if ( check_string[i] == 0x78 && check_string[i+1] == 0x25 && check_string[i+2] == 0x73) {  /* x%s Bytes*/
                         return 1;
                 }
         }
-        return 2;
+        return 2; /* Normal String */
 }                
 
 static void
@@ -1741,6 +1803,10 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                                 proto_tree_add_ipv4(nvtree, hf_add_ref_tcp, tvb, voffset+2, 4, value4);
                                                 break;
                                         case 0x00000001:
+	        	                        proto_tree_add_item(nvtree, hf_nds_port, tvb, voffset, 2, FALSE);
+                                                value4 = tvb_get_letohl(tvb, voffset+2);
+	                                        proto_tree_add_ipv4(nvtree, hf_add_ref_ip, tvb, voffset+2, 4, value4);
+                                                break;
                                         case 0x0000000d:
                                                 get_string(tvb, voffset, value3, vvalues->vstring);
                                                 proto_tree_add_string(nvtree, hf_value_string, tvb, voffset, 
@@ -4188,6 +4254,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		/* Construct the info string if necessary */
 		if (run_info_str) {
 			GPtrArray *parray;
+                        char*   byte_string;
 			int i, len;
 			field_info *finfo;
                         int info_type;
@@ -4204,11 +4271,21 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 
                                 info_type = get_info_type((const gchar*) ncp_rec->req_info_str->first_string);
                                                             
-                                if (info_type == 2) {    /* Is this  a string or not? */
-                                
+                                if (info_type != 0) {    /* Is this  a string or not? */
+                                       
+                                        if (info_type == 1) {   /* Is this bytes? */
+                                        byte_string = bytes_to_str(fvalue_get(finfo->value), fvalue_length(finfo->value));
+                                        col_append_fstr(pinfo->cinfo, COL_INFO,
+      		               	                (const gchar*) ncp_rec->req_info_str->first_string,
+                               	                byte_string);
+                                        }
+                                        else
+                                        {
+                                                
                                         col_append_fstr(pinfo->cinfo, COL_INFO,
       		               	                (const gchar*) ncp_rec->req_info_str->first_string,
                                	                fvalue_get(finfo->value));
+                                        }
                                 }
                                 else
                                 {
@@ -4223,11 +4300,21 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 					finfo = g_ptr_array_index(parray, i);
                                         info_type = get_info_type((const gchar*) ncp_rec->req_info_str->repeat_string);
                                                                     
-                                        if (info_type == 2) {    /* Is this  a string or not? */
-                                        
+                                        if (info_type != 0) {    /* Is this  a string or not? */
+                                              if (info_type == 1) 
+                                              {   /* Is this bytes? */
+                                                byte_string = bytes_to_str(fvalue_get(finfo->value), fvalue_length(finfo->value));
+                                                col_append_fstr(pinfo->cinfo, COL_INFO,
+              		               	                (const gchar*) ncp_rec->req_info_str->repeat_string,
+                                       	                byte_string);
+                                              }
+                                              else
+                                              {
+                                                        
                                                 col_append_fstr(pinfo->cinfo, COL_INFO,
               		               	                (const gchar*) ncp_rec->req_info_str->repeat_string,
                                        	                fvalue_get(finfo->value));
+                                              }
                                         }
                                         else
                                         {
@@ -6467,7 +6554,180 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 break;
                         case 0x06:    
                                 verb_string = "Search Entries";
-                                pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
+                                pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
+                                pvalues[0].vstring = "";
+                                pvalues[0].vtype = VTYPE_UINT32;
+                                pvalues[0].vdesc = "Version: %u";
+                                pvalues[0].vlength = 4;
+                                pvalues[0].voffset = foffset;
+                                pvalues[0].hfname= hf_nds_ver;
+                                foffset = foffset+pvalues[0].vlength;
+                                pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
+                                pvalues[1].vtype = VTYPE_UINT32;
+                                pvalues[1].vstring = "";
+                                pvalues[1].vdesc = "Request Flags: 0x%08x"; 
+                                pvalues[1].vlength = 4;
+                                pvalues[1].hfname= hf_nds_rflags;
+                                pvalues[1].voffset = foffset;
+                                foffset = foffset+4;
+                                pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
+                                pvalues[2].vtype = VTYPE_UINT32;
+                                pvalues[2].vdesc = "Iteration Handle: 0x%08x";
+                                pvalues[2].vlength = 4;
+                                pvalues[2].voffset = foffset;
+                                pvalues[2].hfname= hf_nds_iteration;
+                                foffset = foffset+pvalues[2].vlength;
+                                pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
+                                pvalues[3].vstring = "";
+                                pvalues[3].vtype = VTYPE_UINT32;
+                                pvalues[3].vdesc = "Base Entry ID: 0x%08x";
+                                pvalues[3].vlength = 4;
+                                resolve_eid = FALSE;
+                                global_eid = pvalues[3].vvalue;
+                                pvalues[3].voffset = foffset;
+                                pvalues[3].hfname= hf_nds_eid;
+                                foffset = foffset+pvalues[3].vlength;
+                                pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
+                                pvalues[4].vstring = match_strval(pvalues[4].vvalue, nds_search_scope);
+                                if(pvalues[4].vstring == NULL)
+                                {
+                                        pvalues[4].vstring = "No Search Scope Defined";
+                                }
+                                pvalues[4].vtype = VTYPE_STRING;
+                                pvalues[4].vdesc = "Replica Type: %s";
+                                pvalues[4].vlength = 4;
+                                pvalues[4].voffset = foffset;
+                                pvalues[4].mvtype = 0;
+                                pvalues[4].hfname= hf_nds_search_scope;
+                                foffset = foffset + pvalues[4].vlength;
+                                pvalues[5].vvalue = tvb_get_letohl(tvb, foffset);
+                                pvalues[5].vtype = VTYPE_UINT32;
+                                pvalues[5].vdesc = "Number of Objects to Search: 0x%08x";
+                                pvalues[5].vlength = 4;
+                                pvalues[5].voffset = foffset;
+                                pvalues[5].hfname= hf_nds_num_objects;
+                                foffset = foffset+pvalues[5].vlength;
+                                pvalues[6].vvalue = tvb_get_letohl(tvb, foffset);
+                                pvalues[6].vtype = VTYPE_BITFIELD;
+                                pvalues[6].vdesc = "Information Types:";
+                                pvalues[6].vlength = 2;
+                                pvalues[6].hfname= hf_nds_nflags;
+                                pvalues[6].voffset = foffset;
+                                pvalues[6].bit1 = "Names";
+                                pvalues[6].bit1hfname = hf_bit1siflags;
+                                pvalues[6].bit2 = "Names and Values";
+                                pvalues[6].bit2hfname = hf_bit2siflags;
+                                pvalues[6].bit3 = "Effective Privileges";
+                                pvalues[6].bit3hfname = hf_bit3siflags;
+                                pvalues[6].bit4 = "Value Info";
+                                pvalues[6].bit4hfname = hf_bit4siflags;
+                                pvalues[6].bit5 = "Abbreviated Value";
+                                pvalues[6].bit5hfname = hf_bit5siflags;
+                                pvalues[6].bit6 = "Not Defined";
+                                pvalues[6].bit6hfname = hf_bit6siflags;
+                                pvalues[6].bit7 = "Not Defined";
+                                pvalues[6].bit7hfname = hf_bit7siflags;
+                                pvalues[6].bit8 = "Not Defined";
+                                pvalues[6].bit8hfname = hf_bit8siflags;
+                                pvalues[6].bit9 = "Expanded Class";
+                                pvalues[6].bit9hfname = hf_bit9siflags;
+                                pvalues[6].bit10 = "Not Defined";
+                                pvalues[6].bit10hfname = hf_bit10siflags;
+                                pvalues[6].bit11= "Not Defined";
+                                pvalues[6].bit11hfname = hf_bit11siflags;
+                                pvalues[6].bit12 = "Not Defined";
+                                pvalues[6].bit12hfname = hf_bit12siflags;
+                                pvalues[6].bit13 = "Not Defined";
+                                pvalues[6].bit13hfname = hf_bit13siflags;
+                                pvalues[6].bit14 = "Not Defined";
+                                pvalues[6].bit14hfname = hf_bit14siflags;
+                                pvalues[6].bit15 = "Not Defined";
+                                pvalues[6].bit15hfname = hf_bit15siflags;
+                                pvalues[6].bit16 = "Not Defined";
+                                pvalues[6].bit16hfname = hf_bit16siflags;
+                                foffset = foffset+4;
+                                if(pvalues[0].vvalue != 2)
+                                {
+                                        pvalues[7].vvalue = tvb_get_letohs(tvb, foffset);
+                                        global_flags = tvb_get_letohl(tvb, foffset);
+                                        pvalues[7].vtype = VTYPE_BITFIELD;
+                                        pvalues[7].vdesc = "Information Flags (low) Byte:";
+                                        pvalues[7].vlength = 2;
+                                        pvalues[7].hfname= hf_nds_rflags;
+                                        pvalues[7].voffset = foffset;
+                                        pvalues[7].bit1 = "Output Flags";
+                                        pvalues[7].bit1hfname = hf_bit1infoflagsl;
+                                        pvalues[7].bit2 = "Entry ID";
+                                        pvalues[7].bit2hfname = hf_bit2infoflagsl;
+                                        pvalues[7].bit3 = "Entry Flags";
+                                        pvalues[7].bit3hfname = hf_bit3infoflagsl;
+                                        pvalues[7].bit4 = "Subordinate Count";
+                                        pvalues[7].bit4hfname = hf_bit4infoflagsl;
+                                        pvalues[7].bit5 = "Modification Time";
+                                        pvalues[7].bit5hfname = hf_bit5infoflagsl;
+                                        pvalues[7].bit6 = "Modification Timestamp";
+                                        pvalues[7].bit6hfname = hf_bit6infoflagsl;
+                                        pvalues[7].bit7 = "Creation Timestamp";
+                                        pvalues[7].bit7hfname = hf_bit7infoflagsl;
+                                        pvalues[7].bit8 = "Partition Root ID";
+                                        pvalues[7].bit8hfname = hf_bit8infoflagsl;
+                                        pvalues[7].bit9 = "Parent ID";
+                                        pvalues[7].bit9hfname = hf_bit9infoflagsl;
+                                        pvalues[7].bit10 = "Revision Count";
+                                        pvalues[7].bit10hfname = hf_bit10infoflagsl;
+                                        pvalues[7].bit11 = "Replica Type";
+                                        pvalues[7].bit11hfname = hf_bit11infoflagsl;
+                                        pvalues[7].bit12 = "Base Class";
+                                        pvalues[7].bit12hfname = hf_bit12infoflagsl;
+                                        pvalues[7].bit13 = "Relative Distinguished Name";
+                                        pvalues[7].bit13hfname = hf_bit13infoflagsl;
+                                        pvalues[7].bit14 = "Distinguished Name";
+                                        pvalues[7].bit14hfname = hf_bit14infoflagsl;
+                                        pvalues[7].bit15 = "Root Distinguished Name";
+                                        pvalues[7].bit15hfname = hf_bit15infoflagsl;
+                                        pvalues[7].bit16 = "Parent Distinguished Name";
+                                        pvalues[7].bit16hfname = hf_bit16infoflagsl;
+                                        foffset = foffset+2;
+                                        pvalues[8].vvalue = tvb_get_letohs(tvb, foffset);
+                                        pvalues[8].vtype = VTYPE_BITFIELD;
+                                        pvalues[8].vdesc = "Information Flags (high) Byte:";
+                                        pvalues[8].vlength = 2;
+                                        pvalues[8].hfname= hf_nds_rflags;
+                                        pvalues[8].voffset = foffset;
+                                        pvalues[8].bit1 = "Purge Time";
+                                        pvalues[8].bit1hfname = hf_bit1infoflagsh;
+                                        pvalues[8].bit2 = "Dereference Base Class";
+                                        pvalues[8].bit2hfname = hf_bit2infoflagsh;
+                                        pvalues[8].bit3 = "Not Defined";
+                                        pvalues[8].bit3hfname = hf_bit3infoflagsh;
+                                        pvalues[8].bit4 = "Not Defined";
+                                        pvalues[8].bit4hfname = hf_bit4infoflagsh;
+                                        pvalues[8].bit5 = "Not Defined";
+                                        pvalues[8].bit5hfname = hf_bit5infoflagsh;
+                                        pvalues[8].bit6 = "Not Defined";
+                                        pvalues[8].bit6hfname = hf_bit6infoflagsh;
+                                        pvalues[8].bit7 = "Not Defined";
+                                        pvalues[8].bit7hfname = hf_bit7infoflagsh;
+                                        pvalues[8].bit8 = "Not Defined";
+                                        pvalues[8].bit8hfname = hf_bit8infoflagsh;
+                                        pvalues[8].bit9 = "Not Defined";
+                                        pvalues[8].bit9hfname = hf_bit9infoflagsh;
+                                        pvalues[8].bit10 = "Not Defined";
+                                        pvalues[8].bit10hfname = hf_bit10infoflagsh;
+                                        pvalues[8].bit11 = "Not Defined";
+                                        pvalues[8].bit11hfname = hf_bit11infoflagsh;
+                                        pvalues[8].bit12 = "Not Defined";
+                                        pvalues[8].bit12hfname = hf_bit12infoflagsh;
+                                        pvalues[8].bit13 = "Not Defined";
+                                        pvalues[8].bit13hfname = hf_bit13infoflagsh;
+                                        pvalues[8].bit14 = "Not Defined";
+                                        pvalues[8].bit14hfname = hf_bit14infoflagsh;
+                                        pvalues[8].bit15 = "Not Defined";
+                                        pvalues[8].bit15hfname = hf_bit15infoflagsh;
+                                        pvalues[8].bit16 = "Not Defined";
+                                        pvalues[8].bit16hfname = hf_bit16infoflagsh;
+                                        foffset = foffset+2;
+                                }
                                 break;
                         case 0x07:    
                                 verb_string = "Add Entry ->";
