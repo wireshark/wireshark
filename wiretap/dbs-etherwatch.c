@@ -1,6 +1,6 @@
 /* dbs-etherwatch.c
  *
- * $Id: dbs-etherwatch.c,v 1.12 2003/12/29 00:36:12 guy Exp $
+ * $Id: dbs-etherwatch.c,v 1.13 2003/12/31 01:07:09 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <ethereal@mmilgram.NOSPAMmail.net>
@@ -222,6 +222,11 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, long *data_offset)
 	if (pkt_len == -1)
 		return FALSE;
 
+	/*
+	 * We don't have an FCS in this frame.
+	 */
+	wth->pseudo_header.eth.fcs_len = 0;
+
 	wth->data_offset = offset;
 	*data_offset = offset;
 	return TRUE;
@@ -245,6 +250,12 @@ dbs_etherwatch_seek_read (wtap *wth, long seek_off,
 			*err = WTAP_ERR_BAD_RECORD;
 		return FALSE;
 	}
+
+	/*
+	 * We don't have an FCS in this frame.
+	 */
+	pseudo_header->eth.fcs_len = 0;
+
 	return TRUE;
 }
 
