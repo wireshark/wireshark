@@ -769,6 +769,7 @@ Motonori Shindo <mshindo[AT]mshindo.net> {
 	Support for decoding additional data, for CHAP, in LCP
 	    Authentication Protocol option
 	Additional vendor (CoSine) for Radius
+        CoSine VSA support for Radius
 	Patches to PPP for CHAP support
 }
 
