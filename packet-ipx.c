@@ -6,7 +6,7 @@
  * Portions Copyright (c) 2000-2002 by Gilbert Ramirez.
  * Portions Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ipx.c,v 1.129 2003/04/12 07:48:36 guy Exp $
+ * $Id: packet-ipx.c,v 1.130 2003/04/14 01:26:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -535,7 +535,7 @@ spx_datastream(guint8 type)
 		case 0xff:
 			return "End-of-Connection Acknowledgment";
 		default:
-			return "Client-Defined";
+			return NULL;
 	}
 }
 
@@ -550,6 +550,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		conn_ctrl;
 	proto_tree	*cc_tree;
 	guint8		datastream_type;
+	const char	*datastream_type_string;
 	guint16         spx_seq;
 	const char	*spx_msg_string;
 	guint16		low_socket, high_socket;
@@ -590,12 +591,25 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	datastream_type = tvb_get_guint8(tvb, 1);
+	datastream_type_string = spx_datastream(datastream_type);
+	if (datastream_type_string != NULL) {
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
+			    datastream_type_string);
+	}
 	if (tree) {
-		proto_tree_add_uint_format(spx_tree, hf_spx_datastream_type, tvb,
-					   1, 1, datastream_type,
-					   "Datastream Type: %s (0x%02X)",
-					   spx_datastream(datastream_type), datastream_type);
-
+		if (datastream_type_string != NULL) {
+			proto_tree_add_uint_format(spx_tree, hf_spx_datastream_type, tvb,
+						   1, 1, datastream_type,
+						   "Datastream Type: %s (0x%02X)",
+						   datastream_type_string,
+						   datastream_type);
+		} else {
+			proto_tree_add_uint_format(spx_tree, hf_spx_datastream_type, tvb,
+						   1, 1, datastream_type,
+						   "Datastream Type: 0x%02X",
+						   datastream_type);
+		}
 		proto_tree_add_item(spx_tree, hf_spx_src_id, tvb,  2, 2, FALSE);
 		proto_tree_add_item(spx_tree, hf_spx_dst_id, tvb,  4, 2, FALSE);
 	}
