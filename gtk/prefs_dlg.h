@@ -1,7 +1,7 @@
 /* prefs_dlg.h
  * Definitions for preference handling routines
  *
- * $Id: prefs_dlg.h,v 1.1 1999/09/09 03:32:03 gram Exp $
+ * $Id: prefs_dlg.h,v 1.2 2000/02/12 06:46:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,8 +35,6 @@
 #define E_PR_PG_PRINTING  0
 #define E_PR_PG_FILTER    1
 #define E_PR_PG_COLUMN    2
-
-#define E_FILT_TE_PTR_KEY "filter_te_ptr"
 
 void     prefs_cb(GtkWidget *, gpointer);
 

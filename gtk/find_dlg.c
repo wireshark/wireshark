@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.5 2000/01/03 06:59:21 guy Exp $
+ * $Id: find_dlg.c,v 1.6 2000/02/12 06:46:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,7 +43,7 @@
 #include "globals.h"
 
 #include "find_dlg.h"
-#include "prefs_dlg.h"
+#include "filter_prefs.h"
 #include "simple_dialog.h"
 
 /* Capture callback data keys */
@@ -79,7 +79,7 @@ find_frame_cb(GtkWidget *w, gpointer d)
   
   filter_bt = gtk_button_new_with_label("Filter:");
   gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
-    GTK_SIGNAL_FUNC(prefs_cb), (gpointer) E_PR_PG_FILTER);
+    GTK_SIGNAL_FUNC(filter_dialog_cb), NULL);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
   

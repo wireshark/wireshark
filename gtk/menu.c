@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.21 2000/01/25 03:48:16 gerald Exp $
+ * $Id: menu.c,v 1.22 2000/02/12 06:46:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,6 +43,7 @@
 #include "menu.h"
 #include "packet.h"
 #include "capture_dlg.h"
+#include "filter_prefs.h"
 #include "find_dlg.h"
 #include "goto_dlg.h"
 #include "summary_dlg.h"

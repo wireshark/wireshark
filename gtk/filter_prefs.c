@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.8 2000/01/29 16:41:27 gram Exp $
+ * $Id: filter_prefs.c,v 1.9 2000/02/12 06:46:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -74,8 +74,20 @@ static void filter_dlg_save(GtkWidget *save_bt, gpointer parent_w);
 static void filter_dlg_cancel(GtkWidget *cancel_bt, gpointer parent_w);
 static void filter_sel_apply_cb(GtkWidget *cancel_bt, gpointer parent_w);
 
-void
-get_filter_list() {
+static GtkWidget *filter_prefs_show(GtkWidget *);
+static void       filter_sel_list_cb(GtkWidget *, gpointer);
+static void       filter_sel_new_cb(GtkWidget *, gpointer);
+static void       filter_sel_chg_cb(GtkWidget *, gpointer);
+static void       filter_sel_copy_cb(GtkWidget *, gpointer);
+static void       filter_sel_del_cb(GtkWidget *, gpointer);
+static void       filter_prefs_ok(GtkWidget *);
+static void       filter_prefs_save(GtkWidget *);
+static void       filter_prefs_cancel(GtkWidget *);
+static void       filter_prefs_delete(GtkWidget *);
+
+static void
+get_filter_list(void)
+{
   filter_def *filt;
   FILE       *ff;
   gchar      *ff_path, *ff_name = PF_DIR "/filters", f_buf[256];
@@ -127,6 +139,7 @@ get_filter_list() {
   fclose(ff);
   g_free(ff_path);
 }
+
 /* the window that pops up for filter editing/applying */
 void
 filter_dialog_cb(GtkWidget *w)
@@ -212,7 +225,7 @@ filter_dlg_cancel(GtkWidget *cancel_bt, gpointer parent_w)
 }
 	
 /* Create and display the filter selection widgets. */
-GtkWidget *
+static GtkWidget *
 filter_prefs_show(GtkWidget *w) {
   GtkWidget  *main_vb, *top_hb, *list_bb, *new_bt, *filter_sc,
              *nl_item, *nl_lb, *middle_hb, *name_lb, *bottom_hb,
@@ -349,7 +362,7 @@ filter_prefs_show(GtkWidget *w) {
   return(main_vb);
 }
 
-void
+static void
 filter_sel_list_cb(GtkWidget *l, gpointer data) {
   filter_def *filt;
   gchar      *name = "", *strval = "";
@@ -387,7 +400,7 @@ filter_sel_list_cb(GtkWidget *l, gpointer data) {
 
 /* To do: add input checking to each of these callbacks */
  
-void
+static void
 filter_sel_new_cb(GtkWidget *w, gpointer data) {
   filter_def *filt;
   gchar      *name, *strval;
@@ -414,7 +427,7 @@ filter_sel_new_cb(GtkWidget *w, gpointer data) {
   }
 }
 
-void
+static void
 filter_sel_chg_cb(GtkWidget *w, gpointer data) {
   filter_def *filt;
   gchar      *name = "", *strval = "";
@@ -444,7 +457,7 @@ filter_sel_chg_cb(GtkWidget *w, gpointer data) {
   }
 }
 
-void
+static void
 filter_sel_copy_cb(GtkWidget *w, gpointer data) {
   GList      *sl, *flp;
   filter_def *filt, *nfilt;
@@ -477,7 +490,7 @@ filter_sel_copy_cb(GtkWidget *w, gpointer data) {
   }
 }
 
-void
+static void
 filter_sel_del_cb(GtkWidget *w, gpointer data) {
   GList      *sl, *flp;
   filter_def *filt;
@@ -521,7 +534,7 @@ filter_sel_apply_cb(GtkWidget *w, gpointer data)
 	}
 }
 
-void
+static void
 filter_prefs_ok(GtkWidget *w) {
   GList      *flp, *sl;
   GtkObject  *l_item;
@@ -541,7 +554,7 @@ filter_prefs_ok(GtkWidget *w) {
   filter_prefs_delete(w);
 }
 
-void
+static void
 filter_prefs_save(GtkWidget *w) {
   GList       *flp;
   filter_def  *filt;
@@ -575,13 +588,13 @@ filter_prefs_save(GtkWidget *w) {
   g_free(ff_path);
 }
 
-void
+static void
 filter_prefs_cancel(GtkWidget *w) {
 
   filter_prefs_delete(w);
 }
 
-void
+static void
 filter_prefs_delete(GtkWidget *w) {
  
   /* Let the list cb know we're about to destroy the widget tree, so it */
