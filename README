@@ -165,7 +165,10 @@ Be sure you tell us:
 	   which distribution you're running)
 	2) Version of GTK+ (the command 'gtk-config --version' will tell you)
 	3) Version of Ethereal (the command 'ethereal -v' will tell you,
-	   unless the bug is so severe as to prevent that from working)
+	   unless the bug is so severe as to prevent that from working,
+	   and should also tell you the version of GTK+ and, if built
+	   with "libpcap", the version of "libpcap" with which it was
+	   built)
 	4) The command you used to invoke Ethereal, and the sequence of
 	   operations you performed that caused the bug to appear
 
