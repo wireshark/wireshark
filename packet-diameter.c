@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.17 2001/02/19 23:16:36 guy Exp $
+ * $Id: packet-diameter.c,v 1.18 2001/02/20 01:20:24 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -660,21 +660,27 @@ static gchar *rd_value_to_str(e_avphdr *avph, const u_char *input, int length)
 				sprintf(buffer,"%u", intval);
 			}
 			break;
+#ifdef G_HAVE_GINT64
+		/* XXX - have to handle platforms without 64-bit integral
+		   types.
+		   Have to handle platforms where "%lld" and "%llu"
+		   aren't the right formats to use to print 64-bit integral
+		   types. */
 		case DIAMETER_INTEGER64:
 		{
-			long long llval;
-			llval = *((long long *)input);
-			sprintf(buffer,"%lld (Unsupported Conversion.  Byte ordering probably incorrect)",
-			    llval);
-		}
-		case DIAMETER_UNSIGNED64:
-		{
-			long long llval;
-			llval = *((long long *)input);
-			sprintf(buffer,"%llu (Unsupported Conversion.  Byte ordering probably incorrect)",
-			    llval);
+			gint64 llval;
+			llval = pntohll(input);
+			sprintf(buffer,"%lld", llval);
 		}
 			break;
+		case DIAMETER_UNSIGNED64:
+		{
+			guint64 llval;
+			llval = pntohll(input);
+			sprintf(buffer,"%llu", llval);
+		}
+			break;
+#endif
 		case DIAMETER_TIME:
 		{
 			struct tm lt;
@@ -686,7 +692,7 @@ static gchar *rd_value_to_str(e_avphdr *avph, const u_char *input, int length)
 		}
 		default:
 			/* Do nothing */
-		
+			;
 		}
 	return buffer;
 } /* rd value to str */
