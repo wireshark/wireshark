@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.39 2000/06/26 00:13:21 guy Exp $
+ * $Id: packet-snmp.c,v 1.40 2000/06/28 05:15:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -554,18 +554,24 @@ dissect_snmp_error(const u_char *pd, int offset, frame_data *fd,
 	dissect_data(pd, offset, fd, tree);
 }
 
-static void
-format_oid(gchar *buf, subid_t *oid, guint oid_length)
+static gchar *
+format_oid(subid_t *oid, guint oid_length)
 {
-	int i;
-	int len;
+	char *result;
+	int result_len;
+	int len, i;
+	char *buf;
 
+	result_len = oid_length * 22;
+	result = g_malloc(result_len + 1);
+	buf = result;
 	len = sprintf(buf, "%lu", (unsigned long)oid[0]);
 	buf += len;
 	for (i = 1; i < oid_length;i++) {
 		len = sprintf(buf, ".%lu", (unsigned long)oid[i]);
 		buf += len;
 	}
+	return result;
 }
 
 #ifdef HAVE_SPRINT_VALUE
@@ -868,10 +874,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s", vb_display_string);
 #else
-			/* This fits with 11 characters per subid (10 digits
-			   plus period). */
-			vb_display_string = g_malloc(11*vb_oid_length);
-			format_oid(vb_display_string, vb_oid, vb_oid_length);
+			vb_display_string = format_oid(vb_oid, vb_oid_length);
 			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s: %s", vb_type_name, vb_display_string);
 #endif
@@ -941,7 +944,7 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 	guint timestamp;
 	guint timestamp_length;
 
-	gchar oid_string[MAX_STRING_LEN]; /* TBC */
+	gchar *oid_string;
 
 	guint variable_bindings_length;
 
@@ -1044,9 +1047,10 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 			return;
 		}
 		if (tree) {
-			format_oid(oid_string, enterprise, enterprise_length);
+			oid_string = format_oid(enterprise, enterprise_length);
 			proto_tree_add_text(tree, NullTVB, offset, length,
 			    "Enterprise: %s", oid_string);
+			g_free(oid_string);
 		}
 		g_free(enterprise);
 		offset += length;
@@ -1184,7 +1188,7 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 		sequence_length += length;
 
 		if (tree) {
-			format_oid(oid_string, variable_oid,
+			oid_string = format_oid(variable_oid,
 			    variable_oid_length);
 			
 #if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
@@ -1199,6 +1203,7 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 			    "Object identifier %d: %s", vb_index,
 			    oid_string);
 #endif
+			g_free(oid_string);
 		}
 		offset += sequence_length;
 		variable_bindings_length -= sequence_length;
@@ -1653,7 +1658,7 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 	subid_t *regid;
 	guint regid_length;
 
-	gchar oid_string[MAX_STRING_LEN]; /* TBC */
+	gchar *oid_string;
 
 	proto_tree *smux_tree = NULL;
 	proto_item *item = NULL;
@@ -1683,6 +1688,7 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 		    "PDU type", ret);
 		return;
 	}
+
 	/* Dissect SMUX here */
 	if (cls == ASN1_APL && con == ASN1_CON && pdu_type == SMUX_MSG_OPEN) {
 		pdu_type_string = val_to_str(pdu_type, smux_types,
@@ -1714,9 +1720,10 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 			return;
 		}
 		if (tree) {
-			format_oid(oid_string, regid, regid_length);
+			oid_string = format_oid(regid, regid_length);
 			proto_tree_add_text(smux_tree, NullTVB, offset, length,
 			    "Registration: %s", oid_string);
+			g_free(oid_string);
 		}
 		g_free(regid);
 		offset += length;
@@ -1795,9 +1802,10 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 			return;
 		}
 		if (tree) {
-			format_oid(oid_string, regid, regid_length);
+			oid_string = format_oid(regid, regid_length);
 			proto_tree_add_text(smux_tree, NullTVB, offset, length,
 			    "Registration: %s", oid_string);
+			g_free(oid_string);
 		}
 		g_free(regid);
 		offset += length;
