@@ -104,9 +104,15 @@ the exact type of encapsulation. Example: I<-l 7> for ARCNet packets.
 =item -e l3pid
 
 Include a dummy Ethernet header before each packet. Specify the L3PID
-for the Ethernet header in hex. Use this option if your dump is an IP
-packet with IP header and payload, but no Layer 2
-encapsulation. Example: I<-e 0x806> to specify an ARP packet.
+for the Ethernet header in hex. Use this option if your dump has Layer
+3 header and payload (e.g. IP header), but no Layer 2
+encapsulation. Example: I<-e 0x806> to specify an ARP packet. 
+
+For IP packets, instead of generating a fake Ethernet header you can
+also use I<-l 12> to indicate a raw IP packet to Ethereal. Note that
+I<-l 12> does not work for any non-IP Layer 3 packet (e.g. ARP),
+whereas generating a dummy Ethernet header with I<-e> works for any
+sort of L3 packet.
 
 =item -i proto
 
