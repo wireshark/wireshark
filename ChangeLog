@@ -1,3291 +1,3780 @@
-2004-05-14 02:46  gerald
-
-	* packaging/nsis/ethereal.nsi:
-
-	  Make the GTK2 interface the default.	Remove GTK-Wimp from the
-	  GTK2 section.  I originally tried to make it disabled by default
-	  (using "Section /o"), but this caused odd behavior in the
-	  installer.
-
-2004-05-14 01:58  sahlberg
-
-	* packet-kerberos.c:
-
-	  add dissection of pa-prov-srv-location preauthentication type
-	  used by packetcable.
-
-2004-05-13 22:25  jmayer
-
-	* configure.in:
-
-	  Paul Smith: bugfix: make loadable module support work when cross
-	  compiling
-
-2004-05-13 22:09  jmayer
-
-	* acinclude.m4:
-
-	  Fix --with-krb5 when given a directory
-
-2004-05-13 21:56  gerald
-
-	* packet-scsi.c:
-
-	  From Dinesh Dutt: Mode Sense (10) and Mode Select (10) bugfixes.
-
-2004-05-13 21:56  jmayer
-
-	* configure.in:
-
-	  Thomas Anders: fix usage of brk5_dir
-
-2004-05-13 20:54  obiot
-
-	* Makefile.nmake, packaging/nsis/Makefile.nmake:
-
-	  Fix a typo (seperate should be separate).
-
-2004-05-13 20:45  obiot
+2004-07-07 20:03  gerald
 
 	* NEWS:
 
-	  WBXML OPAQUE is not really a protocol.
+	  More NEWS updates.
 
-	  Add RTCP to updated protocols.
-
-2004-05-13 20:20  gerald
-
-	* AUTHORS, Makefile.common, NEWS, packet-ldp.c, packet-ldp.h,
-	  packet-mpls-echo.c, packet-ntp.c, packet-ntp.h,
-	  epan/Makefile.common:
-
-	  From Carlos Pignataro: Add MPLS Echo support.
-
-2004-05-13 20:02  gerald
-
-	* NEWS:
-
-	  Add a note about generic media dissection, and add WBXML updates.
-
-2004-05-13 17:26  obiot
-
-	* packet-wbxml.c:
-
-	  Fix a typo in the CHANNEL document ID.
-
-2004-05-13 17:24  obiot
-
-	* packet-rtcp.c:
-
-	  As noted by Frédéric Huet, RFC1889 section 6.4 says: "The list of
-	  items in each chunk is terminated by one or more null octets, the
-	  first of which is interpreted as an item type of zero to denote
-	  the end of the list, and the remainder as needed to pad until the
-	  next 32-bit boundary.
-
-	  A chunk with zero items (four null octets) is valid but useless."
-
-	  Process chunks with four zero octets as "padding".
-
-2004-05-13 16:57  jmayer
-
-	* acinclude.m4:
-
-	  Thomas Anders: Don't add library paths twice
-
-2004-05-13 16:34  jmayer
-
-	* prefs.h:
-
-	  Remove comma at end of enum
-
-2004-05-13 15:28  ulfl
-
-	* prefs.c, prefs.h, gtk/gui_prefs.c, gtk/main.c, gtk/main.h:
-
-	  Win32 only: Preference setting to open a console window, one of:
-	  never (default), automatic (like before), always
-
-2004-05-13 13:49  sahlberg
-
-	* packet-isns.c:
-
-	  dissect the authentication-block  flag bit
-
-2004-05-13 13:39  sahlberg
-
-	* packet-isns.c:
-
-	  isns standard is unclear here but some servers do respond with a
-	  0 length PGT in DevAttrRegRsp if the DevAttrReg contained it.
-
-	  Allow DevAttrRegRsp to contain 0 length PGTs.
-
-2004-05-13 13:28  sahlberg
-
-	* packet-isns.c:
-
-	  update to isns: make it handle PGT with length 0 properly only
-	  try to dissect the attributes if this is the first PDU in a
-	  sequence.
-
-2004-05-13 12:19  ulfl
-
-	* gtk/http_stat.c:
-
-	  fixed httpstat_reset, so reloading a capture file won't increase
-	  statistic values more and more
-
-2004-05-13 10:10  ulfl
-
-	* epan/: Makefile.nmake, doxygen.cfg:
-
-	  use sed to create a temporary doxygen config file, to get the
-	  version number from ..\config.nmake
-
-2004-05-13 09:04  ulfl
-
-	* NEWS:
-
-	  we now have export dialogs, and we can change the main windows
-	  layout
-
-2004-05-13 03:34  gerald
-
-	* NEWS, config.nmake, configure.in, epan/doxygen.cfg:
-
-	  Bump the version up to 0.10.4.  Preliminary updates to the NEWS
-	  file.  Updates welcome.
-
-2004-05-12 20:20  guy
-
-	* packet-mpls.c:
-
-	  From Carlos M. Pignataro: MPLS PW Control Channel Header support.
-
-2004-05-12 19:55  guy
-
-	* packet-bacnet.c:
-
-	  Make the calls to build the protocol tree regardless of whether
-	  we're building one or not - we have to do some of that work
-	  anyway, so we know the offset of the payload and so that we call
-	  sub-dissectors, and the easiest way to do that is to do all the
-	  work (you make more procedure calls that way than you'd like, but
-	  the procedures at least return quickly when they find they've
-	  been passed a null pointer; hopefully that won't add too much CPU
-	  time to dissection of BACNET traces on the first pass).
-
-	  Don't use "proto_tree_add_uint_format()" in a case where it's not
-	  necessary - and fix the field being used not to have a bitmask,
-	  as it's not a bitfield.
-
-2004-05-12 19:23  guy
-
-	* packet-time.c:
-
-	  From Thomas Anders: display the time in time protocol packets as
-	  a date and time rather than as a raw
-	  seconds-since-1900-01-01-00:00:00 GMT.
-
-	  Put it into the protocol tree as a named field (the named field
-	  was there but wasn't being used).
-
-	  Give the RFC number for the protocol in a comment.
-
-2004-05-12 09:40  guy
-
-	* packet-ptp.c:
-
-	  You can hand a string to "col_add_str()" as an argument - or to
-	  "col_set_str()", for that matter.
-
-	  Eliminate a compiler warning by initializing a variable.
-
-	  Don't use "match_strval()" on values you don't know for certain
-	  are in the value_string table - use "val_to_str()", so that you
-	  don't get a null pointer if the value isn't in that table.
-	  ("Know for certain" meaning "the code has made sure it's a value
-	  that's in the table", not "the protocol spec says the field must
-	  have one of the values in the table".)
-
-2004-05-12 09:29  guy
-
-	* packet-3g-a11.c:
-
-	  From Ryuji Somegawa: fix some typos.
-
-2004-05-12 03:37  gerald
-
-	* AUTHORS, packet-ptp.c, doc/ethereal.pod, epan/Makefile.common:
-
-	  From Dominic Béchaz: IEEE 1588 (Precision Time Protocol) support.
-
-2004-05-11 22:07  jmayer
-
-	* manuf, FAQ, help/faq.txt:
-
-	  Update manuf and FAQ to current master files
-
-2004-05-11 14:21  nneul
-
-	* packet-afs-defs.h, packet-afs-macros.h,
-	  packet-afs-register-info.h, packet-afs.c, packet-afs.h:
-
-	  add initial support for newer opcodes
-
-2004-05-11 11:27  guy
-
-	* packet-mq.c:
-
-	  From metatech: - Reassembly of MQ messages spanning several PDU -
-	  RESET message
-
-2004-05-11 11:20  guy
-
-	* packet-ldp.c:
-
-	  From Carlos M. Pignataro: interface parameter and VC type updates
-	  from the following internet drafts: o PWE updates:   -
-	  draft-ietf-pwe3-control-protocol-06.txt   -
-	  draft-ietf-pwe3-sonet-05.txt	 -
-	  draft-ietf-pwe3-fragmentation-05.txt	 -
-	  draft-ietf-pwe3-fcs-retention-00.txt	 -
-	  draft-vainshtein-pwe3-tdm-control-protocol-extensi-00.txt   -
-	  draft-ietf-pwe3-vccv-02.txt	-
-	  draft-ietf-pwe3-iana-allocation-04.txt
-
-2004-05-11 11:19  guy
-
-	* epan/Makefile.am:
-
-	  From Lars Roland: add the libethereal .def file to the list of
-	  files included in the distribution.
-
-2004-05-11 11:04  guy
-
-	* epan/.cvsignore:
-
-	  From Lars Roland: ignore the libethereal DLL and export file in
-	  CVS.
-
-2004-05-11 10:57  guy
-
-	* packet-ber.c:
-
-	  Add a colon to the top-level item for a sequence or set, to
-	  separate the name for the sequence or set from any summary items
-	  added as the members of the sequence or set are dissected.
-
-2004-05-11 10:55  guy
-
-	* packet-rtsp.c:
-
-	  A line is an RTSP request merely because it begins with a string
-	  that's an RTSP request name - either the line has to end after
-	  the request name or there has to be a whitespace character after
-	  the request name.
-
-2004-05-11 07:30  guy
-
-	* packet-kerberos.c:
-
-	  Kerberos encryption types are ASN.1 integers, meaning signed
-	  values, and at least one mail message:
-
-
-	  http://mailman.mit.edu/pipermail/kerberos/2004-February/004653.html
-
-	  shows some of the weird Microsoft encryption type values logged
-	  by some KDC implementation as negative integers.  Also, show them
-	  as decimal in the top-level line for encryption types, just as we
-	  do in the lines for each encryption type.
-
-2004-05-11 07:26  guy
-
-	* packet-ber.c:
-
-	  In the top-level summary item for a bitstring, show the names of
-	  the bits as a parenthesized, comma-separated lists - using only
-	  blanks as separators doesn't work well if the names themselves
-	  have blanks in them, as some of them do.
-
-	  Note that "dissect_ber_integer()" won't work well if the length
-	  of the item isn't appropriate for the field, e.g. a length > 4
-	  for an FT_INTn or FT_UINTn field.
-
-2004-05-11 02:02  gerald
-
-	* packet-spnego.c:
-
-	  Make sure next_level_value isn't NULL before trying to access one
-	  of its members.
-
-2004-05-11 01:05  ulfl
+2004-07-07 19:15  gerald
 
 	* config.nmake:
 
-	  add "configurable" path to doxygen.exe
+	  Enable GTK_WIMP and GTK2 by default.	Make GTK2 2.4 and Pango 1.4
+	  the default versions.
 
-2004-05-11 01:00  ulfl
+2004-07-07 16:31  ulfl
+
+	* gtk/main.c:
+
+	  bugfix: preference related capture options shouldn't be set by
+	  preferences, if Ethereal is running as a capture_child
+
+2004-07-07 16:26  ulfl
+
+	* gtk/menu.c:
+
+	  don't show webbrowser calling menu items, when using GLib 1.x
+
+2004-07-07 16:23  ulfl
+
+	* epan/Makefile.nmake, gtk/Makefile.nmake:
+
+	  remove doxygen output dir "html" on make clean
+
+2004-07-07 07:01  guy
+
+	* gtk/about_dlg.c:
+
+	  Realize the splash screen window right after creating it, rather
+	  than doing a "show all" followed by a "hide"; that way we don't
+	  get a tiny window that pops up briefly and disappears.
+
+	  Get rid of the additional positioning of the splash screen -
+	  "splash_window_new()" does that for us.
+
+	  Expand some comments.
+
+2004-07-07 06:09  guy
+
+	* gtk/webbrowser.c:
+
+	  With GLib 1.2[.x], undefine MUST_LAUNCH_BROWSER_OURSELVES, so
+	  that we say that we don't need a preference for the command to
+	  launch a browser (that preference won't make any difference).
+
+2004-07-07 05:36  guy
+
+	* gtk/: about_dlg.c, ui_util.c, ui_util.h:
+
+	  Get rid of the splash screen's title bar on GTK+ 1.2[.x] as well.
+
+2004-07-07 04:48  guy
+
+	* AUTHORS, packet-ieee80211.c:
+
+	  From Henry Ptasinski: support for 802.11e WME/QoS info.
+
+2004-07-07 04:17  guy
+
+	* packet-prism.c:
+
+	  Update comments and note that values are in *host* byte order, as
+	  in "the byte order of the host that wrote the capture", not "the
+	  byte order of the host *reading* the capture".
+
+	  Don't show values that aren't present - the "status" field of the
+	  item for the value is 0 if it's present and non-0 if absent.
+
+	  Get rid of extra VALFIELD() call for the data rate (we handle it
+	  ourselves).
+
+2004-07-07 00:09  obiot
+
+	* NEWS:
+
+	  Specify which "protocol" is added to WBXML (User-Agent Profile
+	  for WSP Profile-Diff header).
+
+2004-07-06 23:47  guy
+
+	* packet-prism.c:
+
+	  Add some notes on the stuff in the Prism header.
+
+2004-07-06 19:44  guy
+
+	* packet-pim.c:
+
+	  From Shinsuke Suzuke: fix a PIM address list bug, and put the
+	  address list into a subtree.
+
+2004-07-06 19:22  guy
+
+	* packet-ieee80211.c, packet-prism.c, packet-radiotap.c,
+	  packet-wlancap.c:
+
+	  In "packet-ieee80211.c", use the same scheme for displaying the
+	  data rate used elsewhere, rather than using floating point.
+
+	  In "packet-prism.c", show the data rate correctly in the column
+	  display, and show it as Mb/s in the protocol tree, and show it as
+	  "Data Rate", as it is in "packet-ieee80211.c".
+
+	  In "packet-radiotap.c" and "packet-wlancap.c", show it as "Data
+	  Rate" rather than as "Datarate".
+
+	  Show the units uniformly as "Mb/s", rather than "mb/s" (it's
+	  mega, not milli) or "Mbps", except for the AVS header, where it's
+	  Kb/s.
+
+2004-07-06 19:17  gerald
+
+	* NEWS:
+
+	  Add ENRP to the new protocol list.
+
+2004-07-06 19:16  gerald
+
+	* capture.h, gtk/about_dlg.c, gtk/main.c:
+
+	  Make sure child processes don't create a splash screen.  Make the
+	  verbs in the splash screen messages present participles.
+
+2004-07-06 19:01  gerald
+
+	* packet-isns.c, epan/conversation.c, epan/conversation.h:
+
+	  From Dinesh Dutt:	- conversation.[ch] - To support not
+	  setting port2 on matching a	    conversation. This is used by
+	  protocols such as iSNS in which the client	   registers a
+	  TCP/UDP port with the server for notifications and the server
+	    sends notifications to this port from different source ports.
+	     - packet-isns.c - Added support for handling zero-length TLVs
+	  and ESI & SCN        frames (when registering an SCN/ESI port, a
+	  conversation dissector is	   setup).
+
+2004-07-06 16:29  gerald
+
+	* NEWS, config.nmake, configure.in:
+
+	  Prep for the 0.10.5 release.
+
+2004-07-05 16:39  ulfl
+
+	* print.c, epan/proto.c:
+
+	  bugfix: don't try to print data, if tvb is too short
+
+2004-07-05 10:15  guy
+
+	* packet-rip.c:
+
+	  From Yaniv Kaul:
+
+		  Don't try to dissect the MD5 authentication data as a
+	  route
+		  entry (RTE).	It's not.  I made sure it's also the last
+	  entry in
+		  the packet and it gets dissected only if MD5
+	  authentication is
+		  used.
+
+		  Some implementation use the Auth. Data Length field value
+	  as
+		  the WHOLE Authentication data length (0xFFFF (2 bytes) +
+	  0x0001
+		  (2 bytes) + 16 bytes of auth.  data = 20) while others
+	  only as
+		  the auth. data length ( = 16).  Since MD5's auth data is
+	  16
+		  bytes anyway, I've hard coded it in the code (in
+	  #define), and
+		  not relied on auth_data_len.	I've tested it on
+	  implementations
+		  using either way and it seems to work fine.
+
+2004-07-05 09:29  guy
+
+	* column.c, packet-ieee80211.c, packet-prism.c, packet-radiotap.c,
+	  packet-wlancap.c, epan/column_info.h:
+
+	  From Jouni Malinen: add columns for the 802.11 data rate and
+	  signal strength for AVS headers.
+
+	  Also add them for the Prism and Radiotap headers, and for the
+	  pseudo-header from non-native captures.
+
+2004-07-05 05:40  ulfl
+
+	* gtk/webbrowser.c:
+
+	  from Gisle Vanem: if WIN32_LEAN_AND_MEAN is defined, include
+	  shellapi.h too
+
+2004-07-05 05:32  ulfl
+
+	* gtk/about_dlg.c:
+
+	  beautify the splash screen a bit (increased border)
+
+2004-07-04 20:49  guy
+
+	* gtk/about_dlg.c:
+
+	  Declare "about_ethereal()" as "void", as it returns no value, and
+	  as GCC warns that it's implicitly declared as "int" if you don't
+	  declare its return type.
+
+2004-07-04 20:46  tuexen
+
+	* AUTHORS, epan/Makefile.common, packet-enrp.c:
+
+	  Add support for ENRP according to
+	  draft-ietf-rserpool-common-param-06.txt
+	  draft-ietf-rserpool-enrp-08.txt
+
+2004-07-04 17:36  tuexen
+
+	* text2pcap.c:
+
+	  fix a typo in the help text.
+
+2004-07-04 12:15  ulfl
+
+	* gtk/: about_dlg.c, about_dlg.h, main.c, ui_util.c, ui_util.h:
+
+	  added a splash screen while Ethereal is started
+
+2004-07-04 10:26  guy
+
+	* AUTHORS, packet-eap.c:
+
+	  From Jouni Malinen: EAP-MD5, EAP-SIM, EAP-PEAP, and EAP-MSCHAPv2
+	  support.
+
+2004-07-04 03:48  guy
+
+	* packet-isup.c:
+
+	  From Martin van der Werff: add some additional white space in the
+	  Info column.
+
+2004-07-04 03:46  guy
+
+	* packet-ieee80211.c:
+
+	  From Jouni Malinen: add alternative parsing for WEP IV field when
+	  the Extended IV bit is set.
+
+2004-07-04 02:29  guy
+
+	* epan/: proto.c, slab.h, ftypes/ftypes.c, ftypes/ftypes.h:
+
+	  Instead of using pointer casts in the slab allocator stuff, add a
+	  "SLAB_ITEM_TYPE_DEFINE()" macro to define a union of the type of
+	  object for the slab and a pointer to an object of that union
+	  type, and use that type for items on the slab allocator free
+	  lists; that *should* avoid having the compiler think two pointers
+	  to an item being added to or removed from the free list don't
+	  point to the same object just because they have different types.
+
+2004-07-04 00:28  guy
+
+	* epan/: proto.c, slab.h, ftypes/ftypes.c, ftypes/ftypes.h:
+
+	  Make the "SLAB_ALLOC()" and "SLAB_FREE()" macros take the type of
+	  the object being allocated, rather than the name of the free
+	  list, as an argument (with the name of the free list constructed
+	  from the name of the type), and add macros to define and declare
+	  the free list, also taking the type of the object being
+	  allocated.
+
+2004-07-03 21:50  tuexen
+
+	* doc/README.plugins:
+
+	  Update to current setup.
+
+2004-07-03 21:46  tuexen
+
+	* README.macos:
+
+	  Update to reflect that the gtk+2 stuff is enabled by default now.
+
+2004-07-03 21:37  tuexen
+
+	* packet-asap.c:
+
+	  Update to support latest ID versions:
+	  draft-ietf-rserpool-common-param-06.txt
+	  draft-ietf-rserpool-asap-09.txt
+
+2004-07-03 21:35  tuexen
+
+	* aclocal-flags:
+
+	  Suppress warning in case of gtk-config is not installed.
+
+2004-07-03 12:58  tuexen
+
+	* packet-mtp3.c:
+
+	  Fixed a bug reported by Martin van der Werff.
+
+2004-07-02 09:12  guy
+
+	* packet-ieee80211.c:
+
+	  From Jouli Malinen: add parsing of PMKID for IEEE 802.11i (both
+	  in RSN IE and in Key Data field of msg 1 of 4-Way Handshake).
+
+2004-07-02 08:38  guy
+
+	* packet-lmp.c:
+
+	  From Carles Kishimoto: fix some bugs.
+
+2004-07-02 08:27  guy
+
+	* AUTHORS, packet-isup.c:
+
+	  From Martin van der Werff: don't do
+	  "tvb_ensure_length_remaining()" to create the parameter tvbuff,
+	  as that requires that there's at least one byte of parameter
+	  data, and some messages have no parameters and would cause an
+	  exception to be thrown in that case.
+
+	  Just use -1 for the length parameters when creating the parameter
+	  tvbuff, so that it includes the full reported length.
+
+	  Don't put undissected parameter information into the protocol
+	  tree if there aren't any parameters - and don't bother getting
+	  the number of bytes of parameter information unless we're putting
+	  undissected parameter information into the protocol tree and need
+	  it to see whether there are any parameters.
+
+2004-07-01 09:35  jmayer
+
+	* packet-mtp3.c, packet-mtp3.h, gtk/webbrowser.c, gtk/webbrowser.h:
+
+	  Trivial warning fixes: () -> (void) and comma at end of enum
+
+2004-07-01 08:35  guy
+
+	* packet-fr.c:
+
+	  Update the URL of FRF 3.2.
+
+	  Note that it's been claimed that an address field whose first
+	  byte has the low-order bit not zero indicates Frame Relay
+	  fragmentation, FRF.12, and that we should perhaps handle that.
+
+2004-07-01 08:07  jmayer
+
+	* .cvsignore:
+
+	  Doxygen added
+
+2004-07-01 08:04  jmayer
+
+	* epan/.cvsignore, gtk/.cvsignore:
+
+	  Doxygen filenames changed
+
+2004-07-01 06:59  guy
+
+	* AUTHORS, packet-rtp.c:
+
+	  From Ruud Linders: heuristic RTP dissector.
+
+2004-07-01 06:30  guy
+
+	* packet-gift.c:
+
+	  Add a URL for the giFT project.
+
+2004-07-01 06:28  guy
+
+	* AUTHORS, packet-gift.c, epan/Makefile.common:
+
+	  From Jon Oberheide: giFT support.
+
+2004-06-30 21:27  etxrab
+
+	* AUTHORS:
+
+	  From Martin Mathieson - show setupframe in RTP and RTCP
+
+2004-06-30 21:17  etxrab
+
+	* gtk/rtp_stream_dlg.c:
+
+	  From Martin Mathieson:  Show number of detected streams in RTP
+	  Analysis window
+
+2004-06-30 21:08  etxrab
+
+	* packet-rtcp.c, packet-rtp.c:
+
+	  From Martin Mathieson: Fix it so "setup frame" is shown even if
+	  no filter applied at loading of capture.
+
+2004-06-30 18:47  ulfl
+
+	* packet-iax2.c:
+
+	  remove MSVC warning, as result of arithmetic expression is of
+	  type unsigned int, but function expects guint8
+
+2004-06-30 18:24  ulfl
+
+	* gtk/capture_dlg.c:
+
+	  code cleanup
+
+2004-06-30 17:57  guy
+
+	* plugins/plugin_api.h:
+
+	  Include "crc16.h" to handle "crc16_ccitt_tvb()".
+
+2004-06-30 17:53  ulfl
+
+	* gtk/: capture_dlg.c, main.c:
+
+	  bugfix to a bug reported by dave.nicoson@thomson.net: if
+	  reopening the capture options dialog, use the same values as
+	  before and don't mess them caused by the units used.
+
+2004-06-30 15:42  tuexen
+
+	* plugins/irda/packet-irda.c:
+
+	  get rid of data_handle decalriation, bacause it is defined
+	  external in irda-appl.h which is included.
+
+2004-06-30 08:23  guy
+
+	* plugins/irda/.cvsignore:
+
+	  Add packet-sir.lo.
+
+2004-06-30 08:21  guy
+
+	* epan/libethereal.def, epan/plugins.c, plugins/plugin_api_list.c,
+	  plugins/Xass-list, plugins/Xplugin_api.c, plugins/Xplugin_api.h,
+	  plugins/Xplugin_api_decls.h, plugins/Xplugin_table.h:
+
+	  Add "crc16_ccitt_tvb()" to the plugin API and the list of
+	  functions exported from libethereal.dll.
+
+2004-06-30 07:34  guy
+
+	* AUTHORS, plugins/irda/Makefile.am, plugins/irda/Makefile.nmake,
+	  plugins/irda/irda-appl.h, plugins/irda/moduleinfo.h,
+	  plugins/irda/packet-sir.c:
+
+	  From Shaun Jackman: Serial Infrared support.
+
+2004-06-30 07:12  guy
+
+	* gtk/file_dlg.c:
+
+	  Include <unistd.h>, if available, to declare "close()".
+
+2004-06-30 07:04  guy
+
+	* mergecap.c:
+
+	  Initialize "out_filename" to NULL, so it's set to NULL if it's
+	  not set by a "-w" flag.
+
+2004-06-30 06:58  guy
+
+	* capture.c, file.c, mergecap.c, ringbuffer.c, gtk/proto_draw.c,
+	  gtk/rtp_analysis.c, wiretap/file_access.c:
+
+	  On at least some platforms, a #define of O_BINARY is needed even
+	  if <fcntl.h> is included, as <fcntl.h> doesn't define it.
+
+2004-06-30 05:49  ulfl
+
+	* gtk/: file_dlg.c, main.c:
+
+	  close temporary merge output file, if merging failed
+
+2004-06-29 22:21  ulfl
+
+	* gtk/simple_dialog.c:
+
+	  GTK2: convert character encoding from locale to UTF8 before
+	  displaying message
+
+2004-06-29 20:59  ulfl
+
+	* merge.c, merge.h, mergecap.c, gtk/file_dlg.c, gtk/main.c:
+
+	  avoid using tmpnam() for security reasons.  instead of giving the
+	  merge stuff a filename, give it an already opened file descriptor
+
+2004-06-29 20:51  ulfl
+
+	* capture.c, file.c, mkstemp.c, ringbuffer.c:
+
+	  define of O_BINARY not needed, if fcntl.h is included other
+	  #include related cleanups
+
+2004-06-29 20:46  ulfl
+
+	* gtk/proto_draw.c, gtk/rtp_analysis.c, gtk/rtp_stream.c,
+	  wiretap/file_access.c:
+
+	  define of O_BINARY not needed, if fcntl.h is included other
+	  #include related cleanups
+
+2004-06-29 20:40  etxrab
+
+	* packet-sigcomp.c:
+
+	  Fixed a bug in instruction COMPARE dissection, added output of
+	  bytecode for all types of operands, changed most values to be
+	  output as decimal.  Many thanks to Martin Regner for valuable
+	  ideas, reviewing the output and assisting in debuging the code.
+
+2004-06-29 20:29  etxrab
+
+	* packet-rtcp.c, packet-rtp.c, packet-rtsp.c:
+
+	  From Martin Mathieson: packet-rtp.c packet_rtsp.cand
+	  packet-rtcp.c ------------------------------------------ Make
+	  sure that the RTP RTSP and RTCP dissectors show the setup frame
+	  corresponding to the destination address
+
+2004-06-29 17:10  ulfl
+
+	* prefs.c, prefs.h, gtk/gui_prefs.c, gtk/webbrowser.c,
+	  gtk/webbrowser.h:
+
+	  add a preference setting for the web browser command
+
+2004-06-29 08:20  guy
+
+	* packet-dcerpc-budb.c, packet-dcerpc-rpriv.c,
+	  packet-dcerpc-rs_acct.c, packet-dcerpc-rs_misc.c,
+	  packet-dcerpc-rs_repadm.c, packet-dcerpc-rs_unix.c,
+	  packet-dcerpc-secidmap.c:
+
+	  From Jaime Fournier: clean up some function names.
+
+2004-06-29 07:59  guy
+
+	* acinclude.m4:
+
+	  If we can't find the krb5 header or the krb5 code isn't Heimdal,
+	  clear out KRB5_LIBS, so we don't try to link with the library.
+
+2004-06-29 07:14  guy
+
+	* packaging/nsis/ethereal.nsi:
+
+	  From Laurent Rabret:
+
+		  fix a bug in the case where both Ethereal with GTK1 and
+	  GTK2 are
+		  attached;
+
+		  disallow the "extension box" if Ethereal isn't selected.
+
+2004-06-29 05:50  guy
+
+	* packet-sigcomp.c:
+
+	  Fix up some warnings.
+
+2004-06-29 05:47  guy
+
+	* prefs.c:
+
+	  Catch invalid GUI layout type values; if we see one, use the
+	  default layout type.
+
+2004-06-29 03:27  jmayer
+
+	* gtk/: file_dlg.c, follow_dlg.c, main.c, print_dlg.c:
+
+	  The patch to fix the race condition introduced by using tmpnam
+	  replaced insecure code by not-working code.  As I currently lack
+	  the time to fix this properly until Monday as the earliest
+	  possible date I undo the patch.
+
+	  Please note that Ethereal should not be used on multiuser systems
+	  with untrusted users until a proper fix has been applied.
+
+2004-06-29 03:04  gerald
+
+	* Makefile.am:
+
+	  Some of the documentation files don't depend on [t]ethereal any
+	  more.  Remove the dependencies, since it was messing up builds on
+	  systems without GTK.
+
+2004-06-28 22:39  etxrab
+
+	* packet-sigcomp.c, epan/Makefile.common:
+
+	  Add dissector for  Signaling Compression (SigComp) dissection,
+	  RFC3320.  It does not decompress the compressed message it only
+	  displays the uploaded bytecode for the UDVM ( Universal
+	  Decompressor Virtual Machine )
+
+2004-06-28 22:04  gerald
+
+	* packet-snmp.c:
+
+	  From Yaniv Kaul: Fix an SNMP crash bug.
+
+2004-06-28 15:09  ulfl
+
+	* gtk/file_dlg.c:
+
+	  minor bugfix for merge dialog: use the correct handle for
+	  resizing
+
+2004-06-28 06:01  guy
+
+	* epan/ftypes/ftypes.c:
+
+	  From Graeme Hewson: prevent an assertion failure if a display
+	  filter specifies [i:] and i is >= the length of the frame.
+
+2004-06-28 05:54  guy
+
+	* packet-dcerpc-samr.c:
+
+	  From Jean-Baptiste Marchand: many small fixes for the samr
+	  dissector, based on test trafic generated with Samba 4 smbtorture
+	  utility and Samba 4 samr.idl.
+
+2004-06-28 05:41  guy
+
+	* packet-eap.c:
+
+	  From Yaniv Kaul: adjust to RFC 3748, and add some more EAP method
+	  types.
+
+2004-06-28 05:35  guy
+
+	* packet-dcerpc-lsa.c:
+
+	  From Jean-Baptiste Marchand: fix the dissection of the
+	  POLICY_AUDIT_LOG_INFO information level used by the
+	  LsarQueryInformationPolicy(2) operations (based on Samba4
+	  lsa.idl).
+
+2004-06-28 05:29  guy
+
+	* packet-dcerpc-lsa.c:
+
+	  From Jean-Baptiste Marchand: slightly enhance the dissection of
+	  the LsarQueryInformationPolicy2 operation, by displaying the
+	  information level in the COL_INFO column, identically to the
+	  LsarQueryInformationPolicy operation.
+
+2004-06-28 05:22  guy
+
+	* packet-dcerpc-wkssvc.c:
+
+	  From Jean-Baptiste Marchand: for NetrWkstaGetInfo and
+	  NetWkstaEnumUsers operations, display in the COL_INFO column the
+	  requested information level.
+
+2004-06-28 05:17  guy
+
+	* packet-dcerpc-srvsvc.c:
+
+	  From Jean-Baptiste Marchand:
+
+		  add col_append_str() calls in functions dissecting *Enum
+	  srvsvc
+		  operations, to display the requested information levels
+	  in the
+		  COL_INFO column;
+
+		  fix the slighlty wrong dissection of the
+	  NetrShareEnumSticky
+		  operation.
+
+2004-06-27 22:21  obiot
+
+	* packet-wbxml.c, packet-wsp.c:
+
+	  Add the dissection of a WBXML-encoded Profile-Diff header to the
+	  WSP and WBXML dissectors by define a new protocol handle in the
+	  WBXML dissector.  This is necessary as the Profile document (XML
+	  or WBXML) has no associated media type (or not a useful
+	  registration).
+
+	  New WBXML media: "UAPROF for Profile-Diff header (WSP)"
+
+2004-06-27 17:56  gerald
+
+	* doc/Makefile.am:
+
+	  Add more distclean files.
+
+2004-06-27 17:16  tuexen
+
+	* packet-m3ua.c:
+
+	  Show point codes also in a strucuted way if selected in the MTP3
+	  preferences.
+
+2004-06-27 17:14  tuexen
+
+	* packet-mtp3.c, packet-mtp3.h:
+
+	  Added functionality to support multiple ways of structuring an
+	  ITU point code.
+
+2004-06-27 00:21  gerald
+
+	* Makefile.common, doc/Makefile.am, gtk/Makefile.am:
+
+	  Fixes needed for "make distcheck".
+
+2004-06-26 09:56  guy
+
+	* tools/asn2eth.py:
+
+	  From Tomas Kukosa: small fix for ASN2ETH compiler concerning
+	  creation of export conformance file.
+
+2004-06-26 09:48  guy
+
+	* crc32.c, crc32.h, packet-eth.c, packet-ieee80211.c, packet-ppp.c:
+
+	  Use the "crc16.c" CRC-16 routine in the PPP dissector.
+
+	  Rename the "crc32.c" CRC-32 routine "crc32_ccitt_tvb()", to match
+	  the "crc16.c" CRC-16 routine, and rename the table it uses to
+	  match.  Also rename "crc32_tvb_802" to "crc32_802_tvb", to match
+	  "crc32_ccitt_tvb()".
+
+2004-06-26 09:45  guy
+
+	* crc16.c:
+
+	  Make the CRC-16 table static (as it's not used outside "crc16.c")
+	  and "const" (as nothing writes to it).
+
+	  "len" is unsigned, so it can never be < 0 - it can only be 0 or
+	  != 0.
+
+2004-06-26 03:40  guy
+
+	* packet-dcerpc-samr.c:
+
+	  From Jean-Baptiste Marchand: dissect the USER_INFO_25 samr
+	  structure (used by Windows XP clients when joining a domain
+	  managed by a W2K3 domain controller).
+
+2004-06-26 02:16  guy
+
+	* Makefile.nmake, epan/Makefile.nmake, epan/dfilter/Makefile.nmake,
+	  epan/ftypes/Makefile.nmake, gtk/Makefile.nmake:
+
+	  From Laurent Rabret: replace "lib" with "link /lib"; "lib" is
+	  just a wrapper around "link /lib", and not all Microsoft C
+	  compiler distributions provide "lib".
+
+2004-06-25 17:33  ulfl
+
+	* gtk/menu.c:
+
+	  Add "Resolve Name" to "View/Name Resolution" and rename "Protocol
+	  Properties" to "Protocol Preferences"
+
+2004-06-25 09:24  sahlberg
+
+	* packet-ber.c:
+
+	  add some sanity checking to packet-ber.c  to let it display a
+	  helpful message instead of dumping core if it is passed an
+	  incompatible hf_field type.
+
+2004-06-25 07:19  sahlberg
+
+	* Makefile.common, epan/Makefile.common:
+
+	  Update to the makefiles to pull in the crc16 helper for use by
+	  SIR and later others
+
+2004-06-25 07:10  jmayer
+
+	* Makefile.am, configure.in, doxygen.cfg, doxygen.cfg.in,
+	  epan/Makefile.am, epan/Makefile.nmake, epan/doxygen.cfg,
+	  epan/doxygen.cfg.in, gtk/Makefile.am, gtk/Makefile.nmake,
+	  gtk/doxygen.cfg, gtk/doxygen.cfg.in:
+
+	  doxygen changes: - moved doxygen.cfg to doxygen.cfg.in and let
+	  configure to the substitution   on unix. Adapted the namke files
+	  accordingly.	- Don't add doxygen as a dependency for libethereal
+	  and libui: As doxygen is   an unconditional target, this would
+	  cause the applications to be rebuild	 every time make was
+	  called, even when nothing changed in the meantime.	This means
+	  that by now we need to do "make doxygen" manually in case we
+	  want updated documentation.
+
+2004-06-25 07:06  jmayer
+
+	* acinclude.m4:
+
+	  Get rid of a warning with newer auto... tools by proper quoting.
+
+2004-06-25 07:05  jmayer
+
+	* FAQ, help/faq.txt:
+
+	  Minor update
+
+2004-06-25 07:04  jmayer
+
+	* gtk/file_dlg.c, gtk/follow_dlg.c, gtk/main.c, gtk/print_dlg.c,
+	  doc/README.developer:
+
+	  tmpnam() really should not be used for security reasons.  Replace
+	  it where used and update README.developer accordingly.
+
+2004-06-25 07:00  jmayer
+
+	* AUTHORS, util.c, epan/resolv.c, epan/resolv.h:
+
+	  Fix automagically generated filters in case of remote login via
+	  IPv6.  This fix was picked from the source rpm of Suse 9.1.
+
+2004-06-25 06:31  sahlberg
+
+	* AUTHORS, crc16.c, crc16.h, iax2_codec_type.h, packet-h263.c,
+	  packet-iax2.c, packet-iax2.h, epan/packet_info.h:
+
+	  Updates from Richard v d Hoff
+
+	  IAX2 updates and a CRC16 routine
+
+2004-06-25 06:16  sahlberg
+
+	* reassemble.c:
+
+	  fix bug in reassembly from last checkin
+
+	  From Richard van der Hoff
+
+2004-06-24 21:50  sahlberg
+
+	* packet-h225.c, packet-h235.c, packet-h235.h, packet-per.c,
+	  asn1/h235/h235.cnf, epan/ftypes/ftypes.h, tools/asn2eth.py:
+
+	  from tomas k
+
+	  updates to the asn2eth compiler and a new regenerated h235
+	  dissector
+
+2004-06-24 21:05  sahlberg
+
+	* AUTHORS:
+
+	  Update Gile S email address
+
+2004-06-24 20:58  sahlberg
+
+	* packet-h225.c:
+
+	  prettify the dissector and mark the generated fields as such
+
+2004-06-24 17:45  ulfl
+
+	* gtk/webbrowser.c:
+
+	  As current implementation won't compile with GLib 1.x, as a
+	  temporary solution, simply do nothing in this case.  Has to be
+	  improved later
+
+2004-06-24 07:43  sahlberg
+
+	* packet-dcerpc.c, reassemble.c, reassemble.h:
+
+	  from todd s
+
+	  update to reassembly of dg style dcerpc
+
+2004-06-24 06:01  sahlberg
+
+	* packet-h450.c:
+
+	  from Mazeau Philippe
+
+	  more h.450 codes
+
+2004-06-24 05:31  sahlberg
+
+	* packet-ber.c:
+
+	  some ber/der stuff like pkinit do use very large integers,   8
+	  and 16 byte ones have been spotted.
+
+	  make the ber helpers handle these large integers as well as
+	  possible.
+
+2004-06-24 05:23  sahlberg
+
+	* packet-dcerpc-samr.c:
+
+	  from JBM  updates to SAMR CONNECTx
+
+2004-06-24 05:13  sahlberg
+
+	* tools/asn2eth.py:
+
+	  from Tomas K
+
+	  updates to the asn2eth per/ber compiler
+
+2004-06-24 05:05  sahlberg
+
+	* packet-h225.c:
+
+	  The hf field we pass to H235_AuthenticationMechanism is a
+	  FT_UINT32 and not a FT_NONE
+
+	  this finally allows ethereal to successfulkly  dissect the
+	  problem h225.cap capture properly.
+
+2004-06-24 04:51  sahlberg
+
+	* packet-h225.c:
+
+	  dissect_per_sequence_of  needs a hf field of type FT_NONE and not
+	  FT_UINT32 Fix one instance of this bug and verify all other uses
+	  of dissect_per_sequence_of in h225.
+
+	  Fix one ett field we forgot to initialize.
+
+	  This fixes the problem reported with a crash earlier.  (ethereal
+	  still crashes but now inside the machinegenerated h235 dissector)
+
+2004-06-23 22:17  guy
+
+	* .cvsignore:
+
+	  Add the HTML man pages to the "ignore these files" list.
+
+2004-06-23 21:43  guy
+
+	* packet-x11.c:
+
+	  "g_malloc()" takes the number of bytes to allocate, not the
+	  number of items to allocate.
+
+2004-06-23 15:15  gram
+
+	* doc/README.tvbuff:
+
+	  Add paragraph about freeing tvbuffs.
+
+2004-06-23 08:39  guy
+
+	* Makefile.am, configure.in, doc/Makefile.am:
+
+	  Build and install the HTMLized man pages on UN*X.
+
+2004-06-23 01:38  guy
+
+	* gtk/: Makefile.am, about_dlg.c, main.h, webbrowser.c,
+	  webbrowser.h:
+
+	  Add "gtk/webbrowser.h" to declare functions from
+	  "gtk/webbrowser.c".
+
+	  Rename "browser_open_program_file()" to
+	  "browser_open_data_file()", and make it open files relative to
+	  the application's data directory, as that's where data files such
+	  as HTMLized man pages would be put.  (That happens to be the
+	  program directory on Windows, but it's a different directory on
+	  UN*X - and you aren't guaranteed to be able to find the program
+	  directory on UN*X by looking at argv[0] in any case.)  Move it to
+	  "gtk/webbrowser.c".
+
+	  Fix "filename2url()" to put "file://", not just "file:", in front
+	  of pathnames on UN*X.
+
+2004-06-22 21:51  guy
+
+	* gtk/about_dlg.c:
+
+	  Mark some unused variables as such.
+
+2004-06-22 21:15  guy
+
+	* configure.in:
+
+	  To test whether we can build with OS X frameworks, try building
+	  with those frameworks.
+
+2004-06-22 16:28  ulfl
+
+	* gtk/: about_dlg.c, about_dlg.h, menu.c, webbrowser.c:
+
+	  add functionality, to show html files from the local installation
+
+2004-06-22 15:18  gerald
+
+	* configure.in:
+
+	  Handle cases where PRI[doxu]64 is defined, but u_int64_t isn't.
+	  (Solaris 8 only defines uint64_t, for example).
+
+2004-06-22 05:45  ulfl
+
+	* AUTHORS:
+
+	  add Henrik Brix Andersen as the original author of webbrowser.c
+
+2004-06-22 01:11  guy
+
+	* gtk/menu.c:
+
+	  "Home page" is typically two words.
+
+2004-06-22 01:00  guy
+
+	* gtk/webbrowser.c:
+
+	  Style tweaks, and finish an unfinished comment.
+
+2004-06-22 00:40  guy
+
+	* Makefile.am, configure.in, gtk/webbrowser.c:
+
+	  On Mac OS X, use Launch Services to start a Web browser with a
+	  given URL.
+
+2004-06-21 20:12  tuexen
+
+	* gtk/main.h:
+
+	  Change type of argument of dnd_open_file_cmd to get ethereal
+	  compiled.
+
+2004-06-21 17:25  ulfl
+
+	* gtk/Makefile.common, gtk/about_dlg.c, gtk/about_dlg.h,
+	  gtk/main.h, gtk/menu.c, gtk/webbrowser.c, Makefile.nmake:
+
+	  Add experimental feature of opening a webbrowser, to show some of
+	  the webpages from http://www.ethereal.com. This functionality is
+	  copied from the Gimp.  Win32 will use ShellExecute to use the
+	  system registered webbrowser.  On unix builds, currently the
+	  mozilla browser is hardcoded, we still need a preference setting
+	  for this (I will add this later).
+
+2004-06-21 16:45  ulfl
+
+	* merge.c, merge.h, gtk/file_dlg.c, gtk/main.c:
+
+	  if more than one file is (drag and) dropped into the program,
+	  merge them together into a new temporary file (and notice the
+	  user by a simple_dialog about it)
+
+2004-06-21 15:57  gerald
+
+	* Makefile.nmake:
+
+	  Change to GLib 2.4.2 and GTK+ 2.4.3.
+
+2004-06-21 10:53  jmayer
+
+	* gtk/main.h:
+
+	  Remove trailing comma at end of enum
+
+2004-06-21 05:48  ulfl
+
+	* gtk/file_dlg.c:
+
+	  use the "correct" resize function for the file selection dialog
+
+2004-06-20 20:28  ulfl
+
+	* config.nmake:
+
+	  add GTK2.4 and alike libs to the setup target, depending on
+	  settings in config.nmake
+
+2004-06-20 20:22  ulfl
+
+	* Makefile.nmake:
+
+	  add GTK2.4 and alike libs to the setup target, depending on
+	  settings in config.nmake
+
+2004-06-20 19:35  ulfl
+
+	* gtk/dlg_utils.c:
+
+	  bugfix: is using last_open_dir with GTK2.4 file chooser
+	  gtk_file_chooser_set_current_folder() is very pedantic of it's
+	  parameter, trim filename so it will be accepted.
+
+2004-06-20 19:20  guy
+
+	* reassemble.c:
+
+	  In "show_fragment()", use common code to put the top-level entry
+	  into the protocol tree for the fragment, regardless of whether
+	  the fragment has any flags set or not, and, in that common code,
+	  handle fragments with 0 bytes of data specially (at least in NDS,
+	  you can get zero-length fragments - including the last fragment,
+	  so you can't just ignore those fragments; the last fragment has
+	  to be added to finish off the reassembly).
+
+2004-06-20 18:36  ulfl
+
+	* gtk/file_dlg.c:
+
+	  bugfix: handle NULL pointer correct, if
+	  gtk_file_chooser_get_filename returned NULL
+
+2004-06-20 15:57  ulfl
+
+	* prefs.c, prefs.h, gtk/capture_dlg.c, gtk/file_dlg.c,
+	  gtk/gui_prefs.c, gtk/main.c, gtk/menu.c:
+
+	  preference setting, so "ask for unsaved capture files" can be
+	  switched off
+
+2004-06-20 14:48  ulfl
+
+	* prefs.c, prefs.h, gtk/capture_prefs.c, gtk/main.c:
+
+	  preference setting for the option to "avoid" the capture info
+	  dialog
+
+2004-06-20 13:39  ulfl
+
+	* capture.c, capture.h, gtk/capture_dlg.c, gtk/main.c:
+
+	  added an option to "avoid" the capture info dialog completely.
+	  This matters for "update of list in real time" (sync_mode) only,
+	  as in normal mode you wouldn't otherwise have the possibility to
+	  stop the capture.
+
+2004-06-20 09:49  ulfl
+
+	* Makefile.nmake:
+
+	  add merge.obj to the linking of mergecap.exe
+
+2004-06-20 09:35  ulfl
+
+	* gtk/file_dlg.c:
+
+	  preview: add 3 seconds timeout, and show the information got so
+	  far.	This will prevent getting the preview information take a
+	  lot of time for *very* long capture files. However, on a
+	  Pentium-M 1.6 even a 35MB capture file will not timeout in this 3
+	  second interval.
+
+2004-06-20 09:31  ulfl
+
+	* config.h.win32:
+
+	  bugfix: prefix for int64 output on win32 must be "I64" not "i64"
+
+2004-06-20 07:28  guy
+
+	* gtk/file_dlg.c:
+
+	  Include <string.h> to declare "strlen()".
+
+	  Make "cf_name" a "const gchar *", as, at least in GTK+ 2.x, a
+	  "const gchar *" is assigned to it.  (If it's just a "gchar *"
+	  being assigned to it, declaring it a "const gchar *" does no
+	  harm.)
+
+2004-06-20 03:05  guy
+
+	* gtk/file_dlg.c:
+
+	  Make the elapsed time value an "unsigned int" (if the stop time
+	  is before the start time, due to packet time stamp bogosity,
+	  neither a signed value nor an unsigned value will give a sensible
+	  answer, and it doesn't need to be a "long" as the capture's
+	  unlikely to span more than 2^32-1 seconds, again modulo packet
+	  time stamp bogosity).  That eliminates some format item vs. value
+	  warnings.
+
+	  Make the packet count an "unsigned int" (it can't be negative,
+	  and we're unlikely to have more than 2^32-1 packets - and, if we
+	  are, it should be made a guint64).  That eliminates some more
+	  format item vs. value warnings.
+
+	  Initialize "start_time" and "stop_time" to 0, so that we handle
+	  files with no packets (and so that we don't get uninitialized
+	  variable warnings).
+
+	  Display the file size with PRIu64, after casting it to "guint64"
+	  (that way we handle file sizes if they're "unsigned int",
+	  "unsigned long", or a 64-bit type on ILP64 platforms (it's 64
+	  bits in BSDs derived from 4.4BSD, even on ILP64 platforms).
+
+	  Mark the first argument to "file_open_entry_changed()" as unused.
+
+	  Don't use G_CONST_RETURN, as it's not defined by GLib 1.2[.x].
+
+	  Get rid of an unused variable.
+
+	  Clean up white space.
+
+2004-06-20 01:05  guy
+
+	* packet-clnp.c:
+
+	  The sequence number in COTP packets is either unused (for TP0) or
+	  relative to the beginning of the connection (for TP1-4).  They
+	  are *not* relative to the first segment of a segmented TPDU, so
+	  the sequence number can't be used in calls to
+	  "fragment_add_seq_check()".
+
+	  For now, we assume that COTP packets are seen in order, and just
+	  use "fragment_add_seq_next()" - that's unlikely to make anything
+	  worse (the only time when "fragment_add_seq_check()" will work is
+	  when the first segment has a sequence number of 0), and
+	  definitely fixes reassembly in a number of cases.  In the long
+	  term, we might want to handle out-of-order packets above the
+	  reassembly layer, so that it handles even out-of-order
+	  unsegmented packets.
+
+2004-06-19 10:48  ulfl
+
+	* gtk/file_dlg.c:
+
+	  add preview information to the open and merge dialog boxes
+
+2004-06-19 10:13  guy
+
+	* AUTHORS, epan/libethereal.def, epan/plugins.c,
+	  plugins/plugin_api.h, plugins/plugin_api_list.c,
+	  plugins/Xass-list, plugins/Xplugin_api.c, plugins/Xplugin_api.h,
+	  plugins/Xplugin_api_decls.h, plugins/Xplugin_table.h:
+
+	  From Dennis Lim: add routines used by dissectors for ONC RPC
+	  protocols to the plugin API.
+
+	  Add them to the list of routines exported from the libethereal
+	  DLL on Windows as well.
+
+2004-06-19 09:48  guy
+
+	* AUTHORS, packet-ospf.c, packet-rsvp.c, packet-rsvp.h:
+
+	  From Carles Kishimoto: add support for GMPLS extensions, as per
+	  the I-D draft-ietf-ccamp-ospf-gmpls-extensions-12.
+
+2004-06-19 04:12  guy
+
+	* configure.in:
+
+	  If the user hasn't explicitly said they want to build with
+	  Heimdal, don't *require* them to have "krb5.h" - if they don't
+	  have it, don't build with Heimdal.
+
+2004-06-19 04:10  guy
+
+	* packet-pktc.c:
+
+	  From Thomas Anders: display the Security Parameter Lifetime as a
+	  relative time string rather than raw seconds.
+
+2004-06-19 00:07  guy
+
+	* acinclude.m4, config.h.win32, configure.in, packet-rsvp.c,
+	  doc/README.developer, epan/packet.h:
+
+	  Pick up the stuff I did for tcpdump to figure out the right
+	  strings to use to format 64-bit integers.
+
+	  Fix the RSVP dissector to use that rather than hardcoding "%ll"
+	  in.
+
+	  Remove the "only if G_HAVE_GINT64 is defined" bit from the
+	  discussion of 64-bit integers - we're too dependent on having
+	  them to support compilers that don't have a 64-bit integral data
+	  type.  Do, however, note that neither "long" nor "long long" are
+	  acceptable, and also note that you shouldn't assume "%ll" does
+	  the trick for printing them.
+
+2004-06-18 20:23  guy
+
+	* gtk/summary_dlg.c:
+
+	  "ti_time" is a "time_t", not a "long" ("time_t" isn't necessarily
+	  a "long").
+
+	  Make "elapsed_time" an "unsigned int" rather than an "unsigned
+	  long" - 2^32-1 seconds is about 136 years, so on LP64 machines
+	  that won't matter, and on ILP32 machines it doesn't make any
+	  difference, but it *does* generate compiler warnings from "%u"
+	  being used with "unsigned long" values.
+
+2004-06-18 14:27  jmayer
+
+	* wka.tmpl, manuf:
+
+	  Add local MAC addresses for MS-Loadbalancing (not all, see
+	  comment in wka.tmpl)
+
+	  Update manuf
+
+2004-06-18 14:11  ulfl
+
+	* gtk/summary_dlg.c:
+
+	  add timestamp of first and last packet to summary dialog
+
+2004-06-18 12:19  jmayer
+
+	* Makefile.am:
+
+	  Add the kerberos linking options to the right magic variable
+
+2004-06-18 12:04  jmayer
+
+	* merge.c, merge.h:
+
+	  Fix compile errors on Suse 9.1: - It's gboolean not boolean Fix
+	  warning about extraneous , at end of enum.
+
+2004-06-18 10:01  ulfl
+
+	* Makefile.common, merge.c, merge.h, mergecap.c:
+
+	  merge: remove code duplication in merge.c and mergecap.c (put it
+	  in merge.c), and doing some more code cleanup
+
+2004-06-18 07:41  ulfl
+
+	* merge.c, gtk/file_dlg.c, gtk/simple_dialog.c:
+
+	  merge: bugfixes and code cleanup
+
+2004-06-18 05:58  ulfl
+
+	* gtk/file_dlg.c:
+
+	  added some tooltips, minor code cleanup
+
+2004-06-17 22:42  guy
+
+	* gtk/file_dlg.c:
+
+	  Use an adverb to modify a verb.
+
+2004-06-17 22:41  guy
+
+	* gtk/file_dlg.c:
+
+	  Include <string.h> to declare "strdup()".
+
+2004-06-17 21:53  ulfl
+
+	* Makefile.common, merge.c, gtk/file_dlg.c, gtk/file_dlg.h,
+	  gtk/menu.c:
+
+	  add Merge functionality to Ethereal in an experimental state.
+	  Copied and sligthly modified merge.c from mergecap.c (needs a lot
+	  of code cleanup, though)
+
+2004-06-17 21:34  ulfl
+
+	* gtk/simple_dialog.c:
+
+	  add implementation of button mask ESD_BTNS_YES_NO
+
+2004-06-17 20:49  etxrab
+
+	* packet-text-media.c:
+
+	  Add two new media types:  "application/vnd.poc.refer-to"
+	  "application/cpim-pidf+xml" / Anders
+
+2004-06-17 20:04  guy
+
+	* packet-arp.c:
+
+	  Give the RFC number for ARP.
+
+	  When checking for a gratuitous ARP, compare the raw bytes of the
+	  protocol addresses, not the strings for those addresses.
+
+	  Do the stuff we do even if we *aren't* constructing a protocol
+	  tree or setting the Info column first, and then quit if we're
+	  doing neither.  That obviates the need to set "is_gratuitous" if
+	  we're doing neither.
+
+	  Construct the strings for addresses when we need them, rather
+	  than constructing them in advance even if we don't need them.
+
+	  Capitalize "ARP" in "Gratuitous ARP".
+
+2004-06-17 16:44  ulfl
+
+	* gtk/gui_prefs.c:
+
+	  move font related stuff to new file font_utils.c/.h do some font
+	  related renaming/code cleanup
+
+2004-06-17 16:35  ulfl
+
+	* gtk/: compat_macros.h, follow_dlg.c, font_utils.c, font_utils.h,
+	  gtkglobals.h, gui_prefs.c, Makefile.am, Makefile.common, main.c,
+	  main.h, packet_list.c, packet_list.h, proto_draw.c,
+	  supported_protos_dlg.c, tcp_graph.c, text_page.c:
+
+	  move font related stuff to new file font_utils.c/.h do some font
+	  related renaming/code cleanup
+
+2004-06-17 14:37  jmayer
+
+	* configure.in:
+
+	  Turn on kerberos by default if it is present
+
+2004-06-17 08:53  jmayer
+
+	* Makefile.am, epan/Makefile.am:
+
+	  Link the Kerberos into the main app, not libethereal
+
+2004-06-17 08:32  jmayer
+
+	* packet-arp.c:
+
+	  Explicitly print gratuitous arp requests as such
+
+2004-06-17 07:10  guy
+
+	* packet-cpfi.c:
+
+	  From Dave Sclarsky: add support for "multiple instances", and add
+	  additional hidden fields for use as filters.
+
+2004-06-16 23:36  guy
+
+	* packet-atm.c:
+
+	  The short name for AAL 3/4 should be "AAL3/4", not "AAL3_4" (even
+	  though the *filter* name is "aal3_4").
+
+2004-06-16 23:09  guy
+
+	* epan/to_str.c:
+
+	  As long as any text has been put into a time interval string, the
+	  next clause we add will have to have ", " separating it from the
+	  text before it.
+
+2004-06-16 18:20  etxrab
+
+	* packet-sip.c, packet-sip.h:
+
+	  Completly change parsing of "From" and "To" lines to fix a
+	  problem with finding "tag" add and export
+	  "dfilter_store_sip_from_addr" to make it possible to filter on
+	  SIP url:s in multiple dissectors and some wite space changes.
+
+2004-06-16 08:11  guy
+
+	* wiretap/radcom.c:
+
+	  To return an EOF indication, return FALSE from the read routine
+	  *AND* set "*err" to 0, rather than leaving what random value
+	  happened to be in "*err" there.
+
+2004-06-16 07:51  guy
+
+	* packet-aim-buddylist.c, packet-aim-chat.c,
+	  packet-aim-messaging.c, packet-aim-signon.c, packet-aim.c:
+
+	  Use "format_text()" on strings, so we handle non-printable
+	  characters.
+
+	  Clean up white space a bit.
+
+2004-06-16 07:33  guy
+
+	* epan/dfilter/dfilter.c:
+
+	  Note that the reason why there's parser state that stays around
+	  after the parse finishes (forcing us to feed the parser an
+	  end-of-input even after an error) is that we don't create a new
+	  parser object when we start a new parse and don't destroy it when
+	  the parse finishes.
+
+2004-06-15 18:47  gerald
+
+	* packet-isakmp.c:
+
+	  From Yaniv Kaul: Switch from the DPD draft to RFC 3706.
+
+2004-06-15 18:26  etxrab
+
+	* packet-h245.c, packet-rtcp.c, packet-rtcp.h, packet-rtp.c,
+	  packet-rtp.h, packet-rtsp.c, packet-sdp.c:
+
+	  From Thomas Anders:  Navigating from RTP/RTCP packets to setup
+	  where it was set up
+
+2004-06-15 18:25  gerald
+
+	* wka.tmpl:
+
+	  Add and entry for 03-00-C7-00-00-EE (HP/Compaq ProLiant NIC
+	  teaming).  The protocol is documented at
+	  http://www.hp.com/sbso/bus_protect/teaming.pdf if anyone wants to
+	  write a dissector.
+
+2004-06-15 10:38  guy
+
+	* epan/dfilter/: dfilter-int.h, dfilter.c:
+
+	  From Graeme Hewson:
+
+		  Add a #define to enable parser tracing.
+
+		  Clean up parser state when finished parsing, even if we
+	  stopped
+		  parsing due to a syntax error, so that there's nothing
+	  left
+		  around to screw up the next parse.
+
+2004-06-15 10:16  guy
+
+	* epan/dfilter/semcheck.c:
+
+	  From Graeme Hewson: fix a debug message.
+
+2004-06-15 09:50  guy
+
+	* packet-kerberos.c:
+
+	  From Jean-Baptiste Marchand: fix up a couple of #defines that
+	  collided with existing defines.
+
+2004-06-15 09:43  guy
+
+	* AUTHORS, t35.c:
+
+	  From Philippe Mazeau: T.35 codes for Swissvoice.
+
+2004-06-15 09:30  guy
+
+	* packet-ncp.c:
+
+	  From Greg Morris: dissect the first packet in a packet burst
+	  connection (NCP type 7777).
+
+2004-06-15 09:23  guy
+
+	* packet-ncp-int.h, packet-ncp2222.inc:
+
+	  From Greg Morris:
+
+		  Fix a bug in the dissection of multiple NDS messages
+	  being sent
+		  at the same time that the dissector was attempting to
+	  desegment
+		  data spanning multiple packets.  When a message was
+	  encountered
+		  during the desegmentation code the dissector would
+		  misinterpret the new message as an element in the data
+	  stream.
+		  Code was added to validate the desegmentation handle and
+		  validate which messages actually contain segmented data.
+
+2004-06-15 09:14  guy
+
+	* ncp2222.py:
+
+	  From Greg Morris:
+
+		  a few updates to ncp2222.py to include more detail to
+	  summary
+		  window for NCP's 26, 28, 30;
+
+		  fixed NCP 87/31 to not show as malformed when
+	  HandleInfoLevel
+		  contains value 0x00.
+
+2004-06-14 22:38  ulfl
+
+	* README.win32:
+
+	  added a section describing the problems with MSVC 7 compiler (as
+	  I don't use it myself, please correct me if anything is wrong)
+
+2004-06-12 08:56  guy
+
+	* AUTHORS, packet-rtp.c:
+
+	  From Ainsley Pereira: add a text description PT_CN_OLD.
+
+2004-06-12 07:47  guy
+
+	* capture-wpcap.c, pcap-util-unix.c, pcap-util.h, tethereal.c,
+	  gtk/capture_dlg.c, gtk/capture_prefs.c, gtk/main.c:
+
+	  On Windows, if "get_interface_list()" returns
+	  CANT_GET_INTERFACE_LIST and the error message includes "Not
+	  enough storage is available to process this command" or "The
+	  operation completed successfully", suggest that the user install
+	  a WinPcap version later than 3.0 - this is definitely a
+	  Frequently Asked Question on the Ethereal list.
+
+2004-06-12 04:12  guy
+
+	* AUTHORS, packet-dcerpc-wkssvc.c:
+
+	  From Jean-Baptiste Marchand:
+
+	   - NetrJoinDomain2 and NetrUnJoinDomain2 (can be used to remotely
+	  join a
+	     machine to an Active Directory domain, typically with the JOIN
+	  and
+	     UNJOIN of the netdom utility)
+
+	   - NetrRenameMachineInDomain2
+
+	   - NetrAddAlternateComputerName and
+	  NetrRemoveAlternateComputerName
+	     (operations added in Windows XP)
+
+	  All these operations carry a blob (524 bytes) containing an
+	  encrypted version of the password of the account with domain
+	  administration credentials, currently displayed as hex data
+	  because the format of this blob is currently unknown (at least,
+	  for me).
+
+2004-06-12 02:08  sahlberg
+
+	* tools/asn2eth.py:
+
+	  update asn1 compiler to (hopefully) handle BER SET OF constructs
+
+2004-06-12 01:34  sahlberg
+
+	* tools/asn2eth.py:
+
+	  Parameter 8 to dissect_ber_bistring() is the ett_ variable (or
+	  -1) and not a NULL **proto_tree pointer.
+
+	  Set the ett variable to always be -1 for the time being
+
+2004-06-12 01:21  sahlberg
+
+	* tools/asn2eth.py:
+
+	  From Tomas Kukosa   updates to the ASN1 compiler
+
+	  Change doc string to not specificly state it is for PER
+	  Temporary/Partial fix for the tag of impoerted types.
+
+2004-06-11 15:23  jmayer
 
 	* epan/Makefile.am:
 
-	  add the new doxygen.cfg file to the EXTRA_DIST files
+	  Hack to remove epan/config.h
 
-2004-05-11 00:56  ulfl
+2004-06-11 08:33  sahlberg
 
-	* epan/doxygen.cfg:
+	* packet-scsi.c:
 
-	  experimental doxygen support
+	  fix the presentation of readcapacity to show the real number of
+	  MB or GB instead of just a random fake value.
 
-2004-05-11 00:53  ulfl
+2004-06-10 20:16  guy
 
-	* epan/Makefile.nmake:
+	* gtk/dfilter_expr_dlg.c:
 
-	  adding a doxygen target
+	  Move "dfilter_expr_dlg_delete_event_cb()" after
+	  "dfilter_expr_dlg_cancel_cb()" to avoid use-before-declaration
+	  warnings.
 
-2004-05-10 23:13  ulfl
+2004-06-10 13:33  sahlberg
 
-	* epan/proto.h:
+	* packet-kerberos.c:
 
-	  prepared for generate documentation using doxygen, added lot's of
-	  new (hopefully correct) comments
+	  some more encryption types and checksum types
 
-2004-05-10 22:20  obiot
+2004-06-10 10:12  guy
 
-	* packet-http.c, util.c, util.h:
+	* packaging/nsis/ethereal.nsi:
 
-	  As noted by Thomas Anders, the Heimdal libroken library has a
-	  base64_decode() function with a different signature than the one
-	  defined in util.c/util.h.  For this reason, we need to rename our
-	  base64_decode() routine.
+	  From Laurent Rabret:
 
-	  The routine is now called epan_base64_decode().
+		  - associate standard trace file extensions to ethereal
+	  *only*
+		    if such extensions are not already known in the system;
 
-2004-05-10 22:14  obiot
+		  - suppress the linking while Ethereal is uninstalling
+	  *only*
+		    for extensions associated to Ethereal.
 
-	* epan/tvbuff.c:
+2004-06-10 10:09  guy
 
-	  From Jerry Talkington: speed up tvb_uncompress() by increasing
-	  the minimal and default uncompression buffer.
+	* gtk/: dfilter_expr_dlg.c, prefs_dlg.c, proto_dlg.c, tcp_graph.c:
 
-2004-05-10 14:02  ulfl
+	  "delete_event" is an event, so its handler takes three arguments,
+	  not two, and it returns a gboolean.
 
-	* epan/proto.h:
+2004-06-10 09:46  guy
 
-	  use GNUC_FORMAT_CHECK in every appropriate function
+	* gtk/decode_as_dlg.c, gtk/dfilter_expr_dlg.c, AUTHORS:
 
-2004-05-10 08:29  ulfl
+	  From Stas Grabois: don't show disabled protocols in the "Add
+	  Expression" and "Decode As" dialogs (so that you can cut down the
+	  size of the protocol lists in those dialogs by disabling
+	  "uninteresting" protocols).
 
-	* epan/proto.h:
+2004-06-10 08:01  guy
 
-	  first try to get rid of annoying double definition of the
-	  proto_tree_add_xy_fromat functions, because of GNUC printf format
-	  checks
+	* tethereal.c:
 
-2004-05-10 03:30  gerald
+	  Move the ring-buffer tests from "process_packet()" to
+	  "capture_pcap_cb()"; they're only done in live captures, and that
+	  arranges that "process_packet()" gets called with the correct
+	  wtap_dumper for the current file even if we switch to a new file.
 
-	* Makefile.common:
+	  Move the packet-count reporting out of "write_packet()" to
+	  "capture_pcap_cb()" as well, as that's also only done in live
+	  captures.  That pretty much guts "write_packet()", so just move
+	  what's left up to "process_packet()".
 
-	  Add ps.c to BUILT_SOURCES, so that "make distcheck" doesn't burst
-	  into flames.
+2004-06-09 19:20  gerald
 
-2004-05-09 18:54  guy
+	* epan/Makefile.am, gtk/Makefile.am:
 
-	* epan/: Makefile.nmake, libethereal.def:
+	  Remove config.nmake dependencies from epan/Makefile.am and
+	  gtk/Makefile.am.
 
-	  From Lars Roland: fix some MSVC build problems.
+2004-06-09 09:24  sahlberg
 
-2004-05-09 10:03  guy
+	* packet-dcerpc.c, packet-dcerpc.h, packet-smb-pipe.c:
 
-	* AUTHORS, Makefile.am, Makefile.common, Makefile.nmake,
-	  alert_box.c, capture.c, config.h.win32, config.nmake,
-	  configure.in, file.c, follow.h, packet-ansi_a.h,
-	  packet-ansi_map.h, packet-dcerpc.h, packet-fc.h, packet-gsm_a.h,
-	  packet-gsm_map.h, packet-h225.h, packet-isup.h, packet-mtp3.h,
-	  packet-rpc.h, packet-smb-sidsnooping.h, packet-wsp.h,
-	  prefs-int.h, prefs.h, print.h, smb.h, tap-ansi_astat.c,
-	  tap-gsm_astat.c, tap-h225counter.c, tap-rpcstat.c, tap-smbsids.c,
-	  tap-smbstat.c, tap-wspstat.c, tap.h, tethereal.c,
-	  doc/Makefile.nmake, epan/Makefile.common, epan/Makefile.nmake,
-	  epan/libethereal.def, epan/plugins.h, epan/proto.h,
-	  epan/resolv.h, epan/dfilter/dfilter.h, epan/ftypes/ftypes.h,
-	  gtk/Makefile.nmake, gtk/follow_dlg.c,
-	  packaging/nsis/Makefile.nmake, packaging/nsis/ethereal.nsi,
-	  plugins/mgcp/Makefile.nmake, plugins/mgcp/packet-mgcp.c:
+	  DCERPC problem reported by JBM and identified by Todd Sabin
 
-	  From Lars Roland: add support for building a libethereal.dll with
-	  MSVC:
+	  Other protocol, not only SMB will populate pinfo->private_data
+	  thus	 checking for existence of non-NULL pinfo->private_data is
+	  not sufficient to determine	we have SMB data and this is what
+	  it is.
 
-		  add a config.nmake option to control whether to build
-		  libethereal.dll or not;
+	  Refactor the adding of salt/FID from lower layer protocols and
+	  generalize it.  Create a new dissector_handle specific for SMB so
+	  that we know that IFF we came in through that handle, then
+	  whatever pinfo->private_data is what we expect it to be.
 
-		  remove "./wiretap" from PATH to prevent problems due to
-		  wrongly-loaded files;
+2004-06-09 03:08  gerald
 
-		  build dissector.lib with MSVC;
+	* configure.in, epan/Makefile.am, gtk/Makefile.am:
 
-		  move "print.c" and "ps.c" to the dissector helpers, as
-	  "print.c"
-		  imports variables from packet-frame.c and packet-data.c,
-	  which
-		  are in libethereal;
+	  Add Automake/Autoconf Doxygen targets.
 
-		  move "g711.c" out of the dissector helpers, as they're
-	  used only
-		  by Ethereal in a tap, not in Tethereal or in any
-	  dissector;
+2004-06-08 05:42  ulfl
 
-		  add a .def file for libethereal;
+	* epan/packet.h:
 
-		  arrange to declare global variables exported from
-	  libethereal
-		  with "__declspec(dllimport)" when building programs that
-	  import
-		  those variables;
+	  add details for doxygen
 
-		  update the NSIS installer.
+2004-06-07 20:28  guy
 
-	  Make the "configure" script define ETH_VAR_IMPORT as "extern".
+	* wiretap/: libpcap.c, wtap.c, wtap.h:
 
-2004-05-09 09:26  ulfl
+	  Add an encapsulation type for BACnet MS/TP, and map the
+	  newly-assigned libpcap DLT_ value for BACnet MS/TP to it.
 
-	* epan/proto.h:
+2004-06-07 19:49  guy
 
-	  added changed some comments to better reflect current "behaviour"
+	* gtk/text_page.c:
 
-2004-05-09 09:07  obiot
+	  Don't define or set "txt" in "text_page_redraw()" for GTK+ 2.x,
+	  as we don't use it in that case.
 
-	* packet-http.c:
+2004-06-07 07:44  sahlberg
 
-	  Move the creation of the de-chunked data source to the place
-	  where the data is being dechunked; this will highlight the
-	  correct bytes when selecting the compressed data from the
-	  protocol tree.
+	* tools/asn2eth.py:
 
-	  Add comments for explaining what happens where.
+	  update to the asn1 compiler.
 
-	  Strip trailing white space.
+	  Do not output the value definitions for enumerated integers
+	  twice.  the c compiler doesnt like when the same symbol is
+	  declared twice.
 
-2004-05-09 08:29  guy
+2004-06-06 14:29  gerald
+
+	* packet-ieee80211.c, epan/strutil.c, epan/strutil.h,
+	  epan/ftypes/ftype-bytes.c:
+
+	  Add a "force_separators" parameter to hex_str_to_bytes so that
+	  it's possible to paste in WEP keys without any separators.
+
+	  Add doxygen comments to strutil.h.
+
+2004-06-05 13:28  ulfl
+
+	* gtk/: endpoint_talkers_table.h, hostlist_table.h, proto_draw.h:
+
+	  add more details for doxygen
+
+2004-06-05 12:12  ulfl
+
+	* gtk/: dlg_utils.h, filter_prefs.h, gtkglobals.h,
+	  service_response_time_table.h:
+
+	  add more details for doxygen
+
+2004-06-05 11:44  jmayer
+
+	* packet-dcerpc.c:
+
+	  Yaniv Kaul: Add some more UUID decoding on Windows
+
+2004-06-05 11:03  ulfl
+
+	* gtk/gsm_map_stat.h:
+
+	  add more details for doxygen
+
+2004-06-05 10:27  ulfl
+
+	* gtk/: compat_macros.h, filter_prefs.c, packet_list.c:
+
+	  alyways use SIGNAL_EMIT_BY_NAME with one user parameter, remove
+	  SIGNAL_EMIT_BY_NAME1 completely
+
+2004-06-05 10:13  ulfl
+
+	* gtk/: color_dlg.c, compat_macros.h:
+
+	  remove gtk_widget_ref / OBJECT_SET_DATA_FULL, as reference
+	  handling is done by GTK, so doing it is pretty useless
+
+2004-06-05 09:59  sahlberg
+
+	* packet-ber.c, packet-ber.h:
+
+	  Rename the type UCTTime to UTCTime as per X.680
+
+	  get rid of a compiler warning.
+
+2004-06-05 09:57  ulfl
+
+	* gtk/: Makefile.common, help_dlg.c, text_page.c, text_page.h:
+
+	  cut text_page related things from help_page.c and move into new
+	  file text_page.c
+
+2004-06-05 02:57  sahlberg
+
+	* packet-pktc.c:
+
+	  from tomas anders   more packetcable stuff new protocol :
+	  PacketCable MTA FQDN
+
+2004-06-05 02:40  sahlberg
+
+	* packet-dcerpc-lsa.c, packet-dcerpc-samr.c:
+
+	  from JBM:   updates to SAMR and LSA
+
+2004-06-04 21:12  guy
+
+	* simple_dialog.h, gtk/simple_dialog.c:
+
+	  Make the definition of "simple_dialog()" match its declaration.
+
+	  Make the "type" argument to "vsimple_dialog()" also be an
+	  ESD_TYPE_E.
+
+2004-06-04 20:15  ulfl
+
+	* packet-dcerpc.c:
+
+	  bugfix: when saving connectionless DCERPC fragments, add a hashed
+	  activity_id to the sequence number. This will prevent
+	  missdissected fragments.
+
+2004-06-04 20:05  ulfl
+
+	* gtk/: about_dlg.h, capture_dlg.h, capture_prefs.h, color_dlg.h,
+	  column_prefs.h, decode_as_dlg.h, dfilter_expr_dlg.h, doxygen.cfg,
+	  file_dlg.h, filter_prefs.h, find_dlg.h, follow_dlg.h, goto_dlg.h,
+	  gtkglobals.h, gui_prefs.h, help_dlg.h, layout_prefs.h,
+	  nameres_prefs.h, prefs_dlg.h, print_prefs.h, proto_dlg.h,
+	  rtp_stream.h, stream_prefs.h:
+
+	  add more details for doxygen
+
+2004-06-04 20:04  ulfl
+
+	* progress_dlg.h, simple_dialog.h:
+
+	  add details for doxygen
+
+2004-06-04 17:31  ulfl
+
+	* config.nmake:
+
+	  update DOXYGEN setting and add new HHC (MS html help compiler)
+	  setting
+
+2004-06-04 17:18  ulfl
+
+	* doxygen.cfg:
+
+	  use the dot tool
+
+2004-06-04 17:16  ulfl
+
+	* gtk/Makefile.nmake, gtk/dlg_utils.h, gtk/doxygen.cfg,
+	  gtk/gtkglobals.h, gtk/main.h, gtk/menu.h, gtk/packet_list.h,
+	  gtk/proto_draw.h, gtk/recent.h, gtk/toolbar.h, gtk/ui_util.h,
+	  capture.h:
+
+	  add more details for doxygen
+
+2004-06-04 11:35  sahlberg
+
+	* packet-kerberos.c:
+
+	  get rid of a compiler warning
+
+2004-06-04 11:30  sahlberg
+
+	* packet-h235.c, packet-h235.h, asn1/h235/packet-h235-template.c,
+	  packet-pktc.c:
+
+	  get rid of a compiler warning
+
+2004-06-04 11:28  sahlberg
+
+	* packet-h235.c, packet-h235.h, asn1/h235/h235.cnf,
+	  tools/asn2eth.py:
+
+	  Tomas updates to H235 and the ASN2ETH compiler
+
+2004-06-04 03:58  gerald
+
+	* packet-aim-messaging.c:
+
+	  From Devin Heitmueller: Fix some compilation warnings.
+
+2004-06-04 03:25  gerald
+
+	* tools/Makefile.am:
+
+	  As Mark Corley pointed out, win32-setup.sh should be part of the
+	  distribution.
+
+2004-06-04 01:56  sahlberg
+
+	* packet-dcerpc-krb5rpc.c, packet-kerberos.c, packet-kerberos.h,
+	  packet-kpasswd.c, packet-pktc.c, packet-spnego.c,
+	  packet-telnet.c:
+
+	  Add a mechanism where one can provide callbacks to the kerbgeros
+	  dissector to pass back dissection of application specific fields
+	  (octet strings)
+
+	  This can later be used to pick up session keys by dcerpc and
+	  similar.  Currently it will initially be used by packetcable.
+
+	  PacketCable additions by Thomas Anders
+
+2004-06-04 00:15  tpot
+
+	* packet-smb-sidsnooping.c:
+
+	  Fix crash bug in sid snooping if we don't have a policy name for
+	  a handle in a samr_query_dispinfo.
+
+2004-06-04 00:12  sahlberg
+
+	* AUTHORS, packet-dnp.c, epan/Makefile.common:
+
+	  New protocol : DNP From Graham Bloice
+
+2004-06-04 00:05  tpot
+
+	* packet-smb-sidsnooping.c:
+
+	  Fix bug to do with renaming lsa.domain_sid to nt.domain_sid to
+	  get sid snooping working again.
+
+2004-06-03 23:55  sahlberg
+
+	* packet-smb-pipe.c:
+
+	  add dissection of the ms rap netserverenum3 function
+
+2004-06-03 21:46  guy
+
+	* gtk/: Makefile.am, endpoint_talkers_table.c,
+	  endpoint_talkers_table.h, hostlist_table.c, hostlist_table.h,
+	  menu.c, proto_draw.h, sat.h:
+
+	  Make static some routines and variables not used outside the
+	  source file defining them.
+
+	  Move declarations of some callbacks outside the source files
+	  using them into the appropriate header, and arrange that the
+	  appropriate header is included by those source files.
+
+	  Move the SAT_E definition into a "sat.h" file, included both by
+	  "endpoint_talkers_table.h" and "hostlist_table.h", so that both
+	  of the latter headers can be included by the same file ("menu.c"
+	  has to include both, as per the change in the previous
+	  paragraph).
+
+2004-06-03 21:17  guy
+
+	* gtk/dlg_utils.c:
+
+	  "gtk_file_selection_set_filename()" doesn't work with a
+	  GtkFileChooser, and "gtk_file_chooser_set_filename()" requires an
+	  absolute path, so "" isn't valid.  Get rid of the
+	  "gtk_file_selection_set_filename()" call in
+	  "file_selection_new()".
+
+	  Put in a comment asking why we're using
+	  "gtk_file_selection_set_filename()" at all.
+
+2004-06-03 19:07  guy
+
+	* packet-h235.c, packet-h235.h:
+
+	  Re-generate from the updated asn2eth script and h235.cnf files.
+
+2004-06-03 16:35  jmayer
+
+	* manuf:
+
+	  monthly update
+
+2004-06-03 16:29  gerald
+
+	* epan/libethereal.def:
+
+	  From Lars Roland: Add have_tap_listeners() and
+	  rtp_payload_type_vals to libethereal.def.
+
+2004-06-03 14:57  ulfl
+
+	* doxygen.cfg, gtk/doxygen.cfg:
+
+	  enable chm file generation for doxygen, move chm filename setting
+	  to module specific config file
+
+2004-06-03 14:54  ulfl
+
+	* gtk/text_page.h:
+
+	  add details for doxygen
+
+2004-06-03 08:35  guy
+
+	* asn1/h235/h235.cnf:
+
+	  From Tomas Kukosa: unnecessary types are excluded with NO_EMIT
+	  directive.
+
+2004-06-03 08:33  guy
+
+	* tools/asn2eth.py:
+
+	  From Tomas Kukosa:
+
+	    - limits for dissect_per_constrained_integer() are passed as
+	  unsigned
+	      if possible
+	    - new directive NO_EMIT in conformation file - avoids emitting
+	      function body (or vals or both) into packet-xxxx-fn.c file
+	    - new directive USER_DEFINED in conformation file - emitting of
+	      function body (or vals or both) in the packet-xxxx-fn.c file
+	  is
+	      replaced with external declaration
+	    - support for SET OF type for BER
+	    - flag WITH_VALS is default for EXPORTS, USER_DEFINED, NO_EMIT
+	      directives
+	    - the _U_ attribute is used for pinfo parameters
+	    - the offset parameters and return codes are changed from
+	  guint32 to
+	      int
+
+2004-06-03 08:04  guy
+
+	* packet-socks.c:
+
+	  From Yaniv Kaul: add SOCKS v4a support.
+
+	  Clean up handling of null-terminated strings.
+
+2004-06-03 07:37  guy
+
+	* doc/ethereal-filter.pod.template:
+
+	  From Graeme Hewson:
+
+	       Remove reference to negative slice lengths.
+
+	       Clean and polish.
+
+2004-06-03 07:36  guy
+
+	* epan/dfilter/: grammar.lemon, scanner.l, syntax-tree.c,
+	  syntax-tree.h:
+
+	  From Graeme Hewson:
+
+	       Use gint32 instead of guint32 for node data.
+
+	  Fix up some other signed-vs-unsigned issues in the display filter
+	  parser and lexical analyzer.
+
+2004-06-03 07:34  guy
 
 	* epan/ftypes/ftypes.c:
 
 	  From Graeme Hewson:
 
-	       Fix off-by-one errors in slice_func
+	       Fix assertion failure when absolute value of negative slice
+	       offset > field length.
 
-2004-05-09 08:25  guy
+	       Remove code for handling negative slice lengths.
 
-	* epan/ftypes/ftype-string.c:
-
-	  From Graeme Hewson:
-
-	       "aim.fnac.ssi.buddyname==ab" caused segmentation fault.	Fix
-	       handling of unparsed value as byte string.
-
-2004-05-09 08:17  guy
+2004-06-03 07:33  guy
 
 	* epan/dfilter/semcheck.c:
 
 	  From Graeme Hewson:
 
-	       Error if protocol specified on RHS of display filter
-	  comparison.
-	       If user specified "fc", they probably intended a byte value
-	  rather than
-	       the fibre channel protocol; fix makes mistake clear.
+	       Check slice lengths as well as offsets.	Disallow
+	  negative/zero
+	       lengths.
 
-	       Fix assertion failure with range on LHS of display filter
-	  comparison
-	       and field on RHS.
+	       Range on RHS of display filter expression wasn't being
+	  checked in
+	       every case.
 
-2004-05-09 07:01  ulfl
-
-	* gtk/: menu.c, proto_draw.c:
-
-	  make notebook tabs scrollable, if not all fits into the pane,
-	  enable a popup menu on the notebook tabs, with the tab labels
-
-2004-05-08 22:03  guy
+2004-06-03 07:17  guy
 
 	* epan/dfilter/scanner.l:
 
-	  From Graeme Hewson: get rid of unnecessary check (it's necessary
-	  for octal, as the maximum of 3 octal digits can be more than
-	  0377, but not necessary for hex, as the maximum of 2 hex digits
-	  can't be more than 0xff).
+	  From Graeme Hewson:
 
-2004-05-08 21:43  gerald
+	       Use gint32 instead of guint32 and strtol() instead of
+	  strtoul()
+	       for signed integers.
 
-	* epan/Makefile.am:
+	       Pathological slice specifications could cause Flex default
+	  rule
+	       to be invoked, echoing characters to stdout.
+	       Example: frame[0foo]==1
 
-	  Don't try to include epan/config.h.win32 in the distribution.
+2004-06-03 04:19  guy
 
-2004-05-08 21:31  obiot
+	* packet-aim-messaging.c, packet-aim.c, packet-aim.h:
 
-	* packet-dcm.c:
+	  From Devin Heitmueller: improve decoding of outgoing and incoming
+	  message blocks.
 
-	  From Richard Coe: only create a conversation on the first packet
-	  of a DICOM conversation.
+2004-06-03 04:13  guy
 
-2004-05-08 17:54  tuexen
+	* packet-nfs.c:
 
-	* packet-sctp.c:
+	  From Mike Frisch:
 
-	  Fixed problems of handling PkTDRP chunks.
+		  - fixed tree display of NFSv4 change_info type;
+		  - add OPEN4_RESULT_LOCKTYPE_POSIX to OPEN result (reply)
+	  flags;
+		  - fixed open_delegation4 dissector;
 
-2004-05-08 13:39  obiot
+2004-06-03 02:14  guy
 
-	* packet-dcm.c:
+	* gtk/menu.c:
 
-	  The DICOM dissector assumed that any existing conversation was a
-	  DICOM conversation. Fix this by checking whether there is
-	  conversation data for the DICOM dissector. If not, the
-	  conversatioj is not a DICOM conversation, and we do not attempt
-	  at dissecting it as DICOM.
+	  Make the definition of "register_tap_menu_item()" match its
+	  declaration.
 
-2004-05-08 12:59  obiot
+2004-06-03 02:14  guy
 
-	* packet-http.c:
-
-	  D'oh - remove leading '+' marks from manually applying a patch.
-
-2004-05-08 12:54  obiot
-
-	* packet-http.c:
-
-	  From Jerry Talkington:
-
-	  * Add comments on why we may not use tvb_free() at some places.
-
-	  * Add a new data source for a reassembled chunked entity.
-
-2004-05-08 11:40  obiot
-
-	* epan/dfilter/README.dfilter:
-
-	  Add the valuable input from Gilbert Ramirez in reply to questions
-	  I had when thinking at implemeting an "in" display filter
-	  operation.
-
-2004-05-08 10:28  obiot
-
-	* packet-http.c:
-
-	  Fix a tvb_free() of a tvbuffer created as a tvb_new_subset(),
-	  which caused double freeing of memory. Add a comment at the
-	  tvb_new_subset() call so future developers will be warned.
-
-	  Always add the compressed entity as an item in the protocol tree,
-	  so it can be exported by selecting the packet bytes.
-
-2004-05-08 08:49  guy
-
-	* AUTHORS, packet-dcm.c, doc/ethereal.pod, epan/Makefile.common:
-
-	  From Rich Coe: DICOM support.
-
-2004-05-07 18:15  obiot
-
-	* epan/tvbuff.c:
-
-	  Memory management of tvb_uncompress() needs tvb_set_free_cb().
-
-2004-05-07 17:36  obiot
-
-	* packet-http.c:
-
-	  Add Uncompressed/Compressed to the compressed data source label
-	  for clarity.
-
-2004-05-07 12:29  tpot
-
-	* packet-dcerpc.c, packet-smb-sidsnooping.c:
-
-	  Compile fixes for change to dcerpc_info structure.
-
-2004-05-07 12:15  ulfl
-
-	* gtk/: hostlist_table.c, main.c, menu.c,
-	  service_response_time_table.c:
-
-	  rename context menu items: Match -> Apply as Filter Prepare ->
-	  Prepare a Filter and prepended a ... at appropriate submenu items
-
-2004-05-07 11:34  ulfl
-
-	* epan/value_string.h:
-
-	  did some code cleanup, added some comments from value_string.c
-
-2004-05-07 11:24  ulfl
-
-	* packet-dcerpc.c, packet-dcerpc.h, tap-dcerpcstat.c,
-	  gtk/dcerpc_stat.c:
-
-	  replace info field "gboolean request" by "guint8 ptype", so the
-	  packet type can be better detected
-
-2004-05-07 11:07  ulfl
-
-	* packet-dcerpc.c:
-
-	  tag some protocol items as generated
-
-2004-05-07 08:12  ulfl
-
-	* gtk/recent.h:
-
-	  removed obsolete comments
-
-2004-05-07 08:02  guy
-
-	* AUTHORS, packet-bootp.c, doc/ethereal.pod:
-
-	  From Thomas Anders:
-
-	  - support vendor-specific DHCP option 43 interpretation per
-	  CableLabs    standards (for compliant cable devices, identified
-	  by option 60) - support DHCP option 122 with all suboptions (RFC
-	  3495: CableLabs    Client Configuration; RFC 3594: PacketCable
-	  Security Ticket Control) - update DHCP options list: add options
-	  117-122    (see
-	  http://www.iana.org/assignments/bootp-dhcp-parameters) - minor
-	  enhancements for DHCP options 2, 82 - minor code cleanup
-
-2004-05-06 20:50  obiot
-
-	* epan/config.h.win32:
-
-	  Get rid of epan/config.h.win32.
-
-2004-05-06 20:48  obiot
-
-	* Makefile.nmake, config.h.win32, epan/Makefile.nmake,
-	  epan/dfilter/Makefile.nmake:
-
-	  Get rid of epan/config.h.win32.
-
-	  Fix a missing ZLIB_CFLAGS in epan/Makefile.nmake.
-
-2004-05-06 17:40  obiot
-
-	* epan/tvbuff.c:
-
-	  From Kendy Kutzner: a char should be compared with '\0', not
-	  NULL.
-
-2004-05-06 10:24  sahlberg
-
-	* AUTHORS, packet-isns.c:
-
-	  add tcp reassembly to isns
-
-	  also make isns not dump core just because someone has encoded an
-	  integer in 0 bytes.
-
-	  still need to add reassembly of fragmented pdus (first
-	  fragment/last fragment) but have example captures of that so
-	  thats for tomorrow.
-
-2004-05-05 20:12  ulfl
-
-	* gtk/endpoint_talkers_table.c:
-
-	  various context menu related changes
-
-2004-05-05 17:28  obiot
-
-	* AUTHORS, packet-slsk.c, doc/ethereal.pod:
-
-	  From Kendy Kutzner: use the tvb_uncompress() routines instead of
-	  the own SLSK decompression routine.
-
-2004-05-05 09:30  guy
-
-	* packet-aim-bos.c, packet-aim-messaging.c, packet-aim.c,
-	  packet-aim.h:
-
-	  Use "tvb_reported_length_remaining()" in "until the end of the
-	  packet" loops, so we mark frames as short if they've been cut
-	  short by a snapshot length.
-
-	  The user class in buddy list TLVs appears to be 2 bytes, in at
-	  least some captures; make "dissect_aim_userclass()" take the user
-	  class value, and the length of the user class field, as
-	  arguments, and have the caller fetch the value.  Also, display
-	  the numerical value of the user class in hex, as it's a bitset.
-
-	  Fix the messaging dissector to put stuff under the top-level item
-	  rather than at the top level.
+	* gtk/tap_menu.h:
 
 	  Fix a typo.
 
-	  Clean up indentation.
+2004-06-02 22:13  ulfl
 
-2004-05-05 08:49  guy
+	* gtk/: proto_hier_stats_dlg.h, range_utils.h, recent.h,
+	  rtp_analysis.h, rtp_stream.h, rtp_stream_dlg.h,
+	  service_response_time_table.h, summary_dlg.h,
+	  supported_protos_dlg.h, tap_dfilter_dlg.h, tap_menu.h,
+	  text_page.h:
 
-	* gtk/main.c:
+	  add details for doxygen
 
-	  Note that hiding panes in the paned widgets doesn't do what we
-	  want with GTK+ 1.2[.x], although it does so with GTK+ 2.x.
+2004-06-02 20:14  ulfl
 
-2004-05-05 07:31  guy
+	* gtk/: layout_prefs.h, nameres_prefs.h, print_mswin.h,
+	  print_prefs.h, proto_dlg.h, proto_draw.h, stream_prefs.h:
 
-	* prefs.c, prefs.h, gtk/layout_prefs.c:
+	  add details for doxygen
 
-	  Use an enum when initializing "prefs.gui_layout_type".
+2004-06-02 18:49  guy
 
-	  Add an entry to that enum at the end and use that to generate the
-	  value of LAYOUT_QTY.
+	* ringbuffer.c:
 
-2004-05-05 06:55  obiot
+	  If, when rotating capture files, the attempt to close the current
+	  file fails, set "rb_data.pdh" to NULL, so we know it's not open
+	  (if "wtap_dump_close()" fails, the wtap_dumper_t is still closed
+	  - and the file descriptor for it is probably closed, too, as, if
+	  "close()" fails, the FD is probably closed; the Single UNIX
+	  Specification Version 3 says the state of the FD is unspecified,
+	  but in practice most OSes probably still close it).
 
-	* AUTHORS, packet-http.c, epan/tvbuff.c, epan/tvbuff.h:
+	  If we try to close the current file, first check to make sure
+	  it's open, i.e. that "rb_data.pdh" is non-null.  (Or perhaps we
+	  should avoid trying to close it if the open *or* the most recent
+	  attempt to rotate the capture files failed.)
 
-	  From Jerry Talkington:
+	  Note that if "wtap_dump_close()" fails we might not need to close
+	  the underlying file descriptor (and, even if we do, there's no
+	  guarantee that attempt won't also fail and leave the FD still
+	  open - which is why I suspect that a failed "close()" leaves the
+	  FD closed on most OSes).
 
-		  - Helper functions for uncompressing compressed
-	  tvbuffers.
+2004-06-02 18:44  ulfl
 
-		  - Compressed content coding dissection in HTTP.
+	* gtk/: capture_prefs.h, column_prefs.h, gui_prefs.h,
+	  layout_prefs.h, mtp3_stat.h, nameres_prefs.h, packet_list.h,
+	  packet_win.h, prefs_dlg.h, print_prefs.h, stream_prefs.h:
 
-2004-05-05 03:05  gerald
+	  add details for doxygen
 
-	* packet-mmse.c:
+2004-06-02 07:12  ulfl
 
-	  Check the value length in get_encoded_strval(), so that we don't
-	  feed a length less than 1 to tvb_get_string().
+	* gtk/: dcerpc_stat.c, endpoint_talkers_table.c, fc_stat.c,
+	  gtkglobals.h, h225_counter.c, h225_ras_srt.c, hostlist_table.c,
+	  ldap_stat.c, mgcp_stat.c, rpc_stat.c, rtp_stream_dlg.c,
+	  service_response_time_table.c, smb_stat.c, tap_dfilter_dlg.c:
 
-2004-05-04 21:12  etxrab
+	  move "extern GtkWidget *main_display_filter_widget" from various
+	  stats files to gtkglobals.h
 
-	* packet-sip.c:
-
-	  Fixed a copy-paste error
-
-2004-05-04 21:08  guy
-
-	* gtk/: main.c, menu.c:
-
-	  Use "main_widgets_show_or_hide()" to control the visibility of
-	  all the main window widgets, rather than requiring a relayout if
-	  the visibility of the main toolbar, filter toolbar, or statusbar
-	  is changed.
-
-	  Clean up indentation.
-
-2004-05-04 20:49  guy
-
-	* gtk/: main.c, main.h, menu.c:
-
-	  If all we're doing is changing the visibility of a pane, we don't
-	  have to re-lay-out the main window, we just need to change the
-	  visibility of the appropriate widgets - that reduces the amount
-	  of drawing done, speeding things up a little and reducing
-	  flicker.
-
-2004-05-04 20:40  guy
-
-	* gtk/main.c:
-
-	  Display "main_second_pane" if, and only if, both widgets in it
-	  are displayed; otherwise, if you hide both of them (e.g., hiding
-	  the packet details and packet data panes in the default layout),
-	  "main_second_pane" remains but as a gray blob, rather than having
-	  the remaining pane take over the entire window.
-
-2004-05-04 20:04  guy
-
-	* gtk/menu.c:
-
-	  Put the coloring rules back under View.
-
-2004-05-04 17:46  tuexen
-
-	* packet-sctp.c:
-
-	  Clean up some variable names.
-
-2004-05-04 09:12  guy
-
-	* packet-sndcp.c:
-
-	  Get rid of a trailing comma.
-
-2004-05-04 09:03  guy
-
-	* packet-gprs-llc.c:
-
-	  Fix some typos, and get rid of an inapplicable boilerplate
-	  comment.
-
-	  Get rid of some trailing commas.
-
-	  Show the SAPI symbolically in the top-level item for the address
-	  field.
-
-2004-05-04 08:30  guy
-
-	* packet-ntlmssp.c:
-
-	  We don't need to save the challenge values as per-conversation or
-	  per-packet information.
-
-2004-05-04 07:24  guy
-
-	* packet-text-media.c:
-
-	  Add the RFC 3023 XML media types.
-
-2004-05-04 07:12  guy
-
-	* packet-http.c:
-
-	  Chunked data reassembly *is* done in
-	  "req_resp_hdrs_do_reassembly()".
-
-	  That means that the description of the "desegment HTTP bodies"
-	  preference setting shouldn't speak of it causing the dissector to
-	  trust the content length (which makes it somewhat long anyway),
-	  as it also desegments chunked bodies that lack a Content-Length
-	  header; expand the tooltip for the preference to speak of that.
-
-2004-05-04 06:53  guy
-
-	* req_resp_hdrs.c:
-
-	  "tvb_get_string()" returns a pointer to "g_malloc()"ed data, so
-	  you have to free it when you're done with it.
-
-	  It never returns a null pointer, however, so there's no need to
-	  check for that.
-
-	  Clean up the code to process Transfer-Encoding a bit.
-
-2004-05-04 06:21  guy
-
-	* packet-http.c:
-
-	  Note that the way we currently handle the chunked encoding
-	  doesn't work if the HTTP data takes more than one packet.
-
-2004-05-04 06:14  guy
-
-	* packet-dcerpc.c:
-
-	  Display a server boot time of 0 as "Unknown" (as that's what's
-	  sent when the client sends its first PDU to the server, and when
-	  the endpoint mapper sends back an error PDU on behalf of the
-	  server, because they don't know the server's boot time - it's
-	  unlikely that the server was booted precisely at January 1, 1970,
-	  00:00:00 GMT).
-
-	  Clean up some white space.
-
-2004-05-04 06:01  guy
-
-	* packet-cops.c:
-
-	  Don't assume the length field in a PacketCable object is sane.
-
-2004-05-03 23:47  guy
-
-	* doc/ethereal.pod, gtk/menu.c:
-
-	  The GNOME HIG calls the View menu item for the status bar
-	  "Statusbar", not "Status Bar".
-
-2004-05-03 23:37  guy
-
-	* doc/ethereal.pod:
-
-	  The "View" menu has items to show or hide the three display
-	  panes; it calls the middle pane the "Packet Details" pane, which
-	  is perhaps less geeky than "Protocol Tree".  Update the man page
-	  to call it the "packet details".
-
-	  Update the description of the menu items to more closely reflect
-	  current reality.
-
-2004-05-03 23:34  guy
-
-	* gtk/menu.c:
-
-	  Move "Coloring Rules" from "View" to "Edit" - you're editing the
-	  set of coloring rules Ethereal uses (yes, those views affect the
-	  way the packets are displayed, but that also applies to at least
-	  some the preferences, which are in Edit->Preferences).
-
-	  Get rid of the "Show" menu under "View", moving the items up to
-	  the main "View" menu, as per the GNOME HIG.  Give some of them
-	  accelerators, and change the accelerators for some other "View"
-	  items to avoid collisions.
-
-2004-05-03 22:55  guy
-
-	* packet-ber.c:
-
-	  Squelch some compiler warnings.
-
-2004-05-03 22:15  ulfl
-
-	* gtk/: endpoint_talkers_table.c, endpoint_talkers_table.h,
-	  hostlist_table.c, hostlist_table.h:
-
-	  add name resolution to both endpoint and conversation lists
-
-2004-05-03 19:03  guy
-
-	* packet-dcerpc-lsa-ds.c:
-
-	  From Jean-Baptiste Marchand: add some more operation names.
-
-2004-05-03 18:53  guy
-
-	* make-reg-dotc, make-tapreg-dotc:
-
-	  Add an RCS ID.
-
-2004-05-03 18:51  guy
-
-	* register.h:
-
-	  "register_all_tap_menus()" no longer exists.
-
-2004-05-02 21:35  guy
-
-	* packet-chdlc.c:
-
-	  From Carlos Pignataro: handle the padding byte between the
-	  protocol type field and playload for OSI network layer packets.
-
-2004-05-02 21:16  ulfl
-
-	* gtk/: hostlist_eth.c, hostlist_fc.c, hostlist_fddi.c,
-	  hostlist_ip.c, hostlist_ipx.c, hostlist_table.c,
-	  hostlist_table.h, hostlist_tcpip.c, hostlist_tr.c,
-	  hostlist_udpip.c, menu.c:
-
-	  build a endpoints (aka hostlist) dialog, which shows all kinds of
-	  endpoints in a notebook
-
-2004-05-02 21:10  ulfl
-
-	* gtk/endpoint_talkers_table.c:
-
-	  slightly changed to prevent naming conflict with hostlist_table.c
-
-2004-05-02 17:25  ulfl
-
-	* gtk/: endpoint_talkers_eth.c, endpoint_talkers_fc.c,
-	  endpoint_talkers_fddi.c, endpoint_talkers_ip.c,
-	  endpoint_talkers_ipx.c, endpoint_talkers_table.c,
-	  endpoint_talkers_table.h, endpoint_talkers_tcpip.c,
-	  endpoint_talkers_tr.c, endpoint_talkers_udpip.c, menu.c:
-
-	  build a conversation (aka endpoint_talkers) dialog, which shows
-	  all kinds of conversations in a notebook
-
-2004-05-02 15:23  ulfl
-
-	* gtk/hostlist_table.c:
-
-	  after retapping, immediately redraw table to avoid annoying
-	  redraw even on "static" capture files
-
-2004-05-02 15:04  ulfl
-
-	* file.c:
-
-	  bugfix: reset the tap listeners, when the capture file is closed
-
-2004-05-02 08:54  ulfl
-
-	* gtk/: layout_prefs.c, ui_util.c, ui_util.h:
-
-	  move function xpm_to_widget() from layout_prefs to ui_util, as
-	  this can be useful not only in layout_prefs
-
-2004-05-02 07:31  guy
-
-	* epan/ftypes/ftype-string.c:
-
-	  Make sure the character values we pass to "isprint()" aren't
-	  sign-extended.
-
-2004-05-02 00:43  guy
-
-	* autogen.sh:
-
-	  Some versions of libtool stick extra stuff after the version
-	  number, e.g. some versions from the FreeBSD ports collection add
-	  "-freebsd-ports".  Match non-white-space text after the version
-	  number.
-
-2004-05-01 23:56  guy
-
-	* epan/strutil.c:
-
-	  GLib 1.2[.x]'s "g_string_free()" doesn't return a value.
-
-2004-05-01 22:55  obiot
-
-	* file.c, simple_dialog.h, gtk/simple_dialog.c:
-
-	  The display filter engine can return an error message that is not
-	  safe when using GTK2 code for rendering the error. In order to
-	  correctly render the error message, it must be XML escaped.
-
-	  TODO: track down the remaining places where this XML escaping is
-	       required, and fix it there too (not sure if they exist
-	  though).
-
-2004-05-01 21:34  guy
-
-	* tap-sipstat.c:
-
-	  From Lars Roland: add message counts to the SIP statistics.
-
-2004-05-01 21:33  guy
-
-	* doc/: ethereal.pod, tethereal.pod:
-
-	  From Lars Roland: document the SIP statistics.
-
-2004-05-01 21:18  guy
-
-	* AUTHORS, Makefile.common, packet-mq-pcf.c, packet-mq.c,
-	  packet-mq.h, epan/Makefile.common:
-
-	  From metatech:
-
-	      for the MQ dissector:
-		  - PDU desegmentation;
-		  - XA messages;
-		  - Netbios, SPX, HTTP support;
-		  - Subdissector table;
-
-	      dissector for the MQ Programmable Command Formats protocol.
-
-2004-05-01 21:04  obiot
-
-	* print.c:
-
-	  Add escaping of an apostrophe in XML output.
-
-2004-05-01 20:46  obiot
-
-	* epan/: strutil.c, strutil.h:
-
-	  Add an XML escaping routine: xml_escape()
-
-2004-05-01 20:15  obiot
-
-	* epan/proto.h:
-
-	  Squelch a compiler warning (extraneous extern on struct).
-
-	  Fix the PROTO_ITEM_IS_XXX and PROTO_ITEM_SET_XXX macros by
-	  replacing the if(x) with trigraphs so the macros can still be
-	  used in subsequent conditional tests.
-
-2004-05-01 19:24  ulfl
-
-	* gtk/: endpoint_talkers_table.c, hostlist_table.c:
-
-	  bugfix: remove all elements on "tree reset", don't keep the first
-	  entry in the list
-
-2004-05-01 18:40  ulfl
-
-	* gtk/proto_hier_stats_dlg.c:
-
-	  GTK2: expand all tree elements when opening dialog
-
-2004-05-01 18:39  ulfl
-
-	* epan/proto.h:
-
-	  prevent null pointer exception
-
-2004-05-01 17:22  obiot
-
-	* gtk/: menu.c, color_dlg.c:
-
-	  From Richard Urwin: ensure that the initial colour is appropriate
-	  in all cases. The colouring rules are also available now when no
-	  packets have been captured or loaded from file.
-
-2004-05-01 17:02  obiot
-
-	* packet-ranap.c:
-
-	  From Michael Lum:
-
-	   - Write to the INFO column only if it is visible.
-
-	   - Add the RANAP message to the protocol tree.
-
-2004-05-01 15:15  ulfl
-
-	* file.c, packet-tcp.c, print.c, epan/proto.c, epan/proto.h,
-	  gtk/proto_draw.c:
-
-	  add PROTO_ITEM_SET_HIDDEN() and PROTO_ITEM_SET_GENERATED(), this
-	  sets flags for later rendering of the field data
-
-2004-05-01 14:22  etxrab
-
-	* packet-rtp-events.c:
-
-	  From Martin Mathieson :small patch for rtp-events that shows in
-	  the info column which packets that mark the end of events
-
-2004-05-01 14:19  etxrab
-
-	* packet-sip.c:
-
-	  From Martin Mathieson Update of SIP resend detection.
-
-2004-05-01 06:21  ulfl
-
-	* tools/win32-setup.sh:
-
-	  minor changes
-
-2004-05-01 00:34  sahlberg
-
-	* packet-dcerpc-netlogon.c:
-
-	  more deltatypes
-
-2004-04-30 22:19  guy
-
-	* packet-spnego.c:
-
-	  Clean up the creation of the tvbuff for a mechToken so that the
-	  length and reported length are both no larger than the length of
-	  the token.
-
-2004-04-30 21:33  guy
-
-	* packet-media.c:
-
-	  Get rid of a compiler warning.
-
-2004-04-30 21:32  guy
-
-	* gtk/layout_prefs.c:
-
-	  GCC warning removed.	(ANSI C says it's "implementation-defined"
-	  what integral type an enum corresponds to; I guess GCC says
-	  "unsigned int" and MSVC says "int".)
-
-2004-04-30 21:11  guy
-
-	* packet-cops.c:
-
-	  Make some floating-point fields FT_FLOAT, rather than FT_UINT32.
-
-2004-04-30 17:07  obiot
-
-	* AUTHORS, packet-http.c, packet-media.c, packet-wsp.c,
-	  packet-multipart.c, epan/Makefile.common:
-
-	  Add a generic media dissector. The dissectors trying to find a
-	  suitable media dissector for a given media type (value of a
-	  Content-Type header) must provide the logic to fall-back to this
-	  media dissector upon no match.
-
-	  Note that you must set the pinfo->match_string to the media type
-	  name, and if the media type is specified with parameters, then
-	  those parameters can be added to pinfo->private_data. If there
-	  are no parameters, or the parameter decoding is not implemented,
-	  you must set pinfo->private_data to NULL.
-
-	  Known TODOs:
-
-	   - Fix the WSP parameter handling so it accompanies any media
-	  dissector.
-	     Simplest approach is to retrieve the header field label from
-	  the WSP
-	     Content-Type field and to search for a semicolon in it (or by
-	  using
-	     the string length of the content type string representation).
-
-	   - Verify that that subdissection always works in the WSP
-	  dissector,
-	     even when the protocol tree is not being built.
-
-	   - Implement the media dissector in the remaining dissectors that
-	  use the
-	     media type string table.
-
-2004-04-30 15:26  obiot
-
-	* packet-http.c:
-
-	  Beware: sscanf() only operates on C strings. A pointer returned
-	  by tvb_get_ptr() is not necessarily NULL terminated, hence a NULL
-	  terminated string must be generated from the returned pointer.
-
-2004-04-30 07:56  ulfl
-
-	* doc/README.xml-output:
-
-	  updated to reflect the latest changes of exporting PDML in
-	  ethereal
-
-2004-04-30 06:56  ulfl
-
-	* epan/: proto.h, dfilter/dfilter.c:
-
-	  removed unused things
-
-2004-04-30 06:30  ulfl
-
-	* gtk/layout_prefs.c:
-
-	  removed warnings of GTK1 compilation
-
-2004-04-30 06:24  ulfl
-
-	* packet-acse.c, packet-cops.c, packet-pres.c, packet-spnego.c,
-	  packet-tcp.c:
-
-	  MSVC warnings removed
-
-2004-04-30 05:25  ulfl
-
-	* gtk/layout_prefs.c:
-
-	  MVSC warning removed
-
-2004-04-30 00:40  guy
-
-	* prefs.c, prefs.h, gtk/layout_prefs.c, gtk/layout_prefs.h:
-
-	  The layout types and pane types don't depend on GTK+, so move
-	  their definitions to "prefs.h".
-
-	  Use them, rather than (incorrect) raw numerical values, when
-	  initializing the preferences.
-
-2004-04-30 00:22  guy
-
-	* gtk/layout_prefs.c, gtk/main.c, image/icon_layout_1.xpm,
-	  image/icon_layout_2.xpm, image/icon_layout_3.xpm,
-	  image/icon_layout_4.xpm, image/icon_layout_5.xpm,
-	  image/icon_layout_6.xpm:
-
-	  Squelch some compiler warnings.
-
-	  Clean up white space.
-
-2004-04-29 22:40  sahlberg
-
-	* AUTHORS, Makefile.common, packet-dcerpc-efs.c,
-	  packet-dcerpc-efs.h, epan/Makefile.common:
-
-	  From JBM
-
-	  Dissection of the EncryptedFileSystem dce/rpc interface.
-
-	  This dissector also contains a complete and fully tested IDL
-	  definition for the entire interface.
-
-2004-04-29 20:28  obiot
-
-	* AUTHORS:
-
-	  From Jerry Talkington: HTTP chunked transfer coding.
-
-2004-04-29 20:26  obiot
-
-	* packet-http.c:
-
-	  From Jerry Talkington: move the chunks subtree to the HTTP
-	  protocol tree.
-
-2004-04-29 20:21  gerald
-
-	* AUTHORS, packet-ppp.c:
-
-	  From Carlos Pignataro: PPP OSI Network Layer Control Protocol
-	  [RFC1377] support.
-
-2004-04-29 18:11  tuexen
-
-	* packet-sctp.c:
-
-	  Fixed a typo reported by Berward Meyknecht.
-
-2004-04-29 17:03  ulfl
-
-	* prefs.c, prefs.h, gtk/Makefile.am, gtk/Makefile.common,
-	  gtk/layout_prefs.c, gtk/layout_prefs.h, gtk/main.c,
-	  gtk/prefs_dlg.c:
-
-	  added selection of different main window pane layouts, also added
-	  some preferences and a new preference page for this
-
-2004-04-29 16:49  ulfl
-
-	* Makefile.am, image/icon_layout_1.xpm, image/icon_layout_2.xpm,
-	  image/icon_layout_3.xpm, image/icon_layout_4.xpm,
-	  image/icon_layout_5.xpm, image/icon_layout_6.xpm:
-
-	  added pane layout icons coming from pan (gnome newsreader)
-
-2004-04-29 16:35  ulfl
-
-	* gtk/gui_prefs.c:
-
-	  fixed a typo
-
-2004-04-29 16:33  ulfl
-
-	* packet-tcp.c:
-
-	  added "[CHECKSUM INCORRECT]" to the info column
-
-2004-04-29 11:58  sahlberg
-
-	* packet-rpc.c:
-
-	  technically speaking	rpc duplicate replies are not
-	  retransmissions
-
-	  only the request is tecnically a restransmission the reply is
-	  technically not a retransmission (since it is a new reply to the
-	  retransmitted request)
-
-	  mark duplicated replies as RPC duplicate ... instead of as RPC
-	  retransmission
-
-	  thanks to Cal for pointing this out.
-
-2004-04-29 08:13  sahlberg
-
-	* packet-isns.c:
-
-	  update to isns and prettify is a bit.
-
-2004-04-28 20:56  guy
-
-	* gtk/proto_draw.c:
-
-	  Note that a custom widget might be the right way to speed up the
-	  construction of the hex dump pane (so we don't need a progress
-	  bar(!) while it's being filled in), and might have some other UI
-	  advantages as well.
-
-2004-04-28 20:47  guy
-
-	* gtk/capture_dlg.c:
-
-	  Change the punctuation in one tooltip (I think "select the
-	  desired one" would be an independent clause, so it should be
-	  separate from the other clause with a semicolon).
-
-	  Note that, in that tooltip, in some cases "link-layer types"
-	  would be appropriate and in others "link-layer header types"
-	  might be more appropriate.
-
-2004-04-28 19:13  gram
-
-	* gtk/capture_dlg.c:
-
-	  Minor wording changes in tooltips.
-
-2004-04-28 18:39  ulfl
-
-	* gtk/capture_dlg.c:
-
-	  added tooltips for various input fields
-
-2004-04-28 17:50  obiot
-
-	* doc/dfilter2pod.pl:
-
-	  When building the Ethereal documentation on MSVC++/cygwin the
-	  cygwin perl will not swallow the '\r\n' line end sequence when
-	  invoking chomp(), but instead the '\r' character will remain. For
-	  this reason, chomp() cannot be used and global removal of '\r'
-	  and '\n' characters must be used instead, like in: $_ =~
-	  s/[\r\n]//g;
-
-2004-04-28 15:38  gerald
-
-	* AUTHORS, packet-ldp.c, doc/ethereal.pod:
-
-	  From Carlos Pignataro:
-
-	    Graceful Restart Mechanism for LDP [RFC3478]
-	    Fault Tolerance for LDP [RFC3479]
-	    Update IANA assigned Status codes
-	    Fixed some typos.
-
-2004-04-28 05:47  guy
-
-	* AUTHORS, doc/ethereal.pod, wiretap/file_access.c:
-
-	  From Joe Marcus Clarke: force the standard output to be in binary
-	  mode on Windows.
-
-2004-04-27 19:54  guy
-
-	* packet-aim.h:
-
-	  Declare "dissect_aim_userclass()" as it's used in files other
-	  than "packet-aim.c".
-
-2004-04-27 19:16  ulfl
-
-	* gtk/: main.c, recent.c, recent.h:
-
-	  Freely adjustable status line separations.
-
-2004-04-26 21:11  obiot
-
-	* packet-aim.c:
-
-	  From Jelmer Vernooij:
-
-	  Add 2 missing header fields.
-
-2004-04-26 19:08  tuexen
-
-	* packet-sctp.c:
-
-	  - added a hidden field sctp.initiate_tag - expanded data for
-	  tapping.
-
-2004-04-26 18:21  obiot
-
-	* packet-aim-admin.c, packet-aim-adverts.c, packet-aim-bos.c,
-	  packet-aim-buddylist.c, packet-aim-chat.c,
-	  packet-aim-directory.c, packet-aim-generic.c, packet-aim-icq.c,
-	  packet-aim-invitation.c, packet-aim-location.c,
-	  packet-aim-messaging.c, packet-aim-popup.c, packet-aim-signon.c,
-	  packet-aim-ssi.c, packet-aim-translate.c,
-	  packet-aim-userlookup.c, packet-aim.c, packet-aim.h:
-
-	  From Jelmer Vernooij:
-
-	  Add support form extra SNACs. All TLV's are now recognized.
-
-2004-04-26 17:21  obiot
-
-	* tools/win32-setup.sh:
-
-	  Some of the DLLs from the developer ZIP archives don't have the
-	  executable bit set. As a result, tethereal cannot run for the
-	  generation of the protocol field list for the ethereal-filter
-	  documentation.
-
-	  Fix this issue when unpacking the ddeveloper ZIP archives.
-
-2004-04-26 17:10  obiot
-
-	* AUTHORS, packet-http.c, packet-wccp.c, req_resp_hdrs.c,
-	  doc/ethereal.pod:
-
-	  From Jerry Talkington: - Dissect chunked transfer-coded body in
-	  HTTP - Update email address
-
-2004-04-26 15:58  gram
-
-	* print.c:
-
-	  Look for out of bounds data after calling tvb_length_remaining().
-
-2004-04-26 07:34  sahlberg
-
-	* packet-per.c:
-
-	  the the restricted character string has 0 characters in the
-	  encoding, then we should NOT do any byte alignments.
-
-2004-04-26 02:09  gram
-
-	* epan/ftypes/ftype-string.c:
-
-	  When producing a display-filter representation of an FT_STRING*,
-	  represent any non-printable character in hex, as "\xNN". We rely
-	  on isprint(), which may not be the best solution because it is
-	  locale-specific.
-
-2004-04-25 23:45  ulfl
-
-	* gtk/: main.c, recent.c, recent.h:
-
-	  save the position of the main window panes in the recent file,
-	  and restore their position when program is started again (GTK2
-	  only)
-
-2004-04-25 22:34  ulfl
-
-	* gtk/print_dlg.c:
-
-	  removed some labels
-
-2004-04-25 22:25  jmayer
-
-	* TODO:
-
-	  Add Heimdal detection
-
-2004-04-25 22:14  obiot
-
-	* tools/win32-setup.sh:
-
-	  Add code for HTTP proxy detection based on the http_proxy shell
-	  variable.
-
-	  Fix the tests with string equal empty_string:   "$str" == "" is
-	  either  "$str" = "" or  -z "$str"
-
-2004-04-25 22:14  ulfl
-
-	* gtk/menu.c:
-
-	  changed the export dialog menu item names (added some
-	  descriptions)
-
-2004-04-25 21:54  obiot
-
-	* TODO:
-
-	  Remove "Display filters: add regexes to strings and byte ranges"
-	  as it has been done.
-
-	  Add the possibility to test the packet summary line and the
-	  packet dissection to take part in display filter tests:   -
-	  summary matches "(?i)response"   - dissection contains "Unknown"
-
-2004-04-25 21:46  guy
-
-	* gtk/print_dlg.c:
-
-	  Squelch a compiler warning.
-
-2004-04-25 21:10  obiot
-
-	* doc/README.plugins:
-
-	  Replace the plugin linkage libs into PLUGIN_LIBS which is
-	  generated from the top-level configure.in when running configure.
-
-2004-04-25 21:07  obiot
-
-	* configure.in, plugins/acn/Makefile.am,
-	  plugins/artnet/Makefile.am, plugins/asn1/Makefile.am,
-	  plugins/ciscosm/Makefile.am, plugins/docsis/Makefile.am,
-	  plugins/enttec/Makefile.am, plugins/giop/Makefile.am,
-	  plugins/gryphon/Makefile.am, plugins/irda/Makefile.am,
-	  plugins/lwres/Makefile.am, plugins/megaco/Makefile.am,
-	  plugins/mgcp/Makefile.am, plugins/pcli/Makefile.am,
-	  plugins/rdm/Makefile.am, plugins/rlm/Makefile.am,
-	  plugins/rtnet/Makefile.am, plugins/rudp/Makefile.am,
-	  plugins/v5ua/Makefile.am:
-
-	  Replace the plugin linkage libs into PLUGIN_LIBS which is
-	  generated from the top-level configure.in when running configure.
-
-2004-04-25 20:42  obiot
-
-	* packet-wsp.c:
-
-	  Fix highlighting of unknown typed parameter bytes (caused an
-	  exception to be thrown when expoerting as PDML.
-
-	  Implement the Size parameter (WSP 1.4 encoding).
-
-	  Add the word "parameter" to the parameter header field blurbs.
-
-	  Provide stubs for the not yet implemented typed parameter
-	  decoding, in order to make the distiction between a valid
-	  undecoded and an unknown (and potentially invalid) typed
-	  parameter.
-
-2004-04-25 20:23  guy
-
-	* packet-gprs-llc.c:
-
-	  From Josef Korelus: use "val_to_str()", not "match_strval()", so
-	  we don't crash with incorrect values.
-
-2004-04-25 16:53  jmayer
-
-	* FAQ, help/faq.txt:
-
-	  Updated to Arpil 20th
-
-2004-04-25 16:52  jmayer
-
-	* manuf:
-
-	  New entries
-
-2004-04-25 16:04  ulfl
-
-	* gtk/: main.h, menu.c, print_dlg.c:
-
-	  created new "export" dialogs for the current export file formats
-
-2004-04-25 15:16  jmayer
-
-	* plugins/: ciscosm/packet-sm.c, rlm/packet-rlm.c,
-	  rudp/packet-rudp.c:
-
-	  Fix the fix
-
-2004-04-25 12:04  ulfl
-
-	* file.c, print.h, gtk/print_dlg.c:
-
-	  put all required data into the print_args, instead of confusing
-	  seperation of data
-
-2004-04-25 11:22  jmayer
-
-	* doc/tethereal.pod:
-
-	  Typo: It's 'item *' not 'item*'
-
-2004-04-25 11:20  jmayer
-
-	* plugins/rudp/packet-rudp.c:
-
-	  It's proto_register_rudp not proto_reg_rudp
-
-2004-04-25 11:13  jmayer
-
-	* plugins/: ciscosm/packet-sm.c, rlm/packet-rlm.c,
-	  rudp/packet-rudp.c:
-
-	  Give --enable-static a chance to succeed: Some plugins failed to
-	  do initialization inside a #ifndef ENABLE_STATIC.
-
-2004-04-25 10:40  etxrab
-
-	* packet-diameter.c:
-
-	  Add a preferense wether console output should be made in case of
-	  unknown command codes, avps or flags etc Default is off.
-
-2004-04-25 10:38  etxrab
-
-	* xmlstub.c:
-
-	  Use the newly added "report_failure" rather than g_warning if no
-	  xml library present.
-
-2004-04-25 09:02  ulfl
-
-	* doc/Makefile.nmake, doc/editcap.pod, doc/idl2eth.pod,
-	  doc/mergecap.pod, doc/tethereal.pod, doc/text2pcap.pod,
-	  help/overview.txt:
-
-	  build a list of the input file formats instead of a floating
-	  text, added program names to HTML titles, various minor fixes
-
-2004-04-25 08:01  ulfl
-
-	* gtk/: print_dlg.c, range_utils.c:
-
-	  changed the print dialog, so it will keep the user settings after
-	  reopening the dialog and some code cleanup
-
-2004-04-25 04:53  gram
-
-	* epan/dfilter/scanner.l, tools/lemon/lemonflex-tail.inc:
-
-	  Add support for flex 2.5.31.
-
-2004-04-25 04:01  guy
-
-	* packet-cops.c:
-
-	  From Dick Gooris: add two extra PacketCable tables (and clean up
-	  some white space).
-
-2004-04-24 23:13  ulfl
-
-	* file.c, print.c, print.h, tethereal.c, gtk/print_dlg.c:
-
-	  some code cleanup of the printing system
-
-2004-04-24 16:47  ulfl
-
-	* packet-dcerpc.c:
-
-	  some additional output while reassembling fragments, to give the
-	  user better information about the fragmenting going on, some
-	  other minor changes
-
-2004-04-24 06:46  ulfl
-
-	* reassemble.c:
-
-	  add fragment length output to the payload output
-
-2004-04-23 23:56  sahlberg
-
-	* packet-dcerpc-netlogon.c:
-
-	  prettified a few netlogon calls and populate col_info with
-	  account names
-
-2004-04-23 23:31  sahlberg
-
-	* packet-dcerpc-netlogon.c, packet-dcerpc.c:
-
-	  update to netlogon to dissect the timestamps in
-	  VALIDATION_UAS_INFO
-
-	  update to dcerpc time_t dissector to print the string "No time
-	  specified" when the seconds field is 0xffffffff
-
-2004-04-23 22:34  sahlberg
-
-	* packet-dcerpc-netlogon.c:
-
-	  update to netlogon,	now also decode the delete user/group/alias
-	  deltas.
-
-2004-04-23 19:53  ulfl
-
-	* doc/ethereal.pod:
-
-	  seperated the input file formats into list elements, instead of a
-	  "floating text"
-
-2004-04-23 19:47  ulfl
-
-	* epan/packet.c:
-
-	  added a byte count output to the packet details notebook tabs
-	  (only visible if desegmenting activated)
-
-2004-04-23 19:43  ulfl
-
-	* gtk/proto_draw.c:
-
-	  added a progress dialog box, while processing packet details,
-	  activating packet details notebook pages, to avoid desegmenting
-	  GUI confusion
-
-2004-04-23 16:46  ulfl
-
-	* packet-dcerpc-conv.c:
-
-	  some string clarifications
-
-2004-04-23 05:19  guy
-
-	* Makefile.nmake:
-
-	  From Lars Roland:
-
-		  "make distclean" now removes "cvsversion.h";
-
-		  new "update_plugin_api" which just builds the "xyzzy"
-	  target in
-		  the plugins subdirectory but makes sure that "config.h"
-	  has been
-		  generated, added.
-
-2004-04-23 05:16  guy
-
-	* gtk/range_utils.c:
-
-	  Mark some parameters as unused (the GTK+ signal calling sequence
-	  requires that they be present).
-
-2004-04-23 04:58  guy
-
-	* packet-tcp.c:
-
-	  From Jon Oberheide: put the "this is a continuation of" item into
-	  the protocol tree under the TCP top-level item, rather than at
-	  the top level itself, as the protocol hierarchy statistics code
-	  can't handle non-protocol items at the top level.
-
-2004-04-23 03:22  guy
-
-	* gtk/file_dlg.c:
-
-	  Get rid of static forward declaration of "toggle_captured_cb()",
-	  as it's no longer defined here.
-
-2004-04-23 03:20  guy
-
-	* plugins/megaco/packet-megaco.c:
-
-	  Get rid of bogus extra "proto_tree_add_text()" arguments.
-
-2004-04-23 02:00  gerald
-
-	* gtk/Makefile.am:
-
-	  Add gsm_map_stat.h  and mtp3_stat.h to the distribution.
-
-2004-04-22 21:40  ulfl
-
-	* gtk/: file_dlg.c, print_dlg.c:
-
-	  oops, forgotten to test with GTK1...
-
-2004-04-22 21:29  ulfl
-
-	* gtk/: file_dlg.c, Makefile.am, Makefile.common, range_utils.c,
-	  range_utils.h, print_dlg.c:
-
-	  seperated common packet range code from the save and the print
-	  dialog, and put it into new range_utils files. This will avoid:
-	  a) duplicate code in save and print dialog and b) yet another
-	  code duplication for future dialogs (export, ...)
-
-2004-04-22 20:31  jmayer
-
-	* packet-ipdc.h:
-
-	  No comma after last element in enum
-
-2004-04-22 20:29  jmayer
-
-	* packet-rtps.h:
-
-	  No C++ style comments
-
-2004-04-22 20:08  etxrab
-
-	* gtk/sip_stat.c, packet-sip.c, packet-sip.h:
-
-	  From Martin Mathieson add 2 hidden display filters for SIP -
-	  namely: (1)  sip.error (for all responses with code >= 300) (2)
-	  sip.resend (for all packets that appear to have been
-	  retransmitted). A field showing a count of these is shown in the
-	  SIP stats window.
-
-2004-04-22 20:02  obiot
-
-	* acinclude.m4, configure.in:
-
-	  More correct implementation of the --disable-usr-local option.
-
-2004-04-22 17:03  ulfl
-
-	* file.c, print.c, print.h, print.ps, tethereal.c, gtk/print_dlg.c:
-
-	  added some options and enhancements to the print output: -ps:
-	  added formatting hints for ghostscript, so pdf conversion will be
-	  much better -ps: print a thin line at the top and bottom of each
-	  page -ps/text: add an option to start a new page for every packet
-	  (formfeed)
-
-2004-04-22 08:22  guy
-
-	* AUTHORS, packet-icmpv6.c, packet-ipv6.h:
-
-	  From Shinsuke Suzuki:
-
-		  - sync ICMPv6 Type number with the official assignment
-	  (as of
-		     Apr 14 2004)
-
-		  - decode MLDv2 query packet
-
-2004-04-21 19:58  etxrab
-
-	* plugins/megaco/packet-megaco.c:
-
-	  Skipp leading spaces in front of MEGACO and fix dissection of
-	  TransactionResponseAck
-
-2004-04-21 17:57  guy
-
-	* gtk/: gsm_map_stat.h, gsm_map_summary.c, mtp3_stat.c,
-	  mtp3_stat.h, mtp3_summary.c:
-
-	  From Michael Lum:
-
-		  ANSI and GSM MAP stats enhancements and cleanups;
-
-		  enhanced parameter dissection related to SS for GSM
-	  A-interface
-		  and MAP;
-
-		  minor GSM SMS fix;
-
-		  GSM SS enhancements for parameter dissection;
-
-		  MTP3 statistics tap.
-
-2004-04-21 12:08  sahlberg
-
-	* packet-dcerpc-netlogon.c:
-
-	   update to netlogon to show DsrGetDcNameEx2() Client account
-	  name,  domain name and site name
-
-2004-04-21 05:53  guy
-
-	* AUTHORS, packet-ansi_map.c, packet-ansi_map.h, packet-gsm_a.c,
-	  packet-gsm_map.c, packet-gsm_map.h, packet-gsm_sms.c,
-	  packet-gsm_ss.c, packet-gsm_ss.h, packet-isup.h, packet-mtp3.c,
-	  packet-mtp3.h, epan/to_str.c, gtk/Makefile.common,
-	  gtk/ansi_map_stat.c, gtk/gsm_map_stat.c, gtk/isup_stat.c:
-
-	  From Michael Lum:
-
-		  ANSI and GSM MAP stats enhancements and cleanups;
-
-		  enhanced parameter dissection related to SS for GSM
-	  A-interface
-		  and MAP;
-
-		  minor GSM SMS fix;
-
-		  GSM SS enhancements for parameter dissection;
-
-		  MTP3 statistics tap.
-
-2004-04-21 00:48  obiot
-
-	* gtk/follow_dlg.c:
-
-	  Part 2 of Ulf's print update.
-
-2004-04-20 23:54  obiot
-
-	* packet-mmse.c:
-
-	  Provide MMSE 1.1 dissection.
-
-	  Please test with MMSE 1.1 captures!
-
-2004-04-20 22:34  ulfl
-
-	* file.c, print.c, print.h, print.ps, tethereal.c:
-
-	  changed postscript output: reduced print margin to 1/2 inch and
-	  font size to 8 point, include filename in page header, wrap too
-	  long lines
-
-2004-04-20 19:27  obiot
-
-	* packet-wsp.c:
-
-	  Fix the Content-Type parameter rendering as sometimes the code
-	  was adding its value to the header field and sometimes to its
-	  label in the protocol tree only.
-
-2004-04-20 13:15  gerald
-
-	* AUTHORS, doc/ethereal.pod:
-
-	  Update Thierry Pelle's address.
-
-2004-04-20 08:33  sahlberg
-
-	* packet-ldap.c:
-
-	  try to dissect the ms cldap netlogon rpc  flags bits.  the
-	  information comes from the samba sources and may or may not be
-	  reliable or menaingful.
-
-	  ms documentation in their knowledgebase says that the only really
-	  important part in the netlogon response is the sitename.
-
-	  (i have reasons to belive at least one of the flags,	closest, is
-	  completely bogous)
-
-2004-04-20 05:32  ulfl
-
-	* packet-aim-icq.c, packet-aim-oft.c:
-
-	  fixed MSVC problems
-
-2004-04-20 05:07  guy
-
-	* AUTHORS, packet-tuxedo.c, epan/Makefile.common:
-
-	  From metatech: basic BEA Tuxedo protocol support.
-
-2004-04-20 04:48  guy
-
-	* packet-aim-admin.c, packet-aim-adverts.c, packet-aim-bos.c,
-	  packet-aim-buddylist.c, packet-aim-chat.c, packet-aim-chatnav.c,
-	  packet-aim-directory.c, packet-aim-generic.c, packet-aim-icq.c,
-	  packet-aim-location.c, packet-aim-messaging.c, packet-aim-oft.c,
-	  packet-aim-ssi.c, packet-aim-translate.c, packet-aim.c,
-	  packet-aim.h:
-
-	  From Jelmer Vernooij:
-
-		  Add support for a couple more SNAC's.
-
-		  Handle TLV's in a somewhat more extendible manner.
-
-		  Fix a bug in the buddylist dissector that caused pango
-	  warnings.
-
-2004-04-20 04:17  guy
-
-	* packet-acse.c, packet-ftam.c:
-
-	  From Yuriy Sidelnikov: add a dissector table for OIDs to the ACSE
-	  dissector, and make the FTAP dissector register itself in that
-	  table.
-
-2004-04-19 23:36  obiot
-
-	* packet-ip.c:
-
-	  Add a textual "(Dont Fragment)" and "(More Fragments)" to the
-	  ip.flags line in case the DF bit or the MF bit is set.
-
-2004-04-19 23:26  obiot
-
-	* packet-wbxml.c:
-
-	  Fix a bug in the processing of WV-CSP OPAQUE data (TCPAddress was
-	  Integer in WV-CSP 1.0 but became a String from WV-CSP 1.1
-	  onwards).
-
-	  The token code page 3 of WV-CSP 1.2 is the same as in WV-CSP 1.1
-	  (not 1.0).
-
-2004-04-19 22:41  guy
-
-	* packet-rtps.c:
-
-	  Put the value(s) of a parameter into the top-level item for that
-	  parameter, and clean up the display of the value(s) under that
-	  item.
-
-2004-04-19 20:20  guy
-
-	* packet-rtps.c:
-
-	  Add length checks to submessages.
-
-	  Clean up the handling of parameter sequences - add a bunch of
-	  length checking, give each parameter a protocol tree item with
-	  the ID/length/value under it, and don't format variable-length
-	  string parameters into fixed-length buffers.	Use the
-	  parameter-sequence dissector for the ISSUE message.
-
-	  Use the "number of bits" value when dissecting a bitmap.
-
-2004-04-19 08:26  guy
-
-	* AUTHORS, doc/ethereal.pod:
-
-	  Update Pasi Eronen's e-mail address.
-
-2004-04-19 08:19  guy
-
-	* packet-rtps.c:
-
-	  Use a "while()" loop, rather than a "do { ... } while()" loop, in
-	  "dissect_rtps()", just in case a message with *no* submessages is
-	  sent.
-
-	  Fetch the flags field in that loop, as we need the E bit value to
-	  determine the byte order of the "next submessage offset" field;
-	  fetch that value in the loop as well, and pass both those values,
-	  and the byte-order flag, to submessage dissector routines as
-	  necessary.
-
-	  Make the main protocol tree item for each submessage cover the
-	  entire submessage; put into that protocol tree an item that
-	  covers the submessage ID, with a named field.
-
-	  Construct the submessage subtree in that loop, rather than in the
-	  submessage dissectors.
-
-	  Put into that subtree items for the flags and next submessage
-	  offset; we do that in the submessage dissector, as the
-	  interpretation of the bits in the flags field differs from
-	  submessage to submessage.
-
-2004-04-18 20:08  guy
-
-	* packet-rtps.c:
-
-	  The "next_submsg" argument passed to "get_bitmap()" is an offset
-	  within the tvbuff, not a relative offset, so it should just be a
-	  "gint".
-
-2004-04-18 19:52  guy
-
-	* packet-rtps.c:
-
-	  Get rid of an unused variable.
-
-2004-04-18 18:55  guy
-
-	* packet-rtps.c:
-
-	  Make "little_endian" local to the routines to parse submessages.
-
-	  Before checking for the "RTPS" tag, make sure we have at least 4
-	  bytes in the message.
-
-	  Use "tvb_reported_length()" to get the length of the message, so
-	  we throw an exception on a packet cut short by a snapshot length.
-
-	  Put in a comment asking whether the byte order of the "offset to
-	  next submessage" field is little-endian or specified by the E
-	  bit.
-
-2004-04-18 10:16  obiot
-
-	* README.win32:
-
-	  Update the cygwin build instructions (plugins can now be compiled
-	  too).
-
-	  Hint on how cygwin gcc can be used to compile a native Win32
-	  Ethereal.
-
-2004-04-18 06:41  ulfl
-
-	* README.win32:
-
-	  added a small section about the supported compilers
-
-2004-04-18 06:40  ulfl
-
-	* packet-rtps.c:
-
-	  removed some MSVC warnings
-
-2004-04-18 06:39  ulfl
-
-	* packet-rtps.h:
-
-	  replaced some integer types by glib ones, to be able to compile
-	  again on win32
-
-2004-04-17 22:11  guy
-
-	* packet-rtps.c:
-
-	  Put "#" in pre-processor keywords at the beginning of the line -
-	  I seem to remember that at least at one point in the history of
-	  C, at least one compiler required that.
-
-	  Clean up the byte-order stuff - LITTLE_ENDIAN and BIG_ENDIAN
-	  aren't defined by Ethereal or GLib, so we shouldn't use them
-	  (some platforms might define them, but at least some platforms
-	  define them *both* as non-zero values, so they can't be used as
-	  "true or false" values for "e_bit"), and we don't need to worry
-	  about the byte order of the machine running Ethereal - we should
-	  just use Ethereal's standard routines to fetch little-endian or
-	  big-endian values.
-
-	  Get rid of C++ comments.
-
-2004-04-17 21:43  guy
-
-	* AUTHORS, Makefile.common, packet-rtps.c, packet-rtps.h,
-	  doc/ethereal.pod, epan/Makefile.common:
-
-	  From Lukas Pokorny: RTPS (Real-Time Publish-Subscribe) support.
-
-2004-04-17 20:58  guy
-
-	* packet-mq.c:
-
-	  Updates from metatech:
-
-		  - Added SPI messages.
-		  - A bit a factorisation.
-
-2004-04-17 11:50  ulfl
-
-	* print.c, print.h, gtk/print_dlg.c:
-
-	  added PSML output to the printing dialog
-
-2004-04-17 10:45  obiot
-
-	* packet-wbxml.c:
-
-	  Fix a typo in %DateTime of length 7 (missing colon between
-	  minutes and seconds).
-
-2004-04-17 09:02  ulfl
-
-	* print.c:
-
-	  PDML output: if a protocol field is invisible, add the attribute:
-	  hide="yes" to the field node
-
-2004-04-17 04:43  guy
-
-	* packet-q931.c:
-
-	  Neaten up the display of the top-level protocol tree item for a
-	  number IE.
-
-2004-04-17 03:38  guy
-
-	* packet-x11.c, x11-fields:
-
-	  In EnterNotify and LeaveNotify events, the last byte isn't a
-	  Boolean, it's a bitmask with "focus" and "same-screen" bits.
-
-2004-04-17 03:02  guy
-
-	* packet-diameter.c:
-
-	  The value returned by "diameter_avp_get_value()" is used only in
-	  protocol tree items that also have the AVP value in the text, so
-	  there's no reason to have the string returned by
-	  "diameter_avp_get_value()" contain that value as well - it's
-	  redundant.
-
-2004-04-17 01:12  guy
-
-	* gtk/color_dlg.c:
-
-	  Confirmation dialogs should be marked as such.
-
-2004-04-17 01:09  guy
-
-	* gtk/: capture_dlg.c, capture_prefs.c:
-
-	  Failure to get the list of interfaces should be reported as an
-	  error.
-
-2004-04-17 01:07  guy
-
-	* capture.c:
-
-	  Failures when capturing should be reported as errors.
-
-2004-04-17 01:05  guy
-
-	* dftest.c:
-
-	  Update to handle the changed epan_init() API, with a "general
-	  failure" routine added.  Add a missing newline to the end of read
-	  failure messages.
-
-2004-04-17 01:01  guy
-
-	* gtk/io_stat.c:
-
-	  Report problems due to the user specifying something we can't
-	  handle as errors, not warnings.
-
-2004-04-16 23:57  guy
-
-	* gtk/main.c:
-
-	  Report errors in opening various configuration files at the time
-	  the failure occurs; now that "simple_dialog()" queues up messages
-	  if we don't yet have the main window, those messages will be
-	  queued up until then.
-
-	  Move the point at which we pop up those queued messages after the
-	  "process all pending GUI events" is done, so that those messages
-	  are properly displayed on top of the main window.
-
-2004-04-16 23:16  guy
-
-	* alert_box.c, alert_box.h, packet-diameter.c, simple_dialog.h,
-	  tethereal.c, epan/epan.c, epan/epan.h, epan/report_err.h,
-	  gtk/main.c, gtk/simple_dialog.c, plugins/plugin_api_list.c,
-	  plugins/Xass-list, plugins/Xplugin_api.c, plugins/Xplugin_api.h,
-	  plugins/Xplugin_api_decls.h, plugins/Xplugin_table.h:
-
-	  Add a "report_failure()" routine to allow dissectors to report
-	  arbitrary errors to the user.  Use that, rather than
-	  "g_warning()", in the Diameter dissector to report errors reading
-	  the dictionary.
-
-	  Make the format argument to "simple_dialog()" a "const" pointer.
-
-	  Fix up the read-error message in Tethereal to end with a newline.
-
-	  If a simple dialog is requested before the main window or the
-	  capture-control window is popped up, queue it up and pop the
-	  queued messages up once the main or capture-control window is
-	  displayed.
-
-2004-04-16 22:44  obiot
-
-	* packet-wbxml.c:
-
-	  Add a discriminator for WV-CSP so the correct version is used for
-	  rendering the WBXML tokens in WV-CSP.
-
-	  Provide rendering of OPAQUE data for media types, based on a
-	  framework of 4 functions that take care of well-known and literal
-	  tags and attribute names for deciding on the meaning of the
-	  OPAQUE data. Applied to SI, EMN and WV-CSP.
-
-	  Update reference URLs for WAP, OMA and related specs.
-
-	  Note: as the WBXML common code only takes ~2000 lines while the
-	  token mappings take ~4000 lines, maybe it is time to envisage
-	  writing the per-media mappings to dedicated source files
-	  (packet-wbxml-wml.c, packet-wbxml-wv_csp.c etc)?
-
-2004-04-16 20:20  guy
-
-	* file.c:
-
-	  If we're printing summaries and packet detail or hex dump
-	  information, print the header before each summary line, and print
-	  a blank line separating the summary line and the remaining
-	  information.
-
-2004-04-16 19:36  guy
-
-	* gtk/: color_dlg.c, color_filters.c, color_filters.h:
-
-	  Make "new_color_filter()" take the background and foreground
-	  colors, as GdkColors, as arguments.
-
-2004-04-16 19:05  guy
-
-	* gtk/color_filters.c:
-
-	  You have to initialize a GtkColor structure before passing it to
-	  "get_color()" - otherwise, GDK will allocate a color from the
-	  colormap to match whatever random values happen to be there.
-
-2004-04-16 18:17  ulfl
-
-	* file.c, print.c, tethereal.c, gtk/print_dlg.c:
-
-	  make print dialog "Packet Format" options somewhat similar to the
-	  Ethereal panes, thus better understandable
-
-2004-04-16 05:30  ulfl
-
-	* gtk/print_dlg.c:
-
-	  bugfix: make the "no dissections" radiobutton insensitive, if
-	  packet details isn't selected
-
-2004-04-15 23:28  guy
-
-	* cfile.h, file.c, gtk/find_dlg.c:
-
-	  Rename a bunch of variables and routines that pertain to string
-	  search with "string" rather than "ascii", to make it clearer what
-	  they're involved with.
-
-	  Use "gtk_toggle_button_set_active()", not
-	  "gtk_toggle_button_set_state()" (the latter is a deprecated alias
-	  for the former, probably dating back to GTK+ 1.0[.x] - 1.2[.x]
-	  and later have "gtk_toggle_button_set_active()").
-
-	  Do *NOT* change the radio buttons for the type of string search
-	  to do based on whether we're doing a string search or not - doing
-	  so means we don't correctly remember the type of string search.
-
-	  Get rid of code to fetch some values that we don't subsequently
-	  use.
-
-2004-04-15 22:38  obiot
-
-	* packet-wbxml.c:
-
-	  Add two preferences to the WBXML dissector: - Control the
-	  rendering of WBXML tokens to a media type token mapping.  -
-	  Control the dissection of the tokens that make up the WBXML body.
-	   Both preferences are OFF by default.
-
-	  Fix some comments as they did not reflect the current state
-	  anymore.
-
-2004-04-15 19:56  ulfl
-
-	* print.c, print.h, gtk/print_dlg.c:
-
-	  added print output option, to suppress dissection completely (for
-	  raw packet hexdump)
-
-2004-04-15 19:05  ulfl
-
-	* print.c, gtk/print_dlg.c:
-
-	  added print output of PDML format
-
-2004-04-15 09:24  guy
-
-	* AUTHORS, packet-cops.c:
-
-	  From Dick Gooris: PacketCable support in the COPS dissector.
-
-2004-04-15 08:34  sahlberg
-
-	* packet-kerberos.c:
-
-	  decryption and dissection of PA_ENC_TIMESTAMP
-
-2004-04-15 07:47  sahlberg
-
-	* packet-kerberos.c:
-
-	  dissect EncKDCRepPart   applications 25 and 26
-
-2004-04-15 00:18  guy
-
-	* packet-tcp.c:
-
-	  Add some braces to squelch a GCC warning.
-
-2004-04-14 22:13  obiot
-
-	* doc/README.plugins, plugins/acn/Makefile.am,
-	  plugins/artnet/Makefile.am, plugins/asn1/Makefile.am,
-	  plugins/ciscosm/Makefile.am, plugins/docsis/Makefile.am,
-	  plugins/enttec/Makefile.am, plugins/giop/Makefile.am,
-	  plugins/gryphon/Makefile.am, plugins/irda/Makefile.am,
-	  plugins/lwres/Makefile.am, plugins/megaco/Makefile.am,
-	  plugins/mgcp/Makefile.am, plugins/pcli/Makefile.am,
-	  plugins/rdm/Makefile.am, plugins/rlm/Makefile.am,
-	  plugins/rtnet/Makefile.am, plugins/rudp/Makefile.am,
-	  plugins/v5ua/Makefile.am:
-
-	  Add support for plugin dissectors on cygwin builds, by adding the
-	  following line to every Makefile.am file for a given plugin XXX:
-
-		  XXX_la_LIBADD = -L../../epan -lethereal @GLIB_LIBS@
-
-	  This way symbols defined in libethereal and GLib are resolved
-	  when linking the plugin dissector modules.
-
-2004-04-14 18:42  obiot
-
-	* configure.in, epan/ftypes/Makefile.am, wiretap/configure.in:
-
-	  At last compiling on CygWin works again! Added the missing PCRE
-	  and GLIB libraries to libftypes.
-
-	  Provide caching of computed configure tests.
-
-2004-04-14 05:46  ulfl
-
-	* file.c, gtk/capture_info_dlg.c:
-
-	  two memory leaks removed
-
-2004-04-14 04:45  etxrab
-
-	* packet-sip.c:
-
-	  Correct the removal of spaces before parameters in the Content
-	  type line, change some  tags according to --sip-publish-03
-
-2004-04-13 22:07  obiot
-
-	* packet-mmse.c:
-
-	  Fix the default clause for not implemented MMS headers by adding
-	  more generic code from WSP (based on the wkh_default() method).
-
-	  Add initial support for MMS 1.1 and MMS 1.2 (header names, PDU
-	  types, response status codes, message status).
-
-	  TODO: implement the *full* header dissections for MMS 1.1 and MMS
-	  1.2.
-
-2004-04-13 21:32  guy
-
-	* packet-gprs-llc.c:
-
-	  Use the "a_bit" true_false_string for the "llcgprs.as" field.
-
-2004-04-13 21:29  guy
-
-	* packet-sndcp.c:
-
-	  Change the decision tree for protocol and data compression so
-	  that it doesn't test all four possibilities - with the old code,
-	  GCC doesn't understand that one of the four possibilities must be
-	  true, so it complains that "compression_field_item" might not be
-	  set, but it does understand that with the new code.
-
-2004-04-13 18:01  tuexen
-
-	* capture.c, capture.h, file.c, gtk/capture_info_dlg.c:
-
-	  From Jon Oberheide: Add interface name to the capture and
-	  ethereal window		      while capturing.
-
-2004-04-13 17:48  guy
-
-	* packet-gprs-llc.c:
-
-	  Get rid of some unused variables, as per Josef Korelus.
-
-2004-04-13 04:45  guy
-
-	* packet-sndcp.c:
-
-	  Don't put blanks at the ends of strings added with
-	  "col_add_fstr()", put them at the beginnings of strings appended
-	  with "col_append_str()", so there won't be extra blanks at the
-	  end.
-
-2004-04-13 04:36  guy
-
-	* AUTHORS, packet-sndcp.c, epan/Makefile.common:
-
-	  From Christian Falckenberg: GPRS SNDCP support.
-
-2004-04-13 04:21  guy
-
-	* AUTHORS, packet-bssgp.c, packet-gprs-llc.c, epan/Makefile.common:
-
-	  From Josef Korelus: GPRS LLC support.
-
-2004-04-13 04:04  guy
-
-	* AUTHORS, packet-bpdu.c, packet-cisco-oui.c, doc/ethereal.pod:
-
-	  From Clinton Work: dissect Cisco PID 0x010b as STP (it's actually
-	  their own modified Per-VLAN STP, so there's some extra stuff at
-	  the end of the packet that needs to be decoded).
-
-	  Indicate in a comment in packet-cisco-oui.c what PVSTP is.
-
-2004-04-12 22:14  guy
-
-	* packet-http.c:
-
-	  Put in a comment noting a possible memory leak.
-
-2004-04-12 18:01  ulfl
+2004-06-02 07:01  guy
 
 	* gtk/rtp_stream_dlg.c:
 
-	  ESC key presses Close button
+	  Get rid of the #if 0'ed out "rtp_payload_type_vals[]" table - we
+	  should be using the one from libethereal.
 
-2004-04-12 09:48  ulfl
+2004-06-02 06:50  guy
 
-	* gtk/: http_stat.c, rpc_progs.c, sip_stat.c, tcp_graph.c,
-	  wsp_stat.c:
+	* packet-nfs.c, packet-nfs.h:
 
-	  added a close button to the dialogs, use the dlg_window_new
-	  function for all dialogs
+	  From Mike Frisch:
 
-2004-04-12 08:59  ulfl
+		  add support for NFSv4 RELEASE_LOCKOWNER and ILLEGAL
+	  operations;
 
-	* gtk/gsm_map_stat.c:
+		  minor modification to the NFSv4 NULLPROC dissection.
 
-	  added missing #include from my latest checkin
+2004-06-02 06:44  ulfl
 
-2004-04-12 08:53  ulfl
+	* gtk/hostlist_table.h:
 
-	* gtk/: ansi_a_stat.c, ansi_map_stat.c, bootp_stat.c,
-	  dcerpc_stat.c, fc_stat.c, gsm_a_stat.c, gsm_map_stat.c,
-	  h225_counter.c, h225_ras_srt.c, http_stat.c, isup_stat.c,
-	  ldap_stat.c, rpc_stat.c, smb_stat.c:
+	  fix a doxygen comment
 
-	  added a close button to the dialogs, use the dlg_window_new
-	  function for all dialogs
+2004-06-02 06:35  guy
 
-2004-04-12 07:10  ulfl
+	* packet-http.c:
 
-	* gtk/: endpoint_talkers_table.c, hostlist_table.c:
+	  From Yaniv Kaul: HKP is HTTP-based and runs on port 11371.
 
-	  added a close button to the dialogs
+2004-06-02 06:30  guy
 
-2004-04-11 20:57  guy
+	* packet-enip.c:
 
-	* packet-aim.c:
+	  From Magnus Hansson: add more information to the Info column.
 
-	  From Jon Oberheide: add the "Password Hash" label to
-	  AIM_TLV_PASSWORD (0x0025) which was previously "Unknown".
+	  Use "tvb_format_stringzpad()" to put a zero-padded string into
+	  the protocol tree and Info column, so that we 1) don't use a
+	  fixed-length buffer that we might overflow and 2) we handle
+	  non-printable bytes in the string.
 
-2004-04-11 20:47  guy
+2004-06-01 23:08  guy
 
-	* AUTHORS, packet-aim-signon.c, doc/ethereal.pod:
+	* packet-rtp.c, rtp_pt.h:
 
-	  From Jon Oberheide: add a missing hf[] entry for a field.
+	  Don't define data variables in header files included by more than
+	  one file - that keeps the variable from being shared, and also
+	  produces compiler warnings if the variable isn't used by all the
+	  files that include the header in question.
 
-	  Fix up AUTHORS and the authors list in the Ethereal man page.
+2004-06-01 23:00  guy
 
-2004-04-10 09:10  ulfl
+	* gtk/: hostlist_table.c, hostlist_table.h:
 
-	* README.win32:
+	  Make the definition of "add_hostlist_table_data()" match its
+	  declaration.
 
-	  did lot's of cleanup to the text, especially in the library
-	  sections
+	  Give the address and port arguments to
+	  "add_hostlist_table_data()" appropriate names and Doxygen
+	  comments (they're not a source address and port, they're just an
+	  address and port), and do the same for the address and port
+	  members of a "hostlist_talker_t".
 
-2004-04-10 07:29  ulfl
+	  Get rid of extra unnecessary variables in
+	  "add_hostlist_table_data()".
 
-	* Makefile.nmake:
+	  Clean up indentation.
 
-	  Modify the "setup" target to download the packages we've defined,
-	  so that we   don't download the GTK1 packages unless we have
-	  GTK1_DIR defined.
+2004-06-01 22:12  ulfl
 
-2004-04-09 19:44  gerald
+	* gtk/rtp_stream_dlg.c:
 
-	* gtk/follow_dlg.c:
+	  bugfix: don't double define rtp_payload_type_vals
 
-	  Make the hex dump byte counter a guint32, so that we don't wrap
-	  prematurely.
+2004-06-01 22:00  ulfl
 
-2004-04-09 16:54  gerald
+	* gtk/hostlist_table.c:
 
-	* Makefile.nmake, tools/win32-setup.sh:
+	  minor bugfix from previous check in
 
-	  Modify the "setup" target to download the packages we've defined,
-	  so that we don't download the GTK2 packages unless we have
-	  GTK2_DIR defined.
+2004-06-01 21:56  etxrab
 
-	  Fix some path checking in win32-setup.sh.
+	* AUTHORS:
 
-2004-04-09 09:15  guy
+	  From Thomas Anders: MGCP sub-parameter dissection
 
-	* packet-mq.c:
+	  Anders Broman: BICC,SIP-T dissection
 
-	  From metatech:
+2004-06-01 21:56  ulfl
 
-		  - No registration of port 1414, only the heuristics.
+	* gtk/: ethclist.h, find_dlg.h, follow_dlg.h, gsm_map_stat.h,
+	  gtk_stat_util.c, gtk_stat_util.h, gui_prefs.h, hostlist_table.c,
+	  hostlist_table.h, keys.h, layout_prefs.h, menu.h:
 
-		  - More dissection of pre-defined MQ structures or
-	  messages types
-		    (MSH, DH, DLH, OR, RR, PMR, MDE, MQSET, MQINQ, MQPUT1,
-	  PING).
+	  add details for doxygen, various code cleanups as a result of
+	  this
 
-2004-04-09 08:39  guy
+2004-06-01 21:45  etxrab
 
-	* packet-ipdc.c, packet-ipdc.h:
+	* config.nmake:
 
-	  From Josh Bailey:
+	  Revert previous checkin made by mistake *sigh
 
-		  Fix missing handling for tags 0x6F and 0x70 (send and
-	  receive
-		  encoding type).
+2004-06-01 21:40  etxrab
 
-		  Shorten fields displayed in COL_INFO.
+	* config.nmake, packet-rtp.c, packet-sdp.c, rtp_pt.h:
 
-		  Display information about all IPDC packets in COL_INFO if
-		  there's more than one.
+	  From Thomas Anders dissects the RTP Payload Type (if media
+	  protocol is RTP/AVP) with its descriptive name rather than the
+	  raw value string, much like packet-rtp.c does already.  To avoid
+	  duplicate definitions,  the existing rtp_payload_type_vals[]
+	  definition is  moved from packet-rtp.c and gtk/rtp_stream_dlg.c
+	  to rtp_pt.h.
 
-2004-04-09 07:38  ulfl
+2004-06-01 21:29  guy
 
-	* Makefile.nmake:
+	* gtk/endpoint_talkers_table.c:
 
-	  use the configured names from config.nmake for the required apps
-	  list
+	  Make the definition of "add_ett_table_data()" match its
+	  declaration.
 
-2004-04-09 07:37  ulfl
+2004-06-01 20:37  ulfl
 
-	* README.win32:
+	* gtk/: endpoint_talkers_table.c, endpoint_talkers_table.h:
 
-	  do some more explanations how to use the new library download
-	  tool updated ADNS library version
+	  minor bugfix from previous check in
 
-2004-04-09 03:51  sahlberg
+2004-06-01 20:28  ulfl
 
-	* packet-h225.c:
+	* gtk/: about_dlg.h, capture_combo_utils.h, capture_prefs.h,
+	  color_dlg.h, color_filters.h, color_utils.h, colors.h,
+	  column_prefs.h, decode_as_dlg.h, dfilter_expr_dlg.h, dlg_utils.h,
+	  endpoint_talkers_table.c, endpoint_talkers_table.h, ethclist.h,
+	  ui_util.h:
 
-	  even more h235 dissection
+	  add details for doxygen, various code cleanups as a result of
+	  this
 
-2004-04-09 03:32  sahlberg
+2004-06-01 18:58  guy
 
-	* packet-h225.c:
+	* packet-rtcp.c:
 
-	  some more h235 dissection
+	  Fix a typo.
 
-2004-04-09 01:07  sahlberg
+	  Clean up white space.
 
-	* packet-h225.c:
+2004-06-01 18:43  guy
 
-	  Add dissection of AuthenticationMechanism to h235
+	* packet-netflow.c:
 
-2004-04-09 00:31  sahlberg
+	  Interpret the sampling mode values.
 
-	* packet-per.h:
+2004-06-01 18:39  guy
 
-	  Make it more obvious when ethereal fails to dissect a PER
-	  contruct
+	* packet-netflow.c:
 
-	  1, put a hint why it failed in the COL_INFO line 2, abort
-	  dissecting any further (by reading from the arbitrary position
-	  9999 in the tvb 3, put "something unknown here [xxx]" as the last
-	  entry in the tree.
+	  As Motonori Shindo nodes, the sampling rate and mode in a Netflow
+	  V5 header is 2 bits of sampling mode and 14 bits of sample rate,
+	  not 16 bits of sample rate.
 
-2004-04-08 23:52  sahlberg
+2004-06-01 17:37  ulfl
 
-	* packet-h225.c:
+	* globals.h:
 
-	  implement some basic dissection of H.235 ClearToken so that the
-	  capture reported on the list will be dissected properly.
+	  various code cleanups
 
-	  maybe someone should break out all the h.235 code sometime later
-	  and put it in packet-h235.c?
+2004-06-01 17:33  ulfl
 
-2004-04-08 20:36  gerald
+	* gtk/: about_dlg.c, capture_dlg.h, compat_macros.h, dlg_utils.c,
+	  dlg_utils.h, file_dlg.c, file_dlg.h, filter_prefs.c,
+	  filter_prefs.h, follow_dlg.c, goto_dlg.c, goto_dlg.h,
+	  gtkglobals.h, help_dlg.c, help_dlg.h, main.c, main.h, menu.c,
+	  proto_draw.c, recent.c, rtp_analysis.c, rtp_stream_dlg.c,
+	  toolbar.h:
 
-	* Makefile.nmake, README.win32, config.nmake, tools/win32-setup.sh:
+	  add details for doxygen, various code cleanups as a result of
+	  this
 
-	  Add a Makefile.nmake target called "setup" that uses the script
-	  tools\win32-setup.sh to
+2004-06-01 01:03  guy
 
-	    - Check for applications required to build Ethereal
-	    - Download and unpack required packages into $ETHEREAL_LIBS
+	* AUTHORS, packet-ssl.c:
 
-	  Update ADNS to the latest version.
+	  From Yaniv Kaul: PCT support.
 
-	  Make Python 2.3 the default.
+2004-06-01 01:01  guy
 
-2004-04-08 19:07  ulfl
+	* gtk/proto_draw.c:
 
-	* gtk/capture_dlg.c:
+	  Eliminate a no-longer-used routine.
 
-	  catch the enter key from the interface drop-down list, so
-	  pressing enter will really start a capture
+2004-06-01 00:15  jmayer
 
-2004-04-08 10:21  sahlberg
+	* wiretap/configure.in:
 
-	* packet-dcerpc-netlogon.c:
+	  It really helps when you change the default from gtk1 -> gtk2 in
+	  the top level configure.in to mirror that change in wiretap.
+	  Otherwise people who have both versions of glib/gtk installed may
+	  see crashes.
 
-	  update to netlogon:  make it dissect all the bits of the
-	  UserAccountControl flags field in the pac structure and elsewhere
-	  in netlogon
+2004-05-31 19:35  etxrab
 
-2004-04-08 09:34  sahlberg
+	* packet-rtcp.c:
 
-	* packet-dcerpc-netlogon.c:
+	  Add dissection of application PoC1 data
 
-	  dissection of netlogon userflags in tha pac structure and
-	  elsewhere
+2004-05-31 19:31  etxrab
 
-2004-04-08 09:17  sahlberg
+	* plugins/mgcp/packet-mgcp.c:
 
-	* packet-dcerpc-netlogon.c:
+	  From Thomas Anders fix some memory leaks
 
-	  dissect group attributes for the pac structure and other places
-	  in netlogon
+2004-05-31 15:47  ulfl
 
-2004-04-08 08:05  guy
+	* gtk/: compat_macros.h, dlg_utils.h, ui_util.h:
 
-	* gtk/capture_dlg.c:
+	  add details for doxygen
 
-	  On Windows, when looking for the ":" that separates the interface
-	  description from the interface name, don't count ":" followed by
-	  "//", as it might be part of "rpcap://".
+2004-05-31 13:42  ulfl
 
-2004-04-08 05:19  sahlberg
+	* gtk/dlg_utils.h:
 
-	* doc/ethereal.pod:
+	  add details for doxygen
 
-	  update doc with better description of SUM/COUNT/MIN/MAX/AVG.
+2004-05-31 13:40  ulfl
 
-2004-04-08 05:09  sahlberg
+	* Makefile.am, doxygen.cfg, epan/doxygen.cfg, gtk/Makefile.am,
+	  gtk/Makefile.nmake, gtk/doxygen.cfg:
 
-	* packet-tcp.c:
+	  split doxygen.cfg into common Ethereal things and module
+	  specifics
 
-	  update tcp so that it will print the string "(relative
-	  sequence/ack number)" in the header for the fields affected by
-	  using human readable sequence and ack numbers.
+2004-05-31 13:35  ulfl
 
-2004-04-07 06:18  guy
+	* gtk/color_dlg.c:
 
-	* packet-ipmi.c:
+	  bugfix: don't try to destroy a dialog twice
 
-	  From Duncan Laurie: the LUN field in IPMI packets is only in the
-	  lower 2 bits.
+2004-05-31 12:06  ulfl
 
-2004-04-07 06:04  guy
+	* gtk/proto_draw.c:
 
-	* etypes.h, packet-eapol.c, packet-ethertype.c:
+	  directly use the file selection dialog instead of using an
+	  additional custom dialog
 
-	  From Jouni Malinen: add support for the 802.11i/RSN
-	  pre-authentication Ethertype.
+2004-05-31 11:22  ulfl
 
-2004-04-07 04:31  sahlberg
+	* gtk/capture_prefs.c:
 
-	* gtk/: rpc_stat.c, service_response_time_table.c:
+	  some more dialog redesign and code cleanup
 
-	  make service response time statistics work for "unknown" rpc
-	  programs.  all proicedures will however get "interesting" names
-	  such as "proc-1" etc except procedure 0 which is ALWAYS "NULL"
+2004-05-31 09:53  guy
 
-2004-04-07 03:57  sahlberg
+	* tap.c, tap.h, tethereal.c:
 
-	* packet-rpc.c:
+	  Add a routine that indicates where there are any tap listeners
+	  registered (not whether there are any tap *filters* registered).
 
-	  when dealing with unknown rpc programs, create a fake
-	  program/version/procedure table so that we can get service
-	  response time tables working later.
+	  Do dissection in Tethereal iff:
 
-2004-04-06 19:02  ulfl
+		  we're printing information about each packet;
 
-	* AUTHORS, prefs.c, prefs.h, doc/ethereal.pod, gtk/gui_prefs.c,
-	  gtk/main.c:
+		  we're using a read filter on the packets;
 
-	  from Thomas Palmer: add a preference setting for filter toolbar
-	  placement
+		  there are any tap listeners registered (even if there are
+	  no tap
+		  filters registered - not all taps use filters).
 
-2004-04-06 16:08  gerald
+2004-05-31 09:23  ulfl
 
-	* gtk/main.c:
+	* gtk/capture_prefs.c:
 
-	  Remove an extraneous 'break'.
+	  interface options preference dialog: remove confusing second
+	  interface clist, fix a bug making garbage of user supplied
+	  interface description
 
-2004-04-05 00:49  sahlberg
+2004-05-31 08:41  guy
 
-	* packet-kerberos.c:
+	* tethereal.c, doc/tethereal.pod:
 
-	  Add support to decrypt the encrypted part of AS/TSG -REP PDUs.
-	  Now we only need application 25/26 to be dissected as well for it
-	  to be useful ...
+	  Make "-q" suppress packet printing when you're reading a capture
+	  file and not writing to another capture file, for use with "-z"
+	  options.
 
-2004-04-05 00:28  sahlberg
+	  Note that "-z proto" *doesn't* print statistics at the end - it
+	  modifies the packet summary output.
 
-	* packet-kerberos.c:
+	  Note that on at least some BSDs the "status" character is set to
+	  "off" by default, so you have to set it explicitly in order to be
+	  able to ^T an application such as Tethereal.
 
-	  Added some more principal name types from the kerberos draft
+2004-05-31 07:52  guy
 
-2004-04-04 07:12  sahlberg
+	* tethereal.c:
 
-	* AUTHORS, doc/ethereal.pod:
+	  Move the packet counting, dissecting, and filtering out of the
+	  "write packet" and "print packet" callbacks into a common
+	  routine, so that we don't count packets twice if we're counting
+	  and dissecting.
 
-	  Love contributed great help to get the heimdal decryption support
-	  working (wherein we also discovered an obscure bug inside heimdal
-	  itself)  Great thanks to Love.
+	  Print the packet count with ^T iff we're not updating a displayed
+	  packet count as packets arrive, regardless of whether we're
+	  printing packet information, saving packets to a file, or both
+	  (tcpdump prints it regardless of whether it's printing packet
+	  information or saving packets to a file).
 
-2004-04-03 22:33  etxrab
+2004-05-31 02:42  guy
 
-	* packet-sip.c:
+	* gtk/recent.c:
 
-	  As pointed out by Chernishov Yury - strip of leading spaces of
-	  parameters
+	  The "key" argument to "write_recent_geom()" is required (as it's
+	  called through a pointer), but isn't used - mark it as unused.
 
-2004-04-03 22:13  etxrab
+2004-05-31 01:24  obiot
 
-	* packet-isup.c, AUTHORS:
+	* packet-image-jfif.c:
 
-	  From Chernishov Yury Don't destroy SIP dissector entrys in info
-	  column for application/isup
+	  Add support for Exif decoding (initial framework).  Still lots of
+	  work to do here :)
 
-2004-04-03 03:50  guy
+2004-05-30 18:27  ulfl
 
-	* packet-smb-common.c:
+	* prefs.c:
 
-	  In "get_unicode_or_ascii_string()", treat a negative length
-	  argument as a very large unsigned integer (which it probably is),
-	  and trim it at INT_MAX, and fix the handling of too-long ASCII
-	  strings so that the "..." gets inserted.  Make sure that all the
-	  bytes of the string exist before truncating the string length to
-	  the buffer length, so that the appropriate exception is thrown.
+	  sort saved preference settings by appearance in dialog
 
-2004-04-03 00:29  sahlberg
+2004-05-30 17:58  etxrab
 
-	* packet-rpc.c:
+	* plugins/mgcp/packet-mgcp.c:
 
-	  Add a new preference option so that users that really really want
-	  to can tell ethereal "I dont care if the heuristics are too weak"
-	  "I want to see the ONC-RPC layer for these weird protocols that
-	  are not known to ethereal"   "If I get a lot of false positives
-	  it is my own fault and I will not complain"
+	  From Thomas Anders patch adds sub parameter dissection to the
+	  MGCP plugin (plugins/mgcp/packet-mgcp.c), initially for the
+	  ConnectionParameters(P), and updates/adds some specification
+	  references.
 
-	  This allows ethereal to dissect the rpc layer (and do
-	  request/response matching) even for those onc-rpc protocols that
-	  ethereal doesnt know about yet.
+	  This patch makes the sub parameter values filterable as numbers
+	  and may allow for improved MGCP statistics in the future.
 
-2004-04-02 22:01  sahlberg
+2004-05-30 11:54  ulfl
 
-	* packet-spnego.c:
+	* gtk/: help_dlg.c, recent.c, recent.h, ui_util.c, ui_util.h:
 
-	  If the packet is short,  dont try to create a blob item that
-	  spans beyound the end of the short packet since that will raise
-	  an exception and we wont even attempt to dissect those (kerberos
-	  usually) bytes that we do have in the packet.
+	  save window position/size/maximized state into recent file (only
+	  help dialog for now)
 
-2004-04-02 21:38  sahlberg
+2004-05-29 06:55  guy
 
 	* packet-smb.c:
 
-	  dont bail out just because we dont have the entire security blob
-	  present in a pdu.  even for short frames, try to pass on as mush
-	  as possible to gssapi.
+	  When we create a tvbuff for a security blob, set its reported
+	  length to the reported length of the blob, not the amount of data
+	  available from the blob.
 
-2004-04-02 09:04  guy
+	  Use "tvb_strneql()" when checking for strings, so that we don't
+	  throw an exception if there's less data in the tvbuff than there
+	  are bytes in the string, we just say "not equal".
 
-	* epan/column-utils.c:
+2004-05-29 04:41  guy
 
-	  From Olivier Biot: support AT_STRINGZ columns.
+	* AUTHORS, packet-radius.c:
 
-2004-04-02 08:27  guy
+	  From Nathan Alger: update the VSA attributes for Juniper and
+	  Juniper/Unisphere routers.
 
-	* wiretap/: nettl.c, nettl.h:
+2004-05-29 04:34  guy
 
-	  From Mark C. Brown: add support for FDDI and Token Ring cards.
+	* packet-dcerpc.c:
 
-	  Set the file encapsulation the same way it's done for iptrace
-	  captures - leave it as "unknown" to start with, and, for each
-	  packet we see, set it to the packet's encapsulation type if the
-	  file encapsulation type is unknown and set it to "per-packet" if
-	  the file encapsulation type is "known" but isn't the type of that
-	  packet, so files that have all the same type of packet have that
-	  type as the file type and packets that *don't* have all the same
-	  type of packet have "per-packet".
+	  Squelch a compiler warning by removing a "/*" from the middle of
+	  a comment.
 
-2004-04-02 07:59  guy
+2004-05-29 01:00  sahlberg
 
-	* packet-aim-messaging.c:
+	* packet-snmp.c:
 
-	  From Devin Heitmueller: do a better job of decoding the AIM
-	  messaging SNAC for outgoing and incoming subtypes.
+	  check in Thomas Anders patch to SNMP to allow ethereal to dissect
+	  properly COUNTER64 objects that are not spanning a full 64 bit on
+	  the wire
 
-2004-04-02 07:40  guy
+2004-05-28 20:59  ulfl
 
-	* wiretap/eyesdn.c:
+	* packet-dcerpc.c:
 
-	  From Rolf Fiedler: fix a comment, and fix the code to get the
-	  packet length.
+	  connectionless cancel PDU's don't have a
+	  dg_server_accepting_cancels field
 
-2004-04-02 07:28  guy
+2004-05-27 23:09  ulfl
 
-	* AUTHORS, packet-ymsg.c:
+	* gtk/follow_dlg.c:
 
-	  From Devin Heitmueller: do YMSG desegmentation.
+	  enable postcript printing if selected in prefs, correctly remove
+	  temporary file on close dialog
 
-2004-04-02 05:19  guy
+2004-05-27 21:55  ulfl
 
-	* packet-isup.c:
+	* gtk/follow_dlg.c:
 
-	  Get rid of an extra "=" at the end of the file.
+	  bugfixes: fixed printing on win32, and convert none printable
+	  characters, so printing will work on binary output as well (like
+	  in the GUI output)
 
-2004-04-02 05:07  guy
+2004-05-27 21:52  ulfl
 
-	* packet-diameter-defs.h:
+	* gtk/print_dlg.c:
 
-	  Get rid of CRs.
+	  win_printer is gboolean, not an int
 
-2004-04-01 20:34  etxrab
+2004-05-27 21:48  ulfl
 
-	* packet-isup.c:
+	* file.c:
 
-	  Fix a copy paste error
+	  added a small comment
 
-2004-04-01 09:15  sahlberg
+2004-05-27 21:42  guy
+
+	* gtk/prefs_dlg.c:
+
+	  Tag the "has_child" argument to "prefs_tree_page_add()" as unused
+	  when building with GTK+ 2.x or later, as it's only needed and
+	  only used for 1.2[.x].
+
+2004-05-27 19:59  ulfl
+
+	* gtk/: capture_prefs.c, color_dlg.c, dcerpc_stat.c,
+	  dfilter_expr_dlg.c, fc_stat.c, file_dlg.c, filter_prefs.c,
+	  h225_counter.c, h225_ras_srt.c, ldap_stat.c, mgcp_stat.c,
+	  proto_dlg.c, rpc_stat.c, rtp_analysis.c, smb_stat.c,
+	  tap_dfilter_dlg.c:
+
+	  use gtk_window_set_default_size() instead of WIDGET_SET_SIZE()
+	  for the dialogs, as WIDGET_SET_SIZE() will prevent the user from
+	  shrinking the dialog, and gtk_window_set_default_size() will not
+
+2004-05-27 18:12  guy
+
+	* gtk/prefs_dlg.c:
+
+	  Get rid of an unused variable.
+
+	  Mark as unused a required argument that's unused.
+
+2004-05-27 17:26  ulfl
+
+	* gtk/capture_info_dlg.c:
+
+	  added a small comment
+
+2004-05-27 17:08  ulfl
+
+	* gtk/filter_prefs.c:
+
+	  bugfix: don't try to destroy a window, when it's already being
+	  destroyed
+
+2004-05-27 16:50  ulfl
+
+	* gtk/: gui_prefs.c, prefs_dlg.c, prefs_dlg.h:
+
+	  a lot of code cleanup
+
+2004-05-27 16:48  ulfl
+
+	* gtk/column_prefs.c:
+
+	  bugfix: don't try to destroy a window, when it's already being
+	  destroyed
+
+2004-05-27 16:45  ulfl
+
+	* gtk/follow_dlg.c:
+
+	  bugfix: don't try to destroy a window, when it's already being
+	  destroyed
+
+2004-05-27 16:43  ulfl
+
+	* gtk/nameres_prefs.c:
+
+	  added some tooltips
+
+2004-05-27 16:41  ulfl
+
+	* gtk/about_dlg.c:
+
+	  Don't point to the manpage for the list of authors, it's in the
+	  about dialog now
+
+2004-05-27 08:33  sahlberg
+
+	* packet-isns.c:
+
+	  the isns timestamp is in fact a 64 bit integer and not a 32 bit
+	  integer.
+
+	  declaring it properly will make ethereal dissect it properly as
+	  well instead of crashing
+
+2004-05-27 08:22  sahlberg
 
 	* packet-kerberos.c:
 
-	  add dissection of the canonicalize bit which some windows clients
-	  use
+	  make KRB_SAFE more consistent with the other PDUs by removing the
+	  SAFE expansion.
 
-2004-03-31 21:04  guy
+	  cosmetic: Put the application type on the kerberos subtree
 
-	* packet-isup.c:
+2004-05-26 21:23  guy
 
-	  Get rid of CR's.
+	* gtk/follow_dlg.c:
 
-2004-03-31 20:57  guy
+	  Don't compile in "follow_save_as_destroy_cb()" for GTK+ 2.4 and
+	  later, as it's not used.
 
-	* packet-radius.c:
+2004-05-26 12:08  jmayer
 
-	  Get rid of CR's.
+	* configure.in:
 
-2004-03-31 20:25  etxrab
+	  Make gtk2 the default. Use --disable-gtk2 to use glib1/gtk1
+	  instead
 
-	* packet-radius.c:
+2004-05-26 11:37  jmayer
 
-	  Add RADIUS AVP 101, the value string to go with it and some ACC
-	  vendor AVP:s
+	* gtk/ansi_map_stat.c:
 
-2004-03-31 20:23  etxrab
+	  Change C++ style comments
 
-	* packet-isup.c:
+2004-05-26 11:25  sahlberg
 
-	  Add dissection of user to user indicators parameter, Split some
-	  lines and some white space changes
+	* packet-ber.c:
 
-2004-03-31 01:31  jmayer
+	  in dissect_ber_bitstring32() It is not neccessary that the
+	  encoded bitstring is actually encoded as 4 bytes.
 
-	* TODO:
+	  Make sure, that if the bistring is encoded in less than 4 bytes
+	  that we still do the right thing.
 
-	  configure.in merging has been done. Add another point
+2004-05-26 11:04  sahlberg
 
-2004-03-31 01:25  jmayer
+	* packet-kerberos.c:
 
-	* epan/: acinclude.m4, configure.in:
+	  remove the SAFE_BODY expansion to make KRB5_MSG_SAFE look more
+	  consistent with the other application dissectors.
 
-	  No longer needed after merging epan/configure.in into
-	  configure.in
+2004-05-26 10:41  jmayer
 
-2004-03-30 20:56  etxrab
+	* autogen.sh:
 
-	* packet-diameter-defs.h:
+	  Run libtoolize after aclocal.m4 has been generated
 
-	  Fixed some cut-and-paste errors, added some RADIUS AVPS sorted
-	  some value string...
+2004-05-26 08:53  sahlberg
 
-2004-03-30 19:37  guy
+	* packet-kerberos.c:
 
-	* packet-smb-mailslot.c, wiretap/wtap.c:
+	  implementation of the KRB_SAFE application
 
-	  From Albert Chin: "config.h" should come before all other
-	  #includes.
+2004-05-26 04:21  guy
 
-2004-03-30 19:36  guy
+	* gtk/: capture_dlg.c, print_prefs.c:
 
-	* plugins/rudp/packet-rudp.c:
+	  Get rid of some declarations of routines that no longer exist.
 
-	  From Albert Chin: the Sun WorkShop 5.0 compiler and HP-UX 10.20
-	  compiler don't allow you to initialize aggregates with an
-	  initializer that includes non-constant values.
+	  Fix up some declarations of other routines to match the
+	  definitions of those routines.
 
-2004-03-30 19:34  guy
+2004-05-26 03:49  ulfl
+
+	* gtk/: capture_dlg.c, capture_info_dlg.c, capture_prefs.c,
+	  color_dlg.c, column_prefs.c, decode_as_dlg.c, dfilter_expr_dlg.c,
+	  dlg_utils.c, dlg_utils.h, file_dlg.c, file_dlg.h, filter_prefs.c,
+	  find_dlg.c, follow_dlg.c, goto_dlg.c, menu.c, packet_win.c,
+	  plugins_dlg.c, prefs_dlg.c, print_dlg.c, print_prefs.c,
+	  progress_dlg.c, proto_dlg.c, proto_draw.c, rtp_analysis.c,
+	  rtp_stream_dlg.c, simple_dialog.c, tcp_graph.c, ui_util.c:
+
+	  more code cleanup from dialog things: changed window_xy (dialog)
+	  function calling in a lot of gtk files cleanup of file selection
+	  code cleanup in dlg_utils/file_dlg/ui_util Please report any
+	  problems!!!
+
+2004-05-26 02:33  guy
+
+	* gtk/find_dlg.c:
+
+	  Don't capitalize "Filter" in "Display Filter" in the "Find"
+	  dialog box, just as we don't capitalize "value" in "Hex value" in
+	  the same set of radio buttons.
+
+2004-05-25 21:27  guy
+
+	* packet-h225.c:
+
+	  The function pointer in a "per_choice_t" or a "per_sequence_t" is
+	  to a function that returns "int", not "guint32"; declare one such
+	  function as such, and note that the function it calls should
+	  perhaps also use "int" for packet-offset arguments and return
+	  values (or, rather, that the code that generated it should
+	  generate functions that do so).
+
+2004-05-25 21:24  guy
+
+	* packet-h235.c:
+
+	  The function pointer in a "per_choice_t" or a "per_sequence_t" is
+	  to a function that returns "int", not "guint32"; re-generate
+	  "packet-h235.c", from the new "asn2eth.py", to define those
+	  functions to return "int".
+
+2004-05-25 21:23  guy
+
+	* tools/asn2eth.py:
+
+	  The function pointer in a "per_choice_t" or a "per_sequence_t" is
+	  to a function that returns "int", not "guint32"; define those
+	  functions to return "int".
+
+2004-05-25 21:08  guy
+
+	* packet-h235.h:
+
+	  Declare the "value_string" tables as "extern", to avoid problems
+	  when building a shared libethereal on some platforms.
+
+2004-05-25 21:07  guy
+
+	* asn1/h235/packet-h235-template.c:
+
+	  "NOT_DECODED_YET()" was replaced by "PER_NOT_DECODED_YET()" and
+	  "BER_NOT_DECODED_YET()"; use the right one.
+
+2004-05-25 21:06  guy
+
+	* tools/asn2eth.py:
+
+	  Replace some Windows dash/hyphen character with a "-" in some
+	  comments.
+
+	  Make the header files declare the "value_string" arrays as
+	  "extern", so as to prevent problems on some platforms when
+	  building a shared libethereal.
+
+	  Note that, at least currently, we have separate
+	  "PER_NOT_DECODED_YET()" and "BER_NOT_DECODED_YET()" macros,
+	  rather than a common "NOT_DECODED_YET()" macro.
+
+2004-05-25 19:48  sahlberg
+
+	* packet-h225.c:
+
+	  fix the timestamp problem in h225
+
+2004-05-25 10:17  sahlberg
+
+	* packet-h225.c:
+
+	  get rid of some compiler warnings
+
+2004-05-25 10:09  sahlberg
+
+	* Makefile.common, packet-h225.c, packet-h235.c, packet-h235.h,
+	  epan/Makefile.common:
+
+	  H.235 dissector from Tomas compiler script.
+
+	  This should make H.235 semicomplete and make a lot more H.225
+	  packets dissect properly.
+
+	  Please test.
+
+2004-05-25 09:41  guy
+
+	* packet-pktc.c:
+
+	  From Thomas Anders: add support for Rekey and Error Reply
+	  messages.
+
+2004-05-25 02:59  guy
+
+	* packet-kerberos.c:
+
+	  Get rid of some extra blanks.
+
+2004-05-24 18:14  ulfl
+
+	* prefs.c:
+
+	  give the user a hint what to do (save his/her preferences), when
+	  somethings wrong with the preferences, as it's always a good idea
+	  to give a helping hand :-)
+
+2004-05-24 17:41  ulfl
+
+	* gtk/dlg_utils.c:
+
+	  dlg_destroy_cb() is static
+
+2004-05-24 17:32  guy
+
+	* gtk/dlg_utils.c:
+
+	  Even with GTK+ 2.x the arguments to "dlg_destroy_cb()" aren't
+	  used.
+
+2004-05-24 16:38  guy
+
+	* packet-bootp.c:
+
+	  From Thomas Anders: display DHCP option 43 suboption 8 as an
+	  octet string.
+
+2004-05-24 16:17  ulfl
+
+	* AUTHORS:
+
+	  updated two mail addresses
+
+2004-05-24 09:00  guy
+
+	* gtk/ui_util.c:
+
+	  Include <string.h> to declare "strlen()".
+
+2004-05-24 08:42  sahlberg
+
+	* AUTHORS, asn1/h235/H235-SECURITY-MESSAGES.asn,
+	  asn1/h235/h235.cnf, asn1/h235/packet-h235-template.c,
+	  asn1/h235/packet-h235-template.h:
+
+	  From Tomas,
+
+	  sourcefiles to generate H235 dissector using Tomas's ASN1 to
+	  Ethereal compiler
+
+2004-05-24 08:33  sahlberg
+
+	* tools/: asn2eth.py, lex.py, yacc.py:
+
+	  From Tomas Kukosa
+
+	  ASN2ETH compiler and support script for lexical and syntactic
+	  analysis.
+
+	  Will later be used for all those ASN.1 protocols we havent
+	  implemented yet
+
+2004-05-24 02:25  guy
+
+	* packet-ansi_a.c, packet-bgp.c, packet-bssap.c, packet-clnp.c,
+	  packet-fr.c, packet-ieee80211.c, packet-iscsi.c, packet-lmp.c,
+	  packet-m2pa.c, packet-m2ua.c, packet-m3ua.c, packet-mtp3.c,
+	  packet-ndmp.c, packet-ppp.c, packet-scsi.c, packet-sctp.c,
+	  packet-t38.c, packet-tcap.c, prefs.c, prefs.h,
+	  doc/README.developer, gtk/gui_prefs.c, gtk/prefs_dlg.c,
+	  gtk/print_prefs.c, plugins/asn1/packet-asn1.c:
+
+	  Have two strings in an enum_val_t - one that's a short string
+	  that is convenient to put into a command line (no capital
+	  letters, no spaces to require quotes), and one that's a detailed
+	  description for use in the UI.  Allow either of them in the
+	  preferences file or "-o" option; use the detailed description in
+	  the UI, and also use it when writing the preferences out, so that
+	  the preference will be readable by older versions of Ethereal
+	  (assuming the preference existed in that version).
+
+	  Update "README.developer" to give more detail about an enum_val_t
+	  (and to put the _t in), and to give a more detailed description
+	  of the "radio_buttons" argument to
+	  "prefs_register_enum_preference()".
+
+2004-05-24 02:06  guy
+
+	* image/: clist_ascend.xpm, clist_descend.xpm:
+
+	  Make the XPM text "const", to get rid of some compiler warnings.
+
+2004-05-24 01:58  guy
+
+	* gtk/dlg_utils.c:
+
+	  "dlg_destroy_cb()" doesn't use its arguments when built with GTK+
+	  1.2[.x], so add _U_ in that case.
+
+2004-05-23 23:24  ulfl
+
+	* gtk/: ansi_a_stat.c, ansi_map_stat.c, bootp_stat.c,
+	  dcerpc_stat.c, endpoint_talkers_table.c, fc_stat.c, gsm_a_stat.c,
+	  gsm_map_stat.c, gsm_map_summary.c, h225_counter.c,
+	  h225_ras_srt.c, hostlist_table.c, http_stat.c, io_stat.c,
+	  isup_stat.c, ldap_stat.c, mgcp_stat.c, mtp3_stat.c,
+	  mtp3_summary.c, proto_draw.c, proto_hier_stats_dlg.c,
+	  rpc_progs.c, rpc_stat.c, rtp_analysis.c, sip_stat.c, smb_stat.c,
+	  summary_dlg.c, supported_protos_dlg.c, tap_dfilter_dlg.c,
+	  tcp_graph.c, wsp_stat.c:
+
+	  use new functions in window API (ui_util.h), use window_new
+	  instead of dlg_window_new for the statistics windows (as these
+	  are no dialog windows) do some code cleanup
+
+2004-05-23 23:07  guy
+
+	* AUTHORS, packet-clnp.c:
+
+	  From Matthew Bradley: add an option to control how to display
+	  TSAPs (always as strings, always as raw bytes, or as strings iff
+	  all bytes are printable ASCII), and put the destination and
+	  source TSAPs into the protocol tree so they can be filtered on.
+
+2004-05-23 22:34  jmayer
+
+	* configure.in:
+
+	  Enable building dftest by default
+
+2004-05-23 22:21  guy
+
+	* config.nmake, packaging/nsis/Makefile.nmake,
+	  packaging/nsis/ethereal.nsi:
+
+	  From Lars Roland: define an "installation" version of GTK+ 2.x
+	  and Pango in "config.nmake", and use that in the NSIS script when
+	  generating the NSIS installer, so it puts GTK+ and Pango in the
+	  appropriate subdirectories.  Also, when uninstalling, remove both
+	  of the sets of subdirectories.
+
+	  As per his suggestion, get rid of the "GTK1_VERSION" and
+	  "GTK2_VERSION" macros, and just directly insert the values where
+	  those macros were used - "GTK1_VERSION" wasn't used at all, and
+	  "GTK2_VERSION" was only used immediately below where it was
+	  defined, and stuff elsewhere, such as in the NSIS script, didn't
+	  use them and would break if you changed them anyway.
+
+2004-05-23 22:06  guy
+
+	* .cvsignore, epan/.cvsignore:
+
+	  From Lars Roland: add some more .cvsignore items.
+
+2004-05-23 17:37  ulfl
+
+	* gtk/: about_dlg.c, dlg_utils.c, dlg_utils.h, help_dlg.c, main.c,
+	  ui_util.c, ui_util.h:
+
+	  next step to save the size and postition of the dialogs (using a
+	  hashtable) move the get/set window size functionality from main
+	  to ui_util, add some functions to handle windows/dialogs.
+
+	  changed help and about dialog to suit the current window API
+
+2004-05-23 15:03  ulfl
+
+	* gtk/compat_macros.h:
+
+	  add some comments about using WIDGET_SET_SIZE() macro
+
+2004-05-23 13:43  etxrab
+
+	* plugins/mgcp/packet-mgcp.c:
+
+	  Add translation of result codes
+
+2004-05-23 01:53  guy
+
+	* packet-aim-messaging.c:
+
+	  In outgoing messages:
+
+		  put the screen name into the Info column before fetching
+	  the
+		  message text, so it gets into the Info column even if we
+	  throw
+		  an exception fetching the message text;
+
+		  use the right offset when adding the screen name to the
+	  protocol
+		  tree;
+
+		  use the right offset for the byte after the screen name
+	  when
+		  calling "aim_get_message()".
+
+2004-05-23 01:10  guy
+
+	* packet-aim-messaging.c:
+
+	  Put in a missing space.
+
+2004-05-22 22:30  guy
+
+	* doc/.cvsignore:
+
+	  Add "ethereal-tmp.pod" to the list of files to ignore.
+
+2004-05-22 22:29  guy
+
+	* doc/Makefile.am:
+
+	  "--binary" is not a universal "cat" flag, and shouldn't be
+	  necessary on UN*X and, hopefully, not in Cygwin either.
+
+2004-05-22 21:52  guy
+
+	* doc/Makefile.am:
+
+	  Use "/" rather than "\" in UN*X pathnames.
+
+2004-05-22 21:51  guy
 
 	* Makefile.am:
 
-	  From Albert Chin: on IRIX, if -la depends on -lb, you must link
-	  with -lb -la.
+	  Make "ethereal.1" depend on "AUTHORS-SHORT", so that
+	  "AUTHORS-SHORT" (which is built in the top-level directory) is
+	  built before we try to build "ethereal.1" (which is built in the
+	  "doc" directory).
 
-2004-03-30 19:15  guy
+2004-05-22 21:47  guy
 
-	* packet-eapol.c:
+	* AUTHORS, packet-pktc.c:
 
-	  From Jouni Malinen: add support for the most likely EAPOL-Key
-	  packet type.
+	  From Thomas Anders:
 
-2004-03-30 19:07  guy
+	  - full support for "Wake Up" and "Security Parameter Recovered"
+	  messages - full support for IPsec (additionally to SNMPv3) DOI -
+	  add descriptive text to the info column (COL_INFO) - proper
+	  FT_BOOLEAN type for "Re-establish" and "ACK required" flags -
+	  proper item length for "PacketCable" (top-level), "List of
+	  ciphersuites"   and "Application Specific Data" - minor cleanup
 
-	* config.guess, config.sub:
+2004-05-22 19:56  ulfl
 
-	  Back out the previous change, as it checked in older versions of
-	  config.guess and config.sub.
+	* gtk/: color_dlg.c, dlg_utils.c, dlg_utils.h, follow_dlg.c,
+	  gsm_map_summary.c, h225_counter.c, help_dlg.c, io_stat.c,
+	  mgcp_stat.c, mtp3_summary.c, rtp_analysis.c, summary_dlg.c:
 
-2004-03-30 19:01  guy
+	  going to have a standard behaviour of the dialogs (including
+	  remebering of the dialog size in recent file).  for a first step,
+	  I replaced all window_new() calls from dialogs into
+	  dlg_window_new() ones, and removed all gtk_window_set_position
+	  calls, this should be done in a more generalized way
 
-	* packet-3g-a11.c:
+2004-05-22 17:14  ulfl
 
-	  From Ryuji Somegawa: fix AirLink record dissection.
+	* doc/: Makefile.am, Makefile.nmake, ethereal.pod:
 
-2004-03-30 18:55  guy
+	  remove (duplicated) list of authors from ethereal.pod, and use
+	  ../AUTHORS-SHORT instead to concatenate a tmp file to use
 
-	* AUTHORS, Makefile.common, packet-sip.c, tap-sipstat.c,
-	  gtk/sip_stat.c:
+2004-05-22 17:05  ulfl
 
-	  From Lars Roland: Tethereal version of SIP statistics tap, and
-	  fixes to the Ethereal version.
+	* AUTHORS:
 
-2004-03-30 18:45  guy
+	  merged differences between this file and doc/ethereal.pod
 
-	* plugins/Makefile.nmake:
+2004-05-22 15:29  ulfl
 
-	  From Lars Roland: have "make clean" and "make distclean" clean up
-	  the new Cisco VoIP plugins.
+	* AUTHORS:
 
-2004-03-30 18:30  guy
+	  sligthly change indentation, so the generated file
+	  AUTHORS-SHORTwill look a lot better
 
-	* plugins/: ciscosm/packet-sm.c, rlm/packet-rlm.c,
-	  rudp/packet-rudp.c:
+2004-05-22 14:05  jmayer
 
-	  From Duncan Sargeant: include "moduleinfo.h" so that the plugins
-	  get the right version number.
+	* make-authors-short.pl:
 
-2004-03-30 18:23  guy
+	  Next attempt to match an empty line on Windows
 
-	* packet-radius.c:
+2004-05-22 13:49  ulfl
 
-	  From Michael Kopp: add support for vendor-specific items for the
-	  Cisco VPN 3000 Concentrator, Cisco VPN 5000 Concentrator and
-	  Cisco Broadband Service Manager.
+	* doc/ethereal.pod:
 
-2004-03-30 18:14  guy
+	  some beautifying and bring the links to live, so the html manpage
+	  will jump correctly to it's link targets
 
-	* packet-gtp.c:
+2004-05-22 13:45  ulfl
 
-	  The extension ID field in a Private Extension IU is 2 bytes, so
-	  the length of the IU must be at least 2 bytes in order to dissect
-	  the contents.
+	* doc/Makefile.nmake:
 
-	  Just use "proto_tree_add_item()" to add the value of the private
-	  extension, and do so only if it's not zero-length.
+	  add a target to build the manpages
 
-2004-03-30 17:52  guy
+2004-05-22 12:32  ulfl
 
-	* packet-mip6.c:
+	* doc/ethereal.pod:
 
-	  Fix the length used for the protocol tree item for Mobile IPv6
-	  options.
+	  update manpage, to reflect recent (and not so recent :-( changes
+	  in the GUI, like some things in the menu and Preferences, and
+	  fixed some minor bugs which caused undesired formatting.
 
-2004-03-30 17:38  guy
+2004-05-22 08:12  guy
 
-	* packet-aim-location.c:
+	* epan/libethereal.def:
 
-	  From Devin Heitmueller: put back the info level for the user info
-	  request.
+	  From Gisle Vanem: export more functions from libethereal, as
+	  they're needed by Ethereal itself.
 
-2004-03-30 07:39  sharpe
+2004-05-22 07:50  guy
 
-	* config.guess, config.sub, packet-dcerpc-lsa.c,
-	  packet-dcerpc-samr.c, packet-dcerpc-spoolss.c,
-	  packet-dcerpc-svcctl.c, packet-smb-common.h, packet-smb.c:
+	* util.c:
 
-	  Add the mask for an NT ACL ACE to the summary list for each ACE.
-	  This means we don't have to expand the ACE to see what the
-	  permission mask is.
+	  Fix the other place where we construct temporary path names to
+	  use G_DIR_SEPARATOR and G_DIR_SEPARATOR_S, to get rid of one more
+	  horse-frightening pathname.
 
-	  There are a couple of other places where this could be used, but
-	  I have not done anything about them.
+2004-05-22 07:32  guy
 
-2004-03-29 23:14  guy
+	* gtk/about_dlg.c:
+
+	  GTK+ 1.2[.x] doesn't handle UTF-8 text, so do the "Authors" tab
+	  only with GTK+ 1.3 and later.
+
+	  If we're doing the "Authors" tab, include "text_page.h" to
+	  declare "text_page_new()".
+
+2004-05-22 07:24  guy
+
+	* .cvsignore, Makefile.am:
+
+	  Put "make-authors-short.pl" into the release tarball.
+
+	  Use it to generate the "AUTHORS-SHORT" file, put that file into
+	  the release tarball, and install it in the data directory.
+
+	  Add "AUTHORS-SHORT" to the .cvsignore file.
+
+2004-05-22 04:46  guy
+
+	* gtk/about_dlg.c:
+
+	  Include "cvsversion.h" so we report the version correctly for
+	  builds from CVS.
+
+2004-05-22 04:25  guy
+
+	* gtk/: Makefile.am, about_dlg.c, help_dlg.c, text_page.h:
+
+	  Declare "text_page_new()" in a "gtk/text_page.h" header, rather
+	  than embedding a declaration in "gtk/about_dlg.c".
+
+	  Do the Authors page in the About dialog on UN*X as well as on
+	  Windows.
+
+2004-05-22 04:15  guy
+
+	* version_info.c, gtk/main.c:
+
+	  Don't put a newline at the end of the compiled-with version
+	  information - we don't put it at the end of the run-time version
+	  information.
+
+	  Add newlines into formats used with that information where
+	  appropriate (the "About" dialog box already had a newline in the
+	  format).
+
+2004-05-21 23:18  jmayer
+
+	* AUTHORS:
+
+	  Convert to UTF-8: iconv -f latin1 -t utf-8 AUTHORS >AUTHORS.utf-8
+
+2004-05-21 21:08  jmayer
+
+	* make-authors-short.pl:
+
+	  Don't print empty lines follwing a }
+
+2004-05-21 21:07  jmayer
+
+	* AUTHORS:
+
+	  Add a missing {
+
+2004-05-21 17:35  ulfl
+
+	* gtk/about_dlg.c:
+
+	  WIN32 only: add an "Authors" notebook tab, to show the content of
+	  the AUTHORS-SHORT file
+
+2004-05-21 17:31  ulfl
+
+	* packaging/nsis/ethereal.nsi:
+
+	  install (and uninstall) AUTHORS-SHORT and COPYING files
+
+2004-05-21 17:25  ulfl
+
+	* Makefile.nmake:
+
+	  convert AUTHORS file to a shorter version (without the tasks
+	  done) for the about dialog
+
+2004-05-21 17:22  ulfl
+
+	* make-authors-short.pl:
+
+	  convert AUTHORS file to a shorter version (without the tasks
+	  done) for the about dialog
+
+2004-05-21 10:36  sahlberg
+
+	* AUTHORS, packet-pktc.c:
+
+	  From Thomas Anders   enhancements to PacketCable
+
+2004-05-21 08:55  ulfl
+
+	* gtk/: about_dlg.c, help_dlg.c, summary_dlg.c, ui_util.c:
+
+	  code cleanup (e.g. removed unused function parameters), added new
+	  about page, showing the authors file (but still commented out)
+
+2004-05-21 08:44  guy
+
+	* gtk/: Makefile.am, about_dlg.c, about_dlg.h, main.h, menu.c:
+
+	  Now that the "About" dialog box's code is in "gtk/about_dlg.c",
+	  move the "create an About dialog" function's declaration to
+	  "gtk/about_dlg.h".
+
+2004-05-21 06:39  guy
+
+	* gtk/summary_dlg.c:
+
+	  GCC warns about zero-length format strings, presumably either
+	  because not all *printf routines don't handle them or because
+	  there's no advantage to using one rather than just copying a null
+	  string to the target (the length-checking done by
+	  "snprintf"-style routines is useful for a null string only if the
+	  target is zero-length, which it isn't in this case).
+
+	  Clean up indentation.
+
+2004-05-21 00:42  guy
+
+	* image/eicon3d64.xpm:
+
+	  Make the XPM data an array of "const char *", to get rid of a
+	  compiler warning.
+
+2004-05-21 00:39  guy
+
+	* epan/plugins.c:
+
+	  Get rid of a no-longer-used variable.
+
+2004-05-21 00:38  guy
+
+	* gtk/about_dlg.c:
+
+	  Include <string.h> to declare "strdup()".
+
+2004-05-21 00:27  ulfl
+
+	* gtk/help_dlg.c:
+
+	  split helper text page function into a generic and a help
+	  specific part, so other files can use this functionality too
+
+2004-05-21 00:25  ulfl
 
 	* gtk/dlg_utils.c:
 
-	  It *appears* that if you don't explicitly request that a file
-	  chooser dialog be centered on its parent, it still gets so
-	  centered; we remove the call to do so from the GTK+ >= 2.4 file
-	  selection dialog creation code.
+	  gtk_window_present() new dialog windows, to be sure they get on
+	  top
 
-2004-03-29 23:03  guy
+2004-05-21 00:18  guy
+
+	* gtk/: dlg_utils.c, main.c, proto_draw.c:
+
+	  Tag unused parameters with _U_ to squelch GCC compiler warnings
+	  (they're GTK+ callbacks so we don't get to change the calling
+	  sequence).
+
+2004-05-20 23:01  ulfl
+
+	* gtk/summary_dlg.c:
+
+	  complete new layout of the summary dialog
+
+2004-05-20 22:57  ulfl
+
+	* gtk/ui_util.c:
+
+	  simple_list_new(): hide title row, if titles == NULL
+
+2004-05-20 22:37  guy
+
+	* epan/plugins.c:
+
+	  "datafile_dir" in "init_plugins()" is used regardless of whether
+	  we're on Windows or UN*X - don't #ifdef it.
+
+	  Clean up the #ifdefs in "get_plugins_global_dir()".
+
+	  Clean up white space.
+
+2004-05-20 18:23  ulfl
+
+	* gtk/: about_dlg.c, menu.c, plugins_dlg.c:
+
+	  beautify the "About Ethereal" page, put plugin list into the
+	  dialog
+
+2004-05-20 18:18  ulfl
+
+	* gtk/: ui_util.c, ui_util.h:
+
+	  as it's difficult to create a list widget for both supported GTK
+	  versions, I've started to implement a simple list to hide the
+	  complexity
+
+2004-05-20 13:48  ulfl
+
+	* epan/plugins.c, epan/plugins.h, gtk/about_dlg.c:
+
+	  separate dir functions from the plugin init, put this and some
+	  other dirs in the about dialog
+
+2004-05-20 13:43  ulfl
+
+	* epan/resolv.c:
+
+	  code cleanup
+
+2004-05-20 12:47  ulfl
 
 	* gtk/dlg_utils.c:
 
-	  In a "save" dialog, the "yes" button should be a "Save" button,
-	  not an "Open" button.
+	  call gtk_window_present() only on GTK2 and above
 
-2004-03-29 22:55  guy
+2004-05-20 12:01  ulfl
 
-	* gtk/: dlg_utils.c, dlg_utils.h, file_dlg.c:
+	* gtk/: about_dlg.c, main.c, Makefile.common, main.h, menu.c:
 
-	  Add another wrapper routine, "file_selection_set_extra_widget()",
-	  to set the "extra options" portion of a file selection dialog,
-	  and use it rather than #if'ed code.
+	  moved the about dialog from main.c to it's own new about_dlg.c,
+	  added a notebook tab with some directory infos (still incomplete
+	  and ugly) cleaned up #includes in main.c (hoping this didn't
+	  break the build on unix)
 
-2004-03-29 22:40  guy
+2004-05-20 11:53  ulfl
 
-	* gtk/: capture_dlg.c, dlg_utils.c, dlg_utils.h, file_dlg.c,
-	  follow_dlg.c, print_prefs.c:
+	* gtk/Makefile.nmake:
 
-	  Make "file_selection_new()" take as its second argument an
-	  Ethereal-defined indication of the action (open vs. save),
-	  regardless of whether we're building for GTK+ >= 2.4 or not; we
-	  just ignore the argument in pre-2.4 GTK+.
+	  added a depend to ethereal-tap-register.c, so adding a gtk-tap
+	  will regenerate this file
 
-	  Use "file_selection_new()" rather than #if'ed code to use it or
-	  "gtk_file_chooser_dialog_new()"  for GTK+ >= 2.4 and
-	  "gtk_file_selection_new()" or it for pre-2.4 GTK+.
+2004-05-20 11:47  ulfl
 
-	  Add a "file_selection_set_current_folder()" routine that does the
-	  appropriate thing depending on whether we're GTK+ >= 2.4 or not,
-	  and use that rather than #if'ed code to use
-	  "gtk_file_chooser_set_current_folder()" or
-	  "gtk_file_selection_set_filename()".
+	* packet-lmp.c:
 
-2004-03-28 00:26  guy
+	  avoid using ushort (not available on all platforms), use guint16
+	  instead
 
-	* packet-eapol.c:
+2004-05-20 10:37  ulfl
 
-	  From Jouni Malinen:
+	* gtk/: menu.c, menu.h, nameres_prefs.c:
 
-		  Small changes for EAPOL-Key dissector for IEEE
-	  802.11i/RSN:
-		  - add Encrypted Key Data flag for key info
-		  - do not try to parse EAPOL-Key Key Data if it is
-	  encrypted
-		    (RSN: Encrypted Key Data flag, WPA: Group Key)
-		  - Key Index and Key ID are reserved in RSN
+	  update menu check items, if name resolution prefs changed
 
-2004-03-27 12:18  ulfl
+2004-05-19 22:17  ulfl
 
-	* gtk/: capture_dlg.c, file_dlg.c:
+	* gtk/dlg_utils.c:
 
-	  minor code cleanup, including removed MSVC warnings
+	  workaround for GTK2 bug: bring main window back to front, when a
+	  dialog is closed
 
-2004-03-27 12:14  jmayer
+2004-05-19 17:45  ashokn
 
-	* aclocal-fallback/: glib-2.0.m4, glib.m4, gtk-2.0.m4, gtk.m4:
+	* packet-lmp.c, packet-rsvp.c:
 
-	  Fix some aclocal warnings during autogen.sh
+	  Fixes to LMP for draft-09 support.
 
-2004-03-27 12:07  jmayer
+	  Minor fix to RSVP for G-UNI object number.
 
-	* acinclude.m4, wiretap/acinclude.m4:
+2004-05-19 04:52  tpot
 
-	  Some aclocal warning fixes during autogen.sh
+	* packet-dcerpc-samr.c, packet-dcerpc-efs.c, packet-dcerpc-lsa.c,
+	  packet-dcerpc-netlogon.c, packet-dcerpc-nt.c, packet-dcerpc-nt.h:
 
-2004-03-27 11:53  guy
+	  Remove hf argument to common routines for dissecting domain sids.
+	   Most of the callers passed -1 for this parameter anyway.
+
+2004-05-18 11:11  jmayer
+
+	* acinclude.m4:
+
+	  Thomas Anders: Pathnames might contain Spaces, krb5-config might
+	  not be in PATH
+
+2004-05-18 11:08  sahlberg
+
+	* packet-pktc.c:
+
+	  update to packetcable    dissect all of apreq/aprep packets
+
+2004-05-18 08:22  sahlberg
+
+	* Makefile.common, packet-kerberos.c, packet-pktc.c, packet-pktc.h,
+	  epan/Makefile.common:
+
+	  New protocol : PacketCable : PKTC
+
+	  The AP-REQ and AP_REP packets are partially dissected up to and
+	  including the kerberos blob.
+
+	  work in progress
+
+2004-05-18 00:05  ulfl
+
+	* gtk/proto_draw.c:
+
+	  this is a hack, to workaround a bug in GTK2.x! when changing the
+	  font size, even refilling of the corresponding gtk_text_buffer
+	  doesn't seem to trigger an update.  The only workaround is to
+	  freshly select the frame, which will remove any existing notebook
+	  tabs and "restart" the whole byte view again.
+
+2004-05-17 21:15  ulfl
+
+	* gtk/: main.c, simple_dialog.c:
+
+	  GTK2 only: catch window state event, and call
+	  display_queued_messages() if window not iconified any longer.
+	  Queue up simple_dialog messages, if window *is* iconified
+
+2004-05-17 20:06  sahlberg
+
+	* tap-rpcprogs.c, gtk/rpc_progs.c:
+
+	  In rpc programs statistics,	change RTT (RoundTripTime) to SRT
+	  (ServiceResponseTime) since that is a more appropriate name for
+	  these stats.
+
+2004-05-17 20:03  sahlberg
+
+	* packet-ber.h, packet-h225.c, packet-h245.c, packet-h450.c,
+	  packet-kerberos.c, packet-per.c, packet-per.h:
+
+	  rename the NOT_DECODED_YET macros to avoid a name clash for those
+	  sources that include both packet-ber.h and packet-per.h
+
+2004-05-16 18:50  guy
+
+	* packet-smtp.c:
+
+	  From Yaniv Kaul: add support for 3 MS-Exchange, non-RFC compliant
+	  commands, per
+	  http://support.microsoft.com/default.aspx?scid=kb;[LN];812455
+
+2004-05-16 18:42  ulfl
+
+	* gtk/simple_dialog.c:
+
+	  don't show simple_dialogs, if main window iconified (minimized),
+	  this would lead to an unresponsive program.  Simply discard the
+	  messages, as we don't have a way to queue and show this message
+	  if the main window is becoming "visible" again.
+
+2004-05-16 18:42  guy
+
+	* packet-vrrp.c:
+
+	  From Yaniv Kaul: note that authentication types 1 and 2 are from
+	  RFC 2338.
+
+2004-05-15 21:57  guy
+
+	* epan/libethereal.def:
+
+	  From Gisle Vanem: export dfilter_dump from libethereal for the
+	  benefit of dftest.
+
+2004-05-15 21:56  guy
+
+	* configure.in:
+
+	  From Thomas Anders: fix --with-net-snmp to let it handle either
+	  the pathname of the Net-SNMP directory or the pathname of the
+	  Net-SNMP configure script as an argument to that option.
+
+2004-05-15 21:26  guy
+
+	* AUTHORS, packet-iax2.c, packet-iax2.h, doc/ethereal.pod:
+
+	  From James H. Cloos Jr: update the list of audio and video
+	  codecs.
+
+	  Get rid of no-longer-used AST_FORMAT_MP3.
+
+2004-05-15 21:08  guy
+
+	* packet-sip.c:
+
+	  From Martin Mathieson: mark the "this is a suspected resend"
+	  Boolean and "this is suspected to be a resend of frame N" entries
+	  as generated, and make the latter an FT_FRAMENUM field so you can
+	  go to that frame conveniently.
+
+2004-05-15 19:54  guy
+
+	* AUTHORS, packet-gre.c, packet-mpls.c:
+
+	  From Carlos Pignataro: support for MPLS over GRE.
+
+2004-05-15 10:05  tpot
+
+	* packet-dcerpc-nt.c, packet-dcerpc-samr.c:
+
+	  Move common routines from packet-dcerpc-samr.c to
+	  packet-dcerpc-nt.c
+
+2004-05-15 10:02  tpot
+
+	* packet-dcerpc.c:
+
+	  Remove call to PROTO_ITEM_SET_LINK().
+
+2004-05-15 00:52  ulfl
+
+	* epan/proto.h:
+
+	  remove FI_LINK again, as this info can be derived from the
+	  presence of the FT_FRAMENUM field
+
+2004-05-15 00:48  ulfl
+
+	* packet-dcerpc.c:
+
+	  remove FI_LINK again, as this info can be derived from the
+	  presence of the FT_FRAMENUM field
+
+2004-05-15 00:40  ulfl
+
+	* gtk/proto_draw.c, packet-tcp.c, reassemble.c:
+
+	  remove FI_LINK again, as this info can be derived from the
+	  presence of the FT_FRAMENUM field
+
+2004-05-14 23:38  sahlberg
+
+	* packet-ber.h, packet-kerberos.c:
+
+	  More updates to packetcable kerberos
+
+	  in particular,  packetcable use a slightly diufferent
+	  KDC-REQ-BODY where the field	till[5] is optional.  Make it
+	  optional in the dissector as well since ethereal will still be
+	  able to dissecto normal kerberos pdus where it is not optional
+
+2004-05-14 18:02  ulfl
+
+	* gtk/proto_draw.c:
+
+	  add support to link from specially marked fields to related
+	  packets, a doubleclick will follow the link (GTK1 is working now
+	  too)
+
+2004-05-14 17:34  ulfl
+
+	* packet-tcp.c, reassemble.c:
+
+	  add support to link from specially marked fields to related
+	  packets, a doubleclick will follow the link
+
+2004-05-14 17:29  ulfl
+
+	* packet-dcerpc.c:
+
+	  add support to link from specially marked fields to related
+	  packets, a doubleclick will follow the link
+
+2004-05-14 16:32  obiot
+
+	* packet-wbxml.c:
+
+	  While looking at a WV-CSP packet capture, I realized that there
+	  were still leftovers from before the EXT_T fix where
+	  tvb_strsize() was being called.
+
+	  This patch fixes this (both in TAG and ATTR processors).
+
+2004-05-14 16:23  ulfl
+
+	* Makefile.nmake:
+
+	  GTK Wimp has it's own setting: GTK_WIMP_DIR, the setup target
+	  should use it accordingly
+
+2004-05-14 16:07  ulfl
+
+	* packet-dcerpc.c:
+
+	  add support to link from specially marked fields to related
+	  packets, a doubleclick will follow the link
+
+2004-05-14 15:55  ulfl
+
+	* packet-tcp.c, epan/proto.h, gtk/proto_draw.c:
+
+	  add support to link from specially marked fields to related
+	  packets, a doubleclick will follow the link
+
+2004-05-14 10:33  jmayer
+
+	* acinclude.m4:
+
+	  Thomas Anders: Add the actual libs to link in case
+	  --with-krb5=/explicit/path
+
+2004-05-14 09:00  ulfl
 
 	* packet-tcp.c:
 
-	  From Ronnie Sahlberg: RST and FIN segments are neither
-	  zero-window packets nor duplicate ACKs.
-
-2004-03-27 11:52  jmayer
-
-	* autogen.sh, configure.in:
-
-	  OK, I'm impatient. In case of problems, I'm to blame, not
-	  Olivier.
-
-	  Olivier Biot:   Merge epan/configure.in back into configure.in
-	  Leave epan/confiugre.in and epan/acinclude.m4 in case we need to
-			undo this.
-
-2004-03-27 11:33  guy
-
-	* process-x11-fields.pl:
-
-	  From Gisle Vanem: add a "this is a generated file" comment to the
-	  output of process-x11-fields.
-
-2004-03-27 11:32  guy
-
-	* AUTHORS, Makefile.common, packet-ansi_801.c, packet-ansi_a.c,
-	  packet-ansi_map.c, packet-gsm_map.c, packet-gsm_sms.c,
-	  packet-gsm_sms.h, packet-gsm_ss.c, packet-gsm_ss.h,
-	  epan/Makefile.common:
-
-	  From Michael Lum:
-
-		  ANSI IS-801 support;
-
-		  dissect more GSM supplementary services messages and
-	  fields.
-
-2004-03-27 11:16  oabad
-
-	* gtk/: capture_dlg.c, dlg_utils.c, dlg_utils.h, file_dlg.c,
-	  follow_dlg.c, print_prefs.c:
-
-	  Use the new GtkFileChooserDialog when built with gtk+ 2.4
-
-2004-03-27 11:16  guy
-
-	* wiretap/: nettl.c, nettl.h:
-
-	  From Mark C. Brown: add support for iether (dual-port gigabit)
-	  cards in nettl files.
-
-2004-03-27 11:13  guy
-
-	* gtk/: bootp_stat.c, h225_counter.c, h225_ras_srt.c, http_stat.c,
-	  mgcp_stat.c, sip_stat.c, wsp_stat.c:
-
-	  From Lars Roland: use the generic filter dialog for the SIP,
-	  HTTP, WSP, and BOOTP taps.
-
-	  Get rid of the "dlg" variable in some of those taps - it's never
-	  set, so it's always null, and nothing useful is done with it if
-	  it's null.
-
-	  Make static some variables and functions not used outside the
-	  source file in which they're defined.
+	  mark some more protocol fields as generated
 

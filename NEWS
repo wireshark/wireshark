@@ -1,6 +1,6 @@
-$Id: NEWS,v 1.155 2004/07/07 20:03:22 gerald Exp $
+$Id: NEWS,v 1.156 2004/07/07 22:20:42 gerald Exp $
 
-== July ??, 2004
+== July 7, 2004
 
 Ethereal 0.10.5 has been released.
 
@@ -36,76 +36,22 @@ New and updated features
 
 New protocol support
 
-DNP,
-ENRP,
-giFT,
-H.235,
-PacketCable,
-SigComp,
-SIR (Serial Infrared),
+  DNP, ENRP, giFT, H.235, PacketCable, SigComp, SIR (Serial Infrared)
 
 
 Updated protocol support
 
-AIM,
-ASAP,
-ASN.1 BER,
-ARP,
-ATM,
-DHCP,
-CFPI,
-CLNP,
-DCERPC (DCERPC, LSA, NT, SAMR, SRVSVC, WKSSVC),
-EAP,
-ENIP,
-Frame Relay,
-GRE,
-H.225,
-H.245,
-H.450,
-HTTP,
-IAX2,
-IEEE 802.11,
-ISAKMP,
-iSNS,
-ISUP,
-JFIF,
-Kerberos,
-LMP,
-M3UA,
-MGCP,
-MPLS,
-MTP3,
-NCP,
-NetFlow,
-NFS,
-OSPF,
-PIM,
-RADIUS,
-RIP,
-RSVP,
-RTCP,
-RTP,
-RTSP,
-SCSI,
-SDP,
-SIP,
-SMB,
-SMTP,
-SNMP,
-SOCKS,
-SSL,
-T.35,
-TCP,
-VRRP,
-WBXML (User-Agent Profile),
-WSP,
-X11,
+  AIM, ASAP, ASN.1 BER, ARP, ATM, DHCP, CFPI, CLNP, DCERPC (DCERPC, LSA,
+  NT, SAMR, SRVSVC, WKSSVC), EAP, ENIP, Frame Relay, GRE, H.225, H.245,
+  H.450, HTTP, IAX2, IEEE 802.11, ISAKMP, iSNS, ISUP, JFIF, Kerberos, LMP,
+  M3UA, MGCP, MPLS, MTP3, NCP, NetFlow, NFS, OSPF, PIM, RADIUS, RIP, RSVP,
+  RTCP, RTP, RTSP, SCSI, SDP, SIP, SMB, SMTP, SNMP, SOCKS, SSL, T.35, TCP,
+  VRRP, WBXML (User-Agent Profile), WSP, X11
 
 
-Capture file support
+New and updated capture file support
 
-Radcom,
+  Radcom
 
 
 == May 13, 2004
