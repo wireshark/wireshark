@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.536 2003/01/11 10:16:21 guy Exp $
+# $Id: Makefile.am,v 1.537 2003/01/14 01:17:44 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -103,6 +103,7 @@ DISSECTOR_SRC = \
 	packet-bootp.c \
 	packet-bootparams.c \
 	packet-bpdu.c  \
+	packet-brdwlk.c \
 	packet-bvlc.c \
 	packet-cdp.c   \
 	packet-cgmp.c  \
@@ -180,7 +181,11 @@ DISSECTOR_SRC = \
 	packet-eth.c   \
 	packet-ethertype.c   \
 	packet-fc.c \
+	packet-fcct.c \
+	packet-fcdns.c \
 	packet-fcels.c \
+	packet-fcfcs.c \
+	packet-fcfzs.c \
 	packet-fcip.c \
 	packet-fclctl.c \
 	packet-fcp.c \
@@ -519,7 +524,11 @@ noinst_HEADERS = \
 	packet-eth.h   \
 	packet-fc.h \
 	packet-fcbls.h \
+	packet-fcct.h \
+	packet-fcdns.h \
 	packet-fcels.h \
+	packet-fcfcs.h \
+	packet-fcfzs.h \
 	packet-fclctl.h \
 	packet-fcp.h \
 	packet-fcswils.h \
