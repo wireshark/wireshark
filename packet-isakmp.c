@@ -2,7 +2,7 @@
  * Routines for the Internet Security Association and Key Management Protocol (ISAKMP)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.18 2000/05/17 08:23:50 guy Exp $
+ * $Id: packet-isakmp.c,v 1.19 2000/05/21 19:59:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1060,7 +1060,29 @@ dissect_config(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   
   proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->identifier),
                       "Identifier: %u",hdr->identifier);
-   
+  offset += sizeof(hdr->identifier);
+  length -= sizeof(*hdr);
+  
+  while(length) {
+    guint16 type = pntohs(pd + offset) & 0x7fff;
+    guint16 val_len = pntohs(pd + offset + 2);
+    
+    if(pd[offset] & 0x80) {
+      proto_tree_add_text(ntree, NullTVB, offset, 4,
+			  "%s (%u)",cfgattrident2str(type),val_len);
+      offset += 4;
+      length -= 4;
+    }
+    else {
+      guint pack_len = 4 + val_len;
+
+      proto_tree_add_text(ntree, NullTVB, offset, 4,
+			  "%s (%se)", cfgattrident2str(type), num2str(pd + offset + 4, val_len));
+      offset += pack_len;
+      length -= pack_len;
+    }
+  }
+
   if (hdr->next_payload < NUM_LOAD_TYPES) {
     if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
       dissect_transform(pd, offset, fd, tree, 0);       /* XXX - protocol ID? */
@@ -1263,6 +1285,10 @@ value2str(int ike_p1, guint16 att_type, guint16 value) {
           case 3:  return "RSA-SIG";
           case 4:  return "RSA-ENC";
           case 5:  return "RSA-Revised-ENC";
+	  case 64221: return "HybridInitRSA";
+	  case 64222: return "HybridRespRSA";
+	  case 64223: return "HybridInitDSS";
+	  case 64224: return "HybridRespDSS";
           default: return "UNKNOWN-AUTH-METHOD";
         }
       case 4:
