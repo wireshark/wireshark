@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.97 2004/06/25 07:04:03 jmayer Exp $
+$Id: README.developer,v 1.98 2004/07/08 21:16:04 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -373,12 +373,12 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.97 2004/06/25 07:04:03 jmayer Exp $"
+The "$Id: README.developer,v 1.98 2004/07/08 21:16:04 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
-When creating a new file, it is fine to just write "$Id: README.developer,v 1.97 2004/06/25 07:04:03 jmayer Exp $" as RCS will
+When creating a new file, it is fine to just write "$Id: README.developer,v 1.98 2004/07/08 21:16:04 guy Exp $" as RCS will
 automatically fill in the identifier at the time the file will be added to the
 CVS repository (checked in).
 
@@ -387,7 +387,7 @@ CVS repository (checked in).
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.97 2004/06/25 07:04:03 jmayer Exp $
+ * $Id: README.developer,v 1.98 2004/07/08 21:16:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -503,9 +503,24 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	(b) <=> tree != NULL
 
    In the interest of speed, if "tree" is NULL, avoid building a
-   protocol tree and adding stuff to it if possible.  Note,
-   however, that you must call subdissectors regardless of whether
-   "tree" is NULL or not. */
+   protocol tree and adding stuff to it, or even looking at any packet
+   data needed only if you're building the protocol tree, if possible.
+
+   Note, however, that you must fill in column information, create
+   conversations, reassemble packets, build any other persistent state
+   needed for dissection, and call subdissectors regardless of whether
+   "tree" is NULL or not.  This might be inconvenient to do without
+   doing most of the dissection work; the routines for adding items to
+   the protocol tree can be passed a null protocol tree pointer, in
+   which case they'll return a null item pointer, and
+   "proto_item_add_subtree()" returns a null tree pointer if passed a
+   null item pointer, so, if you're careful not to dereference any null
+   tree or item pointers, you can accomplish this by doing all the
+   dissection work.  This might not be as efficient as skipping that
+   work if you're not building a protocol tree, but if the code would
+   have a lot of tests whether "tree" is null if you skipped that work,
+   you might still be better off just doing all that work regardless of
+   whether "tree" is null or not. */
 	if (tree) {
 
 /* NOTE: The offset and length values in the call to
