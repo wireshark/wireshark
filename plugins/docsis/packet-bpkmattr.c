@@ -2,7 +2,7 @@
  * Routines for Baseline Privacy Key Management Attributes dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-bpkmattr.c,v 1.5 2003/05/28 14:52:51 gerald Exp $
+ * $Id: packet-bpkmattr.c,v 1.6 2003/09/09 07:17:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,7 +40,7 @@
 #include <epan/packet.h>
 
 /* BPKM Attributes defined in:
- * http://www.cablemodem.com/Specs/SP-BPI+-I08-020301.pdf
+ * http://www.cablemodem.com/downloads/specs/SP-BPI+_I10-030730.pdf
  */
 #define BPKM_RESERVED 0
 #define BPKM_SERIAL_NUM 1
@@ -128,18 +128,6 @@ static const value_string error_code_vals[] = {
   {7, "Not authorized for requested downstream traffic flow"},
   {8, "Downstream traffic flow not mapped to BPI+ SAID"},
   {9, "Time of day not acquired"},
-  {0, NULL},
-};
-
-static const value_string data_encr_algo_vals[] = {
-  {0, "Reserved"},
-  {1, "CBC Mode, 56 Bit DES"},
-  {2, "CBC Mode, 40 Bit DES"},
-  {0, NULL},
-};
-
-static const value_string data_auth_algo_vals[] = {
-  {0, "No Data Authentication"},
   {0, NULL},
 };
 
@@ -514,7 +502,7 @@ proto_register_docsis_bpkmattr (void)
      },
     {&hf_docsis_bpkmattr_crypto_suite,
      {"20 Cryptographic Suite", "docsis.bpkmattr.cryptosuite",
-      FT_UINT16, BASE_HEX, NULL, 0x0,
+      FT_UINT16, BASE_HEX, VALS(crypto_suite_attr_vals), 0x0,
       "Cryptographic Suite", HFILL}
      },
     {&hf_docsis_bpkmattr_crypto_suite_list,
