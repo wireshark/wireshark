@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.438 2004/05/22 04:15:01 guy Exp $
+ * $Id: main.c,v 1.439 2004/05/23 17:37:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1168,35 +1168,25 @@ main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer
   }
 }
 
-static void
-main_load_window_geometry(GtkWidget *widget
-#if GTK_MAJOR_VERSION < 2
-	_U_
-#endif
-)
-{
-    /* as we now have the geometry from the recent file, set it */
-    if (prefs.gui_geometry_save_position) {
-        gtk_widget_set_uposition(GTK_WIDGET(top_level),
-                                 recent.gui_geometry_main_x,
-                                 recent.gui_geometry_main_y);
-    }
-    if (prefs.gui_geometry_save_size) {
-        WIDGET_SET_SIZE(top_level, 
-                                recent.gui_geometry_main_width,
-                                recent.gui_geometry_main_height);
-    } else {
-        WIDGET_SET_SIZE(top_level, DEF_WIDTH, -1);
-    }
-#if GTK_MAJOR_VERSION >= 2
-    if(prefs.gui_geometry_save_maximized) {
-        if (recent.gui_geometry_main_maximized) {
-            gdk_window_maximize(widget->window);
-        } else {
-            gdk_window_unmaximize(widget->window);
-        }
-    }
 
+
+static void
+main_load_window_geometry(GtkWidget *widget)
+{
+    window_geometry_t geom;
+
+    geom.set_pos        = prefs.gui_geometry_save_position;
+    geom.x              = recent.gui_geometry_main_x;
+    geom.y              = recent.gui_geometry_main_y;
+    geom.set_size       = prefs.gui_geometry_save_size;
+    geom.width          = recent.gui_geometry_main_width;
+    geom.height         = recent.gui_geometry_main_height;
+    geom.set_maximized  = prefs.gui_geometry_save_maximized;
+    geom.maximized      = recent.gui_geometry_main_maximized;
+
+    window_set_geometry(widget, &geom);
+
+#if GTK_MAJOR_VERSION >= 2
     /* XXX - rename recent settings? */
     if (recent.gui_geometry_main_upper_pane)
         gtk_paned_set_position(GTK_PANED(main_first_pane),  recent.gui_geometry_main_upper_pane);
@@ -1207,56 +1197,27 @@ main_load_window_geometry(GtkWidget *widget
 #endif
 }
 
+
 static void
 main_save_window_geometry(GtkWidget *widget)
 {
-	gint desk_x, desk_y;
-#if GTK_MAJOR_VERSION >= 2
-    GdkWindowState state;
-#endif
+    window_geometry_t geom;
 
-	/* Try to grab our geometry.
-
-	   GTK+ provides two routines to get a window's position relative
-	   to the X root window.  If I understand the documentation correctly,
-	   gdk_window_get_deskrelative_origin applies mainly to Enlightenment
-	   and gdk_window_get_root_origin applies for all other WMs.
-
-	   The code below tries both routines, and picks the one that returns
-	   the upper-left-most coordinates.
-
-	   More info at:
-
-	http://mail.gnome.org/archives/gtk-devel-list/2001-March/msg00289.html
-	http://www.gtk.org/faq/#AEN606
-    */
+    window_get_geometry(widget, &geom);
 
     if (prefs.gui_geometry_save_position) {
-	    gdk_window_get_root_origin(widget->window, 
-            &recent.gui_geometry_main_x, 
-            &recent.gui_geometry_main_y);
-	    if (gdk_window_get_deskrelative_origin(widget->window,
-				    &desk_x, &desk_y)) {
-		    if (desk_x <= recent.gui_geometry_main_x && 
-                desk_y <= recent.gui_geometry_main_y)
-            {
-			    recent.gui_geometry_main_x = desk_x;
-			    recent.gui_geometry_main_y = desk_y;
-		    }
-	    }
+        recent.gui_geometry_main_x = geom.x;
+	    recent.gui_geometry_main_y = geom.y;
     }
 
     if (prefs.gui_geometry_save_size) {
-	    /* XXX - Is this the "approved" method? */
-	    gdk_window_get_size(widget->window, 
-            &recent.gui_geometry_main_width, 
-            &recent.gui_geometry_main_height);
+        recent.gui_geometry_main_width  = geom.width, 
+        recent.gui_geometry_main_height = geom.height;
     }
 
 #if GTK_MAJOR_VERSION >= 2
     if(prefs.gui_geometry_save_maximized) {
-        state = gdk_window_get_state(widget->window);
-        recent.gui_geometry_main_maximized = (state == GDK_WINDOW_STATE_MAXIMIZED);
+        recent.gui_geometry_main_maximized = geom.maximized;
     }
 
     recent.gui_geometry_main_upper_pane     = gtk_paned_get_position(GTK_PANED(main_first_pane));

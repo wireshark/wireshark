@@ -1,6 +1,6 @@
 /* about_dlg.c
  *
- * $Id: about_dlg.c,v 1.10 2004/05/22 07:32:11 guy Exp $
+ * $Id: about_dlg.c,v 1.11 2004/05/23 17:37:36 ulfl Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -228,7 +228,16 @@ about_ethereal_cb( GtkWidget *w _U_, gpointer data _U_ )
    * not?  (The GNOME 1.x GnomeAbout widget uses GnomeDialog.)
    */
   about_ethereal_w = dlg_window_new("About Ethereal");
-  SIGNAL_CONNECT(about_ethereal_w, "destroy", about_ethereal_destroy_cb, NULL);
+  /* set the initial position (must be done, before show is called!) */
+  /* default position is not appropriate for the about dialog */
+#if GTK_MAJOR_VERSION >= 2
+  gtk_window_set_position(GTK_WINDOW(about_ethereal_w), GTK_WIN_POS_CENTER_ON_PARENT);
+#else
+  gtk_window_set_position(GTK_WINDOW(about_ethereal_w), GTK_WIN_POS_CENTER);
+#endif
+  /* setting the size is dangerous here, as making it too short will 
+   * clip content on GTK1, so simply use the natural size */
+  /*gtk_window_set_default_size(GTK_WINDOW(about_ethereal_w), 600, 400);*/
   gtk_container_border_width(GTK_CONTAINER(about_ethereal_w), 6);
 
   main_vb = gtk_vbox_new(FALSE, 12);
@@ -249,7 +258,6 @@ about_ethereal_cb( GtkWidget *w _U_, gpointer data _U_ )
 #endif
 
   folders_page = about_folders_page_new();
-  WIDGET_SET_SIZE(folders_page, 500, 200);
   page_lb = gtk_label_new("Folders");
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), folders_page, page_lb);
 
@@ -264,16 +272,13 @@ about_ethereal_cb( GtkWidget *w _U_, gpointer data _U_ )
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
   ok_btn = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
-  SIGNAL_CONNECT_OBJECT(ok_btn, "clicked", gtk_widget_destroy,
-                        about_ethereal_w);
-  gtk_widget_grab_default(ok_btn);
+  window_set_cancel_button(about_ethereal_w, ok_btn, window_cancel_button_cb);
 
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Cancel" button had
-     been selected. */
-  dlg_set_cancel(about_ethereal_w, ok_btn);
+  SIGNAL_CONNECT(about_ethereal_w, "delete_event", window_delete_event_cb, NULL);
+  SIGNAL_CONNECT(about_ethereal_w, "destroy", about_ethereal_destroy_cb, NULL);
 
   gtk_widget_show_all(about_ethereal_w);
+  window_present(about_ethereal_w);
 }
 
 static void

@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.52 2004/05/22 19:56:18 ulfl Exp $
+ * $Id: help_dlg.c,v 1.53 2004/05/23 17:37:36 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -48,7 +48,6 @@
 #define NOTEBOOK_KEY    "notebook_key"
 #define TEXT_KEY        "txt_key"
 
-static void help_close_cb(GtkWidget *w, gpointer data);
 static void help_destroy_cb(GtkWidget *w, gpointer data);
 static void insert_text(GtkWidget *w, const char *buffer, int nchars);
 static void set_help_text(GtkWidget *w, const char *help_file_path);
@@ -98,7 +97,7 @@ GtkWidget * text_page_new(const char *absolute_path)
   gtk_text_set_line_wrap(GTK_TEXT(txt), TRUE);
 #else
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
-				 GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+				 GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
   txt = gtk_text_view_new();
   gtk_text_view_set_editable(GTK_TEXT_VIEW(txt), FALSE);
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(txt), GTK_WRAP_WORD);
@@ -174,10 +173,8 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
     return;
   }
 
-  help_w = dlg_window_new("Ethereal: Help");
-  SIGNAL_CONNECT(help_w, "destroy", help_destroy_cb, NULL);
-  /* XXX: improve this, e.g. remember the last window size in a file */
-  WIDGET_SET_SIZE(help_w, DEF_WIDTH, DEF_HEIGHT);
+  help_w = window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: Help");
+  gtk_window_set_default_size(GTK_WINDOW(help_w), DEF_WIDTH, DEF_HEIGHT);
   gtk_container_border_width(GTK_CONTAINER(help_w), 2);
 
   /* Container for each row of widgets */
@@ -219,24 +216,20 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   fclose(help_toc_file);
 
 
-  /* Buttons (only "Ok" for now) */
+  /* Button row */
   bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
   gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
 
   close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
-  SIGNAL_CONNECT(close_bt, "clicked", help_close_cb, help_w);
-  gtk_widget_grab_default(close_bt);
+  window_set_cancel_button(help_w, close_bt, window_cancel_button_cb);
+
+  SIGNAL_CONNECT(help_w, "delete_event", window_delete_event_cb, NULL);
+  SIGNAL_CONNECT(help_w, "destroy", help_destroy_cb, NULL);
 
   gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(help_w));
 
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Cancel" button had
-     been selected. */
-  dlg_set_cancel(help_w, close_bt);
-
   gtk_widget_show_all(help_w);
-  dlg_window_present(help_w, GTK_WIN_POS_MOUSE);
-
+  window_present(help_w);
 } /* help_cb */
 
 
@@ -272,15 +265,6 @@ void help_topic_cb(GtkWidget *w _U_, gpointer data _U_) {
     }
 
     /* topic page not found, default (first page) will be shown */
-}
-
-
-/*
- * Close help dialog.
- */
-static void help_close_cb(GtkWidget *w _U_, gpointer data)
-{
-  gtk_widget_destroy(GTK_WIDGET(data));
 }
 
 

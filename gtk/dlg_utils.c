@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.31 2004/05/22 19:56:18 ulfl Exp $
+ * $Id: dlg_utils.c,v 1.32 2004/05/23 17:37:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -287,7 +287,7 @@ dlg_button_row_new(gchar *stock_id_first, ...)
 
 
 /* this is called, when a dialog was closed */
-void on_dialog_destroyed(GtkWidget *dialog _U_, gpointer data _U_)
+void dlg_destroy_cb(GtkWidget *dialog, gpointer data)
 {
 #if GTK_MAJOR_VERSION >= 2
     if(top_level) {
@@ -296,9 +296,6 @@ void on_dialog_destroyed(GtkWidget *dialog _U_, gpointer data _U_)
         gtk_window_present(GTK_WINDOW(top_level));
     }
 #endif
-
-  /* XXX - saved the size of this dialog */
-  /* currently unclear, how the dialogs should be identified */
 }
 
 
@@ -313,6 +310,7 @@ dlg_window_new(const gchar *title)
 #else
   win = window_new(GTK_WINDOW_TOPLEVEL, title);
 #endif
+
   /*
    * XXX - if we're running in the capture child process, we can't easily
    * make this window transient for the main process's window.  We just
@@ -331,32 +329,9 @@ dlg_window_new(const gchar *title)
     gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
   }
 
-  SIGNAL_CONNECT(win, "destroy", on_dialog_destroyed, win);
+  SIGNAL_CONNECT(win, "destroy", dlg_destroy_cb, NULL);
 
   return win;
-}
-
-void
-dlg_window_present(GtkWidget *win, GtkWindowPosition pos)
-{
-
-  /* to stay compatible with GTK1.x, only these three pos values are allowed */
-  g_assert(
-      pos == GTK_WIN_POS_NONE || 
-      pos == GTK_WIN_POS_CENTER || 
-      pos == GTK_WIN_POS_MOUSE);        /* preferred for most dialogs */
-
-#if GTK_MAJOR_VERSION >= 2
-  gtk_window_present(GTK_WINDOW(win));
-
-  if(pos == GTK_WIN_POS_CENTER) {
-    pos = GTK_WIN_POS_CENTER_ON_PARENT;
-  }
-#endif
-  gtk_window_set_position(GTK_WINDOW(win), pos);
-
-  /* XXX - set a previously saved size of this dialog */
-  /* currently unclear, how the dialogs should be identified */
 }
 
 

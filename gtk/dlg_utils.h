@@ -1,7 +1,7 @@
 /* dlg_utils.h
  * Declarations of utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.h,v 1.13 2004/05/22 19:56:18 ulfl Exp $
+ * $Id: dlg_utils.h,v 1.14 2004/05/23 17:37:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,12 +25,9 @@
 #ifndef __DLG_UTILS_H__
 #define __DLG_UTILS_H__
 
-/* Create a dialog box window that belongs to Ethereal's main window. */
+/* Create a dialog box window that belongs to Ethereal's main window,
+ * see wíndow_new() for usage */
 extern GtkWidget *dlg_window_new(const gchar *);
-
-/* Show the created dialog box window. */
-/* use  GTK_WIN_POS_CENTER or GTK_WIN_POS_MOUSE only! */
-extern void dlg_window_present(GtkWidget *win, GtkWindowPosition pos);
 
 /* Create a file selection dialog box window that belongs to Ethereal's
    main window. */
@@ -60,6 +57,8 @@ extern void dlg_set_activate(GtkWidget *widget, GtkWidget *ok_button);
    the key being pressed is the <Esc> key. */
 extern void dlg_set_cancel(GtkWidget *widget, GtkWidget *cancel_button);
 
+
+/* used by compat_macros.h only */
 extern GtkWidget *dlg_radio_button_new_with_label_with_mnemonic(GSList *group,
     const gchar *label, GtkAccelGroup *accel_group);
 extern GtkWidget *dlg_check_button_new_with_label_with_mnemonic(const gchar *label,

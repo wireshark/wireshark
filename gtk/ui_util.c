@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.23 2004/05/21 08:55:07 ulfl Exp $
+ * $Id: ui_util.c,v 1.24 2004/05/23 17:37:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,11 @@
 #include "compat_macros.h"
 
 #include "image/eicon3d16.xpm"
+
+/* XXX - remove this later again, when dlg_xx function cleanup done */
+#include "dlg_utils.h"
+
+#define WIN_REG_KEY "win_reg_key"
 
 /* Set our window icon.  The GDK documentation doesn't provide any
    actual documentation for gdk_window_set_icon(), so we'll steal
@@ -107,6 +112,7 @@ window_icon_realize_cb (GtkWidget *win, gpointer data _U_)
 #endif
 }
 
+
 /* Create a new window, of the specified type, with the specified title
    (if any) and the Ethereal icon. */
 GtkWidget *
@@ -118,8 +124,270 @@ window_new(GtkWindowType type, const gchar *title)
   if (title != NULL)
     gtk_window_set_title(GTK_WINDOW(win), title);
   SIGNAL_CONNECT(win, "realize", window_icon_realize_cb, NULL);
+
+  /* register this window title (it might change later!) */
+  if(title && strlen(title)) {
+    OBJECT_SET_DATA(win, WIN_REG_KEY, g_strdup(title));
+  }
+
+  /* XXX - which one is the correct default policy? or use a preference for this? */
+  /* GTK_WIN_POS_NONE, GTK_WIN_POS_CENTER or GTK_WIN_POS_MOUSE */
+
+  /* set the initial position (must be done, before show is called!) */
+  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_MOUSE);
+
+#if GTK_MAJOR_VERSION < 2
+  /* allow window to be shrinked by user, as gtk_widget_set_usize() will set minimum size and */
+  /* the user never couldn't shrink the window again */
+  gtk_window_set_policy(GTK_WINDOW(win), TRUE, TRUE, FALSE);
+#endif
+
   return win;
 }
+
+/* Present the created window. */
+void
+window_present(GtkWidget *win)
+{
+  window_geometry_t geom;
+
+#if GTK_MAJOR_VERSION >= 2
+  /* present this window */
+  gtk_window_present(GTK_WINDOW(win));
+#endif
+
+  /* do we have a previously saved size and position of this window? */
+  if(window_load_geom(win, &geom)) {
+    /* XXX - use prefs to select which values to set? */
+    geom.set_pos        = TRUE;
+    geom.set_size       = TRUE;
+    geom.set_maximized  = TRUE;
+    window_set_geometry(win, &geom);
+  }
+}
+
+
+/* set the actions needed for the cancel "Close"/"Ok"/"Cancel button that closes the window */
+void window_set_cancel_button(GtkWidget *win, GtkWidget *bt, window_cancel_button_fct cb)
+{
+/*  SIGNAL_CONNECT_OBJECT(bt, "clicked", cb, win);*/
+  SIGNAL_CONNECT(bt, "clicked", cb, win);
+
+  gtk_widget_grab_default(bt);
+
+  /* Catch the "key_press_event" signal in the window, so that we can catch
+     the ESC key being pressed and act as if the "Cancel" button had
+     been selected. */
+  dlg_set_cancel(win, bt);
+}
+
+
+/* default callback handler for cancel button "clicked" signal */
+void window_cancel_button_cb(GtkWidget *w _U_, gpointer data)
+{
+  window_destroy(GTK_WIDGET(data));
+}
+
+
+/* default callback handler: the window managers X of the window was clicked (delete_event) */
+gboolean
+window_delete_event_cb(GtkWidget *win, GdkEvent *event _U_, gpointer user_data _U_)
+{
+    window_destroy(win);
+
+    /* event handled, don't do anything else */
+    return TRUE;
+}
+
+
+/* get the geometry of a window from window_new() */
+void
+window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
+{
+	gint desk_x, desk_y;
+#if GTK_MAJOR_VERSION >= 2
+    GdkWindowState state;
+#endif
+
+	/* Try to grab our geometry.
+
+	   GTK+ provides two routines to get a window's position relative
+	   to the X root window.  If I understand the documentation correctly,
+	   gdk_window_get_deskrelative_origin applies mainly to Enlightenment
+	   and gdk_window_get_root_origin applies for all other WMs.
+
+	   The code below tries both routines, and picks the one that returns
+	   the upper-left-most coordinates.
+
+	   More info at:
+
+	http://mail.gnome.org/archives/gtk-devel-list/2001-March/msg00289.html
+	http://www.gtk.org/faq/#AEN606
+    */
+
+	gdk_window_get_root_origin(widget->window, 
+        &geom->x, 
+        &geom->y);
+	if (gdk_window_get_deskrelative_origin(widget->window,
+				&desk_x, &desk_y)) {
+		if (desk_x <= geom->x && 
+            desk_y <= geom->y)
+        {
+			geom->x = desk_x;
+			geom->y = desk_y;
+		}
+	}
+
+	/* XXX - Is this the "approved" method? */
+	gdk_window_get_size(widget->window, 
+        &geom->width, 
+        &geom->height);
+
+#if GTK_MAJOR_VERSION >= 2
+    state = gdk_window_get_state(widget->window);
+    geom->maximized = (state == GDK_WINDOW_STATE_MAXIMIZED);
+#endif
+}
+
+
+/* set the geometry of a window from window_new() */
+void
+window_set_geometry(GtkWidget *widget, window_geometry_t *geom)
+{
+    /* as we now have the geometry from the recent file, set it */
+    if (geom->set_pos) {
+        gtk_widget_set_uposition(widget,
+                                 geom->x,
+                                 geom->y);
+    }
+
+    if (geom->set_size) {
+#if GTK_MAJOR_VERSION >= 2
+        gtk_window_resize(GTK_WINDOW(widget),
+#else
+        gtk_window_set_default_size(GTK_WINDOW(widget), 
+                                geom->width, 
+                                geom->height);
+        gtk_widget_set_usize(widget,
+#endif
+        /*WIDGET_SET_SIZE(widget,*/
+                                geom->width,
+                                geom->height);
+    }
+
+#if GTK_MAJOR_VERSION >= 2
+    if(geom->set_maximized) {
+        if (geom->maximized) {
+            gdk_window_maximize(widget->window);
+        } else {
+            gdk_window_unmaximize(widget->window);
+        }
+    }
+#endif
+}
+
+/* the hashtable for all known window classes,
+ * the initial window title is the key, and the geometry is the value */
+GHashTable *window_class_hash = NULL;
+
+
+/* save the window and it's current geometry into the hashtable */
+static void
+window_save_geom(GtkWidget *win, window_geometry_t *geom)
+{
+    gchar *reg;
+    gchar *key;
+    window_geometry_t *work;
+
+    reg = OBJECT_GET_DATA(win, WIN_REG_KEY);
+    if(reg) {
+        /* init hashtable, if not already done */
+        if(!window_class_hash) {
+            window_class_hash = g_hash_table_new (g_str_hash, g_str_equal);
+        }
+        /* if we have an old one, remove and free it first */
+        work = g_hash_table_lookup(window_class_hash, reg);
+        if(work) {
+            g_hash_table_remove(window_class_hash, reg);
+            g_free(work->key);
+            g_free(work);
+        }
+
+        /* malloc and insert the new one */
+        work = g_malloc(sizeof(*geom));
+        *work = *geom;
+        key = g_strdup(reg);
+        work->key = key;
+        g_hash_table_insert(window_class_hash, key, work);
+    }
+}
+
+
+/* load the desired geometry for this window from the hashtable */
+gboolean
+window_load_geom(GtkWidget *win, window_geometry_t *geom)
+{
+    gchar *reg;
+    window_geometry_t *p;
+
+    reg = OBJECT_GET_DATA(win, WIN_REG_KEY);
+    if(reg) {
+        /* init hashtable, if not already done */
+        if(!window_class_hash) {
+            window_class_hash = g_hash_table_new (g_str_hash, g_str_equal);
+        }
+
+        p = g_hash_table_lookup(window_class_hash, reg);
+        if(p) {
+            *geom = *p;
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+void
+window_destroy(GtkWidget *win)
+{
+  window_geometry_t geom;
+  gchar * title;
+
+  /* this must be done *before* destroy is running, as the window geometry */
+  /* cannot be retrieved at destroy time (so don't use event "destroy" for this) */
+  window_get_geometry(win, &geom);
+  window_save_geom(win, &geom);
+
+  title = OBJECT_GET_DATA(win, WIN_REG_KEY);
+
+  gtk_widget_destroy(win);
+
+  g_free(title);
+}
+
+
+/* convert an xpm to a GtkWidget, using the top_level window settings */
+/* (be sure that the top_level window is already being displayed) */
+GtkWidget *xpm_to_widget(const char ** xpm) {
+#if GTK_MAJOR_VERSION < 2
+    GdkPixmap *icon;
+    GdkBitmap * mask;
+
+
+    icon = gdk_pixmap_create_from_xpm_d(top_level->window, &mask, &top_level->style->white, (char **) xpm);
+    return gtk_pixmap_new(icon, mask);
+#else
+    GdkPixbuf * pixbuf;
+    GdkPixmap * pixmap;
+    GdkBitmap * bitmap;
+
+
+    pixbuf = gdk_pixbuf_new_from_xpm_data(xpm);
+    gdk_pixbuf_render_pixmap_and_mask_for_colormap (pixbuf, gtk_widget_get_colormap(top_level), &pixmap, &bitmap, 128);
+
+    return gtk_image_new_from_pixmap (pixmap, bitmap);
+#endif
+}
+
 
 /* Set the name of the top-level window and its icon to the specified
    string. */
@@ -158,29 +426,6 @@ void main_window_quit(void)
   gtk_main_quit();
 }
 
-
-/* convert an xpm to a GtkWidget, using the top_level window settings */
-/* (be sure that the top_level window is already being displayed) */
-GtkWidget *xpm_to_widget(const char ** xpm) {
-#if GTK_MAJOR_VERSION < 2
-    GdkPixmap *icon;
-    GdkBitmap * mask;
-
-
-    icon = gdk_pixmap_create_from_xpm_d(top_level->window, &mask, &top_level->style->white, (char **) xpm);
-    return gtk_pixmap_new(icon, mask);
-#else
-    GdkPixbuf * pixbuf;
-    GdkPixmap * pixmap;
-    GdkBitmap * bitmap;
-
-
-    pixbuf = gdk_pixbuf_new_from_xpm_data(xpm);
-    gdk_pixbuf_render_pixmap_and_mask_for_colormap (pixbuf, gtk_widget_get_colormap(top_level), &pixmap, &bitmap, 128);
-
-    return gtk_image_new_from_pixmap (pixmap, bitmap);
-#endif
-}
 
 
 typedef struct pipe_input_tag {
