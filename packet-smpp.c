@@ -4,19 +4,25 @@
  *
  * UDH and WSP dissection of SMS message, Short Message reassembly,
  * "Decode Short Message with Port Number UDH as CL-WSP" preference,
- * Data Coding Scheme decoding for GSM SMS and GSM CBS,
+ * "Always try subdissection of 1st fragment" preference,
+ * Data Coding Scheme decoding for GSM (SMS and CBS),
  * provided by Olivier Biot.
  *
- * $Id: packet-smpp.c,v 1.17 2003/08/23 02:15:53 sahlberg Exp $
+ * $Id: packet-smpp.c,v 1.18 2003/09/04 18:59:21 guy Exp $
  *
  * Note on SMS Message reassembly
  * ------------------------------
- *   The current Short Message reassembly can only deal with SMS messages
- *   that are sent sequentially over the same SMPP connection. The SMS
- *   message ID used in the Multiple Messages UDH (1 single byte) is used
- *   as identifier for related fragments.
- *   If the SMPP connection only allows transmission of one SMS message, then
- *   the reassembly code will not work.
+ *   The current Short Message reassembly is possible thanks to the
+ *   message identifier (8 or 16 bit identifier). It is able to reassemble
+ *   short messages that are sent over either the same SMPP connection or
+ *   distinct SMPP connections. Normally the reassembly code is able to deal
+ *   with duplicate message identifiers since the fragment_add_seq_check()
+ *   call is used.
+ *
+ *   The SMPP preference "always try subdissection of 1st fragment" allows
+ *   a subdissector to be called for the first Short Message fragment,
+ *   even if reassembly is not possible. This way partial dissection
+ *   is still possible. This preference is switched off by default.
  *
  * Note on Short Message decoding as CL-WSP
  * ----------------------------------------
@@ -25,7 +31,8 @@
  *    UDH will be decoded as CL-WSP if:
  *    -  The Short Message is not segmented
  *    -  The entire segmented Short Message is reassembled
- *    -  It is the 1st segment of an unreassembled Short Message
+ *    -  It is the 1st segment of an unreassembled Short Message (if the
+ *       "always try subdissection of 1st fragment" preference is enabled)
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -261,8 +268,12 @@ static const fragment_items sm_frag_items = {
 	"Short Message fragments"
 };
 
-/* Dissect all SM data as WSP if a PortNumber UDH is present */
+/* Dissect all SM data as WSP if the UDH contains a Port Number IE */
 static gboolean port_number_udh_means_wsp = FALSE;
+/* Always try dissecting the 1st fragment of a SM,
+ * even if it is not reassembled */
+static gboolean try_dissect_1st_frag = FALSE;
+
 static dissector_handle_t wsp_handle;
 
 static void
@@ -1445,7 +1456,7 @@ parse_sm_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo)
 					frags = tvb_get_guint8(tvb, i++);
 					frag  = tvb_get_guint8(tvb, i++);
 					proto_item_append_text(subtree,
-							": Message %u, Part %u of %u", sm_id, frag, frags);
+							": message %u, part %u of %u", sm_id, frag, frags);
 					subtree = proto_item_add_subtree(subtree,
 							ett_udh_multiple_messages);
 					proto_tree_add_uint (subtree,
@@ -1469,7 +1480,7 @@ parse_sm_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo)
 					frags = tvb_get_guint8(tvb, i++);
 					frag  = tvb_get_guint8(tvb, i++);
 					proto_item_append_text(subtree,
-							": Message %u, Part %u of %u", sm_id, frag, frags);
+							": message %u, part %u of %u", sm_id, frag, frags);
 					subtree = proto_item_add_subtree(subtree,
 							ett_udh_multiple_messages);
 					proto_tree_add_uint (subtree,
@@ -1559,33 +1570,43 @@ parse_sm_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo)
 						" (Short Message unreassembled)");
 		}
 	}
-	if (ports_available) { /* Port Number UDH is present */
-		/* sm_tvb is OK only if the Short Message has been reassembled */
-		if (! sm_tvb) /* One single Short Message, or not reassembled */
-			sm_tvb = tvb_new_subset (tvb, i, -1, -1);
-		if (sm_tvb) {
-			/* Try finding a dissector for the content first, then fallback */
-			if ( port_number_udh_means_wsp && ports_available ) {
-				if ( (!pinfo->fragmented) || (frag<=1) ) {
-					/* Only applies to message with Ports UDH:
-					 *  -  reassembled Short Message,
-					 *  -  or to 1st fragment of unreassembled Short Message,
-					 *  -  or to single-fragment messages */
+
+	if (! sm_tvb) /* One single Short Message, or not reassembled */
+		sm_tvb = tvb_new_subset (tvb, i, -1, -1);
+	/* Try calling a subdissector */
+	if (sm_tvb) {
+		if (fd_sm || frag==0 || (frag==1 && try_dissect_1st_frag)) {
+			/* Try calling a subdissector only if:
+			 *  - the Short Message is reassembled,
+			 *  - the Short Message consists of only one "fragment",
+			 *  - the preference "Always Try Dissection for 1st SM fragment"
+			 *    is switched on, and this is the SM's 1st fragment. */
+			if ( ports_available ) {
+				if ( port_number_udh_means_wsp ) {
 					call_dissector (wsp_handle, sm_tvb, pinfo, sm_tree);
-				}
-			} else {
-				if (!dissector_try_port(smpp_dissector_table, p_src,
-							sm_tvb, pinfo, sm_tree)) {
-					if (!dissector_try_port(smpp_dissector_table, p_dst,
-							sm_tvb, pinfo, sm_tree)) {
-							if (sm_tree) /* Only display if needed */
+				} else {
+					if (! dissector_try_port(smpp_dissector_table, p_src,
+								sm_tvb, pinfo, sm_tree)) {
+						if (! dissector_try_port(smpp_dissector_table, p_dst,
+									sm_tvb, pinfo, sm_tree)) {
+							if (sm_tree) { /* Only display if needed */
 								proto_tree_add_text (sm_tree, sm_tvb, 0, -1,
-										"Message body");
+										"Short Message body");
+							}
+						}
 					}
 				}
+			} else { /* No ports IE */
+				proto_tree_add_text (sm_tree, sm_tvb, 0, -1,
+						"Short Message body");
 			}
+		} else { /* Not 1st fragment and not reassembled */
+			proto_tree_add_text (sm_tree, sm_tvb, 0, -1,
+					"Unreassembled Short Message fragment %u of %u",
+					frag, frags);
 		}
 	}
+
 	if (try_sm_reassemble) /* Clean up defragmentation */
 		pinfo->fragmented = save_fragmented;
 	return;
@@ -2968,6 +2989,13 @@ proto_register_smpp(void)
 			"Always decode a Short Message as Connectionless WSP "
 			"if a Port Number User Data Header is present",
 			&port_number_udh_means_wsp);
+	prefs_register_bool_preference (smpp_module, "try_dissect_1st_fragment",
+			"Always try subdissection of 1st Short Message fragment",
+			"Always try subdissection of the 1st fragment of a fragmented "
+			"Short Message. If reassembly is possible, the Short Message "
+			"may be dissected twice (once as a short frame, once in its "
+			"entirety).",
+			&try_dissect_1st_frag);
 
 	/* SMPP dissector initialization routines */
 	register_init_routine (sm_defragment_init);
