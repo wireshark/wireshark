@@ -1,7 +1,7 @@
 /* ipproto.c
  * Routines for converting IPv4 protocol/v6 nxthdr field into string
  *
- * $Id: ipproto.c,v 1.6 2000/01/22 06:22:12 guy Exp $
+ * $Id: ipproto.c,v 1.7 2000/03/21 05:15:11 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -60,6 +60,7 @@
 static const value_string ipproto_val[] = {
     { IP_PROTO_ICMP,	"ICMP" },
     { IP_PROTO_IGMP,	"IGMP" },
+    { IP_PROTO_EIGRP,	"IGRP/EIGRP" },
     { IP_PROTO_TCP,	"TCP" },
     { IP_PROTO_UDP,	"UDP" },
     { IP_PROTO_OSPF,	"OSPF" },
@@ -80,20 +81,21 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_TP,	"TP" },
     { IP_PROTO_IPV6,	"IPv6" },
     { IP_PROTO_ROUTING,	"IPv6 routing" },
-    { IP_PROTO_FRAGMENT,	"IPv6 fragment" },
+    { IP_PROTO_FRAGMENT,"IPv6 fragment" },
     { IP_PROTO_RSVP,	"RSVP" },
     { IP_PROTO_GRE,	"GRE" },
     { IP_PROTO_ESP,	"ESP" },
     { IP_PROTO_AH,	"AH" },
     { IP_PROTO_ICMPV6,	"ICMPv6" },
     { IP_PROTO_NONE,	"IPv6 no next header" },
-    { IP_PROTO_DSTOPTS,	"IPv6 dstination option" },
+    { IP_PROTO_DSTOPTS,	"IPv6 destination option" },
     { IP_PROTO_EON,	"EON" },
     { IP_PROTO_OSPF,	"OSPF" },
     { IP_PROTO_ENCAP,	"ENCAP" },
     { IP_PROTO_PIM,	"PIM" },
     { IP_PROTO_IPCOMP,	"IPComp" },
     { IP_PROTO_VRRP,	"VRRP" },
+    { IP_PROTO_VINES,	"VINES" },
     { 0,		NULL },
 };
 

@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.36 2000/03/12 04:47:36 gram Exp $
+ * $Id: packet-dns.c,v 1.37 2000/03/21 05:15:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,7 +37,9 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "resolv.h"
 #include "packet-dns.h"
+#include "packet-ip.h"
 
 static int proto_dns = -1;
 static int hf_dns_response = -1;
@@ -795,6 +797,92 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
     }
     break;
 
+  case T_WKS:
+    {
+      int rr_len = data_len;
+      guint8 protocol;
+      guint8 bits;
+      int port_num;
+      int i;
+      char bitnames[128+1];
+      char portnumstring[10+1];
+      
+      if (fd != NULL) {
+	col_append_fstr(fd, COL_INFO, " %s %s", type_name,
+			ip_to_str((guint8 *)dptr));
+      }
+      if (dns_tree != NULL) {
+	trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
+		     "%s: type %s, class %s, addr %s",
+		     name, type_name, class_name,
+		     ip_to_str((guint8 *)dptr));
+	rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
+		     long_type_name, class_name, ttl, data_len);
+	if (!BYTES_ARE_IN_FRAME(cur_offset, 4)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  return 0;
+	}
+	proto_tree_add_text(rr_tree, cur_offset, 4, "Addr: %s",
+		     ip_to_str((guint8 *)dptr));
+	cur_offset += 4;
+	rr_len -= 4;
+
+        if (!BYTES_ARE_IN_FRAME(cur_offset, 1)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  proto_tree_add_text(rr_tree, cur_offset, END_OF_FRAME,
+		       "<Protocol goes past end of captured data in packet>");
+	  return 0;
+	}
+	protocol = pd[cur_offset];
+	proto_tree_add_text(rr_tree, cur_offset, 1, "Protocol: %s",
+		     ipprotostr(protocol));
+	cur_offset += 1;
+	rr_len -= 1;
+
+	port_num = 0;
+	while (rr_len != 0) {
+	  if (!BYTES_ARE_IN_FRAME(cur_offset, 1)) {
+	    /* We ran past the end of the captured data in the packet. */
+	    proto_tree_add_text(rr_tree, cur_offset, END_OF_FRAME,
+		       "<Bit map goes past end of captured data in packet>");
+	    return 0;
+	  }
+	  bits = pd[cur_offset];
+	  if (bits != 0) {
+	    bitnames[0] = '\0';
+	    for (i = 7; i >= 0; i--) {
+	      if (bits & (1 << i)) {
+		if (bitnames[0] != '\0')
+		  strcat(bitnames, ", ");
+		switch (protocol) {
+
+		case IP_PROTO_TCP:
+		  strcat(bitnames, get_tcp_port(port_num));
+		  break;
+
+		case IP_PROTO_UDP:
+		  strcat(bitnames, get_udp_port(port_num));
+		  break;
+
+		default:
+		  sprintf(portnumstring, "%u", port_num);
+		  strcat(bitnames, portnumstring);
+		  break;
+	        }
+	      }
+	      port_num++;
+	    }
+	    proto_tree_add_text(rr_tree, cur_offset, 1,
+		"Bits: 0x%02x (%s)", bits, bitnames);
+	  } else
+	    port_num += 8;
+	  cur_offset += 1;
+	  rr_len -= 1;
+	}
+      }
+    }
+    break;
+
   case T_HINFO:
     {
       int cpu_offset;
@@ -906,6 +994,50 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
 	proto_tree_add_text(rr_tree, cur_offset, 2, "Preference: %u", preference);
 	proto_tree_add_text(rr_tree, cur_offset + 2, mx_name_len, "Mail exchange: %s",
 			mx_name);
+      }
+    }
+    break;
+
+  case T_TXT:
+    {
+      int rr_len = data_len;
+      int txt_offset;
+      int txt_len;
+
+      if (fd != NULL)
+	col_append_fstr(fd, COL_INFO, " %s", type_name);
+      txt_offset = cur_offset;
+      if (dns_tree != NULL) {
+	trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
+		     "%s: type %s, class %s",
+		     name, type_name, class_name);
+	rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
+		       long_type_name, class_name, ttl, data_len);
+      }
+      while (rr_len != 0) {
+	if (!BYTES_ARE_IN_FRAME(txt_offset, 1)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  if (dns_tree != NULL) {
+	    proto_tree_add_text(rr_tree, txt_offset, END_OF_FRAME,
+		       "<String goes past end of captured data in packet>");
+	  }
+	  return 0;
+	}
+	txt_len = pd[txt_offset];
+	if (!BYTES_ARE_IN_FRAME(txt_offset + 1, txt_len)) {
+	  /* We ran past the end of the captured data in the packet. */
+	  if (dns_tree != NULL) {
+	    proto_tree_add_text(rr_tree, txt_offset, END_OF_FRAME,
+		       "<String goes past end of captured data in packet>");
+	  }
+	  return 0;
+	}
+	if (dns_tree != NULL) {
+	  proto_tree_add_text(rr_tree, txt_offset, 1 + txt_len,
+	   "Text: %.*s", txt_len, &pd[txt_offset + 1]);
+	}
+        txt_offset += 1 + txt_len;
+        rr_len -= 1 + txt_len;
       }
     }
     break;

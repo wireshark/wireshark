@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.77 2000/03/16 08:23:21 guy Exp $
+ * $Id: packet-ip.c,v 1.78 2000/03/21 05:15:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -745,21 +745,6 @@ dissect_ip_tcp_options(const u_char *opd, int offset, guint length,
       break;
   }
 }
-
-static const value_string proto_vals[] = { {IP_PROTO_ICMP, "ICMP"},
-                                           {IP_PROTO_IGMP, "IGMP"},
-                                           {IP_PROTO_EIGRP, "IGRP/EIGRP"},
-                                           {IP_PROTO_TCP,  "TCP" },
-                                           {IP_PROTO_UDP,  "UDP" },
-                                           {IP_PROTO_OSPF, "OSPF"},
-                                           {IP_PROTO_RSVP, "RSVP"},
-                                           {IP_PROTO_AH,   "AH"  },
-                                           {IP_PROTO_GRE,  "GRE" },
-                                           {IP_PROTO_ESP,  "ESP" },
-                                           {IP_PROTO_IPV6, "IPv6"},
-                                           {IP_PROTO_PIM,  "PIM" },
-                                           {IP_PROTO_VINES,"VINES"},
-                                           {0,             NULL  } };
 
 static const value_string dscp_vals[] = {
 		  { IPDSFIELD_DSCP_DEFAULT, "Default"               },
