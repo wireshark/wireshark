@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-macros.h,v 1.9 2001/05/27 08:09:49 guy Exp $
+ * $Id: packet-afs-macros.h,v 1.10 2001/06/30 09:32:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -226,9 +226,9 @@
 /* Output a AFSCBFids */
 #define OUT_FS_AFSCBFids() \
 	{ \
-		unsigned int j,i; \
-		j = tvb_get_guint8(tvb, offset); \
-		offset += 1; \
+		guint32 j,i; \
+		j = tvb_get_ntohl(tvb, offset); \
+		offset += 4; \
 		for (i=0; i<j; i++) { \
 			OUT_FS_AFSFid("Target"); \
 		} \
@@ -259,9 +259,9 @@
 /* Output a AFSCBs */
 #define OUT_FS_AFSCBs()	\
 	{ \
-		unsigned int j,i; \
-		j = tvb_get_guint8(tvb,offset); \
-		offset += 1; \
+		guint32 j,i; \
+		j = tvb_get_ntohl(tvb,offset); \
+		offset += 4; \
 		for (i=0; i<j; i++) { \
 			OUT_FS_AFSCallBack(); \
 		} \
