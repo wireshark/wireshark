@@ -2,7 +2,7 @@
  * Routines for BSSGP (BSS GPRS Protocol ETSI GSM 08.18 version 6.7.1 TS 101 343 ) dissection
  * Copyright 2000, Josef Korelus <jkor@quick.cz>
  *
- * $Id: packet-bssgp.c,v 1.5 2003/10/05 23:27:24 jmayer Exp $
+ * $Id: packet-bssgp.c,v 1.6 2003/10/30 19:43:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -212,16 +212,16 @@ static const value_string radio_cause[] = {
 	{ 0, NULL },
 };
 static const true_false_string cr_string = {
-	"The SDU contains a LLC ACK or SACK command/response frame type",
 	"The SDU does not contain a LLC ACK or SACK command/response frame type",
+	"The SDU contains a LLC ACK or SACK command/response frame type",
 };
 static const true_false_string t_string = {
-	"The SDU contains signalling ",
-	"The SDU contains data"
+	"The SDU contains data",
+	"The SDU contains signalling "
 };
 static const true_false_string a_string = {
-	"Radio interface uses RLC/MAC ARQ functionality",
-	"Radio interface uses RLC/MAC-UNITDATA functionality"
+	"Radio interface uses RLC/MAC-UNITDATA functionality",
+	"Radio interface uses RLC/MAC ARQ functionality"
 };
 static const true_false_string imsi_odd_even = {
 	"even number of identity digits and also when the TMSI/P-TMSI is used",
