@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.30 1999/10/16 20:26:37 deniel Exp $
+ * $Id: packet-smb.c,v 1.31 1999/10/22 07:17:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -42,6 +42,7 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
+#include "conversation.h"
 #include "smb.h"
 #include "alignment.h"
 
@@ -60,8 +61,7 @@ char *decode_smb_name(unsigned char);
 int smb_packet_init_count = 200;
 
 struct smb_request_key {
-  guint32 ip_src, ip_dst;
-  guint16 port_src, port_dst;
+  guint32 conversation;
   guint16 mid;
 };
 
@@ -81,17 +81,14 @@ smb_equal(gconstpointer v, gconstpointer w)
   struct smb_request_key *v1 = (struct smb_request_key *)v;
   struct smb_request_key *v2 = (struct smb_request_key *)w;
 
-  #if defined(DEBUG_SMB_HASH)
-  printf("Comparing %08X:%08X:%d:%d:%d\n      and %08X:%08X:%d:%d:%d\n",
-	 v1 -> ip_src, v1 -> ip_dst, v1 -> port_src, v1 -> port_dst, v1 -> mid,
-	 v2 -> ip_src, v2 -> ip_dst, v2 -> port_src, v2 -> port_dst, v2 -> mid);
-  #endif
+#if defined(DEBUG_SMB_HASH)
+  printf("Comparing %08X:%u\n      and %08X:%u\n",
+	 v1 -> conversation, v1 -> mid,
+	 v2 -> conversation, v2 -> mid);
+#endif
 
-  if (v1 -> ip_src   == v2 -> ip_src &&
-      v1 -> ip_dst   == v2 -> ip_dst &&
-      v1 -> port_src == v2 -> port_src &&
-      v1 -> port_dst == v2 -> port_dst &&
-      v1 -> mid      == v2 -> mid) {
+  if (v1 -> conversation == v2 -> conversation &&
+      v1 -> mid          == v2 -> mid) {
 
     return 1;
 
@@ -106,12 +103,11 @@ smb_hash (gconstpointer v)
   struct smb_request_key *key = (struct smb_request_key *)v;
   guint val;
 
-  val = key -> ip_src + key -> ip_dst + key -> port_src + key -> port_dst +
-    key -> mid;
+  val = key -> conversation + key -> mid;
 
-  #if defined(DEBUG_SMB_HASH)
-  printf("SMB Hash calculated as %d\n", val);
-  #endif
+#if defined(DEBUG_SMB_HASH)
+  printf("SMB Hash calculated as %u\n", val);
+#endif
 
   return val;
 
@@ -124,9 +120,9 @@ smb_hash (gconstpointer v)
 void
 smb_init_protocol(void)
 {
-  #if defined(DEBUG_SMB_HASH)
+#if defined(DEBUG_SMB_HASH)
   printf("Initializing SMB hashtable area\n");
-  #endif
+#endif
 
   if (smb_request_hash)
     g_hash_table_destroy(smb_request_hash);
@@ -8179,6 +8175,7 @@ char *decode_trans2_name(int code)
   return trans2_cmd_names[code];
 
 }
+
 void
 dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn)
 
@@ -8211,31 +8208,40 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
   guint16       DataCount;
   guint16       ByteCount;
   const char    *TransactName;
+  guint32       conversation;
   struct smb_request_key      request_key, *new_request_key;
   struct smb_request_val      *request_val;
 
   /*
-   * Check for and insert entry in hash table if does not exist
-   * Since we want request and response to hash to the same, we make
-   * sure that src and dst swapped for response
+   * Find out what conversation this packet is part of, or add it to a
+   * new conversation if it's not already part of one.
+   * XXX - this should really be done by the transport-layer protocol,
+   * although for connectionless transports, we may not want to do that
+   * unless we know some higher-level protocol will want it - or we
+   * may want to do it, so you can say e.g. "show only the packets in
+   * this UDP 'connection'".
+   *
+   * Note that we don't have to worry about the direction this packet
+   * was going - the conversation code handles that for us, treating
+   * packets from A:X to B:Y as being part of the same conversation as
+   * packets from B:Y to A:X.
    */
+  conversation = add_to_conversation(&pi.src, &pi.dst, pi.ptype,
+				pi.srcport, pi.destport);
 
-  request_key.ip_src   = ((dirn == 0) ? pi.ip_src : pi.ip_dst);
-  request_key.ip_dst   = ((dirn == 0) ? pi.ip_dst : pi.ip_src);
-  request_key.port_src = ((dirn == 0) ? pi.srcport : pi.destport);
-  request_key.port_dst = ((dirn == 0) ? pi.destport : pi.srcport);
-  request_key.mid      = si.mid;
+  /*
+   * Check for and insert entry in request hash table if does not exist
+   */
+  request_key.conversation = conversation;
+  request_key.mid          = si.mid;
 
   request_val = (struct smb_request_val *) g_hash_table_lookup(smb_request_hash, &request_key);
 
   if (!request_val) { /* Create one */
 
     new_request_key = g_mem_chunk_alloc(smb_request_keys);
-    new_request_key -> ip_src   = ((dirn == 0) ? pi.ip_src : pi.ip_dst);
-    new_request_key -> ip_dst   = ((dirn == 0) ? pi.ip_dst : pi.ip_src);
-    new_request_key -> port_src = ((dirn == 0) ? pi.srcport : pi.destport);
-    new_request_key -> port_dst = ((dirn == 0) ? pi.destport : pi.srcport);
-    new_request_key -> mid      = si.mid;
+    new_request_key -> conversation = conversation;
+    new_request_key -> mid          = si.mid;
 
     request_val = g_mem_chunk_alloc(smb_request_vals);
     request_val -> mid = si.mid;

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.26 1999/10/22 06:31:07 guy Exp $
+ * $Id: main.c,v 1.27 1999/10/22 07:18:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -517,14 +517,6 @@ file_quit_cmd_cb (GtkWidget *widget, gpointer data) {
 	unlink(cf.save_file);
   }
   gtk_exit(0);
-}
-
-void blank_packetinfo() {
-  pi.ip_src   = 0;
-  pi.ip_dst   = 0;
-  pi.ipproto  = 0;
-  pi.srcport  = 0;
-  pi.destport = 0;
 }
 
 /* call initialization routines at program startup time */

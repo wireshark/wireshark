@@ -1,8 +1,7 @@
-/* follow.h
+/* conversation.h
+ * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: follow.h,v 1.6 1999/10/22 07:17:29 guy Exp $
- *
- * Copyright 1998 Mike Hall <mlh@io.com>
+ * $Id: conversation.h,v 1.1 1999/10/22 07:17:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,27 +21,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
-#ifndef __FOLLOW_H__
-#define __FOLLOW_H__
-
-#include "packet.h"
-
-extern gboolean incomplete_tcp_stream;
-
-typedef struct _tcp_frag {
-  u_long              seq;
-  u_long              len;
-  u_long              data_len;
-  u_char             *data;
-  struct _tcp_frag   *next;
-} tcp_frag;
-
-char* build_follow_filter( packet_info * );
-void reassemble_tcp( u_long, u_long, const char*, u_long, int, 
-		     address *, address *, u_int, u_int );
-void  reset_tcp_reassembly( void );
-
-#endif
+extern void conversation_init(void);
+extern guint32 add_to_conversation(address *src, address *dst, port_type ptype,
+    guint16 src_port, guint16 dst_port);

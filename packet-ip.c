@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.57 1999/10/22 03:52:06 guy Exp $
+ * $Id: packet-ip.c,v 1.58 1999/10/22 07:17:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -172,6 +172,18 @@ typedef struct _e_ip {
   guint32 ip_src;
   guint32 ip_dst;
 } e_ip;
+
+/* Offsets of fields within an IP header. */
+#define	IPH_V_HL	0
+#define	IPH_TOS		1
+#define	IPH_LEN		2
+#define	IPH_ID		4
+#define	IPH_TTL		6
+#define	IPH_OFF		8
+#define	IPH_P		9
+#define	IPH_SUM		10
+#define	IPH_SRC		12
+#define	IPH_DST		16
 
 /* Minimum IP header length. */
 #define	IPH_MIN_LEN	20
@@ -730,15 +742,6 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    ipprotostr(iph.ip_p), iph.ip_p);
   }
 
-  if (check_col(fd, COL_RES_NET_SRC))
-    col_add_str(fd, COL_RES_NET_SRC, get_hostname(iph.ip_src));
-  if (check_col(fd, COL_UNRES_NET_SRC))
-    col_add_str(fd, COL_UNRES_NET_SRC, ip_to_str((guint8 *) &iph.ip_src));
-  if (check_col(fd, COL_RES_NET_DST))
-    col_add_str(fd, COL_RES_NET_DST, get_hostname(iph.ip_dst));
-  if (check_col(fd, COL_UNRES_NET_DST))
-    col_add_str(fd, COL_UNRES_NET_DST, ip_to_str((guint8 *) &iph.ip_dst));
-    
   if (tree) {
 
     switch (IPTOS_TOS(iph.ip_tos)) {
@@ -832,8 +835,10 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   pi.ipproto = iph.ip_p;
   pi.iplen = iph.ip_len;
   pi.iphdrlen = lo_nibble(iph.ip_v_hl);
-  pi.ip_src = iph.ip_src;
-  pi.ip_dst = iph.ip_dst;
+  SET_ADDRESS(&pi.net_src, AT_IPv4, 4, &pd[offset + IPH_SRC]);
+  SET_ADDRESS(&pi.src, AT_IPv4, 4, &pd[offset + IPH_SRC]);
+  SET_ADDRESS(&pi.net_dst, AT_IPv4, 4, &pd[offset + IPH_DST]);
+  SET_ADDRESS(&pi.dst, AT_IPv4, 4, &pd[offset + IPH_DST]);
 
   /* Skip over header + options */
   offset += hlen;

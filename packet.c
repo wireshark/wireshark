@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.50 1999/10/15 20:32:57 guy Exp $
+ * $Id: packet.c,v 1.51 1999/10/22 07:17:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -682,6 +682,19 @@ col_append_str(frame_data *fd, gint el, gchar* str) {
     }
 }
 	
+void blank_packetinfo(void)
+{
+  pi.dl_src.type = AT_NONE;
+  pi.dl_dst.type = AT_NONE;
+  pi.net_src.type = AT_NONE;
+  pi.net_dst.type = AT_NONE;
+  pi.src.type = AT_NONE;
+  pi.dst.type = AT_NONE;
+  pi.ipproto  = 0;
+  pi.ptype = PT_NONE;
+  pi.srcport  = 0;
+  pi.destport = 0;
+}
 
 /* this routine checks the frame type from the cf structure */
 void
@@ -721,6 +734,8 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 		0, 0, fd->cap_len, "Capture Length: %d byte%s", fd->cap_len,
 		plurality(fd->cap_len, "", "s"));
 	}
+
+	blank_packetinfo();
 
 	/* Set the initial payload to the packet length, and the initial
 	   captured payload to the capture length (other protocols may

@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.15 1999/09/09 02:42:25 gram Exp $
+ * $Id: follow.c,v 1.16 1999/10/22 07:17:29 guy Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -50,7 +50,7 @@ extern FILE* data_out_file;
 
 gboolean incomplete_tcp_stream = FALSE;
 
-static u_long  ip_address[2];
+static guint32 ip_address[2];
 static u_int   tcp_port[2];
 
 static int check_fragments( int );
@@ -63,20 +63,21 @@ static void write_packet_data( const u_char *, int );
 char* 
 build_follow_filter( packet_info *pi ) {
   char* buf = malloc(1024);
-  if( pi->ipproto == 6 ) {
-    /* TCP */
+  if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
+	&& pi->ipproto == 6 ) {
+    /* TCP over IPv4 */
     sprintf( buf, 
 	     "(ip.addr eq %s and ip.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
-	     ip_to_str( (guint8 *) &pi->ip_src), 
-	     ip_to_str( (guint8 *) &pi->ip_dst), 
+	     ip_to_str( pi->net_src.data), 
+	     ip_to_str( pi->net_dst.data), 
 	     pi->srcport, pi->destport );
   }
   else { 
     free( buf );
     return NULL;
   }
-  ip_address[0] = pi->ip_src;
-  ip_address[1] = pi->ip_dst;
+  memcpy(&ip_address[0], pi->net_src.data, sizeof ip_address[0]);
+  memcpy(&ip_address[1], pi->net_dst.data, sizeof ip_address[1]);
   tcp_port[0] = pi->srcport;
   tcp_port[1] = pi->destport;
   return buf;
@@ -88,16 +89,23 @@ build_follow_filter( packet_info *pi ) {
 
 static tcp_frag *frags[2] = { 0, 0};
 static u_long seq[2];
-static u_long src[2] = { 0, 0 };
+static guint32 src[2] = { 0, 0 };
 
 void 
-reassemble_tcp( u_long sequence, u_long length, const char* data, u_long data_length, int synflag, u_long srcx, u_long dstx, u_int srcport, u_int dstport ) {
+reassemble_tcp( u_long sequence, u_long length, const char* data,
+		u_long data_length, int synflag, address *net_src,
+		address *net_dst, u_int srcport, u_int dstport ) {
+  guint32 srcx, dstx;
   int src_index, j, first = 0;
   u_long newseq;
   tcp_frag *tmp_frag;
   src_index = -1;
 
   /* first check if this packet should be processed */
+  if (net_src->type != AT_IPv4 || net_dst->type != AT_IPv4)
+    return;
+  memcpy(&srcx, net_src->data, sizeof srcx);
+  memcpy(&dstx, net_dst->data, sizeof dstx);
   if ((srcx != ip_address[0] && srcx != ip_address[1]) ||
       (dstx != ip_address[0] && dstx != ip_address[1]) ||
       (srcport != tcp_port[0] && srcport != tcp_port[1]) ||

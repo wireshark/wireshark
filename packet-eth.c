@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.20 1999/10/12 06:20:04 gram Exp $
+ * $Id: packet-eth.c,v 1.21 1999/10/22 07:17:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -118,14 +118,11 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     return;
   }
 
-  if (check_col(fd, COL_RES_DL_DST))
-    col_add_str(fd, COL_RES_DL_DST, get_ether_name((u_char *)&pd[offset+0]));
-  if (check_col(fd, COL_RES_DL_SRC))
-    col_add_str(fd, COL_RES_DL_SRC, get_ether_name((u_char *)&pd[offset+6]));
-  if (check_col(fd, COL_UNRES_DL_DST))
-    col_add_str(fd, COL_UNRES_DL_DST, ether_to_str((u_char *)&pd[offset+0]));
-  if (check_col(fd, COL_UNRES_DL_SRC))
-    col_add_str(fd, COL_UNRES_DL_SRC, ether_to_str((u_char *)&pd[offset+6]));
+  SET_ADDRESS(&pi.dl_src, AT_ETHER, 6, &pd[offset+6]);
+  SET_ADDRESS(&pi.src, AT_ETHER, 6, &pd[offset+6]);
+  SET_ADDRESS(&pi.dl_dst, AT_ETHER, 6, &pd[offset+0]);
+  SET_ADDRESS(&pi.dst, AT_ETHER, 6, &pd[offset+0]);
+
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "Ethernet");
 

@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.29 1999/10/17 09:23:43 deniel Exp $
+ * $Id: packet-ipx.c,v 1.30 1999/10/22 07:17:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -269,7 +269,7 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	ipx_length = pntohs(&pd[offset+2]);
 
 	/* Length of IPX datagram plus headers above it. */
-		len = ipx_length + offset;
+	len = ipx_length + offset;
 
 	/* Set the payload and captured-payload lengths to the minima of
 	   (the IPX length plus the length of the headers above it) and
@@ -279,12 +279,10 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	if (pi.captured_len > len)
 		pi.captured_len = len;
 
-	if (check_col(fd, COL_RES_DL_DST))
-		col_add_str(fd, COL_RES_DL_DST,
-				ipx_addr_to_str(pntohl(ipx_dnet), ipx_dnode));
-	if (check_col(fd, COL_RES_DL_SRC))
-		col_add_str(fd, COL_RES_DL_SRC,
-				ipx_addr_to_str(pntohl(ipx_snet), ipx_snode));
+	SET_ADDRESS(&pi.net_src, AT_IPX, 10, &pd[offset+18]);
+	SET_ADDRESS(&pi.src, AT_IPX, 10, &pd[offset+18]);
+	SET_ADDRESS(&pi.net_dst, AT_IPX, 10, &pd[offset+6]);
+	SET_ADDRESS(&pi.dst, AT_IPX, 10, &pd[offset+6]);
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "IPX");

@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.23 1999/10/15 16:59:12 itojun Exp $
+ * $Id: packet-ipv6.c,v 1.24 1999/10/22 07:17:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -252,16 +252,13 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   memcpy(&ipv6, (void *) &pd[offset], sizeof(ipv6)); 
 
+  SET_ADDRESS(&pi.net_src, AT_IPv6, 16, &pd[offset + IP6H_SRC]);
+  SET_ADDRESS(&pi.src, AT_IPv6, 16, &pd[offset + IP6H_SRC]);
+  SET_ADDRESS(&pi.net_dst, AT_IPv6, 16, &pd[offset + IP6H_DST]);
+  SET_ADDRESS(&pi.dst, AT_IPv6, 16, &pd[offset + IP6H_DST]);
+
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "IPv6");
-  if (check_col(fd, COL_RES_NET_SRC))
-    col_add_str(fd, COL_RES_NET_SRC, get_hostname6(&ipv6.ip6_src));
-  if (check_col(fd, COL_UNRES_NET_SRC))
-    col_add_str(fd, COL_UNRES_NET_SRC, ip6_to_str(&ipv6.ip6_src));
-  if (check_col(fd, COL_RES_NET_DST))
-    col_add_str(fd, COL_RES_NET_DST, get_hostname6(&ipv6.ip6_dst));
-  if (check_col(fd, COL_UNRES_NET_DST))
-    col_add_str(fd, COL_UNRES_NET_DST, ip6_to_str(&ipv6.ip6_dst));
 
   if (tree) {
     /* !!! specify length */

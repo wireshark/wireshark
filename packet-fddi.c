@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.23 1999/10/16 19:36:56 deniel Exp $
+ * $Id: packet-fddi.c,v 1.24 1999/10/22 07:17:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -254,7 +254,7 @@ void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree,
   proto_tree *fh_tree;
   proto_item *ti;
   gchar      *fc_str;
-  u_char     src[6], dst[6];
+  static u_char src[6], dst[6];
   u_char     src_swapped[6], dst_swapped[6];
 
   if (fd->cap_len < FDDI_HEADER_SIZE) {
@@ -275,14 +275,13 @@ void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree,
   fc = (int) pd[FDDI_P_FC];
   fc_str = fddifc_to_str(fc);
 
-  if (check_col(fd, COL_RES_DL_SRC))
-    col_add_str(fd, COL_RES_DL_SRC, get_ether_name(src));
-  if (check_col(fd, COL_RES_DL_DST))
-    col_add_str(fd, COL_RES_DL_DST, get_ether_name(dst));
-  if (check_col(fd, COL_UNRES_DL_SRC))
-    col_add_str(fd, COL_UNRES_DL_SRC, ether_to_str(src));
-  if (check_col(fd, COL_UNRES_DL_DST))
-    col_add_str(fd, COL_UNRES_DL_DST, ether_to_str(dst));
+  /* XXX - copy them to some buffer associated with "pi", rather than
+     just making "src" and "dst" static? */
+  SET_ADDRESS(&pi.dl_src, AT_ETHER, 6, &src[0]);
+  SET_ADDRESS(&pi.src, AT_ETHER, 6, &src[0]);
+  SET_ADDRESS(&pi.dl_dst, AT_ETHER, 6, &dst[0]);
+  SET_ADDRESS(&pi.dst, AT_ETHER, 6, &dst[0]);
+
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "FDDI");
   if (check_col(fd, COL_INFO))

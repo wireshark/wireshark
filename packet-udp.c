@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.30 1999/10/20 16:41:19 gram Exp $
+ * $Id: packet-udp.c,v 1.31 1999/10/22 07:17:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -196,14 +196,6 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   if (check_col(fd, COL_INFO))
     col_add_fstr(fd, COL_INFO, "Source port: %s  Destination port: %s",
 	    get_udp_port(uh_sport), get_udp_port(uh_dport));
-  if (check_col(fd, COL_RES_SRC_PORT))
-    col_add_str(fd, COL_RES_SRC_PORT, get_udp_port(uh_sport));
-  if (check_col(fd, COL_UNRES_SRC_PORT))
-    col_add_fstr(fd, COL_UNRES_SRC_PORT, "%u", uh_sport);
-  if (check_col(fd, COL_RES_DST_PORT))
-    col_add_str(fd, COL_RES_DST_PORT, get_udp_port(uh_dport));
-  if (check_col(fd, COL_UNRES_DST_PORT))
-    col_add_fstr(fd, COL_UNRES_DST_PORT, "%u", uh_dport);
     
   if (tree) {
     ti = proto_tree_add_item(tree, proto_udp, offset, 8);
@@ -225,53 +217,54 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   /* Skip over header */
   offset += 8;
 
- pi.srcport = uh_sport;
- pi.destport = uh_dport;
+  pi.ptype = PT_UDP;
+  pi.srcport = uh_sport;
+  pi.destport = uh_dport;
 
   /* XXX - we should do all of this through the table of ports. */
 #define PORT_IS(port)	(uh_sport == port || uh_dport == port)
- if (PORT_IS(UDP_PORT_BOOTPS))
+  if (PORT_IS(UDP_PORT_BOOTPS))
       dissect_bootp(pd, offset, fd, tree);
- else if (PORT_IS(UDP_PORT_DNS))
+  else if (PORT_IS(UDP_PORT_DNS))
       dissect_dns(pd, offset, fd, tree);
- else if (PORT_IS(UDP_PORT_ISAKMP))
+  else if (PORT_IS(UDP_PORT_ISAKMP))
       dissect_isakmp(pd, offset, fd, tree);
- else if (PORT_IS(UDP_PORT_RIP)) {
+  else if (PORT_IS(UDP_PORT_RIP)) {
       /* we should check the source port too (RIP: UDP src and dst port 520) */
       dissect_rip(pd, offset, fd, tree);
- } else if (PORT_IS(UDP_PORT_RIPNG))
+  } else if (PORT_IS(UDP_PORT_RIPNG))
       dissect_ripng(pd, offset, fd, tree);
- else if (PORT_IS(UDP_PORT_NBNS))
+  else if (PORT_IS(UDP_PORT_NBNS))
       dissect_nbns(pd, offset, fd, tree);
- else if (PORT_IS(UDP_PORT_NBDGM))
+  else if (PORT_IS(UDP_PORT_NBDGM))
       dissect_nbdgm(pd, offset, fd, tree);
- else if (PORT_IS(UDP_PORT_NTP))
+  else if (PORT_IS(UDP_PORT_NTP))
       dissect_ntp(pd, offset, fd, tree);
- else if (PORT_IS(UDP_PORT_IPX)) /* RFC 1234 */
+  else if (PORT_IS(UDP_PORT_IPX)) /* RFC 1234 */
       dissect_ipx(pd, offset, fd, tree);
- else if ((uh_sport >= UDP_PORT_RX_LOW && uh_sport <= UDP_PORT_RX_HIGH) ||
+  else if ((uh_sport >= UDP_PORT_RX_LOW && uh_sport <= UDP_PORT_RX_HIGH) ||
 	(uh_dport >= UDP_PORT_RX_LOW && uh_dport <= UDP_PORT_RX_HIGH) ||
 	PORT_IS(UDP_PORT_RX_AFS_BACKUPS)) 
       dissect_rx(pd, offset, fd, tree); /* transarc AFS's RX protocol */
 #if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
- else if (PORT_IS(UDP_PORT_SNMP))
+  else if (PORT_IS(UDP_PORT_SNMP))
       dissect_snmp(pd, offset, fd, tree);
 #endif
- else if (PORT_IS(UDP_PORT_VINES)) {
+  else if (PORT_IS(UDP_PORT_VINES)) {
       /* FIXME: AFAIK, src and dst port must be the same */
       dissect_vines_frp(pd, offset, fd, tree);
- } else if (PORT_IS(UDP_PORT_TFTP)) {
+  } else if (PORT_IS(UDP_PORT_TFTP)) {
       /* This is the first point of call, but it adds a dynamic call */
       udp_hash_add(MAX(uh_sport, uh_dport), dissect_tftp);  /* Add to table */
       dissect_tftp(pd, offset, fd, tree);
- } else if (PORT_IS(UDP_PORT_RADIUS) ||
+  } else if (PORT_IS(UDP_PORT_RADIUS) ||
 		PORT_IS(UDP_PORT_RADACCT) ||
 		PORT_IS(UDP_PORT_RADIUS_NEW) ||
 		PORT_IS(UDP_PORT_RADACCT_NEW) ) {
       dissect_radius(pd, offset, fd, tree);
- } else if ( PORT_IS(UDP_PORT_ICP)) {
+  } else if ( PORT_IS(UDP_PORT_ICP)) {
 	dissect_icp(pd,offset,fd,tree);
- } else {
+  } else {
       /* OK, find a routine in the table, else use the default */
 
       if ((dissect_routine = udp_find_hash_ent(uh_sport))) {

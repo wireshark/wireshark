@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.37 1999/10/15 17:00:46 itojun Exp $
+ * $Id: packet-tcp.c,v 1.38 1999/10/22 07:17:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -381,14 +381,6 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   
   hlen = hi_nibble(th.th_off_x2) * 4;  /* TCP header length, in bytes */
 
-  if (check_col(fd, COL_RES_SRC_PORT))
-    col_add_str(fd, COL_RES_SRC_PORT, get_tcp_port(th.th_sport));
-  if (check_col(fd, COL_UNRES_SRC_PORT))
-    col_add_fstr(fd, COL_UNRES_SRC_PORT, "%u", th.th_sport);
-  if (check_col(fd, COL_RES_DST_PORT))
-    col_add_str(fd, COL_RES_DST_PORT, get_tcp_port(th.th_dport));
-  if (check_col(fd, COL_UNRES_DST_PORT))
-    col_add_fstr(fd, COL_UNRES_DST_PORT, "%u", th.th_dport);
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "TCP");
   if (check_col(fd, COL_INFO)) {
@@ -463,6 +455,7 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   /* Skip over header + options */
   offset += hlen;
 
+  pi.ptype = PT_TCP;
   pi.srcport = th.th_sport;
   pi.destport = th.th_dport;
   
@@ -529,8 +522,8 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
         ( pd+offset ),			/* data */
         ( pi.captured_len - offset ),	/* captured data length */
         ( th.th_flags & TH_SYN ),	/* is syn set? */
-        pi.ip_src,
-	pi.ip_dst,
+        &pi.net_src,
+	&pi.net_dst,
 	pi.srcport,
 	pi.destport); 
   }

@@ -1,7 +1,7 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.h,v 1.6 1999/10/14 05:41:30 itojun Exp $
+ * $Id: packet-ipv6.h,v 1.7 1999/10/22 07:17:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -85,6 +85,16 @@ struct ip6_hdr {
 #define ip6_nxt		ip6_ctlun.ip6_un1.ip6_un1_nxt
 #define ip6_hlim	ip6_ctlun.ip6_un1.ip6_un1_hlim
 #define ip6_hops	ip6_ctlun.ip6_un1.ip6_un1_hlim
+
+/* Offsets of fields within an IPv6 header. */
+#define	IP6H_CTL	0
+#define	IP6H_CTL_FLOW	0
+#define	IP6H_CTL_PLEN	4
+#define	IP6H_CTL_NXT	6
+#define	IP6H_CTL_HLIM	7
+#define	IP6H_CTL_VFC	0
+#define	IP6H_SRC	8
+#define	IP6H_DST	24
 
 #define IPV6_VERSION		0x60
 #define IPV6_VERSION_MASK	0xf0

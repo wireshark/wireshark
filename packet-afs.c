@@ -6,7 +6,7 @@
  * Portions based on information retrieved from the RX definitions
  *   in Arla, the free AFS client at http://www.stacken.kth.se/project/arla/
  *
- * $Id: packet-afs.c,v 1.1 1999/10/20 16:41:17 gram Exp $
+ * $Id: packet-afs.c,v 1.2 1999/10/22 07:17:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -46,6 +46,7 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
+#include "conversation.h"
 #include "packet-rx.h"
 #include "packet-afs.h"
 #include "resolv.h"
@@ -377,8 +378,8 @@ static const value_string volume_types[] = {
 int afs_packet_init_count = 100;
 
 struct afs_request_key {
-  guint32 ip_src, ip_dst, callnumber;
-  guint16 port_src, port_dst, service;
+  guint32 conversation, callnumber;
+  guint16 service;
 };
 
 struct afs_request_val {
@@ -574,11 +575,8 @@ afs_equal(gconstpointer v, gconstpointer w)
   struct afs_request_key *v1 = (struct afs_request_key *)v;
   struct afs_request_key *v2 = (struct afs_request_key *)w;
 
-  if (v1 -> ip_src   == v2 -> ip_src &&
-      v1 -> ip_dst   == v2 -> ip_dst &&
-      v1 -> port_src == v2 -> port_src &&
-      v1 -> port_dst == v2 -> port_dst &&
-      v1 -> service  == v2 -> service &&
+  if (v1 -> conversation == v2 -> conversation &&
+      v1 -> service == v2 -> service &&
       v1 -> callnumber == v2 -> callnumber ) {
 
     return 1;
@@ -593,9 +591,7 @@ afs_hash (gconstpointer v)
 	struct afs_request_key *key = (struct afs_request_key *)v;
 	guint val;
 
-	val = key -> ip_src + key -> ip_dst +
-		key -> port_src + key -> port_dst +
-		key -> service + key -> callnumber;
+	val = key -> conversation + key -> service + key -> callnumber;
 
 	return val;
 }
@@ -659,10 +655,22 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	reply = (rxh->flags & RX_CLIENT_INITIATED) == 0;
 	port = ((reply == 0) ? pi.destport : pi.srcport );
 
-	request_key.ip_src   = ((reply == 0) ? pi.ip_src : pi.ip_dst);
-	request_key.ip_dst   = ((reply == 0) ? pi.ip_dst : pi.ip_src);
-	request_key.port_src = ((reply == 0) ? pi.srcport : pi.destport);
-	request_key.port_dst = ((reply == 0) ? pi.destport : pi.srcport);
+	/*
+	 * Find out what conversation this packet is part of, or add it to a
+	 * new conversation if it's not already part of one.
+	 * XXX - this should really be done by the transport-layer protocol,
+	 * although for connectionless transports, we may not want to do that
+	 * unless we know some higher-level protocol will want it - or we
+	 * may want to do it, so you can say e.g. "show only the packets in
+	 * this UDP 'connection'".
+	 *
+	 * Note that we don't have to worry about the direction this packet
+	 * was going - the conversation code handles that for us, treating
+	 * packets from A:X to B:Y as being part of the same conversation as
+	 * packets from B:Y to A:X.
+	 */
+	request_key.conversation = add_to_conversation(&pi.src, &pi.dst,
+		pi.ptype, pi.srcport, pi.destport);
 	request_key.service = ntohs(rxh->serviceId);
 	request_key.callnumber = ntohl(rxh->callNumber);
 

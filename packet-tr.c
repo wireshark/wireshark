@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.29 1999/10/12 06:20:18 gram Exp $
+ * $Id: packet-tr.c,v 1.30 1999/10/22 07:17:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -285,7 +285,7 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	guint16			trn_rseg[8];	/* routing registers */
 
 	/* non-source-routed version of source addr */
-	guint8			trn_shost_nonsr[6];
+	static guint8		trn_shost_nonsr[6];
 	int			x;
 	
 	/* Token-Ring Strings */
@@ -397,12 +397,14 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
                 }
 	}
 
+	/* XXX - copy it to some buffer associated with "pi", rather than
+	   just making "trn_shost_nonsr" static? */
+	SET_ADDRESS(&pi.dl_src, AT_ETHER, 6, &trn_shost_nonsr[0]);
+	SET_ADDRESS(&pi.src, AT_ETHER, 6, &trn_shost_nonsr[0]);
+	SET_ADDRESS(&pi.dl_dst, AT_ETHER, 6, &pd[offset + 2]);
+	SET_ADDRESS(&pi.dst, AT_ETHER, 6, &pd[offset + 2]);
+
 	/* information window */
-	if (check_col(fd, COL_RES_DL_DST))
-		col_add_str(fd, COL_RES_DL_DST,
-		  ether_to_str((guint8 *)&pd[offset + 2]));
-	if (check_col(fd, COL_RES_DL_SRC))
-		col_add_str(fd, COL_RES_DL_SRC, ether_to_str(trn_shost_nonsr));
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "TR");
 	if (check_col(fd, COL_INFO))

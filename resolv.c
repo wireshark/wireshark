@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.15 1999/10/14 06:55:10 guy Exp $
+ * $Id: resolv.c,v 1.16 1999/10/22 07:17:50 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -484,7 +484,7 @@ static ether_t *get_ethbyname(u_char *name)
 
 } /* get_ethbyname */
 
-static ether_t *get_ethbyaddr(u_char *addr)
+static ether_t *get_ethbyaddr(const u_char *addr)
 {
 
   ether_t *eth;
@@ -538,7 +538,7 @@ static void add_manuf_name(u_char *addr, u_char *name)
 
 } /* add_manuf_name */
 
-static hashmanuf_t *manuf_name_lookup(u_char *addr)
+static hashmanuf_t *manuf_name_lookup(const u_char *addr)
 {
 
   hashmanuf_t *tp;
@@ -591,7 +591,7 @@ static hashether_t *add_eth_name(u_char *addr, u_char *name)
 
 } /* add_eth_name */
 
-static u_char *eth_name_lookup(u_char *addr)
+static u_char *eth_name_lookup(const u_char *addr)
 {
   hashmanuf_t *manufp;
   hashether_t *tp;
@@ -795,7 +795,7 @@ extern u_char *get_tcp_port(u_int port)
 
 } /* get_tcp_port */
 
-extern u_char *get_ether_name(u_char *addr)
+extern u_char *get_ether_name(const u_char *addr)
 {
   if (!g_resolving_actif)
     return ether_to_str((guint8 *)addr);

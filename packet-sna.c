@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.5 1999/10/21 04:35:40 gram Exp $
+ * $Id: packet-sna.c,v 1.6 1999/10/22 07:17:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -409,14 +409,10 @@ dissect_fid0_1 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
 	snf = pntohs(&pd[offset+6]);
 	dcf = pntohs(&pd[offset+8]);
 
-	if (check_col(fd, COL_RES_NET_DST))
-		col_add_fstr(fd, COL_RES_NET_DST, "%04X", daf);
-	if (check_col(fd, COL_UNRES_NET_DST))
-		col_add_fstr(fd, COL_UNRES_NET_DST, "%04X", daf);
-	if (check_col(fd, COL_RES_NET_SRC))
-		col_add_fstr(fd, COL_RES_NET_SRC, "%04X", oaf);
-	if (check_col(fd, COL_UNRES_NET_SRC))
-		col_add_fstr(fd, COL_UNRES_NET_SRC, "%04X", oaf);
+	SET_ADDRESS(&pi.net_src, AT_SNA, 2, &pd[offset+4]);
+	SET_ADDRESS(&pi.src, AT_SNA, 2, &pd[offset+4]);
+	SET_ADDRESS(&pi.net_dst, AT_SNA, 2, &pd[offset+2]);
+	SET_ADDRESS(&pi.dst, AT_SNA, 2, &pd[offset+2]);
 
 	if (!tree) {
 		return bytes_in_header;
@@ -461,14 +457,10 @@ dissect_fid2 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	oaf = pd[offset+3];
 
 	/* Addresses in FID 2 are FT_UINT8 */
-	if (check_col(fd, COL_RES_NET_DST))
-		col_add_fstr(fd, COL_RES_NET_DST, "%02X", daf);
-	if (check_col(fd, COL_UNRES_NET_DST))
-		col_add_fstr(fd, COL_UNRES_NET_DST, "%02X", daf);
-	if (check_col(fd, COL_RES_NET_SRC))
-		col_add_fstr(fd, COL_RES_NET_SRC, "%02X", oaf);
-	if (check_col(fd, COL_RES_NET_SRC))
-		col_add_fstr(fd, COL_UNRES_NET_SRC, "%02X", oaf);
+	SET_ADDRESS(&pi.net_src, AT_SNA, 1, &pd[offset+3]);
+	SET_ADDRESS(&pi.src, AT_SNA, 1, &pd[offset+3]);
+	SET_ADDRESS(&pi.net_dst, AT_SNA, 1, &pd[offset+2]);
+	SET_ADDRESS(&pi.dst, AT_SNA, 1, &pd[offset+2]);
 
 	if (!tree) {
 		return bytes_in_header;

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.116 1999/10/20 22:41:12 guy Exp $
+ * $Id: packet.h,v 1.117 1999/10/22 07:17:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -106,6 +106,12 @@ typedef struct _packet_counts {
   gint           total;
 } packet_counts;
 
+/* XXX - some of this stuff is used only while a packet is being dissected;
+   should we keep around a separate data structure for that, to save
+   memory?
+
+   Also, should the pseudo-header be supplied by Wiretap when you do a
+   seek-and-read, so that we don't have to save it for all frames? */
 typedef struct _frame_data {
   struct _frame_data *next; /* Next element in list */
   guint32      num;       /* Frame number */
@@ -125,17 +131,51 @@ typedef struct _frame_data {
   union pseudo_header pseudo_header; /* "pseudo-header" from wiretap */
 } frame_data;
 
+/* Types of addresses Ethereal knows about. */
+typedef enum {
+  AT_NONE,		/* no link-layer address */
+  AT_ETHER,		/* MAC (Ethernet, 802.x, FDDI) address */
+  AT_IPv4,		/* IPv4 */
+  AT_IPv6,		/* IPv6 */
+  AT_IPX,		/* IPX */
+  AT_SNA		/* SNA */
+} address_type;
+
+typedef struct _address {
+  address_type  type;		/* type of address */
+  int           len;		/* length of address, in bytes */
+  const guint8 *data;		/* bytes that constitute address */
+} address;
+
+#define	SET_ADDRESS(addr, addr_type, addr_len, addr_data) { \
+	(addr)->type = (addr_type); \
+	(addr)->len = (addr_len); \
+	(addr)->data = (addr_data); \
+	}
+
+/* Types of port numbers Ethereal knows about. */
+typedef enum {
+  PT_NONE,		/* no port number */
+  PT_TCP,		/* TCP */
+  PT_UDP		/* UDP */
+} port_type;
+
 typedef struct _packet_info {
-  int len;
-  int captured_len;
-  guint32 ip_src;
-  guint32 ip_dst;
+  int     len;
+  int     captured_len;
+  address dl_src;		/* link-layer source address */
+  address dl_dst;		/* link-layer destination address */
+  address net_src;		/* network-layer source address */
+  address net_dst;		/* network-layer destination address */
+  address src;			/* source address (net if present, DL otherwise )*/
+  address dst;			/* destination address (net if present, DL otherwise )*/
   guint32 ipproto;
-  guint32 srcport;
-  guint32 destport;
+  port_type ptype;		/* type of the following two port numbers */
+  guint32 srcport;		/* source port */
+  guint32 destport;		/* destination port */
   guint32 match_port;
-  int iplen;
-  int iphdrlen;
+  int     iplen;
+  int     iphdrlen;
 } packet_info;
 
 extern packet_info pi;
@@ -387,6 +427,7 @@ gchar*     ether_to_str(const guint8 *);
 gchar*     ip_to_str(const guint8 *);
 struct e_in6_addr;
 gchar*     ip6_to_str(struct e_in6_addr *);
+gchar*     ipx_addr_to_str(guint32, const guint8 *);
 gchar*	   abs_time_to_str(struct timeval*);
 gchar*	   rel_time_to_str(struct timeval*);
 gchar*     time_secs_to_str(guint32);
@@ -418,11 +459,13 @@ void       col_append_fstr(frame_data *, gint, gchar *, ...);
 void       col_add_str(frame_data *, gint, const gchar *);
 void       col_append_str(frame_data *, gint, gchar *);
 
+void blank_packetinfo(void);
 
 void afs_init_protocol(void);
 void smb_init_protocol(void);
 
 void dissect_packet(const u_char *, frame_data *, proto_tree *);
+
 /*
  * Routines in packet-*.c
  * Routines should take three args: packet data *, cap_len, packet_counts *
