@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.56 2001/12/10 00:25:28 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.57 2002/01/09 19:13:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -366,22 +366,22 @@ again:
 	field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
 	proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 	    decode_boolean_bitfield(map->nd_opt_map_flags,
-		ND_OPT_MAP_FLAG_R, 8, "R", ""));
+		ND_OPT_MAP_FLAG_R, 8, "R", "No R"));
 	proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 	    decode_boolean_bitfield(map->nd_opt_map_flags,
-		ND_OPT_MAP_FLAG_M, 8, "M", ""));
+		ND_OPT_MAP_FLAG_M, 8, "M", "No M"));
 	proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 	    decode_boolean_bitfield(map->nd_opt_map_flags,
-		ND_OPT_MAP_FLAG_I, 8, "I", ""));
+		ND_OPT_MAP_FLAG_I, 8, "I", "No I"));
 	proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 	    decode_boolean_bitfield(map->nd_opt_map_flags,
-		ND_OPT_MAP_FLAG_T, 8, "T", ""));
+		ND_OPT_MAP_FLAG_T, 8, "T", "No T"));
 	proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 	    decode_boolean_bitfield(map->nd_opt_map_flags,
-		ND_OPT_MAP_FLAG_P, 8, "P", ""));
+		ND_OPT_MAP_FLAG_P, 8, "P", "No P"));
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + offsetof(struct nd_opt_map_info, nd_opt_map_lifetime),
-	    4, "Lifetime: %d", pntohs(&map->nd_opt_map_lifetime));
+	    4, "Lifetime: %d", pntohl(&map->nd_opt_map_lifetime));
 
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + offsetof(struct nd_opt_map_info, nd_opt_map_address), 16,
