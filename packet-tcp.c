@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.133 2002/02/19 00:14:21 guy Exp $
+ * $Id: packet-tcp.c,v 1.134 2002/02/24 02:59:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -222,6 +222,17 @@ tcp_segment_equal(gconstpointer k1, gconstpointer k2)
 static void
 tcp_desegment_init(void)
 {
+	/*
+	 * Free this before freeing any memory chunks; those
+	 * chunks contain data we'll look at in "free_all_segments()".
+	 */
+	if(tcp_segment_table){
+		g_hash_table_foreach_remove(tcp_segment_table,
+			free_all_segments, NULL);
+		g_hash_table_destroy(tcp_segment_table);
+		tcp_segment_table = NULL;
+	}
+
 	if(tcp_segment_key_chunk){
 		g_mem_chunk_destroy(tcp_segment_key_chunk);
 		tcp_segment_key_chunk = NULL;
@@ -231,20 +242,15 @@ tcp_desegment_init(void)
 		tcp_segment_address_chunk = NULL;
 	}
 
-	/* dont allocate any memory chunks unless the user really
-	   uses this option
+	/* dont allocate any hash table or memory chunks unless the user
+	   really uses this option
 	*/
 	if(!tcp_desegment){
 		return;
 	}
 
-	if(tcp_segment_table){
-		g_hash_table_foreach_remove(tcp_segment_table,
-			free_all_segments, NULL);
-	} else {
-		tcp_segment_table = g_hash_table_new(tcp_segment_hash,
-			tcp_segment_equal);
-	}
+	tcp_segment_table = g_hash_table_new(tcp_segment_hash,
+		tcp_segment_equal);
 
 	tcp_segment_key_chunk = g_mem_chunk_new("tcp_segment_key_chunk",
 		sizeof(tcp_segment_key),
