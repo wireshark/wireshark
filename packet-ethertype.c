@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.10 2001/01/18 07:44:39 guy Exp $
+ * $Id: packet-ethertype.c,v 1.11 2001/01/18 08:38:10 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -72,6 +72,9 @@ const value_string etype_vals[] = {
     {ETHERTYPE_DEC_SCA,		"DEC LAVC/SCA"			},
     {0,				NULL				} };
 
+static void add_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
+    tvbuff_t *next_tvb, int offset_after_etype, guint length_before);
+
 void
 capture_ethertype(guint16 etype, int offset,
 		const u_char *pd, packet_counts *ld)
@@ -100,10 +103,10 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 		packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
 		int etype_id, int trailer_id)
 {
-	char		*description;
-	tvbuff_t	*next_tvb;
-	guint		length_before, length;
-	tvbuff_t	*volatile trailer_tvb;
+	char			*description;
+	tvbuff_t		*next_tvb;
+	guint			length_before;
+	volatile gboolean	dissector_found;
 	
 	/* Add to proto_tree */
 	if (tree) {
@@ -117,34 +120,81 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 	/* Remember how much data there is in it. */
 	length_before = tvb_reported_length(next_tvb);
 
-	/* Look for sub-dissector */
-	if (!dissector_try_port(ethertype_dissector_table, etype,
-	    next_tvb, pinfo, tree)) {
+	/* Look for sub-dissector, and call it if found.
+	   Catch BoundsError and ReportedBoundsError, so that if the
+	   reported length of "next_tvb" was reduced by some dissector
+	   before an exception was thrown, we can still put in an item
+	   for the trailer. */
+	TRY {
+		dissector_found = dissector_try_port(ethertype_dissector_table,
+		    etype, next_tvb, pinfo, tree);
+	}
+	CATCH2(BoundsError, ReportedBoundsError) {
+		/* Well, somebody threw an exception; that means that a
+		   dissector was found, so we don't need to dissect
+		   the payload as data or update the protocol or info
+		   columns. */
+		dissector_found = TRUE;
+
+		/* Add the trailer, if appropriate. */
+		add_trailer(fh_tree, trailer_id, tvb, next_tvb,
+		    offset_after_etype, length_before);
+
+		/* Rrethrow the exception, so the "Short Frame" or "Mangled
+		   Frame" indication can be put into the tree. */
+		RETHROW;
+
+		/* XXX - RETHROW shouldn't return. */
+		g_assert_not_reached();
+	}
+	ENDTRY;
+
+	if (!dissector_found) {
 		/* No sub-dissector found.
 		   Label rest of packet as "Data" */
 		dissect_data(next_tvb, 0, pinfo, tree);
 
 		/* Label protocol */
-		switch(etype) {
+		switch (etype) {
 
 		case ETHERTYPE_LOOP:
 			if (check_col(pinfo->fd, COL_PROTOCOL)) {
 				col_add_fstr(pinfo->fd, COL_PROTOCOL, "LOOP");
 			}
 			break;
+
 		default:
 			if (check_col(pinfo->fd, COL_PROTOCOL)) {
-				col_add_fstr(pinfo->fd, COL_PROTOCOL, "0x%04x", etype);
+				col_add_fstr(pinfo->fd, COL_PROTOCOL, "0x%04x",
+				    etype);
 			}
 			break;
 		}
 		if (check_col(pinfo->fd, COL_INFO)) {
 			description = match_strval(etype, etype_vals);
 			if (description) {
-				col_add_fstr(pinfo->fd, COL_INFO, "%s", description);
+				col_add_fstr(pinfo->fd, COL_INFO, "%s",
+				    description);
 			}
 		}
 	}
+
+	add_trailer(fh_tree, trailer_id, tvb, next_tvb, offset_after_etype,
+	    length_before);
+}
+
+static void
+add_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
+    tvbuff_t *next_tvb, int offset_after_etype, guint length_before)
+{
+	guint		length;
+	tvbuff_t	*volatile trailer_tvb;
+
+	if (fh_tree == NULL)
+		return;	/* we're not building a protocol tree */
+
+	if (trailer_id == -1)
+		return;	/* our caller doesn't care about trailers */
 
 	/* OK, how much is there in that tvbuff now? */
 	length = tvb_reported_length(next_tvb);
@@ -170,7 +220,7 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 
 	/* If there's some bytes left over, and we were given an item ID
 	   for a trailer, mark those bytes as a trailer. */
-	if (trailer_tvb && tree && trailer_id != -1) {
+	if (trailer_tvb) {
 		guint	trailer_length;
 
 		trailer_length = tvb_length(trailer_tvb);
