@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.173 2001/11/28 11:33:54 guy Exp $
+ * $Id: packet-smb.c,v 1.174 2001/11/28 11:47:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -714,9 +714,6 @@ smb_trans_defragment(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 		fd_head = fragment_get(pinfo, si->sip->frame_req, smb_trans_fragment_table);
 	}
 
-	/* we only show the reassembled data in the first SMB containing the
-	   first block of data.
-	*/
 	if(fd_head && fd_head->flags&FD_DEFRAGMENTED){
 		return fd_head;
 	} else {
@@ -4517,6 +4514,8 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 {
 	guint8	wc, cmd=0xff;
 	guint16 andxoffset=0, bc;
+	smb_info_t *si;
+	unsigned int fid;
 
 	WORD_COUNT;
 
@@ -4539,8 +4538,14 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset += 2;
 
 	/* fid */
-	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	fid = tvb_get_letohs(tvb, offset);
+	add_fid(tvb, pinfo, tree, offset, 2, fid);
 	offset += 2;
+	if (!pinfo->fd->flags.visited) {
+		/* remember the FID for the processing of the response */
+		si = (smb_info_t *)pinfo->private_data;
+		si->sip->extra_info=(void *)fid;
+	}
 
 	/* offset */
 	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
@@ -4583,6 +4588,7 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
 	guint8	wc, cmd=0xff;
 	guint16 andxoffset=0, bc, datalen=0;
+	smb_info_t *si;
 
 	WORD_COUNT;
 
@@ -4603,6 +4609,13 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	andxoffset = tvb_get_letohs(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_andxoffset, tvb, offset, 2, andxoffset);
 	offset += 2;
+
+	/* If we have seen the request, then print which FID this refers to */
+	si = (smb_info_t *)pinfo->private_data;
+	/* first check if we have seen the request */
+	if(si->sip->frame_req>0){
+		add_fid(tvb, pinfo, tree, 0, 0, (int)si->sip->extra_info);
+	}
 
 	/* remaining */
 	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, TRUE);
@@ -4649,6 +4662,8 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
 	guint8	wc, cmd=0xff;
 	guint16 andxoffset=0, bc, datalen=0;
+	smb_info_t *si;
+	unsigned int fid;
 
 	WORD_COUNT;
 
@@ -4671,8 +4686,14 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 2;
 
 	/* fid */
-	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	fid = tvb_get_letohs(tvb, offset);
+	add_fid(tvb, pinfo, tree, offset, 2, fid);
 	offset += 2;
+	if (!pinfo->fd->flags.visited) {
+		/* remember the FID for the processing of the response */
+		si = (smb_info_t *)pinfo->private_data;
+		si->sip->extra_info=(void *)fid;
+	}
 
 	/* offset */
 	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
@@ -4727,6 +4748,7 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	guint8	wc, cmd=0xff;
 	guint16 andxoffset=0, bc;
+	smb_info_t *si;
 
 	WORD_COUNT;
 
@@ -4747,6 +4769,13 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	andxoffset = tvb_get_letohs(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_andxoffset, tvb, offset, 2, andxoffset);
 	offset += 2;
+
+	/* If we have seen the request, then print which FID this refers to */
+	si = (smb_info_t *)pinfo->private_data;
+	/* first check if we have seen the request */
+	if(si->sip->frame_req>0){
+		add_fid(tvb, pinfo, tree, 0, 0, (int)si->sip->extra_info);
+	}
 
 	/* write count */
 	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 2, TRUE);
