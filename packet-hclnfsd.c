@@ -2,7 +2,7 @@
  * Routines for hclnfsd (Hummingbird NFS Daemon) dissection
  * Copyright 2001, Mike Frisch <frisch@hummingbird.com>
  *
- * $Id: packet-hclnfsd.c,v 1.13 2002/04/25 21:29:13 guy Exp $
+ * $Id: packet-hclnfsd.c,v 1.14 2002/05/10 23:20:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -150,7 +150,7 @@ static const value_string names_request_type[] = {
 	{ 0, NULL }
 };
 
-void
+static void
 hclnfsd_decode_obscure(char *ident, int ident_len)
 {
 	int j, x, y;

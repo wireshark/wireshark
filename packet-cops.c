@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.30 2002/05/05 00:16:32 guy Exp $
+ * $Id: packet-cops.c,v 1.31 2002/05/10 23:20:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -868,7 +868,7 @@ static int dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *t
 
 
 /*convert hex to binary string (1010....)*/
-gchar* xtobstr(guint8 *hex, guint len) {
+static gchar* xtobstr(guint8 *hex, guint len) {
 
   guint i=0,j=0,k=0, bit=0;
   gchar *binstr=NULL;

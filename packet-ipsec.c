@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.38 2002/01/24 09:20:48 guy Exp $
+ * $Id: packet-ipsec.c,v 1.39 2002/05/10 23:20:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,7 +46,7 @@
 #include "prefs.h"
 
 /* Place AH payload in sub tree */
-gboolean g_ah_payload_in_subtree = FALSE;
+static gboolean g_ah_payload_in_subtree = FALSE;
 
 static int proto_ah = -1;
 static int hf_ah_spi = -1;

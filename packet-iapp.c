@@ -2,7 +2,7 @@
  * Routines for IAPP dissection
  * Copyright 2002, Alfred Arnold <aarnold@elsa.de>
  *
- * $Id: packet-iapp.c,v 1.2 2002/04/29 08:20:08 guy Exp $
+ * $Id: packet-iapp.c,v 1.3 2002/05/10 23:20:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -198,7 +198,8 @@ static value_string iapp_auth_type_vals[] = {
 
 static gchar textbuffer[2000];
 
-gchar *iaconvertbufftostr(gchar *dest, tvbuff_t *tvb, int offset, int length)
+static gchar*
+iaconvertbufftostr(gchar *dest, tvbuff_t *tvb, int offset, int length)
 {
 /*converts the raw buffer into printable text */
 	guint32 i;
@@ -217,7 +218,7 @@ gchar *iaconvertbufftostr(gchar *dest, tvbuff_t *tvb, int offset, int length)
                 }
                 else
                 {
-                        sprintf(&(dest[totlen]), "\\%03u", pd[i]);
+                        sprintf(&(dest[totlen]), "\\%03o", pd[i]);
                         totlen=totlen+strlen(&(dest[totlen]));
                 }
         }

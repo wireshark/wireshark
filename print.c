@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.45 2002/04/02 05:07:36 guy Exp $
+ * $Id: print.c,v 1.46 2002/05/10 23:20:38 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -40,6 +40,7 @@
 #include "ps.h"
 #include "util.h"
 #include <epan/tvbuff.h>
+#include "packet-data.h"
 
 static void proto_tree_print_node_text(GNode *node, gpointer data);
 static void proto_tree_print_node_ps(GNode *node, gpointer data);
@@ -49,9 +50,6 @@ static void print_hex_data_text(FILE *fh, register const u_char *cp,
 		register u_int length, char_enc encoding);
 static void print_hex_data_ps(FILE *fh, register const u_char *cp,
 		register u_int length, char_enc encoding);
-
-extern int proto_data; /* in packet-data.c */
-
 
 typedef struct {
 	int		level;

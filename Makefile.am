@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.428 2002/05/09 23:50:24 gram Exp $
+# $Id: Makefile.am,v 1.429 2002/05/10 23:20:37 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -359,6 +359,7 @@ noinst_HEADERS = \
 	packet-bootparams.h \
 	packet-chdlc.h \
 	packet-clip.h  \
+	packet-data.h \
 	packet-dccp.h \
 	packet-dcerpc.h \
 	packet-dcerpc-dfs.h \

@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.45 2002/05/06 01:25:45 guy Exp $
+ * $Id: packet-afs.c,v 1.46 2002/05/10 23:20:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,7 +62,7 @@
 		(opcode >= VOTE_LOW && opcode <= VOTE_HIGH) || \
 		(opcode >= DISK_LOW && opcode <= DISK_HIGH))
 
-int afs_packet_init_count = 100;
+static int afs_packet_init_count = 100;
 
 struct afs_request_key {
   guint32 conversation, callnumber;
@@ -73,9 +73,9 @@ struct afs_request_val {
   guint32 opcode;
 };
 
-GHashTable *afs_request_hash = NULL;
-GMemChunk *afs_request_keys = NULL;
-GMemChunk *afs_request_vals = NULL;
+static GHashTable *afs_request_hash = NULL;
+static GMemChunk *afs_request_keys = NULL;
+static GMemChunk *afs_request_vals = NULL;
 
 
 

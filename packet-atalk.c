@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.71 2002/05/08 23:46:33 guy Exp $
+ * $Id: packet-atalk.c,v 1.72 2002/05/10 23:20:37 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -433,7 +433,7 @@ const value_string asp_error_vals[] = {
  *
  * Are these always in the Mac extended character set?
  */
-int dissect_pascal_string(tvbuff_t *tvb, int offset, proto_tree *tree,
+static int dissect_pascal_string(tvbuff_t *tvb, int offset, proto_tree *tree,
 	int hf_index)
 {
 	int len;

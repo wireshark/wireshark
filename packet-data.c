@@ -2,7 +2,7 @@
  * Routines for raw data (default case)
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-data.c,v 1.28 2002/04/04 05:16:14 guy Exp $
+ * $Id: packet-data.c,v 1.29 2002/05/10 23:20:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include "packet-data.h"
 
 /* proto_data cannot be static because it's referenced in the
  * print routines

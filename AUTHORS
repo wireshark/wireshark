@@ -89,6 +89,7 @@ Joerg Mayer      <jmayer[AT]loplof.de> {
 	    unused in GCC, and as nothing for other compilers
 	Add _U_ to unused arguments, and turn off "-Wno-unused"
 	.cvsignore fixes
+	Make a pile of stuff not used outside one source file static 
 }
 
 Martin Maciaszek <fastjack[AT]i-s-o.net> {

@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.20 2002/05/08 23:46:34 guy Exp $
+ * $Id: packet-dsi.c,v 1.21 2002/05/10 23:20:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,7 +95,7 @@ static gint ett_dsi_open	= -1;
 static gint ett_dsi_attn	= -1;
 static gint ett_dsi_attn_flag	= -1;
 
-const value_string dsi_attn_flag_vals[] = {
+static const value_string dsi_attn_flag_vals[] = {
   {0x0,	"Reserved" },						/* 0000 */
   {0x1,	"Reserved" },						/* 0001 */
   {0x2,	"Server message" },					/* 0010 */
@@ -107,7 +107,7 @@ const value_string dsi_attn_flag_vals[] = {
   {0x11,"Server is shutting down, message,no reconnect"},	/* 1011 */
   {0,			NULL } };
 
-const value_string dsi_open_type_vals[] = {
+static const value_string dsi_open_type_vals[] = {
   {0,	"Server quantum" },
   {1,	"Attention quantum" },
   {0,			NULL } };

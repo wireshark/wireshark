@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.27 2002/05/02 11:05:44 guy Exp $
+ * $Id: packet-gtp.c,v 1.28 2002/05/10 23:20:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1465,7 +1465,7 @@ typedef struct {
 	guint32		teid;
 } _gtpv1_hdr;
 
-struct gcdr_ {					/* GCDR 118B */
+static struct gcdr_ {				/* GCDR 118B */
 	guint8		imsi[8];
 	guint32		ggsnaddr;
 	guint32		chrgid;
@@ -1496,7 +1496,7 @@ typedef struct change_ {
 	guint8		qos_neg[3];
 } change_t;
 
-struct _scdr {					/* SCDR 277B */
+static struct _scdr {				/* SCDR 277B */
 	guint16		len;
 	guint8		netini;
 	guint8		anon;
@@ -1541,7 +1541,7 @@ typedef struct mmchange_ {
 	guint8		omit[8];
 } mmchange_t;
 
-struct _mcdr {					/* MCDR 147B */
+static struct _mcdr {				/* MCDR 147B */
 	guint16		len;
 	guint8		imsilen;
 	guint8		imsi[8];
@@ -1572,7 +1572,7 @@ struct _mcdr {					/* MCDR 147B */
 	guint32		seqno;
 } mcdr;
 
-struct _socdr {						/* SOCDR 80B */
+static struct _socdr {					/* SOCDR 80B */
 	guint16		len;
 	guint8		imsilen;
 	guint8		imsi[8];
@@ -1595,7 +1595,7 @@ struct _socdr {						/* SOCDR 80B */
 } socdr;
 
 
-struct _stcdr {						/* STCDR 79B */
+static struct _stcdr {					/* STCDR 79B */
 	guint16		len;
 	guint8		imsilen;
 	guint8		imsi[8];
@@ -1616,8 +1616,8 @@ struct _stcdr {						/* STCDR 79B */
 	guint16		smsres;
 } stcdr;
 	
-	guint8		gtp_version = 0;
-	char		*yesno[] = { "False", "True" };
+static	guint8		gtp_version = 0;
+static	char		*yesno[] = { "False", "True" };
 	
 static void
 col_append_str_gtp(column_info *cinfo, gint el, gchar *proto_name) {
@@ -1693,7 +1693,7 @@ msisdn_to_str(const guint8 *ad, int len) {
 	return (gchar *)&str[0];
 }
 
-gchar *
+static gchar *
 time_int_to_str (guint32 time)
 {
 
@@ -1705,7 +1705,7 @@ time_int_to_str (guint32 time)
 	return abs_time_to_str (&nstime);
 }
 
-gchar *
+static gchar *
 rel_time_int_to_str (guint32 time)
 {
 

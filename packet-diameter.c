@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.47 2002/05/02 19:32:19 guy Exp $
+ * $Id: packet-diameter.c,v 1.48 2002/05/10 23:20:38 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -881,7 +881,7 @@ diameter_app_to_str(guint32 vendorId) {
 } /*diameter_app_to_str */
 
 /* return an avp type, based on the code */
-diameterDataType
+static diameterDataType
 diameter_avp_get_type(guint32 avpCode, guint32 vendorId){
   avpInfo *probe;
   gchar *vendorName=NULL;
