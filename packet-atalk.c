@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.36 2000/05/28 22:59:17 guy Exp $
+ * $Id: packet-atalk.c,v 1.37 2000/05/30 03:35:51 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -35,7 +35,6 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-atalk.h"
-#include "packet-eigrp.h"
 #include "etypes.h"
 #include "ppptypes.h"
 

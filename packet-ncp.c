@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.35 2000/05/11 08:15:26 gram Exp $
+ * $Id: packet-ncp.c,v 1.36 2000/05/30 03:35:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,7 +43,6 @@
 #include "packet.h"
 #include "conversation.h"
 #include "packet-ipx.h"
-#include "packet-ncp.h"
 
 static int proto_ncp = -1;
 static int hf_ncp_ip_ver = -1;
@@ -531,7 +530,7 @@ ncp2222_find(guint8 func, guint8 subfunc)
 	return retval;
 }
 
-void
+static void
 dissect_ncp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	proto_tree	*ncp_tree = NULL;
@@ -1070,4 +1069,6 @@ proto_reg_handoff_ncp(void)
 {
   dissector_add("tcp.port", TCP_PORT_NCP, dissect_ncp);
   dissector_add("udp.port", UDP_PORT_NCP, dissect_ncp);
+  dissector_add("ipx.packet_type", IPX_PACKET_TYPE_NCP, dissect_ncp);
+  dissector_add("ipx.socket", IPX_SOCKET_NCP, dissect_ncp);
 }

@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.34 2000/05/24 05:59:50 guy Exp $
+ * $Id: packet-snmp.c,v 1.35 2000/05/30 03:35:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,6 +51,7 @@
 
 #include "packet.h"
 #include "etypes.h"
+#include "packet-ipx.h"
 
 #if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
  /*
@@ -1833,7 +1834,7 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 	dissect_common_pdu(pd, offset, fd, smux_tree, asn1, pdu_type, start);
 }
 
-void
+static void
 dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
 {
 	dissect_snmp_pdu(pd, offset, fd, tree, "SNMP", proto_snmp, ett_snmp);
@@ -1894,4 +1895,6 @@ proto_reg_handoff_snmp(void)
 	dissector_add("udp.port", UDP_PORT_SNMP_TRAP, dissect_snmp);
 	dissector_add("tcp.port", TCP_PORT_SMUX, dissect_smux);
 	dissector_add("ethertype", ETHERTYPE_SNMP, dissect_snmp);
+	dissector_add("ipx.socket", IPX_SOCKET_SNMP_AGENT, dissect_snmp);
+	dissector_add("ipx.socket", IPX_SOCKET_SNMP_SINK, dissect_snmp);
 }

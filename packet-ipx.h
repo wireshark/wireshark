@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.h,v 1.6 2000/02/15 21:02:25 gram Exp $
+ * $Id: packet-ipx.h,v 1.7 2000/05/30 03:35:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -90,6 +90,53 @@ struct ipx_rip_packet
 #ifndef IPX_NODE_LEN
 #define IPX_NODE_LEN (6)
 #endif
+
+/*
+ * From:
+ *
+ *	http://alr.base2co.com:457/netguide/dipxD.ipx_packet_struct.html
+ *
+ * which is part of SCO's "Network Programmer's Guide and Reference".
+ *
+ * It calls type 20 "NetBIOS name packet".  Microsoft Network Monitor
+ * calls it "WAN Broadcast"; it's also used for SMB browser announcements,
+ * i.e. NetBIOS (broadcast) datagrams.
+ */
+#define IPX_PACKET_TYPE_IPX		0
+#define IPX_PACKET_TYPE_RIP		1
+#define	IPX_PACKET_TYPE_ECHO		2
+#define	IPX_PACKET_TYPE_ERROR		3
+#define IPX_PACKET_TYPE_PEP		4
+#define IPX_PACKET_TYPE_SPX		5
+#define IPX_PACKET_TYPE_NCP		17
+#define IPX_PACKET_TYPE_WANBCAST	20	/* propagated NetBIOS packet? */
+
+/* info on these sockets can be found in this listing from Novell:
+
+	http://developer.novell.com/engsup/sample/tids/dsoc1b/dsoc1b.htm
+*/
+
+#define IPX_SOCKET_PING_CISCO           0x0002 /* In cisco this is set with: ipx ping-default cisco */
+#define IPX_SOCKET_NCP			0x0451
+#define IPX_SOCKET_SAP			0x0452
+#define IPX_SOCKET_IPXRIP		0x0453
+#define IPX_SOCKET_NETBIOS		0x0455
+#define IPX_SOCKET_DIAGNOSTIC		0x0456
+#define IPX_SOCKET_SERIALIZATION	0x0457
+#define IPX_SOCKET_NWLINK_SMB_NAMEQUERY	0x0551
+#define IPX_SOCKET_NWLINK_SMB_DGRAM	0x0553
+#define IPX_SOCKET_NWLINK_SMB_BROWSE	0x0555 /* ? not sure on this
+	but I guessed based on the content of the packet I saw */
+#define IPX_SOCKET_ATTACHMATE_GW	0x055d
+#define IPX_SOCKET_IPX_MESSAGE		0x4001
+#define IPX_SOCKET_ADSM                 0x8522 /* www.tivoli.com */
+#define IPX_SOCKET_EIGRP                0x85be /* cisco ipx eigrp */
+#define IPX_SOCKET_WIDE_AREA_ROUTER	0x9001
+#define IPX_SOCKET_SNMP_AGENT           0x900F /* RFC 1906 */
+#define IPX_SOCKET_SNMP_SINK            0x9010 /* RFC 1906 */
+#define IPX_SOCKET_PING_NOVELL          0x9086 /* In cisco this is set with: ipx ping-default novell */
+#define IPX_SOCKET_TCP_TUNNEL           0x9091 /* RFC 1791 */
+#define IPX_SOCKET_UDP_TUNNEL           0x9092 /* RFC 1791 */
 
 gchar* ipxnet_to_string(const guint8 *ad);
 gchar* ipxnet_to_str_punct(const guint32 ad, char punct);

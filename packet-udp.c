@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.70 2000/05/11 08:15:54 gram Exp $
+ * $Id: packet-udp.c,v 1.71 2000/05/30 03:35:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,7 +48,6 @@
 #include "packet-udp.h"
 
 #include "packet-ip.h"
-#include "packet-ncp.h"
 #include "packet-rpc.h"
 #include "packet-tftp.h"
 #include "packet-vines.h"

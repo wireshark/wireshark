@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.59 2000/05/22 18:09:36 guy Exp $
+ * $Id: packet-ipx.c,v 1.60 2000/05/30 03:35:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,8 +40,6 @@
 #include "packet.h"
 #include "packet-ipx.h"
 #include "packet-nbipx.h"
-#include "packet-ncp.h"
-#include "packet-eigrp.h"
 #include "resolv.h"
 
 #include "packet-snmp.h"
@@ -70,6 +68,9 @@ static int hf_ipx_snode = -1;
 static int hf_ipx_ssocket = -1;
 
 static gint ett_ipx = -1;
+
+static dissector_table_t ipx_type_dissector_table;
+static dissector_table_t ipx_socket_dissector_table;
 
 static int proto_spx = -1;
 static int hf_spx_connection_control = -1;
@@ -112,16 +113,10 @@ dissect_ipxsap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 static void
 dissect_ipxmsg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 
-static void
-dissect_eigrp_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
-
-typedef	void	(dissect_func_t)(const u_char *, int, frame_data *, proto_tree *);
-
 #define UDP_PORT_IPX    213		/* RFC 1234 */
 
 struct port_info {
 	guint16	port;
-	dissect_func_t *func;
 	char	*text;
 };
 
@@ -139,66 +134,29 @@ struct server_info {
 /* IPX                                                               */
 /* ================================================================= */
 
-/* info on these sockets can be found in this listing from Novell:
-
-	http://developer.novell.com/engsup/sample/tids/dsoc1b/dsoc1b.htm
-*/
-
-#define IPX_SOCKET_PING_CISCO           0x0002 /* In cisco this is set with: ipx ping-default cisco */
-#define IPX_SOCKET_NCP			0x0451
-#define IPX_SOCKET_SAP			0x0452
-#define IPX_SOCKET_IPXRIP		0x0453
-#define IPX_SOCKET_NETBIOS		0x0455
-#define IPX_SOCKET_DIAGNOSTIC		0x0456
-#define IPX_SOCKET_SERIALIZATION	0x0457
-#define IPX_SOCKET_NWLINK_SMB_NAMEQUERY	0x0551
-#define IPX_SOCKET_NWLINK_SMB_DGRAM	0x0553
-#define IPX_SOCKET_NWLINK_SMB_BROWSE	0x0555 /* ? not sure on this
-	but I guessed based on the content of the packet I saw */
-#define IPX_SOCKET_ATTACHMATE_GW	0x055d
-#define IPX_SOCKET_IPX_MESSAGE		0x4001
-#define IPX_SOCKET_ADSM                 0x8522 /* www.tivoli.com */
-#define IPX_SOCKET_EIGRP                0x85be /* cisco ipx eigrp */
-#define IPX_SOCKET_WIDE_AREA_ROUTER	0x9001
-#define IPX_SOCKET_SNMP_AGENT           0x900F /* RFC 1906 */
-#define IPX_SOCKET_SNMP_SINK            0x9010 /* RFC 1906 */
-#define IPX_SOCKET_PING_NOVELL          0x9086 /* In cisco this is set with: ipx ping-default novell */
-#define IPX_SOCKET_TCP_TUNNEL           0x9091 /* RFC 1791 */
-#define IPX_SOCKET_UDP_TUNNEL           0x9092 /* RFC 1791 */
-
 static struct port_info	ports[] = {
-
-	{ IPX_SOCKET_PING_CISCO, NULL, "CISCO PING" },
-	{ IPX_SOCKET_NCP,			dissect_ncp,
-				"NCP" },
-	{ IPX_SOCKET_SAP,			dissect_ipxsap,
-				"SAP" },
-	{ IPX_SOCKET_IPXRIP,			dissect_ipxrip,
-				"RIP" },
-	{ IPX_SOCKET_NETBIOS,			NULL,
-				"NetBIOS" },
-	{ IPX_SOCKET_DIAGNOSTIC,		NULL,
-				"Diagnostic" },
-	{ IPX_SOCKET_SERIALIZATION,		NULL,
-				"Serialization" },
-	{ IPX_SOCKET_NWLINK_SMB_NAMEQUERY,	NULL,
-				"NWLink SMB Name Query" },
-	{ IPX_SOCKET_NWLINK_SMB_DGRAM,		dissect_nwlink_dg,
-                "NWLink SMB Datagram" },
-	{ IPX_SOCKET_NWLINK_SMB_BROWSE,	NULL, "NWLink SMB Browse" },
-	{ IPX_SOCKET_ATTACHMATE_GW,		NULL, "Attachmate Gateway" },
-	{ IPX_SOCKET_IPX_MESSAGE, dissect_ipxmsg, "IPX Message" },
-	{ IPX_SOCKET_SNMP_AGENT, dissect_snmp, "SNMP Agent" },
-	{ IPX_SOCKET_SNMP_SINK,	dissect_snmp, "SNMP Sink" },
-	{ IPX_SOCKET_PING_NOVELL, NULL,	"NOVELL PING" },
-	{ IPX_SOCKET_UDP_TUNNEL, NULL, "UDP Tunnel" },
-	{ IPX_SOCKET_TCP_TUNNEL, NULL, "TCP Tunnel" },
-	{ IPX_SOCKET_TCP_TUNNEL, NULL, "TCP Tunnel" },
-	{ IPX_SOCKET_ADSM, NULL, "ADSM" },
-	{ IPX_SOCKET_EIGRP, dissect_eigrp_ipx, "Cisco EIGRP for IPX" },
-	{ IPX_SOCKET_WIDE_AREA_ROUTER, NULL, "Wide Area Router" },
-	{ 0x0000,				NULL,
-				NULL }
+	{ IPX_SOCKET_PING_CISCO,		"CISCO PING" },
+	{ IPX_SOCKET_NCP,			"NCP" },
+	{ IPX_SOCKET_SAP,			"SAP" },
+	{ IPX_SOCKET_IPXRIP,			"RIP" },
+	{ IPX_SOCKET_NETBIOS,			"NetBIOS" },
+	{ IPX_SOCKET_DIAGNOSTIC,		"Diagnostic" },
+	{ IPX_SOCKET_SERIALIZATION,		"Serialization" },
+	{ IPX_SOCKET_NWLINK_SMB_NAMEQUERY,	"NWLink SMB Name Query" },
+	{ IPX_SOCKET_NWLINK_SMB_DGRAM,		"NWLink SMB Datagram" },
+	{ IPX_SOCKET_NWLINK_SMB_BROWSE,		"NWLink SMB Browse" },
+	{ IPX_SOCKET_ATTACHMATE_GW,		"Attachmate Gateway" },
+	{ IPX_SOCKET_IPX_MESSAGE,		"IPX Message" },
+	{ IPX_SOCKET_SNMP_AGENT,		"SNMP Agent" },
+	{ IPX_SOCKET_SNMP_SINK,			"SNMP Sink" },
+	{ IPX_SOCKET_PING_NOVELL,		"NOVELL PING" },
+	{ IPX_SOCKET_UDP_TUNNEL,		"UDP Tunnel" },
+	{ IPX_SOCKET_TCP_TUNNEL,		"TCP Tunnel" },
+	{ IPX_SOCKET_TCP_TUNNEL,		"TCP Tunnel" },
+	{ IPX_SOCKET_ADSM,			"ADSM" },
+	{ IPX_SOCKET_EIGRP,			"Cisco EIGRP for IPX" },
+	{ IPX_SOCKET_WIDE_AREA_ROUTER,		"Wide Area Router" },
+	{ 0x0000,				NULL }
 };
 
 static char*
@@ -213,39 +171,6 @@ port_text(guint16 port) {
 	}
 	return "Unknown";
 }
-
-static dissect_func_t*
-port_func(guint16 port) {
-	int i=0;
-
-	while (ports[i].text != NULL) {
-		if (ports[i].port == port) {
-			return ports[i].func;
-		}
-		i++;
-	}
-	return NULL;
-}
-
-/*
- * From:
- *
- *	http://alr.base2co.com:457/netguide/dipxD.ipx_packet_struct.html
- *
- * which is part of SCO's "Network Programmer's Guide and Reference".
- *
- * It calls type 20 "NetBIOS name packet".  Microsoft Network Monitor
- * calls it "WAN Broadcast"; it's also used for SMB browser announcements,
- * i.e. NetBIOS (broadcast) datagrams.
- */
-#define IPX_PACKET_TYPE_IPX		0
-#define IPX_PACKET_TYPE_RIP		1
-#define	IPX_PACKET_TYPE_ECHO		2
-#define	IPX_PACKET_TYPE_ERROR		3
-#define IPX_PACKET_TYPE_PEP		4
-#define IPX_PACKET_TYPE_SPX		5
-#define IPX_PACKET_TYPE_NCP		17
-#define IPX_PACKET_TYPE_WANBCAST	20	/* propagated NetBIOS packet? */
 
 static const value_string ipx_packet_type_vals[] = {
 	{ IPX_PACKET_TYPE_IPX,		"IPX" },
@@ -368,7 +293,6 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	guint8		*ipx_snode, *ipx_dnode, *ipx_snet, *ipx_dnet;
 
 	guint16		ipx_dsocket, ipx_ssocket;
-	dissect_func_t	*dissect;
 	guint32		ipx_dnet_val, ipx_snet_val;
 
 	/* Calculate here for use in pinfo and in tree */
@@ -430,42 +354,30 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	}
 	offset += 30;
 
+	if (dissector_try_port(ipx_type_dissector_table, ipx_type, pd,
+	    offset, fd, tree))
+		return;
 	switch (ipx_type) {
-		case IPX_PACKET_TYPE_SPX:
-			dissect_spx(pd, offset, fd, tree);
-			break;
-
-		case IPX_PACKET_TYPE_NCP:
-			dissect_ncp(pd, offset, fd, tree);
-			break;
-
 		case IPX_PACKET_TYPE_WANBCAST:
 		case IPX_PACKET_TYPE_PEP:
 			if (ipx_dsocket == IPX_SOCKET_NETBIOS) {
 				dissect_nbipx(pd, offset, fd, tree);
-				break;
+				return;
 			}
 			/* else fall through */
 
 		case 0: /* IPX, fall through to default */
 			/* XXX - should type 0's be dissected as NBIPX
 			   if they're aimed at the NetBIOS socket? */
-		default:
-			dissect = port_func(ipx_dsocket);
-			if (dissect) {
-				dissect(pd, offset, fd, tree);
-			}
-			else {
-				dissect = port_func(ipx_ssocket);
-				if (dissect) {
-					dissect(pd, offset, fd, tree);
-				}
-				else {
-					dissect_data(pd, offset, fd, tree);
-				}
-			}
 			break;
 	}
+	if (dissector_try_port(ipx_socket_dissector_table, ipx_dsocket, pd,
+	    offset, fd, tree))
+		return;
+	if (dissector_try_port(ipx_socket_dissector_table, ipx_ssocket, pd,
+	    offset, fd, tree))
+		return;
+	dissect_data(pd, offset, fd, tree);
 }
 
 
@@ -825,12 +737,6 @@ dissect_ipxsap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	}
 }
 
-static void
-dissect_eigrp_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
-{                                                                                                 
-	dissect_eigrp(pd,offset,fd,tree);                                                                 
-}                                                                                                 
-
 void
 proto_register_ipx(void)
 {
@@ -975,6 +881,9 @@ proto_register_ipx(void)
 	proto_register_field_array(proto_sap, hf_sap, array_length(hf_sap));
 
 	proto_register_subtree_array(ett, array_length(ett));
+
+	ipx_type_dissector_table = register_dissector_table("ipx.packet_type");
+	ipx_socket_dissector_table = register_dissector_table("ipx.socket");
 }
 
 void
@@ -984,4 +893,8 @@ proto_reg_handoff_ipx(void)
 	dissector_add("ethertype", ETHERTYPE_IPX, dissect_ipx);
 	dissector_add("ppp.protocol", PPP_IPX, dissect_ipx);
 	dissector_add("llc.dsap", SAP_NETWARE, dissect_ipx);
+	dissector_add("ipx.packet_type", IPX_PACKET_TYPE_SPX, dissect_spx);
+	dissector_add("ipx.socket", IPX_SOCKET_SAP, dissect_ipxsap);
+	dissector_add("ipx.socket", IPX_SOCKET_IPXRIP, dissect_ipxrip);
+	dissector_add("ipx.socket", IPX_SOCKET_IPX_MESSAGE, dissect_ipxmsg);
 }

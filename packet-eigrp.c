@@ -1,6 +1,6 @@
 /* packet-eigrp.c
  *
- * $Id: packet-eigrp.c,v 1.2 2000/05/30 03:09:11 gram Exp $
+ * $Id: packet-eigrp.c,v 1.3 2000/05/30 03:35:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,9 +38,9 @@
 #include "packet.h"
 #include "resolv.h"
 
-#include "packet-eigrp.h"
 #include "packet-atalk.h"
 #include "packet-ip.h"
+#include "packet-ipx.h"
 
 /* EIGRP Structs and Definitions. */    
 
@@ -85,7 +85,7 @@ static const value_string eigrp_opcode_vals[] = {
 	{ 0,				NULL }    
 };
 
-void
+static void
 dissect_eigrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   e_eigrp     ih;
   proto_tree *eigrp_tree;
@@ -133,4 +133,5 @@ proto_reg_handoff_eigrp(void)
 {
     dissector_add("ip.proto", IP_PROTO_EIGRP, dissect_eigrp);
     dissector_add("ddp.type", DDP_EIGRP, dissect_eigrp);
+    dissector_add("ipx.socket", IPX_SOCKET_EIGRP, dissect_eigrp);
 }
