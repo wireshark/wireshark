@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.27 2000/11/19 08:53:55 guy Exp $
+ * $Id: packet-atm.c,v 1.28 2000/11/29 05:16:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,7 +37,6 @@
 #include "oui.h"
 #include "resolv.h"
 
-#include "packet-atm.h"
 #include "packet-eth.h"
 #include "packet-llc.h"
 #include "packet-snmp.h"
@@ -556,7 +555,7 @@ atm_guess_content(tvbuff_t *tvb, packet_info *pinfo)
 	}
 }
 
-void
+static void
 dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree   *atm_tree;
@@ -789,4 +788,10 @@ proto_register_atm(void)
 	proto_ilmi = proto_register_protocol("ILMI", "ilmi");
 	proto_atm_lane = proto_register_protocol("ATM LANE", "lane");
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_atm(void)
+{
+	dissector_add("wtap_encap", WTAP_ENCAP_ATM_SNIFFER, dissect_atm);
 }

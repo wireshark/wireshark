@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.3 2000/11/19 08:53:58 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.4 2000/11/29 05:16:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -1736,4 +1736,10 @@ proto_register_wlan (void)
   proto_wlan = proto_register_protocol ("Wireless ethernet", "wlan");
   proto_register_field_array (proto_wlan, hf, array_length (hf));
   proto_register_subtree_array (tree_array, array_length (tree_array));
+}
+
+void
+proto_reg_handoff_iee380211(void)
+{
+	dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11, dissect_ieee80211);
 }

@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.42 2000/11/19 08:53:57 guy Exp $
+ * $Id: packet-fddi.c,v 1.43 2000/11/29 05:16:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -219,7 +219,8 @@ fddifc_to_str(int fc)
   }
 }
 
-void
+
+static void
 dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		gboolean bitswapped)
 {
@@ -324,6 +325,19 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   } /* fc */
 } /* dissect_fddi */
 
+	
+static void
+dissect_fddi_bitswapped(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_fddi(tvb, pinfo, tree, TRUE);
+}
+
+static void
+dissect_fddi_not_bitswapped(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_fddi(tvb, pinfo, tree, FALSE);
+}
+
 void
 proto_register_fddi(void)
 {
@@ -358,4 +372,11 @@ proto_register_fddi(void)
 	proto_fddi = proto_register_protocol ("Fiber Distributed Data Interface", "fddi" );
 	proto_register_field_array(proto_fddi, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_fddi(void)
+{
+	dissector_add("wtap_encap", WTAP_ENCAP_FDDI, dissect_fddi_not_bitswapped);
+	dissector_add("wtap_encap", WTAP_ENCAP_FDDI_BITSWAPPED, dissect_fddi_bitswapped);
 }

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.252 2000/11/22 04:03:22 gram Exp $
+# $Id: Makefile.am,v 1.253 2000/11/29 05:16:14 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -184,9 +184,7 @@ noinst_HEADERS = \
 	packet-afs-register-info.h \
 	packet-afs-defs.h \
 	packet-arp.h   \
-	packet-ascend.h\
 	packet-atalk.h \
-	packet-atm.h   \
 	packet-bgp.h   \
 	packet-bootparams.h \
 	packet-cdp.h   \
@@ -214,8 +212,6 @@ noinst_HEADERS = \
 	packet-isis-snp.h \
 	packet-isl.h   \
 	packet-kerberos.h \
-	packet-lapb.h  \
-	packet-lapd.h  \
 	packet-ldap.h  \
 	packet-llc.h   \
 	packet-mount.h \
@@ -252,7 +248,6 @@ noinst_HEADERS = \
 	packet-tr.h    \
 	packet-trmac.h \
 	packet-udp.h   \
-	packet-v120.h \
 	packet-vines.h \
 	packet-vlan.h \
 	packet-vtp.h  \

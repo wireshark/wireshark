@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lapd.c,v 1.16 2000/11/19 08:53:59 guy Exp $
+ * $Id: packet-lapd.c,v 1.17 2000/11/29 05:16:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,7 +36,6 @@
 #include <glib.h>
 #include <string.h>
 #include "packet.h"
-#include "packet-lapd.h"
 #include "packet-q931.h"
 #include "xdlc.h"
 
@@ -83,7 +82,7 @@ static const value_string lapd_sapi_vals[] = {
 	{ 0,			NULL }
 };
 
-void
+static void
 dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*lapd_tree, *addr_tree;
@@ -201,4 +200,10 @@ proto_register_lapd(void)
     proto_lapd = proto_register_protocol ("Link Access Procedure, Channel D (LAPD)", "lapd");
     proto_register_field_array (proto_lapd, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_lapd(void)
+{
+	dissector_add("wtap_encap", WTAP_ENCAP_LAPD, dissect_lapd);
 }

@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.34 2000/11/19 08:54:00 guy Exp $
+ * $Id: packet-null.c,v 1.35 2000/11/29 05:16:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -209,7 +209,7 @@ capture_null( const u_char *pd, packet_counts *ld )
   }
 }
 
-void
+static void
 dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint32	null_header;
@@ -320,4 +320,5 @@ proto_reg_handoff_null(void)
 	 * Get a handle for the PPP dissector.
 	 */
 	ppp_handle = find_dissector("ppp");
+	dissector_add("wtap_encap", WTAP_ENCAP_NULL, dissect_null);
 }

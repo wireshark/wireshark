@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.44 2000/11/19 08:54:01 guy Exp $
+ * $Id: packet-ppp.c,v 1.45 2000/11/29 05:16:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1223,4 +1223,11 @@ proto_register_mp(void)
   proto_mp = proto_register_protocol("PPP Multilink Protocol", "mp");
   proto_register_field_array(proto_mp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_ppp(void)
+{
+	dissector_add("wtap_encap", WTAP_ENCAP_PPP, dissect_ppp);
+	dissector_add("wtap_encap", WTAP_ENCAP_PPP_WITH_PHDR, dissect_ppp);
 }

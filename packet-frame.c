@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.2 2000/11/15 05:41:42 guy Exp $
+ * $Id: packet-frame.c,v 1.3 2000/11/29 05:16:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,25 +34,6 @@
 #include "tvbuff.h"
 #include "packet-frame.h"
 
-#include "packet-ascend.h"
-#include "packet-atalk.h"
-#include "packet-atm.h"
-#include "packet-clip.h"
-#include "packet-eth.h"
-#include "packet-fddi.h"
-#include "packet-ipv6.h"
-#include "packet-lapb.h"
-#include "packet-lapd.h"
-#include "packet-llc.h"
-#include "packet-null.h"
-#include "packet-ppp.h"
-#include "packet-raw.h"
-#include "packet-sna.h"
-#include "packet-tr.h"
-#include "packet-v120.h"
-#include "packet-vines.h"
-#include "packet-ieee80211.h"
-
 static int proto_frame = -1;
 static int hf_frame_arrival_time = -1;
 static int hf_frame_time_delta = -1;
@@ -70,6 +51,8 @@ static const value_string p2p_dirs[] = {
 	{ P2P_DIR_RECV, "Received" },
 	{ 0, NULL }
 };
+
+static dissector_table_t wtap_encap_dissector_table;
 	
 void
 dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -130,56 +113,14 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	TRY {
-		switch (pinfo->fd->lnk_t) {
-			case WTAP_ENCAP_ETHERNET :
-				dissect_eth(tvb, pinfo, tree);
-				break;
-			case WTAP_ENCAP_FDDI :
-				dissect_fddi(tvb, pinfo, tree, FALSE);
-				break;
-			case WTAP_ENCAP_FDDI_BITSWAPPED :
-				dissect_fddi(tvb, pinfo, tree, TRUE);
-				break;
-			case WTAP_ENCAP_TOKEN_RING :
-				dissect_tr(tvb, pinfo, tree);
-				break;
-			case WTAP_ENCAP_NULL :
-				dissect_null(tvb, pinfo, tree);
-				break;
-			case WTAP_ENCAP_PPP :
-			case WTAP_ENCAP_PPP_WITH_PHDR :
-				dissect_ppp(tvb, pinfo, tree);
-				break;
-			case WTAP_ENCAP_LAPB :
-				dissect_lapb(tvb, pinfo, tree);
-				break;
-			case WTAP_ENCAP_RAW_IP :
-				dissect_raw(tvb, pinfo, tree);
-				break;
-			case WTAP_ENCAP_LINUX_ATM_CLIP :
-				dissect_clip(tvb, pinfo, tree);
-				break;
-			case WTAP_ENCAP_ATM_SNIFFER :
-				dissect_atm(tvb, pinfo, tree);
-				break;
-			case WTAP_ENCAP_ASCEND :
-				dissect_ascend(tvb, pinfo, tree);
-				break;
-			case WTAP_ENCAP_LAPD :
-				dissect_lapd(tvb, pinfo, tree);
-				break;
-			case WTAP_ENCAP_V120 :
-	 			dissect_v120(tvb, pinfo, tree);
-				break;
-			case WTAP_ENCAP_ATM_RFC1483:
-				dissect_llc(tvb, pinfo, tree);
-				break;
-			case WTAP_ENCAP_IEEE_802_11 :
-				dissect_ieee80211(tvb,pinfo,tree);
-				break;
-			default:
-				g_assert_not_reached();
-				break;
+		if (!dissector_try_port(wtap_encap_dissector_table, pinfo->fd->lnk_t,
+					tvb, pinfo, tree)) {
+
+			if (check_col(pinfo->fd, COL_PROTOCOL))
+				col_set_str(pinfo->fd, COL_PROTOCOL, "UNKNOWN");
+			if (check_col(pinfo->fd, COL_INFO))
+				col_add_fstr(pinfo->fd, COL_INFO, "WTAP_ENCAP = 0x%x", pinfo->fd->lnk_t);
+			dissect_data(tvb, 0, pinfo, tree);
 		}
 	}
 	CATCH(BoundsError) {
@@ -225,6 +166,8 @@ proto_register_frame(void)
 	static gint *ett[] = {
 		&ett_frame,
 	};
+
+	wtap_encap_dissector_table = register_dissector_table("wtap_encap");
 
 	proto_frame = proto_register_protocol("Frame", "frame");
 	proto_register_field_array(proto_frame, hf, array_length(hf));

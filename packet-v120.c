@@ -2,7 +2,7 @@
  * Routines for v120 frame disassembly
  * Bert Driehuis <driehuis@playbeing.org>
  *
- * $Id: packet-v120.c,v 1.14 2000/11/19 08:54:10 guy Exp $
+ * $Id: packet-v120.c,v 1.15 2000/11/29 05:16:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,7 +36,6 @@
 #include <glib.h>
 #include <string.h>
 #include "packet.h"
-#include "packet-v120.h"
 #include "xdlc.h"
 
 #define FROM_DCE	0x80
@@ -53,7 +52,7 @@ static gint ett_v120_header = -1;
 
 static int dissect_v120_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
-void
+static void
 dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree	*v120_tree, *tc, *address_tree;
@@ -230,4 +229,10 @@ proto_register_v120(void)
     proto_v120 = proto_register_protocol ("Async data over ISDN (V.120)", "v120");
     proto_register_field_array (proto_v120, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_v120(void)
+{
+	dissector_add("wtap_encap", WTAP_ENCAP_V120, dissect_v120);
 }

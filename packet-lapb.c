@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-lapb.c,v 1.23 2000/11/19 08:53:59 guy Exp $
+ * $Id: packet-lapb.c,v 1.24 2000/11/29 05:16:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,7 +36,6 @@
 #include <glib.h>
 #include <string.h>
 #include "packet.h"
-#include "packet-lapb.h"
 #include "packet-x25.h"
 #include "xdlc.h"
 
@@ -49,7 +48,7 @@ static int hf_lapb_control = -1;
 static gint ett_lapb = -1;
 static gint ett_lapb_control = -1;
 
-void
+static void
 dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree		*lapb_tree, *ti;
@@ -135,4 +134,10 @@ proto_register_lapb(void)
     proto_lapb = proto_register_protocol ("Link Access Procedure Balanced (LAPB)", "lapb");
     proto_register_field_array (proto_lapb, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_lapb(void)
+{
+	dissector_add("wtap_encap", WTAP_ENCAP_LAPB, dissect_lapb);
 }

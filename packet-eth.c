@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.49 2000/11/19 08:53:57 guy Exp $
+ * $Id: packet-eth.c,v 1.50 2000/11/29 05:16:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -375,4 +375,10 @@ proto_register_eth(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("eth", dissect_eth);
+}
+
+void
+proto_reg_handoff_eth(void)
+{
+	dissector_add("wtap_encap", WTAP_ENCAP_ETHERNET, dissect_eth);
 }

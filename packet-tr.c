@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.51 2000/11/19 08:54:10 guy Exp $
+ * $Id: packet-tr.c,v 1.52 2000/11/29 05:16:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -671,3 +671,8 @@ proto_register_tr(void)
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
+void
+proto_reg_handoff_tr(void)
+{
+	dissector_add("wtap_encap", WTAP_ENCAP_TOKEN_RING, dissect_tr);
+}

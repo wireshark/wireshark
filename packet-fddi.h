@@ -1,6 +1,6 @@
 /* packet-fddi.h
  *
- * $Id: packet-fddi.h,v 1.3 2000/08/11 13:34:13 deniel Exp $
+ * $Id: packet-fddi.h,v 1.4 2000/11/29 05:16:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,6 +26,5 @@
 #define __PACKET_FDDI_H__
 
 void capture_fddi(const u_char *, packet_counts *);
-void dissect_fddi(tvbuff_t*, packet_info*, proto_tree*, gboolean bitswapped);
 
 #endif

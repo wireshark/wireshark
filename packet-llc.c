@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.71 2000/11/19 08:53:59 guy Exp $
+ * $Id: packet-llc.c,v 1.72 2000/11/29 05:16:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -504,4 +504,5 @@ proto_reg_handoff_llc(void)
 	 * Get a handle for the BPDU dissector.
 	 */
 	bpdu_handle = find_dissector("bpdu");
+	dissector_add("wtap_encap", WTAP_ENCAP_ATM_RFC1483, dissect_llc);
 }

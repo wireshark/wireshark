@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.20 2000/11/19 08:53:54 guy Exp $
+ * $Id: packet-ascend.c,v 1.21 2000/11/29 05:16:14 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,7 +32,6 @@
 #include <glib.h>
 #include <string.h>
 #include "packet.h"
-#include "packet-ascend.h"
 
 static int proto_ascend  = -1;
 static int hf_link_type  = -1;
@@ -53,7 +52,7 @@ static const value_string encaps_vals[] = {
 static dissector_handle_t eth_handle;
 static dissector_handle_t ppp_handle;
 
-void
+static void
 dissect_ascend(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree			*fh_tree;
@@ -157,4 +156,5 @@ proto_reg_handoff_ascend(void)
    */
   eth_handle = find_dissector("eth");
   ppp_handle = find_dissector("ppp");
+  dissector_add("wtap_encap", WTAP_ENCAP_ASCEND, dissect_ascend);
 }

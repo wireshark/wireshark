@@ -4,7 +4,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.h,v 1.1 2000/11/15 05:41:42 guy Exp $
+ * $Id: packet-ieee80211.h,v 1.2 2000/11/29 05:16:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -28,4 +28,3 @@
  */
 
 void capture_ieee80211 (const u_char *, int, packet_counts *);
-void dissect_ieee80211 (tvbuff_t *, packet_info *, proto_tree *);
