@@ -8,7 +8,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-3g-a11.c,v 1.4 2004/03/10 23:42:32 guy Exp $
+ * $Id: packet-3g-a11.c,v 1.5 2004/03/12 08:42:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -218,7 +218,7 @@ static const value_string a11_ext_stypes[]= {
 static const value_string a11_ext_nvose_srvopt[]= {
   {0x0021, "3G High Speed Packet Data"},
   {0x003C, "Link Layer Assisted Header Removal"},
-  {0x003D, "Link Layer Assisted RObust Header Compression"},
+  {0x003D, "Link Layer Assisted Robust Header Compression"},
   {0, NULL},
 };
 
@@ -338,7 +338,7 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
     return;
   }
 
-  /* Add our tree, if we have AirLink Records */
+  /* Add our tree, if we have Airlink Records */
   /* XXX: This is Very Dirty way */
   radius_type = tvb_get_guint8(tvb, offset);
   radius_subtype = tvb_get_guint8(tvb, offset + 6);	
@@ -351,7 +351,7 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
                                         "Unknown"));
   }
   else {
-    ti = proto_tree_add_text(tree, tvb, offset - 2, app_len, "Invalid AirLink Records");
+    ti = proto_tree_add_text(tree, tvb, offset - 2, app_len, "Invalid Airlink Records");
     return;
   }
 
@@ -366,7 +366,7 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
 	radius_len = tvb_get_guint8(tvb, offset + 1);
     radius_subtype = tvb_get_guint8(tvb, offset + 6);	
 
-	/* Detect AirLink Record Type */
+	/* Detect Airlink Record Type */
 
     attribute_type = -1;
     /* attribute_type = get_attribute_type(radius_type, radius_subtype); */
