@@ -494,9 +494,12 @@ ber_sequence_try_again:
 			continue;
 		}
 
-		/* verify that this one is the one we want */
-		if( (seq->class!=class)
-		  ||(seq->tag!=tag) ){
+		/* Verify that this one is the one we want.
+		 * Skip check completely if class==ANY
+		 */
+		if( (seq->class!=BER_CLASS_ANY) 
+		  &&( (seq->class!=class)
+		    ||(seq->tag!=tag) ) ){
 			/* it was not,  move to the enxt one and try again */
 			if(seq->flags&BER_FLAGS_OPTIONAL){
 				/* well this one was optional so just skip to the next one and try again. */

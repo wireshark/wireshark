@@ -40,7 +40,7 @@ typedef int (*ber_callback)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 #define BER_CLASS_APP	1
 #define BER_CLASS_CON	2
 #define BER_CLASS_PRI	3
-
+#define BER_CLASS_ANY   99			/* dont check class nor tag */
 
 #define BER_UNI_TAG_EOC			     0	/* 'end-of-content' */
 #define BER_UNI_TAG_BOOLEAN		     1

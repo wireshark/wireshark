@@ -171,16 +171,27 @@ static gint ett_x509af_SET_OF_AttributeType = -1;
 
 
 
-static int dissect_hf_x509af_algorithm_id(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static char algorithm_id[64]; /*64 chars should be long enough? */
+static int 
+dissect_hf_x509af_algorithm_id(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) 
+{
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_x509af_algorithm_id, NULL);
+                                         hf_x509af_algorithm_id, algorithm_id);
+  return offset;
+}
+
+static int 
+dissect_hf_x509af_algorithm_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) 
+{
+  offset=invoke_ber_oid_callback(algorithm_id, tvb, offset, pinfo, tree);
+
   return offset;
 }
 
 /* Algorithm Identifier can not yet be handled by the compiler */
 static ber_sequence AlgorithmIdentifier_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_hf_x509af_algorithm_id },
-/*QQQ for the Type we need compiler support for ANY (==FT_BYTES) */
+  { BER_CLASS_ANY, 0, 0, dissect_hf_x509af_algorithm_type },
   { 0, 0, 0, NULL }
 };
 
