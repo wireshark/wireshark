@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.27 2004/03/03 21:35:55 jmayer Exp $
+# $Id: autogen.sh,v 1.28 2004/03/04 06:43:34 guy Exp $
 
 DIE=true
 PROJECT="Ethereal"
@@ -21,13 +21,13 @@ _EOF_
 fi
 
 
-ACVER=`autoconf --version | grep '^autoconf' | sed 's/.*)//'`
+ACVER=`autoconf --version | grep '^autoconf' | sed 's/.*) *//'`
 case "$ACVER" in
 0* | 1\.* | 2\.[0-4]* | \
-2\.5[0-2] | 2\.5[0-2][a-z]* )
+2\.5[0-1] | 2\.5[0-1][a-z]* )
   cat >&2 <<_EOF_
 
-	You must have autoconf 2.53 or later installed to compile $PROJECT.
+	You must have autoconf 2.52 or later installed to compile $PROJECT.
 	Download the appropriate package for your distribution/OS,
 	or get the source tarball at ftp://ftp.gnu.org/pub/gnu/autoconf/
 _EOF_
@@ -36,7 +36,7 @@ _EOF_
 esac
 
 
-AMVER=`automake --version | grep '^automake' | sed 's/.*)//'`
+AMVER=`automake --version | grep '^automake' | sed 's/.*) *//'`
 case "$AMVER" in
 0* | 1\.[0-5] | 1\.[0-5][a-z]* )
 
