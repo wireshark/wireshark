@@ -2253,6 +2253,10 @@ Stefan Metzmacher	<metze [AT] samba.org> {
 	LDAP Controls support in the LDAP dissector
 }
 
+Abhijit Menon-Sen	<ams [AT] oryx.com> {
+	Postgresql v3 dissector
+}
+
 
 And assorted fixes and enhancements by the people listed above
 and by:

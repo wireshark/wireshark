@@ -408,7 +408,7 @@ DISSECTOR_SRC =	\
 	packet-pktc.c	\
 	packet-pop.c	\
 	packet-portmap.c	\
-	packet-postgresql.c	\
+	packet-pgsql.c	\
 	packet-ppp.c	\
 	packet-pppoe.c	\
 	packet-pptp.c	\
