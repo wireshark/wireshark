@@ -2091,8 +2091,12 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		default:
 			g_assert_not_reached();
 		}
-	} else
-		DISSECTOR_ASSERT(*length >= 0);
+	} else {
+		if (*length < 0) {
+			REPORT_DISSECTOR_BUG(g_strdup_printf("\"%s\" - \"%s\" invalid length: %d",
+			    hfinfo->name, hfinfo->abbrev, *length));
+		}
+	}
 
 	FIELD_INFO_NEW(fi);
 
