@@ -1,7 +1,7 @@
 /* packet-bgp.c
  * Definitions for BGP packet disassembly structures and routine
  *
- * $Id: packet-bgp.h,v 1.24 2003/04/05 11:20:54 guy Exp $
+ * $Id: packet-bgp.h,v 1.25 2003/05/19 20:36:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -157,9 +157,11 @@ struct bgp_attr {
                                         /* draft-ramachandra-bgp-ext-communities */
 #define BGP_EXT_COM_RT_0        0x0002  /* Route Target,Format AS(2bytes):AN(4bytes) */
 #define BGP_EXT_COM_RT_1        0x0102  /* Route Target,Format IP address:AN(2bytes) */
+#define BGP_EXT_COM_RT_2        0x0202  /* Route Target,Format AS(2bytes):AN(4bytes) */
 #define BGP_EXT_COM_RO_0        0x0003  /* Route Origin,Format AS(2bytes):AN(4bytes) */
 #define BGP_EXT_COM_RO_1        0x0103  /* Route Origin,Format IP address:AN(2bytes) */
-#define BGP_EXT_COM_LINKBAND    0x4004  /* Link Bandwidth,Format AS(2B):Bandwidth(4B) */
+#define BGP_EXT_COM_RO_2        0x0203  /* Route Origin,Format AS(2bytes):AN(4bytes) */
+#define BGP_EXT_COM_LINKBAND    0x0004  /* Link Bandwidth,Format AS(2B):Bandwidth(4B) */
                                         /* rfc2547 bgp-mpls-vpns */
 #define BGP_EXT_COM_VPN_ORIGIN  0x0005  /* OSPF Domin ID / VPN of Origin  */
                                         /* draft-rosen-vpns-ospf-bgp-mpls */

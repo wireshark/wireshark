@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.78 2003/05/15 05:35:42 guy Exp $
+ * $Id: packet-bgp.c,v 1.79 2003/05/19 20:36:48 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -14,9 +14,9 @@
  * RFC2858 Multiprotocol Extensions for BGP-4
  * RFC2918 Route Refresh Capability for BGP-4
  * RFC3107 Carrying Label Information in BGP-4
- * Draft Ramahandra on Extended Communities Extentions
  * draft-ietf-idr-as4bytes-06
  * draft-ietf-idr-dynamic-cap-03
+ * draft-ietf-idr-bgp-ext-communities-05
  *
  * TODO:
  * Destination Preference Attribute for BGP (work in progress)
@@ -165,12 +165,13 @@ static const value_string bgpattr_type[] = {
     { 0, NULL },
 };
 
-/* Beware : See also MAX_SIZE_OF_EXT_COM_NAMES */
 static const value_string bgpext_com_type[] = {
     { BGP_EXT_COM_RT_0, "Route Target" },
     { BGP_EXT_COM_RT_1, "Route Target" },
+    { BGP_EXT_COM_RT_2, "Route Target" },
     { BGP_EXT_COM_RO_0, "Route Origin" },
     { BGP_EXT_COM_RO_1, "Route Origin" },
+    { BGP_EXT_COM_RO_2, "Route Origin" },
     { BGP_EXT_COM_LINKBAND, "Link Bandwidth" },
     { BGP_EXT_COM_VPN_ORIGIN, "OSPF Domain" },
     { BGP_EXT_COM_OSPF_RTYPE, "OSPF Route Type" },
@@ -206,10 +207,6 @@ static const value_string bgpext_ospf_rtype[] = {
   { BGP_OSPF_RTYPE_SHAM,"MPLS-VPN Sham" },
   { 0, NULL },
 };
-
-
-/* MUST be resized if a longer named extended community is added */
-#define MAX_SIZE_OF_EXT_COM_NAMES       20
 
 /* Subsequent address family identifier, RFC2858 */
 static const value_string bgpattr_nlri_safi[] = {
@@ -2085,7 +2082,9 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                                   val_to_str(ext_com,bgpext_com_type,"Unknown"));
                             switch (ext_com) {
                             case BGP_EXT_COM_RT_0:
+                            case BGP_EXT_COM_RT_2:
                             case BGP_EXT_COM_RO_0:
+                            case BGP_EXT_COM_RO_2:
                                 junk_buf_len+=snprintf(junk_buf+junk_buf_len, sizeof(junk_buf)-junk_buf_len, ": %u%s%d",
                                                        tvb_get_ntohs(tvb,q+2),":",tvb_get_ntohl(tvb,q+4));
                                 junk_buf[junk_buf_len]='\0';

@@ -880,8 +880,7 @@ Motonori Shindo <mshindo[AT]mshindo.net> {
 	L2TP Dissconnect Cause Information AVP support
 	PPP CCP support
 	PPP compressed packet support
-	Cooperative Route Filtering Capability support in BGP
-	Route Refresh Message bug fix in BGP
+	Assorted BGP improvements
 	CBCP support in PPP
 	Fix Ascend/Lucent trace reading code to handle later trace
 	    formats that have an ASCII dump at the end of the line
