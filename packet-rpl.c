@@ -1,8 +1,8 @@
-/* packet-sna.c
+/* packet-rpl.c
  * Routines for RPL
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-rpl.c,v 1.1 2002/11/02 22:23:16 sahlberg Exp $
+ * $Id: packet-rpl.c,v 1.2 2002/11/03 20:11:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,7 +31,6 @@
 #include <epan/packet.h>
 
 #include "llcsaps.h"
-#include "prefs.h"
 
 static int proto_rpl          = -1;
 
@@ -57,7 +56,20 @@ static int hf_rpl_data        = -1;
 static int hf_rpl_ec          = -1;
 
 static gint ett_rpl           = -1;
-static gint ett_rpl_container = -1;
+static gint ett_rpl_0004      = -1;
+static gint ett_rpl_0008      = -1;
+static gint ett_rpl_4003      = -1;
+static gint ett_rpl_4006      = -1;
+static gint ett_rpl_4007      = -1;
+static gint ett_rpl_4009      = -1;
+static gint ett_rpl_400a      = -1;
+static gint ett_rpl_400b      = -1;
+static gint ett_rpl_400c      = -1;
+static gint ett_rpl_4011      = -1;
+static gint ett_rpl_4018      = -1;
+static gint ett_rpl_c005      = -1;
+static gint ett_rpl_c014      = -1;
+static gint ett_rpl_unkn      = -1;
 
 static const value_string rpl_type_vals[] = {
 	{ 1,		"FIND Command" },
@@ -89,6 +101,7 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_tree *rpl_container_tree;
 	guint16 offset;
+	gint ett_type;
 
 	len = tvb_get_ntohs(tvb, 0);
 	proto_tree_add_text(tree, tvb, 0, 2, "Length: %u", len);
@@ -108,11 +121,25 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			while (len >= offset+4) {
 				sublen = tvb_get_ntohs(tvb, offset);
 				subtyp = tvb_get_ntohs(tvb, offset+2);
+				ett_type = ett_rpl_unkn;
+				if(subtyp == 0x0004) ett_type = ett_rpl_0004;
+				if(subtyp == 0x0008) ett_type = ett_rpl_0008;
+				if(subtyp == 0x4003) ett_type = ett_rpl_4003;
+				if(subtyp == 0x4006) ett_type = ett_rpl_4006;
+				if(subtyp == 0x4007) ett_type = ett_rpl_4007;
+				if(subtyp == 0x4009) ett_type = ett_rpl_4009;
+				if(subtyp == 0x400a) ett_type = ett_rpl_400a;
+				if(subtyp == 0x400b) ett_type = ett_rpl_400b;
+				if(subtyp == 0x400c) ett_type = ett_rpl_400c;
+				if(subtyp == 0x4011) ett_type = ett_rpl_4011;
+				if(subtyp == 0x4018) ett_type = ett_rpl_4018;
+				if(subtyp == 0xc005) ett_type = ett_rpl_c005;
+				if(subtyp == 0xc014) ett_type = ett_rpl_c014;
 				ti = proto_tree_add_text(tree, tvb,
 					offset, sublen, val_to_str(subtyp, 
 					rpl_type_vals, "Unknown Type"));
 				rpl_container_tree = proto_item_add_subtree(ti, 
-					ett_rpl_container);
+					ett_type);
 				dissect_rpl_container(tvb_new_subset(tvb, 
 					offset, sublen, -1), pinfo, 
 					rpl_container_tree);
@@ -281,11 +308,11 @@ proto_register_rpl(void)
 				"RPL Connection Class", HFILL }},
 		{ &hf_rpl_lmac,
 			{ "Loader MAC Address", "rpl.lmac", 
-				FT_BYTES, BASE_HEX, NULL, 0x0,
+				FT_ETHER, BASE_NONE, NULL, 0x0,
 				"RPL Loader MAC Address", HFILL }},
 		{ &hf_rpl_smac,
 			{ "Set MAC Address", "rpl.smac", 
-				FT_BYTES, BASE_HEX, NULL, 0x0,
+				FT_ETHER, BASE_NONE, NULL, 0x0,
 				"RPL Set MAC Address", HFILL }},
 		{ &hf_rpl_sap,
 			{ "SAP", "rpl.sap", 
@@ -344,7 +371,20 @@ proto_register_rpl(void)
 
 	static gint *ett[] = {
 		&ett_rpl,
-		&ett_rpl_container
+		&ett_rpl_0004,
+		&ett_rpl_0008,
+		&ett_rpl_4003,
+		&ett_rpl_4006,
+		&ett_rpl_4007,
+		&ett_rpl_4009,
+		&ett_rpl_400a,
+		&ett_rpl_400b,
+		&ett_rpl_400c,
+		&ett_rpl_4011,
+		&ett_rpl_4018,
+		&ett_rpl_c005,
+		&ett_rpl_c014,
+		&ett_rpl_unkn
 	};
 
         proto_rpl = proto_register_protocol("Remote Program Load",
