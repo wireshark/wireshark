@@ -25,7 +25,7 @@ http://developer.novell.com/ndk/doc/ncp/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.55 2003/04/08 00:07:01 guy Exp $
+$Id: ncp2222.py,v 1.56 2003/04/25 20:33:16 guy Exp $
 
 
 Portions Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>.
@@ -5118,6 +5118,7 @@ def define_groups():
 	groups['tts']		= "Transaction Tracking"
 	groups['qms']		= "Queue Management System (QMS)"
 	groups['stats']		= "Server Statistics"
+	groups['nmas']		= "Novell Modular Authentication Service"
 	groups['unknown']	= "Unknown"
 
 ##############################################################################
@@ -13304,9 +13305,19 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
-	# 2222/5E, 94   
-	pkt = NCP(0x5E, "NMAS Communications Packet", 'comm')
-	pkt.Request(7)
+	# 2222/5E, 9401   
+	pkt = NCP(0x5E01, "NMAS Communications Packet", 'nmas', 0)
+	pkt.Request(8)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0xfb09])
+	# 2222/5E, 9402   
+	pkt = NCP(0x5E02, "NMAS Communications Packet", 'nmas', 0)
+	pkt.Request(8)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0xfb09])
+	# 2222/5E, 9403   
+	pkt = NCP(0x5E03, "NMAS Communications Packet", 'nmas', 0)
+	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0xfb09])
 	# 2222/61, 97
@@ -14417,13 +14428,14 @@ def define_ncp2222():
                 rec(32, 1, SetCmdFlags ),
                 rec(33, 3, Reserved3 ),
                 rec(36, 100, SetCmdName ),
-                srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x00"),
-                srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x01"),
-                srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x02"),
-                srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x04"),
-                srec(SetCmdValueString, req_cond="ncp.set_cmd_type==0x05"),
-                srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x06"),
-                srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x07"),
+                srec(SetCmdValueNum, req_cond="ncp.start_number>=0x00"),
+                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x00"),
+                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x01"),
+                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x02"),
+                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x04"),
+                #srec(SetCmdValueString, req_cond="ncp.set_cmd_type==0x05"),
+                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x06"),
+                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x07"),
         ])                
         pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x7e01, 0xfb06, 0xff00])
@@ -14461,13 +14473,14 @@ def define_ncp2222():
                 rec(32, 1, SetCmdFlags ),
                 rec(33, 3, Reserved3 ),
                 rec(36, 100, SetCmdName ),
-                srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x00"),
-                srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x01"),
-                srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x02"),
-                srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x04"),
-                srec(SetCmdValueString, req_cond="ncp.set_cmd_type==0x05"),
-                srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x06"),
-                srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x07"),
+                rec(136, 4, SetCmdValueNum ),
+                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x00"),
+                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x01"),
+                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x02"),
+                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x04"),
+                #srec(SetCmdValueString, req_cond="ncp.set_cmd_type==0x05"),
+                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x06"),
+                #srec(SetCmdValueNum, req_cond="ncp.set_cmd_type==0x07"),
         ])                
         pkt.ReqCondSizeVariable()
         pkt.CompletionCodes([0x0000, 0x7e01, 0xfb06, 0xff00])
