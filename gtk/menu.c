@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.131 2004/01/02 17:27:00 ulfl Exp $
+ * $Id: menu.c,v 1.132 2004/01/03 05:13:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -705,7 +705,7 @@ update_menu_recent_capture_file(GtkWidget *submenu_recent_files) {
 
 /* remove the capture filename from the "Recent Files" menu */
 void
-remove_menu_recent_capture_file(GtkWidget *widget, gpointer unused) {
+remove_menu_recent_capture_file(GtkWidget *widget, gpointer unused _U_) {
     GtkWidget *submenu_recent_files;
     gchar *widget_cf_name;
 
@@ -713,24 +713,24 @@ remove_menu_recent_capture_file(GtkWidget *widget, gpointer unused) {
     widget_cf_name = OBJECT_GET_DATA(widget, MENU_RECENT_FILES_KEY);
     g_free(widget_cf_name);
 
-	/* get the submenu container item */
-	submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
+    /* get the submenu container item */
+    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
 
-	/* XXX: is this all we need to do, to destroy the menu item and its label? */
-	gtk_container_remove(GTK_CONTAINER(submenu_recent_files), widget);
-	gtk_widget_destroy(widget);
+    /* XXX: is this all we need to do, to destroy the menu item and its label? */
+    gtk_container_remove(GTK_CONTAINER(submenu_recent_files), widget);
+    gtk_widget_destroy(widget);
 }
 
 
 /* callback, if the user pushed the <clear file list> item */
 static void
-clear_menu_recent_capture_file_cmd_cb(GtkWidget *w, gpointer unused _U_) {
-	GtkWidget *submenu_recent_files;
+clear_menu_recent_capture_file_cmd_cb(GtkWidget *w _U_, gpointer unused _U_) {
+    GtkWidget *submenu_recent_files;
 
 
-	submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
+    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
 
-	gtk_container_foreach(GTK_CONTAINER(submenu_recent_files), 
+    gtk_container_foreach(GTK_CONTAINER(submenu_recent_files), 
 		remove_menu_recent_capture_file, NULL);
 
     update_menu_recent_capture_file(submenu_recent_files);
