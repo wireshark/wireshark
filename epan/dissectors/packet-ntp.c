@@ -354,6 +354,21 @@ static void dissect_ntp_ctrl(tvbuff_t *, proto_tree *, guint8);
 static void dissect_ntp_priv(tvbuff_t *, proto_tree *, guint8);
 static int dissect_ntp_ext(tvbuff_t *, proto_tree *, int);
 
+static const char *mon_names[12] = {
+	"Jan",
+	"Feb",
+	"Mar",
+	"Apr",
+	"May",
+	"Jun",
+	"Jul",
+	"Aug",
+	"Sep",
+	"Oct",
+	"Nov",
+	"Dec"
+};
+
 /* ntp_fmt_ts - converts NTP timestamp to human readable string.
  * reftime - 64bit timestamp (IN)
  * buff - string buffer for result (OUT)
@@ -378,9 +393,13 @@ ntp_fmt_ts(const guint8 *reftime, char* buff)
 		if (bd != NULL) {
 			fractime = bd->tm_sec + tempfrac / 4294967296.0;
 			snprintf(buff, NTP_TS_SIZE,
-				 "%04d-%02d-%02d %02d:%02d:%07.4f UTC",
-				 bd->tm_year + 1900, bd->tm_mon + 1, bd->tm_mday,
-				 bd->tm_hour, bd->tm_min, fractime);
+                                 "%s %2d, %d %02d:%02d:%07.4f UTC",
+				 mon_names[bd->tm_mon],
+				 bd->tm_mday,
+				 bd->tm_year + 1900,
+				 bd->tm_hour,
+				 bd->tm_min,
+				 fractime);
 		} else
 			strncpy(buff, "Not representable", NTP_TS_SIZE);
 	}
