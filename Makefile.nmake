@@ -216,30 +216,6 @@ AUTHORS-SHORT: AUTHORS make-authors-short.pl
 
 
 #
-# The header files listed here are built from x11-fields using Perl;
-# we declare a dependency here so that they get built.
-#
-packet-x11.obj	: packet-x11.c x11-declarations.h x11-register-info.h
-
-#
-# Build various header files for the X11 dissector.
-#
-x11-declarations.h x11-register-info.h: x11-fields process-x11-fields.pl
-	$(PERL) process-x11-fields.pl <x11-fields
-
-packet-ncp2222.c : ncp2222.py
-!IFDEF PYTHON
-	@echo Making packet-ncp2222.c
-	$(PYTHON) ncp2222.py -o packet-ncp2222.c
-!ELSE
-	@echo Faking packet-ncp2222.c...
-	@echo Python is required to build the NCP disector
-	@echo Hiding packet-ncp.c...
-	mv packet-ncp.c packet-ncp.c.save
-	touch packet-ncp.c $@
-!ENDIF
-
-#
 # Build "tethereal-tap-register.c", which contains a function 
 # "register_all_tap_listeners()"
 # that calls the register routines for all tehtereal tap listeners.
@@ -297,7 +273,7 @@ clean: gtk2_distclean
 # Be sure to have python and perl installed to regenerate them.
 distclean: clean gtk2_distclean
 	rm -f $(BUILT_SOURCES) \
-		packet-ncp2222.c tethereal-tap-register.c 
+		tethereal-tap-register.c 
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../gtk
@@ -347,7 +323,7 @@ gtk2:: help config.h svnversion.h AUTHORS-SHORT
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake GTK_CFLAGS="$(GTK2_CFLAGS)" GTK_LIBS="$(GTK2_LIBS)" libui.lib
 	cd ..
 
-epan:: $(RESOURCES) packet-ncp2222.c x11-declarations.h x11-register-info.h doxygen
+epan:: $(RESOURCES) doxygen
 	cd epan
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
