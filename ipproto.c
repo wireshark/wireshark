@@ -1,7 +1,7 @@
 /* ipproto.c
  * Routines for converting IPv4 protocol/v6 nxthdr field into string
  *
- * $Id: ipproto.c,v 1.19 2002/08/28 21:00:06 jmayer Exp $
+ * $Id: ipproto.c,v 1.20 2002/08/30 02:11:16 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,14 +32,14 @@
 
 #include <glib.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include "ipproto.h"
 #include <epan/packet.h>
 #include <epan/resolv.h>
 #include "packet-ip.h"
+
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
+#endif
 
 static const value_string ipproto_val[] = {
     { IP_PROTO_ICMP,	"ICMP" },

@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.92 2002/08/28 21:00:12 jmayer Exp $
+ * $Id: packet-dns.c,v 1.93 2002/08/30 02:11:16 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,13 +26,13 @@
 # include "config.h"
 #endif
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <stdio.h>
 #include <string.h>
 #include <memory.h>
+
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
+#endif
 
 #include <glib.h>
 #include <epan/packet.h>
