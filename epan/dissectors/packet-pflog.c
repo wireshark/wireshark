@@ -81,10 +81,10 @@ static gint ett_old_pflog = -1;
 void
 capture_pflog(const guchar *pd, int offset, int len, packet_counts *ld)
 {
-  struct pfloghdr *pflogh;
+  const struct pfloghdr *pflogh;
   unsigned int hdrlen;
 
-  pflogh = (struct pfloghdr *)pd;
+  pflogh = (const struct pfloghdr *)pd;
 
   if (!BYTES_ARE_IN_FRAME(offset, len, sizeof(guint8))) {
     ld->other++;
