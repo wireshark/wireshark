@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.279 2002/08/13 02:14:39 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.280 2002/08/19 10:53:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2271,7 +2271,10 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 			/* domain */
 			/* this string is special, unicode is flagged in caps */
-			/* This string is NOT padded to be 16bit aligned. (seen in actual capture) */
+			/* This string is NOT padded to be 16bit aligned.
+			   (seen in actual capture)
+			   XXX - I've seen a capture where it appears to be
+			   so aligned.... */
 			si->unicode = (caps&SERVER_CAP_UNICODE);
 			dn = get_unicode_or_ascii_string(tvb,
 				&offset, si->unicode, &dn_len, TRUE, FALSE,
@@ -11195,18 +11198,18 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 			if(pc>0){
 				if(pc>tvb_length_remaining(tvb, po)){
-					p_tvb = tvb_new_subset(tvb, po, -1, -1);
+					p_tvb = tvb_new_subset(tvb, po, tvb_length_remaining(tvb, po), pc);
 				} else {
-					p_tvb = tvb_new_subset(tvb, po, -1, -1);
+					p_tvb = tvb_new_subset(tvb, po, pc, pc);
 				}
 			} else {
 				p_tvb = NULL;
 			}
 			if(dc>0){
 				if(dc>tvb_length_remaining(tvb, od)){
-					d_tvb = tvb_new_subset(tvb, od, -1, -1);
+					d_tvb = tvb_new_subset(tvb, od, tvb_length_remaining(tvb, od), dc);
 				} else {
-					d_tvb = tvb_new_subset(tvb, od, -1, -1);
+					d_tvb = tvb_new_subset(tvb, od, dc, dc);
 				}
 			} else {
 				d_tvb = NULL;
