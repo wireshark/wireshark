@@ -74,5 +74,7 @@ const value_string sminmpec_values[] = {
   {VENDOR_COLUBRIS,		"Colubris"},
   {VENDOR_COLUMBIA_UNIVERSITY,	"Columbia University"},
   {VENDOR_THE3GPP,		"3GPP"},
+  {VENDOR_GEMTEK_SYSTEMS,	"Gemtek-Systems"},
+  {VENDOR_WIFI_ALLIANCE,	"Wi-Fi Alliance"},
   {0, NULL}
 };

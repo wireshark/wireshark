@@ -2694,6 +2694,33 @@ static const radius_attr_info radius_vendor_3gpp_attrib[] =
    {0, 0, NULL, NULL, NULL},
 };
 
+static const radius_attr_info radius_vendor_gemtek_systems_attrib[] =
+{
+   {21, RADIUS_INTEGER4,	"Acct-Session-Input-Octets", NULL, NULL},
+   {22, RADIUS_INTEGER4,	"Acct-Session-Input-Gigawords", NULL, NULL},
+   {23, RADIUS_INTEGER4,	"Acct-Session-Output-Octets", NULL, NULL},
+   {24, RADIUS_INTEGER4,	"Acct-Session-Output-Gigawords", NULL, NULL},
+   {25, RADIUS_INTEGER4,	"Acct-Session-Octets", NULL, NULL},
+   {26, RADIUS_INTEGER4,	"Acct-Session-Gigawords", NULL, NULL},
+   {0, 0, NULL, NULL, NULL},
+};
+
+static const radius_attr_info radius_vendor_wifi_alliance_attrib[] =
+{
+   {1,  RADIUS_STRING,		"Location-ID", NULL, NULL},
+   {2,  RADIUS_STRING,		"Location-Name", NULL, NULL},
+   {3,  RADIUS_STRING,		"Logoff-URL", NULL, NULL},
+   {4,  RADIUS_STRING,		"Redirection-URL", NULL, NULL},
+   {5,  RADIUS_INTEGER4,	"Bandwidth-Min-Up", NULL, NULL},
+   {6,  RADIUS_INTEGER4,	"Bandwidth-Min-Down", NULL, NULL},
+   {7,  RADIUS_INTEGER4,	"Bandwidth-Max-Up", NULL, NULL},
+   {8,  RADIUS_INTEGER4,	"Bandwidth-Max-Down", NULL, NULL},
+   {9,  RADIUS_STRING,		"Session-Terminate-Time", NULL, NULL},
+   {10, RADIUS_INTEGER4,	"Session-Terminate-End-Of-Day", NULL, NULL},
+   {11, RADIUS_STRING,		"Billing-Class-Of-Service", NULL, NULL},
+   {0, 0, NULL, NULL, NULL},
+};
+
 static rd_vsa_table radius_vsa_table[] =
 {
   {VENDOR_ACC,			radius_vendor_acc_attrib},
@@ -2720,6 +2747,8 @@ static rd_vsa_table radius_vsa_table[] =
   {VENDOR_COLUBRIS,		radius_vendor_colubris_attrib},
   {VENDOR_COLUMBIA_UNIVERSITY,	radius_vendor_columbia_university_attrib},
   {VENDOR_THE3GPP,		radius_vendor_3gpp_attrib},
+  {VENDOR_GEMTEK_SYSTEMS,	radius_vendor_gemtek_systems_attrib},
+  {VENDOR_WIFI_ALLIANCE,	radius_vendor_wifi_alliance_attrib},
   {0, NULL},
 };
 

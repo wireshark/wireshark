@@ -66,6 +66,8 @@
 #define VENDOR_COLUBRIS			8744
 #define VENDOR_COLUMBIA_UNIVERSITY	11862
 #define VENDOR_THE3GPP			10415
+#define VENDOR_GEMTEK_SYSTEMS		10529
+#define VENDOR_WIFI_ALLIANCE		14122
 
 extern const value_string sminmpec_values[];
 
