@@ -1,0 +1,177 @@
+The TAP system in ethereal is a powerful and flexible mechanism to get event 
+driven notification on packets matching certain protocols and/or filters.
+In order to use the tapping system, very little knowledge of ethereal
+internals are required.
+
+As examples on how to use the tap system see the implementation of 
+tap-rpcstat.c     	(tethereal version)
+gtk2/gtk2-rpcstat.c	(gtk2-ethereal version)
+
+
+The tap system consists of two parts:
+1, code in the actual dissectors to allow tapping data from that particular
+protocol dissector, and
+2, event driven code in an extension such as tap-rpcstat.c that registers
+a tap listener and processes received data.
+
+
+
+So you want to hack together a tap application?
+
+
+TAP
+===
+First you must decide which protocol you are interested in writing a tap
+application for and check if that protocol has already has got a tap installed
+in it.
+If it already has a tap device installed then you dont have to do anything.
+If not, then you have to add a tap but dont worry, this is extremely easy to 
+do and is done in four easy steps;
+(see packet-rpc.c and search for tap for an example)
+
+1, We need tap.h so just add '#include "tap.h"' to the includes.
+
+2, We need a tap handler so just add 'static int <protocol>_tap = -1;'
+
+3, Down in proto_register_<protocol>() you need to add
+'<protocol>_tap = register_tap("<protocol>");'
+
+4, In the actual dissector for that protocol, after any child dissectors
+have returned, just add 'tap_queue_packet(<protocol>_tap, pinfo, <pointer>);'
+
+<pointer> is used if the tap has any special additional data to provide to
+the tap listeners. What this points to is dependant on the protocol that
+is tapped, or if there are no useful extra data to provide just specify NULL.
+For packet-rpc.c what we specify there is the persistant structure 'rpc_call'
+which contains lots of useful information the rpc layer that a listener might
+need.
+
+
+
+TAP LISTENER
+============
+(see tap-rpcstat.c as an example)
+Interfacing your application is not that much harder either.
+Only 3 callbacks and two functions.
+
+
+The two functions to start or stop tapping are
+
+register_tap_listener(char *tapname, void *tapdata, char *fstring,
+	void (*reset)(void *tapdata),
+	int  (*packet)(void *tapdata, packet_info *pinfo, void *<pointer>),
+	void (*draw)(void *tapdata),
+
+remove_tap_listener(void *tapdata);
+
+
+remove_tap_listener(void *tapdata)
+This function is used to deregister and stop a tap listener.
+
+register_tap_listeners() is used to register an instance of a tap application
+to the tap system.
+
+*tapname 
+is the name of the tap we want to listen to. I.e. the name used in
+step 3 above.
+
+*tapdata 
+is the instance identifier. The tap system uses the value of this
+pointer to distinguish between different instances of a tap.
+Just make sure that it is unique by letting it be the pointer to a struct
+holding all state variables. If you want to allow multiple concurrent
+instances, just put ALL state variables inside a struct allocated by
+g_malloc() and use that pointer.
+(tap-rpcstat.c use this technique to allow multiple simultaneous instances)
+
+*fstring 
+is a pointer to a filter string. 
+If this is NULL, then the tap system will provide ALL packets passing the
+tapped protocol to your listener.
+If you specify a filter string here the tap system will first try
+to apply this string to the packet and then only pass those packets that
+matched the filter to your listener.
+The syntax for the filter string is identical to normal display filters.
+
+NOTE: Specifying filter strings will have a significant performance impact
+on your application and ethereal. If possible it is MUCH better to take
+unfiltered data and just filter it yourself in the packet-callback than
+to specify a filter string.
+ONLY use a filter string if no other option exist.
+
+void (*reset)(void *tapdata)
+This callback is called whenever ethereal wants to inform your
+listener that it is about to start [re]reading a capture file or a new capture
+from an interface and that your application should reset any state it has
+in the *tapdata instance.
+
+int (*packet)(void *tapdata, packet_info *pinfo, void *data)
+This callback is used whenever a new packet has arrived at the tap and that
+it has passed the filter (if there were a filter).
+The *data structure type is specific to each tap.
+This function returns an int and it should return 
+ 1, if the data in the packet aused state to be updated
+    (asnd thus a redraw of the window would later be required)
+ 0, if we dont need to redraw the window.
+NOTE: that (*packet) should be as fast and efficient as possible. Use this
+function ONLY to store data for later and do the cpu-intensive processing
+or GUI updates down in (*draw) instead.
+
+ 
+void (*draw)(void *tapdata)
+This callback is used when ethereal wants your application to redraw its
+output. It will usually not be called unless your application has received
+new data through the (*packet) callback.
+On some ports of ethereal (gtk2) (*draw) will be called asynchronously 
+from a separate thread up to once every 2-3 seconds.
+On other ports it might only be called once when the capture is finished
+or the file has been [re]read completely.
+
+
+
+So, create three callbacks:
+1, reset   to reset the state variables in the structure passed to it.
+2, packet  to update these state variables.
+3, draw    to take these state variables and draw them on the screen.
+
+then just make ethereal call register_tap_listener() when you want to tap
+and call remove_tap_listener() when you are finished.
+
+
+
+
+TIPS
+====
+Of course, there is nothing that forces you to make (*draw) draw stuff
+on the screen. 
+You can hand register_tap_listener() NULL for both (*draw) and (*reset)
+(well also for (*packet) but that would be a very boring extension).
+
+Perhaps you want an extension that will execute a certain command
+everytime it sees a certain packet?
+Well, try this :
+	int packet(void *tapdata,...) {
+		...
+		system("mail ...");
+		return0;
+	}
+
+	register_tap_listener("tcp", struct, "tcp.port==57", NULL, packet, NULL);
+
+	Let struct contain an email address?
+	Then you have something simple that will make ethereal send an email
+	out automagically for each and every time it dissects (or the user 
+	clicks on) a packet containing TCP traffic to port 57.
+	Please put in some rate limitation if you do this.
+
+	Let struct contain a command line and make (*packet) execute it?
+	The possibilities are rather large.
+
+
+
+See tap-rpcstat.c for an example
+
+
+
+
+
