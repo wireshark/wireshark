@@ -51,11 +51,10 @@ int proto_cms = -1;
 #include "packet-cms-fn.c"
 
 
-static int
-dissect_cms_SignedData_callback(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_cms_SignedData_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_cms_SignedData(FALSE, tvb, offset, pinfo, tree, -1);
-	return offset;
+	dissect_cms_SignedData(FALSE, tvb, 0, pinfo, tree, -1);
 }
 
 /*--- proto_register_cms ----------------------------------------------*/
@@ -83,6 +82,10 @@ void proto_register_cms(void) {
 
 /*--- proto_reg_handoff_cms -------------------------------------------*/
 void proto_reg_handoff_cms(void) {
-	register_ber_oid_callback("1.2.840.113549.1.7.2", dissect_cms_SignedData_callback);
+	dissector_handle_t SignedData_handle;
+
+	SignedData_handle=create_dissector_handle(dissect_cms_SignedData_callback, proto_cms);
+
+	dissector_add_string("ber.oid", "1.2.840.113549.1.7.2", SignedData_handle);
 }
 

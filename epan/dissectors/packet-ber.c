@@ -62,6 +62,7 @@ static gboolean show_internal_ber_fields = FALSE;
 
 proto_item *ber_last_created_item=NULL;
 
+static dissector_table_t ber_oid_dissector_table=NULL;
 
 static const value_string ber_class_codes[] = {
 	{ BER_CLASS_UNI,	"Universal" },
@@ -114,47 +115,16 @@ proto_item *get_ber_last_created_item(void) {
 }
 
 
-/*
- * Code to handle to OID ber callback array
- * done here explicitely since the dissector tables can not (yet) deal
- * with "ports" that are strings.
- */
-typedef struct _ber_oid_callback_list_t {
-	struct _ber_oid_callback_list_t *next;
-	char 				*oid;
-	ber_oid_callback		func;
-} ber_oid_callback_list_t;
-static ber_oid_callback_list_t *ber_oid_callbacks=NULL;
-
-void
-register_ber_oid_callback(char *oid, ber_oid_callback func)
-{
-	ber_oid_callback_list_t *boc;
-
-	boc=g_malloc(sizeof(ber_oid_callback_list_t));
-	boc->next=ber_oid_callbacks;
-	boc->func=func;
-	boc->oid=g_strdup(oid);
-	ber_oid_callbacks=boc;
-}
-
 int
-invoke_ber_oid_callback(char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+call_ber_oid_callback(char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	ber_oid_callback_list_t *boc;
-	for(boc=ber_oid_callbacks;boc;boc=boc->next){
-		if(!strcmp(boc->oid, oid)){
-			offset=boc->func(tvb, offset, pinfo, tree);
-			return offset;
-		}
-	}
-	proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "BER: Dissector for OID:%s unknown", oid);
+	tvbuff_t *next_tvb;
+
+	next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));
+	dissector_try_string(ber_oid_dissector_table, oid, next_tvb, pinfo, tree);
 
 	return offset;
 }
-
-
-
 
 
 static int dissect_ber_sq_of(gboolean implicit_tag, guint32 type, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, ber_sequence *seq, gint hf_id, gint ett_id);
@@ -1093,6 +1063,8 @@ proto_register_ber(void)
 	"Show internal BER encapsulation tokens",
 	"Whether the dissector should also display internal"
 	" ASN.1 BER details such as Identifier and Length fields", &show_internal_ber_fields);
+
+    ber_oid_dissector_table = register_dissector_table("ber.oid", "BER OID Dissectors", FT_STRING, BASE_NONE);
 }
 
 void

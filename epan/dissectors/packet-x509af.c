@@ -45,7 +45,6 @@
 #include "packet-x509af.h"
 #include "packet-x509ce.h"
 #include "packet-x509if.h"
-#include "packet-x509sat.h"
 
 #define PNAME  "X.509 Authentication Framework"
 #define PSNAME "X509AF"
@@ -184,7 +183,7 @@ dissect_hf_x509af_algorithm_id(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 static int 
 dissect_hf_x509af_algorithm_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) 
 {
-  offset=invoke_ber_oid_callback(algorithm_id, tvb, offset, pinfo, tree);
+  offset=call_ber_oid_callback(algorithm_id, tvb, offset, pinfo, tree);
 
   return offset;
 }

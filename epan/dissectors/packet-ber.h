@@ -158,10 +158,6 @@ extern int dissect_ber_bitstring32(gboolean implicit_tag, packet_info *pinfo, pr
 extern proto_item *ber_last_created_item;
 extern proto_item *get_ber_last_created_item(void);
 
-
-typedef int (*ber_oid_callback)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-
-void register_ber_oid_callback(char *oid, ber_oid_callback func);
-int invoke_ber_oid_callback(char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+int call_ber_oid_callback(char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
 #endif  /* __PACKET_BER_H__ */

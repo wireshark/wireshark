@@ -1473,7 +1473,7 @@ dissect_krb5_ContentInfo_ContentType(packet_info *pinfo, proto_tree *tree, tvbuf
 static int
 dissect_krb5_ContentInfo_content(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=invoke_ber_oid_callback(ContentType, tvb, offset, pinfo, tree);
+	offset=call_ber_oid_callback(ContentType, tvb, offset, pinfo, tree);
 
 	return offset;
 }

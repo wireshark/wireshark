@@ -63,7 +63,7 @@ dissect_hf_x509af_algorithm_id(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 static int 
 dissect_hf_x509af_algorithm_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) 
 {
-  offset=invoke_ber_oid_callback(algorithm_id, tvb, offset, pinfo, tree);
+  offset=call_ber_oid_callback(algorithm_id, tvb, offset, pinfo, tree);
 
   return offset;
 }
