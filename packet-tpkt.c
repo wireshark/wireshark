@@ -7,7 +7,7 @@
  * Routine to dissect RFC 1006 TPKT packet containing OSI TP PDU
  * Copyright 2001, Martin Thomas <Martin_A_Thomas@yahoo.com>
  *
- * $Id: packet-tpkt.c,v 1.19 2002/05/13 21:18:25 guy Exp $
+ * $Id: packet-tpkt.c,v 1.20 2002/07/31 18:45:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -144,6 +144,32 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		col_add_str(pinfo->cinfo, COL_INFO, "");
   
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
+		/*
+		 * Is the first byte of this putative TPKT header
+		 * a valid TPKT version number, i.e. 3?
+		 */
+		if (tvb_get_guint8(tvb, offset) != 3) {
+			/*
+			 * No, so don't assume this is a TPKT header;
+			 * we might be in the middle of TPKT data,
+			 * so don't get the length and don't try to
+			 * do reassembly.
+			 */
+			if (check_col(pinfo->cinfo, COL_PROTOCOL))
+				col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPKT");
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+			if (tree) {
+				ti = proto_tree_add_item(tree, proto_tpkt, tvb,
+				    offset, -1, FALSE);
+				tpkt_tree = proto_item_add_subtree(ti, ett_tpkt);
+
+				proto_tree_add_text(tpkt_tree, tvb, offset, -1,
+				    "Continuation data");
+			}
+			return;
+		}
+
 		length_remaining = tvb_length_remaining(tvb, offset);
 
 		/*
