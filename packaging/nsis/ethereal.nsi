@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.7 2002/09/30 14:43:18 gerald Exp $
+; $Id: ethereal.nsi,v 1.8 2002/12/07 21:10:22 gerald Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -143,6 +143,14 @@ File "..\..\plugins\gryphon\gryphon.dll"
 File "..\..\plugins\mgcp\mgcp.dll"
 SectionEnd
 
+Section "SNMP MIBs"
+;-------------------------------------------
+SetOutPath $INSTDIR\snmp\mibs
+; NOTE: You'll have to specify the path to the Net-SNMP mibs directory
+;       on your system here.
+File "..\..\..\libs\net-snmp-5.0.6\mibs\*.txt"
+SectionEnd
+
 SectionDivider
 ;-------------------------------------------
 
@@ -173,6 +181,8 @@ DeleteRegKey HKEY_LOCAL_MACHINE SOFTWARE\Ethereal
 Delete "$INSTDIR\plugins\${VERSION}\*.*"
 Delete "$INSTDIR\plugins\*.*"
 Delete "$INSTDIR\diameter\*.*"
+Delete "$INSTDIR\snmp\mibs\*.*"
+Delete "$INSTDIR\snmp\*.*"
 Delete "$INSTDIR\*.*"
 Delete "$SMPROGRAMS\Ethereal\*.*"
 Delete "$DESKTOP\Ethereal.lnk"
@@ -181,6 +191,8 @@ RMDir "$SMPROGRAMS\Ethereal"
 RMDir "$INSTDIR\plugins\${VERSION}"
 RMDir "$INSTDIR\plugins"
 RMDir "$INSTDIR\diameter"
+RMDir "$INSTDIR\snmp\mibs"
+RMDir "$INSTDIR\snmp"
 RMDir "$INSTDIR"
 
 SectionEnd
