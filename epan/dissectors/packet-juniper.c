@@ -83,8 +83,8 @@ static dissector_table_t osinl_subdissector_table;
 static dissector_table_t osinl_excl_subdissector_table;
 
 static void dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 atm_pictype);
-u_int ppp_heuristic_guess(guint16);
-u_int ip_heuristic_guess(guint8);
+static gboolean ppp_heuristic_guess(guint16 proto);
+static guint ip_heuristic_guess(guint8 ip_header_byte);
 
 /* wrapper for passing the PIC type to the generic ATM dissector */
 static void
@@ -254,7 +254,7 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
 
   proto = tvb_get_ntohs(tvb, offset); /* second try: 16-Bit guess */
 
-  if ( ppp_heuristic_guess(proto) != 0 && 
+  if ( ppp_heuristic_guess(proto) && 
        atm_pictype != JUNIPER_ATM1) { /* VC-MUX PPPoA encaps ? - not supported on ATM1 PICs */
       ti = proto_tree_add_text (tree, tvb, offset, 2, "Payload Type: VC-MUX PPP");
       subtree = proto_item_add_subtree(ti, ett_juniper);
@@ -298,8 +298,8 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
 }
 
 /* list of Juniper supported PPP proto IDs */
-u_int
-ppp_heuristic_guess(const u_int16_t proto) {
+static gboolean
+ppp_heuristic_guess(guint16 proto) {
 
     switch(proto) {
     case PPP_IP :
@@ -315,11 +315,11 @@ ppp_heuristic_guess(const u_int16_t proto) {
     case PPP_MP :
     case PPP_IPV6 :
     case PPP_IPV6CP :
-        return 1;
+        return TRUE;
         break;
 
     default:
-        return 0; /* did not find a ppp header */
+        return FALSE; /* did not find a ppp header */
         break;
     }
 }
@@ -328,8 +328,8 @@ ppp_heuristic_guess(const u_int16_t proto) {
  * return the IP version number based on the first byte of the IP header
  * returns 0 if it does not match a valid first IPv4/IPv6 header byte
  */
-u_int
-ip_heuristic_guess(const u_int8_t ip_header_byte) {
+static guint
+ip_heuristic_guess(guint8 ip_header_byte) {
 
     switch(ip_header_byte) {
     case 0x45:
