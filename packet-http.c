@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@netapp.com>
  *
- * $Id: packet-http.c,v 1.2 1999/03/23 03:14:37 gram Exp $
+ * $Id: packet-http.c,v 1.3 1999/03/30 04:41:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,7 +46,7 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	proto_tree	*http_tree;
 	proto_item	*ti;
 	const u_char	*data, *dataend;
-	const u_char	*linep, *lineend;
+	const u_char	*linep, *lineend, *eol;
 	int		linelen;
 	u_char		c;
 
@@ -61,10 +61,10 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 		 * if it's an HTTP request or reply.
 		 * Otherwise, just call it a continuation.
 		 */
-		lineend = find_line_end(data, dataend);
+		lineend = find_line_end(data, dataend, &eol);
 		linelen = lineend - data;
 		if (is_http_request_or_reply(data, linelen))
-			col_add_str(fd, COL_INFO, format_line(data, linelen));
+			col_add_str(fd, COL_INFO, format_text(data, linelen));
 		else
 			col_add_str(fd, COL_INFO, "Continuation");
 	}
@@ -79,7 +79,7 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			/*
 			 * Find the end of the line.
 			 */
-			lineend = find_line_end(data, dataend);
+			lineend = find_line_end(data, dataend, &eol);
 			linelen = lineend - data;
 
 			/*
@@ -161,7 +161,7 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			 * Put this line.
 			 */
 			proto_tree_add_item(http_tree, offset, linelen, "%s",
-			    format_line(data, linelen));
+			    format_text(data, linelen));
 			offset += linelen;
 			data = lineend;
 		}

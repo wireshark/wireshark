@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.22 1999/03/28 18:31:59 gram Exp $
+ * $Id: packet.c,v 1.23 1999/03/30 04:41:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -136,40 +136,55 @@ time_secs_to_str(guint32 time)
   return cur;
 }
 
-
-
 /*
  * Given a pointer into a data buffer, and to the end of the buffer,
  * find the end of the (putative) line at that position in the data
  * buffer.
+ * Return a pointer to the EOL character(s) in "*eol".
  */
 const u_char *
-find_line_end(const u_char *data, const u_char *dataend)
+find_line_end(const u_char *data, const u_char *dataend, const u_char **eol)
 {
   const u_char *lineend;
 
   lineend = memchr(data, '\n', dataend - data);
   if (lineend == NULL) {
     /*
-     * No newline - line is probably continued in next TCP segment.
+     * No LF - line is probably continued in next TCP segment.
      */
     lineend = dataend;
+    *eol = dataend;
   } else {
     /*
-     * Is the newline preceded by a carriage return?
-     * (Perhaps it's supposed to be, but that's not guaranteed....)
+     * Is the LF at the beginning of the line?
      */
-    if (lineend > data && *(lineend - 1) != '\r') {
+    if (lineend > data) {
       /*
-       * No.  I seem to remember that we once saw lines
-       * ending with LF-CR in an HTTP request or response,
-       * so check if it's *followed* by a carriage return.
+       * No - is it preceded by a carriage return?
+       * (Perhaps it's supposed to be, but that's not guaranteed....)
        */
-      if (lineend < (dataend - 1) && *(lineend + 1) == '\r') {
-	/*
-	 * It's <non-LF><LF><CR>; say it ends with the CR.
+      if (*(lineend - 1) == '\r') {
+        /*
+	 * Yes.  The EOL starts with the CR.
 	 */
-	lineend++;
+        *eol = lineend - 1;
+      } else {
+        /*
+         * No.  The EOL starts with the LF.
+         */
+        *eol = lineend;
+
+        /*
+         * I seem to remember that we once saw lines ending with LF-CR
+         * in an HTTP request or response, so check if it's *followed*
+         * by a carriage return.
+         */
+        if (lineend < (dataend - 1) && *(lineend + 1) == '\r') {
+          /*
+           * It's <non-LF><LF><CR>; say it ends with the CR.
+           */
+          lineend++;
+        }
       }
     }
 
@@ -183,91 +198,127 @@ find_line_end(const u_char *data, const u_char *dataend)
 
 #define	MAX_COLUMNS_LINE_DETAIL	62
 
-gchar *
-format_line(const u_char *line, int len)
+/*
+ * Get the length of the next token in a line, and the beginning of the
+ * next token after that (if any).
+ * Return 0 if there is no next token.
+ */
+int
+get_token_len(const u_char *linep, const u_char *lineend,
+	      const u_char **next_token)
 {
-  static gchar linebuf[MAX_COLUMNS_LINE_DETAIL + 3 + 4 + 1];
-  gchar *linebufp;
+  const u_char *tokenp;
+  int token_len;
+
+  tokenp = linep;
+  
+  /*
+   * Search for a blank, a CR or an LF, or the end of the buffer.
+   */
+  while (linep < lineend && *linep != ' ' && *linep != '\r' && *linep != '\n')
+      linep++;
+  token_len = linep - tokenp;
+
+  /*
+   * Skip trailing blanks.
+   */
+  while (linep < lineend && *linep == ' ')
+    linep++;
+
+  *next_token = linep;
+
+  return token_len;
+}
+
+/*
+ * Given a string, generate a string from it that shows non-printable
+ * characters as C-style escapes, and return a pointer to it.
+ */
+gchar *
+format_text(const u_char *string, int len)
+{
+  static gchar fmtbuf[MAX_COLUMNS_LINE_DETAIL + 3 + 4 + 1];
+  gchar *fmtbufp;
   int column;
-  const u_char *lineend = line + len;
+  const u_char *stringend = string + len;
   u_char c;
   int i;
 
   column = 0;
-  linebufp = &linebuf[0];
-  while (line < lineend) {
+  fmtbufp = &fmtbuf[0];
+  while (string < stringend) {
     if (column >= MAX_COLUMNS_LINE_DETAIL) {
       /*
        * Put "..." and quit.
        */
-      strcpy(linebufp, " ...");
+      strcpy(fmtbufp, " ...");
       break;
     }
-    c = *line++;
+    c = *string++;
     if (isprint(c)) {
-      *linebufp++ = c;
+      *fmtbufp++ = c;
       column++;
     } else {
-      *linebufp++ =  '\\';
+      *fmtbufp++ =  '\\';
       column++;
       switch (c) {
 
       case '\\':
-	*linebufp++ = '\\';
+	*fmtbufp++ = '\\';
 	column++;
 	break;
 
       case '\a':
-	*linebufp++ = 'a';
+	*fmtbufp++ = 'a';
 	column++;
 	break;
 
       case '\b':
-	*linebufp++ = 'b';
+	*fmtbufp++ = 'b';
 	column++;
 	break;
 
       case '\f':
-	*linebufp++ = 'f';
+	*fmtbufp++ = 'f';
 	column++;
 	break;
 
       case '\n':
-	*linebufp++ = 'n';
+	*fmtbufp++ = 'n';
 	column++;
 	break;
 
       case '\r':
-	*linebufp++ = 'r';
+	*fmtbufp++ = 'r';
 	column++;
 	break;
 
       case '\t':
-	*linebufp++ = 't';
+	*fmtbufp++ = 't';
 	column++;
 	break;
 
       case '\v':
-	*linebufp++ = 'v';
+	*fmtbufp++ = 'v';
 	column++;
 	break;
 
       default:
 	i = (c>>6)&03;
-	*linebufp++ = i + '0';
+	*fmtbufp++ = i + '0';
 	column++;
 	i = (c>>3)&07;
-	*linebufp++ = i + '0';
+	*fmtbufp++ = i + '0';
 	column++;
 	i = (c>>0)&07;
-	*linebufp++ = i + '0';
+	*fmtbufp++ = i + '0';
 	column++;
 	break;
       }
     }
   }
-  *linebufp = '\0';
-  return linebuf;
+  *fmtbufp = '\0';
+  return fmtbuf;
 }
 
 
