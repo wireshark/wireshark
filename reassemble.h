@@ -1,7 +1,7 @@
 /* reassemble.h
  * Declarations of outines for {fragment,segment} reassembly
  *
- * $Id: reassemble.h,v 1.2 2001/11/24 09:36:40 guy Exp $
+ * $Id: reassemble.h,v 1.3 2001/12/15 05:40:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,6 +41,10 @@
 /* fragment contains data past the end of the datagram */
 #define FD_TOOLONGFRAGMENT	0x0010
 
+/* fragment offset is indicated by sequence number and not byte offset
+   into the defragmented packet */
+#define FD_BLOCKSEQUENCE        0x0100
+
 typedef struct _fragment_data {
 	struct _fragment_data *next;
 	guint32 frame;
@@ -76,8 +80,18 @@ fragment_data *fragment_add(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint32 id, GHashTable *fragment_table, guint32 frag_offset,
     guint32 frag_data_len, gboolean more_frags);
 
+/* same as fragment_add() but this one assumes frag_offset is a block
+   sequence number. note that frag_offset is 0 for the first fragment. */
+fragment_data *fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    guint32 id, GHashTable *fragment_table, guint32 frag_offset,
+    guint32 frag_data_len, gboolean more_frags);
+
 /* to specify how much to reassemble, for fragmentation where last fragment can not be 
  * identified by flags or such.
+ * note that for FD_BLOCKSEQUENCE tot_len is the index for the tail fragment.
+ * i.e. since the block numbers start at 0, if we specify tot_len==2, that 
+ * actually means we want to defragment 3 blocks, block 0, 1 and 2.
+ *
  */
 void
 fragment_set_tot_len(packet_info *pinfo, guint32 id, GHashTable *fragment_table, 
