@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.37 2001/10/24 07:18:37 guy Exp $
+ * $Id: plugins.c,v 1.38 2001/10/29 21:56:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -367,16 +367,10 @@ init_plugins(const char *plugin_dir)
 	patable.p_tvb_get_ntohs			= tvb_get_ntohs;
 	patable.p_tvb_get_ntoh24		= tvb_get_ntoh24;
 	patable.p_tvb_get_ntohl			= tvb_get_ntohl;
-#ifdef G_HAVE_GINT64
-	patable.p_tvb_get_ntohll		= tvb_get_ntohll;
-#endif
 
 	patable.p_tvb_get_letohs		= tvb_get_letohs;
 	patable.p_tvb_get_letoh24		= tvb_get_letoh24;
 	patable.p_tvb_get_letohl		= tvb_get_letohl;
-#ifdef G_HAVE_GINT64
-	patable.p_tvb_get_letohll		= tvb_get_letohll;
-#endif
 
 	patable.p_tvb_memcpy			= tvb_memcpy;
 	patable.p_tvb_memdup			= tvb_memdup;

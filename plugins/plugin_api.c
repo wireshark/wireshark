@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.24 2001/10/17 19:27:42 gram Exp $
+ * $Id: plugin_api.c,v 1.25 2001/10/29 21:56:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -108,15 +108,9 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_tvb_get_ntohs				= pat->p_tvb_get_ntohs;
 	p_tvb_get_ntoh24			= pat->p_tvb_get_ntoh24;
 	p_tvb_get_ntohl				= pat->p_tvb_get_ntohl;
-#ifdef G_HAVE_GINT64
-	p_tvb_get_ntohll			= pat->p_tvb_get_ntohll;
-#endif
 	p_tvb_get_letohs			= pat->p_tvb_get_letohs;
 	p_tvb_get_letoh24			= pat->p_tvb_get_letoh24;
 	p_tvb_get_letohl			= pat->p_tvb_get_letohl;
-#ifdef G_HAVE_GINT64
-	p_tvb_get_letohll			= pat->p_tvb_get_letohll;
-#endif
 	p_tvb_memcpy				= pat->p_tvb_memcpy;
 	p_tvb_memdup				= pat->p_tvb_memdup;
 	p_tvb_get_ptr				= pat->p_tvb_get_ptr;

@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.26 2001/10/17 19:27:42 gram Exp $
+ * $Id: plugin_table.h,v 1.27 2001/10/29 21:56:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -123,16 +123,10 @@ typedef guint8 (*addr_tvb_get_guint8)(tvbuff_t*, gint);
 typedef guint16 (*addr_tvb_get_ntohs)(tvbuff_t*, gint);
 typedef guint32 (*addr_tvb_get_ntoh24)(tvbuff_t*, gint);
 typedef guint32 (*addr_tvb_get_ntohl)(tvbuff_t*, gint);
-#ifdef G_HAVE_GINT64
-typedef guint64 (*addr_tvb_get_ntohll)(tvbuff_t*, gint);
-#endif
 
 typedef guint16 (*addr_tvb_get_letohs)(tvbuff_t*, gint);
 typedef guint32 (*addr_tvb_get_letoh24)(tvbuff_t*, gint);
 typedef guint32 (*addr_tvb_get_letohl)(tvbuff_t*, gint);
-#ifdef G_HAVE_GINT64
-typedef guint64 (*addr_tvb_get_letohll)(tvbuff_t*, gint);
-#endif
 
 typedef guint8* (*addr_tvb_memcpy)(tvbuff_t*, guint8* target, gint, gint);
 typedef guint8* (*addr_tvb_memdup)(tvbuff_t*, gint, gint);
@@ -286,16 +280,10 @@ typedef struct  {
 	addr_tvb_get_ntohs			p_tvb_get_ntohs;
 	addr_tvb_get_ntoh24			p_tvb_get_ntoh24;
 	addr_tvb_get_ntohl			p_tvb_get_ntohl;
-#ifdef G_HAVE_GINT64
-	addr_tvb_get_ntohll			p_tvb_get_ntohll;
-#endif
 
 	addr_tvb_get_letohs			p_tvb_get_letohs;
 	addr_tvb_get_letoh24			p_tvb_get_letoh24;
 	addr_tvb_get_letohl			p_tvb_get_letohl;
-#ifdef G_HAVE_GINT64
-	addr_tvb_get_letohll			p_tvb_get_letohll;
-#endif
 
 	addr_tvb_memcpy				p_tvb_memcpy;
 	addr_tvb_memdup				p_tvb_memdup;

@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.54 2001/06/18 02:17:45 guy Exp $
+ * $Id: packet-bootp.c,v 1.55 2001/10/29 21:56:47 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -15,9 +15,8 @@
  *     http://www.isi.edu/in-notes/iana/assignments/bootp-dhcp-parameters
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -44,6 +43,7 @@
 
 #include <string.h>
 #include <glib.h>
+#include "int-64bit.h"
 #include "packet.h"
 #include "packet-arp.h"
 
@@ -587,26 +587,8 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 				    tvb_get_guint8(tvb, voff+3));
 		proto_tree_add_text(v_tree, tvb, voff+4, 1, "Replay Detection Method: %d", 
 				    tvb_get_guint8(tvb, voff+4));
-		/*
-		 * XXX:
-		 *
-		 *	1) this won't compile if you have a compiler that
-		 *	   doesn't support 64-bit integral quantities;
-		 *
-		 *	2) there is no standard for the printf format to
-		 *	   be used for 64-bit integral quantities, so
-		 *	   this may not display correctly.
-		 *
-		 * We need to figure out how to handle 64-bit integral
-		 * quantities portably, with some form of fallback if
-		 * the compiler doesn't support it, and some way of
-		 * handling "%ll{d,o,x}" (most platforms) vs. "%q{d,o.x}"
-		 * (FreeBSD, perhaps some versions of other BSDs) vs.
-		 * "sorry, we're an LP64 platform, %l{d,o,x} is good enough
-		 * for you" (Digital UNIX).
-		 */
-		proto_tree_add_text(v_tree, tvb, voff+5, 8, "Replay Detection Value: %0llX", 
-				    tvb_get_ntohll(tvb, voff+5));
+		proto_tree_add_text(v_tree, tvb, voff+5, 8, "Replay Detection Value: %s", 
+				    u64toh(tvb_get_ptr(tvb, voff+5, 8)));
 		if (vlen > 11) {
 		    proto_tree_add_text(v_tree, tvb, voff+13, 4, "Secret ID: %0X", 
 					tvb_get_ntohl(tvb, voff+13));

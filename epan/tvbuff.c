@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.19 2001/10/26 17:29:09 gram Exp $
+ * $Id: tvbuff.c,v 1.20 2001/10/29 21:56:48 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -982,17 +982,6 @@ tvb_get_ntohl(tvbuff_t *tvb, gint offset)
 	return pntohl(ptr);
 }
 
-#ifdef G_HAVE_GINT64
-guint64
-tvb_get_ntohll(tvbuff_t *tvb, gint offset)
-{
-	guint8* ptr;
-
-	ptr = ensure_contiguous(tvb, offset, sizeof(guint64));
-	return pntohll(ptr);
-}
-#endif
-
 guint16
 tvb_get_letohs(tvbuff_t *tvb, gint offset)
 {
@@ -1019,18 +1008,6 @@ tvb_get_letohl(tvbuff_t *tvb, gint offset)
 	ptr = ensure_contiguous(tvb, offset, sizeof(guint32));
 	return pletohl(ptr);
 }
-
-#ifdef G_HAVE_GINT64
-guint64
-tvb_get_letohll(tvbuff_t *tvb, gint offset)
-{
-	guint8* ptr;
-
-	ptr = ensure_contiguous(tvb, offset, sizeof(guint64));
-	return pletohll(ptr);
-}
-#endif
-
 
 /* Find first occurence of needle in tvbuff, starting at offset. Searches
  * at most maxlength number of bytes; if maxlength is -1, searches to

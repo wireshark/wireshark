@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.24 2001/10/17 19:27:42 gram Exp $
+ * $Id: plugin_api.h,v 1.25 2001/10/29 21:56:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -114,16 +114,10 @@
 #define tvb_get_ntohs			(*p_tvb_get_ntohs)
 #define tvb_get_ntoh24			(*p_tvb_get_ntoh24)
 #define tvb_get_ntohl			(*p_tvb_get_ntohl)
-#ifdef G_HAVE_GINT64
-#define tvb_get_ntohll			(*p_tvb_get_ntohll)
-#endif
 
 #define tvb_get_letohs			(*p_tvb_get_letohs)
 #define tvb_get_letoh24			(*p_tvb_get_letoh24)
 #define tvb_get_letohl			(*p_tvb_get_letohl)
-#ifdef G_HAVE_GINT64
-#define tvb_get_letohll			(*p_tvb_get_letohll)
-#endif
 
 #define tvb_memcpy			(*p_tvb_memcpy)
 #define tvb_memdup			(*p_tvb_memdup)
