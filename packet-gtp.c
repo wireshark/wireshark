@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.70 2004/01/05 19:31:43 ulfl Exp $
+ * $Id: packet-gtp.c,v 1.71 2004/01/06 02:38:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3081,7 +3081,7 @@ static guint8 wrapped_tvb_get_guint8( tvbuff_t *tvb, int offset, int type)
 int
 decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, guint8 type) {
 
-	guint8		length;
+	guint		length;
 	guint8		al_ret_priority;
 	guint8		delay, reliability, peak, precedence, mean, spare1, spare2, spare3;
 	guint8		traf_class, del_order, del_err_sdu;
@@ -3124,7 +3124,7 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 			retval = length + 1;
 			break;
 		case 2:
-			length = (guint8) tvb_get_ntohs (tvb, offset + 1);
+			length = tvb_get_ntohs (tvb, offset + 1);
 			te = proto_tree_add_text(tree, tvb, offset, length + 3, "%s", qos_str);
 			ext_tree_qos = proto_item_add_subtree (te, ett_gtp_qos);
 			proto_tree_add_text (ext_tree_qos, tvb, offset + 1, 2, "Length: %u", length);
