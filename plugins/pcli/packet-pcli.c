@@ -1,7 +1,10 @@
 /* packet-pcli.c
  * Routines for Packet Cable Lawful Intercept packet disassembly
+ * Packet Cable Lawful Intercept is detailed at
+ * http://www.packetcable.com/downloads/specs/pkt-sp-esp-I01-991229.pdf
+ * Chapter 4 ( Call Content Connection Interface )
  *
- * $Id: packet-pcli.c,v 1.4 2002/10/10 20:36:37 guy Exp $
+ * $Id: packet-pcli.c,v 1.5 2002/10/24 23:41:56 hagbard Exp $
  *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
