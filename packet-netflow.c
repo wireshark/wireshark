@@ -34,7 +34,7 @@
  ** are dissected as vendor specific fields.
  **
  ** $Yahoo: //depot/fumerola/packet-netflow/packet-netflow.c#14 $
- ** $Id: packet-netflow.c,v 1.5 2002/09/22 16:13:21 gerald Exp $
+ ** $Id: packet-netflow.c,v 1.6 2002/10/08 08:50:04 guy Exp $
  */
 
 #ifdef HAVE_CONFIG_H
@@ -43,6 +43,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <string.h>
 
 #define UDP_PORT_NETFLOW	2055
 
@@ -798,7 +799,7 @@ getprefix(const guint32 * address, int prefix)
 
 	gprefix = *address & htonl((0xffffffff << (32 - prefix)));
 
-	return (ip_to_str(&gprefix));
+	return (ip_to_str((const guint8 *)&gprefix));
 }
 
 void
