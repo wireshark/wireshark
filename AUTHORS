@@ -1773,6 +1773,10 @@ Michael Lum <mlum [AT] telostech.com> {
 	Support for saving list of disabled protocols
 }
 
+Shiang-Ming Huang <smhuang [AT] pcs.csie.nctu.edu.tw> {
+	STUN (RFC 3489) support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
