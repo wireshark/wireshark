@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.172 2002/12/29 22:40:08 guy Exp $
+ * $Id: tethereal.c,v 1.173 2002/12/31 21:18:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -114,7 +114,7 @@
 #include <wiretap/libpcap.h>
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 #include "capture-wpcap.h"
 #endif
 
@@ -365,9 +365,9 @@ main(int argc, char *argv[])
 #endif /* HAVE_PCAP_VERSION */
 #endif /* HAVE_LIBPCAP */
 
-#ifdef WIN32
+#ifdef _WIN32
   WSADATA		wsaData;
-#endif	/* WIN32 */
+#endif	/* _WIN32 */
 
   char                *gpf_path;
   char                *pf_path;
@@ -443,7 +443,7 @@ main(int argc, char *argv[])
   /* Set the name resolution code's flags from the preferences. */
   g_resolv_flags = prefs->name_resolve;
 
-#ifdef WIN32
+#ifdef _WIN32
   /* Load Wpcap, if possible */
   load_wpcap();
 #endif
@@ -820,10 +820,10 @@ main(int argc, char *argv[])
   }
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
   /* Start windows sockets */
   WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
-#endif	/* WIN32 */
+#endif	/* _WIN32 */
 
   /* Notify all registered modules that have had any of their preferences
      changed either from one of the preferences file or from the command
@@ -1004,20 +1004,22 @@ capture(int out_file_type)
 			  capture_opts.promisc_mode, 1000, open_err_str);
 
   if (ld.pch == NULL) {
-    /* Well, we couldn't start the capture. */
+    /* We couldn't open "cfile.iface" as a network device. */
 #ifdef _WIN32
+    /* On Windows, we don't support capturing on pipes, so we give up. */
+
     /* On Win32 OSes, the capture devices are probably available to all
        users; don't warn about permissions problems.
 
-       Do, however, warn that Token Ring and PPP devices aren't supported. */
+       Do, however, warn that WAN devices aren't supported. */
     snprintf(errmsg, sizeof errmsg,
 	"The capture session could not be initiated (%s).\n"
 	"Please check that you have the proper interface specified.\n"
 	"\n"
 	"Note that the driver Tethereal uses for packet capture on Windows\n"
-	"doesn't support capturing on Token Ring interfaces, and doesn't\n"
-	"support capturing on PPP/WAN interfaces in Windows NT/2000.\n",
+	"doesn't support capturing on PPP/WAN interfaces in Windows NT/2000/XP/.NET Server.\n",
 	open_err_str);
+    goto error;
 #else
     /* try to open cfile.iface as a pipe */
     pipe_fd = pipe_open_live(cfile.iface, &hdr, &ld, errmsg, sizeof errmsg);
@@ -1025,32 +1027,32 @@ capture(int out_file_type)
     if (pipe_fd == -1) {
 
       if (ld.pipe_err == PIPNEXIST) {
-        /* Pipe doesn't exist, so output message for interface */
+	/* Pipe doesn't exist, so output message for interface */
 
-      /* If we got a "can't find PPA for XXX" message, warn the user (who
-         is running Ethereal on HP-UX) that they don't have a version
-	 of libpcap that properly handles HP-UX (libpcap 0.6.x and later
-	 versions, which properly handle HP-UX, say "can't find /dev/dlpi
-	 PPA for XXX" rather than "can't find PPA for XXX"). */
-      if (strncmp(open_err_str, ppamsg, sizeof ppamsg - 1) == 0)
-	libpcap_warn =
-	  "\n\n"
-	  "You are running Tethereal with a version of the libpcap library\n"
-	  "that doesn't handle HP-UX network devices well; this means that\n"
-	  "Tethereal may not be able to capture packets.\n"
-	  "\n"
-	  "To fix this, you should install libpcap 0.6.2, or a later version\n"
-	  "of libpcap, rather than libpcap 0.4 or 0.5.x.  It is available in\n"
-	  "packaged binary form from the Software Porting And Archive Centre\n"
-	  "for HP-UX; the Centre is at http://hpux.connect.org.uk/ - the page\n"
-	  "at the URL lists a number of mirror sites.";
-      else
-	libpcap_warn = "";
-    snprintf(errmsg, sizeof errmsg,
-      "The capture session could not be initiated (%s).\n"
-      "Please check to make sure you have sufficient permissions, and that\n"
-      "you have the proper interface specified.%s", open_err_str, libpcap_warn);
-#endif
+	/* If we got a "can't find PPA for XXX" message, warn the user (who
+           is running Tethereal on HP-UX) that they don't have a version
+	   of libpcap that properly handles HP-UX (libpcap 0.6.x and later
+	   versions, which properly handle HP-UX, say "can't find /dev/dlpi
+	   PPA for XXX" rather than "can't find PPA for XXX"). */
+	if (strncmp(open_err_str, ppamsg, sizeof ppamsg - 1) == 0)
+	  libpcap_warn =
+	    "\n\n"
+	    "You are running Tethereal with a version of the libpcap library\n"
+	    "that doesn't handle HP-UX network devices well; this means that\n"
+	    "Tethereal may not be able to capture packets.\n"
+	    "\n"
+	    "To fix this, you should install libpcap 0.6.2, or a later version\n"
+	    "of libpcap, rather than libpcap 0.4 or 0.5.x.  It is available in\n"
+	    "packaged binary form from the Software Porting And Archive Centre\n"
+	    "for HP-UX; the Centre is at http://hpux.connect.org.uk/ - the page\n"
+	    "at the URL lists a number of mirror sites.";
+	else
+	  libpcap_warn = "";
+	snprintf(errmsg, sizeof errmsg,
+	  "The capture session could not be initiated (%s).\n"
+	  "Please check to make sure you have sufficient permissions, and that\n"
+	  "you have the proper interface or pipe specified.%s", open_err_str,
+	  libpcap_warn);
       }
       /*
        * Else pipe (or file) does exist and pipe_open_live() has
@@ -1061,6 +1063,7 @@ capture(int out_file_type)
       /* pipe_open_live() succeeded; don't want
          error message from pcap_open_live() */
       open_err_str[0] = '\0';
+#endif
   }
 
   if (cfile.cfilter && !ld.from_pipe) {
@@ -1362,7 +1365,7 @@ error:
   g_free(cfile.save_file);
   cfile.save_file = NULL;
   fprintf(stderr, "tethereal: %s\n", errmsg);
-#ifndef WIN32
+#ifndef _WIN32
   if (ld.from_pipe) {
     if (pipe_fd >= 0)
       close(pipe_fd);
@@ -2269,7 +2272,7 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
   unsigned int bytes_read;
 
   /*
-   * XXX Ethereal blocks until we return
+   * XXX Tethereal blocks until we return
    */
   if (strcmp(pipename, "-") == 0)
     fd = 0; /* read from stdin */
