@@ -1,7 +1,7 @@
-/* packet-arp.c
- * Routines for ARP packet disassembly
+/* packet-pppoe.c
+ * Routines for PPP Over Ethernet (PPPoE) packet disassembly (RFC2516)
  *
- * $Id: packet-pppoe.c,v 1.9 2000/08/07 03:21:01 guy Exp $
+ * $Id: packet-pppoe.c,v 1.10 2000/08/25 13:00:05 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
