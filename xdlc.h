@@ -2,7 +2,7 @@
  * Define *DLC frame types, and routine to dissect the control field of
  * a *DLC frame.
  *
- * $Id: xdlc.h,v 1.6 1999/09/27 08:33:26 guy Exp $
+ * $Id: xdlc.h,v 1.7 1999/09/27 13:51:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -64,7 +64,7 @@
  * Unnumbered Information frame) and FALSE if it doesn't.
  */
 #define XDLC_HAS_PAYLOAD(control) \
-	((control & 0x3) == XDLC_I || (control) == (XDLC_UI|XDLC_U))
+	(((control) & 0x3) == XDLC_I || (control) == (XDLC_UI|XDLC_U))
 
 /*
  * This macro takes the control field of an xDLC frame, and a flag saying
@@ -73,7 +73,7 @@
  * in extended mode, it's 3 bytes long, otherwise it's 4 bytes long).
  */
 #define XDLC_CONTROL_LEN(control, is_extended) \
-	(((control & 0x3) == XDLC_U || !(is_extended)) ? 3 : 4)
+	((((control) & 0x3) == XDLC_U || !(is_extended)) ? 3 : 4)
 
 int get_xdlc_control(const u_char *pd, int offset, int is_response,
   int extended);
