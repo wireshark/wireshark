@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.14 2002/05/07 10:07:55 sahlberg Exp $
+ * $Id: packet-dcerpc.h,v 1.15 2002/05/10 02:30:22 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -209,6 +209,7 @@ typedef struct _dcerpc_info {
 	int hf_index;
 	int levels;                    /* number of levels upwards in the tree to append text*/
 	dcerpc_call_value *call_data;
+	void *private_data;
 } dcerpc_info;
 
 #endif /* packet-dcerpc.h */
