@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.23 2001/04/10 12:29:22 gram Exp $
+$Id: README.win32,v 1.24 2001/07/13 08:14:03 guy Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -156,6 +156,11 @@ and link with MSVC. When installing MSVC, you can have your
 system's environment set up to always allow compiling from the
 command line, or you can invoke the vcvars32.bat script.
 
+The first time you build Ethereal, run the script "cleanbld.bat" to make
+sure that the "config.h" files will be reconstructed from the
+"config.h.win32" files.  (If, for example, you have "config.h" files
+left over from a Unix build, a Windows build will fail.)
+
 In the ethereal directory, type "nmake -f makefile.nmake". It will
 recurse into the subdirectories as appropriate.
 
@@ -167,8 +172,17 @@ to generate C source. The "special" files and their requisite tools are:
 
 Source				Output			Tool
 ------				------			----
-config.h.in			config.h		sed
-dfilter-scanner.l		*.c			Flex
+config.h.win32			config.h		sed
+epan/config.h.win32		epan/config.h		sed
+image/ethereal.rc.in		image/ethereal.rc	sed
+image/tethereal.rc.in		image/tethereal.rc	sed
+image/editcap.rc.in		image/editcap.rc	sed
+image/mergecap.rc.in		image/mergecap.rc	sed
+image/text2pcap.rc.in		image/text2pcap.rc	sed
+packaging/nsis/ethereal.nsi.in	packaging/ethereal.nsi	sed
+wiretap/config.h.win32		wiretap/config.h	sed
+epan/dfilter/dfilter-scanner.l  epan/dfilter/*.c	Flex
+text2pcap-scanner.l		*.c			Flex
 wiretap/ascend-scanner.l	*.c			Flex
 wiretap/ascend-grammar.y	*.c,*.h			Bison/Yacc
 ncp2222.py			packet-ncp2222.c	Python
@@ -186,10 +200,15 @@ matters a lot on Win32. If for some reason you want to build register.c
 with the shell script, uncomment out the action line for the register.c
 target in Makefile.nmake.
 
-If you have a Unix system handy, you can first build on Unix
-to create the source files that these tools make, then run the build
-on Windows.  That will avoid the need for these tools on your Windows
-computer.
+If you have a Unix system handy, you can first build on Unix to create
+most of the source files that these tools make, then run the build on
+Windows.  That will avoid the need for these tools on your Windows
+computer.  (This won't work for the files in the "image" directory,
+however, as those aren't built on Unix - they're only for Windows
+builds.  It also won't work for the "config.h" files; whilst those are
+built for Unix, they're specific to the platform on which you're
+building, and the "config.h" files constructed for a Unix build will not
+work with a Windows build.)
 
 If you don't have a Unix system handy, most of those tools are available for
 Win32 systems as part of the Cygwin package:
