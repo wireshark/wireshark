@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  *
- * $Id: packet-wtp.c,v 1.60 2004/01/04 22:02:16 obiot Exp $
+ * $Id: packet-wtp.c,v 1.61 2004/01/07 19:52:25 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -674,8 +674,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		{
 			/* Try reassembling fragments */
 			fragment_data *fd_wtp = NULL;
-			gboolean reassembled = FALSE; /* Reassembly completed */
-			guint32 reassembled_in = 0;   /* ... in this packet */
+			guint32 reassembled_in = 0;
 			gboolean save_fragmented = pinfo->fragmented;
 
 			pinfo->fragmented = TRUE;
