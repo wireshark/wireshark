@@ -866,6 +866,7 @@ Motonori Shindo <mshindo[AT]mshindo.net> {
 	Delete installed data files on a Windows uninstallation
 	OSPF fixes
 	Support for reading CoSine L2 debug output
+	LDP VC FEC dissection fix
 }
 
 Terje Krogdahl <tekr[AT]nextra.com> {

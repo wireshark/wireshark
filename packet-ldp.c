@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.40 2002/08/02 23:35:53 jmayer Exp $
+ * $Id: packet-ldp.c,v 1.41 2002/08/15 19:04:16 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -723,7 +723,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 			  while ( (vc_len > 1) && (rem > 1) ) {	/* enough to include id and length */
 			    intparam_len = tvb_get_guint8(tvb, offset+1);
-			    ti = proto_tree_add_text(fec_tree, tvb, offset, 4, "Interface Paramameter");
+			    ti = proto_tree_add_text(fec_tree, tvb, offset, intparam_len, "Interface Paramameter");
 			    vcintparam_tree = proto_item_add_subtree(ti, ett_ldp_fec_vc_interfaceparam);
 			    if(vcintparam_tree == NULL) return;
 			    proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_id,tvb,offset,1,FALSE);
