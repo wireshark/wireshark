@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.161 2000/10/20 04:26:40 gram Exp $
+ * $Id: main.c,v 1.162 2000/10/27 17:19:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -818,14 +818,19 @@ main(int argc, char *argv[])
   int                  opt;
   extern char         *optarg;
   gboolean             arg_error = FALSE;
+
 #ifdef HAVE_LIBPCAP
 #ifdef WIN32
   char pcap_version[] = "0.4a6";
-  WSADATA 	       wsaData; 
 #else
   extern char          pcap_version[];
 #endif
 #endif
+  
+#ifdef WIN32
+  WSADATA 	       wsaData; 
+#endif
+
   char                *gpf_path, *pf_path;
   int                  gpf_open_errno, pf_open_errno;
   int                  err;
