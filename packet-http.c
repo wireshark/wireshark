@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.83 2003/12/27 01:42:56 guy Exp $
+ * $Id: packet-http.c,v 1.84 2003/12/27 08:35:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -327,7 +327,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * at the end of an HTTP request)?
 		 */
 		if (linelen == 0)
-			goto is_http;
+			goto is_http;	/* Yes. */
 
 		/*
 		 * No.  Does it look like a header?
@@ -471,7 +471,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/*
 	 * If a content length was supplied, the amount of data to be
-	 * processed as RTSP payload is the minimum of the content
+	 * processed as HTTP payload is the minimum of the content
 	 * length and the amount of data remaining in the frame.
 	 *
 	 * If no content length was supplied (or if a bad content length
