@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.36 2003/10/30 03:11:02 guy Exp $
+# $Id: Makefile.nmake,v 1.37 2003/10/31 00:43:21 guy Exp $
 #
 
 include ..\config.nmake
@@ -32,6 +32,7 @@ OBJECTS=ascend-grammar.obj \
 	libpcap.obj \
 	netmon.obj \
 	nettl.obj \
+	network_instruments.obj \
 	netxray.obj \
 	ngsniffer.obj \
 	radcom.obj \

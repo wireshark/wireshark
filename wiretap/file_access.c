@@ -1,6 +1,6 @@
 /* file_access.c
  *
- * $Id: file_access.c,v 1.4 2003/10/30 03:11:02 guy Exp $
+ * $Id: file_access.c,v 1.5 2003/10/31 00:43:21 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -71,6 +71,7 @@
 #include "5views.h"
 #include "erf.h"
 #include "hcidump.h"
+#include "network_instruments.h"
 
 /* The open_file_* routines should return:
  *
@@ -104,6 +105,7 @@ static int (*const open_routines[])(wtap *, int *) = {
 	nettl_open,
 	visual_open,
 	_5views_open,
+	network_instruments_open,
 
 	/* Files that don't have magic bytes at a fixed location,
 	 * but that instead require a heuristic of some sort to
@@ -440,6 +442,10 @@ static const struct file_type_info {
 
 	/* WTAP_FILE_HCIDUMP */
 	{ "Bluetooth HCI dump", "hcidump",
+	  NULL, NULL },
+
+	/* WTAP_FILE_NETWORK_INSTRUMENTS_V9 */
+	{ "Network Instruments Observer version 9", "niobserverv9",
 	  NULL, NULL },
 };
 

@@ -1900,6 +1900,10 @@ Marcel Holtmann <marcel [AT] holtmann.org> {
 	    traces
 }
 
+Scott Emberley <scotte [AT] netinst.com> {
+	Support for reading Network Instruments version 9 capture files
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>

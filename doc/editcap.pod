@@ -24,25 +24,28 @@ or all of the packets in that capture file to another capture file.
 B<Editcap> knows how to read B<libpcap> capture files, including those
 of B<tcpdump>, B<Ethereal>, and other tools that write captures in that
 format.  In addition, B<Editcap> can read capture files from B<snoop>
-and B<atmsnoop>, Shomiti/Finisar B<Surveyor>, Novell B<LANalyzer>,
-Network General/Network Associates DOS-based B<Sniffer> (compressed or
-uncompressed), Microsoft B<Network Monitor>, AIX's B<iptrace>, Cinco
-Networks B<NetXRay>, Network Associates Windows-based B<Sniffer>, AG
-Group/WildPackets B<EtherPeek>/B<TokenPeek>/B<AiroPeek>, B<RADCOM>'s
-WAN/LAN analyzer, B<Lucent/Ascend> router debug output, HP-UX's
-B<nettl>, the dump output from B<Toshiba's> ISDN routers, the output
-from B<i4btrace> from the ISDN4BSD project, the output in B<IPLog>
-format from the Cisco Secure Intrusion Detection System, B<pppd logs>
-(pppdump format), the output from VMS's
+and B<atmsnoop>, Shomiti/Finisar B<Surveyor> captures, Novell
+B<LANalyzer> captures, Network General/Network Associates DOS-based
+B<Sniffer> (compressed or uncompressed) captures, Microsoft B<Network
+Monitor> captures, files from AIX's B<iptrace>, Cinco Networks
+B<NetXRay> captures, captures from Network Associates Windows-based
+B<Sniffer>, AG Group/WildPackets B<EtherPeek>/B<TokenPeek>/B<AiroPeek>
+captures, captures from B<RADCOM>'s WAN/LAN analyzer, B<Lucent/Ascend>
+router debug output, files from HP-UX's B<nettl>, the dump output from
+B<Toshiba's> ISDN routers, the output from B<i4btrace> from the ISDN4BSD
+project, the output in B<IPLog> format from the Cisco Secure Intrusion
+Detection System, B<pppd logs> (pppdump format), the output from VMS's
 B<TCPIPtrace>/B<TCPtrace>/B<UCX$TRACE> utilities, the text output from
 the B<DBS Etherwatch> VMS utility, traffic capture files from Visual
-Networks' Visual UpTime, the output from B<CoSine> L2 debug, and the
-output from Accellent's 5Views LAN agents.  There is no need to tell
-B<Editcap> what type of file you are reading; it will determine the file
-type by itself.  B<Editcap> is also capable of reading any of these file
-formats if they are compressed using gzip.  B<Editcap> recognizes this
-directly from the file; the '.gz' extension is not required for this
-purpose.
+Networks' Visual UpTime, the output from B<CoSine> L2 debug, the output
+from Accellent's 5Views LAN agents, captures in Endace Measurement
+Systems' ERF format, Linux Bluez Bluetooth stack "hcidump -w" traces,
+and captures from Network Instruments Observer version 9.  There is no
+need to tell B<Editcap> what type of file you are reading; it will
+determine the file type by itself.  B<Editcap> is also capable of
+reading any of these file formats if they are compressed using gzip. 
+B<Editcap> recognizes this directly from the file; the '.gz' extension
+is not required for this purpose.
 
 By default, it writes the capture file in B<libpcap> format, and writes
 all of the packets in the capture file to the output file.  The B<-F>
