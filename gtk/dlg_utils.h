@@ -1,7 +1,7 @@
 /* dlg_utils.h
  * Declarations of utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.h,v 1.4 2000/08/11 13:32:57 deniel Exp $
+ * $Id: dlg_utils.h,v 1.5 2000/08/23 06:55:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,7 +27,7 @@
 #define __DLG_UTILS_H__
 
 /* Create a dialog box window that belongs to Ethereal's main window. */
-GtkWidget *dlg_window_new(void);
+GtkWidget *dlg_window_new(const gchar *);
 
 /* Set the "activate" signal for a widget to call a routine to
    activate the "OK" button for a dialog box. */

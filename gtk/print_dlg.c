@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.20 2000/08/11 13:33:01 deniel Exp $
+ * $Id: print_dlg.c,v 1.21 2000/08/23 06:56:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -104,8 +104,7 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
     return;
   }
 
-  print_w = dlg_window_new();
-  gtk_window_set_title(GTK_WINDOW(print_w), "Ethereal: Print");
+  print_w = dlg_window_new("Ethereal: Print");
   gtk_signal_connect(GTK_OBJECT(print_w), "destroy",
 	GTK_SIGNAL_FUNC(print_destroy_cb), NULL);
 

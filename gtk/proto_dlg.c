@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.4 2000/08/17 07:56:44 guy Exp $
+ * $Id: proto_dlg.c,v 1.5 2000/08/23 06:56:29 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -85,8 +85,7 @@ void proto_cb(GtkWidget *w, gpointer data)
     return;
   }
 
-  proto_w = dlg_window_new();
-  gtk_window_set_title(GTK_WINDOW(proto_w), "Ethereal: Protocol");
+  proto_w = dlg_window_new("Ethereal: Protocol");
   gtk_signal_connect(GTK_OBJECT(proto_w), "destroy",
 		     GTK_SIGNAL_FUNC(proto_close_cb), NULL);
   gtk_widget_set_usize(GTK_WIDGET(proto_w), DEF_WIDTH * 2/3, DEF_HEIGHT * 2/3);

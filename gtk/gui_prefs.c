@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.10 2000/08/22 14:04:52 deniel Exp $
+ * $Id: gui_prefs.c,v 1.11 2000/08/23 06:55:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -446,8 +446,7 @@ color_browse_cb(GtkWidget *w, gpointer data)
   scolor[CS_BLUE]    = (gdouble) (curcolor->blue)  / 65535.0;
   scolor[CS_OPACITY] = 1.0;
 
-  color_w = dlg_window_new();
-  gtk_window_set_title(GTK_WINDOW(color_w), "Ethereal: Select Color");  
+  color_w = dlg_window_new("Ethereal: Select Color");
   gtk_signal_connect(GTK_OBJECT(color_w), "destroy",
 		     GTK_SIGNAL_FUNC(color_destroy_cb), NULL);
   

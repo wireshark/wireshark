@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.15 2000/08/22 14:37:29 deniel Exp $
+ * $Id: display_opts.c,v 1.16 2000/08/23 06:55:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -110,8 +110,7 @@ display_opt_cb(GtkWidget *w, gpointer d) {
      packet list).*/
   current_timestamp_type = timestamp_type;
 
-  display_opt_w = dlg_window_new();
-  gtk_window_set_title(GTK_WINDOW(display_opt_w), "Ethereal: Display Options");
+  display_opt_w = dlg_window_new("Ethereal: Display Options");
   gtk_signal_connect(GTK_OBJECT(display_opt_w), "destroy",
 	GTK_SIGNAL_FUNC(display_opt_destroy_cb), NULL);
 

@@ -1,7 +1,7 @@
 /* progress_dlg.c
  * Routines for progress-bar (modal) dialog
  *
- * $Id: progress_dlg.c,v 1.7 2000/07/07 23:09:15 guy Exp $
+ * $Id: progress_dlg.c,v 1.8 2000/08/23 06:56:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -73,8 +73,7 @@ create_progress_dlg(const gchar *title, const gchar *stop_title,
 
 	dlg = g_malloc(sizeof (progdlg_t));
 
-	dlg_w = dlg_window_new();
-	gtk_window_set_title(GTK_WINDOW(dlg_w), title);
+	dlg_w = dlg_window_new(title);
 	gtk_window_set_modal(GTK_WINDOW(dlg_w), TRUE);
 
 	/*

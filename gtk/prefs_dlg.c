@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.21 2000/08/21 08:09:14 guy Exp $
+ * $Id: prefs_dlg.c,v 1.22 2000/08/23 06:56:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -262,8 +262,7 @@ prefs_cb(GtkWidget *w, gpointer dummy) {
      if the user presses "Cancel". */
   copy_prefs(&saved_prefs, &prefs);
 
-  prefs_w = dlg_window_new();
-  gtk_window_set_title(GTK_WINDOW(prefs_w), "Ethereal: Preferences");
+  prefs_w = dlg_window_new("Ethereal: Preferences");
   gtk_signal_connect(GTK_OBJECT(prefs_w), "delete_event",
     GTK_SIGNAL_FUNC(prefs_main_delete_cb), NULL);
   gtk_signal_connect(GTK_OBJECT(prefs_w), "destroy",

@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.6 2000/08/11 13:33:14 deniel Exp $
+ * $Id: color_dlg.c,v 1.7 2000/08/23 06:55:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -130,9 +130,8 @@ colorize_dialog_new (colfilter *filter)
   filter->row_selected = -1; /* no row selected */
   tooltips = gtk_tooltips_new ();
 
-  color_win = dlg_window_new ();
+  color_win = dlg_window_new ("Add color to protocols");
   gtk_object_set_data (GTK_OBJECT (color_win), "color_win", color_win);
-  gtk_window_set_title (GTK_WINDOW (color_win), ("Add color to protocols"));
 
   vbox1 = gtk_vbox_new (FALSE, 0);
   gtk_widget_ref (vbox1);
@@ -637,9 +636,8 @@ edit_color_filter_dialog_new (colfilter *filter,
 
   tooltips = gtk_tooltips_new ();
 
-  edit_dialog = dlg_window_new ();
+  edit_dialog = dlg_window_new ("Edit color filter");
   gtk_object_set_data (GTK_OBJECT (edit_dialog), "edit_dialog", edit_dialog);
-  gtk_window_set_title (GTK_WINDOW (edit_dialog), ("Edit color filter"));
   colorf->edit_dialog = edit_dialog;
 
   vbox3 = gtk_vbox_new (FALSE, 0);

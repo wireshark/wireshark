@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.17 2000/08/21 20:11:51 deniel Exp $
+ * $Id: plugins_dlg.c,v 1.18 2000/08/23 06:56:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -87,8 +87,7 @@ tools_plugins_cmd_cb(GtkWidget *widget, gpointer data)
     GtkWidget *save_bn;
     gchar     *titles[] = {"Name", "Description", "Version", "Enabled"};
 
-    plugins_window = dlg_window_new();
-    gtk_window_set_title(GTK_WINDOW(plugins_window), "Ethereal: Plugins");
+    plugins_window = dlg_window_new("Ethereal: Plugins");
 
     main_vbox = gtk_vbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(plugins_window), main_vbox);
@@ -316,8 +315,7 @@ plugins_filter_cb(GtkWidget *button, gpointer clist)
     if (selected_row == -1) return;
     pt_plug = find_plugin(selected_name, selected_version);
 
-    filter_window = dlg_window_new();
-    gtk_window_set_title(GTK_WINDOW(filter_window), "Ethereal: Plugin Filter");
+    filter_window = dlg_window_new("Ethereal: Plugin Filter");
     gtk_window_set_modal(GTK_WINDOW(filter_window), TRUE);
 
     filter_vbox = gtk_vbox_new(FALSE, 0);
