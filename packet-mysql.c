@@ -3,7 +3,7 @@
  *
  * Huagang XIE <huagang@intruvert.com>
  *
- * $Id: packet-mysql.c,v 1.2 2003/01/20 06:54:52 guy Exp $
+ * $Id: packet-mysql.c,v 1.3 2003/01/21 02:42:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -391,7 +391,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo,
 		
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, " : %s",
-					tvb_memdup(tvb,offset,strlen));
+					tvb_format_text(tvb,offset,strlen));
 		}
 		
 		if (tree) {
