@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.26 2000/09/21 04:41:30 gram Exp $
+ * $Id: lanalyzer.c,v 1.27 2001/03/10 06:33:57 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -61,8 +61,6 @@ int lanalyzer_open(wtap *wth, int *err)
 	guint8 cr_day, cr_month, cr_year;
 	struct tm tm;
 
-	file_seek(wth->fh, 0, SEEK_SET);
-	wth->data_offset = 0;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(LE_record_type, 1, 2, wth->fh);
 	bytes_read += file_read(LE_record_length, 1, 2, wth->fh);

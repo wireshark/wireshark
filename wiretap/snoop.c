@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.33 2000/11/17 21:00:40 gram Exp $
+ * $Id: snoop.c,v 1.34 2001/03/10 06:33:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -154,8 +154,6 @@ int snoop_open(wtap *wth, int *err)
 	#define NUM_SNOOP_ENCAPS (sizeof snoop_encap / sizeof snoop_encap[0])
 
 	/* Read in the string that should be at the start of a "snoop" file */
-	file_seek(wth->fh, 0, SEEK_SET);
-	wth->data_offset = 0;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(magic, 1, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {

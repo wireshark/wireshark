@@ -1,6 +1,6 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.7 2000/12/09 03:02:43 gram Exp $
+ * $Id: pppdump.c,v 1.8 2001/03/10 06:33:58 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  * 
@@ -178,7 +178,6 @@ pppdump_open(wtap *wth, int *err)
 	* representing the timestamp.
 	*/
 
-	file_seek(wth->fh, 0, SEEK_SET); 
 	wtap_file_read_unknown_bytes(buffer, sizeof(buffer), wth->fh, err);
 
 	if (buffer[0] == PPPD_RESET_TIME &&

@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.45 2000/12/23 08:06:15 guy Exp $
+ * $Id: libpcap.c,v 1.46 2001/03/10 06:33:57 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -357,8 +357,6 @@ int libpcap_open(wtap *wth, int *err)
 	int file_encap;
 
 	/* Read in the number that should be at the start of a "libpcap" file */
-	file_seek(wth->fh, 0, SEEK_SET);
-	wth->data_offset = 0;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&magic, 1, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {

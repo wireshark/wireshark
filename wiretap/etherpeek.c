@@ -2,7 +2,7 @@
  * Routines for opening etherpeek files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.2 2001/03/09 06:34:59 guy Exp $
+ * $Id: etherpeek.c,v 1.3 2001/03/10 06:33:57 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -129,9 +129,6 @@ int etherpeek_open(wtap *wth, int *err)
 	 *      support
 	 */
 	
-	file_seek(wth->fh, 0, SEEK_SET);
-	wth->data_offset = 0;
-
 	g_assert(sizeof(ep_hdr.master) == ETHERPEEK_MASTER_HDR_SIZE);
 	wtap_file_read_unknown_bytes(
 		&ep_hdr.master, sizeof(ep_hdr.master), wth->fh, err);

@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.62 2001/01/17 21:29:53 guy Exp $
+ * $Id: ngsniffer.c,v 1.63 2001/03/10 06:33:57 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -348,8 +348,6 @@ int ngsniffer_open(wtap *wth, int *err)
 	struct tm tm;
 
 	/* Read in the string that should be at the start of a Sniffer file */
-	file_seek(wth->fh, 0, SEEK_SET);
-	wth->data_offset = 0;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(magic, 1, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {

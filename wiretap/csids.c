@@ -1,6 +1,6 @@
 /* csids.c
  *
- * $Id: csids.c,v 1.5 2000/11/19 03:47:35 guy Exp $
+ * $Id: csids.c,v 1.6 2001/03/10 06:33:57 guy Exp $
  *
  * Copyright (c) 2000 by Mike Hall <mlh@io.com>
  * Copyright (c) 2000 by Cisco Systems
@@ -71,8 +71,6 @@ int csids_open(wtap *wth, int *err)
   struct csids_header hdr;
   bytesRead=0;
 
-  file_seek(wth->fh, 0, SEEK_SET); 
- 
   /* check the file to make sure it is a csids file. */ 
   bytesRead = file_read( &hdr, 1, sizeof( struct csids_header), wth->fh );
   if( bytesRead != sizeof( struct csids_header) ) {

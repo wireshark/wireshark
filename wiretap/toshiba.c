@@ -1,6 +1,6 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.14 2000/11/19 03:47:36 guy Exp $
+ * $Id: toshiba.c,v 1.15 2001/03/10 06:33:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -182,9 +182,7 @@ static gboolean toshiba_check_file_type(wtap *wth)
 /* XXX - return -1 on I/O error and actually do something with 'err'. */
 int toshiba_open(wtap *wth, int *err)
 {
-	/* Reset file position and look for Toshiba header */
-	file_seek(wth->fh, 0, SEEK_SET);
- 
+	/* Look for Toshiba header */
 	if (!toshiba_check_file_type(wth)) {
 		return 0;
 	}

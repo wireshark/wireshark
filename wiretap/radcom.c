@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.28 2000/11/17 21:00:40 gram Exp $
+ * $Id: radcom.c,v 1.29 2001/03/10 06:33:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -86,7 +86,6 @@ int radcom_open(wtap *wth, int *err)
 	char search_encap[7];
 
 	/* Read in the string that should be at the start of a RADCOM file */
-	file_seek(wth->fh, 0, SEEK_SET);
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(magic, 1, 8, wth->fh);
 	if (bytes_read != 8) {

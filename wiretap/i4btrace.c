@@ -1,6 +1,6 @@
 /* i4btrace.c
  *
- * $Id: i4btrace.c,v 1.13 2000/11/19 03:47:35 guy Exp $
+ * $Id: i4btrace.c,v 1.14 2001/03/10 06:33:57 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>
@@ -56,7 +56,6 @@ int i4btrace_open(wtap *wth, int *err)
 	gboolean byte_swapped = FALSE;
 
 	/* I4B trace files have no magic in the header... Sigh */
-	file_seek(wth->fh, 0, SEEK_SET);
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&hdr, 1, sizeof(hdr), wth->fh);
 	if (bytes_read != sizeof(hdr)) {

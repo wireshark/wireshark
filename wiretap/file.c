@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.65 2001/03/09 07:11:38 guy Exp $
+ * $Id: file.c,v 1.66 2001/03/10 06:33:57 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -208,6 +208,15 @@ wtap* wtap_open_offline(const char *filename, int *err, gboolean do_random)
 
 	/* Try all file types */
 	for (i = 0; i < N_FILE_TYPES; i++) {
+		/* Seek back to the beginning of the file; the open routine
+		   for the previous file type may have left the file
+		   position somewhere other than the beginning, and the
+		   open routine for this file type will probably want
+		   to start reading at the beginning.
+
+		   Initialize the data offset while we're at it. */
+		file_seek(wth->fh, 0, SEEK_SET);
+		wth->data_offset = 0;
 		switch ((*open_routines[i])(wth, err)) {
 
 		case -1:

@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.36 2001/01/25 21:47:23 guy Exp $
+ * $Id: netmon.c,v 1.37 2001/03/10 06:33:57 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -131,7 +131,6 @@ int netmon_open(wtap *wth, int *err)
 
 	/* Read in the string that should be at the start of a Network
 	 * Monitor file */
-	file_seek(wth->fh, 0, SEEK_SET);
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(magic, 1, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
