@@ -3,7 +3,7 @@
  *
  * Copyright 2004 Ian Schorr
  *
- * $Id: $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -338,4 +338,3 @@ int main(int argc, char *argv[])
   wtap_close(wth);
   return status;
 }
-
