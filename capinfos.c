@@ -1,4 +1,4 @@
-/* capinfo.c
+/* capinfos.c
  * Reports capture file information including # of packets, duration, others
  *
  * Copyright 2004 Ian Schorr
@@ -195,15 +195,15 @@ static void usage(gboolean is_error)
   
   if (!is_error) {
     output = stdout;
-    /* XXX - add capinfo header info here */
+    /* XXX - add capinfos header info here */
   }
   else {
     output = stderr;
   }
 
 
-  fprintf(output, "Usage: capinfo [-t] [-c] [-s] [-d] [-u] [-a] [-e] [-y]\n");
-  fprintf(output, "               [-i] [-z] [-h] <capfile>\n");
+  fprintf(output, "Usage: capinfos [-t] [-c] [-s] [-d] [-u] [-a] [-e] [-y]\n");
+  fprintf(output, "                [-i] [-z] [-h] <capfile>\n");
   fprintf(output, "  where\t-t display the capture type of <capfile>\n");
   fprintf(output, "       \t-c count the number of packets\n");
   fprintf(output, "       \t-s display the size of the file \n");
@@ -311,7 +311,7 @@ int main(int argc, char *argv[])
   wth = wtap_open_offline(argv[optind], &err, &err_info, FALSE);
 
   if (!wth) {
-    fprintf(stderr, "editcap: Can't open %s: %s\n", argv[optind],
+    fprintf(stderr, "capinfos: Can't open %s: %s\n", argv[optind],
         wtap_strerror(err));
     switch (err) {
 
