@@ -2,7 +2,7 @@
  * Routines for BACnet/IP (BVLL, BVLC) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bvlc.c,v 1.2 2001/04/20 20:34:28 guy Exp $
+ * $Id: packet-bvlc.c,v 1.3 2001/05/30 07:48:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -127,8 +127,6 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 npdu_length;
 	guint16 bvlc_result;
 	tvbuff_t *next_tvb;
-
-	pinfo->current_proto = "BACnet virtual link control";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "BVLC");
