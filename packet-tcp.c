@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.94 2001/01/03 06:55:33 guy Exp $
+ * $Id: packet-tcp.c,v 1.95 2001/01/03 07:53:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -755,7 +755,7 @@ proto_register_tcp(void)
 	register_heur_dissector_list("tcp", &heur_subdissector_list);
 
 	/* Register configuration preferences */
-	tcp_module = prefs_register_module("tcp", "TCP", NULL);
+	tcp_module = prefs_register_protocol(proto_tcp, NULL);
 	prefs_register_bool_preference(tcp_module, "tcp_summary_in_tree",
 	    "Show TCP summary in protocol tree",
 "Whether the TCP summary line should be shown in the protocol tree",

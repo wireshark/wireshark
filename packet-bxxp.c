@@ -1,7 +1,7 @@
 /* packet-bxxp.c
  * Routines for BXXP packet disassembly
  *
- * $Id: packet-bxxp.c,v 1.13 2001/01/03 06:55:27 guy Exp $
+ * $Id: packet-bxxp.c,v 1.14 2001/01/03 07:53:43 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -1222,7 +1222,7 @@ proto_register_bxxp(void)
 
   /* Register our configuration options for BXXP, particularly our port */
 
-  bxxp_module = prefs_register_module("bxxp", "BXXP", proto_reg_handoff_bxxp);
+  bxxp_module = prefs_register_protocol(proto_bxxp, proto_reg_handoff_bxxp);
 
   prefs_register_uint_preference(bxxp_module, "tcp.port", "BXXP TCP Port",
 				 "Set the port for BXXP messages (if other"

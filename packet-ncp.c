@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.43 2001/01/03 06:55:30 guy Exp $
+ * $Id: packet-ncp.c,v 1.44 2001/01/03 07:53:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -388,7 +388,7 @@ proto_register_ncp(void)
   register_init_routine(&ncp_init_protocol);
 
   /* Register a configuration option for initial size of NCP hash */
-  ncp_module = prefs_register_module("ncp", "NCP", NULL);
+  ncp_module = prefs_register_protocol(proto_ncp, NULL);
   prefs_register_uint_preference(ncp_module, "initial_hash_size",
 	"Initial Hash Size",
 	"Number of entries initially allocated for NCP hash",

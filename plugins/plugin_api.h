@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.13 2000/11/29 09:49:27 guy Exp $
+ * $Id: plugin_api.h,v 1.14 2001/01/03 07:53:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -153,7 +153,7 @@
 
 #define tvb_bytes_to_str		(*p_tvb_bytes_to_str)
 
-#define prefs_register_module		(*p_prefs_register_module)
+#define prefs_register_protocol		(*p_prefs_register_protocol)
 #define prefs_register_uint_preference	(*p_prefs_register_uint_preference)
 #define prefs_register_bool_preference	(*p_prefs_register_bool_preference)
 #define prefs_register_enum_preference	(*p_prefs_register_enum_preference)

@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.20 2001/01/03 06:55:27 guy Exp $
+ * $Id: packet-clnp.c,v 1.21 2001/01/03 07:53:43 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -1877,7 +1877,7 @@ void proto_register_clnp(void)
   proto_register_field_array(proto_clnp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  clnp_module = prefs_register_module("clnp", "CLNP", NULL);
+  clnp_module = prefs_register_protocol(proto_clnp, NULL);
   prefs_register_uint_preference(clnp_module, "tp_nsap_selector",
 	"NSAP selector for Transport Protocol (last byte in hexa)",
 	"NSAP selector for Transport Protocol (last byte in hexa)",

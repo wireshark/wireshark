@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.45 2001/01/03 06:55:35 guy Exp $
+ * $Id: prefs.c,v 1.46 2001/01/03 07:53:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,6 +53,7 @@
 #include "packet.h"
 #include "file.h"
 #include "prefs.h"
+#include "proto.h"
 #include "column.h"
 #include "print.h"
 #include "util.h"
@@ -111,6 +112,17 @@ prefs_register_module(const char *name, const char *title,
 	modules = g_list_append(modules, module);
 
 	return module;
+}
+
+/*
+ * Register that a protocol has preferences.
+ */
+module_t *
+prefs_register_protocol(int id, void (*apply_cb)(void))
+{
+	return prefs_register_module(proto_get_protocol_filter_name(id),
+				     proto_get_protocol_short_name(id),
+				     apply_cb);
 }
 
 /*

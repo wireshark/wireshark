@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.26 2000/11/21 23:54:08 guy Exp $
+ * $Id: prefs.h,v 1.27 2001/01/03 07:53:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -77,6 +77,11 @@ module_t *prefs_register_module(const char *name, const char *title,
     void (*apply_cb)(void));
 
 typedef void (*module_cb)(module_t *module, gpointer user_data);
+
+/*
+ * Register that a protocol has preferences.
+ */
+module_t *prefs_register_protocol(int id, void (*apply_cb)(void));
 
 /*
  * Call a callback function, with a specified argument, for each module.

@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.14 2000/11/29 09:10:03 guy Exp $
+ * $Id: plugins.c,v 1.15 2001/01/03 07:53:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -760,7 +760,7 @@ init_plugins(const char *plugin_dir)
 
 	patable.p_tvb_bytes_to_str		= tvb_bytes_to_str;
 
-	patable.p_prefs_register_module		= prefs_register_module;
+	patable.p_prefs_register_protocol	= prefs_register_protocol;
 	patable.p_prefs_register_uint_preference = prefs_register_uint_preference;
 	patable.p_prefs_register_bool_preference = prefs_register_bool_preference;
 	patable.p_prefs_register_enum_preference = prefs_register_enum_preference;

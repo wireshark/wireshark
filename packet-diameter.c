@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.9 2001/01/03 06:55:27 guy Exp $
+ * $Id: packet-diameter.c,v 1.10 2001/01/03 07:53:43 guy Exp $
  *
  * Copyright (c) 2000 by David Frascone <chaos@mindspring.com>
  *
@@ -704,7 +704,7 @@ proto_register_diameter(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	/* Register a configuration option for port */
-	diameter_module = prefs_register_module("Diameter", "diameter",
+	diameter_module = prefs_register_protocol(proto_diameter,
 	    proto_reg_handoff_diameter);
 	prefs_register_uint_preference(diameter_module, "udp.port",
 				       "DIAMETER UDP Port",

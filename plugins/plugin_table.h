@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.12 2001/01/03 07:37:29 guy Exp $
+ * $Id: plugin_table.h,v 1.13 2001/01/03 07:53:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -163,8 +163,8 @@ typedef gint (*addr_tvb_strncaseeql)(tvbuff_t*, gint, const guint8 *, gint);
 
 typedef gchar *(*addr_tvb_bytes_to_str)(tvbuff_t*, gint, gint len);
 
-typedef struct pref_module *(*addr_prefs_register_module)(const char *,
-    const char *, void (*)(void));
+typedef struct pref_module *(*addr_prefs_register_protocol)(int,
+    void (*)(void));
 typedef void (*addr_prefs_register_uint_preference)(struct pref_module *,
     const char *, const char *, const char *, guint, guint *);
 typedef void (*addr_prefs_register_bool_preference)(struct pref_module *,
@@ -295,7 +295,7 @@ typedef struct  {
 
 	addr_tvb_bytes_to_str			p_tvb_bytes_to_str;
 
-	addr_prefs_register_module		p_prefs_register_module;
+	addr_prefs_register_protocol		p_prefs_register_protocol;
 	addr_prefs_register_uint_preference	p_prefs_register_uint_preference;
 	addr_prefs_register_bool_preference	p_prefs_register_bool_preference;
 	addr_prefs_register_enum_preference	p_prefs_register_enum_preference;

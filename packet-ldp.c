@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for ldp packet disassembly
  *
- * $Id: packet-ldp.c,v 1.11 2001/01/03 06:55:29 guy Exp $
+ * $Id: packet-ldp.c,v 1.12 2001/01/03 07:53:43 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -789,9 +789,15 @@ proto_register_ldp(void)
   };
   module_t *ldp_module; 
 
+  proto_ldp = proto_register_protocol("Label Distribution Protocol",
+				       "LDP", "ldp");
+
+  proto_register_field_array(proto_ldp, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
+
   /* Register our configuration options for , particularly our port */
 
-  ldp_module = prefs_register_module("ldp", "LDP", proto_reg_handoff_ldp);
+  ldp_module = prefs_register_protocol(proto_ldp, proto_reg_handoff_ldp);
 
   prefs_register_uint_preference(ldp_module, "tcp.port", "LDP TCP Port",
 				 "Set the port for  messages (if other"
@@ -802,12 +808,6 @@ proto_register_ldp(void)
 				 "Set the port for  messages (if other"
 				 " than the default of 646)",
 				 10, &global_ldp_udp_port);
-
-  proto_ldp = proto_register_protocol("Label Distribution Protocol",
-				       "LDP", "ldp");
-
-  proto_register_field_array(proto_ldp, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
 
 }
 

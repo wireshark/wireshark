@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.12 2001/01/03 06:56:03 guy Exp $
+ * $Id: packet-mgcp.c,v 1.13 2001/01/03 07:53:48 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -430,9 +430,15 @@ proto_register_mgcp(void)
   };
   module_t *mgcp_module; 
 
+  proto_mgcp = proto_register_protocol("Media Gateway Control Protocol",
+				       "MGCP", "mgcp");
+
+  proto_register_field_array(proto_mgcp, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
+
   /* Register our configuration options for , particularly our ports */
 
-  mgcp_module = prefs_register_module("mgcp", "MGCP", proto_reg_handoff_mgcp);
+  mgcp_module = prefs_register_protocol(proto_mgcp, proto_reg_handoff_mgcp);
 
   prefs_register_uint_preference(mgcp_module, "tcp.gateway_port", 
 				 "MGCP Gateway TCP Port",
@@ -474,12 +480,6 @@ proto_register_mgcp(void)
 				 "instead of (or in addition to) the "
 				 "raw text",
                                  &global_mgcp_dissect_tree);
-
-  proto_mgcp = proto_register_protocol("Media Gateway Control Protocol",
-				       "MGCP", "mgcp");
-
-  proto_register_field_array(proto_mgcp, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
 
 }
 

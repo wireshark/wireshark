@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.116 2001/01/03 06:55:29 guy Exp $
+ * $Id: packet-ip.c,v 1.117 2001/01/03 07:53:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1465,7 +1465,7 @@ proto_register_ip(void)
 	ip_dissector_table = register_dissector_table("ip.proto");
 
 	/* Register a configuration option for decoding TOS as DSCP */
-	ip_module = prefs_register_module("ip", "IP", NULL);
+	ip_module = prefs_register_protocol(proto_ip, NULL);
 	prefs_register_bool_preference(ip_module, "decode_tos_as_diffserv",
 	    "Decode IPv4 TOS field as DiffServ field",
 "Whether the IPv4 type-of-service field should be decoded as a Differentiated Services field",

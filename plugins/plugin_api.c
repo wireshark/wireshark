@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.13 2000/11/15 07:07:49 guy Exp $
+ * $Id: plugin_api.c,v 1.14 2001/01/03 07:53:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -135,7 +135,7 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_tvb_strneql				= pat->p_tvb_strneql;
 	p_tvb_strncaseeql			= pat->p_tvb_strncaseeql;
 	p_tvb_bytes_to_str			= pat->p_tvb_bytes_to_str;
-	p_prefs_register_module			= pat->p_prefs_register_module;
+	p_prefs_register_protocol		= pat->p_prefs_register_protocol;
 	p_prefs_register_uint_preference	= pat->p_prefs_register_uint_preference;
 	p_prefs_register_bool_preference	= pat->p_prefs_register_bool_preference;
 	p_prefs_register_enum_preference	= pat->p_prefs_register_enum_preference;

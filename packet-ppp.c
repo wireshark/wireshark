@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.49 2001/01/03 06:55:31 guy Exp $
+ * $Id: packet-ppp.c,v 1.50 2001/01/03 07:53:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1429,7 +1429,7 @@ proto_register_ppp(void)
 	register_dissector("payload_ppp", dissect_payload_ppp);
 
 	/* Register the preferences for the ppp protocol */
-	ppp_module = prefs_register_module("ppp", "PPP", NULL);
+	ppp_module = prefs_register_protocol(proto_ppp, NULL);
 
 	prefs_register_enum_preference(ppp_module, 
 	    "ppp_fcs",
