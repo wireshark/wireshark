@@ -164,6 +164,7 @@ static gboolean nettl_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
 {
     char magic[12], os_vers[2];
+    guint8 dummy[4];
     int bytes_read;
 
     /* Read in the string that should be at the start of a HP file */
@@ -207,6 +208,45 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
     wth->subtype_seek_read = nettl_seek_read;
     wth->subtype_close = nettl_close;
     wth->snapshot_length = 0;	/* not available in header, only in frame */
+
+    /* read the first header to take a guess at the file encap */
+    bytes_read = file_read(dummy, 1, 4, wth->fh);
+    if (bytes_read != 4) {
+        if (*err != 0)
+            return -1;
+        if (bytes_read != 0) {
+            *err = WTAP_ERR_SHORT_READ;
+            return -1;
+        }
+        return 0;
+    }
+
+    switch (dummy[3]) {
+        case NETTL_SUBSYS_HPPB_FDDI :
+        case NETTL_SUBSYS_EISA_FDDI :
+        case NETTL_SUBSYS_PCI_FDDI :
+        case NETTL_SUBSYS_HSC_FDDI :
+		wth->file_encap = WTAP_ENCAP_FDDI_BITSWAPPED;
+		break;
+        case NETTL_SUBSYS_TOKEN :
+        case NETTL_SUBSYS_PCI_TR :
+		wth->file_encap = WTAP_ENCAP_TOKEN_RING;
+		break;
+        case NETTL_SUBSYS_NS_LS_IP :
+        case NETTL_SUBSYS_NS_LS_LOOPBACK :
+        case NETTL_SUBSYS_NS_LS_TCP :
+        case NETTL_SUBSYS_NS_LS_UDP :
+        case NETTL_SUBSYS_NS_LS_IPV6 :
+		wth->file_encap = WTAP_ENCAP_RAW_IP;
+		break;
+	default:
+		/* if assumption is bad, the read will catch it */
+		wth->file_encap = WTAP_ENCAP_ETHERNET;
+    }
+
+    if (file_seek(wth->fh, 0x80, SEEK_SET, err) == -1)
+	return -1;
+    wth->data_offset = 0x80;
 
     return 1;
 }
@@ -357,7 +397,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		    || (encap == NETTL_SUBSYS_EISA_FDDI)
 		    || (encap == NETTL_SUBSYS_PCI_FDDI)
 		    || (encap == NETTL_SUBSYS_HSC_FDDI) ) {
-		phdr->pkt_encap = WTAP_ENCAP_FDDI;
+		phdr->pkt_encap = WTAP_ENCAP_FDDI_BITSWAPPED;
 	    } else if( (encap == NETTL_SUBSYS_PCI_TR)
 		    || (encap == NETTL_SUBSYS_TOKEN) ) {
 		phdr->pkt_encap = WTAP_ENCAP_TOKEN_RING;
@@ -663,7 +703,7 @@ int nettl_dump_can_write_encap(int encap)
 
 	switch (encap) {
 		case WTAP_ENCAP_ETHERNET:
-		case WTAP_ENCAP_FDDI:
+		case WTAP_ENCAP_FDDI_BITSWAPPED:
 		case WTAP_ENCAP_TOKEN_RING:
 		case WTAP_ENCAP_RAW_IP:
 		case WTAP_ENCAP_RAW_ICMP:
@@ -740,7 +780,7 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 			rec_hdr.subsys = g_htons(NETTL_SUBSYS_BTLAN);
 			break;
 
-		case WTAP_ENCAP_FDDI:
+		case WTAP_ENCAP_FDDI_BITSWAPPED:
 			rec_hdr.subsys = g_htons(NETTL_SUBSYS_PCI_FDDI);
 			/* account for pad bytes */
 			rec_hdr.hdr.caplen = g_htonl(phdr->caplen + 3);
@@ -775,7 +815,7 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 	}
 	wdh->bytes_dumped += sizeof(rec_hdr);
 
-	if (phdr->pkt_encap == WTAP_ENCAP_FDDI) {
+	if (phdr->pkt_encap == WTAP_ENCAP_FDDI_BITSWAPPED) {
 		/* add those weird 3 bytes of padding */
 		nwritten = fwrite(&dummy, 1, 3, wdh->fh);
 		if (nwritten != 3) {
