@@ -240,3 +240,5 @@
 #define dissector_try_string (*p_dissector_try_string)
 #define dissector_get_string_handle (*p_dissector_get_string_handle)
 #define get_datafile_path (*p_get_datafile_path)
+#define register_heur_dissector_list (*p_register_heur_dissector_list)
+#define dissector_try_heuristic (*p_dissector_try_heuristic)

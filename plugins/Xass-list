@@ -70,4 +70,5 @@ dissect_per_integer, dissect_per_constrained_integer, dissect_per_choice,
 dissect_per_sequence, dissect_per_octet_string, dissect_per_restricted_character_string,
 dissector_add_string, dissector_delete_string, dissector_change_string,
 dissector_reset_string, dissector_try_string, dissector_get_string_handle,
-get_datafile_path, 
+get_datafile_path, register_heur_dissector_list, dissector_try_heuristic,
+
