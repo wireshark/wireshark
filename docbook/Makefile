@@ -6,13 +6,17 @@
 #
 
 # formatting objects processor
+# Additional options to fop.
+# This needs to contain at least the argument '-Xmx256m'
+FOP_OPTS=-Xmx256m
 # (comment this out, if you don't want pdf or don't have fop installed)
-# for win32 (cygwin) environments
-FOP="fop-0.20.5/fop.bat"
+# for win32 (cygwin) environments (as of fop-0.20 the cygwin script does
+# not use $FOP_OPTS)
+FOP=FOP_OPTS="${FOP_OPTS}" fop-0.20.5/fop.bat
 # for unix like environments (if you have problems with fop, try to use an absolute path here)
 #FOP="/usr/share/fop-0.20.5/fop.sh"
 # One SUSE 9.1 and 9.2 uncomment the following line (make sure you have at least fop-0.20.5-71.2)
-#FOP="fop"
+FOP=FOP_OPTS="${FOP_OPTS}" fop
 
 # html help compiler (Win32 only)
 # (comment this out, if you don't want chm or don't have hhc installed)
@@ -89,8 +93,7 @@ eug_html_chunked: svn_version.xml
 eug_pdf_us: svn_version.xml
 ifdef FOP
 	@ echo --- PDF US PAPER ---
-	# $(XSLTPROC) --nonet custom_layer_pdf.xsl http://docbook.sourceforge.net/release/xsl/current/fo/docbook.xsl user-guide.xml > user-guide-us.fo
-	$(XSLTPROC) --nonet custom_layer_pdf.xsl user-guide.xml > user-guide-us.fo
+	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl user-guide.xml > user-guide-us.fo
 	$(FOP) user-guide-us.fo user-guide-us.pdf
 endif
 
@@ -148,8 +151,7 @@ edg_html_chunked: svn_version.xml
 edg_pdf_us: svn_version.xml
 ifdef FOP
 	@ echo --- PDF US PAPER ---
-	# $(XSLTPROC) --nonet custom_layer_pdf.xsl http://docbook.sourceforge.net/release/xsl/current/fo/docbook.xsl developer-guide.xml > developer-guide-us.fo
-	$(XSLTPROC) --nonet custom_layer_pdf.xsl developer-guide.xml > developer-guide-us.fo
+	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl developer-guide.xml > developer-guide-us.fo
 	$(FOP) developer-guide-us.fo developer-guide-us.pdf
 endif
 

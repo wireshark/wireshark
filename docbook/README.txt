@@ -68,6 +68,7 @@ As I got OutOfMemoryException when running fop, I had to insert -Xmx256m into th
 java -cp "%LOCALCLASSPATH%" org.apache.fop.apps.Fop %1 %2 %3 %4 %5 %6 %7 %8
 to:
 java -Xmx256m -cp "%LOCALCLASSPATH%" org.apache.fop.apps.Fop %1 %2 %3 %4 %5 %6 %7 %8
+This should be added automatically on unixish systems.
 
 HTML help compiler (for chm file generation only)
 -------------------------------------------------
