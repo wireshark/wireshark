@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.99 2003/05/27 07:18:47 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.100 2003/06/05 04:22:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -544,10 +544,11 @@ static int SpoolssClosePrinter_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, &policy_hnd,
+		tvb, offset, pinfo, tree, drep, hf_hnd, &policy_hnd, NULL,
 		FALSE, TRUE);
 
-	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL);
+	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL,
+			     pinfo->fd->num);
 
 	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -565,7 +566,8 @@ static int SpoolssClosePrinter_r(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, FALSE, FALSE);
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
+		FALSE, FALSE);
 
 
 	offset = dissect_doserror(
@@ -674,7 +676,7 @@ static int SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL,
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
 	value_name = dcv->private_data;
@@ -750,7 +752,7 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL,
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
 	offset = dissect_ndr_cvstring(
@@ -852,7 +854,7 @@ static int SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL,
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
 	offset = dissect_ndr_cvstring(
@@ -916,7 +918,7 @@ static int SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL,
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
 	offset = dissect_ndr_cvstring(
@@ -2555,19 +2557,17 @@ static int SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
 	guint32 status;
-	int start_offset = offset;
 
-	/* We need the value of the policy handle and status before we
-	   can retrieve the policy handle name.  Then we can insert
-	   the policy handle with the name in the proto tree. */
+	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, NULL, drep, hf_hnd, &policy_hnd,
+		tvb, offset, pinfo, tree, drep, hf_hnd, &policy_hnd, &hnd_item,
 		TRUE, FALSE);
 
-	offset = dissect_ndr_uint32(
-		tvb, offset, pinfo, NULL, drep, hf_rc, &status);
+	offset = dissect_doserror(
+		tvb, offset, pinfo, tree, drep, hf_rc, &status);
 
 	if (status == 0) {
 
@@ -2580,24 +2580,33 @@ static int SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
 				"OpenPrinterEx(%s)", 
 				(char *)dcv->private_data);
 
-			dcerpc_smb_store_pol_name(&policy_hnd, pol_name);
+			dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
 
 			g_free(pol_name);
 			g_free(dcv->private_data);
 			dcv->private_data = NULL;
 		}
+
+		/*
+		 * If we have a name for the handle, attach it to the item.
+		 *
+		 * XXX - we can't just do that above, as this may be called
+		 * twice (see "dissect_pipe_dcerpc()", which calls the
+		 * DCE RPC dissector twice), and in the first call we're
+		 * not building a protocol tree (so we don't have an item
+		 * to which to attach it) and in the second call
+		 * "dcv->private_data" is NULL so we don't construct a
+		 * name.
+		 */
+
+		if (hnd_item != NULL) {
+			char *name;
+
+			if (dcerpc_smb_fetch_pol(&policy_hnd, &name, NULL, NULL,
+			    pinfo->fd->num) && name != NULL)
+				proto_item_append_text(hnd_item, ": %s", name);
+		}
 	}
-
-	/* Parse packet */
-
-	offset = start_offset;
-
-	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, &policy_hnd,
-		TRUE, FALSE);
-
-	offset = dissect_doserror(
-		tvb, offset, pinfo, tree, drep, hf_rc, &status);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -3003,7 +3012,8 @@ static int SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, FALSE, FALSE);
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
+		FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
 				    hf_rffpcnex_flags, &flags);
@@ -3198,26 +3208,56 @@ static int SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	e_ctx_hnd policy_hnd;
-	char *pol_name;
+	proto_item *hnd_item;
+	guint32 status;
 
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, &policy_hnd,
+		tvb, offset, pinfo, tree, drep, hf_hnd, &policy_hnd, &hnd_item,
 		TRUE, FALSE);
 	
-	if (dcv->private_data)
-		pol_name = g_strdup_printf(
-			"ReplyOpenPrinter(%s)", (char *)dcv->private_data);
-	else
-		pol_name = g_strdup("ReplyOpenPrinter handle");
-
-	dcerpc_smb_store_pol_name(&policy_hnd, pol_name);
-
-	g_free(pol_name);
-
 	offset = dissect_doserror(
-		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
+		tvb, offset, pinfo, tree, drep, hf_rc, &status);
+
+	if (status == 0) {
+
+		/* Associate the returned printer handle with a name */
+
+		if (dcv->private_data) {
+			char *pol_name;
+
+			pol_name = g_strdup_printf(
+				"OpenPrinter(%s)",
+				(char *)dcv->private_data);
+
+			dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+
+			g_free(pol_name);
+			g_free(dcv->private_data);
+			dcv->private_data = NULL;
+		}
+
+		/*
+		 * If we have a name for the handle, attach it to the item.
+		 *
+		 * XXX - we can't just do that above, as this may be called
+		 * twice (see "dissect_pipe_dcerpc()", which calls the
+		 * DCE RPC dissector twice), and in the first call we're
+		 * not building a protocol tree (so we don't have an item
+		 * to which to attach it) and in the second call
+		 * "dcv->private_data" is NULL so we don't construct a
+		 * name.
+		 */
+
+		if (hnd_item != NULL) {
+			char *name;
+
+			if (dcerpc_smb_fetch_pol(&policy_hnd, &name, NULL, NULL,
+			    pinfo->fd->num) && name != NULL)
+				proto_item_append_text(hnd_item, ": %s", name);
+		}
+	}
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -3240,7 +3280,7 @@ static int SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL,
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
  		FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(
@@ -3477,7 +3517,7 @@ static int SpoolssSetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL,
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
         offset = dissect_ndr_uint32(
@@ -3596,7 +3636,7 @@ static int SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL,
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
         offset = dissect_ndr_uint32(
@@ -3678,7 +3718,7 @@ static int SpoolssDeletePrinter_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL,
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
@@ -3693,7 +3733,7 @@ static int SpoolssDeletePrinter_r(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL,
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
 	offset = dissect_doserror(
@@ -3710,12 +3750,13 @@ static int SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
 	guint32 status;
 
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, &policy_hnd,
+		tvb, offset, pinfo, tree, drep, hf_hnd, &policy_hnd, &hnd_item,
 		TRUE, FALSE);
 
 	offset = dissect_doserror(
@@ -3733,10 +3774,30 @@ static int SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					(char *)dcv->private_data);
 
 			dcerpc_smb_store_pol_name(
-				&policy_hnd, dcv->private_data);
+				&policy_hnd, pinfo, dcv->private_data);
 
 			g_free(dcv->private_data);
 			dcv->private_data = NULL;
+		}
+
+		/*
+		 * If we have a name for the handle, attach it to the item.
+		 *
+		 * XXX - we can't just do that above, as this may be called
+		 * twice (see "dissect_pipe_dcerpc()", which calls the
+		 * DCE RPC dissector twice), and in the first call we're
+		 * not building a protocol tree (so we don't have an item
+		 * to which to attach it) and in the second call
+		 * "dcv->private_data" is NULL so we don't construct a
+		 * name.
+		 */
+
+		if (hnd_item != NULL) {
+			char *name;
+
+			if (dcerpc_smb_fetch_pol(&policy_hnd, &name, NULL, NULL,
+			    pinfo->fd->num) && name != NULL)
+				proto_item_append_text(hnd_item, ": %s", name);
 		}
 	}
 
@@ -3768,7 +3829,7 @@ static int SpoolssEnumPrinterData_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL,
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(
@@ -4118,7 +4179,7 @@ static int SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL,
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(
@@ -4169,7 +4230,7 @@ static int SpoolssDeleteForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL,
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
 	offset = dissect_ndr_cvstring(
@@ -4218,7 +4279,7 @@ static int SpoolssSetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL,
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
 	offset = dissect_ndr_cvstring(
@@ -4277,7 +4338,7 @@ static int SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL,
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
 	offset = dissect_ndr_cvstring(
@@ -4582,7 +4643,7 @@ static int SpoolssEnumJobs_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep,
-		hf_hnd, NULL, FALSE, FALSE);
+		hf_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_enumjobs_firstjob, NULL);
@@ -4684,7 +4745,8 @@ static int SpoolssSetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, FALSE, FALSE);
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
+		FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_job_id, &jobid);
@@ -4733,7 +4795,8 @@ static int SpoolssGetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, FALSE, FALSE);
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
+		FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_job_id, &jobid);
@@ -4813,10 +4876,11 @@ static int SpoolssStartPagePrinter_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, &policy_hnd, 
+		tvb, offset, pinfo, tree, drep, hf_hnd, &policy_hnd, NULL,
 		FALSE, FALSE);
 
-	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL);
+	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL,
+			     pinfo->fd->num);
 
 	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -4855,10 +4919,11 @@ static int SpoolssEndPagePrinter_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, &policy_hnd,
+		tvb, offset, pinfo, tree, drep, hf_hnd, &policy_hnd, NULL,
 		FALSE, FALSE);
 
-	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL);
+	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL,
+			     pinfo->fd->num);
 
 	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -5012,10 +5077,11 @@ static int SpoolssStartDocPrinter_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, &policy_hnd,
+		tvb, offset, pinfo, tree, drep, hf_hnd, &policy_hnd, NULL,
 		FALSE, FALSE);
 
-	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL);
+	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL,
+			     pinfo->fd->num);
 
 	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -5059,10 +5125,11 @@ static int SpoolssEndDocPrinter_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, &policy_hnd,
+		tvb, offset, pinfo, tree, drep, hf_hnd, &policy_hnd, NULL,
 		FALSE, FALSE);
 
-	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL);
+	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL,
+			     pinfo->fd->num);
 
 	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -5107,10 +5174,11 @@ static int SpoolssWritePrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, &policy_hnd,
+		tvb, offset, pinfo, tree, drep, hf_hnd, &policy_hnd, NULL,
 		FALSE, FALSE);
 
-	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL);
+	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL,
+			     pinfo->fd->num);
 
 	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -5178,7 +5246,7 @@ static int SpoolssDeletePrinterData_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL,
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
 	offset = dissect_ndr_cvstring(
@@ -5418,10 +5486,11 @@ static int SpoolssGetPrinterDriver2_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, &policy_hnd,
+		tvb, offset, pinfo, tree, drep, hf_hnd, &policy_hnd, NULL,
 		FALSE, FALSE);
 
-	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL);
+	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL,
+			     pinfo->fd->num);
 
 	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -6027,7 +6096,7 @@ static int SpoolssRFNPCNEX_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL,
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(
@@ -6077,7 +6146,7 @@ static int SpoolssRRPCN_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL,
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(
@@ -6135,7 +6204,8 @@ static int SpoolssReplyClosePrinter_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, FALSE, TRUE);
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
+		FALSE, TRUE);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -6149,7 +6219,8 @@ static int SpoolssReplyClosePrinter_r(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, FALSE, FALSE);
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
+		FALSE, FALSE);
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
@@ -6169,7 +6240,8 @@ static int SpoolssFCPN_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, FALSE, FALSE);
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
+		FALSE, FALSE);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -6203,7 +6275,8 @@ static int SpoolssRouterReplyPrinter_q(tvbuff_t *tvb, int offset, packet_info *p
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, FALSE, FALSE);
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
+		FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
@@ -6281,7 +6354,7 @@ static int SpoolssEnumPrinterKey_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL,
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
 	offset = dissect_ndr_cvstring(
@@ -6349,7 +6422,7 @@ static int SpoolssEnumPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_hnd, NULL,
+		tvb, offset, pinfo, tree, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
 	offset = dissect_ndr_cvstring(

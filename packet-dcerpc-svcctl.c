@@ -3,7 +3,7 @@
  * Copyright 2003, Tim Potter <tpot@samba.org>
  * Copyright 2003, Ronnie Sahlberg,  added function dissectors
  *
- * $Id: packet-dcerpc-svcctl.c,v 1.8 2003/05/15 02:14:00 tpot Exp $
+ * $Id: packet-dcerpc-svcctl.c,v 1.9 2003/06/05 04:22:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -145,19 +145,17 @@ svcctl_dissect_OpenSCManager_reply(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
 	guint32 status;
-	int start_offset = offset;
 
-	/* We need the value of the policy handle and status before we
-	   can retrieve the policy handle name.  Then we can insert
-	   the policy handle with the name in the proto tree. */
+	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, NULL, drep, hf_svcctl_hnd, &policy_hnd,
-		TRUE, FALSE);
+		tvb, offset, pinfo, tree, drep, hf_svcctl_hnd, &policy_hnd,
+		&hnd_item, TRUE, FALSE);
 
-	offset = dissect_ndr_uint32(
-		tvb, offset, pinfo, NULL, drep, hf_svcctl_rc, &status);
+	offset = dissect_doserror(
+		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, &status);
 
 	if (status == 0) {
 
@@ -170,24 +168,33 @@ svcctl_dissect_OpenSCManager_reply(tvbuff_t *tvb, int offset,
 				"OpenSCManager(%s)", 
 				(char *)dcv->private_data);
 
-			dcerpc_smb_store_pol_name(&policy_hnd, pol_name);
+			dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
 
 			g_free(pol_name);
 			g_free(dcv->private_data);
 			dcv->private_data = NULL;
 		}
+
+		/*
+		 * If we have a name for the handle, attach it to the item.
+		 *
+		 * XXX - we can't just do that above, as this may be called
+		 * twice (see "dissect_pipe_dcerpc()", which calls the
+		 * DCE RPC dissector twice), and in the first call we're
+		 * not building a protocol tree (so we don't have an item
+		 * to which to attach it) and in the second call
+		 * "dcv->private_data" is NULL so we don't construct a
+		 * name.
+		 */
+
+		if (hnd_item != NULL) {
+			char *name;
+
+			if (dcerpc_smb_fetch_pol(&policy_hnd, &name, NULL, NULL,
+			    pinfo->fd->num) && name != NULL)
+				proto_item_append_text(hnd_item, ": %s", name);
+		}
 	}
-
-	/* Parse packet */
-
-	offset = start_offset;
-
-	offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_hnd, &policy_hnd,
-		TRUE, FALSE);
-
-	offset = dissect_doserror(
-		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, &status);
 
 	return offset;
 }
@@ -211,9 +218,10 @@ svcctl_dissect_CloseServiceHandle_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep, hf_svcctl_hnd, &policy_hnd,
-		FALSE, TRUE);
+		NULL, FALSE, TRUE);
 
-	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL);
+	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL,
+			     pinfo->fd->num);
 
 	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -229,7 +237,7 @@ svcctl_dissect_CloseServiceHandle_reply(tvbuff_t *tvb, int offset,
 {
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep, hf_svcctl_hnd, NULL,
-		FALSE, TRUE);
+		NULL, FALSE, TRUE);
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, NULL);
@@ -250,9 +258,10 @@ svcctl_dissect_LockServiceDatabase_rqst(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  char *drep)
 {
+	/* XXX - why is the "is a close" argument TRUE? */
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep, hf_svcctl_hnd, NULL,
-		FALSE, TRUE);
+		NULL, FALSE, TRUE);
 
 	return offset;
 }
@@ -261,9 +270,10 @@ svcctl_dissect_LockServiceDatabase_reply(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  char *drep)
 {
+	/* XXX - why is the "is an open" argument TRUE? */
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep, hf_svcctl_lock, NULL,
-		TRUE, FALSE);
+		NULL, TRUE, FALSE);
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, NULL);
@@ -283,9 +293,10 @@ svcctl_dissect_UnlockServiceDatabase_rqst(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  char *drep)
 {
+	/* XXX - why is the "is a close" argument TRUE? */
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep, hf_svcctl_lock, NULL,
-		FALSE, TRUE);
+		NULL, FALSE, TRUE);
 
 	return offset;
 }
@@ -294,9 +305,10 @@ svcctl_dissect_UnlockServiceDatabase_reply(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  char *drep)
 {
+	/* XXX - why is the "is an open" argument TRUE? */
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep, hf_svcctl_lock, NULL,
-		TRUE, FALSE);
+		NULL, TRUE, FALSE);
 
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, NULL);
@@ -344,9 +356,10 @@ svcctl_dissect_QueryServiceLockStatus_rqst(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  char *drep)
 {
+	/* XXX - why is the "is a close" argument TRUE? */
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep, hf_svcctl_hnd, NULL,
-		FALSE, TRUE);
+		NULL, FALSE, TRUE);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_svcctl_size, NULL);
@@ -405,9 +418,10 @@ svcctl_dissect_EnumServicesStatus_rqst(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  char *drep)
 {
+	/* XXX - why is the "is a close" argument TRUE? */
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep, hf_svcctl_hnd, NULL,
-		FALSE, TRUE);
+		NULL, FALSE, TRUE);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_svcctl_service_type, NULL);

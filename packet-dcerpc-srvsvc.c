@@ -9,7 +9,7 @@
  * 2002, some share information levels implemented based on samba
  * sources.
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.56 2003/05/15 05:24:18 guy Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.57 2003/06/05 04:22:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6440,7 +6440,7 @@ srvsvc_dissect_netrsharedelstart_reply(tvbuff_t *tvb, int offset,
 				     char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_srvsvc_hnd, NULL, TRUE, FALSE);
+				       hf_srvsvc_hnd, NULL, NULL, TRUE, FALSE);
 
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);
@@ -6459,7 +6459,7 @@ srvsvc_dissect_netrsharedelcommit_rqst(tvbuff_t *tvb, int offset,
 				     char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_srvsvc_hnd, NULL, TRUE, FALSE);
+				       hf_srvsvc_hnd, NULL, NULL, TRUE, FALSE);
 
 	return offset;
 }
@@ -6469,7 +6469,7 @@ srvsvc_dissect_netrsharedelcommit_reply(tvbuff_t *tvb, int offset,
 				     char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_srvsvc_hnd, NULL, TRUE, FALSE);
+				       hf_srvsvc_hnd, NULL, NULL, TRUE, FALSE);
 
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 			hf_srvsvc_rc, NULL);

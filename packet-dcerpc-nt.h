@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.46 2003/05/21 10:06:29 sahlberg Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.47 2003/06/05 04:22:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -117,19 +117,21 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset,
 /* Store open and close packet numbers for a policy handle */
 
 void
-dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, guint32 open_frame,
-			  guint32 close_frame);
+dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, packet_info *pinfo,
+			  gboolean is_open, gboolean is_close);
 
 /* Store a name with a policy handle */
 
 void
-dcerpc_smb_store_pol_name(e_ctx_hnd *policy_hnd, char *name);
+dcerpc_smb_store_pol_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
+			  char *name);
 
 /* Fetch details stored with a policy handle */
 
 gboolean
 dcerpc_smb_fetch_pol(e_ctx_hnd *policy_hnd, char **name,
-		     guint32 *open_frame, guint32 *close_frame);
+		     guint32 *open_frame, guint32 *close_frame,
+		     guint32 cur_frame);
 
 /* Check for unparsed data at the end of a frame */
 
@@ -152,7 +154,8 @@ dissect_doserror(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int
 dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      proto_tree *tree, char *drep, int hfindex,
-		      e_ctx_hnd *pdata, gboolean is_open, gboolean is_close);
+		      e_ctx_hnd *pdata, proto_item **pitem,
+		      gboolean is_open, gboolean is_close);
 
 int
 dissect_nt_GUID(tvbuff_t *tvb, int offset,

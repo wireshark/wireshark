@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.74 2003/05/15 05:24:18 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.75 2003/06/05 04:22:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -247,22 +247,53 @@ dissect_ndr_nt_NTTIME (tvbuff_t *tvb, int offset,
 #undef DEBUG_HASH_COLL
 
 /*
- * Policy handle hashing
+ * Policy handle hashing.
+ *
+ * We hash based on the policy handle value; the items in the hash table
+ * are lists of policy handle information about one or more policy
+ * handles with that value.  We have multiple values in case a given
+ * policy handle is opened in frame N, closed in frame M, and re-opened
+ * in frame O, where N < M < O.
+ *
+ * XXX - we really should also use a DCE RPC conversation/session handle
+ * of some sort, in case two separate sessions have the same handle
+ * value.  A transport-layer conversation might not be sufficient, as you
+ * might, for example, have multiple pipes in a single SMB connection,
+ * and you might have the same handle opened and closed separately on
+ * those two pipes.
+ *
+ * The policy handle information has "first frame" and "last frame"
+ * information; the entry should be used when dissecting a given frame
+ * only if that frame is within the interval [first frame,last frame].
+ * The list is sorted by "first frame".
+ *
+ * This doesn't handle the case of a handle being opened in frame N and
+ * re-opened in frame M, where N < M, with no intervening close, but I'm
+ * not sure anything can handle that if it's within the same DCE RPC
+ * session (if it's not, the conversation/session handle would fix that).
  */
 
 typedef struct {
 	guint8 policy_hnd[20];
 } pol_hash_key;
 
-typedef struct {
+typedef struct pol_value {
+	struct pol_value *next;          /* Next entry in hash bucket */
 	guint32 open_frame, close_frame; /* Frame numbers for open/close */
+	guint32 first_frame;             /* First frame in which this instance was seen */
+	guint32 last_frame;              /* Last frame in which this instance was seen */
 	char *name;			 /* Name of policy handle */
+} pol_value;
+
+typedef struct {
+	pol_value *list;                 /* List of policy handle entries */
 } pol_hash_value;
 
 #define POL_HASH_INIT_COUNT 100
 
 static GHashTable *pol_hash;
 static GMemChunk *pol_hash_key_chunk;
+static GMemChunk *pol_value_chunk;
 static GMemChunk *pol_hash_value_chunk;
 
 /* Hash function */
@@ -298,113 +329,248 @@ static gint pol_hash_compare(gconstpointer k1, gconstpointer k2)
 		      sizeof(key1->policy_hnd)) == 0;
 }
 
-/* Store the open and close frame numbers of a policy handle */
-
-void dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, guint32 open_frame,
-			       guint32 close_frame)
+/*
+ * Look up the instance of a policy handle value in whose range of frames
+ * the specified frame falls.
+ */
+static pol_value *find_pol_handle(e_ctx_hnd *policy_hnd, guint32 frame,
+				  pol_hash_value **valuep)
 {
-	pol_hash_key *key;
-	pol_hash_value *value;
+	pol_hash_key key;
+	pol_value *pol;
 
-	if (is_null_pol(policy_hnd) || (open_frame == 0 && close_frame == 0))
-		return;
-
-	/* Look up existing value */
-
-	key = g_mem_chunk_alloc(pol_hash_key_chunk);
-
-	memcpy(&key->policy_hnd, policy_hnd, sizeof(key->policy_hnd));
-
-	if ((value = g_hash_table_lookup(pol_hash, key))) {
-
-		/* Update existing value */
-
-		if (open_frame) {
-#ifdef DEBUG_HASH_COLL
-			if (value->open_frame != open_frame)
-				g_warning("dcerpc_smb: pol_hash open frame collision %d/%d\n", value->open_frame, open_frame);
-#endif
-			value->open_frame = open_frame;
+	memcpy(&key.policy_hnd, policy_hnd, sizeof(key.policy_hnd));
+	if ((*valuep = g_hash_table_lookup(pol_hash, &key))) {
+		/*
+		 * Look for the first value such that both:
+		 *
+		 *	1) the first frame in which it was seen is
+		 *	   <= the specified frame;
+		 *
+		 *	2) the last frame in which it was seen is
+		 *	   either unknown (meaning we haven't yet
+		 *	   seen a close or another open of the
+		 *	   same handle, which is assumed to imply
+		 *	   an intervening close that wasn't captured)
+		 *	   or is >= the specified frame.
+		 *
+		 * If there's more than one such frame, that's the
+		 * case where a handle is opened in frame N and
+		 * reopened in frame M, with no intervening close;
+		 * there is no right answer for that, so the instance
+		 * opened in frame N is as right as anything else.
+		 */
+		for (pol = (*valuep)->list; pol != NULL; pol = pol->next) {
+			if (pol->first_frame <= frame &&
+			    (pol->last_frame == 0 ||
+			     pol->last_frame >= frame))
+				break;	/* found one */
 		}
-
-		if (close_frame) {
-#ifdef DEBUG_HASH_COLL
-			if (value->close_frame != close_frame)
-				g_warning("dcerpc_smb: pol_hash close frame collision %d/%d\n", value->close_frame, close_frame);
-#endif
-			value->close_frame = close_frame;
-		}
-
-		return;
+		return pol;
+	} else {
+		/*
+		 * The handle isn't in the hash table.
+		 */
+		return NULL;
 	}
-
-	/* Create a new value */
-
-	value = g_mem_chunk_alloc(pol_hash_value_chunk);
-
-	value->open_frame = open_frame;
-	value->close_frame = close_frame;
-
-	value->name = NULL;
-
-	g_hash_table_insert(pol_hash, key, value);
 }
 
-/* Store a text string with a policy handle */
-
-void dcerpc_smb_store_pol_name(e_ctx_hnd *policy_hnd, char *name)
+static void add_pol_handle(e_ctx_hnd *policy_hnd, guint32 frame,
+			   pol_value *pol, pol_hash_value *value)
 {
 	pol_hash_key *key;
+	pol_value *polprev, *polnext;
+
+	if (value == NULL) {
+		/*
+		 * There's no hash value; create one, put the new
+		 * value at the beginning of its policy handle list,
+		 * and put the hash value in the policy handle hash
+		 * table.
+		 */
+		value = g_mem_chunk_alloc(pol_hash_value_chunk);
+		value->list = pol;
+		pol->next = NULL;
+		key = g_mem_chunk_alloc(pol_hash_key_chunk);
+		memcpy(&key->policy_hnd, policy_hnd, sizeof(key->policy_hnd));
+		g_hash_table_insert(pol_hash, key, value);
+	} else {
+		/*
+		 * Put the new value in the hash value's policy handle
+		 * list so that it's sorted by the first frame in
+		 * which it appeared.
+		 *
+		 * Search for the first entry whose first frame number
+		 * is greater than the current frame number, if any.
+		 */
+		for (polnext = value->list, polprev = NULL;
+		    polnext != NULL && polnext->first_frame <= frame;
+		    polprev = polnext, polnext = polnext->next)
+			;
+
+		/*
+		 * "polprev" points to the entry in the list after
+		 * which we should put the new entry; if it's null,
+		 * that means we should put it at the beginning of
+		 * the list.
+		 */
+		if (polprev == NULL)
+			value->list = pol;
+		else
+			polprev->next = pol;
+		
+		/*
+		 * "polnext" points to the entry in the list before
+		 * which we should put the new entry; if it's null,
+		 * that means we should put it at the end of the list.
+		 */
+		pol->next = polnext;
+	}
+}
+
+/* Store the open and close frame numbers of a policy handle */
+
+void dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, packet_info *pinfo,
+			       gboolean is_open, gboolean is_close)
+{
 	pol_hash_value *value;
+	pol_value *pol;
+
+	/*
+	 * By the time the first pass is done, the policy handle database
+	 * has been completely constructed.  If we've already seen this
+	 * frame, there's nothing to do.
+	 */
+	if (pinfo->fd->flags.visited)
+		return;
 
 	if (is_null_pol(policy_hnd))
 		return;
 
 	/* Look up existing value */
+	pol = find_pol_handle(policy_hnd, pinfo->fd->num, &value);
 
-	key = g_mem_chunk_alloc(pol_hash_key_chunk);
+	if (pol != NULL) {
+		/*
+		 * Update the existing value as appropriate.
+		 */
+		if (is_open) {
+			/*
+			 * This is an open; we assume that we missed
+			 * a close of this handle, so we set its
+			 * "last frame" value and act as if we didn't
+			 * see it.
+			 *
+			 * XXX - note that we might be called twice for
+			 * the same operation (see "dissect_pipe_dcerpc()",
+			 * which calls the DCE RPC dissector twice), so we
+			 * must first check to see if this is a handle we
+			 * just filled in.
+			 *
+			 * We check whether this handle's "first frame"
+			 * frame number is this frame and its "last frame
+			 * is 0; if so, this is presumably a duplicate call,
+			 * and we don't do an implicit close.
+			 */
+			if (pol->first_frame == pinfo->fd->num &&
+			    pol->last_frame == 0)
+				return;
+			pol->last_frame = pinfo->fd->num;
+			pol = NULL;
+		} else {
+			if (is_close) {
+				pol->close_frame = pinfo->fd->num;
+				pol->last_frame = pinfo->fd->num;
+			}
+			return;
+		}
+	}
 
-	memcpy(&key->policy_hnd, policy_hnd, sizeof(key->policy_hnd));
+	/* Create a new value */
 
-	if ((value = g_hash_table_lookup(pol_hash, key))) {
+	pol = g_mem_chunk_alloc(pol_value_chunk);
 
-		/* Update existing value */
+	pol->open_frame = is_open ? pinfo->fd->num : 0;
+	pol->close_frame = is_close ? pinfo->fd->num : 0;
+	pol->first_frame = pinfo->fd->num;
+	pol->last_frame = pol->close_frame;	/* if 0, unknown; if non-0, known */
 
-		if (value->name && name) {
+	pol->name = NULL;
+
+	add_pol_handle(policy_hnd, pinfo->fd->num, pol, value);
+}
+
+/* Store a text string with a policy handle */
+
+void dcerpc_smb_store_pol_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
+			       char *name)
+{
+	pol_hash_value *value;
+	pol_value *pol;
+
+	/*
+	 * By the time the first pass is done, the policy handle database
+	 * has been completely constructed.  If we've already seen this
+	 * frame, there's nothing to do.
+	 */
+	if (pinfo->fd->flags.visited)
+		return;
+
+	if (is_null_pol(policy_hnd))
+		return;
+
+	/* Look up existing value */
+	pol = find_pol_handle(policy_hnd, pinfo->fd->num, &value);
+
+	if (pol != NULL) {
+		/*
+		 * This is the first pass; update the existing
+		 * value as appropriate.
+		 */
+		if (pol->name && name) {
 #ifdef DEBUG_HASH_COLL
-			if (strcmp(value->name, name) != 0)
+			if (strcmp(pol->name, name) != 0)
 				g_warning("dcerpc_smb: pol_hash name collision %s/%s\n", value->name, name);
 #endif
-			free(value->name);
+			free(pol->name);
 		}
 
-		value->name = strdup(name);
+		pol->name = strdup(name);
 
 		return;
 	}
 
 	/* Create a new value */
 
-	value = g_mem_chunk_alloc(pol_hash_value_chunk);
+	pol = g_mem_chunk_alloc(pol_value_chunk);
 
-	value->open_frame = 0;
-	value->close_frame = 0;
+	pol->open_frame = 0;
+	pol->close_frame = 0;
+	pol->first_frame = pinfo->fd->num;
+	pol->last_frame = 0;
 
 	if (name)
-		value->name = strdup(name);
+		pol->name = strdup(name);
 	else
-		value->name = strdup("<UNKNOWN>");
+		pol->name = strdup("<UNKNOWN>");
 
-	g_hash_table_insert(pol_hash, key, value);
+	add_pol_handle(policy_hnd, pinfo->fd->num, pol, value);
 }
 
-/* Retrieve a policy handle */
+/*
+ * Retrieve a policy handle.
+ *
+ * XXX - should this get an "is_close" argument, and match even closed
+ * policy handles if the call is a close, so we can handle retransmitted
+ * close operations?
+ */
 
 gboolean dcerpc_smb_fetch_pol(e_ctx_hnd *policy_hnd, char **name,
-			      guint32 *open_frame, guint32 *close_frame)
+			      guint32 *open_frame, guint32 *close_frame,
+			      guint32 cur_frame)
 {
-	pol_hash_key key;
 	pol_hash_value *value;
+	pol_value *pol;
 
 	/* Prevent uninitialised return vars */
 
@@ -418,39 +584,37 @@ gboolean dcerpc_smb_fetch_pol(e_ctx_hnd *policy_hnd, char **name,
 		*close_frame = 0;
 
 	/* Look up existing value */
+	pol = find_pol_handle(policy_hnd, cur_frame, &value);
 
-	memcpy(&key.policy_hnd, policy_hnd, sizeof(key.policy_hnd));
-
-	value = g_hash_table_lookup(pol_hash, &key);
-
-	/* Return name and frame numbers */
-
-	if (value) {
+	if (pol) {
 		if (name)
-			*name = value->name;
+			*name = pol->name;
 
 		if (open_frame)
-			*open_frame = value->open_frame;
+			*open_frame = pol->open_frame;
 
 		if (close_frame)
-			*close_frame = value->close_frame;
+			*close_frame = pol->close_frame;
 	}
 
-	return value != NULL;
+	return pol != NULL;
 }
 
-/* Iterator to free a policy handle key/value pair */
+/* Iterator to free a policy handle key/value pair, and all
+   the policy handle values to which the hash table value
+   points */
 
-static void free_pol_keyvalue(gpointer key _U_, gpointer value,
+static void free_pol_keyvalue(gpointer key _U_, gpointer value_arg,
     gpointer user_data _U_)
 {
-	pol_hash_value *pol_value = (pol_hash_value *)value;
+	pol_hash_value *value = (pol_hash_value *)value_arg;
+	pol_value *pol;
 
 	/* Free user data */
 
-	if (pol_value->name) {
-		free(pol_value->name);
-		pol_value->name = NULL;
+	for (pol = value->list; pol != NULL; pol = pol->next) {
+		free(pol->name);
+		pol->name = NULL;
 	}
 }
 
@@ -466,6 +630,13 @@ static void init_pol_hash(void)
 	pol_hash_key_chunk = g_mem_chunk_new(
 		"Policy handle hash keys", sizeof(pol_hash_key),
 		POL_HASH_INIT_COUNT * sizeof(pol_hash_key), G_ALLOC_ONLY);
+
+	if (pol_value_chunk)
+		g_mem_chunk_destroy(pol_value_chunk);
+
+	pol_value_chunk = g_mem_chunk_new(
+		"Policy handle values", sizeof(pol_value),
+		POL_HASH_INIT_COUNT * sizeof(pol_value), G_ALLOC_ONLY);
 
 	if (pol_hash_value_chunk)
 		g_mem_chunk_destroy(pol_hash_value_chunk);
@@ -560,7 +731,8 @@ static gint ett_nt_policy_hnd = -1;
 int
 dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      proto_tree *tree, char *drep, int hfindex,
-		      e_ctx_hnd *pdata, gboolean is_open, gboolean is_close)
+		      e_ctx_hnd *pdata, proto_item **pitem,
+		      gboolean is_open, gboolean is_close)
 {
 	proto_item *item;
 	proto_tree *subtree;
@@ -568,6 +740,18 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	guint32 open_frame = 0, close_frame = 0;
 	char *name;
 	int old_offset = offset;
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*
+		 * just a run to handle conformant arrays, no scalars to
+		 * dissect - and "dissect_ndr_ctx_hnd()" won't return
+		 * a handle, so we can't do the hashing stuff in any
+		 * case
+		 */
+		return offset;
+	}
 
 	/* Add to proto tree */
 
@@ -579,14 +763,17 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	offset = dissect_ndr_ctx_hnd(tvb, offset, pinfo, subtree, drep,
 				     hfindex, &hnd);
 
-	/* Store request/reply information */
+	/*
+	 * Create a new entry for this handle if it's not a null handle
+	 * and no entry already exists, and, in any case, set the
+	 * open, close, first, and last frame information as appropriate.
+	 */
+	dcerpc_smb_store_pol_pkts(&hnd, pinfo, is_open, is_close);
 
-	dcerpc_smb_store_pol_pkts(&hnd, 0, is_close ? pinfo->fd->num : 0);
-	dcerpc_smb_store_pol_pkts(&hnd, is_open ? pinfo->fd->num: 0, 0);
+	/* Insert open/close/name information if known */
 
-	/* Insert request/reply information if known */
-
-	if (dcerpc_smb_fetch_pol(&hnd, &name, &open_frame, &close_frame)) {
+	if (dcerpc_smb_fetch_pol(&hnd, &name, &open_frame, &close_frame,
+	    pinfo->fd->num)) {
 
 		if (open_frame)
 			proto_tree_add_uint(
@@ -598,12 +785,21 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				subtree, hf_nt_policy_close_frame, tvb,
 				old_offset, sizeof(e_ctx_hnd), close_frame);
 
-		if (name != NULL)
+		/*
+		 * Don't append the handle name if pitem is null; that's
+		 * an indication that our caller will do so, as we're
+		 * supplying a pointer to the item so that they can do
+		 * so.
+		 */
+		if (name != NULL && pitem == NULL)
 			proto_item_append_text(item, ": %s", name);
 	}
 
 	if (pdata)
 		*pdata = hnd;
+
+	if (pitem)
+		*pitem = item;
 
 	return offset;
 }

@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.94 2003/05/30 23:44:13 sahlberg Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.95 2003/06/05 04:22:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -622,7 +622,7 @@ samr_dissect_open_user_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 rid;
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_access, NULL);
@@ -646,23 +646,31 @@ samr_dissect_open_user_reply(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
+	guint32 status;
 	guint32 rid = GPOINTER_TO_INT(dcv->private_data);
 	char *pol_name;
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
-
-	if (rid)
-		pol_name = g_strdup_printf("OpenUser(rid 0x%x)", rid);
-	else
-		pol_name = g_strdup("OpenUser handle");
-
-	dcerpc_smb_store_pol_name(&policy_hnd, pol_name);
-
-	g_free(pol_name);
+				       hf_samr_hnd, &policy_hnd, &hnd_item,
+				       TRUE, FALSE);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_samr_rc, NULL);
+				  hf_samr_rc, &status);
+
+	if (status == 0) {
+		if (rid)
+			pol_name = g_strdup_printf("OpenUser(rid 0x%x)", rid);
+		else
+			pol_name = g_strdup("OpenUser handle");
+
+		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+
+		if (hnd_item != NULL)
+			proto_item_append_text(hnd_item, ": %s", pol_name);
+
+		g_free(pol_name);
+	}
 
 	return offset;
 }
@@ -721,7 +729,7 @@ samr_dissect_query_dispinfo_rqst(tvbuff_t *tvb, int offset,
 	guint32 start_idx;
 
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_level, &level);
@@ -1089,7 +1097,7 @@ samr_dissect_get_display_enumeration_index_rqst(tvbuff_t *tvb, int offset,
 	guint16 level;
 
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_level, &level);
@@ -1154,7 +1162,7 @@ samr_dissect_get_usrdom_pwinfo_rqst(tvbuff_t *tvb, int offset,
 				    char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	return offset;
 }
@@ -1220,22 +1228,31 @@ samr_dissect_connect2_reply(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
+	guint32 status;
 	char *server = (char *)dcv->private_data, *pol_name;
 	
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
-
-	if (server)
-		pol_name = g_strdup_printf("Connect2(%s)", server);
-	else
-		pol_name = g_strdup("Connect2 handle");
-
-	dcerpc_smb_store_pol_name(&policy_hnd, pol_name);
-
-	g_free(pol_name);
+				       hf_samr_hnd, &policy_hnd, &hnd_item,
+				       TRUE, FALSE);
 
         offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_samr_rc, NULL);
+				  hf_samr_rc, &status);
+
+	if (status == 0) {
+		if (server)
+			pol_name = g_strdup_printf("Connect2(%s)", server);
+		else
+			pol_name = g_strdup("Connect2 handle");
+
+		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+
+		if (hnd_item != NULL)
+			proto_item_append_text(hnd_item, ": %s", pol_name);
+
+		g_free(pol_name);
+	}
+
 	return offset;
 }
 
@@ -1263,14 +1280,23 @@ samr_dissect_connect_anon_reply(tvbuff_t *tvb, int offset,
 				char *drep)
 {
 	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
+	guint32 status;
 
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
-
-	dcerpc_smb_store_pol_name(&policy_hnd, "ConnectAnon handle");
+				       hf_samr_hnd, &policy_hnd, &hnd_item,
+				       TRUE, FALSE);
 
         offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_samr_rc, NULL);
+				  hf_samr_rc, &status);
+
+	if (status == 0) {
+		dcerpc_smb_store_pol_name(&policy_hnd, pinfo,
+					  "ConnectAnon handle");
+
+		if (hnd_item != NULL)
+			proto_item_append_text(hnd_item, ": ConnectAnon handle");
+	}
 
 	return offset;
 }
@@ -1353,7 +1379,7 @@ samr_dissect_get_groups_for_user_rqst(tvbuff_t *tvb, int offset,
 				      char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	return offset;
 }
@@ -1392,7 +1418,7 @@ samr_dissect_open_domain_rqst(tvbuff_t *tvb, int offset,
 			      char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
@@ -1413,23 +1439,31 @@ samr_dissect_open_domain_reply(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
+	guint32 status;
 	char *pol_name, *sid_str = (char *)dcv->private_data;
 
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
-
-	if (sid_str) {
-		pol_name = g_strdup_printf("OpenDomain(%s)", sid_str);
-	} else {
-		pol_name = g_strdup("OpenDomain handle");
-	}
-
-	dcerpc_smb_store_pol_name(&policy_hnd, pol_name);
-
-	g_free(pol_name);
+				       hf_samr_hnd, &policy_hnd, &hnd_item,
+				       TRUE, FALSE);
 
         offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_samr_rc, NULL);
+				  hf_samr_rc, &status);
+
+	if (status == 0) {
+		if (sid_str) {
+			pol_name = g_strdup_printf("OpenDomain(%s)", sid_str);
+		} else {
+			pol_name = g_strdup("OpenDomain handle");
+		}
+
+		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+
+		if (hnd_item != NULL)
+			proto_item_append_text(hnd_item, ": %s", pol_name);
+
+		g_free(pol_name);
+	}
 
 	return offset;
 }
@@ -1441,7 +1475,7 @@ samr_dissect_context_handle_SID(tvbuff_t *tvb, int offset,
                              char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_SID_no_hf, NDR_POINTER_REF,
@@ -1457,7 +1491,7 @@ samr_dissect_add_member_to_group_rqst(tvbuff_t *tvb, int offset,
 				      char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_group, NULL);
@@ -1485,7 +1519,7 @@ samr_dissect_unknown_3c_rqst(tvbuff_t *tvb, int offset,
 			     char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	return offset;
 }
@@ -1510,7 +1544,7 @@ samr_dissect_create_alias_in_domain_rqst(tvbuff_t *tvb, int offset,
 					 char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_counted_string_ptr, NDR_POINTER_REF,
@@ -1529,18 +1563,26 @@ samr_dissect_create_alias_in_domain_reply(tvbuff_t *tvb, int offset,
                              char *drep)
 {
 	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
+	guint32 status;
 
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
-
-	dcerpc_smb_store_pol_name(&policy_hnd, "CreateAlias handle");
+				       hf_samr_hnd, &policy_hnd, &hnd_item,
+				       TRUE, FALSE);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_rid, NULL);
 
         offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_samr_rc, NULL);
+				  hf_samr_rc, &status);
 
+	if (status == 0) {
+		dcerpc_smb_store_pol_name(&policy_hnd, pinfo,
+					  "CreateAlias handle");
+
+		if (hnd_item != NULL)
+			proto_item_append_text(hnd_item, ": CreateAlias handle");
+	}
 	return offset;
 }
 
@@ -1552,7 +1594,7 @@ samr_dissect_query_information_alias_rqst(tvbuff_t *tvb, int offset,
 	guint16 level;
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
 			hf_samr_level, &level);
@@ -1648,7 +1690,7 @@ samr_dissect_set_information_alias_rqst(tvbuff_t *tvb, int offset,
 	guint16 level;
 
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_level, &level);
@@ -1938,7 +1980,7 @@ samr_dissect_oem_change_password_user2_rqst(tvbuff_t *tvb, int offset,
 					    proto_tree *tree, char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_pointer_STRING, NDR_POINTER_UNIQUE,
@@ -2019,7 +2061,7 @@ samr_dissect_unknown_3b_rqst(tvbuff_t *tvb, int offset,
                              char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_unknown_short, NULL);
@@ -2049,7 +2091,7 @@ samr_dissect_create_user2_in_domain_rqst(tvbuff_t *tvb, int offset,
 					 char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_counted_string_ptr, NDR_POINTER_REF,
@@ -2070,11 +2112,12 @@ samr_dissect_create_user2_in_domain_reply(tvbuff_t *tvb, int offset,
                              char *drep)
 {
 	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
+	guint32 status;
 
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
-
-	dcerpc_smb_store_pol_name(&policy_hnd, "CreateUser2 handle");
+				       hf_samr_hnd, &policy_hnd, &hnd_item,
+				       TRUE, FALSE);
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access_granted,
@@ -2084,7 +2127,16 @@ samr_dissect_create_user2_in_domain_reply(tvbuff_t *tvb, int offset,
                                      hf_samr_rid, NULL);
 
         offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_samr_rc, NULL);
+				  hf_samr_rc, &status);
+
+	if (status == 0) {
+		dcerpc_smb_store_pol_name(&policy_hnd, pinfo,
+					  "CreateUser2 handle");
+
+		if (hnd_item != NULL)
+			proto_item_append_text(hnd_item, ": CreateUser2 handle");
+	}
+
 	return offset;
 }
 
@@ -2094,7 +2146,7 @@ samr_dissect_get_display_enumeration_index2_rqst(tvbuff_t *tvb, int offset,
 						 proto_tree *tree, char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_level, NULL);
@@ -2123,7 +2175,7 @@ samr_dissect_change_password_user_rqst(tvbuff_t *tvb, int offset,
 				       char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint8 (tvb, offset, pinfo, tree, drep,
 			hf_samr_unknown_char, NULL);
@@ -2172,7 +2224,7 @@ samr_dissect_set_member_attributes_of_group_rqst(tvbuff_t *tvb, int offset,
 						 proto_tree *tree, char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_attrib, NULL);
@@ -2264,7 +2316,7 @@ samr_dissect_query_information_group_rqst(tvbuff_t *tvb, int offset,
 					  proto_tree *tree, char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_level, NULL);
@@ -2294,7 +2346,7 @@ samr_dissect_set_information_group_rqst(tvbuff_t *tvb, int offset,
 	guint16 level;
 
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_level, &level);
@@ -2612,7 +2664,7 @@ samr_dissect_set_information_domain_rqst(tvbuff_t *tvb, int offset,
 	guint16 level;
 
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_level, &level);
@@ -2642,7 +2694,7 @@ samr_dissect_lookup_domain_rqst(tvbuff_t *tvb, int offset,
 				char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_counted_string_ptr, NDR_POINTER_REF,
@@ -2865,7 +2917,7 @@ samr_dissect_get_alias_membership_rqst(tvbuff_t *tvb, int offset,
 				       char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_PSID_ARRAY, NDR_POINTER_REF,
@@ -2993,7 +3045,7 @@ samr_dissect_enum_domains_rqst(tvbuff_t *tvb, int offset,
 			       char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_pointer_long, NDR_POINTER_REF,
@@ -3034,7 +3086,7 @@ samr_dissect_enum_dom_groups_rqst(tvbuff_t *tvb, int offset,
 				  char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_pointer_long, NDR_POINTER_REF,
@@ -3078,7 +3130,7 @@ samr_dissect_enum_dom_aliases_rqst(tvbuff_t *tvb, int offset,
 				 char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_pointer_long, NDR_POINTER_REF,
@@ -3122,7 +3174,7 @@ samr_dissect_get_members_in_alias_rqst(tvbuff_t *tvb, int offset,
 				       char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	return offset;
 }
@@ -3801,7 +3853,7 @@ samr_dissect_set_information_user2_rqst(tvbuff_t *tvb, int offset,
 	guint16 level;
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
 			hf_samr_level, &level);
@@ -3835,7 +3887,7 @@ samr_dissect_unknown_2f_rqst(tvbuff_t *tvb, int offset,
 	guint16 level;
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
 			hf_samr_level, &level);
@@ -3979,7 +4031,7 @@ samr_dissect_query_groupmem_rqst(tvbuff_t *tvb, int offset,
 				 char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         return offset;
 }
@@ -4007,7 +4059,7 @@ samr_dissect_set_sec_object_rqst(tvbuff_t *tvb, int offset,
 	guint32 info_type;
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_info_type, &info_type);
@@ -4042,7 +4094,7 @@ samr_dissect_query_sec_object_rqst(tvbuff_t *tvb, int offset,
 	guint32 info_type;
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_info_type, &info_type);
@@ -4108,7 +4160,7 @@ samr_dissect_lookup_names_rqst(tvbuff_t *tvb, int offset,
 			       char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_samr_count, NULL);
@@ -4179,7 +4231,7 @@ samr_dissect_lookup_rids_rqst(tvbuff_t *tvb, int offset,
 			      char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_samr_count, NULL);
@@ -4268,9 +4320,9 @@ samr_dissect_close_hnd_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep, hf_samr_hnd, &policy_hnd, 
-		FALSE, TRUE);
+		NULL, FALSE, TRUE);
 
-	dcerpc_smb_fetch_pol(&policy_hnd, &name, NULL, NULL);
+	dcerpc_smb_fetch_pol(&policy_hnd, &name, NULL, NULL, pinfo->fd->num);
 
 	if (name != NULL && check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(
@@ -4284,7 +4336,7 @@ samr_dissect_close_hnd_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			     proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 			hf_samr_rc, NULL);
@@ -4298,7 +4350,7 @@ samr_dissect_shutdown_sam_server_rqst(tvbuff_t *tvb, int offset,
 				      char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         return offset;
 }
@@ -4320,7 +4372,7 @@ samr_dissect_delete_dom_group_rqst(tvbuff_t *tvb, int offset,
 				   char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         return offset;
 }
@@ -4342,7 +4394,7 @@ samr_dissect_remove_member_from_group_rqst(tvbuff_t *tvb, int offset,
 					   proto_tree *tree, char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_group, NULL);
@@ -4370,7 +4422,7 @@ samr_dissect_delete_dom_alias_rqst(tvbuff_t *tvb, int offset,
 				   char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         return offset;
 }
@@ -4392,7 +4444,7 @@ samr_dissect_add_alias_member_rqst(tvbuff_t *tvb, int offset,
 				   char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_SID_no_hf, NDR_POINTER_REF,
@@ -4418,7 +4470,7 @@ samr_dissect_remove_alias_member_rqst(tvbuff_t *tvb, int offset,
 				      char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_SID_no_hf, NDR_POINTER_REF,
@@ -4444,7 +4496,7 @@ samr_dissect_delete_dom_user_rqst(tvbuff_t *tvb, int offset,
 				  char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	return offset;
 }
@@ -4466,7 +4518,7 @@ samr_dissect_test_private_fns_domain_rqst(tvbuff_t *tvb, int offset,
 					  char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	return offset;
 }
@@ -4488,7 +4540,7 @@ samr_dissect_test_private_fns_user_rqst(tvbuff_t *tvb, int offset,
 					char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	return offset;
 }
@@ -4511,7 +4563,7 @@ samr_dissect_remove_member_from_foreign_domain_rqst(tvbuff_t *tvb, int offset,
 						    char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_SID_no_hf, NDR_POINTER_REF,
@@ -4540,7 +4592,7 @@ samr_dissect_remove_multiple_members_from_alias_rqst(tvbuff_t *tvb,
 						     char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_PSID_ARRAY, NDR_POINTER_REF,
@@ -4571,7 +4623,7 @@ samr_dissect_open_group_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 rid;
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
@@ -4597,22 +4649,30 @@ samr_dissect_open_group_reply(tvbuff_t *tvb, int offset,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 rid = GPOINTER_TO_INT(dcv->private_data);
 	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
+	guint32 status;
 	char *pol_name;
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
-
-	if (rid)
-		pol_name = g_strdup_printf("OpenGroup(rid 0x%x)", rid);
-	else
-		pol_name = g_strdup("OpenGroup handle");
-
-	dcerpc_smb_store_pol_name(&policy_hnd, pol_name);
-
-	g_free(pol_name);
+				       hf_samr_hnd, &policy_hnd, &hnd_item,
+				       TRUE, FALSE);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-			hf_samr_rc, NULL);
+			hf_samr_rc, &status);
+
+	if (status == 0) {
+		if (rid)
+			pol_name = g_strdup_printf("OpenGroup(rid 0x%x)", rid);
+		else
+			pol_name = g_strdup("OpenGroup handle");
+
+		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+
+		if (hnd_item != NULL)
+			proto_item_append_text(hnd_item, ": %s", pol_name);
+
+		g_free(pol_name);
+	}
 
 	return offset;
 }
@@ -4626,7 +4686,7 @@ samr_dissect_open_alias_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 rid;
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_samr_access,
@@ -4652,24 +4712,32 @@ samr_dissect_open_alias_reply(tvbuff_t *tvb, int offset,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	e_ctx_hnd policy_hnd;
 	char *pol_name;
+	proto_item *hnd_item;
+	guint32 status;
 	guint32 rid;
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
-
-	rid = GPOINTER_TO_INT(dcv->private_data);
-
-	if (rid)
-		pol_name = g_strdup_printf("OpenAlias(rid 0x%x)", rid);
-	else
-		pol_name = g_strdup_printf("OpenAlias handle");
-
-	dcerpc_smb_store_pol_name(&policy_hnd, pol_name);
-
-	g_free(pol_name);
+				       hf_samr_hnd, &policy_hnd, &hnd_item,
+				       TRUE, FALSE);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-			hf_samr_rc, NULL);
+			hf_samr_rc, &status);
+
+	if (status == 0) {
+		rid = GPOINTER_TO_INT(dcv->private_data);
+
+		if (rid)
+			pol_name = g_strdup_printf("OpenAlias(rid 0x%x)", rid);
+		else
+			pol_name = g_strdup_printf("OpenAlias handle");
+
+		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+
+		if (hnd_item != NULL)
+			proto_item_append_text(hnd_item, ": %s", pol_name);
+
+		g_free(pol_name);
+	}
 
 	return offset;
 }
@@ -4680,7 +4748,7 @@ samr_dissect_add_multiple_members_to_alias_rqst(tvbuff_t *tvb, int offset,
 						proto_tree *tree, char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_PSID_ARRAY, NDR_POINTER_REF,
@@ -4706,7 +4774,7 @@ samr_dissect_create_group_in_domain_rqst(tvbuff_t *tvb, int offset,
 					 char *drep)
 {
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_counted_string_ptr, NDR_POINTER_REF,
@@ -4725,23 +4793,31 @@ samr_dissect_create_group_in_domain_reply(tvbuff_t *tvb, int offset,
 					  char *drep)
 {
 	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
 	guint32 rid;
+	guint32 status;
 	char *pol_name;
 
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, &policy_hnd, TRUE, FALSE);
+				       hf_samr_hnd, &policy_hnd, &hnd_item,
+				       TRUE, FALSE);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_rid, &rid);
 
-	pol_name = g_strdup_printf("CreateGroup(rid 0x%x)", rid);
-
-	dcerpc_smb_store_pol_name(&policy_hnd, pol_name);
-
-	g_free(pol_name);
-
         offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_samr_rc, NULL);
+				  hf_samr_rc, &status);
+
+	if (status == 0) {
+		pol_name = g_strdup_printf("CreateGroup(rid 0x%x)", rid);
+
+		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+
+		if (hnd_item != NULL)
+			proto_item_append_text(hnd_item, ": %s", pol_name);
+
+		g_free(pol_name);
+	}
 
 	return offset;
 }
@@ -4754,7 +4830,7 @@ samr_dissect_query_information_domain_rqst(tvbuff_t *tvb, int offset,
 	guint16 level;
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
 			hf_samr_level, &level);
@@ -4792,7 +4868,7 @@ samr_dissect_query_information_user_rqst(tvbuff_t *tvb, int offset,
 	guint16 level;
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
 			hf_samr_level, &level);

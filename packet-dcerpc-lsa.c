@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.84 2003/05/30 11:30:09 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.85 2003/06/05 04:22:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -516,7 +516,7 @@ lsa_dissect_lsaclose_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, TRUE);
+			hf_lsa_hnd, NULL, NULL, FALSE, TRUE);
 
 	return offset;
 }
@@ -526,7 +526,7 @@ lsa_dissect_lsaclose_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_lsa_rc, NULL);
@@ -569,14 +569,22 @@ lsa_dissect_lsaopenpolicy_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
+	guint32 status;
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, &policy_hnd, TRUE, FALSE);
-
-	dcerpc_smb_store_pol_name(&policy_hnd, "OpenPolicy handle");
+			hf_lsa_hnd, &policy_hnd, &hnd_item, TRUE, FALSE);
 
 	offset = dissect_ntstatus(
-		tvb, offset, pinfo, tree, drep, hf_lsa_rc, NULL);
+		tvb, offset, pinfo, tree, drep, hf_lsa_rc, &status);
+
+	if (status == 0) {
+		dcerpc_smb_store_pol_name(&policy_hnd, pinfo,
+					  "OpenPolicy handle");
+
+		if (hnd_item != NULL)
+			proto_item_append_text(hnd_item, ": OpenPolicy handle");
+	}
 
 	return offset;
 }
@@ -608,23 +616,30 @@ lsa_dissect_lsaopenpolicy2_reply(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
+	guint32 status;
 	char *pol_name;
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, &policy_hnd, TRUE, FALSE);
-
-	if (dcv->private_data)
-		pol_name = g_strdup_printf(
-			"OpenPolicy2(%s)", (char *)dcv->private_data);
-	else
-		pol_name = g_strdup("OpenPolicy2 handle");
-
-	dcerpc_smb_store_pol_name(&policy_hnd, pol_name);
-
-	g_free(pol_name);
+			hf_lsa_hnd, &policy_hnd, &hnd_item, TRUE, FALSE);
 
 	offset = dissect_ntstatus(
-		tvb, offset, pinfo, tree, drep, hf_lsa_rc, NULL);
+		tvb, offset, pinfo, tree, drep, hf_lsa_rc, &status);
+
+	if (status == 0) {
+		if (dcv->private_data)
+			pol_name = g_strdup_printf(
+				"OpenPolicy2(%s)", (char *)dcv->private_data);
+		else
+			pol_name = g_strdup("OpenPolicy2 handle");
+
+		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+
+		if (hnd_item != NULL)
+			proto_item_append_text(hnd_item, ": %s", pol_name);
+
+		g_free(pol_name);
+	}
 
 	return offset;
 }
@@ -652,7 +667,7 @@ lsa_dissect_lsaqueryinformationpolicy_rqst(tvbuff_t *tvb, int offset,
 	guint16 level;
 
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
 		hf_lsa_policy_information_class, &level);
@@ -1121,7 +1136,7 @@ lsa_dissect_lsadelete_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	return offset;
 }
@@ -1142,7 +1157,7 @@ lsa_dissect_lsaquerysecurityobject_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_lsa_info_type, NULL);
@@ -1171,7 +1186,7 @@ lsa_dissect_lsasetsecurityobject_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_lsa_info_type, NULL);
@@ -1316,7 +1331,7 @@ lsa_dissect_lsalookupsids_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_PSID_ARRAY, NDR_POINTER_REF,
@@ -1627,7 +1642,7 @@ lsa_dissect_lsasetquotasforaccount_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_POLICY_DEFAULT_QUOTA_INFO, NDR_POINTER_REF,
@@ -1653,7 +1668,7 @@ lsa_dissect_lsagetquotasforaccount_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	return offset;
 }
@@ -1679,7 +1694,7 @@ lsa_dissect_lsasetinformationpolicy_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
 		hf_lsa_policy_information_class, NULL);
@@ -1708,7 +1723,7 @@ lsa_dissect_lsaclearauditlog_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_nt_SID(tvb, offset,
 		pinfo, tree, drep, -1);
@@ -1726,7 +1741,7 @@ lsa_dissect_lsaclearauditlog_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_lsa_rc, NULL);
@@ -1739,7 +1754,7 @@ lsa_dissect_lsagetsystemaccessaccount_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	return offset;
 }
@@ -1764,7 +1779,7 @@ lsa_dissect_lsasetsystemaccessaccount_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_lsa_rid, NULL);
@@ -1789,7 +1804,7 @@ lsa_dissect_lsaopentrusteddomain_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_nt_SID(tvb, offset,
 		pinfo, tree, drep, -1);
@@ -1806,7 +1821,7 @@ lsa_dissect_lsaopentrusteddomain_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_lsa_rc, NULL);
@@ -1820,7 +1835,7 @@ lsa_dissect_lsadeletetrusteddomain_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_nt_SID(tvb, offset,
 		pinfo, tree, drep, -1);
@@ -1929,7 +1944,7 @@ lsa_dissect_lsaenumerateprivileges_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_lsa_count, NULL);
@@ -1962,7 +1977,7 @@ lsa_dissect_lsalookupprivilegevalue_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* privilege name */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -1993,7 +2008,7 @@ lsa_dissect_lsalookupprivilegename_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* LUID */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -2026,7 +2041,7 @@ lsa_dissect_lsaenumerateprivilegesaccount_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	return offset;
 }
@@ -2114,7 +2129,7 @@ lsa_dissect_lsaaddprivilegestoaccount_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] LUID_AND_ATTRIBUTES_ARRAY *privs */
 	offset = lsa_dissect_LUID_AND_ATTRIBUTES_ARRAY(tvb, offset,
@@ -2140,7 +2155,7 @@ lsa_dissect_lsaremoveprivilegesfromaccount_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in] char unknown */
 	offset = dissect_ndr_uint8 (tvb, offset, pinfo, tree, drep,
@@ -2171,7 +2186,7 @@ lsa_dissect_lsaenumerateaccounts_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in,out, ref] LSA_ENUMERATION_HANDLE *resume_hnd */
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -2209,7 +2224,7 @@ lsa_dissect_lsacreatetrusteddomain_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd_pol */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] LSA_TRUST_INFORMATION *domain */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -2229,7 +2244,7 @@ lsa_dissect_lsacreatetrusteddomain_reply(tvbuff_t *tvb, int offset,
 {
 	/* [out] LSA_HANDLE *hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_lsa_rc, NULL);
@@ -2243,7 +2258,7 @@ lsa_dissect_lsaenumeratetrusteddomains_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, out, ref] LSA_ENUMERATION_HANDLE *resume_hnd */
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -2443,7 +2458,7 @@ lsa_dissect_lsalookupnames_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in] ULONG count */
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -2501,7 +2516,7 @@ lsa_dissect_lsacreatesecret_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd_pol */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] LSA_UNICODE_STRING *name */
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
@@ -2521,7 +2536,7 @@ lsa_dissect_lsacreatesecret_reply(tvbuff_t *tvb, int offset,
 
 	/* [out] LSA_HANDLE *hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_lsa_rc, NULL);
@@ -2535,7 +2550,7 @@ lsa_dissect_lsaopenaccount_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd_pol */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] SID *account */
 	offset = dissect_ndr_nt_SID(tvb, offset,
@@ -2555,7 +2570,7 @@ lsa_dissect_lsaopenaccount_reply(tvbuff_t *tvb, int offset,
 {
 	/* [out] LSA_HANDLE *hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_lsa_rc, NULL);
@@ -2656,7 +2671,7 @@ lsa_dissect_lsaqueryinfotrusteddomain_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in] TRUSTED_INFORMATION_CLASS level */
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
@@ -2687,7 +2702,7 @@ lsa_dissect_lsasetinformationtrusteddomain_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in] TRUSTED_INFORMATION_CLASS level */
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
@@ -2718,7 +2733,7 @@ lsa_dissect_lsaopensecret_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd_pol */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] LSA_UNICODE_STRING *name */
 	offset = dissect_ndr_counted_string_cb(
@@ -2740,7 +2755,7 @@ lsa_dissect_lsaopensecret_reply(tvbuff_t *tvb, int offset,
 {
 	/* [out] LSA_HANDLE *hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_lsa_rc, NULL);
@@ -2754,7 +2769,7 @@ lsa_dissect_lsasetsecret_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, unique] LSA_SECRET *new_val */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -2786,7 +2801,7 @@ lsa_dissect_lsaquerysecret_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, out, unique] LSA_SECRET **curr_val */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -2848,7 +2863,7 @@ lsa_dissect_lsadeleteobject_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	return offset;
 }
@@ -2870,7 +2885,7 @@ lsa_dissect_lsaenumerateaccountswithuserright_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, unique] LSA_UNICODE_STRING *rights */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -2901,7 +2916,7 @@ lsa_dissect_lsaenumerateaccountrights_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] SID *account */
 	offset = dissect_ndr_nt_SID(tvb, offset,
@@ -2932,7 +2947,7 @@ lsa_dissect_lsaaddaccountrights_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] SID *account */
 	offset = dissect_ndr_nt_SID(tvb, offset,
@@ -2963,7 +2978,7 @@ lsa_dissect_lsaremoveaccountrights_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] SID *account */
 	offset = dissect_ndr_nt_SID(tvb, offset,
@@ -2999,7 +3014,7 @@ lsa_dissect_lsaquerytrusteddomaininfobyname_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE handle */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] LSA_UNICODE_STRING *name */
 	/* domain */
@@ -3036,7 +3051,7 @@ lsa_dissect_lsasettrusteddomaininfobyname_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE handle */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] LSA_UNICODE_STRING *name */
 	/* domain */
@@ -3072,7 +3087,7 @@ lsa_dissect_lsaquerytrusteddomaininfo_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE handle */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] SID *sid */
 	offset = dissect_ndr_nt_SID(tvb, offset,
@@ -3091,7 +3106,7 @@ lsa_dissect_lsaopentrusteddomainbyname_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE handle */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] LSA_UNICODE_STRING *name */
 	/* domain */
@@ -3112,7 +3127,7 @@ lsa_dissect_lsaopentrusteddomainbyname_reply(tvbuff_t *tvb, int offset,
 {
 	/* [out] LSA_HANDLE handle */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_lsa_rc, NULL);
@@ -3143,7 +3158,7 @@ lsa_dissect_lsasettrusteddomaininfo_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE handle */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] SID *sid */
 	offset = dissect_ndr_nt_SID(tvb, offset,
@@ -3177,7 +3192,7 @@ lsa_dissect_lsaqueryinformationpolicy2_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
 		hf_lsa_policy_information_class, NULL);
@@ -3206,7 +3221,7 @@ lsa_dissect_lsasetinformationpolicy2_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
 		hf_lsa_policy_information_class, NULL);
@@ -3233,7 +3248,7 @@ lsa_dissect_lsaquerydomaininformationpolicy_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
 		hf_lsa_policy_information_class, NULL);
@@ -3260,7 +3275,7 @@ lsa_dissect_lsasetdomaininformationpolicy_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
 		hf_lsa_policy_information_class, NULL);
@@ -3288,7 +3303,7 @@ lsa_dissect_lsalookupnames2_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in] ULONG count */
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -3355,7 +3370,7 @@ lsa_dissect_lsacreateaccount_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_nt_SID(tvb, offset,
 		pinfo, tree, drep, -1);
@@ -3371,7 +3386,7 @@ lsa_dissect_lsacreateaccount_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_lsa_rc, NULL);
@@ -3385,7 +3400,7 @@ lsa_dissect_lsalookupprivilegedisplayname_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] LSA_UNICODE_STRING *name */
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
@@ -3428,7 +3443,7 @@ lsa_dissect_lsastoreprivatedata_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] LSA_UNICODE_STRING *key */
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
@@ -3459,7 +3474,7 @@ lsa_dissect_lsaretrieveprivatedata_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] LSA_UNICODE_STRING *key */
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
@@ -3496,7 +3511,7 @@ lsa_dissect_lsaclosetrusteddomainex_rqst(tvbuff_t *tvb, int offset,
 
 	/* [in, out] LSA_HANDLE *tdHnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	return offset;
 }
@@ -3509,7 +3524,7 @@ lsa_dissect_lsaclosetrusteddomainex_reply(tvbuff_t *tvb, int offset,
 
 	/* [in, out] LSA_HANDLE *tdHnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_lsa_rc, NULL);
@@ -3581,7 +3596,7 @@ lsa_dissect_lsalookupsids2_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_PSID_ARRAY, NDR_POINTER_REF,
@@ -3679,7 +3694,7 @@ lsa_dissect_lsacreatetrusteddomainex_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] TRUSTED_DOMAIN_INFORMATION_EX *info */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -3705,7 +3720,7 @@ lsa_dissect_lsacreatetrusteddomainex_reply(tvbuff_t *tvb, int offset,
 {
 	/* [out] LSA_HANDLE *tdHnd) */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_lsa_rc, NULL);
@@ -3719,7 +3734,7 @@ lsa_dissect_lsaenumeratetrusteddomainsex_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, out, ref] LSA_ENUMERATION_HANDLE *resume_hnd */
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -3789,7 +3804,7 @@ lsa_dissect_lsafunction_38_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE handle */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in] USHORT flag */
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
@@ -3825,7 +3840,7 @@ lsa_dissect_lsafunction_3b_rqst(tvbuff_t *tvb, int offset,
 {
 	/* [in] LSA_HANDLE hnd */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] TRUSTED_DOMAIN_INFORMATION_EX *info */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -3851,7 +3866,7 @@ lsa_dissect_lsafunction_3b_reply(tvbuff_t *tvb, int offset,
 {
 	/* [out] LSA_HANDLE *h2) */
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-			hf_lsa_hnd, NULL, FALSE, FALSE);
+			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_lsa_rc, NULL);

@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\winreg packet disassembly
  * Copyright 2001-2003 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.c,v 1.16 2003/04/21 01:13:41 guy Exp $
+ * $Id: packet-dcerpc-reg.c,v 1.17 2003/06/05 04:22:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -112,17 +112,23 @@ RegOpenHKLM_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	      proto_tree *tree, char *drep)
 {
 	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
+	guint32 status;
 
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep,
-		hf_hnd, &policy_hnd, TRUE, FALSE);
-
-	dcerpc_smb_store_pol_name(&policy_hnd, "HKLM handle");
+		hf_hnd, &policy_hnd, &hnd_item, TRUE, FALSE);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_rc, NULL);
+				  hf_rc, &status);
+
+	if (status == 0) {
+		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, "HKLM handle");
+		if (hnd_item != NULL)
+			proto_item_append_text(hnd_item, ": HKLM handle");
+	}
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -154,17 +160,23 @@ RegOpenHKU_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	     proto_tree *tree, char *drep)
 {
 	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
+	guint32 status;
 
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep,
-		hf_hnd, &policy_hnd, TRUE, FALSE);
-
-	dcerpc_smb_store_pol_name(&policy_hnd, "HKU handle");
+		hf_hnd, &policy_hnd, &hnd_item, TRUE, FALSE);
 
 	offset = dissect_ntstatus(
-		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
+		tvb, offset, pinfo, tree, drep, hf_rc, &status);
+
+	if (status == 0) {
+		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, "HKU handle");
+		if (hnd_item != NULL)
+			proto_item_append_text(hnd_item, ": HKU handle");
+	}
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -196,17 +208,23 @@ RegOpenHKCR_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	      proto_tree *tree, char *drep)
 {
 	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
+	guint32 status;
 
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep,
-		hf_hnd, &policy_hnd, TRUE, FALSE);
-
-	dcerpc_smb_store_pol_name(&policy_hnd, "HKCR handle");
+		hf_hnd, &policy_hnd, &hnd_item, TRUE, FALSE);
 
 	offset = dissect_ntstatus(
-		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
+		tvb, offset, pinfo, tree, drep, hf_rc, &status);
+
+	if (status == 0) {
+		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, "HKCR handle");
+		if (hnd_item != NULL)
+			proto_item_append_text(hnd_item, ": HKCR handle");
+	}
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -225,7 +243,7 @@ RegClose_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep,
-		hf_hnd, NULL, FALSE, TRUE);
+		hf_hnd, NULL, NULL, FALSE, TRUE);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -240,7 +258,7 @@ RegClose_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep,
-		hf_hnd, NULL, FALSE, FALSE);
+		hf_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
@@ -262,7 +280,7 @@ RegQueryKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep,
-		hf_hnd, NULL, FALSE, FALSE);
+		hf_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_counted_string(
 		tvb, offset, pinfo, tree, drep, hf_querykey_class, 0);
@@ -332,7 +350,7 @@ RegOpenEntry_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep,
-		hf_hnd, NULL, FALSE, FALSE);
+		hf_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ndr_counted_string(
 		tvb, offset, pinfo, tree, drep, hf_querykey_class, 0);
@@ -355,17 +373,24 @@ RegOpenEntry_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       proto_tree *tree, char *drep)
 {
 	e_ctx_hnd policy_hnd;
+	proto_item *hnd_item;
+	guint32 status;
 
 	/* Parse packet */
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep,
-		hf_hnd, &policy_hnd, TRUE, FALSE);
-
-	dcerpc_smb_store_pol_name(&policy_hnd, "OpenEntry handle");
+		hf_hnd, &policy_hnd, &hnd_item, TRUE, FALSE);
 
 	offset = dissect_ntstatus(
-		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
+		tvb, offset, pinfo, tree, drep, hf_rc, &status);
+
+	if (status == 0) {
+		dcerpc_smb_store_pol_name(&policy_hnd, pinfo,
+			"OpenEntry handle");
+		if (hnd_item != NULL)
+			proto_item_append_text(hnd_item, ": OpenEntry handle");
+	}
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -384,7 +409,7 @@ RegUnknown1A_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep,
-		hf_hnd, NULL, FALSE, FALSE);
+		hf_hnd, NULL, NULL, FALSE, FALSE);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -421,7 +446,7 @@ RegEnumKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep,
-		hf_hnd, NULL, FALSE, FALSE);
+		hf_hnd, NULL, NULL, FALSE, FALSE);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 

@@ -2,7 +2,7 @@
  * Routines for MS Exchange MAPI
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-mapi.c,v 1.21 2003/05/10 02:15:04 guy Exp $
+ * $Id: packet-dcerpc-mapi.c,v 1.22 2003/06/05 04:22:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -253,7 +253,7 @@ mapi_logon_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_mapi_hnd, NULL, FALSE, FALSE);
+				       hf_mapi_hnd, NULL, NULL, FALSE, FALSE);
 
         DISSECT_UNKNOWN(20); /* this is 20 bytes, unless there are pointers */
 
@@ -283,7 +283,7 @@ mapi_unknown_02_request(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_mapi_hnd, NULL, FALSE, FALSE);
+				       hf_mapi_hnd, NULL, NULL, FALSE, FALSE);
 
 	if(!mapi_decrypt){
 		/* this is a unidimensional varying and conformant array of
@@ -309,7 +309,7 @@ mapi_unknown_02_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_mapi_hnd, NULL, FALSE, FALSE);
+				       hf_mapi_hnd, NULL, NULL, FALSE, FALSE);
 
 	if(!mapi_decrypt){
 		/* this is a unidimensional varying and conformant array of
@@ -336,7 +336,7 @@ mapi_logoff_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_mapi_hnd, NULL, FALSE, FALSE);
+				       hf_mapi_hnd, NULL, NULL, FALSE, FALSE);
 
 	return offset;
 }
@@ -346,7 +346,7 @@ mapi_logoff_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_mapi_hnd, NULL, FALSE, FALSE);
+				       hf_mapi_hnd, NULL, NULL, FALSE, FALSE);
 
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 			hf_mapi_rc, NULL);
