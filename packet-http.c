@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.77 2003/12/22 00:57:33 guy Exp $
+ * $Id: packet-http.c,v 1.78 2003/12/23 01:22:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -447,6 +447,18 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
+	/*
+	 * XXX - if there was a Content-Length entity header, we should
+	 * use its value, as there might be stuff in this tvbuff
+	 * past the end of the body.
+	 *
+	 * If there was no Content-Length entity header, we should
+	 * accumulate all data until the end of the connection.
+	 * That'd require that the TCP dissector call subdissectors
+	 * for all frames with FIN, even if they contain no data,
+	 * which would require subdissectors to deal intelligently
+	 * with empty segments.
+	 */
 	datalen = tvb_length_remaining(tvb, offset);
 	if (datalen > 0) {
 		tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, -1, -1);
