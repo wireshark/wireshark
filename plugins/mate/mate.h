@@ -101,6 +101,7 @@
 #define KEYWORD_INSERT "Insert"
 #define KEYWORD_MAP "Map"
 #define KEYWORD_GOGEXPIRE "GogExpiration"
+#define KEYWORD_GOPTREE "GopTree"
 #define KEYWORD_DISCARDPDU "DiscardPduData"
 #define KEYWORD_LIBPATH "ThingLibPath"
 #define KEYWORD_SHOWPDUTREE "ShowPduTree"
@@ -111,6 +112,10 @@
 #define KEYWORD_LIB "Lib"
 #define KEYWORD_ACCEPT "Accept"
 #define KEYWORD_REJECT "Reject"
+#define KEYWORD_NOTREE "NoTree"
+#define KEYWORD_PDUTREE "PduTree"
+#define KEYWORD_FRAMETREE "FrameTree"
+
 
 #define KEYWORD_DEBUGFILENAME "Debug_File"
 #define KEYWORD_DBG_GENERAL "Debug_General"
@@ -180,7 +185,7 @@ typedef struct _mate_cfg_item {
 	AVPL* start; /* start candidate avpl */
 	AVPL* stop;  /* stop candidate avpl */
 	AVPL* key; /* key candidate avpl */
-	gboolean show_pdu_tree;
+	guint8* show_pdu_tree;
 	gboolean show_times;
 	gboolean drop_gop; 
 	int hfid_gop_pdu;
@@ -190,6 +195,7 @@ typedef struct _mate_cfg_item {
 	GHashTable* gog_index;
 	
 	/* gog */
+	gboolean gop_as_subtree;
 	LoAL* keys;
 	float expiration;
 	int hfid_gog_num_of_gops;
@@ -204,13 +210,20 @@ typedef struct _mate_config {
 	gboolean drop_pdu; /* destroy the pdu if not assign to a gop */
 	gboolean drop_gop; /* destroy the gop if not assign to a gog */
 	guint8* mate_lib_path; /* where to look for "Include" files first */
-	gboolean show_pdu_tree;
+	guint8* show_pdu_tree;
 	gboolean show_times;
 	gboolean last_to_be_created;
 	avpl_match_mode match_mode;
 	avpl_replace_mode replace_mode;
+	gboolean gop_as_subtree;
+
+	
 	guint8* accept;
 	guint8* reject;
+	
+	guint8* no_tree;
+	guint8* frame_tree;
+	guint8* pdu_tree;
 	
 	/* what to dbgprint */
 	int dbg_lvl;	

@@ -561,12 +561,12 @@ static void analize_pdu(mate_pdu* pdu) {
 			if (candidate_stop) {
 				dbg_print (dbg_gop,4,dbg_facility,"analize_pdu: got candidate stop\n");
 				is_stop = new_avpl_exact_match("",pdu->avpl, candidate_stop,FALSE);
+			} else {
+				is_stop = new_avpl("");
 			}
 			
 			if(is_stop) {
-				avpl_str = avpl_to_str(is_stop);
-				dbg_print (dbg_gop,1,dbg_facility,"analize_pdu: is_stop: %s\n",avpl_str);
-				g_free(avpl_str);
+				dbg_print (dbg_gop,1,dbg_facility,"analize_pdu: is a `stop\n");
 				delete_avpl(is_stop,FALSE);
 				
 				if (! gop->released) {
@@ -575,7 +575,8 @@ static void analize_pdu(mate_pdu* pdu) {
 					if (gop->gog) gop->gog->num_of_released_gops++;
 				}
 				
-				pdu->is_stop = TRUE;
+				if (candidate_stop) pdu->is_stop = TRUE;
+				
 			} else {
 				dbg_print (dbg_gop,4,dbg_facility,"analize_pdu: is not a stop\n");
 			}
@@ -731,7 +732,7 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 
 extern int mate_packet(void *prs _U_, proto_tree* tree _U_, epan_dissect_t *edt _U_, void *dummy _U_) {
 	/* nothing to do yet */
-	return 1;
+	return 0;
 }
 
 static void delete_mate_pdu(mate_pdu* pdu) {

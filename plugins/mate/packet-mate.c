@@ -99,12 +99,15 @@ void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop
 	for (gog_gops = gog->gops; gog_gops; gog_gops = gog_gops->next) {
 		
 		if (gop != gog_gops) {
-			mate_gop_tree(gog_gop_tree, tvb, gog_gops);
+			if (gog->cfg->gop_as_subtree) {
+				mate_gop_tree(gog_gop_tree, tvb, gog_gops);
+			} else {
+				proto_tree_add_uint(gog_gop_tree,gog_gops->cfg->hfid,tvb,0,0,gog_gops->id);
+			}
 		} else {
 			 proto_tree_add_uint_format(gog_gop_tree,gop->cfg->hfid,tvb,0,0,gop->id,"%s of current frame: %d",gop->cfg->name,gop->id);
 		}
 	}
-	
 }
 
 void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
@@ -117,7 +120,10 @@ void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 	mate_pdu* gop_pdus;
 	float  rel_time;
 	float  gop_time;
-
+	guint8* pdu_str;
+	guint8* type_str;
+	guint32 pdu_item;
+	
 	gop_item = proto_tree_add_uint(tree,gop->cfg->hfid,tvb,0,0,gop->id);
 	gop_tree = proto_item_add_subtree(gop_item, gop->cfg->ett);
 	
@@ -138,42 +144,35 @@ void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 			proto_tree_add_float(gop_time_tree, gop->cfg->hfid_last_time, tvb, 0, 0, gop->last_time - gop->start_time); 
 		}
 	}
-
-	rel_time = gop_time = gop->start_time;
-
-	gop_pdu_item = proto_tree_add_uint(gop_tree, gop->cfg->hfid_gop_num_pdus, tvb, 0, 0,gop->num_of_pdus);
-	gop_pdu_tree = proto_item_add_subtree(gop_pdu_item, gop->cfg->ett_children);
 	
-	if (gop->cfg->show_pdu_tree) {
+	gop_pdu_item = proto_tree_add_uint(gop_tree, gop->cfg->hfid_gop_num_pdus, tvb, 0, 0,gop->num_of_pdus);
+
+	if (gop->cfg->show_pdu_tree != mc->no_tree) {
+		
+		gop_pdu_tree = proto_item_add_subtree(gop_pdu_item, gop->cfg->ett_children);
+
+		rel_time = gop_time = gop->start_time;
+
+		type_str = (gop->cfg->show_pdu_tree == mc->frame_tree ) ? "in frame:" : "id:";
+		
 		for (gop_pdus = gop->pdus; gop_pdus; gop_pdus = gop_pdus->next) {
+
+			pdu_item = (gop->cfg->show_pdu_tree == mc->frame_tree ) ? gop_pdus->frame : gop_pdus->id;
+
 			if (gop_pdus->is_start) {
-				proto_tree_add_uint_format(gop_pdu_tree,gop->cfg->hfid_gop_pdu,
-										   tvb,0,0,gop_pdus->frame,
-										   "Start PDU: in frame %i",
-										   gop_pdus->frame);
+				pdu_str = "Start ";
 			} else if (gop_pdus->is_stop) {
-				proto_tree_add_uint_format(gop_pdu_tree,gop->cfg->hfid_gop_pdu,
-										   tvb,0,0,gop_pdus->frame,
-										   "Stop PDU: in frame %i (%f : %f)",
-										   gop_pdus->frame,
-										   gop_pdus->time_in_gop,
-										   gop_pdus->time_in_gop-rel_time);
-				
+				pdu_str = "Stop ";
 			} else if (gop_pdus->after_release) {
-				proto_tree_add_uint_format(gop_pdu_tree,gop->cfg->hfid_gop_pdu,
-										   tvb,0,0,gop_pdus->frame,
-										   "After stop PDU: in frame %i (%f : %f)",
-										   gop_pdus->frame,
-										   gop_pdus->time_in_gop,
-										   gop_pdus->time_in_gop-rel_time);
+				pdu_str = "After stop ";
 			} else {
-				proto_tree_add_uint_format(gop_pdu_tree,gop->cfg->hfid_gop_pdu,
-										   tvb,0,0,gop_pdus->frame,
-										   "PDU: in frame %i (%f : %f)",
-										   gop_pdus->frame,
-										   gop_pdus->time_in_gop,
-										   gop_pdus->time_in_gop-rel_time);
+				pdu_str = "";
 			}
+			
+			proto_tree_add_uint_format(gop_pdu_tree,gop->cfg->hfid_gop_pdu,tvb,0,0,pdu_item,
+									   "%sPDU: %s %i (%f : %f)",pdu_str, type_str,
+									   pdu_item, gop_pdus->time_in_gop,
+									   gop_pdus->time_in_gop - rel_time);
 			
 			rel_time = gop_pdus->time_in_gop;
 			

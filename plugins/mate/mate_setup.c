@@ -123,6 +123,7 @@ static mate_cfg_item* new_mate_cfg_item(guint8* name) {
 	new->stop = NULL;
 	new->key = NULL;
 	new->keys = NULL;
+	new->gop_as_subtree = FALSE;
 
 	new->hfid = -1;
 	new->hfid_pdu_rel_time = -1;
@@ -571,7 +572,7 @@ static gboolean config_settings(AVPL*avpl) {
 	matecfg->discard_pdu_attributes = extract_named_bool(avpl, KEYWORD_DISCARDPDU,matecfg->discard_pdu_attributes);
 	matecfg->drop_pdu = extract_named_bool(avpl, KEYWORD_DROPPDU,matecfg->drop_pdu);
 	matecfg->drop_gop = extract_named_bool(avpl, KEYWORD_DROPGOP,matecfg->drop_gop);
-	matecfg->show_pdu_tree = extract_named_bool(avpl, KEYWORD_SHOWPDUTREE,matecfg->show_pdu_tree);
+	matecfg->show_pdu_tree = extract_named_str(avpl, KEYWORD_SHOWPDUTREE,matecfg->show_pdu_tree);
 	matecfg->show_times = extract_named_bool(avpl, KEYWORD_SHOWGOPTIMES,matecfg->show_times);
 
 	if(( avp = extract_avp_by_name(avpl,KEYWORD_DEBUGFILENAME) )) {
@@ -726,7 +727,7 @@ static gboolean config_gop(AVPL* avpl) {
 	}
 
 	cfg->drop_gop = extract_named_bool(avpl, KEYWORD_DROPGOP,matecfg->drop_gop);
-	cfg->show_pdu_tree = extract_named_bool(avpl, KEYWORD_SHOWPDUTREE, matecfg->show_pdu_tree);
+	cfg->show_pdu_tree = extract_named_str(avpl, KEYWORD_SHOWPDUTREE, matecfg->show_pdu_tree);
 	cfg->show_times = extract_named_bool(avpl, KEYWORD_SHOWGOPTIMES,matecfg->show_times);
 
 	cfg->key = avpl;
@@ -789,7 +790,7 @@ static gboolean config_gopextra(AVPL* avpl) {
 	}
 
 	cfg->drop_gop = extract_named_bool(avpl, KEYWORD_DROPGOP,cfg->drop_gop);
-	cfg->show_pdu_tree = extract_named_bool(avpl, KEYWORD_SHOWPDUTREE, cfg->show_pdu_tree);
+	cfg->show_pdu_tree = extract_named_str(avpl, KEYWORD_SHOWPDUTREE, cfg->show_pdu_tree);
 	cfg->show_times = extract_named_bool(avpl, KEYWORD_SHOWGOPTIMES,cfg->show_times);
 
 	merge_avpl(cfg->extra,avpl,TRUE);
@@ -815,7 +816,8 @@ static gboolean config_gog(AVPL* avpl) {
 	cfg = new_gogcfg(name);
 
 	cfg->expiration = extract_named_float(avpl, KEYWORD_GOGEXPIRE,matecfg->gog_expiration);
-
+	cfg->gop_as_subtree = extract_named_bool(avpl, KEYWORD_GOPTREE,matecfg->gop_as_subtree);
+	
 	return TRUE;
 }
 
@@ -872,6 +874,7 @@ static gboolean config_gogextra(AVPL* avpl) {
 	}
 
 	cfg->expiration = extract_named_float(avpl, KEYWORD_GOGEXPIRE,cfg->expiration);
+	cfg->gop_as_subtree = extract_named_bool(avpl, KEYWORD_GOPTREE,cfg->gop_as_subtree);
 
 	merge_avpl(cfg->extra,avpl,TRUE);
 
@@ -1276,9 +1279,16 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	hfri.hfinfo.name = g_strdup_printf("A PDU of %s",cfg->name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Pdu",cfg->name);
 	hfri.hfinfo.blurb = g_strdup_printf("A PDU assigned to this %s",cfg->name);
-	hfri.hfinfo.type = FT_FRAMENUM;
 
-	g_array_append_val(matecfg->hfrs,hfri);
+	if (cfg->show_pdu_tree == matecfg->frame_tree) {
+		hfri.hfinfo.type = FT_FRAMENUM;
+		g_array_append_val(matecfg->hfrs,hfri);
+	} else 	if (cfg->show_pdu_tree == matecfg->pdu_tree) {
+		hfri.hfinfo.type = FT_UINT32;
+		g_array_append_val(matecfg->hfrs,hfri);
+	} else {
+		cfg->show_pdu_tree = matecfg->no_tree;
+	}
 
 	while(( avp = get_next_avp(cfg->key,&cookie) )) {
 		if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
@@ -1293,13 +1303,15 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 		}
 	}
 
-	cookie = NULL;
-	while(( avp = get_next_avp(cfg->stop,&cookie) )) {
-		if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
-			new_attr_hfri(cfg,avp->n);
+	if (cfg->stop) {
+		cookie = NULL;
+		while(( avp = get_next_avp(cfg->stop,&cookie) )) {
+			if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
+				new_attr_hfri(cfg,avp->n);
+			}
 		}
 	}
-
+	
 	cookie = NULL;
 	while(( avp = get_next_avp(cfg->extra,&cookie) )) {
 		if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
@@ -1505,7 +1517,18 @@ static void init_actions() {
 	matecfg->reject = avp->n;
 	insert_avp(all_keywords,avp);
 
+	avp = new_avp(KEYWORD_NOTREE,"",'=');
+	matecfg->no_tree = avp->n;
+	insert_avp(all_keywords,avp);
 
+	avp = new_avp(KEYWORD_FRAMETREE,"",'=');
+	matecfg->frame_tree = avp->n;
+	insert_avp(all_keywords,avp);
+
+	avp = new_avp(KEYWORD_PDUTREE,"",'=');
+	matecfg->pdu_tree = avp->n;
+	insert_avp(all_keywords,avp);
+	
 	if (actions) {
 		g_hash_table_destroy(actions);
 	}
