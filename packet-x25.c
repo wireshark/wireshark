@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-x25.c,v 1.11 1999/12/09 13:51:08 oabad Exp $
+ * $Id: packet-x25.c,v 1.12 1999/12/09 23:03:49 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -618,95 +618,161 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 	case X25_FAC_CLASS_A:
 	    switch (*ptr) {
 	    case X25_FAC_COMP_MARK:
+		if (fac_tree)
+		    proto_tree_add_text(fac_tree, *offset, 1, "Code : 00 (Marker)");
 		switch (ptr[1]) {
 		case 0x00:
 		    if (fac_tree)
-			proto_tree_add_text(fac_tree, *offset, 2,
-					    "Network complementary services - calling DTE");
+			proto_tree_add_text(fac_tree, *offset+1, 1,
+					    "Parameter : 00 (Network complementary "
+					    "services - calling DTE)");
 		    break;
 		case 0xFF:
 		    if (fac_tree)
-			proto_tree_add_text(fac_tree, *offset, 2,
-					    "Network complementary services - called DTE");
+			proto_tree_add_text(fac_tree, *offset+1, 1,
+					    "Parameter : FF (Network complementary "
+					    "services - called DTE)");
 		    break;
 		case 0x0F:
 		    if (fac_tree)
-			proto_tree_add_text(fac_tree, *offset, 2,
-					    "DTE complementary services");
+			proto_tree_add_text(fac_tree, *offset+1, 1,
+					    "Parameter : 0F (DTE complementary "
+					    "services)");
 		    break;
 		default:
 		    if (fac_tree)
-			proto_tree_add_text(fac_tree, *offset, 2,
-					    "Unknown marker");
+			proto_tree_add_text(fac_tree, *offset+1, 1,
+					    "Parameter : %02X (Unknown marker)",
+					    ptr[1]);
 		    break;
 		}
 		break;
 	    case X25_FAC_REVERSE:
 		if (fac_tree) {
-		    if (ptr[1] & 0x01)
-			proto_tree_add_text(fac_tree, *offset, 2,
-					    "Reverse Charging");
-		    else
-			proto_tree_add_text(fac_tree, *offset, 2,
-					    "No Reverse Charging");
+		    proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X (Reverse "
+			    "charging / Fast select)", *ptr);
+		    proto_tree_add_text(fac_tree, *offset+1, 1, "Parameter : %02X",
+			    ptr[1]);
 		    if (ptr[1] & 0xC0)
-			proto_tree_add_text(fac_tree, *offset, 2,
-					    "Fast select with restriction");
+			proto_tree_add_text(fac_tree, *offset+1, 1,
+				"11.. .... = Fast select with restriction");
 		    else if (ptr[1] & 0x80)
-			proto_tree_add_text(fac_tree, *offset, 2,
-					    "Fast select - no restriction");
+			proto_tree_add_text(fac_tree, *offset+1, 1,
+				"10.. .... = Fast select - no restriction");
 		    else
-			proto_tree_add_text(fac_tree, *offset, 2,
-					    "No Fast select");
+			proto_tree_add_text(fac_tree, *offset+1, 1,
+				"00.. .... = Fast select not requested");
+		    proto_tree_add_text(fac_tree, *offset+1, 1,
+			    decode_boolean_bitfield(ptr[1], 0x01, 1*8,
+				"Reverse charging requested",
+				"Reverse charging not requested"));
 		}
 		break;
 	    case X25_FAC_THROUGHPUT:
 		if (fac_tree) {
-		    int called_dte_throughput=0;
-		    int calling_dte_throughput=0;
+		    char tmpbuf[80];
 
-		    if ( (ptr[1] >> 4) >= 3 && (ptr[1] >> 4) <= 13 )
-			called_dte_throughput = 75*2^((ptr[1] >> 4)-3);
-		    if ( (ptr[1] & 0x0F) >= 3 && (ptr[1] & 0x0F) <= 13 )
-			calling_dte_throughput = 75*2^((ptr[1] & 0x0F)-3);
-		    proto_tree_add_text(fac_tree, *offset, 2,
-			    "Throughput: called DTE: %d - calling DTE: %d",
-			    called_dte_throughput, calling_dte_throughput);
+		    proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X (Throughput "
+			    "class negociation)", *ptr);
+		    switch (ptr[1] >> 4)
+		    {
+		    case 3:
+		    case 4:
+		    case 5:
+		    case 6:
+		    case 7:
+		    case 8:
+		    case 9:
+		    case 10:
+		    case 11:
+			sprintf(tmpbuf, "From the called DTE : %%u (%d bps)",
+				75*(1<<((ptr[1] >> 4)-3)));
+			break;
+		    case 12:
+			sprintf(tmpbuf, "From the called DTE : %%u (48000 bps)");
+			break;
+		    case 13:
+			sprintf(tmpbuf, "From the called DTE : %%u (64000 bps)");
+			break;
+		    default:
+			sprintf(tmpbuf, "From the called DTE : %%u (Reserved)");
+		    }
+		    proto_tree_add_text(fac_tree, *offset+1, 1,
+			    decode_numeric_bitfield(ptr[1], 0xF0, 1*8, tmpbuf));
+		    switch (ptr[1] & 0x0F)
+		    {
+		    case 3:
+		    case 4:
+		    case 5:
+		    case 6:
+		    case 7:
+		    case 8:
+		    case 9:
+		    case 10:
+		    case 11:
+			sprintf(tmpbuf, "From the calling DTE : %%u (%d bps)",
+				75*(1<<((ptr[1] & 0x0F)-3)));
+			break;
+		    case 12:
+			sprintf(tmpbuf, "From the calling DTE : %%u (48000 bps)");
+			break;
+		    case 13:
+			sprintf(tmpbuf, "From the calling DTE : %%u (64000 bps)");
+			break;
+		    default:
+			sprintf(tmpbuf, "From the calling DTE : %%u (Reserved)");
+		    }
+		    proto_tree_add_text(fac_tree, *offset+1, 1,
+			    decode_numeric_bitfield(ptr[1], 0x0F, 1*8, tmpbuf));
 		}
 		break;
 	    case X25_FAC_CUG:
-		if (fac_tree)
-		    proto_tree_add_text(fac_tree, *offset, 2,
-					"Closed user group: %d%d",
-					ptr[1] >> 4, ptr[1] & 0x0F);
+		if (fac_tree) {
+		    proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X (Closed user "
+			    "group selection)", *ptr);
+		    proto_tree_add_text(fac_tree, *offset+1, 1,
+			    "Closed user group: %02X", ptr[1]);
+		}
 		break;
 	    case X25_FAC_CALLED_MODIF:
-		if (fac_tree)
+		if (fac_tree) {
+		    proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X (Called "
+			    "address modified)", *ptr);
 		    proto_tree_add_text(fac_tree, *offset, 2,
-					"Called address modified: %02X",
-					ptr[1]);
+			    "Parameter %02X", ptr[1]);
+		}
 		break;
 	    case X25_FAC_CUG_OUTGOING_ACC:
-		if (fac_tree)
-		    proto_tree_add_text(fac_tree, *offset, 2,
-					"CUG with outgoing access: %d%d",
-					ptr[1]>>4, ptr[1] & 0x0F);
+		if (fac_tree) {
+		    proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X (Closed user "
+			    "group with outgoing access selection)", *ptr);
+		    proto_tree_add_text(fac_tree, *offset+1, 1,
+			    "Closed user group: %02X", ptr[1]);
+		}
 		break;
 	    case X25_FAC_THROUGHPUT_MIN:
-		if (fac_tree)
-		    proto_tree_add_text(fac_tree, *offset, 2,
-					"Minimum throughput class");
+		if (fac_tree) {
+		    proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X (Minimum "
+			    "throughput class)", *ptr);
+		    proto_tree_add_text(fac_tree, *offset+1, 1,
+			    "Parameter %02X", ptr[1]);
+		}
 		break;
 	    case X25_FAC_EXPRESS_DATA:
-		if (fac_tree)
-		    proto_tree_add_text(fac_tree, *offset, 2,
-					"Negociation of express data");
+		if (fac_tree) {
+		    proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X (Negociation "
+			    "of express data)", *ptr);
+		    proto_tree_add_text(fac_tree, *offset+1, 1,
+			    "Parameter %02X", ptr[1]);
+		}
 		break;
 	    default:
-		if (fac_tree)
-		    proto_tree_add_text(fac_tree, *offset, 2,
-					"Unknown facility %02X, value %02X",
-					ptr[0], ptr[1]);
+		if (fac_tree) {
+		    proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X (Unknown)",
+			    *ptr);
+		    proto_tree_add_text(fac_tree, *offset+1, 1,
+			    "Parameter %02X", ptr[1]);
+		}
 		break;
 	    }
 	    (*offset) += 2;
