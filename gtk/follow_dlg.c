@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.14 2001/11/21 23:16:26 gram Exp $
+ * $Id: follow_dlg.c,v 1.15 2001/12/12 21:38:58 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -224,6 +224,8 @@ follow_stream_cb(GtkWidget * w, gpointer data)
 	gtk_signal_connect(GTK_OBJECT(streamwindow), "destroy",
 			   GTK_SIGNAL_FUNC(follow_destroy_cb), NULL);
 
+	gtk_signal_connect (GTK_OBJECT (streamwindow), "realize",
+			   GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
 	if (incomplete_tcp_stream) {
 	    gtk_window_set_title(GTK_WINDOW(streamwindow),
 				 "Contents of TCP stream (incomplete)");

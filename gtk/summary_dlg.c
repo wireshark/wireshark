@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.9 2001/02/11 09:28:17 guy Exp $
+ * $Id: summary_dlg.c,v 1.10 2001/12/12 21:38:59 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,7 @@
 #include "summary.h"
 #include "summary_dlg.h"
 #include "dlg_utils.h"
+#include "ui_util.h"
 
 #define SUM_STR_MAX 1024
 
@@ -75,6 +76,8 @@ summary_open_cb(GtkWidget *w, gpointer d)
   seconds = summary.stop_time - summary.start_time;
   sum_open_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(sum_open_w), "Ethereal: Summary");
+  gtk_signal_connect (GTK_OBJECT (sum_open_w), "realize",
+    GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);

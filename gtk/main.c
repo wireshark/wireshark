@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.217 2001/12/06 04:25:09 gram Exp $
+ * $Id: main.c,v 1.218 2001/12/12 21:38:58 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -147,6 +147,7 @@
 #include "register.h"
 #include "prefs.h"
 #include "ringbuffer.h"
+#include "ui_util.h"
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 
@@ -1825,6 +1826,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_widget_set_name(top_level, "main window");
   gtk_signal_connect(GTK_OBJECT(top_level), "delete_event", 
     GTK_SIGNAL_FUNC(main_window_delete_event_cb), NULL);
+  gtk_signal_connect (GTK_OBJECT (top_level), "realize",
+    GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
   gtk_window_set_title(GTK_WINDOW(top_level), "The Ethereal Network Analyzer");
   gtk_widget_set_usize(GTK_WIDGET(top_level), DEF_WIDTH, -1);
   gtk_window_set_policy(GTK_WINDOW(top_level), TRUE, TRUE, FALSE);

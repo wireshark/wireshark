@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.18 2001/08/21 06:39:18 guy Exp $
+ * $Id: help_dlg.c,v 1.19 2001/12/12 21:38:58 gerald Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -93,6 +93,8 @@ void help_cb(GtkWidget *w, gpointer data)
   gtk_window_set_title(GTK_WINDOW(help_w), "Ethereal: Help");
   gtk_signal_connect(GTK_OBJECT(help_w), "destroy",
 		     GTK_SIGNAL_FUNC(help_destroy_cb), NULL);
+  gtk_signal_connect (GTK_OBJECT (help_w), "realize",
+		     GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
   gtk_widget_set_usize(GTK_WIDGET(help_w), DEF_WIDTH * 2/3, DEF_HEIGHT * 2/3);
   gtk_container_border_width(GTK_CONTAINER(help_w), 2);
   

@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.9 2001/12/12 01:19:28 guy Exp $
+ * $Id: tcp_graph.c,v 1.10 2001/12/12 21:38:59 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,6 +48,7 @@
 #include "gtkglobals.h"		/* set_scrollbar_placement_srollw() and
 				 * remember_scrolled_window() */
 #include "simple_dialog.h"
+#include "ui_util.h"
 #include "tcp_graph.h"
 
 /* from <net/ethernet.h> */
@@ -578,6 +579,8 @@ static void create_text_widget (struct graph *g)
 	gtk_widget_set_name (streamwindow, "Packet chain");
 	gtk_widget_set_usize (GTK_WIDGET (streamwindow), TXT_WIDTH, TXT_HEIGHT);
 	gtk_container_border_width (GTK_CONTAINER(streamwindow), 2);
+	gtk_signal_connect (GTK_OBJECT (streamwindow), "realize",
+		GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
 
 	box = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (streamwindow), box);
@@ -677,6 +680,8 @@ static void create_drawing_area (struct graph *g)
 #endif
 	g->toplevel = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_widget_set_name (g->toplevel, "Test Graph");
+	gtk_signal_connect (GTK_OBJECT (g->toplevel), "realize",
+		GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
 
 	/* Create the drawing area */
 	g->drawing_area = gtk_drawing_area_new ();
@@ -817,6 +822,8 @@ static void control_panel_create (struct graph *g)
 	gtk_box_pack_start (GTK_BOX (button_box), close, TRUE, TRUE, 0);
 
 	toplevel = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	gtk_signal_connect (GTK_OBJECT (toplevel), "realize",
+		GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
 
 	table = gtk_table_new (2, 1,  FALSE);
 	gtk_container_add (GTK_CONTAINER (toplevel), table);
@@ -957,6 +964,9 @@ static void callback_create_help (GtkWidget *widget, gpointer data)
 	toplevel = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(toplevel), "Help for TCP graphing");
 	gtk_widget_set_usize (toplevel, 500, 400);
+	gtk_signal_connect (GTK_OBJECT (toplevel), "realize",
+		GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
+
 	box = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (toplevel), box);
 	scroll = gtk_scrolled_window_new (NULL, NULL);
@@ -2536,6 +2546,8 @@ static void magnify_create (struct graph *g, int x, int y)
 	memcpy ((void * )mg, (void * )g, sizeof (struct graph));
 
 	mg->toplevel = gtk_window_new (GTK_WINDOW_POPUP);
+	gtk_signal_connect (GTK_OBJECT (mg->toplevel), "realize",
+		GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
 	mg->drawing_area = mg->toplevel;
 	gtk_widget_set_usize (mg->toplevel, g->magnify.width, g->magnify.height);
 	gtk_widget_set_events (mg->drawing_area, GDK_EXPOSURE_MASK

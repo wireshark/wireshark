@@ -1,6 +1,6 @@
 /* proto_hier_stats_dlg.c
  *
- * $Id: proto_hier_stats_dlg.c,v 1.4 2001/03/29 04:21:35 gram Exp $
+ * $Id: proto_hier_stats_dlg.c,v 1.5 2001/12/12 21:38:59 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,6 +31,7 @@
 
 #include "proto_hier_stats.h"
 #include "dlg_utils.h"
+#include "ui_util.h"
 #include "main.h"
 
 #define NUM_STAT_COLUMNS 6
@@ -185,6 +186,8 @@ proto_hier_stats_cb(GtkWidget *w, gpointer d)
 
 	dlg = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(dlg), "Ethereal: " WNAME);
+	gtk_signal_connect (GTK_OBJECT (dlg), "realize",
+		GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
 
 	vbox = gtk_vbox_new(FALSE, 5);
 	gtk_container_border_width(GTK_CONTAINER(vbox), 5);

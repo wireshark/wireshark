@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.5 2000/08/23 06:55:37 guy Exp $
+ * $Id: dlg_utils.c,v 1.6 2001/12/12 21:38:58 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,6 +31,7 @@
 #include <gdk/gdkkeysyms.h>
 
 #include "gtkglobals.h"
+#include "ui_util.h"
 
 static void
 dlg_activate (GtkWidget *widget, gpointer ok_button);
@@ -47,6 +48,8 @@ dlg_window_new(const gchar *title)
 	win = gtk_window_new(GTK_WINDOW_DIALOG);
 	gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
 	gtk_window_set_title(GTK_WINDOW(win), title);
+	gtk_signal_connect (GTK_OBJECT (win), "realize",
+		GTK_SIGNAL_FUNC (window_icon_realize_cb), NULL);
 	return win;
 }
 

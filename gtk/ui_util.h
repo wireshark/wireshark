@@ -1,7 +1,7 @@
 /* ui_util.h
  * Definitions for UI utility routines
  *
- * $Id: ui_util.h,v 1.1 2001/03/24 02:23:08 guy Exp $
+ * $Id: ui_util.h,v 1.2 2001/12/12 21:38:59 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,5 +32,8 @@
    one such window and such a window has already been popped up - we
    pop up the existing one rather than creating a new one. */
 void reactivate_window(GtkWidget *);
+
+/* Set the window icon to the 16x16 3D icon. */
+void window_icon_realize_cb (GtkWidget *, gpointer);
 
 #endif /* __GTKGUIUI_UTIL_H__ */

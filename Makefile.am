@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.393 2001/12/11 03:04:26 gram Exp $
+# $Id: Makefile.am,v 1.394 2001/12/12 21:38:57 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -823,8 +823,9 @@ EXTRA_DIST = \
 	image/ethereal48x48.png \
 	image/ethereal.ico	\
 	image/ethereal.rc.in	\
-	image/icon-excl.xpm     \
-	image/icon-ethereal.xpm \
+	image/eexcl3d64.xpm     \
+	image/eicon3d16.xpm	\
+	image/eicon3d64.xpm	\
 	image/clist_ascend.xpm	\
 	image/clist_descend.xpm	\
 	image/mergecap.rc.in	\

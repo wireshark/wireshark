@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.7 2000/10/09 06:38:36 guy Exp $
+ * $Id: simple_dialog.c,v 1.8 2001/12/12 21:38:59 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,8 +42,8 @@
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 
-#include "image/icon-excl.xpm"
-#include "image/icon-ethereal.xpm"
+#include "image/eexcl3d64.xpm"
+#include "image/eicon3d64.xpm"
 
 static void simple_dialog_cancel_cb(GtkWidget *, gpointer);
 
@@ -78,16 +78,16 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
   /* Main window */
   switch (type & ~ESD_TYPE_MODAL) {
   case ESD_TYPE_WARN :
-    icon = icon_excl_xpm;
+    icon = eexcl3d64_xpm;
     win = dlg_window_new("Ethereal: Warning");
     break;
   case ESD_TYPE_CRIT :
-    icon = icon_excl_xpm;
+    icon = eexcl3d64_xpm;
     win = dlg_window_new("Ethereal: Error");
     break;
   case ESD_TYPE_INFO :
   default :
-    icon = icon_ethereal_xpm;
+    icon = eicon3d64_xpm;
     win = dlg_window_new("Ethereal: Information");
     break;
   }

@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.4 2001/03/24 02:23:08 guy Exp $
+ * $Id: ui_util.c,v 1.5 2001/12/12 21:38:59 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,6 +34,8 @@
 #include "gtkglobals.h"
 #include "ui_util.h"
 #include "../ui_util.h"
+#include "image/eicon3d16.xpm"
+
 
 /* Set the name of the top-level window and its icon.
    XXX - for some reason, KWM insists on making the icon name be just
@@ -65,4 +67,33 @@ reactivate_window(GtkWidget *win)
 {
   gdk_window_show(win->window);
   gdk_window_raise(win->window);
+}
+
+/* Set our window icon.  The GDK documentation doesn't provide any
+   actual documentation for gdk_window_set_icon(), so we'll steal
+   libgimp/gimpdialog.c:gimp_dialog_realize_callback() from the Gimp
+   sources and assume it's safe. 
+   
+   XXX - The current icon size is fixed at 16x16 pixels, which looks fine
+   in KDE and GNOME.  Some windowing environments (e.g. CDE) have larger
+   icon sizes, so we need to find a way to size our icon appropriately.
+   
+   */
+void
+window_icon_realize_cb (GtkWidget *win, gpointer data) 
+{
+#ifndef WIN32
+  static GdkPixmap *icon_pmap = NULL;
+  static GdkBitmap *icon_mask = NULL;
+  GtkStyle         *style;
+
+  style = gtk_widget_get_style (win);
+
+  if (icon_pmap == NULL) {
+    icon_pmap = gdk_pixmap_create_from_xpm_d (win->window,
+		&icon_mask, &style->bg[GTK_STATE_NORMAL], eicon3d16_xpm);
+  }
+
+  gdk_window_set_icon (win->window, NULL, icon_pmap, icon_mask);
+#endif
 }
