@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.16 1999/10/22 07:17:29 guy Exp $
+ * $Id: follow.c,v 1.17 1999/11/18 21:04:53 guy Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -54,7 +54,7 @@ static guint32 ip_address[2];
 static u_int   tcp_port[2];
 
 static int check_fragments( int );
-static void write_packet_data( const u_char *, int );
+static void write_packet_data( const char *, int );
 
 /* this will build libpcap filter text that will only 
    pass the packets related to the stream. There is a 
@@ -262,7 +262,7 @@ reset_tcp_reassembly() {
 }
 
 static void 
-write_packet_data( const u_char* data, int length ) {
+write_packet_data( const char* data, int length ) {
   fwrite( data, 1, length, data_out_file );
 }
   

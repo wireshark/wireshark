@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.6 1999/11/16 11:42:32 guy Exp $
+ * $Id: packet-icq.c,v 1.7 1999/11/18 21:04:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -395,7 +395,7 @@ static char*
 findSubCmd(int num)
 {
     return findcmd(serverMetaSubCmdCode, num);
-};
+}
 
 static char*
 findClientCmd(int num)

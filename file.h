@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.52 1999/11/08 01:03:32 guy Exp $
+ * $Id: file.h,v 1.53 1999/11/18 21:04:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,12 +60,6 @@
 #define file_read(buf, bsize, count, file) gzread((file),(buf),((count)*(bsize)))
 #define file_write(buf, bsize, count, file) gzwrite((file),(buf),((count)*(bsize)))
 #define file_close gzclose
-static inline int file_error(void *fh) {
-    int errnum;
-    gzerror(fh, &errnum);
-    if (errnum<0) return errnum;
-    return 0;
-}
 
 #else /* No zLib */
 #define FILE_T FILE *
@@ -75,7 +69,6 @@ static inline int file_error(void *fh) {
 #define file_read fread
 #define file_write fwrite
 #define file_close fclose
-#define file_error ferror
 #endif /* HAVE_LIBZ */
 
 typedef struct bpf_program bpf_prog;
