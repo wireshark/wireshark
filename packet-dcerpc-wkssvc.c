@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.29 2003/11/19 07:13:01 sharpe Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.30 2004/01/18 06:38:14 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1125,7 +1125,7 @@ proto_register_dcerpc_wkssvc(void)
 	    { "Logon Server", "wkssvc.logon.server", FT_STRING, BASE_NONE,
 	      NULL, 0x0, "Logon Server", HFILL}},
 	  { &hf_wkssvc_rc,
-	    { "Return code", "srvsvc.rc", FT_UINT32,
+	    { "Return code", "wkssvc.rc", FT_UINT32,
 	      BASE_HEX, VALS(DOS_errors), 0x0, "Return Code", HFILL}},
 	  { &hf_wkssvc_num_entries, 
 	    { "Num Entries", "wkssvc.num.entries", FT_INT32,
