@@ -2,7 +2,7 @@
  * Routines for H.225 packet dissection
  * 2003  Tomas Kukosa
  *
- * $Id: packet-h225.h,v 1.5 2003/11/16 23:11:18 sahlberg Exp $
+ * $Id: packet-h225.h,v 1.6 2003/12/15 04:23:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,5 +46,24 @@ typedef struct _h225_packet_info {
 	gboolean request_available;	/* true, if response matches to a request */
 	nstime_t delta_time; 		/* this is the RAS response time delay */
 } h225_packet_info;
+
+/*
+ * the following allows TAP code access to the messages
+ * without having to duplicate it
+ */
+extern const value_string RasMessage_vals[];
+extern const value_string h323_message_body_vals[];
+extern const value_string FacilityReason_vals[];
+extern const value_string GatekeeperRejectReason_vals[];
+extern const value_string UnregRequestReason_vals[];
+extern const value_string UnregRejectReason_vals[];
+extern const value_string BandRejectReason_vals[];
+extern const value_string DisengageReason_vals[];
+extern const value_string DisengageRejectReason_vals[];
+extern const value_string InfoRequestNakReason_vals[];
+extern const value_string ReleaseCompleteReason_vals[];
+extern const value_string AdmissionRejectReason_vals[];
+extern const value_string LocationRejectReason_vals[];
+extern const value_string RegistrationRejectReason_vals[];
 
 #endif  /* __H225_H__ */

@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h225.c,v 1.25 2003/11/16 23:11:18 sahlberg Exp $
+ * $Id: packet-h225.c,v 1.26 2003/12/15 04:23:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1237,7 +1237,7 @@ dissect_h225_ScnConnectionAggregation(tvbuff_t *tvb, int offset, packet_info *pi
 }
 
 
-static const value_string FacilityReason_vals[] = {
+const value_string FacilityReason_vals[] = {
 	{ 0, "routeCallToGatekeeper" },
 	{ 1, "callForwarded" },
 	{ 2, "routeCallToMC" },
@@ -1535,7 +1535,7 @@ dissect_h225_CCSCcallStartingPoint(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 
-static const value_string GatekeeperRejectReason_vals[] = {
+const value_string GatekeeperRejectReason_vals[] = {
 	{ 0, "resourceUnavailable" },
 	{ 1, "terminalExcluded" },
 	{ 2, "invalidRevision" },
@@ -1574,7 +1574,7 @@ dissect_h225_GatekeeperRejectReason(tvbuff_t *tvb, int offset, packet_info *pinf
 
 
 
-static const value_string UnregRequestReason_vals[] = {
+const value_string UnregRequestReason_vals[] = {
 	{ 0, "reregistrationRequired" },
 	{ 1, "ttlExpired" },
 	{ 2, "securityDenial" },
@@ -1607,7 +1607,7 @@ dissect_h225_UnregRequestReason(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 
-static const value_string UnregRejectReason_vals[] = {
+const value_string UnregRejectReason_vals[] = {
 	{ 0, "notCurrentlyRegistered" },
 	{ 1, "callInProgress" },
 	{ 2, "undefinedReason" },
@@ -1710,7 +1710,7 @@ dissect_h225_TransportQOS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 }
 
 
-static const value_string BandRejectReason_vals[] = {
+const value_string BandRejectReason_vals[] = {
 	{ 0, "notBound" },
 	{ 1, "invalidConferenceID" },
 	{ 2, "invalidPermission" },
@@ -1749,7 +1749,7 @@ dissect_h225_BandRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
 
 
-static const value_string DisengageReason_vals[] = {
+const value_string DisengageReason_vals[] = {
 	{ 0, "forcedDrop" },
 	{ 1, "normalDrop" },
 	{ 2, "undefinedReason" },
@@ -1773,7 +1773,7 @@ dissect_h225_DisengageReason(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 
 
-static const value_string DisengageRejectReason_vals[] = {
+const value_string DisengageRejectReason_vals[] = {
 	{ 0, "notRegistered" },
 	{ 1, "requestToDropOther" },
 	{ 2, "securityDenial" },
@@ -1801,7 +1801,7 @@ dissect_h225_DisengageRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 
-static const value_string InfoRequestNakReason_vals[] = {
+const value_string InfoRequestNakReason_vals[] = {
 	{ 0, "notRegistered" },
 	{ 1, "securityDenial" },
 	{ 2, "undefinedReason" },
@@ -2305,7 +2305,7 @@ dissect_h225_nonStandardReason(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 	return offset;
 }
 
-static const value_string ReleaseCompleteReason_vals[] = {
+const value_string ReleaseCompleteReason_vals[] = {
 	{ 0, "noBandwidth" },
 	{ 1, "gatekeeperResources" },
 	{ 2, "unreachableDestination" },
@@ -5070,7 +5070,7 @@ dissect_h225_routeCallToSCN(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	return offset;
 }
 
-static const value_string AdmissionRejectReason_vals[] = {
+const value_string AdmissionRejectReason_vals[] = {
 	{ 0, "calledPartyNotRegistered" },
 	{ 1, "invalidPermission" },
 	{ 2, "requestDenied" },
@@ -5246,7 +5246,7 @@ dissect_h225_IntegrityMechanism(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 	return offset;
 }
 
-static const value_string LocationRejectReason_vals[] = {
+const value_string LocationRejectReason_vals[] = {
 	{ 0, "notRegistered" },
 	{ 1, "invalidPermission" },
 	{ 2, "requestDenied" },
@@ -6029,7 +6029,7 @@ dissect_h225_duplicateAlias(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 
 
-static const value_string RegistrationRejectReason_vals[] = {
+const value_string RegistrationRejectReason_vals[] = {
 	{ 0, "discoveryRequired" },
 	{ 1, "invalidRevision" },
 	{ 2, "invalidCallSignalAddress" },
@@ -7097,7 +7097,7 @@ dissect_h225_ConnectUUIE(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 }
 
 
-static const value_string h323_message_body_vals[] = {
+const value_string h323_message_body_vals[] = {
 	{ 0, "setup" },
 	{ 1, "callProceeding" },
 	{ 2, "connect" },
@@ -8326,7 +8326,7 @@ dissect_h225_user_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 
 
-static const value_string RasMessage_vals[] = {
+const value_string RasMessage_vals[] = {
 	{ 0, "gatekeeperRequest" },
 	{ 1, "gatekeeperConfirm" },
 	{ 2, "gatekeeperReject" },
