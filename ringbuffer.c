@@ -1,7 +1,7 @@
 /* ringbuffer.c
  * Routines for packet capture windows
  *
- * $Id: ringbuffer.c,v 1.1 2001/12/04 08:45:04 guy Exp $
+ * $Id: ringbuffer.c,v 1.2 2002/05/04 10:10:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -203,6 +203,8 @@ ringbuf_init_wtap_dump_fdopen(int filetype, int linktype,
       return NULL;
     } else {
       /*
+       * Flush out the capture file header, as written by "wtap_dump_fdopen()".
+       *
        * XXX - this relies on Wiretap writing out data sequentially,
        * and writing the entire capture file header when the file
        * is created.  That happens to be true for libpcap files,
@@ -211,7 +213,12 @@ ringbuf_init_wtap_dump_fdopen(int filetype, int linktype,
        * true for all the capture file types Wiretap can write.
        */
       fh = wtap_dump_file(rb_data.files[i].pdh);
-      fflush(fh);
+      if (fflush(fh) == EOF) {
+        if (err != NULL) {
+          *err = errno;
+        }
+        return NULL;
+      }
       rb_data.files[i].start_pos = ftell(fh);
       clearerr(fh);
     }
@@ -233,7 +240,14 @@ ringbuf_switch_file(capture_file *cf, wtap_dumper **pdh, int *err)
   /* flush the current file */
   fh = wtap_dump_file(rb_data.files[rb_data.curr_file_num].pdh);
   clearerr(fh);
-  fflush(fh);
+  errno = WTAP_ERR_CANT_CLOSE;
+  if (fflush(fh) == EOF) {
+    if (err != NULL) {
+      *err = errno;
+    }
+    return FALSE;
+  }
+    
   /* get the next file number */
   next_file_num = (rb_data.curr_file_num + 1) % rb_data.num_files;
   /* prepare the file if it was already used */
@@ -282,7 +296,24 @@ ringbuf_wtap_dump_close(capture_file *cf, int *err)
     fh = wtap_dump_file(rb_data.files[i].pdh);
     clearerr(fh);
     /* Flush the file */
-    fflush(fh);
+    errno = WTAP_ERR_CANT_CLOSE;
+    if (fflush(fh) == EOF) {
+      if (err != NULL) {
+        *err = errno;
+      }
+      ret_val = FALSE;
+      /* If the file's not a new one, remove it as it hasn't been truncated
+         and thus contains garbage at the end.
+
+         We don't remove it if it's new - it's incomplete, but at least
+         the stuff before the incomplete record is usable. */
+      close(rb_data.files[i].fd);
+      if (!rb_data.files[i].is_new) {
+        unlink(rb_data.files[i].name);
+      }
+      continue;
+    }
+
     /* Truncate the file to the current size. This must be done in order
        to get rid of the 'garbage' packets at the end of the file from
        previous usage */
@@ -358,10 +389,9 @@ ringbuf_free()
  * Frees all memory allocated by the ringbuffer
  */
 void 
-ringbuf_error_cleanup()
+ringbuf_error_cleanup(void)
 {
   unsigned int i;
-  int err;
   
   if (rb_data.files == NULL) {
     ringbuf_free();
@@ -371,7 +401,7 @@ ringbuf_error_cleanup()
   for (i=0; i<rb_data.num_files; i++) {
     /* try to close via wtap */
     if (rb_data.files[i].pdh != NULL) {
-      if (wtap_dump_close(rb_data.files[i].pdh, &err) == TRUE) {
+      if (wtap_dump_close(rb_data.files[i].pdh, NULL)) {
         /* done */
         rb_data.files[i].fd = -1;
       }
