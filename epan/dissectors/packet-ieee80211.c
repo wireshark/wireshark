@@ -2317,8 +2317,12 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 				    "WEP ICV: 0x%08x (not verified)", 
 				    tvb_get_ntohl(tvb, hdr_len + ivlen + len));
 
-      call_dissector(data_handle, next_tvb, pinfo, tree);
-      return;
+      if (pinfo->ethertype != ETHERTYPE_CENTRINO_PROMISC)
+      {
+        /* Some wireless drivers (such as Centrino) WEP payload already decrypted */
+        call_dissector(data_handle, next_tvb, pinfo, tree);
+        return;
+      }
     } else {
 
       if (tree)
@@ -3231,6 +3235,7 @@ proto_reg_handoff_ieee80211(void)
 						   proto_wlan);
   dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
 		ieee80211_radio_handle);
+  dissector_add("ethertype", ETHERTYPE_CENTRINO_PROMISC, ieee80211_handle);
 }
 
 static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {

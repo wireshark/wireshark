@@ -64,6 +64,10 @@
 #define ETHERTYPE_CGMP		0x2001
 #endif
 
+#ifndef ETHERTYPE_CENTRINO_PROMISC
+#define ETHERTYPE_CENTRINO_PROMISC	0x2452	/* Intel Centrino promiscuous packets */
+#endif
+
 #ifndef ETHERTYPE_3C_NBP_DGRAM
 #define ETHERTYPE_3C_NBP_DGRAM	0x3c07
 #endif
