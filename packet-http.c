@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.54 2002/08/14 00:40:14 tpot Exp $
+ * $Id: packet-http.c,v 1.55 2002/08/14 23:34:20 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -152,8 +152,6 @@ dissect_http_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, char *
 	add_new_data_source(pinfo, ntlmssp_tvb, "NTLMSSP Data");
 
 	call_dissector(ntlmssp_handle, ntlmssp_tvb, pinfo, tree);
-
-	tvb_free(ntlmssp_tvb);
 }
 
 static void
