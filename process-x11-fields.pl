@@ -6,7 +6,7 @@
 #
 # Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
 #
-# $Id: process-x11-fields.pl,v 1.4 2001/04/21 08:04:43 guy Exp $
+# $Id: process-x11-fields.pl,v 1.5 2001/06/18 02:17:58 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -122,6 +122,6 @@ while(<>) {
     print DECL "static int hf_x11_$variable = -1;\n";
 
     print REG <<END;
-{ &hf_x11_$variable, { "$abbrev", "x11.$field", FT_$type, $fieldDisplay, $fieldStrings, $mask, "$longName" } },
+{ &hf_x11_$variable, { "$abbrev", "x11.$field", FT_$type, $fieldDisplay, $fieldStrings, $mask, "$longName", HFILL }},
 END
 }

@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.12 2001/06/05 07:38:35 guy Exp $
+ * $Id: proto.h,v 1.13 2001/06/18 02:18:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -102,7 +102,12 @@ struct _header_field_info {
 	header_field_info		*same_name_prev; /* Link to previous hfinfo with same abbrev*/
 };
 
-
+/*
+ * HFILL initializes all the "set by proto routines" fields in a
+ * "header_field_info"; if new fields are added or removed, it should
+ * be changed as necessary.
+ */
+#define HFILL 0, 0, 0, NULL, NULL
 
 /* Used when registering many fields at once */
 typedef struct hf_register_info {

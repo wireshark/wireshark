@@ -2,7 +2,7 @@
  * Routines for BACnet/IP (BVLL, BVLC) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bvlc.c,v 1.3 2001/05/30 07:48:23 guy Exp $
+ * $Id: packet-bvlc.c,v 1.4 2001/06/18 02:17:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -304,74 +304,74 @@ proto_register_bvlc(void)
 		{ &hf_bvlc_type,
 			{ "Type",           "bvlc.type",
 			FT_UINT8, BASE_HEX, NULL, 0,
-			"Type" }
+			"Type", HFILL }
 		},
 		{ &hf_bvlc_function,
 			{ "Function",           "bvlc.function",
 			FT_UINT8, BASE_HEX, NULL, 0,
-			"BLVC Function" }
+			"BLVC Function", HFILL }
 		},
 		{ &hf_bvlc_length,
 			{ "Length",           "bvlc.length",
 			FT_UINT16, BASE_DEC, NULL, 0,
-			"Length of BVLC" }
+			"Length of BVLC", HFILL }
 		},
 		/* We should bitmask the result correctly when we have a
 		 * packet to dissect */
 		{ &hf_bvlc_result,
 			{ "Result",           "bvlc.result",
 			FT_UINT16, BASE_HEX, NULL, 0xffff,
-			"Result Code" }
+			"Result Code", HFILL }
 		},
 		{ &hf_bvlc_bdt_ip,
 			{ "IP",           "bvlc.bdt_ip",
 			FT_IPv4, BASE_NONE, NULL, 0,
-			"BDT IP" }
+			"BDT IP", HFILL }
 		},
 		{ &hf_bvlc_bdt_port,
 			{ "Port",           "bvlc.bdt_port",
 			FT_UINT16, BASE_DEC, NULL, 0,
-			"BDT Port" }
+			"BDT Port", HFILL }
 		},
 		{ &hf_bvlc_bdt_mask,
 			{ "Mask",           "bvlc.bdt_mask",
 			FT_BYTES, BASE_HEX, NULL, 0,
-			"BDT Broadcast Distribution Mask" }
+			"BDT Broadcast Distribution Mask", HFILL }
 		},
 		{ &hf_bvlc_reg_ttl,
 			{ "TTL",           "bvlc.reg_ttl",
 			FT_UINT16, BASE_DEC, NULL, 0,
-			"Foreign Device Time To Live" }
+			"Foreign Device Time To Live", HFILL }
 		},
 		{ &hf_bvlc_fdt_ip,
 			{ "IP",           "bvlc.fdt_ip",
 			FT_IPv4, BASE_NONE, NULL, 0,
-			"FDT IP" }
+			"FDT IP", HFILL }
 		},
 		{ &hf_bvlc_fdt_port,
 			{ "Port",           "bvlc.fdt_port",
 			FT_UINT16, BASE_DEC, NULL, 0,
-			"FDT Port" }
+			"FDT Port", HFILL }
 		},
 		{ &hf_bvlc_fdt_ttl,
 			{ "TTL",           "bvlc.fdt_ttl",
 			FT_UINT16, BASE_DEC, NULL, 0,
-			"Foreign Device Time To Live" }
+			"Foreign Device Time To Live", HFILL }
 		},
 		{ &hf_bvlc_fdt_timeout,
 			{ "Timeout",           "bvlc.fdt_timeout",
 			FT_UINT16, BASE_DEC, NULL, 0,
-			"Foreign Device Timeout (seconds)" }
+			"Foreign Device Timeout (seconds)", HFILL }
 		},
 		{ &hf_bvlc_fwd_ip,
 			{ "IP",           "bvlc.fwd_ip",
 			FT_IPv4, BASE_NONE, NULL, 0,
-			"FWD IP" }
+			"FWD IP", HFILL }
 		},
 		{ &hf_bvlc_fwd_port,
 			{ "Port",           "bvlc.fwd_port",
 			FT_UINT16, BASE_DEC, NULL, 0,
-			"FWD Port" }
+			"FWD Port", HFILL }
 		},
 	};
 

@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-mip.c,v 1.17 2001/04/20 20:34:29 guy Exp $
+ * $Id: packet-mip.c,v 1.18 2001/06/18 02:17:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -279,99 +279,99 @@ void proto_register_mip(void)
 	  { &hf_mip_type,
 		 { "Message Type",           "mip.type",
 			FT_INT8, BASE_DEC, VALS(mip_types), 0,          
-			"Mobile IP Message type." }
+			"Mobile IP Message type.", HFILL }
 	  },
 	  { &hf_mip_s,
 		 {"Simultaneous Bindings",           "mip.s",
 
 		   FT_BOOLEAN, 8, NULL, 128,          
-		   "Simultaneous Bindings Allowed" }
+		   "Simultaneous Bindings Allowed", HFILL }
 	  },
 	  { &hf_mip_b,
 		 {"Broadcast Datagrams",           "mip.b",
 		   FT_BOOLEAN, 8, NULL, 64,          
-		   "Broadcast Datagrams requested" }
+		   "Broadcast Datagrams requested", HFILL }
 	  },
 	  { &hf_mip_d,
 		 { "Co-lcated Care-of Address",           "mip.d",
 		   FT_BOOLEAN, 8, NULL, 32,          
-		   "MN using Co-located Care-of address" }
+		   "MN using Co-located Care-of address", HFILL }
 	  },
 	  { &hf_mip_m,
 		 {"Minimal Encapsulation",           "mip.m",
 		   FT_BOOLEAN, 8, NULL, 16,          
-		   "MN wants Minimal encapsulation" }
+		   "MN wants Minimal encapsulation", HFILL }
 	  },
 	  { &hf_mip_g,
 		 {"GRE",           "mip.g",
 		   FT_BOOLEAN, 8, NULL, 8,          
-		   "MN wants GRE encapsulation" }
+		   "MN wants GRE encapsulation", HFILL }
 	  },
 	  { &hf_mip_v,
 		 { "Van Jacobson",           "mip.v",
 		   FT_BOOLEAN, 8, NULL, 4,          
-		   "Van Jacobson" }
+		   "Van Jacobson", HFILL }
 	  },
 	  { &hf_mip_t,
 		 { "Reverse Tunneling",           "mip.t",
 		   FT_BOOLEAN, 8, NULL, 2,          
-		   "Reverse tunneling requested" }
+		   "Reverse tunneling requested", HFILL }
 	  },
 	  { &hf_mip_code,
 		 { "Reply Code",           "mip.code",
 			FT_UINT8, BASE_DEC, VALS(mip_reply_codes), 0,          
-			"Mobile IP Reply code." }
+			"Mobile IP Reply code.", HFILL }
 	  },
 	  { &hf_mip_life,
 		 { "Lifetime",           "mip.life",
 			FT_UINT16, BASE_DEC, NULL, 0,          
-			"Mobile IP Lifetime." }
+			"Mobile IP Lifetime.", HFILL }
 	  },
 	  { &hf_mip_homeaddr,
 		 { "Home Address",           "mip.homeaddr",
 			FT_IPv4, BASE_NONE, NULL, 0,          
-			"Mobile Node's home address." }
+			"Mobile Node's home address.", HFILL }
 	  },
 	  
 	  { &hf_mip_haaddr,
 		 { "Home Agent",           "mip.haaddr",
 			FT_IPv4, BASE_NONE, NULL, 0,          
-			"Home agent IP Address." }
+			"Home agent IP Address.", HFILL }
 	  },
 	  { &hf_mip_coa,
 		 { "Care of Address",           "mip.coa",
 			FT_IPv4, BASE_NONE, NULL, 0,          
-			"Care of Address." }
+			"Care of Address.", HFILL }
 	  },
 	  { &hf_mip_ident,
 		 { "Identification",           "mip.ident",
 			FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0,          
-			"MN Identification." }
+			"MN Identification.", HFILL }
 	  },
 	  { &hf_mip_ext_type,
 		 { "Extension Type",           "mip.ext.type",
 			FT_INT8, BASE_DEC, VALS(mip_ext_types), 0,          
-			"Mobile IP Extension Type." }
+			"Mobile IP Extension Type.", HFILL }
 	  },
 	  { &hf_mip_ext_len,
 		 { "Extension Length",         "mip.ext.len",
 			FT_INT8, BASE_DEC, NULL, 0,
-			"Mobile IP Extension Length."}
+			"Mobile IP Extension Length.", HFILL }
 	  },
 	  { &hf_mip_aext_spi,
 		 { "SPI",                      "mip.auth.spi",
 			FT_INT32, BASE_HEX, NULL, 0,
-			"Authentication Header Security Parameter Index."}
+			"Authentication Header Security Parameter Index.", HFILL }
 	  },
 	  { &hf_mip_aext_auth,
 		 { "Authenticator",            "mip.auth.auth",
 			FT_BYTES, BASE_NONE, NULL, 0,
-			"Authenticator."}
+			"Authenticator.", HFILL }
 	  },
 	  { &hf_mip_next_nai,
 		 { "NAI",                      "mip.nai",
 			FT_STRING, BASE_NONE, NULL, 0,
-			"NAI"}
+			"NAI", HFILL }
 	  },
 	};
 

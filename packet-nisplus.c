@@ -1,7 +1,7 @@
 /* packet-nisplus.c
  * 2001  Ronnie Sahlberg   <rsahlber@bigpond.net.au>
  *
- * $Id: packet-nisplus.c,v 1.6 2001/06/12 06:31:14 guy Exp $
+ * $Id: packet-nisplus.c,v 1.7 2001/06/18 02:17:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1317,480 +1317,480 @@ proto_register_nis(void)
 	static hf_register_info hf[] = {
 		{ &hf_nisplus_object, {
 			"NIS Object", "nisplus.object", FT_NONE, BASE_NONE,
-			NULL, 0, "NIS Object" }},
+			NULL, 0, "NIS Object", HFILL }},
 
 		{ &hf_nisplus_oid, {
 			"Object Identity Verifier", "nisplus.object.oid", FT_NONE, BASE_NONE,
-			NULL, 0, "NIS Object Identity Verifier" }},
+			NULL, 0, "NIS Object Identity Verifier", HFILL }},
 
 		{ &hf_nisplus_object_name, {
 			"name", "nisplus.object.name", FT_STRING, BASE_DEC,
-			NULL, 0, "NIS Name For This Object" }},
+			NULL, 0, "NIS Name For This Object", HFILL }},
 
 		{ &hf_nisplus_object_owner, {
 			"owner", "nisplus.object.owner", FT_STRING, BASE_DEC,
-			NULL, 0, "NIS Name Of Object Owner" }},
+			NULL, 0, "NIS Name Of Object Owner", HFILL }},
 
 		{ &hf_nisplus_object_group, {
 			"group", "nisplus.object.group", FT_STRING, BASE_DEC,
-			NULL, 0, "NIS Name Of Access Group" }},
+			NULL, 0, "NIS Name Of Access Group", HFILL }},
 
 		{ &hf_nisplus_object_domain, {
 			"domain", "nisplus.object.domain", FT_STRING, BASE_DEC,
-			NULL, 0, "NIS Administrator For This Object" }},
+			NULL, 0, "NIS Administrator For This Object", HFILL }},
 
 		{ &hf_nisplus_object_ttl, {
 			"ttl", "nisplus.object.ttl", FT_UINT32, BASE_DEC,
-			NULL, 0, "NIS Time To Live For This Object" }},
+			NULL, 0, "NIS Time To Live For This Object", HFILL }},
 
 		{ &hf_nisplus_object_private, {
 			"private", "nisplus.object.private", FT_BYTES, BASE_DEC,
-			NULL, 0, "NIS Private Object" }},
+			NULL, 0, "NIS Private Object", HFILL }},
 
 		{ &hf_nisplus_directory, {
 			"directory", "nisplus.directory", FT_NONE, BASE_NONE,
-			NULL, 0, "NIS Directory Object" }},
+			NULL, 0, "NIS Directory Object", HFILL }},
 
 		{ &hf_nisplus_directory_name, {
 			"directory name", "nisplus.directory.name", FT_STRING, BASE_DEC,
-			NULL, 0, "Name Of Directory Being Served" }},
+			NULL, 0, "Name Of Directory Being Served", HFILL }},
 
 		{ &hf_nisplus_directory_type, {
 			"type", "nisplus.directory.type", FT_UINT32, BASE_DEC,
-			VALS(ns_type), 0, "NIS Type Of Name Service" }},
+			VALS(ns_type), 0, "NIS Type Of Name Service", HFILL }},
 
 		{ &hf_nisplus_directory_ttl, {
 			"ttl", "nisplus.directory.ttl", FT_UINT32, BASE_DEC,
-			NULL, 0, "Time To Live" }},
+			NULL, 0, "Time To Live", HFILL }},
 
 		{ &hf_nisplus_directory_mask, {
 			"mask", "nisplus.directory.mask", FT_NONE, BASE_NONE,
-			NULL, 0, "NIS Directory Create/Destroy Rights" }},
+			NULL, 0, "NIS Directory Create/Destroy Rights", HFILL }},
 
 		{ &hf_nisplus_directory_mask_list, {
 			"mask list", "nisplus.directory.mask_list", FT_NONE, BASE_NONE,
-			NULL, 0, "List Of Directory Create/Destroy Rights" }},
+			NULL, 0, "List Of Directory Create/Destroy Rights", HFILL }},
 
 		{ &hf_nisplus_mask_world_read, {
 			"WORLD READ", "nisplus.directory.mask.world_read",
 			FT_BOOLEAN, 32, TFS(&tfs_world_read),
-			NIS_MASK_WORLD_READ, "World Read Flag" }},
+			NIS_MASK_WORLD_READ, "World Read Flag", HFILL }},
 
 		{ &hf_nisplus_mask_world_modify, {
 			"WORLD MODIFY", "nisplus.directory.mask.world_modify",
 			FT_BOOLEAN, 32, TFS(&tfs_world_modify),
-			NIS_MASK_WORLD_MODIFY, "World Modify Flag" }},
+			NIS_MASK_WORLD_MODIFY, "World Modify Flag", HFILL }},
 
 		{ &hf_nisplus_mask_world_create, {
 			"WORLD CREATE", "nisplus.directory.mask.world_create",
 			FT_BOOLEAN, 32, TFS(&tfs_world_create),
-			NIS_MASK_WORLD_CREATE, "World Create Flag" }},
+			NIS_MASK_WORLD_CREATE, "World Create Flag", HFILL }},
 
 		{ &hf_nisplus_mask_world_destroy, {
 			"WORLD DESTROY", "nisplus.directory.mask.world_destroy",
 			FT_BOOLEAN, 32, TFS(&tfs_world_destroy),
-			NIS_MASK_WORLD_DESTROY, "World Destroy Flag" }},
+			NIS_MASK_WORLD_DESTROY, "World Destroy Flag", HFILL }},
 
 		{ &hf_nisplus_mask_group_read, {
 			"GROUP READ", "nisplus.directory.mask.group_read",
 			FT_BOOLEAN, 32, TFS(&tfs_group_read),
-			NIS_MASK_GROUP_READ, "Group Read Flag" }},
+			NIS_MASK_GROUP_READ, "Group Read Flag", HFILL }},
 
 		{ &hf_nisplus_mask_group_modify, {
 			"GROUP MODIFY", "nisplus.directory.mask.group_modify",
 			FT_BOOLEAN, 32, TFS(&tfs_group_modify),
-			NIS_MASK_GROUP_MODIFY, "Group Modify Flag" }},
+			NIS_MASK_GROUP_MODIFY, "Group Modify Flag", HFILL }},
 
 		{ &hf_nisplus_mask_group_create, {
 			"GROUP CREATE", "nisplus.directory.mask.group_create",
 			FT_BOOLEAN, 32, TFS(&tfs_group_create),
-			NIS_MASK_GROUP_CREATE, "Group Create Flag" }},
+			NIS_MASK_GROUP_CREATE, "Group Create Flag", HFILL }},
 
 		{ &hf_nisplus_mask_group_destroy, {
 			"GROUP DESTROY", "nisplus.directory.mask.group_destroy",
 			FT_BOOLEAN, 32, TFS(&tfs_group_destroy),
-			NIS_MASK_GROUP_DESTROY, "Group Destroy Flag" }},
+			NIS_MASK_GROUP_DESTROY, "Group Destroy Flag", HFILL }},
 
 		{ &hf_nisplus_mask_owner_read, {
 			"OWNER READ", "nisplus.directory.mask.owner_read",
 			FT_BOOLEAN, 32, TFS(&tfs_owner_read),
-			NIS_MASK_OWNER_READ, "Owner Read Flag" }},
+			NIS_MASK_OWNER_READ, "Owner Read Flag", HFILL }},
 
 		{ &hf_nisplus_mask_owner_modify, {
 			"OWNER MODIFY", "nisplus.directory.mask.owner_modify",
 			FT_BOOLEAN, 32, TFS(&tfs_owner_modify),
-			NIS_MASK_OWNER_MODIFY, "Owner Modify Flag" }},
+			NIS_MASK_OWNER_MODIFY, "Owner Modify Flag", HFILL }},
 
 		{ &hf_nisplus_mask_owner_create, {
 			"OWNER CREATE", "nisplus.directory.mask.owner_create",
 			FT_BOOLEAN, 32, TFS(&tfs_owner_create),
-			NIS_MASK_OWNER_CREATE, "Owner Create Flag" }},
+			NIS_MASK_OWNER_CREATE, "Owner Create Flag", HFILL }},
 
 		{ &hf_nisplus_mask_owner_destroy, {
 			"OWNER DESTROY", "nisplus.directory.mask.owner_destroy",
 			FT_BOOLEAN, 32, TFS(&tfs_owner_destroy),
-			NIS_MASK_OWNER_DESTROY, "Owner Destroy Flag" }},
+			NIS_MASK_OWNER_DESTROY, "Owner Destroy Flag", HFILL }},
 
 		{ &hf_nisplus_mask_nobody_read, {
 			"NOBODY READ", "nisplus.directory.mask.nobody_read",
 			FT_BOOLEAN, 32, TFS(&tfs_nobody_read),
-			NIS_MASK_NOBODY_READ, "Nobody Read Flag" }},
+			NIS_MASK_NOBODY_READ, "Nobody Read Flag", HFILL }},
 
 		{ &hf_nisplus_mask_nobody_modify, {
 			"NOBODY MODIFY", "nisplus.directory.mask.nobody_modify",
 			FT_BOOLEAN, 32, TFS(&tfs_nobody_modify),
-			NIS_MASK_NOBODY_MODIFY, "Nobody Modify Flag" }},
+			NIS_MASK_NOBODY_MODIFY, "Nobody Modify Flag", HFILL }},
 
 		{ &hf_nisplus_mask_nobody_create, {
 			"NOBODY CREATE", "nisplus.directory.mask.nobody_create",
 			FT_BOOLEAN, 32, TFS(&tfs_nobody_create),
-			NIS_MASK_NOBODY_CREATE, "Nobody Create Flag" }},
+			NIS_MASK_NOBODY_CREATE, "Nobody Create Flag", HFILL }},
 
 		{ &hf_nisplus_mask_nobody_destroy, {
 			"NOBODY DESTROY", "nisplus.directory.mask.nobody_destroy",
 			FT_BOOLEAN, 32, TFS(&tfs_nobody_destroy),
-			NIS_MASK_NOBODY_DESTROY, "Nobody Destroy Flag" }},
+			NIS_MASK_NOBODY_DESTROY, "Nobody Destroy Flag", HFILL }},
 
 		{ &hf_nisplus_access_mask, {
 			"access mask", "nisplus.access.mask", FT_NONE, BASE_NONE,
-			NULL, 0, "NIS Access Mask" }},
+			NULL, 0, "NIS Access Mask", HFILL }},
 
 		{ &hf_nisplus_object_type, {
 			"type", "nisplus.object.type", FT_UINT32, BASE_DEC,
-			VALS(obj_type), 0, "NIS Type Of Object" }},
+			VALS(obj_type), 0, "NIS Type Of Object", HFILL }},
 
 		{ &hf_nisplus_servers, {
 			"nis servers", "nisplus.servers", FT_NONE, BASE_NONE,
-			NULL, 0, "NIS Servers For This Directory" }},
+			NULL, 0, "NIS Servers For This Directory", HFILL }},
 
 		{ &hf_nisplus_cbservers, {
 			"nis servers", "nisplus.servers", FT_NONE, BASE_NONE,
-			NULL, 0, "Optional Callback Server" }},
+			NULL, 0, "Optional Callback Server", HFILL }},
 
 		{ &hf_nisplus_server, {
 			"server", "nisplus.server", FT_NONE, BASE_NONE,
-			NULL, 0, "NIS Server For This Directory" }},
+			NULL, 0, "NIS Server For This Directory", HFILL }},
 
 		{ &hf_nisplus_server_name, {
 			"name", "nisplus.server.name", FT_STRING, BASE_DEC,
-			NULL, 0, "Name Of NIS Server" }},
+			NULL, 0, "Name Of NIS Server", HFILL }},
 
 		{ &hf_nisplus_key_type, {
 			"type", "nisplus.key.type", FT_UINT32, BASE_DEC,
-			VALS(key_type), 0, "Type Of Key" }},
+			VALS(key_type), 0, "Type Of Key", HFILL }},
 
 		{ &hf_nisplus_key_data, {
 			"key data", "nisplus.key.data", FT_BYTES, BASE_DEC,
-			NULL, 0, "Encryption Key" }},
+			NULL, 0, "Encryption Key", HFILL }},
 
 		{ &hf_nisplus_endpoints, {
 			"nis endpoints", "nisplus.endpoints", FT_NONE, BASE_NONE,
-			NULL, 0, "Endpoints For This NIS Server" }},
+			NULL, 0, "Endpoints For This NIS Server", HFILL }},
 
 		{ &hf_nisplus_endpoint, {
 			"endpoint", "nisplus.endpoint", FT_NONE, BASE_NONE,
-			NULL, 0, "Endpoint For This NIS Server" }},
+			NULL, 0, "Endpoint For This NIS Server", HFILL }},
 
 		{ &hf_nisplus_endpoint_uaddr, {
 			"addr", "nisplus.endpoint.uaddr", FT_STRING, BASE_DEC,
-			NULL, 0, "Address" }},
+			NULL, 0, "Address", HFILL }},
 
 		{ &hf_nisplus_endpoint_family, {
 			"family", "nisplus.endpoint.family", FT_STRING, BASE_DEC,
-			NULL, 0, "Transport Family" }},
+			NULL, 0, "Transport Family", HFILL }},
 
 		{ &hf_nisplus_endpoint_proto, {
 			"proto", "nisplus.endpoint.proto", FT_STRING, BASE_DEC,
-			NULL, 0, "Protocol" }},
+			NULL, 0, "Protocol", HFILL }},
 
 		{ &hf_nisplus_link, {
 			"link", "nisplus.link", FT_NONE, BASE_NONE,
-			NULL, 0, "NIS Link Object" }},
+			NULL, 0, "NIS Link Object", HFILL }},
 
 		{ &hf_nisplus_attrs_array, {
 			"Attributes", "nisplus.attributes", FT_NONE, BASE_NONE,
-			NULL, 0, "List Of Attributes" }},
+			NULL, 0, "List Of Attributes", HFILL }},
 
 		{ &hf_nisplus_attr, {
 			"Attribute", "nisplus.attr", FT_NONE, BASE_NONE,
-			NULL, 0, "Attribute" }},
+			NULL, 0, "Attribute", HFILL }},
 
 		{ &hf_nisplus_attr_name, {
 			"name", "nisplus.attr.name", FT_STRING, BASE_DEC,
-			NULL, 0, "Attribute Name" }},
+			NULL, 0, "Attribute Name", HFILL }},
 
 		{ &hf_nisplus_attr_val, {
 			"val", "nisplus.attr.val", FT_BYTES, BASE_HEX,
-			NULL, 0, "Attribute Value" }},
+			NULL, 0, "Attribute Value", HFILL }},
 
 		{ &hf_nisplus_entry, {
 			"entry", "nisplus.entry", FT_NONE, BASE_NONE,
-			NULL, 0, "Entry Object" }},
+			NULL, 0, "Entry Object", HFILL }},
 
 		{ &hf_nisplus_entry_type, {
 			"type", "nisplus.entry.type", FT_STRING, BASE_DEC,
-			NULL, 0, "Entry Type" }},
+			NULL, 0, "Entry Type", HFILL }},
 
 		{ &hf_nisplus_entry_cols, {
 			"columns", "nisplus.entry.cols", FT_NONE, BASE_NONE,
-			NULL, 0, "Entry Columns" }},
+			NULL, 0, "Entry Columns", HFILL }},
 
 		{ &hf_nisplus_entry_col, {
 			"column", "nisplus.entry.col", FT_NONE, BASE_NONE,
-			NULL, 0, "Entry Column" }},
+			NULL, 0, "Entry Column", HFILL }},
 
 		{ &hf_nisplus_entry_flags, {
 			"flags", "nisplus.entry.flags", FT_UINT32, BASE_HEX,
-			NULL, 0, "Entry Col Flags" }},
+			NULL, 0, "Entry Col Flags", HFILL }},
 
 		{ &hf_nisplus_entry_val, {
 			"val", "nisplus.entry.val", FT_STRING, BASE_DEC,
-			NULL, 0, "Entry Value" }},
+			NULL, 0, "Entry Value", HFILL }},
 
 		{ &hf_nisplus_entry_mask, {
 			"flags", "nisplus.entry.flags", FT_NONE, BASE_NONE,
-			NULL, 0, "Entry Col Flags" }},
+			NULL, 0, "Entry Col Flags", HFILL }},
 
 		{ &hf_nisplus_entry_mask_binary, {
 			"BINARY", "nisplus.entry.flags.binary",
 			FT_BOOLEAN, 32, TFS(&tfs_entry_binary),
-			NIS_MASK_ENTRY_BINARY, "Is This Entry BINARY Flag" }},
+			NIS_MASK_ENTRY_BINARY, "Is This Entry BINARY Flag", HFILL }},
 
 		{ &hf_nisplus_entry_mask_crypt, {
 			"ENCRYPTED", "nisplus.entry.flags.encrypted",
 			FT_BOOLEAN, 32, TFS(&tfs_entry_crypt),
-			NIS_MASK_ENTRY_CRYPT, "Is This Entry ENCRYPTED Flag" }},
+			NIS_MASK_ENTRY_CRYPT, "Is This Entry ENCRYPTED Flag", HFILL }},
 
 		{ &hf_nisplus_entry_mask_xdr, {
 			"XDR", "nisplus.entry.flags.xdr",
 			FT_BOOLEAN, 32, TFS(&tfs_entry_xdr),
-			NIS_MASK_ENTRY_XDR, "Is This Entry XDR Encoded Flag" }},
+			NIS_MASK_ENTRY_XDR, "Is This Entry XDR Encoded Flag", HFILL }},
 
 		{ &hf_nisplus_entry_mask_modified, {
 			"MODIFIED", "nisplus.entry.flags.modified",
 			FT_BOOLEAN, 32, TFS(&tfs_entry_modified),
-			NIS_MASK_ENTRY_MODIFIED, "Is This Entry MODIFIED Flag" }},
+			NIS_MASK_ENTRY_MODIFIED, "Is This Entry MODIFIED Flag", HFILL }},
 
 		{ &hf_nisplus_entry_mask_asn, {
 			"ASN.1", "nisplus.entry.flags.asn",
 			FT_BOOLEAN, 32, TFS(&tfs_entry_asn),
-			NIS_MASK_ENTRY_ASN, "Is This Entry ASN.1 Encoded Flag" }},
+			NIS_MASK_ENTRY_ASN, "Is This Entry ASN.1 Encoded Flag", HFILL }},
 
 		{ &hf_nisplus_table, {
 			"table", "nisplus.table", FT_NONE, BASE_NONE,
-			NULL, 0, "Table Object" }},
+			NULL, 0, "Table Object", HFILL }},
 
 		{ &hf_nisplus_table_type, {
 			"type", "nisplus.table.type", FT_STRING, BASE_DEC,
-			NULL, 0, "Table Type" }},
+			NULL, 0, "Table Type", HFILL }},
 
 		{ &hf_nisplus_table_maxcol, {
 			"max columns", "nisplus.table.maxcol", FT_UINT16, BASE_DEC,
-			NULL, 0, "Maximum Number Of Columns For Table" }},
+			NULL, 0, "Maximum Number Of Columns For Table", HFILL }},
 
 		{ &hf_nisplus_table_sep, {
 			"separator", "nisplus.table.separator", FT_UINT8, BASE_HEX,
-			NULL, 0, "Separator Character" }},
+			NULL, 0, "Separator Character", HFILL }},
 
 		{ &hf_nisplus_table_cols, {
 			"columns", "nisplus.table.cols", FT_NONE, BASE_NONE,
-			NULL, 0, "Table Columns" }},
+			NULL, 0, "Table Columns", HFILL }},
 
 		{ &hf_nisplus_table_col, {
 			"column", "nisplus.table.col", FT_NONE, BASE_NONE,
-			NULL, 0, "Table Column" }},
+			NULL, 0, "Table Column", HFILL }},
 
 		{ &hf_nisplus_table_path, {
 			"path", "nisplus.table.path", FT_STRING, BASE_DEC,
-			NULL, 0, "Table Path" }},
+			NULL, 0, "Table Path", HFILL }},
 
 		{ &hf_nisplus_table_col_name, {
 			"column name", "nisplus.table.col.name", FT_STRING, BASE_DEC,
-			NULL, 0, "Column Name" }},
+			NULL, 0, "Column Name", HFILL }},
 
 		{ &hf_nisplus_table_col_mask, {
 			"flags", "nisplus.table.col.flags", FT_NONE, BASE_NONE,
-			NULL, 0, "Flags For This Column" }},
+			NULL, 0, "Flags For This Column", HFILL }},
 
 		{ &hf_nisplus_table_col_mask_binary, {
 			"binary", "nisplus.table.flags.binary",
 			FT_BOOLEAN, 32, TFS(&tfs_col_binary),
-			NIS_MASK_TABLE_BINARY, "Is This Column BINARY" }},
+			NIS_MASK_TABLE_BINARY, "Is This Column BINARY", HFILL }},
 
 		{ &hf_nisplus_table_col_mask_encrypted, {
 			"encrypted", "nisplus.table.flags.encrypted",
 			FT_BOOLEAN, 32, TFS(&tfs_col_encrypted),
-			NIS_MASK_TABLE_CRYPT, "Is This Column ENCRYPTED" }},
+			NIS_MASK_TABLE_CRYPT, "Is This Column ENCRYPTED", HFILL }},
 
 		{ &hf_nisplus_table_col_mask_xdr, {
 			"xdr", "nisplus.table.flags.xdr",
 			FT_BOOLEAN, 32, TFS(&tfs_col_xdr),
-			NIS_MASK_TABLE_XDR, "Is This Column XDR Encoded" }},
+			NIS_MASK_TABLE_XDR, "Is This Column XDR Encoded", HFILL }},
 
 		{ &hf_nisplus_table_col_mask_searchable, {
 			"searchable", "nisplus.table.flags.searchable",
 			FT_BOOLEAN, 32, TFS(&tfs_col_searchable),
-			NIS_MASK_TABLE_SRCH, "Is This Column SEARCHABLE" }},
+			NIS_MASK_TABLE_SRCH, "Is This Column SEARCHABLE", HFILL }},
 
 		{ &hf_nisplus_table_col_mask_casesensitive, {
 			"casesensitive", "nisplus.table.flags.casesensitive",
 			FT_BOOLEAN, 32, TFS(&tfs_col_casesensitive),
-			NIS_MASK_TABLE_CASE, "Is This Column CASESENSITIVE" }},
+			NIS_MASK_TABLE_CASE, "Is This Column CASESENSITIVE", HFILL }},
 
 		{ &hf_nisplus_table_col_mask_modified, {
 			"modified", "nisplus.table.flags.modified",
 			FT_BOOLEAN, 32, TFS(&tfs_col_modified),
-			NIS_MASK_TABLE_MODIFIED, "Is This Column MODIFIED" }},
+			NIS_MASK_TABLE_MODIFIED, "Is This Column MODIFIED", HFILL }},
 
 		{ &hf_nisplus_table_col_mask_asn, {
 			"asn", "nisplus.table.flags.asn",
 			FT_BOOLEAN, 32, TFS(&tfs_col_asn),
-			NIS_MASK_TABLE_ASN, "Is This Column ASN.1 Encoded" }},
+			NIS_MASK_TABLE_ASN, "Is This Column ASN.1 Encoded", HFILL }},
 
 		{ &hf_nisplus_group, {
 			"Group", "nisplus.group", FT_NONE, BASE_NONE,
-			NULL, 0, "Group Object" }},
+			NULL, 0, "Group Object", HFILL }},
 
 		{ &hf_nisplus_grps, {
 			"Groups", "nisplus.grps", FT_NONE, BASE_NONE,
-			NULL, 0, "List Of Groups" }},
+			NULL, 0, "List Of Groups", HFILL }},
 
 		{ &hf_nisplus_group_flags, {
 			"flags", "nisplus.group.flags", FT_UINT32, BASE_HEX,
-			NULL, 0, "Group Object Flags" }},
+			NULL, 0, "Group Object Flags", HFILL }},
 
 		{ &hf_nisplus_group_name, {
 			"group name", "nisplus.group.name", FT_STRING, BASE_DEC,
-			NULL, 0, "Name Of Group Member" }},
+			NULL, 0, "Name Of Group Member", HFILL }},
 
 		{ &hf_nisplus_object_ctime, {
 			"ctime", "nisplus.ctime", FT_ABSOLUTE_TIME, BASE_NONE,
-			NULL, 0, "Time Of Creation" }},
+			NULL, 0, "Time Of Creation", HFILL }},
 
 		{ &hf_nisplus_object_mtime, {
 			"mtime", "nisplus.mtime", FT_ABSOLUTE_TIME, BASE_NONE,
-			NULL, 0, "Time Last Modified" }},
+			NULL, 0, "Time Last Modified", HFILL }},
 
 		{ &hf_nisplus_ib_flags, {
 			"flags", "nisplus.ib.flags", FT_UINT32, BASE_HEX,
-			NULL, 0, "Information Base Flags" }},
+			NULL, 0, "Information Base Flags", HFILL }},
 
 		{ &hf_nisplus_ib_bufsize, {
 			"bufsize", "nisplus.ib.bufsize", FT_UINT32, BASE_HEX,
-			NULL, 0, "Optional First/NextBufSize" }},
+			NULL, 0, "Optional First/NextBufSize", HFILL }},
 
 		{ &hf_nisplus_cookie, {
 			"cookie", "nisplus.cookie", FT_BYTES, BASE_HEX,
-			NULL, 0, "Cookie" }},
+			NULL, 0, "Cookie", HFILL }},
 
 		{ &hf_nisplus_fd_dirname, {
 			"dirname", "nisplus.fd.dirname", FT_STRING, BASE_DEC,
-			NULL, 0, "Directory Name" }},
+			NULL, 0, "Directory Name", HFILL }},
 
 		{ &hf_nisplus_fd_requester, {
 			"requester", "nisplus.fd.requester", FT_STRING, BASE_DEC,
-			NULL, 0, "Host Principal Name For Signature" }},
+			NULL, 0, "Host Principal Name For Signature", HFILL }},
 
 		{ &hf_nisplus_taglist, {
 			"taglist", "nisplus.taglist", FT_NONE, BASE_NONE,
-			NULL, 0, "List Of Tags" }},
+			NULL, 0, "List Of Tags", HFILL }},
 
 		{ &hf_nisplus_tag, {
 			"tag", "nisplus.tag", FT_NONE, BASE_NONE,
-			NULL, 0, "Tag" }},
+			NULL, 0, "Tag", HFILL }},
 
 		{ &hf_nisplus_tag_type, {
 			"type", "nisplus.tag.type", FT_UINT32, BASE_DEC,
-			NULL, 0, "Type Of Statistics Tag" }},
+			NULL, 0, "Type Of Statistics Tag", HFILL }},
 
 		{ &hf_nisplus_tag_val, {
 			"value", "nisplus.tag.value", FT_STRING, BASE_DEC,
-			NULL, 0, "Value Of Statistics Tag" }},
+			NULL, 0, "Value Of Statistics Tag", HFILL }},
 
 		{ &hf_nisplus_dump_dir, {
 			"directory", "nisplus.dump.dir", FT_STRING, BASE_DEC,
-			NULL, 0, "Directory To Dump" }},
+			NULL, 0, "Directory To Dump", HFILL }},
 
 		{ &hf_nisplus_dump_time, {
 			"time", "nisplus.dump.time", FT_ABSOLUTE_TIME, BASE_NONE,
-			NULL, 0, "From This Timestamp" }},
+			NULL, 0, "From This Timestamp", HFILL }},
 
 		{ &hf_nisplus_dummy, {
 			" ", ".nisplus.dummy", FT_BYTES, BASE_NONE,
-			NULL, 0, " " }},
+			NULL, 0, " ", HFILL }},
 
 		{ &hf_nisplus_ping_time, {
 			"time", "nisplus.ping.time", FT_ABSOLUTE_TIME, BASE_NONE,
-			NULL, 0, "Timestamp Of The Transaction" }},
+			NULL, 0, "Timestamp Of The Transaction", HFILL }},
 
 		{ &hf_nisplus_ping_dir, {
 			"directory", "nisplus.ping.dir", FT_STRING, BASE_DEC,
-			NULL, 0, "Directory That Had The Change" }},
+			NULL, 0, "Directory That Had The Change", HFILL }},
 
 		{ &hf_nisplus_error, {
 			"status", "nisplus.status", FT_UINT32, BASE_DEC,
-			VALS(nis_error), 0, "NIS Status Code" }},
+			VALS(nis_error), 0, "NIS Status Code", HFILL }},
 
 		{ &hf_nisplus_dir_data, {
 			"data", "nisplus.fd.dir.data", FT_BYTES, BASE_HEX,
-			NULL, 0, "Directory Data In XDR Format" }},
+			NULL, 0, "Directory Data In XDR Format", HFILL }},
 
 		{ &hf_nisplus_signature, {
 			"signature", "nisplus.fd.sig", FT_BYTES, BASE_HEX,
-			NULL, 0, "Signature Of The Source" }},
+			NULL, 0, "Signature Of The Source", HFILL }},
 
 		{ &hf_nisplus_log_entries, {
 			"log entries", "nisplus.log.entries", FT_NONE, BASE_NONE,
-			NULL, 0, "Log Entries" }},
+			NULL, 0, "Log Entries", HFILL }},
 
 		{ &hf_nisplus_log_entry, {
 			"log entry", "nisplus.log.entry", FT_NONE, BASE_NONE,
-			NULL, 0, "Log Entry" }},
+			NULL, 0, "Log Entry", HFILL }},
 
 		{ &hf_nisplus_log_time, {
 			"time", "nisplus.log.time", FT_ABSOLUTE_TIME, BASE_NONE,
-			NULL, 0, "Time Of Log Entry" }},
+			NULL, 0, "Time Of Log Entry", HFILL }},
 
 		{ &hf_nisplus_log_type, {
 			"type", "nisplus.log.entry.type", FT_UINT32, BASE_DEC,
-			VALS(entry_type), 0, "Type Of Entry In Transaction Log" }},
+			VALS(entry_type), 0, "Type Of Entry In Transaction Log", HFILL }},
 
 		{ &hf_nisplus_log_principal, {
 			"principal", "nisplus.log.principal", FT_STRING, BASE_DEC,
-			NULL, 0, "Principal Making The Change" }},
+			NULL, 0, "Principal Making The Change", HFILL }},
 
 		{ &hf_nisplus_callback_status, {
 			"status", "nisplus.callback.status",
 			FT_BOOLEAN, 0, TFS(&tfs_callback_status),
-			0, "Status Of Callback Thread" }},
+			0, "Status Of Callback Thread", HFILL }},
 
 		{ &hf_nisplus_cp_status, {
 			"status", "nisplus.checkpoint.status", FT_UINT32, BASE_DEC,
-			NULL, 0, "Checkpoint Status" }},
+			NULL, 0, "Checkpoint Status", HFILL }},
 
 		{ &hf_nisplus_cp_zticks, {
 			"zticks", "nisplus.checkpoint.zticks", FT_UINT32, BASE_DEC,
-			NULL, 0, "Service Ticks" }},
+			NULL, 0, "Service Ticks", HFILL }},
 
 		{ &hf_nisplus_cp_dticks, {
 			"dticks", "nisplus.checkpoint.dticks", FT_UINT32, BASE_DEC,
-			NULL, 0, "Database Ticks" }},
+			NULL, 0, "Database Ticks", HFILL }},
 
 		{ &hf_nisplus_zticks, {
 			"zticks", "nisplus.zticks", FT_UINT32, BASE_DEC,
-			NULL, 0, "" }},
+			NULL, 0, "", HFILL }},
 
 		{ &hf_nisplus_dticks, {
 			"dticks", "nisplus.dticks", FT_UINT32, BASE_DEC,
-			NULL, 0, "" }},
+			NULL, 0, "", HFILL }},
 
 		{ &hf_nisplus_aticks, {
 			"aticks", "nisplus.aticks", FT_UINT32, BASE_DEC,
-			NULL, 0, "" }},
+			NULL, 0, "", HFILL }},
 
 		{ &hf_nisplus_cticks, {
 			"cticks", "nisplus.cticks", FT_UINT32, BASE_DEC,
-			NULL, 0, "" }},
+			NULL, 0, "", HFILL }},
 
 	};
 
@@ -1895,11 +1895,11 @@ proto_register_niscb(void)
 	static hf_register_info hf[] = {
 		{ &hf_nispluscb_entries, {
 			"entries", "nispluscb.entries", FT_NONE, BASE_NONE,
-			NULL, 0, "NIS Callback Entries" }},
+			NULL, 0, "NIS Callback Entries", HFILL }},
 
 		{ &hf_nispluscb_entry, {
 			"entry", "nispluscb.entry", FT_NONE, BASE_NONE,
-			NULL, 0, "NIS Callback Entry" }},
+			NULL, 0, "NIS Callback Entry", HFILL }},
 
 	};
 

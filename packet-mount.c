@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.24 2001/05/30 06:01:01 guy Exp $
+ * $Id: packet-mount.c,v 1.25 2001/06/18 02:17:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -583,109 +583,109 @@ proto_register_mount(void)
 	static hf_register_info hf[] = {
 		{ &hf_mount_path, {
 			"Path", "mount.path", FT_STRING, BASE_DEC,
-			NULL, 0, "Path" }},
+			NULL, 0, "Path", HFILL }},
 		{ &hf_mount3_status, {
 			"Status", "mount.status", FT_UINT32, BASE_DEC,
-			VALS(mount3_mountstat3), 0, "Status" }},
+			VALS(mount3_mountstat3), 0, "Status", HFILL }},
 		{ &hf_mount_mountlist_hostname, {
 			"Hostname", "mount.dump.hostname", FT_STRING, BASE_DEC,
-			NULL, 0, "Hostname" }},
+			NULL, 0, "Hostname", HFILL }},
 		{ &hf_mount_mountlist_directory, {
 			"Directory", "mount.dump.directory", FT_STRING, BASE_DEC,
-			NULL, 0, "Directory" }},
+			NULL, 0, "Directory", HFILL }},
 		{ &hf_mount_mountlist, {
 			"Mount List Entry", "mount.dump.entry", FT_NONE, 0,
-			NULL, 0, "Mount List Entry" }},
+			NULL, 0, "Mount List Entry", HFILL }},
 		{ &hf_mount_groups_group, {
 			"Group", "mount.export.group", FT_STRING, BASE_DEC,
-			NULL, 0, "Group" }},
+			NULL, 0, "Group", HFILL }},
 		{ &hf_mount_groups, {
 			"Groups", "mount.export.groups", FT_NONE, 0,
-			NULL, 0, "Groups" }},
+			NULL, 0, "Groups", HFILL }},
 		{ &hf_mount_exportlist_directory, {
 			"Directory", "mount.export.directory", FT_STRING, BASE_DEC,
-			NULL, 0, "Directory" }},
+			NULL, 0, "Directory", HFILL }},
 		{ &hf_mount_exportlist, {
 			"Export List Entry", "mount.export.entry", FT_NONE, 0,
-			NULL, 0, "Export List Entry" }},
+			NULL, 0, "Export List Entry", HFILL }},
 		{ &hf_mount_pathconf_link_max, {
 			"Maximum number of links to a file", "mount.pathconf.link_max",
 			FT_UINT32, BASE_DEC,
-			NULL, 0, "Maximum number of links allowed to a file" }},
+			NULL, 0, "Maximum number of links allowed to a file", HFILL }},
 		{ &hf_mount_pathconf_max_canon, {
 			"Maximum terminal input line length", "mount.pathconf.max_canon",
 			FT_UINT16, BASE_DEC,
-			NULL, 0, "Max tty input line length" }},
+			NULL, 0, "Max tty input line length", HFILL }},
 		{ &hf_mount_pathconf_max_input, {
 			"Terminal input buffer size", "mount.pathconf.max_input",
 			FT_UINT16, BASE_DEC,
-			NULL, 0, "Terminal input buffer size" }},
+			NULL, 0, "Terminal input buffer size", HFILL }},
 		{ &hf_mount_pathconf_name_max, {
 			"Maximum file name length", "mount.pathconf.name_max",
 			FT_UINT16, BASE_DEC,
-			NULL, 0, "Maximum file name length" }},
+			NULL, 0, "Maximum file name length", HFILL }},
 		{ &hf_mount_pathconf_path_max, {
 			"Maximum path name length", "mount.pathconf.path_max",
 			FT_UINT16, BASE_DEC,
-			NULL, 0, "Maximum path name length" }},
+			NULL, 0, "Maximum path name length", HFILL }},
 		{ &hf_mount_pathconf_pipe_buf, {
 			"Pipe buffer size", "mount.pathconf.pipe_buf",
 			FT_UINT16, BASE_DEC,
-			NULL, 0, "Maximum amount of data that can be written atomically to a pipe" }},
+			NULL, 0, "Maximum amount of data that can be written atomically to a pipe", HFILL }},
 		{ &hf_mount_pathconf_vdisable, {
 			"VDISABLE character", "mount.pathconf.vdisable_char",
 			FT_UINT8, BASE_HEX,
-			NULL, 0, "Character value to disable a terminal special character" }},
+			NULL, 0, "Character value to disable a terminal special character", HFILL }},
 		{ &hf_mount_pathconf_mask, {
 			"Reply error/status bits", "mount.pathconf.mask",
 			FT_UINT16, BASE_HEX,
-			NULL, 0, "Bit mask with error and status bits" }},
+			NULL, 0, "Bit mask with error and status bits", HFILL }},
 		{ &hf_mount_pathconf_error_all, {
 			"ERROR_ALL",	"mount.pathconf.mask.error_all",
 			FT_BOOLEAN, 16, TFS(&tos_error_all),
-			PC_ERROR_ALL, "" }},
+			PC_ERROR_ALL, "", HFILL }},
 		{ &hf_mount_pathconf_error_link_max, {
 			"ERROR_LINK_MAX", "mount.pathconf.mask.error_link_max",
 			FT_BOOLEAN, 16, TFS(&tos_error_link_max),
-			PC_ERROR_LINK_MAX, "" }},
+			PC_ERROR_LINK_MAX, "", HFILL }},
 		{ &hf_mount_pathconf_error_max_canon, {
 			"ERROR_MAX_CANON", "mount.pathconf.mask.error_max_canon",
 			FT_BOOLEAN, 16, TFS(&tos_error_max_canon),
-			PC_ERROR_MAX_CANON, "" }},
+			PC_ERROR_MAX_CANON, "", HFILL }},
 		{ &hf_mount_pathconf_error_max_input, {
 			"ERROR_MAX_INPUT", "mount.pathconf.mask.error_max_input",
 			FT_BOOLEAN, 16, TFS(&tos_error_max_input),
-			PC_ERROR_MAX_INPUT, "" }},
+			PC_ERROR_MAX_INPUT, "", HFILL }},
 		{ &hf_mount_pathconf_error_name_max, {
 			"ERROR_NAME_MAX", "mount.pathconf.mask.error_name_max",
 			FT_BOOLEAN, 16, TFS(&tos_error_name_max),
-			PC_ERROR_NAME_MAX, "" }},
+			PC_ERROR_NAME_MAX, "", HFILL }},
 		{ &hf_mount_pathconf_error_path_max, {
 			"ERROR_PATH_MAX", "mount.pathconf.mask.error_path_max",
 			FT_BOOLEAN, 16, TFS(&tos_error_path_max),
-			PC_ERROR_PATH_MAX, "" }},
+			PC_ERROR_PATH_MAX, "", HFILL }},
 		{ &hf_mount_pathconf_error_pipe_buf, {
 			"ERROR_PIPE_BUF", "mount.pathconf.mask.error_pipe_buf",
 			FT_BOOLEAN, 16, TFS(&tos_error_pipe_buf),
-			PC_ERROR_PIPE_BUF, "" }},
+			PC_ERROR_PIPE_BUF, "", HFILL }},
 		{ &hf_mount_pathconf_chown_restricted, {
 			"CHOWN_RESTRICTED", "mount.pathconf.mask.chown_restricted",
 			FT_BOOLEAN, 16, TFS(&tos_chown_restricted),
-			PC_CHOWN_RESTRICTED, "" }},
+			PC_CHOWN_RESTRICTED, "", HFILL }},
 		{ &hf_mount_pathconf_no_trunc, {
 			"NO_TRUNC", "mount.pathconf.mask.no_trunc",
 			FT_BOOLEAN, 16, TFS(&tos_no_trunc),
-			PC_NO_TRUNC, "" }},
+			PC_NO_TRUNC, "", HFILL }},
 		{ &hf_mount_pathconf_error_vdisable, {
 			"ERROR_VDISABLE", "mount.pathconf.mask.error_vdisable",
 			FT_BOOLEAN, 16, TFS(&tos_error_vdisable),
-			PC_ERROR_VDISABLE, "" }},
+			PC_ERROR_VDISABLE, "", HFILL }},
 		{ &hf_mount_flavors, {
 			"Flavors", "mount.flavors", FT_UINT32, BASE_DEC,
-			NULL, 0, "Flavors" }},
+			NULL, 0, "Flavors", HFILL }},
 		{ &hf_mount_flavor, {
 			"Flavor", "mount.flavor", FT_UINT32, BASE_DEC,
-			VALS(rpc_auth_flavor), 0, "Flavor" }},
+			VALS(rpc_auth_flavor), 0, "Flavor", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_mount,

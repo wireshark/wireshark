@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.15 2001/06/05 21:23:32 guy Exp $
+ * $Id: packet-isis-hello.c,v 1.16 2001/06/18 02:17:47 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -595,39 +595,39 @@ proto_register_isis_hello(void) {
 	static hf_register_info hf[] = {
 		{ &hf_isis_hello_circuit_reserved,
 		{ "Circuit type              ", "isis_hello.circuite_type",
-			FT_UINT8, BASE_HEX, NULL, 0x0, "" }},
+			FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_hello_source_id,
 		{ "SystemID{ Sender of PDU } ", "isis_hello.source_id",
-			FT_BYTES, BASE_HEX, NULL, 0x0, "" }},
+			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_hello_holding_timer,
 		{ "Holding timer             ", "isis_hello.holding_timer", 
-			FT_UINT16, BASE_DEC, NULL, 0x0, "" }},
+			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_hello_pdu_length,
 		{ "PDU length                ", "isis_hello.pdu_length",
-			FT_UINT16, BASE_DEC, NULL, 0x0, "" }},
+			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_hello_priority_reserved,
 		 { "Priority                 ", "isis_hello.priority",
-			FT_UINT8, BASE_DEC, NULL, ISIS_HELLO_P_RESERVED_MASK, "" }},
+			FT_UINT8, BASE_DEC, NULL, ISIS_HELLO_P_RESERVED_MASK, "", HFILL }},
 
 		{ &hf_isis_hello_lan_id,
 		{ "SystemID{ Designated IS } ", "isis_hello.lan_id",
-			FT_BYTES, BASE_DEC, NULL, 0x0, "" }},
+			FT_BYTES, BASE_DEC, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_hello_local_circuit_id,
 		{ "Local circuit ID          ", "isis_hello.local_circuit_id",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_hello_clv_ipv4_int_addr,
 		{ "IPv4 interface address    ", "isis_hello.clv_ipv4_int_addr",
-			FT_IPv4, BASE_NONE, NULL, 0x0, "" }},
+			FT_IPv4, BASE_NONE, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_hello_clv_ipv6_int_addr,
 		{ "IPv6 interface address    ", "isis_hello.clv_ipv6_int_addr",
-			FT_IPv6, BASE_NONE, NULL, 0x0, "" }},
+			FT_IPv6, BASE_NONE, NULL, 0x0, "", HFILL }},
 
 	};
 	static gint *ett[] = {

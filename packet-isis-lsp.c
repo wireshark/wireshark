@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.16 2001/06/18 01:24:58 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.17 2001/06/18 02:17:47 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -1546,31 +1546,31 @@ proto_register_isis_lsp(void) {
 	static hf_register_info hf[] = {
 		{ &hf_isis_lsp_pdu_length,
 		{ "PDU length",		"isis_lsp.pdu_length", FT_UINT16, 
-		  BASE_DEC, NULL, 0x0, "" }},
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_lsp_remaining_life,
 		{ "Remaining life",	"isis_lsp.remaining_life", FT_UINT16, 
-		  BASE_DEC, NULL, 0x0, "" }},
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_lsp_sequence_number,
 		{ "Sequence number",           "isis_lsp.sequence_number", 
-		  FT_UINT32, BASE_HEX, NULL, 0x0, "" }},
+		  FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_lsp_checksum,
 		{ "Checksum",		"isis_lsp.checksum",FT_UINT16, 
-		  BASE_HEX, NULL, 0x0, "" }},
+		  BASE_HEX, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_lsp_clv_ipv4_int_addr,
 		{ "IPv4 interface address", "isis_lsp.clv_ipv4_int_addr", FT_IPv4,
-		   BASE_NONE, NULL, 0x0, "" }},
+		   BASE_NONE, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_lsp_clv_ipv6_int_addr,
 		{ "IPv6 interface address", "isis_lsp.clv_ipv6_int_addr", FT_IPv6,
-		   BASE_NONE, NULL, 0x0, "" }},
+		   BASE_NONE, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_lsp_clv_te_router_id,
 		{ "Traffic Engineering Router ID", "isis_lsp.clv_te_router_id", FT_IPv4,
-		   BASE_NONE, NULL, 0x0, "" }},
+		   BASE_NONE, NULL, 0x0, "", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_isis_lsp,

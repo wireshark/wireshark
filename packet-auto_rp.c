@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-auto_rp.c,v 1.13 2001/01/25 06:14:13 guy Exp $
+ * $Id: packet-auto_rp.c,v 1.14 2001/06/18 02:17:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -182,47 +182,47 @@ void proto_register_auto_rp(void)
                 { &hf_auto_rp_version,
                   {"Protocol version", "auto_rp.version",
                    FT_UINT8, BASE_DEC, VALS(auto_rp_ver_vals), AUTO_RP_VERSION_MASK,
-                   "Auto-RP protocol version"}},
+                   "Auto-RP protocol version", HFILL }},
 
                 { &hf_auto_rp_type,
                   {"Packet type", "auto_rp.type",
                    FT_UINT8, BASE_DEC, VALS(auto_rp_type_vals), AUTO_RP_TYPE_MASK,
-                   "Auto-RP packet type"}},
+                   "Auto-RP packet type", HFILL }},
 
                 { &hf_auto_rp_count,
                   {"RP count", "auto_rp.rp_count",
                    FT_UINT8, BASE_DEC, NULL, 0,
-                   "The number of RP addresses contained in this message"}},
+                   "The number of RP addresses contained in this message", HFILL }},
 
                 { &hf_auto_rp_holdtime,
                   {"Holdtime", "auto_rp.holdtime",
                    FT_UINT16, BASE_DEC, NULL, 0,
-                   "The amount of time in seconds this announcement is valid"}},
+                   "The amount of time in seconds this announcement is valid", HFILL }},
 
                 { &hf_auto_rp_pim_ver,
                   {"Version", "auto_rp.pim_ver",
                    FT_UINT8, BASE_DEC, VALS(auto_rp_pim_ver_vals), AUTO_RP_PIM_VER_MASK,
-                   "RP's highest PIM version"}},
+                   "RP's highest PIM version", HFILL }},
 
                 { &hf_auto_rp_rp_addr,
                   {"RP address", "auto_rp.rp_addr",
                    FT_IPv4, 0, NULL, 0,
-                   "The unicast IP address of the RP"}},
+                   "The unicast IP address of the RP", HFILL }},
 
                 { &hf_auto_rp_prefix_sgn,
                   {"Sign", "auto_rp.prefix_sign",
                    FT_UINT8, BASE_DEC, VALS(auto_rp_mask_sign_vals), AUTO_RP_SIGN_MASK,
-                   "Group prefix sign"}},
+                   "Group prefix sign", HFILL }},
 
                 { &hf_auto_rp_mask_len,
                   {"Mask length", "auto_rp.mask_len",
                    FT_UINT8, BASE_BIN, NULL, 0x0,
-                   "Length of group prefix"}},
+                   "Length of group prefix", HFILL }},
 
                 { &hf_auto_rp_group_prefix,
                   {"Prefix", "auto_rp.group_prefix",
                    FT_IPv4, 0, NULL, 0,
-                   "Group prefix"}}
+                   "Group prefix", HFILL }}
         };
 
         static gint *ett[] = {

@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.85 2001/05/03 22:50:33 guy Exp $
+ * $Id: packet-ipx.c,v 1.86 2001/06/18 02:17:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -662,117 +662,117 @@ proto_register_ipx(void)
 	static hf_register_info hf_ipx[] = {
 		{ &hf_ipx_checksum,
 		{ "Checksum",		"ipx.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ipx_len,
 		{ "Length",		"ipx.len", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ipx_hops,
 		{ "Transport Control (Hops)", "ipx.hops", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ipx_packet_type,
 		{ "Packet Type",	"ipx.packet_type", FT_UINT8, BASE_HEX, VALS(ipx_packet_type_vals),
 			0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ipx_dnet,
 		{ "Destination Network","ipx.dst.net", FT_IPXNET, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ipx_dnode,
 		{ "Destination Node",	"ipx.dst.node", FT_ETHER, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ipx_dsocket,
 		{ "Destination Socket",	"ipx.dst.socket", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ipx_snet,
 		{ "Source Network","ipx.src.net", FT_IPXNET, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ipx_snode,
 		{ "Source Node",	"ipx.src.node", FT_ETHER, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ipx_ssocket,
 		{ "Source Socket",	"ipx.src.socket", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 	};
 
 	static hf_register_info hf_spx[] = {
 		{ &hf_spx_connection_control,
 		{ "Connection Control",		"spx.ctl", 
 		  FT_UINT8,	BASE_HEX,	NULL,	0x0,
-		  "" }},
+		  "", HFILL }},
 
 		{ &hf_spx_datastream_type,
 		{ "Datastream type",	       	"spx.type", 
 		  FT_UINT8,	BASE_HEX,	NULL,	0x0,
-		  "" }},
+		  "", HFILL }},
 
 		{ &hf_spx_src_id,
 		{ "Source Connection ID",	"spx.src", 
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "" }},
+		  "", HFILL }},
 
 		{ &hf_spx_dst_id,
 		{ "Destination Connection ID",	"spx.dst", 
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "" }},
+		  "", HFILL }},
 
 		{ &hf_spx_seq_nr,
 		{ "Sequence Number",		"spx.seq", 
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "" }},
+		  "", HFILL }},
 
 		{ &hf_spx_ack_nr,
 		{ "Acknowledgment Number",	"spx.ack", 
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "" }},
+		  "", HFILL }},
 
 		{ &hf_spx_all_nr,
 		{ "Allocation Number",		"spx.alloc", 
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
-		  "" }}
+		  "", HFILL }}
 	};
 
 	static hf_register_info hf_ipxrip[] = {
 		{ &hf_ipxrip_request,
 		{ "Request",			"ipxrip.request", 
 		  FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
-		  "TRUE if IPX RIP request" }},
+		  "TRUE if IPX RIP request", HFILL }},
 
 		{ &hf_ipxrip_response,
 		{ "Response",			"ipxrip.response", 
 		  FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
-		  "TRUE if IPX RIP response" }}
+		  "TRUE if IPX RIP response", HFILL }}
 	};
 
 	static hf_register_info hf_sap[] = {
 		{ &hf_sap_request,
 		{ "Request",			"ipxsap.request", 
 		  FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
-		  "TRUE if SAP request" }},
+		  "TRUE if SAP request", HFILL }},
 
 		{ &hf_sap_response,
 		{ "Response",			"ipxsap.response", 
 		  FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
-		  "TRUE if SAP response" }}
+		  "TRUE if SAP response", HFILL }}
 	};
 
 	static hf_register_info hf_ipxmsg[] = {
 		{ &hf_msg_conn,
 		{ "Connection Number",			"ipxmsg.conn", 
 		  FT_UINT8,	BASE_DEC,	NULL,	0x0,
-		  "Connection Number" }},
+		  "Connection Number", HFILL }},
 
 		{ &hf_msg_sigchar,
 		{ "Signature Char",			"ipxmsg.sigchar", 
 		  FT_UINT8,	BASE_DEC,	VALS(ipxmsg_sigchar_vals),	0x0,
-		  "Signature Char" }}
+		  "Signature Char", HFILL }}
 	};
 
 	static gint *ett[] = {

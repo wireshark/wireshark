@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.43 2001/06/14 18:26:04 ashokn Exp $
+ * $Id: packet-rsvp.c,v 1.44 2001/06/18 02:17:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -423,172 +423,172 @@ static hf_register_info rsvpf_info[] = {
     /* Message type number */
     {&rsvp_filter[RSVPF_MSG], 
      { "Message Type", "rsvp.msg", FT_UINT8, BASE_DEC, VALS(message_type_vals), 0x0,
-     	"" }},
+     	"", HFILL }},
 
     /* Message type shorthands */
     {&rsvp_filter[RSVPF_PATH], 
      { "Path Message", "rsvp.path", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_RESV], 
      { "Resv Message", "rsvp.resv", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_PATHERR], 
      { "Path Error Message", "rsvp.perr", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_RESVERR], 
      { "Resv Error Message", "rsvp.rerr", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_PATHTEAR], 
      { "Path Tear Message", "rsvp.ptear", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_RESVTEAR], 
      { "Resv Tear Message", "rsvp.rtear", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_RCONFIRM], 
      { "Resv Confirm Message", "rsvp.resvconf", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_RTEARCONFIRM], 
      { "Resv Tear Confirm Message", "rsvp.rtearconf", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     /* Object class */
     {&rsvp_filter[RSVPF_OBJECT], 
      { "Object class", "rsvp.object", FT_UINT8, BASE_DEC, VALS(rsvp_class_vals), 0x0,
-     	"" }},
+     	"", HFILL }},
 
     /* Object present shorthands */
     {&rsvp_filter[RSVPF_SESSION], 
      { "SESSION", "rsvp.session", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_HOP], 
      { "HOP", "rsvp.hop", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_INTEGRITY], 
      { "INTEGRITY", "rsvp.integrity", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_TIME_VALUES], 
      { "TIME VALUES", "rsvp.time", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_ERROR], 
      { "ERROR", "rsvp.error", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_SCOPE], 
      { "SCOPE", "rsvp.scope", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_STYLE], 
      { "STYLE", "rsvp.style", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_FLOWSPEC], 
      { "FLOWSPEC", "rsvp.flowspec", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_FILTER_SPEC], 
      { "FILTERSPEC", "rsvp.filter", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_SENDER], 
      { "SENDER TEMPLATE", "rsvp.sender", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_TSPEC], 
      { "SENDER TSPEC", "rsvp.tspec", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_ADSPEC], 
      { "ADSPEC", "rsvp.adspec", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_POLICY], 
      { "POLICY", "rsvp.policy", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_CONFIRM], 
      { "CONFIRM", "rsvp.confirm", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_LABEL], 
      { "LABEL", "rsvp.label", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_LABEL_REQUEST], 
      { "LABEL REQUEST", "rsvp.label_request", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_SESSION_ATTRIBUTE], 
      { "SESSION ATTRIBUTE", "rsvp.session_attribute", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_EXPLICIT_ROUTE], 
      { "EXPLICIT ROUTE", "rsvp.explicit_route", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_RECORD_ROUTE], 
      { "RECORD ROUTE", "rsvp.record_route", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_MESSAGE_ID], 
      { "MESSAGE-ID", "rsvp.msgid", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_MESSAGE_ID_ACK], 
      { "MESSAGE-ID ACK", "rsvp.ack", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_MESSAGE_ID_LIST], 
      { "MESSAGE-ID LIST", "rsvp.msgid_list", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_UNKNOWN_OBJ], 
      { "Unknown object", "rsvp.obj_unknown", FT_NONE, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     /* Session fields */
     {&rsvp_filter[RSVPF_SESSION_IP], 
      { "Destination address", "rsvp.session.ip", FT_IPv4, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_SESSION_PORT], 
      { "Port number", "rsvp.session.port", FT_UINT16, BASE_DEC, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_SESSION_PROTO], 
      { "Protocol", "rsvp.session.proto", FT_UINT8, BASE_DEC, VALS(proto_vals), 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_SESSION_TUNNEL_ID], 
      { "Tunnel ID", "rsvp.session.tunnel_id", FT_UINT16, BASE_DEC, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID], 
      { "Extended tunnel ID", "rsvp.session.ext_tunnel_id", FT_UINT32, BASE_DEC, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     /* Sender template/Filterspec fields */
     {&rsvp_filter[RSVPF_SENDER_IP], 
      { "Sender IPv4 address", "rsvp.sender.ip", FT_IPv4, BASE_NONE, NULL, 0x0,
-     	"" }},
+     	"", HFILL }},
 
     {&rsvp_filter[RSVPF_SENDER_PORT], 
      { "Sender port number", "rsvp.sender.port", FT_UINT16, BASE_DEC, NULL, 0x0,
-       "" }},
+       "", HFILL }},
 
     {&rsvp_filter[RSVPF_SENDER_LSP_ID], 
      { "Sender LSP ID", "rsvp.sender.lsp_id", FT_UINT16, BASE_DEC, NULL, 0x0,
-     	"" }}
+     	"", HFILL }}
 };
 
 static inline int rsvp_class_to_filter_num(int classnum)

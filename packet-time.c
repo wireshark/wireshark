@@ -3,7 +3,7 @@
  *
  * Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-time.c,v 1.13 2001/01/25 06:14:14 guy Exp $
+ * $Id: packet-time.c,v 1.14 2001/06/18 02:17:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -78,7 +78,7 @@ proto_register_time(void)
     { &hf_time_time,
       { "Time", "time.time",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
-      	"Seconds since 00:00 (midnight) 1 January 1900 GMT" }}
+      	"Seconds since 00:00 (midnight) 1 January 1900 GMT", HFILL }}
   };
   static gint *ett[] = {
     &ett_time,

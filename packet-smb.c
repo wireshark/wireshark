@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.83 2001/06/05 23:40:34 guy Exp $
+ * $Id: packet-smb.c,v 1.84 2001/06/18 02:17:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -10936,7 +10936,7 @@ proto_register_smb(void)
   static hf_register_info hf[] = {
     { &hf_smb_cmd,
       { "SMB Command", "smb.cmd",
-	FT_UINT8, BASE_HEX, VALS(smb_cmd_vals), 0x0, "" }}
+	FT_UINT8, BASE_HEX, VALS(smb_cmd_vals), 0x0, "", HFILL }}
 
 
   };

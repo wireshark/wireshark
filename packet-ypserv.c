@@ -1,7 +1,7 @@
 /* packet-ypserv.c
  * Routines for ypserv dissection
  *
- * $Id: packet-ypserv.c,v 1.16 2001/05/30 06:01:02 guy Exp $
+ * $Id: packet-ypserv.c,v 1.17 2001/06/18 02:17:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -374,46 +374,46 @@ proto_register_ypserv(void)
 	static hf_register_info hf[] = {
 		{ &hf_ypserv_domain, {
 			"Domain", "ypserv.domain", FT_STRING, BASE_DEC,
-			NULL, 0, "Domain" }},
+			NULL, 0, "Domain", HFILL }},
 		{ &hf_ypserv_servesdomain, {
 			"Serves Domain", "ypserv.servesdomain", FT_BOOLEAN, BASE_DEC,
-			&yesno, 0, "Serves Domain" }},
+			&yesno, 0, "Serves Domain", HFILL }},
 		{ &hf_ypserv_map, {
 			"Map Name", "ypserv.map", FT_STRING, BASE_DEC,
-			NULL, 0, "Map Name" }},
+			NULL, 0, "Map Name", HFILL }},
 		{ &hf_ypserv_peer, {
 			"Peer Name", "ypserv.peer", FT_STRING, BASE_DEC,
-			NULL, 0, "Peer Name" }},
+			NULL, 0, "Peer Name", HFILL }},
 		{ &hf_ypserv_more, {
 			"More", "ypserv.more", FT_BOOLEAN, BASE_NONE,
-			&yesno, 0, "More" }},
+			&yesno, 0, "More", HFILL }},
 		{ &hf_ypserv_ordernum, {
 			"Order Number", "ypserv.ordernum", FT_UINT32, BASE_DEC,
-			NULL, 0, "Order Number for XFR" }},
+			NULL, 0, "Order Number for XFR", HFILL }},
 		{ &hf_ypserv_transid, {
 			"Host Transport ID", "ypserv.transid", FT_IPv4, BASE_DEC,
-			NULL, 0, "Host Transport ID to use for XFR Callback" }},
+			NULL, 0, "Host Transport ID to use for XFR Callback", HFILL }},
 		{ &hf_ypserv_prog, {
 			"Program Number", "ypserv.prog", FT_UINT32, BASE_DEC,
-			NULL, 0, "Program Number to use for XFR Callback" }},
+			NULL, 0, "Program Number to use for XFR Callback", HFILL }},
 		{ &hf_ypserv_port, {
 			"Port", "ypserv.port", FT_UINT32, BASE_DEC,
-			NULL, 0, "Port to use for XFR Callback" }},
+			NULL, 0, "Port to use for XFR Callback", HFILL }},
 		{ &hf_ypserv_key, {
 			"Key", "ypserv.key", FT_STRING, BASE_DEC,
-			NULL, 0, "Key" }},
+			NULL, 0, "Key", HFILL }},
 		{ &hf_ypserv_value, {
 			"Value", "ypserv.value", FT_STRING, BASE_DEC,
-			NULL, 0, "Value" }},
+			NULL, 0, "Value", HFILL }},
 		{ &hf_ypserv_status, {
 			"Status", "ypserv.status", FT_INT32, BASE_DEC,
-			VALS(ypstat) , 0, "Status" }},
+			VALS(ypstat) , 0, "Status", HFILL }},
 		{ &hf_ypserv_map_parms, {
 			"YP Map Parameters", "ypserv.map_parms", FT_NONE, BASE_DEC,
-			NULL, 0, "YP Map Parameters" }},
+			NULL, 0, "YP Map Parameters", HFILL }},
 		{ &hf_ypserv_xfrstat, {
 			"Xfrstat", "ypserv.xfrstat", FT_INT32, BASE_DEC,
-			VALS(xfrstat), 0, "Xfrstat" }},
+			VALS(xfrstat), 0, "Xfrstat", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_ypserv,

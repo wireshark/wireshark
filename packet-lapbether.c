@@ -3,7 +3,7 @@
  * Richard Sharpe <rsharpe@ns.aus.com> based on the lapb module by
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-lapbether.c,v 1.5 2001/01/25 06:14:14 guy Exp $
+ * $Id: packet-lapbether.c,v 1.6 2001/06/18 02:17:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -83,7 +83,7 @@ proto_register_lapbether(void)
     static hf_register_info hf[] = {
       { &hf_lapbether_length,
 	{ "Length Field", "lapbether.length", FT_UINT16, BASE_DEC, NULL, 0x0, 
-	  "LAPBEther Length Field"}},
+	  "LAPBEther Length Field", HFILL }},
 
     };
     static gint *ett[] = {

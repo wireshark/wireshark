@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.43 2001/03/13 21:34:23 gram Exp $
+ * $Id: packet-arp.c,v 1.44 2001/06/18 02:17:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -806,127 +806,127 @@ proto_register_arp(void)
     { &hf_arp_hard_type,
       { "Hardware type",		"arp.hw.type",	 
 	FT_UINT16,	BASE_HEX,	VALS(hrd_vals),	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_arp_proto_type,
       { "Protocol type",		"arp.proto.type",
 	FT_UINT16,	BASE_HEX,	VALS(etype_vals),	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_arp_hard_size,
       { "Hardware size",		"arp.hw.size",
 	FT_UINT8,	BASE_DEC,	NULL,	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_atmarp_sht,
       { "Sender ATM number type",	"arp.src.htype",
 	FT_BOOLEAN,	8,		&type_bit,	ATMARP_IS_E164,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_atmarp_shl,
       { "Sender ATM number length",	"arp.src.hlen",
 	FT_UINT8,	BASE_DEC,	NULL,		ATMARP_LEN_MASK,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_atmarp_sst,
       { "Sender ATM subaddress type",	"arp.src.stype",
 	FT_BOOLEAN,	8,		&type_bit,	ATMARP_IS_E164,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_atmarp_ssl,
       { "Sender ATM subaddress length",	"arp.src.slen",
 	FT_UINT8,	BASE_DEC,	NULL,		ATMARP_LEN_MASK,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_arp_proto_size,
       { "Protocol size",		"arp.proto.size",
 	FT_UINT8,	BASE_DEC,	NULL,	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_arp_opcode,
       { "Opcode",			"arp.opcode",
 	FT_UINT16,	BASE_HEX,	VALS(op_vals),	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_atmarp_spln,
       { "Sender protocol size",		"arp.src.pln",
 	FT_UINT8,	BASE_DEC,	NULL,	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_atmarp_tht,
       { "Target ATM number type",	"arp.dst.htype",
 	FT_BOOLEAN,	8,		&type_bit,	ATMARP_IS_E164,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_atmarp_thl,
       { "Target ATM number length",	"arp.dst.hlen",
 	FT_UINT8,	BASE_DEC,	NULL,		ATMARP_LEN_MASK,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_atmarp_tst,
       { "Target ATM subaddress type",	"arp.dst.stype",
 	FT_BOOLEAN,	8,		&type_bit,	ATMARP_IS_E164,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_atmarp_tsl,
       { "Target ATM subaddress length",	"arp.dst.slen",
 	FT_UINT8,	BASE_DEC,	NULL,		ATMARP_LEN_MASK,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_atmarp_tpln,
       { "Target protocol size",		"arp.dst.pln",
 	FT_UINT8,	BASE_DEC,	NULL,	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_arp_src_ether,
       { "Sender hardware address",	"arp.src.hw",
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_atmarp_src_atm_num_e164,
       { "Sender ATM number (E.164)",	"arp.src.atm_num_e164",
 	FT_STRING,	BASE_NONE,	NULL,	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_atmarp_src_atm_num_nsap,
       { "Sender ATM number (NSAP)",	"arp.src.atm_num_nsap",
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_atmarp_src_atm_subaddr,
       { "Sender ATM subaddress",	"arp.src.atm_subaddr",
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_arp_src_proto,
       { "Sender protocol address",	"arp.src.proto", 
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_arp_dst_ether,
       { "Target hardware address",	"arp.dst.hw",
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_atmarp_dst_atm_num_e164,
       { "Target ATM number (E.164)",	"arp.dst.atm_num_e164",
 	FT_STRING,	BASE_NONE,	NULL,	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_atmarp_dst_atm_num_nsap,
       { "Target ATM number (NSAP)",	"arp.dst.atm_num_nsap",
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_atmarp_dst_atm_subaddr,
       { "Target ATM subaddress",	"arp.dst.atm_subaddr",
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_arp_dst_proto,
       { "Target protocol address",	"arp.dst.proto", 
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
-      "" }}
+      "", HFILL }}
   };
   static gint *ett[] = {
     &ett_arp,

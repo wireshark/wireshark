@@ -1,6 +1,6 @@
 /* packet-rwall.c
  *
- * $Id: packet-rwall.c,v 1.3 2001/06/12 06:31:14 guy Exp $
+ * $Id: packet-rwall.c,v 1.4 2001/06/18 02:17:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,7 +60,7 @@ proto_register_rwall(void)
 	static hf_register_info hf[] = {
 		{ &hf_rwall_message, {
 			"Message", "rwall.message", FT_STRING, BASE_DEC,
-			NULL, 0, "Message" }},
+			NULL, 0, "Message", HFILL }},
 	};
 
 	static gint *ett[] = {

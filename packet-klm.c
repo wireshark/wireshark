@@ -1,7 +1,7 @@
 /* packet-klm.c    2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
  * Routines for klm dissection
  *
- * $Id: packet-klm.c,v 1.3 2001/06/12 06:31:14 guy Exp $
+ * $Id: packet-klm.c,v 1.4 2001/06/18 02:17:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -201,39 +201,39 @@ proto_register_klm(void)
 	static hf_register_info hf[] = {
 		{ &hf_klm_exclusive, {
 			"exclusive", "klm.exclusive", FT_BOOLEAN, BASE_NONE,
-			&tfs_exclusive, 0, "Exclusive lock" }},
+			&tfs_exclusive, 0, "Exclusive lock", HFILL }},
 
 		{ &hf_klm_lock, {
 			"lock", "klm.lock", FT_NONE, BASE_NONE,
-			NULL, 0, "KLM lock structure" }},
+			NULL, 0, "KLM lock structure", HFILL }},
 
 		{ &hf_klm_servername, {
 			"server name", "klm.servername", FT_STRING, BASE_NONE,
-			NULL, 0, "Server name" }},
+			NULL, 0, "Server name", HFILL }},
 
 		{ &hf_klm_pid, {
 			"pid", "klm.pid", FT_UINT32, BASE_DEC,
-			NULL, 0, "ProcessID" }},
+			NULL, 0, "ProcessID", HFILL }},
 
 		{ &hf_klm_offset, {
 			"offset", "klm.offset", FT_UINT32, BASE_DEC,
-			NULL, 0, "File offset" }},
+			NULL, 0, "File offset", HFILL }},
 
 		{ &hf_klm_len, {
 			"length", "klm.len", FT_UINT32, BASE_DEC,
-			NULL, 0, "Length of lock region" }},
+			NULL, 0, "Length of lock region", HFILL }},
 
 		{ &hf_klm_stats, {
 			"stats", "klm.stats", FT_UINT32, BASE_DEC,
-			VALS(names_klm_stats), 0, "stats" }},
+			VALS(names_klm_stats), 0, "stats", HFILL }},
 
 		{ &hf_klm_holder, {
 			"holder", "klm.holder", FT_NONE, BASE_NONE,
-			NULL, 0, "KLM lock holder" }},
+			NULL, 0, "KLM lock holder", HFILL }},
 
 		{ &hf_klm_block, {
 			"block", "klm.block", FT_BOOLEAN, BASE_NONE,
-			&tfs_block, 0, "Block" }},
+			&tfs_block, 0, "Block", HFILL }},
 
 	};
 

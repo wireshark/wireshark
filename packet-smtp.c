@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.17 2001/04/23 04:29:53 guy Exp $
+ * $Id: packet-smtp.c,v 1.18 2001/06/18 02:17:52 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -552,10 +552,10 @@ proto_register_smtp(void)
 {
   static hf_register_info hf[] = {
     { &hf_smtp_req,
-      { "Request", "smtp.req", FT_BOOLEAN, BASE_NONE, NULL, 0x0, ""}},
+      { "Request", "smtp.req", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_smtp_rsp,
-      { "Response", "smtp.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0, ""}},
+      { "Response", "smtp.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
   };
   static gint *ett[] = {
     &ett_smtp

@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.22 2001/04/23 18:19:03 guy Exp $
+ * $Id: packet-sap.c,v 1.23 2001/06/18 02:17:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -292,62 +292,62 @@ void proto_register_sap(void)
     { &hf_sap_flags,
       { "Flags",         "sap.flags",
 	FT_UINT8, BASE_HEX, NULL, 0x0,
-      	"Bits in the beginning of the SAP header" }},
+      	"Bits in the beginning of the SAP header", HFILL }},
 
     { &hf_sap_flags_v,
       { "Version Number",         "sap.flags.v",
 	FT_UINT8, BASE_DEC, VALS(mcast_sap_ver), MCAST_SAP_VERSION_MASK,
-      	"3 bit version field in the SAP header" }},
+      	"3 bit version field in the SAP header", HFILL }},
 
     { &hf_sap_flags_a,
       { "Address Type",           "sap.flags.a",
 	FT_BOOLEAN, 8, TFS(&mcast_sap_address_type), MCAST_SAP_BIT_A,
-      	"Originating source address type" }},
+      	"Originating source address type", HFILL }},
 
     { &hf_sap_flags_r,
       { "Reserved",               "sap.flags.r",
 	FT_BOOLEAN, 8, TFS(&flags_set_truth), MCAST_SAP_BIT_R,
-      	"Reserved" }},
+      	"Reserved", HFILL }},
 
     { &hf_sap_flags_t,
       { "Message Type",           "sap.flags.t",
 	FT_BOOLEAN, 8, TFS(&mcast_sap_message_type), MCAST_SAP_BIT_T,
-      	"Announcement type" }},
+      	"Announcement type", HFILL }},
 
     { &hf_sap_flags_e,
       { "Encryption Bit",         "sap.flags.e",
 	FT_BOOLEAN, 8, TFS(&mcast_sap_crypt_type), MCAST_SAP_BIT_E,
-      	"Encryption" }},
+      	"Encryption", HFILL }},
 
     { &hf_sap_flags_c,
       { "Compression Bit",         "sap.flags.c",
 	FT_BOOLEAN, 8, TFS(&mcast_sap_comp_type), MCAST_SAP_BIT_C,
-      	"Compression" }},
+      	"Compression", HFILL }},
 
     { &hf_auth_data,
       { "Authentication data",     "sap.auth",
 	FT_NONE, BASE_NONE, NULL, 0x0,
-      	"Auth data" }},
+      	"Auth data", HFILL }},
 
     { &hf_auth_flags,
       { "Authentication data flags", "sap.auth.flags",
 	FT_UINT8, BASE_HEX, NULL, 0x0,
-      	"Auth flags" }},
+      	"Auth flags", HFILL }},
 
     { &hf_auth_flags_v,
       { "Version Number",         "sap.auth.flags.v",
 	FT_UINT8, BASE_DEC, VALS(&mcast_sap_auth_ver), MCAST_SAP_VERSION_MASK,
-      	"Version" }},
+      	"Version", HFILL }},
 
     { &hf_auth_flags_p,
       { "Padding Bit",            "sap.auth.flags.p",
 	FT_BOOLEAN, 8, TFS(&mcast_sap_auth_pad), MCAST_SAP_AUTH_BIT_P,
-      	"Compression" }},
+      	"Compression", HFILL }},
 
     { &hf_auth_flags_t,
       { "Authentication Type",         "sap.auth.flags.t",
 	FT_UINT8, BASE_DEC, VALS(&mcast_sap_auth_type), MCAST_SAP_AUTH_TYPE_MASK,
-      	"Auth type" }}
+      	"Auth type", HFILL }}
   };
   static gint *ett[] = {
     &ett_sap,

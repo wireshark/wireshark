@@ -1,7 +1,7 @@
 /* packet-yppasswd.c
  * Routines for yppasswd dissection
  *
- * $Id: packet-yppasswd.c,v 1.3 2001/06/12 06:31:14 guy Exp $
+ * $Id: packet-yppasswd.c,v 1.4 2001/06/18 02:17:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -104,43 +104,43 @@ proto_register_yppasswd(void)
 	static hf_register_info hf[] = {
 		{ &hf_yppasswd_status, {
 			"status", "yppasswd.status", FT_UINT32, BASE_DEC,
-			NULL, 0, "YPPasswd update status" }},
+			NULL, 0, "YPPasswd update status", HFILL }},
 
 		{ &hf_yppasswd_oldpass, {
 			"oldpass", "yppasswd.oldpass", FT_STRING, BASE_DEC,
-			NULL, 0, "Old encrypted password" }},
+			NULL, 0, "Old encrypted password", HFILL }},
 
 		{ &hf_yppasswd_newpw, {
 			"newpw", "yppasswd.newpw", FT_NONE, 0,
-			NULL, 0, "New passwd entry" }},
+			NULL, 0, "New passwd entry", HFILL }},
 
 		{ &hf_yppasswd_newpw_name, {
 			"name", "yppasswd.newpw.name", FT_STRING, BASE_DEC,
-			NULL, 0, "Username" }},
+			NULL, 0, "Username", HFILL }},
 
 		{ &hf_yppasswd_newpw_passwd, {
 			"passwd", "yppasswd.newpw.passwd", FT_STRING, BASE_DEC,
-			NULL, 0, "Encrypted passwd" }},
+			NULL, 0, "Encrypted passwd", HFILL }},
 
 		{ &hf_yppasswd_newpw_uid, {
 			"uid", "yppasswd.newpw.uid", FT_UINT32, BASE_DEC,
-			NULL, 0, "UserID" }},
+			NULL, 0, "UserID", HFILL }},
 
 		{ &hf_yppasswd_newpw_gid, {
 			"gid", "yppasswd.newpw.gid", FT_UINT32, BASE_DEC,
-			NULL, 0, "GroupID" }},
+			NULL, 0, "GroupID", HFILL }},
 
 		{ &hf_yppasswd_newpw_gecos, {
 			"gecos", "yppasswd.newpw.gecos", FT_STRING, BASE_DEC,
-			NULL, 0, "In real life name" }},
+			NULL, 0, "In real life name", HFILL }},
 
 		{ &hf_yppasswd_newpw_dir, {
 			"dir", "yppasswd.newpw.dir", FT_STRING, BASE_DEC,
-			NULL, 0, "Home Directory" }},
+			NULL, 0, "Home Directory", HFILL }},
 
 		{ &hf_yppasswd_newpw_shell, {
 			"shell", "yppasswd.newpw.shell", FT_STRING, BASE_DEC,
-			NULL, 0, "Default shell" }},
+			NULL, 0, "Default shell", HFILL }},
 
 	};
 

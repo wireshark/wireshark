@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.54 2001/04/27 01:27:36 guy Exp $
+ * $Id: packet-atalk.c,v 1.55 2001/06/18 02:17:44 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -427,106 +427,106 @@ proto_register_atalk(void)
   static hf_register_info hf_ddp[] = {
     { &hf_ddp_hopcount,
       { "Hop count",		"ddp.hopcount",	FT_UINT8,  BASE_DEC, NULL, 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_ddp_len,
       { "Datagram length",	"ddp.len",	FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_ddp_checksum,
       { "Checksum",		"ddp.checksum",	FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_ddp_dst_net,
       { "Destination Net",	"ddp.dst.net",	FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_ddp_src_net,
       { "Source Net",		"ddp.src.net",	FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_ddp_dst_node,
       { "Destination Node",	"ddp.dst.node",	FT_UINT8,  BASE_DEC, NULL, 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_ddp_src_node,
       { "Source Node",		"ddp.src.node",	FT_UINT8,  BASE_DEC, NULL, 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_ddp_dst_socket,
       { "Destination Socket",	"ddp.dst.socket", FT_UINT8,  BASE_DEC, NULL, 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_ddp_src_socket,
       { "Source Socket",       	"ddp.src.socket", FT_UINT8,  BASE_DEC, NULL, 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_ddp_type,
       { "Protocol type",       	"ddp.type",	FT_UINT8,  BASE_DEC, VALS(op_vals), 0x0,
-      	"" }},
+      	"", HFILL }},
   };
 
   static hf_register_info hf_nbp[] = {
     { &hf_nbp_op,
       { "Operation",		"nbp.op",	FT_UINT8,  BASE_DEC, 
-		VALS(nbp_op_vals), 0xF0, "Operation" }},
+		VALS(nbp_op_vals), 0xF0, "Operation", HFILL }},
     { &hf_nbp_info,
       { "Info",		"nbp.info",	FT_UINT8,  BASE_HEX, 
-		NULL, 0x0, "Info" }},
+		NULL, 0x0, "Info", HFILL }},
     { &hf_nbp_count,
       { "Count",		"nbp.count",	FT_UINT8,  BASE_DEC, 
-		NULL, 0x0F, "Count" }},
+		NULL, 0x0F, "Count", HFILL }},
     { &hf_nbp_node_net,
       { "Network",		"nbp.net",	FT_UINT16,  BASE_DEC, 
-		NULL, 0x0, "Network" }},
+		NULL, 0x0, "Network", HFILL }},
     { &hf_nbp_node_node,
       { "Node",		"nbp.node",	FT_UINT8,  BASE_DEC, 
-		NULL, 0x0, "Node" }},
+		NULL, 0x0, "Node", HFILL }},
     { &hf_nbp_node_port,
       { "Port",		"nbp.port",	FT_UINT8,  BASE_DEC, 
-		NULL, 0x0, "Port" }},
+		NULL, 0x0, "Port", HFILL }},
     { &hf_nbp_node_enum,
       { "Enumerator",		"nbp.enum",	FT_UINT8,  BASE_DEC, 
-		NULL, 0x0, "Enumerator" }},
+		NULL, 0x0, "Enumerator", HFILL }},
     { &hf_nbp_node_object,
       { "Object",		"nbp.object",	FT_STRING,  BASE_DEC, 
-		NULL, 0x0, "Object" }},
+		NULL, 0x0, "Object", HFILL }},
     { &hf_nbp_node_type,
       { "Type",		"nbp.type",	FT_STRING,  BASE_DEC, 
-		NULL, 0x0, "Type" }},
+		NULL, 0x0, "Type", HFILL }},
     { &hf_nbp_node_zone,
       { "Zone",		"nbp.zone",	FT_STRING,  BASE_DEC, 
-		NULL, 0x0, "Zone" }},
+		NULL, 0x0, "Zone", HFILL }},
     { &hf_nbp_tid,
       { "Transaction ID",		"nbp.tid",	FT_UINT8,  BASE_DEC, 
-		NULL, 0x0, "Transaction ID" }}
+		NULL, 0x0, "Transaction ID", HFILL }}
   };
 
   static hf_register_info hf_rtmp[] = {
     { &hf_rtmp_net,
       { "Net",		"rtmp.net",	FT_UINT16,  BASE_DEC, 
-		NULL, 0x0, "Net" }},
+		NULL, 0x0, "Net", HFILL }},
     { &hf_rtmp_node,
       { "Node",		"nbp.nodeid",	FT_UINT8,  BASE_DEC, 
-		NULL, 0x0, "Node" }},
+		NULL, 0x0, "Node", HFILL }},
     { &hf_rtmp_node_len,
       { "Node Length",		"nbp.nodeid.length",	FT_UINT8,  BASE_DEC, 
-		NULL, 0x0, "Node Length" }},
+		NULL, 0x0, "Node Length", HFILL }},
     { &hf_rtmp_tuple_net,
       { "Net",		"rtmp.tuple.net",	FT_UINT16,  BASE_DEC, 
-		NULL, 0x0, "Net" }},
+		NULL, 0x0, "Net", HFILL }},
     { &hf_rtmp_tuple_range_start,
       { "Range Start",		"rtmp.tuple.range_start",	FT_UINT16,  BASE_DEC, 
-		NULL, 0x0, "Range Start" }},
+		NULL, 0x0, "Range Start", HFILL }},
     { &hf_rtmp_tuple_range_end,
       { "Range End",		"rtmp.tuple.range_end",	FT_UINT16,  BASE_DEC, 
-		NULL, 0x0, "Range End" }},
+		NULL, 0x0, "Range End", HFILL }},
     { &hf_rtmp_tuple_dist,
       { "Distance",		"rtmp.tuple.dist",	FT_UINT16,  BASE_DEC, 
-		NULL, 0x0, "Distance" }},
+		NULL, 0x0, "Distance", HFILL }},
     { &hf_rtmp_function,
       { "Function",		"rtmp.function",	FT_UINT8,  BASE_DEC, 
-		VALS(rtmp_function_vals), 0x0, "Request Function" }}
+		VALS(rtmp_function_vals), 0x0, "Request Function", HFILL }}
   };
 
 

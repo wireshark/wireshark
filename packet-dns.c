@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.67 2001/06/18 01:49:16 guy Exp $
+ * $Id: packet-dns.c,v 1.68 2001/06/18 02:17:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2493,35 +2493,35 @@ proto_register_dns(void)
     { &hf_dns_response,
       { "Response",		"dns.response",  
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"TRUE if DNS response" }},
+	"TRUE if DNS response", HFILL }},
     { &hf_dns_query,
       { "Query",		"dns.query",  
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"TRUE if DNS query" }},
+	"TRUE if DNS query", HFILL }},
     { &hf_dns_flags,
       { "Flags",		"dns.flags",  
 	FT_UINT16, BASE_HEX, NULL, 0x0,
-	"" }},
+	"", HFILL }},
     { &hf_dns_transaction_id,
       { "Transaction ID",      	"dns.id",  
 	FT_UINT16, BASE_HEX, NULL, 0x0,
-	"Identification of transaction" }},
+	"Identification of transaction", HFILL }},
     { &hf_dns_count_questions,
       { "Questions",		"dns.count.queries",  
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Number of queries in packet" }},
+	"Number of queries in packet", HFILL }},
     { &hf_dns_count_answers,
       { "Answer RRs",		"dns.count.answers",  
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Number of answers in packet" }},
+	"Number of answers in packet", HFILL }},
     { &hf_dns_count_auth_rr,
       { "Authority RRs",       	"dns.count.auth_rr",  
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Number of authoritative records in packet" }},
+	"Number of authoritative records in packet", HFILL }},
     { &hf_dns_count_add_rr,
       { "Additional RRs",      	"dns.count.add_rr",  
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Number of additional records in packet" }}
+	"Number of additional records in packet", HFILL }}
   };
   static gint *ett[] = {
     &ett_dns,

@@ -20,7 +20,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.8 2001/06/02 06:26:53 guy Exp $
+$Id: ncp2222.py,v 1.9 2001/06/18 02:17:44 guy Exp $
 
 Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
 
@@ -1315,25 +1315,25 @@ proto_register_ncp2222(void)
 
 	static hf_register_info hf[] = {
 	{ &hf_ncp_func,
-	{ "Function", "ncp.func", FT_UINT8, BASE_HEX, NULL, 0x0, "" }},
+	{ "Function", "ncp.func", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
 
 	{ &hf_ncp_length,
-	{ "Packet Length", "ncp.length", FT_UINT16, BASE_DEC, NULL, 0x0, "" }},
+	{ "Packet Length", "ncp.length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 
 	{ &hf_ncp_subfunc,
-	{ "SubFunction", "ncp.subfunc", FT_UINT8, BASE_HEX, NULL, 0x0, "" }},
+	{ "SubFunction", "ncp.subfunc", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
 
 	{ &hf_ncp_completion_code,
-	{ "Completion Code", "ncp.completion_code", FT_UINT8, BASE_HEX, NULL, 0x0, "" }},
+	{ "Completion Code", "ncp.completion_code", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
 
 	{ &hf_ncp_connection_status,
-	{ "Connection Status", "ncp.connection_status", FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+	{ "Connection Status", "ncp.connection_status", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 	"""
 
 	# Print the registration code for the hf variables
 	for var in variables_used_hash.keys():
 		print "\t{ &%s," % (var.HFName())
-		print "\t{ \"%s\", \"%s\", %s, %s, %s, 0x%x, \"\" }},\n" % \
+		print "\t{ \"%s\", \"%s\", %s, %s, %s, 0x%x, \"\", HFILL }},\n" % \
 			(var.Description(), var.DFilter(),
 			var.EtherealFType(), var.Display(), var.ValuesName(),
 			var.Mask())

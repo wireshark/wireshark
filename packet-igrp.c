@@ -2,7 +2,7 @@
  * Routines for IGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  * 
- * $Id: packet-igrp.c,v 1.7 2001/04/23 17:51:33 guy Exp $
+ * $Id: packet-igrp.c,v 1.8 2001/06/18 02:17:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -177,12 +177,12 @@ void proto_register_igrp(void)
     { &hf_igrp_update,
       { "Update Release",           "igrp.update",
       FT_UINT8, BASE_DEC, NULL, 0x0 ,
-      "Update Release number" },
+      "Update Release number", HFILL }
     },
     { &hf_igrp_as,
       { "Autonomous System",           "igrp.as",
       FT_UINT16, BASE_DEC, NULL, 0x0 ,
-      "Autonomous System number" }
+      "Autonomous System number", HFILL }
     }
   };
 

@@ -4,7 +4,7 @@
  * Robert Tsai <rtsai@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rsh.c,v 1.10 2001/01/22 08:03:46 guy Exp $
+ * $Id: packet-rsh.c,v 1.11 2001/06/18 02:17:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -113,11 +113,11 @@ proto_register_rsh(void)
 		{ &hf_rsh_response,
 		{ "Response",		"rsh.response",  
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		"TRUE if rsh response" }},
+		"TRUE if rsh response", HFILL }},
 		{ &hf_rsh_request,
 		{ "Request",		"rsh.request",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		"TRUE if rsh request" }},
+		"TRUE if rsh request", HFILL }},
 	};
 
 	static gint *ett[] = {

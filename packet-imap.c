@@ -2,7 +2,7 @@
  * Routines for imap packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-imap.c,v 1.14 2001/01/22 08:03:45 guy Exp $
+ * $Id: packet-imap.c,v 1.15 2001/06/18 02:17:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -162,12 +162,12 @@ proto_register_imap(void)
     { &hf_imap_response,
       { "Response",           "imap.response",
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"TRUE if IMAP response" }},
+      	"TRUE if IMAP response", HFILL }},
 
     { &hf_imap_request,
       { "Request",            "imap.request",
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"TRUE if IMAP request" }}
+      	"TRUE if IMAP request", HFILL }}
   };
   static gint *ett[] = {
     &ett_imap,

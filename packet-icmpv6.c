@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.46 2001/06/02 08:10:02 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.47 2001/06/18 02:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1346,16 +1346,16 @@ proto_register_icmpv6(void)
   static hf_register_info hf[] = {
     { &hf_icmpv6_type,
       { "Type",           "icmpv6.type",	FT_UINT8,  BASE_DEC, NULL, 0x0,
-      	"" }},
+      	"", HFILL }},
     { &hf_icmpv6_code,
       { "Code",           "icmpv6.code",	FT_UINT8,  BASE_DEC, NULL, 0x0,
-      	"" }},
+      	"", HFILL }},
     { &hf_icmpv6_checksum,
       { "Checksum",       "icmpv6.checksum",	FT_UINT16, BASE_HEX, NULL, 0x0,
-      	"" }},
+      	"", HFILL }},
     { &hf_icmpv6_checksum_bad,
       { "Bad Checksum",   "icmpv6.checksum_bad", FT_BOOLEAN, BASE_NONE,	NULL, 0x0,
-	"" }},
+	"", HFILL }},
   };
   static gint *ett[] = {
     &ett_icmpv6,

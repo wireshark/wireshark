@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.20 2001/04/20 22:31:25 guy Exp $
+ * $Id: packet-x11.c,v 1.21 2001/06/18 02:17:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2910,7 +2910,7 @@ void proto_register_x11(void)
   { &hf_x11_FIELDABBREV,
   { "FIELDNAME",           "x11.FIELDABBREV",
   FIELDTYPE, FIELDBASE, FIELDCONVERT, BITMASK,          
-  "FIELDDESCR" }
+  "FIELDDESCR", HFILL }
   },
 */
 #include "x11-register-info.h"

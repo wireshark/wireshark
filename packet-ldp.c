@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for ldp packet disassembly
  *
- * $Id: packet-ldp.c,v 1.16 2001/06/05 21:00:17 guy Exp $
+ * $Id: packet-ldp.c,v 1.17 2001/06/18 02:17:48 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -736,70 +736,70 @@ proto_register_ldp(void)
   static hf_register_info hf[] = {
     { &hf_ldp_req,
       /* Change the following to the type you need */
-      { "Request", "ldp.req", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "" }},
+      { "Request", "ldp.req", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_ldp_rsp,
-      { "Response", "ldp.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "" }},
+      { "Response", "ldp.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_ldp_version,
-      { "Version", "ldp.hdr.version", FT_UINT16, BASE_DEC, NULL, 0x0, "LDP Version Number" }},
+      { "Version", "ldp.hdr.version", FT_UINT16, BASE_DEC, NULL, 0x0, "LDP Version Number", HFILL }},
 
     { &hf_ldp_pdu_len,
-      { "PDU Length", "ldp.hdr.pdu_len", FT_UINT16, BASE_DEC, NULL, 0x0, "LDP PDU Length"}},
+      { "PDU Length", "ldp.hdr.pdu_len", FT_UINT16, BASE_DEC, NULL, 0x0, "LDP PDU Length", HFILL }},
 
     { &hf_ldp_lsr,
-      { "LSR ID", "ldp.hdr.ldpid.lsr", FT_UINT32, BASE_HEX, NULL, 0x0, "LDP Label Space Router ID"}},
+      { "LSR ID", "ldp.hdr.ldpid.lsr", FT_UINT32, BASE_HEX, NULL, 0x0, "LDP Label Space Router ID", HFILL }},
 
     { &hf_ldp_ls_id,
-      { "Label Space ID", "ldp.hdr.ldpid.lsid", FT_UINT16, BASE_HEX, NULL, 0x0, "LDP Label Space ID"}},
+      { "Label Space ID", "ldp.hdr.ldpid.lsid", FT_UINT16, BASE_HEX, NULL, 0x0, "LDP Label Space ID", HFILL }},
 
     { &hf_ldp_msg_type,
-      { "Message Type", "ldp.msg.type", FT_UINT16, BASE_HEX, VALS(ldp_message_types), 0x0, "LDP message type"}},
+      { "Message Type", "ldp.msg.type", FT_UINT16, BASE_HEX, VALS(ldp_message_types), 0x0, "LDP message type", HFILL }},
 
     { &hf_ldp_msg_len,
-      { "Message Length", "ldp.msg.len", FT_UINT16, BASE_DEC, NULL, 0x0, "LDP Message Length (excluding message type and len)"}},
+      { "Message Length", "ldp.msg.len", FT_UINT16, BASE_DEC, NULL, 0x0, "LDP Message Length (excluding message type and len)", HFILL }},
 
     { &hf_ldp_msg_id, 
-      { "Message ID", "ldp.msg.id", FT_UINT32, BASE_HEX, NULL, 0x0, "LDP Message ID"}},
+      { "Message ID", "ldp.msg.id", FT_UINT32, BASE_HEX, NULL, 0x0, "LDP Message ID", HFILL }},
 
     { &hf_ldp_tlv_type, 
-      { "TLV Type", "ldp.msg.tlv.type", FT_UINT16, BASE_HEX, VALS(tlv_type_names), 0x0, "TLV Type Field"}},
+      { "TLV Type", "ldp.msg.tlv.type", FT_UINT16, BASE_HEX, VALS(tlv_type_names), 0x0, "TLV Type Field", HFILL }},
 
     { &hf_ldp_tlv_len,
-      {"TLV Length", "ldp.msg.tlv.len", FT_UINT16, BASE_DEC, NULL, 0x0, "TLV Length Field"}},
+      {"TLV Length", "ldp.msg.tlv.len", FT_UINT16, BASE_DEC, NULL, 0x0, "TLV Length Field", HFILL }},
 
     { &hf_ldp_tlv_value,
-      { "TLV Value", "ldp.msg.tlv.value", FT_BYTES, BASE_NONE, NULL, 0x0, "TLV Value Bytes"}},
+      { "TLV Value", "ldp.msg.tlv.value", FT_BYTES, BASE_NONE, NULL, 0x0, "TLV Value Bytes", HFILL }},
 
     { &hf_ldp_tlv_val_hold,
-      { "Hold Time", "ldp.msg.tlv.hello.hold", FT_UINT16, BASE_DEC, NULL, 0x0, "Hello Common Parameters Hold Time"}},
+      { "Hold Time", "ldp.msg.tlv.hello.hold", FT_UINT16, BASE_DEC, NULL, 0x0, "Hello Common Parameters Hold Time", HFILL }},
 
     { &hf_ldp_tlv_val_target,
-      { "Targeted Hello", "ldp.msg.tlv.hello.targeted", FT_BOOLEAN, 8, TFS(&hello_targeted_vals), 0x80, "Hello Common Parameters Targeted Bit"}},
+      { "Targeted Hello", "ldp.msg.tlv.hello.targeted", FT_BOOLEAN, 8, TFS(&hello_targeted_vals), 0x80, "Hello Common Parameters Targeted Bit", HFILL }},
 
     { &hf_ldp_tlv_val_request,
-      { "Hello Requested", "ldp,msg.tlv.hello.requested", FT_BOOLEAN, 8, TFS(&hello_requested_vals), 0x40, "Hello Common Parameters Hello Requested Bit" }},
+      { "Hello Requested", "ldp,msg.tlv.hello.requested", FT_BOOLEAN, 8, TFS(&hello_requested_vals), 0x40, "Hello Common Parameters Hello Requested Bit", HFILL }},
  
     { &hf_ldp_tlv_val_res,
-      { "Reserved", "ldp.msg.tlv.hello.res", FT_UINT16, BASE_HEX, NULL, 0x3FFF, "Hello Common Parameters Reserved Field"}},
+      { "Reserved", "ldp.msg.tlv.hello.res", FT_UINT16, BASE_HEX, NULL, 0x3FFF, "Hello Common Parameters Reserved Field", HFILL }},
 
     { &hf_ldp_tlv_config_seqno,
-      { "Configuration Sequence Number", "ldp.msg.tlv.hello.cnf_seqno", FT_UINT32, BASE_HEX, NULL, 0x0, "Hello COnfiguration Sequence Number"}},
+      { "Configuration Sequence Number", "ldp.msg.tlv.hello.cnf_seqno", FT_UINT32, BASE_HEX, NULL, 0x0, "Hello COnfiguration Sequence Number", HFILL }},
 
     { &hf_ldp_tlv_fec_wc,
-      { "FEC Element Type", "ldp.msg.tlv.fec.type", FT_UINT8, BASE_DEC, VALS(fec_types), 0x0, "Forwarding Equivalence Class Element Types"}},
+      { "FEC Element Type", "ldp.msg.tlv.fec.type", FT_UINT8, BASE_DEC, VALS(fec_types), 0x0, "Forwarding Equivalence Class Element Types", HFILL }},
 
     { &hf_ldp_tlv_fec_af,
-      { "FEC Element Address Type", "ldp.msg.tlv.fec.af", FT_UINT16, BASE_DEC, VALS(fec_af_types), 0x0, "Forwarding Equivalence Class Element Address Family"}},
+      { "FEC Element Address Type", "ldp.msg.tlv.fec.af", FT_UINT16, BASE_DEC, VALS(fec_af_types), 0x0, "Forwarding Equivalence Class Element Address Family", HFILL }},
 
     { &hf_ldp_tlv_fec_len,
-      { "FEC Element Length", "ldp.msg.tlv.fec.len", FT_UINT8, BASE_DEC, NULL, 0x0, "Forwarding Equivalence Class Element Length"}},
+      { "FEC Element Length", "ldp.msg.tlv.fec.len", FT_UINT8, BASE_DEC, NULL, 0x0, "Forwarding Equivalence Class Element Length", HFILL }},
 
     { &hf_ldp_tlv_fec_pfval,
-      { "FEC Element Prefix Value", "ldp.msg.tlv.fec.pfval", FT_IPv4, BASE_DEC, NULL, 0x0, "Forwarding Equivalence Class Element Prefix"}},
+      { "FEC Element Prefix Value", "ldp.msg.tlv.fec.pfval", FT_IPv4, BASE_DEC, NULL, 0x0, "Forwarding Equivalence Class Element Prefix", HFILL }},
 
     { &hf_ldp_tlv_generic_label,
-      { "Generic Label", "ldp.msg.tlv.label", FT_UINT32, BASE_HEX, NULL, 0x0, "Label Mapping Generic Label"}},
+      { "Generic Label", "ldp.msg.tlv.label", FT_UINT32, BASE_HEX, NULL, 0x0, "Label Mapping Generic Label", HFILL }},
 
   };
   static gint *ett[] = {

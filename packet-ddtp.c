@@ -3,7 +3,7 @@
  * see http://ddt.sourceforge.net/
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-ddtp.c,v 1.15 2001/01/22 08:03:45 guy Exp $
+ * $Id: packet-ddtp.c,v 1.16 2001/06/18 02:17:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -181,25 +181,25 @@ proto_register_ddtp(void)
     static hf_register_info hf_ddtp[] = {
 	{ &hf_ddtp_version,
 	    { "Version", "ddtp.version", FT_UINT32, BASE_DEC, VALS(vals_ddtp_version), 0x0,
-		"Version" } },
+		"Version", HFILL }},
 	{ &hf_ddtp_encrypt,
 	    { "Encryption", "ddtp.encrypt", FT_UINT32, BASE_DEC, VALS(vals_ddtp_encrypt), 0x0,
-		"Encryption type" } },
+		"Encryption type", HFILL }},
 	{ &hf_ddtp_hostid,
 	    { "Hostid", "ddtp.hostid", FT_UINT32, BASE_DEC, NULL, 0x0,
-		"Host ID" } },
+		"Host ID", HFILL }},
 	{ &hf_ddtp_msgtype,
 	    { "Message type", "ddtp.msgtype", FT_UINT32, BASE_DEC, VALS(vals_ddtp_msgtype), 0x0,
-		"Message Type" } },
+		"Message Type", HFILL }},
 	{ &hf_ddtp_opcode,
 	    { "Opcode", "ddtp.opcode", FT_UINT32, BASE_DEC, VALS(vals_ddtp_opcode), 0x0,
-		"Update query opcode" } },
+		"Update query opcode", HFILL }},
 	{ &hf_ddtp_ipaddr,
 	    { "IP address", "ddtp.ipaddr", FT_IPv4, BASE_NONE, NULL, 0x0,
-		"IP address" } },
+		"IP address", HFILL }},
 	{ &hf_ddtp_status,
 	    { "Status", "ddtp.status", FT_UINT32, BASE_DEC, VALS(vals_ddtp_status), 0x0,
-		"Update reply status" } }
+		"Update reply status", HFILL }}
     };
 
     static gint *ett[] = { &ett_ddtp };

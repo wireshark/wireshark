@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.20 2001/06/08 08:36:40 guy Exp $
+ * $Id: packet-msproxy.c,v 1.21 2001/06/18 02:17:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1186,87 +1186,87 @@ proto_register_msproxy( void){
     
                 { &hf_msproxy_cmd,
                 	{ "Command", "msproxy.command", FT_UINT16, BASE_DEC,
-                		 NULL, 0x0, ""
+                		 NULL, 0x0, "", HFILL
                 	}
 		},
                	
  		{ &hf_msproxy_dstaddr,
 			{ "Destination Address", "msproxy.dstaddr", FT_IPv4, BASE_NONE, NULL,
-			 	0x0, ""
+			 	0x0, "", HFILL
 			}
 		},
 
 		{ &hf_msproxy_srcport,
 			{ "Source Port", "msproxy.srcport", FT_UINT16,
-				BASE_DEC, NULL, 0x0, ""
+				BASE_DEC, NULL, 0x0, "", HFILL
 			}
 		},
 		{ &hf_msproxy_dstport,
 			{ "Destination Port", "msproxy.dstport", FT_UINT16,
-				BASE_DEC, NULL, 0x0, ""
+				BASE_DEC, NULL, 0x0, "", HFILL
 			}
 		},
 		{ &hf_msproxy_clntport,
 			{ "Client Port",	"msproxy.clntport", FT_UINT16,
-				BASE_DEC, NULL, 0x0, ""
+				BASE_DEC, NULL, 0x0, "", HFILL
 			}
 		},
  		{ &hf_msproxy_server_ext_addr,
 			{ "Server External Address", "msproxy.server_ext_addr", FT_IPv4, BASE_NONE, NULL,
-			 	0x0, ""
+			 	0x0, "", HFILL
 			}
 		},
 		
 		{ &hf_msproxy_server_ext_port,
 			{ "Server External Port",	"msproxy.server_ext_port", FT_UINT16,
-				BASE_DEC, NULL, 0x0, ""
+				BASE_DEC, NULL, 0x0, "", HFILL
 			}
 		},
 
  		{ &hf_msproxy_server_int_addr,
 			{ "Server Internal Address", "msproxy.server_int_addr", FT_IPv4, BASE_NONE, NULL,
-			 	0x0, ""
+			 	0x0, "", HFILL
 			}
 		},
 		
 		{ &hf_msproxy_server_int_port,
 			{ "Server Internal Port",	"msproxy.server_int_port", FT_UINT16,
-				BASE_DEC, NULL, 0x0, ""
+				BASE_DEC, NULL, 0x0, "", HFILL
 			}
 		},
 		{ &hf_msproxy_serverport,
 			{ "Server Port",	"msproxy.serverport", FT_UINT16,
-				BASE_DEC, NULL, 0x0, ""
+				BASE_DEC, NULL, 0x0, "", HFILL
 			}
 		},
 		{ &hf_msproxy_bindport,
 			{ "Bind Port",	"msproxy.bindport", FT_UINT16,
-				BASE_DEC, NULL, 0x0, ""
+				BASE_DEC, NULL, 0x0, "", HFILL
 			}
 		},
 		{ &hf_msproxy_boundport,
 			{ "Bound Port",	"msproxy.boundport", FT_UINT16,
-				BASE_DEC, NULL, 0x0, ""
+				BASE_DEC, NULL, 0x0, "", HFILL
 			}
 		},
  		{ &hf_msproxy_serveraddr,
 			{ "Server Address", "msproxy.serveraddr", FT_IPv4, BASE_NONE, NULL,
-			 	0x0, ""
+			 	0x0, "", HFILL
 			}
 		},
  		{ &hf_msproxy_bindaddr,
 			{ "Destination", "msproxy.bindaddr", FT_IPv4, BASE_NONE, NULL,
-			 	0x0, ""
+			 	0x0, "", HFILL
 			}
 		},
 		{ &hf_msproxy_bind_id,
 			{ "Bound Port Id",	"msproxy.bindid", FT_UINT32,
-				BASE_HEX, NULL, 0x0, ""
+				BASE_HEX, NULL, 0x0, "", HFILL
 			}
 		},
  		{ &hf_msproxy_resolvaddr,
 			{ "Address", "msproxy.resolvaddr", FT_IPv4, BASE_NONE, NULL,
-			 	0x0, ""
+			 	0x0, "", HFILL
 			}
 		}
 

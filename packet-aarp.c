@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.30 2001/03/15 09:11:00 guy Exp $
+ * $Id: packet-aarp.c,v 1.31 2001/06/18 02:17:44 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -232,47 +232,47 @@ proto_register_aarp(void)
     { &hf_aarp_hard_type,
       { "Hardware type",	"aarp.hard.type",	
 	FT_UINT16,	BASE_HEX,	VALS(hrd_vals),	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_aarp_proto_type,
       { "Protocol type",	"aarp.proto.type",	
 	FT_UINT16,	BASE_HEX, 	VALS(etype_vals),	0x0,
-      	"" }},    
+      	"", HFILL }},    
 
     { &hf_aarp_hard_size,
       { "Hardware size",	"aarp.hard.size",	
 	FT_UINT8,	BASE_DEC, 	NULL,	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_aarp_proto_size,
       { "Protocol size",	"aarp.proto.size",	
 	FT_UINT8,	BASE_DEC, 	NULL,	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_aarp_opcode,
       { "Opcode",		"aarp.opcode",
 	FT_UINT16,	BASE_DEC,	VALS(op_vals),	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_aarp_src_ether,
       { "Sender ether",		"aarp.src.ether",
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_aarp_src_id,
       { "Sender ID",		"aarp.src.id",
 	FT_BYTES,	BASE_HEX,	NULL,	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_aarp_dst_ether,
       { "Target ether",		"aarp.dst.ether",
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_aarp_dst_id,
       { "Target ID",		"aarp.dst.id",		
 	FT_BYTES,	BASE_HEX,	NULL,	0x0,
-      	"" }},
+      	"", HFILL }},
   };
   static gint *ett[] = {
     &ett_aarp,

@@ -2,7 +2,7 @@
  * Routines for ISO/OSI End System to Intermediate System  
  * Routeing Exchange Protocol ISO 9542.
  *
- * $Id: packet-esis.c,v 1.15 2001/06/05 09:06:19 guy Exp $
+ * $Id: packet-esis.c,v 1.16 2001/06/18 02:17:46 guy Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -418,20 +418,20 @@ proto_register_esis(void) {
   static hf_register_info hf[] = {
     { &hf_esis_nlpi,
       { "Network Layer Protocol Identifier", "esis.nlpi",	
-        FT_UINT8, BASE_HEX, VALS(nlpid_vals), 0x0, ""                       }},
+        FT_UINT8, BASE_HEX, VALS(nlpid_vals), 0x0, "", HFILL }},
     { &hf_esis_length,
-      { "PDU Length    ", "esis.length", FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+      { "PDU Length    ", "esis.length", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_esis_version,
-      { "Version (==1) ", "esis.ver",    FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+      { "Version (==1) ", "esis.ver",    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_esis_reserved,
-      { "Reserved(==0) ", "esis.res",    FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+      { "Reserved(==0) ", "esis.res",    FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_esis_type,
       { "PDU Type      ", "esis.type",   FT_UINT8, BASE_DEC, VALS(esis_vals),
-         0xff, "" }},
+         0xff, "", HFILL }},
     { &hf_esis_holdtime,
-      { "Holding Time  ", "esis.htime",  FT_UINT16, BASE_DEC, NULL, 0x0, " s"}},
+      { "Holding Time  ", "esis.htime",  FT_UINT16, BASE_DEC, NULL, 0x0, " s", HFILL }},
     { &hf_esis_checksum,
-      { "Checksum      ", "esis.chksum", FT_UINT16, BASE_HEX, NULL, 0x0, "" }}
+      { "Checksum      ", "esis.chksum", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }}
   };
   /*
    * 

@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly, core
  * bits.
  *
- * $Id: packet-isis.c,v 1.20 2001/05/23 18:52:54 guy Exp $
+ * $Id: packet-isis.c,v 1.21 2001/06/18 02:17:48 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -291,34 +291,34 @@ proto_register_isis(void) {
   static hf_register_info hf[] = {
     { &hf_isis_irpd,
       { "Intra Domain Routing Protocol Discriminator",	"isis.irpd",	
-        FT_UINT8, BASE_HEX, VALS(nlpid_vals), 0x0, "" }},
+        FT_UINT8, BASE_HEX, VALS(nlpid_vals), 0x0, "", HFILL }},
 
     { &hf_isis_header_length,
-      { "PDU Header Length  ", "isis.len", FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+      { "PDU Header Length  ", "isis.len", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_isis_version,
       { "Version (==1)      ", "isis.version", FT_UINT8, 
-         BASE_DEC, NULL, 0x0, "" }},
+         BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_isis_system_id_length,
       { "System ID Length   ", "isis.sysid_len",	
-        FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+        FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_isis_type, 
       { "PDU Type           ", "isis.type", FT_UINT8, BASE_DEC, 
-        VALS(isis_vals), 0xff, "" }},
+        VALS(isis_vals), 0xff, "", HFILL }},
 
     { &hf_isis_version2, 
       { "Version2 (==1)     ", "isis.version2", FT_UINT8, BASE_DEC, NULL, 
-        0x0, "" }},
+        0x0, "", HFILL }},
 
     { &hf_isis_reserved,
       { "Reserved (==0)     ", "isis.reserved", FT_UINT8, BASE_DEC, NULL, 
-        0x0, "" }},
+        0x0, "", HFILL }},
 
     { &hf_isis_max_area_adr,
       { "Max.AREAs: (0==3)  ", "isis.max_area_adr", FT_UINT8, BASE_DEC, NULL, 
-      0x0, "" }},
+      0x0, "", HFILL }},
 
     };
     /*

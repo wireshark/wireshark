@@ -4,7 +4,7 @@
  * Laurent Deniel <deniel@worldnet.fr>
  * Craig Rodrigues <rodrigc@mediaone.net>
  *
- * $Id: packet-giop.c,v 1.33 2001/06/18 01:49:16 guy Exp $
+ * $Id: packet-giop.c,v 1.34 2001/06/18 02:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -204,7 +204,7 @@ static const value_string reply_status_types[] = {
    { SYSTEM_EXCEPTION, "System Exception" } ,
    { LOCATION_FORWARD, "Location Forward" } ,
    { LOCATION_FORWARD_PERM, "Location Forward Perm" } ,
-   { NEEDS_ADDRESSING_MODE, "Needs Addressing Mode"} ,
+   { NEEDS_ADDRESSING_MODE, "Needs Addressing Mode" } ,
    { 0, NULL }
 };
 
@@ -1402,14 +1402,14 @@ proto_register_giop (void)
      &hf_giop_message_type,
      {
       "Message type", "giop.type",
-      FT_UINT8, BASE_DEC, NULL, 0x0, ""}
+      FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
      }
     ,
     {
      &hf_giop_message_size,
      {
       "Message size", "giop.len",
-      FT_UINT32, BASE_DEC, NULL, 0x0, ""}
+      FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
      }
     ,
   };

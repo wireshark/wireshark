@@ -2,7 +2,7 @@
  * Routines for who protocol (see man rwhod)
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-who.c,v 1.16 2001/04/19 23:02:44 guy Exp $
+ * $Id: packet-who.c,v 1.17 2001/06/18 02:17:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -238,59 +238,59 @@ proto_register_who(void)
 	static hf_register_info hf[] = {
 		{ &hf_who_vers,
 		{ "Version",	"who.vers", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_who_type,
 		{ "Type",	"who.type", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_who_sendtime,
 		{ "Send Time",	"who.sendtime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_who_recvtime,
 		{ "Receive Time", "who.recvtime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_who_hostname,
 		{ "Hostname", "who.hostname", FT_STRING, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_who_loadav_5,
 		{ "Load Average Over Past  5 Minutes", "who.loadav_5", FT_DOUBLE, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_who_loadav_10,
 		{ "Load Average Over Past 10 Minutes", "who.loadav_10", FT_DOUBLE, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_who_loadav_15,
 		{ "Load Average Over Past 15 Minutes", "who.loadav_15", FT_DOUBLE, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_who_boottime,
 		{ "Boot Time", "who.boottime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_who_whoent,
 		{ "Who utmp Entry", "who.whoent", FT_NONE, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_who_tty,
 		{ "TTY Name", "who.tty", FT_STRING, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_who_uid,
 		{ "User ID", "who.uid", FT_STRING, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_who_timeon,
 		{ "Time On", "who.timeon", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_who_idle,
 		{ "Time Idle", "who.idle", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 	};
 
 	static gint *ett[] = {

@@ -1,7 +1,7 @@
 /* packet-bxxp.c
  * Routines for BXXP packet disassembly
  *
- * $Id: packet-bxxp.c,v 1.18 2001/04/27 01:27:36 guy Exp $
+ * $Id: packet-bxxp.c,v 1.19 2001/06/18 02:17:45 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -1150,58 +1150,58 @@ proto_register_bxxp(void)
 {
   static hf_register_info hf[] = {
     { &hf_bxxp_proto_viol,
-      { "Protocol Violation", "bxxp.violation", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "" }},
+      { "Protocol Violation", "bxxp.violation", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_bxxp_req,
-      { "Request", "bxxp.req", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "" }},
+      { "Request", "bxxp.req", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_bxxp_req_chan,
-      { "Request Channel Number", "bxxp.req.channel", FT_UINT32, BASE_DEC, NULL, 0x0, ""}},
+      { "Request Channel Number", "bxxp.req.channel", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_bxxp_rsp,
-      { "Response", "bxxp.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "" }},
+      { "Response", "bxxp.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_bxxp_rsp_chan,
-      { "Response Channel Number", "bxxp.rsp.channel", FT_UINT32, BASE_DEC, NULL, 0x0, ""}},
+      { "Response Channel Number", "bxxp.rsp.channel", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_bxxp_seq,
-      { "Sequence", "bxxp.seq", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "" }},
+      { "Sequence", "bxxp.seq", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_bxxp_seq_chan,
-      { "Sequence Channel Number", "bxxp.seq.channel", FT_UINT32, BASE_DEC, NULL, 0x0, ""}},
+      { "Sequence Channel Number", "bxxp.seq.channel", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_bxxp_end,
-      { "End", "bxxp.end", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "" }},
+      { "End", "bxxp.end", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_bxxp_complete,
-      { "Complete", "bxxp.more.complete", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "" }},
+      { "Complete", "bxxp.more.complete", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_bxxp_intermediate,
-      { "Intermediate", "bxxp.more.intermediate", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "" }},
+      { "Intermediate", "bxxp.more.intermediate", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_bxxp_serial,
-      { "Serial", "bxxp.serial", FT_UINT32, BASE_DEC, NULL, 0x0, "" }},
+      { "Serial", "bxxp.serial", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_bxxp_seqno,
-      { "Seqno", "bxxp.seqno", FT_UINT32, BASE_DEC, NULL, 0x0, "" }},
+      { "Seqno", "bxxp.seqno", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_bxxp_size,
-      { "Size", "bxxp.size", FT_UINT32, BASE_DEC, NULL, 0x0, "" }},
+      { "Size", "bxxp.size", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_bxxp_channel,
-      { "Channel", "bxxp.channel", FT_UINT32, BASE_DEC, NULL, 0x0, "" }},
+      { "Channel", "bxxp.channel", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_bxxp_negative,
-      { "Negative", "bxxp.status.negative", FT_BOOLEAN, BASE_NONE, NULL, 0x0, ""}},
+      { "Negative", "bxxp.status.negative", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_bxxp_positive,
-      { "Positive", "bxxp.status.positive", FT_BOOLEAN, BASE_NONE, NULL, 0x0, ""}},
+      { "Positive", "bxxp.status.positive", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_bxxp_ackno,
-      { "Ackno", "bxxp.seq.ackno", FT_UINT32, BASE_DEC, NULL, 0x0, ""}},
+      { "Ackno", "bxxp.seq.ackno", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_bxxp_window,
-      { "Window", "bxxp.seq.window", FT_UINT32, BASE_DEC, NULL, 0x0, ""}},
+      { "Window", "bxxp.seq.window", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 
   };
   static gint *ett[] = {

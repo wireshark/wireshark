@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.25 2001/03/30 06:10:54 guy Exp $
+ * $Id: packet-ascend.c,v 1.26 2001/06/18 02:17:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -113,27 +113,27 @@ proto_register_ascend(void)
   static hf_register_info hf[] = {
     { &hf_link_type,
     { "Link type",	"ascend.type",	FT_UINT32, BASE_DEC,	VALS(encaps_vals),	0x0,
-      "" }},
+      "", HFILL }},
 
     { &hf_session_id,
     { "Session ID",	"ascend.sess",	FT_UINT32, BASE_DEC,	NULL, 0x0,
-      "" }},
+      "", HFILL }},
 
     { &hf_called_number,
     { "Called number",	"ascend.number", FT_STRING, BASE_NONE,	NULL, 0x0,
-      "" }},
+      "", HFILL }},
 
     { &hf_chunk,
     { "WDD Chunk",	"ascend.chunk",	FT_UINT32, BASE_HEX,	NULL, 0x0,
-      "" }},
+      "", HFILL }},
 
     { &hf_task,
     { "Task",		"ascend.task",	FT_UINT32, BASE_HEX,	NULL, 0x0,
-      "" }},
+      "", HFILL }},
 
     { &hf_user_name,
     { "User name",     	"ascend.user",	FT_STRING, BASE_NONE,	NULL, 0x0,
-      "" }},
+      "", HFILL }},
   };
   static gint *ett[] = {
     &ett_raw,

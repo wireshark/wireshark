@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.36 2001/03/15 09:11:00 guy Exp $
+ * $Id: packet-cdp.c,v 1.37 2001/06/18 02:17:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -539,23 +539,23 @@ proto_register_cdp(void)
     static hf_register_info hf[] = {
 	{ &hf_cdp_version,
 	{ "Version",		"cdp.version",  FT_UINT8, BASE_DEC, NULL, 0x0,
-	  "" }},
+	  "", HFILL }},
 
 	{ &hf_cdp_ttl,
 	{ "TTL",		"cdp.ttl", FT_UINT16, BASE_DEC, NULL, 0x0,
-	  "" }},
+	  "", HFILL }},
 
 	{ &hf_cdp_checksum,
 	{ "Checksum",		"cdp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
-	  "" }},
+	  "", HFILL }},
 
 	{ &hf_cdp_tlvtype,
 	{ "Type",		"cdp.tlv.type", FT_UINT16, BASE_HEX, VALS(type_vals), 0x0,
-	  "" }},
+	  "", HFILL }},
 
 	{ &hf_cdp_tlvlength,
 	{ "Length",		"cdp.tlv.len", FT_UINT16, BASE_DEC, NULL, 0x0,
-	  "" }},
+	  "", HFILL }},
     };
     static gint *ett[] = {
 	&ett_cdp,

@@ -3,7 +3,7 @@
  * 
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-mpls.c,v 1.20 2001/04/23 18:05:19 guy Exp $
+ * $Id: packet-mpls.c,v 1.21 2001/06/18 02:17:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,23 +89,23 @@ static hf_register_info mplsf_info[] = {
 
 /*    {&mpls_filter[MPLSF_PACKET], 
      {"MPLS Label Switched Packet", "mpls", FT_UINT8, BASE_DEC, NULL, 0x0, 
-      "" }},*/
+      "", HFILL }},*/
 
     {&mpls_filter[MPLSF_LABEL], 
      {"MPLS Label", "mpls.label", FT_UINT32, BASE_DEC, VALS(special_labels), 0x0, 
-      "" }},
+      "", HFILL }},
 
     {&mpls_filter[MPLSF_EXP], 
      {"MPLS Experimental Bits", "mpls.exp", FT_UINT8, BASE_DEC, NULL, 0x0, 
-      "" }},
+      "", HFILL }},
 
     {&mpls_filter[MPLSF_BOTTOM_OF_STACK], 
      {"MPLS Bottom Of Label Stack", "mpls.bottom", FT_UINT8, BASE_DEC, NULL, 0x0, 
-      "" }},
+      "", HFILL }},
 
     {&mpls_filter[MPLSF_TTL], 
      {"MPLS TTL", "mpls.ttl", FT_UINT8, BASE_DEC, NULL, 0x0, 
-      "" }},
+      "", HFILL }},
 };
 
 static dissector_handle_t ip_handle;

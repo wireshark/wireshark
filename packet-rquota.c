@@ -2,7 +2,7 @@
  * Routines for rquota dissection
  * Copyright 2001, Mike Frisch <frisch@hummingbird.com>
  *
- * $Id: packet-rquota.c,v 1.3 2001/05/30 06:01:02 guy Exp $
+ * $Id: packet-rquota.c,v 1.4 2001/06/18 02:17:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -164,59 +164,59 @@ proto_register_rquota(void)
 	static hf_register_info hf[] = {
 		{ &hf_rquota_uid, {
 			"uid", "rquota.uid", FT_UINT32, BASE_DEC,
-			NULL, 0, "User ID" }},
+			NULL, 0, "User ID", HFILL }},
 
 		{ &hf_rquota_pathp, {
 			"pathp", "rquota.pathp", FT_STRING, BASE_DEC,
-			NULL, 0, "Filesystem of interest" }},
+			NULL, 0, "Filesystem of interest", HFILL }},
 
 		{ &hf_rquota_status, {
 			"status", "rquota.status", FT_UINT32, BASE_DEC,
-			VALS(names_rquota_status), 0, "Status code" }},
+			VALS(names_rquota_status), 0, "Status code", HFILL }},
 
 		{ &hf_rquota_rquota, {
 			"rquota", "rquota.rquota", FT_NONE, BASE_NONE,
-			NULL, 0, "Rquota structure" }},
+			NULL, 0, "Rquota structure", HFILL }},
 
 		{ &hf_rquota_bsize, {
 			"bsize", "rquota.bsize", FT_UINT32, BASE_DEC,
-			NULL, 0, "Block size" }},
+			NULL, 0, "Block size", HFILL }},
 
 		{ &hf_rquota_active, {
 			"active", "rquota.active", FT_BOOLEAN, BASE_NONE,
-			&tfs_active, 0, "Indicates whether quota is active" }},
+			&tfs_active, 0, "Indicates whether quota is active", HFILL }},
 
 		{ &hf_rquota_bhardlimit, {
 			"bhardlimit", "rquota.bhardlimit", FT_UINT32, BASE_DEC,
-			NULL, 0, "Hard limit for blocks" }},
+			NULL, 0, "Hard limit for blocks", HFILL }},
 
 		{ &hf_rquota_bsoftlimit, {
 			"bsoftlimit", "rquota.bsoftlimit", FT_UINT32, BASE_DEC,
-			NULL, 0, "Soft limit for blocks" }},
+			NULL, 0, "Soft limit for blocks", HFILL }},
 
 		{ &hf_rquota_curblocks, {
 			"curblocks", "rquota.curblocks", FT_UINT32, BASE_DEC,
-			NULL, 0, "Current block count" }},
+			NULL, 0, "Current block count", HFILL }},
 
 		{ &hf_rquota_fhardlimit, {
 			"fhardlimit", "rquota.fhardlimit", FT_UINT32, BASE_DEC,
-			NULL, 0, "Hard limit on allocated files" }},
+			NULL, 0, "Hard limit on allocated files", HFILL }},
 
 		{ &hf_rquota_fsoftlimit, {
 			"fsoftlimit", "rquota.fsoftlimit", FT_UINT32, BASE_DEC,
-			NULL, 0, "Soft limit of allocated files" }},
+			NULL, 0, "Soft limit of allocated files", HFILL }},
 
 		{ &hf_rquota_curfiles, {
 			"curfiles", "rquota.curfiles", FT_UINT32, BASE_DEC,
-			NULL, 0, "Current # allocated files" }},
+			NULL, 0, "Current # allocated files", HFILL }},
 
 		{ &hf_rquota_btimeleft, {
 			"btimeleft", "rquota.btimeleft", FT_UINT32, BASE_DEC,
-			NULL, 0, "Time left for excessive disk use" }},
+			NULL, 0, "Time left for excessive disk use", HFILL }},
 
 		{ &hf_rquota_ftimeleft, {
 			"ftimeleft", "rquota.ftimeleft", FT_UINT32, BASE_DEC,
-			NULL, 0, "Time left for excessive files" }},
+			NULL, 0, "Time left for excessive files", HFILL }},
 
 	};
 

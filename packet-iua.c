@@ -8,7 +8,7 @@
  *
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-iua.c,v 1.6 2001/04/23 18:05:19 guy Exp $
+ * $Id: packet-iua.c,v 1.7 2001/06/18 02:17:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -870,122 +870,122 @@ proto_register_iua(void)
     { &hf_iua_version,
       { "Version", "iua.version",
 	FT_UINT8, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_iua_reserved,
       { "Reserved", "iua.reserved",
 	FT_UINT8, BASE_HEX, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_iua_message_class,
       { "Message class", "iua.message_class",
 	FT_UINT8, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_iua_message_type,
       { "Message Type", "iua.message_type",
 	FT_UINT8, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_iua_message_length,
       { "Message length", "iua.message_length",
 	FT_UINT32, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_iua_parameter_tag,
       { "Parameter Tag", "iua.parameter_tag",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_iua_parameter_length,
       { "Parameter length", "iua.parameter_length",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_iua_int_interface_identifier,
       { "Integer interface identifier", "iua.int_interface_identifier",
 	FT_UINT32, BASE_HEX, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_iua_text_interface_identifier,
       { "Text interface identifier", "iua.text_interface_identifier",
 	FT_STRING, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_iua_spare_bit,
       { "Spare bit", "hf.iua.spare_bit",
 	FT_BOOLEAN, 8, NULL, SPARE_BIT_MASK,          
-	""}
+	"", HFILL }
     }, 
     { &hf_iua_sapi,
       { "SAPI", "hf.iua.sapi",
 	FT_UINT8, BASE_HEX, NULL, SAPI_MASK,          
-	""}
+	"", HFILL }
     }, 
     { &hf_iua_zero_bit,
       { "Zero bit", "hf.iua.zero_bit",
 	FT_BOOLEAN, 8, NULL, ZERO_BIT_MASK,          
-	""}
+	"", HFILL }
     }, 
     { &hf_iua_one_bit,
       { "One bit", "hf.iua.one_bit",
 	FT_BOOLEAN, 8, NULL, ONE_BIT_MASK,          
-	""}
+	"", HFILL }
     }, 
     { &hf_iua_tei,
       { "TEI", "hf.iua.tei",
 	FT_UINT8, BASE_HEX, NULL, TEI_MASK,          
-	""}
+	"", HFILL }
     },
     { &hf_iua_info_string,
       { "Info string", "iua.info_string",
 	FT_STRING, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_iua_interface_range_start,
       { "Start", "iua.interface_range_start",
 	FT_UINT32, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_iua_interface_range_end,
       { "End", "iua.interface_range_end",
 	FT_UINT32, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_iua_release_reason,
       { "Reason", "iua.release_reason",
 	FT_UINT32, BASE_HEX, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_iua_status_type,
       { "Status type", "iua.status_type",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },    
     { &hf_iua_status_ident,
       { "Status identification", "iua.status_identification",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },    
     { &hf_iua_traffic_mode_type,
       { "Traffic mode type", "iua.traffic_mode_type",
 	FT_UINT32, BASE_HEX, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_iua_error_code,
       { "Error code", "iua.error_code",
 	FT_UINT32, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_iua_asp_reason,
       { "Reason", "iua.asp_reason",
 	FT_UINT32, BASE_HEX, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_iua_tei_status,
       { "TEI status", "iua.tei_status",
 	FT_UINT32, BASE_HEX, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
  };
   /* Setup protocol subtree array */

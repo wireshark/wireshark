@@ -5,7 +5,7 @@
 * Charles Levert <charles@comm.polymtl.ca>
 * Copyright 2001 Charles Levert
 *
-* $Id: packet-cups.c,v 1.4 2001/03/15 07:03:13 guy Exp $
+* $Id: packet-cups.c,v 1.5 2001/06/18 02:17:45 guy Exp $
 *
 * 
 * This program is free software; you can redistribute it and/or
@@ -353,11 +353,11 @@ proto_register_cups(void)
 		/* This one could be split in separate fields. */
 		{ &hf_cups_ptype,
 			{ "Type", 	"cups.ptype", FT_UINT32, BASE_HEX,
-			  NULL, 0x0, ""}},
+			  NULL, 0x0, "", HFILL }},
 
 		{ &hf_cups_state,
 			{ "State",	"cups.state", FT_UINT8, BASE_HEX,
-			  VALS(cups_state_values), 0x0, "" }}
+			  VALS(cups_state_values), 0x0, "", HFILL }}
 	};
 
 	static gint *ett[] = {

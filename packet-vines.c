@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.32 2001/06/02 08:15:57 guy Exp $
+ * $Id: packet-vines.c,v 1.33 2001/06/18 02:17:53 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -331,7 +331,7 @@ proto_register_vines(void)
 	  { &hf_vines_protocol,
 	    { "Protocol",			"vines.protocol",
 	      FT_UINT8,		BASE_HEX,	NULL,	0x0,
-	      "Vines protocol" }}
+	      "Vines protocol", HFILL }}
 	};
 
 	proto_vines = proto_register_protocol("Banyan Vines", "Vines", "vines");

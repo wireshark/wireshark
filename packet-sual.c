@@ -4,7 +4,7 @@
  * Copyright 2001, Martin Held <Martin.Held@icn.siemens.de>
  *                 Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sual.c,v 1.5 2001/04/25 05:32:16 guy Exp $
+ * $Id: packet-sual.c,v 1.6 2001/06/18 02:17:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -271,37 +271,37 @@ proto_register_sual(void)
     { &hf_sual_version,
       { "Version", "sual.version",
 	FT_UINT8, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_sual_spare_1,
       { "Spare", "sual.spare_1",
 	FT_UINT8, BASE_HEX, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_sual_message_type,
       { "Message Type", "sual.message_type",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_sual_subsystem_number,
       { "Subsystem number", "sual.subsystem_number",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_sual_spare_2,
       { "Spare", "sual.spare_2",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_sual_message_length,
       { "Message length", "sual.message_length",
 	FT_UINT32, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_sual_error_code,
       { "Error Code", "sual.error_code",
 	FT_UINT16, BASE_HEX, VALS(&sual_error_code_values), 0x0,
-	""}
+	"", HFILL }
     }
   };
   

@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.29 2001/05/27 07:27:21 guy Exp $
+ * $Id: packet-q931.c,v 1.30 2001/06/18 02:17:50 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -2618,19 +2618,19 @@ proto_register_q931(void)
 	static hf_register_info hf[] = {
 		{ &hf_q931_discriminator,
 		  { "Protocol discriminator", "q931.disc", FT_UINT8, BASE_HEX, NULL, 0x0, 
-		  	"" }},
+		  	"", HFILL }},
 
 		{ &hf_q931_call_ref_len,
 		  { "Call reference value length", "q931.call_ref_len", FT_UINT8, BASE_DEC, NULL, 0x0,
-		  	"" }},
+		  	"", HFILL }},
 
 		{ &hf_q931_call_ref,
 		  { "Call reference value", "q931.call_ref", FT_BYTES, BASE_HEX, NULL, 0x0,
-		  	"" }},
+		  	"", HFILL }},
 
 		{ &hf_q931_message_type,
 		  { "Message type", "q931.message_type", FT_UINT8, BASE_HEX, VALS(q931_message_type_vals), 0x0,
-		  	"" }},
+		  	"", HFILL }},
 
 	    };
 	static gint *ett[] = {

@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.12 2001/04/23 18:19:03 guy Exp $
+ * $Id: packet-cops.c,v 1.13 2001/06/18 02:17:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -637,167 +637,167 @@ void proto_register_cops(void)
                 { &hf_cops_ver_flags,
                         { "Version and Flags",           "cops.ver_flags",
                         FT_UINT8, BASE_HEX, NULL, 0x0,
-                        "Version and Flags in COPS Common Header" }
+                        "Version and Flags in COPS Common Header", HFILL }
                 },
                 { &hf_cops_version,
                         { "Version",           "cops.version",
                         FT_UINT8, BASE_DEC, NULL, 0xF0,
-                        "Version in COPS Common Header" }
+                        "Version in COPS Common Header", HFILL }
                 },
                 { &hf_cops_flags,
                         { "Flags",           "cops.flags",
                         FT_UINT8, BASE_HEX, VALS(cops_flags_vals), 0x0F,
-                        "Flags in COPS Common Header" }
+                        "Flags in COPS Common Header", HFILL }
                 },
                 { &hf_cops_op_code,
                         { "Op Code",           "cops.op_code",
                         FT_UINT8, BASE_DEC, VALS(cops_op_code_vals), 0x0,
-                        "Op Code in COPS Common Header" }
+                        "Op Code in COPS Common Header", HFILL }
                 },
                 { &hf_cops_client_type,
                         { "Client Type",           "cops.client_type",
                         FT_UINT16, BASE_DEC, NULL, 0x0,
-                        "Client Type in COPS Common Header" }
+                        "Client Type in COPS Common Header", HFILL }
                 },
                 { &hf_cops_msg_len,
                         { "Message Length",           "cops.msg_len",
                         FT_UINT32, BASE_DEC, NULL, 0x0,
-                        "Message Length in COPS Common Header" }
+                        "Message Length in COPS Common Header", HFILL }
                 },
                 { &hf_cops_obj_len,
                         { "Object Length",           "cops.obj.len",
                         FT_UINT32, BASE_DEC, NULL, 0x0,
-                        "Object Length in COPS Object Header" }
+                        "Object Length in COPS Object Header", HFILL }
                 },
                 { &hf_cops_obj_c_num,
                         { "C-Num",           "cops.c_num",
                         FT_UINT8, BASE_DEC, VALS(cops_c_num_vals), 0x0,
-                        "C-Num in COPS Object Header" }
+                        "C-Num in COPS Object Header", HFILL }
                 },
                 { &hf_cops_obj_c_type,
                         { "C-Type",           "cops.c_type",
                         FT_UINT8, BASE_DEC, NULL, 0x0,
-                        "C-Type in COPS Object Header" }
+                        "C-Type in COPS Object Header", HFILL }
                 },
                 { &hf_cops_r_type_flags,
                         { "R-Type",           "cops.context.r_type",
                         FT_UINT16, BASE_HEX, VALS(cops_r_type_vals), 0xFFFF,
-                        "R-Type in COPS Context Object" }
+                        "R-Type in COPS Context Object", HFILL }
                 },
                 { &hf_cops_m_type_flags,
                         { "M-Type",           "cops.context.m_type",
                         FT_UINT16, BASE_HEX, NULL, 0xFFFF,
-                        "M-Type in COPS Context Object" }
+                        "M-Type in COPS Context Object", HFILL }
                 },
                 { &hf_cops_in_int_ipv4,
                         { "IPv4 address",           "cops.in-int.ipv4",
                         FT_IPv4, 0, NULL, 0xFFFF,
-                        "IPv4 address in COPS IN-Int object" }
+                        "IPv4 address in COPS IN-Int object", HFILL }
                 },
                 { &hf_cops_in_int_ipv6,
                         { "IPv6 address",           "cops.in-int.ipv6",
                         FT_IPv6, 0, NULL, 0xFFFF,
-                        "IPv6 address in COPS IN-Int object" }
+                        "IPv6 address in COPS IN-Int object", HFILL }
                 },
                 { &hf_cops_out_int_ipv4,
                         { "IPv4 address",           "cops.out-int.ipv4",
                         FT_IPv4, 0, NULL, 0xFFFF,
-                        "IPv4 address in COPS OUT-Int object" }
+                        "IPv4 address in COPS OUT-Int object", HFILL }
                 },
                 { &hf_cops_out_int_ipv6,
                         { "IPv6 address",           "cops.out-int.ipv6",
                         FT_IPv6, 0, NULL, 0xFFFF,
-                        "IPv6 address in COPS OUT-Int" }
+                        "IPv6 address in COPS OUT-Int", HFILL }
                 },
                 { &hf_cops_int_ifindex,
                         { "ifIndex",           "cops.in-out-int.ifindex",
                         FT_UINT32, BASE_DEC, NULL, 0x0,
-                        "If SNMP is supported, corresponds to MIB-II ifIndex" } 
+                        "If SNMP is supported, corresponds to MIB-II ifIndex", HFILL }
                 },
                 { &hf_cops_reason,
                         { "Reason",           "cops.reason",
                         FT_UINT16, BASE_DEC, VALS(cops_reason_vals), 0,
-                        "Reason in Reason object" }
+                        "Reason in Reason object", HFILL }
                 },
                 { &hf_cops_reason_sub,
                         { "Reason Sub-code",           "cops.reason_sub",
                         FT_UINT16, BASE_HEX, NULL, 0,
-                        "Reason Sub-code in Reason object" }
+                        "Reason Sub-code in Reason object", HFILL }
                 },
                 { &hf_cops_dec_cmd_code,
                         { "Command-Code",           "cops.decision.cmd",
                         FT_UINT16, BASE_DEC, VALS(cops_dec_cmd_code_vals), 0,
-                        "Command-Code in Decision/LPDP Decision object" }
+                        "Command-Code in Decision/LPDP Decision object", HFILL }
                 },
                 { &hf_cops_dec_flags,
                         { "Flags",           "cops.decision.flags",
                         FT_UINT16, BASE_HEX, VALS(cops_dec_cmd_flag_vals), 0xffff,
-                        "Flags in Decision/LPDP Decision object" }
+                        "Flags in Decision/LPDP Decision object", HFILL }
                 },
                 { &hf_cops_error,
                         { "Error",           "cops.error",
                         FT_UINT16, BASE_DEC, VALS(cops_error_vals), 0,
-                        "Error in Error object" }
+                        "Error in Error object", HFILL }
                 },
                 { &hf_cops_error_sub,
                         { "Error Sub-code",           "cops.error_sub",
                         FT_UINT16, BASE_HEX, NULL, 0,
-                        "Error Sub-code in Error object" }
+                        "Error Sub-code in Error object", HFILL }
                 },
                 { &hf_cops_katimer,
                         { "Contents: KA Timer Value",           "cops.katimer.value",
                         FT_UINT16, BASE_DEC, NULL, 0,
-                        "Keep-Alive Timer Value in KATimer object" }
+                        "Keep-Alive Timer Value in KATimer object", HFILL }
                 },
                 { &hf_cops_pepid,
                         { "Contents: PEP Id",           "cops.pepid.id",
                         FT_STRING, BASE_NONE, NULL, 0,
-                        "PEP Id in PEPID object" }
+                        "PEP Id in PEPID object", HFILL }
                 },
                 { &hf_cops_report_type,
                         { "Contents: Report-Type",           "cops.report_type",
                         FT_UINT16, BASE_DEC, VALS(cops_report_type_vals), 0,
-                        "Report-Type in Report-Type object" }
+                        "Report-Type in Report-Type object", HFILL }
                 },
                 { &hf_cops_pdprediraddr_ipv4,
                         { "IPv4 address",           "cops.pdprediraddr.ipv4",
                         FT_IPv4, 0, NULL, 0xFFFF,
-                        "IPv4 address in COPS PDPRedirAddr object" }
+                        "IPv4 address in COPS PDPRedirAddr object", HFILL }
                 },
                 { &hf_cops_pdprediraddr_ipv6,
                         { "IPv6 address",           "cops.pdprediraddr.ipv6",
                         FT_IPv6, 0, NULL, 0xFFFF,
-                        "IPv6 address in COPS PDPRedirAddr object" }
+                        "IPv6 address in COPS PDPRedirAddr object", HFILL }
                 },
                 { &hf_cops_lastpdpaddr_ipv4,
                         { "IPv4 address",           "cops.lastpdpaddr.ipv4",
                         FT_IPv4, 0, NULL, 0xFFFF,
-                        "IPv4 address in COPS LastPDPAddr object" }
+                        "IPv4 address in COPS LastPDPAddr object", HFILL }
                 },
                 { &hf_cops_lastpdpaddr_ipv6,
                         { "IPv6 address",           "cops.lastpdpaddr.ipv6",
                         FT_IPv6, 0, NULL, 0xFFFF,
-                        "IPv6 address in COPS LastPDPAddr object" }
+                        "IPv6 address in COPS LastPDPAddr object", HFILL }
                 },
                 { &hf_cops_pdp_tcp_port,
                         { "TCP Port Number",           "cops.pdp.tcp_port",
                         FT_UINT32, BASE_DEC, NULL, 0x0,
-                         "TCP Port Number of PDP in PDPRedirAddr/LastPDPAddr object" }
+                         "TCP Port Number of PDP in PDPRedirAddr/LastPDPAddr object", HFILL }
                 },
                 { &hf_cops_accttimer,
                         { "Contents: ACCT Timer Value",           "cops.accttimer.value",
                         FT_UINT16, BASE_DEC, NULL, 0,
-                        "Accounting Timer Value in AcctTimer object" }
+                        "Accounting Timer Value in AcctTimer object", HFILL }
                 },
                 { &hf_cops_key_id,
                         { "Contents: Key ID",           "cops.integrity.key_id",
                         FT_UINT32, BASE_DEC, NULL, 0,
-                        "Key ID in Integrity object" }
+                        "Key ID in Integrity object", HFILL }
                 },
                 { &hf_cops_seq_num,
                         { "Contents: Sequence Number",           "cops.integrity.seq_num",
                         FT_UINT32, BASE_DEC, NULL, 0,
-                        "Sequence Number in Integrity object" }
+                        "Sequence Number in Integrity object", HFILL }
                 },
         };
 

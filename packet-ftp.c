@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  * 
- * $Id: packet-ftp.c,v 1.29 2001/06/10 09:50:18 guy Exp $
+ * $Id: packet-ftp.c,v 1.30 2001/06/18 02:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -264,32 +264,32 @@ proto_register_ftp(void)
     { &hf_ftp_response,
       { "Response",           "ftp.response",
       	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"TRUE if FTP response" }},
+      	"TRUE if FTP response", HFILL }},
 
     { &hf_ftp_request,
       { "Request",            "ftp.request",
       	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"TRUE if FTP request" }},
+      	"TRUE if FTP request", HFILL }},
 
     { &hf_ftp_request_command,
       { "Request command",    "ftp.request.command",
       	FT_STRING,  BASE_NONE, NULL, 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_ftp_request_data,
       { "Request data",	      "ftp.request.data",
       	FT_STRING,  BASE_NONE, NULL, 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_ftp_response_code,
       { "Response code",      "ftp.response.code",
       	FT_UINT8,   BASE_DEC, NULL, 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_ftp_response_data,
       { "Response data",      "ftp.reponse.data",
       	FT_STRING,  BASE_NONE, NULL, 0x0,
-      	"" }}
+      	"", HFILL }}
   };
   static gint *ett[] = {
     &ett_ftp,

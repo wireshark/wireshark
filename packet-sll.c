@@ -1,7 +1,7 @@
 /* packet-sll.c
  * Routines for disassembly of packets from Linux "cooked mode" captures
  *
- * $Id: packet-sll.c,v 1.9 2001/04/17 06:43:19 guy Exp $
+ * $Id: packet-sll.c,v 1.10 2001/06/18 02:17:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -231,40 +231,40 @@ proto_register_sll(void)
 	static hf_register_info hf[] = {
 		{ &hf_sll_pkttype,
 		{ "Packet type",	"sll.pkttype", FT_UINT16, BASE_DEC,
-		  VALS(packet_type_vals), 0x0, "Packet type" }},
+		  VALS(packet_type_vals), 0x0, "Packet type", HFILL }},
 
 		/* ARP hardware type?  With Linux extensions? */
 		{ &hf_sll_hatype,
 		{ "Link-layer address type",	"sll.hatype", FT_UINT16, BASE_DEC,
-		  NULL, 0x0, "Link-layer address type" }},
+		  NULL, 0x0, "Link-layer address type", HFILL }},
 
 		{ &hf_sll_halen,
 		{ "Link-layer address length",	"sll.halen", FT_UINT16, BASE_DEC,
-		  NULL, 0x0, "Link-layer address length" }},
+		  NULL, 0x0, "Link-layer address length", HFILL }},
 
 		/* Source address if it's an Ethernet-type address */
 		{ &hf_sll_src_eth,
 		{ "Source",	"sll.src.eth", FT_ETHER, BASE_NONE, NULL, 0x0,
-			"Source link-layer address" }},
+			"Source link-layer address", HFILL }},
 
 		/* Source address if it's not an Ethernet-type address */
 		{ &hf_sll_src_other,
 		{ "Source",	"sll.src.other", FT_BYTES, BASE_HEX, NULL, 0x0,
-			"Source link-layer address" }},
+			"Source link-layer address", HFILL }},
 
 		/* if the protocol field is an internal Linux protocol type */
 		{ &hf_sll_ltype,
 		{ "Protocol",	"sll.ltype", FT_UINT16, BASE_HEX,
-		   VALS(ltype_vals), 0x0, "Linux protocol type" }},
+		   VALS(ltype_vals), 0x0, "Linux protocol type", HFILL }},
 
 		/* registered here but handled in ethertype.c */
 		{ &hf_sll_etype,
 		{ "Protocol",	"sll.etype", FT_UINT16, BASE_HEX,
-		   VALS(etype_vals), 0x0, "Ethernet protocol type" }},
+		   VALS(etype_vals), 0x0, "Ethernet protocol type", HFILL }},
 
                 { &hf_sll_trailer,
 		{ "Trailer", "sll.trailer", FT_BYTES, BASE_NONE, NULL, 0x0,
-			"Trailer" }},
+			"Trailer", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_sll,

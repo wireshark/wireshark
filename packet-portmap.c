@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.30 2001/05/30 06:01:02 guy Exp $
+ * $Id: packet-portmap.c,v 1.31 2001/06/18 02:17:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -453,49 +453,49 @@ proto_register_portmap(void)
 	static hf_register_info hf[] = {
 		{ &hf_portmap_prog, {
 			"Program", "portmap.prog", FT_UINT32, BASE_DEC,
-			NULL, 0, "Program" }},
+			NULL, 0, "Program", HFILL }},
 		{ &hf_portmap_port, {
 			"Port", "portmap.port", FT_UINT32, BASE_DEC,
-			NULL, 0, "Port" }},
+			NULL, 0, "Port", HFILL }},
 		{ &hf_portmap_proc, {
 			"Procedure", "portmap.proc", FT_UINT32, BASE_DEC,
-			NULL, 0, "Procedure" }},
+			NULL, 0, "Procedure", HFILL }},
 		{ &hf_portmap_proto, {
 			"Protocol", "portmap.proto", FT_UINT32, BASE_DEC,
-			NULL, 0, "Protocol" }},
+			NULL, 0, "Protocol", HFILL }},
 		{ &hf_portmap_version, {
 			"Version", "portmap.version", FT_UINT32, BASE_DEC,
-			NULL, 0, "Version" }},
+			NULL, 0, "Version", HFILL }},
 		{ &hf_portmap_answer, {
 			"Answer", "portmap.answer", FT_BOOLEAN, BASE_DEC,
-			NULL, 0, "Answer" }},
+			NULL, 0, "Answer", HFILL }},
 		{ &hf_portmap_args, {
 			"Arguments", "portmap.args", FT_BYTES, BASE_HEX,
-			NULL, 0, "Arguments" }},
+			NULL, 0, "Arguments", HFILL }},
 		{ &hf_portmap_result, {
 			"Result", "portmap.result", FT_BYTES, BASE_HEX,
-			NULL, 0, "Result" }},
+			NULL, 0, "Result", HFILL }},
 		{ &hf_portmap_rpcb, {
 			"RPCB", "portmap.rpcb", FT_NONE, 0,
-			NULL, 0, "RPCB" }},
+			NULL, 0, "RPCB", HFILL }},
 		{ &hf_portmap_rpcb_prog, {
 			"Program", "portmap.rpcb.prog", FT_UINT32, BASE_DEC,
-			NULL, 0, "Program" }},
+			NULL, 0, "Program", HFILL }},
 		{ &hf_portmap_rpcb_version, {
 			"Version", "portmap.rpcb.version", FT_UINT32, BASE_DEC,
-			NULL, 0, "Version" }},
+			NULL, 0, "Version", HFILL }},
 		{ &hf_portmap_rpcb_netid, {
 			"Network Id", "portmap.rpcb.netid", FT_STRING, BASE_DEC,
-			NULL, 0, "Network Id" }},
+			NULL, 0, "Network Id", HFILL }},
 		{ &hf_portmap_rpcb_addr, {	/* address in rpcb structure in request */
 			"Universal Address", "portmap.rpcb.addr", FT_STRING, BASE_DEC,
-			NULL, 0, "Universal Address" }},
+			NULL, 0, "Universal Address", HFILL }},
 		{ &hf_portmap_rpcb_owner, {
 			"Owner of this Service", "portmap.rpcb.owner", FT_STRING, BASE_DEC,
-			NULL, 0, "Owner of this Service" }},
+			NULL, 0, "Owner of this Service", HFILL }},
 		{ &hf_portmap_uaddr, {	/* address in RPCBPROC_GETADDR reply */
 			"Universal Address", "portmap.uaddr", FT_STRING, BASE_DEC,
-			NULL, 0, "Universal Address" }},
+			NULL, 0, "Universal Address", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_portmap,

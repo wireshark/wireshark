@@ -2,7 +2,7 @@
  * Routines for GTP dissection
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *
- * $Id: packet-gtp.c,v 1.5 2001/04/23 18:05:18 guy Exp $
+ * $Id: packet-gtp.c,v 1.6 2001/06/18 02:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1988,84 +1988,84 @@ proto_register_gtp(void)
 
 	static hf_register_info hf[] = {
 
-		{ &hf_gtp_flags,		{ "Flags", 				"gtp.flags", 				FT_UINT8, 	BASE_HEX, NULL, 0, "Ver/PT/Res/E/S/PN" }},
-		{ &hf_gtp_flags_ver,		{ "Version", 			"gtp.flags.version", 		FT_UINT8, 	BASE_DEC, VALS(ver_types), GTP_VER_MASK, "GTP version" }},
-		{ &hf_gtp_flags_pt,		{ "Payload Type", 		"gtp.flags.payload_type", 	FT_UINT8, 	BASE_DEC, NULL, GTP_PT_MASK, "Payload types" }},
-		{ &hf_gtp_flags_spare,		{ "Reserved", 			"gtp.flags.spare",			FT_UINT8, 	BASE_DEC, NULL, GTP_SPARE_MASK, "Reserved" }},
-		{ &hf_gtp_flags_snn,		{ "Is seq number", 		"gtp.flags.snn",			FT_UINT8, 	BASE_DEC, NULL, GTP_SNN_MASK, "Is sequence number present" }},
-		{ &hf_gtp_message_type,		{ "Message type", 		"gtp.message_type",			FT_UINT8, 	BASE_HEX, VALS(message_type), 0x0, "GTP message type" }},
-		{ &hf_gtp_length,		{ "Length", 			"gtp.length", 				FT_UINT16, 	BASE_DEC, NULL, 0, "Length" }},
-		{ &hf_gtp_seq_number,		{ "Sequence number", 	"gtp.seq_number",			FT_UINT16, 	BASE_HEX, NULL, 0, "Sequence number" }},
-		{ &hf_gtp_flow_label,		{ "Flow label", 		"gtp.flow_label",			FT_UINT16, 	BASE_HEX, NULL, 0, "Flow label" }},
-		{ &hf_gtp_sndcp_number,		{ "SNDCP N-PDU LLC Number", "gtp.sndcp_number",		FT_UINT8, 	BASE_HEX, NULL, 0, "SNDCP N-PDU LLC Number" }},
-		{ &hf_gtp_tid,			{ "Tunnel ID", 			"gtp.tid", 					FT_STRING, 	BASE_DEC, NULL, 0, "Tunnel ID" }},
-		{ &hf_gtp_ext,			{ "Extension header", 	"gtp.ext", 					FT_UINT8, 	BASE_HEX, NULL, 0, "Extension header" }},
+		{ &hf_gtp_flags,		{ "Flags", 				"gtp.flags", 				FT_UINT8, 	BASE_HEX, NULL, 0, "Ver/PT/Res/E/S/PN", HFILL }},
+		{ &hf_gtp_flags_ver,		{ "Version", 			"gtp.flags.version", 		FT_UINT8, 	BASE_DEC, VALS(ver_types), GTP_VER_MASK, "GTP version", HFILL }},
+		{ &hf_gtp_flags_pt,		{ "Payload Type", 		"gtp.flags.payload_type", 	FT_UINT8, 	BASE_DEC, NULL, GTP_PT_MASK, "Payload types", HFILL }},
+		{ &hf_gtp_flags_spare,		{ "Reserved", 			"gtp.flags.spare",			FT_UINT8, 	BASE_DEC, NULL, GTP_SPARE_MASK, "Reserved", HFILL }},
+		{ &hf_gtp_flags_snn,		{ "Is seq number", 		"gtp.flags.snn",			FT_UINT8, 	BASE_DEC, NULL, GTP_SNN_MASK, "Is sequence number present", HFILL }},
+		{ &hf_gtp_message_type,		{ "Message type", 		"gtp.message_type",			FT_UINT8, 	BASE_HEX, VALS(message_type), 0x0, "GTP message type", HFILL }},
+		{ &hf_gtp_length,		{ "Length", 			"gtp.length", 				FT_UINT16, 	BASE_DEC, NULL, 0, "Length", HFILL }},
+		{ &hf_gtp_seq_number,		{ "Sequence number", 	"gtp.seq_number",			FT_UINT16, 	BASE_HEX, NULL, 0, "Sequence number", HFILL }},
+		{ &hf_gtp_flow_label,		{ "Flow label", 		"gtp.flow_label",			FT_UINT16, 	BASE_HEX, NULL, 0, "Flow label", HFILL }},
+		{ &hf_gtp_sndcp_number,		{ "SNDCP N-PDU LLC Number", "gtp.sndcp_number",		FT_UINT8, 	BASE_HEX, NULL, 0, "SNDCP N-PDU LLC Number", HFILL }},
+		{ &hf_gtp_tid,			{ "Tunnel ID", 			"gtp.tid", 					FT_STRING, 	BASE_DEC, NULL, 0, "Tunnel ID", HFILL }},
+		{ &hf_gtp_ext,			{ "Extension header", 	"gtp.ext", 					FT_UINT8, 	BASE_HEX, NULL, 0, "Extension header", HFILL }},
 		
-		{ &hf_gtp_ext_cause,		{ "Cause", 				"gtp.ext.cause", 			FT_UINT8, 	BASE_DEC, VALS(cause_type), 0, "Cause of operation" }},
+		{ &hf_gtp_ext_cause,		{ "Cause", 				"gtp.ext.cause", 			FT_UINT8, 	BASE_DEC, VALS(cause_type), 0, "Cause of operation", HFILL }},
 	
-		{ &hf_gtp_ext_imsi,		{ "IMSI", 				"gtp.ext.imsi", 			FT_STRING, 	BASE_DEC, NULL, 0, "IMSI number" }},
+		{ &hf_gtp_ext_imsi,		{ "IMSI", 				"gtp.ext.imsi", 			FT_STRING, 	BASE_DEC, NULL, 0, "IMSI number", HFILL }},
 	
-		{ &hf_gtp_ext_rai_mcc,		{ "MCC", 				"gtp.ext.mcc",				FT_UINT16, 	BASE_DEC, NULL, 0, "Mobile Country Code" }},
-		{ &hf_gtp_ext_rai_mnc,		{ "MNC", 				"gtp.ext.mnc", 				FT_UINT8, 	BASE_DEC, NULL, 0, "Mobile National Code" }},
-		{ &hf_gtp_ext_rai_rac,		{ "RAC", 				"gtp.ext.rac", 				FT_UINT8, 	BASE_DEC, NULL, 0, "Routing Area" }},
-		{ &hf_gtp_ext_rai_lac,		{ "LAC", 				"gtp.ext.lac", 				FT_UINT16, 	BASE_DEC, NULL, 0, "Location Area" }},
+		{ &hf_gtp_ext_rai_mcc,		{ "MCC", 				"gtp.ext.mcc",				FT_UINT16, 	BASE_DEC, NULL, 0, "Mobile Country Code", HFILL }},
+		{ &hf_gtp_ext_rai_mnc,		{ "MNC", 				"gtp.ext.mnc", 				FT_UINT8, 	BASE_DEC, NULL, 0, "Mobile National Code", HFILL }},
+		{ &hf_gtp_ext_rai_rac,		{ "RAC", 				"gtp.ext.rac", 				FT_UINT8, 	BASE_DEC, NULL, 0, "Routing Area", HFILL }},
+		{ &hf_gtp_ext_rai_lac,		{ "LAC", 				"gtp.ext.lac", 				FT_UINT16, 	BASE_DEC, NULL, 0, "Location Area", HFILL }},
 		
-		{ &hf_gtp_ext_tlli,		{ "TLLI", 				"gtp.ext.tlli", 			FT_UINT32, 	BASE_HEX, NULL, 0, "Temporary Logical Link Identity" }},
+		{ &hf_gtp_ext_tlli,		{ "TLLI", 				"gtp.ext.tlli", 			FT_UINT32, 	BASE_HEX, NULL, 0, "Temporary Logical Link Identity", HFILL }},
 		
-		{ &hf_gtp_ext_ptmsi,		{ "P-TMSI",				"gtp.ext.ptmsi", 			FT_UINT32, 	BASE_HEX, NULL, 0, "Packet TMSI" }},
+		{ &hf_gtp_ext_ptmsi,		{ "P-TMSI",				"gtp.ext.ptmsi", 			FT_UINT32, 	BASE_HEX, NULL, 0, "Packet TMSI", HFILL }},
 		
-		{ &hf_gtp_ext_qos_delay,	{ "QoS delay",			"gtp.ext.qos_delay", 		FT_UINT8, 	BASE_DEC, VALS(qos_delay_type), 0, "QoS delay class" }},
-		{ &hf_gtp_ext_qos_reliability,	{ "QoS reliability","gtp.ext.qos_reliabilty", 	FT_UINT8, 	BASE_DEC, VALS(qos_reliability_type), 0, "QoS reliability class" }},
-		{ &hf_gtp_ext_qos_peak,		{ "QoS peak",			"gtp.ext.qos_peak", 		FT_UINT8, 	BASE_DEC, VALS(qos_peak_type), 0, "QoS peak throughput" }},
-		{ &hf_gtp_ext_qos_precedence,	{ "QoS precedence",	"gtp.ext.qos_precedence", 	FT_UINT8, 	BASE_DEC, VALS(qos_precedence_type), 0, "QoS precedence class" }},
-		{ &hf_gtp_ext_qos_mean,		{ "QoS mean",			"gtp.ext.qos_mean", 		FT_UINT8, 	BASE_DEC, VALS(qos_mean_type), 0, "QoS mean throughput" }},
+		{ &hf_gtp_ext_qos_delay,	{ "QoS delay",			"gtp.ext.qos_delay", 		FT_UINT8, 	BASE_DEC, VALS(qos_delay_type), 0, "QoS delay class", HFILL }},
+		{ &hf_gtp_ext_qos_reliability,	{ "QoS reliability","gtp.ext.qos_reliabilty", 	FT_UINT8, 	BASE_DEC, VALS(qos_reliability_type), 0, "QoS reliability class", HFILL }},
+		{ &hf_gtp_ext_qos_peak,		{ "QoS peak",			"gtp.ext.qos_peak", 		FT_UINT8, 	BASE_DEC, VALS(qos_peak_type), 0, "QoS peak throughput", HFILL }},
+		{ &hf_gtp_ext_qos_precedence,	{ "QoS precedence",	"gtp.ext.qos_precedence", 	FT_UINT8, 	BASE_DEC, VALS(qos_precedence_type), 0, "QoS precedence class", HFILL }},
+		{ &hf_gtp_ext_qos_mean,		{ "QoS mean",			"gtp.ext.qos_mean", 		FT_UINT8, 	BASE_DEC, VALS(qos_mean_type), 0, "QoS mean throughput", HFILL }},
 		
-		{ &hf_gtp_ext_reorder,		{ "Reordering required", "gtp.ext.reorder", 		FT_BOOLEAN, BASE_NONE, NULL, 0, "Reordering required" }},
+		{ &hf_gtp_ext_reorder,		{ "Reordering required", "gtp.ext.reorder", 		FT_BOOLEAN, BASE_NONE, NULL, 0, "Reordering required", HFILL }},
 		
-/*		{ &hf_gtp_ext_auth_rand,	{ "Authentication RAND", "gtp.ext.auth_rand", 		FT_STRING, 	BASE_DEC, NULL, 0, "Authentication RAND" }},
-		{ &hf_gtp_ext_auth_sres,	{ "Authentication SRES", "gtp.ext.auth_sres",		FT_STRING,	BASE_DEC, NULL, 0, "Authentication SRES" }},
-		{ &hf_gtp_ext_auth_kc,		{ "Authentication Kc", 	"gtp.ext.auth_kc", 			FT_STRING, 	BASE_DEC, NULL, 0, "Authentication Kc" }},
+/*		{ &hf_gtp_ext_auth_rand,	{ "Authentication RAND", "gtp.ext.auth_rand", 		FT_STRING, 	BASE_DEC, NULL, 0, "Authentication RAND", HFILL }},
+		{ &hf_gtp_ext_auth_sres,	{ "Authentication SRES", "gtp.ext.auth_sres",		FT_STRING,	BASE_DEC, NULL, 0, "Authentication SRES", HFILL }},
+		{ &hf_gtp_ext_auth_kc,		{ "Authentication Kc", 	"gtp.ext.auth_kc", 			FT_STRING, 	BASE_DEC, NULL, 0, "Authentication Kc", HFILL }},
 */		
-		{ &hf_gtp_ext_map,		{ "Ext type",			"gtp.ext.map", 				FT_UINT8, 	BASE_DEC, VALS(map_cause_type), 0, "MAP cause" }},
+		{ &hf_gtp_ext_map,		{ "Ext type",			"gtp.ext.map", 				FT_UINT8, 	BASE_DEC, VALS(map_cause_type), 0, "MAP cause", HFILL }},
 		
-		{ &hf_gtp_ext_ptmsi_sig,	{ "P-TMSI signature",	"gtp.ext.ptmsi_sig", 		FT_UINT24, 	BASE_HEX, NULL, 0, "P-TMSI signature" }},
+		{ &hf_gtp_ext_ptmsi_sig,	{ "P-TMSI signature",	"gtp.ext.ptmsi_sig", 		FT_UINT24, 	BASE_HEX, NULL, 0, "P-TMSI signature", HFILL }},
 		
-		{ &hf_gtp_ext_ms,		{ "MS validated",		"gtp.ext.ms", 				FT_BOOLEAN,	BASE_NONE, NULL, 0, "MS validated" }},
+		{ &hf_gtp_ext_ms,		{ "MS validated",		"gtp.ext.ms", 				FT_BOOLEAN,	BASE_NONE, NULL, 0, "MS validated", HFILL }},
 		
-		{ &hf_gtp_ext_recover,		{ "Restart counter",	"gtp.ext.recover", 			FT_UINT8, 	BASE_DEC, NULL, 0, "Restart counter" }},
+		{ &hf_gtp_ext_recover,		{ "Restart counter",	"gtp.ext.recover", 			FT_UINT8, 	BASE_DEC, NULL, 0, "Restart counter", HFILL }},
 		
-		{ &hf_gtp_ext_sel_mode,		{ "Selection mode", 	"gtp.ext.sel_mode", 		FT_UINT8, 	BASE_DEC, VALS(sel_mode_type), 0, "Selection mode" }},
+		{ &hf_gtp_ext_sel_mode,		{ "Selection mode", 	"gtp.ext.sel_mode", 		FT_UINT8, 	BASE_DEC, VALS(sel_mode_type), 0, "Selection mode", HFILL }},
 		
-		{ &hf_gtp_ext_flow_label,	{ "Flow label", 		"gtp.ext.flow_label",		FT_UINT16, 	BASE_DEC, NULL, 0, "Flow label" }},
+		{ &hf_gtp_ext_flow_label,	{ "Flow label", 		"gtp.ext.flow_label",		FT_UINT16, 	BASE_DEC, NULL, 0, "Flow label", HFILL }},
 		
-		{ &hf_gtp_ext_flow_sig,		{ "Flow label signature", "gtp.ext.flow_sig", 		FT_UINT16, 	BASE_DEC, NULL, 0, "Flow label signature" }},
+		{ &hf_gtp_ext_flow_sig,		{ "Flow label signature", "gtp.ext.flow_sig", 		FT_UINT16, 	BASE_DEC, NULL, 0, "Flow label signature", HFILL }},
 		
-		{ &hf_gtp_ext_flow_ii_nsapi,{ "NSAPI", 				"gtp.ext.flow_ii_nsapi", 	FT_UINT8, 	BASE_HEX, NULL, 0, "NSAPI" }},
-		{ &hf_gtp_ext_flow_ii,		{ "Downlink flow label data", "gtp.ext.flow_ii", 	FT_UINT16, 	BASE_DEC, NULL, 0, "Downlink flow label data" }},
+		{ &hf_gtp_ext_flow_ii_nsapi,{ "NSAPI", 				"gtp.ext.flow_ii_nsapi", 	FT_UINT8, 	BASE_HEX, NULL, 0, "NSAPI", HFILL }},
+		{ &hf_gtp_ext_flow_ii,		{ "Downlink flow label data", "gtp.ext.flow_ii", 	FT_UINT16, 	BASE_DEC, NULL, 0, "Downlink flow label data", HFILL }},
 		
-		{ &hf_gtp_ext_tr_comm,		{ "Transfer command",	"gtp.ext.tr_comm", 			FT_UINT8, 	BASE_DEC, VALS(tr_comm_type), 0, "Packet transfer command" }},
-		{ &hf_gtp_ext_chrg_id,		{ "Charging ID", 		"gtp.ext.chrg_id", 			FT_UINT32, 	BASE_HEX, NULL, 0, "Charging ID" }},
+		{ &hf_gtp_ext_tr_comm,		{ "Transfer command",	"gtp.ext.tr_comm", 			FT_UINT8, 	BASE_DEC, VALS(tr_comm_type), 0, "Packet transfer command", HFILL }},
+		{ &hf_gtp_ext_chrg_id,		{ "Charging ID", 		"gtp.ext.chrg_id", 			FT_UINT32, 	BASE_HEX, NULL, 0, "Charging ID", HFILL }},
 		
-		{ &hf_gtp_ext_user_addr,	{ "End user address", 	"gtp.ext.user_addr", 		FT_IPv4, 	BASE_DEC, NULL, 0, "End user address" }},
-		{ &hf_gtp_ext_user_addr_pdp_type,	{ "PDP type", 	"gtp.ext.user_addr_pdp_type", 		FT_UINT8, 	BASE_HEX, VALS(pdp_type), 0, "PDP type" }},
-		{ &hf_gtp_ext_user_addr_pdp_org,	{ "PDP type organization", 	"gtp.ext.user_addr_pdp_org", 		FT_UINT8, 	BASE_DEC, NULL, 0, "PDP type organization" }},
+		{ &hf_gtp_ext_user_addr,	{ "End user address", 	"gtp.ext.user_addr", 		FT_IPv4, 	BASE_DEC, NULL, 0, "End user address", HFILL }},
+		{ &hf_gtp_ext_user_addr_pdp_type,	{ "PDP type", 	"gtp.ext.user_addr_pdp_type", 		FT_UINT8, 	BASE_HEX, VALS(pdp_type), 0, "PDP type", HFILL }},
+		{ &hf_gtp_ext_user_addr_pdp_org,	{ "PDP type organization", 	"gtp.ext.user_addr_pdp_org", 		FT_UINT8, 	BASE_DEC, NULL, 0, "PDP type organization", HFILL }},
 		
-		{ &hf_gtp_ext_apn,		{ "APN", 				"gtp.ext.apn", 				FT_STRING, 	BASE_DEC, NULL, 0, "Access Point Name" }},
+		{ &hf_gtp_ext_apn,		{ "APN", 				"gtp.ext.apn", 				FT_STRING, 	BASE_DEC, NULL, 0, "Access Point Name", HFILL }},
 		
-		{ &hf_gtp_ext_proto_conf,	{ "Protocol configuration", "gtp.ext.proto_conf",	FT_STRING, 	BASE_DEC, NULL, 0, "Protocol configuration" }},
+		{ &hf_gtp_ext_proto_conf,	{ "Protocol configuration", "gtp.ext.proto_conf",	FT_STRING, 	BASE_DEC, NULL, 0, "Protocol configuration", HFILL }},
 		
-		{ &hf_gtp_ext_gsn_addr,		{ "GSN address", 		"gtp.ext.gsn_addr", 		FT_IPv4, 	BASE_DEC, NULL, 0, "GSN address" }},
+		{ &hf_gtp_ext_gsn_addr,		{ "GSN address", 		"gtp.ext.gsn_addr", 		FT_IPv4, 	BASE_DEC, NULL, 0, "GSN address", HFILL }},
 		
-		{ &hf_gtp_ext_msisdn,		{ "MSISDN", 			"gtp.ext.msisdn", 			FT_STRING, 	BASE_DEC, NULL, 0, "MSISDN" }},
+		{ &hf_gtp_ext_msisdn,		{ "MSISDN", 			"gtp.ext.msisdn", 			FT_STRING, 	BASE_DEC, NULL, 0, "MSISDN", HFILL }},
 
-		{ &hf_gtp_ext_chrg_addr,	{ "CG address", 		"gtp.ext.chrg_addr", 		FT_IPv4, 	BASE_DEC, NULL, 0, "Charging gateway address" }},
+		{ &hf_gtp_ext_chrg_addr,	{ "CG address", 		"gtp.ext.chrg_addr", 		FT_IPv4, 	BASE_DEC, NULL, 0, "Charging gateway address", HFILL }},
 		
-		{ &hf_gtp_ext_node_addr,	{ "Node address", 		"gtp.ext.node_addr", 		FT_IPv4, 	BASE_DEC, NULL, 0, "Recommended node address" }},
+		{ &hf_gtp_ext_node_addr,	{ "Node address", 		"gtp.ext.node_addr", 		FT_IPv4, 	BASE_DEC, NULL, 0, "Recommended node address", HFILL }},
 		
-		{ &hf_gtp_ext_ext_id,		{ "Ext id", 			"gtp.ext.ext_id", 			FT_UINT16, 	BASE_DEC, NULL, 0, "Extension id" }},
-		{ &hf_gtp_ext_ext_val,		{ "Ext val", 			"gtp.ext.ext_val", 			FT_STRING, 	BASE_DEC, NULL, 0, "Extension value" }},
+		{ &hf_gtp_ext_ext_id,		{ "Ext id", 			"gtp.ext.ext_id", 			FT_UINT16, 	BASE_DEC, NULL, 0, "Extension id", HFILL }},
+		{ &hf_gtp_ext_ext_val,		{ "Ext val", 			"gtp.ext.ext_val", 			FT_STRING, 	BASE_DEC, NULL, 0, "Extension value", HFILL }},
 		
-		{ &hf_gtp_ext_unknown,		{ "Unknown data (length)", "gtp.ext.unknown", 		FT_UINT16, 	BASE_DEC, NULL, 0, "Unknown data" }},
+		{ &hf_gtp_ext_unknown,		{ "Unknown data (length)", "gtp.ext.unknown", 		FT_UINT16, 	BASE_DEC, NULL, 0, "Unknown data", HFILL }},
 
 	};
 

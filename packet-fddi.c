@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.48 2001/01/21 22:10:22 guy Exp $
+ * $Id: packet-fddi.c,v 1.49 2001/06/18 02:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -349,19 +349,19 @@ proto_register_fddi(void)
 		 */
 		{ &hf_fddi_fc,
 		{ "Frame Control",	"fddi.fc", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_fddi_dst,
 		{ "Destination",	"fddi.dst", FT_ETHER, BASE_NONE, NULL, 0x0,
-			"Destination Hardware Address" }},
+			"Destination Hardware Address", HFILL }},
 
 		{ &hf_fddi_src,
 		{ "Source",		"fddi.src", FT_ETHER, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_fddi_addr,
 		{ "Source or Destination Address", "fddi.addr", FT_ETHER, BASE_NONE, NULL, 0x0,
-			"Source or Destination Hardware Address" }},
+			"Source or Destination Hardware Address", HFILL }},
 
 	};
 	static gint *ett[] = {

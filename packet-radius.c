@@ -2,7 +2,7 @@
  * Routines for RADIUS packet disassembly
  * Copyright 1999 Johan Feyaerts
  *
- * $Id: packet-radius.c,v 1.30 2001/06/14 08:23:50 guy Exp $
+ * $Id: packet-radius.c,v 1.31 2001/06/18 02:17:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -748,15 +748,15 @@ proto_register_radius(void)
 	static hf_register_info hf[] = {
 		{ &hf_radius_code,
 		{ "Code","radius.code", FT_UINT8, BASE_DEC, VALS(radius_vals), 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_radius_id,
 		{ "Identifier",	"radius.id", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_radius_length,
 		{ "Length","radius.length", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"" }}
+			"", HFILL }}
 	};
 	static gint *ett[] = {
 		&ett_radius,

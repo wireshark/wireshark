@@ -2,7 +2,7 @@
  * Routines for v120 frame disassembly
  * Bert Driehuis <driehuis@playbeing.org>
  *
- * $Id: packet-v120.c,v 1.18 2001/01/22 00:20:29 guy Exp $
+ * $Id: packet-v120.c,v 1.19 2001/06/18 02:17:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -209,13 +209,13 @@ proto_register_v120(void)
     static hf_register_info hf[] = {
 	{ &hf_v120_address,
 	  { "Link Address", "v120.address", FT_UINT16, BASE_HEX, NULL,
-		  0x0, "" }},
+		  0x0, "", HFILL }},
 	{ &hf_v120_control,
 	  { "Control Field", "v120.control", FT_UINT16, BASE_HEX, NULL, 0x0,
-	  	"" }},
+	  	"", HFILL }},
 	{ &hf_v120_header,
 	  { "Header Field", "v120.header", FT_STRING, BASE_NONE, NULL, 0x0,
-	  	"" }},
+	  	"", HFILL }},
     };
     static gint *ett[] = {
         &ett_v120,

@@ -7,7 +7,7 @@
  * Routine to dissect RFC 1006 TPKT packet containing OSI TP PDU
  * Copyright 2001, Martin Thomas <Martin_A_Thomas@yahoo.com>
  *
- * $Id: packet-tpkt.c,v 1.6 2001/06/12 06:31:14 guy Exp $
+ * $Id: packet-tpkt.c,v 1.7 2001/06/18 02:17:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -188,7 +188,7 @@ proto_register_tpkt(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -200,7 +200,7 @@ proto_register_tpkt(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -212,7 +212,7 @@ proto_register_tpkt(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 	};

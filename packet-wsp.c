@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.20 2001/04/23 04:29:54 guy Exp $
+ * $Id: packet-wsp.c,v 1.21 2001/06/18 02:17:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1503,112 +1503,112 @@ proto_register_wsp(void)
 			{ 	"Transmission ID",           
 				"wsp.TID",
 				 FT_UINT8, BASE_HEX, NULL, 0x00,
-				"Transmission ID" 
+				"Transmission ID", HFILL
 			}
 		},
 		{ &hf_wsp_header_pdu_type,
 			{ 	"PDU Type",           
 				"wsp.pdu_type",
 				 FT_UINT8, BASE_HEX, VALS( vals_pdu_type ), 0x00,
-				"PDU Type" 
+				"PDU Type", HFILL
 			}
 		},
 		{ &hf_wsp_version_major,
 			{ 	"Version (Major)",           
 				"wsp.version.major",
 				 FT_UINT8, BASE_DEC, NULL, 0xF0,
-				"Version (Major)" 
+				"Version (Major)", HFILL
 			}
 		},
 		{ &hf_wsp_version_minor,
 			{ 	"Version (Minor)",           
 				"wsp.version.minor",
 				 FT_UINT8, BASE_DEC, NULL, 0x0F,
-				"Version (Minor)" 
+				"Version (Minor)", HFILL
 			}
 		},
 		{ &hf_wsp_capability_length,
 			{ 	"Capability Length",           
 				"wsp.capability.length",
 				 FT_UINT32, BASE_DEC, NULL, 0x00,
-				"Capability Length" 
+				"Capability Length", HFILL
 			}
 		},
 		{ &hf_wsp_header_length,
 			{ 	"Headers Length",           
 				"wsp.headers_length",
 				 FT_UINT32, BASE_DEC, NULL, 0x00,
-				"Headers Length" 
+				"Headers Length", HFILL
 			}
 		},
 		{ &hf_wsp_capabilities_section,
 			{ 	"Capabilities",           
 				"wsp.capabilities",
 				 FT_NONE, BASE_DEC, NULL, 0x00,
-				"Capabilities" 
+				"Capabilities", HFILL
 			}
 		},
 		{ &hf_wsp_headers_section,
 			{ 	"Headers",           
 				"wsp.headers",
 				 FT_NONE, BASE_DEC, NULL, 0x00,
-				"Headers" 
+				"Headers", HFILL
 			}
 		},
 		{ &hf_wsp_header,
 			{ 	"Header",           
 				"wsp.headers.header",
 				 FT_NONE, BASE_DEC, NULL, 0x00,
-				"Header" 
+				"Header", HFILL
 			}
 		},
 		{ &hf_wsp_header_uri_len,
 			{ 	"URI Length",           
 				"wsp.uri_length",
 				 FT_UINT32, BASE_DEC, NULL, 0x00,
-				"URI Length" 
+				"URI Length", HFILL
 			}
 		},
 		{ &hf_wsp_header_uri,
 			{ 	"URI",           
 				"wsp.uri",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"URI" 
+				"URI", HFILL
 			}
 		},
 		{ &hf_wsp_server_session_id,
 			{ 	"Server Session ID",           
 				"wsp.server.session_id",
 				 FT_UINT32, BASE_DEC, NULL, 0x00,
-				"Server Session ID" 
+				"Server Session ID", HFILL
 			}
 		},
 		{ &hf_wsp_header_status,
 			{ 	"Status",           
 				"wsp.reply.status",
 				 FT_UINT8, BASE_HEX, VALS( vals_status ), 0x00,
-				"Status" 
+				"Status", HFILL
 			}
 		},
 		{ &hf_wsp_content_type,
 			{ 	"Content Type",           
 				"wsp.content_type.type",
 				 FT_UINT8, BASE_HEX, VALS ( vals_content_types ), 0x00,
-				"Content Type" 
+				"Content Type", HFILL
 			}
 		},
 		{ &hf_wsp_parameter_well_known_charset,
 			{ 	"Charset",           
 				"wsp.content_type.parameter.charset",
 				 FT_UINT16, BASE_HEX, VALS ( vals_character_sets ), 0x00,
-				"Charset" 
+				"Charset", HFILL
 			}
 		},
 		{ &hf_wsp_reply_data,
 			{ 	"Data",           
 				"wsp.reply.data",
 				 FT_NONE, BASE_NONE, NULL, 0x00,
-				"Data" 
+				"Data", HFILL
 			}
 		},
 		{ &hf_wsp_header_accept,
@@ -1616,77 +1616,77 @@ proto_register_wsp(void)
 				"wsp.header.accept",
 				 /*FT_NONE, BASE_DEC, NULL, 0x00,*/
 				 FT_UINT8, BASE_HEX, VALS ( vals_content_types ), 0x00,
-				"Accept" 
+				"Accept", HFILL
 			}
 		},
 		{ &hf_wsp_header_accept_str,
 			{ 	"Accept",           
 				"wsp.header.accept.string",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Accept" 
+				"Accept", HFILL
 			}
 		},
 		{ &hf_wsp_header_accept_charset,
 			{ 	"Accept-Charset",           
 				"wsp.header.accept_charset",
 				 FT_UINT16, BASE_HEX, VALS ( vals_character_sets ), 0x00,
-				"Accept-Charset" 
+				"Accept-Charset", HFILL
 			}
 		},
 		{ &hf_wsp_header_accept_charset_str,
 			{ 	"Accept-Charset",           
 				"wsp.header.accept_charset.string",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Accept-Charset" 
+				"Accept-Charset", HFILL
 			}
 		},
 		{ &hf_wsp_header_accept_language,
 			{ 	"Accept-Language",           
 				"wsp.header.accept_language",
 				 FT_UINT8, BASE_HEX, VALS ( vals_languages ), 0x00,
-				"Accept-Language" 
+				"Accept-Language", HFILL
 			}
 		},
 		{ &hf_wsp_header_accept_language_str,
 			{ 	"Accept-Language",           
 				"wsp.header.accept_language.string",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Accept-Language" 
+				"Accept-Language", HFILL
 			}
 		},
 		{ &hf_wsp_header_accept_ranges,
 			{ 	"Accept-Ranges",           
 				"wsp.header.accept_ranges",
 				 FT_UINT8, BASE_HEX, VALS ( vals_accept_ranges ), 0x00,
-				"Accept-Ranges" 
+				"Accept-Ranges", HFILL
 			}
 		},
 		{ &hf_wsp_header_age,
 			{ 	"Age",           
 				"wsp.header.age",
 				 FT_UINT32, BASE_DEC, NULL, 0x00,
-				"Age" 
+				"Age", HFILL
 			}
 		},
 		{ &hf_wsp_header_cache_control,
 			{ 	"Cache-Control",           
 				"wsp.header.cache_control",
 				 FT_UINT8, BASE_HEX, VALS ( vals_cache_control ), 0x00,
-				"Cache-Control" 
+				"Cache-Control", HFILL
 			}
 		},
 		{ &hf_wsp_header_content_length,
 			{ 	"Content-Length",           
 				"wsp.header.content_length",
 				 FT_UINT32, BASE_DEC, NULL, 0x00,
-				"Content-Length" 
+				"Content-Length", HFILL
 			}
 		},
 		{ &hf_wsp_header_date,
 			{ 	"Date",           
 				"wsp.header.date",
 				 FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-				"Date" 
+				"Date", HFILL
 			}
 		},
 		{ &hf_wsp_header_etag,
@@ -1694,35 +1694,35 @@ proto_register_wsp(void)
 				"wsp.header.etag",
 				 /*FT_NONE, BASE_DEC, NULL, 0x00,*/
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Etag" 
+				"Etag", HFILL
 			}
 		},
 		{ &hf_wsp_header_expires,
 			{ 	"Expires",           
 				"wsp.header.expires",
 				 FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-				"Expires" 
+				"Expires", HFILL
 			}
 		},
 		{ &hf_wsp_header_last_modified,
 			{ 	"Last-Modified",           
 				"wsp.header.last_modified",
 				 FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-				"Last-Modified" 
+				"Last-Modified", HFILL
 			}
 		},
 		{ &hf_wsp_header_location,
 			{ 	"Location",           
 				"wsp.header.location",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Location" 
+				"Location", HFILL
 			}
 		},
 		{ &hf_wsp_header_if_modified_since,
 			{ 	"If-Modified-Since",           
 				"wsp.header.if_modified_since",
 				 FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-				"If-Modified-Since" 
+				"If-Modified-Since", HFILL
 			}
 		},
 		{ &hf_wsp_header_server,
@@ -1730,7 +1730,7 @@ proto_register_wsp(void)
 				"wsp.header.server",
 				 /*FT_NONE, BASE_DEC, NULL, 0x00,*/
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Server" 
+				"Server", HFILL
 			}
 		},
 		{ &hf_wsp_header_transfer_encoding,
@@ -1738,14 +1738,14 @@ proto_register_wsp(void)
 				"wsp.header.transfer_enc",
 				 /*FT_NONE, BASE_DEC, NULL, 0x00,*/
 				 FT_UINT8, BASE_HEX, VALS ( vals_transfer_encoding ), 0x00,
-				"Transfer Encoding" 
+				"Transfer Encoding", HFILL
 			}
 		},
 		{ &hf_wsp_header_transfer_encoding_str,
 			{ 	"Transfer Encoding",           
 				"wsp.header.transfer_enc_str",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Transfer Encoding" 
+				"Transfer Encoding", HFILL
 			}
 		},
 		{ &hf_wsp_header_user_agent,
@@ -1753,42 +1753,42 @@ proto_register_wsp(void)
 				"wsp.header.user_agent",
 				 /*FT_NONE, BASE_DEC, NULL, 0x00,*/
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"User-Agent" 
+				"User-Agent", HFILL
 			}
 		},
 		{ &hf_wsp_header_via,
 			{ 	"Via",           
 				"wsp.header.via",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Via" 
+				"Via", HFILL
 			}
 		},
 		{ &hf_wsp_header_application_header,
 			{ 	"Application Header",           
 				"wsp.header.application_header",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Application Header" 
+				"Application Header", HFILL
 			}
 		},
 		{ &hf_wsp_header_application_value,
 			{ 	"Application Header Value",           
 				"wsp.header.application_header.value",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
-				"Application Header Value" 
+				"Application Header Value", HFILL
 			}
 		},
 		{ &hf_wsp_header_x_wap_tod,
 			{ 	"X-WAP.TOD",           
 				"wsp.header.x_wap_tod",
 				 FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-				"X-WAP.TOD" 
+				"X-WAP.TOD", HFILL
 			}
 		},
 		{ &hf_wsp_post_data,
 			{ 	"Post Data",           
 				"wsp.post.data",
 				 FT_NONE, BASE_NONE, NULL, 0x00,
-				"Post Data" 
+				"Post Data", HFILL
 			}
 		},
 	};
@@ -1806,7 +1806,7 @@ proto_register_wsp(void)
 	proto_wsp = proto_register_protocol(
 		"Wireless Session Protocol",   	/* protocol name for use by ethereal */ 
 		"WSP",                          /* short version of name */
-		"wap-wsp"                    	/* Abbreviated protocol name, should Match IANA 
+		"wap-wsp"                   	/* Abbreviated protocol name, should Match IANA 
 						    < URL:http://www.isi.edu/in-notes/iana/assignments/port-numbers/ >
 						  */
 	);

@@ -2,7 +2,7 @@
  * Routines for nntp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-nntp.c,v 1.19 2001/01/22 08:03:45 guy Exp $
+ * $Id: packet-nntp.c,v 1.20 2001/06/18 02:17:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -127,12 +127,12 @@ proto_register_nntp(void)
 	    { &hf_nntp_response,
 	      { "Response",           "nntp.response",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	      	"TRUE if NNTP response" }},
+	      	"TRUE if NNTP response", HFILL }},
 
 	    { &hf_nntp_request,
 	      { "Request",            "nntp.request",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	      	"TRUE if NNTP request" }}
+	      	"TRUE if NNTP request", HFILL }}
 	};
 	static gint *ett[] = {
 		&ett_nntp,

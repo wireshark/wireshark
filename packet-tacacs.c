@@ -1,7 +1,7 @@
 /* packet-tacacs.c
  * Routines for cisco tacacs/tacplus/AAA packet dissection
  *
- * $Id: packet-tacacs.c,v 1.11 2001/02/28 10:28:55 guy Exp $
+ * $Id: packet-tacacs.c,v 1.12 2001/06/18 02:17:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -138,15 +138,15 @@ proto_register_tacacs(void)
 	  { &hf_tacacs_version,
 	    { "Tacacs Version",           "tacacs.version",
 	      FT_STRING, BASE_NONE, NULL, 0x0,
-	      "xtacacs or tacplus" }},
+	      "xtacacs or tacplus", HFILL }},
 	  { &hf_tacacs_response,
 	    { "Response",           "tacacs.response",
 	      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	      "TRUE if TACACS response" }},
+	      "TRUE if TACACS response", HFILL }},
 	  { &hf_tacacs_request,
 	    { "Request",            "tacacs.request",
 	      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	      "TRUE if TACACS request" }}
+	      "TRUE if TACACS request", HFILL }}
 	};
 
 	static gint *ett[] = {

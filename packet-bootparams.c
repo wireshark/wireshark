@@ -1,7 +1,7 @@
 /* packet-bootparams.c
  * Routines for bootparams dissection
  *
- * $Id: packet-bootparams.c,v 1.18 2001/05/30 06:01:01 guy Exp $
+ * $Id: packet-bootparams.c,v 1.19 2001/06/18 02:17:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -159,25 +159,25 @@ proto_register_bootparams(void)
 	static hf_register_info hf[] = {
 		{ &hf_bootparams_host, {
 			"Client Host", "bootparams.host", FT_STRING, BASE_DEC,
-			NULL, 0, "Client Host" }},
+			NULL, 0, "Client Host", HFILL }},
 		{ &hf_bootparams_domain, {
 			"Client Domain", "bootparams.domain", FT_STRING, BASE_DEC,
-			NULL, 0, "Client Domain" }},
+			NULL, 0, "Client Domain", HFILL }},
 		{ &hf_bootparams_fileid, {
 			"File ID", "bootparams.fileid", FT_STRING, BASE_DEC,
-			NULL, 0, "File ID" }},
+			NULL, 0, "File ID", HFILL }},
 		{ &hf_bootparams_filepath, {
 			"File Path", "bootparams.filepath", FT_STRING, BASE_DEC,
-			NULL, 0, "File Path" }},
+			NULL, 0, "File Path", HFILL }},
 		{ &hf_bootparams_hostaddr, {
 			"Client Address", "bootparams.hostaddr", FT_IPv4, BASE_DEC,
-			NULL, 0, "Address" }},
+			NULL, 0, "Address", HFILL }},
 		{ &hf_bootparams_routeraddr, {
 			"Router Address", "bootparams.routeraddr", FT_IPv4, BASE_DEC,
-			NULL, 0, "Router Address" }},
+			NULL, 0, "Router Address", HFILL }},
 		{ &hf_bootparams_addresstype, {
 			"Address Type", "bootparams.type", FT_UINT32, BASE_DEC,
-			VALS(addr_type), 0, "Address Type" }},
+			VALS(addr_type), 0, "Address Type", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_bootparams,

@@ -7,7 +7,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sip.c,v 1.14 2001/03/09 04:35:22 guy Exp $
+ * $Id: packet-sip.c,v 1.15 2001/06/18 02:17:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -186,7 +186,7 @@ void proto_register_sip(void)
                 { &hf_msg_hdr,
                         { "Message Header",           "sip.msg_hdr",
                         FT_NONE, 0, NULL, 0,
-                        "Message Header in SIP message" }
+                        "Message Header in SIP message", HFILL }
                 },
         };
 

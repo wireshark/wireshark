@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.27 2001/04/09 21:42:01 guy Exp $
+ * $Id: packet-ntp.c,v 1.28 2001/06/18 02:17:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -437,52 +437,52 @@ proto_register_ntp(void)
 	static hf_register_info hf[] = {
 		{ &hf_ntp_flags, {	
 			"Flags", "ntp.flags", FT_UINT8, BASE_HEX, 
-			NULL, 0, "Flags (Leap/Version/Mode)" }},
+			NULL, 0, "Flags (Leap/Version/Mode)", HFILL }},
 		{ &hf_ntp_flags_li, {
 			"Leap Indicator", "ntp.flags.li", FT_UINT8, BASE_DEC,
-			VALS(li_types), NTP_LI_MASK, "Leap Indicator" }},
+			VALS(li_types), NTP_LI_MASK, "Leap Indicator", HFILL }},
 		{ &hf_ntp_flags_vn, {
 			"Version number", "ntp.flags.vn", FT_UINT8, BASE_DEC,
-			VALS(ver_nums), NTP_VN_MASK, "Version number" }},
+			VALS(ver_nums), NTP_VN_MASK, "Version number", HFILL }},
 		{ &hf_ntp_flags_mode, {
 			"Mode", "ntp.flags.mode", FT_UINT8, BASE_DEC,
-			VALS(mode_types), NTP_MODE_MASK, "Mode" }},
+			VALS(mode_types), NTP_MODE_MASK, "Mode", HFILL }},
 		{ &hf_ntp_stratum, {	
 			"Peer Clock Stratum", "ntp.stratum", FT_UINT8, BASE_DEC,
-			NULL, 0, "Peer Clock Stratum" }},
+			NULL, 0, "Peer Clock Stratum", HFILL }},
 		{ &hf_ntp_ppoll, {	
 			"Peer Polling Interval", "ntp.ppoll", FT_UINT8, BASE_DEC, 
-			NULL, 0, "Peer Polling Interval" }},
+			NULL, 0, "Peer Polling Interval", HFILL }},
 		{ &hf_ntp_precision, {	
 			"Peer Clock Precision", "ntp.precision", FT_UINT8, BASE_DEC, 
-			NULL, 0, "Peer Clock Precision" }},
+			NULL, 0, "Peer Clock Precision", HFILL }},
 		{ &hf_ntp_rootdelay, {	
 			"Root Delay", "ntp.rootdelay", FT_DOUBLE, BASE_DEC,
-			NULL, 0, "Root Delay" }},
+			NULL, 0, "Root Delay", HFILL }},
 		{ &hf_ntp_rootdispersion, {	
 			"Clock Dispersion", "ntp.rootdispersion", FT_DOUBLE, BASE_DEC, 
-			NULL, 0, "Clock Dispersion" }},
+			NULL, 0, "Clock Dispersion", HFILL }},
 		{ &hf_ntp_refid, {	
 			"Reference Clock ID", "ntp.refid", FT_BYTES, BASE_NONE, 
-			NULL, 0, "Reference Clock ID" }},
+			NULL, 0, "Reference Clock ID", HFILL }},
 		{ &hf_ntp_reftime, {	
 			"Reference Clock Update Time", "ntp.reftime", FT_BYTES, BASE_NONE, 
-			NULL, 0, "Reference Clock Update Time" }},
+			NULL, 0, "Reference Clock Update Time", HFILL }},
 		{ &hf_ntp_org, {	
 			"Originate Time Stamp", "ntp.org", FT_BYTES, BASE_NONE, 
-			NULL, 0, "Originate Time Stamp" }},
+			NULL, 0, "Originate Time Stamp", HFILL }},
 		{ &hf_ntp_rec, {	
 			"Receive Time Stamp", "ntp.rec", FT_BYTES, BASE_NONE, 
-			NULL, 0, "Receive Time Stamp" }},
+			NULL, 0, "Receive Time Stamp", HFILL }},
 		{ &hf_ntp_xmt, {	
 			"Transmit Time Stamp", "ntp.xmt", FT_BYTES, BASE_NONE, 
-			NULL, 0, "Transmit Time Stamp" }},
+			NULL, 0, "Transmit Time Stamp", HFILL }},
 		{ &hf_ntp_keyid, {	
 			"Key ID", "ntp.keyid", FT_BYTES, BASE_HEX, 
-			NULL, 0, "Key ID" }},
+			NULL, 0, "Key ID", HFILL }},
 		{ &hf_ntp_mac, {	
 			"Message Authentication Code", "ntp.mac", FT_BYTES, BASE_HEX, 
-			NULL, 0, "Message Authentication Code" }},
+			NULL, 0, "Message Authentication Code", HFILL }},
         };
 	static gint *ett[] = {
 		&ett_ntp,

@@ -2,7 +2,7 @@
  * Routines for BACnet (APDU) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bacapp.c,v 1.3 2001/05/30 07:48:23 guy Exp $
+ * $Id: packet-bacapp.c,v 1.4 2001/06/18 02:17:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -111,7 +111,7 @@ proto_register_bacapp(void)
 	static hf_register_info hf[] = {
 		{ &hf_bacapp_type,
 			{ "APDU Type",           "bacapp.bacapp_type",
-			FT_UINT8, BASE_DEC, NULL, 0xf0, "APDU Type" }
+			FT_UINT8, BASE_DEC, NULL, 0xf0, "APDU Type", HFILL }
 		},
 	};
 	static gint *ett[] = {

@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.20 2001/06/08 08:39:58 guy Exp $
+ * $Id: packet-socks.c,v 1.21 2001/06/18 02:17:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1112,33 +1112,33 @@ proto_register_socks( void){
 
 		{ &hf_socks_ver,
 			{ "Version", "socks.ver", FT_UINT8, BASE_DEC, NULL,
-			 	0x0, ""
+			 	0x0, "", HFILL
 			}
 		},
 		{ &hf_socks_ip_dst,
 			{ "Remote Address", "socks.dst", FT_IPv4, BASE_NONE, NULL,
-			 	0x0, ""
+			 	0x0, "", HFILL
 			}
 		},
 		{ &hf_socks_ip6_dst,
 			{ "Remote Address", "socks.dstV6", FT_IPv6, BASE_NONE, NULL,
-			 	0x0, ""
+			 	0x0, "", HFILL
 			}
 		},
 
                 { &hf_user_name,
                 	{ "User Name", "socks.username", FT_STRING, BASE_NONE,
-                		 NULL, 0x0, ""
+                		 NULL, 0x0, "", HFILL
                 	}
                 },
 		{ &hf_socks_dstport,
 			{ "Remote Port", "socks.dstport", FT_UINT16,
-				BASE_DEC, NULL, 0x0, ""
+				BASE_DEC, NULL, 0x0, "", HFILL
 			}
 		},
 		{ &hf_socks_command,
 			{ "Command", "socks.command", FT_UINT16,
-				BASE_DEC, NULL, 0x0, ""
+				BASE_DEC, NULL, 0x0, "", HFILL
 			}
 		}
 

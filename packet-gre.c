@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.43 2001/04/23 18:11:01 guy Exp $
+ * $Id: packet-gre.c,v 1.44 2001/06/18 02:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -340,7 +340,7 @@ proto_register_gre(void)
 	static hf_register_info hf[] = {
 		{ &hf_gre_proto,
 			{ "Protocol Type", "gre.proto", FT_UINT16, BASE_HEX, VALS(typevals), 0x0,
-				"The protocol that is GRE encapsulated"}
+				"The protocol that is GRE encapsulated", HFILL }
 		},
 	};
 	static gint *ett[] = {

@@ -3,7 +3,7 @@
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  * derived from packet-rip.c
  *
- * $Id: packet-ripng.c,v 1.20 2001/04/24 02:50:00 guy Exp $
+ * $Id: packet-ripng.c,v 1.21 2001/06/18 02:17:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -139,11 +139,11 @@ proto_register_ripng(void)
       { &hf_ripng_cmd,
 	{ "Command",		"ripng.cmd",
 				FT_UINT8, BASE_DEC, VALS(cmdvals),
-				0x0, "" }},
+				0x0, "", HFILL }},
       { &hf_ripng_version,
 	{ "Version",		"ripng.version",
 				FT_UINT8, BASE_DEC, NULL,
-				0x0, "" }},
+				0x0, "", HFILL }},
     };
     static gint *ett[] = {
       &ett_ripng,

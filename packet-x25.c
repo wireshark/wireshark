@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.48 2001/04/07 08:33:12 guy Exp $
+ * $Id: packet-x25.c,v 1.49 2001/06/18 02:17:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1925,43 +1925,43 @@ proto_register_x25(void)
     static hf_register_info hf[] = {
 	{ &hf_x25_gfi,
 	  { "GFI", "x.25.gfi", FT_UINT16, BASE_BIN, NULL, 0xF000,
-	  	"General format identifier" } },
+	  	"General format identifier", HFILL }},
 	{ &hf_x25_abit,
 	  { "A Bit", "x.25.a", FT_BOOLEAN, 16, NULL, 0x8000,
-	  	"Address Bit" } },
+	  	"Address Bit", HFILL }},
 	{ &hf_x25_qbit,
 	  { "Q Bit", "x.25.q", FT_BOOLEAN, 16, NULL, 0x8000,
-	  	"Qualifier Bit" } },
+	  	"Qualifier Bit", HFILL }},
 	{ &hf_x25_dbit,
 	  { "D Bit", "x.25.d", FT_BOOLEAN, 16, NULL, 0x4000,
-	  	"Delivery Confirmation Bit" } },
+	  	"Delivery Confirmation Bit", HFILL }},
 	{ &hf_x25_mod,
 	  { "Modulo", "x.25.mod", FT_UINT16, BASE_DEC, VALS(vals_modulo), 0x3000,
-	  	"Specifies whether the frame is modulo 8 or 128" } },
+	  	"Specifies whether the frame is modulo 8 or 128", HFILL }},
 	{ &hf_x25_lcn,
 	  { "Logical Channel", "x.25.lcn", FT_UINT16, BASE_DEC, NULL, 0x0FFF,
-	  	"Logical Channel Number" } },
+	  	"Logical Channel Number", HFILL }},
 	{ &hf_x25_type,
 	  { "Packet Type", "x.25.type", FT_UINT8, BASE_HEX, VALS(vals_x25_type), 0x0,
-	  	"Packet Type" } },
+	  	"Packet Type", HFILL }},
 	{ &hf_x25_p_r_mod8,
 	  { "P(R)", "x.25.p_r", FT_UINT8, BASE_HEX, NULL, 0xE0,
-	  	"Packet Receive Sequence Number" } },
+	  	"Packet Receive Sequence Number", HFILL }},
 	{ &hf_x25_p_r_mod128,
 	  { "P(R)", "x.25.p_r", FT_UINT8, BASE_HEX, NULL, 0xFE,
-	  	"Packet Receive Sequence Number" } },
+	  	"Packet Receive Sequence Number", HFILL }},
 	{ &hf_x25_mbit_mod8,
 	  { "M Bit", "x.25.m", FT_BOOLEAN, 8, NULL, 0x10,
-	  	"More Bit" } },
+	  	"More Bit", HFILL }},
 	{ &hf_x25_mbit_mod128,
 	  { "M Bit", "x.25.m", FT_BOOLEAN, 8, NULL, 0x01,
-	  	"More Bit" } },
+	  	"More Bit", HFILL }},
 	{ &hf_x25_p_s_mod8,
 	  { "P(S)", "x.25.p_s", FT_UINT8, BASE_HEX, NULL, 0x0E,
-	  	"Packet Send Sequence Number" } },
+	  	"Packet Send Sequence Number", HFILL }},
 	{ &hf_x25_p_s_mod128,
 	  { "P(S)", "x.25.p_s", FT_UINT8, BASE_HEX, NULL, 0xFE,
-	  	"Packet Send Sequence Number" } },
+	  	"Packet Send Sequence Number", HFILL }},
     };
     static gint *ett[] = {
         &ett_x25,

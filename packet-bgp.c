@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.40 2001/06/15 08:01:31 guy Exp $
+ * $Id: packet-bgp.c,v 1.41 2001/06/18 02:17:44 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -1701,7 +1701,7 @@ proto_register_bgp(void)
     static hf_register_info hf[] = {
       { &hf_bgp_type,
 	{ "BGP message type", "bgp.type", FT_UINT8, BASE_HEX,
-	  VALS(bgptypevals), 0x0, "BGP message type" }},
+	  VALS(bgptypevals), 0x0, "BGP message type", HFILL }},
     };
 
     static gint *ett[] = {

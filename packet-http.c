@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.37 2001/01/22 08:54:06 guy Exp $
+ * $Id: packet-http.c,v 1.38 2001/06/18 02:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -374,15 +374,15 @@ proto_register_http(void)
 	    { &hf_http_notification,
 	      { "Notification",		"http.notification",  
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		"TRUE if HTTP notification" }},
+		"TRUE if HTTP notification", HFILL }},
 	    { &hf_http_response,
 	      { "Response",		"http.response",  
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		"TRUE if HTTP response" }},
+		"TRUE if HTTP response", HFILL }},
 	    { &hf_http_request,
 	      { "Request",		"http.request",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		"TRUE if HTTP request" }},
+		"TRUE if HTTP request", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_http,

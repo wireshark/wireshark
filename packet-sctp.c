@@ -2,7 +2,7 @@
  * Routines for Stream Control Transmission Protocol dissection
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sctp.c,v 1.16 2001/04/23 17:51:33 guy Exp $
+ * $Id: packet-sctp.c,v 1.17 2001/06/18 02:17:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1690,227 +1690,227 @@ proto_register_sctp(void)
     { &hf_sctp_source_port,
       { "Source port", "sctp.srcport",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_sctp_destination_port,
       { "Destination port", "sctp.dstport",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_sctp_verification_tag,
       { "Verification tag", "sctp.verfication_tag",
 	FT_UINT32, BASE_HEX, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_sctp_checksum,
       { "Adler-32 checksum", "sctp.checksum",
 	FT_UINT32, BASE_HEX, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_sctp_chunk_type,
       { "Identifier", "sctp.chunk_type",
 	FT_UINT8, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_sctp_chunk_flags,
       { "Flags", "sctp.chunk_flags",
 	FT_UINT8, BASE_BIN, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_sctp_chunk_length,
       { "Length", "sctp.chunk_length",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_sctp_init_chunk_initiate_tag,
       { "Initiate tag", "sctp.init.chunk.initiate.tag",
 	FT_UINT32, BASE_HEX, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_sctp_init_chunk_adv_rec_window_credit,
       { "Advertised reciever window credit (a_rwnd)", "sctp.init.chunk.credit",
 	FT_UINT32, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_sctp_init_chunk_number_of_outbound_streams,
       { "Number of outbound streams", "sctp.init.chunk.nr.out.streams",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_sctp_init_chunk_number_of_inbound_streams,
       { "Number of inbound streams", "sctp.init.chunk.nr.in.streams",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     {&hf_sctp_init_chunk_initial_tsn,
       { "Initial TSN", "sctp.init.chunk.initial.tsn",
 	FT_UINT32, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     {&hf_sctp_cumulative_tsn_ack,
      { "Cumulative TSN Ack", "sctp.cumulative.tsn.ack",
 	FT_UINT32, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     {&hf_sctp_data_chunk_tsn,
      { "TSN", "sctp.tsn",
        FT_UINT32, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     {&hf_sctp_data_chunk_stream_id,
      { "Stream Identifier", "sctp.stream_id",
 	FT_UINT16, BASE_HEX, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     {&hf_sctp_data_chunk_stream_seq_number,
      { "Stream sequence number", "sctp.stream_seq_number",
        FT_UINT16, BASE_DEC, NULL, 0x0,          
-       ""}
+       "", HFILL }
     },
     {&hf_sctp_data_chunk_payload_proto_id,
      { "Payload Protocol identifier", "sctp.payload_proto_id",
 	FT_UINT32, BASE_HEX, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     {&hf_sctp_data_chunk_e_bit,
      { "E-Bit", "sctp.data.e_bit",
        FT_BOOLEAN, 8, TFS(&sctp_data_chunk_e_bit_value), SCTP_DATA_CHUNK_E_BIT,          
-       ""}
+       "", HFILL }
     },
     {&hf_sctp_data_chunk_b_bit,
      { "B-Bit", "sctp.data.b_bit",
        FT_BOOLEAN, 8, TFS(&sctp_data_chunk_b_bit_value), SCTP_DATA_CHUNK_B_BIT,          
-       ""}
+       "", HFILL }
     },
     {&hf_sctp_data_chunk_u_bit,
      { "U-Bit", "sctp.data.u.bit",
        FT_BOOLEAN, 8, TFS(&sctp_data_chunk_u_bit_value), SCTP_DATA_CHUNK_U_BIT,          
-       ""}
+       "", HFILL }
     },
     {&hf_sctp_sack_chunk_cumulative_tsn_ack,
      { "Cumulative TSN ACK", "sctp.sack.cumulative_tsn_ack",
        FT_UINT32, BASE_DEC, NULL, 0x0,          
-       ""}
+       "", HFILL }
     }, 
     {&hf_sctp_sack_chunk_adv_rec_window_credit,
      { "Advertised receiver window credit (a_rwnd)", "sctp.sack.a_rwnd",
        FT_UINT32, BASE_DEC, NULL, 0x0,          
-       ""}
+       "", HFILL }
     },
     {&hf_sctp_sack_chunk_number_of_gap_blocks,
      { "Number of gap acknowldgement blocks ", "sctp.sack.number_of_gap_blocks",
        FT_UINT16, BASE_DEC, NULL, 0x0,          
-       ""}
+       "", HFILL }
     }, 
     {&hf_sctp_sack_chunk_number_of_dup_tsns,
      { "Number of duplicated TSNs", "sctp.sack.number_of_duplicated_tsns",
        FT_UINT16, BASE_DEC, NULL, 0x0,          
-       ""}
+       "", HFILL }
     },
     {&hf_sctp_sack_chunk_gap_block_start,
      { "Start", "sctp.sack.gap_block_start",
        FT_UINT16, BASE_DEC, NULL, 0x0,          
-       ""}
+       "", HFILL }
     },
     {&hf_sctp_sack_chunk_gap_block_end,
      { "End", "sctp.sack.gap_block_end",
        FT_UINT16, BASE_DEC, NULL, 0x0,          
-       ""}
+       "", HFILL }
     },
     {&hf_sctp_sack_chunk_duplicate_tsn,
      { "Duplicate TSN", "sctp.sack.duplicate.tsn",
        FT_UINT16, BASE_DEC, NULL, 0x0,          
-       ""}
+       "", HFILL }
     },  
     {&hf_sctp_shutdown_chunk_cumulative_tsn_ack,
      { "Cumulative TSN Ack", "sctp.shutdown.cumulative_tsn_ack",
 	FT_UINT32, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     {&hf_sctp_ecne_chunk_lowest_tsn,
      { "Lowest TSN", "sctp.ecne.lowest_tsn",
        FT_UINT32, BASE_DEC, NULL, 0x0,          
-       ""}
+       "", HFILL }
     }, 
     {&hf_sctp_cwr_chunk_lowest_tsn,
      { "Lowest TSN", "sctp.cwr.lowest_tsn",
        FT_UINT32, BASE_DEC, NULL, 0x0,          
-       ""}
+       "", HFILL }
     }, 
     {&hf_sctp_shutdown_complete_chunk_t_bit,
      { "E-Bit", "sctp.shutdown_complete.t_bit",
        FT_BOOLEAN, 8, TFS(&sctp_shutdown_complete_chunk_t_bit_value), SCTP_SHUTDOWN_COMPLETE_CHUNK_T_BIT,
-       ""}
+       "", HFILL }
     },
     {&hf_sctp_chunk_parameter_type,
      { "Parameter type", "sctp.parameter.type",
        FT_UINT16, BASE_HEX, NULL, 0x0,          
-       ""}
+       "", HFILL }
     },
     {&hf_sctp_chunk_parameter_length,
      { "Parameter length", "sctp.parameter.length",
        FT_UINT16, BASE_DEC, NULL, 0x0,          
-       ""}
+       "", HFILL }
     },
     {&hf_sctp_parameter_ipv4_address,
      { "IP Version 4 address", "sctp.parameter.ipv4_address",
        FT_IPv4, BASE_NONE, NULL, 0x0,
-       ""}
+       "", HFILL }
     },
     {&hf_sctp_parameter_ipv6_address,
      { "IP Version 6 address", "sctp.parameter.ipv6_address",
        FT_IPv6, BASE_NONE, NULL, 0x0,
-       ""}
+       "", HFILL }
     },
     {&hf_sctp_parameter_cookie_preservative_increment,
      { "Suggested Cookie life-span increment (msec)", "sctp.parameter.cookie_preservative_incr",
        FT_UINT32, BASE_DEC, NULL, 0x0,          
-       ""}
+       "", HFILL }
     },
     {&hf_sctp_parameter_hostname_hostname,
      { "Hostname", "sctp.parameter.hostname.hostname",
        FT_STRING, BASE_NONE, NULL, 0x0,          
-       ""}
+       "", HFILL }
     }, 
     {&hf_sctp_supported_address_types_parameter,
      { "Supported address type", "sctp.parameter.supported_addres_type",
        FT_UINT16, BASE_DEC, NULL, 0x0,          
-       ""}
+       "", HFILL }
     }, 
     {&hf_sctp_cause_code,
      { "Cause code", "sctp.cause.code",
        FT_UINT16, BASE_DEC, NULL, 0x0,          
-       ""}
+       "", HFILL }
     },
     {&hf_sctp_cause_length,
      { "Cause length", "sctp.cause.length",
        FT_UINT16, BASE_DEC, NULL, 0x0,          
-       ""}
+       "", HFILL }
     }, 
     {&hf_sctp_cause_stream_identifier,
      { "Stream identifier", "sctp.cause.stream_identifier",
        FT_UINT16, BASE_DEC, NULL, 0x0,          
-       ""}
+       "", HFILL }
     },
     {&hf_sctp_cause_number_of_missing_parameters,
      { "Number of missing parameters", "sctp.cause.nr_of_missing_parameters",
        FT_UINT32, BASE_DEC, NULL, 0x0,          
-       ""}
+       "", HFILL }
     }, 
     {&hf_sctp_cause_missing_parameter_type,
      { "Missing parameters type", "sctp.cause.missing_parameter_type",
        FT_UINT16, BASE_DEC, NULL, 0x0,          
-       ""}
+       "", HFILL }
     },
     {&hf_sctp_cause_measure_of_staleness,
      { "Measure of staleness in usec", "sctp.cause.measure_of_staleness",
        FT_UINT32, BASE_DEC, NULL, 0x0,          
-       ""}
+       "", HFILL }
     },
     {&hf_sctp_cause_tsn,
      { "TSN", "sctp.cause.tsn",
        FT_UINT32, BASE_DEC, NULL, 0x0,          
-       ""}
+       "", HFILL }
     },
   };
   

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.104 2001/06/14 08:09:59 guy Exp $
+ * $Id: packet-tcp.c,v 1.105 2001/06/18 02:17:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -659,83 +659,83 @@ proto_register_tcp(void)
 
 		{ &hf_tcp_srcport,
 		{ "Source Port",		"tcp.srcport", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tcp_dstport,
 		{ "Destination Port",		"tcp.dstport", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tcp_port,
 		{ "Source or Destination Port",	"tcp.port", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tcp_seq,
 		{ "Sequence number",		"tcp.seq", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tcp_nxtseq,
 		{ "Next sequence number",	"tcp.nxtseq", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tcp_ack,
 		{ "Acknowledgement number",	"tcp.ack", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tcp_hdr_len,
 		{ "Header Length",		"tcp.hdr_len", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tcp_flags,
 		{ "Flags",			"tcp.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tcp_flags_cwr,
 		{ "Congestion Window Reduced (CWR)",			"tcp.flags.cwr", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_CWR,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tcp_flags_ecn,
 		{ "ECN-Echo",			"tcp.flags.ecn", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_ECN,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tcp_flags_urg,
 		{ "Urgent",			"tcp.flags.urg", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_URG,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tcp_flags_ack,
 		{ "Acknowledgment",		"tcp.flags.ack", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_ACK,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tcp_flags_push,
 		{ "Push",			"tcp.flags.push", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_PUSH,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tcp_flags_reset,
 		{ "Reset",			"tcp.flags.reset", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_RST,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tcp_flags_syn,
 		{ "Syn",			"tcp.flags.syn", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_SYN,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tcp_flags_fin,
 		{ "Fin",			"tcp.flags.fin", FT_BOOLEAN, 8, TFS(&flags_set_truth), TH_FIN,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tcp_window_size,
 		{ "Window size",		"tcp.window_size", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tcp_checksum,
 		{ "Checksum",			"tcp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tcp_checksum_bad,
 		{ "Bad Checksum",		"tcp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tcp_urgent_pointer,
 		{ "Urgent pointer",		"tcp.urgent_pointer", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_tcp,

@@ -2,7 +2,7 @@
  * Routines for pop packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-pop.c,v 1.24 2001/01/22 08:03:45 guy Exp $
+ * $Id: packet-pop.c,v 1.25 2001/06/18 02:17:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -203,12 +203,12 @@ proto_register_pop(void)
     { &hf_pop_response,
       { "Response",           "pop.response",
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"TRUE if POP response" }},
+      	"TRUE if POP response", HFILL }},
 
     { &hf_pop_request,
       { "Request",            "pop.request",
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"TRUE if POP request" }}
+      	"TRUE if POP request", HFILL }}
   };
   static gint *ett[] = {
     &ett_pop,

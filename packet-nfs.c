@@ -3,7 +3,7 @@
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2001, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
  *
- * $Id: packet-nfs.c,v 1.53 2001/05/30 06:01:01 guy Exp $
+ * $Id: packet-nfs.c,v 1.54 2001/06/18 02:17:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5640,748 +5640,748 @@ proto_register_nfs(void)
 	static hf_register_info hf[] = {
 		{ &hf_nfs_fh_fsid_major, {
 			"major", "nfs.fh.fsid.major", FT_UINT32, BASE_DEC,
-			NULL, 0, "major file system ID" }},
+			NULL, 0, "major file system ID", HFILL }},
 		{ &hf_nfs_fh_fsid_minor, {
 			"minor", "nfs.fh.fsid.minor", FT_UINT32, BASE_DEC,
-			NULL, 0, "minor file system ID" }},
+			NULL, 0, "minor file system ID", HFILL }},
 		{ &hf_nfs_fh_xfsid_major, {
 			"exported major", "nfs.fh.xfsid.major", FT_UINT32, BASE_DEC,
-			NULL, 0, "exported major file system ID" }},
+			NULL, 0, "exported major file system ID", HFILL }},
 		{ &hf_nfs_fh_xfsid_minor, {
 			"exported minor", "nfs.fh.xfsid.minor", FT_UINT32, BASE_DEC,
-			NULL, 0, "exported minor file system ID" }},
+			NULL, 0, "exported minor file system ID", HFILL }},
 		{ &hf_nfs_fh_fstype, {
 			"file system type", "nfs.fh.fstype", FT_UINT32, BASE_DEC,
-			NULL, 0, "file system type" }},
+			NULL, 0, "file system type", HFILL }},
 		{ &hf_nfs_fh_fn, {
 			"file number", "nfs.fh.fn", FT_UINT32, BASE_DEC,
-			NULL, 0, "file number" }},
+			NULL, 0, "file number", HFILL }},
 		{ &hf_nfs_fh_fn_len, {
 			"length", "nfs.fh.fn.len", FT_UINT32, BASE_DEC,
-			NULL, 0, "file number length" }},
+			NULL, 0, "file number length", HFILL }},
 		{ &hf_nfs_fh_fn_inode, {
 			"inode", "nfs.fh.fn.inode", FT_UINT32, BASE_DEC,
-			NULL, 0, "file number inode" }},
+			NULL, 0, "file number inode", HFILL }},
 		{ &hf_nfs_fh_fn_generation, {
 			"generation", "nfs.fh.fn.generation", FT_UINT32, BASE_DEC,
-			NULL, 0, "file number generation" }},
+			NULL, 0, "file number generation", HFILL }},
 		{ &hf_nfs_fh_xfn, {
 			"exported file number", "nfs.fh.xfn", FT_UINT32, BASE_DEC,
-			NULL, 0, "exported file number" }},
+			NULL, 0, "exported file number", HFILL }},
 		{ &hf_nfs_fh_xfn_len, {
 			"length", "nfs.fh.xfn.len", FT_UINT32, BASE_DEC,
-			NULL, 0, "exported file number length" }},
+			NULL, 0, "exported file number length", HFILL }},
 		{ &hf_nfs_fh_xfn_inode, {
 			"exported inode", "nfs.fh.xfn.inode", FT_UINT32, BASE_DEC,
-			NULL, 0, "exported file number inode" }},
+			NULL, 0, "exported file number inode", HFILL }},
 		{ &hf_nfs_fh_xfn_generation, {
 			"generation", "nfs.fh.xfn.generation", FT_UINT32, BASE_DEC,
-			NULL, 0, "exported file number generation" }},
+			NULL, 0, "exported file number generation", HFILL }},
 		{ &hf_nfs_fh_dentry, {
 			"dentry", "nfs.fh.dentry", FT_UINT32, BASE_HEX,
-			NULL, 0, "dentry (cookie)" }},
+			NULL, 0, "dentry (cookie)", HFILL }},
 		{ &hf_nfs_fh_dev, {
 			"device", "nfs.fh.dev", FT_UINT32, BASE_DEC,
-			NULL, 0, "device" }},
+			NULL, 0, "device", HFILL }},
 		{ &hf_nfs_fh_xdev, {
 			"exported device", "nfs.fh.xdev", FT_UINT32, BASE_DEC,
-			NULL, 0, "exported device" }},
+			NULL, 0, "exported device", HFILL }},
 		{ &hf_nfs_fh_dirinode, {
 			"directory inode", "nfs.fh.dirinode", FT_UINT32, BASE_DEC,
-			NULL, 0, "directory inode" }},
+			NULL, 0, "directory inode", HFILL }},
 		{ &hf_nfs_fh_pinode, {
 			"pseudo inode", "nfs.fh.pinode", FT_UINT32, BASE_HEX,
-			NULL, 0, "pseudo inode" }},
+			NULL, 0, "pseudo inode", HFILL }},
 		{ &hf_nfs_fh_hp_len, {
 			"length", "nfs.fh.hp.len", FT_UINT32, BASE_DEC,
-			NULL, 0, "hash path length" }},
+			NULL, 0, "hash path length", HFILL }},
 		{ &hf_nfs_stat, {
 			"Status", "nfs.status2", FT_UINT32, BASE_DEC,
-			VALS(names_nfs_stat), 0, "Reply status" }},
+			VALS(names_nfs_stat), 0, "Reply status", HFILL }},
 		{ &hf_nfs_name, {
 			"Name", "nfs.name", FT_STRING, BASE_DEC,
-			NULL, 0, "Name" }},
+			NULL, 0, "Name", HFILL }},
 		{ &hf_nfs_readlink_data, {
 			"Data", "nfs.readlink.data", FT_STRING, BASE_DEC,
-			NULL, 0, "Symbolic Link Data" }},
+			NULL, 0, "Symbolic Link Data", HFILL }},
 		{ &hf_nfs_read_offset, {
 			"Offset", "nfs.read.offset", FT_UINT32, BASE_DEC,
-			NULL, 0, "Read Offset" }},
+			NULL, 0, "Read Offset", HFILL }},
 		{ &hf_nfs_read_count, {
 			"Count", "nfs.read.count", FT_UINT32, BASE_DEC,
-			NULL, 0, "Read Count" }},
+			NULL, 0, "Read Count", HFILL }},
 		{ &hf_nfs_read_totalcount, {
 			"Total Count", "nfs.read.totalcount", FT_UINT32, BASE_DEC,
-			NULL, 0, "Total Count (obsolete)" }},
+			NULL, 0, "Total Count (obsolete)", HFILL }},
 		{ &hf_nfs_data, {
 			"Data", "nfs.data", FT_BYTES, BASE_DEC,
-			NULL, 0, "Data" }},
+			NULL, 0, "Data", HFILL }},
 		{ &hf_nfs_write_beginoffset, {
 			"Begin Offset", "nfs.write.beginoffset", FT_UINT32, BASE_DEC,
-			NULL, 0, "Begin offset (obsolete)" }},
+			NULL, 0, "Begin offset (obsolete)", HFILL }},
 		{ &hf_nfs_write_offset, {
 			"Offset", "nfs.write.offset", FT_UINT32, BASE_DEC,
-			NULL, 0, "Offset" }},
+			NULL, 0, "Offset", HFILL }},
 		{ &hf_nfs_write_totalcount, {
 			"Total Count", "nfs.write.totalcount", FT_UINT32, BASE_DEC,
-			NULL, 0, "Total Count (obsolete)" }},
+			NULL, 0, "Total Count (obsolete)", HFILL }},
 		{ &hf_nfs_symlink_to, {
 			"To", "nfs.symlink.to", FT_STRING, BASE_DEC,
-			NULL, 0, "Symbolic link destination name" }},
+			NULL, 0, "Symbolic link destination name", HFILL }},
 		{ &hf_nfs_readdir_cookie, {
 			"Cookie", "nfs.readdir.cookie", FT_UINT32, BASE_DEC,
-			NULL, 0, "Directory Cookie" }},
+			NULL, 0, "Directory Cookie", HFILL }},
 		{ &hf_nfs_readdir_count, {
 			"Count", "nfs.readdir.count", FT_UINT32, BASE_DEC,
-			NULL, 0, "Directory Count" }},
+			NULL, 0, "Directory Count", HFILL }},
 
 		{ &hf_nfs_readdir_entry, {
 			"Entry", "nfs.readdir.entry", FT_NONE, 0,
-			NULL, 0, "Directory Entry" }},
+			NULL, 0, "Directory Entry", HFILL }},
 
 		{ &hf_nfs_readdir_entry_fileid, {
 			"File ID", "nfs.readdir.entry.fileid", FT_UINT32, BASE_DEC,
-			NULL, 0, "File ID" }},
+			NULL, 0, "File ID", HFILL }},
 
 		{ &hf_nfs_readdir_entry_name, {
 			"Name", "nfs.readdir.entry.name", FT_STRING, BASE_DEC,
-			NULL, 0, "Name" }},
+			NULL, 0, "Name", HFILL }},
 
 		{ &hf_nfs_readdir_entry_cookie, {
 			"Cookie", "nfs.readdir.entry.cookie", FT_UINT32, BASE_DEC,
-			NULL, 0, "Directory Cookie" }},
+			NULL, 0, "Directory Cookie", HFILL }},
 
 		{ &hf_nfs_readdir_entry3_fileid, {
 			"File ID", "nfs.readdir.entry3.fileid", FT_UINT32, BASE_DEC,
-			NULL, 0, "File ID" }},
+			NULL, 0, "File ID", HFILL }},
 
 		{ &hf_nfs_readdir_entry3_name, {
 			"Name", "nfs.readdir.entry3.name", FT_STRING, BASE_DEC,
-			NULL, 0, "Name" }},
+			NULL, 0, "Name", HFILL }},
 
 		{ &hf_nfs_readdir_entry3_cookie, {
 			"Cookie", "nfs.readdir.entry3.cookie", FT_UINT32, BASE_DEC,
-			NULL, 0, "Directory Cookie" }},
+			NULL, 0, "Directory Cookie", HFILL }},
 
 		{ &hf_nfs_readdirplus_entry_fileid, {
 			"File ID", "nfs.readdirplus.entry.fileid", FT_UINT32, BASE_DEC,
-			NULL, 0, "Name" }},
+			NULL, 0, "Name", HFILL }},
 
 		{ &hf_nfs_readdirplus_entry_name, {
 			"Name", "nfs.readdirplus.entry.name", FT_STRING, BASE_DEC,
-			NULL, 0, "Name" }},
+			NULL, 0, "Name", HFILL }},
 
 		{ &hf_nfs_readdirplus_entry_cookie, {
 			"Cookie", "nfs.readdirplus.entry.cookie", FT_UINT32, BASE_DEC,
-			NULL, 0, "Directory Cookie" }},
+			NULL, 0, "Directory Cookie", HFILL }},
 
 		{ &hf_nfs_readdir_eof, {
 			"EOF", "nfs.readdir.eof", FT_UINT32, BASE_DEC,
-			NULL, 0, "EOF" }},
+			NULL, 0, "EOF", HFILL }},
 
 		{ &hf_nfs_statfs_tsize, {
 			"Transfer Size", "nfs.statfs.tsize", FT_UINT32, BASE_DEC,
-			NULL, 0, "Transfer Size" }},
+			NULL, 0, "Transfer Size", HFILL }},
 		{ &hf_nfs_statfs_bsize, {
 			"Block Size", "nfs.statfs.bsize", FT_UINT32, BASE_DEC,
-			NULL, 0, "Block Size" }},
+			NULL, 0, "Block Size", HFILL }},
 		{ &hf_nfs_statfs_blocks, {
 			"Total Blocks", "nfs.statfs.blocks", FT_UINT32, BASE_DEC,
-			NULL, 0, "Total Blocks" }},
+			NULL, 0, "Total Blocks", HFILL }},
 		{ &hf_nfs_statfs_bfree, {
 			"Free Blocks", "nfs.statfs.bfree", FT_UINT32, BASE_DEC,
-			NULL, 0, "Free Blocks" }},
+			NULL, 0, "Free Blocks", HFILL }},
 		{ &hf_nfs_statfs_bavail, {
 			"Available Blocks", "nfs.statfs.bavail", FT_UINT32, BASE_DEC,
-			NULL, 0, "Available Blocks" }},
+			NULL, 0, "Available Blocks", HFILL }},
 		{ &hf_nfs_ftype3, {
 			"Type", "nfs.type", FT_UINT32, BASE_DEC,
-			VALS(names_nfs_ftype3), 0, "File Type" }},
+			VALS(names_nfs_ftype3), 0, "File Type", HFILL }},
 		{ &hf_nfs_nfsstat3, {
 			"Status", "nfs.status", FT_UINT32, BASE_DEC,
-			VALS(names_nfs_nfsstat3), 0, "Reply status" }},
+			VALS(names_nfs_nfsstat3), 0, "Reply status", HFILL }},
 		{ &hf_nfs_read_eof, {
 			"EOF", "nfs.read.eof", FT_BOOLEAN, BASE_NONE,
-			&yesno, 0, "EOF" }},
+			&yesno, 0, "EOF", HFILL }},
 		{ &hf_nfs_write_stable, {
 			"Stable", "nfs.write.stable", FT_UINT32, BASE_DEC,
-			VALS(names_stable_how), 0, "Stable" }},
+			VALS(names_stable_how), 0, "Stable", HFILL }},
 		{ &hf_nfs_write_committed, {
 			"Committed", "nfs.write.committed", FT_UINT32, BASE_DEC,
-			VALS(names_stable_how), 0, "Committed" }},
+			VALS(names_stable_how), 0, "Committed", HFILL }},
 		{ &hf_nfs_createmode3, {
 			"Create Mode", "nfs.createmode", FT_UINT32, BASE_DEC,
-			VALS(names_createmode3), 0, "Create Mode" }},
+			VALS(names_createmode3), 0, "Create Mode", HFILL }},
 		{ &hf_nfs_fsstat_invarsec, {
 			"invarsec", "nfs.fsstat.invarsec", FT_UINT32, BASE_DEC,
-			NULL, 0, "probable number of seconds of file system invariance" }},
+			NULL, 0, "probable number of seconds of file system invariance", HFILL }},
 		{ &hf_nfs_fsinfo_rtmax, {
 			"rtmax", "nfs.fsinfo.rtmax", FT_UINT32, BASE_DEC,
-			NULL, 0, "maximum READ request" }},
+			NULL, 0, "maximum READ request", HFILL }},
 		{ &hf_nfs_fsinfo_rtpref, {
 			"rtpref", "nfs.fsinfo.rtpref", FT_UINT32, BASE_DEC,
-			NULL, 0, "Preferred READ request size" }},
+			NULL, 0, "Preferred READ request size", HFILL }},
 		{ &hf_nfs_fsinfo_rtmult, {
 			"rtmult", "nfs.fsinfo.rtmult", FT_UINT32, BASE_DEC,
-			NULL, 0, "Suggested READ multiple" }},
+			NULL, 0, "Suggested READ multiple", HFILL }},
 		{ &hf_nfs_fsinfo_wtmax, {
 			"wtmax", "nfs.fsinfo.wtmax", FT_UINT32, BASE_DEC,
-			NULL, 0, "Maximum WRITE request size" }},
+			NULL, 0, "Maximum WRITE request size", HFILL }},
 		{ &hf_nfs_fsinfo_wtpref, {
 			"wtpref", "nfs.fsinfo.wtpref", FT_UINT32, BASE_DEC,
-			NULL, 0, "Preferred WRITE request size" }},
+			NULL, 0, "Preferred WRITE request size", HFILL }},
 		{ &hf_nfs_fsinfo_wtmult, {
 			"wtmult", "nfs.fsinfo.wtmult", FT_UINT32, BASE_DEC,
-			NULL, 0, "Suggested WRITE multiple" }},
+			NULL, 0, "Suggested WRITE multiple", HFILL }},
 		{ &hf_nfs_fsinfo_dtpref, {
 			"dtpref", "nfs.fsinfo.dtpref", FT_UINT32, BASE_DEC,
-			NULL, 0, "Preferred READDIR request" }},
+			NULL, 0, "Preferred READDIR request", HFILL }},
 		{ &hf_nfs_fsinfo_maxfilesize, {
 			"maxfilesize", "nfs.fsinfo.maxfilesize", FT_UINT32, BASE_DEC,
-			NULL, 0, "Maximum file size" }},
+			NULL, 0, "Maximum file size", HFILL }},
 		{ &hf_nfs_fsinfo_properties, {
 			"Properties", "nfs.fsinfo.propeties", FT_UINT32, BASE_HEX,
-			NULL, 0, "File System Properties" }},
+			NULL, 0, "File System Properties", HFILL }},
 		{ &hf_nfs_pathconf_linkmax, {
 			"linkmax", "nfs.pathconf.linkmax", FT_UINT32, BASE_DEC,
-			NULL, 0, "Maximum number of hard links" }},
+			NULL, 0, "Maximum number of hard links", HFILL }},
 		{ &hf_nfs_pathconf_name_max, {
 			"name_max", "nfs.pathconf.name_max", FT_UINT32, BASE_DEC,
-			NULL, 0, "Maximum file name length" }},
+			NULL, 0, "Maximum file name length", HFILL }},
 		{ &hf_nfs_pathconf_no_trunc, {
 			"no_trunc", "nfs.pathconf.no_trunc", FT_BOOLEAN, BASE_NONE,
-			&yesno, 0, "No long file name truncation" }},
+			&yesno, 0, "No long file name truncation", HFILL }},
 		{ &hf_nfs_pathconf_chown_restricted, {
 			"chown_restricted", "nfs.pathconf.chown_restricted", FT_BOOLEAN, 
-			BASE_NONE, &yesno, 0, "chown is restricted to root" }},
+			BASE_NONE, &yesno, 0, "chown is restricted to root", HFILL }},
 		{ &hf_nfs_pathconf_case_insensitive, {
 			"case_insensitive", "nfs.pathconf.case_insensitive", FT_BOOLEAN, 
-			BASE_NONE, &yesno, 0, "file names are treated case insensitive" }},
+			BASE_NONE, &yesno, 0, "file names are treated case insensitive", HFILL }},
 		{ &hf_nfs_pathconf_case_preserving, {
 			"case_preserving", "nfs.pathconf.case_preserving", FT_BOOLEAN, 
-			BASE_NONE, &yesno, 0, "file name cases are preserved" }},
+			BASE_NONE, &yesno, 0, "file name cases are preserved", HFILL }},
 
 		{ &hf_nfs_fattr_type, {
 			"type", "nfs.fattr.type", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr.type" }},
+			NULL, 0, "nfs.fattr.type", HFILL }},
 
 		{ &hf_nfs_fattr_nlink, {
 			"nlink", "nfs.fattr.nlink", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr.nlink" }},
+			NULL, 0, "nfs.fattr.nlink", HFILL }},
 
 		{ &hf_nfs_fattr_uid, {
 			"uid", "nfs.fattr.uid", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr.uid" }},
+			NULL, 0, "nfs.fattr.uid", HFILL }},
 
 		{ &hf_nfs_fattr_gid, {
 			"gid", "nfs.fattr.gid", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr.gid" }},
+			NULL, 0, "nfs.fattr.gid", HFILL }},
 
 		{ &hf_nfs_fattr_size, {
 			"size", "nfs.fattr.size", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr.size" }},
+			NULL, 0, "nfs.fattr.size", HFILL }},
 
 		{ &hf_nfs_fattr_blocksize, {
 			"blocksize", "nfs.fattr.blocksize", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr.blocksize" }},
+			NULL, 0, "nfs.fattr.blocksize", HFILL }},
 
 		{ &hf_nfs_fattr_rdev, {
 			"rdev", "nfs.fattr.rdev", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr.rdev" }},
+			NULL, 0, "nfs.fattr.rdev", HFILL }},
 
 		{ &hf_nfs_fattr_blocks, {
 			"blocks", "nfs.fattr.blocks", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr.blocks" }},
+			NULL, 0, "nfs.fattr.blocks", HFILL }},
 
 		{ &hf_nfs_fattr_fsid, {
 			"fsid", "nfs.fattr.fsid", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr.fsid" }},
+			NULL, 0, "nfs.fattr.fsid", HFILL }},
 
 		{ &hf_nfs_fattr_fileid, {
 			"fileid", "nfs.fattr.fileid", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr.fileid" }},
+			NULL, 0, "nfs.fattr.fileid", HFILL }},
 
 		{ &hf_nfs_fattr3_type, {
 			"Type", "nfs.fattr3.type", FT_UINT32, BASE_DEC,
-			VALS(names_nfs_ftype3), 0, "nfs.fattr3.type" }},
+			VALS(names_nfs_ftype3), 0, "nfs.fattr3.type", HFILL }},
 
 		{ &hf_nfs_fattr3_nlink, {
 			"nlink", "nfs.fattr3.nlink", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr3.nlink" }},
+			NULL, 0, "nfs.fattr3.nlink", HFILL }},
 
 		{ &hf_nfs_fattr3_uid, {
 			"uid", "nfs.fattr3.uid", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr3.uid" }},
+			NULL, 0, "nfs.fattr3.uid", HFILL }},
 
 		{ &hf_nfs_fattr3_gid, {
 			"gid", "nfs.fattr3.gid", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr3.gid" }},
+			NULL, 0, "nfs.fattr3.gid", HFILL }},
 
 		{ &hf_nfs_fattr3_size, {
 			"size", "nfs.fattr3.size", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr3.size" }},
+			NULL, 0, "nfs.fattr3.size", HFILL }},
 
 		{ &hf_nfs_fattr3_used, {
 			"used", "nfs.fattr3.used", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr3.used" }},
+			NULL, 0, "nfs.fattr3.used", HFILL }},
 
 		{ &hf_nfs_fattr3_rdev, {
 			"rdev", "nfs.fattr3.rdev", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr3.rdev" }},
+			NULL, 0, "nfs.fattr3.rdev", HFILL }},
 
 		{ &hf_nfs_fattr3_fsid, {
 			"fsid", "nfs.fattr3.fsid", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr3.fsid" }},
+			NULL, 0, "nfs.fattr3.fsid", HFILL }},
 
 		{ &hf_nfs_fattr3_fileid, {
 			"fileid", "nfs.fattr3.fileid", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr3.fileid" }},
+			NULL, 0, "nfs.fattr3.fileid", HFILL }},
 
 		{ &hf_nfs_wcc_attr_size, {
 			"size", "nfs.wcc_attr.size", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.wcc_attr.size" }},
+			NULL, 0, "nfs.wcc_attr.size", HFILL }},
 
 		{ &hf_nfs_set_size3_size, {
 			"size", "nfs.set_size3.size", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.set_size3.size" }},
+			NULL, 0, "nfs.set_size3.size", HFILL }},
 
 		{ &hf_nfs_uid3, {
 			"uid", "nfs.uid3", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.uid3" }},
+			NULL, 0, "nfs.uid3", HFILL }},
 
 		{ &hf_nfs_gid3, {
 			"gid", "nfs.gid3", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.gid3" }},
+			NULL, 0, "nfs.gid3", HFILL }},
 
 		{ &hf_nfs_cookie3, {
 			"cookie", "nfs.cookie3", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.cookie3" }},
+			NULL, 0, "nfs.cookie3", HFILL }},
 
 		{ &hf_nfs_offset3, {
 			"offset", "nfs.offset3", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.offset3" }},
+			NULL, 0, "nfs.offset3", HFILL }},
 
 		{ &hf_nfs_count3, {
 			"count", "nfs.count3", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.count3" }},
+			NULL, 0, "nfs.count3", HFILL }},
 
 		{ &hf_nfs_count3_maxcount, {
 			"maxcount", "nfs.count3_maxcount", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.count3_maxcount" }},
+			NULL, 0, "nfs.count3_maxcount", HFILL }},
 
 		{ &hf_nfs_count3_dircount, {
 			"dircount", "nfs.count3_dircount", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.count3_dircount" }},
+			NULL, 0, "nfs.count3_dircount", HFILL }},
 
 		{ &hf_nfs_fsstat3_resok_tbytes, {
 			"tbytes", "nfs.fsstat3_resok.tbytes", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fsstat3_resok.tbytes" }},
+			NULL, 0, "nfs.fsstat3_resok.tbytes", HFILL }},
 
 		{ &hf_nfs_fsstat3_resok_fbytes, {
 			"fbytes", "nfs.fsstat3_resok.fbytes", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fsstat3_resok.fbytes" }},
+			NULL, 0, "nfs.fsstat3_resok.fbytes", HFILL }},
 
 		{ &hf_nfs_fsstat3_resok_abytes, {
 			"abytes", "nfs.fsstat3_resok.abytes", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fsstat3_resok.abytes" }},
+			NULL, 0, "nfs.fsstat3_resok.abytes", HFILL }},
 
 		{ &hf_nfs_fsstat3_resok_tfiles, {
 			"tfiles", "nfs.fsstat3_resok.tfiles", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fsstat3_resok.tfiles" }},
+			NULL, 0, "nfs.fsstat3_resok.tfiles", HFILL }},
 
 		{ &hf_nfs_fsstat3_resok_ffiles, {
 			"ffiles", "nfs.fsstat3_resok.ffiles", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fsstat3_resok.ffiles" }},
+			NULL, 0, "nfs.fsstat3_resok.ffiles", HFILL }},
 
 		{ &hf_nfs_fsstat3_resok_afiles, {
 			"afiles", "nfs.fsstat3_resok.afiles", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fsstat3_resok.afiles" }},
+			NULL, 0, "nfs.fsstat3_resok.afiles", HFILL }},
 
 		/* NFSv4 */
 
 		{ &hf_nfs_argop4, {
 			"Opcode", "nfs.call.operation", FT_UINT32, BASE_DEC,
-			VALS(names_nfsv4_operation), 0, "Opcode" }},
+			VALS(names_nfsv4_operation), 0, "Opcode", HFILL }},
 
 		{ &hf_nfs_resop4,	{
 			"Opcode", "nfs.reply.operation", FT_UINT32, BASE_DEC,
-			VALS(names_nfsv4_operation), 0, "Opcode" }},
+			VALS(names_nfsv4_operation), 0, "Opcode", HFILL }},
 
 		{ &hf_nfs_linktext4, {
 			"Name", "nfs.symlink.linktext", FT_STRING, BASE_DEC,
-			NULL, 0, "Symbolic link contents" }},
+			NULL, 0, "Symbolic link contents", HFILL }},
 
 		{ &hf_nfs_component4, {
 			"Filename", "nfs.pathname.component", FT_STRING, BASE_DEC,
-			NULL, 0, "Pathname component" }},
+			NULL, 0, "Pathname component", HFILL }},
 
 		{ &hf_nfs_tag4, {
 			"Tag", "nfs.tag", FT_STRING, BASE_DEC,
-			NULL, 0, "Tag" }},
+			NULL, 0, "Tag", HFILL }},
 
 		{ &hf_nfs_clientid4, {
 			"clientid", "nfs.clientid", FT_UINT32, BASE_DEC,
-			NULL, 0, "Client ID" }},
+			NULL, 0, "Client ID", HFILL }},
 
 		{ &hf_nfs_clientid4_verifier, {
 			"verifier", "nfs.clientid.verifier", FT_UINT32, BASE_DEC,
-			NULL, 0, "Verifier Client ID" }},
+			NULL, 0, "Verifier Client ID", HFILL }},
 
 		{ &hf_nfs_ace4, {
 			"ace", "nfs.ace", FT_STRING, BASE_DEC,
-			NULL, 0, "Access Control Entry" }},
+			NULL, 0, "Access Control Entry", HFILL }},
 
 		{ &hf_nfs_recall, {
 			"EOF", "nfs.recall", FT_BOOLEAN, BASE_NONE,
-			&yesno, 0, "Recall" }},
+			&yesno, 0, "Recall", HFILL }},
 
 		{ &hf_nfs_open_claim_type4, {
 			"Claim Type", "nfs.open.claim_type", FT_UINT32, BASE_DEC,
-			VALS(names_claim_type4), 0, "Claim Type" }},
+			VALS(names_claim_type4), 0, "Claim Type", HFILL }},
 
 		{ &hf_nfs_opentype4, {
 			"Open Type", "nfs.open.opentype", FT_UINT32, BASE_DEC,
-			VALS(names_opentype4), 0, "Open Type" }},
+			VALS(names_opentype4), 0, "Open Type", HFILL }},
 
 		{ &hf_nfs_limit_by4, {
 			"Space Limit", "nfs.open.limit_by", FT_UINT32, BASE_DEC,
-			VALS(names_limit_by4), 0, "Limit By" }},
+			VALS(names_limit_by4), 0, "Limit By", HFILL }},
 
 		{ &hf_nfs_open_delegation_type4, {
 			"Delegation Type", "nfs.open.delegation_type", FT_UINT32, BASE_DEC,
-			VALS(names_open_delegation_type4), 0, "Delegation Type" }},
+			VALS(names_open_delegation_type4), 0, "Delegation Type", HFILL }},
 
 		{ &hf_nfs_ftype4, {
 			"nfs_ftype4", "nfs.nfs_ftype4", FT_UINT32, BASE_DEC,
-			VALS(names_ftype4), 0, "nfs.nfs_ftype4" }},
+			VALS(names_ftype4), 0, "nfs.nfs_ftype4", HFILL }},
 
 		{ &hf_nfs_change_info4_atomic, {
 			"Atomic", "nfs.change_info.atomic", FT_BOOLEAN, BASE_NONE,
-			&yesno, 0, "Atomic" }},
+			&yesno, 0, "Atomic", HFILL }},
 
 		{ &hf_nfs_open4_share_access, {
 			"share_access", "nfs.open4.share_access", FT_UINT32, BASE_DEC,
-			VALS(names_open4_share_access), 0, "Share Access" }},
+			VALS(names_open4_share_access), 0, "Share Access", HFILL }},
 
 		{ &hf_nfs_open4_share_deny, {
 			"share_deny", "nfs.open4.share_deny", FT_UINT32, BASE_DEC,
-			VALS(names_open4_share_deny), 0, "Share Deny" }},
+			VALS(names_open4_share_deny), 0, "Share Deny", HFILL }},
 
 		{ &hf_nfs_seqid4, {
 			"seqid", "nfs.seqid", FT_UINT32, BASE_HEX,
-			NULL, 0, "Sequence ID" }},
+			NULL, 0, "Sequence ID", HFILL }},
 
 		{ &hf_nfs_mand_attr, {
 			"mand_attr",	"nfs.attr", FT_UINT32, BASE_DEC,
-			VALS(names_fattr4), 0, "Mandatory Attribute" }},
+			VALS(names_fattr4), 0, "Mandatory Attribute", HFILL }},
 
 		{ &hf_nfs_recc_attr, {
 			"recc_attr",	"nfs.attr", FT_UINT32, BASE_DEC,
-			VALS(names_fattr4), 0, "Recommended Attribute" }},
+			VALS(names_fattr4), 0, "Recommended Attribute", HFILL }},
 
 		{ &hf_nfs_time_how4,	{
 			"set_it", "nfs.set_it", FT_UINT32, BASE_DEC,
-			VALS(names_time_how4), 0, "How To Set Time" }},
+			VALS(names_time_how4), 0, "How To Set Time", HFILL }},
 
 		{ &hf_nfs_attrlist4, {
 			"attr_vals", "nfs.fattr4.attr_vals", FT_BYTES, BASE_DEC,
-			NULL, 0, "attr_vals" }},
+			NULL, 0, "attr_vals", HFILL }},
 
 		{ &hf_nfs_fattr4_expire_type, {
 			"fattr4_expire_type", "nfs.fattr4_expire_type", FT_UINT32, BASE_DEC,
-			VALS(names_fattr4_expire_type), 0, "fattr4_expire_type" }},
+			VALS(names_fattr4_expire_type), 0, "fattr4_expire_type", HFILL }},
 
 		{ &hf_nfs_fattr4_link_support, {
 			"fattr4_link_support", "nfs.fattr4_link_support", FT_BOOLEAN, 
-			BASE_NONE, &yesno, 0, "nfs.fattr4_link_support" }},
+			BASE_NONE, &yesno, 0, "nfs.fattr4_link_support", HFILL }},
 
 		{ &hf_nfs_fattr4_symlink_support, {
 			"fattr4_symlink_support", "nfs.fattr4_symlink_support", FT_BOOLEAN, 
-			BASE_NONE, &yesno, 0, "nfs.fattr4_symlink_support" }},
+			BASE_NONE, &yesno, 0, "nfs.fattr4_symlink_support", HFILL }},
 
 		{ &hf_nfs_fattr4_named_attr, {
 			"fattr4_named_attr", "nfs.fattr4_named_attr", FT_BOOLEAN, BASE_NONE,
-			&yesno, 0, "nfs.fattr4_named_attr" }},
+			&yesno, 0, "nfs.fattr4_named_attr", HFILL }},
 
 		{ &hf_nfs_fattr4_unique_handles, {
 			"fattr4_unique_handles", "nfs.fattr4_unique_handles", FT_BOOLEAN, 
-			BASE_NONE, &yesno, 0, "nfs.fattr4_unique_handles" }},
+			BASE_NONE, &yesno, 0, "nfs.fattr4_unique_handles", HFILL }},
 
 		{ &hf_nfs_fattr4_archive, {
 			"fattr4_archive", "nfs.fattr4_archive", FT_BOOLEAN, 
-			BASE_NONE, &yesno, 0, "nfs.fattr4_archive" }},
+			BASE_NONE, &yesno, 0, "nfs.fattr4_archive", HFILL }},
 
 		{ &hf_nfs_fattr4_cansettime, {
 			"fattr4_cansettime", "nfs.fattr4_cansettime", FT_BOOLEAN, 
-			BASE_NONE, &yesno, 0, "nfs.fattr4_cansettime" }},
+			BASE_NONE, &yesno, 0, "nfs.fattr4_cansettime", HFILL }},
 
 		{ &hf_nfs_fattr4_case_insensitive, {
 			"fattr4_case_insensitive", "nfs.fattr4_case_insensitive", FT_BOOLEAN, 
-			BASE_NONE, &yesno, 0, "nfs.fattr4_case_insensitive" }},
+			BASE_NONE, &yesno, 0, "nfs.fattr4_case_insensitive", HFILL }},
 
 		{ &hf_nfs_fattr4_case_preserving, {
 			"fattr4_case_preserving", "nfs.fattr4_case_preserving", FT_BOOLEAN, 
-			BASE_NONE, &yesno, 0, "nfs.fattr4_case_preserving" }},
+			BASE_NONE, &yesno, 0, "nfs.fattr4_case_preserving", HFILL }},
 
 		{ &hf_nfs_fattr4_chown_restricted, {
 			"fattr4_chown_restricted", "nfs.fattr4_chown_restricted", FT_BOOLEAN, 
-			BASE_NONE, &yesno, 0, "nfs.fattr4_chown_restricted" }},
+			BASE_NONE, &yesno, 0, "nfs.fattr4_chown_restricted", HFILL }},
 
 		{ &hf_nfs_fattr4_hidden, {
 			"fattr4_hidden", "nfs.fattr4_hidden", FT_BOOLEAN, 
-			BASE_NONE, &yesno, 0, "nfs.fattr4_hidden" }},
+			BASE_NONE, &yesno, 0, "nfs.fattr4_hidden", HFILL }},
 
 		{ &hf_nfs_fattr4_homogeneous, {
 			"fattr4_homogeneous", "nfs.fattr4_homogeneous", FT_BOOLEAN, 
-			BASE_NONE, &yesno, 0, "nfs.fattr4_homogeneous" }},
+			BASE_NONE, &yesno, 0, "nfs.fattr4_homogeneous", HFILL }},
 
 		{ &hf_nfs_fattr4_mimetype, {
 			"fattr4_mimetype", "nfs.fattr4_mimetype", FT_STRING, BASE_DEC,
-			NULL, 0, "nfs.fattr4_mimetype" }},
+			NULL, 0, "nfs.fattr4_mimetype", HFILL }},
 
 		{ &hf_nfs_fattr4_no_trunc, {
 			"fattr4_no_trunc", "nfs.fattr4_no_trunc", FT_BOOLEAN, 
-			BASE_NONE, &yesno, 0, "nfs.fattr4_no_trunc" }},
+			BASE_NONE, &yesno, 0, "nfs.fattr4_no_trunc", HFILL }},
 
 		{ &hf_nfs_fattr4_system, {
 			"fattr4_system", "nfs.fattr4_system", FT_BOOLEAN, 
-			BASE_NONE, &yesno, 0, "nfs.fattr4_system" }},
+			BASE_NONE, &yesno, 0, "nfs.fattr4_system", HFILL }},
 
 		{ &hf_nfs_who, {
 			"who", "nfs.who", FT_STRING, BASE_DEC,
-			NULL, 0, "nfs.who" }},
+			NULL, 0, "nfs.who", HFILL }},
 
 		{ &hf_nfs_server, {
 			"server", "nfs.server", FT_STRING, BASE_DEC,
-			NULL, 0, "nfs.server" }},
+			NULL, 0, "nfs.server", HFILL }},
 
 		{ &hf_nfs_fattr4_owner, {
 			"fattr4_owner", "nfs.fattr4_owner", FT_STRING, BASE_DEC,
-			NULL, 0, "nfs.fattr4_owner" }},
+			NULL, 0, "nfs.fattr4_owner", HFILL }},
 
 		{ &hf_nfs_fattr4_owner_group, {
 			"fattr4_owner_group", "nfs.fattr4_owner_group", FT_STRING, BASE_DEC,
-			NULL, 0, "nfs.fattr4_owner_group" }},
+			NULL, 0, "nfs.fattr4_owner_group", HFILL }},
 
 		{ &hf_nfs_stable_how4, {
 			"stable_how4", "nfs.stable_how4", FT_UINT32, BASE_DEC,
-			VALS(names_stable_how4), 0, "nfs.stable_how4" }},
+			VALS(names_stable_how4), 0, "nfs.stable_how4", HFILL }},
 
 		{ &hf_nfs_dirlist4_eof, {
 			"eof", "nfs.dirlist4.eof", FT_BOOLEAN,
-			BASE_NONE, &yesno, 0, "nfs.dirlist4.eof" }},
+			BASE_NONE, &yesno, 0, "nfs.dirlist4.eof", HFILL }},
 
 		{ &hf_nfs_data_follows, {
 			"data_follows", "nfs.data_follows", FT_BOOLEAN,
-			BASE_NONE, &yesno, 0, "nfs.data_follows" }},
+			BASE_NONE, &yesno, 0, "nfs.data_follows", HFILL }},
 
 		{ &hf_nfs_stateid4, {
 			"stateid", "nfs.stateid4", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.stateid4" }},
+			NULL, 0, "nfs.stateid4", HFILL }},
 
 		{ &hf_nfs_offset4, {
 			"offset", "nfs.offset4", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.offset4" }},
+			NULL, 0, "nfs.offset4", HFILL }},
 
 		{ &hf_nfs_specdata1, {
 			"specdata1", "nfs.specdata1", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.specdata1" }},
+			NULL, 0, "nfs.specdata1", HFILL }},
 
 		{ &hf_nfs_specdata2, {
 			"specdata2", "nfs.specdata2", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.specdata2" }},
+			NULL, 0, "nfs.specdata2", HFILL }},
 
 		{ &hf_nfs_locktype4, {
 			"locktype", "nfs.locktype4", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.locktype4" }},
+			NULL, 0, "nfs.locktype4", HFILL }},
 
 		{ &hf_nfs_reclaim4, {
 			"reclaim", "nfs.reclaim4", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.reclaim4" }},
+			NULL, 0, "nfs.reclaim4", HFILL }},
 
 		{ &hf_nfs_length4, {
 			"length", "nfs.length4", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.length4" }},
+			NULL, 0, "nfs.length4", HFILL }},
 
 		{ &hf_nfs_changeid4, {
 			"changeid", "nfs.changeid4", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.changeid4" }},
+			NULL, 0, "nfs.changeid4", HFILL }},
 
 		{ &hf_nfs_nfstime4_seconds, {
 			"seconds", "nfs.nfstime4.seconds", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.nfstime4.seconds" }},
+			NULL, 0, "nfs.nfstime4.seconds", HFILL }},
 
 		{ &hf_nfs_nfstime4_nseconds, {
 			"nseconds", "nfs.nfstime4.nseconds", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.nfstime4.nseconds" }},
+			NULL, 0, "nfs.nfstime4.nseconds", HFILL }},
 
 		{ &hf_nfs_fsid4_major, {
 			"fsid4.major", "nfs.fsid4.major", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.nfstime4.fsid4.major" }},
+			NULL, 0, "nfs.nfstime4.fsid4.major", HFILL }},
 
 		{ &hf_nfs_fsid4_minor, {
 			"fsid4.minor", "nfs.fsid4.minor", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fsid4.minor" }},
+			NULL, 0, "nfs.fsid4.minor", HFILL }},
 
 		{ &hf_nfs_acetype4, {
 			"acetype", "nfs.acetype4", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.acetype4" }},
+			NULL, 0, "nfs.acetype4", HFILL }},
 
 		{ &hf_nfs_aceflag4, {
 			"aceflag", "nfs.aceflag4", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.aceflag4" }},
+			NULL, 0, "nfs.aceflag4", HFILL }},
 
 		{ &hf_nfs_acemask4, {
 			"acemask", "nfs.acemask4", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.acemask4" }},
+			NULL, 0, "nfs.acemask4", HFILL }},
 
 		{ &hf_nfs_fattr4_size, {
 			"size", "nfs.fattr4.size", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr4.size" }},
+			NULL, 0, "nfs.fattr4.size", HFILL }},
 
 		{ &hf_nfs_fattr4_lease_time, {
 			"lease_time", "nfs.fattr4.lease_time", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr4.lease_time" }},
+			NULL, 0, "nfs.fattr4.lease_time", HFILL }},
 
 		{ &hf_nfs_fattr4_aclsupport, {
 			"aclsupport", "nfs.fattr4.aclsupport", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr4.aclsupport" }},
+			NULL, 0, "nfs.fattr4.aclsupport", HFILL }},
 
 		{ &hf_nfs_fattr4_fileid, {
 			"fileid", "nfs.fattr4.fileid", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr4.fileid" }},
+			NULL, 0, "nfs.fattr4.fileid", HFILL }},
 
 		{ &hf_nfs_fattr4_files_avail, {
 			"files_avail", "nfs.fattr4.files_avail", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr4.files_avail" }},
+			NULL, 0, "nfs.fattr4.files_avail", HFILL }},
 
 		{ &hf_nfs_fattr4_files_free, {
 			"files_free", "nfs.fattr4.files_free", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr4.files_free" }},
+			NULL, 0, "nfs.fattr4.files_free", HFILL }},
 
 		{ &hf_nfs_fattr4_files_total, {
 			"files_total", "nfs.fattr4.files_total", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr4.files_total" }},
+			NULL, 0, "nfs.fattr4.files_total", HFILL }},
 
 		{ &hf_nfs_fattr4_maxfilesize, {
 			"maxfilesize", "nfs.fattr4.maxfilesize", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr4.maxfilesize" }},
+			NULL, 0, "nfs.fattr4.maxfilesize", HFILL }},
 
 		{ &hf_nfs_fattr4_maxlink, {
 			"maxlink", "nfs.fattr4.maxlink", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr4.maxlink" }},
+			NULL, 0, "nfs.fattr4.maxlink", HFILL }},
 
 		{ &hf_nfs_fattr4_maxname, {
 			"maxname", "nfs.fattr4.maxname", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr4.maxname" }},
+			NULL, 0, "nfs.fattr4.maxname", HFILL }},
 
 		{ &hf_nfs_fattr4_numlinks, {
 			"numlinks", "nfs.fattr4.numlinks", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr4.numlinks" }},
+			NULL, 0, "nfs.fattr4.numlinks", HFILL }},
 
 		{ &hf_nfs_delegate_type, {
 			"delegate_type", "nfs.delegate_type", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.delegate_type" }},
+			NULL, 0, "nfs.delegate_type", HFILL }},
 
 		{ &hf_nfs_secinfo_flavor, {
 			"secinfo_flavor", "nfs.secinfo_flavor", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.secinfo_flavor" }},
+			NULL, 0, "nfs.secinfo_flavor", HFILL }},
 
 		{ &hf_nfs_num_blocks, {
 			"num_blocks", "nfs.num_blocks", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.num_blocks" }},
+			NULL, 0, "nfs.num_blocks", HFILL }},
 
 		{ &hf_nfs_bytes_per_block, {
 			"bytes_per_block", "nfs.bytes_per_block", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.bytes_per_block" }},
+			NULL, 0, "nfs.bytes_per_block", HFILL }},
 
 		{ &hf_nfs_eof, {
 			"eof", "nfs.eof", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.eof" }},
+			NULL, 0, "nfs.eof", HFILL }},
 
 		{ &hf_nfs_fattr4_maxread, {
 			"maxread", "nfs.fattr4.maxread", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr4.maxread" }},
+			NULL, 0, "nfs.fattr4.maxread", HFILL }},
 
 		{ &hf_nfs_fattr4_maxwrite, {
 			"maxwrite", "nfs.fattr4.maxwrite", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr4.maxwrite" }},
+			NULL, 0, "nfs.fattr4.maxwrite", HFILL }},
 
 		{ &hf_nfs_fattr4_quota_hard, {
 			"quota_hard", "nfs.fattr4.quota_hard", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr4.quota_hard" }},
+			NULL, 0, "nfs.fattr4.quota_hard", HFILL }},
 
 		{ &hf_nfs_fattr4_quota_soft, {
 			"quota_soft", "nfs.fattr4.quota_soft", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr4.quota_soft" }},
+			NULL, 0, "nfs.fattr4.quota_soft", HFILL }},
 
 		{ &hf_nfs_fattr4_quota_used, {
 			"quota_used", "nfs.fattr4.quota_used", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr4.quota_used" }},
+			NULL, 0, "nfs.fattr4.quota_used", HFILL }},
 
 		{ &hf_nfs_fattr4_space_avail, {
 			"space_avail", "nfs.fattr4.space_avail", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr4.space_avail" }},
+			NULL, 0, "nfs.fattr4.space_avail", HFILL }},
 
 		{ &hf_nfs_fattr4_space_free, {
 			"space_free", "nfs.fattr4.space_free", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr4.space_free" }},
+			NULL, 0, "nfs.fattr4.space_free", HFILL }},
 
 		{ &hf_nfs_fattr4_space_total, {
 			"space_total", "nfs.fattr4.space_total", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr4.space_total" }},
+			NULL, 0, "nfs.fattr4.space_total", HFILL }},
 
 		{ &hf_nfs_fattr4_space_used, {
 			"space_used", "nfs.fattr4.space_used", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.fattr4.space_used" }},
+			NULL, 0, "nfs.fattr4.space_used", HFILL }},
 
 		{ &hf_nfs_stateid4_delegate_stateid, {
 			"delegate_stateid", "nfs.delegate_stateid", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.delegate_stateid" }},
+			NULL, 0, "nfs.delegate_stateid", HFILL }},
 
 		{ &hf_nfs_verifier4, {
 			"verifier", "nfs.verifier4", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.verifier4" }},
+			NULL, 0, "nfs.verifier4", HFILL }},
 
 		{ &hf_nfs_cookie4, {
 			"cookie", "nfs.cookie4", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.cookie4" }},
+			NULL, 0, "nfs.cookie4", HFILL }},
 
 		{ &hf_nfs_cookieverf4, {
 			"cookieverf", "nfs.cookieverf4", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.cookieverf4" }},
+			NULL, 0, "nfs.cookieverf4", HFILL }},
 
 		{ &hf_nfs_cb_location, {
 			"cb_location", "nfs.cb_location", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.cb_location" }},
+			NULL, 0, "nfs.cb_location", HFILL }},
 
 		{ &hf_nfs_cb_program, {
 			"cb_program", "nfs.cb_program", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.cb_program" }},
+			NULL, 0, "nfs.cb_program", HFILL }},
 
 		{ &hf_nfs_recall4, {
 			"recall", "nfs.recall4", FT_BOOLEAN, 
-			BASE_NONE, &yesno, 0, "nfs.recall4" }},
+			BASE_NONE, &yesno, 0, "nfs.recall4", HFILL }},
 
 		{ &hf_nfs_filesize, {
 			"filesize", "nfs.filesize", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.filesize" }},
+			NULL, 0, "nfs.filesize", HFILL }},
 
 		{ &hf_nfs_count4, {
 			"count", "nfs.count4", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.count4" }},
+			NULL, 0, "nfs.count4", HFILL }},
 
 		{ &hf_nfs_count4_dircount, {
 			"dircount", "nfs.dircount", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.dircount" }},
+			NULL, 0, "nfs.dircount", HFILL }},
 
 		{ &hf_nfs_count4_maxcount, {
 			"maxcount", "nfs.maxcount", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.maxcount" }},
+			NULL, 0, "nfs.maxcount", HFILL }},
 
 		{ &hf_nfs_minorversion, {
 			"minorversion", "nfs.minorversion", FT_UINT32, BASE_DEC,
-			NULL, 0, "nfs.minorversion" }},
+			NULL, 0, "nfs.minorversion", HFILL }},
 	};
 
 	static gint *ett[] = {

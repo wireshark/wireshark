@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.15 2001/04/23 17:51:34 guy Exp $
+ * $Id: packet-vrrp.c,v 1.16 2001/06/18 02:17:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -205,17 +205,17 @@ void proto_register_vrrp(void)
                 { &hf_vrrp_ver_type,
                   {"VRRP message version and type", "vrrp.typever",
                    FT_UINT8, BASE_DEC, NULL, 0x0,
-                   "VRRP version and type"}},
+                   "VRRP version and type", HFILL }},
 
                 { &hf_vrrp_version,
                   {"VRRP protocol version", "vrrp.version",
                    FT_UINT8, BASE_DEC, NULL, VRRP_VERSION_MASK,
-                   "VRRP version"}},
+                   "VRRP version", HFILL }},
 
                 { &hf_vrrp_type,
                   {"VRRP packet type", "vrrp.type",
                    FT_UINT8, BASE_DEC, VALS(vrrp_type_vals), VRRP_TYPE_MASK,
-                   "VRRP type"}}
+                   "VRRP type", HFILL }}
         };
 
         static gint *ett[] = {

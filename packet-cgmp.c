@@ -1,7 +1,7 @@
 /* packet-cgmp.c
  * Routines for the disassembly of the Cisco Group Management Protocol
  *
- * $Id: packet-cgmp.c,v 1.9 2001/01/25 06:14:13 guy Exp $
+ * $Id: packet-cgmp.c,v 1.10 2001/06/18 02:17:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -109,23 +109,23 @@ proto_register_cgmp(void)
 	static hf_register_info hf[] = {
 		{ &hf_cgmp_version,
 		{ "Version",	"cgmp.version",	FT_UINT8, BASE_DEC, NULL, 0xF0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_cgmp_type,
 		{ "Type",	"cgmp.type",	FT_UINT8, BASE_DEC, VALS(type_vals), 0x0F,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_cgmp_count,
 		{ "Count",	"cgmp.count", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_cgmp_gda,
 		{ "Group Destination Address",	"cgmp.gda", FT_ETHER, BASE_NONE, NULL, 0x0,
-			"Group Destination Address" }},
+			"Group Destination Address", HFILL }},
 
 		{ &hf_cgmp_usa,
 		{ "Unicast Source Address",	"cgmp.usa", FT_ETHER, BASE_NONE, NULL, 0x0,
-			"Unicast Source Address" }},
+			"Unicast Source Address", HFILL }},
         };
 	static gint *ett[] = {
 		&ett_cgmp,

@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.8 2001/04/20 20:34:28 guy Exp $
+ * $Id: packet-aim.c,v 1.9 2001/06/18 02:17:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -576,22 +576,22 @@ proto_register_aim(void)
 /* Setup list of header fields */
   static hf_register_info hf[] = {
     { &hf_aim_cmd_start,
-      { "Command Start", "aim.cmd_start", FT_UINT8, BASE_HEX, NULL, 0x0, "" }
+      { "Command Start", "aim.cmd_start", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }
     },
     { &hf_aim_channel,
-      { "Channel ID", "aim.channel", FT_UINT8, BASE_HEX, NULL, 0x0, "" }
+      { "Channel ID", "aim.channel", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }
     },
     { &hf_aim_seqno,
-      { "Sequence Number", "aim.seqno", FT_UINT16, BASE_DEC, NULL, 0x0, "" }
+      { "Sequence Number", "aim.seqno", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
     },
     { &hf_aim_data_len,
-      { "Data Field Length", "aim.datalen", FT_UINT16, BASE_DEC, NULL, 0x0, "" }
+      { "Data Field Length", "aim.datalen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
     },
     { &hf_aim_fnac_family,
-      { "FNAC Family ID", "aim.fnac.family", FT_UINT16, BASE_HEX, NULL, 0x0, "" }
+      { "FNAC Family ID", "aim.fnac.family", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
     },
     { &hf_aim_fnac_subtype,
-      { "FNAC Subtype ID", "aim.fnac.subtype", FT_UINT16, BASE_HEX, NULL, 0x0, "" }
+      { "FNAC Subtype ID", "aim.fnac.subtype", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
     },
   };
 

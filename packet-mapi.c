@@ -1,7 +1,7 @@
 /* packet-mapi.c
  * Routines for MSX mapi packet dissection
  *
- * $Id: packet-mapi.c,v 1.15 2001/04/09 02:15:10 guy Exp $
+ * $Id: packet-mapi.c,v 1.16 2001/06/18 02:17:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -112,12 +112,12 @@ proto_register_mapi(void)
 	  { &hf_mapi_response,
 	    { "Response",           "mapi.response",
 	      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	      "TRUE if MAPI response" }},
+	      "TRUE if MAPI response", HFILL }},
 	  
 	  { &hf_mapi_request,
 	    { "Request",            "mapi.request",
 	      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	      "TRUE if MAPI request" }}
+	      "TRUE if MAPI request", HFILL }}
 	};
 
 	static gint *ett[] = {

@@ -2,7 +2,7 @@
  * Routines for GVRP (GARP VLAN Registration Protocol) dissection
  * Copyright 2000, Kevin Shi <techishi@ms22.hinet.net>
  *
- * $Id: packet-gvrp.c,v 1.5 2001/05/27 07:07:34 guy Exp $
+ * $Id: packet-gvrp.c,v 1.6 2001/06/18 02:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -303,27 +303,27 @@ proto_register_gvrp(void)
 	{ &hf_gvrp_proto_id,
 	    { "Protocol ID", "garp.protocol_id",
 	    FT_UINT16,      BASE_HEX,      NULL,  0x0,
-	    "" }
+	    "", HFILL }
 	},
 	{ &hf_gvrp_attribute_type,
 	    { "Type",        "garp.attribute_type",
 	    FT_UINT8,        BASE_HEX,      VALS(attribute_type_vals),  0x0,
-	    "" }
+	    "", HFILL }
 	},
 	{ &hf_gvrp_attribute_length,
 	    { "Length",      "garp.attribute_length",
 	    FT_UINT8,        BASE_DEC,      NULL,  0x0,
-	    "" }
+	    "", HFILL }
 	},
 	{ &hf_gvrp_attribute_event,
 	    { "Event",       "garp.attribute_event",
 	    FT_UINT8,        BASE_DEC,      VALS(event_vals),  0x0,
-	    "" }
+	    "", HFILL }
 	},
 	{ &hf_gvrp_attribute_value,
 	    { "Value",       "garp.attribute_value",
 	    FT_UINT16,       BASE_DEC,      NULL,  0x0,
-	    "" }
+	    "", HFILL }
 	}
     };
 

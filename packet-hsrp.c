@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-hsrp.c,v 1.16 2001/01/22 03:33:45 guy Exp $
+ * $Id: packet-hsrp.c,v 1.17 2001/06/18 02:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -178,52 +178,52 @@ void proto_register_hsrp(void)
                 { &hf_hsrp_version,
                   { "Version", "hsrp.version",  
                     FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "The version of the HSRP messages"}},
+                    "The version of the HSRP messages", HFILL }},
 
                 { &hf_hsrp_opcode,
                   { "Op Code", "hsrp.opcode",
                     FT_UINT8, BASE_DEC, VALS(hsrp_opcode_vals), 0x0,
-                    "The type of message contained in this packet" }},
+                    "The type of message contained in this packet", HFILL }},
 
                 { &hf_hsrp_state,
                   { "State", "hsrp.state",
                     FT_UINT8, BASE_DEC, VALS(hsrp_state_vals), 0x0,
-                    "The current state of the router sending the message" }},
+                    "The current state of the router sending the message", HFILL }},
 
                 { &hf_hsrp_hellotime,
                   { "Hellotime", "hsrp.hellotime",
                     FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "The approximate period between the Hello messages that the router sends" }},
+                    "The approximate period between the Hello messages that the router sends", HFILL }},
 
                 { &hf_hsrp_holdtime,
                   { "Holdtime", "hsrp.holdtime",
                     FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "Time that the current Hello message should be considered valid" }},
+                    "Time that the current Hello message should be considered valid", HFILL }},
 
                 { &hf_hsrp_priority,
                   { "Priority", "hsrp.priority",
                     FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "Used to elect the active and standby routers. Numerically higher priority wins vote" }},
+                    "Used to elect the active and standby routers. Numerically higher priority wins vote", HFILL }},
 
                 { &hf_hsrp_group,
                   { "Group", "hsrp.group",
                     FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "This field identifies the standby group" }},
+                    "This field identifies the standby group", HFILL }},
 
                 { &hf_hsrp_reserved,
                   { "Reserved", "hsrp.reserved",
                     FT_UINT8, BASE_DEC, NULL, 0x0,
-                    "Reserved" }},
+                    "Reserved", HFILL }},
 
                 { &hf_hsrp_auth_data,
                   { "Authentication Data", "hsrp.auth_data",
                     FT_STRING, 0, NULL, 0x0,
-                    "Contains a clear-text 8 character reused password" }},
+                    "Contains a clear-text 8 character reused password", HFILL }},
 
                 { &hf_hsrp_virt_ip_addr,
                   { "Virtual IP Address", "hsrp.virt_ip",
                     FT_IPv4, 0, NULL, 0x0,
-                    "The virtual IP address used by this group" }},
+                    "The virtual IP address used by this group", HFILL }},
 
         };
 

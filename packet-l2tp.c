@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.23 2001/06/10 04:42:34 guy Exp $
+ * $Id: packet-l2tp.c,v 1.24 2001/06/18 02:17:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -887,72 +887,72 @@ proto_register_l2tp(void)
 	static hf_register_info hf[] = {
 		{ &hf_l2tp_type,
 		{ "Type", "lt2p.type", FT_UINT16, BASE_DEC, VALS(l2tp_type_vals), 0x8000,
-			"Type bit" }},
+			"Type bit", HFILL }},
 
 		{ &hf_l2tp_length_bit,
 		{ "Length Bit", "lt2p.length_bit", FT_BOOLEAN, 16, TFS(&l2tp_length_bit_truth), 0x4000,
-			"Length bit" }},
+			"Length bit", HFILL }},
 
 		{ &hf_l2tp_seq_bit,
 		{ "Sequence Bit", "lt2p.seq_bit", FT_BOOLEAN, 16, TFS(&l2tp_seq_bit_truth), 0x0800,
-			"Sequence bit" }},
+			"Sequence bit", HFILL }},
 
 		{ &hf_l2tp_offset_bit,
 		{ "Offset bit", "lt2p.offset_bit", FT_BOOLEAN, 16, TFS(&l2tp_offset_bit_truth), 0x0200,
-			"Offset bit" }},
+			"Offset bit", HFILL }},
 
 		{ &hf_l2tp_priority,
 		{ "Priority", "lt2p.priority", FT_BOOLEAN, 16, TFS(&l2tp_priority_truth), 0x0100,
-			"Priority bit" }},
+			"Priority bit", HFILL }},
 
 		{ &hf_l2tp_version,
 		{ "Version", "lt2p.version", FT_UINT16, BASE_DEC, NULL, 0x000f,
-			"Version" }},
+			"Version", HFILL }},
 
 		{ &hf_l2tp_length,
 		{ "Length","l2tp.length", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_l2tp_tunnel,
 		{ "Tunnel ID","l2tp.tunnel", FT_UINT16, BASE_DEC, NULL, 0x0, /* Probably should be FT_BYTES */
-			"Tunnel ID" }},
+			"Tunnel ID", HFILL }},
 
 		{ &hf_l2tp_session,
 		{ "Session ID","l2tp.session", FT_UINT16, BASE_DEC, NULL, 0x0, /* Probably should be FT_BYTES */
-			"Session ID" }},
+			"Session ID", HFILL }},
 
 		{ &hf_l2tp_Ns,
 		{ "Ns","l2tp.Ns", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_l2tp_Nr,
 		{ "Nr","l2tp.Nr", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_l2tp_offset,
 		{ "Offset","l2tp.offset", FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Number of octest past the L2TP header at which the"
-				"payload data starts." }},
+				"payload data starts.", HFILL }},
 
 		{ &hf_l2tp_avp_mandatory,
 		{ "Mandatory", "lt2p.avp.mandatory", FT_BOOLEAN, BASE_NONE, NULL, 0,
-			"Mandatory AVP" }},
+			"Mandatory AVP", HFILL }},
 
 		{ &hf_l2tp_avp_hidden,
 		{ "Hidden", "lt2p.avp.hidden", FT_BOOLEAN, BASE_NONE, NULL, 0,
-			"Hidden AVP" }},
+			"Hidden AVP", HFILL }},
 
 		{ &hf_l2tp_avp_length,
 		{ "Length", "lt2p.avp.length", FT_UINT16, BASE_DEC, NULL, 0,
-			"AVP Length" }},
+			"AVP Length", HFILL }},
 
 		{ &hf_l2tp_avp_vendor_id,
 		{ "Vendor ID", "lt2p.avp.vendor_id", FT_UINT16, BASE_DEC, NULL, 0,
-			"AVP Vendor ID" }},
+			"AVP Vendor ID", HFILL }},
 
 		{ &hf_l2tp_avp_type,
 		{ "Type", "lt2p.avp.type", FT_UINT16, BASE_DEC, VALS(avp_type_vals), 0,
-			"AVP Type" }},
+			"AVP Type", HFILL }},
 	};
 
 	static gint *ett[] = {

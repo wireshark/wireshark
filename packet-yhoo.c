@@ -2,7 +2,7 @@
  * Routines for yahoo messenger packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-yhoo.c,v 1.15 2001/04/23 04:29:54 guy Exp $
+ * $Id: packet-yhoo.c,v 1.16 2001/06/18 02:17:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -203,34 +203,34 @@ proto_register_yhoo(void)
 	static hf_register_info hf[] = {
 			{ &hf_yhoo_service, {	
 				"Service Type", "yhoo.service", FT_UINT32, BASE_DEC,
-				VALS(yhoo_service_vals), 0, "Service Type" }},
+				VALS(yhoo_service_vals), 0, "Service Type", HFILL }},
 			{ &hf_yhoo_msgtype, {	
 				"Message Type", "yhoo.msgtype", FT_UINT32, BASE_DEC,
-				VALS(yhoo_msgtype_vals), 0, "Message Type Flags" }},
+				VALS(yhoo_msgtype_vals), 0, "Message Type Flags", HFILL }},
 			{ &hf_yhoo_connection_id, {	
 				"Connection ID", "yhoo.connection_id", FT_UINT32, BASE_HEX,
-				NULL, 0, "Connection ID" }},
+				NULL, 0, "Connection ID", HFILL }},
 			{ &hf_yhoo_magic_id, {	
 				"Magic ID", "yhoo.magic_id", FT_UINT32, BASE_HEX,
-				NULL, 0, "Magic ID" }},
+				NULL, 0, "Magic ID", HFILL }},
 			{ &hf_yhoo_unknown1, {	
 				"Unknown 1", "yhoo.unknown1", FT_UINT32, BASE_HEX,
-				NULL, 0, "Unknown 1" }},
+				NULL, 0, "Unknown 1", HFILL }},
 			{ &hf_yhoo_len, {	
 				"Packet Length", "yhoo.len", FT_UINT32, BASE_DEC,
-				NULL, 0, "Packet Length" }},
+				NULL, 0, "Packet Length", HFILL }},
 			{ &hf_yhoo_nick1, {	
 				"Real Nick (nick1)", "yhoo.nick1", FT_STRING, 0,
-				NULL, 0, "Real Nick (nick1)" }},
+				NULL, 0, "Real Nick (nick1)", HFILL }},
 			{ &hf_yhoo_nick2, {	
 				"Active Nick (nick2)", "yhoo.nick2", FT_STRING, 0,
-				NULL, 0, "Active Nick (nick2)" }},
+				NULL, 0, "Active Nick (nick2)", HFILL }},
 			{ &hf_yhoo_content, {	
 				"Content", "yhoo.content", FT_STRING, 0,
-				NULL, 0, "Data portion of the packet" }},
+				NULL, 0, "Data portion of the packet", HFILL }},
 			{ &hf_yhoo_version, {	
 				"Version", "yhoo.version", FT_STRING, 0,
-				NULL, 0, "Packet version identifier" }},
+				NULL, 0, "Packet version identifier", HFILL }},
         };
 	static gint *ett[] = {
 		&ett_yhoo,

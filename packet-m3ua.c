@@ -8,7 +8,7 @@
  *
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-m3ua.c,v 1.7 2001/05/24 08:13:56 guy Exp $
+ * $Id: packet-m3ua.c,v 1.8 2001/06/18 02:17:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -848,102 +848,102 @@ proto_register_m3ua(void)
     { &hf_m3ua_version,
       { "Version", "m3ua.version",
 	FT_UINT8, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_m3ua_reserved,
       { "Reserved", "m3ua.reserved",
 	FT_UINT8, BASE_HEX, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_m3ua_message_class,
       { "Message class", "m3ua.message_class",
 	FT_UINT8, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_m3ua_message_type,
       { "Message Type", "m3ua.message_type",
 	FT_UINT8, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_m3ua_message_length,
       { "Message length", "m3ua.message_length",
 	FT_UINT32, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_m3ua_parameter_tag,
       { "Parameter Tag", "m3ua.parameter_tag",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_m3ua_parameter_length,
       { "Parameter length", "m3ua.parameter_length",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_m3ua_network_appearance,
       { "Network appearance", "m3ua.network_appearance",
 	FT_UINT32, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_m3ua_info_string,
       { "Info string", "m3ua.info_string",
 	FT_STRING, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_m3ua_error_code,
       { "Error code", "m3ua.error_code",
 	FT_UINT32, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_m3ua_status_type,
       { "Status type", "m3ua.status_type",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_m3ua_status_info,
       { "Status info", "m3ua.status_info",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_m3ua_unavailability_cause,
       { "Unavailability cause", "m3ua.unavailability_cause",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_m3ua_user_identity,
       { "User Identity", "m3ua.user_identity",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_m3ua_reason,
       { "Reason", "m3ua.reason",
 	FT_UINT32, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_m3ua_traffic_mode_type,
       { "Traffic mode Type", "m3ua.traffic_mode_type",
 	FT_UINT32, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_m3ua_routing_context,
       { "Routing context", "m3ua.routing_context",
 	FT_UINT32, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_m3ua_mask,
       { "Mask", "m3ua.mask",
 	FT_UINT8, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_m3ua_dpc,
       { "Affected DPC", "m3ua.affected_dpc",
 	FT_UINT24, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
     { &hf_m3ua_congestion_level,
       { "Congestion level", "m3ua.congestion_level",
 	FT_UINT8, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     }, 
   };
   

@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.51 2001/01/22 08:03:45 guy Exp $
+ * $Id: packet-nbns.c,v 1.52 2001/06/18 02:17:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1672,73 +1672,73 @@ proto_register_nbt(void)
     { &hf_nbns_response,
       { "Response",		"nbns.response",  
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"TRUE if NBNS response" }},
+	"TRUE if NBNS response", HFILL }},
     { &hf_nbns_query,
       { "Query",		"nbns.query",  
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"TRUE if NBNS query" }},
+	"TRUE if NBNS query", HFILL }},
     { &hf_nbns_transaction_id,
       { "Transaction ID",      	"nbns.id",  
 	FT_UINT16, BASE_HEX, NULL, 0x0,
-	"Identification of transaction" }},
+	"Identification of transaction", HFILL }},
     { &hf_nbns_count_questions,
       { "Questions",		"nbns.count.queries",  
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Number of queries in packet" }},
+	"Number of queries in packet", HFILL }},
     { &hf_nbns_count_answers,
       { "Answer RRs",		"nbns.count.answers",  
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Number of answers in packet" }},
+	"Number of answers in packet", HFILL }},
     { &hf_nbns_count_auth_rr,
       { "Authority RRs",       	"nbns.count.auth_rr",  
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Number of authoritative records in packet" }},
+	"Number of authoritative records in packet", HFILL }},
     { &hf_nbns_count_add_rr,
       { "Additional RRs",      	"nbns.count.add_rr",  
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Number of additional records in packet" }}
+	"Number of additional records in packet", HFILL }}
   };
 
   static hf_register_info hf_nbdgm[] = {
     { &hf_nbdgm_type,
       { "Message Type",		"nbdgm.type",  
 	FT_UINT8, BASE_DEC, NULL, 0x0,
-	"NBDGM message type" }},
+	"NBDGM message type", HFILL }},
     { &hf_nbdgm_fragment,
       { "Fragmented",		"nbdgm.next",  
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"TRUE if more fragments follow" }},
+	"TRUE if more fragments follow", HFILL }},
     { &hf_nbdgm_first,
       { "First fragment",	"nbdgm.first",  
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"TRUE if first fragment" }},
+	"TRUE if first fragment", HFILL }},
     { &hf_nbdgm_node_type,
       { "Node Type",		"nbdgm.node_type",  
 	FT_UINT8, BASE_DEC, NULL, 0x0,
-	"Node type" }},
+	"Node type", HFILL }},
     { &hf_nbdgm_datagram_id,
       { "Datagram ID",		"nbdgm.dgram_id",  
 	FT_UINT16, BASE_HEX, NULL, 0x0,
-	"Datagram identifier" }},
+	"Datagram identifier", HFILL }},
     { &hf_nbdgm_src_ip,
       { "Source IP",		"nbdgm.src.ip",  
 	FT_IPv4, BASE_NONE, NULL, 0x0,
-	"Source IPv4 address" }},
+	"Source IPv4 address", HFILL }},
     { &hf_nbdgm_src_port,
       { "Source Port",		"nbdgm.src.port",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Source port" }}
+	"Source port", HFILL }}
   };
 
   static hf_register_info hf_nbss[] = {
     { &hf_nbss_type,
       { "Message Type",		"nbss.type",  
 	FT_UINT8, BASE_DEC, NULL, 0x0,
-	"NBSS message type" }},
+	"NBSS message type", HFILL }},
     { &hf_nbss_flags,
       { "Flags",		"nbss.flags",  
 	FT_UINT8, BASE_HEX, NULL, 0x0,
-	"NBSS message flags" }}
+	"NBSS message flags", HFILL }}
   };
   static gint *ett[] = {
     &ett_nbns,

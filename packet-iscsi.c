@@ -5,7 +5,7 @@
  * Conforms to the protocol described in: draft-ietf-ips-iscsi-06.txt
  * Optionally, supports the protocol described in: draft-ietf-ips-iscsi-03.txt
  *
- * $Id: packet-iscsi.c,v 1.5 2001/06/04 05:32:52 guy Exp $
+ * $Id: packet-iscsi.c,v 1.6 2001/06/18 02:17:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1236,439 +1236,439 @@ proto_register_iscsi(void)
 	{ &hf_iscsi_Payload,
 	  { "Payload", "iscsi.payload",
 	    FT_BYTES, BASE_HEX, NULL, 0,
-	    "Payload (includes any header digest)" }
+	    "Payload (includes any header digest)", HFILL }
 	},
 	{ &hf_iscsi_Opcode,
 	  { "Opcode", "iscsi.opcode",
 	    FT_UINT8, BASE_HEX, VALS(iscsi_opcodes), 0,          
-	    "Opcode" }
+	    "Opcode", HFILL }
 	},
 	{ &hf_iscsi_Opcode_03,
 	  { "Opcode", "iscsi.opcode",
 	    FT_UINT8, BASE_HEX, VALS(iscsi_opcodes_03), 0,          
-	    "Opcode" }
+	    "Opcode", HFILL }
 	},
 #if 0
 	{ &hf_iscsi_X,
 	  { "X", "iscsi.x",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_X), 0x80,          
-	    "Command Retry" }
+	    "Command Retry", HFILL }
 	},
 	{ &hf_iscsi_I,
 	  { "I", "iscsi.i",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_I), 0x40,          
-	    "Immediate delivery" }
+	    "Immediate delivery", HFILL }
 	},
 #endif
 	{ &hf_iscsi_Flags,
 	  { "Flags", "iscsi.flags",
 	    FT_UINT8, BASE_HEX, NULL, 0,          
-	    "Opcode specific flags" }
+	    "Opcode specific flags", HFILL }
 	},
 	{ &hf_iscsi_SCSICommand_X03,
 	  { "X", "iscsi.scsicommand.x",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_X), 0x80,          
-	    "Command Retry" }
+	    "Command Retry", HFILL }
 	},
 	{ &hf_iscsi_SCSICommand_F,
 	  { "F", "iscsi.scsicommand.f",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_F), 0x80,          
-	    "PDU completes command" }
+	    "PDU completes command", HFILL }
 	},
 	{ &hf_iscsi_SCSICommand_R,
 	  { "R", "iscsi.scsicommand.r",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_R), 0x40,          
-	    "Command reads from SCSI target" }
+	    "Command reads from SCSI target", HFILL }
 	},
 	{ &hf_iscsi_SCSICommand_W,
 	  { "W", "iscsi.scsicommand.r",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_W), 0x20,          
-	    "Command writes to SCSI target" }
+	    "Command writes to SCSI target", HFILL }
 	},
 	{ &hf_iscsi_SCSICommand_Attr,
 	  { "Attr", "iscsi.scsicommand.attr",
 	    FT_UINT8, BASE_HEX, VALS(iscsi_scsicommand_taskattrs), 0x07,          
-	    "SCSI task attributes" }
+	    "SCSI task attributes", HFILL }
 	},
 	{ &hf_iscsi_SCSICommand_CRN,
 	  { "CRN", "iscsi.scsicommand.crn",
 	    FT_UINT8, BASE_HEX, NULL, 0,          
-	    "SCSI command reference number" }
+	    "SCSI command reference number", HFILL }
 	},
 	{ &hf_iscsi_SCSICommand_AddCDB,
 	  { "AddCDB", "iscsi.scsicommand.addcdb",
 	    FT_UINT8, BASE_HEX, NULL, 0,
-	    "Additional CDB length (in 4 byte units)" }
+	    "Additional CDB length (in 4 byte units)", HFILL }
 	},
 	{ &hf_iscsi_Length03,
 	  { "Length", "iscsi.length",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Data length (bytes)" }
+	    "Data length (bytes)", HFILL }
 	},
 	{ &hf_iscsi_DataSegmentLength,
 	  { "DataSegmentLength", "iscsi.datasegmentlength",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Data segment length (bytes)" }
+	    "Data segment length (bytes)", HFILL }
 	},
 	{ &hf_iscsi_TotalAHSLength,
 	  { "TotalAHSLength", "iscsi.totalahslength",
 	    FT_UINT8, BASE_HEX, NULL, 0,
-	    "Total additional header segment length (4 byte words)" }
+	    "Total additional header segment length (4 byte words)", HFILL }
 	},
 	{ &hf_iscsi_LUN,
 	  { "LUN", "iscsi.lun",
 	    FT_BYTES, BASE_HEX, NULL, 0,
-	    "Logical Unit Number" }
+	    "Logical Unit Number", HFILL }
 	},
 	{ &hf_iscsi_InitiatorTaskTag,
 	  { "InitiatorTaskTag", "iscsi.initiatortasktag",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Initiator's task tag" }
+	    "Initiator's task tag", HFILL }
 	},
 	{ &hf_iscsi_ExpectedDataTransferLength,
 	  { "ExpectedDataTransferLength", "iscsi.scsicommand.expecteddatatransferlength",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Expected length of data transfer" }
+	    "Expected length of data transfer", HFILL }
 	},
 	{ &hf_iscsi_CmdSN,
 	  { "CmdSN", "iscsi.cmdsn",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Sequence number for this command (0 == immediate)" }
+	    "Sequence number for this command (0 == immediate)", HFILL }
 	},
 	{ &hf_iscsi_ExpStatSN,
 	  { "ExpStatSN", "iscsi.expstatsn",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Next expected status sequence number" }
+	    "Next expected status sequence number", HFILL }
 	},
 	{ &hf_iscsi_SCSICommand_CDB,
 	  { "CDB", "iscsi.scsicommand.cdb",
 	    FT_BYTES, BASE_HEX, NULL, 0,
-	    "SCSI CDB" }
+	    "SCSI CDB", HFILL }
 	},
 	{ &hf_iscsi_SCSICommand_CDB0,
 	  { "CDB", "iscsi.scsicommand.cdb0",
 	    FT_UINT8, BASE_HEX, VALS(iscsi_scsi_cdb0), 0,
-	    "SCSI CDB[0]" }
+	    "SCSI CDB[0]", HFILL }
 	},
 	{ &hf_iscsi_SCSIResponse_BasicResidualCount,
 	  { "BasicResidualCount", "iscsi.scsiresponse.basicresidualcount",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Residual count" }
+	    "Residual count", HFILL }
 	},
 	{ &hf_iscsi_StatSN,
 	  { "StatSN", "iscsi.statsn",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Status sequence number" }
+	    "Status sequence number", HFILL }
 	},
 	{ &hf_iscsi_ExpCmdSN,
 	  { "ExpCmdSN", "iscsi.expcmdsn",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Next expected command sequence number" }
+	    "Next expected command sequence number", HFILL }
 	},
 	{ &hf_iscsi_MaxCmdSN,
 	  { "MaxCmdSN", "iscsi.maxcmdsn",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Maximum acceptable command sequence number" }
+	    "Maximum acceptable command sequence number", HFILL }
 	},
 	{ &hf_iscsi_SCSIResponse_o03,
 	  { "o", "iscsi.scsiresponse.o",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_o), 0x08,          
-	    "Bi-directional read residual overflow" }
+	    "Bi-directional read residual overflow", HFILL }
 	},
 	{ &hf_iscsi_SCSIResponse_u03,
 	  { "u", "iscsi.scsiresponse.u",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_u), 0x04,          
-	    "Bi-directional read residual underflow" }
+	    "Bi-directional read residual underflow", HFILL }
 	},
 	{ &hf_iscsi_SCSIResponse_O03,
 	  { "O", "iscsi.scsiresponse.O",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_O), 0x02,          
-	    "Residual overflow" }
+	    "Residual overflow", HFILL }
 	},
 	{ &hf_iscsi_SCSIResponse_U03,
 	  { "U", "iscsi.scsiresponse.U",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_U), 0x01,          
-	    "Residual underflow" }
+	    "Residual underflow", HFILL }
 	},
 	{ &hf_iscsi_SCSIResponse_o,
 	  { "o", "iscsi.scsiresponse.o",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_o), 0x10,          
-	    "Bi-directional read residual overflow" }
+	    "Bi-directional read residual overflow", HFILL }
 	},
 	{ &hf_iscsi_SCSIResponse_u,
 	  { "u", "iscsi.scsiresponse.u",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_u), 0x08,          
-	    "Bi-directional read residual underflow" }
+	    "Bi-directional read residual underflow", HFILL }
 	},
 	{ &hf_iscsi_SCSIResponse_O,
 	  { "O", "iscsi.scsiresponse.O",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_O), 0x04,          
-	    "Residual overflow" }
+	    "Residual overflow", HFILL }
 	},
 	{ &hf_iscsi_SCSIResponse_U,
 	  { "U", "iscsi.scsiresponse.U",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_U), 0x02,          
-	    "Residual underflow" }
+	    "Residual underflow", HFILL }
 	},
 	{ &hf_iscsi_SCSIResponse_S,
 	  { "S", "iscsi.scsiresponse.S",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_scsiresponse_S), 0x01,          
-	    "Status/Response" }
+	    "Status/Response", HFILL }
 	},
 	{ &hf_iscsi_CommandStatus03,
 	  { "CommandStatus", "iscsi.commandstatus",
 	    FT_UINT8, BASE_HEX, VALS(iscsi_scsi_statuses), 0,
-	    "SCSI command status value" }
+	    "SCSI command status value", HFILL }
 	},
 	{ &hf_iscsi_StatusResponse_is_status,
 	  { "Status/Response", "iscsi.scsiresponse.statusresponse",
 	    FT_UINT8, BASE_HEX, VALS(iscsi_scsi_statuses), 0,
-	    "SCSI command status value" }
+	    "SCSI command status value", HFILL }
 	},
 	{ &hf_iscsi_StatusResponse_is_response,
 	  { "Status/Response", "iscsi.scsiresponse.statusresponse",
 	    FT_UINT8, BASE_HEX, VALS(iscsi_scsi_responses), 0,
-	    "iSCSI response value" }
+	    "iSCSI response value", HFILL }
 	},
 	{ &hf_iscsi_SCSIResponse_SenseLength,
 	  { "SenseLength", "iscsi.scsiresponse.senselength",
 	    FT_UINT16, BASE_HEX, NULL, 0,
-	    "SCSI sense data length" }
+	    "SCSI sense data length", HFILL }
 	},
 	{ &hf_iscsi_SCSIResponse_BidiReadResidualCount,
 	  { "BidiReadResidualCount", "iscsi.scsiresponse.bidireadresidualcount",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Bi-directional read residual count" }
+	    "Bi-directional read residual count", HFILL }
 	},
 	{ &hf_iscsi_SCSIData_F,
 	  { "F", "iscsi.scsidata.f",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_F), 0x80,          
-	    "Final PDU" }
+	    "Final PDU", HFILL }
 	},
 	{ &hf_iscsi_SCSIData_P03,
 	  { "P", "iscsi.scsidata.p",
 	    FT_BOOLEAN, 8,  TFS(&iscsi_meaning_P), 0x80,          
-	    "Poll requested" }
+	    "Poll requested", HFILL }
 	},
 	{ &hf_iscsi_SCSIData_S03,
 	  { "S", "iscsi.scsidata.s",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_S), 0x04,          
-	    "PDU Contains SCSI command status" }
+	    "PDU Contains SCSI command status", HFILL }
 	},
 	{ &hf_iscsi_SCSIData_O03,
 	  { "O", "iscsi.scsidata.O",
 	    FT_BOOLEAN, 8,  TFS(&iscsi_meaning_O), 0x02,          
-	    "Residual overflow" }
+	    "Residual overflow", HFILL }
 	},
 	{ &hf_iscsi_SCSIData_U03,
 	  { "U", "iscsi.scsidata.U",
 	    FT_BOOLEAN, 8,  TFS(&iscsi_meaning_U), 0x01,          
-	    "Residual underflow" }
+	    "Residual underflow", HFILL }
 	},
 	{ &hf_iscsi_SCSIData_S,
 	  { "S", "iscsi.scsidata.s",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_S), 0x01,          
-	    "PDU Contains SCSI command status" }
+	    "PDU Contains SCSI command status", HFILL }
 	},
 	{ &hf_iscsi_SCSIData_U,
 	  { "U", "iscsi.scsidata.U",
 	    FT_BOOLEAN, 8,  TFS(&iscsi_meaning_U), 0x02,          
-	    "Residual underflow" }
+	    "Residual underflow", HFILL }
 	},
 	{ &hf_iscsi_SCSIData_O,
 	  { "O", "iscsi.scsidata.O",
 	    FT_BOOLEAN, 8,  TFS(&iscsi_meaning_O), 0x04,          
-	    "Residual overflow" }
+	    "Residual overflow", HFILL }
 	},
 	{ &hf_iscsi_TargetTransferTag,
 	  { "TargetTransferTag", "iscsi.targettransfertag",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Target transfer tag" }
+	    "Target transfer tag", HFILL }
 	},
 	{ &hf_iscsi_BufferOffset,
 	  { "BufferOffset", "iscsi.bufferOffset",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Buffer offset" }
+	    "Buffer offset", HFILL }
 	},
 	{ &hf_iscsi_SCSIData_ResidualCount,
 	  { "ResidualCount", "iscsi.scsidata.readresidualcount",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Residual count" }
+	    "Residual count", HFILL }
 	},
 	{ &hf_iscsi_DataSN,
 	  { "DataSN", "iscsi.datasn",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Data sequence number" }
+	    "Data sequence number", HFILL }
 	},
 	{ &hf_iscsi_VersionMax,
 	  { "VersionMax", "iscsi.versionmax",
 	    FT_UINT8, BASE_HEX, NULL, 0,
-	    "Maximum supported protocol version" }
+	    "Maximum supported protocol version", HFILL }
 	},
 	{ &hf_iscsi_VersionMin,
 	  { "VersionMin", "iscsi.versionmin",
 	    FT_UINT8, BASE_HEX, NULL, 0,
-	    "Minimum supported protocol version" }
+	    "Minimum supported protocol version", HFILL }
 	},
 	{ &hf_iscsi_CID,
 	  { "CID", "iscsi.cid",
 	    FT_UINT16, BASE_HEX, NULL, 0,
-	    "Connection identifier" }
+	    "Connection identifier", HFILL }
 	},
 	{ &hf_iscsi_ISID,
 	  { "ISID", "iscsi.isid",
 	    FT_UINT16, BASE_HEX, NULL, 0,
-	    "Initiator part of session identifier" }
+	    "Initiator part of session identifier", HFILL }
 	},
 	{ &hf_iscsi_TSID,
 	  { "TSID", "iscsi.tsid",
 	    FT_UINT16, BASE_HEX, NULL, 0,
-	    "Target part of session identifier" }
+	    "Target part of session identifier", HFILL }
 	},
 	{ &hf_iscsi_InitStatSN,
 	  { "InitStatSN", "iscsi.initstatsn",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Initial status sequence number" }
+	    "Initial status sequence number", HFILL }
 	},
 	{ &hf_iscsi_InitCmdSN,
 	  { "InitCmdSN", "iscsi.initcmdsn",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Initial command sequence number" }
+	    "Initial command sequence number", HFILL }
 	},
 	{ &hf_iscsi_Login_F,
 	  { "F", "iscsi.login.f",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_F), 0x80,          
-	    "Final PDU in login sequence" }
+	    "Final PDU in login sequence", HFILL }
 	},
 	{ &hf_iscsi_Login_Status03,
 	  { "Status", "iscsi.login.status",
 	    FT_UINT8, BASE_HEX, VALS(iscsi_login_status03), 0,
-	    "Status" }
+	    "Status", HFILL }
 	},
 	{ &hf_iscsi_Login_Status,
 	  { "Status", "iscsi.login.status",
 	    FT_UINT16, BASE_HEX, VALS(iscsi_login_status), 0,
-	    "Status class and detail" }
+	    "Status class and detail", HFILL }
 	},
 	{ &hf_iscsi_KeyValue,
 	  { "KeyValue", "iscsi.keyvalue",
 	    FT_STRING, 0, NULL, 0,
-	    "Key/value pair" }
+	    "Key/value pair", HFILL }
 	},
 	{ &hf_iscsi_Text_F,
 	  { "F", "iscsi.text.f",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_F), 0x80,          
-	    "Final PDU in text sequence" }
+	    "Final PDU in text sequence", HFILL }
 	},
 	{ &hf_iscsi_NOP_P,
 	  { "P", "iscsi.nop.p",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_P), 0x80,          
-	    "Poll requested" }
+	    "Poll requested", HFILL }
 	},
 	{ &hf_iscsi_ExpDataSN,
 	  { "ExpCmdSN", "iscsi.expdatasn",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Next expected data sequence number" }
+	    "Next expected data sequence number", HFILL }
 	},
 	{ &hf_iscsi_R2TExpDataSN,
 	  { "R2TExpCmdSN", "iscsi.r2texpdatasn",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Next expected R2T data sequence number" }
+	    "Next expected R2T data sequence number", HFILL }
 	},
 	{ &hf_iscsi_SCSITask_Response,
 	  { "Response", "iscsi.scsitask.response",
 	    FT_UINT8, BASE_HEX, VALS(iscsi_task_responses), 0,
-	    "Response" }
+	    "Response", HFILL }
 	},
 	{ &hf_iscsi_SCSITask_ReferencedTaskTag,
 	  { "InitiatorTaskTag", "iscsi.scsitask.referencedtasktag",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Task's initiator task tag" }
+	    "Task's initiator task tag", HFILL }
 	},
 	{ &hf_iscsi_SCSITask_Function,
 	  { "Function", "iscsi.scsitask.function",
 	    FT_UINT8, BASE_HEX, VALS(iscsi_task_functions), 0x7F,
-	    "Requested task function" }
+	    "Requested task function", HFILL }
 	},
 	{ &hf_iscsi_Logout_Reason03,
 	  { "Reason", "iscsi.logout.reason",
 	    FT_UINT8, BASE_HEX, VALS(iscsi_logout_reasons03), 0,
-	    "Reason for logout" }
+	    "Reason for logout", HFILL }
 	},
 	{ &hf_iscsi_Logout_Reason,
 	  { "Reason", "iscsi.logout.reason",
 	    FT_UINT8, BASE_HEX, VALS(iscsi_logout_reasons), 0,
-	    "Reason for logout" }
+	    "Reason for logout", HFILL }
 	},
 	{ &hf_iscsi_Logout_Response,
 	  { "Response", "iscsi.logout.response",
 	    FT_UINT8, BASE_HEX, VALS(iscsi_logout_response), 0,
-	    "Logout response" }
+	    "Logout response", HFILL }
 	},
 	{ &hf_iscsi_DesiredDataLength,
 	  { "DesiredDataLength", "iscsi.desireddatalength",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Desired data length (bytes)" }
+	    "Desired data length (bytes)", HFILL }
 	},
 	{ &hf_iscsi_SCSIEvent03,
 	  { "SCSIEvent", "iscsi.scsievent",
 	    FT_UINT8, BASE_HEX, VALS(iscsi_scsievents03), 0,
-	    "SCSI event indicator" }
+	    "SCSI event indicator", HFILL }
 	},
 	{ &hf_iscsi_iSCSIEvent03,
 	  { "iSCSIEvent", "iscsi.iscsievent",
 	    FT_UINT8, BASE_HEX, VALS(iscsi_iscsievents03), 0,
-	    "iSCSI event indicator" }
+	    "iSCSI event indicator", HFILL }
 	},
 	{ &hf_iscsi_Parameter1,
 	  { "Parameter1", "iscsi.parameter1",
 	    FT_UINT16, BASE_HEX, NULL, 0,
-	    "Parameter 1" }
+	    "Parameter 1", HFILL }
 	},
 	{ &hf_iscsi_Parameter2,
 	  { "Parameter2", "iscsi.parameter2",
 	    FT_UINT16, BASE_HEX, NULL, 0,
-	    "Parameter 2" }
+	    "Parameter 2", HFILL }
 	},
 	{ &hf_iscsi_Reject_Reason,
 	  { "Reason", "iscsi.reject.reason",
 	    FT_UINT8, BASE_HEX, VALS(iscsi_reject_reasons), 0,
-	    "Reason for command rejection" }
+	    "Reason for command rejection", HFILL }
 	},
 	{ &hf_iscsi_Reject_FirstBadByte,
 	  { "FirstBadByte", "iscsi.reject.firstbadbyte",
 	    FT_UINT16, BASE_HEX, NULL, 0,
-	    "Offset of first bad byte in PDU when reason is 'format error'" }
+	    "Offset of first bad byte in PDU when reason is 'format error'", HFILL }
 	},
 	{ &hf_iscsi_Reject_Reason03,
 	  { "Reason", "iscsi.reject.reason",
 	    FT_UINT8, BASE_HEX, VALS(iscsi_reject_reasons03), 0,
-	    "Reason for command rejection" }
+	    "Reason for command rejection", HFILL }
 	},
 	{ &hf_iscsi_SNACK_S,
 	  { "S", "iscsi.snack.s",
 	    FT_BOOLEAN, 8, TFS(&iscsi_meaning_SNACK_S), 0x01,          
-	    "Status not data SNACK requested" }
+	    "Status not data SNACK requested", HFILL }
 	},
 	{ &hf_iscsi_AddRuns,
 	  { "AddRuns", "iscsi.snack.addruns",
 	    FT_UINT8, BASE_HEX, NULL, 0,
-	    "Number of additional runs" }
+	    "Number of additional runs", HFILL }
 	},
 	{ &hf_iscsi_BegRun,
 	  { "BegRun", "iscsi.snack.begrun",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "First missed DataSN or StatSN" }
+	    "First missed DataSN or StatSN", HFILL }
 	},
 	{ &hf_iscsi_RunLength,
 	  { "RunLength", "iscsi.snack.runlength",
 	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "Number of additional missing status PDUs in this run" }
+	    "Number of additional missing status PDUs in this run", HFILL }
 	},
 	{ &hf_iscsi_AdditionalRuns,
 	  { "AdditionalRuns", "iscsi.snack.additionalruns",
 	    FT_BYTES, BASE_HEX, NULL, 0,
-	    "Additional runs of missing status PDUs" }
+	    "Additional runs of missing status PDUs", HFILL }
 	},
     };
 

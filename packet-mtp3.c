@@ -2,7 +2,7 @@
  * Routines for Message Transfer Part Level 3 dissection
  * Copyright 2001, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-mtp3.c,v 1.3 2001/05/31 08:51:29 guy Exp $
+ * $Id: packet-mtp3.c,v 1.4 2001/06/18 02:17:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -212,32 +212,32 @@ proto_register_mtp3(void)
       { "Service indicator",
 	"mtp3.service_indicator",
 	FT_UINT8, BASE_HEX, VALS(service_indicator_code_vals), SERVICE_INDICATOR_MASK,          
-	"" }}, 
+	"", HFILL }}, 
     { &hf_mtp3_network_indicator,
       { "Network indicator",
 	"mtp3.network_indicator",
 	FT_UINT8, BASE_HEX, VALS(network_indicator_vals), NETWORK_INDICATOR_MASK,          
-	"" }}, 
+	"", HFILL }}, 
     { &hf_mtp3_spare,
       { "Spare",
 	"mtp3.spare",
 	FT_UINT8, BASE_HEX, NULL, SPARE_MASK,          
-	"" }}, 
+	"", HFILL }}, 
     { &hf_mtp3_opc,
       { "OPC",
 	"mtp3.opc",
 	FT_UINT32, BASE_DEC, NULL, OPC_MASK,          
-	"" }}, 
+	"", HFILL }}, 
     { &hf_mtp3_dpc,
       { "DPC",
 	"mtp3.dpc",
 	FT_UINT32, BASE_DEC, NULL, DPC_MASK,          
-	"" }}, 
+	"", HFILL }}, 
     { &hf_mtp3_sls,
       { "SLS",
 	"mtp3.sls",
 	FT_UINT32, BASE_DEC, NULL, SLS_MASK,          
-	"" }}, 
+	"", HFILL }}, 
   };
   
   /* Setup protocol subtree array */

@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.37 2001/05/31 20:40:29 guy Exp $
+ * $Id: packet-rtsp.c,v 1.38 2001/06/18 02:17:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -698,11 +698,11 @@ proto_register_rtsp(void)
 	};
 	static hf_register_info hf[] = {
 	{ &hf_rtsp_method,
-	{ "Method", "rtsp.method", FT_STRING, BASE_NONE, NULL, 0 }},
+	{ "Method", "rtsp.method", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_rtsp_url,
-	{ "URL", "rtsp.url", FT_STRING, BASE_NONE, NULL, 0 }},
+	{ "URL", "rtsp.url", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_rtsp_status,
-	{ "Status", "rtsp.status", FT_UINT32, BASE_DEC, NULL, 0 }},
+	{ "Status", "rtsp.status", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	};
 
         proto_rtsp = proto_register_protocol("Real Time Streaming Protocol",

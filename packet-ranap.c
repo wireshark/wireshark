@@ -3,7 +3,7 @@
  * Based on 3GPP TS 25.413 V3.4.0
  * Copyright 2001, Martin Held <Martin.Held@icn.siemens.de>
  *
- * $Id: packet-ranap.c,v 1.5 2001/06/06 18:53:27 guy Exp $
+ * $Id: packet-ranap.c,v 1.6 2001/06/18 02:17:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4110,667 +4110,667 @@ proto_register_ranap(void)
       { "RANAP-PDU Index", 
         "ranap.ranap_pdu_index", 
 	FT_UINT8, BASE_HEX, VALS(&ranap_pdu_index_values), 0x0,
-	""}
+	"", HFILL }
     },
     { &hf_ranap_procedure_code,
       { "Procedure Code", 
         "ranap.procedure_code",
 	FT_UINT8, BASE_DEC, VALS(&ranap_procedure_code_values), 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_pdu_criticality,
       { "Criticality of PDU", 
         "ranap.pdu.criticality",
 	FT_UINT8, BASE_HEX, VALS(&ranap_criticality_values), 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_pdu_number_of_octets,
       { "Number of Octets in PDU",
         "ranap.pdu.num_of_octets",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_ie_protocol_extension,
       { "Protocol Extension",
         "ranap.ie.protocol_extension_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_number_of_ies,
       { "Number of IEs in PDU",
         "ranap.pdu.number_of_ies",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_number_of_ProtocolExtensionFields,
       { "Number of Protocol Extension Fields",
         "ranap.ie.number_of_ProtocolExtensionFields",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_number_of_ies_in_list,
       { "Number of IEs in list",
         "ranap.number_of_ies",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_ie_ie_id,
       { "IE-ID", 
         "ranap.ie.ie_id",
 	FT_UINT16, BASE_DEC, VALS(&ranap_ie_id_values), 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_ext_field_id,
       { "ProtocolExtensionField ID", 
         "ranap.ie.ProtocolExtensionFields.Id",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_ie_criticality,
       { "Criticality of IE", 
         "ranap.ie.criticality", 
 	FT_UINT8, BASE_HEX, VALS(&ranap_criticality_values), 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_ext_field_criticality,
       { "Criticality of ProtocolExtensionField", 
         "ranap.ie.ProtocolExtensionFields.criticality", 
 	FT_UINT8, BASE_HEX, VALS(&ranap_criticality_values), 0x0,          
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_ie_pair_first_criticality,
       { "First Criticality", 
         "ranap.ie_pair.first_criticality", 
 	FT_UINT8, BASE_HEX, VALS(&ranap_criticality_values), 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_ie_pair_second_criticality,
       { "Second Criticality", 
         "ranap.ie_pair.second_criticality", 
 	FT_UINT8, BASE_HEX, VALS(&ranap_criticality_values), 0x0,          
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_ie_number_of_octets,
       { "Number of Octets in IE", 
         "ranap.ie.number_of_octets",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_first_value_number_of_octets,
       { "Number of Octets in first value", 
         "ranap.ie_pair.first_value.number_of_octets",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_second_value_number_of_octets,
       { "Number of Octets in second value", 
         "ranap.ie_pair.second_value.number_of_octets",
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_rab_id,
       { "RAB-ID", 
         "ranap.RAB_ID",
 	FT_UINT8, BASE_HEX, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_nas_pdu,
       { "NAS-PDU", 
         "ranap.NAS_PDU",
 	FT_BYTES, BASE_NONE, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_extension_field,
       { "Extension Field Value", 
         "ranap.Extension_Field_Value",
 	FT_BYTES, BASE_NONE, NULL, 0x0,          
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_plmn_id,
       { "PLMN-ID", 
         "ranap.PLMN_ID",
 	FT_BYTES, BASE_NONE, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_lac,
       { "LAC", 
         "ranap.PLMN_ID",
 	FT_BYTES, BASE_NONE, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_plmn_id,
       { "PLMN-ID", 
         "ranap.PLMN_ID",
 	FT_BYTES, BASE_NONE, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_lac,
       { "LAC", 
         "ranap.PLMN_ID",
 	FT_BYTES, BASE_NONE, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_sac,
       { "SAC", 
         "ranap.SAC",
 	FT_BYTES, BASE_NONE, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_rac,
       { "RAC", 
         "ranap.RAC",
 	FT_BYTES, BASE_NONE, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_num_rabs,
       { "Number of RABs", 
         "ranap.number_of_RABs",
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_nAS_SynchronisationIndicator_present,
       { "nAS-SynchronisationIndicator", 
         "ranap.nAS-SynchronisationIndicator_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_rAB_Parameters_present,
       { "rAB-Parameters", 
         "ranap.rAB_Parameters_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_userPlaneInformation_present,
       { "userPlaneInformation", 
         "ranap.userPlaneInformation_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     }, 
     { &hf_ranap_transportLayerInformation_present,
       { "transportLayerInformation", 
         "ranap.transportLayerInformation_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_service_Handover_present,
       { "service-Handover", 
         "ranap.service_Handover_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },               
     { &hf_ranap_iE_Extensions_present,
       { "iE-Extensions", 
         "ranap.ie.iE-Extensions_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_nAS_SynchronisationIndicator,
       { "nAS-SynchronisationIndicator", 
         "ranap.nAS-SynchronisationIndicator",
 	FT_UINT8, BASE_HEX, NULL, 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_guaranteedBitRate_present,
       { "guaranteedBitRate", 
         "ranap.guaranteedBitRate_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_transferDelay_present,
       { "transferDelay", 
         "ranap.transferDelay_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_trafficHandlingPriority_present,
       { "trafficHandlingPriority", 
         "ranap.trafficHandlingPriority_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_allocationOrRetentionPriority_present,
       { "allocationOrRetentionPriority", 
         "ranap.allocationOrRetentionPriority_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_sourceStatisticsDescriptor_present,
       { "sourceStatisticsDescriptor", 
         "ranap.sourceStatisticsDescriptor_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_relocationRequirement_present,
       { "relocationRequirement", 
         "ranap.relocationRequirement_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_trafficClass,
       { "Traffic Class", 
         "ranap.rab_Parameters.trafficClass",
 	FT_UINT8, BASE_DEC, VALS(&ranap_trafficClass_values), 0x0, 
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_rAB_AsymmetryIndicator,
       { "rAB_AsymmetryIndicator", 
         "ranap.rab_Parameters.rAB_AsymmetryIndicator",
 	FT_UINT8, BASE_DEC, VALS(&ranap_rAB_AsymmetryIndicator_values), 0x0, 
-	""}
+	"", HFILL }
     },   
     { &hf_ranap_maxBitrate,
       { "maxBitrate", 
         "ranap.rab_Parameters.maxBitrate",
 	FT_UINT32, BASE_DEC, NULL, 0x0, 
-	""}
+	"", HFILL }
     },   
     { &hf_ranap_guaranteedBitrate,
       { "guaranteedBitrate", 
         "ranap.rab_Parameters.guaranteedBitrate",
 	FT_UINT32, BASE_DEC, NULL, 0x0, 
-	""}
+	"", HFILL }
     },   
     { &hf_ranap_deliveryOrder,
       { "deliveryOrder", 
         "ranap.rab_Parameters.deliveryOrder",
 	FT_UINT8, BASE_DEC, VALS(&ranap_DeliveryOrder_values), 0x0, 
-	""}
+	"", HFILL }
     }, 
     { &hf_ranap_maxSDU_Size,
       { "maxSDU_Size", 
         "ranap.rab_Parameters.maxSDU_Size",
 	FT_UINT16, BASE_DEC, NULL, 0x0, 
-	""}
+	"", HFILL }
     },  
     { &hf_ranap_sDU_ErrorRatio_mantissa,
       { "sDU_ErrorRatio: mantissa", 
         "ranap.rab_Parameters.sDU_ErrorRatio.mantissa",
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_sDU_ErrorRatio_exponent,
       { "sDU_ErrorRatio: exponent", 
         "ranap.rab_Parameters.sDU_ErrorRatio.exponent",
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_residualBitErrorRatio_mantissa,
       { "residualBitErrorRatio: mantissa", 
         "ranap.rab_Parameters.residualBitErrorRatio.mantissa",
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	""}
+	"", HFILL }
     },     
     { &hf_ranap_residualBitErrorRatio_exponent,
       { "residualBitErrorRatio: exponent", 
         "ranap.rab_Parameters.residualBitErrorRatio.exponent",
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	""}
+	"", HFILL }
     },         
     { &hf_ranap_deliveryOfErroneousSDU,
       { "deliveryOfErroneousSDU", 
         "ranap.rab_Parameters.ranap_deliveryOfErroneousSDU",
 	FT_UINT8, BASE_DEC, VALS(&ranap_deliveryOfErroneousSDU_values), 0x0, 
-	""}
+	"", HFILL }
     },     
     { &hf_ranap_subflowSDU_Size,
       { "subflowSDU_Size", 
         "ranap.rab_Parameters.subflowSDU_Size",
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_rAB_SubflowCombinationBitRate,
       { "rAB_SubflowCombinationBitRate", 
         "ranap.rab_Parameters.rAB_SubflowCombinationBitRate",
 	FT_UINT32, BASE_DEC, NULL, 0x0, 
-	""}
+	"", HFILL }
     },   
     { &hf_ranap_sDU_ErrorRatio_present,
       { "sDU_ErrorRatio", 
         "ranap.sDU_ErrorRatio_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },     
     { &hf_ranap_sDU_FormatInformationParameters_present,
       { "sDU_FormatInformationParameters", 
         "ranap.sDU_FormatInformationParameters_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     }, 
     { &hf_ranap_subflowSDU_Size_present,
       { "subflowSDU_Size", 
         "ranap.subflowSDU_Size_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },     
     { &hf_ranap_rAB_SubflowCombinationBitRate_present,
       { "subflowSDU_Size", 
         "ranap.rAB_SubflowCombinationBitRate_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_transferDelay,
       { "transferDelay", 
         "ranap.rab_Parameters.transferDelay",
 	FT_UINT16, BASE_DEC, NULL, 0x0, 
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_trafficHandlingPriority,
       { "trafficHandlingPriority", 
         "ranap.rab_Parameters.trafficHandlingPriority",
 	FT_UINT8, BASE_DEC, VALS(&ranap_priority_values), 0x0, 
-	""}
+	"", HFILL }
     },      
     { &hf_ranap_priorityLevel,
       { "priorityLevel", 
         "ranap.rab_Parameters.allocationOrRetentionPriority.priorityLevel",
 	FT_UINT8, BASE_DEC, VALS(&ranap_priority_values), 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_pre_emptionCapability,
       { "pre-emptionCapability", 
         "ranap.rab_Parameters.allocationOrRetentionPriority.pre_emptionCapability",
 	FT_UINT8, BASE_DEC, VALS(&ranap_pre_emptionCapability_values), 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_pre_emptionVulnerability,
       { "pre-emptionVulnerability", 
         "ranap.rab_Parameters.allocationOrRetentionPriority.pre_emptionVulnerability",
 	FT_UINT8, BASE_DEC, VALS(&ranap_pre_emptionVulnerability_values), 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_queuingAllowed,
       { "queuingAllowed", 
         "ranap.rab_Parameters.allocationOrRetentionPriority.queuingAllowed",
 	FT_UINT8, BASE_DEC, VALS(&ranap_queuingAllowed_values), 0x0, 
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_sourceStatisticsDescriptor,
       { "sourceStatisticsDescriptor", 
         "ranap.rab_Parameters.sourceStatisticsDescriptor",
 	FT_UINT8, BASE_DEC, VALS(&ranap_sourceStatisticsDescriptor_values), 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_relocationRequirement,
       { "relocationRequirement", 
         "ranap.rab_Parameters.relocationRequirement",
 	FT_UINT8, BASE_DEC, VALS(&ranap_relocationRequirement_values), 0x0, 
-	""}
+	"", HFILL }
     },                      
     { &hf_ranap_userPlaneMode,
       { "userPlaneMode", 
         "ranap.userPlaneMode",
 	FT_UINT8, BASE_DEC, VALS(&ranap_userPlaneMode_values), 0x0, 
-	""}
+	"", HFILL }
     }, 
     { &hf_ranap_uP_ModeVersions,
       { "uP_ModeVersions", 
         "ranap.uP_ModeVersions",
 	FT_BYTES, BASE_NONE, NULL, 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_number_of_ProtocolExtensionFields,
       { "Number of ProtocolExtensionFields", 
         "ranap.number_of_ProtocolExtensionFields",
 	FT_UINT16, BASE_DEC, NULL, 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_ext_field_number_of_octets,
       { "Number of octets", 
         "ranap.ProtocolExtensionFields.octets",
 	FT_UINT16, BASE_DEC, NULL, 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_transportLayerAddress_length,
       { "bit length of transportLayerAddress", 
         "ranap.transportLayerAddress_length",
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_transportLayerAddress,
       { "transportLayerAddress", 
         "ranap.transportLayerAddress",
 	FT_BYTES, BASE_NONE, NULL, 0x0, 
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_gTP_TEI,
       { "gTP_TEI", 
         "ranap.gTP_TEI",
 	FT_BYTES, BASE_NONE, NULL, 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_bindingID,
       { "bindingID", 
         "ranap.bindingID",
 	FT_BYTES, BASE_NONE, NULL, 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_pDP_TypeInformation_present,
       { "pDP_TypeInformation", 
         "ranap.pDP_TypeInformation_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_dataVolumeReportingIndication_present,
       { "dataVolumeReportingIndication", 
         "ranap.dataVolumeReportingIndication_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     }, 
     { &hf_ranap_dl_GTP_PDU_SequenceNumber_present,
       { "dl_GTP_PDU_SequenceNumber", 
         "ranap.dl_GTP_PDU_SequenceNumber_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },     
     { &hf_ranap_ul_GTP_PDU_SequenceNumber_present,
       { "ul_GTP_PDU_SequenceNumber", 
         "ranap.ul_GTP_PDU_SequenceNumber_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },          
     { &hf_ranap_dl_N_PDU_SequenceNumber_present,
       { "dl_N_PDU_SequenceNumber", 
         "ranap.dl_N_PDU_SequenceNumber_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_ul_N_PDU_SequenceNumber_present,
       { "ul_N_PDU_SequenceNumber", 
         "ranap.ul_N_PDU_SequenceNumber_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_PDP_Type,
       { "PDP-Type", 
         "ranap.RAB_SetupOrModifyItemSecond.PDP_Type",
 	FT_UINT8, BASE_HEX, VALS(&ranap_PDP_Type_values), 0x0, 
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_dataVolumeReportingIndication,
       { "dataVolumeReportingIndication", 
         "ranap.RAB_SetupOrModifyItemSecond.dataVolumeReportingIndication",
 	FT_UINT8, BASE_HEX, VALS(&ranap_dataVolumeReportingIndication_values), 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_dl_GTP_PDU_SequenceNumber,
       { "dl_GTP_PDU_SequenceNumber", 
         "ranap.RAB_SetupOrModifyItemSecond.dl_GTP_PDU_SequenceNumber",
 	FT_UINT16, BASE_DEC, NULL, 0x0, 
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_ul_GTP_PDU_SequenceNumber,
       { "ul_GTP_PDU_SequenceNumber", 
         "ranap.RAB_SetupOrModifyItemSecond.ul_GTP_PDU_SequenceNumber",
 	FT_UINT16, BASE_DEC, NULL, 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_dl_N_PDU_SequenceNumber,
       { "ul_GTP_PDU_SequenceNumber", 
         "ranap.RAB_SetupOrModifyItemSecond.ul_GTP_PDU_SequenceNumber",
 	FT_UINT16, BASE_DEC, NULL, 0x0, 
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_ul_N_PDU_SequenceNumber,
       { "ul_GTP_PDU_SequenceNumber", 
         "ranap.RAB_SetupOrModifyItemSecond.ul_GTP_PDU_SequenceNumber",
 	FT_UINT16, BASE_DEC, NULL, 0x0, 
-	""}
+	"", HFILL }
     }, 
     { &hf_ranap_cause_choice,
       { "cause choice", 
         "ranap.cause_choice",
 	FT_UINT8, BASE_HEX, VALS(&ranap_cause_choice_values), 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_cause_value,
       { "cause value", 
         "ranap.cause_value",
 	FT_UINT8, BASE_DEC,VALS(&ranap_cause_value_str), 0x0,
-	""}
+	"", HFILL }
     },
     { &hf_ranap_transportLayerAddress_present,
       { "transportLayerAddress", 
         "ranap.transportLayerAddress_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_iuTransportAssociation_present,
       { "iuTransportAssociation", 
         "ranap.iuTransportAssociation_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_dl_dataVolumes_present,
       { "dl_dataVolumes", 
         "ranap.dl_dataVolumes_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_dataVolumeReference_present,
       { "dataVolumeReference", 
         "ranap.dataVolumeReference_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_dl_UnsuccessfullyTransmittedDataVolume,
       { "dl-UnsuccessfullyTransmittedDataVolume", 
         "ranap.dl-UnsuccessfullyTransmittedDataVolume",
 	FT_UINT32, BASE_DEC, NULL, 0x0, 
-	""}
+	"", HFILL }
     }, 
     { &hf_ranap_dataVolumeReference,
       { "dataVolumeReference", 
         "ranap.dataVolumeReference",
 	FT_UINT8, BASE_DEC, NULL, 0x0, 
-	""}
+	"", HFILL }
     },     
     { &hf_ranap_procedureCode_present,
       { "procedureCode", 
         "ranap.procedureCode_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },     
     { &hf_ranap_triggeringMessage_present,
       { "triggeringMessage", 
         "ranap.triggeringMessage_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_procedureCriticality_present,
       { "procedureCriticality", 
         "ranap.procedureCriticality_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_iEsCriticalityDiagnostics_present,
       { "iEsCriticalityDiagnostics", 
         "ranap.iEsCriticalityDiagnostics_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_triggeringMessage,
       { "triggeringMessage", 
         "ranap.triggeringMessage", 
 	FT_UINT8, BASE_HEX, VALS(&ranap_pdu_index_values), 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_procedureCriticality,
       { "procedureCriticality", 
         "ranap.procedureCriticality", 
 	FT_UINT8, BASE_HEX, VALS(&ranap_criticality_values), 0x0,          
-	""}
+	"", HFILL }
     },          
     { &hf_ranap_iECriticality,
       { "iECriticality", 
         "ranap.iECriticality", 
 	FT_UINT8, BASE_HEX, VALS(&ranap_criticality_values), 0x0,          
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_repetitionNumber,
       { "repetitionNumber", 
         "ranap.repetitionNumber", 
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },     
     { &hf_ranap_num_of_CriticalityDiagnostics_IEs,
       { "Number of CriticalityDiagnostics-IEs", 
         "ranap.num_of_CriticalityDiagnostics_IEs", 
 	FT_UINT16, BASE_DEC, NULL, 0x0,          
-	""}
+	"", HFILL }
     },
     { &hf_ranap_repetitionNumber_present,
       { "repetitionNumber", 
         "ranap.repetitionNumber_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },      
     { &hf_ranap_dl_UnsuccessfullyTransmittedDataVolume_present,
       { "dl-UnsuccessfullyTransmittedDataVolume", 
         "ranap.dl_UnsuccessfullyTransmittedDataVolume_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },        
     { &hf_ranap_CN_DomainIndicator,
       { "CN-DomainIndicator", 
         "ranap.CN_DomainIndicator",
 	FT_UINT8, BASE_HEX, VALS(&ranap_CN_DomainIndicator_values), 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_service_Handover,
       { "service-Handover", 
         "ranap.service_Handover",
 	FT_UINT8, BASE_HEX, VALS(&ranap_service_Handover_values), 0x0, 
-	""}
+	"", HFILL }
     },     
     { &hf_ranap_IuSigConId,
       { "IuSigConId", 
         "ranap.IuSigConId",
 	FT_BYTES, BASE_NONE, NULL, 0x0, 
-	""}
+	"", HFILL }
     },    
     { &hf_ranap_SAPI,
       { "SAPI", 
         "ranap.IuSigConId",
 	FT_UINT8, BASE_HEX, VALS(&ranap_SAPI_values), 0x0, 
-	""}
+	"", HFILL }
     },     
     { &hf_ranap_msg_extension_present,
       { "Message Extension", 
         "ranap.msg_extension_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },          
     { &hf_ranap_ProtocolExtensionContainer_present,
       { "ProtocolExtensionContainer", 
         "ranap.ProtocolExtensionContainer_present",
 	FT_UINT8, BASE_HEX, VALS(&ranap_presence_values), 0x0, 
-	""}
+	"", HFILL }
     },
     { &hf_ranap_nas_pdu_length,
       { "length of NAS-PDU", 
         "ranap.nas_pdu_length",
 	FT_UINT16, BASE_DEC, NULL, 0x0, 
-	""}
+	"", HFILL }
     }                                                                     
   };
 

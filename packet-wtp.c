@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.13 2001/04/17 18:57:09 guy Exp $
+ * $Id: packet-wtp.c,v 1.14 2001/06/18 02:17:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -482,105 +482,105 @@ proto_register_wtp(void)
 			{ 	"Header",           
 				"wtp.header_fixed_part",
 				FT_BYTES, BASE_HEX, NULL, 0x0,          
-				"Fixed part of the header" 
+				"Fixed part of the header", HFILL
 			}
 		},
 		{ &hf_wtp_header_flag_continue,
 			{ 	"Continue Flag",           
 				"wtp.continue_flag",
 				FT_BOOLEAN, 8, TFS( &continue_truth ), 0x80,          
-				"Continue Flag" 
+				"Continue Flag", HFILL
 			}
 		},
 		{ &hf_wtp_header_pdu_type,
 			{ 	"PDU Type",           
 				"wtp.pdu_type",
 				 FT_UINT8, BASE_HEX, VALS( vals_pdu_type ), 0x78,
-				"PDU Type" 
+				"PDU Type", HFILL
 			}
 		},
 		{ &hf_wtp_header_flag_Trailer,
 			{ 	"Trailer Flags",           
 				"wtp.trailer_flags",
 				 FT_UINT8, BASE_HEX, VALS( vals_transmission_trailer ), 0x06,
-				"PDU Type" 
+				"PDU Type", HFILL
 			}
 		},
 		{ &hf_wtp_header_flag_RID,
 			{ 	"Re-transmission Indicator",           
 				"wtp.RID",
 				 FT_BOOLEAN, 8, TFS( &RID_truth ), 0x01,
-				"Re-transmission Indicator" 
+				"Re-transmission Indicator", HFILL
 			}
 		},
 		{ &hf_wtp_header_flag_TID_response,
 			{ 	"TID Response",           
 				"wtp.TID.response",
 				FT_BOOLEAN, 16, TFS( &tid_response_truth ), 0x8000,
-				"TID Response" 
+				"TID Response", HFILL
 			}
 		},
 		{ &hf_wtp_header_flag_TID,
 			{ 	"Transmission ID",           
 				"wtp.TID",
 				 FT_UINT16, BASE_HEX, NULL, 0x7FFF,
-				"Transmission ID" 
+				"Transmission ID", HFILL
 			}
 		},
 		{ &hf_wtp_header_Inv_version,
 			{ 	"Version",           
 				"wtp.header.version",
 				 FT_UINT8, BASE_HEX, VALS( vals_version ), 0xC0,
-				"Version" 
+				"Version", HFILL
 			}
 		},
 		{ &hf_wtp_header_Inv_flag_TIDNew,
 			{ 	"TIDNew",           
 				"wtp.header.TIDNew",
 				 FT_BOOLEAN, 8, TFS( &TIDNew_truth ), 0x20,
-				"TIDNew" 
+				"TIDNew", HFILL
 			}
 		},
 		{ &hf_wtp_header_Inv_flag_UP,
 			{ 	"U/P flag",           
 				"wtp.header.UP",
 				 FT_BOOLEAN, 8, TFS( &UP_truth ), 0x10,
-				"U/P Flag" 
+				"U/P Flag", HFILL
 			}
 		},
 		{ &hf_wtp_header_Inv_Reserved,
 			{ 	"Reserved",           
 				"wtp.inv.reserved",
 				 FT_UINT8, BASE_HEX, NULL, 0x0C,
-				"Reserved" 
+				"Reserved", HFILL
 			}
 		},
 		{ &hf_wtp_header_Inv_TransactionClass,
 			{ 	"Transaction Class",           
 				"wtp.inv.transaction_class",
 				 FT_UINT8, BASE_HEX, NULL, 0x03,
-				"Transaction Class" 
+				"Transaction Class", HFILL
 			}
 		},
 		{ &hf_wtp_header_Ack_flag_TVETOK,
 			{ 	"Tve/Tok flag",           
 				"wtp.ack.tvetok",
 				 FT_BOOLEAN, 8, TFS( &TVETOK_truth ), 0x04,
-			 	"Tve/Tok flag"
+			 	"Tve/Tok flag", HFILL
 			}
 		},
 		{ &hf_wtp_header_Abort_type,
 			{ 	"Abort Type",           
 				"wtp.abort.type",
 				 FT_UINT8, BASE_HEX, VALS ( vals_abort_type ), 0x07,
-				"Abort Type" 
+				"Abort Type", HFILL
 			}
 		},
 		{ &hf_wtp_header_Abort_reason_provider,
 			{ 	"Abort Reason",           
 				"wtp.abort.reason.provider",
 				 FT_UINT8, BASE_HEX, VALS ( vals_abort_reason_provider ), 0x00,
-				"Abort Reason" 
+				"Abort Reason", HFILL
 			}
 		},
 		/* Assume WSP is the user and use its reason codes */
@@ -588,35 +588,35 @@ proto_register_wtp(void)
 			{ 	"Abort Reason",           
 				"wtp.abort.reason.user",
 				 FT_UINT8, BASE_HEX, VALS ( vals_wsp_reason_codes ), 0x00,
-				"Abort Reason" 
+				"Abort Reason", HFILL
 			}
 		},
 		{ &hf_wtp_header_sequence_number,
 			{ 	"Packet Sequence Number",           
 				"wtp.header.sequence",
 				 FT_UINT8, BASE_HEX, NULL, 0x00,
-				"Packet Sequence Number" 
+				"Packet Sequence Number", HFILL
 			}
 		},
 		{ &hf_wtp_header_missing_packets,
 			{ 	"Missing Packets",           
 				"wtp.header.missing_packets",
 				 FT_UINT8, BASE_HEX, NULL, 0x00,
-				"Missing Packets" 
+				"Missing Packets", HFILL
 			}
 		},
 		{ &hf_wtp_header_variable_part,
 			{ 	"Header: Variable part",           
 				"wtp.header_variable_part",
 				FT_BYTES, BASE_HEX, NULL, 0x0,          
-				"Variable part of the header" 
+				"Variable part of the header", HFILL
 			}
 		},
 		{ &hf_wtp_data,
 			{ 	"Data",           
 				"wtp.header_data",
 				FT_BYTES, BASE_HEX, NULL, 0x0,          
-				"Data" 
+				"Data", HFILL
 			}
 		},
 	};
@@ -631,7 +631,7 @@ proto_register_wtp(void)
 	proto_wtp = proto_register_protocol(
 		"Wireless Transaction Protocol",   /* protocol name for use by ethereal */ 
 		"WTP",                             /* short version of name */
-		"wap-wsp-wtp"                    /* Abbreviated protocol name, should Match IANA 
+		"wap-wsp-wtp"                      /* Abbreviated protocol name, should Match IANA 
 						    < URL:http://www.isi.edu/in-notes/iana/assignments/port-numbers/ >
 						  */
 	);

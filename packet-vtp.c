@@ -1,7 +1,7 @@
 /* packet-vtp.c
  * Routines for the disassembly of Cisco's Virtual Trunking Protocol
  *
- * $Id: packet-vtp.c,v 1.13 2001/03/13 21:34:24 gram Exp $
+ * $Id: packet-vtp.c,v 1.14 2001/06/18 02:17:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -600,87 +600,87 @@ proto_register_vtp(void)
 	static hf_register_info hf[] = {
 		{ &hf_vtp_version,
 		{ "Version",	"vtp.version", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_vtp_code,
 		{ "Code",	"vtp.code", FT_UINT8, BASE_HEX, VALS(type_vals), 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_vtp_followers,
 		{ "Followers",	"vtp.followers", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Number of following Subset-Advert messages" }},
+			"Number of following Subset-Advert messages", HFILL }},
 
 		{ &hf_vtp_md_len,
 		{ "Management Domain Length", "vtp.md_len", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Length of management domain string" }},
+			"Length of management domain string", HFILL }},
 
 		{ &hf_vtp_md,
 		{ "Management Domain", "vtp.md", FT_STRING, BASE_DEC, NULL, 0,
-			"Management domain" }},
+			"Management domain", HFILL }},
 
 		{ &hf_vtp_conf_rev_num,
 		{ "Configuration Revision Number", "vtp.conf_rev_num", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"Revision number of the configuration information" }},
+			"Revision number of the configuration information", HFILL }},
 
 		{ &hf_vtp_upd_id,
 		{ "Updater Identity", "vtp.upd_id", FT_IPv4, BASE_NONE, NULL, 0x0,
-			"IP address of the updater" }},
+			"IP address of the updater", HFILL }},
 
 		{ &hf_vtp_upd_ts,
 		{ "Update Timestamp", "vtp.upd_ts", FT_STRING, BASE_DEC, NULL, 0,
-			"Time stamp of the current configuration revision" }},
+			"Time stamp of the current configuration revision", HFILL }},
 
 		{ &hf_vtp_md5_digest,
 		{ "MD5 Digest",	"vtp.md5_digest", FT_BYTES, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_vtp_seq_num,
 		{ "Sequence Number",	"vtp.seq_num", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Order of this frame in the sequence of Subset-Advert frames" }},
+			"Order of this frame in the sequence of Subset-Advert frames", HFILL }},
 
 		{ &hf_vtp_start_value,
 		{ "Start Value",	"vtp.start_value", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"Virtual LAN ID of first VLAN for which information is requested" }},
+			"Virtual LAN ID of first VLAN for which information is requested", HFILL }},
 
 		{ &hf_vtp_vlan_info_len,
 		{ "VLAN Information Length",	"vtp.vlan_info.len", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Length of the VLAN information field" }},
+			"Length of the VLAN information field", HFILL }},
 
 		{ &hf_vtp_vlan_status_vlan_susp,
 		{ "VLAN suspended",	"vtp.vlan_info.status.vlan_susp", FT_BOOLEAN, 8, NULL, VLAN_SUSPENDED,
-			"VLAN suspended" }},
+			"VLAN suspended", HFILL }},
 
 		{ &hf_vtp_vlan_type,
 		{ "VLAN Type",	"vtp.vlan_info.vlan_type", FT_UINT8, BASE_HEX, VALS(vlan_type_vals), 0x0,
-			"Type of VLAN" }},
+			"Type of VLAN", HFILL }},
 
 		{ &hf_vtp_vlan_name_len,
 		{ "VLAN Name Length", "vtp.vlan_info.vlan_name_len", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Length of VLAN name string" }},
+			"Length of VLAN name string", HFILL }},
 
 		{ &hf_vtp_isl_vlan_id,
 		{ "ISL VLAN ID",	"vtp.vlan_info.isl_vlan_id", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"ID of this VLAN on ISL trunks" }},
+			"ID of this VLAN on ISL trunks", HFILL }},
 
 		{ &hf_vtp_mtu_size,
 		{ "MTU Size",	"vtp.vlan_info.mtu_size", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"MTU for this VLAN" }},
+			"MTU for this VLAN", HFILL }},
 
 		{ &hf_vtp_802_10_index,
 		{ "802.10 Index", "vtp.vlan_info.802_10_index", FT_UINT32, BASE_HEX, NULL, 0x0,
-			"IEEE 802.10 security association identifier for this VLAN" }},
+			"IEEE 802.10 security association identifier for this VLAN", HFILL }},
 
 		{ &hf_vtp_vlan_name,
 		{ "VLAN Name", "vtp.vlan_info.vlan_name", FT_STRING, BASE_DEC, NULL, 0,
-			"VLAN name" }},
+			"VLAN name", HFILL }},
 
 		{ &hf_vtp_vlan_tlvtype,
 		{ "Type",	"vtp.vlan_info.tlv_type", FT_UINT8, BASE_HEX, VALS(vlan_tlv_type_vals), 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_vtp_vlan_tlvlength,
 		{ "Length",	"vtp.vlan_info.tlv_len", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
         };
 	static gint *ett[] = {
 		&ett_vtp,

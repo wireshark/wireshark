@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.93 2001/06/08 08:43:48 guy Exp $
+ * $Id: packet-udp.c,v 1.94 2001/06/18 02:17:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -235,27 +235,27 @@ proto_register_udp(void)
 	static hf_register_info hf[] = {
 		{ &hf_udp_srcport,
 		{ "Source Port",	"udp.srcport", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_udp_dstport,
 		{ "Destination Port",	"udp.dstport", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_udp_port,
 		{ "Source or Destination Port",	"udp.port", FT_UINT16, BASE_DEC,  NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_udp_length,
 		{ "Length",		"udp.length", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_udp_checksum_bad,
 		{ "Bad Checksum",	"udp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_udp_checksum,
 		{ "Checksum",		"udp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_udp,

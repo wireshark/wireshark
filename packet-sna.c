@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.29 2001/06/02 22:18:17 gram Exp $
+ * $Id: packet-sna.c,v 1.30 2001/06/18 02:17:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -873,310 +873,310 @@ proto_register_sna(void)
         static hf_register_info hf[] = {
                 { &hf_sna_th,
                 { "Transmission Header",	"sna.th", FT_NONE, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_0,
                 { "Transmission Header Byte 0",	"sna.th.0", FT_UINT8, BASE_HEX, NULL, 0x0,
 			"Byte 0 of Tranmission Header contains FID, MPF, ODAI,"
-			" and EFI as bitfields." }},
+			" and EFI as bitfields.", HFILL }},
 
                 { &hf_sna_th_fid,
                 { "Format Identifer",		"sna.th.fid", FT_UINT8, BASE_HEX, VALS(sna_th_fid_vals), 0xf0,
-			"Format Identification" }},
+			"Format Identification", HFILL }},
 
                 { &hf_sna_th_mpf,
                 { "Mapping Field",		"sna.th.mpf", FT_UINT8, BASE_DEC, VALS(sna_th_mpf_vals), 0x0c,
 			"The Mapping Field specifies whether the information field"
-			" associated with the TH is a complete or partial BIU." }},
+			" associated with the TH is a complete or partial BIU.", HFILL }},
 
 		{ &hf_sna_th_odai,
 		{ "ODAI Assignment Indicator",	"sna.th.odai", FT_UINT8, BASE_DEC, NULL, 0x02,
 			"The ODAI indicates which node assigned the OAF'-DAF' values"
-			" carried in the TH." }},
+			" carried in the TH.", HFILL }},
 
                 { &hf_sna_th_efi,
                 { "Expedited Flow Indicator",	"sna.th.efi", FT_UINT8, BASE_DEC, VALS(sna_th_efi_vals), 0x01,
 			"The EFI designates whether the PIU belongs to the normal"
-			" or expedited flow." }},
+			" or expedited flow.", HFILL }},
 
                 { &hf_sna_th_daf,
                 { "Destination Address Field",	"sna.th.daf", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_oaf,
                 { "Origin Address Field",	"sna.th.oaf", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_snf,
                 { "Sequence Number Field",	"sna.th.snf", FT_UINT16, BASE_DEC, NULL, 0x0,
 			"The Sequence Number Field contains a numerical identifier for"
-			" the associated BIU."}},
+			" the associated BIU.", HFILL }},
 
                 { &hf_sna_th_dcf,
                 { "Data Count Field",	"sna.th.dcf", FT_UINT16, BASE_DEC, NULL, 0x0,
 			"A binary count of the number of bytes in the BIU or BIU segment associated "
 			"with the tranmission header. The count does not include any of the bytes "
-			"in the transmission header."}},
+			"in the transmission header.", HFILL }},
 
                 { &hf_sna_th_lsid,
                 { "Local Session Identification",	"sna.th.lsid", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_tg_sweep,
                 { "Transmission Group Sweep",		"sna.th.tg_sweep", FT_UINT8, BASE_DEC,
 			VALS(sna_th_tg_sweep_vals), 0x08,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_er_vr_supp_ind,
                 { "ER and VR Support Indicator",	"sna.th.er_vr_supp_ind", FT_UINT8, BASE_DEC,
 			VALS(sna_th_er_vr_supp_ind_vals), 0x04,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_vr_pac_cnt_ind,
                 { "Virtual Route Pacing Count Indicator",	"sna.th.vr_pac_cnt_ind",
 			FT_UINT8, BASE_DEC, VALS(sna_th_vr_pac_cnt_ind_vals), 0x02,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_ntwk_prty,
                 { "Network Priority",	"sna.th.ntwk_prty",
 			FT_UINT8, BASE_DEC, VALS(sna_th_ntwk_prty_vals), 0x01,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_tgsf,
                 { "Transmission Group Segmenting Field",	"sna.th.tgsf",
 			FT_UINT8, BASE_HEX, VALS(sna_th_tgsf_vals), 0xc0,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_mft,
                 { "MPR FID4 Type",	"sna.th.mft", FT_BOOLEAN, BASE_NONE, NULL, 0x04,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_piubf,
                 { "PIU Blocking Field",	"sna.th.piubf", FT_UINT8, BASE_HEX,
 			VALS(sna_th_piubf_vals), 0x03,
-			"Specifies whether this frame contains a single PIU or multiple PIUs." }},
+			"Specifies whether this frame contains a single PIU or multiple PIUs.", HFILL }},
 
                 { &hf_sna_th_iern,
                 { "Initial Explicit Route Number",	"sna.th.iern", FT_UINT8, BASE_DEC, NULL, 0xf0,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_nlpoi,
                 { "NLP Offset Indicator",	"sna.th.nlpoi", FT_UINT8, BASE_DEC,
 			VALS(sna_th_nlpoi_vals), 0x80,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_nlp_cp,
                 { "NLP Count or Padding",	"sna.th.nlp_cp", FT_UINT8, BASE_DEC, NULL, 0x70,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_ern,
                 { "Explicit Route Number",	"sna.th.ern", FT_UINT8, BASE_DEC, NULL, 0x0f,
-			"The ERN in a TH identifies an explicit route direction of flow." }},
+			"The ERN in a TH identifies an explicit route direction of flow.", HFILL }},
 
                 { &hf_sna_th_vrn,
                 { "Virtual Route Number",	"sna.th.vrn", FT_UINT8, BASE_DEC, NULL, 0xf0,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_tpf,
                 { "Transmission Priority Field",	"sna.th.tpf", FT_UINT8, BASE_HEX,
 			VALS(sna_th_tpf_vals), 0x03,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_vr_cwi,
                 { "Virtual Route Change Window Indicator",	"sna.th.vr_cwi", FT_UINT16, BASE_DEC,
 			VALS(sna_th_vr_cwi_vals), 0x8000,
-			"Used to change the window size of the virtual route by 1." }},
+			"Used to change the window size of the virtual route by 1.", HFILL }},
 
                 { &hf_sna_th_tg_nonfifo_ind,
                 { "Transmission Group Non-FIFO Indicator",	"sna.th.tg_nonfifo_ind", FT_BOOLEAN, 16,
 			TFS(&sna_th_tg_nonfifo_ind_truth), 0x4000,
 			"Indicates whether or not FIFO discipline is to enforced in "
 			"transmitting PIUs through the tranmission groups to prevent the PIUs "
-			"getting out of sequence during transmission over the TGs." }},
+			"getting out of sequence during transmission over the TGs.", HFILL }},
 
                 { &hf_sna_th_vr_sqti,
                 { "Virtual Route Sequence and Type Indicator",	"sna.th.vr_sqti", FT_UINT16, BASE_HEX,
 			VALS(sna_th_vr_sqti_vals), 0x3000,
-			"Specifies the PIU type." }},
+			"Specifies the PIU type.", HFILL }},
 
                 { &hf_sna_th_tg_snf,
                 { "Transmission Group Sequence Number Field",	"sna.th.tg_snf", FT_UINT16, BASE_DEC,
 			NULL, 0x0fff,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_vrprq,
                 { "Virtual Route Pacing Request",	"sna.th.vrprq", FT_BOOLEAN, 16,
 			TFS(&sna_th_vrprq_truth), 0x8000,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_vrprs,
                 { "Virtual Route Pacing Response",	"sna.th.vrprs", FT_BOOLEAN, 16,
 			TFS(&sna_th_vrprs_truth), 0x4000,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_vr_cwri,
                 { "Virtual Route Change Window Reply Indicator",	"sna.th.vr_cwri", FT_UINT16, BASE_DEC,
 			VALS(sna_th_vr_cwri_vals), 0x2000,
 			"Permits changing of the window size by 1 for PIUs received by the "
-			"sender of this bit." }},
+			"sender of this bit.", HFILL }},
 
                 { &hf_sna_th_vr_rwi,
                 { "Virtual Route Reset Window Indicator",	"sna.th.vr_rwi", FT_BOOLEAN, 16,
 			TFS(&sna_th_vr_rwi_truth), 0x1000,
-			"Indicates severe congestion in a node on the virtual route." }},
+			"Indicates severe congestion in a node on the virtual route.", HFILL }},
 
                 { &hf_sna_th_vr_snf_send,
                 { "Virtual Route Send Sequence Number Field",	"sna.th.vr_snf_send", FT_UINT16, BASE_DEC,
 			NULL, 0x0fff,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_dsaf,
                 { "Destination Subarea Address Field",	"sna.th.dsaf", FT_UINT32, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_osaf,
                 { "Origin Subarea Address Field",	"sna.th.osaf", FT_UINT32, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_snai,
                 { "SNA Indicator",	"sna.th.snai", FT_BOOLEAN, 8, NULL, 0x10,
 			"Used to identify whether the PIU originated or is destined for "
-			"an SNA or non-SNA device." }},
+			"an SNA or non-SNA device.", HFILL }},
 
                 { &hf_sna_th_def,
                 { "Destination Element Field",	"sna.th.def", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_oef,
                 { "Origin Element Field",	"sna.th.oef", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_sa,
                 { "Session Address",	"sna.th.sa", FT_BYTES, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_cmd_fmt,
                 { "Command Format",	"sna.th.cmd_fmt", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_cmd_type,
                 { "Command Type",	"sna.th.cmd_type", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_th_cmd_sn,
                 { "Command Sequence Number",	"sna.th.cmd_sn", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 
                 { &hf_sna_rh,
                 { "Request/Response Header",	"sna.rh", FT_NONE, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_rh_0,
                 { "Request/Response Header Byte 0",	"sna.rh.0", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_rh_1,
                 { "Request/Response Header Byte 1",	"sna.rh.1", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_rh_2,
                 { "Request/Response Header Byte 2",	"sna.rh.2", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
                 { &hf_sna_rh_rri,
                 { "Request/Response Indicator",	"sna.rh.rri", FT_UINT8, BASE_DEC, VALS(sna_rh_rri_vals), 0x80,
-			"Denotes whether this is a request or a response." }},
+			"Denotes whether this is a request or a response.", HFILL }},
 
                 { &hf_sna_rh_ru_category,
                 { "Request/Response Unit Category",	"sna.rh.ru_category", FT_UINT8, BASE_HEX,
 			VALS(sna_rh_ru_category_vals), 0x60,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_sna_rh_fi,
 		{ "Format Indicator",		"sna.rh.fi", FT_BOOLEAN, 8, TFS(&sna_rh_fi_truth), 0x08,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_sna_rh_sdi,
 		{ "Sense Data Included",	"sna.rh.sdi", FT_BOOLEAN, 8, TFS(&sna_rh_sdi_truth), 0x04,
-			"Indicates that a 4-byte sense data field is included in the associated RU." }},
+			"Indicates that a 4-byte sense data field is included in the associated RU.", HFILL }},
 
 		{ &hf_sna_rh_bci,
 		{ "Begin Chain Indicator",	"sna.rh.bci", FT_BOOLEAN, 8, TFS(&sna_rh_bci_truth), 0x02,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_sna_rh_eci,
 		{ "End Chain Indicator",	"sna.rh.eci", FT_BOOLEAN, 8, TFS(&sna_rh_eci_truth), 0x01,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_sna_rh_dr1,
 		{ "Definite Response 1 Indicator",	"sna.rh.dr1", FT_BOOLEAN, 8, NULL, 0x80,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_sna_rh_lcci,
 		{ "Length-Checked Compression Indicator",	"sna.rh.lcci", FT_BOOLEAN, 8,
 			TFS(&sna_rh_lcci_truth), 0x40,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_sna_rh_dr2,
 		{ "Definite Response 2 Indicator",	"sna.rh.dr2", FT_BOOLEAN, 8, NULL, 0x20,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_sna_rh_eri,
 		{ "Exception Response Indicator",	"sna.rh.eri", FT_BOOLEAN, 8, NULL, 0x10,
 			"Used in conjunction with DR1I and DR2I to indicate, in a request, "
-			"the form of response requested." }},
+			"the form of response requested.", HFILL }},
 
 		{ &hf_sna_rh_rti,
 		{ "Response Type Indicator",	"sna.rh.rti", FT_BOOLEAN, 8, TFS(&sna_rh_rti_truth), 0x10,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_sna_rh_rlwi,
 		{ "Request Larger Window Indicator",	"sna.rh.rlwi", FT_BOOLEAN, 8, NULL, 0x04,
-			"Indicates whether a larger pacing window was requested." }},
+			"Indicates whether a larger pacing window was requested.", HFILL }},
 
 		{ &hf_sna_rh_qri,
 		{ "Queued Response Indicator",	"sna.rh.qri", FT_BOOLEAN, 8, TFS(&sna_rh_qri_truth), 0x02,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_sna_rh_pi,
 		{ "Pacing Indicator",	"sna.rh.pi", FT_BOOLEAN, 8, NULL, 0x01,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_sna_rh_bbi,
 		{ "Begin Bracket Indicator",	"sna.rh.bbi", FT_BOOLEAN, 8, NULL, 0x80,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_sna_rh_ebi,
 		{ "End Bracket Indicator",	"sna.rh.ebi", FT_BOOLEAN, 8, NULL, 0x40,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_sna_rh_cdi,
 		{ "Change Direction Indicator",	"sna.rh.cdi", FT_BOOLEAN, 8, NULL, 0x20,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_sna_rh_csi,
 		{ "Code Selection Indicator",	"sna.rh.csi", FT_UINT8, BASE_DEC, VALS(sna_rh_csi_vals), 0x08,
-			"Specifies the encoding used for the associated FMD RU." }},
+			"Specifies the encoding used for the associated FMD RU.", HFILL }},
 
 		{ &hf_sna_rh_edi,
 		{ "Enciphered Data Indicator",	"sna.rh.edi", FT_BOOLEAN, 8, NULL, 0x04,
 			"Indicates that information in the associated RU is enciphered under "
-			"session-level cryptography protocols." }},
+			"session-level cryptography protocols.", HFILL }},
 
 		{ &hf_sna_rh_pdi,
 		{ "Padded Data Indicator",	"sna.rh.pdi", FT_BOOLEAN, 8, NULL, 0x02,
 			"Indicates that the RU was padded at the end, before encipherment, to the next "
-			"integral multiple of 8 bytes." }},
+			"integral multiple of 8 bytes.", HFILL }},
 
 		{ &hf_sna_rh_cebi,
 		{ "Conditional End Bracket Indicator",	"sna.rh.cebi", FT_BOOLEAN, 8, NULL, 0x01,
 			"Used to indicate the beginning or end of a group of exchanged "
-			"requests and responses called a bracket. Only used on LU-LU sessions." }},
+			"requests and responses called a bracket. Only used on LU-LU sessions.", HFILL }},
 
 /*                { &hf_sna_ru,
                 { "Request/Response Unit",	"sna.ru", FT_NONE, BASE_NONE, NULL, 0x0,
-			""}},*/
+			"", HFILL }},*/
         };
 	static gint *ett[] = {
 		&ett_sna,

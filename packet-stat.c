@@ -1,7 +1,7 @@
 /* packet-stat.c
  * Routines for stat dissection
  *
- * $Id: packet-stat.c,v 1.9 2001/05/30 06:01:02 guy Exp $
+ * $Id: packet-stat.c,v 1.10 2001/06/18 02:17:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -272,46 +272,46 @@ proto_register_stat(void)
 	static hf_register_info hf[] = {
 		{ &hf_stat_mon_name, {
 			"Name", "stat.name", FT_STRING, BASE_DEC,
-			NULL, 0, "Name" }},
+			NULL, 0, "Name", HFILL }},
 		{ &hf_stat_stat_res, {
 			"Status Result", "stat.stat_res", FT_NONE,0,
-			NULL, 0, "Status Result" }}, 
+			NULL, 0, "Status Result", HFILL }}, 
 		{ &hf_stat_stat_res_res, {
 			"Result", "stat.stat_res.res", FT_UINT32, BASE_DEC,
-			VALS(stat_res), 0, "Result" }},
+			VALS(stat_res), 0, "Result", HFILL }},
 		{ &hf_stat_stat_res_state, {
 			"State", "stat.stat_res.state", FT_UINT32, BASE_DEC,
-			NULL, 0, "State" }},
+			NULL, 0, "State", HFILL }},
 		{ &hf_stat_mon, {
 			"Monitor", "stat.mon", FT_NONE, 0,
-			NULL, 0, "Monitor Host" }},
+			NULL, 0, "Monitor Host", HFILL }},
 		{ &hf_stat_mon_id_name, {
 			"Monitor ID Name", "stat.mon_id.name", FT_STRING, BASE_DEC,
-			NULL, 0, "Monitor ID Name" }},
+			NULL, 0, "Monitor ID Name", HFILL }},
 		{ &hf_stat_my_id, {
 			"My ID", "stat.my_id", FT_NONE,0,
-			NULL, 0, "My_ID structure" }}, 
+			NULL, 0, "My_ID structure", HFILL }}, 
 		{ &hf_stat_my_id_hostname, {
 			"Hostname", "stat.my_id.hostname", FT_STRING, BASE_DEC,
-			NULL, 0, "My_ID Host to callback" }},
+			NULL, 0, "My_ID Host to callback", HFILL }},
 		{ &hf_stat_my_id_prog, {
 			"Program", "stat.my_id.prog", FT_UINT32, BASE_DEC,
-			NULL, 0, "My_ID Program to callback" }},
+			NULL, 0, "My_ID Program to callback", HFILL }},
 		{ &hf_stat_my_id_vers, {
 			"Version", "stat.my_id.vers", FT_UINT32, BASE_DEC,
-			NULL, 0, "My_ID Version of callback" }},
+			NULL, 0, "My_ID Version of callback", HFILL }},
 		{ &hf_stat_my_id_proc, {
 			"Procedure", "stat.my_id.proc", FT_UINT32, BASE_DEC,
-			NULL, 0, "My_ID Procedure to callback" }},
+			NULL, 0, "My_ID Procedure to callback", HFILL }},
 		{ &hf_stat_priv, {
 			"Priv", "stat.priv", FT_BYTES, BASE_HEX,
-			NULL, 0, "Private client supplied opaque data" }},
+			NULL, 0, "Private client supplied opaque data", HFILL }},
 		{ &hf_stat_state, {
 			"State", "stat.state", FT_UINT32, BASE_DEC,
-			NULL, 0, "State of local NSM" }},
+			NULL, 0, "State of local NSM", HFILL }},
 		{ &hf_stat_stat_chge, {
 			"Status Change", "stat.stat_chge", FT_NONE, 0,
-			NULL, 0, "Status Change structure" }},
+			NULL, 0, "Status Change structure", HFILL }},
 	};
 	
 	static gint *ett[] = {

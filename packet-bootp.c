@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.53 2001/05/25 06:56:53 guy Exp $
+ * $Id: packet-bootp.c,v 1.54 2001/06/18 02:17:45 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -1178,82 +1178,82 @@ proto_register_bootp(void)
     { &hf_bootp_dhcp,
       { "Frame is DHCP",                "bootp.dhcp",    FT_BOOLEAN,
         BASE_NONE,			NULL,		 0x0,
-        "" }},                            
+        "", HFILL }},                            
                       
     { &hf_bootp_type,
       { "Message type",			"bootp.type",	 FT_UINT8,
          BASE_DEC, 			VALS(op_vals),   0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_bootp_hw_type,
       { "Hardware type",	       	"bootp.hw.type", FT_UINT8,
         BASE_HEX,			NULL,		 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_bootp_hw_len,
       { "Hardware address length",	"bootp.hw.len",  FT_UINT8,
         BASE_DEC,			NULL,		 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_bootp_hops,
       { "Hops",			       	"bootp.hops",	 FT_UINT8,
         BASE_DEC,			NULL,		 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_bootp_id,
       { "Transaction ID",	       	"bootp.id",	 FT_UINT32,
         BASE_HEX,			 NULL,		 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_bootp_secs,
       { "Seconds elapsed",	       	"bootp.secs",	 FT_UINT16,
         BASE_DEC,			 NULL,		 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_bootp_flag,
       { "Broadcast flag",	       	"bootp.flag",    FT_UINT16,
         BASE_HEX,			NULL,		 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_bootp_ip_client,
       { "Client IP address",	       	"bootp.ip.client",FT_IPv4,
         BASE_NONE,			NULL,		  0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_bootp_ip_your,
       { "Your (client) IP address",	"bootp.ip.your",  FT_IPv4,
         BASE_NONE,			NULL,		  0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_bootp_ip_server,
       { "Next server IP address",	"bootp.ip.server",FT_IPv4,
         BASE_NONE,			NULL,		  0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_bootp_ip_relay,
       { "Relay agent IP address",	"bootp.ip.relay", FT_IPv4,
         BASE_NONE,			NULL,		  0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_bootp_hw_addr,
       { "Client hardware address",	"bootp.hw.addr", FT_BYTES,
         BASE_NONE,			NULL,		 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_bootp_server,
       { "Server host name",		"bootp.server",  FT_STRING,
         BASE_NONE,			NULL,		 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_bootp_file,
       { "Boot file name",		"bootp.file",	 FT_STRING,
         BASE_NONE,			NULL,		 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_bootp_cookie,
       { "Magic cookie",			"bootp.cookie",	 FT_IPv4,
          BASE_NONE,			NULL,		 0x0,
-      	"" }},
+      	"", HFILL }},
   };
   static gint *ett[] = {
     &ett_bootp,

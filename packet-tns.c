@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.14 2001/04/19 23:02:44 guy Exp $
+ * $Id: packet-tns.c,v 1.15 2001/06/18 02:17:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -287,43 +287,43 @@ void proto_register_tns(void)
 	static hf_register_info hf[] = {
 		{ &hf_tns_sns, { 
 			"Secure Network Services", "tns.sns", FT_BOOLEAN, BASE_NONE, 
-			NULL, 0x0, "Secure Network Services" }},
+			NULL, 0x0, "Secure Network Services", HFILL }},
 		{ &hf_tns_connect, { 
 			"Connect", "tns.connect", FT_BOOLEAN, BASE_NONE, 
-			NULL, 0x0, "Connect" }},
+			NULL, 0x0, "Connect", HFILL }},
 		{ &hf_tns_response, { 
 			"Response", "tns.response", FT_BOOLEAN, BASE_NONE, 
-			NULL, 0x0, "TRUE if TNS response" }},
+			NULL, 0x0, "TRUE if TNS response", HFILL }},
 		{ &hf_tns_request, { 
 			"Request", "tns.request", FT_BOOLEAN, BASE_NONE, 
-			NULL, 0x0, "TRUE if TNS request" }},
+			NULL, 0x0, "TRUE if TNS request", HFILL }},
 		{ &hf_tns_length, { 	
 			"Packet Length", "tns.length", FT_UINT32, BASE_DEC, 
-			NULL, 0x0, "Length of TNS packet" }},
+			NULL, 0x0, "Length of TNS packet", HFILL }},
 		{ &hf_tns_packet_checksum, { 	
 			"Packet Checksum", "tns.packet_checksum", FT_UINT16, BASE_HEX, 
-			NULL, 0x0, "Checksum of Packet Data" }},
+			NULL, 0x0, "Checksum of Packet Data", HFILL }},
 		{ &hf_tns_header_checksum, { 	
 			"Header Checksum", "tns.header_checksum", FT_UINT16, BASE_HEX, 
-			NULL, 0x0, "Checksum of Header Data" }},
+			NULL, 0x0, "Checksum of Header Data", HFILL }},
 		{ &hf_tns_data_flag, { 	
 			"Data Flag", "tns.data_flag", FT_UINT16, BASE_HEX, 
-			NULL, 0x0, "Data Flag" }},
+			NULL, 0x0, "Data Flag", HFILL }},
 		{ &hf_tns_version, { 	
 			"Version", "tns.version", FT_UINT16, BASE_DEC, 
-			NULL, 0x0, "Version" }},
+			NULL, 0x0, "Version", HFILL }},
 		{ &hf_tns_compat_version, { 	
 			"Version (Compatible)", "tns.compat_version", FT_UINT16, BASE_DEC, 
-			NULL, 0x0, "Version (Compatible)" }},
+			NULL, 0x0, "Version (Compatible)", HFILL }},
 		{ &hf_tns_service_options, { 	
 			"Service Options", "tns.service_options", FT_UINT16, BASE_HEX, 
-			NULL, 0x0, "Service Options" }},
+			NULL, 0x0, "Service Options", HFILL }},
 		{ &hf_tns_reserved_byte, { 	
 			"Reserved Byte", "tns.reserved_byte", FT_BYTES, BASE_HEX, 
-			NULL, 0x0, "Reserved Byte" }},
+			NULL, 0x0, "Reserved Byte", HFILL }},
 		{ &hf_tns_packet_type, { 	
 			"Packet Type", "tns.type", FT_UINT8, BASE_DEC, 
-			VALS(tns_type_vals), 0x0, "Type of TNS packet" }}	
+			VALS(tns_type_vals), 0x0, "Type of TNS packet", HFILL }}	
 	};
 
 	static gint *ett[] = {

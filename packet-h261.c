@@ -2,7 +2,7 @@
  *
  * Routines for ITU-T Recommendation H.261 dissection
  *
- * $Id: packet-h261.c,v 1.7 2001/06/12 06:31:14 guy Exp $
+ * $Id: packet-h261.c,v 1.8 2001/06/18 02:17:46 guy Exp $
  * 
  * Copyright 2000, Philips Electronics N.V.
  * Andreas Sikkema <andreas.sikkema@philips.com>
@@ -135,7 +135,7 @@ proto_register_h261(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -147,7 +147,7 @@ proto_register_h261(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -159,7 +159,7 @@ proto_register_h261(void)
 				BASE_NONE, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -171,7 +171,7 @@ proto_register_h261(void)
 				BASE_NONE, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -183,7 +183,7 @@ proto_register_h261(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -195,7 +195,7 @@ proto_register_h261(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -207,7 +207,7 @@ proto_register_h261(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -219,7 +219,7 @@ proto_register_h261(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -231,7 +231,7 @@ proto_register_h261(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -243,7 +243,7 @@ proto_register_h261(void)
 				BASE_NONE, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 };

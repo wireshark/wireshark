@@ -2,7 +2,7 @@
  * Routines for Frame Relay Local Management Interface (LMI) disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-lmi.c,v 1.4 2001/03/30 11:03:29 guy Exp $
+ * $Id: packet-lmi.c,v 1.5 2001/06/18 02:17:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -196,43 +196,43 @@ proto_register_lmi(void)
     static hf_register_info hf[] = {
 	{ &hf_lmi_call_ref,
 	  { "Call reference", "lmi.cmd", FT_UINT8, BASE_HEX, NULL, 0, 
-	  	"Call Reference" }},
+	  	"Call Reference", HFILL }},
 
 	{ &hf_lmi_msg_type,
 	  { "Message Type", "lmi.msg_type", FT_UINT8, BASE_HEX, VALS(msg_type_str), 0, 
-	  	"Message Type" }},
+	  	"Message Type", HFILL }},
 
 	{ &hf_lmi_inf_ele,
 	  { "Information Element", "lmi.inf_ele", FT_UINT8, BASE_DEC, VALS(element_type_str), 0,
-	  	"Information Element" }},
+	  	"Information Element", HFILL }},
 	{ &hf_lmi_inf_ele,
 	  { "Type", "lmi.inf_ele_type", FT_UINT8, BASE_DEC, VALS(element_type_str), 0,
-	  	"Information Element Type" }},
+	  	"Information Element Type", HFILL }},
 	{ &hf_lmi_inf_len,
 	  { "Length", "lmi.inf_ele_len", FT_UINT8, BASE_DEC, NULL, 0,
-	  	"Information Element Length" }},
+	  	"Information Element Length", HFILL }},
 
 	{ &hf_lmi_rcd_type,
 	  { "Record Type", "lmi.ele_rcd_type", FT_UINT8, BASE_DEC, VALS(record_type_str), 0,
-	  	"Record Type" }},
+	  	"Record Type", HFILL }},
 	{ &hf_lmi_send_seq,
 	  { "Send Seq", "lmi.send_seq", FT_UINT8, BASE_DEC, NULL, 0,
-	  	"Send Sequence" }},
+	  	"Send Sequence", HFILL }},
 	{ &hf_lmi_recv_seq,
 	  { "Recv Seq", "lmi.recv_seq", FT_UINT8, BASE_DEC, NULL, 0,
-	  	"Receive Sequence" }},
+	  	"Receive Sequence", HFILL }},
 	{ &hf_lmi_dlci_high,
 	  { "DLCI High", "lmi.dlci_hi", FT_UINT8, BASE_DEC, NULL, 0x3f,
-	  	"DLCI High bits" }},
+	  	"DLCI High bits", HFILL }},
 	{ &hf_lmi_dlci_low,
 	  { "DLCI Low", "lmi.dlci_low", FT_UINT8, BASE_DEC, NULL, 0x78,
-	  	"DLCI Low bits" }},
+	  	"DLCI Low bits", HFILL }},
 	{ &hf_lmi_new,
 	  { "DLCI New", "lmi.dlci_new", FT_UINT8, BASE_DEC, VALS(pvc_status_new_str), 0x08,
-	  	"DLCI New Flag" }},
+	  	"DLCI New Flag", HFILL }},
 	{ &hf_lmi_act,
 	  { "DLCI Active","lmi.dlci_act", FT_UINT8, BASE_DEC, VALS(pvc_status_act_str), 0x02,
-	  	"DLCI Active Flag" }},
+	  	"DLCI Active Flag", HFILL }},
     };
     static gint *ett[] = {
         &ett_lmi,

@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.1 2001/05/24 20:25:24 guy Exp $
+ * $Id: packet-dsi.c,v 1.2 2001/06/18 02:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -443,32 +443,32 @@ proto_register_dsi(void)
     { &hf_dsi_flags,
       { "Flags",            "dsi.flags",
 	FT_UINT8, BASE_HEX, VALS(flag_vals), 0x0,
-      	"Indicates request or reply." }},
+      	"Indicates request or reply.", HFILL }},
 
     { &hf_dsi_command,
       { "Command",           "dsi.command",
 	FT_UINT8, BASE_DEC, VALS(func_vals), 0x0,
-      	"Represents a DSI command." }},
+      	"Represents a DSI command.", HFILL }},
 
     { &hf_dsi_requestid,
       { "Request ID",           "dsi.requestid",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"Keeps track of which request this is.  Replies must match a Request.  IDs must be generated in sequential order." }},
+      	"Keeps track of which request this is.  Replies must match a Request.  IDs must be generated in sequential order.", HFILL }},
 
     { &hf_dsi_code,
       { "Code",           "dsi.code",
 	FT_UINT32, BASE_HEX, NULL, 0x0,
-      	"In Reply packets this is an error code.  In Request Write packets this is a data offset." }},
+      	"In Reply packets this is an error code.  In Request Write packets this is a data offset.", HFILL }},
 
     { &hf_dsi_length,
       { "Length",           "dsi.length",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
-      	"Total length of the data that follows the DSI header." }},
+      	"Total length of the data that follows the DSI header.", HFILL }},
 
     { &hf_dsi_reserved,
       { "Reserved",           "dsi.reserved",
 	FT_UINT32, BASE_HEX, NULL, 0x0,
-      	"Reserved for future use.  Should be set to zero." }},
+      	"Reserved for future use.  Should be set to zero.", HFILL }},
 
   };
   static gint *ett[] = {

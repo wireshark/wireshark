@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lpd.c,v 1.27 2001/01/22 08:03:45 guy Exp $
+ * $Id: packet-lpd.c,v 1.28 2001/06/18 02:17:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -173,12 +173,12 @@ proto_register_lpd(void)
     { &hf_lpd_response,
       { "Response",           "lpd.response",		
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"TRUE if LPD response" }},
+      	"TRUE if LPD response", HFILL }},
 
     { &hf_lpd_request,
       { "Request",            "lpd.request",
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"TRUE if LPD request" }}
+      	"TRUE if LPD request", HFILL }}
   };
   static gint *ett[] = {
     &ett_lpd,

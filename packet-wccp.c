@@ -2,7 +2,7 @@
  * Routines for Web Cache Coordination Protocol dissection
  * Jerry Talkington <jerryt@netapp.com>
  *
- * $Id: packet-wccp.c,v 1.19 2001/03/20 04:30:09 guy Exp $
+ * $Id: packet-wccp.c,v 1.20 2001/06/18 02:17:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1195,27 +1195,27 @@ proto_register_wccp(void)
 	static hf_register_info hf[] = {
 		{ &hf_wccp_message_type,
 			{ "WCCP Message Type", "wccp.message", FT_UINT32, BASE_DEC, VALS(wccp_type_vals), 0x0,
-				"The WCCP message that was sent"}
+				"The WCCP message that was sent", HFILL }
 		},
 		{ &hf_wccp_version, 
 			{ "WCCP Version", "wccp.version", FT_UINT32, BASE_DEC, VALS(wccp_version_val), 0x0,
-				"The WCCP version"}
+				"The WCCP version", HFILL }
 		},
 		{ &hf_hash_revision,
 			{ "Hash Revision", "wccp.hash_revision", FT_UINT32, BASE_DEC, 0x0, 0x0,
-				"The cache hash revision"}
+				"The cache hash revision", HFILL }
 		},
 		{ &hf_change_num,
 			{ "Change Number", "wccp.change_num", FT_UINT32, BASE_DEC, 0x0, 0x0,
-				"The Web-Cache list entry change number"}
+				"The Web-Cache list entry change number", HFILL }
 		},
 		{ &hf_recvd_id,
 			{ "Received ID", "wccp.recvd_id", FT_UINT32, BASE_DEC, 0x0, 0x0,
-				"The number of I_SEE_YOU's that have been sent"}
+				"The number of I_SEE_YOU's that have been sent", HFILL }
 		},
 		{ &hf_cache_ip,
 			{ "Web Cache IP address", "wccp.cache_ip", FT_IPv4, BASE_NONE, NULL, 0x0,
-				"The IP address of a Web cache"}
+				"The IP address of a Web cache", HFILL }
 		},
 	};
 	static gint *ett[] = {

@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.32 2001/06/18 01:49:16 guy Exp $
+ * $Id: packet-clnp.c,v 1.33 2001/06/18 02:17:45 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -2062,65 +2062,65 @@ void proto_register_clnp(void)
   static hf_register_info hf[] = {
     { &hf_clnp_id,
       { "Network Layer Protocol Identifier", "clnp.nlpi", FT_UINT8, BASE_HEX, 
-        VALS(nlpid_vals), 0x0, "" }},
+        VALS(nlpid_vals), 0x0, "", HFILL }},
 
     { &hf_clnp_length,
-      { "HDR Length   ", "clnp.len",	   FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+      { "HDR Length   ", "clnp.len",	   FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_clnp_version,
-      { "Version      ", "clnp.version",  FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+      { "Version      ", "clnp.version",  FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_clnp_ttl,
-      { "Holding Time ", "clnp.ttl",	   FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+      { "Holding Time ", "clnp.ttl",	   FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_clnp_type,
-      { "PDU Type     ", "clnp.type",     FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+      { "PDU Type     ", "clnp.type",     FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_clnp_pdu_length,
-      { "PDU length   ", "clnp.pdu.len",  FT_UINT16, BASE_DEC, NULL, 0x0, "" }},
+      { "PDU length   ", "clnp.pdu.len",  FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_clnp_checksum,
-      { "Checksum     ", "clnp.checksum", FT_UINT16, BASE_DEC, NULL, 0x0, "" }},
+      { "Checksum     ", "clnp.checksum", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_clnp_dest_length,
-      { "DAL ", "clnp.dsap.len", FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+      { "DAL ", "clnp.dsap.len", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_clnp_dest,
-      { " DA ", "clnp.dsap",     FT_BYTES, BASE_NONE, NULL, 0x0, "" }},
+      { " DA ", "clnp.dsap",     FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_clnp_src_length,
-      { "SAL ", "clnp.ssap.len", FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+      { "SAL ", "clnp.ssap.len", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_clnp_src,
-      { " SA ", "clnp.ssap",     FT_BYTES, BASE_NONE, NULL, 0x0, "" }},
+      { " SA ", "clnp.ssap",     FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_clnp_segment_overlap,
       { "Segment overlap", "clnp.segment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"Segment overlaps with other segments" }},
+	"Segment overlaps with other segments", HFILL }},
 
     { &hf_clnp_segment_overlap_conflict,
       { "Conflicting data in segment overlap", "clnp.segment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"Overlapping segments contained conflicting data" }},
+	"Overlapping segments contained conflicting data", HFILL }},
 
     { &hf_clnp_segment_multiple_tails,
       { "Multiple tail segments found", "clnp.segment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"Several tails were found when reassembling the packet" }},
+	"Several tails were found when reassembling the packet", HFILL }},
 
     { &hf_clnp_segment_too_long_segment,
       { "Segment too long", "clnp.segment.toolongsegment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"Segment contained data past end of packet" }},
+	"Segment contained data past end of packet", HFILL }},
 
     { &hf_clnp_segment_error,
       { "Reassembly error", "clnp.segment.error", FT_NONE, BASE_DEC, NULL, 0x0,
-	"Reassembly error due to illegal segments" }},
+	"Reassembly error due to illegal segments", HFILL }},
 
     { &hf_clnp_segment,
       { "CLNP Segment", "clnp.segment", FT_NONE, BASE_DEC, NULL, 0x0,
-	"CLNP Segment" }},
+	"CLNP Segment", HFILL }},
 
     { &hf_clnp_segments,
       { "CLNP Segments", "clnp.segments", FT_NONE, BASE_DEC, NULL, 0x0,
-	"CLNP Segments" }},
+	"CLNP Segments", HFILL }},
   };
   static gint *ett[] = {
     &ett_clnp,

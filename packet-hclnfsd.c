@@ -2,7 +2,7 @@
  * Routines for hclnfsd (Hummingbird NFS Daemon) dissection
  * Copyright 2001, Mike Frisch <frisch@hummingbird.com>
  *
- * $Id: packet-hclnfsd.c,v 1.6 2001/05/30 06:01:01 guy Exp $
+ * $Id: packet-hclnfsd.c,v 1.7 2001/06/18 02:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -668,139 +668,139 @@ proto_register_hclnfsd(void)
 	static hf_register_info hf[] = {
 		{ &hf_hclnfsd_request_type, {
 			"Request Type", "hclnfsd.request_type", FT_UINT32, BASE_DEC,
-			VALS(names_request_type), 0, "Request Type" }},
+			VALS(names_request_type), 0, "Request Type", HFILL }},
 
 		{ &hf_hclnfsd_device, {
 			"Device", "hclnfsd.device", FT_STRING, BASE_DEC,
-			NULL, 0, "Device" }},
+			NULL, 0, "Device", HFILL }},
 
 		{ &hf_hclnfsd_login, {
 			"Login Text", "hclnfsd.logintext", FT_STRING, BASE_DEC,
-			NULL, 0, "Login Text" }},
+			NULL, 0, "Login Text", HFILL }},
 
 		{ &hf_hclnfsd_lockname, {
 			"Lockname", "hclnfsd.lockname", FT_STRING, BASE_DEC,
-			NULL, 0, "Lockname" }},
+			NULL, 0, "Lockname", HFILL }},
 
 		{ &hf_hclnfsd_unknown_data, {
 			"Unknown", "hclnfsd.unknown_data", FT_BYTES, BASE_DEC,
-			NULL, 0, "Data" }},
+			NULL, 0, "Data", HFILL }},
 
 		{ &hf_hclnfsd_lockowner, {
 			"Lockowner", "hclnfsd.lockowner", FT_BYTES, BASE_DEC,
-			NULL, 0, "Lockowner" }},
+			NULL, 0, "Lockowner", HFILL }},
 
 		{ &hf_hclnfsd_printername, {
 			"Printer Name", "hclnfsd.printername", FT_STRING, BASE_DEC,
-			NULL, 0, "Printer name" }},
+			NULL, 0, "Printer name", HFILL }},
 
 		{ &hf_hclnfsd_filename, {
 			"Filename", "hclnfsd.filename", FT_STRING, BASE_DEC,
-			NULL, 0, "Filename" }},
+			NULL, 0, "Filename", HFILL }},
 
 		{ &hf_hclnfsd_fileext, {
 			"File Extension", "hclnfsd.fileext", FT_UINT32, BASE_DEC,
-			NULL, 0, "File Extension" }},
+			NULL, 0, "File Extension", HFILL }},
 
 		{ &hf_hclnfsd_grpname, {
 			"Group", "hclnfsd.group", FT_STRING, BASE_DEC,
-			NULL, 0, "Group" }},
+			NULL, 0, "Group", HFILL }},
 
 		{ &hf_hclnfsd_hostname, {
 			"Hostname", "hclnfsd.hostname", FT_STRING, BASE_DEC,
-			NULL, 0, "Hostname" }},
+			NULL, 0, "Hostname", HFILL }},
 
 		{ &hf_hclnfsd_username, {
 			"Username", "hclnfsd.username", FT_STRING, BASE_DEC,
-			NULL, 0, "Username" }},
+			NULL, 0, "Username", HFILL }},
 
 		{ &hf_hclnfsd_queuename, {
 			"Name", "hclnfsd.printqueuename", FT_STRING, BASE_DEC,
-			NULL, 0, "Print Queue Name" }},
+			NULL, 0, "Print Queue Name", HFILL }},
 
 		{ &hf_hclnfsd_queuecomment, {
 			"Comment", "hclnfsd.printqueuecomment", FT_STRING, BASE_DEC,
-			NULL, 0, "Print Queue Comment" }},
+			NULL, 0, "Print Queue Comment", HFILL }},
 
 		{ &hf_hclnfsd_printparams, {
 			"Print Parameters", "hclnfsd.printparameters", FT_STRING, BASE_DEC,
-			NULL, 0, "Print Parameters" }},
+			NULL, 0, "Print Parameters", HFILL }},
 
 		{ &hf_hclnfsd_status, {
 			"Status", "hclnfsd.status", FT_UINT32, BASE_DEC,
-			NULL, 0, "Status" }},
+			NULL, 0, "Status", HFILL }},
 
 		{ &hf_hclnfsd_uid, {
 			"UID", "hclnfsd.uid", FT_UINT32, BASE_DEC,
-			NULL, 0, "User ID" }},
+			NULL, 0, "User ID", HFILL }},
 
 		{ &hf_hclnfsd_sequence, {
 			"Sequence", "hclnfsd.sequence", FT_UINT32, BASE_HEX,
-			NULL, 0, "Sequence" }},
+			NULL, 0, "Sequence", HFILL }},
 
 		{ &hf_hclnfsd_cookie, {
 			"Cookie", "hclnfsd.cookie", FT_UINT32, BASE_HEX,
-			NULL, 0, "Cookie" }},
+			NULL, 0, "Cookie", HFILL }},
 
 		{ &hf_hclnfsd_mode, {
 			"Mode", "hclnfsd.mode", FT_UINT32, BASE_DEC,
-			NULL, 0, "Mode" }},
+			NULL, 0, "Mode", HFILL }},
 
 		{ &hf_hclnfsd_access, {
 			"Access", "hclnfsd.access", FT_UINT32, BASE_DEC,
-			NULL, 0, "Access" }},
+			NULL, 0, "Access", HFILL }},
 
 		{ &hf_hclnfsd_exclusive, {
 			"Exclusive", "hclnfsd.exclusive", FT_UINT32, BASE_DEC,
-			NULL, 0, "Exclusive" }},
+			NULL, 0, "Exclusive", HFILL }},
 
 		{ &hf_hclnfsd_offset, {
 			"Offset", "hclnfsd.offset", FT_UINT32, BASE_DEC,
-			NULL, 0, "Offset" }},
+			NULL, 0, "Offset", HFILL }},
 
 		{ &hf_hclnfsd_length, {
 			"Length", "hclnfsd.length", FT_UINT32, BASE_DEC,
-			NULL, 0, "Length" }},
+			NULL, 0, "Length", HFILL }},
 
 		{ &hf_hclnfsd_queuestatus, {
 			"Queue Status", "hclnfsd.queuestatus", FT_UINT32, BASE_DEC,
-			NULL, 0, "Queue Status" }},
+			NULL, 0, "Queue Status", HFILL }},
 
 		{ &hf_hclnfsd_printqueuenumber, {
 			"Print Queue Number", "hclnfsd.pqn", FT_UINT32, BASE_DEC,
-			NULL, 0, "Print Queue Number" }},
+			NULL, 0, "Print Queue Number", HFILL }},
 
 		{ &hf_hclnfsd_numphysicalprinters, {
 			"Number of Physical Printers", "hclnfsd.npp", FT_UINT32, BASE_DEC,
-			NULL, 0, "Number of Physical Printers" }},
+			NULL, 0, "Number of Physical Printers", HFILL }},
 
 		{ &hf_hclnfsd_jobstatus, {
 			"Job Status", "hclnfsd.jobstatus", FT_UINT32, BASE_DEC,
-			NULL, 0, "Job Status" }},
+			NULL, 0, "Job Status", HFILL }},
 
 		{ &hf_hclnfsd_timesubmitted, {
 			"Time Submitted", "hclnfsd.timesubmitted", FT_UINT32, BASE_DEC,
-			NULL, 0, "Time Submitted" }},
+			NULL, 0, "Time Submitted", HFILL }},
 
 		{ &hf_hclnfsd_size, {
 			"Size", "hclnfsd.size", FT_UINT32, BASE_DEC,
-			NULL, 0, "Size" }},
+			NULL, 0, "Size", HFILL }},
 
 		{ &hf_hclnfsd_copies, {
 			"Copies", "hclnfsd.copies", FT_UINT32, BASE_DEC,
-			NULL, 0, "Copies" }},
+			NULL, 0, "Copies", HFILL }},
 
 		{ &hf_hclnfsd_gid, {
 			"GID", "hclnfsd.gid", FT_UINT32, BASE_DEC,
-			NULL, 0, "Group ID" }},
+			NULL, 0, "Group ID", HFILL }},
 
 		{ &hf_hclnfsd_server_ip, {
 			"Server IP", "hclnfsd.server_ip", FT_IPv4, BASE_DEC,
-			NULL, 0, "Server IP" }},
+			NULL, 0, "Server IP", HFILL }},
 
 		{ &hf_hclnfsd_host_ip, {
 			"Host IP", "hclnfsd.host_ip", FT_IPv4, BASE_DEC,
-			NULL, 0, "Host IP" }},
+			NULL, 0, "Host IP", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_hclnfsd,

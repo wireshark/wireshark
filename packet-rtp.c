@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.20 2001/06/15 00:42:39 guy Exp $
+ * $Id: packet-rtp.c,v 1.21 2001/06/18 02:17:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -563,7 +563,7 @@ proto_register_rtp(void)
 				BASE_DEC, 
 				VALS(rtp_version_vals), 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -575,7 +575,7 @@ proto_register_rtp(void)
 				BASE_NONE, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -587,7 +587,7 @@ proto_register_rtp(void)
 				BASE_NONE, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -599,7 +599,7 @@ proto_register_rtp(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -611,7 +611,7 @@ proto_register_rtp(void)
 				BASE_NONE, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -623,7 +623,7 @@ proto_register_rtp(void)
 				BASE_DEC, 
 				VALS(rtp_payload_type_vals), 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -635,7 +635,7 @@ proto_register_rtp(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -647,7 +647,7 @@ proto_register_rtp(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -659,7 +659,7 @@ proto_register_rtp(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -671,7 +671,7 @@ proto_register_rtp(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -683,7 +683,7 @@ proto_register_rtp(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -695,7 +695,7 @@ proto_register_rtp(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -707,7 +707,7 @@ proto_register_rtp(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -719,7 +719,7 @@ proto_register_rtp(void)
 				BASE_HEX, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -731,7 +731,7 @@ proto_register_rtp(void)
 				BASE_HEX, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -743,7 +743,7 @@ proto_register_rtp(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 };

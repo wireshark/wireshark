@@ -1,7 +1,7 @@
 /* packet-isis-snp.c
  * Routines for decoding isis complete & partial SNP and their payload
  *
- * $Id: packet-isis-snp.c,v 1.8 2001/01/03 06:55:29 guy Exp $
+ * $Id: packet-isis-snp.c,v 1.9 2001/06/18 02:17:47 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -454,7 +454,7 @@ proto_register_isis_csnp(void) {
 	static hf_register_info hf[] = {
 		{ &hf_isis_csnp_pdu_length,
 		{ "PDU length",		"isis_csnp.pdu_length", FT_UINT16, 
-		  BASE_DEC, NULL, 0x0, "" }},
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_isis_csnp,
@@ -493,7 +493,7 @@ proto_register_isis_psnp(void) {
 	static hf_register_info hf[] = {
 		{ &hf_isis_psnp_pdu_length,
 		{ "PDU length",		"isis_psnp.pdu_length", FT_UINT16, 
-		  BASE_DEC, NULL, 0x0, "" }},
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_isis_psnp,

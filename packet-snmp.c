@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.68 2001/06/10 09:50:18 guy Exp $
+ * $Id: packet-snmp.c,v 1.69 2001/06/18 02:17:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2156,16 +2156,16 @@ proto_register_snmp(void)
         static hf_register_info hf[] = {
 		{ &hf_snmpv3_flags,
 		{ "SNMPv3 Flags", "snmpv3.flags", FT_UINT8, BASE_HEX, NULL,
-		    0x0, "" }},
+		    0x0, "", HFILL }},
 		{ &hf_snmpv3_flags_auth,
 		{ "Authenticated", "snmpv3.flags.auth", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), TH_AUTH, "" }},
+		    TFS(&flags_set_truth), TH_AUTH, "", HFILL }},
 		{ &hf_snmpv3_flags_crypt,
 		{ "Encrypted", "snmpv3.flags.crypt", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), TH_CRYPT, "" }},
+		    TFS(&flags_set_truth), TH_CRYPT, "", HFILL }},
 		{ &hf_snmpv3_flags_report,
 		{ "Reportable", "snmpv3.flags.report", FT_BOOLEAN, 8,
-		    TFS(&flags_set_truth), TH_REPORT, "" }},
+		    TFS(&flags_set_truth), TH_REPORT, "", HFILL }},
         };
 	static gint *ett[] = {
 		&ett_snmp,

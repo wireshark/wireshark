@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Gerald Combs <gerald@zing.org>
  *
- * $Id: packet-syslog.c,v 1.10 2001/01/25 06:14:14 guy Exp $
+ * $Id: packet-syslog.c,v 1.11 2001/06/18 02:17:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -218,17 +218,17 @@ void proto_register_syslog(void)
     { &hf_syslog_facility,
       { "Facility",           "syslog.facility",
       FT_UINT8, BASE_DEC, VALS(long_fac), FACILITY_MASK,
-      "Message facility" }
+      "Message facility", HFILL }
     },
     { &hf_syslog_level,
       { "Level",              "syslog.level",
       FT_UINT8, BASE_DEC, VALS(long_lev), PRIORITY_MASK,
-      "Message level" }
+      "Message level", HFILL }
     },
     { &hf_syslog_msg_len,
       { "Message length",     "syslog.msg_len",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      "Message length, excluding priority descriptor" }
+      "Message length, excluding priority descriptor", HFILL }
     },
   };
 

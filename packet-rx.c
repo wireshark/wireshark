@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.21 2001/05/27 05:00:17 guy Exp $
+ * $Id: packet-rx.c,v 1.22 2001/06/18 02:17:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -531,143 +531,143 @@ proto_register_rx(void)
 	static hf_register_info hf[] = {
 		{ &hf_rx_epoch, {
 			"Epoch", "rx.epoch", FT_ABSOLUTE_TIME, BASE_DEC,
-			NULL, 0, "Epoch" }},
+			NULL, 0, "Epoch", HFILL }},
 
 		{ &hf_rx_cid, {
 			"CID", "rx.cid", FT_UINT32, BASE_DEC,
-			NULL, 0, "CID" }},
+			NULL, 0, "CID", HFILL }},
 
 		{ &hf_rx_callnumber, {
 			"Call Number", "rx.callnumber", FT_UINT32, BASE_DEC,
-			NULL, 0, "Call Number" }},
+			NULL, 0, "Call Number", HFILL }},
 
 		{ &hf_rx_seq, {
 			"Sequence Number", "rx.seq", FT_UINT32, BASE_DEC,
-			NULL, 0, "Sequence Number" }},
+			NULL, 0, "Sequence Number", HFILL }},
 
 		{ &hf_rx_serial, {
 			"Serial", "rx.serial", FT_UINT32, BASE_DEC,
-			NULL, 0, "Serial" }},
+			NULL, 0, "Serial", HFILL }},
 
 		{ &hf_rx_type, {
 			"Type", "rx.type", FT_UINT8, BASE_DEC,
-			VALS(rx_types), 0, "Type" }},
+			VALS(rx_types), 0, "Type", HFILL }},
 
 		{ &hf_rx_flags, {
 			"Flags", "rx.flags", FT_UINT8, BASE_HEX,
-			NULL, 0, "Flags" }},
+			NULL, 0, "Flags", HFILL }},
 
 		{ &hf_rx_flags_clientinit, {
 			"Client Initiated", "rx.flags.client_init", FT_UINT8, BASE_BIN,
-			NULL, RX_CLIENT_INITIATED, "Client Initiated" }},
+			NULL, RX_CLIENT_INITIATED, "Client Initiated", HFILL }},
 
 		{ &hf_rx_flags_request_ack, {
 			"Request Ack", "rx.flags.request_ack", FT_UINT8, BASE_BIN,
-			NULL, RX_REQUEST_ACK, "Request Ack" }},
+			NULL, RX_REQUEST_ACK, "Request Ack", HFILL }},
 
 		{ &hf_rx_flags_last_packet, {
 			"Last Packet", "rx.flags.last_packet", FT_UINT8, BASE_BIN,
-			NULL, RX_LAST_PACKET, "Last Packet" }},
+			NULL, RX_LAST_PACKET, "Last Packet", HFILL }},
 
 		{ &hf_rx_flags_more_packets, {
 			"More Packets", "rx.flags.more_packets", FT_UINT8, BASE_BIN,
-			NULL, RX_MORE_PACKETS, "More Packets" }},
+			NULL, RX_MORE_PACKETS, "More Packets", HFILL }},
 
 		{ &hf_rx_flags_free_packet, {
 			"Free Packet", "rx.flags.free_packet", FT_UINT8, BASE_BIN,
-			NULL, RX_FREE_PACKET, "Free Packet" }},
+			NULL, RX_FREE_PACKET, "Free Packet", HFILL }},
 
 		{ &hf_rx_userstatus, {
 			"User Status", "rx.userstatus", FT_UINT32, BASE_DEC,
-			NULL, 0, "User Status" }},
+			NULL, 0, "User Status", HFILL }},
 
 		{ &hf_rx_securityindex, {
 			"Security Index", "rx.securityindex", FT_UINT32, BASE_DEC,
-			NULL, 0, "Security Index" }},
+			NULL, 0, "Security Index", HFILL }},
 
 		{ &hf_rx_spare, {
 			"Spare/Checksum", "rx.spare", FT_UINT16, BASE_DEC,
-			NULL, 0, "Spare/Checksum" }},
+			NULL, 0, "Spare/Checksum", HFILL }},
 
 		{ &hf_rx_serviceid, {
 			"Service ID", "rx.serviceid", FT_UINT16, BASE_DEC,
-			NULL, 0, "Service ID" }},
+			NULL, 0, "Service ID", HFILL }},
 
 		{ &hf_rx_bufferspace, {
 			"Bufferspace", "rx.bufferspace", FT_UINT16, BASE_DEC,
-			NULL, 0, "Number Of Packets Available" }},
+			NULL, 0, "Number Of Packets Available", HFILL }},
 
 		{ &hf_rx_maxskew, {
 			"Max Skew", "rx.maxskew", FT_UINT16, BASE_DEC,
-			NULL, 0, "Max Skew" }},
+			NULL, 0, "Max Skew", HFILL }},
 
 		{ &hf_rx_first_packet, {
 			"First Packet", "rx.first", FT_UINT32, BASE_DEC,
-			NULL, 0, "First Packet" }},
+			NULL, 0, "First Packet", HFILL }},
 
 		{ &hf_rx_prev_packet, {
 			"Prev Packet", "rx.prev", FT_UINT32, BASE_DEC,
-			NULL, 0, "Previous Packet" }},
+			NULL, 0, "Previous Packet", HFILL }},
 
 		{ &hf_rx_reason, {
 			"Reason", "rx.reason", FT_UINT8, BASE_DEC,
-			VALS(rx_reason), 0, "Reason For This ACK" }},
+			VALS(rx_reason), 0, "Reason For This ACK", HFILL }},
 
 		{ &hf_rx_numacks, {
 			"Num ACKs", "rx.num_acks", FT_UINT8, BASE_DEC,
-			NULL, 0, "Number Of ACKs" }},
+			NULL, 0, "Number Of ACKs", HFILL }},
 
 		{ &hf_rx_ack_type, {
 			"ACK Type", "rx.ack_type", FT_UINT8, BASE_DEC,
-			VALS(rx_ack_type), 0, "Type Of ACKs" }},
+			VALS(rx_ack_type), 0, "Type Of ACKs", HFILL }},
 
 		{ &hf_rx_ack, {
 			"ACK Packet", "rx.ack", FT_NONE, BASE_NONE,
-			NULL, 0, "ACK Packet" }},
+			NULL, 0, "ACK Packet", HFILL }},
 
 		{ &hf_rx_challenge, {
 			"CHALLENGE Packet", "rx.challenge", FT_NONE, BASE_NONE,
-			NULL, 0, "CHALLENGE Packet" }},
+			NULL, 0, "CHALLENGE Packet", HFILL }},
 
 		{ &hf_rx_version, {
 			"Version", "rx.version", FT_UINT32, BASE_DEC,
-			NULL, 0, "Version Of Challenge/Response" }},
+			NULL, 0, "Version Of Challenge/Response", HFILL }},
 
 		{ &hf_rx_nonce, {
 			"Nonce", "rx.nonce", FT_UINT32, BASE_HEX,
-			NULL, 0, "Nonce" }},
+			NULL, 0, "Nonce", HFILL }},
 
 		{ &hf_rx_inc_nonce, {
 			"Inc Nonce", "rx.inc_nonce", FT_UINT32, BASE_HEX,
-			NULL, 0, "Incremented Nonce" }},
+			NULL, 0, "Incremented Nonce", HFILL }},
 
 		{ &hf_rx_min_level, {
 			"Min Level", "rx.min_level", FT_UINT32, BASE_DEC,
-			NULL, 0, "Min Level" }},
+			NULL, 0, "Min Level", HFILL }},
 
 		{ &hf_rx_level, {
 			"Level", "rx.level", FT_UINT32, BASE_DEC,
-			NULL, 0, "Level" }},
+			NULL, 0, "Level", HFILL }},
 
 		{ &hf_rx_response, {
 			"RESPONSE Packet", "rx.response", FT_NONE, BASE_NONE,
-			NULL, 0, "RESPONSE Packet" }},
+			NULL, 0, "RESPONSE Packet", HFILL }},
 
 		{ &hf_rx_encrypted, {
 			"Encrypted", "rx.encrypted", FT_NONE, BASE_NONE,
-			NULL, 0, "Encrypted part of response packet" }},
+			NULL, 0, "Encrypted part of response packet", HFILL }},
 
 		{ &hf_rx_kvno, {
 			"kvno", "rx.kvno", FT_UINT32, BASE_DEC,
-			NULL, 0, "kvno" }},
+			NULL, 0, "kvno", HFILL }},
 
 		{ &hf_rx_ticket_len, {
 			"Ticket len", "rx.ticket_len", FT_UINT32, BASE_DEC,
-			NULL, 0, "Ticket Length" }},
+			NULL, 0, "Ticket Length", HFILL }},
 
 		{ &hf_rx_ticket, {
 			"ticket", "rx.ticket", FT_BYTES, BASE_HEX,
-			NULL, 0, "Ticket" }},
+			NULL, 0, "Ticket", HFILL }},
 
 	};
 	static gint *ett[] = {

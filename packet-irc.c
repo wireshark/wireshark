@@ -1,7 +1,7 @@
 /* packet-irc.c
  * Routines for IRC packet dissection
  *
- * $Id: packet-irc.c,v 1.13 2001/02/03 08:07:04 guy Exp $
+ * $Id: packet-irc.c,v 1.14 2001/06/18 02:17:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -140,17 +140,17 @@ proto_register_irc(void)
 	  { &hf_irc_response,
 	    { "Response",           "irc.response",
 	      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	      "TRUE if IRC response" }},
+	      "TRUE if IRC response", HFILL }},
 	  
 	  { &hf_irc_request,
 	    { "Request",            "irc.request",
 	      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	      "TRUE if IRC request" }},
+	      "TRUE if IRC request", HFILL }},
 
 	  { &hf_irc_command,
 	    { "Command",            "irc.command",
 	      FT_STRING, BASE_NONE, NULL, 0x0,
-	      "Command associated with request" }}
+	      "Command associated with request", HFILL }}
 	};
 
 	static gint *ett[] = {

@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.33 2001/02/08 07:08:05 guy Exp $
+ * $Id: packet-vlan.c,v 1.34 2001/06/18 02:17:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -137,22 +137,22 @@ proto_register_vlan(void)
   static hf_register_info hf[] = {
 	{ &hf_vlan_priority, { 
 		"Priority", "vlan.priority", FT_UINT16, BASE_BIN, 
-		0, 0xE000, "Priority" }},
+		0, 0xE000, "Priority", HFILL }},
 	{ &hf_vlan_cfi, { 
 		"CFI", "vlan.cfi", FT_UINT16, BASE_BIN, 
-		0, 0x1000, "CFI" }},	/* XXX - Boolean? */
+		0, 0x1000, "CFI", HFILL }},	/* XXX - Boolean? */
 	{ &hf_vlan_id, { 
 		"ID", "vlan.id", FT_UINT16, BASE_BIN, 
-		0, 0x0FFF, "ID" }},
+		0, 0x0FFF, "ID", HFILL }},
 	{ &hf_vlan_etype, { 
 		"Type", "vlan.etype", FT_UINT16, BASE_HEX, 
-		VALS(etype_vals), 0x0, "Type" }},
+		VALS(etype_vals), 0x0, "Type", HFILL }},
 	{ &hf_vlan_len, {
 		"Length", "vlan.len", FT_UINT16, BASE_DEC,
-		NULL, 0x0, "Length" }},
+		NULL, 0x0, "Length", HFILL }},
 	{ &hf_vlan_trailer, {
 		"Trailer", "vlan.trailer", FT_BYTES, BASE_NONE,
-		NULL, 0x0, "VLAN Trailer" }}
+		NULL, 0x0, "VLAN Trailer", HFILL }}
   };
   static gint *ett[] = {
 	&ett_vlan,

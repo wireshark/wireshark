@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.136 2001/06/08 08:29:15 guy Exp $
+ * $Id: packet-ip.c,v 1.137 2001/06/18 02:17:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1409,139 +1409,139 @@ proto_register_ip(void)
 
 		{ &hf_ip_version,
 		{ "Version",		"ip.version", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_hdr_len,
 		{ "Header Length",	"ip.hdr_len", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_dsfield,
 		{ "Differentiated Services field",	"ip.dsfield", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_dsfield_dscp,
 		{ "Differentiated Services Codepoint",	"ip.dsfield.dscp", FT_UINT8, BASE_HEX,
 			VALS(dscp_vals), IPDSFIELD_DSCP_MASK,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_dsfield_ect,
 		{ "ECN-Capable Transport (ECT)",	"ip.dsfield.ect", FT_UINT8, BASE_DEC, NULL,
 			IPDSFIELD_ECT_MASK,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_dsfield_ce,
 		{ "ECN-CE",	"ip.dsfield.ce", FT_UINT8, BASE_DEC, NULL,
 			IPDSFIELD_CE_MASK,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_tos,
 		{ "Type of Service",	"ip.tos", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_tos_precedence,
 		{ "Precedence",		"ip.tos.precedence", FT_UINT8, BASE_DEC, VALS(precedence_vals),
 			IPTOS_PREC_MASK,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_tos_delay,
 		{ "Delay",		"ip.tos.delay", FT_BOOLEAN, 8, TFS(&tos_set_low),
 			IPTOS_LOWDELAY,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_tos_throughput,
 		{ "Throughput",		"ip.tos.throughput", FT_BOOLEAN, 8, TFS(&tos_set_high),
 			IPTOS_THROUGHPUT,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_tos_reliability,
 		{ "Reliability",	"ip.tos.reliability", FT_BOOLEAN, 8, TFS(&tos_set_high),
 			IPTOS_RELIABILITY,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_tos_cost,
 		{ "Cost",		"ip.tos.cost", FT_BOOLEAN, 8, TFS(&tos_set_low),
 			IPTOS_LOWCOST,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_len,
 		{ "Total Length",	"ip.len", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_id,
 		{ "Identification",	"ip.id", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_dst,
 		{ "Destination",	"ip.dst", FT_IPv4, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_src,
 		{ "Source",		"ip.src", FT_IPv4, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_addr,
 		{ "Source or Destination Address", "ip.addr", FT_IPv4, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_flags,
 		{ "Flags",		"ip.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_flags_df,
 		{ "Don't fragment",	"ip.flags.df", FT_BOOLEAN, 4, TFS(&flags_set_truth), IP_DF>>12,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_flags_mf,
 		{ "More fragments",	"ip.flags.mf", FT_BOOLEAN, 4, TFS(&flags_set_truth), IP_MF>>12,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_frag_offset,
 		{ "Fragment offset",	"ip.frag_offset", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_ttl,
 		{ "Time to live",	"ip.ttl", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_proto,
 		{ "Protocol",		"ip.proto", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_checksum,
 		{ "Header checksum",	"ip.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_checksum_bad,
 		{ "Bad Header checksum",	"ip.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_ip_fragment_overlap,
 		{ "Fragment overlap",	"ip.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"Fragment overlaps with other fragments" }},
+			"Fragment overlaps with other fragments", HFILL }},
 
 		{ &hf_ip_fragment_overlap_conflict,
 		{ "Conflicting data in fragment overlap",	"ip.fragment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"Overlapping fragments contained conflicting data" }},
+			"Overlapping fragments contained conflicting data", HFILL }},
 
 		{ &hf_ip_fragment_multiple_tails,
 		{ "Multiple tail fragments found",	"ip.fragment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"Several tails were found when defragmenting the packet" }},
+			"Several tails were found when defragmenting the packet", HFILL }},
 
 		{ &hf_ip_fragment_too_long_fragment,
 		{ "Fragment too long",	"ip.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"Fragment contained data past end of packet" }},
+			"Fragment contained data past end of packet", HFILL }},
 
 		{ &hf_ip_fragment_error,
 		{ "Defragmentation error", "ip.fragment.error", FT_NONE, BASE_NONE, NULL, 0x0,
-			"Defragmentation error due to illegal fragments" }},
+			"Defragmentation error due to illegal fragments", HFILL }},
 
 		{ &hf_ip_fragment,
 		{ "IP Fragment", "ip.fragment", FT_NONE, BASE_NONE, NULL, 0x0,
-			"IP Fragment" }},
+			"IP Fragment", HFILL }},
 
 		{ &hf_ip_fragments,
 		{ "IP Fragments", "ip.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
-			"IP Fragments" }},
+			"IP Fragments", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_ip,
@@ -1605,19 +1605,19 @@ proto_register_icmp(void)
     
     { &hf_icmp_type,
       { "Type",		"icmp.type",		FT_UINT8, BASE_DEC,	NULL, 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_icmp_code,
       { "Code",		"icmp.code",		FT_UINT8, BASE_HEX,	NULL, 0x0,
-      	"" }},    
+      	"", HFILL }},    
 
     { &hf_icmp_checksum,
       { "Checksum",	"icmp.checksum",	FT_UINT16, BASE_HEX,	NULL, 0x0,
-      	"" }},
+      	"", HFILL }},
 
     { &hf_icmp_checksum_bad,
       { "Bad Checksum",	"icmp.checksum_bad",	FT_BOOLEAN, BASE_NONE,	NULL, 0x0,
-	"" }},
+	"", HFILL }},
   };
   static gint *ett[] = {
     &ett_icmp,

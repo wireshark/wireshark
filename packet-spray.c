@@ -1,7 +1,7 @@
 /* packet-spray.c
  * 2001  Ronnie Sahlberg   <rsahlber@bigpond.net.au>
  *
- * $Id: packet-spray.c,v 1.4 2001/06/12 06:31:14 guy Exp $
+ * $Id: packet-spray.c,v 1.5 2001/06/18 02:17:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,23 +98,23 @@ proto_register_spray(void)
 	static hf_register_info hf[] = {
 		{ &hf_spray_sprayarr, {
 			"Data", "spray.sprayarr", FT_BYTES, BASE_DEC,
-			NULL, 0, "Sprayarr data" }},
+			NULL, 0, "Sprayarr data", HFILL }},
 
 		{ &hf_spray_counter, {
 			"counter", "spray.counter", FT_UINT32, BASE_DEC,
-			NULL, 0, "Counter" }},
+			NULL, 0, "Counter", HFILL }},
 
 		{ &hf_spray_clock, {
 			"clock", "spray.clock", FT_NONE, BASE_NONE,
-			NULL, 0, "Clock" }},
+			NULL, 0, "Clock", HFILL }},
 
 		{ &hf_spray_sec, {
 			"sec", "spray.sec", FT_UINT32, BASE_DEC,
-			NULL, 0, "Seconds" }},
+			NULL, 0, "Seconds", HFILL }},
 
 		{ &hf_spray_usec, {
 			"usec", "spray.usec", FT_UINT32, BASE_DEC,
-			NULL, 0, "Microseconds" }},
+			NULL, 0, "Microseconds", HFILL }},
 
 	};
 

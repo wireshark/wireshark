@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-lapb.c,v 1.29 2001/02/12 09:06:17 guy Exp $
+ * $Id: packet-lapb.c,v 1.30 2001/06/18 02:17:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -119,11 +119,11 @@ proto_register_lapb(void)
     static hf_register_info hf[] = {
 	{ &hf_lapb_address,
 	  { "Address Field", "lapb.address", FT_UINT8, BASE_HEX, NULL, 0x0, 
-	  	"Address" }},
+	  	"Address", HFILL }},
 
 	{ &hf_lapb_control,
 	  { "Control Field", "lapb.control", FT_UINT8, BASE_HEX, NULL, 0x0,
-	  	"Control field" }},
+	  	"Control field", HFILL }},
     };
     static gint *ett[] = {
         &ett_lapb,

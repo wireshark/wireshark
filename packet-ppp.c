@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.67 2001/06/16 00:51:45 guy Exp $
+ * $Id: packet-ppp.c,v 1.68 2001/06/18 02:17:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1564,15 +1564,15 @@ proto_register_mp(void)
   static hf_register_info hf[] = {
     { &hf_mp_frag_first,
     { "First fragment",		"mp.first",	FT_BOOLEAN, 8,
-        TFS(&frag_truth), MP_FRAG_FIRST, "" }},
+        TFS(&frag_truth), MP_FRAG_FIRST, "", HFILL }},
 
     { &hf_mp_frag_last,
     { "Last fragment",		"mp.last",	FT_BOOLEAN, 8,
-        TFS(&frag_truth), MP_FRAG_LAST, "" }},
+        TFS(&frag_truth), MP_FRAG_LAST, "", HFILL }},
 
     { &hf_mp_sequence_num,
     { "Sequence number",	"mp.seq",	FT_UINT24, BASE_DEC, NULL, 0x0,
-    	"" }}
+    	"", HFILL }}
   };
   static gint *ett[] = {
     &ett_mp,

@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.64 2001/04/17 06:43:18 guy Exp $
+ * $Id: packet-eth.c,v 1.65 2001/06/18 02:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -266,27 +266,27 @@ proto_register_eth(void)
 
 		{ &hf_eth_dst,
 		{ "Destination",	"eth.dst", FT_ETHER, BASE_NONE, NULL, 0x0,
-			"Destination Hardware Address" }},
+			"Destination Hardware Address", HFILL }},
 
 		{ &hf_eth_src,
 		{ "Source",		"eth.src", FT_ETHER, BASE_NONE, NULL, 0x0,
-			"Source Hardware Address" }},
+			"Source Hardware Address", HFILL }},
 
 		{ &hf_eth_len,
 		{ "Length",		"eth.len", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		/* registered here but handled in ethertype.c */
 		{ &hf_eth_type,
 		{ "Type",		"eth.type", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
-			"" }},
+			"", HFILL }},
 		{ &hf_eth_addr,
 		{ "Source or Destination Address", "eth.addr", FT_ETHER, BASE_NONE, NULL, 0x0,
-			"Source or Destination Hardware Address" }},
+			"Source or Destination Hardware Address", HFILL }},
 
                 { &hf_eth_trailer,
 		{ "Trailer", "eth.trailer", FT_BYTES, BASE_NONE, NULL, 0x0,
-			"Ethernet Trailer or Checksum" }},
+			"Ethernet Trailer or Checksum", HFILL }},
 
 	};
 	static gint *ett[] = {

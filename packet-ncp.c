@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.47 2001/01/22 03:33:45 guy Exp $
+ * $Id: packet-ncp.c,v 1.48 2001/06/18 02:17:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -345,35 +345,35 @@ proto_register_ncp(void)
     { &hf_ncp_ip_sig,
       { "NCP over IP signature",		"ncp.ip.signature",
         FT_UINT32, BASE_HEX, VALS(ncp_ip_signature), 0x0,
-        "" }},
+        "", HFILL }},
     { &hf_ncp_ip_length,
       { "NCP over IP length",		"ncp.ip.length",
         FT_UINT32, BASE_HEX, NULL, 0x0,
-        "" }},
+        "", HFILL }},
     { &hf_ncp_ip_ver,
       { "NCP over IP Version",		"ncp.ip.version",
         FT_UINT32, BASE_DEC, NULL, 0x0,
-        "" }},
+        "", HFILL }},
     { &hf_ncp_ip_rplybufsize,
       { "NCP over IP Reply Buffer Size",	"ncp.ip.replybufsize",
         FT_UINT32, BASE_DEC, NULL, 0x0,
-        "" }},
+        "", HFILL }},
     { &hf_ncp_type,
       { "Type",			"ncp.type",
 	FT_UINT16, BASE_HEX, VALS(ncp_type_vals), 0x0,
-	"NCP message type" }},
+	"NCP message type", HFILL }},
     { &hf_ncp_seq,
       { "Sequence Number",     	"ncp.seq",
 	FT_UINT8, BASE_DEC, NULL, 0x0,
-	"" }},
+	"", HFILL }},
     { &hf_ncp_connection,
       { "Connection Number",    "ncp.connection",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"" }},
+	"", HFILL }},
     { &hf_ncp_task,
       { "Task Number",     	"ncp.task",
 	FT_UINT8, BASE_DEC, NULL, 0x0,
-	"" }}
+	"", HFILL }}
   };
   static gint *ett[] = {
     &ett_ncp,

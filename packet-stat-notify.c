@@ -2,7 +2,7 @@
  * Routines for async NSM stat callback dissection
  * 2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
  *
- * $Id: packet-stat-notify.c,v 1.4 2001/06/12 06:31:14 guy Exp $
+ * $Id: packet-stat-notify.c,v 1.5 2001/06/18 02:17:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,13 +75,13 @@ proto_register_statnotify(void)
 	static hf_register_info hf[] = {
 		{ &hf_statnotify_name, {
 			"Name", "statnotify.name", FT_STRING, BASE_DEC,
-			NULL, 0, "Name of client that changed" }},
+			NULL, 0, "Name of client that changed", HFILL }},
 		{ &hf_statnotify_state, {
 			"State", "statnotify.state", FT_UINT32, BASE_DEC,
-			NULL, 0, "New state of client that changed" }},
+			NULL, 0, "New state of client that changed", HFILL }},
 		{ &hf_statnotify_priv, {
 			"Priv", "statnotify.priv", FT_BYTES, BASE_HEX,
-			NULL, 0, "Client supplied opaque data" }},
+			NULL, 0, "Client supplied opaque data", HFILL }},
 	};
 	
 	static gint *ett[] = {

@@ -6,7 +6,7 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.23 2001/04/23 18:19:03 guy Exp $
+ * $Id: packet-srvloc.c,v 1.24 2001/06/18 02:17:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -496,25 +496,25 @@ proto_register_srvloc(void)
         { &hf_srvloc_version,
             { "Version",           "srvloc.version",
             FT_UINT8, BASE_DEC, NULL, 0x0,
-            "" }
+            "", HFILL }
         },
       
         {&hf_srvloc_function,
             {"Function", "srvloc.function", 
             FT_UINT8, BASE_DEC, VALS(srvloc_functions), 0x0, 
-            ""}
+            "", HFILL }
         },
 
         {&hf_srvloc_flags,
             {"Flags", "srvloc.flags", 
             FT_UINT8, BASE_HEX, NULL, 0x0, 
-            ""}
+            "", HFILL }
         },
         
         {&hf_srvloc_error,
             {"Error Code", "srvloc.err",
             FT_UINT16, BASE_DEC, VALS(srvloc_errs), 0x0,
-            ""}
+            "", HFILL }
         },
     };
                   

@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.29 2001/04/23 03:37:31 guy Exp $
+ * $Id: packet-ipsec.c,v 1.30 2001/06/18 02:17:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -291,28 +291,28 @@ proto_register_ipsec(void)
   static hf_register_info hf_ah[] = {
     { &hf_ah_spi,
       { "SPI",		"ah.spi",	FT_UINT32,	BASE_HEX, NULL, 0x0,
-      	"" }},
+      	"", HFILL }},
     { &hf_ah_sequence,
       { "Sequence",     "ah.sequence",	FT_UINT32,	BASE_HEX, NULL, 0x0,
-      	"" }}
+      	"", HFILL }}
   };
 
   static hf_register_info hf_esp[] = {
     { &hf_esp_spi,
       { "SPI",		"esp.spi",	FT_UINT32,	BASE_HEX, NULL, 0x0,
-      	"" }},
+      	"", HFILL }},
     { &hf_esp_sequence,
       { "Sequence",     "esp.sequence",	FT_UINT32,	BASE_HEX, NULL, 0x0,
-      	"" }}
+      	"", HFILL }}
   };
 
   static hf_register_info hf_ipcomp[] = {
     { &hf_ipcomp_flags,
       { "Flags",	"ipcomp.flags",	FT_UINT8,	BASE_HEX, NULL, 0x0,
-      	"" }},
+      	"", HFILL }},
     { &hf_ipcomp_cpi,
       { "CPI",		"ipcomp.cpi",	FT_UINT16,	BASE_HEX, 
-        VALS(cpi2val),	0x0,      	"" }},
+        VALS(cpi2val),	0x0,      	"", HFILL }},
   };
   static gint *ett[] = {
     &ett_ah,

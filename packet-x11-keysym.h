@@ -1,6 +1,6 @@
 /* packet-x11-keysym.h
  *
- * $Id: packet-x11-keysym.h,v 1.2 2000/08/11 13:33:55 deniel Exp $
+ * $Id: packet-x11-keysym.h,v 1.3 2001/06/18 02:17:54 guy Exp $
  *
  * Put there so as to make packet-x11.c lighter. See packet-x11.c
  */
@@ -32,7 +32,7 @@ static const value_string keysym_vals_source[] = {
       { 0x06f, "o" }, { 0x070, "p" }, { 0x071, "q" }, { 0x072, "r" },
       { 0x073, "s" }, { 0x074, "t" }, { 0x075, "u" }, { 0x076, "v" },
       { 0x077, "w" }, { 0x078, "x" }, { 0x079, "y" }, { 0x07a, "z" },
-      { 0x07b, "{" }, { 0x07c, "|" }, { 0x07d, "}" }, { 0x07e, "~" },
+      { 0x07b, "{" }, { 0x07c, "|" }, { 0x07d, ", HFILL }" }, { 0x07e, "~" },
       { 0x0a0, "nobreakspace" }, { 0x0a1, "¡" }, { 0x0a2, "¢" }, { 0x0a3, "£" },
       { 0x0a4, "¤" }, { 0x0a5, "¥" }, { 0x0a6, "¦" }, { 0x0a7, "§" },
       { 0x0a8, "¨" }, { 0x0a9, "©" }, { 0x0aa, "ª" }, { 0x0ab, "«" },

@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Routines for Gryphon protocol packet disassembly
  *
- * $Id: packet-gryphon.c,v 1.21 2001/04/25 06:14:53 guy Exp $
+ * $Id: packet-gryphon.c,v 1.22 2001/06/18 02:18:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -1822,22 +1822,22 @@ plugin_init(plugin_address_table_t *pat)
     static hf_register_info hf[] = {
 	{ &hf_gryph_src,
 	{ "Source",           "gryph.src", FT_UINT8, BASE_DEC, NULL, 0x0,
-	    	"" }},
+	    	"", HFILL }},
 	{ &hf_gryph_srcchan,
 	{ "Source channel",   "gryph.srcchan", FT_UINT8, BASE_DEC, NULL, 0x0,
-	    	"" }},
+	    	"", HFILL }},
 	{ &hf_gryph_dest,
 	{ "Destination",      "gryph.dest", FT_UINT8, BASE_DEC, NULL, 0x0,
-	    	"" }},
+	    	"", HFILL }},
 	{ &hf_gryph_destchan,
 	{ "Destination channel", "gryph.dstchan", FT_UINT8, BASE_DEC, NULL, 0x0,
-	    	"" }},
+	    	"", HFILL }},
 	{ &hf_gryph_type,
 	{ "Frame type",       "gryph.type", FT_UINT8, BASE_DEC, NULL, 0x0,
-	    	"" }},
+	    	"", HFILL }},
 	{ &hf_gryph_cmd,
 	{ "Command",          "gryph.cmd.cmd", FT_UINT8, BASE_DEC, NULL, 0x0,
-	    	"" }},
+	    	"", HFILL }},
     };
 
     static gint *ett[] = {

@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.17 2001/04/17 06:43:18 guy Exp $
+ * $Id: packet-fr.c,v 1.18 2001/06/18 02:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -372,41 +372,41 @@ void proto_register_fr(void)
 
         { &hf_fr_dlci, { 
            "DLCI", "fr.dlci", FT_UINT16, BASE_DEC, 
-            NULL, FRELAY_DLCI, "Data-Link Connection Identifier" }},
+            NULL, FRELAY_DLCI, "Data-Link Connection Identifier", HFILL }},
         { &hf_fr_cr, { 
            "CR", "fr.cr", FT_BOOLEAN, 16, TFS(&cmd_string),
-            FRELAY_CR, "Command/Response" }},
+            FRELAY_CR, "Command/Response", HFILL }},
         { &hf_fr_dc, { 
            "DC", "fr.dc", FT_BOOLEAN, 16, TFS(&ctrl_string),
-            FRELAY_CR, "Address/Control" }},
+            FRELAY_CR, "Address/Control", HFILL }},
 
         { &hf_fr_fecn, { 
            "FECN", "fr.fecn", FT_BOOLEAN, 16, 
-            NULL, FRELAY_FECN, "Forward Explicit Congestion Notification" }},
+            NULL, FRELAY_FECN, "Forward Explicit Congestion Notification", HFILL }},
         { &hf_fr_becn, { 
            "BECN", "fr.becn", FT_BOOLEAN, 16, 
-            NULL, FRELAY_BECN, "Backward Explicit Congestion Notification" }},
+            NULL, FRELAY_BECN, "Backward Explicit Congestion Notification", HFILL }},
         { &hf_fr_de, { 
            "DE", "fr.de", FT_BOOLEAN, 16, 
-            NULL, FRELAY_DE, "Discard Eligibility" }},
+            NULL, FRELAY_DE, "Discard Eligibility", HFILL }},
         { &hf_fr_ea, { 
            "EA", "fr.ea", FT_BOOLEAN, 16, TFS(&ea_string),
-            FRELAY_EA, "Extended Address" }},
+            FRELAY_EA, "Extended Address", HFILL }},
         { &hf_fr_nlpid, { 
            "NLPID", "fr.nlpid", FT_UINT8, BASE_HEX, 
-            VALS(fr_nlpid_vals), 0x0, "FrameRelay Encapsulated Protocol NLPID" }},
+            VALS(fr_nlpid_vals), 0x0, "FrameRelay Encapsulated Protocol NLPID", HFILL }},
 	{ &hf_fr_oui, {
 	   "Organization Code",	"fr.snap.oui", FT_UINT24, BASE_HEX, 
-	   VALS(oui_vals), 0x0, ""}},
+	   VALS(oui_vals), 0x0, "", HFILL }},
 	{ &hf_fr_pid, {
 	   "Protocol ID", "fr.snap.pid", FT_UINT16, BASE_HEX, 
-	   NULL, 0x0, ""}},
+	   NULL, 0x0, "", HFILL }},
         { &hf_fr_snaptype, { 
            "Type", "fr.snaptype", FT_UINT16, BASE_HEX, 
-            VALS(etype_vals), 0x0, "FrameRelay SNAP Encapsulated Protocol" }},
+            VALS(etype_vals), 0x0, "FrameRelay SNAP Encapsulated Protocol", HFILL }},
         { &hf_fr_chdlctype, { 
            "Type", "fr.chdlctype", FT_UINT16, BASE_HEX, 
-            VALS(chdlc_vals), 0x0, "FrameRelay Cisco HDLC Encapsulated Protocol" }},
+            VALS(chdlc_vals), 0x0, "FrameRelay Cisco HDLC Encapsulated Protocol", HFILL }},
   };
 
 

@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.35 2001/05/27 07:46:57 guy Exp $
+ * $Id: packet-atm.c,v 1.36 2001/06/18 02:17:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -765,11 +765,11 @@ proto_register_atm(void)
 	static hf_register_info hf[] = {
 		{ &hf_atm_vpi,
 		{ "VPI",		"atm.vpi", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_atm_vci,
 		{ "VCI",		"atm.vci", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_atm,

@@ -2,7 +2,7 @@
  *
  * Routines for RFC 2250 MPEG-1 dissection
  *
- * $Id: packet-mpeg1.c,v 1.1 2001/06/14 09:25:23 guy Exp $
+ * $Id: packet-mpeg1.c,v 1.2 2001/06/18 02:17:49 guy Exp $
  * 
  * Copyright 2001, 
  * Francisco Javier Cabello Torres, <fjcabello@vtools.es>
@@ -211,7 +211,7 @@ proto_register_mpeg1(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -223,7 +223,7 @@ proto_register_mpeg1(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -235,7 +235,7 @@ proto_register_mpeg1(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -247,7 +247,7 @@ proto_register_mpeg1(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 
@@ -260,7 +260,7 @@ proto_register_mpeg1(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 
@@ -273,7 +273,7 @@ proto_register_mpeg1(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 
@@ -286,7 +286,7 @@ proto_register_mpeg1(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 
@@ -299,7 +299,7 @@ proto_register_mpeg1(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 
@@ -312,7 +312,7 @@ proto_register_mpeg1(void)
 				BASE_DEC, 
 				VALS(rtp_mpg_picture_types_vals), 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 
@@ -325,7 +325,7 @@ proto_register_mpeg1(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 
@@ -338,7 +338,7 @@ proto_register_mpeg1(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -350,7 +350,7 @@ proto_register_mpeg1(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
  
@@ -363,7 +363,7 @@ proto_register_mpeg1(void)
 				BASE_DEC, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 		{ 
@@ -375,7 +375,7 @@ proto_register_mpeg1(void)
 				BASE_NONE, 
 				NULL, 
 				0x0,
-				"" 
+				"", HFILL 
 			}
 		},
 

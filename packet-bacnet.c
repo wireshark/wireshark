@@ -2,7 +2,7 @@
  * Routines for BACnet (NPDU) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bacnet.c,v 1.3 2001/05/30 07:48:23 guy Exp $
+ * $Id: packet-bacnet.c,v 1.4 2001/06/18 02:17:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -438,145 +438,145 @@ proto_register_bacnet(void)
 		{ &hf_bacnet_version,
 			{ "Version",           "bacnet.version",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"BACnet Version" }
+			"BACnet Version", HFILL }
 		},
 		{ &hf_bacnet_control,
 			{ "Control",           "bacnet.control",
 			FT_UINT8, BASE_HEX, NULL, 0xff,
-			"BACnet Control" }
+			"BACnet Control", HFILL }
 		},
 		{ &hf_bacnet_control_net,
 			{ "NSDU contains",           
 			"bacnet.control_net",
 			FT_BOOLEAN, 8, TFS(&control_net_set_high),
-			BAC_CONTROL_NET, "BACnet Control" }
+			BAC_CONTROL_NET, "BACnet Control", HFILL }
 		},
 		{ &hf_bacnet_control_res1,
 			{ "Reserved",           
 			"bacnet.control_res1",
 			FT_BOOLEAN, 8, TFS(&control_res_high),
-			BAC_CONTROL_RES1, "BACnet Control" }
+			BAC_CONTROL_RES1, "BACnet Control", HFILL }
 		},
 		{ &hf_bacnet_control_dest,
 			{ "Destination Specifier",           
 			"bacnet.control_dest",
 			FT_BOOLEAN, 8, TFS(&control_dest_high),
-			BAC_CONTROL_DEST, "BACnet Control" }
+			BAC_CONTROL_DEST, "BACnet Control", HFILL }
 		},
 		{ &hf_bacnet_control_res2,
 			{ "Reserved",           
 			"bacnet.control_res2",
 			FT_BOOLEAN, 8, TFS(&control_res_high),
-			BAC_CONTROL_RES2, "BACnet Control" }
+			BAC_CONTROL_RES2, "BACnet Control", HFILL }
 		},
 		{ &hf_bacnet_control_src,
 			{ "Source specifier",           
 			"bacnet.control_src",
 			FT_BOOLEAN, 8, TFS(&control_src_high),
-			BAC_CONTROL_SRC, "BACnet Control" }
+			BAC_CONTROL_SRC, "BACnet Control", HFILL }
 		},
 		{ &hf_bacnet_control_expect,
 			{ "Expecting Reply",           
 			"bacnet.control_expect",
 			FT_BOOLEAN, 8, TFS(&control_expect_high),
-			BAC_CONTROL_EXPECT, "BACnet Control" }
+			BAC_CONTROL_EXPECT, "BACnet Control", HFILL }
 		},
 		{ &hf_bacnet_control_prio_high,
 			{ "Priority",           
 			"bacnet.control_prio_high",
 			FT_BOOLEAN, 8, TFS(&control_prio_high_high),
-			BAC_CONTROL_PRIO_HIGH, "BACnet Control" }
+			BAC_CONTROL_PRIO_HIGH, "BACnet Control", HFILL }
 		},
 		{ &hf_bacnet_control_prio_low,
 			{ "Priority",           
 			"bacnet.control_prio_low",
 			FT_BOOLEAN, 8, TFS(&control_prio_low_high),
-			BAC_CONTROL_PRIO_LOW, "BACnet Control" }
+			BAC_CONTROL_PRIO_LOW, "BACnet Control", HFILL }
 		},
 		{ &hf_bacnet_dnet,
 			{ "Destination Network Address", "bacnet.dnet",
 			FT_UINT16, BASE_HEX, NULL, 0,
-			"Destination Network Address" }
+			"Destination Network Address", HFILL }
 		},
 		{ &hf_bacnet_dlen,
 			{ "Destination MAC Layer Address Length", "bacnet.dlen",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"Destination MAC Layer Address Length" }
+			"Destination MAC Layer Address Length", HFILL }
 		},
 		{ &hf_bacnet_dadr_eth,
 			{ "Destination ISO 8802-3 MAC Address", "bacnet.dadr_eth",
 			FT_ETHER, BASE_HEX, NULL, 0,
-			"Destination ISO 8802-3 MAC Address" }
+			"Destination ISO 8802-3 MAC Address", HFILL }
 		},
 		{ &hf_bacnet_dadr_tmp,
 			{ "Unknown Destination MAC", "bacnet.dadr_tmp",
 			FT_BYTES, BASE_HEX, NULL, 0,
-			"Unknown Destination MAC" }
+			"Unknown Destination MAC", HFILL }
 		},
 		{ &hf_bacnet_snet,
 			{ "Source Network Address", "bacnet.snet",
 			FT_UINT16, BASE_HEX, NULL, 0,
-			"Source Network Address" }
+			"Source Network Address", HFILL }
 		},
 		{ &hf_bacnet_slen,
 			{ "Source MAC Layer Address Length", "bacnet.slen",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"Source MAC Layer Address Length" }
+			"Source MAC Layer Address Length", HFILL }
 		},
 		{ &hf_bacnet_sadr_eth,
 			{ "SADR", "bacnet.sadr_eth",
 			FT_ETHER, BASE_HEX, NULL, 0,
-			"Source ISO 8802-3 MAC Address" }
+			"Source ISO 8802-3 MAC Address", HFILL }
 		},
 		{ &hf_bacnet_sadr_tmp,
 			{ "Unknown Source MAC", "bacnet.sadr_tmp",
 			FT_BYTES, BASE_HEX, NULL, 0,
-			"Unknown Source MAC" }
+			"Unknown Source MAC", HFILL }
 		},
 		{ &hf_bacnet_hopc,
 			{ "Hop Count", "bacnet.hopc",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"Hop Count" }
+			"Hop Count", HFILL }
 		},
 		{ &hf_bacnet_mesgtyp,
 			{ "Message Type", "bacnet.mesgtyp",
 			FT_UINT8, BASE_HEX, NULL, 0,
-			"Message Type" }
+			"Message Type", HFILL }
 		},
 		{ &hf_bacnet_vendor,
 			{ "Vendor ID", "bacnet.vendor",
 			FT_UINT16, BASE_HEX, NULL, 0,
-			"Vendor ID" }
+			"Vendor ID", HFILL }
 		},
 		{ &hf_bacnet_perf,
 			{ "Performance Index", "bacnet.perf",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"Performance Index" }
+			"Performance Index", HFILL }
 		},
 		{ &hf_bacnet_rejectreason,
 			{ "Reject Reason", "bacnet.rejectreason",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"Reject Reason" }
+			"Reject Reason", HFILL }
 		},
 		{ &hf_bacnet_rportnum,
 			{ "Number of Port Mappings", "bacnet.rportnum",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"Number of Port Mappings" }
+			"Number of Port Mappings", HFILL }
 		},
 		{ &hf_bacnet_pinfolen,
 			{ "Port Info Length", "bacnet.pinfolen",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"Port Info Length" }
+			"Port Info Length", HFILL }
 		},
 		{ &hf_bacnet_portid,
 			{ "Port ID", "bacnet.portid",
 			FT_UINT8, BASE_HEX, NULL, 0,
-			"Port ID" }
+			"Port ID", HFILL }
 		},
 		{ &hf_bacnet_pinfo,
 			{ "Port Info", "bacnet.pinfo",
 			FT_UINT8, BASE_HEX, NULL, 0,
-			"Port Info" }
+			"Port Info", HFILL }
 		},
 	};
 

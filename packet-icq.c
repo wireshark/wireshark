@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.31 2001/05/27 21:37:23 guy Exp $
+ * $Id: packet-icq.c,v 1.32 2001/06/18 02:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2161,17 +2161,17 @@ proto_register_icq(void)
 {
     static hf_register_info hf[] = {
 	{ &hf_icq_type,
-	  {"Type", "icq.type", FT_UINT16, BASE_DEC, NULL, 0x0, ""}},
+	  {"Type", "icq.type", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 	{ &hf_icq_uin,
-	  {"UIN", "icq.uin", FT_UINT32, BASE_DEC, NULL, 0x0, ""}},
+	  {"UIN", "icq.uin", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 	{ &hf_icq_sessionid,
-	  {"Session ID", "icq.sessionid", FT_UINT32, BASE_HEX, NULL, 0x0, ""}},
+	  {"Session ID", "icq.sessionid", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 	{ &hf_icq_cmd,
-	  {"Command", "icq.cmd", FT_UINT16, BASE_DEC, NULL, 0x0, ""}},
+	  {"Command", "icq.cmd", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 	{ &hf_icq_checkcode,
-	  {"Checkcode", "icq.checkcode", FT_UINT32, BASE_HEX, NULL, 0x0, ""}},
+	  {"Checkcode", "icq.checkcode", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 	{ &hf_icq_decode,
-	  {"Decode", "icq.decode", FT_STRING, BASE_NONE, NULL, 0x0, ""}}
+	  {"Decode", "icq.decode", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }}
     };
     static gint *ett[] = {
         &ett_icq,

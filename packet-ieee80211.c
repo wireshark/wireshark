@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.22 2001/06/12 05:40:05 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.23 2001/06/18 02:17:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1673,214 +1673,214 @@ proto_register_wlan (void)
   static hf_register_info hf[] = {
     {&hf_fc_field,
      {"Frame Control Field", "wlan.fc", FT_UINT16, BASE_HEX, NULL, 0,
-      "MAC Frame control"}},
+      "MAC Frame control", HFILL }},
 
     {&hf_fc_proto_version,
      {"Version", "wlan.fc.version", FT_UINT8, BASE_DEC, NULL, 0,
-      "MAC Protocol version"}},	/* 0 */
+      "MAC Protocol version", HFILL }},	/* 0 */
 
     {&hf_fc_frame_type,
      {"Type", "wlan.fc.type", FT_UINT8, BASE_DEC, NULL, 0,
-      "Frame type"}},
+      "Frame type", HFILL }},
 
     {&hf_fc_frame_subtype,
      {"Subtype", "wlan.fc.subtype", FT_UINT8, BASE_DEC, NULL, 0,
-      "Frame subtype"}},	/* 2 */
+      "Frame subtype", HFILL }},	/* 2 */
 
     {&hf_fc_flags,
      {"Protocol Flags", "wlan.flags", FT_UINT8, BASE_HEX, NULL, 0,
-      "Protocol flags"}},
+      "Protocol flags", HFILL }},
 
     {&hf_fc_data_ds,
      {"DS status", "wlan.fc.ds", FT_UINT8, BASE_HEX, TFS (&tofrom_ds), 0,
-      "Data-frame DS-traversal status"}},	/* 3 */
+      "Data-frame DS-traversal status", HFILL }},	/* 3 */
 
     {&hf_fc_to_ds,
      {"To DS", "wlan.fc.tods", FT_BOOLEAN, 8, TFS (&tods_flag), 0x1,
-      "To DS flag"}},		/* 4 */
+      "To DS flag", HFILL }},		/* 4 */
 
     {&hf_fc_from_ds,
      {"From DS", "wlan.fc.fromds", FT_BOOLEAN, 8, TFS (&fromds_flag), 0x2,
-      "From DS flag"}},		/* 5 */
+      "From DS flag", HFILL }},		/* 5 */
 
     {&hf_fc_more_frag,
      {"Fragments", "wlan.fc.frag", FT_BOOLEAN, 8, TFS (&more_frags), 0x4,
-      "More Fragments flag"}},	/* 6 */
+      "More Fragments flag", HFILL }},	/* 6 */
 
     {&hf_fc_retry,
      {"Retry", "wlan.fc.retry", FT_BOOLEAN, 8, TFS (&retry_flags), 0x8,
-      "Retransmission flag"}},
+      "Retransmission flag", HFILL }},
 
     {&hf_fc_pwr_mgt,
      {"PWR MGT", "wlan.fc.pwrmgt", FT_BOOLEAN, 8, TFS (&pm_flags), 0x10,
-      "Power management status"}},
+      "Power management status", HFILL }},
 
     {&hf_fc_more_data,
      {"More Data", "wlan.fc.moredata", FT_BOOLEAN, 8, TFS (&md_flags), 0x20,
-      "More data flag"}},
+      "More data flag", HFILL }},
 
     {&hf_fc_wep,
      {"WEP flag", "wlan.fc.wep", FT_BOOLEAN, 8, TFS (&wep_flags), 0x40,
-      "WEP flag"}},
+      "WEP flag", HFILL }},
 
     {&hf_fc_order,
      {"Order flag", "wlan.fc.order", FT_BOOLEAN, 8, TFS (&order_flags), 0x80,
-      "Strictly ordered flag"}},
+      "Strictly ordered flag", HFILL }},
 
     {&hf_assoc_id,
      {"Association ID","wlan.aid",FT_UINT16, BASE_DEC,NULL,0,
-      "Association-ID field" }},
+      "Association-ID field", HFILL }},
 
     {&hf_did_duration,
      {"Duration", "wlan.duration", FT_UINT16, BASE_DEC, NULL, 0,
-      "Duration field"}},
+      "Duration field", HFILL }},
 
     {&hf_addr_da,
      {"Destination address", "wlan.da", FT_ETHER, BASE_NONE, NULL, 0,
-      "Destination Hardware address"}},
+      "Destination Hardware address", HFILL }},
 
     {&hf_addr_sa,
      {"Source address", "wlan.sa", FT_ETHER, BASE_NONE, NULL, 0,
-      "Source Hardware address"}},
+      "Source Hardware address", HFILL }},
 
     {&hf_addr_ra,
      {"Receiver address", "wlan.ra", FT_ETHER, BASE_NONE, NULL, 0,
-      "Receiving Station Hardware Address"}},
+      "Receiving Station Hardware Address", HFILL }},
 
     {&hf_addr_ta,
      {"Transmitter address", "wlan.ta", FT_ETHER, BASE_NONE, NULL, 0,
-      "Transmitting Station Hardware Address"}},
+      "Transmitting Station Hardware Address", HFILL }},
 
     {&hf_addr_bssid,
      {"BSS Id", "wlan.bssid", FT_ETHER, BASE_NONE, NULL, 0,
-      "Basic Service Set ID"}},
+      "Basic Service Set ID", HFILL }},
 
     {&hf_frag_number,
      {"Fragment number", "wlan.frag", FT_UINT16, BASE_HEX, NULL, 0,
-      "Fragment number"}},
+      "Fragment number", HFILL }},
 
     {&hf_seq_number,
      {"Sequence number", "wlan.seq", FT_UINT16, BASE_HEX, NULL, 0,
-      "Fragment number"}},
+      "Fragment number", HFILL }},
 
     {&hf_fcs,
      {"Frame Check Sequence (not verified)", "wlan.fcs", FT_UINT32, BASE_HEX,
-      NULL, 0, ""}},
+      NULL, 0, "", HFILL }},
 
     {&ff_timestamp,
      {"Timestamp", "wlan.fixed.timestamp", FT_STRING, BASE_NONE,
-      NULL, 0, ""}},
+      NULL, 0, "", HFILL }},
 
     {&ff_auth_alg,
      {"Authentication Algorithm", "wlan.fixed.auth.alg",
-      FT_UINT16, BASE_DEC, VALS (&auth_alg), 0, ""}},
+      FT_UINT16, BASE_DEC, VALS (&auth_alg), 0, "", HFILL }},
 
     {&ff_beacon_interval,
      {"Beacon Interval", "wlan.fixed.beacon", FT_DOUBLE, BASE_DEC, NULL, 0,
-      ""}},
+      "", HFILL }},
 
     {&hf_fixed_parameters,
      {"Fixed parameters", "wlan.fixed.all", FT_UINT16, BASE_DEC, NULL, 0,
-      ""}},
+      "", HFILL }},
 
     {&hf_tagged_parameters,
      {"Tagged parameters", "wlan.tagged.all", FT_UINT16, BASE_DEC, NULL, 0,
-      ""}},
+      "", HFILL }},
 
     {&hf_wep_parameters,
      {"WEP parameters", "wlan.wep.all", FT_STRING, BASE_NONE, NULL, 0,
-      ""}},
+      "", HFILL }},
 
     {&hf_wep_iv,
      {"Initialization Vector", "wlan.wep.iv", FT_UINT32, BASE_HEX, NULL, 0,
-      "Initialization Vector"}},
+      "Initialization Vector", HFILL }},
 
     {&hf_wep_key,
      {"Key", "wlan.wep.key", FT_UINT32, BASE_DEC, NULL, 0,
-      "Key"}},
+      "Key", HFILL }},
 
     {&hf_wep_crc,
      {"WEP CRC (not verified)", "wlan.wep.crc", FT_UINT32, BASE_HEX, NULL, 0,
-      "WEP CRC"}},
+      "WEP CRC", HFILL }},
 
     {&ff_capture,
      {"Capabilities", "wlan.fixed.capabilities", FT_UINT16, BASE_HEX, NULL, 0,
-      "Capability information"}},
+      "Capability information", HFILL }},
 
     {&ff_cf_sta_poll,
      {"CFP participation capabilities", "wlan.fixed.capabilities.cfpoll.sta",
       FT_UINT16, BASE_HEX, VALS (&sta_cf_pollable), 0,
-      "CF-Poll capabilities for a STA"}},
+      "CF-Poll capabilities for a STA", HFILL }},
 
     {&ff_cf_ap_poll,
      {"CFP participation capabilities", "wlan.fixed.capabilities.cfpoll.ap",
       FT_UINT16, BASE_HEX, VALS (&ap_cf_pollable), 0,
-      "CF-Poll capabilities for an AP"}},
+      "CF-Poll capabilities for an AP", HFILL }},
 
     {&ff_cf_ess,
      {"ESS capabilities", "wlan.fixed.capabilities.ess",
-      FT_BOOLEAN, 8, TFS (&cf_ess_flags), 0x0001, "ESS capabilities"}},
+      FT_BOOLEAN, 8, TFS (&cf_ess_flags), 0x0001, "ESS capabilities", HFILL }},
 
 
     {&ff_cf_ibss,
      {"IBSS status", "wlan.fixed.capabilities.ibss",
-      FT_BOOLEAN, 8, TFS (&cf_ibss_flags), 0x0002, "IBSS participation"}},
+      FT_BOOLEAN, 8, TFS (&cf_ibss_flags), 0x0002, "IBSS participation", HFILL }},
 
     {&ff_cf_privacy,
      {"Privacy", "wlan.fixed.capabilities.privacy",
-      FT_BOOLEAN, 8, TFS (&cf_privacy_flags), 0x0010, "WEP support"}},
+      FT_BOOLEAN, 8, TFS (&cf_privacy_flags), 0x0010, "WEP support", HFILL }},
 
     {&ff_cf_preamble,
      {"Short Preamble", "wlan.fixed.capabilities.preamble",
-      FT_BOOLEAN, 8, TFS (&cf_preamble_flags), 0x0020, "Short Preamble"}},
+      FT_BOOLEAN, 8, TFS (&cf_preamble_flags), 0x0020, "Short Preamble", HFILL }},
 
     {&ff_cf_pbcc,
      {"PBCC", "wlan.fixed.capabilities.pbcc",
-      FT_BOOLEAN, 8, TFS (&cf_pbcc_flags), 0x0040, "PBCC Modulation"}},
+      FT_BOOLEAN, 8, TFS (&cf_pbcc_flags), 0x0040, "PBCC Modulation", HFILL }},
 
     {&ff_cf_agility,
      {"Channel Agility", "wlan.fixed.capabilities.agility",
-      FT_BOOLEAN, 8, TFS (&cf_agility_flags), 0x0080, "Channel Agility"}},
+      FT_BOOLEAN, 8, TFS (&cf_agility_flags), 0x0080, "Channel Agility", HFILL }},
 
 
     {&ff_auth_seq,
      {"Authentication SEQ", "wlan.fixed.auth_seq",
-      FT_UINT16, BASE_HEX, NULL, 0, "Authentication sequence number"}},
+      FT_UINT16, BASE_HEX, NULL, 0, "Authentication sequence number", HFILL }},
 
     {&ff_assoc_id,
      {"Association ID", "wlan.fixed.aid",
-      FT_UINT16, BASE_HEX, NULL, 0, "Association ID"}},
+      FT_UINT16, BASE_HEX, NULL, 0, "Association ID", HFILL }},
 
     {&ff_listen_ival,
      {"Listen Interval", "wlan.fixed.listen_ival",
-      FT_UINT16, BASE_HEX, NULL, 0, "Listen Interval"}},
+      FT_UINT16, BASE_HEX, NULL, 0, "Listen Interval", HFILL }},
 
     {&ff_current_ap,
      {"Current AP", "wlan.fixed.current_ap",
-      FT_ETHER, BASE_NONE, NULL, 0, "MAC address of current AP"}},
+      FT_ETHER, BASE_NONE, NULL, 0, "MAC address of current AP", HFILL }},
 
     {&ff_reason,
      {"Reason code", "wlan.fixed.reason_code",
       FT_UINT16, BASE_HEX, VALS (&reason_codes), 0,
-      "Reason for unsolicited notification"}},
+      "Reason for unsolicited notification", HFILL }},
 
     {&ff_status_code,
      {"Status code", "wlan.fixed.status_code",
       FT_UINT16, BASE_HEX, VALS (&status_codes), 0,
-      "Status of requested event"}},
+      "Status of requested event", HFILL }},
 
     {&tag_number,
      {"Tag", "wlan.tag.number",
       FT_UINT16, BASE_DEC, NULL, 0,
-      "Element ID"}},
+      "Element ID", HFILL }},
 
     {&tag_length,
      {"Tag length", "wlan.tag.length",
-      FT_UINT16, BASE_DEC, NULL, 0, "Length of tag"}},
+      FT_UINT16, BASE_DEC, NULL, 0, "Length of tag", HFILL }},
 
     {&tag_interpretation,
      {"Tag interpretation", "wlan.tag.interpretation",
-      FT_STRING, BASE_NONE, NULL, 0, "Interpretation of tag"}}
+      FT_STRING, BASE_NONE, NULL, 0, "Interpretation of tag", HFILL }}
 
 
   };

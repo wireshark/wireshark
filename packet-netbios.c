@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.33 2001/05/27 08:45:51 guy Exp $
+ * $Id: packet-netbios.c,v 1.34 2001/06/18 02:17:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1075,67 +1075,67 @@ void proto_register_netbios(void)
 	static hf_register_info hf_netb[] = {
 		{ &hf_netb_cmd,
 		{ "Command", "netbios.command", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 		{ &hf_netb_hdr_len,
 		{ "Header Length", "netbios.hdr_len", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_netb_xmit_corrl,
 		{ "Transmit Correlator", "netbios.xmit_corrl", FT_INT16, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_netb_resp_corrl,
 		{ "Response Correlator", "netbios.resp_corrl", FT_INT16, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 		{ &hf_netb_call_name_type,
 		{ "Call Name Type", "netbios.call_name_type", FT_INT16, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 		{ &hf_netb_name_type,
 		{ "Netbios Name Type", "netbios.name_type", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 		{ &hf_netb_name,
 		{ "Netbios Name", "netbios.name", FT_STRING, BASE_NONE, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_netb_ack,
 		{ "Acknowledge", "netbios.ack", FT_BOOLEAN, 8, TFS( &flags_set), 0x08,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_netb_ack_with_data,
 		{ "Acknowledge with data", "netbios.ack_with_data", FT_BOOLEAN, 8, TFS( &flags_allowed), 0x04, 
-			"" }},
+			"", HFILL }},
 
 		{ &hf_netb_ack_expected,
 		{ "Acknowledge expected", "netbios.ack_expected", FT_BOOLEAN,  8,
-			TFS( &flags_yes_no), 0x02, "" }},
+			TFS( &flags_yes_no), 0x02, "", HFILL }},
 
 		{ &hf_netb_recv_cont_req,
 		{ "RECEIVE_CONTINUE requested", "netbios.recv_cont_req", FT_BOOLEAN,  8,
-			TFS( &flags_yes_no), 0x01, "" }},
+			TFS( &flags_yes_no), 0x01, "", HFILL }},
 
 		{ &hf_netb_send_no_ack,
 		{ "Handle SEND.NO.ACK", "netbios.send_no_ack", FT_BOOLEAN,  8,
-			TFS( &flags_yes_no), 0x80, "" }},
+			TFS( &flags_yes_no), 0x80, "", HFILL }},
 
 		{ &hf_netb_version,
 		{ "NetBIOS Version", "netbios.version", FT_BOOLEAN,  8,
-			TFS( &netb_version_str), 0x01, "" }},
+			TFS( &netb_version_str), 0x01, "", HFILL }},
 
 		{ &hf_netb_largest_frame,
 		{ "Largest Frame", "netbios.largest_frame", FT_UINT8, BASE_HEX, NULL, 0x0E,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_netb_local_ses_no,
 		{ "Local Session No. ", "netbios.local_session", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_netb_remote_ses_no,
 		{ "Remote Session No. ", "netbios.remote_session", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_netb_data2,
 		{ "DATA2 value ", "netbios.data2", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 		};
 
 	proto_netbios = proto_register_protocol("NetBIOS", "NetBIOS", "netbios");

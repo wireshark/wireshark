@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.7 2001/04/01 21:12:05 hagbard Exp $
+ * $Id: packet-frame.c,v 1.8 2001/06/18 02:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -151,33 +151,33 @@ proto_register_frame(void)
 	static hf_register_info hf[] = {
 		{ &hf_frame_arrival_time,
 		{ "Arrival Time",		"frame.time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-			""}},
+			"", HFILL }},
 
 		{ &hf_frame_time_delta,
 		{ "Time delta from previous packet",	"frame.time_delta", FT_RELATIVE_TIME, BASE_NONE, NULL,
 			0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_frame_time_relative,
 		{ "Time relative to first packet",	"frame.time_relative", FT_RELATIVE_TIME, BASE_NONE, NULL,
 			0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_frame_number,
 		{ "Frame Number",		"frame.number", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_frame_packet_len,
 		{ "Total Frame Length",		"frame.pkt_len", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_frame_capture_len,
 		{ "Capture Frame Length",	"frame.cap_len", FT_UINT32, BASE_DEC, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_frame_p2p_dir,
 		{ "Point-to-Point Direction",	"frame.p2p_dir", FT_UINT8, BASE_DEC, VALS(p2p_dirs), 0x0,
-			"" }},
+			"", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_frame,

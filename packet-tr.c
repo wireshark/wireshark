@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.61 2001/03/13 21:34:24 gram Exp $
+ * $Id: packet-tr.c,v 1.62 2001/06/18 02:17:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -583,81 +583,81 @@ proto_register_tr(void)
 	static hf_register_info hf[] = {
 		{ &hf_tr_ac,
 		{ "Access Control",	"tr.ac", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tr_priority,
 		{ "Priority",		"tr.priority", FT_UINT8, BASE_DEC, NULL, 0xe0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tr_frame,
 		{ "Frame",		"tr.frame", FT_BOOLEAN, 8, TFS(&ac_truth), 0x10,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tr_monitor_cnt,
 		{ "Monitor Count",	"tr.monitor_cnt", FT_UINT8, BASE_DEC, NULL, 0x08,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tr_priority_reservation,
 		{ "Priority Reservation","tr.priority_reservation", FT_UINT8, BASE_DEC, NULL, 0x07,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tr_fc,
 		{ "Frame Control",	"tr.fc", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tr_fc_type,
 		{ "Frame Type",		"tr.frame_type", FT_UINT8, BASE_DEC, VALS(frame_vals), 0xc0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tr_fc_pcf,
 		{ "Frame PCF",		"tr.frame_pcf", FT_UINT8, BASE_DEC, VALS(pcf_vals), 0x0f,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tr_dst,
 		{ "Destination",	"tr.dst", FT_ETHER, BASE_NONE,  NULL, 0x0,
-			"Destination Hardware Address" }},
+			"Destination Hardware Address", HFILL }},
 
 		{ &hf_tr_src,
 		{ "Source",		"tr.src", FT_ETHER, BASE_NONE, NULL, 0x0,
-			"Source Hardware Address" }},
+			"Source Hardware Address", HFILL }},
 
 		{ &hf_tr_addr,
 		{ "Source or Destination Address", "tr.addr", FT_ETHER, BASE_NONE, NULL, 0x0,
-			"Source or Destination Hardware Address" }},
+			"Source or Destination Hardware Address", HFILL }},
 
 		{ &hf_tr_sr,
 		{ "Source Routed",	"tr.sr", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"Source Routed" }},
+			"Source Routed", HFILL }},
 
 		{ &hf_tr_rif_bytes,
 		{ "RIF Bytes",		"tr.rif_bytes", FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Number of bytes in Routing Information Fields, including "
-			"the two bytes of Routing Control Field" }},
+			"the two bytes of Routing Control Field", HFILL }},
 
 		{ &hf_tr_broadcast,
 		{ "Broadcast Type",	"tr.broadcast", FT_UINT8, BASE_DEC, VALS(broadcast_vals), 0x0,
-			"Type of Token-Ring Broadcast" }},
+			"Type of Token-Ring Broadcast", HFILL }},
 
 		{ &hf_tr_max_frame_size,
 		{ "Maximum Frame Size",	"tr.max_frame_size", FT_UINT8, BASE_DEC, VALS(max_frame_size_vals),
 			0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tr_direction,
 		{ "Direction",		"tr.direction", FT_UINT8, BASE_DEC, VALS(direction_vals), 0x0,
-			"Direction of RIF" }},
+			"Direction of RIF", HFILL }},
 
 		{ &hf_tr_rif,
 		{ "Ring-Bridge Pairs",	"tr.rif", FT_STRING, BASE_NONE, NULL, 0x0,
-			"String representing Ring-Bridge Pairs" }},
+			"String representing Ring-Bridge Pairs", HFILL }},
 
 		{ &hf_tr_rif_ring,
 		{ "RIF Ring",		"tr.rif.ring", FT_UINT16, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 
 		{ &hf_tr_rif_bridge,
 		{ "RIF Bridge",		"tr.rif.bridge", FT_UINT8, BASE_HEX, NULL, 0x0,
-			"" }},
+			"", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_token_ring,

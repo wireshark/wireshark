@@ -10,7 +10,7 @@
  *
  * for information on Modbus/TCP.
  *
- * $Id: packet-mbtcp.c,v 1.3 2001/04/24 23:22:03 guy Exp $
+ * $Id: packet-mbtcp.c,v 1.4 2001/06/18 02:17:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -368,28 +368,28 @@ proto_register_modbus(void)
 		{ &hf_mbtcp_transid,
 			{ "transaction identifier",           "modbus_tcp.trans_id",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"" }
+			"", HFILL }
 		},
 		{ &hf_mbtcp_protid,
 			{ "protocol identifier",           "modbus_tcp.prot_id",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"" }
+			"", HFILL }
 		},
 		{ &hf_mbtcp_len,
 			{ "length",           "modbus_tcp.len",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"" }
+			"", HFILL }
 		},
 		/* Modbus header fields */
 		{ &hf_mbtcp_unitid,
 			{ "unit identifier",           "modbus_tcp.unit_id",
 			FT_UINT8, BASE_DEC, NULL, 0x0,          
-			"" }
+			"", HFILL }
 		},
 		{ &hf_mbtcp_functioncode,
 			{ "function code ",           "modbus_tcp.func_code",
 			FT_UINT8, BASE_DEC, NULL, 0x0,          
-			"" }
+			"", HFILL }
 		}
 	};
 

@@ -2,7 +2,7 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.15 2001/06/08 08:38:52 guy Exp $
+ * $Id: packet-rlogin.c,v 1.16 2001/06/18 02:17:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -444,32 +444,32 @@ proto_register_rlogin( void){
     
                 { &hf_user_info,
                 	{ "User Info", "rlogin.user_info", FT_NONE, BASE_NONE,
-                		 NULL, 0x0, ""
+                		 NULL, 0x0, "", HFILL
                 	}
 		},
                 { &hf_window_info,
                 	{ "Window Info", "rlogin.window_size", FT_NONE, BASE_NONE,
-                		 NULL, 0x0, ""
+                		 NULL, 0x0, "", HFILL
                 	}
 		},
                 { &hf_window_info_rows,
                 	{ "Rows", "rlogin.window_size.rows", FT_UINT16, BASE_DEC,
-                		 NULL, 0x0, ""
+                		 NULL, 0x0, "", HFILL
                 	}
 		},
                 { &hf_window_info_cols,
                 	{ "Columns", "rlogin.window_size.cols", FT_UINT16, BASE_DEC,
-                		 NULL, 0x0, ""
+                		 NULL, 0x0, "", HFILL
                 	}
 		},
                 { &hf_window_info_x_pixels,
                 	{ "X Pixels", "rlogin.window_size.x_pixels", FT_UINT16, BASE_DEC,
-                		 NULL, 0x0, ""
+                		 NULL, 0x0, "", HFILL
                 	}
 		},
                 { &hf_window_info_y_pixels,
                 	{ "Y Pixels", "rlogin.window_size.y_pixels", FT_UINT16, BASE_DEC,
-                		 NULL, 0x0, ""
+                		 NULL, 0x0, "", HFILL
                 	}
 		}
 	};

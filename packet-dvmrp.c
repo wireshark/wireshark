@@ -1,7 +1,7 @@
 /* packet-dvmrp.c   2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
  * Routines for IGMP/DVMRP packet disassembly
  *
- * $Id: packet-dvmrp.c,v 1.1 2001/06/12 06:21:55 guy Exp $
+ * $Id: packet-dvmrp.c,v 1.2 2001/06/18 02:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -684,135 +684,135 @@ proto_register_dvmrp(void)
 	static hf_register_info hf[] = {
 		{ &hf_version,
 			{ "DVMRP Version", "dvmrp.version", FT_UINT8, BASE_DEC,
-			  NULL, 0, "DVMRP Version" }},
+			  NULL, 0, "DVMRP Version", HFILL }},
 
 		{ &hf_type,
 			{ "Type", "dvmrp.type", FT_UINT8, BASE_HEX,
-			  VALS(dvmrp_type), 0, "DVMRP Packet Type" }},
+			  VALS(dvmrp_type), 0, "DVMRP Packet Type", HFILL }},
 
 		{ &hf_code_v1,
 			{ "Code", "dvmrp.v1.code", FT_UINT8, BASE_HEX,
-			  VALS(code_v1), 0, "DVMRP Packet Code" }},
+			  VALS(code_v1), 0, "DVMRP Packet Code", HFILL }},
 
 		{ &hf_checksum,
 			{ "Checksum", "dvmrp.checksum", FT_UINT16, BASE_HEX,
-			  NULL, 0, "DVMRP Checksum" }},
+			  NULL, 0, "DVMRP Checksum", HFILL }},
 
 		{ &hf_checksum_bad,
 			{ "Bad Checksum", "dvmrp.checksum_bad", FT_BOOLEAN, BASE_NONE,
-			  NULL, 0, "Bad DVMRP Checksum" }},
+			  NULL, 0, "Bad DVMRP Checksum", HFILL }},
 
 		{ &hf_commands,
 			{ "Commands", "dvmrp.commands", FT_NONE, BASE_NONE,
-			  NULL, 0, "DVMRP V1 Commands" }},
+			  NULL, 0, "DVMRP V1 Commands", HFILL }},
 
 		{ &hf_command,
 			{ "Command", "dvmrp.command", FT_UINT8, BASE_HEX,
-			  VALS(command), 0, "DVMRP V1 Command" }},
+			  VALS(command), 0, "DVMRP V1 Command", HFILL }},
 
 		{ &hf_afi,
 			{ "Address Family", "dvmrp.afi", FT_UINT8, BASE_HEX,
-			  VALS(afi), 0, "DVMRP Address Family Indicator" }},
+			  VALS(afi), 0, "DVMRP Address Family Indicator", HFILL }},
 
 		{ &hf_count,
 			{ "Count", "dvmrp.count", FT_UINT8, BASE_HEX,
-			  NULL, 0, "Count" }},
+			  NULL, 0, "Count", HFILL }},
 
 		{ &hf_netmask,
 			{ "Netmask", "igmp.netmask", FT_IPv4, BASE_NONE,
-			  NULL, 0, "DVMRP Netmask" }},
+			  NULL, 0, "DVMRP Netmask", HFILL }},
 
 		{ &hf_metric,
 			{ "Metric", "dvmrp.metric", FT_UINT8, BASE_DEC,
-			  NULL, 0, "DVMRP Metric" }},
+			  NULL, 0, "DVMRP Metric", HFILL }},
 
 		{&hf_dest_unr,
 			{ "Destination Unreachable", "dvmrp.dest_unreach", FT_BOOLEAN, 8,
-			TFS(&tfs_dest_unreach), 0x01, "Destination Unreachable" }},
+			TFS(&tfs_dest_unreach), 0x01, "Destination Unreachable", HFILL }},
 
 		{&hf_split_horiz,
 			{ "Split Horizon", "dvmrp.split_horiz", FT_BOOLEAN, 8,
-			TFS(&tfs_split_horiz), 0x02, "Split Horizon concealed route" }},
+			TFS(&tfs_split_horiz), 0x02, "Split Horizon concealed route", HFILL }},
 
 		{ &hf_infinity,
 			{ "Infinity", "dvmrp.infinity", FT_UINT8, BASE_DEC,
-			  NULL, 0, "DVMRP Infinity" }},
+			  NULL, 0, "DVMRP Infinity", HFILL }},
 
 		{ &hf_daddr,
 			{ "Dest Addr", "igmp.daddr", FT_IPv4, BASE_NONE,
-			  NULL, 0, "DVMRP Destination Address" }},
+			  NULL, 0, "DVMRP Destination Address", HFILL }},
 
 		{ &hf_maddr,
 			{ "Multicast Addr", "igmp.maddr", FT_IPv4, BASE_NONE,
-			  NULL, 0, "DVMRP Multicast Address" }},
+			  NULL, 0, "DVMRP Multicast Address", HFILL }},
 
 		{ &hf_hold,
 			{ "Hold Time", "dvmrp.hold", FT_UINT32, BASE_DEC,
-			  NULL, 0, "DVMRP Hold Time in seconds" }},
+			  NULL, 0, "DVMRP Hold Time in seconds", HFILL }},
 
 		{ &hf_code_v3,
 			{ "Code", "dvmrp.v3.code", FT_UINT8, BASE_HEX,
-			  VALS(code_v3), 0, "DVMRP Packet Code" }},
+			  VALS(code_v3), 0, "DVMRP Packet Code", HFILL }},
 
 		{ &hf_capabilities,
 			{ "Capabilities", "dvmrp.capabilities", FT_NONE, BASE_NONE,
-			  NULL, 0, "DVMRP V3 Capabilities" }},
+			  NULL, 0, "DVMRP V3 Capabilities", HFILL }},
 
 		{&hf_cap_leaf,
 			{ "Leaf", "dvmrp.cap.leaf", FT_BOOLEAN, 8,
-			TFS(&tfs_cap_leaf), DVMRP_V3_CAP_LEAF, "Leaf" }},
+			TFS(&tfs_cap_leaf), DVMRP_V3_CAP_LEAF, "Leaf", HFILL }},
 
 		{&hf_cap_prune,
 			{ "Prune", "dvmrp.cap.prune", FT_BOOLEAN, 8,
-			TFS(&tfs_cap_prune), DVMRP_V3_CAP_PRUNE, "Prune capability" }},
+			TFS(&tfs_cap_prune), DVMRP_V3_CAP_PRUNE, "Prune capability", HFILL }},
 
 		{&hf_cap_genid,
 			{ "Genid", "dvmrp.cap.genid", FT_BOOLEAN, 8,
-			TFS(&tfs_cap_genid), DVMRP_V3_CAP_GENID, "Genid capability" }},
+			TFS(&tfs_cap_genid), DVMRP_V3_CAP_GENID, "Genid capability", HFILL }},
 
 		{&hf_cap_mtrace,
 			{ "Mtrace", "dvmrp.cap.mtrace", FT_BOOLEAN, 8,
-			TFS(&tfs_cap_mtrace), DVMRP_V3_CAP_MTRACE, "Mtrace capability" }},
+			TFS(&tfs_cap_mtrace), DVMRP_V3_CAP_MTRACE, "Mtrace capability", HFILL }},
 
 		{&hf_cap_snmp,
 			{ "SNMP", "dvmrp.cap.snmp", FT_BOOLEAN, 8,
-			TFS(&tfs_cap_snmp), DVMRP_V3_CAP_SNMP, "SNMP capability" }},
+			TFS(&tfs_cap_snmp), DVMRP_V3_CAP_SNMP, "SNMP capability", HFILL }},
 
 		{&hf_cap_netmask,
 			{ "Netmask", "dvmrp.cap.netmask", FT_BOOLEAN, 8,
-			TFS(&tfs_cap_netmask), DVMRP_V3_CAP_NETMASK, "Netmask capability" }},
+			TFS(&tfs_cap_netmask), DVMRP_V3_CAP_NETMASK, "Netmask capability", HFILL }},
 
 		{ &hf_min_ver,
 			{ "Minor Version", "dvmrp.min_ver", FT_UINT8, BASE_HEX,
-			  NULL, 0, "DVMRP Minor Version" }},
+			  NULL, 0, "DVMRP Minor Version", HFILL }},
 
 		{ &hf_maj_ver,
 			{ "Major Version", "dvmrp.maj_ver", FT_UINT8, BASE_HEX,
-			  NULL, 0, "DVMRP Major Version" }},
+			  NULL, 0, "DVMRP Major Version", HFILL }},
 
 		{ &hf_genid,
 			{ "Generation ID", "dvmrp.genid", FT_UINT32, BASE_DEC,
-			  NULL, 0, "DVMRP Generation ID" }},
+			  NULL, 0, "DVMRP Generation ID", HFILL }},
 
 		{ &hf_naddr,
 			{ "Neighbor Addr", "igmp.naddr", FT_IPv4, BASE_NONE,
-			  NULL, 0, "DVMRP Neighbor Address" }},
+			  NULL, 0, "DVMRP Neighbor Address", HFILL }},
 
 		{ &hf_route,
 			{ "Route", "dvmrp.route", FT_NONE, BASE_NONE,
-			  NULL, 0, "DVMRP V3 Route Report" }},
+			  NULL, 0, "DVMRP V3 Route Report", HFILL }},
 
 		{ &hf_saddr,
 			{ "Source Addr", "igmp.saddr", FT_IPv4, BASE_NONE,
-			  NULL, 0, "DVMRP Source Address" }},
+			  NULL, 0, "DVMRP Source Address", HFILL }},
 
 		{ &hf_life,
 			{ "Prune lifetime", "dvmrp.lifetime", FT_UINT32, BASE_DEC,
-			  NULL, 0, "DVMRP Prune Lifetime" }},
+			  NULL, 0, "DVMRP Prune Lifetime", HFILL }},
 
 		{ &hf_neighbor,
 			{ "Neighbor Addr", "igmp.neighbor", FT_IPv4, BASE_NONE,
-			  NULL, 0, "DVMRP Neighbor Address" }},
+			  NULL, 0, "DVMRP Neighbor Address", HFILL }},
 
 	};
 	static gint *ett[] = {

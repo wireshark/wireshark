@@ -1,7 +1,7 @@
 /* packet-igmp.c   2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
  * Routines for IGMP packet disassembly
  *
- * $Id: packet-igmp.c,v 1.4 2001/06/12 06:21:55 guy Exp $
+ * $Id: packet-igmp.c,v 1.5 2001/06/18 02:17:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -672,91 +672,91 @@ proto_register_igmp(void)
 	static hf_register_info hf[] = {
 		{ &hf_type,
 			{ "Type", "igmp.type", FT_UINT8, BASE_HEX,
-			  VALS(commands), 0, "IGMP Packet Type" }},
+			  VALS(commands), 0, "IGMP Packet Type", HFILL }},
 
 		{ &hf_version,
 			{ "IGMP Version", "igmp.version", FT_UINT8, BASE_DEC,
-			  NULL, 0, "IGMP Version" }},
+			  NULL, 0, "IGMP Version", HFILL }},
 
 		{ &hf_group_type,
 			{ "Type Of Group", "igmp.group_type", FT_UINT8, BASE_DEC,
-			  VALS(vs_group_type), 0, "IGMP V0 Type Of Group" }},
+			  VALS(vs_group_type), 0, "IGMP V0 Type Of Group", HFILL }},
 
 		{ &hf_reply_code,
 			{ "Reply", "igmp.reply", FT_UINT8, BASE_DEC,
-			  VALS(vs_reply_code), 0, "IGMP V0 Reply" }},
+			  VALS(vs_reply_code), 0, "IGMP V0 Reply", HFILL }},
 
 		{ &hf_reply_pending,
 			{ "Reply Pending", "igmp.reply.pending", FT_UINT8, BASE_DEC,
-			  NULL, 0, "IGMP V0 Reply Pending, Retry in this many seconds" }},
+			  NULL, 0, "IGMP V0 Reply Pending, Retry in this many seconds", HFILL }},
 
 		{ &hf_checksum,
 			{ "Checksum", "igmp.checksum", FT_UINT16, BASE_HEX,
-			  NULL, 0, "IGMP Checksum" }},
+			  NULL, 0, "IGMP Checksum", HFILL }},
 
 		{ &hf_checksum_bad,
 			{ "Bad Checksum", "igmp.checksum_bad", FT_BOOLEAN, BASE_NONE,
-			  NULL, 0, "Bad IGMP Checksum" }},
+			  NULL, 0, "Bad IGMP Checksum", HFILL }},
 
 		{ &hf_identifier,
 			{ "Identifier", "igmp.identifier", FT_UINT32, BASE_DEC,
-			  NULL, 0, "IGMP V0 Identifier" }},
+			  NULL, 0, "IGMP V0 Identifier", HFILL }},
 
 		{ &hf_access_key,
 			{ "Access Key", "igmp.access_key", FT_BYTES, BASE_HEX,
-			  NULL, 0, "IGMP V0 Access Key" }},
+			  NULL, 0, "IGMP V0 Access Key", HFILL }},
 
 		{ &hf_max_resp,
 			{ "Max Resp Time", "igmp.max_resp", FT_UINT8, BASE_DEC,
-			  NULL, 0, "Max Response Time" }},
+			  NULL, 0, "Max Response Time", HFILL }},
 
 		{ &hf_supress,
 			{ "S", "igmp.s", FT_BOOLEAN, 8,
-			  TFS(&tfs_s), IGMP_V3_S, "Supress Router Side Processing" }},
+			  TFS(&tfs_s), IGMP_V3_S, "Supress Router Side Processing", HFILL }},
 
 		{ &hf_qrv,
 			{ "QRV", "igmp.qrv", FT_UINT8, BASE_DEC,
-			NULL, IGMP_V3_QRV_MASK, "Querier's Robustness Value"}},
+			NULL, IGMP_V3_QRV_MASK, "Querier's Robustness Value", HFILL }},
 
 		{ &hf_qqic,
 			{ "QQIC", "igmp.qqic", FT_UINT8, BASE_DEC,
-			  NULL, 0, "Querier's Query Interval Code" }},
+			  NULL, 0, "Querier's Query Interval Code", HFILL }},
 
 		{ &hf_num_src,
 			{ "Num Src", "igmp.num_src", FT_UINT16, BASE_DEC,
-			  NULL, 0, "Number Of Sources" }},
+			  NULL, 0, "Number Of Sources", HFILL }},
 
 		{ &hf_saddr,
 			{ "Source Address", "igmp.saddr", FT_IPv4, BASE_NONE,
-			  NULL, 0, "Source Address" }},
+			  NULL, 0, "Source Address", HFILL }},
 
 		{ &hf_num_grp_recs,
 			{ "Num Group Records", "igmp.num_grp_recs", FT_UINT16, BASE_DEC,
-			  NULL, 0, "Number Of Group Records" }},
+			  NULL, 0, "Number Of Group Records", HFILL }},
 
 		{ &hf_record_type,
 			{ "Record Type", "igmp.record_type", FT_UINT8, BASE_DEC,
-			VALS(vs_record_type), 0, "Record Type"}},
+			VALS(vs_record_type), 0, "Record Type", HFILL }},
 
 		{ &hf_aux_data_len,
 			{ "Aux Data Len", "igmp.aux_data_len", FT_UINT8, BASE_DEC,
-			NULL, 0, "Aux Data Len, In units of 32bit words"}},
+			NULL, 0, "Aux Data Len, In units of 32bit words", HFILL }},
 
 		{ &hf_maddr,
 			{ "Multicast Address", "igmp.maddr", FT_IPv4, BASE_NONE,
-			  NULL, 0, "Multicast Address" }},
+			  NULL, 0, "Multicast Address", HFILL }},
 
 		{ &hf_aux_data,
 			{ "Aux Data", "igmp.aux_data", FT_BYTES, BASE_HEX,
-			  NULL, 0, "IGMP V3 Auxiliary Data" }},
+			  NULL, 0, "IGMP V3 Auxiliary Data", HFILL }},
 
 		{ &hf_max_resp_exp,
 			{ "Exponent", "igmp.max_resp.exp", FT_UINT8, BASE_HEX,
-			NULL, IGMP_MAX_RESP_EXP, "Maxmimum Response Time, Exponent"}},
+			NULL, IGMP_MAX_RESP_EXP, "Maxmimum Response Time, Exponent", HFILL }},
 
 		{ &hf_max_resp_mant,
 			{ "Mantissa", "igmp.max_resp.mant", FT_UINT8, BASE_HEX,
-			NULL, IGMP_MAX_RESP_MANT, "Maxmimum Response Time, Mantissa"}},
+			NULL, IGMP_MAX_RESP_MANT, "Maxmimum Response Time, Mantissa", HFILL }},
 
 	};
 	static gint *ett[] = {

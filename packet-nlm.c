@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.17 2001/05/30 06:01:02 guy Exp $
+ * $Id: packet-nlm.c,v 1.18 2001/06/18 02:17:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -688,61 +688,61 @@ proto_register_nlm(void)
 	static hf_register_info hf[] = {
 		{ &hf_nlm_cookie, {
 			"cookie", "nlm.cookie", FT_BYTES, BASE_DEC,
-			NULL, 0, "cookie" }},
+			NULL, 0, "cookie", HFILL }},
 		{ &hf_nlm_block, {
 			"block", "nlm.block", FT_BOOLEAN, BASE_NONE,
-			&yesno, 0, "block" }},
+			&yesno, 0, "block", HFILL }},
 		{ &hf_nlm_exclusive, {
 			"exclusive", "nlm.exclusive", FT_BOOLEAN, BASE_NONE,
-			&yesno, 0, "exclusive" }},
+			&yesno, 0, "exclusive", HFILL }},
 		{ &hf_nlm_lock, {
 			"lock", "nlm.lock", FT_NONE, 0,
-			NULL, 0, "lock" }},
+			NULL, 0, "lock", HFILL }},
 		{ &hf_nlm_lock_caller_name, {
 			"caller_name", "nlm.lock.caller_name", FT_STRING, BASE_NONE,
-			NULL, 0, "caller_name" }},
+			NULL, 0, "caller_name", HFILL }},
 		{ &hf_nlm_lock_owner, {
 			"owner", "nlm.lock.owner", FT_BYTES, BASE_DEC,
-			NULL, 0, "owner" }},
+			NULL, 0, "owner", HFILL }},
 		{ &hf_nlm_lock_svid, {
 			"svid", "nlm.lock.svid", FT_UINT32, BASE_DEC,
-			NULL, 0, "svid" }},
+			NULL, 0, "svid", HFILL }},
 		{ &hf_nlm_lock_l_offset, {
 			"l_offset", "nlm.lock.l_offset", FT_UINT32, BASE_DEC,
-			NULL, 0, "l_offset" }},
+			NULL, 0, "l_offset", HFILL }},
 		{ &hf_nlm_lock_l_len, {
 			"l_len", "nlm.lock.l_len", FT_UINT32, BASE_DEC,
-			NULL, 0, "l_len" }},
+			NULL, 0, "l_len", HFILL }},
 		{ &hf_nlm_reclaim, {
 			"reclaim", "nlm.reclaim", FT_BOOLEAN, BASE_NONE,
-			&yesno, 0, "reclaim" }},
+			&yesno, 0, "reclaim", HFILL }},
 		{ &hf_nlm_state, {
 			"state", "nlm.state", FT_UINT32, BASE_DEC,
-			VALS(names_nlm_state), 0, "state" }},
+			VALS(names_nlm_state), 0, "state", HFILL }},
 		{ &hf_nlm_test_stat, {
 			"test_stat", "nlm.test_stat", FT_NONE, 0,
-			NULL, 0, "test_stat" }},
+			NULL, 0, "test_stat", HFILL }},
 		{ &hf_nlm_test_stat_stat, {
 			"stat", "nlm.test_stat.stat", FT_UINT32, BASE_DEC,
-			VALS(names_nlm_state), 0, "stat" }},
+			VALS(names_nlm_state), 0, "stat", HFILL }},
 		{ &hf_nlm_holder, {
 			"holder", "nlm.holder", FT_NONE, 0,
-			NULL, 0, "holder" }},
+			NULL, 0, "holder", HFILL }},
 		{ &hf_nlm_share, {
 			"share", "nlm.share", FT_NONE, 0,
-			NULL, 0, "share" }},
+			NULL, 0, "share", HFILL }},
 		{ &hf_nlm_share_mode, {
 			"mode", "nlm.share.mode", FT_UINT32, BASE_DEC,
-			VALS(names_fsh_mode), 0, "mode" }},
+			VALS(names_fsh_mode), 0, "mode", HFILL }},
 		{ &hf_nlm_share_access, {
 			"access", "nlm.share.access", FT_UINT32, BASE_DEC,
-			VALS(names_fsh_access), 0, "access" }},
+			VALS(names_fsh_access), 0, "access", HFILL }},
 		{ &hf_nlm_share_name, {
 			"name", "nlm.share.name", FT_STRING, BASE_NONE,
-			NULL, 0, "name" }},
+			NULL, 0, "name", HFILL }},
 		{ &hf_nlm_sequence, {
 			"sequence", "nlm.sequence", FT_INT32, BASE_DEC,
-			NULL, 0, "sequence" }},
+			NULL, 0, "sequence", HFILL }},
 		};
 
 	static gint *ett[] = {

@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lapd.c,v 1.22 2001/05/27 07:28:00 guy Exp $
+ * $Id: packet-lapd.c,v 1.23 2001/06/18 02:17:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -163,31 +163,31 @@ proto_register_lapd(void)
     static hf_register_info hf[] = {
 	{ &hf_lapd_address,
 	  { "Address Field", "lapd.address", FT_UINT16, BASE_HEX, NULL, 0x0, 
-	  	"Address" }},
+	  	"Address", HFILL }},
 
 	{ &hf_lapd_sapi,
 	  { "SAPI", "lapd.sapi", FT_UINT16, BASE_DEC, VALS(lapd_sapi_vals), LAPD_SAPI,
-	  	"Service Access Point Identifier" }},
+	  	"Service Access Point Identifier", HFILL }},
 
 	{ &hf_lapd_cr,
 	  { "C/R", "lapd.cr", FT_UINT16, BASE_DEC, NULL, LAPD_CR,
-	  	"Command/Response bit" }},
+	  	"Command/Response bit", HFILL }},
 
 	{ &hf_lapd_ea1,
 	  { "EA1", "lapd.ea1", FT_UINT16, BASE_DEC, NULL, LAPD_EA1,
-	  	"First Address Extension bit" }},
+	  	"First Address Extension bit", HFILL }},
 
 	{ &hf_lapd_tei,
 	  { "TEI", "lapd.tei", FT_UINT16, BASE_DEC, NULL, LAPD_TEI,
-	  	"Terminal Endpoint Identifier" }},
+	  	"Terminal Endpoint Identifier", HFILL }},
 
 	{ &hf_lapd_ea2,
 	  { "EA2", "lapd.ea2", FT_UINT16, BASE_DEC, NULL, LAPD_EA2,
-	  	"Second Address Extension bit" }},
+	  	"Second Address Extension bit", HFILL }},
 
 	{ &hf_lapd_control,
 	  { "Control Field", "lapd.control", FT_UINT16, BASE_HEX, NULL, 0x0,
-	  	"Control field" }},
+	  	"Control field", HFILL }},
     };
     static gint *ett[] = {
         &ett_lapd,

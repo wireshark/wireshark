@@ -2,7 +2,7 @@
  * Routines for EIGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-eigrp.c,v 1.16 2001/05/03 22:50:33 guy Exp $
+ * $Id: packet-eigrp.c,v 1.17 2001/06/18 02:17:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -449,17 +449,17 @@ proto_register_eigrp(void)
    { &hf_eigrp_opcode,
     { "Opcode", "eigrp.opcode",
      FT_UINT8, BASE_DEC, NULL, 0x0 ,
-     "Opcode number" },
+     "Opcode number", HFILL }
      },
    { &hf_eigrp_as,
     { "Autonomous System  ", "eigrp.as",
       FT_UINT16, BASE_DEC, NULL, 0x0 ,
-     "Autonomous System number" }
+     "Autonomous System number", HFILL }
     },
    { &hf_eigrp_tlv,
     { "Entry  ",           "eigrp.tlv",
       FT_UINT16, BASE_DEC, NULL, 0x0 ,
-     "Type/Length/Value" }
+     "Type/Length/Value", HFILL }
     },
    };
                                                        

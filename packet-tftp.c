@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.25 2001/06/10 09:50:18 guy Exp $
+ * $Id: packet-tftp.c,v 1.26 2001/06/18 02:17:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -238,37 +238,37 @@ proto_register_tftp(void)
     { &hf_tftp_opcode,
       { "Opcode",	      "tftp.opcode",
 	FT_UINT16, BASE_DEC, VALS(tftp_opcode_vals), 0x0,
-      	"TFTP message type" }},
+      	"TFTP message type", HFILL }},
 
     { &hf_tftp_source_file,
       { "Source File",	      "tftp.source_file",
 	FT_STRINGZ, BASE_DEC, NULL, 0x0,
-      	"TFTP source file name" }},
+      	"TFTP source file name", HFILL }},
 
     { &hf_tftp_destination_file,
       { "DESTINATION File",   "tftp.destination_file",
 	FT_STRINGZ, BASE_DEC, NULL, 0x0,
-      	"TFTP source file name" }},
+      	"TFTP source file name", HFILL }},
 
     { &hf_tftp_transfer_type,
       { "Type",	              "tftp.type",
 	FT_STRINGZ, BASE_DEC, NULL, 0x0,
-      	"TFTP transfer type" }},
+      	"TFTP transfer type", HFILL }},
 
     { &hf_tftp_blocknum,
       { "Block",              "tftp.block",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
-      	"Block number" }},
+      	"Block number", HFILL }},
 
     { &hf_tftp_error_code,
       { "Error code",         "tftp.error.code",
 	FT_UINT16, BASE_DEC, VALS(tftp_error_code_vals), 0x0,
-      	"Error code in case of TFTP error message" }},
+      	"Error code in case of TFTP error message", HFILL }},
 
     { &hf_tftp_error_string,
       { "Error message",      "tftp.error.message",
 	FT_STRINGZ, BASE_DEC, NULL, 0x0,
-      	"Error string in case of TFTP error message" }}
+      	"Error string in case of TFTP error message", HFILL }}
   };
   static gint *ett[] = {
     &ett_tftp,
