@@ -1,7 +1,7 @@
 /* packet-dec-bpdu.c
  * Routines for DEC BPDU (DEC Spanning Tree Protocol) disassembly
  *
- * $Id: packet-dec-bpdu.c,v 1.2 2001/01/05 20:46:44 guy Exp $
+ * $Id: packet-dec-bpdu.c,v 1.3 2001/01/07 00:23:03 guy Exp $
  *
  * Copyright 2001 Paul Ionescu <paul@acorp.ro>
  * 
@@ -61,6 +61,9 @@
 #define BPDU_MAX_AGE            25
 #define BPDU_FORWARD_DELAY      26
 
+#define DEC_BPDU_SIZE		27
+
+
 static int proto_dec_bpdu = -1;
 
 static gint ett_dec_bpdu = -1;
@@ -91,13 +94,15 @@ dissect_dec_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    else if (bpdu_type == 0x02)
 		  col_add_fstr(pinfo->fd, COL_INFO, "Topology Change Notification");
       }
+      
+      tvb_set_reported_length(tvb, DEC_BPDU_SIZE);
 
       if (tree) {
 	    protocol_identifier = tvb_get_guint8(tvb, BPDU_DEC_CODE);
 
 	    protocol_version = tvb_get_guint8(tvb, BPDU_VERSION);
 
-	    ti = proto_tree_add_protocol_format(tree, proto_dec_bpdu, tvb, 0, 27,
+	    ti = proto_tree_add_protocol_format(tree, proto_dec_bpdu, tvb, 0, DEC_BPDU_SIZE,
 			    	"DEC Spanning Tree Protocol");
 	    bpdu_tree = proto_item_add_subtree(ti, ett_dec_bpdu);
 
