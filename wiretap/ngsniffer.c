@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.43 2000/05/25 09:00:21 guy Exp $
+ * $Id: ngsniffer.c,v 1.44 2000/06/15 06:13:08 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -81,6 +81,14 @@ static const char ngsniffer_magic[] = {
 #define REC_FRAME2	4	/* Frame data (f_frame2) */
 #define	REC_FRAME4	8	/* Frame data (f_frame4) */
 #define REC_EOF		3	/* End-of-file record (no data follows) */
+/*
+ * and now for some unknown header types
+ */
+#define REC_HEADER1	6	/* Header containing serial numbers? */
+#define REC_HEADER2	7	/* Header containing ??? */
+#define REC_V2DESC	8	/* In version 2 sniffer traces contains
+				 * infos about this capturing session.
+				 * Collides with REC_FRAME4 */
 
 /*
  * Sniffer version record format.
@@ -242,7 +250,7 @@ struct frame4_rec {
 #define NUM_NGSNIFF_TIMEUNITS 7
 static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 1.0, 0.1 };
 
-static int skip_uncompressed_records(wtap *wth, int *err);
+static int skip_header_records(wtap *wth, int *err, gint16 version);
 static int ngsniffer_read(wtap *wth, int *err);
 static int ngsniffer_seek_read(wtap *wth, int seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size);
@@ -383,30 +391,16 @@ int ngsniffer_open(wtap *wth, int *err)
 	if (version.format != 1) {
 		wth->file_type = WTAP_FILE_NGSNIFFER_COMPRESSED;
 
-		/*
-		 * Compressed Sniffer files may have some uncompressed
-		 * records at the beginning, containing various bits of
-		 * header information.
-		 *
-		 * We skip over them, so we're positioned at the beginning
-		 * of the compressed data; records for packet data are in
-		 * the compressed part of the file, and the code to
-		 * read sequentially through the packet data, and
-		 * the code to seek to the beginning of a packet record
-		 * and read it, work, in a compressed file, only in
-		 * the compressed region of the file.
-		 *
-		 * We read and ignore all records with record types
-		 * in the range 0-16; if we see a "record" with a
-		 * type outside that range, we assume it's a compressed
-		 * blob, with the the 2-byte field at the beginning
-		 * being the blob size rather than being a record type.
-		 */
-		if (skip_uncompressed_records(wth, err) < 0)
-			return -1;
 	} else {
 		wth->file_type = WTAP_FILE_NGSNIFFER_UNCOMPRESSED;
 	}
+
+	/*
+	 * We don't know how to handle the remaining header record types,
+	 * so we just skip them
+	 */
+	if (skip_header_records(wth, err, version.maj_vers) < 0)
+		return -1;
 
 	/*
 	 * Now position the random stream to the same location, which
@@ -476,7 +470,7 @@ int ngsniffer_open(wtap *wth, int *err)
 }
 
 static int
-skip_uncompressed_records(wtap *wth, int *err)
+skip_header_records(wtap *wth, int *err, gint16 version)
 {
 	int bytes_read;
 	char record_type[2];
@@ -499,10 +493,13 @@ skip_uncompressed_records(wtap *wth, int *err)
 		}
 
 		type = pletohs(record_type);
-		if (type > 16) {
+		if ((type != REC_HEADER1) && (type != REC_HEADER2)
+			&& ((type != REC_V2DESC) || (version > 2)) ) {
 			/*
-			 * Well, this is probably the length of a
-			 * compressed blob.  Seek backwards over the
+			 * Well, this is either some unknown header type
+			 * (we ignore this case), an uncompressed data
+			 * frame or the length of a compressed blob
+			 * which implies data. Seek backwards over the
 			 * two bytes we read, and return.
 			 */
 			file_seek(wth->fh, -2, SEEK_CUR);
