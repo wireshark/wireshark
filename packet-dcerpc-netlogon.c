@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.97 2004/03/05 23:12:09 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.98 2004/04/08 09:17:16 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,9 @@
 #include "packet-dcerpc-lsa.h"
 
 static int proto_dcerpc_netlogon = -1;
+static int hf_netlogon_group_attrs_mandatory = -1;
+static int hf_netlogon_group_attrs_enabled_by_default = -1;
+static int hf_netlogon_group_attrs_enabled = -1;
 static int hf_netlogon_opnum = -1;
 static int hf_netlogon_guid = -1;
 static int hf_netlogon_rc = -1;
@@ -227,6 +230,7 @@ static int hf_netlogon_dc_flags_dns_domain_flag = -1;
 static int hf_netlogon_dc_flags_dns_forest_flag = -1;
 
 static gint ett_dcerpc_netlogon = -1;
+static gint ett_group_attrs = -1;
 static gint ett_QUOTA_LIMITS = -1;
 static gint ett_IDENTITY_INFO = -1;
 static gint ett_DELTA_ENUM = -1;
@@ -820,6 +824,52 @@ netlogon_dissect_AUTHENTICATOR(tvbuff_t *tvb, int offset,
 }
 
 
+static const true_false_string group_attrs_mandatory = {
+	"The MANDATORY bit is SET",
+	"The mandatory bit is NOT set",
+};
+static const true_false_string group_attrs_enabled_by_default = {
+	"The ENABLED_BY_DEFAULT bit is SET",
+	"The enabled_by_default bit is NOT set",
+};
+static const true_false_string group_attrs_enabled = {
+	"The enabled bit is SET",
+	"The enabled bit is NOT set",
+};
+static int
+netlogon_dissect_GROUP_MEMBERSHIP_ATTRIBUTES(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, guint8 *drep)
+{
+	guint32 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
+			hf_netlogon_attrs, &mask);
+
+	if(parent_tree){
+		item = proto_tree_add_uint(parent_tree, hf_netlogon_attrs,
+			tvb, offset-4, 4, mask);
+		tree = proto_item_add_subtree(item, ett_group_attrs);
+	}
+
+	proto_tree_add_boolean(tree, hf_netlogon_group_attrs_enabled,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_group_attrs_enabled_by_default,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_group_attrs_mandatory,
+		tvb, offset-4, 4, mask);
+
+	return offset;
+}
+
 /*
  * IDL typedef struct {
  * IDL   long user_id;
@@ -843,8 +893,8 @@ netlogon_dissect_GROUP_MEMBERSHIP(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_group_rid, NULL);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_attrs, NULL);
+	offset = netlogon_dissect_GROUP_MEMBERSHIP_ATTRIBUTES(tvb, offset,
+		pinfo, tree, drep);
 
 	return offset;
 }
@@ -7200,6 +7250,22 @@ static hf_register_info hf[] = {
         { &hf_netlogon_secchan_verf_nonce,
           { "Nonce", "netlogon.secchan.nonce", FT_BYTES, BASE_HEX, NULL, 
           0x0, "Nonce", HFILL }}, 
+
+	{ &hf_netlogon_group_attrs_mandatory,
+	        { "Mandatory", "netlogon.groups.attrs.mandatory",
+		  FT_BOOLEAN, 32, TFS(&group_attrs_mandatory), 0x00000001,
+		  "The group attributes MANDATORY flag", HFILL }},
+
+	{ &hf_netlogon_group_attrs_enabled_by_default,
+	        { "Enabled By Default", "netlogon.groups.attrs.enabled_by_default",
+		  FT_BOOLEAN, 32, TFS(&group_attrs_enabled_by_default), 0x00000002,
+		  "The group attributes ENABLED_BY_DEFAULT flag", HFILL }},
+
+	{ &hf_netlogon_group_attrs_enabled,
+	        { "Enabled", "netlogon.groups.attrs.enabled",
+		  FT_BOOLEAN, 32, TFS(&group_attrs_enabled), 0x00000004,
+		  "The group attributes ENABLED flag", HFILL }},
+
 	};
 
         static gint *ett[] = {
@@ -7227,7 +7293,8 @@ static hf_register_info hf[] = {
 		&ett_dc_flags,
 		&ett_secchan_bind_creds,
 		&ett_secchan_bind_ack_creds,
-		&ett_secchan_verf
+		&ett_secchan_verf,
+		&ett_group_attrs
         };
 
         proto_dcerpc_netlogon = proto_register_protocol(
