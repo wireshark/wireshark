@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.144 2003/10/10 11:11:37 sahlberg Exp $
+ * $Id: packet-dcerpc.c,v 1.145 2003/10/14 00:45:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1821,10 +1821,12 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 
     sub_dissect = info->request ? proc->dissect_rqst : proc->dissect_resp;
 
-    /* Call subdissector if we have a zero auth_level and no decrypted data,
-       or non-zero auth_level and sucessfully decrypted data. */
+    /* Call subdissector if we have no auth info, or a zero auth_level and
+       no decrypted data, or non-zero auth_level and sucessfully decrypted
+       data. */
 
-    if (sub_dissect && ((!auth_info->auth_level && !pinfo->decrypted_data) ||
+    if (sub_dissect && (auth_info == NULL ||
+                        (!auth_info->auth_level && !pinfo->decrypted_data) ||
 			(auth_info->auth_level && pinfo->decrypted_data))) {
             saved_proto = pinfo->current_proto;
             saved_private_data = pinfo->private_data;
