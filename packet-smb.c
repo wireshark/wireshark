@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.333 2003/04/24 09:04:31 guy Exp $
+ * $Id: packet-smb.c,v 1.334 2003/04/27 23:52:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -15571,6 +15571,13 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	   need to*/
 	si->cmd = tvb_get_guint8(tvb, offset+4);
 	flags = tvb_get_guint8(tvb, offset+9);
+	/*
+	 * XXX - in some SMB-over-OSI-transport and SMB-over-Vines traffic,
+	 * the direction flag appears never to be set, even for what appear
+	 * to be replies.  Do some SMB servers fail to set that flag,
+	 * under the assumption that the client knows it's a reply because
+	 * it received it?
+	 */
 	si->request = !(flags&SMB_FLAGS_DIRN);
 	flags2 = tvb_get_letohs(tvb, offset+10);
 	if(flags2 & 0x8000){
