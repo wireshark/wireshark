@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.37 2002/10/25 04:22:26 guy Exp $
+ * $Id: packet-spnego.c,v 1.38 2002/11/07 05:25:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -919,7 +919,7 @@ dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 static void
-dissect_spnego(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *item;
 	proto_tree *subtree;
@@ -928,19 +928,33 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	gboolean def;
 	guint len1, cls, con, tag;
 	conversation_t *conversation;
-	dissector_handle_t next_level_dissector = NULL;
+	dissector_handle_t next_level_dissector;
 
 	/*
 	 * We need this later, so lets get it now ...
+	 * It has to be per-frame as there can be more than one GSS-API
+	 * negotiation in a conversation.
 	 */
 
-	conversation = find_conversation(&pinfo->src, &pinfo->dst,
-					 pinfo->ptype, pinfo->srcport,
-					 pinfo->destport, 0);
+	next_level_dissector = p_get_proto_data(pinfo->fd, proto_spnego);
+	if (!next_level_dissector && !pinfo->fd->flags.visited) {
+	    /*
+	     * No handle attached to this frame, but it's the first
+	     * pass, so it'd be attached to the conversation.
+	     * If we have a conversation, try to get the handle,
+	     * and if we get one, attach it to the frame.
+	     */
+	    conversation = find_conversation(&pinfo->src, &pinfo->dst,
+					     pinfo->ptype, pinfo->srcport,
+					     pinfo->destport, 0);
 
-	if (conversation)
-	    next_level_dissector = conversation_get_proto_data(conversation, 
-							       proto_spnego);
+	    if (conversation) {
+		next_level_dissector = conversation_get_proto_data(conversation, 
+								   proto_spnego);
+		if (next_level_dissector)
+		    p_add_proto_data(pinfo->fd, proto_spnego, next_level_dissector);
+	    }
+	}
 
 	item = proto_tree_add_item(tree, hf_spnego, tvb, offset, 
 				   -1, FALSE);
