@@ -2105,6 +2105,7 @@ B<http://www.ethereal.com>.
                            <melerski [AT] poczta.onet.pl>
   Arnaud Jacques           <webmaster [AT] securiteinfo.com>
   D. Manzella              <manzella [AT] lucent.com>
+  Joshua Craig Douglas     <jdouglas [AT] enterasys.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

@@ -1963,6 +1963,11 @@ Jan Kiszka <jan.kiszka [AT] web.de> {
 	IrDA support
 }
 
+Joshua Craig Douglas <jdouglas [AT] enterasys.com> {
+	Enterasys Interswitch Message Protocol (ISMP)
+	Enterasys Discovery Protocol (EDP) (ISMP subprotocol)
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
