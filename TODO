@@ -1,4 +1,4 @@
-$Id: TODO,v 1.1 1999/12/01 20:58:49 gram Exp $
+$Id: TODO,v 1.2 1999/12/04 06:15:31 gram Exp $
 
 Things to do:
 =============
@@ -42,4 +42,8 @@ it under?)
 12. A GtkWidget for authors in the About box. We've got a lot of authors!
 
 13. Finish moving GTK-dependent code into gtk/ subdirectory.
+
+14. Display filters: support FT_STRING filters
+
+15. Display filters: add regexes to strings and byte ranges
 
