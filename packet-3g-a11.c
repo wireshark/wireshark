@@ -1,14 +1,14 @@
 /*
  * packet-3g-a11.c
  * Routines for CDMA2000 A11 packet trace
- * Copryright 2002, Ryuji Somegawa <somegawa@wide.ad.jp>
+ * Copyright 2002, Ryuji Somegawa <somegawa@wide.ad.jp>
  * packet-3g-a11.c was written based on 'packet-mip.c'.
  *
  * packet-mip.c
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-3g-a11.c,v 1.8 2004/03/30 19:01:24 guy Exp $
+ * $Id: packet-3g-a11.c,v 1.9 2004/05/12 09:29:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -236,7 +236,7 @@ static const value_string a11_ext_dormant[]= {
 static const value_string a11_ext_app[]= {
   {0x0101, "Accounting (RADIUS)"},
   {0x0102, "Accounting (DIAMETER)"},
-  {0x0201, "Mobility Evnet Indicator (Mobility)"},
+  {0x0201, "Mobility Event Indicator (Mobility)"},
   {0x0301, "Data Available Indicator (Data Ready to Send)"},
   {0x0401, "Access Network Identifiers (ANID)"},
   {0x0501, "PDSN Identifiers (Anchor P-P Address)"},
@@ -359,7 +359,7 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
       if(radius_vendor_id != THE3GPP2_VENDOR_ID)
       {
         ti = proto_tree_add_text(radius_tree, tvb, offset, radius_len,
-                "Unknown Vendor-spcific Attribute (Vendor Id: %x)", radius_vendor_id);
+                "Unknown Vendor-specific Attribute (Vendor Id: %x)", radius_vendor_id);
         offset += radius_len;
         continue;
       }
@@ -784,7 +784,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
   case REGISTRATION_ACK:
 	if (check_col(pinfo->cinfo, COL_INFO)) 
-	  col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Ack:     PDSN=%s Status=%u", 
+	  col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Ack:     PCF=%s Status=%u", 
 				   ip_to_str(tvb_get_ptr(tvb, 8, 4)),
 				   tvb_get_guint8(tvb,3));
 	if (tree) {
@@ -1043,7 +1043,7 @@ void proto_register_a11(void)
 	  { &hf_a11_ses_msid_len,
 		 { "MSID Length",                      "a11.ext.msid_len",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			"MSID Lengthu.", HFILL }
+			"MSID Length.", HFILL }
 	  },
 	  { &hf_a11_ses_msid,
 		 { "MSID(BCD)",                      "a11.ext.msid",
@@ -1088,7 +1088,7 @@ void proto_register_a11(void)
 	  { &hf_a11_vse_srvopt,
 		 { "Service Option",                      "a11.ext.srvopt",
 			FT_UINT16, BASE_HEX, VALS(a11_ext_nvose_srvopt), 0,
-			"Servie Option.", HFILL }
+			"Service Option.", HFILL }
 	  },
 	  { &hf_a11_vse_panid,
 		 { "PANID",                      "a11.ext.panid",
