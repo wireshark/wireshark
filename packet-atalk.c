@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.70 2002/05/03 21:25:43 guy Exp $
+ * $Id: packet-atalk.c,v 1.71 2002/05/08 23:46:33 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -200,6 +200,7 @@ static gint ett_asp_status = -1;
 static gint ett_asp_uams   = -1;
 static gint ett_asp_vers   = -1;
 static gint ett_asp_addr   = -1;
+static gint ett_asp_addr_line = -1;
 static gint ett_asp_directory = -1;
 static gint ett_asp_status_server_flag = -1;
 
@@ -1003,13 +1004,56 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	}
 
 	if (adr_ofs) {
+        	proto_tree *adr_tree;
+		char *tmp;
+        	const guint8 *ip;
+		guint16 net;
+		guint8  node;
+        	guint16 port;
+		        	
 		ofs = adr_ofs;
 		nbe = tvb_get_guint8(tvb, ofs);
 		ti = proto_tree_add_text(tree, tvb, ofs, 1, "Address list: %d", nbe);
 		ofs++;
-		sub_tree = proto_item_add_subtree(ti, ett_asp_addr);
+		adr_tree = proto_item_add_subtree(ti, ett_asp_addr);
 		for (i = 0; i < nbe; i++) {
-			len = tvb_get_guint8(tvb, ofs) -2;
+			guint8 type;
+			
+			len = tvb_get_guint8(tvb, ofs);
+			type =  tvb_get_guint8(tvb, ofs +1);
+			switch (type) {
+			case 1:	/* IP */
+				ip = tvb_get_ptr(tvb, ofs+2, 4);
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip %s", ip_to_str(ip));
+				break;
+			case 2: /* IP + port */
+				ip = tvb_get_ptr(tvb, ofs+2, 4);
+				port = tvb_get_ntohs(tvb, ofs+6);
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip %s:%d",ip_to_str(ip),port);
+				break;
+			case 3: /* DDP, atalk_addr_to_str want host order not network */
+				net  = tvb_get_ntohs(tvb, ofs+2);
+				node = tvb_get_guint8(tvb, ofs +4);			
+				port = tvb_get_guint8(tvb, ofs +5);
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ddp %u.%u:%u", 
+					net, node, port);
+				break;
+			case 4: /* DNS */
+				if (len > 2) {
+					tmp = g_malloc( len -1);
+					tvb_memcpy(tvb, tmp, ofs +2, len -2);
+					tmp[len -2] = 0;
+					ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "dns %s", tmp);
+					g_free(tmp);
+					break;
+				} 
+				/* else fall to default malformed record */
+			default:
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len,"Unknow type : %d", type);
+				break;
+			}			
+			len -= 2;
+			sub_tree = proto_item_add_subtree(ti,ett_asp_addr_line);
 			proto_tree_add_item(sub_tree, hf_asp_server_addr_len, tvb, ofs, 1, FALSE);
 			ofs++;
 			proto_tree_add_item(sub_tree, hf_asp_server_addr_type, tvb, ofs, 1, FALSE); 
@@ -1018,7 +1062,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			ofs += len;
 		}
 	}
-	
+
 	if (dir_ofs) {
 		ofs = dir_ofs;
 		nbe = tvb_get_guint8(tvb, ofs);
@@ -1801,6 +1845,7 @@ proto_register_atalk(void)
 	&ett_asp_vers,
 	&ett_asp_uams,
 	&ett_asp_addr,
+	&ett_asp_addr_line,
 	&ett_asp_directory,
 	
 	&ett_nbp,

@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.19 2002/05/05 00:16:32 guy Exp $
+ * $Id: packet-dsi.c,v 1.20 2002/05/08 23:46:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,6 +78,40 @@ static int hf_dsi_reserved = -1;
 
 static gint ett_dsi = -1;
 
+static int hf_dsi_open_type	= -1;
+static int hf_dsi_open_len	= -1;
+static int hf_dsi_open_quantum	= -1;
+static int hf_dsi_open_option	= -1;
+
+static int hf_dsi_attn_flag 		= -1;
+static int hf_dsi_attn_flag_shutdown	= -1;
+static int hf_dsi_attn_flag_crash	= -1;
+static int hf_dsi_attn_flag_msg		= -1;
+static int hf_dsi_attn_flag_reconnect	= -1;
+static int hf_dsi_attn_flag_time	= -1;
+static int hf_dsi_attn_flag_bitmap	= -1;
+
+static gint ett_dsi_open	= -1;
+static gint ett_dsi_attn	= -1;
+static gint ett_dsi_attn_flag	= -1;
+
+const value_string dsi_attn_flag_vals[] = {
+  {0x0,	"Reserved" },						/* 0000 */
+  {0x1,	"Reserved" },						/* 0001 */
+  {0x2,	"Server message" },					/* 0010 */
+  {0x3,	"Server notification, cf. extended bitmap" },		/* 0011 */
+  {0x4,	"Server is shutting down, internal error" },		/* 0100 */
+  {0x8,	"Server is shutting down" },				/* 1000 */
+  {0x9,	"Server disconnects user" },				/* 1001 */
+  {0x10,"Server is shutting down, message" },			/* 1010 */
+  {0x11,"Server is shutting down, message,no reconnect"},	/* 1011 */
+  {0,			NULL } };
+
+const value_string dsi_open_type_vals[] = {
+  {0,	"Server quantum" },
+  {1,	"Attention quantum" },
+  {0,			NULL } };
+
 /* status stuff same for asp and afp */
 static int hf_dsi_server_name = -1;
 static int hf_dsi_server_type = -1;
@@ -107,6 +141,7 @@ static gint ett_dsi_status = -1;
 static gint ett_dsi_uams   = -1;
 static gint ett_dsi_vers   = -1;
 static gint ett_dsi_addr   = -1;
+static gint ett_dsi_addr_line = -1;
 static gint ett_dsi_directory = -1;
 static gint ett_dsi_status_server_flag = -1;
 
@@ -158,6 +193,61 @@ static const value_string func_vals[] = {
   {DSIFUNC_WRITE,	"Write" },
   {DSIFUNC_ATTN,	"Attention" },
   {0,			NULL } };
+
+static gint 
+dissect_dsi_open_session(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset)
+{
+        proto_tree      *tree;
+	proto_item	*ti;
+	guint8		type;
+	guint8		len;
+
+	ti = proto_tree_add_text(dsi_tree, tvb, offset, -1, "Open Session");
+	tree = proto_item_add_subtree(ti, ett_dsi_open);
+	type = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_dsi_open_type, tvb, offset, 1, FALSE);
+	offset++;
+	len = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_dsi_open_len, tvb, offset, 1, FALSE);
+	offset++;
+	if (type <= 1) {
+		proto_tree_add_item(tree, hf_dsi_open_quantum, tvb, offset, 4, FALSE);
+	}
+	else {
+		proto_tree_add_item(tree, hf_dsi_open_option, tvb, offset, len, FALSE);
+	}
+	offset += len;	
+	return offset;
+}
+
+static gint 
+dissect_dsi_attention(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset)
+{
+        proto_tree      *tree;
+	proto_item	*ti;
+	guint16		flag;
+	
+	if (!tvb_reported_length_remaining(tvb,offset))
+		return offset;
+
+	flag = tvb_get_ntohs(tvb, offset);
+	ti = proto_tree_add_text(dsi_tree, tvb, offset, -1, "Attention");
+	tree = proto_item_add_subtree(ti, ett_dsi_attn);
+
+	ti = proto_tree_add_item(tree, hf_dsi_attn_flag, tvb, offset, 2, FALSE);
+	tree = proto_item_add_subtree(ti, ett_dsi_attn_flag);
+	proto_tree_add_item(tree, hf_dsi_attn_flag_shutdown, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_dsi_attn_flag_crash, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_dsi_attn_flag_msg, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_dsi_attn_flag_reconnect, tvb, offset, 2, FALSE);
+	/* FIXME */
+	if ((flag & 0xf000) != 0x3000) 
+		proto_tree_add_item(tree, hf_dsi_attn_flag_time, tvb, offset, 2, FALSE);
+	else
+		proto_tree_add_item(tree, hf_dsi_attn_flag_bitmap, tvb, offset, 2, FALSE);
+	offset += 2;
+	return offset;
+}
 
 /* ----------------------------- 
 	from netatalk/etc/afpd/status.c
@@ -275,13 +365,56 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	}
 
 	if (adr_ofs) {
+        	proto_tree *adr_tree;
+		char *tmp;
+        	const guint8 *ip;
+		guint16 net;
+		guint8  node;
+        	guint16 port;
+		        	
 		ofs = adr_ofs;
 		nbe = tvb_get_guint8(tvb, ofs);
 		ti = proto_tree_add_text(tree, tvb, ofs, 1, "Address list: %d", nbe);
 		ofs++;
-		sub_tree = proto_item_add_subtree(ti, ett_dsi_addr);
+		adr_tree = proto_item_add_subtree(ti, ett_dsi_addr);
 		for (i = 0; i < nbe; i++) {
-			len = tvb_get_guint8(tvb, ofs) -2;
+			guint8 type;
+			
+			len = tvb_get_guint8(tvb, ofs);
+			type =  tvb_get_guint8(tvb, ofs +1);
+			switch (type) {
+			case 1:	/* IP */
+				ip = tvb_get_ptr(tvb, ofs+2, 4);
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip %s", ip_to_str(ip));
+				break;
+			case 2: /* IP + port */
+				ip = tvb_get_ptr(tvb, ofs+2, 4);
+				port = tvb_get_ntohs(tvb, ofs+6);
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip %s:%d",ip_to_str(ip),port);
+				break;
+			case 3: /* DDP, atalk_addr_to_str want host order not network */
+				net  = tvb_get_ntohs(tvb, ofs+2);
+				node = tvb_get_guint8(tvb, ofs +4);			
+				port = tvb_get_guint8(tvb, ofs +5);
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ddp %u.%u:%u", 
+					net, node, port);
+				break;
+			case 4: /* DNS */
+				if (len > 2) {
+					tmp = g_malloc( len -1);
+					tvb_memcpy(tvb, tmp, ofs +2, len -2);
+					tmp[len -2] = 0;
+					ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "dns %s", tmp);
+					g_free(tmp);
+					break;
+				} 
+				/* else fall to default malformed record */
+			default:
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len,"Unknow type : %d", type);
+				break;
+			}			
+			len -= 2;
+			sub_tree = proto_item_add_subtree(ti,ett_dsi_addr_line);
 			proto_tree_add_item(sub_tree, hf_dsi_server_addr_len, tvb, ofs, 1, FALSE);
 			ofs++;
 			proto_tree_add_item(sub_tree, hf_dsi_server_addr_type, tvb, ofs, 1, FALSE); 
@@ -372,6 +505,16 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	else 
 		dsi_tree = tree;
 	switch (dsi_command) {
+	case DSIFUNC_OPEN:
+		if (tree) {
+			dissect_dsi_open_session(tvb, dsi_tree, DSI_BLOCKSIZ);
+		}
+		break;
+	case DSIFUNC_ATTN:
+		if (tree) {
+			dissect_dsi_attention(tvb, dsi_tree, DSI_BLOCKSIZ);
+		}
+		break;
 	case DSIFUNC_STAT:
 		if (tree && (dsi_flags == DSIFL_REPLY)) {
 			dissect_dsi_reply_get_status(tvb, dsi_tree, DSI_BLOCKSIZ);
@@ -562,15 +705,69 @@ proto_register_dsi(void)
 	FT_BYTES, BASE_HEX, NULL, 0x0,
       	"Address value", HFILL }},
 
+    { &hf_dsi_open_type,
+      { "Flags",          "dsi.open_type",
+	FT_UINT8, BASE_DEC, VALS(dsi_open_type_vals), 0x0,
+      	"Open session option type.", HFILL }},
+
+    { &hf_dsi_open_len,
+      { "Length",          "dsi.open_len",
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+      	"Open session option len", HFILL }},
+
+    { &hf_dsi_open_quantum,
+      { "Quantum",       "dsi.open_quantum",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+      	"Server/Attention quantum", HFILL }},
+
+    { &hf_dsi_open_option,
+      { "Option",          "dsi.open_option",
+	FT_BYTES, BASE_HEX, NULL, 0x0,
+      	"Open session options (undecoded)", HFILL }},
+
+    { &hf_dsi_attn_flag,
+      { "Flags",          "dsi.attn_flag",
+	FT_UINT16, BASE_HEX, VALS(dsi_attn_flag_vals), 0xf000,
+      	"Server attention flag", HFILL }},
+    { &hf_dsi_attn_flag_shutdown,
+      { "Shutdown",      "dsi.attn_flag.shutdown",
+		FT_BOOLEAN, 16, NULL, 1<<15,
+      	"Attention flag, server is shutting down", HFILL }},
+    { &hf_dsi_attn_flag_crash,
+      { "Crash",      "dsi.attn_flag.crash",
+		FT_BOOLEAN, 16, NULL, 1<<14,
+      	"Attention flag, server crash bit", HFILL }},
+    { &hf_dsi_attn_flag_msg,
+      { "Message",      "dsi.attn_flag.msg",
+		FT_BOOLEAN, 16, NULL, 1<<13,
+      	"Attention flag, server message bit", HFILL }},
+    { &hf_dsi_attn_flag_reconnect,
+      { "Don't reconnect",      "dsi.attn_flag.reconnect",
+		FT_BOOLEAN, 16, NULL, 1<<12,
+      	"Attention flag, don't reconnect bit", HFILL }},
+    { &hf_dsi_attn_flag_time,
+     { "Minutes",          "dsi.attn_flag.time",
+	FT_UINT16, BASE_DEC, NULL, 0xfff,
+      	"Number of minutes", HFILL }},
+    { &hf_dsi_attn_flag_bitmap,
+     { "Bitmap",          "dsi.attn_flag.time",
+	FT_UINT16, BASE_HEX, NULL, 0xfff,
+      	"Attention extended bitmap", HFILL }},
+
   };
+
   static gint *ett[] = {
     &ett_dsi,
+    &ett_dsi_open,
+    &ett_dsi_attn,
+    &ett_dsi_attn_flag,
     /* asp afp */
     &ett_dsi_status,
     &ett_dsi_status_server_flag,
     &ett_dsi_vers,
     &ett_dsi_uams,
     &ett_dsi_addr,
+    &ett_dsi_addr_line,
     &ett_dsi_directory,
   };
   module_t *dsi_module;

@@ -1147,8 +1147,9 @@ Kikuchi Ayamura <ayamura[AT]ayamura.org> {
 
 Didier Gautheron <dgautheron[AT]magic.fr> {
 	X11 bug fix
-	Appletalk Transaction Protocol, Appletalk Stream Protocol, and
-	    Appletalk Filing Protocol support
+	AppleTalk Transaction Protocol, AppleTalk Stream Protocol, and
+	    AppleTalk Filing Protocol support
+	DSI updates
 	"frame.marked" field set on marked frames
 	Don't show progress bar for quick "Find Frame" searches
 	Add "Find Next" and "Find Previous" to repeat searches
