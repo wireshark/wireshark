@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.133 2003/07/22 11:51:20 sahlberg Exp $
+ * $Id: packet-rpc.c,v 1.134 2003/07/29 07:30:58 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2011,7 +2011,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				   Mark it as such. */
 				if (check_col(pinfo->cinfo, COL_INFO)) {
 					col_append_fstr(pinfo->cinfo, COL_INFO,
-						" dup XID 0x%x", xid);
+						" dup to #%d", rpc_call->req_num);
 				}
 				proto_tree_add_item(rpc_tree,
 					hf_rpc_dup, tvb, 0,0, TRUE);
@@ -2184,7 +2184,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				   Mark it as such. */
 				if (check_col(pinfo->cinfo, COL_INFO)) {
 					col_append_fstr(pinfo->cinfo, COL_INFO,
-						" dup XID 0x%x", xid);
+						" dup to #%d", rpc_call->rep_num);
 				}
 				proto_tree_add_item(rpc_tree,
 					hf_rpc_dup, tvb, 0,0, TRUE);
@@ -3342,10 +3342,10 @@ proto_register_rpc(void)
 			"Duplicate Call/Reply", "rpc.dup", FT_NONE, BASE_NONE,
 			NULL, 0, "Duplicate Call/Reply", HFILL }},
 		{ &hf_rpc_call_dup, {
-			"Duplicate call to frame", "rpc.call.dup", FT_FRAMENUM, BASE_DEC,
+			"Duplicate to the call in", "rpc.call.dup", FT_FRAMENUM, BASE_DEC,
 			NULL, 0, "This is a duplicate to the call in frame", HFILL }},
 		{ &hf_rpc_reply_dup, {
-			"Duplicate reply to frame", "rpc.reply.dup", FT_FRAMENUM, BASE_DEC,
+			"Duplicate to the reply in", "rpc.reply.dup", FT_FRAMENUM, BASE_DEC,
 			NULL, 0, "This is a duplicate to the reply in frame", HFILL }},
 		{ &hf_rpc_value_follows, {
 			"Value Follows", "rpc.value_follows", FT_BOOLEAN, BASE_NONE,
