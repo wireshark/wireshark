@@ -38,8 +38,8 @@
 
 #include "asn1.h"
 #include "format-oid.h"
-
 #include "packet-gssapi.h"
+#include "epan/conversation.h"
 
 #define SPNEGO_negTokenInit 0
 #define SPNEGO_negTokenTarg 1
@@ -77,6 +77,14 @@ static const value_string spnego_negResult_vals[] = {
   { SPNEGO_negResult_accept_reject,      "Accept Reject"},
   { NULL, NULL}
 };
+
+/*
+ * We need to keep this around for other routines to use.
+ * We store it in the per-protocol conversation data and 
+ * retrieve it in the main dissector.
+ */
+
+static dissector_handle_t next_level_dissector = -1;
 
 /* Display an ASN1 parse error.  Taken from packet-snmp.c */
 
@@ -428,8 +436,7 @@ dissect_spnego_negResult(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-			     proto_tree *tree, ASN1_SCK *hnd,
-			     dissector_handle_t *handle)
+			     proto_tree *tree, ASN1_SCK *hnd)
 {
 	gboolean def;
 	int ret;
@@ -438,6 +445,7 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	gchar *p, *oid_string;
 	unsigned int i;
 	gssapi_oid_value *value;
+	conversation_t *conversation;
 
 	/*
 	 * Now, get the OID, and find the handle, if any
@@ -475,11 +483,27 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	/* Should check for an unrecognized OID ... */
 
-	*handle = -1;
+	next_level_dissector = -1;
 
-	if (value) *handle = find_dissector(value->name);
+	if (value) next_level_dissector = find_dissector(value->name);
 
-	printf("Handle: %0X\n", handle);
+	/*
+	 * Now, we need to save this in per proto info in the
+	 * conversation if it exists. We also should create a 
+	 * conversation if one does not exist. FIXME!
+	 */
+
+	if (conversation = find_conversation(&pinfo->src, &pinfo->dst,
+					     pinfo->ptype, pinfo->srcport,
+					     pinfo->destport, 0)) {
+
+
+	  conversation_add_proto_data(conversation, proto_spnego, 
+				      next_level_dissector);
+	}
+	else {
+
+	}
 
  done:
 	return offset;
@@ -487,8 +511,7 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 static int
 dissect_spnego_responseToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-			     proto_tree *tree, ASN1_SCK *hnd, 
-			     dissector_handle_t dissector)
+			     proto_tree *tree, ASN1_SCK *hnd)
 {
 	gboolean def;
 	int ret;
@@ -520,16 +543,14 @@ dissect_spnego_responseToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	 * Now, we should be able to dispatch after creating a new TVB.
 	 */
 
-	fprintf(stderr, "dissector: %0X\n", dissector);
-
 	token_tvb = tvb_new_subset(tvb, offset, nbytes, -1);
-	if (dissector)
-	  call_dissector(dissector, token_tvb, pinfo, tree);
+	if (next_level_dissector != -1)
+	  call_dissector(next_level_dissector, token_tvb, pinfo, tree);
 
 	hnd->offset += nbytes; /* Update this ... */
 
  done:
-	return offset;
+	return offset + nbytes;
 }
 
 
@@ -614,14 +635,14 @@ dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	  case SPNEGO_supportedMech:
 
 	    offset = dissect_spnego_supportedMech(tvb, offset, pinfo, subtree,
-						  hnd, &handle);
+						  hnd);
 
 	    break;
 
 	  case SPNEGO_responseToken:
 
 	    offset = dissect_spnego_responseToken(tvb, offset, pinfo, subtree,
-						  hnd, handle);
+						  hnd);
 	    break;
 
 	  case SPNEGO_mechListMIC:
@@ -634,6 +655,8 @@ dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	    break;
 	  }
+
+	  len1 -= len;
 
 	}
 
@@ -652,7 +675,23 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	ASN1_SCK hnd;
 	gboolean def;
 	guint len1, len, cls, con, tag, nbytes;
+	conversation_t *conversation;
+	dissector_handle_t handle;
 
+	/*
+	 * We need this later, so lets get it now ...
+	 */
+
+	conversation = find_conversation(&pinfo->src, &pinfo->dst,
+					 pinfo->ptype, pinfo->srcport,
+					 pinfo->destport, 0);
+
+	if (conversation && 
+	    (handle = conversation_get_proto_data(conversation, 
+						 proto_spnego))) {
+	  next_level_dissector = handle;
+
+	}
 	item = proto_tree_add_item(
 		tree, hf_spnego, tvb, offset, length, FALSE);
 
