@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.23 2004/02/23 21:14:25 gerald Exp $
+# $Id: Makefile.common,v 1.24 2004/02/23 22:45:24 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -697,7 +697,6 @@ BUILT_SOURCES =		\
 ETHEREAL_COMMON_SRC =	\
 	$(PLATFORM_SRC) \
 	$(DISSECTOR_SUPPORT_SRC)	\
-	$(BUILT_SOURCES)		\
 	capture_stop_conditions.c	\
 	cfile.c	\
 	conditions.c	\
@@ -713,6 +712,7 @@ ETHEREAL_COMMON_SRC =	\
 # corresponding headers
 ETHEREAL_COMMON_INCLUDES =	\
 	$(DISSECTOR_SUPPORT_INCLUDES)	\
+	$(BUILT_SOURCES)		\
 	capture_stop_conditions.h	\
 	cfile.h	\
 	color.h	\
@@ -821,7 +821,6 @@ editcap_SOURCES = \
 dftest_SOURCES =	\
 	$(DISSECTOR_SRC)	\
 	$(DISSECTOR_SUPPORT_SRC)	\
-	$(BUILT_SOURCES)		\
 	register.c	\
 	dftest.c
 
