@@ -1,7 +1,7 @@
 /* dlg_utils.h
  * Declarations of utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.h,v 1.20 2004/06/04 17:16:57 ulfl Exp $
+ * $Id: dlg_utils.h,v 1.21 2004/06/05 12:12:13 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -116,8 +116,7 @@ extern GtkWidget *file_selection_new(const gchar *title, file_selection_action_t
  *
  * @param fs the file selection dialog from file_selection_new()
  * @param filename the folder to set
- * @return ???
- * @todo what's the return value?
+ * @return TRUE if the folder could be changed successfully
  */
 extern gboolean file_selection_set_current_folder(GtkWidget *fs, const gchar *filename);
 
@@ -129,7 +128,8 @@ extern gboolean file_selection_set_current_folder(GtkWidget *fs, const gchar *fi
  */
 extern void file_selection_set_extra_widget(GtkWidget *fs, GtkWidget *extra);
 
-/** @todo ??? */
+/** The function file_selection_browse() will OBJECT_SET_DATA() itself on it's parent window.
+ *  When destroying the parent window, it can close the corresponding file selection. */
 #define E_FILE_SEL_DIALOG_PTR_KEY "file_sel_dialog_ptr"
 
 /** Browse the files and fill in the associated text entry.
@@ -138,7 +138,6 @@ extern void file_selection_set_extra_widget(GtkWidget *fs, GtkWidget *extra);
  * @param file_te the GtkEntry the dialog will have to fill in the filename
  * @param title the title for the file selection dialog
  * @param action the desired action
- * @todo use the parent widget as the first parameter, not the button
  */
 extern void
 file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *title, file_selection_action_t action);

@@ -1,7 +1,7 @@
 /* gtkglobals.h
  * GTK-related Global defines, etc.
  *
- * $Id: gtkglobals.h,v 1.28 2004/06/04 20:05:31 ulfl Exp $
+ * $Id: gtkglobals.h,v 1.29 2004/06/05 12:12:13 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,38 +39,36 @@
  *  GTK global definitions. For example a pointer to the main application window.
  */
 
-/** application window */
+/** Application window. */
 extern GtkWidget *top_level;
 
-/** packet list pane */
+/** Packet list pane. */
 extern GtkWidget *packet_list;
 
-/** tree view (packet details) pane */
+/** Tree view (packet details) pane. */
 extern GtkWidget *tree_view;
 
-/** byte notebook (packet bytes) pane */
+/** Byte notebook (packet bytes) pane. */
 extern GtkWidget *byte_nb_ptr;
 
-/** the filter text entry in the filter toolbar */
+/** The filter text entry in the filter toolbar. */
 extern GtkWidget   *main_display_filter_widget;
 
 #if GTK_MAJOR_VERSION < 2
-/** normal font */
+/** Normal font. */
 extern GdkFont   *m_r_font;
-/** bold font */
+/** Bold font. */
 extern GdkFont   *m_b_font;
-/** font height */
+/** Font height. */
 extern guint      m_font_height;
-/** font width */
+/** Font width. */
 extern guint      m_font_width;
-/** ??? 
- * @todo what's this?
- */
+/** Widget style (font, color, ...). */
 extern GtkStyle  *item_style;
 #else
-/** normal font */
+/** Normal font. */
 extern PangoFontDescription *m_r_font;
-/** bold font */
+/** Bold font. */
 extern PangoFontDescription *m_b_font;
 #endif
 

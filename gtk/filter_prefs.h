@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.h,v 1.20 2004/06/04 20:05:31 ulfl Exp $
+ * $Id: filter_prefs.h,v 1.21 2004/06/05 12:12:13 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -111,16 +111,15 @@ void colorize_filter_te_as_valid(GtkWidget *widget);
  */
 void filter_te_syntax_check_cb(GtkWidget *widget);
 
-/** ???
- * @todo check usage of this define */
+/** The filter button of the top_level window. */
 #define E_FILT_BT_PTR_KEY	    "filter_bt_ptr"
 
-/** ???
- * @todo check usage of this define */
+/** The filter text entry. */
 #define E_FILT_TE_PTR_KEY	    "filter_te_ptr"
 
-/** ???
- * @todo check usage of this define */
+/** The filter text entry.
+ *  @todo Check the usage of all the text entry keys.
+ */
 #define E_FILT_FILTER_TE_KEY    "filter_filter_te"
 
 #endif /* filter.h */

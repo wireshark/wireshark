@@ -3,7 +3,7 @@
  * Helper routines common to all service response time statistics
  * tap.
  *
- * $Id: service_response_time_table.h,v 1.3 2004/06/02 22:13:04 ulfl Exp $
+ * $Id: service_response_time_table.h,v 1.4 2004/06/05 12:12:13 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,37 +28,70 @@
 #include "epan/nstime.h"
 
 /** @file
- * Helper routines common to all service response time statistics tap.
- *  @todo complete this?
+ *  Helper routines common to all service response time statistics tap.
  */
 
+/** Procedure data */
 typedef struct _srt_procedure_t {
-	char *entries[6];
-	int num;
-	nstime_t min;
-	nstime_t max;
-	nstime_t tot;
+	char *entries[6];   /**< column entries */
+	int num;            /**< number of calls seen */
+	nstime_t min;       /**< minimum srt */
+	nstime_t max;       /**< maximum srt */
+	nstime_t tot;       /**< average srt */
 } srt_procedure_t;
 
+/** Statistics table */
 typedef struct _srt_stat_table {
-	GtkWidget *scrolled_window;
-	GtkCList *table;
-	GtkWidget *menu;
-	char *filter_string; /* append procedure number (%d) to this string 
+	GtkWidget *scrolled_window; /**< window widget */
+	GtkCList *table;            /**< table widget */
+	GtkWidget *menu;            /**< context menu */
+	char *filter_string;        /**< append procedure number (%d) to this string 
 				to create a display filter */
-	int num_procs;
-	srt_procedure_t *procedures;
+	int num_procs;              /**< number of elements on procedures array */
+	srt_procedure_t *procedures;/**< the procedures array */
 } srt_stat_table;
 
+/** Init an srt table data structure.
+ *
+ * @param rst the srt table to init
+ * @param num_procs number of procedures
+ * @param vbox the corresponding GtkVBox to fill in
+ * @param filter_string filter string or NULL
+ */
 void init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, char *filter_string);
 
+/** Init an srt table row data structure.
+ *
+ * @param rst the srt table
+ * @param index number of procedure
+ * @param procedure the procedures name
+ */
 void init_srt_table_row(srt_stat_table *rst, int index, char *procedure);
 
+/** Add srt response to table row data. This will not draw the data!
+ *
+ * @param rst the srt table
+ * @param index number of procedure
+ * @param req_time the time of the corresponding request
+ * @param pinfo current packet info
+ */
 void add_srt_table_data(srt_stat_table *rst, int index, nstime_t *req_time, packet_info *pinfo);
 
+/** Draw the srt table data.
+ *
+ * @param rst the srt table
+ */
 void draw_srt_table_data(srt_stat_table *rst);
 
+/** Reset the srt table data.
+ *
+ * @param rst the srt table
+ */
 void reset_srt_table_data(srt_stat_table *rst);
 
+/** Free the srt table data.
+ *
+ * @param rst the srt table
+ */
 void free_srt_table_data(srt_stat_table *rst);
 
