@@ -186,11 +186,12 @@ GString* quoted_string = NULL;
 
 <DQUOTE>\"				{
 	/* end quote */
-	char *my_string = g_strdup(quoted_string->str);
+	int token;
 	BEGIN(INITIAL);
+	token = set_lval(TOKEN_STRING, quoted_string->str);
 	g_string_free(quoted_string, TRUE);
 	quoted_string = NULL;
-	return set_lval(TOKEN_STRING, my_string);
+	return token;
 }
 
 <DQUOTE>\\[0-7]{1,3} {
@@ -228,7 +229,7 @@ GString* quoted_string = NULL;
 
 [-[:alnum:]_\.]+\/[[:digit:]]+  {
         /* CIDR */
-        return set_lval(TOKEN_UNPARSED, g_strdup(yytext));
+        return set_lval(TOKEN_UNPARSED, yytext);
 }
 
 [-\+[:alnum:]_.,:]+	{
@@ -242,13 +243,13 @@ GString* quoted_string = NULL;
 	}
 	else {
 		/* No, so treat it as an unparsed string */
-		return set_lval(TOKEN_UNPARSED, g_strdup(yytext));
+		return set_lval(TOKEN_UNPARSED, yytext);
 	}
 }
 
 . {
 	/* Default */
-	return set_lval(TOKEN_UNPARSED, g_strdup(yytext));
+	return set_lval(TOKEN_UNPARSED, yytext);
 }
 
 
