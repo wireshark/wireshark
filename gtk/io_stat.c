@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.30 2003/09/26 02:09:44 guy Exp $
+ * $Id: io_stat.c,v 1.31 2003/10/04 03:10:18 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -410,6 +410,15 @@ get_it_value(io_stat_t *io, io_stat_item_t *it, int adv_type, int calc_type)
 		break;
 	case COUNT_TYPE_ADVANCED:
 		switch(adv_type){
+		case FT_NONE:
+			switch(calc_type){
+			case CALC_TYPE_COUNT:
+				value=it->frames;
+				break;
+			default:
+				break;
+			}
+			break;
 		case FT_UINT8:
 		case FT_UINT16:
 		case FT_UINT24:
