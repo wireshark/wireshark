@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.69 2003/05/01 18:05:27 guy Exp $
+ * $Id: plugins.c,v 1.70 2003/05/01 21:10:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -527,14 +527,12 @@ init_plugins(const char *plugin_dir)
 	patable.p_except_throwd			= except_throwd;
 	patable.p_except_throwf			= except_throwf;
 	patable.p_except_unhandled_catcher	= except_unhandled_catcher;
-	patable.p_except_code			= except_code;
-	patable.p_except_group			= except_group;
-	patable.p_except_message	       	= except_message;
-	patable.p_except_data			= except_data;
 	patable.p_except_take_data	       	= except_take_data;
 	patable.p_except_set_allocator		= except_set_allocator;
 	patable.p_except_alloc			= except_alloc;
 	patable.p_except_free			= except_free;
+	patable.p_except_pop			= except_pop;
+	patable.p_except_setup_try		= except_setup_try;
 #endif
 
 #ifdef WIN32

@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.50 2003/04/30 23:40:43 guy Exp $
+ * $Id: plugin_api.h,v 1.51 2003/05/01 21:10:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -278,14 +278,12 @@
 #define except_throwd			(*p_except_throwd)
 #define except_throwf			(*p_except_throwf)
 #define except_unhandled_catcher       	(*p_except_unhandled_catcher)
-#define except_code			(*p_except_code)
-#define except_group			(*p_except_group)
-#define except_message			(*p_except_message)
-#define except_data			(*p_except_data)
 #define except_take_data	       	(*p_except_take_data)
 #define except_set_allocator	       	(*p_except_set_allocator)
 #define except_alloc			(*p_except_alloc)
 #define except_free			(*p_except_free)
+#define except_pop			(*p_except_pop)
+#define except_setup_try		(*p_except_setup_try)
 
 #endif
 
