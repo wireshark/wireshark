@@ -1,7 +1,7 @@
 # Makefile.nmake
 # Nmake file for Ethereal documentation
 #
-# $Id: Makefile.nmake,v 1.14 2004/05/09 10:03:39 guy Exp $
+# $Id: Makefile.nmake,v 1.15 2004/05/22 13:45:05 ulfl Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -28,6 +28,9 @@ include ../config.nmake
 
 doc: ethereal.html tethereal.html ethereal-filter.html editcap.html \
 	idl2eth.html mergecap.html text2pcap.html
+
+man: ethereal.1 tethereal.1 ethereal-filter.4 editcap.1 \
+	idl2eth.1 mergecap.1 text2pcap.1
 
 ethereal.1: ethereal.pod ../config.h
 	$(POD2MAN)                     \
