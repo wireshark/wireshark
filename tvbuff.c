@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.17 2000/09/13 20:30:06 gram Exp $
+ * $Id: tvbuff.c,v 1.18 2000/09/14 16:04:28 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -206,7 +206,11 @@ tvb_free(tvbuff_t* tvb)
 			break;
 
 		case TVBUFF_SUBSET:
-			tvb_decrement_usage_count(tvb->tvbuffs.subset.tvb, 1);
+			/* This will be NULL if tvb_new_subset() fails because
+			 * reported_length < -1 */
+			if (tvb->tvbuffs.subset.tvb) {
+				tvb_decrement_usage_count(tvb->tvbuffs.subset.tvb, 1);
+			}
 			break;
 
 		case TVBUFF_COMPOSITE:
