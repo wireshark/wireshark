@@ -202,15 +202,15 @@ The lowest pane contains a hex dump of the actual packet data.
 Selecting a field in the I<protocol tree> highlights the corresponding
 bytes in this section.
 
-A display filter can be entered into the strip at the bottom.  It must
-have the same format as B<tcpdump> filter strings, since both programs use
-the same underlying library.  A filter for HTTP, HTTPS, and DNS traffic
-might look like this:
+A display filter can be entered into the strip at the bottom.  (XXX -
+put in syntax of display filter here?).  A filter for HTTP, HTTPS, and
+DNS traffic might look like this:
 
-  tcp port 80 or tcp port 443 or port 53
+  tcp.port == 80 || tcp.port == 443 || tcp.port == 53
 
 Selecting the I<Filter:> button lets you choose from a list of named
-filters that you can optionally save.
+filters that you can optionally save.  Pressing the Return or Enter
+keys will cause the filter to be applied to the current list of packets.
 
 =item Preferences
 
