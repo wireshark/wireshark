@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.34 2002/09/25 00:36:58 jmayer Exp $
+$Id: ncp2222.py,v 1.35 2002/09/26 02:08:20 jmayer Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -5490,6 +5490,7 @@ def produce_code():
 # include "config.h"
 #endif
 
+#include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>

@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.21 2002/09/25 00:36:59 jmayer Exp $
+ * $Id: packet-ncp2222.inc,v 1.22 2002/09/26 02:08:21 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -732,8 +732,7 @@ ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
 }
 
 ncp_req_eid_hash_value*
-ncp_eid_hash_insert(conversation_t *conversation, guint32 nw_eid,
-		const ncp_record *ncp_rec)
+ncp_eid_hash_insert(guint32 nw_eid)
 {
 	ncp_req_eid_hash_key		*request_eid_key;
 	ncp_req_eid_hash_value		*request_eid_value;
@@ -766,7 +765,7 @@ ncp_hash_lookup(conversation_t *conversation, guint8 nw_sequence)
 
 /* Returns the value_rec* for needed EID, or NULL if not found. */
 ncp_req_eid_hash_value*
-ncp_eid_hash_lookup(conversation_t *conversation, guint32 nw_eid)
+ncp_eid_hash_lookup(conversation_t *conversation _U_, guint32 nw_eid)
 {
 	ncp_req_eid_hash_key		request_eid_key;
 
@@ -1700,11 +1699,10 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
 		                                proto_tree_add_item(nvtree, hf_nds_node, tvb, voffset+4, 6, FALSE);
 		                                proto_tree_add_item(nvtree, hf_nds_socket, tvb, voffset+10, 2, FALSE);
                                                 break;
-                                        case 0x00000001:
-	        	                        proto_tree_add_item(nvtree, hf_nds_port, tvb, voffset, 2, FALSE);
+	        	                        /*proto_tree_add_item(nvtree, hf_nds_port, tvb, voffset, 2, FALSE);
                                                 value4 = tvb_get_letohl(tvb, voffset+2);
 	                                        proto_tree_add_ipv4(nvtree, hf_add_ref_ip, tvb, voffset+2, 4, value4);
-                                                break;
+                                                break;*/
                                         case 0x00000008:
 	        	                        proto_tree_add_item(nvtree, hf_nds_port, tvb, voffset, 2, FALSE);
                                                 value4 = tvb_get_letohl(tvb, voffset+2);
@@ -1715,6 +1713,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                                 value4 = tvb_get_letohl(tvb, voffset+2);
                                                 proto_tree_add_ipv4(nvtree, hf_add_ref_tcp, tvb, voffset+2, 4, value4);
                                                 break;
+                                        case 0x00000001:
                                         case 0x0000000d:
                                                 get_string(tvb, voffset, value3, vvalues->vstring);
                                                 proto_tree_add_string(nvtree, hf_value_string, tvb, voffset, 
@@ -1888,7 +1887,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                        case 0x00000017:        /* Back Link */
                                value1 = tvb_get_letohl(tvb, voffset);         /* Length */
                                proto_tree_add_uint_format(nvtree, hf_nds_uint32value, tvb, voffset,
-                                        4, value1, "Lenght of Record", value1);
+                                        4, value1, "Length of Record %08x", value1);
                                voffset = voffset+4;
                                value2 = tvb_get_letohl(tvb, voffset);         /* Remote ID */
                                proto_tree_add_uint_format(nvtree, hf_nds_uint32value, tvb, voffset,
@@ -1905,7 +1904,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                        case 0x00000019:        /* Typed Name */
                                value1 = tvb_get_letohl(tvb, voffset);         /* Length */
                                proto_tree_add_uint_format(nvtree, hf_nds_uint32value, tvb, voffset,
-                                        4, value1, "Lenght of Record", value1);
+                                        4, value1, "Length of Record %08x", value1);
                                voffset = voffset+4;
                                value2 = tvb_get_letohl(tvb, voffset);         /* Level */
                                proto_tree_add_uint_format(nvtree, hf_nds_uint32value, tvb, voffset,
@@ -1926,7 +1925,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                        case 0x0000001a:        /* Hold */
                                value1 = tvb_get_letohl(tvb, voffset);         /* Length */
                                proto_tree_add_uint_format(nvtree, hf_nds_uint32value, tvb, voffset,
-                                        4, value1, "Lenght of Record", value1);
+                                        4, value1, "Length of Record %08x", value1);
                                voffset = voffset+4;
                                value2 = tvb_get_letohl(tvb, voffset);         /* Amount */
                                proto_tree_add_uint_format(nvtree, hf_nds_uint32value, tvb, voffset,
@@ -1985,6 +1984,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
         char *          vstring="";
               
        	mval_buf.buffer = "";
+
         switch (vtype)
         {
                 case 0: /* No Specifier Type */
@@ -2393,7 +2393,6 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
 {
         guint8          i;
         guint8          r;
-        guint8          n;
         guint32         ioffset = 0;
         gint            value1 = 0;
         guint32         value2 = 0;
@@ -2402,7 +2401,6 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
         gint            value5 = 0;
         guint32         value6 = 0;
         guint32         value7 = 0;
-        guint32         value8 = 0;
         char *          valuestr = "";
         proto_tree      *ntree;
         proto_tree      *atree;
@@ -4184,17 +4182,14 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *ncp_tree)
 {
 	conversation_t			*conversation = NULL;
-	conversation_t			*eid_conversation;
 	ncp_req_hash_value		*request_value = NULL;
 	ncp_req_eid_hash_value		*request_eid_value = NULL;
 	const ncp_record		*ncp_rec = NULL;
-	const ncp_record		*ncp_eid_rec = NULL;
 	int				*req_cond_results;
 	guint8				completion_code=0;
 	guint				length;
 	ptvcursor_t			*ptvc = NULL;
 	const char			*error_string;
-        char                            *n_string="";
         guint32                         nds_string_len = 0;
         guint8                          ping_version = 0;
         guint32                         nds_flags = 0;
@@ -4202,7 +4197,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
         nw_uni_t                        reply_buffer;
         char *                          verb_string="";
         guint32                         nds_error_code = 0;
-        guint32                         nds_error_offset = 0;
         guint32                         nds_reply_buffer = 0;
         char *                          nds_error_string = NULL;
         guint32                         nds_frag=0;
@@ -5308,7 +5302,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                        			                verb_string = "NDS Continuation Fragment";
                                                         break;
                                         }        
-        			        if(request_value->nds_request_verb != NULL)
+        			        if(request_value->nds_request_verb != 0)
                                         {
                                                 proto_tree_add_uint_format(ncp_tree, hf_ncp_nds_verb, tvb, 6, 0,
 			        	                request_value->nds_request_verb, "NDS Verb: %d, %s",
@@ -5323,7 +5317,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                 {
 			                                request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
 			                                        if (!request_eid_value) {
-        	                                                        request_eid_value = ncp_eid_hash_insert(conversation, global_eid, ncp_rec);
+        	                                                        request_eid_value = ncp_eid_hash_insert(global_eid);
                                                                         strcpy(request_eid_value->object_name, global_object_name);
                                                                 }        
                                                 }
@@ -5606,9 +5600,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 	ncp_req_hash_value	*request_value = NULL;
 	ncp_req_eid_hash_value	*request_eid_value = NULL;
 	const ncp_record	*ncp_rec = NULL;          
-        ncp_req_hash_value      *nds_rec = NULL;          
 	conversation_t		*conversation;
-	conversation_t		*eid_conversation;
 	ptvcursor_t		*ptvc = NULL;
 	proto_tree		*temp_tree = NULL;
         guint8                  nds_verb = 0;
@@ -5623,12 +5615,8 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         nds_val                 p7values;
         nds_val                 p8values;
         nds_val                 p9values;
-        guint32                 value1= 0;
-        guint32                 value2= 0;
-        char *                  nds_string = "";
         guint8                  nds_version = 0;
         guint32                 foffset = 0;
-        guint32                 nlength = 0;
         guint32                 nds_reply_buffer;
         nw_uni_t                req_buffer;
         char *                  global_object_name="\0";
@@ -8235,7 +8223,6 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
         guint32                 nds_flag_depth = 0x00000002;
         guint32                 nds_flag_rev = 0x00000004;
         guint32                 nds_flag_flags = 0x00000008;
-        int                     ett_nds_flags;
         
 	func = tvb_get_guint8(tvb, 6);
         subfunc = tvb_get_guint8(tvb, 7);
