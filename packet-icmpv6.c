@@ -1,23 +1,23 @@
 /* packet-icmpv6.c
- * Routines for ICMPv6 packet disassembly 
+ * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.25 2000/08/29 14:17:12 itojun Exp $
+ * $Id: packet-icmpv6.c,v 1.26 2000/10/12 14:58:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -206,6 +206,14 @@ again:
 	    "MTU: %d", pntohl(&pi->nd_opt_mtu_mtu));
 	break;
       }
+    }
+
+    if (opt->nd_opt_len == 0) {
+        proto_tree_add_text(icmp6opt_tree, NullTVB,
+                            offset + offsetof(struct nd_opt_hdr, nd_opt_len), 1,
+                            "Invalid option length: %d",
+                            opt->nd_opt_len);
+        return;
     }
 
     offset += (opt->nd_opt_len << 3);
@@ -1019,4 +1027,3 @@ proto_reg_handoff_icmpv6(void)
 {
   old_dissector_add("ip.proto", IP_PROTO_ICMPV6, dissect_icmpv6);
 }
-
