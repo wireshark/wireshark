@@ -1,5 +1,5 @@
 /* packet-nfs.h (c) 1999 Uwe Girlich */
-/* $Id: packet-nfs.h,v 1.16 2003/08/17 21:34:22 sahlberg Exp $ */
+/* $Id: packet-nfs.h,v 1.17 2003/09/28 01:52:57 sahlberg Exp $ */
 
 #ifndef __PACKET_NFS_H__
 #define __PACKET_NFS_H__
@@ -97,10 +97,9 @@
 
 extern gboolean nfs_file_name_snooping;
 
-/* the RPC mount protocol needs both function to decode a MNT reply */
-int dissect_fhandle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
-    char *name);
-int dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
+extern int dissect_fhandle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
+    char *name, guint32 *hash);
+extern int dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
     char *name, guint32 *hash);
 
 int dissect_nfs_post_op_attr(tvbuff_t *tvb, int offset, proto_tree *tree, 
@@ -123,9 +122,6 @@ typedef int (diss_p)(tvbuff_t *tvb, int offset, proto_tree *tree, int hf);
 /* Used in packet-nfsacl.c for NFS_ACL dissection */
 extern int dissect_fattr(tvbuff_t *tvb, int offset, proto_tree *tree, 
 	char* name);
-
-extern int dissect_fhandle(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-	proto_tree *tree, char *name);
 
 extern int dissect_access(tvbuff_t *tvb, int offset, proto_tree *tree,
 	char* name);

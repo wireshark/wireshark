@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.93 2003/09/09 09:49:01 sahlberg Exp $
+ * $Id: packet-nfs.c,v 1.94 2003/09/28 01:52:57 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1699,11 +1699,111 @@ dissect_stat(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 /* RFC 1094, Page 12..14 */
 static int
-dissect_nfs2_stat_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree* tree)
+dissect_nfs2_rmdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree* tree)
 {
 	guint32 status;
+	char *err;
 
 	offset = dissect_stat(tvb, offset, tree, &status);
+	switch (status) {
+		case 0:
+			proto_item_append_text(tree, ", RMDIR Reply");
+			break;
+		default:
+			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
+			}
+			proto_item_append_text(tree, ", RMDIR Reply  Error:%s", err);
+	}
+
+	return offset;
+}
+
+static int
+dissect_nfs2_symlink_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree* tree)
+{
+	guint32 status;
+	char *err;
+
+	offset = dissect_stat(tvb, offset, tree, &status);
+	switch (status) {
+		case 0:
+			proto_item_append_text(tree, ", SYMLINK Reply");
+			break;
+		default:
+			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
+			}
+			proto_item_append_text(tree, ", SYMLINK Reply  Error:%s", err);
+	}
+
+	return offset;
+}
+
+static int
+dissect_nfs2_link_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree* tree)
+{
+	guint32 status;
+	char *err;
+
+	offset = dissect_stat(tvb, offset, tree, &status);
+	switch (status) {
+		case 0:
+			proto_item_append_text(tree, ", LINK Reply");
+			break;
+		default:
+			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
+			}
+			proto_item_append_text(tree, ", LINK Reply  Error:%s", err);
+	}
+
+	return offset;
+}
+
+static int
+dissect_nfs2_rename_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree* tree)
+{
+	guint32 status;
+	char *err;
+
+	offset = dissect_stat(tvb, offset, tree, &status);
+	switch (status) {
+		case 0:
+			proto_item_append_text(tree, ", RENAME Reply");
+			break;
+		default:
+			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
+			}
+			proto_item_append_text(tree, ", RENAME Reply  Error:%s", err);
+	}
+
+	return offset;
+}
+
+static int
+dissect_nfs2_remove_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree* tree)
+{
+	guint32 status;
+	char *err;
+
+	offset = dissect_stat(tvb, offset, tree, &status);
+	switch (status) {
+		case 0:
+			proto_item_append_text(tree, ", REMOVE Reply");
+			break;
+		default:
+			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
+			}
+			proto_item_append_text(tree, ", REMOVE Reply  Error:%s", err);
+	}
 
 	return offset;
 }
@@ -1751,7 +1851,7 @@ dissect_ftype(tvbuff_t *tvb, int offset, proto_tree *tree, char* name)
 /* RFC 1094, Page 15 */
 int
 dissect_fhandle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
-    char *name)
+    char *name, guint32 *hash)
 {
 	proto_item* fitem;
 	proto_tree* ftree = NULL;
@@ -1788,7 +1888,7 @@ dissect_fhandle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		}
 	}
 
-	dissect_fhandle_data(tvb, offset, pinfo, ftree, FHSIZE, FALSE, NULL);
+	dissect_fhandle_data(tvb, offset, pinfo, ftree, FHSIZE, FALSE, hash);
 
 	offset += FHSIZE;
 	return offset;
@@ -1796,9 +1896,46 @@ dissect_fhandle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 
 /* RFC 1094, Page 15 */
 static int
-dissect_nfs2_fhandle_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_nfs2_statfs_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_fhandle(tvb, offset, pinfo, tree, "object");
+	guint32 hash;
+
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "object", &hash);
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x", hash);
+	}
+	proto_item_append_text(tree, ", STATFS Call FH:0x%08x", hash);
+
+	return offset;
+}
+
+static int
+dissect_nfs2_readlink_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	guint32 hash;
+
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "object", &hash);
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x", hash);
+	}
+	proto_item_append_text(tree, ", READLINK Call FH:0x%08x", hash);
+
+	return offset;
+}
+
+static int
+dissect_nfs2_getattr_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	guint32 hash;
+
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "object", &hash);
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x", hash);
+	}
+	proto_item_append_text(tree, ", GETATTR Call FH:0x%08x", hash);
 
 	return offset;
 }
@@ -2019,26 +2156,32 @@ dissect_filename(tvbuff_t *tvb, int offset,
 
 /* RFC 1094, Page 17 */
 static int
-dissect_path(tvbuff_t *tvb, int offset, proto_tree *tree, int hf)
+dissect_path(tvbuff_t *tvb, int offset, proto_tree *tree, int hf, char **name)
 {
-	offset = dissect_rpc_string(tvb, tree, hf, offset, NULL);
+	offset = dissect_rpc_string(tvb, tree, hf, offset, name);
 	return offset;
 }
 
 
 /* RFC 1094, Page 17,18 */
 static int
-dissect_attrstat(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_attrstat(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, char *funcname)
 {
 	guint32 status;
+	char *err;
 
 	offset = dissect_stat(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
 			offset = dissect_fattr(tvb, offset, tree, "attributes");
+			proto_item_append_text(tree, ", %s Reply", funcname);
 		break;
 		default:
-			/* do nothing */
+			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
+			}
+			proto_item_append_text(tree, ", %s Reply  Error:%s", funcname, err);
 		break;
 	}
 
@@ -2048,9 +2191,25 @@ dissect_attrstat(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 /* RFC 1094, Page 17,18 */
 static int
-dissect_nfs2_attrstat_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree* tree)
+dissect_nfs2_write_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree* tree)
 {
-	offset = dissect_attrstat(tvb, offset, tree);
+	offset = dissect_attrstat(tvb, offset, tree, pinfo, "WRITE");
+
+	return offset;
+}
+
+static int
+dissect_nfs2_setattr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree* tree)
+{
+	offset = dissect_attrstat(tvb, offset, tree, pinfo, "SETATTR");
+
+	return offset;
+}
+
+static int
+dissect_nfs2_getattr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree* tree)
+{
+	offset = dissect_attrstat(tvb, offset, tree, pinfo, "GETATTR");
 
 	return offset;
 }
@@ -2058,7 +2217,7 @@ dissect_nfs2_attrstat_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 
 /* RFC 1094, Page 18 */
 static int
-dissect_diropargs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char* name)
+dissect_diropargs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char* label, guint32 *hash, char **name)
 {
 	proto_item* diropargs_item = NULL;
 	proto_tree* diropargs_tree = NULL;
@@ -2066,7 +2225,7 @@ dissect_diropargs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 
 	if (tree) {
 		diropargs_item = proto_tree_add_text(tree, tvb, offset, -1,
-			"%s", name);
+			"%s", label);
 		diropargs_tree = proto_item_add_subtree(diropargs_item, ett_nfs_diropargs);
 	}
 
@@ -2086,8 +2245,8 @@ dissect_diropargs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 		}
 	}
 
-	offset = dissect_fhandle (tvb,offset,pinfo,diropargs_tree,"dir");
-	offset = dissect_filename(tvb,offset,      diropargs_tree,hf_nfs_name,NULL);
+	offset = dissect_fhandle(tvb, offset, pinfo, diropargs_tree, "dir", hash);
+	offset = dissect_filename(tvb, offset, diropargs_tree, hf_nfs_name, name);
 
 	/* now we know, that diropargs is shorter */
 	if (diropargs_item) {
@@ -2100,9 +2259,52 @@ dissect_diropargs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 
 /* RFC 1094, Page 18 */
 static int
-dissect_nfs2_diropargs_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_nfs2_rmdir_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_diropargs(tvb, offset, pinfo, tree, "where");
+	guint32 hash;
+	char *name=NULL;
+
+	offset = dissect_diropargs(tvb, offset, pinfo, tree, "where", &hash, &name);
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,", DH:0x%08x/%s", hash, name);
+	}
+	proto_item_append_text(tree, ", RMDIR Call DH:0x%08x/%s", hash, name);
+	g_free(name);
+
+	return offset;
+}
+
+static int
+dissect_nfs2_remove_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	guint32 hash;
+	char *name=NULL;
+
+	offset = dissect_diropargs(tvb, offset, pinfo, tree, "where", &hash, &name);
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,", DH:0x%08x/%s", hash, name);
+	}
+	proto_item_append_text(tree, ", REMOVE Call DH:0x%08x/%s", hash, name);
+	g_free(name);
+
+	return offset;
+}
+
+static int
+dissect_nfs2_lookup_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	guint32 hash;
+	char *name=NULL;
+
+	offset = dissect_diropargs(tvb, offset, pinfo, tree, "where", &hash, &name);
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,", DH:0x%08x/%s", hash, name);
+	}
+	proto_item_append_text(tree, ", LOOKUP Call DH:0x%08x/%s", hash, name);
+	g_free(name);
 
 	return offset;
 }
@@ -2110,18 +2312,28 @@ dissect_nfs2_diropargs_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 /* RFC 1094, Page 18 */
 static int
-dissect_diropres(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_diropres(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *funcname)
 {
 	guint32	status;
+	guint32 hash;
+	char *err;
 
 	offset = dissect_stat(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_fhandle(tvb, offset, pinfo, tree, "file");
+			offset = dissect_fhandle(tvb, offset, pinfo, tree, "file", &hash);
 			offset = dissect_fattr  (tvb, offset, tree, "attributes");
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x", hash);
+			}
+			proto_item_append_text(tree, ", %s Reply FH:0x%08x", funcname, hash);
 		break;
 		default:
-			/* do nothing */
+			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
+			}
+			proto_item_append_text(tree, ", %s Reply  Error:%s", funcname, err);
 		break;
 	}
 
@@ -2140,10 +2352,26 @@ dissect_nfsdata(tvbuff_t *tvb, int offset, proto_tree *tree, int hf)
 
 /* RFC 1094, Page 18 */
 static int
-dissect_nfs2_diropres_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_nfs2_mkdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree* tree)
 {
-	offset = dissect_diropres(tvb, offset, pinfo, tree);
+	offset = dissect_diropres(tvb, offset, pinfo, tree, "MKDIR");
+	return offset;
+}
+
+static int
+dissect_nfs2_create_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree* tree)
+{
+	offset = dissect_diropres(tvb, offset, pinfo, tree, "CREATE");
+	return offset;
+}
+
+static int
+dissect_nfs2_lookup_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree* tree)
+{
+	offset = dissect_diropres(tvb, offset, pinfo, tree, "LOOKUP");
 	return offset;
 }
 
@@ -2153,9 +2381,15 @@ static int
 dissect_nfs2_setattr_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
-	offset = dissect_fhandle(tvb, offset, pinfo, tree, "file"      );
+	guint32 hash;
+
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "file", &hash);
 	offset = dissect_sattr  (tvb, offset,        tree, "attributes");
 
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x", hash);
+	}
+	proto_item_append_text(tree, ", SETATTR Call FH:0x%08x", hash);
 	return offset;
 }
 
@@ -2166,14 +2400,25 @@ dissect_nfs2_readlink_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree *tree)
 {
 	guint32	status;
+	char *err;
+	char *name=NULL;
 
 	offset = dissect_stat(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_path(tvb, offset, tree, hf_nfs_readlink_data);
+			offset = dissect_path(tvb, offset, tree, hf_nfs_readlink_data, &name);
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_append_fstr(pinfo->cinfo, COL_INFO," Path:%s", name);
+			}
+			proto_item_append_text(tree, ", READLINK Reply Path:%s", name);
+			g_free(name);
 		break;
 		default:
-			/* do nothing */
+			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
+			}
+			proto_item_append_text(tree, ", READLINK Reply  Error:%s", err);
 		break;
 	}
 
@@ -2189,8 +2434,9 @@ dissect_nfs2_read_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 offset_value;
 	guint32 count;
 	guint32 totalcount;
+	guint32 hash;
 
-	offset = dissect_fhandle(tvb, offset, pinfo, tree, "file"      );
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "file", &hash);
 	offset_value = tvb_get_ntohl(tvb, offset+0);
 	count        = tvb_get_ntohl(tvb, offset+4);
 	totalcount   = tvb_get_ntohl(tvb, offset+8);
@@ -2204,6 +2450,11 @@ dissect_nfs2_read_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	offset += 12;
 
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x Offset:%d Count:%d TotalCount:%d", hash, offset_value, count, totalcount);
+	}
+	proto_item_append_text(tree, ", READ Call FH:0x%08x Offset:%d Count:%d TotalCount:%d", hash, offset_value, count, totalcount);
+
 	return offset;
 }
 
@@ -2214,15 +2465,21 @@ dissect_nfs2_read_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree* tree)
 {
 	guint32 status;
+	char *err;
 
 	offset = dissect_stat(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
 			offset = dissect_fattr(tvb, offset, tree, "attributes");
+			proto_item_append_text(tree, ", READ Reply");
 			offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_data);
 		break;
 		default:
-			/* do nothing */
+			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
+			}
+			proto_item_append_text(tree, ", READ Reply  Error:%s", err);
 		break;
 	}
 
@@ -2238,8 +2495,9 @@ dissect_nfs2_write_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 beginoffset;
 	guint32 offset_value;
 	guint32 totalcount;
+	guint32 hash;
 
-	offset = dissect_fhandle(tvb, offset, pinfo, tree, "file"      );
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "file", &hash);
 	beginoffset  = tvb_get_ntohl(tvb, offset+0);
 	offset_value = tvb_get_ntohl(tvb, offset+4);
 	totalcount   = tvb_get_ntohl(tvb, offset+8);
@@ -2253,6 +2511,11 @@ dissect_nfs2_write_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	offset += 12;
 
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x BeginOffset:%d Offset:%d TotalCount:%d", hash, beginoffset, offset_value, totalcount);
+	}
+	proto_item_append_text(tree, ", WRITE Call FH:0x%08x BeginOffset:%d Offset:%d TotalCount:%d", hash, beginoffset, offset_value, totalcount);
+
 	offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_data);
 
 	return offset;
@@ -2261,11 +2524,39 @@ dissect_nfs2_write_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* RFC 1094, Page 8 */
 static int
-dissect_nfs2_createargs_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_nfs2_mkdir_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
-	offset = dissect_diropargs(tvb, offset, pinfo, tree, "where"     );
+	guint32 hash;
+	char *name=NULL;
+
+	offset = dissect_diropargs(tvb, offset, pinfo, tree, "where", &hash, &name);
 	offset = dissect_sattr    (tvb, offset,        tree, "attributes");
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,", DH:0x%08x/%s", hash, name);
+	}
+	proto_item_append_text(tree, ", MKDIR Call DH:0x%08x/%s", hash, name);
+	g_free(name);
+
+	return offset;
+}
+
+static int
+dissect_nfs2_create_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree *tree)
+{
+	guint32 hash;
+	char *name=NULL;
+
+	offset = dissect_diropargs(tvb, offset, pinfo, tree, "where", &hash, &name);
+	offset = dissect_sattr    (tvb, offset,        tree, "attributes");
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,", DH:0x%08x/%s", hash, name);
+	}
+	proto_item_append_text(tree, ", CREATE Call DH:0x%08x/%s", hash, name);
+	g_free(name);
 
 	return offset;
 }
@@ -2276,9 +2567,21 @@ static int
 dissect_nfs2_rename_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
-	offset = dissect_diropargs(tvb, offset, pinfo, tree, "from");
-	offset = dissect_diropargs(tvb, offset, pinfo, tree, "to"  );
+	guint32 from_hash;
+	char *from_name=NULL;
+	guint32 to_hash;
+	char *to_name=NULL;
 
+	offset = dissect_diropargs(tvb, offset, pinfo, tree, "from", &from_hash, &from_name);
+	offset = dissect_diropargs(tvb, offset, pinfo, tree, "to", &to_hash, &to_name);
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,", From DH:0x%08x/%s To DH:0x%08x/%s", from_hash, from_name, to_hash, to_name);
+	}
+	proto_item_append_text(tree, ", RENAME Call From DH:0x%08x/%s To DH:0x%08x/%s", from_hash, from_name, to_hash, to_name);
+
+	g_free(from_name);
+	g_free(to_name);
 	return offset;
 }
 
@@ -2288,9 +2591,19 @@ static int
 dissect_nfs2_link_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
-	offset = dissect_fhandle  (tvb, offset, pinfo, tree, "from");
-	offset = dissect_diropargs(tvb, offset, pinfo, tree, "to"  );
+	guint32 from_hash;
+	guint32 to_hash;
+	char *to_name=NULL;
 
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "from", &from_hash);
+	offset = dissect_diropargs(tvb, offset, pinfo, tree, "to", &to_hash, &to_name);
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,", From DH:0x%08x To DH:0x%08x/%s", from_hash, to_hash, to_name);
+	}
+	proto_item_append_text(tree, ", LINK Call From DH:0x%08x To DH:0x%08x/%s", from_hash, to_hash, to_name);
+
+	g_free(to_name);
 	return offset;
 }
 
@@ -2300,9 +2613,20 @@ static int
 dissect_nfs2_symlink_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
-	offset = dissect_diropargs(tvb, offset, pinfo, tree, "from"           );
-	offset = dissect_path     (tvb, offset,        tree, hf_nfs_symlink_to);
-	offset = dissect_sattr    (tvb, offset,        tree, "attributes"     );
+	guint32 from_hash;
+	char *from_name=NULL;
+	char *to_name=NULL;
+
+	offset = dissect_diropargs(tvb, offset, pinfo, tree, "from", &from_hash, &from_name);
+	offset = dissect_path(tvb, offset, tree, hf_nfs_symlink_to, &to_name);
+	offset = dissect_sattr(tvb, offset, tree, "attributes");
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,", From DH:0x%08x/%s To %s", from_hash, from_name, to_name);
+	}
+	proto_item_append_text(tree, ", SYMLINK Call From DH:0x%08x/%s To %s", from_hash, from_name, to_name);
+	g_free(from_name);
+	g_free(to_name);
 
 	return offset;
 }
@@ -2315,8 +2639,9 @@ dissect_nfs2_readdir_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	guint32	cookie;
 	guint32	count;
+	guint32 hash;
 
-	offset = dissect_fhandle (tvb, offset, pinfo, tree, "dir");
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "dir", &hash);
 	cookie  = tvb_get_ntohl(tvb, offset+ 0);
 	count = tvb_get_ntohl(tvb, offset+ 4);
 	if (tree) {
@@ -2326,6 +2651,11 @@ dissect_nfs2_readdir_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset+ 4, 4, count);
 	}
 	offset += 8;
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x", hash);
+	}
+	proto_item_append_text(tree, ", READDIR Call FH:0x%08x", hash);
 
 	return offset;
 }
@@ -2383,10 +2713,13 @@ dissect_nfs2_readdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	guint32 status;
 	guint32 eof_value;
+	char *err;
 
 	offset = dissect_stat(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
+			proto_item_append_text(tree, ", READDIR Reply");
+
 			offset = dissect_rpc_list(tvb, pinfo, tree, offset,
 				dissect_readdir_entry);
 			eof_value = tvb_get_ntohl(tvb, offset+0);
@@ -2396,7 +2729,11 @@ dissect_nfs2_readdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset += 4;
 		break;
 		default:
-			/* do nothing */
+			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
+			}
+			proto_item_append_text(tree, ", READDIR Reply  Error:%s", err);
 		break;
 	}
 
@@ -2415,6 +2752,7 @@ dissect_nfs2_statfs_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	guint32 blocks;
 	guint32 bfree;
 	guint32 bavail;
+	char *err;
 
 	offset = dissect_stat(tvb, offset, tree, &status);
 	switch (status) {
@@ -2437,9 +2775,14 @@ dissect_nfs2_statfs_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 					offset+16, 4, bavail);
 			}
 			offset += 20;
+			proto_item_append_text(tree, ", STATFS Reply");
 		break;
 		default:
-			/* do nothing */
+			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
+			}
+			proto_item_append_text(tree, ", STATFS Reply  Error:%s", err);
 		break;
 	}
 
@@ -2453,39 +2796,39 @@ static const vsff nfs2_proc[] = {
 	{ 0,	"NULL",		/* OK */
 	NULL,				NULL },
 	{ 1,	"GETATTR",	/* OK */
-	dissect_nfs2_fhandle_call,	dissect_nfs2_attrstat_reply },
+	dissect_nfs2_getattr_call,	dissect_nfs2_getattr_reply },
 	{ 2,	"SETATTR",	/* OK */
-	dissect_nfs2_setattr_call,	dissect_nfs2_attrstat_reply },
+	dissect_nfs2_setattr_call,	dissect_nfs2_setattr_reply },
 	{ 3,	"ROOT",		/* OK */
 	NULL,				NULL },
 	{ 4,	"LOOKUP",	/* OK */
-	dissect_nfs2_diropargs_call,	dissect_nfs2_diropres_reply },
+	dissect_nfs2_lookup_call,	dissect_nfs2_lookup_reply },
 	{ 5,	"READLINK",	/* OK */
-	dissect_nfs2_fhandle_call,	dissect_nfs2_readlink_reply },
+	dissect_nfs2_readlink_call,	dissect_nfs2_readlink_reply },
 	{ 6,	"READ",		/* OK */
 	dissect_nfs2_read_call,		dissect_nfs2_read_reply },
 	{ 7,	"WRITECACHE",	/* OK */
 	NULL,				NULL },
 	{ 8,	"WRITE",	/* OK */
-	dissect_nfs2_write_call,	dissect_nfs2_attrstat_reply },
+	dissect_nfs2_write_call,	dissect_nfs2_write_reply },
 	{ 9,	"CREATE",	/* OK */
-	dissect_nfs2_createargs_call,	dissect_nfs2_diropres_reply },
+	dissect_nfs2_create_call,	dissect_nfs2_create_reply },
 	{ 10,	"REMOVE",	/* OK */
-	dissect_nfs2_diropargs_call,	dissect_nfs2_stat_reply },
+	dissect_nfs2_remove_call,	dissect_nfs2_remove_reply },
 	{ 11,	"RENAME",	/* OK */
-	dissect_nfs2_rename_call,	dissect_nfs2_stat_reply },
+	dissect_nfs2_rename_call,	dissect_nfs2_rename_reply },
 	{ 12,	"LINK",		/* OK */
-	dissect_nfs2_link_call,		dissect_nfs2_stat_reply },
+	dissect_nfs2_link_call,		dissect_nfs2_link_reply },
 	{ 13,	"SYMLINK",	/* OK */
-	dissect_nfs2_symlink_call,	dissect_nfs2_stat_reply },
+	dissect_nfs2_symlink_call,	dissect_nfs2_symlink_reply },
 	{ 14,	"MKDIR",	/* OK */
-	dissect_nfs2_createargs_call,	dissect_nfs2_diropres_reply },
+	dissect_nfs2_mkdir_call,	dissect_nfs2_mkdir_reply },
 	{ 15,	"RMDIR",	/* OK */
-	dissect_nfs2_diropargs_call,	dissect_nfs2_stat_reply },
+	dissect_nfs2_rmdir_call,	dissect_nfs2_rmdir_reply },
 	{ 16,	"READDIR",	/* OK */
 	dissect_nfs2_readdir_call,	dissect_nfs2_readdir_reply },
 	{ 17,	"STATFS",	/* OK */
-	dissect_nfs2_fhandle_call,	dissect_nfs2_statfs_reply },
+	dissect_nfs2_statfs_call,	dissect_nfs2_statfs_reply },
 	{ 0,NULL,NULL,NULL }
 };
 

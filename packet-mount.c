@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.39 2003/08/17 21:34:22 sahlberg Exp $
+ * $Id: packet-mount.c,v 1.40 2003/09/28 01:52:57 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,7 +122,7 @@ dissect_fhstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 
 	switch (status) {
 		case 0:
-			offset = dissect_fhandle(tvb,offset,pinfo,tree,"fhandle");
+			offset = dissect_fhandle(tvb,offset,pinfo,tree,"fhandle", NULL);
 		break;
 		default:
 			/* void */

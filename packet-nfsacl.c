@@ -4,7 +4,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nfsacl.c,v 1.9 2003/08/17 21:34:22 sahlberg Exp $
+ * $Id: packet-nfsacl.c,v 1.10 2003/09/28 01:52:57 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -253,7 +253,7 @@ static int
 dissect_nfsacl2_getacl_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *tree)
 {
-	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle");
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL);
 	offset = dissect_nfsacl_mask(tvb, offset, tree, "mask");
 	return offset;
 }
@@ -283,7 +283,7 @@ static int
 dissect_nfsacl2_setacl_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *tree)
 {
-	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle");
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL);
 	offset = dissect_nfsacl_secattr(tvb, offset, pinfo, tree);
 
 	return offset;
@@ -311,7 +311,7 @@ static int
 dissect_nfsacl2_getattr_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *tree)
 {
-	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle");
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL);
 
 	return offset;
 }
@@ -329,7 +329,7 @@ static int
 dissect_nfsacl2_access_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *tree)
 {
-	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle");
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL);
 	offset = dissect_access(tvb, offset, tree, "access");
 
 	return offset;
@@ -360,7 +360,7 @@ static int
 dissect_nfsacl2_getxattrdir_call(tvbuff_t *tvb, int offset, 
 	packet_info *pinfo _U_, proto_tree *tree)
 {
-	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle");
+	offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL);
 	offset = dissect_rpc_bool(tvb, tree, hf_nfsacl_create, offset);
 
 	return offset;
@@ -380,7 +380,7 @@ dissect_nfsacl2_getxattrdir_reply(tvbuff_t *tvb, int offset,
 
 	if (status == ACL2_OK)
 	{
-		offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle");
+		offset = dissect_fhandle(tvb, offset, pinfo, tree, "fhandle", NULL);
 		offset = dissect_fattr(tvb, offset, tree, "attr");
 	}
 
