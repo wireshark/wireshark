@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.114 2000/04/04 06:46:41 guy Exp $
+ * $Id: main.c,v 1.115 2000/04/04 07:03:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1068,22 +1068,6 @@ file_quit_cmd_cb (GtkWidget *widget, gpointer data)
 	gtk_main_quit();
 }
 
-/* call initialization routines at program startup time */
-static void
-ethereal_proto_init(void) {
-  proto_init();
-  dfilter_init();
-#ifdef HAVE_PLUGINS
-  init_plugins();
-#endif
-}
-
-static void
-ethereal_proto_cleanup(void) {
-	proto_cleanup();
-	dfilter_cleanup();
-}
-
 static void 
 print_usage(void) {
 
@@ -1170,7 +1154,7 @@ main(int argc, char *argv[])
 
 	any arguments after the "-G" flag will not be used. */
   if (argc >= 2 && strcmp(argv[1], "-G") == 0) {
-    ethereal_proto_init();
+    dissect_init();
     proto_registrar_dump();
     exit(0);
   }
@@ -1472,7 +1456,7 @@ main(int argc, char *argv[])
    Hmmm should we do it here
 */
 
-  ethereal_proto_init();   /* Init anything that needs initializing */
+  dissect_init();   /* Init anything that needs initializing */
 
 #ifdef HAVE_LIBPCAP
   /* Is this a "child" ethereal, which is only supposed to pop up a
@@ -1560,7 +1544,7 @@ main(int argc, char *argv[])
 
   gtk_main();
 
-  ethereal_proto_cleanup();
+  dissect_cleanup();
   g_free(rc_file);
 
   gtk_exit(0);

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.178 2000/04/04 05:37:34 guy Exp $
+ * $Id: packet.h,v 1.179 2000/04/04 07:02:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -287,6 +287,11 @@ void       p_add_proto_data(frame_data *, int, void *);
 void       *p_get_proto_data(frame_data *, int);
 
 void blank_packetinfo(void);
+
+/* Do all one-time initialization. */
+void dissect_init(void);
+
+void dissect_cleanup(void);
 
 /* Allow protocols to register "init" routines, which are called before
    we make a pass through a capture file and dissect all its packets

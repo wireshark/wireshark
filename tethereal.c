@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.23 2000/04/04 06:46:29 guy Exp $
+ * $Id: tethereal.c,v 1.24 2000/04/04 07:02:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -122,22 +122,6 @@ FILE        *data_out_file = NULL;
 guint        main_ctx, file_ctx;
 ts_type timestamp_type = RELATIVE;
 
-/* call initialization routines at program startup time */
-static void
-ethereal_proto_init(void) {
-  proto_init();
-  dfilter_init();
-#ifdef HAVE_PLUGINS
-  init_plugins();
-#endif
-}
-
-static void
-ethereal_proto_cleanup(void) {
-	proto_cleanup();
-	dfilter_cleanup();
-}
-
 static void 
 print_usage(void)
 {
@@ -198,7 +182,7 @@ main(int argc, char *argv[])
      We do this here to mirror what happens in the GTK+ version, although
      it's not necessary here. */
   if (argc >= 2 && strcmp(argv[1], "-G") == 0) {
-    ethereal_proto_init();
+    dissect_init();
     proto_registrar_dump();
     exit(0);
   }
@@ -420,12 +404,12 @@ main(int argc, char *argv[])
   else if (cf.snap < MIN_PACKET_SIZE)
     cf.snap = MIN_PACKET_SIZE;
   
-  ethereal_proto_init();   /* Init anything that needs initializing */
+  dissect_init();   /* Init anything that needs initializing */
 
   if (rfilter != NULL) {
     if (dfilter_compile(rfilter, &rfcode) != 0) {
       fprintf(stderr, "tethereal: %s\n", dfilter_error_msg);
-      ethereal_proto_cleanup();
+      dissect_cleanup();
       exit(2);
     }
   }
@@ -433,12 +417,12 @@ main(int argc, char *argv[])
   if (cf_name) {
     err = open_cap_file(cf_name, FALSE, &cf);
     if (err != 0) {
-      ethereal_proto_cleanup();
+      dissect_cleanup();
       exit(2);
     }
     err = load_cap_file(&cf, out_file_type);
     if (err != 0) {
-      ethereal_proto_cleanup();
+      dissect_cleanup();
       exit(2);
     }
     cf_name[0] = '\0';
@@ -475,7 +459,7 @@ main(int argc, char *argv[])
 #endif
   }
 
-  ethereal_proto_cleanup();
+  dissect_cleanup();
 
   exit(0);
 }

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.72 2000/04/04 05:37:36 guy Exp $
+ * $Id: packet.c,v 1.73 2000/04/04 07:02:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1035,6 +1035,24 @@ void blank_packetinfo(void)
   pi.ptype = PT_NONE;
   pi.srcport  = 0;
   pi.destport = 0;
+}
+
+/* Do all one-time initialization. */
+void
+dissect_init(void)
+{
+	proto_init();
+	dfilter_init();
+#ifdef HAVE_PLUGINS
+	init_plugins();
+#endif
+}
+
+void
+dissect_cleanup(void)
+{
+	proto_cleanup();
+	dfilter_cleanup();
 }
 
 /* Allow protocols to register "init" routines, which are called before
