@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.19 2000/08/13 14:09:06 deniel Exp $
+ * $Id: packet-vlan.c,v 1.20 2000/11/12 05:43:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -69,46 +69,44 @@ capture_vlan(const u_char *pd, int offset, packet_counts *ld ) {
 }
 
 static void
-dissect_vlan(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_tree *ti, *vlan_tree = NULL;
   guint16 tci,encap_proto;
   tvbuff_t *next_tvb;
 
-  OLD_CHECK_DISPLAY_AS_DATA(proto_vlan, pd, offset, fd, tree);
+  CHECK_DISPLAY_AS_DATA(proto_vlan, tvb, pinfo, tree);
 
-  if (!BYTES_ARE_IN_FRAME(offset, 2*sizeof(guint16))) {
-    return;
-  }
+  pinfo->current_proto = "VLAN";
 
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "VLAN");
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_add_str(pinfo->fd, COL_PROTOCOL, "VLAN");
 
-  tci = pntohs( &pd[offset] );
-  encap_proto = pntohs( &pd[offset+2] );
+  tci = tvb_get_ntohs( tvb, 0 );
+  encap_proto = tvb_get_ntohs( tvb, 2 );
 
-  if (check_col(fd, COL_INFO)) {
-    col_add_fstr(fd, COL_INFO, "PRI: %d  CFI: %d  ID: %d",
+  if (check_col(pinfo->fd, COL_INFO)) {
+    col_add_fstr(pinfo->fd, COL_INFO, "PRI: %d  CFI: %d  ID: %d",
       (tci >> 13), ((tci >> 12) & 1), (tci & 0xFFF));
   }
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_vlan, NullTVB, offset, 4, FALSE);
+    ti = proto_tree_add_item(tree, proto_vlan, tvb, 0, 4, FALSE);
     vlan_tree = proto_item_add_subtree(ti, ett_vlan);
 
-    proto_tree_add_uint(vlan_tree, hf_vlan_priority, NullTVB, offset, 2, tci);
-    proto_tree_add_uint(vlan_tree, hf_vlan_cfi, NullTVB, offset, 2, tci);
-    proto_tree_add_uint(vlan_tree, hf_vlan_id, NullTVB, offset, 2, tci);
+    proto_tree_add_uint(vlan_tree, hf_vlan_priority, tvb, 0, 2, tci);
+    proto_tree_add_uint(vlan_tree, hf_vlan_cfi, tvb, 0, 2, tci);
+    proto_tree_add_uint(vlan_tree, hf_vlan_id, tvb, 0, 2, tci);
   }
 
-  next_tvb = tvb_create_from_top(offset+4); /* XXX - should TRY() like dissect_eth() */
   if ( encap_proto <= IEEE_802_3_MAX_LEN) {
-    if ( pd[offset+4] == 0xff && pd[offset+5] == 0xff ) {
-      dissect_ipx(next_tvb, &pi, tree);
+    next_tvb = tvb_new_subset(tvb, 4, -1, -1); /* XXX - should TRY() like dissect_eth() */
+    if ( tvb_get_ntohs(next_tvb, 2) == 0xffff ) {
+      dissect_ipx(next_tvb, pinfo, tree);
     } else {
-      dissect_llc(next_tvb, &pi, tree);
+      dissect_llc(next_tvb, pinfo, tree);
     }
   } else {
-    ethertype(encap_proto, pi.compat_top_tvb, offset+4, &pi, tree, vlan_tree, hf_vlan_etype);
+    ethertype(encap_proto, tvb, 4, pinfo, tree, vlan_tree, hf_vlan_etype);
   }
 }
 
@@ -141,5 +139,5 @@ proto_register_vlan(void)
 void
 proto_reg_handoff_vlan(void)
 {
-	old_dissector_add("ethertype", ETHERTYPE_VLAN, dissect_vlan);
+  dissector_add("ethertype", ETHERTYPE_VLAN, dissect_vlan);
 }
