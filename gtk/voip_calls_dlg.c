@@ -168,7 +168,7 @@ static void add_to_clist(voip_calls_info_t* strinfo)
 }
 
 
-void voip_calls_remove_tap_listener()
+void voip_calls_remove_tap_listener(void)
 {
 	/* Remove the calls tap listener */
 	remove_tap_listener_sip_calls();

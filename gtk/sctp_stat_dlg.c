@@ -556,7 +556,7 @@ int i;
 }
 
 
-void sctp_stat_dlg_show()
+void sctp_stat_dlg_show(void)
 {
 	if (sctp_stat_dlg != NULL)
 	{
