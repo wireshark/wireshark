@@ -2343,6 +2343,7 @@ dissect_krb5_PAC_CLIENT_INFO_TYPE(packet_info *pinfo _U_, proto_tree *parent_tre
 	/* client name */
 	name=tvb_fake_unicode(tvb, offset, namelen/2, TRUE);
 	proto_tree_add_string(tree, hf_krb_pac_clientname, tvb, offset, namelen, name);
+	g_free(name);
 	offset+=namelen;
 
 	return offset;
