@@ -116,7 +116,7 @@ static enum_val_t rtp_version0_types[] = {
 	{ "stun", "STUN packets", RTP0_STUN },
 	{ NULL, NULL, 0 }
 };
-static uint global_rtp_version0_type = 0;
+static guint global_rtp_version0_type = 0;
 
 static dissector_handle_t data_handle;
 
