@@ -83,7 +83,7 @@ DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_SRC:.c=.obj)
 #DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_OBJECTS:../=)
 
 libethereal.dll: ..\config.h $(OBJECTS) libethereal.def ftypes dfilter dissectors $(DISSECTOR_SUPPORT_OBJECTS) doxygen $(EXTRA_OBJECTS) ..\image\libethereal.res
-	echo libethereal.dll
+	@echo Linking libethereal.dll
 	$(link) $(dlllflags) $(conlibsdll) \
 		$(LOCAL_LDFLAGS) \
 		/DEF:libethereal.def /OUT:libethereal.dll \
@@ -101,7 +101,7 @@ ethereal.lib	: ..\config.h $(OBJECTS)
 
 clean:
 	rm -f $(OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS:../=) $(EXTRA_OBJECTS) ethereal.lib libethereal.dll libethereal.lib libethereal.exp $(PDB_FILE) doxygen.cfg html/*.*
-    if exist html rmdir html	
+	if exist html rmdir html	
 	cd ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../dfilter
@@ -115,6 +115,8 @@ distclean: clean
 	cd ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../dfilter
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../dissectors
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 
