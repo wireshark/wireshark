@@ -12,7 +12,7 @@
  * version: 2004/04/15 9:40:45
  * dedication to Kj :]
  *
- * $Id: packet-rtps.c,v 1.1 2004/04/17 21:43:32 guy Exp $
+ * $Id: packet-rtps.c,v 1.2 2004/04/17 22:11:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,21 +36,21 @@
  *
  * *********************************************************************** */
 
- #ifdef HAVE_CONFIG_H
- # include "config.h"
- #endif
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 
- #ifdef NEED_SNPRINTF_H
- # include "snprintf.h"
- #endif
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
+#endif
 
- #include  <stdio.h>
- #include  <stdlib.h>
- #include  <string.h>
- #include  <glib.h>
- #include  <epan/packet.h>
- #include  <epan/resolv.h>
- #include  <epan/conversation.h>
+#include  <stdio.h>
+#include  <stdlib.h>
+#include  <string.h>
+#include  <glib.h>
+#include  <epan/packet.h>
+#include  <epan/resolv.h>
+#include  <epan/conversation.h>
 
 
 /* *********************************************************************** *
@@ -72,50 +72,39 @@
 
 /* redefine types because of definitions in 'packet-rtps.h' */
 /*
- #define  u_int8_t           guint8
- #define  int8_t             gint8
+#define  u_int8_t           guint8
+#define  int8_t             gint8
 
- #define  u_int16_t          guint16
- #define  int16_t            gint16
+#define  u_int16_t          guint16
+#define  int16_t            gint16
 
- #define  u_int32_t          guint32
- #define  int32_t            gint32
+#define  u_int32_t          guint32
+#define  int32_t            gint32
 */
 
 #include "packet-rtps.h"
 
- /*  Swap bytes in 16 bit value.  */
- #define bswap_16(x) \
-     ((((x) >> 8) & 0xff) | (((x) & 0xff) << 8))
-
-
- /*  Swap bytes in 32 bit value.  */
- #define bswap_32(x) \
-     ((((x) & 0xff000000) >> 24) | (((x) & 0x00ff0000) >>  8) | \
-      (((x) & 0x0000ff00) <<  8) | (((x) & 0x000000ff) << 24))
-
-
 /* number of APP_KIND byte in packet header */
- #define  APP_KIND_BYTE          15
+#define  APP_KIND_BYTE          15
 
 
 /*  definitions of flags */
- #define    FLAG_E      0x01
- #define    FLAG_F      0x02
- #define    FLAG_I      0x02
- #define    FLAG_M      0x02
- #define    FLAG_P      0x02
- #define    FLAG_A      0x04
- #define    FLAG_H      0x08
+#define    FLAG_E      0x01
+#define    FLAG_F      0x02
+#define    FLAG_I      0x02
+#define    FLAG_M      0x02
+#define    FLAG_P      0x02
+#define    FLAG_A      0x04
+#define    FLAG_H      0x08
 
 
 /*  submessageId's ranges  */
- #define  SUBMSG_ID_MIN     PAD
- #define  SUBMSG_ID_MAX     INFO_DST
+#define  SUBMSG_ID_MIN     PAD
+#define  SUBMSG_ID_MAX     INFO_DST
 
 /*  Vendor specific submessageId's ranges */
- #define  VENDOR_SUBMSG_ID_MIN      0x80
- #define  VENDOR_SUBMSG_ID_MAX      0xff
+#define  VENDOR_SUBMSG_ID_MIN      0x80
+#define  VENDOR_SUBMSG_ID_MAX      0xff
 
 /* *********************************************************************** */
 
@@ -142,8 +131,8 @@ static void dissect_INFO_SRC(tvbuff_t *tvb,gint offset,proto_tree *tree);
 static void dissect_INFO_REPLY(tvbuff_t *tvb,gint offset,proto_tree *tree);
 static void dissect_INFO_DST(tvbuff_t *tvb,gint offset,proto_tree *tree);
 
-static guint16  get_guint16(tvbuff_t *tvb, gint offset, gint16 e_bit);
-static guint32  get_guint32(tvbuff_t *tvb, gint offset, gint16 e_bit);
+static guint16  get_guint16(tvbuff_t *tvb, gint offset, gboolean little_endian);
+static guint32  get_guint32(tvbuff_t *tvb, gint offset, gboolean little_endian);
 
 static char *protocol_version_to_string(gint offset,tvbuff_t *tvb,char *buff);
 static char *vendor_id_to_string(gint offset, tvbuff_t *tvb, char *buff);
@@ -152,21 +141,21 @@ static char *host_id_to_string(gint offset,tvbuff_t *tvb, char buff[]);
 static char *app_id_to_string(gint offset,tvbuff_t *tvb,char buff[]);
 static char *object_id_to_string(gint offset, tvbuff_t *tvb, char buff[]);
 
-static char *IP_to_string(gint offset,tvbuff_t *tvb,gint16 e_bit,char buff[]);
-static char *port_to_string(gint offset,tvbuff_t *tvb,gint16 e_bit,char buff[]);
-static char *get_NtpTime(gint offset,tvbuff_t *tvb,gint16 e_bit,char buff[]);
+static char *IP_to_string(gint offset,tvbuff_t *tvb,gboolean little_endian,char buff[]);
+static char *port_to_string(gint offset,tvbuff_t *tvb,gboolean little_endian,char buff[]);
+static char *get_NtpTime(gint offset,tvbuff_t *tvb,gboolean little_endian,char buff[]);
 
-static void  get_bitmap(tvbuff_t *tvb, gint *p_offset, gint16 e_bit,
+static void  get_bitmap(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
                         guint16 next_submsg, proto_tree *tree);
 
-static char *get_parameter(gint offset, tvbuff_t *tvb, gint16 e_bit, char buff[],
+static char *get_parameter(gint offset, tvbuff_t *tvb, gboolean little_endian, char buff[],
                            guint16 parameter, guint16 param_length);
 
-static gint  seq_nr_to_string( gint offset, gint16 e_bit, tvbuff_t *tvb,
+static gint  seq_nr_to_string( gint offset, gboolean little_endian, tvbuff_t *tvb,
                              SequenceNumber *p_seqNumber);
 
 /*  global variable - submessage ENDIAN */
-static gint16    e_bit = -1;
+static gboolean    little_endian;
 
 
 
@@ -218,18 +207,6 @@ dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    ti = proto_tree_add_item(tree, proto_rtps, tvb, 0, -1, FALSE);
    rtps_tree = proto_item_add_subtree(ti, ett_rtps);
 
-   /* test which ENDIAN computer uses (this is set in 'config.h')*/
-   /*
-   #if WORDS_BIGENDIAN
-     proto_tree_add_text(rtps_tree, tvb, offset, 1,
-                         "WORDS_BIGENDIAN %d",
-                         WORDS_BIGENDIAN);
-   #else
-     proto_tree_add_text(rtps_tree, tvb, offset, 1,
-                         "WORDS_BIGENDIAN 0");
-   #endif
-  */
-
    /*  Protocol Version */
    proto_tree_add_text(rtps_tree, tvb, offset, 2,
                        "Protocol  RTPS, version %s",
@@ -261,12 +238,8 @@ dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   do {
     submessageId = tvb_get_guint8(tvb, offset);
 
-    //read value in littlendian format
-    next_submsg  = tvb_get_guint8(tvb, (offset+2))+
-                   tvb_get_guint8(tvb, (offset+3))*0x100;
-    #if WORDS_BIGENDIAN
-       bswap_16(next_submsg);
-    #endif
+    /* read value in littlendian format */
+    next_submsg  = tvb_get_letohs(tvb, offset+2);
 
     switch (submessageId)
     {
@@ -346,7 +319,7 @@ dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (appKind != MANAGEDAPPLICATION  && appKind != MANAGER &&
         appKind != AID_UNKNOWN)         {sprintf(buff,"ERROR in APP type");}
 
-   //-- counts of submessages - for Information Frame
+   /* -- counts of submessages - for Information Frame */
    if (count_msg_type[0]>0) {
        sprintf(buff_tmp,"PAD(%d) ",count_msg_type[0]);
        strcat(buff,buff_tmp);
@@ -409,7 +382,7 @@ dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   return TRUE;
 
-}  // end dissect_rtps(...)
+}  /* end dissect_rtps(...) */
 
 /* *********************************************************************** */
 
@@ -420,20 +393,16 @@ dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *                                                                         *
  * *********************************************************************** */
 
-static guint16  get_guint16(tvbuff_t *tvb, gint offset, gint16 e_bit)
+static guint16  get_guint16(tvbuff_t *tvb, gint offset, gboolean little_endian)
 {
-  guint16   value = tvb_get_ntohs(tvb, offset);
-  /* get_ntohs() automaticaly convert data to BIG ENDIAN */
+  guint16   value;
 
-  /* WORDS_BIGENDIAN = machine endianing
-     e_bit = message endianing            */
-    #if WORDS_BIGENDIAN
-      if(!e_bit)      value = bswap_16(value);
-    #else
-      if( e_bit)      value = bswap_16(value);
-    #endif
+  if (little_endian)
+    value = tvb_get_letohs(tvb, offset);
+  else
+    value = tvb_get_ntohs(tvb, offset);
 
-    return(value);
+  return(value);
 }
 
 /* *********************************************************************** */
@@ -445,20 +414,16 @@ static guint16  get_guint16(tvbuff_t *tvb, gint offset, gint16 e_bit)
  *                                                                         *
  * *********************************************************************** */
 
-static guint32  get_guint32(tvbuff_t *tvb, gint offset, gint16 e_bit)
+static guint32  get_guint32(tvbuff_t *tvb, gint offset, gboolean little_endian)
 {
-  guint32     value = tvb_get_ntohl(tvb, offset);
-  /* get_ntohl() automaticaly convert data to BIG ENDIAN */
+  guint32     value;
 
-  /* WORDS_BIGENDIAN = machine endianing
-     e_bit = message endianing            */
-    #if WORDS_BIGENDIAN
-      if(!e_bit)    value  = bswap_32(value);
-    #else
-      if( e_bit)    value  = bswap_32(value);
-    #endif
+  if (little_endian)
+    value = tvb_get_letohl(tvb, offset);
+  else
+    value = tvb_get_ntohl(tvb, offset);
 
-    return(value);
+  return(value);
 }
 
 /* *********************************************************************** */
@@ -523,13 +488,13 @@ vendor_id_to_string(gint offset, tvbuff_t *tvb, char *buff)
  * *********************************************************************** */
 
 static char *
-IP_to_string(gint offset,tvbuff_t *tvb,gint16 e_bit,char buff[])
+IP_to_string(gint offset,tvbuff_t *tvb,gboolean little_endian,char buff[])
 {
   IPAddress         ip;
-  guint8  a = 0, b = 0, c = 0, d = 0; /* IP Adress = a.b.c.d */
+  guint8  a = 0, b = 0, c = 0, d = 0; /* IP Adresss = a.b.c.d */
 
-  ip = get_guint32(tvb, offset, e_bit);
-     //get_guint32() - reads + endian conversion
+  ip = get_guint32(tvb, offset, little_endian);
+     /* get_guint32() - reads + endian conversion */
   a = (ip >> 24);
   b = (ip >> 16) & 0xff;
   c = (ip >>  8) & 0xff;
@@ -549,10 +514,10 @@ IP_to_string(gint offset,tvbuff_t *tvb,gint16 e_bit,char buff[])
  * *********************************************************************** */
 
 static char *
-port_to_string(gint offset,tvbuff_t *tvb,gint16 e_bit,char buff[])
+port_to_string(gint offset,tvbuff_t *tvb,gboolean little_endian,char buff[])
 {
-  Port port = get_guint32(tvb, offset, e_bit);
-            //get_guint32() - reads + endian conversion
+  Port port = get_guint32(tvb, offset, little_endian);
+            /* get_guint32() - reads + endian conversion */
 
   if (port == PORT_INVALID)
     sprintf(buff,"PORT_INVALID");
@@ -572,14 +537,14 @@ port_to_string(gint offset,tvbuff_t *tvb,gint16 e_bit,char buff[])
  * *********************************************************************** */
 
 static char *
-get_NtpTime(gint offset,tvbuff_t *tvb,gint16 e_bit,char buff[])
+get_NtpTime(gint offset,tvbuff_t *tvb,gboolean little_endian,char buff[])
 {
   NtpTime         ntpTime;
   float           time;
 
-  //get_guint32() - reads + endian conversion
-  ntpTime.seconds  =  get_guint32(tvb, offset, e_bit);
-  ntpTime.fraction =  get_guint32(tvb, (offset + 4), e_bit);
+  /* get_guint32() - reads + endian conversion */
+  ntpTime.seconds  =  get_guint32(tvb, offset, little_endian);
+  ntpTime.fraction =  get_guint32(tvb, (offset + 4), little_endian);
   time = ntpTime.seconds + (ntpTime.fraction / 2^(32));
 
   sprintf(buff,"%f", time);
@@ -680,7 +645,7 @@ object_id_to_string(gint offset, tvbuff_t *tvb, char buff[])
   if (objectId == OID_READ_SUBS)    { sprintf(buff,"readerSubscriptions");
                                       return(buff);}
 
-  // nothing from the possibilites above
+  /* nothing from the possibilites above */
   sprintf(buff,"instanceId: 0x%X, objKind: 0x%X",
                (objectId >> 8),(objectId & 0xff));
   return(buff);
@@ -710,25 +675,11 @@ object_id_to_string(gint offset, tvbuff_t *tvb, char buff[])
  * *********************************************************************** */
 
 static gint
-seq_nr_to_string(gint offset, gint16 e_bit, tvbuff_t *tvb,
+seq_nr_to_string(gint offset, gboolean little_endian, tvbuff_t *tvb,
                  SequenceNumber *p_seqNumber)
 {
-   /* get_ntohl() automaticaly convert data to BIG ENDIAN */
-   p_seqNumber->high = tvb_get_ntohl(tvb, offset);
-   offset += 4;
-
-   p_seqNumber->low  = tvb_get_ntohl(tvb, offset);
-
-
-  /* WORDS_BIGENDIAN = machine endianing
-     e_bit = message endianing            */
-   #if WORDS_BIGENDIAN
-     if(!e_bit)  { p_seqNumber->high = bswap_32(p_seqNumber->high);
-                   p_seqNumber->low  = bswap_32(p_seqNumber->low);  }
-   #else
-     if( e_bit)  { p_seqNumber->high = bswap_32(p_seqNumber->high);
-                   p_seqNumber->low  = bswap_32(p_seqNumber->low);  }
-   #endif
+   p_seqNumber->high = get_guint32(tvb, offset, little_endian);
+   p_seqNumber->low  = get_guint32(tvb, offset + 4, little_endian);
 
    return(1);
 }
@@ -743,8 +694,8 @@ seq_nr_to_string(gint offset, gint16 e_bit, tvbuff_t *tvb,
  * *********************************************************************** */
 
 static void
-get_bitmap(tvbuff_t *tvb, gint *p_offset, gint16 e_bit, guint16 next_submsg,
-           proto_tree *tree)
+get_bitmap(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
+           guint16 next_submsg, proto_tree *tree)
 {
   proto_item             *ti;
   proto_tree             *rtps_bitmap_tree;
@@ -758,7 +709,7 @@ get_bitmap(tvbuff_t *tvb, gint *p_offset, gint16 e_bit, guint16 next_submsg,
   rtps_bitmap_tree = proto_item_add_subtree(ti, ett_rtps_bitmap);
 
    /* SekvenceNumber bitmapBase */
-   seq_nr_to_string(offset, e_bit, tvb, &sequenceNumber);
+   seq_nr_to_string(offset, little_endian, tvb, &sequenceNumber);
    proto_tree_add_text(rtps_bitmap_tree, tvb, offset, 8,
                        "bitmapBase:  0x%X%X",
                        sequenceNumber.high, sequenceNumber.low);
@@ -766,14 +717,14 @@ get_bitmap(tvbuff_t *tvb, gint *p_offset, gint16 e_bit, guint16 next_submsg,
 
    proto_tree_add_text(rtps_bitmap_tree, tvb, offset, 4,
                        "numBits:     0x%X",
-                       get_guint32(tvb, offset, e_bit));
+                       get_guint32(tvb, offset, little_endian));
    offset += 4;
 
    while (offset < (next_submsg -1))
    {
       proto_tree_add_text(rtps_bitmap_tree, tvb, offset, 4,
                           "bitmap[%d]:   0x%08X",
-                          i, get_guint32(tvb, offset, e_bit));
+                          i, get_guint32(tvb, offset, little_endian));
       offset +=4;
       ++i;
    }  /* end while */
@@ -811,8 +762,8 @@ dissect_PAD(tvbuff_t *tvb, gint offset,  proto_tree *tree)
   flags = tvb_get_guint8(tvb, offset);
 
   /*  E flag |XXXX|HAPE| => masks with 000000001b = 1  */
-  if ((flags & FLAG_E) != 0)      e_bit = LITTLE_ENDIAN;
-    else                          e_bit = BIG_ENDIAN;
+  if ((flags & FLAG_E) != 0)      little_endian = TRUE;
+    else                          little_endian = FALSE;
 
   offset += 1;
 
@@ -860,11 +811,11 @@ dissect_VAR(tvbuff_t *tvb, gint offset,  proto_tree *tree)
    offset +=1;
 
   /* E flag |XXXX|HAPE| => masks with 000000001b = 1 */
-   if ((flags & FLAG_E) != 0)   e_bit = LITTLE_ENDIAN;
-     else                       e_bit = BIG_ENDIAN;
+   if ((flags & FLAG_E) != 0)   little_endian = TRUE;
+     else                       little_endian = FALSE;
 
 
-   next_submsg_offset = offset + 2 + get_guint16(tvb, offset, e_bit);
+   next_submsg_offset = offset + 2 + get_guint16(tvb, offset, little_endian);
   /* actual offset + long of the octetsToNextHeader =
    *  =  2 Bytes + octetsToNextHeader */
 
@@ -912,7 +863,7 @@ dissect_VAR(tvbuff_t *tvb, gint offset,  proto_tree *tree)
      offset +=4;
 
     /*  WriterSequence Number */
-     seq_nr_to_string(offset, e_bit, tvb, &writerSeqNumber);
+     seq_nr_to_string(offset, little_endian, tvb, &writerSeqNumber);
      proto_tree_add_text(rtps_submessage_tree, tvb, offset, 8,
                          "WriterSeqNumber:    0x%X%X",
                          writerSeqNumber.high, writerSeqNumber.low);
@@ -927,17 +878,17 @@ dissect_VAR(tvbuff_t *tvb, gint offset,  proto_tree *tree)
                           "Parameters:");
      do
      {
-       parameter    = get_guint16(tvb, offset, e_bit);  offset +=2;
-       param_length = get_guint16(tvb, offset, e_bit);  offset +=2;
+       parameter    = get_guint16(tvb, offset, little_endian);  offset +=2;
+       param_length = get_guint16(tvb, offset, little_endian);  offset +=2;
 
        proto_tree_add_text(rtps_submessage_tree, tvb,offset, param_length,
-                           "%s", get_parameter(offset, tvb, e_bit, buff,
+                           "%s", get_parameter(offset, tvb, little_endian, buff,
                                                parameter,param_length));
        offset += param_length;
 
      }  while (offset < (next_submsg_offset -1));
 
-    }  // end if
+    }  /* end if */
 
 
 }
@@ -952,7 +903,7 @@ dissect_VAR(tvbuff_t *tvb, gint offset,  proto_tree *tree)
  * *********************************************************************** */
 
 static char *
-get_parameter(gint offset, tvbuff_t *tvb, gint16 e_bit, char buff[],
+get_parameter(gint offset, tvbuff_t *tvb, gboolean little_endian, char buff[],
               guint16 parameter, guint16 param_length)
 {
   char              buff_tmp[MAX_PATHNAME];
@@ -977,25 +928,25 @@ get_parameter(gint offset, tvbuff_t *tvb, gint16 e_bit, char buff[],
     case PID_EXPIRATION_TIME:
     {
       sprintf(buff," PID_EXPIRATION_TIME: %s",
-              get_NtpTime(offset, tvb, e_bit,buff_tmp));
+              get_NtpTime(offset, tvb, little_endian,buff_tmp));
       return(buff);
     }
 
     case PID_PERSISTENCE:
     {
       sprintf(buff," PID_PERSISTENCE: %s",
-              get_NtpTime(offset, tvb, e_bit,buff_tmp));
+              get_NtpTime(offset, tvb, little_endian,buff_tmp));
       return(buff);
     }
 
    case PID_MINIMUM_SEPARATION:
    {
       sprintf(buff," PID_MINIMUM_SEPARATION: %s",
-              get_NtpTime(offset, tvb, e_bit,buff_tmp));
+              get_NtpTime(offset, tvb, little_endian,buff_tmp));
       return(buff);
    }
 
-   case PID_TOPIC: //--- ?? funguje spravne ??
+   case PID_TOPIC: /* --- ?? funguje spravne ?? */
    {
      for (i = 0; i < param_length; i++)
      {
@@ -1011,11 +962,11 @@ get_parameter(gint offset, tvbuff_t *tvb, gint16 e_bit, char buff[],
    case PID_STRENGTH:
    {
      sprintf(buff," PID_STRENGTH: 0x%X",
-             get_guint32(tvb, offset, e_bit));
+             get_guint32(tvb, offset, little_endian));
      return(buff);
    }
 
-   case PID_TYPE_NAME: //--- ?? funguje spravne ??
+   case PID_TYPE_NAME: /* --- ?? funguje spravne ?? */
    {
      for (i = 0; i < param_length; i++)
      {
@@ -1029,9 +980,9 @@ get_parameter(gint offset, tvbuff_t *tvb, gint16 e_bit, char buff[],
 
    case PID_TYPE_CHECKSUM:
    {
-     // nacitam jako UNSIGNED - nemuze to byt i zaporne cislo??
+     /* nacitam jako UNSIGNED - nemuze to byt i zaporne cislo?? */
      sprintf(buff," PID_TYPE_CHECKSUM: 0x%X",
-             get_guint32(tvb, offset, e_bit));
+             get_guint32(tvb, offset, little_endian));
      return(buff);
    }
 
@@ -1048,28 +999,28 @@ get_parameter(gint offset, tvbuff_t *tvb, gint16 e_bit, char buff[],
    case PID_METATRAFFIC_MULTICAST_IPADDRESS:
    {
       sprintf(buff," PID_METATRAFFIC_MULTICAST_IPADDRESS: %s",
-              IP_to_string(offset, tvb, e_bit,buff_tmp));
+              IP_to_string(offset, tvb, little_endian,buff_tmp));
       return(buff);
    }
 
    case PID_APP_IPADDRESS:
    {
       sprintf(buff," PID_APP_IPADDRESS: %s",
-              IP_to_string(offset, tvb, e_bit,buff_tmp));
+              IP_to_string(offset, tvb, little_endian,buff_tmp));
       return(buff);
    }
 
    case PID_METATRAFFIC_UNICAST_PORT:
    {
       sprintf(buff," PID_METATRAFFIC_UNICAST_PORT: %s",
-              port_to_string(offset, tvb, e_bit,buff_tmp));
+              port_to_string(offset, tvb, little_endian,buff_tmp));
       return(buff);
    }
 
    case PID_USERDATA_UNICAST_PORT:
    {
       sprintf(buff," PID_USERDATA_UNICAST_PORT: %s",
-              port_to_string(offset, tvb, e_bit,buff_tmp));
+              port_to_string(offset, tvb, little_endian,buff_tmp));
       return(buff);
    }
 
@@ -1084,21 +1035,21 @@ get_parameter(gint offset, tvbuff_t *tvb, gint16 e_bit, char buff[],
    case PID_USERDATA_MULTICAST_IPADDRESS:
    {
       sprintf(buff," PID_USERDATA_MULTICAST_IPADDRESS: %s",
-              IP_to_string(offset, tvb, e_bit,buff_tmp));
+              IP_to_string(offset, tvb, little_endian,buff_tmp));
       return(buff);
    }
 
    case PID_MANAGER_KEY:
    {
       sprintf(buff," PID_STRENGTH: 0x%X",
-              get_guint32(tvb, offset, e_bit));
+              get_guint32(tvb, offset, little_endian));
       return(buff);
    }
 
    case PID_SEND_QUEUE_SIZE:
    {
       sprintf(buff," PID_SEND_QUEUE_SIZE: 0x%X",
-              get_guint32(tvb, offset, e_bit));
+              get_guint32(tvb, offset, little_endian));
       return(buff);
    }
 
@@ -1118,7 +1069,7 @@ get_parameter(gint offset, tvbuff_t *tvb, gint16 e_bit, char buff[],
 
    case PID_VARGAPPS_SEQUENCE_NUMBER_LAST:
    {
-     seq_nr_to_string(offset, e_bit, tvb, &seqNumber);
+     seq_nr_to_string(offset, little_endian, tvb, &seqNumber);
      sprintf(buff," PID_VARGAPPS_SEQUENCE_NUMBER_LAST: 0x%X%X",
              seqNumber.high, seqNumber.low);
      return(buff);
@@ -1127,30 +1078,30 @@ get_parameter(gint offset, tvbuff_t *tvb, gint16 e_bit, char buff[],
    case PID_RECV_QUEUE_SIZE:
    {
       sprintf(buff," PID_RECV_QUEUE_SIZE: 0x%X",
-              get_guint32(tvb, offset, e_bit));
+              get_guint32(tvb, offset, little_endian));
       return(buff);
    }
 
   case PID_RELIABILITY_OFFERED:
   {
      sprintf(buff," PID_RELIABILITY_OFFERED: 0x%X",
-             get_guint32(tvb, offset, e_bit));
+             get_guint32(tvb, offset, little_endian));
      return(buff);
   }
 
   case PID_RELIABILITY_REQUESTED:
   {
      sprintf(buff," PID_RELIABILITY_REQUESTED: 0x%X",
-             get_guint32(tvb, offset, e_bit));
+             get_guint32(tvb, offset, little_endian));
      return(buff);
   }
 
   default:
   {
-     sprintf(buff," :!: Unknown sekvence parameter");
+     sprintf(buff," :!: Unknown sequence parameter");
      return(buff);
   }
- }   // end switch
+ }   /* end switch */
 
 }
 
@@ -1187,10 +1138,10 @@ dissect_ISSUE(tvbuff_t *tvb, gint offset,  proto_tree *tree)
   offset +=1;
 
   /* E flag |XXXX|HAPE| => masks with 000000001b = 1 */
-  if ((flags & FLAG_E) != 0)        e_bit = LITTLE_ENDIAN;
-    else                            e_bit = BIG_ENDIAN;
+  if ((flags & FLAG_E) != 0)        little_endian = TRUE;
+    else                            little_endian = FALSE;
 
-  next_submsg_offset = offset + 2 + get_guint16(tvb, offset, e_bit);
+  next_submsg_offset = offset + 2 + get_guint16(tvb, offset, little_endian);
   /* next_submsg_offset = actual offset + long of the octetsToNextHeader
    *                      + octetsToNextHeader                       */
 
@@ -1215,7 +1166,7 @@ dissect_ISSUE(tvbuff_t *tvb, gint offset,  proto_tree *tree)
   offset +=4;
 
   /*  Sequence Number */
-  seq_nr_to_string(offset, e_bit, tvb, &sequenceNumber);
+  seq_nr_to_string(offset, little_endian, tvb, &sequenceNumber);
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 8,
                       "firstSeqNumber:   0x%X%X",
                       sequenceNumber.high, sequenceNumber.low);
@@ -1232,7 +1183,7 @@ dissect_ISSUE(tvbuff_t *tvb, gint offset,  proto_tree *tree)
   /* -- P flag |XXXX|HAPE| => masks with 00000010b = 2 */
   if ((flags & FLAG_P) != 0)
   {
-    seq_nr_to_string(offset, e_bit, tvb, &sequenceNumber);
+    seq_nr_to_string(offset, little_endian, tvb, &sequenceNumber);
     proto_tree_add_text(rtps_submessage_tree, tvb, offset, 8,
                         "Parameters:   0x%X%X",
                         sequenceNumber.high, sequenceNumber.low);
@@ -1276,10 +1227,10 @@ dissect_ACK(tvbuff_t *tvb, gint offset,  proto_tree *tree)
   offset +=1;
 
   /* E flag |XXXX|HAPE| => masks with 000000001b = 1 */
-  if ((flags & FLAG_E) != 0)      e_bit = LITTLE_ENDIAN;
-   else                           e_bit = BIG_ENDIAN;
+  if ((flags & FLAG_E) != 0)      little_endian = TRUE;
+   else                           little_endian = FALSE;
 
-  next_submsg_offset = offset + 2 + get_guint16(tvb, offset, e_bit);
+  next_submsg_offset = offset + 2 + get_guint16(tvb, offset, little_endian);
   /* next_submsg_offset = actual offset + long of the octetsToNextHeader
    *                      + octetsToNextHeader                       */
 
@@ -1303,7 +1254,7 @@ dissect_ACK(tvbuff_t *tvb, gint offset,  proto_tree *tree)
                       object_id_to_string(offset, tvb, buff));
   offset +=4;
 
-  get_bitmap(tvb,&offset,e_bit,next_submsg_offset,rtps_submessage_tree);
+  get_bitmap(tvb,&offset,little_endian,next_submsg_offset,rtps_submessage_tree);
 
 }
 
@@ -1336,14 +1287,14 @@ dissect_HEARTBEAT(tvbuff_t *tvb, gint offset, proto_tree *tree)
   offset +=1;
 
   /*  E flag |XXXX|HAPE| => masks with 000000001b = 1  */
-  if ((flags & FLAG_E) != 0)      e_bit = LITTLE_ENDIAN;
-   else                           e_bit = BIG_ENDIAN;
+  if ((flags & FLAG_E) != 0)      little_endian = TRUE;
+   else                           little_endian = FALSE;
 
   /* -- if you want to see Offset to Next Header - just uncomment -- */
   /*
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 1,
                       "Octets_to_next_header: 0x%X",
-                      get_guint16(tvb, offset, e_bit));
+                      get_guint16(tvb, offset, little_endian));
   */
   offset +=2;
   /* Reader Object ID */
@@ -1359,14 +1310,14 @@ dissect_HEARTBEAT(tvbuff_t *tvb, gint offset, proto_tree *tree)
   offset +=4;
 
   /*  firstSeqNumber */
-  seq_nr_to_string(offset, e_bit, tvb, &sequenceNumber);
+  seq_nr_to_string(offset, little_endian, tvb, &sequenceNumber);
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 8,
                       "firstSeqNumber:     0x%X%X",
                       sequenceNumber.high, sequenceNumber.low);
   offset +=8;
 
   /* lastSeqNumber */
-  seq_nr_to_string(offset, e_bit, tvb, &sequenceNumber);
+  seq_nr_to_string(offset, little_endian, tvb, &sequenceNumber);
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 8,
                       "lastSeqNumber:      0x%X%X",
                       sequenceNumber.high, sequenceNumber.low);
@@ -1406,10 +1357,10 @@ dissect_GAP(tvbuff_t *tvb, gint offset, proto_tree *tree)
   offset +=1;
 
   /* E flag |XXXX|HAPE| => masks with 000000001b = 1 */
-  if ((flags & FLAG_E) != 0)      e_bit = LITTLE_ENDIAN;
-    else                          e_bit = BIG_ENDIAN;
+  if ((flags & FLAG_E) != 0)      little_endian = TRUE;
+    else                          little_endian = FALSE;
 
-  next_submsg_offset = offset + 2 + get_guint16(tvb, offset, e_bit);
+  next_submsg_offset = offset + 2 + get_guint16(tvb, offset, little_endian);
   /* next_submsg_offset = actual offset + long of the octetsToNextHeader
    *                      + octetsToNextHeader                       */
 
@@ -1434,13 +1385,13 @@ dissect_GAP(tvbuff_t *tvb, gint offset, proto_tree *tree)
   offset +=4;
 
   /*  Sequence Number */
-  seq_nr_to_string(offset, e_bit, tvb, &sequenceNumber);
+  seq_nr_to_string(offset, little_endian, tvb, &sequenceNumber);
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 8,
                       "firstSeqNumber:   0x%X%X",
                       sequenceNumber.high, sequenceNumber.low);
   offset +=8;
 
-  get_bitmap(tvb,&offset,e_bit,next_submsg_offset,rtps_submessage_tree);
+  get_bitmap(tvb,&offset,little_endian,next_submsg_offset,rtps_submessage_tree);
 
 }
 
@@ -1474,8 +1425,8 @@ dissect_INFO_TS(tvbuff_t *tvb, gint offset, proto_tree *tree)
   offset +=1;
 
   /*  E flag |XXXX|HAPE| => masks with 000000001b = 1 */
-  if ((flags & FLAG_E) != 0)      e_bit = LITTLE_ENDIAN;
-   else                           e_bit = BIG_ENDIAN;
+  if ((flags & FLAG_E) != 0)      little_endian = TRUE;
+   else                           little_endian = FALSE;
 
   /*  Offset to Next Header -- if you want to see - just uncomment */
   /*
@@ -1491,7 +1442,7 @@ dissect_INFO_TS(tvbuff_t *tvb, gint offset, proto_tree *tree)
   {
     proto_tree_add_text(rtps_submessage_tree, tvb, offset, 8,
                         "ntpTimestamp: %s (sec)",
-                        get_NtpTime(offset, tvb, e_bit,buff));
+                        get_NtpTime(offset, tvb, little_endian,buff));
     offset +=8;
   }
 
@@ -1529,8 +1480,8 @@ dissect_INFO_SRC(tvbuff_t *tvb, gint offset,  proto_tree *tree)
   offset +=1;
 
   /*  E flag |XXXX|HAPE| => masks with 000000001b = 1 */
-  if ((flags & FLAG_E) != 0)      e_bit = LITTLE_ENDIAN;
-   else                           e_bit = BIG_ENDIAN;
+  if ((flags & FLAG_E) != 0)      little_endian = TRUE;
+   else                           little_endian = FALSE;
 
   /*  Offset to Next Header -- if you want to see - just uncomment */
   /*
@@ -1543,7 +1494,7 @@ dissect_INFO_SRC(tvbuff_t *tvb, gint offset,  proto_tree *tree)
   /*  IPAddress */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "appIP address: %s",
-                      IP_to_string(offset, tvb, e_bit,buff));
+                      IP_to_string(offset, tvb, little_endian,buff));
   offset +=4;
 
   /*  Protocol Version */
@@ -1603,8 +1554,8 @@ dissect_INFO_REPLY(tvbuff_t *tvb, gint offset, proto_tree *tree)
   offset +=1;
 
   /*  E flag |XXXX|HAPE| => masks with 000000001b = 1 */
-  if ((flags & FLAG_E) != 0)    e_bit = LITTLE_ENDIAN;
-   else                         e_bit = BIG_ENDIAN;
+  if ((flags & FLAG_E) != 0)    little_endian = TRUE;
+   else                         little_endian = FALSE;
 
   /*  Offset to Next Header -- if you want to see - just uncomment */
   /*
@@ -1617,14 +1568,14 @@ dissect_INFO_REPLY(tvbuff_t *tvb, gint offset, proto_tree *tree)
   /* Unicat Reply IPAddress */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "Unicast Reply IP Adress: %s",
-                      IP_to_string(offset, tvb, e_bit,buff_ip));
+                      IP_to_string(offset, tvb, little_endian,buff_ip));
   offset +=4;
 
 
   /* Unicast Reply Port */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "Unicast Reply IP Port: %s",
-                      port_to_string(offset, tvb, e_bit,buff_port));
+                      port_to_string(offset, tvb, little_endian,buff_port));
   offset +=4;
 
 
@@ -1637,13 +1588,13 @@ dissect_INFO_REPLY(tvbuff_t *tvb, gint offset, proto_tree *tree)
     /* Multicast Reply IPAddress */
     proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                         "Multicast Reply IP Adress: %s",
-                        IP_to_string(offset, tvb, e_bit,buff_ip));
+                        IP_to_string(offset, tvb, little_endian,buff_ip));
     offset +=4;
 
     /* Multicast Reply Port */
     proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                         "Multicast Reply IP Port: %s",
-                        port_to_string(offset, tvb, e_bit,buff_port));
+                        port_to_string(offset, tvb, little_endian,buff_port));
     offset +=4;
 
   }
@@ -1679,8 +1630,8 @@ dissect_INFO_DST(tvbuff_t *tvb,gint offset,proto_tree *tree)
   offset +=1;
 
   /*  E flag |XXXX|HAPE| => masks with 000000001b = 1 */
-  if ((flags & FLAG_E) != 0)      e_bit = LITTLE_ENDIAN;
-   else                           e_bit = BIG_ENDIAN;
+  if ((flags & FLAG_E) != 0)      little_endian = TRUE;
+   else                           little_endian = FALSE;
 
   /*  Offset to Next Header -- if you want to see - just uncomment */
   /*
