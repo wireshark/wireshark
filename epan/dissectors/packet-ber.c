@@ -59,9 +59,11 @@ static gint hf_ber_id_tag = -1;
 static gint hf_ber_length = -1;
 static gint hf_ber_bitstring_padding = -1;
 static gint hf_ber_unknown_PrintableString = -1;
+static gint hf_ber_unknown_IA5String = -1;
 static gint hf_ber_unknown_INTEGER = -1;
 
 static gint ett_ber_octet_string = -1;
+static gint ett_ber_unknown = -1;
 
 static gboolean show_internal_ber_fields = FALSE;
 
@@ -173,6 +175,14 @@ dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *t
 	offset=dissect_ber_identifier(pinfo, NULL, tvb, offset, &class, &pc, &tag);
 	offset=dissect_ber_length(pinfo, NULL, tvb, offset, &len, &ind);
 
+	if(len>tvb_length_remaining(tvb, offset)){
+		/* hmm   maybe something bad happened or the frame is short,
+		   since these are not vital outputs just return instead of 
+		   throwing en exception.
+		 */
+		return tvb_length(tvb);
+	}
+
 	if(class!=BER_CLASS_UNI){
 		/* some printout here? aborting dissection */
 		return tvb_length(tvb);
@@ -181,6 +191,9 @@ dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *t
 	switch(tag){
 	case BER_UNI_TAG_INTEGER:
 		offset = dissect_ber_integer_new(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_INTEGER, NULL);
+		break;
+	case BER_UNI_TAG_IA5String:
+		offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_IA5String, NULL);
 		break;
 	case BER_UNI_TAG_PrintableString:
 		offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_PrintableString, NULL);
@@ -200,8 +213,14 @@ call_ber_oid_callback(char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 	next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));
 	if(!dissector_try_string(ber_oid_dissector_table, oid, next_tvb, pinfo, tree)){
-		proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "BER: Dissector for OID:%s not implemented. Contact Ethereal developers if you want this supported", oid);
-		dissect_unknown_ber(pinfo, next_tvb, offset, tree);
+		proto_item *item=NULL;
+		proto_tree *next_tree=NULL;
+
+		item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "BER: Dissector for OID:%s not implemented. Contact Ethereal developers if you want this supported", oid);
+		if(item){
+			next_tree=proto_item_add_subtree(item, ett_ber_unknown);
+		}
+		dissect_unknown_ber(pinfo, next_tvb, offset, next_tree);
 	}
 
 	/*XXX until we change the #.REGISTER signature for _PDU()s 
@@ -1512,16 +1531,20 @@ proto_register_ber(void)
 	    "Length", "ber.length", FT_UINT32, BASE_DEC,
 	    NULL, 0, "Length of contents", HFILL }},
 	{ &hf_ber_unknown_PrintableString, {
-	    "Unknown PrintableString", "ber.unknown.PrintableString", FT_STRING, BASE_NONE,
+	    "PrintableString", "ber.unknown.PrintableString", FT_STRING, BASE_NONE,
 	    NULL, 0, "This is an unknown PrintableString", HFILL }},
+	{ &hf_ber_unknown_IA5String, {
+	    "IA5String", "ber.unknown.IA5String", FT_STRING, BASE_NONE,
+	    NULL, 0, "This is an unknown IA5String", HFILL }},
 	{ &hf_ber_unknown_INTEGER, {
-	    "Unknown INTEGER", "ber.unknown.INTEGER", FT_UINT32, BASE_DEC,
+	    "INTEGER", "ber.unknown.INTEGER", FT_UINT32, BASE_DEC,
 	    NULL, 0, "This is an unknown INTEGER", HFILL }},
 
     };
 
     static gint *ett[] = {
 	&ett_ber_octet_string,
+	&ett_ber_unknown,
     };
     module_t *ber_module;
 
