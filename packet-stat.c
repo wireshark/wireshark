@@ -1,7 +1,7 @@
 /* packet-stat.c
  * Routines for stat dissection
  *
- * $Id: packet-stat.c,v 1.6 2001/01/03 06:55:33 guy Exp $
+ * $Id: packet-stat.c,v 1.7 2001/01/18 09:55:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,9 +41,9 @@ static int proto_stat = -1;
 static gint ett_stat = -1;
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: take the generic one. */
+/* NULL as function pointer means: type of arguments is "void". */
 
-const vsff stat_proc[] = {
+static const vsff stat_proc[] = {
     { 0, "NULL", NULL, NULL },
     { STATPROC_STAT,   "STAT",      
 		NULL, NULL },

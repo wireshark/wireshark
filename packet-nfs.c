@@ -3,7 +3,7 @@
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
  *
- * $Id: packet-nfs.c,v 1.41 2001/01/03 16:41:06 gram Exp $
+ * $Id: packet-nfs.c,v 1.42 2001/01/18 09:55:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1386,8 +1386,8 @@ dissect_nfs2_statfs_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: take the generic one. */
-const vsff nfs2_proc[] = {
+/* NULL as function pointer means: type of arguments is "void". */
+static const vsff nfs2_proc[] = {
 	{ 0,	"NULL",		/* OK */
 	NULL,				NULL },
 	{ 1,	"GETATTR",	/* OK */
@@ -4924,8 +4924,8 @@ dissect_nfs4_compound_reply(const u_char* pd, int offset, frame_data* fd,
 
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: take the generic one. */
-const vsff nfs3_proc[] = {
+/* NULL as function pointer means: type of arguments is "void". */
+static const vsff nfs3_proc[] = {
 	{ 0,	"NULL",		/* OK */
 	NULL,				NULL },
 	{ 1,	"GETATTR",	/* OK */
@@ -4974,7 +4974,7 @@ const vsff nfs3_proc[] = {
 };
 /* end of NFS Version 3 */
 
-const vsff nfs4_proc[] = {
+static const vsff nfs4_proc[] = {
 	{ 0, "NULL",
 	NULL, NULL },
 	{ 1, "COMPOUND",

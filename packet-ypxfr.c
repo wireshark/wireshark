@@ -1,7 +1,7 @@
 /* packet-ypxfr.c
  * Routines for ypxfr dissection
  *
- * $Id: packet-ypxfr.c,v 1.5 2001/01/03 06:55:34 guy Exp $
+ * $Id: packet-ypxfr.c,v 1.6 2001/01/18 09:55:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,11 +42,11 @@ static int proto_ypxfr = -1;
 static gint ett_ypxfr = -1;
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: take the generic one. */
-const vsff ypxfr1_proc[] = {
-	{ YPXFRPROC_NULL,	"NULL",		NULL,				NULL },
-	{ YPXFRPROC_GETMAP,	"GETMAP",		NULL,				NULL },
-	{ 0,	NULL,		NULL,				NULL }
+/* NULL as function pointer means: type of arguments is "void". */
+static const vsff ypxfr1_proc[] = {
+	{ YPXFRPROC_NULL,	"NULL",		NULL,		NULL },
+	{ YPXFRPROC_GETMAP,	"GETMAP",	NULL,		NULL },
+	{ 0,			NULL,		NULL,		NULL }
 };
 /* end of YPXFR version 1 */
 

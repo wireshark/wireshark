@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.18 2001/01/03 06:55:30 guy Exp $
+ * $Id: packet-mount.c,v 1.19 2001/01/18 09:55:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -436,7 +436,7 @@ dissect_mount_pathconf_reply(const u_char *pd, int offset, frame_data *fd,
 }
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: take the generic one. */
+/* NULL as function pointer means: type of arguments is "void". */
 
 /* Mount protocol version 1, RFC 1094 */
 static const vsff mount1_proc[] = {

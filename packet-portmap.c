@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.21 2001/01/03 06:55:31 guy Exp $
+ * $Id: packet-portmap.c,v 1.22 2001/01/18 09:55:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -221,8 +221,8 @@ int dissect_dump_reply(const u_char *pd, int offset, frame_data *fd,
 }
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: take the generic one. */
-const vsff portmap1_proc[] = {
+/* NULL as function pointer means: type of arguments is "void". */
+static const vsff portmap1_proc[] = {
 	{ PORTMAPPROC_NULL,	"NULL",		NULL,				NULL },
 	{ PORTMAPPROC_SET,	"SET",		NULL,				NULL },
 	{ PORTMAPPROC_UNSET,	"UNSET",		NULL,				NULL },
@@ -233,7 +233,7 @@ const vsff portmap1_proc[] = {
 };
 /* end of Portmap version 1 */
 
-const vsff portmap2_proc[] = {
+static const vsff portmap2_proc[] = {
 	{ PORTMAPPROC_NULL, "NULL",
 		NULL, NULL },
 	{ PORTMAPPROC_SET, "SET",
@@ -327,7 +327,7 @@ int dissect_rpcb3_dump_reply(const u_char *pd, int offset, frame_data *fd,
 
 
 /* Portmapper version 3, RFC 1833, Page 7 */
-const vsff portmap3_proc[] = {
+static const vsff portmap3_proc[] = {
 	{ RPCBPROC_NULL,	"NULL",
 		NULL, NULL },
 	{ RPCBPROC_SET,		"SET",
@@ -352,7 +352,7 @@ const vsff portmap3_proc[] = {
 
 
 /* Portmapper version 4, RFC 1833, Page 8 */
-const vsff portmap4_proc[] = {
+static const vsff portmap4_proc[] = {
 	{ RPCBPROC_NULL,	"NULL",
 		NULL, NULL },
 	{ RPCBPROC_SET,		"SET",

@@ -1,7 +1,7 @@
 /* packet-ypserv.c
  * Routines for ypserv dissection
  *
- * $Id: packet-ypserv.c,v 1.12 2001/01/03 06:55:34 guy Exp $
+ * $Id: packet-ypserv.c,v 1.13 2001/01/18 09:55:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -150,10 +150,10 @@ int dissect_firstnext_reply(const u_char *pd, int offset, frame_data *fd,
 
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: take the generic one. */
+/* NULL as function pointer means: type of arguments is "void". */
 
 /* someone please get me a version 1 trace */
-const vsff ypserv1_proc[] = {
+static const vsff ypserv1_proc[] = {
     { 0, "NULL", NULL, NULL },
     { YPPROC_ALL,   "ALL",      
 		NULL, NULL },
@@ -181,7 +181,7 @@ const vsff ypserv1_proc[] = {
 };
 /* end of YPServ version 2 */
 
-const vsff ypserv2_proc[] = {
+static const vsff ypserv2_proc[] = {
     { 0, "NULL", NULL, NULL },
     { YPPROC_ALL,   "ALL",      
 		NULL, NULL },

@@ -1,7 +1,7 @@
 /* packet-ypbind.c
  * Routines for ypbind dissection
  *
- * $Id: packet-ypbind.c,v 1.6 2001/01/03 06:55:34 guy Exp $
+ * $Id: packet-ypbind.c,v 1.7 2001/01/18 09:55:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,8 +42,8 @@ static int proto_ypbind = -1;
 static gint ett_ypbind = -1;
 
 /* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: take the generic one. */
-const vsff ypbind1_proc[] = {
+/* NULL as function pointer means: type of arguments is "void". */
+static const vsff ypbind1_proc[] = {
 	{ YPBINDPROC_NULL,	"NULL",		NULL,				NULL },
 	{ YPBINDPROC_DOMAIN,	"DOMAIN",		NULL,				NULL },
 	{ YPBINDPROC_SETDOM,	"SETDOMAIN",		NULL,				NULL },
@@ -51,11 +51,11 @@ const vsff ypbind1_proc[] = {
 };
 /* end of YPBind version 1 */
 
-const vsff ypbind2_proc[] = {
+static const vsff ypbind2_proc[] = {
 	{ YPBINDPROC_NULL,	"NULL",		NULL,				NULL },
 	{ YPBINDPROC_DOMAIN,	"DOMAIN",		NULL,				NULL },
 	{ YPBINDPROC_SETDOM,	"SETDOMAIN",		NULL,				NULL },
-    { 0,    NULL,       NULL,               NULL }
+	{ 0,    NULL,       NULL,               NULL }
 };
 /* end of YPBind version 2 */
 
