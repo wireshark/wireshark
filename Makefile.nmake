@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.153 2001/12/12 01:29:01 guy Exp $
+# $Id: Makefile.nmake,v 1.154 2001/12/16 20:17:09 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -256,6 +256,7 @@ ETHEREAL_COMMON_OBJECTS = \
 	getopt.obj	 \
 	in_cksum.obj	 \
 	ipproto.obj      \
+	packet-dcerpc-nt.obj \
 	pcap-util.obj    \
 	prefs.obj        \
 	print.obj        \
