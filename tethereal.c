@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.197 2003/09/15 22:48:41 guy Exp $
+ * $Id: tethereal.c,v 1.198 2003/09/19 04:52:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2119,6 +2119,7 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
   fdata->flags.encoding = CHAR_ASCII;
   fdata->flags.visited = 0;
   fdata->flags.marked = 0;
+  fdata->flags.ref_time = 0;
 
   /* If we don't have the time stamp of the first packet in the
      capture, it's because this is the first packet.  Save the time

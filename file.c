@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.314 2003/09/15 23:28:07 guy Exp $
+ * $Id: file.c,v 1.315 2003/09/19 04:52:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -871,6 +871,7 @@ read_packet(capture_file *cf, long offset)
   fdata->flags.encoding = CHAR_ASCII;
   fdata->flags.visited = 0;
   fdata->flags.marked = 0;
+  fdata->flags.ref_time = 0;
 
   passed = TRUE;
   if (cf->rfcode) {
