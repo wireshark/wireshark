@@ -1,3 +1,5 @@
 .cvsignore
 Makefile
 Makefile.in
+tags
+TAGS

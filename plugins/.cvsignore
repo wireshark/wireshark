@@ -3,3 +3,5 @@ Makefile.in
 xyzzy
 *.obj
 *.pdb
+tags
+TAGS

@@ -8,3 +8,5 @@ lemon.obj
 Makefile.in
 *.pdb
 *.ilk
+tags
+TAGS

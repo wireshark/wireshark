@@ -9,3 +9,5 @@
 .libs
 Makefile
 Makefile.in
+tags
+TAGS

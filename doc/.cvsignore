@@ -6,3 +6,5 @@ ethereal-tmp.pod
 *.1
 *.4
 *.html
+tags
+TAGS

@@ -2,3 +2,5 @@ Makefile.in
 Makefile
 checkinstall
 pkginfo
+tags
+TAGS

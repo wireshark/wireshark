@@ -69,3 +69,5 @@ text2pcap
 text2pcap-scanner.c
 text2pcap.1
 text2pcap.html
+tags
+TAGS

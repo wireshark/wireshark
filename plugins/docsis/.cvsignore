@@ -16,3 +16,5 @@ stamp-h
 *.exp
 *.lib
 *.pdb
+tags
+TAGS

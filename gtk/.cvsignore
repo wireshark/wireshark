@@ -10,3 +10,5 @@ html
 *.obj
 *.lib
 *.pdb
+tags
+TAGS
