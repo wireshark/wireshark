@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.84 2003/04/01 19:05:55 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.85 2003/04/20 11:36:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -328,6 +328,7 @@ static int hf_fragment_overlap_conflict = -1;
 static int hf_fragment_multiple_tails = -1;
 static int hf_fragment_too_long_fragment = -1;
 static int hf_fragment_error = -1;
+static int hf_reassembled_in = -1;
 
 
 static int proto_wlan_mgt = -1;
@@ -399,6 +400,7 @@ static const fragment_items frag_items = {
 	&hf_fragment_multiple_tails,
 	&hf_fragment_too_long_fragment,
 	&hf_fragment_error,
+	&hf_reassembled_in,
 	"fragments"
 };
 
@@ -1776,12 +1778,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
        * a non-fragmented frame.
        */
       if (fd_head->next != NULL) {
-        next_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
-        tvb_set_child_real_data_tvbuff(tvb, next_tvb);
-        add_new_data_source(pinfo, next_tvb, "Reassembled 802.11");
-
-        /* Show all fragments. */
-        show_fragment_seq_tree(fd_head, &frag_items, hdr_tree, pinfo, next_tvb);
+        next_tvb = process_reassembled_data(tvb, pinfo, "Reassembled 802.11",
+                fd_head, &frag_items, NULL, hdr_tree);
       } else {
       	/*
       	 * Not fragmented, really.
@@ -2233,6 +2231,10 @@ proto_register_ieee80211 (void)
     {&hf_fragments,
       {"802.11 Fragments", "wlan.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
        "802.11 Fragments", HFILL }},
+
+    {&hf_reassembled_in,
+      {"Reassembled 802.11 in frame", "wlan.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+       "This 802.11 packet is reassembled in this frame", HFILL }},
 
     {&hf_wep_iv,
      {"Initialization Vector", "wlan.wep.iv", FT_UINT24, BASE_HEX, NULL, 0,

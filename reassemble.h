@@ -1,7 +1,7 @@
 /* reassemble.h
  * Declarations of outines for {fragment,segment} reassembly
  *
- * $Id: reassemble.h,v 1.17 2003/04/20 08:06:01 guy Exp $
+ * $Id: reassemble.h,v 1.18 2003/04/20 11:36:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -194,14 +194,16 @@ fragment_delete(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
 
 /*
  * This function adds fragment_data structure to a reassembled-packet
- * hash table, using the frame data structure as the key.
+ * hash table, using the frame numbers of each of the frames from
+ * which it was reassembled as keys, and sets the "reassembled_in"
+ * frame number.
  */
 extern void
 fragment_reassembled(fragment_data *fd_head, packet_info *pinfo,
 	     GHashTable *reassembled_table);
 
-/* hf_fragment and hf_fragment_error should be FT_FRAMENUM,
-   the others should be FT_BOOLEAN
+/* hf_fragment, hf_fragment_error, and hf_reassembled_in should be
+   FT_FRAMENUM, the others should be FT_BOOLEAN
 */
 typedef struct _fragment_items {
 	gint	*ett_fragment;
@@ -214,14 +216,15 @@ typedef struct _fragment_items {
 	int	*hf_fragment_multiple_tails;
 	int	*hf_fragment_too_long_fragment;
 	int	*hf_fragment_error;
+	int	*hf_reassembled_in;
 
 	char	*tag;
 } fragment_items;
 
 extern tvbuff_t *
 process_reassembled_data(tvbuff_t *tvb, packet_info *pinfo, char *name,
-    fragment_data *fd_head, const fragment_items *frag_items,
-    int hf_reassembled_in, gboolean *update_col_infop, proto_tree *tree);
+    fragment_data *fd_head, const fragment_items *fit,
+    gboolean *update_col_infop, proto_tree *tree);
 
 extern gboolean
 show_fragment_tree(fragment_data *ipfd_head, const fragment_items *fit,

@@ -2,7 +2,7 @@
  * Routines for X.25 packet disassembly
  * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-x25.c,v 1.83 2003/03/05 05:20:38 guy Exp $
+ * $Id: packet-x25.c,v 1.84 2003/04/20 11:36:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -203,6 +203,7 @@ static const fragment_items x25_frag_items = {
 	&hf_x25_segment_multiple_tails,
 	&hf_x25_segment_too_long_segment,
 	&hf_x25_segment_error,
+	NULL,
 	"segments"
 };
 

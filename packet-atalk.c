@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.87 2003/03/05 07:17:49 guy Exp $
+ * $Id: packet-atalk.c,v 1.88 2003/04/20 11:36:11 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -127,6 +127,7 @@ static int hf_atp_segment_overlap_conflict = -1;
 static int hf_atp_segment_multiple_tails = -1;
 static int hf_atp_segment_too_long_segment = -1;
 static int hf_atp_segment_error = -1;
+static int hf_atp_reassembled_in = -1;
 
 /* ------------------------- */
 static int proto_zip = -1;
@@ -346,6 +347,7 @@ static const fragment_items atp_frag_items = {
 	&hf_atp_segment_multiple_tails,
 	&hf_atp_segment_too_long_segment,
 	&hf_atp_segment_error,
+	&hf_atp_reassembled_in,
 	"segments"
 };
 
@@ -857,14 +859,8 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 				     more_fragment);
      if (fd_head != NULL) {
 	if (fd_head->next != NULL) {
-            new_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
-            tvb_set_child_real_data_tvbuff(tvb, new_tvb);
-            add_new_data_source(pinfo, new_tvb, "Reassembled ATP");
-	    /* Show all fragments. */
-	    if (tree) {
-		    show_fragment_seq_tree(fd_head, &atp_frag_items,
-		        atp_tree, pinfo, new_tvb);
-	    }
+            new_tvb = process_reassembled_data(tvb, pinfo, "Reassembled ATP",
+                fd_head, &atp_frag_items, NULL, atp_tree);
         }
         else
       	    new_tvb = tvb_new_subset(tvb, ATP_HDRSIZE -1, -1, -1);
@@ -1965,6 +1961,10 @@ proto_register_atalk(void)
     { &hf_atp_segments,
       { "ATP Fragments",	"atp.fragments", FT_NONE, BASE_NONE,
 		NULL, 0x0, "ATP Fragments", HFILL }},
+
+    { &hf_atp_reassembled_in,
+      { "Reassembled ATP in frame", "atp.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+       "This ATP packet is reassembled in this frame", HFILL }}
   };
 
   static hf_register_info hf_asp[] = {

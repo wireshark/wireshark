@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  *
- * $Id: packet-wtp.c,v 1.44 2003/04/09 18:15:53 guy Exp $
+ * $Id: packet-wtp.c,v 1.45 2003/04/20 11:36:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -213,6 +213,7 @@ static const fragment_items wtp_frag_items = {
     &hf_wtp_fragment_multiple_tails,
     &hf_wtp_fragment_too_long_fragment,
     &hf_wtp_fragment_error,
+    NULL,
     "fragments"
 };
 

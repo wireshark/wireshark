@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.189 2003/04/20 08:06:00 guy Exp $
+ * $Id: packet-ip.c,v 1.190 2003/04/20 11:36:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -120,6 +120,7 @@ static const fragment_items ip_frag_items = {
 	&hf_ip_fragment_multiple_tails,
 	&hf_ip_fragment_too_long_fragment,
 	&hf_ip_fragment_error,
+	&hf_ip_reassembled_in,
 	"fragments"
 };
 
@@ -1033,9 +1034,14 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			     (iph->ip_off & IP_OFFSET)*8,
 			     pinfo->iplen - pinfo->iphdrlen,
 			     iph->ip_off & IP_MF);
-    next_tvb = process_reassembled_data(tvb, pinfo, "Reassembled IPv4",
-        ipfd_head, &ip_frag_items, hf_ip_reassembled_in, &update_col_info,
-        ip_tree);
+
+    if (ipfd_head != NULL) {
+      next_tvb = process_reassembled_data(tvb, pinfo, "Reassembled IPv4",
+        ipfd_head, &ip_frag_items, &update_col_info, ip_tree);
+    } else {
+      /* We don't have the complete reassembled payload. */
+      next_tvb = NULL;
+    }
   } else {
     /* If this is the first fragment, dissect its contents, otherwise
        just show it as a fragment.
@@ -1693,7 +1699,6 @@ proto_register_ip(void)
 		{ &hf_ip_reassembled_in,
 		{ "Reassembled IP in frame", "ip.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"This IP packet is reassembled in this frame", HFILL }}
-
 	};
 	static gint *ett[] = {
 		&ett_ip,

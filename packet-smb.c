@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.331 2003/04/18 18:07:50 sharpe Exp $
+ * $Id: packet-smb.c,v 1.332 2003/04/20 11:36:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -691,6 +691,7 @@ static const fragment_items smb_frag_items = {
 	&hf_smb_segment_multiple_tails,
 	&hf_smb_segment_too_long_fragment,
 	&hf_smb_segment_error,
+	NULL,
 
 	"segments"
 };

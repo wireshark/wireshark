@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.11 2003/03/04 06:47:10 guy Exp $
+ * $Id: packet-tds.c,v 1.12 2003/04/20 11:36:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -289,6 +289,7 @@ static const fragment_items tds_frag_items = {
 	&hf_tds_fragment_multiple_tails,
 	&hf_tds_fragment_too_long_fragment,
 	&hf_tds_fragment_error,
+	NULL,
 	"fragments"
 };
 

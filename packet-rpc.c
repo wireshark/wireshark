@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.118 2003/04/20 00:27:29 guy Exp $
+ * $Id: packet-rpc.c,v 1.119 2003/04/20 11:36:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -229,6 +229,7 @@ static const fragment_items rpc_frag_items = {
 	&hf_rpc_fragment_multiple_tails,
 	&hf_rpc_fragment_too_long_fragment,
 	&hf_rpc_fragment_error,
+	NULL,
 	"fragments"
 };
 

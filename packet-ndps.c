@@ -3,7 +3,7 @@
  * Greg Morris <gmorris@novell.com>
  * Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ndps.c,v 1.19 2003/04/09 22:33:19 guy Exp $
+ * $Id: packet-ndps.c,v 1.20 2003/04/20 11:36:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3013,6 +3013,7 @@ static const fragment_items ndps_frag_items = {
 	&hf_ndps_segment_multiple_tails,
 	&hf_ndps_segment_too_long_segment,
 	&hf_ndps_segment_error,
+	NULL,
 	"segments"
 };
 

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.189 2003/03/27 19:55:59 guy Exp $
+ * $Id: packet-tcp.c,v 1.190 2003/04/20 11:36:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -144,6 +144,7 @@ static const fragment_items tcp_segment_items = {
 	&hf_tcp_segment_multiple_tails,
 	&hf_tcp_segment_too_long_fragment,
 	&hf_tcp_segment_error,
+	NULL,
 	"Segments"
 };
 

@@ -5,7 +5,7 @@
  *
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.56 2003/03/04 06:47:10 guy Exp $
+ * $Id: packet-netbios.c,v 1.57 2003/04/20 11:36:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -131,6 +131,7 @@ static const fragment_items netbios_frag_items = {
 	&hf_netb_fragment_multiple_tails,
 	&hf_netb_fragment_too_long_fragment,
 	&hf_netb_fragment_error,
+	NULL,
 	"fragments"
 };
 

@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.116 2003/04/15 08:04:54 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.117 2003/04/20 11:36:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -425,6 +425,7 @@ static const fragment_items dcerpc_frag_items = {
 	&hf_dcerpc_fragment_multiple_tails,
 	&hf_dcerpc_fragment_too_long_fragment,
 	&hf_dcerpc_fragment_error,
+	NULL,
 
 	"fragments"
 };
