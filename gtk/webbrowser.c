@@ -76,12 +76,14 @@ browser_open_url (const gchar *url)
   /*
    * XXX - this is a Launch Services result code, and we should probably
    * display a dialog box if it's not 0, describing what the error was.
-   * Then again, we should probably do the same
+   * Then again, we should probably do the same for the ShellExecute call,
+   * unless that call itself happens to pop up a dialog box.
    */
   status = LSOpenCFURLRef(url_CFURL, NULL);
   CFRelease(url_CFURL);
   CFRelease(url_CFString);
   return (status == 0);
+
 #else
 
   GError    *error = NULL;
