@@ -2,7 +2,7 @@
  * Routines for raw data (default case)
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-data.c,v 1.31 2002/08/28 21:00:08 jmayer Exp $
+ * $Id: packet-data.c,v 1.32 2003/04/19 20:10:49 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,10 +37,12 @@
 int proto_data = -1;
 
 static void
-dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int bytes;
 
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_set_fence(pinfo->cinfo, COL_INFO);
 	if (tree) {
 		bytes = tvb_length_remaining(tvb, 0);
 		if (bytes > 0) {
