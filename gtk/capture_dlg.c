@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.104 2004/02/12 22:24:27 guy Exp $
+ * $Id: capture_dlg.c,v 1.105 2004/02/20 22:56:00 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1034,7 +1034,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   auto_scroll_live =
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(auto_scroll_cb));
 
-  g_resolv_flags = RESOLV_NONE;
+  g_resolv_flags |= g_resolv_flags & RESOLV_CONCURRENT;
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(m_resolv_cb)))
     g_resolv_flags |= RESOLV_MAC;
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(n_resolv_cb)))
