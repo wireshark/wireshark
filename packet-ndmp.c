@@ -12,7 +12,7 @@
  * Routines for NDMP dissection
  * 2001 Ronnie Sahlberg (see AUTHORS for email)
  *
- * $Id: packet-ndmp.c,v 1.12 2002/01/24 09:20:50 guy Exp $
+ * $Id: packet-ndmp.c,v 1.13 2002/02/03 21:44:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +51,7 @@
 
 #include <epan/packet.h>
 #include "packet-rpc.h"
+#include "packet-frame.h"
 #include "prefs.h"
 
 #define TCP_PORT_NDMP 10000
@@ -2340,12 +2341,13 @@ dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 static void
 dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-	gboolean first = TRUE;
-	int offset = 0;
+	volatile gboolean first = TRUE;
+	volatile int offset = 0;
 	guint32 size, available_bytes;
 	struct ndmp_header nh;
 	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_tree *volatile tree=NULL;
+	const char *saved_proto;
 
 	/* loop through the packet, dissecting multiple NDMP pdus*/
 	do {
@@ -2403,11 +2405,38 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			tree = proto_item_add_subtree(item, ett_ndmp);
 		}
 
-		/* We can not trust what dissect_ndmp_cmd() tells us since
-		   there are implementations which pads some additional data
-		   after the PDU. We MUST use size.
-		*/
-		dissect_ndmp_cmd(tvb, offset, pinfo, tree, &nh);
+		/*
+		 * Catch the ReportedBoundsError exception; if this
+		 * particular message happens to get a ReportedBoundsError
+		 * exception, that doesn't mean that we should stop
+		 * dissecting NDMP messages within this frame or chunk
+		 * of reassembled data.
+		 *
+		 * If it gets a BoundsError, we can stop, as there's
+		 * nothing more to see, so we just re-throw it.
+		 */
+		saved_proto = pinfo->current_proto;
+		TRY {
+			/* We cannot trust what dissect_ndmp_cmd() tells us
+			   since there are implementations which pads some
+			   additional data after the PDU. We MUST use size.
+			*/
+			dissect_ndmp_cmd(tvb, offset, pinfo, tree, &nh);
+		}
+		CATCH(BoundsError) {
+			RETHROW;
+		}
+		CATCH(ReportedBoundsError) {
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_append_str(pinfo->cinfo, COL_INFO,
+				    "[Malformed Packet]");
+			}
+			proto_tree_add_protocol_format(parent_tree,
+			    proto_malformed, tvb, 0, 0,
+			    "[Malformed Packet: %s]", pinfo->current_proto);
+			pinfo->current_proto = saved_proto;
+		}
+		ENDTRY;
 		offset += size;
 	} while(offset<(int)tvb_reported_length(tvb));
 }
