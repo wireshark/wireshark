@@ -5,7 +5,7 @@
  *		<anders.broman@ericsson.com>
  * Inserted routines for BICC dissection according to Q.765.5 Q.1902 Q.1970 Q.1990,
  * calling SDP dissector for RFC2327 decoding.
- * $Id: packet-isup.c,v 1.39 2003/12/05 09:33:27 guy Exp $
+ * $Id: packet-isup.c,v 1.40 2003/12/10 19:26:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5525,9 +5525,12 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Extract message type field */
 	message_type = tvb_get_guint8(tvb, CIC_OFFSET + CIC_LENGTH);
+	/* dissect CIC in main dissector since pass-along message type carrying complete IUSP message w/o CIC needs
+	   recursive message dissector call */
+	cic = tvb_get_letohs(tvb, CIC_OFFSET) & 0x0FFF; /*since upper 4 bits spare */
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, isup_message_type_value_acro, "reserved"));
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s(CIC %u)", val_to_str(message_type, isup_message_type_value_acro, "reserved"),cic);
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
@@ -5535,9 +5538,6 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_isup, tvb, 0, -1, FALSE);
 		isup_tree = proto_item_add_subtree(ti, ett_isup);
 
-		/* dissect CIC in main dissector since pass-along message type carrying complete IUSP message w/o CIC needs
-		   recursive message dissector call */
-		cic =          tvb_get_letohs(tvb, CIC_OFFSET) & 0x0FFF; /*since upper 4 bits spare */
 
 		proto_tree_add_uint_format(isup_tree, hf_isup_cic, tvb, CIC_OFFSET, CIC_LENGTH, cic, "CIC: %u", cic);
 	}
