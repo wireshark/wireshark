@@ -75,6 +75,9 @@ typedef struct _packet_counts {
   gint           arp;
 } packet_counts;
 
+/** Number of packet counts. */
+#define PACKET_COUNTS_SIZE sizeof(packet_counts) / sizeof (gint)
+
 /* Types of character encodings */
 typedef enum {
 	CHAR_ASCII	 = 0,	/* ASCII */

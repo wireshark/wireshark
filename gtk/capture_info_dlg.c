@@ -54,7 +54,7 @@ typedef struct {
 typedef struct {
     GtkWidget               *cap_w;
     GtkWidget               *running_time_lb;
-    capture_info_counts_t   counts[CAPTURE_PACKET_COUNTS];
+    capture_info_counts_t   counts[PACKET_COUNTS_SIZE];
 } capture_info_ui_t;
 
 
@@ -130,7 +130,7 @@ gchar           *iface)
   gtk_widget_show(counts_fr);
 
   /* Individual statistic elements */
-  counts_tb = gtk_table_new(CAPTURE_PACKET_COUNTS, 4, TRUE);
+  counts_tb = gtk_table_new(PACKET_COUNTS_SIZE, 4, TRUE);
   gtk_container_add(GTK_CONTAINER(counts_fr), counts_tb);
   gtk_container_border_width(GTK_CONTAINER(counts_tb), 5);
   gtk_widget_show(counts_tb);
@@ -138,7 +138,7 @@ gchar           *iface)
   gtk_table_set_row_spacings(GTK_TABLE(counts_tb), 0);
   gtk_table_set_col_spacings(GTK_TABLE(counts_tb), 5);
 
-  for (i = 0; i < CAPTURE_PACKET_COUNTS; i++) {
+  for (i = 0; i < PACKET_COUNTS_SIZE; i++) {
       info->counts[i].label = gtk_label_new(info->counts[i].title);
       gtk_misc_set_alignment(GTK_MISC(info->counts[i].label), 0.0f, 0.5f);
 
@@ -238,7 +238,7 @@ capture_info    *cinfo)
 
   if (cinfo->new_packets) {
 
-    for (i = 0; i < CAPTURE_PACKET_COUNTS; i++) {
+    for (i = 0; i < PACKET_COUNTS_SIZE; i++) {
         g_snprintf(label_str, sizeof(label_str), "%d",
                  *info->counts[i].value_ptr);
         gtk_label_set(GTK_LABEL(info->counts[i].value_lb), label_str);

@@ -2516,7 +2516,7 @@ main(int argc, char *argv[])
     display_queued_messages();
 
     /* XXX - hand these stats to the parent process */
-    capture(&stats_known, &stats);
+    capture_start(&stats_known, &stats);
 
     /* The capture is done; there's nothing more for us to do. */
     gtk_exit(0);

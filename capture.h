@@ -83,23 +83,29 @@ extern capture_options capture_opts;
 /** True if this is the child for "-S" */
 extern gboolean capture_child;	
 
-/** Open a specified file, or create a temporary file, and start a capture
-   to the file in question.  Returns TRUE if the capture starts
-   successfully, FALSE otherwise. */
-gboolean do_capture(const char *save_file);
 
-/** Do the low-level work of a capture. */
-int    capture(gboolean *stats_known, struct pcap_stat *stats);
+/** Open a specified file, or create a temporary file, and start a capture
+ * to the file in question.  
+ *
+ * @return TRUE if the capture starts successfully, FALSE otherwise. */
+extern gboolean do_capture(const char *save_file);
+
+/** Do the low-level work of a capture (start the capture child). */
+extern int  capture_start(gboolean *stats_known, struct pcap_stat *stats);
 
 /** Stop a capture from a menu item. */
-void   capture_stop(void);
+extern void capture_stop(void);
 
 /** Terminate the capture child cleanly when exiting. */
-void   kill_capture_child(void);
+extern void kill_capture_child(void);
 
-/** Number of packet counts.
- * @todo improve this macro (put something like this into epan/packet.h?) */
-#define CAPTURE_PACKET_COUNTS sizeof(packet_counts) / sizeof (gint)
+/** Do the low-level work of a capture. */
+extern int  capture_loop_start(gboolean *stats_known, struct pcap_stat *stats);
+
+/** Stop a low-level capture. */
+extern void capture_loop_stop(void);
+
+
 
 /** Current Capture info. */
 typedef struct {
