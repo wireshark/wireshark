@@ -1189,6 +1189,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
   unsigned int i;
   int n, ret;
   char out_buff[SHORT_STR];
+  char print_buff[SHORT_STR];
 
 
   tag_no = tvb_get_guint8(tvb, offset);
@@ -1216,14 +1217,16 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       out_buff[tag_len + 1] = 0;
       for (i = 0; i < tag_len; i++) {
 	  if (!isprint( (int) out_buff[i])) {
-	      out_buff[i]='.';
+	      print_buff[i]='.';
+	  } else {
+	      print_buff[i]=out_buff[i];
 	  }
       }
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
 			     tag_len, out_buff);
       if (check_col (pinfo->cinfo, COL_INFO)) {
 	  if (tag_len > 0) {
-              col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID: \"%s\"", out_buff);
+              col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID: \"%s\"", print_buff);
 	  } else {
               col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID: Broadcast");
 	  }
