@@ -1,7 +1,7 @@
 /* color_filters.h
  * Definitions for color filters
  *
- * $Id: color_filters.h,v 1.3 2003/08/18 21:27:10 sahlberg Exp $
+ * $Id: color_filters.h,v 1.4 2004/01/09 20:39:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,7 @@ gboolean write_filters(void);
 gboolean revert_filters(void);
 
 color_filter_t *new_color_filter(gchar *name, gchar *filter_string);
+void remove_color_filter(color_filter_t *colorf);
 void delete_color_filter(color_filter_t *colorf);
 gboolean read_other_filters(gchar *path, gpointer arg);
 gboolean write_other_filters(gchar *path, gboolean only_marked);
