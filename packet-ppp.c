@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.19 1999/09/11 04:19:24 gerald Exp $
+ * $Id: packet-ppp.c,v 1.20 1999/09/11 22:40:30 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,6 +38,9 @@
 
 static int proto_ppp = -1;
 static int proto_mp = -1;
+static int hf_mp_frag_first = -1;
+static int hf_mp_frag_last = -1;
+static int hf_mp_sequence_num = -1;
 
 /* PPP structs and definitions */
 
@@ -1027,8 +1030,11 @@ dissect_mp(const u_char *pd, int offset, frame_data *fd,
   guint8      flags;
   guint32     seq;
   gchar       flag_str[12];
+  int         first, last;
 
   flags = pd[offset];
+  first = flags && MP_FRAG_FIRST;
+  last  = flags && MP_FRAG_LAST;
   memcpy(&seq, &pd[offset + 1], 3);
 
   if (check_col(fd, COL_INFO))
@@ -1051,19 +1057,20 @@ dissect_mp(const u_char *pd, int offset, frame_data *fd,
     }
     ti = proto_tree_add_item(tree, proto_mp, offset, 4, NULL);
     mp_tree = proto_item_add_subtree(ti, ETT_MP);
-    ti = proto_tree_add_text(mp_tree, offset, 1, "Fragmet: 0x%2X (%s)",
+    ti = proto_tree_add_text(mp_tree, offset, 1, "Fragment: 0x%2X (%s)",
       flags, flag_str);
     hdr_tree = proto_item_add_subtree(ti, ETT_MP_FLAGS);
-    proto_tree_add_text(hdr_tree, offset, 1, "%s",
-      decode_boolean_bitfield(flags, MP_FRAG_FIRST, sizeof(flags) * 8,
+    proto_tree_add_item_format(hdr_tree, hf_mp_frag_first, offset, 1, first,
+      "%s", decode_boolean_bitfield(flags, MP_FRAG_FIRST, sizeof(flags) * 8,
         "first", "not first"));
-    proto_tree_add_text(hdr_tree, offset, 1, "%s",
-      decode_boolean_bitfield(flags, MP_FRAG_LAST, sizeof(flags) * 8,
+    proto_tree_add_item_format(hdr_tree, hf_mp_frag_last, offset, 1, last,
+      "%s", decode_boolean_bitfield(flags, MP_FRAG_LAST, sizeof(flags) * 8,
         "last", "not last"));
     proto_tree_add_text(hdr_tree, offset, 1, "%s",
       decode_boolean_bitfield(flags, MP_FRAG_RESERVED, sizeof(flags) * 8,
         "reserved", "reserved"));
-    proto_tree_add_text(mp_tree, offset + 1, 3, "Sequence: %lu", seq);
+    proto_tree_add_item_format(mp_tree, hf_mp_sequence_num,
+      offset + 1, 3, seq, "Sequence: %lu", seq);
  }
 
   offset += 4;
@@ -1142,5 +1149,17 @@ proto_register_ppp(void)
 void
 proto_register_mp(void)
 {
+  static hf_register_info hf[] = {
+    { &hf_mp_frag_first,
+    { "First fragment",		"mp.first",	FT_BOOLEAN, NULL }},
+
+    { &hf_mp_frag_last,
+    { "Last fragment",		"mp.last",	FT_BOOLEAN, NULL }},
+
+    { &hf_mp_sequence_num,
+    { "Sequence number",	"mp.seq",	FT_UINT32, NULL }}
+  };
+
   proto_mp = proto_register_protocol("PPP Multilink Protocol", "mp");
+  proto_register_field_array(proto_mp, hf, array_length(hf));
 }
