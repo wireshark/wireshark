@@ -1258,7 +1258,7 @@
 		<entry><command>Ethereal Online > ...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item tries to start a Web browser showing a specific 
+		    This menu item starts a Web browser showing the chosen 
 			webpage from: 
 			<ulink url="&EtherealWebSite;">&EtherealWebSite;</ulink>.
 		  </para></entry>
@@ -1280,6 +1280,19 @@
 	    </tbody>
       </tgroup>
     </table>
+	<note><title>Note!</title>
+	<para>
+	Calling a Web browser might be unsupported in your version of Ethereal.
+	If this is the case, the corresponding menu items will be hidden.
+	</para>
+	</note>
+	<note><title>Note!</title>
+	<para>
+	If calling a Web browser fails on your machine, maybe because just nothing 
+	happens or the browser is started but no page is shown, have a look at the 
+	webbrowser setting in the preferences dialog.
+	</para>
+	</note>
   </section> 
 
   <section id="ChUseMainToolbarSection"><title>The "Main" toolbar</title>
