@@ -1,6 +1,10 @@
 $Id$
- 
+
 Overview of changes in ENTTEC Ethereal plugin
+
+Version 0.0.2:
+* Better dissection of DMX data
+* Better packet descriptions
 
 Version 0.0.1:
 * Intial version
