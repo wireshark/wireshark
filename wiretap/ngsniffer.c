@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.100 2003/01/06 00:03:43 guy Exp $
+ * $Id: ngsniffer.c,v 1.101 2003/01/07 06:46:50 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -64,6 +64,7 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
+#include "atm.h"
 #include "ngsniffer.h"
 
 /* Magic number in Sniffer files. */
@@ -379,7 +380,8 @@ static void set_pseudo_header_frame6(union wtap_pseudo_header *pseudo_header,
 static gboolean ngsniffer_read_rec_data(wtap *wth, gboolean is_random,
     guchar *pd, int length, int *err);
 static int infer_pkt_encap(const guint8 *pd, int len);
-static void fix_pseudo_header(int, union wtap_pseudo_header *pseudo_header);
+static int fix_pseudo_header(int encap, const guint8 *pd, int len,
+    union wtap_pseudo_header *pseudo_header);
 static void ngsniffer_sequential_close(wtap *wth);
 static void ngsniffer_close(wtap *wth);
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
@@ -987,21 +989,9 @@ found:
 		return FALSE;	/* Read error */
 	wth->data_offset += length;
 
+	pkt_encap = fix_pseudo_header(pkt_encap, pd, length,
+	    &wth->pseudo_header);
 	wth->phdr.pkt_encap = pkt_encap;
-	if (pkt_encap == WTAP_ENCAP_PER_PACKET) {
-		/*
-		 * Infer the packet type from the first byte.
-		 */
-		wth->phdr.pkt_encap = infer_pkt_encap(pd, length);
-
-		/*
-		 * Fix up the pseudo-header; we may have set
-		 * "x25.flags", but, for some traffic, we should
-		 * set "isdn.uton" instead, and set the channel
-		 * number.
-		 */
-		fix_pseudo_header(wth->phdr.pkt_encap, &wth->pseudo_header);
-	}
 
 	t = t/1000000.0 * wth->capture.ngsniffer->timeunit; /* t = # of secs */
 	t += wth->capture.ngsniffer->start;
@@ -1088,20 +1078,7 @@ static gboolean ngsniffer_seek_read(wtap *wth, long seek_off,
 	if (!ngsniffer_read_rec_data(wth, TRUE, pd, packet_size, err))
 		return FALSE;
 
-	if (pkt_encap == WTAP_ENCAP_PER_PACKET) {
-		/*
-		 * Infer the packet type from the first two bytes.
-		 */
-		pkt_encap = infer_pkt_encap(pd, packet_size);
-
-		/*
-		 * Fix up the pseudo-header; we may have set
-		 * "x25.flags", but, for some traffic, we should
-		 * set "isdn.uton" instead, and set the channel
-		 * number.
-		 */
-		fix_pseudo_header(pkt_encap, pseudo_header);
-	}
+	fix_pseudo_header(pkt_encap, pd, packet_size, pseudo_header);
 
 	return TRUE;
 }
@@ -1632,38 +1609,66 @@ static int infer_pkt_encap(const guint8 *pd, int len)
 	}
 }
 
-static void fix_pseudo_header(int encap,
+static int fix_pseudo_header(int encap, const guint8 *pd, int len,
     union wtap_pseudo_header *pseudo_header)
 {
 	switch (encap) {
 
-	case WTAP_ENCAP_WFLEET_HDLC:
-	case WTAP_ENCAP_CHDLC:
-	case WTAP_ENCAP_PPP_WITH_PHDR:
-		if (pseudo_header->x25.flags == 0)
-			pseudo_header->p2p.sent = TRUE;
-		else
-			pseudo_header->p2p.sent = FALSE;
-		break;
-
-	case WTAP_ENCAP_ISDN:
-		if (pseudo_header->x25.flags == 0x00)
-			pseudo_header->isdn.uton = FALSE;
-		else
-			pseudo_header->isdn.uton = TRUE;
+	case WTAP_ENCAP_PER_PACKET:
+		/*
+		 * Infer the packet type from the first two bytes.
+		 */
+		encap = infer_pkt_encap(pd, len);
 
 		/*
-		 * XXX - this is currently a per-packet encapsulation
-		 * type, and we can't determine whether a capture is
-		 * an ISDN capture before seeing any packets, and
-		 * B-channel PPP packets look like PPP packets and
-		 * are given WTAP_ENCAP_PPP_WITH_PHDR, not
-		 * WTAP_ENCAP_ISDN, so we assume this is a D-channel
-		 * packet and thus give it a channel number of 0.
+		 * Fix up the pseudo-header to match the new
+		 * encapsulation type.
 		 */
-		pseudo_header->isdn.channel = 0;
+		switch (encap) {
+
+		case WTAP_ENCAP_WFLEET_HDLC:
+		case WTAP_ENCAP_CHDLC:
+		case WTAP_ENCAP_PPP_WITH_PHDR:
+			if (pseudo_header->x25.flags == 0)
+				pseudo_header->p2p.sent = TRUE;
+			else
+				pseudo_header->p2p.sent = FALSE;
+			break;
+
+		case WTAP_ENCAP_ISDN:
+			if (pseudo_header->x25.flags == 0x00)
+				pseudo_header->isdn.uton = FALSE;
+			else
+				pseudo_header->isdn.uton = TRUE;
+
+			/*
+			 * XXX - this is currently a per-packet
+			 * encapsulation type, and we can't determine
+			 * whether a capture is an ISDN capture before
+			 * seeing any packets, and B-channel PPP packets
+			 * look like PPP packets and are given
+			 * WTAP_ENCAP_PPP_WITH_PHDR, not WTAP_ENCAP_ISDN,
+			 * so we assume this is a D-channel packet and
+			 * thus give it a channel number of 0.
+			 */
+			pseudo_header->isdn.channel = 0;
+			break;
+		}
+		break;
+
+	case WTAP_ENCAP_ATM_PDUS:
+		/*
+		 * If the Windows Sniffer writes out one of its ATM
+		 * capture files in DOS Sniffer format, it doesn't
+		 * distinguish between LE Control and LANE encapsulated
+		 * LAN frames, so we fix that up here.
+		 */
+		if (pseudo_header->atm.type == TRAF_LANE && len >= 2 &&
+		    pd[0] == 0xff && pd[1] == 0x00)
+			pseudo_header->atm.subtype = TRAF_ST_LANE_LE_CTRL;
 		break;
 	}
+	return encap;
 }
 
 /* Throw away the buffers used by the sequential I/O stream, but not
