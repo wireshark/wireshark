@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.132 2004/01/03 05:13:12 guy Exp $
+ * $Id: menu.c,v 1.133 2004/01/03 18:05:56 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -267,7 +267,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Analyze/TCP Stream Analysis/RTT Graph", NULL,
                        tcp_graph_cb, 3, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/_Summary", NULL, summary_open_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Analyze/Summar_y", NULL, summary_open_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/Protocol _Hierarchy Statistics", NULL,
                        proto_hier_stats_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<Branch>", NULL),
@@ -534,7 +534,7 @@ register_tap_menu_item(char *name, GtkItemFactoryCallback callback,
 
 		/*
 		 * Does there exist an entry with that path at this
-		 * level of the Tools menu tree?
+		 * level of the Analyze menu tree?
 		 */
 		for (child = curnode->children; child != NULL;
 		    child = child->next) {

@@ -1,7 +1,7 @@
 /* wsp_stat.c
  * wsp_stat   2003 Jean-Michel FAYARD
  *
- * $Id: wsp_stat.c,v 1.9 2003/12/17 22:13:08 guy Exp $
+ * $Id: wsp_stat.c,v 1.10 2004/01/03 18:05:57 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -524,6 +524,6 @@ register_tap_listener_gtkwspstat(void)
 void
 register_tap_menu_gtkwspstat(void)
 {
-	register_tap_menu_item("Statistics/Watch protocol/WAP-WSP...",
+	register_tap_menu_item("_Statistics/Watch protocol/WAP-WSP...",
 	    gtk_wspstat_cb, NULL, NULL, NULL);
 }

@@ -2,7 +2,7 @@
  * h225 RAS Service Response Time statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: h225_ras_srt.c,v 1.5 2003/12/19 23:41:55 guy Exp $
+ * $Id: h225_ras_srt.c,v 1.6 2004/01/03 18:05:56 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -318,6 +318,6 @@ register_tap_listener_gtk_h225rassrt(void)
 void
 register_tap_menu_gtk_h225rassrt(void)
 {
-	register_tap_menu_item("Statistics/Service Response Time/ITU-T H.225 RAS ...",
+	register_tap_menu_item("_Statistics/Service Response Time/ITU-T H.225 RAS ...",
 	    gtk_tap_dfilter_dlg_cb, NULL, NULL, &(h225_rassrt_dlg));
 }

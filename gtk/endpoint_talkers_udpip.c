@@ -1,7 +1,7 @@
 /* endpoint_talkers_udpip.c
  * endpoint_talkers_udpip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_udpip.c,v 1.21 2003/12/17 22:13:06 guy Exp $
+ * $Id: endpoint_talkers_udpip.c,v 1.22 2004/01/03 18:05:56 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,7 +81,7 @@ gtk_udpip_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_menu_udpip_talkers(void)
 {
-	register_tap_menu_item("Statistics/Conversation List/UDP (IPv4 IPv6)",
+	register_tap_menu_item("_Statistics/Conversation List/UDP (IPv4 IPv6)",
 	    gtk_udpip_endpoints_cb, NULL, NULL, NULL);
 }
 

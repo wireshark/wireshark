@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.52 2003/12/23 00:16:46 ulfl Exp $
+ * $Id: io_stat.c,v 1.53 2004/01/03 18:05:56 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1831,6 +1831,6 @@ register_tap_listener_gtk_iostat(void)
 void
 register_tap_menu_gtkiostat(void)
 {
-	register_tap_menu_item("Statistics/IO/IO-Stat", gtk_iostat_cb, NULL,
+	register_tap_menu_item("_Statistics/IO/IO-Stat", gtk_iostat_cb, NULL,
 	    NULL, NULL);
 }

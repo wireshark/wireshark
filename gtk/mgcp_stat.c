@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.21 2003/12/19 23:41:55 guy Exp $
+ * $Id: mgcp_stat.c,v 1.22 2004/01/03 18:05:56 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -313,7 +313,7 @@ void
 register_tap_menu_gtkmgcpstat(void)
 {
 	if (find_tap_id("mgcp"))
-		register_tap_menu_item("Statistics/Service Response Time/MGCP...",
+		register_tap_menu_item("_Statistics/Service Response Time/MGCP...",
 		    gtk_tap_dfilter_dlg_cb, NULL, NULL, &(mgcp_srt_dlg));
 }
 
