@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.22 2002/03/05 11:55:59 guy Exp $
+ * $Id: follow_dlg.c,v 1.23 2002/05/03 03:24:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -215,6 +215,9 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 
 	/* Run the display filter so it goes in effect. */
 	filter_packets(&cfile, follow_filter);
+
+	/* Free the filter string, as we're done with it. */
+	g_free(follow_filter);
 
 	/* The data_out_file should now be full of the streams information */
 	fclose(data_out_file);

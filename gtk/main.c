@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.245 2002/04/08 20:30:56 gram Exp $
+ * $Id: main.c,v 1.246 2002/05/03 03:24:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -183,6 +183,9 @@ static void console_log_handler(const char *log_domain,
 
 static void create_main_window(gint, gint, gint, e_prefs*);
 
+#define E_DFILTER_CM_KEY          "display_filter_combo"
+#define E_DFILTER_FL_KEY          "display_filter_list"
+
 /* About Ethereal window */
 void
 about_ethereal( GtkWidget *w _U_, gpointer data _U_ ) {
@@ -216,8 +219,8 @@ set_fonts(GdkFont *regular, GdkFont *bold)
 static void
 match_selected_cb_do(gpointer data, int action, gchar *text)
 {
-    char		*ptr;
     GtkWidget		*filter_te;
+    char		*cur_filter, *new_filter;
 
     if (!text)
 	return;
@@ -225,59 +228,65 @@ match_selected_cb_do(gpointer data, int action, gchar *text)
     filter_te = gtk_object_get_data(GTK_OBJECT(data), E_DFILTER_TE_KEY);
     g_assert(filter_te);
 
-    ptr = gtk_editable_get_chars(GTK_EDITABLE(filter_te),0,-1);
+    cur_filter = gtk_editable_get_chars(GTK_EDITABLE(filter_te), 0, -1);
 
     switch (action&MATCH_SELECTED_MASK) {
 
     case MATCH_SELECTED_REPLACE:
-	ptr = g_strdup(text);
+	new_filter = g_strdup(text);
 	break;
 
     case MATCH_SELECTED_AND:
-	if ((!ptr) || (0 == strlen(ptr)))
-	    ptr = g_strdup(text);
+	if ((!cur_filter) || (0 == strlen(cur_filter)))
+	    new_filter = g_strdup(text);
 	else
-	    ptr = g_strconcat("(", ptr, ") && (", text, ")", NULL);
+	    new_filter = g_strconcat("(", cur_filter, ") && (", text, ")", NULL);
 	break;
 
     case MATCH_SELECTED_OR:
-	if ((!ptr) || (0 == strlen(ptr)))
-	    ptr = g_strdup(text);
+	if ((!cur_filter) || (0 == strlen(cur_filter)))
+	    new_filter = g_strdup(text);
 	else
-	    ptr = g_strconcat("(", ptr, ") || (", text, ")", NULL);
+	    new_filter = g_strconcat("(", cur_filter, ") || (", text, ")", NULL);
 	break;
 
     case MATCH_SELECTED_NOT:
-	ptr = g_strconcat("!(", text, ")", NULL);
+	new_filter = g_strconcat("!(", text, ")", NULL);
 	break;
 
     case MATCH_SELECTED_AND_NOT:
-	if ((!ptr) || (0 == strlen(ptr)))
-	    ptr = g_strconcat("!(", text, ")", NULL);
+	if ((!cur_filter) || (0 == strlen(cur_filter)))
+	    new_filter = g_strconcat("!(", text, ")", NULL);
 	else
-	    ptr = g_strconcat("(", ptr, ") && !(", text, ")", NULL);
+	    new_filter = g_strconcat("(", cur_filter, ") && !(", text, ")", NULL);
 	break;
 
     case MATCH_SELECTED_OR_NOT:
-	if ((!ptr) || (0 == strlen(ptr)))
-	    ptr = g_strconcat("!(", text, ")", NULL);
+	if ((!cur_filter) || (0 == strlen(cur_filter)))
+	    new_filter = g_strconcat("!(", text, ")", NULL);
 	else
-	    ptr = g_strconcat("(", ptr, ") || !(", text, ")", NULL);
+	    new_filter = g_strconcat("(", cur_filter, ") || !(", text, ")", NULL);
 	break;
 
     default:
+	g_assert_not_reached();
 	break;
     }
 
+    /* Free up the copy we got of the old filter text. */
+    g_free(cur_filter);
+
     /* create a new one and set the display filter entry accordingly */
-    gtk_entry_set_text(GTK_ENTRY(filter_te), ptr);
+    gtk_entry_set_text(GTK_ENTRY(filter_te), new_filter);
 
     /* Run the display filter so it goes in effect. */
     if (action&MATCH_SELECTED_APPLY_NOW)
-	filter_packets(&cfile, ptr);
+	filter_packets(&cfile, new_filter);
 
-    /* Don't g_free(ptr) here. filter_packets() will do it the next time
-       it's called. */
+    /* Free up the new filter text. */
+    g_free(new_filter);
+
+    /* Free up the generated text we were handed. */
     g_free(text);
 }
 
@@ -527,18 +536,19 @@ static void
 filter_activate_cb(GtkWidget *w, gpointer data)
 {
   GtkCombo  *filter_cm = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_CM_KEY);
-  GList     *filter_list = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_FL_KEY);
-  GList     *li, *nl = NULL;
+  GList     *filter_list = gtk_object_get_data(GTK_OBJECT(filter_cm), E_DFILTER_FL_KEY);
+  GList     *li;
   gboolean   add_filter = TRUE;
-  char *s = NULL;
+  gboolean   free_filter = TRUE;
+  char      *s;
   
   g_assert(data);
-  s = gtk_entry_get_text(GTK_ENTRY(data));
+  s = g_strdup(gtk_entry_get_text(GTK_ENTRY(data)));
   
   /* GtkCombos don't let us get at their list contents easily, so we maintain
      our own filter list, and feed it to gtk_combo_set_popdown_strings when
      a new filter is added. */
-  if (filter_packets(&cfile, g_strdup(s))) {
+  if (filter_packets(&cfile, s)) {
     li = g_list_first(filter_list);
     while (li) {
       if (li->data && strcmp(s, li->data) == 0)
@@ -547,16 +557,15 @@ filter_activate_cb(GtkWidget *w, gpointer data)
     }
 
     if (add_filter) {
-      filter_list = g_list_append(filter_list, g_strdup(s));
-      li = g_list_first(filter_list);
-      while (li) {
-        nl = g_list_append(nl, strdup(li->data));
-        li = li->next;
-      }
-      gtk_combo_set_popdown_strings(filter_cm, nl);
+      free_filter = FALSE;
+      filter_list = g_list_append(filter_list, s);
+      gtk_object_set_data(GTK_OBJECT(filter_cm), E_DFILTER_FL_KEY, filter_list);
+      gtk_combo_set_popdown_strings(filter_cm, filter_list);
       gtk_entry_set_text(GTK_ENTRY(filter_cm->entry), g_list_last(filter_list)->data);
     }
   }
+  if (free_filter)
+    g_free(s);
 }
 
 /* redisplay with no display filter */
@@ -2305,10 +2314,10 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   filter_list = g_list_append (filter_list, "");
   gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), filter_list);
   gtk_combo_disable_activate(GTK_COMBO(filter_cm));
+  gtk_object_set_data(GTK_OBJECT(filter_cm), E_DFILTER_FL_KEY, filter_list);
   filter_te = GTK_COMBO(filter_cm)->entry;
   gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
   gtk_object_set_data(GTK_OBJECT(filter_te), E_DFILTER_CM_KEY, filter_cm);
-  gtk_object_set_data(GTK_OBJECT(filter_te), E_DFILTER_FL_KEY, filter_list);
   gtk_box_pack_start(GTK_BOX(stat_hbox), filter_cm, TRUE, TRUE, 3);
   gtk_signal_connect(GTK_OBJECT(filter_te), "activate",
     GTK_SIGNAL_FUNC(filter_activate_cb), filter_te);
@@ -2323,7 +2332,6 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
   filter_apply = gtk_button_new_with_label("Apply");
   gtk_object_set_data(GTK_OBJECT(filter_apply), E_DFILTER_CM_KEY, filter_cm);
-  gtk_object_set_data(GTK_OBJECT(filter_apply), E_DFILTER_FL_KEY, filter_list);
   gtk_signal_connect(GTK_OBJECT(filter_apply), "clicked",
                      GTK_SIGNAL_FUNC(filter_activate_cb), filter_te);
   gtk_box_pack_start(GTK_BOX(stat_hbox), filter_apply, FALSE, TRUE, 1);

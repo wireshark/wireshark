@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.270 2002/04/24 05:48:43 guy Exp $
+ * $Id: file.c,v 1.271 2002/05/03 03:24:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -852,8 +852,10 @@ filter_packets(capture_file *cf, gchar *dftext)
     dfcode = NULL;
   } else {
     /*
-     * We have a filter; try to compile it.
+     * We have a filter; make a copy of it (as we'll be saving it),
+     * and try to compile it.
      */
+    dftext = g_strdup(dftext);
     if (!dfilter_compile(dftext, &dfcode)) {
       /* The attempt failed; report an error. */
       simple_dialog(ESD_TYPE_CRIT, NULL, dfilter_error_msg);

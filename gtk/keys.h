@@ -1,12 +1,11 @@
 /* keys.h
  * Key definitions for various objects
  *
- * $Id: keys.h,v 1.12 2002/01/11 08:21:02 guy Exp $
+ * $Id: keys.h,v 1.13 2002/05/03 03:24:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,8 +28,6 @@
 /* Keys for gtk_object_set_data */
 
 #define E_DFILTER_TE_KEY          "display_filter_entry"
-#define E_DFILTER_CM_KEY          "display_filter_combo"
-#define E_DFILTER_FL_KEY          "display_filter_list"
 #define E_RFILTER_TE_KEY          "read_filter_te"
 #define E_MPACKET_LIST_KEY	  "menu_packet_list"
 #define E_MPACKET_LIST_ROW_KEY	  "menu_packet_list_row"
