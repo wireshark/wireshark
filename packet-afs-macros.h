@@ -8,10 +8,10 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-macros.h,v 1.8 2001/05/27 01:48:23 guy Exp $
+ * $Id: packet-afs-macros.h,v 1.9 2001/05/27 08:09:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-tftp.c
@@ -352,18 +352,19 @@
     { \
         unsigned int i,j,seen_null=0; \
         for (i=0; i<255; i++) { \
-			j = tvb_get_ntohl(tvb, offset); \
-			if ( j != 0 ) { \
-				OUT_IP(hf_afs_ubik_interface); \
-				seen_null = 0; \
-			} else { \
-				if ( ! seen_null ) { \
-				proto_tree_add_text(tree, tvb,offset,END_OF_FRAME, \
-					"Null Interface Addresses"); \
-					seen_null = 1; \
-				} \
-				offset += 4; \
-			}\
+		j = tvb_get_ntohl(tvb, offset); \
+		if ( j != 0 ) { \
+			OUT_IP(hf_afs_ubik_interface); \
+			seen_null = 0; \
+		} else { \
+			if ( ! seen_null ) { \
+			proto_tree_add_text(tree, tvb, offset, \
+				tvb_length_remaining(tvb, offset), \
+				"Null Interface Addresses"); \
+				seen_null = 1; \
+			} \
+			offset += 4; \
+		}\
         } \
     }
 
@@ -487,5 +488,3 @@
 			sizeof(guint32),counter); \
 		tree = save; \
 	}
-
- 
