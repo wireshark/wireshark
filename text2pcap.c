@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.23 2002/10/10 01:45:25 jmayer Exp $
+ * $Id: text2pcap.c,v 1.24 2002/10/17 20:02:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -165,8 +165,8 @@ static unsigned long num_packets_read = 0;
 static unsigned long num_packets_written = 0;
 
 /* Time code of packet, derived from packet_preamble */
-static unsigned long ts_sec  = 0;
-static unsigned long ts_usec = 0;
+static gint32 ts_sec  = 0;
+static guint32 ts_usec = 0;
 static char *ts_fmt = NULL;
 
 /* Input file */
@@ -211,9 +211,9 @@ static const char *token_str[] = {"",
 /* ----- Skeleton Packet Headers --------------------------------------------------*/
 
 typedef struct {
-    unsigned char   src_addr[6];
-    unsigned char   dest_addr[6];
-    unsigned short l3pid;
+    guint8  src_addr[6];
+    guint8  dest_addr[6];
+    guint16 l3pid;
 } hdr_ethernet_t;
 
 static hdr_ethernet_t HDR_ETHERNET = {
@@ -222,47 +222,47 @@ static hdr_ethernet_t HDR_ETHERNET = {
     0};
 
 typedef struct {
-    unsigned char   ver_hdrlen;
-    unsigned char   dscp;
-    unsigned short packet_length;
-    unsigned short identification;
-    unsigned char   flags;
-    unsigned char   fragment;
-    unsigned char   ttl;
-    unsigned char   protocol;
-    unsigned short hdr_checksum;
-    unsigned long src_addr;
-    unsigned long dest_addr;
+    guint8  ver_hdrlen;
+    guint8  dscp;
+    guint16 packet_length;
+    guint16 identification;
+    guint8  flags;
+    guint8  fragment;
+    guint8  ttl;
+    guint8  protocol;
+    guint16 hdr_checksum;
+    guint32 src_addr;
+    guint32 dest_addr;
 } hdr_ip_t;
 
 static hdr_ip_t HDR_IP = {0x45, 0, 0, 0x3412, 0, 0, 0xff, 0, 0, 0x01010101, 0x02020202};
 
 typedef struct {
-    unsigned short source_port;
-    unsigned short dest_port;
-    unsigned short length;
-    unsigned short checksum;
+    guint16 source_port;
+    guint16 dest_port;
+    guint16 length;
+    guint16 checksum;
 } hdr_udp_t;
 
 static hdr_udp_t HDR_UDP = {0, 0, 0, 0};
 
 typedef struct {
-    unsigned short src_port;
-    unsigned short dest_port;
-    unsigned long  tag;
-    unsigned long  checksum;
+    guint16 src_port;
+    guint16 dest_port;
+    guint32 tag;
+    guint32 checksum;
 } hdr_sctp_t;
 
 static hdr_sctp_t HDR_SCTP = {0, 0, 0, 0};
 
 typedef struct {
-    unsigned char  type;
-    unsigned char  bits;
-    unsigned short length;
-    unsigned long  tsn;
-    unsigned short sid;
-    unsigned short ssn;
-    unsigned long  ppid;
+    guint8  type;
+    guint8  bits;
+    guint16 length;
+    guint32 tsn;
+    guint16 sid;
+    guint16 ssn;
+    guint32 ppid;
 } hdr_data_chunk_t;
 
 static hdr_data_chunk_t HDR_DATA_CHUNK = {0, 0, 0, 0, 0, 0, 0};
@@ -276,21 +276,21 @@ static char tempbuf[64];
 
 /* "libpcap" file header (minus magic number). */
 struct pcap_hdr {
-    unsigned long    magic;          /* magic */
-    unsigned short	version_major;	/* major version number */
-    unsigned short	version_minor;	/* minor version number */
-    unsigned long	thiszone;	/* GMT to local correction */
-    unsigned long	sigfigs;	/* accuracy of timestamps */
-    unsigned long	snaplen;	/* max length of captured packets, in octets */
-    unsigned long	network;	/* data link type */
+    guint32	magic;		/* magic */
+    guint16	version_major;	/* major version number */
+    guint16	version_minor;	/* minor version number */
+    guint32	thiszone;	/* GMT to local correction */
+    guint32	sigfigs;	/* accuracy of timestamps */
+    guint32	snaplen;	/* max length of captured packets, in octets */
+    guint32	network;	/* data link type */
 };
 
 /* "libpcap" record header. */
 struct pcaprec_hdr {
-    unsigned long	ts_sec;		/* timestamp seconds */
-    unsigned long	ts_usec;	/* timestamp microseconds */
-    unsigned long	incl_len;	/* number of octets of packet saved in file */
-    unsigned long	orig_len;	/* actual length of packet */
+    gint32	ts_sec;		/* timestamp seconds */
+    guint32	ts_usec;	/* timestamp microseconds */
+    guint32	incl_len;	/* number of octets of packet saved in file */
+    guint32	orig_len;	/* actual length of packet */
 };
 
 /* Link-layer type; see net/bpf.h for details */
@@ -340,22 +340,22 @@ unwrite_bytes (unsigned long nbytes)
 /*----------------------------------------------------------------------
  * Compute one's complement checksum (from RFC1071)
  */
-static unsigned short
+static guint16
 in_checksum (void *buf, unsigned long count)
 {
     unsigned long sum = 0;
-    unsigned short *addr = buf;
+    guint16 *addr = buf;
 
     while( count > 1 )  {
         /*  This is the inner loop */
-        sum += g_ntohs(* (unsigned short *) addr);
+        sum += g_ntohs(* (guint16 *) addr);
 	addr++;
         count -= 2;
     }
 
     /*  Add left-over byte, if any */
     if( count > 0 )
-        sum += * (unsigned char *) addr;
+        sum += * (guint8 *) addr;
 
     /*  Fold 32-bit sum to 16 bits */
     while (sum>>16)
@@ -369,7 +369,7 @@ in_checksum (void *buf, unsigned long count)
  */
 
 #define CRC32C(c,d) (c=(c>>8)^crc_c[(c^(d))&0xFF])
-static unsigned long crc_c[256] =
+static guint32 crc_c[256] =
 {
 0x00000000L, 0xF26B8303L, 0xE13B70F7L, 0x1350F3F4L,
 0xC79A971FL, 0x35F1141CL, 0x26A1E7E8L, 0xD4CA64EBL,
@@ -437,11 +437,11 @@ static unsigned long crc_c[256] =
 0xBE2DA0A5L, 0x4C4623A6L, 0x5F16D052L, 0xAD7D5351L,
 };
 
-static unsigned long
-crc32c(const unsigned char* buf, unsigned int len, unsigned long crc32_init)
+static guint32
+crc32c(const guint8* buf, unsigned int len, guint32 crc32_init)
 {
   unsigned int i;
-  unsigned long crc32;
+  guint32 crc32;
 
   crc32 = crc32_init;
   for (i = 0; i < len; i++)
@@ -450,11 +450,11 @@ crc32c(const unsigned char* buf, unsigned int len, unsigned long crc32_init)
   return ( crc32 );
 }
 
-static unsigned long
-finalize_crc32c(unsigned long crc32)
+static guint32
+finalize_crc32c(guint32 crc32)
 {
-  unsigned long result;
-  unsigned char byte0,byte1,byte2,byte3;
+  guint32 result;
+  guint8 byte0,byte1,byte2,byte3;
 
   result = ~crc32;
   byte0 = result & 0xff;
@@ -561,9 +561,9 @@ write_current_packet (void)
             HDR_SCTP.dest_port = g_htons(hdr_sctp_dest);
             HDR_SCTP.tag       = g_htonl(hdr_sctp_tag);
             HDR_SCTP.checksum  = g_htonl(0);
-            HDR_SCTP.checksum  = crc32c((unsigned char *)&HDR_SCTP, sizeof(HDR_SCTP), ~0L);
+            HDR_SCTP.checksum  = crc32c((guint8 *)&HDR_SCTP, sizeof(HDR_SCTP), ~0L);
             if (hdr_data_chunk)
-              HDR_SCTP.checksum  = crc32c((unsigned char *)&HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK), HDR_SCTP.checksum);
+              HDR_SCTP.checksum  = crc32c((guint8 *)&HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK), HDR_SCTP.checksum);
             HDR_SCTP.checksum  = g_htonl(finalize_crc32c(crc32c(packet_buf, curr_offset, HDR_SCTP.checksum)));
 
             fwrite(&HDR_SCTP, sizeof(HDR_SCTP), 1, output_file);
@@ -680,12 +680,12 @@ parse_preamble (void)
 		subsecs = strptime( packet_preamble, ts_fmt, &timecode );
 		if (subsecs != NULL) {
 			/* Get the long time from the tm structure */
-			ts_sec  = (unsigned long)mktime( &timecode );
+			ts_sec  = (gint32)mktime( &timecode );
 		} else
 			ts_sec = -1;	/* we failed to parse it */
 
 		/* This will ensure incorrectly parsed dates get set to zero */
-		if ( -1L == (long)ts_sec )
+		if ( -1 == ts_sec )
 		{
 			ts_sec  = 0;
 			ts_usec = 0;
