@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.24 2001/03/23 14:44:01 jfoster Exp $
+ * $Id: packet.h,v 1.25 2001/04/01 02:47:55 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,6 +31,7 @@
 #include "proto.h"
 #include "tvbuff.h"
 #include "pint.h"
+#include "to_str.h"
 
 #define hi_nibble(b) (((b) & 0xf0) >> 4)
 #define lo_nibble(b) ((b) & 0x0f)
@@ -327,25 +328,10 @@ void call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree);
 
 /* Utility routines used by packet*.c */
-gchar*     ether_to_str(const guint8 *);
-gchar*     ether_to_str_punct(const guint8 *, char);
-gchar*     ip_to_str(const guint8 *);
-void       ip_to_str_buf(const guint8 *, gchar *);
-struct e_in6_addr;
-gchar*     ip6_to_str(struct e_in6_addr *);
-gchar*     ipx_addr_to_str(guint32, const guint8 *);
-gchar*	   abs_time_to_str(struct timeval*);
-gchar*	   rel_time_to_str(struct timeval*);
-gchar*     time_secs_to_str(guint32);
 gchar*     val_to_str(guint32, const value_string *, const char *);
 gchar*     match_strval(guint32, const value_string*);
-char * decode_bitfield_value(char *buf, guint32 val, guint32 mask, int width);
-const char *decode_boolean_bitfield(guint32 val, guint32 mask, int width,
-  const char *truedesc, const char *falsedesc);
 const char *decode_enumerated_bitfield(guint32 val, guint32 mask, int width,
   const value_string *tab, const char *fmt);
-const char *decode_numeric_bitfield(guint32 val, guint32 mask, int width,
-  const char *fmt);
 
 void	   col_set_writable(frame_data *fd, gboolean writable);
 gint       check_col(frame_data *, gint);

@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.80 2001/03/15 09:11:01 guy Exp $
+ * $Id: packet-ipx.c,v 1.81 2001/04/01 02:47:54 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -193,80 +193,6 @@ static const value_string ipxmsg_sigchar_vals[] = {
 	{ '?', "Poll inactive station" },
 	{ 0, NULL }
 };
-
-gchar*
-ipxnet_to_string(const guint8 *ad)
-{
-	guint32	addr = pntohl(ad);
-	return ipxnet_to_str_punct(addr, ' ');
-}
-
-/* We use a different representation of hardware addresses
- * than ether_to_str(); we don't put punctuation between the hex
- * digits.
- */
-
-gchar*
-ipx_addr_to_str(guint32 net, const guint8 *ad)
-{
-	static gchar	str[3][8+1+MAXNAMELEN+1]; /* 8 digits, 1 period, NAME, 1 null */
-	static gchar	*cur;
-	char		*name;
-
-	if (cur == &str[0][0]) {
-		cur = &str[1][0];
-	} else if (cur == &str[1][0]) {
-		cur = &str[2][0];
-	} else {
-		cur = &str[0][0];
-	}
-
-	name = get_ether_name_if_known(ad);
-
-	if (name) {
-		sprintf(cur, "%s.%s", get_ipxnet_name(net), name);
-	}
-	else {
-		sprintf(cur, "%s.%s", get_ipxnet_name(net), ether_to_str_punct(ad, '\0'));
-	}
-	return cur;
-}
-
-gchar *
-ipxnet_to_str_punct(const guint32 ad, char punct)
-{
-  static gchar  str[3][12];
-  static gchar *cur;
-  gchar        *p;
-  int          i;
-  guint32      octet;
-  static const gchar hex_digits[16] = "0123456789ABCDEF";
-  static const guint32  octet_mask[4] =
-	  { 0xff000000 , 0x00ff0000, 0x0000ff00, 0x000000ff };
-
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {  
-    cur = &str[2][0];
-  } else {  
-    cur = &str[0][0];
-  }
-  p = &cur[12];
-  *--p = '\0';
-  i = 3;
-  for (;;) {
-    octet = (ad & octet_mask[i]) >> ((3 - i) * 8);
-    *--p = hex_digits[octet&0xF];
-    octet >>= 4;
-    *--p = hex_digits[octet&0xF];
-    if (i == 0)
-      break;
-    if (punct)
-      *--p = punct;
-    i--;
-  }
-  return p;
-}
 
 void
 capture_ipx(const u_char *pd, int offset, packet_counts *ld)

@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.h,v 1.12 2001/02/27 07:28:47 guy Exp $
+ * $Id: packet-ipx.h,v 1.13 2001/04/01 02:47:54 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -144,8 +144,6 @@ struct ipx_rip_packet
 #define IPX_SOCKET_TCP_TUNNEL           0x9091 /* RFC 1791 */
 #define IPX_SOCKET_UDP_TUNNEL           0x9092 /* RFC 1791 */
 
-gchar* ipxnet_to_string(const guint8 *ad);
-gchar* ipxnet_to_str_punct(const guint32 ad, char punct);
 
 void capture_ipx(const u_char *, int, packet_counts *);
 
