@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.98 2003/05/15 02:15:13 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.99 2003/05/27 07:18:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2517,8 +2517,6 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 	name = (char *)dcv->private_data;
 
 	if (name) {
-		g_warning("printer name = %s", name);
-
 		if (name[0] == '\\' && name[1] == '\\')
 			name += 2;
 
