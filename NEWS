@@ -1,3 +1,192 @@
+Overview of changes in Ethereal 0.9.4:
+* Get rid of unused variables, fix a device typing bug in packet-iscsi.c
+  (Dinesh Dutt)
+* Work was done by many people to clean up code across the entire
+  source tree, removing unused variables and routines and static-izing
+  functions.  Individual changes will not be listed here.  (Joerg, Uwe,
+  Guy, Gilbert, ????)
+* Add the LANE packet type to the ATM LANE info column. (Guy)
+* Use the reported (not captured) length when scanning a packet in the IP
+  dissector. (Guy)
+* Improve PPP option reporting. (Guy)
+* Initial dissection of variable-length SCSI CDBs. (Dinesh)
+* Fix the name of the SCSI "prevent/allow medium removal" command. (Guy)
+* Fix redrawing of byte view pane. (Guy)
+* Code cleanup, control character display fixes, and tree creation
+  improvements, typographical fixes in PPP dissector. (Guy)
+* General tree code cleanup and memory leak fix. (Guy)
+* Add the descriptive name to the interface drop-down list under
+  Windows. (Andrew Feren)
+* Add WebDAV support, rewrite method-testing code in HTTP. (Blair Cooper)
+* Change the check for "M-" to check for at least two characters in
+  HTTP. (Guy)
+* Fix a bug in HCLNFSD. (Mike Frisch)
+* In packet-snmp.c, #include <ucd-snmp/ucd-snmp-config.h>. 
+  (Kikuchi Ayamura)
+* Fix HCLNFSD AUTHORIZE call decoding. (Mike)
+* Fix IP address display in HCLNFSD. (Guy)
+* Make some RPC routines static, remove old routine and macro declarations.
+  (Guy)
+* Fix ISIS CLV ip address display. (Guy)
+* Correct tree item addition in MS Proxy dissector. (Guy)
+* Memory allocation cleanup in Zebra. (Guy)
+* Fix incorrect handling of tvb_get_ntohl() in many dissectors. (Guy)
+* Fix a typo in WCCP. (Guy)
+* Correctly handle leaf nodes in tree-printing code. (Guy)
+* Add neighbor probe messages to DVMRP. (Guy)
+* Remove an unused function from packet-wsp.c. (Tom Uijldert)
+* Code cleanup in SCCP. (Jeff Morriss, Guy)
+* Remove unneeded pinfo parameters in RPC dissection. (Uwe)
+* Better FTP packet length handling. (Guy)
+* Add PRINTER_INFO_1 and PRINTER_INFO_3 support to SPOOLSS. (Tim)
+* Add a needed #include to packet-dcerpc-spoolss.c. (Guy)
+* Make dissect_data() static in packet-data.c. (Guy)
+* Compile fix for packet-iscsi.c. (Mark Burton)
+* Improve ett_ value checking in protocol tree. (Guy)
+* Various improvements for the RIP code. (Guy)
+* Add an ett_iscsi ett_ value for the top-level tree in ISCSI. (Mark)
+* Add ett_ values for subtrees in X11. (Guy)
+* PRINTER_INFO_2 and getprinter improvements, devicemode fixes in
+  SPOOLSS. (Tim)
+* Various WTP improvements. (Guy)
+* Case statement and ett_ value cleanups in COPS. (Guy)
+* Get rid of global protocol tree variable in X11. (Guy)
+* Add support for Sniffer 4.6 wireless captures. (Gerald)
+* Improve Netxray file reading efficiency and padding handling. (Guy)
+* Improve ID handling and display in isis_dissect_mt_clv(). (Guy)
+* Devicemode data handling improvements in SPOOLSS. (Tim)
+* Replace configure-time "--enable-zlib" with "--with-zlib". (Guy)
+* Fix variable declaration behavior in packet-snmp.c. (Guy)
+* Fix PFLOG dissector registration. (Guy)
+* Touch up 16-color Windows icons, add our own NSIS checkbox images.
+  (Gerald)
+* Add "802.11 with radio information" encapsulation type and dissector. 
+  Modify AiroPeek and Netxray readers to use it.(Guy)
+* Remove redundant padding/FCS removal in etherpeek.c. (Guy)
+* Adjust expand_tree() and collapse_tree() to handle leaf nodes. (Guy)
+* Fix an LI field bug, clean up code in M2PA. (Michael)
+* Decode SPOOLSS FORM_1 and FORM_REL flag values as value_strings. (Tim)
+* Get rid of the extra "Header" entry in WTP. (Guy)
+* Rearrange X.25 to account for situations where we don't know if a
+  packet is DTE->DCI or DCE->DTE. (Guy)  
+* Add support for LMP. (Ashok)
+* Add "-" (hyphen) to the pattern for field-name/non-quoted string.
+  (Gilbert)
+* Do the "follow TCP stream" stuff before calling the subdissector.
+  (Guy) 
+* Ajust UCP subtree creation. (Tom)
+* Add some cipher suites from Microsoft's PCT protocol to SSL. 
+  (Pasi Eronen)
+* Support for PCT record layer, desegmentation fixes in SSL. (Pasi)
+* Bug fix in X11 dissector. (Didier Gautheron)
+* Add IEEE single- and double-precision float support to tvbuff.c. (Guy)
+* Correctly check for null psuedo headers and X.25 direction in
+  packet-frame.c. (Guy)
+* Fix initialization of ett_slarp in CHDLC. (Aamer Akhter)
+* Enhance the text2pcap "-S" option. (Michael)
+* Fix challenge element offset, show fragments in 802.11. 
+(Jouni Malinen)
+* Configure argument updates and typo fixes in INSTALL doc. (Guy)
+* In SCCP, add an ett_ variable to the "ett[]" array. (Guy)
+* Update WinPcap main site and mirror URLs in docs. (Gerald)
+* Enhance X11 boolean bitfield display. (Guy)
+* Add M2UA support. (Michael)
+* In DSI, make the "code" field a signed decimal number. 
+  (Didier Gautheron)
+* Create packet-rsvp.h, get rid of packet-pgm.h. (Joerg)
+* Correctly fetch checksum from VJ packet. (Guy)
+* Fix X11 memory handling, Info column display. (Guy)
+* Add dissect_mount_dirpath() to Mount dissector. (Ronnie)
+* Correctly handle WCCP capability element length. (Simharajan Srishylam)
+* Fix RTCP QT packet SDES length. (Jason Lango)
+* Add ASAP support. (Michael)
+* Add SCTP checksum support, fix "-S" and TSN and PPI output in 
+  text2pcap.c. (Michael)
+* Display nonzero DCERPC return codes in Info column. (Tim)
+* Handle "next entry offset" in SMB NT NOTIFY replies. (Guy)
+* Add X11 desegmentation support, handle initial connection request,
+  check for buffer overflows, properly display decimal items. (Guy)
+* Add missing support for the T-Bit in ABORT chunks in SCTP. (Michael)
+* Rename frag_number in reassemble.c.
+* Use policy handle hash code in DCERPC/SMB SAMR dissector, move common 
+  code to single file. (Tim)
+* Reassembly code improvements. (Guy)
+* Fix up the offsets in the list of segments in WTP. (Guy)
+* Fix ChangeHosts request address display, better keysym display in 
+  X11. (Guy)
+* More reassembly improvements. (Guy)
+* DCERPC LSA updates, other updates. (Ronnie)
+* Fix 802.11 "More Fragments" indicator display. (Guy)
+* Remove some temporary DCERPC NETLOGON functions. (Ronnie)
+* Fix "fragmented" flag handling in 802.11. (Guy)
+* Fix unimplemented function handling in DCERPC/LSA. (Ronnie)
+* Improve 802.11 short frame reassembly. (Guy)
+* Add support for DCERPC LSAENUMERATEPRIVELEGES. (Ronnie)
+* Add support for LSALOOKUPPRIVILEGENAME and LSALOOKUPPRIVILEGEVALUE
+  to DCERPC. (Ronnie)
+* Improve handling of short frames during reassembly. (Guy)
+* Add LSAENUMERATEPRIVILEGESACCOUNT, LSAADDPRIVILEGESTOACCOUNT and
+  LSAREMOVEPRIVILEGESFROMACCOUNT to DCERPC. (Ronnie)
+* Improve DCERPC/SAMR Info column display. (Tim)
+* For DCERPC, display rids for open user, group, alias in the Info
+  column.  (Tim)
+* Fix DCERPC/LSA element type declaration. (Ronnie)
+* DCERPC LSA bugfixes and SMB security_descriptor changes. (Ronnie)
+* Fix DCERPC/LSA bugs revealed by muddle-generated IDL file. (Ronnie)
+* Clean up DCERPC initialization routines. (Guy)
+* Catch improper ett_ value registration in proto.c. (Guy)
+* Use common policy handle hashing code in packet-dcerpc-nt.c.    
+  Fix for lsa_open_policy request dissection. (Tim)
+* Remove invalid init routine in packet-dcerpc-lsa.c. (Tim)
+* More DCERPC LSA updates. (Ronnie)
+* Support for looking up protocol fields by name. (Phil Williams)
+* Initial support for writing NetXRay 2.x captures. (Olivier)
+* Shorten unneeded call to proto_registrar_get_nth in proto.c. (Guy)
+* Don't display capture preferences on WinPcap-less system. (Guy)
+* Bug fixes for ethereal_gen.py. (Frank)
+* Fix display filter priming. (Guy)
+* Improve DCERPC/NETLOGON dissection and display. (Tim)
+* Fix the display filter expression generated for protocol tree items
+  without named fields attached to them. (Guy)
+* Fix WinPcap #include in prefs_dlg.c. (Guy)
+* Add a hidden length field for TCP, tcp.len. (Richard)
+* Rename and clean up DECRPC/SAMR functions. (Guy)
+* Correctly dissect DCERPC LSA and NT security descriptors. (Guy)
+* Fix the return value of SMB's dissect_nt_sec_desc(). (Guy)
+* Clean up the column prefs dialog. (Gerald)
+* Fix samr_dissect_query_information_alias_reply() in
+  packet-dce-rpc-samr.c. (Guy)
+* Add support for NT Rename SMB. (Steven French)
+* Additional PIM hello options support. (Kevin Humphries)
+* Fix DCERPC/LSA typos. (Guy)
+* Add support for DSI packet reassembly. (Guy)
+* Clean up frame number signedness in DCERPC dissectors. (Guy)
+* Don't overwrite the capture file with an empty file. (Richard)
+* Get rid of the last X11 global variable.  Get rid of "nameAsChar"
+  arguments; get the name from the field itself. (Guy)
+* In proto_draw.c, use the value of "bv_size" as the size of a byte
+  view notebook when creating it. (Guy)
+* Clean up the descriptions of reassembly preferences. (Guy)
+* In SPOOLSS, pass the correct length field to dissect_nt_sec_desc().
+  Add dissector for EnumJobs rpc. (Tim)
+* Take measures to keep the progress fraction <= 1. (Guy)
+* Add 'invalid security descriptor' error to list of dos errors
+  in SMB. (Tim)
+* Correctly determine the end of an SMB ACE. (Tim)
+* Add "stamp-h1" to .cvsignore, for automake 1.6.1. (Joerg, Guy)
+* CRLDP support and bug fixes for LDP. (Michael Rozhavsky)
+* Clean up TLV error messages in LDP. (Guy)
+* Use tvb_get_ntohieee_float() in LDP. (Guy)
+* Show LDP "negotiable/non-negotiable" flags as such. (Guy)
+* Properly fetch floating point numbers in RSVP, OSPF, LMP, IS-IS,
+  and GIOP.(Guy)
+* Improved IEEE float conversion. (Guy)
+* Use gfloat and gdouble in tvbuff.c, fix VAX issues. (Guy)
+* Document the tvbuff accessors for IEEE floating-point numbers. (Guy)
+* Fix BSD/Linux confusion in README.bsd. (Marco Molteni)
+* Improve floating-point number format printing in various dissectors.
+  (Guy)
+
 Overview of changes in Ethereal 0.9.3:
 * Initial SCCP support. (Jeff Morriss)
 * SCCP-over-M3UA support. (Michael Tuexen)
