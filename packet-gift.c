@@ -2,7 +2,9 @@
  * Routines for giFT Internet File Transfer dissection
  * Copyright 2000, Jon Oberheide <jon@oberheide.org>
  *
- * $Id: packet-gift.c,v 1.1 2004/07/01 06:28:26 guy Exp $
+ * See http://www.giftproject.org/
+ *
+ * $Id: packet-gift.c,v 1.2 2004/07/01 06:30:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
