@@ -1,6 +1,6 @@
 /* packet-dcerpc-dcom.h
  *
- * $Id: packet-dcerpc-dcom.h,v 1.1 2003/09/24 08:05:50 guy Exp $
+ * $Id: packet-dcerpc-dcom.h,v 1.2 2003/11/09 19:53:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,19 +63,19 @@ typedef struct tagORPCTHAT {
  } ORPCTHAT;
 
 typedef struct tagSTRINGBINDING {
-    unsigned short wTowerId;     // Cannot be zero.
-    unsigned short aNetworkAddr; // Zero terminated.
+    unsigned short wTowerId;     /* Cannot be zero. */
+    unsigned short aNetworkAddr; /* Zero terminated. */
  } STRINGBINDING;
 
 typedef struct tagSECURITYBINDING {
-    unsigned short wAuthnSvc;  // Cannot be zero.
-    unsigned short wAuthzSvc;  // Must not be zero.
-    unsigned short aPrincName; // Zero terminated.
+    unsigned short wAuthnSvc;  /* Cannot be zero. */
+    unsigned short wAuthzSvc;  /* Must not be zero. */
+    unsigned short aPrincName; /* Zero terminated. */
  }  SECURITYBINDING;
 
 typedef struct tagDUALSTRINGARRAY {
-    unsigned short wNumEntries;     // Number of entries in array.
-    unsigned short wSecurityOffset; // Offset of security info.
+    unsigned short wNumEntries;     /* Number of entries in array. */
+    unsigned short wSecurityOffset; /* Offset of security info. */
 /*  [size_is(wNumEntries)] unsigned short aStringArray[]; */
     } DUALSTRINGARRAY;
 
