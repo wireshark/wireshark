@@ -1784,17 +1784,17 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 		if (avpDataLength == 4) {
 		  nstime_t data;
 		  gchar buffer[64];
-		  struct tm *ltp;
+		  struct tm *gmtp;
 
 		  data.secs = tvb_get_ntohl(tvb, offset);
-		  /* TODO Change this to use the routine ntp_fmt_ts from packet NTP instead ??? Note uses 64 bits */
+		  /* Present the time as UTC, Time before 00:00:00 UTC, January 1, 1970 can't be presented correctly  */
 			if ( data.secs >= NTP_TIME_DIFF){
 				data.secs -= NTP_TIME_DIFF;
 				data.nsecs = 0;
 
-				ltp = localtime(&data.secs);
+				gmtp = gmtime(&data.secs);
 				strftime(buffer, 64,
-				"%a, %d %b %Y %H:%M:%S %z", ltp);
+				"%a, %d %b %Y %H:%M:%S UTC", gmtp);
 
 				proto_tree_add_time_format(avpi_tree, hf_diameter_avp_data_time,
 						tvb, offset, avpDataLength, &data,
