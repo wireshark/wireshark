@@ -11,9 +11,6 @@ BEGIN
 -- own purposes.
 
 IMPORTS
-        Any
-           FROM DummyCms { 0 }
-
   -- Directory Information Framework (X.501)
         Name
            FROM InformationFramework { joint-iso-itu-t ds(5) modules(1)
@@ -32,7 +29,7 @@ IMPORTS
 
 ContentInfo ::= SEQUENCE {
    contentType ContentType,
-   content [0] EXPLICIT Any
+   content [0] EXPLICIT ANY
 }
 
 
@@ -226,7 +223,7 @@ UserKeyingMaterial ::= OCTET STRING
 
 OtherKeyAttribute ::= SEQUENCE {
   keyAttrId OBJECT IDENTIFIER,
-  keyAttr Any OPTIONAL
+  keyAttr ANY OPTIONAL
 }
 
 -- CMS Attributes

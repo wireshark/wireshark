@@ -8,7 +8,7 @@
 /* packet-cms.c
  * Routines for RFC2630 Cryptographic Message Syntax packet dissection
  *
- * $Id: packet-cms-template.c 12426 2004-10-28 22:06:55Z gerald $
+ * $Id: packet-cms-template.c 12434 2004-10-29 12:11:42Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -232,6 +232,7 @@ dissect_cms_T_contentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 static int dissect_contentType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_cms_T_contentType(FALSE, tvb, offset, pinfo, tree, hf_cms_contentType);
 }
+
 
 
 static int
@@ -868,6 +869,7 @@ dissect_cms_T_keyAttrId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 static int dissect_keyAttrId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_cms_T_keyAttrId(FALSE, tvb, offset, pinfo, tree, hf_cms_keyAttrId);
 }
+
 
 
 static int
