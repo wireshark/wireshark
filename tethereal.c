@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.210 2003/12/11 01:13:32 guy Exp $
+ * $Id: tethereal.c,v 1.211 2003/12/17 21:11:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2537,14 +2537,14 @@ wtap_dispatch_cb_print(guchar *user, const struct wtap_pkthdr *phdr,
 #ifdef HAVE_LIBPCAP
     ld.packet_count++;
 #endif
+    print_args.to_file = TRUE;
+    print_args.format = print_format;
+    print_args.print_summary = !verbose;
+    print_args.print_hex = print_hex;
+    print_args.print_dissections = print_dissections_expanded;
+    print_args.print_range = print_range_all_captured;
     if (verbose) {
       /* Print the information in the protocol tree. */
-      print_args.to_file = TRUE;
-      print_args.format = print_format;
-      print_args.print_summary = FALSE;
-      print_args.print_hex = print_hex;
-      print_args.print_dissections = print_dissections_expanded;
-      print_args.print_range = print_range_all_captured;
       proto_tree_print(&print_args, edt, stdout);
       if (!print_hex) {
         /* "print_hex_data()" will put out a leading blank line, as well
