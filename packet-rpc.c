@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.135 2003/08/17 21:34:22 sahlberg Exp $
+ * $Id: packet-rpc.c,v 1.136 2003/08/25 10:17:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -231,6 +231,8 @@ static dissector_handle_t rpc_tcp_handle;
 static dissector_handle_t rpc_handle;
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t data_handle;
+
+static int max_rpc_tcp_pdu_size = 262144;
 
 static const fragment_items rpc_frag_items = {
 	&ett_rpc_fragment,
@@ -2748,13 +2750,13 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/*
 	 * Do TCP desegmentation, if enabled.
 	 *
-	 * XXX - reject fragments bigger than 2 megabytes.
+	 * reject fragments bigger than this preference setting.
 	 * This is arbitrary, but should at least prevent
 	 * some crashes from either packets with really
 	 * large RPC-over-TCP fragments or from stuff that's
 	 * not really valid for this protocol.
 	 */
-	if (len > 2*1024*1024)
+	if (len > max_rpc_tcp_pdu_size)
 		return 0;	/* pretend it's not valid */
 	if (rpc_desegment) {
 		seglen = tvb_length_remaining(tvb, offset + 4);
@@ -3425,6 +3427,12 @@ proto_register_rpc(void)
 		"Defragment all RPC-over-TCP messages",
 		"Whether the RPC dissector should defragment multi-fragment RPC-over-TCP messages",
 		&rpc_defragment);
+
+	prefs_register_uint_preference(rpc_module, "max_tcp_pdu_size", "Maximum size of a RPC-over-TCP PDU",
+		"Set the maximum size of RPCoverTCP PDUs. "
+		" If the size field of the record marker is larger "
+		"than this value it will not be considered a valid RPC PDU",
+		 10, &max_rpc_tcp_pdu_size);
 
 	register_dissector("rpc", dissect_rpc, proto_rpc);
 	rpc_handle = find_dissector("rpc");
