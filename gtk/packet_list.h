@@ -44,6 +44,13 @@ extern GtkWidget *packet_list_new(e_prefs *prefs);
  */
 extern void packet_list_set_column_titles(void);
 
+/** Resize columns
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void packet_list_resize_columns_cb(GtkWidget *widget, gpointer data);
+
 /** Mark the currently selected packet.
  * 
  * @param widget parent widget (unused)

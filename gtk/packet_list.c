@@ -54,6 +54,11 @@
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 
+#include "progress_dlg.h"
+
+#define N_PROGBAR_UPDATES 100
+
+
 /*
  * XXX - gross hack.
  * This lets us use GtkCList in GTK+ 1.3[.x] and later, and EthCList on
@@ -509,8 +514,8 @@ packet_list_new(e_prefs *prefs)
     SIGNAL_CONNECT(packet_list, "select-row", packet_list_select_cb, NULL);
     SIGNAL_CONNECT(packet_list, "unselect-row", packet_list_unselect_cb, NULL);
     for (i = 0; i < cfile.cinfo.num_cols; i++) {
-        /* Columns do not automatically resize, but are resizeable by
-           the user. */
+        /* For performance reasons, columns do not automatically resize, 
+           but are resizeable by the user. */
         eth_clist_set_column_auto_resize(ETH_CLIST(packet_list), i, FALSE);
         eth_clist_set_column_resizeable(ETH_CLIST(packet_list), i, TRUE);
 
@@ -591,10 +596,77 @@ packet_list_freeze(void)
 }
 
 void
+packet_list_resize_columns(void) {
+    int         i;
+    int         progbar_nextstep;
+    int         progbar_quantum;
+    gboolean    stop_flag;
+    GTimeVal    start_time;
+    float       prog_val;
+    progdlg_t  *progbar = NULL;
+    gchar       status_str[100];
+
+
+    progbar_nextstep = 0;
+    /* When we reach the value that triggers a progress bar update,
+       bump that value by this amount. */
+    progbar_quantum = cfile.cinfo.num_cols/N_PROGBAR_UPDATES;
+
+    stop_flag = FALSE;
+    g_get_current_time(&start_time);
+
+
+    main_window_update();
+
+    for (i = 0; i < cfile.cinfo.num_cols; i++) {
+      if (i >= progbar_nextstep) {
+        /* let's not divide by zero. I should never be started
+         * with count == 0, so let's assert that
+         */
+        g_assert(cfile.cinfo.num_cols > 0);
+
+        prog_val = (gfloat) i / cfile.cinfo.num_cols;
+
+        /* Create the progress bar if necessary */
+        if (progbar == NULL)
+           progbar = delayed_create_progress_dlg("Resizing", "Resize Columns", 
+             &stop_flag, &start_time, prog_val);
+
+        if (progbar != NULL) {
+          g_snprintf(status_str, sizeof(status_str),
+                     "%u of %u columns (%s)", i+1, cfile.cinfo.num_cols, cfile.cinfo.col_title[i]);
+          update_progress_dlg(progbar, prog_val, status_str);
+        }
+
+        progbar_nextstep += progbar_quantum;
+      }
+
+      if (stop_flag) {
+        /* Well, the user decided to abort the resizing... */
+        break;
+      }
+
+        eth_clist_set_column_auto_resize(ETH_CLIST(packet_list), i, TRUE);
+        eth_clist_set_column_auto_resize(ETH_CLIST(packet_list), i, FALSE);
+    }
+
+    /* We're done resizing the columns; destroy the progress bar if it
+       was created. */
+    if (progbar != NULL)
+      destroy_progress_dlg(progbar);
+}
+
+void packet_list_resize_columns_cb(GtkWidget *widget, gpointer data)
+{
+    packet_list_resize_columns();
+}
+
+void
 packet_list_thaw(void)
 {
     eth_clist_thaw(ETH_CLIST(packet_list));
     packets_bar_update();
+    /*packet_list_resize_columns();*/
 }
 
 void

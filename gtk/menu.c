@@ -259,6 +259,8 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/View/_Normal Size", "<control>equal", view_zoom_100_cb,
                              0, GTK_STOCK_ZOOM_100),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Resize Columns", NULL, packet_list_resize_columns_cb,
+                       0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/View/Collapse _All", NULL, collapse_all_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/View/_Expand All", NULL, expand_all_cb,
