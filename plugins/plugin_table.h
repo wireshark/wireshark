@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.25 2001/09/14 07:16:42 guy Exp $
+ * $Id: plugin_table.h,v 1.26 2001/10/17 19:27:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -171,13 +171,35 @@ typedef void (*addr_prefs_register_string_preference)(struct pref_module *,
 
 typedef void (*addr_register_giop_user)(giop_sub_dissector_t *, gchar *, int);
 typedef gboolean (*addr_is_big_endian)(MessageHeader *);
-typedef guint32 (*addr_get_CDR_string)(tvbuff_t *, gchar **, int *, gboolean,
-    int);
-typedef guint32 (*addr_get_CDR_ulong)(tvbuff_t *, int *, gboolean, int);
-typedef guint32 (*addr_get_CDR_enum)(tvbuff_t *, int *, gboolean, int);
-typedef void (*addr_get_CDR_object)(tvbuff_t *, packet_info *, proto_tree *,
-    int *, gboolean, int);
+typedef guint32 (*addr_get_CDR_encap_info)(tvbuff_t *, proto_tree *, gint *,
+		gboolean, guint32, gboolean *, guint32 *);
+typedef void (*addr_get_CDR_any)(tvbuff_t *, proto_tree *, gint *,
+		gboolean, int, MessageHeader *);
 typedef gboolean (*addr_get_CDR_boolean)(tvbuff_t *, int *);
+typedef guint8 (*addr_get_CDR_char)(tvbuff_t *, int *);
+typedef gdouble (*addr_get_CDR_double)(tvbuff_t *, int *, gboolean, int);
+typedef guint32 (*addr_get_CDR_enum)(tvbuff_t *, int *, gboolean, int);
+typedef void (*addr_get_CDR_fixed)(tvbuff_t *, gchar **, gint *, guint32,
+		gint32);
+typedef gfloat (*addr_get_CDR_float)(tvbuff_t *, int *, gboolean, int);
+typedef void (*addr_get_CDR_interface)(tvbuff_t *, packet_info *, proto_tree *,
+		int *, gboolean, int);
+typedef gint32 (*addr_get_CDR_long)(tvbuff_t *, int *, gboolean, int);
+typedef void (*addr_get_CDR_object)(tvbuff_t *, packet_info *, proto_tree *,
+		int *, gboolean, int);
+typedef guint8 (*addr_get_CDR_octet)(tvbuff_t *, int *);
+typedef void (*addr_get_CDR_octet_seq)(tvbuff_t *, gchar **, int *, int);
+typedef gint16 (*addr_get_CDR_short)(tvbuff_t *, int *, gboolean, int);
+typedef guint32 (*addr_get_CDR_string)(tvbuff_t *, gchar **, int *, gboolean,
+		int);
+typedef guint32 (*addr_get_CDR_typeCode)(tvbuff_t *, proto_tree *, gint *,
+	gboolean, int, MessageHeader *);
+typedef guint32 (*addr_get_CDR_ulong)(tvbuff_t *, int *, gboolean, int);
+typedef guint16 (*addr_get_CDR_ushort)(tvbuff_t *, int *, gboolean, int);
+typedef gint8 (*addr_get_CDR_wchar)(tvbuff_t *, gchar **, int *,
+		MessageHeader *);
+typedef guint32 (*addr_get_CDR_wstring)(tvbuff_t *, gchar **, int *, gboolean,
+		int, MessageHeader *);
 
 typedef struct  {
 	addr_check_col				p_check_col;
@@ -304,13 +326,35 @@ typedef struct  {
 	addr_prefs_register_enum_preference	p_prefs_register_enum_preference;
 	addr_prefs_register_string_preference	p_prefs_register_string_preference;
 
+        /* GIOP Begin */
+
 	addr_register_giop_user			p_register_giop_user;
 	addr_is_big_endian			p_is_big_endian;
-	addr_get_CDR_string			p_get_CDR_string;
-	addr_get_CDR_ulong			p_get_CDR_ulong;
-	addr_get_CDR_enum			p_get_CDR_enum;
-	addr_get_CDR_object			p_get_CDR_object;
+        addr_get_CDR_encap_info                 p_get_CDR_encap_info;
+
+	addr_get_CDR_any			p_get_CDR_any;
 	addr_get_CDR_boolean			p_get_CDR_boolean;
+	addr_get_CDR_char			p_get_CDR_char;
+	addr_get_CDR_double			p_get_CDR_double;
+	addr_get_CDR_enum			p_get_CDR_enum;
+	addr_get_CDR_fixed			p_get_CDR_fixed;
+	addr_get_CDR_float			p_get_CDR_float;
+	addr_get_CDR_interface			p_get_CDR_interface;
+	addr_get_CDR_long			p_get_CDR_long;
+	addr_get_CDR_object			p_get_CDR_object;
+	addr_get_CDR_octet			p_get_CDR_octet;
+	addr_get_CDR_octet_seq			p_get_CDR_octet_seq;
+	addr_get_CDR_short			p_get_CDR_short;
+	addr_get_CDR_string			p_get_CDR_string;
+	addr_get_CDR_typeCode			p_get_CDR_typeCode;
+	addr_get_CDR_ulong			p_get_CDR_ulong;
+	addr_get_CDR_ushort			p_get_CDR_ushort;
+	addr_get_CDR_wchar			p_get_CDR_wchar;
+	addr_get_CDR_wstring			p_get_CDR_wstring;
+
+        /* GIOP End */
+
+
 } plugin_address_table_t;
 
 #else /* ! PLUGINS_NEED_ACCESS_TABLE */

@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.23 2001/09/04 01:05:41 guy Exp $
+ * $Id: plugin_api.c,v 1.24 2001/10/17 19:27:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -136,12 +136,33 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_prefs_register_bool_preference	= pat->p_prefs_register_bool_preference;
 	p_prefs_register_enum_preference	= pat->p_prefs_register_enum_preference;
 	p_prefs_register_string_preference	= pat->p_prefs_register_string_preference;
+
+	/* GIOP Begin */
+
 	p_register_giop_user			= pat->p_register_giop_user;
 	p_is_big_endian				= pat->p_is_big_endian;
-	p_get_CDR_string			= pat->p_get_CDR_string;
-	p_get_CDR_ulong				= pat->p_get_CDR_ulong;
-	p_get_CDR_enum				= pat->p_get_CDR_enum;
-	p_get_CDR_object			= pat->p_get_CDR_object;
+	p_get_CDR_encap_info                    = pat->p_get_CDR_encap_info;
+ 
+	p_get_CDR_any				= pat->p_get_CDR_any;
 	p_get_CDR_boolean			= pat->p_get_CDR_boolean;
+	p_get_CDR_char				= pat->p_get_CDR_char;
+	p_get_CDR_double			= pat->p_get_CDR_double;
+	p_get_CDR_enum				= pat->p_get_CDR_enum;
+	p_get_CDR_fixed				= pat->p_get_CDR_fixed;
+	p_get_CDR_float				= pat->p_get_CDR_float;
+	p_get_CDR_interface			= pat->p_get_CDR_interface;
+	p_get_CDR_long				= pat->p_get_CDR_long;
+	p_get_CDR_object			= pat->p_get_CDR_object;
+	p_get_CDR_octet 			= pat->p_get_CDR_octet;
+	p_get_CDR_octet_seq 			= pat->p_get_CDR_octet_seq;
+	p_get_CDR_short 			= pat->p_get_CDR_short;
+	p_get_CDR_string			= pat->p_get_CDR_string;
+	p_get_CDR_typeCode			= pat->p_get_CDR_typeCode;
+	p_get_CDR_ulong				= pat->p_get_CDR_ulong;
+	p_get_CDR_ushort			= pat->p_get_CDR_ushort;
+	p_get_CDR_wchar 			= pat->p_get_CDR_wchar;
+	p_get_CDR_wstring 			= pat->p_get_CDR_wstring;
+
+	/* GIOP End */
 
 }

@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.23 2001/09/04 01:05:41 guy Exp $
+ * $Id: plugin_api.h,v 1.24 2001/10/17 19:27:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -154,13 +154,34 @@
 #define prefs_register_enum_preference	(*p_prefs_register_enum_preference)
 #define prefs_register_string_preference (*p_prefs_register_string_preference)
 
+
+/* GIOP entries Begin */
+
 #define register_giop_user		(*p_register_giop_user)
 #define is_big_endian			(*p_is_big_endian)
-#define get_CDR_string			(*p_get_CDR_string)
-#define get_CDR_ulong			(*p_get_CDR_ulong)
-#define get_CDR_enum			(*p_get_CDR_enum)
-#define get_CDR_object			(*p_get_CDR_object)
+#define get_CDR_encap_info		(*p_get_CDR_encap_info)
+
+#define get_CDR_any			(*p_get_CDR_any)
 #define get_CDR_boolean			(*p_get_CDR_boolean)
+#define get_CDR_char			(*p_get_CDR_char)
+#define get_CDR_double			(*p_get_CDR_double)
+#define get_CDR_enum			(*p_get_CDR_enum)
+#define get_CDR_fixed			(*p_get_CDR_fixed)
+#define get_CDR_float			(*p_get_CDR_float)
+#define get_CDR_interface		(*p_get_CDR_interface)
+#define get_CDR_long         	        (*p_get_CDR_long)
+#define get_CDR_object			(*p_get_CDR_object)
+#define get_CDR_octet         	        (*p_get_CDR_octet)
+#define get_CDR_octet_seq     	        (*p_get_CDR_octet_seq)
+#define get_CDR_short         	        (*p_get_CDR_short)
+#define get_CDR_string			(*p_get_CDR_string)
+#define get_CDR_typeCode		(*p_get_CDR_typeCode)
+#define get_CDR_ulong			(*p_get_CDR_ulong)
+#define get_CDR_ushort			(*p_get_CDR_ushort)
+#define get_CDR_wchar			(*p_get_CDR_wchar)
+#define get_CDR_wstring			(*p_get_CDR_wstring)
+
+/* GIOP entries End */
 
 #define pi				(*p_pi)
 
