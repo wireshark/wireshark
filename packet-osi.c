@@ -1,7 +1,7 @@
 /* packet-osi.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-osi.c,v 1.23 2000/03/12 04:47:45 gram Exp $
+ * $Id: packet-osi.c,v 1.24 2000/04/13 06:09:35 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
@@ -240,7 +240,7 @@ static int osi_decode_DR(const u_char *pd, int offset,
 
   switch(reason) {
     case (128+0): str = "Normal Disconnect"; break;
-    case (128+1): str = "Remote transport enity congestion"; break;
+    case (128+1): str = "Remote transport entity congestion"; break;
     case (128+2): str = "Connection negotiation failed"; break;
     case (128+3): str = "Duplicate source reference"; break;
     case (128+4): str = "Mismatched references"; break;
@@ -379,7 +379,7 @@ static int osi_decode_DT(const u_char *pd, int offset,
 			    "Parameter code: 0x%02x (checksum)", code);
 	proto_tree_add_text(cotp_tree, 
 			    offset +  P_VAR_PART_NDT + 1, 1, 
-			    "Parameter length: 0x%02x", length);
+			    "Parameter length: %u", length);
 	proto_tree_add_text(cotp_tree, 
 			    offset +  P_VAR_PART_NDT + 2, length, 
 			    "Checksum: 0x%04x", checksum);
@@ -400,7 +400,7 @@ static int osi_decode_DT(const u_char *pd, int offset,
 			    "Parameter code: 0x%02x (checksum)", code);
 	proto_tree_add_text(cotp_tree, 
 			    offset +  P_VAR_PART_EDT + 1, 1, 
-			    "Parameter length: 0x%02x", length);
+			    "Parameter length: %u", length);
 	proto_tree_add_text(cotp_tree, 
 			    offset +  P_VAR_PART_EDT + 2, length, 
 			    "Checksum: 0x%04x", checksum);
@@ -515,7 +515,7 @@ static int osi_decode_ED(const u_char *pd, int offset,
 			    "Parameter code: 0x%02x (checksum)", code);
 	proto_tree_add_text(cotp_tree, 
 			    offset +  P_VAR_PART_NDT + 1, 1, 
-			    "Parameter length: 0x%02x", length);
+			    "Parameter length: %u", length);
 	proto_tree_add_text(cotp_tree, 
 			    offset +  P_VAR_PART_NDT + 2, length, 
 			    "Checksum: 0x%04x", checksum);
@@ -532,7 +532,7 @@ static int osi_decode_ED(const u_char *pd, int offset,
 			    "Parameter code: 0x%02x (checksum)", code);
 	proto_tree_add_text(cotp_tree, 
 			    offset +  P_VAR_PART_EDT + 1, 1, 
-			    "Parameter length: 0x%02x", length);
+			    "Parameter length: %u", length);
 	proto_tree_add_text(cotp_tree, 
 			    offset +  P_VAR_PART_EDT + 2, length, 
 			    "Checksum: 0x%04x", checksum);
@@ -713,7 +713,7 @@ static int osi_decode_CC(const u_char *pd, int offset,
 			      "Parameter code: 0x%02x (checksum)", code);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 1, 1, 
-			      "Parameter length: 0x%02x", length);
+			      "Parameter length: %u", length);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 2, length, 
 			      "Checksum: 0x%04x", checksum);
@@ -726,7 +726,7 @@ static int osi_decode_CC(const u_char *pd, int offset,
 			      "Parameter code: 0x%02x (src-tsap)", code);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 1, 1, 
-			      "Parameter length: 0x%02x", length);
+			      "Parameter length: %u", length);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 2, length, 
 			      "Calling TSAP: %s", 
@@ -741,7 +741,7 @@ static int osi_decode_CC(const u_char *pd, int offset,
 			      "Parameter code: 0x%02x (dst-tsap)", code);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 1, 1, 
-			      "Parameter length: 0x%02x", length);
+			      "Parameter length: %u", length);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 2, length, 
 			      "Called TSAP: %s", 
@@ -757,10 +757,10 @@ static int osi_decode_CC(const u_char *pd, int offset,
 			      "Parameter code: 0x%02x (tpdu-size)", code);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 1, 1, 
-			      "Parameter length: 0x%02x", length);
+			      "Parameter length: %u", length);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 2, length, 
-			      "TPDU size: %d", 2 << c1);
+			      "TPDU size: %u", 2 << c1);
 	  i += length + 2;
 	  break;
 	case VP_OPT_SEL     :
@@ -771,7 +771,7 @@ static int osi_decode_CC(const u_char *pd, int offset,
 			      "Parameter code: 0x%02x (options)", code);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 1, 1, 
-			      "Parameter length: 0x%02x", length);
+			      "Parameter length: %u", length);
 	  if (class_option == 1) {
 	    if (c1 & 0x8)
 	      proto_tree_add_text(cotp_tree, 
@@ -817,10 +817,10 @@ static int osi_decode_CC(const u_char *pd, int offset,
 			      "Parameter code: 0x%02x (ack time)", code);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 1, 1, 
-			      "Parameter length: 0x%02x", length);
+			      "Parameter length: %u", length);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 2, length, 
-			      "Ack time (ms): %d", s);
+			      "Ack time (ms): %u", s);
 	  i += length + 2;
 	  break;
 	case VP_THROUGHPUT  :
@@ -834,19 +834,19 @@ static int osi_decode_CC(const u_char *pd, int offset,
 			      "Parameter code: 0x%02x (throughput)", code);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 1, 1, 
-			      "Parameter length: 0x%02x", length);
+			      "Parameter length: %u", length);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 2, 4, 
-			      "Target value / calling-called: %d o/s", t1);
+			      "Target value / calling-called: %u o/s", t1);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 6, 4, 
-			      "Minimum / calling-called: %d o/s", t2);
+			      "Minimum / calling-called: %u o/s", t2);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 10, 4, 
-			      "Target value / called-calling: %d o/s", t3);
+			      "Target value / called-calling: %u o/s", t3);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 14, 4, 
-			      "Minimum / called-calling: %d o/s", t4);
+			      "Minimum / called-calling: %u o/s", t4);
 	  i += length + 2;
 	  break;
         case VP_TRANSIT_DEL :
@@ -860,19 +860,19 @@ static int osi_decode_CC(const u_char *pd, int offset,
 			      "Parameter code: 0x%02x (transit delay)", code);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 1, 1, 
-			      "Parameter length: 0x%02x", length);
+			      "Parameter length: %u", length);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 2, 2, 
-			      "Target value / calling-called: %d ms", s1);
+			      "Target value / calling-called: %u ms", s1);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 4, 2, 
-			      "Minimum / calling-called: %d ms", s2);
+			      "Minimum / calling-called: %u ms", s2);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 6, 2, 
-			      "Target value / called-calling: %d ms", s3);
+			      "Target value / called-calling: %u ms", s3);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 8, 2, 
-			      "Minimum / called-calling: %d ms", s4);
+			      "Minimum / called-calling: %u ms", s4);
 	  i += length + 2;
 	  break;
 	case VP_PRIORITY    :
@@ -883,10 +883,10 @@ static int osi_decode_CC(const u_char *pd, int offset,
 			      "Parameter code: 0x%02x (priority)", code);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 1, 1, 
-			      "Parameter length: 0x%02x", length);
+			      "Parameter length: %u", length);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 2, length,
-			      "Priority: %d", s);
+			      "Priority: %u", s);
 	  i += length + 2;
 	  break;
 	
@@ -898,10 +898,10 @@ static int osi_decode_CC(const u_char *pd, int offset,
 			      "Parameter code: 0x%02x (version)", code);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 1, 1, 
-			      "Parameter length: 0x%02x", length);
+			      "Parameter length: %u", length);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 2, length,
-			      "Version: %d", c1);
+			      "Version: %u", c1);
 	  i += length + 2;
 	  break;
 
@@ -916,7 +916,7 @@ static int osi_decode_CC(const u_char *pd, int offset,
 			      "Parameter code: 0x%02x", code);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 1, 1, 
-			      "Parameter length: 0x%02x", length);
+			      "Parameter length: %u", length);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 2, length, 
 			      "Parameter value: <not shown>");
@@ -984,7 +984,7 @@ static int osi_decode_DC(const u_char *pd, int offset,
 			  "Parameter code: 0x%02x (checksum)", code);
       proto_tree_add_text(cotp_tree, 
 			  offset +  P_VAR_PART_DC + 1, 1, 
-			  "Parameter length: 0x%02x", length);
+			  "Parameter length: %u", length);
       proto_tree_add_text(cotp_tree, 
 			  offset +  P_VAR_PART_DC + 2, 2, 
 			  "Checksum: 0x%04x", checksum);
@@ -1046,7 +1046,7 @@ static int osi_decode_AK(const u_char *pd, int offset,
 				"Parameter code: 0x%02x (checksum)", code);
 	    proto_tree_add_text(cotp_tree, 
 				offset +  P_VAR_PART_NAK + i + 1, 1, 
-				"Parameter length: 0x%02x", length);
+				"Parameter length: %u", length);
 	    proto_tree_add_text(cotp_tree, 
 				offset +  P_VAR_PART_NAK + i + 2, 2, 
 				"Checksum: 0x%04x", checksum);
@@ -1066,7 +1066,7 @@ static int osi_decode_AK(const u_char *pd, int offset,
 				code);
 	    proto_tree_add_text(cotp_tree, 
 				offset +  P_VAR_PART_NAK + i + 1, 1, 
-				"Parameter length: 0x%02x", length);
+				"Parameter length: %u", length);
 	    proto_tree_add_text(cotp_tree, 
 				offset +  P_VAR_PART_NAK + i + 2, 4, 
 				"Lower window edge: 0x%08x", 
@@ -1091,7 +1091,7 @@ static int osi_decode_AK(const u_char *pd, int offset,
 				"Parameter code: 0x%02x (seq number)", code);
 	    proto_tree_add_text(cotp_tree, 
 				offset +  P_VAR_PART_NAK + i + 1, 1, 
-				"Parameter length: 0x%02x", length);
+				"Parameter length: %u", length);
 	    proto_tree_add_text(cotp_tree, 
 				offset +  P_VAR_PART_NAK + i + 2, 2, 
 				"Sequence number: 0x%04x", seq_nr);
@@ -1106,7 +1106,7 @@ static int osi_decode_AK(const u_char *pd, int offset,
 				"Parameter code: 0x%02x (unknown)", code);
 	    proto_tree_add_text(cotp_tree, 
 				offset +  P_VAR_PART_NAK + i + 1, 1, 
-				"Parameter length: 0x%02x", length);
+				"Parameter length: %u", length);
 	    proto_tree_add_text(cotp_tree, 
 				offset +  P_VAR_PART_NAK + i + 2, length, 
 				"Parameter value: <not shown>");
@@ -1152,7 +1152,7 @@ static int osi_decode_AK(const u_char *pd, int offset,
 				"Parameter code: 0x%02x (checksum)", code);
 	    proto_tree_add_text(cotp_tree, 
 				offset +  P_VAR_PART_EAK + i + 1, 1, 
-				"Parameter length: 0x%02x", length);
+				"Parameter length: %u", length);
 	    proto_tree_add_text(cotp_tree, 
 				offset +  P_VAR_PART_EAK + i + 2, 2, 
 				"Checksum: 0x%04x", checksum);
@@ -1172,7 +1172,7 @@ static int osi_decode_AK(const u_char *pd, int offset,
 				code);
 	    proto_tree_add_text(cotp_tree, 
 				offset +  P_VAR_PART_EAK + i + 1, 1, 
-				"Parameter length: 0x%02x", length);
+				"Parameter length: %u", length);
 	    proto_tree_add_text(cotp_tree, 
 				offset +  P_VAR_PART_EAK + i + 2, 4, 
 				"Lower window edge: 0x%08x", 
@@ -1197,7 +1197,7 @@ static int osi_decode_AK(const u_char *pd, int offset,
 				"Parameter code: 0x%02x (seq number)", code);
 	    proto_tree_add_text(cotp_tree, 
 				offset +  P_VAR_PART_EAK + i + 1, 1, 
-				"Parameter length: 0x%02x", length);
+				"Parameter length: %u", length);
 	    proto_tree_add_text(cotp_tree, 
 				offset +  P_VAR_PART_EAK + i + 2, 2, 
 				"Sequence number: 0x%04x", seq_nr);
@@ -1212,7 +1212,7 @@ static int osi_decode_AK(const u_char *pd, int offset,
 				"Parameter code: 0x%02x (unknown)", code);
 	    proto_tree_add_text(cotp_tree, 
 				offset +  P_VAR_PART_EAK + i + 1, 1, 
-				"Parameter length: 0x%02x", length);
+				"Parameter length: %u", length);
 	    proto_tree_add_text(cotp_tree, 
 				offset +  P_VAR_PART_EAK + i + 2, length, 
 				"Parameter value: <not shown>");
@@ -1296,7 +1296,7 @@ static int osi_decode_EA(const u_char *pd, int offset,
 	proto_tree_add_text(cotp_tree, offset +  5, 1, 
 			    "Parameter code: 0x%02x (checksum)", code);
 	proto_tree_add_text(cotp_tree, offset +  6, 1, 
-			    "Parameter length: 0x%02x", length);
+			    "Parameter length: %u", length);
 	proto_tree_add_text(cotp_tree, offset +  7, 2, 
 			    "Checksum: 0x%04x", checksum);
 	break;
@@ -1310,7 +1310,7 @@ static int osi_decode_EA(const u_char *pd, int offset,
 	proto_tree_add_text(cotp_tree, offset +  8, 1, 
 			    "Parameter code: 0x%02x (checksum)", code);
 	proto_tree_add_text(cotp_tree, offset +  9, 1, 
-			    "Parameter length: 0x%02x", length);
+			    "Parameter length: %u", length);
 	proto_tree_add_text(cotp_tree, offset +  10, 2, 
 			    "Checksum: 0x%04x", checksum);
 	break;
@@ -1491,6 +1491,8 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
   proto_item *ti;
   u_char src_len, dst_len, nsel;
   u_int first_offset = offset;
+  guint16 segment_length;
+  guint len;
 
   /* avoid alignment problem */
   memcpy(&clnp, &pd[offset], sizeof(clnp));
@@ -1520,6 +1522,7 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
 
   /* fixed part decoding */
 
+  segment_length = EXTRACT_SHORT(&clnp.cnf_seglen_msb);
   if (tree) {
     ti = proto_tree_add_item(tree, proto_clnp, offset, clnp.cnf_hdr_len, NULL);
     clnp_tree = proto_item_add_subtree(ti, ett_clnp);
@@ -1543,7 +1546,7 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
 			       (clnp.cnf_type & CNF_TYPE) == DT_NPDU ? 
 			       "DT" : "ER");
     proto_tree_add_item(clnp_tree, hf_clnp_pdu_length, offset +  5, 2, 
-			EXTRACT_SHORT(&clnp.cnf_seglen_msb));
+			segment_length);
     proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, offset +  7, 2,
 			       EXTRACT_SHORT(&clnp.cnf_cksum_msb),
 			       "Checksum: 0x%04x",
@@ -1599,10 +1602,10 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
 			"Data unit identifier: 0x%04x",
 			EXTRACT_SHORT(&pd[offset]));
     proto_tree_add_text(clnp_tree, offset + 2 , 2,
-			"Segment offset: 0x%04x", 
+			"Segment offset: %u", 
 			EXTRACT_SHORT(&pd[offset + 2]));
     proto_tree_add_text(clnp_tree, offset + 4 , 2,
-			"Total length: 0x%04x", 
+			"Total length: %u", 
 			EXTRACT_SHORT(&pd[offset + 4]));
     
     offset += 6;
@@ -1616,6 +1619,16 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
 			"Options/Data: <not shown>");
   }
 
+  /* Length of CLNP datagram plus headers above it. */
+  len = segment_length + first_offset;
+
+  /* Set the payload and captured-payload lengths to the minima of (the
+     datagram length plus the length of the headers above it) and the
+     frame lengths. */
+  if (pi.len > len)
+    pi.len = len;
+  if (pi.captured_len > len)
+    pi.captured_len = len;
 
   offset = first_offset + clnp.cnf_hdr_len;
 
