@@ -353,7 +353,7 @@ static const value_string diameter_application_id_vals[] = {
 	{16777216, "3GPP Cx"},
 	{16777217, "3GPP Sh"},
 	{16777218, "3GPP Rf/Ro"},
-	{4294967295, "Relay Application"},
+	{4294967295U, "Relay Application"},
 	
 	{0, NULL}
 
