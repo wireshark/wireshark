@@ -79,6 +79,9 @@ enum srcdst_type {
 #define E_MENU_SRCDST "menu_src_dst"
 
 #define E_PAGE_ACTION "notebook_page_action"
+#define E_PAGE_DPORT "dport"
+#define E_PAGE_SPORT "sport"
+
 #define E_PAGE_LIST   "notebook_page_list"
 #define E_PAGE_TABLE  "notebook_page_table_name"
 #define E_PAGE_TITLE  "notebook_page_title"
@@ -740,7 +743,8 @@ decode_transport(GtkWidget *notebook_pg)
     GtkWidget *menu, *menuitem;
     GtkWidget *list;
     gchar *table_name;
-    gint requested_srcdst;
+    gint requested_srcdst, requested_port;
+    gpointer portp;
 
     list = OBJECT_GET_DATA(notebook_pg, E_PAGE_LIST);
     if (requested_action == E_DECODE_NO)
@@ -765,10 +769,20 @@ decode_transport(GtkWidget *notebook_pg)
     	decode_change_one_dissector(table_name, 0, list);
 	return;
     }
-    if (requested_srcdst != E_DECODE_DPORT)
-	decode_change_one_dissector(table_name, cfile.edt->pi.srcport, list);
-    if (requested_srcdst != E_DECODE_SPORT)
-	decode_change_one_dissector(table_name, cfile.edt->pi.destport, list);
+    if (requested_srcdst != E_DECODE_DPORT) {
+        portp = OBJECT_GET_DATA(notebook_pg, E_PAGE_SPORT);
+        if (portp != NULL) {
+            requested_port = GPOINTER_TO_INT(portp);
+            decode_change_one_dissector(table_name, requested_port, list);
+        }
+    }
+    if (requested_srcdst != E_DECODE_SPORT) {
+        portp = OBJECT_GET_DATA(notebook_pg, E_PAGE_DPORT);
+        if (portp != NULL) {
+            requested_port = GPOINTER_TO_INT(portp);
+            decode_change_one_dissector(table_name, requested_port, list);
+        }
+    }
 }
 
 /**************************************************/
@@ -1018,6 +1032,8 @@ decode_add_srcdst_menu (GtkWidget *page)
 
     OBJECT_SET_DATA(page, E_MENU_SRCDST, menu);
     gtk_option_menu_set_menu(GTK_OPTION_MENU(optmenu), menu);
+    OBJECT_SET_DATA(page, E_PAGE_SPORT, GINT_TO_POINTER(cfile.edt->pi.srcport));
+    OBJECT_SET_DATA(page, E_PAGE_DPORT, GINT_TO_POINTER(cfile.edt->pi.destport));
 
     alignment = decode_add_pack_menu(optmenu);
 
