@@ -2,7 +2,7 @@
  * Routines for cisco tacacs/xtacacs/tacacs+ packet dissection
  * Copyright 2001, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-tacacs.c,v 1.23 2002/08/28 21:00:35 jmayer Exp $
+ * $Id: packet-tacacs.c,v 1.24 2003/05/15 05:18:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,7 +122,7 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree      *tacacs_tree;
 	proto_item      *ti;
-	guint8		txt_buff[256],version,type,userlen,passlen;
+	guint8		txt_buff[255+1],version,type,userlen,passlen;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TACACS");
@@ -163,9 +163,9 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    	passlen=tvb_get_guint8(tvb,5);
 		proto_tree_add_uint(tacacs_tree, hf_tacacs_passlen, tvb, 5, 1,
 		    passlen);
-		tvb_get_nstringz0(tvb,6,userlen,txt_buff);
+		tvb_get_nstringz0(tvb,6,userlen+1,txt_buff);
 		proto_tree_add_text(tacacs_tree, tvb, 6, userlen,         "Username: %s",txt_buff);
-		tvb_get_nstringz0(tvb,6+userlen,passlen,txt_buff);
+		tvb_get_nstringz0(tvb,6+userlen,passlen+1,txt_buff);
 		proto_tree_add_text(tacacs_tree, tvb, 6+userlen, passlen, "Password: %s",txt_buff);
 		}
 	    else
@@ -202,9 +202,9 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		FALSE);
 	    if (type!=TACACS_RESPONSE)
 	    	{
-	    	tvb_get_nstringz0(tvb,26,userlen,txt_buff);
+	    	tvb_get_nstringz0(tvb,26,userlen+1,txt_buff);
 	    	proto_tree_add_text(tacacs_tree, tvb, 26, userlen,  "Username: %s",txt_buff);
-	    	tvb_get_nstringz0(tvb,26+userlen,passlen,txt_buff);
+	    	tvb_get_nstringz0(tvb,26+userlen,passlen+1,txt_buff);
 	    	proto_tree_add_text(tacacs_tree, tvb, 26+userlen, passlen, "Password; %s",txt_buff);
 	    	}
 	    }
