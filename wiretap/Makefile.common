@@ -62,7 +62,7 @@ NONGENERATED_C_FILES = \
 
 # Header files that are not generated from other files
 HEADER_FILES = \
-	5views.h
+	5views.h		\
 	airopeek9.h		\
 	ascend.h		\
 	ascend-int.h		\
