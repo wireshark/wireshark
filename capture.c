@@ -61,7 +61,6 @@
 #include "alert_box.h"
 #include "simple_dialog.h"
 #include <epan/prefs.h>
-#include "globals.h"
 #include "conditions.h"
 #include "ringbuffer.h"
 
@@ -128,10 +127,10 @@ capture_open_output(capture_options *capture_opts, const char *save_file, gboole
   }
 
   /* close the old file */
-  cf_close(&cfile);
+  cf_close(capture_opts->cf);
   g_assert(capture_opts->save_file == NULL);
   capture_opts->save_file = capfile_name;
-  /* cfile.save_file is "g_free"ed later, which is equivalent to
+  /* capture_opts.save_file is "g_free"ed later, which is equivalent to
      "g_free(capfile_name)". */
 
   return TRUE;
@@ -154,7 +153,7 @@ do_capture(capture_options *capture_opts, const char *save_file)
   }
 
   title = g_strdup_printf("%s: Capturing - Ethereal",
-                          get_interface_descriptive_name(cfile.iface));
+                          get_interface_descriptive_name(cf_get_iface(capture_opts->cf)));
   if (capture_opts->sync_mode) {	
     /* sync mode: do the capture in a child process */
     ret = sync_pipe_do_capture(capture_opts, is_tempfile);
@@ -199,7 +198,7 @@ normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
       return FALSE;
     }
     /* Capture succeeded; attempt to read in the capture file. */
-    if ((err = cf_open(capture_opts->save_file, is_tempfile, &cfile)) != 0) {
+    if ((err = cf_open(capture_opts->save_file, is_tempfile, capture_opts->cf)) != 0) {
       /* We're not doing a capture any more, so we don't have a save
 	 file. */
       if (capture_opts->multi_files_on) {
@@ -212,7 +211,7 @@ normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
     }
 
     /* Set the read filter to NULL. */
-    cfile.rfcode = NULL;
+    cf_set_rfcode(capture_opts->cf, NULL);
 
     /* Get the packet-drop statistics.
 
@@ -233,7 +232,7 @@ normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
        thus not have to set them here - "cf_read()" will get them from
        the file and use them. */
     if (stats_known) {
-      cfile.drops_known = TRUE;
+      cf_set_drops_known(capture_opts->cf, TRUE);
 
       /* XXX - on some systems, libpcap doesn't bother filling in
          "ps_ifdrop" - it doesn't even set it to zero - so we don't
@@ -243,9 +242,9 @@ normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
          several statistics - perhaps including various interface
          error statistics - and would tell us which of them it
          supplies, allowing us to display only the ones it does. */
-      cfile.drops = stats.ps_drop;
+      cf_set_drops(capture_opts->cf, stats.ps_drop);
     }
-    switch (cf_read(&cfile)) {
+    switch (cf_read(capture_opts->cf)) {
 
     case READ_SUCCESS:
     case READ_ERROR:
@@ -271,13 +270,13 @@ normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
     capture_opts->save_file = NULL;
 
     /* if we didn't captured even a single packet, close the file again */
-    if(cfile.count == 0) {
+    if(cf_packet_count(capture_opts->cf) == 0) {
       simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
       "%sNo packets captured!%s\n\n"
       "As no data was captured, closing the %scapture file!",
       simple_dialog_primary_start(), simple_dialog_primary_end(),
-      (cfile.is_tempfile) ? "temporary " : "");
-      cf_close(&cfile);
+      (cf_is_tempfile(capture_opts->cf)) ? "temporary " : "");
+      cf_close(capture_opts->cf);
     }
   return TRUE;
 }

@@ -715,6 +715,14 @@ cf_packet_count(capture_file *cf)
 }
 
 /* XXX - use a macro instead? */
+/* XXX - move iface this to capture_opts? */
+gchar *
+cf_get_iface(capture_file *cf)
+{
+    return cf->iface;
+}
+
+/* XXX - use a macro instead? */
 gboolean
 cf_is_tempfile(capture_file *cf)
 {
@@ -732,6 +740,12 @@ void cf_set_drops(capture_file *cf, guint32 drops)
 {
     cf->drops = drops;
 }
+
+void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode)
+{
+    cf->rfcode = rfcode;
+}
+
 
 typedef struct {
   color_filter_t *colorf;
