@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.63 2003/10/17 17:20:32 oabad Exp $
+ * $Id: proto_draw.c,v 1.64 2003/11/03 21:00:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,6 +60,46 @@
 #define E_BYTE_VIEW_START_KEY     "byte_view_start"
 #define E_BYTE_VIEW_END_KEY       "byte_view_end"
 #define E_BYTE_VIEW_ENCODE_KEY    "byte_view_encode"
+
+/* gtk_tree_view_expand_to_path doesn't exist in gtk+ v2.0 so we must include it
+ * when building with this version (taken from gtk+ v2.2.4) */
+#if GTK_MAJOR_VERSION >= 2 && GTK_MINOR_VERSION == 0
+/**
+ * gtk_tree_view_expand_to_path:
+ * @tree_view: A #GtkTreeView.
+ * @path: path to a row.
+ *
+ * Expands the row at @path. This will also expand all parent rows of
+ * @path as necessary.
+ *
+ * Since: 2.2
+ **/
+void
+gtk_tree_view_expand_to_path (GtkTreeView *tree_view,
+                              GtkTreePath *path)
+{
+  gint i, depth;
+  gint *indices;
+  GtkTreePath *tmp;
+
+  g_return_if_fail (GTK_IS_TREE_VIEW (tree_view));
+  g_return_if_fail (path != NULL);
+
+  depth = gtk_tree_path_get_depth (path);
+  indices = gtk_tree_path_get_indices (path);
+
+  tmp = gtk_tree_path_new ();
+  g_return_if_fail (tmp != NULL);
+
+  for (i = 0; i < depth; i++)
+    {
+      gtk_tree_path_append_index (tmp, indices[i]);
+      gtk_tree_view_expand_row (tree_view, tmp, FALSE);
+    }
+
+  gtk_tree_path_free (tmp);
+}
+#endif
 
 static GtkWidget *
 add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
@@ -1389,6 +1429,7 @@ proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view)
 
     g_node_children_foreach((GNode*) protocol_tree, G_TRAVERSE_ALL,
                             proto_tree_draw_node, &info);
+
 #if GTK_MAJOR_VERSION < 2
     gtk_clist_thaw(GTK_CLIST(tree_view));
 #endif
@@ -1409,6 +1450,7 @@ proto_tree_draw_node(GNode *node, gpointer data)
 #else
     GtkTreeStore *store;
     GtkTreeIter   iter;
+    GtkTreePath  *path;
 #endif
 
     if (!fi->visible)
@@ -1460,16 +1502,19 @@ proto_tree_draw_node(GNode *node, gpointer data)
 #endif
         g_node_children_foreach(node, G_TRAVERSE_ALL,
                                 proto_tree_draw_node, &info);
-    }
 #if GTK_MAJOR_VERSION >= 2
-    if (is_expanded == TRUE)
-    {
-        GtkTreePath *path;
         path = gtk_tree_model_get_path(GTK_TREE_MODEL(store), &iter);
-        gtk_tree_view_expand_to_path(info.tree_view, path);
+        if (is_expanded)
+/* #if GTK_MINOR_VERSION >= 2 */
+            gtk_tree_view_expand_to_path(info.tree_view, path);
+/*#else
+            gtk_tree_view_expand_row(info.tree_view, path, FALSE);
+#endif*/
+        else
+            gtk_tree_view_collapse_row(info.tree_view, path);
         gtk_tree_path_free(path);
-    }
 #endif
+    }
 }
 
 /*
