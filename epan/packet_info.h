@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.25 2002/11/08 01:00:07 guy Exp $
+ * $Id: packet_info.h,v 1.26 2002/12/08 02:32:36 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,7 +39,8 @@ typedef enum {
   AT_ATALK,		/* Appletalk DDP */
   AT_VINES,		/* Banyan Vines */
   AT_OSI,		/* OSI NSAP */
-  AT_ARCNET		/* ARCNET */
+  AT_ARCNET,		/* ARCNET */
+  AT_FC                 /* Fibre Channel */
 } address_type;
 
 typedef struct _address {
@@ -96,6 +97,7 @@ typedef enum {
   PT_UDP,		/* UDP */
   PT_IPX,		/* IPX sockets */
   PT_NCP,		/* NCP connection */
+  PT_EXCHG,     /* Fibre Channel exchange */
   PT_DDP		/* DDP AppleTalk connection */
 } port_type;
 
@@ -146,6 +148,10 @@ typedef struct _packet_info {
   int     iplen;
   int     iphdrlen;
   int	  p2p_dir;
+  guint16 oxid;                 /* next 2 fields reqd to identify fibre */
+  guint16 rxid;                 /* channel conversations */
+  guint8  r_ctl;                /* R_CTL field in Fibre Channel Protocol */
+  guint8  pad;
   void    *private_data;	/* pointer to data passed from one dissector to another */
 } packet_info;
 

@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.22 2002/11/27 22:44:41 guy Exp $
+ * $Id: conversation.c,v 1.23 2002/12/08 02:32:36 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -621,7 +621,17 @@ find_conversation(address *addr_a, address *addr_b, port_type ptype,
 		 */
 		conversation =
 		    conversation_lookup_hashtable(conversation_hashtable_exact,
-		      addr_a, addr_b, ptype, port_a, port_b);
+                                                  addr_a, addr_b, ptype,
+                                                  port_a, port_b);
+                if ((conversation == NULL) && (addr_a->type == AT_FC)) {
+                    /* In Fibre channel, OXID & RXID are never swapped as
+                     * TCP/UDP ports are in TCP/IP.
+                     */
+                    conversation =
+                        conversation_lookup_hashtable(conversation_hashtable_exact,
+                                                      addr_b, addr_a, ptype,
+                                                      port_a, port_b);
+                }
 		if (conversation != NULL)
 			return conversation;
 	}
@@ -643,6 +653,15 @@ find_conversation(address *addr_a, address *addr_b, port_type ptype,
 		conversation =
 		    conversation_lookup_hashtable(conversation_hashtable_no_addr2,
 		        addr_a, addr_b, ptype, port_a, port_b);
+                if ((conversation == NULL) && (addr_a->type == AT_FC)) {
+                    /* In Fibre channel, OXID & RXID are never swapped as
+                     * TCP/UDP ports are in TCP/IP.
+                     */
+                    conversation =
+                        conversation_lookup_hashtable(conversation_hashtable_no_addr2,
+                                                      addr_b, addr_a, ptype,
+                                                      port_a, port_b);
+                }
 		if (conversation != NULL) {
 			/*
 			 * If search address B isn't wildcarded, and this
@@ -673,9 +692,9 @@ find_conversation(address *addr_a, address *addr_b, port_type ptype,
 		 * ("addr_a" doesn't take part in this lookup.)
 		 */
 		if (!(options & NO_ADDR_B)) {
-			conversation =
-			    conversation_lookup_hashtable(conversation_hashtable_no_addr2,
-			    addr_b, addr_a, ptype, port_b, port_a);
+                    conversation =
+                        conversation_lookup_hashtable(conversation_hashtable_no_addr2,
+                                                      addr_b, addr_a, ptype, port_b, port_a);
 			if (conversation != NULL) {
 				/*
 				 * If this is for a connection-oriented
@@ -711,6 +730,14 @@ find_conversation(address *addr_a, address *addr_b, port_type ptype,
 		conversation =
 		    conversation_lookup_hashtable(conversation_hashtable_no_port2,
 		      addr_a, addr_b, ptype, port_a, port_b);
+                if ((conversation == NULL) && (addr_a->type == AT_FC)) {
+                    /* In Fibre channel, OXID & RXID are never swapped as
+                     * TCP/UDP ports are in TCP/IP
+                     */
+                    conversation =
+		    conversation_lookup_hashtable(conversation_hashtable_no_port2,
+		      addr_b, addr_a, ptype, port_a, port_b);
+                }
 		if (conversation != NULL) {
 			/*
 			 * If search port B isn't wildcarded, and this is
@@ -805,9 +832,16 @@ find_conversation(address *addr_a, address *addr_b, port_type ptype,
 	 * first packet in the conversation).
 	 * (Neither "addr_a" nor "port_a" take part in this lookup.)
 	 */
-	conversation =
-	    conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
-	      addr_b, addr_a, ptype, port_b, port_a);
+        if (addr_a->type == AT_FC)
+            conversation =
+                conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
+                                              addr_b, addr_a, ptype, port_a,
+                                              port_b);
+        else 
+            conversation =
+                conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
+                                              addr_b, addr_a, ptype, port_b,
+                                              port_a);
 	if (conversation != NULL) {
 		/*
 		 * If this is for a connection-oriented protocol, set the

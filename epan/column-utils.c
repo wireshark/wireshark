@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.27 2002/12/03 02:38:39 guy Exp $
+ * $Id: column-utils.c,v 1.28 2002/12/08 02:32:35 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -364,6 +364,8 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
   struct e_in6_addr ipv6_addr;
   struct atalk_ddp_addr ddp_addr;
   struct sna_fid_type_4_addr sna_fid_type_4_addr;
+  gchar *fcid;
+  guint32 tmpfc;
 
   pinfo->cinfo->col_expr[col][0] = '\0';
   pinfo->cinfo->col_expr_val[col][0] = '\0';
@@ -484,6 +486,15 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
     strcpy(pinfo->cinfo->col_expr_val[col],pinfo->cinfo->col_buf[col]);
     break;
 
+  case AT_FC:
+      tmpfc = *((guint32 *)addr->data);
+      fcid = fc_to_str ((const guint8 *)&tmpfc);
+
+      strncpy (pinfo->cinfo->col_buf[col], fcid, COL_MAX_LEN);
+      pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
+      pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
+      break;
+      
   default:
     break;
   }
@@ -675,6 +686,18 @@ fill_in_columns(packet_info *pinfo)
       strcpy(pinfo->cinfo->col_expr[i], "frame.pkt_len");
       strcpy(pinfo->cinfo->col_expr_val[i], pinfo->cinfo->col_buf[i]);
       break;
+
+    case COL_OXID:
+        snprintf (pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x", pinfo->oxid);
+        pinfo->cinfo->col_buf[i][COL_MAX_LEN - 1] = '\0';
+        pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
+        break;
+
+    case COL_RXID:
+        snprintf (pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x", pinfo->rxid);
+        pinfo->cinfo->col_buf[i][COL_MAX_LEN - 1] = '\0';
+        pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
+        break;
 
     case NUM_COL_FMTS:	/* keep compiler happy - shouldn't get here */
       g_assert_not_reached();

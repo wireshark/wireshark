@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.37 2002/08/28 21:00:06 jmayer Exp $
+ * $Id: column.c,v 1.38 2002/12/08 02:32:17 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,8 +52,8 @@ col_format_to_string(gint fmt) {
                      "%us","%hs", "%rhs", "%uhs", "%ns", "%rns", "%uns", "%d",
                      "%rd", "%ud", "%hd", "%rhd", "%uhd", "%nd", "%rnd",
                      "%und", "%S", "%rS", "%uS", "%D", "%rD", "%uD", "%p",
-                     "%i", "%L" };
-
+                     "%i", "%L", "%XO", "%XR" };
+                     
   if (fmt < 0 || fmt > NUM_COL_FMTS)
     return NULL;
 
@@ -79,10 +79,8 @@ col_format_desc(gint fmt) {
                      "Source port", "Src port (resolved)",
                      "Src port (unresolved)", "Destination port",
                      "Dest port (resolved)", "Dest port (unresolved)",
-                     "Protocol", "Information", "Packet length (bytes)" };
-
-  if (fmt < 0 || fmt > NUM_COL_FMTS)
-    return NULL;
+                     "Protocol", "Information", "Packet length (bytes)" ,
+                     "OXID", "RXID", };
 
   return(dlist[fmt]);
 }
@@ -139,6 +137,12 @@ get_column_format_matches(gboolean *fmt_list, gint format) {
       break;
     case COL_DEF_DST_PORT:
       fmt_list[COL_RES_DST_PORT] = TRUE;
+      break;
+    case COL_OXID:
+      fmt_list[COL_OXID] = TRUE;
+      break;
+    case COL_RXID:
+      fmt_list[COL_RXID] = TRUE;
       break;
     default:
       break;
@@ -216,6 +220,10 @@ get_column_longest_string(gint format)
     case COL_PACKET_LENGTH:
       return "000000";
       break;
+    case COL_RXID:
+    case COL_OXID:
+      return "000000";
+      break;
     default: /* COL_INFO */
       return "Source port: kerberos-master  Destination port: kerberos-master";
       break;
@@ -270,6 +278,8 @@ get_column_resize_type(gint format) {
     case COL_DEF_NET_DST:
     case COL_RES_NET_DST:
     case COL_UNRES_NET_DST:
+    case COL_OXID:
+    case COL_RXID:
       /* We don't want these to resize dynamically; if they get resolved
          to names, those names could be very long, and auto-resizing
 	 columns showing those names may leave too little room for
@@ -313,6 +323,7 @@ gint
 get_column_format_from_str(gchar *str) {
   gchar *cptr = str;
   gint      res_off = RES_DEF, addr_off = ADDR_DEF, time_off = TIME_DEF;
+  gint      prev_code = -1;
 
   /* To do: Make this parse %-formatted strings "for real" */
   while (*cptr != '\0') {
@@ -354,7 +365,12 @@ get_column_format_from_str(gchar *str) {
         addr_off = ADDR_NET;
         break;
       case 'R':
-        time_off = TIME_REL;
+        if (prev_code == COL_OXID) {
+            return COL_RXID;
+        }
+        else {
+            time_off = TIME_REL;
+        }
         break;
       case 'A':
         time_off = TIME_ABS;
@@ -367,6 +383,12 @@ get_column_format_from_str(gchar *str) {
         break;
       case 'L':
         return COL_PACKET_LENGTH;
+        break;
+      case 'X':
+        prev_code = COL_OXID;
+        break;
+      case 'O':
+        return COL_OXID;
         break;
     }
     cptr++;

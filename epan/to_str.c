@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.19 2002/11/28 03:54:50 guy Exp $
+ * $Id: to_str.c,v 1.20 2002/12/08 02:32:36 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,7 +71,7 @@
 gchar *
 ether_to_str(const guint8 *ad)
 {
-	return ether_to_str_punct(ad, ':');
+	return ether_to_str_punct(ad, ':', 5);
 }
 
 /* Places char punct in the string as the hex-digit separator.
@@ -79,7 +79,7 @@ ether_to_str(const guint8 *ad)
  * the resulting string is 5 bytes shorter)
  */
 gchar *
-ether_to_str_punct(const guint8 *ad, char punct) {
+ether_to_str_punct(const guint8 *ad, char punct, guint32 len) {
   static gchar  str[3][18];
   static gchar *cur;
   gchar        *p;
@@ -96,7 +96,7 @@ ether_to_str_punct(const guint8 *ad, char punct) {
   }
   p = &cur[18];
   *--p = '\0';
-  i = 5;
+  i = len;
   for (;;) {
     octet = ad[i];
     *--p = hex_digits[octet&0xF];
@@ -194,7 +194,7 @@ ipx_addr_to_str(guint32 net, const guint8 *ad)
 		sprintf(cur, "%s.%s", get_ipxnet_name(net), name);
 	}
 	else {
-		sprintf(cur, "%s.%s", get_ipxnet_name(net), ether_to_str_punct(ad, '\0'));
+		sprintf(cur, "%s.%s", get_ipxnet_name(net), ether_to_str_punct(ad, '\0', 5));
 	}
 	return cur;
 }
@@ -520,6 +520,110 @@ rel_time_to_secs_str(nstime_t *rel_time)
         display_signed_time(cur, REL_TIME_SECS_LEN, rel_time->secs,
             rel_time->nsecs, NSECS);
         return cur;
+}
+
+gchar *
+fc_to_str(const guint8 *ad) {
+    return ether_to_str_punct (ad, '.', 2);
+}
+
+gchar *
+fcwwn_to_str (const guint8 *ad)
+{
+    int fmt;
+    guint8 oui[6];
+    static gchar ethstr[512];
+    
+    if (ad == NULL) return NULL;
+    
+    fmt = (ad[0] & 0xF0) >> 4;
+
+    if ((fmt == 1) || (fmt == 2)) {
+        memcpy (oui, &ad[2], 6);
+        sprintf (ethstr, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x (%s)", ad[0], 
+                 ad[1], ad[2], ad[3], ad[4], ad[5], ad[6], ad[7],
+                 get_manuf_name (oui));
+    }
+    else if (fmt == 5) {
+        oui[0] = ((ad[0] & 0x0F) << 4) | ((ad[1] & 0xF0) >> 4);
+        oui[1] = ((ad[1] & 0x0F) << 4) | ((ad[2] & 0xF0) >> 4);
+        oui[2] = ((ad[2] & 0x0F) << 4) | ((ad[3] & 0xF0) >> 4);
+        oui[3] = ((ad[3] & 0x0F) << 4) | ((ad[4] & 0xF0) >> 4);
+        oui[4] = ((ad[4] & 0x0F) << 4) | ((ad[5] & 0xF0) >> 4);
+        oui[5] = ((ad[5] & 0x0F) << 4) | ((ad[6] & 0xF0) >> 4);
+
+        sprintf (ethstr, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x (%s)", ad[0],
+                 ad[1], ad[2], ad[3], ad[4], ad[5], ad[6], ad[7],
+                 get_manuf_name (oui));
+    }
+    else {
+        sprintf (ethstr, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", ad[0],
+                 ad[1], ad[2], ad[3], ad[4], ad[5], ad[6], ad[7]);
+    }
+    return (ethstr);
+}
+
+gchar *
+fc_to_str_buf(const guint8 *ad)
+{
+  static gchar  str[3][18];
+  static gchar *cur;
+  gchar        *p;
+  int          i;
+  guint32      octet;
+  static const gchar hex_digits[16] = "0123456789abcdef";
+
+  if (cur == &str[0][0]) {
+    cur = &str[1][0];
+  } else if (cur == &str[1][0]) {  
+    cur = &str[2][0];
+  } else {  
+    cur = &str[0][0];
+  }
+  p = &cur[18];
+  *--p = '\0';
+  i = 0;
+  for (;;) {
+    octet = ad[i];
+    *--p = hex_digits[octet&0xF];
+    octet >>= 4;
+    *--p = hex_digits[octet&0xF];
+    if (i == 2)
+      break;
+      *--p = '.';
+    i++;
+  }
+  return p;
+/*
+  gchar        *p;
+  int           i;
+  guint32       octet;
+  guint32       digit;
+  gboolean      saw_nonzero;
+
+  p = buf;
+  i = 0;
+  for (;;) {
+    saw_nonzero = FALSE;
+    octet = ad[i];
+    digit = octet/100;
+    if (digit != 0) {
+      *p++ = digit + '0';
+      saw_nonzero = TRUE;
+    }
+    octet %= 100;
+    digit = octet/10;
+    if (saw_nonzero || digit != 0)
+      *p++ = digit + '0';
+    digit = octet%10;
+    *p++ = digit + '0';
+    if (i == 2)
+      break;
+    *p++ = '.';
+    i++;
+  }
+  *p = '\0';
+  */
 }
 
 /* Generate, into "buf", a string showing the bits of a bitfield.

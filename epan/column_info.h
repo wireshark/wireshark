@@ -1,7 +1,7 @@
 /* column.h
  * Definitions for column structures and routines
  *
- * $Id: column_info.h,v 1.3 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: column_info.h,v 1.4 2002/12/08 02:32:36 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -85,6 +85,8 @@ enum {
   COL_PROTOCOL,       /* Protocol */
   COL_INFO,           /* Description */
   COL_PACKET_LENGTH,  /* Packet length in bytes */
+  COL_OXID,           /* Fibre Channel OXID */
+  COL_RXID,           /* Fibre Channel RXID */
   NUM_COL_FMTS        /* Should always be last */
 };
 

@@ -1,7 +1,7 @@
 /* to_str.h
  * Definitions for utilities to convert various other types to strings.
  *
- * $Id: to_str.h,v 1.9 2002/11/28 03:54:50 guy Exp $
+ * $Id: to_str.h,v 1.10 2002/12/08 02:32:36 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,11 +43,16 @@ typedef enum {
  * but for which no more specific module applies.
  */
 
-extern gchar*	ether_to_str(const guint8 *);
-extern gchar*	ether_to_str_punct(const guint8 *, char);
-extern gchar*	ip_to_str(const guint8 *);
-extern void	ip_to_str_buf(const guint8 *, gchar *);
+gchar*     ether_to_str(const guint8 *);
+gchar*     ether_to_str_punct(const guint8 *, char, guint32);
+gchar*     ip_to_str(const guint8 *);
+void       ip_to_str_buf(const guint8 *, gchar *);
+
 struct     e_in6_addr;
+
+gchar*     fc_to_str(const guint8 *);
+gchar*     fc_to_str_buf(const guint8 *);
+gchar*     fcwwn_to_str (const guint8 *);
 extern char*	ip6_to_str(const struct e_in6_addr *);
 extern gchar*	ipx_addr_to_str(guint32, const guint8 *);
 extern gchar*	ipxnet_to_string(const guint8 *ad);
