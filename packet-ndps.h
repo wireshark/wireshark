@@ -2,7 +2,9 @@
  * Routines for NetWare's NDPS
  * Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ndps.h,v 1.2 2002/10/15 04:26:24 guy Exp $
+ * Copyright (c) Novell, Inc. 2002-2003
+ *
+ * $Id: packet-ndps.h,v 1.3 2003/04/08 00:56:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,3 +32,11 @@
 #define TCP_PORT_ENS                    0x0bc8 /* NDPS Event Notification Service */
 #define TCP_PORT_RMS                    0x0bcb /* NDPS Remote Management Service */
 #define TCP_PORT_NOTIFY_LISTENER        0x0bc9 /* NDPS Notify Listener */
+
+typedef struct _spx_info{
+        guint16             spx_seq;
+        guint16             spx_ack;
+        guint16             spx_all;
+        guint32             num;
+        gboolean            retransmission;
+} spx_info;
