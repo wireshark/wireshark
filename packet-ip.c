@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.32 1999/07/31 11:21:05 deniel Exp $
+ * $Id: packet-ip.c,v 1.33 1999/08/05 00:02:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1061,7 +1061,7 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   if (check_col(fd, COL_INFO))
     col_add_str(fd, COL_INFO, type_str);
   if (tree) {
-    ti = proto_tree_add_text(tree, proto_igmp, offset, 4, NULL);
+    ti = proto_tree_add_item(tree, proto_igmp, offset, 8, NULL);
     igmp_tree = proto_item_add_subtree(ti, ETT_IGMP);
     proto_tree_add_text(igmp_tree, offset,     1, "Version: %d",
       hi_nibble(ih.igmp_v_t));
