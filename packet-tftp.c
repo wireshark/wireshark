@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.40 2002/08/28 21:00:36 jmayer Exp $
+ * $Id: packet-tftp.c,v 1.41 2003/12/24 10:48:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -218,9 +218,11 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    (bytes < 512)?" (last)":"" );
 	  }
 
-	  if (tree) {
-	    proto_tree_add_text(tftp_tree, tvb, offset, -1,
+	  if (bytes != 0) {
+	    if (tree) {
+	      proto_tree_add_text(tftp_tree, tvb, offset, -1,
 		"Data (%d bytes)", bytes);
+	    }
 	  }
 	  break;
 
