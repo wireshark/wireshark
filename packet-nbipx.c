@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-nbipx.c,v 1.30 2000/12/03 09:18:20 guy Exp $
+ * $Id: packet-nbipx.c,v 1.31 2000/12/06 04:19:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,7 @@
 static int proto_nbipx = -1;
 
 static gint ett_nbipx = -1;
+static gint ett_nbipx_conn_ctrl = -1;
 static gint ett_nbipx_name_type_flags = -1;
 
 enum nbipx_protocol {
@@ -236,6 +237,8 @@ dissect_nbipx_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree			*nbipx_tree;
 	proto_item			*ti;
 	int				offset = 0;
+	guint8				conn_control;
+	proto_tree			*cc_tree;
 	guint8				packet_type;
 	tvbuff_t			*next_tvb;
 	const guint8			*next_pd;
@@ -249,8 +252,25 @@ dissect_nbipx_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    2+NETBIOS_NAME_LEN+NETBIOS_NAME_LEN, FALSE);
 		nbipx_tree = proto_item_add_subtree(ti, ett_nbipx);
 
-		proto_tree_add_text(nbipx_tree, tvb, offset, 1,
-		    "Connection control: 0x%02x", tvb_get_guint8(tvb, offset));
+		conn_control = tvb_get_guint8(tvb, offset);
+		ti = proto_tree_add_text(nbipx_tree, tvb, offset, 1,
+		    "Connection control: 0x%02x", conn_control);
+		cc_tree = proto_item_add_subtree(ti, ett_nbipx_conn_ctrl);
+		proto_tree_add_text(cc_tree, tvb, offset, 1, "%s",
+		      decode_boolean_bitfield(conn_control, 0x80, 8,
+			      "System packet", "Non-system packet"));
+		proto_tree_add_text(cc_tree, tvb, offset, 1, "%s",
+		      decode_boolean_bitfield(conn_control, 0x40, 8,
+			      "Send acknowledge", "No send acknowledge"));
+		proto_tree_add_text(cc_tree, tvb, offset, 1, "%s",
+		      decode_boolean_bitfield(conn_control, 0x20, 8,
+			      "Attention", "No attention"));
+		proto_tree_add_text(cc_tree, tvb, offset, 1, "%s",
+		      decode_boolean_bitfield(conn_control, 0x10, 8,
+			      "End of message", "No end of message"));
+		proto_tree_add_text(cc_tree, tvb, offset, 1, "%s",
+		      decode_boolean_bitfield(conn_control, 0x08, 8,
+			      "Resend", "No resend"));
 		offset += 1;
 
 		packet_type = tvb_get_guint8(tvb, offset);
@@ -445,6 +465,7 @@ proto_register_nbipx(void)
         };*/
 	static gint *ett[] = {
 		&ett_nbipx,
+		&ett_nbipx_conn_ctrl,
 		&ett_nbipx_name_type_flags,
 	};
 
