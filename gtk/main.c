@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.311 2003/09/12 02:48:22 sahlberg Exp $
+ * $Id: main.c,v 1.312 2003/09/15 20:45:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2074,8 +2074,15 @@ main(int argc, char *argv[])
 #endif
 #ifdef HAVE_LIBPCAP
   if (start_capture) {
-    /* We're supposed to do a live capture; did the user specify an interface
-       to use? */
+    /* We're supposed to do a live capture; did the user also specify
+       a capture file to read? */
+    if (cf_name) {
+      /* Yes - that's bogus. */
+      fprintf(stderr, "ethereal: both live capture (-k) and capture file specified\n");
+      exit(2);
+    }
+       
+    /* No - did the user specify an interface to use? */
     if (cfile.iface == NULL) {
       /* No - is a default specified in the preferences file? */
       if (prefs->capture_device != NULL) {
