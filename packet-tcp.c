@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.140 2002/05/05 00:16:32 guy Exp $
+ * $Id: packet-tcp.c,v 1.141 2002/05/05 00:57:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -664,20 +664,28 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
  */
 void
 tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		 gboolean proto_desegment, int fixed_len,
+		 gboolean proto_desegment, guint fixed_len,
 		 guint (*get_pdu_len)(tvbuff_t *, int),
 		 void (*dissect_pdu)(tvbuff_t *, packet_info *, proto_tree *))
 {
   volatile int offset = 0;
-  int length_remaining;
+  guint length_remaining;
   guint plen;
-  int length;
+  guint length;
   tvbuff_t *next_tvb;
 
   while (tvb_reported_length_remaining(tvb, offset) != 0) {
-    length_remaining = tvb_length_remaining(tvb, offset);
-    if (length_remaining == -1)
-      THROW(BoundsError);
+    /*
+     * We use "tvb_ensure_length_remaining()" to make sure there actually
+     * *is* data remaining.  The protocol we're handling could conceivably
+     * consists of a sequence of fixed-length PDUs, and therefore the
+     * "get_pdu_len" routine might not actually fetch anything from
+     * the tvbuff, and thus might not cause an exception to be thrown if
+     * we've run past the end of the tvbuff.
+     *
+     * This means we're guaranteed that "length_remaining" is positive.
+     */
+    length_remaining = tvb_ensure_length_remaining(tvb, offset);
 
     /*
      * Can we do reassembly?
@@ -711,7 +719,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       /*
        * Yes - is the PDU split across segment boundaries?
        */
-      if ((guint)length_remaining < plen) {
+      if (length_remaining < plen) {
 	/*
 	 * Yes.  Tell the TCP dissector where the data for this message
 	 * starts in the data it handed us, and how many more bytes we
@@ -736,7 +744,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * is within the reported length but beyond that third length, with
      * that exception getting the "Unreassembled Packet" error.
      */
-    if (plen < (guint)fixed_len) {
+    if (plen < fixed_len) {
       /*
        * The PDU length from the fixed-length portion probably didn't
        * include the fixed-length portion's length, and was probably so
@@ -748,7 +756,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       return;
     }
     length = length_remaining;
-    if ((guint)length > plen)
+    if (length > plen)
 	length = plen;
     next_tvb = tvb_new_subset(tvb, offset, length, plen);
 

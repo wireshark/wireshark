@@ -1,6 +1,6 @@
 /* packet-tcp.h
  *
- * $Id: packet-tcp.h,v 1.10 2002/05/05 00:16:32 guy Exp $
+ * $Id: packet-tcp.h,v 1.11 2002/05/05 00:57:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,7 +54,7 @@ struct tcpinfo {
  */
 extern void
 tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		 gboolean proto_desegment, int fixed_len,
+		 gboolean proto_desegment, guint fixed_len,
 		 guint (*get_pdu_len)(tvbuff_t *, int),
 		 void (*dissect_pdu)(tvbuff_t *, packet_info *, proto_tree *));
 

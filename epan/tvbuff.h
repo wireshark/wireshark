@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.25 2002/04/24 21:53:05 guy Exp $
+ * $Id: tvbuff.h,v 1.26 2002/05/05 00:57:59 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -193,7 +193,7 @@ extern guint tvb_length(tvbuff_t*);
 extern gint tvb_length_remaining(tvbuff_t*, gint offset);
 
 /* Same as above, but throws BoundsError if the offset is out of bounds. */
-extern gint tvb_ensure_length_remaining(tvbuff_t*, gint offset);
+extern guint tvb_ensure_length_remaining(tvbuff_t*, gint offset);
 
 /* Checks (w/o throwing exception) that the bytes referred to by
  * 'offset'/'length' actually exist in the buffer */
