@@ -2,7 +2,7 @@
  * Routines for H.225 packet dissection
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-h225.c,v 1.6 2003/08/21 18:00:21 guy Exp $
+ * $Id: packet-h225.c,v 1.7 2003/08/23 07:23:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2564,7 +2564,7 @@ dissect_h225_replyAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_replyAddress, ett_h225_TransportAddress, TransportAddress_choice, "replyAddress", NULL);
 	return offset;
 }
-static int
+int
 dissect_h225_TransportAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_TransportAddress, ett_h225_TransportAddress, TransportAddress_choice, "TransportAddress", NULL);

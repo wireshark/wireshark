@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.5 2003/08/16 00:38:13 guy Exp $
+ * $Id: plugin_api_list.c,v 1.6 2003/08/23 07:23:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,6 +31,9 @@
 #include "prefs.h"
 #include "reassemble.h"
 #include "packet-giop.h"
+#include "packet-h225.h"
+#include "packet-h245.h"
+#include "packet-per.h"
 #include "packet-tpkt.h"
 #include "packet-tcp.h"
 #include "tap.h"
@@ -350,3 +353,26 @@ void new_register_dissector(const char *, new_dissector_t, int);
 dissector_handle_t new_create_dissector_handle(new_dissector_t, int);
 
 void register_giop_user_module(giop_sub_dissector_t *sub, gchar *name, gchar *module, int sub_proto);
+
+guint32 dissect_per_length_determinant(tvbuff_t*, guint32, packet_info*, proto_tree*, int, guint32*);
+guint32 dissect_per_normally_small_nonnegative_whole_number(tvbuff_t*, guint32, packet_info*, proto_tree*, int, guint32*);
+guint32 dissect_per_GeneralString(tvbuff_t*, guint32, packet_info*, proto_tree*, int);
+guint32 dissect_per_sequence_of(tvbuff_t*, guint32, packet_info*, proto_tree*, int, gint, int (*)(tvbuff_t*, int, packet_info*, proto_tree*));
+guint32 dissect_per_IA5String(tvbuff_t*, guint32, packet_info*, proto_tree*, int, int, int);
+guint32 dissect_per_NumericString(tvbuff_t*, guint32, packet_info*, proto_tree*, int, int, int);
+guint32 dissect_per_PrintableString(tvbuff_t*, guint32, packet_info*, proto_tree*, int, int, int);
+guint32 dissect_per_BMPString(tvbuff_t*, guint32, packet_info*, proto_tree*, int, int, int);
+guint32 dissect_per_constrained_sequence_of(tvbuff_t*, guint32, packet_info*, proto_tree*, int, gint, int (*)(tvbuff_t*, int, packet_info*, proto_tree*), int, int);
+guint32 dissect_per_constrained_set_of(tvbuff_t*, guint32, packet_info*, proto_tree *parent_tree, int, gint, int (*)(tvbuff_t*, int, packet_info*, proto_tree*), int, int);
+guint32 dissect_per_set_of(tvbuff_t*, guint32, packet_info*, proto_tree *parent_tree, int, gint, int (*)(tvbuff_t*, int, packet_info*, proto_tree*));
+guint32 dissect_per_object_identifier(tvbuff_t*, guint32, packet_info*, proto_tree*, int, char*);
+guint32 dissect_per_boolean(tvbuff_t*, guint32, packet_info *pinfo, proto_tree*, int, gboolean*, proto_item**);
+guint32 dissect_per_integer(tvbuff_t*, guint32, packet_info*, proto_tree*, int, gint32*, proto_item**);
+guint32 dissect_per_constrained_integer(tvbuff_t*, guint32, packet_info*, proto_tree*, int, guint32, guint32, guint32*, proto_item**, gboolean);
+guint32 dissect_per_choice(tvbuff_t*, guint32, packet_info*, proto_tree*, int, gint, per_choice_t*, char*, guint32*);
+guint32 dissect_per_sequence(tvbuff_t*, guint32, packet_info*, proto_tree *parent_tree, int, gint, per_sequence_t*);
+guint32 dissect_per_octet_string(tvbuff_t*, guint32, packet_info*, proto_tree*, int, int, int, guint32*, guint32*);
+guint32 dissect_per_restricted_character_string(tvbuff_t*, guint32, packet_info*, proto_tree*, int, int, int, char*, int);
+
+int dissect_h225_TransportAddress(tvbuff_t*, int, packet_info*, proto_tree*);
+int dissect_h245_NonStandardParameter(tvbuff_t*, int, packet_info*, proto_tree*);
