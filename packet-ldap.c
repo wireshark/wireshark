@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.41 2002/03/31 22:17:37 guy Exp $
+ * $Id: packet-ldap.c,v 1.42 2002/05/06 02:12:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1469,6 +1469,18 @@ proto_register_ldap(void)
       { "Attribute",		"ldap.attribute",
 	FT_STRING, BASE_NONE, NULL, 0x0,
 	"LDAP Attribute", HFILL }},
+    /*
+     * XXX - not all LDAP values are text strings; we'd need a file
+     * describing which values (by name) are text strings and which are
+     * binary.
+     *
+     * Some values that are, at least in Microsoft's schema, binary
+     * are:
+     *
+     *	invocationId
+     *	nTSecurityDescriptor
+     *	objectGUID
+     */
     { &hf_ldap_message_value,
       { "Value",		"ldap.value",
 	FT_STRING, BASE_NONE, NULL, 0x0,
