@@ -1627,6 +1627,7 @@ Jean-Baptiste Marchand  <Jean-Baptiste.Marchand [AT] hsc.fr> {
 	MS Eventlog support
 	WKSSVC enhancements
 	File Replication Services (frsrpc and frsapi) support
+	Stub dissectors for rras and pnp MSRPC interfaces
 }
 
 Andreas Trauer          <andreas.trauer [AT] siemens.com> {

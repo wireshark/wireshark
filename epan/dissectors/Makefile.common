@@ -155,11 +155,13 @@ DISSECTOR_SRC =	\
 	packet-dcerpc-netlogon.c	\
 	packet-dcerpc-nspi.c	\
 	packet-dcerpc-pn-io.c	\
+	packet-dcerpc-pnp.c	\
 	packet-dcerpc-rdaclif.c	\
 	packet-dcerpc-reg.c	\
 	packet-dcerpc-rep_proc.c	\
 	packet-dcerpc-roverride.c	\
 	packet-dcerpc-rpriv.c	\
+	packet-dcerpc-rras.c	\
 	packet-dcerpc-rs_acct.c	\
 	packet-dcerpc-rs_attr.c	\
 	packet-dcerpc-rs_attr_schema.c	\
@@ -606,7 +608,9 @@ DISSECTOR_INCLUDES =	\
 	packet-dcerpc-mapi.h	\
 	packet-dcerpc-netlogon.h	\
 	packet-dcerpc-nt.h	\
+	packet-dcerpc-pnp.h	\
 	packet-dcerpc-reg.h	\
+	packet-dcerpc-rras.h	\
 	packet-dcerpc-samr.h	\
 	packet-dcerpc-spoolss.h	\
 	packet-dcerpc-srvsvc.h	\
