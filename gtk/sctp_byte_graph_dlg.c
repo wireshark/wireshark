@@ -1,7 +1,7 @@
 /* 
  * Copyright 2004, Irene Ruengeler <i.ruengeler [AT] fh-muenster.de>
  *
- * $Id: sctp_byte_graph_dlg.c 11436 2004-07-19 21:42:01Z tuexen $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
