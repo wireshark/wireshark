@@ -1,7 +1,7 @@
 /* packet-raw.c
  * Routines for raw packet disassembly
  *
- * $Id: packet-raw.c,v 1.30 2002/01/02 20:33:46 gram Exp $
+ * $Id: packet-raw.c,v 1.31 2002/01/03 02:10:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -167,6 +167,6 @@ proto_reg_handoff_raw(void)
    */
   ip_handle = find_dissector("ip");
   ppp_hdlc_handle = find_dissector("ppp_hdlc");
-  raw_handle = create_dissector_handle(dissect_raw, -1);
+  raw_handle = create_dissector_handle(dissect_raw, proto_raw);
   dissector_add("wtap_encap", WTAP_ENCAP_RAW_IP, raw_handle);
 }
