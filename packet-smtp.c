@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.19 2001/07/03 04:56:46 guy Exp $
+ * $Id: packet-smtp.c,v 1.20 2001/09/03 10:33:07 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -220,8 +220,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				       pinfo->srcport, pinfo->destport, 0);
       if (conversation == NULL) { /* No conversation, create one */
 	conversation = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,
-					pinfo->srcport, pinfo->destport, NULL,
-					0);
+					pinfo->srcport, pinfo->destport, 0);
 
       }
 

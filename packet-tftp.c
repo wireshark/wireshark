@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.26 2001/06/18 02:17:53 guy Exp $
+ * $Id: packet-tftp.c,v 1.27 2001/09/03 10:33:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -125,8 +125,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					   pinfo->srcport, 0, NO_PORT_B);
 	  if (conversation == NULL) {
 	    conversation = conversation_new(&pinfo->src, &pinfo->dst, PT_UDP,
-					    pinfo->srcport, 0, NULL,
-					    NO_PORT2);
+					    pinfo->srcport, 0, NO_PORT2);
 	    conversation_set_dissector(conversation, dissect_tftp);
 	  }
 	}

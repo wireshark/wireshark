@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  * 
- * $Id: packet-ftp.c,v 1.33 2001/09/03 03:12:01 guy Exp $
+ * $Id: packet-ftp.c,v 1.34 2001/09/03 10:33:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -180,7 +180,7 @@ handle_pasv_response(const u_char *line, int linelen, packet_info *pinfo)
 		 * handle conversations not in the hash table?
 		 */
 		conversation = conversation_new(&server_addr, &pinfo->dst,
-		    PT_TCP, server_port, 0, NULL, NO_PORT2);
+		    PT_TCP, server_port, 0, NO_PORT2);
 		conversation_set_dissector(conversation, dissect_ftpdata);
 	}
 

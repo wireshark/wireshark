@@ -7,10 +7,10 @@
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ncp2222.inc,v 1.3 2001/06/28 02:42:48 gram Exp $
+ * $Id: packet-ncp2222.inc,v 1.4 2001/09/03 10:33:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2000 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -180,12 +180,12 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		   to have all packets over the same connection treated
 		   as being part of a single conversation so that we can
 		   let the user select that conversation to be displayed.) */
-		conversation = find_conversation(&pi.src, &pi.dst,
+		conversation = find_conversation(&pinfo->src, &pinfo->dst,
 		    PT_NCP, nw_connection, nw_connection, 0);
 		if (conversation == NULL) {
 			/* It's not part of any conversation - create a new one. */
-			conversation = conversation_new(&pi.src, &pi.dst,
-			    PT_NCP, nw_connection, nw_connection, NULL, 0);
+			conversation = conversation_new(&pinfo->src, &pinfo->dst,
+			    PT_NCP, nw_connection, nw_connection, 0);
 		}
 		ncp_hash_insert(conversation, sequence, 0x2222, ncp_rec);
 	}
@@ -255,7 +255,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 	const char			*error_string;
 
 	/* Find the conversation whence the request would have come. */
-	conversation = find_conversation(&pi.src, &pi.dst,
+	conversation = find_conversation(&pinfo->src, &pinfo->dst,
 		    PT_NCP, nw_connection, nw_connection, 0);
 	if (conversation != NULL) {
 		/* find the record telling us the request made that caused

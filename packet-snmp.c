@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.70 2001/09/03 08:19:12 guy Exp $
+ * $Id: packet-snmp.c,v 1.71 2001/09/03 10:33:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2130,8 +2130,7 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					   pinfo->srcport, 0, NO_PORT_B);
 	  if (conversation == NULL) {
 	    conversation = conversation_new(&pinfo->src, &pinfo->dst, PT_UDP,
-					    pinfo->srcport, 0, NULL,
-					    NO_PORT2);
+					    pinfo->srcport, 0, NO_PORT2);
 	    conversation_set_dissector(conversation, dissect_snmp);
 	  }
 	}

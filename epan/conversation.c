@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.12 2001/09/03 07:31:20 guy Exp $
+ * $Id: conversation.c,v 1.13 2001/09/03 10:33:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -83,6 +83,17 @@ static conversation_key *conversation_keys;
 static guint32 new_index;
 
 static int conversation_init_count = 200;
+
+/*
+ * Protocol-specific data attached to a conversation_t structure - protocol
+ * index and opaque pointer.
+ */
+typedef struct _conv_proto_data {
+	int	proto;
+	void	*proto_data;
+} conv_proto_data;
+
+static GMemChunk *conv_proto_data_area = NULL;
 
 /*
  * Compute the hash value for two given address/port pairs if the match
@@ -378,6 +389,17 @@ conversation_init(void)
 	if (conversation_chunk != NULL)
 		g_mem_chunk_destroy(conversation_chunk);
 
+	/*
+	 * Free up any space allocated for conversation protocol data
+	 * areas.
+	 *
+	 * We can free the space, as the structures it contains are
+	 * pointed to by conversation data structures that were freed
+	 * above.
+	 */
+	if (conv_proto_data_area != NULL)
+		g_mem_chunk_destroy(conv_proto_data_area);
+
 	conversation_hashtable_exact =
 	    g_hash_table_new(conversation_hash_exact,
 	      conversation_match_exact);
@@ -400,6 +422,13 @@ conversation_init(void)
 	    G_ALLOC_AND_FREE);
 
 	/*
+	 * Allocate a new area for conversation protocol data items.
+	 */
+	conv_proto_data_area = g_mem_chunk_new("conv_proto_data_area",
+	    sizeof(conv_proto_data), 20 * sizeof(conv_proto_data), /* FIXME*/
+	    G_ALLOC_ONLY);
+
+	/*
 	 * Start the conversation indices over at 0.
 	 */
 	new_index = 0;
@@ -415,7 +444,7 @@ conversation_init(void)
  */
 conversation_t *
 conversation_new(address *addr1, address *addr2, port_type ptype,
-    guint32 port1, guint32 port2, void *data, guint options)
+    guint32 port1, guint32 port2, guint options)
 {
 	conversation_t *conversation;
 	conversation_key *new_key;
@@ -431,7 +460,7 @@ conversation_new(address *addr1, address *addr2, port_type ptype,
 
 	conversation = g_mem_chunk_alloc(conversation_chunk);
 	conversation->index = new_index;
-	conversation->data = data;
+	conversation->data_list = NULL;
 
 /* clear dissector pointer */
 	conversation->dissector.new_d = NULL;
@@ -808,6 +837,67 @@ find_conversation(address *addr_a, address *addr_b, port_type ptype,
 	 * We found no conversation.
 	 */
 	return NULL;
+}
+
+static gint
+p_compare(gconstpointer a, gconstpointer b)
+{
+	if (((conv_proto_data *)a)->proto > ((conv_proto_data *)b)->proto)
+		return 1;
+	else if (((conv_proto_data *)a)->proto == ((conv_proto_data *)b)->proto)
+		return 0;
+	else
+		return -1;
+}
+
+void
+conversation_add_proto_data(conversation_t *conv, int proto, void *proto_data)
+{
+	conv_proto_data *p1 = g_mem_chunk_alloc(conv_proto_data_area);
+
+	p1->proto = proto;
+	p1->proto_data = proto_data;
+
+	/* Add it to the list of items for this conversation. */
+
+	conv->data_list = g_slist_insert_sorted(conv->data_list, (gpointer *)p1,
+	    p_compare);
+}
+
+void *
+conversation_get_proto_data(conversation_t *conv, int proto)
+{
+	conv_proto_data temp, *p1;
+	GSList *item;
+
+	temp.proto = proto;
+	temp.proto_data = NULL;
+
+	item = g_slist_find_custom(conv->data_list, (gpointer *)&temp,
+	    p_compare);
+
+	if (item != NULL) {
+		p1 = (conv_proto_data *)item->data;
+		return p1->proto_data;
+	}
+
+	return NULL;
+}
+
+void
+conversation_delete_proto_data(conversation_t *conv, int proto)
+{
+	conv_proto_data temp;
+	GSList *item;
+
+	temp.proto = proto;
+	temp.proto_data = NULL;
+
+	item = g_slist_find_custom(conv->data_list, (gpointer *)&temp,
+	    p_compare);
+
+	if (item != NULL)
+		conv->data_list = g_slist_remove(conv->data_list, item);
 }
 
 /*

@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.33 2001/08/04 04:04:33 guy Exp $
+ * $Id: packet-afs.c,v 1.34 2001/09/03 10:33:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -224,7 +224,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (conversation == NULL) {
 		/* It's not part of any conversation - create a new one. */
 		conversation = conversation_new(&pinfo->src, &pinfo->dst, 
-			pinfo->ptype, pinfo->srcport, pinfo->destport, NULL, 0);
+			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	}
 
 	request_key.conversation = conversation->index;	

@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.111 2001/08/27 23:17:30 guy Exp $
+ * $Id: packet-smb.c,v 1.112 2001/09/03 10:33:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -9799,7 +9799,7 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
   if (conversation == NULL) {
     /* It's not part of any conversation - create a new one. */
     conversation = conversation_new(&pi.src, &pi.dst, pi.ptype,
-				pi.srcport, pi.destport, NULL, 0);
+				pi.srcport, pi.destport, 0);
   }
 
   si.conversation = conversation;  /* Save this for later */
@@ -10638,7 +10638,7 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd,
   if (conversation == NULL) {  /* Create a new conversation */
 
     conversation = conversation_new(&pi.src, &pi.dst, pi.ptype,
-				    pi.srcport, pi.destport, NULL, 0);
+				    pi.srcport, pi.destport, 0);
 
   }
 

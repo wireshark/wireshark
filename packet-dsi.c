@@ -2,14 +2,13 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.2 2001/06/18 02:17:46 guy Exp $
+ * $Id: packet-dsi.c,v 1.3 2001/09/03 10:33:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-pop.c
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -318,17 +317,19 @@ dissect_dsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	conversation = find_conversation(&pinfo->src, &pinfo->dst, PT_TCP,
 		pinfo->srcport, pinfo->destport, 0);
-	if (conversation == NULL) {
+	if (conversation == NULL)
+	{
+		conversation = conversation_new(&pinfo->src, &pinfo->dst,
+			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	}
+	conversation_set_dissector(conversation, dissect_dsi);
+	hash_info = conversation_get_proto_data(conversation, proto_dsi);
+	if (hash_info == NULL)
+	{
 		hash_info = g_mem_chunk_alloc(vals);
 		hash_info->state = NONE;
-		conversation = conversation_new(&pinfo->src, &pinfo->dst,
-			pinfo->ptype, pinfo->srcport, pinfo->destport,
-			hash_info, 0);
-
-		conversation_set_dissector(conversation, dissect_dsi);
-	}else
-	{
-		hash_info = conversation->data;
+		conversation_add_proto_data(conversation, proto_dsi,
+			hash_info);
 	}
 
 	prev_cont=dsi_state_machine( hash_info, tvb, pinfo, offset);

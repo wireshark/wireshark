@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.32 2001/07/30 21:24:29 guy Exp $
+ * $Id: packet-wsp.c,v 1.33 2001/09/03 10:33:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -881,8 +881,7 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    PT_UDP, port_num, 0, NO_PORT_B);
 			if (conv == NULL) {
 				conv = conversation_new(&redir_address,
-				    &pinfo->dst, PT_UDP, port_num, 0,
-				    NULL, NO_PORT2);
+				    &pinfo->dst, PT_UDP, port_num, 0, NO_PORT2);
 			}
 			conversation_set_dissector(conv, dissector);
 			break;
@@ -916,8 +915,7 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    PT_UDP, port_num, 0, NO_PORT_B);
 			if (conv == NULL) {
 				conv = conversation_new(&redir_address,
-				    &pinfo->dst, PT_UDP, port_num, 0,
-				    NULL, NO_PORT2);
+				    &pinfo->dst, PT_UDP, port_num, 0, NO_PORT2);
 			}
 			conversation_set_dissector(conv, dissector);
 			break;

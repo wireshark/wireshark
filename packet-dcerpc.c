@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.7 2001/07/11 04:49:34 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.8 2001/09/03 10:33:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -539,7 +539,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
                               pinfo->srcport, pinfo->destport, 0);
     if (conv == NULL) {
         conv = conversation_new (&pinfo->src, &pinfo->dst, pinfo->ptype,
-                                 pinfo->srcport, pinfo->destport, NULL, 0);
+                                 pinfo->srcport, pinfo->destport, 0);
     }
 
     key = g_mem_chunk_alloc (dcerpc_conv_key_chunk);
@@ -1024,7 +1024,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                               pinfo->srcport, pinfo->destport, 0);
     if (!conv) {
         conv = conversation_new (&pinfo->src, &pinfo->dst, pinfo->ptype,
-                                 pinfo->srcport, pinfo->destport, NULL, 0);
+                                 pinfo->srcport, pinfo->destport, 0);
     }
 
     /*

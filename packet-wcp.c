@@ -2,12 +2,11 @@
  * Routines for Wellfleet Compression frame disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-wcp.c,v 1.10 2001/06/18 02:17:54 guy Exp $
+ * $Id: packet-wcp.c,v 1.11 2001/09/03 10:33:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -470,21 +469,26 @@ wcp_window_t *get_wcp_window_ptr( packet_info *pinfo){
 /* find the conversation for this side of the DLCI, create one if needed */
 /* and return the wcp_window data structure pointer */
 
-	conversation_t *conv = find_conversation( &pinfo->dl_src, &pinfo->dl_src, PT_NONE, 
+	conversation_t *conv;
+	wcp_window_t *wcp_win_data;
+
+	conv = find_conversation( &pinfo->dl_src, &pinfo->dl_src, PT_NONE, 
 		((pinfo->pseudo_header->x25.flags & FROM_DCE)? 1:0), 
 		((pinfo->pseudo_header->x25.flags & FROM_DCE)? 1:0), 0);
-
 	if ( !conv){
-
 		conv = conversation_new( &pinfo->dl_src, &pinfo->dl_src, PT_NONE, 
 			((pinfo->pseudo_header->x25.flags & FROM_DCE)? 1:0), 
 			((pinfo->pseudo_header->x25.flags & FROM_DCE)? 1:0),
-			g_mem_chunk_alloc( wcp_window), 0);
-			
-		((wcp_window_t*)conv->data)->buf_cur = ((wcp_window_t*)conv->data)->buffer;
+			0);
+	}
+	wcp_win_data = conversation_get_proto_data(conv, proto_wcp);
+	if ( !wcp_win_data){
+		wcp_win_data = g_mem_chunk_alloc( wcp_window);
+		wcp_win_data->buf_cur = wcp_win_data->buffer;
+		conversation_add_proto_data(conv, proto_wcp, wcp_win_data);
 	}
 
-	return (wcp_window_t*)conv->data;
+	return wcp_win_data;
 }
 
 

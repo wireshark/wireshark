@@ -2,7 +2,7 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.18 2001/07/03 00:49:57 guy Exp $
+ * $Id: packet-rlogin.c,v 1.19 2001/09/03 10:33:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,8 +23,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -337,26 +335,26 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 static void
 dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	rlogin_hash_entry_t *hash_info = 0;
 	conversation_t *conversation;
+	rlogin_hash_entry_t *hash_info;
 	gint ti_offset;
 
 						/* Lookup this connection*/
 	conversation = find_conversation( &pinfo->src, &pinfo->dst,
 		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
-	if ( conversation)			/* conversation found */
-		hash_info = conversation->data;
-
-			/* new conversation create local data structure */
-	else {				
+	if ( !conversation) {
+		conversation = conversation_new( &pinfo->src, &pinfo->dst,
+			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	}
+	hash_info = conversation_get_proto_data(conversation, proto_rlogin);
+	if ( !hash_info) {
 		hash_info = g_mem_chunk_alloc(rlogin_vals);
 		hash_info->state = NONE;
 		hash_info->info_framenum = 0;	/* no frame has the number 0 */
 		hash_info->name[ 0] = 0;
-
-		conversation_new( &pinfo->src, &pinfo->dst, pinfo->ptype,
-			pinfo->srcport, pinfo->destport, hash_info, 0);
+		conversation_add_proto_data(conversation, proto_rlogin,
+			hash_info);
 	}
 	
 	if (check_col(pinfo->fd, COL_PROTOCOL))		/* update protocol  */

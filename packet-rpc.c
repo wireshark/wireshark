@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.67 2001/09/02 23:57:33 guy Exp $
+ * $Id: packet-rpc.c,v 1.68 2001/09/03 10:33:06 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1141,7 +1141,7 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			   dissector. */
 			conversation = conversation_new(&pinfo->src,
 			    &null_address, pinfo->ptype, pinfo->srcport,
-			    pinfo->destport, NULL, 0);
+			    pinfo->destport, 0);
 		}
 
 		/* Prepare the key data.
@@ -1591,7 +1591,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			   one. */
 			conversation = conversation_new(&pinfo->src,
 			    &null_address, pinfo->ptype, pinfo->srcport,
-			    pinfo->destport, NULL, 0);
+			    pinfo->destport, 0);
 		}
 
 		/* prepare the key data */

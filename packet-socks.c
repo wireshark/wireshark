@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.22 2001/09/03 08:27:56 guy Exp $
+ * $Id: packet-socks.c,v 1.23 2001/09/03 10:33:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -375,7 +375,7 @@ static void socks_udp_dissector( const u_char *pd, int offset, frame_data *fd,
 
 	g_assert( conversation);	/* should always find a conversation */
 
-	hash_info = (socks_hash_entry_t*)conversation->data;
+	hash_info = conversation_get_proto_data(conversation, proto_socks);
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_set_str(fd, COL_PROTOCOL, "Socks");
@@ -434,10 +434,11 @@ static void socks_udp_dissector( const u_char *pd, int offset, frame_data *fd,
 void new_udp_conversation( socks_hash_entry_t *hash_info){
 
 	conversation_t *conversation = conversation_new( &pi.src, &pi.dst,  PT_UDP,
-			hash_info->udp_port, hash_info->port, hash_info, 0);
-			
+			hash_info->udp_port, hash_info->port, 0);
+
 	g_assert( conversation);
 	
+	conversation_add_proto_data(conversation, proto_socks, hash_info);
 	old_conversation_set_dissector(conversation, socks_udp_dissector);
 }
 
@@ -826,14 +827,15 @@ static void state_machine_v5( socks_hash_entry_t *hash_info, const u_char *pd,
 			offset += 3;		/* skip to address type */
 			offset = get_address_v5( pd, offset, hash_info);
 
-	/* save server udp port and create upd conversation */
+	/* save server udp port and create udp conversation */
 			if (!BYTES_ARE_IN_FRAME(offset, 2)){ 
 				hash_info->state = Done;
 		        	return; 
 		        }
 			hash_info->udp_port =  pntohs( &pd[ offset]);
 			
-			new_udp_conversation( hash_info);
+			if (!fd->flags.visited)
+				new_udp_conversation( hash_info);
 
 /*$$ may need else statement to handle unknows and generate error message */
 			
@@ -965,15 +967,12 @@ dissect_socks(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	conversation = find_conversation( &pi.src, &pi.dst, pi.ptype,
 		pi.srcport, pi.destport, 0);
 
-	if ( conversation){			/* conversation found */
-		hash_info = conversation->data;
-		if ( !hash_info){		/* exit if bad value */
-			old_dissect_data(pd, offset, fd, tree);
-			return;
-		}
-
-			/* new conversation create local data structure */
-	} else {				
+	if ( !conversation){
+		conversation = conversation_new( &pi.src, &pi.dst, pi.ptype,
+			pi.srcport, pi.destport, 0);
+	}
+	hash_info = conversation_get_proto_data(conversation,proto_socks);
+	if ( !hash_info){
     		hash_info = g_mem_chunk_alloc(socks_vals);
 		hash_info->start_done_row = G_MAXINT;
     		hash_info->state = None;
@@ -984,8 +983,8 @@ dissect_socks(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		   ( hash_info->version != 5))
     			hash_info->state = Done;
 
-		conversation = conversation_new( &pi.src, &pi.dst, pi.ptype,
-			pi.srcport, pi.destport, hash_info, 0);
+		conversation_add_proto_data(conversation, proto_socks,
+			hash_info);
 
 						/* set dissector for now */
 		old_conversation_set_dissector(conversation, dissect_socks);

@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.23 2001/07/16 05:16:57 guy Exp $
+ * $Id: packet-rtp.c,v 1.24 2001/09/03 10:33:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -194,12 +194,19 @@ static const value_string rtp_payload_type_vals[] =
 static address fake_addr;
 static int heur_init = FALSE;
 
-static const char rtp_proto[] = "RTP";
-
-void rtp_add_address( const unsigned char* ip_addr, int prt )
+void rtp_add_address( packet_info *pinfo, const unsigned char* ip_addr,
+    int prt )
 {
 	address src_addr;
-	conversation_t* pconv = ( conversation_t* ) NULL;
+	conversation_t* pconv;
+
+	/*
+	 * If this isn't the first time this packet has been processed,
+	 * we've already done this work, so we don't need to do it
+	 * again.
+	 */
+	if (pinfo->fd->flags.visited)
+		return;
 
 	src_addr.type = AT_IPv4;
 	src_addr.len = 4;
@@ -222,10 +229,12 @@ void rtp_add_address( const unsigned char* ip_addr, int prt )
 
 	/*
 	 * If not, add
+	 * XXX - use wildcard address and port B?
 	 */
 	if ( ! pconv ) {
-		conversation_new( &src_addr, &fake_addr, PT_UDP, (guint32) prt,
-		    (guint32) 0, ( void * ) rtp_proto, 0 );
+		pconv = conversation_new( &src_addr, &fake_addr, PT_UDP,
+		    (guint32) prt, (guint32) 0, 0 );
+		conversation_add_proto_data(pconv, proto_rtp, NULL);
 	}
 
 }
@@ -274,15 +283,11 @@ dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	}
 
 	/*
-	 * An RTP conversation always contains data
+	 * An RTP conversation always has a data item for RTP.
+	 * (Its existence is sufficient to indicate that this is an RTP
+	 * conversation.)
 	 */
-	if ( pconv->data == NULL )
-		return FALSE;
-
-	/*
-	 * An RTP conversation data always contains "RTP"
-	 */
-	if ( strcmp( pconv->data, rtp_proto ) != 0 )
+	if (conversation_get_proto_data(pconv, proto_rtp) == NULL)
 		return FALSE;
 
 	dissect_rtp( tvb, pinfo, tree );

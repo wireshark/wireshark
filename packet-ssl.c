@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.5 2001/07/16 05:17:30 guy Exp $
+ * $Id: packet-ssl.c,v 1.6 2001/09/03 10:33:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -514,6 +514,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
     conversation_t *conversation;
+    void *conv_data;
     guint conv_version     = SSL_VER_UNKNOWN;
     proto_item *ti         = NULL;
     proto_tree *ssl_tree   = NULL;
@@ -538,12 +539,12 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         /* create a new conversation */
         conversation = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,
-                                        pinfo->srcport, pinfo->destport,
-                                        (void*)SSL_VER_UNKNOWN, 0);
+                                        pinfo->srcport, pinfo->destport, 0);
     }
-    if (conversation)
+    conv_data = conversation_get_proto_data(conversation, proto_ssl);
+    if (conv_data != NULL)
     {
-        conv_version = (guint)conversation->data;
+        conv_version = (guint)conv_data;
     }
 
     /* Initialize the protocol column; we'll set it later when we
@@ -657,8 +658,15 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         }
 
+        /* If we haven't already set the version information for
+         * this conversation, do so. */
+        if (conv_data == NULL)
+        {
+            conv_data = (void *)conv_version;
+            conversation_add_proto_data(conversation, proto_ssl, conv_data);
+        }
+
         /* set up for next record in frame, if any */
-        conversation->data = (void*)conv_version;
         first_record_in_frame = FALSE;
     }
 
@@ -1957,19 +1965,32 @@ static void
 ssl_set_conv_version(packet_info *pinfo, guint version)
 {
     conversation_t *conversation;
+    void *conv_data;
+
+    if (pinfo->fd->flags.visited)
+    {
+        /* We've already processed this frame; no need to do any more
+         * work on it.
+         */
+        return;
+    }
+
     conversation = find_conversation(&pinfo->src, &pinfo->dst, pinfo->ptype,
                                      pinfo->srcport, pinfo->destport, 0);
 
-    if (conversation)
-    {
-        conversation->data = (void*)version;
-    }
-    else
+    if (conversation == NULL)
     {
         /* create a new conversation */
-        conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,
-                         pinfo->srcport, pinfo->destport, (void*)version, 0);
+        conversation = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,
+                                        pinfo->srcport, pinfo->destport, 0);
     }
+
+    if (conversation_get_proto_data(conversation, proto_ssl) != NULL)
+    {
+        /* get rid of the current data */
+        conversation_delete_proto_data(conversation, proto_ssl);
+    }
+    conversation_add_proto_data(conversation, proto_ssl, (void *)version);
 }
 
 static int

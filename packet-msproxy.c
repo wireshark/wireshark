@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.21 2001/06/18 02:17:49 guy Exp $
+ * $Id: packet-msproxy.c,v 1.22 2001/09/03 10:33:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -221,7 +221,8 @@ static void msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 
 	g_assert( conversation);	/* should always find a conversation */
 
-	redirect_info = (redirect_entry_t*)conversation->data;
+	redirect_info = conversation_get_proto_data(conversation,
+		proto_msproxy);
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "MS Proxy");
@@ -280,30 +281,38 @@ static void add_msproxy_conversation( packet_info *pinfo,
 /*	and pinfo->dst will not be correct and this routine will have	*/
 /*	to change.							*/
 
+	conversation_t *conversation;
 	redirect_entry_t *new_conv_info;
 	
-	conversation_t *conversation = find_conversation( &pinfo->src,
+	if (pinfo->fd->flags.visited) {
+		/*
+		 * We've already processed this frame once, so we
+		 * should already have done this.
+		 */
+		return;
+	}
+
+	conversation = find_conversation( &pinfo->src,
 		&pinfo->dst, hash_info->proto, hash_info->server_int_port,
 		hash_info->clnt_port, 0);
 
-	if ( conversation)
-		return;
+	if ( !conversation) {
+		conversation = conversation_new( &pinfo->src, &pinfo->dst,
+			hash_info->proto, hash_info->server_int_port,
+			hash_info->clnt_port, 0);
+	}
+	conversation_set_dissector(conversation, msproxy_sub_dissector);
 
 	new_conv_info = g_mem_chunk_alloc(redirect_vals);
-	conversation = conversation_new( &pinfo->src, &pinfo->dst,
-		hash_info->proto, hash_info->server_int_port,
-		hash_info->clnt_port, new_conv_info, 0);
-
-	g_assert( new_conv_info);
-	g_assert( conversation);
 
 	new_conv_info->remote_addr = hash_info->dst_addr;
 	new_conv_info->clnt_port = hash_info->clnt_port;
 	new_conv_info->remote_port = hash_info->dst_port;
 	new_conv_info->server_int_port = hash_info->server_int_port;
 	new_conv_info->proto = hash_info->proto;
-	
-	conversation_set_dissector(conversation, msproxy_sub_dissector);
+
+	conversation_add_proto_data(conversation, proto_msproxy,
+		new_conv_info);
 }
 
 
@@ -1109,15 +1118,15 @@ static void dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conversation = find_conversation( &pinfo->src, &pinfo->dst,
 		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
-	if ( conversation)			/* conversation found */
-		hash_info = conversation->data;
-
-			/* new conversation create local data structure */
-	else {				
+	if ( !conversation) {
+		conversation = conversation_new( &pinfo->src, &pinfo->dst,
+			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	}
+	hash_info = conversation_get_proto_data(conversation, proto_msproxy);
+	if ( !hash_info) {
     		hash_info = g_mem_chunk_alloc(vals);
-
-		conversation_new( &pinfo->src, &pinfo->dst, pinfo->ptype,
-			pinfo->srcport, pinfo->destport, hash_info, 0);
+		conversation_add_proto_data(conversation, proto_msproxy,
+			hash_info);
 	}
 
 	if (check_col(pinfo->fd, COL_INFO)){

@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.20 2001/09/03 08:10:46 guy Exp $
+ * $Id: packet-rtcp.c,v 1.21 2001/09/03 10:33:06 guy Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -178,15 +178,22 @@ static gint ett_sdes_item      = -1;
 static address fake_addr;
 static int heur_init = FALSE;
 
-static char rtcp_proto[] = "RTCP";
-
 static gboolean dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree );
 
-void rtcp_add_address( const unsigned char* ip_addr, int prt )
+void rtcp_add_address( packet_info *pinfo, const unsigned char* ip_addr,
+    int prt )
 {
 	address src_addr;
-	conversation_t* pconv = ( conversation_t* ) NULL;
+	conversation_t* pconv;
+
+	/*
+	 * If this isn't the first time this packet has been processed,
+	 * we've already done this work, so we don't need to do it
+	 * again.
+	 */
+	if (pinfo->fd->flags.visited)
+		return;
 
 	src_addr.type = AT_IPv4;
 	src_addr.len = 4;
@@ -209,10 +216,12 @@ void rtcp_add_address( const unsigned char* ip_addr, int prt )
 
 	/*
 	 * If not, add
+	 * XXX - use wildcard address and port B?
 	 */
 	if ( ! pconv ) {
-		conversation_new( &src_addr, &fake_addr, PT_UDP, (guint32) prt,
-		    (guint32) 0, (void*) rtcp_proto, 0 );
+		pconv = conversation_new( &src_addr, &fake_addr, PT_UDP,
+		    (guint32) prt, (guint32) 0, 0 );
+		conversation_add_proto_data(pconv, proto_rtcp, NULL);
 	}
 
 }
@@ -262,15 +271,11 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 
 	/*
-	 * An RTCP conversation always contains data
+	 * An RTCP conversation always has a data item for RTCP.
+	 * (Its existence is sufficient to indicate that this is an RTCP
+	 * conversation.)
 	 */
-	if ( pconv->data == NULL )
-		return FALSE;
-
-	/*
-	 * An RTCP conversation data always contains "RTCP"
-	 */
-	if ( strcmp( pconv->data, rtcp_proto ) != 0 )
+	if (conversation_get_proto_data(pconv, proto_rtcp) == NULL)
 		return FALSE;
 
 	/*

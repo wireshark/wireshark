@@ -4,12 +4,11 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.40 2001/08/18 04:16:37 guy Exp $
+ * $Id: packet-rtsp.c,v 1.41 2001/09/03 10:33:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,8 +23,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 #include "config.h"
@@ -266,14 +263,14 @@ rtsp_create_conversation(packet_info *pinfo, const u_char *line_begin,
 	SET_ADDRESS(&null_addr, pinfo->src.type, 0, NULL);
 
 	conv = conversation_new(&pinfo->dst, &null_addr, PT_UDP, c_data_port,
-		s_data_port, NULL, NO_ADDR2 | (!s_data_port ? NO_PORT2 : 0));
+		s_data_port, NO_ADDR2 | (!s_data_port ? NO_PORT2 : 0));
 	conversation_set_dissector(conv, dissect_rtp);
 
 	if (!c_mon_port)
 		return;
 
 	conv = conversation_new(&pinfo->dst, &null_addr, PT_UDP, c_mon_port,
-		s_mon_port, NULL, NO_ADDR2 | (!s_mon_port ? NO_PORT2 : 0));
+		s_mon_port, NO_ADDR2 | (!s_mon_port ? NO_PORT2 : 0));
 	conversation_set_dissector(conv, dissect_rtcp);
 }
 
