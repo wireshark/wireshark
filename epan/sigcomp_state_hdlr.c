@@ -613,8 +613,10 @@ void udvm_state_create(guint8 *state_buff,guint8 *state_identifier,guint16 p_id_
 	}else{
 		/* The buffer allocated by sigcomp-udvm.c wasen't needed so free it
 		 */
-		g_free(partial_state_str);
+		g_free(state_buff);
+
 	}
+	g_free(partial_state_str);
 
 }
 
