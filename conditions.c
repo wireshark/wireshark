@@ -1,7 +1,7 @@
 /* conditions.c
  * Implementation for condition handler.
  *
- * $Id: conditions.c,v 1.1 2001/12/04 07:32:00 guy Exp $
+ * $Id: conditions.c,v 1.2 2002/05/04 09:19:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -197,7 +197,7 @@ static void _cnd_init(){
  * to the key is stored in a global variable.
  */
 void _cnd_find_hash_key_for_class_id(gpointer key,
-                                     gpointer value,
+                                     gpointer value _U_,
                                      gpointer user_data){
   char* class_id = (char*)user_data;
   char* key_value = (char*)key; 
