@@ -397,11 +397,5 @@ proto_register_llcgprs(void)
 void
 proto_reg_handoff_llcgprs(void)
 {
-	dissector_handle_t llcgprs_handle;
-
-	llcgprs_handle = create_dissector_handle(dissect_llcgprs,
-	    proto_llcgprs);
-/*	dissector_add("PARENT_SUBFIELD", ID_VALUE, llcgprs_handle);
-*/
 	data_handle = find_dissector("data");
 }
