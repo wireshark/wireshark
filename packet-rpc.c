@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.72 2001/09/17 02:07:00 guy Exp $
+ * $Id: packet-rpc.c,v 1.73 2001/10/29 20:49:28 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,7 +96,7 @@ static const value_string rpc_authgss_proc[] = {
 	{ 0, NULL }
 };
 
-static const value_string rpc_authgss_svc[] = {
+value_string rpc_authgss_svc[] = {
 	{ RPCSEC_GSS_SVC_NONE, "rpcsec_gss_svc_none" },
 	{ RPCSEC_GSS_SVC_INTEGRITY, "rpcsec_gss_svc_integrity" },
 	{ RPCSEC_GSS_SVC_PRIVACY, "rpcsec_gss_svc_privacy" },

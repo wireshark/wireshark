@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.29 2001/05/30 06:01:02 guy Exp $
+ * $Id: packet-rpc.h,v 1.30 2001/10/29 20:49:28 guy Exp $
  *
  * (c) 1999 Uwe Girlich
  *
@@ -73,6 +73,8 @@
 
 #define AUTHDES_NAMEKIND_FULLNAME 0
 #define AUTHDES_NAMEKIND_NICKNAME 1
+
+extern value_string rpc_authgss_svc[];
 
 typedef int (old_dissect_function_t)(const u_char* pd, int offset, frame_data* fd, proto_tree* tree);
 typedef int (dissect_function_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* tree);
