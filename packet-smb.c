@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.220 2002/03/16 04:39:29 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.221 2002/03/16 22:01:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4890,14 +4890,16 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* another way to transport DCERPC over SMB is to skip Transaction completely and just
 	   read write */
 	if(bc){
-		if(si->sip->flags&SMB_SIF_TID_IS_IPC){
+		if(si->sip != NULL && si->sip->flags&SMB_SIF_TID_IS_IPC){
 			tvbuff_t *dcerpc_tvb;
 			/* dcerpc call */
 			dcerpc_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), bc);
 			dissect_pipe_dcerpc(dcerpc_tvb, pinfo, top_tree,
 				tree, fid);
 		} else {
-			/* ordinary file data */
+			/* ordinary file data, or we didn't see the request,
+			   so we don't know whether this is a DCERPC call
+			   or not */
 			offset = dissect_file_data(tvb, pinfo, tree, offset, bc, datalen);
 		}
 		bc = 0;
