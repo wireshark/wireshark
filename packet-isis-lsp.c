@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.42 2003/04/29 16:57:05 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.43 2003/05/15 06:35:02 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -55,6 +55,7 @@ static int hf_isis_lsp_hippity = -1;
 static int hf_isis_lsp_is_type = -1;
 
 static gint ett_isis_lsp = -1;
+static gint ett_isis_lsp_checksum = -1;
 static gint ett_isis_lsp_info = -1;
 static gint ett_isis_lsp_att = -1;
 static gint ett_isis_lsp_clv_area_addr = -1;
@@ -713,7 +714,12 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
 		ctrl_info = tvb_get_guint8(tvb, offset+4);
 		bit_length = ctrl_info & 0x3f;
 		byte_length = (bit_length + 7) / 8;
-		tvb_memcpy (tvb, prefix, offset+5, byte_length);
+		if (byte_length > sizeof(prefix)) {
+			 isis_dissect_unknown(tvb, tree, offset,
+			 	"IPv4 prefix has an invalid length: %d bytes", byte_length );
+      			return;
+    		}
+ 		tvb_memcpy (tvb, prefix, offset+5, byte_length);
 		metric = tvb_get_ntohl(tvb, offset);
 		subclvs_len = 0;
 		if ((ctrl_info & 0x40) != 0)
@@ -806,13 +812,17 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 	if (!tree) return;
 
-	memset (prefix.s6_addr, 0, 16);
-
 	while (length > 0) {
+  	memset (prefix.s6_addr, 0, 16);
 		ctrl_info = tvb_get_guint8(tvb, offset+4);
 		bit_length = tvb_get_guint8(tvb, offset+5);
 		byte_length = (bit_length + 7) / 8;
-		tvb_memcpy (tvb, prefix.s6_addr, offset+6, byte_length);
+    		if (byte_length > sizeof(prefix)) {
+			isis_dissect_unknown(tvb, tree, offset,
+				"IPv6 prefix has an invalid length: %d bytes", byte_length );
+      			return;
+    		}
+ 		tvb_memcpy (tvb, prefix.s6_addr, offset+6, byte_length);
 		metric = tvb_get_ntohl(tvb, offset);
 		subclvs_len = 0;
 		if ((ctrl_info & 0x20) != 0)
@@ -1753,11 +1763,11 @@ void
 isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	int lsp_type, int header_length, int id_length)
 {
-	proto_item	*ti, *to, *ta;
-	proto_tree	*lsp_tree = NULL, *info_tree, *att_tree;
-	guint16		pdu_length;
+	proto_item	*ti, *to, *ta, *tc;
+	proto_tree	*lsp_tree = NULL, *info_tree, *att_tree, *check_tree;
+	guint16		pdu_length, checksum, cacl_checksum=0;
 	guint8		lsp_info, lsp_att;
-	int		len;
+	int		len, offset_checksum;
 
 	if (tree) {
 		ti = proto_tree_add_text(tree, tvb, offset, -1,
@@ -1778,6 +1788,7 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
                                     tvb_get_ntohs(tvb, offset));
 	}
 	offset += 2;
+	offset_checksum = offset;
 
 	if (tree) {
 		proto_tree_add_text(lsp_tree, tvb, offset, id_length + 2,
@@ -1804,9 +1815,31 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 	offset += 4;
 
 	if (tree) {
-		/* XXX -> we could validate the cksum here! */
-		proto_tree_add_uint(lsp_tree, hf_isis_lsp_checksum, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+		checksum = tvb_get_ntohs(tvb, offset);
+		tc = proto_tree_add_uint(lsp_tree, hf_isis_lsp_checksum, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
+		check_tree = proto_item_add_subtree(tc, ett_isis_lsp_checksum);
+
+		switch (check_and_get_checksum(tvb, offset_checksum, pdu_length-12, checksum, offset, &cacl_checksum)) {
+		case NO_CKSUM :
+			proto_tree_add_text(check_tree, tvb, offset, 2,
+				"Checksum control disabled");
+	 		break;
+		case DATA_MISSING :
+			isis_dissect_unknown(tvb, tree, offset,
+				"packet length %d went beyond packet",
+				tvb_length_remaining(tvb, offset_checksum));
+			break;
+		case CKSUM_NOT_OK :
+			proto_tree_add_text(check_tree, tvb, offset, 2,
+				"Checksum error: 0x%04x expected", cacl_checksum);
+			break;
+		case CKSUM_OK :
+			proto_tree_add_text(check_tree, tvb, offset, 2,
+				"Checksum OK");
+			break;
+		default :
+			g_message("'check_and_get_checksum' returned an invalid value");
+		}
 	}
 	offset += 2;
 
@@ -1932,6 +1965,7 @@ isis_register_lsp(int proto_isis) {
 	};
 	static gint *ett[] = {
 		&ett_isis_lsp,
+		&ett_isis_lsp_checksum,
 		&ett_isis_lsp_info,
 		&ett_isis_lsp_att,
 		&ett_isis_lsp_clv_area_addr,

@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: packet-osi.c,v 1.60 2003/04/29 17:56:48 guy Exp $
+ * $Id: packet-osi.c,v 1.61 2003/05/15 06:35:02 guy Exp $
  * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -91,10 +91,103 @@ calc_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum) {
     len -= seglen;
   }
   if (c0 != 0 || c1 != 0)
-    return( CKSUM_NOT_OK );	/* XXX - what should the checksum be? */
+    return( CKSUM_NOT_OK );	/* XXX - what should the checksum field be? */
   else
     return( CKSUM_OK );
 }
+
+
+cksum_status_t
+check_and_get_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum, int offset_check, guint16* result) {
+  const gchar *buffer;
+  guint   available_len;
+  const guint8 *p;
+  guint8 discard = 0;
+  guint32 c0, c1, factor;
+  guint   seglen, initlen = len;
+  guint   i;
+  int     block, x, y;
+
+  if ( 0 == checksum )
+    return( NO_CKSUM );
+
+  available_len = tvb_length_remaining( tvb, offset );
+  offset_check -= offset;
+  if ( ( available_len < len ) || ( offset_check < 0 ) || ( (guint)(offset_check+2) > len ) )
+    return( DATA_MISSING );
+
+  buffer = tvb_get_ptr( tvb, offset, len );
+  block  = offset_check / 5803;
+
+  /*
+   * The maximum values of c0 and c1 will occur if all bytes have the
+   * value 255; if so, then c0 will be len*255 and c1 will be
+   * (len*255 + (len-1)*255 + ... + 255), which is
+   * (len + (len - 1) + ... + 1)*255, or 255*(len*(len + 1))/2.
+   * This means it can overflow if "len" is 5804 or greater.
+   *
+   * (A+B) mod 255 = ((A mod 255) + (B mod 255) mod 255, so
+   * we can solve this by taking c0 and c1 mod 255 every
+   * 5803 bytes.
+   */
+  p = buffer;
+  c0 = 0;
+  c1 = 0;
+
+  while (len != 0) {
+    seglen = len;
+    if ( block-- == 0 ) {
+      seglen = offset_check % 5803;
+      discard = 1;
+    } else if ( seglen > 5803 )
+      seglen = 5803;
+    for (i = 0; i < seglen; i++) {
+      c0 = c0 + *(p++);
+      c1 += c0;
+    }
+    if ( discard ) {
+      /*
+       * This works even if (offset_check % 5803) == 5802
+       */
+      p += 2;
+      c1 += 2*c0;
+      len -= 2;
+      discard = 0;
+    }
+
+    c0 = c0 % 255;
+    c1 = c1 % 255;
+
+    len -= seglen;
+  }
+
+  factor = ( initlen - offset_check ) * c0;
+  x = factor - c0 - c1;
+  y = c1 - factor - 1;
+
+  /*
+   * This algorithm uses the 8 bits one's complement arithmetic.
+   * Therefore, we must correct an effect produced
+   * by the "standard" arithmetic (two's complement)
+   */
+
+  if (x < 0 ) x--;
+  if (y > 0 ) y++;
+
+  x %= 255;
+  y %= 255;
+
+  if (x == 0) x = 0xFF;
+  if (y == 0) y = 0x01;
+
+  *result = ( x << 8 ) | ( y & 0xFF );
+
+  if (*result != checksum)
+    return( CKSUM_NOT_OK );	/* XXX - what should the checksum field be? */
+  else
+    return( CKSUM_OK );
+}
+
 
 
 /* main entry point */
