@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.63 2003/05/30 03:11:44 guy Exp $
+ * $Id: packet-http.c,v 1.64 2003/06/10 22:07:18 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,9 +53,11 @@ static int hf_http_notification = -1;
 static int hf_http_response = -1;
 static int hf_http_request = -1;
 static int hf_http_basic = -1;
+static int hf_http_request_method = -1;
 
 static gint ett_http = -1;
 static gint ett_http_ntlmssp = -1;
+static gint ett_http_request = -1;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t http_handle;
@@ -79,7 +81,10 @@ typedef enum {
 	PROTO_SSDP		/* Simple Service Discovery Protocol */
 } http_proto_t;
 
-static int is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type);
+typedef void (*RequestDissector)(tvbuff_t*, proto_tree*, int);
+
+static int is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type,
+		RequestDissector *req_dissector, int *req_strlen);
 
 static dissector_table_t subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
@@ -201,6 +206,9 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		datalen;
 	char		*text;
 	proto_item	*hdr_item;
+	RequestDissector	req_dissector;
+	int			req_strlen;
+	proto_tree		*req_tree;
 
 	switch (pinfo->match_port) {
 
@@ -232,7 +240,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    FALSE);
 		line = tvb_get_ptr(tvb, offset, linelen);
 		http_type = HTTP_OTHERS;	/* type not known yet */
-		if (is_http_request_or_reply(line, linelen, &http_type))
+		if (is_http_request_or_reply(line, linelen, &http_type, NULL, NULL))
 			col_add_str(pinfo->cinfo, COL_INFO,
 			    format_text(line, linelen));
 		else
@@ -265,7 +273,8 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * OK, does it look like an HTTP request or response?
 		 */
-		if (is_http_request_or_reply(line, linelen, &http_type))
+		req_dissector = NULL;
+		if (is_http_request_or_reply(line, linelen, &http_type, &req_dissector, &req_strlen))
 			goto is_http;
 
 		/*
@@ -356,6 +365,10 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tree) {
 			hdr_item = proto_tree_add_text(http_tree, tvb, offset,
 			    next_offset - offset, "%s", text);
+			if (req_dissector) {
+				req_tree = proto_item_add_subtree(hdr_item, ett_http_request);
+				req_dissector(tvb, req_tree, req_strlen);
+			}
 		} else
 			hdr_item = NULL;
 		check_auth(hdr_item, tvb, pinfo, text);
@@ -418,12 +431,24 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
+/* This can be used to dissect an HTTP request until such time
+ * that a more complete dissector is written for that HTTP request.
+ * This simple dissectory only puts http.request_method into a sub-tree.
+ */
+static void
+basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int req_strlen)
+{
+	proto_tree_add_item(tree, hf_http_request_method, tvb, 0, req_strlen, FALSE);
+}
+
+
 /*
  * XXX - this won't handle HTTP 0.9 replies, but they're all data
  * anyway.
  */
 static int
-is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type)
+is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type,
+		RequestDissector *req_dissector, int *req_strlen)
 {
 	int isHttpRequestOrReply = FALSE;
 
@@ -448,6 +473,9 @@ is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type)
 	if (linelen >= 5 && strncmp(data, "HTTP/", 5) == 0) {
 		*type = HTTP_RESPONSE;
 		isHttpRequestOrReply = TRUE;	/* response */
+		if (req_dissector) {
+			*req_dissector = NULL; /* no dissector for this yet. */
+		}
 	} else {
 		const guchar * ptr = (const guchar *)data;
 		int		 index = 0;
@@ -552,6 +580,11 @@ is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type)
 		default:
 			break;
 		}
+
+		if (isHttpRequestOrReply && req_dissector) {
+			*req_dissector = basic_request_dissector;
+			*req_strlen = index;
+		}
 	}
 
 	return isHttpRequestOrReply;
@@ -576,10 +609,15 @@ proto_register_http(void)
 	    { &hf_http_basic,
 	      { "Credentials",		"http.authbasic",
 		FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	    { &hf_http_request_method,
+	      { "Request Method",	"http.request.method",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Request Method", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_http,
 		&ett_http_ntlmssp,
+		&ett_http_request,
 	};
 
 	proto_http = proto_register_protocol("Hypertext Transfer Protocol",
