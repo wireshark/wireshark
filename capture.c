@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.63 1999/09/01 03:04:09 gram Exp $
+ * $Id: capture.c,v 1.64 1999/09/08 05:41:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -131,6 +131,8 @@ get_interface_list() {
   struct  ifreq ifrflags;
   int     sock = socket(AF_INET, SOCK_DGRAM, 0);
   struct search_user_data user_data;
+  pcap_t *pch;
+  gchar   err_str[PCAP_ERRBUF_SIZE];
 
   if (sock < 0)
   {
@@ -149,7 +151,7 @@ get_interface_list() {
   {
     simple_dialog(ESD_TYPE_WARN, NULL,
       "Can't list interfaces: SIOCGIFCONF error: %s", strerror(errno));
-    return NULL;
+    goto fail;
   }
 
   ifr  = (struct ifreq *) ifc.ifc_req;
@@ -197,6 +199,14 @@ get_interface_list() {
       goto next;
 
     /*
+     * Skip interfaces that we can't open with "libpcap".
+     */
+    pch = pcap_open_live(ifr->ifr_name, WTAP_MAX_PACKET_SIZE, 0, 0, err_str);
+    if (pch == NULL)
+      goto next;
+    pcap_close(pch);
+
+    /*
      * If it's a loopback interface, add it at the end of the list,
      * otherwise add it after the last non-loopback interface,
      * so all loopback interfaces go at the end - we don't want a
@@ -221,11 +231,25 @@ next:
   }
 
   free(ifc.ifc_buf);
+  close(sock);
+
+  if (il == NULL) {
+    simple_dialog(ESD_TYPE_WARN, NULL,
+      "There are no network interfaces that can be opened.\n"
+      "Please check to make sure you have sufficient permission\n"
+      "to capture packets.");
+    return NULL;
+  }
+
   return il;
 
 fail:
-  g_list_foreach(il, free_if_cb, NULL);
-  g_list_free(il);
+  if (il != NULL) {
+    g_list_foreach(il, free_if_cb, NULL);
+    g_list_free(il);
+  }
+  free(ifc.ifc_buf);
+  close(sock);
   return NULL;
 }
 
@@ -255,6 +279,10 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
   GList         *if_list, *count_list = NULL;
   gchar         *count_item1 = "0 (Infinite)", count_item2[16];
 
+  if_list = get_interface_list();
+  if (if_list == NULL)
+    return;
+  
   cap_open_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(cap_open_w), "Ethereal: Capture Preferences");
   
@@ -272,8 +300,6 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
   if_lb = gtk_label_new("Interface:");
   gtk_box_pack_start(GTK_BOX(if_hb), if_lb, FALSE, FALSE, 0);
   gtk_widget_show(if_lb);
-  
-  if_list = get_interface_list();
   
   if_cb = gtk_combo_new();
   gtk_combo_set_popdown_strings(GTK_COMBO(if_cb), if_list);
