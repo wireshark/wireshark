@@ -2,7 +2,7 @@
  * Routines for iSCSI dissection
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
  *
- * $Id: packet-iscsi.c,v 1.33 2002/05/16 10:03:31 guy Exp $
+ * $Id: packet-iscsi.c,v 1.34 2002/06/24 07:57:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,16 +56,18 @@
 #define ISCSI_PROTOCOL_DRAFT09 2
 #define ISCSI_PROTOCOL_DRAFT11 3
 #define ISCSI_PROTOCOL_DRAFT12 4
+#define ISCSI_PROTOCOL_DRAFT13 5
 
 static enum_val_t iscsi_protocol_versions[] = {
     { "Draft 08", ISCSI_PROTOCOL_DRAFT08 },
     { "Draft 09", ISCSI_PROTOCOL_DRAFT09 },
     { "Draft 11", ISCSI_PROTOCOL_DRAFT11 },
     { "Draft 12", ISCSI_PROTOCOL_DRAFT12 },
+    { "Draft 13", ISCSI_PROTOCOL_DRAFT13 },
     { NULL, 0 }
 };
 
-static gint iscsi_protocol_version = ISCSI_PROTOCOL_DRAFT12;
+static gint iscsi_protocol_version = ISCSI_PROTOCOL_DRAFT13;
 
 static gboolean iscsi_desegment = TRUE;
 
@@ -459,6 +461,7 @@ static const value_string iscsi_asyncevents[] = {
     {1, "Target requests logout"},
     {2, "Target will/has dropped connection"},
     {3, "Target will/has dropped all connections"},
+    {4, "Target requests parameter negotiation"},
     {0, NULL},
 };
 
@@ -860,7 +863,15 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 				 val_to_str (login_status, iscsi_login_status, "0x%x"));
 	    }
 	    else if (opcode == ISCSI_OPCODE_LOGOUT_COMMAND) {
-		guint16 logoutReason = tvb_get_ntohs(tvb, offset+11);
+		guint16 logoutReason;
+		if(iscsi_protocol_version == ISCSI_PROTOCOL_DRAFT08) {
+		    logoutReason = tvb_get_ntohs(tvb, offset+11);
+		} else if(iscsi_protocol_version >= ISCSI_PROTOCOL_DRAFT13) {
+		    logoutReason = tvb_get_ntohs(tvb, offset+1) & 0x7f;
+		}
+		else {
+		    logoutReason = tvb_get_ntohs(tvb, offset+23);
+		}
 		col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
 				 val_to_str (logoutReason, iscsi_logout_reasons, "0x%x"));
 	    }
@@ -1296,6 +1307,9 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	}
 	else if(opcode == ISCSI_OPCODE_LOGOUT_COMMAND) {
 	    /* Logout Command */
+	    if(iscsi_protocol_version >= ISCSI_PROTOCOL_DRAFT13) {
+		proto_tree_add_item(ti, hf_iscsi_Logout_Reason, tvb, offset + 1, 1, FALSE);
+	    }
 	    if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT09) {
 		proto_tree_add_item(ti, hf_iscsi_TotalAHSLength, tvb, offset + 4, 1, FALSE);
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
@@ -1307,7 +1321,9 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
 	    if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT08) {
 		proto_tree_add_item(ti, hf_iscsi_CID, tvb, offset + 20, 2, FALSE);
-		proto_tree_add_item(ti, hf_iscsi_Logout_Reason, tvb, offset + 23, 1, FALSE);
+		if(iscsi_protocol_version < ISCSI_PROTOCOL_DRAFT13) {
+		    proto_tree_add_item(ti, hf_iscsi_Logout_Reason, tvb, offset + 23, 1, FALSE);
+		}
 	    }
 	    proto_tree_add_item(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
@@ -2052,7 +2068,7 @@ proto_register_iscsi(void)
 	},
 	{ &hf_iscsi_Logout_Reason,
 	  { "Reason", "iscsi.logout.reason",
-	    FT_UINT8, BASE_HEX, VALS(iscsi_logout_reasons), 0,
+	    FT_UINT8, BASE_HEX, VALS(iscsi_logout_reasons), 0x7F,
 	    "Reason for logout", HFILL }
 	},
 	{ &hf_iscsi_Logout_Response,
