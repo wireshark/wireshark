@@ -2,13 +2,12 @@
  * Routines for ISO/OSI End System to Intermediate System  
  * Routeing Exchange Protocol ISO 9542.
  *
- * $Id: packet-esis.c,v 1.14 2001/03/30 10:51:50 guy Exp $
+ * $Id: packet-esis.c,v 1.15 2001/06/05 09:06:19 guy Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -292,6 +291,7 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
    proto_tree *esis_tree    = NULL;
    int         variable_len = 0;
    u_int       tmp_uint     = 0;
+   char       *cksum_status;
 
    if (check_col(pinfo->fd, COL_PROTOCOL))
      col_set_str(pinfo->fd, COL_PROTOCOL, "ESIS");
@@ -337,11 +337,31 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
      tmp_uint = pntohs( ehdr.esis_checksum );
      
+     switch (calc_checksum( tvb, 0, ehdr.esis_length, tmp_uint )) {
+
+     case NO_CKSUM:
+	cksum_status = "Not Used";
+	break;
+
+     case DATA_MISSING:
+	cksum_status = "Not checkable - not all of packet was captured";
+	break;
+
+     case CKSUM_OK:
+	cksum_status = "Is good";
+	break;
+
+     case CKSUM_NOT_OK:
+	cksum_status = "Is wrong";
+	break;
+
+     default:
+	cksum_status = NULL;
+	g_assert_not_reached();
+     }
      proto_tree_add_uint_format( esis_tree, hf_esis_checksum, tvb, 7, 2,
                                  tmp_uint, "Checksum      : 0x%x ( %s )", 
-                                 tmp_uint, calc_checksum( tvb, 0,
-                                                          ehdr.esis_length ,
-                                                          tmp_uint ) );
+                                 tmp_uint, cksum_status );
    }
 
 

@@ -1,11 +1,10 @@
 /* packet-osi.h
  *
- * $Id: packet-osi.h,v 1.7 2001/04/01 05:48:14 hagbard Exp $
+ * $Id: packet-osi.h,v 1.8 2001/06/05 09:06:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -85,6 +84,13 @@ dissector_table_t osinl_subdissector_table;
  * published API functions
  */
 
-extern gchar *calc_checksum  ( tvbuff_t *, int, u_int, u_int );
+typedef enum {
+	NO_CKSUM,	/* checksum field is 0 */
+	DATA_MISSING,	/* not all the data covered by the checksum was captured */
+	CKSUM_OK,	/* checksum is OK */
+	CKSUM_NOT_OK	/* checksum is not OK */
+} cksum_status_t;
+
+extern cksum_status_t calc_checksum(tvbuff_t *, int, u_int, u_int);
 
 #endif /* _PACKET_OSI_H */

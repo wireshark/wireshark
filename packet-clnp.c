@@ -1,14 +1,13 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.28 2001/05/27 04:14:52 guy Exp $
+ * $Id: packet-clnp.c,v 1.29 2001/06/05 09:06:19 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -1675,10 +1674,42 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(clnp_tree, hf_clnp_pdu_length, tvb, P_CLNP_SEGLEN, 2,
 			segment_length);
     cnf_cksum = tvb_get_ntohs(tvb, P_CLNP_CKSUM);
-    proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, tvb, P_CLNP_CKSUM, 2,
+    switch (calc_checksum(tvb, 0, cnf_hdr_len, cnf_cksum)) {
+
+    default:
+	/*
+	 * No checksum present, or not enough of the header present to
+	 * checksum it.
+	 */
+	proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, tvb,
+			       P_CLNP_CKSUM, 2,
 			       cnf_cksum,
 			       "Checksum     : 0x%04x",
 			       cnf_cksum);
+	break;
+
+    case CKSUM_OK:
+	/*
+	 * Checksum is correct.
+	 */
+	proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, tvb,
+			       P_CLNP_CKSUM, 2,
+			       cnf_cksum,
+			       "Checksum     : 0x%04x (correct)",
+			       cnf_cksum);
+	break;
+
+    case CKSUM_NOT_OK:
+	/*
+	 * Checksum is not correct.
+	 */
+	proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, tvb,
+			       P_CLNP_CKSUM, 2,
+			       cnf_cksum,
+			       "Checksum     : 0x%04x (incorrect)",
+			       cnf_cksum);
+	break;
+    }
     opt_len -= 9; /* Fixed part of Hesder */
   } /* tree */
 

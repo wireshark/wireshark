@@ -2,14 +2,13 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: packet-osi.c,v 1.44 2001/04/16 10:04:30 guy Exp $
+ * $Id: packet-osi.c,v 1.45 2001/06/05 09:06:19 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -49,29 +48,56 @@
 #include "packet-esis.h"
 
 
-gchar *calc_checksum( tvbuff_t *tvb, int offset, u_int len, u_int checksum) {
-  u_int   calc_sum = 0;
-  u_int   count    = 0;
+cksum_status_t
+calc_checksum( tvbuff_t *tvb, int offset, u_int len, u_int checksum) {
   const gchar *buffer;
   guint   available_len;
+  const guint8 *p;
+  guint32 c0, c1;
+  u_int   seglen;
+  int     i;
 
   if ( 0 == checksum )
-    return( "Not Used" );
+    return( NO_CKSUM );
 
   available_len = tvb_length_remaining( tvb, offset );
   if ( available_len < len )
-    return( "Not checkable - not all of packet was captured" );
+    return( DATA_MISSING );
 
   buffer = tvb_get_ptr( tvb, offset, len );
-  for ( count = 0; count < len; count++ ) {
-    calc_sum += (u_int) buffer[count];
+
+  /*
+   * The maximum values of c0 and c1 will occur if all bytes have the
+   * value 255; if so, then c0 will be len*255 and c1 will be
+   * (len*255 + (len-1)*255 + ... + 255), which is
+   * (len + (len - 1) + ... + 1)*255, or 255*(len*(len + 1))/2.
+   * This means it can overflow if "len" is 5804 or greater.
+   *
+   * (A+B) mod 255 = ((A mod 255) + (B mod 255) mod 255, so
+   * we can solve this by taking c0 and c1 mod 255 every
+   * 5803 bytes.
+   */
+  p = buffer;
+  c0 = 0;
+  c1 = 0;
+  while (len != 0) {
+    seglen = len;
+    if (seglen > 5803)
+      seglen = 5803;
+    for (i = 0; i < seglen; i++) {
+      c0 = c0 + *(p++);
+      c1 += c0;
+    }
+
+    c0 = c0 % 255;
+    c1 = c1 % 255;
+
+    len -= seglen;
   }
-  calc_sum %= 255;  /* modulo 255 divison */
-  
-  if ( 0 == calc_sum )
-    return( "Is good" );
+  if (c0 != 0 || c1 != 0)
+    return( CKSUM_NOT_OK );	/* XXX - what should the checksum be? */
   else
-    return( "Is wrong" );	/* XXX - what should the checksum be? */
+    return( CKSUM_OK );
 }
 
 
