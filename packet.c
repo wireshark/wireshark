@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.16 1999/01/02 06:10:53 gram Exp $
+ * $Id: packet.c,v 1.17 1999/01/05 07:33:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -57,7 +57,7 @@ extern GdkFont      *m_r_font, *m_b_font;
 extern capture_file  cf;
 
 gchar *
-ether_to_str(guint8 *ad) {
+ether_to_str(const guint8 *ad) {
   static gchar  str[3][18];
   static gchar *cur;
 
@@ -74,7 +74,7 @@ ether_to_str(guint8 *ad) {
 }
 
 gchar *
-ip_to_str(guint8 *ad) {
+ip_to_str(const guint8 *ad) {
   static gchar  str[3][16];
   static gchar *cur;
 

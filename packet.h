@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.31 1999/01/04 09:13:45 guy Exp $
+ * $Id: packet.h,v 1.32 1999/01/05 07:33:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -494,8 +494,8 @@ void       dissect_ip_tcp_options(GtkWidget *, const u_char *, int, guint,
     ip_tcp_opt *, int, int);
 
 /* Utility routines used by packet*.c */
-gchar*     ether_to_str(guint8 *);
-gchar*     ip_to_str(guint8 *);
+gchar*     ether_to_str(const guint8 *);
+gchar*     ip_to_str(const guint8 *);
 void       packet_hex_print(GtkText *, guint8 *, gint, gint, gint);
 #define E_TREEINFO_START_KEY "tree_info_start"
 #define E_TREEINFO_LEN_KEY   "tree_info_len"
