@@ -2,7 +2,7 @@
  * Routines for ftp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-ftp.c,v 1.7 1999/08/24 17:26:11 gram Exp $
+ * $Id: packet-ftp.c,v 1.8 1999/10/09 11:56:15 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -30,6 +30,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
@@ -44,6 +45,12 @@
 #include "packet.h"
 
 static int proto_ftp = -1;
+static int hf_ftp_response = -1;
+static int hf_ftp_request = -1;
+static int hf_ftp_request_command = -1;
+static int hf_ftp_request_data = -1;
+static int hf_ftp_response_code = -1;
+static int hf_ftp_response_data = -1;
 
 void
 dissect_ftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
@@ -57,7 +64,7 @@ dissect_ftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	memset(rr, '\0', sizeof(rr));
 	memset(rd, '\0', sizeof(rd));
 
-	if (i1 > 0) {
+	if (i1 >= 0) {
 
 	  /* Hmmm, check if there was no space in there ... */
 
@@ -71,6 +78,10 @@ dissect_ftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	    strncpy(rr, pd + offset, MIN(i1, sizeof(rr) - 1));
 	    i2 = ((u_char *)strchr(pd + offset + i1 + 1, '\r') - (pd + offset)) - i1 - 1;
+	    if (i2 > max_data - i1 - 1 || i2 < 0) {
+	      i2 = max_data - i1 - 1;
+	    }
+
 	    strncpy(rd, pd + offset + i1 + 1, MIN(i2, sizeof(rd) - 1));
 	  }
 	}
@@ -97,16 +108,28 @@ dissect_ftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	  if (pi.match_port == pi.destport) { /* Request */
 
-	    proto_tree_add_text(ftp_tree, offset, i1, "Request: %s", rr);
-
-	    proto_tree_add_text(ftp_tree, offset + i1 + 1, END_OF_FRAME, "Request Arg: %s", rd);
-
+	    proto_tree_add_item_hidden(ftp_tree, hf_ftp_request,
+				       offset, i1, TRUE);
+	    proto_tree_add_item_hidden(ftp_tree, hf_ftp_response,
+				       offset, i1, FALSE);
+	    proto_tree_add_item_format(ftp_tree, hf_ftp_request_command,
+				       offset, i1, rr, "Request: %s", rr);
+	    proto_tree_add_item_format(ftp_tree, hf_ftp_request_data,
+				       offset + i1 + 1, END_OF_FRAME, 
+				       rd, "Request Arg: %s", rd);
 	  }
 	  else {
 
-	    proto_tree_add_text(ftp_tree, offset, i1, "Response: %s", rr);
-
-	    proto_tree_add_text(ftp_tree, offset + i1 + 1, END_OF_FRAME, "Response Arg: %s", rd);
+	    proto_tree_add_item_hidden(ftp_tree, hf_ftp_request,
+				       offset, i1, FALSE);
+	    proto_tree_add_item_hidden(ftp_tree, hf_ftp_response,
+				       offset, i1, TRUE);
+	    proto_tree_add_item_format(ftp_tree, hf_ftp_response_code, 
+				       offset, i1, 
+				       atoi(rr), "Response: %s", rr);
+	    proto_tree_add_item_format(ftp_tree, hf_ftp_response_data,
+				       offset + i1 + 1, END_OF_FRAME,
+				       rd, "Response Arg: %s", rd);
 	  }
 
 	}
@@ -137,11 +160,22 @@ dissect_ftpdata(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 void
 proto_register_ftp(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "ftp.abbreviation", TYPE, VALS_POINTER }},
-        };*/
+  static hf_register_info hf[] = {
+    { &hf_ftp_response,
+      { "Response",           "ftp.response",		FT_BOOLEAN, NULL }},
+    { &hf_ftp_request,
+      { "Request",            "ftp.request",		FT_BOOLEAN, NULL }},
+    { &hf_ftp_request_command,
+      { "Request command",    "ftp.request.command",	FT_STRING,  NULL }},
+    { &hf_ftp_request_data,
+      { "Request data",	      "ftp.request.data",	FT_STRING,  NULL }},
+    { &hf_ftp_response_code,
+      { "Response code",      "ftp.response.code",	FT_UINT8,   NULL }},
+    { &hf_ftp_response_data,
+      { "Response data",      "ftp.reponse.data",	FT_STRING,  NULL }}
+  };
 
-        proto_ftp = proto_register_protocol("File Transfer Protocol", "ftp");
- /*       proto_register_field_array(proto_ftp, hf, array_length(hf));*/
+  proto_ftp = proto_register_protocol("File Transfer Protocol", "ftp");
+  proto_register_field_array(proto_ftp, hf, array_length(hf));
+
 }
