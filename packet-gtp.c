@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.57 2003/09/14 20:59:31 jmayer Exp $
+ * $Id: packet-gtp.c,v 1.58 2003/09/14 21:28:13 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1667,63 +1667,53 @@ col_append_str_gtp(column_info *cinfo, gint el, gchar *proto_name) {
 static gchar *
 id_to_str(const guint8 *ad) {
 
-	static gchar	*str[17];
-	gchar		*p;
+	static gchar	str[17] = "                ";
 	guint8		bits8to5, bits4to1, i;
 	static const	gchar hex_digits[10] = "0123456789";
 
-	p = (gchar *)&str[17];
-	*--p = '\0';
-	i = 7;
-	for (;;) {
+	str[16] = '\0';
+	for (i = 15; i >= 0; i--) {
 		bits8to5 = (ad[i] >> 4) & 0x0F;
 		bits4to1 = ad[i] & 0x0F;
-		if (bits8to5 < 0xA) *--p = hex_digits[bits8to5];
-		if (bits4to1 < 0xA) *--p = hex_digits[bits4to1];
-		if (i == 0) break;
+		if (bits8to5 < 0xA) str[i] = hex_digits[bits8to5];
 		i--;
+		if (bits4to1 < 0xA) str[i] = hex_digits[bits4to1];
 	}
-	return p;
+	return str;
 }
 
 static gchar *
 imsi_to_str(const guint8 *ad) {
 
-	static gchar	*str[16];
-	gchar		*p;
+	static gchar	str[17] = "                ";
 	guint8		i, j = 0;
 	
-	p = (gchar *)&str[0];
-	for (i=0;i<8;i++) {
-		if ((ad[i] & 0x0F) <= 9) p[j++] = (ad[i] & 0x0F) + 0x30;
-		if (((ad[i] >> 4) & 0x0F) <= 9) p[j++] = ((ad[i] >> 4) & 0x0F) + 0x30;
+	for (i = 0; i < 8; i++) {
+		if ((ad[i] & 0x0F) <= 9) str[j++] = (ad[i] & 0x0F) + 0x30;
+		if (((ad[i] >> 4) & 0x0F) <= 9) str[j++] = ((ad[i] >> 4) & 0x0F) + 0x30;
 	}
-	p[j] = 0;
+	str[16] = '\0';
 	
-	return p;
+	return str;
 }
 
 static gchar *
 msisdn_to_str(const guint8 *ad, int len) {
 
-	static gchar	*str[17];
+	static gchar	str[18] = "+                ";
 	gchar		*p;
 	guint8		bits8to5, bits4to1, i;
 	static const	gchar hex_digits[16] = "0123456789      ";
 
-	p = (gchar *)&str[0];
-	*p = '+';
-	i = 1;
-	for (;;) {
+	p = &str[0];
+	for (i = 1; i < len && i < 9; i++) {
 		bits8to5 = (ad[i] >> 4) & 0x0F;
 		bits4to1 = ad[i] & 0x0F;
 		if (bits4to1 < 0xA) *++p = hex_digits[bits4to1];
 		if (bits8to5 < 0xA) *++p = hex_digits[bits8to5];
-		if (i == len-1) break;
-		i++;
 	}
-	*++p = '\0';
-	return (gchar *)&str[0];
+	str[17] = '\0';
+	return str;
 }
 
 static gchar *
