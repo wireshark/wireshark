@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.32 2002/02/11 08:19:08 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.33 2002/02/12 07:35:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -172,6 +172,7 @@ static int hf_dcerpc_dg_if_ver = -1;
 static int hf_dcerpc_array_max_count = -1;
 static int hf_dcerpc_array_offset = -1;
 static int hf_dcerpc_array_actual_count = -1;
+static int hf_dcerpc_referent_id = -1;
 
 static gint ett_dcerpc = -1;
 static gint ett_dcerpc_cn_flags = -1;
@@ -537,6 +538,7 @@ typedef struct ndr_pointer_data {
 	proto_tree *tree;
 	dcerpc_dissect_fnct_t *fnct; /*if non-NULL, we have not called it yet*/
 	int hf_index;
+	int levels;
 } ndr_pointer_data_t;
 
 static void
@@ -585,7 +587,7 @@ dissect_deferred_pointers(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 				tnpd->fnct=NULL;
 				ndr_pointer_list_pos=i+1;
 				di->hf_index=tnpd->hf_index;
-
+				di->levels=tnpd->levels;
 				/* first a run to handle any conformant
 				   array headers */
 				di->conformant_run=1;
@@ -604,7 +606,7 @@ dissect_deferred_pointers(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 static void
 add_pointer_to_list(packet_info *pinfo, proto_tree *tree, 
-		dcerpc_dissect_fnct_t *fnct, guint32 id, int hf_index)
+		dcerpc_dissect_fnct_t *fnct, guint32 id, int hf_index, int levels)
 {
 	ndr_pointer_data_t *npd;
 
@@ -617,8 +619,10 @@ add_pointer_to_list(packet_info *pinfo, proto_tree *tree,
 		value=di->call_data;
 
 		if(di->request){
-			if(id>value->max_ptr){
-				value->max_ptr=id;
+			if(!(pinfo->fd->flags.visited)){
+				if(id>value->max_ptr){
+					value->max_ptr=id;
+				}
 			}
 		} else {
 			/* if we havent seen the request bail out since we cant
@@ -641,6 +645,7 @@ add_pointer_to_list(packet_info *pinfo, proto_tree *tree,
 	npd->tree=tree;
 	npd->fnct=fnct;
 	npd->hf_index=hf_index;
+	npd->levels=levels;
 	ndr_pointer_list = g_slist_insert(ndr_pointer_list, npd, 
 					ndr_pointer_list_pos);
 	ndr_pointer_list_pos++;
@@ -666,13 +671,24 @@ find_pointer_index(guint32 id)
 	return -1;
 }
 
+/* this function dissects an NDR pointer and stores the callback for later deferred dissection.
+ * fnct is the callback function for when we have reached this object in the bytestream.
+ * type is what type of pointer this is
+ * text is what text we should put in any created tree node
+ * hf_index is what hf value we want to pass to the callback function when it is called,
+ *    the callback can later pich this one up from di->hf_index.
+ * levels is a generic int we want to pass to teh callback function.
+ *    the callback can later pick it up from di->levels
+ *
+ * See packet-dcerpc-samr.c for examples
+ */
 int 
 dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, char *drep, 
-                        dcerpc_dissect_fnct_t *fnct, int type, int hf_index)
+                        dcerpc_dissect_fnct_t *fnct, int type, char *text, int hf_index, int levels)
 {
 	dcerpc_info *di;
-
+	
 	di=pinfo->private_data;
 	if(di->conformant_run){
 		/* this call was only for dissecting the header for any
@@ -685,7 +701,7 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	/*TOP LEVEL REFERENCE POINTER*/
 	if( pointers_are_top_level
 	&& (type==NDR_POINTER_REF) ){
-		add_pointer_to_list(pinfo, tree, fnct, 0xffffffff, hf_index);
+		add_pointer_to_list(pinfo, tree, fnct, 0xffffffff, hf_index, levels);
 		goto after_ref_id;
 	}
 
@@ -704,7 +720,7 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		/* we got a NULL pointer */
 		if(id==0){
 			proto_tree_add_text(tree, tvb, offset-4, 4,
-				"NULL pointer");
+				"(NULL pointer)%s",text);
 			goto after_ref_id;
 		}
 
@@ -714,15 +730,16 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		/* we have seen this pointer before */
 		if(idx>=0){
 			proto_tree_add_text(tree, tvb, offset-4, 4,
-				"Referent ID:0x%08x",id);
+				"(duplicate) %s",text);
 			goto after_ref_id;
 		}
 
 		/* new pointer */
 		item=proto_tree_add_text(tree, tvb, offset-4, 4, 
-			"Referent ID:0x%08x", id);
+			"%s", text);
 		tr=proto_item_add_subtree(item,ett_dcerpc_pointer_data);
-		add_pointer_to_list(pinfo, tr, fnct, id, hf_index);
+		proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb, offset-4, 4, id);
+		add_pointer_to_list(pinfo, tr, fnct, id, hf_index, levels);
 		goto after_ref_id;
 	}
 
@@ -738,16 +755,16 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	
 		/* new pointer */
 		item=proto_tree_add_text(tree, tvb, offset-4, 4, 
-			"Referent ID:0x%08x", id);
+			"%s",text);
 		tr=proto_item_add_subtree(item,ett_dcerpc_pointer_data);
-		add_pointer_to_list(pinfo, tr, fnct, 0xffffffff, hf_index);
+		proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb, offset-4, 4, id);
+		add_pointer_to_list(pinfo, tr, fnct, 0xffffffff, hf_index, levels);
 		goto after_ref_id;
 	}
 
-	/*EMBEDDED FULL POINTER*/
 	/*EMBEDDED UNIQUE POINTER*/
 	if( (!pointers_are_top_level)
-	&& ((type==NDR_POINTER_PTR)||(type==NDR_POINTER_UNIQUE)) ){
+	&& (type==NDR_POINTER_UNIQUE) ){
 		int idx;
 		guint32 id;
 		proto_item *item;
@@ -759,7 +776,34 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		/* we got a NULL pointer */
 		if(id==0){
 			proto_tree_add_text(tree, tvb, offset-4, 4,
-				"NULL pointer");
+				"(NULL pointer)%s", text);
+			goto after_ref_id;
+		}
+
+		/* new pointer */
+		item=proto_tree_add_text(tree, tvb, offset-4, 4, 
+			"%s",text);
+		tr=proto_item_add_subtree(item,ett_dcerpc_pointer_data);
+		proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb, offset-4, 4, id);
+		add_pointer_to_list(pinfo, tr, fnct, 0xffffffff, hf_index, levels);
+		goto after_ref_id;
+	}
+
+	/*EMBEDDED FULL POINTER*/
+	if( (!pointers_are_top_level)
+	&& (type==NDR_POINTER_PTR) ){
+		int idx;
+		guint32 id;
+		proto_item *item;
+		proto_tree *tr;
+
+		/* get the referent id */
+		offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &id);
+	
+		/* we got a NULL pointer */
+		if(id==0){
+			proto_tree_add_text(tree, tvb, offset-4, 4,
+				"(NULL pointer)%s",text);
 			goto after_ref_id;
 		}
 
@@ -768,16 +812,16 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 		/* we have seen this pointer before */
 		if(idx>=0){
-			proto_tree_add_text(tree, tvb, offset-4, 4,
-				"Referent ID:0x%08x",id);
+			proto_tree_add_uint(tree, hf_dcerpc_referent_id, tvb, offset-4, 4, id);
 			goto after_ref_id;
 		}
 
 		/* new pointer */
 		item=proto_tree_add_text(tree, tvb, offset-4, 4, 
-			"Referent ID:0x%08x", id);
+			"%s", text);
 		tr=proto_item_add_subtree(item,ett_dcerpc_pointer_data);
-		add_pointer_to_list(pinfo, tr, fnct, id, hf_index);
+		proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb, offset-4, 4, id);
+		add_pointer_to_list(pinfo, tr, fnct, id, hf_index, levels);
 		goto after_ref_id;
 	}
 
@@ -787,7 +831,6 @@ after_ref_id:
 	   dissect all deferrals before we move on to the next top level
 	   argument */
 	if(pointers_are_top_level==TRUE){
-
 		pointers_are_top_level=FALSE;
 		offset = dissect_deferred_pointers(pinfo, tree, tvb, offset, drep);
 		pointers_are_top_level=TRUE;
@@ -1975,6 +2018,9 @@ proto_register_dcerpc (void)
 	{ &hf_dcerpc_response_in, 
 		{ "Response in", "dcerpc.response_in", FT_UINT32, BASE_DEC,
 		NULL, 0, "The response to this packet is in this packet", HFILL }},
+	{ &hf_dcerpc_referent_id, 
+		{ "Referent ID", "dcerpc.referent_id", FT_UINT32, BASE_HEX,
+		NULL, 0, "Referent ID for this NDR encoded pointer", HFILL }},
         { &hf_dcerpc_ver,
           { "Version", "dcerpc.ver", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_ver_minor,

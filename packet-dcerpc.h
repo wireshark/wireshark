@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.11 2002/02/11 08:19:09 guy Exp $
+ * $Id: packet-dcerpc.h,v 1.12 2002/02/12 07:35:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -142,7 +142,7 @@ typedef int (dcerpc_dissect_fnct_t)(tvbuff_t *tvb, int offset, packet_info *pinf
 #define NDR_POINTER_PTR		3
 int dissect_ndr_pointer (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, char *drep, 
-                        dcerpc_dissect_fnct_t *fnct, int type, int hf_index);
+                        dcerpc_dissect_fnct_t *fnct, int type, char *text, int hf_index, int levels);
 
 /* dissect a NDR unidimensional conformant array */
 int dissect_ndr_ucarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
@@ -206,6 +206,7 @@ typedef struct _dcerpc_info {
 	guint32 array_actual_count;	
 	guint32 array_actual_count_offset;	
 	int hf_index;
+	int levels;                    /* number of levels upwards in the tree to append text*/
 	dcerpc_call_value *call_data;
 } dcerpc_info;
 
