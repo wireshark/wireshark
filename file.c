@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.136 1999/12/09 20:41:24 oabad Exp $
+ * $Id: file.c,v 1.137 1999/12/12 13:25:54 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1741,6 +1741,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
         hdr.caplen = fd->cap_len;
         hdr.len = fd->pkt_len;
         hdr.pkt_encap = fd->lnk_t;
+        hdr.pseudo_header = fd->pseudo_header;
 	wtap_seek_read(cf->cd_t, cf->fh, fd->file_off, pd, fd->cap_len);
 
         if (!wtap_dump(pdh, &hdr, pd, &err)) {
