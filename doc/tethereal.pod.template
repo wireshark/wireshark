@@ -324,6 +324,16 @@ Example: use B<-z dcerpc,rtt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.addr==1
 RTT statistics for a specific host.
 
 
+B<-z> io,phs[,I<filter>]
+
+Create Protocol Hierarchy Statistics listing both number of frames and bytes.
+If no I<filter> is specified the statistics will be calculated for all frames.
+If a I<filters> is specified statistics will be only calculated for those
+packets that match the filter.
+
+This option can be used multiple times on the command line. 
+
+
 B<-z> io,stat,I<interval>[,I<filter>][,I<filter>][,I<filter>]...
 
 Collect frame/bytes statistics for the capture in intervals of I<interval> 
