@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.38 2000/05/10 22:16:30 guy Exp $
+ * $Id: ngsniffer.c,v 1.39 2000/05/12 22:12:21 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -746,10 +746,10 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	/* "sniffer" version ? */
 	maj_vers = 4;
 	min_vers = 0;
-	version.maj_vers = pletohs(&maj_vers);
-	version.min_vers = pletohs(&min_vers);
+	version.maj_vers = htoles(maj_vers);
+	version.min_vers = htoles(min_vers);
 	version.time = 0;
-	version.date = pletohs(&start_date);
+	version.date = htoles(start_date);
 	version.type = 4;
 	version.network = wtap_encap[wdh->encap];
 	version.format = 1;
@@ -787,16 +787,16 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     t_low = (guint16)(t-(double)((guint32)(t/65536.0))*65536.0);
     t_med = (guint16)((guint32)(t/65536.0) % 65536);
     t_high = (guint16)(t/4294967296.0);
-    rec_hdr.time_low = pletohs(&t_low);
-    rec_hdr.time_med = pletohs(&t_med);
-    rec_hdr.time_high = pletohs(&t_high);
-    rec_hdr.size = pletohs(&phdr->caplen);
+    rec_hdr.time_low = htoles(t_low);
+    rec_hdr.time_med = htoles(t_med);
+    rec_hdr.time_high = htoles(t_high);
+    rec_hdr.size = htoles(phdr->caplen);
     if (wdh->encap == WTAP_ENCAP_LAPB || wdh->encap == WTAP_ENCAP_PPP)
 	rec_hdr.fs = (phdr->pseudo_header.x25.flags & 0x80) ? 0x00 : 0x80;
     else
 	rec_hdr.fs = 0;
     rec_hdr.flags = 0;
-    rec_hdr.true_size = phdr->len != phdr->caplen ? pletohs(&phdr->len) : 0;
+    rec_hdr.true_size = phdr->len != phdr->caplen ? htoles(phdr->len) : 0;
     rec_hdr.rsvd = 0;
     nwritten = fwrite(&rec_hdr, 1, sizeof rec_hdr, wdh->fh);
     if (nwritten != sizeof rec_hdr) {
