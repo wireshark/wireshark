@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.13 1999/01/04 09:13:46 guy Exp $
+ * $Id: packet-dns.c,v 1.14 1999/01/05 09:01:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -517,12 +517,12 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     add_item_to_tree(dns_tree, offset + DNS_ID, 2, "Transaction ID: 0x%04x",
     			id);
 
-    strcpy(buf, val_to_str(flags & F_OPCODE, opcode_vals, "Unknown (%x)"));
+    strcpy(buf, val_to_str(flags & F_OPCODE, opcode_vals, "Unknown operation"));
     if (flags & F_RESPONSE) {
       strcat(buf, " response");
       strcat(buf, ", ");
       strcat(buf, val_to_str(flags & F_RCODE, rcode_vals,
-            "Unknown error (%x)"));
+            "Unknown error"));
     }
     tf = add_item_to_tree(dns_tree, offset + DNS_FLAGS, 2, "Flags: 0x%04x (%s)",
                           flags, buf);

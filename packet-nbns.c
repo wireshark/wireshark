@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.12 1999/01/05 08:48:39 guy Exp $
+ * $Id: packet-nbns.c,v 1.13 1999/01/05 09:01:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -365,12 +365,12 @@ nbns_add_nbns_flags(GtkWidget *nbns_tree, int offset, u_short flags,
 	};
 
 	strcpy(buf, val_to_str(flags & F_OPCODE, opcode_vals,
-			"Unknown (%x)"));
+				"Unknown operation"));
 	if (flags & F_RESPONSE && !is_wack) {
 		strcat(buf, " response");
 		strcat(buf, ", ");
 		strcat(buf, val_to_str(flags & F_RCODE, rcode_vals,
-		    "Unknown error (%x)"));
+		    "Unknown error"));
 	}
 	tf = add_item_to_tree(nbns_tree, offset, 2,
 			"Flags: 0x%04x (%s)", flags, buf);
