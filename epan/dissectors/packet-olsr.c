@@ -85,6 +85,8 @@ static int hf_olsr_interface6_addr = -1;
 static int hf_olsr_netmask6 = -1;
 static int hf_olsr_network6_addr = -1;
 
+static int hf_olsr_data = -1;
+
 /* Initialize the subtree pointers*/
 static gint ett_olsr = -1;
 
@@ -103,7 +105,7 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_tree *olsr_tree;
         
-	int offset, link_message_size, message_size, message_type, packet_size, position;
+	int offset, link_message_size, message_size, message_len, message_type, packet_size, position;
 	int high_bits, low_bits, vtime, htime;
 	double Vtime, Htime;
 	
@@ -146,12 +148,9 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		if (!tvb_bytes_exist(tvb, 4, 4))
 			return 0;	/* not enough bytes for them */
-		message_type = tvb_get_guint8(tvb, 4);
-		if (match_strval(message_type, message_type_vals) == NULL)
-			return 0;	/* not valid */
 		/* OK, what about the message length? */
-		message_size = tvb_get_ntohs(tvb, 4+2);
-		if (message_size < 4)
+		message_len = tvb_get_ntohs(tvb, 4+2);
+		if (message_len < 4)
 			return 0;	/* length not enough for a message header */
 	}
 
@@ -189,15 +188,15 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_double_format(olsr_tree, hf_olsr_vtime, tvb, position+1, 1, Vtime, "Validity Time: %.3f (in seconds)", Vtime);
 			
 			/*-------------Dissect Message Size---------------------------*/
-			message_size = tvb_get_ntohs(tvb, position+2);
-			if (message_size < 4) {
-				proto_tree_add_uint_format(olsr_tree, hf_olsr_message_size, tvb, position+2, 2, message_size,"Message Size: %u bytes (too short, must be >= 4)", message_size);
+			message_len = tvb_get_ntohs(tvb, position+2);
+			if (message_len < 4) {
+				proto_tree_add_uint_format(olsr_tree, hf_olsr_message_size, tvb, position+2, 2, message_len,"Message Size: %u bytes (too short, must be >= 4)", message_len);
 				break;
 			}
-			proto_tree_add_uint_format(olsr_tree, hf_olsr_message_size, tvb, position+2, 2, message_size,"Message Size: %u bytes", message_size);
+			proto_tree_add_uint_format(olsr_tree, hf_olsr_message_size, tvb, position+2, 2, message_len,"Message Size: %u bytes", message_len);
 			
 			packet_size--;
-			message_size = (message_size - 4) /4;
+			message_size = (message_len - 4) /4;
 			offset = position + 4;
 			position = offset;
 			
@@ -346,6 +345,18 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				} /* end while for HNA */
 				position = offset;
 			} /* end if for HNA */
+			/*-----------------------------Undefined message types-----------------------------*/
+			else if(message_size>0) {
+				if((message_len-12)%4) {
+					proto_tree_add_bytes_format(olsr_tree, hf_olsr_data, tvb, position, 1, tvb_get_ptr(tvb, position, 1), "Data (%u bytes) (must be aligned on 32 bits)", message_len-12);
+					break;
+				}
+				proto_tree_add_bytes_format(olsr_tree, hf_olsr_data, tvb, position, message_len-12, tvb_get_ptr(tvb, position, message_len-12), "Data (%u bytes)", message_len-12);
+				packet_size -= (message_len-12)/4;
+				message_size = 0;
+				offset += message_len-12;
+				position = offset;
+			} /* end if for undefined message types */
 			
 		} /* end while for message alive */
 	} /* end if for IPV4 */
@@ -375,15 +386,15 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_double_format(olsr_tree, hf_olsr_vtime, tvb, position+1, 1, Vtime, "Validity Time: %.3f (in seconds)", Vtime);
 				 
 			/*-------------Dissect Message Size---------------------------*/
-			message_size = tvb_get_ntohs(tvb, position+2);
-			if (message_size < 4) {
-				proto_tree_add_uint_format(olsr_tree, hf_olsr_message_size, tvb, position+2, 2, message_size,"Message Size: %u bytes (too short, must be >= 4)", message_size);
+			message_len = tvb_get_ntohs(tvb, position+2);
+			if (message_len < 4) {
+				proto_tree_add_uint_format(olsr_tree, hf_olsr_message_size, tvb, position+2, 2, message_len,"Message Size: %u bytes (too short, must be >= 4)", message_len);
 				break;
 			}
-			proto_tree_add_uint_format(olsr_tree, hf_olsr_message_size, tvb, position+2, 2, message_size,"Message Size: %u bytes", message_size);
+			proto_tree_add_uint_format(olsr_tree, hf_olsr_message_size, tvb, position+2, 2, message_len,"Message Size: %u bytes", message_len);
 			
 			packet_size--;
-			message_size = (message_size - 4) /4;
+			message_size = (message_len - 4) /4;
 
 			offset = position + 4;
 			position = offset;
@@ -533,6 +544,18 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				} /* end while for HNA */
 				position = offset;
 			} /* end if for HNA */
+			/*-----------------------------Undefined message types-----------------------------*/
+			else if(message_size>0) {
+				if((message_len-24)%4) {
+					proto_tree_add_bytes_format(olsr_tree, hf_olsr_data, tvb, position, 1, tvb_get_ptr(tvb, position, 1), "Data (%u bytes) (must be aligned on 32 bits)", message_len-24);
+					break;
+				}
+				proto_tree_add_bytes_format(olsr_tree, hf_olsr_data, tvb, position, message_len-24, tvb_get_ptr(tvb, position, message_len-24), "Data (%u bytes)", message_len-24);
+				packet_size -= (message_len-24)/4;
+				message_size = 0;
+				offset += message_len-24;
+				position = offset;
+			} /* end if for undefined message types */
 		} /* end while for message alive */
 	} /* end if for IPV6 */
 	return tvb_length(tvb);
@@ -658,6 +681,11 @@ proto_register_olsr(void)
 			{ "Netmask", "olsr.netmask6",
 			   FT_IPv6, BASE_NONE, NULL, 0,
 			  "Netmask", HFILL }},
+
+		{ &hf_olsr_data,
+			{ "Data", "olsr.data",
+			   FT_BYTES, BASE_HEX, NULL, 0,
+			  "Data", HFILL }},
 	};
 
 
