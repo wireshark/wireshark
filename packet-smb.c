@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.292 2002/09/04 05:46:01 sharpe Exp $
+ * $Id: packet-smb.c,v 1.293 2002/09/20 07:28:20 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3328,7 +3328,8 @@ static int
 dissect_read_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_)
 {
 	guint8 wc;
-	guint16 bc;
+	guint16 cnt=0, bc;
+	guint32 ofs=0;
 	smb_info_t *si;
 	unsigned int fid;
 
@@ -3345,12 +3346,19 @@ dissect_read_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	}
 
 	/* read count */
+	cnt = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 2, TRUE);
 	offset += 2;
 
 	/* offset */
+	ofs = tvb_get_letohl(tvb, offset);
 	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
 	offset += 4;
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+				", %u byte%s at offset %u", cnt,
+				(cnt == 1) ? "" : "s", ofs);
 
 	/* remaining */
 	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, TRUE);
@@ -5474,7 +5482,11 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_uint(tree, hf_smb_data_offset, tvb, offset, 2, dataoffset);
 	offset += 2;
 
-	/* FIXME: add byte/offset to COL_INFO */
+	/* FIXME: handle Large (48-bit) byte/offset to COL_INFO */
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+				", %u byte%s at offset %u", datalen,
+				(datalen == 1) ? "" : "s", ofs);
 
 	if(wc==14){
 		/* high offset */
