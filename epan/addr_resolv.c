@@ -1588,40 +1588,27 @@ host_name_lookup_init(void) {
    */
 #ifdef WIN32
   char *sysroot;
-  static char rootpath[] = "\\system32\\drivers\\etc\\hosts";
+  static char rootpath_nt[] = "\\system32\\drivers\\etc\\hosts";
+  static char rootpath_ot[] = "\\hosts";
 
-  sysroot = getenv("SYSTEMROOT");
+  sysroot = getenv("WINDIR");
   if (sysroot != NULL) {
-    /* The file should be under SYSTEMROOT */
-    hostspath = g_strconcat(sysroot, rootpath, NULL);
-    read_hosts_file(hostspath);
-    g_free(hostspath);
-  } else {
     /*
-     * This might be Windows OT (95/98/Me), or it might be NT
-     * (NT 4.0/2K/XP/etc.) with SYSTEMROOT not set.
-     *
-     * The hosts file is apparently in c:\windows\hosts in
-     * OT, and under the system root in NT, but the system
-     * root in NT might be c:\winnt or c:\windows (the latter
-     * is claimed to be where it is in XP Home, presumably
-     * for compatibility with OT).
-     *
-     * We try all three of them until we either succeed or run
-     * out of files.
-     *
-     * XXX - should we use WINDIR in this case, rather than
-     * guessing?  Should we use WINDIR in *all* cases?
-     * If so, what should we use if WINDIR is null?  Should
-     * we just punt rather than using a default location?
-     * Windows OT and NT put hosts in a different subdirectory;
-     * does that mean we can't just use WINDIR, we need to
-     * check whether it's OT or NT?
+     * The file should be under WINDIR.
+     * If this is Windows NT (NT 4.0,2K,XP,Server2K3), it's in
+     * %WINDIR%\system32\drivers\etc\hosts.
+     * If this is Windows OT (95,98,Me), it's in %WINDIR%\hosts.
+     * Try both.
+     * XXX - should we base it on the dwPlatformId value from
+     * GetVersionEx()?
      */
-    if (!read_hosts_file("c:\\windows\\hosts")) {
-      if (!read_hosts_file("c:\\winnt\\system32\\drivers\\etc\\hosts"))
-        read_hosts_file("c:\\windows\\system32\\drivers\\etc\\hosts");
+    hostspath = g_strconcat(sysroot, rootpath_nt, NULL);
+    if (!read_hosts_file(hostspath)) {
+      g_free(hostspath);
+      hostspath = g_strconcat(sysroot, rootpath_ot, NULL);
+      read_hosts_path(hostspath);
     }
+    g_free(hostspath);
   }
 #else /* WIN32 */
   read_hosts_file("/etc/hosts");
