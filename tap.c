@@ -1,7 +1,7 @@
 /* tap.c
  * packet tap interface   2002 Ronnie Sahlberg
  *
- * $Id: tap.c,v 1.9 2003/04/23 08:20:02 guy Exp $
+ * $Id: tap.c,v 1.10 2004/05/31 09:53:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -417,5 +417,16 @@ remove_tap_listener(void *tapdata)
 	return;
 }
 
-
-
+/*
+ * Return TRUE if we have tap listeners, FALSE otherwise.
+ * Checking "num_tap_filters" isn't the right way to check whether we need
+ * to do any dissection in order to run taps, as not all taps necessarily
+ * have filters, and "num_tap_filters" is the number of tap filters, not
+ * the number of tap listeners; it's only the right way to check whether
+ * we need to build a protocol tree when doing dissection.
+ */
+gboolean
+have_tap_listeners(void)
+{
+	return tap_listener_queue != NULL;
+}

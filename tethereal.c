@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.241 2004/05/31 08:41:32 guy Exp $
+ * $Id: tethereal.c,v 1.242 2004/05/31 09:53:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -121,6 +121,7 @@ static guint32 prevsec, prevusec;
 static GString *comp_info_str, *runtime_info_str;
 static gboolean quiet;
 static gboolean print_packet_info;	/* TRUE if we're to print packet information */
+static gboolean do_dissection;	/* TRUE if we have to dissect each packet */
 static gboolean verbose;
 static gboolean print_hex;
 static gboolean line_buffered;
@@ -1502,6 +1503,16 @@ main(int argc, char *argv[])
     }
   }
   cfile.rfcode = rfcode;
+
+  /* We have to dissect each packet if:
+
+	we're printing information about each packet;
+
+	we're using a read filter on the packets;
+
+	we're using any taps. */
+  do_dissection = print_packet_info || rfcode || have_tap_listeners();
+
   if (cf_name) {
     /*
      * We're reading a capture file.
@@ -2432,8 +2443,9 @@ process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
   cf->count++;
 
   /* If we're going to print packet information, or we're going to
-     run a read filter, set up to do a dissection and do so. */
-  if (print_packet_info || cf->rfcode) {
+     run a read filter, or we're going to process taps, set up to
+     do a dissection and do so. */
+  if (do_dissection) {
     fill_in_fdata(&fdata, cf, whdr, offset);
 
     if (print_packet_info) {
@@ -2511,11 +2523,10 @@ process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
     }
   }
 
-  if (edt != NULL)
+  if (do_dissection) {
     epan_dissect_free(edt);
-
-  if (print_packet_info || cf->rfcode)
     clear_fdata(&fdata);
+  }
 }
 
 static void
