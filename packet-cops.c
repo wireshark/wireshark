@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.34 2003/09/08 19:40:10 guy Exp $
+ * $Id: packet-cops.c,v 1.35 2003/09/12 19:40:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -939,7 +939,7 @@ static guchar*format_asn_value (struct variable_list *variable, subid_t *variabl
 #endif	/* HAVE_NET_SNMP */
 
 static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
-    proto_tree *tree, guint epdlen, gboolean inepd
+    proto_tree *tree, guint asnlen, guint8 cops_pr_obj
 #ifndef HAVE_NET_SNMP
 						  _U_
 #endif
@@ -978,7 +978,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
   gchar *buf;
   int len;
 
-  while (epdlen > 0) { /*while there is stuff to be decoded in the EPD*/
+  while (asnlen > 0) { /*while there is ASN stuff to be decoded*/
 
     epd_attribute_index++;
 #ifdef HAVE_NET_SNMP
@@ -1147,34 +1147,51 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
       length = asn1.offset - start;
 
       if (tree) {
-        /*strip the instance Id from the OIDs before decoding and paste it back during printing*/
-        new_format_oid(vb_oid,vb_oid_length-1,&vb_display_string,&vb_display_string2);
-  
-        /*if OID couldn't be decoded, print only numeric format*/
-        if (!vb_display_string2)
-          proto_tree_add_text(tree, asn1.tvb, offset, length,
-                              "Value: %s: %s.%lu", vb_type_name,
-                              vb_display_string,
-                              (unsigned long)vb_oid[vb_oid_length-1]);
-        else
-          proto_tree_add_text(tree, asn1.tvb, offset, length,
-                              "Value: %s: %s.%lu (%s.%lu)", vb_type_name,
-                              vb_display_string,
-                              (unsigned long)vb_oid[vb_oid_length-1],
-                              vb_display_string2,
-                              (unsigned long)vb_oid[vb_oid_length-1]);
+	if (cops_pr_obj == COPS_OBJ_PPRID){
+	  /*we're decoding Prefix PRID, that doesn't have a instance Id,
+	   *Use full length of the OID when decoding it.
+	   */
+	  new_format_oid(vb_oid,vb_oid_length,&vb_display_string,&vb_display_string2);
+
+	  if (!vb_display_string2)   /*if OID couldn't be decoded, print only numeric format*/
+	    proto_tree_add_text(tree, asn1.tvb, offset, length,
+				"Value: %s: %s", vb_type_name, vb_display_string);
+	  else
+	    proto_tree_add_text(tree, asn1.tvb, offset, length,
+				"Value: %s: %s (%s)", vb_type_name,
+				vb_display_string,
+				vb_display_string2);
+	}
+	else { /*we're decoding PRID, Error PRID or EPD*/
+	  /*strip the instance Id from the OIDs before decoding and paste it back during printing*/
+	  new_format_oid(vb_oid,vb_oid_length-1,&vb_display_string,&vb_display_string2);
+	  
+	  if (!vb_display_string2)  /*if OID couldn't be decoded, print only numeric format*/
+	    proto_tree_add_text(tree, asn1.tvb, offset, length,
+				"Value: %s: %s.%lu", vb_type_name,
+				vb_display_string,
+				(unsigned long)vb_oid[vb_oid_length-1]);
+	  else
+	    proto_tree_add_text(tree, asn1.tvb, offset, length,
+				"Value: %s: %s.%lu (%s.%lu)", vb_type_name,
+				vb_display_string,
+				(unsigned long)vb_oid[vb_oid_length-1],
+				vb_display_string2,
+				(unsigned long)vb_oid[vb_oid_length-1]);
+	}
 #ifdef HAVE_NET_SNMP
-        if (!inepd) {
-          /* we're decoding PRID, so let's store the OID of the PRID so that later
+        if (cops_pr_obj != COPS_OBJ_EPD) {
+          /* we're not decoding EPD, so let's store the OID of the PRID so that later
              when we're decoding this PRID's EPD we can finetune the output.*/
           memcpy(last_decoded_prid_oid,vb_oid,vb_oid_length*sizeof(subid_t));
           last_decoded_prid_oid_length=vb_oid_length;
         }
 #endif /* HAVE_NET_SNMP */
-      }
+	
       g_free(vb_display_string);
       if(vb_display_string2)
         g_free(vb_display_string2);
+      }
       g_free(vb_oid);
       break;
 
@@ -1185,7 +1202,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
 
     asn1_close(&asn1,&offset);
 
-    epdlen -= length;
+    asnlen -= length;
   }
   epd_attribute_index=0;
   return 0;
@@ -1206,7 +1223,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree
     ti=proto_tree_add_text(tree, tvb, offset, len, "Contents:");
     asn1_object_tree = proto_item_add_subtree(ti, ett_cops_asn1);
 
-    decode_cops_pr_asn1_data(tvb, offset, asn1_object_tree, len, FALSE);
+    decode_cops_pr_asn1_data(tvb, offset, asn1_object_tree, len, COPS_OBJ_PRID);
 
     break;
   case COPS_OBJ_PPRID:
@@ -1216,7 +1233,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree
     ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
     asn1_object_tree = proto_item_add_subtree(ti, ett_cops_asn1);
 
-    decode_cops_pr_asn1_data(tvb, offset, asn1_object_tree, len, FALSE);
+    decode_cops_pr_asn1_data(tvb, offset, asn1_object_tree, len, COPS_OBJ_PPRID);
 
     break;
   case COPS_OBJ_EPD:
@@ -1226,7 +1243,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree
     ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
     asn1_object_tree = proto_item_add_subtree(ti, ett_cops_asn1);
 
-    decode_cops_pr_asn1_data(tvb, offset, asn1_object_tree, len, TRUE);
+    decode_cops_pr_asn1_data(tvb, offset, asn1_object_tree, len, COPS_OBJ_EPD);
 
     break;
   case COPS_OBJ_GPERR:
@@ -1276,7 +1293,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree
     ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
     asn1_object_tree = proto_item_add_subtree(ti, ett_cops_asn1);
 
-    decode_cops_pr_asn1_data(tvb, offset, asn1_object_tree, len, FALSE);
+    decode_cops_pr_asn1_data(tvb, offset, asn1_object_tree, len, COPS_OBJ_ERRPRID);
 
     break;
   default:
