@@ -159,4 +159,4 @@ ethereal.1: ethereal doc/ethereal.pod.template
 	make ../ethereal.1 )
 
 dfilter-scanner.c : dfilter-scanner.l
-	$(LEX) -Pdfilter_ -t dfilter-scanner.l > dfilter-scanner.c
+	$(LEX) -Pdfilter_ -t $(srcdir)/dfilter-scanner.l > dfilter-scanner.c

@@ -1,10 +1,12 @@
 Overview of changes in Ethereal 0.7.3:
 * Fixed bug in RSVP, added RSVP+ support (Ashok)
 * Fixed bug in display filter parsing (Gilbert)
+* Allow compilation from different directory (Brad,
+	<brad@openbsd.org>)
 
 Overview of changes in Ethereal 0.7.2:
 * Another memory leak fix (Jochen)
-* Allow compilation from different directory (Laurent)
+* Allow compilation from different directory (Laurent, Gilbert)
 * -R flag for on command line, applied when reading a capture file (Jochen)
 * Updated docs (Guy)
 * Handles ICMP Unreachable|Frag Required (John)
@@ -19,6 +21,7 @@ Overview of changes in Ethereal 0.7.1:
 * Made glossary-dump option not initialize X11 (Guy)
 * Fixed logical operands in dfilter code (Gilbert)
 * Added progress bar to display filter (Gilbert)
+* -S option fix (Laurent)
 
 Overview of changes in Ethereal 0.7.0:
 * Addition of RTSP and SDP dissectors (Jason)
