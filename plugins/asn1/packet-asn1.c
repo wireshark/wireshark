@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id: packet-asn1.c,v 1.7 2003/11/02 23:12:35 gerald Exp $
+ * $Id: packet-asn1.c,v 1.8 2003/11/04 16:44:25 gerald Exp $
  *
  * A plugin for:
  *
@@ -87,7 +87,9 @@
 
 #include "plugins/plugin_api_defs.h"
 
+#ifdef DISSECTOR_WITH_GUI
 #include <gtk/gtk.h>
+#endif
 
 #include <ipproto.h>
 
