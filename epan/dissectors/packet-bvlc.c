@@ -142,6 +142,11 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
+		if (bvlc_length < 4) {
+			proto_tree_add_text(tree, tvb, 2, 2,
+				"Bogus length: %d", bvlc_length);
+			return;
+		}
 		ti = proto_tree_add_item(tree, proto_bvlc, tvb, 0,
 			bvlc_length, FALSE);
 		bvlc_tree = proto_item_add_subtree(ti, ett_bvlc);
