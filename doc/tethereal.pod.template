@@ -7,7 +7,7 @@ Tethereal - Dump and analyze network traffic
 
 B<tethereal>
 S<[ B<-c> count ]>
-S<[ B<-f> filter expression ]>
+S<[ B<-f> capture filter expression ]>
 S<[ B<-F> file format ]>
 S<[ B<-h> ]>
 S<[ B<-i> interface ]> 
@@ -16,7 +16,7 @@ S<[ B<-n> ]>
 S<[ B<-o> preference setting ] ...>
 S<[ B<-p> ]>
 S<[ B<-r> infile ]>
-S<[ B<-R> filter expression ]>
+S<[ B<-R> display filter expression ]>
 S<[ B<-s> snaplen ]>
 S<[ B<-t> time stamp format ]>
 S<[ B<-v> ]>
@@ -93,7 +93,11 @@ option, respectively, in which case the entire filter expression must be
 specified as a single argument (which means that if it contains spaces,
 it must be quoted), or can be specified with command-line arguments
 after the option arguments, in which case all the arguments after the
-filter arguments are treated as a filter expression.
+filter arguments are treated as a filter expression.  If the filter is
+specified with command-line arguments after the option arguments, it's a
+capture filter if a capture is being done (i.e., if no B<-r> flag was
+specified) and a read filter if a capture file is being read (i.e., if a
+B<-r> flag was specified).
 
 =head1 OPTIONS
 
