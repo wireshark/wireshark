@@ -9,6 +9,7 @@ Overview of changes in Ethereal 0.7.3:
 	(Tom Gallagher <Tom.Gallagher@madge.com>)
 * Change to usage of boolean fields in display filters (Gilbert)
 * Optimized GTKClist (Guy)
+* Optimized wiretap/ethereal interaction (Guy)
 * Handle NBNS continuations (Richard)
 * Started ATM support (Guy)
 * Enhanced user-friendliness via default behaviors and error messages

@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.5 1999/08/27 22:27:07 gram Exp $
+# $Id: autogen.sh,v 1.6 1999/08/31 05:51:59 gram Exp $
 
 DIE=0
 PROJECT="Ethereal"
@@ -32,7 +32,7 @@ if test -z "$*"; then
 	echo "please specify them on the $0 command line."
 fi
 
-for dir in . wiretap gtk ;  do
+for dir in . wiretap ;  do
 	echo processing $dir
 	(cd $dir; \
 		aclocalinclude="$ACLOCAL_FLAGS"; \

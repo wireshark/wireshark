@@ -1,8 +1,8 @@
-# $Id: configure.in,v 1.40 1999/08/27 22:27:07 gram Exp $
+# $Id: configure.in,v 1.41 1999/08/31 05:51:59 gram Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
-AM_INIT_AUTOMAKE(ethereal, 0.7.2)
+AM_INIT_AUTOMAKE(ethereal, 0.7.3)
 
 dnl Check for CPU / vendor / OS
 AC_CANONICAL_HOST
@@ -151,6 +151,6 @@ dnl blank for now, but will be used in future
 AC_SUBST(SUBDIRS)
 
 AM_CONFIG_HEADER(config.h)
-AC_CONFIG_SUBDIRS(wiretap gtk)
-AC_OUTPUT(Makefile ethereal.spec doc/Makefile doc/dfilter2pod,
+AC_CONFIG_SUBDIRS(wiretap)
+AC_OUTPUT(Makefile ethereal.spec doc/Makefile doc/dfilter2pod gtk/Makefile,
 	[chmod +x doc/dfilter2pod])

@@ -5,5 +5,8 @@ CLEANFILES = \
 	*~
 
 libui_a_SOURCES = \
+	gtkbindings.h	\
 	gtkclist.c	\
-	gtkclist.h
+	gtkclist.h	\
+	gtkdnd.h	\
+	gtkmain.h
