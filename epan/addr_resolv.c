@@ -34,23 +34,31 @@
 #include <string.h>
 
 /*
- * Win32 doesn't have SIGALRM.
+ * Win32 doesn't have SIGALRM (and it's the OS where name lookup calls
+ * are most likely to take a long time, given the way address-to-name
+ * lookups are done over NBNS).
  *
- * Mac OS X does, but if you longjmp() out of a name resolution call in
- * a signal handler, you might crash, because the state of the resolution
- * code that sends messages to lookupd might be inconsistent if you jump
- * out of it in middle of a call.
+ * Mac OS X does have SIGALRM, but if you longjmp() out of a name resolution
+ * call in a signal handler, you might crash, because the state of the
+ * resolution code that sends messages to lookupd might be inconsistent
+ * if you jump out of it in middle of a call.
+ *
+ * In at least some Linux distributions (e.g., RedHat Linux 9), if ADNS
+ * is used, we appear to hang in host_name_lookup6() in a gethostbyaddr()
+ * call.
  *
  * There's no guarantee that longjmp()ing out of name resolution calls
  * will work on *any* platform; OpenBSD got rid of the alarm/longjmp
  * code in tcpdump, to avoid those sorts of problems, and that was
  * picked up by tcpdump.org tcpdump.
+ *
+ * So, for now, we do not define AVOID_DNS_TIMEOUT.  If we get a
+ * significantly more complaints about lookups taking a long time,
+ * we can reconsider that decision.  (Note that tcpdump originally
+ * added that for the benefit of systems using NIS to look up host
+ * names; that might now be fixed in NIS implementations, for those
+ * sites still using NIS rather than DNS for that....)
  */
-#if !defined(_WIN32) && !defined(__APPLE__)
-#ifndef AVOID_DNS_TIMEOUT
-#define AVOID_DNS_TIMEOUT
-#endif
-#endif
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
