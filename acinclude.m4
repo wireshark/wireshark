@@ -1001,7 +1001,7 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	  KRB5_LIBS="-lkrb5 -lasn1 $SSL_LIBS -lroken -lcrypt -lresolv"
 	  ethereal_save_LDFLAGS="$LDFLAGS"
 	  LDFLAGS="$LDFLAGS -L$krb5_dir/lib"
-	  ac_krb5_version=`grep -i heimdal $krb5_dir/include/krb5.h | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/i'` 
+	  ac_krb5_version=`grep heimdal $krb5_dir/include/krb5.h | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/'`
 	else
 	  AC_PATH_PROG(KRB5_CONFIG, krb5-config) 
 	  if test -x "$KRB5_CONFIG"
@@ -1022,7 +1022,7 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	    fi
 
 	    #LIBS="$LIBS $KRB5_LIBS"
-	    ac_krb5_version=`"$KRB5_CONFIG" --version | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/i'`
+	    ac_krb5_version=`"$KRB5_CONFIG" --version | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/'`
  	  fi
 	fi
 
