@@ -714,7 +714,8 @@ B<http://ethereal.zing.org>.
   Heikki Vatiainen         <hessu@cs.tut.fi>
   Greg Hankins             <gregh@twoguys.org>
   Jerry Talkington         <jerryt@netapp.com>
-  James Coe"               <jammer@cin.net>
+  Dave Chapeskie           <dchapes@ddm.on.ca>
+  James Coe                <jammer@cin.net>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

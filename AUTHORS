@@ -192,6 +192,10 @@ Jerry Talkington <jerryt@netapp.com> {
 	updates to HTTP support
 }
 
+Dave Chapeskie <dchapes@ddm.on.ca> {
+	updates to ISAKMP support
+}
+
 James Coe <jammer@cin.net> {
 	SRVLOC (Service Location Protocol) support
 	NCP over IP support
