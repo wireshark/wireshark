@@ -202,15 +202,15 @@ Overview of changes in Ethereal 0.9.0:
     "private_data". (Guy)
 * Properly free "gph_hfinfo" in epan/proto.c. (Guy)
 * Include arrow pixmaps in distribution. (Andrew C. Feren)
-* Diameter AVP enhancements. (
-Guy)
+* Diameter AVP enhancements. (Guy)
 * Suport desegmentation of Diameter-over-TCP. (David)
 * Add Cooperative Route Filtering Capability support to BGP dissector,
     fix Route Refresh Messaging bug. (Motonori)
 * Become very displeased if a dissector tries to register more than one
     preference with the same name. (Guy)
 * Diameter Info column cleanups. (Guy)
-* Add support for obsoleted preferences. (Guy)
+* Add support for obsoleted preferences, so Ethereal won't complain
+  about them when reading the preferences file. (Guy)
 * Plugin table and API updates. (Tomas Kukosa, Guy)
 * decode_as_dlg.c - Include protocols for TCP conversation dissectors in
     the list of protocols that can be used to decode stuff. (Guy)
@@ -240,13 +240,13 @@ Guy)
 * General code cleanup (remove unused variables, etc). (Guy)
 * Update behavior w.r.t. dissectors changing the packet_info
     struct. (Guy)
-* Remove the global "pi" variable, and update code accordingly. (Guy)
+* Remove the global "pi" variable, and update code accordingly. (Guy, Gilbert)
 * text2pcap:
     Enhanced parsing, getopt() fixes. (Guy)
     Support for time stamping of packets. (Gordon McKinney)
     Handle colons after the offset field. (Gordon)
-* ethereal, tethereal - Treat extra command line argument as a capture
-    file to be read. (Guy)
+* ethereal - Treat extra command line argument as a capture file to be
+  read. (Guy)
 * packet-ipx.c - Add additional SAP values. (Guy)
 * Switched dissectors from dissect_data() to call_dissector(). (Guy, Ed)
 * Switched dissectors from CHECK_DISPLAY_AS_DATA to CHECK_DISPLAY_AS_X
@@ -284,8 +284,7 @@ Guy)
 * Support for Visual Networks Visual UpTime capture files. (Tom Nisbet)
 * MS Netmon fix. (Guy)
 * WildPackets Etherpeek fix. (Guy)
-* Add a heuristic dissector for protocols running atop X.25.
-    (Guy)
+* Add a heuristic dissector for protocols running atop X.25. (Guy)
 * Capture file support documentation updates. (Guy)
 * Fix the handling of the metric and referenced LS type fields in OSPFv3
     packets. (Taisuke)
@@ -313,7 +312,7 @@ Guy)
 * Remove old-style dissector references from the developer docs. (Guy)
 * Enhance TCP graph error reporting. (Guy)
 * Ethernet, IP, and TCP header bitfield and alignment fixes. (Guy)
-* TCP graph enhancments. (Guy, Motonori)
+* TCP graph enhancements. (Guy, Motonori)
 * Add MTP2 dissector, update MTP3 dissector. (Michael)
 * SOCKS response code display and filter field fixes. (Mark S. Allen, Guy)
 * Makefile.nmake and .pdb file fixes. (Motonori)
@@ -329,7 +328,7 @@ Guy)
 * Support for LOCATION_FORWARD, LOCATION_FORWARD_PERM and
     NEEDS_ADDRESSING_MODE replies in GIOP. (Bernd Becker)
 * Image documentation and updates. (Gerald, Guy)
-* Add a KDE .desktop file. (Guy)
+* Add a KDE/GNOME .desktop file. (Guy)
 * More protocol tree updates. (Guy)
 * M2TP support. (Heinz Prantner)
 * Fix goto problems in the DCERPC LSA dissector. (Motonori)
