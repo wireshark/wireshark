@@ -2,7 +2,7 @@
  * Structures and functions for NetWare Core Protocol.
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp-int.h,v 1.11 2002/08/28 21:00:23 jmayer Exp $
+ * $Id: packet-ncp-int.h,v 1.12 2002/09/22 15:46:42 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -88,11 +88,15 @@ void dissect_ncp_request(tvbuff_t*, packet_info*, guint16,
 void dissect_ncp_reply(tvbuff_t *, packet_info*, guint16, guint8,
 		guint16, proto_tree*);
 
+void dissect_ping_req(tvbuff_t *, packet_info*, guint16, guint8,
+		guint16, proto_tree*);
+
 void dissect_nds_request(tvbuff_t*, packet_info*, guint16,
 		guint8, guint16, proto_tree*);
 
 extern int proto_ncp;
 extern gint ett_ncp;
+extern gint ett_nds;
 
 /*
  * NCP packet types.

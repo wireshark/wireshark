@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-         
+                                      
 """
 Creates C code from a table of NCP type 0x2222 packet types.
 (And 0x3333, which are the replies, but the packets are more commonly
@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.32 2002/08/23 22:44:57 guy Exp $
+$Id: ncp2222.py,v 1.33 2002/09/22 15:46:41 gerald Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -70,6 +70,7 @@ NO_VAR		= -1
 NO_REPEAT	= -1
 NO_REQ_COND	= -1
 NO_LENGTH_CHECK	= -2
+
 
 PROTO_LENGTH_UNKNOWN	= -1
 
@@ -201,8 +202,8 @@ class PTVC(NamedList):
 
 				highest_var = highest_var + 1
 				var = highest_var
-				if highest_var > global_highest_var:
-					global_highest_var = highest_var
+                                if highest_var > global_highest_var:
+                                    global_highest_var = highest_var
 				named_vars[var_name] = var
 			else:
 				var = NO_VAR
@@ -656,7 +657,7 @@ class NCP:
 		packets.append(self)
 
 def rec(start, length, field, endianness=None, **kw):
-	return _rec(start, length, field, endianness, kw)
+        return _rec(start, length, field, endianness, kw)
 
 def srec(field, endianness=None, **kw):
 	return _rec(-1, -1, field, endianness, kw)
@@ -957,7 +958,7 @@ class val_string(Type):
 		value_repr = self.value_format % 0
 		result = result + "\t{ %s,\tNULL },\n" % (value_repr)
 		result = result + "};\n"
-		REC_VAL_STRING_RES = self.value_format % value
+                REC_VAL_STRING_RES = self.value_format % value
 		return result
 
 	def ValuesCName(self):
@@ -1365,7 +1366,8 @@ CachePartialWriteRequests	= uint32("cache_partial_write_requests", "Cache Partia
 CacheReadRequests 		= uint32("cache_read_requests", "Cache Read Requests")
 CacheWriteRequests 		= uint32("cache_write_requests", "Cache Write Requests")
 CategoryName                    = stringz("category_name", "Category Name")
-CCFileHandle			= bytes("cc_file_handle", "File Handle", 4)
+CCFileHandle			= uint32("cc_file_handle", "File Handle")
+CCFileHandle.Display("BASE_HEX")
 CCFunction			= val_string8("cc_function", "OP-Lock Flag", [
 	[ 0x01, "Clear OP-Lock" ],
 	[ 0x02, "Acknowledge Callback" ],
@@ -2780,8 +2782,6 @@ NCPExtensionNumbers		= uint32("ncp_extension_numbers", "NCP Extension Numbers")
 NCPextensionRevisionNumber	= uint8("ncp_extension_revision_number", "NCP Extension Revision Number")
 NCPPeakStaInUse			= uint32("ncp_peak_sta_in_use", "Peak Number of Connections since Server was brought up")
 NCPStaInUseCnt			= uint32("ncp_sta_in_use", "Number of Workstations Connected to Server")
-NDSFlags			= uint32("nds_flags", "NDS Flags")
-NDSFlags.Display('BASE_HEX')
 NDSRequestFlags 		= bitfield16("nds_request_flags", "NDS Request Flags", [
 	bf_boolean16(0x0001, "nds_request_flags_output", "Output Fields"),
 	bf_boolean16(0x0002, "nds_request_flags_no_such_entry", "No Such Entry"),
@@ -2796,90 +2796,6 @@ NDSRequestFlags 		= bitfield16("nds_request_flags", "NDS Request Flags", [
 	bf_boolean16(0x0400, "nds_request_flags_up_ref", "Up Referral"),
 	bf_boolean16(0x0800, "nds_request_flags_dn_ref", "Down Referral"),
 ])	
-NDSVerb				= val_string16("nds_verb", "NDS Verb", [
-	[ 1, "Resolve Name" ],
-	[ 2, "Read Entry Information" ],
-	[ 3, "Read" ],
-	[ 4, "Compare" ],
-	[ 5, "List" ],
-	[ 6, "Search Entries" ],
-	[ 7, "Add Entry" ],
-	[ 8, "Remove Entry" ],
-	[ 9, "Modify Entry" ],
-	[ 10, "Modify RDN" ],
-	[ 11, "Create Attribute" ],
-	[ 12, "Read Attribute Definition" ],
-	[ 13, "Remove Attribute Definition" ],
-	[ 14, "Define Class" ],
-	[ 15, "Read Class Definition" ],
-	[ 16, "Modify Class Definition" ],
-	[ 17, "Remove Class Definition" ],
-	[ 18, "List Containable Classes" ],
-	[ 19, "Get Effective Rights" ],
-	[ 20, "Add Partition" ],
-	[ 21, "Remove Partition" ],
-	[ 22, "List Partitions" ],
-	[ 23, "Split Partition" ],
-	[ 24, "Join Partitions" ],
-	[ 25, "Add Replica" ],
-	[ 26, "Remove Replica" ],
-	[ 27, "Open Stream" ],
-	[ 28, "Search Filter" ],
-	[ 29, "Create Subordinate Reference" ],
-	[ 30, "Link Replica" ],
-	[ 31, "Change Replica Type" ],
-	[ 32, "Start Update Schema" ],
-	[ 33, "End Update Schema" ],
-	[ 34, "Update Schema" ],
-	[ 35, "Start Update Replica" ],
-	[ 36, "End Update Replica" ],
-	[ 37, "Update Replica" ],
-	[ 38, "Synchronize Partition" ],
-	[ 39, "Synchronize Schema" ],
-	[ 40, "Read Syntaxes" ],
-	[ 41, "Get Replica Root ID" ],
-	[ 42, "Begin Move Entry" ],
-	[ 43, "Finish Move Entry" ],
-	[ 44, "Release Moved Entry" ],
-	[ 45, "Backup Entry" ],
-	[ 46, "Restore Entry" ],
-	[ 47, "Save DIB" ],
-	[ 50, "Close Iteration" ],
-	[ 51, "Unused" ],
-	[ 52, "Audit Skulking" ],
-	[ 53, "Get Server Address" ],
-	[ 54, "Set Keys" ],
-	[ 55, "Change Password" ],
-	[ 56, "Verify Password" ],
-	[ 57, "Begin Login" ],
-	[ 58, "Finish Login" ],
-	[ 59, "Begin Authentication" ],
-	[ 60, "Finish Authentication" ],
-	[ 61, "Logout" ],
-	[ 62, "Repair Ring" ],
-	[ 63, "Repair Timestamps" ],
-	[ 64, "Create Back Link" ],
-	[ 65, "Delete External Reference" ],
-	[ 66, "Rename External Reference" ],
-	[ 67, "Create Directory Entry" ],
-	[ 68, "Remove Directory Entry" ],
-	[ 69, "Designate New Master" ],
-	[ 70, "Change Tree Name" ],
-	[ 71, "Partition Entry Count" ],
-	[ 72, "Check Login Restrictions" ],
-	[ 73, "Start Join" ],
-	[ 74, "Low Level Split" ],
-	[ 75, "Low Level Join" ],
-	[ 76, "Abort Low Level Join" ],
-	[ 77, "Get All Servers" ],
-	[ 255, "EDirectory Call" ],
-])
-NDSNewVerb			= val_string16("nds_new_verb", "NDS Verb", [
-])
-NDSVersion			= uint32("nds_version", "NDS Version")
-NDSCRC				= uint32("nds_crc", "NDS CRC")
-NDSCRC.Display('BASE_HEX')
-NDSBuildVersion			= uint32("nds_build_version", "NDS Build Version")
 NDSStatus			= uint32("nds_status", "NDS Status")
 NetBIOSBroadcastWasPropogated	= uint32("netbios_broadcast_was_propogated", "NetBIOS Broadcast Was Propogated")
 NetIDNumber                     = uint32("net_id_number", "Net ID Number")
@@ -4711,17 +4627,11 @@ NCPNetworkAddress               = struct("ncp_network_address_struct", [
         NetAddress,
 ], "Network Address")
 
-NDS7Struct                      = struct("nds_7_struct", [
-        NDSCRC,
-])        
-NDS8Struct                      = struct("nds_8_struct", [
-        NDSCRC,
-        NDSNewVerb,
-])        
 netAddr                         = struct("net_addr_struct", [
         TransportType,
         nbytes32("transport_addr", "Transport Address"),
 ], "Network Address")
+
 NetWareInformationStruct	= struct("netware_information_struct", [
 	DataStreamSpaceAlloc, 		# (Data Stream Alloc Bit)
 	AttributesDef32,		# (Attributes Bit)
@@ -4917,13 +4827,6 @@ PhyLockStruct			= struct("phy_lock_struct", [
 	TaskNumByte,
 	LockType,
 ], "Physical Locks")
-PingVersion9                    = struct("ping_version_9", [
-	TreeName,
-])        
-PingVersion10                   = struct("ping_version_10", [
-        Reserved12,
-        TreeName,
-])
 printInfo                       = struct("print_info_struct", [
         PrintFlags,
         TabSize,
@@ -5198,346 +5101,348 @@ def define_groups():
 # NCP Errors
 ##############################################################################
 def define_errors():
-	errors[0x0000] = "Ok"
-	errors[0x0001] = "Transaction tracking is available"
-	errors[0x0002] = "Ok. The data has been written"
-	errors[0x0003] = "Calling Station is a Manager"
-
-	errors[0x0100] = "One or more of the ConnectionNumbers in the send list are invalid"
-	errors[0x0101] = "Invalid space limit"
-	errors[0x0102] = "Insufficient disk space"
-	errors[0x0103] = "Queue server cannot add jobs"
-	errors[0x0104] = "Out of disk space"
-	errors[0x0105] = "Semaphore overflow"
-	errors[0x0106] = "Invalid Parameter"
-	errors[0x0107] = "Invalid Number of Minutes to Delay"
+    	errors[0x0000] = "Ok"
+    	errors[0x0001] = "Transaction tracking is available"
+    	errors[0x0002] = "Ok. The data has been written"
+    	errors[0x0003] = "Calling Station is a Manager"
+    
+    	errors[0x0100] = "One or more of the ConnectionNumbers in the send list are invalid"
+    	errors[0x0101] = "Invalid space limit"
+    	errors[0x0102] = "Insufficient disk space"
+    	errors[0x0103] = "Queue server cannot add jobs"
+    	errors[0x0104] = "Out of disk space"
+    	errors[0x0105] = "Semaphore overflow"
+    	errors[0x0106] = "Invalid Parameter"
+    	errors[0x0107] = "Invalid Number of Minutes to Delay"
         errors[0x0108] = "Invalid Start or Network Number"
         errors[0x0109] = "Cannot Obtain License"
-
-	errors[0x0200] = "One or more clients in the send list are not logged in"
-	errors[0x0201] = "Queue server cannot attach"
-
-	errors[0x0300] = "One or more clients in the send list are not accepting messages"
-
-	errors[0x0400] = "Client already has message"
-	errors[0x0401] = "Queue server cannot service job"
-
-	errors[0x7300] = "Revoke Handle Rights Not Found"
+    
+    	errors[0x0200] = "One or more clients in the send list are not logged in"
+    	errors[0x0201] = "Queue server cannot attach"
+    
+    	errors[0x0300] = "One or more clients in the send list are not accepting messages"
+    
+    	errors[0x0400] = "Client already has message"
+    	errors[0x0401] = "Queue server cannot service job"
+    
+    	errors[0x7300] = "Revoke Handle Rights Not Found"
         errors[0x7900] = "Invalid Parameter in Request Packet"
         errors[0x7901] = "Nothing being Compressed"
-	errors[0x7a00] = "Connection Already Temporary"
-	errors[0x7b00] = "Connection Already Logged in"
-	errors[0x7c00] = "Connection Not Authenticated"
-	
-	errors[0x7e00] = "NCP failed boundary check"
-	errors[0x7e01] = "Invalid Length"
-
-	errors[0x7f00] = "Lock Waiting"
-	errors[0x8000] = "Lock fail"
-
-	errors[0x8100] = "A file handle could not be allocated by the file server"
-	errors[0x8101] = "Out of File Handles"
-	
-	errors[0x8200] = "Unauthorized to open the file"
-	errors[0x8300] = "Unable to read/write the volume. Possible bad sector on the file server"
-	errors[0x8301] = "Hard I/O Error"
-
-	errors[0x8400] = "Unauthorized to create the directory"
-	errors[0x8401] = "Unauthorized to create the file"
-
-	errors[0x8500] = "Unauthorized to delete the specified file"
-	errors[0x8501] = "Unauthorized to overwrite an existing file in this directory"
-
-	errors[0x8700] = "An unexpected character was encountered in the filename"
-	errors[0x8701] = "Create Filename Error"
-
-	errors[0x8800] = "Invalid file handle"
-	errors[0x8900] = "Unauthorized to search this directory"
-	errors[0x8a00] = "Unauthorized to delete this directory"
-	errors[0x8b00] = "Unauthorized to rename a file in this directory"
-
-	errors[0x8c00] = "No set privileges"
-	errors[0x8c01] = "Unauthorized to modify a file in this directory"
-	errors[0x8c02] = "Unauthorized to change the restriction on this volume"
-
-	errors[0x8d00] = "Some of the affected files are in use by another client"
-	errors[0x8d01] = "The affected file is in use"
-
-	errors[0x8e00] = "All of the affected files are in use by another client"
-	errors[0x8f00] = "Some of the affected files are read-only"
-
-	errors[0x9000] = "An attempt to modify a read-only volume occurred"
-	errors[0x9001] = "All of the affected files are read-only"
-	errors[0x9002] = "Read Only Access to Volume"
-
-	errors[0x9100] = "Some of the affected files already exist"
-	errors[0x9101] = "Some Names Exist"
-
-	errors[0x9200] = "Directory with the new name already exists"
-	errors[0x9201] = "All of the affected files already exist"
-
-	errors[0x9300] = "Unauthorized to read from this file"
-	errors[0x9400] = "Unauthorized to write to this file"
-	errors[0x9500] = "The affected file is detached"
-
-	errors[0x9600] = "The file server has run out of memory to service this request"
-	errors[0x9601] = "No alloc space for message"
-	errors[0x9602] = "Server Out of Space"
-
-	errors[0x9800] = "The affected volume is not mounted"
-	errors[0x9801] = "The volume associated with Volume Number is not mounted"
-	errors[0x9802] = "The resulting volume does not exist"
-	errors[0x9803] = "The destination volume is not mounted"
-	errors[0x9804] = "Disk Map Error"
-
-	errors[0x9900] = "The file server has run out of directory space on the affected volume"
-	errors[0x9a00] = "The request attempted to rename the affected file to another volume"
-
-	errors[0x9b00] = "DirHandle is not associated with a valid directory path"
-	errors[0x9b01] = "A resulting directory handle is not associated with a valid directory path"
-	errors[0x9b02] = "The directory associated with DirHandle does not exist"
-	errors[0x9b03] = "Bad directory handle"
-
-	errors[0x9c00] = "The resulting path is not valid"
-	errors[0x9c01] = "The resulting file path is not valid"
-	errors[0x9c02] = "The resulting directory path is not valid"
-	errors[0x9c03] = "Invalid path"
-
-	errors[0x9d00] = "A directory handle was not available for allocation"
-
-	errors[0x9e00] = "The name of the directory does not conform to a legal name for this name space"
-	errors[0x9e01] = "The new directory name does not conform to a legal name for this name space"
-	errors[0x9e02] = "Bad File Name"
-
-	errors[0x9f00] = "The request attempted to delete a directory that is in use by another client"
-
-	errors[0xa000] = "The request attempted to delete a directory that is not empty"
-	errors[0xa100] = "An unrecoverable error occured on the affected directory"
-
-	errors[0xa200] = "The request attempted to read from a file region that is physically locked"
-	errors[0xa201] = "I/O Lock Error"
-
-	errors[0xa400] = "Invalid directory rename attempted"
+    	errors[0x7a00] = "Connection Already Temporary"
+    	errors[0x7b00] = "Connection Already Logged in"
+    	errors[0x7c00] = "Connection Not Authenticated"
+    	
+    	errors[0x7e00] = "NCP failed boundary check"
+    	errors[0x7e01] = "Invalid Length"
+    
+    	errors[0x7f00] = "Lock Waiting"
+    	errors[0x8000] = "Lock fail"
+    
+    	errors[0x8100] = "A file handle could not be allocated by the file server"
+    	errors[0x8101] = "Out of File Handles"
+    	
+    	errors[0x8200] = "Unauthorized to open the file"
+    	errors[0x8300] = "Unable to read/write the volume. Possible bad sector on the file server"
+    	errors[0x8301] = "Hard I/O Error"
+    
+    	errors[0x8400] = "Unauthorized to create the directory"
+    	errors[0x8401] = "Unauthorized to create the file"
+    
+    	errors[0x8500] = "Unauthorized to delete the specified file"
+    	errors[0x8501] = "Unauthorized to overwrite an existing file in this directory"
+    
+    	errors[0x8700] = "An unexpected character was encountered in the filename"
+    	errors[0x8701] = "Create Filename Error"
+    
+    	errors[0x8800] = "Invalid file handle"
+    	errors[0x8900] = "Unauthorized to search this directory"
+    	errors[0x8a00] = "Unauthorized to delete this directory"
+    	errors[0x8b00] = "Unauthorized to rename a file in this directory"
+    
+    	errors[0x8c00] = "No set privileges"
+    	errors[0x8c01] = "Unauthorized to modify a file in this directory"
+    	errors[0x8c02] = "Unauthorized to change the restriction on this volume"
+    
+    	errors[0x8d00] = "Some of the affected files are in use by another client"
+    	errors[0x8d01] = "The affected file is in use"
+    
+    	errors[0x8e00] = "All of the affected files are in use by another client"
+    	errors[0x8f00] = "Some of the affected files are read-only"
+    
+    	errors[0x9000] = "An attempt to modify a read-only volume occurred"
+    	errors[0x9001] = "All of the affected files are read-only"
+    	errors[0x9002] = "Read Only Access to Volume"
+    
+    	errors[0x9100] = "Some of the affected files already exist"
+    	errors[0x9101] = "Some Names Exist"
+    
+    	errors[0x9200] = "Directory with the new name already exists"
+    	errors[0x9201] = "All of the affected files already exist"
+    
+    	errors[0x9300] = "Unauthorized to read from this file"
+    	errors[0x9400] = "Unauthorized to write to this file"
+    	errors[0x9500] = "The affected file is detached"
+    
+    	errors[0x9600] = "The file server has run out of memory to service this request"
+    	errors[0x9601] = "No alloc space for message"
+    	errors[0x9602] = "Server Out of Space"
+    
+    	errors[0x9800] = "The affected volume is not mounted"
+    	errors[0x9801] = "The volume associated with Volume Number is not mounted"
+    	errors[0x9802] = "The resulting volume does not exist"
+    	errors[0x9803] = "The destination volume is not mounted"
+    	errors[0x9804] = "Disk Map Error"
+    
+    	errors[0x9900] = "The file server has run out of directory space on the affected volume"
+    	errors[0x9a00] = "The request attempted to rename the affected file to another volume"
+    
+    	errors[0x9b00] = "DirHandle is not associated with a valid directory path"
+    	errors[0x9b01] = "A resulting directory handle is not associated with a valid directory path"
+    	errors[0x9b02] = "The directory associated with DirHandle does not exist"
+    	errors[0x9b03] = "Bad directory handle"
+    
+    	errors[0x9c00] = "The resulting path is not valid"
+    	errors[0x9c01] = "The resulting file path is not valid"
+    	errors[0x9c02] = "The resulting directory path is not valid"
+    	errors[0x9c03] = "Invalid path"
+    
+    	errors[0x9d00] = "A directory handle was not available for allocation"
+    
+    	errors[0x9e00] = "The name of the directory does not conform to a legal name for this name space"
+    	errors[0x9e01] = "The new directory name does not conform to a legal name for this name space"
+    	errors[0x9e02] = "Bad File Name"
+    
+    	errors[0x9f00] = "The request attempted to delete a directory that is in use by another client"
+    
+    	errors[0xa000] = "The request attempted to delete a directory that is not empty"
+    	errors[0xa100] = "An unrecoverable error occured on the affected directory"
+    
+    	errors[0xa200] = "The request attempted to read from a file region that is physically locked"
+    	errors[0xa201] = "I/O Lock Error"
+    
+    	errors[0xa400] = "Invalid directory rename attempted"
+        errors[0xa500] = "Invalid open create mode"
         errors[0xa600] = "Auditor Access has been Removed"
-	errors[0xa700] = "Error Auditing Version"
-        
-	errors[0xa800] = "Invalid Support Module ID"
+    	errors[0xa700] = "Error Auditing Version"
+            
+    	errors[0xa800] = "Invalid Support Module ID"
         errors[0xa801] = "No Auditing Access Rights"
-        
-	errors[0xbe00] = "Invalid Data Stream"
-	errors[0xbf00] = "Requests for this name space are not valid on this volume"
-
-	errors[0xc000] = "Unauthorized to retrieve accounting data"
-	
-	errors[0xc100] = "The ACCOUNT_BALANCE property does not exist"
-	errors[0xc101] = "No Account Balance"
-	
-	errors[0xc200] = "The object has exceeded its credit limit"
-	errors[0xc300] = "Too many holds have been placed against this account"
-	errors[0xc400] = "The client account has been disabled"
-
-	errors[0xc500] = "Access to the account has been denied because of intruder detection"
-	errors[0xc501] = "Login lockout"
-	errors[0xc502] = "Server Login Locked"
-
-	errors[0xc600] = "The caller does not have operator priviliges"
-	errors[0xc601] = "The client does not have operator priviliges"
-
-	errors[0xc800] = "Missing EA Key"
-	errors[0xc900] = "EA Not Found"
-	errors[0xca00] = "Invalid EA Handle Type"
-	errors[0xcb00] = "EA No Key No Data"
-	errors[0xcc00] = "EA Number Mismatch"
-	errors[0xcd00] = "Extent Number Out of Range"
-	errors[0xce00] = "EA Bad Directory Number"
-	errors[0xcf00] = "Invalid EA Handle"
-
-	errors[0xd000] = "Queue error"
-	errors[0xd001] = "EA Position Out of Range"
-	
-	errors[0xd100] = "The queue does not exist"
-	errors[0xd101] = "EA Access Denied"
-
-	errors[0xd200] = "A queue server is not associated with this queue"
-	errors[0xd201] = "A queue server is not associated with the selected queue"
-	errors[0xd202] = "No queue server"
-	errors[0xd203] = "Data Page Odd Size"
-
-	errors[0xd300] = "No queue rights"
-	errors[0xd301] = "EA Volume Not Mounted"
-
-	errors[0xd400] = "The queue is full and cannot accept another request"
-	errors[0xd401] = "The queue associated with ObjectId is full and cannot accept another request"
-	errors[0xd402] = "Bad Page Boundary"
-
-	errors[0xd500] = "A job does not exist in this queue"
-	errors[0xd501] = "No queue job"
-	errors[0xd502] = "The job associated with JobNumber does not exist in this queue"
-	errors[0xd503] = "Inspect Failure"
-
-	errors[0xd600] = "The file server does not allow unencrypted passwords"
-	errors[0xd601] = "No job right"
-	errors[0xd602] = "EA Already Claimed"
-
-	errors[0xd700] = "Bad account"
-	errors[0xd701] = "The old and new password strings are identical"
-	errors[0xd702] = "The job is currently being serviced"
-	errors[0xd703] = "The queue is currently servicing a job"
-	errors[0xd704] = "Queue servicing"
-	errors[0xd705] = "Odd Buffer Size"
-
-	errors[0xd800] = "Queue not active"
-	errors[0xd801] = "No Scorecards"
-	
-	errors[0xd900] = "The file server cannot accept another connection as it has reached its limit"
-	errors[0xd901] = "The client is not security equivalent to one of the objects in the Q_SERVERS group property of the target queue"
-	errors[0xd902] = "Station is not a server"
-	errors[0xd903] = "Bad EDS Signature"
-
-	errors[0xda00] = "Attempted to login to the file server during a restricted time period"
-	errors[0xda01] = "Queue halted"
-	errors[0xda02] = "EA Space Limit"
-
-	errors[0xdb00] = "Attempted to login to the file server from an unauthorized workstation or network"
-	errors[0xdb01] = "The queue cannot attach another queue server"
-	errors[0xdb02] = "Maximum queue servers"
-	errors[0xdb03] = "EA Key Corrupt"
-
-	errors[0xdc00] = "Account Expired"
-	errors[0xdc01] = "EA Key Limit"
-	
-	errors[0xdd00] = "Tally Corrupt"
-	errors[0xde00] = "Attempted to login to the file server with an incorrect password"
-	errors[0xdf00] = "Attempted to login to the file server with a password that has expired"
-
-	errors[0xe000] = "No Login Connections Available"
-	errors[0xe700] = "No disk track"
-	errors[0xe800] = "Write to group"
-	errors[0xe900] = "The object is already a member of the group property"
-
-	errors[0xea00] = "No such member"
-	errors[0xea01] = "The bindery object is not a member of the set"
-	errors[0xea02] = "Non-existent member"
-
-	errors[0xeb00] = "The property is not a set property"
-
-	errors[0xec00] = "No such set"
-	errors[0xec01] = "The set property does not exist"
-
-	errors[0xed00] = "Property exists"
-	errors[0xed01] = "The property already exists"
-	errors[0xed02] = "An attempt was made to create a bindery object property that already exists"
-
-	errors[0xee00] = "The object already exists"
-	errors[0xee01] = "The bindery object already exists"
-
-	errors[0xef00] = "Illegal name"
-	errors[0xef01] = "Illegal characters in ObjectName field"
-	errors[0xef02] = "Invalid name"
-
-	errors[0xf000] = "A wildcard was detected in a field that does not support wildcards"
-	errors[0xf001] = "An illegal wildcard was detected in ObjectName"
-
-	errors[0xf100] = "The client does not have the rights to access this bindery object"
-	errors[0xf101] = "Bindery security"
-	errors[0xf102] = "Invalid bindery security"
-
-	errors[0xf200] = "Unauthorized to read from this object"
-	errors[0xf300] = "Unauthorized to rename this object"
-
-	errors[0xf400] = "Unauthorized to delete this object"
-	errors[0xf401] = "No object delete privileges"
-	errors[0xf402] = "Unauthorized to delete this queue"
-
-	errors[0xf500] = "Unauthorized to create this object"
-	errors[0xf501] = "No object create"
-
-	errors[0xf600] = "No property delete"
-	errors[0xf601] = "Unauthorized to delete the property of this object"
-	errors[0xf602] = "Unauthorized to delete this property"
-
-	errors[0xf700] = "Unauthorized to create this property"
-	errors[0xf701] = "No property create privilege"
-
-	errors[0xf800] = "Unauthorized to write to this property"
-	errors[0xf900] = "Unauthorized to read this property"
-	errors[0xfa00] = "Temporary remap error"
-
-	errors[0xfb00] = "No such property"
-	errors[0xfb01] = "The file server does not support this request"
-	errors[0xfb02] = "The specified property does not exist"
-	errors[0xfb03] = "The PASSWORD property does not exist for this bindery object"
-	errors[0xfb04] = "NDS NCP not available"
-	errors[0xfb05] = "Bad Directory Handle"
-	errors[0xfb06] = "Unknown Request"
+            
+    	errors[0xbe00] = "Invalid Data Stream"
+    	errors[0xbf00] = "Requests for this name space are not valid on this volume"
+    
+    	errors[0xc000] = "Unauthorized to retrieve accounting data"
+    	
+    	errors[0xc100] = "The ACCOUNT_BALANCE property does not exist"
+    	errors[0xc101] = "No Account Balance"
+    	
+    	errors[0xc200] = "The object has exceeded its credit limit"
+    	errors[0xc300] = "Too many holds have been placed against this account"
+    	errors[0xc400] = "The client account has been disabled"
+    
+    	errors[0xc500] = "Access to the account has been denied because of intruder detection"
+    	errors[0xc501] = "Login lockout"
+    	errors[0xc502] = "Server Login Locked"
+    
+    	errors[0xc600] = "The caller does not have operator priviliges"
+    	errors[0xc601] = "The client does not have operator priviliges"
+    
+    	errors[0xc800] = "Missing EA Key"
+    	errors[0xc900] = "EA Not Found"
+    	errors[0xca00] = "Invalid EA Handle Type"
+    	errors[0xcb00] = "EA No Key No Data"
+    	errors[0xcc00] = "EA Number Mismatch"
+    	errors[0xcd00] = "Extent Number Out of Range"
+    	errors[0xce00] = "EA Bad Directory Number"
+    	errors[0xcf00] = "Invalid EA Handle"
+    
+    	errors[0xd000] = "Queue error"
+    	errors[0xd001] = "EA Position Out of Range"
+    	
+    	errors[0xd100] = "The queue does not exist"
+    	errors[0xd101] = "EA Access Denied"
+    
+    	errors[0xd200] = "A queue server is not associated with this queue"
+    	errors[0xd201] = "A queue server is not associated with the selected queue"
+    	errors[0xd202] = "No queue server"
+    	errors[0xd203] = "Data Page Odd Size"
+    
+    	errors[0xd300] = "No queue rights"
+    	errors[0xd301] = "EA Volume Not Mounted"
+    
+    	errors[0xd400] = "The queue is full and cannot accept another request"
+    	errors[0xd401] = "The queue associated with ObjectId is full and cannot accept another request"
+    	errors[0xd402] = "Bad Page Boundary"
+    
+    	errors[0xd500] = "A job does not exist in this queue"
+    	errors[0xd501] = "No queue job"
+    	errors[0xd502] = "The job associated with JobNumber does not exist in this queue"
+    	errors[0xd503] = "Inspect Failure"
+    
+    	errors[0xd600] = "The file server does not allow unencrypted passwords"
+    	errors[0xd601] = "No job right"
+    	errors[0xd602] = "EA Already Claimed"
+    
+    	errors[0xd700] = "Bad account"
+    	errors[0xd701] = "The old and new password strings are identical"
+    	errors[0xd702] = "The job is currently being serviced"
+    	errors[0xd703] = "The queue is currently servicing a job"
+    	errors[0xd704] = "Queue servicing"
+    	errors[0xd705] = "Odd Buffer Size"
+    
+    	errors[0xd800] = "Queue not active"
+    	errors[0xd801] = "No Scorecards"
+    	
+    	errors[0xd900] = "The file server cannot accept another connection as it has reached its limit"
+    	errors[0xd901] = "The client is not security equivalent to one of the objects in the Q_SERVERS group property of the target queue"
+    	errors[0xd902] = "Station is not a server"
+    	errors[0xd903] = "Bad EDS Signature"
+    
+    	errors[0xda00] = "Attempted to login to the file server during a restricted time period"
+    	errors[0xda01] = "Queue halted"
+    	errors[0xda02] = "EA Space Limit"
+    
+    	errors[0xdb00] = "Attempted to login to the file server from an unauthorized workstation or network"
+    	errors[0xdb01] = "The queue cannot attach another queue server"
+    	errors[0xdb02] = "Maximum queue servers"
+    	errors[0xdb03] = "EA Key Corrupt"
+    
+    	errors[0xdc00] = "Account Expired"
+    	errors[0xdc01] = "EA Key Limit"
+    	
+    	errors[0xdd00] = "Tally Corrupt"
+    	errors[0xde00] = "Attempted to login to the file server with an incorrect password"
+    	errors[0xdf00] = "Attempted to login to the file server with a password that has expired"
+    
+    	errors[0xe000] = "No Login Connections Available"
+    	errors[0xe700] = "No disk track"
+    	errors[0xe800] = "Write to group"
+    	errors[0xe900] = "The object is already a member of the group property"
+    
+    	errors[0xea00] = "No such member"
+    	errors[0xea01] = "The bindery object is not a member of the set"
+    	errors[0xea02] = "Non-existent member"
+    
+    	errors[0xeb00] = "The property is not a set property"
+    
+    	errors[0xec00] = "No such set"
+    	errors[0xec01] = "The set property does not exist"
+    
+    	errors[0xed00] = "Property exists"
+    	errors[0xed01] = "The property already exists"
+    	errors[0xed02] = "An attempt was made to create a bindery object property that already exists"
+    
+    	errors[0xee00] = "The object already exists"
+    	errors[0xee01] = "The bindery object already exists"
+    
+    	errors[0xef00] = "Illegal name"
+    	errors[0xef01] = "Illegal characters in ObjectName field"
+    	errors[0xef02] = "Invalid name"
+    
+    	errors[0xf000] = "A wildcard was detected in a field that does not support wildcards"
+    	errors[0xf001] = "An illegal wildcard was detected in ObjectName"
+    
+    	errors[0xf100] = "The client does not have the rights to access this bindery object"
+    	errors[0xf101] = "Bindery security"
+    	errors[0xf102] = "Invalid bindery security"
+    
+    	errors[0xf200] = "Unauthorized to read from this object"
+    	errors[0xf300] = "Unauthorized to rename this object"
+    
+    	errors[0xf400] = "Unauthorized to delete this object"
+    	errors[0xf401] = "No object delete privileges"
+    	errors[0xf402] = "Unauthorized to delete this queue"
+    
+    	errors[0xf500] = "Unauthorized to create this object"
+    	errors[0xf501] = "No object create"
+    
+    	errors[0xf600] = "No property delete"
+    	errors[0xf601] = "Unauthorized to delete the property of this object"
+    	errors[0xf602] = "Unauthorized to delete this property"
+    
+    	errors[0xf700] = "Unauthorized to create this property"
+    	errors[0xf701] = "No property create privilege"
+    
+    	errors[0xf800] = "Unauthorized to write to this property"
+    	errors[0xf900] = "Unauthorized to read this property"
+    	errors[0xfa00] = "Temporary remap error"
+    
+    	errors[0xfb00] = "No such property"
+    	errors[0xfb01] = "The file server does not support this request"
+    	errors[0xfb02] = "The specified property does not exist"
+    	errors[0xfb03] = "The PASSWORD property does not exist for this bindery object"
+    	errors[0xfb04] = "NDS NCP not available"
+    	errors[0xfb05] = "Bad Directory Handle"
+    	errors[0xfb06] = "Unknown Request"
         errors[0xfb07] = "Invalid Subfunction Request"
         errors[0xfb08] = "Attempt to use an invalid parameter (drive number, path, or flag value) during a set drive path call"
         errors[0xfb09] = "NMAS not installed on this server, NCP NOT Supported"
-
-	errors[0xfc00] = "The message queue cannot accept another message"
-	errors[0xfc01] = "The trustee associated with ObjectId does not exist"
-	errors[0xfc02] = "The specified bindery object does not exist"
-	errors[0xfc03] = "The bindery object associated with ObjectID does not exist"
-	errors[0xfc04] = "A bindery object does not exist that matches"
-	errors[0xfc05] = "The specified queue does not exist"
-	errors[0xfc06] = "No such object"
-	errors[0xfc07] = "The queue associated with ObjectID does not exist"
-
-	errors[0xfd00] = "Bad station number"
-	errors[0xfd01] = "The connection associated with ConnectionNumber is not active"
-	errors[0xfd02] = "Lock collision"
-	errors[0xfd03] = "Transaction tracking is disabled"
-
-	errors[0xfe00] = "I/O failure"
-	errors[0xfe01] = "The files containing the bindery on the file server are locked"
-	errors[0xfe02] = "A file with the specified name already exists in this directory"
-	errors[0xfe03] = "No more restrictions were found"
-	errors[0xfe04] = "The file server was unable to lock the file within the specified time limit"
-	errors[0xfe05] = "The file server was unable to lock all files within the specified time limit"
-	errors[0xfe06] = "The bindery object associated with ObjectID is not a valid trustee"
-	errors[0xfe07] = "Directory locked"
-	errors[0xfe08] = "Bindery locked"
-	errors[0xfe09] = "Invalid semaphore name length"
-	errors[0xfe0a] = "The file server was unable to complete the operation within the specified time limit"
-	errors[0xfe0b] = "Transaction restart"
-	errors[0xfe0c] = "Bad packet"
-	errors[0xfe0d] = "Timeout"
-	errors[0xfe0e] = "User Not Found"
-	errors[0xfe0f] = "Trustee Not Found"
-
-	errors[0xff00] = "Failure"
-	errors[0xff01] = "Lock error"
-	errors[0xff02] = "File not found"
-	errors[0xff03] = "The file not found or cannot be unlocked"
-	errors[0xff04] = "Record not found"
-	errors[0xff05] = "The logical record was not found"
-	errors[0xff06] = "The printer associated with PrinterNumber does not exist"
-	errors[0xff07] = "No such printer"
-	errors[0xff08] = "Unable to complete the request"
-	errors[0xff09] = "Unauthorized to change privileges of this trustee"
-	errors[0xff0a] = "No files matching the search criteria were found"
-	errors[0xff0b] = "A file matching the search criteria was not found"
-	errors[0xff0c] = "Verification failed"
-	errors[0xff0d] = "Object associated with ObjectID is not a manager"
-	errors[0xff0e] = "Invalid initial semaphore value"
-	errors[0xff0f] = "The semaphore handle is not valid"
-	errors[0xff10] = "SemaphoreHandle is not associated with a valid sempahore"
-	errors[0xff11] = "Invalid semaphore handle"
-	errors[0xff12] = "Transaction tracking is not available"
-	errors[0xff13] = "The transaction has not yet been written to disk"
-	errors[0xff14] = "Directory already exists"
-	errors[0xff15] = "The file already exists and the deletion flag was not set"
-	errors[0xff16] = "No matching files or directories were found"
-	errors[0xff17] = "A file or directory matching the search criteria was not found"
-	errors[0xff18] = "The file already exists"
-	errors[0xff19] = "Failure, No files found"
-	errors[0xff1a] = "Unlock Error"
-	errors[0xff1b] = "I/O Bound Error"
-	errors[0xff1c] = "Not Accepting Messages"
-	errors[0xff1d] = "No More Salvageable Files in Directory"
-	errors[0xff1e] = "Calling Station is Not a Manager"
-	errors[0xff1f] = "Bindery Failure"
-
+        errors[0xfb0a] = "Station Not Logged In"
+    
+    	errors[0xfc00] = "The message queue cannot accept another message"
+    	errors[0xfc01] = "The trustee associated with ObjectId does not exist"
+    	errors[0xfc02] = "The specified bindery object does not exist"
+    	errors[0xfc03] = "The bindery object associated with ObjectID does not exist"
+    	errors[0xfc04] = "A bindery object does not exist that matches"
+    	errors[0xfc05] = "The specified queue does not exist"
+    	errors[0xfc06] = "No such object"
+    	errors[0xfc07] = "The queue associated with ObjectID does not exist"
+    
+    	errors[0xfd00] = "Bad station number"
+    	errors[0xfd01] = "The connection associated with ConnectionNumber is not active"
+    	errors[0xfd02] = "Lock collision"
+    	errors[0xfd03] = "Transaction tracking is disabled"
+    
+    	errors[0xfe00] = "I/O failure"
+    	errors[0xfe01] = "The files containing the bindery on the file server are locked"
+    	errors[0xfe02] = "A file with the specified name already exists in this directory"
+    	errors[0xfe03] = "No more restrictions were found"
+    	errors[0xfe04] = "The file server was unable to lock the file within the specified time limit"
+    	errors[0xfe05] = "The file server was unable to lock all files within the specified time limit"
+    	errors[0xfe06] = "The bindery object associated with ObjectID is not a valid trustee"
+    	errors[0xfe07] = "Directory locked"
+    	errors[0xfe08] = "Bindery locked"
+    	errors[0xfe09] = "Invalid semaphore name length"
+    	errors[0xfe0a] = "The file server was unable to complete the operation within the specified time limit"
+    	errors[0xfe0b] = "Transaction restart"
+    	errors[0xfe0c] = "Bad packet"
+    	errors[0xfe0d] = "Timeout"
+    	errors[0xfe0e] = "User Not Found"
+    	errors[0xfe0f] = "Trustee Not Found"
+    
+    	errors[0xff00] = "Failure"
+    	errors[0xff01] = "Lock error"
+    	errors[0xff02] = "File not found"
+    	errors[0xff03] = "The file not found or cannot be unlocked"
+    	errors[0xff04] = "Record not found"
+    	errors[0xff05] = "The logical record was not found"
+    	errors[0xff06] = "The printer associated with Printer Number does not exist"
+    	errors[0xff07] = "No such printer"
+    	errors[0xff08] = "Unable to complete the request"
+    	errors[0xff09] = "Unauthorized to change privileges of this trustee"
+    	errors[0xff0a] = "No files matching the search criteria were found"
+    	errors[0xff0b] = "A file matching the search criteria was not found"
+    	errors[0xff0c] = "Verification failed"
+    	errors[0xff0d] = "Object associated with ObjectID is not a manager"
+    	errors[0xff0e] = "Invalid initial semaphore value"
+    	errors[0xff0f] = "The semaphore handle is not valid"
+    	errors[0xff10] = "SemaphoreHandle is not associated with a valid sempahore"
+    	errors[0xff11] = "Invalid semaphore handle"
+    	errors[0xff12] = "Transaction tracking is not available"
+    	errors[0xff13] = "The transaction has not yet been written to disk"
+    	errors[0xff14] = "Directory already exists"
+    	errors[0xff15] = "The file already exists and the deletion flag was not set"
+    	errors[0xff16] = "No matching files or directories were found"
+    	errors[0xff17] = "A file or directory matching the search criteria was not found"
+    	errors[0xff18] = "The file already exists"
+    	errors[0xff19] = "Failure, No files found"
+    	errors[0xff1a] = "Unlock Error"
+    	errors[0xff1b] = "I/O Bound Error"
+    	errors[0xff1c] = "Not Accepting Messages"
+    	errors[0xff1d] = "No More Salvageable Files in Directory"
+    	errors[0xff1e] = "Calling Station is Not a Manager"
+    	errors[0xff1f] = "Bindery Failure"
+        errors[0xff20] = "NCP Extension Not Found"
 
 ##############################################################################
 # Produce C code
@@ -5623,6 +5528,14 @@ static int ptvc_struct_int_storage;
 #define REQ_COND_SIZE_VARIABLE	1
 #define NO_REQ_COND_SIZE	0
 
+
+#define NTREE   0x00020000
+#define NDEPTH  0x00000002
+#define NREV    0x00000004
+#define NFLAGS  0x00000008
+
+
+
 static int hf_ncp_func = -1;
 static int hf_ncp_length = -1;
 static int hf_ncp_subfunc = -1;
@@ -5633,9 +5546,338 @@ static int hf_ncp_req_frame_num = -1;
 static int hf_ncp_fragment_size = -1;
 static int hf_ncp_message_size = -1;
 static int hf_ncp_nds_flag = -1;
-static int hf_ncp_nds_verb = -1;
-	"""
+static int hf_ncp_nds_verb = -1; 
+static int hf_ping_version = -1;
+static int hf_nds_version = -1;
+static int hf_nds_flags = -1;
+static int hf_nds_flags_tree = -1;
+static int hf_nds_flags_depth = -1;
+static int hf_nds_flags_rev = -1;
+static int hf_nds_flags_flags = -1;
+static int hf_nds_reply_depth = -1;
+static int hf_nds_reply_rev = -1;
+static int hf_nds_reply_flags = -1;
+static int hf_nds_p1type = -1;
+static int hf_nds_uint32value = -1;
+static int hf_nds_bit1 = -1;
+static int hf_nds_bit2 = -1;
+static int hf_nds_bit3 = -1;
+static int hf_nds_bit4 = -1;
+static int hf_nds_bit5 = -1;
+static int hf_nds_bit6 = -1;
+static int hf_nds_bit7 = -1;
+static int hf_nds_bit8 = -1;
+static int hf_nds_bit9 = -1;
+static int hf_nds_bit10 = -1;
+static int hf_nds_bit11 = -1;
+static int hf_nds_bit12 = -1;
+static int hf_nds_bit13 = -1;
+static int hf_nds_bit14 = -1;
+static int hf_nds_bit15 = -1;
+static int hf_nds_bit16 = -1;
+static int hf_bit1outflags = -1;
+static int hf_bit2outflags = -1;
+static int hf_bit3outflags = -1;
+static int hf_bit4outflags = -1;
+static int hf_bit5outflags = -1;
+static int hf_bit6outflags = -1;
+static int hf_bit7outflags = -1;
+static int hf_bit8outflags = -1;
+static int hf_bit9outflags = -1;
+static int hf_bit10outflags = -1;
+static int hf_bit11outflags = -1;
+static int hf_bit12outflags = -1;
+static int hf_bit13outflags = -1;
+static int hf_bit14outflags = -1;
+static int hf_bit15outflags = -1;
+static int hf_bit16outflags = -1;
+static int hf_bit1nflags = -1;
+static int hf_bit2nflags = -1;
+static int hf_bit3nflags = -1;
+static int hf_bit4nflags = -1;
+static int hf_bit5nflags = -1;
+static int hf_bit6nflags = -1;
+static int hf_bit7nflags = -1;
+static int hf_bit8nflags = -1;
+static int hf_bit9nflags = -1;
+static int hf_bit10nflags = -1;
+static int hf_bit11nflags = -1;
+static int hf_bit12nflags = -1;
+static int hf_bit13nflags = -1;
+static int hf_bit14nflags = -1;
+static int hf_bit15nflags = -1;
+static int hf_bit16nflags = -1;
+static int hf_bit1rflags = -1;
+static int hf_bit2rflags = -1;
+static int hf_bit3rflags = -1;
+static int hf_bit4rflags = -1;
+static int hf_bit5rflags = -1;
+static int hf_bit6rflags = -1;
+static int hf_bit7rflags = -1;
+static int hf_bit8rflags = -1;
+static int hf_bit9rflags = -1;
+static int hf_bit10rflags = -1;
+static int hf_bit11rflags = -1;
+static int hf_bit12rflags = -1;
+static int hf_bit13rflags = -1;
+static int hf_bit14rflags = -1;
+static int hf_bit15rflags = -1;
+static int hf_bit16rflags = -1;
+static int hf_bit1cflags = -1;
+static int hf_bit2cflags = -1;
+static int hf_bit3cflags = -1;
+static int hf_bit4cflags = -1;
+static int hf_bit5cflags = -1;
+static int hf_bit6cflags = -1;
+static int hf_bit7cflags = -1;
+static int hf_bit8cflags = -1;
+static int hf_bit9cflags = -1;
+static int hf_bit10cflags = -1;
+static int hf_bit11cflags = -1;
+static int hf_bit12cflags = -1;
+static int hf_bit13cflags = -1;
+static int hf_bit14cflags = -1;
+static int hf_bit15cflags = -1;
+static int hf_bit16cflags = -1;
+static int hf_bit1acflags = -1;
+static int hf_bit2acflags = -1;
+static int hf_bit3acflags = -1;
+static int hf_bit4acflags = -1;
+static int hf_bit5acflags = -1;
+static int hf_bit6acflags = -1;
+static int hf_bit7acflags = -1;
+static int hf_bit8acflags = -1;
+static int hf_bit9acflags = -1;
+static int hf_bit10acflags = -1;
+static int hf_bit11acflags = -1;
+static int hf_bit12acflags = -1;
+static int hf_bit13acflags = -1;
+static int hf_bit14acflags = -1;
+static int hf_bit15acflags = -1;
+static int hf_bit16acflags = -1;
+static int hf_bit1vflags = -1;
+static int hf_bit2vflags = -1;
+static int hf_bit3vflags = -1;
+static int hf_bit4vflags = -1;
+static int hf_bit5vflags = -1;
+static int hf_bit6vflags = -1;
+static int hf_bit7vflags = -1;
+static int hf_bit8vflags = -1;
+static int hf_bit9vflags = -1;
+static int hf_bit10vflags = -1;
+static int hf_bit11vflags = -1;
+static int hf_bit12vflags = -1;
+static int hf_bit13vflags = -1;
+static int hf_bit14vflags = -1;
+static int hf_bit15vflags = -1;
+static int hf_bit16vflags = -1;
+static int hf_bit1eflags = -1;
+static int hf_bit2eflags = -1;
+static int hf_bit3eflags = -1;
+static int hf_bit4eflags = -1;
+static int hf_bit5eflags = -1;
+static int hf_bit6eflags = -1;
+static int hf_bit7eflags = -1;
+static int hf_bit8eflags = -1;
+static int hf_bit9eflags = -1;
+static int hf_bit10eflags = -1;
+static int hf_bit11eflags = -1;
+static int hf_bit12eflags = -1;
+static int hf_bit13eflags = -1;
+static int hf_bit14eflags = -1;
+static int hf_bit15eflags = -1;
+static int hf_bit16eflags = -1;
+static int hf_bit1infoflagsl = -1;
+static int hf_bit2infoflagsl = -1;
+static int hf_bit3infoflagsl = -1;
+static int hf_bit4infoflagsl = -1;
+static int hf_bit5infoflagsl = -1;
+static int hf_bit6infoflagsl = -1;
+static int hf_bit7infoflagsl = -1;
+static int hf_bit8infoflagsl = -1;
+static int hf_bit9infoflagsl = -1;
+static int hf_bit10infoflagsl = -1;
+static int hf_bit11infoflagsl = -1;
+static int hf_bit12infoflagsl = -1;
+static int hf_bit13infoflagsl = -1;
+static int hf_bit14infoflagsl = -1;
+static int hf_bit15infoflagsl = -1;
+static int hf_bit16infoflagsl = -1;
+static int hf_bit1infoflagsh = -1;
+static int hf_bit2infoflagsh = -1;
+static int hf_bit3infoflagsh = -1;
+static int hf_bit4infoflagsh = -1;
+static int hf_bit5infoflagsh = -1;
+static int hf_bit6infoflagsh = -1;
+static int hf_bit7infoflagsh = -1;
+static int hf_bit8infoflagsh = -1;
+static int hf_bit9infoflagsh = -1;
+static int hf_bit10infoflagsh = -1;
+static int hf_bit11infoflagsh = -1;
+static int hf_bit12infoflagsh = -1;
+static int hf_bit13infoflagsh = -1;
+static int hf_bit14infoflagsh = -1;
+static int hf_bit15infoflagsh = -1;
+static int hf_bit16infoflagsh = -1;
+static int hf_bit1lflags = -1;
+static int hf_bit2lflags = -1;
+static int hf_bit3lflags = -1;
+static int hf_bit4lflags = -1;
+static int hf_bit5lflags = -1;
+static int hf_bit6lflags = -1;
+static int hf_bit7lflags = -1;
+static int hf_bit8lflags = -1;
+static int hf_bit9lflags = -1;
+static int hf_bit10lflags = -1;
+static int hf_bit11lflags = -1;
+static int hf_bit12lflags = -1;
+static int hf_bit13lflags = -1;
+static int hf_bit14lflags = -1;
+static int hf_bit15lflags = -1;
+static int hf_bit16lflags = -1;
+static int hf_bit1l1flagsl = -1;
+static int hf_bit2l1flagsl = -1;
+static int hf_bit3l1flagsl = -1;
+static int hf_bit4l1flagsl = -1;
+static int hf_bit5l1flagsl = -1;
+static int hf_bit6l1flagsl = -1;
+static int hf_bit7l1flagsl = -1;
+static int hf_bit8l1flagsl = -1;
+static int hf_bit9l1flagsl = -1;
+static int hf_bit10l1flagsl = -1;
+static int hf_bit11l1flagsl = -1;
+static int hf_bit12l1flagsl = -1;
+static int hf_bit13l1flagsl = -1;
+static int hf_bit14l1flagsl = -1;
+static int hf_bit15l1flagsl = -1;
+static int hf_bit16l1flagsl = -1;
+static int hf_bit1l1flagsh = -1;
+static int hf_bit2l1flagsh = -1;
+static int hf_bit3l1flagsh = -1;
+static int hf_bit4l1flagsh = -1;
+static int hf_bit5l1flagsh = -1;
+static int hf_bit6l1flagsh = -1;
+static int hf_bit7l1flagsh = -1;
+static int hf_bit8l1flagsh = -1;
+static int hf_bit9l1flagsh = -1;
+static int hf_bit10l1flagsh = -1;
+static int hf_bit11l1flagsh = -1;
+static int hf_bit12l1flagsh = -1;
+static int hf_bit13l1flagsh = -1;
+static int hf_bit14l1flagsh = -1;
+static int hf_bit15l1flagsh = -1;
+static int hf_bit16l1flagsh = -1;
+static int hf_nds_string = -1;
+static int hf_nds_string_value = -1;
+static int hf_nds_reply_error = -1;
+static int hf_nds_net = -1;
+static int hf_nds_node = -1;
+static int hf_nds_socket = -1;
+static int hf_add_ref_ip = -1;
+static int hf_add_ref_udp = -1;                                                     
+static int hf_add_ref_tcp = -1;
+static int hf_referal_record = -1;
+static int hf_referal_addcount = -1;
+static int hf_nds_port = -1;
+static int hf_mv_string = -1;
+static int hf_nds_syntax = -1;
+static int hf_value_string = -1;
+static int hf_nds_buffer_size = -1;
+static int hf_nds_ver = -1;
+static int hf_nds_nflags = -1;
+static int hf_nds_scope = -1;
+static int hf_nds_name = -1;
+static int hf_nds_comm_trans = -1;
+static int hf_nds_tree_trans = -1;
+static int hf_nds_iteration = -1;
+static int hf_nds_eid = -1;
+static int hf_nds_info_type = -1;
+static int hf_nds_all_attr = -1;
+static int hf_nds_req_flags = -1;
+static int hf_nds_attr = -1;
+static int hf_nds_crc = -1;
+static int hf_nds_referals = -1;
+static int hf_nds_result_flags = -1;
+static int hf_nds_tag_string = -1;
+static int hf_value_bytes = -1;
+static int hf_replica_type = -1;
+static int hf_replica_state = -1;
+static int hf_replica_number = -1;
+static int hf_min_nds_ver = -1;
+static int hf_nds_ver_include = -1;
+static int hf_nds_ver_exclude = -1;
+static int hf_nds_es = -1;
+static int hf_es_type = -1;
+static int hf_delim_string = -1;
+static int hf_rdn_string = -1;
+static int hf_nds_revent = -1;
+static int hf_nds_rnum = -1; 
+static int hf_nds_name_type = -1;
+static int hf_nds_rflags = -1;
+static int hf_nds_eflags = -1;
+static int hf_nds_depth = -1;
+static int hf_nds_class_def_type = -1;
+static int hf_nds_classes = -1;
+static int hf_nds_return_all_classes = -1;
+static int hf_nds_stream_flags = -1;
+static int hf_nds_stream_name = -1;
+static int hf_nds_file_handle = -1;
+static int hf_nds_file_size = -1;
+static int hf_nds_dn_output_type = -1;
+static int hf_nds_nested_output_type = -1;
+static int hf_nds_output_delimiter = -1;
+static int hf_nds_output_entry_specifier = -1;
+static int hf_es_value = -1;
+static int hf_es_rdn_count = -1;
+static int hf_nds_replica_num = -1;
+static int hf_nds_event_num = -1;
+static int hf_es_seconds = -1;
+static int hf_nds_compare_results = -1;
+static int hf_nds_parent = -1;
+static int hf_nds_name_filter = -1;
+static int hf_nds_class_filter = -1;
+static int hf_nds_time_filter = -1;
+static int hf_nds_partition_root_id = -1;
+static int hf_nds_replicas = -1;
+static int hf_nds_purge = -1;
+static int hf_nds_local_partition = -1;
+static int hf_partition_busy = -1;
+static int hf_nds_number_of_changes = -1;
+static int hf_sub_count = -1;
+static int hf_nds_revision = -1;
+static int hf_nds_base_class = -1;
+static int hf_nds_relative_dn = -1;
+static int hf_nds_root_dn = -1;
+static int hf_nds_parent_dn = -1;
+static int hf_deref_base = -1;
+static int hf_nds_entry_info = -1;
+static int hf_nds_base = -1;
+static int hf_nds_privileges = -1;
+static int hf_nds_vflags = -1;
+static int hf_nds_value_len = -1;
+static int hf_nds_cflags = -1;
+static int hf_nds_acflags = -1;
+static int hf_nds_asn1 = -1;
+static int hf_nds_upper = -1;
+static int hf_nds_lower = -1;
+static int hf_nds_trustee_dn = -1;
+static int hf_nds_attribute_dn = -1;
+static int hf_nds_acl_add = -1;
+static int hf_nds_acl_del = -1;
+static int hf_nds_att_add = -1;
+static int hf_nds_att_del = -1;
+static int hf_nds_keep = -1;
+static int hf_nds_new_rdn = -1;
+static int hf_nds_time_delay = -1;
+static int hf_nds_root_name = -1;
+static int hf_nds_new_part_id = -1;
+static int hf_nds_child_part_id = -1;
+static int hf_nds_master_part_id = -1;
+static int hf_nds_target_name = -1;
 
+
+	"""
+               
 	# Look at all packet types in the packets collection, and cull information
 	# from them.
 	errors_used_list = []
@@ -5676,8 +5918,7 @@ static int hf_ncp_nds_verb = -1;
 		if isinstance(var, val_string):
 			print ""
 			print var.Code()
-
-
+                           
 	# Determine which error codes are not used
 	errors_not_used = {}
 	# Copy the keys from the error list...
@@ -5828,7 +6069,7 @@ static int hf_ncp_nds_verb = -1;
 			print "%s, " % (val,),
 
 		print "-1 };"
-		print ""
+		print ""    
 
 
 
@@ -5855,7 +6096,7 @@ static int hf_ncp_nds_verb = -1;
 	print "#define NO_SUBFUNC		0x00"
 
 	print "/* ncp_record structs for packets */"
-	print "static const ncp_record ncp_packets[] = {"
+	print "static const ncp_record ncp_packets[] = {" 
 	for pkt in packets:
 		if pkt.HasSubFunction():
 			func = pkt.FunctionCode('high')
@@ -5946,7 +6187,7 @@ final_registration_ncp2222(void)
 	int i;
 	"""
 
-	# Create dfilter_t's for conditional_record's
+	# Create dfilter_t's for conditional_record's  
 	print """
 	for (i = 0; i < NUM_REQ_CONDS; i++) {
 		if (!dfilter_compile((gchar*)req_conds[i].dfilter_text,
@@ -6070,9 +6311,21 @@ proto_register_ncp2222(void)
 	{ &hf_ncp_nds_flag,
 	{ "Flags", "ncp.ndsflag", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
         
-	{ &hf_ncp_nds_verb,
-	{ "NDS Verb", "ncp.ndsverb", FT_UINT8, BASE_HEX, VALS(ncp_nds_verb_vals), 0x0, "", HFILL }},
+	{ &hf_ncp_nds_verb,      
+	{ "NDS Verb", "ncp.ndsverb", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
         
+        { &hf_ping_version,
+        { "NDS Version", "ncp.ping_version", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+        
+	{ &hf_nds_version,
+	{ "NDS Version", "ncp.ndsver", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+        
+	{ &hf_nds_string,                             
+	{ "Tree Name", "ncp.nds_string", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }},
+                        
+	{ &hf_nds_string_value,
+	{ "NDS String :", "ncp.nds_string_value", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }},
+                               
         /*
 	 * XXX - the page at
 	 *
@@ -6102,8 +6355,982 @@ proto_register_ncp2222(void)
 	{ &hf_ncp_req_frame_num,
 	{ "Response to Request in Frame Number", "ncp.req_frame_num", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
-	"""
+	
+        { &hf_nds_flags, 
+        { "NDS Return Flags", "ncp.nds_flags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+        
+        { &hf_nds_flags_tree, 
+        { "Tree", "ncp.nds_flags.tree", FT_BOOLEAN, 32, NULL, NTREE, "Return Tree?", HFILL }},
+        
+        { &hf_nds_flags_depth, 
+        { "Depth", "ncp.nds_flags.depth", FT_BOOLEAN, 32, NULL, NDEPTH, "Return Depth?", HFILL }},
+        
+        { &hf_nds_flags_rev, 
+        { "Rev", "ncp.nds_flags.rev", FT_BOOLEAN, 32, NULL, NREV, "Return NDS Revision?", HFILL }},
+        
+        { &hf_nds_flags_flags, 
+        { "Flags", "ncp.nds_flags.flags", FT_BOOLEAN, 32, NULL, NFLAGS, "Return Flags?", HFILL }},
+        
+	{ &hf_nds_reply_depth,
+	{ "Distance from Root", "ncp.ndsdepth", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+	
+        { &hf_nds_reply_rev,
+	{ "NDS Revision", "ncp.ndsrev", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	
+	{ &hf_nds_reply_flags,
+	{ "Flags", "ncp.ndsflags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+        
+        { &hf_nds_p1type, 
+	{ "NDS Parameter Type", "ncp.p1type", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
+        
+        { &hf_nds_uint32value, 
+	{ "NDS Value", "ncp.uint32value", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 
+        { &hf_nds_bit1, 
+        { "Typeless", "ncp.nds_bit1", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+
+        { &hf_nds_bit2, 
+        { "All Containers", "ncp.nds_bit2", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+                     
+        { &hf_nds_bit3, 
+        { "Slashed", "ncp.nds_bit3", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        
+        { &hf_nds_bit4, 
+        { "Dotted", "ncp.nds_bit4", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        
+        { &hf_nds_bit5, 
+        { "Tuned", "ncp.nds_bit5", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        
+        { &hf_nds_bit6, 
+        { "Not Defined", "ncp.nds_bit6", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        
+        { &hf_nds_bit7, 
+        { "Not Defined", "ncp.nds_bit7", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        
+        { &hf_nds_bit8, 
+        { "Not Defined", "ncp.nds_bit8", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        
+        { &hf_nds_bit9, 
+        { "Not Defined", "ncp.nds_bit9", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        
+        { &hf_nds_bit10, 
+        { "Not Defined", "ncp.nds_bit10", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        
+        { &hf_nds_bit11, 
+        { "Not Defined", "ncp.nds_bit11", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        
+        { &hf_nds_bit12, 
+        { "Not Defined", "ncp.nds_bit12", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        
+        { &hf_nds_bit13, 
+        { "Not Defined", "ncp.nds_bit13", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        
+        { &hf_nds_bit14, 
+        { "Not Defined", "ncp.nds_bit14", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        
+        { &hf_nds_bit15, 
+        { "Not Defined", "ncp.nds_bit15", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        
+        { &hf_nds_bit16, 
+        { "Not Defined", "ncp.nds_bit16", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        
+        { &hf_bit1outflags, 
+        { "Output Flags", "ncp.bit1outflags", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+
+        { &hf_bit2outflags, 
+        { "Entry ID", "ncp.bit2outflags", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+                     
+        { &hf_bit3outflags, 
+        { "Replica State", "ncp.bit3outflags", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        
+        { &hf_bit4outflags, 
+        { "Modification Timestamp", "ncp.bit4outflags", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        
+        { &hf_bit5outflags, 
+        { "Purge Time", "ncp.bit5outflags", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        
+        { &hf_bit6outflags, 
+        { "Local Partition ID", "ncp.bit6outflags", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        
+        { &hf_bit7outflags, 
+        { "Distinguished Name", "ncp.bit7outflags", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        
+        { &hf_bit8outflags, 
+        { "Replica Type", "ncp.bit8outflags", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        
+        { &hf_bit9outflags, 
+        { "Partition Busy", "ncp.bit9outflags", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        
+        { &hf_bit10outflags, 
+        { "Not Defined", "ncp.bit10outflags", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        
+        { &hf_bit11outflags, 
+        { "Not Defined", "ncp.bit11outflags", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        
+        { &hf_bit12outflags, 
+        { "Not Defined", "ncp.bit12outflags", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        
+        { &hf_bit13outflags, 
+        { "Not Defined", "ncp.bit13outflags", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        
+        { &hf_bit14outflags, 
+        { "Not Defined", "ncp.bit14outflags", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        
+        { &hf_bit15outflags, 
+        { "Not Defined", "ncp.bit15outflags", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        
+        { &hf_bit16outflags, 
+        { "Not Defined", "ncp.bit16outflags", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+	
+        { &hf_bit1nflags, 
+        { "Entry ID", "ncp.bit1nflags", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+
+        { &hf_bit2nflags, 
+        { "Readable", "ncp.bit2nflags", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+                     
+        { &hf_bit3nflags, 
+        { "Writeable", "ncp.bit3nflags", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        
+        { &hf_bit4nflags, 
+        { "Master", "ncp.bit4nflags", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        
+        { &hf_bit5nflags, 
+        { "Create ID", "ncp.bit5nflags", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        
+        { &hf_bit6nflags, 
+        { "Walk Tree", "ncp.bit6nflags", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        
+        { &hf_bit7nflags, 
+        { "Dereference Alias", "ncp.bit7nflags", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        
+        { &hf_bit8nflags, 
+        { "Not Defined", "ncp.bit8nflags", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        
+        { &hf_bit9nflags, 
+        { "Not Defined", "ncp.bit9nflags", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        
+        { &hf_bit10nflags, 
+        { "Not Defined", "ncp.bit10nflags", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        
+        { &hf_bit11nflags, 
+        { "Not Defined", "ncp.bit11nflags", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        
+        { &hf_bit12nflags, 
+        { "Not Defined", "ncp.bit12nflags", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        
+        { &hf_bit13nflags, 
+        { "Not Defined", "ncp.bit13nflags", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        
+        { &hf_bit14nflags, 
+        { "Prefer Referalls", "ncp.bit14nflags", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        
+        { &hf_bit15nflags, 
+        { "Prefer Only Referalls", "ncp.bit15nflags", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        
+        { &hf_bit16nflags, 
+        { "Not Defined", "ncp.bit16nflags", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        
+        { &hf_bit1rflags, 
+        { "Typeless", "ncp.bit1rflags", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+
+        { &hf_bit2rflags, 
+        { "Slashed", "ncp.bit2rflags", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+                     
+        { &hf_bit3rflags, 
+        { "Dotted", "ncp.bit3rflags", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        
+        { &hf_bit4rflags, 
+        { "Tuned", "ncp.bit4rflags", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        
+        { &hf_bit5rflags, 
+        { "Not Defined", "ncp.bit5rflags", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        
+        { &hf_bit6rflags, 
+        { "Not Defined", "ncp.bit6rflags", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        
+        { &hf_bit7rflags, 
+        { "Not Defined", "ncp.bit7rflags", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        
+        { &hf_bit8rflags, 
+        { "Not Defined", "ncp.bit8rflags", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        
+        { &hf_bit9rflags, 
+        { "Not Defined", "ncp.bit9rflags", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        
+        { &hf_bit10rflags, 
+        { "Not Defined", "ncp.bit10rflags", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        
+        { &hf_bit11rflags, 
+        { "Not Defined", "ncp.bit11rflags", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        
+        { &hf_bit12rflags, 
+        { "Not Defined", "ncp.bit12rflags", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        
+        { &hf_bit13rflags, 
+        { "Not Defined", "ncp.bit13rflags", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        
+        { &hf_bit14rflags, 
+        { "Not Defined", "ncp.bit14rflags", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        
+        { &hf_bit15rflags, 
+        { "Not Defined", "ncp.bit15rflags", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        
+        { &hf_bit16rflags, 
+        { "Not Defined", "ncp.bit16rflags", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        
+        { &hf_bit1eflags, 
+        { "Alias Entry", "ncp.bit1eflags", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+
+        { &hf_bit2eflags, 
+        { "Partition Root", "ncp.bit2eflags", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+                     
+        { &hf_bit3eflags, 
+        { "Container Entry", "ncp.bit3eflags", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        
+        { &hf_bit4eflags, 
+        { "Container Alias", "ncp.bit4eflags", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        
+        { &hf_bit5eflags, 
+        { "Matches List Filter", "ncp.bit5eflags", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        
+        { &hf_bit6eflags, 
+        { "Reference Entry", "ncp.bit6eflags", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        
+        { &hf_bit7eflags, 
+        { "40x Reference Entry", "ncp.bit7eflags", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        
+        { &hf_bit8eflags, 
+        { "Back Linked", "ncp.bit8eflags", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        
+        { &hf_bit9eflags, 
+        { "New Entry", "ncp.bit9eflags", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        
+        { &hf_bit10eflags, 
+        { "Temporary Reference", "ncp.bit10eflags", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        
+        { &hf_bit11eflags, 
+        { "Audited", "ncp.bit11eflags", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        
+        { &hf_bit12eflags, 
+        { "Entry Not Present", "ncp.bit12eflags", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        
+        { &hf_bit13eflags, 
+        { "Entry Verify CTS", "ncp.bit13eflags", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        
+        { &hf_bit14eflags, 
+        { "Entry Damaged", "ncp.bit14eflags", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        
+        { &hf_bit15eflags, 
+        { "Not Defined", "ncp.bit15rflags", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        
+        { &hf_bit16eflags, 
+        { "Not Defined", "ncp.bit16rflags", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+
+        { &hf_bit1infoflagsl, 
+        { "Output Flags", "ncp.bit1infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+
+        { &hf_bit2infoflagsl, 
+        { "Entry ID", "ncp.bit2infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+                     
+        { &hf_bit3infoflagsl, 
+        { "Entry Flags", "ncp.bit3infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        
+        { &hf_bit4infoflagsl, 
+        { "Subordinate Count", "ncp.bit4infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        
+        { &hf_bit5infoflagsl, 
+        { "Modification Time", "ncp.bit5infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        
+        { &hf_bit6infoflagsl, 
+        { "Modification Timestamp", "ncp.bit6infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        
+        { &hf_bit7infoflagsl, 
+        { "Creation Timestamp", "ncp.bit7infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        
+        { &hf_bit8infoflagsl, 
+        { "Partition Root ID", "ncp.bit8infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        
+        { &hf_bit9infoflagsl, 
+        { "Parent ID", "ncp.bit9infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        
+        { &hf_bit10infoflagsl, 
+        { "Revision Count", "ncp.bit10infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        
+        { &hf_bit11infoflagsl, 
+        { "Replica Type", "ncp.bit11infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        
+        { &hf_bit12infoflagsl, 
+        { "Base Class", "ncp.bit12infoflagsl", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        
+        { &hf_bit13infoflagsl, 
+        { "Relative Distinguished Name", "ncp.bit13infoflagsl", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        
+        { &hf_bit14infoflagsl, 
+        { "Distinguished Name", "ncp.bit14infoflagsl", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        
+        { &hf_bit15infoflagsl, 
+        { "Root Distinguished Name", "ncp.bit15infoflagsl", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        
+        { &hf_bit16infoflagsl, 
+        { "Parent Distinguished Name", "ncp.bit16infoflagsl", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+
+        { &hf_bit1infoflagsh, 
+        { "Purge Time", "ncp.bit1infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+
+        { &hf_bit2infoflagsh, 
+        { "Dereference Base Class", "ncp.bit2infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+                     
+        { &hf_bit3infoflagsh, 
+        { "Not Defined", "ncp.bit3infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        
+        { &hf_bit4infoflagsh, 
+        { "Not Defined", "ncp.bit4infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        
+        { &hf_bit5infoflagsh, 
+        { "Not Defined", "ncp.bit5infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        
+        { &hf_bit6infoflagsh, 
+        { "Not Defined", "ncp.bit6infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        
+        { &hf_bit7infoflagsh, 
+        { "Not Defined", "ncp.bit7infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        
+        { &hf_bit8infoflagsh, 
+        { "Not Defined", "ncp.bit8infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        
+        { &hf_bit9infoflagsh, 
+        { "Not Defined", "ncp.bit9infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        
+        { &hf_bit10infoflagsh, 
+        { "Not Defined", "ncp.bit10infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        
+        { &hf_bit11infoflagsh, 
+        { "Not Defined", "ncp.bit11infoflagsh", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        
+        { &hf_bit12infoflagsh, 
+        { "Not Defined", "ncp.bit12infoflagshs", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        
+        { &hf_bit13infoflagsh, 
+        { "Not Defined", "ncp.bit13infoflagsh", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        
+        { &hf_bit14infoflagsh, 
+        { "Not Defined", "ncp.bit14infoflagsh", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        
+        { &hf_bit15infoflagsh, 
+        { "Not Defined", "ncp.bit15infoflagsh", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        
+        { &hf_bit16infoflagsh, 
+        { "Not Defined", "ncp.bit16infoflagsh", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        
+        { &hf_bit1lflags, 
+        { "List Typeless", "ncp.bit1lflags", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+
+        { &hf_bit2lflags, 
+        { "List Containers", "ncp.bit2lflags", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+                     
+        { &hf_bit3lflags, 
+        { "List Slashed", "ncp.bit3lflags", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        
+        { &hf_bit4lflags, 
+        { "List Dotted", "ncp.bit4lflags", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        
+        { &hf_bit5lflags, 
+        { "Dereference Alias", "ncp.bit5lflags", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        
+        { &hf_bit6lflags, 
+        { "List All Containers", "ncp.bit6lflags", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        
+        { &hf_bit7lflags, 
+        { "List Obsolete", "ncp.bit7lflags", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        
+        { &hf_bit8lflags, 
+        { "List Tuned Output", "ncp.bit8lflags", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        
+        { &hf_bit9lflags, 
+        { "List External Reference", "ncp.bit9lflags", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        
+        { &hf_bit10lflags, 
+        { "Not Defined", "ncp.bit10lflags", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        
+        { &hf_bit11lflags, 
+        { "Not Defined", "ncp.bit11lflags", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        
+        { &hf_bit12lflags, 
+        { "Not Defined", "ncp.bit12lflags", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        
+        { &hf_bit13lflags, 
+        { "Not Defined", "ncp.bit13lflags", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        
+        { &hf_bit14lflags, 
+        { "Not Defined", "ncp.bit14lflags", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        
+        { &hf_bit15lflags, 
+        { "Not Defined", "ncp.bit15lflags", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        
+        { &hf_bit16lflags, 
+        { "Not Defined", "ncp.bit16lflags", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        
+        { &hf_bit1l1flagsl, 
+        { "Output Flags", "ncp.bit1l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+
+        { &hf_bit2l1flagsl, 
+        { "Entry ID", "ncp.bit2l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+                     
+        { &hf_bit3l1flagsl, 
+        { "Replica State", "ncp.bit3l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        
+        { &hf_bit4l1flagsl, 
+        { "Modification Timestamp", "ncp.bit4l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        
+        { &hf_bit5l1flagsl, 
+        { "Purge Time", "ncp.bit5l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        
+        { &hf_bit6l1flagsl, 
+        { "Local Partition ID", "ncp.bit6l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        
+        { &hf_bit7l1flagsl, 
+        { "Distinguished Name", "ncp.bit7l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        
+        { &hf_bit8l1flagsl, 
+        { "Replica Type", "ncp.bit8l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        
+        { &hf_bit9l1flagsl, 
+        { "Partition Busy", "ncp.bit9l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        
+        { &hf_bit10l1flagsl, 
+        { "Not Defined", "ncp.bit10l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        
+        { &hf_bit11l1flagsl, 
+        { "Not Defined", "ncp.bit11l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        
+        { &hf_bit12l1flagsl, 
+        { "Not Defined", "ncp.bit12l1flagsl", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        
+        { &hf_bit13l1flagsl, 
+        { "Not Defined", "ncp.bit13l1flagsl", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        
+        { &hf_bit14l1flagsl, 
+        { "Not Defined", "ncp.bit14l1flagsl", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        
+        { &hf_bit15l1flagsl, 
+        { "Not Defined", "ncp.bit15l1flagsl", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        
+        { &hf_bit16l1flagsl, 
+        { "Not Defined", "ncp.bit16l1flagsl", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+
+        { &hf_bit1l1flagsh, 
+        { "Not Defined", "ncp.bit1l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+
+        { &hf_bit2l1flagsh, 
+        { "Not Defined", "ncp.bit2l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+                     
+        { &hf_bit3l1flagsh, 
+        { "Not Defined", "ncp.bit3l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        
+        { &hf_bit4l1flagsh, 
+        { "Not Defined", "ncp.bit4l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        
+        { &hf_bit5l1flagsh, 
+        { "Not Defined", "ncp.bit5l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        
+        { &hf_bit6l1flagsh, 
+        { "Not Defined", "ncp.bit6l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        
+        { &hf_bit7l1flagsh, 
+        { "Not Defined", "ncp.bit7l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        
+        { &hf_bit8l1flagsh, 
+        { "Not Defined", "ncp.bit8l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        
+        { &hf_bit9l1flagsh, 
+        { "Not Defined", "ncp.bit9l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        
+        { &hf_bit10l1flagsh, 
+        { "Not Defined", "ncp.bit10l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        
+        { &hf_bit11l1flagsh, 
+        { "Not Defined", "ncp.bit11l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        
+        { &hf_bit12l1flagsh, 
+        { "Not Defined", "ncp.bit12l1flagsh", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        
+        { &hf_bit13l1flagsh, 
+        { "Not Defined", "ncp.bit13l1flagsh", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        
+        { &hf_bit14l1flagsh, 
+        { "Not Defined", "ncp.bit14l1flagsh", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        
+        { &hf_bit15l1flagsh, 
+        { "Not Defined", "ncp.bit15l1flagsh", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        
+        { &hf_bit16l1flagsh, 
+        { "Not Defined", "ncp.bit16l1flagsh", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        
+        { &hf_bit1vflags, 
+        { "Naming", "ncp.bit1vflags", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+
+        { &hf_bit2vflags, 
+        { "Base Class", "ncp.bit2vflags", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+                     
+        { &hf_bit3vflags, 
+        { "Present", "ncp.bit3vflags", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        
+        { &hf_bit4vflags, 
+        { "Value Damaged", "ncp.bit4vflags", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        
+        { &hf_bit5vflags, 
+        { "Not Defined", "ncp.bit5vflags", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        
+        { &hf_bit6vflags, 
+        { "Not Defined", "ncp.bit6vflags", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        
+        { &hf_bit7vflags, 
+        { "Not Defined", "ncp.bit7vflags", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        
+        { &hf_bit8vflags, 
+        { "Not Defined", "ncp.bit8vflags", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        
+        { &hf_bit9vflags, 
+        { "Not Defined", "ncp.bit9vflags", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        
+        { &hf_bit10vflags, 
+        { "Not Defined", "ncp.bit10vflags", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        
+        { &hf_bit11vflags, 
+        { "Not Defined", "ncp.bit11vflags", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        
+        { &hf_bit12vflags, 
+        { "Not Defined", "ncp.bit12vflags", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        
+        { &hf_bit13vflags, 
+        { "Not Defined", "ncp.bit13vflags", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        
+        { &hf_bit14vflags, 
+        { "Not Defined", "ncp.bit14vflags", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        
+        { &hf_bit15vflags, 
+        { "Not Defined", "ncp.bit15vflags", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        
+        { &hf_bit16vflags, 
+        { "Not Defined", "ncp.bit16vflags", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        
+        { &hf_bit1cflags, 
+        { "Ambiguous Containment", "ncp.bit1cflags", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+
+        { &hf_bit2cflags, 
+        { "Ambiguous Naming", "ncp.bit2cflags", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+                     
+        { &hf_bit3cflags, 
+        { "Class Definition Cannot be Removed", "ncp.bit3cflags", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        
+        { &hf_bit4cflags, 
+        { "Effective Class", "ncp.bit4cflags", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        
+        { &hf_bit5cflags, 
+        { "Container Class", "ncp.bit5cflags", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        
+        { &hf_bit6cflags, 
+        { "Not Defined", "ncp.bit6cflags", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        
+        { &hf_bit7cflags, 
+        { "Not Defined", "ncp.bit7cflags", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        
+        { &hf_bit8cflags, 
+        { "Not Defined", "ncp.bit8cflags", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        
+        { &hf_bit9cflags, 
+        { "Not Defined", "ncp.bit9cflags", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        
+        { &hf_bit10cflags, 
+        { "Not Defined", "ncp.bit10cflags", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        
+        { &hf_bit11cflags, 
+        { "Not Defined", "ncp.bit11cflags", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        
+        { &hf_bit12cflags, 
+        { "Not Defined", "ncp.bit12cflags", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        
+        { &hf_bit13cflags, 
+        { "Not Defined", "ncp.bit13cflags", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        
+        { &hf_bit14cflags, 
+        { "Not Defined", "ncp.bit14cflags", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        
+        { &hf_bit15cflags, 
+        { "Not Defined", "ncp.bit15cflags", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        
+        { &hf_bit16cflags, 
+        { "Not Defined", "ncp.bit16cflags", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        
+        { &hf_bit1acflags, 
+        { "Single Valued", "ncp.bit1acflags", FT_BOOLEAN, 16, NULL, 0x00000001, "", HFILL }},
+
+        { &hf_bit2acflags, 
+        { "Sized", "ncp.bit2acflags", FT_BOOLEAN, 16, NULL, 0x00000002, "", HFILL }},
+                     
+        { &hf_bit3acflags, 
+        { "Non-Removable", "ncp.bit3acflags", FT_BOOLEAN, 16, NULL, 0x00000004, "", HFILL }},
+        
+        { &hf_bit4acflags, 
+        { "Read Only", "ncp.bit4acflags", FT_BOOLEAN, 16, NULL, 0x00000008, "", HFILL }},
+        
+        { &hf_bit5acflags, 
+        { "Hidden", "ncp.bit5acflags", FT_BOOLEAN, 16, NULL, 0x00000010, "", HFILL }},
+        
+        { &hf_bit6acflags, 
+        { "String", "ncp.bit6acflags", FT_BOOLEAN, 16, NULL, 0x00000020, "", HFILL }},
+        
+        { &hf_bit7acflags, 
+        { "Synchronize Immediate", "ncp.bit7acflags", FT_BOOLEAN, 16, NULL, 0x00000040, "", HFILL }},
+        
+        { &hf_bit8acflags, 
+        { "Public Read", "ncp.bit8acflags", FT_BOOLEAN, 16, NULL, 0x00000080, "", HFILL }},
+        
+        { &hf_bit9acflags, 
+        { "Server Read", "ncp.bit9acflags", FT_BOOLEAN, 16, NULL, 0x00000100, "", HFILL }},
+        
+        { &hf_bit10acflags, 
+        { "Write Managed", "ncp.bit10acflags", FT_BOOLEAN, 16, NULL, 0x00000200, "", HFILL }},
+        
+        { &hf_bit11acflags, 
+        { "Per Replica", "ncp.bit11acflags", FT_BOOLEAN, 16, NULL, 0x00000400, "", HFILL }},
+        
+        { &hf_bit12acflags, 
+        { "Never Schedule Synchronization", "ncp.bit12acflags", FT_BOOLEAN, 16, NULL, 0x00000800, "", HFILL }},
+        
+        { &hf_bit13acflags, 
+        { "Operational", "ncp.bit13acflags", FT_BOOLEAN, 16, NULL, 0x00001000, "", HFILL }},
+        
+        { &hf_bit14acflags, 
+        { "Not Defined", "ncp.bit14acflags", FT_BOOLEAN, 16, NULL, 0x00002000, "", HFILL }},
+        
+        { &hf_bit15acflags, 
+        { "Not Defined", "ncp.bit15acflags", FT_BOOLEAN, 16, NULL, 0x00004000, "", HFILL }},
+        
+        { &hf_bit16acflags, 
+        { "Not Defined", "ncp.bit16acflags", FT_BOOLEAN, 16, NULL, 0x00008000, "", HFILL }},
+        
+        
+        { &hf_nds_reply_error,
+	{ "NDS Error", "ncp.ndsreplyerror", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+        
+        { &hf_nds_net,
+	{ "Network","ncp.ndsnet", FT_IPXNET, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+	{ &hf_nds_node,
+	{ "Node",	"ncp.ndsnode", FT_ETHER, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+	{ &hf_nds_socket, 
+        { "Socket",	"ncp.ndssocket", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+        
+        { &hf_add_ref_ip,
+	{ "Address Referal", "ncp.ipref", FT_IPv4, BASE_DEC, NULL, 0x0, "", HFILL }},
+        
+        { &hf_add_ref_udp,
+	{ "Address Referal", "ncp.udpref", FT_IPv4, BASE_DEC, NULL, 0x0, "", HFILL }},
+        
+        { &hf_add_ref_tcp,
+	{ "Address Referal", "ncp.tcpref", FT_IPv4, BASE_DEC, NULL, 0x0, "", HFILL }},
+        
+        { &hf_referal_record,
+	{ "Referal Record", "ncp.ref_rec", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+        
+        { &hf_referal_addcount,
+	{ "Address Count", "ncp.ref_addcount", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+        
+	{ &hf_nds_port,                                                                    
+        { "Port", "ncp.ndsport", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+        
+	{ &hf_mv_string,                                
+	{ "Attribute Name ", "ncp.mv_string", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+                          
+	{ &hf_nds_syntax,                                
+	{ "Attribute Syntax ", "ncp.nds_syntax", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+	{ &hf_value_string,                                
+	{ "Value ", "ncp.value_string", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	
+    { &hf_nds_stream_name,                                
+	{ "Stream Name ", "ncp.nds_stream_name", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+        
+ 	{ &hf_nds_buffer_size,
+	{ "Reply Buffer Size", "ncp.nds_reply_buf", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+        
+ 	{ &hf_nds_ver,
+	{ "NDS Version", "ncp.nds_ver", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+        
+ 	{ &hf_nds_nflags,
+	{ "Flags", "ncp.nds_nflags", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+ 	
+    { &hf_nds_rflags,
+	{ "Request Flags", "ncp.nds_rflags", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_eflags,
+	{ "Entry Flags", "ncp.nds_eflags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+        
+ 	{ &hf_nds_scope,
+	{ "Scope", "ncp.nds_scope", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+        
+ 	{ &hf_nds_name,
+	{ "Name", "ncp.nds_name", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+ 	
+    { &hf_nds_name_type,
+	{ "Name Type", "ncp.nds_name_type", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+        
+ 	{ &hf_nds_comm_trans,
+	{ "Communications Transport", "ncp.nds_comm_trans", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+        
+ 	{ &hf_nds_tree_trans,
+	{ "Tree Walker Transport", "ncp.nds_tree_trans", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+        
+ 	{ &hf_nds_iteration,
+	{ "Iteration Handle", "ncp.nds_iteration", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+ 	
+    { &hf_nds_file_handle,
+	{ "File Handle", "ncp.nds_file_handle", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+ 	
+    { &hf_nds_file_size,
+	{ "File Size", "ncp.nds_file_size", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+        
+ 	{ &hf_nds_eid,
+	{ "NDS EID", "ncp.nds_eid", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+ 	
+    { &hf_nds_depth,
+	{ "Distance object is from Root", "ncp.nds_depth", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+        
+ 	{ &hf_nds_info_type,
+	{ "Info Type", "ncp.nds_info_type", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+ 	
+    { &hf_nds_class_def_type,
+	{ "Class Definition Type", "ncp.nds_class_def_type", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+        
+ 	{ &hf_nds_all_attr,
+	{ "All Attributes", "ncp.nds_all_attr", FT_UINT32, BASE_DEC, NULL, 0x0, "Return all Attributes?", HFILL }},
+ 	
+    { &hf_nds_return_all_classes,
+	{ "All Classes", "ncp.nds_return_all_classes", FT_STRING, BASE_NONE, NULL, 0x0, "Return all Classes?", HFILL }},
+        
+ 	{ &hf_nds_req_flags,                                       
+	{ "Request Flags", "ncp.nds_req_flags", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+        
+ 	{ &hf_nds_attr,
+	{ "Attributes", "ncp.nds_attributes", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+ 	
+    { &hf_nds_classes,
+	{ "Classes", "ncp.nds_classes", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+ 	{ &hf_nds_crc,
+	{ "CRC", "ncp.nds_crc", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+        
+ 	{ &hf_nds_referals,
+	{ "Referals", "ncp.nds_referals", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+        
+ 	{ &hf_nds_result_flags,
+	{ "Result Flags", "ncp.nds_result_flags", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+ 	
+    { &hf_nds_stream_flags,
+	{ "Streams Flags", "ncp.nds_stream_flags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+        
+ 	{ &hf_nds_tag_string,
+	{ "Tags", "ncp.nds_tags", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+ 	{ &hf_value_bytes,
+	{ "Bytes", "ncp.value_bytes", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+	{ &hf_replica_type,
+	{ "Replica Type", "ncp.rtype", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+	{ &hf_replica_state,
+	{ "Replica State", "ncp.rstate", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+	
+    { &hf_nds_rnum,
+	{ "Replica Number", "ncp.rnum", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+	{ &hf_nds_revent,
+	{ "Event", "ncp.revent", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+	{ &hf_replica_number,
+	{ "Replica Number", "ncp.rnum", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+ 
+	{ &hf_min_nds_ver,
+	{ "Minimum NDS Version", "ncp.min_nds_version", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+	{ &hf_nds_ver_include,
+	{ "Include NDS Version", "ncp.inc_nds_ver", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+ 
+	{ &hf_nds_ver_exclude,
+	{ "Exclude NDS Version", "ncp.exc_nds_ver", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+	{ &hf_nds_es,
+	{ "Input Entry Specifier", "ncp.nds_es", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+	
+ 	{ &hf_es_type,
+	{ "Entry Specifier Type", "ncp.nds_es_type", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+ 	{ &hf_rdn_string,
+	{ "RDN", "ncp.nds_rdn", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+ 	{ &hf_delim_string,
+	{ "Delimeter", "ncp.nds_delim", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+                                 
+    { &hf_nds_dn_output_type,
+	{ "Output Entry Specifier Type", "ncp.nds_out_es_type", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_nested_output_type,
+	{ "Nested Output Entry Specifier Type", "ncp.nds_nested_out_es", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_output_delimiter,
+	{ "Output Delimiter", "ncp.nds_out_delimiter", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_output_entry_specifier,
+	{ "Output Entry Specifier", "ncp.nds_out_es", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    
+    { &hf_es_value,
+	{ "Entry Specifier Value", "ncp.nds_es_value", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+    { &hf_es_rdn_count,
+	{ "RDN Count", "ncp.nds_es_rdn_count", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_replica_num,
+	{ "Replica Number", "ncp.nds_replica_num", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    
+    { &hf_es_seconds,
+	{ "Seconds", "ncp.nds_es_seconds", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+    { &hf_nds_event_num,
+	{ "Event Number", "ncp.nds_event_num", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+    { &hf_nds_compare_results,
+	{ "Compare Results", "ncp.nds_compare_results", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_parent,
+	{ "Parent ID", "ncp.nds_parent", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+    { &hf_nds_name_filter,
+	{ "Name Filter", "ncp.nds_name_filter", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+    { &hf_nds_class_filter,
+	{ "Class Filter", "ncp.nds_class_filter", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+    { &hf_nds_time_filter,
+	{ "Time Filter", "ncp.nds_time_filter", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+    { &hf_nds_partition_root_id,
+	{ "Partition Root ID", "ncp.nds_partition_root_id", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+    { &hf_nds_replicas,
+	{ "Replicas", "ncp.nds_replicas", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+    { &hf_nds_purge,
+	{ "Purge Time", "ncp.nds_purge", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+    { &hf_nds_local_partition,
+	{ "Local Partition ID", "ncp.nds_local_partition", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+    { &hf_partition_busy, 
+    { "Partition Busy", "ncp.nds_partition_busy", FT_BOOLEAN, 16, NULL, 0x0, "", HFILL }},
+
+    { &hf_nds_number_of_changes,
+	{ "Number of Attribute Changes", "ncp.nds_number_of_changes", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    
+    { &hf_sub_count,
+	{ "Subordinate Count", "ncp.sub_count", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_revision,
+	{ "Revision Count", "ncp.nds_rev_count", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_base_class,
+	{ "Base Class", "ncp.nds_base_class", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_relative_dn,
+	{ "Relative Distinguished Name", "ncp.nds_relative_dn", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_root_dn,
+	{ "Root Distinguished Name", "ncp.nds_root_dn", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_parent_dn,
+	{ "Parent Distinguished Name", "ncp.nds_parent_dn", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    
+    { &hf_deref_base, 
+    { "Dereference Base Class", "ncp.nds_deref_base", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_base, 
+    { "Base Class", "ncp.nds_base", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_entry_info, 
+    { "Entry Information", "ncp.nds_entry_info", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_privileges, 
+    { "Privileges", "ncp.nds_privileges", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_vflags, 
+    { "Value Flags", "ncp.nds_vflags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_value_len, 
+    { "Value Length", "ncp.nds_vlength", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_cflags, 
+    { "Class Flags", "ncp.nds_cflags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+ 	
+    { &hf_nds_asn1,
+	{ "ASN.1 ID", "ncp.nds_asn1", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+    { &hf_nds_acflags, 
+    { "Attribute Constraint Flags", "ncp.nds_acflags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_upper, 
+    { "Upper Limit Value", "ncp.nds_upper", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_lower, 
+    { "Lower Limit Value", "ncp.nds_lower", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_trustee_dn,
+	{ "Trustee Distinguished Name", "ncp.nds_trustee_dn", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_attribute_dn,
+	{ "Attribute Name", "ncp.nds_attribute_dn", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_acl_add,
+	{ "Access Control Lists to Add", "ncp.nds_acl_add", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_acl_del,
+	{ "Access Control Lists to Delete", "ncp.nds_acl_del", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_att_add,
+	{ "Attribute to Add", "ncp.nds_att_add", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_att_del,
+	{ "Attribute to Delete", "ncp.nds_att_del", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_keep, 
+    { "Delete Original RDN", "ncp.nds_keep", FT_BOOLEAN, 32, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_new_rdn,
+	{ "New Relative Distinguished Name", "ncp.nds_new_rdn", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_time_delay,
+	{ "Time Delay", "ncp.nds_time_delay", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_root_name,
+	{ "Root Most Object Name", "ncp.nds_root_name", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_new_part_id,
+	{ "New Partition Root ID", "ncp.nds_new_part_id", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_child_part_id,
+	{ "Child Partition Root ID", "ncp.nds_child_part_id", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_master_part_id,
+	{ "Master Partition Root ID", "ncp.nds_master_part_id", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    
+    { &hf_nds_target_name,
+	{ "Target Server Name", "ncp.nds_target_dn", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+
+
+    
+    
+ """                
 	# Print the registration code for the hf variables
 	for var in sorted_vars:
 		print "\t{ &%s," % (var.HFName())
@@ -6113,7 +7340,7 @@ proto_register_ncp2222(void)
 			var.Mask())
 
 	print "\t};\n"
-
+ 
 	if ett_list:
 		print "\tstatic gint *ett[] = {"
 
@@ -6121,7 +7348,7 @@ proto_register_ncp2222(void)
 			print "\t\t&%s," % (ett,)
 
 		print "\t};\n"
-
+                       
 	print """
 	proto_register_field_array(proto_ncp, hf, array_length(hf));
 	"""
@@ -6193,7 +7420,8 @@ def main():
 		ptvc_lists	= UniqueCollection('PTVC Lists')
 
 		define_errors()
-		define_groups()
+		define_groups()         
+                
 		define_ncp2222()
 
 		msg.write("Defined %d NCP types.\n" % (len(packets),))
@@ -6238,7 +7466,7 @@ def define_ncp2222():
 		rec( 8, 1, LockFlag ),
 		rec( 9, 2, TimeoutLimit, BE ),
 		rec( 11, (1, 256), FilePath ),
-	], info_str=(FilePath, "Lock Exclusive: %s", ", %s"))
+	])
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8200, 0x9600, 0xfe0d, 0xff01])
 	# 2222/04
@@ -6253,7 +7481,7 @@ def define_ncp2222():
 	pkt.Request( (9, 264), [
 		rec( 7, 1, DirHandle ),
 		rec( 8, (1, 256), FilePath ),
-	], info_str=(FilePath, "Release File: %s", ", %s"))
+	])
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x9b00, 0x9c03, 0xff1a])
 	# 2222/06
@@ -6268,7 +7496,7 @@ def define_ncp2222():
 	pkt.Request( (9, 264), [
 		rec( 7, 1, DirHandle ),
 		rec( 8, (1, 256), FilePath ),
-	], info_str=(FilePath, "Clear File: %s", ", %s"))
+	])
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x9600, 0x9804, 0x9b03, 0x9c03,
 		0xa100, 0xfd00, 0xff1a])
@@ -6338,7 +7566,7 @@ def define_ncp2222():
 	pkt.Request( 11, [
 		rec( 10, 1, AbortQueueFlag ),
 	])
-	pkt.Reply(8)
+	pkt.Reply(8)      
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8701, 0x8800, 0x8d00,
 			     0x8e00, 0x8f00, 0x9001, 0x9300, 0x9400, 0x9500,
 			     0x9600, 0x9804, 0x9900, 0x9b03, 0x9c03, 0x9d00,
@@ -6413,8 +7641,8 @@ def define_ncp2222():
 	# 2222/12, 18
 	pkt = NCP(0x12, "Get Volume Info with Number", 'file')
 	pkt.Request( 8, [
-		rec( 8, 1, VolumeNumber )
-	])
+		rec( 7, 1, VolumeNumber )
+	],info_str=(VolumeNumber, "Get Volume Information for Volume %d", ", %d"))
 	pkt.Reply( 36, [
 		rec( 8, 2, SectorsPerCluster, BE ),
 		rec( 10, 2, TotalVolumeClusters, BE ),
@@ -6536,7 +7764,7 @@ def define_ncp2222():
 	pkt = NCP(0x1601, "Get Directory Path", 'fileserver')
 	pkt.Request(11, [
 		rec( 10, 1, DirHandle ),
-	])
+	],info_str=(DirHandle, "Get Directory Path for Directory Handle %d", ", %d"))
 	pkt.Reply((9,263), [
 		rec( 8, (1,255), Path ),
 	])
@@ -6600,7 +7828,7 @@ def define_ncp2222():
 	pkt = NCP(0x1606, "Get Volume Name", 'fileserver')
 	pkt.Request(11, [
 		rec( 10, 1, VolumeNumber ),
-	])
+	],info_str=(VolumeNumber, "Get Name for Volume %d", ", %d"))
 	pkt.Reply((9, 263), [
 		rec( 8, (1,255), VolumeNameLen ),
 	])
@@ -6688,7 +7916,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8b00, 0x9200, 0x9600, 0x9804, 0x9b03, 0x9c03,
 			     0x9e00, 0xa100, 0xef00, 0xfd00, 0xff00])
-
+                                                                        
 	# 2222/1610, 22/16
 	pkt = NCP(0x1610, "Purge Erased Files", 'file')
 	pkt.Request(10)
@@ -6699,7 +7927,7 @@ def define_ncp2222():
 	pkt = NCP(0x1611, "Recover Erased File", 'fileserver')
 	pkt.Request(11, [
 		rec( 10, 1, DirHandle ),
-	])
+	],info_str=(DirHandle, "Recover Erased File from Directory Handle %d", ", %d"))
 	pkt.Reply(38, [
 		rec( 8, 15, OldFileName ),
 		rec( 23, 15, NewFileName ),
@@ -6736,14 +7964,14 @@ def define_ncp2222():
 	pkt = NCP(0x1614, "Deallocate Directory Handle", 'fileserver')
 	pkt.Request(11, [
 		rec( 10, 1, DirHandle ),
-	])
+	],info_str=(DirHandle, "Deallocate Directory Handle %d", ", %d"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x9b03])
 	# 2222/1615, 22/21
 	pkt = NCP(0x1615, "Get Volume Info with Handle", 'file')
 	pkt.Request( 11, [
 		rec( 10, 1, DirHandle )
-	])
+	],info_str=(DirHandle, "Get Volume Information with Handle %d", ", %d"))
 	pkt.Reply( 36, [
 		rec( 8, 2, SectorsPerCluster, BE ),
 		rec( 10, 2, TotalVolumeClusters, BE ),
@@ -6771,7 +7999,7 @@ def define_ncp2222():
 	pkt = NCP(0x1617, "Extract a Base Handle", 'fileserver')
 	pkt.Request(11, [
 		rec( 10, 1, DirHandle ),
-	])
+	],info_str=(DirHandle, "Extract a Base Handle from Directory Handle %d", ", %d"))
 	pkt.Reply(22, [
 		rec( 8, 10, ServerNetworkAddress ),
 		rec( 18, 4, DirHandleLong ),
@@ -7103,14 +8331,14 @@ def define_ncp2222():
 		rec( 11, 4, ObjectID, BE ),
 		rec( 15, 1, Unused ),
 		rec( 16, (1, 255), Path ),
-	], info_str=(Path, "Remove Extended Trustee: %s", ", %s"))
+	], info_str=(Path, "Remove Extended Trustee from %s", ", %s"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x9002, 0x9c03, 0xfe0f, 0xff09])
 	# 2222/162C, 22/44
 	pkt = NCP(0x162C, "Get Volume and Purge Information", 'file')
 	pkt.Request( 11, [
 		rec( 10, 1, VolumeNumber )
-	])
+	],info_str=(VolumeNumber, "Get Volume and Purge Information for Volume %d", ", %d"))
 	pkt.Reply( (38,53), [
 		rec( 8, 4, TotalBlocks ),
 		rec( 12, 4, FreeBlocks ),
@@ -7157,7 +8385,7 @@ def define_ncp2222():
 	pkt = NCP(0x162F, "Get Name Space Information", 'file')
 	pkt.Request( 11, [
 		rec( 10, 1, VolumeNumber )
-	])
+	],info_str=(VolumeNumber, "Get Name Space Information for Volume %d", ", %d"))
 	pkt.Reply( (13,521), [
 		rec( 8, 1, DefinedNameSpaces ),
 		rec( 9, (1,255), NameSpaceName ),
@@ -7225,7 +8453,7 @@ def define_ncp2222():
 	pkt = NCP(0x1633, "Get Extended Volume Information", 'file')
 	pkt.Request( 11, [
 		rec( 10, 1, VolumeNumber ),
-	])
+	],info_str=(VolumeNumber, "Get Extended Volume Information for Volume %d", ", %d"))
 	pkt.Reply( (139,266), [
 		rec( 8, 2, VolInfoReplyLen ),
 		rec( 10, 128, VolInfoStructure),
@@ -7288,8 +8516,8 @@ def define_ncp2222():
 	pkt = NCP(0x1705, "Get Station's Logged Info", 'file')
 	pkt.Request( 11, [
 		rec( 10, 1, TargetConnectionNumber ),
-	])
-	pkt.Reply( 266, [
+	],info_str=(TargetConnectionNumber, "Get Station's Logged Information on Connection %d", ", %d")) 
+        pkt.Reply( 266, [
 		rec( 8, 16, UserName16 ),
 		rec( 24, 7, LoginTime ),
 		rec( 31, 39, FullName ),
@@ -7426,7 +8654,7 @@ def define_ncp2222():
 	pkt = NCP(0x1713, "Get Internet Address", 'fileserver')
 	pkt.Request(11, [
 		rec( 10, 1, TargetConnectionNumber ),
-	])
+	],info_str=(TargetConnectionNumber, "Get Internet Address for Connection %d", ", %d"))
 	pkt.Reply(20, [
 		rec( 8, 4, NetworkAddress, BE ),
 		rec( 12, 6, NetworkNodeAddress ),
@@ -7454,7 +8682,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x9600, 0xf001, 0xfc06, 0xfe07, 0xff00])
 	# 2222/1716, 23/22
-	pkt = NCP(0x1716, "Get Station's Logged Info (old)", 'file')
+	pkt = NCP(0x1716, "Get Station's Logged Info", 'file')
 	pkt.Request( 11, [
 		rec( 10, 1, TargetConnectionNumber ),
 	])
@@ -7465,7 +8693,7 @@ def define_ncp2222():
 		rec( 62, 7, LoginTime ),       
                 rec( 69, 1, Reserved ),
 	])
-	pkt.CompletionCodes([0x0000, 0x9602, 0xfc06, 0xfd00, 0xfe07, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x9602, 0xfb0a, 0xfc06, 0xfd00, 0xfe07, 0xff00])
 	# 2222/1717, 23/23
 	pkt = NCP(0x1717, "Get Login Key", 'file')
 	pkt.Request(10)
@@ -7528,7 +8756,7 @@ def define_ncp2222():
 		rec( 62, 7, LoginTime ),
 		rec( 69, 1, Reserved ),
 	])
-	pkt.CompletionCodes([0x0000, 0x9602, 0xfc06, 0xfd00, 0xfe07, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x9602, 0xfb02, 0xfc06, 0xfd00, 0xfe07, 0xff00])
 	# 2222/171D, 23/29
 	pkt = NCP(0x171D, "Change Connection State", 'file')
 	pkt.Request( 11, [
@@ -8176,7 +9404,7 @@ def define_ncp2222():
 	# 2222/177C, 23/124
 	pkt = NCP(0x177C, "Service Queue Job", 'qms')
 	pkt.Request(16, [
-		rec( 10, 4, ObjectID, BE ),
+		rec( 10, 4, QueueID, BE ),
 		rec( 14, 2, ServiceType ),
 	])
 	pkt.Reply(94, [
@@ -8500,7 +9728,7 @@ def define_ncp2222():
 	pkt = NCP(0x17D2, "Clear Connection Number", 'stats')
 	pkt.Request(11, [
 		rec( 10, 1, ConnectionNumber ),
-	])
+	],info_str=(ConnectionNumber, "Clear Connection Number %d", ", %d"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0xc601, 0xfd00])
 	# 2222/17D3, 23/211
@@ -8807,7 +10035,7 @@ def define_ncp2222():
 		rec( 16, 4, UnusedDiskBlocks, BE ),
 		rec( 20, 1, RestrictionsEnforced ),
 	 ])
-	pkt.CompletionCodes([0x0000, 0x9600, 0xc601, 0xfd00, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x9600, 0xc601, 0xfd00, 0xff00])  
 	# 2222/17E7, 23/231
 	pkt = NCP(0x17E7, "Get File Server LAN I/O Statistics", 'stats')
 	pkt.Request(10)
@@ -8864,7 +10092,7 @@ def define_ncp2222():
 	pkt = NCP(0x17E9, "Get Volume Information", 'stats')
 	pkt.Request(11, [
 		rec( 10, 1, VolumeNumber ),
-	])
+	],info_str=(VolumeNumber, "Get Information on Volume %d", ", %d"))
  	pkt.Reply(48, [
 		rec( 8, 4, SystemIntervalMarker, BE ),
 		rec( 12, 1, VolumeNumber ),
@@ -9636,7 +10864,7 @@ def define_ncp2222():
 		rec( 14, 1, NCPextensionRevisionNumber ),
 		rec( 15, (1, 255), NCPextensionName ),
 	])	
-	pkt.CompletionCodes([0x0000, 0xfe00])
+	pkt.CompletionCodes([0x0000, 0xfe00, 0xff20])
 	# 2222/2403, 36/03
 	pkt = NCP(0x2403, "Get Number of Registered NCP Extensions", 'fileserver')
 	pkt.Request(10)
@@ -9680,7 +10908,7 @@ def define_ncp2222():
 	pkt.Request(11, [
 		rec( 7, 4, NCPextensionNumber ),
 		# The following value is Unicode
-		#[ 13, (1,255), RequestData ],
+		#rec[ 13, (1,255), RequestData ],
 	])
 	pkt.Reply(8)
 		# The following value is Unicode
@@ -10049,7 +11277,7 @@ def define_ncp2222():
 		rec( 20, 4, TtlEAsKeySize ),
 		rec( 24, 4, NewEAHandle ),
 	])
-	pkt.CompletionCodes([0x0000, 0xc900, 0xce00, 0xcf00, 0xd101,
+	pkt.CompletionCodes([0x0000, 0x8800, 0xc900, 0xce00, 0xcf00, 0xd101,
 			     0xd301])
 	# 2222/5605, 86/05
 	pkt = NCP(0x5605, "Duplicate Extended Attributes", 'file', has_length=0 )
@@ -10137,8 +11365,8 @@ def define_ncp2222():
         ])
 	pkt.ReqCondSizeVariable()
         pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
-			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
+			     0x8701, 0x8900, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa500, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5702, 87/02
 	pkt = NCP(0x5702, "Initialize Search", 'file', has_length=0)
 	pkt.Request( (18,272), [
@@ -10365,7 +11593,7 @@ def define_ncp2222():
 	], info_str=(Path, "Modify DOS Information for: %s", "/%s"))
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
-			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x8701, 0x8c01, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5708, 87/08
 	pkt = NCP(0x5708, "Delete a File or Subdirectory", 'file', has_length=0)
@@ -10380,8 +11608,8 @@ def define_ncp2222():
 		rec( 19, (1,255), Path, repeat="x" ),
 	], info_str=(Path, "Delete: %s", "/%s"))
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
-			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,  
+			     0x8701, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5709, 87/09
 	pkt = NCP(0x5709, "Set Short Directory Handle", 'file', has_length=0)
@@ -10990,7 +12218,7 @@ def define_ncp2222():
                 srec( FileNameStruct, req_cond="ncp.ret_info_mask_fname == 1" ),
         ])
 	pkt.ReqCondSizeVariable()
-	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x7f00, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5721, 87/33
@@ -11530,7 +12758,7 @@ def define_ncp2222():
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
 	# 2222/5A80, 90/128
-	pkt = NCP(0x5A80, "Move File Data To DM", 'file')
+	pkt = NCP(0x5A80, "Move File Data To Data Migration", 'file')
 	pkt.Request(27, [
 		rec( 10, 4, VolumeNumberLong ),
 		rec( 14, 4, DirectoryEntryNumber ),
@@ -11544,7 +12772,7 @@ def define_ncp2222():
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
 	# 2222/5A81, 90/129
-	pkt = NCP(0x5A81, "DM File Information", 'file')
+	pkt = NCP(0x5A81, "Data Migration File Information", 'file')
 	pkt.Request(19, [
 		rec( 10, 4, VolumeNumberLong ),
 		rec( 14, 4, DirectoryEntryNumber ),
@@ -11560,7 +12788,7 @@ def define_ncp2222():
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
 	# 2222/5A82, 90/130
-	pkt = NCP(0x5A82, "Volume DM Status", 'file')
+	pkt = NCP(0x5A82, "Volume Data Migration Status", 'file')
 	pkt.Request(18, [
 		rec( 10, 4, VolumeNumberLong ),
 		rec( 14, 4, SupportModuleID ),
@@ -11589,7 +12817,7 @@ def define_ncp2222():
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
 	# 2222/5A84, 90/132
-	pkt = NCP(0x5A84, "DM Support Module Information", 'file')
+	pkt = NCP(0x5A84, "Data Migration Support Module Information", 'file')
 	pkt.Request(18, [
 		rec( 10, 1, DMInfoLevel ),
                 rec( 11, 3, Reserved3),
@@ -11605,7 +12833,7 @@ def define_ncp2222():
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
 	# 2222/5A85, 90/133
-	pkt = NCP(0x5A85, "Move File Data From DM", 'file')
+	pkt = NCP(0x5A85, "Move File Data From Data Migration", 'file')
 	pkt.Request(19, [
 		rec( 10, 4, VolumeNumberLong ),
 		rec( 14, 4, DirectoryEntryNumber ),
@@ -11629,7 +12857,7 @@ def define_ncp2222():
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
 	# 2222/5A87, 90/135
-	pkt = NCP(0x5A87, "DM Support Module Capacity Request", 'file')
+	pkt = NCP(0x5A87, "Data Migration Support Module Capacity Request", 'file')
 	pkt.Request(22, [
 		rec( 10, 4, SupportModuleID ),
 		rec( 14, 4, VolumeNumberLong ),
@@ -11672,7 +12900,7 @@ def define_ncp2222():
 	pkt.Request(10, [
 		rec( 7, 2, ProposedMaxSize, BE ),
 		rec( 9, 1, SecurityFlag ),
-	])
+	],info_str=(ProposedMaxSize, "Get Big Max Packet Size - %d", ", %d"))
 	pkt.Reply(13, [
 		rec( 8, 2, AcceptedMaxSize, BE ),
 		rec( 10, 2, EchoSocket, BE ),
@@ -11716,14 +12944,7 @@ def define_ncp2222():
 	# 2222/6801, 104/01
 	pkt = NCP(0x6801, "Ping for NDS NCP", "nds", has_length=0)
 	pkt.Request(8)
-	pkt.Reply(10, [
-		rec( 8, 2, PingVersion ),
-		rec( 10, 2, Reserved ),
-                srec(PingVersion9, req_cond="ncp.ping_version==9"),
-                srec(PingVersion10, req_cond="ncp.ping_version==10"),
-                #rec( 12, 4, Reserved4 ),
-		#rec( 16, (4,48), TreeName ),
-	])
+	pkt.Reply(8)
         pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8100, 0xfb04, 0xfe0c])
 	# 2222/6802, 104/02
@@ -11739,19 +12960,10 @@ def define_ncp2222():
 	#
 	pkt = NCP(0x6802, "Send NDS Fragmented Request/Reply", "nds", has_length=0)
 	pkt.Request(8)
-#		rec( 8, 4, FraggerHandle ),
-#		rec( 12, 4, FragSize ),
-#		rec( 16, 4, TotalRequest ),
-#		rec( 20, 4, NDSFlags ),
-#		rec( 24, 2, NDSVerb, LE ),
-#                rec( 26, 2, Reserved2),
-#                srec(NDS8Struct, req_cond="ncp.nds_verb==0x00fe"),
-#                srec(NDS7Struct, req_cond="ncp.nds_verb!=0x00fe"),
-#	]) 
 	pkt.Reply(8)
         pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000])
-	# 2222/6803, 104/03
+ 	# 2222/6803, 104/03
 	pkt = NCP(0x6803, "Fragment Close", "nds", has_length=0)
 	pkt.Request(12, [
 		rec( 8, 4, FraggerHandle ),
@@ -12107,7 +13319,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x7900, 0x7e01, 0xfb06, 0xff00])
 	# 2222/7B03, 123/03
-	pkt = NCP(0x7B03, "NetWare File Systems Information", 'stats')
+	pkt = NCP(0x7B03, "NetWare File System Information", 'stats')
 	pkt.Request(11, [
 		rec(10, 1, FileSystemID ),
 	])
