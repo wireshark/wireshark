@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.c,v 1.4 1998/10/22 04:50:21 gram Exp $
+ * $Id: packet-ncp.c,v 1.5 1998/10/27 16:43:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -87,7 +87,6 @@ static value_string ncp2222_func[] = {
 
 static char*
 ncp2222_subfunc(u_short func, u_short subfunc) {
-	int i=0;
 	value_string	*info_ptr = NULL;
 
 	/* Accounting Services */
@@ -254,7 +253,8 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 		else {
 			add_item_to_tree(ncp_tree, offset+6,		1,
 				"Function Code: %s (%d)",
-				match_strval(request.function, ncp2222_func));
+				match_strval(request.function, ncp2222_func),
+				request.function);
 		}
 
 		offset += ncp_hdr;
