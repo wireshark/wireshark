@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.398 2004/01/26 21:12:40 ulfl Exp $
+# $Id: Makefile.nmake,v 1.399 2004/01/31 12:19:58 ulfl Exp $
 
 include config.nmake
 include <win32.mak>
@@ -424,7 +424,7 @@ gtk:: help config.h cvsversion.h
 	cd ..
 
 # copy all required files to gtk2.tmp (but only when newer than existing) and compile in that dir
-gtk2::
+gtk2:: help config.h cvsversion.h
 	if not exist gtk2.tmp mkdir gtk2.tmp
 	cd gtk
 	cp --update --preserve Makefile.* *.c *.h ..\gtk2.tmp
