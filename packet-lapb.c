@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-lapb.c,v 1.16 2000/05/25 08:45:53 gram Exp $
+ * $Id: packet-lapb.c,v 1.17 2000/05/25 14:57:34 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -80,9 +80,6 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     byte0 = tvb_get_guint8(tvb, 0);
-
-    if(check_col(pinfo->fd, COL_RES_DL_SRC))
-	col_add_fstr(pinfo->fd, COL_RES_DL_SRC, "0x%02X", byte0);
 
     if (byte0 != 0x01 && byte0 != 0x03) /* invalid LAPB frame */
     {
