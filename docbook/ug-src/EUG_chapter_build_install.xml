@@ -476,6 +476,74 @@ apt-get install ethereal
 	  Both steps are extremely simply, as you only have to download and 
 	  install the two exe files. 
     </para>
+  <section id="ChBuildInstallComponents">
+    <title>Installable Components</title>
+    <para>
+	Beside the usual installer options like where to install the program, 
+	there are several optional components (if you are unsure, just keep the 
+	default settings).
+    </para>
+    <para>
+	The programs being installed 
+	(both Ethereal GTK1 and 2 cannot be installed at the same time):
+	<itemizedlist>
+	<listitem><para>
+	<command>Etheral GTK1</command> - Ethereal is a GUI network protocol 
+	analyzer.
+	</para></listitem>
+	<listitem><para>
+	<command>Etheral GTK2</command> - Ethereal is a GUI network protocol 
+	analyzer (using the modern GTK2 GUI toolkit).
+	</para></listitem>
+	<listitem><para>
+	<command>GTK-Wimp</command> - GTKWimp is the GTK2 windows impersonator 
+	(native Win32 look and feel).
+	</para></listitem>
+	<listitem><para>
+	<command>Tethereal</command> - Tethereal is a command-line based network 
+	protocol analyzer.
+	</para></listitem>
+	<listitem><para>
+	<command>Editcap</command> - Editcap is a program that reads a capture 
+	file and writes some or all of the packets into another capture file.
+	</para></listitem>
+	<listitem><para>
+	<command>Text2Pcap</command> - Text2pcap is a program that reads in an 
+	ASCII hex dump and writes the data into a libpcap-style capture file.
+	</para></listitem>
+	<listitem><para>
+	<command>Mergecap</command> - Mergecap is a program that combines multiple 
+	saved capture files into a single output file.
+	</para></listitem>
+	<listitem><para>
+	<command>Capinfo</command> - Capinfo is a program that provides 
+	information on capture files.
+	</para></listitem>
+	</itemizedlist>
+	The dissection extensions for Ethereal and Tethereal:
+	<itemizedlist>
+	<listitem><para>
+	<command>Plugins</command> - Plugins with some extended dissections.
+	</para></listitem>
+	<listitem><para>
+	<command>SNMP MIBs</command> - SNMP MIBs for better SNMP dissection.
+	</para></listitem>
+	</itemizedlist>
+	The environment related things:
+	<itemizedlist>
+	<listitem><para>
+	<command>Start Menu Shortcuts</command> - Some start menu shortcuts.
+	</para></listitem>
+	<listitem><para>
+	<command>Desktop Icon</command> - Ethereal desktop icon.
+	</para></listitem>
+	<listitem><para>
+	<command>Associate file extensions to Ethereal</command> - Associate 
+	standard network trace files to Ethereal.
+	</para></listitem>
+	</itemizedlist>
+    </para>
+  </section>
   <section id="ChBuildInstallWinUpdate">
     <title>Update</title>
 	<para>
