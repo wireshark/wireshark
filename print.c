@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.73 2004/04/15 19:56:15 ulfl Exp $
+ * $Id: print.c,v 1.74 2004/04/16 18:17:47 ulfl Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -187,8 +187,7 @@ void proto_tree_print_node(proto_node *node, gpointer data)
 		proto_item_fill_label(fi, label_str);
 	}
 
-	if (pdata->print_dissections != print_dissections_none)
-    	print_line(pdata->fh, pdata->level, pdata->format, label_ptr);
+	print_line(pdata->fh, pdata->level, pdata->format, label_ptr);
 
 	/* If it's uninterpreted data, dump it (unless our caller will
 	   be printing the entire packet in hex). */
@@ -333,6 +332,14 @@ proto_tree_print_node_pdml(proto_node *node, gpointer data)
 			fputs("\" showname=\"", pdata->fh);
 			print_escaped_xml(pdata->fh, label_ptr);
 		}
+
+#if 0
+		fputs("\" showname=\"", pdata->fh);
+		print_escaped_xml(pdata->fh, fi->hfinfo->name);
+        if(!fi->visible) {
+    		fprintf(pdata->fh, "\" hide=\"yes");
+        }
+#endif
 
 		fprintf(pdata->fh, "\" size=\"%d", fi->length);
 		fprintf(pdata->fh, "\" pos=\"%d", fi->start);
@@ -654,12 +661,20 @@ void ps_clean_string(unsigned char *out, const unsigned char *in,
 void
 print_preamble(FILE *fh, gint format)
 {
-	if (format == PR_FMT_PS)
+    switch(format) {
+    case(PR_FMT_TEXT):
+        /* do nothing */
+        break;
+    case(PR_FMT_PS):
 		print_ps_preamble(fh);
-	else if (format == PR_FMT_PDML) {
+        break;
+    case(PR_FMT_PDML):
 		fputs("<?xml version=\"1.0\"?>\n", fh);
 		fputs("<pdml version=\"" PDML_VERSION "\" ", fh);
 		fprintf(fh, "creator=\"%s/%s\">\n", PACKAGE, VERSION);
+        break;
+    default:
+		g_assert_not_reached();
 	}
 }
 
@@ -667,10 +682,18 @@ print_preamble(FILE *fh, gint format)
 void
 print_finale(FILE *fh, gint format)
 {
-	if (format == PR_FMT_PS)
+    switch(format) {
+    case(PR_FMT_TEXT):
+        /* do nothing */
+        break;
+    case(PR_FMT_PS):
 		print_ps_finale(fh);
-	else if (format == PR_FMT_PDML) {
+        break;
+    case(PR_FMT_PDML):
 		fputs("</pdml>\n", fh);
+        break;
+    default:
+		g_assert_not_reached();
 	}
 }
 

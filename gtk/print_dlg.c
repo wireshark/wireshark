@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.65 2004/04/16 05:30:39 ulfl Exp $
+ * $Id: print_dlg.c,v 1.66 2004/04/16 18:17:48 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,12 +85,14 @@ static gchar * print_cmd;
 #define PRINT_PDML_RB_KEY         "printer_pdml_radio_button"
 #define PRINT_DEST_CB_KEY         "printer_destination_check_button"
 
+#define PRINT_SUMMARY_CB_KEY      "printer_summary_check_button"
 #define PRINT_DETAILS_CB_KEY      "printer_details_check_button"
-#define PRINT_NONE_RB_KEY         "printer_none_radio_button"
 #define PRINT_COLLAPSE_ALL_RB_KEY "printer_collapse_all_radio_button"
 #define PRINT_AS_DISPLAYED_RB_KEY "printer_as_displayed_radio_button"
 #define PRINT_EXPAND_ALL_RB_KEY   "printer_expand_all_radio_button"
 #define PRINT_HEX_CB_KEY          "printer_hex_check_button"
+
+#define PRINT_BT_KEY              "printer_button"
 
 /* XXX - can we make these not be static? */
 static packet_range_t range;
@@ -330,10 +332,13 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   GtkWidget     *packet_hb;
 
-  GtkWidget     *details_sep;
   GtkWidget     *format_fr, *format_vb;
-  GtkWidget     *details_cb, *details_vb;
-  GtkWidget     *none_rb, *collapse_all_rb, *as_displayed_rb, *expand_all_rb,*hex_cb;
+  GtkWidget     *summary_cb;
+
+  GtkWidget     *details_cb;
+  GtkWidget     *details_hb, *details_vb;
+  GtkWidget     *collapse_all_rb, *as_displayed_rb, *expand_all_rb;
+  GtkWidget     *hex_cb;
 
   GtkWidget     *bbox, *ok_bt, *cancel_bt;
 
@@ -613,64 +618,73 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_container_add(GTK_CONTAINER(format_fr), format_vb);
   gtk_widget_show(format_vb);
 
-  /* "Print detail" check buttons */
-  details_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Packet d_etails:", accel_group);
+  /* "Print summary line" check button */
+  summary_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Packet summary line", accel_group);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(summary_cb), FALSE);
+  SIGNAL_CONNECT(summary_cb, "clicked", print_cmd_toggle_detail, print_w);
+  gtk_tooltips_set_tip (tooltips, summary_cb, ("Print a packet summary line, like in the packet list"), NULL);
+  gtk_container_add(GTK_CONTAINER(format_vb), summary_cb);
+  gtk_widget_show(summary_cb);
+
+
+  /* "Details" check button */
+  details_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Packet details:", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(details_cb), TRUE);
-  SIGNAL_CONNECT(details_cb, "clicked", print_cmd_toggle_detail, NULL);
-  gtk_tooltips_set_tip (tooltips, details_cb, ("Print packet details, or a packet summary line only"), NULL);
+  SIGNAL_CONNECT(details_cb, "clicked", print_cmd_toggle_detail, print_w);
+  gtk_tooltips_set_tip (tooltips, details_cb, ("Print the selected packet details (protocol tree)."), NULL);
   gtk_container_add(GTK_CONTAINER(format_vb), details_cb);
   gtk_widget_show(details_cb);
 
-
   /*** packet details ***/
-  details_sep = gtk_hseparator_new();
-  gtk_box_pack_start(GTK_BOX(format_vb), details_sep, FALSE, FALSE, 0);
-  gtk_widget_show(details_sep);
+  details_hb = gtk_hbox_new(FALSE, 6);
+  gtk_container_border_width(GTK_CONTAINER(details_hb), 0);
+  gtk_container_add(GTK_CONTAINER(format_vb), details_hb);
+  gtk_widget_show(details_hb);
 
-  details_vb = gtk_vbox_new(FALSE, 5);
+  details_vb = gtk_vbox_new(FALSE, 6);
   gtk_container_border_width(GTK_CONTAINER(details_vb), 0);
-  gtk_container_add(GTK_CONTAINER(format_vb), details_vb);
+  gtk_container_add(GTK_CONTAINER(details_hb), details_vb);
   gtk_widget_show(details_vb);
 
-  /* "None"/"All collapsed"/"As displayed"/"All Expanded" radio buttons */
-  none_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "_No dissections", accel_group);
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(none_rb), FALSE);
-  gtk_tooltips_set_tip (tooltips, none_rb, ("Don't print a packet details tree at all. "
-      "Use this together with the \"Packet hex data\" option, to get a plain packet hexdump."), NULL);
-  gtk_container_add(GTK_CONTAINER(details_vb), none_rb);
-  gtk_widget_show(none_rb);
+  details_vb = gtk_vbox_new(FALSE, 6);
+  gtk_container_border_width(GTK_CONTAINER(details_vb), 0);
+  gtk_container_add(GTK_CONTAINER(details_hb), details_vb);
+  gtk_widget_show(details_vb);
 
-  collapse_all_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(none_rb, "All dissections co_llapsed", accel_group);
+  /* "All collapsed"/"As displayed"/"All Expanded" radio buttons */
+  collapse_all_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "All co_llapsed", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(collapse_all_rb), FALSE);
   gtk_tooltips_set_tip (tooltips, collapse_all_rb, ("Print packet details tree \"collapsed\""), NULL);
   gtk_container_add(GTK_CONTAINER(details_vb), collapse_all_rb);
   gtk_widget_show(collapse_all_rb);
 
-  as_displayed_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(none_rb, "Dissections as displa_yed", accel_group);
+  as_displayed_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(collapse_all_rb, "As displa_yed", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(as_displayed_rb), TRUE);
   gtk_tooltips_set_tip (tooltips, as_displayed_rb, ("Print packet details tree \"as displayed\""), NULL);
   gtk_container_add(GTK_CONTAINER(details_vb), as_displayed_rb);
   gtk_widget_show(as_displayed_rb);
 
-  expand_all_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(none_rb, "All dissections e_xpanded", accel_group);
+  expand_all_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(collapse_all_rb, "All e_xpanded", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(expand_all_rb), FALSE);
   gtk_tooltips_set_tip (tooltips, expand_all_rb, ("Print packet details tree \"expanded\""), NULL);
   gtk_container_add(GTK_CONTAINER(details_vb), expand_all_rb);
   gtk_widget_show(expand_all_rb);
 
   /* "Print hex" check button. */
-  hex_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Packet _hex data", accel_group);
+  hex_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Packet bytes", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(hex_cb), FALSE);
+  SIGNAL_CONNECT(hex_cb, "clicked", print_cmd_toggle_detail, print_w);
   gtk_tooltips_set_tip (tooltips, hex_cb, ("Add hexdump of packet data"), NULL);
-  gtk_container_add(GTK_CONTAINER(details_vb), hex_cb);
+  gtk_container_add(GTK_CONTAINER(format_vb), hex_cb);
   gtk_widget_show(hex_cb);
 
 
-  OBJECT_SET_DATA(details_cb, PRINT_NONE_RB_KEY, none_rb);
-  OBJECT_SET_DATA(details_cb, PRINT_COLLAPSE_ALL_RB_KEY, collapse_all_rb);
-  OBJECT_SET_DATA(details_cb, PRINT_AS_DISPLAYED_RB_KEY, as_displayed_rb);
-  OBJECT_SET_DATA(details_cb, PRINT_EXPAND_ALL_RB_KEY, expand_all_rb);
-  OBJECT_SET_DATA(details_cb, PRINT_HEX_CB_KEY, hex_cb);
+  OBJECT_SET_DATA(print_w, PRINT_SUMMARY_CB_KEY, summary_cb);
+  OBJECT_SET_DATA(print_w, PRINT_DETAILS_CB_KEY, details_cb);
+  OBJECT_SET_DATA(print_w, PRINT_COLLAPSE_ALL_RB_KEY, collapse_all_rb);
+  OBJECT_SET_DATA(print_w, PRINT_AS_DISPLAYED_RB_KEY, as_displayed_rb);
+  OBJECT_SET_DATA(print_w, PRINT_EXPAND_ALL_RB_KEY, expand_all_rb);
+  OBJECT_SET_DATA(print_w, PRINT_HEX_CB_KEY, hex_cb);
 
 /*****************************************************/
 
@@ -681,6 +695,9 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_widget_show(bbox);
 
   ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_PRINT);
+
+  OBJECT_SET_DATA(print_w, PRINT_BT_KEY, ok_bt);
+
   OBJECT_SET_DATA(ok_bt, PRINT_PS_RB_KEY, ps_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_PDML_RB_KEY, pdml_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_DEST_CB_KEY, dest_cb);
@@ -689,11 +706,12 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 #endif
 
   OBJECT_SET_DATA(ok_bt, PRINT_FILE_TE_KEY, file_te);
+  OBJECT_SET_DATA(ok_bt, PRINT_SUMMARY_CB_KEY, summary_cb);
   OBJECT_SET_DATA(ok_bt, PRINT_DETAILS_CB_KEY, details_cb);
-  OBJECT_SET_DATA(ok_bt, PRINT_HEX_CB_KEY, hex_cb);
   OBJECT_SET_DATA(ok_bt, PRINT_COLLAPSE_ALL_RB_KEY, collapse_all_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_AS_DISPLAYED_RB_KEY, as_displayed_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_EXPAND_ALL_RB_KEY, expand_all_rb);
+  OBJECT_SET_DATA(ok_bt, PRINT_HEX_CB_KEY, hex_cb);
   SIGNAL_CONNECT(ok_bt, "clicked", print_ok_cb, print_w);
   gtk_widget_grab_default(ok_bt);
 
@@ -751,21 +769,24 @@ print_cmd_toggle_dest(GtkWidget *widget, gpointer data _U_)
   gtk_widget_set_sensitive(file_te, to_file);
 }
 
+
 static void
-print_cmd_toggle_detail(GtkWidget *widget, gpointer data _U_)
+print_cmd_toggle_detail(GtkWidget *widget _U_, gpointer data)
 {
-  GtkWidget     *none_rb, *collapse_all_rb, *expand_all_rb, *as_displayed_rb, *hex_cb;
+  GtkWidget     *print_bt, *summary_cb, *details_cb, *collapse_all_rb, *expand_all_rb, *as_displayed_rb, *hex_cb;
   gboolean      print_detail;
 
 
-  none_rb = GTK_WIDGET(OBJECT_GET_DATA(widget, PRINT_NONE_RB_KEY));
-  collapse_all_rb = GTK_WIDGET(OBJECT_GET_DATA(widget, PRINT_COLLAPSE_ALL_RB_KEY));
-  as_displayed_rb = GTK_WIDGET(OBJECT_GET_DATA(widget,
+  print_bt = GTK_WIDGET(OBJECT_GET_DATA(data, PRINT_BT_KEY));
+  summary_cb = GTK_WIDGET(OBJECT_GET_DATA(data, PRINT_SUMMARY_CB_KEY));
+  details_cb = GTK_WIDGET(OBJECT_GET_DATA(data, PRINT_DETAILS_CB_KEY));
+  collapse_all_rb = GTK_WIDGET(OBJECT_GET_DATA(data, PRINT_COLLAPSE_ALL_RB_KEY));
+  as_displayed_rb = GTK_WIDGET(OBJECT_GET_DATA(data,
                                                PRINT_AS_DISPLAYED_RB_KEY));
-  expand_all_rb = GTK_WIDGET(OBJECT_GET_DATA(widget, PRINT_EXPAND_ALL_RB_KEY));
-  hex_cb = GTK_WIDGET(OBJECT_GET_DATA(widget, PRINT_HEX_CB_KEY));
+  expand_all_rb = GTK_WIDGET(OBJECT_GET_DATA(data, PRINT_EXPAND_ALL_RB_KEY));
+  hex_cb = GTK_WIDGET(OBJECT_GET_DATA(data, PRINT_HEX_CB_KEY));
 
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (details_cb))) {
     /* They selected "Print detail" */
     print_detail = TRUE;
   } else {
@@ -773,11 +794,16 @@ print_cmd_toggle_detail(GtkWidget *widget, gpointer data _U_)
     print_detail = FALSE;
   }
 
-  gtk_widget_set_sensitive(none_rb, print_detail);
   gtk_widget_set_sensitive(collapse_all_rb, print_detail);
   gtk_widget_set_sensitive(as_displayed_rb, print_detail);
   gtk_widget_set_sensitive(expand_all_rb, print_detail);
-  gtk_widget_set_sensitive(hex_cb, print_detail);
+
+  print_detail = 
+      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (summary_cb)) ||
+      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (details_cb)) ||
+      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (hex_cb));
+
+  gtk_widget_set_sensitive(print_bt, print_detail);
 }
 
 #ifdef _WIN32
@@ -844,13 +870,8 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
     print_format = PR_FMT_PDML;
   print_args.format = print_format;
 
-  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_DETAILS_CB_KEY);
-  print_args.print_summary = !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
-
-  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_HEX_CB_KEY);
-  print_args.print_hex = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
-
-  print_args.print_dissections = print_dissections_none;
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_SUMMARY_CB_KEY);
+  print_args.print_summary = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
 
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_COLLAPSE_ALL_RB_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button))) {
@@ -864,6 +885,15 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button))) {
     print_args.print_dissections = print_dissections_expanded;
   }
+
+  /* the details setting has priority over the radio buttons */
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_DETAILS_CB_KEY);
+  if (!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button))) {
+    print_args.print_dissections = print_dissections_none;
+  }
+
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_HEX_CB_KEY);
+  print_args.print_hex = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
 
   print_args.range = range;
 

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.373 2004/04/15 23:28:10 guy Exp $
+ * $Id: file.c,v 1.374 2004/04/16 18:17:47 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1506,13 +1506,22 @@ print_packet(capture_file *cf, frame_data *fdata,
   int             line_len;
   int             column_len;
   int             cp_off;
+  gboolean        proto_tree_needed;
+
+
+  proto_tree_needed = 
+      args->print_args->print_dissections != print_dissections_none || args->print_args->print_hex;
+
+  /* Fill in the column information, but don't bother creating
+     the logical protocol tree. */
+  edt = epan_dissect_new(proto_tree_needed, proto_tree_needed);
+  epan_dissect_run(edt, pseudo_header, pd, fdata, &cf->cinfo);
+  epan_dissect_fill_in_columns(edt);
+
+  if (args->print_separator)
+    print_line(args->print_fh, 0, args->print_args->format, "");
 
   if (args->print_args->print_summary) {
-    /* Fill in the column information, but don't bother creating
-       the logical protocol tree. */
-    edt = epan_dissect_new(FALSE, FALSE);
-    epan_dissect_run(edt, pseudo_header, pd, fdata, &cf->cinfo);
-    epan_dissect_fill_in_columns(edt);
     cp = &args->line_buf[0];
     line_len = 0;
     for (i = 0; i < cf->cinfo.num_cols; i++) {
@@ -1542,27 +1551,24 @@ print_packet(capture_file *cf, frame_data *fdata,
     }
     *cp = '\0';
     print_line(args->print_fh, 0, args->print_args->format, args->line_buf);
-  } else {
-    if (args->print_separator)
-      print_line(args->print_fh, 0, args->print_args->format, "");
-
-    /* Create the logical protocol tree, complete with the display
-       representation of the items; we don't need the columns here,
-       however. */
-    edt = epan_dissect_new(TRUE, TRUE);
-    epan_dissect_run(edt, pseudo_header, pd, fdata, NULL);
-
+  } /* if (print_summary) */
+  
+  if (args->print_args->print_dissections != print_dissections_none) {
     /* Print the information in that tree. */
     proto_tree_print(args->print_args, edt, args->print_fh);
 
-    if (args->print_args->print_hex) {
-      /* Print the full packet data as hex. */
-      print_hex_data(args->print_fh, args->print_args->format, edt);
-    }
+    /* Print a blank line if we print anything after this (aka more than one packet). */
+    args->print_separator = TRUE;
+  }
 
-    /* Print a blank line if we print anything after this. */
+  if (args->print_args->print_hex) {
+    /* Print the full packet data as hex. */
+    print_hex_data(args->print_fh, args->print_args->format, edt);
+
+    /* Print a blank line if we print anything after this (aka more than one packet). */
     args->print_separator = TRUE;
   } /* if (print_summary) */
+
   epan_dissect_free(edt);
 
   return !ferror(args->print_fh);
