@@ -776,6 +776,7 @@ Motonori Shindo <mshindo[AT]mshindo.net> {
 	Fixes to take the Vendor-Specific attribute into consideration
 	    when dissecting L2TP
 	L2TP Dissconnect Cause Information AVP support
+	PPP CCP support
 }
 
 Terje Krogdahl <tekr[AT]nextra.com> {

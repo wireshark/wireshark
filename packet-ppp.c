@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.71 2001/09/30 13:30:51 sharpe Exp $
+ * $Id: packet-ppp.c,v 1.72 2001/10/29 19:48:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,6 +72,18 @@ static gint ett_ipcp = -1;
 static gint ett_ipcp_options = -1;
 static gint ett_ipcp_ipaddrs_opt = -1;
 static gint ett_ipcp_compressprot_opt = -1;
+
+static int proto_ccp = -1;
+
+static gint ett_ccp = -1;
+static gint ett_ccp_options = -1;
+static gint ett_ccp_stac_opt = -1;
+static gint ett_ccp_mppc_opt = -1;
+static gint ett_ccp_lzsdcp_opt = -1;
+
+static int proto_comp_data = -1;
+
+static gint ett_comp_data = -1;
 
 static int proto_mp = -1;
 static int hf_mp_frag_first = -1;
@@ -167,6 +179,12 @@ static const value_string cp_vals[] = {
 #define IDENT      12 /* Identification */
 #define TIMEREMAIN 13 /* Time remaining */
 
+/* 
+ * CCP-specific packet types.
+ */
+#define RESETREQ   14  /* Reset Request */
+#define RESETACK   15  /* Reset Ack */
+
 #define CBCP_OPT  6 /* Use callback control protocol */
 
 static const value_string lcp_vals[] = {
@@ -184,6 +202,53 @@ static const value_string lcp_vals[] = {
 	{IDENT,      "Identification" },
 	{TIMEREMAIN, "Time Remaining" },
 	{0,          NULL }
+};
+
+static const value_string ccp_vals[] = {
+	{CONFREQ,    "Configuration Request" },
+	{CONFACK,    "Configuration Ack" },
+	{CONFNAK,    "Configuration Nak" },
+	{CONFREJ,    "Configuration Reject" },
+	{TERMREQ,    "Termination Request" },
+	{TERMACK,    "Termination Ack" },
+	{CODEREJ,    "Code Reject" },
+	{RESETREQ,   "Reset Request" },
+	{RESETACK,   "Reset Ack" },
+	{0,          NULL } 
+};
+
+#define STAC_CM_NONE		0
+#define STAC_CM_LCB		1
+#define	STAC_CM_CRC		2
+#define	STAC_CM_SN		3
+#define STAC_CM_EXTMODE		4
+static const value_string stac_checkmode_vals[] = {
+	{STAC_CM_NONE,		"None" },
+	{STAC_CM_LCB,		"LCB" },
+	{STAC_CM_CRC,		"CRC" },
+	{STAC_CM_SN,		"Sequence Number" },
+	{STAC_CM_EXTMODE,	"Extended Mode" },
+	{0,			NULL }
+};
+
+#define LZSDCP_CM_NONE		0
+#define LZSDCP_CM_LCB		1
+#define	LZSDCP_CM_SN		2
+#define	LZSDCP_CM_SN_LCB	3
+static const value_string lzsdcp_checkmode_vals[] = {
+	{LZSDCP_CM_NONE,	"None" },
+	{LZSDCP_CM_LCB,		"LCB" },
+	{LZSDCP_CM_SN,		"Sequence Number" },
+	{LZSDCP_CM_SN_LCB,	"Sequence Number + LCB" },
+	{0,			NULL }
+};
+
+#define LZSDCP_PM_NONE		0
+#define LZSDCP_PM_PROC_UNCOMP	1
+static const value_string lzsdcp_processmode_vals[] = {
+	{LZSDCP_PM_NONE,	"None" },
+	{LZSDCP_PM_PROC_UNCOMP,	"Process-Uncompressed" },
+	{0,			NULL }
 };
 
 /*
@@ -559,7 +624,81 @@ static const ip_tcp_opt ipcp_opts[] = {
 
 #define N_IPCP_OPTS	(sizeof ipcp_opts / sizeof ipcp_opts[0])
 
-static void dissect_ppp(tvbuff_t *tvb, packet_info *pinfo,
+/*
+ * Options.  (CCP)
+ */
+#define CI_CCP_OUI	0	/* OUI (RFC1962) */
+#define CI_CCP_PREDICT1	1	/* Predictor type 1 (RFC1962) */
+#define CI_CCP_PREDICT2	2	/* Predictor type 2 (RFC1962) */
+#define CI_CCP_PUDDLE	3	/* Puddle Jumper (RFC1962) */
+#define CI_CCP_HPPPC	16	/* Hewlett-Packard PPC (RFC1962) */
+#define CI_CCP_STAC	17	/* stac Electronics LZS (RFC1974) */
+#define CI_CCP_MPPC	18	/* Microsoft PPC (RFC2218/3078) */
+#define CI_CCP_GFZA	19	/* Gandalf FZA */
+#define CI_CCP_V42BIS	20	/* V.42bis compression */
+#define CI_CCP_BSDLZW	21	/* BSD LZW Compress */
+#define CI_CCP_LZSDCP	23	/* LZS-DCP (RFC1967) */
+#define CI_CCP_MVRCA	24	/* MVRCA (Magnalink) (RFC1975) */
+#define CI_CCP_DEFLATE	26	/* Deflate (RFC1979) */
+#define CI_CCP_RESERVED	255	/* Reserved (RFC1962) */
+
+/*
+ * Microsoft Point-To-Point Compression (MPPC) and Encryption (MPPE) 
+ * supported bits.
+ */
+#define MPPC_SUPPORTED_BITS_C	0x00000001	/* MPPC negotiation */
+#define MPPE_SUPPORTED_BITS_D	0x00000010	/* Obsolete */
+#define MPPE_SUPPORTED_BITS_L	0x00000020	/* 40-bit encryption */
+#define MPPE_SUPPORTED_BITS_S	0x00000040	/* 56-bit encryption */
+#define MPPE_SUPPORTED_BITS_M	0x00000080	/* 128-bit encryption */
+#define MPPE_SUPPORTED_BITS_H	0x01000000	/* stateless mode */
+
+static void dissect_ccp_stac_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                        int offset, guint length, frame_data *fd,
+			proto_tree *tree);
+
+static void dissect_ccp_mppc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                        int offset, guint length, frame_data *fd,
+			proto_tree *tree);
+
+static void dissect_ccp_lzsdcp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                        int offset, guint length, frame_data *fd,
+			proto_tree *tree);
+
+static const ip_tcp_opt ccp_opts[] = {
+	{
+		CI_CCP_STAC,
+		"Stac Electronics LZS",
+		&ett_ccp_stac_opt,
+		VARIABLE_LENGTH,
+		5,
+		/* In RFC 1974, this is a fixed-length field of size 5,
+		   but in Ascend Proprietary STAC compression this field
+		   is 6 octets. Sigh... */
+		dissect_ccp_stac_opt
+	},
+	{
+		CI_CCP_MPPC,
+		"Microsoft PPC",
+		&ett_ccp_mppc_opt,
+		FIXED_LENGTH,
+		6,
+		dissect_ccp_mppc_opt
+	},
+	{
+		CI_CCP_LZSDCP,
+		"LZS-DCP",
+		&ett_ccp_lzsdcp_opt,
+		FIXED_LENGTH,
+		6,
+		dissect_ccp_lzsdcp_opt
+	}
+
+};
+
+#define N_CCP_OPTS	(sizeof ccp_opts / sizeof ccp_opts[0])
+
+static void dissect_ppp(tvbuff_t *tvb, packet_info *pinfo, 
     proto_tree *tree);
 
 static const value_string pap_vals[] = {
@@ -1130,6 +1269,85 @@ static void dissect_ipcp_addr_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 }
 
 static void
+dissect_ccp_stac_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, frame_data *fd,
+			proto_tree *tree)
+{
+  proto_item *tf;
+  guint8 check_mode;
+
+  if (length == 6) {
+	  proto_tree_add_text(tree, tvb, offset, length, 
+			      "%s (Ascend Proprietary version)", optp->name);
+	  /* We don't know how to decode the following 4 octets, since
+	     there's no public document that describe their usage. */
+	  return;
+  } else {
+	  tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+  }
+
+  proto_tree_add_text(tf, tvb, offset + 2, 2,
+		      "History Count: %u", tvb_get_ntohs(tvb, offset + 2));
+  check_mode = tvb_get_guint8(tvb, offset + 4);
+  proto_tree_add_text(tf, tvb, offset + 4, 1, "Check Mode: %s (0x%02X)", 
+      val_to_str(check_mode, stac_checkmode_vals, "Unknown"), check_mode); 
+}
+
+static void
+dissect_ccp_mppc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, frame_data *fd,
+			proto_tree *tree)
+{
+  proto_item *tf;
+  proto_tree *flags_tree;
+  guint32 supported_bits;
+
+  supported_bits = tvb_get_ntohl(tvb, offset + 2);
+  tf = proto_tree_add_text(tree, tvb, offset, length, 
+	      "%s: Supported Bits: 0x%08X", optp->name, supported_bits);
+  flags_tree = proto_item_add_subtree(tf, ett_ccp_mppc_opt);
+  proto_tree_add_text(flags_tree, tvb, offset + 2, 4, "%s",
+      decode_boolean_bitfield(supported_bits, MPPC_SUPPORTED_BITS_C, 8*4, 
+      "Desire to negotiate MPPC", "NOT Desire to negotiate MPPC"));
+  proto_tree_add_text(flags_tree, tvb, offset + 2, 4, "%s",
+      decode_boolean_bitfield(supported_bits, MPPE_SUPPORTED_BITS_D, 8*4, 
+      "Obsolete (should NOT be 1)", "Obsolete (should ALWAYS be 0)"));
+  proto_tree_add_text(flags_tree, tvb, offset + 2, 4, "%s",
+      decode_boolean_bitfield(supported_bits, MPPE_SUPPORTED_BITS_L, 8*4, 
+      "40-bit encryption ON", "40-bit encryption OFF"));
+  proto_tree_add_text(flags_tree, tvb, offset + 2, 4, "%s",
+      decode_boolean_bitfield(supported_bits, MPPE_SUPPORTED_BITS_S, 8*4, 
+      "56-bit encryption ON", "56-bit encryption OFF"));
+  proto_tree_add_text(flags_tree, tvb, offset + 2, 4, "%s",
+      decode_boolean_bitfield(supported_bits, MPPE_SUPPORTED_BITS_M, 8*4, 
+      "128-bit encryption ON", "128-bit encryption OFF"));
+  proto_tree_add_text(flags_tree, tvb, offset + 2, 4, "%s",
+      decode_boolean_bitfield(supported_bits, MPPE_SUPPORTED_BITS_H, 8*4, 
+      "Stateless mode ON", "Stateless mode OFF"));
+}
+
+static void
+dissect_ccp_lzsdcp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, frame_data *fd,
+			proto_tree *tree)
+{
+  proto_item *tf;
+  guint8 check_mode;
+  guint8 process_mode;
+
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+
+  proto_tree_add_text(tf, tvb, offset + 2, 2,
+		      "History Count: %u", tvb_get_ntohs(tvb, offset + 2));
+  check_mode = tvb_get_guint8(tvb, offset + 4);
+  proto_tree_add_text(tf, tvb, offset + 4, 1, "Check Mode: %s (0x%02X)", 
+      val_to_str(check_mode, lzsdcp_checkmode_vals, "Unknown"), check_mode); 
+  process_mode = tvb_get_guint8(tvb, offset + 5);
+  proto_tree_add_text(tf, tvb, offset + 5, 1, "Process Mode: %s (0x%02X)", 
+      val_to_str(process_mode, lzsdcp_processmode_vals, "Unkown"), process_mode); 
+}
+
+static void
 dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 	const value_string *proto_vals, int options_subtree_index,
 	const ip_tcp_opt *opts, int nopts, packet_info *pinfo, proto_tree *tree ) {
@@ -1311,6 +1529,34 @@ dissect_ipcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   dissect_cp(tvb, proto_ipcp, ett_ipcp, cp_vals, ett_ipcp_options,
 	     ipcp_opts, N_IPCP_OPTS, pinfo, tree);
+}
+
+static void
+dissect_ccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_cp(tvb, proto_ccp, ett_ccp, ccp_vals, ett_ccp_options,
+	     ccp_opts, N_CCP_OPTS, pinfo, tree);
+}
+
+static void
+dissect_comp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_item *ti;
+  proto_tree *comp_data_tree;
+
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_set_str(pinfo->fd, COL_PROTOCOL, 
+		proto_get_protocol_short_name(proto_comp_data));
+
+  if(check_col(pinfo->fd, COL_INFO))
+    col_add_fstr(pinfo->fd, COL_INFO, "%s %s",
+		 proto_get_protocol_short_name(proto_comp_data),
+		 val_to_str(PPP_COMP, ppp_vals, "Unknown"));
+
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_comp_data, tvb, 0, tvb_length(tvb), FALSE);
+    comp_data_tree = proto_item_add_subtree(ti, ett_comp_data);
+  }
 }
 
 #define MP_FRAG_MASK     0xC0
@@ -1839,6 +2085,58 @@ proto_reg_handoff_ipcp(void)
    * registering with the "ethertype" dissector table.
    */
   dissector_add("ethertype", PPP_IPCP, dissect_ipcp, proto_ipcp);
+}
+
+void
+proto_register_ccp(void)
+{
+  static gint *ett[] = {
+    &ett_ccp,
+    &ett_ccp_options,
+    &ett_ccp_stac_opt,
+    &ett_ccp_mppc_opt,
+    &ett_ccp_lzsdcp_opt
+  };
+
+  proto_ccp = proto_register_protocol("PPP Compression Control Protocol", 
+				      "PPP CCP", "ccp");
+  proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_ccp(void)
+{
+  dissector_add("ppp.protocol", PPP_CCP, dissect_ccp, proto_ccp);
+
+  /*
+   * See above comment about NDISWAN for an explanation of why we're
+   * registering with the "ethertype" dissector table.
+   */
+  dissector_add("ethertype", PPP_CCP, dissect_ccp, proto_ccp);
+}
+
+void
+proto_register_comp_data(void)
+{
+  static gint *ett[] = {
+    &ett_comp_data
+  };
+
+  proto_comp_data = proto_register_protocol("PPP Compressed Datagram",
+				      "PPP Comp", "comp_data");
+  proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_comp_data(void)
+{
+  dissector_add("ppp.protocol", PPP_COMP, dissect_comp_data, proto_comp_data);
+
+  /*
+   * See above comment about NDISWAN for an explanation of why we're
+   * registering with the "ethertype" dissector table.
+   */
+  dissector_add("ethertype", PPP_COMP, dissect_comp_data, proto_comp_data);
 }
 
 void
