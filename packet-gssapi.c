@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@samba.org> Added a few 
  *		   bits and pieces ...
  *
- * $Id: packet-gssapi.c,v 1.22 2002/11/06 23:36:25 guy Exp $
+ * $Id: packet-gssapi.c,v 1.23 2002/11/06 23:38:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -209,8 +209,13 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   * We need to make it per-frame data as there can be
 		   * more than one GSS-API negotiation in a conversation.
 		   *
-		   * Note! We cheat. Since we only need the dissector handle,
-		   * we store that as the data.
+		   * Note! We "cheat". Since we only need the dissector
+		   * handle, we store that as the data.  (That's not
+		   * really "cheating" - the per-frame data and per-
+		   * conversation data code doesn't care what you
+		   * supply as a handle; it just treats it as an opaque
+		   * pointer, it doesn't dereference it or free what
+		   * it points to.)
 		   */
 		  handle = p_get_proto_data(pinfo->fd, proto_gssapi);
 		  if (!handle && !pinfo->fd->flags.visited)
