@@ -4,7 +4,7 @@
  * Creates random packet traces. Useful for debugging sniffers by testing
  * assumptions about the veracity of the data found in the packet.
  *
- * $Id: randpkt.c,v 1.5 1999/10/07 07:55:12 guy Exp $
+ * $Id: randpkt.c,v 1.6 2000/05/19 02:42:16 gram Exp $
  *
  * Copyright (C) 1999 by Gilbert Ramirez <gram@xiexie.org>
  * 
@@ -225,6 +225,7 @@ main(int argc, char **argv)
 
 	wtap_dumper		*dump;
 	struct wtap_pkthdr	pkthdr;
+	union pseudo_header	ps_header;
 	int 			i, j, len_this_pkt, len_random, err;
 	guint8			buffer[65536];
 
@@ -314,7 +315,7 @@ main(int argc, char **argv)
 			buffer[j] = (rand() % 0x100);
 		}
 
-		wtap_dump(dump, &pkthdr, &buffer[0], &err);
+		wtap_dump(dump, &pkthdr, &ps_header, &buffer[0], &err);
 	}
 
 	wtap_dump_close(dump, &err);
