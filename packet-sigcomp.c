@@ -2,7 +2,7 @@
  * Routines for Signaling Compression (SigComp) dissection.
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id: packet-sigcomp.c,v 1.1 2004/06/28 22:39:56 etxrab Exp $
+ * $Id: packet-sigcomp.c,v 1.2 2004/06/29 05:50:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -362,7 +362,7 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			len = 1;
 			octet = tvb_get_guint8(tvb, offset);
-			if ( octet & 0x80 != 0 ){
+			if ( (octet & 0x80) != 0 ){
 				len = octet & 0x7f;
 				proto_tree_add_uint(sigcomp_tree,hf_sigcomp_returned_feedback_item_len,
 					tvb, offset, 1, len);
@@ -1551,7 +1551,7 @@ dissect_udvm_multitype_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree
 						if ( display_udvm_bytecode )
 							proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_multitype_bytecode,
 								udvm_tvb, offset, 1, display_bytecode);
-						if ( bytecode & 0x01 == 1 )
+						if ( (bytecode & 0x01) == 1 )
 							*is_memory_address = TRUE;
 						offset ++;
 						operand = tvb_get_ntohs(udvm_tvb, offset);
@@ -1647,228 +1647,228 @@ proto_register_sigcomp(void)
 		{ &hf_sigcomp_t_bit,
 			{ "T bit", "sigcomp.t.bit",
 			FT_UINT8, BASE_DEC, NULL, 0x04,          
-			"Sigcomp T bit" }
+			"Sigcomp T bit", HFILL }
 		},
 		{ &hf_sigcomp_len,
 			{ "Partial state id. len.","sigcomp.length",
 			FT_UINT8, BASE_HEX, VALS(&length_encoding_vals), 0x03,          
-			"Sigcomp length" }
+			"Sigcomp length", HFILL }
 		},
 		{ &hf_sigcomp_returned_feedback_item,
 			{ "Returned_feedback item", "sigcomp.returned.feedback.item",
 			FT_BYTES, BASE_HEX, NULL, 0x0,          
-			"Returned feedback item" }
+			"Returned feedback item", HFILL }
 		},
 		{ &hf_sigcomp_partial_state,
 			{ "Partial state identifier", "sigcomp.partial.state.identifier",
 			FT_BYTES, BASE_HEX, NULL, 0x0,          
-			"Partial state identifier" }
+			"Partial state identifier", HFILL }
 		},
 		{ &hf_sigcomp_returned_feedback_item_len,
 			{ "Returned feedback item length", "sigcomp.returned.feedback.item.len",
 			FT_UINT8, BASE_DEC, NULL, 0x0,          
-			"Returned feedback item length" }
+			"Returned feedback item length", HFILL }
 		},
 		{ &hf_sigcomp_code_len,
 			{ "Code length","sigcomp.code.len",
 			FT_UINT16, BASE_HEX, NULL, 0x0,          
-			"Code length" }
+			"Code length", HFILL }
 		},
 		{ &hf_sigcomp_destination,
 			{ "Destination","sigcomp.destination",
 			FT_UINT8, BASE_HEX, VALS(&destination_address_encoding_vals), 0xf,          
-			"Destination" }
+			"Destination", HFILL }
 		},
 		{ &hf_sigcomp_udvm_instr,
 			{ "UDVM instruction code","sigcomp.udvm.instr",
 			FT_UINT8, BASE_DEC, VALS(&udvm_instruction_code_vals), 0x0,          
-			"UDVM instruction code" }
+			"UDVM instruction code", HFILL }
 		},
 		{ &hf_udvm_multitype_bytecode,
 			{ "UDVM bytecode", "sigcomp.udvm.bytecode",
 			FT_UINT8, BASE_HEX, VALS(&display_bytecode_vals), 0x0,          
-			"UDVM bytecode" }
+			"UDVM bytecode", HFILL }
 		},
 		{ &hf_udvm_operand,
 			{ "UDVM operand", "sigcomp.udvm.operand",
 			FT_UINT16, BASE_HEX, NULL, 0x0,          
-			"UDVM operand" }
+			"UDVM operand", HFILL }
 		},
 		{ &hf_udvm_length,
 			{ " %Length", "sigcomp.udvm.length",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Length" }
+			"Length", HFILL }
 		},
 		{ &hf_udvm_destination,
 			{ " %Destination", "sigcomp.udvm.destination",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Destination" }
+			"Destination", HFILL }
 		},
 		{ &hf_udvm_at_address,
 			{ " @Address(mem_add_of_inst + D) mod 2^16)", "sigcomp.udvm.at.address",
 			FT_UINT16, BASE_HEX, NULL, 0x0,          
-			"Address" }
+			"Address", HFILL }
 		},
 		{ &hf_udvm_address,
 			{ " %Address", "sigcomp.udvm.length",
 			FT_UINT16, BASE_HEX, NULL, 0x0,          
-			"Address" }
+			"Address", HFILL }
 		},
 		{ &hf_udvm_literal_num,
 			{ " #n", "sigcomp.udvm.literal-num",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Literal number" }
+			"Literal number", HFILL }
 		},
 		{ &hf_udvm_value,
 			{ " %Value", "sigcomp.udvm.value",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Value" }
+			"Value", HFILL }
 		},
 		{ &hf_udvm_addr_value,
 			{ " %Value[memory address]", "sigcomp.udvm.value",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Value" }
+			"Value", HFILL }
 		},
 		{ &hf_partial_identifier_start,
 			{ " %Partial identifier start", "sigcomp.udvm.partial.identifier.start",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Partial identifier start" }
+			"Partial identifier start", HFILL }
 		},
 		{ &hf_partial_identifier_length,
 			{ " %Partial identifier length", "sigcomp.udvm.partial.identifier.length",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Partial identifier length" }
+			"Partial identifier length", HFILL }
 		},
 		{ &hf_state_begin,
 			{ " %State begin", "sigcomp.udvm.state.begin",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"State begin" }
+			"State begin", HFILL }
 		},
 		{ &hf_udvm_state_length,
 			{ " %State length", "sigcomp.udvm.state.length",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"State length" }
+			"State length", HFILL }
 		},
 
 		{ &hf_udvm_state_length_addr,
 			{ " %State length[memory address]", "sigcomp.udvm.state.length.addr",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"State length" }
+			"State length", HFILL }
 		},
 		{ &hf_udvm_state_address,
 			{ " %State address", "sigcomp.udvm.start.address",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"State address" }
+			"State address", HFILL }
 		},
 		{ &hf_udvm_state_address_addr,
 			{ " %State address[memory address]", "sigcomp.udvm.start.address.addr",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"State address" }
+			"State address", HFILL }
 		},
 		{ &hf_udvm_state_instr,
 			{ " %State instruction", "sigcomp.udvm.start.instr",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"State instruction" }
+			"State instruction", HFILL }
 		},
 		{ &hf_udvm_operand_1,
 			{ " $Operand 1[memory address]", "sigcomp.udvm.operand.1",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Reference $ Operand 1" }
+			"Reference $ Operand 1", HFILL }
 		},
 		{ &hf_udvm_operand_2,
 			{ " %Operand 2", "sigcomp.udvm.operand.2",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Operand 2" }
+			"Operand 2", HFILL }
 		},
 		{ &hf_udvm_operand_2_addr,
 			{ " %Operand 2[memory address]", "sigcomp.udvm.operand.2.addr",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Operand 2" }
+			"Operand 2", HFILL }
 		},
 		{ &hf_udvm_j,
 			{ " %j", "sigcomp.udvm.j",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"j" }
+			"j", HFILL }
 		},
 		{ &hf_udvm_output_start,
 			{ " %Output_start", "sigcomp.output.start",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Output start" }
+			"Output start", HFILL }
 		},
 		{ &hf_udvm_output_start_addr,
 			{ " %Output_start[memory address]", "sigcomp.output.start.addr",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Output start" }
+			"Output start", HFILL }
 		},
 		{ &hf_udvm_output_length,
 			{ " %Output_length", "sigcomp.output.length",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Output length" }
+			"Output length", HFILL }
 		},
 		{ &hf_udvm_output_length_addr,
 			{ " %Output_length[memory address]", "sigcomp.output.length.addr",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Output length" }
+			"Output length", HFILL }
 		},
 		{ &hf_udvm_req_feedback_loc,
 			{ " %Requested feedback location", "sigcomp.req.feedback.loc",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
-			"Requested feedback location" }
+			"Requested feedback location", HFILL }
 		},
 		{ &hf_udvm_min_acc_len,
 			{ " %Minimum access length", "sigcomp.min.acc.len",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Output length" }
+			"Output length", HFILL }
 		},
 		{ &hf_udvm_state_ret_pri,
 			{ " %State retention priority", "sigcomp.udvm.state.ret.pri",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Output length" }
+			"Output length", HFILL }
 		},
 		{ &hf_udvm_ret_param_loc,
 			{ " %Returned parameters location", "sigcomp.ret.param.loc",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Output length" }
+			"Output length", HFILL }
 		},
 		{ &hf_udvm_position,
 			{ " %Position", "sigcomp.udvm.position",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Position" }
+			"Position", HFILL }
 		},
 		{ &hf_udvm_ref_dest,
 			{ " $Destination[memory address]", "sigcomp.udvm.ref.destination",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"(reference)Destination" }
+			"(reference)Destination", HFILL }
 		},
 		{ &hf_udvm_bits,
 			{ " %Bits", "sigcomp.udvm.bits",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Bits" }
+			"Bits", HFILL }
 		},
 		{ &hf_udvm_lower_bound,
 			{ " %Lower bound", "sigcomp.udvm.lower.bound",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Lower_bound" }
+			"Lower_bound", HFILL }
 		},
 		{ &hf_udvm_upper_bound,
 			{ " %Upper bound", "sigcomp.udvm.upper.bound",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Upper bound" }
+			"Upper bound", HFILL }
 		},
 		{ &hf_udvm_uncompressed,
 			{ " %Uncompressed", "sigcomp.udvm.uncompressed",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Uncompressed" }
+			"Uncompressed", HFILL }
 		},
 		{ &hf_udvm_start_value,
 			{ " %Start value", "sigcomp.udvm.start.value",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Start value" }
+			"Start value", HFILL }
 		},
 		{ &hf_udvm_offset,
 			{ " %Offset", "sigcomp.udvm.offset",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Offset" }
+			"Offset", HFILL }
 		},
 	};
 
