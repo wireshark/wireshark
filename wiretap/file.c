@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.60 2000/08/11 13:32:36 deniel Exp $
+ * $Id: file.c,v 1.61 2000/09/15 07:52:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -265,6 +265,10 @@ const static struct file_type_info {
 
 	/* WTAP_FILE_PCAP_SS991029 */
 	{ "modified libpcap (tcpdump)", "modlibpcap",
+	  libpcap_dump_can_write_encap, libpcap_dump_open },
+
+	/* WTAP_FILE_PCAP_NOKIA */
+	{ "Nokia libpcap (tcpdump)", "nokialibpcap",
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_LANALYZER */

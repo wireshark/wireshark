@@ -1,6 +1,6 @@
 /* libpcap.h
  *
- * $Id: libpcap.h,v 1.9 2000/08/11 13:32:35 deniel Exp $
+ * $Id: libpcap.h,v 1.10 2000/09/15 07:52:43 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -84,6 +84,12 @@ struct pcaprec_ss990915_hdr {
 	guint8 pkt_type;	/* broadcast/multicast/etc. indication */
 	guint8 cpu1, cpu2;	/* SMP debugging gunk? */
 	guint8 pad[3];		/* pad to a 4-byte boundary */
+};
+
+/* "libpcap" record header for version used on some Nokia boxes (firewalls?) */
+struct pcaprec_nokia_hdr {
+	struct pcaprec_hdr hdr;	/* the regular header */
+	guint8 stuff[4];	/* mysterious stuff */
 };
 
 int libpcap_open(wtap *wth, int *err);

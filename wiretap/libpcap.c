@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.40 2000/09/12 18:35:47 guy Exp $
+ * $Id: libpcap.c,v 1.41 2000/09/15 07:52:42 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -38,7 +38,18 @@
 #define BIT_SWAPPED_MAC_ADDRS
 #endif
 
+
+/* Try to read the first two records of the capture file. */
+typedef enum {
+	THIS_FORMAT,		/* the reads succeeded, assume it's this format */
+	BAD_READ,		/* the file is probably not valid */
+	OTHER_FORMAT		/* the file may be valid, but not in this format */
+} libpcap_try_t;
+static libpcap_try_t libpcap_try(wtap *wth, int *err);
+
 static gboolean libpcap_read(wtap *wth, int *err, int *data_offset);
+static int libpcap_read_header(wtap *wth, int *err,
+    struct pcaprec_ss990915_hdr *hdr, gboolean silent);
 static void adjust_header(wtap *wth, struct pcaprec_hdr *hdr);
 static void libpcap_close(wtap *wth);
 static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
@@ -303,9 +314,6 @@ int libpcap_open(wtap *wth, int *err)
 	gboolean byte_swapped;
 	gboolean modified;
 	int file_encap;
-	struct pcaprec_modified_hdr first_rec_hdr;
-	struct pcaprec_modified_hdr second_rec_hdr;
-	int hdr_len;
 
 	/* Read in the number that should be at the start of a "libpcap" file */
 	file_seek(wth->fh, 0, SEEK_SET);
@@ -391,7 +399,6 @@ int libpcap_open(wtap *wth, int *err)
 	}
 
 	/* This is a libpcap file */
-	wth->file_type = modified ? WTAP_FILE_PCAP_SS991029 : WTAP_FILE_PCAP;
 	wth->capture.pcap = g_malloc(sizeof(libpcap_t));
 	wth->capture.pcap->byte_swapped = byte_swapped;
 	wth->capture.pcap->version_major = hdr.version_major;
@@ -430,133 +437,228 @@ int libpcap_open(wtap *wth, int *err)
 	 *	6.3, meaning that programs expecting the standard per-
 	 *	packet header in captures with the modified magic number
 	 *	can't read dumps from its tcpdump.
+	 *
+	 * Oh, and if it has the standard magic number, it might, instead,
+	 * be a Nokia libpcap file, so we may need to try that if
+	 * neither normal nor ss990417 headers work.
 	 */
-	hdr_len = modified ? sizeof (struct pcaprec_modified_hdr) :
-			     sizeof (struct pcaprec_hdr);
-	bytes_read = file_read(&first_rec_hdr, 1, hdr_len, wth->fh);
-	if (bytes_read != hdr_len) {
-		*err = file_error(wth->fh);
-		if (*err != 0)
-			return -1;	/* failed to read it */
+	if (modified) {
+		/*
+		 * Well, we have the magic number from Alexey's
+		 * later two patches.
+		 *
+		 * Try ss991029, the last of his patches, first.
+		 */
+		wth->file_type = WTAP_FILE_PCAP_SS991029;
+		switch (libpcap_try(wth, err)) {
+
+		case BAD_READ:
+			/*
+			 * Well, we couldn't even read it.
+			 * Give up.
+			 */
+			return -1;
+
+		case THIS_FORMAT:
+			/*
+			 * Well, it looks as if it might be 991029.
+			 * Put the seek pointer back, and return success.
+			 */
+			file_seek(wth->fh, wth->data_offset, SEEK_SET);
+			return 1;
+
+		case OTHER_FORMAT:
+			/*
+			 * Try the next format.
+			 */
+			break;
+		}
 
 		/*
-		 * Short read - assume the file isn't modified,
-		 * and put the seek pointer back.  The attempt
-		 * to read the first packet will presumably get
-		 * the same short read.
+		 * Well, it's not completely unreadable,
+		 * but it's not ss991029.  Try ss990915;
+		 * there are no other types to try after that,
+		 * so we put the seek pointer back and treat
+		 * it as 990915.
 		 */
-		goto give_up;
-	}
-
-	adjust_header(wth, &first_rec_hdr.hdr);
-
-	if (first_rec_hdr.hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
+		wth->file_type = WTAP_FILE_PCAP_SS990915;
+		file_seek(wth->fh, wth->data_offset, SEEK_SET);
+	} else {
 		/*
-		 * The first record is bogus, so this is probably
-		 * a corrupt file.  Assume the file has the
-		 * expected header type, and put the seek pointer
-		 * back.  The attempt to read the first packet will
-		 * probably get the same bogus length.
+		 * Well, we have the standard magic number.
+		 *
+		 * Try the standard format first.
 		 */
-		goto give_up;
-	}
+		wth->file_type = WTAP_FILE_PCAP;
+		switch (libpcap_try(wth, err)) {
 
-	file_seek(wth->fh,
-	    wth->data_offset + hdr_len + first_rec_hdr.hdr.incl_len, SEEK_SET);
-	bytes_read = file_read(&second_rec_hdr, 1, hdr_len, wth->fh);
+		case BAD_READ:
+			/*
+			 * Well, we couldn't even read it.
+			 * Give up.
+			 */
+			return -1;
 
-	/*
-	 * OK, does the next packet's header look sane?
-	 */
-	if (bytes_read != hdr_len) {
-		*err = file_error(wth->fh);
-		if (*err != 0)
-			return -1;	/* failed to read it */
+		case THIS_FORMAT:
+			/*
+			 * Well, it looks as if it might be a standard
+			 * libpcap file.
+			 * Put the seek pointer back, and return success.
+			 */
+			file_seek(wth->fh, wth->data_offset, SEEK_SET);
+			return 1;
+
+		case OTHER_FORMAT:
+			/*
+			 * Try the next format.
+			 */
+			break;
+		}
 
 		/*
-		 * Short read - assume the file has the expected
-		 * header type, and put the seek pointer back.  The
-		 * attempt to read the second packet will presumably get
-		 * the same short read error.
+		 * Well, it's not completely unreadable, but it's not
+		 * a standard file.  Put the seek pointer back and try
+		 * ss990417.
 		 */
-		goto give_up;
-	}
+		wth->file_type = WTAP_FILE_PCAP_SS990417;
+		file_seek(wth->fh, wth->data_offset, SEEK_SET);
+		switch (libpcap_try(wth, err)) {
 
-	adjust_header(wth, &second_rec_hdr.hdr);
-	if (second_rec_hdr.hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
+		case BAD_READ:
+			/*
+			 * Well, we couldn't even read it.
+			 * Give up.
+			 */
+			return -1;
+
+		case THIS_FORMAT:
+			/*
+			 * Well, it looks as if it might be ss990417.
+			 * Put the seek pointer back, and return success.
+			 */
+			file_seek(wth->fh, wth->data_offset, SEEK_SET);
+			return 1;
+
+		case OTHER_FORMAT:
+			/*
+			 * Try the next format.
+			 */
+			break;
+		}
+
 		/*
-		 * Oh, dear.  Maybe it's a Capture File
-		 * From Hell, and what looks like the
-		 * "header" of the next packet is actually
-		 * random junk from the middle of a packet.
-		 * Try treating it as having the other type for
-		 * the magic number it had; if that doesn't work,
-		 * it probably *is* a corrupt file.
+		 * Well, it's not completely unreadable,
+		 * but it's not a standard file *nor* is it ss990417.
+		 * Try it as a Nokia file; there are no other types
+		 * to try after that, so we put the seek pointer back
+		 * and treat it as a Nokia file.
 		 */
-		wth->file_type = modified ? WTAP_FILE_PCAP_SS990915 :
-					    WTAP_FILE_PCAP_SS990417;
+		wth->file_type = WTAP_FILE_PCAP_NOKIA;
+		file_seek(wth->fh, wth->data_offset, SEEK_SET);
 	}
-
-give_up:
-	/*
-	 * Restore the seek pointer.
-	 */
-	file_seek(wth->fh, wth->data_offset, SEEK_SET);
 
 	return 1;
+}
+
+/* Try to read the first two records of the capture file. */
+static libpcap_try_t libpcap_try(wtap *wth, int *err)
+{
+	/*
+	 * pcaprec_ss990915_hdr is the largest header type.
+	 */
+	struct pcaprec_ss990915_hdr first_rec_hdr, second_rec_hdr;
+
+	/*
+	 * Attempt to read the first record's header.
+	 */
+	if (libpcap_read_header(wth, err, &first_rec_hdr, TRUE) == -1) {
+		if (*err == WTAP_ERR_SHORT_READ) {
+			/*
+			 * Short read - assume the file is in this format.
+			 * When our client tries to read the first packet
+			 * they will presumably get the same short read.
+			 */
+			return THIS_FORMAT;
+		}
+
+		if (*err == WTAP_ERR_BAD_RECORD) {
+			/*
+			 * The first record is bogus, so this is probably
+			 * a corrupt file.  Assume the file is in this
+			 * format.  When our client tries to read the
+			 * first packet they will presumably get the
+			 * same bogus record.
+			 */
+			return THIS_FORMAT;
+		}
+
+		/*
+		 * Some other error, e.g. an I/O error; just give up.
+		 */
+		return BAD_READ;
+	}
+
+	/*
+	 * Now skip over the first record's data, under the assumption
+	 * that the header is sane.
+	 */
+	file_seek(wth->fh, first_rec_hdr.hdr.incl_len, SEEK_CUR);
+
+	/*
+	 * Now attempt to read the second record's header.
+	 */
+	if (libpcap_read_header(wth, err, &second_rec_hdr, TRUE) == -1) {
+		if (*err == WTAP_ERR_SHORT_READ) {
+			/*
+			 * Short read - assume the file is in this format.
+			 * When our client tries to read the second packet
+			 * they will presumably get the same short read.
+			 */
+			return THIS_FORMAT;
+		}
+
+		if (*err == WTAP_ERR_BAD_RECORD) {
+			/*
+			 * The second record is bogus; maybe it's a
+			 * Capture File From Hell, and what looks like
+			 * the "header" of the next packet is actually
+			 * random junk from the middle of a packet.
+			 * Try the next format; if we run out of formats,
+			 * it probably *is* a corrupt file.
+			 */
+			return OTHER_FORMAT;
+		}
+
+		/*
+		 * Some other error, e.g. an I/O error; just give up.
+		 */
+		return BAD_READ;
+	}
+
+	/*
+	 * OK, the first two records look OK; assume this is the
+	 * right format.
+	 */
+	return THIS_FORMAT;
 }
 
 /* Read the next packet */
 static gboolean libpcap_read(wtap *wth, int *err, int *data_offset)
 {
-	guint	packet_size;
-	int	bytes_to_read, bytes_read;
 	struct pcaprec_ss990915_hdr hdr;
+	guint packet_size;
+	int bytes_read;
 
-	/* Read record header. */
-	errno = WTAP_ERR_CANT_READ;
-	switch (wth->file_type) {
-
-	case WTAP_FILE_PCAP:
-		bytes_to_read = sizeof (struct pcaprec_hdr);
-		break;
-
-	case WTAP_FILE_PCAP_SS990417:
-	case WTAP_FILE_PCAP_SS991029:
-		bytes_to_read = sizeof (struct pcaprec_modified_hdr);
-		break;
-
-	case WTAP_FILE_PCAP_SS990915:
-		bytes_to_read = sizeof (struct pcaprec_ss990915_hdr);
-		break;
-
-	default:
-		g_assert_not_reached();
-		bytes_to_read = 0;
-	}
-	bytes_read = file_read(&hdr, 1, bytes_to_read, wth->fh);
-	if (bytes_read != bytes_to_read) {
-		*err = file_error(wth->fh);
-		if (*err == 0 && bytes_read != 0) {
-			*err = WTAP_ERR_SHORT_READ;
-		}
-		return FALSE;
-	}
-	wth->data_offset += bytes_read;
-
-	adjust_header(wth, &hdr.hdr);
-
-	packet_size = hdr.hdr.incl_len;
-	if (packet_size > WTAP_MAX_PACKET_SIZE) {
+	bytes_read = libpcap_read_header(wth, err, &hdr, FALSE);
+	if (bytes_read == -1) {
 		/*
-		 * Probably a corrupt capture file; don't blow up trying
-		 * to allocate space for an immensely-large packet.
+		 * We failed to read the header.
 		 */
-		g_message("pcap: File has %u-byte packet, bigger than maximum of %u",
-		    packet_size, WTAP_MAX_PACKET_SIZE);
-		*err = WTAP_ERR_BAD_RECORD;
 		return FALSE;
 	}
+
+	wth->data_offset += bytes_read;
+	packet_size = hdr.hdr.incl_len;
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	*data_offset = wth->data_offset;
@@ -579,6 +681,89 @@ static gboolean libpcap_read(wtap *wth, int *err, int *data_offset)
 	wth->phdr.pkt_encap = wth->file_encap;
 
 	return TRUE;
+}
+
+/* Read the header of the next packet; if "silent" is TRUE, don't complain
+   to the console, as we're testing to see if the file appears to be of a
+   particular type.
+
+   Return -1 on an error, or the number of bytes of header read on success. */
+static int libpcap_read_header(wtap *wth, int *err,
+    struct pcaprec_ss990915_hdr *hdr, gboolean silent)
+{
+	int	bytes_to_read, bytes_read;
+
+	/* Read record header. */
+	errno = WTAP_ERR_CANT_READ;
+	switch (wth->file_type) {
+
+	case WTAP_FILE_PCAP:
+		bytes_to_read = sizeof (struct pcaprec_hdr);
+		break;
+
+	case WTAP_FILE_PCAP_SS990417:
+	case WTAP_FILE_PCAP_SS991029:
+		bytes_to_read = sizeof (struct pcaprec_modified_hdr);
+		break;
+
+	case WTAP_FILE_PCAP_SS990915:
+		bytes_to_read = sizeof (struct pcaprec_ss990915_hdr);
+		break;
+
+	case WTAP_FILE_PCAP_NOKIA:
+		bytes_to_read = sizeof (struct pcaprec_nokia_hdr);
+		break;
+
+	default:
+		g_assert_not_reached();
+		bytes_to_read = 0;
+	}
+	bytes_read = file_read(hdr, 1, bytes_to_read, wth->fh);
+	if (bytes_read != bytes_to_read) {
+		*err = file_error(wth->fh);
+		if (*err == 0 && bytes_read != 0) {
+			*err = WTAP_ERR_SHORT_READ;
+		}
+		return -1;
+	}
+
+	adjust_header(wth, &hdr->hdr);
+
+	if (hdr->hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
+		/*
+		 * Probably a corrupt capture file; return an error,
+		 * so that our caller doesn't blow up trying to allocate
+		 * space for an immensely-large packet, and so that
+		 * the code to try to guess what type of libpcap file
+		 * this is can tell when it's not the type we're guessing
+		 * it is.
+		 */
+		if (!silent) {
+			g_message("pcap: File has %u-byte packet, bigger than maximum of %u",
+			    hdr->hdr.incl_len, WTAP_MAX_PACKET_SIZE);
+		}
+		*err = WTAP_ERR_BAD_RECORD;
+		return -1;
+	}
+
+	if (hdr->hdr.orig_len > WTAP_MAX_PACKET_SIZE) {
+		/*
+		 * Probably a corrupt capture file; return an error,
+		 * so that our caller doesn't blow up trying to
+		 * cope with a huge "real" packet length, and so that
+		 * the code to try to guess what type of libpcap file
+		 * this is can tell when it's not the type we're guessing
+		 * it is.
+		 */
+		if (!silent) {
+			g_message("pcap: File has %u-byte packet, bigger than maximum of %u",
+			    hdr->hdr.orig_len, WTAP_MAX_PACKET_SIZE);
+		}
+		*err = WTAP_ERR_BAD_RECORD;
+		return -1;
+	}
+
+	return bytes_read;
 }
 
 static void
@@ -680,6 +865,7 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 
 	case WTAP_FILE_PCAP:
 	case WTAP_FILE_PCAP_SS990417:	/* modified, but with the old magic, sigh */
+	case WTAP_FILE_PCAP_NOKIA:	/* Nokia libpcap of some sort */
 		magic = PCAP_MAGIC;
 		break;
 
@@ -776,6 +962,15 @@ static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		rec_hdr.cpu1 = 0;
 		rec_hdr.cpu2 = 0;
 		hdr_size = sizeof (struct pcaprec_ss990915_hdr);
+		break;
+
+	case WTAP_FILE_PCAP_NOKIA:	/* old magic, extra crap at the end */
+		rec_hdr.ifindex = 0;
+		rec_hdr.protocol = 0;
+		rec_hdr.pkt_type = 0;
+		rec_hdr.cpu1 = 0;
+		rec_hdr.cpu2 = 0;
+		hdr_size = sizeof (struct pcaprec_nokia_hdr);
 		break;
 
 	default:

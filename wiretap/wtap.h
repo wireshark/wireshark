@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.78 2000/09/07 05:34:23 gram Exp $
+ * $Id: wtap.h,v 1.79 2000/09/15 07:52:43 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -98,34 +98,35 @@
 #define WTAP_NUM_ENCAP_TYPES			17
 
 /* File types that can be read by wiretap.
-   We may eventually support writing some or all of these file types,
-   too, so we distinguish between different versions of them. */
+   We support writing some many of these file types, too, so we
+   distinguish between different versions of them. */
 #define WTAP_FILE_UNKNOWN			0
 #define WTAP_FILE_WTAP				1
 #define WTAP_FILE_PCAP				2
 #define WTAP_FILE_PCAP_SS990417			3
 #define WTAP_FILE_PCAP_SS990915			4
 #define WTAP_FILE_PCAP_SS991029			5
-#define WTAP_FILE_LANALYZER			6
-#define WTAP_FILE_NGSNIFFER_UNCOMPRESSED	7
-#define WTAP_FILE_NGSNIFFER_COMPRESSED		8
-#define WTAP_FILE_SNOOP				9
-#define WTAP_FILE_IPTRACE_1_0			10
-#define WTAP_FILE_IPTRACE_2_0			11
-#define WTAP_FILE_NETMON_1_x			12
-#define WTAP_FILE_NETMON_2_x			13
-#define WTAP_FILE_NETXRAY_1_0			14
-#define WTAP_FILE_NETXRAY_1_1			15
-#define WTAP_FILE_NETXRAY_2_00x			16
-#define WTAP_FILE_RADCOM			17
-#define WTAP_FILE_ASCEND			18
-#define WTAP_FILE_NETTL				19
-#define WTAP_FILE_TOSHIBA			20
-#define WTAP_FILE_I4BTRACE			21
-#define WTAP_FILE_CSIDS				22
+#define WTAP_FILE_PCAP_NOKIA			6
+#define WTAP_FILE_LANALYZER			7
+#define WTAP_FILE_NGSNIFFER_UNCOMPRESSED	8
+#define WTAP_FILE_NGSNIFFER_COMPRESSED		9
+#define WTAP_FILE_SNOOP				10
+#define WTAP_FILE_IPTRACE_1_0			11
+#define WTAP_FILE_IPTRACE_2_0			12
+#define WTAP_FILE_NETMON_1_x			13
+#define WTAP_FILE_NETMON_2_x			14
+#define WTAP_FILE_NETXRAY_1_0			15
+#define WTAP_FILE_NETXRAY_1_1			16
+#define WTAP_FILE_NETXRAY_2_00x			17
+#define WTAP_FILE_RADCOM			18
+#define WTAP_FILE_ASCEND			19
+#define WTAP_FILE_NETTL				20
+#define WTAP_FILE_TOSHIBA			21
+#define WTAP_FILE_I4BTRACE			22
+#define WTAP_FILE_CSIDS				23
 
 /* last WTAP_FILE_ value + 1 */
-#define WTAP_NUM_FILE_TYPES			23
+#define WTAP_NUM_FILE_TYPES			24
 
 /*
  * Maximum packet size we'll support.
