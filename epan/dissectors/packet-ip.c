@@ -982,7 +982,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     memcpy(&addr, iph->ip_src.data, 4);
     if (ip_summary_in_tree) {
       proto_item_append_text(ti, ", Src Addr: %s (%s)",
-		get_hostname(addr), ip_to_str((guint8 *) iph->ip_src.data));
+		get_hostname(addr), ip_to_str(iph->ip_src.data));
     }
     proto_tree_add_ipv4(ip_tree, hf_ip_src, tvb, offset + 12, 4, addr);
     proto_tree_add_ipv4_hidden(ip_tree, hf_ip_addr, tvb, offset + 12, 4, addr);
@@ -996,7 +996,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     memcpy(&addr, iph->ip_dst.data, 4);
     if (ip_summary_in_tree) {
       proto_item_append_text(ti, ", Dst Addr: %s (%s)",
-		get_hostname(addr), ip_to_str((guint8 *) iph->ip_dst.data));
+		get_hostname(addr), ip_to_str(iph->ip_dst.data));
     }
     proto_tree_add_ipv4(ip_tree, hf_ip_dst, tvb, offset + 16, 4, addr);
     proto_tree_add_ipv4_hidden(ip_tree, hf_ip_addr, tvb, offset + 16, 4, addr);
