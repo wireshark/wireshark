@@ -248,8 +248,13 @@
 	<section id="ChLibsWin32SNMP">
 	<title>Win32 MSVC</title>
 	<para>
-	You can get the latest version at: 
+	Ethereal uses the source Net-SNMP distribution at 
 	<ulink url="http://sourceforge.net/projects/net-snmp/"/>.
+	Then libsnmp is compiled with the "libsnmp - Win32 Release" project 
+	using MSVC++ 6.0. A file called "README.ethereal" has been placed in the 
+	net-snmp zip archive at <ulink 
+	url="http://anonsvn.ethereal.com/ethereal-win32-libs/trunk/packages/"/>
+	describing the changes in more detail.
 	</para>
 	</section>
 		
