@@ -836,7 +836,6 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8 op_code;
   guint16 client_type;
   int object_len;
-  gchar *packetcable_cinfo = NULL;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "COPS");
