@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\lsarpc packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-lsa.c,v 1.4 2001/12/17 08:27:00 guy Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.5 2001/12/17 08:31:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -777,19 +777,21 @@ static int prs_NAME_AND_SID_ARRAY(tvbuff_t *tvb, int offset,
 		offset = prs_uint32(tvb, offset, pinfo, subtree, &count, 
 				    "Count");
 
-		if (!prs_pop_ptr(ptr_list, "NAME_AND_SIDs"))
-			goto done;
+		if (prs_pop_ptr(ptr_list, "NAME_AND_SIDs")) {
+			for (i = 0; i < count; i++) {
+				offset = prs_NAME_AND_SID(tvb, offset, pinfo,
+							  subtree,
+							  PARSE_SCALARS,
+							  ptr_list);
+			}
 
-		for (i = 0; i < count; i++) {
-			offset = prs_NAME_AND_SID(tvb, offset, pinfo, subtree,
-						  PARSE_SCALARS, ptr_list);
+			for (i = 0; i < count; i++) {
+				offset = prs_NAME_AND_SID(tvb, offset, pinfo,
+							  subtree,
+							  PARSE_BUFFERS,
+							  ptr_list);
+			}
 		}
-
-		for (i = 0; i < count; i++) {
-			offset = prs_NAME_AND_SID(tvb, offset, pinfo, subtree,
-						  PARSE_BUFFERS, ptr_list);
-		}
-	done:
 	}
 
 	return offset;
@@ -955,21 +957,20 @@ static int prs_SID_ARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					   "SID_ARRAY");
 		subtree = proto_item_add_subtree(item, ett_SID_ARRAY);
 
-		if (!prs_pop_ptr(ptr_list, "SIDs"))
-			goto done;
-		
-		offset = prs_uint32(tvb, offset, pinfo, subtree, &count, 
-				    "Count");
+		if (prs_pop_ptr(ptr_list, "SIDs")) {
+			offset = prs_uint32(tvb, offset, pinfo, subtree,
+					    &count, "Count");
 
-		for (i = 0; i < count; i++)
-			offset = prs_push_ptr(tvb, offset, pinfo, 
-					      subtree, ptr_list, "SID"); 
+			for (i = 0; i < count; i++)
+				offset = prs_push_ptr(tvb, offset, pinfo, 
+						      subtree, ptr_list, "SID"); 
 
-		for (i = 0; i < count; i++) {
-			if (prs_pop_ptr(ptr_list, "SID"))
-				offset = prs_SID(tvb, offset, pinfo, subtree);
+			for (i = 0; i < count; i++) {
+				if (prs_pop_ptr(ptr_list, "SID"))
+					offset = prs_SID(tvb, offset, pinfo,
+							 subtree);
+			}
 		}
-	done:
 	}
 
 	return offset;
@@ -1045,22 +1046,24 @@ static int prs_ACCOUNT_NAME_ARRAY(tvbuff_t *tvb, int offset,
 					   "ACCOUNT_NAME_ARRAY");
 		subtree = proto_item_add_subtree(item, ett_SID_ARRAY);
 
-		if (!prs_pop_ptr(ptr_list, "ACCOUNT_NAMEs"))
-			goto done;
-		
-		offset = prs_uint32(tvb, offset, pinfo, subtree, &count, 
-				    "Count");
+		if (prs_pop_ptr(ptr_list, "ACCOUNT_NAMEs")) {
+			offset = prs_uint32(tvb, offset, pinfo, subtree,
+					    &count, "Count");
 
-		for (i = 0; i < count; i++) {
-			offset = prs_ACCOUNT_NAME(tvb, offset, pinfo, subtree, 
-						  PARSE_SCALARS, ptr_list);
-		}
+			for (i = 0; i < count; i++) {
+				offset = prs_ACCOUNT_NAME(tvb, offset, pinfo,
+							  subtree,
+							  PARSE_SCALARS,
+							  ptr_list);
+			}
 
-		for (i = 0; i < count; i++) {
-			offset = prs_ACCOUNT_NAME(tvb, offset, pinfo, subtree, 
-						  PARSE_BUFFERS, ptr_list);
+			for (i = 0; i < count; i++) {
+				offset = prs_ACCOUNT_NAME(tvb, offset, pinfo,
+							  subtree,
+							  PARSE_BUFFERS,
+							  ptr_list);
+			}
 		}
-	done:
 	}
 
 	return offset;
