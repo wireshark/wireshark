@@ -44,6 +44,7 @@
 #include "packet-ber.h"
 #include "packet-cms.h"
 #include "packet-x509af.h"
+#include "packet-x509if.h"
 
 #define PNAME  "Cryptographic Message Syntax"
 #define PSNAME "CMS"
@@ -122,6 +123,7 @@ static int hf_cms_certificate = -1;               /* Certificate */
 static int hf_cms_extendedCertificate = -1;       /* ExtendedCertificate */
 static int hf_cms_attrCert = -1;                  /* AttributeCertificate */
 static int hf_cms_CertificateSet_item = -1;       /* CertificateChoices */
+static int hf_cms_issuer = -1;                    /* Name */
 static int hf_cms_serialNumber = -1;              /* CertificateSerialNumber */
 static int hf_cms_extendedCertificateInfo = -1;   /* ExtendedCertificateInfo */
 static int hf_cms_signature1 = -1;                /* Signature */
@@ -203,6 +205,9 @@ static int dissect_certificate(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 }
 static int dissect_attrCert_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509af_AttributeCertificate(TRUE, tvb, offset, pinfo, tree, hf_cms_attrCert);
+}
+static int dissect_issuer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_Name(FALSE, tvb, offset, pinfo, tree, hf_cms_issuer);
 }
 static int dissect_serialNumber(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509af_CertificateSerialNumber(FALSE, tvb, offset, pinfo, tree, hf_cms_serialNumber);
@@ -482,6 +487,7 @@ static int dissect_crls_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 }
 
 static ber_sequence IssuerAndSerialNumber_sequence[] = {
+  { BER_CLASS_ANY, -1, BER_FLAGS_NOOWNTAG, dissect_issuer },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_serialNumber },
   { 0, 0, 0, NULL }
 };
@@ -1483,6 +1489,10 @@ void proto_register_cms(void) {
       { "Item(##)", "cms.CertificateSet_item",
         FT_UINT32, BASE_DEC, VALS(CertificateChoices_vals), 0,
         "CertificateSet/_item", HFILL }},
+    { &hf_cms_issuer,
+      { "issuer", "cms.issuer",
+        FT_UINT32, BASE_DEC, VALS(Name_vals), 0,
+        "IssuerAndSerialNumber/issuer", HFILL }},
     { &hf_cms_serialNumber,
       { "serialNumber", "cms.serialNumber",
         FT_INT32, BASE_DEC, NULL, 0,

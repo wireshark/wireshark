@@ -5,8 +5,10 @@
 
 #.MODULE_IMPORT
 AuthenticationFramework x509af
+InformationFramework x509if
 
 #.INCLUDE ../x509af/x509af_exp.cnf
+#.INCLUDE ../x509if/x509if_exp.cnf
 
 #.EXPORTS
 SignedData
