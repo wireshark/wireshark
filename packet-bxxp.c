@@ -1,7 +1,7 @@
 /* packet-bxxp.c
  * Routines for BXXP packet disassembly
  *
- * $Id: packet-bxxp.c,v 1.16 2001/01/22 08:03:44 guy Exp $
+ * $Id: packet-bxxp.c,v 1.17 2001/04/23 04:10:49 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -557,7 +557,7 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
       hdr = proto_item_add_subtree(ti, ett_header);
 
       proto_tree_add_boolean_hidden(hdr, hf_bxxp_req, tvb, offset, 3, TRUE);
-      proto_tree_add_text(hdr, NullTVB, offset, 3, "Command: REQ");
+      proto_tree_add_text(hdr, tvb, offset, 3, "Command: REQ");
     }
 
     offset += 3;
@@ -707,7 +707,7 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
       hdr = proto_item_add_subtree(ti, ett_header);
 
-      proto_tree_add_boolean_hidden(hdr, hf_bxxp_rsp, NullTVB, offset, 3, TRUE);
+      proto_tree_add_boolean_hidden(hdr, hf_bxxp_rsp, tvb, offset, 3, TRUE);
       proto_tree_add_text(hdr, tvb, offset, 3, "Command: RSP");
 
     }
@@ -833,7 +833,7 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
   } else if (tvb_strneql(tvb, offset, "SEQ ", 4) == 0) {
 
     if (tree) {
-      proto_tree_add_boolean_hidden(tree, hf_bxxp_seq, NullTVB, offset, 3, TRUE);
+      proto_tree_add_boolean_hidden(tree, hf_bxxp_seq, tvb, offset, 3, TRUE);
       proto_tree_add_text(tree, tvb, offset, 3, "Command: SEQ");
     }
 
@@ -886,7 +886,7 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
       tr = proto_item_add_subtree(ti, ett_trailer);
 
-      proto_tree_add_boolean_hidden(tr, hf_bxxp_end, NullTVB, offset, 3, TRUE);
+      proto_tree_add_boolean_hidden(tr, hf_bxxp_end, tvb, offset, 3, TRUE);
       proto_tree_add_text(tr, tvb, offset, 3, "Command: END");
 
     }

@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.20 2001/03/22 06:12:03 guy Exp $
+ * $Id: packet-mgcp.c,v 1.21 2001/04/23 04:12:51 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -970,10 +970,10 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb,
 	     && tokennum <= 3);
     switch (mgcp_type){
     case MGCP_RESPONSE:
-      proto_tree_add_boolean_hidden(tree,hf_mgcp_rsp, NullTVB,0,0,1);
+      proto_tree_add_boolean_hidden(tree, hf_mgcp_rsp, tvb, 0, 0, TRUE);
       break;
     case MGCP_REQUEST:
-      proto_tree_add_boolean_hidden(tree,hf_mgcp_req, NullTVB,0,0,1);
+      proto_tree_add_boolean_hidden(tree, hf_mgcp_req, tvb, 0, 0, TRUE);
       break;
     default:
       break;
