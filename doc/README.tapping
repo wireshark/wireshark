@@ -1,4 +1,4 @@
-$Id: README.tapping,v 1.5 2003/03/06 07:54:24 sahlberg Exp $
+$Id: README.tapping,v 1.6 2003/11/29 12:34:33 jmayer Exp $
 
 The TAP system in ethereal is a powerful and flexible mechanism to get event 
 driven notification on packets matching certain protocols and/or filters.
@@ -62,7 +62,7 @@ The two functions to start or stop tapping are
 register_tap_listener(char *tapname, void *tapdata, char *fstring,
 	void (*reset)(void *tapdata),
 	int  (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, void *<pointer>),
-	void (*draw)(void *tapdata),
+	void (*draw)(void *tapdata));
 
 remove_tap_listener(void *tapdata);
 
@@ -142,7 +142,7 @@ and call remove_tap_listener() when you are finished.
 
 WHEN DOES TAP LISTENERS GET CALLED?
 ===================================
-Tap listeners are only called when ethereal reads anew capture for
+Tap listeners are only called when ethereal reads a new capture for
 the first time or whenever ethereal needs to rescan/redissect
 the capture.
 Redissection occurs when you apply a new display filter or if you
