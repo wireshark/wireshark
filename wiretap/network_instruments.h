@@ -1,5 +1,5 @@
 /*
- * $Id: network_instruments.h,v 1.3 2003/11/01 03:38:10 guy Exp $
+ * $Id: network_instruments.h,v 1.4 2003/11/06 22:45:28 guy Exp $
  */
 
 /***************************************************************************
@@ -23,6 +23,8 @@
 #define __NETWORK_INSTRUMENTS_H__
 
 int network_instruments_open(wtap *wth, int *err);
+int network_instruments_dump_can_write_encap(int encap);
+gboolean network_instruments_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err);
 
 typedef struct capture_file_header
 {

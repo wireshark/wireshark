@@ -1,5 +1,5 @@
 /*
- * $Id: network_instruments.c,v 1.3 2003/11/01 03:38:09 guy Exp $
+ * $Id: network_instruments.c,v 1.4 2003/11/06 22:45:28 guy Exp $
  */
 
 /***************************************************************************
@@ -42,6 +42,22 @@ static const int observer_encap[] = {
 };
 #define NUM_OBSERVER_ENCAPS (sizeof observer_encap / sizeof observer_encap[0])
 
+#define OBSERVER_UNDEFINED 0xFF
+#define OBSERVER_ETHERNET  0x00
+#define OBSERVER_TOKENRING 0x01
+#define OBSERVER_FDDI      0x02
+static const int from_wtap_encap[] = {
+	OBSERVER_UNDEFINED,
+	OBSERVER_ETHERNET,
+	OBSERVER_TOKENRING,
+};
+#define NUM_FROM_WTAP_ENCAPS (sizeof from_wtap_encap / sizeof observer_encap[0])
+
+#define CAPTUREFILE_HEADER_SIZE sizeof(capture_file_header)
+
+#define INFORMATION_TYPE_ALIAS_LIST 0x01
+#define INFORMATION_TYPE_COMMENT    0x02
+
 /*
  * The time in Observer files is in nanoseconds since midnight, January 1,
  * 2000, 00:00:00 local time.
@@ -57,25 +73,8 @@ static const int observer_encap[] = {
 static gboolean have_time_offset;
 static time_t seconds1970to2000;
 
-static gboolean fill_time_struct(guint64 ns_since2000, observer_time* time_conversion);
-static gboolean observer_read(wtap *wth, int *err, long *data_offset);
-static gboolean observer_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
-
-int network_instruments_open(wtap *wth, int *err)
+static void init_time_offset(void)
 {
-	int bytes_read;
-	long seek_value;
-
-	capture_file_header file_header;
-	packet_entry_header packet_header;
-
-	/*
-	 * We need the offset between midnight, January 1, 2000 UTC
-	 * and midnight, January 1, 2000 local time, as the time stamps
-	 * are in the form of nanoseconds since midnight, January 1,
-	 * 2000 local time.
-	 */
 	if (!have_time_offset) {
 		struct tm midnight_2000_01_01;
 
@@ -94,6 +93,23 @@ int network_instruments_open(wtap *wth, int *err)
 		seconds1970to2000 = mktime(&midnight_2000_01_01);
 		have_time_offset = TRUE;
 	}
+}
+
+static gboolean fill_time_struct(guint64 ns_since2000, observer_time* time_conversion);
+static gboolean observer_read(wtap *wth, int *err, long *data_offset);
+static gboolean observer_seek_read(wtap *wth, long seek_off,
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
+static gboolean observer_dump_close(wtap_dumper *wdh, int *err);
+static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+    const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
+
+int network_instruments_open(wtap *wth, int *err)
+{
+	int bytes_read;
+	long seek_value;
+
+	capture_file_header file_header;
+	packet_entry_header packet_header;
 
 	errno = WTAP_ERR_CANT_READ;
 
@@ -172,6 +188,8 @@ int network_instruments_open(wtap *wth, int *err)
 		return 0;
 	}
 	wth->data_offset = file_header.offset_to_first_packet;
+
+	init_time_offset();
 
 	return 1;
 }
@@ -323,3 +341,138 @@ gboolean fill_time_struct(guint64 ns_since2000, observer_time* time_conversion)
 	return TRUE;
 }
 
+/* Returns 0 if we could write the specified encapsulation type,
+   an error indication otherwise. */
+int network_instruments_dump_can_write_encap(int encap)
+{
+	/* Per-packet encapsulations aren't supported. */
+	if (encap == WTAP_ENCAP_PER_PACKET)
+		return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+
+	if (encap < 0 || (unsigned) encap > NUM_FROM_WTAP_ENCAPS || from_wtap_encap[encap] == OBSERVER_UNDEFINED)
+		return WTAP_ERR_UNSUPPORTED_ENCAP;
+
+	return 0;
+}
+
+/* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
+   failure */
+gboolean network_instruments_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
+{
+	capture_file_header file_header;
+	tlv_header comment_header;
+	char comment[64];
+	struct tm *current_time;
+	time_t system_time;
+
+	if (cant_seek) {
+		*err = WTAP_ERR_CANT_WRITE_TO_PIPE;
+		return FALSE;
+	}
+
+	wdh->subtype_write = observer_dump;
+	wdh->subtype_close = observer_dump_close;
+
+	wdh->dump.niobserver = g_malloc(sizeof(niobserver_dump_t));
+	wdh->dump.niobserver->packet_count = 0;
+	wdh->dump.niobserver->network_type = from_wtap_encap[wdh->encap];
+
+	/* create the file comment */
+	time(&system_time);
+	current_time = localtime(&system_time);
+	memset(&comment, 0x00, sizeof(comment));
+	sprintf(comment, "This capture was saved from Ethereal on %s", asctime(current_time));
+
+	/* create the file header */
+	if (fseek(wdh->fh, 0, SEEK_SET) == -1) {
+		*err = errno;
+		return FALSE;
+	}
+	memset(&file_header, 0x00, sizeof(capture_file_header));
+	strcpy(file_header.observer_version, network_instruments_magic);
+	file_header.offset_to_first_packet = sizeof(capture_file_header) + sizeof(tlv_header) + strlen(comment);
+	file_header.extra_information_present = 0x01; /* actually the number of information elements */
+	if(!fwrite(&file_header, sizeof(capture_file_header), 1, wdh->fh)) {
+		*err = errno;
+		return FALSE;
+	}
+
+	/* create the comment entry */
+	comment_header.type = INFORMATION_TYPE_COMMENT;
+	comment_header.length = sizeof(tlv_header) + strlen(comment);
+	if(!fwrite(&comment_header, sizeof(tlv_header), 1, wdh->fh)) {
+		*err = errno;
+		return FALSE;
+	}
+	if(!fwrite(&comment, sizeof(char), strlen(comment), wdh->fh)) {
+		*err = errno;
+		return FALSE;
+	}
+
+	init_time_offset();
+
+	return TRUE;
+}
+
+/* Write a record for a packet to a dump file.
+   Returns TRUE on success, FALSE on failure. */
+static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+    const union wtap_pseudo_header *pseudo_header _U_, const guchar *pd,
+    int *err)
+{
+	niobserver_dump_t *niobserver = wdh->dump.niobserver;
+	packet_entry_header packet_header;
+	size_t nwritten;
+	guint64 capture_nanoseconds = 0;
+
+	if(phdr->ts.tv_sec<(long)seconds1970to2000)
+		if(phdr->ts.tv_sec<0)
+			capture_nanoseconds = 0;
+		else
+			capture_nanoseconds = phdr->ts.tv_sec;
+	else
+		capture_nanoseconds = phdr->ts.tv_sec - seconds1970to2000;
+	capture_nanoseconds = ((capture_nanoseconds*1000000) + (guint64)phdr->ts.tv_usec)*1000;
+
+	memset(&packet_header, 0x00, sizeof(packet_entry_header));
+	packet_header.packet_magic = GUINT32_TO_LE(observer_packet_magic);
+	packet_header.network_speed = GUINT32_TO_LE(1000000);
+	packet_header.captured_size = GUINT16_TO_LE((guint16)phdr->caplen);
+	packet_header.network_size = GUINT16_TO_LE((guint16)(phdr->len+4));
+	packet_header.offset_to_frame = GUINT16_TO_LE(sizeof(packet_entry_header));
+	packet_header.offset_to_next_packet = GUINT16_TO_LE(sizeof(packet_entry_header) + phdr->caplen);
+	packet_header.network_type = niobserver->network_type;
+	packet_header.flags = 0x00;
+	packet_header.extra_information = 0x00;
+	packet_header.packet_type = 0x00;
+	packet_header.packet_number = GUINT64_TO_LE(niobserver->packet_count);
+	packet_header.original_packet_number = GUINT64_TO_LE(niobserver->packet_count);
+	niobserver->packet_count++;
+	packet_header.nano_seconds_since_2000 = GUINT64_TO_LE(capture_nanoseconds);
+
+	nwritten = fwrite(&packet_header, sizeof(packet_header), 1, wdh->fh);
+	if (nwritten != 1) {
+		if (nwritten == 0 && ferror(wdh->fh))
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_WRITE;
+		return FALSE;
+	}
+
+	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
+	if (nwritten != phdr->caplen) {
+		if (nwritten == 0 && ferror(wdh->fh))
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_WRITE;
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+/* just returns TRUE, there is no clean up needed */
+static gboolean observer_dump_close(wtap_dumper *wdh _U_, int *err _U_)
+{
+	return TRUE;
+}

@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.65 2003/10/01 07:11:48 guy Exp $
+ * $Id: netmon.c,v 1.66 2003/11/06 22:45:28 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -619,9 +619,6 @@ gboolean netmon_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
 		return FALSE;
 	}
 
-	wdh->subtype_write = netmon_dump;
-	wdh->subtype_close = netmon_dump_close;
-
 	/* We can't fill in all the fields in the file header, as we
 	   haven't yet written any packets.  As we'll have to rewrite
 	   the header when we've written out all the packets, we just
@@ -630,6 +627,9 @@ gboolean netmon_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
 		*err = errno;
 		return FALSE;
 	}
+
+	wdh->subtype_write = netmon_dump;
+	wdh->subtype_close = netmon_dump_close;
 
 	wdh->dump.netmon = g_malloc(sizeof(netmon_dump_t));
 	wdh->dump.netmon->frame_table_offset = CAPTUREFILE_HEADER_SIZE;

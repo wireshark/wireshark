@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.41 2003/10/24 23:55:34 guy Exp $
+ * $Id: wtap-int.h,v 1.42 2003/11/06 22:45:28 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -201,6 +201,11 @@ typedef struct {
 	guint32	nframes;
 } _5views_dump_t;
 
+typedef struct {
+	guint64 packet_count;
+	guint8  network_type;
+} niobserver_dump_t;
+
 struct wtap_dumper {
 	FILE*			fh;
 	int			file_type;
@@ -214,6 +219,7 @@ struct wtap_dumper {
 		netmon_dump_t		*netmon;
 		netxray_dump_t		*netxray;
 		_5views_dump_t		*_5views;
+		niobserver_dump_t	*niobserver;
 	} dump;
 
 	subtype_write_func	subtype_write;

@@ -1,6 +1,6 @@
 /* file_access.c
  *
- * $Id: file_access.c,v 1.5 2003/10/31 00:43:21 guy Exp $
+ * $Id: file_access.c,v 1.6 2003/11/06 22:45:28 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -446,7 +446,7 @@ static const struct file_type_info {
 
 	/* WTAP_FILE_NETWORK_INSTRUMENTS_V9 */
 	{ "Network Instruments Observer version 9", "niobserverv9",
-	  NULL, NULL },
+	  network_instruments_dump_can_write_encap, network_instruments_dump_open },
 };
 
 /* Name that should be somewhat descriptive. */
