@@ -109,6 +109,7 @@ static int (*const open_routines[])(wtap *, int *, char **) = {
 	_5views_open,
 	network_instruments_open,
 	airopeek9_open,
+	dbs_etherwatch_open,
 
 	/* Files that don't have magic bytes at a fixed location,
 	 * but that instead require a heuristic of some sort to
@@ -124,7 +125,6 @@ static int (*const open_routines[])(wtap *, int *, char **) = {
 	i4btrace_open,
 	csids_open,
 	vms_open,
-	dbs_etherwatch_open,
 	cosine_open,
 	erf_open,
 	hcidump_open,
