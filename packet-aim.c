@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.23 2003/02/21 04:38:53 guy Exp $
+ * $Id: packet-aim.c,v 1.24 2003/02/27 02:38:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -499,6 +499,32 @@ static const aim_tlv aim_fnac_family_buddylist_oncoming_tlv[] = {
 };
 
 
+#define FAMILY_LOCATION_USERINFO_INFOENCODING  0x0001
+#define FAMILY_LOCATION_USERINFO_INFOMSG       0x0002
+#define FAMILY_LOCATION_USERINFO_AWAYENCODING  0x0003
+#define FAMILY_LOCATION_USERINFO_AWAYMSG       0x0004
+#define FAMILY_LOCATION_USERINFO_CAPS          0x0005
+
+static const aim_tlv aim_fnac_family_location_userinfo_tlv[] = {
+  { FAMILY_LOCATION_USERINFO_INFOENCODING, "Info Msg Encoding", FT_STRING },
+  { FAMILY_LOCATION_USERINFO_INFOMSG, "Info Message", FT_STRING },
+  { FAMILY_LOCATION_USERINFO_AWAYENCODING, "Away Msg Encoding", FT_STRING },
+  { FAMILY_LOCATION_USERINFO_AWAYMSG, "Away Message", FT_STRING },
+  { FAMILY_LOCATION_USERINFO_CAPS, "Capabilities", FT_BYTES },
+  { 0, "Unknown", 0 }
+};
+
+#define FAMILY_LOCATION_USERINFO_INFOTYPE_GENERALINFO  0x0001
+#define FAMILY_LOCATION_USERINFO_INFOTYPE_AWAYMSG      0x0003
+#define FAMILY_LOCATION_USERINFO_INFOTYPE_CAPS         0x0005
+
+static const value_string aim_snac_location_request_user_info_infotypes[] = {
+  { FAMILY_LOCATION_USERINFO_INFOTYPE_GENERALINFO, "Request General Info" },
+  { FAMILY_LOCATION_USERINFO_INFOTYPE_AWAYMSG, "Request Away Message" },
+  { FAMILY_LOCATION_USERINFO_INFOTYPE_CAPS, "Request Capabilities" },
+  { 0, NULL }
+};
+
 static int dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static guint get_aim_pdu_len(tvbuff_t *tvb, int offset);
 static void dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -527,7 +553,7 @@ static void dissect_aim_snac_location(tvbuff_t *tvb, packet_info *pinfo,
 				      int offset, proto_tree *tree, 
 				      guint16 subtype);
 static void dissect_aim_snac_location_request_user_information(tvbuff_t *tvb, int offset, proto_tree *tree);
-static void dissect_aim_snac_location_user_information(tvbuff_t *tvb, int offset, proto_tree *tree);
+static void dissect_aim_snac_location_user_information(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
 static void dissect_aim_snac_adverts(tvbuff_t *tvb, packet_info *pinfo, 
 				     int offset, proto_tree *tree, 
 				     guint16 subtype);
@@ -583,6 +609,7 @@ static int hf_aim_fnac_subtype_icq = -1;
 static int hf_aim_fnac_flags = -1;
 static int hf_aim_fnac_id = -1;
 static int hf_aim_infotype = -1;
+static int hf_aim_snac_location_request_user_info_infotype = -1;
 static int hf_aim_buddyname_len = -1;
 static int hf_aim_buddyname = -1;
 static int hf_aim_userinfo_warninglevel = -1;
@@ -1196,7 +1223,7 @@ static void dissect_aim_snac_location(tvbuff_t *tvb, packet_info *pinfo,
     case FAMILY_LOCATION_USERINFO:
       if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "User Information");
-      dissect_aim_snac_location_user_information(tvb, offset, tree);
+      dissect_aim_snac_location_user_information(tvb, pinfo, offset, tree);
       break;
     case FAMILY_LOCATION_WATCHERSUBREQ:
       if (check_col(pinfo->cinfo, COL_INFO)) 
@@ -1220,7 +1247,8 @@ static void dissect_aim_snac_location_request_user_information(tvbuff_t *tvb,
   guint8 buddyname_length = 0;
 
   /* Info Type */
-  proto_tree_add_item(tree, hf_aim_infotype, tvb, offset, 2, FALSE);
+  proto_tree_add_item(tree, hf_aim_snac_location_request_user_info_infotype, 
+		      tvb, offset, 2, FALSE);
   offset += 2;
 
   /* Buddy Name length */
@@ -1238,10 +1266,12 @@ static void dissect_aim_snac_location_request_user_information(tvbuff_t *tvb,
 }
 
 static void dissect_aim_snac_location_user_information(tvbuff_t *tvb, 
+						       packet_info *pinfo _U_, 
 						  int offset, proto_tree *tree)
 {
   guint8 buddyname_length = 0;
   guint16 tlv_count = 0;
+  guint16 i = 0;
 
   /* Buddy Name length */
   buddyname_length = tvb_get_guint8(tvb, offset);
@@ -1261,9 +1291,18 @@ static void dissect_aim_snac_location_user_information(tvbuff_t *tvb,
   proto_tree_add_item(tree, hf_aim_userinfo_tlvcount, tvb, offset, 2, FALSE);
   offset += 2;
 
-  /* Show the undissected payload */
-  if (tvb_length_remaining(tvb, offset) > 0)
-    proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
+  /* Dissect the TLV array containing general user status  */
+  while (i++ < tlv_count) {
+    offset = dissect_aim_tlv(tvb, pinfo, offset, tree, 
+			     aim_fnac_family_buddylist_oncoming_tlv);
+  }
+
+  /* Dissect the TLV array containing the away message (or whatever info was
+     specifically requested) */
+  while (tvb_length_remaining(tvb, offset) > 0) {
+    offset = dissect_aim_tlv(tvb, pinfo, offset, tree, 
+			     aim_fnac_family_location_userinfo_tlv);
+  }
 }
 
 static void dissect_aim_snac_adverts(tvbuff_t *tvb _U_, 
@@ -1733,6 +1772,11 @@ proto_register_aim(void)
     },
     { &hf_aim_infotype,
       { "Infotype", "aim.infotype", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+    },
+    { &hf_aim_snac_location_request_user_info_infotype,
+      { "Infotype", "aim.snac.location.request_user_info.infotype", FT_UINT16,
+	BASE_HEX, VALS(aim_snac_location_request_user_info_infotypes), 0x0,
+	"", HFILL }
     },
     { &hf_aim_buddyname_len,
       { "Buddyname len", "aim.buddynamelen", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }
