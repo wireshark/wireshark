@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.58 2001/01/21 22:10:22 guy Exp $
+ * $Id: packet-tr.c,v 1.59 2001/02/05 02:06:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -100,14 +100,15 @@ static const value_string broadcast_vals[] = {
 };
 
 static const value_string max_frame_size_vals[] = {
-	{ 0,	"516" },
-	{ 1,	"1500" },
-	{ 2,	"2052" },
-	{ 3,	"4472" },
-	{ 4,	"8144" },
-	{ 5,	"11407" },
-	{ 6,	"17800" },
-	{ 0,	NULL }
+	{ 0 << 4,	"516" },
+	{ 1 << 4,	"1500" },
+	{ 2 << 4,	"2052" },
+	{ 3 << 4,	"4472" },
+	{ 4 << 4,	"8144" },
+	{ 5 << 4,	"11407" },
+	{ 6 << 4,	"17800" },
+	{ 7 << 4,	"65535" },
+	{ 0,		NULL }
 };
 
 static const value_string direction_vals[] = {
