@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.425 2004/04/25 23:45:12 ulfl Exp $
+ * $Id: main.c,v 1.426 2004/04/27 19:16:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -131,7 +131,8 @@
 capture_file cfile;
 GtkWidget   *main_display_filter_widget=NULL;
 GtkWidget   *top_level = NULL, *tree_view, *byte_nb_ptr, *tv_scrollw;
-GtkWidget   *upper_pane, *lower_pane;
+GtkWidget   *main_upper_pane, *main_lower_pane;
+GtkWidget   *status_pane;
 GtkWidget   *menubar, *main_vbox, *main_tb, *pkt_scrollw, *stat_hbox, *filter_tb;
 static GtkWidget	*info_bar;
 static GtkWidget    *packets_bar = NULL;
@@ -1286,8 +1287,12 @@ main_load_window_geometry(GtkWidget *widget
         }
     }
 
-    gtk_paned_set_position(GTK_PANED(upper_pane), recent.gui_geometry_main_upper_pane);
-    gtk_paned_set_position(GTK_PANED(lower_pane), recent.gui_geometry_main_lower_pane);
+    if (recent.gui_geometry_main_upper_pane)
+        gtk_paned_set_position(GTK_PANED(main_upper_pane),      recent.gui_geometry_main_upper_pane);
+    if (recent.gui_geometry_main_lower_pane)
+        gtk_paned_set_position(GTK_PANED(main_lower_pane),      recent.gui_geometry_main_lower_pane);
+    if (recent.gui_geometry_status_pane)
+        gtk_paned_set_position(GTK_PANED(status_pane),     recent.gui_geometry_status_pane);
 #endif
 }
 
@@ -1343,8 +1348,9 @@ main_save_window_geometry(GtkWidget *widget)
         recent.gui_geometry_main_maximized = (state == GDK_WINDOW_STATE_MAXIMIZED);
     }
 
-    recent.gui_geometry_main_upper_pane = gtk_paned_get_position(GTK_PANED(upper_pane));
-    recent.gui_geometry_main_lower_pane = gtk_paned_get_position(GTK_PANED(lower_pane));
+    recent.gui_geometry_main_upper_pane     = gtk_paned_get_position(GTK_PANED(main_upper_pane));
+    recent.gui_geometry_main_lower_pane     = gtk_paned_get_position(GTK_PANED(main_lower_pane));
+    recent.gui_geometry_status_pane         = gtk_paned_get_position(GTK_PANED(status_pane));
 #endif
 }
 
@@ -3536,17 +3542,19 @@ void main_widgets_rearrange(void) {
     gtk_widget_ref(pkt_scrollw);
     gtk_widget_ref(tv_scrollw);
     gtk_widget_ref(byte_nb_ptr);
-    gtk_widget_ref(upper_pane);
-    gtk_widget_ref(lower_pane);
+    gtk_widget_ref(main_upper_pane);
+    gtk_widget_ref(main_lower_pane);
     gtk_widget_ref(stat_hbox);
     gtk_widget_ref(info_bar);
     gtk_widget_ref(packets_bar);
+    gtk_widget_ref(status_pane);
 
     /* empty all containers participating */
-    gtk_container_foreach(GTK_CONTAINER(main_vbox),     foreach_remove_a_child, main_vbox);
-    gtk_container_foreach(GTK_CONTAINER(upper_pane),    foreach_remove_a_child, upper_pane);
-    gtk_container_foreach(GTK_CONTAINER(lower_pane),    foreach_remove_a_child, lower_pane);
+    gtk_container_foreach(GTK_CONTAINER(main_vbox),         foreach_remove_a_child, main_vbox);
+    gtk_container_foreach(GTK_CONTAINER(main_upper_pane),   foreach_remove_a_child, main_upper_pane);
+    gtk_container_foreach(GTK_CONTAINER(main_lower_pane),   foreach_remove_a_child, main_lower_pane);
     gtk_container_foreach(GTK_CONTAINER(stat_hbox),     foreach_remove_a_child, stat_hbox);
+    gtk_container_foreach(GTK_CONTAINER(status_pane),  foreach_remove_a_child, status_pane);
 
     /* add the menubar always at the top */
     gtk_box_pack_start(GTK_BOX(main_vbox), menubar, FALSE, TRUE, 0);
@@ -3582,17 +3590,17 @@ void main_widgets_rearrange(void) {
         gtk_container_add(GTK_CONTAINER(main_vbox), w[0]);
         break;
     case(2):
-        gtk_container_add(GTK_CONTAINER(main_vbox), upper_pane);
-        gtk_paned_pack1(GTK_PANED(upper_pane), w[0], TRUE, TRUE);
-        gtk_paned_pack2(GTK_PANED(upper_pane), w[1], FALSE, FALSE);
+        gtk_container_add(GTK_CONTAINER(main_vbox), main_upper_pane);
+        gtk_paned_pack1(GTK_PANED(main_upper_pane), w[0], TRUE, TRUE);
+        gtk_paned_pack2(GTK_PANED(main_upper_pane), w[1], FALSE, FALSE);
         break;
     case(3):
-        gtk_container_add(GTK_CONTAINER(main_vbox), upper_pane);
-        gtk_paned_add1(GTK_PANED(upper_pane), w[0]);
-        gtk_paned_add2(GTK_PANED(upper_pane), lower_pane);
+        gtk_container_add(GTK_CONTAINER(main_vbox), main_upper_pane);
+        gtk_paned_add1(GTK_PANED(main_upper_pane), w[0]);
+        gtk_paned_add2(GTK_PANED(main_upper_pane), main_lower_pane);
 
-        gtk_paned_pack1(GTK_PANED(lower_pane), w[1], TRUE, TRUE);
-        gtk_paned_pack2(GTK_PANED(lower_pane), w[2], FALSE, FALSE);
+        gtk_paned_pack1(GTK_PANED(main_lower_pane), w[1], TRUE, TRUE);
+        gtk_paned_pack2(GTK_PANED(main_lower_pane), w[2], FALSE, FALSE);
         break;
     }
 
@@ -3608,8 +3616,9 @@ void main_widgets_rearrange(void) {
 
     /* statusbar */
     if (recent.statusbar_show) {
-        gtk_box_pack_start(GTK_BOX(stat_hbox), info_bar, TRUE, TRUE, 0);
-        gtk_box_pack_start(GTK_BOX(stat_hbox), packets_bar, TRUE, TRUE, 0);
+        gtk_box_pack_start(GTK_BOX(stat_hbox), status_pane, TRUE, TRUE, 0);
+        gtk_paned_pack1(GTK_PANED(status_pane), info_bar, FALSE, FALSE);
+        gtk_paned_pack2(GTK_PANED(status_pane), packets_bar, FALSE, FALSE);
     }
 
     gtk_widget_show(main_vbox);
@@ -3703,13 +3712,13 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
 
     /* Panes for the packet list, tree, and byte view */
-    lower_pane = gtk_vpaned_new();
-    gtk_paned_gutter_size(GTK_PANED(lower_pane), (GTK_PANED(lower_pane))->handle_size);
-    gtk_widget_show(lower_pane);
+    main_lower_pane = gtk_vpaned_new();
+    gtk_paned_gutter_size(GTK_PANED(main_lower_pane), (GTK_PANED(main_lower_pane))->handle_size);
+    gtk_widget_show(main_lower_pane);
 
-    upper_pane = gtk_vpaned_new();
-    gtk_paned_gutter_size(GTK_PANED(upper_pane), (GTK_PANED(upper_pane))->handle_size);
-    gtk_widget_show(upper_pane);
+    main_upper_pane = gtk_vpaned_new();
+    gtk_paned_gutter_size(GTK_PANED(main_upper_pane), (GTK_PANED(main_upper_pane))->handle_size);
+    gtk_widget_show(main_upper_pane);
 
     /* filter toolbar */
 #if GTK_MAJOR_VERSION < 2
@@ -3722,6 +3731,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 #endif /* GTK_MAJOR_VERSION */
     gtk_widget_show(filter_tb);
 
+    /* Create the "Filter:" button */
     filter_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY);
     SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
     gtk_widget_show(filter_bt);
@@ -3730,6 +3740,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_bt, 
         "Open the \"Display Filter\" dialog, to edit/apply filters", "Private");
 
+    /* Create the filter combobox */
     filter_cm = gtk_combo_new();
     filter_list = NULL;
     gtk_combo_disable_activate(GTK_COMBO(filter_cm));
@@ -3761,6 +3772,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_add_expr_bt, 
         "Add an expression to this filter string", "Private");
 
+    /* Create the "Clear" button */
     filter_reset = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLEAR);
     OBJECT_SET_DATA(filter_reset, E_DFILTER_TE_KEY, filter_te);
     SIGNAL_CONNECT(filter_reset, "clicked", filter_reset_cb, NULL);
@@ -3768,6 +3780,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_reset, 
         "Clear this filter string and update the display", "Private");
 
+    /* Create the "Apply" button */
     filter_apply = BUTTON_NEW_FROM_STOCK(GTK_STOCK_APPLY);
     OBJECT_SET_DATA(filter_apply, E_DFILTER_CM_KEY, filter_cm);
     SIGNAL_CONNECT(filter_apply, "clicked", filter_activate_cb, filter_te);
@@ -3823,6 +3836,10 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     stat_hbox = gtk_hbox_new(FALSE, 1);
     gtk_container_border_width(GTK_CONTAINER(stat_hbox), 0);
     gtk_widget_show(stat_hbox);
+
+    /* Pane for the statusbar */
+    status_pane = gtk_hpaned_new();
+    gtk_widget_show(status_pane);
 }
 
 

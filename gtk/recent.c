@@ -2,7 +2,7 @@
  * Recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: recent.c,v 1.13 2004/04/25 23:45:12 ulfl Exp $
+ * $Id: recent.c,v 1.14 2004/04/27 19:16:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,6 +55,7 @@
 #define RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED  "gui.geometry_main_maximized"
 #define RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE "gui.geometry_main_upper_pane"
 #define RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE "gui.geometry_main_lower_pane"
+#define RECENT_GUI_GEOMETRY_STATUS_PANE     "gui.geometry_status_pane"
 #define RECENT_GUI_FILEOPEN_REMEMBERED_DIR  "gui.fileopen_remembered_dir"
 
 
@@ -184,6 +185,8 @@ write_recent(char **rf_path_return)
 		  recent.gui_geometry_main_upper_pane);
   fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE ": %d\n",
 		  recent.gui_geometry_main_lower_pane);
+  fprintf(rf, RECENT_GUI_GEOMETRY_STATUS_PANE ": %d\n",
+		  recent.gui_geometry_status_pane);
 
   if (last_open_dir != NULL) {
     fprintf(rf, "\n# Last directory navigated to in File Open dialog.\n");
@@ -278,6 +281,8 @@ read_set_recent_pair(gchar *key, gchar *value)
     recent.gui_geometry_main_upper_pane = strtol(value, NULL, 10);
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE) == 0) {
     recent.gui_geometry_main_lower_pane = strtol(value, NULL, 10);
+  } else if (strcmp(key, RECENT_GUI_GEOMETRY_STATUS_PANE) == 0) {
+    recent.gui_geometry_status_pane = strtol(value, NULL, 10);
 
   } else if (strcmp(key, RECENT_GUI_FILEOPEN_REMEMBERED_DIR) == 0) {
     set_last_open_dir(value);
@@ -311,8 +316,10 @@ read_recent(char **rf_path_return, int *rf_errno_return)
   recent.gui_geometry_main_height   =        -1;
   recent.gui_geometry_main_maximized=     FALSE;
 
-  recent.gui_geometry_main_upper_pane   = 200;
-  recent.gui_geometry_main_lower_pane   = 200;
+  /* pane size of zero will autodetect */
+  recent.gui_geometry_main_upper_pane   = 0;
+  recent.gui_geometry_main_lower_pane   = 0;
+  recent.gui_geometry_status_pane       = 0;
 
   /* Construct the pathname of the user's recent file. */
   rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE);
