@@ -39,7 +39,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "req_resp_hdrs.h"
+#include <epan/req_resp_hdrs.h>
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 #include <epan/conversation.h>

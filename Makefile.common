@@ -50,7 +50,6 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 	prefs-int.h	\
 	ptvcursor.h	\
 	reassemble.h	\
-	req_resp_hdrs.h	\
 	rpc_defrag.h	\
 	rtp_pt.h	\
 	sctpppids.h	\

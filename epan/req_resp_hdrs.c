@@ -32,7 +32,7 @@
 #include <epan/strutil.h>
 #include <string.h>
 
-#include "req_resp_hdrs.h"
+#include <epan/req_resp_hdrs.h>
 
 /*
  * Optionally do reassembly of the request/response line, headers, and body.

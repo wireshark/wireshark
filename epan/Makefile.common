@@ -52,6 +52,7 @@ LIBETHEREAL_SRC = 		\
 	prefs.c			\
 	proto.c			\
 	range.c			\
+	req_resp_hdrs.c		\
 	sha1.c			\
 	sna-utils.c		\
 	strutil.c		\
@@ -101,6 +102,7 @@ LIBETHEREAL_INCLUDES = 		\
 	proto.h			\
 	range.h			\
 	report_err.h		\
+	req_resp_hdrs.h		\
 	sha1.h			\
 	slab.h			\
 	sna-utils.h		\
@@ -122,7 +124,6 @@ DISSECTOR_SUPPORT_SRC =	\
 	../ipproto.c	\
 	../ptvcursor.c	\
 	../reassemble.c	\
-	../req_resp_hdrs.c	\
 	../t35.c	\
 	../xmlstub.c
 

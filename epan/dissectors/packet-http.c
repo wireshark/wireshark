@@ -42,7 +42,7 @@
 #include <epan/strutil.h>
 #include <epan/base64.h>
 
-#include "req_resp_hdrs.h"
+#include <epan/req_resp_hdrs.h>
 #include "packet-http.h"
 #include <epan/prefs.h>
 
