@@ -2,7 +2,7 @@
  * Routines for SMB mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.17 2001/10/04 23:06:49 guy Exp $
+ * $Id: packet-smb-mailslot.c,v 1.18 2001/10/04 23:19:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -118,25 +118,31 @@ dissect_mailslot_smb(tvbuff_t *setup_tvb, tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	/* Quit if we don't have the transaction command name (mailslot path) */
-	if (smb_info->trans_cmd == NULL)
+	if (smb_info->trans_cmd == NULL) {
+		/* Dump it as data */
+		dissect_data(tvb, smb_info->data_offset, pinfo, parent_tree);
 		return TRUE;
+	}
 
 	/* create new tvb for subdissector */
 	next_tvb = tvb_new_subset(tvb, smb_info->data_offset, -1, -1);
 
 	/*** Decide what dissector to call based upon the command value ***/
 	if (strcmp(smb_info->trans_cmd, "BROWSE") == 0) {
-		return dissect_mailslot_browse(next_tvb, pinfo, parent_tree);
+		if (dissect_mailslot_browse(next_tvb, pinfo, parent_tree))
+			return TRUE;
 	} else if (strcmp(smb_info->trans_cmd, "LANMAN") == 0) {
 		/* Decode a LANMAN browse */
-		return dissect_mailslot_lanman(next_tvb, pinfo, parent_tree);
+		if (dissect_mailslot_lanman(next_tvb, pinfo, parent_tree))
+			return TRUE;
 	} else if ((strncmp(smb_info->trans_cmd, "NET", strlen("NET")) == 0) ||
 		   (strcmp(smb_info->trans_cmd, "TEMP\\NETLOGON") == 0) ||
 		   (strcmp(smb_info->trans_cmd, "MSSP") == 0)) {
 /* NOTE: use TEMP\\NETLOGON and MSSP because they seems very common,	*/
 /* NOTE: may need a look up list to check for the mailslot names passed	*/
 /*		by the logon request packet */
-		return dissect_smb_logon(next_tvb, pinfo, parent_tree);
+		if (dissect_smb_logon(next_tvb, pinfo, parent_tree))
+			return TRUE;
 	}
 	/* Dump it as data */
 	dissect_data(next_tvb, 0, pinfo, parent_tree);
