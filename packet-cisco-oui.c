@@ -1,6 +1,7 @@
-/* packet-llc.h
+/* packet-cisco-oui.c
+ * Register an LLC dissector table for Cisco's OUI 00:00:0c
  *
- * $Id: packet-llc.h,v 1.11 2003/09/03 06:27:03 guy Exp $
+ * $Id: packet-cisco-oui.c,v 1.1 2003/09/03 06:27:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -21,19 +22,34 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PACKET_LLC_H__
-#define __PACKET_LLC_H__
+#include "config.h"
 
-void capture_llc(const guchar *, int, int, packet_counts *);
+#include <epan/packet.h>
+#include "packet-llc.h"
+#include "oui.h"
 
-void dissect_snap(tvbuff_t *, int, packet_info *, proto_tree *,
-    proto_tree *, int, int, int, int, int);
+static int hf_llc_cisco_pid = -1;
+
+static const value_string cisco_pid_vals[] = {
+	{ 0x0102,	"DRIP" },
+	{ 0x2000,	"CDP" },
+	{ 0x2001,	"CGMP" },
+	{ 0x2003,	"VTP" },
+	{ 0,		NULL }
+};
 
 /*
- * Add an entry for a new OUI.
+ * NOTE: there's no dissector here, just registration routines to set
+ * up the dissector table for the Cisco OUI.
  */
-void llc_add_oui(guint32, const char *, char *, hf_register_info *);
+void
+proto_register_cisco_oui(void)
+{
+	static hf_register_info hf = {
+	    &hf_llc_cisco_pid,
+		{ "PID",	"llc.cisco_pid",  FT_UINT16, BASE_HEX,
+		  VALS(cisco_pid_vals), 0x0, "", HFILL },
+	};
 
-extern const value_string sap_vals[];
-
-#endif
+	llc_add_oui(OUI_CISCO, "llc.cisco_pid", "Cisco OUI PID", &hf);
+}

@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.113 2003/09/02 19:18:52 guy Exp $
+ * $Id: packet-llc.c,v 1.114 2003/09/03 06:27:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,7 +65,6 @@ static gint ett_llc = -1;
 static gint ett_llc_ctrl = -1;
 
 static dissector_table_t subdissector_table;
-static dissector_table_t cisco_subdissector_table;
 static dissector_table_t xid_subdissector_table;
 
 static dissector_table_t nortel_subdissector_table;
@@ -173,41 +172,40 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 };
 
 /*
- * Hash table for translating OUIs to a dissector table/field ID pair;
+ * Hash table for translating OUIs to a dissector table/field info pair;
  * the dissector table maps PID values to dissectors, and the field
  * corresponds to the PID for that OUI.
  */
 typedef struct {
 	dissector_table_t table;
-	int	field_id;
+	hf_register_info *field_info;
 } oui_info_t;
 
-static GHashTable *oui_dissector_tables = NULL;
+static GHashTable *oui_info_table = NULL;
 
 /*
- * Add an entry for a new OID.
+ * Add an entry for a new OUI.
  */
 void
-llc_add_oid(guint32 oid, const char *table_name, char *table_ui_name,
-    int field_id)
+llc_add_oui(guint32 oui, const char *table_name, char *table_ui_name,
+    hf_register_info *hf_item)
 {
 	oui_info_t *new_info;
 
 	new_info = g_malloc(sizeof (oui_info_t));
 	new_info->table = register_dissector_table(table_name,
 	    table_ui_name, FT_UINT16, BASE_HEX);
-	new_info->field_id = field_id;
+	new_info->field_info = hf_item;
 
 	/*
 	 * Create the hash table for OUI information, if it doesn't
 	 * already exist.
 	 */
-	if (oui_dissector_tables == NULL) {
-		oui_dissector_tables = g_hash_table_new(g_direct_hash,
+	if (oui_info_table == NULL) {
+		oui_info_table = g_hash_table_new(g_direct_hash,
 		    g_direct_equal);
 	}
-	g_hash_table_insert(oui_dissector_tables, (gpointer)oid,
-	    new_info->table);
+	g_hash_table_insert(oui_info_table, (gpointer)oui, new_info);
 }
 
 void
@@ -514,27 +512,6 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		}
 		break;
 
-	case OUI_CISCO:
-		/* So are all CDP packets LLC packets
-		   with an OUI of OUI_CISCO and a
-		   protocol ID of 0x2000, or
-		   are some of them raw or encapsulated
-		   Ethernet? */
-		if (tree) {
-			proto_tree_add_uint(snap_tree, hf_pid, tvb, offset+3, 2,
-			    etype);
-		}
-		next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
-		if (XDLC_IS_INFORMATION(control)) {
-			/* do lookup with the subdissector table */
-			/* for future reference, 0x0102 is Cisco DRIP */
-			if (!dissector_try_port(cisco_subdissector_table,
-			    etype, next_tvb, pinfo, tree))
-				call_dissector(data_handle,next_tvb, pinfo, tree);
-		} else
-			call_dissector(data_handle,next_tvb, pinfo, tree);
-		break;
-
 	case OUI_CABLE_BPDU:    /* DOCSIS cable modem spanning tree BPDU */
 		if (tree) {
 			proto_tree_add_uint(snap_tree, hf_pid, tvb, offset+3, 2,
@@ -566,13 +543,12 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		/*
 		 * Do we have information for this OUI?
 		 */
-		oui_info = g_hash_table_lookup(oui_dissector_tables,
-		    (gpointer)oui);
+		oui_info = g_hash_table_lookup(oui_info_table, (gpointer)oui);
 		if (oui_info != NULL) {
 			/*
 			 * Yes - use it.
 			 */
-			hf = oui_info->field_id;
+			hf = *oui_info->field_info->p_id;
 			subdissector_table = oui_info->table;
 		} else {
 			/*
@@ -652,14 +628,20 @@ proto_register_llc(void)
 /* subdissector code */
 	subdissector_table = register_dissector_table("llc.dsap",
 	  "LLC SAP", FT_UINT8, BASE_HEX);
-	cisco_subdissector_table = register_dissector_table("llc.cisco_pid",
-	  "Cisco OUI PID", FT_UINT16, BASE_HEX);
 	xid_subdissector_table = register_dissector_table("llc.xid_dsap",
 	  "LLC XID SAP", FT_UINT8, BASE_HEX);
 	nortel_subdissector_table = register_dissector_table("llc.nortel_pid",
 	  "Nortel OUI PID", FT_UINT16, BASE_HEX);
 
 	register_dissector("llc", dissect_llc, proto_llc);
+}
+
+static void
+register_hf(gpointer key _U_, gpointer value, gpointer user_data _U_)
+{
+	oui_info_t *info = value;
+
+	proto_register_field_array(proto_llc, info->field_info, 1);
 }
 
 void
@@ -695,4 +677,9 @@ proto_reg_handoff_llc(void)
 	 * apparently.
 	 */
 	dissector_add("arcnet.protocol_id", ARCNET_PROTO_BACNET, llc_handle);
+
+	/*
+	 * Register all the fields for PIDs for various OUIs.
+	 */
+	g_hash_table_foreach(oui_info_table, register_hf, NULL);
 }
