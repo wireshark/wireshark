@@ -72,9 +72,10 @@ RANLIB = @RANLIB@
 VERSION = @VERSION@
 YACC = @YACC@
 
-bin_PROGRAMS = wiretap filterc
+bin_PROGRAMS = wiretap
 noinst_LIBRARIES = @LIBWIRETAP_A@
 
+EXTRA_PROGRAMS = filterc
 EXTRA_LIBRARIES = libwiretap.a
 
 EXTRA_DIST =  	rt-grammar-skel.y		rt-scanner-skel.l		ct-grammar.y			ct-scanner.l			filter-eth			filter-tr
@@ -89,22 +90,11 @@ libwiretap_a_SOURCES =  	bpf.h				bpf.c				bpf-engine.c			bpf-engine.h			buffer.
 filterc_SOURCES =  	ct-compile.c			ct-compile.h			ct-grammar.h			ct-grammar.y			ct-scanner.l			ct-main.c			glib-new.h			glib-new.c
 
 
-#BUILT_SOURCES = \
-#	rt-grammar.h		\
-#	rt-grammar.y		\
-#	rt-scanner.l
-
 FILTERS =  	filter-eth			filter-tr
 
 
 YFLAGS = -d -p wtap_
 LFLAGS = -i -Pwtap_
-
-#rt-tokdefs.h rt-grammar.c : rt-grammar.y
-#	@rm -f $@ rt-tokdefs.h
-#	$(RT_YACC) -d $<
-#	mv y.tab.c rt-grammar.c
-#	mv y.tab.h rt-tokdefs.h
 
 wiretap_SOURCES =  	wiretap.c 			glib-new.c
 
@@ -128,14 +118,14 @@ rt-grammar.o rt-scanner.o snoop.o wtap.o
 AR = ar
 PROGRAMS =  $(bin_PROGRAMS)
 
-wiretap_OBJECTS =  wiretap.o glib-new.o
-wiretap_DEPENDENCIES =  libwiretap.a
-wiretap_LDFLAGS = 
 filterc_OBJECTS =  ct-compile.o ct-grammar.o ct-scanner.o ct-main.o \
 glib-new.o
 filterc_LDADD = $(LDADD)
 filterc_DEPENDENCIES = 
 filterc_LDFLAGS = 
+wiretap_OBJECTS =  wiretap.o glib-new.o
+wiretap_DEPENDENCIES =  libwiretap.a
+wiretap_LDFLAGS = 
 LEX_OUTPUT_ROOT = @LEX_OUTPUT_ROOT@
 LEXLIB = @LEXLIB@
 YLWRAP = $(top_srcdir)/../ylwrap
@@ -159,8 +149,8 @@ DEP_FILES =  .deps/bpf-engine.P .deps/bpf.P .deps/buffer.P \
 .deps/lanalyzer.P .deps/libpcap.P .deps/netmon.P .deps/netxray.P \
 .deps/ngsniffer.P .deps/rt-compile.P .deps/rt-grammar.P \
 .deps/rt-scanner.P .deps/snoop.P .deps/wiretap.P .deps/wtap.P
-SOURCES = $(libwiretap_a_SOURCES) $(wiretap_SOURCES) $(filterc_SOURCES)
-OBJECTS = $(libwiretap_a_OBJECTS) $(wiretap_OBJECTS) $(filterc_OBJECTS)
+SOURCES = $(libwiretap_a_SOURCES) $(filterc_SOURCES) $(wiretap_SOURCES)
+OBJECTS = $(libwiretap_a_OBJECTS) $(filterc_OBJECTS) $(wiretap_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -263,13 +253,13 @@ uninstall-binPROGRAMS:
 	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
 	done
 
-wiretap: $(wiretap_OBJECTS) $(wiretap_DEPENDENCIES)
-	@rm -f wiretap
-	$(LINK) $(wiretap_LDFLAGS) $(wiretap_OBJECTS) $(wiretap_LDADD) $(LIBS)
-
 filterc: $(filterc_OBJECTS) $(filterc_DEPENDENCIES)
 	@rm -f filterc
 	$(LINK) $(filterc_LDFLAGS) $(filterc_OBJECTS) $(filterc_LDADD) $(LIBS)
+
+wiretap: $(wiretap_OBJECTS) $(wiretap_DEPENDENCIES)
+	@rm -f wiretap
+	$(LINK) $(wiretap_LDFLAGS) $(wiretap_OBJECTS) $(wiretap_LDADD) $(LIBS)
 .l.c:
 	$(SHELL) $(YLWRAP) "$(LEX)" $< $(LEX_OUTPUT_ROOT).c $@ -- $(AM_LFLAGS) $(LFLAGS)
 .y.c:
@@ -479,25 +469,17 @@ mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 
-#ct-tokdefs.h ct-grammar.c : ct-grammar.y
-#	@rm -f $@ ct-tokdefs.h
-#	$(CT_YACC) -d $<
-#	mv y.tab.c ct-grammar.c
-#	mv y.tab.h ct-tokdefs.h
-
 ct-scanner.c : ct-scanner.l
 	@rm -f $@
 	$(LEX) $(LFLAGS) -t $< > $@
 
-rt-scanner.l : rt-scanner-skel.l filterc $(FILTERS)
+rt-grammar.y rt-scanner.l : rt-grammar-skel.y rt-scanner-skel.l $(FILTERS)
+	$(MAKE) filterc
 	cat $(FILTERS) | ./filterc > /dev/null
 
 rt-scanner.c : rt-scanner.l rt-grammar.c
 	@rm -f $@
 	$(LEX) $(LFLAGS) -t $< > $@
-
-rt-grammar.y : rt-grammar-skel.y filterc $(FILTERS)
-	cat $(FILTERS) | ./filterc > /dev/null
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

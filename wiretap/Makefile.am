@@ -1,6 +1,7 @@
-bin_PROGRAMS = wiretap filterc
+bin_PROGRAMS = wiretap
 noinst_LIBRARIES = @LIBWIRETAP_A@
 
+EXTRA_PROGRAMS = filterc
 EXTRA_LIBRARIES = libwiretap.a
 
 EXTRA_DIST = \
@@ -67,11 +68,6 @@ filterc_SOURCES = \
 	glib-new.h		\
 	glib-new.c
 
-#BUILT_SOURCES = \
-#	rt-grammar.h		\
-#	rt-grammar.y		\
-#	rt-scanner.l
-
 FILTERS = \
 	filter-eth		\
 	filter-tr
@@ -79,31 +75,17 @@ FILTERS = \
 YFLAGS=-d -p wtap_
 LFLAGS=-i -Pwtap_
 
-#ct-tokdefs.h ct-grammar.c : ct-grammar.y
-#	@rm -f $@ ct-tokdefs.h
-#	$(CT_YACC) -d $<
-#	mv y.tab.c ct-grammar.c
-#	mv y.tab.h ct-tokdefs.h
-
 ct-scanner.c : ct-scanner.l
 	@rm -f $@
 	$(LEX) $(LFLAGS) -t $< > $@
 
-rt-scanner.l : rt-scanner-skel.l filterc $(FILTERS)
+rt-grammar.y rt-scanner.l : rt-grammar-skel.y rt-scanner-skel.l $(FILTERS)
+	$(MAKE) filterc
 	cat $(FILTERS) | ./filterc > /dev/null
 
 rt-scanner.c : rt-scanner.l rt-grammar.c
 	@rm -f $@
 	$(LEX) $(LFLAGS) -t $< > $@
-
-rt-grammar.y : rt-grammar-skel.y filterc $(FILTERS)
-	cat $(FILTERS) | ./filterc > /dev/null
-
-#rt-tokdefs.h rt-grammar.c : rt-grammar.y
-#	@rm -f $@ rt-tokdefs.h
-#	$(RT_YACC) -d $<
-#	mv y.tab.c rt-grammar.c
-#	mv y.tab.h rt-tokdefs.h
 
 wiretap_SOURCES = \
 	wiretap.c 		\
