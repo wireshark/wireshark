@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.40 2004/02/06 19:19:09 ulfl Exp $
+ * $Id: color_dlg.c,v 1.41 2004/02/09 18:25:48 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -92,8 +92,6 @@ static void color_sel_cancel_cb(GtkObject *object, gpointer user_data);
 static GtkWidget *colorize_win;
 static gint	  num_of_filters;  /* number of filters being displayed */
 static gint	  row_selected;	   /* row in color_filters that is selected */
-
-static gchar *titles[2] = { "Name", "String" };
 
 #define COLOR_UP_LB		"color_up_lb"
 #define COLOR_DOWN_LB		"color_down_lb"
@@ -206,6 +204,8 @@ colorize_dialog_new (char *filter)
   GtkTreeViewColumn *column;
   GtkTreeSelection  *selection;
 #endif
+  gchar *titles[] = { "Name", "String" };
+
 
   row_selected = -1; /* no row selected */
   tooltips = gtk_tooltips_new ();
@@ -381,11 +381,12 @@ colorize_dialog_new (char *filter)
 
   num_of_filters = 0;
   g_slist_foreach(filter_list, add_filter_to_list, color_filters);
-#if GTK_MAJOR_VERSION >= 2
+
+#if GTK_MAJOR_VERSION < 2
+  gtk_clist_set_selection_mode    (GTK_CLIST (color_filters),GTK_SELECTION_EXTENDED);
+#else
   selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(color_filters));
   gtk_tree_selection_set_mode(selection, GTK_SELECTION_MULTIPLE);
-#else
-  gtk_clist_set_selection_mode    (GTK_CLIST (color_filters),GTK_SELECTION_EXTENDED);
 #endif
 
   gtk_widget_show (color_filters);
