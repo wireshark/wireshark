@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.72 2000/11/29 05:16:15 gram Exp $
+ * $Id: packet-llc.c,v 1.73 2000/12/28 09:49:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,14 +38,11 @@
 #include "xdlc.h"
 #include "etypes.h"
 #include "llcsaps.h"
-#include "packet-cdp.h"
-#include "packet-cgmp.h"
 #include "packet-ip.h"
 #include "packet-ipx.h"
 #include "packet-netbios.h"
 #include "packet-osi.h"
 #include "packet-sna.h"
-#include "packet-vtp.h"
 
 static int proto_llc = -1;
 static int hf_llc_dsap = -1;
@@ -61,6 +58,7 @@ static gint ett_llc = -1;
 static gint ett_llc_ctrl = -1;
 
 static dissector_table_t subdissector_table;
+static dissector_table_t cisco_subdissector_table;
 
 static dissector_handle_t bpdu_handle;
 
@@ -372,30 +370,11 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    hf_llc_pid, tvb, 6, 2, etype);
 			}
 			if (XDLC_IS_INFORMATION(control)) {
-				switch (etype) {
-
-#if 0
-				case 0x0102:
-					dissect_drip(pd, offset, pinfo->fd, tree);
-					break;
-#endif
-
-				case 0x2000:
-					dissect_cdp(pd, offset, pinfo->fd, tree);
-					break;
-
-				case 0x2001:
-					dissect_cgmp(pd, offset, pinfo->fd, tree);
-					break;
-
-				case 0x2003:
-					dissect_vtp(pd, offset, pinfo->fd, tree);
-					break;
-
-				default:
+				/* do lookup with the subdissector table */
+				/* for future reference, 0x0102 is Cisco DRIP */
+				if (!dissector_try_port(cisco_subdissector_table,
+				    etype, next_tvb, pinfo, tree))
 					dissect_data(next_tvb, 0, pinfo, tree);
-					break;
-				}
 			} else
 				dissect_data(next_tvb, 0, pinfo, tree);
 			break;
@@ -495,6 +474,7 @@ proto_register_llc(void)
 
 /* subdissector code */
 	subdissector_table = register_dissector_table("llc.dsap");
+	cisco_subdissector_table = register_dissector_table("llc.cisco_pid");
 }
 
 void
@@ -504,5 +484,6 @@ proto_reg_handoff_llc(void)
 	 * Get a handle for the BPDU dissector.
 	 */
 	bpdu_handle = find_dissector("bpdu");
+
 	dissector_add("wtap_encap", WTAP_ENCAP_ATM_RFC1483, dissect_llc);
 }

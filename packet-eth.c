@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.50 2000/11/29 05:16:15 gram Exp $
+ * $Id: packet-eth.c,v 1.51 2000/12/28 09:49:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,6 +53,8 @@ static int hf_eth_trailer = -1;
 
 static gint ett_ieee8023 = -1;
 static gint ett_ether2 = -1;
+
+static dissector_handle_t isl_handle;
 
 #define ETH_HEADER_SIZE	14
 
@@ -205,7 +207,7 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tvb_get_guint8(tvb, 2) == 0x0C &&
 		tvb_get_guint8(tvb, 3) == 0x00 &&
 		tvb_get_guint8(tvb, 4) == 0x00 ) {
-      dissect_isl(pd, eth_offset, pinfo->fd, tree);
+      call_dissector(isl_handle, tvb, pinfo, tree);
       return;
     }
 
@@ -234,7 +236,10 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        frame length, by adding in the size of any data that preceded
        the Ethernet header, and adding in the Ethernet header size,
        and set the payload and captured-payload lengths to the minima
-       of the total length and the frame lengths. */
+       of the total length and the frame lengths.
+
+       XXX - when all dissectors are tvbuffified we shouldn't have to
+       do this any more. */
     length += eth_offset + ETH_HEADER_SIZE;
     if (pinfo->len > length)
       pinfo->len = length;
@@ -380,5 +385,10 @@ proto_register_eth(void)
 void
 proto_reg_handoff_eth(void)
 {
+	/*
+	 * Get a handle for the ISL dissector.
+	 */
+	isl_handle = find_dissector("isl");
+
 	dissector_add("wtap_encap", WTAP_ENCAP_ETHERNET, dissect_eth);
 }

@@ -1,7 +1,7 @@
 /* packet-vtp.c
  * Routines for the disassembly of Cisco's Virtual Trunking Protocol
  *
- * $Id: packet-vtp.c,v 1.7 2000/11/19 08:54:10 guy Exp $
+ * $Id: packet-vtp.c,v 1.8 2000/12/28 09:49:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -75,9 +75,9 @@ static gint ett_vtp_vlan_status = -1;
 static gint ett_vtp_tlv = -1;
 
 static int
-dissect_vlan_info(const u_char *pd, int offset, proto_tree *tree);
+dissect_vlan_info(tvbuff_t *tvb, int offset, proto_tree *tree);
 static void
-dissect_vlan_info_tlv(const u_char *pd, int offset, int length,
+dissect_vlan_info_tlv(tvbuff_t *tvb, int offset, int length,
     proto_tree *tree, proto_item *ti, guint8 type);
 
 #define SUMMARY_ADVERT		0x01
@@ -91,96 +91,97 @@ static const value_string type_vals[] = {
 	{ 0,              NULL },
 };
 	
-void 
-dissect_vtp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+static void 
+dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti; 
 	proto_tree *vtp_tree = NULL;
+	int offset = 0;
 	guint8 code;
 	guint8 md_len;
+	guint8 *upd_timestamp;
 	int vlan_info_len;
-	guint32 upd_id;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_vtp, pd, offset, fd, tree);
+	CHECK_DISPLAY_AS_DATA(proto_vtp, tvb, pinfo, tree);
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "VTP");
-	if (check_col(fd, COL_INFO))
-		col_set_str(fd, COL_INFO, "Virtual Trunking Protocol"); 
+	pinfo->current_proto = "VTP";
+
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "VTP");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_set_str(pinfo->fd, COL_INFO, "Virtual Trunking Protocol"); 
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_vtp, NullTVB, offset, END_OF_FRAME,
-		    FALSE);
+		ti = proto_tree_add_item(tree, proto_vtp, tvb, offset,
+		    tvb_length_remaining(tvb, offset), FALSE);
 		vtp_tree = proto_item_add_subtree(ti, ett_vtp);
 
-		proto_tree_add_uint(vtp_tree, hf_vtp_version, NullTVB, offset, 1,
-		    pd[offset]);
+		proto_tree_add_item(vtp_tree, hf_vtp_version, tvb, offset, 1,
+		    FALSE);
 		offset += 1;
 
-		code = pd[offset];
-		proto_tree_add_uint(vtp_tree, hf_vtp_code, NullTVB, offset, 1,
+		code = tvb_get_guint8(tvb, offset);
+		proto_tree_add_uint(vtp_tree, hf_vtp_code, tvb, offset, 1,
 		    code);
 		offset += 1;
 		
 		switch (code) {
 
 		case SUMMARY_ADVERT:
-			proto_tree_add_uint(vtp_tree, hf_vtp_followers, NullTVB, offset,
-			    1, pd[offset]);
+			proto_tree_add_item(vtp_tree, hf_vtp_followers, tvb, offset,
+			    1, FALSE);
 			offset += 1;
 
-			md_len = pd[offset];
-			proto_tree_add_uint(vtp_tree, hf_vtp_md_len, NullTVB, offset,
+			md_len = tvb_get_guint8(tvb, offset);
+			proto_tree_add_uint(vtp_tree, hf_vtp_md_len, tvb, offset,
 			    1, md_len);
 			offset += 1;
 
-			proto_tree_add_string_format(vtp_tree, hf_vtp_md, NullTVB, offset,
-			    32, &pd[offset], "Management Domain: %.32s",
-			    &pd[offset]);
+			proto_tree_add_item(vtp_tree, hf_vtp_md, tvb, offset,
+			    32, FALSE);
 			offset += 32;
 
-			proto_tree_add_uint(vtp_tree, hf_vtp_conf_rev_num, NullTVB,
-			    offset, 4, pntohl(&pd[offset]));
+			proto_tree_add_item(vtp_tree, hf_vtp_conf_rev_num, tvb,
+			    offset, 4, FALSE);
 			offset += 4;
 
-			memcpy(&upd_id, &pd[offset], sizeof upd_id);
-			proto_tree_add_ipv4(vtp_tree, hf_vtp_upd_id, NullTVB,
-			    offset, 4, upd_id);
+			proto_tree_add_item(vtp_tree, hf_vtp_upd_id, tvb,
+			    offset, 4, FALSE);
 			offset += 4;
 
-			proto_tree_add_string_format(vtp_tree, hf_vtp_upd_ts, NullTVB,
-			    offset, 12, &pd[offset],
+			upd_timestamp = tvb_get_ptr(tvb, offset, 12);
+			proto_tree_add_string_format(vtp_tree, hf_vtp_upd_ts, tvb,
+			    offset, 12, upd_timestamp,
 			    "Update Timestamp: %.2s-%.2s-%.2s %.2s:%.2s:%.2s",
-			    &pd[offset], &pd[offset+2], &pd[offset+4],
-			    &pd[offset+6], &pd[offset+8], &pd[offset+10]);
+			    &upd_timestamp[0], &upd_timestamp[2], &upd_timestamp[4],
+			    &upd_timestamp[6], &upd_timestamp[8], &upd_timestamp[10]);
 			offset += 12;
 
-			proto_tree_add_bytes(vtp_tree, hf_vtp_md5_digest, NullTVB,
-			    offset, 16, &pd[offset]);
+			proto_tree_add_item(vtp_tree, hf_vtp_md5_digest, tvb,
+			    offset, 16, FALSE);
 			break;
 
 		case SUBSET_ADVERT:
-			proto_tree_add_uint(vtp_tree, hf_vtp_seq_num, NullTVB, offset,
-			    1, pd[offset]);
+			proto_tree_add_item(vtp_tree, hf_vtp_seq_num, tvb, offset,
+			    1, FALSE);
 			offset += 1;
 
-			md_len = pd[offset];
-			proto_tree_add_uint(vtp_tree, hf_vtp_md_len, NullTVB, offset,
+			md_len = tvb_get_guint8(tvb, offset);
+			proto_tree_add_uint(vtp_tree, hf_vtp_md_len, tvb, offset,
 			    1, md_len);
 			offset += 1;
 
-			proto_tree_add_string_format(vtp_tree, hf_vtp_md, NullTVB, offset,
-			    32, &pd[offset], "Management Domain: %.32s",
-			    &pd[offset]);
+			proto_tree_add_item(vtp_tree, hf_vtp_md, tvb, offset,
+			    32, FALSE);
 			offset += 32;
 
-			proto_tree_add_uint(vtp_tree, hf_vtp_conf_rev_num, NullTVB,
-			    offset, 4, pntohl(&pd[offset]));
+			proto_tree_add_item(vtp_tree, hf_vtp_conf_rev_num, tvb,
+			    offset, 4, FALSE);
 			offset += 4;
 
-			for (;;) {
+			while (tvb_reported_length_remaining(tvb, offset) > 0) {
 				vlan_info_len = 
-				    dissect_vlan_info(pd, offset, vtp_tree);
+				    dissect_vlan_info(tvb, offset, vtp_tree);
 				if (vlan_info_len < 0)
 					break;
 				offset += vlan_info_len;
@@ -190,13 +191,13 @@ dissect_vtp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		case ADVERT_REQUEST:
 			offset += 1;	/* skip reserved field */
 
-			md_len = pd[offset];
-			proto_tree_add_uint(vtp_tree, hf_vtp_md_len, NullTVB, offset,
+			md_len = tvb_get_guint8(tvb, offset);
+			proto_tree_add_uint(vtp_tree, hf_vtp_md_len, tvb, offset,
 			    1, md_len);
 			offset += 1;
 
-			proto_tree_add_uint(vtp_tree, hf_vtp_start_value, NullTVB,
-			    offset, 2, pntohs(&pd[offset]));
+			proto_tree_add_item(vtp_tree, hf_vtp_start_value, tvb,
+			    offset, 2, FALSE);
 			break;
 
 		case 0x04:
@@ -206,21 +207,20 @@ dissect_vtp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			 */
 			offset += 1;	/* skip unknown field */
 
-			md_len = pd[offset];
-			proto_tree_add_uint(vtp_tree, hf_vtp_md_len, NullTVB, offset,
+			md_len = tvb_get_guint8(tvb, offset);
+			proto_tree_add_uint(vtp_tree, hf_vtp_md_len, tvb, offset,
 			    1, md_len);
 			offset += 1;
 
-			proto_tree_add_string_format(vtp_tree, hf_vtp_md, NullTVB, offset,
-			    32, &pd[offset], "Management Domain: %.32s",
-			    &pd[offset]);
+			proto_tree_add_item(vtp_tree, hf_vtp_md, tvb, offset,
+			    32, FALSE);
 			offset += 32;
 
 			offset += 2;	/* skip unknown field */
 
-			proto_tree_add_text(vtp_tree, NullTVB, offset, 2,
+			proto_tree_add_text(vtp_tree, tvb, offset, 2,
 			    "VLAN ID of some sort: 0x%04x",
-			    pntohs(&pd[offset]));
+			    tvb_get_ntohs(tvb, offset));
 			offset += 2;
 			break;
 		}
@@ -264,7 +264,7 @@ static const value_string vlan_tlv_type_vals[] = {
 };
 
 static int
-dissect_vlan_info(const u_char *pd, int offset, proto_tree *tree)
+dissect_vlan_info(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	proto_item *ti; 
 	proto_tree *vlan_info_tree;
@@ -278,96 +278,91 @@ dissect_vlan_info(const u_char *pd, int offset, proto_tree *tree)
 	char *type_str;
 	proto_tree *tlv_tree;
 
-	if (!BYTES_ARE_IN_FRAME(offset, 1))
-		return -1;
-	vlan_info_len = pd[offset];
-	ti = proto_tree_add_text(tree, NullTVB, offset, vlan_info_len,
+	vlan_info_len = tvb_get_guint8(tvb, offset);
+	ti = proto_tree_add_text(tree, tvb, offset, vlan_info_len,
 	    "VLAN Information");
 	vlan_info_tree = proto_item_add_subtree(ti, ett_vtp_vlan_info);
 	vlan_info_left = vlan_info_len;
 
-	proto_tree_add_uint(vlan_info_tree, hf_vtp_vlan_info_len, NullTVB, offset, 1,
+	proto_tree_add_uint(vlan_info_tree, hf_vtp_vlan_info_len, tvb, offset, 1,
 	    vlan_info_len);
 	offset += 1;
 	vlan_info_left -= 1;
 
-	if (!BYTES_ARE_IN_FRAME(offset, 1) || vlan_info_left < 1)
+	if (vlan_info_left < 1)
 		return -1;
-	status = pd[offset];
-	ti = proto_tree_add_text(vlan_info_tree, NullTVB, offset, 1,
+	status = tvb_get_guint8(tvb, offset);
+	ti = proto_tree_add_text(vlan_info_tree, tvb, offset, 1,
 	    "Status: 0x%02x%s", status,
 	    (status & VLAN_SUSPENDED) ? "(VLAN suspended)" : "");
 	status_tree = proto_item_add_subtree(ti, ett_vtp_vlan_status);
-	proto_tree_add_boolean(status_tree, hf_vtp_vlan_status_vlan_susp, NullTVB, offset, 1,
+	proto_tree_add_boolean(status_tree, hf_vtp_vlan_status_vlan_susp, tvb, offset, 1,
 	    status);
 	offset += 1;
 	vlan_info_left -= 1;
 
-	if (!BYTES_ARE_IN_FRAME(offset, 1) || vlan_info_left < 1)
+	if (vlan_info_left < 1)
 		return -1;
-	proto_tree_add_uint(vlan_info_tree, hf_vtp_vlan_type, NullTVB, offset, 1,
-	    pd[offset]);
+	proto_tree_add_item(vlan_info_tree, hf_vtp_vlan_type, tvb, offset, 1,
+	    FALSE);
 	offset += 1;
 	vlan_info_left -= 1;
 
-	if (!BYTES_ARE_IN_FRAME(offset, 1) || vlan_info_left < 1)
+	if (vlan_info_left < 1)
 		return -1;
-	vlan_name_len = pd[offset];
-	proto_tree_add_uint(vlan_info_tree, hf_vtp_vlan_name_len, NullTVB, offset, 1,
+	vlan_name_len = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(vlan_info_tree, hf_vtp_vlan_name_len, tvb, offset, 1,
 	    vlan_name_len);
 	offset += 1;
 	vlan_info_left -= 1;
 
-	if (!BYTES_ARE_IN_FRAME(offset, 2) || vlan_info_left < 2)
+	if (vlan_info_left < 2)
 		return -1;
-	proto_tree_add_uint(vlan_info_tree, hf_vtp_isl_vlan_id, NullTVB, offset, 2,
-	    pntohs(&pd[offset]));
+	proto_tree_add_item(vlan_info_tree, hf_vtp_isl_vlan_id, tvb, offset, 2,
+	    FALSE);
 	offset += 2;
 	vlan_info_left -= 2;
 
-	if (!BYTES_ARE_IN_FRAME(offset, 2) || vlan_info_left < 2)
+	if (vlan_info_left < 2)
 		return -1;
-	proto_tree_add_uint(vlan_info_tree, hf_vtp_mtu_size, NullTVB, offset, 2,
-	    pntohs(&pd[offset]));
+	proto_tree_add_item(vlan_info_tree, hf_vtp_mtu_size, tvb, offset, 2,
+	    FALSE);
 	offset += 2;
 	vlan_info_left -= 2;
 
-	if (!BYTES_ARE_IN_FRAME(offset, 4) || vlan_info_left < 4)
+	if (vlan_info_left < 4)
 		return -1;
-	proto_tree_add_uint(vlan_info_tree, hf_vtp_802_10_index, NullTVB, offset, 4,
-	    pntohl(&pd[offset]));
+	proto_tree_add_item(vlan_info_tree, hf_vtp_802_10_index, tvb, offset, 4,
+	    FALSE);
 	offset += 4;
 	vlan_info_left -= 4;
 
-	/* VLAN name length appears to be rounded up to a multiple of
-	   4. */
+	/* VLAN name length appears to be rounded up to a multiple of 4. */
 	vlan_name_len = 4*((vlan_name_len + 3)/4);
-	if (!BYTES_ARE_IN_FRAME(offset, vlan_name_len)
-	    || vlan_info_left < vlan_name_len)
+	if (vlan_info_left < vlan_name_len)
 		return -1;
-	proto_tree_add_string_format(vlan_info_tree, hf_vtp_vlan_name, NullTVB, offset,
-	    vlan_name_len, &pd[offset], "VLAN Name: %.*s", vlan_name_len,
-	    &pd[offset]);
+	proto_tree_add_item(vlan_info_tree, hf_vtp_vlan_name, tvb, offset,
+	    vlan_name_len, FALSE);
 	offset += vlan_name_len;
 	vlan_info_left -= vlan_name_len;
 
-	while (IS_DATA_IN_FRAME(offset) && vlan_info_left > 0) {
-		type = pd[offset + 0];
-		length = pd[offset + 1];
+	while (vlan_info_left > 0) {
+		type = tvb_get_guint8(tvb, offset + 0);
+		length = tvb_get_guint8(tvb, offset + 1);
 		type_str = val_to_str(type, vlan_tlv_type_vals,
 		    "Unknown (0x%04x)");
 
-		ti = proto_tree_add_notext(vlan_info_tree, NullTVB, offset,
+		ti = proto_tree_add_notext(vlan_info_tree, tvb, offset,
 		    2 + length*2);
 		tlv_tree = proto_item_add_subtree(ti, ett_vtp_tlv);
-		proto_tree_add_uint(tlv_tree, hf_vtp_vlan_tlvtype, NullTVB, offset,
+		proto_tree_add_uint(tlv_tree, hf_vtp_vlan_tlvtype, tvb, offset,
 		    1, type);
-		proto_tree_add_uint(tlv_tree, hf_vtp_vlan_tlvlength, NullTVB, offset+1,
+		proto_tree_add_uint(tlv_tree, hf_vtp_vlan_tlvlength, tvb, offset+1,
 		    1, length);
 		offset += 2;
 		vlan_info_left -= 2;
 		if (length > 0) {
-			dissect_vlan_info_tlv(pd, offset, length*2, tlv_tree,
+			dissect_vlan_info_tlv(tvb, offset, length*2, tlv_tree,
 			    ti, type);
 		}
 		offset += length*2;
@@ -403,7 +398,7 @@ static const value_string backup_crf_mode_vals[] = {
 };
 
 static void
-dissect_vlan_info_tlv(const u_char *pd, int offset, int length,
+dissect_vlan_info_tlv(tvbuff_t *tvb, int offset, int length,
     proto_tree *tree, proto_item *ti, guint8 type)
 {
 	switch (type) {
@@ -412,15 +407,15 @@ dissect_vlan_info_tlv(const u_char *pd, int offset, int length,
 		if (length == 2) {
 			proto_item_set_text(ti,
 			    "Source-Routing Ring Number: 0x%04x",
-			    pntohs(&pd[offset]));
-			proto_tree_add_text(tree, NullTVB, offset, 2,
+			    tvb_get_ntohs(tvb, offset));
+			proto_tree_add_text(tree, tvb, offset, 2,
 			    "Source-Routing Ring Number: 0x%04x",
-			    pntohs(&pd[offset]));
+			    tvb_get_ntohs(tvb, offset));
 		} else {
 			proto_item_set_text(ti,
 			    "Source-Routing Ring Number: Bad length %u",
 			    length);
-			proto_tree_add_text(tree, NullTVB, offset, length,
+			proto_tree_add_text(tree, tvb, offset, length,
 			    "Source-Routing Ring Number: Bad length %u",
 			    length);
 		}
@@ -430,15 +425,15 @@ dissect_vlan_info_tlv(const u_char *pd, int offset, int length,
 		if (length == 2) {
 			proto_item_set_text(ti,
 			    "Source-Routing Bridge Number: 0x%04x",
-			    pntohs(&pd[offset]));
-			proto_tree_add_text(tree, NullTVB, offset, 2,
+			    tvb_get_ntohs(tvb, offset));
+			proto_tree_add_text(tree, tvb, offset, 2,
 			    "Source-Routing Bridge Number: 0x%04x",
-			    pntohs(&pd[offset]));
+			    tvb_get_ntohs(tvb, offset));
 		} else {
 			proto_item_set_text(ti,
 			    "Source-Routing Bridge Number: Bad length %u",
 			    length);
-			proto_tree_add_text(tree, NullTVB, offset, length,
+			proto_tree_add_text(tree, tvb, offset, length,
 			    "Source-Routing Bridge Number: Bad length %u",
 			    length);
 		}
@@ -448,17 +443,17 @@ dissect_vlan_info_tlv(const u_char *pd, int offset, int length,
 		if (length == 2) {
 			proto_item_set_text(ti,
 			    "Spanning-Tree Protocol Type: %s",
-			    val_to_str(pntohs(&pd[offset]), stp_type_vals,
+			    val_to_str(tvb_get_ntohs(tvb, offset), stp_type_vals,
 			      "Unknown (0x%04x)"));
-			proto_tree_add_text(tree, NullTVB, offset, 2,
+			proto_tree_add_text(tree, tvb, offset, 2,
 			    "Spanning-Tree Protocol Type: %s",
-			    val_to_str(pntohs(&pd[offset]), stp_type_vals,
+			    val_to_str(tvb_get_ntohs(tvb, offset), stp_type_vals,
 			      "Unknown (0x%04x)"));
 		} else {
 			proto_item_set_text(ti,
 			    "Spanning-Tree Protocol Type: Bad length %u",
 			    length);
-			proto_tree_add_text(tree, NullTVB, offset, length,
+			proto_tree_add_text(tree, tvb, offset, length,
 			    "Spanning-Tree Protocol Type: Bad length %u",
 			    length);
 		}
@@ -468,15 +463,15 @@ dissect_vlan_info_tlv(const u_char *pd, int offset, int length,
 		if (length == 2) {
 			proto_item_set_text(ti,
 			    "Parent VLAN: 0x%04x",
-			    pntohs(&pd[offset]));
-			proto_tree_add_text(tree, NullTVB, offset, 2,
+			    tvb_get_ntohs(tvb, offset));
+			proto_tree_add_text(tree, tvb, offset, 2,
 			    "Parent VLAN: 0x%04x",
-			    pntohs(&pd[offset]));
+			    tvb_get_ntohs(tvb, offset));
 		} else {
 			proto_item_set_text(ti,
 			    "Parent VLAN: Bad length %u",
 			    length);
-			proto_tree_add_text(tree, NullTVB, offset, length,
+			proto_tree_add_text(tree, tvb, offset, length,
 			    "Parent VLAN: Bad length %u",
 			    length);
 		}
@@ -486,15 +481,15 @@ dissect_vlan_info_tlv(const u_char *pd, int offset, int length,
 		if (length == 2) {
 			proto_item_set_text(ti,
 			    "Translationally Bridged VLANs: 0x%04x",
-			    pntohs(&pd[offset]));
-			proto_tree_add_text(tree, NullTVB, offset, 2,
+			    tvb_get_ntohs(tvb, offset));
+			proto_tree_add_text(tree, tvb, offset, 2,
 			    "Translationally Bridged VLANs: 0x%04x",
-			    pntohs(&pd[offset]));
+			    tvb_get_ntohs(tvb, offset));
 		} else {
 			proto_item_set_text(ti,
 			    "Translationally Bridged VLANs: Bad length %u",
 			    length);
-			proto_tree_add_text(tree, NullTVB, offset, length,
+			proto_tree_add_text(tree, tvb, offset, length,
 			    "Translationally Bridged VLANs: Bad length %u",
 			    length);
 		}
@@ -504,17 +499,17 @@ dissect_vlan_info_tlv(const u_char *pd, int offset, int length,
 		if (length == 2) {
 			proto_item_set_text(ti,
 			    "Pruning: %s",
-			    val_to_str(pntohs(&pd[offset]), pruning_vals,
+			    val_to_str(tvb_get_ntohs(tvb, offset), pruning_vals,
 			      "Unknown (0x%04x)"));
-			proto_tree_add_text(tree, NullTVB, offset, 2,
+			proto_tree_add_text(tree, tvb, offset, 2,
 			    "Pruning: %s",
-			    val_to_str(pntohs(&pd[offset]), pruning_vals,
+			    val_to_str(tvb_get_ntohs(tvb, offset), pruning_vals,
 			      "Unknown (0x%04x)"));
 		} else {
 			proto_item_set_text(ti,
 			    "Pruning: Bad length %u",
 			    length);
-			proto_tree_add_text(tree, NullTVB, offset, length,
+			proto_tree_add_text(tree, tvb, offset, length,
 			    "Pruning: Bad length %u",
 			    length);
 		}
@@ -524,17 +519,17 @@ dissect_vlan_info_tlv(const u_char *pd, int offset, int length,
 		if (length == 2) {
 			proto_item_set_text(ti,
 			    "Bridge Type: %s",
-			    val_to_str(pntohs(&pd[offset]), bridge_type_vals,
+			    val_to_str(tvb_get_ntohs(tvb, offset), bridge_type_vals,
 			      "Unknown (0x%04x)"));
-			proto_tree_add_text(tree, NullTVB, offset, 2,
+			proto_tree_add_text(tree, tvb, offset, 2,
 			    "Bridge Type: %s",
-			    val_to_str(pntohs(&pd[offset]), bridge_type_vals,
+			    val_to_str(tvb_get_ntohs(tvb, offset), bridge_type_vals,
 			      "Unknown (0x%04x)"));
 		} else {
 			proto_item_set_text(ti,
 			    "Bridge Type: Bad length %u",
 			    length);
-			proto_tree_add_text(tree, NullTVB, offset, length,
+			proto_tree_add_text(tree, tvb, offset, length,
 			    "Bridge Type: Bad length %u",
 			    length);
 		}
@@ -544,15 +539,15 @@ dissect_vlan_info_tlv(const u_char *pd, int offset, int length,
 		if (length == 2) {
 			proto_item_set_text(ti,
 			    "Max ARE Hop Count: %u",
-			    pntohs(&pd[offset]));
-			proto_tree_add_text(tree, NullTVB, offset, 2,
+			    tvb_get_ntohs(tvb, offset));
+			proto_tree_add_text(tree, tvb, offset, 2,
 			    "Max ARE Hop Count: %u",
-			    pntohs(&pd[offset]));
+			    tvb_get_ntohs(tvb, offset));
 		} else {
 			proto_item_set_text(ti,
 			    "Max ARE Hop Count: Bad length %u",
 			    length);
-			proto_tree_add_text(tree, NullTVB, offset, length,
+			proto_tree_add_text(tree, tvb, offset, length,
 			    "Max ARE Hop Count: Bad length %u",
 			    length);
 		}
@@ -562,15 +557,15 @@ dissect_vlan_info_tlv(const u_char *pd, int offset, int length,
 		if (length == 2) {
 			proto_item_set_text(ti,
 			    "Max STE Hop Count: %u",
-			    pntohs(&pd[offset]));
-			proto_tree_add_text(tree, NullTVB, offset, 2,
+			    tvb_get_ntohs(tvb, offset));
+			proto_tree_add_text(tree, tvb, offset, 2,
 			    "Max STE Hop Count: %u",
-			    pntohs(&pd[offset]));
+			    tvb_get_ntohs(tvb, offset));
 		} else {
 			proto_item_set_text(ti,
 			    "Max STE Hop Count: Bad length %u",
 			    length);
-			proto_tree_add_text(tree, NullTVB, offset, length,
+			proto_tree_add_text(tree, tvb, offset, length,
 			    "Max STE Hop Count: Bad length %u",
 			    length);
 		}
@@ -580,17 +575,17 @@ dissect_vlan_info_tlv(const u_char *pd, int offset, int length,
 		if (length == 2) {
 			proto_item_set_text(ti,
 			    "Backup CRF Mode: %s",
-			    val_to_str(pntohs(&pd[offset]), backup_crf_mode_vals,
+			    val_to_str(tvb_get_ntohs(tvb, offset), backup_crf_mode_vals,
 			      "Unknown (0x%04x)"));
-			proto_tree_add_text(tree, NullTVB, offset, 2,
+			proto_tree_add_text(tree, tvb, offset, 2,
 			    "Backup CRF Mode: %s",
-			    val_to_str(pntohs(&pd[offset]), backup_crf_mode_vals,
+			    val_to_str(tvb_get_ntohs(tvb, offset), backup_crf_mode_vals,
 			      "Unknown (0x%04x)"));
 		} else {
 			proto_item_set_text(ti,
 			    "Backup CRF Mode: Bad length %u",
 			    length);
-			proto_tree_add_text(tree, NullTVB, offset, length,
+			proto_tree_add_text(tree, tvb, offset, length,
 			    "Backup CRF Mode: Bad length %u",
 			    length);
 		}
@@ -598,7 +593,7 @@ dissect_vlan_info_tlv(const u_char *pd, int offset, int length,
 
 	default:
 		proto_item_set_text(ti, "Unknown TLV type: 0x%02x", type);
-		proto_tree_add_text(tree, NullTVB, offset, length, "Data");
+		proto_tree_add_text(tree, tvb, offset, length, "Data");
 		break;
 	}
 }
@@ -701,4 +696,10 @@ proto_register_vtp(void)
         proto_vtp = proto_register_protocol("Virtual Trunking Protocol", "vtp");
         proto_register_field_array(proto_vtp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_vtp(void)
+{
+	dissector_add("llc.cisco_pid", 0x2003, dissect_vtp);
 }

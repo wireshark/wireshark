@@ -1,7 +1,7 @@
 /* packet-cgmp.c
  * Routines for the disassembly of the Cisco Group Management Protocol
  *
- * $Id: packet-cgmp.c,v 1.5 2000/11/19 08:53:56 guy Exp $
+ * $Id: packet-cgmp.c,v 1.6 2000/12/28 09:49:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,48 +58,48 @@ static const value_string type_vals[] = {
 	{ 0, NULL },
 };
 	
-void 
-dissect_cgmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+static void 
+dissect_cgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti; 
 	proto_tree *cgmp_tree = NULL;
+	int offset = 0;
 	guint8 count;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_cgmp, pd, offset, fd, tree);
+	CHECK_DISPLAY_AS_DATA(proto_cgmp, tvb, pinfo, tree);
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "CGMP");
-	if (check_col(fd, COL_INFO))
-		col_set_str(fd, COL_INFO, "Cisco Group Management Protocol"); 
+	pinfo->current_proto = "CGMP";
+
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "CGMP");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_set_str(pinfo->fd, COL_INFO, "Cisco Group Management Protocol"); 
 
 	if (tree) {
-	        ti = proto_tree_add_item(tree, proto_cgmp, NullTVB, offset, END_OF_FRAME, FALSE);
+	        ti = proto_tree_add_item(tree, proto_cgmp, tvb, offset,
+	            tvb_length_remaining(tvb, offset), FALSE);
 		cgmp_tree = proto_item_add_subtree(ti, ett_cgmp);
 	
-		proto_tree_add_uint(cgmp_tree, hf_cgmp_version, NullTVB, offset, 1,
-		    pd[offset]);
-		proto_tree_add_uint(cgmp_tree, hf_cgmp_type, NullTVB, offset, 1,
-		    pd[offset]);
+		proto_tree_add_item(cgmp_tree, hf_cgmp_version, tvb, offset, 1,
+		    FALSE);
+		proto_tree_add_item(cgmp_tree, hf_cgmp_type, tvb, offset, 1,
+		    FALSE);
 		offset += 1;
 
 		offset += 2;	/* skip reserved field */
 
-		count = pd[offset];
-		proto_tree_add_uint(cgmp_tree, hf_cgmp_count, NullTVB, offset, 1,
+		count = tvb_get_guint8(tvb, offset);
+		proto_tree_add_uint(cgmp_tree, hf_cgmp_count, tvb, offset, 1,
 		    count);
 		offset += 1;
 
 		while (count != 0) {
-			if (!BYTES_ARE_IN_FRAME(offset, 6))
-				break;
-			proto_tree_add_ether(cgmp_tree, hf_cgmp_gda, NullTVB, offset, 6,
-			    &pd[offset]);
+			proto_tree_add_item(cgmp_tree, hf_cgmp_gda, tvb, offset, 6,
+			    FALSE);
 			offset += 6;
 
-			if (!BYTES_ARE_IN_FRAME(offset, 6))
-				break;
-			proto_tree_add_ether(cgmp_tree, hf_cgmp_usa, NullTVB, offset, 6,
-			    &pd[offset]);
+			proto_tree_add_item(cgmp_tree, hf_cgmp_usa, tvb, offset, 6,
+			    FALSE);
 			offset += 6;
 
 			count--;
@@ -138,4 +138,10 @@ proto_register_cgmp(void)
         proto_cgmp = proto_register_protocol("Cisco Group Management Protocol", "cgmp");
         proto_register_field_array(proto_cgmp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_cgmp(void)
+{
+	dissector_add("llc.cisco_pid", 0x2001, dissect_cgmp);
 }
