@@ -981,7 +981,8 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	  then
 	    KRB5_FLAGS=`"$KRB5_CONFIG" --cflags`
 	    CFLAGS="$CFLAGS $KRB5_FLAGS"
-            CPPFLAGS="$CPPFLAGS $KRB5_FLAGS"
+	    CPPFLAGS="$CPPFLAGS $KRB5_FLAGS"
+	    KRB5_LIBS=`"$KRB5_CONFIG" --libs`
 	    #
 	    # If -lcrypto is in KRB5_FLAGS, we require it to build
 	    # with Heimdal.  We don't want to built with it by
