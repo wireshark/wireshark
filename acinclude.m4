@@ -731,9 +731,9 @@ AC_DEFUN([AC_ETHEREAL_UCDSNMP_CHECK],
 		# needed after the library *and* to cache all that
 		# information.
 		#
+		ac_save_LIBS="$LIBS"
 		for extras in "" "-L/usr/kerberos/lib -ldes425" "-lkstat"
 		do
-			ac_save_LIBS="$LIBS"
 			LIBS="-lsnmp $extras $SOCKET_LIBS $NSL_LIBS $SSL_LIBS"
 			AC_TRY_LINK(
 			[
