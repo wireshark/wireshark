@@ -1,7 +1,7 @@
 /* dfilter.h
  * Definitions for display filters
  *
- * $Id: dfilter.h,v 1.1 1999/07/07 22:51:37 gram Exp $
+ * $Id: dfilter.h,v 1.2 1999/07/07 23:54:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,7 +29,7 @@
 void dfilter_init(void);
 void dfilter_cleanup(void);
 int dfilter_compile(char* dfilter_text, GNode** p_dfcode);
-gboolean dfilter_apply(GNode *dfcode, proto_tree *ptree, guint8* pd);
+gboolean dfilter_apply(GNode *dfcode, proto_tree *ptree, const guint8* pd);
 
 /* Here we provide interfaces to make our scanner act and look like lex */
 int yylex(void);

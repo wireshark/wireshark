@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.1 1999/07/07 22:51:59 gram Exp $
+ * $Id: proto.h,v 1.2 1999/07/07 23:54:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -112,9 +112,9 @@ typedef struct field_info {
 
 
 typedef struct proto_tree_search_info {
-	int	target_field;
-	GArray	*result_array;
-	guint8	*packet_data;
+	int		target_field;
+	GArray		*result_array;
+	const guint8	*packet_data;
 } proto_tree_search_info;
 
 void proto_init(void);

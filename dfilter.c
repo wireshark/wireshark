@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.1 1999/07/07 22:51:37 gram Exp $
+ * $Id: dfilter.c,v 1.2 1999/07/07 23:54:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -71,10 +71,10 @@ extern GMemChunk *gmc_dfilter_nodes;
 extern GNode *dfilter_tree;
 extern GSList *dfilter_list_byte_arrays;
 
-static gboolean dfilter_apply_node(GNode *gnode, proto_tree *ptree, guint8 *pd);
-static gboolean check_relation(gint operand, GNode *a, GNode *b, proto_tree *ptree, guint8 *pd);
-static gboolean check_logical(gint operand, GNode *a, GNode *b, proto_tree *ptree, guint8 *pd);
-static GArray* get_values_from_ptree(dfilter_node *dnode, proto_tree *ptree, guint8 *pd);
+static gboolean dfilter_apply_node(GNode *gnode, proto_tree *ptree, const guint8 *pd);
+static gboolean check_relation(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8 *pd);
+static gboolean check_logical(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8 *pd);
+static GArray* get_values_from_ptree(dfilter_node *dnode, proto_tree *ptree, const guint8 *pd);
 static GArray* get_values_from_dfilter(dfilter_node *dnode, GNode *gnode);
 static gboolean check_existence_in_ptree(dfilter_node *dnode, proto_tree *ptree);
 static void clear_byte_array(gpointer data, gpointer user_data);
@@ -86,7 +86,7 @@ static void clear_byte_array(gpointer data, gpointer user_data);
  */
 #define g_array_index_ptr(a,s,i)      (((guint8*) (a)->data) + (i*s))
 
-static const GScannerConfig dfilter_scanner_config =
+static GScannerConfig dfilter_scanner_config =
 {
   (
    " \t\n"
@@ -301,7 +301,7 @@ dfilter_yyerror(char *fmt, ...)
 }
 
 gboolean
-dfilter_apply(GNode *dfcode, proto_tree *ptree, guint8* pd)
+dfilter_apply(GNode *dfcode, proto_tree *ptree, const guint8* pd)
 {
 	gboolean retval;
 	retval = dfilter_apply_node(dfcode, ptree, pd);
@@ -309,7 +309,7 @@ dfilter_apply(GNode *dfcode, proto_tree *ptree, guint8* pd)
 }
 
 static gboolean
-dfilter_apply_node(GNode *gnode, proto_tree *ptree, guint8* pd)
+dfilter_apply_node(GNode *gnode, proto_tree *ptree, const guint8* pd)
 {
 	GNode		*gnode_a, *gnode_b;
 	dfilter_node	*dnode = (dfilter_node*) (gnode->data);
@@ -362,7 +362,7 @@ dfilter_apply_node(GNode *gnode, proto_tree *ptree, guint8* pd)
 }
 
 static gboolean
-check_logical(gint operand, GNode *a, GNode *b, proto_tree *ptree, guint8 *pd)
+check_logical(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8 *pd)
 {
 	switch(operand) {
 	case TOK_AND:
@@ -387,7 +387,7 @@ check_logical(gint operand, GNode *a, GNode *b, proto_tree *ptree, guint8 *pd)
  * faster.
  */
 static gboolean
-check_relation(gint operand, GNode *a, GNode *b, proto_tree *ptree, guint8* pd)
+check_relation(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8* pd)
 {
 	dfilter_node	*node_a = (dfilter_node*) (a->data);
 	dfilter_node	*node_b = (dfilter_node*) (b->data);
@@ -453,7 +453,7 @@ check_existence_in_ptree(dfilter_node *dnode, proto_tree *ptree)
 }
 
 static GArray*
-get_values_from_ptree(dfilter_node *dnode, proto_tree *ptree, guint8 *pd)
+get_values_from_ptree(dfilter_node *dnode, proto_tree *ptree, const guint8 *pd)
 {
 	GArray		*array;
 	int		parent_protocol;
