@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.195 2001/04/19 23:06:23 guy Exp $
+ * $Id: main.c,v 1.196 2001/04/24 00:28:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1546,7 +1546,7 @@ boldify(const char *font_name)
 {
 	char *bold_font_name;
 	gchar **xlfd_tokens;
-	int i;
+	unsigned int i;
 
 	/* Is this an XLFD font?  If it begins with "-", yes, otherwise no. */
 	if (font_name[0] == '-') {

@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.8 2001/04/02 09:53:46 guy Exp $
+ * $Id: colors.c,v 1.9 2001/04/24 00:28:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -207,7 +207,7 @@ read_filters(colfilter *filter)
 	  if(!fgets(buf,sizeof buf, f))
 		break;
 		
-	  if(strspn( buf," \t") == (strchr(buf,'*') - buf)){
+	  if(strspn( buf," \t") == (size_t)((strchr(buf,'*') - buf))){
 		/* leading # comment */
 		continue;
 	  }

@@ -885,7 +885,7 @@ gtk_clist_get_arg (GtkObject      *object,
 
   switch (arg_id)
     {
-      guint i;
+      gint i;
 
     case ARG_N_COLUMNS:
       GTK_VALUE_UINT (*arg) = clist->columns;
@@ -1042,7 +1042,7 @@ gtk_clist_construct (GtkCList *clist,
 
   if (titles)
     {
-      guint i;
+      gint i;
       
       GTK_CLIST_SET_FLAG (clist, CLIST_SHOW_TITLES);
       for (i = 0; i < columns; i++)
@@ -5515,7 +5515,7 @@ gtk_clist_forall (GtkContainer *container,
 		  gpointer      callback_data)
 {
   GtkCList *clist;
-  guint i;
+  gint i;
 
   g_return_if_fail (container != NULL);
   g_return_if_fail (GTK_IS_CLIST (container));
@@ -7591,7 +7591,7 @@ gtk_clist_drag_leave (GtkWidget      *widget,
 	  list = context->targets;
 	  while (list)
 	    {
-	      if (atom == GPOINTER_TO_INT (list->data))
+	      if (atom == GPOINTER_TO_UINT (list->data))
 		{
 		  GTK_CLIST_CLASS_FW (clist)->draw_drag_highlight
 		    (clist,
@@ -7646,7 +7646,7 @@ gtk_clist_drag_motion (GtkWidget      *widget,
       list = context->targets;
       while (list)
 	{
-	  if (atom == GPOINTER_TO_INT (list->data))
+	  if (atom == GPOINTER_TO_UINT (list->data))
 	    break;
 	  list = list->next;
 	}
@@ -7720,7 +7720,7 @@ gtk_clist_drag_drop (GtkWidget      *widget,
       list = context->targets;
       while (list)
 	{
-	  if (atom == GPOINTER_TO_INT (list->data))
+	  if (atom == GPOINTER_TO_UINT (list->data))
 	    return TRUE;
 	  list = list->next;
 	}
