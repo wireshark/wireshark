@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.25 2002/10/17 22:38:19 guy Exp $
+ * $Id: packet-dsi.c,v 1.26 2003/04/15 05:45:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,7 +36,6 @@
 
 #include "prefs.h"
 #include "packet-tcp.h"
-
 #include "packet-afp.h"
 
 /* The information in this module (DSI) comes from:
@@ -106,6 +105,8 @@ static const value_string dsi_open_type_vals[] = {
 
 /* status stuff same for asp and afp */
 static int hf_dsi_server_name = -1;
+static int hf_dsi_utf8_server_name_len = -1;
+static int hf_dsi_utf8_server_name = -1;
 static int hf_dsi_server_type = -1;
 static int hf_dsi_server_vers = -1;
 static int hf_dsi_server_uams = -1;
@@ -136,6 +137,7 @@ static gint ett_dsi_vers   = -1;
 static gint ett_dsi_addr   = -1;
 static gint ett_dsi_addr_line = -1;
 static gint ett_dsi_directory = -1;
+static gint ett_dsi_utf8_name = -1;
 static gint ett_dsi_status_server_flag = -1;
 
 const value_string afp_server_addr_type_vals[] = {
@@ -257,6 +259,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	guint16 sign_ofs = 0;
 	guint16 adr_ofs = 0;
 	guint16 dir_ofs = 0;
+	guint16 utf_ofs = 0;
 	guint8	nbe;
 	guint8  len;
 	guint8  i;
@@ -319,6 +322,12 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 			proto_tree_add_text(tree, tvb, ofs, 2, "Directory services offset: %d", dir_ofs);
 			dir_ofs += offset;
 		}
+		if ((flag & AFPSRVRINFO_SRVUTF8)) {
+			ofs += 2;
+			utf_ofs =  tvb_get_ntohs(tvb, ofs);
+			proto_tree_add_text(tree, tvb, ofs, 2, "UTF8 server name offset: %d", utf_ofs);
+			utf_ofs += offset;
+		}
 	}
 
 	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_MACHOFF);
@@ -380,7 +389,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 			switch (type) {
 			case 1:	/* IP */
 				ip = tvb_get_ptr(tvb, ofs+2, 4);
-				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip %s", ip_to_str(ip));
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip: %s", ip_to_str(ip));
 				break;
 			case 2: /* IP + port */
 				ip = tvb_get_ptr(tvb, ofs+2, 4);
@@ -391,19 +400,24 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 				net  = tvb_get_ntohs(tvb, ofs+2);
 				node = tvb_get_guint8(tvb, ofs +4);
 				port = tvb_get_guint8(tvb, ofs +5);
-				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ddp %u.%u:%u",
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ddp: %u.%u:%u",
 					net, node, port);
 				break;
 			case 4: /* DNS */
+			case 5: /* SSH tunnel */
 				if (len > 2) {
 					tmp = g_malloc( len -1);
 					tvb_memcpy(tvb, tmp, ofs +2, len -2);
 					tmp[len -2] = 0;
-					ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "dns %s", tmp);
+					ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "%s: %s", 
+								(type==4)?"dns":"ssh tunnel", tmp);
 					g_free(tmp);
 					break;
 				}
-				/* else fall to default malformed record */
+				else {
+					ti = proto_tree_add_text(adr_tree, tvb, ofs, len,"Malformed address type %d", type);
+				}
+				break;
 			default:
 				ti = proto_tree_add_text(adr_tree, tvb, ofs, len,"Unknow type : %d", type);
 				break;
@@ -430,6 +444,26 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 			proto_tree_add_item(sub_tree, hf_dsi_server_directory, tvb, ofs, 1, FALSE);
 			ofs += len;
 		}
+	}
+	if (utf_ofs) {
+		guint16 ulen;
+		char *tmp = NULL;
+
+		ofs = utf_ofs;
+		ulen = tvb_get_ntohs(tvb, ofs);
+		if(ulen) {
+			tmp = g_malloc( ulen);
+			tvb_memcpy(tvb, tmp, ofs +2, ulen);
+			tmp[ulen] = 0;
+		}
+		ti = proto_tree_add_text(tree, tvb, ofs, ulen +2, "UTF8 server name: %s", (tmp)?tmp:"");
+		if (tmp) {
+			g_free(tmp);
+		}
+		sub_tree = proto_item_add_subtree(ti, ett_dsi_utf8_name);
+		proto_tree_add_item( sub_tree, hf_dsi_utf8_server_name_len, tvb, ofs, 2,FALSE);
+		ofs += 2;
+		proto_tree_add_item(sub_tree, hf_dsi_utf8_server_name, tvb, ofs, ulen,FALSE);
 	}
 
 	return offset;
@@ -606,6 +640,15 @@ proto_register_dsi(void)
 	FT_UINT32, BASE_HEX, NULL, 0x0,
       	"Reserved for future use.  Should be set to zero.", HFILL }},
 	/* asp , afp */
+    { &hf_dsi_utf8_server_name_len,
+      { "Length",          "dsi.utf8_server_name_len",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+      	"UTF8 server name length.", HFILL }},
+    { &hf_dsi_utf8_server_name,
+      { "UTF8 Server name",         "dsi.utf8_server_name",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+      	"UTF8 Server name", HFILL }},
+
     { &hf_dsi_server_name,
       { "Server name",         "dsi.server_name",
 	FT_UINT_STRING, BASE_NONE, NULL, 0x0,
@@ -770,6 +813,7 @@ proto_register_dsi(void)
     &ett_dsi_addr,
     &ett_dsi_addr_line,
     &ett_dsi_directory,
+    &ett_dsi_utf8_name,
   };
   module_t *dsi_module;
 
