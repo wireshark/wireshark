@@ -7,7 +7,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.105 2004/05/08 10:28:47 obiot Exp $
+ * $Id: packet-http.c,v 1.106 2004/05/08 12:54:24 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -701,7 +701,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 */
 			e_ti = proto_tree_add_text(http_tree, next_tvb,
 					0, tvb_length(next_tvb),
-					"Encoded entity-body (%s)",
+					"Encoded entity body (%s)",
 					headers.content_encoding);
 			e_tree = proto_item_add_subtree(e_ti,
 					ett_http_encoded_entity);
@@ -710,6 +710,14 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				/*
 				 * Decompression worked
 				 */
+
+				/* XXX - Don't free this, since it's possible
+				 * that the data was only partially
+				 * decompressed, such as when desegmentation
+				 * isn't enabled.
+				 *
+ 				tvb_free(next_tvb);
+				*/
 				next_tvb = uncomp_tvb;
 				tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 				add_new_data_source(pinfo, next_tvb, 
@@ -726,6 +734,14 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				
 				goto body_dissected;
 			}
++		} else if (chunks_decoded > 0) {
++			/*
++			 * Add a new data source for the de-chunked data.
++			 */
++			tvb_set_child_real_data_tvbuff(tvb, next_tvb);
++			add_new_data_source(pinfo, next_tvb,
++			    "De-chunked entity body");
+
 		}
 
 		/*
@@ -895,14 +911,14 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 
 		if (linelen <= 0) {
 			/* Can't get the chunk size line */
-			return chunks_decoded;
+			break;
 		}
 
 		chunk_string = tvb_get_string(tvb, offset, linelen);
 
 		if (chunk_string == NULL) {
 			/* Can't get the chunk size line */
-			return chunks_decoded;
+			break;
 		}
 		
 		c = chunk_string;
@@ -916,7 +932,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 
 		if (sscanf(chunk_string, "%x", &chunk_size) != 1) {
 			g_free(chunk_string);
-			return chunks_decoded;
+			break;
 		}
 
 		g_free(chunk_string);
@@ -1013,7 +1029,13 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 		/ * tvb_set_reported_length(new_tvb, chunked_data_size); * /
 		*/
 
+		/*
+		 * XXX - Don't free this, since the tvbuffer that was passed
+		 * may be used if the data spans multiple frames and reassembly
+		 * isn't enabled.
+		 *
 		tvb_free(*tvb_ptr);
+		 */
 		*tvb_ptr = new_tvb;
 		
 	} else {
