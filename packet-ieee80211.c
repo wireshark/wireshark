@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.20 2001/06/08 06:01:06 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.21 2001/06/10 07:40:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,6 +64,7 @@
 #include "bitswap.h"
 #include "proto.h"
 #include "packet.h"
+#include "resolv.h"
 #include "packet-llc.h"
 #include "packet-ieee80211.h"
 #include "etypes.h"
@@ -745,7 +746,27 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
   return tag_len + 2;
 }
 
+static void
+set_src_addr_cols(packet_info *pinfo, const guint8 *addr, char *type)
+{
+  if (check_col(pinfo->fd, COL_RES_DL_SRC))
+    col_add_fstr(pinfo->fd, COL_RES_DL_SRC, "%s (%s)",
+		    get_ether_name(addr), type);
+  if (check_col(pinfo->fd, COL_UNRES_DL_SRC))
+    col_add_fstr(pinfo->fd, COL_UNRES_DL_SRC, "%s (%s)",
+		     ether_to_str(addr), type);
+}
 
+static void
+set_dst_addr_cols(packet_info *pinfo, const guint8 *addr, char *type)
+{
+  if (check_col(pinfo->fd, COL_RES_DL_DST))
+    col_add_fstr(pinfo->fd, COL_RES_DL_DST, "%s (%s)",
+		     get_ether_name(addr), type);
+  if (check_col(pinfo->fd, COL_UNRES_DL_DST))
+    col_add_fstr(pinfo->fd, COL_UNRES_DL_DST, "%s (%s)",
+		     ether_to_str(addr), type);
+}
 
 /* ************************************************************************* */
 /*                          Dissect 802.11 frame                             */
@@ -846,14 +867,10 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       src = tvb_get_ptr (tvb, 10, 6);
       dst = tvb_get_ptr (tvb, 4, 6);
 
-
-      if (check_col (pinfo->fd, COL_DEF_SRC))
-	col_add_fstr (pinfo->fd, COL_DEF_SRC, "%X:%X:%X:%X:%X:%X",
-		      src[0], src[1], src[2], src[3], src[4], src[5]);
-
-      if (check_col (pinfo->fd, COL_DEF_DST))
-	col_add_fstr (pinfo->fd, COL_DEF_DST, "%X:%X:%X:%X:%X:%X",
-		      dst[0], dst[1], dst[2], dst[3], dst[4], dst[5]);
+      SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, src);
+      SET_ADDRESS(&pinfo->src, AT_ETHER, 6, src);
+      SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, dst);
+      SET_ADDRESS(&pinfo->dst, AT_ETHER, 6, dst);
 
       if (tree)
 	{
@@ -916,15 +933,10 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  break;
 	}
 
-      if (check_col (pinfo->fd, COL_DEF_SRC))
-	col_add_fstr (pinfo->fd, COL_DEF_SRC,
-		      "%2.2X:%2.2X:%2.2X:%2.2X:%2.2X:%2.2X",
-		      src[0], src[1], src[2], src[3], src[4], src[5]);
-
-      if (check_col (pinfo->fd, COL_DEF_DST))
-	col_add_fstr (pinfo->fd, COL_DEF_DST,
-		      "%2.2X:%2.2X:%2.2X:%2.2X:%2.2X:%2.2X",
-		      dst[0], dst[1], dst[2], dst[3], dst[4], dst[5]);
+      SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, src);
+      SET_ADDRESS(&pinfo->src, AT_ETHER, 6, src);
+      SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, dst);
+      SET_ADDRESS(&pinfo->dst, AT_ETHER, 6, dst);
 
       /* Now if we have a tree we start adding stuff */
       if (tree)
@@ -1275,16 +1287,8 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       src = tvb_get_ptr (tvb, 10, 6);
       dst = tvb_get_ptr (tvb, 4, 6);
 
-
-      if (check_col (pinfo->fd, COL_DEF_SRC))
-	col_add_fstr (pinfo->fd, COL_DEF_SRC,
-		      "%2.2X:%2.2X:%2.2X:%2.2X:%2.2X:%2.2X (BSSID)",
-		      src[0], src[1], src[2], src[3], src[4], src[5]);
-
-      if (check_col (pinfo->fd, COL_DEF_DST))
-	col_add_fstr (pinfo->fd, COL_DEF_DST,
-		      "%2.2X:%2.2X:%2.2X:%2.2X:%2.2X:%2.2X (TA)",
-		      dst[0], dst[1], dst[2], dst[3], dst[4], dst[5]);
+      set_src_addr_cols(pinfo, src, "BSSID");
+      set_dst_addr_cols(pinfo, dst, "BSSID");
 
       if (tree)
 	{
@@ -1304,16 +1308,8 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       src = tvb_get_ptr (tvb, 10, 6);
       dst = tvb_get_ptr (tvb, 4, 6);
 
-
-      if (check_col (pinfo->fd, COL_DEF_SRC))
-	col_add_fstr (pinfo->fd, COL_DEF_SRC,
-		      "%2.2X:%2.2X:%2.2X:%2.2X:%2.2X:%2.2X (TA)",
-		      src[0], src[1], src[2], src[3], src[4], src[5]);
-
-      if (check_col (pinfo->fd, COL_DEF_DST))
-	col_add_fstr (pinfo->fd, COL_DEF_DST,
-		      "%2.2X:%2.2X:%2.2X:%2.2X:%2.2X:%2.2X (RA)",
-		      dst[0], dst[1], dst[2], dst[3], dst[4], dst[5]);
+      set_src_addr_cols(pinfo, src, "TA");
+      set_dst_addr_cols(pinfo, dst, "RA");
 
       if (tree)
 	{
@@ -1333,10 +1329,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
       dst = tvb_get_ptr (tvb, 4, 6);
 
-      if (check_col (pinfo->fd, COL_DEF_DST))
-	col_add_fstr (pinfo->fd, COL_DEF_DST,
-		      "%2.2X:%2.2X:%2.2X:%2.2X:%2.2X:%2.2X (RA)",
-		      dst[0], dst[1], dst[2], dst[3], dst[4], dst[5]);
+      set_dst_addr_cols(pinfo, dst, "RA");
 
       if (tree)
 	{
@@ -1353,10 +1346,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
       dst = tvb_get_ptr (tvb, 4, 6);
 
-      if (check_col (pinfo->fd, COL_DEF_DST))
-	col_add_fstr (pinfo->fd, COL_DEF_DST,
-		      "%2.2X:%2.2X:%2.2X:%2.2X:%2.2X:%2.2X (RA)",
-		      dst[0], dst[1], dst[2], dst[3], dst[4], dst[5]);
+      set_dst_addr_cols(pinfo, dst, "RA");
 
       if (tree)
 	proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6,
@@ -1371,14 +1361,8 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       src = tvb_get_ptr (tvb, 10, 6);
       dst = tvb_get_ptr (tvb, 4, 6);
 
-
-      if (check_col (pinfo->fd, COL_DEF_SRC))
-	col_add_fstr (pinfo->fd, COL_DEF_SRC, "%X:%X:%X:%X:%X:%X (BSSID)",
-		      src[0], src[1], src[2], src[3], src[4], src[5]);
-
-      if (check_col (pinfo->fd, COL_DEF_DST))
-	col_add_fstr (pinfo->fd, COL_DEF_DST, "%X:%X:%X:%X:%X:%X (RA)",
-		      dst[0], dst[1], dst[2], dst[3], dst[4], dst[5]);
+      set_src_addr_cols(pinfo, src, "BSSID");
+      set_dst_addr_cols(pinfo, dst, "RA");
 
       if (tree)
 	{
@@ -1397,13 +1381,8 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       src = tvb_get_ptr (tvb, 10, 6);
       dst = tvb_get_ptr (tvb, 4, 6);
 
-      if (check_col (pinfo->fd, COL_DEF_SRC))
-	col_add_fstr (pinfo->fd, COL_DEF_SRC, "%X:%X:%X:%X:%X:%X (BSSID)",
-		      src[0], src[1], src[2], src[3], src[4], src[5]);
-
-      if (check_col (pinfo->fd, COL_DEF_DST))
-	col_add_fstr (pinfo->fd, COL_DEF_DST, "%X:%X:%X:%X:%X:%X (RA)",
-		      dst[0], dst[1], dst[2], dst[3], dst[4], dst[5]);
+      set_src_addr_cols(pinfo, src, "BSSID");
+      set_dst_addr_cols(pinfo, dst, "RA");
 
       if (tree)
 	{
@@ -1517,7 +1496,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     case DATA_CF_ACK_NOD:
-      COL_SHOW_INFO_CONST (pinfo->fd, "Data + Acknowledgement(No data)");
+      COL_SHOW_INFO_CONST (pinfo->fd, "Data + Acknowledgement (No data)");
       break;
 
 
