@@ -1,8 +1,10 @@
 /* packet-gssapi.c
  * Dissector for GSS-API tokens as described in rfc2078, section 3.1
  * Copyright 2002, Tim Potter <tpot@samba.org>
+ * Copyright 2002, Richard Sharpe <rsharpe@samba.org> Added a few 
+ *		   bits and pieces ...
  *
- * $Id: packet-gssapi.c,v 1.17 2002/09/08 00:40:44 guy Exp $
+ * $Id: packet-gssapi.c,v 1.18 2002/09/08 01:07:40 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
