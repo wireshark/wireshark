@@ -813,14 +813,18 @@ class EthCtx:
       out += "dissect_%s_%s(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, proto_item **item, void *private_data) {\n" % (self.eth_type[tname]['proto'], tname)
     elif (self.OPer()):
       out += "dissect_%s_%s(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {\n" % (self.eth_type[tname]['proto'], tname)
-    if self.conform.get_fn_presence(self.eth_type[tname]['ref'][0]):
+    if self.conform.get_fn_presence(tname):
+      out += self.conform.get_fn_text(tname, 'FN_HDR')
+    elif self.conform.get_fn_presence(self.eth_type[tname]['ref'][0]):
       out += self.conform.get_fn_text(self.eth_type[tname]['ref'][0], 'FN_HDR')
     return out
 
   #--- eth_type_fn_ftr --------------------------------------------------------
   def eth_type_fn_ftr(self, tname):
     out = '\n'
-    if self.conform.get_fn_presence(self.eth_type[tname]['ref'][0]):
+    if self.conform.get_fn_presence(tname):
+      out += self.conform.get_fn_text(tname, 'FN_FTR')
+    elif self.conform.get_fn_presence(self.eth_type[tname]['ref'][0]):
       out += self.conform.get_fn_text(self.eth_type[tname]['ref'][0], 'FN_FTR')
     out += "  return offset;\n"
     out += "}\n"
@@ -828,12 +832,13 @@ class EthCtx:
 
   #--- eth_type_fn_body -------------------------------------------------------
   def eth_type_fn_body(self, tname, body, pars=None):
-    if self.conform.get_fn_body_presence(self.eth_type[tname]['ref'][0]):
+    out = body
+    if self.conform.get_fn_body_presence(tname):
+      out = self.conform.get_fn_text(tname, 'FN_BODY')
+    elif self.conform.get_fn_body_presence(self.eth_type[tname]['ref'][0]):
       out = self.conform.get_fn_text(self.eth_type[tname]['ref'][0], 'FN_BODY')
-    elif pars:
-      out = body % pars
-    else:
-      out = body
+    if pars:
+      out = out % pars
     return out
 
   #--- eth_output_hf ----------------------------------------------------------
