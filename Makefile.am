@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.406 2002/01/29 08:44:45 guy Exp $
+# $Id: Makefile.am,v 1.407 2002/01/29 09:45:55 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -75,6 +75,7 @@ DISSECTOR_SRC = \
 	packet-aarp.c  \
 	packet-afs.c   \
 	packet-aim.c   \
+	packet-airopeek.c \
 	packet-arp.c   \
 	packet-ascend.c\
 	packet-atalk.c \

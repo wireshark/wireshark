@@ -43,7 +43,7 @@ from B<snoop> and B<atmsnoop>, Shomiti/Finisar B<Surveyor>, Novell
 B<LANalyzer>, Network General/Network Associates DOS-based B<Sniffer>
 (compressed or uncompressed), Microsoft B<Network Monitor>, AIX's
 B<iptrace>, Cinco Networks B<NetXRay>, Network Associates Windows-based
-B<Sniffer>, AG Group/WildPackets B<EtherPeek> and B<TokenPeek>,
+B<Sniffer>, AG Group/WildPackets B<EtherPeek>/B<TokenPeek>/B<AiroPeek>,
 B<RADCOM>'s WAN/LAN analyzer, B<Lucent/Ascend> router debug output,
 HP-UX's B<nettl>, the dump output from B<Toshiba's> ISDN routers, the
 output from B<i4btrace> from the ISDN4BSD project, the output in

@@ -2,7 +2,7 @@
  * Routines for opening EtherPeek (and TokenPeek?) files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.13 2002/01/23 06:32:51 guy Exp $
+ * $Id: etherpeek.c,v 1.14 2002/01/29 09:45:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -225,12 +225,9 @@ int etherpeek_open(wtap *wth, int *err)
 				 * 802.11, with a private header giving
 				 * some radio information.  Presumably
 				 * this is from AiroPeek.
-				 *
-				 * We don't yet support that.
 				 */
-				g_message("etherpeek: 802.11 captures unsupported");
-				*err = WTAP_ERR_UNSUPPORTED_ENCAP;
-				return -1;
+				file_encap = WTAP_ENCAP_AIROPEEK;
+				break;
 
 			default:
 				/*
@@ -283,7 +280,7 @@ int etherpeek_open(wtap *wth, int *err)
 	}
 
 	/*
-	 * This is an EtherPeek (or TokenPeek?) file.
+	 * This is an EtherPeek (or TokenPeek or AiroPeek?) file.
 	 *
 	 * At this point we have recognised the file type and have populated
 	 * the whole ep_hdr structure in host byte order.
