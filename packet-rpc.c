@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.37 2000/08/14 07:47:19 girlich Exp $
+ * $Id: packet-rpc.c,v 1.38 2000/08/24 06:19:52 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -301,11 +301,27 @@ char *rpc_prog_name(guint32 prog)
 /*--------------------------------------*/
 
 /* static array, first quick implementation, I'll switch over to GList soon */ 
+typedef struct _rpc_call_info {
+	guint32	xid;
+	conversation_t *conversation;
+	guint32	req_num;	/* frame number of first request seen */
+	guint32	rep_num;	/* frame number of first reply seen */
+	guint32	prog;
+	guint32	vers;
+	guint32	proc;
+	guint32 flavor;
+	guint32 gss_proc;
+	guint32 gss_svc;
+	rpc_proc_info_value*	proc_info;
+} rpc_call_info;
+
+#define RPC_CALL_TABLE_LENGTH 1000
+
 rpc_call_info rpc_call_table[RPC_CALL_TABLE_LENGTH];
 guint32 rpc_call_index = 0;
 guint32 rpc_call_firstfree = 0;
 
-void
+static void
 rpc_call_insert(rpc_call_info *call)
 {
 	/* some space left? */
@@ -329,7 +345,7 @@ rpc_call_insert(rpc_call_info *call)
 }
 
 
-rpc_call_info*
+static rpc_call_info*
 rpc_call_lookup(rpc_call_info *call)
 {
 	int i;
@@ -1253,21 +1269,28 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		rpc_call_msg.conversation = conversation;
 
 		/* look up the request */
-		if (rpc_call_lookup(&rpc_call_msg)) {
-			/* duplicate request */
-			if (check_col(fd, COL_INFO)) {
-				col_append_fstr(fd, COL_INFO, " dup XID 0x%x", xid);
-				if (rpc_tree) {
-					proto_tree_add_uint_hidden(rpc_tree,
-						hf_rpc_dup, NullTVB, 0,0, xid);
-					proto_tree_add_uint_hidden(rpc_tree,
-						hf_rpc_call_dup, NullTVB, 0,0, xid);
+		if ((rpc_call = rpc_call_lookup(&rpc_call_msg)) != NULL) {
+			/* We've seen a request with this XID, with the same
+			   source and destination, before - but was it
+			   *this* request? */
+			if (fd->num != rpc_call->req_num) {
+				/* No, so it's a duplicate request.
+				   Mark it as such. */
+				if (check_col(fd, COL_INFO)) {
+					col_append_fstr(fd, COL_INFO, " dup XID 0x%x", xid);
+					if (rpc_tree) {
+						proto_tree_add_uint_hidden(rpc_tree,
+							hf_rpc_dup, NullTVB, 0,0, xid);
+						proto_tree_add_uint_hidden(rpc_tree,
+							hf_rpc_call_dup, NullTVB, 0,0, xid);
+					}
 				}
 			}
 		}
 		else {
 			/* prepare the value data */
-			rpc_call_msg.replies = 0;
+			rpc_call_msg.req_num = fd->num;
+			rpc_call_msg.rep_num = 0xffffffff;
 			rpc_call_msg.prog = prog;
 			rpc_call_msg.vers = vers;
 			rpc_call_msg.proc = proc;
@@ -1298,6 +1321,11 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		gss_proc = rpc_call->gss_proc;
 		gss_svc = rpc_call->gss_svc;
 
+		/* Indicate the frame to which this is a reply. */
+		proto_tree_add_text(rpc_tree, NullTVB, 0, 0,
+		    "This is a reply to frame %u",
+		    rpc_call->req_num);
+
 		if (rpc_call->proc_info != NULL) {
 			dissect_function = rpc_call->proc_info->dissect_reply;
 			if (rpc_call->proc_info->name != NULL) {
@@ -1313,7 +1341,6 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			sprintf(procname_static, "proc-%u", proc);
 			procname = procname_static;
 		}
-		rpc_call->replies++;
 
 		rpc_prog_key.prog = prog;
 		if ((rpc_prog = g_hash_table_lookup(rpc_progs,&rpc_prog_key)) == NULL) {
@@ -1353,14 +1380,25 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				"Procedure: %s (%u)", procname, proc);
 		}
 
-		if (rpc_call->replies>1) {
-			if (check_col(fd, COL_INFO)) {
-				col_append_fstr(fd, COL_INFO, " dup XID 0x%x", xid);
-				if (rpc_tree) {
-					proto_tree_add_uint_hidden(rpc_tree,
-						hf_rpc_dup, NullTVB, 0,0, xid);
-					proto_tree_add_uint_hidden(rpc_tree,
-						hf_rpc_reply_dup, NullTVB, 0,0, xid);
+		if (rpc_call->rep_num == 0xffffffff) {
+			/* We have not yet seen a reply to that call, so
+			   this must be the first reply; remember its
+			   frame number. */
+			rpc_call->rep_num = fd->num;
+		} else {
+			/* We have seen a reply to this call - but was it
+			   *this* reply? */
+			if (rpc_call->rep_num != fd->num) {
+				/* No, so it's a duplicate reply.
+				   Mark it as such. */
+				if (check_col(fd, COL_INFO)) {
+					col_append_fstr(fd, COL_INFO, " dup XID 0x%x", xid);
+					if (rpc_tree) {
+						proto_tree_add_uint_hidden(rpc_tree,
+							hf_rpc_dup, NullTVB, 0,0, xid);
+						proto_tree_add_uint_hidden(rpc_tree,
+							hf_rpc_reply_dup, NullTVB, 0,0, xid);
+					}
 				}
 			}
 		}

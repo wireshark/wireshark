@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.17 2000/08/11 13:34:01 deniel Exp $
+ * $Id: packet-rpc.h,v 1.18 2000/08/24 06:19:53 guy Exp $
  *
  * (c) 1999 Uwe Girlich
  *
@@ -102,25 +102,7 @@ typedef struct _rpc_prog_info_value {
 	char* progname;
 } rpc_prog_info_value;
 
-typedef struct _rpc_call_info {
-	guint32	xid;
-	conversation_t *conversation;
-	guint32	replies;
-	guint32	prog;
-	guint32	vers;
-	guint32	proc;
-	guint32 flavor;
-	guint32 gss_proc;
-	guint32 gss_svc;
-	rpc_proc_info_value*	proc_info;
-} rpc_call_info;
-
-#define RPC_CALL_TABLE_LENGTH 1000
-
 extern const value_string rpc_auth_flavor[];
-
-extern void rpc_call_insert(rpc_call_info *call);
-extern rpc_call_info* rpc_call_lookup(rpc_call_info *call);
 
 extern void rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table);
 extern void rpc_init_prog(int proto, guint32 prog, int ett);

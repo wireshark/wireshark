@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.209 2000/08/21 21:24:01 deniel Exp $
+ * $Id: file.c,v 1.210 2000/08/24 06:19:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -892,15 +892,6 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter)
      rebuild the clist, however. */
   selected_row = -1;
 
-  /* We need to re-initialize all the state information that protocols
-     keep, because we're making a fresh pass through all the packets. */
-
-  /* Initialize the table of conversations. */
-  conversation_init();
-
-  /* Initialize protocol-specific variables */
-  init_all_protocols();
-
   /* Freeze the packet list while we redo it, so we don't get any
      screen updates while it happens. */
   gtk_clist_freeze(GTK_CLIST(packet_list));
@@ -965,10 +956,6 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter)
     }
 
     count++;
-
-    /* Since all state for the frame was destroyed, mark the frame
-     * as not visited. */
-    fdata->flags.visited = 0;
 
     wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
     	cf->pd, fdata->cap_len);
