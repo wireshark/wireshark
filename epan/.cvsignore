@@ -18,6 +18,7 @@ dfilter-grammar.c
 dfilter-grammar.h
 dfilter-scanner.c
 libtool
+register.c
 stamp-h
 stamp-h.in
 stamp-h1

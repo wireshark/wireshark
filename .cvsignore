@@ -34,7 +34,6 @@ etherXXXX*
 ethereal
 ethereal.1
 ethereal.spec
-ethereal_static
 ethereal-filter.4
 idl2eth
 idl2eth.1
@@ -50,14 +49,12 @@ packet-ncp2222.c
 ps.c
 randpkt
 rdps
-register-static.c
 register.c
 stamp-h
 stamp-h.in
 stamp-h1
 tethereal
 tethereal.1
-tethereal_static
 tethereal-tap-register.c
 text2pcap
 text2pcap-scanner.c
