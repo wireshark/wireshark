@@ -28,10 +28,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "config.h"
-#include "gtkmain.h"
+#include <gtk/gtkmain.h>
 #include "gtkclist.h"
-#include "gtkbindings.h"
-#include "gtkdnd.h"
+#include <gtk/gtkbindings.h>
+#include <gtk/gtkdnd.h>
 #include <gdk/gdkx.h>
 #include <gdk/gdkkeysyms.h>
 
