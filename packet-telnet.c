@@ -1,8 +1,8 @@
-/* packet-pop.c
+/* packet-telnet.c
  * Routines for telnet packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.4 1999/07/29 05:47:05 gram Exp $
+ * $Id: packet-telnet.c,v 1.5 1999/08/18 00:57:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -112,8 +112,6 @@ char *options[] = {
   "New Environment Option",
   "TN3270E"
 };
-
-extern packet_info pi;
 
 void telnet_sub_option(proto_tree *telnet_tree, char *rr, int *i, int offset, int max_data)
 {
@@ -306,12 +304,13 @@ void telnet_command(proto_tree *telnet_tree, char *rr, int *i, int offset, int m
 }
 
 void
-dissect_telnet(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data)
+dissect_telnet(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
         proto_tree      *telnet_tree, *ti;
 	gchar           rr[1500];
 	int i1;
 	int i2;
+	int max_data = pi.captured_len - offset;
 
 	memset(rr, '\0', sizeof(rr));
 

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.36 1999/08/14 04:23:21 guy Exp $
+ * $Id: packet.c,v 1.37 1999/08/18 00:57:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -646,6 +646,12 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 		0, 0, fd->cap_len, "Capture Length: %d byte%s", fd->cap_len,
 		plurality(fd->cap_len, "", "s"));
 	}
+
+	/* Set the initial payload to the packet length, and the initial
+	   captured payload to the capture length (other protocols may
+	   reduce them if their headers say they're less). */
+	pi.len = fd->pkt_len;
+	pi.captured_len = fd->cap_len;
 
 	switch (fd->lnk_t) {
 		case WTAP_ENCAP_ETHERNET :

@@ -33,8 +33,6 @@
 # include <netinet/in.h>
 #endif
 
-extern packet_info pi;
-
 static int proto_ddp = -1;
 
 /* P = Padding, H = Hops, L = Len */

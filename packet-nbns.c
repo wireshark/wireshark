@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.23 1999/07/29 05:46:58 gram Exp $
+ * $Id: packet-nbns.c,v 1.24 1999/08/18 00:57:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -977,14 +977,14 @@ struct nbdgm_header {
 };
 
 void
-dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-    int max_data)
+dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	proto_tree		*nbdgm_tree = NULL;
 	proto_item		*ti;
 	struct nbdgm_header	header;
 	int			flags;
 	int			message_index;
+	int			max_data = pi.captured_len - offset;
 
 	char *message[] = {
 		"Unknown",
@@ -1263,12 +1263,13 @@ dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 }
 
 void
-dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data)
+dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	guint8		msg_type;
 	guint8		flags;
 	guint16		length;
 	int		len;
+	int		max_data;
 
 	msg_type = pd[offset];
 	flags = pd[offset + 1];
@@ -1283,10 +1284,11 @@ dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int
 		    val_to_str(msg_type, message_types, "Unknown (%x)"));
 	}
 
-	while (max_data > 0) { 
-	  len = dissect_nbss_packet(pd, offset, fd, tree, max_data);
-	  offset += len;
-	  max_data -= len;
+	max_data = pi.captured_len - offset;
+	while (max_data > 0) {
+		len = dissect_nbss_packet(pd, offset, fd, tree, max_data);
+		offset += len;
+		max_data -= len;
 	}
 
 }

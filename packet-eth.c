@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.14 1999/08/01 04:28:08 gram Exp $
+ * $Id: packet-eth.c,v 1.15 1999/08/18 00:57:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,8 @@ static int hf_eth_type = -1;
 
 #define IEEE_802_3_MAX_LEN 1500
 
+#define ETH_HEADER_SIZE	14
+
 /* These are the Netware-ish names for the different Ethernet frame types.
 	EthernetII: The ethernet with a Type field instead of a length field
 	Ethernet802.2: An 802.3 header followed by an 802.3 header
@@ -64,8 +66,8 @@ static int hf_eth_type = -1;
 void
 capture_eth(const u_char *pd, guint32 cap_len, packet_counts *ld) {
   guint16 etype;
-  int        offset = 14;
-  int   	ethhdr_type;	/* the type of ethernet frame */
+  int     offset = ETH_HEADER_SIZE;
+  int     ethhdr_type;	/* the type of ethernet frame */
   
   etype = (pd[12] << 8) | pd[13];
 
@@ -104,10 +106,10 @@ capture_eth(const u_char *pd, guint32 cap_len, packet_counts *ld) {
 void
 dissect_eth(const u_char *pd, frame_data *fd, proto_tree *tree) {
   guint16    etype, length;
-  int        offset = 14;
+  int        offset = ETH_HEADER_SIZE;
   proto_tree *fh_tree = NULL;
   proto_item *ti;
-  int   	ethhdr_type;	/* the type of ethernet frame */
+  int        ethhdr_type;	/* the type of ethernet frame */
 
   if (check_col(fd, COL_RES_DL_DST))
     col_add_str(fd, COL_RES_DL_DST, get_ether_name((u_char *)&pd[0]));
@@ -145,7 +147,7 @@ dissect_eth(const u_char *pd, frame_data *fd, proto_tree *tree) {
       col_add_str(fd, COL_INFO, "802.3");
     if (tree) {
 
-	ti = proto_tree_add_item_format(tree, proto_eth, 0, offset,
+	ti = proto_tree_add_item_format(tree, proto_eth, 0, ETH_HEADER_SIZE,
 		NULL, "IEEE 802.3 %s", (ethhdr_type == ETHERNET_802_3 ? "Raw " : ""));
 
 	fh_tree = proto_item_add_subtree(ti, ETT_IEEE8023);
@@ -153,14 +155,24 @@ dissect_eth(const u_char *pd, frame_data *fd, proto_tree *tree) {
 	proto_tree_add_item(fh_tree, hf_eth_dst, 0, 6, &pd[0]);
 	proto_tree_add_item(fh_tree, hf_eth_src, 6, 6, &pd[6]);
 	proto_tree_add_item(fh_tree, hf_eth_len, 12, 2, length);
+
+	/* Convert the LLC length from the 802.3 header to a total
+	   length, by adding in the Ethernet header size, and set
+	   the payload and captured-payload lengths to the minima
+	   of the total length and the frame lengths. */
+	length += ETH_HEADER_SIZE;
+	if (pi.len > length)
+	  pi.len = length;
+	if (pi.captured_len > length)
+	  pi.captured_len = length;
     }
 
   } else {
     ethhdr_type = ETHERNET_II;
     if (tree) {
 
-	ti = proto_tree_add_item_format(tree, proto_eth, 0, 14, NULL,
-		"Ethernet II");
+	ti = proto_tree_add_item_format(tree, proto_eth, 0, ETH_HEADER_SIZE,
+		NULL, "Ethernet II");
 
 	fh_tree = proto_item_add_subtree(ti, ETT_ETHER2);
 
@@ -171,7 +183,6 @@ dissect_eth(const u_char *pd, frame_data *fd, proto_tree *tree) {
 	proto_tree_add_item_format(fh_tree, hf_eth_src, 6, 6, &pd[6],
 		"Source: %s (%s)", ether_to_str((guint8 *) &pd[6]),
 		get_ether_name((u_char *) &pd[6]));
-
     }
   }
 

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.37 1999/08/17 03:09:39 gram Exp $
+ * $Id: packet-ip.c,v 1.38 1999/08/18 00:57:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,8 +46,6 @@
 #include "packet-ip.h"
 #endif
 
-extern packet_info pi;
-	
 static int proto_ip = -1;
 static int hf_ip_version = -1;
 static int hf_ip_hdr_len = -1;
@@ -627,10 +625,10 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_tree *ip_tree, *field_tree;
   proto_item *ti, *tf;
   gchar      tos_str[32];
-  guint      hlen, optlen;
+  guint      hlen, optlen, len;
   guint16    flags;
-  int advance;
-  guint8 nxt;
+  int        advance;
+  guint8     nxt;
 
   /* To do: check for runts, errs, etc. */
   /* Avoids alignment problems on many architectures. */
@@ -639,6 +637,17 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   iph.ip_id  = ntohs(iph.ip_id);
   iph.ip_off = ntohs(iph.ip_off);
   iph.ip_sum = ntohs(iph.ip_sum);
+
+  /* Length of IP datagram plus headers above it. */
+  len = iph.ip_len + offset;
+
+  /* Set the payload and captured-payload lengths to the minima of (the
+     IP length plus the length of the headers above it) and the frame
+     lengths. */
+  if (pi.len > len)
+    pi.len = len;
+  if (pi.captured_len > len)
+    pi.captured_len = len;
 
   hlen = lo_nibble(iph.ip_v_hl) * 4;	/* IP header length, in bytes */
   
@@ -768,8 +777,8 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   pi.iphdrlen = lo_nibble(iph.ip_v_hl);
   pi.ip_src = iph.ip_src;
   pi.ip_dst = iph.ip_dst;
-  pi.payload = pi.iplen - hlen;
 
+  /* Skip over header + options */
   offset += hlen;
   nxt = iph.ip_p;
   if (iph.ip_off & IP_OFFSET) {

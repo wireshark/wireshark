@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.29 1999/07/31 13:55:16 deniel Exp $
+ * $Id: packet-tcp.c,v 1.30 1999/08/18 00:57:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -56,7 +56,6 @@
 #endif
 
 extern FILE* data_out_file;
-extern packet_info pi;
 
 static gchar info_str[COL_MAX_LEN];
 static int   info_len;
@@ -335,8 +334,7 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   guint      bpos;
   guint      hlen;
   guint      optlen;
-  guint      packet_max = pi.payload + offset;
-  guint      payload;
+  guint      packet_max = pi.len;
 
   /* To do: Check for {cap len,pkt len} < struct len */
   /* Avoids alignment problems on many architectures. */
@@ -367,8 +365,6 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
   
   hlen = hi_nibble(th.th_off_x2) * 4;  /* TCP header length, in bytes */
-
-  payload = pi.payload - hlen;
 
   if (check_col(fd, COL_RES_SRC_PORT))
     col_add_str(fd, COL_RES_SRC_PORT, get_tcp_port(th.th_sport));
@@ -465,19 +461,19 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       dissect_lpd(pd, offset, fd, tree);
     else if (PORT_IS(TCP_PORT_TELNET)) {
       pi.match_port = TCP_PORT_TELNET;
-      dissect_telnet(pd, offset, fd, tree, payload);
+      dissect_telnet(pd, offset, fd, tree);
     } else if (PORT_IS(TCP_PORT_FTPDATA)) {
       pi.match_port = TCP_PORT_FTPDATA;
-      dissect_ftpdata(pd, offset, fd, tree, payload);
+      dissect_ftpdata(pd, offset, fd, tree);
     } else if (PORT_IS(TCP_PORT_FTP)) {
       pi.match_port = TCP_PORT_FTP;
-      dissect_ftp(pd, offset, fd, tree, payload);
+      dissect_ftp(pd, offset, fd, tree);
     } else if (PORT_IS(TCP_PORT_POP)) {
       pi.match_port = TCP_PORT_POP;
-      dissect_pop(pd, offset, fd, tree, payload);
+      dissect_pop(pd, offset, fd, tree);
     } else if (PORT_IS(TCP_PORT_NNTP)) {
       pi.match_port = TCP_PORT_NNTP;
-      dissect_nntp(pd, offset, fd, tree, payload);
+      dissect_nntp(pd, offset, fd, tree);
     } else if (PORT_IS(TCP_PORT_PPTP)) {
       pi.match_port = TCP_PORT_PPTP;
       dissect_pptp(pd, offset, fd, tree);
@@ -485,7 +481,7 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       dissect_http(pd, offset, fd, tree);
     else if (PORT_IS(TCP_PORT_NBSS)) {
       pi.match_port = TCP_PORT_NBSS;
-      dissect_nbss(pd, offset, fd, tree, payload);
+      dissect_nbss(pd, offset, fd, tree);
     } else if (PORT_IS(TCP_PORT_RTSP))
       dissect_rtsp(pd, offset, fd, tree);
     else {

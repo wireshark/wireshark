@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.22 1999/08/05 00:05:00 guy Exp $
+ * $Id: packet-udp.c,v 1.23 1999/08/18 00:57:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,8 +43,6 @@
 #include <glib.h>
 #include "packet.h"
 #include "resolv.h"
-
-extern packet_info pi;
 
 int proto_udp = -1;		
 int hf_udp_srcport = -1;
@@ -175,7 +173,6 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   struct hash_struct *dissect_routine = NULL;
   proto_tree *udp_tree;
   proto_item *ti;
-  guint      payload;
 
   /* To do: Check for {cap len,pkt len} < struct len */
   /* Avoids alignment problems on many architectures. */
@@ -185,8 +182,6 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   uh_ulen  = ntohs(uh.uh_ulen);
   uh_sum   = ntohs(uh.uh_sum);
   
-  payload = pi.payload - sizeof(e_udphdr);
-
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "UDP");
   if (check_col(fd, COL_INFO))
@@ -235,7 +230,7 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
  } else if (PORT_IS(UDP_PORT_NBNS))
       dissect_nbns(pd, offset, fd, tree);
  else if (PORT_IS(UDP_PORT_NBDGM))
-      dissect_nbdgm(pd, offset, fd, tree, payload);
+      dissect_nbdgm(pd, offset, fd, tree);
  else if (PORT_IS(UDP_PORT_IPX)) /* RFC 1234 */
       dissect_ipx(pd, offset, fd, tree);
 #if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)

@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.21 1999/07/29 05:47:04 gram Exp $
+ * $Id: packet-smb.c,v 1.22 1999/08/18 00:57:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -45,8 +45,6 @@
 #include "etypes.h"
 #include "smb.h"
 #include "alignment.h"
-
-extern packet_info pi;
 
 static int proto_smb = -1;
 

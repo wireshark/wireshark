@@ -2,7 +2,7 @@
  * Routines for pop packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-pop.c,v 1.5 1999/07/29 05:47:01 gram Exp $
+ * $Id: packet-pop.c,v 1.6 1999/08/18 00:57:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -44,17 +44,16 @@
 #include "packet.h"
 #include "etypes.h"
 
-extern packet_info pi;
-
 static int proto_pop = -1;
 
 void
-dissect_pop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data)
+dissect_pop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
         proto_tree      *pop_tree, *ti;
 	gchar          rr[50], rd[1500];
 	int i1 = (u_char *)strchr(pd + offset, ' ') - (pd + offset); /* Where is that space */
 	int i2;
+	int max_data = pi.captured_len - offset;
 
 	memset(rr, '\0', sizeof(rr));
 	memset(rd, '\0', sizeof(rd));
