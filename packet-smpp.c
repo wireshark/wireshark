@@ -8,7 +8,7 @@
  * Data Coding Scheme decoding for GSM (SMS and CBS),
  * provided by Olivier Biot.
  *
- * $Id: packet-smpp.c,v 1.22 2003/12/19 22:31:40 guy Exp $
+ * $Id: packet-smpp.c,v 1.23 2003/12/21 22:56:13 obiot Exp $
  *
  * Note on SMS Message reassembly
  * ------------------------------
@@ -230,6 +230,7 @@ static int hf_sm_fragment_overlap_conflicts	= -1;
 static int hf_sm_fragment_multiple_tails	= -1;
 static int hf_sm_fragment_too_long_fragment	= -1;
 static int hf_sm_fragment_error				= -1;
+static int hf_sm_reassembled_in				= -1;
 
 /* Initialize the subtree pointers */
 static gint ett_smpp		= -1;
@@ -263,7 +264,7 @@ static const fragment_items sm_frag_items = {
 	&hf_sm_fragment_too_long_fragment,
 	&hf_sm_fragment_error,
 	/* Reassembled in field */
-	NULL,
+	&hf_sm_reassembled_in,
 	/* Tag */
 	"Short Message fragments"
 };
@@ -1437,6 +1438,9 @@ parse_sm_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo)
 	fragment_data *fd_sm = NULL;
 	guint16 sm_id = 0, frags = 0, frag = 0;
 	gboolean save_fragmented = FALSE, try_sm_reassemble = FALSE;
+	/* SMS Message reassembly */
+	gboolean reassembled = FALSE;
+	guint32 reassembled_in = 0;
 	/* Port Number UDH */
 	guint16 p_src = 0, p_dst = 0;
 	gboolean ports_available = FALSE;
@@ -1580,10 +1584,14 @@ parse_sm_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo)
 				frag-1, /* guint32 fragment sequence number */
 				sm_data_len, /* guint32 fragment length */
 				(frag != frags)); /* More fragments? */
+		if (fd_sm) {
+			reassembled = TRUE;
+			reassembled_in = fd_sm->reassembled_in;
+		}
 		sm_tvb = process_reassembled_data(tvb, i, pinfo,
 		    "Reassembled Short Message", fd_sm, &sm_frag_items,
 		    NULL, sm_tree);
-		if (fd_sm) { /* Reassembled */
+		if (reassembled) { /* Reassembled */
 			if (check_col (pinfo->cinfo, COL_INFO))
 				col_append_str (pinfo->cinfo, COL_INFO,
 						" (Short Message Reassembled)");
@@ -1593,15 +1601,22 @@ parse_sm_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo)
 				col_append_fstr (pinfo->cinfo, COL_INFO,
 						" (Short Message fragment %u of %u)", frag, frags);
 		}
-	}
+	} /* Else: not fragmented */
 
 	if (! sm_tvb) /* One single Short Message, or not reassembled */
 		sm_tvb = tvb_new_subset (tvb, i, -1, -1);
 	/* Try calling a subdissector */
 	if (sm_tvb) {
-		if (fd_sm || frag==0 || (frag==1 && try_dissect_1st_frag)) {
+		if (reassembled && pinfo->fd->num != reassembled_in) {
+			/* Reassembled, but not in this packet;
+			 * so point to the reassembled packet */
+			proto_tree_add_uint(tree, hf_sm_reassembled_in,
+					tvb, 0, 0, reassembled_in);
+		} else if ((reassembled /* This means that
+								   pinfo->fd->num == reassembled_in */)
+			|| frag==0 || (frag==1 && try_dissect_1st_frag)) {
 			/* Try calling a subdissector only if:
-			 *  - the Short Message is reassembled,
+			 *  - the Short Message is reassembled in this very packet,
 			 *  - the Short Message consists of only one "fragment",
 			 *  - the preference "Always Try Dissection for 1st SM fragment"
 			 *    is switched on, and this is the SM's 1st fragment. */
@@ -2987,6 +3002,13 @@ proto_register_smpp(void)
 			FT_FRAMENUM, BASE_NONE, NULL, 0x00,
 			"SMPP Short Message defragmentation error due to illegal fragments",
 			HFILL
+		}
+	},
+	{	&hf_sm_reassembled_in,
+		{	"Reassembled in",
+			"smpp.reassembled.in",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+			"SMPP Short Message has been reassmbled in this packet.", HFILL
 		}
 	},
     };
