@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.42 2002/08/07 00:48:53 tpot Exp $
+ * $Id: smb.h,v 1.43 2002/08/21 21:31:54 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -21,10 +21,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
-
-/*
- * Don't include if already included
  */
 
 #ifndef _SMB_H
@@ -320,5 +316,38 @@ extern GHashTable *dcerpc_fragment_table;
 extern const value_string NT_errors[];
 extern const value_string DOS_errors[];
 extern const value_string ms_country_codes[];
+
+/*
+ * Access mask values
+ */
+
+/* Generic rights */
+
+#define GENERIC_RIGHTS_MASK    0xF0000000
+
+#define GENERIC_ALL_ACCESS     0x10000000
+#define GENERIC_EXECUTE_ACCESS 0x20000000
+#define GENERIC_WRITE_ACCESS   0x40000000
+#define GENERIC_READ_ACCESS    0x80000000
+
+/* Misc/reserved */
+
+#define ACCESS_SACL_ACCESS     0x00800000
+#define SYSTEM_SECURITY_ACCESS 0x01000000
+#define MAXIMUM_ALLOWED_ACCESS 0x02000000
+
+/* Standard rights */
+
+#define STANDARD_RIGHTS_MASK 0x00FF0000
+
+#define DELETE_ACCESS        0x00010000
+#define READ_CONTROL_ACCESS  0x00020000
+#define WRITE_DAC_ACCESS     0x00040000
+#define WRITE_OWNER_ACCESS   0x00080000
+#define SYNCHRONIZE_ACCESS   0x00100000
+
+/* Specific rights */
+
+#define SPECIFIC_RIGHTS_MASK 0x0000FFFF /* Specific rights defined per-object */
 
 #endif
