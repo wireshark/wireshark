@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.19 1999/11/20 06:05:56 gram Exp $
+ * $Id: resolv.c,v 1.20 1999/11/21 16:32:16 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -73,12 +73,14 @@
 
 #include "packet.h"
 #include "packet-ipv6.h"
+#include "packet-ipx.h"
 #include "globals.h"
 #include "resolv.h"
 
 #define MAXMANUFLEN	9	/* max vendor name length with ending '\0' */
 #define HASHETHSIZE	1024
 #define HASHHOSTSIZE	1024
+#define HASHIPXNETSIZE	256
 #define HASHMANUFSIZE   256
 #define HASHPORTSIZE	256
 
@@ -89,6 +91,10 @@ typedef struct hashname {
   u_char   		name[MAXNAMELEN];
   struct hashname 	*next;
 } hashname_t;
+
+/* hash table used for IPX network lookup */
+
+typedef struct hashname hashipxnet_t;
 
 /* hash tables used for ethernet and manufacturer lookup */
 
@@ -113,13 +119,23 @@ typedef struct _ether
   char 			name[MAXNAMELEN];
 } ether_t;
 
+/* internal ipxnet type */
+
+typedef struct _ipxnet
+{
+  u_int			addr;
+  char 			name[MAXNAMELEN];
+} ipxnet_t;
+
 static hashname_t 	*host_table[HASHHOSTSIZE];
 static hashname_t 	*udp_port_table[HASHPORTSIZE];
 static hashname_t 	*tcp_port_table[HASHPORTSIZE];
 static hashether_t 	*eth_table[HASHETHSIZE];
 static hashmanuf_t 	*manuf_table[HASHMANUFSIZE];
+static hashipxnet_t 	*ipxnet_table[HASHIPXNETSIZE];
 
 static int 		eth_resolution_initialized = 0;
+static int 		ipxnet_resolution_initialized = 0;
 
 /*
  *  Global variables (can be changed in GUI sections)
@@ -129,6 +145,8 @@ int g_resolving_actif = 1; 		/* routines are active by default */
 
 gchar *g_ethers_path  = EPATH_ETHERS;
 gchar *g_pethers_path = NULL; 		/* "$HOME"/EPATH_PERSONAL_ETHERS    */
+gchar *g_ipxnets_path  = EPATH_IPXNETS;
+gchar *g_pipxnets_path = NULL;		/* "$HOME"/EPATH_PERSONAL_IPXNETS   */
 gchar *g_manuf_path   = EPATH_MANUF;	/* may only be changed before the   */
 					/* first resolving call        	    */
 
@@ -373,7 +391,8 @@ static int parse_ether_line(char *line, ether_t *eth, int six_bytes)
   /*
    *  See man ethers(4) for /etc/ethers file format
    *  (not available on all systems).
-   *  We allow both ethernet address separators (':' and '-').
+   *  We allow both ethernet address separators (':' and '-'),
+   *  as well as Ethereal's '.' separator.
    */
 
   gchar *cp;
@@ -679,66 +698,6 @@ static u_char *eth_name_lookup(const u_char *addr)
 
 } /* eth_name_lookup */
 
-/* Look for an ether name in the hash, and return it if found.
- * If it's not found, simply return NULL. We DO NOT make a new
- * hash entry for it with the hex digits turned into a string.
- */
-u_char *get_ether_name_if_known(const u_char *addr)
-{
-  hashether_t *tp;
-  hashether_t **table = eth_table;
-  int i,j;
-
-  /* Initialize ether structs if we're the first
-   * ether-related function called */
-  if (!g_resolving_actif)
-    return NULL;
-  
-  if (!eth_resolution_initialized) {
-    initialize_ethers();
-    eth_resolution_initialized = 1;
-  }
-
-  j = (addr[2] << 8) | addr[3];
-  i = (addr[4] << 8) | addr[5];
-
-  tp = table[ (i ^ j) & (HASHETHSIZE - 1)];
-
-  if( tp == NULL ) {
-	  /* Hash key not found in table.
-	   * Force a lookup (and a hash entry) for addr, then call
-	   * myself. I plan on not getting into an infinite loop because
-	   * eth_name_lookup() is guaranteed to make a hashtable entry,
-	   * so when I call myself again, I can never get into this
-	   * block of code again. Knock on wood...
-	   */
-	  (void) eth_name_lookup(addr);
-	  return get_ether_name_if_known(addr); /* a well-placed goto would suffice */
-  }
-  else { 
-    while(1) {
-      if (memcmp(tp->addr, addr, sizeof(tp->addr)) == 0) {
-	      if (tp->is_name_from_file) {
-		/* A name was found, and its origin is an ethers file */
-		return tp->name;
-	      }
-	      else {
-		/* A name was found, but it was created, not found in a file */
-		return NULL;
-	      }
-      }
-      if (tp->next == NULL) {
-	  /* Read my reason above for why I'm sure I can't get into an infinite loop */
-	  (void) eth_name_lookup(addr);
-	  return get_ether_name_if_known(addr); /* a well-placed goto would suffice */
-      }
-      tp = tp->next;
-    }
-  }
-  g_assert_not_reached();
-  return NULL;
-}
-
 static u_char *eth_addr_lookup(u_char *name)
 {
   ether_t *eth;
@@ -768,6 +727,272 @@ static u_char *eth_addr_lookup(u_char *name)
   return tp->addr;
 
 } /* eth_addr_lookup */
+
+
+/* IPXNETS */
+static int parse_ipxnets_line(char *line, ipxnet_t *ipxnet)
+{
+  /*
+   *  We allow three address separators (':', '-', and '.'),
+   *  as well as no separators
+   */
+
+  gchar		*cp;
+  guint32	a, a0, a1, a2, a3;
+  gboolean	found_single_number = FALSE;
+    
+  if ((cp = strchr(line, '#')))
+    *cp = '\0';
+  
+  if ((cp = strtok(line, " \t\n")) == NULL)
+    return -1;
+
+  /* Either fill a0,a1,a2,a3 and found_single_number is FALSE,
+   * fill a and found_single_number is TRUE,
+   * or return -1
+   */
+  if (sscanf(cp, "%x:%x:%x:%x", &a0, &a1, &a2, &a3) != 4) {
+    if (sscanf(cp, "%x-%x-%x-%x", &a0, &a1, &a2, &a3) != 4) {
+      if (sscanf(cp, "%x.%x.%x.%x", &a0, &a1, &a2, &a3) != 4) {
+        if (sscanf(cp, "%x", &a) == 1) {
+	  found_single_number = TRUE;
+  	}
+  	else {
+  	  return -1;
+	}
+      }
+    }
+  }
+
+  if ((cp = strtok(NULL, " \t\n")) == NULL)
+    return -1;
+
+  if (found_single_number) {
+	ipxnet->addr = a;
+  }
+  else {
+	ipxnet->addr = (a0 << 24) | (a1 << 16) | (a2 << 8) | a3;
+  }
+
+  strncpy(ipxnet->name, cp, MAXNAMELEN);
+  ipxnet->name[MAXNAMELEN-1] = '\0';
+
+  return 0;
+
+} /* parse_ipxnets_line */
+
+static FILE *ipxnet_p = NULL;
+
+static void set_ipxnetent(char *path)
+{
+  if (ipxnet_p)
+    rewind(ipxnet_p);
+  else
+    ipxnet_p = fopen(path, "r");
+}
+
+static void end_ipxnetent(void)
+{
+  if (ipxnet_p) {
+    fclose(ipxnet_p);
+    ipxnet_p = NULL;
+  }
+}
+
+static ipxnet_t *get_ipxnetent(void)
+{
+ 
+  static ipxnet_t ipxnet;
+  static int     size = 0;
+  static char   *buf = NULL;
+  
+  if (ipxnet_p == NULL) 
+    return NULL;
+
+  while (fgetline(&buf, &size, ipxnet_p) >= 0) {
+    if (parse_ipxnets_line(buf, &ipxnet) == 0) {
+      return &ipxnet;
+    }
+  }
+    
+  return NULL;
+
+} /* get_ipxnetent */
+
+static ipxnet_t *get_ipxnetbyname(u_char *name)
+{
+  ipxnet_t *ipxnet;
+  
+  set_ipxnetent(g_ipxnets_path);
+
+  while ((ipxnet = get_ipxnetent()) && strncmp(name, ipxnet->name, MAXNAMELEN) != 0)
+    ;
+
+  if (ipxnet == NULL) {
+    end_ipxnetent();
+    
+    set_ipxnetent(g_pipxnets_path);
+
+    while ((ipxnet = get_ipxnetent()) && strncmp(name, ipxnet->name, MAXNAMELEN) != 0)
+      ;
+
+    end_ipxnetent();
+  }
+
+  return ipxnet;
+
+} /* get_ipxnetbyname */
+
+static ipxnet_t *get_ipxnetbyaddr(guint32 addr)
+{
+
+  ipxnet_t *ipxnet;
+  
+  set_ipxnetent(g_ipxnets_path);
+
+  while ((ipxnet = get_ipxnetent()) && (addr != ipxnet->addr) ) ;
+
+  if (ipxnet == NULL) {
+    end_ipxnetent();
+    
+    set_ipxnetent(g_pipxnets_path);
+    
+    while ((ipxnet = get_ipxnetent()) && (addr != ipxnet->addr) )
+      ;
+    
+    end_ipxnetent();
+  }
+
+  return ipxnet;
+
+} /* get_ipxnetbyaddr */
+
+static void initialize_ipxnets(void)
+{
+
+#ifdef DEBUG_RESOLV
+  signal(SIGSEGV, SIG_IGN);
+#endif
+
+  /* Set g_pipxnets_path here, but don't actually do anything
+   * with it. It's used in get_ipxnetbyname() and get_ipxnetbyaddr()
+   */
+  if (g_pipxnets_path == NULL) {
+    g_pipxnets_path = g_malloc(strlen(getenv("HOME")) + 
+			      strlen(EPATH_PERSONAL_IPXNETS) + 2);
+    sprintf(g_pipxnets_path, "%s/%s", 
+	    (char *)getenv("HOME"), EPATH_PERSONAL_IPXNETS);
+  }
+
+} /* initialize_ipxnets */
+
+static hashipxnet_t *add_ipxnet_name(u_int addr, u_char *name)
+{
+  hashipxnet_t *tp;
+  hashipxnet_t **table = ipxnet_table;
+
+  /* XXX - check goodness of hash function */
+
+  tp = table[ addr & (HASHIPXNETSIZE - 1)];
+
+  if( tp == NULL ) {
+    tp = table[ addr & (HASHIPXNETSIZE - 1)] = 
+      (hashipxnet_t *)g_malloc(sizeof(hashipxnet_t));
+  } else {  
+    while(1) {
+      if (tp->next == NULL) {
+	tp->next = (hashipxnet_t *)g_malloc(sizeof(hashipxnet_t));
+	tp = tp->next;
+	break;
+      }
+      tp = tp->next;
+    }
+  }
+  
+  tp->addr = addr;
+  strncpy(tp->name, name, MAXNAMELEN);
+  tp->name[MAXNAMELEN-1] = '\0';
+  tp->next = NULL;
+
+  return tp;
+
+} /* add_ipxnet_name */
+
+static u_char *ipxnet_name_lookup(const u_int addr)
+{
+  hashipxnet_t *tp;
+  hashipxnet_t **table = ipxnet_table;
+  ipxnet_t *ipxnet;
+
+  tp = table[ addr & (HASHIPXNETSIZE - 1)];
+
+  if( tp == NULL ) {
+    tp = table[ addr & (HASHIPXNETSIZE - 1)] = 
+      (hashipxnet_t *)g_malloc(sizeof(hashipxnet_t));
+  } else {  
+    while(1) {
+      if (tp->addr == addr) {
+	return tp->name;
+      }
+      if (tp->next == NULL) {
+	tp->next = (hashipxnet_t *)g_malloc(sizeof(hashipxnet_t));
+	tp = tp->next;
+	break;
+      }
+      tp = tp->next;
+    }
+  }
+  
+  /* fill in a new entry */
+
+  tp->addr = addr;
+  tp->next = NULL;
+
+  if ( (ipxnet = get_ipxnetbyaddr(addr)) == NULL) {
+    /* unknown name */
+      sprintf(tp->name, "%X", addr);
+
+  } else {
+    strncpy(tp->name, ipxnet->name, MAXNAMELEN);
+    tp->name[MAXNAMELEN-1] = '\0';
+  }
+
+  return (tp->name);
+
+} /* ipxnet_name_lookup */
+
+static u_int ipxnet_addr_lookup(u_char *name, gboolean *success)
+{
+  ipxnet_t *ipxnet;
+  hashipxnet_t *tp;
+  hashipxnet_t **table = ipxnet_table;
+  int i;
+
+  /* to be optimized (hash table from name to addr) */
+  for (i = 0; i < HASHIPXNETSIZE; i++) {
+    tp = table[i];
+    while (tp) {
+      if (strcmp(tp->name, name) == 0)
+	return tp->addr;
+      tp = tp->next;
+    }
+  }
+
+  /* not in hash table : performs a file lookup */
+
+  if ((ipxnet = get_ipxnetbyname(name)) == NULL) {
+	  *success = FALSE;
+	  return 0;
+  }
+
+  /* add new entry in hash table */
+
+  tp = add_ipxnet_name(ipxnet->addr, name);
+
+  *success = TRUE;
+  return tp->addr;
+
+} /* ipxnet_addr_lookup */
 
 
 /* 
@@ -878,6 +1103,67 @@ extern u_char *get_ether_name(const u_char *addr)
 
 } /* get_ether_name */
 
+/* Look for an ether name in the hash, and return it if found.
+ * If it's not found, simply return NULL. We DO NOT make a new
+ * hash entry for it with the hex digits turned into a string.
+ */
+u_char *get_ether_name_if_known(const u_char *addr)
+{
+  hashether_t *tp;
+  hashether_t **table = eth_table;
+  int i,j;
+
+  /* Initialize ether structs if we're the first
+   * ether-related function called */
+  if (!g_resolving_actif)
+    return NULL;
+  
+  if (!eth_resolution_initialized) {
+    initialize_ethers();
+    eth_resolution_initialized = 1;
+  }
+
+  j = (addr[2] << 8) | addr[3];
+  i = (addr[4] << 8) | addr[5];
+
+  tp = table[ (i ^ j) & (HASHETHSIZE - 1)];
+
+  if( tp == NULL ) {
+	  /* Hash key not found in table.
+	   * Force a lookup (and a hash entry) for addr, then call
+	   * myself. I plan on not getting into an infinite loop because
+	   * eth_name_lookup() is guaranteed to make a hashtable entry,
+	   * so when I call myself again, I can never get into this
+	   * block of code again. Knock on wood...
+	   */
+	  (void) eth_name_lookup(addr);
+	  return get_ether_name_if_known(addr); /* a well-placed goto would suffice */
+  }
+  else { 
+    while(1) {
+      if (memcmp(tp->addr, addr, sizeof(tp->addr)) == 0) {
+	      if (tp->is_name_from_file) {
+		/* A name was found, and its origin is an ethers file */
+		return tp->name;
+	      }
+	      else {
+		/* A name was found, but it was created, not found in a file */
+		return NULL;
+	      }
+      }
+      if (tp->next == NULL) {
+	  /* Read my reason above for why I'm sure I can't get into an infinite loop */
+	  (void) eth_name_lookup(addr);
+	  return get_ether_name_if_known(addr); /* a well-placed goto would suffice */
+      }
+      tp = tp->next;
+    }
+  }
+  g_assert_not_reached();
+  return NULL;
+}
+
+
 extern u_char *get_ether_addr(u_char *name)
 {
 
@@ -891,6 +1177,40 @@ extern u_char *get_ether_addr(u_char *name)
   return eth_addr_lookup(name);
 
 } /* get_ether_addr */
+
+
+extern u_char *get_ipxnet_name(const guint32 addr)
+{
+  if (!g_resolving_actif)
+    return ipxnet_to_string((guint8 *)&addr);
+
+  if (!ipxnet_resolution_initialized) {
+    initialize_ipxnets();
+    ipxnet_resolution_initialized = 1;
+  }
+
+  return ipxnet_name_lookup(addr);
+
+} /* get_ipxnet_name */
+
+extern guint32 get_ipxnet_addr(u_char *name, gboolean *known)
+{
+	guint32 addr;
+	gboolean success;
+
+  /* force resolution (do not check g_resolving_actif) */
+
+  if (!ipxnet_resolution_initialized) {
+    initialize_ipxnets();
+    ipxnet_resolution_initialized = 1;
+  }
+
+  addr =  ipxnet_addr_lookup(name, &success);
+
+  *known = success;
+  return addr;
+
+} /* get_ipxnet_addr */
 
 extern u_char *get_manuf_name(u_char *addr) 
 {

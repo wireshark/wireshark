@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.49 1999/11/16 11:43:06 guy Exp $
+ * $Id: proto.c,v 1.50 1999/11/21 16:32:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -610,7 +610,8 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_IPXNET:
 			snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: 0x%08X", fi->hfinfo->name, fi->value.numeric);
+				"%s: 0x%08X (%s)", fi->hfinfo->name,
+				fi->value.numeric, get_ipxnet_name(fi->value.numeric));
 			break;
 
 		case FT_ETHER:

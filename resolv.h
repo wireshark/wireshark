@@ -1,7 +1,7 @@
 /* resolv.h
  * Definitions for network object lookup
  *
- * $Id: resolv.h,v 1.10 1999/11/20 05:35:15 gram Exp $
+ * $Id: resolv.h,v 1.11 1999/11/21 16:32:16 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -33,8 +33,10 @@
 #endif
 
 #define EPATH_ETHERS 		"/etc/ethers"
+#define EPATH_IPXNETS 		"/etc/ipxnets"
 #define EPATH_MANUF  		DATAFILE_DIR "/manuf"
-#define EPATH_PERSONAL_ETHERS 	".ethereal/ethers" /* with "$HOME/" prefix */
+#define EPATH_PERSONAL_ETHERS 	".ethereal/ethers"  /* with "$HOME/" prefix */
+#define EPATH_PERSONAL_IPXNETS 	".ethereal/ipxnets" /* with "$HOME/" prefix */
 
 #ifndef MAXNAMELEN
 #define MAXNAMELEN  	64	/* max name length (hostname and port name) */
@@ -43,8 +45,10 @@
 /* global variables */
 
 extern gchar *g_ethers_path;
+extern gchar *g_ipxnets_path;
 extern gchar *g_manuf_path;
 extern gchar *g_pethers_path;
+extern gchar *g_pipxnets_path;
 
 /* Functions in resolv.c */
 
@@ -72,8 +76,16 @@ extern u_char *get_ether_name_if_known(const u_char *addr);
 /* get_manuf_name returns the vendor name or "%02x:%02x:%02x" if not known */
 extern u_char *get_manuf_name(u_char *addr);
 
+/* get_ipxnet_name returns the logical name if found in an ipxnets file,
+ * or a string formatted with "%X" if not */
+extern u_char *get_ipxnet_name(const guint32 addr);
+
 /* returns the ethernet address corresponding to name or NULL if not known */
 extern u_char *get_ether_addr(u_char *name);
+
+/* returns the ipx network corresponding to name. If name is unknown,
+ * 0 is returned and 'known' is set to TRUE. */
+guint32 get_ipxnet_addr(u_char *name, gboolean *known);
 
 /* adds a hostname/IP in the hash table */
 extern void add_host_name(u_int addr, u_char *name);

@@ -617,8 +617,29 @@ the display filter. The type of the field is also given.
 =head1 FILES
 
 B</etc/ethers> is consulted to correlate 6-byte hardware addresses to names. If an address is not
-found in B</etc/ethers>, the
-B<$HOME/.ethereal/ethers> file is consulted next.
+found in B</etc/ethers>, the B<$HOME/.ethereal/ethers> file is consulted next. Each line
+contains one hardware address and name, separated by whitespace.
+The digits of the hardware address are separated by either a colon (:), a dash (-), or
+a period (.). The following three lines are valid lines of an ethers file:
+
+  ff:ff:ff:ff:ff:ff          Broadcast
+  c0-00-ff-ff-ff-ff          TR_broadcast
+  00.00.00.00.00.00          Zero_broadcast
+
+B</usr/local/etc/manuf> matches the 3-byte vendor portion of a 6-byte hardware address with
+the manufacturer's name. The format of the file is the same as the B</etc/ethers> file,
+except that each address is three bytes instead of six.
+
+B</etc/ipxnets> and B<$HOME/.ethereal/ipxnets> correlate 4-byte IPX network numbers to names.
+The format is the same as the B</etc/ethers> file, except that each address if four bytes
+instead of six. Additionally, the address can be represented a single hexadecimal number,
+as is more common in the IPX world, rather than four hex octets. For example, these four
+lines are valid lines of an ipxnets file.
+
+  C0.A8.2C.00              HR
+  c0-a8-1c-00              CEO
+  00:00:BE:EF              IT_Server1
+  110f                     FileServer3
 
 =head1 SEE ALSO
 

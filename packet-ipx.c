@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.34 1999/11/20 05:35:13 gram Exp $
+ * $Id: packet-ipx.c,v 1.35 1999/11/21 16:32:14 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -268,10 +268,10 @@ ipx_addr_to_str(guint32 net, const guint8 *ad)
 	name = get_ether_name_if_known(ad);
 
 	if (name) {
-		sprintf(cur, "%X.%s", net, name);
+		sprintf(cur, "%s.%s", get_ipxnet_name(net), name);
 	}
 	else {
-		sprintf(cur, "%X.%s", net, ether_to_str_punct(ad, '\0'));
+		sprintf(cur, "%s.%s", get_ipxnet_name(net), ether_to_str_punct(ad, '\0'));
 	}
 	return cur;
 }
@@ -286,7 +286,6 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	int		len;
 	guint8		*ipx_snode, *ipx_dnode, *ipx_snet, *ipx_dnet;
 
-	gchar		*str_dnet, *str_snet;
 	guint16		ipx_dsocket, ipx_ssocket;
 	dissect_func_t	*dissect;
 	guint32		ipx_dnet_val, ipx_snet_val;
@@ -294,8 +293,6 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	/* Calculate here for use in pinfo and in tree */
 	ipx_dnet = (guint8*)&pd[offset+6];
 	ipx_snet = (guint8*)&pd[offset+18];
-	str_dnet = ipxnet_to_string(ipx_dnet);
-	str_snet = ipxnet_to_string(ipx_snet);
 	ipx_dnet_val = pntohl(ipx_dnet);
 	ipx_snet_val = pntohl(ipx_snet);
 	ipx_dsocket = pntohs(&pd[offset+16]);
