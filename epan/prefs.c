@@ -895,7 +895,7 @@ print.file: /a/very/long/path/
  *
  */
 
-#define MAX_VAR_LEN    48
+#define MAX_VAR_LEN    100
 
 #define DEF_NUM_COLS    6
 
