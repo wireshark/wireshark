@@ -4,8 +4,6 @@
  * Copyright 1999 Johan Feyaerts
  * Changed 03/12/2003 Rui Carmo (http://the.taoofmac.com - added all 3GPP VSAs, some parsing)
  *
- * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
- *
  * $Id$
  *
  * Ethereal - Network traffic analyzer
@@ -25,8 +23,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
  * References:
- * Radius types: http://www.iana.org/assignments/radius-types
+ *
+ * RFC 2865 - Remote Authentication Dial In User Service (RADIUS)
+ * RFC 2866 - RADIUS Accounting
+ * RFC 2867 - RADIUS Accounting Modifications for Tunnel Protocol Support
+ * RFC 2868 - RADIUS Attributes for Tunnel Protocol Support
+ * RFC 2869 - RADIUS Extensions
+ */
+
+/*
+ * Some of the development of the RADIUS protocol decoder was sponsored by
+ * Cable Television Laboratories, Inc. ("CableLabs") based upon proprietary
+ * CableLabs' specifications. Your license and use of this protocol decoder
+ * does not mean that you are licensed to use the CableLabs'
+ * specifications.  If you have questions about this protocol, contact
+ * jf.mule@cablelabs.com or c.stuart@cablelabs.com for additional
+ * information.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -68,6 +82,49 @@ static int hf_radius_acctSessionId = -1;
 static int hf_radius_3gpp_SgsnIpAddr = -1;
 static int hf_radius_3gpp_GgsnIpAddr = -1;
 static int hf_radius_cisco_cai = -1;
+static int hf_packetcable_em_header_version_id = -1;
+static int hf_packetcable_bcid_timestamp = -1;
+static int hf_packetcable_bcid_event_counter = -1;
+static int hf_packetcable_em_header_event_message_type = -1;
+static int hf_packetcable_em_header_element_type = -1;
+static int hf_packetcable_em_header_sequence_number = -1;
+static int hf_packetcable_em_header_status = -1;
+static int hf_packetcable_em_header_status_error_indicator = -1;
+static int hf_packetcable_em_header_status_event_origin = -1;
+static int hf_packetcable_em_header_status_event_message_proxied = -1;
+static int hf_packetcable_em_header_priority = -1;
+static int hf_packetcable_em_header_attribute_count = -1;
+static int hf_packetcable_em_header_event_object = -1;
+static int hf_packetcable_call_termination_cause_source_document = -1;
+static int hf_packetcable_call_termination_cause_code = -1;
+static int hf_packetcable_trunk_group_id_trunk_type = -1;
+static int hf_packetcable_trunk_group_id_trunk_number = -1;
+static int hf_packetcable_qos_status = -1;
+static int hf_packetcable_qos_status_indication = -1;
+static int hf_packetcable_time_adjustment = -1;
+static int hf_packetcable_redirected_from_info_number_of_redirections = -1;
+static int hf_packetcable_electronic_surveillance_indication_df_cdc_address = -1;
+static int hf_packetcable_electronic_surveillance_indication_df_ccc_address = -1;
+static int hf_packetcable_electronic_surveillance_indication_cdc_port = -1;
+static int hf_packetcable_electronic_surveillance_indication_ccc_port = -1;
+static int hf_packetcable_terminal_display_info_terminal_display_status_bitmask = -1;
+static int hf_packetcable_terminal_display_info_sbm_general_display = -1;
+static int hf_packetcable_terminal_display_info_sbm_calling_number = -1;
+static int hf_packetcable_terminal_display_info_sbm_calling_name = -1;
+static int hf_packetcable_terminal_display_info_sbm_message_waiting = -1;
+static int hf_packetcable_terminal_display_info_general_display = -1;
+static int hf_packetcable_terminal_display_info_calling_number = -1;
+static int hf_packetcable_terminal_display_info_calling_name = -1;
+static int hf_packetcable_terminal_display_info_message_waiting = -1;
+/* This is slightly ugly.  */
+static int hf_packetcable_qos_desc_flags[] =
+{
+  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+};
+static int hf_packetcable_qos_desc_fields[] =
+{
+  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+};
 
 
 static char *shared_secret = NULL;
@@ -77,6 +134,11 @@ static gint ett_radius = -1;
 static gint ett_radius_avp = -1;
 static gint ett_radius_eap = -1;
 static gint ett_radius_vsa = -1;
+static gint ett_radius_vendor_packetcable_bcid = -1;
+static gint ett_radius_vendor_packetcable_status = -1;
+static gint ett_radius_vendor_packetcable_qos_status = -1;
+
+static void decode_packetcable_bcid (tvbuff_t *tvb, proto_tree *tree, int offset);
 
 static dissector_handle_t eap_fragment_handle;
 
@@ -169,7 +231,9 @@ enum {
     RADIUS_STRING,
     RADIUS_BINSTRING,
     RADIUS_USERPASSWORD,
+    RADIUS_INTEGER2,
     RADIUS_INTEGER4,
+    RADIUS_INTEGER8,
     RADIUS_IP_ADDRESS,
     RADIUS_IP6_ADDRESS,
     RADIUS_IP6_PREFIX,
@@ -193,7 +257,18 @@ enum {
     THE3GPP_SELECTION_MODE,
     THE3GPP_CHARGING_CHARACTERISTICS,
     THE3GPP_IPV6_DNS_SERVERS,
-    THE3GPP_SGSN_MCC_MNC
+    THE3GPP_SGSN_MCC_MNC,
+
+    PACKETCABLE_EM_HEADER,
+    PACKETCABLE_CALL_TERMINATION_CAUSE,
+    PACKETCABLE_RELATED_CALL_BILLING_CORRELATION_ID,
+    PACKETCABLE_TRUNK_GROUP_ID,
+    PACKETCABLE_QOS_DESCRIPTOR,
+    PACKETCABLE_TIME_ADJUSTMENT,
+    PACKETCABLE_REDIRECTED_FROM_INFO,
+    PACKETCABLE_ELECTRONIC_SURVEILLANCE_INDICATION,
+    PACKETCABLE_ELECTRONIC_SURVEILLANCE_DF_SECURITY,
+    PACKETCABLE_TERMINAL_DISPLAY_INFO
 };
 
 static const value_string radius_vals[] =
@@ -452,10 +527,10 @@ static const value_string radius_nas_port_type_vals[] =
   {17,	"Cable"},
   {18,	"Wireless Other"},
   {19,	"Wireless IEEE 802.11"},
-  {20,	"Token-Ring"},									/*[RFC3580]*/ 
+  {20,	"Token-Ring"},									/*[RFC3580]*/
   {21,	"FDDI"},										/*[RFC3580]*/
   {22,	"Wireless - CDMA2000"},							/*[McCann] */
-  {23,	"Wireless - UMTS"},								/*[McCann] */	
+  {23,	"Wireless - UMTS"},								/*[McCann] */
   {24,	"Wireless - 1X-EV"},							/*[McCann] */
   {25,	"IAPP"},									/*[IEEE 802.11f][Kerry]*/
   {26,	"FTTP - Fiber to the Premises"},				/*[Nyce]*/
@@ -579,7 +654,7 @@ static const radius_attr_info radius_attrib[] =
   {98,	RADIUS_IP6_ADDRESS,	"Login IPv6 Host", NULL, NULL},
   {99,	RADIUS_STRING,		"Framed IPV6 Route", NULL, NULL},
   {100,	RADIUS_STRING,		"Framed IPV6 Pool", NULL, NULL},
-  {101,	RADIUS_INTEGER4,	"Error-Cause Attribute",radius_error_cause_attribute_vals, NULL},/*[RFC3576]*/ 
+  {101,	RADIUS_INTEGER4,	"Error-Cause Attribute",radius_error_cause_attribute_vals, NULL},/*[RFC3576]*/
   {120,	RADIUS_INTEGER4,	"Ascend Modem Port No", NULL, NULL},
   {121,	RADIUS_INTEGER4,	"Ascend Modem Slot No", NULL, NULL},
   {187,	RADIUS_INTEGER4,	"Ascend Multilink ID", NULL, NULL},
@@ -2064,7 +2139,7 @@ static const value_string radius_vendor_cisco_vpn3000_sep_card_assignment_vals[]
   {6,   	"SEP 2 + SEP 3"},
   {7,   	"SEP 1 + SEP 2 + SEP 3"},
   {8,   	"SEP 4"},
-  {9,	"SEP 1 + SEP 4"}, 
+  {9,	"SEP 1 + SEP 4"},
   {10,  	"SEP 2 + SEP 4"},
   {11,  	"SEP 1 + SEP 2 + SEP 4"},
   {12,  	"SEP 3 + SEP 4"},
@@ -2139,7 +2214,7 @@ static const value_string radius_vendor_cisco_vpn3000_pptp_encryption_vals[] =
 
 static const value_string radius_vendor_cisco_vpn3000_l2tp_encryption_vals[] =
 {
-  {1,	"Encryption required"}, 
+  {1,	"Encryption required"},
   {2,	"40 Bits"},
   {3,	"40 Bits - Encryption required"},
   {4,	"128 Bits"},
@@ -2151,7 +2226,7 @@ static const value_string radius_vendor_cisco_vpn3000_l2tp_encryption_vals[] =
   {10,	"40 Bits - Stateless required"},
   {11,	"40 Bits Encryption / Stateless required"},
   {12,	"128 Bits - Stateless required"},
-  {13,	"128 Bits - Encryption / Stateless required"}, 
+  {13,	"128 Bits - Encryption / Stateless required"},
   {14,	"40/128 Bits - Stateless required"},
   {15,	"40/128 Bits - Encryption / Stateless required"},
  {0, NULL}
@@ -2210,7 +2285,7 @@ static const value_string radius_vendor_cisco_vpn3000_ipsec_ike_peer_idcheck_val
 {
   {1,	"Required"},
   {2,	"If supported by certifiate"},
-  {3,	"Do not check"}, 
+  {3,	"Do not check"},
   {0, NULL}
 };
 
@@ -2246,7 +2321,7 @@ static const value_string radius_vendor_cisco_vpn3000_hw_client_auth_vals[] =
  {0, NULL}
 };
 
-static const value_string radius_vendor_cisco_vpn_req_user_auth_vals[] = 
+static const value_string radius_vendor_cisco_vpn_req_user_auth_vals[] =
 {
   {0,	"No"},
   {1,	"Yes"},
@@ -2443,18 +2518,392 @@ static const radius_attr_info radius_vendor_nomadix_attrib[] =
 
 /*
 reference:
+	PKT-SP-EM-I09-040402 - PacketCable(tm) Event Message Specification
+	http://www.packetcable.com/specifications/
+*/
+
+/* XXX - Do we need to strip off the spaces for RJ strings? */
+#define PACKETCABLE_RJ_STRING RADIUS_STRING
+#define PACKETCABLE_EM_HEADER_CODE 1
+
+static value_string radius_vendor_packetcable_event_message_vals[] =
+{
+  {0,  "Reserved"},
+  {1,  "Signaling_Start"},
+  {2,  "Signaling_Stop"},
+  {3,  "Database_Query"},
+  {4,  "Intelligent_Peripheral_Usage_Start"},
+  {5,  "Intelligent_Peripheral_Usage_Stop"},
+  {6,  "Service_Instance"},
+  {7,  "QoS_Reserve"},
+  {8,  "QoS_Release"},
+  {9,  "Service_Activation"},
+  {10, "Service_Deactivation"},
+  {11,  "Media_Report"},
+  {12,  "Signal_Instance"},
+  {13, "Interconnect_(Signaling)_Start"},
+  {14, "Interconnect_(Signaling)_Stop"},
+  {15, "Call_Answer"},
+  {16, "Call_Disconnect"},
+  {17, "Time_Change"},
+  {19, "QoS_Commit"},
+  {20, "Media_Alive"},
+  {31,  "Policy_Request"},
+  {32,  "Policy_Delete"},
+  {33,  "Policy_Update"},
+  {0, NULL}
+};
+
+static value_string radius_vendor_packetcable_query_type_vals[] =
+{
+  {0,  "Reserved"},
+  {1,  "Toll Free Number Looukp"},
+  {2,  "LNPNumberLookup"},
+  {3,  "Calling Name Delivery Lookup"},
+  {0, NULL}
+};
+
+static value_string radius_vendor_packetcable_channel_state_vals[] =
+{
+  {0,  "Not Used/Reserved"},
+  {1,  "Open"},
+  {2,  "Change"},
+  {2,  "Close"},
+  {0, NULL}
+};
+
+static value_string radius_vendor_packetcable_direction_indicator_vals[] =
+{
+  {0,  "Undefined"},
+  {1,  "Originating"},
+  {2,  "Terminating"},
+  {0, NULL}
+};
+
+static value_string radius_vendor_packetcable_flow_direction_vals[] =
+{
+  {0,  "Reserved"},
+  {1,  "Upstream"},
+  {2,  "Downstream"},
+  {0, NULL}
+};
+
+static value_string radius_vendor_packetcable_signal_type_vals[] =
+{
+  {0,  "Reserved"},
+  {1,  "Network_Signal"},
+  {2,  "Subject_Signal"},
+  {0, NULL}
+};
+
+static value_string radius_vendor_packetcable_alerting_signal_vals[] =
+{
+  {0,  "Reserved"},
+  {1,  "Ringing (rg)"},
+  {2,  "Distinctive ringing 2 (r2)"},
+  {3,  "Distinctive ringing 3 (r3)"},
+  {4,  "Distinctive ringing 4 (r4)"},
+  {5,  "Ringsplash (rs)"},
+  {6,  "Call waiting tone 1 (wt1)"},
+  {7,  "Call waiting tone 2 (wt2)"},
+  {8,  "Call waiting tone 3 (wt3)"},
+  {9,  "Call waiting tone 4 (wt4)"},
+  {10,  "Reserved"},
+  {11,  "Distinctive ringing 0 (r0)"},
+  {12,  "Distinctive ringing 1 (r1)"},
+  {13,  "Distinctive ringing 5 (r5)"},
+  {14,  "Distinctive ringing 6 (r6)"},
+  {15,  "Distinctive ringing 7 (r7)"},
+  {0, NULL}
+};
+
+static value_string radius_vendor_packetcable_subject_audible_signal_vals[] =
+{
+  {0,  "Reserved"},
+  {1,  "Dial tone (dl)"},
+  {2,  "Stutter dial tone (sl)"},
+  {3,  "Ring back tone (rt)"},
+  {4,  "Reorder tone (ro)"},
+  {5,  "Busy tone (bz)"},
+  {6,  "Confirmation tone (cf)"},
+  {7,  "Reserved"},
+  {8,  "Message waiting indicator (mwi)"},
+  {9,  "Off-hook warning tone (ot)"},
+  {10, "Reserved"},
+  {11, "Reserved"},
+  {12, "Reserved"},
+  {13, "Reserved"},
+  {14, "Reserved"},
+  {15, "Reserved"},
+  {16, "Reserved"},
+  {17, "Reserved"},
+  {18, "Reserved"},
+  {19, "Reserved"},
+  {20, "Reserved"},
+  {21, "Reserved"},
+  {0, NULL}
+};
+
+static value_string radius_vendor_packetcable_element_requesting_qos_vals[] =
+{
+  {0, "Client"},
+  {1, "Policy Server"},
+  {2, "Embedded Client"},
+  {0, NULL}
+};
+
+static value_string radius_vendor_packetcable_qos_release_reason_vals[] =
+{
+  {1,   "Gate Closed by PS"},
+  {2,   "Inactivity resource recovery (T4) timer expiration"},
+  {3,   "CM Failure"},
+  {4,   "Pre-Empted"},
+  {5,   "RSVP PathTear request"},
+  {6,   "CM Request"},
+  {7,   "Admitted (T2) timer expiration"},
+  {127, "Other"},
+  {0, NULL}
+};
+
+static value_string radius_vendor_packetcable_policy_denied_reason_vals[] =
+{
+  {1,   "Policy Server admission control failure"},
+  {2,   "Insufficient resources"},
+  {3,   "Unknown subscriber"},
+  {4,   "Unauthorized AMID"},
+  {5,   "Undefined Service Class Name"},
+  {6,   "Incompatible Envelope"},
+  {127, "Other"},
+  {0, NULL}
+};
+
+static value_string radius_vendor_packetcable_policy_deleted_reason_vals[] =
+{
+  {1,   "Application Manager request"},
+  {2,   "CMTS decistion"},
+  {127, "Other"},
+  {0, NULL}
+};
+
+static value_string radius_vendor_packetcable_policy_update_reason_vals[] =
+{
+  {1,   "Traffic Profile"},
+  {2,   "Classifier"},
+  {3,   "Volume Limit"},
+  {4,   "Time Limit"},
+  {5,   "Opaque data"},
+  {6,   "Multiple Updates"},
+  {127, "Other"},
+  {0, NULL}
+};
+
+static value_string radius_vendor_packetcable_policy_decision_status_vals[] =
+{
+  {1, "Policy Approved"},
+  {2, "Policy Denied"},
+  {0, NULL}
+};
+
+
+static value_string packetcable_em_header_element_type_vals[] =
+{
+  {0,  "Reserved"},
+  {1,  "CMS"},
+  {2,  "CMTS"},
+  {3,  "Media Gateway Controller"},
+  {0, NULL}
+};
+
+#define PACKETCABLE_EMHS_EI_MASK 0X0003
+#define PACKETCABLE_EMHS_EO_MASK 0X0004
+#define PACKETCABLE_EMHS_EMP_MASK 0X0008
+#define PACKETCABLE_EMHS_RESERVED_MASK 0Xfff0
+
+static value_string packetcable_em_header_status_error_indicator_vals[] =
+{
+  {0,  "No Error"},
+  {1,  "Possible Error"},
+  {2,  "Known Error"},
+  {3,  "Reserved"},
+  {0, NULL},
+};
+
+static value_string packetcable_em_header_status_event_origin_vals[] =
+{
+  {0,  "Trusted Element"},
+  {1,  "Untrusted Element"},
+  {0, NULL},
+};
+
+static value_string packetcable_em_header_status_event_message_proxied_vals[] =
+{
+  {0,  "Not proxied"},
+  {1,  "Proxied"},
+  {0, NULL},
+};
+
+static value_string packetcable_call_termination_cause_vals[] =
+{
+  {0,  "Reserved"},
+  {1,  "BAF"},
+  {2,  "Reserved"},
+  {0, NULL},
+};
+
+static value_string packetcable_trunk_type_vals[] =
+{
+  {1,  "Not Used"},
+  {2,  "Not Used"},
+  {3,  "SS7 direct trunk group member"},
+  {4,  "SS7 from IC to AT and SS7 from AT to EO"},
+  {5,  "Not Used"},
+  {6,  "SS7 from IC to AT and non-SS7 from AT to EO (terminating only)"},
+  {9,  "Signaling type not specified"},
+  {0, NULL},
+};
+
+#define PACKETCABLE_QOS_STATE_INDICATION_MASK 0X0003
+static value_string packetcable_state_indication_vals[] =
+{
+  {0,  "Illegal Value"},
+  {1,  "Resource Reserved but not Activated"},
+  {2,  "Resource Activated"},
+  {3,  "Resource Reserved & Activated"},
+};
+
+#define PACKETCABLE_SERVICE_FLOW_SCHEDULING_TYPE_MASK  (1 << 2)
+#define PACKETCABLE_NOMINAL_GRANT_INTERVAL_MASK        (1 << 3)
+#define PACKETCABLE_TOLERATED_GRANT_JITTER_MASK        (1 << 4)
+#define PACKETCABLE_GRANTS_PER_INTERVAL_MASK   (1 << 5)
+#define PACKETCABLE_UNSOLICITED_GRANT_SIZE_MASK        (1 << 6)
+#define PACKETCABLE_TRAFFIC_PRIORITY_MASK      (1 << 7)
+#define PACKETCABLE_MAXIMUM_SUSTAINED_RATE_MASK        (1 << 8)
+#define PACKETCABLE_MAXIMUM_TRAFFIC_BURST_MASK (1 << 9)
+#define PACKETCABLE_MINIMUM_RESERVED_TRAFFIC_RATE_MASK (1 << 10)
+#define PACKETCABLE_MINIMUM_PACKET_SIZE_MASK   (1 << 11)
+#define PACKETCABLE_MAXIMUM_CONCATENATED_BURST_MASK    (1 << 12)
+#define PACKETCABLE_REQUEST_TRANSMISSION_POLICY_MASK   (1 << 13)
+#define PACKETCABLE_NOMINAL_POLLING_INTERVAL_MASK      (1 << 14)
+#define PACKETCABLE_TOLERATED_POLL_JITTER_MASK (1 << 15)
+#define PACKETCABLE_IP_TYPE_OF_SERVICE_OVERRIDE_MASK   (1 << 16)
+#define PACKETCABLE_MAXIMUM_DOWNSTREAM_LATENCY_MASK    (1 << 17)
+
+static guint32 packetcable_qos_desc_mask[] =
+{
+  PACKETCABLE_SERVICE_FLOW_SCHEDULING_TYPE_MASK,
+  PACKETCABLE_NOMINAL_GRANT_INTERVAL_MASK,
+  PACKETCABLE_TOLERATED_GRANT_JITTER_MASK,
+  PACKETCABLE_GRANTS_PER_INTERVAL_MASK,
+  PACKETCABLE_UNSOLICITED_GRANT_SIZE_MASK,
+  PACKETCABLE_TRAFFIC_PRIORITY_MASK,
+  PACKETCABLE_MAXIMUM_SUSTAINED_RATE_MASK,
+  PACKETCABLE_MAXIMUM_TRAFFIC_BURST_MASK,
+  PACKETCABLE_MINIMUM_RESERVED_TRAFFIC_RATE_MASK,
+  PACKETCABLE_MINIMUM_PACKET_SIZE_MASK,
+  PACKETCABLE_MAXIMUM_CONCATENATED_BURST_MASK,
+  PACKETCABLE_REQUEST_TRANSMISSION_POLICY_MASK,
+  PACKETCABLE_NOMINAL_POLLING_INTERVAL_MASK,
+  PACKETCABLE_TOLERATED_POLL_JITTER_MASK,
+  PACKETCABLE_IP_TYPE_OF_SERVICE_OVERRIDE_MASK,
+  PACKETCABLE_MAXIMUM_DOWNSTREAM_LATENCY_MASK,
+};
+
+#define PACKETCABLE_QOS_DESC_BITFIELDS 16
+
+
+static const radius_attr_info radius_vendor_cablelabs_attrib[] =
+{
+  {0,  RADIUS_RESERVED,                        "Reserved", NULL, NULL},
+  {1,  PACKETCABLE_EM_HEADER,                  "EM_Header Data structure", NULL, NULL},
+  /* 2 Undefined */
+  {3,  RADIUS_STRING,                          "MTA_Endpoint_Name", NULL, NULL},
+  {4,  PACKETCABLE_RJ_STRING,                  "Calling_Party_Number", NULL, NULL},
+  {5,  PACKETCABLE_RJ_STRING,                  "Called_Party_Number", NULL, NULL},
+  {6,  PACKETCABLE_RJ_STRING,                  "Database_ID", NULL, NULL},
+  {7,  RADIUS_INTEGER2,                        "Query_Type", radius_vendor_packetcable_query_type_vals, NULL},
+  /* 8 Undefined */
+  {9,  PACKETCABLE_RJ_STRING,                  "Returned_Number", NULL, NULL},
+  /* 10 Undefined */
+  {11, PACKETCABLE_CALL_TERMINATION_CAUSE,     "Call_Termination_Cause", NULL, NULL},
+  /* 12 Undefined */
+  {13, PACKETCABLE_RELATED_CALL_BILLING_CORRELATION_ID,        "Related_Call_Billing_Correlation_ID", NULL, NULL},
+  {14, PACKETCABLE_RJ_STRING,                  "First_Call_Calling_Party_Number", NULL, NULL},
+  {15, PACKETCABLE_RJ_STRING,                  "Second_Call_Calling_Party_Number", NULL, NULL},
+  {16, PACKETCABLE_RJ_STRING,                  "Charge_Number", NULL, NULL},
+  {17, PACKETCABLE_RJ_STRING,                  "Forwarded_Number", NULL, NULL},
+  {18, PACKETCABLE_RJ_STRING,                  "Service_Name", NULL, NULL},
+  /* 19 Undefined */
+  {20, PACKETCABLE_RJ_STRING,                  "Intl_Code", NULL, NULL},
+  {21, PACKETCABLE_RJ_STRING,                  "Dial_Around_Code", NULL, NULL},
+  {22, PACKETCABLE_RJ_STRING,                  "Location_Routing_Number", NULL, NULL},
+  {23, PACKETCABLE_RJ_STRING,                  "Carrier_Identification_Code", NULL, NULL},
+  {24, PACKETCABLE_TRUNK_GROUP_ID,             "Trunk_Group_ID", NULL, NULL},
+  {25, PACKETCABLE_RJ_STRING,                  "Routing_Number", NULL, NULL},
+  {26, RADIUS_INTEGER4,                        "MTA_UDP_Portnum", NULL, NULL},
+  /* 27 Undefined */
+  /* 28 Undefined */
+  {29, RADIUS_INTEGER2,                        "Channel_State", radius_vendor_packetcable_channel_state_vals, NULL},
+  {30, RADIUS_INTEGER4,                        "SF_ID", NULL, NULL},
+  {31, PACKETCABLE_RJ_STRING,                  "Error_Description", NULL, NULL},
+  {32, PACKETCABLE_QOS_DESCRIPTOR,             "QoS_Descriptor", NULL, NULL},
+  {37, RADIUS_INTEGER2,                        "Direction_indicator", radius_vendor_packetcable_direction_indicator_vals, NULL},
+  {38, PACKETCABLE_TIME_ADJUSTMENT,            "Time_Adjustment", NULL, NULL},
+  {39, RADIUS_STRING,                          "SDP_Upstream", NULL, NULL},
+  {40, RADIUS_STRING,                          "SDP_Downstream", NULL, NULL},
+  {41, RADIUS_STRING,                          "User_Input", NULL, NULL},
+  {42, PACKETCABLE_RJ_STRING,                  "Translation_Input", NULL, NULL},
+  {43, PACKETCABLE_REDIRECTED_FROM_INFO,       "Redirected_From_Info", NULL, NULL},
+  {44, PACKETCABLE_ELECTRONIC_SURVEILLANCE_INDICATION, "Electronic_Surveillance_Indication", NULL, NULL},
+  {45, PACKETCABLE_RJ_STRING,                  "Redirected_From_Party_Number", NULL, NULL},
+  {46, PACKETCABLE_RJ_STRING,                  "Redirected_To_Party_Number", NULL, NULL},
+  {47, PACKETCABLE_ELECTRONIC_SURVEILLANCE_DF_SECURITY,        "Electronic_Surveillance_DF_Security", NULL, NULL},
+  {48, RADIUS_INTEGER4,                        "CCC_ID"},
+  {49, RADIUS_STRING,                          "Financial Entity ID", NULL, NULL},
+  {50, RADIUS_INTEGER2,                        "Flow Direction", radius_vendor_packetcable_flow_direction_vals, NULL},
+  {51, RADIUS_INTEGER2,                        "Signal_Type", radius_vendor_packetcable_signal_type_vals, NULL},
+  {52, RADIUS_INTEGER4,                        "Alerting_Signal", radius_vendor_packetcable_alerting_signal_vals, NULL},
+  {53, RADIUS_INTEGER4,                        "Subject_Audible_Signal", radius_vendor_packetcable_subject_audible_signal_vals, NULL},
+  {54, PACKETCABLE_TERMINAL_DISPLAY_INFO,      "Terminal_Display_Info", NULL, NULL},
+  {55, RADIUS_STRING,                          "Switch_Hook_Flash", NULL, NULL},
+  {56, RADIUS_STRING,                          "Dialed_Digits", NULL, NULL},
+  {57, RADIUS_STRING,                          "Misc_Signaling_Information", NULL, NULL},
+
+/* PacketCable MM */
+  {61, RADIUS_INTEGER8,                        "AM_Opaque_Data", NULL, NULL },
+  {62, RADIUS_IP_ADDRESS,                      "Subscriber_ID", NULL, NULL },
+  {63, RADIUS_INTEGER8,                        "Volume_Usage_Limit", NULL, NULL },
+  {64, RADIUS_INTEGER8,                        "Gate_Usage_Info", NULL, NULL },
+  {65, RADIUS_INTEGER2,                        "Element_Requesting_QoS", radius_vendor_packetcable_element_requesting_qos_vals, NULL },
+  {66, RADIUS_INTEGER2,                        "QoS_Release_Reason", radius_vendor_packetcable_qos_release_reason_vals, NULL },
+  {67, RADIUS_INTEGER2,                        "Policy_Denied_Reason", radius_vendor_packetcable_policy_denied_reason_vals, NULL },
+  {68, RADIUS_INTEGER2,                        "Policy_Deleted_Reason", radius_vendor_packetcable_policy_deleted_reason_vals, NULL },
+  {69, RADIUS_INTEGER2,                        "Policy_Update_Reason", radius_vendor_packetcable_policy_update_reason_vals, NULL },
+  {70, RADIUS_INTEGER2,                        "Policy_Decision_Status", NULL, NULL },
+  {71, RADIUS_INTEGER4,                        "Application_Manager_ID", NULL, NULL },
+  {72, RADIUS_INTEGER4,                        "Time_Usage_Limit", NULL, NULL },
+  {73, RADIUS_INTEGER4,                        "Gate_Time_Info", NULL, NULL },
+
+  {80, PACKETCABLE_RJ_STRING,                  "Account_Code", NULL, NULL},
+  {81, PACKETCABLE_RJ_STRING,                  "Authorization_Code", NULL, NULL},
+  {0, 0, NULL, NULL, NULL},
+};
+
+
+
+/*
+reference:
 	'unisphere5-3.dct' file from Juniper Networks
           http://www.juniper.net/techpubs/software/erx/junose53/unisphere5-3.dct
 */
 
 static const value_string radius_vendor_unisphere_ingress_statistics_vals[] =
-{ 
+{
   {0,	"Disable"},
   {1,	"Enable"}
 };
 
 static const value_string radius_vendor_unisphere_egress_statistics_vals[] =
-{ 
+{
   {0,	"Disable"},
   {1,	"Enable"}
 };
@@ -2740,6 +3189,7 @@ static rd_vsa_table radius_vsa_table[] =
   {VENDOR_COSINE,		radius_vendor_cosine_attrib},
   {VENDOR_SHASTA,		radius_vendor_shasta_attrib},
   {VENDOR_NOMADIX,		radius_vendor_nomadix_attrib},
+  {VENDOR_CABLELABS,		radius_vendor_cablelabs_attrib},
   {VENDOR_UNISPHERE,		radius_vendor_unisphere_attrib},
   {VENDOR_CISCO_BBSM,		radius_vendor_cisco_bbsm_attrib},
   {VENDOR_ISSANNI,		radius_vendor_issanni_attrib},
@@ -2929,10 +3379,10 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
   gchar *tmp_punt;
 
   gchar *cont;
-  guint32 intval;
+  guint32 intval, packetcable_qos_flags;
   gint32 timeval;
   const guint8 *pd;
-  guint8 tag;
+  guint8 tag, packetcable_buf[64], bitmask;
   guint8 ipv6_prefix_length;
   guint8 ipv6_addr_temp[16];
 
@@ -2941,6 +3391,9 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
   int vsa_index;
   const radius_attr_info *vsa_attr_info_table;
   const e_avphdr *vsa_avph;
+  proto_item *ti;
+  proto_tree *obj_tree;
+  guint packetcable_qos_off = offset + 22;
 
   /* Default begin */
   strcpy(dest, "Value:");
@@ -2967,6 +3420,15 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 		rddecryptpass(cont,tvb,offset+2,avph->avp_length-2);
                 break;
 
+        case( RADIUS_INTEGER2 ):
+        	intval = tvb_get_ntohs(tvb,offset+2);
+        	if (attr_info->vs != NULL)
+			sprintf(cont, "%s(%u)", rd_match_strval(intval, attr_info->vs), intval);
+		else
+	                sprintf(cont,"%u", intval);
+		rd_add_field_to_tree(tree, tvb, offset+2, 2, attr_info);
+                break;
+
         case( RADIUS_INTEGER4 ):
         	intval = tvb_get_ntohl(tvb,offset+2);
         	if (attr_info->vs != NULL)
@@ -2975,6 +3437,12 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 	                sprintf(cont,"%u", intval);
 		rd_add_field_to_tree(tree, tvb, offset+2, 4, attr_info);
                 break;
+
+	case( RADIUS_INTEGER8 ):
+		sprintf(cont, "%" PRIx64, tvb_get_ntoh64(tvb, offset+2));
+		rd_add_field_to_tree(tree, tvb, offset+2, 8, attr_info);
+		break;
+
 
         case( RADIUS_IP_ADDRESS ):
                 ip_to_str_buf(tvb_get_ptr(tvb,offset+2,4),cont);
@@ -3052,7 +3520,7 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 					tree);
 			vsa_index++;
 			vsa_len += vsa_avph->avp_length;
-			
+
 			if ( next_attr_info )
 			{
 				rd_add_field_to_tree(tree, tvb, offset+8,
@@ -3107,6 +3575,179 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 		 * */
 		decode_qos_umts(tvb, offset + 1, tree, tmp_punt, 3);
 		break;
+
+
+	case ( PACKETCABLE_EM_HEADER ):
+		proto_tree_add_text(tree, tvb, offset, avph->avp_length, "%s", vsabuffer[0]->str);
+		vsabuffer[0]->str = NULL;
+		proto_tree_add_item(tree, hf_packetcable_em_header_version_id,
+				tvb, offset + 2, 2, FALSE);
+		ti = proto_tree_add_text(tree, tvb, offset + 4, 24, "BCID");
+		obj_tree = proto_item_add_subtree(ti, ett_radius_vendor_packetcable_bcid);
+		decode_packetcable_bcid(tvb, obj_tree, offset + 4);
+
+		proto_tree_add_item(tree, hf_packetcable_em_header_event_message_type,
+				tvb, offset + 28, 2, FALSE);
+		proto_tree_add_item(tree, hf_packetcable_em_header_element_type,
+				tvb, offset + 30, 2, FALSE);
+		tvb_memcpy(tvb, packetcable_buf, offset + 32, 8); packetcable_buf[8] = '\0';
+		proto_tree_add_text(tree, tvb, offset + 32, 8,
+				"Element ID: %s", packetcable_buf );
+		tvb_memcpy(tvb, packetcable_buf, offset + 41, 7); packetcable_buf[7] = '\0';
+		proto_tree_add_text(tree, tvb, offset + 40, 8,
+				"Time Zone: DST: %c, Offset: %s", tvb_get_guint8(tvb, offset + 40),
+				packetcable_buf);
+		proto_tree_add_item(tree, hf_packetcable_em_header_sequence_number,
+				tvb, offset + 48, 4, FALSE);
+		tvb_memcpy(tvb, packetcable_buf, offset + 52, 18); packetcable_buf[18] = '\0';
+		proto_tree_add_text(tree, tvb, offset + 52, 18,
+				"Event Time: %s", packetcable_buf);
+
+		ti = proto_tree_add_item(tree, hf_packetcable_em_header_status,
+				tvb, offset + 70, 4, FALSE);
+		obj_tree = proto_item_add_subtree(ti, ett_radius_vendor_packetcable_status);
+		proto_tree_add_item(obj_tree, hf_packetcable_em_header_status_error_indicator,
+				tvb, offset + 70, 4, FALSE);
+		proto_tree_add_item(obj_tree, hf_packetcable_em_header_status_event_origin,
+				tvb, offset + 70, 4, FALSE);
+		proto_tree_add_item(obj_tree, hf_packetcable_em_header_status_event_message_proxied,
+				tvb, offset + 70, 4, FALSE);
+
+		proto_tree_add_item(tree, hf_packetcable_em_header_priority,
+				tvb, offset + 74, 1, FALSE);
+		proto_tree_add_item(tree, hf_packetcable_em_header_attribute_count,
+				tvb, offset + 75, 2, FALSE);
+		proto_tree_add_item(tree, hf_packetcable_em_header_event_object,
+				tvb, offset + 77, 1, FALSE);
+		break;
+	case ( PACKETCABLE_CALL_TERMINATION_CAUSE ):
+		proto_tree_add_text(tree, tvb, offset, avph->avp_length, "%s", vsabuffer[0]->str);
+		vsabuffer[0]->str = NULL;
+		proto_tree_add_item(tree, hf_packetcable_call_termination_cause_source_document,
+				tvb, offset + 2, 2, FALSE);
+		proto_tree_add_item(tree, hf_packetcable_call_termination_cause_code,
+				tvb, offset + 4, 4, FALSE);
+		break;
+	case ( PACKETCABLE_RELATED_CALL_BILLING_CORRELATION_ID ):
+		proto_tree_add_text(tree, tvb, offset, avph->avp_length, "%s", vsabuffer[0]->str);
+		vsabuffer[0]->str = NULL;
+		decode_packetcable_bcid(tvb, tree, offset + 2);
+		break;
+	case ( PACKETCABLE_TRUNK_GROUP_ID ):
+		proto_tree_add_text(tree, tvb, offset, avph->avp_length, "%s", vsabuffer[0]->str);
+		vsabuffer[0]->str = NULL;
+		proto_tree_add_item(tree, hf_packetcable_trunk_group_id_trunk_type,
+				tvb, offset + 2, 2, FALSE);
+		proto_tree_add_item(tree, hf_packetcable_trunk_group_id_trunk_number,
+				tvb, offset + 4, 4, FALSE);
+		break;
+	case ( PACKETCABLE_QOS_DESCRIPTOR ):
+		proto_tree_add_text(tree, tvb, offset, avph->avp_length, "%s", vsabuffer[0]->str);
+		vsabuffer[0]->str = NULL;
+		packetcable_qos_flags = tvb_get_letohl(tvb, offset + 2);
+		ti = proto_tree_add_item(tree, hf_packetcable_qos_status,
+				tvb, offset + 2, 4, FALSE);
+		obj_tree = proto_item_add_subtree(ti, ett_radius_vendor_packetcable_qos_status);
+		proto_tree_add_item(obj_tree, hf_packetcable_qos_status_indication,
+				tvb, offset + 2, 4, FALSE);
+		for (intval = 0; intval < PACKETCABLE_QOS_DESC_BITFIELDS; intval++) {
+			proto_tree_add_item(obj_tree, hf_packetcable_qos_desc_flags[intval],
+					tvb, offset + 2, 4, FALSE);
+		}
+		tvb_memcpy(tvb, packetcable_buf, offset + 6, 16); packetcable_buf[16] = '\0';
+		proto_tree_add_text(tree, tvb, offset + 6, 16,
+				"Service Class Name: %s", packetcable_buf);
+		packetcable_qos_flags = ntohl(packetcable_qos_flags);
+		for (intval = 0; intval < PACKETCABLE_QOS_DESC_BITFIELDS; intval++) {
+			if (packetcable_qos_flags & packetcable_qos_desc_mask[intval]) {
+				proto_tree_add_item(tree, hf_packetcable_qos_desc_fields[intval],
+						tvb, packetcable_qos_off, 4, FALSE);
+				packetcable_qos_off += 4;
+			}
+		}
+		break;
+	case ( PACKETCABLE_TIME_ADJUSTMENT ):
+		proto_tree_add_text(tree, tvb, offset, avph->avp_length, "%s", vsabuffer[0]->str);
+		vsabuffer[0]->str = NULL;
+		proto_tree_add_item(tree, hf_packetcable_time_adjustment,
+				tvb, offset + 2, 8, FALSE);
+		break;
+	case ( PACKETCABLE_REDIRECTED_FROM_INFO ):
+		proto_tree_add_text(tree, tvb, offset, avph->avp_length, "%s", vsabuffer[0]->str);
+		vsabuffer[0]->str = NULL;
+		tvb_memcpy(tvb, packetcable_buf, offset + 2, 20); packetcable_buf[20] = '\0';
+		proto_tree_add_text(tree, tvb, offset + 2, 20,
+				"Last-Redirecting-Party: %s", packetcable_buf);
+		tvb_memcpy(tvb, packetcable_buf, offset + 22, 20); packetcable_buf[20] = '\0';
+		proto_tree_add_text(tree, tvb, offset + 22, 20,
+				"Original-Called-Party: %s", packetcable_buf);
+		proto_tree_add_item(tree, hf_packetcable_redirected_from_info_number_of_redirections,
+				tvb, offset + 42, 2, FALSE);
+		break;
+	case ( PACKETCABLE_ELECTRONIC_SURVEILLANCE_INDICATION ):
+		if (avph->avp_length == 2) {
+		    proto_tree_add_text(tree, tvb, offset, avph->avp_length, "%s [None]", vsabuffer[0]->str);
+		    vsabuffer[0]->str = NULL;
+		    break;
+		}
+		proto_tree_add_text(tree, tvb, offset, avph->avp_length, "%s", vsabuffer[0]->str);
+		vsabuffer[0]->str = NULL;
+		proto_tree_add_item(tree, hf_packetcable_electronic_surveillance_indication_df_cdc_address,
+				tvb, offset + 2, 4, FALSE);
+		proto_tree_add_item(tree, hf_packetcable_electronic_surveillance_indication_df_ccc_address,
+				tvb, offset + 6, 4, FALSE);
+		proto_tree_add_item(tree, hf_packetcable_electronic_surveillance_indication_cdc_port,
+				tvb, offset + 10, 2, FALSE);
+		proto_tree_add_item(tree, hf_packetcable_electronic_surveillance_indication_ccc_port,
+				tvb, offset + 12, 2, FALSE);
+		proto_tree_add_text(tree, tvb, offset + 14, avph->avp_length,
+				"DF-DF-Key");
+		break;
+	case ( PACKETCABLE_ELECTRONIC_SURVEILLANCE_DF_SECURITY ):
+		break;
+#define PACKETCABLE_GENERAL_DISPLAY (1 << 0)
+#define PACKETCABLE_CALLING_NUMBER  (1 << 1)
+#define PACKETCABLE_CALLING_NAME    (1 << 2)
+#define PACKETCABLE_MESSAGE_WAITING (1 << 3)
+	case ( PACKETCABLE_TERMINAL_DISPLAY_INFO ):
+		proto_tree_add_text(tree, tvb, offset, avph->avp_length, "%s", vsabuffer[0]->str);
+		vsabuffer[0]->str = NULL;
+		bitmask = tvb_get_guint8(tvb, 2);
+		intval = offset + 3;
+		ti = proto_tree_add_item(tree, hf_packetcable_terminal_display_info_terminal_display_status_bitmask,
+				tvb, offset + 2, 1, FALSE);
+		obj_tree = proto_item_add_subtree(ti, ett_radius_vsa);
+		proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_sbm_general_display,
+				tvb, offset + 2, 1, bitmask);
+		proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_sbm_calling_number,
+				tvb, offset + 2, 1, bitmask);
+		proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_sbm_calling_name,
+				tvb, offset + 2, 1, bitmask);
+		proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_sbm_message_waiting,
+				tvb, offset + 2, 1, bitmask);
+		if (bitmask & PACKETCABLE_GENERAL_DISPLAY) {
+			proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_general_display,
+				tvb, intval, 80, FALSE);
+			intval += 80;
+		}
+		if (bitmask & PACKETCABLE_CALLING_NUMBER) {
+			proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_calling_number,
+				tvb, intval, 40, FALSE);
+			intval += 40;
+		}
+		if (bitmask & PACKETCABLE_CALLING_NAME) {
+			proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_calling_name,
+				tvb, intval, 40, FALSE);
+			intval += 40;
+		}
+		if (bitmask & PACKETCABLE_MESSAGE_WAITING) {
+			proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_message_waiting,
+				tvb, intval, 40, FALSE);
+			intval += 40;
+		}
+
+		break;
+
 
         case( RADIUS_TIMESTAMP ):
 		timeval=tvb_get_ntohl(tvb,offset+2);
@@ -3342,6 +3983,26 @@ dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
   CLEANUP_CALL_AND_POP;
 }
 
+/* Decode a PacketCable BCID. */
+/* XXX - This should probably be combinde with the equivalent COPS code */
+static void decode_packetcable_bcid (tvbuff_t *tvb, proto_tree *tree, int offset)
+{
+	guint8 packetcable_buf[16];
+
+	proto_tree_add_item(tree, hf_packetcable_bcid_timestamp,
+			tvb, offset, 4, FALSE);
+	tvb_memcpy(tvb, packetcable_buf, offset + 4, 8); packetcable_buf[8] = '\0';
+	proto_tree_add_text(tree, tvb, offset + 4, 8,
+			"Element ID: %s", packetcable_buf);
+	tvb_memcpy(tvb, packetcable_buf, offset + 13, 7); packetcable_buf[7] = '\0';
+	proto_tree_add_text(tree, tvb, offset + 12, 8,
+			"Time Zone: DST: %c, Offset: %s", tvb_get_guint8(tvb, offset + 12),
+			packetcable_buf);
+	proto_tree_add_item(tree, hf_packetcable_bcid_event_counter,
+			tvb, offset + 20, 4, FALSE);
+}
+
+
 static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *radius_tree = NULL, *avptree = NULL;
@@ -3447,31 +4108,31 @@ proto_register_radius(void)
 		{ &hf_radius_id,
 		{ "Identifier",	"radius.id", FT_UINT8, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
-			
+
 		{ &hf_radius_length,
 		{ "Length","radius.length", FT_UINT16, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
-			
+
 		{ &hf_radius_userName,
 		{ "User-Name",	"radius.username", FT_STRING, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
-			
+
 		{ &hf_radius_serviceType,
 		{ "Service-Type",	"radius.service_type", FT_UINT32, BASE_DEC, VALS(radius_service_type_vals), 0x0,
 			"", HFILL }},
-		
+
 		{ &hf_radius_framedProtocol,
 		{ "Framed-Protocol",	"radius.framed_protocol", FT_UINT32, BASE_DEC, VALS(radius_framed_protocol_vals), 0x0,
 			"", HFILL }},
-			
+
 		{ &hf_radius_callingStationId,
 		{ "Calling-Station-Id",	"radius.calling", FT_STRING, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
-			
+
 		{ &hf_radius_calledStationId,
 		{ "Called-Station-Id",	"radius.called", FT_STRING, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
-			
+
 		{ &hf_radius_class,
 		{ "Class",	"radius.class", FT_BYTES, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
@@ -3483,19 +4144,19 @@ proto_register_radius(void)
 		{ &hf_radius_framedAddress,
 		{ "Framed Address",	"radius.framed_addr", FT_IPv4, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
-			
+
 		{ &hf_radius_acctStatusType,
 		{ "Accounting Status Type",	"radius.acct.status_type", FT_UINT32, BASE_DEC, VALS(radius_accounting_status_type_vals), 0x0,
 			"", HFILL }},
-			
+
 		{ &hf_radius_nasIp,
 		{ "Nas IP Address",	"radius.nas_ip", FT_IPv4, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
-			
+
 		{ &hf_radius_3gpp_SgsnIpAddr,
 		{ "SGSN IP Address",	"radius.3gpp.sgsn_ip", FT_IPv4, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
-			
+
 		{ &hf_radius_3gpp_GgsnIpAddr,
 		{ "GGSN IP Address",	"radius.3gpp.ggsn_ip", FT_IPv4, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
@@ -3504,12 +4165,350 @@ proto_register_radius(void)
 		{ "Cisco-Account-Info",	"radius.cisco.cai", FT_STRING, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
 
-	}; 
+		{ &hf_packetcable_em_header_version_id,
+			{ "Event Message Version ID","radius.vendor.pkt.emh.vid",
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
+			  "PacketCable Event Message header version ID", HFILL }
+		},
+		{ &hf_packetcable_bcid_timestamp,
+			{ "Timestamp","radius.vendor.pkt.bcid.ts",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "PacketCable Event Message BCID Timestamp", HFILL }
+		},
+		{ &hf_packetcable_bcid_event_counter,
+			{ "Event Counter","radius.vendor.pkt.bcid.ec",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "PacketCable Event Message BCID Event Counter", HFILL }
+		},
+		{ &hf_packetcable_em_header_event_message_type,
+			{ "Event Message Type","radius.vendor.pkt.emh.emt",
+			  FT_UINT16, BASE_DEC, radius_vendor_packetcable_event_message_vals, 0x0,
+			  "PacketCable Event Message Type", HFILL }
+		},
+		{ &hf_packetcable_em_header_element_type,
+			{ "Element Type","radius.vendor.pkt.emh.et",
+			  FT_UINT16, BASE_DEC, packetcable_em_header_element_type_vals, 0x0,
+			  "PacketCable Event Message Element Type", HFILL }
+		},
+		{ &hf_packetcable_em_header_sequence_number,
+			{ "Sequence Number","radius.vendor.pkt.emh.sn",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "PacketCable Event Message Sequence Number", HFILL }
+		},
+		{ &hf_packetcable_em_header_status,
+			{ "Status","radius.vendor.pkt.emh.st",
+			  FT_UINT32, BASE_HEX, NULL, 0x0,
+			  "PacketCable Event Message Status", HFILL }
+		},
+		{ &hf_packetcable_em_header_status_error_indicator,
+			{ "Status","radius.vendor.pkt.emh.st.ei",
+			  FT_UINT32, BASE_HEX, packetcable_em_header_status_error_indicator_vals,
+			  PACKETCABLE_EMHS_EI_MASK,
+			  "PacketCable Event Message Status Error Indicator", HFILL }
+		},
+		{ &hf_packetcable_em_header_status_event_origin,
+			{ "Event Origin","radius.vendor.pkt.emh.st.eo",
+			  FT_UINT32, BASE_HEX, packetcable_em_header_status_event_origin_vals,
+			  PACKETCABLE_EMHS_EO_MASK,
+			  "PacketCable Event Message Status Event Origin", HFILL }
+		},
+		{ &hf_packetcable_em_header_status_event_message_proxied,
+			{ "Event Message Proxied","radius.vendor.pkt.emh.st.emp",
+			  FT_UINT32, BASE_HEX, packetcable_em_header_status_event_message_proxied_vals,
+			  PACKETCABLE_EMHS_EMP_MASK,
+			  "PacketCable Event Message Status Event Message Proxied", HFILL }
+		},
+		{ &hf_packetcable_em_header_priority,
+			{ "Priority","radius.vendor.pkt.emh.priority",
+			  FT_UINT8, BASE_DEC, NULL, 0x0,
+			  "PacketCable Event Message Priority", HFILL }
+		},
+		{ &hf_packetcable_em_header_attribute_count,
+			{ "Attribute Count","radius.vendor.pkt.emh.ac",
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
+			  "PacketCable Event Message Attribute Count", HFILL }
+		},
+		{ &hf_packetcable_em_header_event_object,
+			{ "Event Object","radius.vendor.pkt.emh.eo",
+			  FT_UINT8, BASE_DEC, NULL, 0x0,
+			  "PacketCable Event Message Event Object", HFILL }
+		},
+		{ &hf_packetcable_call_termination_cause_source_document,
+			{ "Source Document","radius.vendor.pkt.ctc.sd",
+			  FT_UINT16, BASE_HEX, packetcable_call_termination_cause_vals, 0x0,
+			  "PacketCable Call Termination Cause Source Document", HFILL }
+		},
+		{ &hf_packetcable_call_termination_cause_code,
+			{ "Event Object","radius.vendor.pkt.ctc.cc",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "PacketCable Call Termination Cause Code", HFILL }
+		},
+		{ &hf_packetcable_trunk_group_id_trunk_type,
+			{ "Trunk Type","radius.vendor.pkt.tgid.tt",
+			  FT_UINT16, BASE_HEX, packetcable_trunk_type_vals, 0x0,
+			  "PacketCable Trunk Group ID Trunk Type", HFILL }
+		},
+		{ &hf_packetcable_trunk_group_id_trunk_number,
+			{ "Event Object","radius.vendor.pkt.tgid.tn",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "PacketCable Trunk Group ID Trunk Number", HFILL }
+		},
+		{ &hf_packetcable_qos_status,
+			{ "QoS Status","radius.vendor.pkt.qs",
+			  FT_UINT32, BASE_HEX, NULL, 0x0,
+			  "PacketCable QoS Descriptor Attribute QoS Status", HFILL }
+		},
+		{ &hf_packetcable_qos_status_indication,
+			{ "Status Indication","radius.vendor.pkt.qs.si",
+			  FT_UINT32, BASE_DEC, packetcable_state_indication_vals, PACKETCABLE_QOS_STATE_INDICATION_MASK,
+			  "PacketCable QoS Descriptor Attribute QoS State Indication", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_flags[0],
+			{ "Service Flow Scheduling Type","radius.vendor.pkt.qs.flags.sfst",
+			  FT_UINT32, BASE_DEC, NULL, PACKETCABLE_SERVICE_FLOW_SCHEDULING_TYPE_MASK,
+			  "PacketCable QoS Descriptor Attribute Bitmask: Service Flow Scheduling Type", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_flags[1],
+			{ "Grant Interval","radius.vendor.pkt.qs.flags.gi",
+			  FT_UINT32, BASE_DEC, NULL, PACKETCABLE_NOMINAL_GRANT_INTERVAL_MASK,
+			  "PacketCable QoS Descriptor Attribute Bitmask: Grant Interval", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_flags[2],
+			{ "Tolerated Grant Jitter","radius.vendor.pkt.qs.flags.tgj",
+			  FT_UINT32, BASE_DEC, NULL, PACKETCABLE_TOLERATED_GRANT_JITTER_MASK,
+			  "PacketCable QoS Descriptor Attribute Bitmask: Tolerated Grant Jitter", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_flags[3],
+			{ "Grants Per Interval","radius.vendor.pkt.qs.flags.gpi",
+			  FT_UINT32, BASE_DEC, NULL, PACKETCABLE_GRANTS_PER_INTERVAL_MASK,
+			  "PacketCable QoS Descriptor Attribute Bitmask: Grants Per Interval", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_flags[4],
+			{ "Unsolicited Grant Size","radius.vendor.pkt.qs.flags.ugs",
+			  FT_UINT32, BASE_DEC, NULL, PACKETCABLE_UNSOLICITED_GRANT_SIZE_MASK,
+			  "PacketCable QoS Descriptor Attribute Bitmask: Unsolicited Grant Size", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_flags[5],
+			{ "Traffic Priority","radius.vendor.pkt.qs.flags.tp",
+			  FT_UINT32, BASE_DEC, NULL, PACKETCABLE_TRAFFIC_PRIORITY_MASK,
+			  "PacketCable QoS Descriptor Attribute Bitmask: Traffic Priority", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_flags[6],
+			{ "Maximum Sustained Rate","radius.vendor.pkt.qs.flags.msr",
+			  FT_UINT32, BASE_DEC, NULL, PACKETCABLE_MAXIMUM_SUSTAINED_RATE_MASK,
+			  "PacketCable QoS Descriptor Attribute Bitmask: Maximum Sustained Rate", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_flags[7],
+			{ "Maximum Traffic Burst","radius.vendor.pkt.qs.flags.mtb",
+			  FT_UINT32, BASE_DEC, NULL, PACKETCABLE_MAXIMUM_TRAFFIC_BURST_MASK,
+			  "PacketCable QoS Descriptor Attribute Bitmask: Maximum Traffic Burst", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_flags[8],
+			{ "Minimum Reserved Traffic Rate","radius.vendor.pkt.qs.flags.mrtr",
+			  FT_UINT32, BASE_DEC, NULL, PACKETCABLE_MINIMUM_RESERVED_TRAFFIC_RATE_MASK,
+			  "PacketCable QoS Descriptor Attribute Bitmask: Minimum Reserved Traffic Rate", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_flags[9],
+			{ "Minium Packet Size","radius.vendor.pkt.qs.flags.mps",
+			  FT_UINT32, BASE_DEC, NULL, PACKETCABLE_MINIMUM_PACKET_SIZE_MASK,
+			  "PacketCable QoS Descriptor Attribute Bitmask: Minimum Packet Size", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_flags[10],
+			{ "Maximum Concatenated Burst","radius.vendor.pkt.qs.flags.mcb",
+			  FT_UINT32, BASE_DEC, NULL, PACKETCABLE_MAXIMUM_CONCATENATED_BURST_MASK,
+			  "PacketCable QoS Descriptor Attribute Bitmask: Maximum Concatenated Burst", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_flags[11],
+			{ "Status Request/Transmission Policy","radius.vendor.pkt.qs.flags.srtp",
+			  FT_UINT32, BASE_DEC, NULL, PACKETCABLE_REQUEST_TRANSMISSION_POLICY_MASK,
+			  "PacketCable QoS Descriptor Attribute Bitmask: Status Request/Transmission Policy", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_flags[12],
+			{ "Nominal Polling Interval","radius.vendor.pkt.qs.flags.npi",
+			  FT_UINT32, BASE_DEC, NULL, PACKETCABLE_NOMINAL_POLLING_INTERVAL_MASK,
+			  "PacketCable QoS Descriptor Attribute Bitmask: Nominal Polling Interval", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_flags[13],
+			{ "Tolerated Poll Jitter","radius.vendor.pkt.qs.flags.tpj",
+			  FT_UINT32, BASE_DEC, NULL, PACKETCABLE_TOLERATED_POLL_JITTER_MASK,
+			  "PacketCable QoS Descriptor Attribute Bitmask: Tolerated Poll Jitter", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_flags[14],
+			{ "Type of Service Override","radius.vendor.pkt.qs.flags.toso",
+			  FT_UINT32, BASE_DEC, NULL, PACKETCABLE_IP_TYPE_OF_SERVICE_OVERRIDE_MASK,
+			  "PacketCable QoS Descriptor Attribute Bitmask: Type of Service Override", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_flags[15],
+			{ "Maximum Downstream Latency","radius.vendor.pkt.qs.flags.mdl",
+			  FT_UINT32, BASE_DEC, NULL, PACKETCABLE_MAXIMUM_DOWNSTREAM_LATENCY_MASK,
+			  "PacketCable QoS Descriptor Attribute Bitmask: Maximum Downstream Latency", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_fields[0],
+			{ "Service Flow Scheduling Type","radius.vendor.pkt.qs.sfst",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "PacketCable QoS Descriptor Attribute Service Flow Scheduling Type", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_fields[1],
+			{ "Grant Interval","radius.vendor.pkt.qs.gi",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "PacketCable QoS Descriptor Attribute Grant Interval", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_fields[2],
+			{ "Tolerated Grant Jitter","radius.vendor.pkt.qs.tgj",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "PacketCable QoS Descriptor Attribute Tolerated Grant Jitter", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_fields[3],
+			{ "Grants Per Interval","radius.vendor.pkt.qs.gpi",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "PacketCable QoS Descriptor Attribute Grants Per Interval", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_fields[4],
+			{ "Unsolicited Grant Size","radius.vendor.pkt.qs.ugs",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "PacketCable QoS Descriptor Attribute Unsolicited Grant Size", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_fields[5],
+			{ "Traffic Priority","radius.vendor.pkt.qs.tp",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "PacketCable QoS Descriptor Attribute Traffic Priority", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_fields[6],
+			{ "Maximum Sustained Rate","radius.vendor.pkt.qs.msr",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "PacketCable QoS Descriptor Attribute Maximum Sustained Rate", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_fields[7],
+			{ "Maximum Traffic Burst","radius.vendor.pkt.qs.mtb",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "PacketCable QoS Descriptor Attribute Maximum Traffic Burst", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_fields[8],
+			{ "Minimum Reserved Traffic Rate","radius.vendor.pkt.qs.mrtr",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "PacketCable QoS Descriptor Attribute Minimum Reserved Traffic Rate", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_fields[9],
+			{ "Minium Packet Size","radius.vendor.pkt.qs.mps",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "PacketCable QoS Descriptor Attribute Minimum Packet Size", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_fields[10],
+			{ "Maximum Concatenated Burst","radius.vendor.pkt.qs.mcb",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "PacketCable QoS Descriptor Attribute Maximum Concatenated Burst", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_fields[11],
+			{ "Status Request/Transmission Policy","radius.vendor.pkt.qs.srtp",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "PacketCable QoS Descriptor Attribute Status Request/Transmission Policy", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_fields[12],
+			{ "Nominal Polling Interval","radius.vendor.pkt.qs.npi",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "PacketCable QoS Descriptor Attribute Nominal Polling Interval", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_fields[13],
+			{ "Tolerated Poll Jitter","radius.vendor.pkt.qs.tpj",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "PacketCable QoS Descriptor Attribute Tolerated Poll Jitter", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_fields[14],
+			{ "Type of Service Override","radius.vendor.pkt.qs.toso",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "PacketCable QoS Descriptor Attribute Type of Service Override", HFILL }
+		},
+		{ &hf_packetcable_qos_desc_fields[15],
+			{ "Maximum Downstream Latency","radius.vendor.pkt.qs.mdl",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "PacketCable QoS Descriptor Attribute Maximum Downstream Latency", HFILL }
+		},
+		{ &hf_packetcable_time_adjustment,
+			{ "Time Adjustment","radius.vendor.pkt.ti",
+			  FT_UINT64, BASE_DEC, NULL, 0x0,
+			  "PacketCable Time Adjustment", HFILL }
+		},
+		{ &hf_packetcable_redirected_from_info_number_of_redirections,
+			{ "Number-of-Redirections","radius.vendor.pkt.rfi.nr",
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
+			  "PacketCable Redirected-From-Info Number-of-Redirections", HFILL }
+		},
+		{ &hf_packetcable_electronic_surveillance_indication_df_cdc_address,
+			{ "DF_CDC_Address","radius.vendor.pkt.esi.dfcdca",
+			  FT_IPv4, BASE_DEC, NULL, 0x0,
+			  "PacketCable Electronic-Surveillance-Indication DF_CDC_Address", HFILL }
+		},
+		{ &hf_packetcable_electronic_surveillance_indication_df_ccc_address,
+			{ "DF_CDC_Address","radius.vendor.pkt.esi.dfccca",
+			  FT_IPv4, BASE_DEC, NULL, 0x0,
+			  "PacketCable Electronic-Surveillance-Indication DF_CCC_Address", HFILL }
+		},
+		{ &hf_packetcable_electronic_surveillance_indication_cdc_port,
+			{ "CDC-Port","radius.vendor.pkt.esi.cdcp",
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
+			  "PacketCable Electronic-Surveillance-Indication CDC-Port", HFILL }
+		},
+		{ &hf_packetcable_electronic_surveillance_indication_ccc_port,
+			{ "CCC-Port","radius.vendor.pkt.esi.cccp",
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
+			  "PacketCable Electronic-Surveillance-Indication CCC-Port", HFILL }
+		},
+
+		{ &hf_packetcable_terminal_display_info_terminal_display_status_bitmask,
+			{ "Terminal_Display_Status_Bitmask","radius.vendor.pkt.tdi.sbm",
+			  FT_UINT8, BASE_HEX, NULL, 0xff,
+			  "PacketCable Terminal_Display_Info Terminal_Display_Status_Bitmask", HFILL }
+		},
+		{ &hf_packetcable_terminal_display_info_sbm_general_display,
+			{ "General_Display","radius.vendor.pkt.tdi.sbm.gd",
+			  FT_BOOLEAN, 8, NULL, 0x01,
+			  "PacketCable Terminal_Display_Info Terminal_Display_Status_Bitmask General_Display", HFILL }
+		},
+		{ &hf_packetcable_terminal_display_info_sbm_calling_number,
+			{ "Calling_Number","radius.vendor.pkt.tdi.sbm.cnum",
+			  FT_BOOLEAN, 8, NULL, 0x02,
+			  "PacketCable Terminal_Display_Info Terminal_Display_Status_Bitmask Calling_Number", HFILL }
+		},
+		{ &hf_packetcable_terminal_display_info_sbm_calling_name,
+			{ "Calling_Name","radius.vendor.pkt.tdi.sbm.cname",
+			  FT_BOOLEAN, 8, NULL, 0x04,
+			  "PacketCable Terminal_Display_Info Terminal_Display_Status_Bitmask Calling_Name", HFILL }
+		},
+		{ &hf_packetcable_terminal_display_info_sbm_message_waiting,
+			{ "Message_Waiting","radius.vendor.pkt.tdi.sbm.mw",
+			  FT_BOOLEAN, 8, NULL, 0x08,
+			  "PacketCable Terminal_Display_Info Terminal_Display_Status_Bitmask Message_Waiting", HFILL }
+		},
+		{ &hf_packetcable_terminal_display_info_general_display,
+			{ "General_Display","radius.vendor.pkt.tdi.gd",
+			  FT_STRING, BASE_NONE, NULL, 0,
+			  "PacketCable Terminal_Display_Info General_Display", HFILL }
+		},
+		{ &hf_packetcable_terminal_display_info_calling_number,
+			{ "Calling_Number","radius.vendor.pkt.tdi.cnum",
+			  FT_STRING, BASE_NONE, NULL, 0,
+			  "PacketCable Terminal_Display_Info Calling_Number", HFILL }
+		},
+		{ &hf_packetcable_terminal_display_info_calling_name,
+			{ "Calling_Name","radius.vendor.pkt.tdi.cname",
+			  FT_STRING, BASE_NONE, NULL, 0,
+			  "PacketCable Terminal_Display_Info Calling_Name", HFILL }
+		},
+		{ &hf_packetcable_terminal_display_info_message_waiting,
+			{ "Message_Waiting","radius.vendor.pkt.tdi.mw",
+			  FT_STRING, BASE_NONE, NULL, 0,
+			  "PacketCable Terminal_Display_Info Message_Waiting", HFILL }
+		},
+
+	};
 	static gint *ett[] = {
 		&ett_radius,
 		&ett_radius_avp,
 		&ett_radius_eap,
 		&ett_radius_vsa,
+		&ett_radius_vendor_packetcable_bcid,
+		&ett_radius_vendor_packetcable_status,
+		&ett_radius_vendor_packetcable_qos_status,
 	};
 
 	module_t *radius_module;
@@ -3518,7 +4517,7 @@ proto_register_radius(void)
 	    "radius");
 	proto_register_field_array(proto_radius, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	
+
 	radius_module = prefs_register_protocol(proto_radius,NULL);
 	prefs_register_string_preference(radius_module,"shared_secret","Shared Secret",
 					"Shared secret used to decode User Passwords",

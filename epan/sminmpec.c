@@ -64,6 +64,7 @@ const value_string sminmpec_values[] = {
   {VENDOR_SHASTA,		"Shasta"},
   {VENDOR_NOMADIX,		"Nomadix"},
   {VENDOR_SIEMENS,		"SIEMENS"},
+  {VENDOR_CABLELABS,		"CableLabs"},
   {VENDOR_UNISPHERE,		"Unisphere Networks"},
   {VENDOR_CISCO_BBSM,		"Cisco BBSM"},
   {VENDOR_THE3GPP2,		"3rd Generation Partnership Project 2 (3GPP2)"},
