@@ -1166,7 +1166,7 @@ telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, in
   guint8 opt_byte;
   int subneg_len;
   const char *opt;
-  gint ett = ett_telnet_subopt;;
+  gint ett = ett_telnet_subopt;
   int iac_offset;
   guint len;
   void (*dissect)(packet_info *, const char *, tvbuff_t *, int, int, proto_tree *);
