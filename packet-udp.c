@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.101 2002/01/21 07:36:44 guy Exp $
+ * $Id: packet-udp.c,v 1.102 2002/01/22 15:05:43 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -274,7 +274,7 @@ proto_register_udp(void)
 	/* Register configuration preferences */
 	udp_module = prefs_register_protocol(proto_udp, NULL);
 	prefs_register_bool_preference(udp_module, "udp_summary_in_tree",
-	"Show UDP summary in protocol treee", 
+	"Show UDP summary in protocol tree", 
 	"Whether the UDP summary line should be shown in the protocol tree",
 	&udp_summary_in_tree);
 }
