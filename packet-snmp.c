@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.37 2000/06/17 05:56:22 guy Exp $
+ * $Id: packet-snmp.c,v 1.38 2000/06/25 20:55:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,7 +45,7 @@
 # include <netinet/in.h>
 #endif
 
-#define MAX_STRING_LEN 1024	/* TBC */
+#define MAX_STRING_LEN 2048	/* TBC */
 
 #ifdef linux
 #include <dlfcn.h>
