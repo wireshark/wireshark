@@ -3,7 +3,7 @@
  * <http://www.postgresql.org/docs/current/static/protocol.html>
  * Copyright 2004 Abhijit Menon-Sen <ams@oryx.com>
  *
- * $Id $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -524,9 +524,13 @@ static void dissect_pgsql_fe_msg(guchar type, guint32 n, guint32 length,
             l = tvb_get_ntohl(tvb, n);
             proto_tree_add_int(shrub, hf_val_length, tvb, n, 4, l);
             n += 4;
-            /* XXX - if we don't limit l here, the function will assert on very large values */
-            if (l > 0 && l < 1000000)
+            if (l > 0) {
+                /* Use tvb_ensure_bytes_exist() to handle the case where l
+                   is > 2^32-1, so we don't have a problem with negative
+                   values. */
+                tvb_ensure_bytes_exist(tvb, n, l);
                 proto_tree_add_item(shrub, hf_val_data, tvb, n, l, FALSE);
+            }
             n += l;
         }
 
@@ -779,9 +783,13 @@ static void dissect_pgsql_be_msg(guchar type, guint32 n, guint32 length,
             l = tvb_get_ntohl(tvb, n);
             proto_tree_add_int(shrub, hf_val_length, tvb, n, 4, l);
             n += 4;
-            /* XXX - if we don't limit l here, the function will assert on very large values */
-            if (l > 0 && l < 1000000)
+            if (l > 0) {
+              /* Use tvb_ensure_bytes_exist() to handle the case where l
+                 is > 2^32-1, so we don't have a problem with negative
+                 values. */
+                tvb_ensure_bytes_exist(tvb, n, l);
                 proto_tree_add_item(shrub, hf_val_data, tvb, n, l, FALSE);
+            }
             n += l;
         }
         break;
