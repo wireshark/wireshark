@@ -751,6 +751,10 @@ Markus Seehofer <mseehofe[AT]nt.hirschmann.de> {
 	GMRP support
 }
 
+Lee Berger <lberger[AT]roy.org> {
+	Fix to FT_UINT_STRING handling
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

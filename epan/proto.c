@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.31 2001/08/01 08:27:00 guy Exp $
+ * $Id: proto.c,v 1.32 2001/08/04 19:57:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -542,11 +542,11 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		case FT_UINT_STRING:
 			/* This g_strdup'ed memory is freed in proto_tree_free_node() */
 			n = get_uint_value(tvb, start, length, little_endian);
-			proto_tree_set_string_tvb(new_fi, tvb, start + 1, n);
+			proto_tree_set_string_tvb(new_fi, tvb, start + length, n);
 
 			/* Instead of calling proto_item_set_len(), since we don't yet
 			 * have a proto_item, we set the field_info's length ourselves. */
-			new_fi->length = n + 1;
+			new_fi->length = n + length;
 			break;
 		default:
 			g_error("new_fi->hfinfo->type %d (%s) not handled\n",
