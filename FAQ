@@ -271,7 +271,7 @@ General Questions
 
    Q 1.5: What protocols are currently supported?
 
-   A: There are currently 602 supported protocols and media, listed
+   A: There are currently 620 supported protocols and media, listed
    below. Descriptions can be found in the ethereal(1) man page.
 
             3GPP2 A11
@@ -311,6 +311,7 @@ General Questions
             AOL Instant Messenger
             ARCNET
             ASN.1 decoding
+            ATAoverEthernet
             ATM
             ATM AAL1
             ATM AAL3/4
@@ -336,7 +337,6 @@ General Questions
             Authentication Header
             BACnet Virtual Link Control
             BEA Tuxedo
-            BSS GPRS Protocol
             BSSAP/BSAP
             Banyan Vines ARP
             Banyan Vines Echo
@@ -347,9 +347,11 @@ General Questions
             Banyan Vines LLC
             Banyan Vines RTP
             Banyan Vines SPP
+            Base Station Subsystem GPRS Protocol
             Basic Encoding Rules (ASN.1 X.690)
             Bearer Independent Call Control
             Bi-directional Fault Detection Control Message
+            BitTorrent
             Blocks Extensible Exchange Protocol
             Blubster/Piolet MANOLITO Protocol
             Boardwalk
@@ -478,6 +480,7 @@ cies
             Etheric
             Ethernet
             Ethernet over IP
+            Extended Security Services
             Extensible Authentication Protocol
             FC Extended Link Svc
             FC Fabric Configuration Server
@@ -504,9 +507,9 @@ cies
             GSM A-I/F BSSMAP
             GSM A-I/F DTAP
             GSM A-I/F RP
-            GSM Mobile Application Part
             GSM SMS TPDU (GSM 03.40)
             GSM Short Message Service User Data
+            GSM_MobileAPplication
             General Inter-ORB Protocol
             Generic Routing Encapsulation
             Generic Security Service Application Program Interface
@@ -603,8 +606,10 @@ cies
             Log Message
             Logical Link Control GPRS
             Logical-Link Control
+            Logotype Certificate Extensions
             Lucent/Ascend debug output
             MAC Control
+            MAP_DialoguePDU
             MDS Header
             MEGACO
             MIME Multipart Media Encapsulation
@@ -676,6 +681,7 @@ cies
             Network File System
             Network Lock Manager Protocol
             Network News Transfer Protocol
+            Network Service Over IP
             Network Status Monitor CallBack Protocol
             Network Status Monitor Protocol
             Network Time Protocol
@@ -685,6 +691,7 @@ cies
             Null/Loopback
             OSI ISO 8571 FTAM Protocol
             OSI ISO/IEC 10035-1 ACSE Protocol
+            Online Certificate Status Protocol
             Open Policy Service Interface
             Open Shortest Path First
             OpenBSD Encapsulating device
@@ -694,8 +701,12 @@ cies
             PC NFS
             PKCS#1
             PKINIT
+            PKIX CERT File Format
+            PKIX Qualified
+            PKIX Time Stamp Protocol
             PKIX1Explitit
             PKIX1Implitit
+            PKIXProxy (RFC3820)
             POSTGRESQL
             PPP Bandwidth Allocation Control Protocol
             PPP Bandwidth Allocation Protocol
@@ -716,6 +727,9 @@ cies
             PPP-over-Ethernet Discovery
             PPP-over-Ethernet Session
             PPPMux Control Protocol
+            PROFINET DCP
+            PROFINET IO
+            PROFINET Real-Time Protocol
             Packed Encoding Rules (ASN.1 X.691)
             Packet Cable Lawful Intercept
             PacketCable
@@ -745,13 +759,13 @@ cies
             RS Interface properties
             RSTAT
             RSYNC File Synchroniser
-            RTNET
             RTcfg
             RX Protocol
             Radio Access Network Application Part
             Radius Protocol
             Raw packet data
             Real Time Streaming Protocol
+            Real-Time Media Access Control
             Real-Time Publish-Subscribe Wire Protocol
             Real-Time Transport Protocol
             Real-time Transport Control Protocol
@@ -784,6 +798,7 @@ cies
             SPNEGO-KRB5
             SPRAY
             SS7 SCCP-User Adaptation Layer
+            SSCF-NNI
             SSCOP
             SSH Protocol
             Secure Socket Layer
@@ -796,6 +811,7 @@ cies
             Session Initiation Protocol
             Session Initiation Protocol (SIP as raw text)
             Short Message Peer to Peer
+            Short Message Relaying Service
             Signaling Compression
             Signalling Connection Control Part
             Signalling Connection Control Part Management
@@ -817,9 +833,10 @@ cies
             Syslog message
             Systems Network Architecture
             Systems Network Architecture XID
-            T38
+            T.38
             TACACS
             TACACS+
+            TDMA RTmac Discipline
             TEI Management Procedure, Channel D (LAPD)
             TPKT
             Tabular Data Stream
@@ -864,6 +881,7 @@ cies
             X.509 Information Framework
             X.509 Selected Attribute Types
             X11
+            X711 CMIP
             Xyplex
             Yahoo Messenger Protocol
             Yahoo YMSG Messenger Protocol
@@ -922,29 +940,37 @@ cies
    whether it can capture on them"; we expect that it will be able to
    capture on many of them, but we haven't tried it ourselves - if you
    try one of those types and it works, please send an update to
-   _EWEB_MAILTO).
+   ethereal-web[AT]ethereal.com ).
 
    It can also read a variety of capture file formats, including:
-     * libpcap/tcpdump
-     * Sun snoop/atmsnoop
-     * Shomiti/Finisar Surveyor
-     * LanAlyzer
-     * DOS-based Sniffer (compressed and uncompressed)
-     * MS Network Monitor
-     * AIX iptrace
-     * NetXray and Windows-based Sniffer
-     * EtherPeek/TokenPeek/AiroPeek
-     * RADCOM WAN/LAN analyzer
-     * Lucent/Ascend debug output
-     * Toshiba ISDN router "snoop" output
-     * HPUX nettl
-     * ISDN4BSD "i4btrace" utility.
-     * Cisco Secure IDS
-     * pppd log files (pppdump format)
-     * VMS TCPIPtrace
-     * DBS Etherwatch
-     * Visual Networks' Visual UpTime
-     * CoSine L2 debug
+     * AG Group/WildPackets EtherPeek/TokenPeek/AiroPeek/EtherHelp/Packet
+       Grabber captures
+     * AIX's iptrace captures
+     * Accellent's 5Views LAN agent output
+     * Cinco Networks NetXRay captures
+     * Cisco Secure Intrusion Detection System IPLog output
+     * CoSine L2 debug output
+     * DBS Etherwatch VMS text output
+     * Endace Measurement Systems' ERF format captures
+     * EyeSDN USB S0 traces
+     * HP-UX nettl captures
+     * ISDN4BSD project i4btrace captures
+     * Linux Bluez Bluetooth stack hcidump -w traces
+     * Lucent/Ascend router debug output
+     * Microsoft Network Monitor captures
+     * Network Associates Windows-based Sniffer captures
+     * Network General/Network Associates DOS-based Sniffer (compressed
+       or uncompressed) captures
+     * Network Instruments Observer version 9 captures
+     * Novell LANalyzer captures
+     * RADCOM's WAN/LAN analyzer captures
+     * Shomiti/Finisar Surveyor captures
+     * Toshiba's ISDN routers dump output
+     * VMS TCPIPtrace/TCPtrace/UCX$TRACE output
+     * Visual Networks' Visual UpTime traffic capture
+     * libpcap, tcpdump and various other tools using tcpdump's capture
+       format
+     * snoop and atmsnoop output
 
    so that it can read traces from various network types, as captured by
    other applications or equipment, even if it cannot itself capture on
@@ -1584,7 +1610,7 @@ Using Ethereal
    is boring.
 
    A: We have a collection of strange and exotic sample capture files at
-   http://www.ethereal.com/sample/
+   http://wiki.ethereal.com/SampleCaptures
 
    Q 5.16: When I run Ethereal on Solaris 8, it dies with a Bus Error
    when I start it.
@@ -1622,22 +1648,6 @@ Using Ethereal
    later releases. To work around the bug, don't use "-x" unless you're
    also using "-V"; note that "-V" produces a full dissection of each
    packet, so you might not want to use it.
-
-   To get a fixed version, either build the current SVN version from
-   anonymous SVN or a nightly SVN snapshot, or apply to tethereal.c in
-   the 0.10.0a source tarball the changes between the broken and the
-   fixed versions, which you can download with the URL
-   http://www.ethereal.com/cgi-bin/viewcvs.cgi/ethereal/tethereal.c.diff?
-   r2=1.211&r1=1.210&diff_format=u and (re-)build from source. It might
-   be easier to get the SVN version than to get the patch and apply it to
-   the 0.10.0a source tarball, but it's probably easier to build from the
-   source tarball than from the SVN version, as you'll need to have more
-   tools and make more steps to generate from the SVN version some files
-   that are bundled with the source tarball.
-
-   Note that to build from the 0.10.0a source tarball on Windows with
-   Microsoft Visual C++, you will need to get a file that was missing
-   from the 0.10.0a source tarball; see the FAQ for that problem.
 
    Q 5.19: When I run Ethereal on Windows NT, it dies with a Dr. Watson
    error, reporting an "Integer division by zero" exception, when I start
@@ -2343,4 +2353,4 @@ Using Ethereal
    For corrections/additions/suggestions for this web page (and not
    Ethereal support questions), please send email to
    ethereal-web[AT]ethereal.com .
-   Last modified: Thu, November 18 2004.
+   Last modified: Fri, January 14 2005.
