@@ -599,7 +599,7 @@ abbreviations:
     ge, >=    Greater than or Equal to
     le, <=    Less than or Equal to
 
-An additional operater exists that is expressed only in English, not
+An additional operator exists that is expressed only in English, not
 punctuation:
 
     contains  Does the protocol, byte-string, or string contain a value
