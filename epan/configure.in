@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.37 2003/02/26 20:08:32 guy Exp $
+# $Id: configure.in,v 1.38 2003/02/28 05:09:50 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -154,7 +154,7 @@ fi
 AC_SUBST(INET_ATON_C)
 AC_SUBST(INET_ATON_O)
 
-AC_CHECK_FUNC(inet_pton, [
+AC_SEARCH_LIBS(inet_pton, [socket nsl], [
   dnl check for pre-BIND82 inet_pton() bug.
   AC_MSG_CHECKING(for broken inet_pton)
   AC_TRY_RUN([#include <sys/types.h>
@@ -185,13 +185,34 @@ fi
 AC_SUBST(INET_PTON_C)
 AC_SUBST(INET_PTON_O)
 
-AC_CHECK_FUNC(inet_ntop, INET_NTOP_O="",
-  INET_NTOP_O="inet_ntop.o")
-if test "$ac_cv_func_inet_ntop" = no ; then
+AC_SEARCH_LIBS(inet_ntop, [socket nsl], [
+  AC_MSG_CHECKING([for inet_ntop prototype])
+  AC_TRY_COMPILE([#include <stdio.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+extern const char *inet_ntop(int, const void *, char *, size_t);],, [
+    AC_MSG_RESULT(yes)
+    AC_DEFINE(HAVE_INET_NTOP_PROTO, 1,
+    [Define if inet_ntop() prototype exists])], [
+    AC_TRY_COMPILE([#include <stdio.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+extern const char *inet_ntop(int, const void *, char *, socklen_t);],, [
+      AC_MSG_RESULT(yes)
+      AC_DEFINE(HAVE_INET_NTOP_PROTO, 1,
+      [Define if inet_ntop() prototype exists])], [
+      AC_MSG_RESULT(no)])])
+  INET_NTOP_O=""], [
   INET_NTOP_C="inet_ntop.c"
   INET_NTOP_O="inet_ntop.o"
-  AC_DEFINE(NEED_INET_V6DEFS_H, 1, [Define if inet/v6defs.h needs to be included])
-fi
+  AC_DEFINE(NEED_INET_V6DEFS_H, 1,
+  [Define if inet/v6defs.h needs to be included])])
 AC_SUBST(INET_NTOP_C)
 AC_SUBST(INET_NTOP_O)
 

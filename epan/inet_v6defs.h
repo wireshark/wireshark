@@ -1,9 +1,9 @@
 /* inet_v6defs.h
  *
- * $Id: inet_v6defs.h,v 1.2 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: inet_v6defs.h,v 1.3 2003/02/28 05:09:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -29,8 +29,10 @@
  * don't have it.
  */
 extern int inet_pton(int af, const char *src, void *dst);
+#ifndef HAVE_INET_NTOP_PROTO
 extern const char *inet_ntop(int af, const void *src, char *dst,
     size_t size);
+#endif
 
 /*
  * Those OSes may also not have AF_INET6, so declare it here if it's not
