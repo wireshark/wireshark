@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.386 2004/06/30 06:58:56 guy Exp $
+ * $Id: file.c,v 1.387 2004/07/08 07:45:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -488,7 +488,10 @@ cf_read(capture_file *cf)
     switch (err) {
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
-      errmsg = "The capture file is for a network type that Ethereal doesn't support.";
+      snprintf(errmsg_errno, sizeof(errmsg_errno),
+               "The capture file has a packet with a network type that Ethereal doesn't support.\n(%s)",
+               err_info);
+      errmsg = errmsg_errno;
       break;
 
     case WTAP_ERR_CANT_READ:
@@ -2983,8 +2986,12 @@ cf_read_error_message(int err, gchar *err_info)
 
   switch (err) {
 
-  case WTAP_ERR_UNSUPPORTED:
   case WTAP_ERR_UNSUPPORTED_ENCAP:
+      snprintf(errmsg_errno, sizeof(errmsg_errno),
+               "The file \"%%s\" has a packet with a network type that Ethereal doesn't support.\n(%s)",
+               err_info);
+      break;
+
   case WTAP_ERR_BAD_RECORD:
     snprintf(errmsg_errno, sizeof(errmsg_errno),
 	     "An error occurred while reading from the file \"%%s\": %s.\n(%s)",
