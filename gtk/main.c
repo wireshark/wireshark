@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.149 2000/08/22 14:04:50 deniel Exp $
+ * $Id: main.c,v 1.150 2000/08/22 19:40:09 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -123,7 +123,7 @@ GtkWidget   *top_level, *packet_list, *tree_view, *byte_view,
             *info_bar, *tv_scrollw, *pkt_scrollw;
 static GtkWidget	*bv_scrollw;
 GdkFont     *m_r_font, *m_b_font;
-guint        main_ctx, file_ctx;
+guint        main_ctx, file_ctx, help_ctx;
 gchar        comp_info_str[256];
 gchar       *ethereal_path = NULL;
 gchar       *last_open_dir = NULL;
@@ -543,6 +543,9 @@ static void
 tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user_data)
 {
 	field_info	*finfo;
+	gchar		*help_str = NULL;
+	gboolean        has_blurb = FALSE;
+	guint           length = 0;
 
 	g_assert(node);
 	finfo = gtk_ctree_node_get_row_data( ctree, GTK_CTREE_NODE(node) );
@@ -552,6 +555,23 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user
 
 	set_menus_for_selected_tree_row(TRUE);
 
+	if (finfo->hfinfo) {
+	  if (finfo->hfinfo->blurb != NULL && 
+	      finfo->hfinfo->blurb[0] != '\0') {
+	    has_blurb = TRUE;
+	    length = strlen(finfo->hfinfo->blurb);
+	  } else {
+	    length = strlen(finfo->hfinfo->name);
+	  }
+	  length += strlen(finfo->hfinfo->abbrev) + 10;
+	  help_str = g_malloc(sizeof(gchar) * length);
+	  sprintf(help_str, "%s (%s)", 
+		  (has_blurb) ? finfo->hfinfo->blurb : finfo->hfinfo->name,
+		  finfo->hfinfo->abbrev);
+	  gtk_statusbar_push(GTK_STATUSBAR(info_bar), help_ctx, help_str);
+	  g_free(help_str);
+	}
+
 	packet_hex_print(GTK_TEXT(byte_view), cfile.pd, cfile.current_frame->cap_len, 
 		finfo->start, finfo->length, cfile.current_frame->flags.encoding);
 }
@@ -559,6 +579,7 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user
 static void
 tree_view_unselect_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user_data)
 {
+	gtk_statusbar_pop(GTK_STATUSBAR(info_bar), help_ctx);
 	finfo_selected = NULL;
 	set_menus_for_selected_tree_row(FALSE);
 	packet_hex_print(GTK_TEXT(byte_view), cfile.pd, cfile.current_frame->cap_len, 
@@ -1561,6 +1582,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   info_bar = gtk_statusbar_new();
   main_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "main");
   file_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "file");
+  help_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "help");
   gtk_statusbar_push(GTK_STATUSBAR(info_bar), main_ctx, DEF_READY_MESSAGE);
   gtk_box_pack_start(GTK_BOX(stat_hbox), info_bar, TRUE, TRUE, 0);
   gtk_widget_show(info_bar);
