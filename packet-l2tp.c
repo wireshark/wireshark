@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.10 2000/05/31 05:07:15 guy Exp $
+ * $Id: packet-l2tp.c,v 1.11 2000/06/07 11:37:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,9 +31,19 @@
 
 
 static int proto_l2tp = -1;
+static int hf_l2tp_code = -1; /* XXX - to be removed */
+static int hf_l2tp_type = -1;
+static int hf_l2tp_length_bit = -1;
+static int hf_l2tp_seq_bit = -1;
+static int hf_l2tp_offset_bit = -1;
+static int hf_l2tp_priority = -1; 
+static int hf_l2tp_version = -1;
 static int hf_l2tp_length = -1;
-static int hf_l2tp_code = -1;
-static int hf_l2tp_id =-1;
+static int hf_l2tp_tunnel = -1;
+static int hf_l2tp_session = -1;
+static int hf_l2tp_Ns = -1;
+static int hf_l2tp_Nr = -1;
+static int hf_l2tp_offset = -1;
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -53,6 +63,7 @@ static int hf_l2tp_id =-1;
 #include <ctype.h>
 #include <glib.h>
 #include "packet.h"
+#include "packet-ppp.h"
 #include "resolv.h"
 
 #define UDP_PORT_L2TP   1701
@@ -61,9 +72,9 @@ static int hf_l2tp_id =-1;
 #define LENGTH_BIT(msg_info) (msg_info & 0x4000)    /* Length bit = 1  */ 
 #define RESERVE_BITS(msg_info) (msg_info &0x37F8)   /* Reserved bit - usused */
 #define SEQUENCE_BIT(msg_info) (msg_info & 0x0800)  /* SEQUENCE bit = 1 Ns and Nr fields */
-#define OFFSET_BIT(msg_info) (msg_info & 0x0300)    /* Offset */
+#define OFFSET_BIT(msg_info) (msg_info & 0x0200)    /* Offset */
 #define PRIORITY_BIT(msg_info) (msg_info & 0x0100)  /* Priority */
-#define L2TP_VERSION(msg_info) (msg_info & 0x0007)  /* Version of l2tp */
+#define L2TP_VERSION(msg_info) (msg_info & 0x000f)  /* Version of l2tp */
 #define MANDATORY_BIT(msg_info) (msg_info & 0x8000) /* Mandatory = 1 */
 #define HIDDEN_BIT(msg_info) (msg_info & 0x4000)    /* Hidden = 1 */
 #define AVP_LENGTH(msg_info) (msg_info & 0x03ff)    /* AVP Length */
@@ -71,8 +82,8 @@ static int hf_l2tp_id =-1;
 #define FRAMING_SYNC(msg_info)  (msg_info & 0x0002) /* SYNC Type */
 
 
-
 static gint ett_l2tp = -1;
+static gint ett_l2tp_ctrl = -1;
 static gint ett_l2tp_avp = -1;
 
 #define AVP_SCCRQ      1
@@ -133,9 +144,24 @@ static const char *calltype_short_str[NUM_CONTROL_CALL_TYPES+1] = {
 };
 
 
- static const char *control_msg="Control Message";
- static const char *data_msg="Data    Message";
+static const char *control_msg	= "Control Message";
+static const char *data_msg	= "Data    Message";
+static const value_string l2tp_type_vals[] = {
+	{ 0, "Data Message" },
+	{ 1, "Control Message" },
+};
 
+static const true_false_string l2tp_length_bit_truth =
+	{ "Length field is present", "Length field is not present" };
+
+static const true_false_string l2tp_seq_bit_truth =
+	{ "Ns and Nr fields are present", "Ns and Nr fields are not present" };
+
+static const true_false_string l2tp_offset_bit_truth =
+	{ "Offset Size field is present", "Offset size field is not present" };
+
+static const true_false_string l2tp_priority_truth =
+	{ "This data message has priority", "No priority" };
 
 #define NUM_AUTH_TYPES  6
 static const char *authen_types[NUM_AUTH_TYPES] = {
@@ -183,7 +209,7 @@ static const char *authen_types[NUM_AUTH_TYPES] = {
 #define  PROXY_AUTHEN_RESPONSE 33
 #define  CALL_STATUS_AVPS 34
 #define  ACCM 35
-#define  UNOWN_MESSAGE_36
+#define  UNKOWN_MESSAGE_36
 #define  PRIVATE_GROUP_ID 37
 #define  RX_CONNECT_SPEED 38
 #define  SEQUENCING_REQUIRED 39
@@ -238,18 +264,16 @@ static gchar textbuffer[200];
 static void
 dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-  proto_tree *l2tp_tree, *l2tp_avp_tree;
+  proto_tree *l2tp_tree=NULL, *l2tp_avp_tree, *ctrl_tree;
   proto_item *ti, *tf;
   int rhcode;
-  u_char *tmp_ptr;			/* temp pointer used during AVP decode */
-  u_char *ptr;				/* pointer used during l2tp  decode */
-  int index = 2;			/* keeps track of depth into the AVP */
-  unsigned short  ver;		        /* Version and more */
-  unsigned short  length;		/* Length field */
+  int index = 0;
+  int tmp_index;
+  int proto_length = 0;
+  unsigned short  length = 0;		/* Length field */
   unsigned short  tid;			/* Tunnel ID */
   unsigned short  cid;			/* Call ID */
-  unsigned short  Nr;			/* Next recv */
-  unsigned short  Ns;			/* Next sent */
+  unsigned short  offset_size;		/* Offset size */
   unsigned short ver_len_hidden;
   unsigned short vendor;
   unsigned short avp_type;
@@ -266,50 +290,60 @@ dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   char  error_string[100];
   char  message_string[200];
 
-  ptr =  (u_char * )pd;			/* point to the frame */
-  ptr = ptr + offset;			/* current offset into the decoded frame  */
-  memcpy(&ver,ptr,sizeof(unsigned short)); /* collect the version */
-  ver = htons(ver);
-  rhcode= 10;
-  Ns = Nr = 0;
+  guint16	control;
+  tvbuff_t	*tvb;
+  tvbuff_t	*next_tvb;
 
-  if (LENGTH_BIT(ver)) { 		/* length field included ? */
-      ptr += 2; index += 2; 		/* skip ahead */
-      memcpy(&length,ptr,sizeof(unsigned short)); /* collect the length */
-      length = (htons(length));
-  }
-
-  memcpy(&tid,(ptr+=2),sizeof(unsigned short));  /* collect the tunnel id & call id */ 
-  memcpy(&cid,(ptr+=2),sizeof(unsigned short));
-  index += 4;
+  pi.current_proto = "L2TP";
   if (check_col(fd, COL_PROTOCOL))	/* build output for closed L2tp frame displayed  */
         col_add_str(fd, COL_PROTOCOL, "L2TP"); 
+
+  tvb = tvb_new_subset(pi.compat_top_tvb, offset, -1, -1);
+
+  control = tvb_get_ntohs(tvb, 0);
+
+  if (L2TP_VERSION(control) != 2) {
+	  if (check_col(fd, COL_INFO)) {
+		col_add_fstr(fd, COL_INFO, "L2TP Version %u", L2TP_VERSION(control) );
+	  }
+	  return;
+  }
+
+  rhcode= 10;
+
+  if (LENGTH_BIT(control)) { 		/* length field included ? */
+      index += 2; 			/* skip ahead */
+      length = tvb_get_ntohs(tvb, index);
+  }
+
+  /* collect the tunnel id & call id */
+  index += 2;
+  tid = tvb_get_ntohs(tvb, index);
+  index += 2;
+  cid = tvb_get_ntohs(tvb, index);
+
   if (check_col(fd, COL_INFO)) {
-        tid = htons(tid); cid = htons(cid); 
-
-        if (CONTROL_BIT(ver)) {
+        if (CONTROL_BIT(control)) {
             /* CONTROL MESSAGE */
-            tmp_ptr = ptr;
+            tmp_index = index;
 
-              if ((LENGTH_BIT(ver))&&(length==12))  		/* ZLB Message */
+              if ((LENGTH_BIT(control))&&(length==12))  		/* ZLB Message */
                   sprintf(textbuffer,"%s - ZLB      (tunnel id=%d, session id=%d)",
                           control_msg , tid ,cid);
               else
               {
-                if (SEQUENCE_BIT(ver)) {
-                    tmp_ptr=tmp_ptr+4;
+                if (SEQUENCE_BIT(control)) {
+                    tmp_index += 4;
                 }
     
-                tmp_ptr+=4;
+                tmp_index+=4;
     
-                memcpy(&avp_type,(tmp_ptr+=2),sizeof(unsigned short));
-                avp_type=htons(avp_type);
+                avp_type = tvb_get_ntohs(tvb, (tmp_index+=2));
     
                 if (avp_type == CONTROL_MESSAGE)
                 {
                     /* We print message type */
-                    memcpy(&msg_type,(tmp_ptr+=2),sizeof(unsigned short));
-                    msg_type=ntohs(msg_type);
+                    msg_type = tvb_get_ntohs(tvb, (tmp_index+=2));
                     sprintf(textbuffer,"%s - %s (tunnel id=%d, session id=%d)",
                             control_msg ,
                             ((NUM_CONTROL_CALL_TYPES + 1 ) > msg_type) ?
@@ -335,339 +369,390 @@ dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         }
         col_add_fstr(fd,COL_INFO,textbuffer);
   }
-  if (tree) {
-        ti = proto_tree_add_item(tree,proto_l2tp, NullTVB, offset, length, FALSE);
-	l2tp_tree = proto_item_add_subtree(ti, ett_l2tp);
-	proto_tree_add_uint_format(l2tp_tree,hf_l2tp_code, NullTVB, offset ,1,
- 	rhcode, "Packet Type: %s Tunnel Id=%d Session Id=%d",( CONTROL_BIT(ver) ? control_msg : data_msg) ,tid,cid);
-        if (LENGTH_BIT(ver)) {
-	        proto_tree_add_uint_format(l2tp_tree,hf_l2tp_code, NullTVB, (offset +=  2), 2,
-                rhcode, "Length: %d ", length);
-        }
-        if (SEQUENCE_BIT(ver)) {
-  		memcpy(&Ns,(ptr+=2),sizeof(unsigned short));
-  		memcpy(&Nr,(ptr+=2),sizeof(unsigned short));
-  		index += 4;
-	        proto_tree_add_uint_format(l2tp_tree,hf_l2tp_code, NullTVB, (offset +=  6 ), 4,
-                rhcode, "Ns: %d Nr: %d ", htons(Ns), htons(Nr));
-        }
-        if ((LENGTH_BIT(ver))&&(length==12)) {
-            proto_tree_add_uint_format(l2tp_tree,hf_l2tp_code, NullTVB,offset,1,rhcode,
-                                       "Zero Length Bit message");
-        }
-        if (!CONTROL_BIT(ver)) {  /* Data Messages so we are done */
-	         proto_tree_add_uint_format(l2tp_tree,hf_l2tp_code, NullTVB, (offset +=  4) , (length - 12 )  , rhcode, "Data: ");
-                 return;
-         }
 
-	offset += 4;
+  if (LENGTH_BIT(control)) {
+	proto_length = length;
+  }
+  else {
+	proto_length = tvb_length(tvb);
+  }
+
+  if (tree) {
+        ti = proto_tree_add_item(tree,proto_l2tp, tvb, 0, proto_length, FALSE);
+	l2tp_tree = proto_item_add_subtree(ti, ett_l2tp);
+
+	ti = proto_tree_add_text(l2tp_tree, tvb, 0, 2,
+			"Packet Type: %s Tunnel Id=%d Session Id=%d",
+			(CONTROL_BIT(control) ? control_msg : data_msg), tid, cid);
+
+	ctrl_tree = proto_item_add_subtree(ti, ett_l2tp_ctrl);
+	proto_tree_add_uint(ctrl_tree, hf_l2tp_type, tvb, 0, 2, control);
+	proto_tree_add_boolean(ctrl_tree, hf_l2tp_length_bit, tvb, 0, 2, control);
+	proto_tree_add_boolean(ctrl_tree, hf_l2tp_seq_bit, tvb, 0, 2, control);
+	proto_tree_add_boolean(ctrl_tree, hf_l2tp_offset_bit, tvb, 0, 2, control);
+	proto_tree_add_boolean(ctrl_tree, hf_l2tp_priority, tvb, 0, 2, control);
+	proto_tree_add_uint(ctrl_tree, hf_l2tp_version, tvb, 0, 2, control);
+  }
+  index = 2;
+  if (LENGTH_BIT(control)) {
+	  if (tree) {
+		proto_tree_add_item(l2tp_tree, hf_l2tp_length, tvb, index, 2, FALSE);
+	  }
+	index += 2;
+  }
+
+  if (tree) {
+	proto_tree_add_item(l2tp_tree, hf_l2tp_tunnel, tvb, index, 2, FALSE);
+  }
+  index += 2;
+  if (tree) {
+	proto_tree_add_item(l2tp_tree, hf_l2tp_session, tvb, index, 2, FALSE);
+  }
+  index += 2;
+
+  if (SEQUENCE_BIT(control)) {
+	  if (tree) {
+		proto_tree_add_item(l2tp_tree, hf_l2tp_Ns, tvb, index, 2, FALSE);
+	  }
+	  index += 2;
+	  if (tree) {
+	  	proto_tree_add_item(l2tp_tree, hf_l2tp_Nr, tvb, index, 2, FALSE);
+	  }
+	  index += 2;
+  }
+  if (OFFSET_BIT(control)) {
+	offset_size = tvb_get_ntohs(tvb, index);
+	if (tree) {
+		proto_tree_add_uint(l2tp_tree, hf_l2tp_offset, tvb, index, 2, FALSE);
+	}
+	index += 2;
+	if (tree) {
+		proto_tree_add_text(l2tp_tree, tvb, index, offset_size, "Offset Padding");
+	}
+	index += offset_size;
+  }
+  if (tree && (LENGTH_BIT(control))&&(length==12)) {
+            proto_tree_add_text(l2tp_tree, tvb, 0, 0, "Zero Length Bit message");
+  }
+
+  if (!CONTROL_BIT(control)) {  /* Data Messages so we are done */
+	/* If we have data, signified by having a length bit, dissect it */
+	if (tvb_offset_exists(tvb, index)) {
+		next_tvb = tvb_new_subset(tvb, index, -1, proto_length - index);
+		dissect_ppp(next_tvb, &pi, tree);
+	}
+	return;
+  }
+
+  if (tree) {
+	if (!LENGTH_BIT(control)) {
+		return;
+ 	}
 	while (index < length ) {    /* Process AVP's */
-                tmp_ptr =  ptr;
-                memcpy(&ver_len_hidden,(tmp_ptr+=2),sizeof(unsigned short));
-   		avp_len =  AVP_LENGTH(htons(ver_len_hidden));
-		index += avp_len; /* track how far into the control msg */ 
-		memcpy(&vendor,(tmp_ptr+=2),sizeof(unsigned short));
-		memcpy(&avp_type,(tmp_ptr+=2),sizeof(unsigned short));
-		avp_type=htons(avp_type);
-		tf =  proto_tree_add_uint_format(l2tp_tree,hf_l2tp_code, NullTVB, offset , avp_len,
+                tmp_index	= index;
+   		ver_len_hidden	= tvb_get_ntohs(tvb, tmp_index);
+   		avp_len		= AVP_LENGTH(ver_len_hidden);
+   		vendor		= tvb_get_ntohs(tvb, (tmp_index+=2));
+   		avp_type	= tvb_get_ntohs(tvb, (tmp_index+=2));
+
+		tf =  proto_tree_add_uint_format(l2tp_tree,hf_l2tp_code, tvb, index , avp_len,
                                                  rhcode, "AVP Type  %s  ",  (NUM_AVP_TYPES > avp_type)
                                                  ? avptypestr[avp_type] : "Unknown");
                 l2tp_avp_tree = proto_item_add_subtree(tf,  ett_l2tp_avp);
 
-                proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset , 1,
-                                           rhcode, " Mandatory:%s" , (MANDATORY_BIT(htons(ver_len_hidden))) ? "True" : "False" );
-                proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset , 1,
-                                           rhcode, " Hidden:%s" , (HIDDEN_BIT(htons(ver_len_hidden))) ? "True" : "False" );
-                        proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, (offset + 1), 1,
-                                                   rhcode, " Length:%d" , avp_len );
+                proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index , 1,
+                                           rhcode, " Mandatory:%s" ,
+					   (MANDATORY_BIT(ver_len_hidden)) ? "True" : "False" );
+                proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index , 1,
+                                           rhcode, " Hidden:%s" ,
+					   (HIDDEN_BIT(ver_len_hidden)) ? "True" : "False" );
+		proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, (index + 1), 1,
+					   rhcode, " Length:%d" , avp_len );
 
-			if (HIDDEN_BIT(htons(ver_len_hidden))) { /* don't try do display hidden */
-				ptr = ptr +  avp_len;
-				continue;
-			}
-
-			switch (avp_type) {
-
-			case CONTROL_MESSAGE:
-                            memcpy(&msg_type,(tmp_ptr+=2),sizeof(unsigned short));
-                            msg_type=htons(msg_type);
-                            proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 2 ,
-                                                       rhcode, " Control Message Type: (%d)  %s", msg_type,
-                                                       ((NUM_CONTROL_CALL_TYPES + 1 ) > msg_type) ?
-                                                       calltypestr[msg_type] : "Unknown" );
-                            break;
-
-			case RESULT_ERROR_CODE:
-				if ( avp_len >= 8 ) {
-					memcpy(&result_code,(tmp_ptr+=2),sizeof(unsigned short));
-					result_code=htons(result_code);
-					proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-					  2, rhcode,
-					  " Result code: %d",  result_code  );
-			
-				}
-				if ( avp_len >= 10 ) {
-					memcpy(&error_code,(tmp_ptr+=2),sizeof(unsigned short));
-					error_code=htons(error_code);
-					proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 8,
-					  2, rhcode,
-					  " Error code: %d", error_code);
-				}
-				if ( avp_len > 10 ) {
-					memset(error_string,'\0' ,sizeof(error_string));
-					strncpy(error_string,(tmp_ptr),(avp_len - 10));
-					proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 10, (avp_len - 10),
-					  rhcode, " Error Message: %s",  error_string  );
-				}
-				break;
-
-			case PROTOCOL_VERSION:
-				tmp_ptr+=2;
-				memcpy(&avp_ver,(tmp_ptr),sizeof(unsigned short));
-				memcpy(&avp_rev,(tmp_ptr),sizeof(unsigned short));
-				avp_ver=(htons(avp_ver));
-				avp_rev=(htons(avp_rev));
-				memcpy(&avp_rev,(tmp_ptr+=2),sizeof(unsigned short));
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 1,
-				  rhcode, " Version: %d",  ((avp_ver&0xff00)>>8)  );
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 7, 1,
-				  rhcode, " Revision: %d",  (avp_ver&0x00ff));
-				break;
-
-			case FRAMING_CAPABIlITIES:
-				tmp_ptr+=2;
-				memcpy(&framing,(tmp_ptr+=2),sizeof(unsigned short));
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 4,
-				  rhcode, " ASYNC FRAMING: %s" , (FRAMING_ASYNC(htons(framing))) ? "True" : "False" );  
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 4,
-				  rhcode, " SYNC FRAMING: %s" , (FRAMING_SYNC(htons(framing))) ? "True" : "False" );  
-				break;
-
-			case BEARER_CAPABIlITIES:
-				tmp_ptr+=2;
-				memcpy(&framing,(tmp_ptr+=2),sizeof(unsigned short));
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 4 ,
-				  rhcode, " Analog Access: %s" , (FRAMING_ASYNC(htons(framing))) ? "True" : "False" );  
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 4,
-				  rhcode, " Digital Access: %s" , (FRAMING_SYNC(htons(framing))) ? "True" : "False" );  
-				break;
-
-			case TIE_BREAKER:
-				memcpy(&long_type,(tmp_ptr+=8),sizeof(unsigned long));
-            			long_type = htonl(long_type);
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 1,
-				  rhcode, " TIE_BREAKER %lu 0x%lx", long_type,long_type );
-				break;
-
-			case FIRMWARE_REVISION:
-				memcpy(&firmware_rev,(tmp_ptr+=2),sizeof(unsigned short));
-				firmware_rev=htons(firmware_rev);
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 2,
-				  rhcode, " Firmware Revision: %d 0x%x", firmware_rev,firmware_rev );
-				break;
-
-			case HOST_NAME:
-				memset(error_string,'\0',sizeof(error_string));
-				strncpy(error_string,(tmp_ptr+=2),(avp_len - 6));
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 
-				  (avp_len - 6), rhcode, " Host Name: %s",  error_string  );
-				break;
-
-			case VENDOR_NAME:
-				memset(message_string,'\0' ,sizeof(message_string));
-				strncpy(message_string,(tmp_ptr+=2),(avp_len - 6));
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 
-				  (avp_len - 6), rhcode, " Vendor Name: %s",  message_string  );
-				break;
-
-			case ASSIGNED_TUNNEL_ID:
-				memcpy(&gen_type,(tmp_ptr+=2),sizeof(unsigned short));
-				gen_type=htons(gen_type);
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  2, rhcode, " Tunnel ID: %d",  gen_type  );
-				break;
-
-			case RECEIVE_WINDOW_SIZE:
-				memcpy(&gen_type,(tmp_ptr+=2),sizeof(unsigned short));
-				gen_type=htons(gen_type);
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  2, rhcode, " Receive Window Size: %d",  gen_type  );
-				break;
-
-			case CHALLENGE:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  (avp_len - 6 ), rhcode, "  CHAP Challenge: ");
-				break;
-
-			case CHALLENGE_RESPONSE:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  (avp_len - 6 ), rhcode, "  CHAP Challenge Response: ");
-				break;
-
-			case CAUSE_CODE:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  1, rhcode, " Cause Code: ");
-				break;
-
-			case ASSIGNED_SESSION:
-				memcpy(&gen_type,(tmp_ptr+=2),sizeof(unsigned short));
-				gen_type=htons(gen_type);
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  2, rhcode, " Assigned Session: %d",  gen_type  );
-				break;
-
-			case CALL_SERIAL_NUMBER:
-				memcpy(&gen_type,(tmp_ptr+=2),sizeof(unsigned short));
-				gen_type=htons(gen_type);
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  4, rhcode, " Call Serial Number: %d",  gen_type  );
-				break;
-
-			case MINIMUM_BPS:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  4, rhcode, " Minimum BPS: ");
-				break;
-
-			case MAXIMUM_BPS:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  4, rhcode, " Maximum BPS ");
-				break;
-
-			case BEARER_TYPE:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  4, rhcode, " Bearer Type: ");
-				break;
-
-			case FRAMING_TYPE:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  4, rhcode, " Framing Type: ");
-				break;
-
-			case UNKNOWN_MESSAGE:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  1, rhcode, " Unknown Message: ");
-				break;
-
-			case CALLED_NUMBER:
-				memset(message_string,'\0' ,sizeof(message_string));
-				strncpy(message_string,(tmp_ptr+=2),(avp_len - 6));
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 
-				  (avp_len - 6), rhcode, " Called Number: %s",  message_string  );
-				break;
-
-			case CALLING_NUMBER:
-				memset(message_string,'\0' ,sizeof(message_string));
-				strncpy(message_string,(tmp_ptr+=2),(avp_len - 6));
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 
-				  (avp_len - 6), rhcode, " Calling Number: %s",  message_string  );
-				break;
-
-			case SUB_ADDRESS:
-				memset(message_string,'\0' ,sizeof(message_string));
-				strncpy(message_string,(tmp_ptr+=2),(avp_len - 6));
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 
-				  (avp_len - 6), rhcode, " Sub-Address: %s",  message_string  );
-				break;
-
-			case TX_CONNECT_SPEED:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  4, rhcode, " Connect Speed: ");
-				break;
-
-			case PHYSICAL_CHANNEL:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  4, rhcode, " Physical Channel: ");
-				break;
-
-			case INITIAL_RECEIVED_LCP:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  (avp_len - 6 ), rhcode, " Initial LCP Conf REQ: ");
-				break;
-
-			case LAST_SEND_LCP_CONFREQ:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  (avp_len - 6 ), rhcode, " Last Sent LCP Conf REQ: ");
-				break;
-
-			case LAST_RECEIVED_LCP_CONFREQ:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  (avp_len - 6 ), rhcode, " Last Received LCP Conf REQ: ");
-				break;
-
-			case PROXY_AUTHEN_TYPE:
-				memcpy(&msg_type,(tmp_ptr+=2),sizeof(unsigned short));
-				msg_type=htons(msg_type);
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  1, rhcode, " Proxy Authen Type: %s ", authen_types[msg_type] );
-				break;
-
-			case PROXY_AUTHEN_NAME:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  (avp_len - 6 ), rhcode, " Proxy Authen Name: ");
-				break;
-
-			case PROXY_AUTHEN_CHALLENGE:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  (avp_len - 6 ), rhcode, " Proxy Authen Challenge: ");
-				break;
-
-			case PROXY_AUTHEN_ID:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  2, rhcode, " Paorx Authen ID: ");
-				break;
-
-			case PROXY_AUTHEN_RESPONSE:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  (avp_len - 6 ), rhcode, " Proxy Authen Response: ");
-				break;
-
-			case CALL_STATUS_AVPS:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  4, rhcode, "  CRC Errors: ");
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 10,
-				  4, rhcode, "  Framing Errors: ");
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 14,
-				  4, rhcode, "  Hardware Overruns: ");
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 18,
-				  4, rhcode, "  Buffer Overruns: ");
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 23,
-				  4, rhcode, "  Time-out Errors: ");
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 26,
-				  4, rhcode, "  Alignment Errors: ");
-				break;
-
-			case ACCM:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  2, rhcode, " Reserve Quantity: ");
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 8,
-				  4, rhcode, " Send ACCM: ");
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 12,
-				  4, rhcode, " Recv ACCM: ");
-				break;
-
-			case PRIVATE_GROUP_ID:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  1, rhcode, " Private Group ID: ");
-				break;
-
-			case RX_CONNECT_SPEED:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
-				  4, rhcode, " RX Connect Speed: ");
-				break;
-
-			case SEQUENCING_REQUIRED:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset ,
-				  1, rhcode, " Sequencing Required: ");
-				break;
-			}
-
-			/* printf("Avp Decode avp_len= %d index= %d length= %d %x\n ",avp_len,
-			   index,length,length); */
-
-			ptr = ptr +  avp_len;
-			offset += avp_len;
+		if (avp_len == 0) {
+			proto_tree_add_text(l2tp_avp_tree, tvb, (index + 1), 1, "Length should not be zero");
+			return;
 		}
+
+		if (HIDDEN_BIT(ver_len_hidden)) { /* don't try do display hidden */
+			index += avp_len;
+			continue;
+		}
+
+		switch (avp_type) {
+
+		case CONTROL_MESSAGE:
+		    msg_type = tvb_get_ntohs(tvb, (tmp_index+=2));
+		    proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 2 ,
+					       rhcode, " Control Message Type: (%d)  %s", msg_type,
+					       ((NUM_CONTROL_CALL_TYPES + 1 ) > msg_type) ?
+					       calltypestr[msg_type] : "Unknown" );
+		    break;
+
+		case RESULT_ERROR_CODE:
+			if ( avp_len >= 8 ) {
+				result_code = tvb_get_ntohs(tvb, (tmp_index+=2));
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+				  2, rhcode,
+				  " Result code: %d",  result_code  );
+		
+			}
+			if ( avp_len >= 10 ) {
+				error_code = tvb_get_ntohs(tvb, (tmp_index+=2));
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 8,
+				  2, rhcode,
+				  " Error code: %d", error_code);
+			}
+			if ( avp_len > 10 ) {
+				memset(error_string,'\0' ,sizeof(error_string));
+				strncpy(error_string, tvb_get_ptr(tvb, tmp_index,(avp_len - 10)),
+						avp_len - 10);
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 10, (avp_len - 10),
+				  rhcode, " Error Message: %s",  error_string  );
+			}
+			break;
+
+		case PROTOCOL_VERSION:
+			avp_ver = tvb_get_ntohs(tvb, (tmp_index+=2));
+			avp_rev = tvb_get_ntohs(tvb, (tmp_index+=2));
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 1,
+			  rhcode, " Version: %d",  ((avp_ver&0xff00)>>8)  );
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 7, 1,
+			  rhcode, " Revision: %d",  (avp_ver&0x00ff));
+			break;
+
+		case FRAMING_CAPABIlITIES:
+			tmp_index+=2;
+			framing = tvb_get_ntohs(tvb, (tmp_index+=2));
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 4,
+			  rhcode, " ASYNC FRAMING: %s" , (FRAMING_ASYNC(framing)) ? "True" : "False" );  
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 4,
+			  rhcode, " SYNC FRAMING: %s" , (FRAMING_SYNC(framing)) ? "True" : "False" );  
+			break;
+
+		case BEARER_CAPABIlITIES:
+			tmp_index+=2;
+			framing = tvb_get_ntohs(tvb, (tmp_index+=2));
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 4 ,
+			  rhcode, " Analog Access: %s" , (FRAMING_ASYNC(framing)) ? "True" : "False" );  
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 4,
+			  rhcode, " Digital Access: %s" , (FRAMING_SYNC(framing)) ? "True" : "False" );  
+			break;
+
+		case TIE_BREAKER:
+			long_type = tvb_get_ntohl(tvb, (tmp_index+=8));
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 1,
+			  rhcode, " TIE_BREAKER %lu 0x%lx", long_type,long_type );
+			break;
+
+		case FIRMWARE_REVISION:
+			firmware_rev = tvb_get_ntohs(tvb, (tmp_index+=2));
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 2,
+			  rhcode, " Firmware Revision: %d 0x%x", firmware_rev,firmware_rev );
+			break;
+
+		case HOST_NAME:
+			memset(error_string,'\0',sizeof(error_string));
+			strncpy(error_string, tvb_get_ptr(tvb, (tmp_index+=2), (avp_len - 6)),
+					avp_len - 6);
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 
+			  (avp_len - 6), rhcode, " Host Name: %s",  error_string  );
+			break;
+
+		case VENDOR_NAME:
+			memset(message_string,'\0' ,sizeof(message_string));
+			strncpy(message_string, tvb_get_ptr(tvb, (tmp_index+=2),(avp_len - 6)),
+					avp_len - 6);
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 
+			  (avp_len - 6), rhcode, " Vendor Name: %s",  message_string  );
+			break;
+
+		case ASSIGNED_TUNNEL_ID:
+			gen_type = tvb_get_ntohs(tvb, (tmp_index+=2));
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  2, rhcode, " Tunnel ID: %d",  gen_type  );
+			break;
+
+		case RECEIVE_WINDOW_SIZE:
+			gen_type = tvb_get_ntohs(tvb, (tmp_index+=2));
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  2, rhcode, " Receive Window Size: %d",  gen_type  );
+			break;
+
+		case CHALLENGE:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  (avp_len - 6 ), rhcode, "  CHAP Challenge: ");
+			break;
+
+		case CHALLENGE_RESPONSE:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  (avp_len - 6 ), rhcode, "  CHAP Challenge Response: ");
+			break;
+
+		case CAUSE_CODE:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  1, rhcode, " Cause Code: ");
+			break;
+
+		case ASSIGNED_SESSION:
+			gen_type = tvb_get_ntohs(tvb, (tmp_index+=2));
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  2, rhcode, " Assigned Session: %d",  gen_type  );
+			break;
+
+		case CALL_SERIAL_NUMBER:
+			gen_type = tvb_get_ntohs(tvb, (tmp_index+=2));
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  4, rhcode, " Call Serial Number: %d",  gen_type  );
+			break;
+
+		case MINIMUM_BPS:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  4, rhcode, " Minimum BPS: ");
+			break;
+
+		case MAXIMUM_BPS:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  4, rhcode, " Maximum BPS ");
+			break;
+
+		case BEARER_TYPE:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  4, rhcode, " Bearer Type: ");
+			break;
+
+		case FRAMING_TYPE:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  4, rhcode, " Framing Type: ");
+			break;
+
+		case UNKNOWN_MESSAGE:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  1, rhcode, " Unknown Message: ");
+			break;
+
+		case CALLED_NUMBER:
+			memset(message_string,'\0' ,sizeof(message_string));
+			strncpy(message_string, tvb_get_ptr(tvb, (tmp_index+=2),(avp_len - 6)),
+					avp_len - 6);
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 
+			  (avp_len - 6), rhcode, " Called Number: %s",  message_string  );
+			break;
+
+		case CALLING_NUMBER:
+			memset(message_string,'\0' ,sizeof(message_string));
+			strncpy(message_string, tvb_get_ptr(tvb, (tmp_index+=2),(avp_len - 6)),
+					avp_len - 6);
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 
+			  (avp_len - 6), rhcode, " Calling Number: %s",  message_string  );
+			break;
+
+		case SUB_ADDRESS:
+			memset(message_string,'\0' ,sizeof(message_string));
+			strncpy(message_string, tvb_get_ptr(tvb, (tmp_index+=2),(avp_len - 6)),
+					avp_len - 6);
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb, index + 6, 
+			  (avp_len - 6), rhcode, " Sub-Address: %s",  message_string  );
+			break;
+
+		case TX_CONNECT_SPEED:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  4, rhcode, " Connect Speed: ");
+			break;
+
+		case PHYSICAL_CHANNEL:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  4, rhcode, " Physical Channel: ");
+			break;
+
+		case INITIAL_RECEIVED_LCP:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  (avp_len - 6 ), rhcode, " Initial LCP Conf REQ: ");
+			break;
+
+		case LAST_SEND_LCP_CONFREQ:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  (avp_len - 6 ), rhcode, " Last Sent LCP Conf REQ: ");
+			break;
+
+		case LAST_RECEIVED_LCP_CONFREQ:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  (avp_len - 6 ), rhcode, " Last Received LCP Conf REQ: ");
+			break;
+
+		case PROXY_AUTHEN_TYPE:
+			msg_type = tvb_get_ntohs(tvb, (tmp_index+=2));
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  1, rhcode, " Proxy Authen Type: %s ", authen_types[msg_type] );
+			break;
+
+		case PROXY_AUTHEN_NAME:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  (avp_len - 6 ), rhcode, " Proxy Authen Name: ");
+			break;
+
+		case PROXY_AUTHEN_CHALLENGE:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  (avp_len - 6 ), rhcode, " Proxy Authen Challenge: ");
+			break;
+
+		case PROXY_AUTHEN_ID:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  2, rhcode, " Paorx Authen ID: ");
+			break;
+
+		case PROXY_AUTHEN_RESPONSE:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  (avp_len - 6 ), rhcode, " Proxy Authen Response: ");
+			break;
+
+		case CALL_STATUS_AVPS:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  4, rhcode, "  CRC Errors: ");
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 10,
+			  4, rhcode, "  Framing Errors: ");
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 14,
+			  4, rhcode, "  Hardware Overruns: ");
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 18,
+			  4, rhcode, "  Buffer Overruns: ");
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 23,
+			  4, rhcode, "  Time-out Errors: ");
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 26,
+			  4, rhcode, "  Alignment Errors: ");
+			break;
+
+		case ACCM:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  2, rhcode, " Reserve Quantity: ");
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 8,
+			  4, rhcode, " Send ACCM: ");
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 12,
+			  4, rhcode, " Recv ACCM: ");
+			break;
+
+		case PRIVATE_GROUP_ID:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  1, rhcode, " Private Group ID: ");
+			break;
+
+		case RX_CONNECT_SPEED:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index + 6,
+			  4, rhcode, " RX Connect Speed: ");
+			break;
+
+		case SEQUENCING_REQUIRED:
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, tvb,index ,
+			  1, rhcode, " Sequencing Required: ");
+			break;
+		}
+
+		/* printf("Avp Decode avp_len= %d index= %d length= %d %x\n ",avp_len,
+		   index,length,length); */
+
+		index += avp_len;
 	}
+
+  }
 }
 
 /* registration with the filtering engine */
@@ -676,20 +761,63 @@ proto_register_l2tp(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_l2tp_code,
-		{ "Code","l2tp.code", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"" }},
+		{ "code", "lt2p.code", FT_UINT16, BASE_DEC, NULL, 0, /* XXX - to be removed */
+			"Type bit" }},
 
-		{ &hf_l2tp_id,
-		{ "Identifier",	"l2tp.id", FT_UINT8, BASE_DEC, NULL, 0x0,
-			"" }},
+		{ &hf_l2tp_type,
+		{ "Type", "lt2p.type", FT_UINT16, BASE_DEC, VALS(l2tp_type_vals), 0x8000,
+			"Type bit" }},
+
+		{ &hf_l2tp_length_bit,
+		{ "Length Bit", "lt2p.length_bit", FT_BOOLEAN, 16, TFS(&l2tp_length_bit_truth), 0x4000,
+			"Length bit" }},
+
+		{ &hf_l2tp_seq_bit,
+		{ "Sequence Bit", "lt2p.seq_bit", FT_BOOLEAN, 16, TFS(&l2tp_seq_bit_truth), 0x0800,
+			"Sequence bit" }},
+
+		{ &hf_l2tp_offset_bit,
+		{ "Offset bit", "lt2p.offset_bit", FT_BOOLEAN, 16, TFS(&l2tp_offset_bit_truth), 0x0200,
+			"Offset bit" }},
+
+		{ &hf_l2tp_priority,
+		{ "Priority", "lt2p.priority", FT_BOOLEAN, 16, TFS(&l2tp_priority_truth), 0x0100,
+			"Priority bit" }},
+
+		{ &hf_l2tp_version,
+		{ "Version", "lt2p.version", FT_UINT16, BASE_DEC, NULL, 0x000f,
+			"Version" }},
 
 		{ &hf_l2tp_length,
 		{ "Length","l2tp.length", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"" }}
+			"" }},
+
+		{ &hf_l2tp_tunnel,
+		{ "Tunnel ID","l2tp.tunnel", FT_UINT16, BASE_DEC, NULL, 0x0, /* Probably should be FT_BYTES */
+			"Tunnel ID" }},
+
+		{ &hf_l2tp_session,
+		{ "Session ID","l2tp.session", FT_UINT16, BASE_DEC, NULL, 0x0, /* Probably should be FT_BYTES */
+			"Session ID" }},
+
+		{ &hf_l2tp_Ns,
+		{ "Ns","l2tp.Ns", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"" }},
+
+		{ &hf_l2tp_Nr,
+		{ "Nr","l2tp.Nr", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"" }},
+
+		{ &hf_l2tp_offset,
+		{ "Offset","l2tp.offset", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"Number of octest past the L2TP header at which the"
+				"payload data starts." }},
+
 	};
 
 	static gint *ett[] = {
 		&ett_l2tp,
+		&ett_l2tp_ctrl,
 		&ett_l2tp_avp,
 	};
 
