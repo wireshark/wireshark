@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  * 
- * $Id: packet-ftp.c,v 1.42 2002/04/03 22:35:08 guy Exp $
+ * $Id: packet-ftp.c,v 1.43 2002/04/26 20:59:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,9 +53,9 @@ static int proto_ftp_data = -1;
 static int hf_ftp_response = -1;
 static int hf_ftp_request = -1;
 static int hf_ftp_request_command = -1;
-static int hf_ftp_request_data = -1;
+static int hf_ftp_request_arg = -1;
 static int hf_ftp_response_code = -1;
-static int hf_ftp_response_data = -1;
+static int hf_ftp_response_arg = -1;
 
 static gint ett_ftp = -1;
 static gint ett_ftp_data = -1;
@@ -274,10 +274,9 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tokenlen != 0) {
 		if (is_request) {
 			if (tree) {
-				proto_tree_add_string_format(ftp_tree,
+				proto_tree_add_item(ftp_tree,
 				    hf_ftp_request_command, tvb, offset,
-				    tokenlen, line, "Request: %s",
-				    format_text(line, tokenlen));
+				    tokenlen, FALSE);
 			}
 		} else {
 			/*
@@ -294,10 +293,9 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    strncmp("227", line, tokenlen) == 0)
 				is_pasv_response = TRUE;
 			if (tree) {
-				proto_tree_add_uint_format(ftp_tree,
+				proto_tree_add_uint(ftp_tree,
 				    hf_ftp_response_code, tvb, offset,
-				    tokenlen, atoi(line), "Response: %s",
-				    format_text(line, tokenlen));
+				    tokenlen, atoi(line));
 			}
 		}
 		offset += next_token - line;
@@ -325,15 +323,13 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		if (linelen != 0) {
 			if (is_request) {
-				proto_tree_add_string_format(ftp_tree,
-				    hf_ftp_request_data, tvb, offset,
-				    linelen, line, "Request Arg: %s",
-				    format_text(line, linelen));
+				proto_tree_add_item(ftp_tree,
+				    hf_ftp_request_arg, tvb, offset,
+				    linelen, FALSE);
 			} else {
-				proto_tree_add_string_format(ftp_tree,
-				    hf_ftp_response_data, tvb, offset,
-				    linelen, line, "Response Arg: %s",
-				    format_text(line, linelen));
+				proto_tree_add_item(ftp_tree,
+				    hf_ftp_response_arg, tvb, offset,
+				    linelen, FALSE);
 			}
 		}
 		offset = next_offset;
@@ -409,8 +405,8 @@ proto_register_ftp(void)
       	FT_STRING,  BASE_NONE, NULL, 0x0,
       	"", HFILL }},
 
-    { &hf_ftp_request_data,
-      { "Request data",	      "ftp.request.data",
+    { &hf_ftp_request_arg,
+      { "Request arg",	      "ftp.request.arg",
       	FT_STRING,  BASE_NONE, NULL, 0x0,
       	"", HFILL }},
 
@@ -419,8 +415,8 @@ proto_register_ftp(void)
       	FT_UINT8,   BASE_DEC, NULL, 0x0,
       	"", HFILL }},
 
-    { &hf_ftp_response_data,
-      { "Response data",      "ftp.reponse.data",
+    { &hf_ftp_response_arg,
+      { "Response arg",      "ftp.reponse.arg",
       	FT_STRING,  BASE_NONE, NULL, 0x0,
       	"", HFILL }}
   };
