@@ -755,6 +755,7 @@ Andy Hood <ahood[AT]westpac.com.au> {
 	On Solaris, with GCC, add flags to reduce warnings from
 	   inadequacies of function declarations in X11 headers
 	Translate enterprise OIDs in SNMP traps to strings if possible
+	AODV6 dissector compile fixes for AIX
 }
 
 Randy McEoin <rmceoin[AT]pe.net> {
@@ -1377,6 +1378,11 @@ Bill Studenmund <wrstuden[AT]wasabisystems.com> {
 
 Brian Bruns <camber[AT]ais.org> {
 	TDS
+}
+
+Flavio Poletti <Flavio.Poletti[AT]tei.ericsson.se> {
+	Fix bug in decoding of maximum uplink and downlink rate in GTP
+	    v1
 }
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to

@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.32 2002/08/02 23:35:50 jmayer Exp $
+ * $Id: packet-gtp.c,v 1.33 2002/08/23 20:03:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3396,8 +3396,8 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 		del_order = tvb_get_guint8(tvb, offset+4) & 0x18;
 		del_err_sdu = tvb_get_guint8(tvb, offset+4) & 0x07;
 		max_sdu_size = tvb_get_guint8(tvb, offset+5);
-		max_dl = tvb_get_guint8(tvb, offset+6);
-		max_ul = tvb_get_guint8(tvb, offset+7);
+		max_ul = tvb_get_guint8(tvb, offset+6);
+		max_dl = tvb_get_guint8(tvb, offset+7);
 		res_ber = tvb_get_guint8(tvb, offset+8) & 0xF0;
 		sdu_err_ratio = tvb_get_guint8(tvb, offset+8) & 0x0F;
 		trans_delay = tvb_get_guint8(tvb, offset+9) & 0xFC;
