@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@netapp.com>
  *
- * $Id: packet-ipp.c,v 1.1 1999/09/17 05:56:58 guy Exp $
+ * $Id: packet-ipp.c,v 1.2 1999/09/17 06:25:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -137,7 +137,7 @@ static const value_string status_vals[] = {
     { 0,                                 NULL }
 };
 
-static void parse_attributes(const u_char *pd, int offset, frame_data *fd,
+static int parse_attributes(const u_char *pd, int offset, frame_data *fd,
     proto_tree *tree);
 static proto_tree *add_integer_tree(proto_tree *tree, const u_char *pd,
     int offset, guint name_length, guint value_length);
@@ -220,7 +220,10 @@ void dissect_ipp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		    pntohl(&pd[offset]));
 		offset += 4;
 
-		parse_attributes(pd, offset, fd, ipp_tree);
+		offset = parse_attributes(pd, offset, fd, ipp_tree);
+
+		if (IS_DATA_IN_FRAME(offset))
+			dissect_data(pd, offset, fd, ipp_tree);
 	}
 }
 
@@ -284,7 +287,7 @@ static const value_string tag_vals[] = {
 	{ 0,	                   NULL }
 };
 
-static void
+static int
 parse_attributes(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	guint8 tag;
@@ -292,30 +295,50 @@ parse_attributes(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	guint16 name_length, value_length;
 	proto_tree *as_tree = tree;
 	proto_item *tas = NULL;
+	int start_offset = offset;
 	proto_tree *attr_tree = tree;
 
 	while (IS_DATA_IN_FRAME(offset)) {
 		tag = pd[offset];
 		tag_desc = val_to_str(tag, tag_vals, "Reserved (0x%02x)");
 		if (TAG_TYPE(tag) == TAG_TYPE_DELIMITER) {
+			/*
+			 * If we had an attribute sequence we were
+			 * working on, we're done with it; set its
+			 * length to the length of all the stuff
+			 * we've done so far.
+			 */
+			if (tas != NULL)
+				proto_item_set_len(tas, offset - start_offset);
+
+			/*
+			 * This tag starts a new attribute sequence;
+			 * create a new tree under this tag when we see
+			 * a non-delimiter tag, under which to put
+			 * those attributes.
+			 */
+			as_tree = NULL;
+			attr_tree = tree;
+
+			/*
+			 * Remember the offset at which this attribute
+			 * sequence started, so we can use it to compute
+			 * its length when it's finished.
+			 */
+			start_offset = offset;
+
+			/*
+			 * Now create a new item for this tag.
+			 */
 			tas = proto_tree_add_text(tree, offset, 1,
 			    "%s", tag_desc);
+			offset++;
 			if (tag == TAG_END_OF_ATTRIBUTES) {
 				/*
-				 * Put any non-delimiter tags after this
-				 * one directly under the IPP tree
-				 * (there shouldn't be any).
+				 * No more attributes.
 				 */
-				as_tree = tree;
-			} else {
-				/*
-				 * Create a new tree under this tag
-				 * when we see a non-delimiter tag.
-				 */
-				as_tree = NULL;
+				break;
 			}
-			attr_tree = tree;
-			offset++;
 		} else {
 			/*
 			 * Value tag - get the name length.
@@ -420,6 +443,8 @@ parse_attributes(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			offset += 1 + 2 + name_length + 2 + value_length;
 		}
 	}
+
+	return offset;
 }
 
 static proto_tree *
