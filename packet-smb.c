@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.317 2003/04/03 09:12:46 guy Exp $
+ * $Id: packet-smb.c,v 1.318 2003/04/03 22:58:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -92,8 +92,10 @@
  */
 static int proto_smb = -1;
 static int hf_smb_cmd = -1;
+static int hf_smb_key = -1;
 static int hf_smb_session_id = -1;
 static int hf_smb_sequence_num = -1;
+static int hf_smb_group_id = -1;
 static int hf_smb_pid = -1;
 static int hf_smb_tid = -1;
 static int hf_smb_uid = -1;
@@ -15961,6 +15963,10 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 *	the next four bytes are, for SMB-over-IPX (with no
 	 *	NetBIOS involved) two bytes of Session ID and two bytes
 	 *	of SequenceNumber.
+	 *
+	 * Network Monitor 2.x dissects the four bytes before the Session ID
+	 * as a "Key", and the two bytes after the SequenceNumber as
+	 * a "Group ID".
 	 */
 	if (pinfo->ptype == PT_IPX &&
 	    (pinfo->match_port == IPX_SOCKET_NWLINK_SMB_SERVER ||
@@ -15977,9 +15983,14 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		 * one capture with SMB-over-IPX, however, the Mids
 		 * are unique even for sequenced commands.
 		 */
-		proto_tree_add_item(htree, hf_smb_reserved, tvb, offset, 6,
+		proto_tree_add_item(htree, hf_smb_reserved, tvb, offset, 2,
 		    TRUE);
-		offset += 6;
+		offset += 2;
+
+		/* Key */
+		proto_tree_add_item(htree, hf_smb_key, tvb, offset, 4,
+		    TRUE);
+		offset += 4;
 
 		/* Session ID */
 		proto_tree_add_item(htree, hf_smb_session_id, tvb, offset, 2,
@@ -15991,7 +16002,8 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		    TRUE);
 		offset += 2;
 
-		proto_tree_add_item(htree, hf_smb_reserved, tvb, offset, 2,
+		/* Group ID */
+		proto_tree_add_item(htree, hf_smb_group_id, tvb, offset, 2,
 		    TRUE);
 		offset += 2;
 	} else {
@@ -16123,13 +16135,21 @@ proto_register_smb(void)
 		{ "Reserved", "smb.reserved", FT_BYTES, BASE_HEX,
 		NULL, 0, "Reserved bytes, must be zero", HFILL }},
 
+	{ &hf_smb_key,
+		{ "Key", "smb.key", FT_UINT32, BASE_HEX,
+		NULL, 0, "SMB-over-IPX Key", HFILL }},
+
 	{ &hf_smb_session_id,
 		{ "Session ID", "smb.sessid", FT_UINT16, BASE_DEC,
-		NULL, 0, "Session ID", HFILL }},
+		NULL, 0, "SMB-over-IPX Session ID", HFILL }},
 
 	{ &hf_smb_sequence_num,
 		{ "Sequence Number", "smb.sequence_num", FT_UINT16, BASE_DEC,
-		NULL, 0, "Sequence Number", HFILL }},
+		NULL, 0, "SMB-over-IPX Sequence Number", HFILL }},
+
+	{ &hf_smb_group_id,
+		{ "Group ID", "smb.group_id", FT_UINT16, BASE_DEC,
+		NULL, 0, "SMB-over-IPX Group ID", HFILL }},
 
 	{ &hf_smb_pid,
 		{ "Process ID", "smb.pid", FT_UINT16, BASE_DEC,
