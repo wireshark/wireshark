@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/Gryphon
 #
-# $Id: Makefile.am,v 1.4 2000/01/08 19:37:02 gram Exp $
+# $Id: Makefile.am,v 1.5 2000/02/10 22:54:50 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Steve Limkemann <stevelim@dgtech.com>
@@ -37,5 +37,5 @@ gryphon_la_LDFLAGS = -module -avoid-version
 LIBS =
 
 CLEANFILES = \
-	gryphon
+	gryphon \
 	*~
