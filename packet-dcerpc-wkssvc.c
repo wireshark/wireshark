@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.32 2004/06/12 04:12:07 guy Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.33 2004/06/28 05:22:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -468,12 +468,37 @@ wkssvc_dissect_netwkstagetinfo_rqst(tvbuff_t *tvb, int offset,
 				    packet_info *pinfo, proto_tree *tree,
 				    guint8 *drep)
 {
+	dcerpc_info *di;
+	guint32 level;
+
+	di = pinfo->private_data;
+
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 					      NDR_POINTER_UNIQUE, "Server", 
 					      hf_wkssvc_server, 0);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-				    hf_wkssvc_info_level, 0);
+				    hf_wkssvc_info_level, &level);
+
+	if (!check_col(pinfo->cinfo, COL_INFO))
+		return offset;
+
+	switch (level) {
+		case 100:
+			col_append_str(pinfo->cinfo, COL_INFO, ", WKS_INFO_100 level");
+			break;
+		case 101:
+			col_append_str(pinfo->cinfo, COL_INFO, ", WKS_INFO_101 level");
+			break;
+		case 102:
+			col_append_str(pinfo->cinfo, COL_INFO, ", WKS_INFO_102 level");
+			break;
+		case 502:
+			col_append_str(pinfo->cinfo, COL_INFO, ", WKS_INFO_502 level");
+			break;
+		default:
+			col_append_str(pinfo->cinfo, COL_INFO, ", WKS_INFO_xxx level");
+	}	
 
 	return offset;
 
@@ -786,6 +811,9 @@ wkssvc_dissect_USER_ENUM_UNION(tvbuff_t *tvb, int offset,
 				     guint8 *drep)
 {
 	guint32 level;
+	dcerpc_info *di;
+
+	di = pinfo->private_data;
 
 	ALIGN_TO_4_BYTES;
 
@@ -796,11 +824,15 @@ wkssvc_dissect_USER_ENUM_UNION(tvbuff_t *tvb, int offset,
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			wkssvc_dissect_USER_INFO_0_CONTAINER,
 			NDR_POINTER_UNIQUE, "USER_INFO_0_CONTAINER:", -1);
+		if (check_col(pinfo->cinfo, COL_INFO) && di->ptype == PDU_REQ)
+			col_append_str(pinfo->cinfo, COL_INFO, ", USER_INFO_0 level");
 		break;
 	case 1:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			wkssvc_dissect_USER_INFO_1_CONTAINER,
 			NDR_POINTER_UNIQUE, "USER_INFO_1_CONTAINER:", -1);
+		if (check_col(pinfo->cinfo, COL_INFO) && di->ptype == PDU_REQ)
+			col_append_str(pinfo->cinfo, COL_INFO, ", USER_INFO_1 level");
 		break;
 	}
 
