@@ -110,7 +110,7 @@ extern GtkWidget *window_new(GtkWindowType type, const gchar *title);
  * 
  * @param type window type, typical GTK_WINDOW_TOPLEVEL 
  * @param title the title for the new window
- * @param geom_name the name to distinguish this window, will also be used for the recent file
+ * @param geom_name the name to distinguish this window, will also be used for the recent file (don't use special chars)
  * @return the newly created window
  */
 extern GtkWidget *window_new_with_geom(GtkWindowType type, const gchar *title, const gchar *geom_name);
