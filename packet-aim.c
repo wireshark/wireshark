@@ -3,7 +3,7 @@
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim.c,v 1.34 2004/03/23 06:21:17 guy Exp $
+ * $Id: packet-aim.c,v 1.35 2004/03/23 07:23:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -613,7 +613,7 @@ static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo,
 	 else col_append_fstr(pinfo->cinfo, COL_INFO, ", Subtype: 0x%04x", subtype);
   }
 
-  if(tvb_length_remaining(tvb,offset) == 0 || !dissector_try_port(subdissector_table, family, subtvb, pinfo, root_tree)) {
+  if(tvb_length_remaining(tvb,offset) == 0 || !dissector_try_port(subdissector_table, family, subtvb, pinfo, aim_tree)) {
     /* Show the undissected payload */
     if (tvb_length_remaining(tvb, offset) > 0)
       proto_tree_add_item(aim_tree, hf_aim_data, tvb, offset, -1, FALSE);
