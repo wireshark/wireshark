@@ -44,7 +44,7 @@
 #include "color.h"
 #include "color_filters.h"
 #include "epan/filesystem.h"
-#include "epan/resolv.h"
+#include "epan/addr_resolv.h"
 #include "merge.h"
 #include "prefs.h"
 #include "prefs-recent.h"

@@ -16,7 +16,7 @@
 #include "prefs.h"
 #include "column.h"
 #include "print.h"
-#include "epan/resolv.h"
+#include "epan/addr_resolv.h"
 #include "prefs-int.h"
 #include "capture-wpcap.h"
 #include "simple_dialog.h"

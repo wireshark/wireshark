@@ -18,7 +18,7 @@
 #include "generated\progress-dialog.rc"
 #include "win32-file-dlg.rc"
 
-ETHEREAL_ICON		ICON			"ethereal.ico"
+ETHEREAL_ICON	ICON	"..\..\image\ethereal.ico"
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION @RC_VERSION@,0

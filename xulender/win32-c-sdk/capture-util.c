@@ -49,7 +49,7 @@
 #include "win32-menu.h"
 
 #include <epan/packet.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include "capture.h"
 #include "capture-wpcap.h"
 #include "simple_dialog.h"

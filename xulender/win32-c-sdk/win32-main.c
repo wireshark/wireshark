@@ -61,7 +61,7 @@
 #include <epan/timestamp.h>
 #include "capture.h"
 #include "filters.h"
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 
 #include "color.h"
 #include "color_filters.h"
