@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.9 2000/01/07 22:05:32 guy Exp $
+ * $Id: packet-mount.c,v 1.10 2000/01/22 05:49:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -99,7 +99,7 @@ dissect_mount_dirpath_call(const u_char *pd, int offset, frame_data *fd,
 {
 	if ( tree )
 	{
-		offset = dissect_rpc_string(pd,offset,fd,tree,hf_mount_path);
+		offset = dissect_rpc_string(pd,offset,fd,tree,hf_mount_path,NULL);
 	}
 	
 	return offset;

@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.25 2000/01/07 22:05:36 guy Exp $
+ * $Id: packet-rpc.c,v 1.26 2000/01/22 05:49:06 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -404,8 +404,10 @@ char* name, char* type)
 }
 
 
-int
-dissect_rpc_opaque_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int hfindex, int string_data)
+static int
+dissect_rpc_opaque_data(const u_char *pd, int offset, frame_data *fd,
+    proto_tree *tree, int hfindex, gboolean string_data,
+    char **string_buffer_ret)
 {
 	proto_item *string_item = NULL;
 	proto_tree *string_tree = NULL;
@@ -557,24 +559,33 @@ dissect_rpc_opaque_data(const u_char *pd, int offset, frame_data *fd, proto_tree
 	}
 
 	if (string_buffer       != NULL) g_free (string_buffer      );
-	if (string_buffer_print != NULL) g_free (string_buffer_print);
+	if (string_buffer_print != NULL) {
+		if (string_buffer_ret != NULL)
+			*string_buffer_ret = string_buffer_print;
+		else
+			g_free (string_buffer_print);
+	}
 	return offset;
 }
 
 
 int
-dissect_rpc_string(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int hfindex)
+dissect_rpc_string(const u_char *pd, int offset, frame_data *fd,
+    proto_tree *tree, int hfindex, char **string_buffer_ret)
 {
-	offset = dissect_rpc_opaque_data(pd, offset, fd, tree, hfindex, 1);
+	offset = dissect_rpc_opaque_data(pd, offset, fd, tree, hfindex, TRUE,
+	    string_buffer_ret);
 
 	return offset;
 }
 
 
 int
-dissect_rpc_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int hfindex)
+dissect_rpc_data(const u_char *pd, int offset, frame_data *fd,
+    proto_tree *tree, int hfindex)
 {
-	offset = dissect_rpc_opaque_data(pd, offset, fd, tree, hfindex, 0);
+	offset = dissect_rpc_opaque_data(pd, offset, fd, tree, hfindex, FALSE,
+	    NULL);
 
 	return offset;
 }
@@ -622,7 +633,7 @@ dissect_rpc_auth( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			offset += 4;
 
 			offset = dissect_rpc_string(pd,offset,fd,
-				tree,hf_rpc_auth_machinename);
+				tree,hf_rpc_auth_machinename,NULL);
 
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return;
 			uid = EXTRACT_UINT(pd,offset+0);

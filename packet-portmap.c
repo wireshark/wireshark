@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.11 2000/01/07 22:05:35 guy Exp $
+ * $Id: packet-portmap.c,v 1.12 2000/01/22 05:49:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -285,9 +285,9 @@ int dissect_rpcb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 			offset+0, 4, version);
 	offset += 4;
 
-	offset = dissect_rpc_string(pd, offset, fd, rpcb_tree, hf_portmap_rpcb_netid);
-	offset = dissect_rpc_string(pd, offset, fd, rpcb_tree, hf_portmap_rpcb_addr);
-	offset = dissect_rpc_string(pd, offset, fd, rpcb_tree, hf_portmap_rpcb_owner);
+	offset = dissect_rpc_string(pd, offset, fd, rpcb_tree, hf_portmap_rpcb_netid,NULL);
+	offset = dissect_rpc_string(pd, offset, fd, rpcb_tree, hf_portmap_rpcb_addr,NULL);
+	offset = dissect_rpc_string(pd, offset, fd, rpcb_tree, hf_portmap_rpcb_owner,NULL);
 
 	/* now we know, that rpcb is shorter */
 	if (rpcb_item) {
@@ -313,7 +313,7 @@ int dissect_rpcb3_getaddr_call(const u_char *pd, int offset, frame_data *fd,
 int dissect_rpcb3_getaddr_reply(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
-	offset = dissect_rpc_string(pd, offset, fd, tree, hf_portmap_uaddr);
+	offset = dissect_rpc_string(pd, offset, fd, tree, hf_portmap_uaddr,NULL);
 
 	return offset;
 }

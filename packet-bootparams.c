@@ -1,7 +1,7 @@
 /* packet-bootparams.c
  * Routines for bootparams dissection
  *
- * $Id: packet-bootparams.c,v 1.7 2000/01/07 22:05:30 guy Exp $
+ * $Id: packet-bootparams.c,v 1.8 2000/01/22 05:49:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -90,8 +90,8 @@ int dissect_getfile_call(const u_char *pd, int offset, frame_data *fd,
 {
 	if ( tree )
 	{
-		offset = dissect_rpc_string(pd,offset,fd,tree,hf_bootparams_host);
-		offset = dissect_rpc_string(pd,offset,fd,tree,hf_bootparams_fileid);
+		offset = dissect_rpc_string(pd,offset,fd,tree,hf_bootparams_host,NULL);
+		offset = dissect_rpc_string(pd,offset,fd,tree,hf_bootparams_fileid,NULL);
 	}
 	
 	return offset;
@@ -103,9 +103,9 @@ int dissect_getfile_reply(const u_char *pd, int offset, frame_data *fd,
 {
 	if ( tree )
 	{
-		offset = dissect_rpc_string(pd,offset,fd,tree,hf_bootparams_host);
+		offset = dissect_rpc_string(pd,offset,fd,tree,hf_bootparams_host,NULL);
 		offset = dissect_bp_address(pd,offset,fd,tree,hf_bootparams_hostaddr);
-		offset = dissect_rpc_string(pd,offset,fd,tree,hf_bootparams_filepath);
+		offset = dissect_rpc_string(pd,offset,fd,tree,hf_bootparams_filepath,NULL);
 	}
 	
 	return offset;
@@ -129,8 +129,8 @@ int dissect_whoami_reply(const u_char *pd, int offset, frame_data *fd,
 {
 	if ( tree )
 	{
-		offset = dissect_rpc_string(pd,offset,fd,tree,hf_bootparams_host);
-		offset = dissect_rpc_string(pd,offset,fd,tree,hf_bootparams_domain);
+		offset = dissect_rpc_string(pd,offset,fd,tree,hf_bootparams_host,NULL);
+		offset = dissect_rpc_string(pd,offset,fd,tree,hf_bootparams_domain,NULL);
 		offset = dissect_bp_address(pd,offset,fd,tree,hf_bootparams_routeraddr);
 	}
 	

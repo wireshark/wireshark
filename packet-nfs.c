@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.19 2000/01/18 11:56:15 girlich Exp $
+ * $Id: packet-nfs.c,v 1.20 2000/01/22 05:49:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -473,9 +473,10 @@ dissect_sattr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, ch
 
 /* RFC 1094, Page 17 */
 int
-dissect_filename(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int hf)
+dissect_filename(const u_char *pd, int offset, frame_data *fd,
+    proto_tree *tree, int hf, char **string_ret)
 {
-	offset = dissect_rpc_string(pd,offset,fd,tree,hf);
+	offset = dissect_rpc_string(pd,offset,fd,tree,hf,string_ret);
 	return offset;
 }
 
@@ -484,7 +485,7 @@ dissect_filename(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 int
 dissect_path(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int hf)
 {
-	offset = dissect_rpc_string(pd,offset,fd,tree,hf);
+	offset = dissect_rpc_string(pd,offset,fd,tree,hf,NULL);
 	return offset;
 }
 
@@ -534,7 +535,7 @@ dissect_diropargs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	}
 
 	offset = dissect_fhandle (pd,offset,fd,diropargs_tree,"dir");
-	offset = dissect_filename(pd,offset,fd,diropargs_tree,hf_nfs_name);
+	offset = dissect_filename(pd,offset,fd,diropargs_tree,hf_nfs_name,NULL);
 
 	/* now we know, that diropargs is shorter */
 	if (diropargs_item) {
@@ -782,6 +783,7 @@ dissect_readdir_entry(const u_char* pd, int offset, frame_data* fd, proto_tree* 
 	int old_offset = offset;
 	guint32 fileid;
 	guint32 cookie;
+	char *name;
 
 	if (tree) {
 		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry,
@@ -790,14 +792,21 @@ dissect_readdir_entry(const u_char* pd, int offset, frame_data* fd, proto_tree* 
 			entry_tree = proto_item_add_subtree(entry_item, ett_nfs_readdir_entry);
 	}
 
-	if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
+	if (!BYTES_ARE_IN_FRAME(offset, 4)) {
+		proto_item_set_text(entry_item, "Entry: <TRUNCATED>");
+		return offset;
+	}
 	fileid = EXTRACT_UINT(pd, offset + 0);
 	if (entry_tree)
 		proto_tree_add_item(entry_tree, hf_nfs_readdir_entry_fileid,
 			offset+0, 4, fileid);
 	offset += 4;
 
-	offset = dissect_filename(pd, offset, fd, entry_tree, hf_nfs_readdir_entry_name);
+	offset = dissect_filename(pd, offset, fd, entry_tree,
+	    hf_nfs_readdir_entry_name, &name);
+	proto_item_set_text(entry_item, "Entry: file ID %u, name %s",
+	    fileid, name);
+	g_free(name);
 	
 	if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
 	cookie = EXTRACT_UINT(pd, offset + 0);
@@ -968,9 +977,10 @@ char* name)
 
 /* RFC 1813, Page 15 */
 int
-dissect_filename3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int hf)
+dissect_filename3(const u_char *pd, int offset, frame_data *fd,
+    proto_tree *tree, int hf, char **string_ret)
 {
-	offset = dissect_rpc_string(pd,offset,fd,tree,hf);
+	offset = dissect_rpc_string(pd,offset,fd,tree,hf,string_ret);
 	return offset;
 }
 
@@ -979,7 +989,7 @@ dissect_filename3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 int
 dissect_nfspath3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int hf)
 {
-	offset = dissect_rpc_string(pd,offset,fd,tree,hf);
+	offset = dissect_rpc_string(pd,offset,fd,tree,hf,NULL);
 	return offset;
 }
 
@@ -1898,7 +1908,7 @@ dissect_diropargs3(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 	}
 
 	offset = dissect_nfs_fh3  (pd, offset, fd, diropargs3_tree, "dir");
-	offset = dissect_filename3(pd, offset, fd, diropargs3_tree, hf_nfs_name);
+	offset = dissect_filename3(pd, offset, fd, diropargs3_tree, hf_nfs_name,NULL);
 
 	/* now we know, that diropargs3 is shorter */
 	if (diropargs3_item) {
@@ -2496,6 +2506,7 @@ dissect_entry3(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 	proto_item* entry_item = NULL;
 	proto_tree* entry_tree = NULL;
 	int old_offset = offset;
+	char *name;
 
 	if (tree) {
 		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry,
@@ -2506,8 +2517,11 @@ dissect_entry3(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 
 	offset = dissect_fileid3(pd, offset, fd, entry_tree, "fileid");
 
-	offset = dissect_filename3(pd, offset, fd, entry_tree, hf_nfs_readdir_entry_name);
-	
+	offset = dissect_filename3(pd, offset, fd, entry_tree,
+	    hf_nfs_readdir_entry_name, &name);
+	proto_item_set_text(entry_item, "Entry: name %s", name);
+	g_free(name);
+
 	offset = dissect_cookie3(pd, offset, fd, entry_tree, "cookie");
 
 	/* now we know, that a readdir entry is shorter */
@@ -2582,6 +2596,7 @@ dissect_entryplus3(const u_char* pd, int offset, frame_data* fd, proto_tree* tre
 	proto_item* entry_item = NULL;
 	proto_tree* entry_tree = NULL;
 	int old_offset = offset;
+	char *name;
 
 	if (tree) {
 		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry,
@@ -2592,8 +2607,11 @@ dissect_entryplus3(const u_char* pd, int offset, frame_data* fd, proto_tree* tre
 
 	offset = dissect_fileid3(pd, offset, fd, entry_tree, "fileid");
 
-	offset = dissect_filename3(pd, offset, fd, entry_tree, hf_nfs_readdirplus_entry_name);
-	
+	offset = dissect_filename3(pd, offset, fd, entry_tree,
+	    hf_nfs_readdirplus_entry_name, &name);
+	proto_item_set_text(entry_item, "Entry: name %s", name);
+	g_free(name);
+
 	offset = dissect_cookie3(pd, offset, fd, entry_tree, "cookie");
 
 	offset = dissect_post_op_attr(pd, offset, fd, entry_tree, "name_attributes");
