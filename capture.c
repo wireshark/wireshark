@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.142 2001/02/11 22:46:27 guy Exp $
+ * $Id: capture.c,v 1.143 2001/02/14 09:40:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -173,7 +173,7 @@ static guint cap_input_id;
  */
 #define SP_CAPSTART	';'	/* capture start message */
 #define SP_PACKET_COUNT	'*'	/* count of packets captured since last message */
-#define SP_ERROR	'!'	/* length of error message that follows */
+#define SP_ERROR_MSG	'!'	/* length of error message that follows */
 #define SP_DROPS	'#'	/* count of packets dropped in capture */
 
 #ifdef _WIN32
@@ -481,7 +481,7 @@ do_capture(char *capfile_name)
 	wait_for_child(TRUE);
 	return;
       }
-      if (c == SP_CAPSTART || c == SP_ERROR)
+      if (c == SP_CAPSTART || c == SP_ERROR_MSG)
 	break;
       if (!isdigit(c)) {
 	/* Child process handed us crap.
@@ -745,7 +745,7 @@ cap_file_input_cb(gpointer data, gint source, GdkInputCondition condition)
       q++;
       nread--;
       break;
-    case SP_ERROR :
+    case SP_ERROR_MSG :
       msglen = atoi(p);
       p = q + 1;
       q++;
@@ -1782,7 +1782,7 @@ send_errmsg_to_parent(const char *errmsg)
     int msglen = strlen(errmsg);
     char lenbuf[10+1+1];
 
-    sprintf(lenbuf, "%u%c", msglen, SP_ERROR);
+    sprintf(lenbuf, "%u%c", msglen, SP_ERROR_MSG);
     write(1, lenbuf, strlen(lenbuf));
     write(1, errmsg, msglen);
 }
