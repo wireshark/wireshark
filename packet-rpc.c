@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.98 2002/08/02 23:35:57 jmayer Exp $
+ * $Id: packet-rpc.c,v 1.99 2002/08/21 21:05:08 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1005,6 +1005,12 @@ dissect_rpc_verf(tvbuff_t* tvb, proto_tree* tree, int offset, int msg_type)
 static int
 dissect_rpc_authgss_initarg(tvbuff_t* tvb, proto_tree* tree, int offset)
 {
+	/*
+	 * XXX - should this use the GSS-API token dissector?
+	 * We'd have to extract the length ourselves, construct
+	 * a tvbuff containing the body of the opaque data,
+	 * and then hand that to the GSS-API token dissector.
+	 */
 	offset = dissect_rpc_data(tvb, tree, hf_rpc_authgss_token,
 			offset);
 	return offset;
