@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.11 2000/03/15 19:09:23 guy Exp $
+ * $Id: plugins.c,v 1.12 2000/03/31 21:42:24 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -64,6 +64,7 @@ plugin_address_table_t	patable;
 
 /* linked list of all plugins */
 plugin *plugin_list;
+guint32 enabled_plugins_number;
 
 #ifdef WIN32
 static gchar std_plug_dir[] = "c:/program files/ethereal/plugins/0.8";
@@ -148,6 +149,7 @@ enable_plugin(const gchar *name, const gchar *version)
 	if (!strcmp(pt_plug->name, name) && !strcmp(pt_plug->version, version))
 	{
 	    pt_plug->enabled = TRUE;
+	    enabled_plugins_number++;
 	    return pt_plug;
 	}
 	pt_plug = pt_plug->next;
@@ -171,6 +173,7 @@ disable_plugin(const gchar *name, const gchar *version)
 	if (!strcmp(pt_plug->name, name) && !strcmp(pt_plug->version, version))
 	{
 	    pt_plug->enabled = FALSE;
+	    enabled_plugins_number--;
 	    return pt_plug;
 	}
 	pt_plug = pt_plug->next;
@@ -447,6 +450,7 @@ init_plugins()
 
     if (plugin_list == NULL)      /* ensure init_plugins is only run once */
     {
+	enabled_plugins_number = 0;
 
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
 	/* Intialize address table */

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.173 2000/03/28 08:11:43 guy Exp $
+ * $Id: file.c,v 1.174 2000/03/31 21:42:23 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -550,7 +550,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
   }
   else {
 #ifdef HAVE_PLUGINS
-	if (plugin_list)
+	if (enabled_plugins_number > 0)
 	    protocol_tree = proto_tree_create_root();
 #endif
 	dissect_packet(buf, fdata, protocol_tree);
