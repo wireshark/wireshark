@@ -2,7 +2,7 @@
  * Routines for MS Exchange MAPI
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-mapi.c,v 1.4 2002/05/25 08:41:12 sahlberg Exp $
+ * $Id: packet-dcerpc-mapi.c,v 1.5 2002/05/25 09:19:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,8 +46,12 @@ static int hf_mapi_decrypted_data_maxlen = -1;
 static int hf_mapi_decrypted_data_offset = -1;
 static int hf_mapi_decrypted_data_len = -1;
 static int hf_mapi_decrypted_data = -1;
+static int hf_mapi_pdu_len = -1;
+static int hf_mapi_pdu_trailer = -1;
+static int hf_mapi_pdu_extra_trailer = -1;
 
 static gint ett_dcerpc_mapi = -1;
+static gint ett_mapi_decrypted_pdu = -1;
 
 static e_uuid_t uuid_dcerpc_mapi = {
         0xa4f1db00, 0xca47, 0x1067,
@@ -140,6 +144,9 @@ mapi_decrypt_pdu(tvbuff_t *tvb, int offset,
 	guint32 len;
 	unsigned char *ptr;
 	guint32 i;
+	guint16 pdu_len;
+	proto_item *it = NULL;
+	proto_tree *tr = NULL;
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
@@ -171,9 +178,52 @@ mapi_decrypt_pdu(tvbuff_t *tvb, int offset,
 	}
 
 	add_new_data_source(pinfo->fd, mmd->tvb, "Decrypted MAPI");
-	
+
+
+	/* decrypted PDU */
+	/* All from 10 minutes eyeballing. This may be wrong.
+	   The PDU is NOT NDR encoded. So this completely new marshalling
+	   used by MAPI needs to be figured out.
+
+	   It seems that ASCII text strings always are NULL terminated,
+	   also no obvious string-length-byte can be seen so it seems the
+	   length of strings are determined by searching the terminating null 
+	   byte.
+
+	   The first two bytes of the PDU is the length of the PDU including
+	   the two length bytes.
+	   The third byte may be a subcommand byte ?
+
+	   After the PDU comes, in requests a 4 byte thing. Which is either 
+	   (not very often) 0xffffffff or something else. If it is 
+	   'something else' these four bytes are repeated for the matching
+	   response packet.
+	   In some repsonse packets, this 4 byte trailer are sometimes followed
+	   by some other data. Unclear if this is just random padding or actual
+	   data. Seems a bit non-random for padding though.
+
+	   Some response packets have a PDU of 2 bytes only, ie only the
+	   2 byte length field followed by the 4 byte trailer.
+	   strange.
+	   perhaps the 4 byte trailers, and the extra trailers have some
+	   special meaning?
+	   More work needs to be done in this area.
+	*/
+	it=proto_tree_add_text(tree, mmd->tvb, 0, len, "Decrypted MAPI PDU");
+	tr=proto_item_add_subtree(it, ett_mapi_decrypted_pdu);
+
+	pdu_len=tvb_get_letohs(mmd->tvb, 0);
+	proto_tree_add_uint(tr, hf_mapi_pdu_len, mmd->tvb, 0, 2, pdu_len);
+
 	/*XXX call dissector here */
-	proto_tree_add_item(tree, hf_mapi_decrypted_data, mmd->tvb, 0, tvb_length(mmd->tvb), FALSE);
+	proto_tree_add_item(tr, hf_mapi_decrypted_data, mmd->tvb, 2, pdu_len, FALSE);
+
+	proto_tree_add_item(tr, hf_mapi_pdu_trailer, mmd->tvb, pdu_len, 4, FALSE);
+	if(len>(pdu_len+4)){
+		proto_tree_add_item(tr, hf_mapi_pdu_extra_trailer, mmd->tvb, pdu_len+4, len-(pdu_len+4), FALSE);
+	}
+
+
 	offset+=len;
 
 	return offset;
@@ -358,11 +408,24 @@ static hf_register_info hf[] = {
 		{ "Decrypted data", "mapi.decrypted.data", FT_BYTES, BASE_HEX, 
 		NULL, 0x0, "Decrypted data", HFILL }},
 
+	{ &hf_mapi_pdu_len,
+		{ "Length", "mapi.pdu.len", FT_UINT16, BASE_DEC, 
+		NULL, 0x0, "Size of the command PDU", HFILL }},
+
+	{ &hf_mapi_pdu_trailer,
+		{ "Trailer", "mapi.pdu.trailer", FT_UINT32, BASE_HEX, 
+		NULL, 0x0, "If you know what this is, contact ethereal developers", HFILL }},
+
+	{ &hf_mapi_pdu_extra_trailer,
+		{ "unknown", "mapi.pdu.extra_trailer", FT_BYTES, BASE_HEX, 
+		NULL, 0x0, "If you know what this is, contact ethereal developers", HFILL }},
+
 	};
 
 
         static gint *ett[] = {
                 &ett_dcerpc_mapi,
+                &ett_mapi_decrypted_pdu,
         };
 	module_t *mapi_module;
 
