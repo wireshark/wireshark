@@ -2,9 +2,9 @@
  * Routines for SUA light, a Siemens propriatary protocol
  *
  * Copyright 2001, Martin Held <Martin.Held@icn.siemens.de>
- *                 Michael TŸxen <Michael.Tuexen@icn.siemens.de>
+ *                 Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sual.c,v 1.2 2001/04/20 20:34:29 guy Exp $
+ * $Id: packet-sual.c,v 1.3 2001/04/23 18:05:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,7 +51,6 @@
 #endif
 
 #include "packet.h"
-#include "packet-ip.h"
 
 #define SUAL_PAYLOAD_PROTO_ID 4
 

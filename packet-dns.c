@@ -1,10 +1,10 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.65 2001/04/17 06:29:12 guy Exp $
+ * $Id: packet-dns.c,v 1.66 2001/04/23 18:05:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * 
@@ -40,7 +40,6 @@
 #include "ipproto.h"
 #include "resolv.h"
 #include "packet-dns.h"
-#include "packet-ip.h"
 
 static int proto_dns = -1;
 static int hf_dns_response = -1;

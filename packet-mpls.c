@@ -3,10 +3,10 @@
  * 
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-mpls.c,v 1.19 2001/04/19 23:02:44 guy Exp $
+ * $Id: packet-mpls.c,v 1.20 2001/04/23 18:05:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * 
@@ -44,7 +44,6 @@
 
 #include <glib.h>
 #include "packet.h"
-#include "packet-ip.h"
 #include "ppptypes.h"
 #include "etypes.h"
 
