@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.45 2002/04/24 06:03:34 guy Exp $
+ * $Id: packet-netbios.c,v 1.46 2002/05/01 09:50:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -100,6 +100,7 @@ static int hf_netb_name = -1;
 static int hf_netb_name_type = -1;
 static int hf_netb_local_ses_no = -1;
 static int hf_netb_remote_ses_no = -1;
+static int hf_netb_data1 = -1;
 static int hf_netb_data2 = -1;
 
 static gint ett_netb = -1;
@@ -164,42 +165,37 @@ static const value_string name_type_vals[] = {
 
 /* the strings for the command types  */
 
-static char *CommandName[] = {
-	"Add Group Name Query",	/* 0x00 */
-	"Add Name Query",	/* 0x01 */
-	"Name In Conflict",	/* 0x02 */
-	"Status Query",		/* 0x03 */
-	"Unknown",
-	"Unknown",
-	"Unknown",
-	"Terminate Trace",	/* 0x07 */
-	"Datagram",		/* 0x08 */
-	"Broadcast Datagram",	/* 0x09 */
-	"Name Query",		/* 0x0A */
-	"Unknown",
-	"Unknown",
-	"Add Name Response",	/* 0x0D */
-	"Name Recognized",	/* 0x0E */
-	"Status Response",	/* 0x0F */
-	"Unknown",
-	"Unknown",
-	"Unknown",
-	"Terminate Trace",	/* 0x13 */
-	"Data Ack",		/* 0x14 */
-	"Data First Middle",	/* 0x15 */
-	"Data Only Last",	/* 0x16 */
-	"Session Confirm",	/* 0x17	*/
-	"Session End",		/* 0x18 */
-	"Session Initialize",	/* 0x19	*/
-	"No Receive",		/* 0x1a */
-	"Receive Outstanding",	/* 0x1b */
-	"Receive Continue",	/* 0x1c */
-	"Unknown",
-	"Unknown",
-	"Session Alive",	/* 0x1f */
-	"Unknown",
+static const value_string cmd_vals[] = {
+	{ NB_ADD_GROUP,			"Add Group Name Query" },
+	{ NB_ADD_NAME,			"Add Name Query" },
+	{ NB_NAME_IN_CONFLICT,		"Name In Conflict" },
+	{ NB_STATUS_QUERY,		"Status Query" },
+	{ NB_TERMINATE_TRACE_R,		"Terminate Trace" },
+	{ NB_DATAGRAM,			"Datagram" },
+	{ NB_DATAGRAM_BCAST,		"Broadcast Datagram" },
+	{ NB_NAME_QUERY,		"Name Query" },
+	{ NB_ADD_NAME_RESP,		"Add Name Response" },
+	{ NB_NAME_RESP,			"Name Recognized" },
+	{ NB_STATUS_RESP,		"Status Response" },
+	{ NB_TERMINATE_TRACE_LR,	"Terminate Trace" },
+	{ NB_DATA_ACK,			"Data Ack" },
+	{ NB_DATA_FIRST_MIDDLE,		"Data First Middle" },
+	{ NB_DATA_ONLY_LAST,		"Data Only Last" },
+	{ NB_SESSION_CONFIRM,		"Session Confirm" },
+	{ NB_SESSION_END,		"Session End" },
+	{ NB_SESSION_INIT,		"Session Initialize" },
+	{ NB_NO_RECEIVE,		"No Receive" },
+	{ NB_RECEIVE_OUTSTANDING,	"Receive Outstanding" },
+	{ NB_RECEIVE_CONTINUE,		"Receive Continue" },
+	{ NB_KEEP_ALIVE,		"Session Alive" },
+	{ 0,				NULL }
 };
 
+static const value_string call_name_types[] = {
+	{ 0x00, "Unique name" },
+	{ 0x01, "Group name" },
+	{ 0,    NULL }
+};
 
 static const true_false_string flags_set = {
 	"Set",
@@ -409,8 +405,8 @@ static void nb_xmit_corrl( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* display the transmit correlator */
 
-	proto_tree_add_int( tree, hf_netb_xmit_corrl, tvb, offset + NB_XMIT_CORL, 
-		2, tvb_get_letohs( tvb, offset + NB_XMIT_CORL));
+	proto_tree_add_item( tree, hf_netb_xmit_corrl, tvb, offset + NB_XMIT_CORL, 
+		2, TRUE);
 }
 
 
@@ -418,8 +414,8 @@ static void nb_resp_corrl( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* display the response correlator */
 
-	proto_tree_add_int( tree, hf_netb_resp_corrl, tvb, offset + NB_RESP_CORL,
-		2, tvb_get_letohs( tvb, offset + NB_RESP_CORL));
+	proto_tree_add_item( tree, hf_netb_resp_corrl, tvb, offset + NB_RESP_CORL,
+		2, TRUE);
 }
 
 
@@ -427,27 +423,9 @@ static void nb_call_name_type( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* display the call name type */
 
+	proto_tree_add_item( tree, hf_netb_call_name_type, tvb, offset + NB_CALL_NAME_TYPE,
+		1, TRUE);
 
-	int name_type_value = 	tvb_get_guint8( tvb, offset + NB_CALL_NAME_TYPE);
-
-	switch (name_type_value) {
-
-	case 0x00:
-		proto_tree_add_int_format( tree, hf_netb_call_name_type, tvb, offset + NB_CALL_NAME_TYPE,
-			2, tvb_get_letohs( tvb, offset + NB_CALL_NAME_TYPE), "Caller's Name Type: Unique name");
-		break;
-
-	case 0x01:
-		proto_tree_add_int_format( tree, hf_netb_call_name_type, tvb, offset + NB_CALL_NAME_TYPE,
-			2, tvb_get_letohs( tvb, offset + NB_CALL_NAME_TYPE), "Caller's Name Type: Group name");
-		break;
-
-	default:
-		proto_tree_add_int_format( tree, hf_netb_call_name_type, tvb, offset + NB_CALL_NAME_TYPE,
-			2, tvb_get_letohs( tvb, offset + NB_CALL_NAME_TYPE),
-			"Caller's Name Type: 0x%02x (should be 0 or 1)", name_type_value);
-		break;
-	}
 }
 
 
@@ -471,15 +449,14 @@ static void nb_remote_session( tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 
-static void nb_data2(char *label, int len, tvbuff_t *tvb, int offset,
-    proto_tree *tree)
+static void nb_data2(char *label, tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* add the DATA2 to tree with format string = label and length of len */
 
-	int value = (len == 1 ? tvb_get_guint8( tvb, offset + NB_DATA2)
-	   		: tvb_get_letohs( tvb, offset + NB_DATA2));
+	int value = tvb_get_letohs( tvb, offset + NB_DATA2);
 	
-	proto_tree_add_uint( tree, hf_netb_data2, tvb, offset + NB_DATA2, 2, value);
+	proto_tree_add_uint_format( tree, hf_netb_data2, tvb,
+		offset + NB_DATA2, 2, value, label, value);
 
 }
 
@@ -516,9 +493,10 @@ static void nb_resync_indicator( tvbuff_t *tvb, int offset, proto_tree *tree, ch
 
 static void dissect_netb_unknown( tvbuff_t *tvb, int offset, proto_tree *tree)
 
-{/* Handle any unknow commands, do nothing */
+{/* Handle any unknown commands, do nothing */
 
-/*	call_dissector(data_handle, tvb_new_subset(tvb, offset + NB_COMMAND + 1,-1,tvb_reported_length_remaining(tvb,offset_NB_COMMAND + 1)), pinfo, tree); */
+	proto_tree_add_text(tree, tvb, offset + NB_COMMAND + 1, -1,
+	    "Unknown NetBIOS command data");
 }
 
 
@@ -580,11 +558,24 @@ static void  dissect_netb_status_query( tvbuff_t *tvb, int offset, proto_tree *t
 		    status_request);
 		break;
 	}
-	nb_data2("Length of status buffer: %u", 2, tvb, offset, tree);
+	nb_data2("Length of status buffer: %u", tvb, offset, tree);
 	nb_resp_corrl( tvb, offset, tree); 
 	netbios_add_name("Receiver's Name", tvb, offset + NB_RECVER_NAME, tree);
-	netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME,
-	    tree);
+	netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME, tree);
+}
+
+
+static void  dissect_netb_terminate_trace( tvbuff_t *tvb, int offset,
+    proto_tree *tree)
+
+{/* Handle the TERMINATE TRACE command */
+
+	proto_tree_add_item( tree, hf_netb_data1, tvb, offset + NB_DATA1, 1, TRUE);
+	nb_data2("DATA2 value: 0x%04x", tvb, offset, tree);
+	nb_xmit_corrl( tvb, offset, tree);
+	nb_resp_corrl( tvb, offset, tree);
+	netbios_add_name("Receiver's Name", tvb, offset + NB_RECVER_NAME, tree);
+	netbios_add_name("Sender's Name", tvb, offset + NB_SENDER_NAME, tree);
 }
 
 
@@ -791,6 +782,11 @@ static void  dissect_netb_data_first_middle( tvbuff_t *tvb, int offset,
 
 {/* Handle the DATA FIRST MIDDLE command */
 
+	/*
+	 * This could be thought of as a packet with the "more fragments"
+	 * flag set, were we to do reassembly.
+	 */
+
 	netbios_data_first_middle_flags( tvb, tree, offset + NB_FLAGS);
 
 	nb_resync_indicator( tvb, offset, tree, "DATA FIRST MIDDLE");
@@ -805,6 +801,11 @@ static void  dissect_netb_data_only_last( tvbuff_t *tvb, int offset,
     proto_tree *tree)
 
 {/* Handle the DATA ONLY LAST command */
+
+	/*
+	 * This could be thought of as a packet with the "more fragments"
+	 * flag not set, were we to do reassembly.
+	 */
 
 	netbios_data_only_flags( tvb, tree, offset + NB_FLAGS);
 
@@ -823,7 +824,7 @@ static void  dissect_netb_session_confirm( tvbuff_t *tvb, int offset,
 
 	netbios_add_ses_confirm_flags( tvb, tree, offset + NB_FLAGS);
 
-	nb_data2("Max data recv size: %u", 2, tvb, offset, tree);
+	nb_data2("Max data recv size: %u", tvb, offset, tree);
 	nb_xmit_corrl( tvb, offset, tree);
 	nb_resp_corrl( tvb, offset, tree);
 	nb_remote_session( tvb, offset, tree);
@@ -868,7 +869,7 @@ static void  dissect_netb_session_init( tvbuff_t *tvb, int offset,
 
 	netbios_add_session_init_flags( tvb, tree, offset + NB_FLAGS);
 
-	nb_data2("Max data recv size: %u", 2, tvb, offset, tree);
+	nb_data2("Max data recv size: %u", tvb, offset, tree);
 	nb_resp_corrl( tvb, offset, tree);
 	nb_xmit_corrl( tvb, offset, tree);
 	nb_remote_session( tvb, offset, tree);
@@ -882,7 +883,7 @@ static void  dissect_netb_no_receive( tvbuff_t *tvb, int offset,
 
 	netbios_no_receive_flags( tvb, tree, offset + NB_FLAGS);
 
-	nb_data2("Number of data bytes accepted: %u", 2, tvb, offset, tree);
+	nb_data2("Number of data bytes accepted: %u", tvb, offset, tree);
 	nb_remote_session( tvb, offset, tree);
 	nb_local_session( tvb, offset, tree);
 }
@@ -893,7 +894,7 @@ static void  dissect_netb_receive_outstanding( tvbuff_t *tvb, int offset,
 
 {/* Handle the RECEIVE OUTSTANDING command */
 
-	nb_data2("Number of data bytes accepted: %u", 2, tvb, offset, tree);
+	nb_data2("Number of data bytes accepted: %u", tvb, offset, tree);
 	nb_remote_session( tvb, offset, tree);
 	nb_local_session( tvb, offset, tree);
 }
@@ -905,6 +906,20 @@ static void  dissect_netb_receive_continue( tvbuff_t *tvb, int offset,
 {/* Handle the RECEIVE CONTINUE command */
 
 	nb_xmit_corrl( tvb, offset, tree);
+	nb_remote_session( tvb, offset, tree);
+	nb_local_session( tvb, offset, tree);
+}
+
+
+static void  dissect_netb_session_alive( tvbuff_t *tvb, int offset,
+    proto_tree *tree)
+
+{/* Handle the SESSION ALIVE command */
+
+	proto_tree_add_item( tree, hf_netb_data1, tvb, offset + NB_DATA1, 1, TRUE);
+	nb_data2("DATA2 value: 0x%04x", tvb, offset, tree);
+	nb_xmit_corrl( tvb, offset, tree);
+	nb_resp_corrl( tvb, offset, tree);
 	nb_remote_session( tvb, offset, tree);
 	nb_local_session( tvb, offset, tree);
 }
@@ -926,7 +941,7 @@ void (*dissect_netb[])(tvbuff_t *, int, proto_tree *) = {
   dissect_netb_unknown,		/* unknown 		0x04 */
   dissect_netb_unknown,		/* unknown	 	0x05 */
   dissect_netb_unknown,		/* unknown 		0x06 */
-  dissect_netb_unknown,		/* Terminate Trace 	0x07 */
+  dissect_netb_terminate_trace,	/* Terminate Trace 	0x07 */
   dissect_netb_datagram,	/* Datagram		0x08 */
   dissect_netb_datagram_bcast,	/* Datagram Broadcast 	0x09 */
   dissect_netb_name_query,	/* Name Query   	0x0A */
@@ -938,7 +953,7 @@ void (*dissect_netb[])(tvbuff_t *, int, proto_tree *) = {
   dissect_netb_unknown,		/* unknown	 	0x10 */
   dissect_netb_unknown,		/* unknown 		0x11 */
   dissect_netb_unknown,		/* unknown		0x12 */
-  dissect_netb_unknown,		/* Terminate Trace	0x13 */
+  dissect_netb_terminate_trace,	/* Terminate Trace	0x13 */
   dissect_netb_data_ack,	/* Data Ack 		0x14 */
   dissect_netb_data_first_middle,/* Data First Middle	0x15 */
   dissect_netb_data_only_last,	/* Data Only Last	0x16 */
@@ -950,8 +965,7 @@ void (*dissect_netb[])(tvbuff_t *, int, proto_tree *) = {
   dissect_netb_receive_continue,/* Receive Continue	0x1C */
   dissect_netb_unknown,		/* unknown 		0x1D */
   dissect_netb_unknown,		/* unknown 		0x1E */
-
-  dissect_netb_unknown,		/* Session Alive	0x1f (nothing to do) */
+  dissect_netb_session_alive,	/* Session Alive	0x1f */
   dissect_netb_unknown,	
 };
 
@@ -976,6 +990,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree		*netb_tree;
 	proto_item		*ti;
 	guint16			hdr_len, command;
+	char			*command_name;
 	char 			name[(NETBIOS_NAME_LEN - 1)*4 + 1];
 	int			name_type;
 	tvbuff_t		*next_tvb;
@@ -1008,11 +1023,12 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	command = MIN( command, sizeof( dissect_netb)/ sizeof(void *));
 
         if (check_col( pinfo->cinfo, COL_INFO)) {              /* print command name */
+		command_name = val_to_str(command, cmd_vals, "Unknown (0x%02x)");
                 switch ( command ) {
                 case NB_NAME_QUERY:
                         name_type = get_netbios_name( tvb, offset + 12, name);
                         col_add_fstr( pinfo->cinfo, COL_INFO, "%s for %s<%02x>",
-                            CommandName[ command], name, name_type);
+                            command_name, name, name_type);
                         break;
 
                 case NB_NAME_RESP:
@@ -1020,11 +1036,12 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 case NB_ADD_GROUP:
                         name_type = get_netbios_name( tvb, offset + 28, name);
                         col_add_fstr( pinfo->cinfo, COL_INFO, "%s - %s<%02x>",
-                            CommandName[ command], name, name_type);
+                            command_name, name, name_type);
                         break;
 
 		default:
-			col_add_fstr( pinfo->cinfo, COL_INFO, "%s", CommandName[ command]);
+			col_add_fstr( pinfo->cinfo, COL_INFO, "%s",
+			    command_name);
 			break;
 		}
 	}
@@ -1039,8 +1056,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(netb_tree, tvb, offset + 2, 2,
 			"Delimiter: EFFF (NetBIOS)");
 
-		proto_tree_add_uint_format(netb_tree, hf_netb_cmd, tvb, offset + NB_COMMAND, 1, command,
-	  		"Command: 0x%02x (%s)", command, CommandName[ command]);
+		proto_tree_add_uint(netb_tree, hf_netb_cmd, tvb, offset + NB_COMMAND, 1, command);
 
 						/* if command in table range */
 		if ( command < sizeof( dissect_netb)/ sizeof(void *))
@@ -1051,8 +1067,19 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	offset += hdr_len;			/* move past header */
 
-	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-	dissect_netbios_payload(next_tvb, pinfo, tree);
+	switch (command) {
+
+	case NB_DATAGRAM:
+	case NB_DATAGRAM_BCAST:
+	case NB_DATA_FIRST_MIDDLE:
+	case NB_DATA_ONLY_LAST:
+		/*
+		 * These are the frames with user data.
+		 */
+		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		dissect_netbios_payload(next_tvb, pinfo, tree);
+		break;
+	}
 }
 
 
@@ -1067,27 +1094,31 @@ void proto_register_netbios(void)
 
 	static hf_register_info hf_netb[] = {
 		{ &hf_netb_cmd,
-		{ "Command", "netbios.command", FT_UINT16, BASE_HEX, NULL, 0x0,
+		{ "Command", "netbios.command", FT_UINT8, BASE_HEX, VALS(cmd_vals), 0x0,
 			"", HFILL }},
+
 		{ &hf_netb_hdr_len,
 		{ "Header Length", "netbios.hdr_len", FT_UINT16, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_netb_xmit_corrl,
-		{ "Transmit Correlator", "netbios.xmit_corrl", FT_INT16, BASE_HEX, NULL, 0x0,
+		{ "Transmit Correlator", "netbios.xmit_corrl", FT_UINT16, BASE_HEX, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_netb_resp_corrl,
-		{ "Response Correlator", "netbios.resp_corrl", FT_INT16, BASE_HEX, NULL, 0x0,
+		{ "Response Correlator", "netbios.resp_corrl", FT_UINT16, BASE_HEX, NULL, 0x0,
 			"", HFILL }},
+
 		{ &hf_netb_call_name_type,
-		{ "Call Name Type", "netbios.call_name_type", FT_INT16, BASE_HEX, NULL, 0x0,
+		{ "Caller's Name Type", "netbios.call_name_type", FT_UINT8, BASE_HEX, VALS(call_name_types), 0x0,
 			"", HFILL }},
+
 		{ &hf_netb_name_type,
-		{ "Netbios Name Type", "netbios.name_type", FT_UINT16, BASE_HEX, NULL, 0x0,
+		{ "NetBIOS Name Type", "netbios.name_type", FT_UINT8, BASE_HEX, VALS(name_type_vals), 0x0,
 			"", HFILL }},
+
 		{ &hf_netb_name,
-		{ "Netbios Name", "netbios.name", FT_STRING, BASE_NONE, NULL, 0x0,
+		{ "NetBIOS Name", "netbios.name", FT_STRING, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_netb_ack,
@@ -1119,15 +1150,19 @@ void proto_register_netbios(void)
 			"", HFILL }},
 
 		{ &hf_netb_local_ses_no,
-		{ "Local Session No. ", "netbios.local_session", FT_UINT8, BASE_HEX, NULL, 0x0,
+		{ "Local Session No.", "netbios.local_session", FT_UINT8, BASE_HEX, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_netb_remote_ses_no,
-		{ "Remote Session No. ", "netbios.remote_session", FT_UINT8, BASE_HEX, NULL, 0x0,
+		{ "Remote Session No.", "netbios.remote_session", FT_UINT8, BASE_HEX, NULL, 0x0,
+			"", HFILL }},
+
+		{ &hf_netb_data1,
+		{ "DATA1 value", "netbios.data1", FT_UINT8, BASE_HEX, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_netb_data2,
-		{ "DATA2 value ", "netbios.data2", FT_UINT16, BASE_HEX, NULL, 0x0,
+		{ "DATA2 value", "netbios.data2", FT_UINT16, BASE_HEX, NULL, 0x0,
 			"", HFILL }},
 		};
 
