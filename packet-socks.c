@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.49 2003/11/08 00:02:55 guy Exp $
+ * $Id: packet-socks.c,v 1.50 2003/12/04 05:57:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -202,7 +202,8 @@ static const value_string reply_table_v5[] = {
 	{5, "Connection refused"},
 	{6, "TTL expired"},
 	{7, "Command not supported"},
-	{8, "Address type not supported"}
+	{8, "Address type not supported"},
+	{0, NULL},
 };
 
 static const value_string cmd_strings[] = {
