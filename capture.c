@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.165 2002/01/04 06:27:42 guy Exp $
+ * $Id: capture.c,v 1.166 2002/01/08 09:32:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -173,7 +173,7 @@ static int sync_pipe[2]; /* used to sync father */
 enum PIPES { READ, WRITE }; /* Constants 0 and 1 for READ and WRITE */
 int quit_after_cap; /* Makes a "capture only mode". Implies -k */
 gboolean capture_child;	/* if this is the child for "-S" */
-static int fork_child;	/* In parent, process ID of child */
+static int fork_child = -1;	/* If not -1, in parent, process ID of child */
 static guint cap_input_id;
 
 /*
@@ -893,6 +893,9 @@ wait_for_child(gboolean always_report)
 		    "Child capture process died: wait status %#o", wstatus);
     }
   }
+
+  /* No more child process. */
+  fork_child = -1;
 #endif
 }
 
@@ -1960,6 +1963,18 @@ capture_stop(void)
 #ifndef _WIN32
   if (fork_child != -1)
       kill(fork_child, SIGUSR1);
+#endif
+}
+
+void
+kill_capture_child(void)
+{
+  /*
+   * XXX - find some way of signaling the child in Win32.
+   */
+#ifndef _WIN32
+  if (fork_child != -1)
+    kill(fork_child, SIGTERM);	/* SIGTERM so it can clean up if necessary */
 #endif
 }
 

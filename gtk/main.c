@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.222 2001/12/31 04:41:50 gerald Exp $
+ * $Id: main.c,v 1.223 2002/01/08 09:32:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -734,31 +734,7 @@ statusbar_pop_field_msg(void)
 }
 
 static gboolean
-main_window_delete_event_cb(GtkWidget *widget, GdkEvent *event, gpointer data)
-{
-	gint desk_x, desk_y;
-
-	/* Try to grab our geometry */
-	gdk_window_get_root_origin(top_level->window, &root_x, &root_y);
-	if (gdk_window_get_deskrelative_origin(top_level->window,
-				&desk_x, &desk_y)) {
-		if (desk_x <= root_x && desk_y <= root_y) {
-			root_x = desk_x;
-			root_y = desk_y;
-		}
-	}
-
-	/* XXX - Is this the "approved" method? */
-	gdk_window_get_size(top_level->window, &top_width, &top_height);
-
-	file_quit_cmd_cb(widget, data);
-
-	/* Say that the window should be deleted. */
-	return FALSE;
-}
-
-void
-file_quit_cmd_cb (GtkWidget *widget, gpointer data)
+do_quit(void)
 {
 	/* XXX - should we check whether the capture file is an
 	   unsaved temporary file for a live capture and, if so,
@@ -767,9 +743,17 @@ file_quit_cmd_cb (GtkWidget *widget, gpointer data)
 	   box to forcibly quit if the user clicks "OK"?
 
 	   If so, note that this should be done in a subroutine that
-	   returns TRUE if we do so, and FALSE otherwise, and that
-	   "main_window_delete_event_cb()" should return its
-	   return value. */
+	   returns TRUE if we do so, and FALSE otherwise, and if it
+	   returns TRUE we should return TRUE without nuking anything.
+
+	   Note that, if we do that, we might also want to check if
+	   an "Update list of packets in real time" capture is in
+	   progress and, if so, ask whether they want to terminate
+	   the capture and discard it, and return TRUE, before nuking
+	   any child capture, if they say they don't want to do so. */
+
+	/* Nuke any child capture in progress. */
+	kill_capture_child();
 
 	/* Are we in the middle of reading a capture? */
 	if (cfile.state == FILE_READ_IN_PROGRESS) {
@@ -780,6 +764,10 @@ file_quit_cmd_cb (GtkWidget *widget, gpointer data)
 		   will check for that and, if it sees that, will clean
 		   up and quit. */
 		cfile.state = FILE_READ_ABORTED;
+
+		/* Say that the window should *not* be deleted;
+		   that'll be done by the code that cleans up. */
+		return TRUE;
 	} else {
 		/* Close any capture file we have open; on some OSes, you
 		   can't unlink a temporary capture file if you have it
@@ -806,7 +794,38 @@ file_quit_cmd_cb (GtkWidget *widget, gpointer data)
 		/* Exit by leaving the main loop, so that any quit functions
 		   we registered get called. */
 		gtk_main_quit();
+
+		/* Say that the window should be deleted. */
+		return FALSE;
 	}
+}
+
+static gboolean
+main_window_delete_event_cb(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+	gint desk_x, desk_y;
+
+	/* Try to grab our geometry */
+	gdk_window_get_root_origin(top_level->window, &root_x, &root_y);
+	if (gdk_window_get_deskrelative_origin(top_level->window,
+				&desk_x, &desk_y)) {
+		if (desk_x <= root_x && desk_y <= root_y) {
+			root_x = desk_x;
+			root_y = desk_y;
+		}
+	}
+
+	/* XXX - Is this the "approved" method? */
+	gdk_window_get_size(top_level->window, &top_width, &top_height);
+
+	/* "do_quit()" indicates whether the main window should be deleted. */
+	return do_quit();
+}
+
+void
+file_quit_cmd_cb (GtkWidget *widget, gpointer data)
+{
+	do_quit();
 }
 
 static void 

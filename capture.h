@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.26 2001/04/13 14:59:28 jfoster Exp $
+ * $Id: capture.h,v 1.27 2002/01/08 09:32:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,6 +44,9 @@ int    capture(gboolean *stats_known, struct pcap_stat *stats);
 
 /* Stop a capture from a menu item. */
 void   capture_stop(void);
+
+/* Terminate the capture child cleanly when exiting. */
+void   kill_capture_child(void);
 
 #endif /* HAVE_LIBPCAP */
 
