@@ -310,17 +310,17 @@ This graph window can also be opened from the Tools:Statistics:Traffic:IO-Stat
 menu item.
 
 
-B<-z> rpc,rtt,I<program>,I<version>[,<filter>]
+B<-z> rpc,srt,I<program>,I<version>[,<filter>]
 
-Collect call/reply RTT data for I<program>/I<version>.  Data collected
-is number of calls for each procedure, MinRTT, MaxRTT and AvgRTT. 
-Example: use B<-z rpc,rtt,100003,3> to collect data for NFS v3.  This
+Collect call/reply SRT (Service Response Time) data for I<program>/I<version>.  Data collected
+is number of calls for each procedure, MinSRT, MaxSRT and AvgSRT. 
+Example: use B<-z rpc,srt,100003,3> to collect data for NFS v3.  This
 option can be used multiple times on the command line. 
 
 If the optional filter string is provided, the stats will only be calculated
 on those calls that match that filter.
-Example: use B<-z rpc,rtt,100003,3,nfs.fh.hash==0x12345678> to collect NFS v3
-RTT statistics for a specific file.
+Example: use B<-z rpc,srt,100003,3,nfs.fh.hash==0x12345678> to collect NFS v3
+SRT statistics for a specific file.
 
 B<-z> rpc,programs
 
@@ -624,18 +624,6 @@ last-protocol counts show you how many packets (and the byte count
 associated with those packets) B<ended> in a particular protocol.  In
 the table, they are listed under "End Packets" and "End Bytes".
 
-=item Tools:Statistics:ONC-RPC:RTT
-
-Open a window to display statistics for an arbitrary ONC-RPC program interface
-and display B<Procedure>, B<Number of Calls>, B<Minimum RTT>, B<Maximum RTT> and B<Average RTT> for all procedures for that program/version.
-These windows opened will update in semi-real time to reflect changes when
-doing live captures or when reading new capture files into B<Ethereal>.
-
-This dialog will also allow an optional filter string to be used.
-If an optional filter string is used only such ONC-RPC request/response pairs 
-that match that filter will be used to calculate the statistics. If no filter 
-string is specified all request/response pairs will be used.
-
 =item Tools:Statistics:ONC-RPC:Programs
 
 This dialog will open a window showing aggregated RTT statistics for all
@@ -653,6 +641,18 @@ files into B<Ethereal>.
 
 This dialog will also allow an optional filter string to be used.
 If an optional filter string is used only such DCE-RPC request/response pairs 
+that match that filter will be used to calculate the statistics. If no filter 
+string is specified all request/response pairs will be used.
+
+=item Tools:Statistics:Service Response Time:ONC-RPC
+
+Open a window to display statistics for an arbitrary ONC-RPC program interface
+and display B<Procedure>, B<Number of Calls>, B<Minimum SRT>, B<Maximum SRT> and B<Average SRT> for all procedures for that program/version.
+These windows opened will update in semi-real time to reflect changes when
+doing live captures or when reading new capture files into B<Ethereal>.
+
+This dialog will also allow an optional filter string to be used.
+If an optional filter string is used only such ONC-RPC request/response pairs 
 that match that filter will be used to calculate the statistics. If no filter 
 string is specified all request/response pairs will be used.
 

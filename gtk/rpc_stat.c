@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.9 2003/04/23 08:20:05 guy Exp $
+ * $Id: rpc_stat.c,v 1.10 2003/06/21 03:24:06 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,8 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* This module provides rpc call/reply RTT statistics to tethereal.
- * It is only used by tethereal and not ethereal
+/* This module provides rpc call/reply SRT (Server Response Time) statistics 
+ * to ethereal.
  *
  * It serves as an example on how to use the tap api.
  */
@@ -41,32 +41,17 @@
 #include "packet-rpc.h"
 #include "../globals.h"
 #include "compat_macros.h"
+#include "service_response_time_table.h"
 
-/* used to keep track of statistics for a specific procedure */
-typedef struct _rpc_procedure_t {
-	GtkWidget *wnum;
-	GtkWidget *wmin;
-	GtkWidget *wmax;
-	GtkWidget *wavg;
-	gchar snum[8];
-	gchar smin[16];
-	gchar smax[16];
-	gchar savg[16];
-	int num;
-	nstime_t min;
-	nstime_t max;
-	nstime_t tot;
-} rpc_procedure_t;
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _rpcstat_t {
 	GtkWidget *win;
-	GtkWidget *table;
+	srt_stat_table srt_table;
 	char *prog;
 	guint32 program;
 	guint32 version;
 	guint32 num_procedures;
-	rpc_procedure_t *procedures;
 } rpcstat_t;
 
 
@@ -75,26 +60,13 @@ typedef struct _rpcstat_t {
 static void
 rpcstat_reset(rpcstat_t *rs)
 {
-	guint32 i;
-
-	for(i=0;i<rs->num_procedures;i++){
-		rs->procedures[i].num=0;	
-		rs->procedures[i].min.secs=0;
-		rs->procedures[i].min.nsecs=0;
-		rs->procedures[i].max.secs=0;
-		rs->procedures[i].max.nsecs=0;
-		rs->procedures[i].tot.secs=0;
-		rs->procedures[i].tot.nsecs=0;
-	}
+	reset_srt_table_data(&rs->srt_table);
 }
 
 
 static int
 rpcstat_packet(rpcstat_t *rs, packet_info *pinfo, epan_dissect_t *edt _U_, rpc_call_info_value *ri)
 {
-	nstime_t delta;
-	rpc_procedure_t *rp;
-
 	if(ri->proc>=rs->num_procedures){
 		/* dont handle this since its outside of known table */
 		return 0;
@@ -108,49 +80,7 @@ rpcstat_packet(rpcstat_t *rs, packet_info *pinfo, epan_dissect_t *edt _U_, rpc_c
 		return 0;
 	}
 
-	rp=&(rs->procedures[ri->proc]);
-
-	/* calculate time delta between request and reply */
-	delta.secs=pinfo->fd->abs_secs-ri->req_time.secs;
-	delta.nsecs=pinfo->fd->abs_usecs*1000-ri->req_time.nsecs;
-	if(delta.nsecs<0){
-		delta.nsecs+=1000000000;
-		delta.secs--;
-	}
-
-	if((rp->max.secs==0)
-	&& (rp->max.nsecs==0) ){
-		rp->max.secs=delta.secs;
-		rp->max.nsecs=delta.nsecs;
-	}
-
-	if((rp->min.secs==0)
-	&& (rp->min.nsecs==0) ){
-		rp->min.secs=delta.secs;
-		rp->min.nsecs=delta.nsecs;
-	}
-
-	if( (delta.secs<rp->min.secs)
-	||( (delta.secs==rp->min.secs)
-	  &&(delta.nsecs<rp->min.nsecs) ) ){
-		rp->min.secs=delta.secs;
-		rp->min.nsecs=delta.nsecs;
-	}
-
-	if( (delta.secs>rp->max.secs)
-	||( (delta.secs==rp->max.secs)
-	  &&(delta.nsecs>rp->max.nsecs) ) ){
-		rp->max.secs=delta.secs;
-		rp->max.nsecs=delta.nsecs;
-	}
-	
-	rp->tot.secs += delta.secs;
-	rp->tot.nsecs += delta.nsecs;
-	if(rp->tot.nsecs>1000000000){
-		rp->tot.nsecs-=1000000000;
-		rp->tot.secs++;
-	}
-	rp->num++;
+	add_srt_table_data(&rs->srt_table, ri->proc, &ri->req_time, pinfo);
 
 	return 1;
 }
@@ -158,37 +88,7 @@ rpcstat_packet(rpcstat_t *rs, packet_info *pinfo, epan_dissect_t *edt _U_, rpc_c
 static void
 rpcstat_draw(rpcstat_t *rs)
 {
-	guint32 i;
-#ifdef G_HAVE_UINT64
-	guint64 td;
-#else
-	guint32 td;
-#endif
-
-	for(i=0;i<rs->num_procedures;i++){
-		/* scale it to units of 10us.*/
-		/* for long captures with a large tot time, this can overflow on 32bit */
-		td=(int)rs->procedures[i].tot.secs;
-		td=td*100000+(int)rs->procedures[i].tot.nsecs/10000;
-		if(rs->procedures[i].num){
-			td/=rs->procedures[i].num;
-		} else {
-			td=0;
-		}
-
-		sprintf(rs->procedures[i].snum,"%d", rs->procedures[i].num);
-		gtk_label_set_text(GTK_LABEL(rs->procedures[i].wnum), rs->procedures[i].snum);
-
-		sprintf(rs->procedures[i].smin,"%3d.%05d", (int)rs->procedures[i].min.secs,rs->procedures[i].min.nsecs/10000);
-		gtk_label_set_text(GTK_LABEL(rs->procedures[i].wmin), rs->procedures[i].smin);
-
-		sprintf(rs->procedures[i].smax,"%3d.%05d", (int)rs->procedures[i].max.secs,rs->procedures[i].max.nsecs/10000);
-		gtk_label_set_text(GTK_LABEL(rs->procedures[i].wmax), rs->procedures[i].smax);
-
-		sprintf(rs->procedures[i].savg,"%3d.%05d", td/100000, td%100000);
-		gtk_label_set_text(GTK_LABEL(rs->procedures[i].wavg), rs->procedures[i].savg);
-
-	}
+	draw_srt_table_data(&rs->srt_table);
 }
 
 
@@ -264,7 +164,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 	remove_tap_listener(rs);
 	unprotect_thread_critical_region();
 
-	g_free(rs->procedures);
+	free_srt_table_data(&rs->srt_table);
 	g_free(rs);
 }
 
@@ -280,20 +180,19 @@ gtk_rpcstat_init(char *optarg)
 	GtkWidget *vbox;
 	GtkWidget *stat_label;
 	GtkWidget *filter_label;
-	GtkWidget *tmp;
 	int program, version, pos;
 	char *filter=NULL;
 	GString *error_string;
 
 	pos=0;
-	if(sscanf(optarg,"rpc,rtt,%d,%d,%n",&program,&version,&pos)==2){
+	if(sscanf(optarg,"rpc,srt,%d,%d,%n",&program,&version,&pos)==2){
 		if(pos){
 			filter=optarg+pos;
 		} else {
 			filter=NULL;
 		}
 	} else {
-		fprintf(stderr, "ethereal: invalid \"-z rpc,rtt,<program>,<version>[,<filter>]\" argument\n");
+		fprintf(stderr, "ethereal: invalid \"-z rpc,srt,<program>,<version>[,<filter>]\" argument\n");
 		exit(1);
 	}
 
@@ -305,7 +204,8 @@ gtk_rpcstat_init(char *optarg)
 	rs->version=rpc_version;
 
 	rs->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	sprintf(title_string,"ONC-RPC RTT Stat for %s version %d", rs->prog, rs->version);
+	gtk_window_set_default_size(rs->win, 550, 400);
+	sprintf(title_string,"ONC-RPC Service Response Time statistics for %s version %d", rs->prog, rs->version);
 	gtk_window_set_title(GTK_WINDOW(rs->win), title_string);
 	SIGNAL_CONNECT(rs->win, "destroy", win_destroy_cb, rs);
 
@@ -329,80 +229,18 @@ gtk_rpcstat_init(char *optarg)
 	g_hash_table_foreach(rpc_procs, (GHFunc)rpcstat_find_procs, NULL);
 	rs->num_procedures=rpc_max_proc+1;
 
-	rs->table=gtk_table_new(rs->num_procedures+1, 5, TRUE);
-	gtk_container_add(GTK_CONTAINER(vbox), rs->table);
+	init_srt_table(&rs->srt_table, rpc_max_proc+1, vbox);
 
-	tmp=gtk_label_new("Procedure");
-	gtk_table_attach_defaults(GTK_TABLE(rs->table), tmp, 0,1,0,1);
-	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
-	gtk_widget_show(tmp);
-
-	tmp=gtk_label_new("Calls");
-	gtk_table_attach_defaults(GTK_TABLE(rs->table), tmp, 1,2,0,1);
-	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
-	gtk_widget_show(tmp);
-
-	tmp=gtk_label_new("Min RTT");
-	gtk_table_attach_defaults(GTK_TABLE(rs->table), tmp, 2,3,0,1);
-	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
-	gtk_widget_show(tmp);
-
-	tmp=gtk_label_new("Max RTT");
-	gtk_table_attach_defaults(GTK_TABLE(rs->table), tmp, 3,4,0,1);
-	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
-	gtk_widget_show(tmp);
-
-	tmp=gtk_label_new("Avg RTT");
-	gtk_table_attach_defaults(GTK_TABLE(rs->table), tmp, 4,5,0,1);
-	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
-	gtk_widget_show(tmp);
-
-	
-	rs->procedures=g_malloc(sizeof(rpc_procedure_t)*(rs->num_procedures+1));
 	for(i=0;i<rs->num_procedures;i++){
-		GtkWidget *tmp;
-		
-		tmp=gtk_label_new(rpc_proc_name(rpc_program, rpc_version, i));
-		gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
-		gtk_table_attach_defaults(GTK_TABLE(rs->table), tmp, 0,1,i+1,i+2);
-		gtk_widget_show(tmp);
-
-		rs->procedures[i].wnum=gtk_label_new("0");
-		gtk_table_attach_defaults(GTK_TABLE(rs->table), rs->procedures[i].wnum, 1,2,i+1,i+2);
-		gtk_label_set_justify(GTK_LABEL(rs->procedures[i].wnum), GTK_JUSTIFY_RIGHT);
-		gtk_widget_show(rs->procedures[i].wnum);
-
-		rs->procedures[i].wmin=gtk_label_new("0");
-		gtk_table_attach_defaults(GTK_TABLE(rs->table), rs->procedures[i].wmin, 2,3,i+1,i+2);
-		gtk_label_set_justify(GTK_LABEL(rs->procedures[i].wmin), GTK_JUSTIFY_RIGHT);
-		gtk_widget_show(rs->procedures[i].wmin);
-
-		rs->procedures[i].wmax=gtk_label_new("0");
-		gtk_table_attach_defaults(GTK_TABLE(rs->table), rs->procedures[i].wmax, 3,4,i+1,i+2);
-		gtk_label_set_justify(GTK_LABEL(rs->procedures[i].wmax), GTK_JUSTIFY_RIGHT);
-		gtk_widget_show(rs->procedures[i].wmax);
-
-		rs->procedures[i].wavg=gtk_label_new("0");
-		gtk_table_attach_defaults(GTK_TABLE(rs->table), rs->procedures[i].wavg, 4,5,i+1,i+2);
-		gtk_label_set_justify(GTK_LABEL(rs->procedures[i].wavg), GTK_JUSTIFY_RIGHT);
-		gtk_widget_show(rs->procedures[i].wavg);
-
-		rs->procedures[i].num=0;	
-		rs->procedures[i].min.secs=0;
-		rs->procedures[i].min.nsecs=0;
-		rs->procedures[i].max.secs=0;
-		rs->procedures[i].max.nsecs=0;
-		rs->procedures[i].tot.secs=0;
-		rs->procedures[i].tot.nsecs=0;
+		init_srt_table_row(&rs->srt_table, i, rpc_proc_name(rpc_program, rpc_version, i));
 	}
 
-	gtk_widget_show(rs->table);
 
 	error_string=register_tap_listener("rpc", rs, filter, (void*)rpcstat_reset, (void*)rpcstat_packet, (void*)rpcstat_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
 		g_string_free(error_string, TRUE);
-		g_free(rs->procedures);
+		free_srt_table_data(&rs->srt_table);
 		g_free(rs);
 		return;
 	}
@@ -432,10 +270,10 @@ rpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 
 	filter=(char *)gtk_entry_get_text(GTK_ENTRY(filter_entry));
 	if(filter[0]==0){
-		sprintf(str, "rpc,rtt,%d,%d", rpc_program, rpc_version);
+		sprintf(str, "rpc,srt,%d,%d", rpc_program, rpc_version);
 		filter="";
 	} else {
-		sprintf(str, "rpc,rtt,%d,%d,%s", rpc_program, rpc_version, filter);
+		sprintf(str, "rpc,srt,%d,%d,%s", rpc_program, rpc_version, filter);
 	}
 	gtk_rpcstat_init(str);
 }
@@ -519,7 +357,7 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	}
 
 	dlg=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(dlg), "ONC-RPC RTT Statistics");
+	gtk_window_set_title(GTK_WINDOW(dlg), "ONC-RPC Service Response Time statistics");
 	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
 	dlg_box=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(dlg), dlg_box);
@@ -604,11 +442,11 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtkrpcstat(void)
 {
-	register_ethereal_tap("rpc,rtt,", gtk_rpcstat_init);
+	register_ethereal_tap("rpc,srt,", gtk_rpcstat_init);
 }
 
 void
 register_tap_menu_gtkrpcstat(void)
 {
-	register_tap_menu_item("ONC-RPC/RTT", gtk_rpcstat_cb);
+	register_tap_menu_item("Service Response Time/ONC-RPC", gtk_rpcstat_cb);
 }
