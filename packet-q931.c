@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.7 1999/11/19 09:11:44 guy Exp $
+ * $Id: packet-q931.c,v 1.8 1999/11/19 09:46:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1961,7 +1961,8 @@ dissect_q931(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		col_add_str(fd, COL_PROTOCOL, "Q.931");
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_q931, offset, 3, NULL);
+		ti = proto_tree_add_item(tree, proto_q931, offset,
+		    END_OF_FRAME, NULL);
 		q931_tree = proto_item_add_subtree(ti, ett_q931);
 
 		proto_tree_add_item(q931_tree, hf_q931_discriminator, offset, 1, pd[offset]);
