@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.39 2000/11/19 08:54:10 guy Exp $
+ * $Id: packet-x25.c,v 1.40 2000/11/27 06:23:42 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1942,10 +1942,10 @@ proto_register_x25(void)
 {
     static hf_register_info hf8[] = {
 	{ &hf_x25_qbit,
-	  { "Q Bit", "x25.q", FT_BOOLEAN, 2, NULL, 0x8000,
+	  { "Q Bit", "x25.q", FT_BOOLEAN, 16, NULL, 0x8000,
 	  	"Qualifier Bit" } },
 	{ &hf_x25_dbit,
-	  { "D Bit", "x25.d", FT_BOOLEAN, 2, NULL, 0x4000,
+	  { "D Bit", "x25.d", FT_BOOLEAN, 16, NULL, 0x4000,
 	  	"Delivery Confirmation Bit" } },
 	{ &hf_x25_mod,
 	  { "Modulo", "x25.mod", FT_UINT16, BASE_DEC, VALS(vals_modulo), 0x3000,
@@ -1960,7 +1960,7 @@ proto_register_x25(void)
 	  { "P(R)", "x25.p_r", FT_UINT8, BASE_HEX, NULL, 0xE0,
 	  	"Packet Receive Sequence Number" } },
 	{ &hf_x25_mbit,
-	  { "M Bit", "x25.m", FT_BOOLEAN, 1, NULL, 0x10,
+	  { "M Bit", "x25.m", FT_BOOLEAN, 8, NULL, 0x10,
 	  	"More Bit" } },
 	{ &hf_x25_p_s,
 	  { "P(S)", "x25.p_s", FT_UINT8, BASE_HEX, NULL, 0x0E,
@@ -1969,10 +1969,10 @@ proto_register_x25(void)
 
     static hf_register_info hf128[] = {
 	{ &hf_ex25_qbit,
-	  { "Q Bit", "ex25.q", FT_BOOLEAN, 2, NULL, 0x8000,
+	  { "Q Bit", "ex25.q", FT_BOOLEAN, 16, NULL, 0x8000,
 	  	"Qualifier Bit" } },
 	{ &hf_ex25_dbit,
-	  { "D Bit", "ex25.d", FT_BOOLEAN, 2, NULL, 0x4000,
+	  { "D Bit", "ex25.d", FT_BOOLEAN, 16, NULL, 0x4000,
 	  	"Delivery Confirmation Bit" } },
 	{ &hf_ex25_mod,
 	  { "Modulo", "ex25.mod", FT_UINT16, BASE_DEC, VALS(vals_modulo), 0x3000,
@@ -1987,7 +1987,7 @@ proto_register_x25(void)
 	  { "P(R)", "ex25.p_r", FT_UINT8, BASE_HEX, NULL, 0xFE,
 	  	"Packet Receive Sequence Number" } },
 	{ &hf_ex25_mbit,
-	  { "M Bit", "ex25.m", FT_BOOLEAN, 1, NULL, 0x01,
+	  { "M Bit", "ex25.m", FT_BOOLEAN, 8, NULL, 0x01,
 	  	"More Bit" } },
 	{ &hf_ex25_p_s,
 	  { "P(S)", "ex25.p_s", FT_UINT8, BASE_HEX, NULL, 0xFE,
