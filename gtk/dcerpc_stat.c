@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.7 2003/04/24 23:17:43 guy Exp $
+ * $Id: dcerpc_stat.c,v 1.8 2003/04/25 05:50:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -612,7 +612,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	bbox=gtk_hbutton_box_new();
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
 	gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
-	gtk_container_add(GTK_BOX(dlg_box), bbox);
+	gtk_container_add(GTK_CONTAINER(dlg_box), bbox);
 	gtk_widget_show(bbox);
 
 	/* the start button */
