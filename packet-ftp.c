@@ -2,7 +2,7 @@
  * Routines for ftp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-ftp.c,v 1.19 2000/09/11 16:16:01 gram Exp $
+ * $Id: packet-ftp.c,v 1.20 2000/11/05 05:49:02 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,6 +46,7 @@
 #include "strutil.h"
 
 static int proto_ftp = -1;
+static int proto_ftp_data = -1;
 static int hf_ftp_response = -1;
 static int hf_ftp_request = -1;
 static int hf_ftp_request_command = -1;
@@ -54,6 +55,7 @@ static int hf_ftp_response_code = -1;
 static int hf_ftp_response_data = -1;
 
 static gint ett_ftp = -1;
+static gint ett_ftp_data = -1;
 
 #define TCP_PORT_FTPDATA		20
 #define TCP_PORT_FTP			21
@@ -146,10 +148,10 @@ dissect_ftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 static void
 dissect_ftpdata(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-        proto_tree      *ti;
+        proto_tree      *ti, *ftp_data_tree;
 
 	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "FTP DATA");
+		col_add_str(fd, COL_PROTOCOL, "FTP-DATA");
 
 	if (check_col(fd, COL_INFO)) {
 
@@ -159,7 +161,11 @@ dissect_ftpdata(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) {
 
-	  ti = proto_tree_add_text(tree, NullTVB, offset, END_OF_FRAME,
+	  ti = proto_tree_add_item(tree, proto_ftp_data, NullTVB, offset, END_OF_FRAME, FALSE);
+
+	  ftp_data_tree = proto_item_add_subtree(ti, ett_ftp_data);
+
+	  ti = proto_tree_add_text(ftp_data_tree, NullTVB, offset, END_OF_FRAME,
 				   "FTP Data: %s", 
 				   format_text(&pd[offset], pi.captured_len - offset));
 
@@ -196,9 +202,11 @@ proto_register_ftp(void)
   };
   static gint *ett[] = {
     &ett_ftp,
+    &ett_ftp_data,
   };
 
-  proto_ftp = proto_register_protocol("File Transfer Protocol", "ftp");
+  proto_ftp = proto_register_protocol("File Transfer Protocol (FTP)", "ftp");
+  proto_ftp_data = proto_register_protocol("FTP Data", "ftp-data");
   proto_register_field_array(proto_ftp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
