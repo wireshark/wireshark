@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.69 2004/04/18 06:41:42 ulfl Exp $
+$Id: README.win32,v 1.70 2004/04/18 10:16:19 obiot Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -101,9 +101,13 @@ Currently unsupported for two reasons:
 -the licence agreement does NOT allow you to compile GPL code.
 -there are serious problems in using DLL's compiled with MS VC6.
 
-Cygwins GCC
-Although currently still experimental, there is ongoing progress 
-supporting it. See section below for instructions.
+Cygwin GCC
+Ethereal can entirely be built with cygwin GCC. However the built binaries will
+only run in a cygwin environment, so they are not standalone Win32 applications.
+It is however not excluded that native Win32 code can be compiled on cygwin GCC
+but you then have to use -mms-bitfields as a strict minimum and probably
+-mno-cygwin or a similar compiler flag too.
+See section below for instructions.
 
 
 Automated library download
@@ -498,33 +502,25 @@ To get it running, execute the following steps:
 
      $ PATH=/opt/gnome/bin:$PATH
 
-     $ ./autogen.sh --without-pcap --without-plugins
-     $ ./configure --without-pcap --without-plugins
+     $ ./autogen.sh
+     $ ./configure --config-cache --without-pcap
      $ make
-
-   This make will eventually stop, but it is required as e.g., the
-   GTK binaries are built then.
-
-     $ make ethereal.exe
 
 7. Start X
 
      $ sh /usr/X11R6/bin/startxwin.sh
 
-   For non-US keyboard layouts, use (replace 'be' with your layout):
-
-     $ setxkbmap.exe -layout be
+    Or you can start it from C:\cygwin\usr\X11R6\bin\startxwin.bat 
 
 8. Run ethereal (add /opt/gnome/bin to $PATH if this is not yet done)
 
      $ <ethereal-src>/ethereal
 
-   And voila! Behold the mighty sniffer in all its glory!
+    And voila! Behold the mighty sniffer in all its glory!
 
-Something is wrong with the makefile that gets generated, so it doesn't work
-just running make.
-I am not curious enough to look at why 'make' doesnt work; 'make ethereal.exe'
-works well enough for me.
+    Note that the plugin dissectors must be installed (make install) if you
+    want to use them. Note also that running "make install" produces lots of
+    output to the console; this is normal.
 
 Note: Compiling Ethereal under cygwin takes a lot of time, because the
 generation of 'register.c' takes ages. If you only edit one dissector and
@@ -537,3 +533,13 @@ of the file 'register.c' in Makefile. Look for the 'register.c' target:
 	@echo Skipping generation of register.c
 
 Of course, you need to generate the 'register.c' file at least once.
+
+Note: You can also capture packets on a cygwin built Ethereal. You then have
+to unpack the WinPCap development package, install the files in lib/ and
+include/ in say /usr/lib and /usr/include (they must be in the search path of
+the compiler and linker, otherwise you have to specify the configure option
+--with-pcap=/location/to/pcap so the packet capture functionality can be used.
+In order to run Ethereal, you have to add the .dll files in a directory in the
+PATH (e.g., /bin).
+Should you want packet capturing enabled in the cygwin build, then you have to
+remove --without-pcap from step 6.
