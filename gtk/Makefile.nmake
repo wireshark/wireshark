@@ -20,7 +20,7 @@ EUG_CFLAGS=-DETHEREAL_EUG_DIR
 !ENDIF
 
 .c.obj::
-   $(CC) $(CVARSDLL) $(CFLAGS) $(EUG_CFLAGS) -Fd.\ -c $<
+	$(CC) $(CVARSDLL) $(CFLAGS) $(EUG_CFLAGS) -Fd.\ -c $<
 
 include Makefile.common
 
