@@ -1090,23 +1090,23 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
             gint sources = content_length / 12;
             gint counter = 0;
             for(counter = 0; counter < sources; counter++) {
-				/* Create a new subtree for a length of 12 bytes */
-				proto_tree *ti = proto_tree_add_text(content_tree, tvb, offset, 12, "Source %u", counter + 1);
-				proto_tree *ssrc_tree = proto_item_add_subtree(ti, ett_xr_ssrc);
-				
-				/* SSRC_n source identifier, 32 bits */
-				proto_tree_add_item(ssrc_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE);
-				offset += 4;
-				
-				/* Last RR timestamp */
-				proto_tree_add_item(ssrc_tree, hf_rtcp_xr_lrr, tvb, offset, 4, FALSE);
-				offset += 4;
-				
-				/* Delay since last RR timestamp */
-				proto_tree_add_item(ssrc_tree, hf_rtcp_xr_dlrr, tvb, offset, 4, FALSE);
-				offset += 4;
+                /* Create a new subtree for a length of 12 bytes */
+                proto_tree *ti = proto_tree_add_text(content_tree, tvb, offset, 12, "Source %u", counter + 1);
+                proto_tree *ssrc_tree = proto_item_add_subtree(ti, ett_xr_ssrc);
+                
+                /* SSRC_n source identifier, 32 bits */
+                proto_tree_add_item(ssrc_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE);
+                offset += 4;
+                
+                /* Last RR timestamp */
+                proto_tree_add_item(ssrc_tree, hf_rtcp_xr_lrr, tvb, offset, 4, FALSE);
+                offset += 4;
+                
+                /* Delay since last RR timestamp */
+                proto_tree_add_item(ssrc_tree, hf_rtcp_xr_dlrr, tvb, offset, 4, FALSE);
+                offset += 4;
             }
-			
+            
             if (content_length % 12 != 0)
                 offset += content_length % 12;
             break;
@@ -1136,16 +1136,16 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
                 offset += 4;
             }
             break;
-       }
+        }
 
         case RTCP_XR_LOSS_RLE:
         case RTCP_XR_DUP_RLE: {
             /* 8 bytes of fixed header */
             gint count = 0, skip = 8;
             guint16 begin = 0;
-			proto_item *chunks_item;
-			proto_tree *chunks_tree;
-			
+            proto_item *chunks_item;
+            proto_tree *chunks_tree;
+            
             /* Identifier */
             proto_tree_add_item(content_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE);
             offset += 4;
@@ -1159,36 +1159,33 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
             proto_tree_add_item(content_tree, hf_rtcp_xr_endseq, tvb, offset, 2, FALSE);
             offset += 2;
 
-			/* report Chunks */
-			chunks_item = proto_tree_add_text(content_tree, tvb, offset, content_length,"Report Chunks");
-			chunks_tree = proto_item_add_subtree(chunks_item, ett_xr_loss_chunk);
+            /* report Chunks */
+            chunks_item = proto_tree_add_text(content_tree, tvb, offset, content_length,"Report Chunks");
+            chunks_tree = proto_item_add_subtree(chunks_item, ett_xr_loss_chunk);
 
-			for(count = 1; skip < content_length; skip += 2, count++) {
-				guint value = tvb_get_ntohs(tvb, offset);
-				
-				if (value == 0) {
-					proto_tree_add_text(chunks_tree, tvb, offset, 2,
-										"Chunk: %u -- Null Terminator ",
-										count);
-				} else if (( value & 0x8000 )) {
-					gchar* run_type = (value & 0x4000) ? "1s" : "0s";
-					value &= 0x7FFF;
-					proto_tree_add_text(chunks_tree, tvb, offset, 2,
-										"Chunk: %u -- Length Run %s, length: %u",
-										count, run_type, value);
-				} else {
-					gchar* bits;
-					bits = decode_boolean_bitfield(value, 0x00007FFF, 16,"0","1");
-					
-					*(bits+20) = '\0';
-					
-					proto_tree_add_text(chunks_tree, tvb, offset, 2,
-										"Chunk: %u -- Bit Vector,  bits: %s",
-										count, bits );
-				}
+            for(count = 1; skip < content_length; skip += 2, count++) {
+                guint value = tvb_get_ntohs(tvb, offset);
+                
+                if (value == 0) {
+                    proto_tree_add_text(chunks_tree, tvb, offset, 2,
+                                        "Chunk: %u -- Null Terminator ",
+                                        count);
+                } else if (( value & 0x8000 )) {
+                    gchar* run_type = (value & 0x4000) ? "1s" : "0s";
+                    value &= 0x7FFF;
+                    proto_tree_add_text(chunks_tree, tvb, offset, 2,
+                                        "Chunk: %u -- Length Run %s, length: %u",
+                                        count, run_type, value);
+                } else {
+                    char bits[20+1];
+                    other_decode_bitfield_value(bits, value, 0x00007FFF, 16);
+                    proto_tree_add_text(chunks_tree, tvb, offset, 2,
+                                        "Chunk: %u -- Bit Vector, bits: %s",
+                                        count, bits );
+                }
                 offset += 2;
             }
-			
+            
             break;
         }
 
