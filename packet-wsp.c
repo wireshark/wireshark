@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.37 2001/09/25 21:32:41 guy Exp $
+ * $Id: packet-wsp.c,v 1.38 2001/09/28 18:59:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -97,6 +97,7 @@ static int hf_wsp_parameter_domain			= HF_EMPTY;
 static int hf_wsp_parameter_path			= HF_EMPTY;
 static int hf_wsp_reply_data				= HF_EMPTY;
 static int hf_wsp_post_data				= HF_EMPTY;
+static int hf_wsp_push_data				= HF_EMPTY;
 
 static int hf_wsp_header_shift_code			= HF_EMPTY;
 static int hf_wsp_header_accept				= HF_EMPTY;
@@ -112,6 +113,8 @@ static int hf_wsp_header_accept_ranges_str		= HF_EMPTY;
 static int hf_wsp_header_cache_control			= HF_EMPTY;
 static int hf_wsp_header_cache_control_str		= HF_EMPTY;
 static int hf_wsp_header_cache_control_field_name	= HF_EMPTY;
+static int hf_wsp_header_connection			= HF_EMPTY;
+static int hf_wsp_header_connection_str			= HF_EMPTY;
 static int hf_wsp_header_cache_control_field_name_str	= HF_EMPTY;
 static int hf_wsp_header_content_length			= HF_EMPTY;
 static int hf_wsp_header_age				= HF_EMPTY;
@@ -136,6 +139,8 @@ static int hf_wsp_header_x_wap_tod			= HF_EMPTY;
 static int hf_wsp_header_transfer_encoding		= HF_EMPTY;
 static int hf_wsp_header_transfer_encoding_str		= HF_EMPTY;
 static int hf_wsp_header_via				= HF_EMPTY;
+static int hf_wsp_header_wap_application_id		= HF_EMPTY;
+static int hf_wsp_header_wap_application_id_str		= HF_EMPTY;
 
 static int hf_wsp_redirect_flags			= HF_EMPTY;
 static int hf_wsp_redirect_permanent			= HF_EMPTY;
@@ -651,6 +656,11 @@ static const value_string vals_cache_control[] = {
 	{ 0x00,             NULL }
 };
 
+static const value_string vals_connection[] = {
+	{ 0x00, "Close" },
+	{ 0x00, NULL }
+};
+
 static const value_string vals_transfer_encoding[] = {
 	{ 0x00, "Chunked" },
 	{ 0x00, NULL }
@@ -726,10 +736,14 @@ static void add_accept_ranges_header (proto_tree *, tvbuff_t *, int,
 static void add_cache_control_header (proto_tree *, tvbuff_t *, int,
     tvbuff_t *, value_type_t, int);
 static int add_cache_control_field_name (proto_tree *, tvbuff_t *, int, guint);
+static void add_connection_header (proto_tree *, tvbuff_t *, int,
+    tvbuff_t *, value_type_t, int);
 static void add_content_type_value (proto_tree *, tvbuff_t *, int, int,
     tvbuff_t *, value_type_t, int, int, int, guint *, const char **);
 static guint add_content_type (proto_tree *, tvbuff_t *, guint, guint *,
     const char **);
+static void add_wap_application_id_header (proto_tree *, tvbuff_t *, int,
+    tvbuff_t *, value_type_t, int);
 static void add_integer_value_header (proto_tree *, tvbuff_t *, int,
     tvbuff_t *, value_type_t, int, int, guint8);
 static void add_string_value_header (proto_tree *, tvbuff_t *, int,
@@ -1165,8 +1179,11 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				add_post_data (wsp_tree, tmp_tvb,
 				    contentType, contentTypeStr);
 			}
-			tmp_tvb = tvb_new_subset (tvb, headerStart + count + uriLength + headersLength, -1, -1);
-			dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree);
+			if (tvb_reported_length_remaining(tvb, headerStart + count + uriLength + headersLength) > 0)
+			{
+				tmp_tvb = tvb_new_subset (tvb, headerStart + count + uriLength + headersLength, -1, -1);
+				dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree);
+			}
 			break;
 
 		case REPLY:
@@ -1205,10 +1222,52 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 			if (tvb_reported_length_remaining(tvb, headerStart + headersLength) > 0)
 			{
-			    tmp_tvb = tvb_new_subset (tvb, headerStart + headersLength, -1, -1);
-			    dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree);
+				tmp_tvb = tvb_new_subset (tvb, headerStart + headersLength, -1, -1);
+				dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree);
 			}
 			break;
+
+		case PUSH:
+		case CONFIRMEDPUSH:
+			count = 0;	/* Initialise count */
+			headersLength = tvb_get_guintvar (tvb, offset, &count);
+			headerStart = offset + count;
+
+			if (tree) {
+				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,offset,count,headersLength);
+
+				if (headersLength == 0)
+					break;
+
+				offset += count;
+				contentTypeStart = offset;
+				nextOffset = add_content_type (wsp_tree,
+				    tvb, offset, &contentType,
+				    &contentTypeStr);
+
+				/* Add headers subtree that will hold the headers fields */
+				/* Runs from nextOffset for headersLength-(length of content-type field)*/
+				headerLength = headersLength-(nextOffset-contentTypeStart);
+				if (headerLength > 0)
+				{
+					tmp_tvb = tvb_new_subset (tvb, nextOffset, headerLength, headerLength);
+					add_headers (wsp_tree, tmp_tvb);
+				}
+				offset += headersLength;
+
+				/* Push DATA */
+				if (tvb_reported_length_remaining (tvb, offset) > 0)
+				{
+					ti = proto_tree_add_item (wsp_tree, hf_wsp_push_data,tvb,offset,tvb_length_remaining(tvb, offset),bo_little_endian);
+				}
+			}
+			if (tvb_reported_length_remaining(tvb, headerStart + headersLength) > 0)
+			{
+				tmp_tvb = tvb_new_subset (tvb, headerStart + headersLength, -1, -1);
+				dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree);
+			}
+			break;
+
 	}
 }
 
@@ -1478,6 +1537,11 @@ add_well_known_header (proto_tree *tree, tvbuff_t *tvb, int offset,
 		    value_buff, valueType, valueLen);
 		break;
 				
+	case FN_CONNECTION:	/* Connection */
+		add_connection_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen);
+		break;
+
 	case FN_CONTENT_LENGTH:		/* Content-Length */
 		add_integer_value_header (tree, header_buff, headerLen,
 		    value_buff, valueType, valueLen,
@@ -1569,6 +1633,11 @@ add_well_known_header (proto_tree *tree, tvbuff_t *tvb, int offset,
 		add_string_value_header (tree, header_buff, headerLen,
 		    value_buff, valueType, valueLen,
 		    hf_wsp_header_profile, headerType);
+		break;
+
+	case FN_X_WAP_APPLICATION_ID:		/* X-Wap-Application-Id */
+		add_wap_application_id_header (tree, header_buff, headerLen,
+		    value_buff, valueType, valueLen);
 		break;
 
 	default:
@@ -2017,6 +2086,53 @@ add_cache_control_field_name (proto_tree *tree, tvbuff_t *value_buff,
 }
 
 static void
+add_connection_header (proto_tree *tree, tvbuff_t *header_buff,
+    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
+    int valueLen)
+{
+	int offset = 0;
+
+	if (valueType == VALUE_LEN_SUPPLIED)
+	{
+		/*
+		 * Invalid.
+		 */
+		proto_tree_add_text (tree, header_buff, 0, headerLen,
+		    "Invalid Connection value");
+		return;
+	}
+	if (valueType == VALUE_IS_TEXT_STRING)
+	{
+		/*
+		 * Token-text.
+		 */
+		proto_tree_add_string (tree,
+		    hf_wsp_header_connection_str,
+		    header_buff, 0, headerLen,
+		    tvb_get_ptr (value_buff, 0, valueLen));
+		return;
+	}
+
+	/*
+	 * First byte had the 8th bit set.
+	 */
+	if (valueLen == 0) {
+		/*
+		 * Close.
+		 */
+		proto_tree_add_uint (tree, hf_wsp_header_connection,
+		    header_buff, offset, headerLen, valueLen);
+		return;
+	}
+
+	/*
+	 * Invalid.
+	 */
+	proto_tree_add_text (tree, header_buff, 0, headerLen,
+	    "Invalid Connection value");
+}
+
+static void
 add_pragma_header (proto_tree *tree, tvbuff_t *header_buff,
     int headerLen, tvbuff_t *value_buff, value_type_t valueType,
     int valueLen)
@@ -2087,7 +2203,7 @@ add_transfer_encoding_header (proto_tree *tree, tvbuff_t *header_buff,
 {
 	int offset = 0;
 
-	if (valueType == VALUE_IN_LEN)
+	if (valueType == VALUE_LEN_SUPPLIED)
 	{
 		/*
 		 * Invalid.
@@ -2279,6 +2395,39 @@ add_accept_application_header (proto_tree *tree, tvbuff_t *header_buff,
 		proto_tree_add_uint (tree, hf_wsp_header_accept_application,
 		    header_buff, 0, headerLen, value);
 	}
+}
+
+static void
+add_wap_application_id_header (proto_tree *tree, tvbuff_t *header_buff,
+    int headerLen, tvbuff_t *value_buff, value_type_t valueType,
+    int valueLen)
+{
+	if (valueType == VALUE_IN_LEN)
+	{
+		/*
+		 * Must application-id (the 8th bit was stripped off).
+		 */
+		proto_tree_add_uint (tree, hf_wsp_header_wap_application_id,
+		    header_buff, 0, headerLen,
+		    valueLen);	/* valueLen is the value */
+		return;
+	}
+	if (valueType == VALUE_IS_TEXT_STRING)
+	{
+		/*
+		 * Token-text.
+		 */
+		proto_tree_add_string (tree, hf_wsp_header_wap_application_id_str,
+		    header_buff, 0, headerLen,
+		    tvb_get_ptr (value_buff, 0, valueLen));
+		return;
+	}
+
+	/*
+	 * Not valid.
+	 */
+	fprintf(stderr, "dissect_wsp: Suprising format of X-Wap-Application-Id\n");
+	return;
 }
 
 static void
@@ -3534,6 +3683,20 @@ proto_register_wsp(void)
 				"Cache-Control field name", HFILL
 			}
 		},
+		{ &hf_wsp_header_connection,
+			{ 	"Connection",           
+				"wsp.header.connection",
+				 FT_UINT8, BASE_HEX, VALS ( vals_connection ), 0x00,
+				"Connection", HFILL
+			}
+		},
+		{ &hf_wsp_header_connection_str,
+			{ 	"Connection",           
+				"wsp.header.connection_str",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"Connection", HFILL
+			}
+		},
 		{ &hf_wsp_header_content_length,
 			{ 	"Content-Length",           
 				"wsp.header.content_length",
@@ -3636,6 +3799,20 @@ proto_register_wsp(void)
 				"wsp.header.via",
 				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Via", HFILL
+			}
+		},
+		{ &hf_wsp_header_wap_application_id,
+			{ 	"X-Wap-Application-Id",           
+				"wsp.header.wap_application_id",
+				 FT_UINT8, BASE_HEX, NULL, 0x00,
+				"WAP application id", HFILL
+			}
+		},
+		{ &hf_wsp_header_wap_application_id_str,
+			{ 	"X-Wap-Application-Id",           
+				"wsp.header.wap_application_id.string",
+				 FT_STRING, BASE_NONE, NULL, 0x00,
+				"WAP application id", HFILL
 			}
 		},
 		{ &hf_wsp_header_warning,
@@ -3748,6 +3925,13 @@ proto_register_wsp(void)
 				"wsp.post.data",
 				 FT_NONE, BASE_NONE, NULL, 0x00,
 				"Post Data", HFILL
+			}
+		},
+		{ &hf_wsp_push_data,
+			{ 	"Push Data",           
+				"wsp.push.data",
+				 FT_NONE, BASE_NONE, NULL, 0x00,
+				"Push Data", HFILL
 			}
 		},
 		{ &hf_wsp_redirect_flags,
@@ -3879,6 +4063,7 @@ proto_reg_handoff_wsp(void)
 
 	/* Only connection-less WSP has no previous handler */
 	dissector_add("udp.port", UDP_PORT_WSP, dissect_wsp_fromudp, proto_wsp);
+	dissector_add("udp.port", UDP_PORT_WSP_PUSH, dissect_wsp_fromudp, proto_wsp);
 
 	/* This dissector is also called from the WTP and WTLS dissectors */
 }

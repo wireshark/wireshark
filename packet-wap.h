@@ -2,7 +2,7 @@
  *
  * Declarations for WAP packet disassembly
  *
- * $Id: packet-wap.h,v 1.3 2001/07/20 04:39:07 guy Exp $
+ * $Id: packet-wap.h,v 1.4 2001/09/28 18:59:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,7 +38,9 @@
 #define UDP_PORT_WSP			9200		/* wap-wsp			*/
 #define UDP_PORT_WTP_WSP		9201		/* wap-wsp-wtp		*/
 #define UDP_PORT_WTLS_WSP		9202		/* wap-wsp-s		*/
-#define UDP_PORT_WTLS_WTP_WSP	9203		/* wap-wsp-wtp-s	*/
+#define UDP_PORT_WTLS_WTP_WSP		9203		/* wap-wsp-wtp-s	*/
+#define UDP_PORT_WSP_PUSH		2948		/* wap-wsp		*/
+#define UDP_PORT_WTLS_WSP_PUSH		2948		/* wap-wsp-s		*/
 
 /*
  * Note:
@@ -60,6 +62,9 @@
  *   9201            WTP  ->  WSP  ->  WMLC
  *   9202  WTLS  ->           WSP  ->  WMLC
  *   9203  WTLS  ->  WTP  ->  WSP  ->  WMLC
+ *
+ *   2948                     WSP  ->  WMLC (Push)
+ *   2949  WTLS  ->           WSP  ->  WMLC (Push)
  *
  *   At present, only the unencrypted parts of WTLS can be analysed. Therefore
  *   the WTP and WSP dissectors are not called.
