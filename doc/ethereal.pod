@@ -27,7 +27,7 @@ S<[ B<-r> infile ]>
 S<[ B<-R> display filter expression ]>
 S<[ B<-S> ]>
 S<[ B<-s> snaplen ]>
-S<[ B<-T> tree view height ]>
+S<[ B<-T> details view height ]>
 S<[ B<-t> time stamp format ]>
 S<[ B<-v> ]>
 S<[ B<-w> savefile]>
@@ -135,9 +135,10 @@ the file; the '.gz' extension is not required for this purpose.
 
 Like other protocol analyzers, B<Ethereal>'s main window shows 3 views
 of a packet.  It shows a summary line, briefly describing what the
-packet is.  A protocol tree is shown, allowing you to drill down to
-exact protocol or field that you interested in.  Finally, a hex dump
-shows you exactly what the packet looks like when it goes over the wire.
+packet is.  A packet details display is shown, allowing you to drill
+down to exact protocol or field that you interested in.  Finally, a hex
+dump shows you exactly what the packet looks like when it goes over the
+wire.
 
 In addition, B<Ethereal> has some features that make it unique.  It can
 assemble all the packets in a TCP conversation and show you the ASCII
@@ -258,10 +259,10 @@ List the data link types supported by the interface and exit.
 
 =item -m
 
-Set the name of the font used by B<Ethereal> for most text. 
-B<Ethereal> will construct the name of the bold font used for the data
-in the byte view pane that corresponds to the field selected in the
-protocol tree pane from the name of the main text font.
+Set the name of the font used by B<Ethereal> for most text.  B<Ethereal>
+will construct the name of the bold font used for the data in the byte
+view pane that corresponds to the field selected in the packet details
+pane from the name of the main text font.
 
 =item -n
 
@@ -329,7 +330,7 @@ memory, or saved to disk.
 
 =item -T
 
-Set the initial height of the tree view (middle) pane.
+Set the initial height of the packet details (middle) pane.
 
 =item -t
 
@@ -598,11 +599,12 @@ Export captured data, currently very limited.
 
 =item File:Print
 
-Print, for a selectable range of packets in the current capture, either 
-the summary line for the packet or the protocol tree view of the packet; 
-when printing the protocol tree view, the hex dump of the packet can be 
-printed as well. Printing options can be set with the I<Edit:Preferences> 
-menu item, or in the dialog box popped up by this item.
+Print, for a selectable range of packets in the current capture, either
+the summary line for the packet or the packet details view of the
+packet; when printing the packet details view, the hex dump of the
+packet can be printed as well.  Printing options can be set with the
+I<Edit:Preferences> menu item, or in the dialog box popped up by this
+item.
 
 =item File:Quit
 
@@ -617,7 +619,7 @@ digits, or a text string.
 
 When searching for a text string, you can search the packet data, or you
 can search the text in the Info column in the packet list pane or in the
-protocol tree pane.
+packet details pane.
 
 Hexadecimal digits can be separated by colons, periods, or dashes.
 Text string searches can be ASCII or Unicode (or both), and may be
@@ -639,14 +641,14 @@ matching the filter from the previous search.
 
 Set (or unset if currently set) the selected packet as a Time Reference packet.
 When a packet is set as a Time Reference packet, the timestamps in the packet
-pane will be replaced with the string "*REF*".
+list pane will be replaced with the string "*REF*".
 The relative time timestamp in later packets will then be calculated relative
 to the timestamp of this Time Reference packet and not the first packet in 
 the capture.
 
-Packets that have been selected as Time Reference packets will always be 
-displayed in the packet pane. Display filters will not affect or hide these 
-packets.
+Packets that have been selected as Time Reference packets will always be
+displayed in the packet list pane.  Display filters will not affect or
+hide these packets.
 
 If there is a column displayed for "Culmulative Bytes" this counter will 
 be reset at every Time Reference packet.
@@ -680,9 +682,27 @@ Unmark all packets that are currently displayed.
 Set the packet printing, column display, TCP stream coloring, and GUI
 options (see L<"Preferences"> below).
 
-=item View:Show
+=item Edit:Coloring Rules
 
-Show or hide the main window controls, like the main toolbar.
+Change the foreground and background colors of the packet information in
+the list of packets, based upon display filters.  The list of display
+filters is applied to each packet sequentially.  After the first display
+filter matches a packet, any additional display filters in the list are
+ignored.  Therefore, if you are filtering on the existence of protocols,
+you should list the higher-level protocols first, and the lower-level
+protocols last.
+
+=item View:Main Toolbar
+=item View:Filter Toolbar
+=item View:Status Bar
+
+Show or hide the main window controls.
+
+=item View:Packet List
+=item View:Packet Details
+=item View:Packet Bytes
+
+Show or hide the main window panes.
 
 =item View:Time Display Format
 
@@ -712,21 +732,11 @@ Reset the zoom factor of zoom in / zoom out back to normal font size.
 
 =item View:Collapse All
 
-Collapse the protocol tree branches.
+Collapse all branches of the packet details.
 
 =item View:Expand All
 
-Expands all branches of the protocol tree.
-
-=item View:Coloring Rules
-
-Change the foreground and background colors of the packet information in
-the list of packets, based upon display filters.  The list of display
-filters is applied to each packet sequentially.  After the first display
-filter matches a packet, any additional display filters in the list are
-ignored.  Therefore, if you are filtering on the existence of protocols,
-you should list the higher-level protocols first, and the lower-level
-protocols last.
+Expands all branches of the packet details.
 
 =over
 
@@ -832,9 +842,9 @@ undone.
 
 =item View:Show Packet In New Window
 
-Create a new window containing a protocol tree view and a hex dump
+Create a new window containing a packet details view and a hex dump
 window of the currently selected packet; this window will continue to
-display that packet's protocol tree and data even if another packet is
+display that packet's details and data even if another packet is
 selected.
 
 =item View:Reload
@@ -848,13 +858,13 @@ Go to a particular numbered packet.
 
 =item Go:Go To Corresponding Packet
 
-If a field in the protocol tree pane containing a packet number is
+If a field in the packet details pane containing a packet number is
 selected, go to the packet number specified by that field.  (This works
-only if the dissector that put that entry into the protocol tree put it
-into the tree as a filterable field rather than just as text.)  This can
-be used, for example, to go to the packet for the request corresponding
-to a reply, or the reply corresponding to a request, if that packet
-number has been put into the protocol tree.
+only if the dissector that put that entry into the packet details put it
+into the details as a filterable field rather than just as text.) This
+can be used, for example, to go to the packet for the request
+corresponding to a reply, or the reply corresponding to a request, if
+that packet number has been put into the packet details.
 
 =item Go:First Packet
 
@@ -892,7 +902,7 @@ changed, or deleted.
 
 Create a display filter, or add to the display filter strip at the
 bottom, a display filter based on the data currently highlighted in the
-protocol tree, and apply the filter.
+packe details, and apply the filter.
 
 If that data is a field that can be tested in a display filter
 expression, the display filter will test that field; otherwise, the
@@ -911,7 +921,7 @@ followed by the new display filter expression.
 
 Create a display filter, or add to the display filter strip at the
 bottom, a display filter based on the data currently highlighted in the
-protocol tree, but don't apply the filter.
+packet details, but don't apply the filter.
 
 =item Analyze:Enabled Protocols
 
@@ -1326,15 +1336,15 @@ The middle mouse button can be used to mark a packet.
 
 =item Middle Pane
 
-The middle pane contains a I<protocol tree> for the currently-selected
-packet.  The tree displays each field and its value in each protocol
-header in the stack.  The right mouse button can be used to pop up a
-menu of operations.
+The middle pane contains a display of the details of the
+currently-selected packet.  The display shows each field and its value
+in each protocol header in the stack.  The right mouse button can be
+used to pop up a menu of operations.
 
 =item Bottom Pane
 
-The lowest pane contains a hex dump of the actual packet data. 
-Selecting a field in the I<protocol tree> highlights the corresponding
+The lowest pane contains a hex and ASCII dump of the actual packet data. 
+Selecting a field in the packet details highlights the corresponding
 bytes in this section.
 
 The right mouse button can be used to pop up a menu of operations.
@@ -1431,13 +1441,13 @@ the left or the right.
 
 =item Selection Bars
 
-The selection bar in the packet list and protocol tree can have either a
-"browse" or "select" behavior.  If the selection bar has a "browse"
+The selection bar in the packet list and packet details can have either
+a "browse" or "select" behavior.  If the selection bar has a "browse"
 behavior, the arrow keys will move an outline of the selection bar,
-allowing you to browse the rest of the list or tree without changing the
-selection until you press the space bar.  If the selection bar has a
+allowing you to browse the rest of the list or details without changing
+the selection until you press the space bar.  If the selection bar has a
 "select" behavior, the arrow keys will move the selection bar and change
-the selection to the new item in the packet list or protocol tree.
+the selection to the new item in the packet list or packet details.
 
 =item Tree Line Style
 
