@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-xot.c,v 1.5 2001/02/12 09:06:17 guy Exp $
+ * $Id: packet-xot.c,v 1.6 2001/09/13 08:05:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,9 @@
 #define TCP_PORT_XOT 1998
 
 static gint proto_xot = -1;
+static gint hf_xot_version = -1;
+static gint hf_xot_length = -1;
+
 static gint ett_xot = -1;
 
 static dissector_handle_t x25_handle;
@@ -66,38 +69,46 @@ static void dissect_xot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	
       ti = proto_tree_add_protocol_format(tree, proto_xot, tvb, 0, 4, "X.25 over TCP");
       xot_tree = proto_item_add_subtree(ti, ett_xot);
-      
-      ti = proto_tree_add_text(xot_tree, tvb, 0,2,"XOT Version : %u %s",version,(version==0?"":" - Unknown version")) ;
-      ti = proto_tree_add_text(xot_tree, tvb, 2,2,"XOT length : %u",len) ;
+     
+      proto_tree_add_uint(xot_tree, hf_xot_version, tvb, 0, 2, version);
+      proto_tree_add_uint(xot_tree, hf_xot_length, tvb, 2, 2, len);
+
   }
   next_tvb =  tvb_new_subset(tvb,4, -1 , -1);
   call_dissector(x25_handle,next_tvb,pinfo,tree);
 }
  
 /* Register the protocol with Ethereal */
-void proto_register_xot(void)
-{                 
+void 
+proto_register_xot(void)
+{
+	static hf_register_info hf[] = {
+		{ &hf_xot_version,
+			{ "Version", "xot.version", FT_UINT16, BASE_DEC,
+			NULL, 0, "Version of X.25 over TCP protocol", HFILL }},
 
+		{ &hf_xot_length,
+			{ "Length", "xot.length", FT_UINT16, BASE_DEC,
+			NULL, 0, "Length of X.25 over TCP packet", HFILL }}
 
-  /* Setup protocol subtree array */
-  static gint *ett[] = {
-    &ett_xot,
-  };
+	};
 
-  /* Register the protocol name and description */
-  proto_xot = proto_register_protocol("X.25 over TCP", "XOT", "xot");
+	static gint *ett[] = {
+		&ett_xot,
+	};
 
-  /* Required function calls to register the header fields and subtrees used */
-  proto_register_subtree_array(ett, array_length(ett));
+	proto_xot = proto_register_protocol("X.25 over TCP", "XOT", "xot");
+	proto_register_field_array(proto_xot, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 };
 
 void
 proto_reg_handoff_xot(void)
 {
-  /*
-   * Get a handle for the X.25 dissector.
-   */
-  x25_handle = find_dissector("x.25");
+	/*
+	 * Get a handle for the X.25 dissector.
+	 */
+	x25_handle = find_dissector("x.25");
 
-  dissector_add("tcp.port", TCP_PORT_XOT, dissect_xot, proto_xot);
+	dissector_add("tcp.port", TCP_PORT_XOT, dissect_xot, proto_xot);
 }
