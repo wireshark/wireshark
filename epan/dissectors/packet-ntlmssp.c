@@ -59,6 +59,21 @@ static const value_string ntlmssp_message_types[] = {
 /*
  * NTLMSSP negotiation flags
  * Taken from Samba
+ *
+ * See also
+ *
+ *	http://davenport.sourceforge.net/ntlm.html
+ *
+ * although that document says that:
+ *
+ *	0x00010000 is "Target Type Domain";
+ *	0x00020000 is "Target Type Server"
+ *	0x00040000 is "Target Type Share";
+ *
+ * and that 0x00100000, 0x00200000, and 0x00400000 are
+ * "Request Init Response", "Request Accept Response", and
+ * "Request Non-NT Session Key", rather than those values shifted
+ * right one having those interpretations.
  */
 #define NTLMSSP_NEGOTIATE_UNICODE          0x00000001
 #define NTLMSSP_NEGOTIATE_OEM              0x00000002
@@ -91,7 +106,7 @@ static const value_string ntlmssp_message_types[] = {
 #define NTLMSSP_NEGOTIATE_10000000         0x10000000
 #define NTLMSSP_NEGOTIATE_128              0x20000000
 #define NTLMSSP_NEGOTIATE_KEY_EXCH         0x40000000
-#define NTLMSSP_NEGOTIATE_80000000         0x80000000
+#define NTLMSSP_NEGOTIATE_56               0x80000000
 
 static int proto_ntlmssp = -1;
 static int hf_ntlmssp = -1;
@@ -1407,11 +1422,11 @@ proto_register_ntlmssp(void)
     { &hf_ntlmssp_negotiate_flags_10000000,
       { "Negotiate 0x10000000", "ntlmssp.negotiatent10000000", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_10000000, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_20000000,
-      { "Negotiate 128", "ntlmssp.negotiate128", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_128, "", HFILL }},
+      { "Negotiate 128", "ntlmssp.negotiate128", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_128, "128-bit encryption is supported", HFILL }},
     { &hf_ntlmssp_negotiate_flags_40000000,
       { "Negotiate Key Exchange", "ntlmssp.negotiatekeyexch", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_KEY_EXCH, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_80000000,
-      { "Negotiate 0x80000000", "ntlmssp.negotiatent80000000", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_80000000, "", HFILL }},
+      { "Negotiate 56", "ntlmssp.negotiate56", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_56, "56-bit encryption is supported", HFILL }},
     { &hf_ntlmssp_negotiate_workstation_strlen,
       { "Calling workstation name length", "ntlmssp.negotiate.callingworkstation.strlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_ntlmssp_negotiate_workstation_maxlen,
