@@ -1,7 +1,7 @@
 /* circuit.c
  * Routines for building lists of packets that are part of a "circuit"
  *
- * $Id: circuit.c,v 1.1 2002/10/22 08:43:44 guy Exp $
+ * $Id: circuit.c,v 1.2 2002/10/29 07:22:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -251,28 +251,15 @@ try_circuit_dissector(circuit_type ctype, guint32 circuit_id, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree)
 {
 	circuit_t *circuit;
-	guint16 saved_can_desegment;
-
-	/* can_desegment is set to 2 by anyone which offers this api/service.
-	   then everytime a subdissector is called it is decremented by one.
-	   thus only the subdissector immediately ontop of whoever offers this
-	   service can use it.
-	*/
-	saved_can_desegment=pinfo->can_desegment;
-	pinfo->can_desegment = saved_can_desegment-(saved_can_desegment>0);
 
 	circuit = find_circuit(ctype, circuit_id);
 
 	if (circuit != NULL) {
-		if (circuit->dissector_handle == NULL){
-			pinfo->can_desegment=saved_can_desegment;
+		if (circuit->dissector_handle == NULL)
 			return FALSE;
-		}
 		call_dissector(circuit->dissector_handle, tvb, pinfo,
 		    tree);
-		pinfo->can_desegment=saved_can_desegment;
 		return TRUE;
 	}
-	pinfo->can_desegment=saved_can_desegment;
 	return FALSE;
 }
