@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.40 2002/01/30 08:46:27 guy Exp $
+dnl $Id: acinclude.m4,v 1.41 2002/02/02 21:07:40 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -517,5 +517,21 @@ AC_DEFUN(AC_ETHEREAL_RPM_CHECK,
 			AC_MSG_RESULT(no.  You'll have to build packages manually.)
 			HAVE_RPM=no
 		fi
+	fi
+])
+
+#
+# AC_ETHEREAL_GNU_SED_CHECK
+# Checks if GNU sed is the first sed in PATH.
+#
+AC_DEFUN([AC_ETHEREAL_GNU_SED_CHECK],
+[
+	AC_MSG_CHECKING(for GNU sed as first sed in PATH)
+	if  ( sh -c "sed --version" </dev/null 2> /dev/null | grep "GNU sed" 2>&1 > /dev/null ) ;  then
+		AC_MSG_RESULT(yes)
+		HAVE_GNU_SED=yes
+	else
+		AC_MSG_RESULT(no)
+		HAVE_GNU_SED=no
 	fi
 ])

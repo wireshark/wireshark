@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.150 2002/01/30 23:48:51 guy Exp $
+# $Id: configure.in,v 1.151 2002/02/02 21:07:40 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -155,11 +155,6 @@ AC_SUBST(DATAFILE_DIR)
 # If we're running Solaris, and LD_LIBRARY_PATH is defined, add it as a
 # link directory.
 #
-# Also, make sure that "sed" does *NOT* refer to "/usr/bin/sed" or
-# "/usr/ucb/sed", as, on Solaris, both of them are inadequate to
-# handle, in libtool, a list of object files as large as the list
-# in Ethereal.
-#
 case "$host_os" in
   solaris*)
     AC_MSG_CHECKING(for LD_LIBRARY_PATH, since you appear to be running Solaris)
@@ -169,20 +164,43 @@ case "$host_os" in
     else
       AC_MSG_RESULT(no -- this may be a problem in a few seconds)
     fi
-    AC_MSG_CHECKING(whether one of /usr/bin/sed or /usr/ucb/sed will be used)
-    case `which sed` in
-      /usr/bin/sed|/usr/ucb/sed)
-        AC_MSG_RESULT(yes)
-        AC_MSG_ERROR([change your path to search /usr/xpg4/bin before /usr/bin (and /usr/ucb)])
-      ;;
-
-    *)
-      AC_MSG_RESULT(no)
-      ;;
-    esac
   ;;
 esac
 
+#
+# Check for versions of "sed" inadequate to handle, in libtool, a list
+# of object files as large as the list in Ethereal.
+#
+# On Solaris, we check for "/bin/sed", "/usr/bin/sed", and "/usr/ucb/sed",
+# as both "/usr/bin/sed" (which is also "/bin/sed", as "/bin" is just a
+# symlink to "/usr/bin", but people may have "/bin" before "/usr/bin" in
+# their search path) and "/usr/ucb/sed" are inadequate; "/usr/xpg4/bin/sed"
+# is the only "sed" that comes with Solaris that can handle Ethereal.
+#
+# Add any checks here that are necessary for other OSes.
+#
+AC_ETHEREAL_GNU_SED_CHECK
+if test "$HAVE_GNU_SED" = no ; then
+	case "$host_os" in
+	solaris*)
+		AC_MSG_CHECKING(whether one of /usr/bin/sed or /bin/sed or /usr/ucb/sed will be used)
+		case `which sed` in
+			/bin/sed|/usr/bin/sed|/usr/ucb/sed)
+			AC_MSG_RESULT(yes)		
+			AC_MSG_ERROR([change your path to search /usr/xpg4/bin or directory containing GNU sed before /usr/bin (and /bin and /usr/ucb)])
+			;;
+
+			*)
+			AC_MSG_RESULT(no)
+			;;
+		esac
+		;;
+
+	*)
+		:
+		;;
+	esac
+fi
 
 # Enable/disable tethereal
 
