@@ -1,6 +1,6 @@
 /* buffer.c
  *
- * $Id: buffer.c,v 1.3 1998/11/12 23:29:33 gram Exp $
+ * $Id: buffer.c,v 1.4 1999/01/29 17:06:56 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -29,14 +29,9 @@
 #include "buffer.h"
 #include "glib.h"
 
-/*#define DEBUG*/
-#define DEBUG_PROGRAM_NAME "buffer.c"
-#include "debug.h"
-
 /* Initializes a buffer with a certain amount of allocated space */
 void buffer_init(Buffer* buffer, unsigned int space)
 {
-	debug("buffer_init\n");
 	buffer->data = (char*)g_malloc(space);
 	buffer->allocated = space;
 	buffer->start = 0;
@@ -46,7 +41,6 @@ void buffer_init(Buffer* buffer, unsigned int space)
 /* Frees the memory used by a buffer, and the buffer struct */
 void buffer_free(Buffer* buffer)
 {
-	debug("buffer_free\n");
 	free(buffer->data);
 }
 
@@ -60,7 +54,6 @@ void buffer_assure_space(Buffer* buffer, unsigned int space)
 	unsigned int space_used;
 	int space_at_beginning;
 
-	debug("buffer_assure_space %d bytes\n", space);
 	/* If we've got the space already, good! */
 	if (space <= available_at_end) {
 		return;
@@ -94,7 +87,6 @@ void buffer_assure_space(Buffer* buffer, unsigned int space)
 
 void buffer_append(Buffer* buffer, char *from, unsigned int bytes)
 {
-	debug("buffer_append %d bytes\n", bytes);
 	buffer_assure_space(buffer, bytes);
 	memcpy(buffer->data + buffer->first_free, from, bytes);
 	buffer->first_free += bytes;
@@ -102,10 +94,10 @@ void buffer_append(Buffer* buffer, char *from, unsigned int bytes)
 
 void buffer_remove_start(Buffer* buffer, unsigned int bytes)
 {
-	debug("buffer_remove_start %d bytes\n", bytes);
 	if (buffer->start + bytes > buffer->first_free) {
-		die("buffer_remove_start trying to remove %d bytes. s=%d ff=%d!\n",
+		g_error("buffer_remove_start trying to remove %d bytes. s=%d ff=%d!\n",
 			bytes, buffer->start, buffer->first_free);
+		exit(1);
 	}
 	buffer->start += bytes;
 
@@ -119,7 +111,6 @@ void buffer_remove_start(Buffer* buffer, unsigned int bytes)
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
 void buffer_increase_length(Buffer* buffer, unsigned int bytes)
 {
-	debug("buffer_increase_length %d bytes\n", bytes);
 	buffer->first_free += bytes;
 }
 #endif
@@ -127,7 +118,6 @@ void buffer_increase_length(Buffer* buffer, unsigned int bytes)
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
 unsigned int buffer_length(Buffer* buffer)
 {
-	debug("buffer_length\n");
 	return buffer->first_free - buffer->start;
 }
 #endif
@@ -135,7 +125,6 @@ unsigned int buffer_length(Buffer* buffer)
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
 char* buffer_start_ptr(Buffer* buffer)
 {
-	debug("buffer_start_ptr\n");
 	return buffer->data + buffer->start;
 }
 #endif
@@ -143,7 +132,6 @@ char* buffer_start_ptr(Buffer* buffer)
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
 char* buffer_end_ptr(Buffer* buffer)
 {
-	debug("buffer_end_ptr\n");
 	return buffer->data + buffer->first_free;
 }
 #endif

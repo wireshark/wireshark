@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.7 1999/01/07 16:15:35 gram Exp $
+ * $Id: lanalyzer.c,v 1.8 1999/01/29 17:06:56 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -126,7 +126,7 @@ int lanalyzer_open(wtap *wth)
 				wth->capture.lanalyzer->pkt_len = length - 32;
 				return WTAP_FILE_LANALYZER;
 
-			default:
+		/*	default: no default action */
 		/*		printf("Record 0x%04X Length %d\n", type, length);*/
 		}
 	} 
