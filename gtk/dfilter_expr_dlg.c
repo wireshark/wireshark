@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.21 2001/03/26 10:28:34 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.22 2001/04/20 21:57:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -612,6 +612,7 @@ value_list_sel_cb(GtkList *value_list, GtkWidget *child,
 		switch (hfinfo->display) {
 
 		case BASE_DEC:
+		case BASE_BIN:	/* binary - treated as decimal, for now */
 			switch (hfinfo->type) {
 
 			case FT_UINT8:
