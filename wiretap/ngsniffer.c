@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.69 2001/11/13 23:55:43 gram Exp $
+ * $Id: ngsniffer.c,v 1.70 2002/01/11 02:51:31 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1119,7 +1119,7 @@ static const int wtap_encap[] = {
     0,		/* WTAP_ENCAP_TOKEN_RING */
     -1,		/* WTAP_ENCAP_SLIP -> unsupported */
     7,		/* WTAP_ENCAP_PPP -> Internetwork analyzer (synchronous) FIXME ! */
-    -1,		/* WTAP_ENCAP_FDDI -> unsupported */
+    9,		/* WTAP_ENCAP_FDDI */
     9,		/* WTAP_ENCAP_FDDI_BITSWAPPED */
     -1,		/* WTAP_ENCAP_RAW_IP -> unsupported */
     2,		/* WTAP_ENCAP_ARCNET */
