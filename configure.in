@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.121 2001/04/25 07:44:04 guy Exp $
+# $Id: configure.in,v 1.122 2001/04/25 07:51:36 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -408,7 +408,17 @@ else
 	    )
 	  ], $SOCKET_LIBS $NSL_LIBS $SSL_LIBS
 	)
-	
+
+	#
+	# If we have SNMP header files but didn't find "sprint_objid()",
+	# fail, as there's something wrong (perhaps the user needs to
+	# specify "--with-ssl").
+	#
+	if test '(' "$ac_cv_header_ucd_snmp_snmp_h" = yes -o \
+	   "$ac_cv_header_snmp_snmp_h" = yes ')' -a \
+	   "$ac_cv_lib_snmp_sprint_objid" = no; then
+	    AC_MSG_ERROR([SNMP header files found, but sprint_objid not found in SNMP library.])
+	fi
 fi
 AC_SUBST(SNMP_LIBS)
 
