@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.68 2002/07/11 04:46:32 tpot Exp $
+ * $Id: packet-dcerpc.c,v 1.69 2002/07/25 21:30:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1820,6 +1820,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     int auth_level;
     int offset = 16;
     guint32 alloc_hint;
+    int length;
 
     offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_alloc_hint, &alloc_hint);
@@ -1933,6 +1934,13 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 	    dissect_dcerpc_cn_stub (tvb, offset, pinfo, dcerpc_tree, tree,
 				    hdr, &di, auth_sz, auth_level, alloc_hint,
 				    value->req_frame);
+	} else {
+            length = tvb_length_remaining (tvb, offset);
+            if (length > 0) {
+                proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+                                     "Stub data (%d byte%s)", length,
+                                     plurality(length, "", "s"));
+            }
 	}
     }
 }
@@ -1948,6 +1956,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     int offset = 16;
     int auth_level;
     guint32 alloc_hint;
+    int length;
 
     offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_alloc_hint, &alloc_hint);
@@ -2020,7 +2029,14 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 	    dissect_dcerpc_cn_stub (tvb, offset, pinfo, dcerpc_tree, tree,
 				    hdr, &di, auth_sz, auth_level, alloc_hint,
 				    value->rep_frame);
-        }
+        } else {
+            length = tvb_length_remaining (tvb, offset);
+            if (length > 0) {
+                proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+                                     "Stub data (%d byte%s)", length,
+                                     plurality(length, "", "s"));
+            }
+	}
     }
 }
 
