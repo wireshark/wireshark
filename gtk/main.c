@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.246 2002/05/03 03:24:47 guy Exp $
+ * $Id: main.c,v 1.247 2002/05/03 03:30:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -270,6 +270,7 @@ match_selected_cb_do(gpointer data, int action, gchar *text)
 
     default:
 	g_assert_not_reached();
+	new_filter = NULL;
 	break;
     }
 
@@ -2314,6 +2315,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   filter_list = g_list_append (filter_list, "");
   gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), filter_list);
   gtk_combo_disable_activate(GTK_COMBO(filter_cm));
+  gtk_combo_set_case_sensitive(GTK_COMBO(filter_cm), TRUE);
   gtk_object_set_data(GTK_OBJECT(filter_cm), E_DFILTER_FL_KEY, filter_list);
   filter_te = GTK_COMBO(filter_cm)->entry;
   gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
