@@ -1,0 +1,60 @@
+<!-- EDG Chapter Works -->
+<!-- $Id: EDG_chapter_works.xml 11908 2004-09-05 21:22:14Z ulfl $ -->
+
+<chapter id="ChapterWorks">
+  <title>How Ethereal Works</title>
+  
+  <section id="ChWorksIntro">
+	<title>Introduction</title>
+	<para>
+	This chapter will give you a short overview, how Ethereal is working.
+	</para>
+
+	<section id="ChWorksCapturePackets">
+	<title>Capturing packets</title>
+	<para>
+	Capturing will take packets from a network adapter, and save them to a file 
+	on your harddisk. 
+	</para>
+	<para>
+	To hide all the lowlevel machine dependant details from 
+	Ethereal, the libpcap/WinPcap (see <xref linkend="ChLibsPcap"/>) library 
+	is used. This library provides a general purpose interface to capture 
+	packets from a lot of different network interface types (Ethernet, 
+	Token Ring, ...). 
+	</para>
+	</section>
+
+	<section id="ChWorksCaptureFiles">
+	<title>Capture Files</title>
+	<para>
+	Ethereal can read and write capture files in it's natural file format, the 
+	libpcap format, which is used by many other network capturing tools, 
+	e.g. tcpdump. In addition to this, as one of it's strengths,
+	Ethereal can read/write files in many different file formats of other 
+	network capturing tools. The wiretap library, developed together with 
+	Ethereal, provides a general purpose interface to read/write all the file 
+	formats. If you need to add another capture file format, this is the place 
+	to start.	
+	</para>
+	</section>
+
+	<section id="ChWorksDissectPackets">
+	<title>Dissect packets</title>
+	<para>
+	While Ethereal is loading packets from a file, each packet is dissected. 
+	Ethereal tries to detect what kind of packet it is and getting as much 
+	information from it as possible. In this run, only the information showed 
+	in the packet list pane is needed though. 
+	</para>
+	<para>
+	As the user selects a specific packet in the packet list pane, this packet
+	will be dissected again. This time, Ethereal tries to 
+	get every single piece of information and put it into 
+	the packet details pane then.
+	</para>
+	</section>
+
+  </section>
+</chapter>
+<!-- End of EUG Chapter Works -->

@@ -69,6 +69,7 @@ FILE SECTION
   <!ENTITY Sources SYSTEM "dg-src/EDG_chapter_sources.xml">
   
   <!ENTITY BuildIntroduction SYSTEM "dg-src/EDG_chapter_build_intro.xml">
+  <!ENTITY HowEtherealWorks SYSTEM "dg-src/EDG_chapter_works.xml">
   <!ENTITY Dissection SYSTEM "dg-src/EDG_chapter_dissection.xml">
   <!ENTITY UserInterface SYSTEM "dg-src/EDG_chapter_userinterface.xml">
 
@@ -128,6 +129,7 @@ to generate Ethereal, and how to do some typical development tasks.
 to change the sources (e.g. adding a new dissector).</command>
 </para>
 </partintro>
+&HowEtherealWorks;
 &BuildIntroduction;
 &Dissection;
 &UserInterface;
