@@ -1,7 +1,7 @@
 /* gtkpacket.h
  * Definitions for GTK+ packet display structures and routines
  *
- * $Id: proto_draw.h,v 1.9 2000/09/08 10:59:21 guy Exp $
+ * $Id: proto_draw.h,v 1.10 2000/09/09 10:26:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,11 +27,12 @@
 #ifndef __GTKPACKET_H__
 #define __GTKPACKET_H__
 
-void redraw_hex_dump(GtkWidget *bv, field_info *finfo);
+void redraw_hex_dump(GtkWidget *bv, guint8 *pd, frame_data *fd,
+    field_info *finfo);
 void redraw_hex_dump_all(void);
 void create_byte_view(gint bv_size, GtkWidget *pane, GtkWidget **byte_view_p,
 		GtkWidget **bv_scrollw_p, int pos);
-void packet_hex_print(GtkText *, guint8 *, gint, gint, gint, char_enc);
+void packet_hex_print(GtkText *, guint8 *, frame_data *, field_info *);
 
 #define E_TREEINFO_FIELD_INFO_KEY "tree_info_finfo"
 

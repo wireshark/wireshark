@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.215 2000/09/08 10:58:51 guy Exp $
+ * $Id: file.c,v 1.216 2000/09/09 10:26:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1556,8 +1556,7 @@ select_packet(capture_file *cf, int row)
   /* Display the GUI protocol tree and hex dump. */
   clear_tree_and_hex_views();
   proto_tree_draw(cf->protocol_tree, tree_view);
-  packet_hex_print(GTK_TEXT(byte_view), cf->pd, cf->current_frame->cap_len,
-			-1, -1, cf->current_frame->flags.encoding);
+  packet_hex_print(GTK_TEXT(byte_view), cf->pd, cf->current_frame, NULL);
 
   /* A packet is selected. */
   set_menus_for_selected_packet(TRUE);

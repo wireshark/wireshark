@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.20 2000/09/08 10:59:19 guy Exp $
+ * $Id: proto_draw.c,v 1.21 2000/09/09 10:26:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,22 +60,16 @@ proto_tree_draw_node(GNode *node, gpointer data);
 
 /* Redraw a given byte view window. */
 void
-redraw_hex_dump(GtkWidget *bv, field_info *finfo)
+redraw_hex_dump(GtkWidget *bv, guint8 *pd, frame_data *fd, field_info *finfo)
 {
-  if (finfo != NULL) {
-    packet_hex_print(GTK_TEXT(bv), cfile.pd, cfile.current_frame->cap_len, 
-		     finfo->start, finfo->length,
-		     cfile.current_frame->flags.encoding);
-  } else {
-    packet_hex_print(GTK_TEXT(bv), cfile.pd, cfile.current_frame->cap_len, 
-		     -1, -1, cfile.current_frame->flags.encoding);
-  }
+  packet_hex_print(GTK_TEXT(bv), pd, fd, finfo);
 }
 
 void
 redraw_hex_dump_all(void)
 {
-  redraw_hex_dump(byte_view, finfo_selected);
+  if (cfile.current_frame != NULL)
+    redraw_hex_dump(byte_view, cfile.pd, cfile.current_frame, finfo_selected);
   redraw_hex_dump_packet_wins();
 }
 
@@ -107,15 +101,23 @@ create_byte_view(gint bv_size, GtkWidget *pane, GtkWidget **byte_view_p,
 }
 
 void
-packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
-		char_enc encoding) {
+packet_hex_print(GtkText *bv, guint8 *pd, frame_data *fd, field_info *finfo)
+{
   gint     i = 0, j, k, cur;
   guchar   line[128], hexchars[] = "0123456789abcdef", c = '\0';
   GdkFont *cur_font, *new_font;
+  gint     bstart, blen;
   gint	   bend = -1;
-
   GdkColor *fg, *bg;
   gboolean reverse, newreverse;
+
+  if (finfo != NULL) {
+    bstart = finfo->start;
+    blen = finfo->length;
+  } else {
+    bstart = -1;
+    blen = -1;
+  }
 
   /* Freeze the text for faster display */
   gtk_text_freeze(bv);
@@ -133,7 +135,7 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
 	  bend = bstart + blen;
   }
 
-  while (i < len) {
+  while (i < fd->cap_len) {
     /* Print the line number */
     sprintf(line, "%04x  ", i);
     
@@ -149,7 +151,7 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
       cur = 0;
       /* Print the hex bit */
       while (i < k) {
-	if (i < len) {
+	if (i < fd->cap_len) {
 	  line[cur++] = hexchars[(pd[i] & 0xf0) >> 4];
 	  line[cur++] = hexchars[pd[i] & 0x0f];
 	} else {
@@ -196,11 +198,11 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
       fg = reverse ? &WHITE : &BLACK;
       bg = reverse ? &BLACK : &WHITE;
       while (i < k) {
-	if (i < len) {
-	  if (encoding == CHAR_ASCII) {
+	if (i < fd->cap_len) {
+	  if (fd->flags.encoding == CHAR_ASCII) {
 	    c = pd[i];
 	  }
-	  else if (encoding == CHAR_EBCDIC) {
+	  else if (fd->flags.encoding == CHAR_EBCDIC) {
 	    c = EBCDIC_to_ASCII1(pd[i]);
 	  }
 	  else {
@@ -250,7 +252,7 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
       cur = 0;
       /* Print the hex bit */
       while (i < k) {
-	if (i < len) {
+	if (i < fd->cap_len) {
 	  line[cur++] = hexchars[(pd[i] & 0xf0) >> 4];
 	  line[cur++] = hexchars[pd[i] & 0x0f];
 	} else {
@@ -276,11 +278,11 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
       /* Print the ASCII bit */
       cur_font = (i >= bstart && i < bend) ? m_b_font : m_r_font;
       while (i < k) {
-	if (i < len) {
-	  if (encoding == CHAR_ASCII) {
+	if (i < fd->cap_len) {
+	  if (fd->flags.encoding == CHAR_ASCII) {
 	    c = pd[i];
 	  }
-	  else if (encoding == CHAR_EBCDIC) {
+	  else if (fd->flags.encoding == CHAR_EBCDIC) {
 	    c = EBCDIC_to_ASCII1(pd[i]);
 	  }
 	  else {

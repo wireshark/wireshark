@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.14 2000/09/08 10:59:18 guy Exp $
+ * $Id: packet_win.c,v 1.15 2000/09/09 10:26:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -70,8 +70,7 @@
 
 /* Data structure holding information about a packet-detail window. */
 struct PacketWinData {
-	gint        cap_len;
-	gint        encoding;
+	frame_data *frame;	   /* The frame being displayed */
 	union wtap_pseudo_header pseudo_header; /* Pseudo-header for packet */
 	guint8     *pd;		   /* Data for packet */
 	proto_tree *protocol_tree; /* Protocol tree for packet */
@@ -166,14 +165,13 @@ create_new_window ( char *Title, gint tv_size, gint bv_size){
   /* Allocate data structure to represent this window. */
   DataPtr = (struct PacketWinData *) g_malloc(sizeof(struct PacketWinData));
 
-  DataPtr->cap_len = cfile.current_frame->cap_len;
-  DataPtr->encoding = cfile.current_frame->flags.encoding;
+  DataPtr->frame = cfile.current_frame;
   memcpy(&DataPtr->pseudo_header, &cfile.pseudo_header, sizeof DataPtr->pseudo_header);
-  DataPtr->pd = g_malloc(DataPtr->cap_len);
-  memcpy(DataPtr->pd, cfile.pd, DataPtr->cap_len);
+  DataPtr->pd = g_malloc(DataPtr->frame->cap_len);
+  memcpy(DataPtr->pd, cfile.pd, DataPtr->frame->cap_len);
   DataPtr->protocol_tree = proto_tree_create_root();
   proto_tree_is_visible = TRUE;
-  dissect_packet(&DataPtr->pseudo_header, DataPtr->pd, cfile.current_frame,
+  dissect_packet(&DataPtr->pseudo_header, DataPtr->pd, DataPtr->frame,
 		DataPtr->protocol_tree);
   proto_tree_is_visible = FALSE;
   DataPtr->main = main_w;
@@ -195,8 +193,7 @@ create_new_window ( char *Title, gint tv_size, gint bv_size){
 
   /* draw the protocol tree & print hex data */
   proto_tree_draw(DataPtr->protocol_tree, tree_view);
-  packet_hex_print( GTK_TEXT(byte_view), DataPtr->pd,
-		DataPtr->cap_len, -1, -1, DataPtr->encoding);
+  packet_hex_print(GTK_TEXT(byte_view), DataPtr->pd, DataPtr->frame, NULL);
 		
   DataPtr->finfo_selected = NULL;
   gtk_widget_show(main_w);
@@ -230,8 +227,7 @@ new_tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column,
 	DataPtr->finfo_selected = finfo;
 
 	packet_hex_print(GTK_TEXT(DataPtr->byte_view), DataPtr->pd,
-		DataPtr->cap_len, finfo->start, finfo->length,
-		DataPtr->encoding);
+		DataPtr->frame, finfo);
 
 }
 
@@ -247,7 +243,7 @@ new_tree_view_unselect_row_cb(GtkCTree *ctree, GList *node, gint column,
 
 	DataPtr->finfo_selected = NULL;
 	packet_hex_print(GTK_TEXT(DataPtr->byte_view), DataPtr->pd,
-		DataPtr->cap_len, -1, -1, DataPtr->encoding);
+		DataPtr->frame, NULL);
 }
 
 /* Functions called from elsewhere to act on all popup packet windows. */
@@ -274,7 +270,8 @@ redraw_hex_dump_cb(gpointer data, gpointer user_data)
 {
 	struct PacketWinData *DataPtr = (struct PacketWinData *)data;
 
-	redraw_hex_dump(DataPtr->byte_view, DataPtr->finfo_selected);
+	redraw_hex_dump(DataPtr->byte_view, DataPtr->pd,
+	    DataPtr->frame, DataPtr->finfo_selected);
 }
 
 /* Redraw the hex dump part of all the popup packet windows. */
