@@ -9,7 +9,7 @@
  * http://cvs.sourceforge.net/viewcvs.py/soleseek/SoleSeek/doc/protocol.html?rev=HEAD
  * Updated for SoulSeek client version 151
  *
- * $Id: packet-slsk.c,v 1.3 2004/03/17 09:01:16 guy Exp $
+ * $Id: packet-slsk.c,v 1.4 2004/05/05 17:28:12 obiot Exp $
  *
  *
  * Ethereal - Network traffic analyzer
@@ -41,11 +41,8 @@
 
 #include <glib.h>
 
-#ifdef HAVE_LIBZ
-#include <zlib.h>
-#endif
-
 #include <epan/packet.h>
+#include <epan/tvbuff.h>
 #include "packet-tcp.h"
 #include "prefs.h"
 
@@ -295,50 +292,6 @@ static guint get_slsk_pdu_len(tvbuff_t *tvb, int offset)
 	return msg_len;
 }
 
-#ifdef HAVE_LIBZ
-static tvbuff_t* uncompress_packet(tvbuff_t *tvb, int offset, int comprlen){
-	
-	/*
-	* Uncompresses a zlib compressed packet inside a message of tvb at offset with length comprlen
-	* Returns an uncompressed tvbuffer if uncompression succeeded
-	*             or NULL if uncompression failed
-	*/
-	
-	int err;
-	long uncomprlen = (comprlen*10);
-	guint8 * compr;
-	guint8 * uncompr;
-	tvbuff_t *uncompr_tvb;
-
-	compr = tvb_memdup(tvb, offset, comprlen);
-	if (!compr)
-		return NULL;
-
-	uncompr = g_malloc(uncomprlen);
-	if (!uncompr){
-		g_free(compr);
-		return NULL;
-	}
-
-	err = uncompress((Bytef *)uncompr, &uncomprlen, (Bytef *)compr, comprlen);
-	g_free(compr);
-	if (err != 0) {
-		g_free(uncompr);
-		return NULL;
-	}
-	
-	uncompr_tvb =  tvb_new_real_data((guint8*) uncompr, uncomprlen, uncomprlen);
-	g_free(uncompr);
-	return uncompr_tvb;
-}
-#else
-static tvbuff_t* uncompress_packet(tvbuff_t *tvb _U_, int offset _U_, int comprlen _U_){
-	return NULL;
-}
-#endif
-
-
-
 /* Code to actually dissect the packets */
 
 static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -514,7 +467,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					
 					if (slsk_decompress == TRUE){
 							
-						tvbuff_t *uncompr_tvb = uncompress_packet(tvb, offset, comprlen);
+						tvbuff_t *uncompr_tvb = tvb_uncompress(tvb, offset, comprlen);
 			
 						if (uncompr_tvb == NULL) {
 							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, tvb_length_remaining(tvb, offset), 0,
@@ -646,7 +599,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					
 					if (slsk_decompress == TRUE){
 							
-						tvbuff_t *uncompr_tvb = uncompress_packet(tvb, offset, comprlen);
+						tvbuff_t *uncompr_tvb = tvb_uncompress(tvb, offset, comprlen);
 			
 						if (uncompr_tvb == NULL) {
 							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, tvb_length_remaining(tvb, offset), 0,
@@ -1161,7 +1114,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					
 					if (slsk_decompress == TRUE){
 							
-						tvbuff_t *uncompr_tvb = uncompress_packet(tvb, offset, comprlen);
+						tvbuff_t *uncompr_tvb = tvb_uncompress(tvb, offset, comprlen);
 			
 						if (uncompr_tvb == NULL) {
 							proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, tvb_length_remaining(tvb, offset), 0,
