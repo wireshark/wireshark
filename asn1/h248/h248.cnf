@@ -17,8 +17,48 @@ SignalName
 EventName
 
 #.TYPE_RENAME
+IndAudMediaDescriptor/streams			indAudMediaDescriptorStreams
 
 #.FIELD_RENAME
+IP4Address/address		iP4Address
+IP6Address/address		iP6Address
+ContextAttrAuditRequest/emergency	cAAREmergency
+ContextAttrAuditRequest/priority	cAARPriority
+SecondRequestedEvent/eventAction	secondaryEventAction
+TerminationStateDescriptor/eventBufferControl	tSEventBufferControl
+SecondEventsDescriptor/eventList	secondaryEventList
+IndAudEventBufferDescriptor/eventName	iAEBDEventName
+TerminationID/id			terminationId
+IndAudStreamParms/localControlDescriptor iASPLocalControlDescriptor
+IndAudStreamParms/localDescriptor	iASPLocalDescriptor
+MediaDescriptor/streams/oneStream	mediaDescriptorOneStream
+MediaDescriptor/streams/multiStream	mediaDescriptorMultiStream
+MediaDescriptor/streams/multiStream/_item	mediaDescriptorMultiStream_item
+DomainName/name				domName
+IndAudEventsDescriptor/pkgdName		iAEDPkgdName
+IndAudLocalRemoteDescriptor/propGrps	iAPropertyGroup
+IndAudLocalControlDescriptor/propertyParms	indAudPropertyParms
+IndAudTerminationStateDescriptor/propertyParms	indAudPropertyParms
+IndAudLocalControlDescriptor/reserveGroup	iALCDReserveGroup
+IndAudLocalControlDescriptor/reserveValue	iALCDReserveValue
+IndAudLocalControlDescriptor/streamMode		iALCDStreamMode
+IndAudStreamDescriptor/streamParms		indAudStreamParms
+IndAudMediaDescriptor/termStateDescr		indAudTerminationStateDescriptor
+IndAudSignal/signalName				iASignalName
+IndAudSeqSigList/signalList			iASignalList
+IndAudSignalsDescriptor/signal			indAudSignal
+IndAudSignalsDescriptor/seqSigList		indAudSeqSigList
+IndAudTerminationStateDescriptor/serviceState   iATSDServiceState
+IndAudStreamParms/remoteDescriptor		iASPRemoteDescriptor
+PropertyParm/value				propertyParamValue
+IndAudMediaDescriptor/streams			indAudMediaDescriptorStreams
+AmmRequest/terminationID			terminationIDList
+AmmsReply/terminationID			terminationIDList
+SubtractRequest/terminationID			terminationIDList
+NotifyRequest/terminationID			terminationIDList
+NotifyReply/terminationID			terminationIDList
+ServiceChangeRequest/terminationID			terminationIDList
+ServiceChangeReply/terminationID			terminationIDList
 
 #.END
 
