@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.198 2003/08/29 01:57:37 gerald Exp $
+ * $Id: packet-ip.c,v 1.199 2003/08/29 22:15:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -970,8 +970,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   SET_ADDRESS(&pinfo->src, AT_IPv4, 4, tvb_get_ptr(tvb, offset + IPH_SRC, 4));
   SET_ADDRESS(&iph->ip_src, AT_IPv4, 4, tvb_get_ptr(tvb, offset + IPH_SRC, 4));
   if (tree) {
+    memcpy(&addr, iph->ip_src.data, 4);
     if (ip_summary_in_tree) {
-      memcpy(&addr, iph->ip_src.data, 4);
       proto_item_append_text(ti, ", Src Addr: %s (%s)",
 		get_hostname(addr), ip_to_str((guint8 *) iph->ip_src.data));
     }
@@ -984,8 +984,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   SET_ADDRESS(&iph->ip_dst, AT_IPv4, 4, tvb_get_ptr(tvb, offset + IPH_DST, 4));
 
   if (tree) {
+    memcpy(&addr, iph->ip_dst.data, 4);
     if (ip_summary_in_tree) {
-      memcpy(&addr, iph->ip_src.data, 4);
       proto_item_append_text(ti, ", Dst Addr: %s (%s)",
 		get_hostname(addr), ip_to_str((guint8 *) iph->ip_dst.data));
     }
