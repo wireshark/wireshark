@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter.c,v 1.8 2002/04/08 20:11:31 gram Exp $
+ * $Id: dfilter.c,v 1.9 2002/04/29 07:55:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,14 +38,7 @@
 #include "dfvm.h"
 #include <epan/epan_dissect.h>
 
-
-/* Balanced tree of abbreviations and IDs */
-static GTree *dfilter_tokens = NULL;
-
 #define DFILTER_TOKEN_ID_OFFSET	1
-
-/* Comparision function for tree insertion. A wrapper around strcmp() */
-static int g_strcmp(gconstpointer a, gconstpointer b);
 
 /* Global error message space for dfilter_compile errors */
 static gchar dfilter_error_msg_buf[1024];
@@ -85,68 +78,6 @@ dfilter_fail(char *format, ...)
 void
 dfilter_init(void)
 {
-	int 			id, num_symbols;
-	char 			*abbrev;
-	header_field_info	*hfinfo, *same_name_hfinfo, *same_name_next_hfinfo;
-
-	num_symbols = proto_registrar_n();
-
-	if (dfilter_tokens) {
-		/* XXX - needed? */
-		g_message("I expected hf_ids to be NULL\n");
-		g_tree_destroy(dfilter_tokens);
-
-		/* Make sure the hfinfo->same_name links are broken */
-		for (id = 0; id < num_symbols; id++) {
-			hfinfo = proto_registrar_get_nth(id);
-			hfinfo->same_name_next = NULL;
-			hfinfo->same_name_prev = NULL;
-		}
-	}
-	dfilter_tokens = g_tree_new(g_strcmp);
-
-	/* Populate the abbrev/ID GTree (header-field symbol table) */
-
-	
-	for (id = 0; id < num_symbols; id++) {
-		if (id == hf_text_only) {
-			continue;
-		}
-		abbrev = proto_registrar_get_abbrev(id);
-		hfinfo = proto_registrar_get_nth(id);
-
-		g_assert(abbrev);		/* Not Null */
-		g_assert(abbrev[0] != 0);	/* Not empty string */
-
-		/* We allow multiple hfinfo's to be registered under the same
-		 * abbreviation. This was done for X.25, as, depending
-		 * on whether it's modulo-8 or modulo-128 operation,
-		 * some bitfield fields may be in different bits of
-		 * a byte, and we want to be able to refer to that field
-		 * with one name regardless of whether the packets
-		 * are modulo-8 or modulo-128 packets. */
-		same_name_hfinfo = g_tree_lookup(dfilter_tokens, abbrev);
-		if (same_name_hfinfo) {
-			/* There's already a field with this name.
-			 * Put it after that field in the list of
-			 * fields with this name, then allow the code
-			 * after this if{} block to replace the old
-			 * hfinfo with the new hfinfo in the GTree. Thus,
-			 * we end up with a linked-list of same-named hfinfo's,
-			 * with the root of the list being the hfinfo in the GTree */
-			same_name_next_hfinfo =
-			    same_name_hfinfo->same_name_next;
-
-			hfinfo->same_name_next = same_name_next_hfinfo;
-			if (same_name_next_hfinfo)
-				same_name_next_hfinfo->same_name_prev = hfinfo;
-
-			same_name_hfinfo->same_name_next = hfinfo;
-			hfinfo->same_name_prev = same_name_hfinfo;
-		}
-		g_tree_insert(dfilter_tokens, abbrev, hfinfo);
-	}
-
 	if (ParserObj) {
 		g_message("I expected ParserObj to be NULL\n");
 		/* Free the Lemon Parser object */
@@ -163,12 +94,6 @@ dfilter_init(void)
 void
 dfilter_cleanup(void)
 {
-	/* Free the abbrev/ID GTree */
-	if (dfilter_tokens) {
-		g_tree_destroy(dfilter_tokens);
-		dfilter_tokens = NULL;
-	}
-
 	/* Free the Lemon Parser object */
 	if (ParserObj) {
 		DfilterFree(ParserObj, g_free);
@@ -176,24 +101,6 @@ dfilter_cleanup(void)
 
 	/* Clean up the syntax-tree sub-sub-system */
 	sttype_cleanup();
-}
-
-
-
-/* Lookup an abbreviation in our token tree, returing the ID #
- * If the abbreviation doesn't exit, returns -1 */
-header_field_info*
-dfilter_lookup_token(char *abbrev)
-{
-	g_assert(abbrev != NULL);
-	return g_tree_lookup(dfilter_tokens, abbrev);
-}
-
-/* String comparison func for dfilter_token GTree */
-static int
-g_strcmp(gconstpointer a, gconstpointer b)
-{
-	return strcmp((const char*)a, (const char*)b);
 }
 
 static dfilter_t*

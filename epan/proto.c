@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.66 2002/04/28 23:39:58 guy Exp $
+ * $Id: proto.c,v 1.67 2002/04/29 07:55:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -120,6 +120,9 @@ proto_tree_set_int(field_info *fi, gint32 value);
 
 static int proto_register_field_init(header_field_info *hfinfo, int parent);
 
+/* Comparision function for tree insertion. A wrapper around strcmp() */
+static int g_strcmp(gconstpointer a, gconstpointer b);
+
 /* special-case header field used within proto.c */
 int hf_text_only = 1;
 
@@ -161,6 +164,9 @@ static GMemChunk *gmc_item_labels = NULL;
 /* List which stores protocols and fields that have been registered */
 static GPtrArray *gpa_hfinfo = NULL;
 
+/* Balanced tree of abbreviations and IDs */
+static GTree *gpa_name_tree = NULL;
+
 /* Points to the first element of an array of Booleans, indexed by
    a subtree item type; that array element is TRUE if subtrees of
    an item of that type are to be expanded. */
@@ -174,6 +180,9 @@ void
 proto_init(const char *plugin_dir,void (register_all_protocols)(void),
 	   void (register_all_protocol_handoffs)(void))
 {
+	int			id, num_symbols;
+	char			*abbrev;
+	header_field_info	*hfinfo, *same_name_hfinfo, *same_name_next_hfinfo;
 	static hf_register_info hf[] = {
 		{ &hf_text_only,
 		{ "",	"", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -246,15 +255,85 @@ proto_init(const char *plugin_dir,void (register_all_protocols)(void),
 	   are merely strings on the GUI tree; they are not filterable */
 	proto_register_field_array(-1, hf, array_length(hf));
 
+	num_symbols = proto_registrar_n();
+
+	if (gpa_name_tree) {
+		/* XXX - needed? */
+		g_message("I expected gpa_name_tree to be NULL\n");
+		g_tree_destroy(gpa_name_tree);
+
+		/* Make sure the hfinfo->same_name links are broken */
+		for (id = 0; id < num_symbols; id++) {
+			hfinfo = proto_registrar_get_nth(id);
+			hfinfo->same_name_next = NULL;
+			hfinfo->same_name_prev = NULL;
+		}
+	}
+	gpa_name_tree = g_tree_new(g_strcmp);
+
+	/* Populate the abbrev/ID GTree (header-field symbol table) */
+
+	for (id = 0; id < num_symbols; id++) {
+		if (id == hf_text_only) {
+			continue;
+		}
+		abbrev = proto_registrar_get_abbrev(id);
+		hfinfo = proto_registrar_get_nth(id);
+
+		g_assert(abbrev);		/* Not Null */
+		g_assert(abbrev[0] != 0);	/* Not empty string */
+
+		/* We allow multiple hfinfo's to be registered under the same
+		 * abbreviation. This was done for X.25, as, depending
+		 * on whether it's modulo-8 or modulo-128 operation,
+		 * some bitfield fields may be in different bits of
+		 * a byte, and we want to be able to refer to that field
+		 * with one name regardless of whether the packets
+		 * are modulo-8 or modulo-128 packets. */
+		same_name_hfinfo = g_tree_lookup(gpa_name_tree, abbrev);
+		if (same_name_hfinfo) {
+			/* There's already a field with this name.
+			 * Put it after that field in the list of
+			 * fields with this name, then allow the code
+			 * after this if{} block to replace the old
+			 * hfinfo with the new hfinfo in the GTree. Thus,
+			 * we end up with a linked-list of same-named hfinfo's,
+			 * with the root of the list being the hfinfo in the GTree */
+			same_name_next_hfinfo =
+			    same_name_hfinfo->same_name_next;
+
+			hfinfo->same_name_next = same_name_next_hfinfo;
+			if (same_name_next_hfinfo)
+				same_name_next_hfinfo->same_name_prev = hfinfo;
+
+			same_name_hfinfo->same_name_next = hfinfo;
+			hfinfo->same_name_prev = same_name_hfinfo;
+		}
+		g_tree_insert(gpa_name_tree, abbrev, hfinfo);
+	}
+
 	/* We've assigned all the subtree type values; allocate the array
 	   for them, and zero it out. */
 	tree_is_expanded = g_malloc(num_tree_types*sizeof (gint *));
 	memset(tree_is_expanded, '\0', num_tree_types*sizeof (gint *));
 }
 
+/* String comparison func for dfilter_token GTree */
+static int
+g_strcmp(gconstpointer a, gconstpointer b)
+{
+	return strcmp((const char*)a, (const char*)b);
+}
+
 void
 proto_cleanup(void)
 {
+	/* Free the abbrev/ID GTree */
+	if (gpa_name_tree) {
+		g_tree_destroy(gpa_name_tree);
+		gpa_name_tree = NULL;
+	}
+
 	if (gmc_hfinfo)
 		g_mem_chunk_destroy(gmc_hfinfo);
 	if (gmc_field_info)
@@ -364,29 +443,12 @@ proto_registrar_get_nth(int hfindex)
 }
 
 /* Finds a record in the hf_info_records array by name.
- * XXX - the display filter code maintains a balanced tree
- * of filter names and hfinfo pointers; should that be moved
- * up into here, so the display filter code could just use
- * this routine?
  */
 header_field_info*
-proto_registrar_get_byname(const char *field_name)
+proto_registrar_get_byname(char *field_name)
 {
-	header_field_info	*hfinfo;
-	int			i, len;
-
-	len = gpa_hfinfo->len;
-
-	for (i = 0; i < len ; i++) {
-		hfinfo = proto_registrar_get_nth(i);
-
-		if (strcmp(hfinfo->abbrev, field_name) == 0) {
-			/* Found it. */
-			return hfinfo;
-		}
-	}
-	/* Not found. */
-	return NULL;
+	g_assert(field_name != NULL);
+	return g_tree_lookup(gpa_name_tree, field_name);
 }
 
 /* Add a text-only node, leaving it to our caller to fill the text in */

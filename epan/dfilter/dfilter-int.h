@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter-int.h,v 1.5 2002/01/21 07:37:37 guy Exp $
+ * $Id: dfilter-int.h,v 1.6 2002/04/29 07:55:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,11 +56,6 @@ void Dfilter(void*, int, stnode_t*, dfwork_t*);
 
 /* Scanner's lval */
 extern stnode_t *df_lval;
-
-/* Given a field abbreviation, returns the proto ID, or -1 if
- * it doesn't exist. */
-header_field_info*
-dfilter_lookup_token(char *abbrev);
 
 /* Set dfilter_error_msg_buf and dfilter_error_msg */
 void

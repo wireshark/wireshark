@@ -1,11 +1,10 @@
 %{
 /*
- * $Id: scanner.l,v 1.6 2002/04/11 03:26:26 gram Exp $
+ * $Id: scanner.l,v 1.7 2002/04/29 07:55:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -131,7 +130,7 @@ static gboolean str_to_guint32(char *s, guint32* pint);
 	/* Is it a field name? */
 	header_field_info *hfinfo;
 
-	hfinfo = dfilter_lookup_token(yytext);
+	hfinfo = proto_registrar_get_byname(yytext);
 	if (hfinfo) {
 		/* Yes, it's a field name */
 		return set_lval(TOKEN_FIELD, hfinfo);
