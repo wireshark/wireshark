@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.57 2002/12/20 01:48:57 guy Exp $
+ * $Id: prefs_dlg.c,v 1.58 2002/12/27 18:32:55 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -227,7 +227,10 @@ module_prefs_show(module_t *module, gpointer user_data)
   		FALSE);
 #else
   model = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cts->tree)));
-  gtk_tree_store_append(model, &iter, &cts->iter);
+  if (module->is_subtree)
+      gtk_tree_store_append(model, &iter, NULL);
+  else
+      gtk_tree_store_append(model, &iter, &cts->iter);
 #endif
 
   /*
@@ -320,6 +323,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gchar             *label_ptr = label_str;
   GtkCTreeNode      *ct_node;
 #else
+  GtkTreeStore      *store;
   GtkTreeSelection  *selection;
   GtkCellRenderer   *renderer;
   GtkTreeViewColumn *column;
@@ -369,6 +373,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 
 #if GTK_MAJOR_VERSION < 2
   cts.tree = ctree_new(1, 0);
+  cts.node = NULL;
 #else
   store = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_INT);
   cts.tree = tree_view_new(GTK_TREE_MODEL(store));
@@ -385,7 +390,6 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
                                   GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 #endif
   cts.page = 0;
-  cts.node = NULL;
   gtk_container_add(GTK_CONTAINER(ct_sb), cts.tree);
 
 #if GTK_MAJOR_VERSION < 2
