@@ -3004,6 +3004,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* There's more than just the fixed-length header.  Decode the
        options. */
     optlen = tcph->th_hlen - TCPH_MIN_LEN; /* length of options, in bytes */
+    tvb_ensure_bytes_exist(tvb, offset +  20, optlen);
     if (tcp_tree != NULL) {
       tf = proto_tree_add_text(tcp_tree, tvb, offset +  20, optlen,
         "Options: (%u bytes)", optlen);
