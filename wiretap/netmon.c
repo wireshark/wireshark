@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.26 2000/03/22 07:06:54 guy Exp $
+ * $Id: netmon.c,v 1.27 2000/03/22 09:52:21 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -124,6 +124,8 @@ int netmon_open(wtap *wth, int *err)
 	struct tm tm;
 	int frame_table_offset;
 	guint32 frame_table_length;
+	int frame_table_size;
+	guint32 *frame_table;
 
 	/* Read in the string that should be at the start of a Network
 	 * Monitor file */
@@ -231,30 +233,39 @@ int netmon_open(wtap *wth, int *err)
 	 * in it as the offsets of the frames.
 	 */
 	frame_table_length = pletohl(&hdr.frametablelength);
-	wth->capture.netmon->frame_table_size = frame_table_length / sizeof (guint32);
-	if ((wth->capture.netmon->frame_table_size * sizeof (guint32)) != frame_table_length) {
+	frame_table_size = frame_table_length / sizeof (guint32);
+	if ((frame_table_size * sizeof (guint32)) != frame_table_length) {
 		g_message("netmon: frame table length is %u, which is not a multiple of the size of an entry",
 		    frame_table_length);
 		*err = WTAP_ERR_UNSUPPORTED;
 		return -1;
 	}
-	if (wth->capture.netmon->frame_table_size == 0) {
+	if (frame_table_size == 0) {
 		g_message("netmon: frame table length is %u, which means it's less than one entry in size",
 		    frame_table_length);
 		*err = WTAP_ERR_UNSUPPORTED;
 		return -1;
 	}
-	wth->capture.netmon->frame_table = g_malloc(frame_table_length);
+	frame_table = g_malloc(frame_table_length);
 	errno = WTAP_ERR_CANT_READ;
 	file_seek(wth->fh, frame_table_offset, SEEK_SET);
-	bytes_read = file_read(wth->capture.netmon->frame_table, 1,
-	    frame_table_length, wth->fh);
+	bytes_read = file_read(frame_table, 1, frame_table_length, wth->fh);
 	if (bytes_read != frame_table_length) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
 			return -1;
 		return 0;
 	}
+	wth->capture.netmon->frame_table_size = frame_table_size;
+	wth->capture.netmon->frame_table = frame_table;
+
+#ifdef WORDS_BIGENDIAN
+	/*
+	 * OK, now byte-swap the frame table.
+	 */
+	for (i = 0; i < frame_table_size; i++)
+		frame_table[i] = pletohl(&frame_table[i]);
+#endif
 
 	/* Set up to start reading at the first frame. */
 	wth->capture.netmon->current_frame = 0;
@@ -280,7 +291,10 @@ static int netmon_read(wtap *wth, int *err)
 
 	/* Have we reached the end of the packet data? */
 	if (netmon->current_frame >= netmon->frame_table_size) {
-		/* Yes. */
+		/* Yes.  We won't need the frame table any more;
+		   free it. */
+		g_free(wth->capture.netmon->frame_table);
+		wth->capture.netmon->frame_table = NULL;
 		return 0;
 	}
 
@@ -390,7 +404,8 @@ static int netmon_read(wtap *wth, int *err)
 static void
 netmon_close(wtap *wth)
 {
-	g_free(wth->capture.netmon->frame_table);
+	if (wth->capture.netmon->frame_table != NULL)
+		g_free(wth->capture.netmon->frame_table);
 	g_free(wth->capture.netmon);
 }
 
