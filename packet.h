@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.172 2000/02/15 21:03:35 gram Exp $
+ * $Id: packet.h,v 1.173 2000/02/18 13:41:26 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -268,7 +268,6 @@ void init_all_protocols(void);
 
 void init_dissect_rpc(void);
 void init_dissect_udp(void);
-void init_dissect_x25(void);
 
 typedef void	(*DissectFunc)	(const u_char*, int, frame_data*, proto_tree*);
 

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.163 2000/02/14 04:57:30 guy Exp $
+ * $Id: file.c,v 1.164 2000/02/18 13:41:24 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -81,6 +81,7 @@
 #include "dfilter.h"
 #include "conversation.h"
 #include "globals.h"
+#include "packet-x25.h"
 
 #include "plugins.h"
 
@@ -296,6 +297,10 @@ read_cap_file(capture_file *cf)
 #ifndef O_BINARY
 #define O_BINARY 	0
 #endif
+
+  /* The hash table used by the X.25 dissector must be re-initialized
+   * before starting a new capture */
+  reinit_x25_hashtable();
 
   freeze_clist(cf);
   proto_tree_is_visible = FALSE;

@@ -1,6 +1,6 @@
 /* packet-x25.h
  *
- * $Id: packet-x25.h,v 1.1 2000/02/15 21:03:32 gram Exp $
+ * $Id: packet-x25.h,v 1.2 2000/02/18 13:41:26 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -24,3 +24,4 @@
 
 
 void dissect_x25(const u_char *, int, frame_data *, proto_tree *);
+extern void reinit_x25_hashtable();
