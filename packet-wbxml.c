@@ -2,7 +2,7 @@
  * Routines for wbxml dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-wbxml.c,v 1.17 2003/12/07 18:09:52 obiot Exp $
+ * $Id: packet-wbxml.c,v 1.18 2003/12/08 20:37:15 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3750,101 +3750,48 @@ proto_reg_handoff_wbxml(void)
 	 * See http://www.wapforum.org/wina/wsp-content-type.htm
 	 * 
 	 * As the media types for WSP and HTTP are the same, the WSP dissector
-	 * uses the same string dissector table as the HTTP protocol. This is
-	 * not true for the integer representation of the WSP media types.
+	 * uses the same string dissector table as the HTTP protocol.
 	 */
 
 	/**** Well-known WBXML WSP Content-Type values ****/
 	
-	/* application/vnd.wap.wmlc */
-	dissector_add("wsp.content_type.integer", 0x14, wbxml_handle);
 	dissector_add_string("media_type",
 			"application/vnd.wap.wmlc", wbxml_handle);
-	
-	/* application/vnd.wap.wta-eventc */
-	dissector_add("wsp.content_type.integer", 0x16, wbxml_handle);
 	dissector_add_string("media_type",
 			"application/vnd.wap.wta-eventc", wbxml_handle);
-	
-	/* application/vnd.wap.wbxml */
-	dissector_add("wsp.content_type.integer", 0x29, wbxml_handle);
 	dissector_add_string("media_type",
 			"application/vnd.wap.wbxml", wbxml_handle);
-	
-	/* application/vnd.wap.sic */
-	dissector_add("wsp.content_type.integer", 0x2E, wbxml_handle);
 	dissector_add_string("media_type",
 			"application/vnd.wap.sic", wbxml_handle);
-	
-	/* application/vnd.wap.slc */
-	dissector_add("wsp.content_type.integer", 0x30, wbxml_handle);
 	dissector_add_string("media_type",
 			"application/vnd.wap.slc", wbxml_handle);
-	
-	/* application/vnd.wap.coc */
-	dissector_add("wsp.content_type.integer", 0x32, wbxml_handle);
 	dissector_add_string("media_type",
 			"application/vnd.wap.coc", wbxml_handle);
-	
-	/* application/vnd.wap.connectivity-wbxml */
-	dissector_add("wsp.content_type.integer", 0x36, wbxml_handle);
 	dissector_add_string("media_type",
 			"application/vnd.wap.connectivity-wbxml", wbxml_handle);
-	
-	/* application/vnd.wap.locc+wbxml */
-	dissector_add("wsp.content_type.integer", 0x40, wbxml_handle);
 	dissector_add_string("media_type",
 			"application/vnd.wap.locc+wbxml", wbxml_handle);
-	
-	/* application/vnd.syncml.dm+wbxml */
-	dissector_add("wsp.content_type.integer", 0x42, wbxml_handle);
 	dissector_add_string("media_type",
 			"application/vnd.syncml.dm+wbxml", wbxml_handle);
-	
-	/* application/vnd.oma.drm.rights+wbxml */
-	dissector_add("wsp.content_type.integer", 0x4B, wbxml_handle);
 	dissector_add_string("media_type",
 			"application/vnd.oma.drm.rights+wbxml", wbxml_handle);
 
 	/**** Registered WBXML WSP Content-Type values ****/
 
-	/* application/vnd.uplanet.cacheop-wbxml */
-	dissector_add("wsp.content_type.integer", 0x0201, wbxml_handle);
 	dissector_add_string("media_type",
 			"application/vnd.uplanet.cacheop-wbxml", wbxml_handle);
-	
-	/* application/vnd.uplanet.alert-wbxml */
-	dissector_add("wsp.content_type.integer", 0x0203, wbxml_handle);
 	dissector_add_string("media_type",
 			"application/vnd.uplanet.alert-wbxml", wbxml_handle);
-	
-	/* application/vnd.uplanet.list-wbxml */
-	dissector_add("wsp.content_type.integer", 0x0204, wbxml_handle);
 	dissector_add_string("media_type",
 			"application/vnd.uplanet.list-wbxml", wbxml_handle);
-	
-	/* application/vnd.uplanet.listcmd-wbxml */
-	dissector_add("wsp.content_type.integer", 0x0205, wbxml_handle);
 	dissector_add_string("media_type",
 			"application/vnd.uplanet.listcmd-wbxml", wbxml_handle);
-	
-	/* application/vnd.uplanet.channel-wbxml */
-	dissector_add("wsp.content_type.integer", 0x0206, wbxml_handle);
 	dissector_add_string("media_type",
 			"application/vnd.uplanet.channel-wbxml", wbxml_handle);
-	
-	/* application/vnd.uplanet.bearer-choice-wbxml */
-	dissector_add("wsp.content_type.integer", 0x0209, wbxml_handle);
 	dissector_add_string("media_type",
 			"application/vnd.uplanet.bearer-choice-wbxml", wbxml_handle);
-	
-	/* application/vnd.phonecom.mmc-wbxml */
-	dissector_add("wsp.content_type.integer", 0x020A, wbxml_handle);
 	dissector_add_string("media_type",
 			"application/vnd.phonecom.mmc-wbxml", wbxml_handle);
-	
-	/* application/vnd.nokia.syncset+wbxml */
-	dissector_add("wsp.content_type.integer", 0x020B, wbxml_handle);
 	dissector_add_string("media_type",
 			"application/vnd.nokia.syncset+wbxml", wbxml_handle);
 

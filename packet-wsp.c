@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.93 2003/12/07 18:09:52 obiot Exp $
+ * $Id: packet-wsp.c,v 1.94 2003/12/08 20:37:14 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -299,9 +299,6 @@ static dissector_handle_t wsp_fromudp_handle;
 
 /* Handle for WTP-over-UDP dissector */
 static dissector_handle_t wtp_fromudp_handle;
-
-/* Handle for WBXML dissector */
-static dissector_handle_t wbxml_handle;
 
 const value_string vals_pdu_type[] = {
 	{ 0x00, "Reserved" },
@@ -1154,8 +1151,8 @@ typedef enum {
 	VALUE_IN_LEN,
 } value_type_t;
 
-static dissector_table_t wsp_dissector_table;
-static dissector_table_t wsp_dissector_table_text;
+/* Dissector tables for handoff */
+static dissector_table_t media_type_table;
 static heur_dissector_list_t heur_subdissector_list;
 
 static void add_uri (proto_tree *, packet_info *, tvbuff_t *, guint, guint);
@@ -2055,10 +2052,11 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 	*well_known_content = 0;
 
 	wkh_1_WellKnownValue;
+		*textual_content = val_to_str(val, vals_content_types,
+				"<Unknown media type identifier 0x%X>");
 		ti = proto_tree_add_string(tree, hf_hdr_content_type,
 				tvb, hdr_start, offset - hdr_start,
-				val_to_str(val_id & 0x7F, vals_content_types,
-					"<Unknown content type identifier 0x%X>"));
+				*textual_content);
 		*well_known_content = val_id & 0x7F;
 		ok = TRUE;
 	wkh_2_TextualValue;
@@ -2074,7 +2072,7 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 		} else {
 			ti = proto_tree_add_string(tree, hf_hdr_content_type,
 					tvb, hdr_start, offset - hdr_start,
-					"<no content type has been specified>");
+					"<no media type has been specified>");
 			*textual_content = NULL;
 			*well_known_content = 0;
 		}
@@ -2095,11 +2093,11 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 		} else if (is_integer_value(peek)) {
 			get_integer_value(val, tvb, off, len, ok);
 			if (ok) {
+				*textual_content = val_to_str(val, vals_content_types,
+						"<Unknown media type identifier 0x%X>");
 				ti = proto_tree_add_string(tree, hf_hdr_content_type,
 						tvb, hdr_start, offset - hdr_start,
-						val_to_str(val, vals_content_types,
-							"<Unknown content type identifier 0x%X>"));
-				*textual_content = NULL;
+						*textual_content);
 				*well_known_content = val;
 			}
 			off += len;
@@ -4567,17 +4565,12 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				 * Try finding a dissector for the content
 				 * first, then fallback.
 				 */
-				if (contentTypeStr == NULL) {
-					/*
-					 * Content type is numeric.
-					 */
-					found_match = dissector_try_port(wsp_dissector_table,
-					      contentType, tmp_tvb, pinfo, tree);
-				} else {
+				found_match = FALSE;
+				if (contentTypeStr) {
 					/*
 					 * Content type is a string.
 					 */
-					found_match = dissector_try_string(wsp_dissector_table_text,
+					found_match = dissector_try_string(media_type_table,
 							contentTypeStr, tmp_tvb, pinfo, tree);
 				}
 				if (! found_match) {
@@ -4642,22 +4635,17 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				 * Try finding a dissector for the content
 				 * first, then fallback.
 				 */
-				if (contentTypeStr == NULL) {
-					/*
-					 * Content type is numeric.
-					 */
-					found_match = dissector_try_port(wsp_dissector_table,
-							contentType, tmp_tvb, pinfo, tree);
-				} else {
+				found_match = FALSE;
+				if (contentTypeStr) {
 					/*
 					 * Content type is a string.
 					 */
-					found_match = dissector_try_string(wsp_dissector_table_text,
+					found_match = dissector_try_string(media_type_table,
 							contentTypeStr, tmp_tvb, pinfo, tree);
 				}
 				if (! found_match) {
 					if (! dissector_try_heuristic(heur_subdissector_list,
-					    tmp_tvb, pinfo, tree))
+								tmp_tvb, pinfo, tree))
 						if (tree) /* Only display if needed */
 							ti = proto_tree_add_item (wsp_tree,
 							    hf_wsp_reply_data,
@@ -4708,17 +4696,12 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				 * Try finding a dissector for the content
 				 * first, then fallback.
 				 */
-				if (contentTypeStr == NULL) {
-					/*
-					 * Content type is numeric.
-					 */
-					found_match = dissector_try_port(wsp_dissector_table,
-							contentType, tmp_tvb, pinfo, tree);
-				} else {
+				found_match = FALSE;
+				if (contentTypeStr) {
 					/*
 					 * Content type is a string.
 					 */
-					found_match = dissector_try_string(wsp_dissector_table_text,
+					found_match = dissector_try_string(media_type_table,
 							contentTypeStr, tmp_tvb, pinfo, tree);
 				}
 				if (! found_match) {
@@ -6504,14 +6487,9 @@ proto_register_wsp(void)
 
 	register_dissector("wsp-co", dissect_wsp_fromwap_co, proto_wsp);
 	register_dissector("wsp-cl", dissect_wsp_fromwap_cl, proto_wsp);
-	wsp_dissector_table = register_dissector_table(
-			"wsp.content_type.integer",
-			"WSP content type (well-known integer value)",
-			FT_UINT32, BASE_HEX);
 	/* As the media types for WSP and HTTP are the same, the WSP dissector
-	 * uses the same string dissector table as the HTTP protocol. This is
-	 * not true for the integer representation of the WSP media types. */
-	wsp_dissector_table_text = find_dissector_table("media_type");
+	 * uses the same string dissector table as the HTTP protocol. */
+	media_type_table = find_dissector_table("media_type");
 	register_heur_dissector_list("wsp", &heur_subdissector_list);
 
 	wsp_fromudp_handle = create_dissector_handle(dissect_wsp_fromudp,
@@ -6521,11 +6499,6 @@ proto_register_wsp(void)
 void
 proto_reg_handoff_wsp(void)
 {
-	/*
-	 * Get a handle for the WBXML dissector.
-	 */
-	wbxml_handle = find_dissector("wbxml");
-
 	/*
 	 * And get a handle for the WTP-over-UDP dissector.
 	 */
