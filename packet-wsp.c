@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.84 2003/11/12 22:44:16 guy Exp $
+ * $Id: packet-wsp.c,v 1.85 2003/11/13 05:08:58 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1850,7 +1850,8 @@ add_headers (proto_tree *tree, tvbuff_t *tvb)
 #define wkh_1_WellKnownValue				/* Parse Well Known Value */ \
 	proto_tree_add_string_hidden(tree, hf_hdr_name, \
 			tvb, hdr_start, offset - hdr_start, \
-			match_strval (hdr_id, vals_field_names)); \
+			val_to_str (hdr_id, vals_field_names, \
+				"<Unknown WSP header field 0x%02X>")); \
 	if (val_id & 0x80) { /* Well-known value */ \
 		offset++; \
 		/* Well-known value processing starts HERE \
@@ -1924,15 +1925,18 @@ wkh_default(proto_tree *tree, tvbuff_t *tvb,
 	wkh_1_WellKnownValue;
 		ti = proto_tree_add_text (tree, tvb, hdr_start, offset - hdr_start,
 				"%s: (Undecoded well-known value 0x%02x)",
-				match_strval (hdr_id, vals_field_names), val_id & 0x7F);
+				val_to_str (hdr_id, vals_field_names,
+					"<Unknown WSP header field 0x%02X>"), val_id & 0x7F);
 	wkh_2_TextualValue;
 		ti = proto_tree_add_text(tree, tvb, hdr_start, offset - hdr_start,
 				"%s: %s",
-				match_strval (hdr_id, vals_field_names), val_str);
+				val_to_str (hdr_id, vals_field_names,
+					"<Unknown WSP header field 0x%02X>"), val_str);
 	wkh_3_ValueWithLength;
 		ti = proto_tree_add_text (tree, tvb, hdr_start, offset - hdr_start,
 				"%s: (Undecoded value in general form with length indicator)",
-				match_strval (hdr_id, vals_field_names));
+				val_to_str (hdr_id, vals_field_names,
+					"<Unknown WSP header field 0x%02X>"));
 
 	wkh_4_End(HF_EMPTY); /* The default parser has no associated hf_index;
 							additionally the error code is always bypassed */
@@ -3200,15 +3204,16 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 				case CACHE_CONTROL_PRIVATE:
 					ti = proto_tree_add_string(tree, hf_hdr_cache_control,
 							tvb, hdr_start, offset - hdr_start,
-							match_strval(cache_control_directive & 0x7F,
-								vals_cache_control));
+							val_to_str (cache_control_directive & 0x7F, vals_cache_control,
+								"<Unknown cache control directive 0x%02X>"));
 					/* TODO: split multiple entries */
 					while (ok && (off < offset)) { /* 1*( Field-name ) */
 						ok = TRUE;
 						peek = tvb_get_guint8(tvb, off);
 						if (peek & 0x80) { /* Well-known-field-name */
 							proto_item_append_string(ti,
-									match_strval(peek, vals_field_names));
+									val_to_str (peek, vals_field_names,
+										"<Unknown WSP header field 0x%02X>"));
 							off++;
 						} else { /* Token-text */
 							get_token_text(val_str, tvb, off, len, ok);
@@ -3227,8 +3232,8 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 				case CACHE_CONTROL_S_MAXAGE:
 					ti = proto_tree_add_string(tree, hf_hdr_cache_control,
 							tvb, hdr_start, offset - hdr_start,
-							match_strval(cache_control_directive & 0x7F,
-								vals_cache_control));
+							val_to_str (cache_control_directive & 0x7F, vals_cache_control,
+								"<Unknown cache control directive 0x%02X>"));
 					get_delta_seconds_value(val, tvb, off, len, ok);
 					if (ok) {
 						val_str = malloc(22 * sizeof(gchar));
@@ -3644,7 +3649,8 @@ static guint32 wkh_te (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 #define wkh_1_WellKnownValue			/* Parse Well Known Value */ \
 	proto_tree_add_string_hidden(tree, hf_hdr_name, \
 			tvb, hdr_start, offset - hdr_start, \
-			match_strval (hdr_id, vals_openwave_field_names)); \
+			val_to_str (hdr_id, vals_openwave_field_names, \
+					"<Unknown WSP header field 0x%02X>")); \
 	if (val_id & 0x80) { /* Well-known value */ \
 		offset++; \
 		/* Well-known value processing starts HERE \
@@ -3689,15 +3695,18 @@ wkh_openwave_default(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start)
 	wkh_1_WellKnownValue;
 		ti = proto_tree_add_text(tree, tvb, hdr_start, offset - hdr_start,
 				"%s: (Undecoded well-known value 0x%02x)",
-				match_strval(hdr_id, vals_openwave_field_names), val_id & 0x7F);
+				val_to_str (hdr_id, vals_openwave_field_names,
+					"<Unknown WSP header field 0x%02X>"), val_id & 0x7F);
 	wkh_2_TextualValue;
 		ti = proto_tree_add_text(tree,tvb,hdr_start, offset - hdr_start,
 				"%s: %s",
-				match_strval(hdr_id, vals_openwave_field_names), val_str);
+				val_to_str (hdr_id, vals_openwave_field_names,
+					"<Unknown WSP header field 0x%02X>"), val_str);
 	wkh_3_ValueWithLength;
 		ti = proto_tree_add_text(tree, tvb, hdr_start, offset - hdr_start,
 				"%s: (Undecoded value in general form with length indicator)",
-				match_strval(hdr_id, vals_openwave_field_names));
+				val_to_str (hdr_id, vals_openwave_field_names,
+					"<Unknown WSP header field 0x%02X>"));
 
 	wkh_4_End(HF_EMPTY); /* See wkh_default for explanation */
 }
