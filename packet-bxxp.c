@@ -1,9 +1,12 @@
 /* packet-bxxp.c
  * Routines for BXXP packet disassembly
  *
- * $Id: packet-bxxp.c,v 1.7 2000/10/07 04:48:40 sharpe Exp $
+ * $Id: packet-bxxp.c,v 1.8 2000/10/09 03:36:15 sharpe Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
+ *
+ * Developed with funding from InvisibleWorlds (www.invisibleworlds.com) via
+ * Collab.Net.
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs
