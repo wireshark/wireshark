@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.3 1999/05/10 00:27:31 sharpe Exp $
+ * $Id: packet-smb.c,v 1.4 1999/05/10 20:30:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -331,10 +331,10 @@ void
 dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int dirn)
 
 {
-  guint8      wct, andxcmd, res;
+  guint8      wct, andxcmd;
   guint16     andxoffs, flags, passwdlen, bcc;
-  char        *str;
-  proto_tree  *tcon_tree, *flags_tree;
+  const char  *str;
+  proto_tree  *flags_tree;
   proto_item  *ti;
 
   wct = pd[offset];
@@ -480,9 +480,9 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
   guint8        wct, enckeylen;
   guint16       bcc, mode, rawmode;
   guint32       caps;
-  proto_tree    *dialects, *mode_tree, *caps_tree, *rawmode_tree;
+  proto_tree    *dialects = NULL, *mode_tree, *caps_tree, *rawmode_tree;
   proto_item    *ti;
-  char          *str;
+  const char    *str;
 
   wct = pd[offset];    /* Should be 0, 1 or 13 or 17, I think */
 
@@ -531,7 +531,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
     }
 
     while (END_OF_FRAME > 0) {
-      char *str;
+      const char *str;
 
       if (tree) {
 
@@ -1314,10 +1314,10 @@ char *decode_smb_error(guint8 errcls, guint8 errcode)
 void
 dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data)
 {
-        proto_tree      *smb_tree = tree, *flags_tree;
+        proto_tree      *smb_tree = tree, *flags_tree, *flags2_tree;
 	proto_item      *ti, *tf;
 	guint8          cmd, errcls, errcode1, flags;
-	guint16         errcode, tid, pid, uid, mid;
+	guint16         flags2, errcode, tid, pid, uid, mid;
 
 	cmd = pd[offset + SMB_hdr_com_offset];
 
@@ -1436,13 +1436,50 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	offset += 1;
 
+	flags2 = GSHORT(pd, offset);
+
 	if (tree) {
 
-	  proto_tree_add_item(smb_tree, offset, 14, "Reserved: 7 WORDS");
+	  tf = proto_tree_add_item(smb_tree, offset, 1, "Flags2: 0x%04x", flags2);
+
+	  flags2_tree = proto_tree_new();
+	  proto_item_add_subtree(tf, flags2_tree, ETT_SMB_FLAGS2);
+	  proto_tree_add_item(flags2_tree, offset, 1, "%s",
+			      decode_boolean_bitfield(flags2, 0x0001, 16,
+						      "Long file names supported",
+						      "Long file names not supported"));
+	  proto_tree_add_item(flags2_tree, offset, 1, "%s",
+			      decode_boolean_bitfield(flags2, 0x0002, 16,
+						      "Extended attributes supported",
+						      "Extended attributes not supported"));
+	  proto_tree_add_item(flags2_tree, offset, 1, "%s",
+			      decode_boolean_bitfield(flags2, 0x1000, 16, 
+						      "Resolve pathnames with Dfs",
+						      "Don't resolve pathnames with Dfs"));
+	  proto_tree_add_item(flags2_tree, offset, 1, "%s",
+			      decode_boolean_bitfield(flags2, 0x2000, 16,
+						      "Permit reads if execute-only",
+						      "Don't permit reads if execute-only"));
+	  proto_tree_add_item(flags2_tree, offset, 1, "%s",
+			      decode_boolean_bitfield(flags2, 0x4000, 16,
+						      "Error codes are NT error codes",
+						      "Error codes are DOS error codes"));
+	  proto_tree_add_item(flags2_tree, offset, 1, "%s",
+			      decode_boolean_bitfield(flags2, 0x8000, 16, 
+						      "Strings are Unicode",
+						      "Strings are ASCII"));
 
 	}
 
-	offset += 14;
+	offset += 2;
+
+	if (tree) {
+
+	  proto_tree_add_item(smb_tree, offset, 12, "Reserved: 6 WORDS");
+
+	}
+
+	offset += 12;
 
 	/* Now the TID, tree ID */
 
