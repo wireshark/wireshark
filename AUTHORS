@@ -787,6 +787,7 @@ Motonori Shindo <mshindo[AT]mshindo.net> {
 	PPP compressed packet support
 	Cooperative Route Filtering Capability support in BGP
 	Route Refresh Message bug fix in BGP
+	CBCP support in PPP
 }
 
 Terje Krogdahl <tekr[AT]nextra.com> {

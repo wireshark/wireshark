@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.73 2001/10/30 10:16:51 guy Exp $
+ * $Id: packet-ppp.c,v 1.74 2001/11/04 04:50:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,6 +80,13 @@ static gint ett_ccp_options = -1;
 static gint ett_ccp_stac_opt = -1;
 static gint ett_ccp_mppc_opt = -1;
 static gint ett_ccp_lzsdcp_opt = -1;
+
+static int proto_cbcp = -1;
+
+static gint ett_cbcp = -1;
+static gint ett_cbcp_options = -1;
+static gint ett_cbcp_no_callback_opt = -1;
+static gint ett_cbcp_callback_opt = -1;
 
 static int proto_comp_data = -1;
 
@@ -185,6 +192,13 @@ static const value_string cp_vals[] = {
 #define RESETREQ   14  /* Reset Request */
 #define RESETACK   15  /* Reset Ack */
 
+/*
+ * CBCP-specific packet types.
+ */
+#define CBREQ      1  /* Callback Request */
+#define CBRES      2  /* Callback Response */
+#define CBACK      3  /* Callback Ack */
+
 #define CBCP_OPT  6 /* Use callback control protocol */
 
 static const value_string lcp_vals[] = {
@@ -214,6 +228,13 @@ static const value_string ccp_vals[] = {
 	{CODEREJ,    "Code Reject" },
 	{RESETREQ,   "Reset Request" },
 	{RESETACK,   "Reset Ack" },
+	{0,          NULL } 
+};
+
+static const value_string cbcp_vals[] = {
+	{CBREQ,      "Callback Request" },
+	{CBRES,      "Callback Response" },
+	{CBACK,      "Callback Ack" },
 	{0,          NULL } 
 };
 
@@ -697,6 +718,61 @@ static const ip_tcp_opt ccp_opts[] = {
 };
 
 #define N_CCP_OPTS	(sizeof ccp_opts / sizeof ccp_opts[0])
+
+/*
+ * Options.  (CBCP)
+ */
+#define CI_CBCP_NO_CALLBACK	1  /* No callback */
+#define CI_CBCP_CB_USER		2  /* Callback to a user-specified number */
+#define CI_CBCP_CB_PRE		3  /* Callback to a pre-specified or 
+                                            administrator specified number */
+#define CI_CBCP_CB_ANY		4  /* Callback to any of a list of numbers */
+
+static void dissect_cbcp_no_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                        int offset, guint length, frame_data *fd,
+			proto_tree *tree);
+
+static void dissect_cbcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                        int offset, guint length, frame_data *fd,
+			proto_tree *tree);
+
+static const ip_tcp_opt cbcp_opts[] = {
+	{
+		CI_CBCP_NO_CALLBACK,
+		"No callback",
+		&ett_cbcp_no_callback_opt,
+		FIXED_LENGTH,
+		2,
+		dissect_cbcp_no_callback_opt
+	},
+	{
+		CI_CBCP_CB_USER,
+		"Callback to a user-specified number",
+		&ett_cbcp_callback_opt,
+		VARIABLE_LENGTH,
+		4,
+		dissect_cbcp_callback_opt
+	},
+	{
+		CI_CBCP_CB_PRE,
+		"Callback to a pre-specified or admin-specified number",
+		&ett_cbcp_callback_opt,
+		FIXED_LENGTH,
+		3,
+		dissect_cbcp_callback_opt
+	},
+	{
+		CI_CBCP_CB_ANY,
+		"Callback to any of a list of numbers",
+		&ett_cbcp_callback_opt,
+		VARIABLE_LENGTH,
+		4,
+		dissect_cbcp_callback_opt
+	}
+
+};
+
+#define N_CBCP_OPTS	(sizeof cbcp_opts / sizeof cbcp_opts[0])
 
 static void dissect_ppp(tvbuff_t *tvb, packet_info *pinfo, 
     proto_tree *tree);
@@ -1348,6 +1424,49 @@ dissect_ccp_lzsdcp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 }
 
 static void
+dissect_cbcp_no_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, frame_data *fd,
+			proto_tree *tree)
+{
+  proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+}
+
+static void
+dissect_cbcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+			int offset, guint length, frame_data *fd,
+			proto_tree *tree)
+{
+  proto_item *tf;
+  proto_item *ta;
+  guint8 addr_type;
+  gint addr_len;
+  guint8 buf[256];	/* Since length field in Callback Conf Option is
+			   8 bits, 256-octet buf is large enough. */
+  
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+  proto_tree_add_text(tf, tvb, offset + 2, 1,
+		      "Callback delay: %u", tvb_get_guint8(tvb, offset + 2));
+  offset += 3;
+  length -= 3;
+  
+  while (length > 0) {
+	  ta = proto_tree_add_text(tf, tvb, offset, length, 
+				   "Callback Address");
+	  addr_type = tvb_get_guint8(tvb, offset); 
+	  proto_tree_add_text(ta, tvb, offset, 1, 
+		    "Address Type: %s (%u)", 
+		    ((addr_type == 1) ? "PSTN/ISDN" : "Other"), addr_type);
+	  offset++;
+	  length--;
+	  addr_len = tvb_get_nstringz0(tvb, offset, sizeof(buf), buf);
+	  proto_tree_add_text(ta, tvb, offset, addr_len + 1, 
+		    "Address: %s", buf);
+	  offset += (addr_len + 1);
+	  length -= (addr_len + 1);
+  }
+}
+
+static void
 dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 	const value_string *proto_vals, int options_subtree_index,
 	const ip_tcp_opt *opts, int nopts, packet_info *pinfo, proto_tree *tree ) {
@@ -1536,6 +1655,13 @@ dissect_ccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   dissect_cp(tvb, proto_ccp, ett_ccp, ccp_vals, ett_ccp_options,
 	     ccp_opts, N_CCP_OPTS, pinfo, tree);
+}
+
+static void
+dissect_cbcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_cp(tvb, proto_cbcp, ett_cbcp, cbcp_vals, ett_cbcp_options,
+	     cbcp_opts, N_CBCP_OPTS, pinfo, tree);
 }
 
 static void
@@ -2113,6 +2239,33 @@ proto_reg_handoff_ccp(void)
    * registering with the "ethertype" dissector table.
    */
   dissector_add("ethertype", PPP_CCP, dissect_ccp, proto_ccp);
+}
+
+void
+proto_register_cbcp(void)
+{
+  static gint *ett[] = {
+    &ett_cbcp,
+    &ett_cbcp_options,
+    &ett_cbcp_no_callback_opt,
+    &ett_cbcp_callback_opt
+  };
+
+  proto_cbcp = proto_register_protocol("PPP Callback Control Protocoll", 
+				      "PPP CBCP", "cbcp");
+  proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_cbcp(void)
+{
+  dissector_add("ppp.protocol", PPP_CBCP, dissect_cbcp, proto_cbcp);
+
+  /*
+   * See above comment about NDISWAN for an explanation of why we're
+   * registering with the "ethertype" dissector table.
+   */
+  dissector_add("ethertype", PPP_CBCP, dissect_cbcp, proto_cbcp);
 }
 
 void
