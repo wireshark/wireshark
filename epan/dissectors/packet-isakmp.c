@@ -178,8 +178,8 @@ static struct payload_func v1_plfunc[] = {
   { 14, "Attrib",		dissect_config	  },
   { 15, "NAT-Discovery",	dissect_nat_discovery }, /* draft-ietf-ipsec-nat-t-ike-04 */
   { 16, "NAT-Original Address",	dissect_nat_original_address }, /* draft-ietf-ipsec-nat-t-ike */
-  { 130, "NAT-D (draft-ietf-ipsec-nat-t-ike-01 to 03)",		NULL },
-  { 131, "NAT-OA (draft-ietf-ipsec-nat-t-ike-01 to 04)",	NULL },
+  { 130, "NAT-D (draft-ietf-ipsec-nat-t-ike-01 to 03)",		dissect_nat_discovery },
+  { 131, "NAT-OA (draft-ietf-ipsec-nat-t-ike-01 to 04)",	dissect_nat_original_address },
 };
 
 static struct payload_func v2_plfunc[] = {
@@ -351,15 +351,8 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, guint8 initial_payload,
       if ((f = getpayload_func(payload)) != NULL && f->func != NULL)
         (*f->func)(tvb, offset + 4, payload_length - 4, ntree, pinfo, -1);
       else {
-	if (payload == 130)
-	  dissect_nat_discovery(tvb, offset + 4, payload_length - 4, ntree,
-				pinfo, -1);
-	else if (payload == 131)
-	  dissect_nat_original_address(tvb, offset + 4, payload_length - 4,
-				       ntree, pinfo, -1);
-	else
-	  proto_tree_add_text(ntree, tvb, offset + 4, payload_length - 4,
-			      "Payload");
+        proto_tree_add_text(ntree, tvb, offset + 4, payload_length - 4,
+                            "Payload");
       }
     }
     else if (payload_length > length) {
