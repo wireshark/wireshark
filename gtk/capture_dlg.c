@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.75 2002/11/03 17:38:32 oabad Exp $
+ * $Id: capture_dlg.c,v 1.76 2002/11/09 20:00:35 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,7 @@
 #include "prefs.h"
 #include "ringbuffer.h"
 #include <epan/filesystem.h>
+#include "compat_macros.h"
 
 #ifdef _WIN32
 #include "capture-wpcap.h"
@@ -182,18 +183,14 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 
   cap_open_w = dlg_window_new("Ethereal: Capture Options");
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(cap_open_w), "destroy",
-                     GTK_SIGNAL_FUNC(capture_prep_destroy_cb), NULL);
+  SIGNAL_CONNECT(cap_open_w, "destroy", capture_prep_destroy_cb, NULL);
 
+#if GTK_MAJOR_VERSION < 2
   /* Accelerator group for the accelerators (or, as they're called in
      Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
      Ctrl+<key> is an accelerator). */
   accel_group = gtk_accel_group_new();
   gtk_window_add_accel_group(GTK_WINDOW(cap_open_w), accel_group);
-#else
-  g_signal_connect(G_OBJECT(cap_open_w), "destroy",
-                   G_CALLBACK(capture_prep_destroy_cb), NULL);
 #endif
 
   main_vb = gtk_vbox_new(FALSE, 0);
@@ -250,15 +247,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(snap_cb),
 		capture_opts.has_snaplen);
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(snap_cb), "toggled",
-                     GTK_SIGNAL_FUNC(capture_prep_adjust_sensitivity),
-                     GTK_OBJECT(cap_open_w));
-#else
-  g_signal_connect(G_OBJECT(snap_cb), "toggled",
-                   G_CALLBACK(capture_prep_adjust_sensitivity),
-                   G_OBJECT(cap_open_w));
-#endif
+  SIGNAL_CONNECT(snap_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
   gtk_box_pack_start(GTK_BOX(snap_hb), snap_cb, FALSE, FALSE, 0);
   gtk_widget_show(snap_cb);
 
@@ -266,11 +255,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     MIN_PACKET_SIZE, WTAP_MAX_PACKET_SIZE, 1.0, 10.0, 0.0);
   snap_sb = gtk_spin_button_new (snap_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (snap_sb), TRUE);
-#if GTK_MAJOR_VERSION < 2
-  gtk_widget_set_usize(snap_sb, 80, -1);
-#else
-  gtk_widget_set_size_request(snap_sb, 80, -1);
-#endif
+  WIDGET_SET_SIZE(snap_sb, 80, -1);
   gtk_box_pack_start (GTK_BOX(snap_hb), snap_sb, FALSE, FALSE, 0);
   gtk_widget_show(snap_sb);
 
@@ -298,19 +283,13 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(filter_hb);
 
   filter_bt = gtk_button_new_with_label("Filter:");
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
-                     GTK_SIGNAL_FUNC(capture_filter_construct_cb), NULL);
-#else
-  g_signal_connect(G_OBJECT(filter_bt), "clicked",
-                   G_CALLBACK(capture_filter_construct_cb), NULL);
-#endif
+  SIGNAL_CONNECT(filter_bt, "clicked", capture_filter_construct_cb, NULL);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, FALSE, 3);
   gtk_widget_show(filter_bt);
 
   filter_te = gtk_entry_new();
   if (cfile.cfilter) gtk_entry_set_text(GTK_ENTRY(filter_te), cfile.cfilter);
-  gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
+  OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_te, TRUE, TRUE, 3);
   gtk_widget_show(filter_te);
 
@@ -336,14 +315,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(file_hb), file_te, TRUE, TRUE, 3);
   gtk_widget_show(file_te);
 
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(file_bt), "clicked",
-                     GTK_SIGNAL_FUNC(capture_prep_file_cb),
-                     GTK_OBJECT(file_te));
-#else
-  g_signal_connect(G_OBJECT(file_bt), "clicked",
-                   G_CALLBACK(capture_prep_file_cb), G_OBJECT(file_te));
-#endif
+  SIGNAL_CONNECT(file_bt, "clicked", capture_prep_file_cb, file_te);
 
   /* Ring buffer row */
   ringbuffer_hb = gtk_hbox_new(FALSE, 3);
@@ -363,15 +335,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     capture_opts.ringbuffer_on = FALSE;
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ringbuffer_on_tb),
 		capture_opts.ringbuffer_on);
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(ringbuffer_on_tb), "toggled",
-                     GTK_SIGNAL_FUNC(capture_prep_adjust_sensitivity),
-                     GTK_OBJECT(cap_open_w));
-#else
-  g_signal_connect(G_OBJECT(ringbuffer_on_tb), "toggled",
-                   G_CALLBACK(capture_prep_adjust_sensitivity),
-                   G_OBJECT(cap_open_w));
-#endif
+  SIGNAL_CONNECT(ringbuffer_on_tb, "toggled", capture_prep_adjust_sensitivity,
+                 cap_open_w);
   gtk_box_pack_start(GTK_BOX(ringbuffer_hb), ringbuffer_on_tb, FALSE, FALSE, 0);
   gtk_widget_show(ringbuffer_on_tb);
 
@@ -384,11 +349,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     RINGBUFFER_MIN_NUM_FILES, RINGBUFFER_MAX_NUM_FILES, 1.0, 10.0, 0.0);
   ringbuffer_nbf_sb = gtk_spin_button_new (ringbuffer_nbf_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (ringbuffer_nbf_sb), TRUE);
-#if GTK_MAJOR_VERSION < 2
-  gtk_widget_set_usize(ringbuffer_nbf_sb, 40, -1);
-#else
-  gtk_widget_set_size_request(ringbuffer_nbf_sb, 40, -1);
-#endif
+  WIDGET_SET_SIZE(ringbuffer_nbf_sb, 40, -1);
   gtk_box_pack_start (GTK_BOX(ringbuffer_hb), ringbuffer_nbf_sb, TRUE, TRUE, 0);
   gtk_widget_show(ringbuffer_nbf_sb);
 
@@ -411,15 +372,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(sync_cb),
 		capture_opts.sync_mode);
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(sync_cb), "toggled",
-                     GTK_SIGNAL_FUNC(capture_prep_adjust_sensitivity),
-                     GTK_OBJECT(cap_open_w));
-#else
-  g_signal_connect(G_OBJECT(sync_cb), "toggled",
-                   G_CALLBACK(capture_prep_adjust_sensitivity),
-                   G_OBJECT(cap_open_w));
-#endif
+  SIGNAL_CONNECT(sync_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
   gtk_container_add(GTK_CONTAINER(display_vb), sync_cb);
   gtk_widget_show(sync_cb);
 
@@ -452,15 +405,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   count_cb = gtk_check_button_new_with_label("Stop capture after");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(count_cb),
 		capture_opts.has_autostop_count);
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(count_cb), "toggled",
-                     GTK_SIGNAL_FUNC(capture_prep_adjust_sensitivity),
-                     GTK_OBJECT(cap_open_w));
-#else
-  g_signal_connect(G_OBJECT(count_cb), "toggled",
-                   G_CALLBACK(capture_prep_adjust_sensitivity),
-                   G_OBJECT(cap_open_w));
-#endif
+  SIGNAL_CONNECT(count_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
   gtk_box_pack_start(GTK_BOX(count_hb), count_cb, FALSE, FALSE, 0);
   gtk_widget_show(count_cb);
 
@@ -468,11 +413,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     1, INT_MAX, 1.0, 10.0, 0.0);
   count_sb = gtk_spin_button_new (count_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (count_sb), TRUE);
-#if GTK_MAJOR_VERSION < 2
-  gtk_widget_set_usize(count_sb, 80, -1);
-#else
-  gtk_widget_set_size_request(count_sb, 80, -1);
-#endif
+  WIDGET_SET_SIZE(count_sb, 80, -1);
   gtk_box_pack_start (GTK_BOX(count_hb), count_sb, FALSE, FALSE, 0);
   gtk_widget_show(count_sb);
 
@@ -489,15 +430,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   filesize_cb = gtk_check_button_new_with_label("");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filesize_cb),
 		capture_opts.has_autostop_filesize);
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(filesize_cb), "toggled",
-                     GTK_SIGNAL_FUNC(capture_prep_adjust_sensitivity),
-                     GTK_OBJECT(cap_open_w));
-#else
-  g_signal_connect(G_OBJECT(filesize_cb), "toggled",
-                   G_CALLBACK(capture_prep_adjust_sensitivity),
-                   G_OBJECT(cap_open_w));
-#endif
+  SIGNAL_CONNECT(filesize_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
   gtk_box_pack_start(GTK_BOX(filesize_hb), filesize_cb, FALSE, FALSE, 0);
   gtk_widget_show(filesize_cb);
 
@@ -505,11 +438,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     1, INT_MAX, 1.0, 10.0, 0.0);
   filesize_sb = gtk_spin_button_new (filesize_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (filesize_sb), TRUE);
-#if GTK_MAJOR_VERSION < 2
-  gtk_widget_set_usize(filesize_sb, 80, -1);
-#else
-  gtk_widget_set_size_request(filesize_sb, 80, -1);
-#endif
+  WIDGET_SET_SIZE(filesize_sb, 80, -1);
   gtk_box_pack_start (GTK_BOX(filesize_hb), filesize_sb, FALSE, FALSE, 0);
   gtk_widget_show(filesize_sb);
 
@@ -526,15 +455,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   duration_cb = gtk_check_button_new_with_label("Stop capture after");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(duration_cb),
 		capture_opts.has_autostop_duration);
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(duration_cb), "toggled",
-                     GTK_SIGNAL_FUNC(capture_prep_adjust_sensitivity),
-                     GTK_OBJECT(cap_open_w));
-#else
-  g_signal_connect(G_OBJECT(duration_cb), "toggled",
-                   G_CALLBACK(capture_prep_adjust_sensitivity),
-                   G_OBJECT(cap_open_w));
-#endif
+  SIGNAL_CONNECT(duration_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
   gtk_box_pack_start(GTK_BOX(duration_hb), duration_cb, FALSE, FALSE, 0);
   gtk_widget_show(duration_cb);
 
@@ -542,11 +463,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     1, INT_MAX, 1.0, 10.0, 0.0);
   duration_sb = gtk_spin_button_new (duration_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (duration_sb), TRUE);
-#if GTK_MAJOR_VERSION < 2
-  gtk_widget_set_usize(duration_sb, 80, -1);
-#else
-  gtk_widget_set_size_request(duration_sb, 80, -1);
-#endif
+  WIDGET_SET_SIZE(duration_sb, 80, -1);
   gtk_box_pack_start (GTK_BOX(duration_hb), duration_sb, FALSE, FALSE, 0);
   gtk_widget_show(duration_sb);
 
@@ -609,14 +526,10 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
 #if GTK_MAJOR_VERSION < 2
   ok_bt = gtk_button_new_with_label ("OK");
-  gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
-                     GTK_SIGNAL_FUNC(capture_prep_ok_cb),
-                     GTK_OBJECT(cap_open_w));
 #else
   ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
-  g_signal_connect(G_OBJECT(ok_bt), "clicked",
-                   G_CALLBACK(capture_prep_ok_cb), G_OBJECT(cap_open_w));
 #endif
+  SIGNAL_CONNECT(ok_bt, "clicked", capture_prep_ok_cb, cap_open_w);
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
@@ -624,40 +537,36 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
 #if GTK_MAJOR_VERSION < 2
   cancel_bt = gtk_button_new_with_label ("Cancel");
-  gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
-                     GTK_SIGNAL_FUNC(capture_prep_close_cb),
-                     GTK_OBJECT(cap_open_w));
 #else
   cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-  g_signal_connect(G_OBJECT(cancel_bt), "clicked",
-                   G_CALLBACK(capture_prep_close_cb), G_OBJECT(cap_open_w));
 #endif
+  SIGNAL_CONNECT(cancel_bt, "clicked", capture_prep_close_cb, cap_open_w);
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
   gtk_widget_show(cancel_bt);
 
   /* Attach pointers to needed widgets to the capture prefs window/object */
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_IFACE_KEY, if_cb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_SNAP_CB_KEY, snap_cb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_SNAP_SB_KEY, snap_sb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_PROMISC_KEY, promisc_cb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_FILT_KEY,  filter_te);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_FILE_TE_KEY,  file_te);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_RING_ON_TB_KEY,  ringbuffer_on_tb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_RING_NBF_LB_KEY,  ringbuffer_nbf_lb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_RING_NBF_SB_KEY,  ringbuffer_nbf_sb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_SYNC_KEY,  sync_cb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_AUTO_SCROLL_KEY, auto_scroll_cb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_COUNT_CB_KEY, count_cb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_COUNT_SB_KEY, count_sb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_FILESIZE_CB_KEY, filesize_cb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_FILESIZE_SB_KEY, filesize_sb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_FILESIZE_LB_KEY, filesize_lb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_DURATION_CB_KEY,  duration_cb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_DURATION_SB_KEY,  duration_sb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_M_RESOLVE_KEY,  m_resolv_cb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_N_RESOLVE_KEY,  n_resolv_cb);
-  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_T_RESOLVE_KEY,  t_resolv_cb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_IFACE_KEY, if_cb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_SNAP_CB_KEY, snap_cb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_SNAP_SB_KEY, snap_sb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_PROMISC_KEY, promisc_cb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_FILT_KEY,  filter_te);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_FILE_TE_KEY,  file_te);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_RING_ON_TB_KEY,  ringbuffer_on_tb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_RING_NBF_LB_KEY,  ringbuffer_nbf_lb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_RING_NBF_SB_KEY,  ringbuffer_nbf_sb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_SYNC_KEY,  sync_cb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_AUTO_SCROLL_KEY, auto_scroll_cb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_COUNT_CB_KEY, count_cb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_COUNT_SB_KEY, count_sb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_FILESIZE_CB_KEY, filesize_cb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_FILESIZE_SB_KEY, filesize_sb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_FILESIZE_LB_KEY, filesize_lb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_DURATION_CB_KEY,  duration_cb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_DURATION_SB_KEY,  duration_sb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_M_RESOLVE_KEY,  m_resolv_cb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_N_RESOLVE_KEY,  n_resolv_cb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_T_RESOLVE_KEY,  t_resolv_cb);
 
   /* Set the sensitivity of various widgets as per the settings of other
      widgets. */
@@ -709,7 +618,7 @@ capture_prep_file_cb(GtkWidget *w, gpointer file_te)
 
   /* Has a file selection dialog box already been opened for that top-level
      widget? */
-  fs = gtk_object_get_data(GTK_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY);
+  fs = OBJECT_GET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY);
 
   if (fs != NULL) {
     /* Yes.  Just re-activate that dialog box. */
@@ -724,39 +633,23 @@ capture_prep_file_cb(GtkWidget *w, gpointer file_te)
   if (last_open_dir)
     gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
 
-  gtk_object_set_data(GTK_OBJECT(fs), E_CAP_FILE_TE_KEY, file_te);
+  OBJECT_SET_DATA(fs, E_CAP_FILE_TE_KEY, file_te);
 
   /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
-  gtk_object_set_data(GTK_OBJECT(fs), E_FS_CALLER_PTR_KEY, caller);
+  OBJECT_SET_DATA(fs, E_FS_CALLER_PTR_KEY, caller);
 
   /* Set the E_FILE_SEL_DIALOG_PTR_KEY for the caller to point to us */
-  gtk_object_set_data(GTK_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY, fs);
+  OBJECT_SET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY, fs);
 
-#if GTK_MAJOR_VERSION < 2
   /* Call a handler when the file selection box is destroyed, so we can inform
      our caller, if any, that it's been destroyed. */
-  gtk_signal_connect(GTK_OBJECT(fs), "destroy",
-                     GTK_SIGNAL_FUNC(cap_prep_fs_destroy_cb), file_te);
+  SIGNAL_CONNECT(fs, "destroy", cap_prep_fs_destroy_cb, file_te);
 
-  gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fs)->ok_button),
-                     "clicked", (GtkSignalFunc) cap_prep_fs_ok_cb, fs);
+  SIGNAL_CONNECT(GTK_FILE_SELECTION(fs)->ok_button, "clicked", cap_prep_fs_ok_cb, fs);
 
   /* Connect the cancel_button to destroy the widget */
-  gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fs)->cancel_button),
-                     "clicked", (GtkSignalFunc) cap_prep_fs_cancel_cb, fs);
-#else
-  /* Call a handler when the file selection box is destroyed, so we can inform
-     our caller, if any, that it's been destroyed. */
-  g_signal_connect(G_OBJECT(fs), "destroy",
-                   G_CALLBACK(cap_prep_fs_destroy_cb), file_te);
-
-  g_signal_connect(G_OBJECT(GTK_FILE_SELECTION(fs)->ok_button), "clicked",
-                   G_CALLBACK(cap_prep_fs_ok_cb), fs);
-
-  /* Connect the cancel_button to destroy the widget */
-  g_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(fs)->cancel_button), "clicked",
-                   G_CALLBACK(cap_prep_fs_cancel_cb), fs);
-#endif
+  SIGNAL_CONNECT(GTK_FILE_SELECTION(fs)->cancel_button, "clicked", cap_prep_fs_cancel_cb,
+                 fs);
 
   /* Catch the "key_press_event" signal in the window, so that we can catch
      the ESC key being pressed and act as if the "Cancel" button had
@@ -785,8 +678,7 @@ cap_prep_fs_ok_cb(GtkWidget *w _U_, gpointer data)
         return;
   }
 
-  gtk_entry_set_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(data),
-      E_CAP_FILE_TE_KEY)), cf_name);
+  gtk_entry_set_text(GTK_ENTRY(OBJECT_GET_DATA(data, E_CAP_FILE_TE_KEY)), cf_name);
 
   gtk_widget_destroy(GTK_WIDGET(data));
   g_free(cf_name);
@@ -806,10 +698,10 @@ cap_prep_fs_destroy_cb(GtkWidget *win, GtkWidget* file_te)
   /* Get the widget that requested that we be popped up.
      (It should arrange to destroy us if it's destroyed, so
      that we don't get a pointer to a non-existent window here.) */
-  caller = gtk_object_get_data(GTK_OBJECT(win), E_FS_CALLER_PTR_KEY);
+  caller = OBJECT_GET_DATA(win, E_FS_CALLER_PTR_KEY);
 
   /* Tell it we no longer exist. */
-  gtk_object_set_data(GTK_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY, NULL);
+  OBJECT_SET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY, NULL);
 
   /* Now nuke this window. */
   gtk_grab_remove(GTK_WIDGET(win));
@@ -836,25 +728,25 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
   gchar *cf_name;
   gchar *dirname;
 
-  if_cb     = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_IFACE_KEY);
-  snap_cb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SNAP_CB_KEY);
-  snap_sb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SNAP_SB_KEY);
-  promisc_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_PROMISC_KEY);
-  filter_te = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_FILT_KEY);
-  file_te   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_FILE_TE_KEY);
-  ringbuffer_on_tb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_RING_ON_TB_KEY);
-  ringbuffer_nbf_sb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_RING_NBF_SB_KEY);
-  sync_cb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SYNC_KEY);
-  auto_scroll_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_AUTO_SCROLL_KEY);
-  count_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_COUNT_CB_KEY);
-  count_sb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_COUNT_SB_KEY);
-  filesize_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_FILESIZE_CB_KEY);
-  filesize_sb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_FILESIZE_SB_KEY);
-  duration_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_DURATION_CB_KEY);
-  duration_sb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_DURATION_SB_KEY);
-  m_resolv_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_M_RESOLVE_KEY);
-  n_resolv_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_N_RESOLVE_KEY);
-  t_resolv_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_T_RESOLVE_KEY);
+  if_cb     = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_IFACE_KEY);
+  snap_cb   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SNAP_CB_KEY);
+  snap_sb   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SNAP_SB_KEY);
+  promisc_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_PROMISC_KEY);
+  filter_te = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILT_KEY);
+  file_te   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILE_TE_KEY);
+  ringbuffer_on_tb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_ON_TB_KEY);
+  ringbuffer_nbf_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_NBF_SB_KEY);
+  sync_cb   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SYNC_KEY);
+  auto_scroll_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_AUTO_SCROLL_KEY);
+  count_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_COUNT_CB_KEY);
+  count_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_COUNT_SB_KEY);
+  filesize_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILESIZE_CB_KEY);
+  filesize_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILESIZE_SB_KEY);
+  duration_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_DURATION_CB_KEY);
+  duration_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_DURATION_SB_KEY);
+  m_resolv_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_M_RESOLVE_KEY);
+  n_resolv_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_N_RESOLVE_KEY);
+  t_resolv_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_T_RESOLVE_KEY);
 
   if_text =
     g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry)));
@@ -996,7 +888,7 @@ capture_prep_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 
   /* Is there a filter edit/selection dialog associated with this
      Capture Options dialog? */
-  capture_prep_filter_w = gtk_object_get_data(GTK_OBJECT(win), E_FILT_DIALOG_PTR_KEY);
+  capture_prep_filter_w = OBJECT_GET_DATA(win, E_FILT_DIALOG_PTR_KEY);
 
   if (capture_prep_filter_w != NULL) {
     /* Yes.  Destroy it. */
@@ -1005,7 +897,7 @@ capture_prep_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 
   /* Is there a file selection dialog associated with this
      Print File dialog? */
-  fs = gtk_object_get_data(GTK_OBJECT(win), E_FILE_SEL_DIALOG_PTR_KEY);
+  fs = OBJECT_GET_DATA(win, E_FILE_SEL_DIALOG_PTR_KEY);
 
   if (fs != NULL) {
     /* Yes.  Destroy it. */
@@ -1030,20 +922,20 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
             *filesize_cb, *filesize_sb, *filesize_lb,
             *duration_cb, *duration_sb;
 
-  snap_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SNAP_CB_KEY);
-  snap_sb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SNAP_SB_KEY);
-  ringbuffer_on_tb  = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_RING_ON_TB_KEY);
-  ringbuffer_nbf_lb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_RING_NBF_LB_KEY);
-  ringbuffer_nbf_sb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_RING_NBF_SB_KEY);
-  sync_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SYNC_KEY);
-  auto_scroll_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_AUTO_SCROLL_KEY);
-  count_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_COUNT_CB_KEY);
-  count_sb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_COUNT_SB_KEY);
-  filesize_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_FILESIZE_CB_KEY);
-  filesize_sb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_FILESIZE_SB_KEY);
-  filesize_lb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_FILESIZE_LB_KEY);
-  duration_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_DURATION_CB_KEY);
-  duration_sb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_DURATION_SB_KEY);
+  snap_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SNAP_CB_KEY);
+  snap_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SNAP_SB_KEY);
+  ringbuffer_on_tb  = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_ON_TB_KEY);
+  ringbuffer_nbf_lb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_NBF_LB_KEY);
+  ringbuffer_nbf_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_NBF_SB_KEY);
+  sync_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SYNC_KEY);
+  auto_scroll_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_AUTO_SCROLL_KEY);
+  count_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_COUNT_CB_KEY);
+  count_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_COUNT_SB_KEY);
+  filesize_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILESIZE_CB_KEY);
+  filesize_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILESIZE_SB_KEY);
+  filesize_lb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILESIZE_LB_KEY);
+  duration_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_DURATION_CB_KEY);
+  duration_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_DURATION_SB_KEY);
 
   /* The snapshot length spinbox is sensitive iff the "Limit each packet
      to" checkbox is on. */
