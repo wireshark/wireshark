@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.13 2002/04/17 11:01:38 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.14 2002/04/17 13:48:56 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1405,7 +1405,7 @@ dissect_nt_LUID(tvbuff_t *tvb, int offset,
 		tree = proto_item_add_subtree(item, ett_LUID);
 	}
 
-	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_nt_luid_low, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -2224,7 +2224,7 @@ proto_register_dcerpc_lsa(void)
 		NULL, 0x0, "LUID High component", HFILL }},
 
 	{ &hf_nt_luid_low,
-		{ "Low", "nt.luid.low", FT_UINT64, BASE_HEX, 
+		{ "Low", "nt.luid.low", FT_UINT32, BASE_HEX, 
 		NULL, 0x0, "LUID Low component", HFILL }},
 
 	{ &hf_lsa_size,
