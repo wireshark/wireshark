@@ -82,6 +82,7 @@ static gboolean dns_desegment = TRUE;
 
 /* Dissector handle for GSSAPI */
 static dissector_handle_t gssapi_handle;
+static dissector_handle_t ntlmssp_handle;
 
 /* DNS structs and definitions */
 
@@ -1935,8 +1936,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 			 */
 			gssapi_tvb = tvb_new_subset(
 				tvb, cur_offset, tkey_keylen, tkey_keylen);
-
-			call_dissector(gssapi_handle, gssapi_tvb, pinfo,
+			if(tvb_strneql(gssapi_tvb, 0, "NTLMSSP", 7) == 0)
+				call_dissector(ntlmssp_handle, gssapi_tvb, pinfo, key_tree);
+			else
+				call_dissector(gssapi_handle, gssapi_tvb, pinfo,
 				key_tree);
 
 			break;
@@ -2623,4 +2626,5 @@ proto_reg_handoff_dns(void)
   dissector_add("tcp.port", TCP_PORT_MDNS, dns_tcp_handle);
 
   gssapi_handle = find_dissector("gssapi");
+  ntlmssp_handle = find_dissector("ntlmssp");
 }
