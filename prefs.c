@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.100 2003/04/21 21:28:31 guy Exp $
+ * $Id: prefs.c,v 1.101 2003/05/15 07:44:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -986,12 +986,8 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
   }
 
   /* Construct the pathname of the global preferences file. */
-  if (! gpf_path) {
-    gpf_path = (gchar *) g_malloc(strlen(get_datafile_dir()) +
-      strlen(GPF_NAME) + 2);
-    sprintf(gpf_path, "%s" G_DIR_SEPARATOR_S "%s",
-      get_datafile_dir(), GPF_NAME);
-  }
+  if (! gpf_path)
+    gpf_path = get_datafile_path(GPF_NAME);
 
   /* Read the global preferences file, if it exists. */
   *gpf_path_return = NULL;

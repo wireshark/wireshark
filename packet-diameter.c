@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.53 2003/04/12 05:48:26 guy Exp $
+ * $Id: packet-diameter.c,v 1.54 2003/05/15 07:44:53 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -1896,12 +1896,8 @@ proto_register_diameter(void)
 	/*
 	 * Build our default dictionary filename
 	 */
-	if (! gbl_diameterDictionary) {
-		gbl_diameterDictionary = (gchar *) g_malloc(strlen(get_datafile_dir()) +
-													1 + strlen(DICT_FN) + 1); /* slash + fn + null */
-		sprintf(gbl_diameterDictionary, "%s" G_DIR_SEPARATOR_S "%s",
-				get_datafile_dir(), DICT_FN );
-	}
+	if (! gbl_diameterDictionary)
+		gbl_diameterDictionary = get_datafile_path(DICT_FN);
 	/* Now register its preferences so it can be changed. */
 	prefs_register_string_preference(diameter_module, "dictionary.name",
 									 "Diameter XML Dictionary",

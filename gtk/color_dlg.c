@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.23 2003/02/17 21:08:37 oabad Exp $
+ * $Id: color_dlg.c,v 1.24 2003/05/15 07:44:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,6 +66,8 @@ static void color_save_cb(GtkButton *button, gpointer user_data);
 static void color_ok_cb(GtkButton *button, gpointer user_data);
 static void color_cancel_cb(GtkWidget *widget, gpointer user_data);
 static void color_apply_cb(GtkButton *button, gpointer user_data);
+static void color_revert_cb(GtkWidget *button, gpointer user_data);
+
 
 static void edit_color_filter_dialog_new(GtkWidget *color_filters,
                                          GtkWidget **colorize_filter_name,
@@ -152,6 +154,7 @@ colorize_dialog_new (void)
   GtkWidget *color_ok;
   GtkWidget *color_apply;
   GtkWidget *color_save;
+  GtkWidget *color_revert;
   GtkWidget *color_cancel;
 
 #if GTK_MAJOR_VERSION >= 2
@@ -385,6 +388,17 @@ colorize_dialog_new (void)
   gtk_tooltips_set_tip(tooltips, color_save, ("Save all filters to disk"), NULL);
 
 #if GTK_MAJOR_VERSION < 2
+  color_revert = gtk_button_new_with_label (("Revert"));
+#else
+  color_revert = gtk_button_new_from_stock(GTK_STOCK_REVERT_TO_SAVED);
+#endif
+  gtk_widget_ref(color_revert);
+  OBJECT_SET_DATA_FULL(color_win, "color_revert", color_revert, gtk_widget_unref);
+  gtk_widget_show(color_revert);
+  gtk_box_pack_start(GTK_BOX (button_ok_hbox), color_revert, FALSE, FALSE, 5);
+  gtk_tooltips_set_tip(tooltips, color_revert, ("Delete filter file and revert to system-wide default filter set"), NULL);
+
+#if GTK_MAJOR_VERSION < 2
   color_cancel = gtk_button_new_with_label (("Cancel"));
 #else
   color_cancel = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
@@ -419,6 +433,8 @@ colorize_dialog_new (void)
   OBJECT_SET_DATA(color_delete, COLOR_FILTERS_CL, color_filters);
   SIGNAL_CONNECT(color_delete, "clicked", color_delete_cb, NULL);
   SIGNAL_CONNECT(color_save, "clicked", color_save_cb, NULL);
+  SIGNAL_CONNECT(color_revert, "clicked", color_revert_cb, NULL);
+  OBJECT_SET_DATA(color_revert, COLOR_FILTERS_CL, color_filters);
   SIGNAL_CONNECT(color_ok, "clicked", color_ok_cb, NULL);
   SIGNAL_CONNECT(color_apply, "clicked", color_apply_cb, NULL);
   SIGNAL_CONNECT(color_cancel, "clicked", color_cancel_cb, NULL);
@@ -770,76 +786,82 @@ color_edit_cb(GtkButton *button, gpointer user_data _U_)
 
 /* Delete a color from the list. */
 static void
-color_delete_cb(GtkWidget *widget, gpointer user_data _U_)
+color_delete(gint row, GtkWidget  *color_filters)
 {
-    GtkWidget        *color_filters;
-    color_filter_t   *colorf;
+    color_filter_t *colorf;
+    
 #if GTK_MAJOR_VERSION >= 2
     GtkTreeModel     *model;
     GtkTreeIter       iter;
-    gint              row;
+    gint              rowsel;
     GtkTreeSelection *sel;
 
-    if(row_selected != -1) {
-        /* The "selection changed" callback is called when the row is
-         * removed, so we must remember the selected row. */
-        row = row_selected;
-        color_filters = (GtkWidget *)OBJECT_GET_DATA(widget, COLOR_FILTERS_CL);
-        model = gtk_tree_view_get_model(GTK_TREE_VIEW(color_filters));
-        gtk_tree_model_iter_nth_child(model, &iter, NULL, row);
-        gtk_tree_model_get(model, &iter, 4, &colorf, -1);
-
-        /* Remove this color filter from the CList displaying the
-           color filters. */
-        gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
-        num_of_filters--;
-
-        /* Destroy any "Edit color filter" dialog boxes editing it. */
-        if (colorf->edit_dialog != NULL)
-            gtk_widget_destroy(colorf->edit_dialog);
-
-        /* Remove the color filter from the list of color filters. */
-        delete_color_filter(colorf);
-
-        /* If we grab the focus after updating the selection, the first
-         * row is always selected, so we do it before */
-        gtk_widget_grab_focus(color_filters);
-        /* Update the selection */
-        if (row <= (num_of_filters-1)) {
-            sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(color_filters));
-            gtk_tree_model_iter_nth_child(model, &iter, NULL, row);
-            gtk_tree_selection_select_iter(sel, &iter);
-        }
-        else if (num_of_filters > 0) {
-            sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(color_filters));
-            gtk_tree_model_iter_nth_child(model, &iter, NULL, num_of_filters-1);
-            gtk_tree_selection_select_iter(sel, &iter);
-        }
+    
+    /* The "selection changed" callback is called when the row is
+    * removed, so we must remember the selected row. */
+   model = gtk_tree_view_get_model(GTK_TREE_VIEW(color_filters));
+    gtk_tree_model_iter_nth_child(model, &iter, NULL, row);
+    gtk_tree_model_get(model, &iter, 4, &colorf, -1);
+    
+    /* Remove this color filter from the CList displaying the
+    color filters. */
+    gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
+    num_of_filters--;
+    
+    /* Destroy any "Edit color filter" dialog boxes editing it. */
+    if (colorf->edit_dialog != NULL)
+    gtk_widget_destroy(colorf->edit_dialog);
+    
+    /* Remove the color filter from the list of color filters. */
+    delete_color_filter(colorf);
+    
+    /* If we grab the focus after updating the selection, the first
+    * row is always selected, so we do it before */
+    gtk_widget_grab_focus(color_filters);
+    /* Update the selection */
+    if (row_selected <= (num_of_filters-1)) {
+        sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(color_filters));
+        gtk_tree_model_iter_nth_child(model, &iter, NULL, row_selected);
+        gtk_tree_selection_select_iter(sel, &iter);
+    }
+    else if (num_of_filters > 0) {
+        sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(color_filters));
+        gtk_tree_model_iter_nth_child(model, &iter, NULL, num_of_filters-1);
+        gtk_tree_selection_select_iter(sel, &iter);
     }
 #else
-    if(row_selected != -1){
-        color_filters = (GtkWidget *)OBJECT_GET_DATA(widget, COLOR_FILTERS_CL);
-        colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters), row_selected);
+   colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters), row);
 
-        /* Remove this color filter from the CList displaying the
-           color filters. */
-        gtk_clist_remove(GTK_CLIST(color_filters), row_selected);
-        num_of_filters--;
+    /* Remove this color filter from the CList displaying the
+       color filters. */
+    gtk_clist_remove(GTK_CLIST(color_filters), row);
+    num_of_filters--;
 
-        /* Destroy any "Edit color filter" dialog boxes editing it. */
-        if (colorf->edit_dialog != NULL)
-            gtk_widget_destroy(colorf->edit_dialog);
+    /* Destroy any "Edit color filter" dialog boxes editing it. */
+    if (colorf->edit_dialog != NULL)
+        gtk_widget_destroy(colorf->edit_dialog);
 
-        /* Remove the color filter from the list of color filters. */
-        delete_color_filter(colorf);
+    /* Remove the color filter from the list of color filters. */
+    delete_color_filter(colorf);
 
-        /* Select the previous row, if there is one. */
-        if (row_selected > 0) {
-            row_selected--;
-            gtk_clist_select_row(GTK_CLIST(color_filters), row_selected, 0);
-        }
+    /* Select the previous row, if there is one. */
+    if (row <= row_selected && row_selected > 0) {
+        row_selected--;
+        gtk_clist_select_row(GTK_CLIST(color_filters), row_selected, 0);
     }
 #endif
+}
+/* Delete the selected color from the list.*/
+static void
+color_delete_cb(GtkWidget *widget, gpointer user_data _U_)
+{
+    GtkWidget  *color_filters;
+    
+    if(row_selected != -1)
+    {
+        color_filters = (GtkWidget *)OBJECT_GET_DATA(widget, COLOR_FILTERS_CL);
+        color_delete (row_selected, color_filters);
+    }
 }
 
 /* Save color filters to the color filter file. */
@@ -849,6 +871,31 @@ color_save_cb(GtkButton *button _U_, gpointer user_data _U_)
   if (!write_filters())
 	simple_dialog(ESD_TYPE_CRIT, NULL, "Could not open filter file: %s",
 	    strerror(errno));
+
+}
+
+/* Remove all user defined color filters and revert to the global file. */
+static void
+color_revert_cb(GtkWidget *widget, gpointer user_data _U_)
+{
+    GtkWidget * color_filters;
+    
+    color_filters = (GtkWidget *)OBJECT_GET_DATA(widget, COLOR_FILTERS_CL);
+    
+    while (num_of_filters > 0)
+    {
+        color_delete (num_of_filters-1, color_filters);
+    }
+
+    if (!revert_filters())
+        simple_dialog(ESD_TYPE_CRIT, NULL, "Could not delete filter file: %s",
+            strerror(errno));
+
+    /* colorize list */
+    colorize_packets(&cfile);
+
+    /* Destroy the dialog box. */
+    gtk_widget_destroy(colorize_win);
 
 }
 

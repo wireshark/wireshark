@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.22 2003/03/26 00:34:27 guy Exp $
+ * $Id: filesystem.c,v 1.23 2003/05/15 07:44:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -600,4 +600,28 @@ get_persconffile_path(const char *filename, gboolean for_writing
 #endif
 
 	return path;
+}
+
+/*
+ * Construct the path name of a global configuration file, given the
+ * file name.
+ */
+char *
+get_datafile_path(const char *filename)
+{
+	char *path;
+
+	path = (gchar *) g_malloc(strlen(get_datafile_dir()) +
+	    strlen(filename) + 2);
+	sprintf(path, "%s" G_DIR_SEPARATOR_S "%s", get_datafile_dir(),
+	    filename);
+
+	return path;
+}
+
+/* Delete a file */
+gboolean
+deletefile(const char *path)
+{
+	return unlink(path) == 0;
 }

@@ -1413,6 +1413,7 @@ Liviu Daia <Liviu.Daia[AT]imar.ro> {
 
 Richard Urwin <rurwin[AT]schenck.co.uk> {
 	Developer documentation fixes and updates
+	Support for a system-wide color filter file
 }
 
 Prabhakar Krishnan <Prabhakar.Krishnan[AT]netapp.com> {

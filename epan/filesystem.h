@@ -1,7 +1,7 @@
 /* filesystem.h
  * Filesystem utility definitions
  *
- * $Id: filesystem.h,v 1.12 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: filesystem.h,v 1.13 2003/05/15 07:44:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,6 +77,12 @@ int test_for_fifo(const char *);
 const char *get_datafile_dir(void);
 
 /*
+ * Construct the path name of a global configuration file, given the
+ * file name.
+ */
+char *get_datafile_path(const char *filename);
+
+/*
  * Get the directory in which files that, at least on UNIX, are
  * system files (such as "/etc/ethers") are stored; on Windows,
  * there's no "/etc" directory, so we get them from the Ethereal
@@ -105,4 +111,6 @@ int create_persconffile_dir(char **pf_dir_path_return);
  */
 char *get_persconffile_path(const char *filename, gboolean for_writing);
 
+/* Delete a file */
+gboolean deletefile (const char *path);
 #endif /* FILESYSTEM_H */

@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.32 2003/05/05 00:53:06 guy Exp $
+ * $Id: resolv.c,v 1.33 2003/05/15 07:44:54 guy Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -912,10 +912,7 @@ static void initialize_ethers(void)
   /* manuf hash table initialization */
 
   /* Compute the pathname of the manuf file */
-  manuf_path = (gchar *) g_malloc(strlen(get_datafile_dir()) +
-    strlen(ENAME_MANUF) + 2);
-  sprintf(manuf_path, "%s" G_DIR_SEPARATOR_S "%s", get_datafile_dir(),
-    ENAME_MANUF);
+  manuf_path = get_datafile_path(ENAME_MANUF);
 
   /* Read it and initialize the hash table */
   set_ethent(manuf_path);
