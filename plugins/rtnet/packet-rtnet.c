@@ -347,15 +347,15 @@ dissect_rtnet_tdma_ack_ack_conf(tvbuff_t *tvb, guint offset, proto_tree *tree) {
 }
 
 static guint
-dissect_rtnet_tdma_station_list(tvbuff_t *tvb, guint offset, proto_tree *tree) 
+dissect_rtnet_tdma_station_list(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
   guint8 nr_stations;
   guint8 i;
-    
+
   nr_stations = tvb_get_guint8(tvb, offset);
   proto_tree_add_uint(tree, hf_tdma_v1_msg_station_list_nr_stations, tvb,
                       offset, 1, nr_stations);
-                            
+
   offset += 1;
 
   proto_tree_add_item(tree, hf_tdma_v1_msg_station_list_padding, tvb,
@@ -368,8 +368,8 @@ dissect_rtnet_tdma_station_list(tvbuff_t *tvb, guint offset, proto_tree *tree)
     proto_tree_add_item(tree, hf_tdma_v1_msg_station_list_ip, tvb,
                         offset, 4, FALSE );
 
-    offset += 4;  
-    
+    offset += 4;
+
     proto_tree_add_item(tree, hf_tdma_v1_msg_station_list_nr, tvb,
                         offset, 1, FALSE );
 
@@ -459,7 +459,7 @@ dissect_rtnet_tdma_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root) {
       case TDMA_V1_MSG_ACK_ACK_CONF:
         dissect_rtnet_tdma_ack_ack_conf(tvb, offset, tree);
         break;
-        
+
       case TDMA_V1_MSG_STATION_LIST:
         dissect_rtnet_tdma_station_list (tvb, offset, tree);
         break;
@@ -532,7 +532,7 @@ dissect_tdma_reply_cal(tvbuff_t *tvb, guint offset, proto_tree *tree) {
   proto_item_append_text(ti, " (%s%lld)", (time > 0) ? "+" : "", time);
 #else
   offset += 8;
-  
+
   proto_tree_add_item(tree, hf_tdma_rpl_cal_xmit_stamp, tvb, offset, 8, FALSE);
 #endif
 }
@@ -811,7 +811,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          proto_tree_add_item(flags_tree, hf_rtcfg_client_flags_ready, tvb, offset, 1, FALSE);
          proto_tree_add_item(flags_tree, hf_rtcfg_client_flags_res, tvb, offset, 1, FALSE);
          offset += 1;
- 
+
          proto_tree_add_item( rtcfg_tree, hf_rtcfg_burst_rate, tvb, offset, 1, FALSE );
          offset += 1;
 
@@ -937,6 +937,11 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 void
 proto_register_rtmac(void) {
+  static const true_false_string rtnet_flags_set_truth = {
+    "Set",
+    "Not set"
+  };
+
   static hf_register_info hf_array_rtmac[] = {
 
     /* RTmac header */
@@ -961,7 +966,7 @@ proto_register_rtmac(void) {
     { &hf_rtmac_header_flags_tunnel,
       { "Tunnelling Flag",
         "rtmac.header.flags.tunnel",
-        FT_BOOLEAN, 8, TFS(&flags_set_truth), RTMAC_FLAG_TUNNEL,
+        FT_BOOLEAN, 8, TFS(&rtnet_flags_set_truth), RTMAC_FLAG_TUNNEL,
         "RTmac Tunnelling Flag", HFILL }},
 
     { &hf_rtmac_header_flags_res,
@@ -1368,7 +1373,7 @@ proto_register_rtcfg(void) {
         "rtcfg.server_flags.res2",
         FT_UINT8, BASE_HEX, NULL, 0xfc,
         "Reserved", HFILL }},
-        
+
     { &hf_rtcfg_active_stations,
       { "Active Stations",
         "rtcfg.active_stations",
