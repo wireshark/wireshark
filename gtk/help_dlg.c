@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.48 2004/03/13 14:07:14 ulfl Exp $
+ * $Id: help_dlg.c,v 1.49 2004/05/21 00:27:56 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -45,6 +45,7 @@
 
 
 #define NOTEBOOK_KEY    "notebook_key"
+#define TEXT_KEY        "txt_key"
 
 static void help_close_cb(GtkWidget *w, gpointer data);
 static void help_destroy_cb(GtkWidget *w, gpointer data);
@@ -72,13 +73,11 @@ typedef struct {
 static GSList *help_text_pages = NULL;
 
 /*
- * Helper function to show a simple help text page.
+ * Helper function to show a simple text page.
  */
-static GtkWidget * help_page(const char *topic, const char *filename)
+GtkWidget * text_page_new(const char *topic, const char *absolute_path)
 {
   GtkWidget *page_vb, *txt_scrollw, *txt;
-  char *relative_path, *absolute_path;
-  help_page_t *page;
 
   page_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_border_width(GTK_CONTAINER(page_vb), 1);
@@ -111,19 +110,36 @@ static GtkWidget * help_page(const char *topic, const char *filename)
   /* gtk_text_view_set_right_margin(GTK_TEXT_VIEW(txt), 3); */
 #endif
 
-  relative_path = g_strconcat(HELP_DIR, G_DIR_SEPARATOR_S, filename, NULL);
-  absolute_path = get_datafile_path(relative_path);
-  g_free(relative_path);
+  OBJECT_SET_DATA(page_vb, TEXT_KEY, txt);
+
   set_help_text(txt, absolute_path);
   gtk_container_add(GTK_CONTAINER(txt_scrollw), txt);
   gtk_widget_show(txt_scrollw);
   gtk_widget_show(txt);
+
+  return page_vb;
+}
+
+
+/*
+ * Helper function to show a simple help text page.
+ */
+static GtkWidget * help_page(const char *topic, const char *filename)
+{
+  GtkWidget *page_vb;
+  char *relative_path, *absolute_path;
+  help_page_t *page;
+
+  relative_path = g_strconcat(HELP_DIR, G_DIR_SEPARATOR_S, filename, NULL);
+  absolute_path = get_datafile_path(relative_path);
+  page_vb = text_page_new(topic, absolute_path);
+  g_free(relative_path);
   gtk_widget_show(page_vb);
 
   page = g_malloc(sizeof (help_page_t));
   page->topic = g_strdup(topic);
   page->pathname = absolute_path;
-  page->txt = txt;
+  page->txt = OBJECT_GET_DATA(page_vb, TEXT_KEY);
   help_text_pages = g_slist_append(help_text_pages, page);
 
   return page_vb;
