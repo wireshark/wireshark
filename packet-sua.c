@@ -5,7 +5,7 @@
  *
  * Copyright 2002, 2003 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-sua.c,v 1.16 2003/04/22 13:47:38 tuexen Exp $
+ * $Id: packet-sua.c,v 1.17 2003/06/03 16:00:37 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -390,6 +390,8 @@ static int hf_tid_label_value = -1;
 static int hf_drn_label_start = -1;
 static int hf_drn_label_end = -1;
 static int hf_drn_label_value = -1;
+static int hf_gt_reserved = -1;
+static int hf_gti = -1;
 static int hf_number_of_digits = -1;
 static int hf_translation_type = -1;
 static int hf_numbering_plan = -1;
@@ -414,6 +416,18 @@ static gint ett_sua_sequence_number_sent_number = -1;
 static gint ett_sua_receive_sequence_number_number = -1;
 static gint ett_sua_return_on_error_bit_and_protocol_class = -1;
 static gint ett_sua_protcol_classes = -1;
+
+/*  Keep track of SSN value of current message so if/when we get to the data
+ *  parameter, we can call appropriate sub-dissector.  TODO: can this info
+ *  be stored elsewhere?
+ */
+#define INVALID_SSN 0xff
+static guint8 source_ssn = INVALID_SSN;
+static guint8 dest_ssn = INVALID_SSN;
+static guint8 *curr_ssn = NULL;
+static tvbuff_t *data_tvb = NULL;
+static dissector_handle_t data_handle;
+static dissector_table_t sua_ssn_dissector_table;
 
 static void
 dissect_parameters(tvbuff_t *tlv_tvb, proto_tree *tree);
@@ -758,6 +772,9 @@ dissect_source_address_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
 
   parameters_tvb = tvb_new_subset(parameter_tvb, ADDRESS_PARAMETERS_OFFSET, -1, -1);
   dissect_parameters(parameters_tvb, parameter_tree);
+  
+  /* set the SSN for SUA DATA dissection to the right one source / dest */
+  curr_ssn = &source_ssn;
 }
 
 static void
@@ -777,6 +794,9 @@ dissect_destination_address_parameter(tvbuff_t *parameter_tvb, proto_tree *param
 
   parameters_tvb = tvb_new_subset(parameter_tvb, ADDRESS_PARAMETERS_OFFSET, -1, -1);
   dissect_parameters(parameters_tvb, parameter_tree);
+
+  /* set the SSN for SUA DATA dissection to the right one source / dest */
+  curr_ssn = &dest_ssn;
 }
 
 #define SOURCE_REFERENCE_NUMBER_LENGTH 4
@@ -934,6 +954,7 @@ dissect_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
   data_length    = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   proto_tree_add_item(parameter_tree, hf_data, parameter_tvb, DATA_PARAMETER_DATA_OFFSET, data_length, NETWORK_BYTE_ORDER);
   proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", data_length, plurality(data_length, "", "s"));
+  data_tvb = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, data_length, data_length);
 }
 
 
@@ -1122,12 +1143,14 @@ dissect_congestion_level_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
   proto_item_append_text(parameter_item, " (%u)", tvb_get_ntohl(parameter_tvb, CONGESTION_LEVEL_OFFSET));
 }
 
+#define GTI_LENGTH               1
 #define NO_OF_DIGITS_LENGTH      1
 #define TRANSLATION_TYPE_LENGTH  1
 #define NUMBERING_PLAN_LENGTH    1
 #define NATURE_OF_ADDRESS_LENGTH 1
 
-#define NO_OF_DIGITS_OFFSET      PARAMETER_VALUE_OFFSET
+#define GTI_OFFSET               (PARAMETER_VALUE_OFFSET + RESERVED_3_LENGTH)
+#define NO_OF_DIGITS_OFFSET      (GTI_OFFSET + GTI_LENGTH)
 #define TRANSLATION_TYPE_OFFSET  (NO_OF_DIGITS_OFFSET + NO_OF_DIGITS_LENGTH)
 #define NUMBERING_PLAN_OFFSET    (TRANSLATION_TYPE_OFFSET + TRANSLATION_TYPE_LENGTH)
 #define NATURE_OF_ADDRESS_OFFSET (NUMBERING_PLAN_OFFSET + NUMBERING_PLAN_LENGTH)
@@ -1173,7 +1196,9 @@ dissect_global_title_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
   guint16 global_title_length;
 
   global_title_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - 
-                        (PARAMETER_HEADER_LENGTH + NO_OF_DIGITS_LENGTH + TRANSLATION_TYPE_LENGTH + NUMBERING_PLAN_LENGTH + NATURE_OF_ADDRESS_LENGTH);
+                        (PARAMETER_HEADER_LENGTH + RESERVED_3_LENGTH + GTI_LENGTH + NO_OF_DIGITS_LENGTH + TRANSLATION_TYPE_LENGTH + NUMBERING_PLAN_LENGTH + NATURE_OF_ADDRESS_LENGTH);
+  proto_tree_add_item(parameter_tree, hf_gt_reserved,       parameter_tvb, PARAMETER_VALUE_OFFSET,   RESERVED_3_LENGTH,        NETWORK_BYTE_ORDER);
+  proto_tree_add_item(parameter_tree, hf_gti,               parameter_tvb, GTI_OFFSET,               GTI_LENGTH,               NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_number_of_digits,  parameter_tvb, NO_OF_DIGITS_OFFSET,      NO_OF_DIGITS_LENGTH,      NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_translation_type,  parameter_tvb, TRANSLATION_TYPE_OFFSET,  TRANSLATION_TYPE_LENGTH,  NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_numbering_plan,    parameter_tvb, NUMBERING_PLAN_OFFSET,    NUMBERING_PLAN_LENGTH,    NETWORK_BYTE_ORDER);
@@ -1197,10 +1222,19 @@ dissect_point_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree
 static void
 dissect_ssn_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
+  guint8 ssn;
+  
   proto_tree_add_item(parameter_tree, hf_ssn_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH, NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_ssn_number,   parameter_tvb, SSN_OFFSET,             SSN_LENGTH,        NETWORK_BYTE_ORDER);
 
-  proto_item_append_text(parameter_item, " (%u)", tvb_get_guint8(parameter_tvb,  SSN_OFFSET));
+  ssn = tvb_get_guint8(parameter_tvb,  SSN_OFFSET);
+  proto_item_append_text(parameter_item, " (%u)", ssn);
+
+  /* Save the current ssn for SUA DATA dissection */
+  if(curr_ssn)
+  {
+    *curr_ssn = ssn;
+  }
 }
 
 #define IPV4_ADDRESS_LENGTH 4
@@ -1431,7 +1465,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, proto_tree *tree)
 }
 
 static void
-dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_tree)
+dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_tree, proto_tree *tree)
 {
   tvbuff_t *common_header_tvb;
   tvbuff_t *parameters_tvb;
@@ -1442,6 +1476,20 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
   if (sua_tree) {
   	parameters_tvb = tvb_new_subset(message_tvb, COMMON_HEADER_LENGTH, -1, -1);
     dissect_parameters(parameters_tvb, sua_tree);
+  }
+
+  /* If there was SUA data it could be dissected */
+  if(data_tvb)
+  {
+    /* Try subdissectors (if we found a valid SSN on the current message) */
+    if ((dest_ssn == INVALID_SSN ||
+       !dissector_try_port(sua_ssn_dissector_table, dest_ssn, data_tvb, pinfo, tree))
+       && (source_ssn == INVALID_SSN ||
+       !dissector_try_port(sua_ssn_dissector_table, source_ssn, data_tvb, pinfo, tree)))
+    {
+      /* No sub-dissection occured, treat it as raw data */
+      call_dissector(data_handle, data_tvb, pinfo, sua_tree);
+    }
   }
 }
 
@@ -1455,6 +1503,10 @@ dissect_sua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
      col_set_str(pinfo->cinfo, COL_PROTOCOL, "SUA");
 
+  /* Clear entries in Info column on summary display */
+  if (check_col(pinfo->cinfo, COL_INFO))
+     col_clear(pinfo->cinfo, COL_INFO);
+
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
   if (tree) {
@@ -1466,7 +1518,7 @@ dissect_sua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   };
 
   /* dissect the message */
-  dissect_sua_message(message_tvb, pinfo, sua_tree);
+  dissect_sua_message(message_tvb, pinfo, sua_tree, tree);
 }
 
 /* Register the protocol with Ethereal */
@@ -1558,6 +1610,8 @@ proto_register_sua(void)
     { &hf_drn_label_start,                       { "Start",                        "sua.drn_label_start",                           FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      "", HFILL } },
     { &hf_drn_label_end,                         { "End",                          "sua.drn_label_end",                             FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      "", HFILL } },
     { &hf_drn_label_value,                       { "Label Value",                  "sua.drn_label_value",                           FT_UINT16,  BASE_HEX,  NULL,                               0x0,                      "", HFILL } },
+    { &hf_gt_reserved,                           { "Reserved",                     "sua.gt_reserved",                               FT_BYTES,   BASE_NONE, NULL,                               0x0,                      "", HFILL } },
+    { &hf_gti,                                   { "GTI",                          "sua.gti",                                       FT_UINT8,   BASE_HEX,  NULL,                               0x0,                      "", HFILL } },
     { &hf_number_of_digits,                      { "Number of Digits",             "sua.global_title_number_of_digits",             FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      "", HFILL } },
     { &hf_translation_type,                      { "Translation Type",             "sua.global_title_translation_type",             FT_UINT8,   BASE_HEX,  NULL,                               0x0,                      "", HFILL } },
     { &hf_numbering_plan,                        { "Numbering Plan",               "sua.global_title_numbering_plan",               FT_UINT8,   BASE_HEX,  VALS(numbering_plan_values),        0x0,                      "", HFILL } },
@@ -1566,7 +1620,7 @@ proto_register_sua(void)
     { &hf_global_title,                          { "Global Title",                 "sua.global_title_signals",                      FT_BYTES,   BASE_NONE, NULL,                               0x0,                      "", HFILL } },
     { &hf_point_code_dpc,                        { "Point Code",                   "sua.point_code",                                FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      "", HFILL } },
     { &hf_ssn_reserved,                          { "Reserved",                     "sua.ssn_reserved",                              FT_BYTES,   BASE_NONE, NULL,                               0x0,                      "", HFILL } },
-    { &hf_ssn_number,                            { "Subsystem Number",             "sua.ssn_number",                                FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      "", HFILL } },
+    { &hf_ssn_number,                            { "Subsystem Number",             "sua.ssn",                                       FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      "", HFILL } },
     { &hf_ipv4,                                  { "IP Version 4 address",         "sua.ipv4_address",                              FT_IPv4,    BASE_NONE, NULL,                               0x0,                      "", HFILL } },
     { &hf_hostname,                              { "Hostname",                     "sua.hostname.name",                             FT_STRING,  BASE_NONE, NULL,                               0x0,                      "", HFILL } },
     { &hf_ipv6,                                  { "IP Version 6 address",         "sua.ipv6_address",                              FT_IPv6,    BASE_NONE, NULL,                               0x0,                      "", HFILL } },
@@ -1597,6 +1651,8 @@ proto_register_sua(void)
 
   sua_module = prefs_register_protocol(proto_sua, NULL);
   prefs_register_obsolete_preference(sua_module, "sua_version");
+
+  sua_ssn_dissector_table = register_dissector_table("sua.ssn", "SUA SSN", FT_UINT8, BASE_DEC);
 }
 
 void
@@ -1607,4 +1663,6 @@ proto_reg_handoff_sua(void)
   sua_handle = create_dissector_handle(dissect_sua, proto_sua);
   dissector_add("sctp.ppi",  SUA_PAYLOAD_PROTOCOL_ID, sua_handle);
   dissector_add("sctp.port", SCTP_PORT_SUA,           sua_handle);
+
+  data_handle = find_dissector("data");
 }
