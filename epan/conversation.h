@@ -28,10 +28,18 @@
 /*
  * Flags to pass to "conversation_new()" to indicate that the address 2
  * and/or port 2 values for the conversation should be wildcards.
+ * The CONVERSATION_TEMPLATE option tells that any of the other supplied
+ * port and / or address wildcards will be used to match an infinite number
+ * of new connections to the conversation(s) that have the CONVERSATION_-
+ * TEMPLATE flag set. Any conversation created without the CONVERSATION_-
+ * TEMPLATE flag will be altered once the first connections (connection
+ * oriented protocols only) to include the newly found information which
+ * matched the wildcard options.
  */
 #define NO_ADDR2 0x01
 #define NO_PORT2 0x02
 #define NO_PORT2_FORCE 0x04
+#define CONVERSATION_TEMPLATE 0x08
 
 /*
  * Flags to pass to "find_conversation()" to indicate that the address B
