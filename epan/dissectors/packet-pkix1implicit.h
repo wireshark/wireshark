@@ -32,7 +32,13 @@
 #ifndef PACKET_PKIX1IMPLICIT_H
 #define PACKET_PKIX1IMPLICIT_H
 
-/*#include "packet-pkix1implicit-exp.h"*/
+
+/*--- Included file: packet-pkix1implicit-exp.h ---*/
+
+int dissect_pkix1implicit_UserNotice(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+
+/*--- End of included file: packet-pkix1implicit-exp.h ---*/
+
 
 #endif  /* PACKET_PKIX1IMPLICIT_H */
 
