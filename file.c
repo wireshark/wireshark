@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.147 2000/01/03 22:53:34 guy Exp $
+ * $Id: file.c,v 1.148 2000/01/05 07:22:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1164,6 +1164,16 @@ find_packet(capture_file *cf, dfilter *sfcode)
     /* We found a frame.  Make it visible, and select it. */
     if (!gtk_clist_row_is_visible(GTK_CLIST(packet_list), new_fd->row))
       gtk_clist_moveto(GTK_CLIST(packet_list), new_fd->row, -1, 0.0, 0.0);
+
+    /* XXX - why is there no "gtk_clist_set_focus_row()", so that we
+       can make the row for the frame we found the focus row?
+
+       See
+
+   http://www.gnome.org/mailing-lists/archives/gtk-list/2000-January/0038.shtml
+
+       */
+    GTK_CLIST(packet_list)->focus_row = new_fd->row;
     gtk_clist_select_row(GTK_CLIST(packet_list), new_fd->row, -1);
     return TRUE;	/* success */
   } else
@@ -1187,6 +1197,9 @@ goto_frame(capture_file *cf, guint fnumber)
      Make it visible, and select it. */
   if (!gtk_clist_row_is_visible(GTK_CLIST(packet_list), fd->row))
     gtk_clist_moveto(GTK_CLIST(packet_list), fd->row, -1, 0.0, 0.0);
+
+  /* See above complaint about the lack of "gtk_clist_set_focus_row()". */
+  GTK_CLIST(packet_list)->focus_row = fd->row;
   gtk_clist_select_row(GTK_CLIST(packet_list), fd->row, -1);
   return FOUND_FRAME;
 }
