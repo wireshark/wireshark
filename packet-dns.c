@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.49 2000/08/07 03:20:28 guy Exp $
+ * $Id: packet-dns.c,v 1.50 2000/08/08 16:21:23 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -736,6 +736,11 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
 		     ip_to_str((guint8 *)dptr));
       proto_tree_add_text(rr_tree, NullTVB, cur_offset, 4, "Addr: %s",
 		     ip_to_str((guint8 *)dptr));
+    }
+    if (class == 1) {
+      guint32 addr;
+      memcpy(&addr, dptr, sizeof(addr));
+      add_host_name(addr, name);
     }
     break;
 

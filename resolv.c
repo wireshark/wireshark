@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.24 2000/07/14 07:11:53 guy Exp $
+ * $Id: resolv.c,v 1.25 2000/08/08 16:21:24 deniel Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -1038,6 +1038,10 @@ extern void add_host_name(u_int addr, u_char *name)
       (hashname_t *)g_malloc(sizeof(hashname_t));
   } else {  
     while(1) {
+      if (tp->addr == addr && strcmp(tp->name, name) == 0) {
+	/* address already known */
+	return;
+      }
       if (tp->next == NULL) {
 	tp->next = (hashname_t *)g_malloc(sizeof(hashname_t));
 	tp = tp->next;
