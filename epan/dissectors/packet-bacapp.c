@@ -48,11 +48,11 @@
  * XXX - this is an ASN.1-based protocol, so the dissector should perhaps
  * be generated from the ASN.1 specification.
  *
- * However, they seem to indicate in 20 "ENCODING BACnet PROTOCOL DATA
- * UNITS" in the BACnet spec that they're not using BER uniformly - the
- * fixed portion of each APDU is encoded implicitly rather than using
- * BER's explicit tagging - so that might not be possible.  If it's not,
- * it should probably still use the packet-ber.c routines.
+ * However, they don't appear to be using BER - the fixed portion of
+ * each APDU is encoded implicitly rather than using BER-style explicit
+ * tagging, and even the variable portion doesn't seem to use BER
+ * tags (the tag values in 20.2.1.4 aren't the same as the ones
+ * in BER).
  */
 
 static const value_string bacapp_type_name[] = {
@@ -802,7 +802,7 @@ static guint8 bacapp_flags = 0;
 static guint8 bacapp_seq = 0;
 
 
-int
+static int
 fTagHeader (tvbuff_t *tvb, guint *offset, guint8 *tag_no, guint8* class_tag, guint64 *lvt)
 {
 	int tmp, retVal = 0;
@@ -832,7 +832,7 @@ fTagHeader (tvbuff_t *tvb, guint *offset, guint8 *tag_no, guint8* class_tag, gui
 #define LABEL(lbl) (lbl==NULL ? (guint8 *) "   Value: " : lbl)
 
 
-void
+static void
 fUnsignedTag (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 *label, guint64 lvt)
 {
 	guint8 tmp, i;
@@ -847,7 +847,7 @@ fUnsignedTag (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 *label, gui
 	(*offset)+=min((guint8) lvt,8);
 }
 
-void
+static void
 fSignedTag (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 *label, guint64 lvt)
 {
 	guint8 tmp, i;
@@ -862,7 +862,7 @@ fSignedTag (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 *label, guint
 	(*offset)+=min((guint8) lvt,8);
 }
 
-void
+static void
 fDateTag (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 *label, guint64 lvt)
 {
 	guint32 year, month, day, weekday;
@@ -879,7 +879,7 @@ fDateTag (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 *label, guint64
 	(*offset)+=(guint8) lvt;
 }
 
-void
+static void
 fTimeTag (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 *label, guint64 lvt)
 {
 	guint32 year, month, day, weekday;
@@ -896,7 +896,7 @@ fTimeTag (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 *label, guint64
 	(*offset)+=(guint8) lvt;
 }
 
-void
+static void
 fOctetString (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 *label, guint64 lvt)
 {
 	guint8 *str_val, len;
@@ -916,7 +916,7 @@ fOctetString (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 *label, gui
 	} while (lvt > 0);
 }
 
-void
+static void
 fBACnetAddress (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
 	guint8 tag_no, class_tag;
@@ -932,7 +932,7 @@ fBACnetAddress (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 		fOctetString (tvb, tree, offset, "mac-address: ", lvt);
 }
 
-void
+static void
 fObjectIdentifier (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 *label)
 {
 	guint8 offs, tag_no, class_tag;
@@ -951,7 +951,7 @@ fObjectIdentifier (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 *label
 	(*offset)+=4;
 }
 
-void
+static void
 fRecipient (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 tag_no, class_tag;
@@ -974,7 +974,7 @@ fRecipient (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 }
 
 
-void
+static void
 fRecipientProcess (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 tag_no, class_tag;
@@ -996,7 +996,7 @@ fRecipientProcess (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *o
 	fRecipientProcess (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fBACnetAddressBinding (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
 	guint8 tag_no, class_tag;
@@ -1009,7 +1009,7 @@ fBACnetAddressBinding (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 	fBACnetAddress (tvb, tree, offset);
 }
 
-int
+static int
 fPropertyIdentifier (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 *label)
 {
 	guint8 offs, tag_no, class_tag, tmp, i;
@@ -1029,7 +1029,7 @@ fPropertyIdentifier (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 *lab
 	return val;
 }
 
-void
+static void
 fApplicationTags (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 *label, const value_string
  *src)
 {
@@ -1169,7 +1169,7 @@ fApplicationTags (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 *label,
 	}
 }
 
-void
+static void
 fPropertyValue (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -1233,7 +1233,7 @@ fPropertyValue (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offs
 	fPropertyValue (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fSubscribeCOV (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tmp, tag_no, class_tag, i;
@@ -1279,7 +1279,7 @@ fSubscribeCOV (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offse
 	fSubscribeCOV (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fWhoHas (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -1309,7 +1309,7 @@ fWhoHas (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 	fWhoHas (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fUTCTimeSynchronization (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
 	guint8 tag_no, class_tag;
@@ -1324,7 +1324,7 @@ fUTCTimeSynchronization (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 	fTimeTag (tvb, tree, offset, "UTC-Time: ", lvt);
 }
 
-void
+static void
 fTimeSynchronization (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
 	guint8 tag_no, class_tag;
@@ -1339,7 +1339,7 @@ fTimeSynchronization (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 	fTimeTag (tvb, tree, offset, "Time: ", lvt);
 }
 
-void
+static void
 fTextMessage (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 tag_no, class_tag;
@@ -1375,7 +1375,7 @@ fTextMessage (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset
 	fTextMessage (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fPrivateTransfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -1405,7 +1405,7 @@ fPrivateTransfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *of
 	}
 }
 
-void
+static void
 fNotificationParameters (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -1431,7 +1431,7 @@ fNotificationParameters (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 	fNotificationParameters (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fEventNotification (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tmp, tag_no, class_tag, i;
@@ -1497,7 +1497,7 @@ fEventNotification (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *
 	fEventNotification (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fCOVNotification (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tmp, tag_no, class_tag, i;
@@ -1551,7 +1551,7 @@ fCOVNotification (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *of
 	fCOVNotification (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fAckAlarm (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tmp, tag_no, class_tag, i;
@@ -1596,7 +1596,7 @@ fAckAlarm (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 	fAckAlarm (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fAckAlarmRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 tag_no, class_tag;
@@ -1630,7 +1630,7 @@ fAckAlarmRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *of
 	fAckAlarmRequest (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fGetAlarmSummary (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	if ((*offset) >= tvb_reported_length(tvb))
@@ -1643,7 +1643,7 @@ fGetAlarmSummary (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *of
 	fGetAlarmSummary (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fgetEnrollmentSummaryRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 tag_no, class_tag;
@@ -1683,7 +1683,7 @@ fgetEnrollmentSummaryRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	fgetEnrollmentSummaryRequest (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fgetEnrollmentSummaryAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 tag_no, class_tag;
@@ -1703,7 +1703,7 @@ fgetEnrollmentSummaryAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	fgetEnrollmentSummaryAck (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fGetEventInformationRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 tag_no, class_tag;
@@ -1725,7 +1725,7 @@ fGetEventInformationRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	fGetEventInformationRequest (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 flistOfEventSummaries (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 tag_no, class_tag;
@@ -1773,7 +1773,7 @@ flistOfEventSummaries (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 	flistOfEventSummaries (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fGetEventInformation (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 tag_no, class_tag;
@@ -1798,7 +1798,7 @@ fGetEventInformation (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 	fGetEventInformationRequest (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fAddListElement (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -1838,13 +1838,13 @@ fAddListElement (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *off
 	fAddListElement (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fDeleteObject (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
 	fObjectIdentifier (tvb, tree, offset, "BACnetObjectIdentifier: ");
 }
 
-void
+static void
 fWritePropertyMultiple (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	if ((*offset) >= tvb_reported_length(tvb))
@@ -1856,7 +1856,7 @@ fWritePropertyMultiple (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
 }
 
-void
+static void
 fDeviceCommunicationControl (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	if ((*offset) >= tvb_reported_length(tvb))
@@ -1868,7 +1868,7 @@ fDeviceCommunicationControl (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 }
 
-void
+static void
 fReinitializeDevice (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	if ((*offset) >= tvb_reported_length(tvb))
@@ -1880,7 +1880,7 @@ fReinitializeDevice (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 
 }
 
-void
+static void
 fVtOpen (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	if ((*offset) >= tvb_reported_length(tvb))
@@ -1892,7 +1892,7 @@ fVtOpen (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 
 }
 
-void
+static void
 fVtClose (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	if ((*offset) >= tvb_reported_length(tvb))
@@ -1904,7 +1904,7 @@ fVtClose (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 
 }
 
-void
+static void
 fVtData (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	if ((*offset) >= tvb_reported_length(tvb))
@@ -1916,7 +1916,7 @@ fVtData (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 
 }
 
-void
+static void
 fAuthenticate (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	if ((*offset) >= tvb_reported_length(tvb))
@@ -1928,7 +1928,7 @@ fAuthenticate (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offse
 
 }
 
-void
+static void
 fRequestKey (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	if ((*offset) >= tvb_reported_length(tvb))
@@ -1940,7 +1940,7 @@ fRequestKey (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 
 }
 
-void
+static void
 fLifeSafetyOperation (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	if ((*offset) >= tvb_reported_length(tvb))
@@ -1952,7 +1952,7 @@ fLifeSafetyOperation (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 
 }
 
-void
+static void
 fSubscribeCOVProperty (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	if ((*offset) >= tvb_reported_length(tvb))
@@ -1964,7 +1964,7 @@ fSubscribeCOVProperty (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 
 }
 
-void
+static void
 fRemoveListElement (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	if ((*offset) >= tvb_reported_length(tvb))
@@ -1976,7 +1976,7 @@ fRemoveListElement (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *
 
 }
 
-void
+static void
 fReadWriteProperty (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -2021,7 +2021,7 @@ fReadWriteProperty (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *
 }
 
 
-void
+static void
 fPropertyReference (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -2049,7 +2049,7 @@ fPropertyReference (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *
 	fPropertyReference (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fSelectionCriteria (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -2080,7 +2080,7 @@ fSelectionCriteria (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *
 	fSelectionCriteria (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fObjectSelectionCriteria (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -2114,7 +2114,7 @@ fObjectSelectionCriteria (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 }
 
 
-void
+static void
 fReadPropertyConditional (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -2147,7 +2147,7 @@ fReadPropertyConditional (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	fReadPropertyConditional (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fReadWriteMultipleProperty (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -2163,7 +2163,7 @@ fReadWriteMultipleProperty (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	*tree = *tree; /* just to eliminate warnings */
 }
 
-void
+static void
 fReadAccessSpecification (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -2196,7 +2196,7 @@ fReadAccessSpecification (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	fReadAccessSpecification (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fWriteAccessSpecification (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -2229,7 +2229,7 @@ fWriteAccessSpecification (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	fReadAccessSpecification (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fReadAccessResult (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -2291,7 +2291,7 @@ fReadAccessResult (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *o
 }
 
 
-void
+static void
 fReadPropertyConditionalAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -2308,7 +2308,7 @@ fReadPropertyConditionalAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 
-void
+static void
 fObjectSpecifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -2332,7 +2332,7 @@ fObjectSpecifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *of
 
 
 
-void
+static void
 fCreateObject (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -2365,13 +2365,13 @@ fCreateObject (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offse
 	fCreateObject (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fCreateObjectAck (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
 	fObjectIdentifier (tvb, tree, offset, "BACnetObjectIdentifier: ");
 }
 
-void
+static void
 fReadRangeRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -2431,7 +2431,7 @@ fReadRangeRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *o
 	fReadRangeRequest (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fReadRangeAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -2475,7 +2475,7 @@ fReadRangeAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offse
 	fReadRangeAck (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fAtomicReadFileRequest (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -2519,7 +2519,7 @@ fAtomicReadFileRequest (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 	}
 }
 
-void
+static void
 fAtomicWriteFileRequest (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -2580,7 +2580,7 @@ fAtomicWriteFileRequest (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 	}
 }
 
-void
+static void
 fAtomicWriteFileAck (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
 	guint8 tag_no, class_tag;
@@ -2600,7 +2600,7 @@ fAtomicWriteFileAck (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 	}
 }
 
-void
+static void
 fAtomicReadFile (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -2661,7 +2661,7 @@ fAtomicReadFile (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 	}
 }
 
-void
+static void
 fReadPropertyMultipleRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -2692,7 +2692,7 @@ fReadPropertyMultipleRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	fReadPropertyMultipleRequest (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fReadPropertyMultipleAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tag_no, class_tag;
@@ -2750,7 +2750,7 @@ fReadPropertyMultipleAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	fReadPropertyMultipleAck (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fTagRequests (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, gint service_choice)
 {
 	guint8 offs, tag_no, class_tag;
@@ -2868,7 +2868,7 @@ fTagRequests (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset
  /*	fTagRequests (tvb, pinfo, tree, offset, service_choice); ### */
 }
 
-void
+static void
 fTags (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, gint service_choice)
 {
 	guint8 offs, tag_no, class_tag;
@@ -2984,7 +2984,7 @@ fTags (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, gint 
 #endif
 }
 
-void
+static void
 fIAm (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
 	guint8 offs, tmp, tag_no, class_tag, i;
@@ -3013,7 +3013,7 @@ fIAm (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 
 }
 
-void
+static void
 fIHave (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
 	/* BACnetDeviceIdentifier */
@@ -3027,7 +3027,7 @@ fIHave (tvbuff_t *tvb, proto_tree *tree, guint *offset)
 
 }
 
-void
+static void
 fWhoIs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
 	guint8 tag_no, class_tag;
@@ -3053,7 +3053,7 @@ fWhoIs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
  	fWhoIs (tvb, pinfo, tree, offset);
 }
 
-void
+static void
 fUnconfirmedTags (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, gint service_choice)
 {
 	guint8 offs, tag_no, class_tag;
@@ -3100,270 +3100,267 @@ fUnconfirmedTags (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *of
 	}
 }
 
-void
-fConfirmedServiceRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
+static void
+fConfirmedServiceRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {	/* BACnet-Confirmed-Request */
 	/* ASHRAE 135-2001 20.1.2 */
-
+	int offset = 0;
 	proto_item *tc, *tt, *ti;
 	proto_tree *bacapp_tree, *bacapp_tree_control, *bacapp_tree_tag;
-	gint tmp, bacapp_type, service_choice;
+	guint8 tmp, bacapp_type, service_choice;
 
-	tmp = (gint) tvb_get_guint8(tvb, (*offset));
+	tmp = tvb_get_guint8(tvb, offset);
 	bacapp_type = (tmp >> 4) & 0x0f;
 	bacapp_flags = tmp & 0x0f;
 
-	service_choice = (gint) tvb_get_guint8(tvb, (*offset)+3);
+	service_choice = tvb_get_guint8(tvb, offset+3);
 	if (bacapp_flags & 0x08)
-		service_choice = (gint) tvb_get_guint8(tvb, (*offset)+5);
+		service_choice = tvb_get_guint8(tvb, offset+5);
 
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_str(pinfo->cinfo, COL_INFO, val_to_str(service_choice, bacapp_confirmed_service_choice, "Reserved by ASHRAE"));
 
 	if (tree) {
-
-		ti = proto_tree_add_item(tree, proto_bacapp, tvb, (*offset), -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_bacapp, tvb, offset, -1, FALSE);
 		bacapp_tree = proto_item_add_subtree(ti, ett_bacapp);
 
-		tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, (*offset), 1, TRUE);
+		tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset, 1, TRUE);
 		bacapp_tree_control = proto_item_add_subtree(tc, ett_bacapp);
 
-		proto_tree_add_item(bacapp_tree_control, hf_bacapp_SEG, tvb, (*offset), 1, TRUE);
-		proto_tree_add_item(bacapp_tree_control, hf_bacapp_MOR, tvb, (*offset), 1, TRUE);
-		proto_tree_add_item(bacapp_tree_control, hf_bacapp_SA, tvb, (*offset)++, 1, TRUE);
+		proto_tree_add_item(bacapp_tree_control, hf_bacapp_SEG, tvb, offset, 1, TRUE);
+		proto_tree_add_item(bacapp_tree_control, hf_bacapp_MOR, tvb, offset, 1, TRUE);
+		proto_tree_add_item(bacapp_tree_control, hf_bacapp_SA, tvb, offset++, 1, TRUE);
 		proto_tree_add_item(bacapp_tree_control, hf_bacapp_response_segments, tvb,
-			                (*offset), 1, TRUE);
+			                offset, 1, TRUE);
 		proto_tree_add_item(bacapp_tree_control, hf_bacapp_max_adpu_size, tvb,
-							(*offset), 1, TRUE);
-		(*offset) ++;
-		proto_tree_add_item(bacapp_tree, hf_bacapp_invoke_id, tvb,	(*offset)++, 1, TRUE);
+							offset, 1, TRUE);
+		offset ++;
+		proto_tree_add_item(bacapp_tree, hf_bacapp_invoke_id, tvb,	offset++, 1, TRUE);
 		if (bacapp_flags & 0x08) {
-			bacapp_seq = tvb_get_guint8(tvb, (*offset));
+			bacapp_seq = tvb_get_guint8(tvb, offset);
 			proto_tree_add_item(bacapp_tree_control, hf_bacapp_sequence_number, tvb,
-				(*offset)++, 1, TRUE);
+				offset++, 1, TRUE);
 			proto_tree_add_item(bacapp_tree_control, hf_bacapp_window_size, tvb,
-				(*offset)++, 1, TRUE);
+				offset++, 1, TRUE);
 		}
-		tmp = tvb_get_guint8(tvb, (*offset));
+		tmp = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(bacapp_tree, hf_bacapp_service, tvb,
-			(*offset)++, 1, TRUE);
+			offset++, 1, TRUE);
 		tt = proto_tree_add_item(bacapp_tree, hf_bacapp_vpart, tvb,
-			(*offset), 0, TRUE);
+			offset, 0, TRUE);
 		/* Service Request follows... Variable Encoding 20.2ff */
 		bacapp_tree_tag = proto_item_add_subtree(tt, ett_bacapp_tag);
-		fTagRequests (tvb, pinfo, bacapp_tree_tag, offset, tmp); /* (*offset) changes his value on return */
+		fTagRequests (tvb, pinfo, bacapp_tree_tag, &offset, tmp); /* offset changes his value on return */
 	}
 }
 
-void
-fUnconfirmedServiceRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
+static void
+fUnconfirmedServiceRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {	/* BACnet-Unconfirmed-Request-PDU */
 	/* ASHRAE 135-2001 20.1.3 */
-
+	int offset = 0;
 	proto_item *tt, *ti;
 	proto_tree *bacapp_tree_tag, *bacapp_tree;
-	gint tmp;
+	guint8 tmp;
 
-	tmp = tvb_get_guint8(tvb, (*offset)+1);
+	tmp = tvb_get_guint8(tvb, offset+1);
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_str(pinfo->cinfo, COL_INFO, val_to_str(tmp, BACnetUnconfirmedServiceRequest, "Reserved by ASHRAE"));
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_bacapp, tvb, (*offset), -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_bacapp, tvb, offset, -1, FALSE);
 		bacapp_tree = proto_item_add_subtree(ti, ett_bacapp);
 
-		proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, (*offset)++, 1, TRUE);
+		proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset++, 1, TRUE);
 
-		tmp = tvb_get_guint8(tvb, (*offset));
+		tmp = tvb_get_guint8(tvb, offset);
 		tt = proto_tree_add_item(bacapp_tree, hf_bacapp_uservice, tvb,
-				(*offset)++, 1, TRUE);
+				offset++, 1, TRUE);
 		/* Service Request follows... Variable Encoding 20.2ff */
 		bacapp_tree_tag = proto_item_add_subtree(tt, ett_bacapp_tag);
-		fUnconfirmedTags (tvb, pinfo, bacapp_tree_tag, offset, tmp); /* (*offset) changes his value on return */
+		fUnconfirmedTags (tvb, pinfo, bacapp_tree_tag, &offset, tmp); /* offset changes his value on return */
 	}
 }
 
-void
-fSimpleAcknowledge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
+static void
+fSimpleAcknowledge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {	/* BACnet-Simple-Ack-PDU */
 	/* ASHRAE 135-2001 20.1.4 */
-
+	int offset = 0;
 	proto_item *tc, *ti;
-	gint tmp;
+	guint8 tmp;
 	proto_tree *bacapp_tree;
 
-	tmp = tvb_get_guint8(tvb, (*offset)+2);
+	tmp = tvb_get_guint8(tvb, offset+2);
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_str(pinfo->cinfo, COL_INFO, val_to_str(tmp, bacapp_confirmed_service_choice, "Reserved by ASHRAE"));
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_bacapp, tvb, (*offset), -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_bacapp, tvb, offset, -1, FALSE);
 		bacapp_tree = proto_item_add_subtree(ti, ett_bacapp);
 
-		tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, (*offset)++, 1, TRUE);
+		tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset++, 1, TRUE);
 
 		proto_tree_add_item(bacapp_tree, hf_bacapp_invoke_id, tvb,
-			(*offset)++, 1, TRUE);
+			offset++, 1, TRUE);
 		proto_tree_add_item(bacapp_tree, hf_bacapp_service, tvb,
-			(*offset)++, 1, TRUE);
+			offset++, 1, TRUE);
 	}
 }
 
-void
-fComplexAcknowledge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
+static void
+fComplexAcknowledge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {	/* BACnet-Complex-Ack-PDU */
 	/* ASHRAE 135-2001 20.1.5 */
-
+	int offset = 0;
 	proto_item *tc, *tt, *ti;
 	proto_tree *bacapp_tree, *bacapp_tree_control, *bacapp_tree_tag;
-	gint tmp, bacapp_type;
+	guint8 tmp, bacapp_type;
 
-	tmp = (gint) tvb_get_guint8(tvb, (*offset));
+	tmp = tvb_get_guint8(tvb, offset);
 	bacapp_type = (tmp >> 4) & 0x0f;
 	bacapp_flags = tmp & 0x0f;
 
-	tmp = tvb_get_guint8(tvb, (*offset)+2);
+	tmp = tvb_get_guint8(tvb, offset+2);
 	if (bacapp_flags & 0x08)
-		tmp = tvb_get_guint8(tvb, (*offset)+4);
+		tmp = tvb_get_guint8(tvb, offset+4);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_str(pinfo->cinfo, COL_INFO, val_to_str(tmp, bacapp_confirmed_service_choice, "Reserved by ASHRAE"));
 
 	if (tree) {
 
-		ti = proto_tree_add_item(tree, proto_bacapp, tvb, (*offset), -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_bacapp, tvb, offset, -1, FALSE);
 		bacapp_tree = proto_item_add_subtree(ti, ett_bacapp);
 
-		tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, (*offset), 1, TRUE);
+		tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset, 1, TRUE);
 		bacapp_tree_control = proto_item_add_subtree(tc, ett_bacapp);
 
-		proto_tree_add_item(bacapp_tree, hf_bacapp_SEG, tvb, (*offset), 1, TRUE);
-		proto_tree_add_item(bacapp_tree, hf_bacapp_MOR, tvb, (*offset)++, 1, TRUE);
+		proto_tree_add_item(bacapp_tree, hf_bacapp_SEG, tvb, offset, 1, TRUE);
+		proto_tree_add_item(bacapp_tree, hf_bacapp_MOR, tvb, offset++, 1, TRUE);
 		proto_tree_add_item(bacapp_tree, hf_bacapp_invoke_id, tvb,
-			(*offset)++, 1, TRUE);
+			offset++, 1, TRUE);
 		if (bacapp_flags & 0x08) {
-			bacapp_seq = tvb_get_guint8(tvb, (*offset));
+			bacapp_seq = tvb_get_guint8(tvb, offset);
 			proto_tree_add_item(bacapp_tree, hf_bacapp_sequence_number, tvb,
-				(*offset)++, 1, TRUE);
+				offset++, 1, TRUE);
 			proto_tree_add_item(bacapp_tree, hf_bacapp_window_size, tvb,
-				(*offset)++, 1, TRUE);
+				offset++, 1, TRUE);
 		}
-		tmp = tvb_get_guint8(tvb, (*offset));
+		tmp = tvb_get_guint8(tvb, offset);
 		tt = proto_tree_add_item(bacapp_tree, hf_bacapp_service, tvb,
-			(*offset)++, 1, TRUE);
+			offset++, 1, TRUE);
 		/* Service ACK follows... */
 		bacapp_tree_tag = proto_item_add_subtree(tt, ett_bacapp_tag);
-		fTags (tvb, pinfo, bacapp_tree_tag, offset, tmp); /* (*offset) changes his value on return */
+		fTags (tvb, pinfo, bacapp_tree_tag, &offset, tmp); /* offset changes his value on return */
 	}
 }
 
 
-void
-fSegmentedAcknowledge(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+static void
+fSegmentedAcknowledge(tvbuff_t *tvb, proto_tree *tree)
 {	/* BACnet-SegmentAck-PDU */
 	/* ASHRAE 135-2001 20.1.6 */
-
+	int offset = 0;
 	proto_item *tc, *ti;
 	proto_tree *bacapp_tree_control, *bacapp_tree;
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_bacapp, tvb, (*offset), -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_bacapp, tvb, offset, -1, FALSE);
 		bacapp_tree = proto_item_add_subtree(ti, ett_bacapp);
 
-		tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, (*offset), 1, TRUE);
+		tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset, 1, TRUE);
 		bacapp_tree_control = proto_item_add_subtree(tc, ett_bacapp);
 
-		proto_tree_add_item(bacapp_tree, hf_bacapp_NAK, tvb, (*offset), 1, TRUE);
-		proto_tree_add_item(bacapp_tree, hf_bacapp_SRV, tvb, (*offset)++, 1, TRUE);
+		proto_tree_add_item(bacapp_tree, hf_bacapp_NAK, tvb, offset, 1, TRUE);
+		proto_tree_add_item(bacapp_tree, hf_bacapp_SRV, tvb, offset++, 1, TRUE);
 		proto_tree_add_item(bacapp_tree, hf_bacapp_invoke_id, tvb,
-			(*offset)++, 1, TRUE);
+			offset++, 1, TRUE);
 		proto_tree_add_item(bacapp_tree, hf_bacapp_sequence_number, tvb,
-				(*offset)++, 1, TRUE);
+				offset++, 1, TRUE);
 		proto_tree_add_item(bacapp_tree, hf_bacapp_window_size, tvb,
-				(*offset)++, 1, TRUE);
+				offset++, 1, TRUE);
 	}
 }
 
-void
-fError(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+static void
+fError(tvbuff_t *tvb, proto_tree *tree)
 {	/* BACnet-Error-PDU */
 	/* ASHRAE 135-2001 20.1.7 */
-
+	int offset = 0;
 	proto_item *tc, *ti;
 	proto_tree *bacapp_tree_control, *bacapp_tree;
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_bacapp, tvb, (*offset), -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_bacapp, tvb, offset, -1, FALSE);
 		bacapp_tree = proto_item_add_subtree(ti, ett_bacapp);
 
-		tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, (*offset)++, 1, TRUE);
+		tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset++, 1, TRUE);
 		bacapp_tree_control = proto_item_add_subtree(tc, ett_bacapp);
 
 		proto_tree_add_item(bacapp_tree, hf_bacapp_invoke_id, tvb,
-			(*offset)++, 1, TRUE);
+			offset++, 1, TRUE);
 		proto_tree_add_item(bacapp_tree, hf_bacapp_service, tvb,
-			(*offset)++, 1, TRUE);
+			offset++, 1, TRUE);
 		/* Error Code follows */
-		fApplicationTags (tvb, bacapp_tree, offset, "   errorClass: ", bacapp_errorClass);
-		fApplicationTags (tvb, bacapp_tree, offset, "   errorCode: ", bacapp_error_code);
-
+		fApplicationTags (tvb, bacapp_tree, &offset, "   errorClass: ", bacapp_errorClass);
+		fApplicationTags (tvb, bacapp_tree, &offset, "   errorCode: ", bacapp_error_code);
 	}
 }
 
-void
-fReject(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+static void
+fReject(tvbuff_t *tvb, proto_tree *tree)
 {	/* BACnet-Reject-PDU */
 	/* ASHRAE 135-2001 20.1.8 */
-
+	int offset = 0;
 	proto_item *tc, *ti;
 	proto_tree *bacapp_tree_control, *bacapp_tree;
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_bacapp, tvb, (*offset), -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_bacapp, tvb, offset, -1, FALSE);
 		bacapp_tree = proto_item_add_subtree(ti, ett_bacapp);
 
-		tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, (*offset)++, 1, TRUE);
+		tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset++, 1, TRUE);
 		bacapp_tree_control = proto_item_add_subtree(tc, ett_bacapp);
 
 		proto_tree_add_item(bacapp_tree, hf_bacapp_invoke_id, tvb,
-			(*offset)++, 1, TRUE);
+			offset++, 1, TRUE);
 		proto_tree_add_item(bacapp_tree, hf_bacapp_reject_reason, tvb,
-			(*offset)++, 1, TRUE);
+			offset++, 1, TRUE);
 	}
 }
 
-void
-dissect_bacapp_abort(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+static void
+fAbort(tvbuff_t *tvb, proto_tree *tree)
 {	/* BACnet-Abort-PDU */
 	/* ASHRAE 135-2001 20.1.9 */
-
+	int offset = 0;
 	proto_item *tc, *ti;
 	proto_tree *bacapp_tree_control, *bacapp_tree;
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_bacapp, tvb, (*offset), -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_bacapp, tvb, offset, -1, FALSE);
 		bacapp_tree = proto_item_add_subtree(ti, ett_bacapp);
 
-		tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, (*offset), 1, TRUE);
+		tc = proto_tree_add_item(bacapp_tree, hf_bacapp_type, tvb, offset, 1, TRUE);
 		bacapp_tree_control = proto_item_add_subtree(tc, ett_bacapp);
 
-		proto_tree_add_item(bacapp_tree, hf_bacapp_SRV, tvb, (*offset)++, 1, TRUE);
+		proto_tree_add_item(bacapp_tree, hf_bacapp_SRV, tvb, offset++, 1, TRUE);
 		proto_tree_add_item(bacapp_tree, hf_bacapp_invoke_id, tvb,
-			(*offset)++, 1, TRUE);
+			offset++, 1, TRUE);
 		proto_tree_add_item(bacapp_tree, hf_bacapp_abort_reason, tvb,
-			(*offset)++, 1, TRUE);
+			offset++, 1, TRUE);
 	}
 }
 
-void
+static void
 dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	gint tmp, bacapp_type;
+	guint8 tmp, bacapp_type;
 	tvbuff_t *next_tvb;
-	guint offset = 0;
 
-	tmp = (gint) tvb_get_guint8(tvb, 0);
+	tmp = tvb_get_guint8(tvb, 0);
 	bacapp_type = (tmp >> 4) & 0x0f;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -3372,33 +3369,30 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* ASHRAE 135-2001 20.1.1 */
 	switch (bacapp_type) {
 	case 0:	/* BACnet-Confirmed-Service-Request */
-		fConfirmedServiceRequest(tvb, pinfo, tree, &offset);	/* offset will be modified */
+		fConfirmedServiceRequest(tvb, pinfo, tree);
 		break;
 	case 1:	/* BACnet-Unconfirmed-Request-PDU */
-		fUnconfirmedServiceRequest(tvb, pinfo, tree, &offset);	/* offset will be modified */
+		fUnconfirmedServiceRequest(tvb, pinfo, tree);
 		break;
 	case 2:	/* BACnet-Simple-Ack-PDU */
-		fSimpleAcknowledge(tvb, pinfo, tree, &offset);	/* offset will be modified */
+		fSimpleAcknowledge(tvb, pinfo, tree);
 		break;
 	case 3:	/* BACnet-Complex-Ack-PDU */
-		fComplexAcknowledge(tvb, pinfo, tree, &offset);	/* offset will be modified */
+		fComplexAcknowledge(tvb, pinfo, tree);
 		break;
 	case 4:	/* BACnet-SegmentAck-PDU */
-		fSegmentedAcknowledge(tvb, tree, &offset);	/* offset will be modified */
+		fSegmentedAcknowledge(tvb, tree);
 		break;
 	case 5:	/* BACnet-Error-PDU */
-		fError(tvb, tree, &offset);	/* offset will be modified */
+		fError(tvb, tree);
 		break;
 	case 6:	/* BACnet-Reject-PDU */
-		fReject(tvb, tree, &offset);	/* offset will be modified */
+		fReject(tvb, tree);
 		break;
 	case 7:	/* BACnet-Abort-PDU */
-		dissect_bacapp_abort(tvb, tree, &offset);	/* offset will be modified */
+		fAbort(tvb, tree);
 		break;
 	}
-
-	next_tvb = tvb_new_subset(tvb,offset,-1,-1);
-	call_dissector(data_handle,next_tvb, pinfo, tree);
 }
 
 void
