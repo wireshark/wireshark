@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.33 2001/09/04 01:05:40 guy Exp $
+ * $Id: plugins.c,v 1.34 2001/09/14 09:27:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -434,7 +434,7 @@ init_plugins(const char *plugin_dir)
 	/*
 	 * Make sure that pathname refers to a directory.
 	 */
-	if (test_for_directory(install_plugin_dir) != 0) {
+	if (test_for_directory(install_plugin_dir) != EISDIR) {
 		/*
 		 * Either it doesn't refer to a directory or it
 		 * refers to something that doesn't exist.
