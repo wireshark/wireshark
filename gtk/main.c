@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.183 2001/03/23 14:44:04 jfoster Exp $
+ * $Id: main.c,v 1.184 2001/03/27 06:19:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -916,7 +916,7 @@ main(int argc, char *argv[])
    );
 
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "B:c:Df:hi:km:no:pP:Qr:R:Ss:t:T:w:W:vZ:")) != EOF) {
+  while ((opt = getopt(argc, argv, "B:c:f:hi:km:no:pP:Qr:R:Ss:t:T:w:W:vZ:")) != EOF) {
     switch (opt) {
       case 'B':        /* Byte view pane height */
         bv_size = atoi(optarg);
