@@ -409,9 +409,10 @@ organizes the protocols in the same hierarchy in which
 they were found in the trace. Besides counting the packets
 in which the protocol exists, a count is also made
 for packets in which the protocol is the last protocol in
-the stack. These "Last Protocol" counts show you how many packets
+the stack. These last-protocol counts show you how many packets
 (and the byte count associated with those packets) B<ended> in a particular
-protocol.
+protocol. In the table, they are listed under "End Packets" and
+"End Bytes".
 
 =head2 WINDOWS
 

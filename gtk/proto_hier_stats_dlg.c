@@ -1,6 +1,6 @@
 /* proto_hier_stats_dlg.c
  *
- * $Id: proto_hier_stats_dlg.c,v 1.3 2001/03/26 03:02:57 gram Exp $
+ * $Id: proto_hier_stats_dlg.c,v 1.4 2001/03/29 04:21:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -119,11 +119,11 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
 	int		i, height;
 	gchar		*column_titles[NUM_STAT_COLUMNS] = {
 		"Protocol",
-		"Percentage Packets",
+		"% Packets",
 		"Packets",
 		"Bytes",
-		"Last-Protocol Packets",
-		"Last-Protocol Bytes",
+		"End Packets",
+		"End Bytes",
 	};
 
 	/* Scrolled Window */
