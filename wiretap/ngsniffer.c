@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.63 2001/03/10 06:33:57 guy Exp $
+ * $Id: ngsniffer.c,v 1.64 2001/07/06 00:17:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -1735,23 +1735,6 @@ ng_file_seek_rand(wtap *wth, long offset, int whence)
 
    if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED)
 	return file_seek(wth->random_fh, offset, whence);
-
-   /* OK, seeking in a compressed data stream is a pain - especially
-      given that the compressed Sniffer data stream we're reading
-      may actually be further compressed by gzip.
-
-      For now, we implement random access the same way zlib does:
-
-	compute the target position (we don't support relative-to-end);
-
-	if the target position is ahead of where we are, read and throw
-	away the number of bytes ahead it is;
-
-	if the target position is behind where we are, seek backward
-	to the beginning of the compressed part of the data (i.e.,
-	seek backward to the stuff after the header), and then recompute
-	the relative position based on the new position and seek forward
-	by reading and throwing away data. */
 
     ngsniffer = wth->capture.ngsniffer;
 
