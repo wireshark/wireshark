@@ -1,9 +1,15 @@
-ethereal (0.8.2-0.1) unstable; urgency=low
+ethereal (0.8.3-0unoff) unstable; urgency=low
 
-  * New upstream release.
+  * New upstream release. (unofficial package)
+
+ -- Your Name <your.name@your.domain>  Sat,  5 Feb 2000 23:51:26 +0100
+
+ethereal (0.8.2-0unoff) unstable; urgency=low
+
+  * New upstream release. (unofficial package)
   * debian directory added in CVS tree
 
- -- Olivier Abad <abad@daba.dhis.net>  Wed, 26 Jan 2000 07:40:15 +0100
+ -- Your Name <your.name@your.domain>  Wed, 26 Jan 2000 07:40:15 +0100
 
 ethereal (0.8.1-2) unstable; urgency=low
 
