@@ -941,6 +941,7 @@ Akira Endoh <endoh[AT]netmarks.co.jp> {
 	MPLSCP, CDPCP, and CDP over PPP support
 	BGP support for draft-ietf-idr-as4bytes-06.txt and
 	    draft-ietf-idr-dynamic-cap-03.txt
+	Wellfleet Breath of Life support
 }
 
 Graeme Hewson <graeme.hewson[AT]oracle.com> {
