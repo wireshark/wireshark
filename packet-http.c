@@ -7,7 +7,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.100 2004/04/30 17:07:20 obiot Exp $
+ * $Id: packet-http.c,v 1.101 2004/05/04 06:21:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -799,6 +799,13 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int resp_strlen)
 
 /*
  * Dissect the http data chunks and add them to the tree.
+ *
+ * XXX - this needs to handle chunked responses that take more than
+ * one packet.  To do that, the chunked data reassembly would have to be
+ * done in "req_resp_hdrs_do_reassembly()", before we actually do any
+ * dissection - once you start building the protocol tree, you can't
+ * do reassembly, as you can't just say "oops, sorry, forget about
+ * the stuff I've added to the protocol tree, I need to get more data".
  */
 static int
 chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
