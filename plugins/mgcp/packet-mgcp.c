@@ -1,10 +1,17 @@
 /* packet-mgcp.c
  * Routines for mgcp packet disassembly
  * RFC 2705
+ * RFC 3435 (obsoletes 2705): Media Gateway Control Protocol (MGCP) Version 1.0
+ * RFC 3660: Basic MGCP Packages
+ * RFC 3661: MGCP Return Code Usage
+ * NCS 1.0: PacketCable Network-Based Call Signaling Protocol Specification, 
+ *          PKT-SP-EC-MGCP-I09-040113, January 13, 2004, Cable Television 
+ *          Laboratories, Inc., http://www.PacketCable.com/
  *
- * $Id: packet-mgcp.c,v 1.45 2004/05/23 13:43:13 etxrab Exp $
+ * $Id: packet-mgcp.c,v 1.46 2004/05/30 17:58:35 etxrab Exp $
  *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
+ * Copyright (c) 2004 by Thomas Anders <thomas.anders [AT] blue-cable.de>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,6 +103,18 @@ static int hf_mgcp_param_signalreq  = -1;
 static int hf_mgcp_param_digitmap = -1;
 static int hf_mgcp_param_observedevent = -1;
 static int hf_mgcp_param_connectionparam = -1;
+static int hf_mgcp_param_connectionparam_ps = -1;
+static int hf_mgcp_param_connectionparam_os = -1;
+static int hf_mgcp_param_connectionparam_pr = -1;
+static int hf_mgcp_param_connectionparam_or = -1;
+static int hf_mgcp_param_connectionparam_pl = -1;
+static int hf_mgcp_param_connectionparam_ji = -1;
+static int hf_mgcp_param_connectionparam_la = -1;
+static int hf_mgcp_param_connectionparam_pcrps = -1;
+static int hf_mgcp_param_connectionparam_pcros = -1;
+static int hf_mgcp_param_connectionparam_pcrpl = -1;
+static int hf_mgcp_param_connectionparam_pcrji = -1;
+static int hf_mgcp_param_connectionparam_x = -1;
 static int hf_mgcp_param_reasoncode = -1;
 static int hf_mgcp_param_eventstates = -1;
 static int hf_mgcp_param_specificendpoint = -1;
@@ -151,10 +170,12 @@ static const value_string mgcp_return_code_vals[] = {
 
 /*
  * Define the trees for mgcp
- * We need one for MGCP itself and one for the MGCP paramters
+ * We need one for MGCP itself, one for the MGCP paramters and one
+ * for each of the dissected parameters
  */
 static int ett_mgcp = -1;
 static int ett_mgcp_param = -1;
+static int ett_mgcp_param_connectionparam = -1;
 
 /*
  * Define the tap for mgcp
@@ -212,6 +233,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
 				   proto_tree *tree, mgcp_info_t *mi);
 static void dissect_mgcp_params(tvbuff_t *tvb,
 				proto_tree *tree);
+static void dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offset, gint param_type_len, gint param_val_len);
 static void mgcp_raw_text_add(tvbuff_t *tvb,
 			      proto_tree *tree);
 
@@ -309,7 +331,7 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     do{
       num_messages++;
       if(tree){
-	/* Create out mgcp subtree */
+	/* Create our mgcp subtree */
 	ti = proto_tree_add_item(tree,proto_mgcp,tvb,0,0, FALSE);
 	mgcp_tree = proto_item_add_subtree(ti, ett_mgcp);
       }
@@ -566,6 +588,42 @@ proto_register_mgcp(void)
     { &hf_mgcp_param_connectionparam,
       { "ConnectionParameters (P)", "mgcp.param.connectionparam", FT_STRING,
 	BASE_DEC, NULL, 0x0, "Connection Parameters", HFILL }},
+    { &hf_mgcp_param_connectionparam_ps,
+      { "Packets sent (PS)", "mgcp.param.connectionparam.ps", FT_UINT32,
+	BASE_DEC, NULL, 0x0, "Packets sent (P:PS)", HFILL }},
+    { &hf_mgcp_param_connectionparam_os,
+      { "Octets sent (OS)", "mgcp.param.connectionparam.os", FT_UINT32,
+	BASE_DEC, NULL, 0x0, "Octets sent (P:OS)", HFILL }},
+    { &hf_mgcp_param_connectionparam_pr,
+      { "Packets received (PR)", "mgcp.param.connectionparam.pr", FT_UINT32,
+	BASE_DEC, NULL, 0x0, "Packets received (P:PR)", HFILL }},
+    { &hf_mgcp_param_connectionparam_or,
+      { "Octets received (OR)", "mgcp.param.connectionparam.or", FT_UINT32,
+	BASE_DEC, NULL, 0x0, "Octets received (P:OR)", HFILL }},
+    { &hf_mgcp_param_connectionparam_pl,
+      { "Packets lost (PL)", "mgcp.param.connectionparam.pl", FT_UINT32,
+	BASE_DEC, NULL, 0x0, "Packets lost (P:PL)", HFILL }},
+    { &hf_mgcp_param_connectionparam_ji,
+      { "Jitter (JI)", "mgcp.param.connectionparam.ji", FT_UINT32,
+	BASE_DEC, NULL, 0x0, "Average inter-packet arrival jitter in milliseconds (P:JI)", HFILL }},
+    { &hf_mgcp_param_connectionparam_la,
+      { "Latency (LA)", "mgcp.param.connectionparam.la", FT_UINT32,
+	BASE_DEC, NULL, 0x0, "Average latency in milliseconds (P:LA)", HFILL }},
+    { &hf_mgcp_param_connectionparam_pcrps,
+      { "Remote Packets sent (PC/RPS)", "mgcp.param.connectionparam.pcrps", FT_UINT32,
+	BASE_DEC, NULL, 0x0, "Remote Packets sent (P:PC/RPS)", HFILL }},
+    { &hf_mgcp_param_connectionparam_pcros,
+      { "Remote Octets sent (PC/ROS)", "mgcp.param.connectionparam.pcros", FT_UINT32,
+	BASE_DEC, NULL, 0x0, "Remote Octets sent (P:PC/ROS)", HFILL }},
+    { &hf_mgcp_param_connectionparam_pcrpl,
+      { "Remote Packets lost (PC/RPL)", "mgcp.param.connectionparam.pcrpl", FT_UINT32,
+	BASE_DEC, NULL, 0x0, "Remote Packets lost (P:PC/RPL)", HFILL }},
+    { &hf_mgcp_param_connectionparam_pcrji,
+      { "Remote Jitter (PC/RJI)", "mgcp.param.connectionparam.pcrji", FT_UINT32,
+	BASE_DEC, NULL, 0x0, "Remote Jitter (P:PC/RJI)", HFILL }},
+    { &hf_mgcp_param_connectionparam_x,
+      { "Vendor Extension", "mgcp.param.connectionparam.x", FT_STRING,
+	BASE_DEC, NULL, 0x0, "Vendor Extension (P:X-*)", HFILL }},
     { &hf_mgcp_param_reasoncode,
       { "ReasonCode (E)", "mgcp.param.reasoncode", FT_STRING, BASE_DEC,
 	NULL, 0x0, "Reason Code", HFILL }},
@@ -613,6 +671,7 @@ proto_register_mgcp(void)
   static gint *ett[] = {
     &ett_mgcp,
     &ett_mgcp_param,
+    &ett_mgcp_param_connectionparam,
   };
   module_t *mgcp_module;
 
@@ -1323,9 +1382,6 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
  * tvb - The tvb containing the parameters of an MGCP message.  This
  *       tvb is presumed to ONLY contain the part of the MGCP
  *       message which contains the MGCP parameters.
- * pinfo - The packet info for the packet.  This is not really used
- *         by this function but is passed through so as to retain the
- *         style of a dissector.
  * tree - The tree from which to hang the structured information parsed
  *        from the parameters of the MGCP message.
  */
@@ -1361,7 +1417,11 @@ static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree){
       linelen = tvb_find_line_end(tvb, tvb_linebegin, -1,&tvb_lineend,FALSE);
       tvb_tokenbegin = tvb_parse_param(tvb, tvb_linebegin, linelen,
 				       &my_param);
-      if( my_param != NULL ){
+
+      if (*my_param == hf_mgcp_param_connectionparam) {
+	tokenlen = tvb_find_line_end(tvb,tvb_tokenbegin,-1,&tvb_lineend,FALSE);
+	dissect_mgcp_connectionparams(mgcp_param_tree, tvb, tvb_linebegin, tvb_tokenbegin - tvb_linebegin, tokenlen);
+      } else {
 	tokenlen = tvb_find_line_end(tvb,tvb_tokenbegin,-1,&tvb_lineend,FALSE);
 	my_proto_tree_add_string(mgcp_param_tree,*my_param, tvb,
 				 tvb_linebegin, linelen,
@@ -1370,6 +1430,87 @@ static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree){
       }
       tvb_linebegin = tvb_lineend;
     }
+  }
+}
+
+static void
+dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offset, gint param_type_len, gint param_val_len)
+{
+  proto_tree *tree = parent_tree;
+  proto_item *item = NULL;
+  proto_item* (*my_proto_tree_add_uint)(proto_tree*, int, tvbuff_t*, gint, gint, guint32) = NULL;
+  proto_item* (*my_proto_tree_add_string)(proto_tree*, int, tvbuff_t*, gint, gint, const char*) = NULL;
+  proto_item* (*my_proto_tree_add_text)(proto_tree*, tvbuff_t*, gint, gint, const char *, ...) = NULL;
+
+  gchar *tokenline = NULL;
+  gchar **tokens = NULL;
+  gchar **typval = NULL;
+  guint i = 0;
+  guint tokenlen = 0;
+  int hf_uint = -1;
+  int hf_string = -1;
+
+  if (parent_tree) {
+    if (global_mgcp_dissect_tree){
+      my_proto_tree_add_uint = proto_tree_add_uint;
+      my_proto_tree_add_string = proto_tree_add_string;
+      my_proto_tree_add_text = proto_tree_add_text;
+      item = proto_tree_add_item(parent_tree, hf_mgcp_param_connectionparam, tvb, offset, param_type_len+param_val_len, FALSE);
+      tree = proto_item_add_subtree(item, ett_mgcp_param_connectionparam);
+    } else {
+      my_proto_tree_add_uint = proto_tree_add_uint_hidden;
+      my_proto_tree_add_string = proto_tree_add_string_hidden;
+      my_proto_tree_add_text = NULL;
+    }
+  }
+  /* the P: line */
+  offset += param_type_len; /* skip the P: */
+  tokenline = tvb_get_string(tvb, offset, param_val_len);
+  /* split into type=value pairs separated by comma */
+  tokens = g_strsplit(tokenline, ",", -1);
+  for (i = 0; tokens[i] != NULL; i++) {
+    tokenlen = strlen(tokens[i]);
+    typval = g_strsplit(tokens[i], "=", 2);
+    if ((typval[0] != NULL) && (typval[1] != NULL)) {
+      if (!strcasecmp(g_strstrip(typval[0]), "PS")) {
+	hf_uint = hf_mgcp_param_connectionparam_ps;
+      } else if (!strcasecmp(g_strstrip(typval[0]), "OS")) {
+	hf_uint = hf_mgcp_param_connectionparam_os;
+      } else if (!strcasecmp(g_strstrip(typval[0]), "PR")) {
+	hf_uint = hf_mgcp_param_connectionparam_pr;
+      } else if (!strcasecmp(g_strstrip(typval[0]), "OR")) {
+	hf_uint = hf_mgcp_param_connectionparam_or;
+      } else if (!strcasecmp(g_strstrip(typval[0]), "PL")) {
+	hf_uint = hf_mgcp_param_connectionparam_pl;
+      } else if (!strcasecmp(g_strstrip(typval[0]), "JI")) {
+	hf_uint = hf_mgcp_param_connectionparam_ji;
+      } else if (!strcasecmp(g_strstrip(typval[0]), "LA")) {
+	hf_uint = hf_mgcp_param_connectionparam_la;
+      } else if (!strcasecmp(g_strstrip(typval[0]), "PC/RPS")) {
+	hf_uint = hf_mgcp_param_connectionparam_pcrps;
+      } else if (!strcasecmp(g_strstrip(typval[0]), "PC/ROS")) {
+	hf_uint = hf_mgcp_param_connectionparam_pcros;
+      } else if (!strcasecmp(g_strstrip(typval[0]), "PC/RPL")) {
+	hf_uint = hf_mgcp_param_connectionparam_pcrpl;
+      } else if (!strcasecmp(g_strstrip(typval[0]), "PC/RJI")) {
+	hf_uint = hf_mgcp_param_connectionparam_pcrji;
+      } else if (!strncasecmp(g_strstrip(typval[0]), "X-", 2)) {
+	hf_string = hf_mgcp_param_connectionparam_x;
+      } else {
+	hf_uint = -1;
+	hf_string = -1;
+      }
+      if (hf_uint != -1) {
+	if (my_proto_tree_add_uint) my_proto_tree_add_uint(tree, hf_uint, tvb, offset, tokenlen, atol(typval[1]));
+      } else if (hf_string != -1) {
+	if (my_proto_tree_add_string) my_proto_tree_add_string(tree, hf_string, tvb, offset, tokenlen, g_strstrip(typval[1]));
+      } else {
+	if (my_proto_tree_add_text) proto_tree_add_text(tree, tvb, offset, tokenlen, "Unknown parameter: %s", tokens[i]);
+      }
+    } else {
+      if (my_proto_tree_add_text) proto_tree_add_text(tree, tvb, offset, tokenlen, "Malformed parameter: %s", tokens[i]);
+    }
+    offset += tokenlen+1; /* 1 extra for the delimiter */
   }
 }
 
