@@ -1264,6 +1264,7 @@ Didier Gautheron <dgautheron[AT]magic.fr> {
 	Fix handling of cross in TCP graph code
 	Fix sequence number overflow problems in TCP graph code and
 	    desegmentation code
+	Don't update the progress bar too often (only every 100ms)
 }
 
 Phil Williams <csypbw[AT]comp.leeds.ac.uk> {
