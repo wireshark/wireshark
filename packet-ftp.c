@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  *
- * $Id: packet-ftp.c,v 1.52 2003/06/10 23:12:15 guy Exp $
+ * $Id: packet-ftp.c,v 1.53 2003/10/07 03:35:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,6 +48,12 @@ static int hf_ftp_request_command = -1;
 static int hf_ftp_request_arg = -1;
 static int hf_ftp_response_code = -1;
 static int hf_ftp_response_arg = -1;
+static int hf_ftp_pasv_ip = -1 ;
+static int hf_ftp_pasv_port = -1;
+static int hf_ftp_pasv_nat = -1;
+static int hf_ftp_active_ip = -1;
+static int hf_ftp_active_port = -1;
+static int hf_ftp_active_nat = -1;
 
 static gint ett_ftp = -1;
 static gint ett_ftp_reqresp = -1;
@@ -105,7 +111,10 @@ static void
 dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /*
- * Handle a response to a PASV command.
+ * Parse the address and port information in a PORT command or in the
+ * response to a PASV command.  Return TRUE if we found an address and
+ * port, and supply the address and port; return FALSE if we didn't find
+ * them.
  *
  * We ignore the IP address in the reply, and use the address from which
  * the request came.
@@ -153,16 +162,16 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
  * so it appears that you can't assume there are parentheses around
  * the address and port number.
  */
-static void
-handle_pasv_response(const guchar *line, int linelen, packet_info *pinfo)
+static gboolean
+parse_port_pasv(const guchar *line, int linelen, guint32 *ftp_ip,
+    guint16 *ftp_port)
 {
 	char *args;
 	char *p;
 	guchar c;
 	int i;
 	int address[4], port[2];
-	guint16 server_port;
-	conversation_t 	*conversation;
+	gboolean ret = FALSE;
 
 	/*
 	 * Copy the rest of the line into a null-terminated buffer.
@@ -195,39 +204,10 @@ handle_pasv_response(const guchar *line, int linelen, packet_info *pinfo)
 		if (i == 6) {
 			/*
 			 * We have a winner!
-			 * Set up a conversation, to be dissected as FTP data.
 			 */
-			server_port = ((port[0] & 0xFF)<<8) | (port[1] & 0xFF);
-
-			/*
-			 * XXX - should this call to "find_conversation()"
-			 * just use "pinfo->src" and "server_port", and
-			 * wildcard everything else?
-			 */
-			conversation = find_conversation(&pinfo->src,
-			    &pinfo->dst, PT_TCP, server_port, 0, NO_PORT_B);
-			if (conversation == NULL) {
-				/*
-				 * XXX - should this call to
-				 * "conversation_new()" just use "pinfo->src"
-				 * and "server_port", and wildcard everything
-				 * else?
-				 *
-				 * XXX - what if we did find a conversation?
-				 * As we create it only on the first pass
-				 * through the packets, if we find one, it's
-				 * presumably an unrelated conversation.
-				 * Should we remove the old one from the hash
-				 * table and put this one in its place?
-				 * Can the conversaton code handle
-				 * conversations not in the hash table?
-				 */
-				conversation = conversation_new(&pinfo->src,
-				    &pinfo->dst, PT_TCP, server_port, 0,
-				    NO_PORT2);
-				conversation_set_dissector(conversation,
-				    ftpdata_handle);
-			}
+			*ftp_port = ((port[0] & 0xFF)<<8) | (port[1] & 0xFF);
+			*ftp_ip = htonl((address[0] << 24) | (address[1] <<16) | (address[2] <<8) | address[3]);
+			ret = TRUE;
 			break;
 		}
 
@@ -240,6 +220,7 @@ handle_pasv_response(const guchar *line, int linelen, packet_info *pinfo)
 	}
 
 	g_free(args);
+	return ret;
 }
 
 static void
@@ -253,11 +234,20 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const guchar	*line;
 	guint32		code;
 	gchar		code_str[4];
+	gboolean	is_port_request = FALSE;
 	gboolean	is_pasv_response = FALSE;
 	gint		next_offset;
 	int		linelen;
 	int		tokenlen;
 	const guchar	*next_token;
+	guint32		pasv_ip;
+	guint32		ftp_ip;
+	guint16		ftp_port;
+	address		ftp_ip_address;
+	gboolean	ftp_nat;
+	conversation_t	*conversation;
+
+	ftp_ip_address = pinfo->src;
 
 	if (pinfo->match_port == pinfo->destport)
 		is_request = TRUE;
@@ -325,6 +315,8 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    hf_ftp_request_command, tvb, offset,
 				    tokenlen, FALSE);
 			}
+			if (strncmp(line, "PORT", tokenlen) == 0)
+				is_port_request = TRUE;
 		}
 	} else {
 		/*
@@ -385,21 +377,6 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	linelen -= next_token - line;
 	line = next_token;
 
-	/*
-	 * If this is a PASV response, handle it if we haven't
-	 * already processed this frame.
-	 */
-	if (!pinfo->fd->flags.visited && is_pasv_response) {
-		if (linelen != 0) {
-			/*
-			 * We haven't processed this frame, and it contains
-			 * a PASV response; set up a conversation for the
-			 * data.
-			 */
-			handle_pasv_response(line, linelen, pinfo);
-		}
-	}
-
 	if (tree) {
 		/*
 		 * Add the rest of the first line as request or
@@ -417,7 +394,111 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 		offset = next_offset;
+	}
 
+	/*
+	 * If this is a PORT request or a PASV response, handle it.
+	 */
+	if (is_port_request) {
+		if (parse_port_pasv(line, linelen, &ftp_ip,
+		    &ftp_port)) {
+			if (tree) {
+				proto_tree_add_ipv4(reqresp_tree,
+				    hf_ftp_active_ip, tvb, 0, 0,
+				    ftp_ip);
+				proto_tree_add_uint(reqresp_tree,
+				    hf_ftp_active_port, tvb, 0, 0,
+				    ftp_port);
+			}
+			SET_ADDRESS(&ftp_ip_address, AT_IPv4, 4,
+			    (const guint8 *)&ftp_ip);
+			ftp_nat = !ADDRESSES_EQUAL(&pinfo->src,
+			    &ftp_ip_address);
+			if (ftp_nat) {
+				if (tree) {
+					proto_tree_add_boolean(
+					    reqresp_tree,
+					    hf_ftp_active_nat, tvb,
+					    0, 0, ftp_nat);
+				}
+			}
+		}
+	}
+
+	if (is_pasv_response) {
+		if (linelen != 0) {
+			/*
+			 * This frame contains a PASV response; set up a
+			 * conversation for the data.
+			 */
+			if (parse_port_pasv(line, linelen, &pasv_ip,
+			    &ftp_port)) {
+				if (tree) {
+					proto_tree_add_ipv4(reqresp_tree,
+					    hf_ftp_pasv_ip, tvb, 0, 0, pasv_ip);
+					proto_tree_add_uint(reqresp_tree,
+					    hf_ftp_pasv_port, tvb, 0, 0,
+					    ftp_port);
+				}
+				SET_ADDRESS(&ftp_ip_address, AT_IPv4, 4,
+				    (const guint8 *)&pasv_ip);
+				ftp_nat = !ADDRESSES_EQUAL(&pinfo->src,
+				    &ftp_ip_address);
+				if (ftp_nat) {
+					if (tree) {
+						proto_tree_add_boolean(reqresp_tree,
+						    hf_ftp_pasv_nat, tvb, 0, 0,
+						    ftp_nat);
+					}
+				}
+
+				/*
+				 * We use "ftp_ip_address", so that if
+				 * we're NAT'd we look for the un-NAT'd
+				 * connection.
+				 *
+				 * XXX - should this call to
+				 * "find_conversation()" just use
+				 * "ftp_ip_address" and "server_port", and
+				 * wildcard everything else?
+				 */
+				conversation = find_conversation(&ftp_ip_address,
+				    &pinfo->dst, PT_TCP, ftp_port, 0,
+				    NO_PORT_B);
+				if (conversation == NULL) {
+					/*
+					 * XXX - should this call to
+					 * "conversation_new()" just use
+					 * "ftp_ip_address" and "server_port",
+					 * and wildcard everything else?
+					 *
+					 * XXX - what if we did find a
+					 * conversation?  As we create it
+					 * only on the first pass through
+					 * the packets, if we find one, it's
+					 * presumably an unrelated conversation.
+					 * Should we remove the old one from
+					 * the hash table and put this one in
+					 * its place?  Can the conversation
+					 * code handle conversations not in
+					 * the hash table?  Or should we
+					 * make conversations support
+					 * start and end frames, as circuits
+					 * do, and treat this as an indication
+					 * that one conversation was closed
+					 * and a new one was opened?
+					 */
+					conversation = conversation_new(
+					    &ftp_ip_address, &pinfo->dst,
+					    PT_TCP, ftp_port, 0, NO_PORT2);
+					conversation_set_dissector(conversation,
+					    ftpdata_handle);
+				}
+			}
+		}
+	}
+
+	if (tree) {
 		/*
 		 * Show the rest of the request or response as text,
 		 * a line at a time.
@@ -503,7 +584,38 @@ proto_register_ftp(void)
     { &hf_ftp_response_arg,
       { "Response arg",      "ftp.response.arg",
       	FT_STRING,  BASE_NONE, NULL, 0x0,
-      	"", HFILL }}
+      	"", HFILL }},
+
+    { &hf_ftp_pasv_ip,
+      { "Passive IP address", "ftp.passive.ip",
+	FT_IPv4, BASE_NONE, NULL,0x0, 
+        "Passive IP address (check NAT)", HFILL}},
+
+    { &hf_ftp_pasv_port,
+      { "Passive port", "ftp.passive.port",
+       FT_UINT16, BASE_DEC, NULL,0x0,
+	"Passive FTP server port", HFILL }},
+
+    { &hf_ftp_pasv_nat,
+      {"Passive IP NAT", "ftp.passive.nat",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	"NAT is active SIP and passive IP different", HFILL }},
+
+    { &hf_ftp_active_ip,
+      { "Active IP address", "ftp.active.cip",
+	FT_IPv4, BASE_NONE, NULL, 0x0,
+	"Active FTP client IP address", HFILL }},
+
+    { &hf_ftp_active_port,
+      {"Active port", "ftp.active.port",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Active FTP client port", HFILL }},
+
+    { &hf_ftp_active_nat,
+      { "Active IP NAT", "ftp.active.nat",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	"NAT is active", HFILL}}
+
   };
   static gint *ett[] = {
     &ett_ftp,
