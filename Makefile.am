@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.394 2001/12/12 21:38:57 gerald Exp $
+# $Id: Makefile.am,v 1.395 2001/12/15 22:29:50 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -806,6 +806,7 @@ EXTRA_DIST = \
 	doc/tethereal.pod.template \
 	doc/text2pcap.pod	\
 	editcap.c		\
+	ethereal.desktop	\
 	ethereal_be.py		\
 	ethereal_gen.py		\
 	mergecap.c		\
@@ -817,20 +818,33 @@ EXTRA_DIST = \
 	idl2eth.sh		\
 	ieee-float.h		\
 	image/Makefile.nmake	\
-	image/editcap.rc.in	\
-	image/elogo3d48x48.png	\
-	image/ethereal48x48-trans.png  \
-	image/ethereal48x48.png \
-	image/ethereal.ico	\
-	image/ethereal.rc.in	\
-	image/eexcl3d64.xpm     \
-	image/eicon3d16.xpm	\
-	image/eicon3d64.xpm	\
+	image/README.image	\
 	image/clist_ascend.xpm	\
 	image/clist_descend.xpm	\
+	image/dn_arrow.xpm	\
+	image/editcap.rc.in	\
+	image/eexcl3d64.xpm	\
+	image/eicon3d16.xpm	\
+	image/eicon3d32.xpm	\
+	image/eicon3d48.xpm	\
+	image/eicon3d64.xpm	\
+	image/elogo3d48x48.png	\
+	image/ethereal.ico	\
+	image/ethereal.rc.in	\
+	image/ethereal48x48-trans.png  \
+	image/ethereal48x48.png \
+	image/hi16-app-ethereal.png	\
+	image/hi32-app-ethereal.png	\
+	image/hi48-app-ethereal.png	\
+	image/icon-ethereal.xpm	\
+	image/icon-excl.xpm	\
+	image/lo16-app-ethereal.png	\
+	image/lo32-app-ethereal.png	\
+	image/lo48-app-ethereal.png	\
 	image/mergecap.rc.in	\
 	image/tethereal.rc.in	\
 	image/text2pcap.rc.in	\
+	image/up_arrow.xpm	\
 	INSTALL.configure       \
 	Makefile.nmake		\
 	make-manuf		\

@@ -1,0 +1,16 @@
+[Desktop Entry]
+# $Id: ethereal.desktop,v 1.1 2001/12/15 22:29:50 guy Exp $
+Name=Ethereal
+Type=Application
+TryExec=ethereal
+Comment=Network traffic analyzer
+Comment[fi]=Verkkoliikenne analysaattori
+Exec=ethereal
+Icon=hi32-app-ethereal.png
+Path=
+Terminal=0
+TerminalOptions=
+MimeType=
+MapNotify=true
+Protocols=
+BinaryPattern=ethereal;
