@@ -2,7 +2,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers taps.
  *
- * $Id: endpoint_talkers_table.h,v 1.10 2004/05/03 22:15:21 ulfl Exp $
+ * $Id: endpoint_talkers_table.h,v 1.11 2004/06/01 20:28:05 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,43 +23,79 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-typedef struct _endpoint_talker_t {
-	address src_address;
-	address dst_address;
-	guint32 sat;
-	guint32 port_type;
-	guint32 src_port;
-	guint32 dst_port;
+/** @file
+ *  Conversation definitions.
+ */
 
-	guint32 rx_frames;
-	guint32 tx_frames;
-	guint32 rx_bytes;
-	guint32 tx_bytes;
+/** Address type */
+typedef enum {
+    SAT_NONE,       /**< no address type */
+    SAT_ETHER,      /**< ethernet */
+    SAT_FDDI,       /**< fddi */
+    SAT_TOKENRING   /**< token ring */
+} SAT_E;
+
+/** Conversation information */
+typedef struct _endpoint_talker_t {
+	address src_address;    /**< source address */
+	address dst_address;    /**< destination address */
+	SAT_E   sat;            /**< address type */
+	guint32 port_type;      /**< port_type (e.g. PT_TCP) */
+	guint32 src_port;       /**< source port */
+	guint32 dst_port;       /**< destination port */
+
+	guint32 rx_frames;      /**< number of received packets */
+	guint32 tx_frames;      /**< number of transmitted packets */
+	guint32 rx_bytes;       /**< number of received bytes */
+	guint32 tx_bytes;       /**< number of transmitted bytes */
 } endpoint_talker_t;
 
+/** Conversation widget */
 typedef struct _endpoints_table {
-	char *name;
-	GtkWidget *win;
-	GtkWidget *page_lb;
-	GtkWidget *scrolled_window;
-	GtkCList *table;
-	GtkItemFactory *item_factory;
-	GtkWidget *menu;
-	gboolean has_ports;
-	guint32 num_endpoints;
-	endpoint_talker_t *endpoints;
-    gboolean resolve_names;
+	char                *name;              /**< the name of the table */
+	GtkWidget           *win;               /**< GTK window */
+	GtkWidget           *page_lb;           /**< label */
+	GtkCList            *table;             /**< the GTK table */
+	GtkWidget           *menu;              /**< context menu */
+	gboolean            has_ports;          /**< table has ports */
+	guint32             num_endpoints;      /**< number of endpoints (0 or 1) */
+	endpoint_talker_t   *endpoints;         /**< array of conversation values */
+	gboolean            resolve_names;      /**< resolve address names? */
 } endpoints_table;
 
-
+/** Register the conversation table for the multiple conversation window.
+ *
+ * @param hide_ports hide the port columns
+ * @param table_name the table name to be displayed
+ * @param tap_name the registered tap name
+ * @param filter the optional filter name or NULL
+ * @param packet_func the function to be called for each incoming packet
+ */
 extern void register_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
 
+/** Init the conversation table for the single conversation window.
+ *
+ * @param hide_ports hide the port columns
+ * @param table_name the table name to be displayed
+ * @param tap_name the registered tap name
+ * @param filter the optional filter name or NULL
+ * @param packet_func the function to be called for each incoming packet
+ * @todo get values from register_ett_table() instead of own parameters
+ */
 extern void init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
 
-
-#define SAT_NONE		0
-#define SAT_ETHER		1
-#define SAT_FDDI		2
-#define SAT_TOKENRING		3
-void add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, int sat, int port_type);
+/** Add some data to the table.
+ *
+ * @param et the table to add the data to
+ * @param src source address
+ * @param dst destination address
+ * @param src_port source port
+ * @param dst_port destination port
+ * @param num_frames number of packets
+ * @param num_bytes number of bytes
+ * @param sat address type
+ * @param port_type the port type (e.g. PT_TCP)
+ */
+extern void add_ett_table_data(endpoints_table *et, address *src, address *dst, 
+                        guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, SAT_E sat, int port_type);
 

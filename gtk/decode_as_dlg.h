@@ -1,6 +1,6 @@
 /* decode_as_dlg.h
  *
- * $Id: decode_as_dlg.h,v 1.4 2002/09/05 18:47:45 jmayer Exp $
+ * $Id: decode_as_dlg.h,v 1.5 2004/06/01 20:28:04 ulfl Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -26,8 +26,29 @@
 #ifndef __DECODE_AS_DLG_H__
 #define __DECODE_AS_DLG_H__
 
-void decode_as_cb(GtkWidget *, gpointer);
-void decode_show_cb(GtkWidget *, gpointer);
+/** @file
+ *  "Decode As" / "User Specified Decodes" dialog box.
+ */
+
+/** User requested the "Decode As" dialog box by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+void decode_as_cb(GtkWidget *widget, gpointer data);
+
+/** User requested the "User Specified Decodes" dialog box by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+void decode_show_cb(GtkWidget *widget, gpointer data);
+
+/** Have any pages in the notebook in a "Decode As" dialog box? If there
+ * wouldn't be, we inactivate the menu item for "Decode As".
+ *
+ * @return TRUE, if we have at least one notebook page in "Decode As"
+ */
 gboolean decode_as_ok(void);
 
 #endif

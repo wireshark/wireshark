@@ -1,7 +1,7 @@
 /* ui_util.h
  * Definitions for UI utility routines
  *
- * $Id: ui_util.h,v 1.12 2004/05/31 15:47:34 ulfl Exp $
+ * $Id: ui_util.h,v 1.13 2004/06/01 20:28:05 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,7 +27,7 @@
 
 
 /** @file 
- * Windows and other user interface related utility functions.
+ * Utilities for Windows and other user interface functions.
  *
  * Some words about windows / dialogs.
  * 

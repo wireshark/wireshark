@@ -2,7 +2,7 @@
  * Declarations of utilities for converting between "toolkit-independent"
  * and GDK notions of color
  *
- * $Id: color_utils.h,v 1.2 2002/08/28 21:03:46 jmayer Exp $
+ * $Id: color_utils.h,v 1.3 2004/06/01 20:28:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,7 +27,23 @@
 #ifndef __COLOR_UTILS_H__
 #define __COLOR_UTILS_H__
 
-void color_t_to_gdkcolor(GdkColor *, color_t *);
-void gdkcolor_to_color_t(color_t *, GdkColor *);
+/** @file
+ * Utilities for converting between "toolkit-independent"
+ * and GDK notions of color.
+ */
+
+/** Convert color_t to GdkColor.
+ *
+ * @param target the GdkColor to be filled
+ * @param source the source color_t
+ */
+void color_t_to_gdkcolor(GdkColor *target, color_t *source);
+
+/** Convert GdkColor to color_t.
+ *
+ * @param target the source color_t
+ * @param source the GdkColor to be filled
+ */
+void gdkcolor_to_color_t(color_t *target, GdkColor *source);
 
 #endif

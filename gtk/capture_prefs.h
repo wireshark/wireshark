@@ -1,7 +1,7 @@
 /* capture_prefs.h
  * Definitions for capture preferences window
  *
- * $Id: capture_prefs.h,v 1.2 2002/08/28 21:03:46 jmayer Exp $
+ * $Id: capture_prefs.h,v 1.3 2004/06/01 20:28:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,9 +25,32 @@
 #ifndef __CAPTURE_PREFS_H__
 #define __CAPTURE_PREFS_H__
 
+/** @file
+ *  Capture preferences page.
+ */
+
+/** Build a capture preferences page.
+ *
+ * @return the new capture preferences page
+ */
 GtkWidget *capture_prefs_show(void);
-void capture_prefs_fetch(GtkWidget *w);
-void capture_prefs_apply(GtkWidget *w);
-void capture_prefs_destroy(GtkWidget *w);
+
+/** Fetch preference values from page.
+ *
+ * @param widget widget from capture_prefs_show()
+ */
+void capture_prefs_fetch(GtkWidget *widget);
+
+/** Apply preference values from page.
+ *
+ * @param widget widget from capture_prefs_show()
+ */
+void capture_prefs_apply(GtkWidget *widget);
+
+/** Destroy preference values from page.
+ *
+ * @param widget widget from capture_prefs_show()
+ */
+void capture_prefs_destroy(GtkWidget *widget);
 
 #endif

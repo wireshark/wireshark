@@ -1,7 +1,7 @@
 /* about_dlg.h
  * Declarations of routines for the "About" dialog
  *
- * $Id: about_dlg.h,v 1.1 2004/05/21 08:44:45 guy Exp $
+ * $Id: about_dlg.h,v 1.2 2004/06/01 20:28:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,6 +25,15 @@
 #ifndef __ABOUT_DLG_H__
 #define __ABOUT_DLG_H__
 
-void about_ethereal_cb( GtkWidget *, gpointer);
+/** @file
+ *  "About" dialog box.
+ */
+
+/** User requested the "About" dialog box by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+void about_ethereal_cb( GtkWidget *widget, gpointer data);
 
 #endif /* __ABOUT_DLG_H__ */

@@ -1,7 +1,7 @@
 /* dfilter_expr_dlg.h
  * Definitions for dialog boxes for display filter expression construction
  *
- * $Id: dfilter_expr_dlg.h,v 1.2 2002/08/28 21:03:46 jmayer Exp $
+ * $Id: dfilter_expr_dlg.h,v 1.3 2004/06/01 20:28:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,6 +26,14 @@
 #ifndef __DFILTER_EXPR_DLG_H__
 #define __DFILTER_EXPR_DLG_H__
 
-void dfilter_expr_dlg_new(GtkWidget *);
+/** @file
+ *  "Add Expression" dialog box.
+ */
+
+/** User requested the "Add Expression" dialog box by menu or toolbar.
+ *
+ * @param widget corresponding text entry widget
+ */
+void dfilter_expr_dlg_new(GtkWidget *widget);
 
 #endif /* dfilter_expr_dlg.h */

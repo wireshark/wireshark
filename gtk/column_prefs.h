@@ -1,7 +1,7 @@
 /* column_prefs.h
  * Definitions for column preferences window
  *
- * $Id: column_prefs.h,v 1.4 2002/09/05 18:47:45 jmayer Exp $
+ * $Id: column_prefs.h,v 1.5 2004/06/01 20:28:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,9 +26,32 @@
 #ifndef __COLUMN_PREFS_H__
 #define __COLUMN_PREFS_H__
 
+/** @file
+ *  Column preferences page.
+ */
+
+/** Build a column preferences page.
+ *
+ * @return the new column preferences page
+ */
 GtkWidget           *column_prefs_show(void);
-void                 column_prefs_fetch(GtkWidget *);
-void                 column_prefs_apply(GtkWidget *);
-void                 column_prefs_destroy(GtkWidget *);
+
+/** Fetch preference values from page.
+ *
+ * @param widget widget from column_prefs_show()
+ */
+void                 column_prefs_fetch(GtkWidget *widget);
+
+/** Apply preference values from page.
+ *
+ * @param widget widget from column_prefs_show()
+ */
+void                 column_prefs_apply(GtkWidget *widget);
+
+/** Destroy preference values from page.
+ *
+ * @param widget widget from column_prefs_show()
+ */
+void                 column_prefs_destroy(GtkWidget *widget);
 
 #endif

@@ -1,7 +1,7 @@
 /* dlg_utils.h
  * Declarations of utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.h,v 1.18 2004/06/01 17:33:36 ulfl Exp $
+ * $Id: dlg_utils.h,v 1.19 2004/06/01 20:28:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,7 +23,7 @@
  */
 
 /** @file
- * Utility functions for dialog boxes, depending on the window functions in 
+ * Utilities for dialog boxes, depending on the window functions in 
  * ui_util.h. These dialog box windows will be related to Ethereal's main 
  * window. See window_new() and others in ui_util.h for further explanation 
  * of dialogs and windows in Ethereal.

@@ -1,7 +1,7 @@
 /* colors.h
  * Definitions for color structures and routines
  *
- * $Id: colors.h,v 1.11 2003/01/08 01:59:42 guy Exp $
+ * $Id: colors.h,v 1.12 2004/06/01 20:28:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,10 +24,24 @@
 #ifndef  __COLORS_H__
 #define  __COLORS_H__
 
+/** @file
+ *  Definitions for color structures and routines
+ */
+
+/** The color white. */
 extern GdkColor WHITE;
+
+/** The color black. */
 extern GdkColor BLACK;
 
+/** Initialize the colors. */
 void colors_init(void);
+
+/** Allocate a color from the color map.
+ *
+ * @param new_color the new color
+ * @return TRUE if the allocation succeeded
+ */
 gboolean get_color(GdkColor *new_color);
 
 #endif

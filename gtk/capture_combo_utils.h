@@ -1,7 +1,7 @@
 /* capture_combo_utils.c
  * Declarations of tilities for combo box of interface names
  *
- * $Id: capture_combo_utils.h,v 1.1 2003/09/10 05:35:25 guy Exp $
+ * $Id: capture_combo_utils.h,v 1.2 2004/06/01 20:28:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,7 +25,21 @@
 #ifndef __CAPTURE_COMBO_UTILS_H__
 #define __CAPTURE_COMBO_UTILS_H__
 
+/** @file
+ *  GList of available capture interfaces.
+ */
+
+/** Build the GList of available capture interfaces.
+ *
+ * @param if_list the interface list from get_interface_list()
+ * @param do_hide hide the "hidden" interfaces
+ */
 GList *build_capture_combo_list(GList *if_list, gboolean do_hide);
+
+/** Free the GList from build_capture_combo_list().
+ *
+ * @param combo_list the interface list from build_capture_combo_list()
+ */
 void free_capture_combo_list(GList *combo_list);
 
 #endif

@@ -1,7 +1,7 @@
 /* color_dlg.h
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.h,v 1.4 2003/10/07 10:07:47 sahlberg Exp $
+ * $Id: color_dlg.h,v 1.5 2004/06/01 20:28:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,8 +26,34 @@
 #ifndef __COLOR_DLG_H__
 #define __COLOR_DLG_H__
 
+/** @file
+ *  "Colorize Display" dialog box.
+ */
+
+/** User requested the "Colorize Display" dialog box by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+void color_display_cb(GtkWidget *widget, gpointer data);
+
+/** Open the colorize dialogue and presets the filter string.
+ *
+ * @param filter the preset filter string
+ */
 void color_display_with_filter(char *filter);
-void color_display_cb(GtkWidget *w, gpointer d);
+
+/** Count the number of color filters.
+ *
+ * @return the number of color filters
+ */
 int color_marked_count(void);
+
+/** Add a color filter.
+ *
+ * @param colorf the new color filter
+ * @param arg the color filter widget
+ */
 void color_add_filter_cb (color_filter_t *colorf, gpointer arg);
+
 #endif /* color_dlg.h */

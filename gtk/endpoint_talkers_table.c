@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.40 2004/05/23 23:24:05 ulfl Exp $
+ * $Id: endpoint_talkers_table.c,v 1.41 2004/06/01 20:28:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -922,11 +922,13 @@ static GtkItemFactoryEntry ett_list_menu_items[] =
 static void
 ett_create_popup_menu(endpoints_table *et)
 {
-	et->item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
+	GtkItemFactory *item_factory;
 
-	gtk_item_factory_create_items_ac(et->item_factory, sizeof(ett_list_menu_items)/sizeof(ett_list_menu_items[0]), ett_list_menu_items, et, 2);
+	item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
 
-	et->menu = gtk_item_factory_get_widget(et->item_factory, "<main>");
+	gtk_item_factory_create_items_ac(item_factory, sizeof(ett_list_menu_items)/sizeof(ett_list_menu_items[0]), ett_list_menu_items, et, 2);
+
+	et->menu = gtk_item_factory_get_widget(item_factory, "<main>");
 	SIGNAL_CONNECT(et->table, "button_press_event", ett_show_popup_menu_cb, et);
 }
 
@@ -1066,6 +1068,7 @@ init_ett_table_page(endpoints_table *talkers, GtkWidget *vbox, gboolean hide_por
 	GtkWidget *label;
 	char title[256];
 	char *default_titles[] = { "Address A", "Port A", "Address B", "Port B", "Packets", "Bytes", "-> Packets", "-> Bytes", "<- Packets", "<- Bytes" };
+	GtkWidget *scrolled_window;
 
 
 	g_snprintf(title, 255, "%s Conversations", table_name);

@@ -2,7 +2,7 @@
  * Copyright (C) 1995-1997 Peter Mattis, Spencer Kimball, Josh MacDonald
  * Copyright (C) 1997-1998 Jay Painter <jpaint@serv.net><jpaint@gimp.org>
  *
- * $Id: ethclist.h,v 1.2 2004/02/20 22:37:50 guy Exp $
+ * $Id: ethclist.h,v 1.3 2004/06/01 20:28:05 ulfl Exp $
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -25,6 +25,11 @@
  * file for a list of people on the GTK+ Team.  See the ChangeLog
  * files for a list of changes.  These files are distributed with
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/.
+ */
+
+/** @file
+ *  GtkCList for GTK1.2 libs, copied from GTK sources. 
+ *  @todo is this correct?
  */
 
 #ifndef __ETH_CLIST_H__
