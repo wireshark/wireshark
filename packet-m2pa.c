@@ -3,10 +3,10 @@
  * It is hopefully (needs testing) compliant to
  * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m2pa-04.txt
  *
- * Copyright 2001, Jeff Morriss <jeff.morriss[AT]ulticom.com>, 
+ * Copyright 2001, 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>, 
  * updated by Michael Tuexen <michael.tuexen[AT]icn.siemens.de>
  *
- * $Id: packet-m2pa.c,v 1.7 2002/03/28 21:41:30 guy Exp $
+ * $Id: packet-m2pa.c,v 1.8 2002/04/08 19:18:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,33 +29,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
-#include <string.h>
-#include <glib.h>
-
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
-#include "prefs.h"
 
-/* Warning:  Neither of these are standardized yet! */
 #define SCTP_PORT_M2PA             2904
 #define M2PA_PAYLOAD_PROTOCOL_ID   5
 
@@ -109,8 +89,8 @@ static const value_string m2pa_message_type_values[] = {
 #define MTP3_OFFSET           (LI_OFFSET + LI_LENGTH)
 
 /* LI is only used for (ITU national) priority in M2PA */
-#define LI_SPARE_MASK              0xfc
-#define LI_PRIORITY_MASK           0x3
+#define LI_SPARE_MASK              0x3f
+#define LI_PRIORITY_MASK           0xc0
 
 
 /* parts of Link Status message */
@@ -178,8 +158,8 @@ dissect_m2pa_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, p
     li = tvb_get_guint8(message_data_tvb, LI_OFFSET);
     m2pa_li_item = proto_tree_add_text(m2pa_tree, message_data_tvb, LI_OFFSET, LI_LENGTH, "Length Indicator");
     m2pa_li_tree = proto_item_add_subtree(m2pa_li_item, ett_m2pa_li);
-    proto_tree_add_uint(m2pa_li_tree, hf_m2pa_li_spare, message_data_tvb, LI_OFFSET, LI_LENGTH, li);
     proto_tree_add_uint(m2pa_li_tree, hf_m2pa_li_prio,  message_data_tvb, LI_OFFSET, LI_LENGTH, li);
+    proto_tree_add_uint(m2pa_li_tree, hf_m2pa_li_spare, message_data_tvb, LI_OFFSET, LI_LENGTH, li);
 
     /* Re-adjust length of M2PA item since it will be dissected as MTP3 */
     proto_item_set_len(m2pa_item, HEADER_LENGTH + LI_LENGTH);
