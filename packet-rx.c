@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.1 1999/10/20 16:41:19 gram Exp $
+ * $Id: packet-rx.c,v 1.2 1999/10/22 03:55:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -153,13 +153,13 @@ dissect_rx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (check_col(fd, COL_INFO))
 		col_add_fstr(fd, COL_INFO,
 			"Type: %s  "
-			"Seq: %d  "
-			"Call: %d  "
+			"Seq: %lu  "
+			"Call: %lu  "
 			"Source Port: %s  "
 			"Destination Port: %s  ",
 			val_to_str(rxh->type, rx_types, "%d"),
-			ntohl(rxh->seq),
-			ntohl(rxh->callNumber),
+			(unsigned long)ntohl(rxh->seq),
+			(unsigned long)ntohl(rxh->callNumber),
 			get_udp_port(pi.srcport),
 			get_udp_port(pi.destport)
 		);
