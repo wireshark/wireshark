@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.200 2002/12/31 21:06:48 guy Exp $
+ * $Id: capture.c,v 1.201 2002/12/31 21:12:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -162,7 +162,7 @@
 #include "packet-prism.h"
 #include "packet-ipfc.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #include "capture-wpcap.h"
 #endif
 
@@ -1996,7 +1996,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
     pcap_close(pch);
   }
 
-#ifdef WIN32
+#ifdef _WIN32
   /* Shut down windows sockets */
   WSACleanup();
 #endif
@@ -2023,7 +2023,7 @@ error:
   cfile.save_file = NULL;
   popup_errmsg(errmsg);
 
-#ifndef WIN32
+#ifndef _WIN32
   if (ld.from_pipe) {
     if (pipe_fd >= 0)
       close(pipe_fd);
