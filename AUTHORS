@@ -335,6 +335,7 @@ Paul Ionescu <paul@acorp.ro> {
 	X.25-over-TCP support
 	DEC LANBridge Spanning Tree Protocol support
 	X.25-over-LLC support
+	IP Prefix field support in CDP
 }
 
 Mark Burton <markb@ordern.com> {
