@@ -1,12 +1,12 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.24 2001/03/13 21:34:23 gram Exp $
+ * $Id: packet-bpdu.c,v 1.25 2001/05/27 07:07:34 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * 
@@ -45,9 +45,6 @@
 #include "ppptypes.h"
 #include "resolv.h"
 
-/* Include this for GVRP dissector */
-#include "packet-gvrp.h"
-
 /* Offsets of fields within a BPDU */
 
 #define BPDU_IDENTIFIER          0
@@ -78,6 +75,8 @@ static int hf_bpdu_hello_time = -1;
 static int hf_bpdu_forward_delay = -1;
 
 static gint ett_bpdu = -1;
+
+static dissector_handle_t gvrp_handle;
 
 static void
 dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
@@ -126,7 +125,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	    case 0x21:
 		  /* for GVRP */
-		  dissect_gvrp(tvb, pinfo, tree);
+		  call_dissector(gvrp_handle, tvb, pinfo, tree);
 		  return;
 	    }
 
@@ -336,6 +335,11 @@ proto_register_bpdu(void)
 void
 proto_reg_handoff_bpdu(void)
 {
+  /*
+   * Get handle for the GVRP dissector.
+   */
+  gvrp_handle = find_dissector("gvrp");
+
   dissector_add("llc.dsap", SAP_BPDU, dissect_bpdu, proto_bpdu);
   dissector_add("ppp.protocol", PPP_BPDU, dissect_bpdu, proto_bpdu);
 }

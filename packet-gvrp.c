@@ -2,10 +2,10 @@
  * Routines for GVRP (GARP VLAN Registration Protocol) dissection
  * Copyright 2000, Kevin Shi <techishi@ms22.hinet.net>
  *
- * $Id: packet-gvrp.c,v 1.4 2001/01/03 06:55:28 guy Exp $
+ * $Id: packet-gvrp.c,v 1.5 2001/05/27 07:07:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -105,7 +105,7 @@ static const value_string event_vals[] = {
 };
 
 /* Code to actually dissect the packets */
-void
+static void
 dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item   *ti;
@@ -114,10 +114,6 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8        octet;
     int           msg_index, attr_index, offset = 0, length = tvb_reported_length(tvb);
 
-    CHECK_DISPLAY_AS_DATA(proto_gvrp, tvb, pinfo, tree);
-
-    pinfo->current_proto = "GVRP";
-    
     if (check_col(pinfo->fd, COL_PROTOCOL)) 
 	col_set_str(pinfo->fd, COL_PROTOCOL, "GVRP");
     
@@ -343,4 +339,6 @@ proto_register_gvrp(void)
      * used by GVRP */
     proto_register_field_array(proto_gvrp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    register_dissector("gvrp", dissect_gvrp, proto_gvrp);
 }
