@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, adjust timestamps, or
  * simply convert from one format to another format.
  *
- * $Id: editcap.c,v 1.28 2004/01/25 21:55:09 guy Exp $
+ * $Id: editcap.c,v 1.29 2004/01/25 22:21:39 guy Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -396,6 +396,7 @@ int main(int argc, char *argv[])
     case WTAP_ERR_UNSUPPORTED_ENCAP:
     case WTAP_ERR_BAD_RECORD:
       fprintf(stderr, "(%s)\n", err_info);
+      g_free(err_info);
       break;
     }
     exit(1);

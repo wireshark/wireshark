@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: mergecap.c,v 1.16 2004/01/25 21:55:10 guy Exp $
+ * $Id: mergecap.c,v 1.17 2004/01/25 22:21:39 guy Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -349,6 +349,7 @@ open_in_files(int argc, char *argv[], in_file_t *in_files[])
       case WTAP_ERR_UNSUPPORTED_ENCAP:
       case WTAP_ERR_BAD_RECORD:
         fprintf(stderr, "(%s)\n", err_info);
+        g_free(err_info);
         break;
       }
     } else {
