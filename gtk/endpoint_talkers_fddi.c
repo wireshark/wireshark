@@ -1,7 +1,7 @@
 /* endpoint_talkers_fddi.c
  * endpoint_talkers_fddi   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_fddi.c,v 1.6 2003/09/02 08:27:25 sahlberg Exp $
+ * $Id: endpoint_talkers_fddi.c,v 1.7 2003/09/04 11:07:50 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,7 +54,7 @@ fddi_talkers_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void
 	endpoints_table *talkers=(endpoints_table *)pit;
 	fddi_hdr *ehdr=vip;
 
-	add_ett_table_data(talkers, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len);
+	add_ett_table_data(talkers, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len, SAT_FDDI, PT_NONE);
 
 	return 1;
 }
@@ -70,14 +70,6 @@ gtk_fddi_talkers_init(char *optarg)
 	GtkWidget *label;
 	GString *error_string;
 	char title[256];
-	static char *filter_names[] = {
-		"fddi.addr",
-		"fddi.src",
-		"fddi.dst",
-		NULL,
-		NULL,
-		NULL
-		};
 
 	if(!strncmp(optarg,"talkers,fddi,",13)){
 		filter=optarg+13;
@@ -107,7 +99,7 @@ gtk_fddi_talkers_init(char *optarg)
 	/* We must display TOP LEVEL Widget before calling init_ett_table() */
 	gtk_widget_show(talkers->win);
 
-	init_ett_table(talkers, vbox, NULL, filter_names);
+	init_ett_table(talkers, vbox, TRUE);
 
 	error_string=register_tap_listener("fddi", talkers, filter, (void *)reset_ett_table_data, fddi_talkers_packet, (void *)draw_ett_table_data);
 	if(error_string){

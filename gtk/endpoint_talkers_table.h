@@ -2,7 +2,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers taps.
  *
- * $Id: endpoint_talkers_table.h,v 1.6 2003/08/30 01:18:15 sahlberg Exp $
+ * $Id: endpoint_talkers_table.h,v 1.7 2003/09/04 11:07:51 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,6 +28,8 @@
 typedef struct _endpoint_talker_t {
 	address src_address;
 	address dst_address;
+	guint32 sat;
+	guint32 port_type;
 	guint32 src_port;
 	guint32 dst_port;
 
@@ -47,16 +49,18 @@ typedef struct _endpoints_table {
 	gboolean has_ports;
 	guint32 num_endpoints;
 	endpoint_talker_t *endpoints;
-	char *(*port_to_str)(guint32);
-	char **filter_names;
 } endpoints_table;
 
 void reset_ett_table_data(endpoints_table *et);
 
-void init_ett_table(endpoints_table *et, GtkWidget *vbox, char *(*port_to_str)(guint32), char **filter_names);
+void init_ett_table(endpoints_table *et, GtkWidget *vbox, gboolean hide_ports);
 
 
-void add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes);
+#define SAT_NONE		0
+#define SAT_ETHER		1
+#define SAT_FDDI		2
+#define SAT_TOKENRING		3
+void add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, int sat, int port_type);
 
 void draw_ett_table_data(endpoints_table *et);
 

@@ -1,7 +1,7 @@
 /* endpoint_talkers_udpip.c
  * endpoint_talkers_udpip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_udpip.c,v 1.13 2003/09/02 08:27:32 sahlberg Exp $
+ * $Id: endpoint_talkers_udpip.c,v 1.14 2003/09/04 11:07:51 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,31 +47,13 @@
 #include "packet-udp.h"
 
 
-
-static char *
-udpip_port_to_str(guint32 port)
-{
-	static int i=0;
-	static char *strp, str[4][6];
-
-	i++;
-	if(i>=4){
-		i=0;
-	}
-	strp=str[i];
-
-	sprintf(strp, "%u", port);
-
-	return strp;
-}
-
 static int
 udpip_talkers_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
 {
 	endpoints_table *talkers=(endpoints_table *)pit;
 	e_udphdr *udphdr=vip;
 
-	add_ett_table_data(talkers, &udphdr->ip_src, &udphdr->ip_dst, udphdr->uh_sport, udphdr->uh_dport, 1, pinfo->fd->pkt_len);
+	add_ett_table_data(talkers, &udphdr->ip_src, &udphdr->ip_dst, udphdr->uh_sport, udphdr->uh_dport, 1, pinfo->fd->pkt_len, SAT_NONE, PT_UDP);
 
 	return 1;
 }
@@ -87,16 +69,6 @@ gtk_udpip_talkers_init(char *optarg)
 	GtkWidget *label;
 	GString *error_string;
 	char title[256];
-	/* XXX crap, once again we get visibility of the type of transport */
-	/* XXX fixme or fix the api to make ipv6 work */
-	static char *filter_names[] = {
-		"ip.addr",
-		"ip.src",
-		"ip.dst",
-		"udp.port",
-		"udp.srcport",
-		"udp.dstport"
-		};
 
 	if(!strncmp(optarg,"talkers,udp,",12)){
 		filter=optarg+12;
@@ -126,7 +98,7 @@ gtk_udpip_talkers_init(char *optarg)
 	/* We must display TOP LEVEL Widget before calling init_ett_table() */
 	gtk_widget_show(talkers->win);
 
-	init_ett_table(talkers, vbox, udpip_port_to_str, filter_names);
+	init_ett_table(talkers, vbox, FALSE);
 
 	error_string=register_tap_listener("udp", talkers, filter, (void *)reset_ett_table_data, udpip_talkers_packet, (void *)draw_ett_table_data);
 	if(error_string){

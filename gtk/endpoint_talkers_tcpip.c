@@ -1,7 +1,7 @@
 /* endpoint_talkers_tcpip.c
  * endpoint_talkers_tcpip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_tcpip.c,v 1.13 2003/09/02 08:27:31 sahlberg Exp $
+ * $Id: endpoint_talkers_tcpip.c,v 1.14 2003/09/04 11:07:51 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -47,30 +47,13 @@
 #include "packet-tcp.h"
 
 
-static char *
-tcpip_port_to_str(guint32 port)
-{
-	static int i=0;
-	static char *strp, str[4][6];
-
-	i++;
-	if(i>=4){
-		i=0;
-	}
-	strp=str[i];
-
-	sprintf(strp, "%u", port);
-
-	return strp;
-}
-
 static int
 tcpip_talkers_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
 {
 	endpoints_table *talkers=(endpoints_table *)pit;
 	struct tcpheader *tcphdr=vip;
 
-	add_ett_table_data(talkers, &tcphdr->ip_src, &tcphdr->ip_dst, tcphdr->th_sport, tcphdr->th_dport, 1, pinfo->fd->pkt_len);
+	add_ett_table_data(talkers, &tcphdr->ip_src, &tcphdr->ip_dst, tcphdr->th_sport, tcphdr->th_dport, 1, pinfo->fd->pkt_len, SAT_NONE, PT_TCP);
 
 	return 1;
 }
@@ -86,17 +69,6 @@ gtk_tcpip_talkers_init(char *optarg)
 	GtkWidget *label;
 	GString *error_string;
 	char title[256];
-	/* XXX crap, once again we get visibility of the type of transport */
-	/* XXX fixme or fix the api to make ipv6 work */
-	static char *filter_names[] = {
-		"ip.addr",
-		"ip.src",
-		"ip.dst",
-		"tcp.port",
-		"tcp.srcport",
-		"tcp.dstport"
-		};
-
 
 	if(!strncmp(optarg,"talkers,tcp,",12)){
 		filter=optarg+12;
@@ -126,7 +98,7 @@ gtk_tcpip_talkers_init(char *optarg)
 	/* We must display TOP LEVEL Widget before calling init_ett_table() */
 	gtk_widget_show(talkers->win);
 
-	init_ett_table(talkers, vbox, tcpip_port_to_str, filter_names);
+	init_ett_table(talkers, vbox, FALSE);
 
 	error_string=register_tap_listener("tcp", talkers, filter, (void *)reset_ett_table_data, tcpip_talkers_packet, (void *)draw_ett_table_data);
 	if(error_string){

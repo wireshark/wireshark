@@ -1,7 +1,7 @@
 /* endpoint_talkers_fc.c
  * endpoint_talkers_fc   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_fc.c,v 1.11 2003/09/02 08:27:25 sahlberg Exp $
+ * $Id: endpoint_talkers_fc.c,v 1.12 2003/09/04 11:07:50 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,7 +54,7 @@ fc_talkers_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, void *
 	endpoints_table *talkers=(endpoints_table *)pit;
 	fc_hdr *fchdr=vip;
 
-	add_ett_table_data(talkers, &fchdr->s_id, &fchdr->d_id, 0, 0, 1, pinfo->fd->pkt_len);
+	add_ett_table_data(talkers, &fchdr->s_id, &fchdr->d_id, 0, 0, 1, pinfo->fd->pkt_len, SAT_NONE, PT_NONE);
 
 	return 1;
 }
@@ -70,14 +70,6 @@ gtk_fc_talkers_init(char *optarg)
 	GtkWidget *label;
 	GString *error_string;
 	char title[256];
-	static char *filter_names[] = {
-		"fc.id",
-		"fc.s_id",
-		"fc.d_id",
-		NULL,
-		NULL,
-		NULL
-		};
 
 	if(!strncmp(optarg,"talkers,fc,",11)){
 		filter=optarg+11;
@@ -107,7 +99,7 @@ gtk_fc_talkers_init(char *optarg)
 	/* We must display TOP LEVEL Widget before calling init_ett_table() */
 	gtk_widget_show(talkers->win);
 
-	init_ett_table(talkers, vbox, NULL, filter_names);
+	init_ett_table(talkers, vbox, TRUE);
 
 	error_string=register_tap_listener("fc", talkers, filter, (void *)reset_ett_table_data, fc_talkers_packet, (void *)draw_ett_table_data);
 	if(error_string){

@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.10 2003/09/02 08:27:26 sahlberg Exp $
+ * $Id: endpoint_talkers_table.c,v 1.11 2003/09/04 11:07:50 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,6 +50,143 @@ extern GtkWidget   *main_display_filter_widget;
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
 
 #define NUM_COLS 10
+
+
+static char *
+ett_port_to_str(int port_type, guint32 port)
+{
+	static int i=0;
+	static gchar *strp, str[4][12];
+
+	i++;
+	if(i>=16){
+		i=0;
+	}
+	strp=str[i];
+
+	switch(port_type){
+	case PT_TCP:
+	case PT_UDP:
+		snprintf(strp, 11, "%d", port);
+		return strp;
+	}
+	return NULL;
+}
+
+#define FN_SRC_ADDRESS		0
+#define FN_DST_ADDRESS		1
+#define FN_ANY_ADDRESS		2
+#define FN_SRC_PORT		3
+#define FN_DST_PORT		4
+#define FN_ANY_PORT		5
+/* given an address (to distinguis between ipv4 and ipv6 for tcp/udp
+   a port_type and a name_type (FN_...)
+   return a string for the filter name
+
+   some addresses, like AT_ETHER may actually be any of multiple types
+   of protocols,   either ethernet, tokenring, fddi etc so we must be more 
+   specific there  thats why we need specific_addr_type
+*/
+static char *
+ett_get_filter_name(address *addr, int specific_addr_type, int port_type, int name_type)
+{
+	switch(name_type){
+	case FN_SRC_ADDRESS:
+		switch(addr->type){
+		case AT_ETHER:
+			switch(specific_addr_type){
+			case SAT_ETHER:
+				return "eth.src";
+			case SAT_FDDI:
+				return "fddi.src";
+			case SAT_TOKENRING:
+				return "tr.src";
+			}
+		case AT_IPv4:
+			return "ip.src";
+		case AT_IPv6:
+			return "ipv6.src";
+		case AT_IPX:
+			return "ipx.src.node";
+		case AT_FC:
+			return "fc.s_id";
+		default:
+			;
+		}
+	case FN_DST_ADDRESS:
+		switch(addr->type){
+		case AT_ETHER:
+			switch(specific_addr_type){
+			case SAT_ETHER:
+				return "eth.dst";
+			case SAT_FDDI:
+				return "fddi.dst";
+			case SAT_TOKENRING:
+				return "tr.dst";
+			}
+		case AT_IPv4:
+			return "ip.dst";
+		case AT_IPv6:
+			return "ipv6.dst";
+		case AT_IPX:
+			return "ipx.dst.node";
+		case AT_FC:
+			return "fc.d_id";
+		default:
+			;
+		}
+	case FN_ANY_ADDRESS:
+		switch(addr->type){
+		case AT_ETHER:
+			switch(specific_addr_type){
+			case SAT_ETHER:
+				return "eth.addr";
+			case SAT_FDDI:
+				return "fddi.addr";
+			case SAT_TOKENRING:
+				return "tr.addr";
+			}
+		case AT_IPv4:
+			return "ip.addr";
+		case AT_IPv6:
+			return "ipv6.addr";
+		case AT_IPX:
+			return "ipx.node";
+		case AT_FC:
+			return "fc.id";
+		default:
+			;
+		}
+	case FN_SRC_PORT:
+		switch(port_type){
+		case PT_TCP:
+			return "tcp.srcport";
+		case PT_UDP:
+			return "udp.srcport";
+		}
+		break;
+	case FN_DST_PORT:
+		switch(port_type){
+		case PT_TCP:
+			return "tcp.dstport";
+		case PT_UDP:
+			return "udp.dstport";
+		}
+		break;
+	case FN_ANY_PORT:
+		switch(port_type){
+		case PT_TCP:
+			return "tcp.port";
+		case PT_UDP:
+			return "udp.port";
+		}
+		break;
+	}
+
+	g_assert_not_reached();
+	return NULL;
+}
+
 
 typedef struct column_arrows {
 	GtkWidget *table;
@@ -186,7 +323,7 @@ ett_click_column_cb(GtkCList *clist, gint column, gpointer data)
 	3: EP1 To/From ANY
 	4: EP1 To ANY
 	5: EP1 From ANY
-6: EP1 To/From ANY
+	6: EP1 To/From ANY
 	7: EP2 To ANY
 	8: EP2 From ANY
 */
@@ -199,6 +336,7 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	char dirstr[128];
 	char str[256];
 	char *current_filter;
+	char *sport, *dport;
 
 	action=(callback_action>>16)&0xff;
 	type=(callback_action>>8)&0xff;
@@ -213,122 +351,125 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	/* translate it back from row index to index in enndpoint array */
 	selection=GPOINTER_TO_INT(gtk_clist_get_row_data(et->table, selection));
 
+	sport=ett_port_to_str(et->endpoints[selection].port_type, et->endpoints[selection].src_port);
+	dport=ett_port_to_str(et->endpoints[selection].port_type, et->endpoints[selection].dst_port);
+
 	switch(direction){
 	case 0:
 		/* EP1 <-> EP2 */
 		snprintf(dirstr, 127, "%s==%s %s%s%s%s && %s==%s %s%s%s%s",
-			et->filter_names[0], 
+			ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_ADDRESS),
 			address_to_str(&et->endpoints[selection].src_address),
-			(et->port_to_str)?" && ":"",
-			(et->port_to_str)?et->filter_names[3]:"",
-			(et->port_to_str)?"==":"",
-			(et->port_to_str)?et->port_to_str(et->endpoints[selection].src_port):"",
-			et->filter_names[0], 
+			sport?" && ":"",
+			sport?ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_PORT):"",
+			sport?"==":"",
+			sport?sport:"",
+			ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_ADDRESS),
 			address_to_str(&et->endpoints[selection].dst_address),
-			(et->port_to_str)?" && ":"",
-			(et->port_to_str)?et->filter_names[3]:"",
-			(et->port_to_str)?"==":"",
-			(et->port_to_str)?et->port_to_str(et->endpoints[selection].dst_port):""
+			dport?" && ":"",
+			dport?ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_PORT):"",
+			dport?"==":"",
+			dport?dport:""
 		);
 		break;
 	case 1:
 		/* EP1 --> EP2 */
 		snprintf(dirstr, 127, "%s==%s %s%s%s%s && %s==%s %s%s%s%s",
-			et->filter_names[1], 
+			ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_ADDRESS),
 			address_to_str(&et->endpoints[selection].src_address),
-			(et->port_to_str)?" && ":"",
-			(et->port_to_str)?et->filter_names[4]:"",
-			(et->port_to_str)?"==":"",
-			(et->port_to_str)?et->port_to_str(et->endpoints[selection].src_port):"",
-			et->filter_names[2], 
+			sport?" && ":"",
+			sport?ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_PORT):"",
+			sport?"==":"",
+			sport?sport:"",
+			ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_ADDRESS),
 			address_to_str(&et->endpoints[selection].dst_address),
-			(et->port_to_str)?" && ":"",
-			(et->port_to_str)?et->filter_names[5]:"",
-			(et->port_to_str)?"==":"",
-			(et->port_to_str)?et->port_to_str(et->endpoints[selection].dst_port):""
+			dport?" && ":"",
+			dport?ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_PORT):"",
+			dport?"==":"",
+			dport?dport:""
 		);
 		break;
 	case 2:
 		/* EP1 <-- EP2 */
 		snprintf(dirstr, 127, "%s==%s %s%s%s%s && %s==%s %s%s%s%s",
-			et->filter_names[2], 
+			ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_ADDRESS),
 			address_to_str(&et->endpoints[selection].src_address),
-			(et->port_to_str)?" && ":"",
-			(et->port_to_str)?et->filter_names[5]:"",
-			(et->port_to_str)?"==":"",
-			(et->port_to_str)?et->port_to_str(et->endpoints[selection].src_port):"",
-			et->filter_names[1], 
+			sport?" && ":"",
+			sport?ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_PORT):"",
+			sport?"==":"",
+			sport?sport:"",
+			ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_ADDRESS),
 			address_to_str(&et->endpoints[selection].dst_address),
-			(et->port_to_str)?" && ":"",
-			(et->port_to_str)?et->filter_names[4]:"",
-			(et->port_to_str)?"==":"",
-			(et->port_to_str)?et->port_to_str(et->endpoints[selection].dst_port):""
+			dport?" && ":"",
+			dport?ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_PORT):"",
+			dport?"==":"",
+			dport?dport:""
 		);
 		break;
 	case 3:
 		/* EP1 <-> ANY */
 		snprintf(dirstr, 127, "%s==%s %s%s%s%s",
-			et->filter_names[0], 
+			ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_ADDRESS),
 			address_to_str(&et->endpoints[selection].src_address),
-			(et->port_to_str)?" && ":"",
-			(et->port_to_str)?et->filter_names[3]:"",
-			(et->port_to_str)?"==":"",
-			(et->port_to_str)?et->port_to_str(et->endpoints[selection].src_port):""
+			sport?" && ":"",
+			sport?ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_PORT):"",
+			sport?"==":"",
+			sport?sport:""
 		);
 		break;
 	case 4:
 		/* EP1 --> ANY */
 		snprintf(dirstr, 127, "%s==%s %s%s%s%s",
-			et->filter_names[1], 
+			ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_ADDRESS),
 			address_to_str(&et->endpoints[selection].src_address),
-			(et->port_to_str)?" && ":"",
-			(et->port_to_str)?et->filter_names[4]:"",
-			(et->port_to_str)?"==":"",
-			(et->port_to_str)?et->port_to_str(et->endpoints[selection].src_port):""
+			sport?" && ":"",
+			sport?ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_PORT):"",
+			sport?"==":"",
+			sport?sport:""
 		);
 		break;
 	case 5:
 		/* EP1 <-- ANY */
 		snprintf(dirstr, 127, "%s==%s %s%s%s%s",
-			et->filter_names[2], 
+			ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_ADDRESS),
 			address_to_str(&et->endpoints[selection].src_address),
-			(et->port_to_str)?" && ":"",
-			(et->port_to_str)?et->filter_names[5]:"",
-			(et->port_to_str)?"==":"",
-			(et->port_to_str)?et->port_to_str(et->endpoints[selection].src_port):""
+			sport?" && ":"",
+			sport?ett_get_filter_name(&et->endpoints[selection].src_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_PORT):"",
+			sport?"==":"",
+			sport?sport:""
 		);
 		break;
 	case 6:
 		/* EP2 <-> ANY */
 		snprintf(dirstr, 127, "%s==%s %s%s%s%s",
-			et->filter_names[0], 
+			ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_ADDRESS),
 			address_to_str(&et->endpoints[selection].dst_address),
-			(et->port_to_str)?" && ":"",
-			(et->port_to_str)?et->filter_names[3]:"",
-			(et->port_to_str)?"==":"",
-			(et->port_to_str)?et->port_to_str(et->endpoints[selection].dst_port):""
+			dport?" && ":"",
+			dport?ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_ANY_PORT):"",
+			dport?"==":"",
+			dport?dport:""
 		);
 		break;
 	case 7:
 		/* EP2 --> ANY */
 		snprintf(dirstr, 127, "%s==%s %s%s%s%s",
-			et->filter_names[1], 
+			ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_ADDRESS),
 			address_to_str(&et->endpoints[selection].dst_address),
-			(et->port_to_str)?" && ":"",
-			(et->port_to_str)?et->filter_names[4]:"",
-			(et->port_to_str)?"==":"",
-			(et->port_to_str)?et->port_to_str(et->endpoints[selection].dst_port):""
+			dport?" && ":"",
+			dport?ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_SRC_PORT):"",
+			dport?"==":"",
+			dport?dport:""
 		);
 		break;
 	case 8:
 		/* EP2 <-- ANY */
 		snprintf(dirstr, 127, "%s==%s %s%s%s%s",
-			et->filter_names[2], 
+			ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_ADDRESS),
 			address_to_str(&et->endpoints[selection].dst_address),
-			(et->port_to_str)?" && ":"",
-			(et->port_to_str)?et->filter_names[5]:"",
-			(et->port_to_str)?"==":"",
-			(et->port_to_str)?et->port_to_str(et->endpoints[selection].dst_port):""
+			dport?" && ":"",
+			dport?ett_get_filter_name(&et->endpoints[selection].dst_address, et->endpoints[selection].sat, et->endpoints[selection].port_type,  FN_DST_PORT):"",
+			dport?"==":"",
+			dport?dport:""
 		);
 		break;
 	}
@@ -656,7 +797,7 @@ ett_create_popup_menu(endpoints_table *et)
 
 
 void
-init_ett_table(endpoints_table *et, GtkWidget *vbox, char *(*port_to_str)(guint32), char **filter_names)
+init_ett_table(endpoints_table *et, GtkWidget *vbox, gboolean hide_ports)
 {
 	int i;
 	column_arrows *col_arrows;
@@ -736,11 +877,9 @@ init_ett_table(endpoints_table *et, GtkWidget *vbox, char *(*port_to_str)(guint3
 
 	et->num_endpoints=0;
 	et->endpoints=NULL;
-	et->port_to_str=port_to_str;
-	et->filter_names=filter_names;
 
 	/* hide srcport and dstport if we dont use ports */
-	if(!port_to_str){
+	if(hide_ports){
 		gtk_clist_set_column_visibility(et->table, 1, FALSE);
 		gtk_clist_set_column_visibility(et->table, 3, FALSE);
 	}
@@ -751,7 +890,7 @@ init_ett_table(endpoints_table *et, GtkWidget *vbox, char *(*port_to_str)(guint3
 
 
 void 
-add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes)
+add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, int sat, int port_type)
 {
 	address *addr1, *addr2;
 	guint32 port1, port2;
@@ -830,6 +969,8 @@ add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_
 	if(new_talker){
 		COPY_ADDRESS(&talker->src_address, addr1);
 		COPY_ADDRESS(&talker->dst_address, addr2);
+		talker->sat=sat;
+		talker->port_type=port_type;
 		talker->src_port=port1;
 		talker->dst_port=port2;
 		talker->rx_frames=0;
@@ -850,12 +991,16 @@ add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_
 	/* if this was a new talker we have to create a clist row for it */
 	if(new_talker){
 		char *entries[NUM_COLS];
+		char *sport, *dport;
 		char frames[16],bytes[16],txframes[16],txbytes[16],rxframes[16],rxbytes[16];
 
+		sport=ett_port_to_str(talker->port_type, talker->src_port);
+		dport=ett_port_to_str(talker->port_type, talker->dst_port);
+
 		entries[0]=address_to_str(&talker->src_address);
-		entries[1]=(et->port_to_str)?et->port_to_str(talker->src_port):"";
+		entries[1]=sport?sport:"";
 		entries[2]=address_to_str(&talker->dst_address);
-		entries[3]=(et->port_to_str)?et->port_to_str(talker->dst_port):"";
+		entries[3]=dport?dport:"";
 
 		sprintf(frames,"%u", talker->tx_frames+talker->rx_frames);
 		entries[4]=frames;
