@@ -83,7 +83,9 @@ PLUGINS=../../plugins/acn/acn.dll \
 	../../plugins/rlm/rlm.dll \
 	../../plugins/rtnet/rtnet.dll \
 	../../plugins/rudp/rudp.dll \
-	../../plugins/v5ua/v5ua.dll
+	../../plugins/stats_tree/stats_tree.dll \
+	../../plugins/v5ua/v5ua.dll \
+	../../plugins/xml/xml.dll
 
 DELIVERABLES=$(EXE) $(DLL) $(DOC) $(DOC_dos) $(GPL) $(HELP) $(PLUGINS)
 

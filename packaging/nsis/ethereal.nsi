@@ -412,7 +412,7 @@ File "..\..\doc\capinfos.html"
 SectionEnd
 
 
-Section "Plugins" SecPlugins
+Section "Dissector Plugins" SecPlugins
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
 SectionIn 1 2
@@ -439,6 +439,16 @@ File "..\..\plugins\rlm\rlm.dll"
 File "..\..\plugins\rtnet\rtnet.dll"
 File "..\..\plugins\rudp\rudp.dll"
 File "..\..\plugins\v5ua\v5ua.dll"
+File "..\..\plugins\xml\xml.dll"
+SectionEnd
+
+Section "Tree Statistics Plugin (currently only for http)" SecStatsTree
+;-------------------------------------------
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 1 2
+!endif
+SetOutPath $INSTDIR\plugins\${VERSION}
+File "..\..\plugins\stats_tree\stats_tree.dll"
 SectionEnd
 
 Section "Mate - Meta Analysis and Tracing Engine (Experimental)" SecMate
@@ -698,6 +708,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Mergecap is a program that combines multiple saved capture files into a single output file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Capinfos is a program that provides information on capture files."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins} "Plugins with some extended dissections."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecStatsTree} "Plugin for some extended statistics."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMate} "Plugin - Meta Analysis and Tracing Engine (Experimental)."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMIBs} "SNMP MIBs for better SNMP dissection."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecShortcuts} "Start menu shortcuts."
