@@ -1,10 +1,10 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.29 2001/04/17 06:29:12 guy Exp $
+ * $Id: packet-portmap.c,v 1.30 2001/05/30 06:01:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-smb.c
@@ -97,7 +97,7 @@ int dissect_getport_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 int dissect_getport_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, tree, hf_portmap_port,
+	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_portmap_port,
 	    offset);
 	return offset;
 }
@@ -159,7 +159,7 @@ int dissect_unset_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 int dissect_set_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
-	offset = dissect_rpc_bool_tvb(tvb, pinfo, tree, hf_portmap_answer,
+	offset = dissect_rpc_bool(tvb, pinfo, tree, hf_portmap_answer,
 	    offset);
 	return offset;
 }
@@ -200,7 +200,7 @@ dissect_dump_entry(tvbuff_t *tvb, int offset, packet_info *pinfo,
 int dissect_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
-	offset = dissect_rpc_list_tvb(tvb, pinfo, tree, offset,
+	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
 		dissect_dump_entry);
 	return offset;
 }
@@ -322,13 +322,13 @@ dissect_rpcb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 			"Program: %s (%u)", rpc_prog_name(prog), prog);
 	offset += 4;
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, rpcb_tree,
+	offset = dissect_rpc_uint32(tvb, pinfo, rpcb_tree,
 	    hf_portmap_rpcb_version, offset);
-	offset = dissect_rpc_string_tvb(tvb, pinfo, rpcb_tree,
+	offset = dissect_rpc_string(tvb, pinfo, rpcb_tree,
 	    hf_portmap_rpcb_netid, offset, NULL);
-	offset = dissect_rpc_string_tvb(tvb, pinfo, rpcb_tree,
+	offset = dissect_rpc_string(tvb, pinfo, rpcb_tree,
 	    hf_portmap_rpcb_addr, offset, NULL);
-	offset = dissect_rpc_string_tvb(tvb, pinfo, rpcb_tree,
+	offset = dissect_rpc_string(tvb, pinfo, rpcb_tree,
 	    hf_portmap_rpcb_owner, offset, NULL);
 
 	/* now we know, that rpcb is shorter */
@@ -355,7 +355,7 @@ int dissect_rpcb3_getaddr_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 int dissect_rpcb3_getaddr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
-	offset = dissect_rpc_string_tvb(tvb, pinfo, tree,
+	offset = dissect_rpc_string(tvb, pinfo, tree,
 	    hf_portmap_uaddr, offset, NULL);
 
 	return offset;
@@ -366,7 +366,7 @@ int dissect_rpcb3_getaddr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 int dissect_rpcb3_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
-	offset = dissect_rpc_list_tvb(tvb, pinfo, tree, offset, dissect_rpcb);
+	offset = dissect_rpc_list(tvb, pinfo, tree, offset, dissect_rpcb);
 	return offset;
 }
 
@@ -375,7 +375,7 @@ int dissect_rpcb_rmtcallres(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
 	/* Dissect the remote universal address. */
-	offset = dissect_rpc_string_tvb(tvb, pinfo, tree,
+	offset = dissect_rpc_string(tvb, pinfo, tree,
 	    hf_portmap_rpcb_addr, offset, NULL);
 
 	/* Dissect the result of this procedure.

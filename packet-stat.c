@@ -1,10 +1,10 @@
 /* packet-stat.c
  * Routines for stat dissection
  *
- * $Id: packet-stat.c,v 1.8 2001/03/15 21:55:07 guy Exp $
+ * $Id: packet-stat.c,v 1.9 2001/05/30 06:01:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-smb.c
@@ -113,7 +113,7 @@ dissect_stat_stat(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 {
 	if (tree)
 	{
-		offset = dissect_rpc_string_tvb(tvb,pinfo,tree,hf_stat_mon_name,offset,NULL);
+		offset = dissect_rpc_string(tvb,pinfo,tree,hf_stat_mon_name,offset,NULL);
 	}
 
 	return offset;
@@ -135,11 +135,11 @@ dissect_stat_stat_res(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 	}
 
 	res = tvb_get_ntohl(tvb, offset);
-	offset = dissect_rpc_uint32_tvb(tvb,pinfo,lock_tree,hf_stat_stat_res_res,offset);
+	offset = dissect_rpc_uint32(tvb,pinfo,lock_tree,hf_stat_stat_res_res,offset);
 
 	if (res==STAT_SUCC) {
 		state = tvb_get_ntohl(tvb, offset);
-		offset = dissect_rpc_uint32_tvb(tvb,pinfo,lock_tree,hf_stat_stat_res_state,offset);
+		offset = dissect_rpc_uint32(tvb,pinfo,lock_tree,hf_stat_stat_res_state,offset);
 	} else {
 		offset += 4;
 	}
@@ -160,10 +160,10 @@ dissect_stat_my_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			lock_tree = proto_item_add_subtree(lock_item, ett_stat_my_id);
 	}
 
-	offset = dissect_rpc_string_tvb(tvb,pinfo,lock_tree,hf_stat_my_id_hostname,offset,NULL);
-	offset = dissect_rpc_uint32_tvb(tvb,pinfo,lock_tree,hf_stat_my_id_prog,offset);
-	offset = dissect_rpc_uint32_tvb(tvb,pinfo,lock_tree,hf_stat_my_id_vers,offset);
-	offset = dissect_rpc_uint32_tvb(tvb,pinfo,lock_tree,hf_stat_my_id_proc,offset);
+	offset = dissect_rpc_string(tvb,pinfo,lock_tree,hf_stat_my_id_hostname,offset,NULL);
+	offset = dissect_rpc_uint32(tvb,pinfo,lock_tree,hf_stat_my_id_prog,offset);
+	offset = dissect_rpc_uint32(tvb,pinfo,lock_tree,hf_stat_my_id_vers,offset);
+	offset = dissect_rpc_uint32(tvb,pinfo,lock_tree,hf_stat_my_id_proc,offset);
 
 	return offset;
 }
@@ -182,7 +182,7 @@ dissect_stat_mon_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	}
 
 
-	offset = dissect_rpc_string_tvb(tvb,pinfo,lock_tree,hf_stat_mon_id_name,offset,NULL);
+	offset = dissect_rpc_string(tvb,pinfo,lock_tree,hf_stat_mon_id_name,offset,NULL);
 
 	offset = dissect_stat_my_id(tvb,offset,pinfo,lock_tree);
 
@@ -211,7 +211,7 @@ dissect_stat_mon(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 static int
 dissect_stat_state(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_rpc_uint32_tvb(tvb,pinfo,tree,hf_stat_state,offset);
+	offset = dissect_rpc_uint32(tvb,pinfo,tree,hf_stat_state,offset);
 
 	return offset;
 }	
@@ -229,9 +229,9 @@ dissect_stat_notify(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 			lock_tree = proto_item_add_subtree(lock_item, ett_stat_stat_chge);
 	}
 
-	offset = dissect_rpc_string_tvb(tvb,pinfo,lock_tree,hf_stat_mon_id_name,offset,NULL);
+	offset = dissect_rpc_string(tvb,pinfo,lock_tree,hf_stat_mon_id_name,offset,NULL);
 	
-	offset = dissect_rpc_uint32_tvb(tvb,pinfo,tree,hf_stat_state,offset);
+	offset = dissect_rpc_uint32(tvb,pinfo,tree,hf_stat_state,offset);
 
 	return offset;
 }

@@ -2,10 +2,10 @@
  * Routines for rquota dissection
  * Copyright 2001, Mike Frisch <frisch@hummingbird.com>
  *
- * $Id: packet-rquota.c,v 1.2 2001/04/21 08:00:12 guy Exp $
+ * $Id: packet-rquota.c,v 1.3 2001/05/30 06:01:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-ypxfr.c
@@ -80,34 +80,34 @@ dissect_rquota(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_rquota_rquota);
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, 
 			hf_rquota_bsize, offset);
 
-	offset = dissect_rpc_bool_tvb(tvb, pinfo, lock_tree,
+	offset = dissect_rpc_bool(tvb, pinfo, lock_tree,
 			hf_rquota_active, offset);
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, 
 			hf_rquota_bhardlimit, offset);
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, 
 			hf_rquota_bsoftlimit, offset);
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, 
 			hf_rquota_curblocks, offset);
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, 
 			hf_rquota_fhardlimit, offset);
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, 
 			hf_rquota_fsoftlimit, offset);
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, 
 			hf_rquota_curfiles, offset);
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, 
 			hf_rquota_btimeleft, offset);
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, 
 			hf_rquota_ftimeleft, offset);
 
 	return offset;
@@ -120,7 +120,7 @@ dissect_getquota_result(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 	status = tvb_get_ntohl(tvb, offset);
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, tree, 
 			hf_rquota_status, offset);
 
 	if (status==Q_OK) {
@@ -133,10 +133,10 @@ dissect_getquota_result(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 static int
 dissect_getquota_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_rpc_string_tvb(tvb, pinfo, tree, 
+	offset = dissect_rpc_string(tvb, pinfo, tree, 
 			hf_rquota_pathp, offset, NULL);
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, tree, 
 			hf_rquota_uid, offset);
 
 	return offset;

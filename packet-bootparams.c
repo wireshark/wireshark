@@ -1,10 +1,10 @@
 /* packet-bootparams.c
  * Routines for bootparams dissection
  *
- * $Id: packet-bootparams.c,v 1.17 2001/03/18 02:07:02 guy Exp $
+ * $Id: packet-bootparams.c,v 1.18 2001/05/30 06:01:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-smb.c
@@ -69,7 +69,7 @@ dissect_bp_address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 	type = tvb_get_ntohl(tvb, offset);
 	
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, tree, hf_bootparams_addresstype, offset);
+	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_bootparams_addresstype, offset);
 
 	switch(type){
 	case 1:
@@ -95,8 +95,8 @@ dissect_getfile_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 {
 	if ( tree )
 	{
-		offset = dissect_rpc_string_tvb(tvb, pinfo, tree, hf_bootparams_host, offset, NULL);
-		offset = dissect_rpc_string_tvb(tvb, pinfo, tree, hf_bootparams_fileid, offset, NULL);
+		offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_host, offset, NULL);
+		offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_fileid, offset, NULL);
 	}
 	
 	return offset;
@@ -107,9 +107,9 @@ dissect_getfile_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 {
 	if ( tree )
 	{
-		offset = dissect_rpc_string_tvb(tvb, pinfo, tree, hf_bootparams_host, offset, NULL);
+		offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_host, offset, NULL);
 		offset = dissect_bp_address(tvb, offset, pinfo, tree, hf_bootparams_hostaddr);
-		offset = dissect_rpc_string_tvb(tvb, pinfo, tree, hf_bootparams_filepath, offset, NULL);
+		offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_filepath, offset, NULL);
 	}
 	
 	return offset;
@@ -131,8 +131,8 @@ dissect_whoami_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 {
 	if ( tree )
 	{
-		offset = dissect_rpc_string_tvb(tvb, pinfo, tree, hf_bootparams_host, offset, NULL);
-		offset = dissect_rpc_string_tvb(tvb, pinfo, tree, hf_bootparams_domain, offset, NULL);
+		offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_host, offset, NULL);
+		offset = dissect_rpc_string(tvb, pinfo, tree, hf_bootparams_domain, offset, NULL);
 		offset = dissect_bp_address(tvb, offset, pinfo, tree, hf_bootparams_routeraddr);
 	}
 	

@@ -1,7 +1,7 @@
 /* packet-rwall.c
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -40,7 +40,7 @@ static gint ett_rwall = -1;
 static int
 dissect_rwall_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_rpc_string_tvb(tvb, pinfo, tree, hf_rwall_message, offset, NULL);
+	offset = dissect_rpc_string(tvb, pinfo, tree, hf_rwall_message, offset, NULL);
 	
 	return offset;
 }

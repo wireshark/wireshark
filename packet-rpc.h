@@ -1,11 +1,11 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.28 2001/05/25 20:13:04 guy Exp $
+ * $Id: packet-rpc.h,v 1.29 2001/05/30 06:01:02 guy Exp $
  *
  * (c) 1999 Uwe Girlich
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * 
@@ -100,32 +100,20 @@ extern char *rpc_prog_name(guint32 prog);
 extern char *rpc_proc_name(guint32 prog, guint32 vers, guint32 proc);
 
 extern unsigned int rpc_roundup(unsigned int a);
-extern int dissect_rpc_bool(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree, int hfindex);
-extern int dissect_rpc_bool_tvb(tvbuff_t *tvb, packet_info *pinfo,
+extern int dissect_rpc_bool(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int hfindex, int offset);
-extern int dissect_rpc_string(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree, int hfindex, char **string_buffer_ret);
-extern int dissect_rpc_string_tvb(tvbuff_t *tvb, packet_info *pinfo,
+extern int dissect_rpc_string(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int hfindex, int offset, char **string_buffer_ret);
-extern int dissect_rpc_data(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree, int hfindex);
-extern int dissect_rpc_data_tvb(tvbuff_t *tvb, packet_info *pinfo,
+extern int dissect_rpc_data(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int hfindex, int offset);
-extern int dissect_rpc_list(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree, old_dissect_function_t *rpc_list_dissector);
-extern int dissect_rpc_list_tvb(tvbuff_t *tvb, packet_info *pinfo,
+extern int dissect_rpc_list(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset, dissect_function_t *rpc_list_dissector);
-extern int dissect_rpc_array_tvb(tvbuff_t *tvb, packet_info *pinfo,
+extern int dissect_rpc_array(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset, dissect_function_t *rpc_array_dissector,
 	int hfindex);
-extern int dissect_rpc_uint32(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree, char* name);
-extern int dissect_rpc_uint32_tvb(tvbuff_t *tvb, packet_info *pinfo,
+extern int dissect_rpc_uint32(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int hfindex, int offset);
-extern int dissect_rpc_uint64(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree, char* name);
-extern int dissect_rpc_uint64_tvb(tvbuff_t *tvb, packet_info *pinfo,
+extern int dissect_rpc_uint64(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int hfindex, int offset);
 
 extern int dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo,

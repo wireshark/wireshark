@@ -2,7 +2,7 @@
  * 2001  Ronnie Sahlberg   <rsahlber@bigpond.net.au>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -50,7 +50,7 @@ dissect_get_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 	proto_item* lock_item = NULL;
 	proto_tree* lock_tree = NULL;
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, tree, 
 			hf_spray_counter, offset);
 
 	lock_item = proto_tree_add_item(tree, hf_spray_clock, tvb,
@@ -58,10 +58,10 @@ dissect_get_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_spray_clock);
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, 
 			hf_spray_sec, offset);
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, 
 			hf_spray_usec, offset);
 
 	return offset;
@@ -70,7 +70,7 @@ dissect_get_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 static int
 dissect_spray_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_rpc_data_tvb(tvb, pinfo, tree, 
+	offset = dissect_rpc_data(tvb, pinfo, tree, 
 			hf_spray_sprayarr, offset);
 
 	return offset;

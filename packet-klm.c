@@ -2,7 +2,7 @@
  * Routines for klm dissection
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -72,16 +72,16 @@ dissect_holder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_klm_holder);
 
-	offset = dissect_rpc_bool_tvb( tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_bool( tvb, pinfo, lock_tree, 
 			hf_klm_exclusive, offset);
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, 
 			hf_klm_pid, offset);
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, 
 			hf_klm_offset, offset);
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, 
 			hf_klm_len, offset);
 
 	return offset;
@@ -98,18 +98,18 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_klm_lock);
 
-	offset = dissect_rpc_string_tvb(tvb, pinfo, lock_tree,
+	offset = dissect_rpc_string(tvb, pinfo, lock_tree,
 			hf_klm_servername, offset, NULL);
 
 	offset = dissect_nfs_fh3(tvb, offset, pinfo, lock_tree,"fh");
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, 
 			hf_klm_pid, offset);
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, 
 			hf_klm_offset, offset);
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, 
 			hf_klm_len, offset);
 
 	return offset;
@@ -127,7 +127,7 @@ static int
 dissect_klm_stat_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, tree, 
 			hf_klm_stats, offset);
 
 	return offset;
@@ -136,10 +136,10 @@ dissect_klm_stat_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 static int
 dissect_klm_lock_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_rpc_bool_tvb( tvb, pinfo, tree, 
+	offset = dissect_rpc_bool( tvb, pinfo, tree, 
 			hf_klm_block, offset);
 
-	offset = dissect_rpc_bool_tvb( tvb, pinfo, tree, 
+	offset = dissect_rpc_bool( tvb, pinfo, tree, 
 			hf_klm_exclusive, offset);
 
 	offset = dissect_lock(tvb, pinfo, tree, offset);
@@ -154,7 +154,7 @@ dissect_klm_test_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 	stats = tvb_get_ntohl(tvb, offset);
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, tree, 
+	offset = dissect_rpc_uint32(tvb, pinfo, tree, 
 			hf_klm_stats, offset);
 
 	if (stats == KLM_DENIED) {
@@ -167,7 +167,7 @@ dissect_klm_test_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 static int
 dissect_klm_test_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_rpc_bool_tvb( tvb, pinfo, tree, 
+	offset = dissect_rpc_bool( tvb, pinfo, tree, 
 			hf_klm_exclusive, offset);
 
 	offset = dissect_lock(tvb, pinfo, tree, offset);

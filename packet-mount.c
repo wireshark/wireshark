@@ -1,10 +1,10 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.23 2001/04/07 09:25:23 guy Exp $
+ * $Id: packet-mount.c,v 1.24 2001/05/30 06:01:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-smb.c
@@ -94,7 +94,7 @@ dissect_fhstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	gint32 status;
 
 	status=tvb_get_ntohl(tvb,offset);
-	offset = dissect_rpc_uint32_tvb(tvb,pinfo,tree,hf_mount3_status,offset);
+	offset = dissect_rpc_uint32(tvb,pinfo,tree,hf_mount3_status,offset);
 
 	switch (status) {
 		case 0:
@@ -114,7 +114,7 @@ dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 {
 	if ( tree )
 	{
-		offset = dissect_rpc_string_tvb(tvb,pinfo,tree,hf_mount_path,offset,NULL);
+		offset = dissect_rpc_string(tvb,pinfo,tree,hf_mount_path,offset,NULL);
 	}
 	
 	return offset;
@@ -150,9 +150,9 @@ dissect_mountlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 			lock_tree = proto_item_add_subtree(lock_item, ett_mount_mountlist);
 	}
 
-	offset = dissect_rpc_string_tvb(tvb, pinfo, lock_tree, 
+	offset = dissect_rpc_string(tvb, pinfo, lock_tree, 
 			hf_mount_mountlist_hostname, offset, &hostname);
-	offset = dissect_rpc_string_tvb(tvb, pinfo, lock_tree,
+	offset = dissect_rpc_string(tvb, pinfo, lock_tree,
 			hf_mount_mountlist_directory, offset, &directory);
 
 	if (lock_item) {
@@ -173,7 +173,7 @@ dissect_mountlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 static int
 dissect_mount_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_rpc_list_tvb(tvb, pinfo, tree, offset, dissect_mountlist);
+	offset = dissect_rpc_list(tvb, pinfo, tree, offset, dissect_mountlist);
 
 	return offset;
 }
@@ -199,7 +199,7 @@ dissect_group(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 	}
 	group_name_list[group_names_len]=0;
 
-	offset = dissect_rpc_string_tvb(tvb, pinfo, tree, 
+	offset = dissect_rpc_string(tvb, pinfo, tree, 
 			hf_mount_groups_group, offset, NULL);
 
 	return offset;
@@ -228,7 +228,7 @@ dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			exportlist_tree = proto_item_add_subtree(exportlist_item, ett_mount_exportlist);
 	}
 
-	offset = dissect_rpc_string_tvb(tvb, pinfo, exportlist_tree,
+	offset = dissect_rpc_string(tvb, pinfo, exportlist_tree,
 			hf_mount_exportlist_directory, offset, &directory);
 	groups_offset = offset;
 
@@ -239,7 +239,7 @@ dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			groups_tree = proto_item_add_subtree(groups_item, ett_mount_groups);
 	}
 
-	offset = dissect_rpc_list_tvb(tvb, pinfo, groups_tree, offset, dissect_group);
+	offset = dissect_rpc_list(tvb, pinfo, groups_tree, offset, dissect_group);
 	if (groups_item) {
 		/* mark empty lists */
 		if (offset - groups_offset == 4) {
@@ -267,7 +267,7 @@ dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 static int
 dissect_mount_export_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_rpc_list_tvb(tvb, pinfo, tree, offset, dissect_exportlist);
+	offset = dissect_rpc_list(tvb, pinfo, tree, offset, dissect_exportlist);
 
 	return offset;
 }
@@ -353,7 +353,7 @@ dissect_mount_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 	pc_mask = tvb_get_ntohl(tvb, offset+OFFS_MASK) & 0xffff;
 	if (!(pc_mask & (PC_ERROR_LINK_MAX|PC_ERROR_ALL))) {
 		if (tree) {
-			dissect_rpc_uint32_tvb(tvb,pinfo,tree,hf_mount_pathconf_link_max,offset);
+			dissect_rpc_uint32(tvb,pinfo,tree,hf_mount_pathconf_link_max,offset);
 		}
 	}
 	offset += 4;
@@ -472,7 +472,7 @@ dissect_mountstat3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
 
 	mountstat3 = tvb_get_ntohl(tvb, offset);
 
-	offset = dissect_rpc_uint32_tvb(tvb,pinfo,tree,hfindex,offset);
+	offset = dissect_rpc_uint32(tvb,pinfo,tree,hfindex,offset);
 	*status = mountstat3;
 	return offset;
 }

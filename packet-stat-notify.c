@@ -4,7 +4,7 @@
  *
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  *
@@ -47,9 +47,9 @@ static int
 dissect_statnotify_mon(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 
-	offset = dissect_rpc_string_tvb(tvb,pinfo,tree,hf_statnotify_name,offset,NULL);
+	offset = dissect_rpc_string(tvb,pinfo,tree,hf_statnotify_name,offset,NULL);
 
-	offset = dissect_rpc_uint32_tvb(tvb,pinfo,tree,hf_statnotify_state,offset);
+	offset = dissect_rpc_uint32(tvb,pinfo,tree,hf_statnotify_state,offset);
 
 	proto_tree_add_item(tree,hf_statnotify_priv,tvb,offset,16,FALSE);
 	offset += 16;

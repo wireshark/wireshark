@@ -2,10 +2,10 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.60 2001/05/27 09:15:14 guy Exp $
+ * $Id: packet-rpc.c,v 1.61 2001/05/30 06:01:02 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  * 
  * Copied from packet-smb.c
@@ -203,15 +203,8 @@ typedef struct _rpc_proc_info_key {
 
 typedef struct _rpc_proc_info_value {
 	gchar		*name;
-	gboolean	is_old_dissector;
-	union {
-		old_dissect_function_t *old;
-		dissect_function_t *new;
-	} dissect_call;
-	union {
-		old_dissect_function_t *old;
-		dissect_function_t *new;
-	} dissect_reply;
+	dissect_function_t *dissect_call;
+	dissect_function_t *dissect_reply;
 } rpc_proc_info_value;
 
 typedef struct _rpc_prog_info_key {
@@ -254,30 +247,6 @@ rpc_proc_hash(gconstpointer k)
 
 /* insert some entries */
 void
-old_rpc_init_proc_table(guint prog, guint vers, const old_vsff *proc_table)
-{
-	const old_vsff *proc;
-
-	for (proc = proc_table ; proc->strptr!=NULL; proc++) {
-		rpc_proc_info_key *key;
-		rpc_proc_info_value *value;
-
-		key = (rpc_proc_info_key *) g_malloc(sizeof(rpc_proc_info_key));
-		key->prog = prog;
-		key->vers = vers;
-		key->proc = proc->value;
-
-		value = (rpc_proc_info_value *) g_malloc(sizeof(rpc_proc_info_value));
-		value->name = proc->strptr;
-		value->is_old_dissector = TRUE;
-		value->dissect_call.old = proc->dissect_call;
-		value->dissect_reply.old = proc->dissect_reply;
-
-		g_hash_table_insert(rpc_procs,key,value);
-	}
-}
-
-void
 rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table)
 {
 	const vsff *proc;
@@ -293,9 +262,8 @@ rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table)
 
 		value = (rpc_proc_info_value *) g_malloc(sizeof(rpc_proc_info_value));
 		value->name = proc->strptr;
-		value->is_old_dissector = FALSE;
-		value->dissect_call.new = proc->dissect_call;
-		value->dissect_reply.new = proc->dissect_reply;
+		value->dissect_call = proc->dissect_call;
+		value->dissect_reply = proc->dissect_reply;
 
 		g_hash_table_insert(rpc_procs,key,value);
 	}
@@ -452,23 +420,7 @@ rpc_roundup(unsigned int a)
 
 
 int
-dissect_rpc_bool(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-int hfindex)
-{
-	guint32 value;
-
-	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
-	value = EXTRACT_UINT(pd, offset+0);
-	if (tree)
-		proto_tree_add_boolean(tree, hfindex, NullTVB, offset, 4, value);
-	offset += 4;
-
-	return offset;
-}
-
-
-int
-dissect_rpc_bool_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_rpc_bool(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 int hfindex, int offset)
 {
 	if (tree)
@@ -478,26 +430,7 @@ int hfindex, int offset)
 
 
 int
-dissect_rpc_uint32(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-char* name)
-{
-	guint32 value;
-
-	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
-	value = EXTRACT_UINT(pd, offset+0);
-
-	if (tree) {
-		proto_tree_add_text(tree, NullTVB, offset, 4,
-		"%s: %u", name, value);
-	}
-
-	offset += 4;
-	return offset;
-}
-
-
-int
-dissect_rpc_uint32_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_rpc_uint32(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 int hfindex, int offset)
 {
 	if (tree)
@@ -507,32 +440,7 @@ int hfindex, int offset)
 
 
 int
-dissect_rpc_uint64(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-char* name)
-{
-	guint32 value_low;
-	guint32 value_high;
-
-	if (!BYTES_ARE_IN_FRAME(offset,8)) return offset;
-	value_high = EXTRACT_UINT(pd, offset+0);
-	value_low = EXTRACT_UINT(pd, offset+4);
-
-	if (tree) {
-		if (value_high)
-			proto_tree_add_text(tree, NullTVB, offset, 8,
-				"%s: 0x%x%08x", name, value_high, value_low);
-		else
-			proto_tree_add_text(tree, NullTVB, offset, 8,
-				"%s: %u", name, value_low);
-	}
-
-	offset += 8;
-	return offset;
-}
-
-
-int
-dissect_rpc_uint64_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_rpc_uint64(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 int hfindex, int offset)
 {
 	guint32 value_low;
@@ -723,19 +631,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 int
-dissect_rpc_string(const u_char *pd, int offset, frame_data *fd,
-    proto_tree *tree, int hfindex, char **string_buffer_ret)
-{
-	tvbuff_t *tvb = tvb_create_from_top(offset);
-
-	offset = dissect_rpc_string_tvb(tvb, &pi, tree, hfindex, 0,
-	    string_buffer_ret);
-	return tvb_raw_offset(tvb) + offset;
-}
-
-
-int
-dissect_rpc_string_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_rpc_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int hfindex, int offset, char **string_buffer_ret)
 {
 	offset = dissect_rpc_opaque_data(tvb, offset, pinfo, tree,
@@ -745,19 +641,7 @@ dissect_rpc_string_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 int
-dissect_rpc_data(const u_char *pd, int offset, frame_data *fd,
-    proto_tree *tree, int hfindex)
-{
-	tvbuff_t *tvb = tvb_create_from_top(offset);
-
-	offset = dissect_rpc_data_tvb(tvb, &pi, tree, hfindex, 0);
-
-	return tvb_raw_offset(tvb) + offset;
-}
-
-
-int
-dissect_rpc_data_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_rpc_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int hfindex, int offset)
 {
 	offset = dissect_rpc_opaque_data(tvb, offset, pinfo, tree, hfindex,
@@ -768,30 +652,7 @@ dissect_rpc_data_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 int
-dissect_rpc_list(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree, old_dissect_function_t *rpc_list_dissector)
-{
-	guint32 value_follows;
-
-	while (1) {
-		if (!BYTES_ARE_IN_FRAME(offset,4)) break;
-		value_follows = EXTRACT_UINT(pd, offset+0);
-		proto_tree_add_boolean(tree,hf_rpc_value_follows, NullTVB,
-			offset+0, 4, value_follows);
-		offset += 4;
-		if (value_follows == 1) {
-			offset = rpc_list_dissector(pd, offset, fd, tree);
-		}
-		else {
-			break;
-		}
-	}
-
-	return offset;
-}
-
-int
-dissect_rpc_list_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_rpc_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int offset, dissect_function_t *rpc_list_dissector)
 {
 	guint32 value_follows;
@@ -813,7 +674,7 @@ dissect_rpc_list_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 int
-dissect_rpc_array_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_rpc_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int offset, dissect_function_t *rpc_array_dissector,
 	int hfindex)
 {
@@ -837,7 +698,7 @@ dissect_rpc_array_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_rpc_array); 	
 
-	offset = dissect_rpc_uint32_tvb(tvb, pinfo, lock_tree,
+	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree,
 			hf_rpc_array_len, offset);
 
 	while (num--) {
@@ -867,7 +728,7 @@ dissect_rpc_authunix_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, i
 			offset+0, 4, stamp);
 	offset += 4;
 
-	offset = dissect_rpc_string_tvb(tvb, pinfo, tree,
+	offset = dissect_rpc_string(tvb, pinfo, tree,
 			hf_rpc_auth_machinename, offset, NULL);
 
 	if (!tvb_bytes_exist(tvb,offset,4)) return offset;
@@ -943,14 +804,14 @@ dissect_rpc_authgss_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, in
 				    tvb, offset+0, 4, agc_svc);
 	offset += 4;
 	
-	offset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_rpc_authgss_ctx,
+	offset = dissect_rpc_data(tvb, pinfo, tree, hf_rpc_authgss_ctx,
 			offset);
 	
 	return offset;
 }
 
 int
-dissect_rpc_authdes_desblock_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_rpc_authdes_desblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 int hfindex, int offset)
 {
 	guint32 value_low;
@@ -986,9 +847,9 @@ dissect_rpc_authdes_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, in
 	switch(adc_namekind)
 	{
 	case AUTHDES_NAMEKIND_FULLNAME:
-		offset = dissect_rpc_string_tvb(tvb, pinfo, tree, 
+		offset = dissect_rpc_string(tvb, pinfo, tree, 
 			hf_rpc_authdes_netname, offset, NULL);
-		offset = dissect_rpc_authdes_desblock_tvb(tvb, pinfo, tree,
+		offset = dissect_rpc_authdes_desblock(tvb, pinfo, tree,
 			hf_rpc_authdes_convkey, offset);
 		window = tvb_get_ntohl(tvb, offset+0);
 		proto_tree_add_uint(tree, hf_rpc_authdes_window, tvb, offset+0, 4,
@@ -1098,7 +959,7 @@ dissect_rpc_verf(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset
 			{
 				guint window;
 
-				dissect_rpc_authdes_desblock_tvb(tvb, pinfo, vtree,
+				dissect_rpc_authdes_desblock(tvb, pinfo, vtree,
 					hf_rpc_authdes_timestamp, offset+8);
 				window = tvb_get_ntohl(tvb, offset+16);
 				proto_tree_add_uint(vtree, hf_rpc_authdes_windowverf, tvb, 
@@ -1109,7 +970,7 @@ dissect_rpc_verf(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset
 				/* must be an RPC_REPLY */
 				guint nickname;
 
-				dissect_rpc_authdes_desblock_tvb(tvb, pinfo, vtree,
+				dissect_rpc_authdes_desblock(tvb, pinfo, vtree,
 					hf_rpc_authdes_timeverf, offset+8);
 				nickname = tvb_get_ntohl(tvb, offset+16);
 				proto_tree_add_uint(vtree, hf_rpc_authdes_nickname, tvb, 
@@ -1117,7 +978,7 @@ dissect_rpc_verf(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset
 			}
 			break;
 		case RPCSEC_GSS:
-			dissect_rpc_data_tvb(tvb, pinfo, vtree,
+			dissect_rpc_data(tvb, pinfo, vtree,
 				hf_rpc_authgss_checksum, offset+4);
 			break;
 		default:
@@ -1137,7 +998,7 @@ dissect_rpc_verf(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset
 static int
 dissect_rpc_authgss_initarg(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset)
 {
-	offset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_rpc_authgss_token,
+	offset = dissect_rpc_data(tvb, pinfo, tree, hf_rpc_authgss_token,
 			offset);
 	return offset;
 }
@@ -1147,7 +1008,7 @@ dissect_rpc_authgss_initres(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
 {
 	int major, minor, window;
 	
-	offset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_rpc_authgss_ctx,
+	offset = dissect_rpc_data(tvb, pinfo, tree, hf_rpc_authgss_ctx,
 			offset);
 	
 	if (!tvb_bytes_exist(tvb,offset,4)) return offset;
@@ -1171,7 +1032,7 @@ dissect_rpc_authgss_initres(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
 				    offset+0, 4, window);
 	offset += 4;
 
-	offset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_rpc_authgss_token,
+	offset = dissect_rpc_data(tvb, pinfo, tree, hf_rpc_authgss_token,
 			offset);
 
 	return offset;
@@ -1180,32 +1041,18 @@ dissect_rpc_authgss_initres(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
 
 static int
 call_dissect_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-	int offset, old_dissect_function_t *old_dissect_function,
-	dissect_function_t* dissect_function, const char *progname)
+	int offset, dissect_function_t* dissect_function, const char *progname)
 {
 	const char *saved_proto;
 
-	if (old_dissect_function != NULL || dissect_function != NULL) {
+	if (dissect_function != NULL) {
 		/* set the current protocol name */
 		saved_proto = pinfo->current_proto;
 		if (progname != NULL)
 			pinfo->current_proto = progname;
 
 		/* call the dissector for the next level */
-		if (dissect_function == NULL) {
-			const guint8 *tvb_pd;
-			int tvb_offset;
-
-			/*
-			 * It's an old-style dissector.
-			 * Make a pd, offset pair.
-			 */
-			tvb_compat(tvb, &tvb_pd, &tvb_offset);
-
-			offset = old_dissect_function(tvb_pd,
-			    tvb_offset + offset, pinfo->fd, tree) - tvb_offset;
-		} else
-			offset = dissect_function(tvb, offset, pinfo, tree);
+		offset = dissect_function(tvb, offset, pinfo, tree);
 
 		/* restore the protocol name */
 		pinfo->current_proto = saved_proto;
@@ -1218,7 +1065,6 @@ call_dissect_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset,
-	old_dissect_function_t *old_dissect_function,
 	dissect_function_t* dissect_function,
 	const char *progname)
 {
@@ -1227,7 +1073,6 @@ dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 	proto_item *gitem;
 	proto_tree *gtree = NULL;
 
-	if (!tvb_bytes_exist(tvb, offset, 8)) return offset;
 	length = tvb_get_ntohl(tvb, offset+0);
 	length = rpc_roundup(length);
 	seq = tvb_get_ntohl(tvb, offset+4);
@@ -1241,14 +1086,13 @@ dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_uint(gtree, hf_rpc_authgss_seq,
 				    tvb, offset+4, 4, seq);
 	}
-	if (old_dissect_function != NULL || dissect_function != NULL) {
+	if (dissect_function != NULL) {
 		/* offset = */
 		call_dissect_function(tvb, pinfo, gtree, offset,
-				      old_dissect_function, dissect_function,
-				      progname);
+				      dissect_function, progname);
 	}
 	offset += 8 + length;
-	offset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_rpc_authgss_checksum,
+	offset = dissect_rpc_data(tvb, pinfo, tree, hf_rpc_authgss_checksum,
 			offset);
 	return offset;
 }
@@ -1257,7 +1101,7 @@ dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 static int
 dissect_rpc_authgss_priv_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	offset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_rpc_authgss_data,
+	offset = dissect_rpc_data(tvb, pinfo, tree, hf_rpc_authgss_data,
 			offset);
 	return offset;
 }
@@ -1280,17 +1124,13 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	rpc_call_info_value *rpc_call;
 	rpc_call_info_key rpc_call_key;
 	rpc_call_info_key *new_rpc_call_key;
-	old_dissect_function_t *old_dissect_function = NULL;
 	dissect_function_t *dissect_function = NULL;
 
 	key.prog = prog;
 	key.vers = vers;
 	key.proc = proc;
 	if ((value = g_hash_table_lookup(rpc_procs,&key)) != NULL) {
-		if (value->is_old_dissector)
-			old_dissect_function = value->dissect_call.old;
-		else
-			dissect_function = value->dissect_call.new;
+		dissect_function = value->dissect_call;
 
 		/* Keep track of the address and port whence the call came,
 		   and the port to which the call is being sent, so that
@@ -1351,7 +1191,7 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   Happens only with strange program versions or
 		   non-existing dissectors.
 		   Just show the arguments as opaque data. */
-		offset = dissect_rpc_data_tvb(tvb, pinfo, tree, args_id,
+		offset = dissect_rpc_data(tvb, pinfo, tree, args_id,
 		    offset);
 		return offset;
 	}
@@ -1366,7 +1206,7 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* Dissect the arguments */
 	offset = call_dissect_function(tvb, pinfo, tree, offset,
-			old_dissect_function, dissect_function, NULL);
+			dissect_function, NULL);
 	return offset;
 }
 
@@ -1384,7 +1224,6 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	rpc_call_info_value *rpc_call;
 	char *procname = NULL;
 	char procname_static[20];
-	old_dissect_function_t *old_dissect_function = NULL;
 	dissect_function_t *dissect_function = NULL;
 
 	/* Look for the matching call in the hash table of indirect
@@ -1401,7 +1240,7 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* We haven't seen an RPC call for that conversation,
 		   so we can't check for a reply to that call.
 		   Just show the reply stuff as opaque data. */
-		offset = dissect_rpc_data_tvb(tvb, pinfo, tree, result_id,
+		offset = dissect_rpc_data(tvb, pinfo, tree, result_id,
 		    offset);
 		return offset;
 	}
@@ -1414,16 +1253,13 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* The XID doesn't match a call from that
 		   conversation, so it's probably not an RPC reply.
 		   Just show the reply stuff as opaque data. */
-		offset = dissect_rpc_data_tvb(tvb, pinfo, tree, result_id,
+		offset = dissect_rpc_data(tvb, pinfo, tree, result_id,
 		    offset);
 		return offset;
 	}
 
 	if (rpc_call->proc_info != NULL) {
-		if (rpc_call->proc_info->is_old_dissector)
-			old_dissect_function = rpc_call->proc_info->dissect_reply.old;
-		else
-			dissect_function = rpc_call->proc_info->dissect_reply.new;
+		dissect_function = rpc_call->proc_info->dissect_reply;
 		if (rpc_call->proc_info->name != NULL) {
 			procname = rpc_call->proc_info->name;
 		}
@@ -1452,10 +1288,10 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			procname, rpc_call->proc);
 	}
 
-	if (old_dissect_function == NULL && dissect_function == NULL) {
+	if (dissect_function == NULL) {
 		/* We don't know how to dissect the reply procedure.
 		   Just show the reply stuff as opaque data. */
-		offset = dissect_rpc_data_tvb(tvb, pinfo, tree, result_id,
+		offset = dissect_rpc_data(tvb, pinfo, tree, result_id,
 		    offset);
 		return offset;
 	}
@@ -1470,7 +1306,7 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* Dissect the return value */
 	offset = call_dissect_function(tvb, pinfo, tree, offset,
-			old_dissect_function, dissect_function, NULL);
+			dissect_function, NULL);
 	return offset;
 }
 
@@ -1525,7 +1361,6 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conversation_t* conversation;
 	static address null_address = { AT_NONE, 0, NULL };
 
-	old_dissect_function_t *old_dissect_function = NULL;
 	dissect_function_t *dissect_function = NULL;
 
 	/* TCP uses record marking */
@@ -1697,10 +1532,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		key.proc = proc;
 
 		if ((value = g_hash_table_lookup(rpc_procs,&key)) != NULL) {
-			if (value->is_old_dissector)
-				old_dissect_function = value->dissect_call.old;
-			else
-				dissect_function = value->dissect_call.new;
+			dissect_function = value->dissect_call;
 			procname = value->name;
 		}
 		else {
@@ -1817,10 +1649,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    rpc_call->req_num);
 
 		if (rpc_call->proc_info != NULL) {
-			if (rpc_call->proc_info->is_old_dissector)
-				old_dissect_function = rpc_call->proc_info->dissect_reply.old;
-			else
-				dissect_function = rpc_call->proc_info->dissect_reply.new;
+			dissect_function = rpc_call->proc_info->dissect_reply;
 			if (rpc_call->proc_info->name != NULL) {
 				procname = rpc_call->proc_info->name;
 			}
@@ -2002,17 +1831,15 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (ptree) {
 			proto_tree_add_uint(ptree,
-				hf_rpc_programversion, NullTVB, 0, 0, vers);
+				hf_rpc_programversion, tvb, 0, 0, vers);
 			proto_tree_add_uint_format(ptree,
-				hf_rpc_procedure, NullTVB, 0, 0, proc,
+				hf_rpc_procedure, tvb, 0, 0, proc,
 				"Procedure: %s (%u)", procname, proc);
 		}
 	}
 
-	if (!proto_is_protocol_enabled(proto)) {
-		old_dissect_function = NULL;
+	if (!proto_is_protocol_enabled(proto))
 		dissect_function = NULL;
-	}
 
 	/* RPCSEC_GSS processing. */
 	if (flavor == RPCSEC_GSS) {
@@ -2032,14 +1859,12 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (gss_svc == RPCSEC_GSS_SVC_NONE) {
 				offset = call_dissect_function(tvb, 
 						pinfo, ptree, offset,
-						old_dissect_function,
 						dissect_function,
 						progname);
 			}
 			else if (gss_svc == RPCSEC_GSS_SVC_INTEGRITY) {
 				offset = dissect_rpc_authgss_integ_data(tvb,
 						pinfo, ptree, offset,
-						old_dissect_function,
 						dissect_function,
 						progname);
 			}
@@ -2054,7 +1879,7 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	else {
 		offset=call_dissect_function(tvb, pinfo, ptree, offset,
-				old_dissect_function, dissect_function, progname);
+				dissect_function, progname);
 	}
 
 	/* dissect any remaining bytes (incomplete dissection) as pure data in
