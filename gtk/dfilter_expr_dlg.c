@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.4 2001/01/03 06:56:00 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.5 2001/01/10 23:36:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -52,6 +52,10 @@
 
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
+
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
 #endif
 
 #include "prefs.h"
