@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-mip.c,v 1.20 2001/10/31 07:58:43 guy Exp $
+ * $Id: packet-mip.c,v 1.21 2001/10/31 22:16:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -219,7 +219,7 @@ dissect_mip_extensions( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = proto_tree_add_text(exts_tree, tvb, offset, ext_len + hdrLen,
 				 "Extension: %s",
 				 val_to_str(ext_type, mip_ext_types,
-				            "Unknown Extension 0x%02x"));
+				            "Unknown Extension %u"));
 	ext_tree = proto_item_add_subtree(ti, ett_mip_ext);
 
 	proto_tree_add_item(ext_tree, hf_mip_ext_type, tvb, offset, 1, ext_type);
