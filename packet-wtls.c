@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTLS component of WAP traffic.
  * 
- * $Id: packet-wtls.c,v 1.18 2002/01/24 09:20:52 guy Exp $
+ * $Id: packet-wtls.c,v 1.19 2002/06/15 23:27:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -113,11 +113,13 @@ static int hf_wtls_hands_certificate_wtls_version     =HF_EMPTY;
 static int hf_wtls_hands_certificate_wtls_signature_type      =HF_EMPTY;
 static int hf_wtls_hands_certificate_wtls_issuer_type =HF_EMPTY;
 static int hf_wtls_hands_certificate_wtls_issuer_charset      =HF_EMPTY;
+static int hf_wtls_hands_certificate_wtls_issuer_size =HF_EMPTY;
 static int hf_wtls_hands_certificate_wtls_issuer_name =HF_EMPTY;
 static int hf_wtls_hands_certificate_wtls_valid_not_before    =HF_EMPTY;
 static int hf_wtls_hands_certificate_wtls_valid_not_after     =HF_EMPTY;
 static int hf_wtls_hands_certificate_wtls_subject_type        =HF_EMPTY;
 static int hf_wtls_hands_certificate_wtls_subject_charset     =HF_EMPTY;
+static int hf_wtls_hands_certificate_wtls_subject_size        = HF_EMPTY;
 static int hf_wtls_hands_certificate_wtls_subject_name        = HF_EMPTY;
 static int hf_wtls_hands_certificate_wtls_public_key_type = HF_EMPTY;
 static int hf_wtls_hands_certificate_wtls_key_parameter_index = HF_EMPTY;
@@ -142,37 +144,37 @@ static dissector_handle_t wtp_handle;
 static dissector_handle_t wsp_handle;
 
 static const value_string wtls_vals_record_type[] = {
-	{ 0x01, "change_cipher_data" },
-	{ 0x02, "alert" },
-	{ 0x03, "handshake" },
-	{ 0x04, "application_data" },
-	{ 0x00, NULL }
+	{ 1, "change_cipher_data" },
+	{ 2, "alert" },
+	{ 3, "handshake" },
+	{ 4, "application_data" },
+	{ 0, NULL }
 };
 
 static const value_string wtls_vals_cipher_bulk[] = {
-	{ 0x00, "Null" },
-	{ 0x01, "RC5 CBC 40" },
-	{ 0x02, "RC5 CBC 56" },
-	{ 0x03, "RC5 CBC" },
-	{ 0x04, "DES CBC 40" },
-	{ 0x05, "DES CBC" },
-	{ 0x06, "3DES CBC cwEDE40" },
-	{ 0x07, "IDEA CBC 40" },
-	{ 0x08, "IDEA CBC 56" },
-	{ 0x09, "IDEA CBC" },
-	{ 0x00, NULL }
+	{ 0, "Null" },
+	{ 1, "RC5 CBC 40" },
+	{ 2, "RC5 CBC 56" },
+	{ 3, "RC5 CBC" },
+	{ 4, "DES CBC 40" },
+	{ 5, "DES CBC" },
+	{ 6, "3DES CBC cwEDE40" },
+	{ 7, "IDEA CBC 40" },
+	{ 8, "IDEA CBC 56" },
+	{ 9, "IDEA CBC" },
+	{ 0, NULL }
 };
 
 static const value_string wtls_vals_cipher_mac[] = {
-	{ 0x00, "SHA 0" },
-	{ 0x01, "SHA 40 " },
-	{ 0x02, "SHA 80" },
-	{ 0x03, "SHA" },
-	{ 0x04, "SHA XOR 40" },
-	{ 0x05, "MD5 40" },
-	{ 0x06, "MD5 80" },
-	{ 0x07, "MD5" },
-	{ 0x00, NULL }
+	{ 0, "SHA 0" },
+	{ 1, "SHA 40 " },
+	{ 2, "SHA 80" },
+	{ 3, "SHA" },
+	{ 4, "SHA XOR 40" },
+	{ 5, "MD5 40" },
+	{ 6, "MD5 80" },
+	{ 7, "MD5" },
+	{ 0, NULL }
 };
 
 static const value_string wtls_vals_handshake_type[] = {
@@ -223,9 +225,9 @@ static const value_string wtls_vals_identifier_type[] = {
 
 static const value_string wtls_vals_certificate_type[] = {
 	{ 1, "WTLS" },
-	{ 2, "X509" },
-	{ 3, "X968" },
-	{ 4, "Url" },
+	{ 2, "X.509" },
+	{ 3, "X.968" },
+	{ 4, "URL" },
 	{ 0x00, NULL }
 };
 
@@ -444,6 +446,28 @@ dissect_wtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
+static int
+add_text_identifier(tvbuff_t *tvb, int offset, int hf_charset,
+    int hf_size, int hf_str, proto_tree *tree)
+{
+	guint8 size;
+	int client_size = 0;
+
+	proto_tree_add_item(tree, hf_charset, tvb, offset, 2, bo_big_endian);
+	offset+=2;
+	size = tvb_get_guint8 (tvb, offset);
+	proto_tree_add_item(tree, hf_size, tvb, offset, 1, bo_big_endian);
+	offset++;
+	proto_tree_add_item(tree, hf_str, tvb, offset, size, bo_big_endian);
+	offset+=size;
+	client_size+=size+3;
+#ifdef DEBUG
+	fprintf(stderr, "text id size = %d, client_size = %d\n",
+		size, client_size);
+#endif /* DEBUG */
+	return client_size;
+}
+
 static void
 dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint count)
 {
@@ -587,31 +611,20 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 				/* identifier present in next field */
 				/* note: value 0x0 means no identifier */
 				switch(value) {
-					case 0x01 :	/* text identifier */
-						/* not teste */
-						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-								hf_wtls_hands_cli_hello_key_identifier_charset,
-								tvb,offset,2,bo_big_endian);
-						offset+=2;
-						size = tvb_get_guint8 (tvb, offset);
-						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-								hf_wtls_hands_cli_hello_key_identifier_size,
-								tvb,offset,1,bo_big_endian);
-						offset++;
-						strncpy(valStr,tvb_get_ptr (tvb, offset, size),size);
-						valStr[size]=0;
-						ti = proto_tree_add_string(
-								wtls_msg_type_item_sub_sub_tree, 
-								hf_wtls_hands_cli_hello_key_identifier_str,
-								tvb, offset,size,valStr);
-						offset+=size;
-						client_size+=size+3;
-#ifdef DEBUG
-						fprintf(stderr, "text id size = %d, client_size = %d\n",
-							size, client_size);
-#endif /* DEBUG */
+					case IDENTIFIER_TEXT :
+						/* text identifier */
+						/* not tested */
+						size = add_text_identifier(
+							tvb, offset,
+							hf_wtls_hands_cli_hello_key_identifier_charset,
+							hf_wtls_hands_cli_hello_key_identifier_size,
+							hf_wtls_hands_cli_hello_key_identifier_str,
+							wtls_msg_type_item_sub_sub_tree);
+						offset += size;
+						client_size += size;
 						break;
-					case 0x02 :	/* binary identifier */
+					case IDENTIFIER_BIN :
+						/* binary identifier */
 						size = tvb_get_guint8 (tvb, offset);
 						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
 								hf_wtls_hands_cli_hello_key_identifier_size,
@@ -627,7 +640,8 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 							size, client_size);
 #endif /* DEBUG */
 						break;
-					case 0xfe : /* SHA-1 hash of the public key */
+					case IDENTIFIER_SHA_1 :
+						/* SHA-1 hash of the public key */
 						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
 								hf_wtls_hands_cli_hello_key_identifier,
 								tvb,offset,20,bo_big_endian);
@@ -638,7 +652,8 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 							client_size);
 #endif /* DEBUG */
 						break;
-					case 0xff : /* X.509 distinguished name */
+					case IDENTIFIER_X509 :
+						/* X.509 distinguished name */
 						/* not tested */
 						size = tvb_get_guint8 (tvb, offset);
 						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
@@ -725,31 +740,20 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 				/* identifier present in next field */
 				/* note: value 0x0 means no identifier */
 				switch (value) {
-					case 0x01 :	/* text identifier */
-						/* not temasted */
-						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-								hf_wtls_hands_cli_hello_key_identifier_charset,
-								tvb,offset,2,bo_big_endian);
-						offset+=2;
-						size = tvb_get_guint8 (tvb, offset);
-						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
-								hf_wtls_hands_cli_hello_key_identifier_size,
-								tvb,offset,1,bo_big_endian);
-						offset++;
-						strncpy(valStr,tvb_get_ptr (tvb, offset, size),size);
-						valStr[size]=0;
-						ti = proto_tree_add_string(
-								wtls_msg_type_item_sub_sub_tree, 
-								hf_wtls_hands_cli_hello_key_identifier_str,
-								tvb, offset,size,valStr);
-						offset+=size;
-						client_size+=size+3;
-#ifdef DEBUG
-						fprintf(stderr, "text id size = %d, client_size = %d\n",
-							size, client_size);
-#endif /* DEBUG */
+					case IDENTIFIER_TEXT :
+						/* text identifier */
+						/* not tested */
+						size = add_text_identifier(
+							tvb, offset,
+							hf_wtls_hands_cli_hello_key_identifier_charset,
+							hf_wtls_hands_cli_hello_key_identifier_size,
+							hf_wtls_hands_cli_hello_key_identifier_str,
+							wtls_msg_type_item_sub_sub_tree);
+						offset += size;
+						client_size += size;
 						break;
-					case 0x02 : /* binary identifier */
+					case IDENTIFIER_BIN :
+						/* binary identifier */
 						size = tvb_get_guint8 (tvb, offset);
 						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
 								hf_wtls_hands_cli_hello_key_identifier_size,
@@ -765,7 +769,8 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 							size, client_size);
 #endif /* DEBUG */
 						break;
-					case 0xfe :	/* SHA-1 hash of the public key */
+					case IDENTIFIER_SHA_1 :
+						/* SHA-1 hash of the public key */
 						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
 								hf_wtls_hands_cli_hello_key_identifier,
 								tvb,offset,20,bo_big_endian);
@@ -776,8 +781,9 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 							client_size);
 #endif /* DEBUG */
 						break;
-					case 0xff : 	/* X.509 distinguished name */
-						/* not testet */
+					case IDENTIFIER_X509 :
+					 	/* X.509 distinguished name */
+						/* not tested */
 						size = tvb_get_guint8 (tvb, offset);
 						/* need to fetch identifier and display it */
 						ti = proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
@@ -819,18 +825,18 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
                                        }
                                        else
                                        {
-                                               snprintf(valStr,1024,"%s, Unknow MAC (0x%02x)",valBulk,tvb_get_guint8 (tvb, offset));
+                                               snprintf(valStr,1024,"%s, Unknown MAC (0x%02x)",valBulk,tvb_get_guint8 (tvb, offset));
                                        }
                                }
                                else
                                {
                                        if (valMac != NULL)
-                                      {
-                                               snprintf(valStr,1024,"Unknow Bulk (0x%02x), %s",value,valMac);
+                                       {
+                                               snprintf(valStr,1024,"Unknown Bulk (0x%02x), %s",value,valMac);
                                        }
                                        else
                                        {
-                                               snprintf(valStr,1024,"Unknow Bulk (0x%02x), Unknow MAC (0x%02x)",value,
+                                               snprintf(valStr,1024,"Unknown Bulk (0x%02x), Unknown MAC (0x%02x)",value,
                                                                tvb_get_guint8 (tvb, offset));
                                        }
                                 }
@@ -982,23 +988,13 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 							case IDENTIFIER_NULL :
 								break;
 							case IDENTIFIER_TEXT :
-								ti = proto_tree_add_item(
-										wtls_msg_type_item_sub_tree, 
-										hf_wtls_hands_certificate_wtls_issuer_charset,
-										tvb, offset,2,
-										bo_big_endian);
-								offset+=2;
-								client_size+=2;
-								value =  tvb_get_guint8 (tvb, offset);
-								strncpy(valStr,tvb_get_ptr (tvb, offset+1, value),value);
-								valStr[value]=0;
-								ti = proto_tree_add_string(
-										wtls_msg_type_item_sub_tree, 
-										hf_wtls_hands_certificate_wtls_issuer_name,
-										tvb, offset,1+value,
-										valStr);
-								offset+=1+value;
-								client_size+=1+value;
+								value = add_text_identifier(tvb, offset,
+									hf_wtls_hands_certificate_wtls_issuer_charset,
+									hf_wtls_hands_certificate_wtls_issuer_size,
+									hf_wtls_hands_certificate_wtls_issuer_name,
+									wtls_msg_type_item_sub_tree);
+								offset += value;
+								client_size += value;
 								break;
 							case IDENTIFIER_BIN :
 								break;
@@ -1032,23 +1028,13 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 							case IDENTIFIER_NULL :
 								break;
 							case IDENTIFIER_TEXT :
-								ti = proto_tree_add_item(
-										wtls_msg_type_item_sub_tree, 
-										hf_wtls_hands_certificate_wtls_subject_charset,
-										tvb, offset,2,
-										bo_big_endian);
-								offset+=2;
-								client_size+=2;
-								value =  tvb_get_guint8 (tvb, offset);
-								strncpy(valStr,tvb_get_ptr (tvb, offset+1, value),value);
-								valStr[value]=0;
-								ti = proto_tree_add_string(
-										wtls_msg_type_item_sub_tree, 
-										hf_wtls_hands_certificate_wtls_subject_name,
-										tvb, offset,1+value,
-										valStr);
-								offset+=1+value;
-								client_size+=1+value;
+								value = add_text_identifier(tvb, offset, 
+									hf_wtls_hands_certificate_wtls_subject_charset,
+									hf_wtls_hands_certificate_wtls_subject_size,
+									hf_wtls_hands_certificate_wtls_subject_name,
+									wtls_msg_type_item_sub_tree);
+								offset += value;
+								client_size += value;
 								break;
 							case IDENTIFIER_BIN :
 								break;
@@ -1168,21 +1154,21 @@ proto_register_wtls(void)
 		{ &hf_wtls_record_ciphered,
 			{ 	"Record Ciphered",           
 				"wsp.wtls.rec_cipher",
-				 FT_NONE, BASE_DEC, NULL, 0x00,
+				 FT_NONE, BASE_NONE, NULL, 0x00,
 				"Record Ciphered", HFILL
 			}
 		},
 		{ &hf_wtls_hands,
 			{ 	"Handshake",           
 				"wsp.wtls.handshake",
-				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_handshake_type ), 0x00,
+				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_handshake_type ), 0x00,
 				"Handshake", HFILL
 			}
 		},
 		{ &hf_wtls_hands_type,
 			{ 	"Type",           
 				"wsp.wtls.handshake.type",
-				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_handshake_type ), 0x00,
+				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_handshake_type ), 0x00,
 				"Type", HFILL
 			}
 		},
@@ -1196,7 +1182,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_cli_hello,
 			{ 	"Client Hello",           
 				"wsp.wtls.handshake.client_hello",
-				 FT_NONE, BASE_NONE,NULL, 0x00,
+				 FT_NONE, BASE_NONE, NULL, 0x00,
 				"Client Hello", HFILL
 			}
 		},
@@ -1217,7 +1203,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_cli_hello_random,
 			{ 	"Random",           
 				"wsp.wtls.handshake.client_hello.random",
-				 FT_NONE, BASE_DEC, NULL, 0x00,
+				 FT_NONE, BASE_NONE, NULL, 0x00,
 				"Random", HFILL
 			}
 		},
@@ -1231,14 +1217,14 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_cli_hello_session_str,
 			{ 	"Session ID",           
 				"wsp.wtls.handshake.client_hello.session.str",
-				 FT_STRING, BASE_DEC, NULL, 0x00,
+				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Session ID", HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_cli_key_id,
 			{ 	"Client Keys",           
 				"wsp.wtls.handshake.client_hello.client_keys_id",
-				 FT_NONE, BASE_DEC, NULL, 0x00,
+				 FT_NONE, BASE_NONE, NULL, 0x00,
 			 	"Client Keys"     , HFILL     
 			}
 		},
@@ -1252,21 +1238,21 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_cli_hello_trust_key_id,
 			{ 	"Trusted Keys",           
 				"wsp.wtls.handshake.client_hello.trusted_keys_id",
-				 FT_NONE, BASE_DEC, NULL, 0x00,
+				 FT_NONE, BASE_NONE, NULL, 0x00,
 			 	"Trusted Keys"          , HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_key_exchange,
 			{ 	"Key Exchange",           
 				"wsp.wtls.handshake.client_hello.key.key_exchange",
-				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_key_exchange_suite ), 0x00,
+				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_key_exchange_suite ), 0x00,
 				"Key Exchange", HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_key_exchange_suite,
 			{ 	"Suite",           
 				"wsp.wtls.handshake.client_hello.key.key_exchange.suite",
-				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_key_exchange_suite ), 0x00,
+				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_key_exchange_suite ), 0x00,
 				"Suite", HFILL
 			}
 		},
@@ -1287,7 +1273,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_cli_hello_key_identifier_type,
 			{ 	"Identifier Type",           
 				"wsp.wtls.handshake.client_hello.ident_type",
-				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_identifier_type ), 0x00,
+				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_identifier_type ), 0x00,
 				"Identifier Type", HFILL
 			}
 		},
@@ -1308,35 +1294,35 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_cli_hello_key_identifier,
 			{ 	"Identifier",           
 				"wsp.wtls.handshake.client_hello.identifier",
-				 FT_NONE, BASE_HEX, NULL, 0x00,
+				 FT_NONE, BASE_NONE, NULL, 0x00,
 				"Identifier", HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_key_identifier_str,
 			{ 	"Identifier Name",           
 				"wsp.wtls.handshake.client_hello.ident_name",
-				 FT_STRING, BASE_HEX, NULL, 0x00,
+				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Identifier Name", HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_cipher_suite,
 			{ 	"Cipher Suites",           
 				"wsp.wtls.handshake.client_hello.ciphers",
-				 FT_NONE, BASE_DEC, NULL, 0x00,
+				 FT_NONE, BASE_NONE, NULL, 0x00,
 				"Cipher Suite", HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_cipher_suite_item,
 			{ 	"Cipher",           
 				"wsp.wtls.handshake.client_hello.cipher",
-				 FT_STRING, BASE_DEC, NULL, 0x00,
+				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Cipher", HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_compression_methods,
 			{ 	"Compression Methods",           
 				"wsp.wtls.handshake.client_hello.comp_methods",
-				 FT_NONE, BASE_DEC, NULL, 0x00,
+				 FT_NONE, BASE_NONE, NULL, 0x00,
 				"Compression Methods", HFILL
 			}
 		},
@@ -1350,21 +1336,21 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_cli_hello_sequence_mode,
 			{ 	"Sequence Mode",           
 				"wsp.wtls.handshake.client_hello.sequence_mode",
-				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_sequence_mode ), 0x00,
+				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_sequence_mode ), 0x00,
 				"Sequence Mode", HFILL
 			}
 		},
 		{ &hf_wtls_hands_cli_hello_key_refresh,
 			{ 	"Refresh",           
 				"wsp.wtls.handshake.client_hello.refresh",
-				 FT_UINT8, BASE_DEC,NULL, 0x00,
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
 				"Refresh", HFILL
 			}
 		},
 		{ &hf_wtls_hands_serv_hello,
 			{ 	"Server Hello",           
 				"wsp.wtls.handshake.server_hello",
-				 FT_NONE, BASE_NONE,NULL, 0x00,
+				 FT_NONE, BASE_NONE, NULL, 0x00,
 				"Server Hello", HFILL
 			}
 		},
@@ -1385,7 +1371,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_serv_hello_random,
 			{ 	"Random",           
 				"wsp.wtls.handshake.server_hello.random",
-				 FT_NONE, BASE_DEC, NULL, 0x00,
+				 FT_NONE, BASE_NONE, NULL, 0x00,
 				"Random", HFILL
 			}
 		},
@@ -1399,7 +1385,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_serv_hello_session_str,
 			{ 	"Session ID",           
 				"wsp.wtls.handshake.server_hello.session.str",
-				 FT_STRING, BASE_DEC, NULL, 0x00,
+				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Session ID", HFILL
 			}
 		},
@@ -1413,21 +1399,21 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_serv_hello_cipher_suite_item,
 			{ 	"Cipher",           
 				"wsp.wtls.handshake.server_hello.cipher",
-				 FT_NONE, BASE_DEC, NULL, 0x00,
+				 FT_NONE, BASE_NONE, NULL, 0x00,
 				"Cipher", HFILL
 			}
 		},
 		{ &hf_wtls_hands_serv_hello_cipher_bulk,
 			{ 	"Cipher Bulk",           
 				"wsp.wtls.handshake.server_hello.cipher.bulk",
-				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_cipher_bulk ), 0x00,
+				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_cipher_bulk ), 0x00,
 				"Cipher Bulk", HFILL
 			}
 		},
 		{ &hf_wtls_hands_serv_hello_cipher_mac,
 			{ 	"Cipher MAC",           
 				"wsp.wtls.handshake.server_hello.cipher.mac",
-				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_cipher_mac ), 0x00,
+				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_cipher_mac ), 0x00,
 				"Cipher MAC", HFILL
 			}
 		},
@@ -1441,35 +1427,35 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_serv_hello_sequence_mode,
 			{ 	"Sequence Mode",           
 				"wsp.wtls.handshake.server_hello.sequence_mode",
-				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_sequence_mode ), 0x00,
+				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_sequence_mode ), 0x00,
 				"Sequence Mode", HFILL
 			}
 		},
 		{ &hf_wtls_hands_serv_hello_key_refresh,
 			{ 	"Refresh",           
 				"wsp.wtls.handshake.server_hello.refresh",
-				 FT_UINT8, BASE_DEC,NULL, 0x00,
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
 				"Refresh", HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificates,
 			{ 	"Certificates",
 				"wsp.wtls.handshake.certificates",
-				 FT_NONE, BASE_DEC, NULL, 0x00,
+				 FT_NONE, BASE_NONE, NULL, 0x00,
 				"Certificates", HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate,
 			{ 	"Certificate",           
 				"wsp.wtls.handshake.certificate",
-				 FT_NONE, BASE_DEC, NULL, 0x00,
+				 FT_NONE, BASE_NONE, NULL, 0x00,
 				"Certificate", HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_type,
 			{ 	"Type",           
 				"wsp.wtls.handshake.certificate.type",
-				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_certificate_type ), 0x00,
+				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_certificate_type ), 0x00,
 				"Type", HFILL
 			}
 		},
@@ -1483,7 +1469,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_certificate_wtls_signature_type,
 			{ 	"Signature Type",           
 				"wsp.wtls.handshake.certificate.signature.type",
-				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_certificate_signature ), 0x00,
+				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_certificate_signature ), 0x00,
 				"Signature Type", HFILL 
 			}
 		},
@@ -1497,7 +1483,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_certificate_wtls_issuer_type,
 			{ 	"Issuer",           
 				"wsp.wtls.handshake.certificate.issuer.type",
-				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_identifier_type ), 0x00,
+				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_identifier_type ), 0x00,
 				"Issuer", HFILL
 			}
 		},
@@ -1506,6 +1492,13 @@ proto_register_wtls(void)
 				"wsp.wtls.handshake.certificate.issuer.charset",
 				 FT_UINT16, BASE_HEX, VALS ( vals_character_sets ), 0x00,
 				"Charset", HFILL
+			}
+		},
+		{ &hf_wtls_hands_certificate_wtls_issuer_size,
+			{ 	"Size",           
+				"wsp.wtls.handshake.certificate.issuer.size",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Size", HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_issuer_name,
@@ -1532,7 +1525,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_certificate_wtls_subject_type,
 			{ 	"Subject",           
 				"wsp.wtls.handshake.certificate.subject.type",
-				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_identifier_type ), 0x00,
+				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_identifier_type ), 0x00,
 				"Subject", HFILL
 			}
 		},
@@ -1541,6 +1534,13 @@ proto_register_wtls(void)
 				"wsp.wtls.handshake.certificate.subject.charset",
 				 FT_UINT16, BASE_HEX, VALS ( vals_character_sets ), 0x00,
 				"Charset", HFILL
+			}
+		},
+		{ &hf_wtls_hands_certificate_wtls_subject_size,
+			{ 	"Size",           
+				"wsp.wtls.handshake.certificate.subject.size",
+				 FT_UINT8, BASE_DEC, NULL, 0x00,
+				"Size", HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_subject_name,
@@ -1553,7 +1553,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_certificate_wtls_public_key_type,
 			{ 	"Public Key Type",           
 				"wsp.wtls.handshake.certificate.public.type",
-				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_public_key_type ), 0x00,
+				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_public_key_type ), 0x00,
 				"Public Key Type", HFILL
 			}
 		},
@@ -1588,21 +1588,21 @@ proto_register_wtls(void)
 		{ &hf_wtls_alert,
 			{ 	"Alert",           
 				"wsp.wtls.alert",
-				 FT_NONE, BASE_HEX, NULL, 0x00,
+				 FT_NONE, BASE_NONE, NULL, 0x00,
 				"Alert", HFILL
 			}
 		},
 		{ &hf_wtls_alert_level,
 			{ 	"Level",           
 				"wsp.wtls.alert.level",
-				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_alert_level ), 0x00,
+				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_alert_level ), 0x00,
 				"Level", HFILL
 			}
 		},
 		{ &hf_wtls_alert_description,
 			{ 	"Description",           
 				"wsp.wtls.alert.description",
-				 FT_UINT8, BASE_HEX, VALS ( wtls_vals_alert_description ), 0x00,
+				 FT_UINT8, BASE_DEC, VALS ( wtls_vals_alert_description ), 0x00,
 				"Description", HFILL
 			}
 		},
