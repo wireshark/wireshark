@@ -468,6 +468,24 @@ else
     ])
 fi
 
+AC_CHECK_FUNC(strtoull,,
+  [
+    #
+    # No strtoull - do we have strtouq?
+    #
+    AC_CHECK_FUNC(strtouq,
+      [
+	#
+	# Yes - define strtoull to be strtouq.
+	#
+	AC_DEFINE(strtoull, strtouq,
+	  [Define as a function that behaves like strtoull])
+      ],
+      [
+	AC_MSG_ERROR([This platform has neither strtoull nor strtouq.])
+      ])
+  ])
+
 AC_SUBST(ethereal_bin)
 AC_SUBST(ethereal_man)
 
