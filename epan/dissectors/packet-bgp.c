@@ -511,7 +511,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, GString *b
                                         case FORMAT_AS2_LOC:
                                                 length = 8 + sizeof(ip4addr);
                                                 tvb_memcpy(tvb, ip4addr, offset + 8, sizeof(ip4addr));   /* Next Hop */
-                                                g_string_sprintf(buf, "Empty Label Stack RD=%u:%u IP=%s",
+                                                g_string_sprintf(buf, "Empty Label Stack RD=%u:%u IPv4=%s",
                                                                 tvb_get_ntohs(tvb, offset + 2),
                                                                 tvb_get_ntohl(tvb, offset + 4),
                                                                 ip_to_str(ip4addr));
@@ -520,14 +520,14 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, GString *b
                                                 length = 8 + sizeof(ip4addr);
                                                 tvb_memcpy(tvb, ip4addr, offset + 2, sizeof(ip4addr));   /* IP part of the RD            */
                                                 tvb_memcpy(tvb, ip4addr2, offset + 8, sizeof(ip4addr));  /* Next Hop   */
-                                                g_string_sprintf(buf, "Empty Label Stack RD=%s:%u IP=%s",
+                                                g_string_sprintf(buf, "Empty Label Stack RD=%s:%u IPv4=%s",
                                                                 ip_to_str(ip4addr),
                                                                 tvb_get_ntohs(tvb, offset + 6),
                                                                 ip_to_str(ip4addr2));
                                                 break ;
                                         default:
                                                 length = 0 ;
-                                                g_string_sprintf(buf, "Unknown (0x%04x)labeled VPN address format",rd_type);
+                                                g_string_sprintf(buf, "Unknown (0x%04x) labeled VPN IPv4 address format",rd_type);
                                                 break;
                                 }
                                 break;
@@ -555,7 +555,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, GString *b
                                         case FORMAT_AS2_LOC:
                                                 length = 8 + 16;
                                                 tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8, offset + 8, 16); /* Next Hop */
-                                                g_string_sprintf(buf, "Empty Label Stack RD=%u:%u IP=%s",
+                                                g_string_sprintf(buf, "Empty Label Stack RD=%u:%u IPv6=%s",
                                                                 tvb_get_ntohs(tvb, offset + 2),
                                                                 tvb_get_ntohl(tvb, offset + 4),
                                                                 ip6_to_str(&ip6addr));
@@ -564,14 +564,14 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, GString *b
                                                 length = 8 + 16;
                                                 tvb_memcpy(tvb, ip4addr, offset + 2, sizeof(ip4addr));   /* IP part of the RD            */
                                                 tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8, offset + 8, 16); /* Next Hop */
-                                                g_string_sprintf(buf, "Empty Label Stack RD=%s:%u IP=%s",
+                                                g_string_sprintf(buf, "Empty Label Stack RD=%s:%u IPv6=%s",
                                                                 ip_to_str(ip4addr),
                                                                 tvb_get_ntohs(tvb, offset + 6),
                                                                 ip6_to_str(&ip6addr));
                                                 break ;
                                         default:
                                                 length = 0 ;
-                                                g_string_sprintf(buf, "Unknown (0x%04x)labeled VPN address format",rd_type);
+                                                g_string_sprintf(buf, "Unknown (0x%04x) labeled VPN IPv6 address format",rd_type);
                                                 break;
                                 }
                                 break;
@@ -588,7 +588,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, GString *b
                         case SAFNUM_LAB_VPNUNIMULC:
                             length = 4; /* the next-hop is simply an ipv4 addr */
                             tvb_memcpy(tvb, ip4addr, offset + 0, 4);
-                            g_string_sprintf(buf, "IP=%s",
+                            g_string_sprintf(buf, "IPv4=%s",
                                      ip_to_str(ip4addr));
                             break;
                         default:
@@ -648,28 +648,33 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             offset += (1 + labnum * 3);
             if (plen <= (labnum * 3*8)) {
                 proto_tree_add_text(tree, tvb, start_offset, 1,
-                        "%s IPv4 prefix length %u invalid", tag, plen);
+                        "%s Labeled IPv4 prefix length %u invalid",
+                        tag, plen);
                 return -1;
             }
             plen -= (labnum * 3*8);
             length = ipv4_addr_and_mask(tvb, offset, ip4addr.addr_bytes, plen);
             if (length < 0) {
                 proto_tree_add_text(tree, tvb, start_offset, 1,
-                        "%s IPv4 prefix length %u invalid",
+                        "%s Labeled IPv4 prefix length %u invalid",
                         tag, plen + (labnum * 3*8));
                 return -1;
             }
 
             ti = proto_tree_add_text(tree, tvb, start_offset,
-                    (offset + 1 + length) - start_offset,
-                    "Label Stack=%s IP=%s/%u",
+                    (offset + length) - start_offset,
+                    "Label Stack=%s IPv4=%s/%u",
                     lab_stk, ip_to_str(ip4addr.addr_bytes), plen);
             prefix_tree = proto_item_add_subtree(ti, ett_bgp_prefix);
+            proto_tree_add_text(prefix_tree, tvb, start_offset, 1, "%s Prefix length: %u",
+                tag, plen + labnum * 3 * 8);
+            proto_tree_add_text(prefix_tree, tvb, start_offset + 1, 3 * labnum, "%s Label Stack: %s",
+                tag, lab_stk);
             if (hf_addr4 != -1) {
-                proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb, offset + 1,
+                proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb, offset,
                         length, ip4addr.addr);
             } else {
-                proto_tree_add_text(prefix_tree, tvb, offset + 1, length,
+                proto_tree_add_text(prefix_tree, tvb, offset, length,
                         "%s IPv4 prefix: %s",
                         tag, ip_to_str(ip4addr.addr_bytes));
             }
@@ -685,7 +690,8 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             offset += (1 + labnum * 3);
             if (plen <= (labnum * 3*8)) {
                 proto_tree_add_text(tree, tvb, start_offset, 1,
-                        "%s IPv4 prefix length %u invalid", tag, plen);
+                        "%s Labeled VPN IPv4 prefix length %u invalid",
+                        tag, plen);
                 return -1;
             }
             plen -= (labnum * 3*8);
@@ -693,7 +699,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             rd_type = tvb_get_ntohs(tvb, offset);
             if (plen <= 8*8) {
                 proto_tree_add_text(tree, tvb, start_offset, 1,
-                        "%s IPv4 prefix length %u invalid",
+                        "%s Labeled VPN IPv4 prefix length %u invalid",
                         tag, plen + (labnum * 3*8));
                 return -1;
             }
@@ -705,19 +711,26 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 length = ipv4_addr_and_mask(tvb, offset + 8, ip4addr.addr_bytes, plen);
                 if (length < 0) {
                     proto_tree_add_text(tree, tvb, start_offset, 1,
-                            "%s IPv4 prefix length %u invalid",
+                            "%s Labeled VPN IPv4 prefix length %u invalid",
                             tag, plen + (labnum * 3*8) + 8*8);
                     return -1;
                 }
 
                 ti = proto_tree_add_text(tree, tvb, start_offset,
                         (offset + 8 + length) - start_offset,
-                        "Label Stack=%s RD=%u:%u, IP=%s/%u",
+                        "Label Stack=%s RD=%u:%u, IPv4=%s/%u",
                         lab_stk,
                         tvb_get_ntohs(tvb, offset + 2),
                         tvb_get_ntohl(tvb, offset + 4),
                         ip_to_str(ip4addr.addr_bytes), plen);
                 prefix_tree = proto_item_add_subtree(ti, ett_bgp_prefix);
+                proto_tree_add_text(prefix_tree, tvb, start_offset, 1, "%s Prefix length: %u",
+                        tag, plen + labnum * 3 * 8 + 8 * 8);
+                proto_tree_add_text(prefix_tree, tvb, start_offset + 1, 3 * labnum,
+                        "%s Label Stack: %s", tag, lab_stk);
+                proto_tree_add_text(prefix_tree, tvb, start_offset + 1 + 3 * labnum, 8,
+                        "%s Route Distinguisher: %u:%u", tag, tvb_get_ntohs(tvb, offset + 2),
+                        tvb_get_ntohl(tvb, offset + 4));
                 if (hf_addr4 != -1) {
                     proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb,
                             offset + 8, length, ip4addr.addr);
@@ -735,26 +748,42 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 length = ipv4_addr_and_mask(tvb, offset + 8, ip4addr2.addr_bytes, plen);
                 if (length < 0) {
                         proto_tree_add_text(tree, tvb, start_offset, 1,
-                                "%s IPv4 prefix length %u invalid",
+                                "%s Labeled VPN IPv4 prefix length %u invalid",
                                 tag, plen + (labnum * 3*8) + 8*8);
                         return -1;
                 }
 
                 ti = proto_tree_add_text(tree, tvb, start_offset,
                         (offset + 8 + length) - start_offset,
-                        "Label Stack=%s RD=%s:%u, IP=%s/%u",
+                        "Label Stack=%s RD=%s:%u, IPv4=%s/%u",
                         lab_stk,
                         ip_to_str(ip4addr.addr_bytes),
                         tvb_get_ntohs(tvb, offset + 6),
                         ip_to_str(ip4addr2.addr_bytes),
                         plen);
+		prefix_tree = proto_item_add_subtree(ti, ett_bgp_prefix);
+		proto_tree_add_text(prefix_tree, tvb, start_offset, 1, "%s Prefix length: %u",
+			tag, plen + labnum * 3 * 8 + 8 * 8);
+		proto_tree_add_text(prefix_tree, tvb, start_offset + 1, 3 * labnum,
+			"%s Label Stack: %s", tag, lab_stk);
+		proto_tree_add_text(prefix_tree, tvb, start_offset + 1 + 3 * labnum, 8,
+			"%s Route Distinguisher: %s:%u", tag, ip_to_str(ip4addr.addr_bytes),
+			tvb_get_ntohs(tvb, offset + 6));
+		if (hf_addr4 != -1) {
+			proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb,
+				offset + 8, length, ip4addr2.addr);
+		} else {
+			proto_tree_add_text(prefix_tree, tvb, offset + 8,
+				length, "%s IPv4 prefix: %s", tag,
+				ip_to_str(ip4addr2.addr_bytes));
+		}
                 total_length = (1 + labnum * 3 + 8) + length;
                 break;
 
             default:
                 proto_tree_add_text(tree, tvb, start_offset,
                         (offset - start_offset) + 2,
-                        "Unknown labeled VPN address format %u", rd_type);
+                        "Unknown labeled VPN IPv4 address format %u", rd_type);
                 return -1;
             }
             break;
@@ -784,7 +813,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             offset += (1 + labnum * 3);
             if (plen <= (labnum * 3*8)) {
                 proto_tree_add_text(tree, tvb, start_offset, 1,
-                        "%s IPv6 prefix length %u invalid", tag, plen);
+                        "%s Labeled IPv6 prefix length %u invalid", tag, plen);
                 return -1;
             }
             plen -= (labnum * 3*8);
@@ -792,13 +821,13 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             length = ipv6_addr_and_mask(tvb, offset, &ip6addr, plen);
             if (length < 0) {
                 proto_tree_add_text(tree, tvb, start_offset, 1,
-                        "%s IPv6 prefix length %u invalid", tag, plen);
+                        "%s Labeled IPv6 prefix length %u invalid", tag, plen);
                 return -1;
             }
 
 	    ti = proto_tree_add_text(tree, tvb, start_offset,
 		 (offset + length) - start_offset,
-                 "Label Stack=%s, IP=%s/%u",
+                 "Label Stack=%s, IPv6=%s/%u",
                  lab_stk,
                  ip6_to_str(&ip6addr), plen);
 	    total_length = (1 + labnum * 3) + length;
@@ -813,7 +842,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             offset += (1 + labnum * 3);
             if (plen <= (labnum * 3*8)) {
                 proto_tree_add_text(tree, tvb, start_offset, 1,
-                        "%s IPv6 prefix length %u invalid", tag, plen);
+                        "%s Labeled VPN IPv6 prefix length %u invalid", tag, plen);
                 return -1;
             }
             plen -= (labnum * 3*8);
@@ -821,7 +850,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             rd_type = tvb_get_ntohs(tvb,offset);
             if (plen <= 8*8) {
                 proto_tree_add_text(tree, tvb, start_offset, 1,
-                        "%s IPv6 prefix length %u invalid",
+                        "%s Labeled VPN IPv6 prefix length %u invalid",
                         tag, plen + (labnum * 3*8));
                 return -1;
             }
@@ -833,14 +862,14 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 length = ipv6_addr_and_mask(tvb, offset + 8, &ip6addr, plen);
                 if (length < 0) {
                     proto_tree_add_text(tree, tvb, start_offset, 1,
-                            "%s IPv6 prefix length %u invalid",
+                            "%s Labeled VPN IPv6 prefix length %u invalid",
                             tag, plen + (labnum * 3*8) + 8*8);
                     return -1;
                 }
 
                 ti = proto_tree_add_text(tree, tvb, start_offset,
                         (offset + 8 + length) - start_offset,
-                        "Label Stack=%s RD=%u:%u, IP=%s/%u",
+                        "Label Stack=%s RD=%u:%u, IPv6=%s/%u",
                         lab_stk,
                         tvb_get_ntohs(tvb, offset + 2),
                         tvb_get_ntohl(tvb, offset + 4),
@@ -854,14 +883,14 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 length = ipv6_addr_and_mask(tvb, offset + 8, &ip6addr, plen);
                 if (length < 0) {
                     proto_tree_add_text(tree, tvb, start_offset, 1,
-                            "%s IPv6 prefix length %u invalid",
+                            "%s Labeled VPN IPv6 prefix length %u invalid",
                             tag, plen + (labnum * 3*8) + 8*8);
                     return -1;
                 }
 
                 ti = proto_tree_add_text(tree, tvb, start_offset,
                         (offset + 8 + length) - start_offset,
-                        "Label Stack=%s RD=%s:%u, IP=%s/%u",
+                        "Label Stack=%s RD=%s:%u, IPv6=%s/%u",
                         lab_stk,
                         ip_to_str(ip4addr.addr_bytes),
                         tvb_get_ntohs(tvb, offset + 6),
@@ -871,7 +900,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
 
             default:
                 proto_tree_add_text(tree, tvb, start_offset, 0,
-                        "Unknown labeled VPN address format %u", rd_type);
+                        "Unknown labeled VPN IPv6 address format %u", rd_type);
                 return -1;
             }
             break;
@@ -1937,35 +1966,34 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 		    "Subsequent address family identifier: %s (%u)",
 		    val_to_str(saf, bgpattr_nlri_safi, saf >= 128 ? "Vendor specific" : "Unknown"),
 		    saf);
+		nexthop_len = tvb_get_guint8(tvb, o + i + aoff + 3);
+		ti = proto_tree_add_text(subtree2, tvb, o + i + aoff + 3,
+		        nexthop_len + 1,
+			"Next hop network address (%d %s)",
+			nexthop_len, plurality(nexthop_len, "byte", "bytes"));
+		subtree3 = proto_item_add_subtree(ti, ett_bgp_mp_nhna);
                 if (af != AFNUM_INET && af != AFNUM_INET6 && af != AFNUM_L2VPN) {
                     /*
                      * The addresses don't contain lengths, so if we
                      * don't understand the address family type, we
                      * cannot parse the subsequent addresses as we
                      * don't know how long they are.
-                     *
-                     * XXX - we should put a protocol tree item in for
-                     * this, as an unknown blob.
                      */
-                    break;
-                }
-                nexthop_len = tvb_get_guint8(tvb, o + i + aoff + 3);
-		ti = proto_tree_add_text(subtree2, tvb, o + i + aoff + 3,
-		        nexthop_len + 1,
-			"Next hop network address (%d %s)",
-			nexthop_len, plurality(nexthop_len, "byte", "bytes"));
-		subtree3 = proto_item_add_subtree(ti, ett_bgp_mp_nhna);
-		j = 0;
-		while (j < nexthop_len) {
-                    advance = mp_addr_to_str(af, saf, tvb, o + i + aoff + 4 + j,
-		        junk_gbuf) ;
-                    if (advance == 0) /* catch if this is a unknown AFI type*/
-                            break;
-                    if (j + advance > nexthop_len)
-			    break;
-                    proto_tree_add_text(subtree3, tvb,o + i + aoff + 4 + j,
-                        advance, "Next hop: %s (%u)", junk_gbuf->str, advance);
-		    j += advance;
+		    proto_tree_add_text(subtree3, tvb, o + i + aoff + 4,
+		    	nexthop_len, "Unknown Address Family");
+                } else {
+		    j = 0;
+		    while (j < nexthop_len) {
+			advance = mp_addr_to_str(af, saf, tvb, o + i + aoff + 4 + j,
+				junk_gbuf) ;
+			if (advance == 0) /* catch if this is a unknown AFI type*/
+				break;
+			if (j + advance > nexthop_len)
+				break;
+			proto_tree_add_text(subtree3, tvb,o + i + aoff + 4 + j,
+				advance, "Next hop: %s (%u)", junk_gbuf->str, advance);
+			j += advance;
+		    }
 		}
                 tlen -= nexthop_len + 4;
                 aoff += nexthop_len + 4 ;
@@ -1995,8 +2023,11 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 			"Network layer reachability information (%u %s)",
 			tlen, (tlen == 1) ? "byte" : "bytes");
 		if (tlen)  {
-	                subtree3 = proto_item_add_subtree(ti,ett_bgp_mp_reach_nlri);
-
+	            subtree3 = proto_item_add_subtree(ti,ett_bgp_mp_reach_nlri);
+		    if (af != AFNUM_INET && af != AFNUM_INET6 && af != AFNUM_L2VPN) {
+		    	proto_tree_add_text(subtree3, tvb, o + i + aoff,
+		    		tlen, "Unknown Address Family");
+		    } else {
       		        while (tlen > 0) {
                                 advance = decode_prefix_MP(subtree3,
                                     hf_bgp_mp_reach_nlri_ipv4_prefix,
@@ -2008,6 +2039,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 		                tlen -= advance;
 		                aoff += advance;
                         }
+		    }
                 }
 		break;
 	   case BGPTYPE_MP_UNREACH_NLRI:
@@ -2080,7 +2112,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 
                         while (q < end) {
                             ext_com = tvb_get_ntohs(tvb,q) ;
-                            g_string_sprintfa(junk_gbuf, "%s",
+                            g_string_sprintf(junk_gbuf, "%s",
                                                   val_to_str(ext_com,bgpext_com_type,"Unknown"));
                             switch (ext_com) {
                             case BGP_EXT_COM_RT_0:
@@ -2106,7 +2138,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                 break;
                             case BGP_EXT_COM_OSPF_RTYPE:
                                 tvb_memcpy(tvb,ipaddr,q+2,4);
-                                g_string_sprintfa(junk_gbuf, ": Area:%s %s", ip_to_str(ipaddr),
+                                g_string_sprintfa(junk_gbuf, ": Area: %s, Type: %s", ip_to_str(ipaddr),
                                          val_to_str(tvb_get_guint8(tvb,q+6),bgpext_ospf_rtype,"Unknown"));
 				/* print OSPF Metric type if selected */
 				/* always print E2 even if not external route -- receiving router should ignore */
@@ -2114,7 +2146,9 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                     g_string_sprintfa(junk_gbuf," E2");
                                 } else if (tvb_get_guint8(tvb,q+6)==(BGP_OSPF_RTYPE_EXT ||BGP_OSPF_RTYPE_NSSA ) ) {
                                     g_string_sprintfa(junk_gbuf," E1");
-                                }
+                                } else {
+				    g_string_sprintfa(junk_gbuf,", no options");
+				}
                                 proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf->str);
                                 break;
                             case BGP_EXT_COM_LINKBAND:
@@ -2124,7 +2158,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                 proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf->str);
                                 break;
                             case BGP_EXT_COM_L2INFO:
-                                g_string_sprintf(junk_gbuf,
+                                g_string_sprintfa(junk_gbuf,
                                                        ": %s, Control Flags: %s%s%s%s%s, MTU: %u %s",
                                                        val_to_str(tvb_get_guint8(tvb,q+2),bgp_l2vpn_encaps,"Unknown"),
                                                        tvb_get_guint8(tvb,q+3) ? "" : "none",
@@ -2149,7 +2183,6 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                                     tvb_get_ntohs(tvb,q+4)==1 ? "byte" : "bytes");
                                 break;
                             default:
-                                g_string_sprintf(junk_gbuf, " ");
                                 proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf->str);
                                 break ;
                             }
