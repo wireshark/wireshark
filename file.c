@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.195 2000/07/07 07:01:24 guy Exp $
+ * $Id: file.c,v 1.196 2000/07/07 23:09:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -335,9 +335,10 @@ read_cap_file(capture_file *cf, int *err)
     }
 
     if (stop_flag) {
-      /* Well, the user decided to abort the read.  Close the capture
-         file, and return READ_ABORTED so our caller can do whatever is
-	 appropriate when that happens. */
+      /* Well, the user decided to abort the read.  Destroy the progress
+         bar, close the capture file, and return READ_ABORTED so our caller
+	 can do whatever is appropriate when that happens. */
+      destroy_progress_dlg(progbar);
       cf->state = FILE_READ_ABORTED;	/* so that we're allowed to close it */
       gtk_clist_thaw(GTK_CLIST(packet_list));	/* undo our freeze */
       close_cap_file(cf, info_bar);
