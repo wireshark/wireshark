@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.117 2003/04/20 11:36:13 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.118 2003/05/08 19:26:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1529,6 +1529,33 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		NULL, NULL);
 }
 
+static void
+show_stub_data (tvbuff_t *tvb, gint offset, proto_tree *dcerpc_tree,
+                dcerpc_auth_info *auth_info)
+{
+    int length;
+
+    /*
+     * We don't show stub data unless we have some in the tvbuff;
+     * however, in the protocol tree, we show, as the number of
+     * bytes, the reported number of bytes, not the number of bytes
+     * that happen to be in the tvbuff.
+     */
+    if (tvb_length_remaining (tvb, offset) > 0) {
+        length = tvb_reported_length_remaining (tvb, offset);
+        if (auth_info != NULL &&
+            auth_info->auth_level == DCE_C_AUTHN_LEVEL_PKT_PRIVACY) {
+            proto_tree_add_text(dcerpc_tree, tvb, offset, -1,
+                                "Encrypted stub data (%d byte%s)",
+                                length, plurality(length, "", "s"));
+        } else {
+            proto_tree_add_text (dcerpc_tree, tvb, offset, -1,
+                                 "Stub data (%d byte%s)", length,
+                                 plurality(length, "", "s"));
+        }
+    }
+}
+
 static int
 dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
                     proto_tree *dcerpc_tree,
@@ -1552,16 +1579,11 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 
     if ((sub_proto = g_hash_table_lookup (dcerpc_uuids, &key)) == NULL
          || !proto_is_protocol_enabled(sub_proto->proto)) {
-	/*
-	 * We don't have a dissector for this UUID, or the protocol
-	 * for that UUID is disabled.
-	 */
-        length = tvb_length_remaining (tvb, offset);
-        if (length > 0) {
-            proto_tree_add_text (dcerpc_tree, tvb, offset, length,
-                                 "Stub data (%d byte%s)", length,
-                                 plurality(length, "", "s"));
-        }
+        /*
+         * We don't have a dissector for this UUID, or the protocol
+         * for that UUID is disabled.
+         */
+        show_stub_data (tvb, offset, dcerpc_tree, auth_info);
         return -1;
     }
 
@@ -2341,7 +2363,6 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     e_uuid_t obj_id;
     dcerpc_auth_info auth_info;
     guint32 alloc_hint;
-    int length;
     char uuid_str[DCERPC_UUID_STR_LEN]; 
     int uuid_str_len;
 
@@ -2390,14 +2411,9 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
                               pinfo->srcport, pinfo->destport, 0);
-    if (!conv) {
-        length = tvb_reported_length_remaining (tvb, offset);
-        if (length > 0) {
-            proto_tree_add_text (dcerpc_tree, tvb, offset, -1,
-                                 "Stub data (%d byte%s)", length,
-                                 plurality(length, "", "s"));
-        }
-    } else {
+    if (!conv)
+        show_stub_data (tvb, offset, dcerpc_tree, &auth_info);
+    else {
         dcerpc_call_value *value;
 
 	/* !!! we can NOT check flags.visited here since this will interact
@@ -2481,14 +2497,8 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	    dissect_dcerpc_cn_stub (tvb, offset, pinfo, dcerpc_tree, tree,
 				    hdr, &di, &auth_info, alloc_hint,
 				    value->req_frame);
-	} else {
-            length = tvb_reported_length_remaining (tvb, offset);
-            if (length > 0) {
-                proto_tree_add_text (dcerpc_tree, tvb, offset, -1,
-                                     "Stub data (%d byte%s)", length,
-                                     plurality(length, "", "s"));
-            }
-	}
+	} else
+	    show_stub_data (tvb, offset, dcerpc_tree, &auth_info);
     }
 
     /* Decrypt the verifier, if present */
@@ -2504,7 +2514,6 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint16 ctx_id;
     dcerpc_auth_info auth_info;
     guint32 alloc_hint;
-    int length;
 
     offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_alloc_hint, &alloc_hint);
@@ -2531,12 +2540,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                               pinfo->srcport, pinfo->destport, 0);
     if (!conv) {
         /* no point in creating one here, really */
-        length = tvb_reported_length_remaining (tvb, offset);
-        if (length > 0) {
-            proto_tree_add_text (dcerpc_tree, tvb, offset, -1,
-                                 "Stub data (%d byte%s)", length,
-                                 plurality(length, "", "s"));
-        }
+        show_stub_data (tvb, offset, dcerpc_tree, &auth_info);
     } else {
 
 	/* !!! we can NOT check flags.visited here since this will interact
@@ -2591,14 +2595,8 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	    dissect_dcerpc_cn_stub (tvb, offset, pinfo, dcerpc_tree, tree,
 				    hdr, &di, &auth_info, alloc_hint,
 				    value->rep_frame);
-        } else {
-            length = tvb_reported_length_remaining (tvb, offset);
-            if (length > 0) {
-                proto_tree_add_text (dcerpc_tree, tvb, offset, -1,
-                                     "Stub data (%d byte%s)", length,
-                                     plurality(length, "", "s"));
-            }
-	}
+        } else
+            show_stub_data (tvb, offset, dcerpc_tree, &auth_info);
     }
 
     /* Decrypt the verifier, if present */
