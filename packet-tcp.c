@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.10 1998/12/21 03:43:29 gerald Exp $
+ * $Id: packet-tcp.c,v 1.11 1998/12/21 03:58:00 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,6 +60,7 @@ tcp_info_append_uint(const char *abbrev, guint32 val) {
       abbrev, val);
   if (add_len > 0)
     info_len += add_len;
+}
 
 static void
 dissect_tcpopt_maxseg(GtkWidget *opt_tree, const char *name, const u_char *opd,
@@ -83,8 +84,6 @@ static void
 dissect_tcpopt_sack(GtkWidget *opt_tree, const char *name, const u_char *opd,
     int offset, guint optlen)
 {
-  int add_len = 0;
-  
   GtkWidget *field_tree = NULL, *tf;
   guint leftedge, rightedge;
 
@@ -243,7 +242,7 @@ static ip_tcp_opt tcpopts[] = {
 void
 dissect_tcp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   e_tcphdr   th;
-  GtkWidget *tcp_tree, *ti, *field_tree = NULL, *tf;
+  GtkWidget *tcp_tree = NULL, *ti, *field_tree = NULL, *tf;
   gchar      flags[64] = "<None>";
   gchar     *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG"};
   gint       fpos = 0, i;
