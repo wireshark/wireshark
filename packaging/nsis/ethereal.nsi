@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.40 2004/01/26 21:12:41 ulfl Exp $
+; $Id: ethereal.nsi,v 1.41 2004/02/01 03:35:05 guy Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -263,6 +263,7 @@ SectionEnd
 
 Section "Start Menu Shortcuts" SecShortcuts
 ;-------------------------------------------
+SetOutPath $PROFILE
 CreateDirectory "$SMPROGRAMS\Ethereal"
 
 Delete "$SMPROGRAMS\Ethereal\Ethereal Web Site.lnk"
