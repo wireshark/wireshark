@@ -1,10 +1,9 @@
 /*
- * $Id: ftype-ipv4.c,v 1.4 2001/06/22 16:29:15 gram Exp $
+ * $Id: ftype-ipv4.c,v 1.5 2001/06/23 19:10:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -56,7 +55,7 @@ val_from_string(fvalue_t *fv, char *s, LogFunc log)
 	fvalue_t *nmask_fvalue;
 
 	/* Look for CIDR: Is there a single slash in the string? */
-	has_slash = index(s, '/');
+	has_slash = strchr(s, '/');
 	if (has_slash) {
 		/* Make a copy of the string and use strtok() to
 		 * get the address portion. */
