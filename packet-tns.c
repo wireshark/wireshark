@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.17 2001/10/06 15:27:47 nneul Exp $
+ * $Id: packet-tns.c,v 1.18 2001/10/06 15:45:38 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -75,6 +75,7 @@ static int hf_tns_trace_cid = -1;
 static gint ett_tns = -1;
 static gint ett_tns_sns = -1;
 static gint ett_tns_connect = -1;
+static gint ett_tns_accept = -1;
 static gint ett_sql = -1;
 
 #define TCP_PORT_TNS			1521
@@ -154,6 +155,7 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	proto_tree *connect_tree = NULL, *ti;
 	int cd_offset;
+	int cd_len;
 	int tns_offset = offset-8;
 
 	if ( tree )
@@ -228,10 +230,11 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	offset += 2;
 
+	cd_len = tvb_get_ntohs(tvb, offset);
 	if ( connect_tree )
 	{
 		proto_tree_add_uint(connect_tree, hf_tns_connect_data_length, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+			offset, 2, cd_len);
 	}
 	offset += 2;
 
@@ -285,7 +288,7 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	offset += 2;
 
-	if ( connect_tree )
+	if ( connect_tree && cd_len > 0)
 	{
 		proto_tree_add_string(connect_tree, hf_tns_connect_data, tvb,
 			tns_offset+cd_offset, tvb_length(tvb)-(tns_offset+cd_offset), 
@@ -298,7 +301,98 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tns_tree)
 {
-	dissect_data(tvb,offset,pinfo,tns_tree);
+	proto_tree *connect_tree = NULL, *ti;
+	int cd_offset;
+	int cd_len;
+	int tns_offset = offset-8;
+
+	if ( tree )
+	{
+		ti = proto_tree_add_text(tns_tree, tvb, offset,
+		    tvb_length_remaining(tvb, offset), "Accept");
+		connect_tree = proto_item_add_subtree(ti, ett_tns_accept);
+
+		proto_tree_add_boolean_hidden(tns_tree, hf_tns_connect, tvb,
+		    0, 0, TRUE);
+	}
+		
+	if ( check_col(pinfo->fd, COL_INFO) )
+	{
+		col_append_str(pinfo->fd, COL_INFO, ", Accept");
+	}
+
+	if ( connect_tree )
+	{
+		proto_tree_add_item(connect_tree, hf_tns_version, tvb,
+			offset, 2, FALSE);
+	}
+	offset += 2;
+	
+	if ( connect_tree )
+	{
+		proto_tree_add_uint(connect_tree, hf_tns_service_options, tvb,
+			offset, 2, tvb_get_ntohs(tvb, offset));
+	}
+	offset += 2;
+
+	if ( connect_tree )
+	{
+		proto_tree_add_uint(connect_tree, hf_tns_sdu_size, tvb,
+			offset, 2, tvb_get_ntohs(tvb, offset));
+	}
+	offset += 2;
+
+	if ( connect_tree )
+	{
+		proto_tree_add_uint(connect_tree, hf_tns_max_tdu_size, tvb,
+			offset, 2, tvb_get_ntohs(tvb, offset));
+	}
+	offset += 2;
+
+	if ( connect_tree )
+	{
+		proto_tree_add_bytes(connect_tree, hf_tns_value_of_one, tvb,
+			offset, 2, tvb_get_ptr(tvb, offset, 2));
+	}
+	offset += 2;
+
+	cd_len = tvb_get_ntohs(tvb, offset);
+	if ( connect_tree )
+	{
+		proto_tree_add_uint(connect_tree, hf_tns_connect_data_length, tvb,
+			offset, 2, cd_len);
+	}
+	offset += 2;
+
+	cd_offset = tvb_get_ntohs(tvb, offset);
+	if ( connect_tree )
+	{
+		proto_tree_add_uint(connect_tree, hf_tns_connect_data_offset, tvb,
+			offset, 2, cd_offset);
+	}
+	offset += 2;
+
+	if ( connect_tree )
+	{
+		proto_tree_add_uint(connect_tree, hf_tns_connect_flags0, tvb,
+			offset, 2, tvb_get_ntohs(tvb, offset));
+	}
+	offset += 2;
+
+	if ( connect_tree )
+	{
+		proto_tree_add_uint(connect_tree, hf_tns_connect_flags1, tvb,
+			offset, 2, tvb_get_ntohs(tvb, offset));
+	}
+	offset += 2;
+
+	if ( connect_tree && cd_len > 0)
+	{
+		proto_tree_add_string(connect_tree, hf_tns_connect_data, tvb,
+			tns_offset+cd_offset, tvb_length(tvb)-(tns_offset+cd_offset), 
+			tvb_get_ptr(tvb, tns_offset+cd_offset,
+			tvb_length(tvb)-(tns_offset+cd_offset)));
+	}
 	return;
 }
 
@@ -491,6 +585,7 @@ void proto_register_tns(void)
 		&ett_tns,
 		&ett_tns_sns,
 		&ett_tns_connect,
+		&ett_tns_accept,
 		&ett_sql
 	};
 	proto_tns = proto_register_protocol(
