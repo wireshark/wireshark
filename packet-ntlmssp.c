@@ -3,7 +3,7 @@
  * Devin Heitmueller <dheitmueller@netilla.com>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-ntlmssp.c,v 1.47 2004/02/25 09:31:06 guy Exp $
+ * $Id: packet-ntlmssp.c,v 1.48 2004/05/04 08:30:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -192,7 +192,6 @@ typedef struct _ntlmssp_blob {
 /* Used in the conversation function */
 typedef struct _ntlmssp_info {
   guint32 flags;
-  guint8 challenge[8];  
   rc4_state_struct rc4_state_peer1;
   rc4_state_struct rc4_state_peer2;
   guint32 peer1_dest_port;
@@ -211,7 +210,6 @@ static int ntlmssp_info_count = 10;
    decrypted it once */
 typedef struct _ntlmssp_packet_info {
   guint32 flags;
-  guint8 challenge[8];  
   guint8 *decrypted_payload;
   guint8 verifier[16];
   gboolean payload_decrypted;
@@ -705,6 +703,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
   ntlmssp_info *conv_ntlmssp_info;
   conversation_t *conversation;
   gboolean unicode_strings = FALSE;
+  guint8 challenge[8];  
   guint8 sspkey[16]; /* NTLMSSP cipher key */
   guint8 ssp_key_len; /* Either 8 or 16 (40 bit or 128) */
 
@@ -730,8 +729,8 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
 		       tvb, offset, 8, FALSE);
 
   /*
-   * Store the flags and the challenge with the conversation, as they're
-   * needed in order to dissect subsequent messages.
+   * Store the flags and the RC4 state information with the conversation,
+   * as they're needed in order to dissect subsequent messages.
    */
   conversation = find_conversation(&pinfo->src, &pinfo->dst,
 				   pinfo->ptype, pinfo->srcport,
@@ -745,19 +744,17 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
     conv_ntlmssp_info = g_mem_chunk_alloc(ntlmssp_info_chunk);
     /* Insert the flags into the conversation */
     conv_ntlmssp_info->flags = negotiate_flags;
-    /* Insert the challenge into the conversation */
-    tvb_memcpy(tvb, conv_ntlmssp_info->challenge, offset, 8);
+    /* Insert the RC4 state information into the conversation */
+    tvb_memcpy(tvb, challenge, offset, 8);
 
     /* Between the challenge and the user provided password, we can build the
        NTLMSSP key and initialize the cipher */
     if (conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_128) {
-      create_ntlmssp_v1_key(nt_password, conv_ntlmssp_info->challenge, 
-			    1, sspkey);
+      create_ntlmssp_v1_key(nt_password, challenge, 1, sspkey);
       ssp_key_len = 16;
     }
     else {
-      create_ntlmssp_v1_key(nt_password, conv_ntlmssp_info->challenge, 
-			    0, sspkey);
+      create_ntlmssp_v1_key(nt_password, challenge, 0, sspkey);
       ssp_key_len = 8;
     }
     crypt_rc4_init(&conv_ntlmssp_info->rc4_state_peer1, sspkey, ssp_key_len);
