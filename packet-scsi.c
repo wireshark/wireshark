@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.31 2003/05/26 22:36:49 guy Exp $
+ * $Id: packet-scsi.c,v 1.32 2003/07/09 03:42:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,9 +98,10 @@ static int hf_scsi_inquiry_evpd_page     = -1;
 static int hf_scsi_inquiry_cmdt_page     = -1;
 static int hf_scsi_alloclen              = -1;
 static int hf_scsi_logsel_flags          = -1;
-static int hf_scsi_log_pc                = -1;
+static int hf_scsi_logsel_pc             = -1;
 static int hf_scsi_paramlen              = -1;
 static int hf_scsi_logsns_flags          = -1;
+static int hf_scsi_logsns_pc             = -1;
 static int hf_scsi_logsns_pagecode       = -1;
 static int hf_scsi_paramlen16            = -1;
 static int hf_scsi_modesel_flags         = -1;
@@ -427,18 +428,26 @@ static const value_string scsi_smc2_val[] = {
     {0, NULL},
 };
 
+#define SCSI_EVPD_SUPPPG          0x00
+#define SCSI_EVPD_DEVSERNUM       0x80
+#define SCSI_EVPD_OPER            0x81
+#define SCSI_EVPD_ASCIIOPER       0x82
+#define SCSI_EVPD_DEVID           0x83
+
 static const value_string scsi_evpd_pagecode_val[] = {
-    {0x00, "Supported Vital Product Data Pages"},
-    {0x80, "Unit Serial Number Page"},
-    {0x82, "ASCII Implemented Operating Definition Page"},
-    {0x01, "ASCII Information Page"},
-    {0x02, "ASCII Information Page"},
-    {0x03, "ASCII Information Page"},
-    {0x04, "ASCII Information Page"},
-    {0x05, "ASCII Information Page"},
-    {0x06, "ASCII Information Page"},
-    {0x07, "ASCII Information Page"},
-    {0x83, "Device Identification Page"},
+    {SCSI_EVPD_SUPPPG,    "Supported Vital Product Data Pages"},
+    {0x01,                "ASCII Information Page"},
+    {0x02,                "ASCII Information Page"},
+    {0x03,                "ASCII Information Page"},
+    {0x04,                "ASCII Information Page"},
+    {0x05,                "ASCII Information Page"},
+    {0x06,                "ASCII Information Page"},
+    {0x07,                "ASCII Information Page"},
+    /* XXX - 0x01 through 0x7F are all ASCII information pages */
+    {SCSI_EVPD_DEVSERNUM, "Unit Serial Number Page"},
+    {SCSI_EVPD_OPER,      "Implemented Operating Definition Page"},
+    {SCSI_EVPD_ASCIIOPER, "ASCII Implemented Operating Definition Page"},
+    {SCSI_EVPD_DEVID,     "Device Identification Page"},
     {0, NULL},
 };
 
@@ -640,10 +649,21 @@ static const value_string scsi_inquiry_vers_val[] = {
     {0, NULL},
 };
 
-static const value_string scsi_modesense_medtype_val[] = {
-    {0, "Default"},
-    {1, "Flexible Disk, Single-sided"},
-    {2, "Flexible Disk, Double-sided"},
+static const value_string scsi_modesense_medtype_sbc_val[] = {
+    {0x00, "Default"},
+    {0x01, "Flexible disk, single-sided; unspecified medium"},
+    {0x02, "Flexible disk, double-sided; unspecified medium"},
+    {0x05, "Flexible disk, single-sided, single density; 200mm/8in diameter"},
+    {0x06, "Flexible disk, double-sided, single density; 200mm/8in diameter"},
+    {0x09, "Flexible disk, single-sided, double density; 200mm/8in diameter"},
+    {0x0A, "Flexible disk, double-sided, double density; 200mm/8in diameter"},
+    {0x0D, "Flexible disk, single-sided, single density; 130mm/5.25in diameter"},
+    {0x12, "Flexible disk, double-sided, single density; 130mm/5.25in diameter"},
+    {0x16, "Flexible disk, single-sided, double density; 130mm/5.25in diameter"},
+    {0x1A, "Flexible disk, double-sided, double density; 130mm/5.25in diameter"},
+    {0x1E, "Flexible disk, double-sided; 90mm/3.5in diameter"},
+    {0x40, "Direct-access magnetic tape, 12 tracks"},
+    {0x44, "Direct-access magnetic tape, 24 tracks"},
     {0, NULL},
 };
 
@@ -691,19 +711,6 @@ static const value_string scsi_verdesc_val[] = {
     {0x0d9c, "FC-PH-3 ANSI X3.303-1998"},
     {0x0d20, "FC-PH (no version claimed)"},
     {0, NULL},
-};
-
-#define SCSI_EVPD_SUPPPG          0
-#define SCSI_EVPD_ASCIIOPER       0x82
-#define SCSI_EVPD_DEVID           0x83
-#define SCSI_EVPD_DEVSERNUM       0x80
-
-static const value_string scsi_inq_evpd_val[] = {
-    {SCSI_EVPD_SUPPPG, "Supported Vital Product Data Page"},
-    {SCSI_EVPD_ASCIIOPER, "ASCII Implemented Operating Definition Page"},
-    {SCSI_EVPD_DEVID, "Device ID Page"},
-    {SCSI_EVPD_DEVSERNUM, "Unit Serial Number Page"},
-    {0x0, NULL},
 };
 
 /* Command Support Data "Support" field definitions */
@@ -1696,7 +1703,7 @@ dissect_scsi_logselect (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         proto_tree_add_uint_format (tree, hf_scsi_logsel_flags, tvb, offset, 1,
                                     flags, "PCR = %u, SP = %u", flags & 0x2,
                                     flags & 0x1);
-        proto_tree_add_uint_format (tree, hf_scsi_log_pc, tvb, offset+1, 1,
+        proto_tree_add_uint_format (tree, hf_scsi_logsel_pc, tvb, offset+1, 1,
                                     tvb_get_guint8 (tvb, offset+1),
                                     "PC: 0x%x", flags & 0xC0);
         proto_tree_add_item (tree, hf_scsi_paramlen16, tvb, offset+6, 2, 0);
@@ -1726,7 +1733,7 @@ dissect_scsi_logsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         proto_tree_add_uint_format (tree, hf_scsi_logsns_flags, tvb, offset, 1,
                                     flags, "PPC = %u, SP = %u", flags & 0x2,
                                     flags & 0x1);
-        proto_tree_add_uint_format (tree, hf_scsi_log_pc, tvb, offset+1, 1,
+        proto_tree_add_uint_format (tree, hf_scsi_logsns_pc, tvb, offset+1, 1,
                                     tvb_get_guint8 (tvb, offset+1),
                                     "PC: 0x%x", flags & 0xC0);
         proto_tree_add_item (tree, hf_scsi_logsns_pagecode, tvb, offset+1,
@@ -2437,8 +2444,20 @@ dissect_scsi_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if (payload_len < 1)
             return;
-        proto_tree_add_text (tree, tvb, offset, 1, "Medium Type: 0x%02x",
-                             tvb_get_guint8 (tvb, offset));
+        switch (devtype) {
+
+        case SCSI_DEV_SBC:
+            proto_tree_add_text (tree, tvb, offset, 1, "Medium Type: %s",
+                                 val_to_str(tvb_get_guint8 (tvb, offset),
+                                            scsi_modesense_medtype_sbc_val,
+                                            "Unknown (0x%02x)"));
+            break;
+
+        default:
+            proto_tree_add_text (tree, tvb, offset, 1, "Medium Type: 0x%02x",
+                                 tvb_get_guint8 (tvb, offset));
+            break;
+        }
         offset += 1;
         payload_len -= 1;
 
@@ -2521,8 +2540,20 @@ dissect_scsi_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if (payload_len < 1)
             return;
-        proto_tree_add_text (tree, tvb, offset, 1, "Medium Type: 0x%02x",
-                             tvb_get_guint8 (tvb, offset));
+        switch (devtype) {
+
+        case SCSI_DEV_SBC:
+            proto_tree_add_text (tree, tvb, offset, 1, "Medium Type: %s",
+                                 val_to_str(tvb_get_guint8 (tvb, offset),
+                                            scsi_modesense_medtype_sbc_val,
+                                            "Unknown (0x%02x)"));
+            break;
+
+        default:
+            proto_tree_add_text (tree, tvb, offset, 1, "Medium Type: 0x%02x",
+                                 tvb_get_guint8 (tvb, offset));
+            break;
+        }
         offset += 1;
         payload_len -= 1;
 
@@ -3828,7 +3859,7 @@ dissect_scsi_smc2_element (tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree_add_text (tree, tvb, offset, 2,
                              "Additional Sense Code+Qualifier: %s",
                              val_to_str (tvb_get_ntohs (tvb, offset),
-                                         scsi_asc_val, "Unknown"));
+                                         scsi_asc_val, "Unknown (0x%04x)"));
     }
     offset += 2;
     elem_bytecnt -= 2;
@@ -4896,8 +4927,8 @@ proto_register_scsi (void)
         { &hf_scsi_logsel_flags,
           {"Flags", "scsi.logsel.flags", FT_UINT8, BASE_HEX, NULL, 0x0, "",
            HFILL}},
-        { &hf_scsi_log_pc,
-          {"Page Control", "scsi.log.pc", FT_UINT8, BASE_DEC,
+        { &hf_scsi_logsel_pc,
+          {"Page Control", "scsi.logsel.pc", FT_UINT8, BASE_DEC,
            VALS (scsi_logsel_pc_val), 0xC0, "", HFILL}},
         { &hf_scsi_paramlen,
           {"Parameter Length", "scsi.cdb.paramlen", FT_UINT8, BASE_DEC, NULL,
@@ -4905,6 +4936,9 @@ proto_register_scsi (void)
         { &hf_scsi_logsns_flags,
           {"Flags", "scsi.logsns.flags", FT_UINT16, BASE_HEX, NULL, 0x0, "",
            HFILL}},
+        { &hf_scsi_logsns_pc,
+          {"Page Control", "scsi.logsns.pc", FT_UINT8, BASE_DEC,
+           VALS (scsi_logsns_pc_val), 0xC0, "", HFILL}},
         { &hf_scsi_logsns_pagecode,
           {"Page Code", "scsi.logsns.pagecode", FT_UINT8, BASE_HEX,
            VALS (scsi_logsns_page_val), 0x3F0, "", HFILL}},
