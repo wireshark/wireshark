@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.52 2002/06/22 01:43:57 guy Exp $
+ * $Id: print.c,v 1.53 2002/06/22 22:31:29 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -262,13 +262,30 @@ void print_hex_data(FILE *fh, gint format, epan_dissect_t *edt)
  *
  * It was modified for Ethereal by Gilbert Ramirez and others.
  */
+
+#define MAX_OFFSET_LEN	8	/* max length of hex offset of bytes */
+#define BYTES_PER_LINE	16	/* max byte values printed on a line */
+#define HEX_DUMP_LEN	(BYTES_PER_LINE*3)
+				/* max number of characters hex dump takes -
+				   2 digits plus trailing blank */
+#define DATA_DUMP_LEN	(HEX_DUMP_LEN + 2 + BYTES_PER_LINE)
+				/* number of characters those bytes take;
+				   3 characters per byte of hex dump,
+				   2 blanks separating hex from ASCII,
+				   1 character per byte of ASCII dump */
+#define MAX_LINE_LEN	(MAX_OFFSET_LEN + 2 + DATA_DUMP_LEN)
+				/* number of characters per line;
+				   offset, 2 blanks separating offset
+				   from data dump, data dump */
+
 static void
 print_hex_data_buffer(FILE *fh, register const u_char *cp,
     register u_int length, char_enc encoding, gint format)
 {
-	register unsigned int ad, i, j, k;
+	register unsigned int ad, i, j, k, l;
 	u_char c;
-	u_char line[6+50+16+1];
+	u_char line[MAX_LINE_LEN + 1];
+	unsigned int use_digits;
 	static u_char binhex[16] = {
 		'0', '1', '2', '3', '4', '5', '6', '7',
 		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
@@ -276,6 +293,24 @@ print_hex_data_buffer(FILE *fh, register const u_char *cp,
 	if (format == PR_FMT_PS)
 		print_ps_hex(fh);
 	print_line(fh, format, "");
+
+	/*
+	 * How many of the leading bits of the offset will we supply?
+	 * We always supply at least 4 digits, i.e. 16 bits, but if
+	 * the maximum offset won't fit in 4 digits, we use as many
+	 * digits as will be needed.
+	 */
+	if (((length - 1) & 0xF0000000) != 0)
+		use_digits = 8;	/* need all 8 digits */
+	else if (((length - 1) & 0x0F000000) != 0)
+		use_digits = 7;	/* need 7 digits */
+	else if (((length - 1) & 0x00F00000) != 0)
+		use_digits = 6;	/* need 6 digits */
+	else if (((length - 1) & 0x000F0000) != 0)
+		use_digits = 5;	/* need 5 digits */
+	else
+		use_digits = 4;	/* we'll supply 4 digits */
+
 	ad = 0;
 	i = 0;
 	j = 0;
@@ -287,18 +322,29 @@ print_hex_data_buffer(FILE *fh, register const u_char *cp,
 			 */
 			j = 0;
 			k = 0;
-			sprintf(line, "%04x  ", ad);
-			memset(line+6, ' ', sizeof line-6);
-			line[sizeof (line)-1] = '\0';
+			l = use_digits;
+			do {
+				l--;
+				c = (ad >> (l*4)) & 0xF;
+				line[j++] = binhex[c];
+			} while (l != 0);
+			line[j++] = ' ';
+			line[j++] = ' ';
+			memset(line+j, ' ', DATA_DUMP_LEN);
+
+			/*
+			 * Offset in line of ASCII dump.
+			 */
+			k = j + HEX_DUMP_LEN + 2;
 		}
 		c = *cp++;
-		line[6+j++] = binhex[c>>4];
-		line[6+j++] = binhex[c&0xf];
+		line[j++] = binhex[c>>4];
+		line[j++] = binhex[c&0xf];
 		j++;
 		if (encoding == CHAR_EBCDIC) {
 			c = EBCDIC_to_ASCII1(c);
 		}
-		line[6+50+k++] = c >= ' ' && c < 0x7f ? c : '.';
+		line[k++] = c >= ' ' && c < 0x7f ? c : '.';
 		i++;
 		if ((i & 15) == 0 || i == length) {
 			/*
@@ -307,6 +353,7 @@ print_hex_data_buffer(FILE *fh, register const u_char *cp,
 			 * dump out the line we've constructed,
 			 * and advance the offset.
 			 */
+			line[k] = '\0';
 			print_line(fh, format, line);
 			ad += 16;
 		}
