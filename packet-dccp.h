@@ -4,7 +4,7 @@
  *
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-dccp.h,v 1.1 2002/05/03 16:23:25 nneul Exp $
+ * $Id: packet-dccp.h,v 1.2 2002/05/05 22:20:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,7 @@
 :%s/u_in*t16_t/guint16/g
 :%s/u_in*t32_t/guint32/g
 :%s/u_ch*ar/guchar/g
+:%s/in*t32_t/gint32/g
 
 This includes more than is really necessary, but easier to just include whole
 header.
@@ -58,7 +59,7 @@ header.
  * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
  * SOFTWARE.
  *
- * Rhyolite Software DCC 1.0.53-1.45 $Revision: 1.1 $
+ * Rhyolite Software DCC 1.0.53-1.45 $Revision: 1.2 $
  */
 
 #ifndef DCC_PROTO_H
@@ -235,7 +236,7 @@ typedef enum {
 
 typedef struct {			/* with operation DCC_OP_ADMN */
     DCC_HDR	hdr;
-    int32_t	date;			/* seconds since epoch on caller */
+    gint32	date;			/* seconds since epoch on caller */
     guint32	val;			/* request type, buffer size, etc. */
     guchar	aop;			/* one of DCC_AOPS */
     guchar	pad[3];
@@ -327,7 +328,7 @@ typedef struct {
 /* DCC_OP_DELETE request to delete checksums */
 typedef struct {
     DCC_HDR	hdr;
-    int32_t	date;			/* seconds since epoch on caller */
+    gint32	date;			/* seconds since epoch on caller */
     DCC_CK	ck;
     guchar	pad[2];			/* structure padding */
     DCC_SIGNATURE signature;
