@@ -177,24 +177,24 @@ Dummy ::= NULL
 --        IDENTIFIED BY id-ce-subjectAltName }
 --
 --GeneralNames ::= SEQUENCE SIZE (1..MAX) OF GeneralName
---
---GeneralName ::= CHOICE {
+
+GeneralName ::= CHOICE {
 --        otherName                   [0] INSTANCE OF OTHER-NAME,
---        rfc822Name                  [1] IA5String,
---        dNSName                     [2] IA5String,
+        rfc822Name                  [1] IA5String,
+        dNSName                     [2] IA5String,
 --        x400Address                 [3] ORAddress,
---        directoryName               [4] Name,
---        ediPartyName                [5] EDIPartyName,
---        uniformResourceIdentifier   [6] IA5String,
---        iPAddress                   [7] OCTET STRING,
---        registeredID                [8] OBJECT IDENTIFIER }
---
+        directoryName               [4] Name,
+        ediPartyName                [5] EDIPartyName,
+        uniformResourceIdentifier   [6] IA5String,
+        iPAddress                   [7] OCTET STRING,
+        registeredID                [8] OBJECT IDENTIFIER }
+
 --OTHER-NAME ::= TYPE-IDENTIFIER
---
---EDIPartyName ::= SEQUENCE {
---        nameAssigner        [0] DirectoryString {ub-name} OPTIONAL,
---        partyName           [1] DirectoryString {ub-name} }
---
+
+EDIPartyName ::= SEQUENCE {
+        nameAssigner        [0] DirectoryString OPTIONAL,
+        partyName           [1] DirectoryString }
+
 --issuerAltName EXTENSION ::= {
 --        SYNTAX  GeneralNames
 --        IDENTIFIED BY id-ce-issuerAltName }
@@ -365,14 +365,14 @@ Dummy ::= NULL
 --authorityInfoAccess EXTENSION ::= {
 --        SYNTAX  AuthorityInfoAccessSyntax
 --        IDENTIFIED BY id-pe-authorityInfoAccess }
---
---AuthorityInfoAccessSyntax  ::=
---        SEQUENCE SIZE (1..MAX) OF AccessDescription
---
---AccessDescription  ::=  SEQUENCE {
---        accessMethod          OBJECT IDENTIFIER,
---        accessLocation        GeneralName  }
---
+
+AuthorityInfoAccessSyntax  ::=
+        SEQUENCE SIZE (1..MAX) OF AccessDescription
+
+AccessDescription  ::=  SEQUENCE {
+        accessMethod          OBJECT IDENTIFIER,
+        accessLocation        GeneralName  }
+
 --id-pe-authorityInfoAccess OBJECT IDENTIFIER ::= { id-pe 1 }
 --
 --id-ad-ocsp      OBJECT IDENTIFIER ::= { id-ad 1 }

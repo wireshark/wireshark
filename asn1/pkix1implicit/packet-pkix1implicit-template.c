@@ -35,6 +35,7 @@
 
 #include "packet-ber.h"
 #include "packet-pkix1implicit.h"
+#include "packet-pkix1explicit.h"
 
 #define PNAME  "PKIX1Implitit"
 #define PSNAME "PKIX1IMPLICIT"

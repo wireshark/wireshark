@@ -9,6 +9,7 @@
 
 TeletexDomainDefinedAttribute
 TerminalType
+DirectoryString
 
 #.REGISTER
 DomainParameters B "1.2.840.10046.2.1" "dhpublicnumber"
@@ -22,6 +23,9 @@ CertificateSerialNumber
 #.TYPE_RENAME
 
 #.FIELD_RENAME
+
+#.FN_BODY DirectoryString
+	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
 #.END
 

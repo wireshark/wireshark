@@ -121,7 +121,7 @@ dissect_pkix1explicit_SubjectPublicKeyInfo(gboolean implicit_tag, tvbuff_t *tvb,
 
 
 static int
-dissect_pkix1explicit_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkix1explicit_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -144,7 +144,7 @@ static int dissect_pgenCounter(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 
 static int
-dissect_pkix1explicit_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkix1explicit_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
                                  NULL, hf_index, -1,
                                  NULL);
@@ -162,7 +162,7 @@ static const ber_sequence ValidationParms_sequence[] = {
 };
 
 static int
-dissect_pkix1explicit_ValidationParms(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkix1explicit_ValidationParms(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 ValidationParms_sequence, hf_index, ett_pkix1explicit_ValidationParms);
 
@@ -182,9 +182,18 @@ static const ber_sequence DomainParameters_sequence[] = {
 };
 
 static int
-dissect_pkix1explicit_DomainParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkix1explicit_DomainParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 DomainParameters_sequence, hf_index, ett_pkix1explicit_DomainParameters);
+
+  return offset;
+}
+
+
+int
+dissect_pkix1explicit_DirectoryString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+
 
   return offset;
 }
@@ -202,7 +211,7 @@ const value_string TerminalType_vals[] = {
 
 
 int
-dissect_pkix1explicit_TerminalType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkix1explicit_TerminalType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer_new(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -210,7 +219,7 @@ dissect_pkix1explicit_TerminalType(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 
 
 static int
-dissect_pkix1explicit_TeletexString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkix1explicit_TeletexString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
                                          pinfo, tree, tvb, offset, hf_index,
                                          NULL);
@@ -231,7 +240,7 @@ static const ber_sequence TeletexDomainDefinedAttribute_sequence[] = {
 };
 
 int
-dissect_pkix1explicit_TeletexDomainDefinedAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_pkix1explicit_TeletexDomainDefinedAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 TeletexDomainDefinedAttribute_sequence, hf_index, ett_pkix1explicit_TeletexDomainDefinedAttribute);
 
