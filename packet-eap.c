@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol dissection
  * RFC 2284, RFC 3748
  *
- * $Id: packet-eap.c,v 1.36 2004/06/28 05:41:50 guy Exp $
+ * $Id: packet-eap.c,v 1.37 2004/07/04 10:26:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,15 +70,19 @@ References:
 #define EAP_TYPE_ID     1
 #define EAP_TYPE_NOTIFY 2
 #define EAP_TYPE_NAK    3
+#define EAP_TYPE_MD5	4
 #define EAP_TYPE_TLS	13
 #define EAP_TYPE_LEAP	17
+#define EAP_TYPE_SIM	18
 #define EAP_TYPE_TTLS	21
+#define EAP_TYPE_PEAP	25
+#define EAP_TYPE_MSCHAPV2 26
 
 static const value_string eap_type_vals[] = {
   {EAP_TYPE_ID,  "Identity [RFC3748]" },
   {EAP_TYPE_NOTIFY,"Notification [RFC3748]" },
   {EAP_TYPE_NAK, "Nak (Response only) [RFC3748]" },
-  {  4,          "MD5-Challenge [RFC3748]" },
+  {EAP_TYPE_MD5, "MD5-Challenge [RFC3748]" },
   {  5,          "One Time Password (OTP) [RFC2289]" },
   {  6,          "Generic Token Card [RFC3748]" },
   {  7,          "?? RESERVED ?? " }, /* ??? */
@@ -92,15 +96,15 @@ static const value_string eap_type_vals[] = {
   { 15,          "RSA Security SecurID EAP [Asnes, Liberman]" },
   { 16,          "Arcot Systems EAP [Jerdonek]" },
   {EAP_TYPE_LEAP,"EAP-Cisco Wireless (LEAP) [Norman]" },
-  { 18,          "Nokia IP smart card authentication [Haverinen]" },
+  {EAP_TYPE_SIM, "EAP-SIM Nokia IP smart card authentication [Haverinen]" },
   { 19,          "SRP-SHA1 Part 1 [Carlson]" },
   { 20,          "SRP-SHA1 Part 2 [Carlson]" },
   {EAP_TYPE_TTLS,"EAP-TTLS [Funk]" },
   { 22,          "Remote Access Service [Fields]" },
   { 23,          "UMTS Authentication and Key Agreement [Haverinen]" },
   { 24,          "EAP-3Com Wireless [Young]" },
-  { 25,          "PEAP [Palekar]" },
-  { 26,          "MS-EAP-Authentication [Palekar]" },
+  {EAP_TYPE_PEAP,"PEAP [Palekar]" },
+  {EAP_TYPE_MSCHAPV2,"MS-EAP-Authentication [Palekar]" },
   { 27,          "Mutual Authentication w/Key Exchange (MAKE)[Berrendonner]" },
   { 28,          "CRYPTOCard [Webb]" },
   { 29,          "EAP-MSCHAP-V2 [Potter]" },
@@ -183,18 +187,20 @@ from RFC2716, pg 17
 
       0 1 2 3 4 5 6 7 8
       +-+-+-+-+-+-+-+-+
-      |L M S R R R R R|
+      |L M S R R Vers |
       +-+-+-+-+-+-+-+-+
 
       L = Length included
       M = More fragments
       S = EAP-TLS start
       R = Reserved
+      Vers = PEAP version (Reserved for TLS and TTLS)
 */
 
 #define EAP_TLS_FLAG_L 0x80 /* Length included */
 #define EAP_TLS_FLAG_M 0x40 /* More fragments  */
 #define EAP_TLS_FLAG_S 0x20 /* EAP-TLS start   */
+#define EAP_PEAP_FLAG_VERSION 0x07 /* EAP-PEAP version */
 
 /*
  * reassembly of EAP-TLS
@@ -210,6 +216,7 @@ static int   hf_eaptls_fragment_too_long_fragment = -1;
 static int   hf_eaptls_fragment_error = -1;
 static gint ett_eaptls_fragment  = -1;
 static gint ett_eaptls_fragments = -1;
+static gint ett_eap_sim_attr = -1;
 
 static const fragment_items eaptls_frag_items = {
 	&ett_eaptls_fragment,
@@ -257,6 +264,231 @@ eap_init_protocol(void)
 				      sizeof (frame_state_t),
 				     100 * sizeof (frame_state_t),
 				     G_ALLOC_ONLY);
+}
+
+static void
+dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
+		     gint size)
+{
+	gint left = size;
+	gint ms_len;
+	guint8 value_size;
+	enum {
+		MS_CHAPv2_CHALLENGE = 1,
+		MS_CHAPv2_RESPONSE = 2,
+		MS_CHAPv2_SUCCESS = 3,
+		MS_CHAPv2_FAILURE = 4,
+		MS_CHAPv2_CHANGE_PASSWORD = 5
+	} opcode;
+	static const value_string opcodes[] = {
+		{ MS_CHAPv2_CHALLENGE, "Challenge" },
+		{ MS_CHAPv2_RESPONSE, "Response" },
+		{ MS_CHAPv2_SUCCESS, "Success" },
+		{ MS_CHAPv2_FAILURE, "Failure" },
+		{ MS_CHAPv2_CHANGE_PASSWORD, "Change-Password" },
+		{ 0, NULL }
+	};
+
+	/* OpCode (1 byte), MS-CHAPv2-ID (1 byte), MS-Length (2 bytes), Data */
+	opcode = tvb_get_guint8(tvb, offset);
+	proto_tree_add_text(eap_tree, tvb, offset, 1,
+			    "OpCode: %d (%s)", 
+			    opcode, val_to_str(opcode, opcodes, "Unknown"));
+	offset++;
+	left--;
+	if (left <= 0)
+		return;
+
+	proto_tree_add_text(eap_tree, tvb, offset, 1, "MS-CHAPv2-ID: %d",
+			    tvb_get_guint8(tvb, offset));
+	offset++;
+	left--;
+	if (left <= 0)
+		return;
+
+	ms_len = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(eap_tree, tvb, offset, 2, "MS-Length: %d%s",
+			    ms_len,
+			    ms_len != size ? " (invalid len)" : "");
+	offset += 2;
+	left -= 2;
+
+	switch (opcode) {
+	case MS_CHAPv2_CHALLENGE:
+		if (left <= 0)
+			break;
+		value_size = tvb_get_guint8(tvb, offset);
+		proto_tree_add_text(eap_tree, tvb, offset, 1,
+				    "Value-Size: %d", value_size);
+		offset++;
+		left--;
+		proto_tree_add_text(eap_tree, tvb, offset, value_size,
+				    "Challenge: %s",
+				    tvb_bytes_to_str(tvb, offset, value_size));
+		offset += value_size;
+		left -= value_size;
+		if (left <= 0)
+			break;
+		proto_tree_add_text(eap_tree, tvb, offset, left,
+				    "Name: %s",
+				    tvb_format_text(tvb, offset, left));
+		break;
+	case MS_CHAPv2_RESPONSE:
+		if (left <= 0)
+			break;
+		value_size = tvb_get_guint8(tvb, offset);
+		proto_tree_add_text(eap_tree, tvb, offset, 1,
+				    "Value-Size: %d", value_size);
+		offset++;
+		left--;
+		if (value_size == 49) {
+			proto_tree_add_text(eap_tree, tvb, offset, 16,
+					    "Peer-Challenge: %s",
+					    tvb_bytes_to_str(tvb, offset, 16));
+			offset += 16;
+			proto_tree_add_text(eap_tree, tvb, offset, 8,
+					    "Reserved, must be zero: %s",
+					    tvb_bytes_to_str(tvb, offset, 8));
+			offset += 8;
+			proto_tree_add_text(eap_tree, tvb, offset, 24,
+					    "NT-Response: %s",
+					    tvb_bytes_to_str(tvb, offset, 24));
+			offset += 24;
+			proto_tree_add_text(eap_tree, tvb, offset, 1,
+					    "Flags: %d",
+					    tvb_get_guint8(tvb, offset));
+			offset++;
+			left -= value_size;
+		} else {
+			proto_tree_add_text(eap_tree, tvb, offset, value_size,
+					    "Response (unknown length): %s",
+					    tvb_bytes_to_str(tvb, offset,
+							     value_size));
+			offset += value_size;
+			left -= value_size;
+		}
+		if (left <= 0)
+			break;
+		proto_tree_add_text(eap_tree, tvb, offset, left,
+				    "Name: %s",
+				    tvb_format_text(tvb, offset, left));
+		break;
+	case MS_CHAPv2_SUCCESS:
+		if (left <= 0)
+			break;
+		proto_tree_add_text(eap_tree, tvb, offset, left,
+				    "Message: %s",
+				    tvb_format_text(tvb, offset, left));
+		break;
+	case MS_CHAPv2_FAILURE:
+		if (left <= 0)
+			break;
+		proto_tree_add_text(eap_tree, tvb, offset, left,
+				    "Failure Request: %s",
+				    tvb_format_text(tvb, offset, left));
+		break;
+	default:
+		proto_tree_add_text(eap_tree, tvb, offset, left,
+				    "Data (%d byte%s) Value: %s",
+				    left, plurality(left, "", "s"),
+				    tvb_bytes_to_str(tvb, offset, left));
+		break;
+	}
+}
+
+static void
+dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
+{
+	gint left = size;
+	enum {
+		SIM_START = 10,
+		SIM_CHALLENGE = 11,
+		SIM_NOTIFICATION = 12,
+		SIM_RE_AUTHENTICATION = 13,
+		SIM_CLIENT_ERROR = 14
+	} subtype;
+	static const value_string subtypes[] = {
+		{ SIM_START, "Start" },
+		{ SIM_CHALLENGE, "Challenge" },
+		{ SIM_NOTIFICATION, "Notification" },
+		{ SIM_RE_AUTHENTICATION, "Re-authentication" },
+		{ SIM_CLIENT_ERROR, "Client-Error" },
+		{ 0, NULL }
+	};
+	static const value_string attributes[] = {
+		{ 1, "AT_RAND" },
+		{ 6, "AT_PADDING" },
+		{ 7, "AT_NONCE_MT" },
+		{ 10, "AT_PERMANENT_ID_REQ" },
+		{ 11, "AT_MAC" },
+		{ 12, "AT_NOTIFICATION" },
+		{ 13, "AT_ANY_ID_REQ" },
+		{ 14, "AT_IDENTITY" },
+		{ 15, "AT_VERSION_LIST" },
+		{ 16, "AT_SELECTED_VERSION" },
+		{ 17, "AT_FULLAUTH_ID_REQ" },
+		{ 18, "AT_COUNTER" },
+		{ 19, "AT_COUNTER_TOO_SMALL" },
+		{ 20, "AT_NONCE_S" },
+		{ 21, "AT_CLIENT_ERROR_CODE" },
+		{ 129, "AT_IV" },
+		{ 130, "AT_ENCR_DATA" },
+		{ 132, "AT_NEXT_PSEUDONYM" },
+		{ 133, "AT_NEXT_REAUTH_ID" },
+		{ 0, NULL }
+	};
+
+	subtype = tvb_get_guint8(tvb, offset);
+	proto_tree_add_text(eap_tree, tvb, offset, 1,
+			    "subtype: %d (%s)", 
+			    subtype, val_to_str(subtype, subtypes, "Unknown"));
+
+	offset++;
+	left--;
+
+	if (left < 2)
+		return;
+	proto_tree_add_text(eap_tree, tvb, offset, 2, "Reserved: %d",
+			    tvb_get_ntohs(tvb, offset));
+	offset += 2;
+	left -= 2;
+
+	/* Rest of EAP-SIM data is in Type-Len-Value format. */
+	while (left >= 2) {
+		guint8 type, length;
+		proto_item *pi;
+		proto_tree *attr_tree;
+		int aoffset;
+		gint aleft;
+		aoffset = offset;
+		type = tvb_get_guint8(tvb, aoffset);
+		length = tvb_get_guint8(tvb, aoffset + 1);
+		aleft = 4 * length;
+
+		pi = proto_tree_add_text(eap_tree, tvb, aoffset, aleft,
+					 "Attribute: %s", 
+					 val_to_str(type, attributes,
+						    "Unknown %u"));
+		attr_tree = proto_item_add_subtree(pi, ett_eap_sim_attr);
+		proto_tree_add_text(attr_tree, tvb, aoffset, 1,
+				    "Type: %u", type);
+		aoffset++;
+		aleft--;
+
+		if (aleft <= 0)
+			break;
+		proto_tree_add_text(attr_tree, tvb, aoffset, 1,
+				    "Length: %d (%d bytes)",
+				    length, 4 * length);
+		aoffset++;
+		aleft--;
+		proto_tree_add_text(attr_tree, tvb, aoffset, aleft,
+				    "Value: %s",
+				    tvb_bytes_to_str(tvb, aoffset, aleft));
+
+		offset += 4 * length;
+		left -= 4 * length;
+	}
 }
 
 static int
@@ -437,8 +669,33 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	break;
       /*********************************************************************
+      **********************************************************************/
+      case EAP_TYPE_MD5:
+	if (tree) {
+	  guint8 value_size = tvb_get_guint8(tvb, offset);
+	  gint extra_len = size - 1 - value_size;
+	  proto_tree_add_text(eap_tree, tvb, offset, 1, "Value-Size: %d%s",
+			      value_size,
+			      value_size > size - 1 ? " (overflow)": "");
+	  if (value_size > size - 1)
+	    value_size = size - 1;
+	  offset++;
+	  proto_tree_add_text(eap_tree, tvb, offset, value_size,
+			      "Value: %s",
+			      tvb_bytes_to_str(tvb, offset, value_size));
+	  offset += value_size;
+	  if (extra_len > 0) {
+	    proto_tree_add_text(eap_tree, tvb, offset, extra_len,
+				"Extra data (%d byte%s): %s", extra_len,
+				plurality(extra_len, "", "s"),
+				tvb_bytes_to_str(tvb, offset, extra_len));
+	  }
+	}
+	break;
+      /*********************************************************************
                                   EAP-TLS
       **********************************************************************/
+      case EAP_TYPE_PEAP:
       case EAP_TYPE_TTLS:
       case EAP_TYPE_TLS:
 	{
@@ -454,12 +711,18 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	has_length = test_flag(flags,EAP_TLS_FLAG_L);
 
 	/* Flags field, 1 byte */
-	if (tree)
+	if (tree) {
 	  proto_tree_add_text(eap_tree, tvb, offset, 1, "Flags(0x%X): %s%s%s",
 			      flags,
 			      has_length                      ? "Length ":"",
 			      more_fragments                  ? "More "  :"",
 			      test_flag(flags,EAP_TLS_FLAG_S) ? "Start " :"");
+	  if (eap_type == EAP_TYPE_PEAP) {
+	    proto_tree_add_text(eap_tree, tvb, offset, 1,
+				"PEAP version %d",
+				flags & EAP_PEAP_FLAG_VERSION);
+	  }
+	}
 	size--;
 	offset++;
 
@@ -776,6 +1039,20 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	break; /* EAP_TYPE_LEAP */
       /*********************************************************************
+              EAP-MSCHAPv2 - draft-kamath-pppext-eap-mschapv2-00.txt
+      **********************************************************************/
+      case EAP_TYPE_MSCHAPV2:
+	if (tree)
+	  dissect_eap_mschapv2(eap_tree, tvb, offset, size);
+	break; /* EAP_TYPE_MSCHAPV2 */
+      /*********************************************************************
+              EAP-SIM - draft-haverinen-pppext-eap-sim-12.txt
+      **********************************************************************/
+      case EAP_TYPE_SIM:
+	if (tree)
+	  dissect_eap_sim(eap_tree, tvb, offset, size);
+	break; /* EAP_TYPE_SIM */
+      /*********************************************************************
       **********************************************************************/
       default:
         if (tree) {
@@ -860,6 +1137,7 @@ proto_register_eap(void)
 	&ett_eap,
 	&ett_eaptls_fragment,
 	&ett_eaptls_fragments,
+	&ett_eap_sim_attr,
   };
 
   proto_eap = proto_register_protocol("Extensible Authentication Protocol",
