@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.29 2002/02/06 06:27:15 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.30 2002/02/08 11:02:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -695,13 +695,12 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		proto_tree *tr;
 
 		/* get the referent id */
-		dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &id);
+		offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &id);
 	
 		/* we got a NULL pointer */
 		if(id==0){
-			proto_tree_add_text(tree, tvb, offset, 4,
+			proto_tree_add_text(tree, tvb, offset-4, 4,
 				"NULL pointer");
-			offset+=4;
 			goto after_ref_id;
 		}
 
@@ -710,16 +709,14 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 		/* we have seen this pointer before */
 		if(idx>=0){
-			proto_tree_add_text(tree, tvb, offset, 4,
+			proto_tree_add_text(tree, tvb, offset-4, 4,
 				"Referent ID:0x%08x",id);
-			offset+=4;
 			goto after_ref_id;
 		}
 
 		/* new pointer */
-		item=proto_tree_add_text(tree, tvb, offset, 4, 
+		item=proto_tree_add_text(tree, tvb, offset-4, 4, 
 			"Referent ID:0x%08x", id);
-		offset+=4;
 		tr=proto_item_add_subtree(item,ett_dcerpc_pointer_data);
 		add_pointer_to_list(pinfo, tr, fnct, id, hf_index);
 		goto after_ref_id;
@@ -733,12 +730,11 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		proto_tree *tr;
 
 		/* get the referent id */
-		dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &id);
+		offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &id);
 	
 		/* new pointer */
-		item=proto_tree_add_text(tree, tvb, offset, 4, 
+		item=proto_tree_add_text(tree, tvb, offset-4, 4, 
 			"Referent ID:0x%08x", id);
-		offset+=4;
 		tr=proto_item_add_subtree(item,ett_dcerpc_pointer_data);
 		add_pointer_to_list(pinfo, tr, fnct, 0xffffffff, hf_index);
 		goto after_ref_id;
@@ -754,13 +750,12 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		proto_tree *tr;
 
 		/* get the referent id */
-		dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &id);
+		offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &id);
 	
 		/* we got a NULL pointer */
 		if(id==0){
-			proto_tree_add_text(tree, tvb, offset, 4,
+			proto_tree_add_text(tree, tvb, offset-4, 4,
 				"NULL pointer");
-			offset+=4;
 			goto after_ref_id;
 		}
 
@@ -769,16 +764,14 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 		/* we have seen this pointer before */
 		if(idx>=0){
-			proto_tree_add_text(tree, tvb, offset, 4,
+			proto_tree_add_text(tree, tvb, offset-4, 4,
 				"Referent ID:0x%08x",id);
-			offset+=4;
 			goto after_ref_id;
 		}
 
 		/* new pointer */
-		item=proto_tree_add_text(tree, tvb, offset, 4, 
+		item=proto_tree_add_text(tree, tvb, offset-4, 4, 
 			"Referent ID:0x%08x", id);
-		offset+=4;
 		tr=proto_item_add_subtree(item,ett_dcerpc_pointer_data);
 		add_pointer_to_list(pinfo, tr, fnct, id, hf_index);
 		goto after_ref_id;
