@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.30 2000/11/21 22:40:40 guy Exp $
+ * $Id: packet-http.c,v 1.31 2001/01/03 03:40:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,10 +45,12 @@
 typedef enum _http_type {
 	HTTP_REQUEST,
 	HTTP_RESPONSE,
+	HTTP_NOTIFICATION,
 	HTTP_OTHERS
 } http_type_t;
 
 static int proto_http = -1;
+static int hf_http_notification = -1;
 static int hf_http_response = -1;
 static int hf_http_request = -1;
 
@@ -59,6 +61,18 @@ static gint ett_http = -1;
 #define TCP_PORT_PROXY_ADMIN_HTTP	3132
 #define TCP_ALT_PORT_HTTP		8080
 
+#define TCP_PORT_SSDP			1900
+#define UDP_PORT_SSDP			1900
+
+/*
+ * Protocols implemented atop HTTP.
+ */
+typedef enum {
+	PROTO_HTTP,		/* just HTTP */
+	PROTO_IPP,		/* Internet Printing Protocol */
+	PROTO_SSDP		/* Simple Service Discovery Protocol */
+} http_proto_t;
+
 static int is_http_request_or_reply(const u_char *data, int linelen, http_type_t *type);
 
 static dissector_handle_t ipp_handle;
@@ -66,7 +80,8 @@ static dissector_handle_t ipp_handle;
 void
 dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	gboolean	is_ipp = (pinfo->srcport == 631 || pinfo->destport == 631);
+	http_proto_t	proto;
+	char		*proto_tag;
 	proto_tree	*http_tree = NULL;
 	proto_item	*ti = NULL;
 	gint		offset = 0;
@@ -82,8 +97,26 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	pinfo->current_proto = "HTTP";
 
+	switch (pinfo->match_port) {
+
+	case 631:
+		proto = PROTO_IPP;
+		proto_tag = "IPP";
+		break;
+
+	case 1900:
+		proto = PROTO_SSDP;
+		proto_tag = "SSDP";
+		break;
+
+	default:
+		proto = PROTO_HTTP;
+		proto_tag = "HTTP";
+		break;
+	}
+	
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, is_ipp ? "IPP" : "HTTP");
+		col_set_str(pinfo->fd, COL_PROTOCOL, proto_tag);
 	if (check_col(pinfo->fd, COL_INFO)) {
 		/*
 		 * Put the first line from the buffer into the summary
@@ -202,6 +235,11 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		switch (http_type) {
 
+		case HTTP_NOTIFICATION:
+			proto_tree_add_boolean_hidden(http_tree, 
+			    hf_http_notification, tvb, 0, 0, 1);
+			break;
+
 		case HTTP_RESPONSE:
 			proto_tree_add_boolean_hidden(http_tree, 
 			    hf_http_response, tvb, 0, 0, 1);
@@ -220,7 +258,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	datalen = tvb_length_remaining(tvb, offset);
 	if (datalen > 0) {
-		if (is_ipp) {
+		if (proto == PROTO_IPP) {
 			tvbuff_t *new_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
 			/*
@@ -243,6 +281,24 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 is_http_request_or_reply(const u_char *data, int linelen, http_type_t *type)
 {
+	/*
+	 * From RFC 2774 - An HTTP Extension Framework
+	 *
+	 * Support the command prefix that identifies the presence of
+	 * a "mandatory" header.
+	 */
+	if (strncmp(data, "M-", 2) == 0) {
+		data += 2;
+		linelen -= 2;
+	}
+
+	/*
+	 * From draft-cohen-gena-client-01.txt, available from the uPnP forum:
+	 *	NOTIFY, SUBSCRIBE, UNSUBSCRIBE
+	 *
+	 * From draft-ietf-dasl-protocol-00.txt, a now vanished Microsoft draft:
+	 *	SEARCH
+	 */
 	if (linelen >= 4) {
 		if (strncmp(data, "GET ", 4) == 0 ||
 		    strncmp(data, "PUT ", 4) == 0) {
@@ -277,12 +333,32 @@ is_http_request_or_reply(const u_char *data, int linelen, http_type_t *type)
 				*type = HTTP_REQUEST;
 			return TRUE;
 		}
+		if (strncmp(data, "NOTIFY ", 7) == 0 ||
+		    strncmp(data, "SEARCH ", 7) == 0) {
+			if (*type == HTTP_OTHERS)
+				*type = HTTP_NOTIFICATION;
+			return TRUE;
+		}
 	}
 	if (linelen >= 8) {
 		if (strncmp(data, "OPTIONS ", 8) == 0 ||
 		    strncmp(data, "CONNECT ", 8) == 0) {
 			if (*type == HTTP_OTHERS)
 				*type = HTTP_REQUEST;
+			return TRUE;
+		}
+	}
+	if (linelen >= 10) {
+		if (strncmp(data, "SUBSCRIBE ", 10) == 0) {
+			if (*type == HTTP_OTHERS)
+				*type = HTTP_NOTIFICATION;
+			return TRUE;
+		}
+	}
+	if (linelen >= 12) {
+		if (strncmp(data, "UNSUBSCRIBE ", 10) == 0) {
+			if (*type == HTTP_OTHERS)
+				*type = HTTP_NOTIFICATION;
 			return TRUE;
 		}
 	}
@@ -293,6 +369,10 @@ void
 proto_register_http(void)
 {
 	static hf_register_info hf[] = {
+	    { &hf_http_notification,
+	      { "Notification",		"http.notification",  
+		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		"TRUE if HTTP notification" }},
 	    { &hf_http_response,
 	      { "Response",		"http.response",  
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
@@ -319,6 +399,9 @@ proto_reg_handoff_http(void)
 	dissector_add("tcp.port", TCP_ALT_PORT_HTTP, dissect_http);
 	dissector_add("tcp.port", TCP_PORT_PROXY_HTTP, dissect_http);
 	dissector_add("tcp.port", TCP_PORT_PROXY_ADMIN_HTTP, dissect_http);
+				
+	dissector_add("tcp.port", TCP_PORT_SSDP, dissect_http);
+	dissector_add("udp.port", UDP_PORT_SSDP, dissect_http);
 
 	/*
 	 * Get a handle for the IPP dissector.
