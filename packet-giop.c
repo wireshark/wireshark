@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.70 2003/02/18 02:03:29 guy Exp $
+ * $Id: packet-giop.c,v 1.71 2003/02/18 02:24:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4696,6 +4696,46 @@ static void decode_UnknownServiceContext(tvbuff_t *tvb, proto_tree *tree, int *o
   g_free(p_context_data);
 }
 
+static guint32 decode_UnencodedServiceContext(tvbuff_t *tvb, proto_tree *tree,
+					      int *offset,
+					      gboolean stream_is_big_endian,
+					      guint32 boundary){
+
+  guint32 seqlen;   /* sequence length */
+  gchar *p_context_data;
+  gchar *context_data;
+
+  /* Get sequence length of parameter list */
+  seqlen = get_CDR_ulong(tvb,offset,stream_is_big_endian,boundary);
+  if (tree) {
+    proto_tree_add_uint(tree,hf_giop_sequence_length,tvb,
+			*offset-sizeof(seqlen),4,seqlen);
+  }
+
+  /*
+   * Decode sequence according to vendor ServiceId, but I don't
+   * have that yet, so just dump it as data.
+   */
+
+  /* fetch all octets in this sequence */
+
+  get_CDR_octet_seq(tvb, &context_data, offset, seqlen);
+
+  /* Make a printable string */
+
+  p_context_data = make_printable_string( context_data, seqlen );
+
+  if(tree) {
+    proto_tree_add_text (tree, tvb, *offset - seqlen, seqlen,
+	                 "context_data: %s", p_context_data);
+  }
+
+  g_free(context_data);
+  g_free(p_context_data);
+
+  return seqlen;
+}
+
 /*
  * Corba , chp 13.7
  *
@@ -4793,40 +4833,43 @@ void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
       sub_tree1 = proto_item_add_subtree (tf_st1, ett_giop_scl_st1);
     }
 
-    /* See CORBA 3.0.2 standard, section Section 15.3.3 "Encapsulation",
-     * for how CDR types can be marshalled into a sequence<octet>.
-     * The first octet in the sequence determines endian order,
-     * 0 == big-endian, 1 == little-endian
-     */
-
-    /* get sequence length, new endianness and boundary for encapsulation */
-    seqlen_cd = get_CDR_encap_info(tvb, sub_tree1, offset,
-			       stream_is_be, boundary,
-			       &encapsulation_is_be, &encapsulation_boundary);
-    if (tf_st1)
-      proto_item_set_len(tf_st1, sizeof(seqlen_cd) + seqlen_cd);
-
-    if (seqlen_cd == 0)
-      continue;
-
-    /* "get_CDR_encap_info()" has already processed the byte order octet,
-     * so "*offset" points past it; however, "seqlen_cd" includes the
-     * byte order offset, so update it not to include it, so that
-     * "seqlen_cd" refers to the amount of data remaining in the
-     * encapsulation starting at the offset "*offset".
-     */
-    seqlen_cd -= 1;
-
-    if (seqlen_cd == 0)
-      continue;	/* what is the byte order of one hand clapping? */
-
-    /* Save the offset of the start of the encapsulated data */
-    encap_start_offset = *offset;
-
-    /* The OMG has vscid of 0 reserved */
     if( vscid != 0 || scid > max_service_context_id ) {
-      decode_UnknownServiceContext(tvb, tree, offset, seqlen_cd);
+      seqlen_cd = decode_UnencodedServiceContext(tvb, sub_tree1, offset,
+						 stream_is_be, boundary);
+      if (tf_st1)
+        proto_item_set_len(tf_st1, sizeof(seqlen_cd) + seqlen_cd);
     } else {
+      /* See CORBA 3.0.2 standard, section Section 15.3.3 "Encapsulation",
+       * for how CDR types can be marshalled into a sequence<octet>.
+       * The first octet in the sequence determines endian order,
+       * 0 == big-endian, 1 == little-endian
+       */
+
+      /* get sequence length, new endianness and boundary for encapsulation */
+      seqlen_cd = get_CDR_encap_info(tvb, sub_tree1, offset,
+				     stream_is_be, boundary,
+				     &encapsulation_is_be,
+				     &encapsulation_boundary);
+      if (tf_st1)
+        proto_item_set_len(tf_st1, sizeof(seqlen_cd) + seqlen_cd);
+
+      if (seqlen_cd == 0)
+        continue;
+
+      /* "get_CDR_encap_info()" has already processed the byte order octet,
+       * so "*offset" points past it; however, "seqlen_cd" includes the
+       * byte order offset, so update it not to include it, so that
+       * "seqlen_cd" refers to the amount of data remaining in the
+       * encapsulation starting at the offset "*offset".
+       */
+      seqlen_cd -= 1;
+
+      if (seqlen_cd == 0)
+	continue;	/* what is the byte order of one hand clapping? */
+
+      /* Save the offset of the start of the encapsulated data */
+      encap_start_offset = *offset;
+
       switch(scid)
       {
 	case 1:    /* CodeSets */
@@ -4842,10 +4885,11 @@ void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
           decode_UnknownServiceContext(tvb, sub_tree1, offset, seqlen_cd);
           break;
       }
-    }
 
-    /* Skip past the end of the encapsulated data */
-    *offset = encap_start_offset + seqlen_cd;
+      /* Skip past the end of the encapsulated data */
+      *offset = encap_start_offset + seqlen_cd;
+
+    }
 
   } /* for seqlen  */
 
