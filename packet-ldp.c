@@ -1,7 +1,7 @@
 /* packet-ldp.c
- * Routines for ldp packet disassembly
+ * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.20 2001/11/27 04:59:01 guy Exp $
+ * $Id: packet-ldp.c,v 1.21 2001/11/27 05:01:14 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
