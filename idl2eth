@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-#  $Id: idl2eth,v 1.1 2001/06/18 05:27:16 guy Exp $
+#  $Id: idl2eth,v 1.2 2001/09/04 21:06:58 guy Exp $
 #
 #  File : idl2eth          
 #
@@ -40,17 +40,42 @@
 #
 
 
-if [ $# -lt 1 ]
- #  Must at least supply an IDL file
-then
-   echo "Error, no IDL file specified."
-   echo "Usage: idl2eth idl_file_name"
-   exit 1
+#  Must at least supply an IDL file
+
+if [ $# -lt 1 ]; then
+    echo "idl2eth Error: no IDL file specified."
+    echo "Usage: idl2eth idl_file_name"
+    exit 1;
 fi
 
+#
+# Run ethereal backend, looking for ethereal_be.py and ethereal_gen.py
+# in pythons's "site-packages" directory. If cannot find that, then
+# try looking in current directory. If still cannot, then exit with
+# error.
 
-omniidl  -p ./ -b ethereal_be $1
+if [ -f $PYTHONPATH/site-packages/ethereal_be.py ] && [ -f $PYTHONPATH/site-packages/ethereal_gen.py ]; then
+    omniidl  -p $PYTHONPATH/site-packages -b ethereal_be $1
+    exit $?
+fi
 
+# Try current directory.
+
+if [ -f ./ethereal_be.py ] && [ -f ./ethereal_gen.py ]; then
+    omniidl  -p ./ -b ethereal_be $1
+    exit $?
+fi
+
+# Could not find both ethereal_be.py AND ethereal_gen.py
+
+echo "idl2eth Error: Could not find both ethereal_be.py AND ethereal_gen.py."
+echo "Please ensure you have the PYTHONPATH variable set, or that ethereal_be.py "
+echo "and ethereal_gen.py exist in the current directory. "
+echo
+echo "On this system, PYTHONPATH is : $PYTHONPATH"
+echo
+
+exit 2
 
 
 
