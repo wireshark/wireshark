@@ -5,7 +5,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-spnego.c,v 1.50 2003/06/01 20:34:20 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.51 2003/07/17 22:17:01 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1667,6 +1667,9 @@ proto_reg_handoff_spnego(void)
 	gssapi_init_oid("1.2.840.113554.1.2.2", proto_spnego_krb5, ett_spnego_krb5,
 			spnego_krb5_handle, spnego_krb5_wrap_handle,
 			"KRB5 - Kerberos 5");
+	gssapi_init_oid("1.2.840.113554.1.2.2.3", proto_spnego_krb5, ett_spnego_krb5,
+			spnego_krb5_handle, spnego_krb5_wrap_handle,
+			"KRB5 - Kerberos 5 - User to User");
 
 	/*
 	 * Find the data handle for some calls
