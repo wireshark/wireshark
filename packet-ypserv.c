@@ -1,7 +1,7 @@
 /* packet-ypserv.c
  * Routines for ypserv dissection
  *
- * $Id: packet-ypserv.c,v 1.18 2001/12/23 21:36:58 guy Exp $
+ * $Id: packet-ypserv.c,v 1.19 2002/02/02 03:02:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -192,24 +192,25 @@ dissect_next_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 static int
 dissect_xfr_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *lock_item=NULL;
-	proto_tree *lock_tree=NULL;
+	proto_item *sub_item=NULL;
+	proto_tree *sub_tree=NULL;
+	int start_offset = offset;
 	guint32 tid;
 
 	if(tree){
-		lock_item = proto_tree_add_item(tree, hf_ypserv_map_parms, tvb,
-				offset, tvb_length_remaining(tvb, offset)-12, FALSE);
-		if(lock_item)
-			lock_tree = proto_item_add_subtree(lock_item, ett_ypserv_map_parms);
+		sub_item = proto_tree_add_item(tree, hf_ypserv_map_parms, tvb,
+				offset, -1, FALSE);
+		if(sub_item)
+			sub_tree = proto_item_add_subtree(sub_item, ett_ypserv_map_parms);
 	}
 
-	offset = dissect_rpc_string(tvb, pinfo, lock_tree, hf_ypserv_domain, offset, NULL);
+	offset = dissect_rpc_string(tvb, pinfo, sub_tree, hf_ypserv_domain, offset, NULL);
 	
-	offset = dissect_rpc_string(tvb, pinfo, lock_tree, hf_ypserv_map, offset, NULL);
+	offset = dissect_rpc_string(tvb, pinfo, sub_tree, hf_ypserv_map, offset, NULL);
 
-	offset = dissect_rpc_uint32(tvb, pinfo, lock_tree, hf_ypserv_ordernum, offset);
+	offset = dissect_rpc_uint32(tvb, pinfo, sub_tree, hf_ypserv_ordernum, offset);
 
-	offset = dissect_rpc_string(tvb, pinfo, lock_tree, hf_ypserv_peer, offset, NULL);
+	offset = dissect_rpc_string(tvb, pinfo, sub_tree, hf_ypserv_peer, offset, NULL);
 
 
 	tid=tvb_get_ntohl(tvb,offset);
@@ -219,6 +220,9 @@ dissect_xfr_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 
 	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_ypserv_prog, offset);
 	offset = dissect_rpc_uint32(tvb, pinfo, tree, hf_ypserv_port, offset);
+
+	if(sub_item)
+		proto_item_set_len(sub_item, offset - start_offset);
 
 	return offset;
 }
