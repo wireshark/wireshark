@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.365 2003/08/19 09:58:54 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.366 2003/08/20 10:32:23 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 #include <string.h>
 #include <glib.h>
 #include <ctype.h>
+#include <epan/int-64bit.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include "smb.h"
@@ -4731,6 +4732,9 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			proto_item *litem = NULL;
 			proto_tree *ltree = NULL;
 			if(lt&0x10){
+				char buf[8];
+				guint32 val;
+
 				/* large lock format */
 				litem = proto_tree_add_text(tr, tvb, offset, 20,
 					"Unlock");
@@ -4748,12 +4752,32 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 				/* offset */
 				CHECK_BYTE_COUNT(8);
-				proto_tree_add_item(ltree, hf_smb_lock_long_offset, tvb, offset, 8, TRUE);
+				val=tvb_get_letohl(tvb, offset);
+				buf[3]=(val>>24)&0xff;
+				buf[2]=(val>>16)&0xff;
+				buf[1]=(val>> 8)&0xff;
+				buf[0]=(val    )&0xff;
+				val=tvb_get_letohl(tvb, offset+4);
+				buf[7]=(val>>24)&0xff;
+				buf[6]=(val>>16)&0xff;
+				buf[5]=(val>> 8)&0xff;
+				buf[4]=(val    )&0xff;
+				proto_tree_add_string(ltree, hf_smb_lock_long_offset, tvb, offset, 8, u64toa(buf));
 				COUNT_BYTES(8);
 
 				/* length */
 				CHECK_BYTE_COUNT(8);
-				proto_tree_add_item(ltree, hf_smb_lock_long_length, tvb, offset, 8, TRUE);
+				val=tvb_get_letohl(tvb, offset);
+				buf[3]=(val>>24)&0xff;
+				buf[2]=(val>>16)&0xff;
+				buf[1]=(val>> 8)&0xff;
+				buf[0]=(val    )&0xff;
+				val=tvb_get_letohl(tvb, offset+4);
+				buf[7]=(val>>24)&0xff;
+				buf[6]=(val>>16)&0xff;
+				buf[5]=(val>> 8)&0xff;
+				buf[4]=(val    )&0xff;
+				proto_tree_add_string(ltree, hf_smb_lock_long_length, tvb, offset, 8, u64toa(buf));
 				COUNT_BYTES(8);
 			} else {
 				/* normal lock format */
@@ -4792,6 +4816,9 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			proto_item *litem = NULL;
 			proto_tree *ltree = NULL;
 			if(lt&0x10){
+				char buf[8];
+				guint32 val;
+
 				/* large lock format */
 				litem = proto_tree_add_text(tr, tvb, offset, 20,
 					"Lock");
@@ -4809,12 +4836,32 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 				/* offset */
 				CHECK_BYTE_COUNT(8);
-				proto_tree_add_item(ltree, hf_smb_lock_long_offset, tvb, offset, 8, TRUE);
+				val=tvb_get_letohl(tvb, offset);
+				buf[3]=(val    )&0xff;
+				buf[2]=(val>> 8)&0xff;
+				buf[1]=(val>>16)&0xff;
+				buf[0]=(val>>24)&0xff;
+				val=tvb_get_letohl(tvb, offset+4);
+				buf[7]=(val    )&0xff;
+				buf[6]=(val>> 8)&0xff;
+				buf[5]=(val>>16)&0xff;
+				buf[4]=(val>>24)&0xff;
+				proto_tree_add_string(ltree, hf_smb_lock_long_offset, tvb, offset, 8, u64toa(buf));
 				COUNT_BYTES(8);
 
 				/* length */
 				CHECK_BYTE_COUNT(8);
-				proto_tree_add_item(ltree, hf_smb_lock_long_length, tvb, offset, 8, TRUE);
+				val=tvb_get_letohl(tvb, offset);
+				buf[3]=(val    )&0xff;
+				buf[2]=(val>> 8)&0xff;
+				buf[1]=(val>>16)&0xff;
+				buf[0]=(val>>24)&0xff;
+				val=tvb_get_letohl(tvb, offset+4);
+				buf[7]=(val    )&0xff;
+				buf[6]=(val>> 8)&0xff;
+				buf[5]=(val>>16)&0xff;
+				buf[4]=(val>>24)&0xff;
+				proto_tree_add_string(ltree, hf_smb_lock_long_length, tvb, offset, 8, u64toa(buf));
 				COUNT_BYTES(8);
 			} else {
 				/* normal lock format */
@@ -17582,11 +17629,11 @@ proto_register_smb(void)
 		NULL, 0, "Number of unlock requests in this request", HFILL }},
 
 	{ &hf_smb_lock_long_length,
-		{ "Length", "smb.lock.length", FT_UINT64, BASE_DEC,
+		{ "Length", "smb.lock.length", FT_STRING, BASE_DEC,
 		NULL, 0, "Length of lock/unlock region", HFILL }},
 
 	{ &hf_smb_lock_long_offset,
-		{ "Offset", "smb.lock.offset", FT_UINT64, BASE_DEC,
+		{ "Offset", "smb.lock.offset", FT_STRING, BASE_DEC,
 		NULL, 0, "Offset in the file of lock/unlock region", HFILL }},
 
 	{ &hf_smb_file_type,
