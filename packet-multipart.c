@@ -3,7 +3,7 @@
  * Copyright 2004, Anders Broman <anders.broman[at]ericsson.com>
  * Copyright 2004, Olivier Biot <olivier.biot[at]siemens.com>
  *
- * $Id: packet-multipart.c,v 1.4 2004/01/16 22:22:31 guy Exp $
+ * $Id: packet-multipart.c,v 1.5 2004/01/22 23:47:59 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -897,5 +897,7 @@ proto_reg_handoff_multipart(void)
 			"multipart/related", multipart_handle);
 	dissector_add_string("media_type",
 			"multipart/alternative", multipart_handle);
+	dissector_add_string("media_type",
+			"multipart/form-data", multipart_handle);
 
 }
