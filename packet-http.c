@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.22 2000/09/11 16:16:02 gram Exp $
+ * $Id: packet-http.c,v 1.23 2000/09/30 05:37:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -83,11 +83,12 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	if (check_col(fd, COL_INFO)) {
 		/*
 		 * Put the first line from the buffer into the summary,
-		 * if it's an HTTP request or reply.
+		 * if it's an HTTP request or reply (but leave out the
+		 * "\r\n", or whatever, at the end).
 		 * Otherwise, just call it a continuation.
 		 */
 		lineend = find_line_end(data, dataend, &eol);
-		linelen = lineend - data;
+		linelen = eol - data;
 		if (is_http_request_or_reply(data, linelen, &http_type))
 			col_add_str(fd, COL_INFO, format_text(data, linelen));
 		else
