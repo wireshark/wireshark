@@ -448,7 +448,7 @@ proto_register_llcgprs(void)
 	
 	llcgprs_module = prefs_register_protocol ( proto_llcgprs, NULL );
 	prefs_register_bool_preference ( llcgprs_module, "autodetect_cipher_bit",
-	    "autodetect cipher bit", 
+	    "Autodetect cipher bit", 
 	    "Whether to autodetect the cipher bit (because it might be set on unciphered data)",
 	    &ignore_cipher_bit );
 }
