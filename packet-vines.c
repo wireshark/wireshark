@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.60 2003/07/19 02:49:54 guy Exp $
+ * $Id: packet-vines.c,v 1.61 2004/01/01 21:35:49 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -463,7 +463,7 @@ proto_register_vines_echo(void)
 		&ett_vines_echo,
 	};
 
-	proto_vines_icp = proto_register_protocol(
+	proto_vines_echo = proto_register_protocol(
 	    "Banyan Vines Echo", "Vines Echo", "vines_echo");
 	proto_register_subtree_array(ett, array_length(ett));
 }
