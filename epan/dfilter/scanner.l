@@ -1,6 +1,6 @@
 %{
 /*
- * $Id: scanner.l,v 1.19 2004/06/03 07:17:24 guy Exp $
+ * $Id: scanner.l,v 1.20 2004/06/03 07:36:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -299,7 +299,7 @@ static int
 set_lval_int(int token, char *s)
 {
 	sttype_id_t	type_id = STTYPE_UNINITIALIZED;
-	guint32		val;
+	gint32		val;
 
 	if (!str_to_gint32(s, &val)) {
 		return SCAN_FAILED;

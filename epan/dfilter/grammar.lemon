@@ -1,4 +1,4 @@
-/* $Id: grammar.lemon,v 1.9 2004/02/27 12:00:30 obiot Exp $ */
+/* $Id: grammar.lemon,v 1.10 2004/06/03 07:36:24 guy Exp $ */
 
 %include {
 #ifdef HAVE_CONFIG_H
@@ -76,7 +76,7 @@ any "error" symbols are shifted, if possible. */
 				stnode_data(TOKEN));
 			break;
 		case STTYPE_INTEGER:
-			dfilter_fail("The integer %u was unexpected in this context.",
+			dfilter_fail("The integer %d was unexpected in this context.",
 				stnode_value(TOKEN));
 			break;
 		case STTYPE_FIELD:

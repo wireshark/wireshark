@@ -1,10 +1,9 @@
 /*
- * $Id: syntax-tree.c,v 1.5 2002/08/28 20:40:56 jmayer Exp $
+ * $Id: syntax-tree.c,v 1.6 2004/06/03 07:36:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -141,7 +140,7 @@ stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data)
 }
 
 void
-stnode_init_int(stnode_t *node, sttype_id_t type_id, guint32 value)
+stnode_init_int(stnode_t *node, sttype_id_t type_id, gint32 value)
 {
 	stnode_init(node, type_id, NULL);
 	node->value = value;
@@ -189,7 +188,7 @@ stnode_data(stnode_t *node)
 	return node->data;
 }
 
-guint32
+gint32
 stnode_value(stnode_t *node)
 {
 	assert_magic(node, STNODE_MAGIC);
