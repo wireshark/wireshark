@@ -2,7 +2,7 @@
  * Routines for raw data (default case)
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-data.c,v 1.6 1999/03/22 03:44:43 guy Exp $
+ * $Id: packet-data.c,v 1.7 1999/03/22 03:56:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -39,11 +39,6 @@
 #include "ethereal.h"
 #include "packet.h"
 
-void
-capture_data(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
-
-	ld->other++;
-}
 
 void
 dissect_data(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {

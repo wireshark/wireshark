@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-llc.c,v 1.12 1999/03/22 03:44:44 guy Exp $
+ * $Id: packet-llc.c,v 1.13 1999/03/22 03:56:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -103,7 +103,7 @@ sap_capture_func(u_char sap) {
 		}
 		i++;
 	}
-	return capture_data;
+	return NULL;
 }
 
 static dissect_func_t *
