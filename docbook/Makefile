@@ -45,7 +45,6 @@ clean:
 	rm -f *.fo
 	rm -f *.pdf
 	rm -f *.chm
-	rm -f Makefile.auto
 	rm -rf eug_html
 	rm -rf eug_html_chunked
 	rm -rf eug_chm

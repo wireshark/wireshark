@@ -1233,7 +1233,6 @@ AC_OUTPUT(
   Makefile
   doxygen.cfg
   doc/Makefile
-  docbook/Makefile.auto
   epan/Makefile
   epan/doxygen.cfg
   epan/dfilter/Makefile
