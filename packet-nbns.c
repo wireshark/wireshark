@@ -3,7 +3,7 @@
  * to when it had only NBNS)
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.75 2002/05/01 08:34:04 guy Exp $
+ * $Id: packet-nbns.c,v 1.76 2002/05/15 07:24:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,8 +44,15 @@
 #include "prefs.h"
 
 static int proto_nbns = -1;
-static int hf_nbns_response = -1;
-static int hf_nbns_query = -1;
+static int hf_nbns_flags = -1;
+static int hf_nbns_flags_response = -1;
+static int hf_nbns_flags_opcode = -1;
+static int hf_nbns_flags_authoritative = -1;
+static int hf_nbns_flags_truncated = -1;
+static int hf_nbns_flags_recdesired = -1;
+static int hf_nbns_flags_recavail = -1;
+static int hf_nbns_flags_broadcast = -1;
+static int hf_nbns_flags_rcode = -1;
 static int hf_nbns_transaction_id = -1;
 static int hf_nbns_count_questions = -1;
 static int hf_nbns_count_answers = -1;
@@ -118,6 +125,7 @@ static gboolean nbss_desegment = TRUE;
 /* Bit fields in the flags */
 #define F_RESPONSE      (1<<15)         /* packet is response */
 #define F_OPCODE        (0xF<<11)       /* query opcode */
+#define OPCODE_SHIFT	11
 #define F_AUTHORITATIVE (1<<10)         /* response is authoritative */
 #define F_TRUNCATED     (1<<9)          /* response is truncated */
 #define F_RECDESIRED    (1<<8)          /* recursion desired */
@@ -125,24 +133,77 @@ static gboolean nbss_desegment = TRUE;
 #define F_BROADCAST     (1<<4)          /* broadcast/multicast packet */
 #define F_RCODE         (0xF<<0)        /* reply code */
 
+static const true_false_string tfs_flags_response = {
+	"Message is a response",
+	"Message is a query"
+};
+
+static const true_false_string tfs_flags_authoritative = {
+	"Server is an authority for domain",
+	"Server is not an authority for domain"
+};
+
+static const true_false_string tfs_flags_truncated = {
+	"Message is truncated",
+	"Message is not truncated"
+};
+
+static const true_false_string tfs_flags_recdesired = {
+	"Do query recursively",
+	"Don't do query recursively"
+};
+
+static const true_false_string tfs_flags_recavail = {
+	"Server can do recursive queries",
+	"Server can't do recursive queries"
+};
+
+static const true_false_string tfs_flags_broadcast = {
+	"Broadcast packet",
+	"Not a broadcast packet"
+};
+
 /* Opcodes */
-#define OPCODE_QUERY          (0<<11)    /* standard query */
-#define OPCODE_REGISTRATION   (5<<11)    /* registration */
-#define OPCODE_RELEASE        (6<<11)    /* release name */
-#define OPCODE_WACK           (7<<11)    /* wait for acknowledgement */
-#define OPCODE_REFRESH        (8<<11)    /* refresh registration */
-#define OPCODE_REFRESHALT     (9<<11)    /* refresh registration (alternate opcode) */
-#define OPCODE_MHREGISTRATION (15<<11)   /* multi-homed registration */
+#define OPCODE_QUERY          0         /* standard query */
+#define OPCODE_REGISTRATION   5         /* registration */
+#define OPCODE_RELEASE        6         /* release name */
+#define OPCODE_WACK           7         /* wait for acknowledgement */
+#define OPCODE_REFRESH        8         /* refresh registration */
+#define OPCODE_REFRESHALT     9         /* refresh registration (alternate opcode) */
+#define OPCODE_MHREGISTRATION 15        /* multi-homed registration */
+
+static const value_string opcode_vals[] = {
+	  { OPCODE_QUERY,          "Name query"                 },
+	  { OPCODE_REGISTRATION,   "Registration"               },
+	  { OPCODE_RELEASE,        "Release"                    },
+	  { OPCODE_WACK,           "Wait for acknowledgment"    },
+	  { OPCODE_REFRESH,        "Refresh"                    },
+	  { OPCODE_REFRESHALT,     "Refresh (alternate opcode)" },
+	  { OPCODE_MHREGISTRATION, "Multi-homed registration"   },
+	  { 0,                     NULL                         }
+};
 
 /* Reply codes */
-#define RCODE_NOERROR   (0<<0)
-#define RCODE_FMTERROR  (1<<0)
-#define RCODE_SERVFAIL  (2<<0)
-#define RCODE_NAMEERROR (3<<0)
-#define RCODE_NOTIMPL   (4<<0)
-#define RCODE_REFUSED   (5<<0)
-#define RCODE_ACTIVE    (6<<0)
-#define RCODE_CONFLICT  (7<<0)
+#define RCODE_NOERROR   0
+#define RCODE_FMTERROR  1
+#define RCODE_SERVFAIL  2
+#define RCODE_NAMEERROR 3
+#define RCODE_NOTIMPL   4
+#define RCODE_REFUSED   5
+#define RCODE_ACTIVE    6
+#define RCODE_CONFLICT  7
+
+static const value_string rcode_vals[] = {
+	  { RCODE_NOERROR,   "No error"                        },
+	  { RCODE_FMTERROR,  "Request was invalidly formatted" },
+	  { RCODE_SERVFAIL,  "Server failure"                  },
+	  { RCODE_NAMEERROR, "Requested name does not exist"   },
+	  { RCODE_NOTIMPL,   "Request is not implemented"      },
+	  { RCODE_REFUSED,   "Request was refused"             },
+	  { RCODE_ACTIVE,    "Name is owned by another node"   },
+	  { RCODE_CONFLICT,  "Name is in conflict"             },
+	  { 0,               NULL                              }
+};
 
 /* Values for the "NB_FLAGS" field of RR data.  From RFC 1001 and 1002,
  * except for NB_FLAGS_ONT_H_NODE, which was discovered by looking at
@@ -172,17 +233,6 @@ static gboolean nbss_desegment = TRUE;
 #define	NAME_FLAGS_ONT_M_NODE	(2<<(15-2))	/* M-mode node */
 
 #define	NAME_FLAGS_G		(1<<(15-0))	/* group name */
-
-static const value_string opcode_vals[] = {
-	  { OPCODE_QUERY,          "Name query"                 },
-	  { OPCODE_REGISTRATION,   "Registration"               },
-	  { OPCODE_RELEASE,        "Release"                    },
-	  { OPCODE_WACK,           "Wait for acknowledgment"    },
-	  { OPCODE_REFRESH,        "Refresh"                    },
-	  { OPCODE_REFRESHALT,     "Refresh (alternate opcode)" },
-	  { OPCODE_MHREGISTRATION, "Multi-homed registration"   },
-	  { 0,                     NULL                         }
-};
 
 static char *
 nbns_type_name (int type)
@@ -382,74 +432,42 @@ nbns_add_nbns_flags(proto_tree *nbns_tree, tvbuff_t *tvb, int offset,
     u_short flags, int is_wack)
 {
 	char buf[128+1];
+	guint16 opcode;
 	proto_tree *field_tree;
 	proto_item *tf;
-	static const value_string rcode_vals[] = {
-		  { RCODE_NOERROR,   "No error"                        },
-		  { RCODE_FMTERROR,  "Request was invalidly formatted" },
-		  { RCODE_SERVFAIL,  "Server failure"                  },
-		  { RCODE_NAMEERROR, "Requested name does not exist"   },
-		  { RCODE_NOTIMPL,   "Request is not implemented"      },
-		  { RCODE_REFUSED,   "Request was refused"             },
-		  { RCODE_ACTIVE,    "Name is owned by another node"   },
-		  { RCODE_CONFLICT,  "Name is in conflict"             },
-		  { 0,               NULL                              }
-	};
 
-	strcpy(buf, val_to_str(flags & F_OPCODE, opcode_vals,
-				"Unknown operation"));
+	opcode = (flags & F_OPCODE) >> OPCODE_SHIFT;
+	strcpy(buf, val_to_str(opcode, opcode_vals, "Unknown operation"));
 	if (flags & F_RESPONSE && !is_wack) {
 		strcat(buf, " response");
 		strcat(buf, ", ");
 		strcat(buf, val_to_str(flags & F_RCODE, rcode_vals,
 		    "Unknown error"));
 	}
-	tf = proto_tree_add_text(nbns_tree, tvb, offset, 2,
-			"Flags: 0x%04x (%s)", flags, buf);
+	tf = proto_tree_add_uint_format(nbns_tree, hf_nbns_flags,
+	    tvb, offset, 2, flags, "Flags: 0x%04x (%s)", flags, buf);
 	field_tree = proto_item_add_subtree(tf, ett_nbns_flags);
-	proto_tree_add_text(field_tree, tvb, offset, 2, "%s",
-			decode_boolean_bitfield(flags, F_RESPONSE,
-				2*8, "Response", "Query"));
-	proto_tree_add_text(field_tree, tvb, offset, 2, "%s",
-			decode_enumerated_bitfield(flags, F_OPCODE,
-				2*8, opcode_vals, "%s"));
+	proto_tree_add_item(field_tree, hf_nbns_flags_response,
+	    tvb, offset, 2, FALSE);
+	proto_tree_add_item(field_tree, hf_nbns_flags_opcode,
+	    tvb, offset, 2, FALSE);
 	if (flags & F_RESPONSE) {
-		proto_tree_add_text(field_tree, tvb, offset, 2,
-			"%s",
-			decode_boolean_bitfield(flags, F_AUTHORITATIVE,
-				2*8,
-				"Server is an authority for domain",
-				"Server isn't an authority for domain"));
+		proto_tree_add_item(field_tree, hf_nbns_flags_authoritative,
+			  tvb, offset, 2, FALSE);
 	}
-	proto_tree_add_text(field_tree, tvb, offset, 2, "%s",
-			decode_boolean_bitfield(flags, F_TRUNCATED,
-				2*8,
-				"Message is truncated",
-				"Message is not truncated"));
-	proto_tree_add_text(field_tree, tvb, offset, 2, "%s",
-			decode_boolean_bitfield(flags, F_RECDESIRED,
-				2*8,
-				"Do query recursively",
-				"Don't do query recursively"));
+	proto_tree_add_item(field_tree, hf_nbns_flags_truncated,
+	    tvb, offset, 2, FALSE);
+	proto_tree_add_item(field_tree, hf_nbns_flags_recdesired,
+	    tvb, offset, 2, FALSE);
 	if (flags & F_RESPONSE) {
-		proto_tree_add_text(field_tree, tvb, offset, 2,
-			"%s",
-			decode_boolean_bitfield(flags, F_RECAVAIL,
-				2*8,
-				"Server can do recursive queries",
-				"Server can't do recursive queries"));
+		proto_tree_add_item(field_tree, hf_nbns_flags_recavail,
+		    tvb, offset, 2, FALSE);
 	}
-	proto_tree_add_text(field_tree, tvb, offset, 2, "%s",
-			decode_boolean_bitfield(flags, F_BROADCAST,
-				2*8,
-				"Broadcast packet",
-				"Not a broadcast packet"));
+	proto_tree_add_item(field_tree, hf_nbns_flags_broadcast,
+	    tvb, offset, 2, FALSE);
 	if (flags & F_RESPONSE && !is_wack) {
-		proto_tree_add_text(field_tree, tvb, offset, 2,
-			"%s",
-			decode_enumerated_bitfield(flags, F_RCODE,
-				2*8,
-				rcode_vals, "%s"));
+		proto_tree_add_item(field_tree, hf_nbns_flags_rcode,
+		    tvb, offset, 2, FALSE);
 	}
 }
 
@@ -975,7 +993,7 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	column_info		*cinfo;
 	proto_tree		*nbns_tree = NULL;
 	proto_item		*ti;
-	guint16			id, flags, quest, ans, auth, add;
+	guint16			id, flags, opcode, rcode, quest, ans, auth, add;
 	int			cur_off;
 
 	nbns_data_offset = offset;
@@ -988,11 +1006,12 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* To do: check for runts, errs, etc. */
 	id    = tvb_get_ntohs(tvb, offset + NBNS_ID);
 	flags = tvb_get_ntohs(tvb, offset + NBNS_FLAGS);
+	opcode = (flags & F_OPCODE) >> OPCODE_SHIFT;
+	rcode = (flags & F_RCODE);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s",
-		    val_to_str(flags & F_OPCODE, opcode_vals,
-		      "Unknown operation (%x)"),
+		    val_to_str(opcode, opcode_vals, "Unknown operation (%u)"),
 		    (flags & F_RESPONSE) ? " response" : "");
 		cinfo = pinfo->cinfo;
 	} else {
@@ -1008,14 +1027,6 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_nbns, tvb, offset, -1,
 		    FALSE);
 		nbns_tree = proto_item_add_subtree(ti, ett_nbns);
-
-		if (flags & F_RESPONSE) {
-			proto_tree_add_boolean_hidden(nbns_tree, hf_nbns_response, tvb, 
-					     0, 0, TRUE);
-		} else {
-			proto_tree_add_boolean_hidden(nbns_tree, hf_nbns_query, tvb, 
-					     0, 0, TRUE);
-		}
 
 		proto_tree_add_uint(nbns_tree, hf_nbns_transaction_id, tvb,
 				    offset + NBNS_ID, 2, id);
@@ -1062,7 +1073,7 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		cur_off += dissect_answer_records(tvb, cur_off,
 			nbns_data_offset, ans,
 			((flags & F_RESPONSE) ? cinfo : NULL), nbns_tree,
-			flags & F_OPCODE, "Answers");
+			opcode, "Answers");
 	}
 
 	if (tree) {
@@ -1071,15 +1082,13 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (auth > 0)
 			cur_off += dissect_answer_records(tvb, cur_off,
 					nbns_data_offset,
-					auth, NULL, nbns_tree,
-					flags & F_OPCODE,
+					auth, NULL, nbns_tree, opcode,
 					"Authoritative nameservers");
 
 		if (add > 0)
 			cur_off += dissect_answer_records(tvb, cur_off,
 					nbns_data_offset,
-					add, NULL, nbns_tree,
-					flags & F_OPCODE,
+					add, NULL, nbns_tree, opcode,
 					"Additional records");
 	}
 }
@@ -1744,14 +1753,42 @@ proto_register_nbt(void)
 {
 
   static hf_register_info hf_nbns[] = {
-    { &hf_nbns_response,
-      { "Response",		"nbns.response",  
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"TRUE if NBNS response", HFILL }},
-    { &hf_nbns_query,
-      { "Query",		"nbns.query",  
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"TRUE if NBNS query", HFILL }},
+    { &hf_nbns_flags,
+      { "Flags",		"nbns.flags",
+	FT_UINT16, BASE_HEX, NULL, 0x0,
+	"", HFILL }},
+    { &hf_nbns_flags_response,
+      { "Response",		"nbns.flags.response",
+	FT_BOOLEAN, 16, TFS(&tfs_flags_response), F_RESPONSE,
+	"Is the message a response?", HFILL }},
+    { &hf_nbns_flags_opcode,
+      { "Opcode",		"nbns.flags.opcode",
+	FT_UINT16, BASE_DEC, VALS(opcode_vals), F_OPCODE,
+	"Operation code", HFILL }},
+    { &hf_nbns_flags_authoritative,
+      { "Authoritative",	"nbns.flags.authoritative",
+	FT_BOOLEAN, 16, TFS(&tfs_flags_authoritative), F_AUTHORITATIVE,
+	"Is the server is an authority for the domain?", HFILL }},
+    { &hf_nbns_flags_truncated,
+      { "Truncated",	"nbns.flags.truncated",
+	FT_BOOLEAN, 16, TFS(&tfs_flags_truncated), F_TRUNCATED,
+	"Is the message truncated?", HFILL }},
+    { &hf_nbns_flags_recdesired,
+      { "Recursion desired",	"nbns.flags.recdesired",
+	FT_BOOLEAN, 16, TFS(&tfs_flags_recdesired), F_RECDESIRED,
+	"Do query recursively?", HFILL }},
+    { &hf_nbns_flags_recavail,
+      { "Recursion available",	"nbns.flags.recavail",
+	FT_BOOLEAN, 16, TFS(&tfs_flags_recavail), F_RECAVAIL,
+	"Can the server do recursive queries?", HFILL }},
+    { &hf_nbns_flags_broadcast,
+      { "Broadcast",		"nbns.flags.broadcast",
+	FT_BOOLEAN, 16, TFS(&tfs_flags_broadcast), F_BROADCAST,
+	"Is this a broadcast packet?", HFILL }},
+    { &hf_nbns_flags_rcode,
+      { "Reply code",		"nbns.flags.rcode",
+	FT_UINT16, BASE_DEC, VALS(rcode_vals), F_RCODE,
+	"Reply code", HFILL }},
     { &hf_nbns_transaction_id,
       { "Transaction ID",      	"nbns.id",  
 	FT_UINT16, BASE_HEX, NULL, 0x0,

@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.86 2002/05/11 18:46:38 guy Exp $
+ * $Id: packet-dns.c,v 1.87 2002/05/15 07:24:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,9 +44,16 @@
 
 static int proto_dns = -1;
 static int hf_dns_length = -1;
-static int hf_dns_response = -1;
-static int hf_dns_query = -1;
 static int hf_dns_flags = -1;
+static int hf_dns_flags_response = -1;
+static int hf_dns_flags_opcode = -1;
+static int hf_dns_flags_authoritative = -1;
+static int hf_dns_flags_truncated = -1;
+static int hf_dns_flags_recdesired = -1;
+static int hf_dns_flags_recavail = -1;
+static int hf_dns_flags_authenticated = -1;
+static int hf_dns_flags_checkdisable = -1;
+static int hf_dns_flags_rcode = -1;
 static int hf_dns_transaction_id = -1;
 static int hf_dns_count_questions = -1;
 static int hf_dns_count_answers = -1;
@@ -138,6 +145,7 @@ static gboolean dns_desegment = TRUE;
 /* Bit fields in the flags */
 #define F_RESPONSE      (1<<15)         /* packet is response */
 #define F_OPCODE        (0xF<<11)       /* query opcode */
+#define OPCODE_SHIFT	11
 #define F_AUTHORITATIVE (1<<10)         /* response is authoritative */
 #define F_TRUNCATED     (1<<9)          /* response is truncated */
 #define F_RECDESIRED    (1<<8)          /* recursion desired */
@@ -146,25 +154,68 @@ static gboolean dns_desegment = TRUE;
 #define F_CHECKDISABLE  (1<<4)          /* checking disabled (RFC2535) */
 #define F_RCODE         (0xF<<0)        /* reply code */
 
+static const true_false_string tfs_flags_response = {
+	"Message is a response",
+	"Message is a query"
+};
+
+static const true_false_string tfs_flags_authoritative = {
+	"Server is an authority for domain",
+	"Server is not an authority for domain"
+};
+
+static const true_false_string tfs_flags_truncated = {
+	"Message is truncated",
+	"Message is not truncated"
+};
+
+static const true_false_string tfs_flags_recdesired = {
+	"Do query recursively",
+	"Don't do query recursively"
+};
+
+static const true_false_string tfs_flags_recavail = {
+	"Server can do recursive queries",
+	"Server can't do recursive queries"
+};
+
+static const true_false_string tfs_flags_authenticated = {
+	"Answer/authority portion was authenticated by the server",
+	"Answer/authority portion was not authenticated by the server"
+};
+
+static const true_false_string tfs_flags_checkdisable = {
+	"Non-authenticated data is acceptable",
+	"Non-authenticated data is unacceptable"
+};
+
 /* Opcodes */
-#define OPCODE_QUERY    (0<<11)         /* standard query */
-#define OPCODE_IQUERY   (1<<11)         /* inverse query */
-#define OPCODE_STATUS   (2<<11)         /* server status request */
-#define OPCODE_NOTIFY   (4<<11)         /* zone change notification */
-#define OPCODE_UPDATE   (5<<11)         /* dynamic update */
+#define OPCODE_QUERY    0         /* standard query */
+#define OPCODE_IQUERY   1         /* inverse query */
+#define OPCODE_STATUS   2         /* server status request */
+#define OPCODE_NOTIFY   4         /* zone change notification */
+#define OPCODE_UPDATE   5         /* dynamic update */
+
+static const value_string opcode_vals[] = {
+	  { OPCODE_QUERY,  "Standard query"           },
+	  { OPCODE_IQUERY, "Inverse query"            },
+	  { OPCODE_STATUS, "Server status request"    },
+	  { OPCODE_NOTIFY, "Zone change notification" },
+	  { OPCODE_UPDATE, "Dynamic update"           },
+	  { 0,              NULL                      } };
 
 /* Reply codes */
-#define RCODE_NOERROR   (0<<0)
-#define RCODE_FORMERR   (1<<0)
-#define RCODE_SERVFAIL  (2<<0)
-#define RCODE_NXDOMAIN  (3<<0)
-#define RCODE_NOTIMPL   (4<<0)
-#define RCODE_REFUSED   (5<<0)
-#define RCODE_YXDOMAIN  (6<<0)
-#define RCODE_YXRRSET   (7<<0)
-#define RCODE_NXRRSET   (8<<0)
-#define RCODE_NOTAUTH   (9<<0)
-#define RCODE_NOTZONE   (10<<0)
+#define RCODE_NOERROR   0
+#define RCODE_FORMERR   1
+#define RCODE_SERVFAIL  2
+#define RCODE_NXDOMAIN  3
+#define RCODE_NOTIMPL   4
+#define RCODE_REFUSED   5
+#define RCODE_YXDOMAIN  6
+#define RCODE_YXRRSET   7
+#define RCODE_NXRRSET   8
+#define RCODE_NOTAUTH   9
+#define RCODE_NOTZONE   10
 
 static const value_string rcode_vals[] = {
 	  { RCODE_NOERROR,   "No error"             },
@@ -1772,17 +1823,10 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   column_info *cinfo;
   proto_tree *dns_tree = NULL, *field_tree;
   proto_item *ti, *tf;
-  guint16    id, flags, quest, ans, auth, add;
+  guint16    id, flags, opcode, rcode, quest, ans, auth, add;
   char buf[128+1];
   int cur_off;
   int isupdate;
-  static const value_string opcode_vals[] = {
-		  { OPCODE_QUERY,  "Standard query"           },
-		  { OPCODE_IQUERY, "Inverse query"            },
-		  { OPCODE_STATUS, "Server status request"    },
-		  { OPCODE_NOTIFY, "Zone change notification" },
-		  { OPCODE_UPDATE, "Dynamic update"           },
-		  { 0,              NULL                      } };
 
   dns_data_offset = offset;
 
@@ -1794,15 +1838,17 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   /* To do: check for errs, etc. */
   id    = tvb_get_ntohs(tvb, offset + DNS_ID);
   flags = tvb_get_ntohs(tvb, offset + DNS_FLAGS);
+  opcode = (flags & F_OPCODE) >> OPCODE_SHIFT;
+  rcode = (flags & F_RCODE);
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    strcpy(buf, val_to_str(flags & F_OPCODE, opcode_vals, "Unknown operation (%x)"));
+    strcpy(buf, val_to_str(opcode, opcode_vals, "Unknown operation (%u)"));
     if (flags & F_RESPONSE) {
       strcat(buf, " response");
       if ((flags & F_RCODE) != RCODE_NOERROR) {
         strcat(buf, ", ");
         strcat(buf, val_to_str(flags & F_RCODE, rcode_vals,
-            "Unknown error (%x)"));
+            "Unknown error (%u)"));
       }
     }
     col_add_str(pinfo->cinfo, COL_INFO, buf);
@@ -1814,7 +1860,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        is more expensive than a check that a pointer isn't NULL). */
     cinfo = NULL;
   }
-  if ((flags & F_OPCODE) == OPCODE_UPDATE)
+  if (opcode == OPCODE_UPDATE)
     isupdate = 1;
   else
     isupdate = 0;
@@ -1830,15 +1876,10 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       proto_tree_add_item(dns_tree, hf_dns_length, tvb, offset - 2, 2, FALSE);
     }
 
-    if (flags & F_RESPONSE)
-      proto_tree_add_boolean_hidden(dns_tree, hf_dns_response, tvb, offset, 4, 1);
-    else
-      proto_tree_add_boolean_hidden(dns_tree, hf_dns_query, tvb, offset, 4, 1);
-
     proto_tree_add_uint(dns_tree, hf_dns_transaction_id, tvb, 
 			offset + DNS_ID, 2, id);
 
-    strcpy(buf, val_to_str(flags & F_OPCODE, opcode_vals, "Unknown operation"));
+    strcpy(buf, val_to_str(opcode, opcode_vals, "Unknown operation"));
     if (flags & F_RESPONSE) {
       strcat(buf, " response");
       strcat(buf, ", ");
@@ -1851,52 +1892,28 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    "Flags: 0x%04x (%s)",
 				    flags, buf);
     field_tree = proto_item_add_subtree(tf, ett_dns_flags);
-    proto_tree_add_text(field_tree, tvb, offset + DNS_FLAGS, 2, "%s",
-       decode_boolean_bitfield(flags, F_RESPONSE,
-            2*8, "Response", "Query"));
-    proto_tree_add_text(field_tree, tvb, offset + DNS_FLAGS, 2, "%s",
-       decode_enumerated_bitfield(flags, F_OPCODE,
-            2*8, opcode_vals, "%s"));
+    proto_tree_add_item(field_tree, hf_dns_flags_response,
+			tvb, offset + DNS_FLAGS, 2, FALSE);
+    proto_tree_add_item(field_tree, hf_dns_flags_opcode,
+			tvb, offset + DNS_FLAGS, 2, FALSE);
     if (flags & F_RESPONSE) {
-      proto_tree_add_text(field_tree, tvb, offset + DNS_FLAGS, 2, "%s",
-         decode_boolean_bitfield(flags, F_AUTHORITATIVE,
-              2*8,
-              "Server is an authority for domain",
-              "Server is not an authority for domain"));
+      proto_tree_add_item(field_tree, hf_dns_flags_authoritative,
+			  tvb, offset + DNS_FLAGS, 2, FALSE);
     }
-    proto_tree_add_text(field_tree, tvb, offset + DNS_FLAGS, 2, "%s",
-       decode_boolean_bitfield(flags, F_TRUNCATED,
-            2*8,
-            "Message is truncated",
-            "Message is not truncated"));
-    proto_tree_add_text(field_tree, tvb, offset + DNS_FLAGS, 2, "%s",
-       decode_boolean_bitfield(flags, F_RECDESIRED,
-            2*8,
-            "Do query recursively",
-            "Don't do query recursively"));
+    proto_tree_add_item(field_tree, hf_dns_flags_truncated,
+			tvb, offset + DNS_FLAGS, 2, FALSE);
+    proto_tree_add_item(field_tree, hf_dns_flags_recdesired,
+			tvb, offset + DNS_FLAGS, 2, FALSE);
     if (flags & F_RESPONSE) {
-      proto_tree_add_text(field_tree, tvb, offset + DNS_FLAGS, 2, "%s",
-         decode_boolean_bitfield(flags, F_RECAVAIL,
-              2*8,
-              "Server can do recursive queries",
-              "Server can't do recursive queries"));
-      proto_tree_add_text(field_tree, tvb, offset + DNS_FLAGS, 2, "%s",
-	 decode_boolean_bitfield(flags, F_AUTHENTIC,
-            2*8,
-            "Answer/authority portion was authenticated by the server",
-            "Answer/authority portion was not authenticated by the server"));
-    }
-    if ((flags & F_RESPONSE) == 0) {
-      proto_tree_add_text(field_tree, tvb, offset + DNS_FLAGS, 2, "%s",
-	 decode_boolean_bitfield(flags, F_CHECKDISABLE,
-            2*8,
-            "Non-authenticated data is acceptable",
-            "Non-authenticated data is unacceptable"));
-    }
-    if (flags & F_RESPONSE) {
-      proto_tree_add_text(field_tree, tvb, offset + DNS_FLAGS, 2, "%s",
-         decode_enumerated_bitfield(flags, F_RCODE,
-              2*8, rcode_vals, "%s"));
+      proto_tree_add_item(field_tree, hf_dns_flags_recavail,
+			  tvb, offset + DNS_FLAGS, 2, FALSE);
+      proto_tree_add_item(field_tree, hf_dns_flags_authenticated,
+			  tvb, offset + DNS_FLAGS, 2, FALSE);
+      proto_tree_add_item(field_tree, hf_dns_flags_rcode,
+			  tvb, offset + DNS_FLAGS, 2, FALSE);
+    } else {
+      proto_tree_add_item(field_tree, hf_dns_flags_checkdisable,
+			  tvb, offset + DNS_FLAGS, 2, FALSE);
     }
   }
   quest = tvb_get_ntohs(tvb, offset + DNS_QUEST);
@@ -1994,21 +2011,49 @@ proto_register_dns(void)
 {
   static hf_register_info hf[] = {
     { &hf_dns_length,
-      { "Length",		"dns.length",  
+      { "Length",		"dns.length",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"Length of DNS-over-TCP request or response", HFILL }},
-    { &hf_dns_response,
-      { "Response",		"dns.response",  
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"TRUE if DNS response", HFILL }},
-    { &hf_dns_query,
-      { "Query",		"dns.query",  
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	"TRUE if DNS query", HFILL }},
     { &hf_dns_flags,
-      { "Flags",		"dns.flags",  
+      { "Flags",		"dns.flags",
 	FT_UINT16, BASE_HEX, NULL, 0x0,
 	"", HFILL }},
+    { &hf_dns_flags_response,
+      { "Response",		"dns.flags.response",
+	FT_BOOLEAN, 16, TFS(&tfs_flags_response), F_RESPONSE,
+	"Is the message a response?", HFILL }},
+    { &hf_dns_flags_opcode,
+      { "Opcode",		"dns.flags.opcode",
+	FT_UINT16, BASE_DEC, VALS(opcode_vals), F_OPCODE,
+	"Operation code", HFILL }},
+    { &hf_dns_flags_authoritative,
+      { "Authoritative",	"dns.flags.authoritative",
+	FT_BOOLEAN, 16, TFS(&tfs_flags_authoritative), F_AUTHORITATIVE,
+	"Is the server is an authority for the domain?", HFILL }},
+    { &hf_dns_flags_truncated,
+      { "Truncated",	"dns.flags.truncated",
+	FT_BOOLEAN, 16, TFS(&tfs_flags_truncated), F_TRUNCATED,
+	"Is the message truncated?", HFILL }},
+    { &hf_dns_flags_recdesired,
+      { "Recursion desired",	"dns.flags.recdesired",
+	FT_BOOLEAN, 16, TFS(&tfs_flags_recdesired), F_RECDESIRED,
+	"Do query recursively?", HFILL }},
+    { &hf_dns_flags_recavail,
+      { "Recursion available",	"dns.flags.recavail",
+	FT_BOOLEAN, 16, TFS(&tfs_flags_recavail), F_RECAVAIL,
+	"Can the server do recursive queries?", HFILL }},
+    { &hf_dns_flags_authenticated,
+      { "Answer authenticated",	"dns.flags.authenticated",
+	FT_BOOLEAN, 16, TFS(&tfs_flags_authenticated), F_AUTHENTIC,
+	"Was the reply data authenticated by the server?", HFILL }},
+    { &hf_dns_flags_checkdisable,
+      { "Non-authenticated data OK",	"dns.flags.checkdisable",
+	FT_BOOLEAN, 16, TFS(&tfs_flags_checkdisable), F_CHECKDISABLE,
+	"Is non-authenticated data acceptable?", HFILL }},
+    { &hf_dns_flags_rcode,
+      { "Reply code",		"dns.flags.rcode",
+	FT_UINT16, BASE_DEC, VALS(rcode_vals), F_RCODE,
+	"Reply code", HFILL }},
     { &hf_dns_transaction_id,
       { "Transaction ID",      	"dns.id",  
 	FT_UINT16, BASE_HEX, NULL, 0x0,
