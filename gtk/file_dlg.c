@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.23 2000/05/08 07:13:40 guy Exp $
+ * $Id: file_dlg.c,v 1.24 2000/06/02 03:35:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -72,6 +72,8 @@ static void select_file_type_cb(GtkWidget *w, gpointer data);
 static void file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 static void file_save_as_destroy_cb(GtkWidget *win, gpointer user_data);
 
+#define E_FILE_RESOLVE_KEY	  "file_dlg_resolve_key"
+
 /*
  * Keep a static pointer to the current "Open Capture File" window, if
  * any, so that if somebody tries to do "File:Open" while there's already
@@ -83,7 +85,8 @@ static GtkWidget *file_open_w;
 /* Open a file */
 void
 file_open_cmd_cb(GtkWidget *w, gpointer data) {
-  GtkWidget *filter_hbox, *filter_bt, *filter_te;
+  GtkWidget	*filter_hbox, *filter_bt, *filter_te,
+  		*resolv_cb;
 
   if (file_open_w != NULL) {
     /* There's already an "Open Capture File" dialog box; reactivate it. */
@@ -109,6 +112,16 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
   file_open_w = gtk_file_selection_new ("Ethereal: Open Capture File");
   gtk_signal_connect(GTK_OBJECT(file_open_w), "destroy",
 	GTK_SIGNAL_FUNC(file_open_destroy_cb), NULL);
+
+  resolv_cb = dlg_check_button_new_with_label_with_mnemonic(
+		  "Enable name resolution", NULL);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(resolv_cb), g_resolving_actif);
+  gtk_box_pack_end(GTK_BOX(GTK_FILE_SELECTION(file_open_w)->main_vbox),
+		  resolv_cb, FALSE, FALSE, 5);
+  gtk_widget_show(resolv_cb);
+  gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
+		  E_FILE_RESOLVE_KEY,  resolv_cb);
+
   
   /* Connect the ok_button to file_open_ok_cb function and pass along a
      pointer to the file selection box widget */
@@ -154,7 +167,7 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
 static void
 file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   gchar     *cf_name, *rfilter, *s;
-  GtkWidget *filter_te;
+  GtkWidget *filter_te, *resolv_cb;
   dfilter   *rfcode = NULL;
   int        err;
 
@@ -200,6 +213,10 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
      previous read filter attached to "cf"). */
   cf.rfcode = rfcode;
 
+  /* Set the global resolving variable */
+  resolv_cb = gtk_object_get_data(GTK_OBJECT(w), E_FILE_RESOLVE_KEY);
+  g_resolving_actif = GTK_TOGGLE_BUTTON (resolv_cb)->active;
+
   /* We've crossed the Rubicon; get rid of the file selection box. */
   gtk_widget_hide(GTK_WIDGET (fs));
   gtk_widget_destroy(GTK_WIDGET (fs));
@@ -227,6 +244,7 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
     /* There was no directory in there. */
     last_open_dir = NULL;
   }
+
   g_free(cf_name);
 }
 
