@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.164 2002/03/27 04:27:03 guy Exp $
+ * $Id: packet-ip.c,v 1.165 2002/03/31 21:43:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -368,7 +368,8 @@ capture_ip(const u_char *pd, int offset, int len, packet_counts *ld) {
 
 static void
 dissect_ipopt_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-			guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+			guint optlen, packet_info *pinfo _U_,
+			proto_tree *opt_tree)
 {
   proto_tree *field_tree = NULL;
   proto_item *tf;
@@ -420,7 +421,8 @@ dissect_ipopt_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
 static void
 dissect_ipopt_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-			guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+			guint optlen, packet_info *pinfo _U_,
+			proto_tree *opt_tree)
 {
   proto_tree *field_tree = NULL;
   proto_item *tf;
@@ -465,7 +467,8 @@ dissect_ipopt_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
 static void
 dissect_ipopt_sid(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-			guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+			guint optlen, packet_info *pinfo _U_,
+			proto_tree *opt_tree)
 {
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
     "%s: %u", optp->name, tvb_get_ntohs(tvb, offset + 2));
@@ -474,7 +477,7 @@ dissect_ipopt_sid(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
 static void
 dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+    int offset, guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
 {
   proto_tree *field_tree = NULL;
   proto_item *tf;
@@ -545,7 +548,7 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static void
 dissect_ipopt_ra(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-		guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+		guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
 {
   /* Router-Alert, as defined by RFC2113 */
   int opt = tvb_get_ntohs(tvb, offset + 2);
@@ -1142,8 +1145,7 @@ static value_string mip_extensions[] = {
  * Dissect the mobile ip advertisement extensions.
  */
 static void
-dissect_mip_extensions(tvbuff_t *tvb, size_t offset, packet_info *pinfo,
-					   proto_tree *tree)
+dissect_mip_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
 {
   guint8       type;
   guint8       length;
@@ -1157,7 +1159,7 @@ dissect_mip_extensions(tvbuff_t *tvb, size_t offset, packet_info *pinfo,
   /* Not much to do if we're not parsing everything */
   if (!tree) return;
   
-  while ((tvb_length(tvb) - offset) > 0) {
+  while (tvb_reported_length_remaining(tvb, offset) > 0) {
 
 	type = tvb_get_guint8(tvb, offset + 0);
 	if (type)
@@ -1588,7 +1590,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  }
 	  if (icmp_code == 16) {
 		/* Mobile-Ip */
-		dissect_mip_extensions(tvb,8 + i*8, pinfo, icmp_tree);
+		dissect_mip_extensions(tvb, 8 + i*8, icmp_tree);
 	  }
 	} else
 	  call_dissector(data_handle,tvb_new_subset(tvb, 8,-1,tvb_reported_length_remaining(tvb,8)), pinfo, icmp_tree);
