@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.10 2000/01/22 05:49:07 guy Exp $
+ * $Id: packet-mount.c,v 1.11 2000/03/09 12:13:20 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,13 @@
 static int proto_mount = -1;
 static int hf_mount_path = -1;
 static int hf_mount_status = -1;
+static int hf_mount_mountlist_hostname = -1;
+static int hf_mount_mountlist_directory = -1;
+static int hf_mount_mountlist = -1;
+static int hf_mount_groups_group = -1;
+static int hf_mount_groups = -1;
+static int hf_mount_exportlist_directory = -1;
+static int hf_mount_exportlist = -1;
 static int hf_mount_pathconf_link_max = -1;
 static int hf_mount_pathconf_max_canon = -1;
 static int hf_mount_pathconf_max_input = -1;
@@ -64,6 +71,9 @@ static int hf_mount_flavors = -1;
 static int hf_mount_flavor = -1;
 
 static gint ett_mount = -1;
+static gint ett_mount_mountlist = -1;
+static gint ett_mount_groups = -1;
+static gint ett_mount_exportlist = -1;
 static gint ett_mount_pathconf_mask = -1;
 
 
@@ -112,6 +122,126 @@ dissect_mount_mnt_reply(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
 	offset = dissect_fhstatus(pd, offset, fd, tree);
+
+	return offset;
+}
+
+
+/* RFC 1094, Page 26 */
+/* RFC 1813, Page 110 */
+static int
+dissect_mountlist(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	proto_item* mountlist_item = NULL;
+	proto_tree* mountlist_tree = NULL;
+	int old_offset = offset;
+	char* hostname;
+	char* directory;
+
+	if (tree) {
+		mountlist_item = proto_tree_add_item(tree, hf_mount_mountlist,
+					offset+0, END_OF_FRAME, NULL);
+		if (mountlist_item)
+			mountlist_tree = proto_item_add_subtree(mountlist_item, ett_mount_mountlist);
+	}
+
+	offset = dissect_rpc_string(pd, offset, fd, mountlist_tree, hf_mount_mountlist_hostname,&hostname);
+	offset = dissect_rpc_string(pd, offset, fd, mountlist_tree, hf_mount_mountlist_directory,&directory);
+
+	if (mountlist_item) {
+		/* now we have a nicer string */
+		proto_item_set_text(mountlist_item, "Mount List Entry: %s:%s", hostname, directory);
+		/* now we know, that mountlist is shorter */
+		proto_item_set_len(mountlist_item, offset - old_offset);
+	}
+	g_free(hostname);
+	g_free(directory);
+
+	return offset;
+}
+
+
+/* RFC 1094, Page 26 */
+/* RFC 1813, Page 110 */
+static int
+dissect_mount_dump_reply(const u_char *pd, int offset, frame_data *fd,
+	proto_tree *tree)
+{
+	offset = dissect_rpc_list(pd,offset,fd,tree,dissect_mountlist);
+
+	return offset;
+}
+
+
+/* RFC 1094, Page 26 */
+/* RFC 1813, Page 110 */
+static int
+dissect_group(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	offset = dissect_rpc_string(pd, offset, fd, tree, hf_mount_groups_group,NULL);
+
+	return offset;
+}
+
+
+/* RFC 1094, Page 26 */
+/* RFC 1813, Page 113 */
+static int
+dissect_exportlist(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+	proto_item* exportlist_item = NULL;
+	proto_tree* exportlist_tree = NULL;
+	int old_offset = offset;
+	int groups_offset;
+	proto_item* groups_item = NULL;
+	proto_item* groups_tree = NULL;
+	char* directory;
+
+	if (tree) {
+		exportlist_item = proto_tree_add_item(tree, hf_mount_exportlist,
+					offset+0, END_OF_FRAME, NULL);
+		if (exportlist_item)
+			exportlist_tree = proto_item_add_subtree(exportlist_item, ett_mount_exportlist);
+	}
+
+	offset = dissect_rpc_string(pd, offset, fd, exportlist_tree, hf_mount_exportlist_directory,&directory);
+	groups_offset = offset;
+	if (tree) {
+		groups_item = proto_tree_add_item(exportlist_tree, hf_mount_groups,
+				offset+0, END_OF_FRAME, NULL);
+		if (groups_item)
+			groups_tree = proto_item_add_subtree(groups_item, ett_mount_groups);
+	}
+	offset = dissect_rpc_list(pd,offset,fd,groups_tree,dissect_group);
+	if (groups_item) {
+		/* mark empty lists */
+		if (offset - groups_offset == 4) {
+			proto_item_set_text(groups_item, "Groups: empty");
+		}
+
+		/* now we know, that groups is shorter */
+		proto_item_set_len(groups_item, offset - groups_offset);
+	}
+
+	if (exportlist_item) {
+		/* now we have a nicer string */
+		proto_item_set_text(exportlist_item, "Export List Entry: %s", directory);
+		/* now we know, that exportlist is shorter */
+		proto_item_set_len(exportlist_item, offset - old_offset);
+	}
+	g_free(directory);
+
+	return offset;
+}
+
+
+/* RFC 1094, Page 26 */
+/* RFC 1813, Page 113 */
+static int
+dissect_mount_export_reply(const u_char *pd, int offset, frame_data *fd,
+	proto_tree *tree)
+{
+	offset = dissect_rpc_list(pd,offset,fd,tree,dissect_exportlist);
 
 	return offset;
 }
@@ -314,15 +444,15 @@ static const vsff mount1_proc[] = {
     { MOUNTPROC_MNT,        "MNT",      
 		dissect_mount_dirpath_call, dissect_mount_mnt_reply },
     { MOUNTPROC_DUMP,       "DUMP",
-		NULL, NULL },
+		NULL, dissect_mount_dump_reply },
     { MOUNTPROC_UMNT,      "UMNT",        
 		dissect_mount_dirpath_call, NULL },
     { MOUNTPROC_UMNTALL,   "UMNTALL",
 		NULL, NULL },
     { MOUNTPROC_EXPORT,    "EXPORT",
-		NULL, NULL },
+		NULL, dissect_mount_export_reply },
     { MOUNTPROC_EXPORTALL, "EXPORTALL",
-		NULL, NULL },
+		NULL, dissect_mount_export_reply },
     { 0, NULL, NULL, NULL }
 };
 /* end of mount version 1 */
@@ -336,17 +466,15 @@ static const vsff mount2_proc[] = {
     { MOUNTPROC_MNT,        "MNT",      
 		dissect_mount_dirpath_call, dissect_mount_mnt_reply },
     { MOUNTPROC_DUMP,       "DUMP",
-		NULL, NULL },
+		NULL, dissect_mount_dump_reply },
     { MOUNTPROC_UMNT,      "UMNT",        
 		dissect_mount_dirpath_call, NULL },
     { MOUNTPROC_UMNTALL,   "UMNTALL",
 		NULL, NULL },
     { MOUNTPROC_EXPORT,    "EXPORT",
-		NULL, NULL },
+		NULL, dissect_mount_export_reply },
     { MOUNTPROC_EXPORTALL, "EXPORTALL",
-		NULL, NULL },
-    { MOUNTPROC_EXPORTALL, "EXPORTALL",
-		NULL, NULL },
+		NULL, dissect_mount_export_reply },
     { MOUNTPROC_PATHCONF,  "PATHCONF",
 		dissect_mount_dirpath_call, dissect_mount_pathconf_reply },
     { 0, NULL, NULL, NULL }
@@ -432,13 +560,13 @@ static const vsff mount3_proc[] = {
 	{ MOUNTPROC_MNT, "MNT",
 		dissect_mount_dirpath_call, dissect_mount3_mnt_reply },
 	{ MOUNTPROC_DUMP, "DUMP",
-		NULL, NULL },
+		NULL, dissect_mount_dump_reply },
 	{ MOUNTPROC_UMNT, "UMNT",
 		dissect_mount_dirpath_call, NULL },
 	{ MOUNTPROC_UMNTALL, "UMNTALL",
 		NULL, NULL },
 	{ MOUNTPROC_EXPORT, "EXPORT",
-		NULL, NULL },
+		NULL, dissect_mount_export_reply },
 	{ 0, NULL, NULL, NULL }
 };
 /* end of Mount protocol version 3 */
@@ -454,6 +582,27 @@ proto_register_mount(void)
 		{ &hf_mount_status, {
 			"Status", "mount.status", FT_UINT32, BASE_DEC,
 			VALS(mount3_mountstat3), 0, "Status" }},
+		{ &hf_mount_mountlist_hostname, {
+			"Hostname", "mount.dump.hostname", FT_STRING, BASE_DEC,
+			NULL, 0, "Hostname" }},
+		{ &hf_mount_mountlist_directory, {
+			"Directory", "mount.dump.directory", FT_STRING, BASE_DEC,
+			NULL, 0, "Directory" }},
+		{ &hf_mount_mountlist, {
+			"Mount List Entry", "mount.dump.entry", FT_NONE, 0,
+			NULL, 0, "Mount List Entry" }},
+		{ &hf_mount_groups_group, {
+			"Group", "mount.export.group", FT_STRING, BASE_DEC,
+			NULL, 0, "Group" }},
+		{ &hf_mount_groups, {
+			"Groups", "mount.export.groups", FT_NONE, 0,
+			NULL, 0, "Groups" }},
+		{ &hf_mount_exportlist_directory, {
+			"Directory", "mount.export.directory", FT_STRING, BASE_DEC,
+			NULL, 0, "Directory" }},
+		{ &hf_mount_exportlist, {
+			"Export List Entry", "mount.export.entry", FT_NONE, 0,
+			NULL, 0, "Export List Entry" }},
 		{ &hf_mount_pathconf_link_max, {
 			"Maximum number of links to a file", "mount.pathconf.link_max",
 			FT_UINT32, BASE_DEC,
@@ -535,6 +684,9 @@ proto_register_mount(void)
 	};
 	static gint *ett[] = {
 		&ett_mount,
+		&ett_mount_mountlist,
+		&ett_mount_groups,
+		&ett_mount_exportlist,
 		&ett_mount_pathconf_mask,
 	};
 
