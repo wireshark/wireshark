@@ -1,18 +1,33 @@
 #
-# $Id: Makefile.nmake,v 1.9 2003/11/06 09:05:13 guy Exp $
+# $Id: Makefile.nmake,v 1.10 2004/05/09 10:03:41 guy Exp $
 #
 
 include ..\..\config.nmake
+
+# If you want this plugin to use libethereal.lib instead 
+# of the standard plugin api, you have to comment out the next line
+#USE_LIBETHEREAL_LIB=YES
 
 ############### no need to modify below this line #########
 
 CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
+!IFDEF ENABLE_LIBETHEREAL
+!IFDEF USE_LIBETHEREAL_LIB
+LINK_PLUGIN_WITH=..\..\epan\libethereal.lib
+CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB $(CFLAGS)
+!ENDIF
+!ENDIF
+
+!IFNDEF LINK_PLUGIN_WITH
+LINK_PLUGIN_WITH=..\plugin_api.obj
+!ENDIF
+
 OBJECTS=packet-mgcp.obj 
 
-mgcp.dll mgcp.exp mgcp.lib : $(OBJECTS) ..\plugin_api.obj
-	link -dll /out:mgcp.dll $(OBJECTS) ..\plugin_api.obj \
+mgcp.dll mgcp.exp mgcp.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
+	link -dll /out:mgcp.dll $(OBJECTS) $(LINK_PLUGIN_WITH) \
 	$(GLIB_LIBS)
 
 clean:

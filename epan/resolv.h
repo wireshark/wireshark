@@ -1,7 +1,7 @@
 /* resolv.h
  * Definitions for network object lookup
  *
- * $Id: resolv.h,v 1.16 2004/02/13 01:09:51 guy Exp $
+ * $Id: resolv.h,v 1.17 2004/05/09 10:03:40 guy Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -34,7 +34,7 @@
 /*
  * Flag controlling what names to resolve.
  */
-extern guint32 g_resolv_flags;
+ETH_VAR_IMPORT guint32 g_resolv_flags;
 
 /* 32 types are sufficient (as are 640k of RAM) */
 /* FIXME: Maybe MANUF/m, IP/i, IP6/6, IPX/x, UDP+TCP/t etc would be

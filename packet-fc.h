@@ -2,7 +2,7 @@
  * Basic Fibre Channel Header definitions
  * Copyright 2002 Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-fc.h,v 1.5 2003/10/30 02:06:11 guy Exp $
+ * $Id: packet-fc.h,v 1.6 2004/05/09 10:03:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,7 +52,13 @@
 #define FC_TYPE_AL             0x23
 #define FC_TYPE_SNMP           0x24
 
-extern const value_string fc_fc4_val[];
+
+/*
+ * the following allows TAP code access to the messages
+ * without having to duplicate it. With MSVC and a 
+ * libethereal.dll, we need a special declaration.
+ */
+ETH_VAR_IMPORT const value_string fc_fc4_val[];
 
 /* DF_CTL bits */
 #define FC_DFCTL_DH         0x03   /* Device_Header type bits: */

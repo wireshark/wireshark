@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.44 2003/11/16 23:17:21 guy Exp $
+ * $Id: packet-rpc.h,v 1.45 2004/05/09 10:03:37 guy Exp $
  *
  * (c) 1999 Uwe Girlich
  *
@@ -170,7 +170,10 @@ typedef struct _rpc_prog_info_value {
 	GArray *procedure_hfs;
 } rpc_prog_info_value;
 
-extern GHashTable *rpc_progs;
+/* rpc_progs is also used in tap. With MSVC and a 
+ * libethereal.dll, we need a special declaration.
+ */
+ETH_VAR_IMPORT GHashTable *rpc_progs;
 
 typedef struct _rpc_proc_info_key {
 	guint32	prog;
@@ -184,7 +187,10 @@ typedef struct _rpc_proc_info_value {
 	dissect_function_t *dissect_reply;
 } rpc_proc_info_value;
 
-extern GHashTable *rpc_procs;
+/* rpc_procs is also used in tap. With MSVC and a 
+ * libethereal.dll, we need a special declaration.
+ */
+ETH_VAR_IMPORT GHashTable *rpc_procs;
 
 #endif /* packet-rpc.h */
 

@@ -2,7 +2,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.h,v 1.41 2004/05/07 11:24:02 ulfl Exp $
+ * $Id: packet-dcerpc.h,v 1.42 2004/05/09 10:03:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -271,8 +271,10 @@ typedef struct _dcerpc_info {
 } dcerpc_info;
 
 
-/* the registered subdissectors */
-extern GHashTable *dcerpc_uuids;
+/* the registered subdissectors. With MSVC and a 
+ * libethereal.dll, we need a special declaration.
+ */
+ETH_VAR_IMPORT GHashTable *dcerpc_uuids;
 
 typedef struct _dcerpc_uuid_key {
     e_uuid_t uuid;

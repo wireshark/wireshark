@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.57 2004/04/21 00:48:22 obiot Exp $
+ * $Id: follow_dlg.c,v 1.58 2004/05/09 10:03:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -107,8 +107,8 @@ static void follow_stream_om_client(GtkWidget * w, gpointer data);
 static void follow_stream_om_server(GtkWidget * w, gpointer data);
 
 
-extern FILE *data_out_file;
-
+/* With MSVC and a libethereal.dll, we need a special declaration. */
+ETH_VAR_IMPORT FILE *data_out_file;
 
 #define E_FOLLOW_INFO_KEY "follow_info_key"
 

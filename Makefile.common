@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.41 2004/05/01 21:18:09 guy Exp $
+# $Id: Makefile.common,v 1.42 2004/05/09 10:03:36 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -223,7 +223,6 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 	etypes.h	\
 	follow.h	\
 	format-oid.h	\
-	g711.h	\
 	greproto.h	\
 	h225-persistentdata.h	\
 	in_cksum.h	\
@@ -236,6 +235,8 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 	ppptypes.h	\
 	prefs-int.h	\
 	prefs.h	\
+	print.h	\
+	ps.h	\
 	ptvcursor.h	\
 	reassemble.h	\
 	req_resp_hdrs.h	\
@@ -262,8 +263,6 @@ ETHEREAL_COMMON_SRC =	\
 	conditions.c	\
 	disabled_protos.c	\
 	pcap-util.c	\
-	print.c	\
-	ps.c	\
 	range.c	\
 	ringbuffer.c	\
 	timestats.c	\
@@ -281,8 +280,6 @@ ETHEREAL_COMMON_INCLUDES =	\
 	file.h	\
 	pcap-util.h	\
 	pcap-util-int.h	\
-	print.h	\
-	ps.h	\
 	range.h	\
 	register.h	\
 	ringbuffer.h	\
@@ -334,6 +331,7 @@ ethereal_SOURCES =	\
 	capture.c	\
 	file.c	\
 	filters.c	\
+	g711.c \
 	proto_hier_stats.c	\
 	summary.c
 
@@ -342,6 +340,7 @@ ethereal_INCLUDES =	\
 	alert_box.h	\
 	capture.h	\
 	filters.h	\
+	g711.h	\
 	globals.h	\
 	menu.h	\
 	progress_dlg.h	\

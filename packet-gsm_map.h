@@ -1,6 +1,6 @@
 /* packet-gsm_map.h
  *
- * $Id: packet-gsm_map.h,v 1.2 2004/04/21 05:53:56 guy Exp $
+ * $Id: packet-gsm_map.h,v 1.3 2004/05/09 10:03:37 guy Exp $
  *
  * Copyright 2004, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
@@ -36,6 +36,7 @@ typedef struct _gsm_map_tap_rec_t {
 
 /*
  * the following allows TAP code access to the operations
- * without having to duplicate it
+ * without having to duplicate it. With MSVC and a 
+ * libethereal.dll, we need a special declaration.
  */
-extern const value_string gsm_map_opr_code_strings[];
+ETH_VAR_IMPORT const value_string gsm_map_opr_code_strings[];

@@ -2,7 +2,7 @@
  * Definitions for implementation of preference handling routines;
  * used by "friends" of the preferences type.
  *
- * $Id: prefs-int.h,v 1.11 2003/12/13 17:24:47 ulfl Exp $
+ * $Id: prefs-int.h,v 1.12 2004/05/09 10:03:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,9 +39,10 @@ struct pref_module {
 };
 
 /*
- * Module used for protocol preferences.
+ * Module used for protocol preferences. With MSVC and a 
+ * libethereal.dll, we need a special declaration.
  */
-extern module_t *protocols_module;
+ETH_VAR_IMPORT module_t *protocols_module;
 
 /*
  * PREF_OBSOLETE is used for preferences that a module used to support

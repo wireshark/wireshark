@@ -1,7 +1,7 @@
 /* tap.h
  * packet tap interface   2002 Ronnie Sahlberg
  *
- * $Id: tap.h,v 1.8 2003/04/23 08:20:02 guy Exp $
+ * $Id: tap.h,v 1.9 2004/05/09 10:03:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,7 +27,10 @@
 
 #include "epan/epan.h"
 
-extern int num_tap_filters;
+/* With MSVC and a libethereal.dll, we need a 
+ * special declaration of num_tap_filters.
+ */
+ETH_VAR_IMPORT int num_tap_filters;
 
 typedef void (*tap_reset_cb)(void *tapdata);
 typedef int  (*tap_packet_cb)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, void *data);

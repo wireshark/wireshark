@@ -1,7 +1,7 @@
 # Makefile.nmake
 # Nmake file for Ethereal documentation
 #
-# $Id: Makefile.nmake,v 1.13 2004/04/25 09:02:02 ulfl Exp $
+# $Id: Makefile.nmake,v 1.14 2004/05/09 10:03:39 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -62,7 +62,7 @@ ethereal-filter.4: ethereal-filter.pod ../config.h
 	$(POD2MAN)                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
-	 ethereal-filter.pod > ethereal.4
+	ethereal-filter.pod > ethereal.4
 
 ethereal-filter.html: ethereal-filter.pod ../config.h
 	$(POD2HTML)                    \
@@ -72,7 +72,12 @@ ethereal-filter.html: ethereal-filter.pod ../config.h
 
 ethereal-filter.pod: ethereal-filter.pod.template  ../tethereal.exe
 	cd ..
+	cp --update --preserve wiretap/wiretap-$(WTAP_VERSION).dll wiretap-$(WTAP_VERSION).dll
+!IFDEF ENABLE_LIBETHEREAL
+	cp --update --preserve epan/libethereal.dll libethereal.dll
+!ENDIF
 	tethereal.exe -G | $(PERL) doc\dfilter2pod.pl doc\ethereal-filter.pod.template > doc\ethereal-filter.pod
+	rm -f libethereal.dll wiretap-$(WTAP_VERSION).dll
 	cd doc
 
 editcap.1: editcap.pod ../config.h

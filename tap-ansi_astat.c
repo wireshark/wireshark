@@ -3,7 +3,7 @@
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * $Id: tap-ansi_astat.c,v 1.3 2003/12/09 18:49:30 guy Exp $
+ * $Id: tap-ansi_astat.c,v 1.4 2004/05/09 10:03:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,6 +27,10 @@
 /*
  * This TAP provides statistics for the ANSI A Interface:
  */
+
+/* With MSVC and a libethereal.dll this file needs to import some variables 
+   in a special way. Therefore _NEED_VAR_IMPORT_ is defined. */   
+#define _NEED_VAR_IMPORT_
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"

@@ -2,7 +2,7 @@
  * Routines for H.225 packet dissection
  * 2003  Tomas Kukosa
  *
- * $Id: packet-h225.h,v 1.7 2004/03/04 07:07:00 guy Exp $
+ * $Id: packet-h225.h,v 1.8 2004/05/09 10:03:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,21 +49,22 @@ typedef struct _h225_packet_info {
 
 /*
  * the following allows TAP code access to the messages
- * without having to duplicate it
+ * without having to duplicate it. With MSVC and a 
+ * libethereal.dll, we need a special declaration.
  */
-extern const value_string RasMessage_vals[];
-extern const value_string h323_message_body_vals[];
-extern const value_string FacilityReason_vals[];
-extern const value_string GatekeeperRejectReason_vals[];
-extern const value_string UnregRequestReason_vals[];
-extern const value_string UnregRejectReason_vals[];
-extern const value_string BandRejectReason_vals[];
-extern const value_string DisengageReason_vals[];
-extern const value_string DisengageRejectReason_vals[];
-extern const value_string InfoRequestNakReason_vals[];
-extern const value_string ReleaseCompleteReason_vals[];
-extern const value_string AdmissionRejectReason_vals[];
-extern const value_string LocationRejectReason_vals[];
-extern const value_string RegistrationRejectReason_vals[];
+ETH_VAR_IMPORT const value_string RasMessage_vals[];
+ETH_VAR_IMPORT const value_string h323_message_body_vals[];
+ETH_VAR_IMPORT const value_string FacilityReason_vals[];
+ETH_VAR_IMPORT const value_string GatekeeperRejectReason_vals[];
+ETH_VAR_IMPORT const value_string UnregRequestReason_vals[];
+ETH_VAR_IMPORT const value_string UnregRejectReason_vals[];
+ETH_VAR_IMPORT const value_string BandRejectReason_vals[];
+ETH_VAR_IMPORT const value_string DisengageReason_vals[];
+ETH_VAR_IMPORT const value_string DisengageRejectReason_vals[];
+ETH_VAR_IMPORT const value_string InfoRequestNakReason_vals[];
+ETH_VAR_IMPORT const value_string ReleaseCompleteReason_vals[];
+ETH_VAR_IMPORT const value_string AdmissionRejectReason_vals[];
+ETH_VAR_IMPORT const value_string LocationRejectReason_vals[];
+ETH_VAR_IMPORT const value_string RegistrationRejectReason_vals[];
 
 #endif  /* __PACKET_H225_H__ */

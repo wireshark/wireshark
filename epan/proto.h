@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.62 2004/05/09 09:26:31 ulfl Exp $
+ * $Id: proto.h,v 1.63 2004/05/09 10:03:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -665,11 +665,15 @@ extern void proto_registrar_dump_fields(void);
 
 /* Points to the first element of an array of Booleans, indexed by
    a subtree item type; that array element is TRUE if subtrees of
-   an item of that type are to be expanded. */
-extern gboolean	     *tree_is_expanded;
+   an item of that type are to be expanded. With MSVC and a 
+   libethereal.dll, we need a special declaration.
+ */
+ETH_VAR_IMPORT gboolean	     *tree_is_expanded;
 
-/* Number of elements in that array. */
-extern int           num_tree_types;
+/* Number of elements in that array. With MSVC and a 
+ * libethereal.dll, we need a special declaration.
+ */
+ETH_VAR_IMPORT int           num_tree_types;
 
 /* glib doesn't have g_ptr_array_len of all things!*/
 #ifndef g_ptr_array_len

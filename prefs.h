@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.60 2004/05/05 07:31:05 guy Exp $
+ * $Id: prefs.h,v 1.61 2004/05/09 10:03:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -132,7 +132,7 @@ typedef struct _e_prefs {
   gboolean capture_auto_scroll;
 } e_prefs;
 
-extern e_prefs prefs;
+ETH_VAR_IMPORT e_prefs prefs;
 
 /*
  * Routines to let modules that have preference settings register

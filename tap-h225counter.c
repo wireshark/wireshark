@@ -2,7 +2,7 @@
  * h225 message counter for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: tap-h225counter.c,v 1.2 2003/12/15 04:23:54 guy Exp $
+ * $Id: tap-h225counter.c,v 1.3 2004/05/09 10:03:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,6 +22,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+/* With MSVC and a libethereal.dll this file needs to import some variables 
+   in a special way. Therefore _NEED_VAR_IMPORT_ is defined. */  
+#define _NEED_VAR_IMPORT_
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"

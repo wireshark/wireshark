@@ -1,7 +1,7 @@
 /* plugins.h
  * definitions for plugins structures
  *
- * $Id: plugins.h,v 1.9 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: plugins.h,v 1.10 2004/05/09 10:03:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,7 +39,7 @@ typedef struct _plugin {
     struct _plugin *next;         /* forward link */
 } plugin;
 
-extern plugin *plugin_list;
+ETH_VAR_IMPORT plugin *plugin_list;
 
 void init_plugins(const char *);
 void register_all_plugin_handoffs(void);

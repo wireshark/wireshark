@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter.h,v 1.8 2002/12/02 23:28:16 guy Exp $
+ * $Id: dfilter.h,v 1.9 2004/05/09 10:03:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,8 +65,12 @@ dfilter_free(dfilter_t *df);
 
 
 /* dfilter_error_msg is NULL if there was no error during dfilter_compile,
- * otherwise it points to a displayable error message. */
-extern gchar *dfilter_error_msg;
+ * otherwise it points to a displayable error message. With MSVC and a 
+ * libethereal.dll, we need a special declaration.
+ */
+
+ETH_VAR_IMPORT gchar *dfilter_error_msg;
+
 
 /* Apply compiled dfilter */
 gboolean

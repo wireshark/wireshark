@@ -1,6 +1,6 @@
 /* packet-gsm_a.h
  *
- * $Id: packet-gsm_a.h,v 1.1 2003/12/09 18:49:30 guy Exp $
+ * $Id: packet-gsm_a.h,v 1.2 2004/05/09 10:03:37 guy Exp $
  *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
@@ -61,15 +61,17 @@ typedef struct _gsm_a_tap_rec_t {
 
 /*
  * the following allows TAP code access to the messages
- * without having to duplicate it
+ * without having to duplicate it. With MSVC and a 
+ * libethereal.dll, we need a special declaration.
  */
-extern const value_string gsm_a_bssmap_msg_strings[];
-extern const value_string gsm_a_dtap_msg_mm_strings[];
-extern const value_string gsm_a_dtap_msg_rr_strings[];
-extern const value_string gsm_a_dtap_msg_cc_strings[];
-extern const value_string gsm_a_dtap_msg_gmm_strings[];
-extern const value_string gsm_a_dtap_msg_sms_strings[];
-extern const value_string gsm_a_dtap_msg_sm_strings[];
-extern const value_string gsm_a_dtap_msg_ss_strings[];
+ETH_VAR_IMPORT const value_string gsm_a_bssmap_msg_strings[];
+ETH_VAR_IMPORT const value_string gsm_a_dtap_msg_mm_strings[];
+ETH_VAR_IMPORT const value_string gsm_a_dtap_msg_rr_strings[];
+ETH_VAR_IMPORT const value_string gsm_a_dtap_msg_cc_strings[];
+ETH_VAR_IMPORT const value_string gsm_a_dtap_msg_gmm_strings[];
+ETH_VAR_IMPORT const value_string gsm_a_dtap_msg_sms_strings[];
+ETH_VAR_IMPORT const value_string gsm_a_dtap_msg_sm_strings[];
+ETH_VAR_IMPORT const value_string gsm_a_dtap_msg_ss_strings[];
+ETH_VAR_IMPORT const gchar *gsm_a_pd_str[];
 
-extern const gchar *gsm_a_pd_str[];
+

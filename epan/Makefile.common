@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.22 2004/05/08 08:49:02 guy Exp $
+# $Id: Makefile.common,v 1.23 2004/05/09 10:03:40 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -498,12 +498,13 @@ DISSECTOR_SUPPORT_SRC =	\
 	../crypt-md5.c	\
 	../crypt-rc4.c	\
 	../follow.c	\
-	../g711.c	\
 	../h225-persistentdata.c	\
 	../in_cksum.c	\
 	../ipproto.c	\
 	../packet-dcerpc-nt.c	\
 	../prefs.c	\
+	../print.c	\
+	../ps.c	\
 	../ptvcursor.c	\
 	../reassemble.c	\
 	../req_resp_hdrs.c	\

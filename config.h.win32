@@ -1,4 +1,4 @@
-/* $Id: config.h.win32,v 1.44 2004/05/06 20:48:35 obiot Exp $ */
+/* $Id: config.h.win32,v 1.45 2004/05/09 10:03:36 guy Exp $ */
 /* config.h.win32 Generated manually. :-) */
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
@@ -44,6 +44,16 @@
 @HAVE_LIBPCAP@
 @HAVE_PCAP_FINDALLDEVS@
 @WPCAP_CONSTIFIED@
+@HAVE_LIBETHEREALDLL@
+
+/* define macro for importing variables from an dll 
+ * it depends on HAVE_LIBETHEREAL and _NEED_VAR_IMPORT_
+ */
+#if defined (_NEED_VAR_IMPORT_) && defined (HAVE_LIBETHEREALDLL)
+#  define ETH_VAR_IMPORT __declspec(dllimport) extern
+#else
+#  define ETH_VAR_IMPORT extern
+#endif
 
 #define HAVE_NET_SNMP 1
 #define HAVE_SOME_SNMP 1
@@ -117,6 +127,17 @@
 
 /* Define to use the PCRE library */
 @HAVE_PCRE@
+
+@HAVE_LIBETHEREALDLL@
+
+/* define macro for importing variables from an dll 
+ * it depends on HAVE_LIBETHEREAL and _NEED_VAR_IMPORT_
+ */
+#if defined (_NEED_VAR_IMPORT_) && defined (HAVE_LIBETHEREALDLL)
+#  define ETH_VAR_IMPORT __declspec(dllimport) extern
+#else
+#  define ETH_VAR_IMPORT extern
+#endif
 
 #ifndef WIN32
 #define WIN32			1

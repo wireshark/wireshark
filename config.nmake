@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.85 2004/04/08 20:36:09 gerald Exp $
+# $Id: config.nmake,v 1.86 2004/05/09 10:03:36 guy Exp $
 
 VERSION=0.10.3
 #
@@ -133,7 +133,7 @@ PDB_FILE=vc*.pdb
 PATH=c:\cygwin\bin;c:\python23;$(PATH)
 
 # Set path to some required DLLs
-PATH=.\wiretap;$(GLIB_DIR)\bin;$(GETTEXT_DIR)\bin;$(ICONV_DIR)\bin;$(PATH)
+PATH=$(GLIB_DIR)\bin;$(GETTEXT_DIR)\bin;$(ICONV_DIR)\bin;$(PATH)
 
 SH=bash
 PERL=perl
@@ -157,6 +157,9 @@ MAKENSIS="C:/program files/nsis/makensis.exe"
 # comment this line out, so that MAKENSIS_MODERN_UI isn't defined.
 #
 MAKENSIS_MODERN_UI=USE
+
+# If you wan't to build a libethereal.dll, you should comment out the following line
+#ENABLE_LIBETHEREAL=USE
 
 #
 # You should not have to change anything below this comment.
@@ -248,3 +251,8 @@ PCRE_LIBS=
 PCRE_CONFIG=
 !ENDIF
 
+!IFDEF ENABLE_LIBETHEREAL
+LIBETHEREAL_CONFIG=^#define HAVE_LIBETHEREALDLL 1
+!ELSE
+LIBETHEREAL_CONFIG=
+!ENDIF

@@ -1,6 +1,6 @@
 /* packet-mtp3.h
  *
- * $Id: packet-mtp3.h,v 1.5 2004/04/21 05:53:57 guy Exp $
+ * $Id: packet-mtp3.h,v 1.6 2004/05/09 10:03:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,10 +67,11 @@ typedef struct _mtp3_tap_rec_t {
 extern void mtp3_addr_to_str_buf(const guint8 *data, gchar *buf);
 
 /*
- * the following allows TAP code access to the different SIs
- * without having to duplicate it
+ * the following allows TAP code access to the messages
+ * without having to duplicate it. With MSVC and a 
+ * libethereal.dll, we need a special declaration.
  */
-extern const value_string mtp3_service_indicator_code_short_vals[];
+ETH_VAR_IMPORT const value_string mtp3_service_indicator_code_short_vals[];
 
 /*
  * I only want to gather stats for non-spare SI codes

@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.52 2004/03/25 11:21:06 guy Exp $
+; $Id: ethereal.nsi,v 1.53 2004/05/09 10:03:41 guy Exp $
 
  
 !ifdef MAKENSIS_MODERN_UI
@@ -136,6 +136,9 @@ SetShellVarContext all
 
 SetOutPath $INSTDIR
 File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll"
+!ifdef ENABLE_LIBETHEREAL
+File "..\..\epan\libethereal.dll"
+!endif
 File "${GLIB_DIR}\bin\libglib-2.0-0.dll"
 File "${GLIB_DIR}\bin\libgmodule-2.0-0.dll"
 File "${GLIB_DIR}\bin\libgobject-2.0-0.dll"

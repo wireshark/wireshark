@@ -2,7 +2,7 @@
  * Routines for snooping SID to name mappings
  * Copyright 2003, Ronnie Sahlberg
  *
- * $Id: packet-smb-sidsnooping.h,v 1.2 2003/06/09 10:08:05 sahlberg Exp $
+ * $Id: packet-smb-sidsnooping.h,v 1.3 2004/05/09 10:03:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,7 +26,11 @@
 #ifndef _PACKET_SMB_SID_SNOOPING_H_
 #define _PACKET_SMB_SID_SNOOPING_H_
 
-extern GHashTable *sid_name_table;
+/* With MSVC and a libethereal.dll, we need a 
+ * special declaration for sid_name_table.
+ */
+ETH_VAR_IMPORT GHashTable *sid_name_table;
+
 typedef struct _sid_name {
 	char *sid;
 	char *name;

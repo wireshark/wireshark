@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.43 2003/12/05 09:25:41 guy Exp $
+ * $Id: packet-mgcp.c,v 1.44 2004/05/09 10:03:41 guy Exp $
  *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -29,7 +29,9 @@
 #include "config.h"
 #endif
 
+#ifndef HAVE_WIN32_LIBETHEREAL_LIB
 #include "plugins/plugin_api.h"
+#endif
 
 #include "moduleinfo.h"
 
@@ -45,8 +47,11 @@
 #include <epan/strutil.h>
 #include <epan/conversation.h>
 #include "packet-mgcp.h"
+#include "../../tap.h"
 
+#ifndef HAVE_WIN32_LIBETHEREAL_LIB
 #include "plugins/plugin_api_defs.h"
+#endif
 
 #ifndef ENABLE_STATIC
 G_MODULE_EXPORT const gchar version[] = VERSION;
@@ -1532,6 +1537,8 @@ plugin_reg_handoff(void){
   proto_reg_handoff_mgcp();
 }
 
+#ifndef HAVE_WIN32_LIBETHEREAL_LIB
+
 G_MODULE_EXPORT void
 plugin_init(plugin_address_table_t *pat
 #ifndef PLUGINS_NEED_ADDRESS_TABLE
@@ -1540,6 +1547,11 @@ _U_
 ){
   /* initialise the table of pointers needed in Win32 DLLs */
   plugin_address_table_init(pat);
+  
+#else /* HAVE_WIN32_LIBETHEREAL_LIB */
+G_MODULE_EXPORT void plugin_init(void *dummy _U_)
+{
+#endif
   /* register the new protocol, protocol fields, and subtrees */
   if (proto_mgcp == -1) { /* execute protocol initialization only once */
     proto_register_mgcp();

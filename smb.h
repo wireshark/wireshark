@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.54 2003/12/18 00:18:55 guy Exp $
+ * $Id: smb.h,v 1.55 2004/05/09 10:03:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,12 +26,15 @@
 #ifndef _SMB_H
 #define _SMB_H
 
-extern gboolean sid_name_snooping;
+ETH_VAR_IMPORT gboolean sid_name_snooping;
 
-/* SMB command codes, from the SNIA CIFS spec. */
-extern const value_string smb_cmd_vals[];
-extern const value_string trans2_cmd_vals[];
-extern const value_string nt_cmd_vals[];
+/* SMB command codes, from the SNIA CIFS spec. With MSVC and a 
+ * libethereal.dll, we need a special declaration.
+ */
+ETH_VAR_IMPORT const value_string smb_cmd_vals[];
+ETH_VAR_IMPORT const value_string trans2_cmd_vals[];
+ETH_VAR_IMPORT const value_string nt_cmd_vals[];
+
 
 #define SMB_COM_CREATE_DIRECTORY		0x00
 #define SMB_COM_DELETE_DIRECTORY		0x01

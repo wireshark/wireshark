@@ -1,6 +1,6 @@
 /* packet-isup.h
  *
- * $Id: packet-isup.h,v 1.2 2004/04/21 05:53:56 guy Exp $
+ * $Id: packet-isup.h,v 1.3 2004/05/09 10:03:37 guy Exp $
  *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
@@ -33,7 +33,9 @@ typedef struct _isup_tap_rec_t {
 
 /*
  * the following allows TAP code access to the messages
- * without having to duplicate it
+ * without having to duplicate it. With MSVC and a 
+ * libethereal.dll, we need a special declaration.
  */
-extern const value_string isup_message_type_value[];
-extern const value_string isup_message_type_value_acro[];
+ETH_VAR_IMPORT const value_string isup_message_type_value[];
+ETH_VAR_IMPORT const value_string isup_message_type_value_acro[];
+

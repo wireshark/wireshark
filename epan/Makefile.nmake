@@ -1,10 +1,12 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.39 2004/05/06 20:48:36 obiot Exp $
+# $Id: Makefile.nmake,v 1.40 2004/05/09 10:03:40 guy Exp $
 
 include ..\config.nmake
+include <win32.mak>
 include Makefile.common
+
 
 ############### no need to modify below this line #########
 
@@ -14,10 +16,16 @@ CFLAGS=-DHAVE_CONFIG_H /I. /I.. /I../wiretap $(GLIB_CFLAGS) \
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
-# For use when making ethereal.dll
+# For use when making libethereal.dll
 libethereal_LIBS = \
-	wsock32.lib user32.lib \
-	$(GLIB_LIBS)
+	$(GLIB_LIBS)	\
+	$(ADNS_LIBS) \
+	$(PCRE_LIBS) \
+	$(ZLIB_LIBS) \
+	$(NET_SNMP_DIR)\win32\lib\netsnmp.lib \
+	ftypes\ftypes.lib \
+	dfilter\dfilter.lib \
+	..\dissectors.lib
 
 .c.obj::
 	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
@@ -50,12 +58,24 @@ OBJECTS=addr_and_mask.obj \
 	tvbuff.obj       \
 	value_string.obj
 
-
 all: ftypes dfilter ethereal.lib
 
-# For use when making ethereal.dll
-#ethereal.dll ethereal.lib	: ..\config.h $(OBJECTS) 
-#	link /DLL /out:ethereal.dll $(OBJECTS) $(libethereal_LIBS)
+!IFDEF ENABLE_LIBETHEREAL
+all: ftypes dfilter libethereal.dll
+!ELSE
+all: ftypes dfilter ethereal.lib
+!ENDIF
+
+# For use when making libethereal.dll
+libethereal.lib: libethereal.dll
+libethereal.exp: libethereal.dll
+
+libethereal.dll: ..\config.h $(OBJECTS) libethereal.def ftypes dfilter
+	$(link) $(dlllflags) $(conlibsdll) \
+		$(LOCAL_LDFLAGS) \
+		/DEF:libethereal.def /OUT:libethereal.dll \
+		/IMPLIB:libethereal.lib $(OBJECTS) $(libethereal_LIBS)
+		
 
 ethereal.lib	: ..\config.h $(OBJECTS)
 	lib /out:ethereal.lib $(OBJECTS)
@@ -66,7 +86,7 @@ ethereal.lib	: ..\config.h $(OBJECTS)
 	cd epan
 
 clean:
-	rm -f $(OBJECTS) ethereal.lib $(PDB_FILE)
+	rm -f $(OBJECTS) ethereal.lib libethereal.dll libethereal.lib libethereal.exp $(PDB_FILE)
 	cd ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../dfilter

@@ -1,7 +1,7 @@
 /* tap-rpcstat.c
  * rpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-rpcstat.c,v 1.11 2003/11/27 22:15:05 guy Exp $
+ * $Id: tap-rpcstat.c,v 1.12 2004/05/09 10:03:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,6 +27,10 @@
  *
  * It serves as an example on how to use the tap api.
  */
+
+/* With MSVC and a libethereal.dll this file needs to import some variables 
+   in a special way. Therefore _NEED_VAR_IMPORT_ is defined. */  
+#define _NEED_VAR_IMPORT_
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"

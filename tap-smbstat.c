@@ -1,7 +1,7 @@
 /* tap-smbstat.c
  * smbstat   2003 Ronnie Sahlberg
  *
- * $Id: tap-smbstat.c,v 1.5 2003/09/28 00:00:36 sahlberg Exp $
+ * $Id: tap-smbstat.c,v 1.6 2004/05/09 10:03:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -21,6 +21,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+/* With MSVC and a libethereal.dll this file needs to import some variables 
+   in a special way. Therefore _NEED_VAR_IMPORT_ is defined. */  
+#define _NEED_VAR_IMPORT_
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"

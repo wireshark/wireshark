@@ -1721,6 +1721,7 @@ Lars Roland <Lars.Roland [AT] gmx.net> {
 	H.225 message and reason tag counter taps and Service Response
 	    Times
 	Tethereal version of SIP statistics tap
+	Support for building libethereal.dll with MSVC
 }
 
 Miha Jemec <m.jemec [AT] iskratel.si> {

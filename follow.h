@@ -1,6 +1,6 @@
 /* follow.h
  *
- * $Id: follow.h,v 1.14 2004/01/23 01:42:45 jmayer Exp $
+ * $Id: follow.h,v 1.15 2004/05/09 10:03:37 guy Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -31,7 +31,8 @@
 
 #define MAX_IPADDR_LEN	16
 
-extern gboolean incomplete_tcp_stream;
+/* With MSVC and a libethereal.dll, we need a special declaration. */
+ETH_VAR_IMPORT gboolean incomplete_tcp_stream;
 
 typedef struct _tcp_stream_chunk {
   guint8      src_addr[MAX_IPADDR_LEN];

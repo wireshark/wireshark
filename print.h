@@ -1,7 +1,7 @@
 /* print.h
  * Definitions for printing packet analysis trees.
  *
- * $Id: print.h,v 1.43 2004/04/25 12:04:07 ulfl Exp $
+ * $Id: print.h,v 1.44 2004/05/09 10:03:37 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -72,15 +72,15 @@ typedef struct {
 
 /* Functions in print.h */
 
-FILE *open_print_dest(int to_file, const char *dest);
-gboolean close_print_dest(int to_file, FILE *fh);
-void print_preamble(FILE *fh, print_format_e format, gchar *filename);
-void print_packet_header(FILE *fh, print_format_e format, guint32 number, gchar *summary);
-void print_formfeed(FILE *fh, print_format_e format);
-void print_finale(FILE *fh, print_format_e format);
-void proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
-    FILE *fh);
-void print_hex_data(FILE *fh, print_format_e format, epan_dissect_t *edt);
-void print_line(FILE *fh, int indent, print_format_e format, char *line);
+extern FILE *open_print_dest(int to_file, const char *dest);
+extern gboolean close_print_dest(int to_file, FILE *fh);
+extern void print_preamble(FILE *fh, print_format_e format, gchar *filename);
+extern void print_packet_header(FILE *fh, print_format_e format, guint32 number, gchar *summary);
+extern void print_formfeed(FILE *fh, print_format_e format);
+extern void print_finale(FILE *fh, print_format_e format);
+extern void proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
+     FILE *fh);
+extern void print_hex_data(FILE *fh, print_format_e format, epan_dissect_t *edt);
+extern void print_line(FILE *fh, int indent, print_format_e format, char *line);
 
 #endif /* print.h */

@@ -2,7 +2,7 @@
  *
  * Declarations for disassembly of WSP component of WAP traffic.
  *
- * $Id: packet-wsp.h,v 1.10 2004/01/04 02:55:03 obiot Exp $
+ * $Id: packet-wsp.h,v 1.11 2004/05/09 10:03:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,10 +35,13 @@
  * assumed to be WSP */
 extern const value_string vals_wsp_reason_codes[];
 
-/* These are exported to taps. */
-extern const value_string vals_pdu_type[];
-extern const value_string vals_status[];
-
+/*
+ * the following allows TAP code access to the messages
+ * without having to duplicate it. With MSVC and a 
+ * libethereal.dll, we need a special declaration.
+ */
+ETH_VAR_IMPORT const value_string vals_pdu_type[];
+ETH_VAR_IMPORT const value_string vals_status[];
 /*
  * exported functionality
  */

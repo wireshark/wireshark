@@ -1,6 +1,6 @@
 /* packet-ansi_a.h
  *
- * $Id: packet-ansi_a.h,v 1.3 2003/12/12 19:55:26 guy Exp $
+ * $Id: packet-ansi_a.h,v 1.4 2004/05/09 10:03:37 guy Exp $
  *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
@@ -35,10 +35,11 @@ typedef struct _ansi_a_tap_rec_t {
 
 /*
  * the following allows TAP code access to the messages
- * without having to duplicate it
+ * without having to duplicate it. With MSVC and a 
+ * libethereal.dll, we need a special declaration.
  */
-extern const value_string ansi_a_ios401_bsmap_strings[];
-extern const value_string ansi_a_ios401_dtap_strings[];
+ETH_VAR_IMPORT const value_string ansi_a_ios401_bsmap_strings[];
+ETH_VAR_IMPORT const value_string ansi_a_ios401_dtap_strings[];
 
 /*
  * allows ANSI MAP to use this for IS-880 enhancements
