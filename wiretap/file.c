@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.37 1999/12/04 21:32:58 guy Exp $
+ * $Id: file.c,v 1.38 1999/12/05 01:23:22 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -187,7 +187,7 @@ const static struct file_type_info {
 	  NULL, NULL },
 
 	/* WTAP_FILE_PCAP */
-	{ "libpcap (tcpdump)", "libpcap",
+	{ "libpcap (tcpdump, Ethereal, etc.)", "libpcap",
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_MODIFIED */
@@ -203,7 +203,7 @@ const static struct file_type_info {
 	  NULL, NULL },
 
 	/* WTAP_FILE_SNOOP */
-	{ "snoop", "snoop",
+	{ "Sun snoop", "snoop",
 	  snoop_dump_can_write_encap, snoop_dump_open },
 
 	/* WTAP_FILE_IPTRACE_1_0 */
