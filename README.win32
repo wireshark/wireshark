@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.41 2002/10/09 13:39:17 gerald Exp $
+$Id: README.win32,v 1.42 2002/11/01 10:02:18 guy Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -216,6 +216,9 @@ ncp2222.py			packet-ncp2222.c	Python
 make-reg-dotc, packet*.c	register.c		Bash + grep + sed
 or
 make-reg-dotc.py, packet*.c	register.c		Python
+
+make-tapreg-dotc, tap-*.c	tethereal-tap-register.c
+							Bash + grep + sed
 
 The Makefile.nmake supplied with the Ethereal distribution will, if
 PYTHON is defined in config.nmake, attempt to make register.c with
