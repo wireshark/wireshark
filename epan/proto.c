@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.59 2002/04/01 02:00:52 guy Exp $
+ * $Id: proto.c,v 1.60 2002/04/04 20:23:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1548,7 +1548,22 @@ static proto_item *
 proto_tree_add_node(proto_tree *tree, field_info *fi)
 {
 	GNode *new_gnode;
-	proto_node *pnode;
+	proto_node *pnode, *tnode;
+	field_info *tfi;
+
+	/*
+	 * Make sure "tree" is ready to have subtrees under it, by
+	 * checking whether it's been given an ett_ value.
+	 *
+	 * "tnode->finfo" may be null; that's the case for the root
+	 * node of the protocol tree.  That node is not displayed,
+	 * so it doesn't need an ett_ value to remember whether it
+	 * was expanded.
+	 */
+	tnode = GNODE_PNODE(tree);
+	tfi = tnode->finfo;
+	g_assert(tfi == NULL ||
+	    (tfi->tree_type >= 0 && tfi->tree_type < num_tree_types));
 
 	pnode = g_mem_chunk_alloc(gmc_proto_node);
 	pnode->finfo = fi;
@@ -1763,22 +1778,22 @@ proto_item_get_len(proto_item *pi)
 proto_tree*
 proto_tree_create_root(void)
 {
-    proto_node  *pnode;
+	proto_node  *pnode;
 
-    /* Initialize the proto_node */
-    pnode = g_mem_chunk_alloc(gmc_proto_node);
-    pnode->finfo = NULL;
-    pnode->tree_data = g_new(tree_data_t, 1);
+	/* Initialize the proto_node */
+	pnode = g_mem_chunk_alloc(gmc_proto_node);
+	pnode->finfo = NULL;
+	pnode->tree_data = g_new(tree_data_t, 1);
 
-    /* Initialize the tree_data_t */
-    pnode->tree_data->interesting_hfids =
-        g_hash_table_new(g_direct_hash, g_direct_equal);
+	/* Initialize the tree_data_t */
+	pnode->tree_data->interesting_hfids =
+	    g_hash_table_new(g_direct_hash, g_direct_equal);
 
-    /* Set the default to FALSE so it's easier to
-     * find errors; if we expect to see the protocol tree
-     * but for some reason the default 'visible' is not
-     * changed, then we'll find out very quickly. */
-    pnode->tree_data->visible = FALSE;
+	/* Set the default to FALSE so it's easier to
+	 * find errors; if we expect to see the protocol tree
+	 * but for some reason the default 'visible' is not
+	 * changed, then we'll find out very quickly. */
+	pnode->tree_data->visible = FALSE;
 
 	return (proto_tree*) g_node_new(pnode);
 }
