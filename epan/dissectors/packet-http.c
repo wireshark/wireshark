@@ -72,6 +72,20 @@ static int hf_http_content_type = -1;
 static int hf_http_content_length = -1;
 static int hf_http_content_encoding = -1;
 static int hf_http_transfer_encoding = -1;
+static int hf_http_user_agent = -1;
+static int hf_http_host = -1;
+static int hf_http_connection = -1;
+static int hf_http_cookie = -1;
+static int hf_http_accept = -1;
+static int hf_http_referer = -1;
+static int hf_http_accept_language = -1;
+static int hf_http_accept_encoding = -1;
+static int hf_http_date = -1;
+static int hf_http_cache_control = -1;
+static int hf_http_server = -1;
+static int hf_http_location = -1;
+static int hf_http_set_cookie = -1;
+static int hf_http_last_modified = -1;
 
 static gint ett_http = -1;
 static gint ett_http_ntlmssp = -1;
@@ -1287,6 +1301,20 @@ static const header_info headers[] = {
 	{ "Content-Length", &hf_http_content_length, HDR_CONTENT_LENGTH },
 	{ "Content-Encoding", &hf_http_content_encoding, HDR_CONTENT_ENCODING },
 	{ "Transfer-Encoding", &hf_http_transfer_encoding, HDR_TRANSFER_ENCODING },
+	{ "User-Agent",	&hf_http_user_agent, HDR_NO_SPECIAL },
+	{ "Host", &hf_http_host, HDR_NO_SPECIAL },
+	{ "Connection", &hf_http_connection, HDR_NO_SPECIAL },
+	{ "Cookie", &hf_http_cookie, HDR_NO_SPECIAL },
+	{ "Accept", &hf_http_accept, HDR_NO_SPECIAL },
+	{ "Referer", &hf_http_referer, HDR_NO_SPECIAL },
+	{ "Accept-Language", &hf_http_accept_language, HDR_NO_SPECIAL },
+	{ "Accept-Encoding", &hf_http_accept_encoding, HDR_NO_SPECIAL },
+	{ "Date", &hf_http_date, HDR_NO_SPECIAL },
+	{ "Cache-Control", &hf_http_cache_control, HDR_NO_SPECIAL },
+	{ "Server", &hf_http_server, HDR_NO_SPECIAL },
+	{ "Location", &hf_http_location, HDR_NO_SPECIAL },
+	{ "Set-Cookie", &hf_http_set_cookie, HDR_NO_SPECIAL },
+	{ "Last-Modified", &hf_http_last_modified, HDR_NO_SPECIAL },
 };
 
 static void
@@ -1617,6 +1645,62 @@ proto_register_http(void)
 	      { "Transfer-Encoding",	"http.transfer_encoding",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Transfer-Encoding header", HFILL }},
+	    { &hf_http_user_agent,
+	      { "User-Agent",	"http.user_agent",
+	        FT_STRING, BASE_NONE, NULL, 0x0,
+	        "HTTP User-Agent header", HFILL }},
+	    { &hf_http_host,
+	      { "Host",	"http.host",
+	        FT_STRING, BASE_NONE, NULL, 0x0,
+	        "HTTP Host", HFILL }},
+	    { &hf_http_connection,
+	      { "Connection",	"http.connection",
+	        FT_STRING, BASE_NONE, NULL, 0x0,
+	        "HTTP Connection", HFILL }},
+	    { &hf_http_cookie,
+	      { "Cookie",	"http.cookie",
+	        FT_STRING, BASE_NONE, NULL, 0x0,
+	        "HTTP Cookie", HFILL }},
+	    { &hf_http_accept,
+	      { "Accept",	"http.accept",
+	        FT_STRING, BASE_NONE, NULL, 0x0,
+	        "HTTP Accept", HFILL }},
+	    { &hf_http_referer,
+	      { "Referer",	"http.referer",
+	        FT_STRING, BASE_NONE, NULL, 0x0,
+	        "HTTP Referer", HFILL }},
+	    { &hf_http_accept_language,
+	      { "Accept-Language",	"http.accept_language",
+	        FT_STRING, BASE_NONE, NULL, 0x0,
+	    "HTTP Accept Language", HFILL }},
+	    { &hf_http_accept_encoding,
+	      { "Accept Encoding",	"http.accept_encoding",
+	        FT_STRING, BASE_NONE, NULL, 0x0,
+	        "HTTP Accept Encoding", HFILL }},
+	    { &hf_http_date,
+	      { "Date",	"http.date",
+	        FT_STRING, BASE_NONE, NULL, 0x0,
+	        "HTTP Date", HFILL }},
+	    { &hf_http_cache_control,
+	      { "Cache-Control",	"http.cache_control",
+	        FT_STRING, BASE_NONE, NULL, 0x0,
+	        "HTTP Cache Control", HFILL }},
+	    { &hf_http_server,
+	      { "Server",	"http.server",
+	        FT_STRING, BASE_NONE, NULL, 0x0,
+	        "HTTP Server", HFILL }},
+	    { &hf_http_location,
+	      { "Location",	"http.location",
+	        FT_STRING, BASE_NONE, NULL, 0x0,
+	        "HTTP Location", HFILL }},
+	    { &hf_http_set_cookie,
+	      { "Set-Cookie",	"http.set_cookie",
+	        FT_STRING, BASE_NONE, NULL, 0x0,
+	        "HTTP Set Cookie", HFILL }},
+	    { &hf_http_last_modified,
+	      { "Last-Modified",	"http.last_modified",
+	        FT_STRING, BASE_NONE, NULL, 0x0,
+	        "HTTP Last Modified", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_http,
