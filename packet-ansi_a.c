@@ -10,7 +10,7 @@
  *   2000 Access Network Interfaces
  *			3GPP2 A.S0001-1		TIA/EIA-2001
  *
- * $Id: packet-ansi_a.c,v 1.11 2003/12/01 23:05:08 guy Exp $
+ * $Id: packet-ansi_a.c,v 1.12 2003/12/03 23:46:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,7 +55,7 @@ void proto_reg_handoff_ansi_a(void);
 
 #define ANSI_A_MIN(x,y)	(((x) < (y)) ? (x) : (y))
 
-static const value_string ansi_bsmap_strings[] = {
+const value_string ansi_a_ios401_bsmap_strings[] = {
     { 0x69,	"Additional Service Notification" },
     { 0x65,	"ADDS Page" },
     { 0x66,	"ADDS Page Ack" },
@@ -115,7 +115,7 @@ static const value_string ansi_bsmap_strings[] = {
     { 0, NULL },
 };
 
-static const value_string ansi_dtap_strings[] = {
+const value_string ansi_a_ios401_dtap_strings[] = {
     { 0x62,	"Additional Service Request" },
     { 0x53,	"ADDS Deliver" },
     { 0x54,	"ADDS Deliver Ack" },
@@ -7872,8 +7872,8 @@ dtap_rejection(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
-#define	NUM_IOS401_BSMAP_MSG (sizeof(ansi_bsmap_strings)/sizeof(value_string))
-static gint ett_bsmap_msg[NUM_IOS401_BSMAP_MSG];
+#define	ANSI_A_IOS401_BSMAP_NUM_MSG (sizeof(ansi_a_ios401_bsmap_strings)/sizeof(value_string))
+static gint ett_bsmap_msg[ANSI_A_IOS401_BSMAP_NUM_MSG];
 static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
     NULL,	/* Additional Service Notification */
     bsmap_adds_page,	/* ADDS Page */
@@ -7934,8 +7934,8 @@ static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
     NULL,	/* NONE */
 };
 
-#define	NUM_IOS401_DTAP_MSG (sizeof(ansi_dtap_strings)/sizeof(value_string))
-static gint ett_dtap_msg[NUM_IOS401_DTAP_MSG];
+#define	ANSI_A_IOS401_DTAP_NUM_MSG (sizeof(ansi_a_ios401_dtap_strings)/sizeof(value_string))
+static gint ett_dtap_msg[ANSI_A_IOS401_DTAP_NUM_MSG];
 static void (*dtap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
     NULL,	/* Additional Service Request */
     dtap_adds_deliver,	/* ADDS Deliver */
@@ -8017,7 +8017,7 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     oct = tvb_get_guint8(tvb, offset++);
 
-    msg_str = my_match_strval((guint32) oct, ansi_bsmap_strings, &idx);
+    msg_str = my_match_strval((guint32) oct, ansi_a_ios401_bsmap_strings, &idx);
 
     /*
      * create the a protocol tree
@@ -8140,7 +8140,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     saved_offset = offset;
     oct = tvb_get_guint8(tvb, offset++);
 
-    msg_str = my_match_strval((guint32) oct, ansi_dtap_strings, &idx);
+    msg_str = my_match_strval((guint32) oct, ansi_a_ios401_dtap_strings, &idx);
 
     /*
      * create the a protocol tree
@@ -8286,12 +8286,12 @@ proto_register_ansi_a(void)
     {
 	{ &hf_ansi_a_bsmap_msgtype,
 	    { "BSMAP Message Type",	"ansi_a.bsmap_msgtype",
-	    FT_UINT8, BASE_HEX, VALS(ansi_bsmap_strings), 0x0,
+	    FT_UINT8, BASE_HEX, VALS(ansi_a_ios401_bsmap_strings), 0x0,
 	    "", HFILL }
 	},
 	{ &hf_ansi_a_dtap_msgtype,
 	    { "DTAP Message Type",	"ansi_a.dtap_msgtype",
-	    FT_UINT8, BASE_HEX, VALS(ansi_dtap_strings), 0x0,
+	    FT_UINT8, BASE_HEX, VALS(ansi_a_ios401_dtap_strings), 0x0,
 	    "", HFILL }
 	},
 	{ &hf_ansi_a_elem_id,
@@ -8377,8 +8377,8 @@ proto_register_ansi_a(void)
     };
 
     /* Setup protocol subtree array */
-#define	MAX_NUM_DTAP_MSG	ANSI_A_MAX(NUM_IOS401_DTAP_MSG, 0)
-#define	MAX_NUM_BSMAP_MSG	ANSI_A_MAX(NUM_IOS401_BSMAP_MSG, 0)
+#define	MAX_NUM_DTAP_MSG	ANSI_A_MAX(ANSI_A_IOS401_DTAP_NUM_MSG, 0)
+#define	MAX_NUM_BSMAP_MSG	ANSI_A_MAX(ANSI_A_IOS401_BSMAP_NUM_MSG, 0)
 #define	NUM_INDIVIDUAL_ELEMS	9
     gint **ett;
     gint ett_len = (NUM_INDIVIDUAL_ELEMS+MAX_NUM_DTAP_MSG+MAX_NUM_BSMAP_MSG+NUM_ELEM_1+NUM_MS_INFO_REC) * sizeof(gint *);

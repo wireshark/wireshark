@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.62 2003/11/20 23:34:31 guy Exp $
+# $Id: Makefile.nmake,v 1.63 2003/12/03 23:46:23 guy Exp $
 
 include ..\config.nmake
 
@@ -19,7 +19,8 @@ CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
    $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
 ETHEREAL_TAP_SRC = \
-       	bootp_stat.c    \
+	ansi_a_stat.c   \
+	bootp_stat.c    \
 	dcerpc_stat.c	\
 	endpoint_talkers_eth.c	\
 	endpoint_talkers_fc.c	\
@@ -85,7 +86,7 @@ OBJECTS = \
 	plugins_dlg.obj	\
 	prefs_dlg.obj \
 	print_dlg.obj \
-        print_mswin.obj \
+	print_mswin.obj \
 	print_prefs.obj  \
 	progress_dlg.obj \
 	proto_dlg.obj \
@@ -106,8 +107,8 @@ libui.lib	: ..\config.h $(OBJECTS)
 	lib /out:libui.lib $(OBJECTS)
 
 ethereal-tap-register.c: $(ETHEREAL_TAP_SRC) ../make-tapreg-dotc
-        @echo Making ethereal-tap-register.c
-        @$(SH) ../make-tapreg-dotc ethereal-tap-register.c . $(ETHEREAL_TAP_SRC)
+	@echo Making ethereal-tap-register.c
+	@$(SH) ../make-tapreg-dotc ethereal-tap-register.c . $(ETHEREAL_TAP_SRC)
 
 clean:
 	rm -f $(OBJECTS) libui.lib $(PDB_FILE)

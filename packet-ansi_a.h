@@ -1,6 +1,6 @@
 /* packet-ansi_a.h
  *
- * $Id: packet-ansi_a.h,v 1.1 2003/12/01 23:05:08 guy Exp $
+ * $Id: packet-ansi_a.h,v 1.2 2003/12/03 23:46:22 guy Exp $
  *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
@@ -31,3 +31,11 @@ typedef struct _ansi_a_tap_rec_t {
     guint8		pdu_type;
     guint8		message_type;
 } ansi_a_tap_rec_t;
+
+
+/*
+ * the following allows TAP code access to the messages
+ * without having to duplicate it
+ */
+extern const value_string ansi_a_ios401_bsmap_strings[];
+extern const value_string ansi_a_ios401_dtap_strings[];
