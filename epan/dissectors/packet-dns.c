@@ -6,6 +6,7 @@
  *
  * $Id$
  *
+ * Copyright 2004, Nicolas DICHTEL - 6WIND - <nicolas.dichtel@6wind.com>
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
@@ -1984,6 +1985,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	if (rr_len < 2)
 	  goto bad_rr;
 	tsig_siglen = tvb_get_ntohs(tvb, cur_offset);
+	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Signature length: %u", tsig_siglen);
 	cur_offset += 2;
 	rr_len -= 2;
 
@@ -2015,6 +2017,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	if (rr_len < 2)
 	  goto bad_rr;
 	tsig_otherlen = tvb_get_ntohs(tvb, cur_offset);
+	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Other length: %u", tsig_otherlen);
 	cur_offset += 2;
 	rr_len -= 2;
 
