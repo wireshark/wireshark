@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.385 2004/01/19 20:10:37 jmayer Exp $
+ * $Id: packet-smb.c,v 1.386 2004/02/25 06:22:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -480,6 +480,10 @@ static int hf_smb_create_action = -1;
 static int hf_smb_file_id = -1;
 static int hf_smb_ea_error_offset = -1;
 static int hf_smb_end_of_file = -1;
+static int hf_smb_replace = -1;
+static int hf_smb_root_dir_handle = -1;
+static int hf_smb_target_name_len = -1;
+static int hf_smb_target_name = -1;
 static int hf_smb_device_type = -1;
 static int hf_smb_is_directory = -1;
 static int hf_smb_next_entry_offset = -1;
@@ -11416,6 +11420,52 @@ dissect_4_2_19_4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	return offset;
 }
 
+/* Set File Rename Info */
+
+static const true_false_string tfs_smb_replace = {
+	"Remove target file if it exists",
+	"Do NOT remove target file if it exists",
+};
+
+static int
+dissect_rename_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+		    int offset, guint16 *bcp, gboolean *trunc)
+{
+	smb_info_t *si = pinfo->private_data;
+	const char *fn;
+	guint32 target_name_len;
+	int fn_len;
+
+	/* Replace flag */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_replace, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* Root directory handle */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_root_dir_handle, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* Target name length */
+	CHECK_BYTE_COUNT_SUBR(4);
+	target_name_len = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_target_name_len, tvb, offset, 4, target_name_len);
+	COUNT_BYTES_SUBR(4);
+
+	/* Target name */
+	fn_len = target_name_len;
+	fn = get_unicode_or_ascii_string(
+		tvb, &offset, si->unicode, &fn_len, FALSE, TRUE, bcp);
+
+	CHECK_STRING_SUBR(fn);
+	proto_tree_add_string(
+		tree, hf_smb_target_name, tvb, offset, fn_len, fn);
+	COUNT_BYTES_SUBR(fn_len);
+
+	*trunc = FALSE;
+	return offset;
+}
+
 /*dissect the data block for TRANS2_QUERY_PATH_INFORMATION and
   TRANS2_QUERY_FILE_INFORMATION*/
 static int
@@ -11529,6 +11579,7 @@ dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		    &trunc);
 		break;
 	case 0x0101:	/*Set File Basic Info*/
+	case 1004:	/* SMB_FILE_BASIC_INFORMATION */
 		offset = dissect_4_2_16_4(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
@@ -11556,11 +11607,10 @@ dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		offset = dissect_4_2_16_13(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
-	case 1004:
-		offset = dissect_4_2_16_4(tvb, pinfo, tree, offset, bcp,
+	case 1010:	/* Set File Rename */
+		offset = dissect_rename_info(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
-	case 1010:
 	case 1013:
 	case 1014:
 	case 1016:
@@ -18281,6 +18331,22 @@ proto_register_smb(void)
 	{ &hf_smb_end_of_file,
 		{ "End Of File", "smb.end_of_file", FT_UINT64, BASE_DEC,
 		NULL, 0, "Offset to the first free byte in the file", HFILL }},
+
+	{ &hf_smb_replace,
+		{ "Replace", "smb.replace", FT_BOOLEAN, BASE_NONE,
+		TFS(&tfs_smb_replace), 0x0, "Remove target if it exists?", HFILL }},
+
+	{ &hf_smb_root_dir_handle,
+		{ "Root Directory Handle", "smb.root_dir_handle", FT_UINT32, BASE_HEX,
+		NULL, 0, "Root directory handle", HFILL }},
+
+	{ &hf_smb_target_name_len,
+		{ "Target name length", "smb.target_name_len", FT_UINT32, BASE_DEC,
+		NULL, 0, "Length of target file name", HFILL }},
+
+	{ &hf_smb_target_name,
+		{ "Target name", "smb.target_name", FT_STRING, BASE_NONE,
+		NULL, 0, "Target file name", HFILL }},
 
 	{ &hf_smb_device_type,
 		{ "Device Type", "smb.device.type", FT_UINT32, BASE_HEX,
