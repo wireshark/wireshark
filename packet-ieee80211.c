@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.11 2001/01/21 22:51:46 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.12 2001/01/23 05:54:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -534,7 +534,7 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
   if ((tag_no >= 17) && (tag_no <= 31))
     {				/* Reserved for challenge text */
       proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %d (Reserved for challenge text)",
+				  "Tag Number: %u (Reserved for challenge text)",
 				  tag_no);
 
       proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
@@ -548,7 +548,7 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
       || ((tag_no >= 32) && (tag_no <= 255)))
     {
       proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %d (Reserved tag number)",
+				  "Tag Number: %u (Reserved tag number)",
 				  tag_no);
 
       proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
@@ -565,7 +565,7 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
     case TAG_SSID:
       proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %d (SSID parameter set)",
+				  "Tag Number: %u (SSID parameter set)",
 				  tag_no);
 
       proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
@@ -583,7 +583,7 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
     case TAG_SUPP_RATES:
       proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %d (Supported Rates)", tag_no);
+				  "Tag Number: %u (Supported Rates)", tag_no);
 
       proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
 
@@ -616,7 +616,7 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
     case TAG_FH_PARAMETER:
       proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %d (FH Parameter set)",
+				  "Tag Number: %u (FH Parameter set)",
 				  tag_no);
 
       proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
@@ -635,13 +635,13 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
     case TAG_DS_PARAMETER:
       proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %d (DS Parameter set)",
+				  "Tag Number: %u (DS Parameter set)",
 				  tag_no);
 
       proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
       memset (out_buff, 0, SHORT_STR);
 
-      snprintf (out_buff, SHORT_STR, "Current Channel: %d", tag_data_ptr[0]);
+      snprintf (out_buff, SHORT_STR, "Current Channel: %u", tag_data_ptr[0]);
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
 			     tag_len, out_buff);
       break;
@@ -649,15 +649,15 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
     case TAG_CF_PARAMETER:
       proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %d (CF Parameter set)",
+				  "Tag Number: %u (CF Parameter set)",
 				  tag_no);
 
       proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
       memset (out_buff, 0, SHORT_STR);
 
       snprintf (out_buff, SHORT_STR,
-		"CFP count %d, CFP period %d, CFP max duration %d, "
-		"CFP Remaining %d", tag_data_ptr[0], tag_data_ptr[1],
+		"CFP count %u, CFP period %u, CFP max duration %u, "
+		"CFP Remaining %u", tag_data_ptr[0], tag_data_ptr[1],
 		pntohs (tag_data_ptr + 2), pntohs (tag_data_ptr + 4));
 
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
@@ -667,13 +667,13 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
     case TAG_TIM:
       proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %d (CF Parameter set)",
+				  "Tag Number: %u ((TIM) Traffic Indication Map)",
 				  tag_no);
 
       proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
       memset (out_buff, 0, SHORT_STR);
       snprintf (out_buff, SHORT_STR,
-		"DTIM count %d, DTIM period %d, Bitmap control 0x%X, "
+		"DTIM count %u, DTIM period %u, Bitmap control 0x%X, "
 		"(Bitmap suppressed)", tag_data_ptr[0], tag_data_ptr[1],
 		tag_data_ptr[2]);
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
@@ -684,7 +684,7 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
     case TAG_IBSS_PARAMETER:
       proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %d (IBSS Parameter set)",
+				  "Tag Number: %u (IBSS Parameter set)",
 				  tag_no);
 
       proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
@@ -700,7 +700,7 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
     case TAG_CHALLENGE_TEXT:
       proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %d (Challenge text)", tag_no);
+				  "Tag Number: %u (Challenge text)", tag_no);
 
       proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
       memset (out_buff, 0, SHORT_STR);
@@ -1402,9 +1402,9 @@ proto_register_wlan (void)
 {
 
   static const value_string tofrom_ds[] = {
-    {0, "Network operating in AD-HOC mode ( To DS: 0  From DS: 0)"},
+    {0, "Not leaving DS or network is operating in AD-HOC mode ( To DS: 0  From DS: 0)"},
     {1, "Frame is exiting DS (To DS: 0  From DS: 1)"},
-    {2, "Frame is entering DS (To DS: 0  From DS: 1)"},
+    {2, "Frame is entering DS (To DS: 1  From DS: 0)"},
     {3, "Frame part of WDS (To DS: 1  From DS: 1)"},
     {0, NULL}
   };
