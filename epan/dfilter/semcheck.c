@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.21 2003/12/09 23:02:40 obiot Exp $
+ * $Id: semcheck.c,v 1.22 2004/01/01 16:59:20 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,7 +34,9 @@
 #include <epan/exceptions.h>
 #include <epan/packet.h>
 
-/* Usage: DebugLog(("Error: string=%s\n", str)); */
+/* Enable debug logging by defining AM_CFLAGS
+ * so that it contains "-DDEBUG_dfilter".
+ * Usage: DebugLog(("Error: string=%s\n", str)); */
 #ifdef DEBUG_dfilter
 #define DebugLog(x) \
 	printf("%s:%u: ", __FILE__, __LINE__); \
@@ -288,6 +290,8 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 	hfinfo1 = stnode_data(st_arg1);
 	ftype1 = hfinfo1->type;
 
+	DebugLog(("    5 check_relation_LHS_FIELD(%s)\n", relation_string));
+
 	if (!can_func(ftype1)) {
 		dfilter_fail("%s (type=%s) cannot participate in '%s' comparison.",
 				hfinfo1->abbrev, ftype_pretty_name(ftype1),
@@ -393,6 +397,8 @@ check_relation_LHS_STRING(FtypeCanFunc can_func _U_, gboolean allow_partial_valu
 	type1 = stnode_type_id(st_arg1);
 	type2 = stnode_type_id(st_arg2);
 
+	DebugLog(("    5 check_relation_LHS_STRING()\n"));
+
 	if (type2 == STTYPE_FIELD) {
 		hfinfo2 = stnode_data(st_arg2);
 		ftype2 = hfinfo2->type;
@@ -447,6 +453,8 @@ check_relation_LHS_UNPARSED(FtypeCanFunc can_func _U_, gboolean allow_partial_va
 
 	type1 = stnode_type_id(st_arg1);
 	type2 = stnode_type_id(st_arg2);
+
+	DebugLog(("    5 check_relation_LHS_UNPARSED()\n"));
 
 	if (type2 == STTYPE_FIELD) {
 		hfinfo2 = stnode_data(st_arg2);
@@ -553,7 +561,8 @@ check_drange_sanity(stnode_t *st)
 }
 
 static void
-check_relation_LHS_RANGE(FtypeCanFunc can_func _U_, gboolean allow_partial_value,
+check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
+		gboolean allow_partial_value,
 		stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
@@ -570,6 +579,8 @@ check_relation_LHS_RANGE(FtypeCanFunc can_func _U_, gboolean allow_partial_value
 	hfinfo1 = sttype_range_hfinfo(st_arg1);
 	ftype1 = hfinfo1->type;
 
+	DebugLog(("    5 check_relation_LHS_RANGE(%s)\n", relation_string));
+
 	if (!ftype_can_slice(ftype1)) {
 		dfilter_fail("\"%s\" is a %s and cannot be sliced into a sequence of bytes.",
 				hfinfo1->abbrev, ftype_pretty_name(ftype1));
@@ -579,6 +590,7 @@ check_relation_LHS_RANGE(FtypeCanFunc can_func _U_, gboolean allow_partial_value
 	check_drange_sanity(st_arg1);
 
 	if (type2 == STTYPE_FIELD) {
+		DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_FIELD)\n"));
 		hfinfo2 = sttype_range_hfinfo(st_arg2);
 		ftype2 = hfinfo2->type;
 
@@ -603,9 +615,16 @@ check_relation_LHS_RANGE(FtypeCanFunc can_func _U_, gboolean allow_partial_value
 		}
 	}
 	else if (type2 == STTYPE_STRING) {
+		DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_STRING)\n"));
 		s = stnode_data(st_arg2);
-		fvalue = fvalue_from_string(FT_BYTES, s, dfilter_fail);
+		if (strcmp(relation_string, "matches") == 0) {
+			/* Convert to a FT_PCRE */
+			fvalue = fvalue_from_string(FT_PCRE, s, dfilter_fail);
+		} else {
+			fvalue = fvalue_from_string(FT_BYTES, s, dfilter_fail);
+		}
 		if (!fvalue) {
+			DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_STRING): Could not convert from string!\n"));
 			THROW(TypeError);
 		}
 		new_st = stnode_new(STTYPE_FVALUE, fvalue);
@@ -613,9 +632,16 @@ check_relation_LHS_RANGE(FtypeCanFunc can_func _U_, gboolean allow_partial_value
 		stnode_free(st_arg2);
 	}
 	else if (type2 == STTYPE_UNPARSED) {
+		DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_UNPARSED)\n"));
 		s = stnode_data(st_arg2);
-		fvalue = fvalue_from_unparsed(FT_BYTES, s, allow_partial_value, dfilter_fail);
+		if (strcmp(relation_string, "matches") == 0) {
+			/* Convert to a FT_PCRE */
+			fvalue = fvalue_from_unparsed(FT_PCRE, s, FALSE, dfilter_fail);
+		} else {
+			fvalue = fvalue_from_unparsed(FT_BYTES, s, allow_partial_value, dfilter_fail);
+		}
 		if (!fvalue) {
+			DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_UNPARSED): Could not convert from string!\n"));
 			THROW(TypeError);
 		}
 		new_st = stnode_new(STTYPE_FVALUE, fvalue);
@@ -623,6 +649,7 @@ check_relation_LHS_RANGE(FtypeCanFunc can_func _U_, gboolean allow_partial_value
 		stnode_free(st_arg2);
 	}
 	else if (type2 == STTYPE_RANGE) {
+		DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_RANGE)\n"));
 		check_drange_sanity(st_arg2);
 		/* XXX - check lengths of both ranges */
 	}
@@ -653,7 +680,7 @@ check_relation(const char *relation_string, gboolean allow_partial_value,
 					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
 		case STTYPE_RANGE:
-			check_relation_LHS_RANGE(can_func,
+			check_relation_LHS_RANGE(relation_string, can_func,
 					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
 		case STTYPE_UNPARSED:
