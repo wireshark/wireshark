@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.49 2003/01/22 00:45:30 sahlberg Exp $
+ * $Id: packet-ncp2222.inc,v 1.50 2003/02/08 03:06:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -976,8 +976,8 @@ uint_to_nwtime(guint data, nw_time_t *nwtime)
 {
 	/* 2-second resolution */
 	nwtime->second = (data & 0x001f) * 2;
-	nwtime->minute = ((data & 0x07e0) >> 5) + 1;
-	nwtime->hour   = ((data & 0xf800) >> 11) + 1;
+	nwtime->minute = ((data & 0x07e0) >> 5);
+	nwtime->hour   = ((data & 0xf800) >> 11);
 }
 
 char *
