@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.56 2002/11/08 19:29:39 sharpe Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.57 2002/11/08 19:58:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5774,7 +5774,8 @@ dissect_spoolss_keybuffer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			  proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = pinfo->private_data;
-	guint32 size, key_start;
+	guint32 size;
+	int end_offset;
 
 	if (di->conformant_run)
 		return offset;
@@ -5784,8 +5785,16 @@ dissect_spoolss_keybuffer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_keybuffer_size, &size);
 
-	key_start = offset;
-	while (key_start + (size*2) > offset) {
+	end_offset = offset + (size*2);
+	if (end_offset < offset) {
+		/*
+		 * Overflow - make the end offset one past the end of
+		 * the packet data, so we throw an exception (as the
+		 * size is almost certainly too big).
+		 */
+		end_offset = tvb_reported_length_remaining(tvb, offset) + 1;
+	}
+	while (offset < end_offset) {
 		offset = prs_uint16uni(tvb, offset, pinfo, tree,
 				       NULL, "Key");
 	}
