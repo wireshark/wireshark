@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.12 2000/11/30 06:11:32 guy Exp $
+ * $Id: tvbuff.c,v 1.13 2000/12/25 23:48:15 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -1134,6 +1134,39 @@ tvb_pbrk_guint8(tvbuff_t *tvb, gint offset, guint maxlength, guint8 *needles)
 
 	g_assert_not_reached();
 	return -1;
+}
+
+/* Find size of stringz (NUL-terminated string) by looking for terminating
+ * NUL.  The size of the string includes the terminating NUL.
+ *
+ * If the NUL isn't found, it throws the appropriate exception.
+ */
+guint
+tvb_strsize(tvbuff_t *tvb, gint offset)
+{
+	guint	abs_offset, junk_length;
+	gint	nul_offset;
+
+	check_offset_length(tvb, offset, 0, &abs_offset, &junk_length);
+	nul_offset = tvb_find_guint8(tvb, abs_offset, -1, 0);
+	if (nul_offset == -1) {
+		/*
+		 * OK, we hit the end of the tvbuff, so we should throw
+		 * an exception.
+		 *
+		 * Did we hit the end of the captured data, or the end
+		 * of the actual data?  If there's less captured data
+		 * than actual data, we presumably hit the end of the
+		 * captured data, otherwise we hit the end of the actual
+		 * data.
+		 */
+		if (tvb_length(tvb) < tvb_reported_length(tvb)) {
+			THROW(BoundsError);
+		} else {
+			THROW(ReportedBoundsError);
+		}
+	}
+	return (nul_offset - abs_offset) + 1;
 }
 
 /* Find length of string by looking for end of string ('\0'), up to

@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.20 2000/12/24 20:33:04 guy Exp $
+ * $Id: packet-tftp.c,v 1.21 2000/12/25 23:48:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -87,7 +87,6 @@ static const value_string tftp_error_code_vals[] = {
 };
 
 static void tftp_dissect_options(tvbuff_t *tvb, int offset, proto_tree *tree);
-static gint tftp_strnlen(tvbuff_t *tvb, gint offset);
 
 static void
 dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -152,12 +151,12 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    
 	  switch (opcode) {
 	  case RRQ:
-	    i1 = tftp_strnlen(tvb, offset);
+	    i1 = tvb_strsize(tvb, offset);
 	    proto_tree_add_item(tftp_tree, hf_tftp_source_file,
 			    tvb, offset, i1, FALSE);
 	    offset += i1;
 
-	    i1 = tftp_strnlen(tvb, offset);
+	    i1 = tvb_strsize(tvb, offset);
 	    ti = proto_tree_add_item(tftp_tree, hf_tftp_transfer_type,
 			    tvb, offset, i1, FALSE);
 	    offset += i1;
@@ -165,12 +164,12 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    tftp_dissect_options(tvb, offset, tftp_tree);
 	    break;
 	  case WRQ:
-	    i1 = tftp_strnlen(tvb, offset);
+	    i1 = tvb_strsize(tvb, offset);
 	    proto_tree_add_item(tftp_tree, hf_tftp_destination_file,
 			    tvb, offset, i1, FALSE);
 	    offset += i1;
 
-	    i1 = tftp_strnlen(tvb, offset);
+	    i1 = tvb_strsize(tvb, offset);
 	    ti = proto_tree_add_item(tftp_tree, hf_tftp_transfer_type,
 			    tvb, offset, i1, FALSE);
 	    offset += i1;
@@ -194,7 +193,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    FALSE);
 	    offset += 2;
 
-	    i1 = tftp_strnlen(tvb, offset);
+	    i1 = tvb_strsize(tvb, offset);
 	    proto_tree_add_item(tftp_tree, hf_tftp_error_string, tvb, offset,
 	        i1, FALSE);
 	    break;
@@ -217,42 +216,15 @@ tftp_dissect_options(tvbuff_t *tvb, int offset, proto_tree *tree)
 	int value_offset;
 
 	while (tvb_offset_exists(tvb, offset)) {
-	  option_len = tftp_strnlen(tvb, offset);	/* length of option */
+	  option_len = tvb_strsize(tvb, offset);	/* length of option */
 	  value_offset = offset + option_len;
-	  value_len = tftp_strnlen(tvb, value_offset);	/* length of value */
+	  value_len = tvb_strsize(tvb, value_offset);	/* length of value */
 	  proto_tree_add_text(tree, tvb, offset, option_len+value_len,
-	          "Option: %.*s = %.*s",
-		  option_len - 1, tvb_get_ptr(tvb, offset, option_len - 1),
-		  value_len - 1, tvb_get_ptr(tvb, value_offset, value_len - 1));
+	          "Option: %s = %s",
+		  tvb_get_ptr(tvb, offset, option_len),
+		  tvb_get_ptr(tvb, value_offset, value_len));
 	  offset += option_len + value_len;
 	}
-}
-
-/*
- * Find the length of a null-terminated string in a TFTP packet; if we
- * don't find the '\0', throw an exception, as it means that either
- * we didn't capture enough of the frame, or the frame is malformed.
- *
- * XXX - we'd like to know *which* exception to throw....
- *
- * XXX - this should probably be a standard tvbuff accessor.
- *
- * Add 1 to the resulting length, so that it includes the '\0'.
- */
-static gint
-tftp_strnlen(tvbuff_t *tvb, gint offset)
-{
-	gint len;
-
-	len = tvb_strnlen(tvb, offset, -1);
-	if (len == -1) {
-	    /*
-	     * No '\0' found before the end of the tvbuff; throw an
-	     * exception.
-	     */
-	    THROW(BoundsError);
-	}
-	return len + 1;
 }
 
 void
