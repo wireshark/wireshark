@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.73 2004/03/06 10:11:54 guy Exp $
+ * $Id: packet-q931.c,v 1.74 2004/03/18 09:00:37 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -105,7 +105,7 @@ static const fragment_items q931_frag_items = {
 	&hf_q931_segment_multiple_tails,
 	&hf_q931_segment_too_long_segment,
 	&hf_q931_segment_error,
-    &hf_q931_reassembled_in,
+	&hf_q931_reassembled_in,
 	"segments"
 };
 
@@ -124,6 +124,10 @@ static gboolean q931_desegment = TRUE;
 
 static dissector_handle_t h225_handle;
 static dissector_handle_t q931_tpkt_pdu_handle;
+
+static void
+dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
+    proto_tree *q931_tree, gboolean is_tpkt, int offset, int initial_codeset);
 
 /*
  * Q.931 message types.
@@ -2393,13 +2397,13 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 	if ((message_type != Q931_SEGMENT) || !q931_reassembly || 
 			(tvb_reported_length_remaining(tvb, offset) <= 4)) {
-		dissect_q931_IEs(tvb, pinfo, tree, q931_tree, is_tpkt, offset);
+		dissect_q931_IEs(tvb, pinfo, tree, q931_tree, is_tpkt, offset, 0);
 		return;
 	}
 	info_element = tvb_get_guint8(tvb, offset);
 	info_element_len = tvb_get_guint8(tvb, offset + 1);
 	if ((info_element != Q931_IE_SEGMENTED_MESSAGE) || (info_element_len < 2)) {
-		dissect_q931_IEs(tvb, pinfo, tree, q931_tree, is_tpkt, offset);
+		dissect_q931_IEs(tvb, pinfo, tree, q931_tree, is_tpkt, offset, 0);
 		return;
 	}
 	/* Segmented message IE */
@@ -2410,8 +2414,12 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    val_to_str(info_element, q931_info_element_vals[0], "Unknown (0x%02X)"));
 	proto_tree_add_text(ie_tree, tvb, offset + 1, 1, "Length: %u", info_element_len);
 	dissect_q931_segmented_message_ie(tvb, offset + 2, info_element_len, ie_tree);
-    more_frags = (tvb_get_guint8(tvb, offset + 2) & 0x7F) != 0;
+	more_frags = (tvb_get_guint8(tvb, offset + 2) & 0x7F) != 0;
 	segmented_message_type = tvb_get_guint8(tvb, offset + 3);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " of %s",
+		    val_to_str(segmented_message_type, q931_message_type_vals, "Unknown message type (0x%02X)"));
+	}
 	offset += 1 + 1 + info_element_len;
 	/* Reassembly */
 	frag_len = tvb_length_remaining(tvb, offset);
@@ -2436,13 +2444,9 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		} else {
 			if (tree) proto_tree_add_uint(q931_tree, hf_q931_reassembled_in, tvb, offset, frag_len, fd_head->reassembled_in);
 		}
-	} else {
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_str(pinfo->cinfo, COL_INFO, " [segment]");
-		}
 	}
-    if (next_tvb)
-		dissect_q931_IEs(next_tvb, pinfo, tree, q931_tree, is_tpkt, 0);
+	if (next_tvb)
+		dissect_q931_IEs(next_tvb, pinfo, tree, q931_tree, is_tpkt, 0, 0);
 }
 
 static const value_string q931_codeset_vals[] = {
@@ -2454,9 +2458,9 @@ static const value_string q931_codeset_vals[] = {
 	{ 0x00, NULL },
 };
 
-void
-dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    proto_tree *q931_tree, gboolean is_tpkt, int offset)
+static void
+dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
+    proto_tree *q931_tree, gboolean is_tpkt, int offset, int initial_codeset)
 {
 	proto_item	*ti;
 	proto_tree	*ie_tree = NULL;
@@ -2468,7 +2472,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	e164_info_t e164_info;
 	e164_info.e164_number_type = NONE;
 
-	codeset = locked_codeset = 0;	/* start out in codeset 0 */
+	codeset = locked_codeset = initial_codeset;
 	non_locking_shift = TRUE;
 	first_segment = FALSE;
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -2625,7 +2629,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					    offset + 4, info_element_len - 1,
 					    info_element_len - 1);
 					call_dissector(h225_handle, h225_tvb,
-					    pinfo, tree);
+					    pinfo, root_tree);
 				} else {
 					/*
 					 * No - just show it as "User
@@ -2959,6 +2963,18 @@ dissect_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_q931_pdu(tvb, pinfo, tree, FALSE);
 }
 
+static void
+dissect_q931_ie_cs0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_q931_IEs(tvb, pinfo, NULL, tree, FALSE, 0, 0);
+}
+
+static void
+dissect_q931_ie_cs7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_q931_IEs(tvb, pinfo, NULL, tree, FALSE, 0, 7);
+}
+
 static void 
 q931_init(void) {
 	/* Initialize the fragment and reassembly tables */
@@ -3107,6 +3123,8 @@ proto_register_q931(void)
 	register_dissector("q931", dissect_q931, proto_q931);
 	q931_tpkt_pdu_handle = create_dissector_handle(dissect_q931_tpkt_pdu,
 	    proto_q931);
+	register_dissector("q931.ie", dissect_q931_ie_cs0, proto_q931);
+	register_dissector("q931.ie.cs7", dissect_q931_ie_cs7, proto_q931);
 
  	/* subdissector code */	
  	codeset_dissector_table = register_dissector_table("q931.codeset", "Q.931 Codeset", FT_UINT8, BASE_HEX);
