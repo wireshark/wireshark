@@ -1,7 +1,7 @@
 /* compat_macros.h
  * GTK-related Global defines, etc.
  *
- * $Id: compat_macros.h,v 1.14 2004/02/24 17:59:57 ulfl Exp $
+ * $Id: compat_macros.h,v 1.15 2004/05/23 15:03:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,9 @@ gtk_object_set_data_full(GTK_OBJECT(widget), key, (gpointer)(data), \
 #define OBJECT_GET_DATA(widget, key) \
 gtk_object_get_data(GTK_OBJECT(widget), key)
 
+/* WIDGET_SET_SIZE would better be named WIDGET_SET_MIN_SIZE. */
+/* don't use WIDGET_SET_SIZE() to set the size of a dialog, */
+/* use gtk_window_set_default_size() for that purpose! */
 #define WIDGET_SET_SIZE(widget, width, height) \
 gtk_widget_set_usize(GTK_WIDGET(widget), width, height)
 
@@ -162,6 +165,9 @@ g_object_set_data_full(G_OBJECT(widget), key, (gpointer)(data), \
 #define OBJECT_GET_DATA(widget, key) \
 g_object_get_data(G_OBJECT(widget), key)
 
+/* WIDGET_SET_SIZE would better be named WIDGET_SET_MIN_SIZE. */
+/* don't use WIDGET_SET_SIZE() to set the size of a dialog, */
+/* use gtk_window_set_default_size() for that purpose! */
 #define WIDGET_SET_SIZE(widget, width, height) \
 gtk_widget_set_size_request(GTK_WIDGET(widget), width, height)
 
