@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.16 2001/12/03 09:09:11 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.17 2001/12/03 20:49:03 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -135,22 +135,6 @@ static GtkWidget *decode_show_w = NULL;
  * button is selected these items should be dimmed.
  */
 static GSList *decode_dimmable = NULL;
-
-/*
- * A list of additional IP protocol numbers that are currently being
- * decodes as TCP.  This is used to determine whether or not to include
- * a "transport" page for TCP in the dialog notebook.  This list never
- * includes values for the standard TCP protocol number.
- */
-static GSList *decode_as_tcp = NULL;
-
-/*
- * A list of additional IP protocol numbers that are currently being
- * decodes as UDP.  This is used to determine whether or not to include
- * a "transport" page for UDP in the dialog notebook.  This list never
- * includes values for the standard UDP protocol number.
- */
-static GSList *decode_as_udp = NULL;
 
 /*
  * Remember the "action" radio button that is currently selected in
@@ -313,15 +297,6 @@ decode_show_reset_cb (GtkWidget *reset_bt, gpointer parent_w)
     }
     g_slist_free(dissector_reset_list);
     dissector_reset_list = NULL;
-
-    /*
-     * Clear the list of IP protocol numbers to be decoded as TCP
-     * and as UDP.
-     */
-    g_slist_free(decode_as_tcp);
-    decode_as_tcp = NULL;
-    g_slist_free(decode_as_udp);
-    decode_as_udp = NULL;
 
     redissect_packets(&cfile);
 
@@ -575,82 +550,6 @@ decode_simple (GtkWidget *notebook_pg)
     value = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(notebook_pg),
 						E_PAGE_VALUE));
     decode_change_one_dissector(table_name, value, clist);
-}
-
-
-/*
- * This routine is called when the user clicks the "OK" button in the
- * "Decode As..." dialog window and the network page is foremost.
- * This routine takes care of making any changes requested to the
- * dissector tables.  This routine uses the decode_simple() routine to
- * perform the heavy lifting, and then updates the lists of protocol that
- * are being decoded as TCP and as UDP.
- *
- * @param notebook_pg A pointer to the "network" notebook page.
- */
-static void
-decode_network (GtkWidget *notebook_pg)
-{
-    GtkCList *clist;
-    GSList *item;
-    gint row, port_num;
-    dissector_handle_t handle;
-    gchar *short_name;
-
-    /* Do the real work */
-    decode_simple(notebook_pg);
-
-    /* Now tweak the local tables of protocol ids currently decoded as TCP
-       and UDP */
-    port_num = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(notebook_pg),
-						E_PAGE_VALUE));
-
-    /* Ignore changes to the normal TCP and UDP protocol numbers */
-    if ((port_num == IP_PROTO_TCP) || (port_num == IP_PROTO_UDP))
-	return;
-
-    if (requested_action == E_DECODE_NO) {
-	/* Not decoding at all; remove any entry for this IP protocol number
-	   in the lists of protocol numbers to be decoded as TCP or
-	   UDP. */
-	decode_as_tcp =
-	    g_slist_remove(decode_as_tcp, GINT_TO_POINTER(port_num));
-	decode_as_udp =
-	    g_slist_remove(decode_as_udp, GINT_TO_POINTER(port_num));
-	return;
-    }
-
-    /* Note: if the action was E_DECODE_NO, the selection on the clist
-       was cleared, so the code to get "row" below would blow up. */
-    clist = GTK_CLIST(gtk_object_get_data(GTK_OBJECT(notebook_pg), E_PAGE_CLIST));
-    row = GPOINTER_TO_INT(clist->selection->data);
-    handle = gtk_clist_get_row_data(clist, row);
-    short_name = dissector_handle_get_short_name(handle);
-    if (strcmp(short_name, "TCP") == 0) {
-	/* Assigning as TCP; add to the list of IP protocol numbers
-	   decoded as TCP if not already present on that list. */
-	item = g_slist_find(decode_as_tcp, GINT_TO_POINTER(port_num));
-	if (!item) {
-	    decode_as_tcp =
-		g_slist_prepend(decode_as_tcp, GINT_TO_POINTER(port_num));
-	}
-    } else if (strcmp(short_name, "UDP") == 0) {
-	/* Assigning as UDP; add to the list of IP protocol numbers
-	   decoded as UDP if not already present on that list. */
-	item = g_slist_find(decode_as_udp, GINT_TO_POINTER(port_num));
-	if (!item) {
-	    decode_as_udp =
-		g_slist_prepend(decode_as_udp, GINT_TO_POINTER(port_num));
-	}
-    } else {
-	/* Not assigning TCP or UDP; remove any entry for this IP protocol
-	   number in the lists of protocol numbers to be decoded as TCP or
-	   UDP. */
-	decode_as_tcp =
-	    g_slist_remove(decode_as_tcp, GINT_TO_POINTER(port_num));
-	decode_as_udp =
-	    g_slist_remove(decode_as_udp, GINT_TO_POINTER(port_num));
-    }
 }
 
 
@@ -1175,59 +1074,6 @@ decode_add_tcpudp_page (gchar *prompt, gchar *table_name)
 }
 
 /*
- * Indicate if a transport page for TCP should be included, based upon the
- * IP protocol number.
- *
- * @param ip_protocol The IP protocol number in question.
- *
- * @return gboolean TRUE if this protocol is being decoded as TCP.
- */
-static gboolean
-decode_as_tcp_ok (gint ip_protocol)
-{
-    if (ip_protocol == IP_PROTO_TCP)
-	return(TRUE);
-
-    if (g_slist_find(decode_as_tcp, GINT_TO_POINTER(ip_protocol)))
-	return(TRUE);
-    return(FALSE);
-}
-
-/*
- * Indicate if a transport page for UDP should be included, based upon the
- * IP protocol number.
- *
- * @param ip_protocol The IP protocol number in question.
- *
- * @return gboolean TRUE if this protocol is being decoded as UDP.
- */
-static gboolean
-decode_as_udp_ok (gint ip_protocol)
-{
-    if (ip_protocol == IP_PROTO_UDP)
-	return(TRUE);
-
-    if (g_slist_find(decode_as_udp, GINT_TO_POINTER(ip_protocol)))
-	return(TRUE);
-    return(FALSE);
-}
-
-/*
- * Indicate if a transport page should be included, based upon the iP
- * protocol number.
- *
- * @param ip_protocol The IP protocol number in question.
- *
- * @return gboolean TRUE if this protocol is being decoded as TCP or
- * UDP.
- */
-static gboolean
-decode_as_transport_ok (gint ip_protocol)
-{
-    return(decode_as_tcp_ok(ip_protocol) || decode_as_udp_ok(ip_protocol));
-}
-
-/*
  * This routine indicates whether we'd actually have any pages in the
  * notebook in a "Decode As" dialog box; if there wouldn't be, we
  * inactivate the menu item for "Decode As".
@@ -1235,7 +1081,7 @@ decode_as_transport_ok (gint ip_protocol)
 gboolean
 decode_as_ok(void)
 {
-    return cfile.edt->pi.ethertype || cfile.edt->pi.ipproto || decode_as_transport_ok(cfile.edt->pi.ipproto);
+    return cfile.edt->pi.ethertype || cfile.edt->pi.ipproto;
 }
 
 
@@ -1268,23 +1114,34 @@ decode_add_notebook (GtkWidget *format_hb)
 
     /* Add network selection page */
     if (cfile.edt->pi.ipproto) {
+	/*
+	 * The network-layer protocol is IP.
+	 */
 	sprintf(buffer, "IP protocol %u", cfile.edt->pi.ipproto);
 	page = decode_add_simple_page(buffer, "Network", "ip.proto", cfile.edt->pi.ipproto);
-	gtk_object_set_data(GTK_OBJECT(page), E_PAGE_ACTION, decode_network);
+	gtk_object_set_data(GTK_OBJECT(page), E_PAGE_ACTION, decode_simple);
 	label = gtk_label_new("Network");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
-    }
 
-    /* Add transport selection page */
-    if (decode_as_tcp_ok(cfile.edt->pi.ipproto))
-	page = decode_add_tcpudp_page("TCP", "tcp.port");
-    else if (decode_as_udp_ok(cfile.edt->pi.ipproto))
-	page = decode_add_tcpudp_page("UDP", "udp.port");
-    else
-        page = NULL;
-    if (page != NULL) {
-	label = gtk_label_new("Transport");
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
+	/* Add transport selection page */
+	switch (cfile.edt->pi.ptype) {
+
+	case PT_TCP:
+	    page = decode_add_tcpudp_page("TCP", "tcp.port");
+	    break;
+
+	case PT_UDP:
+	    page = decode_add_tcpudp_page("UDP", "udp.port");
+	    break;
+
+	default:
+	    page = NULL;
+	    break;
+	}
+	if (page != NULL) {
+	    label = gtk_label_new("Transport");
+	    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
+	}
     }
 
     /* Select the last added page (selects first by default) */
