@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.10 2000/09/08 10:59:13 guy Exp $
+ * $Id: help_dlg.c,v 1.11 2000/09/09 15:00:36 deniel Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -254,7 +254,12 @@ static char *dfilter_help =
 static char *cfilter_help = 
 "Packet capturing is performed with the pcap library. The capture filter "
 "syntax follows the rules of this library.\nSo this syntax is different "
-"from the display filter syntax: see manual page of tcpdump.\n";
+"from the display filter syntax: see manual page of tcpdump.\n"
+#ifndef HAVE_LIBPCAP
+"\nNote: packet capturing is not enabled in this version.\n";
+#else
+;
+#endif
 
 static char *overview_help = 
 "Ethereal is a GUI network protocol analyzer. It lets you interactively "
@@ -264,12 +269,14 @@ static char *overview_help =
 "(including Shomiti) and atmsnoop, LanAlyzer, Sniffer (compressed or "
 "uncompressed), Microsoft Network Monitor, AIX's iptrace, NetXray, "
 "Sniffer Pro, RADCOM's WAN/LAN analyzer, Lucent/Ascend router debug output, "
-"HP-UX's nettl, the dump output from Toshiba's ISDN routers, and i4btrace "
-"from the ISDN4BSD project. There is no need to tell Ethereal what type of "
-"file you are reading; it will determine the file type by itself. Ethereal "
-"is also capable of reading any of these file formats if they are compressed "
-"using gzip. Ethereal recognizes this directly from the file; the '.gz' "
-"extension is not required for this purpose.";
+"HP-UX's nettl, the dump output from Toshiba's ISDN routers, the output from "
+"i4btrace from the ISDN4BSD project, and output in IPLog format from the "
+"Cisco Secure Intrusion Detection System."
+"There is no need to tell Ethereal what type of file you are reading; it will "
+"determine the file type by itself. Ethereal is also capable of reading any "
+"of these file formats if they are compressed using gzip. Ethereal recognizes "
+"this directly from the file; the '.gz' extension is not required for this "
+"purpose.";
 
 static void set_help_text(GtkWidget *w, help_type_t type)
 {
