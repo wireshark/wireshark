@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.201 2003/10/10 13:33:49 jmayer Exp $
+ * $Id: tethereal.c,v 1.202 2003/10/10 21:13:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -793,6 +793,8 @@ main(int argc, char *argv[])
   gchar               *cf_name = NULL, *rfilter = NULL;
 #ifdef HAVE_LIBPCAP
   gchar               *if_text;
+#endif
+#ifdef HAVE_PCAP_COMPILE_NOPCAP
   struct bpf_program   fcode;
 #endif
   dfilter_t           *rfcode = NULL;
@@ -1340,10 +1342,10 @@ main(int argc, char *argv[])
     if (!dfilter_compile(rfilter, &rfcode)) {
       fprintf(stderr, "tethereal: %s\n", dfilter_error_msg);
       epan_cleanup();
-#ifdef HAVE_LIBPCAP
-      if (pcap_compile_nopcap(DLT_LINUX_SLL,0, &fcode, rfilter, 0, 0) != -1) {
+#ifdef HAVE_PCAP_COMPILE_NOPCAP
+      if (pcap_compile_nopcap(DLT_EN10MB, 0, &fcode, rfilter, 0, 0) != -1) {
         fprintf(stderr,
-          "  Note: This display filter code looks like a valid capture filter,\n"
+          "  Note: This display filter code looks like a valid capture filter;\n"
           "        maybe you mixed them up?\n");
       }
 #endif
