@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.71 2004/02/20 22:32:36 guy Exp $
+ * $Id: packet-q931.c,v 1.72 2004/02/21 04:19:12 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -3090,8 +3090,8 @@ proto_register_q931(void)
 	    "Whether the Q.931 dissector should desegment all messages spanning multiple TCP segments",
 	    &q931_desegment);
 	prefs_register_bool_preference(q931_module, "reassembly",
-	    "Reassembly segmented Q.931 messages",
-	    "Reassembly segmented Q.931 messages (Q.931 - Annex H)",
+	    "Reassemble segmented Q.931 messages",
+	    "Reassemble segmented Q.931 messages (Q.931 - Annex H)",
 	    &q931_reassembly);
 }
 
