@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.569 2003/03/25 09:41:41 sahlberg Exp $
+# $Id: Makefile.am,v 1.570 2003/03/25 22:30:19 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -85,6 +85,7 @@ diameter_DATA = dictionary.dtd dictionary.xml mobileipv4.xml \
 
 DISSECTOR_SRC = \
 	packet-aarp.c  \
+	packet-acap.c  \
 	packet-afp.c   \
 	packet-afs.c   \
 	packet-aim.c   \
