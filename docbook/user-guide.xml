@@ -71,7 +71,6 @@ DOCUMENT SECTION
 Ethereal Info
 -->
   <!ENTITY EtherealCurrentVersion "0.10.6">
-  <!ENTITY EtherealNextMinorVersion "0.10.7">
   <!ENTITY EtherealWebSite "http://www.ethereal.com">
   <!ENTITY EtherealUsersGuidePage "&EtherealWebSite;/docs/#usersguide">
   <!ENTITY EtherealDownloadPage "&EtherealWebSite;/download.html">
@@ -81,7 +80,6 @@ Ethereal Info
   <!ENTITY EtherealFAQPage "&EtherealWebSite;/faq.html">
   <!ENTITY EtherealFAQPromiscPage "&EtherealWebSite;/faq#promiscsniff">
   <!ENTITY EtherealMediaPage "&EtherealWebSite;/media.html">
-  <!ENTITY EtherealCurrentVersionTarFile "0.10.5">
 
   <!ENTITY EtherealDevMailList "ethereal-dev[AT]ethereal.com">
   <!ENTITY EtherealUsersMailList "ethereal-users[AT]ethereal.com">
