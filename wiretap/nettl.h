@@ -1,5 +1,7 @@
 /* nettl.h
  *
+ * $Id: nettl.h,v 1.2 1999/10/31 19:35:32 guy Exp $
+ *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * 
