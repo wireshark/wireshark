@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.c,v 1.12 1999/05/13 16:42:43 gram Exp $
+ * $Id: packet-ncp.c,v 1.13 1999/05/14 21:30:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -58,8 +58,9 @@ static void
 parse_ncp_svc_fields(const u_char *pd, proto_tree *ncp_tree, int offset,
 	struct svc_record *svc);
 
-static int
-svc_record_byte_count(struct svc_record *sr);
+static char*
+ncp_completion_code(guint8 ccode);
+
 
 /* Hash functions */
 gint  ncp_equal (const gpointer v, const gpointer v2);
@@ -131,33 +132,47 @@ static value_string request_reply_values[] = {
 enum ntype {
 	nend,		/* end of the NCP field list */
 	nbyte,		/* one byte of data */
-	nhex,
+	nhex,		/* bytes to be shown as hex digits */
 	nbelong,	/* 4-byte big-endian long int */
 	nbeshort,	/* 2-byte big-endian short int */
 	ndata,		/* unstructured data */
 	nbytevar,	/* a variable number of bytes */
 	ndatetime,	/* date-time stamp */
+	nasciile,	/* length-encoded ASCII string. First byte is length */
 	nasciiz		/* null-terminated string of ASCII characters */
 };
 
 /* Information on the NCP field */
 typedef struct svc_record {
 	enum ntype	type;
-	guint8		length;
+	guint8		length;	/* max-length for variable-sized fields */
 	gchar		*description;
 } svc_record;
 
 typedef struct ncp2222_record {
 	guint8		func;
 	guint8		subfunc;
-	guint8		submask;
+	guint8		submask;	/* Does this function have subfunctions?
+					 * SUBFUNC or NOSUB */
 	gchar		*funcname;
 
 	svc_record	*req;
 	svc_record	*rep;
-	void*		special_handler;
+	void*		special_handler;	/* not used yet */
 
 } ncp2222_record;
+
+
+/* ------------------------------------------------------------ */
+
+/* Get Bindery Object ID REQUEST */
+static svc_record ncp_17_35_C[] = {
+		{ nbeshort,	2,	"Object Type: 0x%04x" },
+		{ nasciile,	48,	"Object Name: %.*s" },
+		{ nend,		0,	NULL }
+};
+/* Get Bindery Object ID REPLY has no fields*/
+
 
 /* Service Queue Job REQUEST */
 static svc_record ncp_17_7C_C[] = {
@@ -167,16 +182,16 @@ static svc_record ncp_17_7C_C[] = {
 };
 /* Service Queue Job REPLY */
 static svc_record ncp_17_7C_R[] = {
-		{ nbelong,	4,	"Client station number" },
-		{ nbelong,	4,	"Task Number" },
-		{ nbelong,	4,	"User" },
-		{ nbelong,	4,	"Server specifed to service queue entry" },
+		{ nbelong,	4,	"Client station number: %d" },
+		{ nbelong,	4,	"Task Number: %d" },
+		{ nbelong,	4,	"User: %d" },
+		{ nbelong,	4,	"Server specifed to service queue entry: %08X" },
 		{ ndatetime,	6,	"Earliest time to execute" },
 		{ ndatetime,	6,	"When job entered queue" },
 		{ nbelong,	4,	"Job Number" },
 		{ nbeshort,	2,	"Job Type" },
 		{ nbeshort,	2,	"Job Position" },
-		{ nbeshort,	2,	"Current status of job" },
+		{ nbeshort,	2,	"Current status of job: 0x%02x" },
 		{ nasciiz,	14,	"Name of file" },
 		{ nbelong,	4,	"File handle" },
 		{ nbelong,	4,	"Client station number" },
@@ -185,16 +200,30 @@ static svc_record ncp_17_7C_R[] = {
 		{ nend,		0,	NULL }
 };
 
+
+
 /* Negotiate Buffer Size REQUEST */
 static svc_record ncp_21_00_C[] = {
 		{ nbeshort,	2,	"Caller's maximum packet size: %d bytes" },
 		{ nend,		0,	NULL }
 };
-/* RESPONSE */
+/* Negotiate Buffer Size RESPONSE */
 static svc_record ncp_21_00_R[] = {
-		{ nbeshort,	2,	"Packet size decided upon by file server: %d" },
+		{ nbeshort,	2,	"Packet size decided upon by file server: %d bytes" },
 		{ nend,		0,	NULL }
 };
+
+
+/* Close File REQUEST */
+static svc_record ncp_42_00_C[] = {
+		{ nhex,		6,	"File Handle: 02x:02x:02x:02x:02x:02x"},
+		{ nend,		0,	NULL }
+};
+/* Close File RESPONSE */
+static svc_record ncp_42_00_R[] = {
+		{ nend,		0,	NULL }
+};
+
 
 /* Read from a file REQUEST */
 static svc_record ncp_48_00_C[] = {
@@ -211,17 +240,37 @@ static svc_record ncp_48_00_R[] = {
 		{ ndata,	0,	NULL }
 };
 
+/* ------------------------------------------------------------ */
+/* Any svc_record that has no fields is not created.
+ *  Store a NULL in the ncp2222_record instead */
+
 #define SUBFUNC	0xff
 #define NOSUB	0x00
 
 static ncp2222_record ncp2222[] = {
 
+{ 0x17, 0x35, SUBFUNC, "Get Bindery Object ID",
+	ncp_17_35_C, NULL, NULL
+},
+
 { 0x17, 0x7C, SUBFUNC, "Service Queue Job",
 	ncp_17_7C_C, ncp_17_7C_R, NULL
 },
 
+{ 0x18, 0x00, NOSUB, "End of Job",
+	NULL, NULL, NULL
+},
+
+{ 0x19, 0x00, NOSUB, "Logout",
+	NULL, NULL, NULL
+},
+
 { 0x21, 0x00, NOSUB, "Negotiate Buffer Size",
 	ncp_21_00_C, ncp_21_00_R, NULL
+},
+
+{ 0x42, 0x00, NOSUB, "Close File",
+	ncp_42_00_C, ncp_42_00_R, NULL
 },
 
 { 0x48, 0x00, NOSUB, "Read from a file",
@@ -233,6 +282,7 @@ static ncp2222_record ncp2222[] = {
 }
 
 };
+
 
 /* NCP packets come in request/reply pairs. The request packets tell the type
  * of NCP request and give a sequence ID. The response, unfortunately, only
@@ -330,10 +380,10 @@ ncp_init_protocol(void)
 	ncp_request_hash = g_hash_table_new(ncp_hash, ncp_equal);
 	ncp_request_keys = g_mem_chunk_new("ncp_request_keys",
 			sizeof(struct ncp_request_key),
-			100 * sizeof(struct ncp_request_key), G_ALLOC_AND_FREE);
+			1000 * sizeof(struct ncp_request_key), G_ALLOC_AND_FREE);
 	ncp_request_records = g_mem_chunk_new("ncp_request_records",
 			sizeof(struct ncp_request_val),
-			100 * sizeof(struct ncp_request_val), G_ALLOC_AND_FREE);
+			1000 * sizeof(struct ncp_request_val), G_ALLOC_AND_FREE);
 }
 
 static struct ncp2222_record *
@@ -353,21 +403,6 @@ ncp2222_find(guint8 func, guint8 subfunc)
 	}
 
 	return retval;
-}
-
-/* How many bytes of NCP data to expect in the packet */
-static int
-svc_record_byte_count(svc_record *sr)
-{
-	svc_record *rec = sr;
-	int byte_count = 0;
-
-	while (rec->type != nend && rec->type != ndata) {
-		byte_count += rec->length;
-		rec++;
-	}
-
-	return byte_count;
 }
 
 void
@@ -439,7 +474,6 @@ dissect_ncp_request(const u_char *pd, int offset, frame_data *fd,
 	struct ncp_request_key		*request_key;
 	proto_tree			*field_tree = NULL;
 	proto_item			*ti = NULL;
-	int				max_data;
 
 	/*memcpy(&request, &pd[offset], sizeof(request));*/
 	request.function = pd[offset+6];
@@ -455,7 +489,7 @@ dissect_ncp_request(const u_char *pd, int offset, frame_data *fd,
 			col_add_fstr(fd, COL_INFO, "C %s", description);
 		}
 		else {
-			col_add_fstr(fd, COL_INFO, "C 2222/%02X%02X",
+			col_add_fstr(fd, COL_INFO, "C Unknown Function %02X/%02X",
 				request.function, request.subfunc);
 		}
 	}
@@ -466,15 +500,25 @@ dissect_ncp_request(const u_char *pd, int offset, frame_data *fd,
 			request.function, description);
 
 	 	if (ncp_request) {
-			max_data = svc_record_byte_count(ncp_request->req);
 
-			if (max_data > 0) {
-				ti = proto_tree_add_item(ncp_tree, offset+7, END_OF_FRAME,
+			if (ncp_request->submask == SUBFUNC) {
+				proto_tree_add_item(ncp_tree, offset+7, 2,
+					"Packet Length: %d bytes", pntohs(&pd[offset+7]));
+				proto_tree_add_item(ncp_tree, offset+9, 1,
+					"Subfunction Code: 0x%02x", pd[offset+9]);
+				offset += 7 + 3;
+			}
+			else {
+				offset += 7;
+			}
+
+			if (ncp_request->req) {
+				ti = proto_tree_add_item(ncp_tree, offset, END_OF_FRAME,
 				"NCP Request Packet");
 				field_tree = proto_tree_new();
 				proto_item_add_subtree(ti, field_tree, ETT_NCP_REQUEST_FIELDS);
 
-				parse_ncp_svc_fields(pd, field_tree, offset+7, ncp_request->req);
+				parse_ncp_svc_fields(pd, field_tree, offset, ncp_request->req);
 			}
 		}
 	}
@@ -505,10 +549,8 @@ dissect_ncp_reply(const u_char *pd, int offset, frame_data *fd,
 	struct ncp2222_record		*ncp_request = NULL;
 	struct ncp_request_val		*request_val;
 	struct ncp_request_key		request_key;
-	gchar				*description = "Unknown";
 	proto_tree			*field_tree = NULL;
 	proto_item			*ti = NULL;
-	int				max_data;
 
 	memcpy(&reply, &pd[offset], sizeof(reply));
 
@@ -528,29 +570,34 @@ dissect_ncp_reply(const u_char *pd, int offset, frame_data *fd,
 	if (request_val)
 		ncp_request = request_val->ncp_record;
 
-	if (ncp_request)
-		description = ncp_request->funcname;
-
-	if (check_col(fd, COL_INFO))
-		col_add_fstr(fd, COL_INFO, "R %s", description);
+	if (check_col(fd, COL_INFO)) {
+		if (reply.completion_code == 0) {
+			col_add_fstr(fd, COL_INFO, "R OK");
+		}
+		else {
+			col_add_fstr(fd, COL_INFO, "R Not OK");
+		}
+	}
 
 	if (ncp_tree) {
+		/* A completion code of 0 always means OK. Other values have different
+		 * meanings */
 		proto_tree_add_item(ncp_tree, offset+6,    1,
-			"Completion Code: %d", reply.completion_code);
+			"Completion Code: 0x%02x (%s)", reply.completion_code,
+			ncp_completion_code(reply.completion_code));
 
 		proto_tree_add_item(ncp_tree, offset+7,    1,
 			"Connection Status: %d", reply.connection_state);
 
 		if (ncp_request) {
-			max_data = svc_record_byte_count(ncp_request->req);
 
-			if (max_data > 0) {
+			if (ncp_request->rep) {
 				ti = proto_tree_add_item(ncp_tree, offset+8, END_OF_FRAME,
 				"NCP Reply Packet");
 				field_tree = proto_tree_new();
 				proto_item_add_subtree(ti, field_tree, ETT_NCP_REPLY_FIELDS);
 
-				parse_ncp_svc_fields(pd, field_tree, offset+8, ncp_request->req);
+				parse_ncp_svc_fields(pd, field_tree, offset+8, ncp_request->rep);
 			}
 		}
 	}
@@ -564,18 +611,191 @@ parse_ncp_svc_fields(const u_char *pd, proto_tree *ncp_tree, int offset,
 {
 	struct svc_record *rec = svc;
 	int field_offset = offset;
+	int field_length = 0;
 
 	while (rec->type != nend) {
 		switch(rec->type) {
 			case nbeshort:
+				field_length = 2;
 				proto_tree_add_item(ncp_tree, field_offset,
-					rec->length, rec->description, pntohs(&pd[field_offset]));
+					field_length, rec->description, pntohs(&pd[field_offset]));
 				break;
 
-			/* default:
-				nothing */
+			case nasciile:
+				field_length = pd[field_offset];
+				proto_tree_add_item(ncp_tree, field_offset,
+					field_length + 1, rec->description, field_length,
+					&pd[field_offset+1]);
+				break;
+
+			case nhex:
+				field_length = rec->length;
+				proto_tree_add_item(ncp_tree, field_offset,
+					field_length, rec->description);
+				break;	
+
+			 default:
+			/*	nothing */
 		}
-		field_offset += rec->length;
+		field_offset += field_length;
 		rec++;
 	}	
+}
+
+static char*
+ncp_completion_code(guint8 ccode)
+{
+
+#define NCP_CCODE_MIN 0x7e
+#define NCP_CCODE_MAX 0xff
+
+	/* From Appendix C of "Programmer's Guide to NetWare Core Protocol" */
+	static char	*ccode_text[] = {
+		/* 7e */ "NCP boundary check failed",
+		/* 7f */ "Unknown",
+		/* 80 */ "Lock fail. The file is already open",
+		/* 81 */ "A file handle could not be allocated by the file server",
+		/* 82 */ "Unauthorized to open file",
+		/* 83 */ "Unable to read/write the volume. Possible bad sector on the file server",
+		/* 84 */ "Unauthorized to create the file",
+		/* 85 */ "",
+		/* 86 */ "Unknown",
+		/* 87 */ "An unexpected character was encountered in the filename",
+		/* 88 */ "FileHandle is not valid",
+		/* 89 */ "Unauthorized to search this directory",
+		/* 8a */ "Unauthorized to delete a file in this directory",
+		/* 8b */ "Unauthorized to rename a file in this directory",
+		/* 8c */ "Unauthorized to modify a file in this directory",
+		/* 8d */ "Some of the affected files are in use by another client",
+		/* 8e */ "All of the affected files are in use by another client",
+		/* 8f */ "Some of the affected file are read only",
+		/* 90 */ "",
+		/* 91 */ "Some of the affected files already exist",
+		/* 92 */ "All of the affected files already exist",
+		/* 93 */ "Unauthorized to read from this file",
+		/* 94 */ "Unauthorized to write to this file",
+		/* 95 */ "The affected file is detached",
+		/* 96 */ "The file server has run out of memory to service this request",
+		/* 97 */ "Unknown",
+		/* 98 */ "The affected volume is not mounted",
+		/* 99 */ "The file server has run out of directory space on the affected volume",
+		/* 9a */ "The request attempted to rename the affected file to another volume",
+		/* 9b */ "DirHandle is not associated with a valid directory path",
+		/* 9c */ "",
+		/* 9d */ "A directory handle was not available for allocation",
+		/* 9e */ "The filename does not conform to a legal name for this name space",
+		/* 9f */ "The request attempted to delete a directory that is in use by another client",
+		/* a0 */ "The request attempted to delete a directory that is not empty",
+		/* a1 */ "An unrecoverable error occurred on the affected directory",
+		/* a2 */ "The request attempted to read from a file region that is physically locked",
+		/* a3 */ "Unknown",
+		/* a4 */ "Unknown",
+		/* a5 */ "Unknown",
+		/* a6 */ "Unknown",
+		/* a7 */ "Unknown",
+		/* a8 */ "Unknown",
+		/* a9 */ "Unknown",
+		/* aa */ "Unknown",
+		/* ab */ "Unknown",
+		/* ac */ "Unknown",
+		/* ad */ "Unknown",
+		/* ae */ "Unknown",
+		/* af */ "Unknown",
+		/* b0 */ "Unknown",
+		/* b1 */ "Unknown",
+		/* b2 */ "Unknown",
+		/* b3 */ "Unknown",
+		/* b4 */ "Unknown",
+		/* b5 */ "Unknown",
+		/* b6 */ "Unknown",
+		/* b7 */ "Unknown",
+		/* b8 */ "Unknown",
+		/* b9 */ "Unknown",
+		/* ba */ "Unknown",
+		/* bb */ "Unknown",
+		/* bc */ "Unknown",
+		/* bd */ "Unknown",
+		/* be */ "Unknown",
+		/* bf */ "Requests for this name space are not valid on this volume",
+		/* c0 */ "Unauthorized to retrieve accounting data",
+		/* c1 */ "The 'account balance' property does not exist",
+		/* c2 */ "The object has exceeded its credit limit",
+		/* c3 */ "Too many holds have been placed against this account",
+		/* c4 */ "The account for this bindery object has been disabled",
+		/* c5 */ "Access to the account has been denied because of intruder detections",
+		/* c6 */ "The caller does not have operator privileges",
+		/* c7 */ "Unknown",
+		/* c8 */ "Unknown",
+		/* c9 */ "Unknown",
+		/* ca */ "Unknown",
+		/* cb */ "Unknown",
+		/* cc */ "Unknown",
+		/* cd */ "Unknown",
+		/* ce */ "Unknown",
+		/* cf */ "Unknown",
+		/* d0 */ "Queue error",
+		/* d1 */ "The queue associated with Object ID does not exist",
+		/* d2 */ "A queue server is not associated with the selected queue",
+		/* d3 */ "No queue rights",
+		/* d4 */ "The queue associated with Object ID is full and cannot accept another request",
+		/* d5 */ "The job associated with Job Number does not exist in this queue",
+		/* d6 */ "",
+		/* d7 */ "",
+		/* d8 */ "Queue not active",
+		/* d9 */ "",
+		/* da */ "",
+		/* db */ "",
+		/* dc */ "Unknown",
+		/* dd */ "Unknown",
+		/* de */ "Attempted to login to the file server with an incorrect password",
+		/* df */ "Attempted to login to the file server with a password that has expired",
+		/* e0 */ "Unknown",
+		/* e1 */ "Unknown",
+		/* e2 */ "Unknown",
+		/* e3 */ "Unknown",
+		/* e4 */ "Unknown",
+		/* e5 */ "Unknown",
+		/* e6 */ "Unknown",
+		/* e7 */ "No disk track",
+		/* e8 */ "",
+		/* e9 */ "Unknown",
+		/* ea */ "The bindery object is not a member of this set",
+		/* eb */ "The property is not a set property",
+		/* ec */ "The set property does not exist",
+		/* ed */ "The property already exists",
+		/* ee */ "The bindery object already exists",
+		/* ef */ "Illegal characters in Object Name field",
+		/* f0 */ "A wildcard was detected in a field that does not support wildcards",
+		/* f1 */ "The client does not have the rights to access this bindery objecs",
+		/* f2 */ "Unauthorized to read from this object",
+		/* f3 */ "Unauthorized to rename this object",
+		/* f4 */ "Unauthorized to delete this object",
+		/* f5 */ "Unauthorized to create this object",
+		/* f6 */ "Unauthorized to delete the property of this object",
+		/* f7 */ "Unauthorized to create this property",
+		/* f8 */ "Unauthorized to write to this property",
+		/* f9 */ "Unauthorized to read this property",
+		/* fa */ "Temporary remap error",
+		/* fb */ "",
+		/* fc */ "Gilbert's test",
+		/* fd */ "",
+		/* fe */ "",
+		/* ff */ ""
+	};
+
+	switch (ccode) {
+		case 0:
+			return "OK";
+			break;
+
+		case 3:
+			return "Client not accepting messages";
+			break;
+	}
+
+	if (ccode >= NCP_CCODE_MIN && ccode <= NCP_CCODE_MAX) {
+		return ccode_text[ccode - NCP_CCODE_MIN];
+	}
+
+	return "Unknown";
 }
