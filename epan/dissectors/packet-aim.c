@@ -277,7 +277,7 @@ static const value_string dc_types[] = {
 	{ DC_SOCKS, "DC thru SOCKS proxy" },
 	{ DC_NORMAL, "Regular connection" },
 	{ DC_IMPOSSIBLE, "DC not possible " },
-	{ 0, "Unknown" },
+	{ 0, NULL },
 };
 
 #define PROTO_VERSION_ICQ98		0x0004
@@ -294,7 +294,7 @@ static const value_string protocol_versions[] = {
 	{ PROTO_VERSION_ICQ2K1, "ICQ 2001" },
 	{ PROTO_VERSION_ICQLITE, "ICQ Lite" },
 	{ PROTO_VERSION_ICQ2K3B, "ICQ 2003B" },
-	{ 0, "Unknown" },
+	{ 0, NULL },
 };
 
 static GList *families = NULL;
