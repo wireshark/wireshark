@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.28 2001/12/05 00:49:32 guy Exp $
+ * $Id: smb.h,v 1.29 2001/12/05 08:20:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -242,6 +242,15 @@ typedef struct {
 #define TRANSACTION_PIPE	0
 #define TRANSACTION_MAILSLOT	1
 
+/* this is the structure which is associated with each conversation */
+typedef struct conv_tables {
+	/* these two tables are used to match requests with responses */
+	GHashTable *unmatched;
+	GHashTable *matched;
+	/* this tables is used by DCERPC over SMB reassembly*/
+	GHashTable *dcerpc_fid_to_frame;
+} conv_tables_t;
+
 typedef struct smb_info {
   int cmd, mid;
   gboolean unicode;		/* Are strings in this SMB Unicode? */
@@ -250,6 +259,7 @@ typedef struct smb_info {
   int info_level;
   int info_count;
   smb_saved_info_t *sip;	/* smb_saved_info_t, if any, for this */
+  conv_tables_t *ct;
 } smb_info_t;
 
 /*
@@ -269,5 +279,8 @@ extern void add_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  */
 extern int dissect_ipc_state(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *parent_tree, int offset, gboolean setstate);
+
+extern gboolean smb_dcerpc_reassembly;
+extern GHashTable *dcerpc_fragment_table;
 
 #endif

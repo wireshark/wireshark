@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.19 2001/11/27 22:37:19 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.20 2001/12/05 08:20:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1582,5 +1582,5 @@ proto_reg_handoff_dcerpc (void)
     heur_dissector_add ("tcp", dissect_dcerpc_cn_bs, proto_dcerpc);
     heur_dissector_add ("netbios", dissect_dcerpc_cn_pk, proto_dcerpc);
     heur_dissector_add ("udp", dissect_dcerpc_dg, proto_dcerpc);
-    heur_dissector_add ("smb_transact", dissect_dcerpc_cn_pk, proto_dcerpc);
+    heur_dissector_add ("smb_transact", dissect_dcerpc_cn_bs, proto_dcerpc);
 }

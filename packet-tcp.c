@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.120 2001/12/03 08:47:27 guy Exp $
+ * $Id: packet-tcp.c,v 1.121 2001/12/05 08:20:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -539,6 +539,9 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		 */
 		call_dissector(data_handle,tvb_new_subset(tvb, deseg_offset,-1,tvb_reported_length_remaining(tvb,deseg_offset)), pinfo, tree);
 	}
+	pinfo->can_desegment=0;
+	pinfo->desegment_offset = 0;
+	pinfo->desegment_len = 0;
 }
 
 

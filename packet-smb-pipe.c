@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.58 2001/11/28 11:33:54 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.59 2001/12/05 08:20:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,6 +55,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
 #include "packet-smb-pipe.h"
 #include "packet-smb-browse.h"
 #include "packet-dcerpc.h"
+#include "reassemble.h"
 
 static int proto_smb_pipe = -1;
 static int hf_pipe_function = -1;
@@ -72,6 +73,7 @@ static int hf_pipe_getinfo_pipe_name = -1;
 static int hf_pipe_write_raw_bytes_written = -1;
 
 static gint ett_smb_pipe = -1;
+static gint ett_smb_pipe_fragments = -1;
 
 static int proto_smb_lanman = -1;
 static int hf_function_code = -1;
@@ -2533,7 +2535,7 @@ static heur_dissector_list_t smb_transact_heur_subdissector_list;
 
 static gboolean
 dissect_pipe_msrpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree,
-    guint16 fid)
+    proto_tree *tree, guint32 fid)
 {
 	dcerpc_private_info dcerpc_priv;
 	smb_info_t *smb_priv = (smb_info_t *)pinfo->private_data;
@@ -2544,10 +2546,72 @@ dissect_pipe_msrpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	pinfo->private_data = &dcerpc_priv;
 
+	/* offer desegmentation service to DCERPC */
+	pinfo->can_desegment=0;
+	pinfo->desegment_offset = 0;
+	pinfo->desegment_len = 0;
+	if(smb_dcerpc_reassembly){ 
+		pinfo->can_desegment=2;
+	}
+
+	/* see if this packet is already desegmented */
+	if(smb_dcerpc_reassembly && pinfo->fd->flags.visited){
+		fragment_data *fd_head;
+		tvbuff_t *new_tvb;
+
+		fd_head=fragment_get(pinfo, pinfo->fd->num , 
+			dcerpc_fragment_table);
+		if(fd_head && fd_head->flags&FD_DEFRAGMENTED){
+			proto_tree *tr;
+			proto_item *it;
+			fragment_data *fd;
+		
+			new_tvb = tvb_new_real_data(fd_head->data,
+				  fd_head->datalen, fd_head->datalen,
+				  "DCERPC over SMB");
+			tvb_set_child_real_data_tvbuff(d_tvb, new_tvb);
+			pinfo->fd->data_src=g_slist_append(pinfo->fd->data_src,
+				   new_tvb);
+			pinfo->fragmented=FALSE;
+
+			d_tvb=new_tvb;
+
+			/* list what segments we have */
+			it = proto_tree_add_text(tree, d_tvb, 0, 0, "Fragments");
+			tr = proto_item_add_subtree(it, ett_smb_pipe_fragments);
+			for(fd=fd_head->next;fd;fd=fd->next){
+				proto_tree_add_text(tr, d_tvb, 0, 0, "Frame:%d Data:%d-%d",
+					    fd->frame, fd->offset, fd->offset+fd->len-1);
+			}
+		}
+	}
+
 	result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb,
 					 pinfo, parent_tree);
-
 	pinfo->private_data = smb_priv;
+
+	/* check if dissector wanted us to desegment the data */
+	if(smb_dcerpc_reassembly && !pinfo->fd->flags.visited && pinfo->desegment_len){
+		fragment_add(d_tvb, 0, pinfo, pinfo->fd->num,
+			dcerpc_fragment_table,
+			0, tvb_length(d_tvb), TRUE);
+		fragment_set_tot_len(pinfo, pinfo->fd->num, 
+			dcerpc_fragment_table, 
+			pinfo->desegment_len+tvb_length(d_tvb));
+		/* since the other fragments are in normal ReadAndX and WriteAndX calls
+		   we must make sure we can map FID values to this defragmentation
+		   session */
+		/* first remove any old mappings */
+		if(g_hash_table_lookup(smb_priv->ct->dcerpc_fid_to_frame, (void *)fid)){
+			g_hash_table_remove(smb_priv->ct->dcerpc_fid_to_frame, (void *)fid);
+		}
+		g_hash_table_insert(smb_priv->ct->dcerpc_fid_to_frame, (void *)fid, 
+			(void *)pinfo->fd->num);
+	}
+	/* clear out the variables */
+	pinfo->can_desegment=0;
+	pinfo->desegment_offset = 0;
+	pinfo->desegment_len = 0;
 
 	if (!result)
 		call_dissector(data_handle, d_tvb, pinfo, parent_tree);
@@ -2786,7 +2850,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 				if (d_tvb == NULL)
 					return FALSE;
 		                return dissect_pipe_msrpc(d_tvb, pinfo, tree,
-		                    fid);
+		                    pipe_tree, fid);
 		        }
 			break;
 		}
@@ -2988,6 +3052,7 @@ proto_register_smb_pipe(void)
 	};
 	static gint *ett[] = {
 		&ett_smb_pipe,
+		&ett_smb_pipe_fragments,
 	};
 
 	proto_smb_pipe = proto_register_protocol(

@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.178 2001/12/05 00:49:31 guy Exp $
+ * $Id: packet-smb.c,v 1.179 2001/12/05 08:20:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -666,17 +666,23 @@ static const gchar *get_unicode_or_ascii_string(tvbuff_t *tvb,
 
 
 /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-   These are needed by the reassembly of SMB Transaction payload
+   These are needed by the reassembly of SMB Transaction payload and DCERPC over SMB
    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
-/* Reassembly of SMB Transaction calls */
 static gboolean smb_trans_reassembly = FALSE;
+gboolean smb_dcerpc_reassembly = FALSE;
 
 static GHashTable *smb_trans_fragment_table = NULL;
+GHashTable *dcerpc_fragment_table = NULL;
 
 static void
 smb_trans_reassembly_init(void)
 {
 	fragment_table_init(&smb_trans_fragment_table);
+}
+static void
+smb_dcerpc_reassembly_init(void)
+{
+	fragment_table_init(&dcerpc_fragment_table);
 }
 
 
@@ -802,10 +808,6 @@ static int smb_transact2_info_init_count = 200;
 static GMemChunk *smb_transact_info_chunk = NULL;
 static int smb_transact_info_init_count = 200;
 
-typedef struct conv_tables {
-	GHashTable *unmatched;
-	GHashTable *matched;
-} conv_tables_t;
 static GMemChunk *conv_tables_chunk = NULL;
 static int conv_tables_count = 10;
 
@@ -4597,8 +4599,8 @@ static int
 dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8	wc, cmd=0xff;
-	guint16 andxoffset=0, bc, datalen=0;
-	smb_info_t *si;
+	guint16 andxoffset=0, bc, datalen=0, dataoffset=0;
+	smb_info_t *si = (smb_info_t *)pinfo->private_data;
 
 	WORD_COUNT;
 
@@ -4621,7 +4623,6 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 2;
 
 	/* If we have seen the request, then print which FID this refers to */
-	si = (smb_info_t *)pinfo->private_data;
 	/* first check if we have seen the request */
 	if(si->sip != NULL && si->sip->frame_req>0){
 		add_fid(tvb, pinfo, tree, 0, 0, (int)si->sip->extra_info);
@@ -4645,7 +4646,8 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 2;
 
 	/* data offset */
-	proto_tree_add_item(tree, hf_smb_data_offset, tvb, offset, 2, TRUE);
+	dataoffset=tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_data_offset, tvb, offset, 2, dataoffset);
 	offset += 2;
 
 	/* 10 reserved bytes */
@@ -4654,6 +4656,43 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 10;
 
 	BYTE_COUNT;
+
+	/* is this part of DCERPC over SMB reassembly?*/
+	if(smb_dcerpc_reassembly && !pinfo->fd->flags.visited && (bc<=tvb_length_remaining(tvb, offset)) ){
+		guint32 frame;
+		frame=(guint32)g_hash_table_lookup(si->ct->dcerpc_fid_to_frame,
+			si->sip->extra_info);
+		if(frame){
+			fragment_data *fd_head;
+			/* first fragment is always from a SMB Trans command and
+			   offset 0 of the following read/write SMB commands start
+			   BEYOND the first Trans SMB payload. Look for offset
+			   in first read fragment */
+			fd_head=fragment_get(pinfo, frame, dcerpc_fragment_table);
+			if(fd_head){
+				/* skip to last fragment  and add this data there*/
+				while(fd_head->next){
+					fd_head=fd_head->next;
+				}
+				/* if dataoffset was not specified in the SMB command
+				   then we try to guess it as good as we can
+				*/
+				if(dataoffset==0){
+					dataoffset=offset+bc-datalen;
+				}
+				fd_head=fragment_add(tvb, dataoffset, pinfo,
+					frame, dcerpc_fragment_table,
+					fd_head->offset+fd_head->len, 
+					datalen, TRUE);
+				/* we completed reassembly, abort searching for more 
+				   fragments*/
+				if(fd_head){
+					g_hash_table_remove(si->ct->dcerpc_fid_to_frame,
+						si->sip->extra_info);	
+				}
+			}
+		}
+	}
 
 	/* file data */
 	offset = dissect_file_data(tvb, pinfo, tree, offset, bc, datalen);
@@ -12745,6 +12784,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
         guint8 errclass = 0;
         guint16 errcode = 0;
 	guint16 uid, pid, tid;
+	conversation_t *conversation;
 
 	top_tree=parent_tree;
 
@@ -12798,6 +12838,29 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree_add_text(htree, tvb, offset, 4, "Server Component: SMB");
 	offset += 4;  /* Skip the marker */
 
+	/* find which conversation we are part of and get the tables for that 
+	   conversation*/
+	conversation = find_conversation(&pinfo->src, &pinfo->dst,
+		 pinfo->ptype,  pinfo->srcport, pinfo->destport, 0);
+	if(conversation){
+		si.ct=conversation_get_proto_data(conversation, proto_smb);
+	} else {
+		/* OK this is a new conversation, we must create it
+		   and attach appropriate data (matched and unmatched 
+		   table for this conversation)
+		*/
+		conversation = conversation_new(&pinfo->src, &pinfo->dst, 
+			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+		si.ct = g_mem_chunk_alloc(conv_tables_chunk);
+		si.ct->matched= g_hash_table_new(smb_saved_info_hash_matched, 
+			smb_saved_info_equal_matched);		
+		si.ct->unmatched= g_hash_table_new(smb_saved_info_hash_matched, 
+			smb_saved_info_equal_matched);		
+		si.ct->dcerpc_fid_to_frame=g_hash_table_new(
+			smb_saved_info_hash_matched, 
+			smb_saved_info_equal_matched);		
+		conversation_add_proto_data(conversation, proto_smb, si.ct);
+	}
 
 	if( (si.request)
 	    &&  (si.mid==0)
@@ -12829,47 +12892,37 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		   requests smb_saved_info_t but we dont touch it or change anything
 		   in it.
 		*/
-		conversation_t *conversation;
-		conv_tables_t *ct;
 
 		si.unidir = TRUE;  /*we dont expect an answer to this one*/
-		
-		/* find which conversation we are part of and get the tables for that 
-		   conversation*/
-		conversation = find_conversation(&pinfo->src, &pinfo->dst,
-			 pinfo->ptype,  pinfo->srcport, pinfo->destport, 0);
-		if(conversation){
-			ct=conversation_get_proto_data(conversation, proto_smb);
 
-			if(!pinfo->fd->flags.visited){
-				/* try to find which original call we match and if we 
-				   find it add us to the matched table. Dont touch
-				   anything else since we dont want this one to mess
-				   up the request/response matching. We still consider
-				   the initial call the real request and this is only
-				   some sort of continuation.
-				*/
-				/* we only check the unmatched table and assume that the
-				   last seen MID matching ours is the right one.
-				   This can fail but is better than nothing
-				*/
-				sip=g_hash_table_lookup(ct->unmatched, (void *)si.mid);
-				if(sip!=NULL){
-					g_hash_table_insert(ct->matched, (void *)pinfo->fd->num, sip);
-				}
-			} else {
-				/* we have seen this packet before; check the
-				   matching table
-				*/
-				sip=g_hash_table_lookup(ct->matched, (void *)pinfo->fd->num);
-				if(sip==NULL){
-				/*
-				  We didn't find it.
-				  Too bad, unfortunately there is not really much we can
-				  do now since this means that we never saw the initial
-				  request.
-				 */
-				}
+		if(!pinfo->fd->flags.visited){
+			/* try to find which original call we match and if we 
+			   find it add us to the matched table. Dont touch
+			   anything else since we dont want this one to mess
+			   up the request/response matching. We still consider
+			   the initial call the real request and this is only
+			   some sort of continuation.
+			*/
+			/* we only check the unmatched table and assume that the
+			   last seen MID matching ours is the right one.
+			   This can fail but is better than nothing
+			*/
+			sip=g_hash_table_lookup(si.ct->unmatched, (void *)si.mid);
+			if(sip!=NULL){
+				g_hash_table_insert(si.ct->matched, (void *)pinfo->fd->num, sip);
+			}
+		} else {
+			/* we have seen this packet before; check the
+			   matching table
+			*/
+			sip=g_hash_table_lookup(si.ct->matched, (void *)pinfo->fd->num);
+			if(sip==NULL){
+			/*
+			  We didn't find it.
+			  Too bad, unfortunately there is not really much we can
+			  do now since this means that we never saw the initial
+			  request.
+			 */
 			}
 		}
 
@@ -12902,38 +12955,13 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			}
 		}
 	} else { /* normal bidirectional request or response */
-		conversation_t *conversation;
-		conv_tables_t *ct;
-
 		si.unidir = FALSE;
 
-		/* first we try to find which conversation this packet is 
-		   part of 
-		*/
-		conversation = find_conversation(&pinfo->src, &pinfo->dst,
-			 pinfo->ptype,  pinfo->srcport, pinfo->destport, 0);
-		if(conversation==NULL){
-			/* OK this is a new conversation, we must create it
-			   and attach appropriate data (matched and unmatched 
-			   table for this conversation)
-			*/
-			conversation = conversation_new(&pinfo->src, &pinfo->dst, 
-				pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-			ct = g_mem_chunk_alloc(conv_tables_chunk);
-			ct->matched= g_hash_table_new(smb_saved_info_hash_matched, 
-				smb_saved_info_equal_matched);		
-			ct->unmatched= g_hash_table_new(smb_saved_info_hash_matched, 
-				smb_saved_info_equal_matched);		
-			conversation_add_proto_data(conversation, proto_smb, ct);
-		} else {
-			/* this is an old conversation, just get the tables */
-			ct=conversation_get_proto_data(conversation, proto_smb);
-		}
 		if(!pinfo->fd->flags.visited){
 			/* first see if we find an unmatched smb "equal" to 
 			   the current one 
 			*/
-			sip=g_hash_table_lookup(ct->unmatched, (void *)si.mid);
+			sip=g_hash_table_lookup(si.ct->unmatched, (void *)si.mid);
 			if(sip!=NULL){
 				if(si.request){
 					/* ok, we are processing an SMB
@@ -12950,7 +12978,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 					   request and concentrate on the 
 					   present one instead.
 					*/
-					g_hash_table_remove(ct->unmatched, (void *)si.mid);
+					g_hash_table_remove(si.ct->unmatched, (void *)si.mid);
 				} else {
 					/* we have found a response to some request we have seen earlier.
 					   What we do now depends on whether this is the first response
@@ -12959,13 +12987,13 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 					if(sip->frame_res==0){
 						/* ok it is the first response we have seen to this packet */
 						sip->frame_res = pinfo->fd->num;
-						g_hash_table_insert(ct->matched, (void *)sip->frame_req, sip);
-						g_hash_table_insert(ct->matched, (void *)sip->frame_res, sip);
+						g_hash_table_insert(si.ct->matched, (void *)sip->frame_req, sip);
+						g_hash_table_insert(si.ct->matched, (void *)sip->frame_res, sip);
 					} else {
 						/* we have already seen another response to this one, but
 						   register it anyway so we see which request it matches 
 						*/
-						g_hash_table_insert(ct->matched, (void *)pinfo->fd->num, sip);
+						g_hash_table_insert(si.ct->matched, (void *)pinfo->fd->num, sip);
 					}
 				}
 			}
@@ -12974,7 +13002,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				sip->frame_req = pinfo->fd->num;
 				sip->frame_res = 0;
 				sip->extra_info = NULL;
-				g_hash_table_insert(ct->unmatched, (void *)si.mid, sip);
+				g_hash_table_insert(si.ct->unmatched, (void *)si.mid, sip);
 			}
 		} else {
 			/* we have seen this packet before; check the
@@ -12985,7 +13013,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			   we've seen this packet before, we've already
 			   saved the information.
 			*/
-			sip=g_hash_table_lookup(ct->matched, (void *)pinfo->fd->num);
+			sip=g_hash_table_lookup(si.ct->matched, (void *)pinfo->fd->num);
 		}
 	}
 
@@ -14911,7 +14939,12 @@ proto_register_smb(void)
 		"Reassemble SMB Transaction payload",
 		"Whether the dissector should do reassembly the payload of SMB Transaction commands spanning multiple SMB PDUs",
 		&smb_trans_reassembly);
+	prefs_register_bool_preference(smb_module, "smb.dcerpc.reassembly",
+		"Reassemble DCERPC over SMB",
+		"Whether the dissector should do reassembly of DCERPC over SMB commands",
+		&smb_dcerpc_reassembly);
 	register_init_routine(smb_trans_reassembly_init);
+	register_init_routine(smb_dcerpc_reassembly_init);
 }
 
 void
