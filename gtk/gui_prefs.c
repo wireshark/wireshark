@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.8 2000/08/21 22:30:04 guy Exp $
+ * $Id: gui_prefs.c,v 1.9 2000/08/21 22:35:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -303,6 +303,12 @@ fetch_enum_value(gpointer control, const enum_val *enumvals)
 void
 gui_prefs_fetch(GtkWidget *w)
 {
+	/* XXX - currently, "prefs.gui_font_name" doesn't directly
+	   affect the behavior of existing or newly-created windows,
+	   so we can get away with setting it when the user presses
+	   "OK" on the font selection dialog - it doesn't affect
+	   anything until the "apply" function is called. */
+
 	prefs.gui_scrollbar_on_right = fetch_enum_value(
 	    gtk_object_get_data(GTK_OBJECT(w), SCROLLBAR_PLACEMENT_KEY),
 	    scrollbar_placement_vals);
