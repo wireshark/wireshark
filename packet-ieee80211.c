@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.65 2002/06/18 08:38:17 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.66 2002/06/18 20:17:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,7 +90,7 @@ static guint8 **wep_keys = NULL;
 static int *wep_keylens = NULL;
 static void init_wepkeys(void);
 static int wep_decrypt(guint8 *buf, guint32 len, int key_override);
-static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb);
+static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len);
 #define SSWAP(a,b) {guint8 tmp = s[a]; s[a] = s[b]; s[b] = tmp;}
 
 /* #define USE_ENV */
@@ -1125,7 +1125,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   guint16 hdr_len;
   gint len, reported_len;
   gboolean save_fragmented;
-  tvbuff_t *volatile next_tvb;
+  tvbuff_t *volatile next_tvb = NULL;
   guint32 addr_type;
   volatile gboolean is_802_2;
 
@@ -1559,138 +1559,28 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     }
 
   /*
-   * Do defragmentation if "wlan_defragment" is true, and we have more
-   * fragments or this isn't the first fragment.
-   *
-   * We have to do some special handling to catch frames that
-   * have the "More Fragments" indicator not set but that
-   * don't show up as reassembled and don't have any other
-   * fragments present.  Some networking interfaces appear
-   * to do reassembly even when you're capturing raw packets
-   * *and* show the reassembled packet without the "More
-   * Fragments" indicator set *but* with a non-zero fragment
-   * number.
-   *
-   * "fragment_add_seq_check()" handles that; we want to call it
-   * even if we have a short frame, so that it does those checks - if
-   * the frame is short, it doesn't do reassembly on it.
-   *
-   * (This could get some false positives if we really *did* only
-   * capture the last fragment of a fragmented packet, but that's
-   * life.)
-   */
-  save_fragmented = pinfo->fragmented;
-  if (wlan_defragment && (more_frags || frag_number != 0)) {
-    fragment_data *fd_head;
-
-    /*
-     * If we've already seen this frame, look it up in the
-     * table of reassembled packets, otherwise add it to
-     * whatever reassembly is in progress, if any, and see
-     * if it's done.
-     */
-    fd_head = fragment_add_seq_check(tvb, hdr_len, pinfo, seq_number,
-				     wlan_fragment_table,
-				     wlan_reassembled_table,
-				     frag_number,
-				     len,
-				     more_frags);
-    if (fd_head != NULL) {
-      /*
-       * Either this is reassembled or it wasn't fragmented
-       * (see comment above about some networking interfaces).
-       * In either case, it's now in the table of reassembled
-       * packets.
-       *
-       * If the "fragment_data" structure doesn't have a list of
-       * fragments, we assume it's a placeholder to mark those
-       * not-really-fragmented packets, and just treat this as
-       * a non-fragmented frame.
-       */
-      if (fd_head->next != NULL) {
-        next_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
-        tvb_set_child_real_data_tvbuff(tvb, next_tvb);
-        add_new_data_source(pinfo, next_tvb, "Reassembled 802.11");
-
-        /* Show all fragments. */
-        show_fragment_seq_tree(fd_head, &frag_items, hdr_tree, pinfo, next_tvb);
-      } else {
-      	/*
-      	 * Not fragmented, really.
-      	 * Show it as a regular frame.
-      	 */
-	next_tvb = tvb_new_subset (tvb, hdr_len, len, reported_len);
-      }
-
-      /* It's not fragmented. */
-      pinfo->fragmented = FALSE;
-    } else {
-      /* We don't have the complete reassembled payload. */
-      next_tvb = NULL;
-    }
-  } else {
-    /*
-     * If this is the first fragment, dissect its contents, otherwise
-     * just show it as a fragment.
-     */
-    if (frag_number != 0) {
-      /* Not the first fragment - don't dissect it. */
-      next_tvb = NULL;
-    } else {
-      /* First fragment, or not fragmented.  Dissect what we have here. */
-
-      /* Get a tvbuff for the payload. */
-      next_tvb = tvb_new_subset (tvb, hdr_len, len, reported_len);
-
-      /*
-       * If this is the first fragment, but not the only fragment,
-       * tell the next protocol that.
-       */
-      if (more_frags)
-        pinfo->fragmented = TRUE;
-      else
-        pinfo->fragmented = FALSE;
-    }
-  }
-
-  if (next_tvb == NULL) {
-    /* Just show this as an incomplete fragment. */
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "Fragmented IEEE 802.11 frame");
-    next_tvb = tvb_new_subset (tvb, hdr_len, len, reported_len);
-    call_dissector(data_handle, next_tvb, pinfo, tree);
-    pinfo->fragmented = save_fragmented;
-    return;
-  }
-
-  /*
    * For WEP-encrypted frames, dissect the WEP parameters and decrypt
    * the data, if we have a matching key.  Otherwise display it as data.
-   *
-   * XXX - is WEP encrypting done *before* fragmentation or *after*
-   * fragmentation?  We're doing the WEP stuff here, after defragmenting,
-   * which is correct only if WEP encrypting is done *after* fragmentation.
    */
   if (IS_WEP(COOK_FLAGS(fcf))) {
     gboolean can_decrypt = FALSE;
-    tvbuff_t *tmp_tvb;
     proto_tree *wep_tree = NULL;
 
     if (tree) {
       proto_item *wep_fields;
 
-      wep_fields = proto_tree_add_text(tree, next_tvb, 0, 4,
+      wep_fields = proto_tree_add_text(tree, tvb, hdr_len, 4,
 					   "WEP parameters");
 
       wep_tree = proto_item_add_subtree (wep_fields, ett_wep_parameters);
-      proto_tree_add_item (wep_tree, hf_wep_iv, next_tvb, 0, 3, TRUE);
+      proto_tree_add_item (wep_tree, hf_wep_iv, tvb, hdr_len, 3, TRUE);
 
-      proto_tree_add_uint (wep_tree, hf_wep_key, next_tvb, 3, 1,
-			   COOK_WEP_KEY (tvb_get_guint8 (next_tvb, 3)));
+      proto_tree_add_uint (wep_tree, hf_wep_key, tvb, hdr_len, 1,
+			   COOK_WEP_KEY (tvb_get_guint8 (tvb, 3)));
     }
 
-    len = tvb_length_remaining(next_tvb, 4);
-    reported_len = tvb_reported_length_remaining(next_tvb, 4);
+    len = tvb_length_remaining(tvb, 4);
+    reported_len = tvb_reported_length_remaining(tvb, 4);
     if (len == -1 || reported_len == -1) {
       /* We don't have anything beyond the IV. */
       return;
@@ -1734,27 +1624,141 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       len -= 4;
       reported_len -= 4;
       if (tree)
-	proto_tree_add_item (wep_tree, hf_wep_icv, next_tvb, 4 + len, 4,
+	proto_tree_add_item (wep_tree, hf_wep_icv, tvb, len, 4,
 			     FALSE);
       can_decrypt = TRUE;
     }
 
-    if (!can_decrypt || (tmp_tvb = try_decrypt_wep(next_tvb)) == NULL) {
+    if (!can_decrypt || (next_tvb = try_decrypt_wep(tvb, hdr_len, reported_len - hdr_len + 4)) == NULL) {
       /* WEP decode impossible or failed, treat payload as raw data. */
-      tmp_tvb = tvb_new_subset(next_tvb, 4, len, reported_len);
+      next_tvb = tvb_new_subset(tvb, 4, len, reported_len);
 
-      call_dissector(data_handle, tmp_tvb, pinfo, tree);
+      call_dissector(data_handle, next_tvb, pinfo, tree);
       return; 
     } else {
-      add_new_data_source(pinfo, tmp_tvb, "Decrypted WEP data");
+      add_new_data_source(pinfo, next_tvb, "Decrypted WEP data");
 	/*
 	  if (check_col(pinfo->cinfo, COL_INFO))
 	  col_set_str(pinfo->cinfo, COL_INFO, "Decrypted WEP data");
 	*/
     }
-    next_tvb = tmp_tvb;
+    hdr_len += 4;  /* so we don't include the IV in the fragment payload */
   }
 
+  if (next_tvb == NULL) {
+    next_tvb = tvb;  /* and WEP decode failed, if attempted.  offsets ok. */
+  } else {  
+    /* WEP decode successful! Lie about offsets as we're using a child skb */
+    reported_len -= hdr_len;
+    len -= hdr_len;
+    hdr_len = 0;
+  }
+
+  /*
+   * Do defragmentation if "wlan_defragment" is true, and we have more
+   * fragments or this isn't the first fragment.
+   *
+   * We have to do some special handling to catch frames that
+   * have the "More Fragments" indicator not set but that
+   * don't show up as reassembled and don't have any other
+   * fragments present.  Some networking interfaces appear
+   * to do reassembly even when you're capturing raw packets
+   * *and* show the reassembled packet without the "More
+   * Fragments" indicator set *but* with a non-zero fragment
+   * number.
+   *
+   * "fragment_add_seq_check()" handles that; we want to call it
+   * even if we have a short frame, so that it does those checks - if
+   * the frame is short, it doesn't do reassembly on it.
+   *
+   * (This could get some false positives if we really *did* only
+   * capture the last fragment of a fragmented packet, but that's
+   * life.)
+   */
+  save_fragmented = pinfo->fragmented;
+  if (wlan_defragment && (more_frags || frag_number != 0)) {
+    fragment_data *fd_head;
+
+    /*
+     * If we've already seen this frame, look it up in the
+     * table of reassembled packets, otherwise add it to
+     * whatever reassembly is in progress, if any, and see
+     * if it's done.
+     */
+    fd_head = fragment_add_seq_check(next_tvb, hdr_len, pinfo, seq_number,
+				     wlan_fragment_table,
+				     wlan_reassembled_table,
+				     frag_number,
+				     len,
+				     more_frags);
+    if (fd_head != NULL) {
+      /*
+       * Either this is reassembled or it wasn't fragmented
+       * (see comment above about some networking interfaces).
+       * In either case, it's now in the table of reassembled
+       * packets.
+       *
+       * If the "fragment_data" structure doesn't have a list of
+       * fragments, we assume it's a placeholder to mark those
+       * not-really-fragmented packets, and just treat this as
+       * a non-fragmented frame.
+       */
+      if (fd_head->next != NULL) {
+        next_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
+        tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+        add_new_data_source(pinfo, next_tvb, "Reassembled 802.11");
+
+        /* Show all fragments. */
+        show_fragment_seq_tree(fd_head, &frag_items, hdr_tree, pinfo, next_tvb);
+      } else {
+      	/*
+      	 * Not fragmented, really.
+      	 * Show it as a regular frame.
+      	 */
+	next_tvb = tvb_new_subset (next_tvb, hdr_len, len, reported_len);
+      }
+
+      /* It's not fragmented. */
+      pinfo->fragmented = FALSE;
+    } else {
+      /* We don't have the complete reassembled payload. */
+      next_tvb = NULL;
+    }
+  } else {
+    /*
+     * If this is the first fragment, dissect its contents, otherwise
+     * just show it as a fragment.
+     */
+    if (frag_number != 0) {
+      /* Not the first fragment - don't dissect it. */
+      next_tvb = NULL;
+    } else {
+      /* First fragment, or not fragmented.  Dissect what we have here. */
+
+      /* Get a tvbuff for the payload. */
+      next_tvb = tvb_new_subset (next_tvb, hdr_len, len, reported_len);
+
+      /*
+       * If this is the first fragment, but not the only fragment,
+       * tell the next protocol that.
+       */
+      if (more_frags)
+        pinfo->fragmented = TRUE;
+      else
+        pinfo->fragmented = FALSE;
+    }
+  }
+
+  if (next_tvb == NULL) {
+    /* Just show this as an incomplete fragment. */
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_set_str(pinfo->cinfo, COL_INFO, "Fragmented IEEE 802.11 frame");
+    next_tvb = tvb_new_subset (tvb, hdr_len, len, reported_len);
+    call_dissector(data_handle, next_tvb, pinfo, tree);
+    pinfo->fragmented = save_fragmented;
+    return;
+  }  
+  
   switch (COOK_FRAME_TYPE (fcf))
     {
 
@@ -2405,11 +2409,10 @@ static const guint32 wep_crc32_table[256] = {
         0x2d02ef8dL
 };
 
-static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb) {
+static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
   guint8 *tmp = NULL;
   int i;
   tvbuff_t *decr_tvb = NULL;
-  guint len = tvb_length(tvb);
 
   if (num_wepkeys < 1)
     return NULL;
@@ -2425,7 +2428,7 @@ static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb) {
 #if 0
     printf("trying %d\n", i);
 #endif
-    tvb_memcpy(tvb, tmp, 0, len);
+    tvb_memcpy(tvb, tmp, offset, len);
     if (wep_decrypt(tmp, len, i) == 0) {
 
       /* decrypt successful, let's set up a new data tvb. */
@@ -2587,7 +2590,7 @@ static void init_wepkeys(void) {
 #endif
 
       wep_keys[i] = malloc(32 * sizeof(guint8));
-      bzero(wep_keys[i], 32 * sizeof(guint8));
+      memset(wep_keys[i], 0, 32 * sizeof(guint8));
       tmp3 = wep_keys[i];
       while ((tmp != NULL) && (*tmp != 0)) {
 	tmp3[j] = strtoul(tmp, &tmp2, 16) & 0xff;
