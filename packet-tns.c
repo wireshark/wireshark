@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.33 2002/07/08 22:57:55 guy Exp $
+ * $Id: packet-tns.c,v 1.34 2002/07/09 20:02:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -482,23 +482,23 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( connect_tree )
 	{
 		proto_tree_add_item(connect_tree, hf_tns_trace_cf1, tvb,
-			offset, 2, FALSE);
+			offset, 4, FALSE);
 	}
-	offset += 2;
+	offset += 4;
 
 	if ( connect_tree )
 	{
 		proto_tree_add_item(connect_tree, hf_tns_trace_cf2, tvb,
-			offset, 2, FALSE);
+			offset, 4, FALSE);
 	}
-	offset += 2;
+	offset += 4;
 
 	if ( connect_tree )
 	{
 		proto_tree_add_item(connect_tree, hf_tns_trace_cid, tvb,
-			offset, 2, FALSE);
+			offset, 8, FALSE);
 	}
-	offset += 2;
+	offset += 8;
 
 	if ( connect_tree && cd_len > 0)
 	{
@@ -1150,13 +1150,13 @@ void proto_register_tns(void)
 
 
 		{ &hf_tns_trace_cf1, { 	
-			"Trace Cross Facility Item 1", "tns.trace_cf1", FT_UINT16, BASE_HEX, 
+			"Trace Cross Facility Item 1", "tns.trace_cf1", FT_UINT32, BASE_HEX, 
 			NULL, 0x0, "Trace Cross Facility Item 1", HFILL }},
 		{ &hf_tns_trace_cf2, { 	
-			"Trace Cross Facility Item 2", "tns.trace_cf2", FT_UINT16, BASE_HEX, 
+			"Trace Cross Facility Item 2", "tns.trace_cf2", FT_UINT32, BASE_HEX, 
 			NULL, 0x0, "Trace Cross Facility Item 2", HFILL }},
 		{ &hf_tns_trace_cid, { 	
-			"Trace Unique Connection ID", "tns.trace_cid", FT_UINT16, BASE_HEX, 
+			"Trace Unique Connection ID", "tns.trace_cid", FT_UINT64, BASE_HEX, 
 			NULL, 0x0, "Trace Unique Connection ID", HFILL }},
 		{ &hf_tns_connect_data, { 	
 			"Connect Data", "tns.connect_data", FT_STRING, BASE_NONE, 
@@ -1166,7 +1166,7 @@ void proto_register_tns(void)
 			"Accept", "tns.accept", FT_BOOLEAN, BASE_NONE, 
 			NULL, 0x0, "Accept", HFILL }},		
 		{ &hf_tns_accept_data_length, { 	
-			"Accept Data Length", "tns.accept_data_length", FT_UINT16, BASE_HEX, 
+			"Accept Data Length", "tns.accept_data_length", FT_UINT16, BASE_DEC, 
 			NULL, 0x0, "Length of Accept Data", HFILL }},
 		{ &hf_tns_accept_data, { 	
 			"Accept Data", "tns.accept_data", FT_STRING, BASE_NONE, 
@@ -1183,10 +1183,10 @@ void proto_register_tns(void)
 			"Refuse Reason (User)", "tns.refuse_reason_user", FT_UINT8, BASE_HEX, 
 			NULL, 0x0, "Refuse Reason from Application", HFILL }},
 		{ &hf_tns_refuse_reason_system, { 	
-			"Refuse Reason (User)", "tns.refuse_reason_system", FT_UINT8, BASE_HEX, 
+			"Refuse Reason (System)", "tns.refuse_reason_system", FT_UINT8, BASE_HEX, 
 			NULL, 0x0, "Refuse Reason from System", HFILL }},
 		{ &hf_tns_refuse_data_length, { 	
-			"Refuse Data Length", "tns.refuse_data_length", FT_UINT16, BASE_HEX, 
+			"Refuse Data Length", "tns.refuse_data_length", FT_UINT16, BASE_DEC, 
 			NULL, 0x0, "Length of Refuse Data", HFILL }},
 		{ &hf_tns_refuse_data, { 	
 			"Refuse Data", "tns.refuse_data", FT_STRING, BASE_NONE, 
@@ -1232,7 +1232,7 @@ void proto_register_tns(void)
 			"Redirect", "tns.redirect", FT_BOOLEAN, BASE_NONE, 
 			NULL, 0x0, "Redirect", HFILL }},		
 		{ &hf_tns_redirect_data_length, { 	
-			"Redirect Data Length", "tns.redirect_data_length", FT_UINT16, BASE_HEX, 
+			"Redirect Data Length", "tns.redirect_data_length", FT_UINT16, BASE_DEC, 
 			NULL, 0x0, "Length of Redirect Data", HFILL }},
 		{ &hf_tns_redirect_data, { 	
 			"Redirect Data", "tns.redirect_data", FT_STRING, BASE_NONE, 
