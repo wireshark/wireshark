@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.26 2002/07/01 13:18:21 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.27 2002/07/01 13:20:55 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5245,7 +5245,7 @@ static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
 	{ NETLOGON_UASLOGOFF, "UasLogoff",
 		netlogon_dissect_netlogonuaslogoff_rqst,
 		netlogon_dissect_netlogonuaslogoff_reply },
-	{ NETLOGON_NETLOGONSAMLOGON, "NETLOGONSAMLOGON",
+	{ NETLOGON_NETLOGONSAMLOGON, "SamLogon",
 		netlogon_dissect_netlogonsamlogon_rqst,
 		netlogon_dissect_netlogonsamlogon_reply },
 	{ NETLOGON_NETLOGONSAMLOGOFF, "NETLOGONSAMLOGOFF",
@@ -5371,7 +5371,7 @@ static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
 static const value_string netlogon_opnum_vals[] = {
 	{ NETLOGON_UASLOGON, "UasLogon" },
 	{ NETLOGON_UASLOGOFF, "UasLogoff" },
-	{ NETLOGON_NETLOGONSAMLOGON, "NETLOGONSAMLOGON" },
+	{ NETLOGON_NETLOGONSAMLOGON, "SamLogon" },
 	{ NETLOGON_NETLOGONSAMLOGOFF, "NETLOGONSAMLOGOFF" },
 	{ NETLOGON_NETSERVERREQCHALLENGE, "NETSERVERREQCHALLENGE" },
 	{ NETLOGON_NETSERVERAUTHENTICATE, "NETSERVERAUTHENTICATE" },
