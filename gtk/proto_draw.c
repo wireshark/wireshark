@@ -58,7 +58,6 @@
 #include "menu.h"
 #include "keys.h"
 
-#include "colors.h"
 #include "prefs.h"
 #include "file_dlg.h"
 #include "proto_draw.h"
