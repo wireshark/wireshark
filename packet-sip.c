@@ -15,7 +15,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@clarent.com>
  *
- * $Id: packet-sip.c,v 1.22 2002/01/24 09:20:51 guy Exp $
+ * $Id: packet-sip.c,v 1.23 2002/02/02 02:56:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -105,7 +105,7 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* XXX - Is this case-sensitive?  RFC 2543 didn't explicitly say. */
 	if (tvb_strneql(tvb, 0, SIP2_HDR, SIP2_HDR_LEN) != 0 && ! is_request)
 		goto bad;
-	  
+
         if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIP");
     
@@ -118,7 +118,13 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                              tvb_format_text(tvb, SIP2_HDR_LEN, eol - SIP2_HDR_LEN));
 
         msg_offset = sip_get_msg_offset(tvb, offset);
-        if (msg_offset < 0) goto bad;
+        if (msg_offset < 0) {
+                /*
+                 * XXX - this may just mean that the entire SIP message
+                 * didn't fit in this TCP segment.
+                 */
+                goto bad;
+        }
 
         if (tree) {
                 proto_item *ti, *th;
@@ -145,8 +151,8 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset += 2;  /* Skip the CRLF mentioned above */
        }
 
-        if (tvb_length_remaining(tvb, msg_offset) > 0) {
-                next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        if (tvb_offset_exists(tvb, msg_offset)) {
+                next_tvb = tvb_new_subset(tvb, msg_offset, -1, -1);
                 call_dissector(sdp_handle, next_tvb, pinfo, tree);
         }
 
@@ -160,18 +166,19 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /* Returns the offset to the start of the optional message-body, or
- * -1 for an error.
+ * -1 if not found.
  */
 static gint sip_get_msg_offset(tvbuff_t *tvb, guint32 offset)
 {
         gint eol;
 
-        while ((eol = tvb_find_guint8(tvb, offset, tvb_length_remaining(tvb, offset), '\r')) > 0) {
-                        if (tvb_get_guint8(tvb, eol + 1) == '\n' && 
-                            tvb_get_guint8(tvb, eol + 2) == '\r' && 
-                            tvb_get_guint8(tvb, eol + 3) == '\n')
-                                return eol + 4;
-                        offset = eol + 2;
+        while ((eol = tvb_find_guint8(tvb, offset, -1, '\r')) > 0
+            && tvb_bytes_exist(tvb, eol, 4)) {
+                if (tvb_get_guint8(tvb, eol + 1) == '\n' && 
+                    tvb_get_guint8(tvb, eol + 2) == '\r' && 
+                    tvb_get_guint8(tvb, eol + 3) == '\n')
+                        return eol + 4;
+                offset = eol + 2;
         }
 
         return -1;
