@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.368 2004/02/28 22:04:28 ulfl Exp $
+ * $Id: file.c,v 1.369 2004/03/08 23:07:15 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,9 +84,7 @@
 #include "tap_dfilter_dlg.h"
 #include "packet-data.h"
 
-#ifdef HAVE_LIBPCAP
 gboolean auto_scroll_live;
-#endif
 
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
