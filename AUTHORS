@@ -149,6 +149,7 @@ Jeff Foster <jfoste@woodward.com> {
 	Support for associating a dissector with a conversation, and for
 	    use of that dissector by TCP and UDP
 	SOCKS support
+	Microsoft Proxy protocol support
 }
 
 Peter Torvals <petertv@xoommail.com> {

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.189 2000/04/17 00:32:36 guy Exp $
+# $Id: Makefile.am,v 1.190 2000/04/20 02:17:54 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -124,6 +124,7 @@ DISSECTOR_SOURCES = \
 	packet-mount.c \
 	packet-mount.h \
 	packet-mpls.c \
+	packet-msproxy.c \
 	packet-nbipx.c \
 	packet-nbipx.h \
 	packet-nbns.c  \
