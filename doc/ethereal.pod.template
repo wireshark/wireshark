@@ -247,7 +247,7 @@ Initiates a live packet capture (see L<"Capture Preferences"> below).  A
 temporary file will be created to hold the capture.  The location of the
 file can be chosen by setting your TMPDIR environment variable before
 starting B<Ethereal>.  Otherwise, the default TMPDIR location is
-system-dependent, but is likely either /var/tmp or /tmp.
+system-dependent, but is likely either F</var/tmp> or F</tmp>.
 
 =item Display:Options
 
@@ -330,22 +330,42 @@ a "thumb" at the right end of each divider line.  Below the panes is a
 strip that shows the file load progress, current filter, and informational
 text.
 
+=over 6
+
+=item Top Pane
+
 The top pane contains the list of network packets that you can scroll
-through and select.  The packet number, packet timestamp, source and
-destination addresses, protocol, and description are printed for each
-packet.  An effort is made to display information as high up the protocol
-stack as possible, e.g. IP addresses are displayed for IP packets, but the
-MAC layer address is displayed for unknown packet types.  The right
-mouse button can be used to pop up a menu of operations.
+through and select.  By default, the packet number, packet timestamp,
+source and destination addresses, protocol, and description are
+displayed for each packet; the I<Columns> page in the dialog box popped
+up by I<Edit:Preferences> lets you change this (although, unfortunately,
+you currently have to save the preferences, and exit and restart
+Ethereal, for those changes to take effect).
+
+If you click on the heading for a column, the display will be sorted by
+that column; clicking on the heading again will reverse the sort order
+for that column.
+
+An effort is made to display information as high up the protocol stack
+as possible, e.g. IP addresses are displayed for IP packets, but the
+MAC layer address is displayed for unknown packet types.
+
+The right mouse button can be used to pop up a menu of operations.
+
+=item Middle Pane
 
 The middle pane contains a I<protocol tree> for the currently-selected
 packet.  The tree displays each field and its value in each protocol
 header in the stack.  The right mouse button can be used to pop up a
 menu of operations.
 
+=item Bottom Pane
+
 The lowest pane contains a hex dump of the actual packet data. 
 Selecting a field in the I<protocol tree> highlights the corresponding
 bytes in this section.
+
+=item Current Filter
 
 A display filter can be entered into the strip at the bottom. 
 A filter for HTTP, HTTPS, and DNS traffic might look like this:
@@ -357,6 +377,8 @@ filters that you can optionally save.  Pressing the Return or Enter
 keys will cause the filter to be applied to the current list of packets.
 Selecting the I<Reset> button clears the display filter so that all
 packets are displayed.
+
+=back
 
 =item Preferences
 
@@ -530,8 +552,8 @@ on your system.
 
 The I<Plugins List> shows the name, description, version and state
 (enabled or not) of each plugin found on your system. The plugins are
-searched in the following directories: B</usr/share/ethereal/plugins>,
-B</usr/local/share/ethereal/plugins> and B<~/.ethereal/plugins>
+searched in the following directories: F</usr/share/ethereal/plugins>,
+F</usr/local/share/ethereal/plugins> and F<~/.ethereal/plugins>
 
 A plugin must be activated using the I<Enable> button in order to use it
 to dissect packets. It can also be deactivated with the I<Disable> button.
@@ -741,9 +763,9 @@ type of the field is also given.
 
 =head1 FILES
 
-B</etc/ethers> is consulted to correlate 6-byte hardware addresses to
-names.  If an address is not found in B</etc/ethers>, the
-B<$HOME/.ethereal/ethers> file is consulted next.  Each line contains
+F</etc/ethers> is consulted to correlate 6-byte hardware addresses to
+names.  If an address is not found in F</etc/ethers>, the
+F<$HOME/.ethereal/ethers> file is consulted next.  Each line contains
 one hardware address and name, separated by whitespace.  The digits of
 the hardware address are separated by either a colon (:), a dash (-), or
 a period (.).  The following three lines are valid lines of an ethers
@@ -753,13 +775,13 @@ file:
   c0-00-ff-ff-ff-ff          TR_broadcast
   00.00.00.00.00.00          Zero_broadcast
 
-B</usr/local/etc/manuf> matches the 3-byte vendor portion of a 6-byte
+F</usr/local/etc/manuf> matches the 3-byte vendor portion of a 6-byte
 hardware address with the manufacturer's name.  The format of the file
-is the same as the B</etc/ethers> file, except that each address is
+is the same as the F</etc/ethers> file, except that each address is
 three bytes instead of six.
 
-B</etc/ipxnets> and B<$HOME/.ethereal/ipxnets> correlate 4-byte IPX
-network numbers to names.  The format is the same as the B</etc/ethers>
+F</etc/ipxnets> and F<$HOME/.ethereal/ipxnets> correlate 4-byte IPX
+network numbers to names.  The format is the same as the F</etc/ethers>
 file, except that each address if four bytes instead of six. 
 Additionally, the address can be represented a single hexadecimal
 number, as is more common in the IPX world, rather than four hex octets. 

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.117 2000/04/14 09:00:25 guy Exp $
+ * $Id: main.c,v 1.118 2000/05/10 06:00:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -830,6 +830,69 @@ filter_reset_cb(GtkWidget *w, gpointer data)
   filter_packets(&cf, NULL);
 }
 
+/* GTKClist compare routine, overrides default to allow numeric comparison */
+static gint
+packet_list_compare(GtkCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
+{
+  /* Get row text strings */
+  char *text1 = GTK_CELL_TEXT (((GtkCListRow *)ptr1)->cell[clist->sort_column])->text;
+  char *text2 = GTK_CELL_TEXT (((GtkCListRow *)ptr2)->cell[clist->sort_column])->text;
+
+  /* Attempt to convert to numbers */
+  double  num1 = atof(text1);
+  double  num2 = atof(text2);
+  
+  gint  col_fmt = cf.cinfo.col_fmt[clist->sort_column];
+  
+  if ((col_fmt == COL_NUMBER) || (col_fmt == COL_REL_TIME) || (col_fmt == COL_DELTA_TIME) ||
+      ((col_fmt == COL_CLS_TIME) && (timestamp_type == RELATIVE)) ||
+      ((col_fmt == COL_CLS_TIME) && (timestamp_type == DELTA))    ||
+      (col_fmt == COL_UNRES_SRC_PORT) || (col_fmt == COL_UNRES_DST_PORT) ||
+      ((num1 != 0) && (num2 != 0) && ((col_fmt == COL_DEF_SRC_PORT) || (col_fmt == COL_RES_SRC_PORT) ||
+                                      (col_fmt == COL_DEF_DST_PORT) || (col_fmt == COL_RES_DST_PORT))) ||
+      (col_fmt == COL_PACKET_LENGTH)) {
+
+    /* Compare numeric column */
+
+    if (num1 < num2)
+      return -1;
+    else if (num1 > num2)
+      return 1;
+    else
+      return 0;
+  }
+  
+  else {
+    
+    /* Compare text column */
+    if (!text2)
+      return (text1 != NULL);
+
+    if (!text1)
+      return -1;
+
+    return strcmp(text1, text2);
+  }
+}
+
+/* What to do when a column is clicked */
+static void 
+packet_list_click_column_cb(GtkCList *clist, gint column, gpointer data)
+{
+  if (column == clist->sort_column) {
+    if (clist->sort_type == GTK_SORT_ASCENDING)
+      clist->sort_type = GTK_SORT_DESCENDING;
+    else
+      clist->sort_type = GTK_SORT_ASCENDING;
+  }
+  else {
+    clist->sort_type = GTK_SORT_ASCENDING;
+    gtk_clist_set_sort_column(clist, column);
+  }
+
+  gtk_clist_sort(clist);
+}
+
 /* What to do when a list item is selected/unselected */
 static void
 packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
@@ -1632,13 +1695,15 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
   packet_list = gtk_clist_new_with_titles(cf.cinfo.num_cols, cf.cinfo.col_title);
   gtk_container_add(GTK_CONTAINER(pkt_scrollw), packet_list);
-  gtk_clist_column_titles_passive(GTK_CLIST(packet_list));
+  
   set_plist_sel_browse(prefs->gui_plist_sel_browse);
   pl_style = gtk_style_new();
   gdk_font_unref(pl_style->font);
   pl_style->font = m_r_font;
   gtk_widget_set_style(packet_list, pl_style);
   gtk_widget_set_name(packet_list, "packet list");
+  gtk_signal_connect (GTK_OBJECT (packet_list), "click_column",
+    GTK_SIGNAL_FUNC(packet_list_click_column_cb), NULL);
   gtk_signal_connect(GTK_OBJECT(packet_list), "select_row",
     GTK_SIGNAL_FUNC(packet_list_select_cb), NULL);
   gtk_signal_connect(GTK_OBJECT(packet_list), "unselect_row",
@@ -1660,6 +1725,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_widget_set_usize(packet_list, -1, pl_size);
   gtk_signal_connect_object(GTK_OBJECT(packet_list), "button_press_event",
     GTK_SIGNAL_FUNC(popup_menu_handler), gtk_object_get_data(GTK_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY));
+  gtk_clist_set_compare_func(GTK_CLIST(packet_list), packet_list_compare);
   gtk_widget_show(packet_list);
 
   /* Tree view */
