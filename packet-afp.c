@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.28 2003/02/12 21:50:31 guy Exp $
+ * $Id: packet-afp.c,v 1.29 2003/03/30 22:14:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,6 +126,7 @@
 #define AFP_ADDCMT          56
 #define AFP_RMVCMT          57
 #define AFP_GETCMT          58
+#define AFP_ZZZ            122
 #define AFP_ADDICON        192
 
 /* AFP 3.0 new calls */
@@ -297,6 +298,7 @@ static int hf_afp_ofork_len64           = -1;
 static int hf_afp_session_token_type	= -1;
 static int hf_afp_session_token_len	= -1;
 static int hf_afp_session_token		= -1;
+static int hf_afp_session_token_timestamp = -1;
 
 static dissector_handle_t data_handle;
 
@@ -368,6 +370,7 @@ static const value_string CommandCode_vals[] = {
   {AFP_LOGIN_EXT,	"FPLoginExt" },
   {AFP_GETSESSTOKEN,	"FPGetSessionToken" },
   {AFP_DISCTOLDSESS,    "FPDisconnectOldSession" },
+  {AFP_ZZZ,             "FPzzz" },
   {AFP_ADDICON,		"FPAddIcon" },
   {0,			 NULL }
 };
@@ -752,6 +755,21 @@ kFPUTF8NameBit 			(bit 13)
 #define kMounted 	(1 << 3)
 #define kInExpFolder 	(1 << 4)
 
+/* AFP 3.1 getsession token type */
+#define kLoginWithoutID         0
+#define kLoginWithID            1	
+#define kReconnWithID           2
+#define kLoginWithTimeAndID     3
+#define kReconnWithTimeAndID    4
+
+static const value_string token_type_vals[] = {
+  {kLoginWithoutID,		"LoginWithoutID"},
+  {kLoginWithID,                "LoginWithID"},
+  {kReconnWithID,               "ReconnWithID"},
+  {kLoginWithTimeAndID,         "LoginWithTimeAndID"},
+  {kReconnWithTimeAndID,        "ReconnWithTimeAndID"},
+  {0,				 NULL } };
+                                      
 #define hash_init_count 20
 
 /* Hash functions */
@@ -2884,15 +2902,26 @@ dissect_query_afp_add_icon(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	no reply
 */
 static gint
+decode_dt_did(proto_tree *tree, tvbuff_t *tvb, gint offset)
+{
+	/* FIXME it's not volume but dt cf decode_name*/
+	Vol = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(tree, hf_afp_dt_ref, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	Did = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_item(tree, hf_afp_did, tvb, offset, 4,FALSE);
+	offset += 4;
+	return offset;
+}
+
+/* -------------------------- */
+static gint
 dissect_query_afp_add_appl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 
 	PAD(1);
-	proto_tree_add_item(tree, hf_afp_dt_ref, tvb, offset, 2,FALSE);
-	offset += 2;
-
-	proto_tree_add_item(tree, hf_afp_did, tvb, offset, 4,FALSE);
-	offset += 4;
+	offset = decode_dt_did(tree, tvb, offset);
 
 	proto_tree_add_item(tree, hf_afp_file_creator, tvb, offset, 4,FALSE);
 	offset += 4;
@@ -2913,11 +2942,7 @@ dissect_query_afp_rmv_appl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
 
 	PAD(1);
-	proto_tree_add_item(tree, hf_afp_dt_ref, tvb, offset, 2,FALSE);
-	offset += 2;
-
-	proto_tree_add_item(tree, hf_afp_did, tvb, offset, 4,FALSE);
-	offset += 4;
+	offset = decode_dt_did(tree, tvb, offset);
 
 	proto_tree_add_item(tree, hf_afp_file_creator, tvb, offset, 4,FALSE);
 	offset += 4;
@@ -3047,10 +3072,29 @@ int len;
 static gint
 dissect_query_afp_get_session_token(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
+guint16	token;
+int len;
 
 	PAD(1);
+	token = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(tree, hf_afp_session_token_type, tvb, offset, 2,FALSE);
 	offset += 2;
+	if (token == kLoginWithoutID) /* 0 */
+		return offset;
+
+	len = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_item(tree, hf_afp_session_token_len, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	switch (token) {
+	case kLoginWithTimeAndID:
+	case kReconnWithTimeAndID:
+		proto_tree_add_item(tree, hf_afp_session_token_timestamp, tvb, offset, 4,FALSE);
+		offset += 4;
+	}
+
+	proto_tree_add_item(tree, hf_afp_session_token, tvb, offset, len,FALSE);
+	offset += len;
 
 	return offset;
 }
@@ -3062,12 +3106,13 @@ dissect_reply_afp_get_session_token(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 int len;
 int size;
 
-	proto_tree_add_item(tree, hf_afp_session_token_type, tvb, offset, 2,FALSE);
-	offset += 2;
-
-	/* FIXME spec and capture disagree : spec 4 bytes, capture 2 bytes? */
-	size = 2;
-	len = tvb_get_ntohs(tvb, offset);
+	/* FIXME spec and capture disagree : or it's 4 bytes with no token type, or it's 2 bytes */
+	size = 4;
+	if (size == 2) {
+		proto_tree_add_item(tree, hf_afp_session_token_type, tvb, offset, 2,FALSE);
+		offset += 2;
+	}
+	len = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_item(tree, hf_afp_session_token_len, tvb, offset, size,FALSE);
 	offset += size;
 
@@ -4405,16 +4450,22 @@ proto_register_afp(void)
       { "New length",         "afp.ofork_len64",
 		FT_INT64, BASE_DEC, NULL, 0x0,
       	"New length (64 bits)", HFILL }},
+
     { &hf_afp_session_token_type,
       { "Type",         "afp.session_token_type",
-		FT_UINT16, BASE_HEX, NULL, 0x0,
+		FT_UINT16, BASE_HEX, VALS(token_type_vals), 0x0,
       	"Session token type", HFILL }},
 
     /* FIXME FT_UINT32 in specs */
     { &hf_afp_session_token_len,
       { "Len",         "afp.session_token_len",
-		FT_UINT16, BASE_DEC, NULL, 0x0,
+		FT_UINT32, BASE_DEC, NULL, 0x0,
       	"Session token length", HFILL }},
+
+    { &hf_afp_session_token_timestamp,
+      { "Time stamp",         "afp.session_token_timestamp",
+		FT_UINT32, BASE_HEX, NULL, 0x0,
+      	"Session time stamp", HFILL }},
 
     { &hf_afp_session_token,
       { "Token",         "afp.session_token",
