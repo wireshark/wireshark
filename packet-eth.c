@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.34 2000/05/11 22:04:16 gram Exp $
+ * $Id: packet-eth.c,v 1.35 2000/05/12 19:15:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -241,18 +241,28 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   }
   offset += ETH_HEADER_SIZE;
 
+  /* Give the next dissector only 'length' number of bytes */
+  if (etype <= IEEE_802_3_MAX_LEN) {
+     next_tvb = tvb_new_subset(pi.compat_top_tvb, offset, etype);
+  }
+  else {
+     next_tvb = tvb_new_subset(pi.compat_top_tvb, offset, -1);
+  }
+
   switch (ethhdr_type) {
     case ETHERNET_802_3:
       dissect_ipx(pd, offset, fd, tree);
       break;
     case ETHERNET_802_2:
-      next_tvb = tvb_new_subset(pi.compat_top_tvb, offset, -1);
       dissect_llc(next_tvb, &pi, tree);
       break;
     case ETHERNET_II:
       ethertype(etype, offset, pd, fd, tree, fh_tree, hf_eth_type);
       break;
   }
+
+  /* XXX - If there's some bytes left over, mark them. */
+
 }
 
 void
