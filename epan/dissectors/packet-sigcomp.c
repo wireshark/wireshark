@@ -416,7 +416,6 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		partial_state_str = bytes_to_str(partial_state, partial_state_len);
 		proto_tree_add_string(sigcomp_tree,hf_sigcomp_partial_state,
 			tvb, offset, partial_state_len, partial_state_str);
-		g_free(partial_state_str);
 		offset = offset + partial_state_len;
 		if(msg_len>0)
 			proto_tree_add_text(sigcomp_tree, tvb, offset, -1, "Remaining SigComp message %u bytes",
@@ -441,7 +440,7 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* These values will be loaded from the buffered state in sigcomp_state_hdlr 
 			 */
 			state_length = 0;
-				state_address = 0;
+			state_address = 0;
 			state_instruction =0;
 
 			i = 0;
