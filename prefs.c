@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.125 2004/02/21 07:59:48 guy Exp $
+ * $Id: prefs.c,v 1.126 2004/02/23 17:38:07 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -902,18 +902,18 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     prefs.st_client_fg.red   = 32767;
     prefs.st_client_fg.green =     0;
     prefs.st_client_fg.blue  =     0;
-    prefs.st_client_bg.pixel = 65535;
-    prefs.st_client_bg.red   = 65535;
-    prefs.st_client_bg.green = 65535;
-    prefs.st_client_bg.blue  = 65535;
+    prefs.st_client_bg.pixel =     0;
+    prefs.st_client_bg.red   = 64507;
+    prefs.st_client_bg.green = 60909;
+    prefs.st_client_bg.blue  = 60909;
     prefs.st_server_fg.pixel =     0;
     prefs.st_server_fg.red   =     0;
     prefs.st_server_fg.green =     0;
     prefs.st_server_fg.blue  = 32767;
-    prefs.st_server_bg.pixel = 65535;
-    prefs.st_server_bg.red   = 65535;
-    prefs.st_server_bg.green = 65535;
-    prefs.st_server_bg.blue  = 65535;
+    prefs.st_server_bg.pixel =     0;
+    prefs.st_server_bg.red   = 60909;
+    prefs.st_server_bg.green = 60909;
+    prefs.st_server_bg.blue  = 64507;
     prefs.gui_scrollbar_on_right = TRUE;
     prefs.gui_plist_sel_browse = FALSE;
     prefs.gui_ptree_sel_browse = FALSE;
