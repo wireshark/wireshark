@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol header disassembly,
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.10 2002/02/22 21:51:18 guy Exp $
+ * $Id: packet-eap.c,v 1.11 2002/02/24 08:10:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,12 +51,6 @@ static int hf_eap_type = -1;
 
 static gint ett_eap = -1;
 
-typedef struct _e_eap {
-    guint8 eap_code;
-    guint8 eap_id;
-    guint16 eap_len;
-} e_eap;
-
 #define EAP_REQUEST	1
 #define EAP_RESPONSE	2
 #define EAP_SUCCESS	3
@@ -84,41 +78,49 @@ static const value_string eap_type_vals[] = {
 static void
 dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  e_eap       eaph;
+  guint8      eap_code;
+  guint8      eap_id;
+  guint16     eap_len;
+  guint8      eap_type;
   guint       len;
   proto_tree *ti;
-  proto_tree *eap_tree;
+  proto_tree *eap_tree = NULL;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAP");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 
-  tvb_memcpy(tvb, (guint8 *)&eaph, 0, sizeof(eaph));
-  eaph.eap_len = ntohs(eaph.eap_len);
-
-  len = eaph.eap_len;
-
-  set_actual_length(tvb, len);
-
-  eap_tree = NULL;
-
+  eap_code = tvb_get_guint8(tvb, 0);
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_str(pinfo->cinfo, COL_INFO,
+		val_to_str(eap_code, eap_code_vals, "Unknown code (0x%02X)"));
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_eap, tvb, 0, len, FALSE);
+    ti = proto_tree_add_item(tree, proto_eap, tvb, 0, 4, FALSE);
     eap_tree = proto_item_add_subtree(ti, ett_eap);
 
-    proto_tree_add_uint(eap_tree, hf_eap_code,   tvb, 0, 1, eaph.eap_code);
-
-    proto_tree_add_uint(eap_tree, hf_eap_identifier, tvb, 1, 1, eaph.eap_id);
-    proto_tree_add_uint(eap_tree, hf_eap_len,    tvb, 2, 2, eaph.eap_len);
+    proto_tree_add_uint(eap_tree, hf_eap_code, tvb, 0, 1, eap_code);
   }
 
-  switch (eaph.eap_code) {
+  if (tree)
+    proto_tree_add_item(eap_tree, hf_eap_identifier, tvb, 1, 1, FALSE);
+
+  eap_len = tvb_get_ntohs(tvb, 2);
+  len = eap_len;
+  set_actual_length(tvb, len);
+  if (tree)
+    proto_tree_add_uint(eap_tree, hf_eap_len, tvb, 2, 2, eap_len);
+
+  switch (eap_code) {
 
   case EAP_REQUEST:
   case EAP_RESPONSE:
+    eap_type = tvb_get_guint8(tvb, 4);
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+		val_to_str(eap_type, eap_type_vals, "Unknown type (0x%02X)"));
     if (tree) {
-      proto_tree_add_item(eap_tree, hf_eap_type, tvb, 4, 1, FALSE);
+      proto_tree_add_uint(eap_tree, hf_eap_type, tvb, 4, 1, eap_type);
       if (len > 5) {
         proto_tree_add_text(eap_tree, tvb, 5, len - 5, "Type-Data (%d byte%s)",
           len - 5, plurality(len - 5, "", "s"));
