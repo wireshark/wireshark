@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.26 2002/03/31 21:38:47 guy Exp $
+ * $Id: packet-cops.c,v 1.27 2002/03/31 22:50:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -985,7 +985,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset, proto_tree *t
 	int ret;
 	guint cls, con, tag;
 
-#ifdef HAVE_SPRINT_VALUE
+#ifdef OLD
 	subid_t *variable_oid;
 	guint variable_oid_length;
 #endif
