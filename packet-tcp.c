@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.137 2002/04/11 08:59:43 guy Exp $
+ * $Id: packet-tcp.c,v 1.138 2002/04/21 02:57:01 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,6 +89,7 @@ static int hf_tcp_flags_fin = -1;
 static int hf_tcp_window_size = -1;
 static int hf_tcp_checksum = -1;
 static int hf_tcp_checksum_bad = -1;
+static int hf_tcp_len = -1;
 static int hf_tcp_urgent_pointer = -1;
 
 static gint ett_tcp = -1;
@@ -171,7 +172,7 @@ static GMemChunk *tcp_segment_address_chunk = NULL;
 static int tcp_segment_address_init_count = 500;
 
 typedef struct _tcp_segment_key {
-	/* for ouwn bookkeeping inside packet-tcp.c */
+	/* for own bookkeeping inside packet-tcp.c */
 	address *src;
 	address *dst;
 	guint32 seq;
@@ -1024,6 +1025,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Compute the length of data in this segment. */
   seglen = reported_len - hlen;
 
+  if (tree) { /* Add the seglen as an invisible field */
+
+    proto_tree_add_uint_hidden(ti, hf_tcp_len, tvb, offset, 4, seglen);
+
+  }
+
   /* Compute the sequence number of next octet after this segment. */
   nxtseq = th_seq + seglen;
 
@@ -1318,6 +1325,10 @@ proto_register_tcp(void)
 		{ &hf_tcp_checksum_bad,
 		{ "Bad Checksum",		"tcp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
+
+		{ &hf_tcp_len,
+		  { "TCP Segment Len",            "tcp.len", FT_UINT32, BASE_DEC, NULL, 0x0, 
+		    "", HFILL}},
 
 		{ &hf_tcp_urgent_pointer,
 		{ "Urgent pointer",		"tcp.urgent_pointer", FT_UINT16, BASE_DEC, NULL, 0x0,
