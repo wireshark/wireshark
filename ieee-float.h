@@ -1,13 +1,13 @@
 /**********************************************************************
  *
- * ieee_float.h
+ * ieee-float.h
  *
  * Implements simple stuff to convert from IEEE float types
  * to 32-bit longs
  *
  * (C) Ashok Narayanan, 2000
  *
- * $Id: ieee-float.h,v 1.1 2000/03/09 18:31:50 ashokn Exp $
+ * $Id: ieee-float.h,v 1.2 2001/02/04 08:21:35 guy Exp $
  *
  * For license details, see the COPYING file with this distribution
  *
@@ -42,14 +42,14 @@ static inline int ieee_float_is_zero (long number)
 /*
  * simple conversion: ieee floating point to long
  */
-static long pieee_to_long (const void *p)
+static long tvb_ieee_to_long (tvbuff_t *tvb, int offset)
 {
     long number;
     long sign;
     long exponent;
     long mantissa;
 
-    number = pntohl(p);
+    number = tvb_get_ntohl(tvb, offset);
     sign = number & IEEE_SIGN_MASK;
     exponent = number & IEEE_EXPONENT_MASK;
     mantissa = number & IEEE_MANTISSA_MASK;

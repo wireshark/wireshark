@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.36 2001/01/22 03:33:45 guy Exp $
+ * $Id: packet-ospf.c,v 1.37 2001/02/04 08:21:35 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -621,14 +621,14 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		case MPLS_LINK_MAX_RES_BW:
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
 					     "%s: %ld", stlv_name,
-					     pieee_to_long(tvb_get_ptr(tvb, stlv_offset + 4, 4)));
+					     tvb_ieee_to_long(tvb, stlv_offset + 4));
 		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
 					"TLV Type: %u: %s", stlv_type, stlv_name);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
 					stlv_len);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 4, "%s: %ld", stlv_name,
-					pieee_to_long(tvb_get_ptr(tvb, stlv_offset + 4, 4)));
+					tvb_ieee_to_long(tvb, stlv_offset + 4));
 		    break;
 
 		case MPLS_LINK_UNRES_BW:
@@ -642,7 +642,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		    for (i = 0; i < 8; i++) {
 			proto_tree_add_text(stlv_tree, tvb, stlv_offset+4+(i*4), 4,
 					    "Pri %d: %ld", i,
-					    pieee_to_long(tvb_get_ptr(tvb, stlv_offset + 4 + i*4, 4)));
+					    tvb_ieee_to_long(tvb, stlv_offset + 4 + i*4));
 		    }
 		    break;
 
