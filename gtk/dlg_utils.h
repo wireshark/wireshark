@@ -1,7 +1,7 @@
 /* dlg_utils.h
  * Declarations of utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.h,v 1.1 2000/05/02 08:04:29 guy Exp $
+ * $Id: dlg_utils.h,v 1.2 2000/05/08 04:23:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -24,3 +24,8 @@
  */
 void dlg_set_activate(GtkWidget *widget, GtkWidget *ok_button);
 void dlg_set_cancel(GtkWidget *widget, GtkWidget *cancel_button);
+
+GtkWidget *dlg_radio_button_new_with_label_with_mnemonic(GSList *group,
+    const gchar *label, GtkAccelGroup *accel_group);
+GtkWidget *dlg_check_button_new_with_label_with_mnemonic(const gchar *label,
+    GtkAccelGroup *accel_group);

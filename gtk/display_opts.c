@@ -1,7 +1,7 @@
 /* display_opts.c
  * Routines for packet display windows
  *
- * $Id: display_opts.c,v 1.4 2000/05/08 01:23:16 guy Exp $
+ * $Id: display_opts.c,v 1.5 2000/05/08 04:23:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -90,6 +90,7 @@ static ts_type prev_timestamp_type;
 void
 display_opt_cb(GtkWidget *w, gpointer d) {
   GtkWidget     *display_opt_w, *button, *main_vb, *bbox, *ok_bt, *apply_bt, *cancel_bt;
+  GtkAccelGroup *accel_group;
 
   /* If there's already a "Display Options" window active, don't pop
      up another one.
@@ -106,23 +107,31 @@ display_opt_cb(GtkWidget *w, gpointer d) {
   display_opt_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(display_opt_w), "Ethereal: Display Options");
   
+  /* Accelerator group for the accelerators (or, as they're called in
+     Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
+     Ctrl+<key> is an accelerator). */
+  accel_group = gtk_accel_group_new();
+  gtk_window_add_accel_group(GTK_WINDOW(display_opt_w), accel_group);
+
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(display_opt_w), main_vb);
   gtk_widget_show(main_vb);
   
-  button = gtk_radio_button_new_with_label(NULL, "Time of day");
+  button = dlg_radio_button_new_with_label_with_mnemonic(NULL, "_Time of day",
+							accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
                (timestamp_type == ABSOLUTE));
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_TIME_ABS_KEY,
                button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
+  
   gtk_widget_show(button);
 
-  button = gtk_radio_button_new_with_label(
+  button = dlg_radio_button_new_with_label_with_mnemonic(
                gtk_radio_button_group(GTK_RADIO_BUTTON(button)),
-               "Seconds since beginning of capture");
+               "Seconds since _beginning of capture", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
                (timestamp_type == RELATIVE));
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_TIME_REL_KEY,
@@ -130,9 +139,9 @@ display_opt_cb(GtkWidget *w, gpointer d) {
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
-  button = gtk_radio_button_new_with_label(
+  button = dlg_radio_button_new_with_label_with_mnemonic(
                gtk_radio_button_group(GTK_RADIO_BUTTON(button)),
-               "Seconds since previous frame");
+               "Seconds since _previous frame", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
                (timestamp_type == DELTA));
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_TIME_DELTA_KEY,
@@ -140,21 +149,24 @@ display_opt_cb(GtkWidget *w, gpointer d) {
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
-  button = gtk_check_button_new_with_label("Automatic scrolling in live capture");
+  button = dlg_check_button_new_with_label_with_mnemonic(
+		"_Automatic scrolling in live capture", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), auto_scroll_live);
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_AUTO_SCROLL_KEY,
 		      button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
-  button = gtk_check_button_new_with_label("Name resolution");
+  button = dlg_check_button_new_with_label_with_mnemonic("_Name resolution",
+		accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), g_resolving_actif);
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_NAME_RESOLUTION_KEY,
 		      button);
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
   
-  button = gtk_check_button_new_with_label("Decode IPv4 TOS field as DiffServ Field");
+  button = dlg_check_button_new_with_label_with_mnemonic(
+		"Decode IPv4 TOS field as _DiffServ Field", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), g_ip_dscp_actif);
   gtk_object_set_data(GTK_OBJECT(display_opt_w), E_DISPLAY_IP_DSCP_KEY,
 		      button);

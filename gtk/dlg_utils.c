@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.1 2000/05/02 08:04:28 guy Exp $
+ * $Id: dlg_utils.c,v 1.2 2000/05/08 04:23:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -88,4 +88,64 @@ dlg_key_press (GtkWidget *widget, GdkEventKey *event, gpointer cancel_button)
   }
 
   return FALSE;
+}
+
+/* Sigh.  GTK+ appears not to acknowledge that it should be possible
+   to attach mnemonics to anything other than menu items; perhaps
+   it's easy to dig up the label widget for a button, but, right now,
+   it appears to be easier just to cut-and-paste
+   "gtk_radio_button_new_with_label()".  */
+GtkWidget *
+dlg_radio_button_new_with_label_with_mnemonic(GSList *group,
+		const gchar *label, GtkAccelGroup *accel_group)
+{
+  GtkWidget *radio_button;
+  GtkWidget *label_widget;
+  guint accel_key;
+
+  radio_button = gtk_radio_button_new (group);
+  label_widget = gtk_label_new (label);
+  gtk_misc_set_alignment (GTK_MISC (label_widget), 0.0, 0.5);
+
+  gtk_container_add (GTK_CONTAINER (radio_button), label_widget);
+  gtk_widget_show (label_widget);
+
+  accel_key = gtk_label_parse_uline (GTK_LABEL (label_widget), label);
+  if (accel_key != GDK_VoidSymbol) {
+    /* Yes, we have a mnemonic. */
+    gtk_widget_add_accelerator (radio_button, "clicked", accel_group,
+				accel_key, 0, GTK_ACCEL_LOCKED);
+    gtk_widget_add_accelerator (radio_button, "clicked", accel_group,
+				accel_key, GDK_MOD1_MASK, GTK_ACCEL_LOCKED);
+  }
+
+  return radio_button;
+}
+
+/* The same applies to check buttons. */
+GtkWidget *
+dlg_check_button_new_with_label_with_mnemonic(const gchar *label,
+			GtkAccelGroup *accel_group)
+{
+  GtkWidget *check_button;
+  GtkWidget *label_widget;
+  guint accel_key;
+	         
+  check_button = gtk_check_button_new ();
+  label_widget = gtk_label_new (label);
+  gtk_misc_set_alignment (GTK_MISC (label_widget), 0.0, 0.5);
+	              
+  gtk_container_add (GTK_CONTAINER (check_button), label_widget);
+  gtk_widget_show (label_widget);
+
+  accel_key = gtk_label_parse_uline (GTK_LABEL (label_widget), label);
+  if (accel_key != GDK_VoidSymbol) {
+    /* Yes, we have a mnemonic. */
+    gtk_widget_add_accelerator (check_button, "clicked", accel_group,
+				accel_key, 0, GTK_ACCEL_LOCKED);
+    gtk_widget_add_accelerator (check_button, "clicked", accel_group,
+				accel_key, GDK_MOD1_MASK, GTK_ACCEL_LOCKED);
+  }
+	                   
+  return check_button;
 }
