@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.12 2002/01/29 22:57:30 gram Exp $
+ * $Id: text2pcap.c,v 1.13 2002/01/30 10:10:01 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -94,6 +94,18 @@
 #define _XOPEN_SOURCE 500
 #endif
 #define __USE_XOPEN
+
+/*
+ * Defining _XOPEN_SOURCE is needed on some platforms, e.g. platforms
+ * using glibc, to expand the set of things system header files define.
+ *
+ * Unfortunately, on other platforms, such as some versions of Solaris,
+ * it *reduces* that set as well, e.g. causing "struct timeval" not
+ * to be defined.
+ *
+ * So we define __EXTENSIONS__ so that "struct timeval" is defined.
+ */
+#define __EXTENSIONS__
 
 #include <time.h>
 
