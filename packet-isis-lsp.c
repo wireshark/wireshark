@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.15 2001/06/07 19:13:35 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.16 2001/06/18 01:24:58 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -42,6 +42,7 @@
 #include <net/inet.h>
 #endif
 
+#include "epan/ipv4.h"
 #include "packet.h"
 #include "packet-osi.h"
 #include "packet-ipv6.h"
@@ -155,9 +156,15 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
 		&ett_isis_lsp_clv_ext_is_reachability,
 		dissect_lsp_ext_is_reachability_clv
 	},
-	{
+        {
 		ISIS_CLV_L1_LSP_IP_INT_REACHABLE,
 		"IP Internal reachability",
+		&ett_isis_lsp_clv_ip_reachability,
+		dissect_lsp_ip_reachability_clv
+	},
+	{
+		ISIS_CLV_L1_LSP_IP_EXT_REACHABLE,
+		"IP External reachability",
 		&ett_isis_lsp_clv_ip_reachability,
 		dissect_lsp_ip_reachability_clv
 	},
@@ -261,6 +268,12 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
 		dissect_lsp_ip_reachability_clv
 	},
 	{
+		ISIS_CLV_L2_LSP_IP_EXT_REACHABLE,
+		"IP External reachability",
+		&ett_isis_lsp_clv_ip_reachability,
+		dissect_lsp_ip_reachability_clv
+	},
+	{
 		ISIS_CLV_L2_LSP_NLPID,
 		"Protocols supported",
 		&ett_isis_lsp_clv_nlpid,
@@ -278,12 +291,6 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
                 &ett_isis_lsp_clv_te_router_id,
                 dissect_lsp_te_router_id_clv
         },
-	{
-		ISIS_CLV_L2_LSP_IP_EXT_REACHABLE,
-		"IP external reachability",
-		&ett_isis_lsp_clv_ip_reachability,
-		dissect_lsp_ip_reachability_clv
-	},
 	{
 		ISIS_CLV_L2_LSP_EXT_IP_REACHABLE,
 		"Extended IP Reachability",
@@ -399,8 +406,21 @@ dissect_lsp_ip_reachability_clv(const u_char *pd, int offset,
 		guint length, int id_length, frame_data *fd, proto_tree *tree) {
 	proto_item 	*ti;
 	proto_tree	*ntree = NULL;
-	guint32		src, mask;
+	guint32		src, mask, prefix_len;
 
+        guint32 bitmasks[33] = {
+	  0x00000000,
+	  0x00000008, 0x0000000c, 0x0000000e, 0x0000000f,
+	  0x000000f8, 0x000000fc, 0x000000fe, 0x000000ff,
+	  0x000008ff, 0x00000cff, 0x00000eff, 0x00000fff,
+	  0x0000f8ff, 0x0000fcff, 0x0000feff, 0x0000ffff,
+	  0x0008ffff, 0x000cffff, 0x000effff, 0x000fffff,
+	  0x00f8ffff, 0x00fcffff, 0x00feffff, 0x00ffffff,
+	  0x08ffffff, 0x0cffffff, 0x0effffff, 0x0fffffff,
+	  0xf8ffffff, 0xfcffffff, 0xfeffffff, 0xffffffff
+	};
+
+	  
 	while ( length > 0 ) {
 		if (length<12) {
 			isis_dissect_unknown(offset, length, tree, fd,
@@ -413,10 +433,33 @@ dissect_lsp_ip_reachability_clv(const u_char *pd, int offset,
 		if ( tree ) {
 			memcpy(&src, &pd[offset+4], 4);
 			memcpy(&mask, &pd[offset+8], 4);
-			ti = proto_tree_add_text ( tree, NullTVB, offset, 12, 
-				"IPv4 prefix: %s : %s",
+
+			/* find out if the mask matches one of 33 possible prefix lengths */
+
+			prefix_len=0;
+
+			while(prefix_len<=33) {
+			  if (bitmasks[prefix_len++]==mask) {
+			    prefix_len--;
+			    break;
+			  }
+			}
+			
+			/* 34 indicates no match -> must be a discontiguous netmask
+			   lets dump the mask, otherwise print the prefix_len */
+
+			if(prefix_len==34) {
+			  ti = proto_tree_add_text ( tree, NullTVB, offset, 12,
+				"IPv4 prefix: %s mask %s",
 				ip_to_str((guint8*)&src),
-				ip_to_str((guint8*)&mask) );
+				ip_to_str((guint8*)&mask));
+			} else {
+			  ti = proto_tree_add_text ( tree, NullTVB, offset, 12, 
+				"IPv4 prefix: %s/%d",
+				ip_to_str((guint8*)&src),
+				prefix_len );
+			};
+
 			ntree = proto_item_add_subtree(ti, 
 				ett_isis_lsp_clv_ip_reachability);
 
@@ -496,18 +539,14 @@ dissect_lsp_ext_ip_reachability_clv(const u_char *pd, int offset,
 		byte_length = (bit_length + 7) / 8;
 		memcpy (prefix, &pd[offset+5], byte_length);
 		pi = proto_tree_add_text (tree, NullTVB, offset, 0,
-			"IPv4 prefix: %s /%d", 
+			"IPv4 prefix: %s/%d", 
 			ip_to_str (prefix),
 			bit_length );
 		subtree = proto_item_add_subtree (pi, 
 			ett_isis_lsp_part_of_clv_ext_ip_reachability);
 
 		proto_tree_add_text (subtree, NullTVB, offset, 4,
-			"Metric: %d", pntohl (&pd[offset]) );
-
-		proto_tree_add_text (subtree, NullTVB, offset+4, 1,
-			"Distribution: %s",
-			((ctrl_info & 0x80) == 0) ? "up" : "down" );
+			"Metric: %d, Distribution: %s", pntohl (&pd[offset]), ((ctrl_info & 0x80) == 0) ? "up" : "down" );
 
 		proto_tree_add_text (subtree, NullTVB, offset+4, 1,
 			"Sub_CLV(s): %s",
