@@ -2,7 +2,7 @@
  * Routines for telnet packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.16 2000/09/11 16:16:11 gram Exp $
+ * $Id: packet-telnet.c,v 1.17 2000/09/29 19:06:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -294,6 +294,30 @@ telnet_command(proto_tree *telnet_tree, const u_char *pd, int start_offset)
 }
 
 static void
+telnet_add_text(proto_tree *tree, tvbuff_t *tvb, const u_char *pd,
+    int offset, int len)
+{
+  const u_char *data, *dataend;
+  const u_char *lineend, *eol;
+  int linelen;
+
+  data = &pd[offset];
+  dataend = data + len;
+  while (data < dataend) {
+    /*
+     * Find the end of the line.
+     */
+    lineend = find_line_end(data, dataend, &eol);
+    linelen = lineend - data;
+
+    proto_tree_add_text(tree, NullTVB, offset, linelen,
+			"Data: %s", format_text(data, linelen));
+    offset += linelen;
+    data = lineend;
+  }
+}
+
+static void
 dissect_telnet(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
         proto_tree      *telnet_tree, *ti;
@@ -324,11 +348,10 @@ dissect_telnet(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	      /*
 	       * We found an IAC byte.
 	       * If there's any data before it, add that data to the
-	       * tree.
+	       * tree, a line at a time.
 	       */
 	      if (data_len > 0) {
-		proto_tree_add_text(telnet_tree, NullTVB, data_offset, data_len,
-			"Data: %s", format_text(&pd[data_offset], data_len));
+	      	telnet_add_text(telnet_tree, NullTVB, pd, data_offset, data_len);
 		data_len = 0;
 		data_offset = offset;
 	      }
@@ -349,10 +372,8 @@ dissect_telnet(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	   * We've reached the end of the buffer.
 	   * If there's any data left, add it to the tree.
 	   */
-	  if (data_len > 0) {
-	    proto_tree_add_text(telnet_tree, NullTVB, data_offset, data_len, "Data: %s",
-	    		format_text(&pd[data_offset], data_len));
-	  }
+	  if (data_len > 0)
+	    telnet_add_text(telnet_tree, NullTVB, pd, data_offset, data_len);
 	}
 }
 
