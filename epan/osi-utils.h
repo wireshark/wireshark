@@ -1,6 +1,6 @@
-/* packet-osi.h
+/* osi-utils.h
  *
- * $Id: osi-utils.h,v 1.1 2001/04/01 05:48:15 hagbard Exp $
+ * $Id: osi-utils.h,v 1.2 2001/04/01 07:06:23 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>

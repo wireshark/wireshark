@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.6 2001/03/31 22:53:09 hagbard Exp $
+ * $Id: resolv.c,v 1.7 2001/04/01 07:06:24 hagbard Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -78,8 +78,7 @@
 #endif
 
 #include "packet.h"
-#include "packet-ipv6.h"
-#include "packet-ipx.h"
+#include "ipv6-utils.h"
 #include "resolv.h"
 #include "filesystem.h"
 

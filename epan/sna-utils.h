@@ -1,7 +1,7 @@
-/* packet-sna.h
+/* sna-utils.h
  * Definitions for SNA dissection.
  *
- * $Id: sna-utils.h,v 1.1 2001/03/22 16:24:16 gram Exp $
+ * $Id: sna-utils.h,v 1.2 2001/04/01 07:06:24 hagbard Exp $
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

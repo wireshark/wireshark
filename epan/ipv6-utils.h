@@ -1,13 +1,14 @@
-/* sna-utils.c
- * Routines for SNA
- * Gilbert Ramirez <gram@xiexie.org>
+/* ipv6-utils.h
+ * Definitions for IPv6 packet disassembly 
  *
- * $Id: sna-utils.c,v 1.2 2001/04/01 07:06:24 hagbard Exp $
+ * $Id: ipv6-utils.h,v 1.1 2001/04/01 07:06:23 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
+ *
  * Copyright 1998 Gerald Combs
  *
+ * MobileIPv6 support added by Tomislav Borosa <tomislav.borosa@siemens.hr>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,30 +25,36 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __IPV6_UTILS_H__
+#define __IPV6_UTILS_H__
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
+struct e_in6_addr {
+	union {
+		guint32  u6_addr32[4];
+		guint16  u6_addr16[8];
+		guint8   u6_addr8[16];
+	} u6_addr;			/* 128 bit IP6 address */
+};
+
+#ifdef s6_addr32
+#undef s6_addr32
 #endif
 
-#include "sna-utils.h"
+#ifdef s6_addr16
+#undef s6_addr16
+#endif
 
-/* FID Type 4 */
+#ifdef s6_addr8
+#undef s6_addr8
+#endif
 
-gchar *
-sna_fid_type_4_addr_to_str(const struct sna_fid_type_4_addr *addrp)
-{
-  static gchar	str[3][14];
-  static gchar	*cur;
+#ifdef s6_addr
+#undef s6_addr
+#endif
 
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {
-    cur = &str[2][0];
-  } else {
-    cur = &str[0][0];
-  }
+#define s6_addr32 u6_addr.u6_addr32
+#define s6_addr16 u6_addr.u6_addr16
+#define s6_addr8  u6_addr.u6_addr8
+#define s6_addr   u6_addr.u6_addr8
 
-  sprintf(cur, "%08X.%04X", addrp->saf, addrp->ef);
-  return cur;
-}
-
+#endif /* __IPV6_UTILS_H__ */
