@@ -122,6 +122,8 @@ unpack_digits(tvbuff_t *tvb, int offset){
 	char *digit_str;
 
 	length = tvb_length(tvb);
+	if (length < offset)
+		return NULL;
 	length = length - offset;
 	digit_str = g_malloc(length+1);
 
@@ -473,7 +475,11 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_ProcessGroupCallSignallingArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 43: /*checkIMEI*/
-    offset=dissect_gsm_map_CheckIMEIArg(FALSE, tvb, offset, pinfo, tree, -1);
+	  if (application_context_version < 2 ){
+		  offset=dissect_gsm_map_CheckIMEIArg(FALSE, tvb, offset, pinfo, tree, -1);
+	  }else{
+		  offset=dissect_gsm_map_CheckIMEIv2Arg(FALSE, tvb, offset, pinfo, tree, -1);
+	  }
     break;
   case 44: /*mt-forwardSM*/
     offset=dissect_gsm_map_CheckIMEIArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -672,7 +678,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     dissect_gsm_map_SendGroupCallEndSignalRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 43: /*checkIMEI*/
-    offset=dissect_gsm_map_EquipmentStatus(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_EquipmentStatus(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_equipmentStatus);
     break;
   case 45: /*sendRoutingInfoForSM*/
     offset=dissect_gsm_map_RoutingInfoForSMRes(FALSE, tvb, offset, pinfo, tree, -1);
@@ -1267,11 +1273,11 @@ void proto_register_gsm_map(void) {
         FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_p_values), 0x04,
         "P bit", HFILL }},
 	{ &hf_gsm_map_Ss_Status_r_bit,
-      { "R bit", "ss_status_r_bit",
+      { "R bit", "gsm_map.ss_status_r_bit",
         FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_r_values), 0x02,
         "R bit", HFILL }},
 	{ &hf_gsm_map_Ss_Status_a_bit,
-      { "A bit", "ss_status_a_bit",
+      { "A bit", "gsm_map.ss_status_a_bit",
         FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_a_values), 0x01,
         "A bit", HFILL }},
 

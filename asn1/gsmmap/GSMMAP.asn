@@ -414,7 +414,29 @@ authenticationSetList   CHOICE {
 CheckIMEIArg ::= Imei
 
 Imei ::=      OCTET STRING ( SIZE( 8 ) )
+-- V2
+-- checkIMEI  OPERATION  ::=  {
+--   ARGUMENT     SEQUENCE {
+CheckIMEIv2Arg ::= SEQUENCE {
+      imei                     Imei, 
+      requestedEquipmentInfo   BIT STRING {
+         equipmentStatus  (0 ), 
+         bmuef  (1 )} (  SIZE (2 .. 8 ) ), 
+      extensionContainer       ExtensionContainer OPTIONAL, 
+      ... }
+
 --   RESULT
+
+--   RESULT     SEQUENCE {
+ChekIMEIv3Res ::= SEQUENCE {
+      equipmentStatus      EquipmentStatus OPTIONAL, 
+      bmuef                SEQUENCE {
+         uesbi-IuA   [0] IMPLICIT BIT STRING (  SIZE (1 .. 128 ) ) OPTIONAL, 
+         uesbi-IuB   [1] IMPLICIT BIT STRING (  SIZE (1 .. 128 ) ) OPTIONAL, 
+         ... } OPTIONAL, 
+      extensionContainer   [0] IMPLICIT ExtensionContainer OPTIONAL, 
+      ... }
+
 EquipmentStatus ::= ENUMERATED {
          whiteListed    ( 0 ), 
          blackListed    ( 1 ), 
