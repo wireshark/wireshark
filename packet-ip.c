@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.178 2003/01/14 18:54:29 guy Exp $
+ * $Id: packet-ip.c,v 1.179 2003/01/19 22:21:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1304,6 +1304,8 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8     num_addrs = 0;
   guint8     addr_entry_size = 0;
   int        i;
+  gboolean   save_writable;
+  const char *save_current_proto;
   volatile address save_dl_src;
   volatile address save_dl_dst;
   volatile address save_net_src;
@@ -1499,8 +1501,14 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	   Set the columns non-writable, so that the packet list
 	   shows this as an ICMP packet, not as the type of packet
-	   for which the ICMP packet was generated. */
+	   for which the ICMP packet was generated.  Save the current
+	   setting, so we can restore it after we're done. */
+	save_writable = col_get_writable(pinfo->cinfo);
 	col_set_writable(pinfo->cinfo, FALSE);
+
+	/* Save the current protocol string as well, and restore it
+	   after we're done. */
+	save_current_proto = pinfo->current_proto;
 
 	/* Also, save the current values of the addresses, and restore
 	   them when we're finished dissecting the contained packet, so
@@ -1523,13 +1531,31 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Dissect the contained packet.
 	   Catch ReportedBoundsError, and do nothing if we see it,
 	   because it's not an error if the contained packet is short;
-	   there's no guarantee that all of it was included.
-
-	   XXX - should catch BoundsError, and re-throw it after cleaning
-	   up. */
+	   there's no guarantee that all of it was included. */
 	next_tvb = tvb_new_subset(tvb, 8, -1, -1);
 	TRY {
 	  call_dissector(ip_handle, next_tvb, pinfo, icmp_tree);
+	}
+	CATCH(BoundsError) {
+	  /* Restore the writability of the columns. */
+	  col_set_writable(pinfo->cinfo, save_writable);
+
+	  /* Restore the current protocol string. */
+	  pinfo->current_proto = save_current_proto;
+
+	  /* Restore the "we're inside an error packet" flag. */
+	  pinfo->in_error_pkt = save_in_error_pkt;
+
+	  /* Restore the addresses. */
+	  pinfo->dl_src = save_dl_src;
+	  pinfo->dl_dst = save_dl_dst;
+	  pinfo->net_src = save_net_src;
+	  pinfo->net_dst = save_net_dst;
+	  pinfo->src = save_src;
+	  pinfo->dst = save_dst;
+
+	  /* Rethrow the exception, so this will be reported as a short frame */
+	  RETHROW;
 	}
 	CATCH(ReportedBoundsError) {
 	  ; /* do nothing */
