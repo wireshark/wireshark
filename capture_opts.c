@@ -60,7 +60,7 @@ capture_opts_init(capture_options *capture_opts, void *cfile)
   capture_opts->promisc_mode            = TRUE;             /* promiscuous mode is the default */
   capture_opts->linktype                = -1;               /* the default linktype */
   capture_opts->save_file               = NULL;
-  capture_opts->sync_mode               = TRUE;
+  capture_opts->real_time_mode          = TRUE;
   capture_opts->show_info               = TRUE;
   capture_opts->quit_after_cap          = FALSE;
 
@@ -98,7 +98,7 @@ capture_opts_info(capture_options *capture_opts) {
     g_warning("Promisc            : %u", capture_opts->promisc_mode);
     g_warning("LinkType           : %d", capture_opts->linktype);
     g_warning("SaveFile           : %s", capture_opts->save_file);
-    g_warning("SyncMode           : %u", capture_opts->sync_mode);
+    g_warning("RealTimeMode       : %u", capture_opts->real_time_mode);
     g_warning("ShowInfo           : %u", capture_opts->show_info);
     g_warning("QuitAfterCap       : %u", capture_opts->quit_after_cap);
 
@@ -267,8 +267,8 @@ capture_opts_add_opt(capture_options *capture_opts, const char *appname, int opt
         capture_opts->has_snaplen = TRUE;
         capture_opts->snaplen = get_positive_int(appname, optarg, "snapshot length");
         break;
-    case 'S':        /* "Sync" mode: used for following file ala tail -f */
-        capture_opts->sync_mode = TRUE;
+    case 'S':        /* "Real-Time" mode: used for following file ala tail -f */
+        capture_opts->real_time_mode = TRUE;
         break;
     case 'w':        /* Write to capture file xxx */
         capture_opts->save_file = g_strdup(optarg);

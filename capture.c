@@ -203,8 +203,8 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
       }
       capture_opts->save_file = g_strdup(new_file);
 
-      /* if we are in sync mode, open the new file */
-    if(capture_opts->sync_mode) {
+      /* if we are in real-time mode, open the new file */
+    if(capture_opts->real_time_mode) {
         /* The child process started a capture.
            Attempt to open the capture file and set up to read it. */
         switch(cf_start_tail(capture_opts->cf, capture_opts->save_file, is_tempfile, &err)) {
@@ -231,7 +231,7 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
   int  err;
 
 
-  if(capture_opts->sync_mode) {
+  if(capture_opts->real_time_mode) {
       /* Read from the capture file the number of records the child told us
          it added.
          XXX - do something if this fails? */
@@ -263,7 +263,7 @@ capture_input_closed(capture_options *capture_opts)
     int  err;
 
 
-    if(capture_opts->sync_mode) {
+    if(capture_opts->real_time_mode) {
         /* Read what remains of the capture file, and finish the capture.
            XXX - do something if this fails? */
         switch (cf_finish_tail(capture_opts->cf, &err)) {

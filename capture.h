@@ -53,8 +53,7 @@ typedef struct capture_options_tag {
     gchar    *save_file;    /**< the capture file name */
 
     /* GUI related */
-    gboolean sync_mode;     /**< Fork a child to do the capture,
-                                 and sync between them */
+    gboolean real_time_mode;/**< Update list of packets in real time */
     gboolean show_info;     /**< show the info dialog */
     gboolean quit_after_cap;    /** Makes a "capture only mode". Implies -k */
 

@@ -1742,7 +1742,7 @@ main(int argc, char *argv[])
   } else {
     capture_opts->promisc_mode   = prefs->capture_prom_mode;
     capture_opts->show_info      = prefs->capture_show_info;
-    capture_opts->sync_mode      = prefs->capture_real_time;
+    capture_opts->real_time_mode = prefs->capture_real_time;
     auto_scroll_live             = prefs->capture_auto_scroll;
   }
 
@@ -2063,15 +2063,15 @@ main(int argc, char *argv[])
     if (capture_opts->multi_files_on) {
       /* Ring buffer works only under certain conditions:
 	 a) ring buffer does not work with temporary files;
-	 b) sync_mode and capture_opts->ringbuffer_on are mutually exclusive -
-	    sync_mode takes precedence;
+	 b) real_time_mode and multi_files_on are mutually exclusive -
+	    real_time_mode takes precedence;
 	 c) it makes no sense to enable the ring buffer if the maximum
 	    file size is set to "infinite". */
       if (capture_opts->save_file == NULL) {
 	fprintf(stderr, "ethereal: Ring buffer requested, but capture isn't being saved to a permanent file.\n");
 	capture_opts->multi_files_on = FALSE;
       }
-/*      if (capture_opts->sync_mode) {
+/*      if (capture_opts->real_time_mode) {
 	fprintf(stderr, "ethereal: Ring buffer requested, but an \"Update list of packets in real time\" capture is being done.\n");
 	capture_opts->multi_files_on = FALSE;
       }*/

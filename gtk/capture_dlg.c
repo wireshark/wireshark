@@ -1009,7 +1009,7 @@ capture_prep(void)
   sync_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
       "_Update list of packets in real time", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(sync_cb),
-		capture_opts->sync_mode);
+		capture_opts->real_time_mode);
   SIGNAL_CONNECT(sync_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
   gtk_tooltips_set_tip(tooltips, sync_cb,
     "Using this option will show the captured packets immediately on the main screen. "
@@ -1365,7 +1365,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
       time_unit_option_menu_get_value(stop_duration_om, capture_opts->autostop_duration);
   }
 
-  capture_opts->sync_mode =
+  capture_opts->real_time_mode =
     gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sync_cb));
 
   auto_scroll_live =
@@ -1417,7 +1417,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w) {
     capture_opts->autostop_files =
       gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(stop_files_sb));
 
-  if(capture_opts->sync_mode)
+  if(capture_opts->real_time_mode)
     capture_opts->multi_files_on = FALSE;
 
   if (capture_opts->multi_files_on) {

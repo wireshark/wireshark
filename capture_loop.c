@@ -106,6 +106,10 @@
 #include <epan/dissectors/packet-ipfc.h>
 #include <epan/dissectors/packet-arcnet.h>
 
+/* Win32 needs the O_BINARY flag for open() */
+#ifndef O_BINARY
+#define O_BINARY	0
+#endif
 
 
 
@@ -596,12 +600,7 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
   } else {
     /* We couldn't open "iface" as a network device. */
 #ifdef _WIN32
-    /* On Windows, we don't support capturing on pipes, so we give up.
-       If this is a child process that does the capturing in sync
-       mode or fork mode, it shouldn't do any UI stuff until we pop up the
-       capture-progress window, and, since we couldn't start the
-       capture, we haven't popped it up. */
-
+    /* On Windows, we don't support capturing on pipes, so we give up. */
 
     /* On Win32 OSes, the capture devices are probably available to all
        users; don't warn about permissions problems.
@@ -967,8 +966,8 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd) {
 
 
   if (capture_opts->save_file != NULL) {
-    /* If the Sync option is set, we return to the caller while the capture
-     * is in progress.  Therefore we need to take a copy of save_file in
+    /* We return to the caller while the capture is in progress.  
+     * Therefore we need to take a copy of save_file in
      * case the caller destroys it after we return.
      */
     capfile_name = g_strdup(capture_opts->save_file);
@@ -1045,8 +1044,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   capture_info   capture_ui;
   char        errmsg[4096+1];
   int         save_file_fd;
-
-  gboolean    show_info = capture_opts->show_info || !capture_opts->sync_mode;
 
 
   /* init the loop data */
@@ -1145,7 +1142,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   }
 
   /* start capture info dialog */
-  if(show_info) {
+  if(capture_opts->show_info) {
       capture_ui.callback_data  = &ld;
       capture_ui.counts         = &ld.counts;
       capture_info_create(&capture_ui, capture_opts->iface);
@@ -1208,7 +1205,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
       }*/
 
       /* calculate and display running time */
-      if(show_info) {
+      if(capture_opts->show_info) {
           cur_time -= start_time;
           capture_ui.running_time   = cur_time;
           capture_ui.new_packets    = ld.packets_sync_pipe;
@@ -1267,7 +1264,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   } /* while (ld.go) */
 
   /* close capture info dialog */
-  if(show_info) {
+  if(capture_opts->show_info) {
     capture_info_destroy(&capture_ui);
   }
 
