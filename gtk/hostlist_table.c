@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table.c   2003 Ronnie Sahlberg
  * Helper routines common to all host list taps.
  *
- * $Id: hostlist_table.c,v 1.18 2004/07/10 11:53:51 ulfl Exp $
+ * $Id: hostlist_table.c,v 1.19 2004/07/13 18:14:00 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -156,9 +156,7 @@ reset_hostlist_table_data(hostlist_table *hosts)
     }
 
     /* remove all entries from the clist */
-    for(i=0;i<hosts->num_hosts;i++){
-        gtk_clist_remove(hosts->table, hosts->num_hosts-i-1);
-    }
+    gtk_clist_clear(hosts->table);
 
     /* delete all hosts */
     for(i=0;i<hosts->num_hosts;i++){
@@ -243,9 +241,10 @@ hostlist_click_column_cb(GtkCList *clist, gint column, gpointer data)
 		gtk_widget_show(col_arrows[column].descend_pm);
 		gtk_clist_set_sort_column(clist, column);
 	}
-	gtk_clist_thaw(clist);
 
 	gtk_clist_sort(clist);
+
+	gtk_clist_thaw(clist);
 }
 
 
@@ -493,13 +492,15 @@ draw_hostlist_table_addresses(hostlist_table *hl)
 }
 
 
-/* XXX should freeze/thaw table here and in the srt thingy? */
 static void
 draw_hostlist_table_data(hostlist_table *hl)
 {
     guint32 i;
     int j;
     char title[256];
+
+    /* Freeze the Hostlist since quite a few changes will occur */
+    gtk_clist_freeze(hl->table);
 
     if (hl->page_lb) {
         if(hl->num_hosts) {
@@ -538,6 +539,8 @@ draw_hostlist_table_data(hostlist_table *hl)
 
     /* update table, so resolved addresses will be shown now */
     draw_hostlist_table_addresses(hl);
+
+    gtk_clist_thaw(hl->table);
 }
 
 static gboolean
@@ -934,6 +937,9 @@ add_hostlist_table_data(hostlist_table *hl, address *addr, guint32 port, gboolea
         char frames[16],bytes[16],txframes[16],txbytes[16],rxframes[16],rxbytes[16];
 
 
+	  /* Freeze the hostlist while performing updates */
+        gtk_clist_freeze(hl->table);
+
         /* these values will be filled by call to draw_hostlist_table_addresses() below */
         entries[0]="";
         entries[1]="";
@@ -956,7 +962,7 @@ add_hostlist_table_data(hostlist_table *hl, address *addr, guint32 port, gboolea
         gtk_clist_insert(hl->table, talker_idx, entries);
         gtk_clist_set_row_data(hl->table, talker_idx, (gpointer) talker_idx);
 
-        draw_hostlist_table_addresses(hl);
+        gtk_clist_thaw(hl->table);
     }
 }
 

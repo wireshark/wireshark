@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.46 2004/07/10 11:57:19 ulfl Exp $
+ * $Id: endpoint_talkers_table.c,v 1.47 2004/07/13 18:14:00 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -225,9 +225,7 @@ reset_ett_table_data(endpoints_table *et)
     }
 
     /* remove all entries from the clist */
-    for(i=0;i<et->num_endpoints;i++){
-        gtk_clist_remove(et->table, et->num_endpoints-i-1);
-    }
+    gtk_clist_clear(et->table);
 
     /* delete all endpoints */
     for(i=0;i<et->num_endpoints;i++){
@@ -317,9 +315,11 @@ ett_click_column_cb(GtkCList *clist, gint column, gpointer data)
 		gtk_widget_show(col_arrows[column].descend_pm);
 		gtk_clist_set_sort_column(clist, column);
 	}
-	gtk_clist_thaw(clist);
 
 	gtk_clist_sort(clist);
+
+	gtk_clist_thaw(clist);
+
 }
 
 
@@ -1007,14 +1007,15 @@ draw_ett_table_addresses(endpoints_table *et)
 }
 
 
-
-/* XXX should freeze/thaw table here and in the srt thingy? */
 static void
 draw_ett_table_data(endpoints_table *et)
 {
     guint32 i;
     int j;
     char title[256];
+
+    /* Freeze the Endpoint table since quite a few changes will occur */
+    gtk_clist_freeze(et->table);
 
     if (et->page_lb) {
         if(et->num_endpoints) {
@@ -1053,6 +1054,8 @@ draw_ett_table_data(endpoints_table *et)
 
     /* update table, so resolved addresses will be shown now */
     draw_ett_table_addresses(et);
+
+    gtk_clist_thaw(et->table);
 }
 
 
@@ -1484,6 +1487,8 @@ add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_
         char *entries[NUM_COLS];
         char frames[16],bytes[16],txframes[16],txbytes[16],rxframes[16],rxbytes[16];
 
+	  /* Freeze the endpoint table while performing updates */
+        gtk_clist_freeze(et->table);
 
         /* these values will be filled by call to draw_ett_table_addresses() below */
         entries[0] = "";
@@ -1509,7 +1514,7 @@ add_ett_table_data(endpoints_table *et, address *src, address *dst, guint32 src_
         gtk_clist_insert(et->table, talker_idx, entries);
         gtk_clist_set_row_data(et->table, talker_idx, (gpointer) talker_idx);
 
-        draw_ett_table_addresses(et);
+        gtk_clist_thaw(et->table);
     }
 }
 
