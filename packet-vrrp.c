@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.25 2002/08/28 21:00:36 jmayer Exp $
+ * $Id: packet-vrrp.c,v 1.26 2003/04/30 02:35:20 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,7 +52,7 @@ static gint hf_vrrp_ip6 = -1;
 
 #define VRRP_VERSION_MASK 0xf0
 #define VRRP_TYPE_MASK 0x0f
-#define VRRP_AUTH_DATA_LEN 8
+#define VRRP_AUTH_DATA_LEN 9
 
 #define VRRP_TYPE_ADVERTISEMENT 1
 static const value_string vrrp_type_vals[] = {
@@ -107,7 +107,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree *vrrp_tree, *ver_type_tree;
                 guint8 priority, ip_count = 0, auth_type;
                 guint16 cksum, computed_cksum;
-                guint8 auth_buf[VRRP_AUTH_DATA_LEN+1];
+                guint8 auth_buf[VRRP_AUTH_DATA_LEN];
 
                 ti = proto_tree_add_item(tree, proto_vrrp, tvb, 0, -1, FALSE);
                 vrrp_tree = proto_item_add_subtree(ti, ett_vrrp);

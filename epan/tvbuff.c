@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.42 2003/04/28 04:03:26 gerald Exp $
+ * $Id: tvbuff.c,v 1.43 2003/04/30 02:35:23 gerald Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -1674,23 +1674,23 @@ tvb_format_text(tvbuff_t *tvb, gint offset, gint size)
 }
 
 /* Looks for a stringz (NUL-terminated string) in tvbuff and copies
- * no more than (maxlength - 1) number of bytes, including terminating NUL, to
- * buffer.  Returns length of string (not including terminating NUL), or -1 if
- * the string was truncated in the buffer due to not having reached the
- * terminating NUL.
+ * no more than bufsize number of bytes, including terminating NUL, to buffer.
+ * Returns length of string (not including terminating NUL), or -1 if the string was
+ * truncated in the buffer due to not having reached the terminating NUL.
+ * In this way, it acts like snprintf().
  *
  * When processing a packet where the remaining number of bytes is less
- * than maxlength, an exception is not thrown if the end of the packet
+ * than bufsize, an exception is not thrown if the end of the packet
  * is reached before the NUL is found. If no NUL is found before reaching
  * the end of the short packet, -1 is still returned, and the string
- * is truncated with a NUL, albeit not at buffer[maxlength], but
+ * is truncated with a NUL, albeit not at buffer[bufsize - 1], but
  * at the correct spot, terminating the string.
  *
  * *bytes_copied will contain the number of bytes actually copied,
  * including the terminating-NUL.
  */
 static gint
-_tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer,
+_tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint bufsize, guint8* buffer,
 		gint *bytes_copied)
 {
 	gint	stringlen;
@@ -1700,10 +1700,10 @@ _tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer,
 
 	check_offset_length(tvb, offset, 0, &abs_offset, &junk_length);
 
-	if (maxlength == 0) {
+	if (bufsize == 0) {
 		*bytes_copied = 0;
 		return -1;
-	} else if (maxlength == 1) {
+	} else if (bufsize == 1) {
 		buffer[0] = 0;
 		*bytes_copied = 1;
 		return 0;
@@ -1724,20 +1724,20 @@ _tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer,
 	g_assert(len != -1);
 
 	/*
-	 * If we've been passed a negative number, maxlength will
+	 * If we've been passed a negative number, bufsize will
 	 * be huge.
 	 */
-	g_assert(maxlength <= G_MAXINT);
+	g_assert(bufsize <= G_MAXINT);
 
-	if ((guint)len < maxlength) {
+	if ((guint)len < bufsize) {
 		limit = len;
 		decreased_max = TRUE;
 	}
 	else {
-		limit = maxlength - 1;
+		limit = bufsize;
 	}
 
-	stringlen = tvb_strnlen(tvb, abs_offset, limit);
+	stringlen = tvb_strnlen(tvb, abs_offset, limit - 1);
 	/* If NUL wasn't found, copy the data and return -1 */
 	if (stringlen == -1) {
 		tvb_memcpy(tvb, buffer, abs_offset, limit);
@@ -1760,24 +1760,24 @@ _tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer,
 }
 
 /* Looks for a stringz (NUL-terminated string) in tvbuff and copies
- * no more than (maxlength - 1) number of bytes, including terminating NUL, to
- * buffer.  Returns length of string (not including terminating NUL), or -1 if
- * the string was truncated in the buffer due to not having reached the
- * terminating NUL.
+ * no more than bufsize number of bytes, including terminating NUL, to buffer.
+ * Returns length of string (not including terminating NUL), or -1 if the string was
+ * truncated in the buffer due to not having reached the terminating NUL.
+ * In this way, it acts like snprintf().
  *
  * When processing a packet where the remaining number of bytes is less
- * than maxlength, an exception is not thrown if the end of the packet
+ * than bufsize, an exception is not thrown if the end of the packet
  * is reached before the NUL is found. If no NUL is found before reaching
  * the end of the short packet, -1 is still returned, and the string
- * is truncated with a NUL, albeit not at buffer[maxlength], but
+ * is truncated with a NUL, albeit not at buffer[bufsize - 1], but
  * at the correct spot, terminating the string.
  */
 gint
-tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer)
+tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint bufsize, guint8* buffer)
 {
 	gint bytes_copied;
 
-	return _tvb_get_nstringz(tvb, offset, maxlength, buffer, &bytes_copied);
+	return _tvb_get_nstringz(tvb, offset, bufsize, buffer, &bytes_copied);
 }
 
 /* Like tvb_get_nstringz(), but never returns -1. The string is guaranteed to
@@ -1785,14 +1785,14 @@ tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer)
  * a NUL is placed at the end of buffer to terminate it.
  */
 gint
-tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer)
+tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint bufsize, guint8* buffer)
 {
 	gint	len, bytes_copied;
 
-	len = _tvb_get_nstringz(tvb, offset, maxlength, buffer, &bytes_copied);
+	len = _tvb_get_nstringz(tvb, offset, bufsize, buffer, &bytes_copied);
 
 	if (len == -1) {
-		buffer[maxlength] = 0;
+		buffer[bufsize - 1] = 0;
 		return bytes_copied - 1;
 	}
 	else {

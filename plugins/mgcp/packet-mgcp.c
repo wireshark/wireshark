@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.38 2003/04/16 07:24:08 guy Exp $
+ * $Id: packet-mgcp.c,v 1.39 2003/04/30 02:35:28 gerald Exp $
  *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -697,7 +697,7 @@ static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength){
   int returnvalue = FALSE;
   guint8 word[5];
 
-  if(( maxlength >= 4) && tvb_get_nstringz0(tvb,offset,4,word)){
+  if(( maxlength >= 4) && tvb_get_nstringz0(tvb,offset,sizeof(word),word)){
     if (strncasecmp(word, "EPCF", 4) == 0 ||
 	strncasecmp(word, "CRCX", 4) == 0 ||
 	strncasecmp(word, "MDCX", 4) == 0 ||
@@ -739,7 +739,7 @@ static gboolean is_mgcp_rspcode(tvbuff_t *tvb, gint offset, gint maxlength){
   int returnvalue = FALSE;
   guint8 word[4];
   if(maxlength >= 3){
-    tvb_get_nstringz0(tvb,offset,3,word);
+    tvb_get_nstringz0(tvb,offset,sizeof(word),word);
     if( isdigit(word[0]) &&
 	isdigit(word[1]) &&
 	isdigit(word[2])){

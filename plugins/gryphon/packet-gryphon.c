@@ -3,7 +3,7 @@
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
  *
- * $Id: packet-gryphon.c,v 1.35 2002/08/28 20:39:05 jmayer Exp $
+ * $Id: packet-gryphon.c,v 1.36 2003/04/30 02:35:25 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1537,14 +1537,15 @@ resp_list(tvbuff_t *tvb, int offset, proto_tree *pt)
     return offset;
 }
 
+#define GRYPHON_CMD_START_STR_LEN 120
 static int
 cmd_start(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    char	    string[120];
+    char	    string[GRYPHON_CMD_START_STR_LEN];
     gint	    length;
 
     offset = cmd_delete(tvb, offset, pt);
-    length = tvb_get_nstringz0(tvb, offset, 120, string) + 1;
+    length = tvb_get_nstringz0(tvb, offset, GRYPHON_CMD_START_STR_LEN, string) + 1;
     proto_tree_add_text(pt, tvb, offset, length, "Arguments: %s", string);
     offset += length;
     length = 3 - (length + 3) % 4;

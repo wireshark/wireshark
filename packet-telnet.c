@@ -2,7 +2,7 @@
  * Routines for Telnet packet dissection; see RFC 854 and RFC 855
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.39 2003/04/27 20:57:58 deniel Exp $
+ * $Id: packet-telnet.c,v 1.40 2003/04/30 02:35:20 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -406,10 +406,10 @@ dissect_comport_subopt(const char *optname, tvbuff_t *tvb, int offset, int len,
     if (len == 0) {
         proto_tree_add_text(tree, tvb, offset, 1, "%s Requests Signature",source);
     } else {
-        guint8 *sig = g_malloc(len + 4);
+        guint8 *sig = g_malloc(len);
         gint siglen = tvb_get_nstringz0(tvb, offset+1, len, sig);
         proto_tree_add_text(tree, tvb, offset, 1 + siglen, "%s Signature: %s",source, sig);
-	free(sig);
+	g_free(sig);
     }
     break;
 

@@ -2,7 +2,7 @@
  * Routines for who protocol (see man rwhod)
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-who.c,v 1.25 2002/08/28 21:00:37 jmayer Exp $
+ * $Id: packet-who.c,v 1.26 2003/04/30 02:35:20 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,7 +138,7 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	offset += 4;
 
-	tvb_get_nstringz0(tvb, offset, 32, server_name);
+	tvb_get_nstringz0(tvb, offset, sizeof(server_name), server_name);
 	if (tree)
 		proto_tree_add_string(who_tree, hf_who_hostname, tvb, offset,
 		    32, server_name);
@@ -202,12 +202,12 @@ dissect_whoent(tvbuff_t *tvb, int offset, proto_tree *tree)
 		    line_offset, SIZE_OF_WHOENT, FALSE);
 		whoent_tree = proto_item_add_subtree(whoent_ti, ett_whoent);
 
-	    	tvb_get_nstringz0(tvb, line_offset, 8, out_line);
+	    	tvb_get_nstringz0(tvb, line_offset, sizeof(out_line), out_line);
 		proto_tree_add_string(whoent_tree, hf_who_tty, tvb, line_offset,
 		    8, out_line);
 		line_offset += 8;
 
-	    	tvb_get_nstringz0(tvb, line_offset, 8, out_name);
+	    	tvb_get_nstringz0(tvb, line_offset, sizeof(out_name), out_name);
 		proto_tree_add_string(whoent_tree, hf_who_uid, tvb, line_offset,
 		    8, out_name);
 		line_offset += 8;

@@ -2,7 +2,7 @@
  * Routines for the Point-to-Point Tunnelling Protocol (PPTP) (RFC 2637)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-pptp.c,v 1.26 2002/08/28 21:00:25 jmayer Exp $
+ * $Id: packet-pptp.c,v 1.27 2003/04/30 02:35:19 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -301,8 +301,8 @@ dissect_cntrl_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
   guint8		minor_ver;
   guint32		frame;
   guint32		bearer;
-  guint8		host[HOSTLEN+1];
-  guint8		vendor[VENDORLEN+1];
+  guint8		host[HOSTLEN];
+  guint8		vendor[VENDORLEN];
 
   major_ver = tvb_get_guint8(tvb, offset);
   minor_ver = tvb_get_guint8(tvb, offset + 1);

@@ -2,7 +2,7 @@
  * Routines for megaco packet disassembly
  * RFC 3015
  *
- * $Id: packet-megaco.c,v 1.4 2003/01/24 21:07:43 jmayer Exp $
+ * $Id: packet-megaco.c,v 1.5 2003/04/30 02:35:26 gerald Exp $
  *
  * Christian Falckenberg, 2002/10/17
  * Copyright (c) 2002 by Christian Falckenberg
@@ -140,7 +140,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * for the MEGACO string.  This needs to be improved when supporting
      * binary encodings.
      */
-    if(!tvb_get_nstringz0(tvb,0,6,word)) return;
+    if(!tvb_get_nstringz0(tvb,0,sizeof(word),word)) return;
     if (strncasecmp(word, "MEGACO", 6) != 0) return;
 
     /* Display MEGACO in protocol column */

@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.26 2003/04/15 04:45:57 guy Exp $
+ * $Id: packet-aim.c,v 1.27 2003/04/30 02:35:18 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -760,7 +760,6 @@ static int get_buddyname( char *name, tvbuff_t *tvb, int len_offset, int name_of
   buddyname_length = tvb_get_guint8(tvb, len_offset);
 
   if(buddyname_length > MAX_BUDDYNAME_LENGTH ) buddyname_length = MAX_BUDDYNAME_LENGTH;
-  memset( name, '\0', sizeof(name));
   tvb_get_nstringz0(tvb, name_offset, buddyname_length, name);
 
   return buddyname_length;
@@ -1745,7 +1744,7 @@ static int dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo _U_,
        data types */
     if (tmp[i].datatype == FT_STRING) {
       guint8 *buf;      
-      buf = g_malloc(length + 1);
+      buf = g_malloc(length);
       tvb_get_nstringz0(tvb, offset + 4, length, buf);
       ti1 = proto_tree_add_text(tree, tvb, offset, length + 4, 
 				"%s: %s", tmp[i].desc, buf);

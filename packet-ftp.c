@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  *
- * $Id: packet-ftp.c,v 1.50 2003/02/25 19:27:19 guy Exp $
+ * $Id: packet-ftp.c,v 1.51 2003/04/30 02:35:19 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -335,7 +335,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * One-line reply, or first or last line
 			 * of a multi-line reply.
 			 */
-			tvb_get_nstringz0(tvb, offset, 3, code_str);
+			tvb_get_nstringz0(tvb, offset, sizeof(code_str), code_str);
 			code = strtoul(code_str, NULL, 10);
 				
 			if (tree) {

@@ -3,7 +3,7 @@
  * [ very rough, but mininally functional ]
  * Copyright 2003, Brad Hards <bradh@frogmouth.net>
  *
- * $Id: packet-rsync.c,v 1.4 2003/04/27 20:57:58 deniel Exp $
+ * $Id: packet-rsync.c,v 1.5 2003/04/30 02:35:19 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -141,7 +141,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(rsync_tree, hf_rsync_hdr_magic, tvb, offset, 8, TRUE);
 	offset += 8;
 	proto_tree_add_item(rsync_tree, hf_rsync_hdr_version, tvb, offset, 4, TRUE);
-	tvb_get_nstringz0(tvb, offset, 3, version);
+	tvb_get_nstringz0(tvb, offset, sizeof(version), version);
 	offset += 4;
 
         if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -158,7 +158,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(rsync_tree, hf_rsync_hdr_magic, tvb, offset, 8, TRUE);
 	offset += 8;
 	proto_tree_add_item(rsync_tree, hf_rsync_hdr_version, tvb, offset, 4, TRUE);
-	tvb_get_nstringz0(tvb, offset, 3, version);
+	tvb_get_nstringz0(tvb, offset, sizeof(version), version);
 	offset += 4;
 
         if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -195,7 +195,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	break;
     case RSYNC_SERV_RESPONSE:
         /* there are two cases - file list, or authentication */
-        tvb_get_nstringz0(tvb, offset, 8, auth_string);
+        tvb_get_nstringz0(tvb, offset, sizeof(auth_string), auth_string);
 	if (0 == strncmp("@RSYNCD:", auth_string, 8)) {
 	  /* matches, so we assume its an authentication message */
 	  /* needs to handle the AUTHREQD case, but doesn't - FIXME */
@@ -216,7 +216,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	  /* we need to check the end of the buffer for magic string */
 	  buff_length = tvb_length_remaining(tvb, offset);
-	  tvb_get_nstringz0(tvb, buff_length-14, 14, magic_string);
+	  tvb_get_nstringz0(tvb, buff_length-14, sizeof(magic_string), magic_string);
 	  if (0 == strncmp("@RSYNCD: EXIT", magic_string, 14)) {
 	    /* that's all, folks */
 	    conversation_data->state = RSYNC_COMMAND;

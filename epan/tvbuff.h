@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.30 2003/02/24 01:22:30 guy Exp $
+ * $Id: tvbuff.h,v 1.31 2003/04/30 02:35:23 gerald Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -319,26 +319,26 @@ extern char *tvb_fake_unicode(tvbuff_t *tvb, int offset, int len,
 extern guint8 * tvb_format_text(tvbuff_t *tvb, gint offset, gint size);
 
 /* Looks for a stringz (NUL-terminated string) in tvbuff and copies
- * no more than maxlength number of bytes, including terminating NUL, to buffer.
+ * no more than bufsize number of bytes, including terminating NUL, to buffer.
  * Returns length of string (not including terminating NUL), or -1 if the string was
  * truncated in the buffer due to not having reached the terminating NUL.
  * In this way, it acts like snprintf().
  *
  * When processing a packet where the remaining number of bytes is less
- * than maxlength, an exception is not thrown if the end of the packet
+ * than bufsize, an exception is not thrown if the end of the packet
  * is reached before the NUL is found. If no NUL is found before reaching
  * the end of the short packet, -1 is still returned, and the string
- * is truncated with a NUL, albeit not at buffer[maxlength], but
+ * is truncated with a NUL, albeit not at buffer[bufsize - 1], but
  * at the correct spot, terminating the string.
  */
-extern gint tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength,
+extern gint tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint bufsize,
     guint8* buffer);
 
 /* Like tvb_get_nstringz(), but never returns -1. The string is guaranteed to
  * have a terminating NUL. If the string was truncated when copied into buffer,
  * a NUL is placed at the end of buffer to terminate it.
  */
-extern gint tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint maxlength,
+extern gint tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint bufsize,
     guint8* buffer);
 
 /*

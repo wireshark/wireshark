@@ -2,7 +2,7 @@
  * Routines for Financial Information eXchange (FIX) Protocol dissection
  * Copyright 2000, PC Drew <drewpc@ibsncentral.com>
  *
- * $Id: packet-fix.c,v 1.1 2002/09/16 17:49:17 jmayer Exp $
+ * $Id: packet-fix.c,v 1.2 2003/04/30 02:35:19 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -879,7 +879,7 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     value_offset = equals + 1;
     value_len = ctrla_offset - value_offset;
 
-    value = g_malloc0(value_len + 1);
+    value = g_malloc(value_len);
     tvb_get_nstringz0(tvb, value_offset, value_len, value);
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -918,11 +918,11 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             value_len = ctrla_offset - value_offset;
 
             tag_len = equals - field_offset;
-            tag_str = g_malloc0(tag_len + 1);
+            tag_str = g_malloc(tag_len);
             tvb_get_nstringz0(tvb, field_offset, tag_len, tag_str);
             tag = atoi(tag_str);
 
-            value = g_malloc0(value_len + 1);
+            value = g_malloc(value_len);
             tvb_get_nstringz0(tvb, value_offset, value_len, value);
 
             switch(tag) {
