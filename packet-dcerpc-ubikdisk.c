@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/ncsubik/ubikdisk_proc.idl
  *
- * $Id: packet-dcerpc-ubikdisk.c,v 1.3 2003/06/26 04:30:30 tpot Exp $
+ * $Id: packet-dcerpc-ubikdisk.c,v 1.4 2003/08/04 02:48:59 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,14 +90,6 @@ proto_register_ubikdisk (void)
 void
 proto_reg_handoff_ubikdisk (void)
 {
-	header_field_info *hf_info;
-
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_ubikdisk, ett_ubikdisk, &uuid_ubikdisk, ver_ubikdisk, ubikdisk_dissectors, hf_ubikdisk_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_ubikdisk_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		ubikdisk_dissectors, array_length(ubikdisk_dissectors));
 }

@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\DNSSERVER packet disassembly
  * Copyright 2001, 2002 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-dnsserver.c,v 1.2 2003/06/26 04:30:27 tpot Exp $
+ * $Id: packet-dcerpc-dnsserver.c,v 1.3 2003/08/04 02:49:03 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,17 +90,9 @@ proto_register_dcerpc_dnsserver(void)
 void
 proto_reg_handoff_dcerpc_dnsserver(void)
 {
-	header_field_info *hf_info;
-
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(
 		proto_dcerpc_dnsserver, ett_dnsserver, &uuid_dcerpc_dnsserver,
 		ver_dcerpc_dnsserver, dcerpc_dnsserver_dissectors, hf_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		dcerpc_dnsserver_dissectors, array_length(dcerpc_dnsserver_dissectors));
 }

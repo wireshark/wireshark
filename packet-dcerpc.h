@@ -2,7 +2,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.h,v 1.33 2003/07/16 04:20:32 tpot Exp $
+ * $Id: packet-dcerpc.h,v 1.34 2003/08/04 02:48:58 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -215,7 +215,7 @@ dcerpc_sub_dissector *dcerpc_get_proto_sub_dissector(e_uuid_t *uuid, guint16 ver
 
 /* Create a opnum, name value_string from a subdissector list */
 
-value_string *value_string_from_subdissectors(dcerpc_sub_dissector *sd, int num_sds);
+value_string *value_string_from_subdissectors(dcerpc_sub_dissector *sd);
 
 /* Private data structure to pass to DCERPC dissector. This is used to
    pass transport specific information down to the dissector from the

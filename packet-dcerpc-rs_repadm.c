@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz  security/idl/rs_repadm.idl
  *
- * $Id: packet-dcerpc-rs_repadm.c,v 1.3 2003/06/26 04:30:29 tpot Exp $
+ * $Id: packet-dcerpc-rs_repadm.c,v 1.4 2003/08/04 02:49:01 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -91,14 +91,6 @@ proto_register_rs_repadm (void)
 void
 proto_reg_handoff_rs_repadm (void)
 {
-	header_field_info *hf_info;
-
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_rs_repadm, ett_rs_repadm, &uuid_rs_repadm, ver_rs_repadm, rs_repadm_dissectors, hf_rs_repadm_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_rs_repadm_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		rs_repadm_dissectors, array_length(rs_repadm_dissectors));
 }

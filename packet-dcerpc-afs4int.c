@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/fsint/afs4int.idl
  *
- * $Id: packet-dcerpc-afs4int.c,v 1.3 2003/06/26 04:30:26 tpot Exp $
+ * $Id: packet-dcerpc-afs4int.c,v 1.4 2003/08/04 02:49:04 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -107,14 +107,6 @@ proto_register_afs4int (void)
 void
 proto_reg_handoff_afs4int (void)
 {
-	header_field_info *hf_info;
-
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_afs4int, ett_afs4int, &uuid_afs4int, ver_afs4int, afs4int_dissectors, hf_afs4int_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_afs4int_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		afs4int_dissectors, array_length(afs4int_dissectors));
 }

@@ -2,7 +2,7 @@
  * Routines for DCERPC TAPI packet disassembly
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-tapi.c,v 1.6 2003/06/26 04:30:30 tpot Exp $
+ * $Id: packet-dcerpc-tapi.c,v 1.7 2003/08/04 02:48:59 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -240,17 +240,9 @@ static hf_register_info hf[] = {
 void
 proto_reg_handoff_dcerpc_tapi(void)
 {
-	header_field_info *hf_info;
-
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_tapi, ett_dcerpc_tapi,
                          &uuid_dcerpc_tapi, ver_dcerpc_tapi,
                          dcerpc_tapi_dissectors, hf_tapi_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_tapi_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		dcerpc_tapi_dissectors, array_length(dcerpc_tapi_dissectors));
 }

@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.26 2003/06/26 04:30:30 tpot Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.27 2003/08/04 02:48:59 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1257,17 +1257,9 @@ proto_register_dcerpc_wkssvc(void)
 void
 proto_reg_handoff_dcerpc_wkssvc(void)
 {
-	header_field_info *hf_info;
-
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_wkssvc, ett_dcerpc_wkssvc,
                          &uuid_dcerpc_wkssvc, ver_dcerpc_wkssvc,
                          dcerpc_wkssvc_dissectors, hf_wkssvc_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_wkssvc_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		dcerpc_wkssvc_dissectors, array_length(dcerpc_wkssvc_dissectors));
 }

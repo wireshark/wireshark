@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.137 2003/07/21 09:10:00 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.138 2003/08/04 02:48:59 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -592,6 +592,7 @@ dcerpc_init_uuid (int proto, int ett, e_uuid_t *uuid, guint16 ver,
 {
     dcerpc_uuid_key *key = g_malloc (sizeof (*key));
     dcerpc_uuid_value *value = g_malloc (sizeof (*value));
+    header_field_info *hf_info;
 
     key->uuid = *uuid;
     key->ver = ver;
@@ -603,6 +604,9 @@ dcerpc_init_uuid (int proto, int ett, e_uuid_t *uuid, guint16 ver,
     value->opnum_hf = opnum_hf;
 
     g_hash_table_insert (dcerpc_uuids, key, value);
+
+    hf_info = proto_registrar_get_nth(opnum_hf);
+    hf_info->strings = value_string_from_subdissectors(procs);
 }
 
 /* Function to find the name of a registered protocol
@@ -625,21 +629,27 @@ dcerpc_get_proto_name(e_uuid_t *uuid, guint16 ver)
 /* Create a value_string consisting of DCERPC opnum and name from a
    subdissector array. */
 
-value_string *value_string_from_subdissectors(dcerpc_sub_dissector *sd, 
-					      int num_sds)
+value_string *value_string_from_subdissectors(dcerpc_sub_dissector *sd)
 {
-	value_string *vs;
-	int i;
+	value_string *vs = NULL;
+	int i, num_sd = 0;
 
-	vs = g_malloc((num_sds + 1) * sizeof(value_string));
-
-	for (i = 0; i < num_sds; i++) {
-		vs[i].value = sd[i].num;
-		vs[i].strptr = sd[i].name;
+ again:
+	for (i = 0; sd[i].name; i++) {
+		if (vs) {
+			vs[i].value = sd[i].num;
+			vs[i].strptr = sd[i].name;
+		} else
+			num_sd++;
 	}
 
-	vs[num_sds].value = 0;
-	vs[num_sds].strptr = NULL;
+	if (!vs) {
+		vs = g_malloc((num_sd + 1) * sizeof(value_string));
+		goto again;
+	}
+
+	vs[num_sd].value = 0;
+	vs[num_sd].strptr = NULL;
 
 	return vs;
 }

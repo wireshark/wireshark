@@ -4,7 +4,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/time.tar.gz time/service/dtsprovider.idl
  *
- * $Id: packet-dcerpc-dtsprovider.c,v 1.5 2003/06/26 04:30:27 tpot Exp $
+ * $Id: packet-dcerpc-dtsprovider.c,v 1.6 2003/08/04 02:49:03 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -82,14 +82,6 @@ proto_register_dtsprovider (void)
 void
 proto_reg_handoff_dtsprovider (void)
 {
-	header_field_info *hf_info;
-
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_dtsprovider, ett_dtsprovider, &uuid_dtsprovider, ver_dtsprovider, dtsprovider_dissectors, hf_dtsprovider_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_dtsprovider_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		dtsprovider_dissectors, array_length(dtsprovider_dissectors));
 }

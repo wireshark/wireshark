@@ -2,7 +2,7 @@
  * Routines for DCERPC Browser packet disassembly
  * Copyright 2001, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-browser.c,v 1.11 2003/06/26 04:30:26 tpot Exp $
+ * $Id: packet-dcerpc-browser.c,v 1.12 2003/08/04 02:49:03 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1163,17 +1163,9 @@ static hf_register_info hf[] = {
 void
 proto_reg_handoff_dcerpc_browser(void)
 {
-	header_field_info *hf_info;
-
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_browser, ett_dcerpc_browser,
                          &uuid_dcerpc_browser, ver_dcerpc_browser,
                          dcerpc_browser_dissectors, hf_browser_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_browser_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		dcerpc_browser_dissectors, array_length(dcerpc_browser_dissectors));
 }

@@ -3,7 +3,7 @@
  * Copyright 2003, Tim Potter <tpot@samba.org>
  * Copyright 2003, Ronnie Sahlberg,  added function dissectors
  *
- * $Id: packet-dcerpc-svcctl.c,v 1.10 2003/06/26 04:30:30 tpot Exp $
+ * $Id: packet-dcerpc-svcctl.c,v 1.11 2003/08/04 02:48:59 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -560,17 +560,9 @@ proto_register_dcerpc_svcctl(void)
 void
 proto_reg_handoff_dcerpc_svcctl(void)
 {
-	header_field_info *hf_info;
-
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_svcctl, ett_dcerpc_svcctl,
                          &uuid_dcerpc_svcctl, ver_dcerpc_svcctl,
                          dcerpc_svcctl_dissectors, hf_svcctl_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_svcctl_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		dcerpc_svcctl_dissectors, array_length(dcerpc_svcctl_dissectors));
 }

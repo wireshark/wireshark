@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tgz file/ftserver/ftserver_proc.idl
  *
- * $Id: packet-dcerpc-ftserver.c,v 1.3 2003/06/26 04:30:27 tpot Exp $
+ * $Id: packet-dcerpc-ftserver.c,v 1.4 2003/08/04 02:49:03 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -99,14 +99,6 @@ proto_register_ftserver (void)
 void
 proto_reg_handoff_ftserver (void)
 {
-	header_field_info *hf_info;
-
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_ftserver, ett_ftserver, &uuid_ftserver, ver_ftserver, ftserver_dissectors, hf_ftserver_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_ftserver_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		ftserver_dissectors, array_length(ftserver_dissectors));
 }

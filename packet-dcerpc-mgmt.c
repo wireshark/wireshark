@@ -2,7 +2,7 @@
  * Routines for dcerpc mgmt dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-mgmt.c,v 1.6 2003/06/26 04:30:28 tpot Exp $
+ * $Id: packet-dcerpc-mgmt.c,v 1.7 2003/08/04 02:49:02 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,14 +75,6 @@ proto_register_mgmt (void)
 void
 proto_reg_handoff_mgmt (void)
 {
-	header_field_info *hf_info;
-
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_mgmt, ett_mgmt, &uuid_mgmt, ver_mgmt, mgmt_dissectors, hf_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		mgmt_dissectors, array_length(mgmt_dissectors));
 }

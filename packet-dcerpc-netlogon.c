@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.86 2003/07/18 05:48:39 guy Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.87 2003/08/04 02:49:02 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7080,19 +7080,11 @@ static dcerpc_auth_subdissector_fns secchan_auth_fns = {
 void
 proto_reg_handoff_dcerpc_netlogon(void)
 {
-	header_field_info *hf_info;
-
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_netlogon, ett_dcerpc_netlogon,
                          &uuid_dcerpc_netlogon, ver_dcerpc_netlogon,
                          dcerpc_netlogon_dissectors, hf_netlogon_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_netlogon_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		dcerpc_netlogon_dissectors, array_length(dcerpc_netlogon_dissectors));
 
 	register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_INTEGRITY,
 					  DCE_C_RPC_AUTHN_PROTOCOL_SEC_CHAN,

@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.86 2003/06/26 04:30:27 tpot Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.87 2003/08/04 02:49:02 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4501,16 +4501,8 @@ static guint16 ver_dcerpc_lsa = 0;
 void
 proto_reg_handoff_dcerpc_lsa(void)
 {
-	header_field_info *hf_info;
-
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_lsa, ett_dcerpc_lsa, &uuid_dcerpc_lsa,
                          ver_dcerpc_lsa, dcerpc_lsa_dissectors, hf_lsa_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_lsa_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		dcerpc_lsa_dissectors, array_length(dcerpc_lsa_dissectors));
 }

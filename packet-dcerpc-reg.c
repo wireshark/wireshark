@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\winreg packet disassembly
  * Copyright 2001-2003 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.c,v 1.20 2003/06/26 04:30:28 tpot Exp $
+ * $Id: packet-dcerpc-reg.c,v 1.21 2003/08/04 02:49:02 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -797,16 +797,8 @@ proto_register_dcerpc_reg(void)
 void
 proto_reg_handoff_dcerpc_reg(void)
 {
-	header_field_info *hf_info;
-
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_reg, ett_dcerpc_reg, &uuid_dcerpc_reg,
                          ver_dcerpc_reg, dcerpc_reg_dissectors, hf_reg_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_reg_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		dcerpc_reg_dissectors, array_length(dcerpc_reg_dissectors));
 }

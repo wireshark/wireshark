@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.99 2003/07/24 20:33:22 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.100 2003/08/04 02:49:00 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5676,16 +5676,8 @@ proto_register_dcerpc_samr(void)
 void
 proto_reg_handoff_dcerpc_samr(void)
 {
-	header_field_info *hf_info;
-
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_samr, ett_dcerpc_samr, &uuid_dcerpc_samr,
                          ver_dcerpc_samr, dcerpc_samr_dissectors, hf_samr_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_samr_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		dcerpc_samr_dissectors, array_length(dcerpc_samr_dissectors));
 }

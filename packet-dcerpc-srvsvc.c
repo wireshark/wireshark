@@ -9,7 +9,7 @@
  * 2002, some share information levels implemented based on samba
  * sources.
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.58 2003/06/26 04:30:30 tpot Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.59 2003/08/04 02:49:00 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7360,17 +7360,9 @@ proto_register_dcerpc_srvsvc(void)
 void
 proto_reg_handoff_dcerpc_srvsvc(void)
 {
-	header_field_info *hf_info;
-
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_srvsvc, ett_dcerpc_srvsvc,
                          &uuid_dcerpc_srvsvc, ver_dcerpc_srvsvc,
                          dcerpc_srvsvc_dissectors, hf_srvsvc_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_srvsvc_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		dcerpc_srvsvc_dissectors, array_length(dcerpc_srvsvc_dissectors));
 }

@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.103 2003/07/14 04:46:48 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.104 2003/08/04 02:49:00 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -8221,17 +8221,10 @@ static guint16 ver_dcerpc_spoolss = 1;
 void
 proto_reg_handoff_dcerpc_spoolss(void)
 {
-	header_field_info *hf_info;
 
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_spoolss, ett_dcerpc_spoolss,
                          &uuid_dcerpc_spoolss, ver_dcerpc_spoolss,
                          dcerpc_spoolss_dissectors, hf_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		dcerpc_spoolss_dissectors, array_length(dcerpc_spoolss_dissectors));
 }

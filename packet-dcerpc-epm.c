@@ -2,7 +2,7 @@
  * Routines for dcerpc endpoint mapper dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-epm.c,v 1.20 2003/06/26 04:30:27 tpot Exp $
+ * $Id: packet-dcerpc-epm.c,v 1.21 2003/08/04 02:49:03 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -689,14 +689,6 @@ proto_register_epm (void)
 void
 proto_reg_handoff_epm (void)
 {
-	header_field_info *hf_info;
-
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_epm, ett_epm, &uuid_epm, ver_epm, epm_dissectors, hf_epm_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_epm_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		epm_dissectors, array_length(epm_dissectors));
 }

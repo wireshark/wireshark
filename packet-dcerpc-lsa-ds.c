@@ -3,7 +3,7 @@
  * Copyright 2002-2003, Tim Potter <tpot@samba.org>
  * Copyright 2002, Jim McDonough <jmcd@samba.org>
  *
- * $Id: packet-dcerpc-lsa-ds.c,v 1.11 2003/06/26 04:30:27 tpot Exp $
+ * $Id: packet-dcerpc-lsa-ds.c,v 1.12 2003/08/04 02:49:02 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -340,17 +340,9 @@ static dcerpc_sub_dissector lsa_ds_dissectors[] = {
 void
 proto_reg_handoff_dcerpc_lsa_ds(void)
 {
-	header_field_info *hf_info;
-
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_lsa_ds, ett_dcerpc_lsa_ds, 
 			 &uuid_dcerpc_lsa_ds, ver_dcerpc_lsa_ds, 
 			 lsa_ds_dissectors, hf_lsa_ds_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_lsa_ds_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		lsa_ds_dissectors, array_length(lsa_ds_dissectors));
 }

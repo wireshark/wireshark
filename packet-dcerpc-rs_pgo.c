@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz  security/idl/rs_pgo.idl
  *      
- * $Id: packet-dcerpc-rs_pgo.c,v 1.4 2003/06/26 04:30:29 tpot Exp $
+ * $Id: packet-dcerpc-rs_pgo.c,v 1.5 2003/08/04 02:49:01 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -266,14 +266,6 @@ proto_register_rs_pgo (void)
 void
 proto_reg_handoff_rs_pgo (void)
 {
-	header_field_info *hf_info;
-
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_rs_pgo, ett_rs_pgo, &uuid_rs_pgo, ver_rs_pgo, rs_pgo_dissectors, hf_rs_pgo_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_rs_pgo_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		rs_pgo_dissectors, array_length(rs_pgo_dissectors));
 }

@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/roverride.idl
  *
- * $Id: packet-dcerpc-roverride.c,v 1.3 2003/06/26 04:30:29 tpot Exp $
+ * $Id: packet-dcerpc-roverride.c,v 1.4 2003/08/04 02:49:01 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -83,14 +83,6 @@ proto_register_roverride (void)
 void
 proto_reg_handoff_roverride (void)
 {
-	header_field_info *hf_info;
-
 	/* Register the protocol as dcerpc */
 	dcerpc_init_uuid (proto_roverride, ett_roverride, &uuid_roverride, ver_roverride, roverride_dissectors, hf_roverride_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_roverride_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		roverride_dissectors, array_length(roverride_dissectors));
 }

@@ -2,7 +2,7 @@
  * Routines for SMB \\PIPE\\netdfs packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-dfs.c,v 1.6 2003/06/26 04:30:27 tpot Exp $
+ * $Id: packet-dcerpc-dfs.c,v 1.7 2003/08/04 02:49:03 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,16 +78,8 @@ proto_register_dcerpc_dfs(void)
 void
 proto_reg_handoff_dcerpc_dfs(void)
 {
-	header_field_info *hf_info;
-
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_dfs, ett_dcerpc_dfs, &uuid_dcerpc_dfs,
                          ver_dcerpc_dfs, dcerpc_dfs_dissectors, hf_dfs_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_dfs_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		dcerpc_dfs_dissectors, array_length(dcerpc_dfs_dissectors));
 }

@@ -2,7 +2,7 @@
  * Routines for SMB \pipe\atsvc packet disassembly
  * Copyright 2003 Jean-Baptiste Marchand <jbm@hsc.fr>
  *
- * $Id: packet-dcerpc-atsvc.c,v 1.3 2003/06/26 04:30:26 tpot Exp $
+ * $Id: packet-dcerpc-atsvc.c,v 1.4 2003/08/04 02:49:04 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -674,18 +674,9 @@ proto_register_dcerpc_atsvc(void)
 void
 proto_reg_handoff_dcerpc_atsvc(void)
 {
-	header_field_info *hf_info;
-
 	/* register protocol as dcerpc */
 
 	dcerpc_init_uuid(
 		proto_dcerpc_atsvc, ett_dcerpc_atsvc, &uuid_dcerpc_atsvc,
 		ver_dcerpc_atsvc, dcerpc_atsvc_dissectors, hf_atsvc_opnum);
-
-	/* Set opnum strings from subdissector list */
-
-	hf_info = proto_registrar_get_nth(hf_atsvc_opnum);
-	hf_info->strings = value_string_from_subdissectors(
-		dcerpc_atsvc_dissectors, array_length(dcerpc_atsvc_dissectors));
-
 }
