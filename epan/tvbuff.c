@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.8 2000/11/13 07:19:35 guy Exp $
+ * $Id: tvbuff.c,v 1.9 2000/11/14 04:33:34 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -286,6 +286,22 @@ tvb_set_free_cb(tvbuff_t* tvb, tvbuff_free_cb_t func)
 	tvb->free_cb = func;
 }
 
+static void
+add_to_used_in_list(tvbuff_t *tvb, tvbuff_t *used_in)
+{
+	tvb->used_in = g_slist_prepend(tvb->used_in, used_in);
+	tvb_increment_usage_count(tvb, 1);
+}
+
+void
+tvb_set_child_real_data_tvbuff(tvbuff_t* parent, tvbuff_t* child)
+{
+	g_assert(parent->initialized);
+	g_assert(child->initialized);
+	g_assert(child->type == TVBUFF_REAL_DATA);
+	add_to_used_in_list(parent, child);
+}
+
 void
 tvb_set_real_data(tvbuff_t* tvb, const guint8* data, guint length, gint reported_length)
 {
@@ -434,11 +450,6 @@ check_offset_length(tvbuff_t *tvb, gint offset, gint length,
 	return;
 }
 
-static void
-add_to_used_in_list(tvbuff_t *tvb, tvbuff_t *used_in)
-{
-	tvb->used_in = g_slist_prepend(tvb->used_in, used_in);
-}
 
 void
 tvb_set_subset(tvbuff_t *tvb, tvbuff_t *backing,
@@ -455,7 +466,6 @@ tvb_set_subset(tvbuff_t *tvb, tvbuff_t *backing,
 			&tvb->tvbuffs.subset.offset,
 			&tvb->tvbuffs.subset.length);
 
-	tvb_increment_usage_count(backing, 1);
 	tvb->tvbuffs.subset.tvb		= backing;
 	tvb->length			= tvb->tvbuffs.subset.length;
 
@@ -500,6 +510,7 @@ tvb_composite_append(tvbuff_t* tvb, tvbuff_t* member)
 	g_assert(!tvb->initialized);
 	composite = &tvb->tvbuffs.composite;
 	composite->tvbs = g_slist_append( composite->tvbs, member );
+	add_to_used_in_list(member, tvb);
 }
 
 void
@@ -510,6 +521,7 @@ tvb_composite_prepend(tvbuff_t* tvb, tvbuff_t* member)
 	g_assert(!tvb->initialized);
 	composite = &tvb->tvbuffs.composite;
 	composite->tvbs = g_slist_prepend( composite->tvbs, member );
+	add_to_used_in_list(member, tvb);
 }
 
 tvbuff_t*

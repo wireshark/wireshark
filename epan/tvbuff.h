@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.6 2000/11/13 07:19:37 guy Exp $
+ * $Id: tvbuff.h,v 1.7 2000/11/14 04:33:34 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -85,7 +85,7 @@ tvbuff_t* tvb_new(tvbuff_type);
 
 /* Marks a tvbuff for freeing. The guint8* data of a TVBUFF_REAL_DATA
  * is *never* freed by the tvbuff routines. The tvbuff itself is actually freed
- * once its usage  count drops to 0.
+ * once its usage count drops to 0.
  *
  * Usage counts increment for any time the tvbuff is
  * used as a member of another tvbuff, i.e., as the backing buffer for
@@ -123,6 +123,17 @@ guint tvb_decrement_usage_count(tvbuff_t*, guint count);
  * Obviously, this only applies to a TVBUFF_REAL_DATA tvbuff. */
 void tvb_set_free_cb(tvbuff_t*, tvbuff_free_cb_t);
 
+
+/* Attach a TVBUFF_REAL_DATA tvbuff to a parent tvbuff. This connection
+ * is used during a tvb_free_chain()... the "child" TVBUFF_REAL_DATA acts
+ * as if is part of the chain-of-creation of the parent tvbuff, although it
+ * isn't. This is useful if you need to take the data from some tvbuff,
+ * run some operation on it, like decryption or decompression, and make a new
+ * tvbuff from it, yet want the new tvbuff to be part of the chain. The reality
+ * is that the new tvbuff *is* part of the "chain of creation", but in a way
+ * that these tvbuff routines is ignorant of. Use this function to make
+ * the tvbuff routines knowledgable of this fact. */
+void tvb_set_child_real_data_tvbuff(tvbuff_t* parent, tvbuff_t* child);
 
 /* Sets parameters for TVBUFF_REAL_DATA. Can throw ReportedBoundsError. */
 void tvb_set_real_data(tvbuff_t*, const guint8* data, guint length, gint reported_length);
