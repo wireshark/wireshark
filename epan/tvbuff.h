@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.9 2000/12/25 23:48:16 guy Exp $
+ * $Id: tvbuff.h,v 1.10 2000/12/27 12:48:27 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -189,7 +189,7 @@ guint tvb_length(tvbuff_t*);
 /* Computes bytes to end of buffer, from offset (which can be negative,
  * to indicate bytes from end of buffer). Function returns -1 to
  * indicate that offset is out of bounds. No exception is thrown. */
-guint tvb_length_remaining(tvbuff_t*, gint offset);
+gint tvb_length_remaining(tvbuff_t*, gint offset);
 
 /* Checks (w/o throwing exception) that the bytes referred to by 'offset'/'length'
  * actualy exist in the buffer */
@@ -200,6 +200,12 @@ gboolean tvb_offset_exists(tvbuff_t*, gint offset);
 
 /* Get reported length of buffer */
 guint tvb_reported_length(tvbuff_t*);
+
+/* Computes bytes of reported packet data to end of buffer, from offset
+ * (which can be negative, to indicate bytes from end of buffer). Function
+ * returns -1 to indicate that offset is out of bounds. No exception is
+ * thrown. */
+gint tvb_reported_length_remaining(tvbuff_t *tvb, gint offset);
 
 /* Set the reported length of a tvbuff to a given value; used for protocols
    whose headers contain an explicit length and where the calling

@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.13 2000/12/25 23:48:15 guy Exp $
+ * $Id: tvbuff.c,v 1.14 2000/12/27 12:48:27 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -570,7 +570,7 @@ tvb_length(tvbuff_t* tvb)
 	return tvb->length;
 }
 
-guint
+gint
 tvb_length_remaining(tvbuff_t *tvb, gint offset)
 {
 	guint	abs_offset, abs_length;
@@ -630,6 +630,24 @@ tvb_reported_length(tvbuff_t* tvb)
 	g_assert(tvb->initialized);
 
 	return tvb->reported_length;
+}
+
+gint
+tvb_reported_length_remaining(tvbuff_t *tvb, gint offset)
+{
+	guint	abs_offset, abs_length;
+
+	g_assert(tvb->initialized);
+
+	if (compute_offset_length(tvb, offset, -1, &abs_offset, &abs_length, NULL)) {
+		if (tvb->reported_length >= abs_offset)
+			return tvb->reported_length - abs_offset;
+		else
+			return -1;
+	}
+	else {
+		return -1;
+	}
 }
 
 /* Set the reported length of a tvbuff to a given value; used for protocols

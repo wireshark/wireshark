@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.29 2000/12/02 06:05:29 guy Exp $
+ * $Id: packet-rtsp.c,v 1.30 2000/12/27 12:48:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -446,7 +446,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * boundaries, we'll need to remember the actual
 		 * content length.
 		 */
-		reported_datalen = tvb_reported_length(tvb) - offset;
+		reported_datalen = tvb_reported_length_remaining(tvb, offset);
 		if (content_length > reported_datalen)
 			content_length = reported_datalen;
 	}
