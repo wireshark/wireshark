@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.1 2001/12/08 09:27:51 guy Exp $
+ * $Id: tcp_graph.c,v 1.2 2001/12/08 09:39:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -979,6 +979,7 @@ static void callback_create_help (GtkWidget *widget, gpointer data)
 	GtkWidget *toplevel, *box, *text, *scroll, *close;
 
 	toplevel = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title(GTK_WINDOW(toplevel), "Help for TCP graphing");
 	gtk_widget_set_usize (toplevel, 500, 400);
 	box = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (toplevel), box);
