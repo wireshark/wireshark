@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.50 1999/08/15 19:18:46 guy Exp $
+ * $Id: capture.c,v 1.51 1999/08/15 22:16:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -425,7 +425,7 @@ capture(void) {
   bpf_u_int32 netnum, netmask;
   time_t      upd_time, cur_time;
   int         err, inpkts;
-  
+
   ld.go             = TRUE;
   ld.counts.total   = 0;
   ld.max            = cf.count;
@@ -626,9 +626,7 @@ capture(void) {
     /* "pch" is non-NULL only if we successfully started a capture.
        If we haven't, there's no capture file to load. */
     if ((err = open_cap_file(cf.save_file, &cf)) == 0) {
-      /* Destroy any existing read filter, and set it to NULL. */
-      if (cf.rfcode != NULL)
-        dfilter_destroy(cf.rfcode);
+      /* Set the read filter to NULL. */
       cf.rfcode = NULL;
       if ((err = read_cap_file(&cf)) == 0) {
         set_menu_sensitivity("/File/Save", TRUE);
