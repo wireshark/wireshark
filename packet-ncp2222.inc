@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.27 2002/10/10 21:08:45 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.28 2002/10/10 21:24:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1910,7 +1910,8 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                voffset = voffset+4;
                                get_string(tvb, voffset, value3, vvalues->vstring);
                                proto_tree_add_string_format(nvtree, hf_value_string, tvb, voffset, 
-                                        value3, "Server Distinguished Name - %s", vvalues->vstring);
+                                        value3, vvalues->vstring,
+                                        "Server Distinguished Name - %s", vvalues->vstring);
                                voffset = voffset+value3;
                                voffset += align_4(tvb, voffset);
                                break;
@@ -1931,7 +1932,8 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                voffset = voffset+4;
                                get_string(tvb, voffset, value4, vvalues->vstring);
                                proto_tree_add_string_format(nvtree, hf_value_string, tvb, voffset, 
-                                        value4, "Distinguished Name - %s", vvalues->vstring);
+                                        value4, vvalues->vstring,
+                                        "Distinguished Name - %s", vvalues->vstring);
                                voffset = voffset+value4;
                                voffset += align_4(tvb, voffset);
                                break;
@@ -1948,7 +1950,8 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                voffset = voffset+4;
                                get_string(tvb, voffset, value3, vvalues->vstring);
                                proto_tree_add_string_format(nvtree, hf_value_string, tvb, voffset, 
-                                        value3, "Subject - %s", vvalues->vstring);
+                                        value3, vvalues->vstring,
+                                        "Subject - %s", vvalues->vstring);
                                voffset = voffset+value3;
                                voffset += align_4(tvb, voffset);
                                break;
@@ -5350,7 +5353,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 break;
                                                         case 4:         /* string */
                                                                 proto_tree_add_string_format(ncp_tree, p1values.hfname, tvb, p1values.voffset, 
-                                                                p1values.vlength, p1values.vdesc, p1values.vstring);
+                                                                p1values.vlength, p1values.vstring, p1values.vdesc, p1values.vstring);
                                                                 break;
                                                         case 5:         /* boolean */
                                                                 process_bitfield(ncp_tree, tvb, &p1values);
@@ -5376,7 +5379,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 break;
                                                         case 4:         /* string */
                                                                 proto_tree_add_string_format(ncp_tree, p2values.hfname, tvb, p2values.voffset, 
-                                                                p2values.vlength, p2values.vdesc, p2values.vstring);
+                                                                p2values.vlength, p2values.vstring, p2values.vdesc, p2values.vstring);
                                                                 break;
                                                         case 5:         /* boolean */
                                                                 process_bitfield(ncp_tree, tvb, &p2values);
@@ -5399,7 +5402,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 break;
                                                         case 4:         /* string */
                                                                 proto_tree_add_string_format(ncp_tree, p3values.hfname, tvb, p3values.voffset, 
-                                                                p3values.vlength, p3values.vdesc, p3values.vstring);
+                                                                p3values.vlength, p3values.vstring, p3values.vdesc, p3values.vstring);
                                                                 break;
                                                         case 5:         /* boolean */
                                                                 process_bitfield(ncp_tree, tvb, &p3values);
@@ -5422,7 +5425,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 break;
                                                         case 4:         /* string */
                                                                 proto_tree_add_string_format(ncp_tree, p4values.hfname, tvb, p4values.voffset, 
-                                                                p4values.vlength, p4values.vdesc, p4values.vstring);
+                                                                p4values.vlength, p4values.vstring, p4values.vdesc, p4values.vstring);
                                                                 break;
                                                         case 5:         /* boolean */
                                                                 process_bitfield(ncp_tree, tvb, &p4values);
@@ -5445,7 +5448,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 break;
                                                         case 4:         /* string */
                                                                 proto_tree_add_string_format(ncp_tree, p5values.hfname, tvb, p5values.voffset, 
-                                                                p5values.vlength, p5values.vdesc, p5values.vstring);
+                                                                p5values.vlength, p5values.vstring, p5values.vdesc, p5values.vstring);
                                                                 break;
                                                         case 5:         /* boolean */
                                                                 process_bitfield(ncp_tree, tvb, &p5values);
@@ -5468,7 +5471,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 break;
                                                         case 4:         /* string */
                                                                 proto_tree_add_string_format(ncp_tree, p6values.hfname, tvb, p6values.voffset, 
-                                                                p6values.vlength, p6values.vdesc, p6values.vstring);
+                                                                p6values.vlength, p6values.vstring, p6values.vdesc, p6values.vstring);
                                                                 break;
                                                         case 5:         /* boolean */
                                                                 process_bitfield(ncp_tree, tvb, &p6values);
@@ -5491,7 +5494,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 break;
                                                         case 4:         /* string */
                                                                 proto_tree_add_string_format(ncp_tree, p7values.hfname, tvb, p7values.voffset, 
-                                                                p7values.vlength, p7values.vdesc, p7values.vstring);
+                                                                p7values.vlength, p7values.vstring, p7values.vdesc, p7values.vstring);
                                                                 break;
                                                         case 5:         /* boolean */
                                                                 process_bitfield(ncp_tree, tvb, &p7values);
@@ -5514,7 +5517,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 break;
                                                         case 4:         /* string */
                                                                 proto_tree_add_string_format(ncp_tree, p8values.hfname, tvb, p8values.voffset, 
-                                                                p8values.vlength, p8values.vdesc, p8values.vstring);
+                                                                p8values.vlength, p8values.vstring, p8values.vdesc, p8values.vstring);
                                                                 break;
                                                         case 5:         /* boolean */
                                                                 process_bitfield(ncp_tree, tvb, &p8values);
@@ -5537,7 +5540,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 break;
                                                         case 4:         /* string */
                                                                 proto_tree_add_string_format(ncp_tree, p9values.hfname, tvb, p9values.voffset, 
-                                                                p9values.vlength, p9values.vdesc, p9values.vstring);
+                                                                p9values.vlength, p9values.vstring, p9values.vdesc, p9values.vstring);
                                                                 break;
                                                         case 5:         /* boolean */
                                                                 process_bitfield(ncp_tree, tvb, &p9values);
