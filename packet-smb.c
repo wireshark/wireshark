@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.318 2003/04/03 22:58:54 guy Exp $
+ * $Id: packet-smb.c,v 1.319 2003/04/09 09:35:57 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -595,6 +595,7 @@ static int hf_smb_segment_overlap_conflict = -1;
 static int hf_smb_segment_multiple_tails = -1;
 static int hf_smb_segment_too_long_fragment = -1;
 static int hf_smb_segment_error = -1;
+static int hf_smb_pipe_write_len = -1;
 
 static gint ett_smb = -1;
 static gint ett_smb_hdr = -1;
@@ -5378,6 +5379,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	guint16 andxoffset=0, bc, datalen=0, dataoffset=0;
 	smb_info_t *si = (smb_info_t *)pinfo->private_data;
 	unsigned int fid=0;
+	guint16 mode;
 
 	WORD_COUNT;
 
@@ -5418,6 +5420,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 4;
 
 	/* mode */
+	mode = tvb_get_letohs(tvb, offset);
 	offset = dissect_write_mode(tvb, tree, offset, 0x000f);
 
 	/* remaining */
@@ -5451,6 +5454,18 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	}
 
 	BYTE_COUNT;
+
+	/* if both the MessageStart and the  WriteRawNamedPipe flags are set
+	   the first two bytes of the payload is the length of the data */
+	if((mode&0x000c)==0x000c){
+		proto_tree_add_item(tree, hf_smb_pipe_write_len, tvb, offset, 2, TRUE);
+		offset += 2;
+		dataoffset += 2;
+		bc -= 2;
+		datalen -= 2;
+	}
+
+
 
 	/* is this part of DCERPC over SMB reassembly?*/
 	if(smb_dcerpc_reassembly && !pinfo->fd->flags.visited && (bc<=tvb_length_remaining(tvb, offset)) ){
@@ -5493,7 +5508,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* file data */
 	if (bc != 0) {
-		if( (si->sip && si->sip->flags&SMB_SIF_TID_IS_IPC) && (ofs==0) ){
+		if( (si->sip && si->sip->flags&SMB_SIF_TID_IS_IPC) && ((ofs==0)||((mode&0x000c)==0x000c)) ){
 			/* dcerpc call */
 			offset = dissect_file_data_dcerpc(tvb, pinfo, tree,
 			    top_tree, offset, bc, datalen, fid);
@@ -17991,6 +18006,10 @@ proto_register_smb(void)
 	{ &hf_smb_ace_type,
 		{ "Type", "smb.ace.type", FT_UINT8, BASE_DEC,
 		VALS(ace_type_vals), 0, "Type of ACE", HFILL }},
+
+	{ &hf_smb_pipe_write_len,
+		{ "Pipe Write Len", "smb.pipe.write_len", FT_UINT16, BASE_DEC,
+		NULL, 0, "Number of bytes written to pipe", HFILL }},
 
 	{ &hf_smb_ace_size,
 		{ "Size", "smb.ace.size", FT_UINT16, BASE_DEC,
