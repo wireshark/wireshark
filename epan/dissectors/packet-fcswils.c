@@ -250,8 +250,8 @@ static const value_string fcswils_elp_fc_val[] = {
 };
 
 static const value_string fcswils_rectype_val[] = {
-    {FC_SWILS_LRECTYPE_DOMAIN, "Domain ID List Rec"},
-    {FC_SWILS_LRECTYPE_MCAST, "Multicast ID List Rec"},
+    {FC_SWILS_LRECTYPE_DOMAIN, "Domain ID Record"},
+    {FC_SWILS_LRECTYPE_MCAST, "Multicast ID Record"},
     {0, NULL},
 };
 
@@ -709,7 +709,7 @@ dissect_swils_efp (tvbuff_t *tvb, proto_tree *efp_tree, guint8 isreq _U_)
 
             case FC_SWILS_LRECTYPE_DOMAIN:
                 proto_tree_add_item (lrec_tree, hf_swils_efp_dom_id, tvb, offset+1, 1, 0); 
-                tvb_memcpy (tvb, sname, offset, 8);
+                tvb_memcpy (tvb, sname, offset+8, 8);
                 proto_tree_add_string (lrec_tree, hf_swils_efp_switch_name, tvb, offset+8, 8,
                                        fcwwn_to_str (sname));
                 break;
