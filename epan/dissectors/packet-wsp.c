@@ -3914,7 +3914,7 @@ wkh_content_type_header(openwave_x_up_proxy_push_accept,
 		offset += val_len; \
 	} else { \
 		DebugLog(("\tError: invalid parameter value!\n")); \
-		proto_tree_add_string(tree, hf, tvb, start, len - start, \
+		proto_tree_add_string(tree, hf, tvb, start, len, \
 				InvalidParameterValue(Uppercase, value)); \
 		offset = start + len; /* Skip to end of buffer */ \
 	} \
@@ -3950,7 +3950,7 @@ wkh_content_type_header(openwave_x_up_proxy_push_accept,
 		g_free(val_str); \
 		offset += val_len; \
 	} else { \
-		proto_tree_add_string(tree, hf, tvb, start, len - start, \
+		proto_tree_add_string(tree, hf, tvb, start, len, \
 				InvalidParameterValue(Uppercase, value)); \
 		offset = start + len; /* Skip to end of buffer */ \
 	}
@@ -4135,7 +4135,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 				proto_item_append_string(ti, str);
 				g_free(str);
 			} else { /* Invalid parameter value */
-				proto_tree_add_text (tree, tvb, start, len - start,
+				proto_tree_add_text (tree, tvb, start, len,
 						InvalidParameterValue("Type",
 							"Constrained-encoding"));
 				offset = start + len; /* Skip the parameters */
@@ -4199,7 +4199,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 				g_free(s);
 				offset++;
 			} else { /* Error */
-				proto_tree_add_text (tree, tvb, start, len - start,
+				proto_tree_add_text (tree, tvb, start, len,
 						InvalidParameterValue("SEC", "Short-integer"));
 				offset = start + len; /* Skip to end of buffer */
 			}
@@ -4220,7 +4220,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 				g_free(s);
 				offset += val_len;
 			} else {
-				proto_tree_add_text (tree, tvb, start, len - start,
+				proto_tree_add_text (tree, tvb, start, len,
 						InvalidParameterValue("Level", "Version-value"));
 				offset = start + len; /* Skip to end of buffer */
 			}
