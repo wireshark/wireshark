@@ -2677,6 +2677,8 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
           strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) {
 	  tvbuff_t *gssapi_tvb, *plain_tvb = NULL, *decr_tvb= NULL;
 	  int ver_len;
+	  int length;
+
           /*
            * This is GSS-API (using SPNEGO, but we should be done with
            * the negotiation by now).
@@ -2685,7 +2687,10 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
            * the token, from which we compute the offset in the tvbuff at
            * which the plaintext data, i.e. the LDAP message, begins.
            */
-	  gssapi_tvb = tvb_new_subset(sasl_tvb, 4, sasl_len, sasl_len);
+          length = tvb_length_remaining(sasl_tvb, 4);
+          if ((guint)length > sasl_len)
+              length = sasl_len;
+	  gssapi_tvb = tvb_new_subset(sasl_tvb, 4, length, sasl_len);
 
 	  /* Attempt decryption of the GSSAPI wrapped data if possible */
 	  pinfo->decrypt_gssapi_tvb=DECRYPT_GSSAPI_NORMAL;
@@ -2713,31 +2718,22 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 
 	  /*
 	   * if we don't have unwrapped data,
-	   * see if the data we already have is maybe
-	   * plain LDAP
+	   * see if the wrapping involved encryption of the
+	   * data; if not, just use the plaintext data.
 	   */
 	  if (!decr_tvb) {
-	    ASN1_SCK a;
-	    int ret;
-	    guint messageLength;
-	    int messageOffset;
-	    /*
-	     * OK, try to read the "Sequence Of" header;
-	     * if it gives no error create the dcer_tvb
-	     */
-	    asn1_open(&a, gssapi_tvb, ver_len);
-	    ret = read_sequence(&a, &messageLength);
-	    asn1_close(&a, &messageOffset);
-	    if (ret == ASN1_ERR_NOERROR) {
-		plain_tvb = tvb_new_subset(gssapi_tvb,  ver_len, -1, -1);
+	    if(!pinfo->gssapi_data_encrypted){
+	      plain_tvb = tvb_new_subset(gssapi_tvb,  ver_len, -1, -1);
 	    }
 	  }
 
           if (decr_tvb) {
 	    proto_item *enc_item = NULL;
 	    proto_tree *enc_tree = NULL;
+
             /*
-             * Now dissect the decrypted LDAP message.
+             * The LDAP message was encrypted in the packet, and has
+             * been decrypted; dissect the decrypted LDAP message.
              */
             if (sasl_tree) {
 	      enc_item = proto_tree_add_text(sasl_tree, gssapi_tvb, ver_len, -1,
@@ -2750,8 +2746,10 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
           } else if (plain_tvb) {
 	    proto_item *plain_item = NULL;
 	    proto_tree *plain_tree = NULL;
+
 	    /*
-             * Now dissect the plain LDAP message.
+	     * The LDAP message wasn't encrypted in the packet;
+	     * dissect the plain LDAP message.
              */
 	    if (sasl_tree) {
               plain_item = proto_tree_add_text(sasl_tree, gssapi_tvb, ver_len, -1,
@@ -2762,6 +2760,10 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
             }
             dissect_ldap_payload(plain_tvb, pinfo, plain_tree, ldap_info, TRUE, is_mscldap);
 	  } else {
+            /*
+             * The LDAP message was encrypted in the packet, and was
+             * not decrypted; just show it as encrypted data.
+             */
             if (check_col(pinfo->cinfo, COL_INFO)) {
         	    col_add_fstr(pinfo->cinfo, COL_INFO, "LDAP GSS-API Encrypted payload (%d byte%s)",
                                  sasl_len - ver_len,

@@ -164,6 +164,13 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int len;
 
 	/*
+	 * We don't know whether the data is encrypted, so say it's
+	 * not, for now.  The subdissector must set gssapi_data_encrypted
+	 * if it is.
+	 */
+	pinfo->gssapi_data_encrypted = FALSE;
+
+	/*
 	 * We need this later, so lets get it now ...
 	 */
 

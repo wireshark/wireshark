@@ -776,8 +776,8 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 	offset += 2;
 
 	seal_alg = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_spnego_krb5_seal_alg, tvb, offset, 2,
-			    TRUE);
+	proto_tree_add_uint(tree, hf_spnego_krb5_seal_alg, tvb, offset, 2,
+			    seal_alg);
 
 	offset += 2;
 
@@ -811,6 +811,9 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 			      TRUE);
 	  offset += 8;
 	}
+
+	/* Is the data encrypted? */
+	pinfo->gssapi_data_encrypted=(seal_alg!=KRB_SEAL_ALG_NONE);
 
 #ifdef HAVE_KERBEROS
 #define GSS_ARCFOUR_WRAP_TOKEN_SIZE 32
@@ -957,8 +960,8 @@ dissect_spnego_krb5_wrap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	/* First, the token ID ... */
 
 	token_id = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(subtree, hf_spnego_krb5_tok_id, tvb, offset, 2,
-			    TRUE);
+	proto_tree_add_uint(subtree, hf_spnego_krb5_tok_id, tvb, offset, 2,
+			    token_id);
 
 	offset += 2;
 
