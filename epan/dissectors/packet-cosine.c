@@ -74,7 +74,7 @@ dissect_cosine(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
   if(tree) {
-    ti = proto_tree_add_protocol_format(tree, proto_cosine, tvb, 0, 4,
+    ti = proto_tree_add_protocol_format(tree, proto_cosine, tvb, 0, 0,
 					"CoSine IPNOS L2 debug output (%s)",
 					pseudo_header->cosine.if_name);
     fh_tree = proto_item_add_subtree(ti, ett_raw);
