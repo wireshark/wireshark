@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.37 2001/11/13 23:55:30 gram Exp $
+ * $Id: print.c,v 1.38 2001/12/18 21:31:02 gram Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -147,7 +147,7 @@ get_field_data(GSList *src_list, field_info *fi)
 static
 void proto_tree_print_node_text(GNode *node, gpointer data)
 {
-	field_info	*fi = (field_info*) (node->data);
+	field_info	*fi = PITEM_FINFO(node);
 	print_data	*pdata = (print_data*) data;
 	int		i;
 	int		num_spaces;
@@ -288,7 +288,7 @@ void print_hex_data_text(FILE *fh, register const u_char *cp,
 static
 void proto_tree_print_node_ps(GNode *node, gpointer data)
 {
-	field_info	*fi = (field_info*) (node->data);
+	field_info	*fi = PITEM_FINFO(node);
 	print_data	*pdata = (print_data*) data;
 	gchar		label_str[ITEM_LABEL_LENGTH];
 	gchar		*label_ptr;
