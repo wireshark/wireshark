@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.17 2000/08/23 06:55:41 guy Exp $
+ * $Id: filter_prefs.c,v 1.18 2000/09/28 03:16:29 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,6 +46,7 @@
 #include <direct.h>
 #endif
 
+#include <epan.h>
 #include "gtk/main.h"
 #include "filter_prefs.h"
 #include "packet.h"

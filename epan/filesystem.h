@@ -1,7 +1,7 @@
-/* strutil.h
- * String utility definitions
+/* filesystem.h
+ * Filesystem utility definitions
  *
- * $Id: strutil.h,v 1.2 2000/09/28 03:16:17 gram Exp $
+ * $Id: filesystem.h,v 1.1 2000/09/28 03:16:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,24 +23,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __STRUTIL_H__
-#define __STRUTIL_H__
+#ifndef FILESYSTEM_H
+#define FILESYSTEM_H
 
-/* ... thus, config.h needs to be #included */
+/* Returns the user's home directory, via the HOME environment
+ * variable, or a default directory if HOME is not set */
+const char* get_home_dir(void);
 
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>	/* for u_char */
-#endif
-
-#ifdef HAVE_WINSOCK_H
-# include <winsock.h>	/* for u_char */
-#endif
-
-const u_char *find_line_end(const u_char *data, const u_char *dataend,
-    const u_char **eol);
-int        get_token_len(const u_char *linep, const u_char *lineend,
-    const u_char **next_token);
-gchar*     format_text(const u_char *line, int len);
-
-
-#endif /* __STRUTIL_H__ */
+#endif FILESYSTEM_H

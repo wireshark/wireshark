@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.1 2000/09/27 04:54:50 gram Exp $
+ * $Id: plugins.c,v 1.2 2000/09/28 03:16:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,6 +27,7 @@
 # include "config.h"
 #endif
 
+#include <epan.h>
 #include "plugins.h"
 
 #ifdef HAVE_PLUGINS
@@ -43,6 +44,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h> 
 
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
@@ -60,8 +62,7 @@
 #include <unistd.h>
 #endif
 
-#include "globals.h"
-#include "util.h"
+#include "filesystem.h"
 
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
 #include "plugins/plugin_table.h"

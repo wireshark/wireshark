@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.45 2000/09/17 03:20:05 guy Exp $
+ * $Id: util.c,v 1.46 2000/09/28 03:16:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -728,82 +728,6 @@ free_interface_list(GList *if_list)
 
 #endif /* HAVE_LIBPCAP */
 
-const char*
-get_home_dir(void)
-{
-	static const char *home = NULL;
-#ifdef WIN32
-	char *homedrive, *homepath;
-	char *homestring;
-	char *lastsep;
-#else
-	struct passwd *pwd;
-#endif
-
-	/* Return the cached value, if available */
-	if (home)
-		return home;
-#ifdef WIN32
-	/*
-	 * XXX - should we use USERPROFILE anywhere in this process?
-	 * Is there a chance that it might be set but one or more of
-	 * HOMEDRIVE or HOMEPATH isn't set?
-	 */
-	homedrive = getenv("HOMEDRIVE");
-	if (homedrive != NULL) {
-		homepath = getenv("HOMEPATH");
-		if (homepath != NULL) {
-			/*
-			 * This is cached, so we don't need to worry about
-			 * allocating multiple ones of them.
-			 */
-			homestring =
-			    g_malloc(strlen(homedrive) + strlen(homepath) + 1);
-			strcpy(homestring, homedrive);
-			strcat(homestring, homepath);
-
-			/*
-			 * Trim off any trailing slash or backslash.
-			 */
-			lastsep = find_last_pathname_separator(homestring);
-			if (lastsep != NULL && *(lastsep + 1) == '\0') {
-				/*
-				 * Last separator is the last character
-				 * in the string.  Nuke it.
-				 */
-				*lastsep = '\0';
-			}
-			home = homestring;
-		} else
-			home = homedrive;
-	} else {
-		/*
-		 * Try using "windir?
-		 */
-		home = "C:";
-	}
-#else
-	home = getenv("HOME");
-	if (home == NULL) {
-		/*
-		 * Get their home directory from the password file.
-		 * If we can't even find a password file entry for them,
-		 * use "/tmp".
-		 */
-		pwd = getpwuid(getuid());
-		if (pwd != NULL) {
-			/*
-			 * This is cached, so we don't need to worry
-			 * about allocating multiple ones of them.
-			 */
-			home = g_strdup(pwd->pw_dir);
-		} else
-			home = "/tmp";
-	}
-#endif
-
-	return home;
-}
 
 /* Compute the difference between two seconds/microseconds time stamps. */
 void

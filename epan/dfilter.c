@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.1 2000/09/27 04:54:48 gram Exp $
+ * $Id: dfilter.c,v 1.2 2000/09/28 03:16:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,7 +41,6 @@
 
 #include "proto.h"
 #include "dfilter.h"
-#include "util.h"
 #include "dfilter-int.h"
 #include "dfilter-grammar.h"
 

@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.41 2000/09/12 06:41:56 guy Exp $
+ * $Id: prefs.c,v 1.42 2000/09/28 03:16:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,6 +48,7 @@
 #include <sys/stat.h>
 #endif
 
+#include <epan.h>
 #include "globals.h"
 #include "packet.h"
 #include "file.h"

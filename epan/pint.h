@@ -2,7 +2,7 @@
  * Definitions for extracting and translating integers safely and portably
  * via pointers.
  *
- * $Id: pint.h,v 1.1 2000/09/27 04:54:50 gram Exp $
+ * $Id: pint.h,v 1.2 2000/09/28 03:16:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -110,6 +110,17 @@
 #else
 #define htoles(s)	(s)
 #define htolel(l)	(l)
+#endif
+
+/* Byte ordering */
+#ifndef BYTE_ORDER
+# define LITTLE_ENDIAN 4321
+# define BIG_ENDIAN 1234
+# ifdef WORDS_BIGENDIAN
+#  define BYTE_ORDER BIG_ENDIAN
+# else
+#  define BYTE_ORDER LITTLE_ENDIAN
+# endif
 #endif
 
 #endif /* PINT_H */

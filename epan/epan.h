@@ -6,6 +6,7 @@
 
 #ifndef EPAN_H
 
+#include <glib.h>
 	
 void epan_init(void);
 void epan_cleanup(void);
@@ -45,5 +46,10 @@ epan_dissect_new(epan_t*, guint8* data, guint len, guint32 wtap_encap,
 
 void
 epan_dissect_free(epan_t*, epan_dissect_t*);
+
+/* Should this be ".libepan"? For backwards-compatibility, I'll keep
+ * it ".ethereal" for now.
+ */
+#define PF_DIR ".ethereal"
 
 #endif /* EPAN_H */
