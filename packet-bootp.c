@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-bootp.c,v 1.66 2002/06/19 19:50:34 guy Exp $
+ * $Id: packet-bootp.c,v 1.67 2002/06/19 20:21:26 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -1224,7 +1224,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						   "Boot file name not given");
 		}
 
-		/* rfc2132 says it SHOULD exist */
+		/* rfc2132 says it SHOULD exist, not that it MUST exist */
 		if (tvb_bytes_exist(tvb, 236, 4)) {
 			tvb_memcpy(tvb, (void *)&ip_addr, 236, sizeof(ip_addr));
 			if (tvb_get_ntohl(tvb, 236) == 0x63825363) {
