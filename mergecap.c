@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: mergecap.c,v 1.1 2001/07/12 19:59:39 guy Exp $
+ * $Id: mergecap.c,v 1.2 2001/07/13 08:16:15 guy Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -34,20 +34,32 @@
 #include "getopt.h"
 #endif
 
-#ifndef MAX
-# define MAX(a,b) ((a)>(b))?(a):(b)
-#endif
 
 /*
- * Some globals so we can pass things to various routines
+ * Global variables
  */
-static int count = 1;
-static int out_file_type = WTAP_FILE_PCAP;   /* default to "libpcap"   */
-static int out_frame_type = -2;              /* Leave frame type alone */
 static int verbose = 0;                      /* Not so verbose         */
-static int do_append  = 0;                   /* append, don't merge */
-static unsigned int snaplen = 0;             /* No limit               */
 
+/* 
+ * Structures to manage our files
+ */
+typedef struct in_file_t {
+  const char *filename;
+  wtap       *wth;
+  int         err;
+  int         data_offset;
+  gboolean    ok;
+} in_file_t;
+
+typedef struct out_file_t {
+  const char  *filename;
+  wtap_dumper *pdh;
+  int          file_type;
+  int          frame_type;
+  unsigned int snaplen;
+  int          count;
+} out_file_t;
+static out_file_t out_file;
 
 /*
  * Routine to write frame to output file
@@ -59,55 +71,55 @@ write_frame(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   wtap_dumper *pdh = (wtap_dumper*)user;
   int err;
   struct wtap_pkthdr snap_phdr;
-
+  
   if (verbose)
-    printf("Record: %u\n", count++);
+    printf("Record: %u\n", out_file.count++);
 
   /* We simply write it, perhaps after truncating it; we could do other
    * things, like modify it. */
-  if (snaplen != 0 && phdr->caplen > snaplen) {
+  if (out_file.snaplen != 0 && phdr->caplen > out_file.snaplen) {
     snap_phdr = *phdr;
-    snap_phdr.caplen = snaplen;
+    snap_phdr.caplen = out_file.snaplen;
     phdr = &snap_phdr;
   }
 
   if (!wtap_dump(pdh, phdr, pseudo_header, buf, &err)) {
-    fprintf(stderr, "editcap: Error writing to output: %s\n",
-            wtap_strerror(err));
+    fprintf(stderr, "mergecap: Error writing to %s: %s\n",
+            out_file.filename, wtap_strerror(err));
     exit(1);
   }
 }
 
+
 /*
- * routine to append file2 to file1
+ * routine to concatenate files
  */
 static void
-append(wtap *wth_1, wtap *wth_2, wtap_dumper *pdh)
+append(int count, in_file_t in_files[], out_file_t *out_file)
 {
+  int i;
   int err;
-  
-  if (!wtap_loop(wth_1, 0, write_frame, (u_char*)pdh, &err)) {
-    fprintf(stderr, "mergecap: Error appending: %s\n",
-            wtap_strerror(err));
-  }
-  if (!wtap_loop(wth_2, 0, write_frame, (u_char*)pdh, &err)) {
-    fprintf(stderr, "mergecap: Error appending: %s\n",
-            wtap_strerror(err));
+
+  for (i = 0; i < count; i++) {
+    if (!wtap_loop(in_files[i].wth, 0, write_frame,
+                   (u_char*)out_file->pdh, &err)) {
+    fprintf(stderr, "mergecap: Error appending from %s to %s: %s\n",
+            in_files[i].filename, out_file->filename, wtap_strerror(err));
+    }
   }
 }
 
+
 /*
- * judges whether the first argument has an earlier
- * timestamp than the second
+ * returns TRUE if first argument is earlier than second
  */
 static gboolean
-is_earlier(struct wtap_pkthdr *one, struct wtap_pkthdr *two)
-{
-  if (one->ts.tv_sec > two->ts.tv_sec) {
+is_earlier(struct timeval *l, struct timeval *r) {     
+  if (l->tv_sec > r->tv_sec) {  /* left is later */
     return FALSE;
-  } else if (one->ts.tv_sec < two->ts.tv_sec) {
+  } else if (l->tv_sec < r->tv_sec) { /* left is earlier */
     return TRUE;
-  } else if (one->ts.tv_usec > two->ts.tv_usec) {
+  } else if (l->tv_usec > r->tv_usec) { /* tv_sec equal, l.usec later */
     return FALSE;
   }
   /* either one < two or one == two
@@ -116,160 +128,248 @@ is_earlier(struct wtap_pkthdr *one, struct wtap_pkthdr *two)
   return TRUE;    
 }
 
+
+/*
+ * returns index of earliest timestamp in set of input files
+ * or -1 if no valid files remain
+ */
+static int
+earliest(int count, in_file_t in_files[]) {
+  int i;
+  int ei = -1;
+  struct timeval tv = {LONG_MAX, LONG_MAX};
+
+  for (i = 0; i < count; i++) {
+    struct wtap_pkthdr *phdr = wtap_phdr(in_files[i].wth);
+
+    if (in_files[i].ok && is_earlier(&(phdr->ts), &tv)) {
+      tv = phdr->ts;
+      ei = i;
+    }
+  }
+  return ei;
+}
+ 
 /*
  * actually merge the files
  */
 static void
-merge(wtap *wth_1, wtap *wth_2, wtap_dumper *pdh)
+merge(int count, in_file_t in_files[], out_file_t *out_file)
 {
-  int err;
+  int i;
   int data_offset_1, data_offset_2, loop = 0;
   gboolean ok_1, ok_2;
 
-  ok_1 = wtap_read(wth_1, &err, &data_offset_1);
-  ok_2 = wtap_read(wth_2, &err, &data_offset_2);
+  /* prime the pump (read in first frame from each file) */
+  for (i = 0; i < count; i++) {
+    in_files[i].ok = wtap_read(in_files[i].wth, &(in_files[i].err),
+                               &(in_files[i].data_offset));
+  }
 
-  while (ok_1 && ok_2) {
-
-    /* if wth_1 is earlier, then write it and fetch another
-     * otherwise, write wth_2 and increment it
+  /* now keep writing the earliest frame until we're out of frames */
+  while ( -1 != (i = earliest(count, in_files))) {
+    
+    /* write out earliest frame, and fetch another from its
+     * input file
      */
-    if (is_earlier(wtap_phdr(wth_1), wtap_phdr(wth_2))) {
-      write_frame((u_char*)pdh, wtap_phdr(wth_1), data_offset_1,
-                  wtap_pseudoheader(wth_1), wtap_buf_ptr(wth_1));
-      ok_1 = wtap_read(wth_1, &err, &data_offset_1);
-    } else{
-      write_frame((u_char*)pdh, wtap_phdr(wth_2), data_offset_2,
-                  wtap_pseudoheader(wth_2), wtap_buf_ptr(wth_2));
-      ok_2 = wtap_read(wth_2, &err, &data_offset_2);
-    }
-  }
-  
-  while (ok_1) {
-    write_frame((u_char*)pdh, wtap_phdr(wth_1), data_offset_1,
-                wtap_pseudoheader(wth_1), wtap_buf_ptr(wth_1));
-    ok_1 = wtap_read(wth_1, &err, &data_offset_1);
-  }
-  while (ok_2) {
-    write_frame((u_char*)pdh, wtap_phdr(wth_2), data_offset_2,
-                wtap_pseudoheader(wth_2), wtap_buf_ptr(wth_2));
-    ok_2 = wtap_read(wth_2, &err, &data_offset_2);
+    write_frame((u_char*)out_file->pdh,
+                wtap_phdr(in_files[i].wth),
+                in_files[i].data_offset,
+                wtap_pseudoheader(in_files[i].wth),
+                wtap_buf_ptr(in_files[i].wth));
+    in_files[i].ok = wtap_read(in_files[i].wth, &(in_files[i].err),
+                                &(in_files[i].data_offset));
   }
 }
+
 
 /*
- * routine to open the input and output files, then call the merge
+ * Close the output file
  */
 static void
-merge_files(const char *from1, const char *from2, const char *into)
+close_outfile(out_file_t *out_file)
 {
   int err;
-  wtap *wth_1, *wth_2;
-  wtap_dumper *pdh;
-  
-  /* open the input files */
-  wth_1 = wtap_open_offline(from1, &err, FALSE);
-  if (!wth_1) {
-    fprintf(stderr, "mergecap: Can't open %s: %s\n", from1,
-            wtap_strerror(err));
-    exit(1);
-  }
-  
-  wth_2 = wtap_open_offline(from2, &err, FALSE);
-  if (!wth_2) {
-    fprintf(stderr, "mergecap: Can't open %s: %s\n", from2,
-            wtap_strerror(err));
-    wtap_close(wth_1);
-    exit(1); 
-  }
-
-  if (verbose) {
-    fprintf(stderr, "File %s is a %s capture file.\n", from1,
-            wtap_file_type_string(wtap_file_type(wth_1)));
-    fprintf(stderr, "File %s is a %s capture file.\n", from2,
-            wtap_file_type_string(wtap_file_type(wth_2)));
-  }
-    
-  /* open the output file */
-  if (out_frame_type == -2)
-    out_frame_type = wtap_file_encap(wth_1);
-  pdh = wtap_dump_open(into, out_file_type, out_frame_type,
-                       MAX(wtap_snapshot_length(wth_1),
-                           wtap_snapshot_length(wth_2)), &err);
-  if (!pdh) {
-    fprintf(stderr, "mergecap: Can't open/create %s: %s\n", into,
-            wtap_strerror(err));
-    wtap_close(wth_1);
-    wtap_close(wth_2);
-    exit(1);
-  }
-  
-  if (do_append)
-    append(wth_1, wth_2, pdh);
-  else
-    merge(wth_1, wth_2, pdh);
-  
-  wtap_close(wth_1);
-  wtap_close(wth_2);
-  if (!wtap_dump_close(pdh, &err)) {
-    fprintf(stderr, "mergecap: Error writing to %s: %s\n", into,
-            wtap_strerror(err));
+  if (!wtap_dump_close(out_file->pdh, &err)) {
+    fprintf(stderr, "mergecap: Error closing file %s: %s\n",
+            out_file->filename, wtap_strerror(err));
     exit(1);
   }
 }
 
-void usage()
+
+/*
+ * Open the output file
+ *
+ * Return FALSE if file cannot be opened (so caller can clean up)
+ */
+static gboolean
+open_outfile(out_file_t *out_file, int snapshot_len)
+{
+  int err;
+  if (!out_file) {
+    fprintf(stderr, "mergecap: internal error (null out_file)\n");
+    exit(1);
+  }
+
+  out_file->pdh = wtap_dump_open(out_file->filename, out_file->file_type,
+                                 out_file->frame_type, snapshot_len, &err);
+  if (!out_file->pdh) {
+    fprintf(stderr, "mergecap: Can't open/create %s: %s\n",
+            out_file->filename, wtap_strerror(err));
+    return FALSE;
+  }
+  return TRUE;
+}
+
+
+/*
+ * Scan through input files and find maximum snapshot length
+ */
+static int
+max_snapshot_length(int count, in_file_t in_files[])
+{
+  int i;
+  int max_snapshot = 0;
+
+  for (i = 0; i < count; i++) {
+    if (wtap_snapshot_length(in_files[i].wth) > max_snapshot)
+      max_snapshot = wtap_snapshot_length(in_files[i].wth);
+  }
+  return max_snapshot;
+}
+
+
+/*
+ * Scan through and close each input file
+ */
+static void
+close_in_files(int count, in_file_t in_files[])
+{
+  int i;
+  for (i = 0; i < count; i++) {
+    wtap_close(in_files[i].wth);
+  }
+}
+
+
+/*
+ * Scan through the arguments and open the input files
+ */
+static int
+open_in_files(int argc, char *argv[], in_file_t *in_files[])
+{
+  int i;
+  int count = 0;
+  int err;
+  in_file_t *files;
+  int files_size = argc * sizeof(in_file_t);
+  
+
+  files = malloc(files_size);
+  if (!files) {
+    fprintf(stderr, "mergecap: error allocating %d bytes of memory\n",
+            files_size);
+    exit(1);
+  }
+  *in_files = files;
+
+  for (i = 0; i < argc; i++) {
+    files[count].filename    = argv[i];
+    files[count].wth         = wtap_open_offline(argv[i], &err, FALSE);
+    files[count].err         = 0;
+    files[count].data_offset = 0;
+    files[count].ok          = TRUE;
+    if (!files[count].wth) {
+      fprintf(stderr, "mergecap: skipping %s: %s\n", argv[i],
+              wtap_strerror(err));
+    } else {
+      if (verbose) {
+        fprintf(stderr, "File %s is a %s capture file.\n", argv[i],
+                wtap_file_type_string(wtap_file_type(files[count].wth)));
+      }
+      count++;
+    }
+  }
+  if (verbose)
+    fprintf(stderr, "mergecap: opened %d of %d input files\n", count,
+    argc);
+
+  return count;
+}
+
+
+/*
+ * Show the usage
+ */  
+static void
+usage()
 {
   int i;
   const char *string;
 
-  fprintf(stderr, "Usage: mergecap [-v] [-a] [-s <snaplen>]\n");
-  fprintf(stderr, "                [-T <encap type>] [-F <capture type>]\n");
-  fprintf(stderr, "                <infile1> <infile2> <outfile>\n\n");
-  fprintf(stderr, "  where\t-a infile2 should be appended, not merged.\n");
-  fprintf(stderr, "       \t   Default merges based on frame timestamps.\n");
-  fprintf(stderr, "       \t-s <snaplen> truncate packets to <snaplen>\n");
-  fprintf(stderr, "       \t   bytes of data\n");
+  fprintf(stderr, "Usage: mergecap [-h] [-v] [-a] [-s <snaplen>] [-T <encap type>]\n");
+  fprintf(stderr, "          [-F <capture type>] -w <outfile> <infile> [...]\n\n");
+  fprintf(stderr, "  where\t-h produces this help listing.\n");
   fprintf(stderr, "       \t-v verbose operation, default is silent\n");
-  fprintf(stderr, "       \t-h produces this help listing.\n");
+  fprintf(stderr, "       \t-a files should be concatenated, not merged\n");
+  fprintf(stderr, "       \t     Default merges based on frame timestamps\n");
+  fprintf(stderr, "       \t-s <snaplen>: truncate packets to <snaplen> bytes of data\n");
+  fprintf(stderr, "       \t-w <outfile>: sets output filename to <outfile>\n");
   fprintf(stderr, "       \t-T <encap type> encapsulation type to use:\n");
   for (i = 0; i < WTAP_NUM_ENCAP_TYPES; i++) {
       string = wtap_encap_short_string(i);
       if (string != NULL)
-        fprintf(stderr, "       \t    %s - %s\n",
+        fprintf(stderr, "       \t     %s - %s\n",
           string, wtap_encap_string(i));
   }
-  fprintf(stderr, "       \t    default is the same as the first input file\n");
+  fprintf(stderr, "       \t     default is the same as the first input file\n");
   fprintf(stderr, "       \t-F <capture type> capture file type to write:\n");
   for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
     if (wtap_dump_can_open(i))
-      fprintf(stderr, "       \t    %s - %s\n",
+      fprintf(stderr, "       \t     %s - %s\n",
         wtap_file_type_short_string(i), wtap_file_type_string(i));
   }
-  fprintf(stderr, "       \t    default is libpcap\n");
+  fprintf(stderr, "       \t     default is libpcap\n");
 }
+
+
 
 int
 main(int argc, char *argv[])
 {
-  wtap *wth;
-  int i, err;
+  int          i;
   extern char *optarg;
-  extern int optind;
-  char opt;
-  char *p;
+  extern int   optind;
+  int          opt;
+  char        *p;
+  gboolean     do_append     = FALSE;
+  int          in_file_count = 0;
+  in_file_t   *in_files      = NULL;
+  
+  /* initialize out_file */
+  out_file.filename   = NULL;   
+  out_file.pdh        = NULL;              /* wiretap dumpfile */
+  out_file.file_type  = WTAP_FILE_PCAP;    /* default to "libpcap" */
+  out_file.frame_type = -2;                /* leave type alone */
+  out_file.snaplen    = 0;                 /* no limit */
+  out_file.count      = 1;                 /* frames output */
 
   /* Process the options first */
-  while ((opt = getopt(argc, argv, "aT:F:vs:h")) != EOF) {
+  while ((opt = getopt(argc, argv, "w:aT:F:vs:h")) != EOF) {
 
     switch (opt) {
+    case 'w':
+      out_file.filename = optarg;
+      break;
+        
     case 'a':
       do_append = !do_append;
       break;
     
     case 'T':
-      out_frame_type = wtap_short_string_to_encap(optarg);
-      if (out_frame_type < 0) {
+      out_file.frame_type = wtap_short_string_to_encap(optarg);
+      if (out_file.frame_type < 0) {
       	fprintf(stderr, "mergecap: \"%s\" is not a valid encapsulation type\n",
       	    optarg);
       	exit(1);
@@ -277,9 +377,9 @@ main(int argc, char *argv[])
       break;
 
     case 'F':
-      out_file_type = wtap_short_string_to_file_type(optarg);
-      if (out_file_type < 0) {
-      	fprintf(stderr, "editcap: \"%s\" is not a valid capture file type\n",
+      out_file.file_type = wtap_short_string_to_file_type(optarg);
+      if (out_file.file_type < 0) {
+      	fprintf(stderr, "mergecap: \"%s\" is not a valid capture file type\n",
       	    optarg);
       	exit(1);
       }
@@ -290,9 +390,9 @@ main(int argc, char *argv[])
       break;
 
     case 's':
-      snaplen = strtol(optarg, &p, 10);
+      out_file.snaplen = strtol(optarg, &p, 10);
       if (p == optarg || *p != '\0') {
-      	fprintf(stderr, "editcap: \"%s\" is not a valid snapshot length\n",
+      	fprintf(stderr, "mergecap: \"%s\" is not a valid snapshot length\n",
       	    optarg);
       	exit(1);
       }
@@ -313,18 +413,43 @@ main(int argc, char *argv[])
 
   }
 
-  /* should now have three arguments left: infile1, infile2, outfile */
-#ifdef DEBUG
-  printf("Optind = %i, argc = %i\n", optind, argc);
-#endif
-
-  if ((argc - optind) < 3) {
+  /* check for proper args; at a minimum, must have an output
+   * filename and one input file
+   */
+  in_file_count = argc - optind;
+  if (!out_file.filename) {
+    fprintf(stderr, "mergecap: an output filename must be set with -w\n");
     usage();
     exit(1);
   }
 
-  merge_files(argv[optind], argv[optind+1], argv[optind+2]);
+  /* open the input files */
+  in_file_count = open_in_files(in_file_count, &argv[optind], &in_files);
+  if (in_file_count < 1) {
+    fprintf(stderr, "mergecap: No valid input files\n");
+    exit(1);
+  }
+
+  /* set the outfile frame type */
+  if (out_file.frame_type == -2)
+    out_file.frame_type = wtap_file_encap(in_files[0].wth);
+  
+  /* open the outfile */
+  if (!open_outfile(&out_file, max_snapshot_length(in_file_count, in_files))) {
+    close_in_files(in_file_count, in_files);
+    exit(1);
+  }
+
+  /* do the merge (or append) */
+  if (do_append)
+    append(in_file_count, in_files, &out_file);
+  else
+    merge(in_file_count, in_files, &out_file);
+
+  close_in_files(in_file_count, in_files);
+  close_outfile(&out_file);
+
+  free(in_files);
 
   return 0;
 }
-  
