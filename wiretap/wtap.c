@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.41 2000/05/18 09:09:48 guy Exp $
+ * $Id: wtap.c,v 1.42 2000/05/19 05:33:32 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -29,8 +29,6 @@
 #include "wtap.h"
 #include "file_wrappers.h"
 #include "buffer.h"
-#include "ascend.h"
-#include "toshiba.h"
 
 FILE* wtap_file(wtap *wth)
 {
