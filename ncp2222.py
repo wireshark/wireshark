@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.14.2.11 2002/02/27 05:08:46 gram Exp $
+$Id: ncp2222.py,v 1.14.2.12 2002/02/27 05:24:39 gram Exp $
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
 and Greg Morris <GMORRIS@novell.com>.
@@ -4813,8 +4813,8 @@ def produce_code():
 #endif
 
 #include <glib.h>
-#include "epan/packet.h"
-#include "epan/conversation.h"
+#include <epan/packet.h>
+#include <epan/conversation.h>
 #include "ptvcursor.h"
 #include "packet-ncp-int.h"
 
@@ -4833,21 +4833,19 @@ static void ncp_postseq_cleanup(void);
 static int ptvc_struct_int_storage;
 #define PTVC_STRUCT	(&ptvc_struct_int_storage)
 
-/* Values used in the count-variable ("var"/"repeat") logic. */
-#define NO_VAR 3
-#define NO_REPEAT 3"""
+/* Values used in the count-variable ("var"/"repeat") logic. */"""
 
 
 	if global_highest_var > -1:
 		print "#define NUM_REPEAT_VARS\t%d" % (global_highest_var + 1)
-		print "guint repeat_vars[NUM_REPEAT_VARS];"
+		print "guint repeat_vars[NUM_REPEAT_VARS];",
 	else:
 		print "#define NUM_REPEAT_VARS\t0"
-		print "guint *repeat_vars = NULL;"
+		print "guint *repeat_vars = NULL;",
 
 	print """
-/* Values used in request-condition logic. */
-#define NO_REQ_COND 63
+#define NO_VAR		NUM_REPEAT_VARS
+#define NO_REPEAT	NUM_REPEAT_VARS
 
 static int hf_ncp_func = -1;
 static int hf_ncp_length = -1;
@@ -4967,7 +4965,9 @@ static int hf_ncp_connection_status = -1;
 			global_req_cond[req_cond] = num
 			num = num + 1
 		print "};"
-	print "#define NUM_REQ_CONDS %d\n\n" % (num,)
+	print "#define NUM_REQ_CONDS %d" % (num,)
+	print "#define NO_REQ_COND   NUM_REQ_CONDS\n\n"
+
 
 
 	# Print PTVC's for bitfields
