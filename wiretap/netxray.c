@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.81 2003/03/31 21:11:49 guy Exp $
+ * $Id: netxray.c,v 1.82 2003/07/07 21:08:49 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -55,8 +55,8 @@ struct netxray_hdr {
 	guint32	start_offset;	/* offset of first packet in capture */
 	guint32	end_offset;	/* offset after last packet in capture */
 	guint32 xxy[3];		/* unknown */
-	guint16	network;	/* datalink type */
-	guint8	xxz[2];		/* XXX - is this the upper 2 bytes of the datalink type? */
+	guint8	network;	/* datalink type */
+	guint8	xxz[3];		/* XXX - is this the upper 3 bytes of the datalink type? */
 	guint8	timeunit;	/* encodes length of a tick */
 	guint8	xxa[3];		/* XXX - is this the upper 3 bytes of the time units? */
 	guint32	timelo;		/* lower 32 bits of time stamp of capture start */
@@ -176,11 +176,13 @@ int netxray_open(wtap *wth, int *err)
 	char magic[sizeof netxray_magic];
 	gboolean is_old;
 	struct netxray_hdr hdr;
+	guint network_type;
 	double timeunit;
 	int version_major;
 	int file_type;
 	double t;
 	static const int netxray_encap[] = {
+		WTAP_ENCAP_UNKNOWN,
 		WTAP_ENCAP_ETHERNET,
 		WTAP_ENCAP_TOKEN_RING,
 		WTAP_ENCAP_FDDI_BITSWAPPED,
@@ -238,7 +240,6 @@ int netxray_open(wtap *wth, int *err)
 	wth->data_offset += sizeof hdr;
 
 	if (is_old) {
-		timeunit = 1000.0;
 		version_major = 0;
 		file_type = WTAP_FILE_NETXRAY_OLD;
 	} else {
@@ -260,36 +261,6 @@ int netxray_open(wtap *wth, int *err)
 		} else if (memcmp(hdr.version, vers_2_000, sizeof vers_2_000) == 0
 		    || memcmp(hdr.version, vers_2_001, sizeof vers_2_001) == 0
 		    || memcmp(hdr.version, vers_2_002, sizeof vers_2_002) == 0) {
-			/*
-			 * It appears that, at least for Ethernet
-			 * captures, if hdr.xxb[20] is 2, that indicates
-			 * that it's a gigabit Ethernet capture, possibly
-			 * from a special whizzo gigabit pod, and also
-			 * indicates that the time stamps have some
-			 * higher resolution than in other captures,
-			 * possibly thanks to a high-resolution
-			 * timer on the pod.
-			 */
-			if (hdr.network == 0 && hdr.xxb[20] == CAPTYPE_GIGPOD) {
-				/*
-				 * It appears that the time units for these
-				 * captures are nanoseconds, unless
-				 * hdr.timeunit is 2, in which case it's
-				 * 1/31250000.0 of a second.
-				 */
-				if (hdr.timeunit == 2)
-					timeunit = 31250000.0;
-				else
-					timeunit = 1e9;
-			} else {
-				if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS) {
-					g_message("netxray: Unknown timeunit %u",
-					    hdr.timeunit);
-					*err = WTAP_ERR_UNSUPPORTED;
-					return -1;
-				}
-				timeunit = TpS[hdr.timeunit];
-			}
 			version_major = 2;
 			file_type = WTAP_FILE_NETXRAY_2_00x;
 		} else {
@@ -299,16 +270,98 @@ int netxray_open(wtap *wth, int *err)
 		}
 	}
 
-	hdr.network = pletohs(&hdr.network);
-	if (hdr.network >= NUM_NETXRAY_ENCAPS
-	    || netxray_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
-		g_message("netxray: network type %u unknown or unsupported",
-		    hdr.network);
+	switch (hdr.xxz[0]) {
+
+	case 0:
+		/*
+		 * The byte after hdr.network is usually 0, in which case
+		 * the hdr.network byte is an NDIS network type value - 1.
+		 */
+		network_type = hdr.network + 1;
+		break;
+
+	case 2:
+		/*
+		 * However, in some Ethernet captures, it's 2, and the
+		 * hdr.network byte is 1 rather than 0.  We assume
+		 * that if there's a byte after hdr.network with the value
+		 * 2, the hdr.network byte is an NDIS network type, rather
+		 * than an NDIS network type - 1.
+		 */
+		network_type = hdr.network;
+		break;
+
+	default:
+		g_message("netxray: the byte after the network type has the value %u, which I don't understand",
+		    hdr.xxz[0]);
+		*err = WTAP_ERR_UNSUPPORTED;
+		return -1;
+	}
+
+	if (network_type >= NUM_NETXRAY_ENCAPS
+	    || netxray_encap[network_type] == WTAP_ENCAP_UNKNOWN) {
+		g_message("netxray: network type %u (%u) unknown or unsupported",
+		    network_type, hdr.xxz[0]);
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		return -1;
 	}
 
-	if (hdr.network == 3) {
+	/*
+	 * Figure out the time stamp units.
+	 */
+	switch (file_type) {
+
+	case WTAP_FILE_NETXRAY_OLD:
+		timeunit = 1000.0;
+		break;
+
+	case WTAP_FILE_NETXRAY_1_0:
+		timeunit = 1000.0;
+		break;
+
+	case WTAP_FILE_NETXRAY_1_1:
+		timeunit = 1000000.0;
+		break;
+
+	case WTAP_FILE_NETXRAY_2_00x:
+		/*
+		 * It appears that, at least for Ethernet
+		 * captures, if hdr.xxb[20] is 2, that indicates
+		 * that it's a gigabit Ethernet capture, possibly
+		 * from a special whizzo gigabit pod, and also
+		 * indicates that the time stamps have some
+		 * higher resolution than in other captures,
+		 * possibly thanks to a high-resolution
+		 * timer on the pod.
+		 */
+		if (network_type == 1 && hdr.xxb[20] == CAPTYPE_GIGPOD) {
+			/*
+			 * It appears that the time units for these
+			 * captures are nanoseconds, unless
+			 * hdr.timeunit is 2, in which case it's
+			 * 1/31250000.0 of a second.
+			 */
+			if (hdr.timeunit == 2)
+				timeunit = 31250000.0;
+			else
+				timeunit = 1e9;
+		} else {
+			if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS) {
+				g_message("netxray: Unknown timeunit %u",
+				    hdr.timeunit);
+				*err = WTAP_ERR_UNSUPPORTED;
+				return -1;
+			}
+			timeunit = TpS[hdr.timeunit];
+		}
+		break;
+
+	default:
+		g_assert_not_reached();
+		timeunit = 0.0;
+	}
+
+	if (network_type == 4) {
 		/*
 		 * In version 0 and 1, we assume, for now, that all
 		 * WAN captures have frames that look like Ethernet
@@ -378,7 +431,7 @@ int netxray_open(wtap *wth, int *err)
 		} else
 			file_encap = WTAP_ENCAP_ETHERNET;
 	} else
-		file_encap = netxray_encap[hdr.network];
+		file_encap = netxray_encap[network_type];
 
 	/* This is a netxray file */
 	wth->file_type = file_type;
