@@ -3,7 +3,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.13 2001/01/28 04:21:59 guy Exp $
+ * $Id: packet-wsp.c,v 1.14 2001/01/28 04:26:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -449,160 +449,156 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Code to process the packet goes here */
 /*
-			wsp_header_fixed = proto_item_add_subtree(
-					ti, 
-					ett_header 
-				);
+		wsp_header_fixed = proto_item_add_subtree(ti, ett_header);
 */
 
-			/* Add common items: only TID and PDU Type */
+		/* Add common items: only TID and PDU Type */
 
-			/* TID Field is always first (if it exists) */
-			if ((pinfo->match_port == UDP_PORT_WSP) || (pinfo->match_port == UDP_PORT_WTLS_WSP))
+		/* TID Field is always first (if it exists) */
+		if ((pinfo->match_port == UDP_PORT_WSP) || (pinfo->match_port == UDP_PORT_WTLS_WSP))
+		{
+			ti = proto_tree_add_item (wsp_tree, hf_wsp_header_tid,tvb,0,1,bo_little_endian);
+		}
+
+		ti = proto_tree_add_item(
+				wsp_tree, 		/* tree */
+				hf_wsp_header_pdu_type, 	/* id */
+				tvb, 
+				offset++, 			/* start of high light */
+				1,				/* length of high light */
+				bo_little_endian				/* value */
+		     );
+
+		switch (pdut)
+		{
+		case CONNECT:
+			ti = proto_tree_add_item (wsp_tree, hf_wsp_version_major,tvb,offset,1,bo_little_endian);
+			ti = proto_tree_add_item (wsp_tree, hf_wsp_version_minor,tvb,offset,1,bo_little_endian);
+			offset++;
+			capabilityStart = offset;
+			capabilityLength = tvb_get_guintvar (tvb, offset, &count);
+			offset += count;
+			ti = proto_tree_add_uint (wsp_tree, hf_wsp_capability_length,tvb,capabilityStart,count,capabilityLength);
+
+			headerStart = offset;
+			headerLength = tvb_get_guintvar (tvb, offset, &count);
+			offset += count;
+			ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,headerLength);
+			if (capabilityLength > 0)
 			{
-				ti = proto_tree_add_item (wsp_tree, hf_wsp_header_tid,tvb,0,1,bo_little_endian);
+				ti = proto_tree_add_item (wsp_tree, hf_wsp_capabilities_section,tvb,offset,capabilityLength,bo_little_endian);
+				wsp_capabilities = proto_item_add_subtree( ti, ett_capabilities );
+				offset += capabilityLength;
 			}
 
-			ti = proto_tree_add_item(
-					wsp_tree, 		/* tree */
-					hf_wsp_header_pdu_type, 	/* id */
-					tvb, 
-					offset++, 			/* start of high light */
-					1,				/* length of high light */
-					bo_little_endian				/* value */
-			     );
-
-			switch (pdut)
+			if (headerLength > 0)
 			{
-				case CONNECT:
-					ti = proto_tree_add_item (wsp_tree, hf_wsp_version_major,tvb,offset,1,bo_little_endian);
-					ti = proto_tree_add_item (wsp_tree, hf_wsp_version_minor,tvb,offset,1,bo_little_endian);
-					offset++;
-					capabilityStart = offset;
-					capabilityLength = tvb_get_guintvar (tvb, offset, &count);
-					offset += count;
-					ti = proto_tree_add_uint (wsp_tree, hf_wsp_capability_length,tvb,capabilityStart,count,capabilityLength);
-
-					headerStart = offset;
-					headerLength = tvb_get_guintvar (tvb, offset, &count);
-					offset += count;
-					ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,headerLength);
-					if (capabilityLength > 0)
-					{
-						ti = proto_tree_add_item (wsp_tree, hf_wsp_capabilities_section,tvb,offset,capabilityLength,bo_little_endian);
-						wsp_capabilities = proto_item_add_subtree( ti, ett_capabilities );
-						offset += capabilityLength;
-					}
-
-					if (headerLength > 0)
-					{
-						tmp_tvb = tvb_new_subset (tvb, offset, headerLength, headerLength);
-						add_headers (wsp_tree, tmp_tvb);
-					}
-
-					break;
-
-				case CONNECTREPLY:
-					value = tvb_get_guintvar (tvb, offset, &count);
-					ti = proto_tree_add_uint (wsp_tree, hf_wsp_server_session_id,tvb,offset,count,value);
-					offset += count;
-
-					capabilityStart = offset;
-					capabilityLength = tvb_get_guintvar (tvb, offset, &count);
-					offset += count;
-					ti = proto_tree_add_uint (wsp_tree, hf_wsp_capability_length,tvb,capabilityStart,count,capabilityLength);
-
-					headerStart = offset;
-					headerLength = tvb_get_guintvar (tvb, offset, &count);
-					offset += count;
-					ti = proto_tree_add_item (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,bo_little_endian);
-					if (capabilityLength > 0)
-					{
-						ti = proto_tree_add_item (wsp_tree, hf_wsp_capabilities_section,tvb,offset,capabilityLength,bo_little_endian);
-						wsp_capabilities = proto_item_add_subtree( ti, ett_capabilities );
-						offset += capabilityLength;
-					}
-
-					if (headerLength > 0)
-					{
-
-						/*
-						ti = proto_tree_add_item (wsp_tree, hf_wsp_headers_section,tvb,offset,headerLength,bo_little_endian);
-						wsp_headers = proto_item_add_subtree( ti, ett_headers );
-						*/
-						tmp_tvb = tvb_new_subset (tvb, offset, headerLength, headerLength);
-						add_headers (wsp_tree, tmp_tvb);
-					}
-
-					break;
-
-				case DISCONNECT:
-					value = tvb_get_guintvar (tvb, offset, &count);
-					ti = proto_tree_add_uint (wsp_tree, hf_wsp_server_session_id,tvb,offset,count,value);
-					break;
-
-				case GET:
-					/* Length of URI and size of URILen field */
-					value = tvb_get_guintvar (tvb, offset, &count);
-					nextOffset = offset + count;
-					add_uri (wsp_tree, tvb, offset, nextOffset);
-					offset += (value+1);
-					tmp_tvb = tvb_new_subset (tvb, offset, -1, -1);
-					add_headers (wsp_tree, tmp_tvb);
-					break;
-
-				case POST:
-					uriStart = offset;
-					uriLength = tvb_get_guintvar (tvb, offset, &count);
-					headerStart = uriStart+count;
-					headersLength = tvb_get_guintvar (tvb, headerStart, &count);
-					offset = headerStart + count;
-
-					add_uri (wsp_tree, tvb, uriStart, offset);
-					offset += uriLength;
-
-					ti = proto_tree_add_item (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,bo_little_endian);
-
-					contentTypeStart = offset;
-					nextOffset = add_content_type (wsp_tree, tvb, offset, &contentType);
-
-					/* Add headers subtree that will hold the headers fields */
-					/* Runs from nextOffset for value-(length of content-type field)*/
-					headerLength = headersLength-(nextOffset-contentTypeStart);
-					tmp_tvb = tvb_new_subset (tvb, nextOffset, headerLength, headerLength);
-					add_headers (wsp_tree, tmp_tvb);
-
-					/* TODO: Post DATA */
-					/* Runs from start of headers+headerLength to END_OF_FRAME */
-					offset = nextOffset+headerLength;
-					tmp_tvb = tvb_new_subset (tvb, offset, tvb_reported_length (tvb)-offset, tvb_reported_length (tvb)-offset);
-					add_post_data (wsp_tree, tmp_tvb, contentType);
-					break;
-
-				case REPLY:
-					ti = proto_tree_add_item (wsp_tree, hf_wsp_header_status,tvb,offset,1,bo_little_endian);
-					value = tvb_get_guintvar (tvb, offset+1, &count);
-					nextOffset = offset + 1 + count;
-					ti = proto_tree_add_item (wsp_tree, hf_wsp_header_length,tvb,offset+1,count,bo_little_endian);
-
-					contentTypeStart = nextOffset;
-					nextOffset = add_content_type (wsp_tree, tvb, nextOffset, &contentType);
-
-					/* Add headers subtree that will hold the headers fields */
-					/* Runs from nextOffset for value-(length of content-type field)*/
-					headerLength = value-(nextOffset-contentTypeStart);
-					tmp_tvb = tvb_new_subset (tvb, nextOffset, headerLength, headerLength);
-					add_headers (wsp_tree, tmp_tvb);
-					offset += count+value+1;
-
-					/* TODO: Data - decode WMLC */
-					/* Runs from offset+1+count+value+1 to END_OF_FRAME */
-					if (offset < tvb_reported_length (tvb))
-					{
-						ti = proto_tree_add_item (wsp_tree, hf_wsp_reply_data,tvb,offset,END_OF_FRAME,bo_little_endian);
-					}
-					break;
+				tmp_tvb = tvb_new_subset (tvb, offset, headerLength, headerLength);
+				add_headers (wsp_tree, tmp_tvb);
 			}
+
+			break;
+
+		case CONNECTREPLY:
+			value = tvb_get_guintvar (tvb, offset, &count);
+			ti = proto_tree_add_uint (wsp_tree, hf_wsp_server_session_id,tvb,offset,count,value);
+			offset += count;
+
+			capabilityStart = offset;
+			capabilityLength = tvb_get_guintvar (tvb, offset, &count);
+			offset += count;
+			ti = proto_tree_add_uint (wsp_tree, hf_wsp_capability_length,tvb,capabilityStart,count,capabilityLength);
+
+			headerStart = offset;
+			headerLength = tvb_get_guintvar (tvb, offset, &count);
+			offset += count;
+			ti = proto_tree_add_item (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,bo_little_endian);
+			if (capabilityLength > 0)
+			{
+				ti = proto_tree_add_item (wsp_tree, hf_wsp_capabilities_section,tvb,offset,capabilityLength,bo_little_endian);
+				wsp_capabilities = proto_item_add_subtree( ti, ett_capabilities );
+				offset += capabilityLength;
+			}
+
+			if (headerLength > 0)
+			{
+				/*
+				ti = proto_tree_add_item (wsp_tree, hf_wsp_headers_section,tvb,offset,headerLength,bo_little_endian);
+				wsp_headers = proto_item_add_subtree( ti, ett_headers );
+				*/
+				tmp_tvb = tvb_new_subset (tvb, offset, headerLength, headerLength);
+				add_headers (wsp_tree, tmp_tvb);
+			}
+
+			break;
+
+		case DISCONNECT:
+			value = tvb_get_guintvar (tvb, offset, &count);
+			ti = proto_tree_add_uint (wsp_tree, hf_wsp_server_session_id,tvb,offset,count,value);
+			break;
+
+		case GET:
+			/* Length of URI and size of URILen field */
+			value = tvb_get_guintvar (tvb, offset, &count);
+			nextOffset = offset + count;
+			add_uri (wsp_tree, tvb, offset, nextOffset);
+			offset += (value+1);
+			tmp_tvb = tvb_new_subset (tvb, offset, -1, -1);
+			add_headers (wsp_tree, tmp_tvb);
+			break;
+
+		case POST:
+			uriStart = offset;
+			uriLength = tvb_get_guintvar (tvb, offset, &count);
+			headerStart = uriStart+count;
+			headersLength = tvb_get_guintvar (tvb, headerStart, &count);
+			offset = headerStart + count;
+
+			add_uri (wsp_tree, tvb, uriStart, offset);
+			offset += uriLength;
+
+			ti = proto_tree_add_item (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,bo_little_endian);
+
+			contentTypeStart = offset;
+			nextOffset = add_content_type (wsp_tree, tvb, offset, &contentType);
+
+			/* Add headers subtree that will hold the headers fields */
+			/* Runs from nextOffset for value-(length of content-type field)*/
+			headerLength = headersLength-(nextOffset-contentTypeStart);
+			tmp_tvb = tvb_new_subset (tvb, nextOffset, headerLength, headerLength);
+			add_headers (wsp_tree, tmp_tvb);
+
+			/* TODO: Post DATA */
+			/* Runs from start of headers+headerLength to END_OF_FRAME */
+			offset = nextOffset+headerLength;
+			tmp_tvb = tvb_new_subset (tvb, offset, tvb_reported_length (tvb)-offset, tvb_reported_length (tvb)-offset);
+			add_post_data (wsp_tree, tmp_tvb, contentType);
+			break;
+
+		case REPLY:
+			ti = proto_tree_add_item (wsp_tree, hf_wsp_header_status,tvb,offset,1,bo_little_endian);
+			value = tvb_get_guintvar (tvb, offset+1, &count);
+			nextOffset = offset + 1 + count;
+			ti = proto_tree_add_item (wsp_tree, hf_wsp_header_length,tvb,offset+1,count,bo_little_endian);
+
+			contentTypeStart = nextOffset;
+			nextOffset = add_content_type (wsp_tree, tvb, nextOffset, &contentType);
+
+			/* Add headers subtree that will hold the headers fields */
+			/* Runs from nextOffset for value-(length of content-type field)*/
+			headerLength = value-(nextOffset-contentTypeStart);
+			tmp_tvb = tvb_new_subset (tvb, nextOffset, headerLength, headerLength);
+			add_headers (wsp_tree, tmp_tvb);
+			offset += count+value+1;
+
+			/* TODO: Data - decode WMLC */
+			/* Runs from offset+1+count+value+1 to END_OF_FRAME */
+			if (offset < tvb_reported_length (tvb))
+			{
+				ti = proto_tree_add_item (wsp_tree, hf_wsp_reply_data,tvb,offset,END_OF_FRAME,bo_little_endian);
+			}
+			break;
+		}
 	}
 }
 
