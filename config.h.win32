@@ -1,4 +1,4 @@
-/* $Id: config.h.win32,v 1.46 2004/06/19 00:07:22 guy Exp $ */
+/* $Id: config.h.win32,v 1.47 2004/06/20 09:31:48 ulfl Exp $ */
 /* config.h.win32 Generated manually. :-) */
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
@@ -124,7 +124,7 @@
 /* Format for printing 64-bit signed decimal numbers */
 #ifndef PRId64
 #ifdef _MSC_EXTENSIONS
-#define PRId64  "i64d"
+#define PRId64  "I64d"
 #else /* _MSC_EXTENSIONS */
 #define PRId64  "lld"
 #endif /* _MSC_EXTENSIONS */
@@ -133,7 +133,7 @@
 /* Format for printing 64-bit unsigned octal numbers */
 #ifndef PRIo64
 #ifdef _MSC_EXTENSIONS
-#define PRIo64  "i64o"
+#define PRIo64  "I64o"
 #else /* _MSC_EXTENSIONS */
 #define PRIo64  "llo"
 #endif /* _MSC_EXTENSIONS */   
@@ -142,7 +142,7 @@
 /* Format for printing 64-bit unsigned decimal numbers */
 #ifndef PRIu64
 #ifdef _MSC_EXTENSIONS
-#define PRIu64  "i64u"
+#define PRIu64  "I64u"
 #else /* _MSC_EXTENSIONS */
 #define PRIu64  "llu"  
 #endif /* _MSC_EXTENSIONS */
@@ -151,7 +151,7 @@
 /* Format for printing 64-bit unsigned hexadecimal numbers */
 #ifndef PRIx64  
 #ifdef _MSC_EXTENSIONS
-#define PRIx64  "i64x"
+#define PRIx64  "I64x"
 #else /* _MSC_EXTENSIONS */
 #define PRIx64  "llx"
 #endif /* _MSC_EXTENSIONS */
